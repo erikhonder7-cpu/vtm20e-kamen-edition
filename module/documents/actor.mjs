@@ -59,6 +59,16 @@ export class VtMActor extends Actor {
     return Codex.clan(s.clan)?.name ?? "";
   }
 
+  /** Есть ли у персонажа достоинство или недостаток с таким названием. */
+  hasTrait(name) {
+    return this.items.some(i => (i.type === "merit" || i.type === "flaw") && i.name === name);
+  }
+
+  /** Тратится ли кровь вдвое: Слабая кровь, Пятнадцатое поколение (V20, Appendix). */
+  get doubleBloodCost() {
+    return this.hasTrait("Слабая кровь") || this.hasTrait("Пятнадцатое поколение");
+  }
+
   /** Точки Дисциплины по ключу (0 — нет). */
   discipline(key) {
     return this.items.find(i => i.type === "discipline" && i.system.key === key)?.system.value ?? 0;
@@ -165,7 +175,7 @@ export class VtMActor extends Actor {
     n = Math.clamp(Math.floor(n), 0, max);
     const had = this.celerityActions;
     if (n <= had) return;
-    const cost = n - had;
+    const cost = (n - had) * (this.doubleBloodCost ? 2 : 1);
     const cur = this.system.blood?.value ?? 0;
     if (cur < cost) return ui.notifications.warn(t("Notify.NoBlood", { name: this.name }));
     await this.update({ "system.blood.value": cur - cost, [`flags.${SYSTEM_ID}.celerity`]: { key: VtMActor.roundKey(), at: Date.now(), n } });
@@ -198,9 +208,13 @@ export class VtMActor extends Actor {
       ui.notifications.warn(t("Notify.NoBloodState", { name: this.name })); return false;
     }
     const cur = this.system.blood.value;
+    // Слабая кровь и Пятнадцатое поколение: любая трата вдвое (кроме ежевечерней — она в awaken)
+    const doubled = this.doubleBloodCost;
+    if (doubled) n *= 2;
     if (cur < n) { ui.notifications.warn(t("Notify.NoBlood", { name: this.name })); return false; }
     await this.update({ "system.blood.value": cur - n });
-    if (reason) this.#notice(`<i class="fa-solid fa-droplet"></i> ${t("Notify.BloodSpent", { n, reason })}`);
+    if (doubled) this.#notice(`<i class="fa-solid fa-droplet"></i> ${t("Notify.BloodDoubled", { n })}`);
+    else if (reason) this.#notice(`<i class="fa-solid fa-droplet"></i> ${t("Notify.BloodSpent", { n, reason })}`);
     return true;
   }
 
@@ -352,7 +366,11 @@ export class VtMActor extends Actor {
       if (this.isVampire && b <= 0) {
         // пустой запас: обязательная трата превращается в повреждение (04)
         await this.applyDamage(1, "lethal");
-      } else if (this.isVampire) upd["system.blood.value"] = b - 1;
+      } else if (this.isVampire) {
+        // Кровоточащая рана: на пробуждение уходит 2 крови вместо 1
+        const wake = this.hasTrait("Кровоточащая рана") ? 2 : 1;
+        upd["system.blood.value"] = Math.max(0, b - wake);
+      }
       upd["system.boosts"] = { strength: 0, dexterity: 0, stamina: 0 };
     }
     if (willpower) upd["system.willpower.temporary"] = Math.min(this.system.willpower.permanent, this.system.willpower.temporary + 1);

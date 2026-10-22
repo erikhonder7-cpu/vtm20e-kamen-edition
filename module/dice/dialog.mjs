@@ -5,6 +5,7 @@
 import { VTM20, SYSTEM_PATH } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
 import { rollPool } from "./roll.mjs";
+import { meritModsFor } from "../data/merit-mods.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -99,6 +100,10 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       const halved = Math.max(1, Math.floor(pool / 2 ** soil));
       bd.push({ label: t("Roll.NoSoil", { n: soil }), value: halved - pool }); pool = halved;
     }
+    // Достоинства и недостатки (data/merit-mods.mjs): сами — по совпадению черт, прочие — галочкой
+    const mm = meritModsFor(a, { traits: [v.trait1, v.trait2], kind: this.cfg.kind ?? "check", attributeGroups: VTM20.attributeGroups });
+    const meritSit = mm.situ.map(m => ({ ...m, kind: "merit", value: m.dice || m.diff, on: v.fxOn.includes(`merit:${m.label}`) }));
+    for (const m of [...mm.auto, ...meritSit.filter(x => x.on)]) if (m.dice) { pool += m.dice; bd.push({ label: m.label, value: m.dice }); }
     // Множественные действия (03): наименьший пул делится между действиями
     if (v.actions > 1) {
       const part = Math.floor(Math.max(0, pool) / v.actions);
@@ -109,13 +114,15 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const fx = a.system.fx?.diff ?? {};
     const attrs = [v.trait1, v.trait2].filter(p => p?.startsWith("attributes.")).map(p => p.split(".")[1]);
     const social = attrs.some(k => VTM20.attributeGroups.social.attributes.includes(k));
-    const diffAuto = attrs.includes("perception") ? (fx.perception ?? []) : [];
+    const diffAuto = [...(attrs.includes("perception") ? (fx.perception ?? []) : []),
+      ...mm.auto.filter(m => m.diff).map(m => ({ label: m.label, value: m.diff }))];
     const diffSit = [
       ...(social ? fx.social ?? [] : []).map(d => ({ ...d, kind: "social" })),
       ...(fx.climb ?? []).map(d => ({ ...d, kind: "climb" })),
       ...(attrs.includes("perception") ? fx.hearing ?? [] : []).map(d => ({ ...d, kind: "hearing" }))
-    ].map((d, i) => ({ ...d, i, on: v.fxOn.includes(`${d.kind}:${d.label}`), hint: t(`Fx.Situ.${d.kind}`) }));
-    const diffShift = diffAuto.reduce((s, d) => s + d.value, 0) + diffSit.filter(d => d.on).reduce((s, d) => s + d.value, 0);
+    ].map((d, i) => ({ ...d, i, on: v.fxOn.includes(`${d.kind}:${d.label}`), hint: t(`Fx.Situ.${d.kind}`) }))
+      .concat(meritSit.map(m => ({ label: m.label, value: m.value, dice: !!m.dice, kind: "merit", on: m.on, hint: m.hint })));
+    const diffShift = diffAuto.filter(d => !d.dice).reduce((s, d) => s + d.value, 0) + diffSit.filter(d => d.on && !d.dice).reduce((s, d) => s + d.value, 0);
     const effDifficulty = Math.clamp(v.difficulty + diffShift, 2, 10);
     return { pool: Math.max(0, pool), breakdown: bd, specialtyName: specs.join(", "), physicalBonus: phys || auto, attr, diffAuto, diffSit, effDifficulty, auto };
   }

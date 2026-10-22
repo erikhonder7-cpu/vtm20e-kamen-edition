@@ -68,7 +68,9 @@ class HazardDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     }
     if (v.kind === "sun") {
       if (!a.isVampire) return { harmless: true };
-      return { amount: AREA[v.area], type: "aggravated", difficulty: SUN_LIGHT[v.light], pool: fort, perTurn: true };
+      // Светобоязнь: солнце наносит вдвое больше урона (V20, Appendix)
+      const mult = a.hasTrait?.("Светобоязнь") ? 2 : 1;
+      return { amount: AREA[v.area] * mult, type: "aggravated", difficulty: SUN_LIGHT[v.light], pool: fort, perTurn: true };
     }
     if (v.kind === "fall") {
       const terminal = v.meters >= 30;

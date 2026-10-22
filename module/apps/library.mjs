@@ -229,6 +229,7 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
         group: m.category, groupOrder: cats.indexOf(m.category), cat: m.category,
         groupName: game.i18n.localize(VTM20.meritCategories[m.category]?.label ?? m.category),
         levels: costs.join(","),
+        tags: m.source && m.source !== "V20" ? [{ label: m.source }] : [],
         variants: costs.map(c => ({ value: c, label: String(c) })),
         reasons: blocker ? [L("Blocked", { name: blocker })] : []
       });
@@ -239,7 +240,7 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
     const mine = new Set(this.itemsOf("background").map(i => i.name));
     return Codex.backgrounds.map((b, i) => this.#entry({
       id: String(i), name: b.name, en: b.en, has: mine.has(b.name), text: b.html ?? "", long: true,
-      tags: b.sabbat ? [{ label: t("Sect.sabbat"), red: true }] : [],
+      tags: [b.sabbat && { label: t("Sect.sabbat"), red: true }, b.source && b.source !== "V20" && { label: b.source }].filter(Boolean),
       variants: [1, 2, 3, 4, 5].map(v => ({ value: v, label: "●".repeat(v) }))
     }));
   }

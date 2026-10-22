@@ -152,7 +152,7 @@ const BUILDERS = {
   backgrounds() {
     const p = new Pack("backgrounds");
     for (const b of data("backgrounds"))
-      p.add({ name: b.name, type: "background", folder: b.sabbat ? "Шабаш" : null, key: b.name, system: { value: 1, source: b.en ?? "", description: b.html ?? "" } });
+      p.add({ name: b.name, type: "background", folder: b.sabbat ? "Шабаш" : b.source && b.source !== "V20" ? "Из дополнений" : null, key: b.name, system: { value: 1, source: b.en ?? "", description: b.html ?? "" } });
     return p;
   },
 

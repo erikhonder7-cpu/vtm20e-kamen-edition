@@ -46,8 +46,8 @@
   {{#if diffNote}}<div class="r-roll-note"><i class="fa-solid fa-circle-info"></i> {{diffNote}}</div>{{/if}}
   {{#if (or diffAuto.length diffSit.length)}}
   <div class="r-roll-fx">
-    {{#each diffAuto}}<span class="r-roll-fxauto"><i class="fa-solid fa-wand-sparkles"></i> {{label}} <b>{{rSigned value}}</b></span>{{/each}}
-    {{#each diffSit}}<label class="r-check" data-tooltip="{{hint}}"><input type="checkbox" name="fxs_{{kind}}:{{label}}" {{checked on}}> {{label}} <em>({{hint}}, {{rSigned value}})</em></label>{{/each}}
+    {{#each diffAuto}}<span class="r-roll-fxauto"><i class="fa-solid fa-wand-sparkles"></i> {{label}} <b>{{rSigned value}}{{#if dice}} {{localize "VTM20.Roll.DiceShort"}}{{/if}}</b></span>{{/each}}
+    {{#each diffSit}}<label class="r-check" data-tooltip="{{hint}}"><input type="checkbox" name="fxs_{{kind}}:{{label}}" {{checked on}}> {{label}} <em>({{#if hint}}{{hint}}, {{/if}}{{rSigned value}}{{#if dice}} {{localize "VTM20.Roll.DiceShort"}}{{else}} {{localize "VTM20.Roll.DiffShort"}}{{/if}})</em></label>{{/each}}
   </div>
   {{/if}}
 

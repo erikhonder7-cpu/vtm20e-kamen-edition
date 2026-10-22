@@ -18,6 +18,14 @@ export class VtMItem extends Item {
     }
   }
 
+  /** Недостатки «Четырнадцатое/Пятнадцатое поколение» сразу выставляют поколение персонажа (V20, Appendix). */
+  _onCreate(data, options, userId) {
+    super._onCreate(data, options, userId);
+    if (userId !== game.user.id || this.type !== "flaw" || !this.actor?.isVampire) return;
+    const gen = { "Четырнадцатое поколение": 14, "Пятнадцатое поколение": 15 }[this.name];
+    if (gen && this.actor.system.generation < gen) this.actor.update({ "system.generation": gen });
+  }
+
   /**
    * Пути магии крови (V20, гл. 4; Колдовство — гл. 10): основной путь растёт вместе с Дисциплиной (до 5);
    * вторичный всегда ниже основного и достигает 5 лишь после основного. Тауматургическая защита основной не бывает.

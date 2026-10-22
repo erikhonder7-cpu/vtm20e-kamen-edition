@@ -229,6 +229,21 @@ def parse_rituals(key, path):
             res.append({"discipline": key, "level": lvl, "name": ru, "en": en, "html": md_to_html(sb)})
     return {"rules": rules, "rituals": res}
 
+# Английские названия, которых нет в справочнике (сверено с V20, Appendix: Merits and Flaws)
+MERIT_EN = {
+    "Тупые клыки": "Dulled Bite", "Мёртвая плоть": "Flesh of the Corpse", "Полиглот": "Natural Linguist",
+    "Предрасположенность": "Precocious", "Неблагонадёжность": "Unconvinced", "Людоед": "Conspicuous Consumption",
+    "Угрызения совести": "Guilt-Wracked", "Громкое имя": "Rep", "Друг законника": "Lawman's Friend",
+    "Знаток врагов": "Scholar of Enemies", "Знаток иных": "Scholar of Others", "Святой": "Sanctity",
+    "Знаток подземелий": "Friend of the Underground", "Диссидент": "Sympathizer", "Досадная помеха": "Expendable",
+    "Недопонимание": "Incomplete Understanding", "Пащенок": "New Kid", "Презренный сир": "Infamous Sire",
+    "Тягостная обязанность": "Special Responsibility", "Бывший друг": "Old Flame", "Вассал": "Bound",
+    "Спесь": "Uppity", "Списанное орудие": "Catspaw", "Ссора сиров": "Rival Sires", "Украденное дитя": "Escaped Target",
+    "Паршивая овца": "Disgrace to the Blood", "Ненавистный сюзерен": "Loathsome Regnant", "Друг животных": "Inoffensive to Animals",
+    "Обманчивая аура": "Deceptive Aura", "Счастливчик": "Lucky", "Таинство диаблери": "Hidden Diablerie",
+    "Леденящее касание": "Touch of Frost", "Отсутствие отражения": "Cast No Reflection", "Боязнь крестов": "Repelled by Crosses",
+}
+
 def parse_merits(paths):
     res = []
     cat_map = {"Физические": "physical", "Ментальные": "mental", "Социальные": "social", "Сверхъестественные": "supernatural"}
@@ -244,11 +259,12 @@ def parse_merits(paths):
                 if not mm or mm.group(1) in ("Название",) or set(mm.group(1)) <= set("-|: "): continue
                 name = re.sub(r"\*\*", "", mm.group(1)).strip()
                 ru, en = split_name(name)
+                if ru in MERIT_EN: en = MERIT_EN[ru]
                 cost_raw = mm.group(2).strip()
                 nums = [int(x) for x in re.findall(r"\d+", cost_raw)]
                 res.append({"kind": kind, "category": cat, "name": ru, "en": en, "cost": cost_raw,
                             "min": min(nums) if nums else 0, "max": max(nums) if nums else 0,
-                            "html": "<p>" + inline(mm.group(3)) + "</p>"})
+                            "source": "V20", "html": "<p>" + inline(mm.group(3)) + "</p>"})
     return res
 
 def parse_backgrounds(path):
@@ -737,8 +753,13 @@ def main():
     combos = supplements.apply(disc, rituals)
     mdir = os.path.join(REF, "Достоинства_и_недостатки")
     merits = parse_merits([os.path.join(mdir, f) for f in sorted(os.listdir(mdir)) if f.endswith(".md")])
+    import merits_extra
+    merits += merits_extra.collect(merits)
     bdir = os.path.join(REF, "Факты_биографии")
     backgrounds = parse_backgrounds(os.path.join(bdir, sorted(f for f in os.listdir(bdir) if f.endswith(".md"))[0]))
+    for x in backgrounds: x["source"] = "V20"
+    import backgrounds_extra
+    backgrounds += backgrounds_extra.collect(backgrounds)
     paths = parse_paths(os.path.join(REF, "V20_Основные_правила", "06_Человечность_Пути_Добродетели.md"))
 
     def dump(name, obj):
