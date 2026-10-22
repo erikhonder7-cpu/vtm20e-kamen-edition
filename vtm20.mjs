@@ -312,7 +312,7 @@ export function toRoman(n) {
 /* ── Помощники шаблонов ───────────────────────────────────────────────── */
 
 function registerHelpers() {
-  Handlebars.registerHelper("rSigned", n => (Number(n) > 0 ? `+${n}` : `${n}`));
+  Handlebars.registerHelper("rSigned", n => (Number(n) > 0 ? `+${n}` : Number(n) < 0 ? `−${Math.abs(Number(n))}` : `${n}`));
   Handlebars.registerHelper("rEq", (a, b) => a === b);
   Handlebars.registerHelper("rRoman", n => toRoman(n));
   // Знак (герб, секта, Дисциплина) золотой маской: {{rSym sym "доп-класс"}}
