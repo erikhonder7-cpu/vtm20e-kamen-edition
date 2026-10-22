@@ -1,0 +1,321 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   VTM20 «Liberté» — основа: шрифты, палитра, окно, элементы управления.
+   Эпоха — Террор 1793–1794: ночной Париж, копоть, кость и запёкшаяся кровь.
+   Революция — в типографике (дидоны и печать декретов), в девизе и выцветшей
+   нити триколора; украшений почти нет.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+@font-face { font-family: "Prata"; src: url("../fonts/Prata-Regular.ttf") format("truetype"); font-display: swap; }
+@font-face { font-family: "Forum"; src: url("../fonts/Forum.ttf") format("truetype"); font-display: swap; }
+@font-face { font-family: "Old Standard"; src: url("../fonts/OldStandard-Regular.ttf") format("truetype"); font-display: swap; }
+@font-face { font-family: "Old Standard"; src: url("../fonts/OldStandard-Italic.ttf") format("truetype"); font-style: italic; font-display: swap; }
+@font-face { font-family: "Old Standard"; src: url("../fonts/OldStandard-Bold.ttf") format("truetype"); font-weight: 700; font-display: swap; }
+@font-face { font-family: "IM Fell"; src: url("../fonts/IM_FELL_DW_PICA_RU.woff2") format("woff2"); font-display: swap; }
+@font-face { font-family: "IM Fell SC"; src: url("../fonts/IM_FELL_DW_PICA_SC_RU.woff2") format("woff2"); font-display: swap; }
+@font-face { font-family: "Marck Script"; src: url("../fonts/MarckScript.woff2") format("woff2"); font-display: swap; }
+
+:root {
+  /* кровь — единственный яркий цвет */
+  --r-blood: #8c1c22;
+  --r-blood-l: #b83a3f;
+  --r-blood-d: #4a0d11;
+  /* камень и кость */
+  --r-coal: #0d0d0f;
+  --r-coal-2: #141416;
+  --r-coal-3: #1b1b1e;
+  --r-bone: #d8cfbf;
+  --r-bone-d: #9a917f;
+  /* выцветший триколор — только нить */
+  --r-tricolor: linear-gradient(90deg, #2f3b55 0 33.33%, #a49d8e 33.33% 66.66%, #6e1c20 66.66% 100%);
+
+  /* старые имена для совместимости (нексус, календарь, чат) */
+  --r-paper: #e9e2d2; --r-paper-l: #f1ebde; --r-paper-2: #ddd4c1; --r-paper-3: #c9bea6; --r-paper-4: #b0a48a;
+  --r-navy: #16161a; --r-navy-2: #202026; --r-navy-d: #0b0b0d;
+  --r-blue: #2f3b55; --r-blue-l: #46557a;
+  --r-white: #e6dfd0;
+  --r-red: var(--r-blood); --r-red-b: var(--r-blood-l); --r-red-d: var(--r-blood-d);
+  --r-gold: #8f8573; --r-gold-l: #cfc5b2; --r-gold-d: #4a453c;
+  --r-lantern: #c9a46a;
+
+  --r-display: "Prata", "Old Standard", Georgia, serif;   /* дидон — шрифт Республики */
+  --r-caps: "IM Fell SC", "Forum", Georgia, serif;         /* печать декретов */
+  --r-body: "Old Standard", "IM Fell", Georgia, serif;
+  --r-fell: "IM Fell", "Old Standard", Georgia, serif;
+  --r-hand: "Marck Script", "Old Standard", cursive;
+
+  --r-night-bg: linear-gradient(180deg, #1a1a1e, #0f0f11);
+}
+
+/* ── Темы: «Ночь» (по умолчанию) и «Пергамент» (body.r-theme-light) ──── */
+
+.vtm20 {
+  --r-ink: #d8cfbf;
+  --r-ink-2: #b3aa98;
+  --r-muted: #7d766a;
+  --r-line: rgba(216, 207, 191, .1);
+  --r-line-2: rgba(216, 207, 191, .2);
+  --r-s1: rgba(255, 255, 255, .018);
+  --r-s2: rgba(255, 255, 255, .035);
+  --r-s3: rgba(255, 255, 255, .06);
+  --r-shade-rgb: 0, 0, 0;
+  --r-accent: #c4474c;            /* текст-акцент (кровь, читаемая на тёмном) */
+  --r-red-t: var(--r-accent);
+  --r-blue-t: #8d9bb8;
+  --r-navy-t: #e3dbcc;
+  --r-name-shadow: 0 2px 10px rgba(0, 0, 0, .8);
+  --r-option-bg: #18181b;
+  --r-dot-border: rgba(216, 207, 191, .32);
+  --r-dot-fill: radial-gradient(circle at 38% 32%, #c4474c, #8c1c22 55%, #4a0d11);
+  --r-gap-ring: #0d0d0f;
+  --r-card-bg: rgba(255, 255, 255, .022);
+  --r-bg:
+    radial-gradient(ellipse at 50% -10%, rgba(140, 28, 34, .1), transparent 55%),
+    radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(0, 0, 0, .55) 100%),
+    url("../assets/ui/paper-dark.svg"),
+    linear-gradient(180deg, #141416, #0c0c0e);
+  --r-head-bg: linear-gradient(180deg, rgba(255, 255, 255, .025), rgba(255, 255, 255, 0));
+  --r-panel-bg: rgba(0, 0, 0, .25);
+  --r-scheme: dark;
+}
+body.r-theme-light .vtm20 {
+  --r-ink: #231d18;
+  --r-ink-2: #4a4037;
+  --r-muted: #7a6e60;
+  --r-line: rgba(35, 29, 24, .14);
+  --r-line-2: rgba(35, 29, 24, .3);
+  --r-s1: rgba(255, 255, 255, .25);
+  --r-s2: rgba(255, 255, 255, .42);
+  --r-s3: rgba(255, 255, 255, .7);
+  --r-shade-rgb: 60, 45, 30;
+  --r-accent: #8c1c22;
+  --r-blue-t: #2f3b55;
+  --r-navy-t: #231d18;
+  --r-name-shadow: none;
+  --r-option-bg: #efe8da;
+  --r-dot-border: rgba(35, 29, 24, .45);
+  --r-gap-ring: #e9e2d2;
+  --r-card-bg: rgba(255, 255, 255, .3);
+  --r-bg:
+    radial-gradient(ellipse at 50% 50%, transparent 50%, rgba(60, 40, 20, .22) 100%),
+    url("../assets/ui/paper.svg"),
+    #e9e2d2;
+  --r-head-bg: none;
+  --r-panel-bg: rgba(60, 45, 30, .06);
+  --r-scheme: light;
+}
+
+/* ── Окно ─────────────────────────────────────────────────────────────── */
+
+.application.vtm20 {
+  --background: #111113;
+  --color-header-background: #0b0b0d;
+  --color-border: #2a2a2e;
+  --color-text-primary: var(--r-ink);
+  --color-text-secondary: var(--r-ink-2);
+  --color-text-subtle: var(--r-muted);
+  --color-form-label: var(--r-muted);
+  --color-form-label-hover: var(--r-ink);
+  --color-form-hint: var(--r-muted);
+  --input-background-color: var(--r-s2);
+  --input-border-color: var(--r-line-2);
+  --input-text-color: var(--r-ink);
+  --color-scheme: var(--r-scheme);
+  color-scheme: var(--r-scheme);
+  color: var(--r-ink);
+  font-family: var(--r-body);
+  font-size: 14px;
+  background: var(--r-bg);
+  border: 1px solid #2a2a2e;
+  border-radius: 0;
+  box-shadow: 0 0 0 1px #000, 0 24px 60px rgba(0, 0, 0, .8);
+}
+.application.vtm20 .window-header {
+  position: relative; background: #0b0b0d; border-bottom: 1px solid #222226; padding-bottom: 6px;
+  color: var(--r-bone-d); font-family: var(--r-caps); font-size: 14px; letter-spacing: 2.5px; text-transform: uppercase;
+}
+.application.vtm20 .window-header::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px; background: var(--r-tricolor); opacity: .55;
+}
+.application.vtm20 .window-header .window-title { color: var(--r-bone); }
+.application.vtm20 .window-header .window-icon { color: var(--r-blood-l); }
+.application.vtm20 .window-header .header-control { color: var(--r-bone-d); background: transparent; border: 0; }
+.application.vtm20 .window-header .header-control:hover { color: var(--r-bone); text-shadow: none; }
+.application.vtm20 .window-content { padding: 0; background: transparent; color: var(--r-ink); }
+.application.vtm20 .window-resize-handle { filter: grayscale(1) brightness(.6); }
+/* Глифы Font Awesome — своим шрифтом не заменять */
+.application.vtm20 [class*="fa-"]::before { font-family: "Font Awesome 7 Pro", "Font Awesome 6 Pro", "Font Awesome 7 Free", "Font Awesome 6 Free"; }
+
+/* ── Поля ввода ───────────────────────────────────────────────────────── */
+
+.vtm20 input[type=text], .vtm20 input[type=number], .vtm20 input[type=search], .vtm20 select, .vtm20 textarea {
+  font-family: var(--r-body); font-size: 14px; color: var(--r-ink);
+  background: var(--r-s2); border: 0; border-bottom: 1px solid var(--r-line-2); border-radius: 0;
+  box-shadow: none; height: 26px; padding: 0 4px;
+}
+.vtm20 select { padding-right: 18px; cursor: pointer; }
+.vtm20 select option, .vtm20 select optgroup { background: var(--r-option-bg); color: var(--r-ink); font-family: var(--r-body); }
+.vtm20 select optgroup { font-family: var(--r-caps); color: var(--r-accent); }
+.vtm20 input:focus, .vtm20 select:focus, .vtm20 textarea:focus {
+  outline: none; box-shadow: none; border-bottom-color: var(--r-accent); background: var(--r-s3);
+}
+.vtm20 input[type=number] { text-align: center; }
+.vtm20 input::placeholder { color: var(--r-muted); opacity: .7; font-style: italic; }
+.vtm20 input[type=checkbox] {
+  appearance: none; -webkit-appearance: none; width: 14px; height: 14px; margin: 0; flex: 0 0 auto; cursor: pointer;
+  border: 1px solid var(--r-dot-border); border-radius: 0; background: transparent; display: inline-grid; place-items: center;
+}
+.vtm20 input[type=checkbox]:checked { background: var(--r-blood); border-color: var(--r-blood-l); }
+.vtm20 input[type=checkbox]:checked::after { content: "✓"; color: #f1e9da; font-size: 10px; line-height: 1; }
+.vtm20 input[type=checkbox]:disabled { opacity: .4; cursor: default; }
+
+/* ── Кнопки ───────────────────────────────────────────────────────────── */
+
+.vtm20 .r-btn, .vtm20 button {
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  height: 28px; padding: 0 12px; flex: 0 0 auto;
+  font-family: var(--r-caps); font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--r-ink); background: var(--r-s2); border: 1px solid var(--r-line-2); border-radius: 0;
+  box-shadow: none; cursor: pointer; white-space: nowrap; transition: background .12s, border-color .12s, color .12s;
+}
+.vtm20 .r-btn:hover, .vtm20 button:hover { background: var(--r-s3); border-color: var(--r-ink-2); color: var(--r-ink); text-shadow: none; filter: none; }
+.vtm20 .r-btn:active, .vtm20 button:active { transform: translateY(1px); }
+.vtm20 .r-btn.is-accent, .vtm20 button.is-accent,
+.vtm20 .r-btn.is-primary, .vtm20 button.is-primary { color: #f1e9da; background: var(--r-blood); border-color: var(--r-blood-l); }
+.vtm20 .r-btn.is-accent:hover, .vtm20 button.is-accent:hover,
+.vtm20 .r-btn.is-primary:hover, .vtm20 button.is-primary:hover { background: #a3242a; color: #fff; }
+.vtm20 .r-btn.is-primary, .vtm20 button.is-primary { height: 32px; padding: 0 18px; }
+.vtm20 .r-btn.is-ghost { background: transparent; color: var(--r-ink-2); border-color: var(--r-line-2); }
+.vtm20 .r-btn.is-ghost:hover { color: var(--r-ink); border-color: var(--r-ink-2); }
+
+.vtm20 a { color: inherit; text-decoration: none; cursor: pointer; }
+.vtm20 .r-icon-btn {
+  display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; flex: 0 0 auto;
+  color: var(--r-muted); font-size: 12px; transition: color .12s;
+}
+.vtm20 .r-icon-btn:hover { color: var(--r-ink); }
+.vtm20 .r-icon-btn.is-danger:hover { color: var(--r-accent); }
+.vtm20 .r-link { color: var(--r-muted); }
+.vtm20 .r-link:hover { color: var(--r-accent); }
+
+.vtm20 .r-chip {
+  display: inline-flex; align-items: center; gap: 5px; height: 24px; padding: 0 9px;
+  font-family: var(--r-caps); font-size: 12px; letter-spacing: 1px;
+  color: var(--r-ink-2); background: transparent; border: 1px solid var(--r-line-2); border-radius: 0; cursor: pointer; white-space: nowrap;
+}
+.vtm20 .r-chip:hover { color: var(--r-ink); border-color: var(--r-ink-2); }
+.vtm20 .r-chip.is-accent { color: #f1e9da; background: var(--r-blood); border-color: var(--r-blood-l); }
+.vtm20 .r-chip.is-ghost { border-style: dashed; }
+.vtm20 .r-chip b { color: var(--r-accent); }
+.vtm20 .r-chip .fa-droplet { color: var(--r-accent); }
+
+/* ── Точки (капли крови) и клетки ─────────────────────────────────────── */
+
+.vtm20 .r-dots { display: inline-flex; align-items: center; gap: 4px; flex: 0 0 auto; }
+.vtm20 .r-dot {
+  width: 12px; height: 12px; border-radius: 50%; flex: 0 0 auto;
+  border: 1px solid var(--r-dot-border); background: transparent;
+  transition: transform .1s, border-color .1s;
+}
+.vtm20 .r-dot.is-filled { border-color: #c4474c; background: var(--r-dot-fill); box-shadow: 0 0 4px rgba(184, 58, 63, .35); }
+.vtm20 .r-dots.is-ten .r-dot { width: 11px; height: 11px; }
+.vtm20 .r-dot:nth-child(5n):not(:last-child) { margin-right: 4px; }
+.vtm20 .r-dot:hover { transform: scale(1.2); border-color: var(--r-ink); }
+
+.vtm20 .r-boxes { display: flex; flex-wrap: wrap; gap: 3px; margin: 5px 0 2px; }
+.vtm20 .r-box { width: 13px; height: 13px; flex: 0 0 auto; border: 1px solid var(--r-dot-border); background: transparent; transition: transform .1s; }
+.vtm20 .r-box:hover { transform: scale(1.15); }
+.vtm20 .r-box.is-filled { background: var(--r-ink-2); border-color: var(--r-ink); }
+.vtm20 .r-box.is-locked { opacity: .25; background: repeating-linear-gradient(45deg, transparent 0 3px, var(--r-line-2) 3px 4px); }
+.vtm20 .r-boxes.is-blood .r-box { border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; border-color: var(--r-blood-d); }
+.vtm20 .r-boxes.is-blood .r-box.is-filled { background: var(--r-dot-fill); border-color: var(--r-blood-l); }
+.vtm20 .r-box:nth-child(5n):not(:last-child) { margin-right: 4px; }
+
+/* ── Заголовки ────────────────────────────────────────────────────────── */
+
+.vtm20 .r-rule { display: flex; align-items: center; gap: 8px; margin: 4px 0 8px; }
+.vtm20 .r-rule span { flex: 1 1 auto; height: 1px; background: var(--r-line-2); }
+.vtm20 .r-rule i { width: 5px; height: 5px; transform: rotate(45deg); background: var(--r-blood); }
+
+/* Раздел: капитель слева, тонкая черта до края — как в печатном декрете */
+.vtm20 .r-h2 {
+  display: flex; align-items: center; gap: 12px; margin: 18px 0 10px; padding: 0; border: 0;
+  font-family: var(--r-caps); font-size: 15px; font-weight: 400; letter-spacing: 3.5px; text-transform: uppercase;
+  color: var(--r-ink); white-space: nowrap;
+}
+.vtm20 .r-h2::before { content: ""; width: 6px; height: 6px; flex: 0 0 auto; transform: rotate(45deg); background: var(--r-blood); }
+.vtm20 .r-h2::after { content: ""; flex: 1 1 auto; height: 1px; background: linear-gradient(90deg, var(--r-line-2), transparent); }
+.vtm20 .r-h2 > span { flex: 0 0 auto; }
+.vtm20 .r-h2:first-child { margin-top: 4px; }
+.vtm20 .r-h2-total { order: 3; font-family: var(--r-display); letter-spacing: 0; font-size: 15px; color: var(--r-accent); }
+.vtm20 .r-h2-tool { order: 4; color: var(--r-muted); font-size: 12px; letter-spacing: 0; }
+.vtm20 .r-h2-tool:hover { color: var(--r-accent); }
+
+.vtm20 .r-h3 {
+  margin: 0 0 6px; padding: 0 0 4px; border: 0; border-bottom: 1px solid var(--r-line);
+  font-family: var(--r-caps); font-size: 13px; font-weight: 400; letter-spacing: 2.5px; text-transform: uppercase; color: var(--r-ink-2);
+}
+.vtm20 .r-h4 { margin: 12px 0 6px; font-family: var(--r-caps); font-weight: 400; font-size: 12.5px; letter-spacing: 2px; text-transform: uppercase; color: var(--r-muted); border: 0; }
+
+.vtm20 .r-empty { padding: 8px 4px; color: var(--r-muted); font-style: italic; text-align: center; font-size: 13px; }
+.vtm20 .r-hint { margin: 6px 0 0; color: var(--r-muted); font-size: 12px; font-style: italic; line-height: 1.35; }
+.vtm20 .r-note { color: var(--r-muted); font-size: 12.5px; font-style: italic; }
+.vtm20 .r-muted { color: var(--r-muted); }
+
+.vtm20 .r-tag {
+  display: inline-flex; align-items: center; height: 17px; padding: 0 6px; flex: 0 0 auto;
+  font-family: var(--r-caps); font-size: 10.5px; letter-spacing: 1px; text-transform: uppercase;
+  color: var(--r-muted); border: 1px solid var(--r-line-2); background: transparent;
+}
+.vtm20 .r-tag.is-red { color: var(--r-accent); border-color: rgba(196, 71, 76, .45); }
+
+/* Прокрутка */
+.vtm20 ::-webkit-scrollbar { width: 8px; height: 8px; }
+.vtm20 ::-webkit-scrollbar-track { background: transparent; }
+.vtm20 ::-webkit-scrollbar-thumb { background: #2c2c31; border: 0; border-radius: 0; }
+.vtm20 ::-webkit-scrollbar-thumb:hover { background: #4a2024; }
+
+/* ── Тексты из справочника (силы, ритуалы, изъяны) ────────────────────── */
+
+.vtm20 .r-power-body, .vtm20 .r-weakness-text, .r-item-card .r-card-body, .vtm20 .r-path-text {
+  font-family: var(--r-body); font-size: 13.5px; line-height: 1.5; color: var(--r-ink);
+}
+.vtm20 .r-power-body p, .r-item-card .r-card-body p { margin: 0 0 6px; }
+.vtm20 .r-power-body ul, .vtm20 .r-power-body ol, .r-item-card .r-card-body ul { margin: 2px 0 8px; padding-left: 20px; }
+.vtm20 .r-power-body li, .r-item-card .r-card-body li { margin: 2px 0; }
+.vtm20 .r-power-body strong, .r-item-card .r-card-body strong { color: var(--r-accent); font-weight: 700; }
+.vtm20 .r-power-body h4 { margin: 8px 0 4px; font-family: var(--r-caps); font-size: 13px; letter-spacing: 1.5px; color: var(--r-ink-2); border: 0; }
+.vtm20 .r-power-body table, .r-item-card .r-card-body table {
+  width: 100%; margin: 4px 0 10px; border-collapse: collapse; font-size: 12.5px; background: transparent; border: 1px solid var(--r-line-2);
+}
+.vtm20 .r-power-body th, .r-item-card .r-card-body th {
+  padding: 3px 6px; text-align: left; font-family: var(--r-caps); font-weight: 400; letter-spacing: 1px;
+  color: var(--r-ink); background: var(--r-s3); border: 0; border-bottom: 1px solid var(--r-line-2);
+}
+.vtm20 .r-power-body td, .r-item-card .r-card-body td { padding: 3px 6px; border: 0; border-top: 1px solid var(--r-line); vertical-align: top; }
+.vtm20 .r-power-body tr:nth-child(even) td, .r-item-card .r-card-body tr:nth-child(even) td { background: rgba(var(--r-shade-rgb), .08); }
+.vtm20 .r-power-body blockquote { margin: 4px 0; padding: 4px 10px; border-left: 2px solid var(--r-blood); font-style: italic; color: var(--r-ink-2); }
+
+/* ── Диалоги ──────────────────────────────────────────────────────────── */
+
+.application.vtm20.r-dialog .window-content { padding: 14px 16px; }
+.application.vtm20.r-dialog .form-footer, .application.vtm20.r-dialog footer { gap: 8px; padding: 0 16px 14px; }
+.application.vtm20.r-dialog .form-footer button[data-action=ok], .application.vtm20.r-dialog button.default {
+  color: #f1e9da; background: var(--r-blood); border-color: var(--r-blood-l);
+}
+.vtm20 .r-form { display: flex; flex-direction: column; gap: 9px; }
+.vtm20 .r-field { display: grid; grid-template-columns: 130px 1fr; align-items: center; gap: 10px; }
+.vtm20 .r-field > span { font-family: var(--r-caps); letter-spacing: 1.2px; text-transform: uppercase; font-size: 12.5px; color: var(--r-muted); }
+.vtm20 .r-check { display: flex; align-items: center; gap: 7px; font-size: 13.5px; cursor: pointer; }
+.vtm20 .r-check.is-dim { color: var(--r-muted); }
+.vtm20 .r-check em { color: var(--r-muted); }
+
+/* Знак (герб, секта, Дисциплина): маска, залитая костью */
+.vtm20 .r-sym, .r-sym {
+  display: inline-block; width: 100%; height: 100%;
+  background: linear-gradient(170deg, #e6ddcc, #a69c88);
+  -webkit-mask: var(--sym) center / contain no-repeat; mask: var(--sym) center / contain no-repeat;
+  -webkit-mask-mode: alpha; mask-mode: alpha;
+}
+.vtm20 .r-sym.is-lum, .r-sym.is-lum { -webkit-mask-mode: luminance; mask-mode: luminance; }
+.vtm20 .r-sym-inline { width: 13px; height: 13px; vertical-align: -2px; margin-right: 4px; }
+body.r-theme-light .vtm20 .r-sym { background: linear-gradient(170deg, #3a3029, #1d1813); }

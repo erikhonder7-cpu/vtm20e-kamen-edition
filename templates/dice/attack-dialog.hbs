@@ -1,0 +1,50 @@
+{{!-- Окно атаки (V20, гл. 4): оружие или манёвр, модификаторы, пул, сложность и урон. --}}
+<div class="r-roll-form r-attack-form">
+  <div class="r-atk-picks">
+    {{#each weapons}}<a class="r-atk-pick {{#if active}}is-active{{/if}}" data-action="pick" data-key="{{key}}" data-tooltip="{{label}}"><i class="fa-solid {{icon}}"></i><span>{{name}}</span></a>{{/each}}
+    {{#each maneuvers}}<a class="r-atk-pick is-man {{#if active}}is-active{{/if}}" data-action="pick" data-key="{{key}}"><i class="fa-solid {{icon}}"></i><span>{{name}}</span></a>{{/each}}
+  </div>
+
+  <div class="r-atk-grid">
+    <label class="is-wide" data-tooltip="{{localize 'VTM20.Combat.TargetHint'}}"><span>{{localize "VTM20.Combat.Target.label"}}</span>
+      <select name="foe"><option value="">{{localize "VTM20.Combat.NoTarget"}}</option>{{#each foes}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+    <label><span>{{localize "VTM20.Combat.Position"}}</span><select name="position">{{#each positions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+    <label><span>{{localize "VTM20.Combat.Aiming"}}</span><select name="aim">{{#each aims}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+    <label><span>{{localize "VTM20.Combat.TargetState"}}</span><select name="target">{{#each targets}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+    {{#if ranged}}
+    <label><span>{{localize "VTM20.Combat.RangeLbl"}}</span><select name="range">{{#each ranges}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+    <label><span>{{localize "VTM20.Combat.CoverLbl"}}</span><select name="cover">{{#each covers}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+    {{/if}}
+    <label data-tooltip="{{localize 'VTM20.Combat.FoesHint'}}"><span>{{localize "VTM20.Combat.Foes"}}</span>
+      <span class="r-atk-num"><a class="r-step" data-action="bump" data-field="foes" data-d="-1">−</a><input type="number" name="foes" value="{{v.foes}}" min="0" max="4"><a class="r-step" data-action="bump" data-field="foes" data-d="1">+</a></span></label>
+    <label data-tooltip="{{localize 'VTM20.Roll.MultiActionsHint'}}"><span>{{localize "VTM20.Roll.Actions"}}</span>
+      <span class="r-atk-num"><a class="r-step" data-action="bump" data-field="actions" data-d="-1">−</a><input type="number" name="actions" value="{{v.actions}}" min="1" max="6"><a class="r-step" data-action="bump" data-field="actions" data-d="1">+</a></span></label>
+    <label><span>{{localize "VTM20.Roll.Modifier"}}</span>
+      <span class="r-atk-num"><a class="r-step" data-action="bump" data-field="bonus" data-d="-1">−</a><input type="number" name="bonus" value="{{v.bonus}}"><a class="r-step" data-action="bump" data-field="bonus" data-d="1">+</a></span></label>
+    <label><span>{{localize "VTM20.Combat.DiffAdj"}}</span>
+      <span class="r-atk-num"><a class="r-step" data-action="bump" data-field="diffAdj" data-d="-1">−</a><input type="number" name="diffAdj" value="{{v.diffAdj}}"><a class="r-step" data-action="bump" data-field="diffAdj" data-d="1">+</a></span></label>
+  </div>
+
+  <div class="r-roll-checks">
+    <label class="r-check"><input type="checkbox" name="blind" {{checked v.blind}}> {{localize "VTM20.Combat.Blind"}} <em>(+2)</em></label>
+    <label class="r-check {{#unless specialtyName}}is-dim{{/unless}}"><input type="checkbox" name="specialty" {{checked v.specialty}}> {{localize "VTM20.Roll.Specialty"}}{{#if specialtyName}}: <em>{{specialtyName}}</em>{{/if}}</label>
+    <label class="r-check"><input type="checkbox" name="willpower" {{checked v.willpower}} {{#unless willpowerLeft}}disabled{{/unless}}> {{localize "VTM20.Roll.SpendWillpower"}} <em>({{willpowerLeft}})</em></label>
+    {{#if woundPenalty}}<label class="r-check"><input type="checkbox" name="wounds" {{checked v.wounds}}> {{localize "VTM20.Roll.Wounds"}} <em>({{woundPenalty}})</em></label>{{/if}}
+    {{#if phys}}<label class="r-check"><input type="checkbox" name="physical" {{checked v.physical}}> {{physicalLabel}} <em>(+{{phys}})</em></label>{{/if}}
+  </div>
+  {{#each notes}}<div class="r-roll-note is-wide"><i class="fa-solid fa-circle-info"></i> {{this}}</div>{{/each}}
+
+  <div class="r-roll-total">
+    <div class="r-roll-breakdown">{{#each breakdown}}<span>{{label}} <b>{{rSigned value}}</b></span>{{/each}}</div>
+    <div class="r-roll-pool"><b>{{pool}}</b><i class="fa-solid fa-dice-d10"></i> <span>{{localize "VTM20.Roll.Vs"}}</span> <b>{{difficulty}}</b></div>
+  </div>
+  <div class="r-atk-dmg">
+    {{#if (eq damage null)}}<span>{{localize "VTM20.Combat.NoDamage"}}</span>
+    {{else}}<span>{{localize "VTM20.Roll.Damage"}}: <b>{{damage}}</b> {{localize "VTM20.Combat.Dice"}} · {{damageType}}</span> <em>{{localize "VTM20.Combat.DamagePlus"}}</em>{{/if}}
+  </div>
+
+  <div class="r-roll-foot">
+    <select name="messageMode" class="r-mode">{{#each messageModes}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+    <button type="submit" class="r-btn is-primary"><i class="fa-solid fa-khanda"></i> {{localize "VTM20.Combat.Strike"}}</button>
+  </div>
+</div>

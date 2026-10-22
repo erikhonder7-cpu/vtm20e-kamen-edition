@@ -1,0 +1,63 @@
+{{!-- Библиотека: поиск, фильтры, карточки записей справочника с полным текстом. --}}
+<div class="r-lib">
+  <header class="r-lib-head">
+    <label class="r-lib-search"><i class="fa-solid fa-magnifying-glass"></i>
+      <input type="search" data-search value="{{search}}" placeholder="{{localize 'VTM20.Library.Search'}}" autofocus></label>
+    <a class="r-chip r-lib-avail {{#if avail}}is-active{{/if}}" data-action="setFilter" data-key="avail">
+      <i class="fa-solid fa-lock-open"></i> {{localize "VTM20.Library.Filter.Available"}} <b>{{availCount}}</b></a>
+    <span class="r-lib-count"><b data-count>{{total}}</b> / {{total}}</span>
+  </header>
+  {{#if (or chips costChips)}}
+  <div class="r-lib-filters">
+    {{#if chips}}<span class="r-lib-chips">{{#each chips}}<a class="r-chip {{#if active}}is-active{{/if}}" data-action="setFilter" data-key="{{key}}" data-value="{{value}}">{{#if icon}}<i class="fa-solid {{icon}}"></i> {{/if}}{{label}}</a>{{/each}}</span>{{/if}}
+    {{#if costChips}}<span class="r-lib-chips" data-tooltip="{{localize 'VTM20.Library.Filter.Cost'}}">{{#each costChips}}<a class="r-chip {{#if active}}is-active{{/if}}" data-action="setFilter" data-key="{{key}}" data-value="{{value}}">{{label}}</a>{{/each}}</span>{{/if}}
+  </div>
+  {{/if}}
+  <div class="r-lib-info">
+    {{#if info}}<span class="r-lib-disc">{{info.name}} <b>{{info.dots}}</b></span>{{/if}}
+    <em>{{rule}}</em>
+    {{#if (ne xpAvailable null)}}<span class="r-lib-xp">{{localize "VTM20.Library.XpLeft"}} <b>{{xpAvailable}}</b></span>{{/if}}
+  </div>
+
+  <div class="r-lib-list">
+    {{#each entries}}
+    {{#if groupHead}}<h3 class="r-lib-ghead" data-group-head="{{group}}"><span>{{groupName}}</span></h3>{{/if}}
+    <article class="r-lib-card {{#if has}}is-owned{{/if}} {{#unless canTake}}is-locked{{/unless}} {{#if flaw}}is-flaw{{/if}} {{#if long}}is-long{{/if}} {{#if inClan}}is-clan{{/if}}"
+             data-entry="{{id}}" data-search="{{search}}" data-levels="{{levels}}" data-cat="{{cat}}" data-scope="{{scope}}"
+             data-can="{{#if canTake}}1{{else}}0{{/if}}" {{#if group}}data-group="{{group}}"{{/if}}>
+      <header class="r-lib-title">
+        {{#if sym}}<span class="r-lib-sym"><span class="r-sym {{#if sym.lum}}is-lum{{/if}}" style="--sym:url('{{sym.src}}')"></span></span>{{/if}}
+        {{#if roman}}<span class="r-lib-lvl">{{roman}}</span>{{/if}}
+        {{#if cost}}<span class="r-lib-cost">{{cost}}</span>{{/if}}
+        <div class="r-lib-name"><b>{{name}}</b>{{#if en}}<em>{{en}}</em>{{/if}}</div>
+        {{#each tags}}<span class="r-tag {{#if red}}is-red{{/if}}">{{label}}</span>{{/each}}
+        {{#if has}}<span class="r-tag is-owned"><i class="fa-solid fa-check"></i>&nbsp;{{localize "VTM20.Library.Owned"}}</span>
+        {{else if variants}}{{#if (or canTake @root.isGM)}}
+        <span class="r-lib-acts">
+          {{#if single}}<a class="r-btn is-accent" data-action="take" data-value="{{variants.0.value}}">{{localize "VTM20.Library.Take"}}</a>
+          {{else}}<span class="r-lib-vlabel">{{localize "VTM20.Library.Take"}}</span>{{#each variants}}<a class="r-btn r-lib-var" data-action="take" data-value="{{value}}">{{label}}</a>{{/each}}{{/if}}
+        </span>
+        {{/if}}{{/if}}
+      </header>
+      {{#if text}}<div class="r-lib-text r-power-body" {{#if long}}data-action="expand"{{/if}}>{{{text}}}</div>{{/if}}
+      {{#if powers.length}}
+      <ol class="r-lib-powers">{{#each powers}}<li><a data-action="peek" data-ref="{{ref}}"><span>{{roman}}</span>{{name}}</a></li>{{/each}}</ol>
+      <div class="r-lib-peek r-power-body" data-peek hidden></div>
+      {{/if}}
+      {{#if pathNames}}<p class="r-lib-paths"><i class="fa-solid fa-route"></i> {{pathNames}}</p>{{/if}}
+      {{#unless has}}{{#if (or reasons.length (not variants))}}
+      <footer class="r-lib-foot">
+        {{#each reasons}}<span class="r-lib-reason"><i class="fa-solid fa-lock"></i> {{this}}</span>{{/each}}
+        {{#unless variants}}{{#if (or canTake @root.isGM)}}
+        <span class="r-lib-acts">
+          {{#if (and xp canTake (ne @root.xpAvailable null))}}<a class="r-btn is-accent" data-action="buy" data-xp="{{xp}}"><i class="fa-solid fa-star"></i> {{localize "VTM20.Library.Buy" n=xp}}</a>{{/if}}
+          <a class="r-btn {{#if xp}}is-ghost{{else}}is-accent{{/if}}" data-action="take">{{#if xp}}{{localize "VTM20.Library.Free"}}{{else}}{{localize "VTM20.Library.Take"}}{{/if}}</a>
+        </span>
+        {{/if}}{{/unless}}
+      </footer>
+      {{/if}}{{/unless}}
+    </article>
+    {{/each}}
+    <div class="r-empty" data-empty hidden>{{localize "VTM20.Library.Nothing"}}</div>
+  </div>
+</div>

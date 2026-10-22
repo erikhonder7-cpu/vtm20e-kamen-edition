@@ -1,0 +1,17 @@
+{{!-- Корешок слева: герб клана в медальоне, главы I–V монетами, мастер и свободная проверка. --}}
+<nav class="r-rail tabs" data-group="primary" role="tablist">
+  <div class="r-rail-sigil" {{#if sigil.label}}data-tooltip="{{sigil.label}}" data-tooltip-direction="RIGHT"{{/if}}>
+    {{#if sigil.sym}}{{rSym sigil.sym}}
+    {{else}}<img src="systems/vtm20e-kamen-edition/assets/ui/cockade.svg" alt="">{{/if}}
+  </div>
+  {{#each tabs}}
+  <a class="r-rtab {{cssClass}}" data-action="tab" data-group="{{group}}" data-tab="{{id}}" role="tab" data-tooltip="{{localize label}}" data-tooltip-direction="RIGHT">
+    <span class="r-rtab-coin"><i class="{{icon}}"></i></span>
+    <span class="r-rtab-num">{{roman}}</span>
+    <span class="r-rtab-label">{{localize label}}</span>
+  </a>
+  {{/each}}
+  <span class="r-rail-spacer"></span>
+  {{#unless isCreature}}<a class="r-rail-tool" data-action="openCreator" data-tooltip="{{localize 'VTM20.Creator.Open'}}" data-tooltip-direction="RIGHT"><i class="fa-solid fa-wand-magic-sparkles"></i></a>{{/unless}}
+  <a class="r-rail-tool" data-action="rollFree" data-tooltip="{{localize 'VTM20.Sheet.FreeRoll'}}" data-tooltip-direction="RIGHT"><i class="fa-solid fa-dice-d10"></i></a>
+</nav>

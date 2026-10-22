@@ -1,0 +1,27 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "foundry-test",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "D:/Games/Foundry/Foundry Virtual Tabletop/resources/app/main.mjs",
+        "--dataPath=D:/Foundry",
+        "--port=30001",
+        "--noupnp",
+        "--world=vtm20-test"
+      ],
+      "port": 30001
+    },
+    {
+      "name": "mock",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-I",
+        "C:/Temp/claude/D--Foundry-Data-systems-vtm20e-kamen-edition/dd4ca706-26c9-48b7-95ce-9109eecee460/scratchpad/mock_server.py",
+        "8765"
+      ],
+      "port": 8765
+    }
+  ]
+}

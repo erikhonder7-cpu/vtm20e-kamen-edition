@@ -1,0 +1,13 @@
+{{!-- Ворота: персонаж ещё не создан — вместо листа приглашение в мастер (как в V5). --}}
+<section class="r-gate">
+  <div class="r-gate-card">
+    <h4 class="r-banner"><span>{{typeLabel}}</span></h4>
+    <span class="r-gate-sigil r-cr-medal">{{#if sigil.sym}}{{rSym sigil.sym}}{{else}}<img src="systems/vtm20e-kamen-edition/assets/ui/cockade.svg" alt="">{{/if}}</span>
+    <h2>{{localize "VTM20.Creator.GateTitle"}}</h2>
+    <p>{{localize "VTM20.Creator.GateHint"}}</p>
+    {{#if editable}}
+    <a class="r-btn is-primary r-gate-btn" data-action="openCreator"><i class="fa-solid fa-feather-pointed"></i> {{localize "VTM20.Creator.Start"}}</a>
+    <a class="r-gate-skip" data-action="skipCreation">{{localize "VTM20.Creator.Skip"}}</a>
+    {{/if}}
+  </div>
+</section>

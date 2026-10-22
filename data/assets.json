@@ -1,0 +1,511 @@
+{
+ "clans": {
+  "brujah": "assets/clans/brujah.png",
+  "ventrue": "assets/clans/ventrue.png",
+  "gangrel": "assets/clans/gangrel.png",
+  "lasombra": "assets/clans/lasombra.png",
+  "malkavian": "assets/clans/malkavian.png",
+  "nosferatu": "assets/clans/nosferatu.png",
+  "toreador": "assets/clans/toreador.png",
+  "tremere": "assets/clans/tremere.png",
+  "tzimisce": "assets/clans/tzimisce.png",
+  "kappadokiytsy": "assets/clans/kappadokiytsy.png",
+  "baali": "assets/clans/baali.png",
+  "caitiff": "assets/clans/caitiff.webp",
+  "assamite": "assets/clans/assamite.png",
+  "setite": "assets/clans/setite.png",
+  "ravnos": "assets/clans/ravnos.png",
+  "istinnyeBruha": "assets/clans/istinnyeBruha.png",
+  "brujahDarkAges": "assets/clans/brujahDarkAges.png",
+  "giovanni": "assets/clans/giovanni.webp",
+  "salyubri": "assets/clans/salyubri.webp",
+  "salyubriAntitribu": "assets/clans/salyubriAntitribu.webp",
+  "docheriKakofonii": "assets/clans/docheriKakofonii.webp",
+  "anda": "assets/clans/anda.webp",
+  "liannan": "assets/clans/liannan.webp",
+  "krovnyeBratya": "assets/clans/krovnyeBratya.webp",
+  "predvestnikiCherepov": "assets/clans/predvestnikiCherepov.webp",
+  "staryyKlanTsimishov": "assets/clans/staryyKlanTsimishov.webp",
+  "detiOsirisa": "assets/clans/detiOsirisa.webp",
+  "pandery": "assets/clans/pandery.webp",
+  "bruhaAntitribu": "assets/clans/bruhaAntitribu.webp",
+  "ventruAntitribu": "assets/clans/ventruAntitribu.webp",
+  "malkavianeAntitribu": "assets/clans/malkavianeAntitribu.webp",
+  "nosferatuAntitribu": "assets/clans/nosferatuAntitribu.webp",
+  "lasombraAntitribu": "assets/clans/lasombraAntitribu.webp",
+  "tremerAntitribu": "assets/clans/tremerAntitribu.webp",
+  "toreadorAntitribu": "assets/clans/toreadorAntitribu.webp",
+  "ravnosAntitribu": "assets/clans/ravnosAntitribu.webp",
+  "gangrelAntitribu": "assets/clans/gangrelAntitribu.svg"
+ },
+ "sects": {
+  "camarilla": "assets/sects/camarilla.png",
+  "camarillaBlack": "assets/sects/camarillaBlack.png",
+  "sabbat": "assets/sects/sabbat.png",
+  "sabbatBlack": "assets/sects/sabbatBlack.png",
+  "anarchs": "assets/sects/anarchs.png",
+  "inquisition": "assets/sects/inquisition.png",
+  "shadowInquisition": "assets/sects/shadowInquisition.png",
+  "cainiteHeresy": "assets/sects/cainiteHeresy.png",
+  "royalists": "assets/sects/royalists.png",
+  "royalPower": "assets/sects/royalPower.png",
+  "police": "assets/sects/police.png",
+  "mafia": "assets/sects/mafia.jpg",
+  "ashirra": "assets/sects/ashirra.png",
+  "brokenAnkh": "assets/sects/brokenAnkh.png",
+  "gesheri": "assets/sects/gesheri.png",
+  "talMaheRa": "assets/sects/talMaheRa.webp"
+ },
+ "disciplines": {
+  "animalism": "assets/disciplines/animalism.webp",
+  "celerity": "assets/disciplines/celerity.webp",
+  "chimerstry": "assets/disciplines/chimerstry.webp",
+  "daimoinon": "assets/disciplines/daimoinon.webp",
+  "dementation": "assets/disciplines/dementation.webp",
+  "dominate": "assets/disciplines/dominate.webp",
+  "flight": "assets/disciplines/flight.webp",
+  "fortitude": "assets/disciplines/fortitude.webp",
+  "auspex": "assets/disciplines/auspex.webp",
+  "melpominee": "assets/disciplines/melpominee.webp",
+  "mytherceria": "assets/disciplines/mytherceria.webp",
+  "necromancy": "assets/disciplines/necromancy.webp",
+  "obeah": "assets/disciplines/obeah.webp",
+  "obfuscate": "assets/disciplines/obfuscate.webp",
+  "obtenebration": "assets/disciplines/obtenebration.webp",
+  "potence": "assets/disciplines/potence.webp",
+  "presence": "assets/disciplines/presence.webp",
+  "protean": "assets/disciplines/protean.webp",
+  "quietus": "assets/disciplines/quietus.webp",
+  "sanguinus": "assets/disciplines/sanguinus.webp",
+  "serpentis": "assets/disciplines/serpentis.webp",
+  "temporis": "assets/disciplines/temporis.webp",
+  "thanatosis": "assets/disciplines/thanatosis.webp",
+  "thaumaturgy": "assets/disciplines/thaumaturgy.png",
+  "vicissitude": "assets/disciplines/vicissitude.webp",
+  "valeren": "assets/disciplines/valeren.webp",
+  "visceratika": "assets/disciplines/visceratika.webp",
+  "spiritus": "assets/disciplines/spiritus.webp"
+ },
+ "markers": [
+  {
+   "key": "anarhi-2-0",
+   "name": "Анархи 2.0",
+   "group": "places",
+   "src": "assets/markers/anarhi-2-0.png"
+  },
+  {
+   "key": "anarhi",
+   "name": "Анархи",
+   "group": "places",
+   "src": "assets/markers/anarhi.png"
+  },
+  {
+   "key": "assamity",
+   "name": "Ассамиты",
+   "group": "places",
+   "src": "assets/markers/assamity.png"
+  },
+  {
+   "key": "bar",
+   "name": "Бар",
+   "group": "places",
+   "src": "assets/markers/bar.png"
+  },
+  {
+   "key": "biblioteka",
+   "name": "Библиотека",
+   "group": "places",
+   "src": "assets/markers/biblioteka.png"
+  },
+  {
+   "key": "bolnitsa",
+   "name": "Больница",
+   "group": "places",
+   "src": "assets/markers/bolnitsa.png"
+  },
+  {
+   "key": "bordeli",
+   "name": "Бордели",
+   "group": "places",
+   "src": "assets/markers/bordeli.png"
+  },
+  {
+   "key": "botanicheskiy-sad",
+   "name": "Ботанический Сад",
+   "group": "places",
+   "src": "assets/markers/botanicheskiy-sad.png"
+  },
+  {
+   "key": "ventru",
+   "name": "Вентру",
+   "group": "places",
+   "src": "assets/markers/ventru.png"
+  },
+  {
+   "key": "gangrely",
+   "name": "Гангрелы",
+   "group": "places",
+   "src": "assets/markers/gangrely.png"
+  },
+  {
+   "key": "germetisty",
+   "name": "Герметисты",
+   "group": "places",
+   "src": "assets/markers/germetisty.png"
+  },
+  {
+   "key": "dom",
+   "name": "Дом",
+   "group": "places",
+   "src": "assets/markers/dom.png"
+  },
+  {
+   "key": "dorogoy-restoran",
+   "name": "Дорогой ресторан",
+   "group": "places",
+   "src": "assets/markers/dorogoy-restoran.png"
+  },
+  {
+   "key": "zhirondisty",
+   "name": "Жирондисты",
+   "group": "places",
+   "src": "assets/markers/zhirondisty.png"
+  },
+  {
+   "key": "zmiy",
+   "name": "Змий",
+   "group": "places",
+   "src": "assets/markers/zmiy.png"
+  },
+  {
+   "key": "zolotoy-sovet",
+   "name": "Золотой Совет",
+   "group": "places",
+   "src": "assets/markers/zolotoy-sovet.png"
+  },
+  {
+   "key": "kazino",
+   "name": "Казино",
+   "group": "places",
+   "src": "assets/markers/kazino.png"
+  },
+  {
+   "key": "kainitskaya-eres",
+   "name": "Каинитская Ересь",
+   "group": "places",
+   "src": "assets/markers/kainitskaya-eres.png"
+  },
+  {
+   "key": "kaitiff",
+   "name": "Каитифф",
+   "group": "places",
+   "src": "assets/markers/kaitiff.png"
+  },
+  {
+   "key": "kamarilskiy-kruzhochek",
+   "name": "Камарильский Кружочек",
+   "group": "places",
+   "src": "assets/markers/kamarilskiy-kruzhochek.png"
+  },
+  {
+   "key": "kamenolomni",
+   "name": "Каменоломни",
+   "group": "places",
+   "src": "assets/markers/kamenolomni.png"
+  },
+  {
+   "key": "kafe",
+   "name": "Кафе",
+   "group": "places",
+   "src": "assets/markers/kafe.png"
+  },
+  {
+   "key": "kinoteatr",
+   "name": "Кинотеатр",
+   "group": "places",
+   "src": "assets/markers/kinoteatr.png"
+  },
+  {
+   "key": "kokarda-vamp",
+   "name": "Кокарда Вамп",
+   "group": "places",
+   "src": "assets/markers/kokarda-vamp.png"
+  },
+  {
+   "key": "kokarda-rev",
+   "name": "Кокарда Рев",
+   "group": "places",
+   "src": "assets/markers/kokarda-rev.png"
+  },
+  {
+   "key": "korolevskaya-vlast",
+   "name": "Королевская Власть",
+   "group": "places",
+   "src": "assets/markers/korolevskaya-vlast.png"
+  },
+  {
+   "key": "kultura",
+   "name": "Культура",
+   "group": "places",
+   "src": "assets/markers/kultura.png"
+  },
+  {
+   "key": "lasombra",
+   "name": "Ласомбра",
+   "group": "places",
+   "src": "assets/markers/lasombra.png"
+  },
+  {
+   "key": "malkaviane",
+   "name": "Малкавиане",
+   "group": "places",
+   "src": "assets/markers/malkaviane.png"
+  },
+  {
+   "key": "monetnyy-dvor",
+   "name": "Монетный Двор",
+   "group": "places",
+   "src": "assets/markers/monetnyy-dvor.png"
+  },
+  {
+   "key": "montanyary",
+   "name": "Монтаньяры",
+   "group": "places",
+   "src": "assets/markers/montanyary.png"
+  },
+  {
+   "key": "motel",
+   "name": "Мотель",
+   "group": "places",
+   "src": "assets/markers/motel.png"
+  },
+  {
+   "key": "nosferatu",
+   "name": "Носферату",
+   "group": "places",
+   "src": "assets/markers/nosferatu.png"
+  },
+  {
+   "key": "nochnoy-klub",
+   "name": "Ночной Клуб",
+   "group": "places",
+   "src": "assets/markers/nochnoy-klub.png"
+  },
+  {
+   "key": "observatoriya",
+   "name": "Обсерватория",
+   "group": "places",
+   "src": "assets/markers/observatoriya.png"
+  },
+  {
+   "key": "pitalnya",
+   "name": "Питальня",
+   "group": "places",
+   "src": "assets/markers/pitalnya.png"
+  },
+  {
+   "key": "pomestya",
+   "name": "Поместья",
+   "group": "places",
+   "src": "assets/markers/pomestya.png"
+  },
+  {
+   "key": "pochta",
+   "name": "Почта",
+   "group": "places",
+   "src": "assets/markers/pochta.png"
+  },
+  {
+   "key": "prestupnost",
+   "name": "Преступность",
+   "group": "places",
+   "src": "assets/markers/prestupnost.png"
+  },
+  {
+   "key": "priyut",
+   "name": "Приют",
+   "group": "places",
+   "src": "assets/markers/priyut.png"
+  },
+  {
+   "key": "priyut2",
+   "name": "Приют2",
+   "group": "places",
+   "src": "assets/markers/priyut2.png"
+  },
+  {
+   "key": "proizvodstvo",
+   "name": "Производство",
+   "group": "places",
+   "src": "assets/markers/proizvodstvo.png"
+  },
+  {
+   "key": "ravnosy",
+   "name": "Равносы",
+   "group": "places",
+   "src": "assets/markers/ravnosy.png"
+  },
+  {
+   "key": "royalisty",
+   "name": "Роялисты",
+   "group": "places",
+   "src": "assets/markers/royalisty.png"
+  },
+  {
+   "key": "ruiny",
+   "name": "Руины",
+   "group": "places",
+   "src": "assets/markers/ruiny.png"
+  },
+  {
+   "key": "salony",
+   "name": "Салоны",
+   "group": "places",
+   "src": "assets/markers/salony.png"
+  },
+  {
+   "key": "setity",
+   "name": "Сетиты",
+   "group": "places",
+   "src": "assets/markers/setity.png"
+  },
+  {
+   "key": "starye-bruhi",
+   "name": "Старые Брухи",
+   "group": "places",
+   "src": "assets/markers/starye-bruhi.png"
+  },
+  {
+   "key": "sudy",
+   "name": "Суды",
+   "group": "places",
+   "src": "assets/markers/sudy.png"
+  },
+  {
+   "key": "tenevoy-sovet",
+   "name": "Теневой Совет",
+   "group": "places",
+   "src": "assets/markers/tenevoy-sovet.png"
+  },
+  {
+   "key": "tenevoy-sovet2",
+   "name": "Теневой Совет2",
+   "group": "places",
+   "src": "assets/markers/tenevoy-sovet2.png"
+  },
+  {
+   "key": "tipografiya",
+   "name": "Типография",
+   "group": "places",
+   "src": "assets/markers/tipografiya.png"
+  },
+  {
+   "key": "toreadory",
+   "name": "Тореадоры",
+   "group": "places",
+   "src": "assets/markers/toreadory.png"
+  },
+  {
+   "key": "tremery",
+   "name": "Тремеры",
+   "group": "places",
+   "src": "assets/markers/tremery.png"
+  },
+  {
+   "key": "tyurma",
+   "name": "Тюрьма",
+   "group": "places",
+   "src": "assets/markers/tyurma.png"
+  },
+  {
+   "key": "universitet",
+   "name": "Университет",
+   "group": "places",
+   "src": "assets/markers/universitet.png"
+  },
+  {
+   "key": "feyyany",
+   "name": "Фейяны",
+   "group": "places",
+   "src": "assets/markers/feyyany.png"
+  },
+  {
+   "key": "hram",
+   "name": "Храм",
+   "group": "places",
+   "src": "assets/markers/hram.png"
+  },
+  {
+   "key": "tsimishi-kruzhochek",
+   "name": "Цимисхи кружочек",
+   "group": "places",
+   "src": "assets/markers/tsimishi-kruzhochek.png"
+  },
+  {
+   "key": "tsimishi-starogo-klana",
+   "name": "Цимисхи старого клана",
+   "group": "places",
+   "src": "assets/markers/tsimishi-starogo-klana.png"
+  },
+  {
+   "key": "tsirk",
+   "name": "Цирк",
+   "group": "places",
+   "src": "assets/markers/tsirk.png"
+  },
+  {
+   "key": "chernyy-krug",
+   "name": "Черный круг",
+   "group": "places",
+   "src": "assets/markers/chernyy-krug.png"
+  },
+  {
+   "key": "shabash",
+   "name": "Шабаш",
+   "group": "places",
+   "src": "assets/markers/shabash.png"
+  },
+  {
+   "key": "agenturnaya-set",
+   "name": "Агентурная сеть",
+   "group": "influence",
+   "src": "assets/markers/agenturnaya-set.png"
+  },
+  {
+   "key": "glavnyy-geks",
+   "name": "Главный гекс",
+   "group": "influence",
+   "src": "assets/markers/glavnyy-geks.png"
+  },
+  {
+   "key": "siloviki",
+   "name": "Силовики",
+   "group": "influence",
+   "src": "assets/markers/siloviki.png"
+  },
+  {
+   "key": "podem",
+   "name": "Подъём",
+   "group": "map",
+   "src": "assets/markers/podem.png"
+  },
+  {
+   "key": "spusk",
+   "name": "Спуск",
+   "group": "map",
+   "src": "assets/markers/spusk.png"
+  },
+  {
+   "key": "neytralnoe-mesto",
+   "name": "Нейтральное место",
+   "group": "map",
+   "src": "assets/markers/neytralnoe-mesto.png"
+  },
+  {
+   "key": "chto-to",
+   "name": "Что-то",
+   "group": "map",
+   "src": "assets/markers/chto-to.png"
+  }
+ ]
+}

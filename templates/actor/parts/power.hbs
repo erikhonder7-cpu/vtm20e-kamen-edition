@@ -1,0 +1,19 @@
+{{!-- Сила: уровень, название, бросок по пулу из книги, раскрываемое описание.
+     codexRef — сила справочника; иначе это предмет (записанная сила или ритуал) с data-item-id. --}}
+<div class="r-row-wrap r-power {{#if open}}is-open{{/if}} {{#if elder}}is-elder{{/if}} {{cls}}" {{#unless codexRef}}data-item-id="{{id}}"{{/unless}}>
+  <div class="r-power-head">
+    <span class="r-power-lvl">{{roman}}</span>
+    <a class="r-power-name" data-action="toggleRow" data-row-id="{{id}}">{{name}}{{#if en}} <em>({{en}})</em>{{/if}}</a>
+    {{#if roll}}<span class="r-power-pool" {{#if roll.note}}data-tooltip="{{roll.note}}"{{/if}}>{{roll.label}}{{#if roll.diff}} · {{localize "VTM20.Roll.Vs"}} {{roll.diff}}{{/if}}{{#if roll.blood}} · <i class="fa-solid fa-droplet"></i>{{roll.blood}}{{/if}}{{#if roll.willpower}} · <i class="fa-solid fa-star"></i>{{/if}}</span>{{/if}}
+    {{#if fx}}<a class="r-icon-btn r-power-fx {{#if fx.on}}is-on{{/if}}" data-action="togglePower" data-power="{{fx.key}}" data-tooltip="{{fx.tip}}"><i class="fa-solid {{fx.icon}}"></i></a>{{/if}}
+    {{#if roll.canRoll}}
+      {{#if codexRef}}<a class="r-icon-btn r-power-roll" data-action="rollPower" data-ref="{{codexRef}}" data-tooltip="{{localize 'VTM20.Sheet.RollPower'}}"><i class="fa-solid fa-dice-d10"></i></a>
+      {{else}}<a class="r-icon-btn r-power-roll" data-action="rollItemPower" data-tooltip="{{localize 'VTM20.Sheet.RollPower'}}"><i class="fa-solid fa-dice-d10"></i></a>{{/if}}
+    {{/if}}
+    {{#if codexRef}}<a class="r-icon-btn" data-action="powerToChat" data-disc="{{disc}}" data-level="{{level}}" data-name="{{name}}" {{#if pathId}}data-path-id="{{pathId}}"{{/if}} data-tooltip="{{localize 'VTM20.Sheet.ToChat'}}"><i class="fa-solid fa-comment-dots"></i></a>
+    {{else}}<a class="r-icon-btn" data-action="itemChat" data-tooltip="{{localize 'VTM20.Sheet.ToChat'}}"><i class="fa-solid fa-comment-dots"></i></a>
+      <a class="r-icon-btn" data-action="itemEdit"><i class="fa-solid fa-pen-nib"></i></a>
+      {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="itemDelete"><i class="fa-solid fa-trash"></i></a>{{/if}}{{/if}}
+  </div>
+  <div class="r-power-body">{{{html}}}</div>
+</div>

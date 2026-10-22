@@ -1,0 +1,107 @@
+{{!-- Нексус сцен: галерея переходов по районам вместо ленты вкладок Foundry. --}}
+<div class="r-nx">
+
+  <div class="r-nx-status">
+    <div class="r-nx-here">
+      <span class="r-nx-here-lbl">{{localize "VTM20.Nexus.CurrentScene"}}</span>
+      <span class="r-nx-here-name">{{curName}}</span>
+    </div>
+    <div class="r-nx-sel {{#if hasSel}}on{{/if}}">
+      {{#if hasSel}}
+        <i class="fa-solid fa-crosshairs"></i> {{localize "VTM20.Nexus.Selected"}}: <b>{{selCount}}</b>
+        <span class="r-nx-sel-names">({{selText}})</span>
+      {{else}}
+        <i class="fa-regular fa-circle"></i> {{localize "VTM20.Nexus.SelectHint"}}
+      {{/if}}
+    </div>
+    {{#if isGM}}<a class="r-nx-btn" data-action="addGroup"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Nexus.Group"}}</a>{{/if}}
+  </div>
+
+  <div class="r-nx-body">
+    {{#if hasGroups}}
+      {{#each groups as |g|}}
+      <section class="r-nx-group {{#if g.collapsed}}collapsed{{/if}}" style="--gc:{{g.color}}">
+        <header class="r-nx-ghead">
+          <a class="r-nx-caret" data-action="collapse" data-key="{{g.id}}" title="{{localize 'VTM20.Nexus.Collapse'}}">
+            <i class="fa-solid {{#if g.collapsed}}fa-chevron-right{{else}}fa-chevron-down{{/if}}"></i>
+          </a>
+          <span class="r-nx-dot"></span>
+          <span class="r-nx-gname">{{g.name}}</span>
+          <span class="r-nx-gcount">{{g.count}}</span>
+          {{#if @root.isGM}}
+          <span class="r-nx-gtools">
+            <input type="color" class="r-nx-gcolor" value="{{g.color}}" data-gcolor="{{g.id}}" title="{{localize 'VTM20.Nexus.GroupColor'}}">
+            <a data-action="renameGroup" data-group="{{g.id}}" title="{{localize 'VTM20.Nexus.Rename'}}"><i class="fa-solid fa-pen"></i></a>
+            <a data-action="moveGroup" data-group="{{g.id}}" data-dir="-1" title="{{localize 'VTM20.Nexus.Up'}}"><i class="fa-solid fa-caret-up"></i></a>
+            <a data-action="moveGroup" data-group="{{g.id}}" data-dir="1" title="{{localize 'VTM20.Nexus.Down'}}"><i class="fa-solid fa-caret-down"></i></a>
+            <a class="r-nx-del" data-action="deleteGroup" data-group="{{g.id}}" title="{{localize 'VTM20.Nexus.DeleteGroup'}}"><i class="fa-solid fa-xmark"></i></a>
+          </span>
+          {{/if}}
+        </header>
+
+        {{#unless g.collapsed}}
+          {{#each g.subgroups as |sub|}}
+          <section class="r-nx-sub {{#if sub.collapsed}}collapsed{{/if}}">
+            <header class="r-nx-subhead">
+              <a class="r-nx-caret" data-action="collapse" data-key="{{sub.key}}">
+                <i class="fa-solid {{#if sub.collapsed}}fa-chevron-right{{else}}fa-chevron-down{{/if}}"></i>
+              </a>
+              <span class="r-nx-subname">{{sub.name}}</span>
+              <span class="r-nx-subcount">{{sub.count}}</span>
+              {{#if @root.isGM}}
+              <span class="r-nx-subtools">
+                <a data-action="renameSub" data-group="{{g.id}}" data-sub="{{sub.id}}" title="{{localize 'VTM20.Nexus.Rename'}}"><i class="fa-solid fa-pen"></i></a>
+                <a class="r-nx-del" data-action="deleteSub" data-group="{{g.id}}" data-sub="{{sub.id}}" title="{{localize 'VTM20.Nexus.DeleteSub'}}"><i class="fa-solid fa-xmark"></i></a>
+              </span>
+              {{/if}}
+            </header>
+            {{#unless sub.collapsed}}
+              {{#if sub.hasCards}}
+              <div class="r-nx-grid">
+                {{#each sub.cards as |c|}}{{> "systems/vtm20e-kamen-edition/templates/apps/nexus-card.hbs" c}}{{/each}}
+              </div>
+              {{else}}<div class="r-nx-empty">{{localize "VTM20.Nexus.EmptySub"}}</div>{{/if}}
+              {{#if @root.isGM}}
+              <div class="r-nx-add">
+                <select data-subaddscene="{{g.id}}" data-sub="{{sub.id}}">
+                  <option value="">{{localize "VTM20.Nexus.AddToSub"}}</option>
+                  {{#each g.looseAddable as |s|}}<option value="{{s.id}}">{{s.name}}</option>{{/each}}
+                </select>
+              </div>
+              {{/if}}
+            {{/unless}}
+          </section>
+          {{/each}}
+
+          {{#if g.hasLoose}}
+          <div class="r-nx-grid">
+            {{#each g.looseCards as |c|}}{{> "systems/vtm20e-kamen-edition/templates/apps/nexus-card.hbs" c}}{{/each}}
+          </div>
+          {{/if}}
+          {{#unless g.count}}<div class="r-nx-empty">{{localize "VTM20.Nexus.EmptyGroup"}}</div>{{/unless}}
+
+          {{#if @root.isGM}}
+          <div class="r-nx-add r-nx-add-row">
+            <select data-gaddscene="{{g.id}}">
+              <option value="">{{localize "VTM20.Nexus.AddToGroup"}}</option>
+              {{#each g.addable as |fld|}}
+              <optgroup label="{{fld.label}}">
+                {{#each fld.scenes as |s|}}<option value="{{s.id}}">{{s.name}}</option>{{/each}}
+              </optgroup>
+              {{/each}}
+            </select>
+            <a class="r-nx-btn" data-action="addSub" data-group="{{g.id}}" title="{{localize 'VTM20.Nexus.AddSubHint'}}">
+              <i class="fa-solid fa-plus"></i> {{localize "VTM20.Nexus.Sub"}}
+            </a>
+          </div>
+          {{/if}}
+        {{/unless}}
+      </section>
+      {{/each}}
+    {{else}}
+      <div class="r-nx-empty-big">
+        {{#if isGM}}{{localize "VTM20.Nexus.NoGroupsGM"}}{{else}}{{localize "VTM20.Nexus.NoGroups"}}{{/if}}
+      </div>
+    {{/if}}
+  </div>
+</div>

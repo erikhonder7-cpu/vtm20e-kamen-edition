@@ -1,0 +1,2 @@
+{{!-- Ряд точек-кокард. dots: [{n, filled, path, itemId}]. --}}
+<span class="r-dots {{cls}}">{{#each dots}}<a class="r-dot {{#if filled}}is-filled{{/if}} {{#if (gt n 5)}}is-over{{/if}}" data-action="setDots" data-path="{{path}}" data-n="{{n}}" {{#if itemId}}data-item-id="{{itemId}}"{{/if}}></a>{{/each}}</span>

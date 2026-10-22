@@ -1,0 +1,36 @@
+{{!-- Карточка сцены нексуса. Контекст = объект карточки. --}}
+<div class="r-nx-card {{#if isCurrent}}here{{/if}} {{#unless open}}locked{{/unless}}"
+     data-action="jump" data-scene-id="{{id}}" title="{{localize 'VTM20.Nexus.JumpHint'}}">
+  <div class="r-nx-thumb" style="background-image:url('{{thumb}}')">
+    {{#unless thumb}}<span class="r-nx-noimg">{{localize "VTM20.Nexus.NoThumb"}}</span>{{/unless}}
+    <div class="r-nx-badges">
+      {{#if isActive}}<span class="r-nx-b act">{{localize "VTM20.Nexus.Active"}}</span>{{/if}}
+      {{#if isCurrent}}<span class="r-nx-b cur">{{localize "VTM20.Nexus.YouAreHere"}}</span>{{/if}}
+      {{#if open}}<span class="r-nx-b open">{{localize "VTM20.Nexus.Open"}}</span>{{else}}<span class="r-nx-b shut">{{localize "VTM20.Nexus.Shut"}}</span>{{/if}}
+      {{#if hasEntry}}<span class="r-nx-b entry" title="{{localize 'VTM20.Nexus.HasEntry'}}"><i class="fa-solid fa-location-crosshairs"></i></span>{{/if}}
+    </div>
+    {{#if hasPlayers}}
+    <div class="r-nx-players" title="{{localize 'VTM20.Nexus.PlayersHere'}}">
+      {{#each players as |p|}}<span class="r-nx-pc" style="--pc:{{p.color}}" title="{{p.name}}">{{p.initials}}</span>{{/each}}
+    </div>
+    {{/if}}
+    <div class="r-nx-go"><i class="fa-solid fa-right-to-bracket"></i> {{localize "VTM20.Nexus.Go"}}</div>
+    <a class="r-nx-peek" data-action="peek" data-scene-id="{{id}}" data-card-tool title="{{localize 'VTM20.Nexus.PeekHint'}}">
+      <i class="fa-solid fa-eye"></i>
+    </a>
+  </div>
+  <div class="r-nx-cname">{{name}}</div>
+
+  {{#if @root.isGM}}
+  <div class="r-nx-ctools" data-card-tool>
+    <a data-action="toggleOpen" data-scene-id="{{id}}" title="{{localize 'VTM20.Nexus.ToggleOpen'}}">
+      <i class="fa-solid {{#if open}}fa-lock-open{{else}}fa-lock{{/if}}"></i>
+    </a>
+    <a data-action="viewScene" data-scene-id="{{id}}" title="{{localize 'VTM20.Nexus.View'}}"><i class="fa-solid fa-eye"></i></a>
+    <a data-action="activateScene" data-scene-id="{{id}}" title="{{localize 'VTM20.Nexus.Activate'}}"><i class="fa-solid fa-bolt"></i></a>
+    <a data-action="setEntry" data-scene-id="{{id}}" title="{{localize 'VTM20.Nexus.SetEntry'}}"><i class="fa-solid fa-location-crosshairs"></i></a>
+    {{#if subId}}<a data-action="unassign" data-scene-id="{{id}}" data-group="{{groupId}}" title="{{localize 'VTM20.Nexus.Unassign'}}"><i class="fa-solid fa-arrow-turn-up"></i></a>{{/if}}
+    <a class="r-nx-del" data-action="removeScene" data-scene-id="{{id}}" data-group="{{groupId}}" title="{{localize 'VTM20.Nexus.RemoveScene'}}"><i class="fa-solid fa-xmark"></i></a>
+  </div>
+  {{/if}}
+</div>

@@ -1,0 +1,930 @@
+[
+ {
+  "key": "assamite",
+  "name": "Ассамиты",
+  "en": "Assamite",
+  "nickname": "Ассасины",
+  "group": "clan",
+  "sect": "Независимые",
+  "disciplines": [
+   "celerity",
+   "obfuscate",
+   "quietus"
+  ],
+  "choice": [],
+  "disciplinesText": "Стремительность, Сокрытие, Упокоение",
+  "weakness": "<p><strong>Проклятие Тремер:</strong> выпив кровь Сородича — <strong>1 неотвратимое (непоглощаемое) тяжёлое повреждение за каждый выпитый пункт</strong>. Совершив диаблери — <strong>1 неотвратимое губительное за каждый пункт Воли жертвы</strong>; даже выжив, никаких выгод диаблери не получает и поколение не меняет. Плюс обязан отдавать сиру и старейшинам часть платы за контракты (~10 %).</p>"
+ },
+ {
+  "key": "brujah",
+  "name": "Бруха",
+  "en": "Brujah",
+  "nickname": "",
+  "group": "clan",
+  "sect": "Камарилья (часто анархи)",
+  "disciplines": [
+   "celerity",
+   "potence",
+   "presence"
+  ],
+  "choice": [],
+  "disciplinesText": "Стремительность, Мощь, Величие",
+  "weakness": "<p>Сложность проверок <strong>сдерживать или контролировать ярость +2</strong> (макс. 10). <strong>Нельзя тратить Волю, чтобы предотвратить</strong> приступ ярости; если он уже начался — можно, как обычно, потратить Волю, чтобы взять себя в руки на ход.</p>"
+ },
+ {
+  "key": "ventrue",
+  "name": "Вентру",
+  "en": "Ventrue",
+  "nickname": "Патриции",
+  "group": "clan",
+  "sect": "Камарилья",
+  "disciplines": [
+   "dominate",
+   "fortitude",
+   "presence"
+  ],
+  "choice": [],
+  "disciplinesText": "Доминирование, Стойкость, Величие",
+  "weakness": "<p><strong>Утончённый вкус:</strong> питается кровью только <strong>одной категории смертных</strong> (выбирается при создании с рассказчиком, навсегда; узкая — «младшие сёстры» или широкая — «обнажённые подростки»). Другая кровь, включая звериную, не пополняет запас — его тошнит. Кровь Сородичей ограничению не подлежит.</p>"
+ },
+ {
+  "key": "gangrel",
+  "name": "Гангрелы",
+  "en": "Gangrel",
+  "nickname": "Варвары",
+  "group": "clan",
+  "sect": "Камарилья / независимые",
+  "disciplines": [
+   "animalism",
+   "fortitude",
+   "protean"
+  ],
+  "choice": [],
+  "disciplinesText": "Анимализм, Стойкость, Метаморфозы",
+  "weakness": "<p>После каждого приступа ярости — временный <strong>звериный атавизм</strong> (физический или поведенческий; заменяет прежний временный). Со временем некоторые становятся постоянными и тогда копятся. Рассказчик может давать им механический эффект (например, −Человечность или временно −социальные характеристики).</p>"
+ },
+ {
+  "key": "giovanni",
+  "name": "Джованни",
+  "en": "Giovanni",
+  "nickname": "Некроманты",
+  "group": "clan",
+  "sect": "Независимые",
+  "disciplines": [
+   "dominate",
+   "necromancy",
+   "potence"
+  ],
+  "choice": [],
+  "disciplinesText": "Доминирование, Некромантия, Мощь",
+  "weakness": "<p><strong>Мучительный Поцелуй:</strong> питаясь от смертного, наносит <strong>вдвое больше повреждений</strong> (2 вместо 1 за пункт крови); жертва может умереть от болевого шока раньше, чем от потери крови.</p>"
+ },
+ {
+  "key": "lasombra",
+  "name": "Ласомбра",
+  "en": "Lasombra",
+  "nickname": "Пастыри",
+  "group": "clan",
+  "sect": "Шабаш",
+  "disciplines": [
+   "dominate",
+   "obtenebration",
+   "potence"
+  ],
+  "choice": [],
+  "disciplinesText": "Доминирование, Затмение, Мощь",
+  "weakness": "<p><strong>Не отражаются</strong> в зеркалах, полированных поверхностях, спокойной воде.</p>"
+ },
+ {
+  "key": "malkavian",
+  "name": "Малкавиане",
+  "en": "Malkavian",
+  "nickname": "Психи",
+  "group": "clan",
+  "sect": "Камарилья",
+  "disciplines": [
+   "auspex",
+   "dementation",
+   "obfuscate"
+  ],
+  "choice": [],
+  "disciplinesText": "Ясновидение, Помешательство, Сокрытие",
+  "weakness": "<p><strong>Перманентное психическое расстройство:</strong> действует как обычное, можно временно подавлять Волей, но <strong>нельзя излечить</strong>; не мешает получать новые.</p>"
+ },
+ {
+  "key": "nosferatu",
+  "name": "Носферату",
+  "en": "Nosferatu",
+  "nickname": "Крысы",
+  "group": "clan",
+  "sect": "Камарилья",
+  "disciplines": [
+   "animalism",
+   "obfuscate",
+   "potence"
+  ],
+  "choice": [],
+  "disciplinesText": "Анимализм, Сокрытие, Мощь",
+  "weakness": "<p><strong>Привлекательность 0</strong> навсегда (вычеркнуть); проверки с Привлекательностью даются им с огромным трудом.</p>"
+ },
+ {
+  "key": "setite",
+  "name": "Последователи Сета",
+  "en": "Followers of Set",
+  "nickname": "Змеи",
+  "group": "clan",
+  "sect": "Независимые",
+  "disciplines": [
+   "obfuscate",
+   "presence",
+   "serpentis"
+  ],
+  "choice": [],
+  "disciplinesText": "Сокрытие, Величие, Серпентис",
+  "weakness": "<p><strong>Яркий свет:</strong> солнечный свет наносит <strong>+2 повреждения</strong>; при любом действии с проверкой под ярким светом (прожектор, софиты, ракета) — <strong>−1 кубик</strong>.</p>"
+ },
+ {
+  "key": "ravnos",
+  "name": "Равнос",
+  "en": "Ravnos",
+  "nickname": "Обманщики",
+  "group": "clan",
+  "sect": "Независимые",
+  "disciplines": [
+   "animalism",
+   "chimerstry",
+   "fortitude"
+  ],
+  "choice": [],
+  "disciplinesText": "Анимализм, Фантасмагория, Стойкость",
+  "weakness": "<p><strong>Раб порока</strong> (ложь, отсутствие сострадания, воровство…): при возможности поддаться — поддаётся, если не прошёл <strong>Самоконтроль/Инстинкты (сл. 6)</strong>.</p>"
+ },
+ {
+  "key": "toreador",
+  "name": "Тореадор",
+  "en": "Toreador",
+  "nickname": "Декаденты",
+  "group": "clan",
+  "sect": "Камарилья",
+  "disciplines": [
+   "auspex",
+   "celerity",
+   "presence"
+  ],
+  "choice": [],
+  "disciplinesText": "Ясновидение, Стремительность, Величие",
+  "weakness": "<p><strong>Восторг:</strong> при по‑настоящему прекрасном (человек, картина, рассвет) — <strong>Самоконтроль/Инстинкты (сл. 6)</strong>; провал — замирает до конца сцены или пока источник не пропадёт, может только восхищаться и комментировать; <strong>не может двигаться и защищаться</strong>. Получив повреждение — новая проверка (сл. 6), чтобы стряхнуть оцепенение.</p>"
+ },
+ {
+  "key": "tremere",
+  "name": "Тремер",
+  "en": "Tremere",
+  "nickname": "Чернокнижники",
+  "group": "clan",
+  "sect": "Камарилья",
+  "disciplines": [
+   "auspex",
+   "dominate",
+   "thaumaturgy"
+  ],
+  "choice": [],
+  "disciplinesText": "Ясновидение, Доминирование, Тауматургия",
+  "weakness": "<p><strong>Узы крови сильнее:</strong> одно испитие витэ Сородича — сразу <strong>вторая ступень</strong> уз, два — <strong>третья</strong> (полные). Неонаты при посвящении пьют кровь семи старейшин клана.</p>"
+ },
+ {
+  "key": "tzimisce",
+  "name": "Цимисхи",
+  "en": "Tzimisce",
+  "nickname": "Нелюдь",
+  "group": "clan",
+  "sect": "Шабаш",
+  "disciplines": [
+   "animalism",
+   "auspex",
+   "vicissitude"
+  ],
+  "choice": [],
+  "disciplinesText": "Анимализм, Ясновидение, Преображение",
+  "weakness": "<p><strong>Родная земля:</strong> для полноценного дневного отдыха нужно касаться <strong>≥2 пригоршней</strong> земли из места, тесно связанного с прошлой жизнью (родной город, кладбище Становления). Каждый день без неё — <strong>пул всех проверок вдвое</strong> (накапливается до 1 кубика), пока не отдохнёт хотя бы сутки на родной земле.</p>"
+ },
+ {
+  "key": "caitiff",
+  "name": "Каитифы",
+  "en": "Caitiff",
+  "nickname": "",
+  "group": "clan",
+  "sect": "Любая (чаще анархи)",
+  "disciplines": [],
+  "choice": [],
+  "disciplinesText": "Нет клановых; при создании любые с согласия рассказчика; опытом — текущее × 6 для любой",
+  "weakness": "<p>Нет кланового изъяна (но презираемы).</p>"
+ },
+ {
+  "key": "angraMaynyu",
+  "name": "Ангра-Майнью",
+  "en": "",
+  "nickname": "Кошки; все — женщины, бывшие гангрелы, «дети» Мариции",
+  "group": "bloodline",
+  "sect": "",
+  "disciplines": [
+   "animalism",
+   "presence",
+   "spiritus"
+  ],
+  "choice": [],
+  "disciplinesText": "Анимализм, Величие, Спиритус",
+  "weakness": "<p><strong>Инертная кровь:</strong> не могут давать Становление, создавать узы крови и делать гулей.</p>"
+ },
+ {
+  "key": "anda",
+  "name": "Анда",
+  "en": "",
+  "nickname": "Тартары; монгольская ветвь Гангрелов",
+  "group": "bloodline",
+  "sect": "",
+  "disciplines": [
+   "animalism",
+   "protean",
+   "fortitude"
+  ],
+  "choice": [],
+  "disciplinesText": "Анимализм, Метаморфозы, Стойкость",
+  "weakness": "<p>Атавизмы при ярости, но <strong>через раз</strong>. Каждый день <strong>после третьего</strong>, отдыхая в пределах <strong>1 км</strong> от прошлого места дневки, — пул всех проверок <strong>вдвое</strong> (накапливается до 1 кубика), пока не сменит убежище на достаточно далёкое.</p>"
+ },
+ {
+  "key": "baali",
+  "name": "Баали",
+  "en": "",
+  "nickname": "Демоны",
+  "group": "bloodline",
+  "sect": "",
+  "disciplines": [
+   "presence",
+   "daimoinon",
+   "obfuscate"
+  ],
+  "choice": [],
+  "disciplinesText": "Величие, Демонион, Сокрытие",
+  "weakness": "<p>Не выносят священных символов любых религий: отводят взгляд, касание <strong>обжигает</strong>. Истинная Вера, направленная на то, чтобы отпугнуть, вывести из строя или ранить Баали, — эффект <strong>×2</strong>.</p>"
+ },
+ {
+  "key": "gorguli",
+  "name": "Горгульи",
+  "en": "",
+  "nickname": "Рабы; созданы Тремер",
+  "group": "bloodline",
+  "sect": "",
+  "disciplines": [
+   "visceratika",
+   "potence",
+   "flight",
+   "fortitude"
+  ],
+  "choice": [],
+  "disciplinesText": "Висцератика, Мощь, Полёт, Стойкость",
+  "weakness": "<p><strong>Привлекательность 0.</strong> Сопротивляясь контролю разума, Воля (показатель или запас) считается на <strong>2 ниже</strong>.</p>"
+ },
+ {
+  "key": "detiOsirisa",
+  "name": "Дети Осириса",
+  "en": "",
+  "nickname": "",
+  "group": "bloodline",
+  "sect": "",
+  "disciplines": [
+   "bardo"
+  ],
+  "choice": [],
+  "disciplinesText": "Клановые родного клана + Бардо",
+  "weakness": "<p>Изъян родного клана.</p>"
+ },
+ {
+  "key": "docheriKakofonii",
+  "name": "Дочери Какофонии",
+  "en": "",
+  "nickname": "Сирены",
+  "group": "bloodline",
+  "sect": "",
+  "disciplines": [
+   "presence",
+   "melpominee",
+   "fortitude"
+  ],
+  "choice": [],
+  "disciplinesText": "Величие, Мельпомения, Стойкость",
+  "weakness": "<p>Постоянно слышат музыку: сложность всех проверок <strong>Восприятия +2</strong>, <strong>Бдительность не выше 3</strong>.</p>"
+ },
+ {
+  "key": "istinnyeBruha",
+  "name": "Истинные Бруха",
+  "en": "",
+  "nickname": "",
+  "group": "bloodline",
+  "sect": "",
+  "disciplines": [
+   "presence",
+   "potence",
+   "temporis"
+  ],
+  "choice": [],
+  "disciplinesText": "Величие, Мощь, Темпорис",
+  "weakness": "<p>Утрата эмоций: сложность проверок <strong>Совести и Решимости +2</strong> (макс. 10); развитие Совести, Решимости, Человечности, Путей стоит <strong>вдвое больше</strong> опыта.</p>"
+ },
+ {
+  "key": "kappadokiytsy",
+  "name": "Каппадокийцы",
+  "en": "",
+  "nickname": "вымерший клан",
+  "group": "bloodline",
+  "sect": "",
+  "disciplines": [
+   "necromancy",
+   "fortitude",
+   "auspex"
+  ],
+  "choice": [],
+  "disciplinesText": "Некромантия, Стойкость, Ясновидение",
+  "weakness": "<p>Мертвенная бледность, растущая с возрастом: старейшины не могут сойти за живых.</p>"
+ },
+ {
+  "key": "kiasidy",
+  "name": "Киасиды",
+  "en": "",
+  "nickname": "Чужаки",
+  "group": "bloodline",
+  "sect": "",
+  "disciplines": [
+   "dominate",
+   "obtenebration",
+   "mytherceria"
+  ],
+  "choice": [],
+  "disciplinesText": "Доминирование, Затмение, Мистификация",
+  "weakness": "<p>Чужеродная внешность. <strong>Железо:</strong> касание любого железа — проверка сопротивления ярости; оружие из <strong>холодного железа</strong> наносит <strong>губительный</strong> урон.</p>"
+ },
+ {
+  "key": "krovnyeBratya",
+  "name": "Кровные Братья",
+  "en": "",
+  "nickname": "Франкенштейны; Шабаш",
+  "group": "bloodline",
+  "sect": "",
+  "disciplines": [
+   "potence",
+   "sanguinus",
+   "fortitude"
+  ],
+  "choice": [],
+  "disciplinesText": "Мощь, Сангвинус, Стойкость",
+  "weakness": "<p><strong>Не могут давать Становление</strong> (смертный гибнет). Чувствуют боль круга: когда один получает штраф за раны, остальные члены круга получают его же на <strong>следующий ход</strong> (если ранены несколько — только наибольший).</p>"
+ },
+ {
+  "key": "lamii",
+  "name": "Ламии",
+  "en": "",
+  "nickname": "Горгоны; вымершие",
+  "group": "bloodline",
+  "sect": "",
+  "disciplines": [
+   "potence",
+   "necromancy",
+   "fortitude"
+  ],
+  "choice": [],
+  "disciplinesText": "Мощь, Некромантия, Стойкость",
+  "weakness": "<p><strong>Семя Лилит:</strong> жертва укуса — <strong>Выносливость</strong> (сл. 8 мужчина, 6 женщина); провал — болезнь вроде Чёрной Смерти, смерть за несколько дней. Выпивший кровь Ламии сам разносит болезнь, пока эта витэ в нём.</p>"
+ },
+ {
+  "key": "liannan",
+  "name": "Лианнан",
+  "en": "",
+  "nickname": "Друиды; вымершие",
+  "group": "bloodline",
+  "sect": "",
+  "disciplines": [
+   "animalism",
+   "presence",
+   "ogham"
+  ],
+  "choice": [],
+  "disciplinesText": "Анимализм, Величие, Огам",
+  "weakness": "<p>Нечеловеческая природа: Ясновидение для распознания их сущности <strong>−2 к сложности</strong>, смертным рядом не по себе. Вдали от родных краёв — каждую неделю <strong>−1 кубик</strong> ко всем проверкам (до минимума = Выносливость); дома проходит за часы.</p>"
+ },
+ {
+  "key": "nagaradzha",
+  "name": "Нагараджа",
+  "en": "",
+  "nickname": "Пожиратели Плоти",
+  "group": "bloodline",
+  "sect": "",
+  "disciplines": [
+   "dominate",
+   "necromancy",
+   "auspex"
+  ],
+  "choice": [],
+  "disciplinesText": "Доминирование, Некромантия, Ясновидение",
+  "weakness": "<p>Должны есть <strong>плоть</strong>: каждая ночь без неё — <strong>−1 кубик</strong> к физическим проверкам; каждый съеденный <strong>пункт плоти</strong> снимает 1 кубик штрафа и даёт <strong>+1 пункт крови</strong>. У взрослого человека <strong>10 пунктов плоти</strong>; каждый съеденный — <strong>1 неотвратимое тяжёлое</strong> жертве. Годится только относительно свежая (не обязательно живая) плоть. Другой пищи не принимают.</p>"
+ },
+ {
+  "key": "noyady",
+  "name": "Нойады",
+  "en": "",
+  "nickname": "Странники; саамская ветвь Гангрелов",
+  "group": "bloodline",
+  "sect": "",
+  "disciplines": [
+   "animalism",
+   "protean",
+   "auspex"
+  ],
+  "choice": [],
+  "disciplinesText": "Анимализм, Метаморфозы, Ясновидение",
+  "weakness": "<p><strong>Не могут питаться кровью животных</strong> (кровь людей и вампиров — можно).</p>"
+ },
+ {
+  "key": "predvestnikiCherepov",
+  "name": "Предвестники Черепов",
+  "en": "",
+  "nickname": "Лазари",
+  "group": "bloodline",
+  "sect": "",
+  "disciplines": [
+   "necromancy",
+   "fortitude",
+   "auspex"
+  ],
+  "choice": [],
+  "disciplinesText": "Некромантия, Стойкость, Ясновидение",
+  "weakness": "<p>Мертвенно‑бледны всегда, выглядят иссохшими трупами: <strong>Привлекательность 0</strong>, проверки с ней <strong>автоматически неудачны</strong>.</p>"
+ },
+ {
+  "key": "salyubri",
+  "name": "Салюбри",
+  "en": "",
+  "nickname": "Циклопы",
+  "group": "bloodline",
+  "sect": "",
+  "disciplines": [
+   "obeah",
+   "fortitude",
+   "auspex"
+  ],
+  "choice": [],
+  "disciplinesText": "Обеа, Стойкость, Ясновидение",
+  "weakness": "<p>Питаясь от <strong>несогласной</strong> жертвы — <strong>−1 Воля</strong>.</p>"
+ },
+ {
+  "key": "samedi",
+  "name": "Самеди",
+  "en": "",
+  "nickname": "Мертвяки",
+  "group": "bloodline",
+  "sect": "",
+  "disciplines": [
+   "obtenebration",
+   "fortitude",
+   "thanatosis"
+  ],
+  "choice": [],
+  "disciplinesText": "Затмение, Стойкость, Танатозис",
+  "weakness": "<p>Гниющие трупы: <strong>Привлекательность 0</strong>, проверки с ней <strong>автоматически неудачны</strong>.</p>"
+ },
+ {
+  "key": "viziriAssamitov",
+  "name": "Визири Ассамитов",
+  "en": "",
+  "nickname": "",
+  "group": "variant",
+  "sect": "",
+  "disciplines": [
+   "celerity",
+   "quietus",
+   "auspex"
+  ],
+  "choice": [],
+  "disciplinesText": "Стремительность, Упокоение, Ясновидение",
+  "weakness": "<p><strong>Обсессивно‑компульсивное расстройство</strong>, связанное с самой развитой интеллектуальной или творческой способностью (может меняться).</p>"
+ },
+ {
+  "key": "charodeiAssamitov",
+  "name": "Чародеи Ассамитов",
+  "en": "",
+  "nickname": "Магусы",
+  "group": "variant",
+  "sect": "",
+  "disciplines": [
+   "obfuscate",
+   "quietus",
+   "assamiteSorcery"
+  ],
+  "choice": [],
+  "disciplinesText": "Сокрытие, Упокоение, Чародейство Ассамитов",
+  "weakness": "<p>Сияют для сверхъестественного восприятия: поиск и выслеживание их силами <strong>−2 к сложности</strong>; если маскируются силами (Сокрытие) — сила обнаружения (Ясновидение) считается <strong>на 1 выше</strong>.</p>"
+ },
+ {
+  "key": "moreplavateli",
+  "name": "Мореплаватели",
+  "en": "",
+  "nickname": "водные Гангрелы",
+  "group": "variant",
+  "sect": "",
+  "disciplines": [
+   "animalism",
+   "protean",
+   "fortitude"
+  ],
+  "choice": [],
+  "disciplinesText": "Анимализм, Метаморфозы, Стойкость",
+  "weakness": "<p>Как Гангрелы; атавизмы — от морских животных.</p>"
+ },
+ {
+  "key": "tlatsik",
+  "name": "Тлацик",
+  "en": "",
+  "nickname": "Ягуары; ветвь Сетитов",
+  "group": "variant",
+  "sect": "",
+  "disciplines": [
+   "presence",
+   "protean",
+   "obfuscate"
+  ],
+  "choice": [],
+  "disciplinesText": "Величие, Метаморфозы, Сокрытие",
+  "weakness": "<p>Как у Сетитов: солнце <strong>+2 повреждения</strong>, под ярким светом <strong>−1 кубик</strong>.</p>"
+ },
+ {
+  "key": "brahmany",
+  "name": "Брахманы",
+  "en": "",
+  "nickname": "ветвь Равнос",
+  "group": "variant",
+  "sect": "",
+  "disciplines": [
+   "animalism",
+   "chimerstry",
+   "auspex"
+  ],
+  "choice": [],
+  "disciplinesText": "Анимализм, Фантасмагория, Ясновидение",
+  "weakness": "<p>Как у Равнос (раб порока, сл. 6; обычно — мошенничество с гаданиями).</p>"
+ },
+ {
+  "key": "uDzao",
+  "name": "У-Дзао",
+  "en": "",
+  "nickname": "Сироты; ветвь Салюбри",
+  "group": "variant",
+  "sect": "",
+  "disciplines": [
+   "fortitude",
+   "auspex"
+  ],
+  "choice": [
+   "obeah",
+   "valeren"
+  ],
+  "disciplinesText": "Стойкость, Ясновидение + Обеа или Валерен (на выбор)",
+  "weakness": "<p>Одержимость знанием в выбранной области (вань‑куэй, культура, рукописи…): при возможности узнать новое — делает это любой ценой, если не прошёл <strong>Волю (сл. 6)</strong>.</p>"
+ },
+ {
+  "key": "telyaveli",
+  "name": "Телявели",
+  "en": "",
+  "nickname": "Овчары; языческие Тремер",
+  "group": "variant",
+  "sect": "",
+  "disciplines": [
+   "presence",
+   "thaumaturgy",
+   "auspex"
+  ],
+  "choice": [],
+  "disciplinesText": "Величие, Тауматургия, Ясновидение",
+  "weakness": "<p>Против носителя Истинной Веры сложность сопротивления ярости <strong>+2</strong>; их отпугивают распятия и христианские святыни.</p>"
+ },
+ {
+  "key": "kolduny",
+  "name": "Колдуны",
+  "en": "",
+  "nickname": "",
+  "group": "variant",
+  "sect": "",
+  "disciplines": [
+   "animalism",
+   "auspex"
+  ],
+  "choice": [
+   "dominate",
+   "vicissitude"
+  ],
+  "disciplinesText": "Анимализм, Ясновидение + Доминирование или Преображение (по традиции семьи); Колдовство — как сторонняя Дисциплина",
+  "weakness": "<p>Как у Цимисхов (родная земля).</p>"
+ },
+ {
+  "key": "staryyKlanTsimishov",
+  "name": "Старый клан Цимисхов",
+  "en": "",
+  "nickname": "",
+  "group": "variant",
+  "sect": "",
+  "disciplines": [
+   "animalism",
+   "dominate",
+   "auspex"
+  ],
+  "choice": [],
+  "disciplinesText": "Анимализм, Доминирование, Ясновидение",
+  "weakness": "<p>Как у Цимисхов (родная земля).</p>"
+ },
+ {
+  "key": "assamityAntitribu",
+  "name": "Ассамиты-антитрибу",
+  "en": "",
+  "nickname": "Ангелы Каина",
+  "group": "antitribu",
+  "sect": "",
+  "disciplines": [
+   "obfuscate",
+   "celerity",
+   "quietus"
+  ],
+  "choice": [],
+  "disciplinesText": "Сокрытие, Стремительность, Упокоение",
+  "weakness": "<p>Проклятие Тремер на них <strong>не действует</strong>, но выпив кровь Сородича — <strong>Самоконтроль/Инстинкты</strong> (сл. <strong>3 + выпитые пункты</strong>); провал — пристрастие к вампирской крови: при каждой возможности испить витэ — поддаться или снова проверка (сл. 6), провал — <strong>ярость</strong> и атака с Поцелуем.</p>"
+ },
+ {
+  "key": "bruhaAntitribu",
+  "name": "Бруха-антитрибу",
+  "en": "",
+  "nickname": "Громилы",
+  "group": "antitribu",
+  "sect": "",
+  "disciplines": [
+   "presence",
+   "potence",
+   "celerity"
+  ],
+  "choice": [],
+  "disciplinesText": "Величие, Мощь, Стремительность",
+  "weakness": "<p>Как у Бруха (сл. ярости +2); не стыдятся буйства.</p>"
+ },
+ {
+  "key": "ventruAntitribu",
+  "name": "Вентру-антитрибу",
+  "en": "",
+  "nickname": "Крестоносцы",
+  "group": "antitribu",
+  "sect": "",
+  "disciplines": [
+   "dominate",
+   "fortitude"
+  ],
+  "choice": [
+   "presence",
+   "auspex"
+  ],
+  "disciplinesText": "Доминирование, Стойкость + Величие или Ясновидение",
+  "weakness": "<p>Как у Вентру (одна категория жертв).</p>"
+ },
+ {
+  "key": "malkavianeAntitribu",
+  "name": "Малкавиане-антитрибу",
+  "en": "",
+  "nickname": "Фрики",
+  "group": "antitribu",
+  "sect": "",
+  "disciplines": [
+   "dementation",
+   "obfuscate",
+   "auspex"
+  ],
+  "choice": [],
+  "disciplinesText": "Помешательство, Сокрытие, Ясновидение",
+  "weakness": "<p>Неизлечимое расстройство, выбранное при создании.</p>"
+ },
+ {
+  "key": "malkavianeDominatory",
+  "name": "Малкавиане-Доминаторы",
+  "en": "",
+  "nickname": "Разносчики",
+  "group": "antitribu",
+  "sect": "",
+  "disciplines": [
+   "dominate",
+   "obfuscate",
+   "auspex"
+  ],
+  "choice": [],
+  "disciplinesText": "Доминирование, Сокрытие, Ясновидение",
+  "weakness": "<p>Как минимум одно неизлечимое расстройство (обычно «тихое»). До Великого Розыгрыша такой набор был у всех Малкавиан.</p>"
+ },
+ {
+  "key": "nosferatuAntitribu",
+  "name": "Носферату-антитрибу",
+  "en": "",
+  "nickname": "Тараканы",
+  "group": "antitribu",
+  "sect": "",
+  "disciplines": [
+   "animalism",
+   "potence",
+   "obfuscate"
+  ],
+  "choice": [],
+  "disciplinesText": "Анимализм, Мощь, Сокрытие",
+  "weakness": "<p>Как у Носферату (Привлекательность 0).</p>"
+ },
+ {
+  "key": "ravnosAntitribu",
+  "name": "Равнос-антитрибу",
+  "en": "",
+  "nickname": "Проходимцы",
+  "group": "antitribu",
+  "sect": "",
+  "disciplines": [
+   "animalism",
+   "fortitude",
+   "chimerstry"
+  ],
+  "choice": [],
+  "disciplinesText": "Анимализм, Стойкость, Фантасмагория",
+  "weakness": "<p>Как у Равнос.</p>"
+ },
+ {
+  "key": "salyubriAntitribu",
+  "name": "Салюбри-антитрибу",
+  "en": "",
+  "nickname": "Фурии",
+  "group": "antitribu",
+  "sect": "",
+  "disciplines": [
+   "valeren",
+   "fortitude",
+   "auspex"
+  ],
+  "choice": [],
+  "disciplinesText": "Валерен, Стойкость, Ясновидение",
+  "weakness": "<p>Пьют только кровь, <strong>взятую силой</strong> (павший враг или сопротивлявшаяся жертва). На старте — только <strong>10–12 поколение</strong>.</p>"
+ },
+ {
+  "key": "toreadorAntitribu",
+  "name": "Тореадор-антитрибу",
+  "en": "",
+  "nickname": "Извращенцы",
+  "group": "antitribu",
+  "sect": "",
+  "disciplines": [
+   "presence",
+   "celerity",
+   "auspex"
+  ],
+  "choice": [],
+  "disciplinesText": "Величие, Стремительность, Ясновидение",
+  "weakness": "<p>При возможности причинить физическую или душевную боль — делает это, если не прошёл <strong>Самоконтроль/Инстинкты (сл. 6)</strong> или не потратил <strong>Волю</strong>.</p>"
+ },
+ {
+  "key": "tremerAntitribu",
+  "name": "Тремер-антитрибу",
+  "en": "",
+  "nickname": "Заклинатели",
+  "group": "antitribu",
+  "sect": "",
+  "disciplines": [
+   "dominate",
+   "thaumaturgy",
+   "auspex"
+  ],
+  "choice": [],
+  "disciplinesText": "Доминирование, Тауматургия, Ясновидение",
+  "weakness": "<p>Любой тремер Камарильи <strong>узнаёт в нём предателя</strong> и постарается уничтожить; <strong>+1</strong> к результатам проверок силы братских уз; не могут занимать руководящих постов в Шабаше.</p>"
+ },
+ {
+  "key": "gorodskieGangrely",
+  "name": "Городские Гангрелы",
+  "en": "",
+  "nickname": "Койоты",
+  "group": "antitribu",
+  "sect": "",
+  "disciplines": [
+   "protean",
+   "obfuscate",
+   "celerity"
+  ],
+  "choice": [],
+  "disciplinesText": "Метаморфозы, Сокрытие, Стремительность",
+  "weakness": "<p>Как у Гангрелов; атавизмы городских животных (крысы, собаки, кошки, голуби, насекомые).</p>"
+ },
+ {
+  "key": "dikieGangrely",
+  "name": "Дикие Гангрелы",
+  "en": "",
+  "nickname": "Охотники",
+  "group": "antitribu",
+  "sect": "",
+  "disciplines": [
+   "animalism",
+   "protean",
+   "fortitude"
+  ],
+  "choice": [],
+  "disciplinesText": "Анимализм, Метаморфозы, Стойкость",
+  "weakness": "<p>Как у Гангрелов.</p>"
+ },
+ {
+  "key": "zmeiSveta",
+  "name": "Змеи Света",
+  "en": "",
+  "nickname": "Кобры",
+  "group": "antitribu",
+  "sect": "",
+  "disciplines": [
+   "presence",
+   "serpentis",
+   "obfuscate"
+  ],
+  "choice": [],
+  "disciplinesText": "Величие, Серпентис, Сокрытие",
+  "weakness": "<p>Как у Сетитов (свет).</p>"
+ },
+ {
+  "key": "voinySeta",
+  "name": "Воины Сета",
+  "en": "",
+  "nickname": "Рогатые Гадюки",
+  "group": "antitribu",
+  "sect": "",
+  "disciplines": [
+   "presence",
+   "potence",
+   "serpentis"
+  ],
+  "choice": [],
+  "disciplinesText": "Величие, Мощь, Серпентис",
+  "weakness": "<p>Как у Сетитов.</p>"
+ },
+ {
+  "key": "daytya",
+  "name": "Дайтья",
+  "en": "",
+  "nickname": "Богохульники",
+  "group": "antitribu",
+  "sect": "",
+  "disciplines": [
+   "presence",
+   "serpentis",
+   "obfuscate"
+  ],
+  "choice": [],
+  "disciplinesText": "Величие, Серпентис, Сокрытие",
+  "weakness": "<p>Как у Сетитов.</p>"
+ },
+ {
+  "key": "lasombraAntitribu",
+  "name": "Ласомбра-антитрибу",
+  "en": "",
+  "nickname": "Магистры; в Камарилье",
+  "group": "antitribu",
+  "sect": "",
+  "disciplines": [
+   "dominate",
+   "obtenebration",
+   "potence"
+  ],
+  "choice": [],
+  "disciplinesText": "Доминирование, Затмение, Мощь",
+  "weakness": "<p>Нет отражения; если личность или место станут известны — придут охотники Шабаша.</p>"
+ },
+ {
+  "key": "angelisAter",
+  "name": "Ангелис Атер",
+  "en": "",
+  "nickname": "Чёрные Ангелы",
+  "group": "antitribu",
+  "sect": "",
+  "disciplines": [
+   "daimoinon",
+   "dominate"
+  ],
+  "choice": [
+   "presence",
+   "obtenebration",
+   "potence"
+  ],
+  "disciplinesText": "Демонион, Доминирование + Величие, Затмение или Мощь",
+  "weakness": "<p>Как у Ласомбра (нет отражения).</p>"
+ },
+ {
+  "key": "pandery",
+  "name": "Пандеры",
+  "en": "",
+  "nickname": "Дворняги; шабашевы каитифы",
+  "group": "antitribu",
+  "sect": "",
+  "disciplines": [],
+  "choice": [],
+  "disciplinesText": "Нет клановых (любые с разрешения; опыт как у каитифов)",
+  "weakness": "<p>Нет; на старте поколение <strong>не ниже 9‑го</strong> (понижают диаблери).</p>"
+ }
+]

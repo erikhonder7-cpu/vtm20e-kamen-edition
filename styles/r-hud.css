@@ -1,0 +1,162 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   VTM20 «Liberté» — HUD персонажа вместо панели макросов.
+   Одна строка высотой ~66px: портрет · шкалы · кровь и мораль · атака · защита ·
+   действия · сводка. Группы подписаны капителью, кнопки — значки с подсказками.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+body.r-hud-on #hotbar { display: none !important; }
+
+#r-hud {
+  --h-bone: #d8cfbf; --h-bone-b: #ece4d4; --h-bone-2: #b3aa98; --h-muted: #7d766a; --h-dim: #5a554d;
+  --h-line: rgba(216, 207, 191, .1); --h-line-2: rgba(216, 207, 191, .2);
+  --h-blood: #8c1c22; --h-blood-l: #c4474c; --h-blood-d: #4a0d11;
+  --h-caps: "IM Fell SC", "Forum", Georgia, serif;
+  position: relative; display: flex; align-items: stretch; margin: 0 auto 6px; max-width: min(1240px, 100%); height: 68px; pointer-events: all;
+  font-family: "Old Standard", Georgia, serif; color: var(--h-bone);
+  background: linear-gradient(180deg, #151517, #0c0c0e); border: 1px solid #000; box-shadow: 0 0 0 1px #232327, 0 10px 28px rgba(0, 0, 0, .75);
+}
+#r-hud, #r-hud * { box-sizing: border-box; }
+#r-hud::before { content: ""; position: absolute; left: -1px; top: -1px; width: 48px; height: 2px; background: var(--h-blood-l); z-index: 1; }
+#r-hud > * { display: flex; align-items: center; min-width: 0; padding: 0 10px; border-right: 1px solid #1d1d21; flex: 0 0 auto; }
+#r-hud > *:last-child { border-right: 0; }
+#r-hud:has(.rh-face) { container-type: inline-size; width: 100%; }
+#r-hud a { cursor: pointer; color: inherit; text-decoration: none; }
+#r-hud .rh-empty { flex: 1; justify-content: center; gap: 8px; margin: 0; font-size: 13px; font-style: italic; color: var(--h-muted); }
+
+/* Портрет */
+#r-hud .rh-face { gap: 10px; padding-left: 8px; width: 196px; background: #0a0a0c; }
+#r-hud .rh-face img { width: 44px; height: 54px; flex: 0 0 auto; object-fit: cover; object-position: 50% 20%; border: 1px solid var(--h-line-2); filter: grayscale(.3) contrast(1.05); }
+#r-hud .rh-face:hover img { filter: none; }
+#r-hud .rh-face div { display: flex; flex-direction: column; min-width: 0; }
+#r-hud .rh-face b { font-family: "Prata", Georgia, serif; font-weight: 400; font-size: 14.5px; line-height: 1.15; color: var(--h-bone-b); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+#r-hud .rh-face small { font-family: var(--h-caps); font-size: 10.5px; letter-spacing: 1px; text-transform: uppercase; color: var(--h-blood-l); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Шкалы: подпись · клетки · состояние */
+#r-hud .rh-tracks { flex-direction: column; align-items: stretch; justify-content: center; gap: 4px; }
+#r-hud .rh-tracks > div { display: grid; grid-template-columns: 58px auto; align-items: center; gap: 8px; }
+#r-hud .rh-tracks label { font-family: var(--h-caps); font-size: 10px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--h-muted); }
+#r-hud .rh-tracks em { display: none; min-width: 70px; font-size: 11.5px; color: var(--h-muted); white-space: nowrap; }
+#r-hud .rh-tracks em.is-hurt { color: var(--h-blood-l); }
+#r-hud .rh-track { display: flex; gap: 2px; }
+#r-hud .rh-track i { width: 14px; height: 14px; display: grid; place-items: center; font-style: normal; font-size: 10px; line-height: 1; border: 1px solid rgba(216, 207, 191, .28); }
+#r-hud .rh-health i.is-bashing { background: rgba(216, 207, 191, .14); color: var(--h-bone); }
+#r-hud .rh-health i.is-lethal { background: var(--h-blood-d); border-color: var(--h-blood); color: #f1e9da; }
+#r-hud .rh-health i.is-aggravated { background: var(--h-blood); border-color: var(--h-blood-l); color: #fff; }
+#r-hud .rh-health i:last-child { border-style: dashed; }
+#r-hud .rh-will i { width: 10px; height: 10px; margin: 2px 2px 2px 0; }
+#r-hud .rh-will i.on { background: var(--h-bone-2); border-color: var(--h-bone); }
+
+/* Кровь и мораль — третьей строкой под шкалами */
+#r-hud .rh-tracks > .rh-stats { display: flex; align-items: baseline; gap: 14px; padding-left: 66px; }
+#r-hud .rh-stat { display: inline-flex; align-items: baseline; gap: 4px; line-height: 1; }
+#r-hud .rh-stat i { font-size: 10.5px; color: var(--h-muted); }
+#r-hud .rh-stat b { font-family: "Prata", Georgia, serif; font-weight: 400; font-size: 15px; color: var(--h-bone-b); }
+#r-hud .rh-stat small { font-family: "Prata", Georgia, serif; font-size: 11px; color: var(--h-muted); }
+#r-hud .rh-blood i { color: var(--h-blood-l); }
+#r-hud .rh-blood:hover b { color: #ff9ea1; }
+
+/* Группы: подпись сверху, содержимое в строку */
+#r-hud .rh-group { flex-direction: column; align-items: flex-start; justify-content: center; gap: 5px; }
+#r-hud .rh-group > label { font-family: var(--h-caps); font-size: 9.5px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--h-dim); line-height: 1; }
+#r-hud .rh-group-body { display: flex; align-items: center; gap: 3px; }
+#r-hud .rh-attacks { flex: 1 1 auto; }
+#r-hud .rh-attacks .rh-group-body { flex-wrap: nowrap; overflow: hidden; width: 100%; }
+#r-hud .rh-weapon {
+  display: inline-flex; align-items: center; gap: 6px; flex: 0 1 auto; min-width: 32px; height: 30px; padding: 0 10px; max-width: 170px;
+  font-size: 12.5px; color: var(--h-bone-2); border: 1px solid var(--h-line-2); background: rgba(0, 0, 0, .3); transition: color .12s, border-color .12s, background .12s;
+}
+#r-hud .rh-weapon i { color: var(--h-blood-l); font-size: 12px; }
+#r-hud .rh-weapon i { flex: 0 0 auto; }
+#r-hud .rh-weapon span { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#r-hud .rh-weapon:hover { color: var(--h-bone-b); border-color: var(--h-blood-l); background: rgba(140, 28, 34, .2); }
+#r-hud .rh-weapon.rh-mini { border-style: dashed; }
+#r-hud .rh-weapon.rh-mini i { color: var(--h-muted); }
+#r-hud .rh-weapon.rh-mini:hover i { color: var(--h-bone); }
+#r-hud .rh-weapon.rh-bite i { color: var(--h-blood-l); }
+#r-hud .rh-weapon.rh-more { padding: 0 9px; border-style: dashed; }
+#r-hud .rh-weapon.rh-more i { color: var(--h-muted); }
+#r-hud .rh-alarm {
+  display: inline-flex; align-items: center; gap: 6px; flex: 0 0 auto; height: 30px; padding: 0 10px; max-width: 220px;
+  font-size: 12.5px; color: #fff; background: linear-gradient(180deg, #a3242a, #5e0f14); border: 1px solid #c4474c;
+  animation: rh-alarm 1.2s ease-in-out infinite;
+}
+#r-hud .rh-alarm span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#r-hud .rh-alarm b { font-family: "Prata", serif; font-weight: 400; }
+@keyframes rh-alarm { 50% { filter: brightness(1.35); box-shadow: 0 0 12px rgba(196, 71, 76, .6); } }
+#r-hud .rh-btn {
+  display: grid; place-items: center; width: 32px; height: 30px; flex: 0 0 auto;
+  border: 1px solid var(--h-line); background: rgba(0, 0, 0, .3); transition: color .12s, border-color .12s, background .12s;
+}
+#r-hud .rh-btn i { font-size: 14px; color: var(--h-bone-2); }
+#r-hud .rh-btn:hover { border-color: var(--h-blood-l); background: rgba(140, 28, 34, .2); }
+#r-hud .rh-btn:hover i { color: var(--h-bone-b); }
+#r-hud .rh-btn.rh-man { border-style: dashed; border-color: var(--h-line-2); }
+#r-hud .rh-btn.is-on { border-color: var(--h-blood-l); background: rgba(140, 28, 34, .35); }
+#r-hud .rh-btn.is-on i { color: var(--h-bone-b); }
+#r-hud .rh-btn small { font-size: 10px; margin-left: 2px; color: var(--h-bone-b); }
+#r-hud .rh-btn.rh-man i { font-size: 13px; color: var(--h-muted); }
+#r-hud .rh-btn.rh-bite i { color: var(--h-blood-l); }
+#r-hud .rh-attacks .rh-group-body .rh-btn.rh-man:first-of-type { margin-left: 3px; }
+
+/* Сводка справа */
+#r-hud .rh-side { flex-direction: column; align-items: stretch; justify-content: center; gap: 3px; width: 118px; }
+#r-hud .rh-chip { display: flex; align-items: center; gap: 6px; height: 19px; padding: 0 8px; font-size: 12px; color: var(--h-bone-2); border: 1px solid var(--h-line); background: rgba(0, 0, 0, .3); white-space: nowrap; overflow: hidden; }
+#r-hud a.rh-chip:hover { border-color: var(--h-blood-l); color: var(--h-bone-b); }
+#r-hud .rh-chip i { width: 12px; text-align: center; font-size: 11px; color: var(--h-muted); }
+#r-hud .rh-chip small { color: var(--h-blood-l); }
+#r-hud .rh-chip.is-off { opacity: .45; }
+#r-hud .rh-chip.is-turn { border-color: var(--h-blood-l); color: var(--h-bone-b); box-shadow: inset 2px 0 0 var(--h-blood-l); }
+
+/* Поле чата при свёрнутой панели не налезает на HUD */
+body.r-hud-on #chat-notifications > #chat-message { display: none !important; }
+
+/* Широкий экран: подписи состояния у шкал; узкий — короче имя и оружие */
+@container (min-width: 1280px) {
+  #r-hud .rh-tracks em { display: block; }
+  #r-hud .rh-tracks > div:not(.rh-stats) { grid-template-columns: 58px auto 1fr; }
+}
+@container (max-width: 1060px) {
+  #r-hud .rh-face { width: 160px; }
+  #r-hud .rh-weapon span { max-width: 70px; }
+}
+@container (max-width: 900px) {
+  #r-hud .rh-face { width: auto; }
+  #r-hud .rh-face div { display: none; }
+  #r-hud .rh-tracks label { display: none; }
+  #r-hud .rh-tracks > div:not(.rh-stats) { grid-template-columns: auto; }
+  #r-hud .rh-tracks > .rh-stats { padding-left: 0; }
+  #r-hud .rh-weapon span { display: none; }
+  #r-hud .rh-side { width: 96px; }
+}
+
+/* ── Окна атаки, опасностей и диаблери ────────────────────────────────── */
+
+.vtm20 .r-atk-picks { display: flex; flex-wrap: wrap; gap: 4px; }
+.vtm20 .r-atk-pick {
+  display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; font-size: 12.5px;
+  color: var(--r-ink-2); border: 1px solid var(--r-line-2); transition: border-color .12s, background .12s;
+}
+.vtm20 .r-atk-pick i { color: var(--r-muted); font-size: 12px; }
+.vtm20 .r-atk-pick.is-man { border-style: dashed; }
+.vtm20 .r-atk-pick:hover { color: var(--r-ink); border-color: var(--r-ink-2); }
+.vtm20 .r-atk-pick.is-active { color: #f1e9da; background: #8c1c22; border-color: #c4474c; border-style: solid; }
+.vtm20 .r-atk-pick.is-active i { color: #f1e9da; }
+.vtm20 .r-atk-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 14px; }
+.vtm20 .r-atk-grid > label { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.vtm20 .r-atk-grid > label.is-wide { grid-column: 1 / -1; }
+.vtm20 .r-atk-grid > label > span:first-child { font-family: var(--r-caps); font-size: 10.5px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--r-muted); }
+.vtm20 .r-atk-grid > label.r-check { flex-direction: row; align-items: center; align-self: end; }
+.vtm20 .r-atk-grid select, .vtm20 .r-atk-grid input[type=number] { width: 100%; height: 26px; }
+.vtm20 .r-atk-num { display: flex; align-items: center; gap: 4px; }
+.vtm20 .r-atk-num input[type=number] { width: 48px; flex: 0 0 auto; }
+.vtm20 .r-roll-note.is-wide { margin: 0; }
+.vtm20 .r-atk-dmg { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; font-size: 13px; color: var(--r-ink-2); }
+.vtm20 .r-atk-dmg b { font-family: var(--r-display); font-weight: 400; font-size: 17px; color: var(--r-ink); }
+.vtm20 .r-atk-dmg em { font-size: 12px; color: var(--r-muted); }
+.vtm20 .r-diab-track { display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--r-muted); }
+.vtm20 .r-diab-track b { font-family: var(--r-display); font-weight: 400; font-size: 17px; color: var(--r-ink); }
+.vtm20 .r-diab-bar { flex: 1 1 auto; height: 6px; border: 1px solid var(--r-line-2); }
+.vtm20 .r-diab-bar i { display: block; height: 100%; background: linear-gradient(90deg, #4a0d11, #c4474c); }
+/* действующие силы — значки Дисциплин */
+#r-hud .rh-chip.rh-fx { padding: 0 2px; }
+#r-hud .rh-chip.rh-fx img { width: 18px; height: 18px; border: 0; display: block; }

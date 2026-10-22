@@ -1,0 +1,100 @@
+{{!-- Лист предмета: шапка, поля по типу, описание. --}}
+<div class="r-item-sheet">
+  <header class="r-item-head">
+    <img class="r-item-img" src="{{item.img}}" data-edit="img" data-action="editImage" alt="">
+    <div class="r-item-titles">
+      <span class="r-kicker">{{kicker}}</span>
+      <input class="r-name" type="text" name="name" value="{{item.name}}">
+    </div>
+    <a class="r-icon-btn" data-action="toChat" data-tooltip="{{localize 'VTM20.Sheet.ToChat'}}"><i class="fa-solid fa-comment-dots"></i></a>
+  </header>
+  <div class="r-rule" aria-hidden="true"><span></span><i></i><span></span></div>
+
+  <div class="r-item-body">
+    <div class="r-fields is-wide">
+      {{#if is.discipline}}
+      <label class="r-f"><span>{{localize "VTM20.Item.discipline"}}</span>
+        <select name="system.key">{{#each disciplineOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+      <label class="r-f"><span>{{localize "VTM20.Item.value"}}</span><input type="number" name="system.value" value="{{system.value}}" min="0" max="10"></label>
+      <label class="r-f r-f-check"><input type="checkbox" name="system.inClan" {{checked system.inClan}}><span>{{localize "VTM20.Sheet.InClan"}}</span></label>
+      {{/if}}
+
+      {{#if is.thaumPath}}
+      <label class="r-f"><span>{{localize "VTM20.Item.discipline"}}</span>
+        <select name="system.discipline">{{#each disciplineOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+      <label class="r-f"><span>{{localize "VTM20.Item.value"}}</span><input type="number" name="system.value" value="{{system.value}}" min="0" max="5"></label>
+      <label class="r-f r-f-check"><input type="checkbox" name="system.primary" {{checked system.primary}}><span>{{localize "VTM20.Sheet.PrimaryPath"}}</span></label>
+      {{/if}}
+
+      {{#if is.ritual}}
+      <label class="r-f"><span>{{localize "VTM20.Item.discipline"}}</span>
+        <select name="system.discipline">{{#each disciplineOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+      <label class="r-f"><span>{{localize "VTM20.Item.level"}}</span><input type="number" name="system.level" value="{{system.level}}" min="1" max="10"></label>
+      {{/if}}
+
+      {{#if is.power}}
+      <label class="r-f"><span>{{localize "VTM20.Item.discipline"}}</span>
+        <select name="system.discipline"><option value="">—</option>{{#each disciplineOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+      <label class="r-f"><span>{{localize "VTM20.Item.level"}}</span><input type="number" name="system.level" value="{{system.level}}" min="0" max="10"></label>
+      <label class="r-f is-span2"><span>{{localize "VTM20.Item.path"}}</span><input type="text" name="system.path" value="{{system.path}}"></label>
+      {{/if}}
+
+      {{#if hasRoll}}
+      <label class="r-f"><span>{{localize "VTM20.Item.trait1"}}</span>
+        <select name="system.roll.trait1"><option value="">—</option>{{#each traitGroups.t1}}<optgroup label="{{label}}">{{#each options}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</optgroup>{{/each}}</select></label>
+      <label class="r-f"><span>{{localize "VTM20.Item.trait2"}}</span>
+        <select name="system.roll.trait2"><option value="">—</option>{{#each traitGroups.t2}}<optgroup label="{{label}}">{{#each options}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</optgroup>{{/each}}</select></label>
+      <label class="r-f"><span>{{localize "VTM20.Roll.Difficulty"}}</span><input type="number" name="system.roll.difficulty" value="{{system.roll.difficulty}}" min="0" max="10"></label>
+      <label class="r-f"><span>{{localize "VTM20.Item.bloodCost"}}</span><input type="number" name="system.roll.blood" value="{{system.roll.blood}}" min="0" max="10"></label>
+      <label class="r-f r-f-check"><input type="checkbox" name="system.roll.willpower" {{checked system.roll.willpower}}><span>{{localize "VTM20.Roll.PayWill"}}</span></label>
+      {{/if}}
+
+      {{#if is.background}}
+      <label class="r-f"><span>{{localize "VTM20.Item.value"}}</span><input type="number" name="system.value" value="{{system.value}}" min="0" max="10"></label>
+      {{/if}}
+
+      {{#if (or is.merit is.flaw)}}
+      <label class="r-f"><span>{{localize "VTM20.Item.cost"}}</span><input type="number" name="system.cost" value="{{system.cost}}" min="0" max="10"></label>
+      <label class="r-f"><span>{{localize "VTM20.Item.category"}}</span>
+        <select name="system.category">{{#each categoryOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+      {{/if}}
+
+      {{#if is.derangement}}
+      <label class="r-f r-f-check"><input type="checkbox" name="system.permanent" {{checked system.permanent}}><span>{{localize "VTM20.Sheet.Permanent"}}</span></label>
+      {{/if}}
+
+      {{#if is.weapon}}
+      <label class="r-f"><span>{{localize "VTM20.Weapon.kind"}}</span>
+        <select name="system.kind">{{#each weaponKindOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+      <label class="r-f"><span>{{localize "VTM20.Weapon.damage"}}</span><input type="number" name="system.damage" value="{{system.damage}}" min="0" max="20"></label>
+      <label class="r-f r-f-check"><input type="checkbox" name="system.strength" {{checked system.strength}}><span>{{localize "VTM20.Weapon.plusStrength"}}</span></label>
+      <label class="r-f"><span>{{localize "VTM20.Weapon.type"}}</span>
+        <select name="system.damageType">{{#each damageTypeOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+      <label class="r-f"><span>{{localize "VTM20.Weapon.diff"}}</span><input type="number" name="system.difficulty" value="{{system.difficulty}}" min="2" max="10"></label>
+      <label class="r-f" data-tooltip="{{localize 'VTM20.Weapon.pierceHint'}}"><span>{{localize "VTM20.Weapon.pierce"}}</span><input type="number" name="system.pierce" value="{{system.pierce}}" min="0" max="10"></label>
+      <label class="r-f"><span>{{localize "VTM20.Weapon.range"}}</span><input type="text" name="system.range" value="{{system.range}}"></label>
+      <label class="r-f"><span>{{localize "VTM20.Weapon.rate"}}</span><input type="text" name="system.rate" value="{{system.rate}}"></label>
+      <label class="r-f"><span>{{localize "VTM20.Weapon.clip"}}</span><input type="text" name="system.clip" value="{{system.clip}}"></label>
+      <label class="r-f"><span>{{localize "VTM20.Weapon.conceal"}}</span><input type="text" name="system.concealment" value="{{system.concealment}}"></label>
+      <label class="r-f r-f-check"><input type="checkbox" name="system.equipped" {{checked system.equipped}}><span>{{localize "VTM20.Sheet.Equip"}}</span></label>
+      {{/if}}
+
+      {{#if is.armor}}
+      <label class="r-f"><span>{{localize "VTM20.Armor.rating"}}</span><input type="number" name="system.rating" value="{{system.rating}}" min="0" max="10"></label>
+      <label class="r-f"><span>{{localize "VTM20.Armor.penalty"}}</span><input type="number" name="system.penalty" value="{{system.penalty}}" min="0" max="10"></label>
+      <label class="r-f r-f-check"><input type="checkbox" name="system.equipped" {{checked system.equipped}}><span>{{localize "VTM20.Sheet.Equip"}}</span></label>
+      {{/if}}
+
+      {{#if is.gear}}
+      <label class="r-f"><span>{{localize "VTM20.Item.quantity"}}</span><input type="number" name="system.quantity" value="{{system.quantity}}" min="0"></label>
+      {{/if}}
+
+      <label class="r-f is-span2"><span>{{localize "VTM20.Item.source"}}</span><input type="text" name="system.source" value="{{system.source}}"></label>
+    </div>
+
+    <h2 class="r-h2"><span>{{localize "VTM20.Item.description"}}</span></h2>
+    <div class="r-editor">
+      <prose-mirror name="system.description" value="{{system.description}}" toggled {{#unless editable}}disabled{{/unless}}>{{{descriptionHTML}}}</prose-mirror>
+    </div>
+  </div>
+</div>

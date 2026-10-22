@@ -1,0 +1,41 @@
+{{!-- V. Биография: даты, убежище, жизнеописание, заметки, журнал опыта. --}}
+<section class="tab r-pane r-bio {{tab.cssClass}}" data-tab="{{tab.id}}" data-group="{{tab.group}}">
+
+  <h2 class="r-h2"><span>{{localize "VTM20.Sheet.Particulars"}}</span></h2>
+  <div class="r-fields is-wide">
+    <label class="r-f"><span>{{localize "VTM20.Details.age"}}</span><input type="text" name="system.details.age" value="{{system.details.age}}"></label>
+    <label class="r-f"><span>{{localize "VTM20.Details.apparentAge"}}</span><input type="text" name="system.details.apparentAge" value="{{system.details.apparentAge}}"></label>
+    <label class="r-f"><span>{{localize "VTM20.Details.born"}}</span><input type="text" name="system.details.born" value="{{system.details.born}}"></label>
+    {{#if isVampire}}<label class="r-f"><span>{{localize "VTM20.Details.embraced"}}</span><input type="text" name="system.details.embraced" value="{{system.details.embraced}}"></label>{{/if}}
+    <label class="r-f is-span2"><span>{{localize "VTM20.Details.haven"}}</span><input type="text" name="system.details.haven" value="{{system.details.haven}}"></label>
+    {{#if isVampire}}<label class="r-f is-span2"><span>{{localize "VTM20.Details.clanCustom"}}</span><input type="text" name="system.clanCustom" value="{{system.clanCustom}}" placeholder="{{localize 'VTM20.Details.clanCustomHint'}}"></label>{{/if}}
+    {{#if isMortal}}<label class="r-f"><span>{{localize "VTM20.Details.trueFaith"}}</span><input type="number" name="system.trueFaith" value="{{system.trueFaith}}" min="0" max="10"></label>{{/if}}
+  </div>
+
+  <h2 class="r-h2"><span>{{localize "VTM20.Sheet.Biography"}}</span></h2>
+  <div class="r-editor">
+    <prose-mirror name="system.biography" value="{{system.biography}}" toggled {{#unless editable}}disabled{{/unless}}>{{{biographyHTML}}}</prose-mirror>
+  </div>
+
+  <h2 class="r-h2"><span>{{localize "VTM20.Sheet.Notes"}}</span></h2>
+  <div class="r-editor">
+    <prose-mirror name="system.notes" value="{{system.notes}}" toggled {{#unless editable}}disabled{{/unless}}>{{{notesHTML}}}</prose-mirror>
+  </div>
+
+  <h2 class="r-h2"><span>{{localize "VTM20.Sheet.Experience"}}</span>{{#if editable}}<a class="r-h2-tool" data-action="addXp" data-tooltip="{{localize 'VTM20.Xp.Add'}}"><i class="fa-solid fa-plus"></i></a>{{/if}}</h2>
+  <div class="r-xp-sum">
+    <label><span>{{localize "VTM20.Xp.total"}}</span><input type="number" name="system.experience.total" value="{{system.experience.total}}" min="0"></label>
+    <label><span>{{localize "VTM20.Xp.spent"}}</span><input type="number" name="system.experience.spent" value="{{system.experience.spent}}" min="0"></label>
+    <div class="r-xp-avail"><span>{{localize "VTM20.Xp.available"}}</span><b>{{system.experience.available}}</b></div>
+  </div>
+  <div class="r-xp-log">
+    {{#each system.experience.log}}
+    <div class="r-xp-row {{#if (lt amount 0)}}is-spend{{/if}}">
+      <input type="number" name="system.experience.log.{{@index}}.amount" value="{{amount}}" class="r-xp-amt">
+      <input type="text" name="system.experience.log.{{@index}}.reason" value="{{reason}}" placeholder="{{localize 'VTM20.Xp.reason'}}">
+      <input type="text" name="system.experience.log.{{@index}}.date" value="{{date}}" class="r-xp-date">
+      <a class="r-icon-btn is-danger" data-action="removeXp" data-index="{{@index}}"><i class="fa-solid fa-xmark"></i></a>
+    </div>
+    {{/each}}
+  </div>
+</section>

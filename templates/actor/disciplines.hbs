@@ -1,0 +1,97 @@
+{{!-- II. Дисциплины: точки, силы по уровню из справочника, пути и ритуалы магии крови. --}}
+<section class="tab r-pane r-disciplines {{tab.cssClass}}" data-tab="{{tab.id}}" data-group="{{tab.group}}">
+
+  <h2 class="r-h2"><span>{{localize "VTM20.Sheet.Disciplines"}}</span></h2>
+  {{#if activeFx.length}}
+  <div class="r-fx-strip">
+    <span class="r-fx-label"><i class="fa-solid fa-wand-sparkles"></i> {{localize "VTM20.Fx.Active"}}</span>
+    {{#each activeFx}}<span class="r-fx-chip"><img src="{{img}}" alt=""><b>{{name}}</b><em>{{mode}}</em>{{#if @root.editable}}<a data-action="endPower" data-effect-id="{{id}}" data-tooltip="{{localize 'VTM20.Fx.End'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}</span>{{/each}}
+  </div>
+  {{/if}}
+
+  {{#if editable}}
+  <div class="r-toolbar">
+    <a class="r-btn" data-action="library" data-kind="discipline"><i class="fa-solid fa-book-skull"></i> {{localize "VTM20.Library.Kinds.discipline"}}</a>
+    <a class="r-btn" data-action="library" data-kind="combo"><i class="fa-solid fa-link"></i> {{localize "VTM20.Library.Kinds.combo"}}</a>
+    {{#if missingClan}}<a class="r-btn is-accent" data-action="addClanDisciplines"><i class="fa-solid fa-droplet"></i> {{localize "VTM20.Sheet.AddClanDisciplines"}}</a>{{/if}}
+    {{#if isGhoul}}<span class="r-note">{{localize "VTM20.Sheet.GhoulCap" n=ghoulCap}}</span>{{/if}}
+  </div>
+  {{/if}}
+
+  {{#each disciplines}}
+  <article class="r-row-wrap r-disc {{#if open}}is-open{{/if}} {{#if inClan}}is-clan{{/if}}" data-item-id="{{id}}">
+    <header class="r-disc-head">
+      <span class="r-disc-sigil">{{#if sym}}{{rSym sym}}{{else}}<i class="fa-solid {{icon}}"></i>{{/if}}</span>
+      <div class="r-disc-title">
+        <a class="r-disc-name" data-action="toggleRow" data-row-id="{{id}}">{{name}}</a>
+        <span class="r-disc-sub">{{#if en}}{{en}}{{/if}}{{#if inClan}} · <b>{{localize "VTM20.Sheet.InClan"}}</b>{{/if}}{{#if physical}} · +{{value}} {{localize "VTM20.Sheet.DiceTo"}} {{physical}}{{/if}}</span>
+      </div>
+      {{> rDots dots=dots cls="is-disc"}}
+      <div class="r-disc-tools">
+        {{#if @root.editable}}<a class="r-buy" data-action="buy" data-item-id="{{id}}" data-path="system.value" data-kind="discipline" data-tooltip="{{localize 'VTM20.Xp.Buy'}}: {{xp}}"><i class="fa-solid fa-plus"></i></a>{{/if}}
+        <a class="r-icon-btn" data-action="rollTrait" data-trait="disciplines.{{key}}" data-tooltip="{{localize 'VTM20.Sheet.Roll'}}"><i class="fa-solid fa-dice-d10"></i></a>
+        <a class="r-icon-btn" data-action="itemEdit" data-tooltip="{{localize 'VTM20.Sheet.Edit'}}"><i class="fa-solid fa-pen-nib"></i></a>
+        {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="itemDelete" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-trash"></i></a>{{/if}}
+        <a class="r-icon-btn r-chevron" data-action="toggleRow" data-row-id="{{id}}"><i class="fa-solid fa-chevron-down"></i></a>
+      </div>
+    </header>
+
+    <div class="r-disc-body">
+      {{#each powers}}{{> rPower disc=../key}}{{/each}}
+      {{#if ownPowers.length}}<h4 class="r-h4">{{localize "VTM20.Sheet.OwnPowers"}}</h4>{{#each ownPowers}}{{> rPower cls="is-own"}}{{/each}}{{/if}}
+      {{#if nextPower}}<div class="r-next">{{localize "VTM20.Sheet.NextPower"}}: <b>{{rRoman nextPower.level}} · {{nextPower.name}}</b></div>{{/if}}
+
+      {{#if isPathed}}
+      {{#each paths}}
+      <div class="r-path {{#if primary}}is-primary{{/if}}" data-item-id="{{id}}">
+        <div class="r-path-head">
+          <a class="r-icon-btn r-star" data-action="itemToggle" data-field="system.primary" data-tooltip="{{localize 'VTM20.Sheet.PrimaryPath'}}"><i class="fa-{{#if primary}}solid{{else}}regular{{/if}} fa-star"></i></a>
+          <span class="r-path-name">{{name}}</span>
+          {{> rDots dots=dots}}
+          {{#if @root.editable}}<a class="r-buy" data-action="buy" data-item-id="{{id}}" data-path="system.value" data-kind="path" data-tooltip="{{localize 'VTM20.Xp.Buy'}}"><i class="fa-solid fa-plus"></i></a>
+          <a class="r-icon-btn is-danger" data-action="itemDelete"><i class="fa-solid fa-trash"></i></a>{{/if}}
+        </div>
+        {{#each powers}}{{> rPower pathId=../id disc=../../key}}{{/each}}
+        {{#each ownPowers}}{{> rPower cls="is-own"}}{{/each}}
+        {{#unless powers.length}}{{#unless ownPowers.length}}{{#if html}}<div class="r-path-text">{{{html}}}</div>{{/if}}{{/unless}}{{/unless}}
+      </div>
+      {{/each}}
+      {{#if @root.editable}}{{#if pathChoices.length}}
+      <div class="r-toolbar is-inner">
+        <a class="r-btn" data-action="library" data-kind="path" data-discipline="{{key}}"><i class="fa-solid fa-book-skull"></i> {{localize "VTM20.Sheet.AddPath"}}</a>
+      </div>
+      {{/if}}{{/if}}
+      {{/if}}
+
+      {{#if hasRituals}}
+      <h4 class="r-h4">{{localize "VTM20.Sheet.Rituals"}}</h4>
+      {{#each rituals}}
+      {{> rPower cls="is-ritual"}}
+      {{else}}<div class="r-empty">{{localize "VTM20.Sheet.NoRituals"}}</div>
+      {{/each}}
+      {{#if @root.editable}}{{#if ritualChoices}}
+      <div class="r-toolbar is-inner">
+        <a class="r-btn" data-action="library" data-kind="ritual" data-discipline="{{key}}"><i class="fa-solid fa-book-skull"></i> {{localize "VTM20.Sheet.AddRitual"}}</a>
+      </div>
+      {{/if}}{{/if}}
+      {{/if}}
+
+      {{#each rules}}
+      <div class="r-row-wrap r-rule-block {{#if open}}is-open{{/if}}">
+        <a class="r-rule-title" data-action="toggleRow" data-row-id="{{id}}"><i class="fa-solid fa-book"></i> {{title}}</a>
+        <div class="r-power-body">{{{html}}}</div>
+      </div>
+      {{/each}}
+    </div>
+  </article>
+  {{else}}
+  <div class="r-empty">{{localize "VTM20.Sheet.NoDisciplines"}}</div>
+  {{/each}}
+
+  {{#if (or otherPowers.length otherRituals.length)}}
+  <h2 class="r-h2"><span>{{localize "VTM20.Sheet.OtherPowers"}}</span></h2>
+  {{#each otherPowers}}{{> rPower cls="is-own"}}{{/each}}
+  {{#each otherRituals}}{{> rPower cls="is-ritual"}}{{/each}}
+  {{/if}}
+  {{#if editable}}<a class="r-add-line" data-action="itemCreate" data-type="power"><i class="fa-solid fa-plus"></i> {{localize "TYPES.Item.power"}}</a>{{/if}}
+</section>

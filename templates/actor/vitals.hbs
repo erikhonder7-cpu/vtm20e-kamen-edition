@@ -1,0 +1,66 @@
+{{!-- Шкалы: здоровье, воля, Человечность или Путь с Добродетелями. Шапка карточки — название и число в одну строку. --}}
+<section class="r-vitals">
+  <div class="r-vcard r-vc-health {{#if healthHurt}}is-hurt{{/if}}">
+    <div class="r-vc-head">
+      <h4 class="r-banner"><span>{{localize "VTM20.Sheet.Health"}}</span></h4>
+      <div class="r-vc-status">{{healthStatus}}{{#if woundPenalty}} <b>{{woundPenalty}}</b>{{/if}}</div>
+    </div>
+    <div class="r-hboxes">
+      {{#each health}}
+      <div class="r-hbox is-{{state}}" data-tooltip="{{label}}{{#if penaltyLabel}} ({{penaltyLabel}}){{/if}}">
+        <span class="r-hbox-mark">{{mark}}</span>
+        <span class="r-hbox-pen">{{#if penaltyLabel}}{{penaltyLabel}}{{else}}·{{/if}}</span>
+      </div>
+      {{/each}}
+    </div>
+    <div class="r-vc-tools">
+      <span class="r-vc-btngroup" data-tooltip="{{localize 'VTM20.Sheet.HealthHint'}}">
+        <span class="r-vc-btnlabel">{{localize "VTM20.Sheet.DamageMarks"}}</span>
+        <a class="r-vc-btn is-sq is-bashing" data-action="setHealth" data-type="bashing" aria-label="{{localize 'VTM20.Damage.bashing'}}">/</a>
+        <a class="r-vc-btn is-sq is-lethal" data-action="setHealth" data-type="lethal" aria-label="{{localize 'VTM20.Damage.lethal'}}">X</a>
+        <a class="r-vc-btn is-sq is-aggravated" data-action="setHealth" data-type="aggravated" aria-label="{{localize 'VTM20.Damage.aggravated'}}">✱</a>
+      </span>
+      {{#if hasBlood}}<a class="r-vc-btn" data-action="bloodHeal" data-type="aggravated" data-tooltip="{{localize 'VTM20.Sheet.HealAggHint'}}"><i class="fa-solid fa-droplet"></i> {{localize "VTM20.Sheet.HealAggShort"}}</a>{{/if}}
+      <span class="r-vc-hint" data-tooltip="{{localize 'VTM20.Sheet.SoakHint'}}"><i class="fa-solid fa-shield-halved"></i> {{soak.bashing}}/{{soak.lethal}}/{{soak.aggravated}}</span>
+    </div>
+  </div>
+
+  <div class="r-vcard r-vc-will">
+    <div class="r-vc-head">
+      <h4 class="r-banner"><a data-action="rollVirtue" data-kind="willpower">{{localize "VTM20.Willpower"}}</a></h4>
+      <div class="r-vc-status"><b>{{system.willpower.temporary}}</b> / {{system.willpower.permanent}}</div>
+    </div>
+    {{> rDots dots=willPerm cls="is-ten"}}
+    <div class="r-boxes">
+      {{#each willTemp}}<a class="r-box {{#if filled}}is-filled{{/if}} {{#if locked}}is-locked{{/if}}" data-action="setDots" data-path="{{path}}" data-n="{{n}}"></a>{{/each}}
+    </div>
+    <div class="r-vc-tools">
+      <a class="r-vc-btn" data-action="spendWill"><i class="fa-solid fa-minus"></i> {{localize "VTM20.Sheet.SpendWillShort"}}</a>
+      {{#if natureRegain}}<span class="r-vc-hint" data-tooltip="{{localize 'VTM20.Sheet.NatureRegain'}} {{natureRegain}}"><i class="fa-solid fa-star"></i> {{system.details.nature}}</span>{{/if}}
+    </div>
+  </div>
+
+  <div class="r-vcard r-vc-morality">
+    <div class="r-vc-head">
+      <h4 class="r-banner is-select">
+        <select name="system.morality.path" class="r-path-select">
+          {{#each paths}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}
+        </select>
+      </h4>
+      <div class="r-vc-status"><b>{{system.morality.value}}</b></div>
+    </div>
+    {{> rDots dots=moralityDots cls="is-ten"}}
+    <div class="r-virtues">
+      {{#each virtues}}
+      <div class="r-virtue">
+        <a class="r-trait-label" data-action="rollTrait" data-trait="virtues.{{slot}}" data-tooltip="{{label}}">{{label}}</a>
+        <span class="r-virtue-dots">{{> rDots dots=dots}}{{#if @root.editable}}<a class="r-buy" data-action="buy" data-path="system.virtues.{{slot}}.value" data-kind="virtue" data-label="{{label}}" data-tooltip="{{localize 'VTM20.Xp.Buy'}}: {{xp}}"><i class="fa-solid fa-plus"></i></a>{{/if}}</span>
+      </div>
+      {{/each}}
+    </div>
+    <div class="r-vc-tools">
+      <span class="r-vc-hint is-left" data-tooltip="{{localize 'VTM20.Sheet.BearingHint'}}">{{localize "VTM20.Sheet.Bearing"}}: <b>{{bearing.name}}</b> {{bearing.mod}}</span>
+      <a class="r-vc-btn is-right" data-action="rollVirtue" data-kind="degeneration"><i class="fa-solid fa-scale-unbalanced"></i> {{localize "VTM20.Sheet.DegenerationShort"}}</a>
+    </div>
+  </div>
+</section>

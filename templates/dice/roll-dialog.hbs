@@ -1,0 +1,79 @@
+{{!-- Окно проверки: пул из двух черт, модификаторы, сложность, специализация, воля. --}}
+<div class="r-roll-form">
+  {{#unless fixedPool}}
+  <div class="r-roll-traits">
+    <select name="trait1" {{#if lockTraits}}disabled{{/if}}>
+      <option value="">—</option>
+      {{#each groups1}}<optgroup label="{{label}}">{{#each options}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</optgroup>{{/each}}
+    </select>
+    <span class="r-plus">+</span>
+    <select name="trait2" {{#if lockTraits}}disabled{{/if}}>
+      <option value="">—</option>
+      {{#each groups2}}<optgroup label="{{label}}">{{#each options}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</optgroup>{{/each}}
+    </select>
+  </div>
+  {{/unless}}
+
+  <div class="r-roll-row">
+    <span class="r-roll-label">{{localize "VTM20.Roll.Modifier"}}</span>
+    <a class="r-step" data-action="bump" data-field="bonus" data-d="-1">−</a>
+    <input type="number" name="bonus" value="{{v.bonus}}" class="r-roll-num">
+    <a class="r-step" data-action="bump" data-field="bonus" data-d="1">+</a>
+  </div>
+
+  {{#if contests.length}}
+  <div class="r-roll-row" data-tooltip="{{localize 'VTM20.Contest.ModeHint'}}">
+    <span class="r-roll-label">{{localize "VTM20.Contest.ModeLabel"}}</span>
+    <select name="contest" class="r-roll-mode">{{#each contests}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+    {{#if isExtended}}<span class="r-roll-need">{{localize "VTM20.Contest.Need"}} <input type="number" name="need" value="{{v.need}}" min="1" max="50" class="r-roll-num is-small"></span>{{/if}}
+  </div>
+  {{/if}}
+
+  <div class="r-roll-row" data-tooltip="{{localize 'VTM20.Roll.MultiActionsHint'}}">
+    <span class="r-roll-label">{{localize "VTM20.Roll.Actions"}}</span>
+    <a class="r-step" data-action="bump" data-field="actions" data-d="-1">−</a>
+    <input type="number" name="actions" value="{{v.actions}}" min="1" max="6" class="r-roll-num">
+    <a class="r-step" data-action="bump" data-field="actions" data-d="1">+</a>
+  </div>
+
+  <div class="r-roll-row">
+    <span class="r-roll-label">{{localize "VTM20.Roll.Difficulty"}}</span>
+    <div class="r-diffs">
+      {{#each difficulties}}<a class="r-diff {{#if active}}is-active{{/if}}" data-action="setDifficulty" data-n="{{n}}">{{n}}</a>{{/each}}
+    </div>
+    <input type="number" name="difficulty" value="{{v.difficulty}}" min="2" max="12" class="r-roll-num is-small">
+  </div>
+  {{#if diffNote}}<div class="r-roll-note"><i class="fa-solid fa-circle-info"></i> {{diffNote}}</div>{{/if}}
+  {{#if (or diffAuto.length diffSit.length)}}
+  <div class="r-roll-fx">
+    {{#each diffAuto}}<span class="r-roll-fxauto"><i class="fa-solid fa-wand-sparkles"></i> {{label}} <b>{{rSigned value}}</b></span>{{/each}}
+    {{#each diffSit}}<label class="r-check" data-tooltip="{{hint}}"><input type="checkbox" name="fxs_{{kind}}:{{label}}" {{checked on}}> {{label}} <em>({{hint}}, {{rSigned value}})</em></label>{{/each}}
+  </div>
+  {{/if}}
+
+  <div class="r-roll-checks">
+    <label class="r-check {{#unless specialtyName}}is-dim{{/unless}}"><input type="checkbox" name="specialty" {{checked v.specialty}}>
+      {{localize "VTM20.Roll.Specialty"}}{{#if specialtyName}}: <em>{{specialtyName}}</em>{{/if}}</label>
+    {{#unless noWillpower}}
+    <label class="r-check"><input type="checkbox" name="willpower" {{checked v.willpower}} {{#unless willpowerLeft}}disabled{{/unless}}>
+      {{localize "VTM20.Roll.SpendWillpower"}} <em>({{willpowerLeft}})</em></label>
+    {{else}}
+    <span class="r-check is-dim"><i class="fa-solid fa-ban"></i> {{localize "VTM20.Roll.NoWillpower"}}</span>
+    {{/unless}}
+    {{#if bloodCost}}{{#if hasBlood}}<label class="r-check"><input type="checkbox" name="payBlood" {{checked v.payBlood}}> {{localize "VTM20.Roll.PayBlood" n=bloodCost}} <em>({{bloodLeft}})</em></label>{{/if}}{{/if}}
+    {{#if willpowerCost}}<label class="r-check"><input type="checkbox" name="payWill" {{checked v.payWill}}> {{localize "VTM20.Roll.PayWill"}}</label>{{/if}}
+    {{#if lightBane}}<label class="r-check"><input type="checkbox" name="light" {{checked v.light}}> {{localize "VTM20.Roll.BrightLight"}} <em>(−1)</em></label>{{/if}}
+    {{#if woundPenalty}}<label class="r-check"><input type="checkbox" name="wounds" {{checked v.wounds}}> {{localize "VTM20.Roll.Wounds"}} <em>({{woundPenalty}})</em></label>{{/if}}
+    {{#if physicalBonus}}<label class="r-check"><input type="checkbox" name="physical" {{checked v.physical}}> {{physicalLabel}} <em>(+{{physicalBonus}})</em></label>{{/if}}
+  </div>
+
+  <div class="r-roll-total">
+    <div class="r-roll-breakdown">{{#each breakdown}}<span>{{label}} <b>{{rSigned value}}</b></span>{{/each}}</div>
+    <div class="r-roll-pool"><b>{{pool}}</b><i class="fa-solid fa-dice-d10"></i> <span>{{localize "VTM20.Roll.Vs"}}</span> <b>{{effDifficulty}}</b></div>
+  </div>
+
+  <div class="r-roll-foot">
+    <select name="messageMode" class="r-mode">{{#each messageModes}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+    <button type="submit" class="r-btn is-primary"><i class="fa-solid fa-dice-d10"></i> {{localize "VTM20.Roll.Roll"}}</button>
+  </div>
+</div>

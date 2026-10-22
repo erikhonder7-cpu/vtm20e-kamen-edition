@@ -1,0 +1,329 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   VTM20 «Liberté» — оформление ВСЕГО интерфейса Foundry: боковая панель, чат,
+   инструменты сцены, игроки, навигация, окна ядра, подсказки, меню.
+
+   Foundry v13+ собран на переменных: тема задаёт палитру (--color-cool-*,
+   --color-warm-*, --color-light-*), из неё выводятся прикладные цвета
+   (--button-*, --input-*, --control-*). Переопределяем их там же, где их
+   объявляет ядро, а материалы кладём точечно.
+
+   Всё под body.r-skin — клиентская настройка «Оформить интерфейс Foundry».
+   ══════════════════════════════════════════════════════════════════════════ */
+
+body.r-skin {
+  --rk-coal: #0a0a0c;
+  --rk-coal-2: #111113;
+  --rk-coal-3: #18181b;
+  --rk-coal-4: #222226;
+  --rk-bone: #d8cfbf;
+  --rk-bone-b: #ece4d4;
+  --rk-bone-2: #b3aa98;
+  --rk-muted: #7d766a;
+  --rk-dim: #5a554d;
+  --rk-line: rgba(216, 207, 191, .1);
+  --rk-line-2: rgba(216, 207, 191, .22);
+  --rk-blood: #8c1c22;
+  --rk-blood-l: #c4474c;
+  --rk-blood-d: #4a0d11;
+  --rk-steel: #8d9bb8;
+  --rk-caps: "IM Fell SC", "Forum", Georgia, serif;
+  --rk-display: "Prata", Georgia, serif;
+  --rk-body: "Old Standard", Georgia, serif;
+}
+
+/* ── 1. Палитра ядра ──────────────────────────────────────────────────── */
+body.r-skin, body.r-skin .themed, body.r-skin.themed {
+  --color-scheme: dark;
+  color-scheme: dark;
+  --color-cool-5: var(--rk-coal);
+  --color-cool-5-25: rgba(10, 10, 12, .25);
+  --color-cool-5-50: rgba(10, 10, 12, .5);
+  --color-cool-5-75: rgba(10, 10, 12, .75);
+  --color-cool-5-90: rgba(10, 10, 12, .93);
+  --color-cool-4: var(--rk-coal-3);
+  --color-cool-3: var(--rk-coal-4);
+  --color-warm-1: var(--rk-blood-l);
+  --color-warm-2: var(--rk-blood);
+  --color-warm-3: var(--rk-line-2);
+  --color-light-1: var(--rk-bone-b);
+  --color-light-2: var(--rk-bone);
+  --color-light-3: var(--rk-bone-2);
+  --color-light-4: var(--rk-bone-2);
+  --color-light-5: var(--rk-muted);
+  --color-light-6: var(--rk-dim);
+  --color-light-7: #45413a;
+  --color-dark-1: var(--rk-coal);
+  --color-dark-2: var(--rk-coal-2);
+  --color-dark-3: var(--rk-coal-2);
+  --color-dark-4: var(--rk-coal-3);
+  --color-dark-5: var(--rk-coal-4);
+  --color-dark-6: var(--rk-coal-4);
+  --color-text-emphatic: var(--rk-bone-b);
+  --color-text-primary: var(--rk-bone);
+  --color-text-secondary: var(--rk-bone-2);
+  --color-text-subtle: var(--rk-muted);
+  --color-text-selection: #fff;
+  --color-text-selection-bg: var(--rk-blood);
+  --color-text-hyperlink: var(--rk-blood-l);
+  --color-border: var(--rk-line);
+  --color-border-highlight: var(--rk-blood);
+  --color-border-highlight-alt: var(--rk-steel);
+  --color-shadow-primary: rgba(140, 28, 34, .45);
+  --color-shadow-highlight: var(--rk-blood);
+  --sidebar-background: var(--rk-coal-2);
+  --sidebar-separator: 1px solid #000;
+  --sidebar-entry-hover-bg: rgba(140, 28, 34, .14);
+  --sidebar-folder-color: var(--rk-coal-3);
+  --chat-message-background: var(--rk-coal-3);
+  --chat-message-border-color: var(--rk-line);
+  --table-background-color: rgba(0, 0, 0, .35);
+  --table-header-bg-color: var(--rk-coal-3);
+  --table-header-border-color: var(--rk-line);
+  --table-header-text-color: var(--rk-bone-b);
+  --table-row-color-even: rgba(255, 255, 255, .025);
+  --table-row-color-odd: transparent;
+  --table-row-color-highlight: rgba(140, 28, 34, .18);
+  --content-link-background: rgba(0, 0, 0, .4);
+  --content-link-border-color: var(--rk-line-2);
+  --content-link-icon-color: var(--rk-blood-l);
+  --content-link-text-color: var(--rk-bone);
+  --tooltip-background-color: rgba(10, 10, 12, .97);
+  --tooltip-text-color: var(--rk-bone);
+  --color-scrollbar: #2c2c31;
+  --color-scrollbar-track: transparent;
+  --color-level-info: var(--rk-steel);
+  --color-level-info-bg: rgba(17, 17, 19, .97);
+  --color-level-info-border: #3b4458;
+  --color-level-success: #8fa98a;
+  --color-level-success-bg: rgba(17, 19, 17, .97);
+  --color-level-success-border: #4a5c46;
+  --color-level-warning: #c9a46a;
+  --color-level-warning-bg: rgba(20, 17, 12, .97);
+  --color-level-warning-border: #6a5434;
+  --color-level-error: var(--rk-blood-l);
+  --color-level-error-bg: rgba(22, 10, 12, .97);
+  --color-level-error-border: var(--rk-blood);
+  --font-primary: var(--rk-body);
+  --font-body: var(--rk-body);
+  --font-sans: var(--rk-body);
+  --font-serif: var(--rk-body);
+  --font-h1: var(--rk-display);
+  --font-h2: var(--rk-display);
+  --font-h3: var(--rk-display);
+  --font-h4: var(--rk-caps);
+  --font-h5: var(--rk-caps);
+  --font-h6: var(--rk-caps);
+}
+
+/* ── 2. Прикладные переменные ─────────────────────────────────────────── */
+body.r-skin .application, body.r-skin.application {
+  --background: var(--rk-coal-2);
+  --color-header-background: var(--rk-coal);
+  --color-border: #000;
+  --color-tabs-border: var(--rk-line);
+  --color-fieldset-border: var(--rk-line-2);
+  --color-form-hint: var(--rk-muted);
+  --color-form-hint-hover: var(--rk-bone);
+  --color-form-label: var(--rk-bone-2);
+  --color-form-label-hover: var(--rk-bone-b);
+  --color-select-option-bg: var(--rk-coal-3);
+}
+body.r-skin input, body.r-skin select, body.r-skin textarea, body.r-skin code-mirror {
+  --input-background-color: rgba(0, 0, 0, .4);
+  --input-border-color: var(--rk-line-2);
+  --input-text-color: var(--rk-bone);
+  --input-focus-outline-color: var(--rk-blood);
+  --input-placeholder-color: var(--rk-dim);
+}
+body.r-skin input:disabled, body.r-skin select:disabled, body.r-skin textarea:disabled, body.r-skin input[readonly] {
+  --input-background-color: rgba(0, 0, 0, .25); --input-text-color: var(--rk-muted);
+}
+body.r-skin input[type=checkbox], body.r-skin input[type=radio] {
+  --checkbox-checked-color: var(--rk-blood);
+  --checkbox-background-color: #2c2c31;
+  --checkbox-checkmark-color: var(--rk-bone-b);
+  --checkbox-disabled-color: var(--rk-coal-4);
+  accent-color: var(--rk-blood);
+}
+body.r-skin input[type=checkbox]:hover, body.r-skin input[type=radio]:hover { --checkbox-background-color: var(--rk-blood-d); }
+body.r-skin a.button, body.r-skin button, body.r-skin kbd {
+  --button-background-color: var(--rk-coal-3);
+  --button-border-color: var(--rk-line-2);
+  --button-text-color: var(--rk-bone);
+  --button-focus-outline-color: var(--rk-blood);
+  --button-hover-background-color: #26262b;
+  --button-hover-border-color: var(--rk-bone-2);
+  --button-hover-text-color: var(--rk-bone-b);
+}
+body.r-skin a.button.bright, body.r-skin button.bright {
+  --button-background-color: var(--rk-blood);
+  --button-border-color: var(--rk-blood-l);
+  --button-text-color: #f1e9da;
+  --button-hover-background-color: #a3242a;
+  --button-hover-border-color: var(--rk-blood-l);
+  --button-hover-text-color: #fff;
+}
+body.r-skin .ui-control, body.r-skin .placeable-hud, body.r-skin #measurement .waypoint-label {
+  --control-bg-color: rgba(10, 10, 12, .92);
+  --control-border-color: #000;
+  --control-icon-color: var(--rk-bone-2);
+  --control-hover-bg-color: #1d1d21;
+  --control-hover-border-color: var(--rk-line-2);
+  --control-hover-icon-color: var(--rk-bone-b);
+  --control-active-bg-color: rgba(140, 28, 34, .35);
+  --control-active-border-color: var(--rk-blood);
+  --control-active-icon-color: var(--rk-bone-b);
+  --control-button-border-color: var(--rk-blood);
+  --control-button-hover-bg-color: rgba(140, 28, 34, .3);
+  --control-button-hover-border-color: var(--rk-blood-l);
+  --toggle-bg-color: rgba(10, 10, 12, .92);
+  --toggle-border-color: #000;
+  --toggle-active-bg-color: rgba(140, 28, 34, .4);
+  --toggle-active-border-color: var(--rk-blood);
+}
+
+/* ── 3. Окна ядра ─────────────────────────────────────────────────────── */
+body.r-skin .application:not(.vtm20) {
+  border: 1px solid #2a2a2e; border-radius: 0; background: var(--rk-coal-2);
+  box-shadow: 0 0 0 1px #000, 0 24px 60px rgba(0, 0, 0, .8); font-family: var(--rk-body);
+}
+body.r-skin .application:not(.vtm20) > .window-header {
+  position: relative; background: var(--rk-coal); border-bottom: 1px solid #222226;
+  font-family: var(--rk-caps); letter-spacing: 2.2px; text-transform: uppercase; font-size: 13.5px;
+}
+body.r-skin .application:not(.vtm20) > .window-header::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px; opacity: .5;
+  background: linear-gradient(90deg, #2f3b55 0 33.33%, #a49d8e 33.33% 66.66%, #6e1c20 66.66%);
+}
+body.r-skin .application > .window-header .window-icon { color: var(--rk-blood-l); }
+body.r-skin .application > .window-header .window-title { color: var(--rk-bone); }
+body.r-skin .window-app {
+  border: 1px solid #2a2a2e; border-radius: 0; background: var(--rk-coal-2);
+  box-shadow: 0 0 0 1px #000, 0 24px 60px rgba(0, 0, 0, .8); color: var(--rk-bone);
+}
+body.r-skin .window-app > .window-header {
+  background: var(--rk-coal); border-bottom: 1px solid #222226; border-radius: 0;
+  font-family: var(--rk-caps); letter-spacing: 2px; text-transform: uppercase; color: var(--rk-bone);
+}
+body.r-skin .application.dialog-v2 .window-content { padding: 14px; }
+body.r-skin .application.dialog-v2 .form-footer button { font-family: var(--rk-caps); letter-spacing: 1.4px; text-transform: uppercase; border-radius: 0; }
+body.r-skin .application:not(.vtm20) h1, body.r-skin .application:not(.vtm20) h2, body.r-skin .application:not(.vtm20) h3 { font-weight: 400; }
+body.r-skin .application fieldset { border: 1px solid var(--rk-line-2); border-radius: 0; }
+body.r-skin .application fieldset legend { font-family: var(--rk-caps); letter-spacing: 2px; text-transform: uppercase; color: var(--rk-blood-l); }
+body.r-skin .application:not(.vtm20) nav.tabs { border-bottom: 1px solid var(--rk-line); background: rgba(0, 0, 0, .3); }
+body.r-skin .application:not(.vtm20) nav.tabs > .item, body.r-skin .application:not(.vtm20) nav.tabs > a {
+  font-family: var(--rk-caps); letter-spacing: 1.6px; text-transform: uppercase; color: var(--rk-muted);
+}
+body.r-skin .application:not(.vtm20) nav.tabs > .item.active, body.r-skin .application:not(.vtm20) nav.tabs > a.active { color: var(--rk-bone-b); box-shadow: inset 0 -2px 0 var(--rk-blood-l); text-shadow: none; }
+body.r-skin .application:not(.vtm20) nav.tabs > .item:hover, body.r-skin .application:not(.vtm20) nav.tabs > a:hover { color: var(--rk-bone); text-shadow: none; }
+
+/* ── 4. Боковая панель ────────────────────────────────────────────────── */
+body.r-skin #sidebar { border: 1px solid #000; border-radius: 0; background: var(--rk-coal-2); box-shadow: 0 20px 60px rgba(0, 0, 0, .8); }
+body.r-skin #sidebar-tabs { padding: 0; margin: 0; background: var(--rk-coal); border-bottom: 1px solid #222226; }
+body.r-skin #sidebar-tabs > menu { gap: 0; }
+body.r-skin #sidebar-tabs > menu > li { flex: 1 1 0; }
+body.r-skin #sidebar-tabs .ui-control {
+  position: relative; width: 100%; height: 38px; border: 0; border-radius: 0; background: transparent; clip-path: none;
+  color: var(--rk-muted); box-shadow: none;
+}
+body.r-skin #sidebar-tabs .ui-control:hover { color: var(--rk-bone-b); background: rgba(255, 255, 255, .025); }
+body.r-skin #sidebar-tabs .ui-control.active { color: var(--rk-bone-b); background: linear-gradient(180deg, rgba(140, 28, 34, .25), transparent); box-shadow: inset 0 -2px 0 var(--rk-blood-l); }
+body.r-skin #sidebar .directory-header { background: rgba(0, 0, 0, .3); border-bottom: 1px solid #000; border-radius: 0; }
+body.r-skin #sidebar .directory-header::after {
+  content: ""; display: block; height: 1px; margin-top: 4px; opacity: .5;
+  background: linear-gradient(90deg, #2f3b55 0 33.33%, #a49d8e 33.33% 66.66%, #6e1c20 66.66%);
+}
+body.r-skin #sidebar .directory-item, body.r-skin #sidebar .directory-list > li { border-radius: 0; }
+body.r-skin #sidebar .folder > .folder-header {
+  border-radius: 0; background: var(--rk-coal-3); border-left: 2px solid var(--rk-blood);
+  font-family: var(--rk-caps); letter-spacing: 1.4px; text-transform: uppercase; font-size: 12.5px;
+}
+body.r-skin #sidebar .directory-item.entry:hover { box-shadow: inset 2px 0 0 var(--rk-blood-l); }
+body.r-skin #sidebar .entry-name, body.r-skin #sidebar .document-name { font-family: var(--rk-display); color: var(--rk-bone); }
+body.r-skin #sidebar .entry-name:hover, body.r-skin #sidebar .document-name:hover { color: #f0b8b9; text-shadow: none; }
+body.r-skin #sidebar .directory-item img, body.r-skin #sidebar .thumbnail { border: 1px solid var(--rk-line); border-radius: 0; }
+body.r-skin .directory-item .thumbnail[src*="vtm20e-kamen-edition/assets/icons"] { border: 0; border-radius: 50%; }
+
+/* Чат */
+body.r-skin .chat-sidebar:not(.sidebar-popout) { background: var(--rk-coal-2); border-left: 0; border-radius: 0; }
+body.r-skin #sidebar-content.active-chat { pointer-events: all; }
+body.r-skin .chat-message {
+  position: relative; margin: 6px 8px; border: 1px solid #26262b; border-radius: 0;
+  background: linear-gradient(180deg, #19191c, #121214); color: var(--rk-bone); box-shadow: none;
+}
+body.r-skin .chat-message .message-header {
+  border-bottom: 1px solid rgba(0, 0, 0, .55); color: var(--rk-muted);
+  font-family: var(--rk-caps); letter-spacing: 1.2px; text-transform: uppercase; font-size: 11px;
+}
+body.r-skin .chat-message .message-header .message-sender { font-family: var(--rk-display); text-transform: none; letter-spacing: 0; font-size: 13.5px; color: var(--rk-bone-b); }
+body.r-skin .chat-message .message-header .message-metadata { color: var(--rk-muted); }
+body.r-skin .chat-message .message-content { font-family: var(--rk-body); font-size: 13.5px; line-height: 1.45; color: var(--rk-bone); }
+body.r-skin .chat-message .message-content .r-roll-card, body.r-skin .chat-message .message-content .r-item-card { margin: 4px -4px; }
+body.r-skin .chat-message.whisper { border-left: 2px solid #46557a; background: linear-gradient(90deg, rgba(70, 85, 122, .12), transparent 45%), #141416; }
+body.r-skin .chat-message.whisper .whisper-to, body.r-skin .chat-message.whisper .message-metadata { color: var(--rk-steel); }
+body.r-skin .chat-message.whisper.blind { border-left-color: var(--rk-blood-l); background: linear-gradient(90deg, rgba(140, 28, 34, .14), transparent 45%), #141416; }
+body.r-skin .chat-message.emote { border-color: var(--rk-line-2); font-style: italic; }
+body.r-skin .chat-message .dice-roll .dice-formula, body.r-skin .chat-message .dice-roll .dice-total {
+  background: rgba(0, 0, 0, .45); border: 1px solid var(--rk-line-2); border-radius: 0; color: var(--rk-bone); font-family: var(--rk-display);
+}
+body.r-skin #chat-message, body.r-skin .chat-form textarea {
+  border-radius: 0; border: 1px solid var(--rk-line); background: rgba(0, 0, 0, .5); box-shadow: inset 0 1px 4px rgba(0, 0, 0, .8); font-family: var(--rk-body);
+}
+body.r-skin #chat-message:focus { border-color: var(--rk-blood); }
+body.r-skin #chat-controls .control-buttons .ui-control, body.r-skin #chat-controls button { border-radius: 0; border: 1px solid var(--rk-line); background: rgba(0, 0, 0, .35); }
+
+/* ── 5. Полотно: инструменты, макросы, игроки, навигация ──────────────── */
+body.r-skin .ui-control { border-radius: 0; }
+body.r-skin #scene-controls-layers, body.r-skin #scene-controls-tools {
+  gap: 2px; padding: 3px; align-self: start; height: fit-content; max-height: calc(100vh - 32px); overflow-y: auto; scrollbar-width: none;
+  background: var(--rk-coal); border: 1px solid #000; box-shadow: 0 8px 24px rgba(0, 0, 0, .7);
+}
+body.r-skin #scene-controls-layers:empty, body.r-skin #scene-controls-tools:empty { display: none; }
+body.r-skin #scene-controls-layers .ui-control, body.r-skin #scene-controls-tools .ui-control { --control-bg-color: transparent; --control-border-color: transparent; }
+body.r-skin .ui-control.active, body.r-skin .ui-control[aria-pressed=true] { box-shadow: inset 2px 0 0 var(--rk-blood-l); }
+body.r-skin #scene-navigation .ui-control:not(.icon):not([class*="fa-"]), body.r-skin #scene-navigation-active .ui-control:not(.icon):not([class*="fa-"]) {
+  font-family: var(--rk-caps); text-transform: uppercase; letter-spacing: 1.4px; font-size: 12px;
+}
+body.r-skin #hotbar { --slot-color: rgba(10, 10, 12, .95); padding: 4px; border: 1px solid #000; border-radius: 0; background: var(--rk-coal); box-shadow: 0 8px 24px rgba(0, 0, 0, .7); }
+body.r-skin #hotbar .macro, body.r-skin #hotbar .slot { border-radius: 0; border: 1px solid #222226; background: #0e0e10; }
+body.r-skin #hotbar .macro:hover { border-color: var(--rk-blood-l); }
+body.r-skin #hotbar .macro .key, body.r-skin #hotbar .slot .key { font-family: var(--rk-display); color: var(--rk-dim); background: transparent; }
+body.r-skin #hotbar .macro:not(.inactive) { border-color: var(--rk-line-2); }
+body.r-skin #players { border: 1px solid #000; border-radius: 0; background: var(--rk-coal); box-shadow: 0 8px 24px rgba(0, 0, 0, .7); }
+body.r-skin #players .player-name { font-family: var(--rk-display); font-size: 12px; }
+body.r-skin #players h3, body.r-skin #players .players-header { font-family: var(--rk-caps); letter-spacing: 2px; text-transform: uppercase; }
+body.r-skin #pause { color: var(--rk-blood-l); }
+body.r-skin #pause figcaption { font-family: var(--rk-caps); letter-spacing: 6px; text-transform: uppercase; color: var(--rk-bone); text-shadow: 0 2px 8px #000; }
+body.r-skin #pause img { filter: grayscale(1) sepia(1) saturate(5) hue-rotate(-40deg) brightness(.55); }
+
+/* Подсказки, уведомления, контекстные меню */
+body.r-skin #tooltip, body.r-skin .locked-tooltip {
+  border: 1px solid var(--rk-line-2); border-radius: 0; background: rgba(10, 10, 12, .97); color: var(--rk-bone);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .8); font-family: var(--rk-body);
+}
+body.r-skin #notifications .notification { border-radius: 0; font-family: var(--rk-body); box-shadow: 0 8px 24px rgba(0, 0, 0, .7); }
+body.r-skin #context-menu, body.r-skin #context-menu-root { border: 1px solid var(--rk-line-2); border-radius: 0; background: var(--rk-coal-2); box-shadow: 0 12px 30px rgba(0, 0, 0, .8); }
+body.r-skin #context-menu .context-item { font-family: var(--rk-body); }
+body.r-skin #context-menu .context-item:hover { background: rgba(140, 28, 34, .25); color: var(--rk-bone-b); }
+body.r-skin [class*="fa-"] { text-shadow: none; }
+body.r-skin ::-webkit-scrollbar { width: 8px; height: 8px; }
+body.r-skin ::-webkit-scrollbar-track { background: transparent; }
+body.r-skin ::-webkit-scrollbar-thumb { background: #2c2c31; border: 0; }
+body.r-skin ::-webkit-scrollbar-thumb:hover { background: var(--rk-blood-d); }
+
+/* HUD токена */
+body.r-skin .placeable-hud { font-family: var(--rk-caps); }
+body.r-skin .placeable-hud .control-icon { border-radius: 0; }
+body.r-skin .placeable-hud input { font-family: var(--rk-display); font-size: 16px; }
+
+/* Редактор ProseMirror */
+body.r-skin prose-mirror { border: 1px solid var(--rk-line); background: rgba(0, 0, 0, .3); }
+body.r-skin prose-mirror .editor-content { padding: 8px 10px; min-height: 120px; color: var(--rk-bone); }
+body.r-skin .prosemirror menu, body.r-skin prose-mirror menu { background: var(--rk-coal); border-bottom: 1px solid #000; padding: 3px; }
+body.r-skin .prosemirror menu button, body.r-skin prose-mirror menu button { background: rgba(0, 0, 0, .35); border: 1px solid var(--rk-line-2); color: var(--rk-bone-2); border-radius: 0; }
+body.r-skin .prosemirror menu button:hover, body.r-skin prose-mirror menu button:hover { color: var(--rk-bone-b); border-color: var(--rk-blood-l); }
+body.r-skin prose-mirror .editor-menu .pm-dropdown ul { background: var(--rk-coal-3); border: 1px solid var(--rk-line); }
+
+/* Журналы: текст как печатный лист */
+body.r-skin .journal-entry-page h1, body.r-skin .journal-entry-page h2, body.r-skin .journal-entry-page h3 { font-family: var(--rk-display); font-weight: 400; color: var(--rk-bone-b); border-bottom-color: var(--rk-line-2); }
+body.r-skin .journal-entry-page { font-family: var(--rk-body); color: var(--rk-bone); }

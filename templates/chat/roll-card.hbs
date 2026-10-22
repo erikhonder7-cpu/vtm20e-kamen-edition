@@ -1,0 +1,69 @@
+{{!-- Карточка проверки V20 — «бюллетень»: шапка, кости, исход-лента, кнопки. --}}
+<div class="r-roll-card kind-{{kind}} {{outcome.css}}">
+  <header class="r-card-head">
+    {{#if actorImg}}<img class="r-card-img" src="{{actorImg}}" alt="">{{/if}}
+    <div class="r-card-titles">
+      <span class="r-card-title">{{title}}</span>
+      {{#if subtitle}}<span class="r-card-sub">{{subtitle}}</span>{{/if}}
+    </div>
+    <span class="r-card-pool" data-tooltip="{{localize 'VTM20.Roll.Pool'}}"><b>{{pool}}</b><i class="fa-solid fa-dice-d10"></i>{{#if showDifficulty}}<em>{{localize "VTM20.Roll.Vs"}} {{difficulty}}</em>{{/if}}</span>
+  </header>
+
+  {{#if breakdown.length}}
+  <div class="r-card-breakdown">{{#each breakdown}}<span>{{label}} <b>{{rSigned value}}</b></span>{{/each}}</div>
+  {{/if}}
+
+  <div class="r-dice-tray">
+    {{#each dice}}<span class="r-die {{cls}}"><span>{{value}}</span></span>{{/each}}
+    {{#if willpower}}<span class="r-die is-will" data-tooltip="{{localize 'VTM20.Roll.WillpowerSuccess'}}"><i class="fa-solid fa-star"></i></span>{{/if}}
+    {{#if auto}}<span class="r-die is-will" data-tooltip="{{localize 'VTM20.Roll.AutoSuccess'}}"><i class="fa-solid fa-hand-fist"></i><small>{{auto}}</small></span>{{/if}}
+  </div>
+
+  <div class="r-outcome">
+    <span class="r-outcome-ribbon"><i class="fa-solid {{outcome.icon}}"></i> {{outcome.label}}</span>
+    {{#unless (or (eq kind "damage") (eq kind "soak"))}}<span class="r-outcome-num"><b>{{successes}}</b> {{localize "VTM20.Roll.Successes"}}</span>{{/unless}}
+  </div>
+
+  {{#if specialty}}<div class="r-card-note"><i class="fa-solid fa-feather"></i> {{localize "VTM20.Roll.SpecialtyUsed"}}{{#if specialtyName}}: {{specialtyName}}{{/if}}</div>{{/if}}
+  {{#if extraNeeded}}<div class="r-card-note is-warn">{{localize "VTM20.Roll.ExtraNeeded" n=extraNeeded}}</div>{{/if}}
+  {{#if hint}}<div class="r-card-hint">{{hint}}</div>{{/if}}
+  {{#each notes}}<div class="r-card-note">{{{this}}}</div>{{/each}}
+  {{#if effect}}<details class="r-card-effect"><summary>{{localize "VTM20.Roll.Effect"}}</summary><div class="r-card-body">{{{effect}}}</div></details>{{/if}}
+
+  {{#if extended}}
+  <div class="r-ext">
+    <div class="r-ext-bar"><i style="width: {{extended.pct}}%"></i></div>
+    <span>{{localize "VTM20.Contest.Progress" n=extended.total need=extended.need step=extended.step}}</span>
+  </div>
+  {{#if extended.botched}}<div class="r-card-note is-warn">{{localize "VTM20.Contest.ExtBotch"}}</div>
+  {{else if extended.done}}<div class="r-card-note">{{localize "VTM20.Contest.ExtDone"}}</div>
+  {{else}}<div class="r-card-buttons"><button type="button" data-r-action="extend"><i class="fa-solid fa-forward"></i> {{localize "VTM20.Contest.Continue"}}</button></div>{{/if}}
+  {{/if}}
+  {{#if (eq contest "resisted")}}<div class="r-card-buttons"><button type="button" data-r-action="resist"><i class="fa-solid fa-arrows-left-right"></i> {{localize "VTM20.Contest.Resist"}}</button></div>{{/if}}
+  {{#if (eq contest "teamwork")}}<div class="r-card-buttons"><button type="button" data-r-action="assist"><i class="fa-solid fa-handshake-angle"></i> {{localize "VTM20.Contest.Assist"}}</button></div>{{/if}}
+
+  {{#if canDamage}}
+  <div class="r-card-buttons">
+    <button type="button" data-r-action="damage"><i class="fa-solid fa-burst"></i> {{localize "VTM20.Roll.RollDamage"}} · {{damageDice}} <span class="r-dmg">{{damageType}}</span></button>
+  </div>
+  {{/if}}
+  {{#if powerHit}}
+  <div class="r-card-buttons"><button type="button" data-r-action="powerHit"><i class="fa-solid fa-burst"></i> {{powerHit}}</button></div>
+  {{/if}}
+  {{#if atavism}}<div class="r-card-note is-warn"><i class="fa-solid fa-paw"></i> {{localize "VTM20.Roll.Atavism"}}</div>{{/if}}
+  {{#if canLoseWill}}
+  <div class="r-card-buttons">
+    <button type="button" data-r-action="loseWill"><i class="fa-solid fa-star-half-stroke"></i> {{localize "VTM20.Magic.LoseWill"}}</button>
+    <button type="button" data-r-action="loseWill" data-permanent="1"><i class="fa-solid fa-star"></i> {{localize "VTM20.Magic.LoseWillPermanent"}}</button>
+  </div>
+  {{/if}}
+  {{#if canFeed}}
+  <div class="r-card-buttons"><button type="button" data-r-action="feed"><i class="fa-solid fa-droplet"></i> {{localize "VTM20.Hunt.Feed"}}</button></div>
+  {{/if}}
+  {{#if canApply}}
+  <div class="r-card-buttons">
+    <button type="button" data-r-action="apply" data-soak="1"><i class="fa-solid fa-shield-halved"></i> {{localize "VTM20.Roll.ApplySoak"}}</button>
+    <button type="button" data-r-action="apply" data-soak="0"><i class="fa-solid fa-heart-crack"></i> {{localize "VTM20.Roll.ApplyRaw"}}</button>
+  </div>
+  {{/if}}
+</div>

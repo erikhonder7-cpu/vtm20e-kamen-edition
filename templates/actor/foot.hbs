@@ -1,0 +1,9 @@
+{{!-- Подвал: ночные часы хроники, дата по календарю Республики, до рассвета, торпор, опыт. --}}
+<footer class="r-foot" data-r-foot>
+  <span class="r-foot-clock"><i class="fa-solid {{clock.phase.icon}}"></i> <b data-foot-time>{{clock.time}}</b> <span data-foot-date>{{clock.longDate}}</span></span>
+  {{#if clock.republic}}<span class="r-foot-rep" data-foot-rep>{{clock.republic}}</span>{{/if}}
+  <span class="r-foot-until {{#if clock.phase.night}}is-night{{else}}is-day{{/if}}" data-foot-until>{{clock.phase.untilLabel}}</span>
+  <span class="r-foot-spacer"></span>
+  {{#if isVampire}}<span class="r-foot-item" data-tooltip="{{localize 'VTM20.Sheet.Torpor'}}"><i class="fa-solid fa-bed"></i> {{torpor}}</span>{{/if}}
+  <span class="r-foot-item"><i class="fa-solid fa-star"></i> {{localize "VTM20.Xp.available"}} <b>{{xp.available}}</b> / {{xp.total}}</span>
+</footer>

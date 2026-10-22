@@ -1,0 +1,118 @@
+{{!-- III. Преимущества: факты биографии, достоинства и недостатки, расстройства, узы крови. --}}
+<section class="tab r-pane r-advantages {{tab.cssClass}}" data-tab="{{tab.id}}" data-group="{{tab.group}}">
+
+  {{#if weakness}}
+  <div class="r-weakness-card">
+    <div class="r-weakness-head">
+      {{#if sigil.sym}}{{rSym sigil.sym}}{{/if}}
+      <span class="r-weakness-title">{{localize "VTM20.Sheet.Weakness"}} · {{weaknessTitle}}</span>
+      {{#if weaknessCheck}}<a class="r-chip" data-action="rollVirtue" data-kind="weakness"><i class="fa-solid fa-dice-d10"></i> {{weaknessCheck}}</a>{{/if}}
+    </div>
+    <div class="r-weakness-text">{{{weakness}}}</div>
+    <div class="r-weakness-foot">
+      <input type="text" name="system.weaknessNote" value="{{system.weaknessNote}}" placeholder="{{localize 'VTM20.Sheet.WeaknessNote'}}">
+      {{#if soilClan}}<label class="r-soil">{{localize "VTM20.Weakness.soilDays"}} <input type="number" name="system.soilDays" value="{{system.soilDays}}" min="0" max="10"></label>{{/if}}
+      {{#if lightClan}}<span class="r-hint">{{localize "VTM20.Weakness.light"}}</span>{{/if}}
+    </div>
+  </div>
+  {{/if}}
+
+  <h2 class="r-h2"><span>{{localize "VTM20.Sheet.Backgrounds"}}</span></h2>
+  <div class="r-cols2">
+    {{#each backgrounds}}
+    <div class="r-row-wrap r-bg {{#if open}}is-open{{/if}}" data-item-id="{{id}}">
+      <div class="r-trait-main">
+        <a class="r-trait-label" data-action="toggleRow" data-row-id="{{id}}">{{name}}</a>
+        <span class="r-leader"></span>
+        {{> rDots dots=dots}}
+        <a class="r-icon-btn" data-action="itemEdit"><i class="fa-solid fa-pen-nib"></i></a>
+        {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="itemDelete"><i class="fa-solid fa-xmark"></i></a>{{/if}}
+      </div>
+      <div class="r-power-body">{{{html}}}</div>
+    </div>
+    {{else}}<div class="r-empty">{{localize "VTM20.Sheet.NoBackgrounds"}}</div>
+    {{/each}}
+  </div>
+  {{#if editable}}
+  <div class="r-toolbar">
+    <a class="r-btn" data-action="library" data-kind="background"><i class="fa-solid fa-book-skull"></i> {{localize "VTM20.Library.Open"}}</a>
+    <a class="r-btn is-ghost" data-action="itemCreate" data-type="background"><i class="fa-solid fa-feather"></i> {{localize "VTM20.Sheet.Own"}}</a>
+  </div>
+  {{/if}}
+
+  <div class="r-cols2 r-mf">
+    {{#each mfColumns}}
+    <div class="r-col">
+      <h2 class="r-h2"><span>{{localize label}}</span><em class="r-h2-total">{{total}}</em></h2>
+      {{#each list}}
+      <div class="r-row-wrap r-mf-row {{#if open}}is-open{{/if}}" data-item-id="{{id}}">
+        <div class="r-trait-main">
+          <span class="r-cost">{{cost}}</span>
+          <a class="r-trait-label" data-action="toggleRow" data-row-id="{{id}}">{{name}}</a>
+          <span class="r-leader"></span>
+          <span class="r-tag">{{category}}</span>
+          <a class="r-icon-btn" data-action="itemEdit"><i class="fa-solid fa-pen-nib"></i></a>
+          {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="itemDelete"><i class="fa-solid fa-xmark"></i></a>{{/if}}
+        </div>
+        <div class="r-power-body">{{{html}}}</div>
+      </div>
+      {{else}}<div class="r-empty">—</div>
+      {{/each}}
+      {{#if @root.editable}}
+      <div class="r-toolbar is-inner">
+        <a class="r-btn" data-action="library" data-kind="{{key}}"><i class="fa-solid fa-book-skull"></i> {{localize "VTM20.Library.Open"}}</a>
+        <a class="r-btn is-ghost" data-action="itemCreate" data-type="{{key}}"><i class="fa-solid fa-feather"></i></a>
+      </div>
+      {{/if}}
+    </div>
+    {{/each}}
+  </div>
+
+  <div class="r-cols2">
+    <div class="r-col">
+      <h2 class="r-h2"><span>{{localize "VTM20.Sheet.Derangements"}}</span>{{#if editable}}<a class="r-h2-tool" data-action="itemCreate" data-type="derangement"><i class="fa-solid fa-plus"></i></a>{{/if}}</h2>
+      {{#each derangements}}
+      <div class="r-row-wrap r-mf-row {{#if open}}is-open{{/if}}" data-item-id="{{id}}">
+        <div class="r-trait-main">
+          <i class="fa-solid fa-brain r-muted"></i>
+          <a class="r-trait-label" data-action="toggleRow" data-row-id="{{id}}">{{name}}</a>
+          <span class="r-leader"></span>
+          {{#if permanent}}<span class="r-tag is-red">{{localize "VTM20.Sheet.Permanent"}}</span>{{/if}}
+          <a class="r-icon-btn" data-action="itemEdit"><i class="fa-solid fa-pen-nib"></i></a>
+          {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="itemDelete"><i class="fa-solid fa-xmark"></i></a>{{/if}}
+        </div>
+        <div class="r-power-body">{{{html}}}</div>
+      </div>
+      {{else}}<div class="r-empty">—</div>
+      {{/each}}
+      {{#if editable}}
+      <div class="r-toolbar is-inner">
+        <a class="r-btn" data-action="library" data-kind="derangement"><i class="fa-solid fa-book-skull"></i> {{localize "VTM20.Library.Open"}}</a>
+      </div>
+      {{/if}}
+    </div>
+
+    {{#unless isMortal}}
+    <div class="r-col">
+      <h2 class="r-h2"><span>{{localize "VTM20.Sheet.Bonds"}}</span>{{#if editable}}<a class="r-h2-tool" data-action="addBond"><i class="fa-solid fa-plus"></i></a>{{/if}}</h2>
+      {{#each bonds}}
+      <div class="r-trait-main r-bond">
+        <select name="system.bonds.{{index}}.role" class="r-mini-select">
+          <option value="regnant" {{#if (eq role "regnant")}}selected{{/if}}>{{localize "VTM20.Bond.regnant"}}</option>
+          <option value="thrall" {{#if (eq role "thrall")}}selected{{/if}}>{{localize "VTM20.Bond.thrall"}}</option>
+        </select>
+        <input class="r-trait-input" type="text" name="system.bonds.{{index}}.name" value="{{name}}" placeholder="{{localize 'VTM20.Bond.name'}}">
+        {{> rDots dots=dots}}
+        {{#if isRegnant}}{{#if ../editable}}
+        <a class="r-icon-btn" data-action="drinkBond" data-index="{{index}}" data-tooltip="{{localize 'VTM20.BondX.Drink'}} · {{tip}}"><i class="fa-solid fa-droplet"></i></a>
+        <a class="r-icon-btn" data-action="resistBond" data-index="{{index}}" data-tooltip="{{localize 'VTM20.BondX.Resist'}}"><i class="fa-solid fa-hand-fist"></i></a>
+        {{/if}}{{/if}}
+        <a class="r-icon-btn is-danger" data-action="removeBond" data-index="{{index}}"><i class="fa-solid fa-xmark"></i></a>
+      </div>
+      {{else}}<div class="r-empty">{{localize "VTM20.Bond.none"}}</div>
+      {{/each}}
+      <p class="r-hint">{{localize "VTM20.Bond.hint"}}</p>
+    </div>
+    {{/unless}}
+  </div>
+</section>

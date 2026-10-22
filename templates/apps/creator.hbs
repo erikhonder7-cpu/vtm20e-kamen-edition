@@ -1,0 +1,346 @@
+{{!-- Мастер создания V20 по образцу V5: шапка шага с кружками, подсказка, тело шага, подвал. --}}
+<div class="r-cr">
+  <nav class="r-cr-steps">
+    <div class="r-cr-steps-head">
+      <img src="systems/vtm20e-kamen-edition/assets/ui/cockade.svg" alt="">
+      <b>{{typeLabel}}</b>
+    </div>
+    <ol>
+      {{#each steps}}
+      <li class="r-cr-step {{#if active}}is-active{{/if}} {{#if done}}is-done{{/if}}">
+        <a data-action="goto" data-i="{{i}}">
+          <span class="r-cr-step-coin">{{#if done}}<i class="fa-solid fa-check"></i>{{else}}{{rRoman n}}{{/if}}</span>
+          <span class="r-cr-step-label">{{label}}</span>
+        </a>
+      </li>
+      {{/each}}
+    </ol>
+  </nav>
+
+  <header class="r-cr-head">
+    <span class="r-cr-stepno">{{localize "VTM20.Creator.StepN" n=(rRoman stepNumber) m=(rRoman stepCount)}}</span>
+    <h1>{{title}}</h1>
+    <p class="r-cr-hint">{{hint}}</p>
+  </header>
+
+  <aside class="r-cr-patent">
+    {{#if patent.sym}}{{rSym patent.sym "r-cr-patent-wm"}}{{/if}}
+    <div class="r-cr-patent-frame">
+      <img class="r-portrait" src="{{patent.img}}" alt="">
+      {{#if patent.generation}}<div class="r-seal"><span class="r-seal-num">{{rRoman patent.generation}}</span><span class="r-seal-cap">{{localize "VTM20.Sheet.Gen"}}</span></div>{{/if}}
+    </div>
+    <div class="r-cr-patent-name">{{#if patent.name}}{{patent.name}}{{else}}—{{/if}}</div>
+    {{#if patent.concept}}<div class="r-cr-patent-concept">{{patent.concept}}</div>{{/if}}
+    <div class="r-cr-patent-kicker">{{typeLabel}}{{#if patent.clan}} · <span>{{patent.clan}}</span>{{/if}}</div>
+    {{#if patent.sect}}<div class="r-cr-patent-sect">{{#if patent.sectSym}}{{rSym patent.sectSym "r-sym-inline"}}{{/if}}{{patent.sect}}</div>{{/if}}
+    <div class="r-cr-patent-stats">
+      <div><b>{{patent.morality}}</b><span>{{patent.pathName}}</span></div>
+      <div><b>{{patent.willpower}}</b><span>{{localize "VTM20.Willpower"}}</span></div>
+      {{#if patent.blood}}<div><b>{{patent.blood}}</b><span>{{localize "VTM20.Sheet.BloodPool"}}</span></div>{{/if}}
+    </div>
+    <h4 class="r-cr-ledger-title"><span>{{localize "VTM20.Creator.Ledger"}}</span></h4>
+    <ul class="r-cr-ledger">
+      {{#each patent.ledger}}<li class="is-{{state}}"><span>{{label}}</span><b>{{left}}</b><i style="--pct: {{pct}}%"></i></li>{{/each}}
+    </ul>
+  </aside>
+
+  <div class="r-cr-body">
+
+    {{!-- I. Концепция и возраст --}}
+    {{#if is_concept}}
+    <div class="r-cols2">
+      <div>
+        <div class="r-fields is-two">
+          <label class="r-f is-span2"><span>{{localize "VTM20.Sheet.Name"}}</span><input type="text" data-field="name" value="{{st.name}}"></label>
+          <label class="r-f is-span2"><span>{{localize "VTM20.Details.concept"}}</span><input type="text" data-field="concept" value="{{st.concept}}" placeholder="{{localize 'VTM20.Creator.ConceptPh'}}"></label>
+          <label class="r-f"><span>{{localize "VTM20.Details.nature"}}</span>
+            <select data-field="nature"><option value="">—</option>{{#each archetypes}}<option value="{{name}}" {{#if (eq name ../st.nature)}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
+          <label class="r-f"><span>{{localize "VTM20.Details.demeanor"}}</span>
+            <select data-field="demeanor"><option value="">—</option>{{#each archetypes}}<option value="{{name}}" {{#if (eq name ../st.demeanor)}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
+          <label class="r-f"><span>{{localize "VTM20.Details.sire"}}</span><input type="text" data-field="sire" value="{{st.sire}}"></label>
+          {{#if isGhoul}}<label class="r-f"><span>{{localize "VTM20.Details.domitor"}}</span><input type="text" data-field="domitor" value="{{st.domitor}}"></label>{{/if}}
+        </div>
+        {{#if natureRegain}}<div class="r-cr-note"><i class="fa-solid fa-star"></i> <b>{{st.nature}}</b> — {{localize "VTM20.Sheet.NatureRegain"}} {{natureRegain}}</div>{{/if}}
+      </div>
+      <div>
+        <h3 class="r-h3">{{localize "VTM20.Creator.TierTitle"}}</h3>
+        <div class="r-cr-tiles">
+          {{#each tiers}}
+          <a class="r-cr-tile {{#if active}}is-active{{/if}}" data-action="tier" data-tier="{{key}}">
+            <b>{{label}}</b><span>{{hint}}</span>{{#if xp}}<em>+{{xp}} {{localize "VTM20.Creator.XpShort"}}</em>{{/if}}
+          </a>
+          {{/each}}
+        </div>
+        <label class="r-cr-xpinput">{{localize "VTM20.Creator.XpCustom"}} <input type="number" data-field="xpTotal" value="{{st.xpTotal}}" min="0" step="5"></label>
+      </div>
+    </div>
+    {{#if isVampire}}
+    <h3 class="r-h3">{{localize "VTM20.Details.sect"}}</h3>
+    <div class="r-cr-sects">
+      {{#each sects}}
+      <a class="r-cr-sect {{#if active}}is-active{{/if}}" data-action="sect" data-sect="{{key}}">
+        <span class="r-cr-sect-sym r-cr-medal">{{#if sym}}{{rSym sym}}{{else}}<img src="systems/vtm20e-kamen-edition/assets/ui/cockade.svg" alt="">{{/if}}</span>
+        <b>{{label}}</b>
+      </a>
+      {{/each}}
+    </div>
+    {{/if}}
+    {{/if}}
+
+    {{!-- II. Клан и поколение --}}
+    {{#if is_clan}}
+    <div class="r-cr-gtabs">{{#each clanGroupTabs}}<a class="{{#if active}}is-active{{/if}}" data-action="clanGroup" data-group="{{key}}">{{label}}</a>{{/each}}</div>
+    <div class="r-cr-clans">
+      {{#each clans}}
+      <a class="r-cr-clan {{#if active}}is-active{{/if}}" data-action="clan" data-clan="{{key}}">
+        <span class="r-cr-clan-sym r-cr-medal">{{#if sym}}{{rSym sym}}{{else}}<i class="fa-solid fa-droplet"></i>{{/if}}</span>
+        <b>{{name}}</b>{{#if nickname}}<em>«{{nickname}}»</em>{{/if}}
+        <span class="r-cr-clan-disc">{{disciplines}}</span>
+      </a>
+      {{/each}}
+    </div>
+    {{#if clan}}
+    <div class="r-cr-clancard">
+      <h4 class="r-banner"><span>{{clan.name}}</span></h4>
+      <span class="r-cr-clancard-sym r-cr-medal">{{#if clan.sym}}{{rSym clan.sym}}{{/if}}</span>
+      <div class="r-cr-clancard-body">
+        <div class="r-cr-clancard-title">{{clan.name}}{{#if clan.nickname}} <em>«{{clan.nickname}}»</em>{{/if}}{{#if clan.sect}} · <small>{{clan.sect}}</small>{{/if}}</div>
+        <div class="r-cr-discrow">
+          {{#each clan.discCards}}<span class="r-cr-disc-chip">{{#if sym}}{{rSym sym}}{{/if}}{{label}}</span>{{/each}}
+          {{#if clan.choiceOptions.length}}<span class="r-cr-or">+ {{localize "VTM20.Creator.OneOf"}}:</span>
+            {{#each clan.choiceOptions}}<a class="r-cr-disc-chip is-choice {{#if active}}is-active{{/if}}" data-action="choice" data-key="{{value}}">{{#if sym}}{{rSym sym}}{{/if}}{{label}}</a>{{/each}}{{/if}}
+          {{#unless clan.disciplines.length}}<span class="r-cr-or">{{localize "VTM20.Creator.AnyDisc"}}</span>{{/unless}}
+        </div>
+        <div class="r-weakness-text"><b>{{localize "VTM20.Sheet.Weakness"}}:</b> {{{clan.weakness}}}</div>
+        {{#if isVentrue}}<label class="r-f"><span>{{localize "VTM20.Creator.VentrueTaste"}}</span><input type="text" data-field="weaknessNote" value="{{st.weaknessNote}}"></label>{{/if}}
+      </div>
+    </div>
+    {{/if}}
+    <div class="r-cols2 r-cr-genrow">
+      <div>
+        <h3 class="r-h3">{{localize "VTM20.Details.generation"}}</h3>
+        <div class="r-cr-gens">
+          {{#each gens}}<a class="r-cr-gen {{#if active}}is-active{{/if}}" data-action="gen" data-gen="{{g}}" data-tooltip="{{localize 'VTM20.Creator.GenTip' pool=pool turn=perTurn cost=cost}}"><b>{{rRoman g}}</b><small>{{#if cost}}{{cost}} {{localize "VTM20.Creator.BgPts"}}{{else}}—{{/if}}</small></a>{{/each}}
+        </div>
+        <p class="r-note">{{localize "VTM20.Creator.GenerationHint"}}</p>
+      </div>
+      <div>
+        <h3 class="r-h3">{{localize "VTM20.Sheet.Path"}}</h3>
+        <select data-field="path" class="r-cr-path">{{#each paths}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select>
+        {{#if pathInfo}}<p class="r-note">{{localize "VTM20.Sheet.Virtues"}}: <b>{{pathInfo.virtues}}</b> · {{localize "VTM20.Sheet.Bearing"}}: <b>{{pathInfo.bearing}}</b>{{#unless (eq st.path "humanity")}}<br>{{localize "VTM20.Creator.PathRules"}}{{/unless}}</p>{{/if}}
+      </div>
+    </div>
+    {{/if}}
+
+    {{!-- III. Характеристики / IV. Способности --}}
+    {{#if is_attributes}}
+    <div class="r-cols3">
+      {{#each attrGroups}}
+      <div class="r-cr-panel r-tcol">
+        <h3 class="r-colhead"><span>{{label}}</span></h3>
+        <div class="r-cr-prios">{{#each prios}}<a class="r-cr-prio {{#if active}}is-active{{/if}}" data-action="prio" data-kind="attr" data-group="{{../key}}" data-i="{{i}}"><b>{{n}}</b> {{label}}</a>{{/each}}</div>
+        <div class="r-cr-left {{#if (lt left 0)}}is-over{{else if (eq left 0)}}is-done{{/if}}">{{localize "VTM20.Creator.LeftShort"}}: <b>{{left}}</b></div>
+        {{#each list}}
+        <div class="r-trait-main"><span class="r-trait-label">{{label}}</span><span class="r-leader"></span>
+          <span class="r-dots">{{#each dots}}<a class="r-dot r-cr-dot is-{{state}} {{#if locked}}is-locked{{/if}}" data-action="dot" data-kind="{{kind}}" data-key="{{key}}" data-n="{{n}}"></a>{{/each}}</span>
+        </div>
+        {{#if locked}}<div class="r-note">{{localize "VTM20.Creator.Ugly"}}</div>{{/if}}
+        {{/each}}
+      </div>
+      {{/each}}
+    </div>
+    <p class="r-note r-cr-legend"><i class="r-dot r-cr-dot is-base"></i> {{localize "VTM20.Creator.LegendBase"}} · <i class="r-dot r-cr-dot is-alloc"></i> {{localize "VTM20.Creator.LegendAlloc"}} · <i class="r-dot r-cr-dot is-free"></i> {{localize "VTM20.Creator.LegendFree"}} · <i class="r-dot r-cr-dot is-xp"></i> {{localize "VTM20.Creator.LegendXp"}}</p>
+    {{/if}}
+
+    {{#if is_abilities}}
+    <div class="r-cols3">
+      {{#each abilGroups}}
+      <div class="r-cr-panel r-tcol">
+        <h3 class="r-colhead"><span>{{label}}</span></h3>
+        <div class="r-cr-prios">{{#each prios}}<a class="r-cr-prio {{#if active}}is-active{{/if}}" data-action="prio" data-kind="abil" data-group="{{../key}}" data-i="{{i}}"><b>{{n}}</b> {{label}}</a>{{/each}}</div>
+        <div class="r-cr-left {{#if (lt left 0)}}is-over{{else if (eq left 0)}}is-done{{/if}}">{{localize "VTM20.Creator.LeftShort"}}: <b>{{left}}</b></div>
+        {{#each list}}
+        <div class="r-trait-main"><span class="r-trait-label" data-tooltip="{{label}}">{{label}}</span><span class="r-leader"></span>
+          <span class="r-dots">{{#each dots}}<a class="r-dot r-cr-dot is-{{state}}" data-action="dot" data-kind="{{kind}}" data-key="{{key}}" data-n="{{n}}"></a>{{/each}}</span>
+        </div>
+        {{/each}}
+      </div>
+      {{/each}}
+    </div>
+    {{/if}}
+
+    {{!-- V. Дисциплины --}}
+    {{#if is_disciplines}}
+    <div class="r-cr-left {{#if (lt rem.disc 0)}}is-over{{else if (eq rem.disc 0)}}is-done{{/if}}">{{localize "VTM20.Creator.LeftShort"}}: <b>{{rem.disc}}</b>{{#if isGhoul}} · {{localize "VTM20.Creator.GhoulDisc"}}{{/if}}</div>
+    <div class="r-cr-discs">
+      {{#each discCards}}
+      <div class="r-cr-disc {{#if inClan}}is-clan{{/if}}">
+        <div class="r-cr-disc-head">
+          <span class="r-disc-sigil">{{#if sym}}{{rSym sym}}{{else}}<i class="fa-solid {{icon}}"></i>{{/if}}</span>
+          <div class="r-cr-disc-title"><b>{{name}}</b><em>{{en}}{{#if inClan}} · {{localize "VTM20.Sheet.InClan"}}{{/if}}</em></div>
+          <span class="r-dots">{{#each dots}}<a class="r-dot r-cr-dot is-{{state}}" data-action="dot" data-kind="{{kind}}" data-key="{{key}}" data-n="{{n}}"></a>{{/each}}</span>
+        </div>
+        <ol class="r-cr-powers">
+          {{#each powers}}<li class="{{#if owned}}is-owned{{/if}}"><span>{{rRoman level}}</span> {{name}}</li>{{/each}}
+          {{#if pathed}}<li class="r-note">{{localize "VTM20.Creator.PathedNote"}}</li>{{/if}}
+        </ol>
+      </div>
+      {{/each}}
+    </div>
+    {{#if anyDiscipline}}
+    <div class="r-toolbar">
+      <select name="cr-disc" class="r-select"><option value="">{{localize "VTM20.Sheet.ChooseDiscipline"}}</option>{{#each discChoices}}<option value="{{value}}">{{label}}</option>{{/each}}</select>
+      <a class="r-btn" data-action="addDisc"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Sheet.Add"}}</a>
+    </div>
+    {{/if}}
+    {{/if}}
+
+    {{!-- VI. Факты биографии и Добродетели --}}
+    {{#if is_advantages}}
+    <div class="r-cr-advgrid">
+      <div>
+        <div class="r-cr-sub">{{localize "VTM20.Sheet.Backgrounds"}} <span class="r-cr-left {{#if (lt rem.bg 0)}}is-over{{else if (eq rem.bg 0)}}is-done{{/if}}">{{localize "VTM20.Creator.LeftShort"}}: <b>{{rem.bg}}</b></span></div>
+        <div class="r-cr-bgs">
+          {{#each bgCards}}
+          <div class="r-cr-bg {{#if on}}is-on{{/if}} {{#if open}}is-open{{/if}}">
+            <div class="r-cr-bg-head">
+              <a class="r-cr-take" data-action="bgToggle" data-name="{{name}}" data-tooltip="{{#if on}}{{localize 'VTM20.Creator.Drop'}}{{else}}{{localize 'VTM20.Creator.Take'}}{{/if}}"><i class="fa-solid {{#if on}}fa-check{{else}}fa-plus{{/if}}"></i></a>
+              <a class="r-cr-bg-name" data-action="read" data-key="bg:{{name}}"><b>{{name}}</b>{{#if sabbat}} <small>{{localize "VTM20.Sect.sabbat"}}</small>{{/if}}</a>
+              {{#if on}}<span class="r-dots">{{#each dots}}<a class="r-dot r-cr-dot is-{{state}}" data-action="dot" data-kind="{{kind}}" data-key="{{key}}" data-n="{{n}}"></a>{{/each}}</span>{{/if}}
+              <a class="r-cr-readbtn" data-action="read" data-key="bg:{{name}}" data-tooltip="{{#if open}}{{localize 'VTM20.Creator.Collapse'}}{{else}}{{localize 'VTM20.Creator.Read'}}{{/if}}"><i class="fa-solid {{#if open}}fa-book{{else}}fa-book-open{{/if}}"></i></a>
+            </div>
+            {{#if open}}<div class="r-cr-fulltext">{{{html}}}</div>
+            {{else}}<p class="r-cr-preview" data-action="read" data-key="bg:{{name}}">{{text}} <span>{{localize "VTM20.Creator.Read"}}</span></p>{{/if}}
+          </div>
+          {{/each}}
+        </div>
+      </div>
+      <div class="r-cr-panel r-tcol">
+        <h3 class="r-colhead"><span>{{localize "VTM20.Sheet.Virtues"}}</span></h3>
+        <div class="r-cr-left {{#if (lt rem.virt 0)}}is-over{{else if (eq rem.virt 0)}}is-done{{/if}}">{{localize "VTM20.Creator.LeftShort"}}: <b>{{rem.virt}}</b></div>
+        {{#each virtues}}
+        <div class="r-trait-main"><span class="r-trait-label">{{label}}</span><span class="r-leader"></span>
+          <span class="r-dots">{{#each dots}}<a class="r-dot r-cr-dot is-{{state}}" data-action="dot" data-kind="{{kind}}" data-key="{{key}}" data-n="{{n}}"></a>{{/each}}</span>
+        </div>
+        {{/each}}
+        <p class="r-note">{{localize "VTM20.Creator.VirtueHint"}}</p>
+      </div>
+    </div>
+    {{/if}}
+
+    {{!-- VII. Достоинства и недостатки --}}
+    {{#if is_merits}}
+    <div class="r-cr-mfbar">
+      <div class="r-cr-gtabs">{{#each mfTabs}}<a class="{{#if active}}is-active{{/if}}" data-action="mfTab" data-tab="{{key}}">{{label}} <small>{{n}}</small></a>{{/each}}</div>
+      <div class="r-cr-cats">{{#each mfCats}}<a class="{{#if active}}is-active{{/if}}" data-action="mfCat" data-cat="{{key}}">{{label}}</a>{{/each}}</div>
+      <input type="search" class="r-cr-search" data-mf-search value="{{ui.mfSearch}}" placeholder="{{localize 'VTM20.Creator.Search'}}">
+    </div>
+    {{#each traitIssues}}<div class="r-cr-issue is-{{level}}"><i class="fa-solid {{#if (eq level "block")}}fa-ban{{else}}fa-triangle-exclamation{{/if}}"></i> {{text}}</div>{{/each}}
+    <div class="r-cr-mfsum">
+      <span>{{localize "VTM20.Sheet.Merits"}}: <b>{{meritPoints}}</b></span>
+      <span>{{localize "VTM20.Sheet.Flaws"}}: <b>{{flawRaw}}</b>{{#if (gt flawRaw 7)}} ({{localize "VTM20.Creator.FlawCap"}}){{/if}}</span>
+      {{#each merits}}<span class="r-cr-picked is-merit">{{name}} {{#if ranged}}<input type="number" class="r-qty" data-field="merits.{{index}}.cost" value="{{cost}}" min="{{min}}" max="{{max}}">{{else}}({{cost}}){{/if}} <a data-action="mfToggle" data-kind="merit" data-name="{{name}}"><i class="fa-solid fa-xmark"></i></a></span>{{/each}}
+      {{#each flaws}}<span class="r-cr-picked is-flaw">{{name}} {{#if ranged}}<input type="number" class="r-qty" data-field="flaws.{{index}}.cost" value="{{cost}}" min="{{min}}" max="{{max}}">{{else}}({{cost}}){{/if}} <a data-action="mfToggle" data-kind="flaw" data-name="{{name}}"><i class="fa-solid fa-xmark"></i></a></span>{{/each}}
+    </div>
+    <div class="r-cr-mfgrid">
+      {{#each mfCards}}
+      <div class="r-cr-mf is-{{@root.ui.mfTab}} {{#if on}}is-on{{/if}} {{#if open}}is-open{{/if}}">
+        <span class="r-cr-mf-cost" data-tooltip="{{#if (eq @root.ui.mfTab 'flaw')}}{{localize 'VTM20.Creator.FlawGives'}}{{else}}{{localize 'VTM20.Creator.MeritCosts'}}{{/if}}">{{cost}}</span>
+        <div class="r-cr-mf-main">
+          <a class="r-cr-mf-title" data-action="read" data-key="{{key}}"><b>{{name}}</b>{{#if en}}<em>{{en}}</em>{{/if}}</a>
+          <span class="r-tag">{{cat}}</span>
+          {{#if open}}<div class="r-cr-fulltext">{{{html}}}</div>
+          {{else}}<p class="r-cr-preview" data-action="read" data-key="{{key}}">{{text}} <span>{{localize "VTM20.Creator.Read"}}</span></p>{{/if}}
+        </div>
+        <a class="r-cr-mf-take" data-action="mfToggle" data-name="{{name}}">{{#if on}}<i class="fa-solid fa-check"></i> {{localize "VTM20.Creator.Taken"}}{{else}}<i class="fa-solid fa-plus"></i> {{localize "VTM20.Creator.Take"}}{{/if}}</a>
+      </div>
+      {{else}}<div class="r-empty">{{localize "VTM20.Creator.NothingFound"}}</div>
+      {{/each}}
+    </div>
+    {{/if}}
+
+    {{!-- VIII. Свободные пункты / IX. Опыт --}}
+    {{#if is_freebies}}
+    <div class="r-cr-freebar">
+      <span>{{localize "VTM20.Creator.FreeTotal"}}: <b>{{freeTotal}}</b></span>
+      <span>{{localize "VTM20.Creator.FreeSpent"}}: <b>{{freeSpent}}</b></span>
+      <span class="{{#if (lt freeLeft 0)}}is-over{{else if (eq freeLeft 0)}}is-done{{/if}}">{{localize "VTM20.Creator.LeftShort"}}: <b>{{freeLeft}}</b></span>
+      <span class="r-note">{{localize "VTM20.Creator.FreeCosts" attr=cost.attr abil=cost.abil disc=cost.disc bg=cost.bg virt=cost.virt mor=cost.morality will=cost.will}}</span>
+    </div>
+    <div class="r-cr-free">
+      {{#each freeGroups}}
+      <div class="r-cr-free-group"><h3 class="r-h3">{{label}}</h3>
+        {{#each rows}}
+        <div class="r-trait-main {{#if added}}has-add{{/if}}">
+          <span class="r-trait-label" data-tooltip="{{label}}">{{label}}</span><span class="r-leader"></span><b class="r-cr-val">{{value}}</b>
+          <a class="r-step" data-action="free" data-kind="{{kind}}" data-key="{{key}}" data-d="-1">−</a>
+          <a class="r-step" data-action="free" data-kind="{{kind}}" data-key="{{key}}" data-d="1" data-tooltip="{{price}}">+</a>
+          <span class="r-cr-added">{{#if added}}+{{added}}{{/if}}</span>
+        </div>
+        {{/each}}
+      </div>
+      {{/each}}
+    </div>
+    {{/if}}
+
+    {{#if is_xp}}
+    <div class="r-cr-freebar">
+      <span>{{localize "VTM20.Xp.total"}}: <b>{{xpTotal}}</b></span>
+      <span>{{localize "VTM20.Xp.spent"}}: <b>{{xpSpent}}</b></span>
+      <span class="{{#if (lt xpLeft 0)}}is-over{{else if (eq xpLeft 0)}}is-done{{/if}}">{{localize "VTM20.Creator.LeftShort"}}: <b>{{xpLeft}}</b></span>
+      <span class="r-note">{{localize "VTM20.Creator.XpCosts"}}</span>
+    </div>
+    <div class="r-cr-free">
+      {{#each xpGroups}}
+      <div class="r-cr-free-group"><h3 class="r-h3">{{label}}</h3>
+        {{#each rows}}
+        <div class="r-trait-main {{#if added}}has-add is-xp{{/if}}">
+          <span class="r-trait-label" data-tooltip="{{label}}">{{label}}</span><span class="r-leader"></span><b class="r-cr-val">{{value}}</b>
+          <a class="r-step" data-action="xp" data-kind="{{kind}}" data-key="{{key}}" data-d="-1">−</a>
+          <a class="r-step" data-action="xp" data-kind="{{kind}}" data-key="{{key}}" data-d="1" data-tooltip="{{price}} {{localize 'VTM20.Creator.XpShort'}}">+</a>
+          <span class="r-cr-added is-xp">{{#if added}}+{{added}}{{/if}}</span>
+        </div>
+        {{/each}}
+      </div>
+      {{/each}}
+    </div>
+    {{/if}}
+
+    {{!-- X. Итог --}}
+    {{#if is_summary}}
+    <div class="r-cr-sumhead">
+      {{#if clanSym}}<span class="r-cr-sumsym">{{rSym clanSym}}</span>{{/if}}
+      <div><div class="r-cr-sumname">{{st.name}}</div><div class="r-kicker">{{typeLabel}}{{#if st.concept}} · {{st.concept}}{{/if}}{{#if st.sect}} · {{st.sect}}{{/if}}</div></div>
+    </div>
+    <div class="r-cr-summary">
+      <div class="r-cr-sum-item"><span>{{pathName}}</span><b>{{morality}}</b></div>
+      <div class="r-cr-sum-item"><span>{{localize "VTM20.Willpower"}}</span><b>{{willpower}}</b></div>
+      {{#if isVampire}}
+      <div class="r-cr-sum-item"><span>{{localize "VTM20.Details.generation"}}</span><b>{{rRoman generation}}</b></div>
+      <div class="r-cr-sum-item"><span>{{localize "VTM20.Sheet.BloodPool"}}</span><b>{{#if st.blood}}{{st.blood}}{{else}}?{{/if}}/{{bloodMax}}</b>
+        <a class="r-btn" data-action="rollBlood"><i class="fa-solid fa-dice-d10"></i> 1d10</a></div>
+      {{/if}}
+    </div>
+    <div class="r-cr-sumgrid">
+      {{#each summary.attrs}}<div><h4 class="r-h4">{{label}}</h4>{{#each list}}<div class="r-cr-sumrow"><span>{{label}}</span><b>{{value}}</b></div>{{/each}}</div>{{/each}}
+      {{#each summary.abils}}<div><h4 class="r-h4">{{label}}</h4>{{#each list}}<div class="r-cr-sumrow"><span>{{label}}</span><b>{{value}}</b></div>{{else}}<div class="r-note">—</div>{{/each}}</div>{{/each}}
+      <div><h4 class="r-h4">{{localize "VTM20.Sheet.Disciplines"}}</h4>{{#each summary.discs}}<div class="r-cr-sumrow"><span>{{name}}</span><b>{{value}}</b></div>{{else}}<div class="r-note">—</div>{{/each}}</div>
+      <div><h4 class="r-h4">{{localize "VTM20.Sheet.Backgrounds"}}</h4>{{#each summary.bgs}}<div class="r-cr-sumrow"><span>{{name}}</span><b>{{value}}</b></div>{{else}}<div class="r-note">—</div>{{/each}}</div>
+      <div><h4 class="r-h4">{{localize "VTM20.Sheet.Virtues"}}</h4>{{#each summary.virtues}}<div class="r-cr-sumrow"><span>{{label}}</span><b>{{value}}</b></div>{{/each}}</div>
+      <div><h4 class="r-h4">{{localize "VTM20.Sheet.Merits"}} / {{localize "VTM20.Sheet.Flaws"}}</h4>
+        {{#each summary.merits}}<div class="r-cr-sumrow"><span>{{name}}</span><b>{{cost}}</b></div>{{/each}}
+        {{#each summary.flaws}}<div class="r-cr-sumrow is-flaw"><span>{{name}}</span><b>−{{cost}}</b></div>{{/each}}</div>
+    </div>
+    {{#if problems.length}}
+    <div class="r-cr-problems"><b>{{localize "VTM20.Creator.Problems"}}</b><ul>{{#each problems}}<li>{{this}}</li>{{/each}}</ul></div>
+    {{else}}<div class="r-cr-ok"><i class="fa-solid fa-check"></i> {{localize "VTM20.Creator.AllGood"}}</div>{{/if}}
+    {{/if}}
+  </div>
+
+  <footer class="r-cr-foot">
+    {{#unless isFirst}}<a class="r-btn is-ghost" data-action="prev"><i class="fa-solid fa-arrow-left"></i> {{localize "VTM20.Creator.Prev"}}</a>{{/unless}}
+    <span class="r-cr-foot-info">{{localize "VTM20.Creator.Freebies"}}: <b>{{footFree}}</b>{{#if footXp includeZero=true}} · {{localize "VTM20.Sheet.Experience"}}: <b>{{footXp}}</b>{{/if}}</span>
+    {{#if isLast}}<a class="r-btn is-primary" data-action="finish"><i class="fa-solid fa-feather-pointed"></i> {{localize "VTM20.Creator.Finish"}}</a>
+    {{else}}<a class="r-btn" data-action="next">{{localize "VTM20.Creator.Next"}} <i class="fa-solid fa-arrow-right"></i></a>{{/if}}
+  </footer>
+</div>

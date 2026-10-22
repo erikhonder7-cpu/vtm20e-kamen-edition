@@ -1,0 +1,3273 @@
+{
+ "source": "V20, основная книга (RU), гл. 9 «Иные»",
+ "groups": [
+  {
+   "key": "hunters",
+   "label": "Охотники на вампиров"
+  },
+  {
+   "key": "criminals",
+   "label": "Преступники"
+  },
+  {
+   "key": "lupines",
+   "label": "Оборотни"
+  },
+  {
+   "key": "mages",
+   "label": "Маги"
+  },
+  {
+   "key": "fae",
+   "label": "Феи"
+  },
+  {
+   "key": "ghosts",
+   "label": "Призраки"
+  },
+  {
+   "key": "demons",
+   "label": "Демоны"
+  },
+  {
+   "key": "animals",
+   "label": "Зверинец"
+  },
+  {
+   "key": "swarms",
+   "label": "Рои и стаи"
+  }
+ ],
+ "templates": [
+  {
+   "key": "inquisitor",
+   "name": "Инквизитор",
+   "group": "hunters",
+   "kind": "mortal",
+   "page": 398,
+   "attributes": {
+    "strength": 2,
+    "dexterity": 3,
+    "stamina": 3,
+    "charisma": 4,
+    "manipulation": 3,
+    "appearance": 2,
+    "perception": 3,
+    "intelligence": 3,
+    "wits": 3
+   },
+   "abilities": {
+    "athletics": {
+     "value": 2,
+     "specialty": ""
+    },
+    "alertness": {
+     "value": 2,
+     "specialty": ""
+    },
+    "drive": {
+     "value": 1,
+     "specialty": ""
+    },
+    "academics": {
+     "value": 3,
+     "specialty": "теология"
+    },
+    "brawl": {
+     "value": 2,
+     "specialty": ""
+    },
+    "expression": {
+     "value": 2,
+     "specialty": ""
+    },
+    "leadership": {
+     "value": 3,
+     "specialty": ""
+    },
+    "occult": {
+     "value": 3,
+     "specialty": ""
+    },
+    "stealth": {
+     "value": 2,
+     "specialty": ""
+    },
+    "melee": {
+     "value": 3,
+     "specialty": "меч-трость"
+    }
+   },
+   "trained": {},
+   "disciplines": {},
+   "humanity": 8,
+   "humanityText": "от 5 до 10 (инквизиторы могут быть как образцами добродетели, так и чудовищами не лучше тех, на которых они охотятся)",
+   "willpower": 9,
+   "notes": [],
+   "note": "некоторые инквизиторы являются носителями Истинной Веры — большая их часть обладает показателем Человечности не ниже 9"
+  },
+  {
+   "key": "agent",
+   "name": "Правительственный агент",
+   "group": "hunters",
+   "kind": "mortal",
+   "page": 403,
+   "attributes": {
+    "strength": 3,
+    "dexterity": 2,
+    "stamina": 3,
+    "charisma": 2,
+    "manipulation": 3,
+    "appearance": 2,
+    "perception": 3,
+    "intelligence": 3,
+    "wits": 3
+   },
+   "abilities": {
+    "athletics": {
+     "value": 3,
+     "specialty": ""
+    },
+    "alertness": {
+     "value": 3,
+     "specialty": ""
+    },
+    "drive": {
+     "value": 3,
+     "specialty": ""
+    },
+    "brawl": {
+     "value": 3,
+     "specialty": ""
+    },
+    "computer": {
+     "value": 1,
+     "specialty": ""
+    },
+    "occult": {
+     "value": 1,
+     "specialty": ""
+    },
+    "politics": {
+     "value": 2,
+     "specialty": ""
+    },
+    "investigation": {
+     "value": 4,
+     "specialty": ""
+    },
+    "stealth": {
+     "value": 2,
+     "specialty": ""
+    },
+    "firearms": {
+     "value": 3,
+     "specialty": ""
+    },
+    "melee": {
+     "value": 2,
+     "specialty": ""
+    }
+   },
+   "trained": {},
+   "disciplines": {},
+   "humanity": 7,
+   "humanityText": "от 6 до 8",
+   "willpower": 7,
+   "notes": [],
+   "equipment": "тяжёлый пистолет, чёрный костюм, тёмные очки, значок и удостоверение, подслушивающие устройства"
+  },
+  {
+   "key": "arcanist",
+   "name": "Учёный арканист",
+   "group": "hunters",
+   "kind": "mortal",
+   "page": 404,
+   "attributes": {
+    "strength": 2,
+    "dexterity": 2,
+    "stamina": 2,
+    "charisma": 2,
+    "manipulation": 2,
+    "appearance": 2,
+    "perception": 4,
+    "intelligence": 4,
+    "wits": 3
+   },
+   "abilities": {
+    "athletics": {
+     "value": 1,
+     "specialty": ""
+    },
+    "drive": {
+     "value": 1,
+     "specialty": ""
+    },
+    "academics": {
+     "value": 4,
+     "specialty": ""
+    },
+    "science": {
+     "value": 3,
+     "specialty": ""
+    },
+    "computer": {
+     "value": 3,
+     "specialty": ""
+    },
+    "expression": {
+     "value": 2,
+     "specialty": ""
+    },
+    "occult": {
+     "value": 4,
+     "specialty": ""
+    },
+    "investigation": {
+     "value": 3,
+     "specialty": ""
+    },
+    "melee": {
+     "value": 1,
+     "specialty": ""
+    },
+    "etiquette": {
+     "value": 2,
+     "specialty": ""
+    }
+   },
+   "trained": {},
+   "disciplines": {},
+   "humanity": 8,
+   "humanityText": "8",
+   "willpower": 7,
+   "notes": [],
+   "equipment": "ноутбук или планшет, обширная библиотека, автомобиль (седан), коллекция оккультной атрибутики, внушительный счёт в банке"
+  },
+  {
+   "key": "gangster",
+   "name": "Гангстер, босс",
+   "group": "criminals",
+   "kind": "mortal",
+   "page": 405,
+   "attributes": {
+    "strength": 4,
+    "dexterity": 3,
+    "stamina": 3,
+    "charisma": 3,
+    "manipulation": 4,
+    "appearance": 1,
+    "perception": 2,
+    "intelligence": 2,
+    "wits": 3
+   },
+   "abilities": {
+    "athletics": {
+     "value": 3,
+     "specialty": ""
+    },
+    "alertness": {
+     "value": 2,
+     "specialty": ""
+    },
+    "drive": {
+     "value": 2,
+     "specialty": ""
+    },
+    "larceny": {
+     "value": 3,
+     "specialty": ""
+    },
+    "brawl": {
+     "value": 3,
+     "specialty": ""
+    },
+    "stealth": {
+     "value": 2,
+     "specialty": ""
+    },
+    "firearms": {
+     "value": 3,
+     "specialty": ""
+    },
+    "streetwise": {
+     "value": 3,
+     "specialty": ""
+    },
+    "melee": {
+     "value": 2,
+     "specialty": ""
+    },
+    "finance": {
+     "value": 2,
+     "specialty": ""
+    },
+    "subterfuge": {
+     "value": 2,
+     "specialty": ""
+    }
+   },
+   "trained": {},
+   "disciplines": {},
+   "humanity": 6,
+   "humanityText": "6 (и ниже)",
+   "willpower": 6,
+   "notes": [],
+   "equipment": "пистолет-пулемёт, бронежилет, автомобиль (универсал), нож, флешка с важной информацией"
+  },
+  {
+   "key": "lupineYoung",
+   "name": "Молодой оборотень",
+   "group": "lupines",
+   "kind": "creature",
+   "page": 407,
+   "attributes": {
+    "strength": 3,
+    "dexterity": 3,
+    "stamina": 3,
+    "charisma": 2,
+    "manipulation": 2,
+    "appearance": 2,
+    "perception": 3,
+    "intelligence": 2,
+    "wits": 3
+   },
+   "abilities": {
+    "athletics": {
+     "value": 2,
+     "specialty": ""
+    },
+    "alertness": {
+     "value": 3,
+     "specialty": ""
+    },
+    "survival": {
+     "value": 3,
+     "specialty": ""
+    },
+    "academics": {
+     "value": 1,
+     "specialty": ""
+    },
+    "brawl": {
+     "value": 3,
+     "specialty": ""
+    },
+    "intimidation": {
+     "value": 3,
+     "specialty": ""
+    },
+    "leadership": {
+     "value": 1,
+     "specialty": ""
+    },
+    "animalKen": {
+     "value": 2,
+     "specialty": ""
+    },
+    "occult": {
+     "value": 1,
+     "specialty": ""
+    },
+    "investigation": {
+     "value": 2,
+     "specialty": ""
+    },
+    "crafts": {
+     "value": 2,
+     "specialty": ""
+    },
+    "stealth": {
+     "value": 3,
+     "specialty": ""
+    },
+    "firearms": {
+     "value": 2,
+     "specialty": ""
+    },
+    "melee": {
+     "value": 2,
+     "specialty": ""
+    },
+    "awareness": {
+     "value": 2,
+     "specialty": ""
+    }
+   },
+   "trained": {},
+   "disciplines": {
+    "protean": 4,
+    "potence": 1,
+    "celerity": 3
+   },
+   "humanity": 7,
+   "humanityText": "7",
+   "willpower": 5,
+   "notes": [],
+   "pool": {
+    "name": "гнозис",
+    "value": 4
+   }
+  },
+  {
+   "key": "lupineAdult",
+   "name": "Взрослый Люпен",
+   "group": "lupines",
+   "kind": "creature",
+   "page": 408,
+   "attributes": {
+    "strength": 4,
+    "dexterity": 3,
+    "stamina": 4,
+    "charisma": 3,
+    "manipulation": 2,
+    "appearance": 3,
+    "perception": 4,
+    "intelligence": 3,
+    "wits": 4
+   },
+   "abilities": {
+    "athletics": {
+     "value": 2,
+     "specialty": ""
+    },
+    "alertness": {
+     "value": 3,
+     "specialty": ""
+    },
+    "survival": {
+     "value": 4,
+     "specialty": ""
+    },
+    "academics": {
+     "value": 1,
+     "specialty": ""
+    },
+    "brawl": {
+     "value": 4,
+     "specialty": ""
+    },
+    "intimidation": {
+     "value": 3,
+     "specialty": ""
+    },
+    "expression": {
+     "value": 1,
+     "specialty": ""
+    },
+    "leadership": {
+     "value": 1,
+     "specialty": ""
+    },
+    "medicine": {
+     "value": 1,
+     "specialty": ""
+    },
+    "animalKen": {
+     "value": 3,
+     "specialty": ""
+    },
+    "occult": {
+     "value": 3,
+     "specialty": ""
+    },
+    "investigation": {
+     "value": 2,
+     "specialty": ""
+    },
+    "crafts": {
+     "value": 2,
+     "specialty": ""
+    },
+    "stealth": {
+     "value": 3,
+     "specialty": ""
+    },
+    "firearms": {
+     "value": 2,
+     "specialty": ""
+    },
+    "melee": {
+     "value": 3,
+     "specialty": ""
+    },
+    "awareness": {
+     "value": 3,
+     "specialty": ""
+    }
+   },
+   "trained": {},
+   "disciplines": {
+    "protean": 4,
+    "potence": 2,
+    "celerity": 4
+   },
+   "humanity": 6,
+   "humanityText": "6",
+   "willpower": 7,
+   "notes": [],
+   "pool": {
+    "name": "гнозис",
+    "value": 6
+   }
+  },
+  {
+   "key": "lupineOld",
+   "name": "Старый волколак",
+   "group": "lupines",
+   "kind": "creature",
+   "page": 408,
+   "attributes": {
+    "strength": 5,
+    "dexterity": 4,
+    "stamina": 5,
+    "charisma": 5,
+    "manipulation": 3,
+    "appearance": 3,
+    "perception": 5,
+    "intelligence": 3,
+    "wits": 4
+   },
+   "abilities": {
+    "athletics": {
+     "value": 4,
+     "specialty": ""
+    },
+    "alertness": {
+     "value": 4,
+     "specialty": ""
+    },
+    "survival": {
+     "value": 5,
+     "specialty": ""
+    },
+    "academics": {
+     "value": 1,
+     "specialty": ""
+    },
+    "brawl": {
+     "value": 5,
+     "specialty": ""
+    },
+    "intimidation": {
+     "value": 4,
+     "specialty": ""
+    },
+    "expression": {
+     "value": 3,
+     "specialty": ""
+    },
+    "leadership": {
+     "value": 4,
+     "specialty": ""
+    },
+    "medicine": {
+     "value": 1,
+     "specialty": ""
+    },
+    "animalKen": {
+     "value": 4,
+     "specialty": ""
+    },
+    "occult": {
+     "value": 4,
+     "specialty": ""
+    },
+    "investigation": {
+     "value": 2,
+     "specialty": ""
+    },
+    "crafts": {
+     "value": 2,
+     "specialty": ""
+    },
+    "stealth": {
+     "value": 4,
+     "specialty": ""
+    },
+    "firearms": {
+     "value": 2,
+     "specialty": ""
+    },
+    "melee": {
+     "value": 5,
+     "specialty": ""
+    },
+    "awareness": {
+     "value": 3,
+     "specialty": ""
+    }
+   },
+   "trained": {},
+   "disciplines": {
+    "dominate": 2,
+    "protean": 4,
+    "potence": 3,
+    "obfuscate": 3,
+    "fortitude": 2,
+    "celerity": 6
+   },
+   "humanity": 5,
+   "humanityText": "5",
+   "willpower": 9,
+   "notes": [
+    "ещё одна любая Дисциплина 4"
+   ],
+   "pool": {
+    "name": "гнозис",
+    "value": 8
+   }
+  },
+  {
+   "key": "mageNeophyte",
+   "name": "Неофит",
+   "group": "mages",
+   "kind": "creature",
+   "page": 410,
+   "attributes": {
+    "strength": 3,
+    "dexterity": 3,
+    "stamina": 3,
+    "charisma": 3,
+    "manipulation": 4,
+    "appearance": 3,
+    "perception": 2,
+    "intelligence": 4,
+    "wits": 4
+   },
+   "abilities": {
+    "athletics": {
+     "value": 2,
+     "specialty": ""
+    },
+    "alertness": {
+     "value": 3,
+     "specialty": ""
+    },
+    "drive": {
+     "value": 2,
+     "specialty": ""
+    },
+    "academics": {
+     "value": 2,
+     "specialty": ""
+    },
+    "brawl": {
+     "value": 2,
+     "specialty": ""
+    },
+    "intimidation": {
+     "value": 2,
+     "specialty": ""
+    },
+    "occult": {
+     "value": 4,
+     "specialty": ""
+    },
+    "firearms": {
+     "value": 3,
+     "specialty": ""
+    },
+    "streetwise": {
+     "value": 3,
+     "specialty": ""
+    },
+    "melee": {
+     "value": 2,
+     "specialty": ""
+    },
+    "subterfuge": {
+     "value": 3,
+     "specialty": ""
+    },
+    "awareness": {
+     "value": 3,
+     "specialty": ""
+    },
+    "empathy": {
+     "value": 2,
+     "specialty": ""
+    }
+   },
+   "trained": {},
+   "disciplines": {
+    "presence": 1,
+    "dominate": 2,
+    "protean": 1,
+    "thaumaturgy": 3,
+    "auspex": 2
+   },
+   "humanity": 7,
+   "humanityText": "7",
+   "willpower": 5,
+   "notes": [
+    "Тауматургия 3 (один или два пути)"
+   ],
+   "pool": {
+    "name": "квинтэссенция",
+    "value": 10
+   },
+   "equipment": "нож, небольшой арсенал огнестрельного оружия, ритуальная атрибутика (свечи, верёвка, мел, мантия, чаша), угрожающего вида одежда"
+  },
+  {
+   "key": "mageArch",
+   "name": "Верховный волшебник",
+   "group": "mages",
+   "kind": "creature",
+   "page": 410,
+   "attributes": {
+    "strength": 2,
+    "dexterity": 2,
+    "stamina": 2,
+    "charisma": 3,
+    "manipulation": 5,
+    "appearance": 2,
+    "perception": 4,
+    "intelligence": 4,
+    "wits": 4
+   },
+   "abilities": {
+    "athletics": {
+     "value": 2,
+     "specialty": ""
+    },
+    "alertness": {
+     "value": 3,
+     "specialty": ""
+    },
+    "drive": {
+     "value": 1,
+     "specialty": ""
+    },
+    "academics": {
+     "value": 5,
+     "specialty": ""
+    },
+    "intimidation": {
+     "value": 4,
+     "specialty": ""
+    },
+    "leadership": {
+     "value": 2,
+     "specialty": ""
+    },
+    "medicine": {
+     "value": 2,
+     "specialty": ""
+    },
+    "occult": {
+     "value": 5,
+     "specialty": ""
+    },
+    "investigation": {
+     "value": 3,
+     "specialty": ""
+    },
+    "firearms": {
+     "value": 1,
+     "specialty": ""
+    },
+    "finance": {
+     "value": 2,
+     "specialty": ""
+    },
+    "subterfuge": {
+     "value": 3,
+     "specialty": ""
+    },
+    "awareness": {
+     "value": 4,
+     "specialty": ""
+    },
+    "empathy": {
+     "value": 4,
+     "specialty": ""
+    },
+    "etiquette": {
+     "value": 3,
+     "specialty": ""
+    }
+   },
+   "trained": {},
+   "disciplines": {
+    "presence": 3,
+    "dominate": 2,
+    "obfuscate": 4,
+    "fortitude": 2,
+    "thaumaturgy": 5,
+    "chimerstry": 3,
+    "auspex": 4
+   },
+   "humanity": 5,
+   "humanityText": "5",
+   "willpower": 9,
+   "notes": [
+    "Тауматургия 5 (множество путей и ритуалов)"
+   ],
+   "pool": {
+    "name": "квинтэссенция",
+    "value": 12
+   },
+   "equipment": "магическая лаборатория, обширная библиотека, ритуальный инструментарий (книги, ножи, мел, свечи, зелья, благовония), меч-трость, дорогой костюм"
+  },
+  {
+   "key": "mageTechno",
+   "name": "Техновыродок",
+   "group": "mages",
+   "kind": "creature",
+   "page": 410,
+   "attributes": {
+    "strength": 5,
+    "dexterity": 4,
+    "stamina": 5,
+    "charisma": 2,
+    "manipulation": 2,
+    "appearance": 2,
+    "perception": 4,
+    "intelligence": 3,
+    "wits": 4
+   },
+   "abilities": {
+    "athletics": {
+     "value": 3,
+     "specialty": ""
+    },
+    "alertness": {
+     "value": 3,
+     "specialty": ""
+    },
+    "drive": {
+     "value": 3,
+     "specialty": ""
+    },
+    "larceny": {
+     "value": 5,
+     "specialty": ""
+    },
+    "brawl": {
+     "value": 3,
+     "specialty": ""
+    },
+    "science": {
+     "value": 3,
+     "specialty": ""
+    },
+    "law": {
+     "value": 2,
+     "specialty": ""
+    },
+    "intimidation": {
+     "value": 4,
+     "specialty": ""
+    },
+    "computer": {
+     "value": 4,
+     "specialty": ""
+    },
+    "occult": {
+     "value": 4,
+     "specialty": ""
+    },
+    "investigation": {
+     "value": 4,
+     "specialty": ""
+    },
+    "stealth": {
+     "value": 2,
+     "specialty": ""
+    },
+    "firearms": {
+     "value": 4,
+     "specialty": ""
+    },
+    "streetwise": {
+     "value": 2,
+     "specialty": ""
+    },
+    "melee": {
+     "value": 3,
+     "specialty": ""
+    },
+    "awareness": {
+     "value": 4,
+     "specialty": ""
+    },
+    "technology": {
+     "value": 4,
+     "specialty": ""
+    }
+   },
+   "trained": {},
+   "disciplines": {
+    "presence": 3,
+    "dominate": 2,
+    "potence": 3,
+    "fortitude": 4,
+    "auspex": 2
+   },
+   "humanity": 3,
+   "humanityText": "3",
+   "willpower": 8,
+   "notes": [],
+   "pool": {
+    "name": "квинтэссенция",
+    "value": 10
+   },
+   "equipment": "автоматическое оружие, бронежилет, суперкомпьютер в виде смартфона, автомобиль (чёрный бронированный седан), чёрный плащ, зеркальные тёмные очки"
+  },
+  {
+   "key": "pooka",
+   "name": "Пука-проказник",
+   "group": "fae",
+   "kind": "creature",
+   "page": 412,
+   "attributes": {
+    "strength": 2,
+    "dexterity": 5,
+    "stamina": 2,
+    "charisma": 4,
+    "manipulation": 5,
+    "appearance": 2,
+    "perception": 3,
+    "intelligence": 2,
+    "wits": 2
+   },
+   "abilities": {
+    "athletics": {
+     "value": 5,
+     "specialty": ""
+    },
+    "alertness": {
+     "value": 3,
+     "specialty": ""
+    },
+    "larceny": {
+     "value": 5,
+     "specialty": ""
+    },
+    "brawl": {
+     "value": 3,
+     "specialty": ""
+    },
+    "performance": {
+     "value": 3,
+     "specialty": ""
+    },
+    "animalKen": {
+     "value": 2,
+     "specialty": ""
+    },
+    "occult": {
+     "value": 2,
+     "specialty": ""
+    },
+    "stealth": {
+     "value": 5,
+     "specialty": ""
+    },
+    "awareness": {
+     "value": 3,
+     "specialty": ""
+    },
+    "subterfuge": {
+     "value": 4,
+     "specialty": ""
+    }
+   },
+   "trained": {},
+   "disciplines": {
+    "animalism": 2,
+    "protean": 4,
+    "obfuscate": 4,
+    "celerity": 2,
+    "chimerstry": 3,
+    "auspex": 2
+   },
+   "humanity": 6,
+   "humanityText": "6",
+   "willpower": 6,
+   "notes": [],
+   "pool": {
+    "name": "чары",
+    "value": 6
+   }
+  },
+  {
+   "key": "redcap",
+   "name": "Красная шапка-воин",
+   "group": "fae",
+   "kind": "creature",
+   "page": 412,
+   "attributes": {
+    "strength": 3,
+    "dexterity": 4,
+    "stamina": 4,
+    "charisma": 1,
+    "manipulation": 3,
+    "appearance": 1,
+    "perception": 3,
+    "intelligence": 2,
+    "wits": 4
+   },
+   "abilities": {
+    "athletics": {
+     "value": 3,
+     "specialty": ""
+    },
+    "alertness": {
+     "value": 3,
+     "specialty": ""
+    },
+    "larceny": {
+     "value": 2,
+     "specialty": ""
+    },
+    "brawl": {
+     "value": 4,
+     "specialty": ""
+    },
+    "intimidation": {
+     "value": 4,
+     "specialty": ""
+    },
+    "stealth": {
+     "value": 2,
+     "specialty": ""
+    },
+    "streetwise": {
+     "value": 3,
+     "specialty": ""
+    }
+   },
+   "trained": {},
+   "disciplines": {
+    "potence": 2,
+    "obfuscate": 3,
+    "fortitude": 2,
+    "celerity": 3
+   },
+   "humanity": 4,
+   "humanityText": "4",
+   "willpower": 5,
+   "notes": [],
+   "pool": {
+    "name": "чары",
+    "value": 5
+   }
+  },
+  {
+   "key": "sidhe",
+   "name": "Сид-чаровница",
+   "group": "fae",
+   "kind": "creature",
+   "page": 413,
+   "attributes": {
+    "strength": 2,
+    "dexterity": 4,
+    "stamina": 3,
+    "charisma": 4,
+    "manipulation": 4,
+    "appearance": 7,
+    "perception": 3,
+    "intelligence": 3,
+    "wits": 4
+   },
+   "abilities": {
+    "athletics": {
+     "value": 2,
+     "specialty": ""
+    },
+    "alertness": {
+     "value": 2,
+     "specialty": ""
+    },
+    "intimidation": {
+     "value": 3,
+     "specialty": ""
+    },
+    "performance": {
+     "value": 4,
+     "specialty": ""
+    },
+    "expression": {
+     "value": 4,
+     "specialty": ""
+    },
+    "leadership": {
+     "value": 4,
+     "specialty": ""
+    },
+    "occult": {
+     "value": 4,
+     "specialty": ""
+    },
+    "subterfuge": {
+     "value": 2,
+     "specialty": ""
+    },
+    "awareness": {
+     "value": 5,
+     "specialty": ""
+    },
+    "empathy": {
+     "value": 3,
+     "specialty": ""
+    },
+    "etiquette": {
+     "value": 4,
+     "specialty": ""
+    }
+   },
+   "trained": {},
+   "disciplines": {
+    "presence": 5,
+    "dominate": 4,
+    "obfuscate": 4,
+    "celerity": 1,
+    "chimerstry": 5
+   },
+   "humanity": 2,
+   "humanityText": "2",
+   "willpower": 7,
+   "notes": [],
+   "pool": {
+    "name": "чары",
+    "value": 10
+   }
+  },
+  {
+   "key": "ghostYoung",
+   "name": "Молодой призрак",
+   "group": "ghosts",
+   "kind": "creature",
+   "page": 414,
+   "attributes": {
+    "strength": 2,
+    "dexterity": 3,
+    "stamina": 3,
+    "charisma": 2,
+    "manipulation": 3,
+    "appearance": 2,
+    "perception": 3,
+    "intelligence": 2,
+    "wits": 3
+   },
+   "abilities": {
+    "athletics": {
+     "value": 2,
+     "specialty": ""
+    },
+    "alertness": {
+     "value": 3,
+     "specialty": ""
+    },
+    "academics": {
+     "value": 2,
+     "specialty": ""
+    },
+    "brawl": {
+     "value": 1,
+     "specialty": ""
+    },
+    "law": {
+     "value": 2,
+     "specialty": ""
+    },
+    "intimidation": {
+     "value": 2,
+     "specialty": ""
+    },
+    "computer": {
+     "value": 2,
+     "specialty": ""
+    },
+    "occult": {
+     "value": 2,
+     "specialty": ""
+    },
+    "politics": {
+     "value": 1,
+     "specialty": ""
+    },
+    "investigation": {
+     "value": 1,
+     "specialty": ""
+    },
+    "stealth": {
+     "value": 1,
+     "specialty": ""
+    },
+    "streetwise": {
+     "value": 1,
+     "specialty": ""
+    },
+    "melee": {
+     "value": 1,
+     "specialty": ""
+    },
+    "subterfuge": {
+     "value": 2,
+     "specialty": ""
+    },
+    "awareness": {
+     "value": 2,
+     "specialty": ""
+    },
+    "empathy": {
+     "value": 3,
+     "specialty": ""
+    }
+   },
+   "trained": {},
+   "disciplines": {
+    "dominate": 1,
+    "dementation": 2,
+    "vicissitude": 1,
+    "chimerstry": 1,
+    "auspex": 1
+   },
+   "humanity": 6,
+   "humanityText": "6",
+   "willpower": 5,
+   "notes": [],
+   "pool": {
+    "name": "пафос",
+    "value": 5
+   }
+  },
+  {
+   "key": "ghostHungry",
+   "name": "Голодный призрак",
+   "group": "ghosts",
+   "kind": "creature",
+   "page": 414,
+   "attributes": {
+    "strength": 3,
+    "dexterity": 3,
+    "stamina": 5,
+    "charisma": 2,
+    "manipulation": 3,
+    "appearance": 1,
+    "perception": 2,
+    "intelligence": 4,
+    "wits": 3
+   },
+   "abilities": {
+    "athletics": {
+     "value": 4,
+     "specialty": ""
+    },
+    "alertness": {
+     "value": 3,
+     "specialty": ""
+    },
+    "brawl": {
+     "value": 4,
+     "specialty": ""
+    },
+    "intimidation": {
+     "value": 3,
+     "specialty": ""
+    },
+    "occult": {
+     "value": 2,
+     "specialty": ""
+    },
+    "stealth": {
+     "value": 2,
+     "specialty": ""
+    },
+    "streetwise": {
+     "value": 3,
+     "specialty": ""
+    },
+    "melee": {
+     "value": 3,
+     "specialty": ""
+    },
+    "subterfuge": {
+     "value": 3,
+     "specialty": ""
+    },
+    "awareness": {
+     "value": 3,
+     "specialty": ""
+    }
+   },
+   "trained": {},
+   "disciplines": {
+    "presence": 2,
+    "obtenebration": 3,
+    "protean": 2,
+    "dementation": 4,
+    "vicissitude": 4,
+    "obfuscate": 2,
+    "chimerstry": 4,
+    "auspex": 2
+   },
+   "humanity": 3,
+   "humanityText": "3",
+   "willpower": 7,
+   "notes": [],
+   "pool": {
+    "name": "пафос",
+    "value": 9
+   }
+  },
+  {
+   "key": "ghostOld",
+   "name": "Старый призрак",
+   "group": "ghosts",
+   "kind": "creature",
+   "page": 414,
+   "attributes": {
+    "strength": 4,
+    "dexterity": 5,
+    "stamina": 5,
+    "charisma": 3,
+    "manipulation": 4,
+    "appearance": 1,
+    "perception": 5,
+    "intelligence": 3,
+    "wits": 3
+   },
+   "abilities": {
+    "athletics": {
+     "value": 3,
+     "specialty": ""
+    },
+    "alertness": {
+     "value": 3,
+     "specialty": ""
+    },
+    "academics": {
+     "value": 2,
+     "specialty": ""
+    },
+    "brawl": {
+     "value": 2,
+     "specialty": ""
+    },
+    "law": {
+     "value": 2,
+     "specialty": ""
+    },
+    "intimidation": {
+     "value": 3,
+     "specialty": ""
+    },
+    "computer": {
+     "value": 3,
+     "specialty": ""
+    },
+    "occult": {
+     "value": 2,
+     "specialty": ""
+    },
+    "politics": {
+     "value": 1,
+     "specialty": ""
+    },
+    "investigation": {
+     "value": 1,
+     "specialty": ""
+    },
+    "stealth": {
+     "value": 3,
+     "specialty": ""
+    },
+    "streetwise": {
+     "value": 1,
+     "specialty": ""
+    },
+    "melee": {
+     "value": 2,
+     "specialty": ""
+    },
+    "finance": {
+     "value": 4,
+     "specialty": ""
+    },
+    "subterfuge": {
+     "value": 3,
+     "specialty": ""
+    },
+    "awareness": {
+     "value": 5,
+     "specialty": ""
+    },
+    "empathy": {
+     "value": 3,
+     "specialty": ""
+    }
+   },
+   "trained": {},
+   "disciplines": {
+    "presence": 2,
+    "dominate": 3,
+    "dementation": 4,
+    "vicissitude": 3,
+    "thaumaturgy": 3,
+    "chimerstry": 1,
+    "auspex": 2
+   },
+   "humanity": 1,
+   "humanityText": "1",
+   "willpower": 9,
+   "notes": [
+    "Тауматургия 3 (Игра с Огнём 3, Мановение Мысли 3)"
+   ],
+   "pool": {
+    "name": "пафос",
+    "value": 10
+   }
+  },
+  {
+   "key": "demonTempter",
+   "name": "Падший совратитель",
+   "group": "demons",
+   "kind": "creature",
+   "page": 416,
+   "attributes": {
+    "strength": 2,
+    "dexterity": 2,
+    "stamina": 2,
+    "charisma": 3,
+    "manipulation": 4,
+    "appearance": 3,
+    "perception": 3,
+    "intelligence": 4,
+    "wits": 4
+   },
+   "abilities": {
+    "alertness": {
+     "value": 2,
+     "specialty": ""
+    },
+    "drive": {
+     "value": 2,
+     "specialty": ""
+    },
+    "law": {
+     "value": 3,
+     "specialty": ""
+    },
+    "intimidation": {
+     "value": 4,
+     "specialty": ""
+    },
+    "computer": {
+     "value": 1,
+     "specialty": ""
+    },
+    "performance": {
+     "value": 2,
+     "specialty": ""
+    },
+    "expression": {
+     "value": 3,
+     "specialty": ""
+    },
+    "leadership": {
+     "value": 4,
+     "specialty": ""
+    },
+    "occult": {
+     "value": 2,
+     "specialty": ""
+    },
+    "politics": {
+     "value": 5,
+     "specialty": ""
+    },
+    "stealth": {
+     "value": 1,
+     "specialty": ""
+    },
+    "finance": {
+     "value": 4,
+     "specialty": ""
+    },
+    "subterfuge": {
+     "value": 5,
+     "specialty": ""
+    },
+    "awareness": {
+     "value": 4,
+     "specialty": ""
+    },
+    "empathy": {
+     "value": 2,
+     "specialty": ""
+    },
+    "etiquette": {
+     "value": 4,
+     "specialty": ""
+    }
+   },
+   "trained": {},
+   "disciplines": {
+    "daimoinon": 4,
+    "dominate": 2,
+    "fortitude": 2
+   },
+   "humanity": 3,
+   "humanityText": "3",
+   "willpower": 7,
+   "notes": [],
+   "pool": {
+    "name": "вера",
+    "value": 7
+   }
+  },
+  {
+   "key": "demonEarthbound",
+   "name": "Пленённый осквернитель",
+   "group": "demons",
+   "kind": "creature",
+   "page": 416,
+   "attributes": {
+    "strength": 2,
+    "dexterity": 2,
+    "stamina": 2,
+    "charisma": 3,
+    "manipulation": 4,
+    "appearance": 3,
+    "perception": 5,
+    "intelligence": 5,
+    "wits": 5
+   },
+   "abilities": {
+    "alertness": {
+     "value": 3,
+     "specialty": ""
+    },
+    "intimidation": {
+     "value": 3,
+     "specialty": ""
+    },
+    "performance": {
+     "value": 2,
+     "specialty": ""
+    },
+    "expression": {
+     "value": 3,
+     "specialty": ""
+    },
+    "leadership": {
+     "value": 4,
+     "specialty": ""
+    },
+    "medicine": {
+     "value": 3,
+     "specialty": ""
+    },
+    "occult": {
+     "value": 3,
+     "specialty": ""
+    },
+    "politics": {
+     "value": 3,
+     "specialty": ""
+    },
+    "stealth": {
+     "value": 1,
+     "specialty": ""
+    },
+    "melee": {
+     "value": 3,
+     "specialty": ""
+    },
+    "finance": {
+     "value": 4,
+     "specialty": ""
+    },
+    "subterfuge": {
+     "value": 5,
+     "specialty": ""
+    },
+    "awareness": {
+     "value": 4,
+     "specialty": ""
+    }
+   },
+   "trained": {},
+   "disciplines": {
+    "dominate": 6,
+    "potence": 6,
+    "vicissitude": 6
+   },
+   "humanity": 1,
+   "humanityText": "1",
+   "willpower": 10,
+   "notes": [
+    "Мощь 6 (только в виде демонической проекции)"
+   ],
+   "pool": {
+    "name": "вера",
+    "value": 10
+   }
+  },
+  {
+   "key": "alligator",
+   "name": "Аллигатор",
+   "group": "animals",
+   "kind": "creature",
+   "page": 417,
+   "attributes": {
+    "strength": 4,
+    "dexterity": 2,
+    "stamina": 4,
+    "perception": 3,
+    "intelligence": 2,
+    "wits": 3
+   },
+   "abilities": {
+    "athletics": {
+     "value": 2,
+     "specialty": ""
+    },
+    "alertness": {
+     "value": 2,
+     "specialty": ""
+    },
+    "brawl": {
+     "value": 2,
+     "specialty": ""
+    },
+    "stealth": {
+     "value": 3,
+     "specialty": ""
+    }
+   },
+   "trained": {},
+   "disciplines": {},
+   "humanity": null,
+   "humanityText": "",
+   "willpower": 3,
+   "notes": [],
+   "health": "ОК, +0, +0, –1, –1, –1, –2, –5, при смерти",
+   "attacks": [
+    {
+     "name": "Укус",
+     "dice": 7,
+     "damageType": "lethal"
+    },
+    {
+     "name": "Удар хвостом",
+     "dice": 6,
+     "damageType": "bashing"
+    }
+   ],
+   "attackText": "укус (сила + 3), удар хвостом (сила + 2)",
+   "blood": 5,
+   "bloodText": "5",
+   "note": "прочная шкура аллигаторов и крокодилов позволяет им проходить проверку на прочность (один d10) против лёгких и тяжёлых повреждений",
+   "supernatural": false
+  },
+  {
+   "key": "camel",
+   "name": "Верблюд",
+   "group": "animals",
+   "kind": "creature",
+   "page": 417,
+   "attributes": {
+    "strength": 6,
+    "dexterity": 3,
+    "stamina": 3,
+    "perception": 3,
+    "intelligence": 3,
+    "wits": 2
+   },
+   "abilities": {
+    "athletics": {
+     "value": 3,
+     "specialty": ""
+    },
+    "alertness": {
+     "value": 3,
+     "specialty": ""
+    },
+    "brawl": {
+     "value": 4,
+     "specialty": ""
+    }
+   },
+   "trained": {},
+   "disciplines": {},
+   "humanity": null,
+   "humanityText": "",
+   "willpower": 3,
+   "notes": [],
+   "health": "ОК, +0, –1, –1, –2, –2, –5, при смерти",
+   "attacks": [
+    {
+     "name": "Удар копытом",
+     "dice": 6,
+     "damageType": "bashing"
+    },
+    {
+     "name": "Укус",
+     "dice": 4,
+     "damageType": "lethal"
+    }
+   ],
+   "attackText": "удар копытом (сила), укус (сила — 2)",
+   "blood": 6,
+   "bloodText": "6",
+   "supernatural": false
+  },
+  {
+   "key": "wolf",
+   "name": "Волк",
+   "group": "animals",
+   "kind": "creature",
+   "page": 417,
+   "attributes": {
+    "strength": 3,
+    "dexterity": 3,
+    "stamina": 3,
+    "perception": 3,
+    "intelligence": 3,
+    "wits": 3
+   },
+   "abilities": {
+    "athletics": {
+     "value": 1,
+     "specialty": ""
+    },
+    "alertness": {
+     "value": 2,
+     "specialty": ""
+    },
+    "brawl": {
+     "value": 3,
+     "specialty": ""
+    },
+    "stealth": {
+     "value": 2,
+     "specialty": ""
+    }
+   },
+   "trained": {},
+   "disciplines": {},
+   "humanity": null,
+   "humanityText": "",
+   "willpower": 3,
+   "notes": [],
+   "health": "ОК, –1, –1, –3, –5, при смерти",
+   "attacks": [
+    {
+     "name": "Укус",
+     "dice": 4,
+     "damageType": "lethal"
+    },
+    {
+     "name": "Удар когтями",
+     "dice": 4,
+     "damageType": "lethal"
+    }
+   ],
+   "attackText": "укус (сила + 1), удар когтями (сила + 1)",
+   "blood": 2,
+   "bloodText": "2",
+   "supernatural": false
+  },
+  {
+   "key": "constrictor",
+   "name": "Удав",
+   "group": "animals",
+   "kind": "creature",
+   "page": 417,
+   "attributes": {
+    "strength": 2,
+    "dexterity": 3,
+    "stamina": 3,
+    "perception": 3,
+    "intelligence": 1,
+    "wits": 2
+   },
+   "abilities": {
+    "athletics": {
+     "value": 3,
+     "specialty": ""
+    },
+    "alertness": {
+     "value": 3,
+     "specialty": ""
+    },
+    "brawl": {
+     "value": 3,
+     "specialty": ""
+    }
+   },
+   "trained": {},
+   "disciplines": {},
+   "humanity": null,
+   "humanityText": "",
+   "willpower": 4,
+   "notes": [],
+   "health": "ОК, –1, –1, –2, –2, –5, при смерти",
+   "attacks": [
+    {
+     "name": "Удушение",
+     "dice": 4,
+     "damageType": "bashing"
+    }
+   ],
+   "attackText": "удушение (сила + 2) каждый ход",
+   "blood": 2,
+   "bloodText": "2",
+   "supernatural": false
+  },
+  {
+   "key": "viper",
+   "name": "Ядовитая змея",
+   "group": "animals",
+   "kind": "creature",
+   "page": 417,
+   "attributes": {
+    "strength": 1,
+    "dexterity": 3,
+    "stamina": 3,
+    "perception": 3,
+    "intelligence": 1,
+    "wits": 2
+   },
+   "abilities": {
+    "athletics": {
+     "value": 3,
+     "specialty": ""
+    },
+    "alertness": {
+     "value": 3,
+     "specialty": ""
+    },
+    "brawl": {
+     "value": 3,
+     "specialty": ""
+    }
+   },
+   "trained": {},
+   "disciplines": {},
+   "humanity": null,
+   "humanityText": "",
+   "willpower": 4,
+   "notes": [],
+   "health": "ОК, –1, –2, –5, при смерти",
+   "attacks": [
+    {
+     "name": "Укус",
+     "dice": 2,
+     "damageType": "lethal"
+    }
+   ],
+   "attackText": "укус (сила + 1; см. «Яды и наркотики» на стр. 321)",
+   "blood": 1,
+   "bloodText": "1",
+   "supernatural": false
+  },
+  {
+   "key": "lynx",
+   "name": "Рысь",
+   "group": "animals",
+   "kind": "creature",
+   "page": 417,
+   "attributes": {
+    "strength": 3,
+    "dexterity": 3,
+    "stamina": 3,
+    "perception": 3,
+    "intelligence": 2,
+    "wits": 3
+   },
+   "abilities": {
+    "athletics": {
+     "value": 3,
+     "specialty": "лазание"
+    },
+    "alertness": {
+     "value": 3,
+     "specialty": ""
+    },
+    "brawl": {
+     "value": 3,
+     "specialty": ""
+    }
+   },
+   "trained": {},
+   "disciplines": {},
+   "humanity": null,
+   "humanityText": "",
+   "willpower": 3,
+   "notes": [],
+   "health": "ОК, –1, –1, –2, –5, при смерти",
+   "attacks": [
+    {
+     "name": "Укус",
+     "dice": 4,
+     "damageType": "lethal"
+    },
+    {
+     "name": "Удар когтями",
+     "dice": 3,
+     "damageType": "lethal"
+    }
+   ],
+   "attackText": "укус (сила + 1), удар когтями (сила)",
+   "blood": 4,
+   "bloodText": "4",
+   "supernatural": false
+  },
+  {
+   "key": "cat",
+   "name": "Домашняя кошка",
+   "group": "animals",
+   "kind": "creature",
+   "page": 417,
+   "attributes": {
+    "strength": 1,
+    "dexterity": 3,
+    "stamina": 3,
+    "perception": 3,
+    "intelligence": 2,
+    "wits": 3
+   },
+   "abilities": {
+    "athletics": {
+     "value": 3,
+     "specialty": "лазание"
+    },
+    "alertness": {
+     "value": 3,
+     "specialty": ""
+    },
+    "brawl": {
+     "value": 2,
+     "specialty": ""
+    },
+    "intimidation": {
+     "value": 2,
+     "specialty": ""
+    },
+    "stealth": {
+     "value": 4,
+     "specialty": ""
+    }
+   },
+   "trained": {
+    "subterfuge": {
+     "value": 2,
+     "specialty": ""
+    },
+    "empathy": {
+     "value": 2,
+     "specialty": ""
+    }
+   },
+   "disciplines": {},
+   "humanity": null,
+   "humanityText": "",
+   "willpower": 3,
+   "notes": [],
+   "health": "ОК, –1, –2, –5, при смерти",
+   "attacks": [
+    {
+     "name": "Укус",
+     "dice": 1,
+     "damageType": "lethal"
+    },
+    {
+     "name": "Удар когтями",
+     "dice": 1,
+     "damageType": "lethal"
+    }
+   ],
+   "attackText": "укус (сила), удар когтями (сила)",
+   "blood": 1,
+   "bloodText": "1",
+   "supernatural": false
+  },
+  {
+   "key": "leopard",
+   "name": "Леопард (ягуар, пантера)",
+   "group": "animals",
+   "kind": "creature",
+   "page": 417,
+   "attributes": {
+    "strength": 4,
+    "dexterity": 3,
+    "stamina": 3,
+    "perception": 3,
+    "intelligence": 2,
+    "wits": 3
+   },
+   "abilities": {
+    "athletics": {
+     "value": 3,
+     "specialty": ""
+    },
+    "alertness": {
+     "value": 3,
+     "specialty": ""
+    },
+    "brawl": {
+     "value": 3,
+     "specialty": ""
+    }
+   },
+   "trained": {
+    "intimidation": {
+     "value": 4,
+     "specialty": ""
+    },
+    "stealth": {
+     "value": 3,
+     "specialty": ""
+    }
+   },
+   "disciplines": {},
+   "humanity": null,
+   "humanityText": "",
+   "willpower": 4,
+   "notes": [],
+   "health": "ОК, –1, –1, –2, –2, –5, при смерти",
+   "attacks": [
+    {
+     "name": "Укус",
+     "dice": 5,
+     "damageType": "lethal"
+    },
+    {
+     "name": "Удар когтями",
+     "dice": 4,
+     "damageType": "lethal"
+    }
+   ],
+   "attackText": "укус (сила + 1), удар когтями (сила)",
+   "blood": 5,
+   "bloodText": "5",
+   "supernatural": false
+  },
+  {
+   "key": "tiger",
+   "name": "Тигр (лев)",
+   "group": "animals",
+   "kind": "creature",
+   "page": 417,
+   "attributes": {
+    "strength": 5,
+    "dexterity": 4,
+    "stamina": 4,
+    "perception": 4,
+    "intelligence": 3,
+    "wits": 3
+   },
+   "abilities": {
+    "athletics": {
+     "value": 3,
+     "specialty": ""
+    },
+    "alertness": {
+     "value": 3,
+     "specialty": ""
+    },
+    "brawl": {
+     "value": 3,
+     "specialty": ""
+    }
+   },
+   "trained": {
+    "intimidation": {
+     "value": 4,
+     "specialty": ""
+    },
+    "stealth": {
+     "value": 3,
+     "specialty": ""
+    }
+   },
+   "disciplines": {},
+   "humanity": null,
+   "humanityText": "",
+   "willpower": 5,
+   "notes": [],
+   "health": "ОК, –1, –1, –2, –2, –5, при смерти",
+   "attacks": [
+    {
+     "name": "Укус",
+     "dice": 6,
+     "damageType": "lethal"
+    },
+    {
+     "name": "Удар когтями",
+     "dice": 5,
+     "damageType": "lethal"
+    }
+   ],
+   "attackText": "укус (сила + 1), удар когтями (сила)",
+   "blood": 5,
+   "bloodText": "5",
+   "supernatural": false
+  },
+  {
+   "key": "rat",
+   "name": "Крыса",
+   "group": "animals",
+   "kind": "creature",
+   "page": 418,
+   "attributes": {
+    "strength": 1,
+    "dexterity": 2,
+    "stamina": 3,
+    "perception": 2,
+    "intelligence": 1,
+    "wits": 1
+   },
+   "abilities": {
+    "athletics": {
+     "value": 3,
+     "specialty": ""
+    },
+    "alertness": {
+     "value": 2,
+     "specialty": ""
+    },
+    "brawl": {
+     "value": 1,
+     "specialty": ""
+    },
+    "stealth": {
+     "value": 3,
+     "specialty": ""
+    }
+   },
+   "trained": {},
+   "disciplines": {},
+   "humanity": null,
+   "humanityText": "",
+   "willpower": 4,
+   "notes": [],
+   "health": "ОК, –1, –5",
+   "attacks": [
+    {
+     "name": "Укус",
+     "dice": 1,
+     "damageType": "lethal"
+    }
+   ],
+   "attackText": "укус (сила)",
+   "blood": 1,
+   "bloodText": "1 / 4 (четыре крысы дают один пункт крови)",
+   "note": "носферату часто используют крыс-гулей как шпионов и стражей. Чаще всего крысы атакуют стаями (см. далее)",
+   "supernatural": false
+  },
+  {
+   "key": "bear",
+   "name": "Медведь",
+   "group": "animals",
+   "kind": "creature",
+   "page": 418,
+   "attributes": {
+    "strength": 5,
+    "dexterity": 2,
+    "stamina": 5,
+    "perception": 3,
+    "intelligence": 3,
+    "wits": 2
+   },
+   "abilities": {
+    "alertness": {
+     "value": 3,
+     "specialty": ""
+    },
+    "brawl": {
+     "value": 3,
+     "specialty": ""
+    },
+    "intimidation": {
+     "value": 2,
+     "specialty": ""
+    },
+    "stealth": {
+     "value": 1,
+     "specialty": ""
+    }
+   },
+   "trained": {},
+   "disciplines": {},
+   "humanity": null,
+   "humanityText": "",
+   "willpower": 4,
+   "notes": [],
+   "health": "ОК, +0, +0, –1, –1, –1, –3, –3, –5, при смерти",
+   "attacks": [
+    {
+     "name": "Удар когтями",
+     "dice": 7,
+     "damageType": "lethal"
+    },
+    {
+     "name": "Укус",
+     "dice": 5,
+     "damageType": "lethal"
+    }
+   ],
+   "attackText": "удар когтями (сила + 2), укус (сила)",
+   "blood": 5,
+   "bloodText": "5",
+   "supernatural": false
+  },
+  {
+   "key": "bat",
+   "name": "Летучая мышь",
+   "group": "animals",
+   "kind": "creature",
+   "page": 418,
+   "attributes": {
+    "strength": 1,
+    "dexterity": 3,
+    "stamina": 2,
+    "perception": 3,
+    "intelligence": 1,
+    "wits": 2
+   },
+   "abilities": {
+    "athletics": {
+     "value": 3,
+     "specialty": ""
+    },
+    "alertness": {
+     "value": 3,
+     "specialty": ""
+    },
+    "stealth": {
+     "value": 2,
+     "specialty": ""
+    }
+   },
+   "trained": {},
+   "disciplines": {},
+   "humanity": null,
+   "humanityText": "",
+   "willpower": 2,
+   "notes": [],
+   "health": "ОК, –1, –3",
+   "attacks": [
+    {
+     "name": "Укус",
+     "dice": 1,
+     "damageType": "lethal"
+    }
+   ],
+   "attackText": "укус (сила)",
+   "blood": 1,
+   "bloodText": "1 / 4 (четыре летучие мыши дают один пункт крови)",
+   "note": "в полёте летучие мыши могут развивать скорость до 40 км / ч. Обычные летучие мыши значительно меньше вампиров, использующих Метаморфозы для того, чтобы превращаться в летучих мышей",
+   "supernatural": false
+  },
+  {
+   "key": "spider",
+   "name": "Паук",
+   "group": "animals",
+   "kind": "creature",
+   "page": 418,
+   "attributes": {
+    "strength": 0,
+    "dexterity": 3,
+    "stamina": 1,
+    "perception": 1,
+    "intelligence": 1,
+    "wits": 3
+   },
+   "abilities": {},
+   "trained": {},
+   "disciplines": {},
+   "humanity": null,
+   "humanityText": "",
+   "willpower": 3,
+   "notes": [],
+   "health": "ОК, всмятку",
+   "attacks": [],
+   "attackText": "укус (урона нет, но может быть ядовитым — см. стр. 321)",
+   "blood": 0,
+   "bloodText": "нет",
+   "note": "персонаж должен пройти проверку бдительности + восприятия (сложность 7), чтобы заметить ползущего по нему паука",
+   "supernatural": false
+  },
+  {
+   "key": "pony",
+   "name": "Маленькая лошадь (пони, жеребёнок)",
+   "group": "animals",
+   "kind": "creature",
+   "page": 418,
+   "attributes": {
+    "strength": 4,
+    "dexterity": 2,
+    "stamina": 3,
+    "perception": 3,
+    "intelligence": 2,
+    "wits": 2
+   },
+   "abilities": {
+    "athletics": {
+     "value": 3,
+     "specialty": ""
+    },
+    "alertness": {
+     "value": 3,
+     "specialty": ""
+    },
+    "brawl": {
+     "value": 1,
+     "specialty": ""
+    }
+   },
+   "trained": {
+    "brawl": {
+     "value": 2,
+     "specialty": ""
+    },
+    "empathy": {
+     "value": 2,
+     "specialty": ""
+    }
+   },
+   "disciplines": {},
+   "humanity": null,
+   "humanityText": "",
+   "willpower": 2,
+   "notes": [],
+   "health": "ОК, +0, –1, –1, –2, –2, –5, при смерти",
+   "attacks": [
+    {
+     "name": "Удар копытом или таран",
+     "dice": 6,
+     "damageType": "bashing"
+    },
+    {
+     "name": "Укус",
+     "dice": 3,
+     "damageType": "lethal"
+    }
+   ],
+   "attackText": "удар копытом или таран (сила + 2), укус (сила — 1)",
+   "blood": 3,
+   "bloodText": "3",
+   "supernatural": false
+  },
+  {
+   "key": "horse",
+   "name": "Большая лошадь (жеребец, тяжеловоз)",
+   "group": "animals",
+   "kind": "creature",
+   "page": 418,
+   "attributes": {
+    "strength": 6,
+    "dexterity": 2,
+    "stamina": 5,
+    "perception": 3,
+    "intelligence": 2,
+    "wits": 2
+   },
+   "abilities": {
+    "athletics": {
+     "value": 3,
+     "specialty": ""
+    },
+    "alertness": {
+     "value": 3,
+     "specialty": ""
+    },
+    "brawl": {
+     "value": 1,
+     "specialty": ""
+    }
+   },
+   "trained": {
+    "brawl": {
+     "value": 3,
+     "specialty": ""
+    },
+    "intimidation": {
+     "value": 2,
+     "specialty": ""
+    },
+    "empathy": {
+     "value": 2,
+     "specialty": ""
+    }
+   },
+   "disciplines": {},
+   "humanity": null,
+   "humanityText": "",
+   "willpower": 4,
+   "notes": [],
+   "health": "ОК, +0, –1, –1, –2, –2, –5, при смерти",
+   "attacks": [
+    {
+     "name": "Удар копытом или таран",
+     "dice": 7,
+     "damageType": "bashing"
+    },
+    {
+     "name": "Укус",
+     "dice": 3,
+     "damageType": "lethal"
+    }
+   ],
+   "attackText": "удар копытом или таран (сила + 1), укус (сила — 3)",
+   "blood": 4,
+   "bloodText": "4",
+   "supernatural": false
+  },
+  {
+   "key": "smallBird",
+   "name": "Маленькая птица (зяблик, попугай)",
+   "group": "animals",
+   "kind": "creature",
+   "page": 418,
+   "attributes": {
+    "strength": 1,
+    "dexterity": 3,
+    "stamina": 2,
+    "perception": 3,
+    "intelligence": 2,
+    "wits": 3
+   },
+   "abilities": {
+    "alertness": {
+     "value": 3,
+     "specialty": ""
+    }
+   },
+   "trained": {
+    "performance": {
+     "value": 3,
+     "specialty": "мимикрия"
+    }
+   },
+   "disciplines": {},
+   "humanity": null,
+   "humanityText": "",
+   "willpower": 1,
+   "notes": [],
+   "health": "ОК, –1, –2, –5",
+   "attacks": [],
+   "attackText": "отвлечение (пул всех проверок жертвы уменьшается на один d10, пока птица её отвлекает)",
+   "blood": 1,
+   "bloodText": "1 / 4 (четыре маленькие птицы дают один пункт крови)",
+   "supernatural": false
+  },
+  {
+   "key": "bigBird",
+   "name": "Большая птица (ястреб, ворон)",
+   "group": "animals",
+   "kind": "creature",
+   "page": 418,
+   "attributes": {
+    "strength": 2,
+    "dexterity": 3,
+    "stamina": 3,
+    "perception": 3,
+    "intelligence": 2,
+    "wits": 3
+   },
+   "abilities": {
+    "athletics": {
+     "value": 2,
+     "specialty": ""
+    },
+    "alertness": {
+     "value": 3,
+     "specialty": ""
+    },
+    "brawl": {
+     "value": 1,
+     "specialty": ""
+    },
+    "intimidation": {
+     "value": 2,
+     "specialty": ""
+    }
+   },
+   "trained": {
+    "brawl": {
+     "value": 3,
+     "specialty": ""
+    },
+    "intimidation": {
+     "value": 4,
+     "specialty": ""
+    },
+    "empathy": {
+     "value": 4,
+     "specialty": ""
+    }
+   },
+   "disciplines": {},
+   "humanity": null,
+   "humanityText": "",
+   "willpower": 3,
+   "notes": [],
+   "health": "ОК, –1, –1, –2, –5, при смерти",
+   "attacks": [
+    {
+     "name": "Удар когтями",
+     "dice": 2,
+     "damageType": "lethal"
+    },
+    {
+     "name": "Укус",
+     "dice": 1,
+     "damageType": "lethal"
+    }
+   ],
+   "attackText": "будет драться только в самом крайнем случае — удар когтями (сила), укус (сила — 1)",
+   "blood": 1,
+   "bloodText": "1 / 2 (две большие птицы дают один пункт крови)",
+   "note": "в полёте птицы развивают скорость от 40 до 80 км / ч",
+   "supernatural": false
+  },
+  {
+   "key": "pig",
+   "name": "Маленькая свинья (домашняя)",
+   "group": "animals",
+   "kind": "creature",
+   "page": 419,
+   "attributes": {
+    "strength": 2,
+    "dexterity": 2,
+    "stamina": 4,
+    "perception": 3,
+    "intelligence": 2,
+    "wits": 2
+   },
+   "abilities": {
+    "athletics": {
+     "value": 2,
+     "specialty": ""
+    },
+    "alertness": {
+     "value": 2,
+     "specialty": ""
+    },
+    "brawl": {
+     "value": 2,
+     "specialty": ""
+    }
+   },
+   "trained": {},
+   "disciplines": {},
+   "humanity": null,
+   "humanityText": "",
+   "willpower": 3,
+   "notes": [],
+   "health": "ОК, +0, –1, –1, –2, –4, при смерти",
+   "attacks": [
+    {
+     "name": "Укус",
+     "dice": 2,
+     "damageType": "lethal"
+    }
+   ],
+   "attackText": "укус (сила)",
+   "blood": 3,
+   "bloodText": "3",
+   "supernatural": false
+  },
+  {
+   "key": "boar",
+   "name": "Большая свинья (кабан)",
+   "group": "animals",
+   "kind": "creature",
+   "page": 419,
+   "attributes": {
+    "strength": 4,
+    "dexterity": 2,
+    "stamina": 5,
+    "perception": 3,
+    "intelligence": 2,
+    "wits": 2
+   },
+   "abilities": {
+    "athletics": {
+     "value": 2,
+     "specialty": ""
+    },
+    "alertness": {
+     "value": 2,
+     "specialty": ""
+    },
+    "brawl": {
+     "value": 2,
+     "specialty": ""
+    }
+   },
+   "trained": {
+    "intimidation": {
+     "value": 2,
+     "specialty": ""
+    }
+   },
+   "disciplines": {},
+   "humanity": null,
+   "humanityText": "",
+   "willpower": 3,
+   "notes": [],
+   "health": "ОК, +0, –1, –1, –2, –4, при смерти",
+   "attacks": [
+    {
+     "name": "Удар клыками",
+     "dice": 5,
+     "damageType": "lethal"
+    },
+    {
+     "name": "Укус",
+     "dice": 4,
+     "damageType": "lethal"
+    }
+   ],
+   "attackText": "удар клыками (сила + 1), укус (сила)",
+   "blood": 4,
+   "bloodText": "4",
+   "supernatural": false
+  },
+  {
+   "key": "smallDog",
+   "name": "Маленькая собака (мопс)",
+   "group": "animals",
+   "kind": "creature",
+   "page": 419,
+   "attributes": {
+    "strength": 1,
+    "dexterity": 3,
+    "stamina": 2,
+    "perception": 3,
+    "intelligence": 1,
+    "wits": 3
+   },
+   "abilities": {
+    "athletics": {
+     "value": 3,
+     "specialty": ""
+    },
+    "alertness": {
+     "value": 3,
+     "specialty": ""
+    }
+   },
+   "trained": {
+    "performance": {
+     "value": 1,
+     "specialty": ""
+    },
+    "stealth": {
+     "value": 3,
+     "specialty": ""
+    },
+    "empathy": {
+     "value": 2,
+     "specialty": ""
+    }
+   },
+   "disciplines": {},
+   "humanity": null,
+   "humanityText": "",
+   "willpower": 3,
+   "notes": [],
+   "health": "ОК, –1, –5",
+   "attacks": [
+    {
+     "name": "Укус",
+     "dice": 2,
+     "damageType": "lethal"
+    }
+   ],
+   "attackText": "укус (сила + 1)",
+   "blood": 1,
+   "bloodText": "1",
+   "supernatural": false
+  },
+  {
+   "key": "dog",
+   "name": "Средняя собака (бигль, колли)",
+   "group": "animals",
+   "kind": "creature",
+   "page": 419,
+   "attributes": {
+    "strength": 2,
+    "dexterity": 3,
+    "stamina": 3,
+    "perception": 3,
+    "intelligence": 2,
+    "wits": 3
+   },
+   "abilities": {
+    "athletics": {
+     "value": 3,
+     "specialty": ""
+    },
+    "alertness": {
+     "value": 3,
+     "specialty": ""
+    },
+    "survival": {
+     "value": 3,
+     "specialty": "выслеживание"
+    }
+   },
+   "trained": {
+    "intimidation": {
+     "value": 1,
+     "specialty": ""
+    },
+    "stealth": {
+     "value": 2,
+     "specialty": ""
+    },
+    "empathy": {
+     "value": 2,
+     "specialty": ""
+    }
+   },
+   "disciplines": {},
+   "humanity": null,
+   "humanityText": "",
+   "willpower": 3,
+   "notes": [],
+   "health": "ОК, –1, –1, –2, –5, при смерти",
+   "attacks": [
+    {
+     "name": "Укус",
+     "dice": 3,
+     "damageType": "lethal"
+    },
+    {
+     "name": "Удар когтями",
+     "dice": 2,
+     "damageType": "lethal"
+    }
+   ],
+   "attackText": "укус (сила + 1), удар когтями (сила)",
+   "blood": 2,
+   "bloodText": "2",
+   "supernatural": false
+  },
+  {
+   "key": "bigDog",
+   "name": "Большая собака (овчарка, дог)",
+   "group": "animals",
+   "kind": "creature",
+   "page": 419,
+   "attributes": {
+    "strength": 4,
+    "dexterity": 3,
+    "stamina": 3,
+    "perception": 3,
+    "intelligence": 2,
+    "wits": 3
+   },
+   "abilities": {
+    "athletics": {
+     "value": 3,
+     "specialty": ""
+    },
+    "alertness": {
+     "value": 3,
+     "specialty": ""
+    },
+    "survival": {
+     "value": 3,
+     "specialty": "выслеживание"
+    },
+    "brawl": {
+     "value": 3,
+     "specialty": ""
+    }
+   },
+   "trained": {
+    "intimidation": {
+     "value": 3,
+     "specialty": ""
+    },
+    "stealth": {
+     "value": 2,
+     "specialty": ""
+    },
+    "empathy": {
+     "value": 2,
+     "specialty": ""
+    }
+   },
+   "disciplines": {},
+   "humanity": null,
+   "humanityText": "",
+   "willpower": 5,
+   "notes": [],
+   "health": "ОК, –1, –1, –2, –2, –5, при смерти",
+   "attacks": [
+    {
+     "name": "Укус",
+     "dice": 5,
+     "damageType": "lethal"
+    },
+    {
+     "name": "Удар когтями",
+     "dice": 4,
+     "damageType": "lethal"
+    }
+   ],
+   "attackText": "укус (сила + 1), удар когтями (сила)",
+   "blood": 2,
+   "bloodText": "2",
+   "supernatural": false
+  },
+  {
+   "key": "chimp",
+   "name": "Шимпанзе",
+   "group": "animals",
+   "kind": "creature",
+   "page": 419,
+   "attributes": {
+    "strength": 4,
+    "dexterity": 4,
+    "stamina": 3,
+    "perception": 3,
+    "intelligence": 3,
+    "wits": 4
+   },
+   "abilities": {
+    "athletics": {
+     "value": 3,
+     "specialty": "лазание"
+    },
+    "alertness": {
+     "value": 3,
+     "specialty": ""
+    },
+    "brawl": {
+     "value": 2,
+     "specialty": ""
+    }
+   },
+   "trained": {
+    "empathy": {
+     "value": 2,
+     "specialty": ""
+    }
+   },
+   "disciplines": {},
+   "humanity": null,
+   "humanityText": "",
+   "willpower": 5,
+   "notes": [
+    "достоинство «язык (язык жестов или язык пиктограмм)»"
+   ],
+   "health": "ОК, –1, –1, –2, –2, –5, при смерти",
+   "attacks": [
+    {
+     "name": "Укус",
+     "dice": 5,
+     "damageType": "lethal"
+    },
+    {
+     "name": "Удар",
+     "dice": 4,
+     "damageType": "bashing"
+    }
+   ],
+   "attackText": "укус (сила + 1), удар (сила)",
+   "blood": 4,
+   "bloodText": "4",
+   "supernatural": false
+  },
+  {
+   "key": "swarmTiny",
+   "name": "Рой мелких насекомых",
+   "group": "swarms",
+   "kind": "creature",
+   "page": 420,
+   "swarm": {
+    "damage": 1,
+    "health": 5,
+    "initiative": 2
+   },
+   "supernatural": false,
+   "note": "Рой атакует раз в ход: проверка урона (сл. 6) пулом из таблицы, повреждения тяжёлые (у мелких тварей — лёгкие). Защита — уклонение; не уклонился — скорость вдвое. Больше 2 повреждений или провал — сбит с ног и захлёстнут: только ползёт, сложность урона роя 5. Уровни здоровья — сколько повреждений рой выдержит до рассеивания, ещё 2 — уничтожен. Пистолеты, винтовки и лёгкое холодное оружие — не больше 1 повреждения за атаку; дробовики, тяжёлое оружие и урон по площади — как обычно. Рои не поглощают урон."
+  },
+  {
+   "key": "swarmBugs",
+   "name": "Рой крупных насекомых",
+   "group": "swarms",
+   "kind": "creature",
+   "page": 420,
+   "swarm": {
+    "damage": 2,
+    "health": 7,
+    "initiative": 3
+   },
+   "supernatural": false,
+   "note": "Рой атакует раз в ход: проверка урона (сл. 6) пулом из таблицы, повреждения тяжёлые (у мелких тварей — лёгкие). Защита — уклонение; не уклонился — скорость вдвое. Больше 2 повреждений или провал — сбит с ног и захлёстнут: только ползёт, сложность урона роя 5. Уровни здоровья — сколько повреждений рой выдержит до рассеивания, ещё 2 — уничтожен. Пистолеты, винтовки и лёгкое холодное оружие — не больше 1 повреждения за атаку; дробовики, тяжёлое оружие и урон по площади — как обычно. Рои не поглощают урон."
+  },
+  {
+   "key": "swarmFlies",
+   "name": "Рой летающих насекомых",
+   "group": "swarms",
+   "kind": "creature",
+   "page": 420,
+   "swarm": {
+    "damage": 2,
+    "health": 5,
+    "initiative": 4
+   },
+   "supernatural": false,
+   "note": "Рой атакует раз в ход: проверка урона (сл. 6) пулом из таблицы, повреждения тяжёлые (у мелких тварей — лёгкие). Защита — уклонение; не уклонился — скорость вдвое. Больше 2 повреждений или провал — сбит с ног и захлёстнут: только ползёт, сложность урона роя 5. Уровни здоровья — сколько повреждений рой выдержит до рассеивания, ещё 2 — уничтожен. Пистолеты, винтовки и лёгкое холодное оружие — не больше 1 повреждения за атаку; дробовики, тяжёлое оружие и урон по площади — как обычно. Рои не поглощают урон."
+  },
+  {
+   "key": "swarmBats",
+   "name": "Стая птиц или летучих мышей",
+   "group": "swarms",
+   "kind": "creature",
+   "page": 420,
+   "swarm": {
+    "damage": 4,
+    "health": 9,
+    "initiative": 5
+   },
+   "supernatural": false,
+   "note": "Рой атакует раз в ход: проверка урона (сл. 6) пулом из таблицы, повреждения тяжёлые (у мелких тварей — лёгкие). Защита — уклонение; не уклонился — скорость вдвое. Больше 2 повреждений или провал — сбит с ног и захлёстнут: только ползёт, сложность урона роя 5. Уровни здоровья — сколько повреждений рой выдержит до рассеивания, ещё 2 — уничтожен. Пистолеты, винтовки и лёгкое холодное оружие — не больше 1 повреждения за атаку; дробовики, тяжёлое оружие и урон по площади — как обычно. Рои не поглощают урон."
+  },
+  {
+   "key": "swarmRats",
+   "name": "Стая крыс",
+   "group": "swarms",
+   "kind": "creature",
+   "page": 420,
+   "swarm": {
+    "damage": 3,
+    "health": 7,
+    "initiative": 3
+   },
+   "supernatural": false,
+   "note": "Рой атакует раз в ход: проверка урона (сл. 6) пулом из таблицы, повреждения тяжёлые (у мелких тварей — лёгкие). Защита — уклонение; не уклонился — скорость вдвое. Больше 2 повреждений или провал — сбит с ног и захлёстнут: только ползёт, сложность урона роя 5. Уровни здоровья — сколько повреждений рой выдержит до рассеивания, ещё 2 — уничтожен. Пистолеты, винтовки и лёгкое холодное оружие — не больше 1 повреждения за атаку; дробовики, тяжёлое оружие и урон по площади — как обычно. Рои не поглощают урон."
+  },
+  {
+   "key": "swarmBigRats",
+   "name": "Стая крупных крыс",
+   "group": "swarms",
+   "kind": "creature",
+   "page": 420,
+   "swarm": {
+    "damage": 4,
+    "health": 9,
+    "initiative": 3
+   },
+   "supernatural": false,
+   "note": "Рой атакует раз в ход: проверка урона (сл. 6) пулом из таблицы, повреждения тяжёлые (у мелких тварей — лёгкие). Защита — уклонение; не уклонился — скорость вдвое. Больше 2 повреждений или провал — сбит с ног и захлёстнут: только ползёт, сложность урона роя 5. Уровни здоровья — сколько повреждений рой выдержит до рассеивания, ещё 2 — уничтожен. Пистолеты, винтовки и лёгкое холодное оружие — не больше 1 повреждения за атаку; дробовики, тяжёлое оружие и урон по площади — как обычно. Рои не поглощают урон."
+  },
+  {
+   "key": "swarmCats",
+   "name": "Стая диких кошек",
+   "group": "swarms",
+   "kind": "creature",
+   "page": 420,
+   "swarm": {
+    "damage": 4,
+    "health": 6,
+    "initiative": 6
+   },
+   "supernatural": false,
+   "note": "Рой атакует раз в ход: проверка урона (сл. 6) пулом из таблицы, повреждения тяжёлые (у мелких тварей — лёгкие). Защита — уклонение; не уклонился — скорость вдвое. Больше 2 повреждений или провал — сбит с ног и захлёстнут: только ползёт, сложность урона роя 5. Уровни здоровья — сколько повреждений рой выдержит до рассеивания, ещё 2 — уничтожен. Пистолеты, винтовки и лёгкое холодное оружие — не больше 1 повреждения за атаку; дробовики, тяжёлое оружие и урон по площади — как обычно. Рои не поглощают урон."
+  },
+  {
+   "key": "swarmDogs",
+   "name": "Стая диких собак или волков",
+   "group": "swarms",
+   "kind": "creature",
+   "page": 420,
+   "swarm": {
+    "damage": 6,
+    "health": 15,
+    "initiative": 4
+   },
+   "supernatural": false,
+   "note": "Рой атакует раз в ход: проверка урона (сл. 6) пулом из таблицы, повреждения тяжёлые (у мелких тварей — лёгкие). Защита — уклонение; не уклонился — скорость вдвое. Больше 2 повреждений или провал — сбит с ног и захлёстнут: только ползёт, сложность урона роя 5. Уровни здоровья — сколько повреждений рой выдержит до рассеивания, ещё 2 — уничтожен. Пистолеты, винтовки и лёгкое холодное оружие — не больше 1 повреждения за атаку; дробовики, тяжёлое оружие и урон по площади — как обычно. Рои не поглощают урон."
+  }
+ ],
+ "animalRule": "Зверя можно сделать гулем: раз в месяц поить витэ. Животное-гуль получает волю, 1 точку Мощи и 2 пункта крови (V20, гл. 9).",
+ "names": {
+  "fr": {
+   "label": "Французы (XVIII век)",
+   "m": [
+    "Жан",
+    "Пьер",
+    "Луи",
+    "Жак",
+    "Франсуа",
+    "Антуан",
+    "Николя",
+    "Этьен",
+    "Клод",
+    "Мишель",
+    "Шарль",
+    "Жозеф",
+    "Огюстен",
+    "Бертран",
+    "Гийом",
+    "Ипполит",
+    "Камиль",
+    "Максимильен",
+    "Андре",
+    "Филипп",
+    "Габриэль",
+    "Анри",
+    "Жан-Батист",
+    "Жан-Поль",
+    "Лоран",
+    "Мартен",
+    "Оноре",
+    "Рене",
+    "Тома",
+    "Венсан"
+   ],
+   "f": [
+    "Мари",
+    "Анна",
+    "Жанна",
+    "Луиза",
+    "Маргарита",
+    "Франсуаза",
+    "Катрин",
+    "Элизабет",
+    "Мадлен",
+    "Женевьева",
+    "Антуанетта",
+    "Софи",
+    "Шарлотта",
+    "Аделаида",
+    "Тереза",
+    "Олимпия",
+    "Манон",
+    "Люсиль",
+    "Жюли",
+    "Полина",
+    "Клер",
+    "Изабель",
+    "Виктуар",
+    "Розали",
+    "Эмили"
+   ],
+   "last": [
+    "Мартен",
+    "Бернар",
+    "Дюбуа",
+    "Тома",
+    "Робер",
+    "Ришар",
+    "Пети",
+    "Дюран",
+    "Леруа",
+    "Моро",
+    "Симон",
+    "Лоран",
+    "Лефевр",
+    "Мишель",
+    "Гарнье",
+    "Шевалье",
+    "Бонне",
+    "Жирар",
+    "Руссо",
+    "Фурнье",
+    "Мерсье",
+    "Дюпон",
+    "Ламбер",
+    "Фонтен",
+    "Бланшар",
+    "Гийо",
+    "Лемуан",
+    "Марешаль",
+    "Обер",
+    "Сансон",
+    "Карно",
+    "Дантон",
+    "Демулен",
+    "Ролан",
+    "Кордье",
+    "де Ла Тур",
+    "де Сен-Пьер",
+    "де Монморанси",
+    "де Ноай",
+    "де Бриссак"
+   ]
+  },
+  "en": {
+   "label": "Англичане",
+   "m": [
+    "Джон",
+    "Уильям",
+    "Томас",
+    "Джордж",
+    "Джеймс",
+    "Генри",
+    "Эдвард",
+    "Чарльз",
+    "Ричард",
+    "Роберт",
+    "Сэмюэл",
+    "Бенджамин"
+   ],
+   "f": [
+    "Мэри",
+    "Элизабет",
+    "Энн",
+    "Сара",
+    "Джейн",
+    "Маргарет",
+    "Шарлотта",
+    "Эмили",
+    "Кэтрин",
+    "Ханна",
+    "Элинор"
+   ],
+   "last": [
+    "Смит",
+    "Браун",
+    "Тейлор",
+    "Уилсон",
+    "Джонсон",
+    "Уайт",
+    "Хьюз",
+    "Эванс",
+    "Кларк",
+    "Холл",
+    "Райт",
+    "Грин",
+    "Фостер",
+    "Харрис"
+   ]
+  },
+  "de": {
+   "label": "Немцы",
+   "m": [
+    "Иоганн",
+    "Фридрих",
+    "Карл",
+    "Вильгельм",
+    "Генрих",
+    "Георг",
+    "Людвиг",
+    "Готфрид",
+    "Эрнст",
+    "Франц"
+   ],
+   "f": [
+    "Анна",
+    "Мария",
+    "Елизавета",
+    "Катарина",
+    "Маргарета",
+    "Шарлотта",
+    "Доротея",
+    "Луиза",
+    "Вильгельмина"
+   ],
+   "last": [
+    "Мюллер",
+    "Шмидт",
+    "Шнайдер",
+    "Фишер",
+    "Вебер",
+    "Майер",
+    "Вагнер",
+    "Беккер",
+    "Шульц",
+    "Гофман",
+    "Кох",
+    "Рихтер"
+   ]
+  },
+  "it": {
+   "label": "Итальянцы",
+   "m": [
+    "Джованни",
+    "Джузеппе",
+    "Антонио",
+    "Франческо",
+    "Лоренцо",
+    "Марко",
+    "Пьетро",
+    "Карло",
+    "Никколо",
+    "Витторио"
+   ],
+   "f": [
+    "Мария",
+    "Анна",
+    "Лукреция",
+    "Изабелла",
+    "Катерина",
+    "Беатриче",
+    "Франческа",
+    "Джулия",
+    "Лючия"
+   ],
+   "last": [
+    "Росси",
+    "Руссо",
+    "Феррари",
+    "Эспозито",
+    "Бьянки",
+    "Романо",
+    "Колонна",
+    "Конти",
+    "Риччи",
+    "Марино",
+    "Гримальди",
+    "Медичи"
+   ]
+  },
+  "ru": {
+   "label": "Русские",
+   "femLast": true,
+   "m": [
+    "Иван",
+    "Пётр",
+    "Алексей",
+    "Николай",
+    "Михаил",
+    "Дмитрий",
+    "Андрей",
+    "Сергей",
+    "Фёдор",
+    "Григорий",
+    "Василий"
+   ],
+   "f": [
+    "Мария",
+    "Анна",
+    "Екатерина",
+    "Елизавета",
+    "Наталья",
+    "Ольга",
+    "Татьяна",
+    "Софья",
+    "Прасковья",
+    "Варвара"
+   ],
+   "last": [
+    "Иванов",
+    "Петров",
+    "Соколов",
+    "Орлов",
+    "Волков",
+    "Лебедев",
+    "Морозов",
+    "Голицын",
+    "Долгоруков",
+    "Шереметев",
+    "Воронцов"
+   ]
+  }
+ }
+}

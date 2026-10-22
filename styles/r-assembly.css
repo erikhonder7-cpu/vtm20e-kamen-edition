@@ -1,0 +1,495 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   VTM20 «Liberté» — Теневое Собрание (module/ui/assembly.mjs): бумаги 1791 года на тёмном столе.
+   Печать — IM Fell, пометки от руки — Marck Script, красные чернила и сургуч. Без золота и рамок-завитков:
+   только то, что было на столе секретаря Собрания — листы, двойные линейки, печати.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+#r-citymap {
+  --p-paper: #e7dbc1; --p-paper-2: #d4c4a2; --p-ink: #261a10; --p-ink-2: #574330; --p-faint: #8b7558; --p-rule: #6d5839;
+  --p-red: #7d1a1c; --p-red-2: #a4282b;
+  --p-print: "IM Fell", "Old Standard", Georgia, serif; --p-caps: "IM Fell SC", "IM Fell", Georgia, serif; --p-hand: "Marck Script", "IM Fell", cursive;
+  --p-grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .32  0 0 0 0 .22  0 0 0 0 .1  0 0 0 .55 0'/></filter><rect width='220' height='220' filter='url(%23n)' opacity='.55'/></svg>");
+}
+
+/* ── Режимы шторы: ярлыки у нижней кромки ── */
+#r-citymap .rc-modes { position: absolute; z-index: 9; left: 50%; bottom: 14px; transform: translateX(-50%); display: flex;
+  border: 1px solid #000; background: var(--c-mat-leather); box-shadow: 0 6px 20px rgba(0, 0, 0, .75); }
+#r-citymap .rc-modes:empty { display: none; }
+#r-citymap .rc-modes a { display: flex; align-items: center; gap: 7px; height: 34px; padding: 0 13px; cursor: pointer; border-right: 1px solid #000;
+  font-family: var(--c-font-display); font-size: 11.5px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--c-muted); white-space: nowrap; }
+#r-citymap .rc-modes a:last-child { border-right: 0; }
+#r-citymap .rc-modes a:hover { color: var(--c-bone-b); }
+#r-citymap .rc-modes a.on { color: var(--c-bone-b); background: rgba(138, 15, 31, .45); box-shadow: inset 0 -2px 0 var(--c-blood); }
+#r-citymap .rc-modes a i { font-size: 12px; }
+#r-citymap:not([data-mode=map])[data-mode] .rc-tools,
+#r-citymap:not([data-mode=map])[data-mode] .rc-inspector,
+#r-citymap:not([data-mode=map])[data-mode] .rc-clock { display: none; }
+
+/* ── Стол ── */
+#r-citymap .rc-board { position: absolute; inset: 0; z-index: 8; container-type: inline-size; color: var(--p-ink); font-family: var(--p-print);
+  background: radial-gradient(ellipse at 50% 18%, rgba(120, 60, 20, .16), transparent 60%), radial-gradient(ellipse at 50% 120%, rgba(60, 8, 12, .4), transparent 60%),
+    linear-gradient(180deg, #121010, #0a0909); }
+#r-citymap .rc-board[hidden] { display: none; }
+#r-citymap .ra-scroll { position: absolute; inset: 0; overflow-y: auto; padding: 22px 26px 76px; scrollbar-gutter: stable; }
+#r-citymap .ra-desk { display: grid; gap: 22px; align-items: start; max-width: 1640px; margin: 0 auto; }
+#r-citymap .rc-board p { margin: 0; }
+
+/* Лист бумаги */
+#r-citymap .ra-sheet { position: relative; padding: 18px 22px 20px; color: var(--p-ink); font-size: 14.5px; line-height: 1.45;
+  background: radial-gradient(ellipse at 18% 10%, rgba(255, 250, 235, .55), transparent 55%), radial-gradient(ellipse at 90% 95%, rgba(120, 78, 36, .26), transparent 55%),
+    radial-gradient(circle at 70% 30%, rgba(150, 100, 50, .08) 0 6%, transparent 7%), var(--p-grain), linear-gradient(176deg, #eadfc6, #d6c6a5);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .25) inset, 0 16px 42px rgba(0, 0, 0, .8), inset 0 0 70px rgba(105, 70, 30, .35); }
+#r-citymap .ra-sheet::after { content: ""; position: absolute; inset: 0; pointer-events: none; box-shadow: inset 0 0 0 1px rgba(80, 55, 25, .25); }
+#r-citymap .ra-sh-head { margin: -2px 0 12px; padding-bottom: 8px; border-bottom: 3px double var(--p-rule); }
+#r-citymap .ra-sh-head.is-centered { text-align: center; }
+#r-citymap .ra-kicker { display: block; font-family: var(--p-caps); font-size: 11.5px; letter-spacing: 2px; color: var(--p-ink-2); }
+#r-citymap .rc-board h3 { display: flex; align-items: center; gap: 8px; margin: 2px 0 0; padding: 0; border: 0; font-family: var(--p-caps); font-weight: 400; font-size: 22px;
+  letter-spacing: 1.6px; color: var(--p-ink); text-transform: none; }
+#r-citymap .ra-sh-head.is-centered h3 { justify-content: center; }
+#r-citymap .ra-sub { font-style: italic; font-size: 13.5px; color: var(--p-ink-2); }
+#r-citymap .rc-board h4 { margin: 14px 0 7px; padding-bottom: 2px; border-bottom: 1px solid rgba(109, 88, 57, .5); font-family: var(--p-caps); font-weight: 400;
+  font-size: 14px; letter-spacing: 1.6px; color: var(--p-ink-2); }
+#r-citymap .rc-board h5 { margin: 12px 0 5px; font-family: var(--p-caps); font-weight: 400; font-size: 12.5px; letter-spacing: 1.6px; color: var(--p-faint); }
+#r-citymap .ra-hand { font-family: var(--p-hand); font-style: normal; font-size: 1.12em; color: #2b2a52; }
+#r-citymap .ra-red, #r-citymap .ra-hand.ra-red { color: var(--p-red); }
+#r-citymap .ra-q { font-size: 11px; color: var(--p-faint); cursor: help; }
+#r-citymap .ra-note { font-size: 13px; font-style: italic; color: var(--p-faint); margin: 6px 0 !important; }
+#r-citymap .ra-foot { margin-top: 10px !important; font-size: 12px; font-style: italic; color: var(--p-faint); }
+#r-citymap .ra-link { cursor: pointer; color: var(--p-red); font-style: italic; font-size: 13px; margin-left: 6px; border-bottom: 1px dotted var(--p-red); }
+#r-citymap .ra-mini { margin-left: auto; cursor: pointer; color: var(--p-ink-2); font-size: 13px; }
+#r-citymap .ra-mini:hover { color: var(--p-red); }
+#r-citymap .ra-x { cursor: pointer; color: var(--p-faint); padding: 0 3px; }
+#r-citymap .ra-x:hover { color: var(--p-red); }
+#r-citymap .ra-eye { cursor: pointer; margin-left: 6px; color: var(--p-faint); font-size: 12px; }
+#r-citymap .ra-eye.is-open { color: #3d5a2e; }
+#r-citymap .ra-secret { position: relative; margin-top: 8px !important; padding: 6px 10px 6px 12px; font-family: var(--p-hand); font-size: 15px; line-height: 1.35; color: var(--p-red);
+  border-left: 2px solid var(--p-red); background: rgba(125, 26, 28, .06); }
+#r-citymap .ra-leader { flex: 1; min-width: 12px; align-self: flex-end; margin: 0 6px 5px; border-bottom: 1px dotted var(--p-faint); }
+#r-citymap .ra-wax { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; width: 26px; height: 26px; border-radius: 50%; font-size: 11px; color: rgba(255, 245, 235, .85);
+  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--c) 82%, #fff 18%), color-mix(in srgb, var(--c) 58%, #000 42%) 72%);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, .45), inset 0 -2px 3px rgba(0, 0, 0, .4), 0 1px 2px rgba(0, 0, 0, .45); text-shadow: 0 1px 1px rgba(0, 0, 0, .7); }
+#r-citymap .ra-wax.is-sm { width: 18px; height: 18px; font-size: 8px; margin-right: 6px; vertical-align: -3px; }
+#r-citymap .ra-stamp { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 12px; cursor: pointer; font-family: var(--p-caps); font-size: 13px; letter-spacing: 1px;
+  color: var(--p-ink); background: rgba(255, 255, 255, .2); border: 1px solid var(--p-rule); white-space: nowrap; }
+#r-citymap .ra-stamp:hover { background: rgba(255, 255, 255, .4); }
+#r-citymap .ra-stamp.is-seal { color: #f3e6cc; background: linear-gradient(180deg, #8a1f22, #5e1114); border-color: #3a0a0c; }
+#r-citymap .ra-stamp.is-seal:hover { filter: brightness(1.15); }
+#r-citymap .ra-stamp.is-danger { color: var(--p-red); }
+#r-citymap .ra-tools { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+#r-citymap .ra-wide { width: 100%; box-sizing: border-box; justify-content: center; margin-top: 12px; }
+#r-citymap .ra-chips { display: flex; flex-wrap: wrap; gap: 4px; margin: 8px 0; }
+#r-citymap .ra-chips a { display: flex; align-items: center; gap: 4px; padding: 1px 8px; cursor: pointer; font-size: 12.5px; color: var(--p-ink-2); border: 1px solid rgba(109, 88, 57, .6); }
+#r-citymap .ra-chips a:hover { background: rgba(255, 255, 255, .3); }
+#r-citymap .ra-chips a.is-on { color: #f3e6cc; background: var(--p-red); border-color: #3a0a0c; }
+/* поля ввода на бумаге */
+#r-citymap .rc-board input[type=text], #r-citymap .rc-board select, #r-citymap .rc-board textarea { width: 100%; min-height: 27px; padding: 3px 6px; font-family: var(--p-print);
+  font-size: 14px; color: var(--p-ink); background: rgba(255, 252, 240, .45); border: 0; border-bottom: 1px solid var(--p-rule); border-radius: 0; box-shadow: none; }
+#r-citymap .rc-board textarea { border: 1px solid rgba(109, 88, 57, .5); resize: vertical; }
+#r-citymap .rc-board input:focus, #r-citymap .rc-board textarea:focus, #r-citymap .rc-board select:focus { outline: none; background: rgba(255, 252, 240, .75); }
+#r-citymap .rc-board select option { background: #efe5cf; color: var(--p-ink); }
+#r-citymap .rc-board label { display: flex; flex-direction: column; gap: 2px; margin-bottom: 7px; font-family: var(--p-caps); font-size: 12px; letter-spacing: 1px; color: var(--p-ink-2); }
+#r-citymap .rc-board label.is-check { flex-direction: row; align-items: center; gap: 5px; font-family: var(--p-print); font-size: 13px; letter-spacing: 0; }
+#r-citymap .ra-row { display: flex; gap: 10px; flex-wrap: wrap; }
+#r-citymap .ra-row > label { flex: 1 1 130px; }
+/* таблица-анкета */
+#r-citymap .ra-form { width: 100%; border-collapse: collapse; margin: 4px 0; background: none; border: 0; }
+#r-citymap .ra-form th { width: 1%; white-space: nowrap; padding: 4px 12px 2px 0; text-align: left; vertical-align: bottom; font-family: var(--p-caps); font-weight: 400; font-size: 12.5px; letter-spacing: 1px; color: var(--p-ink-2); }
+#r-citymap .ra-form td { padding: 4px 0 2px; border-bottom: 1px dotted var(--p-faint); vertical-align: bottom; }
+#r-citymap .ra-form a, #r-citymap .ra-ties a, #r-citymap .ra-key a { cursor: pointer; color: var(--p-ink); border-bottom: 1px dotted var(--p-rule); }
+
+/* ── Сводка ── */
+#r-citymap .ra-grid3 { grid-template-columns: minmax(320px, 1fr) minmax(320px, 1fr) minmax(300px, .95fr); }
+#r-citymap .ra-throne p { display: flex; align-items: baseline; gap: 8px; padding: 3px 0; border-bottom: 1px dotted var(--p-faint); }
+#r-citymap .ra-throne span { min-width: 92px; font-family: var(--p-caps); font-size: 12.5px; letter-spacing: 1px; color: var(--p-ink-2); }
+#r-citymap .ra-throne b { font-weight: 400; }
+#r-citymap .ra-throne em { margin-left: auto; }
+#r-citymap .ra-gauge { margin-bottom: 9px; }
+#r-citymap .ra-gauge-head { display: flex; align-items: baseline; gap: 5px; margin-bottom: 3px; font-size: 14.5px; }
+#r-citymap .ra-gauge-head b { font-weight: 400; }
+#r-citymap .ra-gauge.is-hot .ra-hand { color: var(--p-red); }
+#r-citymap .ra-ticks { display: grid; grid-template-columns: repeat(var(--n), 1fr); gap: 0; border: 1px solid var(--p-rule); }
+#r-citymap .ra-ticks i { height: 11px; border-right: 1px solid rgba(109, 88, 57, .6); }
+#r-citymap .ra-ticks i:last-child { border-right: 0; }
+#r-citymap .ra-ticks i[data-as] { cursor: pointer; }
+#r-citymap .ra-ticks i[data-as]:hover { background: rgba(125, 26, 28, .15); }
+#r-citymap .ra-ticks i.on { background: repeating-linear-gradient(135deg, #3a2a1a 0 1.5px, transparent 1.5px 4px); }
+#r-citymap .ra-gauge.is-hot .ra-ticks i.on { background: repeating-linear-gradient(135deg, var(--p-red) 0 1.5px, transparent 1.5px 4px); }
+#r-citymap .ra-ledger { width: 100%; border-collapse: collapse; background: none; border: 0; font-size: 14px; }
+#r-citymap .ra-ledger td { padding: 4px 4px; border-bottom: 1px dotted var(--p-faint); white-space: nowrap; }
+#r-citymap .ra-ledger td.ra-bar { width: 45%; }
+#r-citymap .ra-ledger .ra-bar i { display: block; height: 8px; background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--c) 70%, #000) 0 2px, transparent 2px 4px); border: 1px solid color-mix(in srgb, var(--c) 60%, #000); }
+#r-citymap .ra-num { text-align: right; font-variant-numeric: tabular-nums; width: 1%; }
+#r-citymap .ra-drows { display: flex; flex-direction: column; }
+#r-citymap .ra-drow-head { display: flex; align-items: baseline; padding: 4px 0; cursor: pointer; color: var(--p-ink); }
+#r-citymap .ra-drow-head:hover b { color: var(--p-red); }
+#r-citymap .ra-drow-head .ra-no { width: 22px; color: var(--p-faint); font-size: 13px; }
+#r-citymap .ra-drow-head b { font-weight: 400; }
+#r-citymap .ra-drow-head em { font-size: 13px; color: color-mix(in srgb, var(--c) 55%, #000); white-space: nowrap; }
+#r-citymap .ra-drow-head .ra-wax { margin: 0 0 0 7px; align-self: center; }
+#r-citymap .ra-drow-body { padding: 2px 0 10px 22px; font-size: 13.5px; color: var(--p-ink-2); }
+#r-citymap .ra-seals { display: flex; gap: 6px; margin: 8px 0 2px; }
+#r-citymap .ra-seals .ra-wax { cursor: pointer; opacity: .45; }
+#r-citymap .ra-seals .ra-wax.is-on, #r-citymap .ra-seals .ra-wax:hover { opacity: 1; }
+#r-citymap .ra-seals .ra-wax.is-on { box-shadow: 0 0 0 2px var(--p-paper), 0 0 0 3px var(--p-ink); }
+#r-citymap .ra-drow-body .ra-link { display: inline-block; margin: 6px 0 0; }
+/* стена вестей */
+#r-citymap .ra-wallcol { display: flex; flex-direction: column; gap: 14px; }
+#r-citymap .ra-wallhead { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+#r-citymap .ra-wallhead h3 { flex: 1; color: var(--c-bone-b); font-size: 18px; letter-spacing: 2px; }
+#r-citymap .ra-wallhead .ra-stamp:not(.is-seal) { color: var(--c-bone-2); background: rgba(0, 0, 0, .4); border-color: var(--c-line-3); }
+#r-citymap .ra-wall { display: flex; flex-direction: column; gap: 14px; }
+#r-citymap .ra-notice { position: relative; padding: 16px 18px 12px; transform: rotate(var(--r, 0deg)); color: var(--p-ink);
+  background: radial-gradient(ellipse at 15% 10%, rgba(255, 250, 235, .5), transparent 60%), var(--p-grain), linear-gradient(176deg, #ece2ca, #d6c7a6);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, .7), inset 0 0 40px rgba(105, 70, 30, .3); }
+#r-citymap .ra-notice::before { content: ""; position: absolute; top: 6px; left: 50%; width: 11px; height: 11px; margin-left: -5px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #c4474c, #4a0a0e); box-shadow: 0 1px 2px #000; }
+#r-citymap .ra-notice b { display: block; margin: 2px 0 4px; font-family: var(--p-caps); font-weight: 400; font-size: 18px; line-height: 1.15; letter-spacing: .5px; text-align: center; }
+#r-citymap .ra-notice p { font-size: 14px; line-height: 1.42; text-align: justify; hyphens: auto; }
+#r-citymap .ra-notice .ra-at { display: block; margin-top: 6px; text-align: right; font-family: var(--p-hand); font-size: 14px; color: var(--p-ink-2); }
+#r-citymap .ra-notice .ra-kicker { text-align: center; color: var(--p-red); }
+#r-citymap .ra-notice.k-news b { padding-bottom: 4px; border-bottom: 1px solid var(--p-rule); }
+#r-citymap .ra-notice.k-decree { padding-top: 22px; border-top: 3px double var(--p-rule); }
+#r-citymap .ra-notice.k-decree::before { top: auto; bottom: 10px; left: 20px; width: 34px; height: 34px; margin: 0;
+  background: radial-gradient(circle at 35% 30%, #a4282b, #4a0a0e 72%); box-shadow: 0 0 0 1px #3a0a0c, inset 0 -3px 4px rgba(0, 0, 0, .45), 0 2px 3px rgba(0, 0, 0, .5); }
+#r-citymap .ra-notice.k-rumor { background: var(--p-grain), linear-gradient(170deg, #ddd3bd, #c7b996); clip-path: polygon(0 3%, 6% 0, 40% 2%, 72% 0, 100% 4%, 98% 52%, 100% 97%, 64% 100%, 30% 97%, 2% 100%, 1% 48%); }
+#r-citymap .ra-notice.k-rumor b, #r-citymap .ra-notice.k-rumor p { font-family: var(--p-hand); text-align: left; color: #2b2a52; }
+#r-citymap .ra-notice.k-rumor b { font-size: 20px; }
+#r-citymap .ra-notice.k-rumor p { font-size: 16px; }
+#r-citymap .ra-notice.k-rumor::before { display: none; }
+#r-citymap .ra-notice.k-wanted { text-align: center; border: 2px solid var(--p-ink); outline: 1px solid var(--p-ink); outline-offset: -6px; }
+#r-citymap .ra-notice.k-wanted .ra-kicker { font-size: 20px; letter-spacing: 6px; color: var(--p-ink); }
+#r-citymap .ra-notice.k-wanted p { text-align: center; }
+#r-citymap .ra-notice-tools { position: absolute; top: 4px; right: 7px; display: flex; gap: 6px; }
+#r-citymap .ra-notice-tools a { cursor: pointer; color: var(--p-faint); font-size: 12px; }
+#r-citymap .ra-notice-tools a:hover { color: var(--p-red); }
+#r-citymap .ra-draft { transform: none; }
+#r-citymap .ra-draft input, #r-citymap .ra-draft textarea { margin-bottom: 6px; }
+#r-citymap .ra-draft [data-news=title] { font-family: var(--p-caps); font-size: 17px; text-align: center; }
+#r-citymap .ra-kinds { display: flex; justify-content: center; gap: 4px; margin: 6px 0 8px; }
+#r-citymap .ra-kinds a { padding: 1px 8px; cursor: pointer; font-size: 12.5px; border: 1px solid rgba(109, 88, 57, .6); color: var(--p-ink-2); }
+#r-citymap .ra-kinds a.is-on { color: #f3e6cc; background: var(--p-red); border-color: #3a0a0c; }
+
+/* ── Собрание: план зала ── */
+#r-citymap .ra-power { grid-template-columns: minmax(0, 1fr) 340px; }
+#r-citymap .ra-hemi { position: relative; width: 100%; aspect-ratio: 1000 / 540; margin: 6px 0 4px; }
+#r-citymap .ra-hemi svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+#r-citymap .ra-hemi-lines { fill: none; stroke: rgba(80, 58, 30, .45); stroke-width: 1.2; }
+#r-citymap .ra-hemi-lines path:first-child, #r-citymap .ra-hemi-lines path:last-of-type { stroke: rgba(60, 42, 20, .7); stroke-width: 2; }
+#r-citymap .ra-hemi-bureau rect { fill: rgba(90, 60, 30, .08); stroke: rgba(60, 42, 20, .7); stroke-width: 1.5; }
+#r-citymap .ra-hemi-bureau text { font-family: var(--p-caps); font-size: 18px; letter-spacing: 3px; fill: var(--p-ink-2); text-anchor: middle; }
+#r-citymap .ra-hemi-sectors text { font-family: var(--p-caps); font-size: 22px; letter-spacing: 4px; text-anchor: middle; dominant-baseline: middle;
+  paint-order: stroke; stroke: rgba(231, 219, 193, .9); stroke-width: 4px; filter: brightness(.7) saturate(.8); }
+#r-citymap .ra-threads path { fill: none; stroke-width: 2.6; stroke-linecap: round; opacity: .85; }
+#r-citymap .ra-seat { position: absolute; width: 5.6%; aspect-ratio: 1; transform: translate(-50%, -50%); cursor: pointer; z-index: 2; transition: transform .15s, opacity .15s; }
+#r-citymap .ra-seat:hover { transform: translate(-50%, -50%) scale(1.12); z-index: 4; }
+#r-citymap .ra-seat-face { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; border-radius: 50%; overflow: hidden; font-size: 14px; color: rgba(255, 245, 235, .85);
+  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--c) 78%, #fff 22%), color-mix(in srgb, var(--c) 52%, #000 48%) 72%);
+  box-shadow: 0 0 0 2px var(--p-paper), 0 0 0 4px color-mix(in srgb, var(--c) 75%, #000), 0 3px 6px rgba(0, 0, 0, .45); }
+#r-citymap .ra-seat-face img { width: 100%; height: 100%; object-fit: cover; object-position: top; border: 0; filter: sepia(.55) contrast(1.05) brightness(.95); }
+#r-citymap .ra-seat-face .r-sym { width: 58%; height: 58%; background: rgba(255, 245, 235, .85); }
+#r-citymap .ra-seat-no { position: absolute; right: -6px; bottom: -6px; min-width: 18px; height: 18px; padding: 0 3px; border-radius: 9px; text-align: center;
+  font: 400 11px/18px var(--p-print); color: var(--p-ink); background: var(--p-paper); box-shadow: 0 0 0 1px var(--p-rule); }
+#r-citymap .ra-seat-x { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font: 400 30px/1 var(--p-hand); font-style: normal; color: var(--p-red); text-shadow: 0 0 3px var(--p-paper); }
+#r-citymap .ra-seat.st-dead .ra-seat-face, #r-citymap .ra-seat.st-missing .ra-seat-face, #r-citymap .ra-seat.st-torpor .ra-seat-face { filter: grayscale(1) brightness(.8); opacity: .75; }
+#r-citymap .ra-seat.is-hidden { opacity: .55; }
+#r-citymap .ra-seat.is-pc .ra-seat-no { color: #f3e6cc; background: var(--p-red); box-shadow: 0 0 0 1px #3a0a0c; }
+#r-citymap .ra-seat.is-sel { z-index: 5; transform: translate(-50%, -50%) scale(1.22); }
+#r-citymap .ra-seat.is-sel .ra-seat-face { box-shadow: 0 0 0 2px var(--p-paper), 0 0 0 5px var(--p-red), 0 5px 12px rgba(0, 0, 0, .55); }
+#r-citymap .ra-seat.is-linked .ra-seat-face { box-shadow: 0 0 0 2px var(--p-paper), 0 0 0 5px var(--tc), 0 3px 8px rgba(0, 0, 0, .45); }
+#r-citymap .ra-seat.is-dim { opacity: .4; }
+#r-citymap .ra-keys { columns: 2 320px; column-gap: 26px; column-rule: 1px solid rgba(109, 88, 57, .35); margin-top: 6px; font-size: 14px; }
+#r-citymap .ra-key { break-inside: avoid; margin: 0 0 9px !important; line-height: 1.55; text-align: justify; }
+#r-citymap .ra-key > b { font-family: var(--p-caps); font-weight: 400; letter-spacing: 1px; color: color-mix(in srgb, var(--c, var(--p-ink)) 60%, #000); }
+#r-citymap .ra-key a sup { margin-right: 2px; color: var(--p-faint); }
+#r-citymap .ra-key a.is-sel { color: var(--p-red); border-bottom-style: solid; }
+#r-citymap .ra-key a.st-dead { text-decoration: line-through; text-decoration-color: var(--p-red); }
+#r-citymap .ra-key a.is-hidden { opacity: .6; }
+#r-citymap .ra-key .ra-mini { margin: 0 2px; }
+/* досье */
+#r-citymap .ra-dossier { position: sticky; top: 0; }
+#r-citymap .ra-paper { text-align: left; }
+#r-citymap .ra-paper.is-empty p { font-style: italic; color: var(--p-ink-2); }
+#r-citymap .ra-paper > .ra-kicker { text-align: center; padding-bottom: 6px; margin-bottom: 10px; border-bottom: 3px double var(--p-rule); }
+#r-citymap .ra-dos-face { display: flex; align-items: center; justify-content: center; width: 112px; height: 140px; margin: 0 auto 8px; border-radius: 50%; overflow: hidden; font-size: 30px;
+  color: rgba(255, 245, 235, .85); background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--c) 78%, #fff 22%), color-mix(in srgb, var(--c) 52%, #000 48%) 72%);
+  box-shadow: 0 0 0 3px var(--p-paper), 0 0 0 4px var(--p-ink), 0 0 0 8px var(--p-paper), 0 0 0 9px var(--p-rule); }
+#r-citymap .ra-dos-face img { width: 100%; height: 100%; object-fit: cover; object-position: top; border: 0; filter: sepia(.5) contrast(1.05); }
+#r-citymap .ra-dos-face .r-sym { width: 56px; height: 56px; background: rgba(255, 245, 235, .85); }
+#r-citymap .ra-dos-name { justify-content: center; text-align: center; font-size: 20px !important; }
+#r-citymap .ra-paper .ra-sub { text-align: center; margin-bottom: 8px !important; }
+#r-citymap .ra-infl { display: inline-flex; gap: 4px; vertical-align: middle; }
+#r-citymap .ra-infl i { width: 8px; height: 8px; border-radius: 50%; border: 1px solid var(--p-ink-2); }
+#r-citymap .ra-infl i.on { background: var(--p-ink); }
+#r-citymap .ra-infl i[data-as] { cursor: pointer; }
+#r-citymap .ra-infl i[data-as]:hover { border-color: var(--p-red); }
+#r-citymap .ra-infl.is-big i { width: 11px; height: 11px; }
+#r-citymap .ra-dos-text { margin-top: 10px !important; text-align: justify; hyphens: auto; }
+#r-citymap .ra-ties { list-style: none; margin: 0; padding: 0; }
+#r-citymap .ra-ties li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px; padding: 3px 0; border-bottom: 1px dotted var(--p-faint); font-size: 13.5px; }
+#r-citymap .ra-ties em { font-family: var(--p-hand); font-style: normal; font-size: 15px; min-width: 72px; color: color-mix(in srgb, var(--c) 70%, #000); }
+#r-citymap .ra-ties small { flex-basis: 100%; padding-left: 78px; font-style: italic; font-size: 12.5px; color: var(--p-ink-2); }
+#r-citymap .ra-ties .ra-x { margin-left: auto; }
+#r-citymap .ra-ties li.is-none { color: var(--p-faint); font-style: italic; border: 0; }
+#r-citymap .ra-tieform { display: grid; grid-template-columns: 1fr 100px; gap: 5px; margin-top: 8px; }
+#r-citymap .ra-tieform .ra-stamp { justify-content: center; }
+
+/* ── Заседание ── */
+#r-citymap .ra-session { grid-template-columns: 300px minmax(0, 1fr); }
+#r-citymap .ra-session .ra-constitution { grid-column: 1 / -1; }
+#r-citymap .ra-order { position: sticky; top: 0; }
+#r-citymap .ra-motion { display: block; padding: 6px 0 6px 10px; cursor: pointer; border-bottom: 1px dotted var(--p-faint); border-left: 3px solid transparent; }
+#r-citymap .ra-motion:hover { background: rgba(255, 255, 255, .2); }
+#r-citymap .ra-motion.is-sel { border-left-color: var(--p-red); background: rgba(125, 26, 28, .07); }
+#r-citymap .ra-motion b { display: block; font-weight: 400; font-size: 14.5px; line-height: 1.25; }
+#r-citymap .ra-motion small { font-size: 12px; color: var(--p-ink-2); }
+#r-citymap .ra-motion.ms-open .ra-hand { color: var(--p-red); }
+#r-citymap .ra-motion.ms-draft { opacity: .7; font-style: italic; }
+#r-citymap .ra-motion.ms-withdrawn b, #r-citymap .ra-motion.es-repealed b { text-decoration: line-through; text-decoration-color: var(--p-red); }
+#r-citymap .ra-picker .ra-qpick { display: block; padding: 6px 8px; cursor: pointer; border-bottom: 1px dotted var(--p-faint); }
+#r-citymap .ra-picker .ra-qpick:hover { background: rgba(125, 26, 28, .08); }
+#r-citymap .ra-picker .ra-qpick b { display: block; font-weight: 400; }
+#r-citymap .ra-picker .ra-qpick small { font-style: italic; color: var(--p-ink-2); font-size: 12.5px; }
+#r-citymap .ra-picker { columns: 2 300px; column-gap: 24px; }
+#r-citymap .ra-picker .ra-sh-head { column-span: all; }
+#r-citymap .ra-picker h5 { break-after: avoid; }
+#r-citymap .ra-titlein { font-family: var(--p-caps) !important; font-size: 20px !important; }
+#r-citymap .ra-optsin textarea { font-family: var(--p-print); }
+#r-citymap .ra-gist { margin: 6px 0 10px !important; text-align: justify; hyphens: auto; }
+#r-citymap .ra-rules { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px 14px; margin: 4px 0 10px; padding: 6px 0; border-top: 1px solid rgba(109, 88, 57, .5); border-bottom: 1px solid rgba(109, 88, 57, .5); font-size: 13.5px; font-style: italic; color: var(--p-ink-2); }
+#r-citymap .ra-rules label { margin: 0; flex: 0 1 190px; }
+#r-citymap .ra-rules label.is-check { flex: 0 0 auto; }
+#r-citymap .ra-rules span + span::before { content: "·"; margin-right: 14px; color: var(--p-faint); }
+#r-citymap .ra-roll { width: 100%; border-collapse: collapse; background: none; border: 0; font-size: 14px; }
+#r-citymap .ra-roll th, #r-citymap .ra-roll td { padding: 3px 6px; border: 1px solid rgba(109, 88, 57, .45); }
+#r-citymap .ra-roll thead th { font-family: var(--p-caps); font-weight: 400; font-size: 12.5px; letter-spacing: .6px; color: var(--p-ink-2); text-align: center; background: rgba(109, 88, 57, .08); }
+#r-citymap .ra-roll thead th:first-child { text-align: left; }
+#r-citymap .ra-facrow th { text-align: left; font-family: var(--p-caps); font-weight: 400; letter-spacing: 1px; color: color-mix(in srgb, var(--c) 55%, #000);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--c) 16%, transparent), transparent); }
+#r-citymap .ra-facrow th small { margin-left: 8px; font-family: var(--p-print); font-style: italic; letter-spacing: 0; font-size: 11.5px; color: var(--p-faint); }
+#r-citymap .ra-facrow td { background: color-mix(in srgb, var(--c) 6%, transparent); }
+#r-citymap .ra-who { white-space: nowrap; }
+#r-citymap .ra-who em { font-family: var(--p-hand); font-style: normal; color: var(--p-red); }
+#r-citymap .ra-who small { color: var(--p-faint); font-size: 11.5px; }
+#r-citymap .ra-cell { width: 76px; text-align: center; }
+#r-citymap .ra-cell.can { cursor: pointer; }
+#r-citymap .ra-cell.can:hover { background: rgba(125, 26, 28, .1); }
+#r-citymap .ra-cell.is-line { color: var(--p-faint); font-size: 11px; }
+#r-citymap .ra-mark { font: 700 22px/1 Georgia, "Times New Roman", serif; color: #2b2a52; transform: rotate(-8deg) scaleX(1.15); display: inline-block; }
+#r-citymap .ra-mark.is-word { font: 400 15px/1 var(--p-hand); transform: none; }
+#r-citymap tr.is-own .ra-mark { color: var(--p-red); }
+#r-citymap tr.is-away td { color: var(--p-faint); text-decoration: line-through; text-decoration-color: rgba(125, 26, 28, .4); }
+#r-citymap tr.is-pc .ra-who { font-weight: 600; }
+#r-citymap .ra-total th, #r-citymap .ra-total td { font-family: var(--p-caps); font-weight: 400; text-align: center; border-top: 3px double var(--p-rule); font-size: 15px; }
+#r-citymap .ra-total th { text-align: left; }
+#r-citymap .ra-total th small { font-family: var(--p-print); font-style: italic; font-size: 12px; color: var(--p-faint); }
+#r-citymap .ra-urn { padding: 14px; text-align: center; font-style: italic; border: 1px dashed var(--p-rule); }
+#r-citymap .ra-urn i { margin-right: 8px; }
+#r-citymap .ra-verdictrow { display: flex; align-items: center; gap: 18px; margin-top: 14px; }
+#r-citymap .ra-verdictrow p { font-size: 14px; }
+#r-citymap .ra-seal-stamp { display: inline-flex; flex-direction: column; align-items: center; padding: 6px 16px; transform: rotate(-6deg); font-family: var(--p-caps); font-size: 22px;
+  letter-spacing: 4px; text-transform: uppercase; border: 3px double currentColor; border-radius: 4px; opacity: .85; mix-blend-mode: multiply; }
+#r-citymap .ra-seal-stamp small { font-family: var(--p-print); font-size: 13px; letter-spacing: .5px; text-transform: none; font-style: italic; }
+#r-citymap .ra-seal-stamp.is-pass { color: #2f4f24; } #r-citymap .ra-seal-stamp.is-fail { color: var(--p-red); } #r-citymap .ra-seal-stamp.is-none { color: var(--p-ink-2); }
+/* устройство и пути */
+#r-citymap .ra-form-rules th { width: auto; }
+#r-citymap .ra-forms { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }
+#r-citymap .ra-form-card { position: relative; display: flex; flex-direction: column; gap: 2px; padding: 9px 10px 10px; border: 1px solid rgba(109, 88, 57, .45); opacity: .55; }
+#r-citymap .ra-form-card.is-past { opacity: .8; }
+#r-citymap .ra-form-card.is-next { opacity: 1; border-style: dashed; border-color: var(--p-ink-2); }
+#r-citymap .ra-form-card.is-now { opacity: 1; border: 3px double var(--p-red); background: rgba(125, 26, 28, .05); }
+#r-citymap .ra-form-ico { position: absolute; top: 8px; right: 9px; color: var(--p-faint); }
+#r-citymap .ra-form-card.is-now .ra-form-ico { color: var(--p-red); }
+#r-citymap .ra-form-card b { font-family: var(--p-caps); font-weight: 400; font-size: 15px; padding-right: 18px; }
+#r-citymap .ra-form-card .ra-fr { font-style: italic; color: var(--p-ink-2); font-size: 12px; }
+#r-citymap .ra-form-card .ra-day { font-size: 11.5px; color: var(--p-faint); }
+#r-citymap .ra-how { margin-top: 4px !important; font-size: 14.5px; line-height: 1.25; }
+#r-citymap .ra-form-card .ra-tools { margin-top: 6px; gap: 4px; }
+#r-citymap .ra-form-card .ra-stamp { height: 24px; padding: 0 8px; font-size: 12px; }
+
+/* ── Эдикты ── */
+#r-citymap .ra-edicts { grid-template-columns: 300px minmax(0, 1fr); max-width: 1300px; }
+#r-citymap .ra-edict { padding: 26px 40px 28px; overflow: hidden; }
+#r-citymap .ra-edict h3 { font-size: 28px; letter-spacing: 2px; }
+#r-citymap .ra-edict .ra-sh-head { border-bottom: 0; margin-bottom: 4px; }
+#r-citymap .ra-edict .ra-sh-head::after { content: ""; display: block; width: 46%; margin: 10px auto 0; border-bottom: 3px double var(--p-rule); }
+#r-citymap .ra-dropcap::first-letter { float: left; margin: 4px 8px 0 0; font-family: var(--p-caps); font-size: 52px; line-height: .8; color: var(--p-red); }
+#r-citymap .ra-article { margin: 0 0 8px !important; text-align: justify; hyphens: auto; text-indent: 1.6em; }
+#r-citymap .ra-article b { font-family: var(--p-caps); font-weight: 400; letter-spacing: .5px; }
+#r-citymap .ra-margin { margin: 14px 0 6px !important; padding: 6px 12px; border-left: 2px solid var(--p-red); color: var(--p-red) !important; font-size: 16px; line-height: 1.35; transform: rotate(-.4deg); }
+#r-citymap .ra-positions { width: 100%; border-collapse: collapse; background: none; border: 0; font-size: 14px; }
+#r-citymap .ra-positions th { width: 1%; padding: 5px 14px 5px 0; white-space: nowrap; text-align: left; font-family: var(--p-caps); font-weight: 400; letter-spacing: .6px; border-bottom: 1px dotted var(--p-faint); }
+#r-citymap .ra-positions td { padding: 5px 6px; border-bottom: 1px dotted var(--p-faint); }
+#r-citymap .ra-positions td:last-child { width: 1%; white-space: nowrap; text-align: right; }
+#r-citymap .v-for { color: #2f4f24; } #r-citymap .v-against { color: var(--p-red); } #r-citymap .v-abstain { color: var(--p-ink-2); }
+#r-citymap .ra-diag-stamp { position: absolute; top: 46px; right: -64px; z-index: 2; width: 300px; padding: 6px 0; transform: rotate(28deg); text-align: center; pointer-events: none;
+  font-family: var(--p-caps); font-size: 24px; letter-spacing: 6px; text-transform: uppercase; color: var(--p-red); border-top: 3px double currentColor; border-bottom: 3px double currentColor;
+  opacity: .72; mix-blend-mode: multiply; }
+#r-citymap .ra-diag-stamp.s-eased, #r-citymap .ra-diag-stamp.s-dormant { color: #4b3a23; }
+#r-citymap .ra-diag-stamp.s-vote { color: #2b2a52; }
+
+/* ── Герои: карты безопасности ── */
+#r-citymap .ra-heroes { grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); }
+#r-citymap .ra-hero { padding: 18px 22px; border: 1px solid rgba(80, 55, 25, .45); outline: 1px solid rgba(80, 55, 25, .35); outline-offset: -7px; }
+#r-citymap .ra-hero h3 { font-size: 21px; }
+#r-citymap .ra-hero-top { display: flex; gap: 14px; align-items: flex-start; }
+#r-citymap .ra-hero-top .ra-face { flex: 0 0 auto; display: flex; align-items: center; justify-content: center; width: 78px; height: 98px; overflow: hidden; border-radius: 50%; font-size: 24px;
+  color: var(--p-ink-2); background: rgba(109, 88, 57, .12); box-shadow: 0 0 0 2px var(--p-paper), 0 0 0 3px var(--p-ink); }
+#r-citymap .ra-hero-top .ra-face img { width: 100%; height: 100%; object-fit: cover; object-position: top; border: 0; filter: sepia(.5) contrast(1.05); }
+#r-citymap .ra-hero-top .ra-form { flex: 1; }
+#r-citymap .ra-form td.is-out .ra-hand { color: var(--p-red); }
+#r-citymap .ra-form td.is-ok .ra-hand { color: #2b2a52; }
+#r-citymap .ra-leashctl { display: flex; gap: 6px; align-items: center; margin-top: 3px; }
+#r-citymap .ra-leashctl label { margin: 0; flex: 0 0 auto; }
+#r-citymap .ra-reps { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; border: 1px solid rgba(109, 88, 57, .5); }
+#r-citymap .ra-rep { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 5px 2px 3px; border-right: 1px solid rgba(109, 88, 57, .4); }
+#r-citymap .ra-rep:last-child { border-right: 0; }
+#r-citymap .ra-rep .ra-wax { margin: 0; }
+#r-citymap .ra-rep[data-as] { cursor: pointer; }
+#r-citymap .ra-rep[data-as]:hover { background: rgba(255, 255, 255, .25); }
+#r-citymap .ra-rep b { font-size: 18px; line-height: 1; }
+#r-citymap .ra-rep.pos b { color: #2f4f24; } #r-citymap .ra-rep.neg b { color: var(--p-red); }
+#r-citymap .ra-rep small { font-family: var(--p-caps); font-size: 10.5px; letter-spacing: .5px; color: var(--p-faint); }
+#r-citymap .ra-strikes { display: flex; gap: 10px; }
+#r-citymap .ra-strikes i { position: relative; width: 22px; height: 22px; border: 1px solid var(--p-rule); }
+#r-citymap .ra-strikes i[data-as] { cursor: pointer; }
+#r-citymap .ra-strikes i.on::after { content: "✗"; position: absolute; inset: -6px 0 0; text-align: center; font: 400 26px/1 var(--p-hand); color: var(--p-red); }
+#r-citymap .ra-boons { list-style: none; margin: 0; padding: 0; }
+#r-citymap .ra-boons li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px; padding: 3px 0; border-bottom: 1px dotted var(--p-faint); font-size: 13.5px; }
+#r-citymap .ra-boons em { font-style: italic; color: var(--p-ink-2); font-size: 12.5px; }
+#r-citymap .ra-boons li.d-owes em { color: var(--p-red); }
+#r-citymap .ra-boons span { font-family: var(--p-caps); font-size: 12px; color: var(--p-ink-2); }
+#r-citymap .ra-boons small { flex-basis: 100%; font-style: italic; color: var(--p-faint); font-size: 12.5px; }
+#r-citymap .ra-boons .ra-x { margin-left: auto; }
+#r-citymap .ra-boons li.is-none { font-style: italic; color: var(--p-faint); border: 0; }
+#r-citymap .ra-boonform { display: grid; grid-template-columns: 1fr 1fr 34px; gap: 4px 6px; margin-top: 8px; }
+#r-citymap .ra-boonform .ra-stamp { grid-row: 1 / 3; grid-column: 3; justify-content: center; padding: 0; height: auto; }
+
+/* ── Летопись: реестр ── */
+#r-citymap .ra-chronicle { max-width: 1020px; }
+#r-citymap .ra-register { padding-left: 70px; background-image: linear-gradient(90deg, transparent 54px, rgba(164, 40, 43, .5) 54px 55px, transparent 55px),
+  repeating-linear-gradient(180deg, transparent 0 25px, rgba(80, 110, 150, .14) 25px 26px), var(--p-grain), linear-gradient(176deg, #ebe1c9, #d8c9a8); }
+#r-citymap .ra-year { margin: 20px 0 6px -52px !important; border: 0 !important; font-family: var(--p-caps) !important; font-size: 26px !important; letter-spacing: 4px !important; color: var(--p-red) !important; }
+#r-citymap .ra-entry { display: grid; grid-template-columns: 112px minmax(0, 1fr) 20px; gap: 12px; padding: 6px 0 8px; margin-left: -52px; }
+#r-citymap .ra-entry time { font-size: 16px; color: var(--p-red); padding-top: 1px; }
+#r-citymap .ra-entry b { font-family: var(--p-caps); font-weight: 400; font-size: 16.5px; letter-spacing: .5px; color: var(--p-ink); }
+#r-citymap .ra-entry p { margin-top: 2px !important; text-align: justify; hyphens: auto; color: var(--p-ink); font-size: 15px; }
+#r-citymap .ra-entry .ra-day { font-size: 13.5px; font-style: italic; color: var(--p-ink-2); }
+#r-citymap .ra-entry.is-secret b { color: var(--p-red); }
+/* скрытая от игроков запись — читается так же, лишь помечена пунктиром на полях */
+#r-citymap .ra-entry.is-veiled { box-shadow: inset 3px 0 0 -1px rgba(109, 88, 57, .35); }
+#r-citymap .ra-entry.is-veiled > time { opacity: .75; }
+#r-citymap .ra-fixes { margin-top: 22px; padding-top: 10px; border-top: 3px double var(--p-rule); }
+#r-citymap .ra-fixes summary { cursor: pointer; font-family: var(--p-caps); letter-spacing: 1px; color: var(--p-ink-2); }
+#r-citymap .ra-fixes ol { margin: 8px 0 0; padding-left: 22px; font-size: 13.5px; }
+#r-citymap .ra-fixes li { margin-bottom: 5px; }
+
+/* Чат: весть Собрания */
+.r-asm-chat h3 { margin: 0 0 4px; font-family: "IM Fell SC", Georgia, serif; font-size: 16px; border: 0; }
+.r-asm-chat h3 i { color: #a3242a; }
+.r-asm-chat p { margin: 0 0 4px; }
+.r-asm-chat .r-asm-moved { font-style: italic; color: #8a5a3a; }
+.r-asm-chat small { opacity: .7; }
+
+/* Узкий стол */
+@container (max-width: 1350px) {
+  #r-citymap .ra-grid3 { grid-template-columns: 1fr 1fr; }
+  #r-citymap .ra-grid3 > .ra-wallcol { grid-column: 1 / -1; }
+  #r-citymap .ra-power { grid-template-columns: minmax(0, 1fr) 300px; }
+}
+@container (max-width: 1050px) {
+  #r-citymap .ra-power, #r-citymap .ra-session, #r-citymap .ra-edicts { grid-template-columns: 1fr; }
+  #r-citymap .ra-order, #r-citymap .ra-dossier { position: static; }
+  #r-citymap .ra-seat { width: 7%; }
+}
+
+/* Печати фракций — рисунки мастера */
+#r-citymap .ra-fseal { display: inline-block; flex: 0 0 auto; border-radius: 50%; vertical-align: -5px; box-shadow: 0 1px 3px rgba(0, 0, 0, .45); border: 0; }
+#r-citymap .ra-fseal.is-sm { width: 22px; height: 22px; margin-right: 7px; }
+#r-citymap .ra-fseal.is-md { width: 30px; height: 30px; }
+#r-citymap .ra-fseal.is-end { margin: 0 0 0 8px; align-self: center; }
+#r-citymap .ra-sealpick { cursor: pointer; opacity: .45; line-height: 0; }
+#r-citymap .ra-sealpick:hover, #r-citymap .ra-sealpick.is-on { opacity: 1; }
+#r-citymap .ra-sealpick.is-on .ra-fseal { box-shadow: 0 0 0 2px var(--p-paper), 0 0 0 3.5px var(--p-red); }
+#r-citymap .ra-rep .ra-fseal { margin: 0 0 2px; }
+
+/* Таблицы на бумаге: Foundry красит шапки и чётные строки — возвращаем бумагу */
+#r-citymap .rc-board table, #r-citymap .rc-board thead, #r-citymap .rc-board tbody, #r-citymap .rc-board tfoot,
+#r-citymap .rc-board tr, #r-citymap .rc-board th, #r-citymap .rc-board td { background-color: transparent; text-shadow: none; }
+#r-citymap .rc-board thead, #r-citymap .rc-board thead tr { background: none !important; }
+#r-citymap .rc-board tr:nth-child(even), #r-citymap .rc-board tr:nth-child(odd) { background: none; }
+#r-citymap .rc-board th { color: var(--p-ink-2); }
+#r-citymap .rc-board td { color: var(--p-ink); }
+#r-citymap .ra-roll thead th { background: rgba(109, 88, 57, .14) !important; color: var(--p-ink) !important; border-bottom: 3px double var(--p-rule) !important; }
+#r-citymap .ra-facrow th { color: color-mix(in srgb, var(--c) 55%, #000) !important; }
+#r-citymap .ra-pick { display: flex; gap: 6px; align-items: center; }
+#r-citymap .ra-pick input { flex: 1; }
+#r-citymap .ra-pick .ra-stamp { flex: 0 0 auto; padding: 0 8px; }
+#r-citymap .ra-motion { position: relative; padding-right: 24px; }
+#r-citymap .ra-motion-del { position: absolute; top: 6px; right: 4px; padding: 0 3px; cursor: pointer; color: var(--p-faint); font-size: 13px; opacity: 0; }
+#r-citymap .ra-motion:hover .ra-motion-del, #r-citymap .ra-motion.is-sel .ra-motion-del { opacity: 1; }
+#r-citymap .ra-motion-del:hover { color: var(--p-red); }
+/* флажки на бумаге: свои, без тёмного квадрата Foundry */
+#r-citymap .rc-board input[type=checkbox] { appearance: none; -webkit-appearance: none; flex: 0 0 auto; width: 15px; height: 15px; margin: 0 6px 0 0; padding: 0;
+  border: 1px solid var(--p-rule); background: rgba(255, 252, 240, .5); border-radius: 2px; cursor: pointer; position: relative; vertical-align: -2px; }
+#r-citymap .rc-board input[type=checkbox]::before, #r-citymap .rc-board input[type=checkbox]::after { content: none; display: none; }
+#r-citymap .rc-board input[type=checkbox]:checked { background: var(--p-paper); }
+#r-citymap .rc-board input[type=checkbox]:checked::after { content: "✕"; display: block; position: absolute; inset: -3px 0 0; text-align: center; font: 700 14px/1 Georgia, serif; color: var(--p-red); }
+
+/* ── Порядок дня: сортировка, скрытые, инструменты ── */
+#r-citymap .ra-orderbar { display: flex; gap: 6px; margin: -4px 0 6px; }
+#r-citymap .ra-orderbar select { flex: 1; min-height: 24px; font-size: 12.5px; }
+#r-citymap .ra-motion-tools { position: absolute; top: 5px; right: 3px; display: flex; gap: 5px; opacity: 0; }
+#r-citymap .ra-motion:hover .ra-motion-tools, #r-citymap .ra-motion.is-sel .ra-motion-tools { opacity: 1; }
+#r-citymap .ra-motion-tools a { cursor: pointer; color: var(--p-faint); font-size: 12px; }
+#r-citymap .ra-motion-tools a:hover { color: var(--p-red); }
+#r-citymap .ra-motion { padding-right: 40px; }
+#r-citymap .ra-motion.is-hidden b { color: var(--p-ink-2); }
+#r-citymap .ra-head-tools { margin-left: auto; display: flex; gap: 10px; }
+#r-citymap .ra-head-tools .ra-mini { margin: 0; }
+#r-citymap .ra-protocol.is-hidden { box-shadow: 0 16px 42px rgba(0, 0, 0, .8), inset 0 0 0 2px rgba(125, 26, 28, .25), inset 0 0 70px rgba(105, 70, 30, .35); }
+#r-citymap .ra-fxnote { margin: 0 0 10px !important; padding: 6px 10px; font-size: 13px; line-height: 1.5; color: var(--p-ink-2); border-left: 2px solid var(--p-rule); background: rgba(109, 88, 57, .07); }
+
+/* ── Библиотека вопросов ── */
+#r-citymap .ra-picker { columns: auto; }
+#r-citymap .ra-qbar { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px; margin-bottom: 10px; }
+#r-citymap .ra-qbar .ra-quill { flex: 1 1 260px; margin: 0; border-color: var(--p-rule); background: rgba(255, 252, 240, .45); }
+#r-citymap .ra-qbar .ra-quill i { color: var(--p-faint); }
+#r-citymap .ra-qbar label:not(.ra-quill) { margin: 0; flex: 0 0 170px; }
+#r-citymap .ra-qlist { columns: 2 380px; column-gap: 24px; }
+#r-citymap .ra-qgroup { break-inside: auto; }
+#r-citymap .ra-qgroup h5 { break-after: avoid; }
+#r-citymap .ra-qgroup h5 small { font-family: var(--p-print); letter-spacing: 0; color: var(--p-faint); }
+#r-citymap .ra-qgroup[hidden], #r-citymap .ra-qpick[hidden] { display: none; }
+#r-citymap .ra-picker .ra-qpick { display: flex; gap: 8px; align-items: flex-start; padding: 6px 4px; cursor: default; break-inside: avoid; }
+#r-citymap .ra-picker .ra-qpick > div { flex: 1; min-width: 0; }
+#r-citymap .ra-picker .ra-qpick em { display: block; font-size: 11.5px; color: var(--p-faint); }
+#r-citymap .ra-qacts { display: flex; gap: 3px; flex: 0 0 auto; opacity: .55; }
+#r-citymap .ra-qpick:hover .ra-qacts { opacity: 1; }
+#r-citymap .ra-qacts .ra-stamp { height: 24px; padding: 0 7px; }
+
+/* ── Конструктор вопроса ── */
+#r-citymap .ra-qed h4 { display: flex; align-items: center; gap: 6px; }
+#r-citymap .ra-qopt { margin-bottom: 8px; padding: 6px 8px; border: 1px solid rgba(109, 88, 57, .45); background: rgba(255, 252, 240, .2); }
+#r-citymap .ra-qopt-head { display: flex; align-items: center; gap: 8px; }
+#r-citymap .ra-qopt-head input { flex: 1; font-size: 15px; }
+#r-citymap .ra-qopt-head a { cursor: pointer; color: var(--p-faint); }
+#r-citymap .ra-qopt-head a:hover { color: var(--p-ink); }
+#r-citymap .ra-qopt-head a.is-danger:hover { color: var(--p-red); }
+#r-citymap .ra-qopt details { margin-top: 5px; }
+#r-citymap .ra-qopt summary { cursor: pointer; font-size: 12.5px; color: var(--p-ink-2); }
+#r-citymap .ra-qopt summary i { color: var(--p-red); font-style: italic; }
+#r-citymap .ra-qfx { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2px 14px; margin-top: 6px; }
+#r-citymap .ra-qfx .ra-wide, #r-citymap .ra-qgauges { grid-column: 1 / -1; }
+#r-citymap .ra-qfx .ra-wide { width: auto; display: flex; margin: 0 0 7px; }
+#r-citymap .ra-qgauges { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+#r-citymap .ra-qgauges input { text-align: center; }
+#r-citymap .ra-qlines { max-width: 520px; }
+#r-citymap .ra-qlines td select { min-height: 24px; }
+#r-citymap .ra-qed input[type=number] { width: 100%; min-height: 27px; padding: 3px 6px; font-family: var(--p-print); font-size: 14px; color: var(--p-ink); background: rgba(255, 252, 240, .45); border: 0; border-bottom: 1px solid var(--p-rule); border-radius: 0; }
+#r-citymap .ra-qed input[type=radio] { accent-color: #7d1a1c; margin: 0 5px 0 0; }
+#r-citymap .ra-qwho label { flex: 0 0 auto; }
+#r-citymap .ra-qwho-facs, #r-citymap .ra-qwho-ids { display: none; margin: 4px 0 8px; padding: 6px 10px; border-left: 2px solid var(--p-rule); }
+#r-citymap .ra-qed[data-who=factions] .ra-qwho-facs { display: flex; flex-wrap: wrap; gap: 4px 16px; }
+#r-citymap .ra-qed[data-who=members] .ra-qwho-ids { display: block; }
+#r-citymap .ra-qwho-ids p { margin: 0 0 4px !important; font-size: 13px; }
+#r-citymap .ra-qwho-ids label { display: inline-flex; margin: 0 12px 2px 0; }

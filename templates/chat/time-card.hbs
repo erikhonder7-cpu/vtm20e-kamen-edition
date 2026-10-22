@@ -1,0 +1,17 @@
+{{!-- Отметка времени в чате. --}}
+<div class="r-roll-card r-time-card" data-phase="{{phase.key}}">
+  <header class="r-card-head">
+    <span class="r-time-moon">{{moon.glyph}}</span>
+    <div class="r-card-titles">
+      <span class="r-card-title">{{longDate}} · {{time}}</span>
+      <span class="r-card-sub">{{#if republic}}{{republic}} · {{/if}}{{weekday}} · {{phase.label}}{{#if subtitle}} · {{subtitle}}{{/if}}</span>
+    </div>
+  </header>
+  <div class="r-card-breakdown">
+    <span class="r-bd"><i class="fa-solid fa-moon"></i> {{localize "VTM20.Calendar.NightN"}} <b>{{night}}</b></span>
+    <span class="r-bd"><i class="fa-solid {{phase.icon}}"></i> {{phase.untilLabel}}</span>
+    <span class="r-bd">{{localize "VTM20.Calendar.Sunset"}} <b>{{sunset}}</b> · {{localize "VTM20.Calendar.Sunrise"}} <b>{{sunrise}}</b></span>
+    <span class="r-bd">{{moon.label}} · {{moon.illumination}}%</span>
+    {{#if scene}}<span class="r-bd is-surge"><i class="fa-solid fa-stopwatch"></i> {{localize "VTM20.Calendar.SceneRunning"}} <b>{{scene}}</b></span>{{/if}}
+  </div>
+</div>

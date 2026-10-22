@@ -1,0 +1,273 @@
+{
+  "id": "vtm20e-kamen-edition",
+  "title": "Vampire: The Masquerade 20th — Kamen Edition",
+  "description": "Вампиры: Маскарад, юбилейная редакция (V20), для Foundry VTT v14. Пулы d10 со сложностью, единицы отменяют успехи, провалы, специализации и воля. Запас крови по поколению, семь уровней здоровья с лёгкими, тяжёлыми и губительными повреждениями, прочность, ярость и Ротшрек. Все Дисциплины V20 со силами 1–10, пути и ритуалы магии крови, Пути Просветления. Оформление — революционная Франция: «Liberté · Égalité · Éternité».",
+  "version": "0.3.0",
+  "compatibility": {
+    "minimum": "14",
+    "verified": "14"
+  },
+  "authors": [
+    {
+      "name": "Kamen"
+    }
+  ],
+  "esmodules": [
+    "vtm20.mjs"
+  ],
+  "styles": [
+    {
+      "src": "styles/r-core.css"
+    },
+    {
+      "src": "styles/r-sheet.css"
+    },
+    {
+      "src": "styles/r-chat.css"
+    },
+    {
+      "src": "styles/r-apps.css"
+    },
+    {
+      "src": "styles/r-nexus.css"
+    },
+    {
+      "src": "styles/r-foundry.css"
+    },
+    {
+      "src": "styles/r-hud.css"
+    },
+    {
+      "src": "styles/r-city.css"
+    },
+    {
+      "src": "styles/r-assembly.css"
+    }
+  ],
+  "languages": [
+    {
+      "lang": "ru",
+      "name": "Русский",
+      "path": "lang/ru.json"
+    },
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    }
+  ],
+  "documentTypes": {
+    "Actor": {
+      "vampire": {
+        "htmlFields": [
+          "biography",
+          "notes"
+        ]
+      },
+      "ghoul": {
+        "htmlFields": [
+          "biography",
+          "notes"
+        ]
+      },
+      "mortal": {
+        "htmlFields": [
+          "biography",
+          "notes"
+        ]
+      },
+      "creature": {
+        "htmlFields": [
+          "biography",
+          "notes"
+        ]
+      }
+    },
+    "Item": {
+      "discipline": {
+        "htmlFields": [
+          "description"
+        ]
+      },
+      "thaumPath": {
+        "htmlFields": [
+          "description"
+        ]
+      },
+      "ritual": {
+        "htmlFields": [
+          "description"
+        ]
+      },
+      "power": {
+        "htmlFields": [
+          "description"
+        ]
+      },
+      "background": {
+        "htmlFields": [
+          "description"
+        ]
+      },
+      "merit": {
+        "htmlFields": [
+          "description"
+        ]
+      },
+      "flaw": {
+        "htmlFields": [
+          "description"
+        ]
+      },
+      "derangement": {
+        "htmlFields": [
+          "description"
+        ]
+      },
+      "weapon": {
+        "htmlFields": [
+          "description"
+        ]
+      },
+      "armor": {
+        "htmlFields": [
+          "description"
+        ]
+      },
+      "gear": {
+        "htmlFields": [
+          "description"
+        ]
+      }
+    }
+  },
+  "packs": [
+    {
+      "name": "equipment",
+      "label": "Оружие и броня",
+      "path": "packs/equipment",
+      "type": "Item",
+      "system": "vtm20e-kamen-edition",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
+    },
+    {
+      "name": "disciplines",
+      "label": "Дисциплины",
+      "path": "packs/disciplines",
+      "type": "Item",
+      "system": "vtm20e-kamen-edition",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
+    },
+    {
+      "name": "blood-paths",
+      "label": "Пути магии крови",
+      "path": "packs/blood-paths",
+      "type": "Item",
+      "system": "vtm20e-kamen-edition",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
+    },
+    {
+      "name": "rituals",
+      "label": "Ритуалы",
+      "path": "packs/rituals",
+      "type": "Item",
+      "system": "vtm20e-kamen-edition",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
+    },
+    {
+      "name": "merits-flaws",
+      "label": "Достоинства и недостатки",
+      "path": "packs/merits-flaws",
+      "type": "Item",
+      "system": "vtm20e-kamen-edition",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
+    },
+    {
+      "name": "backgrounds",
+      "label": "Факты биографии",
+      "path": "packs/backgrounds",
+      "type": "Item",
+      "system": "vtm20e-kamen-edition",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
+    },
+    {
+      "name": "derangements",
+      "label": "Психические расстройства",
+      "path": "packs/derangements",
+      "type": "Item",
+      "system": "vtm20e-kamen-edition",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
+    }
+  ],
+  "grid": {
+    "distance": 1,
+    "units": "м"
+  },
+  "primaryTokenAttribute": "health",
+  "secondaryTokenAttribute": "blood",
+  "socket": true,
+  "initiative": "1d10 + @initiative",
+  "flags": {
+    "hotReload": {
+      "extensions": [
+        "css",
+        "hbs",
+        "json"
+      ],
+      "paths": [
+        "styles",
+        "templates",
+        "lang"
+      ]
+    }
+  },
+  "background": "systems/vtm20e-kamen-edition/assets/ui/background.png",
+  "url": "",
+  "manifest": "",
+  "download": "",
+  "packFolders": [
+    {
+      "name": "VTM20 «Liberté»",
+      "sorting": "m",
+      "color": "#4a0d11",
+      "packs": [
+        "equipment",
+        "disciplines",
+        "blood-paths",
+        "rituals",
+        "merits-flaws",
+        "backgrounds",
+        "derangements"
+      ],
+      "folders": []
+    }
+  ]
+}

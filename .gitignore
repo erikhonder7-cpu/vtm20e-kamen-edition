@@ -1,0 +1,17 @@
+# Полные тексты книг White Wolf — не публикуются (авторское право); справочник‑пересказ остаётся
+books/**/_текст/
+
+# Кэши загрузок инструментов (пересоздаются скриптами tools/)
+tools/.cache/
+tools/.cache-*.json
+__pycache__/
+*.pyc
+
+# Служебные файлы LevelDB компендиев, которые Foundry пишет при работе
+packs/*/LOCK
+packs/*/LOG
+packs/*/LOG.old
+
+node_modules/
+.DS_Store
+Thumbs.db

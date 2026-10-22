@@ -1,0 +1,2474 @@
+[
+ {
+  "name": "Око Ваала",
+  "en": "Baal's Sight",
+  "requires": [
+   {
+    "key": "auspex",
+    "level": 2
+   },
+   {
+    "key": "quietus",
+    "level": 4
+   }
+  ],
+  "requiresText": "Ясновидение 2, Упокоение (чародеи) 4",
+  "xp": 18,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Ясновидение 2, Упокоение (чародеи) 4 · опыт 18.</em></p><p><strong>Постоянно</strong> видит бесплотных духов без затрат (засчитывается как требование для чародейского Вкуса смерти). Глаза навсегда налиты кровью, как при инфекции; духи рядом чувствуют, что их видят (некоторых это оскорбляет).</p>"
+ },
+ {
+  "name": "Глоток души",
+  "en": "Draught of the Soul",
+  "requires": [
+   {
+    "key": "auspex",
+    "level": 4
+   },
+   {
+    "key": "quietus",
+    "level": 5
+   }
+  ],
+  "requiresText": "Ясновидение 4, Упокоение 5",
+  "xp": 27,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Ясновидение 4, Упокоение 5 · опыт 27.</em></p><p>Только при <strong>диаблери</strong> (сейчас — антитрибу или если снимут Проклятие Тремер). Потратить <strong>Воли = Интеллекту</strong> жертвы, <strong>Воля</strong>, сложность <strong>постоянная Воля жертвы +1 за каждое её расстройство</strong> (макс. 9). Успех — <strong>+1 опыт</strong> за каждый Навык, где у жертвы было <strong>не меньше</strong>, чем у Ассамита; тратить только на эти Навыки (отдельный пул). По решению рассказчика — доступ к воспоминаниям жертвы (как во сне). <strong>Провал</strong> — постоянное расстройство (обычно жертвы).</p>"
+ },
+ {
+  "name": "Глаза Аламута",
+  "en": "Eyes of Alamut",
+  "requires": [
+   {
+    "key": "auspex",
+    "level": 4
+   },
+   {
+    "key": "quietus",
+    "level": 3
+   }
+  ],
+  "requiresText": "Ясновидение 4, Упокоение 3",
+  "xp": 21,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Ясновидение 4, Упокоение 3 · опыт 21.</em></p><p>Коснуться цели; <strong>1 Воля</strong>, <strong>Восприятие + Бдительность</strong> (сл. — текущая Воля цели): <strong>1 час за успех</strong> видеть её глазами и слышать её ушами. Цель с Телепатией может заметить — <strong>Восприятие + Оккультизм</strong> (сл. 6); если Ассамит попытается Приказать на расстоянии и провалится — замечает автоматически.</p>",
+  "roll": {
+   "trait1": "attributes.perception",
+   "trait2": "abilities.alertness"
+  }
+ },
+ {
+  "name": "Глаза клинков",
+  "en": "Eyes of Blades",
+  "requires": [
+   {
+    "key": "auspex",
+    "level": 2
+   },
+   {
+    "key": "celerity",
+    "level": 3
+   }
+  ],
+  "requiresText": "Ясновидение 2, Стремительность 3",
+  "xp": 15,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Ясновидение 2, Стремительность 3 · опыт 15.</em></p><p>В начале хода <strong>2 крови + 1 Воля</strong> (считается активацией Стремительности на ход): в этот ход — только самозащита, но против <strong>каждой</strong> атаки — <strong>полный пул</strong> уклонения или парирования.</p>",
+  "roll": {
+   "blood": 2
+  }
+ },
+ {
+  "name": "Марш‑бросок",
+  "en": "Forced March",
+  "requires": [
+   {
+    "key": "celerity",
+    "level": 2
+   },
+   {
+    "key": "fortitude",
+    "level": 2
+   }
+  ],
+  "requiresText": "Стремительность 2, Стойкость 2",
+  "xp": 12,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Стремительность 2, Стойкость 2 · опыт 12.</em></p><p>Вне боя: <strong>кровь = ½ Стремительности</strong> (вверх) — на <strong>Стойкость</strong> часов скорость бега <strong>×Стремительность</strong> (Стойкость 3, Стремительность 4: ~6 км/ч → 25 км/ч на 3 часа).</p>"
+ },
+ {
+  "name": "Медовые речи",
+  "en": "Honeyed Words",
+  "requires": [
+   {
+    "key": "auspex",
+    "level": 2
+   },
+   {
+    "key": "presence",
+    "level": 1
+   }
+  ],
+  "requiresText": "Ясновидение 2, Величие 1",
+  "xp": 9,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Ясновидение 2, Величие 1 · опыт 9.</em></p><p><strong>Манипуляция + Выражение</strong> (сл. 6): до конца сцены сложность убеждения, манипуляции, допроса <strong>одной цели</strong> обычной беседой <strong>−успехи</strong> (мин. 4). Рассказчик предупреждает, если визирь рискует сказать что‑то оскорбительное или настораживающее. Можно «заговорить» даже жаргоном, которого сам не понимаешь.</p>"
+ },
+ {
+  "name": "Теневой финт",
+  "en": "Shadow Feint",
+  "requires": [
+   {
+    "key": "celerity",
+    "level": 2
+   },
+   {
+    "key": "obfuscate",
+    "level": 2
+   }
+  ],
+  "requiresText": "Стремительность 2, Сокрытие 2",
+  "xp": 12,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Стремительность 2, Сокрытие 2 · опыт 12.</em></p><p>В ход с активной Стремительностью, если первое действие — уклонение: <strong>+1 кровь</strong> — до конца хода <strong>+2</strong> к сложности всех атак по нему (макс. 9). Сила Сокрытия: не действует на вампиров, чьё Ясновидение выше его Сокрытия.</p>",
+  "roll": {
+   "blood": 1
+  }
+ },
+ {
+  "name": "Пылающий гнев",
+  "en": "Burning Wrath",
+  "requires": [
+   {
+    "key": "celerity",
+    "level": 3
+   },
+   {
+    "key": "potence",
+    "level": 3
+   }
+  ],
+  "requiresText": "Стремительность 3, Мощь 3",
+  "xp": 18,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Стремительность 3, Мощь 3 · опыт 18.</em></p><p><strong>1 кровь</strong>, на сцену: удары <strong>Драки</strong> наносят <strong>губительный</strong> урон.</p>",
+  "roll": {
+   "blood": 1
+  }
+ },
+ {
+  "name": "Усмирение настороженного зверя",
+  "en": "Command the Wary Beast",
+  "requires": [
+   {
+    "key": "animalism",
+    "level": 2
+   },
+   {
+    "key": "presence",
+    "level": 3
+   }
+  ],
+  "requiresText": "Анимализм 2, Величие 3",
+  "xp": 15,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Анимализм 2, Величие 3 · опыт 15.</em></p><p><strong>1 Воля</strong>, <strong>Манипуляция + Обращение с животными</strong> (сл. 7): враждебные бесхозные животные <strong>бегут</strong>; животные под чужим контролем — <strong>+3</strong> к сложности всех проверок управления ими; дружественные Бруха и союзникам — <strong>−2</strong> к сложности управления.</p>",
+  "roll": {
+   "trait1": "attributes.manipulation",
+   "trait2": "abilities.animalKen",
+   "note": "сложность: всех проверок управления ими"
+  }
+ },
+ {
+  "name": "Боевой дух",
+  "en": "Esprit de Corps",
+  "requires": [
+   {
+    "key": "potence",
+    "level": 4
+   },
+   {
+    "key": "presence",
+    "level": 4
+   }
+  ],
+  "requiresText": "Мощь 4, Величие 4",
+  "xp": 24,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Мощь 4, Величие 4 · опыт 24.</em></p><p><strong>Обаяние + Лидерство</strong> (сл. 7): охват 1 — 1 человек; 2 — 2; 3 — 6; 4 — 20; 5 — все союзники рядом. Запугивание (обычное и сверхъестественное) против них — <strong>+2</strong> к сложности. Каждые <strong>2 успеха</strong> — каждому охваченному <strong>+1 Мощь</strong> на сцену (макс. 3); смертные пользуются только пассивной Мощью.</p>",
+  "roll": {
+   "trait1": "attributes.charisma",
+   "trait2": "abilities.leadership"
+  }
+ },
+ {
+  "name": "Железное сердце",
+  "en": "Iron Heart",
+  "requires": [
+   {
+    "key": "potence",
+    "level": 3
+   },
+   {
+    "key": "presence",
+    "level": 3
+   }
+  ],
+  "requiresText": "Мощь 3, Величие 3",
+  "xp": 18,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Мощь 3, Величие 3 · опыт 18.</em></p><p><strong>Постоянно:</strong> сверхъестественное воздействие на эмоции, самоконтроль, разум (Доминирование, Помешательство, Величие, магия) против него — <strong>+2</strong> к сложности (макс. 9); против эффектов без броска (Преклонение) — <strong>−2</strong> к сложности его проверок сопротивления. <strong>За 1 Волю</strong>, убеждая другого сопротивляться — тому <strong>+1</strong> к сложности воздействия (или −1 к сопротивлению безбросковым).</p>"
+ },
+ {
+  "name": "Прыжки и скачки",
+  "en": "Leaps and Bounds",
+  "requires": [
+   {
+    "key": "celerity",
+    "level": 2
+   },
+   {
+    "key": "potence",
+    "level": 2
+   }
+  ],
+  "requiresText": "Стремительность 2, Мощь 2",
+  "xp": 12,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Стремительность 2, Мощь 2 · опыт 12.</em></p><p>Дальность прыжков (в высоту и длину) <strong>× меньшее из Стремительности и Мощи</strong>, без броска; приземление — по ситуации <strong>Ловкость + Атлетика</strong> (сл. 4).</p>",
+  "roll": {
+   "trait1": "attributes.dexterity",
+   "trait2": "abilities.athletics"
+  }
+ },
+ {
+  "name": "Пульс нежизни",
+  "en": "Pulse of Undeath",
+  "requires": [
+   {
+    "key": "auspex",
+    "level": 1
+   },
+   {
+    "key": "potence",
+    "level": 1
+   }
+  ],
+  "requiresText": "Ясновидение 1, Мощь 1",
+  "xp": 6,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Ясновидение 1, Мощь 1 · опыт 6.</em></p><p><strong>Восприятие + Эмпатия</strong> (сл. 6): каждый успех — одна физическая Дисциплина цели (Стремительность, Мощь, Стойкость) и её примерный уровень.</p>",
+  "roll": {
+   "trait1": "attributes.perception",
+   "trait2": "abilities.empathy"
+  }
+ },
+ {
+  "name": "Невольный перформанс",
+  "en": "Reluctant Performance Artist",
+  "requires": [
+   {
+    "key": "dominate",
+    "level": 3
+   },
+   {
+    "key": "presence",
+    "level": 3
+   }
+  ],
+  "requiresText": "Доминирование 3, Величие 3",
+  "xp": 18,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Доминирование 3, Величие 3 · опыт 18.</em></p><p><strong>+1 Воля</strong> к Внушению смертного, которому приказано что‑то сделать на публике (обычно абсурдный перформанс; можно — затеять ссору, вандализм). Зрители, чья <strong>текущая Воля ≤ успехов</strong>, могут только смотреть (если «артист» делает опасное или незаконное — их Воля считается на 1 выше; если нападает на зрителя — на 3 выше). После — забывают или считают это арт‑акцией.</p>"
+ },
+ {
+  "name": "Бич Алекто",
+  "en": "Scourge of Alecto",
+  "requires": [
+   {
+    "key": "celerity",
+    "level": 2
+   },
+   {
+    "key": "presence",
+    "level": 4
+   }
+  ],
+  "requiresText": "Стремительность 2, Величие 4",
+  "xp": 18,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Стремительность 2, Величие 4 · опыт 18.</em></p><p><strong>1 Воля</strong>, ход концентрации на цели (любой): бросок <strong>постоянной Воли</strong> Бруха, сложность — <strong>текущая Воля</strong> цели. Каждый успех — <strong>1 лёгкое</strong>; цель, подверженная ярости, сразу проверяет её с <strong>+2</strong> к сложности. Собственная склонность Бруха к ярости не меняется.</p>"
+ },
+ {
+  "name": "Лицо истинной любви",
+  "en": "True Love's Face",
+  "requires": [
+   {
+    "key": "obfuscate",
+    "level": 3
+   },
+   {
+    "key": "presence",
+    "level": 3
+   }
+  ],
+  "requiresText": "Сокрытие 3, Величие 3",
+  "xp": 18,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Сокрытие 3, Величие 3 · опыт 18.</em></p><p><strong>Обаяние + Эмпатия</strong> (сл. 6): пока Сетит рядом, жертва видит в нём любимого человека. Если Сетит не знает, кого именно, — жертва «дорисует» сама, и придётся догадываться, за кого его принимают.</p>",
+  "roll": {
+   "trait1": "attributes.charisma",
+   "trait2": "abilities.empathy"
+  }
+ },
+ {
+  "name": "Тифонический зверь",
+  "en": "Typhonic Beast",
+  "requires": [
+   {
+    "key": "potence",
+    "level": 3
+   },
+   {
+    "key": "serpentis",
+    "level": 4
+   }
+  ],
+  "requiresText": "Мощь 3, Серпентис 4",
+  "xp": 21,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Мощь 3, Серпентис 4 · опыт 21.</em></p><p><strong>3 крови</strong>, превращение <strong>3 хода</strong> в загадочное тифоническое животное: <strong>+1 Сила, Ловкость, Выносливость</strong>; поглощение как у Шкуры гадюки (сл. 5; Выносливостью — губительный от когтей и клыков, не огня, солнца, магии); ядовитый укус Облика кобры; бег ×2; <strong>+2d10</strong> к обонянию и слуху. До рассвета или по желанию; одежда превращается вместе.</p>",
+  "roll": {
+   "blood": 3
+  }
+ },
+ {
+  "name": "Взвешивание сердца",
+  "en": "Weigh the Heart",
+  "requires": [
+   {
+    "key": "auspex",
+    "level": 3
+   },
+   {
+    "key": "serpentis",
+    "level": 5
+   }
+  ],
+  "requiresText": "Ясновидение 3, Серпентис 5",
+  "xp": 24,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Ясновидение 3, Серпентис 5 · опыт 24.</em></p><p>Как Анубис — «взвесить» сердце: <strong>Восприятие + Эмпатия</strong> (сл. 8), каждый успех — одна истина о характере (упор на слабости, страсти, вину). Первая — всегда <strong>Натура</strong>; далее расстройства, ментальные недостатки, страсти, страхи и вина (без конкретики о преступлениях).</p>",
+  "roll": {
+   "trait1": "attributes.perception",
+   "trait2": "abilities.empathy"
+  }
+ },
+ {
+  "name": "Кровавые шипы",
+  "en": "Blood Thorns",
+  "requires": [
+   {
+    "key": "protean",
+    "level": 2
+   },
+   {
+    "key": "potence",
+    "level": 2
+   }
+  ],
+  "requiresText": "Метаморфозы 2, Мощь 2",
+  "xp": 12,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Метаморфозы 2, Мощь 2 · опыт 12.</em></p><p><strong>1 кровь</strong> — выстрелить когтем или шипом в цель в <strong>10 м</strong>: урон <strong>Сила +1 губительный</strong>, как Когти Зверя. Коготь отрастает <strong>3 хода</strong>, выпущенный рассыпается через 10 минут.</p>",
+  "roll": {
+   "blood": 1
+  }
+ },
+ {
+  "name": "Иммунитет к когтям",
+  "en": "Claw Immunity",
+  "requires": [
+   {
+    "key": "animalism",
+    "level": 2
+   },
+   {
+    "key": "fortitude",
+    "level": 4
+   }
+  ],
+  "requiresText": "Анимализм 2, Стойкость 4",
+  "xp": 18,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Анимализм 2, Стойкость 4 · опыт 18.</em></p><p><strong>2 крови</strong>, сцена: против когтей и клыков <strong>обычных</strong> животных — <strong>+(Анимализм + Стойкость)</strong> к поглощению сверх обычного (Стойкость считается дважды). Не против Когтей Зверя и оборотней.</p>",
+  "roll": {
+   "blood": 2
+  }
+ },
+ {
+  "name": "Царапина",
+  "en": "Flesh Wound",
+  "requires": [
+   {
+    "key": "fortitude",
+    "level": 2
+   },
+   {
+    "key": "obfuscate",
+    "level": 3
+   }
+  ],
+  "requiresText": "Стойкость 2, Сокрытие 3",
+  "xp": 15,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Стойкость 2, Сокрытие 3 · опыт 15.</em></p><p><strong>1 кровь</strong>, сцена: внешне не получает новых ран (не хромает, не кровоточит) — пугает врагов. Кончается при «выведен из строя» или коле. Снаружи распознать до окончания нельзя.</p>",
+  "roll": {
+   "blood": 1
+  }
+ },
+ {
+  "name": "Царь зверей",
+  "en": "King of the Beasts",
+  "requires": [
+   {
+    "key": "fortitude",
+    "level": 2
+   },
+   {
+    "key": "animalism",
+    "level": 4
+   }
+  ],
+  "requiresText": "Стойкость 2, Анимализм 4",
+  "xp": 18,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Стойкость 2, Анимализм 4 · опыт 18.</em></p><p>Призванные Анимализмом животные, пока в поле зрения, получают <strong>Стойкость 1</strong>.</p>"
+ },
+ {
+  "name": "Отражённый облик",
+  "en": "See the Reflected Form",
+  "requires": [
+   {
+    "key": "auspex",
+    "level": 2
+   },
+   {
+    "key": "protean",
+    "level": 4
+   }
+  ],
+  "requiresText": "Ясновидение 2, Метаморфозы 4",
+  "xp": 18,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Ясновидение 2, Метаморфозы 4 · опыт 18.</em></p><p>Через ауру видеть облики: <strong>Восприятие + Бдительность</strong> (сл. 6). 1 — <strong>родной облик</strong> цели; 3 — все облики, которые она может принять, и какими Дисциплинами; 5 — облики не‑вампиров (оборотни, феи), хоть и без понимания их сил. Маскировку Сокрытия не раскрывает.</p>",
+  "roll": {
+   "trait1": "attributes.perception",
+   "trait2": "abilities.alertness"
+  }
+ },
+ {
+  "name": "Несокрушимый",
+  "en": "Shatterproof",
+  "requires": [
+   {
+    "key": "protean",
+    "level": 3
+   },
+   {
+    "key": "fortitude",
+    "level": 4
+   }
+  ],
+  "requiresText": "Метаморфозы 3, Стойкость 4",
+  "xp": 21,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Метаморфозы 3, Стойкость 4 · опыт 21.</em></p><p><strong>1 Воля</strong> за применение: поглощать <strong>губительный</strong> урон <strong>Стойкостью + Выносливостью</strong> вместе.</p>"
+ },
+ {
+  "name": "Духовный след",
+  "en": "Spirit Tracking",
+  "requires": [
+   {
+    "key": "protean",
+    "level": 2
+   },
+   {
+    "key": "animalism",
+    "level": 2
+   }
+  ],
+  "requiresText": "Метаморфозы 2, Анимализм 2",
+  "xp": 12,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Метаморфозы 2, Анимализм 2 · опыт 12.</em></p><p>Выслеживать Зверя другого вампира через эфир: <strong>Восприятие + Выживание</strong> (сл. 7) — пока цель в <strong>10 м</strong>; 3+ успеха — в <strong>100 м</strong>; 5 — знает, кто был здесь за <strong>3 дня</strong> (выслеживать — только если в 100 м). Не обманывается <strong>Мороком</strong> (Фантасмагория 1); только иллюзии на все чувства (Фата‑моргана и выше).</p>",
+  "roll": {
+   "trait1": "attributes.perception",
+   "trait2": "abilities.survival"
+  }
+ },
+ {
+  "name": "Глаза тысячи теней",
+  "en": "Eyes of a Thousand Shades",
+  "requires": [
+   {
+    "key": "auspex",
+    "level": 1
+   },
+   {
+    "key": "necromancy",
+    "level": 3
+   }
+  ],
+  "requiresText": "Ясновидение 1, Некромантия 3",
+  "xp": 12,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Ясновидение 1, Некромантия 3 · опыт 12.</em></p><p>«Призрачное наблюдение»: <strong>1 кровь</strong>, <strong>Восприятие + Оккультизм</strong>; каждый успех — радиус <strong>+25 м</strong>. Видит глазами <strong>всех призраков</strong> в зоне, переключаясь по желанию; зрение мутное, через Завесу, обрывки памяти мешают и скрывают детали.</p>",
+  "roll": {
+   "trait1": "attributes.perception",
+   "trait2": "abilities.occult",
+   "blood": 1
+  }
+ },
+ {
+  "name": "Сила хозяина",
+  "en": "Sharing the Master's Vigor",
+  "requires": [
+   {
+    "key": "dominate",
+    "level": 5
+   },
+   {
+    "key": "necromancy",
+    "level": 3
+   }
+  ],
+  "requiresText": "Доминирование 5, Некромантия 3",
+  "xp": 24,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Доминирование 5, Некромантия 3 · опыт 24.</em></p><p><strong>1 кровь</strong>, <strong>Смекалка + Оккультизм</strong>: каждый успех даёт <strong>одному</strong> зомби из <strong>Гнилой орды</strong> точку физической Дисциплины некроманта (Стремительность, Стойкость, Мощь); можно несколько точек одному. Не выше своего уровня. Пока зомби «жив».</p>",
+  "roll": {
+   "trait1": "attributes.wits",
+   "trait2": "abilities.occult",
+   "blood": 1
+  }
+ },
+ {
+  "name": "Доспех Бездны",
+  "en": "Armor of the Abyss",
+  "requires": [
+   {
+    "key": "obtenebration",
+    "level": 3
+   },
+   {
+    "key": "fortitude",
+    "level": 3
+   }
+  ],
+  "requiresText": "Затмение 3, Стойкость 3",
+  "xp": 18,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Затмение 3, Стойкость 3 · опыт 18.</em></p><p>Как Руки Бездны: <strong>1 кровь</strong>, <strong>Манипуляция + Оккультизм</strong> (сл. 7) — тени обвивают вампира тёмными латами (видит сквозь них, не мешают): <strong>броня = Стойкость</strong>, <strong>3 хода (или 10 минут) за успех</strong>.</p>",
+  "roll": {
+   "trait1": "attributes.manipulation",
+   "trait2": "abilities.occult",
+   "blood": 1
+  }
+ },
+ {
+  "name": "Наделить слугу",
+  "en": "Empower Minion",
+  "requires": [
+   {
+    "key": "dominate",
+    "level": 3
+   },
+   {
+    "key": "potence",
+    "level": 3
+   }
+  ],
+  "requiresText": "Доминирование 3, Мощь 3",
+  "xp": 18,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Доминирование 3, Мощь 3 · опыт 18.</em></p><p>Тем, кто сейчас под его Доминированием, на любом расстоянии — его <strong>Мощь</strong>: <strong>1 кровь за точку</strong> на каждого (до <strong>3</strong> на слугу; можно тратить несколько ходов). Своя Мощь слуги <strong>заменяется</strong>, а не складывается.</p>",
+  "roll": {
+   "blood": 1
+  }
+ },
+ {
+  "name": "Страх темноты",
+  "en": "Fear of the Dark",
+  "requires": [
+   {
+    "key": "presence",
+    "level": 2
+   },
+   {
+    "key": "obtenebration",
+    "level": 2
+   }
+  ],
+  "requiresText": "Величие 2, Затмение 2",
+  "xp": 12,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Величие 2, Затмение 2 · опыт 12.</em></p><p>Активировав Театр теней — <strong>Манипуляция + Запугивание</strong> (сл. 6): каждый успех — один человек рядом видит в тенях жуткие фигуры; провалив <strong>Смелость</strong> (сл. 8), бежит в ужасе.</p>",
+  "roll": {
+   "trait1": "attributes.manipulation",
+   "trait2": "abilities.intimidation"
+  }
+ },
+ {
+  "name": "Удар разума",
+  "en": "Mind Strike",
+  "requires": [
+   {
+    "key": "dominate",
+    "level": 2
+   },
+   {
+    "key": "potence",
+    "level": 2
+   }
+  ],
+  "requiresText": "Доминирование 2, Мощь 2",
+  "xp": 12,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Доминирование 2, Мощь 2 · опыт 12.</em></p><p><strong>1 Воля</strong>, зрительный контакт, <strong>Манипуляция + Запугивание</strong> (без бонуса Театра теней), сл. — текущая Воля цели: <strong>успехи + Мощь</strong> = <strong>лёгкий</strong> урон (поглощение обычное). Как Доминирование — не действует на более низкое поколение.</p>",
+  "roll": {
+   "trait1": "attributes.manipulation",
+   "trait2": "abilities.intimidation"
+  }
+ },
+ {
+  "name": "Теневая метка",
+  "en": "Shadow Mark",
+  "requires": [
+   {
+    "key": "dominate",
+    "level": 3
+   },
+   {
+    "key": "obtenebration",
+    "level": 6
+   }
+  ],
+  "requiresText": "Доминирование 3, Затмение 6",
+  "xp": 27,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Доминирование 3, Затмение 6 · опыт 27.</em></p><p>Шаг сквозь тени <strong>к своему подвластному</strong> (под Доминированием), стоящему в тени, — <strong>на любое расстояние</strong>; без доп. затрат, сложность <strong>+1</strong>.</p>"
+ },
+ {
+  "name": "Покров отсутствия",
+  "en": "Shroud of Absence",
+  "requires": [
+   {
+    "key": "obfuscate",
+    "level": 3
+   },
+   {
+    "key": "obtenebration",
+    "level": 3
+   }
+  ],
+  "requiresText": "Сокрытие 3, Затмение 3",
+  "xp": 18,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Сокрытие 3, Затмение 3 · опыт 18.</em></p><p>Вариант Покрывала ночи: зона ~<strong>3 м</strong> в поле зрения, на которую <strong>никто не смотрит</strong> (невидимость). <strong>1 кровь</strong>, <strong>Манипуляция + Хитрость</strong> (сл. 7); двигается шагом; <strong>час за успех</strong>. Заглянуть — <strong>Воля</strong> (сл. 7) и успехов <strong>больше</strong>, чем у вампира.</p>",
+  "roll": {
+   "trait1": "attributes.manipulation",
+   "trait2": "abilities.subterfuge",
+   "blood": 1
+  }
+ },
+ {
+  "name": "Жуткий клоун",
+  "en": "Creepy Clown Coat",
+  "requires": [
+   {
+    "key": "dementation",
+    "level": 1
+   },
+   {
+    "key": "obfuscate",
+    "level": 3
+   }
+  ],
+  "requiresText": "Помешательство 1, Сокрытие 3",
+  "xp": 12,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Помешательство 1, Сокрытие 3 · опыт 12.</em></p><p><strong>Смекалка + Бдительность</strong> (сл. — текущая Воля): цель видит его воплощением <strong>своего главного страха</strong> (боится сгореть — видит поджигателя или сгоревшего родственника). Чтобы делать что‑то, кроме реакции на страх (бегство, слёзы, драка), — <strong>Смелость</strong>, нужно успехов не меньше, чем у Малкавиана.</p>",
+  "roll": {
+   "trait1": "attributes.wits",
+   "trait2": "abilities.alertness"
+  }
+ },
+ {
+  "name": "Страсти былых дней",
+  "en": "Days of Passions Past",
+  "requires": [
+   {
+    "key": "dementation",
+    "level": 3
+   },
+   {
+    "key": "auspex",
+    "level": 2
+   }
+  ],
+  "requiresText": "Помешательство 3, Ясновидение 2",
+  "xp": 15,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Помешательство 3, Ясновидение 2 · опыт 15.</em></p><p><strong>Восприятие + Бдительность</strong>: какие эмоции цель испытывала <strong>чаще всего</strong> за период; каждый успех — ещё одна эмоция. Глубина: <strong>5</strong> — с прошлой ночи; <strong>6</strong> — неделя; <strong>7</strong> — месяц; <strong>8</strong> — год; <strong>9</strong> — десятилетие. Показывает и <strong>питьё крови сверхъестественных</strong>, включая <strong>диаблери</strong> (но без деталей — чья кровь, почему; слово Малкавиана против слова цели).</p>",
+  "roll": {
+   "trait1": "attributes.perception",
+   "trait2": "abilities.alertness"
+  }
+ },
+ {
+  "name": "Делай, как я сказал, а не как я сказал",
+  "en": "Do As I Say, Not As I Say",
+  "requires": [
+   {
+    "key": "dominate",
+    "level": 1
+   },
+   {
+    "key": "dementation",
+    "level": 4
+   }
+  ],
+  "requiresText": "Доминирование 1, Помешательство 4",
+  "xp": 15,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Доминирование 1, Помешательство 4 · опыт 15.</em></p><p>При зрительном контакте вслух звучит одно, а в голове жертвы — <strong>другой</strong> приказ (выполняется он). <strong>Манипуляция + Хитрость</strong> (сл. — текущая Воля); больше успехов — ревностнее исполнение.</p>",
+  "roll": {
+   "trait1": "attributes.manipulation",
+   "trait2": "abilities.subterfuge"
+  }
+ },
+ {
+  "name": "Не замечай меня",
+  "en": "Ignore Me",
+  "requires": [
+   {
+    "key": "dominate",
+    "level": 4
+   },
+   {
+    "key": "obfuscate",
+    "level": 2
+   }
+  ],
+  "requiresText": "Доминирование 4, Сокрытие 2",
+  "xp": 18,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Доминирование 4, Сокрытие 2 · опыт 18.</em></p><p>«Запрограммировать» людей на своём месте обитания: раз в день <strong>Смекалка + Хитрость</strong> (сл. — текущая Воля), продолжительно, нужно <strong>5 × Смелость</strong> цели. Затем <strong>на месяц</strong> цель полностью его игнорирует (сама расставляет потревоженные им вещи; не реагирует на касания и обыск карманов — только на вред). Цель может сбросить: <strong>Смелость</strong> против Воли Малкавиана.</p>",
+  "roll": {
+   "trait1": "attributes.wits",
+   "trait2": "abilities.subterfuge"
+  }
+ },
+ {
+  "name": "Павловский рефлекс Малкава",
+  "en": "Malkav's Pavlovian Response",
+  "requires": [
+   {
+    "key": "dementation",
+    "level": 2
+   },
+   {
+    "key": "dominate",
+    "level": 2
+   }
+  ],
+  "requiresText": "Помешательство 2, Доминирование 2",
+  "xp": 12,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Помешательство 2, Доминирование 2 · опыт 12.</em></p><p><strong>Обаяние + Хитрость</strong> (сл. — текущая Воля): произнести слово (можно спрятать во фразе) и связать его с эмоцией; при встрече этого слова или предмета цель испытывает эмоцию (ненавидит начальника, любит врага, вожделеет книгу). <strong>1 ночь за успех</strong>.</p>",
+  "roll": {
+   "trait1": "attributes.charisma",
+   "trait2": "abilities.subterfuge"
+  }
+ },
+ {
+  "name": "Рандом",
+  "en": "Rando",
+  "requires": [
+   {
+    "key": "obfuscate",
+    "level": 3
+   },
+   {
+    "key": "dementation",
+    "level": 3
+   }
+  ],
+  "requiresText": "Сокрытие 3, Помешательство 3",
+  "xp": 18,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Сокрытие 3, Помешательство 3 · опыт 18.</em></p><p>Каждый раз, глядя на него, цель видит <strong>другого подходящего к месту человека</strong> (худенькая зрительница, потом громила‑охранник). <strong>Смекалка + Скрытность</strong>, отдельно на каждую цель; сложность по плотности толпы: <strong>9</strong> — улица в полночь; <strong>8</strong> — полупустая галерея; <strong>7</strong> — ресторан в час ужина; <strong>6</strong> — торговый центр на Рождество; <strong>5</strong> — концерт без сидячих мест.</p>",
+  "roll": {
+   "trait1": "attributes.wits",
+   "trait2": "abilities.stealth",
+   "note": "сложность: по плотности толпы:  9  — улица в полноч"
+  }
+ },
+ {
+  "name": "Крики наяву",
+  "en": "Screams Made Real",
+  "requires": [
+   {
+    "key": "auspex",
+    "level": 4
+   },
+   {
+    "key": "dementation",
+    "level": 4
+   }
+  ],
+  "requiresText": "Ясновидение 4, Помешательство 4",
+  "xp": 24,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Ясновидение 4, Помешательство 4 · опыт 24.</em></p><p><strong>1 кровь</strong>, <strong>Манипуляция + Эмпатия</strong> (сл. 8): каждый успех — жуткий образ из глубин разума цели становится для неё реальным (на сцену). Жертвы бегут или впадают в ярость: вампиры и Люпины проверяют ярость с <strong>+[успехи]</strong>; люди без проверки — сразу «бей или беги».</p>",
+  "roll": {
+   "trait1": "attributes.manipulation",
+   "trait2": "abilities.empathy",
+   "blood": 1
+  }
+ },
+ {
+  "name": "Обезьянья лапа",
+  "en": "Ze Monkey's Paw",
+  "requires": [
+   {
+    "key": "auspex",
+    "level": 3
+   },
+   {
+    "key": "dementation",
+    "level": 4
+   }
+  ],
+  "requiresText": "Ясновидение 3, Помешательство 4",
+  "xp": 21,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Ясновидение 3, Помешательство 4 · опыт 21.</em></p><p>Касаясь предмета и представляя человека — <strong>1 Воля</strong>, <strong>Смекалка + Хитрость</strong> (сл. 6). Когда цель увидит предмет, проклятие начинается: каждый успех — <strong>1 уровень здоровья</strong> (мелкая травма из‑за предмета) или <strong>1 Воля</strong> (винит предмет в неудаче) — распределяет Малкавиан; <strong>не больше 1 в сцену</strong>. Что жертва сделает с предметом (обычно быстро выбросит) — не контролирует.</p>",
+  "roll": {
+   "trait1": "attributes.wits",
+   "trait2": "abilities.subterfuge"
+  }
+ },
+ {
+  "name": "Звериное присутствие",
+  "en": "Bestial Presence",
+  "requires": [
+   {
+    "key": "animalism",
+    "level": 3
+   },
+   {
+    "key": "obfuscate",
+    "level": 3
+   }
+  ],
+  "requiresText": "Анимализм 3, Сокрытие 3",
+  "xp": 18,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Анимализм 3, Сокрытие 3 · опыт 18.</em></p><p>Воплотить частицу Зверя каждого вампира рядом в мрачного звериного спутника: <strong>1 кровь</strong>, <strong>Манипуляция + Обращение с животными</strong> (сл. 8), <strong>час за успех</strong>. Все вампиры рядом (кроме него) — <strong>−2d10</strong> ко всем социальным проверкам и к сопротивлению любой ярости.</p>",
+  "roll": {
+   "trait1": "attributes.manipulation",
+   "trait2": "abilities.animalKen",
+   "blood": 1
+  }
+ },
+ {
+  "name": "Скрыть Зверя",
+  "en": "Cloak the Beast",
+  "requires": [
+   {
+    "key": "animalism",
+    "level": 5
+   },
+   {
+    "key": "obfuscate",
+    "level": 3
+   }
+  ],
+  "requiresText": "Анимализм 5, Сокрытие 3",
+  "xp": 24,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Анимализм 5, Сокрытие 3 · опыт 24.</em></p><p>Постоянно: любая сила, определяющая его Человечность/Путь или Добродетели, — <strong>+[большее из Анимализма и Сокрытия]</strong> к сложности; неудача показывает крепкие Добродетели и Человечность <strong>не ниже 7</strong> (объяснять недавние поступки всё равно придётся).</p>"
+ },
+ {
+  "name": "Запретная зона",
+  "en": "Forbidden Zone",
+  "requires": [
+   {
+    "key": "obfuscate",
+    "level": 5
+   },
+   {
+    "key": "potence",
+    "level": 3
+   }
+  ],
+  "requiresText": "Сокрытие 5, Мощь 3",
+  "xp": 24,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Сокрытие 5, Мощь 3 · опыт 24.</em></p><p>Ментальный барьер: <strong>1 кровь</strong>, <strong>Сила + Хитрость</strong> (сл. 6), <strong>час за успех</strong> (присутствие не нужно); радиус до <strong>2 м × (Мощь + Сокрытие)</strong>; может быть скрыта или нет. Войти — как выбить дверь, но нужно успехов <strong>= Сокрытие + Мощь</strong>, сл. 7; выйти — свободно, вернуться — снова бросок. Касанием может освободить кого угодно от эффекта.</p>",
+  "roll": {
+   "trait1": "attributes.strength",
+   "trait2": "abilities.subterfuge",
+   "blood": 1
+  }
+ },
+ {
+  "name": "Проклятое место",
+  "en": "Haunted Place",
+  "requires": [
+   {
+    "key": "presence",
+    "level": 2
+   },
+   {
+    "key": "obfuscate",
+    "level": 5
+   }
+  ],
+  "requiresText": "Величие 2, Сокрытие 5",
+  "xp": 21,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Величие 2, Сокрытие 5 · опыт 21.</em></p><p>Три ночи подряд по часу, каждый раз <strong>5+ крови</strong> вокруг места и <strong>Манипуляция + Эмпатия</strong> с выбранной (одинаковой) сложностью; все три успешны — место окутано аурой порчи, его все избегают. Войти — <strong>Воля</strong> с этой сложностью. Пока вампир существует или место сильно не изменится (реновация).</p>",
+  "roll": {
+   "trait1": "attributes.manipulation",
+   "trait2": "abilities.empathy"
+  }
+ },
+ {
+  "name": "Я знаю",
+  "en": "I Know",
+  "requires": [
+   {
+    "key": "auspex",
+    "level": 2
+   },
+   {
+    "key": "obfuscate",
+    "level": 2
+   }
+  ],
+  "requiresText": "Ясновидение 2, Сокрытие 2",
+  "xp": 12,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Ясновидение 2, Сокрытие 2 · опыт 12.</em></p><p>Создать у цели уверенность, что он знает её тайну (на деле — ничего не знает; поверхностно считывает чувство вины и проецирует нужные жесты и фразы). <strong>Восприятие + Хитрость</strong> (сл. — текущая Воля): 1 успех — «может что‑то знать»; 5 — «знает мои самые тёмные секреты». Ошибка в догадке рушит иллюзию.</p>",
+  "roll": {
+   "trait1": "attributes.perception",
+   "trait2": "abilities.subterfuge"
+  }
+ },
+ {
+  "name": "Животное силы",
+  "en": "Power Animal",
+  "requires": [
+   {
+    "key": "animalism",
+    "level": 3
+   },
+   {
+    "key": "potence",
+    "level": 1
+   }
+  ],
+  "requiresText": "Анимализм 3, Мощь 1",
+  "xp": 12,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Анимализм 3, Мощь 1 · опыт 12.</em></p><p>Установив связь Языком животных — <strong>1 кровь за точку</strong> Мощи, переданной животному до конца ночи; не больше Силы животного и не больше своей Мощи (крыса Сила 1 — Мощь 1; свинья Сила 4 — до 4).</p>",
+  "roll": {
+   "blood": 1
+  }
+ },
+ {
+  "name": "Волк в овечьей шкуре",
+  "en": "Wolf in Sheep's Clothing",
+  "requires": [
+   {
+    "key": "animalism",
+    "level": 3
+   },
+   {
+    "key": "obfuscate",
+    "level": 2
+   }
+  ],
+  "requiresText": "Анимализм 3, Сокрытие 2",
+  "xp": 15,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Анимализм 3, Сокрытие 2 · опыт 15.</em></p><p>Применять <strong>любую</strong> силу Сокрытия к животному (под Анимализмом или напоённому его кровью): провести в Элизиум, сделать страшнее или безобиднее. Броски и кровь — за вампира.</p>"
+ },
+ {
+  "name": "Упряжные кони",
+  "en": "Carriage Horses",
+  "requires": [
+   {
+    "key": "animalism",
+    "level": 2
+   },
+   {
+    "key": "fortitude",
+    "level": 3
+   }
+  ],
+  "requiresText": "Анимализм 2, Стойкость 3",
+  "xp": 15,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Анимализм 2, Стойкость 3 · опыт 15.</em></p><p>Рефлекторно сразу после поглощения урона, если в поле зрения есть его <strong>животные‑гули</strong>: <strong>1 кровь</strong>, <strong>Выносливость + Обращение с животными</strong> (сл. 8) — каждый успех переносит <strong>1 уровень</strong> урона любого типа на животное.</p>",
+  "roll": {
+   "trait1": "attributes.stamina",
+   "trait2": "abilities.animalKen",
+   "blood": 1
+  }
+ },
+ {
+  "name": "Вечерняя крепость",
+  "en": "Eventide Strength",
+  "requires": [
+   {
+    "key": "chimerstry",
+    "level": 3
+   },
+   {
+    "key": "fortitude",
+    "level": 1
+   }
+  ],
+  "requiresText": "Фантасмагория 3, Стойкость 1",
+  "xp": 12,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Фантасмагория 3, Стойкость 1 · опыт 12.</em></p><p>Его иллюзии выдерживают <strong>час солнечного света</strong>.</p>"
+ },
+ {
+  "name": "Желание сердца",
+  "en": "Heart's Desire",
+  "requires": [
+   {
+    "key": "auspex",
+    "level": 4
+   },
+   {
+    "key": "chimerstry",
+    "level": 2
+   }
+  ],
+  "requiresText": "Ясновидение 4, Фантасмагория 2",
+  "xp": 18,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Ясновидение 4, Фантасмагория 2 · опыт 18.</em></p><p>Коснувшись цели за последние 3 хода — <strong>1 кровь + 1 Воля</strong>, <strong>Интеллект + Хитрость</strong> (сл. — текущая Воля), нужно <strong>3 успеха</strong>: в руке возникает иллюзорный предмет (как Фата‑моргана) — <strong>заветное желание</strong> цели (письмо, пачка денег, корона Принца); Равнос интуитивно понимает его смысл (но не «почему»). Обычно используют втайне.</p>",
+  "roll": {
+   "trait1": "attributes.intelligence",
+   "trait2": "abilities.subterfuge",
+   "blood": 1
+  }
+ },
+ {
+  "name": "Сочувственная агония",
+  "en": "Sympathetic Agony",
+  "requires": [
+   {
+    "key": "chimerstry",
+    "level": 2
+   },
+   {
+    "key": "fortitude",
+    "level": 4
+   }
+  ],
+  "requiresText": "Фантасмагория 2, Стойкость 4",
+  "xp": 18,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Фантасмагория 2, Стойкость 4 · опыт 18.</em></p><p>Оружие касты кшатриев: <strong>Манипуляция + Запугивание</strong> (сл. — Восприятие + Самоконтроль цели). До конца сцены каждый раз, ударяя его, цель чувствует эту боль: <strong>−[успехи]</strong> ко всем физическим действиям на <strong>3 хода</strong>. Несколько применений не складываются (берётся наибольшее).</p>",
+  "roll": {
+   "trait1": "attributes.manipulation",
+   "trait2": "abilities.intimidation"
+  }
+ },
+ {
+  "name": "Сон наяву",
+  "en": "Waking Dream",
+  "requires": [
+   {
+    "key": "chimerstry",
+    "level": 1
+   },
+   {
+    "key": "fortitude",
+    "level": 1
+   }
+  ],
+  "requiresText": "Фантасмагория 1, Стойкость 1",
+  "xp": 6,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Фантасмагория 1, Стойкость 1 · опыт 6.</em></p><p><strong>Раз за встречу</strong> использовать простую иллюзию <strong>как реальную</strong> на 1 ход (залезть по канату, упасть на батут, открыть дверь иллюзорным ключом). Нельзя напрямую вредить или помогать другим.</p>"
+ },
+ {
+  "name": "Блаженство",
+  "en": "Bliss",
+  "requires": [
+   {
+    "key": "dominate",
+    "level": 2
+   },
+   {
+    "key": "presence",
+    "level": 3
+   }
+  ],
+  "requiresText": "Доминирование 2, Величие 3",
+  "xp": 15,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Доминирование 2, Величие 3 · опыт 15.</em></p><p>Сознательно войти в транс от произведения искусства (на всё его время — пока длится песня, танец, пока картина не закрыта). В течение сцены после — <strong>Интеллект + Эмпатия</strong>, сложность <strong>2 × текущее значение</strong> добродетели: успех — <strong>+1</strong> к Самоконтролю, Совести <strong>или</strong> Смелости (до 5) до конца ночи; одна добродетель за раз; произведение должно подходить (батальное полотно — Смелость, не Самоконтроль; на других Путях — с учётом мировоззрения). <strong>На другого:</strong> <strong>Смекалка + Выражение</strong>, сложность <strong>+1</strong>; цель должна сотрудничать (медитация, часто над созданной для этого работой). <strong>Провал</strong> любого броска — <strong>−1 Воля</strong>.</p>",
+  "roll": {
+   "trait1": "attributes.intelligence",
+   "trait2": "abilities.empathy",
+   "difficulty": 2
+  }
+ },
+ {
+  "name": "Метка Дьявола",
+  "en": "Devil's Mark",
+  "requires": [
+   {
+    "key": "presence",
+    "level": 1
+   },
+   {
+    "key": "vicissitude",
+    "level": 2
+   }
+  ],
+  "requiresText": "Величие 1, Преображение 2",
+  "xp": 9,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Величие 1, Преображение 2 · опыт 9.</em></p><p>Тореадор‑антитрибу вкладывают силы <strong>Величия</strong> в тату и пирсинг (перед рейдами стаи — шумные ритуалы; кровь художника в чернилах). Продолжительная <strong>Ловкость + Выражение</strong> (сл. 7) раз в час, нужно <strong>2 × уровень</strong> силы Величия (Благоговение — 2, Устрашающий взор — 4, Преклонение — 10). <strong>1 кровь + 1 кровь за каждый «заряд»</strong>. Носитель может применять силу (модификация должна быть <strong>видна</strong> цели). У вампира тату заживает, когда заряды кончились; у смертного остаётся, но без силы. Вампир может за <strong>постоянную 1 Волю</strong> сделать её «постоянной» — фактически знает эту силу (пока не срежут или не изменят Преображением). Художник должен знать силу; не выше 5 уровня; обезболивать процедуру нельзя.</p>",
+  "roll": {
+   "blood": 1
+  }
+ },
+ {
+  "name": "Двойная речь",
+  "en": "Doubletalk",
+  "requires": [
+   {
+    "key": "auspex",
+    "level": 2
+   },
+   {
+    "key": "celerity",
+    "level": 1
+   },
+   {
+    "key": "obfuscate",
+    "level": 1
+   }
+  ],
+  "requiresText": "Ясновидение 2, Стремительность 1, Сокрытие 1",
+  "xp": 12,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Ясновидение 2, Стремительность 1, Сокрытие 1 · опыт 12.</em></p><p>Спрятать целую фразу «между строк» обычной речи. <strong>Интеллект + Выражение</strong> (сл. 6): успех — вставил; неудача — непонятно; провал — сказал вслух. Слушатель — <strong>Восприятие + Хитрость</strong> (сл. 6; по телефону и в шуме сложнее, в текстовых сообщениях невозможно): неудача — ничего не услышал, провал — понял совсем не то.</p>",
+  "roll": {
+   "trait1": "attributes.perception",
+   "trait2": "abilities.subterfuge"
+  }
+ },
+ {
+  "name": "Неотступное соблазнение",
+  "en": "Haunting Seduction",
+  "requires": [
+   {
+    "key": "dementation",
+    "level": 2
+   },
+   {
+    "key": "presence",
+    "level": 1
+   }
+  ],
+  "requiresText": "Помешательство 2, Величие 1",
+  "xp": 9,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Помешательство 2, Величие 1 · опыт 9.</em></p><p>Как Наваждение, но наваждения — сводящая с ума соблазнительная одержимость вампиром (касание его руки, шёпот за спиной), в основном ночью и в одиночестве. После разговора — <strong>1 кровь</strong>, <strong>Манипуляция + Хитрость</strong> (сл. — Восприятие + Самоконтроль/Инстинкты): 1 — ночь; 2 — 2 ночи; 3 — неделя; 4 — месяц; 5 — 3 месяца; 6+ — год. Влияет на следующие встречи.</p>",
+  "roll": {
+   "trait1": "attributes.manipulation",
+   "trait2": "abilities.subterfuge",
+   "blood": 1
+  }
+ },
+ {
+  "name": "Язык‑скальпель",
+  "en": "Scalpel Tongue",
+  "requires": [
+   {
+    "key": "presence",
+    "level": 1
+   },
+   {
+    "key": "celerity",
+    "level": 1
+   }
+  ],
+  "requiresText": "Величие 1, Стремительность 1",
+  "xp": 6,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Величие 1, Стремительность 1 · опыт 6.</em></p><p>Мгновенная колкость, затыкающая цель: <strong>Смекалка + Эмпатия</strong> (сл. 7; +1, если плохо знает цель) — <strong>1 ход молчания за успех</strong> (вдвое дольше, если цель не Тореадор); снимается <strong>1 Волей</strong>. Если другой Тореадор поймёт, что для остроты понадобилась Дисциплина (например, провал) — <strong>+1</strong> к сложности социальных проверок с Тореадор до конца ночи.</p>",
+  "roll": {
+   "trait1": "attributes.wits",
+   "trait2": "abilities.empathy"
+  }
+ },
+ {
+  "name": "Портрет души",
+  "en": "Soul Painting",
+  "requires": [
+   {
+    "key": "auspex",
+    "level": 4
+   },
+   {
+    "key": "presence",
+    "level": 2
+   }
+  ],
+  "requiresText": "Ясновидение 4, Величие 2",
+  "xp": 18,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Ясновидение 4, Величие 2 · опыт 18.</em></p><p>Искусство Катерины из Монпелье (вернулась из торпора, учит избранных; адаптируют и к музыке, актёрству). Час непрерывно изучать субъекта (часто — по памяти), затем творческий транс <strong>10–12 часов</strong> за раз (сложное — дольше; портрет Монкады — более 1000 часов). <strong>Манипуляция + Эмпатия</strong> (сл. 6): 1 успех — в работе видна <strong>Натура</strong>; каждый следующий — ещё одно из: примерная Человечность/Путь, Воля, Самоконтроль, Совесть, Убеждённость, Инстинкты, Смелость. Солгать так нельзя. Владеющий силой «читает» всё сразу; другим может понадобиться Восприятие + Бдительность/Эмпатия/Ремесло (низкая сложность). Мастерство художника сила не даёт.</p>",
+  "roll": {
+   "trait1": "attributes.manipulation",
+   "trait2": "abilities.empathy"
+  }
+ },
+ {
+  "name": "Под кожу",
+  "en": "Under the Skin",
+  "requires": [
+   {
+    "key": "auspex",
+    "level": 3
+   },
+   {
+    "key": "presence",
+    "level": 3
+   }
+  ],
+  "requiresText": "Ясновидение 3, Величие 3",
+  "xp": 18,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Ясновидение 3, Величие 3 · опыт 18.</em></p><p>2–5 ходов общения, затем <strong>Смекалка + Восприятие</strong> (сл. 6) — разбор личности и удар по самооценке: <strong>1–2</strong> — онемел от стыда и ярости, дуется до конца сцены (<strong>−1d10</strong> социальные); <strong>3–4</strong> — в ярости уходит (<strong>−2d10</strong> социальные); <strong>5</strong> — бросается на Тореадор или на себя в припадке самоненависти (<strong>+1</strong> к сложности против ярости); <strong>6+</strong> — <strong>ярость</strong> (<strong>+3</strong> к сопротивлению). Цель может за <strong>1 Волю</strong> снизить эффект на одну ступень.</p>",
+  "roll": {
+   "trait1": "attributes.wits",
+   "trait2": "attributes.perception"
+  }
+ },
+ {
+  "name": "Зрение крови",
+  "en": "Blood Sight",
+  "requires": [
+   {
+    "key": "auspex",
+    "level": 2
+   },
+   {
+    "key": "thaumaturgy",
+    "level": 1
+   }
+  ],
+  "requiresText": "Ясновидение 2, Тауматургия (Путь Крови) 1",
+  "xp": 9,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Ясновидение 2, Тауматургия (Путь Крови) 1 · опыт 9.</em></p><p>Коснувшись образца крови — <strong>Восприятие + Медицина</strong> (сл. 6): 1 успех — человек, животное или сверхъестественное; 2 — какое существо (вампир, Люпин, маг…); 5 — относительная сила (поколение, возможно клан; сила оборотня). И ещё <strong>1 час за успех</strong> узнает владельца крови, коснувшись его.</p>",
+  "roll": {
+   "trait1": "attributes.perception",
+   "trait2": "abilities.medicine"
+  }
+ },
+ {
+  "name": "Цепь рабства",
+  "en": "Chain of Slavery",
+  "requires": [
+   {
+    "key": "auspex",
+    "level": 2
+   },
+   {
+    "key": "dominate",
+    "level": 2
+   }
+  ],
+  "requiresText": "Ясновидение 2, Доминирование 2",
+  "xp": 12,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Ясновидение 2, Доминирование 2 · опыт 12.</em></p><p>Глядя в глаза — под Доминированием ли цель и кто хозяин: <strong>Восприятие + Эмпатия</strong> (сл. — Воля хозяина): 1 успех — лишь пол; 3 — размытый, но узнаваемый образ; 5 — чёткий. Не под Доминированием или провал — образа нет (неразличимо).</p>",
+  "roll": {
+   "trait1": "attributes.perception",
+   "trait2": "abilities.empathy"
+  }
+ },
+ {
+  "name": "Похищение воли",
+  "en": "Theft of Will",
+  "requires": [
+   {
+    "key": "dominate",
+    "level": 3
+   },
+   {
+    "key": "thaumaturgy",
+    "level": 4
+   }
+  ],
+  "requiresText": "Доминирование 3, Тауматургия (любой путь) 4",
+  "xp": 21,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Доминирование 3, Тауматургия (любой путь) 4 · опыт 21.</em></p><p>Перехватить управление магическим эффектом рядом (печать, чары) — стать его «заклинателем» (длительность и сила прежние). Нужно знать, что эффект есть (например, Тауматургическим зрением); ритуал должен быть <strong>на уровень ниже</strong> Тауматургии перехватчика. <strong>1 Воля</strong>, <strong>Выносливость + Оккультизм</strong> (сл. — полная Воля автора). Только Тауматургия (Некромантия и прочее — по решению рассказчика). Бывают проклятые чары‑ловушки на перехватчиков.</p>",
+  "roll": {
+   "trait1": "attributes.stamina",
+   "trait2": "abilities.occult"
+  }
+ },
+ {
+  "name": "Тауматургическое зрение",
+  "en": "Thaumaturgical Sight",
+  "requires": [
+   {
+    "key": "auspex",
+    "level": 2
+   },
+   {
+    "key": "thaumaturgy",
+    "level": 1
+   }
+  ],
+  "requiresText": "Ясновидение 2, Тауматургия (любой путь) 1",
+  "xp": 6,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Ясновидение 2, Тауматургия (любой путь) 1 · опыт 6.</em></p><p>Видеть магические ауры (алый ореол; у другой кровавой магии — иные цвета; сильнее — ярче). Как Чтение ауры: <strong>Восприятие + Оккультизм</strong> (сл. 8): 1 — магия есть; 3 — распознать ритуал или путь, <strong>если знает его</strong>; 5 — распознать любой эффект Тауматургии; непосильное — хотя бы общее назначение. Чтение ауры той же цели — отдельным действием.</p>",
+  "roll": {
+   "trait1": "attributes.perception",
+   "trait2": "abilities.occult"
+  }
+ },
+ {
+  "name": "Рождение вождя",
+  "en": "Birth the Vozhd",
+  "requires": [
+   {
+    "key": "animalism",
+    "level": 6
+   },
+   {
+    "key": "vicissitude",
+    "level": 6
+   }
+  ],
+  "requiresText": "Анимализм 6, Преображение 6",
+  "xp": 36,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Анимализм 6, Преображение 6 · опыт 36.</em></p><p>Нужно <strong>15+ гулей</strong> (лучше 20+). Сплавить их тела в одно, напоить смесью их крови (подобие Винкулума), Анимализмом слить их разумы в одного безумного Зверя. <strong>Интеллект + Медицина</strong> (сл. 9): 1 успех — около года работы, 5 — около месяца. Дальнейшие изменения Преображением — <strong>+2</strong> к сложности. Провал — мёртвая туша или неуправляемый вождь в ярости. Все проверки Анимализма на вождя — <strong>+3</strong> к сложности.</p>",
+  "roll": {
+   "trait1": "attributes.intelligence",
+   "trait2": "abilities.medicine"
+  }
+ },
+ {
+  "name": "Арсенал тела",
+  "en": "Body Armory",
+  "requires": [
+   {
+    "key": "protean",
+    "level": 3
+   },
+   {
+    "key": "vicissitude",
+    "level": 3
+   }
+  ],
+  "requiresText": "Метаморфозы 3, Преображение 3",
+  "xp": 18,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Метаморфозы 3, Преображение 3 · опыт 18.</em></p><p>Выращивает из тела оружие: клинки, топоры, шипастые булавы, руки‑мечи, кастеты‑лезвия. <strong>2 крови</strong> за оружие (двуручное — <strong>4</strong>), <strong>Ловкость + Медицина</strong> (сл. 7), <strong>2 хода</strong> (крупное — 3). Урон <strong>губительный</strong>.</p>",
+  "roll": {
+   "trait1": "attributes.dexterity",
+   "trait2": "abilities.medicine",
+   "blood": 2
+  }
+ },
+ {
+  "name": "Сковать Зверя",
+  "en": "Chaining the Beast",
+  "requires": [
+   {
+    "key": "animalism",
+    "level": 3
+   },
+   {
+    "key": "dominate",
+    "level": 1
+   }
+  ],
+  "requiresText": "Анимализм 3, Доминирование 1",
+  "xp": 16,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Анимализм 3, Доминирование 1 · опыт 16.</em></p><p>Применять <strong>Доминирование</strong> на вампира в <strong>ярости</strong> или <strong>Рётшреке</strong> без обычных штрафов (основная книга, с. 297).</p>"
+ },
+ {
+  "name": "Уши летучей мыши",
+  "en": "Ears of the Bat",
+  "requires": [
+   {
+    "key": "auspex",
+    "level": 1
+   },
+   {
+    "key": "vicissitude",
+    "level": 1
+   }
+  ],
+  "requiresText": "Ясновидение 1, Преображение 1",
+  "xp": 6,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Ясновидение 1, Преображение 1 · опыт 6.</em></p><p>Длинные острые уши и <strong>эхолокация</strong>: «видит» в полной темноте на 360°, без слепых зон. <strong>1 кровь</strong>, <strong>Интеллект + Медицина</strong> (сл. 7). Пока уши есть — <strong>−3</strong> к сложности проверок слуха и <strong>+1</strong> к сложности социальных проверок со смертными, если не прятать уши.</p>",
+  "roll": {
+   "trait1": "attributes.intelligence",
+   "trait2": "abilities.medicine",
+   "note": "сложность: проверок слуха и  +1  к сложности социал",
+   "blood": 1
+  }
+ },
+ {
+  "name": "Свежующее касание",
+  "en": "Flaying Touch",
+  "requires": [
+   {
+    "key": "potence",
+    "level": 2
+   },
+   {
+    "key": "vicissitude",
+    "level": 2
+   }
+  ],
+  "requiresText": "Мощь 2, Преображение 2",
+  "xp": 12,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Мощь 2, Преображение 2 · опыт 12.</em></p><p>Снимает кожу, как халат, не задевая мышц. Бросок — как у <strong>Работы с плотью</strong>, сложность <strong>+1</strong> (макс. 9). Держать жертву не надо: если попал по открытой коже (<strong>Ловкость + Драка</strong>), активация <strong>рефлекторная</strong>. Каждый успех — <strong>1 летальный уровень</strong> (поглощение — сл. 8). Урон больше Выносливости — жертва до конца хода только корчится. <strong>Смертные</strong> кровоточат: урон, равный исходному, <strong>ударным уровнями каждую минуту</strong>. Если часть исходного урона вылечена или рана перевязана (<strong>Ловкость + Медицина</strong>, сл. 9) — 1 уровень в час; кровь останавливается только после полного заживления. Позже — заражение.</p>",
+  "roll": {
+   "trait1": "attributes.dexterity",
+   "trait2": "abilities.brawl"
+  }
+ },
+ {
+  "name": "Украшение души",
+  "en": "Soul Decoration",
+  "requires": [
+   {
+    "key": "auspex",
+    "level": 2
+   },
+   {
+    "key": "obfuscate",
+    "level": 3
+   }
+  ],
+  "requiresText": "Ясновидение 2, Сокрытие 3",
+  "xp": 21,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Ясновидение 2, Сокрытие 3 · опыт 21.</em></p><p>Перекрашивает ауру воздействием на тело (иглы, зажимы, электрошок по чакрам, суставам, эрогенным зонам). Минимум <strong>10 минут</strong> непрерывной работы, <strong>3 Воли</strong>, <strong>Восприятие + Эмпатия</strong> (сл. — текущая Воля субъекта). Успехи: <strong>1</strong> — основной цвет; <strong>2</strong> — дополнительный цвет; <strong>3</strong> — психическое состояние (ярость, психоз…); <strong>4</strong> — скрыть или подделать диаблери и применение магии; <strong>5</strong> — скрыть или подделать природу (вампир, оборотень, призрак…). Действует <strong>1 ночь за успех</strong>; аура не меняется вслед за состоянием. Меняется только аура — но субъект может испытывать слабые соответствующие эмоции.</p>",
+  "roll": {
+   "trait1": "attributes.perception",
+   "trait2": "abilities.empathy"
+  }
+ },
+ {
+  "name": "Ложный глоток",
+  "en": "The False Drink",
+  "requires": [
+   {
+    "key": "auspex",
+    "level": 1
+   },
+   {
+    "key": "vicissitude",
+    "level": 5
+   }
+  ],
+  "requiresText": "Ясновидение 1, Преображение 5",
+  "xp": 18,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Ясновидение 1, Преображение 5 · опыт 18.</em></p><p>Отводит выпитую кровь в отдельную полость, не усваивая её, — избегает уз крови или Винкулума, потом выплёвывает. При питье — <strong>Интеллект + Медицина</strong> (сл. 8). Неудача — кровь усвоена как обычно. Провал — его рвёт этой кровью вместе с <strong>половиной</strong> собственного запаса.</p>",
+  "roll": {
+   "trait1": "attributes.intelligence",
+   "trait2": "abilities.medicine"
+  }
+ },
+ {
+  "name": "Лепка ран",
+  "en": "Wound Sculpting",
+  "requires": [
+   {
+    "key": "fortitude",
+    "level": 3
+   },
+   {
+    "key": "vicissitude",
+    "level": 2
+   }
+  ],
+  "requiresText": "Стойкость 3, Преображение 2",
+  "xp": 15,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Стойкость 3, Преображение 2 · опыт 15.</em></p><p>Ускоренное заживление волевой лепкой: <strong>1 кровь</strong>, <strong>Смекалка + Медицина</strong> (сл. 8). Каждый успех лечит <strong>1 уровень</strong> летального или ударного урона; <strong>1 минута</strong> непрерывной работы на уровень.</p>",
+  "roll": {
+   "trait1": "attributes.wits",
+   "trait2": "abilities.medicine",
+   "blood": 1
+  }
+ },
+ {
+  "name": "Приказ издалека",
+  "en": "Command from Afar",
+  "requires": [
+   {
+    "key": "auspex",
+    "level": 4
+   },
+   {
+    "key": "presence",
+    "level": 4
+   }
+  ],
+  "requiresText": "Ясновидение 4, Величие 4",
+  "xp": 24,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Ясновидение 4, Величие 4 · опыт 24.</em></p><p><strong>1 Воля</strong>, <strong>Обаяние + Выражение</strong>: за каждый успех — <strong>до 5 слов</strong> мысленно одному гулю, связанному узами вампиру или члену стаи с Винкулумом, на <strong>любом расстоянии</strong>, если у обоих ночь. Цель знает, от кого сообщение; подчиняться обязана не больше, чем требуют узы или Винкулум.</p>"
+ },
+ {
+  "name": "Отказ в поцелуе Афродиты",
+  "en": "Denial of Aphrodite's Kiss",
+  "requires": [
+   {
+    "key": "dominate",
+    "level": 3
+   },
+   {
+    "key": "presence",
+    "level": 3
+   }
+  ],
+  "requiresText": "Доминирование 3, Величие 3",
+  "xp": 18,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Доминирование 3, Величие 3 · опыт 18.</em></p><p>Постоянно: <strong>Величие 1–3</strong> вампира <strong>более высокого</strong> (слабого) поколения на него не действует — как иммунитет к Доминированию.</p>"
+ },
+ {
+  "name": "Божественная аура",
+  "en": "Divine Aura",
+  "requires": [
+   {
+    "key": "auspex",
+    "level": 2
+   },
+   {
+    "key": "presence",
+    "level": 3
+   }
+  ],
+  "requiresText": "Ясновидение 2, Величие 3",
+  "xp": 15,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Ясновидение 2, Величие 3 · опыт 15.</em></p><p><strong>1 кровь</strong> на ночь: если кто‑то из Сородичей изучает его ауру — может рефлекторно применить к нему <strong>Преклонение</strong> (бросок как обычно; не нужно сосредотачиваться и даже знать о попытке). Популярна у антитрибу.</p>",
+  "roll": {
+   "blood": 1
+  }
+ },
+ {
+  "name": "Безупречные манеры",
+  "en": "Impeccable Manners",
+  "requires": [
+   {
+    "key": "auspex",
+    "level": 2
+   },
+   {
+    "key": "presence",
+    "level": 1
+   }
+  ],
+  "requiresText": "Ясновидение 2, Величие 1",
+  "xp": 9,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Ясновидение 2, Величие 1 · опыт 9.</em></p><p>В общении — <strong>Восприятие + Этикет</strong> (сл. 6 смертный / 8 сверхъестественный): каждый успех — <strong>−1</strong> к сложности обычных проверок Этикета и Убеждения против этой цели до конца сцены. На броски Дисциплин не влияет.</p>",
+  "roll": {
+   "trait1": "attributes.perception",
+   "trait2": "abilities.etiquette",
+   "note": "сложность: обычных проверок Этикета и Убеждения про"
+  }
+ },
+ {
+  "name": "Спасательный маяк",
+  "en": "Rescue Beacon",
+  "requires": [
+   {
+    "key": "fortitude",
+    "level": 1
+   },
+   {
+    "key": "presence",
+    "level": 4
+   }
+  ],
+  "requiresText": "Стойкость 1, Величие 4",
+  "xp": 15,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Стойкость 1, Величие 4 · опыт 15.</em></p><p>Автоматически при <strong>торпоре</strong> или <strong>коле</strong>: <strong>1 кровь</strong> (исключение из правила «пронзённый не тратит кровь»), <strong>Обаяние + Хитрость</strong> (сл. 4) — <strong>Призыв</strong> ближайшего, кто пробовал его кровь (гули, связанные узами, стая с Винкулумом). Дальше — как Призыв (с. 195–196).</p>",
+  "roll": {
+   "trait1": "attributes.charisma",
+   "trait2": "abilities.subterfuge",
+   "blood": 1
+  }
+ },
+ {
+  "name": "Ответный ужас",
+  "en": "Retaliatory Terror",
+  "requires": [
+   {
+    "key": "fortitude",
+    "level": 1
+   },
+   {
+    "key": "presence",
+    "level": 2
+   }
+  ],
+  "requiresText": "Стойкость 1, Величие 2",
+  "xp": 9,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Стойкость 1, Величие 2 · опыт 9.</em></p><p>Получив урон от <strong>Драки</strong> или <strong>Холодного оружия</strong> — <strong>1 кровь</strong>, рефлекторно <strong>Обаяние + Запугивание</strong> (сл. — Смекалка + Смелость атакующего, <strong>минус</strong> нанесённые уровни урона, мин. 4). Успех — эффект <strong>Устрашающего взора</strong> на атакующего. Против удачного удара колом не работает (кровь уже не потратить).</p>",
+  "roll": {
+   "trait1": "attributes.charisma",
+   "trait2": "abilities.intimidation",
+   "blood": 1
+  }
+ },
+ {
+  "name": "Телепатический приказ",
+  "en": "Telepathic Command",
+  "requires": [
+   {
+    "key": "auspex",
+    "level": 4
+   },
+   {
+    "key": "dominate",
+    "level": 1
+   }
+  ],
+  "requiresText": "Ясновидение 4, Доминирование 1",
+  "xp": 15,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Ясновидение 4, Доминирование 1 · опыт 15.</em></p><p>При зрительном контакте отдать <strong>Команду</strong> телепатически — окружающие не слышат. На вампиров <strong>более низкого</strong> (сильного) поколения не действует.</p>"
+ },
+ {
+  "name": "Приют бродяги",
+  "en": "Bagman's Shelter",
+  "requires": [
+   {
+    "key": "obtenebration",
+    "level": 2
+   },
+   {
+    "key": "fortitude",
+    "level": 3
+   }
+  ],
+  "requiresText": "Затмение 2, Стойкость 3",
+  "xp": 15,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Затмение 2, Стойкость 3 · опыт 15.</em></p><p>Перед дневным сном — <strong>1 кровь + 1 Воля</strong>: тени сгущаются и укрепляют хлипкое укрытие от солнца; проникший свет не отражается. Пока нет <strong>прямого</strong> света, можно спать в маленьком пространстве (кабина грузовика под одеялом, лестница в подвал под мусором). Не работает, если каитиф бодрствует.</p>",
+  "roll": {
+   "blood": 1
+  }
+ },
+ {
+  "name": "Ниже презрения",
+  "en": "Beneath Contempt",
+  "requires": [
+   {
+    "key": "obfuscate",
+    "level": 2
+   },
+   {
+    "key": "presence",
+    "level": 3
+   }
+  ],
+  "requiresText": "Сокрытие 2, Величие 3",
+  "xp": 15,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Сокрытие 2, Величие 3 · опыт 15.</em></p><p><strong>1 Воля</strong>, на сцену: каждый, кто видит в нём угрозу, бросает <strong>Волю</strong> (сл. — Человечность каитифа; <strong>4</strong>, если он на Пути Просветления). Неудача — считает его недостойным враждебности. Невидимым и забытым не становится; побеждённого и молящего о пощаде могут взять в плен.</p>"
+ },
+ {
+  "name": "Хозяин городка",
+  "en": "Mover and Shaker",
+  "requires": [
+   {
+    "key": "auspex",
+    "level": 2
+   },
+   {
+    "key": "presence",
+    "level": 3
+   }
+  ],
+  "requiresText": "Ясновидение 2, Величие 3",
+  "xp": 15,
+  "source": "V20 Lore of the Clans",
+  "html": "<p><em>Источник: V20 Lore of the Clans. Комбинированная Дисциплина: Ясновидение 2, Величие 3 · опыт 15.</em></p><p>Нужно лично узнать жителей городка, которых хочет охватить. <strong>1 Воля</strong> за каждую ночь общения — незаметное, стойкое доверие и общее доброжелательство (не контроль). Кто задаёт подозрительные вопросы или обвиняет его — <strong>+2</strong> к сложности всех социальных проверок, касающихся каитифа, на столько <strong>недель</strong>, сколько потрачено Воли. Оборотни и прочие сверхъестественные найдут свои способы.</p>"
+ },
+ {
+  "name": "Повелевать роем",
+  "en": "Command the Swarm",
+  "requires": [
+   {
+    "key": "daimoinon",
+    "level": 2
+   },
+   {
+    "key": "animalism",
+    "level": 1
+   }
+  ],
+  "requiresText": "Демонион 2, Анимализм 1",
+  "xp": 9,
+  "source": "V20 Lore of the Bloodlines",
+  "html": "<p><em>Источник: V20 Lore of the Bloodlines. Комбинированная Дисциплина: Демонион 2, Анимализм 1 · опыт 9.</em></p><ul><li>Говорит с паразитами и насекомыми из своего роя, как <strong>Шёпотом зверя</strong>, но <strong>без зрительного контакта</strong>.</li><li><strong>1 кровь:</strong> зачаровать одно существо или весь рой и отправить его в любую точку в пределах дальности. Дальность зависит от поколения:</li></ul>\n<table><thead><tr><th>Поколение</th><th>13</th><th>12</th><th>11</th><th>10</th><th>9</th><th>8</th></tr></thead><tbody><tr><td>Дальность</td><td>1,5 км</td><td>3 км</td><td>8 км</td><td>15 км</td><td>30 км</td><td>75 км</td></tr></tbody></table>\n<ul><li>Рой — продолжение Баали: видит, слышит и действует через его чувства.</li><li><strong>+1 кровь:</strong> применить через рой силу <strong>Демониона</strong> (так проклинают тех, кого больше не встретят).</li></ul>",
+  "roll": {
+   "blood": 1
+  }
+ },
+ {
+  "name": "Знаменитость",
+  "en": "Celebrity",
+  "requires": [
+   {
+    "key": "obfuscate",
+    "level": 3
+   },
+   {
+    "key": "presence",
+    "level": 2
+   }
+  ],
+  "requiresText": "Сокрытие 3, Величие 2",
+  "xp": 15,
+  "source": "V20 Lore of the Bloodlines",
+  "html": "<p><em>Источник: V20 Lore of the Bloodlines. Комбинированная Дисциплина: Сокрытие 3, Величие 2 · опыт 15.</em></p><p>Ослабленная Величественность: окружающие уверены, что она какая‑то знаменитость (видели по ТВ или на билборде, но не помнят где). <strong>Внешность + Величие</strong> (сл. 8): каждый успех — <strong>+1 кубик</strong> к социальным проверкам, где помогает слава (охранник клуба, автографы). По сути даёт все плюсы факта <strong>Известность</strong> с возможностью отключить. Сцена.</p>"
+ },
+ {
+  "name": "Безмолвный голос",
+  "en": "Silent Voice",
+  "requires": [
+   {
+    "key": "melpominee",
+    "level": 3
+   },
+   {
+    "key": "obfuscate",
+    "level": 3
+   }
+  ],
+  "requiresText": "Мельпомения 3, Сокрытие 3",
+  "xp": 18,
+  "source": "V20 Lore of the Bloodlines",
+  "html": "<p><em>Источник: V20 Lore of the Bloodlines. Комбинированная Дисциплина: Мельпомения 3, Сокрытие 3 · опыт 18.</em></p><p>Голос поднят до неслышимой частоты — звуковые силы действуют <strong>беззвучно</strong>. Обычно <strong>без броска</strong>. Владеющие Ясновидением могут попробовать заметить: <strong>Восприятие + Бдительность + Ясновидение</strong> (сл. 8) — но за каждые <strong>2 успеха</strong> получают <strong>1 ударный уровень</strong> (ушам больно).</p>",
+  "roll": {
+   "trait1": "attributes.perception",
+   "trait2": "abilities.alertness"
+  }
+ },
+ {
+  "name": "Отключиться",
+  "en": "Tune Out",
+  "requires": [
+   {
+    "key": "auspex",
+    "level": 2
+   },
+   {
+    "key": "melpominee",
+    "level": 2
+   }
+  ],
+  "requiresText": "Ясновидение 2, Мельпомения 2",
+  "xp": 12,
+  "source": "V20 Lore of the Bloodlines",
+  "html": "<p><em>Источник: V20 Lore of the Bloodlines. Комбинированная Дисциплина: Ясновидение 2, Мельпомения 2 · опыт 12.</em></p><p>По желанию слышит <strong>только выбранные звуки</strong> (разговор в шумном клубе) и игнорирует звуковые атаки, сигнализацию, белый шум — без штрафов. Но всё остальное не слышит: добавить новый звук можно, только если <strong>знает</strong> о нём (видит подошедшего собеседника), а голос за спиной или новую тревогу не услышит.</p>"
+ },
+ {
+  "name": "Плечи Атланта",
+  "en": "The Shoulders of Atlas",
+  "requires": [
+   {
+    "key": "flight",
+    "level": 2
+   },
+   {
+    "key": "potence",
+    "level": 2
+   }
+  ],
+  "requiresText": "Полёт 2, Мощь 2",
+  "xp": 12,
+  "source": "V20 Lore of the Bloodlines",
+  "html": "<p><em>Источник: V20 Lore of the Bloodlines. Комбинированная Дисциплина: Полёт 2, Мощь 2 · опыт 12.</em></p><p>Для <strong>грузоподъёмности</strong> в полёте (с. 448) точки Мощи считаются точками Полёта. Пример: Полёт 2, Мощь 2 — взлетает с 25 кг, а несёт в полёте до 45 кг. Скорость — по Полёту.</p>"
+ },
+ {
+  "name": "Соколиное пике",
+  "en": "Falconer's Dive",
+  "requires": [
+   {
+    "key": "flight",
+    "level": 1
+   },
+   {
+    "key": "visceratika",
+    "level": 4
+   }
+  ],
+  "requiresText": "Полёт 1, Висцератика 4",
+  "xp": 15,
+  "source": "V20 Lore of the Bloodlines",
+  "html": "<p><em>Источник: V20 Lore of the Bloodlines. Комбинированная Дисциплина: Полёт 1, Висцератика 4 · опыт 15.</em></p><p>Нужны простор в небе или большая высота (край небоскрёба). <strong>1 Воля</strong>, действие: <strong>Ловкость + Атлетика</strong> (сл. 7). Каждый успех — <strong>−1</strong> к сложности следующей атаки <strong>Драки</strong> или <strong>Холодного оружия</strong> по цели внизу (мин. 3). Атаковать нужно следующим же действием, иначе бонус теряется. В помещении — только в огромном (ангар, пещера).</p>",
+  "roll": {
+   "trait1": "attributes.dexterity",
+   "trait2": "abilities.athletics",
+   "note": "сложность: следующей атаки  Драки  или  Холодного о"
+  }
+ },
+ {
+  "name": "Бремя горы",
+  "en": "Carry The Mountain's Burden",
+  "requires": [
+   {
+    "key": "visceratika",
+    "level": 4
+   },
+   {
+    "key": "fortitude",
+    "level": 3
+   }
+  ],
+  "requiresText": "Висцератика 4, Стойкость 3",
+  "xp": 21,
+  "source": "V20 Lore of the Bloodlines",
+  "html": "<p><em>Источник: V20 Lore of the Bloodlines. Комбинированная Дисциплина: Висцератика 4, Стойкость 3 · опыт 21.</em></p><p><strong>1 Воля:</strong> все бонусы и штрафы <strong>Доспеха Терры</strong> (с. 476) <strong>удваиваются</strong> до конца боевой сцены: <strong>+2 кубика</strong> к поглощению губительного и летального урона, <strong>+4</strong> к поглощению ударного, игнорирует <strong>2 уровня</strong> штрафов за раны, огненные пулы урона — до <strong>1/4</strong> (вниз). Проверки Восприятия на ощупь — <strong>+4</strong> к сложности (макс. 9). Любимая сила Стражей.</p>"
+ },
+ {
+  "name": "Я — замковый камень",
+  "en": "I Am The Keystone",
+  "requires": [
+   {
+    "key": "fortitude",
+    "level": 2
+   },
+   {
+    "key": "potence",
+    "level": 2
+   },
+   {
+    "key": "visceratika",
+    "level": 3
+   }
+  ],
+  "requiresText": "Стойкость 2, Мощь 2, Висцератика 3",
+  "xp": 21,
+  "source": "V20 Lore of the Bloodlines",
+  "html": "<p><em>Источник: V20 Lore of the Bloodlines. Комбинированная Дисциплина: Стойкость 2, Мощь 2, Висцератика 3 · опыт 21.</em></p><p><strong>1 Воля:</strong> перераспределить точки между <strong>Стойкостью и Мощью</strong> (в пределах максимума поколения). Держится до <strong>Недееспособности</strong> или рассвета. Ещё <strong>1 Воля</strong> — вернуть или перераспределить заново.</p>"
+ },
+ {
+  "name": "Окровавленные руки",
+  "en": "Bloodied Hands",
+  "requires": [
+   {
+    "key": "necromancy",
+    "level": 1
+   },
+   {
+    "key": "auspex",
+    "level": 2
+   }
+  ],
+  "requiresText": "Некромантия 1, Ясновидение 2",
+  "xp": 9,
+  "source": "V20 Lore of the Bloodlines",
+  "html": "<p><em>Источник: V20 Lore of the Bloodlines. Комбинированная Дисциплина: Некромантия 1, Ясновидение 2 · опыт 9.</em></p><p>Узнать <strong>последнюю разумную жертву</strong> цели (компромат). <strong>Восприятие + Эмпатия</strong> (сл. 7). Видит только некромант, до конца сцены.</p>\n<table><thead><tr><th>Успехи</th><th>Результат</th></tr></thead><tbody><tr><td>1</td><td>Лицо жертвы проступает на месте лица убийцы.</td></tr><tr><td>2</td><td>И тело жертвы — на месте тела убийцы.</td></tr><tr><td>3</td><td>Видна причина смерти.</td></tr><tr><td>4</td><td>Голос жертвы рассказывает о событиях прямо перед смертью.</td></tr><tr><td>5</td><td>Жертва рассказывает о своей жизни, сколько позволит время.</td></tr></tbody></table>",
+  "roll": {
+   "trait1": "attributes.perception",
+   "trait2": "abilities.empathy"
+  }
+ },
+ {
+  "name": "Взгляд Аида",
+  "en": "Leer of Hades",
+  "requires": [
+   {
+    "key": "necromancy",
+    "level": 2
+   },
+   {
+    "key": "serpentis",
+    "level": 1
+   }
+  ],
+  "requiresText": "Некромантия 2, Серпентис 1",
+  "xp": 9,
+  "source": "V20 Lore of the Bloodlines",
+  "html": "<p><em>Источник: V20 Lore of the Bloodlines. Комбинированная Дисциплина: Некромантия 2, Серпентис 1 · опыт 9.</em></p><p>В Древней Греции Вестники («родичи Аида») и Сетиты («дети Тифона») так обеспечивали посмертную службу павших сородичей — в награду или в наказание.</p>\n<ul><li>Не позже чем за <strong>неделю</strong> до Окончательной смерти вампира поймать его <strong>Глазами змеи</strong> (с. 209).</li><li>Если он погибнет в течение недели, следующей ночью воссоздаётся <strong>призраком</strong> рядом с некромантом.</li><li>Служить не обязан — для этого нужны другие силы.</li></ul>"
+ },
+ {
+  "name": "Сутех рождает Анубиса",
+  "en": "Sutekh Fathers Anubis",
+  "requires": [
+   {
+    "key": "necromancy",
+    "level": 4
+   },
+   {
+    "key": "serpentis",
+    "level": 4
+   }
+  ],
+  "requiresText": "Некромантия 4, Серпентис 4",
+  "xp": 24,
+  "source": "V20 Lore of the Bloodlines",
+  "html": "<p><em>Источник: V20 Lore of the Bloodlines. Комбинированная Дисциплина: Некромантия 4, Серпентис 4 · опыт 24.</em></p><p>Создана Лазарем; благодаря ей он победил посланных убить его сородичей. Облик гниющего <strong>шакала</strong> выше 2 м в холке.</p>\n<ul><li><strong>Активация:</strong> <strong>1 кровь + 1 Воля</strong>, <strong>Выносливость + Оккультизм</strong> (сл. 7). Превращение — <strong>2 хода</strong>; одежда и мелкие вещи превращаются вместе с ним. Держится до рассвета или до отмены.</li><li><strong>В облике:</strong> <strong>−2</strong> к сложности восприятия запахом; укус <strong>+2</strong> к урону без захвата; <strong>+2 Ловкость</strong>, <strong>+3 Драка</strong>, <strong>+3 Атлетика</strong>; живучесть <strong>Дара трупа</strong> (с. 169). Все Дисциплины доступны.</li></ul>",
+  "roll": {
+   "trait1": "attributes.stamina",
+   "trait2": "abilities.occult",
+   "note": "сложность: восприятия",
+   "blood": 1
+  }
+ },
+ {
+  "name": "Сноходец",
+  "en": "Dreamstalker",
+  "requires": [
+   {
+    "key": "dominate",
+    "level": 2
+   },
+   {
+    "key": "mytherceria",
+    "level": 1
+   }
+  ],
+  "requiresText": "Доминирование 2, Мистификация 1",
+  "xp": 9,
+  "source": "V20 Lore of the Bloodlines",
+  "html": "<p><em>Источник: V20 Lore of the Bloodlines. Комбинированная Дисциплина: Доминирование 2, Мистификация 1 · опыт 9.</em></p><ul><li><strong>Как:</strong> шепча спящему на ухо, вкладывает сны — от разрозненных образов («орлы и розовые зонтики») до целого сюжета («муж гонится за тобой с топором»).</li><li><strong>Бросок:</strong> <strong>Манипуляция + Выражение</strong> (сл. — текущая Воля жертвы).</li><li><strong>После пробуждения:</strong> продолжительные действия — <strong>+2</strong> к сложности. Либо позитивная реакция на образы сна, либо негативная — чтобы оставаться рядом с увиденным во сне, нужна проверка <strong>Воли</strong>.</li><li><strong>Длительность по успехам:</strong> 1 — ход; 2 — час; 3 — ночь; 4 — неделя; 5+ — месяц.</li></ul>",
+  "roll": {
+   "trait1": "willpower.permanent"
+  }
+ },
+ {
+  "name": "Жертва Кошмару",
+  "en": "Sacrifice to Nightmare",
+  "requires": [
+   {
+    "key": "mytherceria",
+    "level": 4
+   },
+   {
+    "key": "obtenebration",
+    "level": 3
+   }
+  ],
+  "requiresText": "Мистификация 4, Затмение 3",
+  "xp": 21,
+  "source": "V20 Lore of the Bloodlines",
+  "html": "<p><em>Источник: V20 Lore of the Bloodlines. Комбинированная Дисциплина: Мистификация 4, Затмение 3 · опыт 21.</em></p><ul><li><strong>Подготовка:</strong> начертить в тёмной комнате <strong>Оберег Шанжелина</strong> (с. 455; действует как обычно). <strong>2 крови</strong> — призвать осязаемый кошмар из Бездны, выйти и оставить жертву внутри.</li><li><strong>Кошмар:</strong> щупальца и множество пастей. Вне комнаты живёт не дольше <strong>минуты</strong>. Уровни здоровья и сопротивляемость — как у призвавшего: поглощает <strong>Выносливостью + Стойкостью</strong>, урон кошмару призывающему не передаётся.</li><li><strong>Атаки:</strong> <strong>4 независимых щупальца</strong>, каждое душит на <strong>летальный</strong> урон (Сила Киасида <strong>+1</strong>); каждому противостоит Сила жертвы (сл. 6). Пасть по схваченной жертве — <strong>губительный</strong> урон (Сила Киасида <strong>+2</strong>).</li><li>Ходят слухи, что переживших минуту «удостаивают» диаблери — Киасиды это отрицают.</li></ul>",
+  "roll": {
+   "blood": 2
+  }
+ },
+ {
+  "name": "Отделение души",
+  "en": "Soul Separation",
+  "requires": [
+   {
+    "key": "necromancy",
+    "level": 3
+   },
+   {
+    "key": "auspex",
+    "level": 4
+   }
+  ],
+  "requiresText": "Стекловидный путь 3, Ясновидение 4",
+  "xp": 21,
+  "source": "V20 Lore of the Bloodlines",
+  "html": "<p><em>Источник: V20 Lore of the Bloodlines. Комбинированная Дисциплина: Стекловидный путь 3, Ясновидение 4 · опыт 21.</em></p><p>Вытягивает душу жертвы из тела (как насильственная астральная проекция) и пожирает её, словно духа. Жертвы часто остаются с тяжёлой травмой.</p>\n<ul><li><strong>Бросок:</strong> <strong>1 Воля</strong>, <strong>Манипуляция + Эмпатия</strong> (сл. 7) против <strong>Воли</strong> цели (сл. 6). Каждый успех цели гасит один успех Нагараджа; оставшиеся — по таблице.</li></ul>\n<table><thead><tr><th>Успехи</th><th>Эффект</th></tr></thead><tbody><tr><td>0</td><td>Нет эффекта.</td></tr><tr><td>1</td><td>Душу всколыхнуло, но она не вышла: следующая проверка цели — <strong>+2</strong> к сложности.</td></tr><tr><td>2</td><td>Душа выброшена из тела на <strong>2 хода</strong>, привязана: не дальше <strong>3 м</strong> от тела. Так легко схватить сопротивляющуюся жертву и начать питаться — к возвращению души Поцелуй уже действует.</td></tr><tr><td>3</td><td>Душу на миг вырывают, Нагараджа откусывает <strong>3 крови</strong> и возвращает её. Жертва получает урон и <strong>−2</strong> к следующему пулу.</td></tr><tr><td>4</td><td>Душа влетает в его пасть и пожирается целиком: <strong>+6 крови</strong> сразу; тело падает бездыханным.</td></tr><tr><td>5</td><td>Как 4, но <strong>+10 крови</strong>.</td></tr></tbody></table>",
+  "roll": {
+   "trait1": "attributes.manipulation",
+   "trait2": "abilities.empathy"
+  }
+ },
+ {
+  "name": "Невидимый дух",
+  "en": "Unseen Spirit",
+  "requires": [
+   {
+    "key": "necromancy",
+    "level": 2
+   },
+   {
+    "key": "obfuscate",
+    "level": 2
+   }
+  ],
+  "requiresText": "Стекловидный путь 2, Сокрытие 2",
+  "xp": 8,
+  "source": "V20 Lore of the Bloodlines",
+  "html": "<p><em>Источник: V20 Lore of the Bloodlines. Комбинированная Дисциплина: Стекловидный путь 2, Сокрытие 2 · опыт 8.</em></p><ul><li>Невидим не только для живых, но и для <strong>призраков и духов</strong>. Удобно ходить по землям мёртвых и подкрадываться к призракам, чтобы их съесть.</li><li><strong>Бросок:</strong> <strong>Выносливость + Эмпатия</strong> (сл. 6). Как <strong>Незримое присутствие</strong>: невидим, пока не заговорит, не атакует и не привлечёт внимания.</li><li>Каждый успех — <strong>одно</strong> привлекающее внимание действие, которое можно совершить, прежде чем невидимость спадёт.</li><li>Окружение не скрывается: опрокинутая ваза или разбитое окно заметны, но наблюдатель не поймёт, кто это сделал.</li></ul>",
+  "roll": {
+   "trait1": "attributes.stamina",
+   "trait2": "abilities.empathy"
+  }
+ },
+ {
+  "name": "Жизненные соки",
+  "en": "Vital Fluids",
+  "requires": [
+   {
+    "key": "obeah",
+    "level": 3
+   },
+   {
+    "key": "fortitude",
+    "level": 3
+   }
+  ],
+  "requiresText": "Обеа 3, Стойкость 3",
+  "xp": 18,
+  "source": "V20 Lore of the Bloodlines",
+  "html": "<p><em>Источник: V20 Lore of the Bloodlines. Комбинированная Дисциплина: Обеа 3, Стойкость 3 · опыт 18.</em></p><ul><li><strong>Постоянно, бесплатно:</strong> кровь, потраченная на лечение <strong>ударного и летального</strong> урона, возвращается в запас по <strong>1 в час</strong>. На кровь, потраченную на Corpore Sano, это не распространяется.</li><li>Может применять <strong>Corpore Sano</strong> к себе, но только для лечения <strong>губительного</strong> урона.</li></ul>"
+ },
+ {
+  "name": "Подмена в смерти",
+  "en": "Switched At Death",
+  "requires": [
+   {
+    "key": "thanatosis",
+    "level": 1
+   },
+   {
+    "key": "obfuscate",
+    "level": 3
+   }
+  ],
+  "requiresText": "Танатозис 1, Сокрытие 3",
+  "xp": 12,
+  "source": "V20 Lore of the Bloodlines",
+  "html": "<p><em>Источник: V20 Lore of the Bloodlines. Комбинированная Дисциплина: Танатозис 1, Сокрытие 3 · опыт 12.</em></p><p>Выглядеть как <strong>конкретный труп</strong>, к которому прикасался, со всеми повреждениями (огнестрел, отрубленная голова). Если покойник мёртв 100 лет — выглядит скелетом. <strong>Смекалка + Бдительность</strong> (сл. — текущая Воля наблюдателя). Любое действие, неуместное для трупа (заметное движение, разговор), вынуждает наблюдателя пройти <strong>Смелость</strong>, чтобы остаться рядом.</p>",
+  "roll": {
+   "trait1": "attributes.wits",
+   "trait2": "abilities.alertness"
+  }
+ },
+ {
+  "name": "Жуткий гри‑гри",
+  "en": "Grisly Gris-Gris",
+  "requires": [
+   {
+    "key": "fortitude",
+    "level": 2
+   },
+   {
+    "key": "thanatosis",
+    "level": 2
+   }
+  ],
+  "requiresText": "Стойкость 2, Танатозис 2",
+  "xp": 12,
+  "source": "V20 Lore of the Bloodlines",
+  "html": "<p><em>Источник: V20 Lore of the Bloodlines. Комбинированная Дисциплина: Стойкость 2, Танатозис 2 · опыт 12.</em></p><p>Защитный амулет, который нужно <strong>съесть</strong>. <strong>1 кровь</strong>, отломать кусочек тела (волос, ноготь, кожа), цель его проглатывает. При следующем поглощении урона цель получает кубики Стойкости, равные <strong>меньшему</strong> из Стойкости и Танатозиса вампира. Пока амулет внутри, цель теряет <strong>1 Внешность в час</strong>, всё больше похожая на труп. На 0 её рвёт вместе с амулетом. Изрыгнуть его можно в любой момент после срабатывания.</p>",
+  "roll": {
+   "blood": 1
+  }
+ },
+ {
+  "name": "Изысканный труп",
+  "en": "Exquisite Corpse",
+  "requires": [
+   {
+    "key": "fortitude",
+    "level": 3
+   },
+   {
+    "key": "obfuscate",
+    "level": 3
+   }
+  ],
+  "requiresText": "Стойкость 3, Сокрытие 3",
+  "xp": 18,
+  "source": "V20 Lore of the Bloodlines",
+  "html": "<p><em>Источник: V20 Lore of the Bloodlines. Комбинированная Дисциплина: Стойкость 3, Сокрытие 3 · опыт 18.</em></p><p>Урон не меняет внешности: дыры от пули нет, отрубленная конечность обращается в прах, а на её месте появляется иллюзорная. Уровни здоровья и штрафы — как обычно. Атакующий после первой удачной атаки проходит <strong>Волю</strong> (сл. 7). Неудача — ошеломлён неверием, и все его попытки навредить в эту сцену — <strong>+2</strong> к сложности.</p>"
+ },
+ {
+  "name": "Старый друг",
+  "en": "Old Friend",
+  "requires": [
+   {
+    "key": "presence",
+    "level": 4
+   },
+   {
+    "key": "temporis",
+    "level": 4
+   }
+  ],
+  "requiresText": "Величие 4, Темпорис 4",
+  "xp": 24,
+  "source": "V20 Lore of the Bloodlines",
+  "html": "<p><em>Источник: V20 Lore of the Bloodlines. Комбинированная Дисциплина: Величие 4, Темпорис 4 · опыт 24.</em></p><p>Находит альтернативную линию времени, где он давний друг цели, и <strong>впечатывает её</strong> в память; Величие закрепляет доверие. Воспоминания «настоящие», поэтому их очень трудно распознать и распутать.</p>\n<ul><li><strong>Активация:</strong> физический контакт (часто рукопожатие) и рассказ об «общем» воспоминании. <strong>Манипуляция + Эмпатия</strong> (сл. — текущая Воля цели).</li><li><strong>Длительность по успехам:</strong> 1 — сцена; 2 — ночь; 3 — неделя; 4 — месяц; 5 — год.</li><li><strong>Пока действует:</strong> цель считает его верным и безупречным, а улики против него — частью заговора.</li><li><strong>После:</strong> остаётся другом, пока что‑то не поставит его мотивы под сомнение. Продлить эффект, пока он ещё действует, — <strong>+1</strong> к сложности.</li></ul>",
+  "roll": {
+   "trait1": "attributes.manipulation",
+   "trait2": "abilities.empathy"
+  }
+ },
+ {
+  "name": "Отбойный удар",
+  "en": "Jackhammer Punch",
+  "requires": [
+   {
+    "key": "potence",
+    "level": 2
+   },
+   {
+    "key": "temporis",
+    "level": 2
+   }
+  ],
+  "requiresText": "Мощь 2, Темпорис 2",
+  "xp": 12,
+  "source": "V20 Lore of the Bloodlines",
+  "html": "<p><em>Источник: V20 Lore of the Bloodlines. Комбинированная Дисциплина: Мощь 2, Темпорис 2 · опыт 12.</em></p><p>Удар без оружия «повторяется» во времени. <strong>1 кровь:</strong> рейтинг <strong>Темпориса</strong> прибавляется как дополнительные точки <strong>Мощи</strong> при подсчёте урона.</p>",
+  "roll": {
+   "blood": 1
+  }
+ },
+ {
+  "name": "Воззвать к крови",
+  "en": "Call Upon the Blood",
+  "requires": [
+   {
+    "key": "animalism",
+    "level": 3
+   },
+   {
+    "key": "auspex",
+    "level": 3
+   }
+  ],
+  "requiresText": "Анимализм 3, Ясновидение 3",
+  "xp": 18,
+  "source": "V20 Anarchs Unbound",
+  "html": "<p><em>Источник: V20 Anarchs Unbound. Комбинированная Дисциплина: Анимализм 3, Ясновидение 3 · опыт 18.</em></p><p><strong>1 кровь</strong>, <strong>Восприятие + Обращение с животными</strong>: примерное число Сородичей и гулей поблизости (включая свою группу). Зона: <strong>1</strong> — гостиничный номер; <strong>2</strong> — дом; <strong>3</strong> — бальный зал; <strong>4</strong> — квартал; <strong>5</strong> — поместье. Зверь в них может встрепенуться и выдать применение. Частое использование толкает к ярости; <strong>провал — ярость</strong>.</p>",
+  "roll": {
+   "trait1": "attributes.perception",
+   "trait2": "abilities.animalKen",
+   "blood": 1
+  }
+ },
+ {
+  "name": "Хамберсайдская паника",
+  "en": "The Humberside Panic",
+  "requires": [
+   {
+    "key": "celerity",
+    "level": 1
+   },
+   {
+    "key": "thaumaturgy",
+    "level": 1
+   }
+  ],
+  "requiresText": "Стремительность 1, Тауматургия 1",
+  "xp": 6,
+  "source": "V20 Anarchs Unbound",
+  "html": "<p><em>Источник: V20 Anarchs Unbound. Комбинированная Дисциплина: Стремительность 1, Тауматургия 1 · опыт 6.</em></p><p><strong>1 кровь + 1 за каждого</strong> члена котерии: на ход они получают его <strong>Стремительность</strong> (любой уровень, который у него есть). Продление — <strong>1 кровь</strong> за человека в ход; действует предел крови за ход по поколению. Только вампиры в поле зрения, чью кровь он пробовал.</p>",
+  "roll": {
+   "blood": 1
+  }
+ },
+ {
+  "name": "Интернет‑знаменитость",
+  "en": "Internet Famous",
+  "requires": [
+   {
+    "key": "presence",
+    "level": 4
+   },
+   {
+    "key": "thaumaturgy",
+    "level": 4
+   }
+  ],
+  "requiresText": "Величие 4, Тауматургия 4",
+  "xp": 30,
+  "source": "V20 Anarchs Unbound",
+  "html": "<p><em>Источник: V20 Anarchs Unbound. Комбинированная Дисциплина: Величие 4, Тауматургия 4 · опыт 30.</em></p><p>Слух: массовый <strong>Призыв</strong> (с. 195) через соцсети. <strong>Обаяние + Компьютеры</strong> (сл. 8), <strong>1 кровь + 1 Воля</strong>. Действует на <strong>всех</strong> подписчиков, неизбирательно, даже если они не в сети. Понявший, что происходит, может отказаться за <strong>1 Волю</strong>.</p>",
+  "roll": {
+   "blood": 1
+  }
+ },
+ {
+  "name": "Быстрая смена",
+  "en": "Quickshift",
+  "requires": [
+   {
+    "key": "protean",
+    "level": 4
+   },
+   {
+    "key": "vicissitude",
+    "level": 2
+   }
+  ],
+  "requiresText": "Метаморфозы 4, Преображение 2",
+  "xp": 21,
+  "source": "V20 Anarchs Unbound",
+  "html": "<p><em>Источник: V20 Anarchs Unbound. Комбинированная Дисциплина: Метаморфозы 4, Преображение 2 · опыт 21.</em></p><p>При любом враждебном действии (атака, Дисциплина, внезапность) — <strong>4 крови</strong>, мгновенно принять звериный облик, <strong>не тратя</strong> действие следующего хода. Можно заплатить в начале сцены (для высоких поколений) и активировать бесплатно позже; не использовал — кровь пропала.</p>",
+  "roll": {
+   "blood": 4
+  }
+ },
+ {
+  "name": "Буфер удалённого доступа",
+  "en": "Remote Access Buffer",
+  "requires": [
+   {
+    "key": "thaumaturgy",
+    "level": 5
+   }
+  ],
+  "requiresText": "Тауматургия 5 (особ.)",
+  "xp": 30,
+  "source": "V20 Anarchs Unbound",
+  "html": "<p><em>Источник: V20 Anarchs Unbound. Комбинированная Дисциплина: Тауматургия 5 (особ.) · опыт 30.</em></p><p>Записать свою силу <strong>Ясновидения, Фантасмагории, Помешательства, Доминирования, Сокрытия или Величия</strong> в цифровой файл (письмо, SMS, сообщение). Цена — обычная стоимость силы + <strong>кровь = уровень²</strong> (сила 4 — +16 крови) за сцену. Срабатывает <strong>один раз</strong> у первого Сородича‑«посредника», у кого файл лежит в памяти устройства (облака мало). Бросает он своими чертами, затем все копии самоудаляются. Слухи о «троянской» скрытой Доминации; возможное нарушение Маскарада.</p>",
+  "roll": {
+   "blood": 16
+  }
+ },
+ {
+  "name": "Удержать быструю кровь",
+  "en": "Retain the Quick Blood",
+  "requires": [
+   {
+    "key": "celerity",
+    "level": 3
+   },
+   {
+    "key": "quietus",
+    "level": 3
+   }
+  ],
+  "requiresText": "Стремительность 3 + Упокоение 3 или Метаморфозы 3",
+  "xp": 15,
+  "source": "V20 Anarchs Unbound",
+  "html": "<p><em>Источник: V20 Anarchs Unbound. Комбинированная Дисциплина: Стремительность 3 + Упокоение 3 или Метаморфозы 3 · опыт 15.</em></p><p>Кровь, потраченная на <strong>Стремительность</strong>, возвращается по <strong>1 в час</strong> (не сверх максимума; лишнее теряется).</p>"
+ },
+ {
+  "name": "Слендермен",
+  "en": "Slenderman",
+  "requires": [
+   {
+    "key": "auspex",
+    "level": 3
+   },
+   {
+    "key": "obfuscate",
+    "level": 2
+   }
+  ],
+  "requiresText": "Ясновидение 3, Сокрытие 2",
+  "xp": 15,
+  "source": "V20 Anarchs Unbound",
+  "html": "<p><em>Источник: V20 Anarchs Unbound. Комбинированная Дисциплина: Ясновидение 3, Сокрытие 2 · опыт 15.</em></p><p>Рефлекторно, <strong>1 кровь</strong>, когда знает, что его фотографируют: на снимке — безликая фигура. Видео — с первого хода записи, <strong>1 кровь за каждый ход</strong>. Не меняет уже сделанные снимки.</p>",
+  "roll": {
+   "blood": 1
+  }
+ },
+ {
+  "name": "Трюк Улыбчивого Джека",
+  "en": "Smiling Jack's Trick",
+  "requires": [
+   {
+    "key": "dominate",
+    "level": 3
+   },
+   {
+    "key": "obfuscate",
+    "level": 3
+   }
+  ],
+  "requiresText": "Доминирование 3, Сокрытие 3",
+  "xp": 18,
+  "source": "V20 Anarchs Unbound",
+  "html": "<p><em>Источник: V20 Anarchs Unbound. Комбинированная Дисциплина: Доминирование 3, Сокрытие 3 · опыт 18.</em></p><p>Состязание: <strong>Манипуляция + Исполнение</strong> (сл. Интеллект цели + 5, макс. 10) против <strong>Смекалки + Хитрости</strong> цели (сл. 7). Успех — цель путает его с другим Сородичем в поле зрения. Длительность — <strong>1 час − (10 × Интеллект цели) минут</strong>. Как Доминирование — только на равное или более слабое (высокое) поколение.</p>",
+  "roll": {
+   "trait1": "attributes.manipulation",
+   "trait2": "abilities.performance"
+  }
+ },
+ {
+  "name": "Каменный взор",
+  "en": "Stonesight",
+  "requires": [
+   {
+    "key": "auspex",
+    "level": 1
+   },
+   {
+    "key": "visceratika",
+    "level": 1
+   }
+  ],
+  "requiresText": "Ясновидение 1, Висцератика 1",
+  "xp": 3,
+  "source": "V20 Anarchs Unbound",
+  "html": "<p><em>Источник: V20 Anarchs Unbound. Комбинированная Дисциплина: Ясновидение 1, Висцератика 1 · опыт 3.</em></p><p><strong>1 кровь</strong>, на сцену: видит сквозь камень, как сквозь стекло, — участок ~1 × 1 м глубиной до 1 м. С той стороны его не видят.</p>",
+  "roll": {
+   "blood": 1
+  }
+ },
+ {
+  "name": "Втянуть",
+  "en": "Suck It Up",
+  "requires": [
+   {
+    "key": "animalism",
+    "level": 1
+   },
+   {
+    "key": "protean",
+    "level": 2
+   }
+  ],
+  "requiresText": "Анимализм 1, Метаморфозы 2",
+  "xp": 9,
+  "source": "V20 Anarchs Unbound",
+  "html": "<p><em>Источник: V20 Anarchs Unbound. Комбинированная Дисциплина: Анимализм 1, Метаморфозы 2 · опыт 9.</em></p><p>Коснуться пролитой крови и впитать её (до максимума). Без броска; может «вычистить землю досуха».</p>"
+ },
+ {
+  "name": "Тенистая вуаль",
+  "en": "Tenebrous Veil",
+  "requires": [
+   {
+    "key": "obfuscate",
+    "level": 1
+   },
+   {
+    "key": "obtenebration",
+    "level": 1
+   }
+  ],
+  "requiresText": "Сокрытие 1, Затмение 1",
+  "xp": 6,
+  "source": "V20 Anarchs Unbound",
+  "html": "<p><em>Источник: V20 Anarchs Unbound. Комбинированная Дисциплина: Сокрытие 1, Затмение 1 · опыт 6.</em></p><p>Без броска: если рядом есть тень хотя бы ~30 × 30 см, невидим, пока <strong>неподвижен</strong>.</p>"
+ },
+ {
+  "name": "Быстрый взгляд",
+  "en": "Quick Sight",
+  "requires": [
+   {
+    "key": "auspex",
+    "level": 1
+   },
+   {
+    "key": "celerity",
+    "level": 2
+   }
+  ],
+  "requiresText": "Ясновидение •, Стремительность ••",
+  "xp": 9,
+  "source": "V20 Dread Names, Red List",
+  "html": "<p><em>Источник: V20 Dread Names, Red List. Комбинированная Дисциплина: Ясновидение •, Стремительность •• · опыт 9.</em></p><p>1 пункт крови, действует сцену. Когда персонаж хочет разглядеть или отследить что-то слишком быстрое для обычного глаза (пулю, болт, вампира под Стремительностью), бросок Сообразительность + Бдительность. Сложность зависит от скорости, обычно 6–7. 1 успех — видна траектория или движение; больше успехов — больше деталей</p>",
+  "roll": {
+   "blood": 1
+  }
+ },
+ {
+  "name": "Железный фасад",
+  "en": "Iron Facade",
+  "requires": [
+   {
+    "key": "fortitude",
+    "level": 1
+   },
+   {
+    "key": "obfuscate",
+    "level": 3
+   }
+  ],
+  "requiresText": "Стойкость •, Сокрытие •••",
+  "xp": 10,
+  "source": "V20 Dread Names, Red List",
+  "html": "<p><em>Источник: V20 Dread Names, Red List. Комбинированная Дисциплина: Стойкость •, Сокрытие ••• · опыт 10.</em></p><p>Манипуляция + Хитрость, сложность 6. При успехе персонаж выглядит невредимым и полностью боеспособным, как бы тяжело ни был ранен. Раны и штрафы к броскам остаются, меняется только видимость. Длится сцену или до уровня здоровья «Без сознания». Ясновидение видит истину, если его уровень выше Сокрытия персонажа</p>",
+  "roll": {
+   "trait1": "attributes.manipulation",
+   "trait2": "abilities.subterfuge",
+   "difficulty": 6
+  }
+ },
+ {
+  "name": "Барсучья шкура",
+  "en": "Badger's Hide",
+  "requires": [
+   {
+    "key": "fortitude",
+    "level": 1
+   },
+   {
+    "key": "protean",
+    "level": 4
+   }
+  ],
+  "requiresText": "Стойкость •, Метаморфозы ••••",
+  "xp": 12,
+  "source": "V20 Dread Names, Red List",
+  "html": "<p><em>Источник: V20 Dread Names, Red List. Комбинированная Дисциплина: Стойкость •, Метаморфозы •••• · опыт 12.</em></p><p>1 пункт крови, до конца сцены. Урон от атак, которые прокалывают кожу (ножи, шипы, копья — по решению Рассказчика), после поглощения делится пополам с округлением вниз. Попавшая и не поглощённая атака всё равно наносит минимум 1 уровень урона</p>",
+  "roll": {
+   "blood": 1
+  }
+ },
+ {
+  "name": "Месть Люсинды",
+  "en": "Lucinde's Revenge",
+  "requires": [
+   {
+    "key": "dominate",
+    "level": 4
+   },
+   {
+    "key": "fortitude",
+    "level": 4
+   }
+  ],
+  "requiresText": "Доминирование ••••, Стойкость ••••",
+  "xp": 25,
+  "source": "V20 Dread Names, Red List",
+  "html": "<p><em>Источник: V20 Dread Names, Red List. Комбинированная Дисциплина: Доминирование ••••, Стойкость •••• · опыт 25.</em></p><p>Защищает от Величия по поколению так же, как работает Доминирование: на персонажа действует Величие только Сородича <strong>более низкого (сильного) поколения</strong>. Пример: на вампира 9-го поколения не подействует Ужасающий взгляд вампира 12-го</p>"
+ }
+]

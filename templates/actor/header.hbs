@@ -1,0 +1,117 @@
+{{!-- Шапка «дела»: портрет с подписью (поколение), имя и амплуа, сведения строками, справа — запас крови;
+     снизу полоса ночных действий. --}}
+<header class="r-head">
+  {{#if sigil.sym}}{{rSym sigil.sym "r-head-watermark"}}{{/if}}
+
+  <div class="r-head-main">
+    <figure class="r-portrait-frame">
+      <img class="r-portrait" src="{{actor.img}}" data-edit="img" data-action="editImage" alt="{{actor.name}}" title="{{actor.name}}">
+      <figcaption class="r-seal" {{#if isVampire}}data-tooltip="{{localize 'VTM20.Details.generation'}}: {{system.generation}}"{{/if}}>
+        {{#if isVampire}}<span class="r-seal-num">{{rRoman system.generation}}</span><span class="r-seal-cap">{{localize "VTM20.Sheet.Gen"}}</span>
+        {{else if isCreature}}<span class="r-seal-num r-seal-icon"><i class="fa-solid fa-paw"></i></span><span class="r-seal-cap">{{typeLabel}}</span>
+        {{else if isGhoul}}<span class="r-seal-num r-seal-icon"><i class="fa-solid fa-hand-holding-droplet"></i></span><span class="r-seal-cap">{{typeLabel}}</span>
+        {{else}}<span class="r-seal-num r-seal-icon"><i class="fa-solid fa-heart-pulse"></i></span><span class="r-seal-cap">{{typeLabel}}</span>{{/if}}
+      </figcaption>
+    </figure>
+
+    <div class="r-head-info">
+      <div class="r-kicker">
+        <span class="r-kicker-type">{{typeLabel}}</span>
+        {{#if clan}}<i class="r-kicker-dia"></i><span class="r-kicker-clan">{{clan.name}}</span>{{#if clan.nickname}} <em>«{{clan.nickname}}»</em>{{/if}}{{/if}}
+        {{#if system.details.sect}}<i class="r-kicker-dia"></i>{{#if sectSym}}{{rSym sectSym "r-sym-inline"}}{{/if}}<span>{{system.details.sect}}</span>{{/if}}
+        <span class="r-motto" aria-hidden="true">La Liberté ou la Mort</span>
+      </div>
+      <div class="r-name-row">
+        <input class="r-name" type="text" name="name" value="{{actor.name}}" placeholder="{{localize 'VTM20.Sheet.Name'}}" spellcheck="false">
+        <input class="r-concept" type="text" name="system.details.concept" value="{{system.details.concept}}" placeholder="{{localize 'VTM20.Details.concept'}}…" spellcheck="false">
+      </div>
+
+      <div class="r-dossier">
+        {{#if isVampire}}
+        <label class="r-df is-wide" {{#if clan}}data-tooltip="{{clan.disciplinesText}}"{{/if}}><span>{{localize "VTM20.Details.clan"}}</span>
+          <select name="system.clan">
+            {{#each clanGroups}}<optgroup label="{{label}}">{{#each clans}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</optgroup>{{/each}}
+          </select>
+        </label>
+        <label class="r-df is-narrow"><span>{{localize "VTM20.Sheet.Gen"}}</span>
+          <select name="system.generation" data-dtype="Number">{{#each generations}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{value}}</option>{{/each}}</select>
+        </label>
+        {{#if clanChoices}}
+        <label class="r-df"><span>{{localize "VTM20.Details.clanChoice"}}</span>
+          <select name="system.clanChoice"><option value="">—</option>{{#each clanChoices}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+        </label>
+        {{/if}}
+        <label class="r-df"><span>{{localize "VTM20.Details.sect"}}</span>
+          <input type="text" name="system.details.sect" value="{{system.details.sect}}" list="r-sect-{{actor.id}}"></label>
+        <label class="r-df"><span>{{localize "VTM20.Details.sire"}}</span><input type="text" name="system.details.sire" value="{{system.details.sire}}"></label>
+        {{/if}}
+
+        {{#if isGhoul}}
+        <label class="r-df is-wide"><span>{{localize "VTM20.Details.domitor"}}</span><input type="text" name="system.domitor" value="{{system.domitor}}"></label>
+        <label class="r-df"><span>{{localize "VTM20.Details.ghoulType"}}</span>
+          <select name="system.ghoulType">{{#each ghoulTypes}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+        <label class="r-df is-narrow"><span>{{localize "VTM20.Details.donorGeneration"}}</span>
+          <select name="system.domitorGeneration" data-dtype="Number">{{#each donorGenerations}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{value}}</option>{{/each}}</select></label>
+        <label class="r-df"><span>{{localize "VTM20.Details.family"}}</span><input type="text" name="system.family" value="{{system.family}}"></label>
+        {{/if}}
+
+        {{#if isCreature}}
+        <label class="r-df is-wide"><span>{{localize "VTM20.Sheet.Kind"}}</span><input type="text" name="system.kind" value="{{system.kind}}"></label>
+        <label class="r-df is-narrow"><span>{{localize "VTM20.Sheet.BloodPool"}}</span><input type="number" name="system.blood.max" value="{{system.blood.max}}" min="0" max="100"></label>
+        <label class="r-df is-check"><input type="checkbox" name="system.supernatural" {{checked system.supernatural}}><span>{{localize "VTM20.Sheet.Supernatural"}}</span></label>
+        {{/if}}
+
+        {{#if isMortal}}
+        <label class="r-df"><span>{{localize "VTM20.Details.age"}}</span><input type="text" name="system.details.age" value="{{system.details.age}}"></label>
+        <label class="r-df is-wide"><span>{{localize "VTM20.Details.haven"}}</span><input type="text" name="system.details.haven" value="{{system.details.haven}}"></label>
+        {{/if}}
+
+        <label class="r-df" {{#if natureRegain}}data-tooltip="{{localize 'VTM20.Sheet.NatureRegain'}} {{natureRegain}}"{{/if}}><span>{{localize "VTM20.Details.nature"}}</span>
+          <input type="text" name="system.details.nature" value="{{system.details.nature}}" list="r-arch-{{actor.id}}"></label>
+        <label class="r-df"><span>{{localize "VTM20.Details.demeanor"}}</span>
+          <input type="text" name="system.details.demeanor" value="{{system.details.demeanor}}" list="r-arch-{{actor.id}}"></label>
+        <label class="r-df"><span>{{localize "VTM20.Details.player"}}</span><input type="text" name="system.details.player" value="{{system.details.player}}"></label>
+      </div>
+    </div>
+
+    {{#if hasBlood}}
+    <aside class="r-assignat">
+      <div class="r-assignat-head">
+        <span class="r-assignat-title">{{localize "VTM20.Sheet.BloodPool"}}</span>
+        <span class="r-assignat-num"><b>{{system.blood.value}}</b><small>/{{system.blood.max}}</small></span>
+      </div>
+      <div class="r-drops">
+        {{#each bloodBoxes}}<a class="r-drop {{#if filled}}is-filled{{/if}}" data-action="setDots" data-path="{{path}}" data-n="{{n}}"><svg viewBox="0 0 24 30" aria-hidden="true"><path d="M12 2C12 2 4 12 4 18a8 8 0 0 0 16 0C20 12 12 2 12 2z"/></svg></a>{{/each}}
+      </div>
+      <div class="r-assignat-meta">
+        <span>{{localize "VTM20.Sheet.PerTurn"}} <b>{{system.blood.perTurn}}</b></span>
+        <a data-action="spendBlood" data-tooltip="{{localize 'VTM20.Sheet.SpendBlood'}}"><i class="fa-solid fa-minus"></i></a>
+        <a data-action="bloodHeal" data-tooltip="{{localize 'VTM20.Sheet.HealHint'}}"><i class="fa-solid fa-hand-holding-droplet"></i></a>
+        {{#if anyBoost}}<a data-action="clearBoosts" data-tooltip="{{localize 'VTM20.Sheet.ClearBoosts'}}"><i class="fa-solid fa-rotate-left"></i></a>{{/if}}
+      </div>
+      <div class="r-boosts">
+        {{#each boosts}}<a class="r-boost-chip {{#if value}}is-on{{/if}}" data-action="boost" data-attr="{{key}}" data-tooltip="{{label}}: {{localize 'VTM20.Sheet.BoostHint'}}">{{short}}{{#if value}} <b>+{{value}}</b>{{/if}}</a>{{/each}}
+      </div>
+    </aside>
+    {{/if}}
+  </div>
+
+  {{#unless needsCreation}}
+  <nav class="r-head-acts">
+    {{#if hasBlood}}<a class="r-act" data-action="hunt"><i class="fa-solid fa-moon"></i><span>{{localize "VTM20.Hunt.Button"}}</span></a>{{/if}}
+    {{#if isVampire}}<a class="r-act" data-action="awaken" data-tooltip="{{localize 'VTM20.Sheet.Awaken'}}"><i class="fa-solid fa-cloud-moon"></i><span>{{localize "VTM20.Sheet.AwakenShort"}}</span></a>{{/if}}
+    <a class="r-act" data-action="attack"><i class="fa-solid fa-khanda"></i><span>{{localize "VTM20.Combat.Attack"}}</span></a>
+    <a class="r-act" data-action="rollInitiative"><i class="fa-solid fa-bolt"></i><span>{{localize "VTM20.Sheet.Initiative"}}</span><b>{{system.initiative}}</b></a>
+    <a class="r-act" data-action="takeDamage"><i class="fa-solid fa-heart-crack"></i><span>{{localize "VTM20.Sheet.TakeDamageShort"}}</span></a>
+    <a class="r-act" data-action="hazard" data-tooltip="{{localize 'VTM20.Hazard.Title'}}"><i class="fa-solid fa-fire"></i><span>{{localize "VTM20.Hud.Hazard"}}</span></a>
+    {{#if weaknessCheck}}<a class="r-act" data-action="rollVirtue" data-kind="weakness"><i class="fa-solid fa-dice-d10"></i><span>{{weaknessCheck}}</span></a>{{/if}}
+    <span class="r-acts-spacer"></span>
+    <a class="r-act is-hot" data-action="rollVirtue" data-kind="frenzy"><i class="fa-solid fa-face-angry"></i><span>{{localize "VTM20.Roll.frenzy.title"}}</span></a>
+    {{#if isVampire}}<a class="r-act is-hot" data-action="diablerie" data-tooltip="{{localize 'VTM20.Diablerie.Title'}}"><i class="fa-solid fa-skull"></i><span>{{localize "VTM20.Diablerie.Short"}}</span></a>{{/if}}
+    {{#unless isMortal}}<a class="r-act is-hot" data-action="rollVirtue" data-kind="rotschreck"><i class="fa-solid fa-fire"></i><span>{{localize "VTM20.Roll.rotschreck.title"}}</span></a>{{/unless}}
+  </nav>
+  {{/unless}}
+
+  <datalist id="r-arch-{{actor.id}}">{{#each archetypes}}<option value="{{this}}"></option>{{/each}}</datalist>
+  <datalist id="r-sect-{{actor.id}}">{{#each sects}}<option value="{{value}}"></option>{{/each}}</datalist>
+</header>

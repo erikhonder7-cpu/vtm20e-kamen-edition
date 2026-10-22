@@ -1,0 +1,240 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   VTM20 «Liberté» — нексус сцен, верхняя полоса и ночные часы.
+   Тот же язык, что у листа: уголь, кость, кровь; тонкие линии, без позолоты.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.vtm20, .r-topbar, .r-nx, .r-time-card {
+  --nx-coal: #0a0a0c;
+  --nx-panel: #121214;
+  --nx-bone: #d8cfbf;
+  --nx-bone-2: #b3aa98;
+  --nx-muted: #7d766a;
+  --nx-dim: #5a554d;
+  --nx-line: rgba(216, 207, 191, .1);
+  --nx-line-2: rgba(216, 207, 191, .22);
+  --nx-blood: #8c1c22;
+  --nx-blood-l: #c4474c;
+  --nx-steel: #8d9bb8;
+  --nx-dawn: #c9a46a;
+  --nx-ok: #8fa98a;
+  --nx-caps: "IM Fell SC", "Forum", Georgia, serif;
+  --nx-display: "Prata", Georgia, serif;
+  --nx-body: "Old Standard", Georgia, serif;
+}
+
+/* ── Верхняя полоса (нексус, часы, сцена) ─────────────────────────────── */
+
+body.r-nav-off #scene-navigation { display: none !important; }
+.r-topbar {
+  position: relative; display: flex; flex-direction: column; width: 100%; max-width: 100%;
+  flex: 0 0 auto; align-self: flex-start; pointer-events: all; overflow: hidden;
+  font-family: var(--nx-body); color: var(--nx-bone);
+  background: var(--nx-panel); border: 1px solid #000; box-shadow: 0 8px 24px rgba(0, 0, 0, .7);
+}
+.r-topbar::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: var(--nx-blood); }
+.r-tb-nexus {
+  position: relative; display: flex; align-items: center; gap: 9px; height: 34px; padding: 0 12px; cursor: pointer;
+  background: var(--nx-coal); border-bottom: 1px solid #000;
+  font-family: var(--nx-caps); font-size: 14px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--nx-bone);
+}
+.r-tb-nexus::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px; opacity: .5;
+  background: linear-gradient(90deg, #2f3b55 0 33.33%, #a49d8e 33.33% 66.66%, #6e1c20 66.66%); }
+.r-tb-nexus i { color: var(--nx-blood-l); font-size: 12px; }
+.r-tb-nexus:hover { background: #141416; }
+.r-tb-row { display: flex; align-items: baseline; gap: 7px; padding: 5px 10px 5px 12px; min-width: 0; border-top: 1px solid var(--nx-line); }
+.r-tb-row > i { flex: 0 0 auto; width: 11px; text-align: center; font-size: 10px; color: var(--nx-muted); }
+.r-tb-name { flex: 1 1 auto; min-width: 0; font-family: var(--nx-display); font-size: 12px; color: var(--nx-bone-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.r-tb-scene:hover .r-tb-name { color: var(--nx-bone); }
+.r-tb-clock { cursor: pointer; }
+.r-tb-clock.is-flat { cursor: default; }
+.r-tb-clock > i { color: var(--nx-steel); }
+.r-tb-clock[data-phase=day] > i, .r-tb-clock[data-phase=dawn] > i { color: var(--nx-dawn); }
+.r-tb-clock.on > i { animation: r-blink 3s ease-in-out infinite; }
+.r-tb-time { flex: 0 0 auto; font-family: var(--nx-display); font-size: 19px; line-height: 1; color: var(--nx-bone); }
+.r-tb-date { flex: 1 1 auto; min-width: 0; text-align: right; font-family: var(--nx-caps); font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--nx-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.r-tb-clock:not(.is-flat):hover { background: rgba(255, 255, 255, .03); }
+.r-tb-phase { align-items: center; gap: 6px; }
+.r-tb-moon { font-size: 13px; line-height: 1; flex: 0 0 auto; filter: grayscale(.6); }
+.r-tb-until { flex: 1 1 auto; min-width: 0; font-size: 11px; font-style: italic; color: var(--nx-bone-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.r-tb-phase[data-phase=day] .r-tb-until, .r-tb-phase[data-phase=dawn] .r-tb-until { color: var(--nx-dawn); }
+.r-tb-night { flex: 0 0 auto; font-family: var(--nx-caps); font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--nx-blood-l); }
+.r-tb-scene-timer > i { color: var(--nx-steel); }
+.r-tb-timer { flex: 1 1 auto; font-family: var(--nx-display); font-size: 12px; color: var(--nx-steel); }
+.r-tb-republic { font-family: "IM Fell", var(--nx-body); font-style: italic; font-size: 12.5px; color: var(--nx-bone-2); }
+.r-tb-republic i { color: var(--nx-muted); }
+@keyframes r-blink { 0%, 100% { opacity: 1; } 50% { opacity: .45; } }
+
+/* ── Нексус ───────────────────────────────────────────────────────────── */
+
+.r-nx { display: flex; flex-direction: column; height: 100%; font-family: var(--nx-body); color: var(--nx-bone); }
+.r-nx-status {
+  display: flex; align-items: center; gap: 14px; padding: 10px 14px; flex: 0 0 auto;
+  background: var(--nx-coal); border-bottom: 1px solid #222226;
+}
+.r-nx-here { display: flex; flex-direction: column; min-width: 0; }
+.r-nx-here-lbl { font-family: var(--nx-caps); font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--nx-muted); }
+.r-nx-here-name { font-family: var(--nx-display); font-size: 17px; line-height: 1.2; color: var(--nx-bone); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 280px; }
+.r-nx-sel { flex: 1 1 auto; min-width: 0; padding: 5px 10px; font-size: 12px; font-style: italic; color: var(--nx-muted); border: 1px solid var(--nx-line); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.r-nx-sel i { font-style: normal; margin-right: 3px; }
+.r-nx-sel.on { border-color: rgba(196, 71, 76, .45); color: var(--nx-bone-2); }
+.r-nx-sel.on i { color: var(--nx-blood-l); }
+.r-nx-sel.on b { color: var(--nx-bone); font-family: var(--nx-display); font-style: normal; font-weight: 400; font-size: 14px; }
+.r-nx-sel-names { color: var(--nx-muted); }
+.r-nx-btn {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 12px; cursor: pointer;
+  font-family: var(--nx-caps); font-size: 12.5px; letter-spacing: 1.6px; text-transform: uppercase;
+  color: var(--nx-bone-2); border: 1px solid var(--nx-line-2); background: transparent; transition: color .12s, border-color .12s;
+}
+.r-nx-btn i { color: var(--nx-blood-l); font-size: 11px; }
+.r-nx-btn:hover { color: var(--nx-bone); border-color: var(--nx-bone-2); }
+.r-nx-body { flex: 1 1 auto; overflow-y: auto; overflow-x: hidden; padding: 12px 14px 18px; }
+
+/* Группа (район): тонкая линия цвета группы, приглушённого до тона камня */
+.r-nx-group { --gcm: color-mix(in srgb, var(--gc, #8c1c22) 55%, #2a2a2e); margin-bottom: 14px; border: 1px solid var(--nx-line); background: rgba(255, 255, 255, .015); }
+.r-nx-ghead { position: relative; display: flex; align-items: center; gap: 9px; padding: 7px 10px; border-bottom: 1px solid var(--nx-line); }
+.r-nx-ghead::before { content: ""; position: absolute; left: -1px; top: -1px; bottom: -1px; width: 2px; background: var(--gcm); }
+.r-nx-group.collapsed .r-nx-ghead { border-bottom: 0; }
+.r-nx-caret { cursor: pointer; color: var(--nx-muted); font-size: 10px; width: 12px; text-align: center; }
+.r-nx-caret:hover { color: var(--nx-bone); }
+.r-nx-dot { width: 6px; height: 6px; flex: 0 0 auto; transform: rotate(45deg); background: var(--gcm); }
+.r-nx-gname { flex: 1 1 auto; min-width: 0; font-family: var(--nx-caps); font-size: 14px; letter-spacing: 2.4px; text-transform: uppercase; color: var(--nx-bone); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.r-nx-gcount, .r-nx-subcount { flex: 0 0 auto; font-family: var(--nx-display); font-size: 12px; color: var(--nx-muted); }
+.r-nx-gtools, .r-nx-subtools { display: inline-flex; align-items: center; gap: 2px; flex: 0 0 auto; opacity: .55; transition: opacity .12s; }
+.r-nx-ghead:hover .r-nx-gtools, .r-nx-subhead:hover .r-nx-subtools { opacity: 1; }
+.r-nx-gtools a, .r-nx-subtools a, .r-nx-ctools a {
+  display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; cursor: pointer; font-size: 10px;
+  color: var(--nx-muted); border: 1px solid transparent;
+}
+.r-nx-gtools a:hover, .r-nx-subtools a:hover, .r-nx-ctools a:hover { color: var(--nx-bone); border-color: var(--nx-line-2); }
+.r-nx-del:hover { color: var(--nx-blood-l) !important; border-color: rgba(196, 71, 76, .5) !important; }
+.r-nx-gcolor { width: 20px; height: 18px; padding: 0; border: 1px solid var(--nx-line-2); background: none; cursor: pointer; }
+
+.r-nx-sub { margin: 4px 10px 8px; border-left: 1px solid var(--nx-line-2); }
+.r-nx-subhead { display: flex; align-items: center; gap: 7px; padding: 4px 8px; }
+.r-nx-subname { flex: 1 1 auto; min-width: 0; font-family: var(--nx-caps); font-size: 12px; letter-spacing: 1.8px; text-transform: uppercase; color: var(--nx-bone-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Карточки сцен: снимок в тоне ночи, цвет проступает при наведении */
+.r-nx-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 8px; padding: 10px; }
+.r-nx-card { position: relative; cursor: pointer; overflow: hidden; border: 1px solid var(--nx-line); background: var(--nx-coal); transition: border-color .12s; }
+.r-nx-card:hover { border-color: var(--nx-line-2); }
+.r-nx-card.here { border-color: rgba(196, 71, 76, .7); }
+.r-nx-card.here::before { content: ""; position: absolute; left: -1px; top: -1px; width: 34px; height: 2px; background: var(--nx-blood-l); z-index: 3; }
+.r-nx-thumb {
+  position: relative; height: 96px; display: flex; align-items: center; justify-content: center;
+  background-size: cover; background-position: center; background-color: #0c0c0e; border-bottom: 1px solid var(--nx-line);
+  filter: grayscale(.55) brightness(.8) contrast(1.05); transition: filter .2s;
+}
+.r-nx-card:hover .r-nx-thumb, .r-nx-card.here .r-nx-thumb { filter: grayscale(.1) brightness(.95); }
+.r-nx-card.locked .r-nx-thumb { filter: grayscale(1) brightness(.5); }
+.r-nx-thumb::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 50%, rgba(0, 0, 0, .75)); pointer-events: none; }
+.r-nx-noimg { font-family: var(--nx-caps); font-size: 10px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--nx-dim); }
+.r-nx-badges { position: absolute; left: 5px; top: 5px; display: flex; flex-wrap: wrap; gap: 3px; max-width: 90%; z-index: 1; }
+.r-nx-b {
+  padding: 1px 5px; font-family: var(--nx-caps); font-size: 9.5px; letter-spacing: 1px; text-transform: uppercase;
+  color: var(--nx-bone-2); background: rgba(10, 10, 12, .88); border: 1px solid var(--nx-line-2);
+}
+.r-nx-b.act { color: var(--nx-steel); border-color: rgba(141, 155, 184, .5); }
+.r-nx-b.cur { color: #f1e9da; background: var(--nx-blood); border-color: var(--nx-blood-l); }
+.r-nx-b.open { color: var(--nx-ok); border-color: rgba(143, 169, 138, .45); }
+.r-nx-b.shut { color: var(--nx-blood-l); border-color: rgba(196, 71, 76, .5); }
+.r-nx-b.entry { color: var(--nx-steel); }
+.r-nx-players { position: absolute; right: 5px; top: 5px; display: flex; gap: 3px; z-index: 1; }
+.r-nx-pc { width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 700; color: #0a0a0c; background: var(--pc, var(--nx-bone)); border: 1px solid rgba(0, 0, 0, .7); }
+.r-nx-go {
+  position: absolute; inset: auto 0 0 0; padding: 5px 0; text-align: center; z-index: 1;
+  background: linear-gradient(180deg, transparent, rgba(140, 28, 34, .85));
+  font-family: var(--nx-caps); font-size: 12px; letter-spacing: 2.2px; text-transform: uppercase; color: #f1e9da;
+  opacity: 0; transition: opacity .12s;
+}
+.r-nx-card:hover .r-nx-go { opacity: 1; }
+.r-nx-card.locked:hover .r-nx-go { background: linear-gradient(180deg, transparent, rgba(40, 40, 44, .9)); }
+.r-nx-peek {
+  position: absolute; right: 5px; bottom: 5px; z-index: 2; display: flex; align-items: center; justify-content: center; width: 20px; height: 18px;
+  color: var(--nx-muted); background: rgba(10, 10, 12, .88); border: 1px solid var(--nx-line-2); font-size: 9px; cursor: pointer;
+}
+.r-nx-peek:hover { color: var(--nx-bone); border-color: var(--nx-bone-2); }
+.r-nx-cname { padding: 6px 8px 7px; font-family: var(--nx-display); font-size: 13px; color: var(--nx-bone); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.r-nx-card.locked .r-nx-cname { color: var(--nx-muted); }
+.r-nx-ctools { display: flex; gap: 1px; padding: 0 5px 5px; flex-wrap: wrap; }
+.r-nx-add { padding: 4px 10px 10px; }
+.r-nx-add-row { display: flex; gap: 6px; align-items: center; }
+.r-nx-add select { flex: 1 1 auto; min-width: 0; max-width: 100%; height: 26px; font-size: 12px; color: var(--nx-bone-2); background: transparent; border: 0; border-bottom: 1px solid var(--nx-line-2); }
+.r-nx-empty, .r-nx-empty-big { padding: 10px; font-size: 12px; font-style: italic; color: var(--nx-dim); }
+.r-nx-empty-big { text-align: center; padding: 48px 24px; line-height: 1.7; font-size: 13.5px; color: var(--nx-muted); }
+
+/* Подсказка «кто на сцене» */
+.r-nx-tip { max-width: 300px; font-family: var(--nx-body); }
+.r-nx-tip-head { font-family: var(--nx-caps); font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--nx-blood-l); border-bottom: 1px solid var(--nx-line); padding-bottom: 3px; margin-bottom: 4px; }
+.r-nx-tip-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 3px 8px; }
+.r-nx-tip-tok { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--nx-bone); min-width: 0; }
+.r-nx-tip-tok.hidden { opacity: .5; font-style: italic; }
+.r-nx-tip-tok img { width: 18px; height: 18px; object-fit: cover; object-position: 50% 15%; border: 1px solid var(--nx-line-2); }
+.r-nx-tip-tok span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.r-nx-tip-noimg { width: 18px; text-align: center; color: var(--nx-muted); }
+.r-nx-tip-empty, .r-nx-tip-more { font-size: 10.5px; color: var(--nx-muted); }
+
+/* ── Ночные часы (календарь) ──────────────────────────────────────────── */
+
+.application.vtm20.r-calendar .window-content { padding: 0; }
+.r-cal { display: flex; flex-direction: column; font-family: var(--nx-body); color: var(--nx-bone); }
+.r-cal-face { display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: center; padding: 14px 16px; background: var(--nx-coal); border-bottom: 1px solid #222226; }
+.r-cal[data-phase=day] .r-cal-face, .r-cal[data-phase=dawn] .r-cal-face { background: linear-gradient(180deg, rgba(201, 164, 106, .08), transparent), var(--nx-coal); }
+.r-cal-moon { font-size: 40px; line-height: 1; filter: grayscale(.7) drop-shadow(0 0 8px rgba(216, 207, 191, .2)); }
+.r-cal-main { display: flex; flex-direction: column; min-width: 0; }
+.r-cal-time { font-family: var(--nx-display); font-size: 42px; line-height: 1; color: var(--nx-bone); }
+.r-cal-date { font-size: 13px; color: var(--nx-bone-2); }
+.r-cal-sub { font-size: 11.5px; color: var(--nx-muted); }
+.vtm20 .r-cal-republic { font-family: "IM Fell", var(--nx-body); font-style: italic; color: var(--nx-bone-2); font-size: 14px; }
+.r-cal-side { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; text-align: right; }
+.r-cal-night { display: flex; flex-direction: column; align-items: flex-end; line-height: 1; }
+.r-cal-night small { font-family: var(--nx-caps); font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--nx-muted); }
+.r-cal-night b { font-family: var(--nx-display); font-weight: 400; font-size: 30px; color: var(--nx-blood-l); }
+.r-cal-until { font-size: 11.5px; font-style: italic; color: var(--nx-bone-2); white-space: nowrap; }
+.r-cal[data-phase=day] .r-cal-until, .r-cal[data-phase=dawn] .r-cal-until { color: var(--nx-dawn); }
+.r-cal-sun { font-size: 10.5px; color: var(--nx-muted); white-space: nowrap; }
+.r-cal-sun i { font-size: 9px; }
+.r-cal-sec { padding: 10px 16px; border-bottom: 1px solid var(--nx-line); }
+.r-cal-sec-last { border-bottom: 0; padding-bottom: 14px; }
+.r-cal-lbl { display: flex; align-items: center; margin-bottom: 7px; font-family: var(--nx-caps); font-size: 12.5px; letter-spacing: 2.2px; text-transform: uppercase; color: var(--nx-bone-2); }
+.r-cal-set { display: flex; align-items: stretch; gap: 6px; }
+.r-cal-set input { flex: 1 1 auto; }
+.r-cal-set input[type=date], .r-cal-set input[type=time] { color-scheme: dark; cursor: pointer; }
+.r-cal-set input::-webkit-calendar-picker-indicator { cursor: pointer; opacity: .8; }
+.r-cal-set label { flex: 0 0 auto; align-self: center; font-family: var(--nx-caps); font-size: 10.5px; letter-spacing: 1px; text-transform: uppercase; color: var(--nx-muted); }
+.r-cal-lat input { flex: 1 1 60px; min-width: 0; }
+.r-cal-lat input.r-cal-tz { flex: 0 0 48px; }
+.r-cal-ok, button.r-cal-ok {
+  flex: 0 0 auto; display: flex; align-items: center; justify-content: center; width: 34px; height: 26px; padding: 0; cursor: pointer;
+  color: #f1e9da; background: var(--nx-blood); border: 1px solid var(--nx-blood-l); border-radius: 0;
+}
+.r-cal-ok:hover { background: #a3242a; }
+.r-cal-run { margin-left: auto; display: inline-flex; align-items: center; gap: 5px; cursor: pointer; font-family: var(--nx-caps); font-size: 10.5px; letter-spacing: 1.4px; text-transform: uppercase; color: var(--nx-muted); }
+.r-cal-run.on { color: var(--nx-steel); }
+.r-cal-run:hover { color: var(--nx-bone); }
+.r-cal-adv { display: flex; flex-wrap: wrap; gap: 4px; }
+.r-cal-adv a {
+  flex: 1 1 auto; text-align: center; padding: 5px 8px; cursor: pointer; white-space: nowrap;
+  font-family: var(--nx-display); font-size: 12.5px; color: var(--nx-bone-2); border: 1px solid var(--nx-line-2);
+}
+.r-cal-adv a i { color: var(--nx-blood-l); font-size: 10px; margin-right: 3px; }
+.r-cal-adv a:hover { color: var(--nx-bone); border-color: var(--nx-bone-2); }
+.r-cal-jumps { margin-top: 6px; }
+.r-cal-scene { display: flex; align-items: center; gap: 8px; padding: 6px 9px; margin-bottom: 6px; font-size: 11.5px; color: var(--nx-muted); border: 1px solid var(--nx-line); box-shadow: inset 2px 0 0 var(--nx-steel); }
+.r-cal-scene b { font-family: var(--nx-display); font-weight: 400; font-size: 15px; color: var(--nx-steel); }
+.r-cal-scene a { margin-left: auto; cursor: pointer; font-family: var(--nx-caps); font-size: 10.5px; letter-spacing: 1px; text-transform: uppercase; color: var(--nx-muted); }
+.r-cal-scene a:hover { color: var(--nx-blood-l); }
+.r-cal-chron { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 12px; color: var(--nx-muted); }
+.r-cal-chron b { color: var(--nx-bone); font-weight: 400; }
+.r-cal-chron a { margin-left: auto; cursor: pointer; padding: 3px 8px; font-family: var(--nx-caps); font-size: 10.5px; letter-spacing: 1px; text-transform: uppercase; color: var(--nx-bone-2); border: 1px solid var(--nx-line-2); }
+.r-cal-chron a i { color: var(--nx-blood-l); }
+.r-cal-chron a:hover { color: var(--nx-bone); border-color: var(--nx-bone-2); }
+.r-cal .r-hint { margin-top: 6px; font-size: 12px; }
+.r-cal .r-cal-rates { align-items: center; }
+.r-cal .r-cal-rates > span { font-family: var(--nx-caps); font-size: 10.5px; letter-spacing: 1.4px; text-transform: uppercase; color: var(--nx-dim); margin-right: 2px; }
+.r-cal .r-cal-rates a.on { color: #f1e9da; background: var(--nx-blood); border-color: var(--nx-blood-l); }
+.r-cal .r-cal-rates .r-cal-smooth { margin-left: auto; }
+
+/* Карточка времени в чате */
+.r-time-card { --oc: var(--nx-bone-2); }
+.r-time-card[data-phase=day], .r-time-card[data-phase=dawn] { --oc: var(--nx-dawn); }
+.r-time-card .r-card-breakdown { padding-bottom: 8px; }

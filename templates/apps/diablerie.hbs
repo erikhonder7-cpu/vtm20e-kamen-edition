@@ -1,0 +1,31 @@
+{{!-- Диаблери (V20, гл. 5): продолжительная проверка Силы сл. 9 против здоровья жертвы. --}}
+<div class="r-roll-form r-diab">
+  <p class="r-hint">{{localize "VTM20.Diablerie.Intro"}}</p>
+  <div class="r-atk-grid">
+    <label class="is-wide"><span>{{localize "VTM20.Diablerie.Victim"}}</span>
+      <select name="victimId"><option value="">{{localize "VTM20.Diablerie.Unnamed"}}</option>{{#each victims}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
+    {{#unless victim}}<label><span>{{localize "VTM20.Diablerie.VictimGen"}}</span><input type="number" name="victimGen" value="{{v.victimGen}}" min="3" max="15"></label>{{/unless}}
+    <label><span>{{localize "VTM20.Diablerie.Drop"}}</span><input type="number" name="drop" value="{{drop}}" min="0" max="6"></label>
+  </div>
+  {{#if bigGap}}<div class="r-roll-note is-wide"><i class="fa-solid fa-circle-info"></i> {{localize "VTM20.Diablerie.BigGap"}}</div>{{/if}}
+
+  <div class="r-diab-track">
+    <div class="r-diab-bar"><i style="width: {{pct}}%"></i></div>
+    <span><b>{{progress}}</b> / {{needed}} {{localize "VTM20.Diablerie.Levels"}}</span>
+  </div>
+  {{#if victim}}{{#unless canHurt}}<p class="r-hint">{{localize "VTM20.Diablerie.NoOwner"}}</p>{{/unless}}{{/if}}
+
+  <div class="r-roll-total">
+    <div class="r-roll-breakdown">
+      <span>{{localize "VTM20.Details.generation"}}: <b>{{gen}}</b> → <b>{{newGen}}</b></span>
+      <span>{{localize "VTM20.Diablerie.AuraShort"}}: <b>{{years}}</b></span>
+    </div>
+    <div class="r-roll-pool"><b>{{pool}}</b><i class="fa-solid fa-dice-d10"></i> <span>{{localize "VTM20.Roll.Vs"}}</span> <b>9</b></div>
+  </div>
+
+  <div class="r-roll-foot">
+    <span class="r-mode"></span>
+    {{#if complete}}<a class="r-btn is-primary" data-action="finish"><i class="fa-solid fa-skull"></i> {{localize "VTM20.Diablerie.Finish"}}</a>
+    {{else}}<button type="submit" class="r-btn is-primary"><i class="fa-solid fa-droplet"></i> {{localize "VTM20.Diablerie.Drink"}}</button>{{/if}}
+  </div>
+</div>

@@ -1,0 +1,10 @@
+{
+  "TYPES": {
+    "Actor": { "vampire": "Kindred", "ghoul": "Ghoul", "mortal": "Mortal", "creature": "Creature" },
+    "Item": {
+      "discipline": "Discipline", "thaumPath": "Blood Magic Path", "ritual": "Ritual", "power": "Power",
+      "background": "Background", "merit": "Merit", "flaw": "Flaw", "derangement": "Derangement",
+      "weapon": "Weapon", "armor": "Armor", "gear": "Gear"
+    }
+  }
+}
