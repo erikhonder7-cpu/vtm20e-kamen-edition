@@ -752,6 +752,41 @@ def magus_extra(disc):
             p["html"] = f"<p><em>У чародеев: {html.escape(', '.join(names))}.</em></p>" + p["html"]
     print("Магусы: путей из других школ +", n)
 
+# Пути Тауматургии, которые знают традиции Сеттитов (Blood Sacrifice: «Равнозначные пути»), и их названия в традиции.
+# None — путь известен под обычным названием (Ванга: «обычные пути Тремере с религиозной оболочкой»).
+SETITE_EQUIV = {
+    "Акху": {"Алхимия": None, "Путь Воплощения": "Путь Птаха", "Путь Совращения": "Ложное сердце", "Путь проклятий": "Касание Сельмы",
+             "Путь Сосредоточенного разума": "Путь Тота", "Путь Марса": "Доблесть Сутеха", "Власть над смертной оболочкой": "Месть Хнума",
+             "Путь Управления духами": "Путь Анубиса", "Управление Погодой": "Дыхание Сета"},
+    "Садхана": {"Алхимия": "Расаяна", "Путь Воплощения": "Брахма-видья", "Власть над Стихиями": "Якша-видья",
+                "Путь Сосредоточенного разума": "Эхо Нирваны", "Длань Разрушения": "Рука Махакалы", "Мановение Мысли": "Рука риши",
+                "Онейромантия": "Желания Лакшми", "Путь Управления духами": "Асура-раджа",
+                "Путь «Змея внутри»": "Искушение Мары", "Путь Дуата": "Путь Ямы — бросок Воли, без талисмана"},
+    "Ванга": {"Путь Крови": None, "Путь Воплощения": None, "Путь Совращения": None, "Путь Управления духами": None,
+              "Путь проклятий": None, "Управление Погодой": None, "Игра с Огнём": None},
+}
+
+def setite_extra(disc):
+    """Пути Тауматургии в традициях Сеттитов: копия в Чародействе Сетитов с названиями Акху, Садханы и Ванги."""
+    st, th = disc["setiteSorcery"], disc["thaumaturgy"]
+    by = {}
+    for trad, paths in SETITE_EQUIV.items():
+        for name, alias in paths.items():
+            by.setdefault(name, []).append(f"{trad} — «{alias}»" if alias and "—" not in alias else
+                                           f"{trad} — «{alias.split(' — ')[0]}» ({alias.split(' — ')[1]})" if alias else f"{trad} — под тем же названием")
+    have = {p["name"]: p for p in st["paths"]}
+    n = 0
+    for name, trads in by.items():
+        note = f"<p><em>В традициях Сеттитов: {html.escape('; '.join(trads))} (Blood Sacrifice).</em></p>"
+        if name in have:                                     # свой путь Сеттитов — только названия в других традициях
+            have[name]["html"] = note + have[name]["html"]; continue
+        src = next((p for p in th["paths"] if p["name"] == name), None)
+        if not src: print("  нет пути Тауматургии для Сеттитов:", name); continue
+        cp = json.loads(json.dumps(src))
+        cp["html"] = note + "<p><em>Путь Тауматургии, равнозначный в чародействе Сеттитов: изучается как свой.</em></p>" + cp["html"]
+        st["paths"].append(cp); n += 1
+    print("Сеттиты: путей Тауматургии в своих традициях +", n)
+
 def annotate_rolls(disc, rituals):
     add_discipline_traits(disc)
     n = 0
@@ -797,6 +832,7 @@ def main():
     import magic_extra   # пути и ритуалы Revised, 2nd, Blood Magic / Blood Sacrifice и Тёмных веков (era = "darkAges")
     magic_extra.apply(disc, rituals)
     magus_extra(disc)
+    setite_extra(disc)
     import powers_extra   # высокие уровни (6–9) и новые силы Дисциплин из Revised и Тёмных веков (era = "darkAges")
     powers_extra.apply(disc)
     mdir = os.path.join(REF, "Достоинства_и_недостатки")

@@ -31,6 +31,7 @@ SOURCES = [
     ("Revised_Гайды_сект/03d_Шабаш_1999_Пути_Просветления.md", "", "Guide to the Sabbat (Revised, 1999)", {}, None),
     ("Revised_Основная/03_Пути_Просветления_достоинства_недостатки_особые_системы.md", "", "Vampire: The Masquerade Revised", {}, None),
     ("Revised_Гайды_сект/04c_Шабаш_1992_Players_Guide_Пути_Просветления.md", "", "The Player's Guide to the Sabbat (2nd Edition)", {}, None),
+    ("Revised_Кланбуки/01_Последователи_Сета.md", "", "Clanbook: Followers of Set (Revised)", {"Путь Сутеха": {"en": "Path of Sutekh"}}, None),
     # Тёмные века
     ("V20_Dark_Ages/02_Дороги.md", DA, "V20 Dark Ages",
      {"Дорога Человечности": {"bearing": "Человечность"}}, None),        # в книге у Ауры только описание
@@ -43,6 +44,8 @@ SOURCES = [
     ("DA_Clanbook_Baali/01_Дороги_Путь_Улья.md", DA, "Dark Ages Clanbook: Baali", {}, None),
     ("DA_Storytellers_Companion/01_Линии_крови_и_малые_Дороги.md", DA, "Dark Ages Storytellers Companion", {}, None),
     ("DA_Основная/02_Дороги_Dark_Ages_2002.md", DA, "Dark Ages: Vampire (2002)", {}, None),
+    ("DA_House_of_Tremere/05_Горгульи_и_творения_мастерских.md", DA, "Dark Ages: House of Tremere",
+     {"Дорога Служения": {"en": "Road of Service", "followers": "горгульи"}}, None),
 ]
 
 VIRT = [(r"убеждённ|решимост|решительн|conviction", "conviction"), (r"инстинкт|instinct", "instinct"),
@@ -70,7 +73,7 @@ def hierarchy(lines):
     for k, l in enumerate(lines):
         if l.startswith("|") and k + 1 < len(lines) and re.match(r"^\|[\s:|-]+\|", lines[k + 1]):
             c = [x.strip().replace("*", "") for x in l.strip().strip("|").split("|")]
-            on = len(c) >= 2 and re.match(r"Ур|Уров|Рейтинг|У\.", c[0]) and re.match(r"Грех|Принцип|Запрет|Нарушен", c[1])
+            on = len(c) >= 2 and re.match(r"Ур|Уров|Рейтинг|У\.|Значение", c[0]) and re.match(r"Грех|Принцип|Запрет|Нарушен|Минимальное прегрешение", c[1])
             continue
         if on and l.startswith("|"):
             c = [x.strip() for x in l.strip().strip("|").split("|")]
