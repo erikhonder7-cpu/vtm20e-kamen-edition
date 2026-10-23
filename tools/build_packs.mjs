@@ -47,6 +47,8 @@ const DISC_ICON = key => fs.existsSync(path.join(ROOT, "assets/icons/disciplines
 const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
 const esc = s => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 const now = Date.now();
+/** Материалы Тёмных веков (era = "darkAges") — в компендиях внутри папки «Тёмные века». */
+const daFolder = (x, folder) => x.era === "darkAges" ? ["Тёмные века", ...(Array.isArray(folder) ? folder : [folder])] : folder;
 const stats = () => ({
   compendiumSource: null, duplicateSource: null, exportSource: null,
   coreVersion: CORE_VERSION, systemId: SYSTEM_ID, systemVersion: manifest.version,
@@ -136,7 +138,7 @@ const BUILDERS = {
     const disc = data("disciplines");
     for (const [k, d] of Object.entries(disc)) for (const path_ of d.paths ?? []) {
       const powers = (path_.powers ?? []).map(x => `<li><b>${ROMAN[x.level - 1] ?? x.level}</b> · ${esc(x.name)}</li>`).join("");
-      p.add({ name: path_.name, type: "thaumPath", folder: d.name, key: `${k}:${path_.name}`, img: DISC_ICON(k),
+      p.add({ name: path_.name, type: "thaumPath", folder: daFolder(path_, d.name), key: `${k}:${path_.name}`, img: DISC_ICON(k),
         system: { discipline: k, value: 1, primary: false, source: path_.en ?? "", description: `${path_.html ?? ""}${powers ? `<h4>Уровни пути</h4><ul>${powers}</ul>` : ""}` } });
     }
     return p;
@@ -148,7 +150,7 @@ const BUILDERS = {
     for (const [k, group] of Object.entries(data("rituals"))) for (const r of group.rituals ?? []) {
       const system = { discipline: k, level: r.level, source: r.en ?? "", description: r.html ?? "" };
       const roll = rollOf(r.roll); if (roll) system.roll = roll;
-      p.add({ name: r.name, type: "ritual", folder: `${k === "obtenebration" ? "Мистика Бездны" : disc[k]?.name ?? k} — ${ROMAN[r.level - 1] ?? r.level}`, key: `${k}:${r.name}`, img: DISC_ICON(k), system });
+      p.add({ name: r.name, type: "ritual", folder: daFolder(r, `${k === "obtenebration" ? "Мистика Бездны" : disc[k]?.name ?? k} — ${ROMAN[r.level - 1] ?? r.level}`), key: `${k}:${r.name}`, img: DISC_ICON(k), system });
     }
     return p;
   },
@@ -166,7 +168,7 @@ const BUILDERS = {
       const folder = m.clan ? [`Клановые ${kindLabel.toLowerCase()}`, clanName[m.clan] ?? m.clan]
         : m.sect ? ["Черты сект", sectName[m.sect] ?? m.sect]
         : `${kindLabel} — ${cat[m.category] ?? m.category}`;
-      p.add({ name: m.name, type: m.kind, folder, key: `${m.kind}:${m.name}`,
+      p.add({ name: m.name, type: m.kind, folder: daFolder(m, folder), key: `${m.kind}:${m.name}`,
         system: { cost: m.min || 1, category: m.category, clan: m.clan ?? "", sect: m.sect ?? "", source: m.en ?? "", description: `${m.html ?? ""}${range}` } });
     }
     return p;

@@ -237,6 +237,14 @@ function registerSettings() {
       for (const app of foundry.applications.instances.values()) if (app.document?.documentName === "Actor") app.render();
     }
   });
+  // Пути, ритуалы и черты Тёмных веков (era = "darkAges" в data/*.json) — отдельный переключатель, не зависит от эпохи
+  game.settings.register(SYSTEM_ID, "darkAgesContent", {
+    name: "VTM20.Settings.DarkAges.Name", hint: "VTM20.Settings.DarkAges.Hint",
+    scope: "world", config: true, type: Boolean, default: false,
+    onChange: () => {
+      for (const app of foundry.applications.instances.values()) if (app.rendered) app.render();
+    }
+  });
   // Деньги: валюта хроники и курс ассигната (% номинала, задаёт рассказчик)
   game.settings.register(SYSTEM_ID, "currency", {
     name: "VTM20.Settings.Currency.Name", hint: "VTM20.Settings.Currency.Hint",

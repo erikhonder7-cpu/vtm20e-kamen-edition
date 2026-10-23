@@ -195,6 +195,10 @@
   "kind": "merit",
   "category": "social"
  },
+ "bunn": {
+  "kind": "flaw",
+  "category": null
+ },
  "callofthesea": {
   "kind": "merit",
   "category": "supernatural"
@@ -202,6 +206,10 @@
  "calmheart": {
   "kind": "merit",
   "category": "mental"
+ },
+ "camheart": {
+  "kind": "merit",
+  "category": null
  },
  "cannibal": {
   "kind": "merit",
@@ -214,6 +222,10 @@
  "carrionpresence": {
   "kind": "flaw",
   "category": "supernatural"
+ },
+ "castnoreetection": {
+  "kind": "flaw",
+  "category": null
  },
  "castnoreflection": {
   "kind": "flaw",
@@ -293,7 +305,7 @@
  },
  "commonsense": {
   "kind": "merit",
-  "category": "mental"
+  "category": null
  },
  "compulsion": {
   "kind": "flaw",
@@ -306,6 +318,10 @@
  "concentration": {
   "kind": "merit",
   "category": "mental"
+ },
+ "coneorhonor": {
+  "kind": "merit",
+  "category": null
  },
  "confused": {
   "kind": "flaw",
@@ -417,7 +433,7 @@
  },
  "deepsleeper": {
   "kind": "flaw",
-  "category": "mental"
+  "category": null
  },
  "deformity": {
   "kind": "flaw",
@@ -566,6 +582,10 @@
  "escapedtarget": {
   "kind": "flaw",
   "category": "social"
+ },
+ "eve": {
+  "kind": "flaw",
+  "category": null
  },
  "expendable": {
   "kind": "flaw",
@@ -751,6 +771,10 @@
   "kind": "merit",
   "category": "supernatural"
  },
+ "hucesize": {
+  "kind": "merit",
+  "category": null
+ },
  "hugesize": {
   "kind": "merit",
   "category": "physical"
@@ -762,6 +786,10 @@
  "huntedlikeadog": {
   "kind": "flaw",
   "category": "social"
+ },
+ "huntep": {
+  "kind": "flaw",
+  "category": null
  },
  "ignorance": {
   "kind": "flaw",
@@ -970,6 +998,10 @@
  "lunacy": {
   "kind": "flaw",
   "category": "mental"
+ },
+ "maaicresistance": {
+  "kind": "merit",
+  "category": null
  },
  "mageblood": {
   "kind": "flaw",
@@ -1379,6 +1411,10 @@
   "kind": "flaw",
   "category": "supernatural"
  },
+ "repetcenpycrosses": {
+  "kind": "flaw",
+  "category": null
+ },
  "reptilebuddy": {
   "kind": "merit",
   "category": "physical"
@@ -1591,6 +1627,10 @@
   "kind": "merit",
   "category": "supernatural"
  },
+ "sprertmentor": {
+  "kind": "merit",
+  "category": null
+ },
  "stench": {
   "kind": "flaw",
   "category": "physical"
@@ -1683,6 +1723,10 @@
   "kind": "merit",
   "category": "mental"
  },
+ "tiuinboon": {
+  "kind": "flaw",
+  "category": null
+ },
  "torturedartist": {
   "kind": "flaw",
   "category": "mental"
@@ -1721,7 +1765,7 @@
  },
  "truelove": {
   "kind": "merit",
-  "category": "supernatural"
+  "category": null
  },
  "tunnelrat": {
   "kind": "merit",

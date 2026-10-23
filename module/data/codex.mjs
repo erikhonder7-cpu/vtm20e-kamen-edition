@@ -3,7 +3,7 @@
 // достоинства и недостатки, факты биографии, архетипы. Данные собирает
 // tools/build_data.py из книг (books/Мир Тьмы), здесь — только загрузка и поиск.
 
-import { SYSTEM_PATH } from "../config.mjs";
+import { SYSTEM_PATH, SYSTEM_ID } from "../config.mjs";
 
 const FILES = ["disciplines", "clans", "rituals", "paths", "merits", "backgrounds", "archetypes", "assets", "derangements", "combos"];
 
@@ -67,6 +67,14 @@ export const Codex = {
 
   /** Чьи клановые черты доступны персонажу: антитрибу и ветви берут черты родительского клана. */
   traitClan(key) { return TRAIT_CLAN_PARENT[key] ?? key; },
+
+  /** Включён ли контент Тёмных веков (настройка мира «Контент из Dark Ages»). */
+  darkAgesOn() {
+    try { return !!game.settings.get(SYSTEM_ID, "darkAgesContent"); } catch { return false; }
+  },
+
+  /** Показывать ли запись (путь, ритуал, черту): материалы Тёмных веков — только при включённой настройке. */
+  visible(x) { return !x?.era || (x.era === "darkAges" && this.darkAgesOn()); },
 
   /** Ключ секты по свободному тексту (поле «Секта» на листе): «Камарилья» → camarilla. */
   sectKey(text) { return SECT_KEYS.find(([re]) => re.test(text ?? ""))?.[1] ?? ""; },

@@ -347,10 +347,10 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
             ownPowers: ownPowers.filter(o => o.system.discipline === k && o.system.path === p.name).sort((x, y) => x.system.level - y.system.level).map(mapOwn)
           };
         }),
-        pathChoices: VTM20.pathDisciplines.includes(k) ? (data?.paths ?? []).filter(pp => !myPaths.some(m => m.name === pp.name)).map(pp => pp.name) : [],
-        hasRituals: !!Codex.rituals[k]?.rituals?.length || myRituals.length > 0,
+        pathChoices: VTM20.pathDisciplines.includes(k) ? (data?.paths ?? []).filter(pp => Codex.visible(pp) && !myPaths.some(m => m.name === pp.name)).map(pp => pp.name) : [],
+        hasRituals: !!Codex.rituals[k]?.rituals?.some(r => Codex.visible(r)) || myRituals.length > 0,
         rituals: myRituals.sort((x, y) => x.system.level - y.system.level || x.name.localeCompare(y.name)).map(mapRitual),
-        ritualChoices: (Codex.rituals[k]?.rituals ?? []).some(r => r.level <= v && !rituals.some(m => m.name === r.name)),
+        ritualChoices: (Codex.rituals[k]?.rituals ?? []).some(r => Codex.visible(r) && r.level <= v && !rituals.some(m => m.name === r.name)),
         xp: a.xpCost("discipline", v, { key: k, inClan }),
         open: this._open.has(it.id)
       };

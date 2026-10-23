@@ -57,14 +57,15 @@ SECT_BY_NAME = {
     "Домен": "camarilla", "Должность": "camarilla", "Гарпия": "camarilla", "Примоген": "camarilla",
 }
 
-FIELDS = ("kind", "category", "name", "en", "cost", "min", "max", "clan", "sect", "source", "html")
+FIELDS = ("kind", "category", "name", "en", "cost", "min", "max", "clan", "sect", "era", "source", "html")
 
 def with_clan(x, clan=None):
-    """Запись с полями clan и sect в постоянном порядке полей."""
+    """Запись с полями clan, sect и era в постоянном порядке полей."""
     x = dict(x)
     if clan is not None: x["clan"] = clan
     x.setdefault("clan", "")
     x["sect"] = x.get("sect") or SECT_BY_NAME.get(x["name"]) or SECT_BY_SOURCE.get(x.get("source"), "")
+    x["era"] = x.get("era") or era_of(x.get("source"))
     return {k: x[k] for k in FIELDS if k in x}
 
 # (маска файла, книга по‑русски для подписи, вес приоритета: меньше — главнее)
@@ -85,7 +86,23 @@ SOURCES = [
     ("Revised_Основные/02a_*.md", "Player's Guide (2nd Ed.)", 3),
     ("Прочее/07_*.md", "Elysium (2nd Ed.)", 3),
     ("Прочее/08_*.md", "Hunters Hunted (2nd Ed.)", 3),
+    ("Revised_Основная/03_*.md", "Vampire: The Masquerade Revised", 2),
+    # Тёмные века (era = "darkAges"; в системе видны при включённом «Контенте из Dark Ages»)
+    ("V20_Dark_Ages/03_*.md", "V20 Dark Ages", 4),
+    ("DA_Основная/01_*.md", "Dark Ages: Vampire (2002)", 5),
+    ("DA_Road_of_Heaven/02_*.md", "Dark Ages: Road of Heaven", 5),
+    ("DA_Low_Clans/12_*.md", "Dark Ages: Player's Guide to Low Clans", 5),
+    ("DA_Tome_of_Secrets/*.md", "V20 Dark Ages: Tome of Secrets", 5),
 ]
+DA_BOOKS = {b for _, b, p in SOURCES if p >= 4}
+
+# Машинный перевод Low Clans без английских названий: явные повторы черт V20 под другим переводом
+EN_HINT = {"Патагия": "Patagia", "Невидимый сон": "Sleep Unseen", "Зловоние": "Stench", "Безвредный": "Harmless",
+           "Альтернативная личность": "Alternate Identity", "Бывшая кошачья лапа": "Catspaw"}
+
+def era_of(source):
+    """Эпоха черты по книге: Тёмные века → "darkAges"."""
+    return "darkAges" if re.search(r"Dark Ages|Тёмные века", source or "") else ""
 
 CAT_WORDS = [
     (r"физ", "physical"), (r"мент|умствен|психолог|восприят|способност", "mental"),
@@ -254,6 +271,15 @@ def collect(core):
         have[norm(x["name"])] = 0
         ru_names.append(x["name"])
     added, unknown = [], []
+    core_keys = set(have)
+    # готовые записи (tools/merits_*_manual.json) главнее строк таблиц с тем же названием: их имена занимаем сразу
+    manual_items = []
+    for manual in MANUALS:
+        with io.open(manual, encoding="utf-8") as f:
+            manual_items += json.load(f)
+    for x in manual_items:
+        if norm(x["en"]) not in core_keys and norm(x["name"]) not in core_keys:
+            have[norm(x["en"]) or norm(x["name"])] = 2; have[norm(x["name"])] = 2
     for pat, book, prio in SOURCES:
         for path in sorted(glob.glob(os.path.join(REF, pat))):
             lines = read(path)
@@ -272,17 +298,26 @@ def collect(core):
                     # «Лунатизм (Lunacy, недостаток)», «Нет отражения (недостаток)» — пометку вида из названия убираем
                     cell = re.sub(r"\s*\((?:[^()]*?,\s*)?(?:недостаток|достоинство|дост\.|недост\.)\)", lambda m: "" if "," not in m.group(0) else " (" + m.group(0).split("(")[1].split(",")[0] + ")", cell, flags=re.I)
                     cell = re.sub(r"\s*\((?:физический|ментальный|социальный|сверхъестественный)?\s*(?:недостаток|достоинство)\)", "", cell, flags=re.I)
+                    # «Лик ангела (Angel Face) — Достоинство или Недостаток», «Криптофаг (…) — Недостаток»
+                    cell = re.sub(r"\s*[—–]\s*(?:Достоинство|Недостаток)(?:\s+или\s+(?:Достоинство|Недостаток))?\s*$", "", cell, flags=re.I)
+                    # пометки переводчика Low Clans: «(название по смыслу)», «(в тексте «…»; Достоинство)», «(Достоинство или недостаток)»
+                    cell = re.sub(r"\s*\((?:название по смыслу|в тексте[^()]*?(?:«[^»]*»)?[^()]*|Достоинство или недостаток)\)", "", cell, flags=re.I)
                     ru, en = split_name(cell)
                     if not ru or re.match(r"^[\d\s.—–-]*$", ru): continue
-                    # старые книги без английского названия не сверить с V20 — пропускаем, чтобы не плодить повторы
-                    # Elysium (черты старейшин) больше нигде не встречаются — берём и без английских названий
-                    if not en and book not in RU_ONLY_BOOKS and (prio >= 3 or (prio == 2 and ru not in RU_ONLY_OK)): continue
+                    en = en or EN_HINT.get(ru, "")
+                    # старые книги без английского названия не сверить с V20 — пропускаем, чтобы не плодить повторы;
+                    # Elysium (черты старейшин) и Тёмные века (свои черты эпохи) берём и без английских названий —
+                    # повторы под другим переводом всё равно отсекает same_ru ниже
+                    if not en and book not in RU_ONLY_BOOKS and book not in DA_BOOKS and (prio >= 3 or (prio == 2 and ru not in RU_ONLY_OK)): continue
                     if norm(en) in DUP_EN: continue
                     cost_raw, nums = parse_cost(r[1])
                     if not nums: continue
+                    # Dark Ages 2002 пишет недостатки отрицательной ценой: «−2», «−2/−4»
+                    neg = bool(re.match(r"^\s*\**\s*[−-]\s*\d", r[1]))
+                    if neg: cost_raw = re.sub(r"[−]|(?<!\d)-(?=\d)", "", cost_raw).strip()
                     effect = r[eff_col] if eff_col < len(r) else ""
                     e = eni.get(norm(en)) if en else None
-                    kind = KIND_FIX.get(ru) or name_kind or kind_of(r[1]) or (kind_of(r[type_col]) if type_col is not None else None) \
+                    kind = KIND_FIX.get(ru) or name_kind or ("flaw" if neg else None) or kind_of(r[1]) or (kind_of(r[type_col]) if type_col is not None else None) \
                         or (e or {}).get("kind") or (kind_of(heads[-1]) if heads else None)
                     if not kind:
                         # ни таблица, ни английский текст не говорят — смотрим на смысл последней фразы заголовков
@@ -303,15 +338,15 @@ def collect(core):
                     have[key] = prio; have[norm(ru)] = prio
                     ru_names.append(ru)
                     added.append(item)
-    for manual in MANUALS:
-        with io.open(manual, encoding="utf-8") as f:
-            for x in json.load(f):
-                if norm(x["en"]) in have or norm(x["name"]) in have:
-                    continue
-                have[norm(x["en"]) or norm(x["name"])] = 2
-                added.append(with_clan(x))
+    seen_manual = set()
+    for x in manual_items:
+        k = norm(x["en"]) or norm(x["name"])
+        if norm(x["en"]) in core_keys or norm(x["name"]) in core_keys or k in seen_manual:
+            continue
+        seen_manual.add(k)
+        added.append(with_clan(x))
     for x in added: x.pop("prio", None)
     print(f"Достоинства и недостатки из дополнений: +{len(added)} "
           f"(достоинств {sum(x['kind'] == 'merit' for x in added)}, недостатков {sum(x['kind'] == 'flaw' for x in added)})")
-    if unknown: print(f"  вид по умолчанию «достоинство»: {len(unknown)} (в книге без пометки вида)")
+    if unknown: print(f"  вид по умолчанию «достоинство»: {len(unknown)} (в книге без пометки вида): " + "; ".join(unknown))
     return added

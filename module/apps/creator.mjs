@@ -366,7 +366,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     // Клановые черты и черты секты — только в своих категориях и только своего клана/секты
     const myClan = this.type === "vampire" ? Codex.traitClan(st.clan) : "";
     const mySect = st.sectKey || Codex.sectKey(st.sect);
-    const inCat = (m, cat) => cat === "clan" ? !!myClan && m.clan === myClan
+    const inCat = (m, cat) => !Codex.visible(m) ? false : cat === "clan" ? !!myClan && m.clan === myClan
       : cat === "sect" ? !m.clan && !!mySect && m.sect === mySect
       : !m.clan && !m.sect && (cat === "all" || m.category === cat);
     const extra = ["sect", "clan"].filter(k => Codex.merits.some(m => m.kind === this.ui.mfTab && inCat(m, k)));

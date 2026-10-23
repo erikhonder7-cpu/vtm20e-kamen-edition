@@ -18,6 +18,9 @@ const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`
 const L = (k, d) => t(`Library.${k}`, d);
 const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
 const plain = html => String(html ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+/** Метки записи: книга (кроме основной V20) и «Тёмные века» для материалов эпохи. */
+const sourceTags = x => [x.era === "darkAges" && { label: L("Filter.DarkAges"), red: true },
+  x.source && x.source !== "V20" && { label: x.source }].filter(Boolean);
 const norm = s => s.toLowerCase().replace(/ё/g, "е");
 const ICON = type => `systems/${SYSTEM_ID}/assets/icons/${type}.svg`;
 const KINDS = ["discipline", "path", "ritual", "combo", "merit", "flaw", "background", "derangement"];
@@ -167,7 +170,7 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
     return Object.values(Codex.disciplines).map(d => {
       const sym = Codex.disciplineSymbol(d.key);
       const inClan = clanD.includes(d.key);
-      const paths = d.paths ?? [];
+      const paths = (d.paths ?? []).filter(p => Codex.visible(p));
       return this.#entry({
         id: d.key, name: d.name, en: d.en, sym, inClan, has: have.has(d.key), xp, order: inClan ? 0 : 1,
         scope: inClan ? "clan" : "",
@@ -185,10 +188,11 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
     const mine = this.itemsOf("thaumPath").filter(p => p.system.discipline === disc).map(p => p.name);
     const dots = this.dotsOf(disc);
     const xp = this.actor ? this.actor.xpCost("path", 0) : 0;
-    return (d?.paths ?? []).map((p, pi) => this.#entry({
+    // id — номер в полном списке пути (по нему берётся запись при добавлении), поэтому фильтруем после нумерации
+    return (d?.paths ?? []).map((p, pi) => [p, pi]).filter(([p]) => Codex.visible(p)).map(([p, pi]) => this.#entry({
       id: String(pi), name: p.name, en: p.en, has: mine.includes(p.name), xp, sym: Codex.disciplineSymbol(disc),
       reasons: dots < 1 ? [L("NeedDiscipline", { name: d.name })] : [],
-      tags: !mine.length ? [{ label: L("Primary"), red: true }] : [],
+      tags: [!mine.length && { label: L("Primary"), red: true }, ...sourceTags(p)].filter(Boolean),
       text: p.html ?? "",
       powers: (p.powers ?? []).map((x, i) => ({ roman: ROMAN[x.level - 1] ?? x.level, name: x.name, ref: `${disc}|path|${pi}|${i}` }))
     }));
@@ -198,9 +202,9 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
     const disc = this.o.discipline;
     const mine = new Set(this.itemsOf("ritual").map(r => r.name));
     const dots = this.dotsOf(disc);
-    return (Codex.rituals[disc]?.rituals ?? []).map((r, i) => this.#entry({
+    return (Codex.rituals[disc]?.rituals ?? []).map((r, i) => [r, i]).filter(([r]) => Codex.visible(r)).map(([r, i]) => this.#entry({
       id: String(i), name: r.name, en: r.en, level: r.level, levels: String(r.level), order: r.level,
-      roman: ROMAN[r.level - 1] ?? r.level, has: mine.has(r.name), text: r.html ?? "", long: true,
+      roman: ROMAN[r.level - 1] ?? r.level, has: mine.has(r.name), text: r.html ?? "", long: true, tags: sourceTags(r),
       reasons: r.level > dots ? [L("NeedLevel", { name: Codex.disciplineLabel(disc), level: r.level })] : []
     }));
   }
@@ -235,7 +239,7 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
       return { group: m.category, cat: m.category, groupOrder: cats.indexOf(m.category),
         groupName: game.i18n.localize(VTM20.meritCategories[m.category]?.label ?? m.category) };
     };
-    return Codex.merits.filter(m => m.kind === kind).map(m => {
+    return Codex.merits.filter(m => m.kind === kind && Codex.visible(m)).map(m => {
       const costs = costsOf(m);
       const blocker = blockerFor(m.name, mine);
       return this.#entry({
@@ -243,7 +247,7 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
         flaw: kind === "flaw", cost: m.cost, order: costs[0],
         ...place(m),
         levels: costs.join(","),
-        tags: m.source && m.source !== "V20" ? [{ label: m.source }] : [],
+        tags: sourceTags(m),
         variants: costs.map(c => ({ value: c, label: String(c) })),
         reasons: blocker ? [L("Blocked", { name: blocker })] : []
       });

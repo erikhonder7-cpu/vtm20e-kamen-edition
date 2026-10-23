@@ -753,6 +753,8 @@ def main():
     magus_paths(disc, rituals)
     import supplements
     combos = supplements.apply(disc, rituals)
+    import magic_extra   # пути и ритуалы Revised, 2nd, Blood Magic / Blood Sacrifice и Тёмных веков (era = "darkAges")
+    magic_extra.apply(disc, rituals)
     mdir = os.path.join(REF, "Достоинства_и_недостатки")
     merits = parse_merits([os.path.join(mdir, f) for f in sorted(os.listdir(mdir)) if f.endswith(".md")])
     import merits_extra
