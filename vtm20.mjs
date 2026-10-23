@@ -104,7 +104,9 @@ Hooks.once("init", () => {
   registerCityMap();
   foundry.applications.handlebars.loadTemplates({
     rDots: `${SYSTEM_PATH}/templates/actor/parts/dots.hbs`,
-    rPower: `${SYSTEM_PATH}/templates/actor/parts/power.hbs`
+    rPower: `${SYSTEM_PATH}/templates/actor/parts/power.hbs`,
+    rItemHead: `${SYSTEM_PATH}/templates/item/parts/head.hbs`,
+    rItemRoll: `${SYSTEM_PATH}/templates/item/parts/roll.hbs`
   });
   foundry.applications.handlebars.loadTemplates([
     `${SYSTEM_PATH}/templates/apps/nexus.hbs`, `${SYSTEM_PATH}/templates/apps/nexus-card.hbs`,

@@ -124,7 +124,10 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
     const f = this.filters;
     const chip = (key, value, label, icon) => ({ key, value, label, icon, active: f[key] === value });
     let chips = null;
-    if (kind === "ritual") chips = [0, 1, 2, 3, 4, 5].map(v => chip("level", v, v ? ROMAN[v - 1] : L("Filter.All")));
+    if (kind === "ritual") {
+      const top = Math.max(5, ...entries.map(e => e.level || 0));          // у Тауматургии есть ритуалы до X
+      chips = Array.from({ length: top + 1 }, (_, v) => chip("level", v, v ? ROMAN[v - 1] ?? v : L("Filter.All")));
+    }
     else if (kind === "merit" || kind === "flaw") {
       chips = [chip("cat", "", L("Filter.All")), ...Object.entries(VTM20.meritCategories)
         .map(([k, c]) => chip("cat", k, game.i18n.localize(c.label))),
@@ -212,12 +215,17 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
   /** Комбинированные Дисциплины: нужны все перечисленные Дисциплины нужного уровня; цена в опыте — из книги. */
   #combos() {
     const mine = new Set(this.itemsOf("power").map(p => p.name));
+    const groupIdx = [...new Set((Codex.combos ?? []).map(c => c.requires?.[0]?.key ?? ""))]
+      .sort((a, b) => Codex.disciplineLabel(a).localeCompare(Codex.disciplineLabel(b), "ru"));
     return (Codex.combos ?? []).map((c, i) => [c, i]).filter(([c]) => Codex.visible(c)).map(([c, i]) => {
       const miss = (c.requires ?? []).filter(r => this.dotsOf(r.key) < r.level)
         .map(r => L("NeedLevel", { name: Codex.disciplineLabel(r.key), level: r.level }));
+      // группа — первая из нужных Дисциплин: так легче найти «всё, что строится на Ясновидении»
+      const first = c.requires?.[0]?.key ?? "";
       return this.#entry({
         id: String(i), name: c.name, en: c.en, has: mine.has(c.name), text: c.html ?? "", long: true,
-        xp: c.xp ?? 0, order: c.xp ?? 0, reasons: this.actor ? miss : [],
+        xp: c.xp ?? 0, order: 0, reasons: this.actor ? miss : [],
+        group: `combo:${first}`, groupName: Codex.disciplineLabel(first) || "—", groupOrder: groupIdx.indexOf(first),
         tags: [{ label: c.requiresText }, ...sourceTags(c)]
       });
     });

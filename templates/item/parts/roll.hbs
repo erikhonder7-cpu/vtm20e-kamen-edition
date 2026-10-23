@@ -1,0 +1,9 @@
+{{!-- Поля пула проверки силы или ритуала (внутри блока «Настройки»). --}}
+<label class="r-f"><span>{{localize "VTM20.Item.trait1"}}</span>
+  <select name="system.roll.trait1"><option value="">—</option>{{#each traitGroups.t1}}<optgroup label="{{label}}">{{#each options}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</optgroup>{{/each}}</select></label>
+<label class="r-f"><span>{{localize "VTM20.Item.trait2"}}</span>
+  <select name="system.roll.trait2"><option value="">—</option>{{#each traitGroups.t2}}<optgroup label="{{label}}">{{#each options}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</optgroup>{{/each}}</select></label>
+<label class="r-f"><span>{{localize "VTM20.Roll.Difficulty"}}</span><input type="number" name="system.roll.difficulty" value="{{system.roll.difficulty}}" min="0" max="10"></label>
+<label class="r-f"><span>{{localize "VTM20.Item.bloodCost"}}</span><input type="number" name="system.roll.blood" value="{{system.roll.blood}}" min="0" max="10"></label>
+<label class="r-f r-f-check"><input type="checkbox" name="system.roll.willpower" {{checked system.roll.willpower}}><span>{{localize "VTM20.Roll.PayWill"}}</span></label>
+<label class="r-f is-span2"><span>{{localize "VTM20.Item.source"}}</span><input type="text" name="system.source" value="{{system.source}}"></label>

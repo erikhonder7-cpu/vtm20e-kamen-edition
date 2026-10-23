@@ -1,0 +1,10 @@
+{{!-- Шапка листа предмета: картинка, подпись, имя, «в чат». --}}
+<header class="r-item-head">
+  <img class="r-item-img" src="{{item.img}}" data-edit="img" data-action="editImage" alt="">
+  <div class="r-item-titles">
+    <span class="r-kicker">{{kicker}}</span>
+    <input class="r-name" type="text" name="name" value="{{item.name}}">
+  </div>
+  <a class="r-icon-btn" data-action="toChat" data-tooltip="{{localize 'VTM20.Sheet.ToChat'}}"><i class="fa-solid fa-comment-dots"></i></a>
+</header>
+<div class="r-rule" aria-hidden="true"><span></span><i></i><span></span></div>

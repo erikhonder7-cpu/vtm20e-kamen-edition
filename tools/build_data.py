@@ -814,6 +814,9 @@ def main():
     def dump(name, obj):
         with open(os.path.join(OUT, name), "w", encoding="utf-8", newline="\n") as f:
             json.dump(obj, f, ensure_ascii=False, indent=1)
+    import polish   # шапка «Уровень · Бросок · Источник» и расшифровка сокращений в описаниях ритуалов
+    polish.rituals(rituals)
+    polish.combos(combos)
     dump("disciplines.json", disc)
     dump("rituals.json", rituals)
     dump("combos.json", combos)

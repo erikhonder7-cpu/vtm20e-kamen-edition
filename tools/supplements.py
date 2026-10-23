@@ -110,7 +110,8 @@ def src_p(book, note=""):
 
 # ── Ритуалы ─────────────────────────────────────────────────────────────────
 
-ITEM_RE = re.compile(r"^\*\*(.+?)\*\*\s*\(([^()]*[A-Za-z][^()]*)\)\s*(?:—\s*(?:уровень\s*)?(\d+)\s*(?:,\s*(.+?))?)?\s*$")
+# «**Имя** (En) — 3», «… — уровень 3, Акху» или «… — запретный» (уровень из заголовка «Уровень N», пометка — в группе 5)
+ITEM_RE = re.compile(r"^\*\*(.+?)\*\*\s*\(([^()]*[A-Za-z][^()]*)\)\s*(?:—\s*(?:(?:уровень\s*)?(\d+)\s*(?:,\s*(.+?))?|([^\d\s].*?)))?\s*$")
 H3_RE = re.compile(r"^(.+?)\s*\(([^()]*[A-Za-z][^()]*)\)\s*—\s*(.*)$")
 
 def rituals_from(lines, disc, book, note="", disc_of=None):
@@ -142,7 +143,7 @@ def rituals_from(lines, disc, book, note="", disc_of=None):
             extra = m.group(4)
             cur = {"discipline": disc_of(extra or "") if disc_of else disc, "level": int(m.group(3) or lvl),
                    "name": m.group(1).strip(), "en": m.group(2).strip(), "body": [],
-                   "note": (note + (" Традиция: " + extra + "." if extra else "")).strip()}
+                   "note": (note + (" Традиция: " + extra + "." if extra else "") + (f" {m.group(5)[:1].upper()}{m.group(5)[1:]}." if m.group(5) else "")).strip()}
             continue
         h = heading_level(l)
         if h >= 3:

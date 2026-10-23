@@ -1,0 +1,32 @@
+{{!-- Ритуал: уровень, школа, бросок; поля — в «Настройках»; описание. --}}
+<div class="r-item-sheet is-ritual">
+  {{> rItemHead}}
+  <div class="r-item-body">
+    <div class="r-badges">
+      <div class="r-badge is-level"><b>{{roman}}</b><span>{{localize "VTM20.Item.level"}}</span></div>
+      <div class="r-badge"><span>{{localize "VTM20.ItemSheet.School"}}</span><b>{{disciplineName}}</b></div>
+      <div class="r-badge"><span>{{localize "VTM20.ItemSheet.Roll"}}</span>
+        <b>{{#if pool}}{{pool}}{{else}}—{{/if}}</b>
+        {{#if system.roll.difficulty}}<em>{{localize "VTM20.Roll.Difficulty"}} {{system.roll.difficulty}}</em>{{/if}}</div>
+      {{#if (or system.roll.blood system.roll.willpower)}}
+      <div class="r-badge is-cost"><span>{{localize "VTM20.ItemSheet.Cost"}}</span>
+        <b>{{#if system.roll.blood}}{{system.roll.blood}} <i class="fa-solid fa-droplet"></i>{{/if}} {{#if system.roll.willpower}}1 <i class="fa-solid fa-sun"></i>{{/if}}</b></div>
+      {{/if}}
+    </div>
+
+    <h2 class="r-h2"><span>{{localize "VTM20.Item.description"}}</span></h2>
+    <div class="r-editor r-item-text">
+      <prose-mirror name="system.description" value="{{system.description}}" toggled {{#unless editable}}disabled{{/unless}}>{{{descriptionHTML}}}</prose-mirror>
+    </div>
+
+    <details class="r-item-setup">
+      <summary><i class="fa-solid fa-sliders"></i> {{localize "VTM20.ItemSheet.Setup"}}</summary>
+      <div class="r-fields is-wide">
+        <label class="r-f"><span>{{localize "VTM20.ItemSheet.School"}}</span>
+          <select name="system.discipline">{{#each disciplineOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+        <label class="r-f"><span>{{localize "VTM20.Item.level"}}</span><input type="number" name="system.level" value="{{system.level}}" min="1" max="10"></label>
+        {{> rItemRoll}}
+      </div>
+    </details>
+  </div>
+</div>

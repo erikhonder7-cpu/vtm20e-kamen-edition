@@ -117,18 +117,28 @@ const BUILDERS = {
 
   disciplines() {
     const p = new Pack("disciplines");
-    for (const d of Object.values(data("disciplines"))) {
+    const all = data("disciplines");
+    // Папка на Дисциплину: сама Дисциплина, затем её силы по уровням (порядок ручной — по уровню, а не по алфавиту)
+    for (const d of Object.values(all).sort((a, b) => a.name.localeCompare(b.name, "ru"))) {
       const powers = (d.powers ?? []).map(x => `<li><b>${ROMAN[x.level - 1] ?? x.level}</b> · ${esc(x.name)}${x.en ? ` <em>(${esc(x.en)})</em>` : ""}</li>`).join("");
       const rules = (d.rules ?? []).map(r => r.html ?? "").join("");
       const description = `${rules}${powers ? `<h4>Силы</h4><ul>${powers}</ul>` : ""}${d.clans?.length ? `<p><em>Клановая у: ${esc([].concat(d.clans).join(", "))}</em></p>` : ""}${sourceLine(d.source)}`;
-      p.add({ name: d.name, type: "discipline", key: d.key, img: DISC_ICON(d.key), system: { key: d.key, value: 1, inClan: false, source: d.en ?? "", description } });
+      p.add({ name: d.name, type: "discipline", folder: d.name, key: d.key, img: DISC_ICON(d.key), system: { key: d.key, value: 1, inClan: false, source: d.en ?? "", description } });
+      p.folders.get(d.name).sorting = "m";
+      for (const x of d.powers ?? []) {
+        const system = { discipline: d.key, path: "", level: x.level, source: x.en ?? "", description: x.html ?? "" };
+        const roll = rollOf(x.roll); if (roll) system.roll = roll;
+        p.add({ name: x.name, type: "power", folder: x.era === "darkAges" ? [d.name, "Тёмные века"] : d.name, key: `${d.key}:${x.level}:${x.name}`, img: DISC_ICON(d.key), system });
+      }
     }
-    // Комбинированные Дисциплины (Lore of the Clans и др.) — силы, привязанные к первой из нужных Дисциплин
-    for (const c of data("combos")) {
+    // Комбинированные Дисциплины — подпапками по первой из нужных Дисциплин («Комбинированные / Ясновидение»)
+    for (const c of [...data("combos")].sort((a, b) => a.name.localeCompare(b.name, "ru"))) {
       const first = c.requires?.[0] ?? {};
       const system = { discipline: first.key ?? "", path: "", level: first.level ?? 1, source: c.en ?? "", description: c.html ?? "" };
       const roll = rollOf(c.roll); if (roll) system.roll = roll;
-      p.add({ name: c.name, type: "power", folder: ["Комбинированные Дисциплины", ...(c.era === "darkAges" ? ["Тёмные века"] : [])], key: `combo:${c.en || c.name}`, img: DISC_ICON(first.key), system });
+      const group = all[first.key]?.name ?? "Прочие";
+      p.add({ name: c.name, type: "power", folder: ["Комбинированные Дисциплины", ...(c.era === "darkAges" ? ["Тёмные века"] : []), group],
+        key: `combo:${c.en || c.name}`, img: DISC_ICON(first.key), system });
     }
     return p;
   },

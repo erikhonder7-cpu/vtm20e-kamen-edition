@@ -357,11 +357,19 @@ def rituals_from(lines, disc, book, era, note):
                 if rcol is None or rcol >= len(r): continue
                 lv = level_of(r[lcol]) if lcol is not None and lcol < len(r) else lvl
                 rest = [f"**{hd[k].replace('*', '')}:** {r[k]}" for k in range(len(r)) if k not in (rcol, lcol) and k < len(hd) and r[k].strip()]
+                if not lv and lcol is not None and lcol < len(r) and re.search(r"перем", r[lcol]):
+                    lv = 1                              # «перем.»: уровень = уровню призываемого — в список с первого уровня
+                    rest = ["**Уровень:** переменный, см. описание"] + rest
                 start(r[rcol], lv, "row", [rest[0].split(":** ", 1)[1]] if len(rest) == 1 else ["- " + x for x in rest])
             close(); i = j; continue
         mb = re.match(r"^\s*-\s*\*\*Ур\.?\s*(\d+)\s*:?\*\*\s*:?\s*\*\*(.+?)\*\*\s*[—–:-]?\s*(.*)$", l)
         if mb:
-            start(mb.group(2), int(mb.group(1)), "bullet", [mb.group(3)]); i += 1; continue
+            # в одном пункте бывает несколько ритуалов уровня: «**А (En)** — текст. **Б (En)** — текст» (Blood Sacrifice)
+            parts = re.split(r"\s\*\*([^*]+?\([A-Za-z][^)]*\)[^*]*)\*\*\s*[—–-]\s*", " " + mb.group(3))
+            start(mb.group(2), int(mb.group(1)), "bullet", [parts[0].strip()])
+            for nm, tx in zip(parts[1::2], parts[2::2]):
+                start(nm, int(mb.group(1)), "bullet", [tx.strip()])
+            i += 1; continue
         mb = re.match(r"^\s*-\s*\*\*(.+?)\*\*\s*[—–:.-]?\s*(.*)$", l)
         if mb:
             bold = mb.group(1).strip()
@@ -406,6 +414,10 @@ def thaum_roll(pw, disc):
     return {"trait1": "willpower.permanent", "difficulty": min(9, 3 + pw["level"]), "blood": 1,
             **{x: own[x] for x in ("trait1", "trait2", "difficulty") if x in own and own.get("trait2")}}
 
+# те же ритуалы под другим переводом (V20 Dread Names ↔ Guide to the Sabbat Revised): берём версию V20
+SAME_RITUALS = {"Оковы похитителя", "Призвать Демона", "Чудовищное Знание", "Чёрная Кошка", "Невидимые Муки",
+                "Закрытие Путей", "Спуститься в Бездну"}
+
 def apply(disc, rituals):
     report = []
     for d in disc.values():
@@ -439,7 +451,7 @@ def apply(disc, rituals):
         for r in found:
             k = r["discipline"]
             have = have_of(k)
-            if (r["en"] and akey(r["en"]) in have) or rkey(r["name"]) in have: continue
+            if (r["en"] and akey(r["en"]) in have) or rkey(r["name"]) in have or r["name"] in SAME_RITUALS: continue
             r["roll"] = ({"trait1": "attributes.wits", "trait2": "abilities.occult", "difficulty": min(9, 3 + r["level"])} if k == "obtenebration"
                          else {"trait1": "attributes.intelligence", "trait2": "abilities.occult", "difficulty": min(9, 3 + r["level"])})
             rituals[k]["rituals"].append(r); added += 1
