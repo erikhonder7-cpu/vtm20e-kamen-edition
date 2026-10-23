@@ -11,6 +11,7 @@ import os, re, unicodedata
 from build_data import REF, read, md_to_html, translit
 
 DA = "darkAges"
+FAN_ALG = "Vampire: Age of the Living Gods (фанатское)"
 
 # английские названия путей основной книги V20 (в справочнике их нет) — для сверки повторов
 CORE_EN = {"humanity": "Humanity", "power": "Path of Power and the Inner Voice", "feralHeart": "Path of the Feral Heart",
@@ -55,6 +56,12 @@ SOURCES = [
     ("V20_Dark_Ages/12_Правила_и_драматические_системы.md", DA, "V20 Dark Ages (Апокрифы кланов)",
      {"Дорога Праведности": {"name": "Дорога Праведности (Кодекс Самиэля)", "en": "Code of Samiel", "followers": "Салюбри-воины"}}, None),
     ("Black_Hand/03_Тьма_внизу_демоны_и_Асакку.md", "", "V20 The Black Hand", {}, None),
+    # фанатское дополнение к V20 Dark Ages (Месопотамия, 2350 г. до н. э.): Охотник и Воин — с пометкой, чтобы не совпасть
+    # с Путём Охотника (Дорога Зверя) и Путём Воина (Сеттиты); английские имена — тоже, иначе отсеются как повтор
+    ("Прочее/06_Век_живых_богов_Age_of_the_Living_Gods.md", DA, FAN_ALG,
+     {"Путь Охотника": {"name": "Путь Охотника (Век живых богов)", "en": "Hunter (Age of the Living Gods)"},
+      "Путь Воина": {"name": "Путь Воина (Век живых богов)", "en": "Warrior (Age of the Living Gods)"},
+      "Путь Живого бога": {"note": "Грехи в книге даны списком из 11 пунктов, привязка к рейтингам повреждена: пункты 1–10 стоят по порядку, 11-й объединён с рейтингом 1."}}, None),
 ]
 
 VIRT = [(r"убеждённ|решимост|решительн|conviction", "conviction"), (r"инстинкт|instinct", "instinct"),
@@ -94,11 +101,21 @@ def hierarchy(lines):
     return res
 
 def inline_sins(text):
-    """Грехи строкой: «**Грехи (10 → 1):** 10 — действовать импульсивно; 9 — …» → [{rating, sin}] (нужны номера)."""
-    m = re.search(r"Грехи[^:]*:\**\s*(.+)", text)
+    """Грехи строкой: «**Грехи (10 → 1):** 10 — действовать импульсивно; 9 — …» или нумерованным списком
+    со следующей строки «1. …; 2. …» → [{rating, sin}]. Пунктов больше десяти — лишние к рейтингу 1 (самые тяжёлые)."""
+    m = re.search(r"Грехи[^:\n]*:\**[ \t]*(.*?)(?=\n\s*(?:[-#|]|\n)|\Z)", text, re.S)
     if not m: return []
-    return [{"rating": int(n), "sin": (lambda t: t[:1].upper() + t[1:])(s.strip().rstrip(".").replace("**", ""))}
-            for n, s in re.findall(r"(\d{1,2})\s*[—–-]\s*(.+?)(?=;\s*\d{1,2}\s*[—–-]|\.?\s*$)", m.group(1))]
+    body = " ".join(m.group(1).split())
+    items = re.findall(r"(\d{1,2})\s*[—–-]\s*(.+?)(?=;\s*\d{1,2}\s*[—–-]|\.?\s*$)", body) \
+        or re.findall(r"(?:^|;\s*)(\d{1,2})\.\s*(.+?)(?=;\s*\d{1,2}\.\s|\.?\s*$)", body)
+    cap = lambda t: t[:1].upper() + t[1:]
+    out = {}
+    for n, s in items:
+        r = int(n) if int(n) <= 10 else 1
+        sin = re.sub(r"\.?\s*\((?:[Пп]ривязка|[Пп]орядок)[^)]*\)\.?$", "", s.strip())   # примечание составителя в конце списка
+        sin = cap(sin.rstrip(".").replace("**", ""))
+        out[r] = f"{out[r]}; {sin}" if r in out else sin
+    return [{"rating": r, "sin": s} for r, s in sorted(out.items(), reverse=True)]
 
 def title_parts(t):
     """«4. Путь Злых Откровений (Path of Evil Revelations) — «Развратители»» → (ru, en, прозвище).
@@ -130,7 +147,8 @@ def make(title, body, book, era, ov, parent_hier):
     order = {"conscience": 0, "conviction": 0, "selfControl": 1, "instinct": 1}
     vs = sorted(dict.fromkeys(vs), key=lambda v: order[v])[:2]
     bearing = field(text, r"(?:Аура|Столп)(?:\s*\(Bearing\))?\**\s*:\s*\**\s*([^*—(.\n]+)").strip("«» ")
-    if bearing[:1].islower(): bearing = ""             # «Аура: влияет на исход…» — описание, а не название
+    if bearing[:1].islower():                          # «Аура: влияет на исход…» — описание; «Аура: выживание — …» — название
+        bearing = bearing[:1].upper() + bearing[1:] if len(bearing.split()) <= 2 else ""
     nick = field(text, r"Прозвищ[еа]:?\**\s*:?\s*([^.(\n]+)") or nick
     own = hierarchy(body) or inline_sins(text)
     hier = own
@@ -175,6 +193,8 @@ def apply(paths):
             p, n_own = make(title, body, book, era, ov, parent["hierarchy"] if parent else None)
             if parent and not p["bearing"]: p["bearing"] = parent["bearing"]      # Столп пути — от его Дороги
             if parent: p["road"] = parent["name"]                                 # путь внутри Дороги — для папок компендия
+            if book == FAN_ALG: p["fan"] = True                                   # фанатское — своей папкой компендия
+            if ov.get("note"): p["html"] = f"<p><em>{ov['note']}</em></p>" + p["html"]
             if re.match(r"(?:\d+\.\s*)?(?:Дорога|Road|Via|Дерех|Derech)\b", title) and lvl <= 2:   # «Пути Дороги Небес» — не Дорога
                 name = re.split(r"\s*[:—(]", p["name"])[0].strip()          # «Дорога Небес: Пути, течения и обряды» → «Дорога Небес»
                 known = roads.get(name)
@@ -184,7 +204,9 @@ def apply(paths):
                     road = {"level": lvl, "hierarchy": p["hierarchy"] if n_own >= 8 else [], "bearing": p["bearing"], "name": name}
                 stack.append(road); roads[name] = road
             if len(p["hierarchy"]) < 5: continue
-            if (p["en"] and akey(p["en"]) in have) or rkey(p["name"]) in have: continue
+            # имя из замены сверяем целиком: «Путь Охотника (Век живых богов)» ≠ «Путь Охотника» (rkey срезал бы скобки)
+            nk = re.sub(r"[^а-яё]", "", p["name"].lower().replace("ё", "е")) if ov.get("name") else rkey(p["name"])
+            if (p["en"] and akey(p["en"]) in have) or nk in have: continue
             key = translit(p["name"]) or f"path{len(keys)}"
             while key in keys: key += "2"
             p["key"] = key; keys.add(key)

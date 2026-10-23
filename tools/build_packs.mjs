@@ -237,7 +237,7 @@ const BUILDERS = {
     const roadsWithPaths = new Set(paths.map(x => x.road).filter(Boolean));
     for (const x of paths) {
       const da = x.era === "darkAges";
-      const folder = !da ? (x.source ? "Пути из дополнений" : "Человечность и Пути (V20)")
+      const folder = x.fan ? "Век живых богов (фанатское)" : !da ? (x.source ? "Пути из дополнений" : "Человечность и Пути (V20)")
         : x.road ? ["Тёмные века", x.road] : roadsWithPaths.has(x.name) ? ["Тёмные века", x.name] : "Тёмные века";
       const meta = [`<strong>Добродетели:</strong> ${x.virtues.map(v => VIRTUE[v] ?? v).join(" и ")}`,
         x.bearing && `<strong>Аура:</strong> ${esc(x.bearing)}`, x.followers && `<strong>Последователи:</strong> ${esc(x.followers)}`,
