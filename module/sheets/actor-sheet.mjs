@@ -7,6 +7,8 @@
 
 import { VTM20, SYSTEM_PATH, SYSTEM_ID } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
+import { attachCombos } from "../ui/combo.mjs";
+import { choosePower } from "../apps/power-choice.mjs";
 import { RollDialog } from "../dice/dialog.mjs";
 import { rollPool } from "../dice/roll.mjs";
 import { openDamageDialog } from "../apps/damage.mjs";
@@ -39,6 +41,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     form: { submitOnChange: true, closeOnSubmit: false },
     actions: {
       setDots: { handler: VtMActorSheet.#onSetDots, buttons: [0, 2] },
+      choosePower: VtMActorSheet.#onChoosePower,
       setHealth: { handler: VtMActorSheet.#onSetHealth, buttons: [0, 2] },
       rollTrait: VtMActorSheet.#onRollTrait,
       rollFree: VtMActorSheet.#onRollFree,
@@ -321,17 +324,31 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       const myPaths = paths.filter(p => p.system.discipline === k).sort((x, y) => (y.system.primary - x.system.primary) || x.name.localeCompare(y.name));
       const isPathed = VTM20.pathDisciplines.includes(k) || myPaths.length > 0;
       // i — номер в полном списке сил (по нему codexRef), поэтому силы Тёмных веков отсекаем после нумерации
-      const powers = (data?.powers ?? []).map((p, i) => [p, i]).filter(([p]) => p.level <= v && Codex.visible(p)).map(([p, i]) => ({
-        ...p, id: `${it.id}-p${i}`, roman: ROMAN[p.level - 1] ?? p.level, open: this._open.has(`${it.id}-p${i}`),
-        roll: rollInfo(p.roll), codexRef: `${k}|${i}`, fx: fxOf(k, p.level)
-      }));
-      const nextPower = (data?.powers ?? []).find(p => p.level === v + 1 && Codex.visible(p));
+      // На уровне несколько сил (высокие уровни, альтернативы кланбуков) — показываем выбранную в system.choices,
+      // а пока не выбрана — строку «выбрать». Эффекты (fx) описаны для сил основной книги, у альтернатив их нет.
+      const choices = it.system.choices ?? {};
+      const vis = (data?.powers ?? []).map((p, i) => [p, i]).filter(([p]) => Codex.visible(p));
+      const powers = [];
+      for (let lv = 1; lv <= v; lv++) {
+        const opts = vis.filter(([p]) => Number(p.level) === lv);
+        const pick = opts.length > 1 ? opts.find(([p]) => p.name === choices[lv]) : opts[0];
+        if (!pick) {
+          if (opts.length) powers.push({ choose: true, level: lv, roman: ROMAN[lv - 1] ?? lv, count: opts.length, itemId: it.id });
+          continue;
+        }
+        const [p, i] = pick;
+        powers.push({ ...p, id: `${it.id}-p${i}`, roman: ROMAN[p.level - 1] ?? p.level, open: this._open.has(`${it.id}-p${i}`),
+          roll: rollInfo(p.roll), codexRef: `${k}|${i}`, fx: p.source ? null : fxOf(k, p.level),
+          alts: opts.length > 1 ? opts.length : 0, itemId: it.id });
+      }
+      const nextOpts = vis.filter(([p]) => Number(p.level) === v + 1);
+      const nextPower = nextOpts.length ? { ...nextOpts[0][0], count: nextOpts.length } : null;
       const myRituals = rituals.filter(r => r.system.discipline === k);
       return {
         id: it.id, key: k, name: data?.name ?? it.name, en: data?.en ?? "", value: v,
         icon: VTM20.disciplineIcons[k] ?? "fa-droplet", sym: Codex.disciplineSymbol(k), inClan,
         dots: dots(v, cap, { path: "system.value", itemId: it.id }),
-        powers, nextPower: nextPower ? { name: nextPower.name, level: nextPower.level } : null,
+        powers, nextPower: nextPower ? { name: nextPower.count > 1 ? `выбор из ${nextPower.count} сил` : nextPower.name, level: nextPower.level } : null,
         ownPowers: ownPowers.filter(p => p.system.discipline === k && !p.system.path).sort((x, y) => x.system.level - y.system.level).map(mapOwn),
         physical: VTM20.physicalDisciplines[k] ? game.i18n.localize(VTM20.attributes[VTM20.physicalDisciplines[k]].label) : "",
         rules: (data?.rules ?? []).filter(r => r.title).map((r, i) => ({ ...r, id: `${it.id}-r${i}`, open: this._open.has(`${it.id}-r${i}`) })),
@@ -425,6 +442,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
   _onRender(context, options) {
     super._onRender(context, options);
+    attachCombos(this.element);                         // Натура, Маска, Секта — свой список вместо <datalist>
     this.element.classList.toggle("is-mortal", this.actor.type === "mortal");
     this.element.classList.toggle("is-ghoul", this.actor.type === "ghoul");
     // AppV2 заменяет только перерисованные части: убираем ворота после создания и лист — до него
@@ -481,6 +499,12 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   }
 
   /* ── Действия: точки и шкалы ────────────────────────────────────────── */
+
+  /** Выбрать (или сменить) силу уровня, где их несколько. */
+  static async #onChoosePower(event, target) {
+    const item = this.actor.items.get(target.dataset.itemId);
+    if (item && this.isEditable) await choosePower(item, Number(target.dataset.level));
+  }
 
   static async #onSetDots(event, target) {
     if (!this.isEditable) return;

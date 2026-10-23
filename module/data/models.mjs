@@ -8,7 +8,7 @@
 import { VTM20 } from "../config.mjs";
 import { effectMods } from "./effects.mjs";
 
-const { SchemaField, NumberField, StringField, BooleanField, ArrayField, HTMLField } = foundry.data.fields;
+const { SchemaField, NumberField, StringField, BooleanField, ArrayField, HTMLField, ObjectField } = foundry.data.fields;
 
 /* ── Строительные блоки ─────────────────────────────────────────────────── */
 
@@ -249,7 +249,8 @@ export class DisciplineData extends BaseItemData {
       ...super.defineSchema(),
       key: str(),
       value: int(1, 0, 10),
-      inClan: new BooleanField({ initial: false })
+      inClan: new BooleanField({ initial: false }),
+      choices: new ObjectField({ initial: {} })   // уровень → имя выбранной силы, если на уровне несколько сил на выбор
     };
   }
 }

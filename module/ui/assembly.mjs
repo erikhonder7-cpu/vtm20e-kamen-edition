@@ -17,6 +17,7 @@ import { SYSTEM_ID, SYSTEM_PATH } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
 import { getClock, longDate } from "../apps/calendar.mjs";
 import * as A from "../data/assembly.mjs";
+import { attachCombos } from "./combo.mjs";
 
 const esc = s => foundry.utils.escapeHTML(String(s ?? ""));
 const uid = () => foundry.utils.randomID(10);
@@ -162,6 +163,7 @@ export function renderBoard() {
   const draw = { summary: tabSummary, power: tabPower, session: tabSession, edicts: tabEdicts, heroes: tabHeroes, chronicle: tabChronicle }[mode];
   const scroll = board.querySelector(".ra-scroll")?.scrollTop ?? 0;
   board.innerHTML = `<div class="ra-scroll ra-mode-${mode}">${draw(s, gm)}</div>`;
+  attachCombos(board);
   board.querySelector(".ra-scroll").scrollTop = tabChanged ? 0 : scroll;
   tabChanged = false;
 }
@@ -995,7 +997,7 @@ function heroCard(s, a, org, gm, i) {
         ${gm ? `<a class="ra-x" data-as="unboon" data-actor="${a.id}" data-i="${i}" data-tooltip="Долг уплачен"><i class="fa-solid fa-xmark"></i></a>` : ""}</li>`).join("") || `<li class="is-none">чист</li>`}</ul>
     ${gm ? `<div class="ra-boonform" data-actor="${a.id}">
       <select data-b="dir"><option value="owes">должен</option><option value="owed">ему должен</option></select>
-      <input type="text" data-b="who" list="ra-names" placeholder="кто">
+      <input type="text" data-b="who" data-combo="ra-names" placeholder="кто">
       <select data-b="size">${Object.entries(A.BOONS).map(([k, v]) => `<option value="${k}" ${k === "minor" ? "selected" : ""}>${esc(v.label)}</option>`).join("")}</select>
       <input type="text" data-b="note" placeholder="за что">
       <a class="ra-stamp" data-as="boon" data-actor="${a.id}" data-tooltip="Записать"><i class="fa-solid fa-feather-pointed"></i></a></div>` : ""}

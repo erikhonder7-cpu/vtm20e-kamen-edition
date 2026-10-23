@@ -594,3 +594,26 @@ body.r-theme-light .vtm20 .r-motto { color: rgba(140, 28, 34, .75); }
 .vtm20 .r-fx-chip em { font-size: 11.5px; color: var(--r-muted); }
 .vtm20 .r-fx-chip a { color: var(--r-muted); }
 .vtm20 .r-fx-chip a:hover { color: var(--r-accent); }
+
+/* Выбор силы уровня (module/apps/power-choice.mjs) */
+.vtm20 .r-power.is-choose .r-power-name { color: var(--r-accent); font-style: italic; }
+.vtm20 .r-power.is-choose .r-power-lvl { border-style: dashed; border-color: var(--r-accent); }
+.vtm20 .r-power-swap { color: var(--r-muted); }
+.vtm20 .r-power-swap:hover { color: var(--r-accent); }
+.vtm20.r-choice-dialog .r-choice-hint { margin: 0 0 8px; font-size: 13px; color: var(--r-muted); }
+.vtm20.r-choice-dialog .r-choice-list { display: flex; flex-direction: column; gap: 6px; max-height: 60vh; overflow-y: auto; }
+.vtm20.r-choice-dialog .r-choice { display: grid; grid-template-columns: 18px 1fr; gap: 2px 8px; padding: 6px 8px; border: 1px solid var(--r-line-2); cursor: pointer; }
+.vtm20.r-choice-dialog .r-choice:has(input:checked) { border-color: var(--r-blood-l); background: rgba(140, 28, 34, .14); }
+/* своя радиокнопка: у Foundry своя (::before/::after) — накладывалась кривым вторым кружком */
+.vtm20.r-choice-dialog .r-choice input[type=radio] {
+  appearance: none; -webkit-appearance: none; width: 14px; height: 14px; margin: 3px 0 0; padding: 0; cursor: pointer;
+  border: 1px solid var(--r-dot-border); border-radius: 50%; background: transparent; box-shadow: none;
+}
+.vtm20.r-choice-dialog .r-choice input[type=radio]::before, .vtm20.r-choice-dialog .r-choice input[type=radio]::after { content: none; display: none; }
+.vtm20.r-choice-dialog .r-choice input[type=radio]:checked { border-color: var(--r-blood-l); background: radial-gradient(circle, var(--r-blood-l) 0 3.5px, transparent 4px); }
+.vtm20.r-choice-dialog .r-choice-head b { font-family: var(--r-display); font-weight: 400; font-size: 15px; color: var(--r-ink); }
+.vtm20.r-choice-dialog .r-choice-head em { font-size: 12.5px; color: var(--r-muted); }
+.vtm20.r-choice-dialog .r-choice-head small { display: block; font-size: 11.5px; color: var(--r-muted); }
+.vtm20.r-choice-dialog .r-choice-text { grid-column: 2; font-size: 13px; line-height: 1.45; }
+.vtm20.r-choice-dialog .r-choice-text > summary { cursor: pointer; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--r-muted); }
+.application.vtm20.r-choice-dialog .window-content { padding: 10px 14px 12px; }

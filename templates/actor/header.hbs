@@ -42,7 +42,7 @@
         </label>
         {{/if}}
         <label class="r-df"><span>{{localize "VTM20.Details.sect"}}</span>
-          <input type="text" name="system.details.sect" value="{{system.details.sect}}" list="r-sect-{{actor.id}}"></label>
+          <input type="text" name="system.details.sect" value="{{system.details.sect}}" data-combo="r-sect-{{actor.id}}"></label>
         <label class="r-df"><span>{{localize "VTM20.Details.sire"}}</span><input type="text" name="system.details.sire" value="{{system.details.sire}}"></label>
         {{/if}}
 
@@ -67,9 +67,9 @@
         {{/if}}
 
         <label class="r-df" {{#if natureRegain}}data-tooltip="{{localize 'VTM20.Sheet.NatureRegain'}} {{natureRegain}}"{{/if}}><span>{{localize "VTM20.Details.nature"}}</span>
-          <input type="text" name="system.details.nature" value="{{system.details.nature}}" list="r-arch-{{actor.id}}"></label>
+          <input type="text" name="system.details.nature" value="{{system.details.nature}}" data-combo="r-arch-{{actor.id}}"></label>
         <label class="r-df"><span>{{localize "VTM20.Details.demeanor"}}</span>
-          <input type="text" name="system.details.demeanor" value="{{system.details.demeanor}}" list="r-arch-{{actor.id}}"></label>
+          <input type="text" name="system.details.demeanor" value="{{system.details.demeanor}}" data-combo="r-arch-{{actor.id}}"></label>
         <label class="r-df"><span>{{localize "VTM20.Details.player"}}</span><input type="text" name="system.details.player" value="{{system.details.player}}"></label>
       </div>
     </div>

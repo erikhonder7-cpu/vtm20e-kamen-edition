@@ -36,6 +36,9 @@ DISC_OLD = [("могуществ", "potence"), ("присутстви", "presenc
             ("мифэрсери", "mytherceria"), ("валерен", "valeren"), ("сангвинус", "sanguinus")]
 DISC_ALL = sorted(DISC_RU + DISC_OLD, key=lambda x: -len(x[0]))
 
+# та же сила V20 (Lore of the Bloodlines) в переводе Guide to the Sabbat — не дублировать
+SAME = {"Взгляд Феи", "Оберег Подменыша", "Фантастическая Загадка", "Кровь Брата", "Приближение к Каину", "Коагулированная Сущность"}
+
 CHOICE_NOTE = "Уровень в книге не указан: на каждом из уровней 6–9 Дисциплина даёт одну способность из списка на выбор."
 
 def disc_key(text, obf=False):
@@ -115,7 +118,7 @@ def apply(disc):
         for k, p in from_file(rel, book, era, obf):
             if k not in disc: unknown.add(k); continue
             have = {norm(x.get("en")) for x in disc[k]["powers"] if x.get("en")} | {norm(x["name"]) for x in disc[k]["powers"]}
-            if (p["en"] and norm(p["en"]) in have) or norm(p["name"]) in have: continue
+            if p["name"] in SAME or (p["en"] and norm(p["en"]) in have) or norm(p["name"]) in have: continue
             disc[k]["powers"].append(p); n += 1; added += 1
         report.append(f"  {rel.split('/')[-1][:44]:44} +{n}")
     for d in disc.values():
