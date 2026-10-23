@@ -20,6 +20,18 @@ const CLAN_SYMBOL_PARENT = {
   angraMaynyu: "baali", kiasidy: "lasombra", gorguli: "tremere", uDzao: "salyubri"
 };
 /** Белые знаки на чёрном (кружочки, знаки Дисциплин) режем маской по яркости, силуэты — по прозрачности. */
+/** Клановые черты (data/merits.json, поле clan) антитрибу и ветвей — от родительского клана. */
+const TRAIT_CLAN_PARENT = {
+  bruhaAntitribu: "brujah", ventruAntitribu: "ventrue", tremerAntitribu: "tremere", toreadorAntitribu: "toreador",
+  malkavianeAntitribu: "malkavian", malkavianeDominatory: "malkavian", nosferatuAntitribu: "nosferatu",
+  lasombraAntitribu: "lasombra", angelisAter: "lasombra", gorodskieGangrely: "gangrel", dikieGangrely: "gangrel",
+  assamityAntitribu: "assamite", viziriAssamitov: "assamite", charodeiAssamitov: "assamite",
+  zmeiSveta: "setite", voinySeta: "setite", tlatsik: "setite", daytya: "setite",
+  ravnosAntitribu: "ravnos", brahmany: "ravnos", salyubriAntitribu: "salyubri", pandery: "caitiff",
+  kolduny: "tzimisce", staryyKlanTsimishov: "tzimisce"
+};
+/** Линии с клановыми чертами, но без карточки в data/clans.json. */
+const TRAIT_CLAN_NAMES = { synySamuila: "Сыны Самуила" };
 /** Своего знака у Дисциплины нет — берём родственный. */
 const DISCIPLINE_SYMBOL_PARENT = { assamiteSorcery: "thaumaturgy", koldunism: "thaumaturgy", setiteSorcery: "serpentis", darkThaumaturgy: "daimoinon" };
 const LUMINANCE = /\/markers\/|\/disciplines\/|clans\/(assamite|setite|ravnos|istinnyeBruha)\./;
@@ -49,6 +61,15 @@ export const Codex = {
   },
 
   clan(key) { return this.clanByKey?.[key] ?? null; },
+
+  /** Название клана или линии по ключу (в т. ч. линий, у которых есть черты, но нет карточки клана). */
+  clanName(key) { return this.clan(key)?.name ?? TRAIT_CLAN_NAMES[key] ?? key; },
+
+  /** Чьи клановые черты доступны персонажу: антитрибу и ветви берут черты родительского клана. */
+  traitClan(key) { return TRAIT_CLAN_PARENT[key] ?? key; },
+
+  /** Ключ секты по свободному тексту (поле «Секта» на листе): «Камарилья» → camarilla. */
+  sectKey(text) { return SECT_KEYS.find(([re]) => re.test(text ?? ""))?.[1] ?? ""; },
 
   /** Знак: { src, lum } — путь и режим маски (по яркости или по прозрачности). */
   // Путь абсолютный: в CSS-переменной url() иначе считался бы от папки стилей

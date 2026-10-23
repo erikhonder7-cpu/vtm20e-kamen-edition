@@ -1,0 +1,3 @@
+# Компендии Foundry — базы LevelDB: служебные файлы (CURRENT, MANIFEST-*) нельзя трогать переводом строк.
+# Иначе на Windows с core.autocrlf=true в CURRENT попадает CRLF, и база не открывается («неверное имя файла»).
+packs/** binary

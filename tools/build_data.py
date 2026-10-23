@@ -757,6 +757,7 @@ def main():
     merits = parse_merits([os.path.join(mdir, f) for f in sorted(os.listdir(mdir)) if f.endswith(".md")])
     import merits_extra
     merits += merits_extra.collect(merits)
+    merits = [merits_extra.with_clan(x) for x in merits]   # поле clan у всех; у общих черт — ""
     bdir = os.path.join(REF, "Факты_биографии")
     backgrounds = parse_backgrounds(os.path.join(bdir, sorted(f for f in os.listdir(bdir) if f.endswith(".md"))[0]))
     for x in backgrounds: x["source"] = "V20"

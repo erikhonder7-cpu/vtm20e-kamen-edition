@@ -5,7 +5,11 @@
 # Вызывается из build_data.main() после основной книги.
 #
 # Приоритет при совпадении (по английскому названию, иначе по русскому): основная книга V20 → дополнения V20 →
-# Revised → 2nd Edition. Тёмные века (своя эпоха), nWoD, V5 и фанатские книги не берутся.
+# Revised → 2nd Edition. Тёмные века (своя эпоха), nWoD, V5 и фанатские книги таблицами не разбираются;
+# их клановые черты лежат готовыми записями в tools/merits_clan_manual.json.
+#
+# Поле clan — ключ клана из data/clans.json, если черта клановая (по файлу Lore of the Clans / Lore of the
+# Bloodlines / кланбука Revised, откуда взята строка); у общих черт — пустая строка.
 #
 # Вид (достоинство/недостаток) — из клетки цены («N, недостаток», «N (дост.)»), колонки «Тип», заголовка раздела
 # или английского текста книги («(2pt. Flaw)»). Категория — из колонки «Тип» или заголовка; где книга её
@@ -17,8 +21,51 @@ from build_data import REF, read, inline, split_name
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TXT = os.path.join(ROOT, "books", "Мир Тьмы", "Вампиры", "_текст")
 EN_CACHE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "merits_en_index.json")
-# Готовые записи без английского названия, которые иначе не сверить с V20 (Guide to the Camarilla, кланбуки Revised)
-MANUAL = os.path.join(os.path.dirname(os.path.abspath(__file__)), "merits_revised_manual.json")
+# Готовые записи в формате data/merits.json: merits_revised_manual.json — черты без английского названия, которых нет
+# в V20 (Guide to the Camarilla, кланбуки Revised); merits_clan_manual.json — клановые черты Тёмных веков и «Самеди»
+MANUALS = sorted(glob.glob(os.path.join(os.path.dirname(os.path.abspath(__file__)), "merits_*_manual.json")))
+
+# Клан по файлу справочника: имя файла без номера → ключ data/clans.json
+CLAN_DIRS = ("Lore_of_the_Clans", "Lore_of_the_Bloodlines", "Revised_Кланбуки")
+CLAN_KEYS = {
+    "Ассамиты": "assamite", "Бруха": "brujah", "Вентру": "ventrue", "Гангрелы": "gangrel", "Джованни": "giovanni",
+    "Ласомбра": "lasombra", "Малкавиане": "malkavian", "Носферату": "nosferatu", "Последователи Сета": "setite",
+    "Равнос": "ravnos", "Тореадор": "toreador", "Тремер": "tremere", "Цимисхи": "tzimisce", "Каитиф и антитрибу": "caitiff",
+    "Баали": "baali", "Дочери Какофонии": "docheriKakofonii", "Горгульи": "gorguli", "Вестники Черепов": "predvestnikiCherepov",
+    "Киасиды": "kiasidy", "Нагараджа": "nagaradzha", "Салюбри": "salyubri", "Самеди": "samedi", "Истинные Бруха": "istinnyeBruha",
+}
+
+# Клановые черты из книг, разбитых не по кланам (сверено по тексту черты)
+CLAN_FIX = {"Отступник": "baali"}   # The Black Hand: обращённый Нергали‑Баали, заменяет Дисциплину на Демонион
+
+def clan_of(path):
+    if os.path.basename(os.path.dirname(path)) not in CLAN_DIRS:
+        return ""
+    stem = re.sub(r"^\d+[a-z]?_", "", os.path.splitext(os.path.basename(path))[0])
+    stem = re.sub(r"_(Revised|1993)$", "", stem).replace("_", " ")
+    return CLAN_KEYS.get(stem, "")
+
+# Поле sect — ключ секты (как sectKey персонажа: camarilla, sabbat, anarchs), если черта существует только в ней.
+# Черты для обеих сект («Шериф или Епископ») и с оговоркой «не для Шабаша» — общие.
+SECT_BY_SOURCE = {"V20 Anarchs Unbound": "anarchs", "Player's Guide to the Sabbat (2nd Ed.)": "sabbat"}
+SECT_BY_NAME = {
+    # V20: «только Камарилья» в тексте черты; Элизиум и Красный Список — институты Камарильи
+    "Жертва Маскарада": "camarilla", "Сорванный дебют": "camarilla", "Бывший Принц": "camarilla",
+    "Цель Кровавой Охоты": "camarilla", "Посмешище": "camarilla", "Завсегдатай Элизиума": "camarilla",
+    "Красный Список": "camarilla",
+    # Guide to the Camarilla: домен от Князя и должности Камарильи
+    "Домен": "camarilla", "Должность": "camarilla", "Гарпия": "camarilla", "Примоген": "camarilla",
+}
+
+FIELDS = ("kind", "category", "name", "en", "cost", "min", "max", "clan", "sect", "source", "html")
+
+def with_clan(x, clan=None):
+    """Запись с полями clan и sect в постоянном порядке полей."""
+    x = dict(x)
+    if clan is not None: x["clan"] = clan
+    x.setdefault("clan", "")
+    x["sect"] = x.get("sect") or SECT_BY_NAME.get(x["name"]) or SECT_BY_SOURCE.get(x.get("source"), "")
+    return {k: x[k] for k in FIELDS if k in x}
 
 # (маска файла, книга по‑русски для подписи, вес приоритета: меньше — главнее)
 SOURCES = [
@@ -243,20 +290,21 @@ def collect(core):
                         continue
                     if not en and book not in RU_ONLY_BOOKS and any(same_ru(ru, x) for x in ru_names):
                         continue
-                    item = {"kind": kind or "merit", "category": cat, "name": ru, "en": en, "cost": cost_raw,
-                            "min": min(nums), "max": max(nums), "source": book, "prio": prio,
-                            "html": f"<p><em>Источник: {html.escape(book)}.</em></p><p>{inline(effect)}</p>"}
+                    item = with_clan({"kind": kind or "merit", "category": cat, "name": ru, "en": en, "cost": cost_raw,
+                            "min": min(nums), "max": max(nums), "source": book,
+                            "html": f"<p><em>Источник: {html.escape(book)}.</em></p><p>{inline(effect)}</p>"},
+                            CLAN_FIX.get(ru, clan_of(path)))
                     if not kind: unknown.append(f"{book}: {ru} ({en})")
                     have[key] = prio; have[norm(ru)] = prio
                     ru_names.append(ru)
                     added.append(item)
-    if os.path.exists(MANUAL):
-        with io.open(MANUAL, encoding="utf-8") as f:
+    for manual in MANUALS:
+        with io.open(manual, encoding="utf-8") as f:
             for x in json.load(f):
                 if norm(x["en"]) in have or norm(x["name"]) in have:
                     continue
                 have[norm(x["en"]) or norm(x["name"])] = 2
-                added.append(dict(x))
+                added.append(with_clan(x))
     for x in added: x.pop("prio", None)
     print(f"Достоинства и недостатки из дополнений: +{len(added)} "
           f"(достоинств {sum(x['kind'] == 'merit' for x in added)}, недостатков {sum(x['kind'] == 'flaw' for x in added)})")

@@ -363,10 +363,21 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     const chosen = this.ui.mfTab === "merit" ? st.merits : st.flaws;
     ctx.mfTabs = ["merit", "flaw"].map(k => ({ key: k, label: t(k === "merit" ? "Sheet.Merits" : "Sheet.Flaws"), active: this.ui.mfTab === k,
       n: (k === "merit" ? st.merits : st.flaws).length }));
-    ctx.mfCats = ["all", ...Object.keys(VTM20.meritCategories)].map(k => ({ key: k, label: k === "all" ? t("Creator.All") : loc(VTM20.meritCategories[k].label), active: this.ui.mfCat === k }));
-    ctx.mfCards = Codex.merits.filter(m => m.kind === this.ui.mfTab && (this.ui.mfCat === "all" || m.category === this.ui.mfCat)
+    // Клановые черты и черты секты — только в своих категориях и только своего клана/секты
+    const myClan = this.type === "vampire" ? Codex.traitClan(st.clan) : "";
+    const mySect = st.sectKey || Codex.sectKey(st.sect);
+    const inCat = (m, cat) => cat === "clan" ? !!myClan && m.clan === myClan
+      : cat === "sect" ? !m.clan && !!mySect && m.sect === mySect
+      : !m.clan && !m.sect && (cat === "all" || m.category === cat);
+    const extra = ["sect", "clan"].filter(k => Codex.merits.some(m => m.kind === this.ui.mfTab && inCat(m, k)));
+    if (!["all", ...Object.keys(VTM20.meritCategories), ...extra].includes(this.ui.mfCat)) this.ui.mfCat = "all";
+    const catLabel = k => k === "all" ? t("Creator.All") : k === "clan" ? t("Library.Filter.Clan")
+      : k === "sect" ? t("Library.Filter.SectTraits") : loc(VTM20.meritCategories[k].label);
+    ctx.mfCats = ["all", ...Object.keys(VTM20.meritCategories), ...extra].map(k => ({ key: k, label: catLabel(k), active: this.ui.mfCat === k }));
+    ctx.mfCards = Codex.merits.filter(m => m.kind === this.ui.mfTab && inCat(m, this.ui.mfCat)
       && (!q || m.name.toLowerCase().includes(q) || (m.en ?? "").toLowerCase().includes(q)))
-      .map(m => ({ name: m.name, en: m.en, cost: m.cost, cat: loc(VTM20.meritCategories[m.category]?.label ?? ""),
+      .map(m => ({ name: m.name, en: m.en, cost: m.cost,
+        cat: m.clan ? Codex.clanName(m.clan) : m.sect ? t(`Sect.${m.sect}`) : loc(VTM20.meritCategories[m.category]?.label ?? ""),
         on: chosen.some(x => x.name === m.name), text: VtMCreator.#preview(m.html, 200),
         html: m.html, open: this.ui.open.has(`mf:${m.kind}:${m.name}`), key: `mf:${m.kind}:${m.name}` }));
     ctx.merits = st.merits.map((m, i) => ({ ...m, index: i, ranged: m.max > m.min }));
@@ -541,7 +552,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       const blocker = blockerFor(name, [...this.st.merits, ...this.st.flaws].map(x => x.name));
       if (blocker) return ui.notifications.warn(t("Creator.TraitBlocked", { a: name, b: blocker }));
       const m = Codex.merits.find(x => x.kind === kind && x.name === name);
-      if (m) list.push({ name, cost: m.min || 1, min: m.min, max: m.max, html: m.html, category: m.category, en: m.en });
+      if (m) list.push({ name, cost: m.min || 1, min: m.min, max: m.max, html: m.html, category: m.category, en: m.en, clan: m.clan ?? "", sect: m.sect ?? "" });
     }
     this.render();
   }
@@ -629,8 +640,8 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       const v = this.value("bg", b.name);
       if (v > 0) items.push({ name: b.name, type: "background", img: icon("background"), system: { value: v, description: b.html, source: b.en } });
     }
-    for (const m of st.merits) items.push({ name: m.name, type: "merit", img: icon("merit"), system: { cost: m.cost, category: m.category, description: m.html, source: m.en } });
-    for (const m of st.flaws) items.push({ name: m.name, type: "flaw", img: icon("flaw"), system: { cost: m.cost, category: m.category, description: m.html, source: m.en } });
+    for (const m of st.merits) items.push({ name: m.name, type: "merit", img: icon("merit"), system: { cost: m.cost, category: m.category, clan: m.clan ?? "", sect: m.sect ?? "", description: m.html, source: m.en } });
+    for (const m of st.flaws) items.push({ name: m.name, type: "flaw", img: icon("flaw"), system: { cost: m.cost, category: m.category, clan: m.clan ?? "", sect: m.sect ?? "", description: m.html, source: m.en } });
     if (this.type === "vampire" && /^malkavian/.test(st.clan) && !a.items.some(i => i.type === "derangement")) {
       items.push({ name: t("Creator.MalkDerangement"), type: "derangement", img: icon("derangement"), system: { permanent: true, description: `<p>${t("Creator.MalkDerangementHint")}</p>` } });
     }

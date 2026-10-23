@@ -306,7 +306,8 @@ export class BackgroundData extends BaseItemData {
 
 export class MeritData extends BaseItemData {
   static defineSchema() {
-    return { ...super.defineSchema(), cost: int(1, 0, 10), category: str("physical") };
+    // clan / sect — ключ клана (data/clans.json) или секты, если черта клановая или сектантская; у общих — ""
+    return { ...super.defineSchema(), cost: int(1, 0, 10), category: str("physical"), clan: str(), sect: str() };
   }
 }
 

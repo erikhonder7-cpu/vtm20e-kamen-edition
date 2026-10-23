@@ -55,7 +55,8 @@ export const LibraryItems = {
     return { name: b.name, type: "background", img: ICON("background"), system: { value, description: b.html ?? "", source: b.en ?? "" } };
   },
   trait(m, cost) {
-    return { name: m.name, type: m.kind, img: ICON(m.kind), system: { cost: cost ?? m.min ?? 1, category: m.category ?? "physical", description: m.html ?? "", source: m.en ?? "" } };
+    return { name: m.name, type: m.kind, img: ICON(m.kind), system: { cost: cost ?? m.min ?? 1, category: m.category ?? "physical",
+      clan: m.clan ?? "", sect: m.sect ?? "", description: m.html ?? "", source: m.en ?? "" } };
   },
   derangement(d) {
     return { name: d.name, type: "derangement", img: ICON("derangement"), system: { permanent: false, description: d.html ?? "", source: d.en ?? "" } };
@@ -123,7 +124,8 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
     if (kind === "ritual") chips = [0, 1, 2, 3, 4, 5].map(v => chip("level", v, v ? ROMAN[v - 1] : L("Filter.All")));
     else if (kind === "merit" || kind === "flaw") {
       chips = [chip("cat", "", L("Filter.All")), ...Object.entries(VTM20.meritCategories)
-        .map(([k, c]) => chip("cat", k, game.i18n.localize(c.label)))];
+        .map(([k, c]) => chip("cat", k, game.i18n.localize(c.label))),
+        chip("cat", "sect", L("Filter.SectTraits")), chip("cat", "clan", L("Filter.Clan"))];
     } else if (kind === "discipline" && this.actor?.type === "vampire") {
       chips = [chip("scope", "", L("Filter.All")), chip("scope", "clan", L("Filter.Clan"), "fa-droplet")];
     }
@@ -220,14 +222,26 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
   #traits(kind) {
     const mine = this.itemsOf("merit").concat(this.itemsOf("flaw")).map(i => i.name);
     const cats = Object.keys(VTM20.meritCategories);
+    // Клановые и сектантские черты — своими группами после общих категорий; свой клан и своя секта — первыми
+    const myClan = Codex.traitClan(this.actor?.system?.clan ?? "");
+    const mySect = Codex.sectKey(this.actor?.system?.details?.sect ?? "");
+    const clanOrder = [...new Set(Codex.merits.filter(m => m.clan).map(m => m.clan))];
+    const sectOrder = ["camarilla", "sabbat", "anarchs"];
+    const place = m => {
+      if (m.clan) return { group: `clan:${m.clan}`, cat: "clan", groupName: `${L("Filter.Clan")}: ${Codex.clanName(m.clan)}`,
+        groupOrder: 200 + (m.clan === myClan ? 0 : 1 + clanOrder.indexOf(m.clan)) };
+      if (m.sect) return { group: `sect:${m.sect}`, cat: "sect", groupName: `${L("Filter.SectTraits")}: ${t(`Sect.${m.sect}`)}`,
+        groupOrder: 100 + (m.sect === mySect ? 0 : 1 + sectOrder.indexOf(m.sect)) };
+      return { group: m.category, cat: m.category, groupOrder: cats.indexOf(m.category),
+        groupName: game.i18n.localize(VTM20.meritCategories[m.category]?.label ?? m.category) };
+    };
     return Codex.merits.filter(m => m.kind === kind).map(m => {
       const costs = costsOf(m);
       const blocker = blockerFor(m.name, mine);
       return this.#entry({
         id: String(Codex.merits.indexOf(m)), name: m.name, en: m.en, has: mine.includes(m.name), text: m.html ?? "", long: true,
         flaw: kind === "flaw", cost: m.cost, order: costs[0],
-        group: m.category, groupOrder: cats.indexOf(m.category), cat: m.category,
-        groupName: game.i18n.localize(VTM20.meritCategories[m.category]?.label ?? m.category),
+        ...place(m),
         levels: costs.join(","),
         tags: m.source && m.source !== "V20" ? [{ label: m.source }] : [],
         variants: costs.map(c => ({ value: c, label: String(c) })),

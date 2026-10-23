@@ -23,7 +23,16 @@ import { createRequire } from "node:module";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
-const require = createRequire("D:/Games/Foundry/Foundry Virtual Tabletop/resources/app/package.json");
+// classic-level берём из установленного Foundry: путь — из FOUNDRY_APP (папка resources/app) или из известных мест
+const FOUNDRY_APPS = [process.env.FOUNDRY_APP, "D:/Games/Foundry/Foundry Virtual Tabletop/resources/app",
+  "D:/FoundryVTT-WindowsPortable-14.365/App/resources/app"].filter(Boolean);
+const FOUNDRY_APP = FOUNDRY_APPS.find(p => fs.existsSync(path.join(p, "node_modules", "classic-level")));
+if (!FOUNDRY_APP) throw new Error(`Не найден Foundry с classic-level; укажите FOUNDRY_APP=<…/resources/app>. Проверено: ${FOUNDRY_APPS.join("; ")}`);
+const require = createRequire(path.join(FOUNDRY_APP, "package.json"));
+// Версия ядра в _stats — того Foundry, которым собираем: документы «из более новой версии» старое ядро не принимает
+// (было жёстко 14.367 — на 14.365 все компендии падали с «core version newer than the running version»)
+const FOUNDRY_PKG = JSON.parse(fs.readFileSync(path.join(FOUNDRY_APP, "package.json"), "utf8"));
+const CORE_VERSION = FOUNDRY_PKG.release ? `${FOUNDRY_PKG.release.generation}.${FOUNDRY_PKG.release.build}` : FOUNDRY_PKG.version;
 const { ClassicLevel } = require("classic-level");
 const manifest = JSON.parse(fs.readFileSync(path.join(ROOT, "system.json"), "utf8"));
 const data = f => JSON.parse(fs.readFileSync(path.join(ROOT, "data", `${f}.json`), "utf8"));
@@ -40,7 +49,7 @@ const esc = s => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").re
 const now = Date.now();
 const stats = () => ({
   compendiumSource: null, duplicateSource: null, exportSource: null,
-  coreVersion: "14.367", systemId: SYSTEM_ID, systemVersion: manifest.version,
+  coreVersion: CORE_VERSION, systemId: SYSTEM_ID, systemVersion: manifest.version,
   createdTime: now, modifiedTime: now, lastModifiedBy: null
 });
 
@@ -48,11 +57,18 @@ const stats = () => ({
 class Pack {
   constructor(name) { this.name = name; this.folders = new Map(); this.items = []; }
   id(key) { return crypto.createHash("sha1").update(`${SYSTEM_ID}:${this.name}:${key}`).digest("base64").replace(/[^A-Za-z0-9]/g, "").slice(0, 16); }
+  /** Папка по имени или пути ["Родитель", "Дочерняя"] — вложенные папки создаются по цепочке. */
   folder(name) {
     if (!name) return null;
-    if (!this.folders.has(name)) this.folders.set(name, { _id: this.id(`folder:${name}`), name, type: "Item", folder: null, sorting: "a",
-      sort: (this.folders.size + 1) * 100000, color: null, description: "", flags: {}, _stats: stats() });
-    return this.folders.get(name)._id;
+    const chain = Array.isArray(name) ? name : [name];
+    let parent = null, key = "";
+    for (const part of chain) {
+      key = key ? `${key}/${part}` : part;
+      if (!this.folders.has(key)) this.folders.set(key, { _id: this.id(`folder:${key}`), name: part, type: "Item", folder: parent, sorting: "a",
+        sort: (this.folders.size + 1) * 100000, color: null, description: "", flags: {}, _stats: stats() });
+      parent = this.folders.get(key)._id;
+    }
+    return parent;
   }
   add({ name, type, system, folder = null, key = null, img = null }) {
     this.items.push({ _id: this.id(`${type}:${key ?? `${folder}:${name}`}`), name, type, img: img ?? ICON(type), system,
@@ -140,11 +156,18 @@ const BUILDERS = {
   "merits-flaws"() {
     const p = new Pack("merits-flaws");
     const cat = Object.fromEntries(Object.entries(ru.VTM20.MeritCat ?? {}).map(([k, v]) => [k, v]));
+    // Клановые черты и черты сект — только в своих папках, в общих категориях их нет
+    const clanName = Object.fromEntries(data("clans").map(c => [c.key, c.name]));
+    clanName.synySamuila ??= "Сыны Самуила";
+    const sectName = { camarilla: "Камарилья", sabbat: "Шабаш", anarchs: "Анархи" };
     for (const m of data("merits")) {
       const range = m.max > m.min ? `<p><em>Цена: ${m.min}–${m.max}</em></p>` : "";
       const kindLabel = m.kind === "merit" ? "Достоинства" : "Недостатки";
-      p.add({ name: m.name, type: m.kind, folder: `${kindLabel} — ${cat[m.category] ?? m.category}`, key: `${m.kind}:${m.name}`,
-        system: { cost: m.min || 1, category: m.category, source: m.en ?? "", description: `${m.html ?? ""}${range}` } });
+      const folder = m.clan ? [`Клановые ${kindLabel.toLowerCase()}`, clanName[m.clan] ?? m.clan]
+        : m.sect ? ["Черты сект", sectName[m.sect] ?? m.sect]
+        : `${kindLabel} — ${cat[m.category] ?? m.category}`;
+      p.add({ name: m.name, type: m.kind, folder, key: `${m.kind}:${m.name}`,
+        system: { cost: m.min || 1, category: m.category, clan: m.clan ?? "", sect: m.sect ?? "", source: m.en ?? "", description: `${m.html ?? ""}${range}` } });
     }
     return p;
   },
