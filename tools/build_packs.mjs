@@ -242,9 +242,12 @@ const BUILDERS = {
       const meta = [`<strong>Добродетели:</strong> ${x.virtues.map(v => VIRTUE[v] ?? v).join(" и ")}`,
         x.bearing && `<strong>Аура:</strong> ${esc(x.bearing)}`, x.followers && `<strong>Последователи:</strong> ${esc(x.followers)}`,
         `Источник: ${esc(x.source || "V20")}`].filter(Boolean).join(" · ");
-      const rows = [...x.hierarchy].sort((a, b) => b.rating - a.rating).map(h => `<tr><td>${h.rating}</td><td>${esc(h.sin)}</td></tr>`).join("");
-      const body = (x.html ?? "").replace(/^<p><em>Источник:.*?<\/em><\/p>/, "");
-      const html = `<p class="r-ritual-meta">${meta}</p>${x.en ? `<p><em>${esc(x.en)}</em></p>` : ""}`
+      const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+      const rows = [...x.hierarchy].sort((a, b) => b.rating - a.rating).map(h => `<tr><td>${h.rating}</td><td>${esc(cap(h.sin))}</td></tr>`).join("");
+      // «Прежнее название: …» — сразу под шапкой, а не после таблицы
+      const aka = (x.html ?? "").match(/^<p><em>Прежнее название:.*?<\/em><\/p>/)?.[0] ?? "";
+      const body = (x.html ?? "").slice(aka.length).replace(/^<p><em>Источник:.*?<\/em><\/p>/, "");
+      const html = `<p class="r-ritual-meta">${meta}</p>${aka}${x.en ? `<p><em>${esc(x.en)}</em></p>` : ""}`
         + (x.road ? `<p><em>Путь ${esc(x.road.replace(/^Дорога/, "Дороги"))}: грехи, не указанные для пути, — как у Дороги.</em></p>` : "")
         + `<h3>Иерархия грехов</h3><table><thead><tr><th>Рейтинг</th><th>Грех</th></tr></thead><tbody>${rows}</tbody></table>${body}`;
       p.addEntry({ name: x.name, html, folder, key: x.key });

@@ -20,6 +20,11 @@ CORE_EN = {"humanity": "Humanity", "power": "Path of Power and the Inner Voice",
 # старые английские имена тех же путей
 ALIAS_EN = {"death soul": "bones", "harmony": "feralHeart", "honorable agreement": "honorableAccord",
             "power inner voice": "power", "evil revelations": None}
+# прежние названия путей основной книги (Шабаш Revised и 2nd): в имя — чтобы находилось поиском компендия
+CORE_AKA = {"bones": ("Смерти и Души", "Путь Смерти и Души (Path of Death and the Soul)"),
+            "feralHeart": ("Гармонии", "Путь Гармонии (Path of Harmony); иначе — Путь Зверя"),
+            "honorableAccord": ("Почётного Договора", "Путь Почётного Договора / Соглашения (Path of Honorable Accord)"),
+            "metamorphosis": ("Метаморфозы", "Путь Метаморфозы (Path of Metamorphosis)")}
 
 # (файл, эпоха, книга, {замены: название раздела → {name, en}}, родительская Дорога из другой книги)
 SOURCES = [
@@ -46,6 +51,10 @@ SOURCES = [
     ("DA_Основная/02_Дороги_Dark_Ages_2002.md", DA, "Dark Ages: Vampire (2002)", {}, None),
     ("DA_House_of_Tremere/05_Горгульи_и_творения_мастерских.md", DA, "Dark Ages: House of Tremere",
      {"Дорога Служения": {"en": "Road of Service", "followers": "горгульи"}}, None),
+    # Дороги «Апокрифов кланов» — грехи строкой «10 — …; 9 — …» (см. inline_sins)
+    ("V20_Dark_Ages/12_Правила_и_драматические_системы.md", DA, "V20 Dark Ages (Апокрифы кланов)",
+     {"Дорога Праведности": {"name": "Дорога Праведности (Кодекс Самиэля)", "en": "Code of Samiel", "followers": "Салюбри-воины"}}, None),
+    ("Black_Hand/03_Тьма_внизу_демоны_и_Асакку.md", "", "V20 The Black Hand", {}, None),
 ]
 
 VIRT = [(r"убеждённ|решимост|решительн|conviction", "conviction"), (r"инстинкт|instinct", "instinct"),
@@ -84,6 +93,13 @@ def hierarchy(lines):
             on = False
     return res
 
+def inline_sins(text):
+    """Грехи строкой: «**Грехи (10 → 1):** 10 — действовать импульсивно; 9 — …» → [{rating, sin}] (нужны номера)."""
+    m = re.search(r"Грехи[^:]*:\**\s*(.+)", text)
+    if not m: return []
+    return [{"rating": int(n), "sin": (lambda t: t[:1].upper() + t[1:])(s.strip().rstrip(".").replace("**", ""))}
+            for n, s in re.findall(r"(\d{1,2})\s*[—–-]\s*(.+?)(?=;\s*\d{1,2}\s*[—–-]|\.?\s*$)", m.group(1))]
+
 def title_parts(t):
     """«4. Путь Злых Откровений (Path of Evil Revelations) — «Развратители»» → (ru, en, прозвище).
     Скобки снимаются до разбора по тире: внутри бывает своё тире («(Via Pinaculum? — OCR/шрифт)»)."""
@@ -116,7 +132,7 @@ def make(title, body, book, era, ov, parent_hier):
     bearing = field(text, r"(?:Аура|Столп)(?:\s*\(Bearing\))?\**\s*:\s*\**\s*([^*—(.\n]+)").strip("«» ")
     if bearing[:1].islower(): bearing = ""             # «Аура: влияет на исход…» — описание, а не название
     nick = field(text, r"Прозвищ[еа]:?\**\s*:?\s*([^.(\n]+)") or nick
-    own = hierarchy(body)
+    own = hierarchy(body) or inline_sins(text)
     hier = own
     inherited = False
     if parent_hier and 0 < len(own) < 10:
@@ -134,7 +150,12 @@ def apply(paths):
     for p in paths:
         if not p.get("en"): p["en"] = CORE_EN.get(p["key"], "")
         p.setdefault("era", "")
-    have = {akey(p["en"]) for p in paths if p.get("en")} | {rkey(p["name"]) for p in paths}
+        if p["key"] in CORE_AKA:                                  # «Путь Костей (Смерти и Души)»
+            short, full = CORE_AKA[p["key"]]
+            p["aka"] = rkey(f"Путь {short}")
+            p["name"] = f"{p['name']} ({short})"
+            p["html"] = f"<p><em>Прежнее название: {full} — Guide to the Sabbat (Revised) и Player's Guide to the Sabbat (2nd).</em></p>" + (p.get("html") or "")
+    have = {akey(p["en"]) for p in paths if p.get("en")} | {rkey(p["name"]) for p in paths} | {p.pop("aka") for p in paths if p.get("aka")}
     have |= {a for a, k in ALIAS_EN.items() if k}
     keys = {p["key"] for p in paths}
     roads = {}                                  # Дороги по названию — для путей из других книг
