@@ -176,18 +176,23 @@ def en_index():
 
     Тексты книг (_текст) в репозиторий не входят. Поэтому собранный по ним индекс сохраняется в EN_CACHE
     (только названия, вид и категория) и читается оттуда, если текстов нет, — иначе вид многих черт
-    из дополнений не определить и они молча становятся достоинствами."""
+    из дополнений не определить и они молча становятся достоинствами. Тексты, если есть, только дополняют
+    сохранённый индекс: на машине может лежать лишь часть книг, и индекс не должен от этого сжиматься."""
+    cache = {}
+    if os.path.exists(EN_CACHE):
+        with io.open(EN_CACHE, encoding="utf-8") as f:
+            cache = json.load(f)
     files = glob.glob(os.path.join(TXT, "V20", "*.txt")) + glob.glob(os.path.join(TXT, "Revised_и_2ed", "*.txt"))
     if not files:
-        if os.path.exists(EN_CACHE):
-            with io.open(EN_CACHE, encoding="utf-8") as f:
-                out = json.load(f)
-            print(f"  тексты книг не найдены — вид и категория из {os.path.relpath(EN_CACHE, ROOT)} ({len(out)} названий)")
-            return out
-        print("  ВНИМАНИЕ: нет ни текстов книг (_текст), ни tools/merits_en_index.json — вид черт из дополнений "
-              "будет определён неполно (без пометки в книге — «достоинство»)")
-        return {}
-    out = _en_index_from_texts(files)
+        if cache:
+            print(f"  тексты книг не найдены — вид и категория из {os.path.relpath(EN_CACHE, ROOT)} ({len(cache)} названий)")
+        else:
+            print("  ВНИМАНИЕ: нет ни текстов книг (_текст), ни tools/merits_en_index.json — вид черт из дополнений "
+                  "будет определён неполно (без пометки в книге — «достоинство»)")
+        return cache
+    out = {**cache, **_en_index_from_texts(files)}
+    if len(out) > len(cache):
+        print(f"  индекс вида черт: {len(cache)} → {len(out)} названий (по {len(files)} текстам книг)")
     with io.open(EN_CACHE, "w", encoding="utf-8", newline="\n") as f:
         json.dump(dict(sorted(out.items())), f, ensure_ascii=False, indent=1)
     return out

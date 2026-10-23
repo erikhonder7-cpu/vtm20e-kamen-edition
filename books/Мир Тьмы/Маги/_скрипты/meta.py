@@ -27,6 +27,10 @@ FOLDERS = {
     'M20_Victorian_Age':          m20('Mage 20th Anniversary: The Victorian Age', edition=VA),
     'M20_VA_Weird_Wonders':       m20('Victorian Mage: Weird Wonders and Revolutionary Magick', edition=VA),
     'M20_VA_Bizarre_Tales':       m20('Victorian Mage: Bizarre Tales and Unusual Characters', edition=VA),
+    'Mage_Revised_Основная': dict(book='Mage: The Ascension Revised Edition (core)', edition='Revised', compat_m20='minor', source='fan_translation_ru', reliability='medium'),
+    'Mage_Dead_Magic': dict(book='Dead Magic (Mage Revised)', edition='Revised', compat_m20='minor', source='official_en', reliability='medium'),
+    'Mage_Book_of_Mirrors': dict(book='The Book of Mirrors (Mage Storytellers Guide)', edition='2nd Edition', compat_m20='minor', source='ocr_en', reliability='medium'),
+    'Mage_Guide_to_the_Traditions': dict(book='Guide to the Traditions (Mage Revised, 2001)', edition='Revised', compat_m20='minor', source='ocr_en', reliability='medium'),
 }
 
 FILES = {  # 'папка/префикс' -> метаданные

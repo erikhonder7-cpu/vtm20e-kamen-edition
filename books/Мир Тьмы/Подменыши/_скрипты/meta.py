@@ -16,6 +16,7 @@ FOLDERS = {
     'C20_Players_Guide': book('C20 Players Guide'),
     'C20_Book_of_Freeholds': book('C20 Book of Freeholds'),
     'C20_Kithbook_Boggans': book('C20 Kithbook: Boggans'),
+    'DA_Fae': dict(book='Dark Ages: Fae', edition='Dark Ages (2004)', compat_c20='minor', source='ocr_en', reliability='medium'),
 }
 
 FILES = {  # 'папка/префикс' -> метаданные

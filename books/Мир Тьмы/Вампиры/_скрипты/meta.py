@@ -35,6 +35,14 @@ FOLDERS = {
     'DA_Clanbook_Baali':       dict(book='Dark Ages Clanbook: Baali', edition='Dark Ages: Vampire (2002)', compat_v20='minor', source='fan_translation_ru', reliability='medium'),
     'DA_Clanbook_Salubri':     dict(book='Dark Ages Clanbook: Salubri', edition='Dark Ages: Vampire (2002)', compat_v20='minor', source='fan_translation_ru', reliability='high'),
     'DA_House_of_Tremere':     dict(book='Dark Ages: House of Tremere', edition='Dark Ages: Vampire (2002)', compat_v20='minor', source='fan_translation_ru', reliability='high'),
+    'Kindred_of_the_East': dict(book='Kindred of the East (Revised)', edition='Revised', compat_v20='minor', source='official_en', reliability='medium'),
+    'Transylvania_Chronicles_3': dict(book='Transylvania Chronicles III: Ill Omens', edition='Revised', compat_v20='minor', source='fan_translation_ru', reliability='medium'),
+    'DA_Storytellers_Companion': dict(book='Dark Ages Storytellers Companion', edition='Dark Ages: Vampire (2002)', compat_v20='minor', source='ocr_en', reliability='medium'),
+    'Revised_Основная': dict(book='Vampire: The Masquerade Revised Edition (core, 1998)', edition='Revised', compat_v20='minor', source='ocr_en', reliability='medium'),
+    'DA_Основная': dict(book='Dark Ages: Vampire (2002, core)', edition='Dark Ages: Vampire (2002)', compat_v20='minor', source='ocr_en', reliability='medium'),
+    'Blood_Sacrifice': dict(book='Blood Sacrifice: The Thaumaturgy Companion', edition='2nd Edition', compat_v20='minor', source='ocr_en', reliability='medium'),
+    'Blood_Magic': dict(book='Blood Magic: Secrets of Thaumaturgy', edition='Revised', compat_v20='minor', source='ocr_en', reliability='medium'),
+    'DA_Road_of_Heaven': dict(book='Dark Ages: Road of Heaven', edition='Dark Ages: Vampire (2002)', compat_v20='minor', source='ocr_en', reliability='medium'),
 }
 
 REV = dict(edition='Revised', compat_v20='minor')
@@ -93,7 +101,7 @@ def main():
     done, miss = 0, []
     for d, _, fs in os.walk(ROOT):
         for f in fs:
-            if not f.endswith('.md') or f in ('README.md', 'Указатель.md', 'AGENTS.md'):
+            if not f.endswith('.md') or f in ('README.md', 'Указатель.md', 'Указатель_компактный.md', 'AGENTS.md'):
                 continue
             path = os.path.join(d, f)
             rel = os.path.relpath(path, ROOT).replace('\\', '/')
