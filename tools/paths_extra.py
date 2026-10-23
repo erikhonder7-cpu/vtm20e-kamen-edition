@@ -32,8 +32,12 @@ SOURCES = [
     ("Revised_Основная/03_Пути_Просветления_достоинства_недостатки_особые_системы.md", "", "Vampire: The Masquerade Revised", {}, None),
     ("Revised_Гайды_сект/04c_Шабаш_1992_Players_Guide_Пути_Просветления.md", "", "The Player's Guide to the Sabbat (2nd Edition)", {}, None),
     # Тёмные века
-    ("V20_Dark_Ages/02_Дороги.md", DA, "V20 Dark Ages", {}, None),
-    ("DA_Companion/01_Дороги_и_пути.md", DA, "V20 Dark Ages Companion", {}, None),
+    ("V20_Dark_Ages/02_Дороги.md", DA, "V20 Dark Ages",
+     {"Дорога Человечности": {"bearing": "Человечность"}}, None),        # в книге у Ауры только описание
+    ("DA_Companion/01_Дороги_и_пути.md", DA, "V20 Dark Ages Companion",
+     {"Путь Чистых": {"bearing": "Святость", "virtues": ["conscience", "selfControl"]},       # «как у Дороги Небес»
+      "Дорога Ахура": {"en": "Road of Ahura Mazda", "followers": "Кающиеся", "virtues": ["conviction", "selfControl"],
+                       "parent": "Дорога Человечности", "add": True}}, None),             # «как Дорога Человечности + добавления»
     ("DA_Road_of_Heaven/01_Дорога_Небес_Пути_и_обряды.md", DA, "Dark Ages: Road of Heaven", {}, "Дорога Небес"),
     ("DA_Clanbook_Salubri/03_Касты_слабость_запреты_Дорога_Скорби.md", DA, "Dark Ages Clanbook: Salubri", {}, None),
     ("DA_Clanbook_Baali/01_Дороги_Путь_Улья.md", DA, "Dark Ages Clanbook: Baali", {}, None),
@@ -80,7 +84,7 @@ def hierarchy(lines):
 def title_parts(t):
     """«4. Путь Злых Откровений (Path of Evil Revelations) — «Развратители»» → (ru, en, прозвище).
     Скобки снимаются до разбора по тире: внутри бывает своё тире («(Via Pinaculum? — OCR/шрифт)»)."""
-    t = re.sub(r"^\d+\.\s*", "", t)
+    t = re.sub(r"^\d+\.\s*", "", t).replace("‑", "-")      # неразрывный дефис («Ахура‑Мазда»)
     parens = re.findall(r"\(([^()]*)\)", t)
     head = re.sub(r"\s*\([^()]*\)", "", t)
     nick = ""
@@ -98,10 +102,9 @@ def field(text, rx):
     m = re.search(rx, text, re.I)
     return re.sub(r"\*", "", m.group(1)).strip(" .,;:") if m else ""
 
-def make(title, body, book, era, over, parent_hier):
+def make(title, body, book, era, ov, parent_hier):
     ru, en, nick = title_parts(title)
-    for k, v in over.items():
-        if ru.startswith(k): ru, en = v.get("name", ru), v.get("en", en)
+    ru, en = ov.get("name", ru), ov.get("en", en)
     text = "\n".join(body)
     virt = field(text, r"Добродетели:?\**\s*:?\s*([^.\n]+)")
     vs = [k for rx, k in VIRT if re.search(rx, virt, re.I)]
@@ -115,12 +118,13 @@ def make(title, body, book, era, over, parent_hier):
     inherited = False
     if parent_hier and 0 < len(own) < 10:
         merged = {h["rating"]: h["sin"] for h in parent_hier}
-        merged.update({h["rating"]: h["sin"] for h in own})
+        for h in own:                           # «Грех (добавление)» — к греху Дороги, иначе вместо него
+            merged[h["rating"]] = f'{merged[h["rating"]]}; {h["sin"]}' if ov.get("add") and h["rating"] in merged else h["sin"]
         hier = [{"rating": r, "sin": merged[r]} for r in sorted(merged, reverse=True)]
         inherited = True
     note = f"<p><em>Источник: {book}.{' Грехи, не указанные для пути, — как у его Дороги.' if inherited else ''}</em></p>"
-    return {"key": "", "name": ru, "en": en, "followers": nick, "virtues": vs or ["conviction", "instinct"],
-            "bearing": bearing, "hierarchy": hier, "era": era, "source": book,
+    return {"key": "", "name": ru, "en": en, "followers": ov.get("followers", nick),
+            "virtues": ov.get("virtues") or vs or ["conviction", "instinct"], "bearing": ov.get("bearing", bearing), "hierarchy": hier, "era": era, "source": book,
             "html": note + md_to_html([l for l in body if not l.startswith("|")])}, len(own)
 
 def apply(paths):
@@ -141,8 +145,10 @@ def apply(paths):
         for lvl, title, body in blocks(lines):
             stack = [s for s in stack if s["level"] < lvl]
             if not re.search(r"Путь|Дорога|Виа|Via|Path|Road", title): continue
-            parent = stack[-1] if stack else (roads.get(parent_name) if parent_name else None)
-            p, n_own = make(title, body, book, era, over, parent["hierarchy"] if parent else None)
+            ov = next((v for k, v in over.items() if title_parts(title)[0].startswith(k)), {})
+            pname = ov.get("parent", parent_name)
+            parent = stack[-1] if stack and not ov.get("parent") else (roads.get(pname) if pname else None)
+            p, n_own = make(title, body, book, era, ov, parent["hierarchy"] if parent else None)
             if parent and not p["bearing"]: p["bearing"] = parent["bearing"]      # Столп пути — от его Дороги
             if re.search(r"Дорога|Road|Via", title) and lvl <= 2:
                 road = {"level": lvl, "hierarchy": p["hierarchy"] if n_own >= 8 else [], "bearing": p["bearing"]}

@@ -212,13 +212,13 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
   /** Комбинированные Дисциплины: нужны все перечисленные Дисциплины нужного уровня; цена в опыте — из книги. */
   #combos() {
     const mine = new Set(this.itemsOf("power").map(p => p.name));
-    return (Codex.combos ?? []).map((c, i) => {
+    return (Codex.combos ?? []).map((c, i) => [c, i]).filter(([c]) => Codex.visible(c)).map(([c, i]) => {
       const miss = (c.requires ?? []).filter(r => this.dotsOf(r.key) < r.level)
         .map(r => L("NeedLevel", { name: Codex.disciplineLabel(r.key), level: r.level }));
       return this.#entry({
         id: String(i), name: c.name, en: c.en, has: mine.has(c.name), text: c.html ?? "", long: true,
         xp: c.xp ?? 0, order: c.xp ?? 0, reasons: this.actor ? miss : [],
-        tags: [{ label: c.requiresText }]
+        tags: [{ label: c.requiresText }, ...sourceTags(c)]
       });
     });
   }

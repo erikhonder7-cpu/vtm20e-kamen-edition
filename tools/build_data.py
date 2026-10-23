@@ -753,6 +753,8 @@ def main():
     magus_paths(disc, rituals)
     import supplements
     combos = supplements.apply(disc, rituals)
+    import combos_extra   # комбинированные из Revised и Тёмных веков (era = "darkAges")
+    combos = combos_extra.apply(combos)
     import magic_extra   # пути и ритуалы Revised, 2nd, Blood Magic / Blood Sacrifice и Тёмных веков (era = "darkAges")
     magic_extra.apply(disc, rituals)
     mdir = os.path.join(REF, "Достоинства_и_недостатки")
