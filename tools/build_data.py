@@ -797,6 +797,8 @@ def main():
     import magic_extra   # пути и ритуалы Revised, 2nd, Blood Magic / Blood Sacrifice и Тёмных веков (era = "darkAges")
     magic_extra.apply(disc, rituals)
     magus_extra(disc)
+    import powers_extra   # высокие уровни (6–9) и новые силы Дисциплин из Revised и Тёмных веков (era = "darkAges")
+    powers_extra.apply(disc)
     mdir = os.path.join(REF, "Достоинства_и_недостатки")
     merits = parse_merits([os.path.join(mdir, f) for f in sorted(os.listdir(mdir)) if f.endswith(".md")])
     import merits_extra

@@ -117,7 +117,7 @@ export const Codex = {
   powersUpTo(key, level) {
     const d = this.disciplines[key];
     if (!d) return [];
-    return d.powers.filter(p => p.level <= level);
+    return d.powers.filter(p => p.level <= level && this.visible(p));
   },
 
   /** Путь магии крови по имени внутри Дисциплины. */

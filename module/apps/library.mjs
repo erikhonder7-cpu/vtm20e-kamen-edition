@@ -179,7 +179,8 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
         scope: inClan ? "clan" : "",
         tags: [inClan && { label: t("Sheet.InClan"), red: true }, paths.length && { label: L("PathsN", { n: paths.length }) }].filter(Boolean),
         text: d.rules?.find(r => !r.title)?.html ?? "", long: true,
-        powers: (d.powers ?? []).map((p, i) => ({ roman: ROMAN[p.level - 1] ?? p.level, name: p.name, ref: `${d.key}|${i}` })),
+        powers: (d.powers ?? []).map((p, i) => [p, i]).filter(([p]) => Codex.visible(p))
+          .map(([p, i]) => ({ roman: ROMAN[p.level - 1] ?? p.level, name: p.name, ref: `${d.key}|${i}` })),
         pathNames: paths.map(p => p.name).join(" · ")
       });
     });

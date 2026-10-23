@@ -320,11 +320,12 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       const inClan = it.system.inClan || clanD.includes(k);
       const myPaths = paths.filter(p => p.system.discipline === k).sort((x, y) => (y.system.primary - x.system.primary) || x.name.localeCompare(y.name));
       const isPathed = VTM20.pathDisciplines.includes(k) || myPaths.length > 0;
-      const powers = (data?.powers ?? []).filter(p => p.level <= v).map((p, i) => ({
+      // i — номер в полном списке сил (по нему codexRef), поэтому силы Тёмных веков отсекаем после нумерации
+      const powers = (data?.powers ?? []).map((p, i) => [p, i]).filter(([p]) => p.level <= v && Codex.visible(p)).map(([p, i]) => ({
         ...p, id: `${it.id}-p${i}`, roman: ROMAN[p.level - 1] ?? p.level, open: this._open.has(`${it.id}-p${i}`),
         roll: rollInfo(p.roll), codexRef: `${k}|${i}`, fx: fxOf(k, p.level)
       }));
-      const nextPower = (data?.powers ?? []).find(p => p.level === v + 1);
+      const nextPower = (data?.powers ?? []).find(p => p.level === v + 1 && Codex.visible(p));
       const myRituals = rituals.filter(r => r.system.discipline === k);
       return {
         id: it.id, key: k, name: data?.name ?? it.name, en: data?.en ?? "", value: v,
