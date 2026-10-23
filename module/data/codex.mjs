@@ -17,6 +17,7 @@ const CLAN_SYMBOL_PARENT = {
   assamityAntitribu: "assamite", tlatsik: "setite", zmeiSveta: "setite", voinySeta: "setite", daytya: "setite",
   brahmany: "ravnos", ravnosAntitribu: "ravnos", pandery: "caitiff", lamii: "kappadokiytsy",
   predvestnikiCherepov: "kappadokiytsy", nagaradzha: "kappadokiytsy", samedi: "kappadokiytsy", giovanni: "kappadokiytsy",
+  synySamuila: "kappadokiytsy",
   angraMaynyu: "baali", kiasidy: "lasombra", gorguli: "tremere", uDzao: "salyubri"
 };
 /** Белые знаки на чёрном (кружочки, знаки Дисциплин) режем маской по яркости, силуэты — по прозрачности. */

@@ -308,7 +308,8 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       const genBg = this.value("bg", "Поколение");
       ctx.generation = 13 - Math.min(5, genBg);
       ctx.gens = [13, 12, 11, 10, 9, 8].map(g => ({ g, cost: 13 - g, active: g === ctx.generation, pool: VTM20.generationOf(g).pool, perTurn: VTM20.generationOf(g).perTurn }));
-      ctx.paths = Codex.paths.map(p => ({ key: p.key, name: p.name, selected: p.key === st.path }));
+      ctx.paths = Codex.paths.filter(p => Codex.visible(p) || p.key === st.path)
+        .map(p => ({ key: p.key, name: p.era ? `${p.name} · ${t("Library.Filter.DarkAges")}` : p.name, selected: p.key === st.path }));
       ctx.pathInfo = this.pathData ? { bearing: this.pathData.bearing, virtues: this.pathData.virtues.map(v => loc(VTM20.virtues[v].label)).join(", ") } : null;
     }
 

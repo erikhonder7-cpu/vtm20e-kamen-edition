@@ -196,7 +196,9 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     ctx.archetypes = Codex.archetypes.map(x => x.name);
     const nature = Codex.archetypes.find(x => x.name === s.details.nature);
     ctx.natureRegain = nature?.regain ?? "";
-    ctx.paths = Codex.paths.map(p => ({ key: p.key, name: p.name, selected: p.key === s.morality.path }));
+    // Дороги Тёмных веков — только при включённой настройке; уже выбранный путь не прячем
+    ctx.paths = Codex.paths.filter(p => Codex.visible(p) || p.key === s.morality.path)
+      .map(p => ({ key: p.key, name: p.era ? `${p.name} · ${t("Library.Filter.DarkAges")}` : p.name, selected: p.key === s.morality.path }));
     ctx.sects = ["camarilla", "sabbat", "anarchs", "independent", "autarkis"].map(k => ({ value: t(`Sect.${k}`), label: t(`Sect.${k}`) }));
   }
 

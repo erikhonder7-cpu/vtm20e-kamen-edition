@@ -766,6 +766,8 @@ def main():
     import backgrounds_extra
     backgrounds += backgrounds_extra.collect(backgrounds)
     paths = parse_paths(os.path.join(REF, "V20_Основные_правила", "06_Человечность_Пути_Добродетели.md"))
+    import paths_extra   # Пути Просветления из дополнений и Дороги Тёмных веков (era = "darkAges")
+    paths = paths_extra.apply(paths)
 
     def dump(name, obj):
         with open(os.path.join(OUT, name), "w", encoding="utf-8", newline="\n") as f:
@@ -778,6 +780,12 @@ def main():
     dump("paths.json", paths)
     core = os.path.join(REF, "V20_Основные_правила")
     clans = parse_clans(os.path.join(core, "02_Кланы_линии_крови_секты_Традиции.md"), disc)
+    # линии без карточки в основной книге (Сыны Самуила и т. п.) — готовыми записями
+    manual = os.path.join(os.path.dirname(os.path.abspath(__file__)), "clans_manual.json")
+    if os.path.exists(manual):
+        have_keys = {c["key"] for c in clans}
+        with open(manual, encoding="utf-8") as f:
+            clans += [c for c in json.load(f) if c["key"] not in have_keys]
     dump("clans.json", clans)
     archetypes = parse_archetypes(os.path.join(core, "01_Создание_персонажа_архетипы_опыт.md"))
     dump("archetypes.json", archetypes)

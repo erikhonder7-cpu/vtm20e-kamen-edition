@@ -43,6 +43,8 @@ node tools/build_packs.mjs       # компендии packs/* из data/*.json (
 
 Пути и ритуалы магии крови сверх основной книги и дополнений V20 собирает `tools/magic_extra.py`: Revised (гайды сект, кланбуки, Storytellers Handbook), 2nd Edition (Players Guide, Players Guide to the Sabbat, городские книги), Blood Magic, Blood Sacrifice и Тёмные века (V20 Dark Ages, Tome of Secrets, Low Clans, Companion, House of Tremere, Dark Ages Storytellers Companion). Повторы отсекаются по английскому названию; приоритет V20 → Revised → 2nd → Тёмные века.
 
+Пути Просветления сверх основной книги и Дороги Тёмных веков собирает `tools/paths_extra.py`: Lore of the Clans, The Black Hand, гайды по Шабашу (Revised и 2nd), Revised, V20 Dark Ages, Dark Ages Companion, Road of Heaven, кланбуки Салюбри и Баали, Dark Ages Storytellers Companion и Dark Ages: Vampire (2002). Пути внутри Дороги, у которых в книге перечислены только отличающиеся грехи, получают остальную иерархию и Столп от своей Дороги. Карточки линий, которых нет в книгах справочника, лежат в `tools/clans_manual.json` (сейчас — Сыны Самуила из фанатской «Samedi»).
+
 **Контент из Dark Ages.** Пути, ритуалы, достоинства и недостатки Тёмных веков помечены в `data/*.json` полем `era: "darkAges"`. Они видны в мастере создания, библиотеке и на листе только при включённой настройке мира «Контент из Dark Ages» (по умолчанию выключена; от эпохи хроники не зависит). В компендиях они лежат в папках «Тёмные века».
 
 `build_packs.mjs` берёт `classic-level` и версию ядра из установленного Foundry (переменная `FOUNDRY_APP` = папка `resources/app`, иначе известные пути). Компендии в `.gitattributes` помечены как двоичные: иначе на Windows с `core.autocrlf` git портит служебный файл LevelDB `CURRENT` и база не открывается.
