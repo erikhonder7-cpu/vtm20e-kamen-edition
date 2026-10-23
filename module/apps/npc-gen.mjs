@@ -273,8 +273,9 @@ export class NpcGenerator extends HandlebarsApplicationMixin(ApplicationV2) {
         typeLabel: loc(`TYPES.Actor.${vamp ? "vampire" : "ghoul"}`)
       };
     }
-    const presetOpts = (list, cat) => [...new Set(list.map(p => p.group))].map(g => ({
-      label: g, options: list.map((p, i) => ({ value: `${cat}:${i}`, label: p.name, group: p.group })).filter(p => p.group === g)
+    // value — номер в полном списке; снаряжение Тёмных веков — только с настройкой «Контент из Dark Ages»
+    const presetOpts = (list, cat) => [...new Set(list.filter(p => Codex.visible(p)).map(p => p.group))].map(g => ({
+      label: g, options: list.map((p, i) => ({ value: `${cat}:${i}`, label: p.name, group: p.group, show: Codex.visible(p) })).filter(p => p.group === g && p.show)
     }));
     const norm = x => x.toLowerCase().replace(/ё/g, "е");
     return {

@@ -15,6 +15,7 @@
 const ERA_M = "1789 — холодное оружие", ERA_R = "1789 — стрелковое и метательное";
 const V20M = "Наше время — холодное (V20)", V20R = "Наше время — стрелковое (V20)";
 const VA = "M20 Victorian Age, гл. 8", DA = "V20 Dark Ages, гл. 12", CORE = "V20, гл. 4";
+const DAC = "V20 Dark Ages Companion, гл. 8", DA_M = "Тёмные века — холодное", DA_R = "Тёмные века — стрелковое и метательное";
 const p = text => `<p>${text}</p>`;
 
 export const WEAPON_PRESETS = [
@@ -66,6 +67,64 @@ export const WEAPON_PRESETS = [
     description: p("Можно и рубить в ближнем бою.") },
   { group: ERA_R, name: "Камень", kind: "thrown", damage: 0, strength: true, damageType: "bashing", difficulty: 6, range: "36", concealment: "в кармане", source: DA },
 
+  // ── Тёмные века (era: "darkAges" — только с настройкой «Контент из Dark Ages») ──
+  // DA Companion, гл. 8 (мечи, древковое, дистанционное — таблицы целые); топоры, булавы и молоты — V20 Dark Ages,
+  // гл. 12 (в Companion эта таблица повреждена). «ББ» книги — пробитие брони; недобор Силы — +1 к сложности за точку.
+  ...[
+    { name: "Нож", damage: 0, conceal: "в кармане", min: 1, src: DAC },
+    { name: "Кинжал / короткий меч", damage: 1, conceal: "под плащом", min: 1, pierce: 2, src: DAC, note: "Мизерикорд, сакс, гладиус. Парирование: сложность 5." },
+    { name: "Эсток", damage: 2, conceal: "нельзя", min: 2, pierce: 3, src: DAC, note: "Колющий меч XIV в. При Мощи может пригвоздить жертву к стене, но не обездвиживает, как кол." },
+    { name: "Фальшион / мессер", damage: 2, conceal: "под широкой одеждой", min: 2, src: DAC },
+    { name: "Рыцарский меч", damage: 2, conceal: "нельзя", min: 2, src: DAC, note: "Обычно со щитом. Парирование: сложность 6, +1 к сложности атаки (только в рукопашной)." },
+    { name: "Длинный меч", damage: 3, conceal: "нельзя", min: 3, src: DAC, note: "«Боевой» меч: в одной или двух руках." },
+    { name: "Сайф / шамшир", damage: 2, conceal: "нельзя", min: 2, src: DAC, note: "Короче других мечей." },
+    { name: "Ручной топор", damage: 2, conceal: "под плащом", min: 3, src: DA },
+    { name: "Боевой топор", damage: 4, conceal: "нельзя", min: 4, src: DA, note: "Двуручный." },
+    { name: "Кирка", damage: 2, conceal: "нельзя", min: 4, pierce: 3, src: DA },
+    { name: "Дубина", damage: 2, type: "bashing", conceal: "под широкой одеждой", min: 2, src: DA },
+    { name: "Булава", damage: 2, conceal: "под плащом", min: 3, pierce: 2, src: `${DA}; ${DAC}`, note: "Против доспеха класса 4+ урон дробящий." },
+    { name: "Моргенштерн", damage: 3, conceal: "под плащом", min: 3, src: DA },
+    { name: "Цеп", damage: 1, type: "bashing", conceal: "под широкой одеждой", min: 2, src: DAC, note: "+1 к сложности защиты противника." },
+    { name: "Клевец", damage: 1, conceal: "нельзя", min: 2, pierce: 2, src: DAC, note: "Одноручный боевой молот с клювом." },
+    { name: "Боевой молот", damage: 4, type: "bashing", conceal: "нельзя", min: 4, src: DA, note: "Двуручный." },
+    { name: "Глефа", damage: 3, conceal: "нельзя", min: 2, src: DAC, pole: true },
+    { name: "Алебарда", damage: 3, conceal: "нельзя", min: 3, pierce: 1, src: DAC, pole: true, note: "XIV в. −1 к сложности обезоруживания." },
+    { name: "Секира на древке", damage: 4, conceal: "нельзя", min: 3, src: DAC, pole: true, note: "−1 к сложности обезоруживания." },
+    { name: "Копьё", damage: 2, conceal: "нельзя", min: 2, src: DAC, pole: true, note: "Можно метать (кроме очень длинных)." },
+    { name: "Копьё всадника", damage: 4, conceal: "нельзя", min: 3, pierce: 3, src: DAC, pole: true, note: "Верхом; пешим — как копьё." },
+    { name: "Двуручный молот", damage: 5, type: "bashing", conceal: "нельзя", min: 4, pierce: 2, src: DAC, pole: true,
+      note: "Каждый ход — рефлекторный бросок Сила + Атлетика или 1 действие, чтобы удержать замах." },
+    { name: "Крестьянский цеп", damage: 3, type: "bashing", conceal: "нельзя", min: 3, pierce: 1, src: DAC, pole: true, note: "+1 к сложности парирования противника." },
+    { name: "Посох", damage: 2, type: "bashing", conceal: "нельзя", min: 2, src: DAC, pole: true, note: "+2 куба к подсечке вместо +1." },
+    { name: "Баклер", damage: 1, type: "bashing", conceal: "под широкой одеждой", min: 1, src: DAC, note: "Малый щит. Парирование: сложность 4, без штрафа к атаке." },
+    { name: "Щит", damage: 2, type: "bashing", conceal: "нельзя", min: 2, src: DAC, diff: 7, note: "Парирование: сложность 6, +1 к сложности атаки; как оружие — +1 к сложности." },
+    { name: "Павеза", damage: 2, type: "bashing", conceal: "нельзя", min: 3, src: DAC, diff: 8,
+      note: "Ростовой щит. Парирование: сложность 7, +1 к сложности атаки; как оружие — +2 к сложности. Установленная в землю — хорошее укрытие для одного." }
+  ].map(w => ({ group: DA_M, era: "darkAges", name: w.name, kind: "melee", damage: w.damage, strength: true, damageType: w.type ?? "lethal",
+    difficulty: w.diff ?? 6, pierce: w.pierce ?? 0, concealment: w.conceal, source: w.src,
+    description: p([`Минимальная Сила ${w.min}.`, w.pole && "Древковое: двуручное (одной рукой — Мин. Сила +2), +1 куб к подсечке.", w.note].filter(Boolean).join(" ")) })),
+  ...[
+    { name: "Лук", damage: 2, range: "54", rate: "1", min: 2, pierce: 2, src: DAC, note: "Составной — верхом без штрафа; простой — верхом +2 к сложности." },
+    { name: "Длинный лук", damage: 4, range: "108", rate: "1", min: 4, pierce: 4, src: DA },
+    { name: "Арбалет", damage: 3, range: "81", rate: "1 за 2 хода", min: 2, pierce: 2, src: DAC, note: "Перезарядка 1 ход, только пешим. Болт годится как кол в сердце." },
+    { name: "Тяжёлый арбалет", damage: 4, range: "81", rate: "1 за 6 ходов", min: 3, pierce: 3, src: DAC, note: "Перезарядка 5 ходов минус точки Стрельбы из лука." },
+    { name: "Праща", damage: 3, type: "bashing", range: "36", rate: "1", min: 2, src: DA, conceal: "в кармане" },
+    { name: "Праща на древке", damage: 4, type: "bashing", range: "45", rate: "1", min: 3, src: DAC }
+  ].map(w => ({ group: DA_R, era: "darkAges", name: w.name, kind: "firearms", damage: w.damage, strength: false, damageType: w.type ?? "lethal",
+    difficulty: 6, pierce: w.pierce ?? 0, range: w.range, rate: w.rate, clip: "1", concealment: w.conceal ?? "нельзя", source: w.src,
+    description: p([`Минимальная Сила ${w.min}. Удвоенная дальность — +1 к сложности, утроенная — +2.`, w.note].filter(Boolean).join(" ")) })),
+  ...[
+    { name: "Метательный кинжал", damage: 1, range: "18", conceal: "под плащом", min: 1 },
+    { name: "Метательный нож", damage: 0, range: "14", conceal: "в кармане", min: 1 },
+    { name: "Дарт", damage: 1, range: "27", conceal: "под широкой одеждой", min: 1, note: "Тяжёлая метательная стрела." },
+    { name: "Метательная дубинка", damage: 2, type: "bashing", range: "27", conceal: "под широкой одеждой", min: 2 },
+    { name: "Метательный топор", damage: 1, range: "18", conceal: "под плащом", min: 2 },
+    { name: "Дротик", damage: 2, range: "45", conceal: "нельзя", min: 2 },
+    { name: "Метательное копьё", damage: 2, range: "36", conceal: "нельзя", min: 3 },
+    { name: "Камень", damage: 0, type: "bashing", range: "36", conceal: "в кармане", min: 1 }
+  ].map(w => ({ group: DA_R, era: "darkAges", name: w.name, kind: "thrown", damage: w.damage, strength: true, damageType: w.type ?? "lethal",
+    difficulty: 6, range: w.range, concealment: w.conceal, source: DAC, description: p([`Минимальная Сила ${w.min}.`, w.note].filter(Boolean).join(" ")) })),
+
   // ── Наше время (V20, гл. 4) ────────────────────────────────────────────
   { group: V20M, name: "Бита", kind: "melee", damage: 2, strength: true, damageType: "bashing", difficulty: 6, concealment: "под плащом", source: CORE,
     description: p("Дробящее: лёгкие повреждения, в голову (прицельно) — тяжёлые.") },
@@ -78,13 +137,23 @@ export const WEAPON_PRESETS = [
   { group: V20R, name: "Дробовик", kind: "firearms", damage: 8, strength: false, damageType: "lethal", difficulty: 6, range: "20", rate: "1", clip: "5+1", concealment: "под плащом", source: CORE }
 ];
 
-const ERA_A = "1789 — броня", V20A = "Наше время — броня (V20)";
+const ERA_A = "1789 — броня", V20A = "Наше время — броня (V20)", DA_A = "Тёмные века — доспехи";
 export const ARMOR_PRESETS = [
   { group: ERA_A, name: "Плотная одежда (класс I)", rating: 1, penalty: 0, source: `${CORE}; ${DA}`, description: p("Сюртук из толстого сукна, кожаный жилет.") },
   { group: ERA_A, name: "Колет буйволовой кожи (класс II)", rating: 2, penalty: 1, source: `${CORE}; ${DA}`, description: p("Кожаный колет или стёганый поддоспешник.") },
   { group: ERA_A, name: "Нагрудник (класс III)", rating: 3, penalty: 1, source: `${CORE}; ${DA}`, description: p("Кираса без наспинника, как у офицеров и жандармов.") },
   { group: ERA_A, name: "Кираса кирасира (класс IV)", rating: 4, penalty: 2, source: `${CORE}; ${DA}`, description: p("Нагрудник с наспинником и шлем тяжёлой кавалерии.") },
   { group: ERA_A, name: "Старинные латы (класс V)", rating: 5, penalty: 3, source: `${CORE}; ${DA}`, description: p("Рыцарский доспех из чьей-то фамильной коллекции.") },
+  // Тёмные века: доспех торса по классам (DA Companion, гл. 8); шлем и конечности — в описании, штрафы не складываются
+  ...[
+    [1, 1, 0, "Стёганка (класс 1)", "Гамбезон."],
+    [2, 2, 1, "Кюир-бульи (класс 2)", "Варёная кожа или сюрко с пластинами."],
+    [3, 3, 1, "Стёганка и кюир-бульи (класс 3)", "Стёганка под варёной кожей или сюрко с пластинами."],
+    [4, 4, 2, "Кольчуга (класс 4)", "Стёганка и кольчуга."],
+    [5, 5, 3, "Кольчуга с пластинами (класс 5)", "Стёганка, кольчуга и сюрко с пластинами; или стёганка и бригантина, «пластинчатый плащ», ламеляр."],
+    [6, 6, 3, "Латы (класс 6)", "Стёганка, кольчуга и бригантина/пластины/ламеляр; или стёганка и кираса. На Западе — не раньше XIV в.; полные латы снижают штраф до 2."]
+  ].map(([, rating, penalty, name, text]) => ({ group: DA_A, era: "darkAges", name, rating, penalty, source: "V20 Dark Ages Companion, гл. 8; V20 Dark Ages, гл. 12",
+    description: p(`${text} Класс доспеха — защита торса; удар в незащищённую конечность — прицельная атака. Штрафы к инициативе и Ловкости дают только доспех торса и шлем, и не складываются: берётся худший. Шлемы и защита конечностей — тех же классов 1–6.`) })),
   { group: V20A, name: "Защитная одежда (класс I)", rating: 1, penalty: 0, source: CORE },
   { group: V20A, name: "Бронированная одежда (класс II)", rating: 2, penalty: 1, source: CORE },
   { group: V20A, name: "Лёгкий бронежилет (класс III)", rating: 3, penalty: 1, source: CORE },

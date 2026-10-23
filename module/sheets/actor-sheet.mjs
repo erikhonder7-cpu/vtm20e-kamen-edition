@@ -412,13 +412,13 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const res = a.items.find(i => i.type === "background" && /^ресурс/i.test(i.name));
     ctx.resources = res ? { dots: "●".repeat(res.system.value), html: (res.system.description ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 400) } : null;
     ctx.gear = a.items.filter(i => i.type === "gear").map(i => ({ id: i.id, name: i.name, img: i.img, quantity: i.system.quantity }));
-    ctx.weaponPresets = WEAPON_PRESETS.map((p, i) => ({ value: i, label: p.name, group: p.group }));
-    ctx.weaponPresetGroups = [...new Set(WEAPON_PRESETS.map(p => p.group))].map(g => ({
-      label: g, options: WEAPON_PRESETS.map((p, i) => ({ value: i, label: p.name, group: p.group })).filter(p => p.group === g)
+    // value — номер в полном списке заготовок; снаряжение Тёмных веков — только с настройкой «Контент из Dark Ages»
+    const presetGroups = list => [...new Set(list.filter(p => Codex.visible(p)).map(p => p.group))].map(g => ({
+      label: g, options: list.map((p, i) => ({ value: i, label: p.name, group: p.group, show: Codex.visible(p) })).filter(p => p.group === g && p.show)
     }));
-    ctx.armorPresetGroups = [...new Set(ARMOR_PRESETS.map(p => p.group))].map(g => ({
-      label: g, options: ARMOR_PRESETS.map((p, i) => ({ value: i, label: p.name, group: p.group })).filter(p => p.group === g)
-    }));
+    ctx.weaponPresets = WEAPON_PRESETS.map((p, i) => ({ value: i, label: p.name, group: p.group })).filter((_, i) => Codex.visible(WEAPON_PRESETS[i]));
+    ctx.weaponPresetGroups = presetGroups(WEAPON_PRESETS);
+    ctx.armorPresetGroups = presetGroups(ARMOR_PRESETS);
   }
 
   /* ── Рендер ─────────────────────────────────────────────────────────── */

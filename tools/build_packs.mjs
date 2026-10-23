@@ -108,9 +108,9 @@ const rollOf = r => r ? { trait1: r.trait1 ?? "", trait2: r.trait2 ?? "", diffic
 const BUILDERS = {
   equipment() {
     const p = new Pack("equipment");
-    for (const { name, group, source, description = "", ...system } of WEAPON_PRESETS)
+    for (const { name, group, source, description = "", era, ...system } of WEAPON_PRESETS)
       p.add({ name, type: "weapon", folder: group, system: { ...system, source: source ?? "", description: description + sourceLine(source) } });
-    for (const { name, group, source, description = "", ...system } of ARMOR_PRESETS)
+    for (const { name, group, source, description = "", era, ...system } of ARMOR_PRESETS)
       p.add({ name, type: "armor", folder: group, system: { ...system, source: source ?? "", description: description + sourceLine(source) } });
     return p;
   },
