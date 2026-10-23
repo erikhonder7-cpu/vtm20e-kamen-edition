@@ -192,6 +192,8 @@ def parse_discipline(num, key, path):
             # Сила уровня 1–5, внутри могут быть подзаголовки ### — оставляем их в тексте
             d["powers"].append(power(lvl, nm, b))
             continue
+        if re.match(r"^См\. также", t):
+            continue                            # перечень файлов справочника для читателя, не путь и не правило
         subs = sections(b, 3)
         dotted = [(dot_level(st), sb) for st, sb in subs[1:] if st]
         if num in PATHED and not re.match(r"^(Старшие|Общие|Как устроена|Активация)", t):
