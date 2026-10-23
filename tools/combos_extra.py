@@ -28,6 +28,8 @@ SOURCES = [
     ("Revised_Кланбуки/07_Вентру.md", "Clanbook: Ventrue (Revised)", "", None),
     ("DA_Low_Clans/09_Дисциплинарные_техники.md", "Dark Ages: Player's Guide to Low Clans", DA, 7),   # «Затмение» здесь — Сокрытие
     ("DA_Road_of_Heaven/02_Достоинства_недостатки_особые_силы_Эхо_гнева_Аллаха.md", "Dark Ages: Road of Heaven", DA, None),
+    ("DA_High_Clans/10_Новые_приёмы_Дисциплин_комбинации.md", "Dark Ages: Player's Guide to High Clans", DA, None),
+    ("DA_Tome_of_Secrets/11_Комбинации_и_ритуалы_игроков.md", "V20 Dark Ages: Tome of Secrets", DA, None),
 ]
 
 # старые переводы названий Дисциплин (Revised, Тёмные века)
@@ -62,6 +64,12 @@ def clean(s): return re.sub(r"\*\*", "", s or "").strip()
 
 HEAD_XP = re.compile(r"^(?:Комбинированная сила:\s*)?(.+?)\s*—\s*(.+?)\s*[·;]\s*опыт\s*\**(\d+)\**\s*$")
 HEAD_PAREN = re.compile(r"^(?:\d+\.\s*)?([^()]+?)\s*\((.*\d.*)\)\s*$")          # скобки бывают вложенные: «(Тауматургия (Rego Vitae) 1)»
+# абзацы: «**Эгида Энтропии** (Стойкость 3, Некромантия [Распад могилы] 1) — **21 опыта**» (High Clans)
+BOLD_XP = re.compile(r"^\*\*([^*]+?)\*\*\s*\((.*\d.*)\)\s*[—–-]\s*\**(\d+)\s*опыт")
+# «**Грация Макшоу** (McShaw's Grace)» и строкой ниже «- **Требования:** … **Опыт: 6.**» (Tome of Secrets)
+BOLD_EN = re.compile(r"^\*\*([^*]+?)\*\*\s*\(([A-Z][^()]*)\)\s*$")
+REQ_LINE = re.compile(r"^\s*-\s*\*\*Требования:\*\*\s*(.+?)\.\s*\*\*Опыт:\s*([^*]*?)\.?\*\*")
+BOLD_START = re.compile(r"^\*\*[^*]+\*\*\s*\(")
 
 def from_file(rel, book, era, xp_mult):
     lines = read(os.path.join(REF, rel))
@@ -71,16 +79,26 @@ def from_file(rel, book, era, xp_mult):
     cur = None
     def close():
         if cur: bodies[norm(split_name(clean(cur[0]))[0])] = cur
-    for l in lines:
+    skip = -1
+    for i, l in enumerate(lines):
+        if i == skip: continue                      # строка «Требования … Опыт» уже ушла в шапку
         h = heading_level(l)
         t = l[h + 1:].strip() if h >= 2 else ""
         m = HEAD_XP.match(t) if t else None
         mp = HEAD_PAREN.match(t) if t and not m else None
+        mb = BOLD_XP.match(l) if not h else None
+        me = BOLD_EN.match(l) if not h and not mb else None
+        mr = REQ_LINE.match(lines[i + 1]) if me and i + 1 < len(lines) else None
         if m and reqs_of(m.group(2), obf):
             close(); cur = [m.group(1), m.group(2), m.group(3), []]
         elif mp and len(reqs_of(mp.group(2), obf)) >= 2:
             close(); cur = [mp.group(1), mp.group(2), None, []]
-        elif h or l.strip() == "---":
+        elif mb and reqs_of(mb.group(2), obf):
+            close(); cur = [mb.group(1), mb.group(2), mb.group(3), []]
+        elif mr and reqs_of(mr.group(1), obf):
+            rest = lines[i + 1][mr.end():].strip()
+            close(); cur = [f"{me.group(1)} ({me.group(2)})", mr.group(1), mr.group(2), [rest] if rest else []]; skip = i + 1
+        elif h or l.strip() == "---" or (cur is not None and BOLD_START.match(l)):
             close(); cur = None
         elif cur is not None:
             cur[3].append(l)

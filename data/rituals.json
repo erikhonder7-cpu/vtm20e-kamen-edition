@@ -6844,6 +6844,20 @@
    {
     "discipline": "koldunism",
     "level": 1,
+    "name": "Отражения",
+    "en": "Reflections",
+    "source": "Blood Sacrifice: The Thaumaturgy Companion",
+    "era": "",
+    "html": "<p class=\"r-ritual-meta\"><strong>Уровень 1</strong> · Бросок: Интеллект + Оккультизм, сложность 4 · Источник: Blood Sacrifice: The Thaumaturgy Companion</p><p>предмет из места (в основном натуральный: карандаш да, ноутбук нет); в течение 24 часов дух кольдуна перемещается в место на <strong>ходов = успехи + Воля</strong>, осматривает как было в момент взятия; предмет — один раз.</p>",
+    "roll": {
+     "trait1": "attributes.intelligence",
+     "trait2": "abilities.occult",
+     "difficulty": 4
+    }
+   },
+   {
+    "discipline": "koldunism",
+    "level": 1,
     "name": "Пить смерть",
     "en": "Drinking Death",
     "source": "V20 Dark Ages: Tome of Secrets",
@@ -7110,6 +7124,20 @@
    {
     "discipline": "koldunism",
     "level": 4,
+    "name": "Объятие земли",
+    "en": "Earth's Embrace",
+    "source": "Blood Sacrifice: The Thaumaturgy Companion",
+    "era": "",
+    "html": "<p class=\"r-ritual-meta\"><strong>Уровень 4</strong> · Бросок: Интеллект + Оккультизм, сложность 7 · Источник: Blood Sacrifice: The Thaumaturgy Companion</p><p>только Цимисхи: 2 крови, 1 Воля, не позднее часа до рассвета; земля заменяет «родную» на день; раз в неделю; рассказчик бросает; ботч: −1 кубик сверху.</p>",
+    "roll": {
+     "trait1": "attributes.intelligence",
+     "trait2": "abilities.occult",
+     "difficulty": 7
+    }
+   },
+   {
+    "discipline": "koldunism",
+    "level": 4,
     "name": "Узы, что связывают",
     "en": "Ties That Bind",
     "html": "<p class=\"r-ritual-meta\"><strong>Уровень 4</strong> · Бросок: Интеллект + Оккультизм, сложность 7 · Источник: V20 Rites of the Blood</p><p>Пролить <strong>4 крови</strong> на свою землю и съесть горсть пропитанной почвы. <strong>1 ночь за успех</strong> — <strong>−1</strong> ко всем броскам колдовства (компенсирует отдалённость от родины). Не чаще раза в неделю.</p>",
@@ -7120,6 +7148,20 @@
     },
     "era": "",
     "source": "V20 Rites of the Blood"
+   },
+   {
+    "discipline": "koldunism",
+    "level": 5,
+    "name": "Взгляд Горгоны",
+    "en": "Gaze of the Gorgon",
+    "source": "Blood Sacrifice: The Thaumaturgy Companion",
+    "era": "",
+    "html": "<p class=\"r-ritual-meta\"><strong>Уровень 5</strong> · Бросок: Интеллект + Оккультизм, сложность 8 · Источник: Blood Sacrifice: The Thaumaturgy Companion</p><p>час, 2 крови и 1 вылитая цели; цель-Каинит — Воля (8) вычитает успехи; окаменение на <strong>год за успех</strong> (для смертных — навсегда); Каинит после выхода — Самоконтроль (9) от бешенства.</p>",
+    "roll": {
+     "trait1": "attributes.intelligence",
+     "trait2": "abilities.occult",
+     "difficulty": 8
+    }
    },
    {
     "discipline": "koldunism",
