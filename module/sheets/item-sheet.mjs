@@ -56,6 +56,8 @@ export class VtMItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       descriptionHTML: await enrich(s.description),
       disciplineName: discKey ? (discKey === "obtenebration" && item.type === "ritual" ? "Мистика Бездны" : Codex.disciplineLabel(discKey)) : "",
       roman: ROMAN[(s.level ?? s.value) - 1] ?? String(s.level ?? s.value ?? ""),
+      // книга — из шапки описания справочника («… · Источник: V20 Rites of the Blood»), её в окне прячем
+      book: /Источник:\s*([^<·]+)/.exec(s.description ?? "")?.[1]?.trim() ?? "",
       pool: VtMItemSheet.poolLabel(s.roll)
     });
 

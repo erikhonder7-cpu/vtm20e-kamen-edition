@@ -164,6 +164,8 @@ body.r-theme-light .vtm20 {
   appearance: none; -webkit-appearance: none; width: 14px; height: 14px; margin: 0; flex: 0 0 auto; cursor: pointer;
   border: 1px solid var(--r-dot-border); border-radius: 0; background: transparent; display: inline-grid; place-items: center;
 }
+/* своя галочка Foundry (::before — квадрат 20px) рисовалась второй рамкой поверх нашей */
+.vtm20 input[type=checkbox]::before { content: none; display: none; }
 .vtm20 input[type=checkbox]:checked { background: var(--r-blood); border-color: var(--r-blood-l); }
 .vtm20 input[type=checkbox]:checked::after { content: "✓"; color: #f1e9da; font-size: 10px; line-height: 1; }
 .vtm20 input[type=checkbox]:disabled { opacity: .4; cursor: default; }

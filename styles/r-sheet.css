@@ -478,6 +478,12 @@
 .vtm20 .r-item-setup.is-text > .r-ipower-body { padding: 6px 12px 10px; }
 .vtm20 .r-item-setup .r-editor { margin: 0; border: 0; }
 .vtm20.r-item .r-item-text, .vtm20.r-item .r-item-text prose-mirror { min-height: 160px; }
+/* текст растёт по содержимому, прокручивается всё окно, а не рамка редактора */
+.vtm20.r-item .r-item-text prose-mirror.inactive { height: auto; }
+.vtm20.r-item .r-item-text prose-mirror.inactive .editor-content { position: static; height: auto; overflow: visible; }
+/* строка «Уровень · Бросок · Источник» в тексте дублирует карточки — в окне источник отдельной подписью */
+.vtm20.r-item .r-item-text .r-ritual-meta { display: none; }
+.vtm20 .r-item-src { margin: -4px 0 10px; font-size: 12.5px; font-style: italic; color: var(--r-muted); }
 
 /* ── Подвал ────────────────────────────────────────────────────────────── */
 
