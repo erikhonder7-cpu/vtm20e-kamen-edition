@@ -206,8 +206,12 @@ const BUILDERS = {
 
   derangements() {
     const p = new Pack("derangements");
-    for (const d of data("derangements"))
-      p.add({ name: d.name, type: "derangement", key: d.name, system: { permanent: false, source: d.en ?? "", description: `${d.html}${sourceLine("V20, гл. 5")}` } });
+    // основная книга — в корне, дополнения — папкой по книге, Тёмные века — своей папкой
+    for (const d of data("derangements")) {
+      const extra = d.source && d.source !== "V20";
+      p.add({ name: d.name, type: "derangement", key: d.name, folder: d.era === "darkAges" ? "Тёмные века" : extra ? d.source : null,
+        system: { permanent: false, source: d.en ?? "", description: extra ? d.html : `${d.html}${sourceLine("V20, гл. 5")}` } });
+    }
     return p;
   }
 };

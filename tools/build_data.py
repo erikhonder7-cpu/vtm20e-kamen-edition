@@ -856,7 +856,13 @@ def main():
     polish.dedupe_rituals(rituals)
     polish.rituals(rituals)
     polish.combos(combos)
+    # расстройства: 10 из основной книги лежат в data/derangements.json готовыми; дополнения — заново при каждой сборке
+    import derangements_extra
+    with open(os.path.join(OUT, "derangements.json"), encoding="utf-8") as f:
+        derangements = [d for d in json.load(f) if d.get("source", "V20") == "V20"]
+    derangements = derangements_extra.apply(derangements)
     dump("disciplines.json", disc)
+    dump("derangements.json", derangements)
     dump("rituals.json", rituals)
     dump("combos.json", combos)
     dump("merits.json", merits)

@@ -274,8 +274,9 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
 
   #derangements() {
     const mine = new Set(this.itemsOf("derangement").map(i => i.name));
-    return (Codex.derangements ?? []).map((d, i) => this.#entry({
-      id: String(i), name: d.name, en: d.en, has: mine.has(d.name), text: d.html ?? "", long: true
+    // id — номер в полном списке; расстройства Тёмных веков — только с настройкой «Контент из Dark Ages»
+    return (Codex.derangements ?? []).map((d, i) => [d, i]).filter(([d]) => Codex.visible(d)).map(([d, i]) => this.#entry({
+      id: String(i), name: d.name, en: d.en, has: mine.has(d.name), text: d.html ?? "", long: true, tags: sourceTags(d)
     }));
   }
 
