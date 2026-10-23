@@ -42,7 +42,8 @@ PATHS = [
      {"name": "Путь Мортуус", "en": "Mortuus Path"}),
     ("Revised_Гайды_сект/04b_Шабаш_1992_Players_Guide_Дисциплины_ритуалы_способности_реликвии.md", [r"3\. Тауматургия Шабаша", r"Путь Дара Морфея"],
      "thaumaturgy", PGS, "", "Тауматургия антитрибу Тремер.", None),
-    ("Revised_Кланбуки/02_Тремер.md", [r"Путь создания теней"], "thaumaturgy", CB_TREM, "", "", None),
+    ("Revised_Кланбуки/02_Тремер.md", [r"Путь создания теней"], "thaumaturgy", CB_TREM, "", "",
+     {"name": "Путь создания теней", "en": "Shadowcrafting"}),
     ("Blood_Magic/01_Пути_Тауматургии.md", [r"Новые пути Тауматургии"], "thaumaturgy", BM, "", "", "group"),
     ("Blood_Magic/04_Колдовство_сетитов_и_ассамитов.md", [r"Сетитское колдовство", r"Путь «Змея внутри»"], "setiteSorcery", BM, "", "Путь сетитского колдовства.", None),
     ("Blood_Magic/04_Колдовство_сетитов_и_ассамитов.md", [r"Сетитское колдовство", r"Путь Высохшего Нила"], "setiteSorcery", BM, "", "Путь сетитского колдовства.", None),
@@ -192,13 +193,30 @@ def parse_powers(lines):
                 cur = None; i = j; continue
             if lvl_col and len(h) >= 2:
                 # одна сила, растущая по уровням (малые пути V20 DA, Нектар крови): строка таблицы — уровень
+                hdr = h[1].replace("*", "").strip()
+                rows_ = []
                 while j < len(lines) and lines[j].startswith("|"):
                     r = cells(lines[j]); lv = level_of(r[0])
                     if lv and len(r) >= 2:
                         ru, en = name_en(r[1])
                         rest = [f"**{h[k].replace('*', '')}:** {r[k]}" for k in range(1, len(r)) if k < len(h) and r[k].strip()]
-                        scaled.append({"level": lv, "name": ru[:60] or f"Уровень {lv}", "en": en, "html": md_to_html(rest)})
+                        # имя — значение из таблицы до пояснений в скобках; make_path добавит название пути
+                        rows_.append((lv, re.split(r"\s*\(|;|,\s", ru, 1)[0].strip()[:40], en, md_to_html(rest)))
                     j += 1
+                vals = [v for _, v, _, _ in rows_]
+                numword = re.compile(r"^(?:один|одна|два|две|три|четыре|пять|шесть)\b", re.I)
+                # подпись колонки — если значения сами по себе непонятны: все однословные («Демон: Мелкий»)
+                # или числительные («Сколько уровней…: два»)
+                prefix = (all(len(v.split()) == 1 and not re.search(r"\d", v) for v in vals) and len(hdr) <= 15) \
+                         or sum(bool(numword.match(v)) for v in vals) >= len(vals) - 1
+                NUM = {"один": 1, "одна": 1, "два": 2, "две": 2, "три": 3, "четыре": 4, "пять": 5, "шесть": 6}
+                for lv, v, en, body in rows_:
+                    n = NUM.get(v.split()[0].lower()) if v else None
+                    if n and len(hdr) > 15 and re.search(r"уровн", hdr, re.I):
+                        name = f"передать {n} ур."              # «Сколько уровней силы можно передать: два» → коротко
+                    else:
+                        name = f"{hdr}: {v}" if prefix else v
+                    scaled.append({"level": lv, "name": name, "en": en, "html": body, "scaled": True})
                 cur = None; i = j; continue
             while j < len(lines) and lines[j].startswith("|"): j += 1
             i = j; continue
@@ -239,7 +257,9 @@ def path_name(title):
     t = re.sub(r"^\d+\.\s*", "", title.strip())
     t = re.sub(r"^(?:Новый путь|Путь)\s*:\s*", "", t)
     t = re.sub(r"\s+[—–]\s+.*$", "", t)
-    return name_en(t)
+    ru, en = name_en(t)
+    if re.fullmatch(r"«[^«»]+»", ru): ru = ru[1:-1]          # «Сотворение огня» (Creatio Ignis) → без кавычек
+    return ru, en
 
 def chunks(lines):
     """Раздел с несколькими путями → [(заголовок, строки)] по подзаголовкам или строкам «**Имя (En)** …»."""
@@ -256,6 +276,9 @@ def make_path(title, lines, book, era, note, override):
     ru, en = path_name(title)
     if override: ru, en = override.get("name", ru), override.get("en", en)
     powers = parse_powers(lines)
+    for p in powers:
+        # одна сила, растущая по уровням: «Власть движения — 100 кг», а не просто «100 кг»
+        if p.pop("scaled", False): p["name"] = f"{ru} — {p['name'] or p['level']}"
     single = bool(override and override.get("single"))
     if single:
         # путь без сил по уровням (Perdo Magica, Управление Магией): одна «сила» — весь раздел
