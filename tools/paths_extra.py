@@ -153,9 +153,15 @@ def apply(paths):
             parent = stack[-1] if stack and not ov.get("parent") else (roads.get(pname) if pname else None)
             p, n_own = make(title, body, book, era, ov, parent["hierarchy"] if parent else None)
             if parent and not p["bearing"]: p["bearing"] = parent["bearing"]      # Столп пути — от его Дороги
-            if re.search(r"Дорога|Road|Via", title) and lvl <= 2:
-                road = {"level": lvl, "hierarchy": p["hierarchy"] if n_own >= 8 else [], "bearing": p["bearing"]}
-                stack.append(road); roads[p["name"]] = road
+            if parent: p["road"] = parent["name"]                                 # путь внутри Дороги — для папок компендия
+            if re.match(r"(?:\d+\.\s*)?(?:Дорога|Road|Via|Дерех|Derech)\b", title) and lvl <= 2:   # «Пути Дороги Небес» — не Дорога
+                name = re.split(r"\s*[:—(]", p["name"])[0].strip()          # «Дорога Небес: Пути, течения и обряды» → «Дорога Небес»
+                known = roads.get(name)
+                if n_own < 8 and known:                                     # заголовок-обзор без своей иерархии — та же Дорога
+                    road = {**known, "level": lvl}
+                else:
+                    road = {"level": lvl, "hierarchy": p["hierarchy"] if n_own >= 8 else [], "bearing": p["bearing"], "name": name}
+                stack.append(road); roads[name] = road
             if len(p["hierarchy"]) < 5: continue
             if (p["en"] and akey(p["en"]) in have) or rkey(p["name"]) in have: continue
             key = translit(p["name"]) or f"path{len(keys)}"

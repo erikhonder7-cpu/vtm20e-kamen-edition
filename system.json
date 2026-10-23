@@ -225,6 +225,18 @@
         "ASSISTANT": "OWNER"
       },
       "flags": {}
+    },
+    {
+      "name": "enlightenment-paths",
+      "label": "Пути Просветления",
+      "path": "packs/enlightenment-paths",
+      "type": "JournalEntry",
+      "system": "vtm20e-kamen-edition",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
     }
   ],
   "grid": {
@@ -265,7 +277,8 @@
         "rituals",
         "merits-flaws",
         "backgrounds",
-        "derangements"
+        "derangements",
+        "enlightenment-paths"
       ],
       "folders": []
     }

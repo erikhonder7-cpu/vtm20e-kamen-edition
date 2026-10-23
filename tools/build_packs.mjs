@@ -55,9 +55,9 @@ const stats = () => ({
   createdTime: now, modifiedTime: now, lastModifiedBy: null
 });
 
-/** Один компендиум: папки и предметы с устойчивыми id. */
+/** Один компендиум: папки и предметы (или журналы — docType "JournalEntry") с устойчивыми id. */
 class Pack {
-  constructor(name) { this.name = name; this.folders = new Map(); this.items = []; }
+  constructor(name, docType = "Item") { this.name = name; this.docType = docType; this.folders = new Map(); this.items = []; }
   id(key) { return crypto.createHash("sha1").update(`${SYSTEM_ID}:${this.name}:${key}`).digest("base64").replace(/[^A-Za-z0-9]/g, "").slice(0, 16); }
   /** Папка по имени или пути ["Родитель", "Дочерняя"] — вложенные папки создаются по цепочке. */
   folder(name) {
@@ -66,7 +66,7 @@ class Pack {
     let parent = null, key = "";
     for (const part of chain) {
       key = key ? `${key}/${part}` : part;
-      if (!this.folders.has(key)) this.folders.set(key, { _id: this.id(`folder:${key}`), name: part, type: "Item", folder: parent, sorting: "a",
+      if (!this.folders.has(key)) this.folders.set(key, { _id: this.id(`folder:${key}`), name: part, type: this.docType, folder: parent, sorting: "a",
         sort: (this.folders.size + 1) * 100000, color: null, description: "", flags: {}, _stats: stats() });
       parent = this.folders.get(key)._id;
     }
@@ -75,6 +75,14 @@ class Pack {
   add({ name, type, system, folder = null, key = null, img = null }) {
     this.items.push({ _id: this.id(`${type}:${key ?? `${folder}:${name}`}`), name, type, img: img ?? ICON(type), system,
       effects: [], folder: this.folder(folder), sort: (this.items.length + 1) * 1000, ownership: { default: 0 }, flags: {}, _stats: stats() });
+  }
+  /** Журнал из одной текстовой страницы (компендиум JournalEntry). */
+  addEntry({ name, html, folder = null, key }) {
+    const _id = this.id(`journal:${key}`), pageId = this.id(`page:${key}`);
+    this.items.push({ _id, name, folder: this.folder(folder), sort: (this.items.length + 1) * 1000, ownership: { default: 0 }, flags: {}, _stats: stats(),
+      categories: [], pages: [{ _id: pageId, name, type: "text", title: { show: false, level: 1 }, text: { content: html, format: 1, markdown: "" },
+        image: {}, video: { controls: true, volume: 0.5 }, src: null, system: {}, category: null, sort: 100000,
+        ownership: { default: -1 }, flags: {}, _stats: stats() }] });
   }
   async write() {
     const dir = path.join(ROOT, "packs", this.name);
@@ -94,7 +102,12 @@ class Pack {
     await db.open();
     const batch = db.batch();
     for (const f of this.folders.values()) batch.put(`!folders!${f._id}`, f);
-    for (const it of this.items) batch.put(`!items!${it._id}`, it);
+    for (const it of this.items) {
+      if (this.docType !== "JournalEntry") { batch.put(`!items!${it._id}`, it); continue; }
+      // журнал: в самой записи — id страниц, страницы — отдельными ключами (как хранит Foundry)
+      batch.put(`!journal!${it._id}`, { ...it, pages: it.pages.map(p => p._id) });
+      for (const p of it.pages) batch.put(`!journal.pages!${it._id}.${p._id}`, p);
+    }
     await batch.write();
     await db.close();
     console.log(`packs/${this.name}: ${this.items.length} предм., ${this.folders.size} папок`);
@@ -212,6 +225,32 @@ const BUILDERS = {
       p.add({ name: d.name, type: "derangement", key: d.name, folder: d.era === "darkAges" ? "Тёмные века" : extra ? d.source : null,
         system: { permanent: false, source: d.en ?? "", description: extra ? d.html : `${d.html}${sourceLine("V20, гл. 5")}` } });
     }
+    return p;
+  },
+
+  // Пути Просветления и Дороги (data/paths.json) — журналы: шапка, иерархия грехов, описание.
+  // Папки: основная книга; дополнения; Тёмные века — Дорога с путями своей папкой, остальные Дороги в корне эпохи.
+  "enlightenment-paths"() {
+    const p = new Pack("enlightenment-paths", "JournalEntry");
+    const VIRTUE = { conscience: "Совесть", conviction: "Убеждённость", selfControl: "Самоконтроль", instinct: "Инстинкты" };
+    const paths = data("paths");
+    const roadsWithPaths = new Set(paths.map(x => x.road).filter(Boolean));
+    for (const x of paths) {
+      const da = x.era === "darkAges";
+      const folder = !da ? (x.source ? "Пути из дополнений" : "Человечность и Пути (V20)")
+        : x.road ? ["Тёмные века", x.road] : roadsWithPaths.has(x.name) ? ["Тёмные века", x.name] : "Тёмные века";
+      const meta = [`<strong>Добродетели:</strong> ${x.virtues.map(v => VIRTUE[v] ?? v).join(" и ")}`,
+        x.bearing && `<strong>Аура:</strong> ${esc(x.bearing)}`, x.followers && `<strong>Последователи:</strong> ${esc(x.followers)}`,
+        `Источник: ${esc(x.source || "V20")}`].filter(Boolean).join(" · ");
+      const rows = [...x.hierarchy].sort((a, b) => b.rating - a.rating).map(h => `<tr><td>${h.rating}</td><td>${esc(h.sin)}</td></tr>`).join("");
+      const body = (x.html ?? "").replace(/^<p><em>Источник:.*?<\/em><\/p>/, "");
+      const html = `<p class="r-ritual-meta">${meta}</p>${x.en ? `<p><em>${esc(x.en)}</em></p>` : ""}`
+        + (x.road ? `<p><em>Путь ${esc(x.road.replace(/^Дорога/, "Дороги"))}: грехи, не указанные для пути, — как у Дороги.</em></p>` : "")
+        + `<h3>Иерархия грехов</h3><table><thead><tr><th>Рейтинг</th><th>Грех</th></tr></thead><tbody>${rows}</tbody></table>${body}`;
+      p.addEntry({ name: x.name, html, folder, key: x.key });
+    }
+    // Дорога — первой в своей папке
+    for (const it of p.items) if (roadsWithPaths.has(it.name)) it.sort = 0;
     return p;
   }
 };

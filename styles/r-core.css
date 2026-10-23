@@ -323,8 +323,8 @@ body.r-theme-light .vtm20 {
 body.r-theme-light .vtm20 .r-sym { background: linear-gradient(170deg, #3a3029, #1d1813); }
 
 /* Шапка описаний ритуалов и комбинированных Дисциплин (data/*.json, tools/polish.py) */
-.vtm20 .r-ritual-meta, .r-item-card .r-ritual-meta { margin: 0 0 8px; padding: 3px 0 3px 9px; border-left: 2px solid var(--r-blood, #8c1c22); font-size: 12.5px; line-height: 1.45; color: var(--r-muted, #7d766a); }
-.vtm20 .r-ritual-meta strong, .r-item-card .r-ritual-meta strong { color: var(--r-ink, #d8cfbf); font-weight: 600; }
+.vtm20 .r-ritual-meta, .r-item-card .r-ritual-meta, .journal-page-content .r-ritual-meta { margin: 0 0 8px; padding: 3px 0 3px 9px; border-left: 2px solid var(--r-blood, #8c1c22); font-size: 12.5px; line-height: 1.45; color: var(--r-muted, #7d766a); }
+.vtm20 .r-ritual-meta strong, .r-item-card .r-ritual-meta strong, .journal-page-content .r-ritual-meta strong { color: var(--r-ink, #d8cfbf); font-weight: 600; }
 
 /* Свой выпадающий список подсказок (module/ui/combo.mjs) вместо браузерного <datalist> */
 .vtm20 input[data-combo] {
