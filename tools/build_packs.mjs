@@ -128,7 +128,7 @@ const BUILDERS = {
       const first = c.requires?.[0] ?? {};
       const system = { discipline: first.key ?? "", path: "", level: first.level ?? 1, source: c.en ?? "", description: c.html ?? "" };
       const roll = rollOf(c.roll); if (roll) system.roll = roll;
-      p.add({ name: c.name, type: "power", folder: "Комбинированные Дисциплины", key: `combo:${c.en || c.name}`, img: DISC_ICON(first.key), system });
+      p.add({ name: c.name, type: "power", folder: ["Комбинированные Дисциплины", ...(c.era === "darkAges" ? ["Тёмные века"] : [])], key: `combo:${c.en || c.name}`, img: DISC_ICON(first.key), system });
     }
     return p;
   },
@@ -138,7 +138,8 @@ const BUILDERS = {
     const disc = data("disciplines");
     for (const [k, d] of Object.entries(disc)) for (const path_ of d.paths ?? []) {
       const powers = (path_.powers ?? []).map(x => `<li><b>${ROMAN[x.level - 1] ?? x.level}</b> · ${esc(x.name)}</li>`).join("");
-      p.add({ name: path_.name, type: "thaumPath", folder: daFolder(path_, d.name), key: `${k}:${path_.name}`, img: DISC_ICON(k),
+      // Пути Тёмных веков — подпапкой внутри своей школы, а не отдельным деревом
+      p.add({ name: path_.name, type: "thaumPath", folder: path_.era === "darkAges" ? [d.name, "Тёмные века"] : d.name, key: `${k}:${path_.name}`, img: DISC_ICON(k),
         system: { discipline: k, value: 1, primary: false, source: path_.en ?? "", description: `${path_.html ?? ""}${powers ? `<h4>Уровни пути</h4><ul>${powers}</ul>` : ""}` } });
     }
     return p;
@@ -147,10 +148,22 @@ const BUILDERS = {
   rituals() {
     const p = new Pack("rituals");
     const disc = data("disciplines");
-    for (const [k, group] of Object.entries(data("rituals"))) for (const r of group.rituals ?? []) {
-      const system = { discipline: k, level: r.level, source: r.en ?? "", description: r.html ?? "" };
-      const roll = rollOf(r.roll); if (roll) system.roll = roll;
-      p.add({ name: r.name, type: "ritual", folder: daFolder(r, `${k === "obtenebration" ? "Мистика Бездны" : disc[k]?.name ?? k} — ${ROMAN[r.level - 1] ?? r.level}`), key: `${k}:${r.name}`, img: DISC_ICON(k), system });
+    // «Ритуалы Тауматургии / Уровень 1»; материалы Тёмных веков — «Ритуалы Тауматургии / Тёмные века / Уровень 1»
+    const SCHOOL = { thaumaturgy: "Ритуалы Тауматургии", necromancy: "Ритуалы Некромантии", koldunism: "Ритуалы Колдовства",
+      assamiteSorcery: "Ритуалы Чародейства Ассамитов", setiteSorcery: "Ритуалы Чародейства Сетитов",
+      darkThaumaturgy: "Ритуалы Тёмной Тауматургии", obtenebration: "Ритуалы Мистики Бездны" };
+    for (const [k, group] of Object.entries(data("rituals"))) {
+      const school = SCHOOL[k] ?? `Ритуалы: ${disc[k]?.name ?? k}`;
+      const branch = r => [school, ...(r.era === "darkAges" ? ["Тёмные века"] : [])];
+      // папки уровней создаём по порядку и сортируем вручную: по алфавиту «Уровень 10» встал бы перед «Уровень 2»
+      const list = [...(group.rituals ?? [])].sort((a, b) => !!a.era - !!b.era || a.level - b.level);
+      for (const r of list) p.folder([...branch(r), `Уровень ${r.level}`]);
+      for (const [key, f] of p.folders) if (key === school || key === `${school}/Тёмные века`) f.sorting = "m";
+      for (const r of group.rituals ?? []) {
+        const system = { discipline: k, level: r.level, source: r.en ?? "", description: r.html ?? "" };
+        const roll = rollOf(r.roll); if (roll) system.roll = roll;
+        p.add({ name: r.name, type: "ritual", folder: [...branch(r), `Уровень ${r.level}`], key: `${k}:${r.name}`, img: DISC_ICON(k), system });
+      }
     }
     return p;
   },

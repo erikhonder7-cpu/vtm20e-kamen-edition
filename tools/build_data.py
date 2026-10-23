@@ -603,6 +603,22 @@ def extra_koldun(disc):
 MAGUS_PATHS = ["Путь Крови", "Игра с Огнём", "Мановение Мысли", "Путь Воплощения", "Длань Разрушения",
                "Власть над Стихиями", "Могущество Нептуна", "Управление Погодой", "Путь Отчего Воздаяния"]
 MAGUS_PRIMARY = {"Игра с Огнём", "Мановение Мысли", "Власть над Стихиями", "Могущество Нептуна", "Управление Погодой"}
+# названия путей у чародеев: Clanbook: Assamite (Revised) и Дур‑Ан‑Ки (Blood Sacrifice)
+MAGUS_NAMES = {"Путь Крови": ["Вода жизни (Дур‑Ан‑Ки)"], "Игра с Огнём": ["Привлечение огней", "Рука магов (Дур‑Ан‑Ки)"],
+               "Мановение Мысли": ["Движение разума"], "Путь Воплощения": ["Путь Сотворения", "Дар джинна (Дур‑Ан‑Ки)"],
+               "Длань Разрушения": ["Руки разрушения"], "Власть над Стихиями": ["Управление стихиями"],
+               "Могущество Нептуна": ["Мощь Нептуна", "Завет Энки (Дур‑Ан‑Ки)"],
+               "Путь Отчего Воздаяния": ["Путь больного шакала", "Шакал‑мститель (Дур‑Ан‑Ки)"],
+               "Путь Управления духами": ["Управление духом", "Законы Сулеймана (Дур‑Ан‑Ки)"],
+               "Путь Сосредоточенного разума": ["Отзвук Нирваны"], "Путь проклятия крови": ["Путь кровавого проклятия"]}
+# пути из дополнений, которые книги называют известными чародеям‑ассамитам: (Дисциплина, путь, основной?, откуда известно)
+MAGUS_EXTRA = [("thaumaturgy", "Путь Управления духами", True, "Clanbook: Assamite (Revised); Blood Sacrifice"),
+               ("thaumaturgy", "Путь Сосредоточенного разума", False, "Clanbook: Assamite (Revised)"),
+               ("thaumaturgy", "Путь проклятия крови", False, "Clanbook: Assamite (Revised)"),
+               ("thaumaturgy", "Алхимия", False, "Clanbook: Assamite (Revised)"),
+               ("thaumaturgy", "Путь Техномантии", False, "Clanbook: Assamite (Revised), пример Нар‑Шепты"),
+               ("setiteSorcery", "Путь Дуата", False, "Blood Sacrifice: колдуны Дур‑Ан‑Ки знают его от Акху"),
+               ("setiteSorcery", "Путь Нектара крови", False, "Blood Sacrifice: колдуны Дур‑Ан‑Ки знают его от Садханы")]
 
 def _blocks(lines, start_re, stop_re=r"^(#|---)"):
     """Блоки «заголовок + строки до следующего заголовка» внутри куска текста."""
@@ -627,7 +643,8 @@ def _section(rel, title_start, level=2):
 
 def _ritual(name, en, lvl, body, book):
     html_ = f"<p><em>Источник: {html.escape(book)}.</em></p>" + md_to_html(body)
-    return {"discipline": "assamiteSorcery", "level": lvl, "name": name, "en": en, "html": html_,
+    return {"discipline": "assamiteSorcery", "level": lvl, "name": name, "en": en, "html": html_, "source": book,
+            "era": "darkAges" if "Dark Ages" in book else "",
             "roll": {"trait1": "attributes.intelligence", "trait2": "abilities.occult", "difficulty": min(9, 3 + lvl)}}
 
 def magus_supplements(asm):
@@ -644,7 +661,7 @@ def magus_supplements(asm):
     if powers:
         for p in powers:
             p["roll"] = {"trait1": "willpower.permanent", "difficulty": min(9, 3 + p["level"]), "blood": 1}
-        asm["paths"].append({"name": "Путь Хранителей", "en": "The Keepers Way", "source": tome, "powers": powers,
+        asm["paths"].append({"name": "Путь Хранителей", "en": "The Keepers Way", "source": tome, "powers": powers, "era": "darkAges",
             "html": f"<p><em>Источник: {tome}. Только Хранители бассейна Аламута: каждую ночь ≥ 1 кровь из Великого бассейна, иначе 1 непоглощаемый отягчённый урон.</em></p>" + md_to_html(intro)})
     # Ритуалы Аламута: «**Имя** (En) — уровень N»
     lines = read(os.path.join(REF, "DA_Tome_of_Secrets/02_Чародейство_Ассамитов.md"))
@@ -715,6 +732,26 @@ def magus_paths(disc, rituals):
     rituals["assamiteSorcery"] = {"rules": [{"title": "Ритуалы Магусов", "html": "<p>Традиционные ритуалы чародеев‑ассамитов — те же, что у Тауматургии, но проводятся каждый раз по‑своему. Чужие (нетрадиционные) ритуалы: изучение ×2, время ×2, нужен +1 успех.</p>"}], "rituals": res}
     print("Магусы: путей", len(asm["paths"]), "ритуалов", len(res))
 
+def magus_extra(disc):
+    """После дополнений: пути других школ, известные чародеям‑ассамитам, и названия путей у Магусов и Дур‑Ан‑Ки."""
+    asm = disc["assamiteSorcery"]
+    have = {p["name"] for p in asm["paths"]}
+    n = 0
+    for k, name, primary, why in MAGUS_EXTRA:
+        src = next((p for p in disc[k]["paths"] if p["name"] == name), None)
+        if not src or name in have: continue
+        cp = json.loads(json.dumps(src))
+        star = " Может быть основным (с согласия наставника)." if primary else ""
+        cp["html"] = (f"<p><em>Путь из школы «{html.escape(disc[k]['name'])}», известный чародеям‑ассамитам ({html.escape(why)})."
+                      f" Изучается как свой, без наценки за чужую традицию.{star}</em></p>" + cp["html"])
+        asm["paths"].append(cp); n += 1
+    for p in asm["paths"]:
+        aka = MAGUS_NAMES.get(p["name"])
+        if aka:
+            names = [re.sub(r"^(.+?)( \(.+\))?$", r"«\1»\2", a) for a in aka]     # «Вода жизни» (Дур‑Ан‑Ки)
+            p["html"] = f"<p><em>У чародеев: {html.escape(', '.join(names))}.</em></p>" + p["html"]
+    print("Магусы: путей из других школ +", n)
+
 def annotate_rolls(disc, rituals):
     add_discipline_traits(disc)
     n = 0
@@ -759,6 +796,7 @@ def main():
     combos = combos_extra.apply(combos)
     import magic_extra   # пути и ритуалы Revised, 2nd, Blood Magic / Blood Sacrifice и Тёмных веков (era = "darkAges")
     magic_extra.apply(disc, rituals)
+    magus_extra(disc)
     mdir = os.path.join(REF, "Достоинства_и_недостатки")
     merits = parse_merits([os.path.join(mdir, f) for f in sorted(os.listdir(mdir)) if f.endswith(".md")])
     import merits_extra
