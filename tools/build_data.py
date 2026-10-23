@@ -11,8 +11,10 @@
 import sys, re, json, os, html
 
 sys.stdout.reconfigure(encoding="utf-8")
+# python -I не кладёт папку скрипта в пути импорта — без этого не найдутся supplements, merits_extra и др.
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ROOT =os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 REF = os.path.join(ROOT, "books", "Мир Тьмы", "Вампиры", "_справочник")
 OUT = os.path.join(ROOT, "data")
 

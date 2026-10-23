@@ -1,0 +1,1850 @@
+{
+ "absentminded": {
+  "kind": "flaw",
+  "category": "mental"
+ },
+ "acutesense": {
+  "kind": "merit",
+  "category": "physical"
+ },
+ "addictedtovampireblood": {
+  "kind": "flaw",
+  "category": "mental"
+ },
+ "addiction": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "addictiveblood": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "additionaldiscipline": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "advancedtech": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "aging": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "alienperfection": {
+  "kind": "merit",
+  "category": "physical"
+ },
+ "allergic": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "ambidextrous": {
+  "kind": "merit",
+  "category": "physical"
+ },
+ "amnesia": {
+  "kind": "flaw",
+  "category": "mental"
+ },
+ "anachronism": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "ancestralsoildependence": {
+  "kind": "flaw",
+  "category": "supernatural"
+ },
+ "anosmia": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "antitoxinblood": {
+  "kind": "merit",
+  "category": "physical"
+ },
+ "apostate": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "arcane": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "arcanecurse": {
+  "kind": "flaw",
+  "category": "supernatural"
+ },
+ "auraofcommand": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "auraofthetyphon": {
+  "kind": "flaw",
+  "category": "supernatural"
+ },
+ "backupidentity": {
+  "kind": "merit",
+  "category": "mental"
+ },
+ "badsight": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "bansheeinwaiting": {
+  "kind": "flaw",
+  "category": "mental"
+ },
+ "beaconoftheunholy": {
+  "kind": "flaw",
+  "category": "supernatural"
+ },
+ "benevolentblood": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "berserker": {
+  "kind": "merit",
+  "category": "mental"
+ },
+ "bestial": {
+  "kind": "flaw",
+  "category": "supernatural"
+ },
+ "betrayersmark": {
+  "kind": "flaw",
+  "category": "supernatural"
+ },
+ "biggerboyscame": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "bioluminescence": {
+  "kind": "merit",
+  "category": "physical"
+ },
+ "blackandwhite": {
+  "kind": "flaw",
+  "category": "mental"
+ },
+ "blessedbystgustav": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "blind": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "bloodhunted": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "bloodweakness": {
+  "kind": "flaw",
+  "category": "supernatural"
+ },
+ "blushofhealth": {
+  "kind": "merit",
+  "category": "physical"
+ },
+ "bodytrail": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "boon": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "botchedpresentation": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "bound": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "boundtotheclan": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "brahmin": {
+  "kind": "merit",
+  "category": "mental"
+ },
+ "brittlebody": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "brokenantitribu": {
+  "kind": "flaw",
+  "category": "supernatural"
+ },
+ "brokenbond": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "bruiser": {
+  "kind": "merit",
+  "category": "physical"
+ },
+ "bulimia": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "bullyboy": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "callofthesea": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "calmheart": {
+  "kind": "merit",
+  "category": "mental"
+ },
+ "cannibal": {
+  "kind": "merit",
+  "category": "physical"
+ },
+ "cantcrossrunningwater": {
+  "kind": "flaw",
+  "category": "supernatural"
+ },
+ "carrionpresence": {
+  "kind": "flaw",
+  "category": "supernatural"
+ },
+ "castnoreflection": {
+  "kind": "flaw",
+  "category": "supernatural"
+ },
+ "catlikebalance": {
+  "kind": "merit",
+  "category": "physical"
+ },
+ "catspaw": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "chandala": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "charmedexistence": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "child": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "chorustrained": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "churchties": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "clanenmity": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "clanfriendship": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "clanweakness": {
+  "kind": "flaw",
+  "category": "supernatural"
+ },
+ "clearsighted": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "cloistered": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "codeofhonor": {
+  "kind": "merit",
+  "category": "mental"
+ },
+ "coldbreeze": {
+  "kind": "flaw",
+  "category": "supernatural"
+ },
+ "coldlylogical": {
+  "kind": "merit",
+  "category": "mental"
+ },
+ "coldread": {
+  "kind": "merit",
+  "category": "mental"
+ },
+ "colorblindness": {
+  "kind": "flaw",
+  "category": "mental"
+ },
+ "combatnovice": {
+  "kind": "flaw",
+  "category": "mental"
+ },
+ "commonsense": {
+  "kind": "merit",
+  "category": "mental"
+ },
+ "compulsion": {
+  "kind": "flaw",
+  "category": "mental"
+ },
+ "computeraptitude": {
+  "kind": "merit",
+  "category": "mental"
+ },
+ "concentration": {
+  "kind": "merit",
+  "category": "mental"
+ },
+ "confused": {
+  "kind": "flaw",
+  "category": "mental"
+ },
+ "connoisseur": {
+  "kind": "merit",
+  "category": "mental"
+ },
+ "consanguineousresistance": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "conspicuousconsumption": {
+  "kind": "flaw",
+  "category": "mental"
+ },
+ "consumption": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "controllablenightsight": {
+  "kind": "merit",
+  "category": "physical"
+ },
+ "corporateties": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "corporationceo": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "courtfavorite": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "crackdriver": {
+  "kind": "merit",
+  "category": "mental"
+ },
+ "credulous": {
+  "kind": "flaw",
+  "category": "supernatural"
+ },
+ "critters": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "culturalchameleon": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "cursed": {
+  "kind": "flaw",
+  "category": "supernatural"
+ },
+ "dangeroussecret": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "dangersense": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "daredevil": {
+  "kind": "merit",
+  "category": "physical"
+ },
+ "darkaura": {
+  "kind": "flaw",
+  "category": "supernatural"
+ },
+ "darkfate": {
+  "kind": "flaw",
+  "category": "supernatural"
+ },
+ "darksecret": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "deadenednerves": {
+  "kind": "merit",
+  "category": "physical"
+ },
+ "deadinside": {
+  "kind": "flaw",
+  "category": "mental"
+ },
+ "deadzone": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "deaf": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "deathgrip": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "deathsight": {
+  "kind": "flaw",
+  "category": "supernatural"
+ },
+ "deceptiveaura": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "deepsleeper": {
+  "kind": "flaw",
+  "category": "mental"
+ },
+ "deformity": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "destiny": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "detached": {
+  "kind": "merit",
+  "category": "mental"
+ },
+ "devilsmark": {
+  "kind": "flaw",
+  "category": "supernatural"
+ },
+ "diabolicsire": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "discerningpalate": {
+  "kind": "merit",
+  "category": "physical"
+ },
+ "discipleoflazarusjapheth": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "diseasecarrier": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "disembodiedmentor": {
+  "kind": "merit",
+  "category": "mental"
+ },
+ "disfigured": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "disgracetotheblood": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "distractingaura": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "doublejointed": {
+  "kind": "merit",
+  "category": "physical"
+ },
+ "draconstemperament": {
+  "kind": "merit",
+  "category": "mental"
+ },
+ "dreadfulmara": {
+  "kind": "flaw",
+  "category": "supernatural"
+ },
+ "drivinggoal": {
+  "kind": "flaw",
+  "category": "mental"
+ },
+ "drugresistance": {
+  "kind": "merit",
+  "category": "physical"
+ },
+ "dualnature": {
+  "kind": "merit",
+  "category": "mental"
+ },
+ "dulledbite": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "dynamicpersonality": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "earlyriser": {
+  "kind": "merit",
+  "category": "physical"
+ },
+ "eatfood": {
+  "kind": "merit",
+  "category": "physical"
+ },
+ "ecclesialrank": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "ecstatic": {
+  "kind": "merit",
+  "category": "mental"
+ },
+ "ecumenist": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "eeriepresence": {
+  "kind": "flaw",
+  "category": "supernatural"
+ },
+ "efficientdigestion": {
+  "kind": "merit",
+  "category": "physical"
+ },
+ "eideticmemory": {
+  "kind": "merit",
+  "category": "mental"
+ },
+ "elysiumregular": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "embeddedagent": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "embracedwithoutthecup": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "enchantingvoice": {
+  "kind": "merit",
+  "category": "physical"
+ },
+ "enemy": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "enemybrood": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "enlightened": {
+  "kind": "merit",
+  "category": "mental"
+ },
+ "entrepreneur": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "escapedtarget": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "expendable": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "expirationdate": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "extrasharp": {
+  "kind": "merit",
+  "category": "physical"
+ },
+ "eyesofshadow": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "faceless": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "faerieaffinity": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "failure": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "falsereflection": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "fangless": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "fastlearner": {
+  "kind": "merit",
+  "category": "mental"
+ },
+ "fatalist": {
+  "kind": "merit",
+  "category": "mental"
+ },
+ "fifteenthgeneration": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "fistofgod": {
+  "kind": "merit",
+  "category": "physical"
+ },
+ "flashbacks": {
+  "kind": "flaw",
+  "category": "mental"
+ },
+ "flawedreality": {
+  "kind": "flaw",
+  "category": "supernatural"
+ },
+ "fleshofthecorpse": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "forkedtongue": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "formerghoul": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "formerprince": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "foulblood": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "fourteenthgeneration": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "friendlyface": {
+  "kind": "merit",
+  "category": "physical"
+ },
+ "friendoftheunderground": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "fugueinstinct": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "furysfocus": {
+  "kind": "merit",
+  "category": "mental"
+ },
+ "gapingmaw": {
+  "kind": "merit",
+  "category": "physical"
+ },
+ "glowingeyes": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "grandlibrary": {
+  "kind": "merit",
+  "category": "mental"
+ },
+ "gripofthedamned": {
+  "kind": "flaw",
+  "category": "supernatural"
+ },
+ "guardianangel": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "guiltwracked": {
+  "kind": "flaw",
+  "category": "mental"
+ },
+ "halflife": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "hardofhearing": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "harmless": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "hatred": {
+  "kind": "flaw",
+  "category": "mental"
+ },
+ "haunted": {
+  "kind": "flaw",
+  "category": "supernatural"
+ },
+ "havenaffinity": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "healingtouch": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "heartless": {
+  "kind": "flaw",
+  "category": "supernatural"
+ },
+ "heartofneedles": {
+  "kind": "merit",
+  "category": "mental"
+ },
+ "heavyhands": {
+  "kind": "merit",
+  "category": "physical"
+ },
+ "hemophiliac": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "hiddendiablerie": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "higherpurpose": {
+  "kind": "merit",
+  "category": "mental"
+ },
+ "hiveminded": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "holyaura": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "hugesize": {
+  "kind": "merit",
+  "category": "physical"
+ },
+ "hunted": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "huntedlikeadog": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "ignorance": {
+  "kind": "flaw",
+  "category": "mental"
+ },
+ "illiterate": {
+  "kind": "flaw",
+  "category": "mental"
+ },
+ "immaculateaura": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "impatient": {
+  "kind": "flaw",
+  "category": "mental"
+ },
+ "impressiverestraint": {
+  "kind": "merit",
+  "category": "mental"
+ },
+ "inbred": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "incoherent": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "incompleteunderstanding": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "indelible": {
+  "kind": "merit",
+  "category": "physical"
+ },
+ "inept": {
+  "kind": "flaw",
+  "category": "mental"
+ },
+ "infamousautarkis": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "infamoussire": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "infectious": {
+  "kind": "flaw",
+  "category": "supernatural"
+ },
+ "infectiousbite": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "infertilevitae": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "innocent": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "inoffensivetoanimals": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "insanesire": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "instrumentofgod": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "interagencyliaison": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "intolerance": {
+  "kind": "flaw",
+  "category": "mental"
+ },
+ "introspection": {
+  "kind": "merit",
+  "category": "mental"
+ },
+ "ironwill": {
+  "kind": "merit",
+  "category": "mental"
+ },
+ "isolatedupbringing": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "jackofalltrades": {
+  "kind": "merit",
+  "category": "mental"
+ },
+ "judicialties": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "keystothelibrary": {
+  "kind": "merit",
+  "category": "mental"
+ },
+ "kingorqueenofshadow": {
+  "kind": "merit",
+  "category": "mental"
+ },
+ "kissofdeath": {
+  "kind": "flaw",
+  "category": "supernatural"
+ },
+ "kshatriya": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "lame": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "language": {
+  "kind": "merit",
+  "category": "mental"
+ },
+ "laughingstock": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "lawmansfriend": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "lazy": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "legacy": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "legerdemain": {
+  "kind": "merit",
+  "category": "physical"
+ },
+ "lessermarkofthebeast": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "lightningcalculator": {
+  "kind": "merit",
+  "category": "mental"
+ },
+ "lightsensitive": {
+  "kind": "flaw",
+  "category": "supernatural"
+ },
+ "lightsleeper": {
+  "kind": "merit",
+  "category": "mental"
+ },
+ "lightweight": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "lizardlimbs": {
+  "kind": "merit",
+  "category": "physical"
+ },
+ "loathsomeregnant": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "longfingers": {
+  "kind": "merit",
+  "category": "physical"
+ },
+ "longtermplanning": {
+  "kind": "merit",
+  "category": "mental"
+ },
+ "lordoftheflies": {
+  "kind": "flaw",
+  "category": "supernatural"
+ },
+ "lordofthenight": {
+  "kind": "flaw",
+  "category": "supernatural"
+ },
+ "lostsvadharma": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "lowselfimage": {
+  "kind": "flaw",
+  "category": "mental"
+ },
+ "lucky": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "lunacy": {
+  "kind": "flaw",
+  "category": "mental"
+ },
+ "mageblood": {
+  "kind": "flaw",
+  "category": "supernatural"
+ },
+ "magicresistance": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "magicsusceptibility": {
+  "kind": "flaw",
+  "category": "supernatural"
+ },
+ "manchuriancandidate": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "mansion": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "masqueradebreaker": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "masterofthemasquerade": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "mechanicalaptitude": {
+  "kind": "merit",
+  "category": "mental"
+ },
+ "mediaties": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "medium": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "memberofthepack": {
+  "kind": "flaw",
+  "category": "supernatural"
+ },
+ "methuselahsthirst": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "misplacedheart": {
+  "kind": "merit",
+  "category": "physical"
+ },
+ "mistakenidentity": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "mole": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "monstrous": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "monstrousmaw": {
+  "kind": "merit",
+  "category": "physical"
+ },
+ "mortalflashbacks": {
+  "kind": "flaw",
+  "category": "mental"
+ },
+ "mortuario": {
+  "kind": "merit",
+  "category": "physical"
+ },
+ "multiplecurses": {
+  "kind": "flaw",
+  "category": "supernatural"
+ },
+ "mute": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "mutedevotion": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "narc": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "naturalleader": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "naturallinguist": {
+  "kind": "merit",
+  "category": "mental"
+ },
+ "necrophile": {
+  "kind": "flaw",
+  "category": "mental"
+ },
+ "newarrival": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "newkid": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "nightclub": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "nightmares": {
+  "kind": "flaw",
+  "category": "mental"
+ },
+ "ninelives": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "nonstandardaccess": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "notoriety": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "oathbreaker": {
+  "kind": "flaw",
+  "category": "supernatural"
+ },
+ "obviouspredator": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "occultlibrary": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "oldflame": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "oldpal": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "onearm": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "oneeye": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "openroad": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "openwound": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "oracularability": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "outcast": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "outofphase": {
+  "kind": "flaw",
+  "category": "supernatural"
+ },
+ "outsidehaven": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "overconfident": {
+  "kind": "flaw",
+  "category": "mental"
+ },
+ "overextended": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "oversizedfangs": {
+  "kind": "merit",
+  "category": "physical"
+ },
+ "overstimulated": {
+  "kind": "flaw",
+  "category": "mental"
+ },
+ "packdistinction": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "packresentment": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "paintolerance": {
+  "kind": "merit",
+  "category": "physical"
+ },
+ "paleaura": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "papertrail": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "paradiselost": {
+  "kind": "flaw",
+  "category": "supernatural"
+ },
+ "paragon": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "paranoid": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "paranormallink": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "paraplegic": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "parasiticinfestation": {
+  "kind": "flaw",
+  "category": "supernatural"
+ },
+ "patagia": {
+  "kind": "merit",
+  "category": "physical"
+ },
+ "pawn": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "peacemaker": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "permanentfangs": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "permanentthirdeye": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "permanentwound": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "personalmasquerade": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "phobia": {
+  "kind": "flaw",
+  "category": "mental"
+ },
+ "piscine": {
+  "kind": "merit",
+  "category": "physical"
+ },
+ "pitiable": {
+  "kind": "merit",
+  "category": "mental"
+ },
+ "plagueofdemons": {
+  "kind": "flaw",
+  "category": "supernatural"
+ },
+ "poisonousblood": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "policeties": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "politicalties": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "precocious": {
+  "kind": "merit",
+  "category": "mental"
+ },
+ "prestigioussire": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "preyexclusion": {
+  "kind": "flaw",
+  "category": "mental"
+ },
+ "primogenbishopfriendship": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "privacyobsession": {
+  "kind": "flaw",
+  "category": "mental"
+ },
+ "privatelife": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "prizedcollection": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "prizedpatch": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "probationarysectmember": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "projectilevomiting": {
+  "kind": "merit",
+  "category": "physical"
+ },
+ "prometheanclay": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "propheticdreams": {
+  "kind": "merit",
+  "category": "mental"
+ },
+ "protg": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "proxykissed": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "psifocus": {
+  "kind": "flaw",
+  "category": "supernatural"
+ },
+ "psychicfeedback": {
+  "kind": "flaw",
+  "category": "supernatural"
+ },
+ "psychicleech": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "putrescent": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "quartermaster": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "ratinacage": {
+  "kind": "flaw",
+  "category": "mental"
+ },
+ "rebel": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "recruitmenttarget": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "redlist": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "refinedpalate": {
+  "kind": "flaw",
+  "category": "mental"
+ },
+ "religioushysteria": {
+  "kind": "flaw",
+  "category": "mental"
+ },
+ "rep": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "repelledbycrosses": {
+  "kind": "flaw",
+  "category": "supernatural"
+ },
+ "reptilebuddy": {
+  "kind": "merit",
+  "category": "physical"
+ },
+ "repulsedbygarlic": {
+  "kind": "flaw",
+  "category": "supernatural"
+ },
+ "researchgrant": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "revenantdisciplines": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "revenantweakness": {
+  "kind": "flaw",
+  "category": "supernatural"
+ },
+ "risingstar": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "rivalsires": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "ruggedbadlooks": {
+  "kind": "merit",
+  "category": "physical"
+ },
+ "sabbatsurvivor": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "sanction": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "sanctionedwitch": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "sanctity": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "sanctuary": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "sanguineincongruity": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "scales": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "scentoftheother": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "scholarofenemies": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "scholarofothers": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "sciencelaboratory": {
+  "kind": "merit",
+  "category": "mental"
+ },
+ "secretsocietymember": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "secretstash": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "sectarianally": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "seer": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "selectivedigestion": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "selfconfident": {
+  "kind": "merit",
+  "category": "mental"
+ },
+ "senseinfluence": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "setiteinitiate": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "shadowscarred": {
+  "kind": "flaw",
+  "category": "supernatural"
+ },
+ "shadowwalker": {
+  "kind": "flaw",
+  "category": "supernatural"
+ },
+ "short": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "shortfuse": {
+  "kind": "flaw",
+  "category": "mental"
+ },
+ "shy": {
+  "kind": "flaw",
+  "category": "mental"
+ },
+ "siegementality": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "sightbeyondsight": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "simplywaiting": {
+  "kind": "merit",
+  "category": "mental"
+ },
+ "siresresentment": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "skald": {
+  "kind": "merit",
+  "category": "mental"
+ },
+ "skinofporcelain": {
+  "kind": "merit",
+  "category": "physical"
+ },
+ "sleepingwiththeenemy": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "sleepunseen": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "slimy": {
+  "kind": "merit",
+  "category": "physical"
+ },
+ "sloweddegeneration": {
+  "kind": "merit",
+  "category": "mental"
+ },
+ "slowhealing": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "smellofthegrave": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "soapbox": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "softhearted": {
+  "kind": "flaw",
+  "category": "mental"
+ },
+ "spawningpool": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "specialgift": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "speciallink": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "specialresponsibility": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "speechimpediment": {
+  "kind": "flaw",
+  "category": "mental"
+ },
+ "speedeater": {
+  "kind": "merit",
+  "category": "physical"
+ },
+ "spiritmentor": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "stench": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "stereotype": {
+  "kind": "flaw",
+  "category": "mental"
+ },
+ "stigmata": {
+  "kind": "flaw",
+  "category": "supernatural"
+ },
+ "stillnessofdeath": {
+  "kind": "merit",
+  "category": "physical"
+ },
+ "stitcher": {
+  "kind": "merit",
+  "category": "physical"
+ },
+ "stonetongue": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "styxbaptism": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "sugardaddy": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "sympatheticbond": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "sympathizer": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "taintofcorruption": {
+  "kind": "flaw",
+  "category": "supernatural"
+ },
+ "territorial": {
+  "kind": "flaw",
+  "category": "mental"
+ },
+ "thaumaturgicallyinept": {
+  "kind": "flaw",
+  "category": "supernatural"
+ },
+ "theeighth": {
+  "kind": "flaw",
+  "category": "supernatural"
+ },
+ "thehighprice": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "thelargestmaw": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "thgeneration": {
+  "kind": "flaw",
+  "category": "supernatural"
+ },
+ "thinblood": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "thirstforinnocence": {
+  "kind": "flaw",
+  "category": "mental"
+ },
+ "thousandmeterkiller": {
+  "kind": "merit",
+  "category": "physical"
+ },
+ "thugs": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "tictwitch": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "timesense": {
+  "kind": "merit",
+  "category": "mental"
+ },
+ "torturedartist": {
+  "kind": "flaw",
+  "category": "mental"
+ },
+ "totemicchange": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "touchoffrost": {
+  "kind": "flaw",
+  "category": "supernatural"
+ },
+ "toughhide": {
+  "kind": "merit",
+  "category": "physical"
+ },
+ "traitor": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "trophyallegiance": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "trophyarrogance": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "truecelerity": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "truefaith": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "truelove": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "tunnelrat": {
+  "kind": "merit",
+  "category": "physical"
+ },
+ "twistedupbringing": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "unblinking": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "unbondable": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "uncommonvitaepreference": {
+  "kind": "flaw",
+  "category": "supernatural"
+ },
+ "uncontrollablenightsight": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "unconvinced": {
+  "kind": "flaw",
+  "category": "mental"
+ },
+ "underworldties": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "uneducated": {
+  "kind": "flaw",
+  "category": "mental"
+ },
+ "unmarkedantitribu": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "unproven": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "unsanctionedembrace": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "unsettlingeffect": {
+  "kind": "flaw",
+  "category": "supernatural"
+ },
+ "unskilled": {
+  "kind": "flaw",
+  "category": "mental"
+ },
+ "uppity": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "usefulknowledge": {
+  "kind": "merit",
+  "category": "mental"
+ },
+ "vaishya": {
+  "kind": "merit",
+  "category": "social"
+ },
+ "vassaloftheclan": {
+  "kind": "flaw",
+  "category": "supernatural"
+ },
+ "vengeful": {
+  "kind": "flaw",
+  "category": "mental"
+ },
+ "venomousbite": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "victimofthemasquerade": {
+  "kind": "flaw",
+  "category": "mental"
+ },
+ "vitaemutation": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "vulgar": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "vulnerabilitytosilver": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "ward": {
+  "kind": "flaw",
+  "category": "social"
+ },
+ "warriorsheart": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "weakwilled": {
+  "kind": "flaw",
+  "category": "mental"
+ },
+ "werewolfcompanion": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "witheredleg": {
+  "kind": "flaw",
+  "category": "physical"
+ },
+ "withoutatrace": {
+  "kind": "merit",
+  "category": "supernatural"
+ },
+ "wolverinespalate": {
+  "kind": "merit",
+  "category": "physical"
+ }
+}

@@ -36,6 +36,8 @@ python -I tools/build_data.py    # справочник books/Мир Тьмы �
 python -I tools/make_assets.py   # SVG: кокарда, венок, печать, гильош, иконки
 ```
 
+Полные тексты книг (`books/**/_текст/`) в репозиторий не входят. Вид и категорию черт из дополнений `tools/merits_extra.py` берёт из английских текстов, а без них — из `tools/merits_en_index.json` (названия, вид, категория; обновляется сам при сборке с текстами). Черты старых книг без английского названия, которых нет в V20, лежат готовыми записями в `tools/merits_revised_manual.json`.
+
 ## Шрифты
 
 Prata, Forum, Old Standard TT, IM Fell DW Pica (RU), Marck Script — SIL Open Font License.

@@ -11,11 +11,14 @@
 # или английского текста книги («(2pt. Flaw)»). Категория — из колонки «Тип» или заголовка; где книга её
 # не даёт (Lore of the Clans и др.) — по смыслу описания (category_guess).
 
-import io, os, re, glob, html
+import io, os, re, glob, html, json
 from build_data import REF, read, inline, split_name
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TXT = os.path.join(ROOT, "books", "Мир Тьмы", "Вампиры", "_текст")
+EN_CACHE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "merits_en_index.json")
+# Готовые записи без английского названия, которые иначе не сверить с V20 (Guide to the Camarilla, кланбуки Revised)
+MANUAL = os.path.join(os.path.dirname(os.path.abspath(__file__)), "merits_revised_manual.json")
 
 # (маска файла, книга по‑русски для подписи, вес приоритета: меньше — главнее)
 SOURCES = [
@@ -122,11 +125,31 @@ def category_guess(txt):
     return next(c for c, _ in GUESS if score[c] == best)
 
 def en_index():
-    """Английские тексты книг: имя → (вид, категория) по строкам «Name (2pt. Social Flaw)»."""
-    rx = re.compile(r"^([A-Z][A-Za-z’'\-\.,& ]{2,48}?)\s*\(([0-9][0-9 ,–\-or/]*)\s*(?:pts?\.?|points?)\s*(Physical |Mental |Social |Supernatural )?(Merit|Flaw)s?\)")
+    """Английские тексты книг: имя → (вид, категория) по строкам «Name (2pt. Social Flaw)».
+
+    Тексты книг (_текст) в репозиторий не входят. Поэтому собранный по ним индекс сохраняется в EN_CACHE
+    (только названия, вид и категория) и читается оттуда, если текстов нет, — иначе вид многих черт
+    из дополнений не определить и они молча становятся достоинствами."""
+    files = glob.glob(os.path.join(TXT, "V20", "*.txt")) + glob.glob(os.path.join(TXT, "Revised_и_2ed", "*.txt"))
+    if not files:
+        if os.path.exists(EN_CACHE):
+            with io.open(EN_CACHE, encoding="utf-8") as f:
+                out = json.load(f)
+            print(f"  тексты книг не найдены — вид и категория из {os.path.relpath(EN_CACHE, ROOT)} ({len(out)} названий)")
+            return out
+        print("  ВНИМАНИЕ: нет ни текстов книг (_текст), ни tools/merits_en_index.json — вид черт из дополнений "
+              "будет определён неполно (без пометки в книге — «достоинство»)")
+        return {}
+    out = _en_index_from_texts(files)
+    with io.open(EN_CACHE, "w", encoding="utf-8", newline="\n") as f:
+        json.dump(dict(sorted(out.items())), f, ensure_ascii=False, indent=1)
+    return out
+
+def _en_index_from_texts(files):
+    rx =re.compile(r"^([A-Z][A-Za-z’'\-\.,& ]{2,48}?)\s*\(([0-9][0-9 ,–\-or/]*)\s*(?:pts?\.?|points?)\s*(Physical |Mental |Social |Supernatural )?(Merit|Flaw)s?\)")
     cat_rx = re.compile(r"^(Physical|Mental|Social|Supernatural)\b(?: (?:Merits|Flaws|Merits and Flaws))?\s*$", re.I)
     out = {}
-    for p in glob.glob(os.path.join(TXT, "V20", "*.txt")) + glob.glob(os.path.join(TXT, "Revised_и_2ed", "*.txt")):
+    for p in files:
         if re.search(r"_RU|Rus|ru\.txt|Kniga|Klanbuk|pervod|Translation", p): continue
         cat = None
         for l in io.open(p, encoding="utf-8", errors="ignore").read().split("\n"):
@@ -227,6 +250,13 @@ def collect(core):
                     have[key] = prio; have[norm(ru)] = prio
                     ru_names.append(ru)
                     added.append(item)
+    if os.path.exists(MANUAL):
+        with io.open(MANUAL, encoding="utf-8") as f:
+            for x in json.load(f):
+                if norm(x["en"]) in have or norm(x["name"]) in have:
+                    continue
+                have[norm(x["en"]) or norm(x["name"])] = 2
+                added.append(dict(x))
     for x in added: x.pop("prio", None)
     print(f"Достоинства и недостатки из дополнений: +{len(added)} "
           f"(достоинств {sum(x['kind'] == 'merit' for x in added)}, недостатков {sum(x['kind'] == 'flaw' for x in added)})")
