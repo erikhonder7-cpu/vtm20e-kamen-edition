@@ -30,14 +30,38 @@ import {
   whereIs, cityFlag, placeActor, leaderOf, followersOf, groupOf, joinGroup, leaveGroup, mapVisible, isHiddenOnMap, meters
 } from "./citychars.mjs";
 import { plateHTML, paintPlate } from "./night-plate.mjs";
-import { registerAssembly, attachAssembly, renderBoard, drawModes, boardMode, setMode, influenceData } from "./assembly.mjs";
-import { registerCatacombs, attachCatacombs, addCatacombLayers, catacombsButtons, catacombsAct, catacombsPlace, catacombsPick } from "./catacombs.mjs";
+
+/**
+ * Расширения карты (модули): свои стили карты, готовые города, слои, кнопки, режимы щелчка, виды объектов в инспекторе,
+ * разметка поверх карты, доска режимов (вкладки над картой), печати. Регистрируются до открытия шторы — на init.
+ * Пустая система — общий инструмент: свои города, метки, папки, зоны, персонажи, часы, современные стили.
+ */
+const EXT = { styles: [], presets: [], overlays: [], tools: [], toolModes: [], acts: {}, clicks: [], kinds: {}, mounts: [], boards: [], seals: [] };
+export function registerCityExtension(e = {}) {
+  for (const k of ["styles", "presets", "overlays", "tools", "toolModes", "clicks", "mounts", "boards", "seals"]) if (e[k]) EXT[k].push(...[].concat(e[k]));
+  if (e.acts) Object.assign(EXT.acts, e.acts);
+  if (e.kinds) Object.assign(EXT.kinds, e.kinds);
+}
+
+/** Что карта даёт расширениям: состояние и перерисовки (обёртки — объявленное ниже доступно при вызове). */
+const api = {
+  get map() { return map; }, get gl() { return gl; },
+  get picked() { return picked; }, set picked(v) { picked = v; },
+  get tool() { return tool; }, set tool(v) { tool = v; },
+  view: () => view(), setView: p => setView(p), city: () => city(), save: o => save(o), uid: () => uid(),
+  L: (k, d) => L(k, d), esc: x => esc(x), zoomed: (...a) => zoomed(...a), revolution: () => revolution(),
+  showTip: (...a) => showTip(...a), fly: (...a) => map && fly(...a), pick: (k, id) => pick(k, id),
+  drawTools: () => drawTools(), drawBody: () => drawBody(), drawInspector: () => drawInspector(), drawOverlay: () => drawOverlay(),
+  root: () => document.getElementById(ID), styleExt: id => styleExt(id), isOpen: () => !!document.getElementById(ID)?.classList.contains("open")
+};
+const boards = () => EXT.boards;
 
 const ID = "r-citymap";
 const SLATS = 12, STAGGER = 24, SLIDE = 460;
 const CHRONICLE = "chronicle", MINE = "_mine";
-/** Город хроники «Liberté» по умолчанию — готовые места data/cities/paris-1789.json. */
+/** Город без данных мира: готовый город модуля с default, иначе пустой. Ключ — и для старых личных меток. */
 const DEFAULT_CITY = "paris-1789";
+const defaultPreset = () => EXT.presets.find(p => p.default) ?? null;
 const LIST_CAP = 250;
 const L = (k, d) => d ? game.i18n.format(`VTM20.City.${k}`, d) : game.i18n.localize(`VTM20.City.${k}`);
 const esc = s => foundry.utils.escapeHTML(String(s ?? ""));
@@ -160,89 +184,6 @@ const WAX = {
 };
 const sealURL = {};   // ключ значка → data URL печати (для булавок-меток в DOM)
 
-/* ── Атмосфера 1789 года: свеча и кровь на бумаге ─────────────────────── */
-
-/**
- * Пятна крови на плане (assets/maps/fx, tools/make_blood_stains.py) — там, где её пролили:
- * проступают, когда ночные часы доходят до даты события. size — поперечник в метрах.
- */
-const STAINS = [
-  { id: "reveillon", date: "1789-04-28", lat: 48.8505, lng: 2.3857, size: 150, img: 3, rot: 40, title: "Погром мануфактуры Ревельона",
-    text: "Толпа Сен-Антуана громит обойную мануфактуру Ревельона из-за слуха, что он урежет жалованье. Французская гвардия стреляет в упор — десятки убитых. Первая большая кровь Революции." },
-  { id: "tuileries", date: "1789-07-12", lat: 48.8649, lng: 2.3235, size: 120, img: 2, rot: -15, title: "Драгуны в Тюильри",
-    text: "После отставки Неккера Королевский-немецкий полк принца Ламбеска врезается в толпу у сада Тюильри. Раненые, паника — к утру Париж берётся за оружие." },
-  { id: "bastille", date: "1789-07-14", lat: 48.8530, lng: 2.3685, size: 190, img: 1, rot: 10, title: "Штурм Бастилии",
-    text: "Около сотни осаждавших убиты; коменданта де Лоне растерзали, его голову носили на пике. Сородичи шепчутся, что ночью в казематах пролилась и другая кровь." },
-  { id: "greve", date: "1789-07-22", lat: 48.8565, lng: 2.3515, size: 130, img: 2, rot: 75, title: "Фонарь Гревской площади",
-    text: "Толпа вешает на фонаре у Ратуши Фулона де Дуэ — ему набивают рот сеном — и его зятя, интенданта Бертье де Совиньи." },
-  { id: "champ", date: "1791-07-17", lat: 48.8556, lng: 2.2986, size: 210, img: 1, rot: -30, title: "Расстрел на Марсовом поле",
-    text: "Национальная гвардия Лафайета стреляет в толпу у Алтаря Отечества, подписывавшую петицию о низложении короля. Десятки убитых." }
-];
-const STAIN_URL = n => `${SYSTEM_PATH}/assets/maps/fx/blood-${n}.png`;
-/** Углы картинки пятна: центр, поперечник в метрах, поворот. */
-function stainCorners(st) {
-  const h = st.size / 2, k = Math.cos(st.lat * Math.PI / 180), a = st.rot * Math.PI / 180;
-  return [[-h, h], [h, h], [h, -h], [-h, -h]].map(([x, y]) => {
-    const rx = x * Math.cos(a) - y * Math.sin(a), ry = x * Math.sin(a) + y * Math.cos(a);
-    return [st.lng + rx / (111320 * k), st.lat + ry / 111320];
-  });
-}
-const fxOn = () => revolution() && view().fx !== false;
-let flickTimer = null;
-
-/**
- * Все пятна города: исторические (с правками ведущего — city.stainEdits) и свои пятна ведущего (city.stains).
- * Ведущий ставит пятно инструментом «Кровоподтёк», пишет, что случилось, и может скрыть пятно от игроков.
- */
-function stainsOf() {
-  const c = city(), ed = c.stainEdits ?? {};
-  const base = revolution() ? STAINS.map(st => ({ ...st, ...(ed[st.id] ?? {}), builtin: true })) : [];
-  return [...base, ...(c.stains ?? [])].filter(st => !st.deleted);
-}
-const stainSeen = (st, now = getClock()) => (game.user.isGM || !st.gmOnly) && (Date.parse(`${st.date}T00:00:00`) <= now || picked?.id === st.id);
-
-/** Картинки пятен на плане: добавить новые, сдвинуть изменённые, убрать удалённые. */
-function syncStains() {
-  if (!map?.getSource("rc-stain-hit")) return;
-  const list = PLAN_STYLES.includes(view().style) ? stainsOf() : [];
-  const want = new Set(list.map(st => `rc-stain-${st.id}`));
-  for (const l of map.getStyle().layers.filter(l => l.type === "raster" && l.id.startsWith("rc-stain-") && !want.has(l.id))) {
-    map.removeLayer(l.id);
-    if (map.getSource(l.id)) map.removeSource(l.id);
-  }
-  const before = ["rc-infl-fill", "rc-zone-fill"].find(l => map.getLayer(l));
-  for (const st of list) {
-    const id = `rc-stain-${st.id}`, url = STAIN_URL(st.img || 1), coords = stainCorners(st);
-    const src = map.getSource(id);
-    if (src && src.rcUrl !== url) { map.removeLayer(id); map.removeSource(id); }
-    if (!map.getSource(id)) { map.addSource(id, { type: "image", url, coordinates: coords }); map.getSource(id).rcUrl = url; }
-    else map.getSource(id).setCoordinates(coords);
-    if (!map.getLayer(id)) map.addLayer({ id, type: "raster", source: id, layout: { visibility: "none" },
-      paint: { "raster-opacity": view().style === "plannight" ? .7 : .82, "raster-fade-duration": 0 } }, before);
-  }
-  drawStains();
-}
-
-/** Пятна, до которых дошли часы, видны; прочие спрятаны. Невидимые круги — для подсказки и выбора. */
-function drawStains() {
-  if (!map?.getSource("rc-stain-hit")) return;
-  const now = getClock(), on = fxOn() && PLAN_STYLES.includes(view().style);
-  const shown = [];
-  for (const st of stainsOf()) {
-    const id = `rc-stain-${st.id}`;
-    if (!map.getLayer(id)) continue;
-    const show = on && stainSeen(st, now);
-    map.setLayoutProperty(id, "visibility", show ? "visible" : "none");
-    if (show) shown.push(st);
-  }
-  const ring = st => {
-    const r = st.size * .38, dy = r / 111320, dx = r / (111320 * Math.cos(st.lat * Math.PI / 180));
-    return [Array.from({ length: 33 }, (_, i) => { const a = i / 32 * 2 * Math.PI; return [st.lng + dx * Math.cos(a), st.lat + dy * Math.sin(a)]; })];
-  };
-  map.getSource("rc-stain-hit").setData({ type: "FeatureCollection", features: shown.map(st => ({ type: "Feature",
-    properties: { id: st.id, sel: picked?.kind === "stain" && picked.id === st.id }, geometry: { type: "Polygon", coordinates: ring(st) } })) });
-}
-
 /** Записка над картой: что это за место, метка или пятно. x, y — в пикселях карты; null — спрятать. */
 function showTip(x, y, kicker, title, text) {
   const tip = document.querySelector(`#${ID} .rc-stain-tip`);
@@ -255,15 +196,6 @@ function showTip(x, y, kicker, title, text) {
   const w = tip.offsetWidth, h = tip.offsetHeight;
   tip.style.left = `${x + 16 + w > box.width ? x - w - 12 : x + 16}px`;
   tip.style.top = `${y + 12 + h > box.height ? Math.max(4, y - h - 8) : y + 12}px`;
-}
-
-/** Подсказка над пятном: что здесь случилось. */
-function stainTip(ev) {
-  const f = ev?.features?.[0];
-  const st = f && stainsOf().find(x => x.id === f.properties.id);
-  if (!st) return showTip(null);
-  const [y, m, d] = st.date.split("-").map(Number);
-  showTip(ev.point.x, ev.point.y, longDate(new Date(y, m - 1, d)), st.title || L("StainNew"), st.text);
 }
 
 /** Подсказка над местом города: имя, вид и район, заметка. */
@@ -280,30 +212,6 @@ function poiTip(ev) {
 function pinTip(ev, m) {
   const r = map.getContainer().getBoundingClientRect();
   showTip(ev.clientX - r.left, ev.clientY - r.top, L(`Cat.${m.cat in CITY_CATEGORIES ? m.cat : "other"}`), m.name || L("Unnamed"), m.text);
-}
-
-function addStain(lat, lng) {
-  const c = city();
-  const st = { id: uid(), date: ymd(new Date(getClock())), lat, lng, size: 130, img: 1 + Math.floor(Math.random() * 3), rot: Math.round(Math.random() * 120 - 60), title: "", text: "", gmOnly: false };
-  (c.stains ??= []).push(st);
-  if (!fxOn()) setView({ fx: true }).then(() => { document.getElementById(ID)?.setAttribute("data-fx", "on"); drawTools(); });
-  tool = "select"; drawTools();
-  save({ own: false });
-  picked = { kind: "stain", id: st.id };
-  syncStains(); drawBody(); drawInspector();
-}
-
-/** Свеча: дрожание пламени — радиус и яркость пятна света бродят случайно. */
-function startCandle(root) {
-  const fx = root.querySelector(".rc-fx");
-  let f = 1, target = 1;
-  clearInterval(flickTimer);
-  flickTimer = setInterval(() => {
-    if (!root.classList.contains("open") || !fxOn()) return;
-    if (Math.random() < .25) target = .9 + Math.random() * .16;
-    f += (target - f) * .35;
-    fx.style.setProperty("--flick", f.toFixed(3));
-  }, 70);
 }
 
 /** Значок и цвет места: смена категории ведущим перебивает вид объекта. */
@@ -323,25 +231,18 @@ const GLYPHS = "https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf";
 const OMT = "https://tiles.openfreemap.org/planet";
 const SAT = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
 const OMT_ATTR = '<a href="https://openfreemap.org" target="_blank">OpenFreeMap</a> © <a href="https://www.openmaptiles.org/" target="_blank">OpenMapTiles</a> © <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>';
-export const CITY_STYLES = ["plan", "plannight", "noir", "graphite", "sat"];
-/** Стили эпохи: в 1789-м — только план Парижа 1790 года (tools/build_paris1790.py), в наше время — современные. */
-const PLAN_STYLES = ["plan", "plannight"], MODERN_STYLES = ["noir", "graphite", "sat"];
+/** Современные стили; модуль может добавить свои (например, старинный план) — EXT.styles. */
+const MODERN_STYLES = ["noir", "graphite", "sat"];
 const revolution = () => game.settings.get(SYSTEM_ID, "era") === "revolution";
-const eraStyles = () => revolution() ? PLAN_STYLES : MODERN_STYLES;
-/** Языки подписей: в 1789-м подписей улиц нет (они на гравюре) — только имена мест, русские или французские. */
-const eraLangs = () => revolution() ? ["ru", "fr"] : CITY_LANGS;
-/** Куда можно увести карту 1789 года: план и немного вокруг. */
-const PLAN_BOUNDS = [[2.2500, 48.8000], [2.4400, 48.9100]];
-/** Гравюра Мондаре повёрнута на 23° от севера (привязка tools/maps/paris1790_gcp.json): карта встаёт как напечатана. */
-const PLAN_BEARING = 23;
-const homeBearing = () => revolution() ? PLAN_BEARING : 0;
-const PLAN = `${SYSTEM_PATH}/assets/maps/paris-1790`;
-const PLAN_ATTR = 'План Парижа Л.-Ж. Мондаре и Жана, 1790 — <a href="https://gallica.bnf.fr/" target="_blank">Gallica</a>, общественное достояние · '
-  + 'улицы 1784–1791 — <a href="https://doi.org/10.7910/DVN/CCESX4" target="_blank">GeoHistoricalData</a> (CC0) · '
-  + 'эмблемы — <a href="https://game-icons.net/" target="_blank">game-icons.net</a> (CC BY 3.0) · '
-  + 'секции 1790 — <a href="https://purl.stanford.edu/ry227xq8127" target="_blank">ALPAGE / атлас Вассеро</a> (ODbL)';
-/** Стиль по умолчанию: в 1789-м — план эпохи, в наше время — «Ночь». */
-const defaultStyle = () => revolution() ? "plan" : "noir";
+/** Зарегистрированные модулями стили, подходящие сейчас (эпоха, город). */
+const extStyles = () => EXT.styles.filter(st => !st.when || st.when());
+const styleExt = id => EXT.styles.find(st => st.id === id);
+export const CITY_STYLES = () => [...extStyles().map(st => st.id), ...MODERN_STYLES];
+const eraStyles = () => { const own = extStyles().map(st => st.id); return own.length ? own : MODERN_STYLES; };
+/** Языки подписей — у стиля модуля свои (на старинном плане улиц нет, только имена мест). */
+const eraLangs = () => styleExt(view().style)?.langs ?? CITY_LANGS;
+const homeBearing = () => styleExt(view().style)?.bearing ?? 0;
+const defaultStyle = () => (extStyles().find(st => st.default) ?? extStyles()[0])?.id ?? "noir";
 export const CITY_LANGS = ["ru", "fr", "en"];
 
 const PAL = {
@@ -460,19 +361,8 @@ function labelLayers(p, lang, sat = false) {
 
 function buildStyle(kind, lang) {
   const p = PAL[kind === "graphite" ? "graphite" : "noir"];
-  if (PLAN_STYLES.includes(kind)) {
-    // Только гравюра 1790 года на угольном фоне: ни современных улиц, ни их подписей.
-    const night = kind === "plannight";
-    const sources = { plan: { type: "raster", tiles: [`${PLAN}/{z}/{x}/{y}.webp`], tileSize: 256, minzoom: 12, maxzoom: 17,
-      bounds: [2.2773, 48.8178, 2.4114, 48.8947], attribution: PLAN_ATTR } };
-    const layers = [
-      { id: "bg", type: "background", paint: { "background-color": night ? "#0a0909" : "#141210" } },
-      { id: "plan", type: "raster", source: "plan", paint: night
-        ? { "raster-brightness-max": .62, "raster-brightness-min": .02, "raster-saturation": -.35, "raster-contrast": .18, "raster-hue-rotate": -8 }
-        : { "raster-brightness-max": .96, "raster-saturation": -.1, "raster-contrast": .06 } }
-    ];
-    return { version: 8, glyphs: GLYPHS, sources, layers };
-  }
+  const own = styleExt(kind);
+  if (own) return own.build(lang, { GLYPHS });
   const sources = { omt: { type: "vector", url: OMT, attribution: OMT_ATTR } };
   let layers;
   if (kind === "sat") {
@@ -512,7 +402,7 @@ const T = (k, d) => L(`Travel.${k}`, d);
 const view = () => {
   const v = foundry.utils.mergeObject({ style: defaultStyle(), lang: "ru", hidden: {}, open: {} }, game.settings.get(SYSTEM_ID, "cityView") ?? {}, { inplace: false });
   if (!eraStyles().includes(v.style)) v.style = defaultStyle();
-  if (!eraLangs().includes(v.lang) || !v.v2) v.lang = "ru";   // v2: до русских подписей по умолчанию был французский
+  if (!(styleExt(v.style)?.langs ?? CITY_LANGS).includes(v.lang) || !v.v2) v.lang = "ru";   // v2: до русских подписей по умолчанию был французский
   return v;
 };
 const setView = patch => game.settings.set(SYSTEM_ID, "cityView", { ...view(), ...patch, v2: true });
@@ -525,10 +415,12 @@ function newCity(id, name, center, zoom, preset = null) {
 function readWorld() {
   const raw = foundry.utils.deepClone(game.settings.get(SYSTEM_ID, "cityMap") ?? {});
   if (raw.v === 2 && raw.cities && Object.keys(raw.cities).length) return raw;
-  const paris = newCity(DEFAULT_CITY, raw.city || "Париж", raw.center ?? [48.8556, 2.3480], raw.zoom ?? 14, DEFAULT_CITY);
-  paris.markers = (raw.markers ?? []).map(m => ({ ...m, folder: CHRONICLE }));
-  paris.zones = raw.zones ?? [];
-  return { v: 2, current: DEFAULT_CITY, cities: { [DEFAULT_CITY]: paris } };
+  const dp = defaultPreset();
+  const first = dp ? newCity(dp.id, raw.city || dp.name, raw.center ?? dp.center, raw.zoom ?? dp.zoom, dp.id)
+    : newCity(DEFAULT_CITY, raw.city || L("DefaultCity"), raw.center ?? [48.8566, 2.3522], raw.zoom ?? 13);
+  first.markers = (raw.markers ?? []).map(m => ({ ...m, folder: CHRONICLE }));
+  first.zones = raw.zones ?? [];
+  return { v: 2, current: first.id, cities: { [first.id]: first } };
 }
 
 function readPrivates() {
@@ -548,7 +440,7 @@ function save({ world = game.user.isGM, own = true } = {}) {
 }
 
 async function loadIndex() {
-  presetIndex ??= await fetch(`${SYSTEM_PATH}/data/cities/index.json`).then(r => r.ok ? r.json() : []).catch(() => []);
+  presetIndex ??= EXT.presets;
   return presetIndex;
 }
 
@@ -557,8 +449,8 @@ async function loadPresets() {
   const id = city().preset;
   if (id && !(id in presets)) {
     const entry = presetIndex.find(c => c.id === id);
-    presets[id] = entry ? await fetch(`${SYSTEM_PATH}/data/cities/${entry.file}`).then(r => r.json()).catch(() => null) : null;
-    metros[id] = entry?.metro ? await fetch(`${SYSTEM_PATH}/data/cities/${entry.metro}`).then(r => r.json()).catch(() => null) : null;
+    presets[id] = entry?.url ? await fetch(entry.url).then(r => r.json()).catch(() => null) : null;
+    metros[id] = entry?.metroUrl ? await fetch(entry.metroUrl).then(r => r.json()).catch(() => null) : null;
   }
 }
 
@@ -614,10 +506,10 @@ function folderMarkers(f, { all = false } = {}) {
 
 function findPicked() {
   if (!picked) return null;
+  if (EXT.kinds[picked.kind]) return EXT.kinds[picked.kind].find(picked.id, api) ?? null;
   const c = city();
   switch (picked.kind) {
     case "zone": return c.zones.find(z => z.id === picked.id) ?? null;
-    case "stain": return stainsOf().find(x => x.id === picked.id) ?? null;
     case "found": return found.find(r => r.id === picked.id) ?? null;
     case "poi": { const x = poiIndex().get(picked.id); return x ? poiView(x.base, x.folder) : null; }
     default: {
@@ -837,7 +729,7 @@ function mount() {
         <label class="rc-search" data-tooltip="${esc(L("SearchHint"))}"><i class="fa-solid fa-magnifying-glass"></i><input data-search placeholder="${esc(L("Search"))}"></label>
         <div class="rc-body"></div>
       </aside>
-      <div class="rc-map"><div class="rc-gl"></div><div class="rc-fx"><i class="rc-fx-warm"></i><i class="rc-fx-candle"></i></div><div class="rc-tools"></div>
+      <div class="rc-map"><div class="rc-gl"></div><div class="rc-tools"></div>
         <div class="rc-clock"></div><aside class="rc-inspector" hidden></aside>
         <nav class="rc-modes"></nav><section class="rc-board" hidden></section><div class="rc-stain-tip" hidden></div></div>
       <div class="rc-slats shut"></div>
@@ -865,19 +757,9 @@ function mount() {
     if (f) edit(f, ev.target.type === "checkbox" ? ev.target.checked : ev.target.value);
   });
   const box = root.querySelector(".rc-map");
-  // свеча идёт за курсором
-  const fxEl = root.querySelector(".rc-fx");
-  box.addEventListener("pointermove", ev => {
-    const r = box.getBoundingClientRect();
-    fxEl.style.setProperty("--x", `${ev.clientX - r.left}px`);
-    fxEl.style.setProperty("--y", `${ev.clientY - r.top}px`);
-  });
-  startCandle(root);
-  attachAssembly(root, {
-    fly: (lat, lng, z) => map && fly(lat, lng, z),
-    influence: on => { if (view().influence !== on) setView({ influence: on }).then(() => { drawTools(); drawInfluence(); }); },
-    refresh: () => drawInfluence()
-  });
+  // разметка и доски режимов от модулей (свеча над старинным планом, вкладки Собрания…)
+  for (const m of EXT.mounts) m(root, api);
+  for (const b of boards()) b.attach(root, api);
   box.addEventListener("dragover", ev => ev.preventDefault());
   box.addEventListener("drop", ev => onDrop(ev));
   const input = root.querySelector("[data-search]");
@@ -888,7 +770,8 @@ function mount() {
     if (ev.target.closest?.("input, textarea, select")) return;
     if (ev.key === "Escape") {
       ev.preventDefault(); ev.stopPropagation();
-      if (boardMode() !== "map") setMode("map");
+      const b = boards().find(x => x.mode() !== "map");
+      if (b) b.setMode("map");
       else if (draft.length) { draft = []; drawDraft(); }
       else if (placing) { placing = null; drawTools(); }
       else if (tool !== "select") { tool = "select"; drawTools(); drawPins(); }
@@ -927,7 +810,7 @@ export async function openCity() {
     await ensureMap(root);
     if (shownCity !== city().id) jumpToCity();
     drawAll();
-    drawModes(); renderBoard();
+    for (const b of boards()) { b.drawModes(); b.renderBoard(); }
     root.classList.add("open");
     root.querySelector(".rc-slats").classList.remove("shut");
     raf ??= requestAnimationFrame(frame);
@@ -984,15 +867,14 @@ async function ensureMap(root) {
   const c = city(), v = view();
   shownCity = c.id;
   root.setAttribute("data-style", v.style);
-  root.setAttribute("data-fx", fxOn() ? "on" : "off");
   map = new gl.Map({
     container: root.querySelector(".rc-gl"),
     style: buildStyle(v.style, v.lang),
     center: [c.center[1], c.center[0]], zoom: c.zoom, maxZoom: 19, maxPitch: 70,
-    bearing: homeBearing(), ...(revolution() ? { minZoom: 12, maxBounds: PLAN_BOUNDS } : {}),
+    bearing: homeBearing(), ...(styleExt(v.style)?.bounds ? { minZoom: styleExt(v.style).minZoom ?? 0, maxBounds: styleExt(v.style).bounds } : {}),
     attributionControl: { compact: true }, doubleClickZoom: false
   });
-  attachCatacombs({ map, gl, view, setView, city, drawTools, zoomed });
+  for (const o of EXT.overlays) o.init?.(api);
   map.addControl(new gl.NavigationControl({ visualizePitch: true }), "bottom-left");
   // Стили шторы приходят через @import позже карты — следим за размером контейнера сами.
   new ResizeObserver(() => map.resize()).observe(root.querySelector(".rc-gl"));
@@ -1003,15 +885,15 @@ async function ensureMap(root) {
   map.on("mousemove", ev => { if (tool === "zone" && draft.length) drawDraft(ev.lngLat); });
   map.on("mouseenter", "rc-poi", () => { map.getCanvas().style.cursor = "pointer"; });
   map.on("mouseleave", "rc-poi", () => { map.getCanvas().style.cursor = ""; });
-  map.on("mousemove", "rc-stain-hit", ev => { if (!map.queryRenderedFeatures(ev.point, { layers: ["rc-poi"] }).length) stainTip(ev); if (game.user.isGM) map.getCanvas().style.cursor = "pointer"; });
-  map.on("mouseleave", "rc-stain-hit", () => { showTip(null); map.getCanvas().style.cursor = ""; });
   map.on("mousemove", "rc-poi", poiTip);
   map.on("mouseleave", "rc-poi", () => showTip(null));
 }
 
 function setStyle() {
-  const v = view();
+  const v = view(), st = styleExt(v.style);
   document.getElementById(ID)?.setAttribute("data-style", v.style);
+  map?.setMaxBounds(st?.bounds ?? null);
+  map?.setMinZoom(st?.minZoom ?? 0);
   map?.setStyle(buildStyle(v.style, v.lang), { diff: false });
 }
 
@@ -1032,12 +914,10 @@ async function emblem(key) {
   return img;
 }
 
-/** Печать фракции картинкой: fetch + createImageBitmap — Image.decode() в фоновой вкладке может не завершиться. */
-async function factionSeal(key) {
-  try {
-    const r = await fetch(foundry.utils.getRoute(`${SYSTEM_PATH}/assets/factions/seal-${key}.webp`));
-    return r.ok ? await createImageBitmap(await r.blob()) : null;
-  } catch (e) { return null; }
+/** Картинка печати от модулей (печати фракций и т. п.). */
+async function extSeal(key) {
+  for (const f of EXT.seals) { const img = await f(key); if (img) return img; }
+  return null;
 }
 
 /** Сургучная печать: неровный край, блик, вдавленное кольцо и выпуклая эмблема. */
@@ -1081,7 +961,7 @@ async function buildIcons() {
   const sealed = revolution();
   for (let [k, svg, icon, color, fallback, cat] of all) {
     // штабы фракций — печати мастера (assets/factions/seal-*.webp, tools/build_faction_seals.py)
-    const fac = sealed && /^f-/.test(svg) ? await factionSeal(svg.slice(2)) : null;
+    const fac = sealed && /^f-/.test(svg) ? await extSeal(svg.slice(2)) : null;
     if (fac) {
       const S = 76, cv = document.createElement("canvas");
       cv.width = cv.height = S;
@@ -1160,38 +1040,8 @@ function addOverlay() {
   add({ id: "rc-metro-name", type: "symbol", source: "rc-metro", filter: ["==", ["geometry-type"], "Point"], minzoom: 13,
     layout: { visibility: vis, "text-field": ["get", "name"], "text-font": ["Noto Sans Bold"], "text-size": 10.5, "text-offset": [0, 1.1], "text-anchor": "top", "text-optional": true },
     paint: { "text-color": "#e8dfd6", "text-halo-color": "#000", "text-halo-width": 1.6 } });
-  // 48 секций 1790 года (data/cities/paris-1790-sections.json, tools/build_sections1790.py) — как на раскрашенных
-  // планах XVIII века: акварельная кайма по внутреннему краю каждой секции (соседние — разных красок),
-  // лёгкая заливка, поверх — чернильный пунктир межи и курсивная подпись.
-  for (const src of ["rc-sect", "rc-sect-area", "rc-sect-label"]) if (!map.getSource(src)) map.addSource(src, { type: "geojson", data: EMPTY });
-  const sv = sectionsOn() ? "visible" : "none", paper = view().style === "plan";
-  add({ id: "rc-sect-fill", type: "fill", source: "rc-sect-area", layout: { visibility: sv },
-    paint: { "fill-color": ["get", "wash"], "fill-opacity": .035 } });
-  add({ id: "rc-sect-wash", type: "line", source: "rc-sect", layout: { visibility: sv, "line-join": "round" },
-    paint: { "line-color": ["get", "wash"], "line-opacity": paper ? .42 : .48, "line-width": zoomed(12, 3.5, 14, 6, 16, 11),
-      "line-offset": zoomed(12, -1.7, 14, -3, 16, -5.5), "line-blur": zoomed(12, 1.5, 16, 4.5) } });
-  add({ id: "rc-sect-line", type: "line", source: "rc-sect", layout: { visibility: sv, "line-join": "round" },
-    paint: { "line-color": paper ? "#3a1610" : "#ecdab2", "line-opacity": .88, "line-width": zoomed(12, 1.1, 16, 2.3), "line-dasharray": [4, 2, 1, 2] } });
-  add({ id: "rc-sect-label", type: "symbol", source: "rc-sect-label", minzoom: 13, layout: { visibility: sv,
-      "text-field": ["format", "секция\n", { "font-scale": .66, "text-font": ["literal", ["Noto Sans Italic"]] }, ["upcase", ["get", "name"]], {}], "text-font": ["Noto Sans Bold"],
-      "text-size": zoomed(13, 11.5, 16, 16), "text-letter-spacing": .12, "text-max-width": 10, "text-padding": 4, "text-line-height": 1.15 },
-    paint: { "text-color": paper ? "#3a140e" : "#fbefd2", "text-halo-color": paper ? "rgba(246,237,214,.97)" : "rgba(10,6,4,.97)", "text-halo-width": 2.6, "text-halo-blur": .3 } });
-  drawSections();
-  // катакомбы Парижа под городом (module/ui/catacombs.mjs)
-  addCatacombLayers();
-  // влияние фракций Собрания — пятна кварталов (module/ui/assembly.mjs)
-  for (const s of ["rc-infl", "rc-infl-label"]) if (!map.getSource(s)) map.addSource(s, { type: "geojson", data: EMPTY });
-  const iv = view().influence && revolution() ? "visible" : "none";
-  add({ id: "rc-infl-fill", type: "fill", source: "rc-infl", layout: { visibility: iv },
-    paint: { "fill-color": ["get", "color"], "fill-opacity": ["case", ["get", "contested"], .1, .17] } });
-  add({ id: "rc-infl-line", type: "line", source: "rc-infl", filter: ["!", ["get", "contested"]], layout: { visibility: iv },
-    paint: { "line-color": ["get", "color"], "line-width": 1.6, "line-opacity": .8 } });
-  add({ id: "rc-infl-line-x", type: "line", source: "rc-infl", filter: ["get", "contested"], layout: { visibility: iv },
-    paint: { "line-color": ["get", "color"], "line-width": 1.6, "line-opacity": .8, "line-dasharray": [3, 2] } });
-  add({ id: "rc-infl-label", type: "symbol", source: "rc-infl-label", layout: { visibility: iv,
-      "text-field": ["format", ["upcase", ["get", "name"]], { "font-scale": 1 }, "\n", {}, ["get", "label"], { "font-scale": .82 }],
-      "text-font": ["Noto Sans Bold"], "text-size": zoomed(12, 10, 15, 13), "text-letter-spacing": .12, "text-max-width": 12, "text-allow-overlap": true, "text-ignore-placement": true },
-    paint: { "text-color": ["get", "ink"], "text-halo-color": view().style === "plan" ? "rgba(244,234,210,.92)" : "rgba(10,8,6,.92)", "text-halo-width": 2 } });
+  // слои модулей — под зонами и местами (секции, влияние, катакомбы, пятна…)
+  for (const o of EXT.overlays) o.add?.(api);
   add({ id: "rc-zone-fill", type: "fill", source: "rc-zones", paint: { "fill-color": ["get", "color"], "fill-opacity": ["case", ["get", "sel"], .3, .15] } });
   add({ id: "rc-zone-line", type: "line", source: "rc-zones", filter: ["!", ["get", "gm"]], paint: { "line-color": ["get", "color"], "line-width": ["case", ["get", "sel"], 3, 1.6] } });
   add({ id: "rc-zone-line-gm", type: "line", source: "rc-zones", filter: ["get", "gm"], paint: { "line-color": ["get", "color"], "line-width": 1.6, "line-dasharray": [3, 2] } });
@@ -1212,11 +1062,6 @@ function addOverlay() {
   add({ id: "rc-draft-line", type: "line", source: "rc-draft", paint: { "line-color": "#c9a85a", "line-width": 2, "line-dasharray": [2, 2] } });
   add({ id: "rc-draft-pt", type: "circle", source: "rc-draft", filter: ["==", ["geometry-type"], "Point"],
     paint: { "circle-radius": 4, "circle-color": "#c9a85a" } });
-  // пятна крови: невидимые круги ловят наведение и щелчок
-  if (!map.getSource("rc-stain-hit")) map.addSource("rc-stain-hit", { type: "geojson", data: EMPTY });
-  add({ id: "rc-stain-hit", type: "fill", source: "rc-stain-hit", paint: { "fill-color": "#000", "fill-opacity": 0 } });
-  add({ id: "rc-stain-sel", type: "line", source: "rc-stain-hit", filter: ["get", "sel"], paint: { "line-color": "#7d1a1c", "line-width": 1.5, "line-dasharray": [2, 2] } });
-  syncStains();
   drawOverlay();
 }
 
@@ -1243,82 +1088,9 @@ function drawOverlay() {
     const [la, ln] = centroid(z.points);
     return { type: "Feature", properties: { name: z.name, color: z.color || "#b0404c" }, geometry: { type: "Point", coordinates: [ln, la] } };
   }) });
-  drawInfluence();
-  drawStains();
+  for (const o of EXT.overlays) o.draw?.(api);
   drawPins();
   drawChars();
-}
-
-/** Акварель раскрашенных планов: киноварь, охра, ярь-медянка, индиго, лиловый, умбра. Ночью — светлее. */
-const WASH_DAY = ["#9a4a3a", "#a07a3a", "#6a7a4a", "#4f6478", "#6e5a72", "#7a5a3c"];
-const WASH_NIGHT = ["#c88a72", "#c8a868", "#9aa87a", "#8a9cb0", "#a892a8", "#b49272"];
-/** Соседние секции (общие или близкие вершины межи) — разных красок: жадная раскраска графа соседства. */
-let sectionAdj = null;
-function sectionWash(ss, palette) {
-  if (!sectionAdj) {
-    const near = 0.0007;    // ≈ 50–75 м: после упрощения межи соседей расходятся
-    const pts = ss.map(x => x.rings.flat());
-    sectionAdj = ss.map((x, i) => ss.map((y, j) => j !== i && pts[i].some(([a, b]) => pts[j].some(([c, d]) => Math.abs(a - c) < near && Math.abs(b - d) < near)))
-      .map((v, j) => v ? j : -1).filter(j => j >= 0));
-  }
-  const col = new Array(ss.length).fill(-1);
-  const order = ss.map((_, i) => i).sort((a, b) => sectionAdj[b].length - sectionAdj[a].length);
-  for (const i of order) {
-    const used = new Set(sectionAdj[i].map(j => col[j]));
-    col[i] = palette.findIndex((_, k) => !used.has(k));
-    if (col[i] < 0) col[i] = ss[i].no % palette.length;
-  }
-  return new Map(ss.map((x, i) => [x.no, palette[col[i]]]));
-}
-
-/** Секции 1790 года: показаны в эпоху Революции, пока их не выключили кнопкой. */
-let sections1790 = null;
-const sectionsOn = () => revolution() && view().sections !== false;
-async function drawSections() {
-  if (!map?.getSource("rc-sect")) return;
-  for (const l of ["rc-sect-fill", "rc-sect-wash", "rc-sect-line", "rc-sect-label"]) if (map.getLayer(l)) map.setLayoutProperty(l, "visibility", sectionsOn() ? "visible" : "none");
-  if (!sectionsOn()) return;
-  if (!sections1790) {
-    try { sections1790 = await fetch(`${SYSTEM_PATH}/data/cities/paris-1790-sections.json`).then(r => r.json()); }
-    catch (e) { sections1790 = { sections: [] }; console.warn("VTM20 | секции 1790:", e); }
-  }
-  const ss = sections1790.sections ?? [];
-  const wash = sectionWash(ss, view().style === "plan" ? WASH_DAY : WASH_NIGHT);
-  // кольца против часовой стрелки: внутренность слева — кайма с отрицательным смещением ляжет внутрь секции
-  const ccw = r => {
-    const ring = r[0][0] === r.at(-1)[0] && r[0][1] === r.at(-1)[1] ? r : [...r, r[0]];
-    let a = 0;
-    for (let i = 1; i < ring.length; i++) a += (ring[i][0] - ring[i - 1][0]) * (ring[i][1] + ring[i - 1][1]);
-    return a > 0 ? [...ring].reverse() : ring;
-  };
-  map.getSource("rc-sect")?.setData({ type: "FeatureCollection", features: ss.flatMap(x => x.rings.map(r => ({ type: "Feature",
-    properties: { no: x.no, wash: wash.get(x.no) }, geometry: { type: "LineString", coordinates: ccw(r) } }))) });
-  map.getSource("rc-sect-area")?.setData({ type: "FeatureCollection", features: ss.map(x => ({ type: "Feature",
-    properties: { no: x.no, wash: wash.get(x.no) }, geometry: { type: "Polygon", coordinates: x.rings.map(ccw) } })) });
-  map.getSource("rc-sect-label")?.setData({ type: "FeatureCollection", features: ss.map(x => ({ type: "Feature",
-    properties: { name: view().lang === "fr" ? x.fr.replace(/^Section (de la |du |des |de l'|d'|de )/, "") : x.ru }, geometry: { type: "Point", coordinates: x.label } })) });
-}
-
-/** Пятна влияния фракций по кварталам (кто держит — из настройки Собрания). */
-function drawInfluence() {
-  if (!map?.getSource("rc-infl")) return;
-  const on = !!view().influence && revolution();
-  for (const l of ["rc-infl-fill", "rc-infl-line", "rc-infl-line-x", "rc-infl-label"])
-    if (map.getLayer(l)) map.setLayoutProperty(l, "visibility", on ? "visible" : "none");
-  if (!on) return;
-  const paper = view().style === "plan";
-  const ds = influenceData();
-  const ring = d => {
-    const dy = d.r / 111320, dx = d.r / (111320 * Math.cos(d.lat * Math.PI / 180));
-    const pts = Array.from({ length: 49 }, (_, i) => { const a = i / 48 * 2 * Math.PI; return [d.lng + dx * Math.cos(a), d.lat + dy * Math.sin(a)]; });
-    return [pts];
-  };
-  // кость роялистов на бумаге плана не видна — чернила темнее
-  const ink = d => paper && d.fac === "royalists" ? "#4a4032" : paper && d.fac === "neutral" ? "#4c5846" : d.color;
-  map.getSource("rc-infl").setData({ type: "FeatureCollection", features: ds.map(d => ({ type: "Feature",
-    properties: { color: ink(d), contested: !!d.contested }, geometry: { type: "Polygon", coordinates: ring(d) } })) });
-  map.getSource("rc-infl-label").setData({ type: "FeatureCollection", features: ds.map(d => ({ type: "Feature",
-    properties: { name: d.name, label: d.label + (d.contested ? " · спорно" : ""), ink: ink(d) }, geometry: { type: "Point", coordinates: [d.lng, d.lat] } })) });
 }
 
 const centroid = pts => pts.reduce(([a, b], [x, y]) => [a + x / pts.length, b + y / pts.length], [0, 0]);
@@ -1392,7 +1164,7 @@ function drawDraft(hover = null) {
 
 function onMapClick(ev) {
   if (ev.originalEvent?.target?.closest?.(".rc-pin, .rc-char")) return;
-  if (catacombsPlace(ev)) return;
+  for (const c of EXT.clicks) if (c.place?.(ev, api)) return;
   const ll = ev.lngLat;
   if (placing) {
     const a = game.actors.get(placing);
@@ -1401,7 +1173,8 @@ function onMapClick(ev) {
     return;
   }
   if (tool === "marker") return addMarker(ll.lat, ll.lng);
-  if (tool === "stain") return game.user.isGM && addStain(ll.lat, ll.lng);
+  const tm = EXT.toolModes.find(t => t.id === tool);
+  if (tm) return tm.click(ll, api);
   if (tool === "zone") {
     if (!game.user.isGM) return;
     const last = draft.at(-1);
@@ -1409,14 +1182,13 @@ function onMapClick(ev) {
     drawDraft();
     return;
   }
-  const hit = map.queryRenderedFeatures(ev.point, { layers: ["rc-poi", "rc-stain-hit", "rc-zone-fill"].filter(l => map.getLayer(l)) });
+  for (const c of EXT.clicks) if (c.hit?.(ev, api)) return;     // объекты модулей поверх зон (пятна…)
+  const hit = map.queryRenderedFeatures(ev.point, { layers: ["rc-poi", "rc-zone-fill"].filter(l => map.getLayer(l)) });
   const poi = hit.find(f => f.layer.id === "rc-poi");
   if (poi) return pick("poi", poi.properties.id);
-  const blood = hit.find(f => f.layer.id === "rc-stain-hit");
-  if (blood && game.user.isGM) return pick("stain", blood.properties.id);
   const zone = hit.find(f => f.layer.id === "rc-zone-fill");
   if (zone) return pick("zone", zone.properties.id);
-  if (catacombsPick(ev)) return;
+  for (const c of EXT.clicks) if (c.pick?.(ev, api)) return;
   if (picked) { picked = null; drawBody(); drawOverlay(); }
 }
 
@@ -1517,16 +1289,13 @@ function drawTools() {
   const btn = (t, icon, tip, gm = false) => gm && !game.user.isGM ? "" :
     `<a class="${tool === t ? "on" : ""}" data-act="tool" data-tool="${t}" data-tooltip="${esc(L(tip))}"><i class="fa-solid ${icon}"></i></a>`;
   box.innerHTML = `
-    <div class="rc-toolset">${btn("select", "fa-arrow-pointer", "ToolSelect")}${btn("marker", "fa-location-dot", "ToolMarker")}${btn("zone", "fa-draw-polygon", "ToolZone", true)}${revolution() ? btn("stain", "fa-droplet", "ToolStain", true) : ""}</div>
-    <div class="rc-toolset rc-textset">${eraStyles().map(k => `<a class="${v.style === k ? "on" : ""}" data-act="style" data-style="${k}">${esc(L(`Style.${k}`))}</a>`).join("")}</div>
+    <div class="rc-toolset">${btn("select", "fa-arrow-pointer", "ToolSelect")}${btn("marker", "fa-location-dot", "ToolMarker")}${btn("zone", "fa-draw-polygon", "ToolZone", true)}${EXT.toolModes.filter(t => !t.when || t.when()).map(t => btn(t.id, t.icon, t.tip, t.gm)).join("")}</div>
+    <div class="rc-toolset rc-textset">${eraStyles().map(k => `<a class="${v.style === k ? "on" : ""}" data-act="style" data-style="${k}">${esc(styleExt(k)?.label ?? L(`Style.${k}`))}</a>`).join("")}</div>
     <div class="rc-toolset rc-textset" data-tooltip="${esc(L("LangHint"))}">${eraLangs().map(k => `<a class="${v.lang === k ? "on" : ""}" data-act="lang" data-lang="${k}">${esc(L(`Lang.${k}`))}</a>`).join("")}</div>
     <div class="rc-toolset">
       ${metros[city().preset] ? `<a class="${v.metro ? "on" : ""}" data-act="metro" data-tooltip="${esc(L("MetroToggle"))}"><i class="fa-solid fa-train-subway"></i></a>` : ""}
-      ${revolution() ? `<a class="${sectionsOn() ? "on" : ""}" data-act="sections" data-tooltip="${esc(L("SectionsToggle"))}"><i class="fa-solid fa-border-none"></i></a>` : ""}
-      ${revolution() ? `<a class="${v.influence ? "on" : ""}" data-act="influence" data-tooltip="Влияние фракций Собрания по кварталам"><i class="fa-solid fa-chess-rook"></i></a>` : ""}
-      ${catacombsButtons()}
-      ${revolution() ? `<a class="${fxOn() ? "on" : ""}" data-act="fx" data-tooltip="${esc(L("FxToggle"))}"><i class="fa-solid fa-fire-flame-curved"></i></a>`
-        : `<a data-act="tilt" data-tooltip="${esc(L("Tilt"))}"><i class="fa-solid fa-cube"></i></a>`}
+      ${EXT.tools.map(t => t(api)).join("")}
+      ${styleExt(v.style) ? "" : `<a data-act="tilt" data-tooltip="${esc(L("Tilt"))}"><i class="fa-solid fa-cube"></i></a>`}
       <a data-act="goHome" data-tooltip="${esc(L("GoHome"))}"><i class="fa-solid fa-house"></i></a>
     </div>
     ${hint()}`;
@@ -1539,7 +1308,8 @@ function hint() {
   if (placing) return bar("fa-location-crosshairs", T("PlaceHint", { name: game.actors.get(placing)?.name ?? "" }));
   if (tool === "zone") return bar("fa-draw-polygon", L("ZoneHint"));
   if (tool === "marker") return bar("fa-location-dot", L("MarkerHint"));
-  if (tool === "stain") return bar("fa-droplet", L("StainHint"));
+  const tm = EXT.toolModes.find(t => t.id === tool);
+  if (tm?.hint) return bar(tm.icon, tm.hint());
   return "";
 }
 
@@ -1681,7 +1451,7 @@ function editor(it) {
     ${it.sub ? `<p class="rc-facts">${esc(it.sub)}</p>` : ""}
     <div class="rc-edit-acts"><a class="r-btn" data-act="pinFound"><i class="fa-solid fa-location-dot"></i> ${esc(L("PinHere"))}</a></div></section>`;
 
-  if (kind === "stain") return stainEditor(it);
+  if (EXT.kinds[kind]) return EXT.kinds[kind].editor(it, api);
   const isZone = kind === "zone", isPoi = kind === "poi";
   const edit = isZone || isPoi ? game.user.isGM : canEdit(it);
   const ro = edit ? "" : "disabled";
@@ -1727,41 +1497,13 @@ function editor(it) {
   </section>`;
 }
 
-/** Пятно крови: что, когда, размер и поворот (только ведущий). */
-function stainEditor(st) {
-  const opt = (v, cur, label) => `<option value="${v}" ${String(v) === String(cur) ? "selected" : ""}>${esc(label)}</option>`;
-  return `<section class="rc-edit">
-    <div class="rc-edit-head"><i class="fa-solid fa-droplet" style="color:#a3242a"></i>
-      <input data-field="title" value="${esc(st.title ?? "")}" placeholder="${esc(L("StainTitle"))}">
-      <a data-act="unpick" data-tooltip="${esc(L("Close"))}"><i class="fa-solid fa-xmark"></i></a></div>
-    <label>${esc(L("StainDate"))}<input type="date" data-field="date" value="${esc(st.date)}"></label>
-    <textarea data-field="text" rows="5" placeholder="${esc(L("StainText"))}">${esc(st.text ?? "")}</textarea>
-    <label class="rc-row">${esc(L("StainSize"))}<input type="range" data-field="size" min="40" max="420" step="10" value="${st.size}"></label>
-    <label class="rc-row">${esc(L("StainRot"))}<input type="range" data-field="rot" min="-180" max="180" step="5" value="${st.rot}"></label>
-    <label>${esc(L("StainImg"))}<select data-field="img">${[1, 2, 3].map(n => opt(n, st.img, `№ ${n}`)).join("")}</select></label>
-    <label class="rc-row rc-check"><input type="checkbox" data-field="gmOnly" ${st.gmOnly ? "checked" : ""}> ${esc(L("GmOnly"))}</label>
-    ${st.builtin ? `<p class="rc-facts">${esc(L("StainBuiltin"))}</p>` : ""}
-    <div class="rc-edit-acts">
-      <a class="r-btn" data-act="ping" data-tooltip="${esc(L("PingHint"))}"><i class="fa-solid fa-bullseye"></i> ${esc(L("Ping"))}</a>
-      <a class="r-btn rc-danger" data-act="remove" data-tooltip="${esc(L("Delete"))}"><i class="fa-solid fa-trash"></i></a>
-    </div></section>`;
-}
-
 async function edit(field, value) {
   const c = city();
   if (field === "cityName") { c.name = value; save({ own: false }); return; }
   if (field === "current") return switchCity(value);
   const it = findPicked();
   if (!it) return;
-  if (picked.kind === "stain") {
-    if (!game.user.isGM) return;
-    if (["size", "rot", "img"].includes(field)) value = Number(value);
-    if (it.builtin) ((c.stainEdits ??= {})[it.id] ??= {})[field] = value;
-    else { const st = (c.stains ?? []).find(x => x.id === it.id); if (st) st[field] = value; }
-    save({ own: false });
-    syncStains();
-    return;
-  }
+  if (EXT.kinds[picked.kind]) return EXT.kinds[picked.kind].edit(it, field, value, api);
   if (picked.kind === "poi") {
     if (!game.user.isGM) return;
     const ov = (c.overrides[it.id] ??= {});
@@ -1799,12 +1541,7 @@ function remove() {
   if (!it) return;
   const c = city();
   if (picked.kind === "zone") { if (!game.user.isGM) return; c.zones = c.zones.filter(z => z.id !== it.id); save({ own: false }); }
-  else if (picked.kind === "stain") {
-    if (!game.user.isGM) return;
-    if (it.builtin) ((c.stainEdits ??= {})[it.id] ??= {}).deleted = true; else c.stains = (c.stains ?? []).filter(x => x.id !== it.id);
-    save({ own: false });
-    picked = null; syncStains(); drawBody(); drawInspector(); return;
-  }
+  else if (EXT.kinds[picked.kind]) return EXT.kinds[picked.kind].remove(it, api);
   else if (picked.kind === "poi") { if (!game.user.isGM) return; (c.overrides[it.id] ??= {}).deleted = true; save({ own: false }); }
   else if (picked.kind === "found") { found = found.filter(r => r.id !== it.id); }
   else if (it.mine) { privates[c.id] = mine().filter(m => m.id !== it.id); save({ world: false }); }
@@ -1860,14 +1597,6 @@ async function act(name, el) {
       for (const id of ["rc-metro-line", "rc-metro-st", "rc-metro-name"]) if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", vis);
       drawTools(); break;
     }
-    case "fx": {
-      await setView({ fx: !fxOn() });
-      document.getElementById(ID)?.setAttribute("data-fx", fxOn() ? "on" : "off");
-      drawStains(); drawTools(); break;
-    }
-    case "influence": await setView({ influence: !view().influence }); drawTools(); drawInfluence(); break;
-    case "sections": await setView({ sections: !sectionsOn() }); drawTools(); drawSections(); break;
-    case "catacombs": case "cataAdd": case "cataRestore": await catacombsAct(name); break;
     case "tilt": {
       const flat = map.getPitch() < 5;
       map.easeTo({ pitch: flat ? 60 : 0, bearing: flat ? -20 : 0, zoom: flat ? Math.max(map.getZoom(), 15.5) : map.getZoom(), duration: 900 });
@@ -2001,6 +1730,7 @@ async function act(name, el) {
     }
     case "openScene": { const s = game.scenes.get(findPicked()?.sceneId); if (s) { closeCity(); s.view(); } break; }
     case "openJournal": game.journal.get(findPicked()?.journalId)?.sheet.render(true); break;
+    default: if (EXT.acts[name]) await EXT.acts[name](el, api); break;
     case "ping": {
       const it = findPicked(); if (!it) break;
       const [lat, lng] = picked.kind === "zone" ? centroid(it.points) : [it.lat, it.lng];
@@ -2032,7 +1762,7 @@ async function onWorldChange(value) {
   if (state.current !== was) { picked = null; clearPins(); jumpToCity(); }
   if (picked && !findPicked()) picked = null;
   drawAll();
-  syncStains();
+  for (const o of EXT.overlays) o.world?.(api);
 }
 
 /* ── Регистрация ──────────────────────────────────────────────────────── */
@@ -2041,8 +1771,6 @@ export function registerCityMap() {
   game.settings.register(SYSTEM_ID, "cityMap", { scope: "world", config: false, type: Object, default: {}, onChange: v => onWorldChange(v) });
   game.settings.register(SYSTEM_ID, "cityPing", { scope: "world", config: false, type: Object, default: {}, onChange: v => onPing(v) });
   game.settings.register(SYSTEM_ID, "cityView", { scope: "client", config: false, type: Object, default: {} });
-  registerAssembly();
-  registerCatacombs();
   game.settings.register(SYSTEM_ID, "cityMapEnabled", {
     name: "VTM20.City.SettingName", hint: "VTM20.City.SettingHint",
     scope: "world", config: true, type: Boolean, default: true, requiresReload: true
@@ -2051,7 +1779,8 @@ export function registerCityMap() {
   // Часы сменили ход — перерисовать панель часов, планировщик (время прибытия) и фишки.
   Hooks.on("updateSetting", s => {
     if (!map || s.key !== `${SYSTEM_ID}.clock`) return;
-    drawClock(); drawInspector(); drawChars(); drawStains();
+    drawClock(); drawInspector(); drawChars();
+    for (const o of EXT.overlays) o.clock?.(api);
   });
   // Персонаж поехал, приехал, сменил портрет — перерисовать фишки и список (не мешая печатать).
   Hooks.on("updateActor", (actor, changes) => {
