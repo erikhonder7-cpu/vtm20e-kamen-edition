@@ -1,0 +1,61 @@
+{{!-- Ночь простоя: факт биографии → цель, пул «характеристика + факт (или способность)», сложность, шансы. --}}
+<div class="r-roll-form r-downtime-form">
+  <div class="r-roll-label r-tiles-cap">{{localize "VTM20.Downtime.Background"}}</div>
+  <div class="r-tiles" style="--cols: 5">
+    {{#each tiles}}
+    <a class="r-tile {{#if active}}is-active{{/if}} {{#if dim}}is-dim{{/if}}" data-action="pick" data-key="{{key}}">
+      <i class="fa-solid {{icon}}"></i><span>{{label}}</span><b>{{value}}</b>
+    </a>
+    {{/each}}
+  </div>
+  {{#unless bg.value}}<p class="r-roll-note is-warn"><i class="fa-solid fa-circle-exclamation"></i> {{localize "VTM20.Downtime.NoBackground"}}</p>{{/unless}}
+
+  <div class="r-roll-row">
+    <span class="r-roll-label">{{localize "VTM20.Downtime.GoalLabel"}}</span>
+    <select name="goal">{{#each goals}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+  </div>
+  <div class="r-roll-row">
+    <span class="r-roll-label">{{localize "VTM20.Downtime.Custom"}}</span>
+    <input type="text" name="custom" value="{{v.custom}}" placeholder="{{localize 'VTM20.Downtime.CustomHint'}}">
+  </div>
+  <div class="r-roll-row">
+    <span class="r-roll-label">{{localize "VTM20.Downtime.Pool"}}</span>
+    <select name="attr">{{#each attrs}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+    <span class="r-downtime-plus">+</span>
+    <select name="second">{{#each seconds}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+  </div>
+  <div class="r-roll-row">
+    <span class="r-roll-label">{{localize "VTM20.Roll.Difficulty"}}</span>
+    <a class="r-step" data-action="bump" data-field="difficulty" data-d="-1">−</a>
+    <input type="number" name="difficulty" value="{{v.difficulty}}" class="r-roll-num">
+    <a class="r-step" data-action="bump" data-field="difficulty" data-d="1">+</a>
+  </div>
+  <div class="r-roll-row">
+    <span class="r-roll-label">{{localize "VTM20.Hunt.ModDice"}}</span>
+    <a class="r-step" data-action="bump" data-field="modDice" data-d="-1">−</a>
+    <input type="number" name="modDice" value="{{v.modDice}}" class="r-roll-num">
+    <a class="r-step" data-action="bump" data-field="modDice" data-d="1">+</a>
+  </div>
+
+  <div class="r-roll-total">
+    <div class="r-roll-breakdown">{{#each bd}}<span>{{label}} <b>{{rSigned value}}</b></span>{{/each}}</div>
+    <div class="r-roll-pool"><b>{{pool}}</b><i class="fa-solid fa-dice-d10"></i> <span>{{localize "VTM20.Roll.Vs"}}</span> <b>{{diff}}</b></div>
+  </div>
+  <div class="r-odds" data-tooltip="{{localize 'VTM20.Roll.OddsHint'}}">
+    <div class="r-odds-bar">
+      <i class="is-success" style="width: {{chances.success}}%"></i><i class="is-failure" style="width: {{chances.failure}}%"></i><i class="is-botch" style="width: {{chances.botch}}%"></i>
+    </div>
+    <div class="r-odds-legend">
+      <span class="is-success">{{localize "VTM20.Roll.OddsSuccess"}} <b>{{chances.success}}%</b></span>
+      <span class="is-failure">{{localize "VTM20.Outcome.failure"}} <b>{{chances.failure}}%</b></span>
+      <span class="is-botch">{{localize "VTM20.Outcome.botch"}} <b>{{chances.botch}}%</b></span>
+      <span class="r-odds-mean">{{localize "VTM20.Roll.OddsMean"}} <b>{{chances.mean}}</b></span>
+    </div>
+  </div>
+  <p class="r-roll-note"><i class="fa-solid fa-circle-info"></i> {{localize "VTM20.Downtime.Hint"}}</p>
+
+  <div class="r-roll-foot">
+    <select name="messageMode" class="r-mode">{{#each messageModes}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+    <button type="submit" class="r-btn is-primary"><i class="fa-solid fa-hourglass-half"></i> {{localize "VTM20.Downtime.Go"}}</button>
+  </div>
+</div>

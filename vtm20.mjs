@@ -28,6 +28,8 @@ import { openDiablerie } from "./module/apps/diablerie.mjs";
 import { openLibrary } from "./module/apps/library.mjs";
 import { openNpcGenerator } from "./module/apps/npc-gen.mjs";
 import { openClans } from "./module/apps/clans.mjs";
+import { openBoons } from "./module/apps/boons.mjs";
+import { openDowntime } from "./module/apps/downtime.mjs";
 import { registerCityMap, openCity, closeCity, toggleCity, cityMap } from "./module/ui/citymap.mjs";
 import { registerPause } from "./module/ui/pause.mjs";
 import * as Money from "./module/data/money.mjs";
@@ -42,7 +44,7 @@ Hooks.once("init", () => {
     config: VTM20, codex: Codex,
     rollPool, evaluate, rollDamage, soakAndApply, openDamageDialog, RollDialog, openCreator, VtMCreator,
     openHunt, nightfall, endScene, endStory, openAttack, openDefense, openHazard, openDiablerie, renderHud,
-    openLibrary, openNpcGenerator, openClans, money: Money, openCity, closeCity, toggleCity, cityMap,
+    openLibrary, openNpcGenerator, openClans, openBoons, openDowntime, money: Money, openCity, closeCity, toggleCity, cityMap,
     openSceneNexus, openCalendar, announceTime, getClock, getDate, stamp, clockBarData, nightPhase, moonPhase, republicanDate,
     apps: { SceneNexus, NightCalendar }
   };

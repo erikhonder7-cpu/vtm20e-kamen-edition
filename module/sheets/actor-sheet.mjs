@@ -16,11 +16,13 @@ import { openDamageDialog } from "../apps/damage.mjs";
 import { WEAPON_PRESETS, ARMOR_PRESETS } from "../data/equipment.mjs";
 import { openCreator } from "../apps/creator.mjs";
 import { openHunt } from "../apps/night.mjs";
+import { openDowntime } from "../apps/downtime.mjs";
 import { openXp } from "../apps/xp.mjs";
 import { openAttack } from "../combat/combat.mjs";
 import { openHazard } from "../apps/hazard.mjs";
 import { openDiablerie } from "../apps/diablerie.mjs";
 import { openClans } from "../apps/clans.mjs";
+import { BOON_LEVELS, boonLevelLabel, addBoon, toggleBoon, removeBoon, openBoons } from "../apps/boons.mjs";
 import { clockBarData } from "../apps/calendar.mjs";
 import { openLibrary, LibraryItems } from "../apps/library.mjs";
 import { moneyView, openMoney } from "../data/money.mjs";
@@ -101,6 +103,10 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       drinkBond: VtMActorSheet.#onDrinkBond,
       resistBond: VtMActorSheet.#onResistBond,
       removeBond: VtMActorSheet.#onRemoveBond,
+      addBoon: VtMActorSheet.#onAddBoon,
+      toggleBoon: VtMActorSheet.#onToggleBoon,
+      removeBoon: VtMActorSheet.#onRemoveBoon,
+      openBoons: () => openBoons(),
       addXp: VtMActorSheet.#onAddXp,
       openXp: VtMActorSheet.#onOpenXp,
       addEvent: VtMActorSheet.#onAddEvent,
@@ -110,6 +116,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       openCreator: VtMActorSheet.#onOpenCreator,
       skipCreation: VtMActorSheet.#onSkipCreation,
       hunt: VtMActorSheet.#onHunt,
+      downtime: VtMActorSheet.#onDowntime,
       attack: VtMActorSheet.#onAttack,
       hazard: VtMActorSheet.#onHazard,
       diablerie: VtMActorSheet.#onDiablerie,
@@ -461,6 +468,11 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     ctx.derangements = byType("derangement").map(i => ({ id: i.id, name: i.name, html: i.system.description, permanent: i.system.permanent, open: this._open.has(i.id) }));
     ctx.bonds = (a.system.bonds ?? []).map((b, i) => ({ ...b, index: i, dots: dots(b.rating, 3, { path: `system.bonds.${i}.rating` }),
       isRegnant: b.role === "regnant", tip: t("BondX.Tip", { n: b.drinks ?? 0, last: b.last || "—" }) }));
+    // Престация: две колонки — кто должен мне и кому должен я
+    const boons = (a.system.boons ?? []).map((b, i) => ({ ...b, index: i,
+      levels: BOON_LEVELS.map(k => ({ key: k, label: boonLevelLabel(k), selected: k === b.level })) }));
+    ctx.boonCols = ["owed", "owe"].map(dir => ({ dir, label: `VTM20.Boon.Dir.${dir}`, list: boons.filter(b => (b.dir === "owe" ? "owe" : "owed") === dir),
+      open: boons.filter(b => b.dir === dir && !b.done).length }));
   }
 
   /** Вкладка «Эффекты»: всё, что сейчас действует на персонажа, — силы, состояния, кровь, постоянные модификаторы, черты. */
@@ -621,7 +633,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   _processFormData(event, form, formData) {
     const data = super._processFormData(event, form, formData);
     const src = this.actor._source.system;
-    for (const key of ["secondary", "bonds", "timeline"]) {
+    for (const key of ["secondary", "bonds", "boons", "timeline"]) {
       const v = data.system?.[key];
       if (v && !Array.isArray(v)) {
         const arr = foundry.utils.deepClone(src[key]);
@@ -733,6 +745,8 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     this.render({ force: true });
   }
   static #onHunt() { return openHunt(this.actor); }
+  /** Ночь простоя: факты биографии между сессиями — module/apps/downtime.mjs. */
+  static #onDowntime() { return openDowntime(this.actor); }
 
   /* ── Действия: кровь и воля ─────────────────────────────────────────── */
 
@@ -949,6 +963,10 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     list.splice(Number(target.dataset.index), 1);
     await this.actor.update({ "system.bonds": list });
   }
+  /** Престация (module/apps/boons.mjs): новая услуга в колонку, погасить или вернуть, вычеркнуть. */
+  static async #onAddBoon(event, target) { return addBoon(this.actor, target.dataset.dir); }
+  static async #onToggleBoon(event, target) { return toggleBoon(this.actor, Number(target.dataset.index)); }
+  static async #onRemoveBoon(event, target) { return removeBoon(this.actor, Number(target.dataset.index)); }
   /** Хроника: новое событие в конец списка (по порядку дат). */
   static async #onAddEvent() {
     const list = foundry.utils.deepClone(this.actor._source.system.timeline ?? []);

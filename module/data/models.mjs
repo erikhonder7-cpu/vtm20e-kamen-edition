@@ -135,6 +135,8 @@ export class VampireData extends BaseActorData {
       // Временное усиление физических характеристик кровью (05): до конца сцены.
       boosts: new SchemaField({ strength: int(0, 0, 10), dexterity: int(0, 0, 10), stamina: int(0, 0, 10) }),
       bonds: new ArrayField(new SchemaField({ name: str(), rating: int(1, 1, 3), role: str("regnant"), drinks: int(1, 0, 99), last: str() })),
+      // Престация: кто кому должен услугу (module/apps/boons.mjs)
+      boons: new ArrayField(new SchemaField({ name: str(), dir: str("owed"), level: str("minor"), note: str(), date: str(), done: new BooleanField({ initial: false }) })),
       // Изъян клана — своё уточнение (вкус Вентру, расстройство Малкавиан…).
       weaknessNote: str(),
       // Цимисхи: дней без родной земли — пулы вдвое за каждый (02)
@@ -172,7 +174,8 @@ export class GhoulData extends BaseActorData {
       // Активный запас витэ: 1 на старте, предел 2 (растёт с возрастом).
       blood: new SchemaField({ value: int(1, 0, 20), max: int(2, 1, 20) }),
       boosts: new SchemaField({ strength: int(0, 0, 10), dexterity: int(0, 0, 10), stamina: int(0, 0, 10) }),
-      bonds: new ArrayField(new SchemaField({ name: str(), rating: int(1, 1, 3), role: str("regnant"), drinks: int(1, 0, 99), last: str() }))
+      bonds: new ArrayField(new SchemaField({ name: str(), rating: int(1, 1, 3), role: str("regnant"), drinks: int(1, 0, 99), last: str() })),
+      boons: new ArrayField(new SchemaField({ name: str(), dir: str("owed"), level: str("minor"), note: str(), date: str(), done: new BooleanField({ initial: false }) }))
     };
   }
 

@@ -105,6 +105,7 @@
     <nav class="r-head-acts">
       {{#if hasBlood}}<a class="r-act" data-action="hunt" data-tooltip="{{localize 'VTM20.Hunt.Button'}}"><i class="fa-solid fa-moon"></i><span>{{localize "VTM20.Hunt.Button"}}</span></a>{{/if}}
       {{#if isVampire}}<a class="r-act" data-action="awaken" data-tooltip="{{localize 'VTM20.Sheet.Awaken'}}"><i class="fa-solid fa-cloud-moon"></i><span>{{localize "VTM20.Sheet.AwakenShort"}}</span></a>{{/if}}
+      <a class="r-act" data-action="downtime" data-tooltip="{{localize 'VTM20.Downtime.Tip'}}"><i class="fa-solid fa-hourglass-half"></i><span>{{localize "VTM20.Downtime.Short"}}</span></a>
       <a class="r-act" data-action="attack" data-tooltip="{{localize 'VTM20.Combat.Attack'}}"><i class="fa-solid fa-khanda"></i><span>{{localize "VTM20.Combat.Attack"}}</span></a>
       <a class="r-act" data-action="rollInitiative" data-tooltip="{{localize 'VTM20.Sheet.Initiative'}}"><i class="fa-solid fa-bolt"></i><span>{{localize "VTM20.Sheet.Initiative"}}</span><b>{{system.initiative}}</b></a>
       <a class="r-act" data-action="takeDamage" data-tooltip="{{localize 'VTM20.Sheet.TakeDamageShort'}}"><i class="fa-solid fa-heart-crack"></i><span>{{localize "VTM20.Sheet.TakeDamageShort"}}</span></a>

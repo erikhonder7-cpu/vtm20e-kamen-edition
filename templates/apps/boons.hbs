@@ -1,0 +1,23 @@
+{{!-- Реестр услуг (Престация): состояние и вес — сверху, ниже долги «должник → кредитор». --}}
+<div class="r-bn">
+  <header class="r-bn-bar">
+    <nav class="r-bn-states">
+      {{#each states}}<a class="{{#if active}}is-active{{/if}}" data-action="state" data-state="{{key}}">{{label}} <b>{{n}}</b></a>{{/each}}
+    </nav>
+    <label class="r-cl-find r-bn-find"><i class="fa-solid fa-magnifying-glass"></i><input type="search" class="r-bn-search" value="{{v.q}}" placeholder="{{localize 'VTM20.Boon.Search'}}"></label>
+  </header>
+  <nav class="r-bn-levels">
+    {{#each levels}}<a class="r-bn-lv is-w{{@index}} {{#if active}}is-active{{/if}}" data-action="level" data-level="{{key}}" data-tooltip="{{localize 'VTM20.Boon.OpenOfLevel'}}">{{label}}{{#if n}} <b>{{n}}</b>{{/if}}</a>{{/each}}
+  </nav>
+  <ol class="r-bn-list">
+    {{#each rows}}
+    <li class="r-bn-row {{#if done}}is-done{{/if}}" data-text="{{text}}">
+      <span class="r-bn-badge is-w{{weight}}">{{levelLabel}}</span>
+      <span class="r-bn-who"><b>{{debtor}}</b> <i class="fa-solid fa-arrow-right-long"></i> <b>{{creditor}}</b>{{#if note}}<em>{{note}}</em>{{/if}}</span>
+      <span class="r-bn-date">{{#if done}}<i class="fa-solid fa-check"></i> {{localize "VTM20.Boon.Repaid"}}{{else}}{{date}}{{/if}}</span>
+      <a class="r-icon-btn" data-action="open" data-actor-id="{{source.actorId}}" data-tooltip="{{localize 'VTM20.Boon.OpenSheet'}}"><i class="fa-solid fa-id-card"></i></a>
+    </li>
+    {{/each}}
+    <li class="r-bn-none" hidden>{{#if empty}}{{localize "VTM20.Boon.LedgerEmpty"}}{{else}}{{localize "VTM20.Boon.Nothing"}}{{/if}}</li>
+  </ol>
+</div>

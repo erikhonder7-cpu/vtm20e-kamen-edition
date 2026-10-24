@@ -939,3 +939,16 @@ body.r-theme-light .vtm20 .r-motto { color: rgba(140, 28, 34, .75); }
 .vtm20 .r-item-dots { display: flex; align-items: center; gap: 12px; margin: 2px 0 10px; }
 .vtm20 .r-item-dots .r-dot { width: 15px; height: 15px; }
 .vtm20 .r-item-dots b { font-family: var(--r-display); font-weight: 400; font-size: 22px; color: var(--r-ink); }
+
+/* ── Престация: услуги на вкладке «Преимущества» (module/apps/boons.mjs) ── */
+.vtm20 .r-boon-head { display: flex; align-items: center; gap: 8px; margin: 2px 0 6px; font-family: var(--r-caps); font-weight: 400; font-size: 12px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--r-muted); border: 0; }
+.vtm20 .r-boon-head em { font-style: normal; font-family: var(--r-display); font-size: 13px; color: var(--r-accent); }
+.vtm20 .r-boon-head .r-h2-btn { margin-left: auto; }
+.vtm20 .r-boon { padding: 4px 0 6px; border-bottom: 1px dashed var(--r-line); }
+.vtm20 .r-boon .r-trait-main { gap: 6px; }
+.vtm20 .r-boon-sub { display: flex; align-items: center; gap: 8px; padding-left: 2px; }
+.vtm20 .r-boon-sub .r-trait-input { flex: 1; font-size: 12.5px; font-style: italic; color: var(--r-ink-2); }
+.vtm20 .r-boon-date { flex: 0 0 auto; font-size: 11.5px; color: var(--r-muted); }
+.vtm20 .r-boon.is-done { opacity: .55; }
+.vtm20 .r-boon.is-done .r-trait-main .r-trait-input { text-decoration: line-through; text-decoration-color: rgba(196, 71, 76, .7); }
+.vtm20 .r-boon .r-icon-btn.is-on { color: var(--r-accent); }

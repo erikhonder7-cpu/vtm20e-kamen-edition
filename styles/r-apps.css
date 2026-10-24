@@ -685,3 +685,38 @@ body.r-theme-light .vtm20 .r-ng-item.is-active, body.r-theme-light .vtm20 .r-ng-
 .vtm20 .r-rail-sigil.is-link { cursor: pointer; }
 .vtm20 .r-kicker-nick.is-link { cursor: pointer; }
 .vtm20 .r-kicker-nick.is-link:hover { color: var(--r-accent); }
+
+/* ── Реестр услуг (module/apps/boons.mjs) ──────────────────────────────── */
+.vtm20.r-boons .window-content { overflow: hidden; }
+.vtm20 .r-bn { display: flex; flex-direction: column; gap: 10px; height: 100%; min-height: 0; padding: 12px 14px; }
+.vtm20 .r-bn-bar { display: flex; gap: 10px; align-items: center; }
+.vtm20 .r-bn-states { display: flex; gap: 4px; }
+.vtm20 .r-bn-states a, .vtm20 .r-bn-lv { display: inline-flex; align-items: baseline; gap: 6px; padding: 4px 9px; border: 1px solid var(--r-line); font-family: var(--r-caps); font-size: 11px; letter-spacing: .6px; text-transform: uppercase; color: var(--r-muted); cursor: pointer; }
+.vtm20 .r-bn-states a b, .vtm20 .r-bn-lv b { font-family: var(--r-display); font-weight: 400; font-size: 12px; }
+.vtm20 .r-bn-states a:hover, .vtm20 .r-bn-lv:hover { color: var(--r-ink); border-color: var(--r-line-2); }
+.vtm20 .r-bn-states a.is-active, .vtm20 .r-bn-lv.is-active { color: #f1e9da; border-color: #c4474c; background: rgba(140, 28, 34, .45); }
+.vtm20 .r-bn-find { flex: 1; }
+.vtm20 .r-bn-levels { display: flex; flex-wrap: wrap; gap: 4px; }
+.vtm20 .r-bn-list { flex: 1 1 auto; min-height: 0; overflow-y: auto; margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 3px; }
+.vtm20 .r-bn-row { display: grid; grid-template-columns: 104px minmax(0, 1fr) auto auto; align-items: center; gap: 10px; padding: 6px 8px; border: 1px solid var(--r-line); background: rgba(0, 0, 0, .14); }
+.vtm20 .r-bn-row:hover { background: var(--r-s2); }
+.vtm20 .r-bn-row.is-done { opacity: .5; }
+.vtm20 .r-bn-who { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 7px; min-width: 0; font-family: var(--r-display); font-size: 15px; color: var(--r-ink); }
+.vtm20 .r-bn-who b { font-weight: 400; }
+.vtm20 .r-bn-who i { font-size: 11px; color: var(--r-accent); }
+.vtm20 .r-bn-who em { flex-basis: 100%; font-family: var(--r-body); font-size: 12.5px; color: var(--r-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vtm20 .r-bn-date { font-size: 12px; color: var(--r-muted); white-space: nowrap; }
+.vtm20 .r-bn-badge { justify-self: start; padding: 2px 8px; font-family: var(--r-caps); font-size: 10.5px; letter-spacing: .8px; text-transform: uppercase; border: 1px solid var(--r-line-2); color: var(--r-ink-2); }
+/* вес услуги — от бледного к кровавому */
+.vtm20 .is-w0.r-bn-badge { opacity: .75; }
+.vtm20 .is-w2.r-bn-badge { border-color: rgba(196, 71, 76, .55); color: #e7c9c4; }
+.vtm20 .is-w3.r-bn-badge { border-color: #c4474c; color: #f1e2dc; background: rgba(140, 28, 34, .35); }
+.vtm20 .is-w4.r-bn-badge { border-color: #e06a6f; color: #fff1ec; background: linear-gradient(180deg, #8c1c22, #4a0d11); box-shadow: 0 0 8px rgba(196, 71, 76, .4); }
+.vtm20 .r-bn-none { padding: 14px 6px; font-style: italic; color: var(--r-muted); }
+
+/* ── Ночь простоя (module/apps/downtime.mjs) ───────────────────────────── */
+.r-tile.is-dim:not(.is-active) { opacity: .45; }
+.r-downtime-form .r-roll-row select { flex: 1; min-width: 0; }
+.r-downtime-form .r-roll-row input[type=text] { flex: 1; }
+.r-downtime-plus { color: var(--r-muted); }
+.r-roll-note.is-warn { color: #e7b9b4; }

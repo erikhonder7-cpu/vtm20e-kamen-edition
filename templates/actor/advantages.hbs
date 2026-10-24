@@ -101,4 +101,33 @@
     </div>
     {{/unless}}
   </div>
+
+  {{#unless isMortal}}
+  <h2 class="r-h2"><span>{{localize "VTM20.Boon.Title"}}</span><span class="r-h2-tools"><a class="r-h2-btn" data-action="openBoons" data-tooltip="{{localize 'VTM20.Boon.LedgerHint'}}"><i class="fa-solid fa-scale-balanced"></i> <span class="r-h2-lbl">{{localize "VTM20.Boon.Ledger"}}</span></a></span></h2>
+  <div class="r-cols2 r-boons">
+    {{#each boonCols}}
+    <div class="r-col">
+      <h3 class="r-boon-head"><span>{{localize label}}</span>{{#if open}}<em>{{open}}</em>{{/if}}{{#if @root.editable}}<a class="r-h2-btn" data-action="addBoon" data-dir="{{dir}}" data-tooltip="{{localize 'VTM20.Sheet.Add'}}"><i class="fa-solid fa-plus"></i></a>{{/if}}</h3>
+      {{#each list}}
+      <div class="r-boon {{#if done}}is-done{{/if}}">
+        <div class="r-trait-main">
+          <input class="r-trait-input" type="text" name="system.boons.{{index}}.name" value="{{name}}" placeholder="{{localize (concat 'VTM20.Boon.Who.' ../dir)}}">
+          <select name="system.boons.{{index}}.level" class="r-mini-select">{{#each levels}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+          {{#if @root.editable}}
+          <a class="r-icon-btn {{#if done}}is-on{{/if}}" data-action="toggleBoon" data-index="{{index}}" data-tooltip="{{#if done}}{{localize 'VTM20.Boon.Reopen'}}{{else}}{{localize 'VTM20.Boon.Repay'}}{{/if}}"><i class="fa-solid {{#if done}}fa-rotate-left{{else}}fa-check{{/if}}"></i></a>
+          <a class="r-icon-btn is-danger" data-action="removeBoon" data-index="{{index}}"><i class="fa-solid fa-xmark"></i></a>
+          {{/if}}
+        </div>
+        <div class="r-boon-sub">
+          <input class="r-trait-input" type="text" name="system.boons.{{index}}.note" value="{{note}}" placeholder="{{localize 'VTM20.Boon.Note'}}">
+          <span class="r-boon-date">{{#if done}}{{localize "VTM20.Boon.Repaid"}}{{else}}{{date}}{{/if}}</span>
+        </div>
+      </div>
+      {{else}}<div class="r-empty">{{localize "VTM20.Boon.None"}}</div>
+      {{/each}}
+    </div>
+    {{/each}}
+  </div>
+  <p class="r-hint">{{localize "VTM20.Boon.Hint"}}</p>
+  {{/unless}}
 </section>
