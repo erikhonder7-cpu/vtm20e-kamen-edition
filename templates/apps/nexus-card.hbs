@@ -1,6 +1,8 @@
 {{!-- Карточка сцены нексуса. Контекст = объект карточки. --}}
 <div class="r-nx-card {{#if isCurrent}}here{{/if}} {{#unless open}}locked{{/unless}}"
-     data-action="jump" data-scene-id="{{id}}" title="{{localize 'VTM20.Nexus.JumpHint'}}">
+     data-action="jump" data-scene-id="{{id}}" title="{{localize 'VTM20.Nexus.JumpHint'}}"
+     data-group="{{groupId}}" data-sub="{{subId}}" data-search="{{search}}" data-open="{{#if open}}1{{else}}0{{/if}}"
+     data-here="{{#if hasPlayers}}1{{else}}{{#if isCurrent}}1{{else}}0{{/if}}{{/if}}" {{#if @root.isGM}}draggable="true"{{/if}}>
   <div class="r-nx-thumb" style="background-image:url('{{thumb}}')">
     {{#unless thumb}}<span class="r-nx-noimg">{{localize "VTM20.Nexus.NoThumb"}}</span>{{/unless}}
     <div class="r-nx-badges">
@@ -11,7 +13,7 @@
     </div>
     {{#if hasPlayers}}
     <div class="r-nx-players" title="{{localize 'VTM20.Nexus.PlayersHere'}}">
-      {{#each players as |p|}}<span class="r-nx-pc" style="--pc:{{p.color}}" title="{{p.name}}">{{p.initials}}</span>{{/each}}
+      {{#each players as |p|}}<span class="r-nx-pc" style="--pc:{{p.color}}" title="{{p.name}}">{{#if p.img}}<img src="{{p.img}}" alt="">{{else}}{{p.initials}}{{/if}}</span>{{/each}}{{#if more}}<span class="r-nx-pc r-nx-more">+{{more}}</span>{{/if}}
     </div>
     {{/if}}
     <div class="r-nx-go"><i class="fa-solid fa-right-to-bracket"></i> {{localize "VTM20.Nexus.Go"}}</div>

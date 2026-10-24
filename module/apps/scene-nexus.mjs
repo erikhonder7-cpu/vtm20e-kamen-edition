@@ -118,7 +118,9 @@ export class SceneNexus extends HandlebarsApplicationMixin(ApplicationV2) {
       viewScene: SceneNexus.#onViewScene,
       activateScene: SceneNexus.#onActivateScene,
       removeScene: SceneNexus.#onRemoveScene,
-      setEntry: SceneNexus.#onSetEntry
+      setEntry: SceneNexus.#onSetEntry,
+      filter: SceneNexus.#onFilter,
+      view: SceneNexus.#onView
     }
   };
 
@@ -129,6 +131,8 @@ export class SceneNexus extends HandlebarsApplicationMixin(ApplicationV2) {
   constructor(...args) {
     super(...args);
     this._collapsed = this._loadCollapsed();   // свёрнутые группы помним между сессиями
+    this._q = ""; this._filt = "all";             // поиск и фильтр (Н3) — на время окна
+    try { this._view = localStorage.getItem("r-nexus-view") || "grid"; } catch (e) { this._view = "grid"; }
   }
   _loadCollapsed() {
     try { return JSON.parse(localStorage.getItem("r-nexus-collapsed") || "{}") || {}; }
@@ -146,15 +150,24 @@ export class SceneNexus extends HandlebarsApplicationMixin(ApplicationV2) {
     const activeId = game.scenes?.active?.id || "";
     const controlled = canvas?.tokens?.controlled || [];
 
-    // Кто где: активный игрок → сцена, которую он смотрит.
-    const presence = {};
-    for (const u of game.users) {
-      if (!u.active || u.isGM || !u.viewedScene) continue;
-      (presence[u.viewedScene] ||= []).push({
-        name: u.name, color: String(u.color || "#a3121b"),
-        initials: (u.name || "?").trim().slice(0, 2).toUpperCase()
-      });
-    }
+    // Кто где (Н2): персонажи игроков, стоящие на сцене, — их лица; игрок, который смотрит сцену без своего
+    // персонажа на ней, — аватаром. Цвет обводки — цвет игрока.
+    const initials = n => (n || "?").trim().slice(0, 2).toUpperCase();
+    const ownerOf = a => game.users.find(u => !u.isGM && a.testUserPermission?.(u, "OWNER"));
+    const presenceOf = sc => {
+      const out = [], seen = new Set();
+      for (const t of sc.tokens ?? []) {
+        const a = t.actor;
+        if (!a?.hasPlayerOwner || seen.has(a.id) || (t.hidden && !isGM)) continue;
+        seen.add(a.id);
+        out.push({ name: a.name, img: a.img || t.texture?.src || "", initials: initials(a.name), color: String(ownerOf(a)?.color || "#8d9bb8") });
+      }
+      for (const u of game.users) {
+        if (!u.active || u.isGM || u.viewedScene !== sc.id || (u.character && seen.has(u.character.id))) continue;
+        out.push({ name: u.name, img: u.avatar || "", initials: initials(u.name), color: String(u.color || "#a3121b") });
+      }
+      return out;
+    };
 
     const folderPath = sc => {
       let f = sc.folder, guard = 0; const parts = [];
@@ -178,13 +191,14 @@ export class SceneNexus extends HandlebarsApplicationMixin(ApplicationV2) {
       const sc = game.scenes.get(id); if (!sc) return null;
       const nx = sceneNexus(sc);
       if (!isGM && !nx.open) return null;
-      const here = presence[sc.id] || [];
+      const here = presenceOf(sc);
+      const name = nx.label || sc.name;
       return {
-        id: sc.id, name: nx.label || sc.name, groupId, subId: subId || "",
+        id: sc.id, name, groupId, subId: subId || "", search: name.toLowerCase(),
+        players: here.slice(0, 5), more: Math.max(0, here.length - 5),
         thumb: sc.thumb || sc.firstLevel?.background?.src || "",
         isCurrent: sc.id === curId, isActive: sc.id === activeId,
-        open: nx.open, hasEntry: !!nx.entry,
-        players: here, hasPlayers: here.length > 0
+        open: nx.open, hasEntry: !!nx.entry, hasPlayers: here.length > 0
       };
     };
 
@@ -220,7 +234,7 @@ export class SceneNexus extends HandlebarsApplicationMixin(ApplicationV2) {
         : [];
 
       groups.push({
-        id: g.id, name: g.name, color: g.color || "#a3121b",
+        id: g.id, name: g.name, color: g.color || "#a3121b", search: String(g.name || "").toLowerCase(),
         collapsed: !!this._collapsed[g.id],
         subgroups, hasSubgroups: subgroups.length > 0,
         looseCards, hasLoose: looseCards.length > 0, count,
@@ -234,15 +248,72 @@ export class SceneNexus extends HandlebarsApplicationMixin(ApplicationV2) {
       groups, hasGroups: groups.length > 0,
       selCount: controlled.length, hasSel: controlled.length > 0,
       selText: controlled.map(t => t.name).join(", "),
-      curName: canvas?.scene?.name || L("NoScene")
+      curName: canvas?.scene?.name || L("NoScene"),
+      filters: ["all", ...(isGM ? ["open"] : []), "here"].map(k => ({ key: k, label: L(`Filter.${k}`), active: this._filt === k })),
+      q: this._q, listView: this._view === "list"
     };
   }
 
   /* ── Отрисовка: селекты, цвет, подсказки ──────────────────────────────── */
 
+  _onFirstRender(context, options) {
+    super._onFirstRender(context, options);
+    const el = this.element;
+    // Поиск (Н3) — без перерисовки, фокус не теряется
+    el.addEventListener("input", ev => {
+      if (!ev.target.matches(".r-nx-search input")) return;
+      this._q = ev.target.value; this._applyFilter();
+    });
+    // Перетаскивание сцен между районами и подгруппами (Н5, только ведущий)
+    if (!game.user.isGM) return;
+    el.addEventListener("dragstart", ev => {
+      const card = ev.target.closest?.(".r-nx-card[draggable=true]");
+      if (!card) return;
+      ev.dataTransfer.setData("text/plain", JSON.stringify({ nexus: true, sceneId: card.dataset.sceneId, group: card.dataset.group, sub: card.dataset.sub }));
+      ev.dataTransfer.effectAllowed = "move";
+      el.classList.add("is-dragging");
+    });
+    el.addEventListener("dragend", () => { el.classList.remove("is-dragging"); el.querySelectorAll(".is-drop").forEach(x => x.classList.remove("is-drop")); });
+    const zoneOf = ev => ev.target.closest?.(".r-nx-sub, .r-nx-group");
+    el.addEventListener("dragover", ev => {
+      const z = zoneOf(ev); if (!z) return;
+      ev.preventDefault();
+      el.querySelectorAll(".is-drop").forEach(x => x !== z && x.classList.remove("is-drop"));
+      z.classList.add("is-drop");
+    });
+    el.addEventListener("drop", async ev => {
+      const z = zoneOf(ev); if (!z) return;
+      ev.preventDefault();
+      let d; try { d = JSON.parse(ev.dataTransfer.getData("text/plain")); } catch (e) { return; }
+      if (!d?.nexus) return;
+      const group = z.closest(".r-nx-group")?.dataset.group, sub = z.matches(".r-nx-sub") ? z.dataset.sub : "";
+      if (!group || (group === d.group && sub === d.sub)) return;
+      if (group !== d.group) { await addSceneToGroup(group, d.sceneId); await removeSceneFromGroup(d.group, d.sceneId); }
+      if (sub) await assignSceneToSub(group, sub, d.sceneId);
+      else if (group === d.group) await unassignScene(group, d.sceneId);
+      this.render();
+    });
+  }
+
+  /** Поиск и фильтр по уже нарисованным карточкам; пустые районы и подгруппы прячутся. */
+  _applyFilter() {
+    const el = this.element; if (!el) return;
+    const q = this._q.trim().toLowerCase(), f = this._filt, on = !!q || f !== "all";
+    for (const c of el.querySelectorAll(".r-nx-card")) {
+      const g = c.closest(".r-nx-group");
+      const hit = (!q || c.dataset.search.includes(q) || (g?.dataset.search ?? "").includes(q))
+        && (f !== "open" || c.dataset.open === "1") && (f !== "here" || c.dataset.here === "1");
+      c.hidden = !hit;
+    }
+    for (const box of el.querySelectorAll(".r-nx-sub, .r-nx-group"))
+      box.classList.toggle("is-filtered-out", on && !box.querySelector(".r-nx-card:not([hidden])"));
+    el.querySelector(".r-nx-body")?.classList.toggle("is-filtering", on);
+  }
+
   _onRender(context, options) {
     super._onRender(context, options);
     const el = this.element;
+    this._applyFilter();
     if (!game.user.isGM) return;
     this._syncPerms();
 
@@ -325,6 +396,12 @@ export class SceneNexus extends HandlebarsApplicationMixin(ApplicationV2) {
 
   /* ── Действия ────────────────────────────────────────────────────────── */
 
+  static #onFilter(event, target) { this._filt = target.dataset.key; this.render(); }
+  static #onView() {
+    this._view = this._view === "list" ? "grid" : "list";
+    try { localStorage.setItem("r-nexus-view", this._view); } catch (e) {}
+    this.render();
+  }
   static #onJump(event, target) {
     if (event.target.closest("[data-card-tool]")) return;
     this.requestTeleport(target.dataset.sceneId);

@@ -141,8 +141,11 @@ body.r-nav-off #scene-navigation { display: none !important; }
 .r-nx-b.open { color: var(--nx-ok); border-color: rgba(143, 169, 138, .45); }
 .r-nx-b.shut { color: var(--nx-blood-l); border-color: rgba(196, 71, 76, .5); }
 .r-nx-b.entry { color: var(--nx-steel); }
-.r-nx-players { position: absolute; right: 5px; top: 5px; display: flex; gap: 3px; z-index: 1; }
-.r-nx-pc { width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 700; color: #0a0a0c; background: var(--pc, var(--nx-bone)); border: 1px solid rgba(0, 0, 0, .7); }
+.r-nx-players { position: absolute; left: 6px; bottom: -13px; display: flex; z-index: 2; }
+.r-nx-pc { width: 30px; height: 30px; margin-right: -7px; display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: 50%;
+  font-size: 10px; font-weight: 700; color: #0a0a0c; background: var(--pc, var(--nx-bone)); border: 2px solid #111113; box-shadow: 0 0 0 1px var(--pc, var(--nx-bone)), 0 3px 8px rgba(0, 0, 0, .6); }
+.r-nx-pc img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 15%; border: 0; }
+.r-nx-pc.r-nx-more { background: #1b1b1e; color: var(--nx-bone-2); box-shadow: 0 0 0 1px var(--nx-line-2); }
 .r-nx-go {
   position: absolute; inset: auto 0 0 0; padding: 5px 0; text-align: center; z-index: 1;
   background: linear-gradient(180deg, transparent, rgba(140, 28, 34, .85));
@@ -290,3 +293,30 @@ body.r-nav-off #scene-navigation { display: none !important; }
 .r-dawn-card.is-rise > i { color: #e0414b; }
 .r-dawn-card b { display: block; font-family: var(--nx-display); font-weight: 400; font-size: 15px; color: #f1e9da; }
 .r-dawn-card span { font-size: 13px; color: var(--nx-bone-2); }
+
+/* ── Нексус: поиск, фильтры, список (Н3), перетаскивание (Н5), лица (Н2) ── */
+.r-nx-tools { display: flex; align-items: center; gap: 6px; padding: 8px 14px; border-bottom: 1px solid var(--nx-line); }
+.r-nx-search { flex: 1; display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 10px; border: 1px solid var(--nx-line-2); background: rgba(255, 255, 255, .03); color: var(--nx-muted); }
+.r-nx-search input { flex: 1; height: 30px; border: 0; background: transparent; box-shadow: none; color: var(--nx-bone); }
+.r-nx-chip { display: flex; align-items: center; height: 32px; padding: 0 11px; cursor: pointer; border: 1px solid var(--nx-line-2);
+  font-family: var(--nx-caps); font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--nx-muted); }
+.r-nx-chip:hover { color: var(--nx-bone); border-color: var(--nx-bone-2); }
+.r-nx-chip.is-active { color: #f1e9da; background: rgba(140, 28, 34, .45); border-color: var(--nx-blood-l); }
+.r-nx-body .r-nx-card[hidden], .r-nx-body .is-filtered-out { display: none !important; }
+.r-nx-body.is-filtering .r-nx-add, .r-nx-body.is-filtering .r-nx-empty { display: none; }
+.r-nx-card .r-nx-cname { padding-top: 18px; }
+/* список: строка «название — лица и метки — инструменты», без картинок */
+.r-nx-body.is-list .r-nx-grid { display: flex; flex-direction: column; gap: 2px; }
+.r-nx-body.is-list .r-nx-card { display: flex; align-items: center; gap: 10px; min-height: 40px; padding: 0 8px 0 2px; }
+.r-nx-body.is-list .r-nx-card .r-nx-cname { order: 1; flex: 1 1 auto; min-width: 0; padding: 8px; }
+.r-nx-body.is-list .r-nx-thumb { order: 2; position: static; flex: 0 0 auto; height: auto; padding: 0; background: none !important; filter: none !important;
+  display: flex; align-items: center; gap: 10px; }
+.r-nx-body.is-list .r-nx-thumb > :not(.r-nx-badges):not(.r-nx-players) { display: none; }
+.r-nx-body.is-list .r-nx-badges, .r-nx-body.is-list .r-nx-players { position: static; }
+.r-nx-body.is-list .r-nx-players { padding-right: 7px; }
+.r-nx-body.is-list .r-nx-pc { width: 24px; height: 24px; }
+.r-nx-body.is-list .r-nx-ctools { order: 3; flex: 0 0 auto; flex-wrap: nowrap; padding: 0; }
+/* перетаскивание: карточка тянется, район или подгруппа под ней подсвечиваются */
+.r-nx-card[draggable=true] { cursor: grab; }
+.is-dragging .r-nx-group, .is-dragging .r-nx-sub { outline: 1px dashed rgba(196, 71, 76, .35); outline-offset: -2px; }
+.r-nx-group.is-drop, .r-nx-sub.is-drop { outline: 1px dashed var(--nx-blood-l) !important; background: rgba(140, 28, 34, .12); }

@@ -17,10 +17,16 @@
     {{#if isGM}}<a class="r-nx-btn" data-action="addGroup"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Nexus.Group"}}</a>{{/if}}
   </div>
 
-  <div class="r-nx-body">
+  <div class="r-nx-tools">
+    <label class="r-nx-search"><i class="fa-solid fa-magnifying-glass"></i><input type="search" value="{{q}}" placeholder="{{localize 'VTM20.Nexus.Search'}}"></label>
+    {{#each filters as |f|}}<a class="r-nx-chip {{#if f.active}}is-active{{/if}}" data-action="filter" data-key="{{f.key}}">{{f.label}}</a>{{/each}}
+    <a class="r-nx-chip r-nx-viewbtn" data-action="view" data-tooltip="{{#if listView}}{{localize 'VTM20.Nexus.ViewGrid'}}{{else}}{{localize 'VTM20.Nexus.ViewList'}}{{/if}}"><i class="fa-solid {{#if listView}}fa-table-cells-large{{else}}fa-list{{/if}}"></i></a>
+  </div>
+
+  <div class="r-nx-body {{#if listView}}is-list{{/if}}">
     {{#if hasGroups}}
       {{#each groups as |g|}}
-      <section class="r-nx-group {{#if g.collapsed}}collapsed{{/if}}" style="--gc:{{g.color}}">
+      <section class="r-nx-group {{#if g.collapsed}}collapsed{{/if}}" style="--gc:{{g.color}}" data-group="{{g.id}}" data-search="{{g.search}}">
         <header class="r-nx-ghead">
           <a class="r-nx-caret" data-action="collapse" data-key="{{g.id}}" title="{{localize 'VTM20.Nexus.Collapse'}}">
             <i class="fa-solid {{#if g.collapsed}}fa-chevron-right{{else}}fa-chevron-down{{/if}}"></i>
@@ -41,7 +47,7 @@
 
         {{#unless g.collapsed}}
           {{#each g.subgroups as |sub|}}
-          <section class="r-nx-sub {{#if sub.collapsed}}collapsed{{/if}}">
+          <section class="r-nx-sub {{#if sub.collapsed}}collapsed{{/if}}" data-sub="{{sub.id}}">
             <header class="r-nx-subhead">
               <a class="r-nx-caret" data-action="collapse" data-key="{{sub.key}}">
                 <i class="fa-solid {{#if sub.collapsed}}fa-chevron-right{{else}}fa-chevron-down{{/if}}"></i>
