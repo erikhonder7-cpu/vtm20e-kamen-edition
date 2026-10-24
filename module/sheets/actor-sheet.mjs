@@ -22,6 +22,7 @@ import { clockBarData } from "../apps/calendar.mjs";
 import { openLibrary, LibraryItems } from "../apps/library.mjs";
 import { moneyView, openMoney } from "../data/money.mjs";
 import { POWER_EFFECTS } from "../data/effects.mjs";
+import { MERIT_MODS } from "../data/merit-mods.mjs";
 import { togglePowerEffect } from "../apps/power-effects.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
@@ -78,6 +79,8 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       toggleRow: VtMActorSheet.#onToggleRow,
       toggleAll: VtMActorSheet.#onToggleAll,
       clearStatus: VtMActorSheet.#onClearStatus,
+      effectToggle: VtMActorSheet.#onEffectToggle,
+      effectDelete: VtMActorSheet.#onEffectDelete,
       powerToChat: VtMActorSheet.#onPowerToChat,
       rollPower: VtMActorSheet.#onRollPower,
       rollItemPower: VtMActorSheet.#onRollItemPower,
@@ -113,6 +116,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     vitals: { template: `${SYSTEM_PATH}/templates/actor/vitals.hbs` },
     traits: { template: `${SYSTEM_PATH}/templates/actor/traits.hbs`, scrollable: [""] },
     disciplines: { template: `${SYSTEM_PATH}/templates/actor/disciplines.hbs`, scrollable: [""] },
+    effects: { template: `${SYSTEM_PATH}/templates/actor/effects.hbs`, scrollable: [""] },
     advantages: { template: `${SYSTEM_PATH}/templates/actor/advantages.hbs`, scrollable: [""] },
     gear: { template: `${SYSTEM_PATH}/templates/actor/gear.hbs`, scrollable: [""] },
     bio: { template: `${SYSTEM_PATH}/templates/actor/bio.hbs`, scrollable: [""] },
@@ -124,6 +128,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       tabs: [
         { id: "traits", icon: "fa-solid fa-feather-pointed" },
         { id: "disciplines", icon: "fa-solid fa-droplet" },
+        { id: "effects", icon: "fa-solid fa-wand-sparkles" },
         { id: "advantages", icon: "fa-solid fa-scroll" },
         { id: "gear", icon: "fa-solid fa-khanda" },
         { id: "bio", icon: "fa-solid fa-book-open" }
@@ -185,6 +190,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     if (actor.type !== "mortal") this.#prepareDisciplines(ctx);
     this.#prepareAdvantages(ctx);
     this.#prepareGear(ctx);
+    this.#prepareEffects(ctx);
     ctx.biographyHTML = await TextEditor().enrichHTML(sys.biography ?? "", { relativeTo: actor, secrets: actor.isOwner });
     ctx.notesHTML = await TextEditor().enrichHTML(sys.notes ?? "", { relativeTo: actor, secrets: actor.isOwner });
     return ctx;
@@ -449,6 +455,70 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       isRegnant: b.role === "regnant", tip: t("BondX.Tip", { n: b.drinks ?? 0, last: b.last || "—" }) }));
   }
 
+  /** Вкладка «Эффекты»: всё, что сейчас действует на персонажа, — силы, состояния, кровь, постоянные модификаторы, черты. */
+  #prepareEffects(ctx) {
+    const a = this.actor, s = a.system;
+    const attrL = k => game.i18n.localize(VTM20.attributes[k]?.label ?? k);
+    const abilL = k => game.i18n.localize(VTM20.abilities[k]?.label ?? k);
+    const signed = n => n > 0 ? `+${n}` : `${n}`;
+    const numOf = v => typeof v === "number" ? v : (String(v).startsWith("-") ? -1 : 1) * (a.discipline(String(v).replace(/^-/, "")) ?? 0);
+
+    // Включённые силы — с расшифровкой того, что они меняют
+    ctx.fxPowers = a.powerEffects.map(({ effect, def }) => {
+      const lines = [];
+      for (const [k, v] of Object.entries(def.attr ?? {})) lines.push(`${attrL(k)} ${signed(v)}`);
+      for (const [k, v] of Object.entries(def.set ?? {})) lines.push(`${attrL(k)} = ${v}`);
+      for (const [k, v] of Object.entries(def.diff ?? {})) lines.push(t("FxTab.Diff", { what: t(`FxTab.DiffKind.${k}`), n: signed(numOf(v)) }));
+      if (def.claws) lines.push(t("FxTab.Claws"));
+      if (def.brawlDamage) lines.push(t("FxTab.BrawlDamage", { n: def.brawlDamage }));
+      if (def.biteDamage) lines.push(t("FxTab.BiteDamage", { n: def.biteDamage }));
+      if (def.soakDiff) lines.push(t("FxTab.SoakDiff", { n: signed(def.soakDiff) }));
+      if (def.staminaVsFangs) lines.push(t("FxTab.StaminaVsFangs"));
+      if (def.venom) lines.push(t("FxTab.Venom", { n: effect.flags?.[SYSTEM_ID]?.charges ?? 1 }));
+      if (def.weapon) lines.push(t("FxTab.Weapon", { name: def.weapon.name }));
+      return { id: effect.id, name: effect.name, img: effect.img, scene: def.mode === "scene",
+        mode: t(def.mode === "scene" ? "Fx.Scene" : "Fx.Toggleable"), lines };
+    });
+
+    // Состояния (ярость, торпор…) и прочие эффекты на актёре
+    const st = a.statuses ?? new Set();
+    ctx.fxStatuses = PORTRAIT_STATES.filter(x => st.has(x.id)).map(x => ({ id: x.id, icon: x.icon, hot: x.hot,
+      label: t(`Status.${x.key}`), text: t(`FxTab.StatusText.${x.key}`) }));
+    ctx.fxOther = a.effects.filter(e => !e.flags?.[SYSTEM_ID]?.power && !(e.statuses?.size && PORTRAIT_STATES.some(x => e.statuses.has(x.id))))
+      .map(e => ({ id: e.id, name: e.name, img: e.img, disabled: e.disabled }));
+
+    // Усиление кровью
+    ctx.fxBoosts = Object.entries(s.boosts ?? {}).filter(([, v]) => v > 0).map(([k, v]) => ({ label: `${attrL(k)} +${v}` }));
+
+    // Постоянные модификаторы: раны, броня, физические Дисциплины, прочность, кровь
+    const mods = [];
+    if (s.health?.penalty) mods.push({ icon: "fa-heart-crack", hot: true, label: t("FxTab.Wounds"), value: signed(s.health.penalty), text: t("FxTab.WoundsText") });
+    const arm = a.armor;
+    if (arm.rating || arm.penalty) mods.push({ icon: "fa-shield-halved", label: t("FxTab.Armor"), value: `${arm.rating}`, text: arm.penalty ? t("FxTab.ArmorPenalty", { n: arm.penalty }) : t("FxTab.ArmorText") });
+    const pot = a.discipline?.("potence") ?? 0, cel = a.discipline?.("celerity") ?? 0, fort = a.discipline?.("fortitude") ?? 0;
+    if (pot) mods.push({ icon: "fa-hand-fist", label: Codex.disciplineLabel("potence"), value: `+${pot}`,
+      text: a.potenceActive ? t("FxTab.PotenceAuto", { n: pot }) : t("FxTab.Potence", { n: pot }) });
+    if (cel) mods.push({ icon: "fa-forward", label: Codex.disciplineLabel("celerity"), value: `+${a.physicalDisciplineBonus("dexterity")}`,
+      text: a.celerityActions ? t("FxTab.CelerityActions", { n: a.celerityActions }) : t("FxTab.Celerity", { n: cel }) });
+    if (fort) mods.push({ icon: "fa-shield", label: Codex.disciplineLabel("fortitude"), value: `+${fort}`, text: t("FxTab.Fortitude", { n: fort }) });
+    mods.push({ icon: "fa-shield-heart", label: t("FxTab.Soak"), value: `${a.soakPool("bashing")}/${a.soakPool("lethal")}/${a.soakPool("aggravated")}`, text: t("FxTab.SoakText") });
+    if (ctx.hasBlood) mods.push({ icon: "fa-droplet", label: t("FxTab.PerTurn"), value: `${s.blood.perTurn}`, text: t("FxTab.PerTurnText", { max: s.traitMax ?? 5 }) });
+    if (ctx.bearing?.name) mods.push({ icon: "fa-scale-balanced", label: t("Sheet.Bearing"), value: ctx.bearing.mod, text: ctx.bearing.name });
+    ctx.fxMods = mods;
+
+    // Черты с механикой (data/merit-mods.mjs): что, к чему, сами или по обстоятельствам
+    const have = a.items.filter(i => i.type === "merit" || i.type === "flaw");
+    const groupL = { social: t("FxTab.Group.social"), physical: t("FxTab.Group.physical"), mental: t("FxTab.Group.mental") };
+    ctx.fxTraits = have.filter(i => MERIT_MODS[i.name]).map(i => {
+      const m = MERIT_MODS[i.name], w = m.when ?? {};
+      const where = [...(w.attrs ?? []).map(attrL), ...(w.abilities ?? []).map(abilL), w.group && groupL[w.group],
+        ...(w.kinds ?? []).map(k => t(`FxTab.Kind.${k}`)), w.willOrVirtue && t("FxTab.WillOrVirtue")].filter(Boolean).join(", ");
+      const what = [m.dice && t("FxTab.Dice", { n: signed(m.dice) }), m.diff && t("FxTab.DiffShort", { n: signed(m.diff) })].filter(Boolean).join(", ");
+      return { id: i.id, name: i.name, flaw: i.type === "flaw", what, where: where || t("FxTab.AnyRoll"), hint: m.hint ?? "", auto: !!m.auto };
+    });
+    ctx.fxEmpty = !ctx.fxPowers.length && !ctx.fxStatuses.length && !ctx.fxOther.length && !ctx.fxBoosts.length;
+  }
+
   #prepareGear(ctx) {
     const a = this.actor, s = a.system;
     ctx.weapons = a.items.filter(i => i.type === "weapon").map(i => {
@@ -706,6 +776,15 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     if (!p) return;
     const { name, group, ...system } = p;
     await this.actor.createEmbeddedDocuments("Item", [{ name, type: kind, img: `systems/${SYSTEM_ID}/assets/icons/${kind}.svg`, system }]);
+  }
+
+  /** Прочий эффект на актёре: включить/выключить, удалить. */
+  static async #onEffectToggle(event, target) {
+    const e = this.actor.effects.get(target.dataset.effectId);
+    if (e) await e.update({ disabled: !e.disabled });
+  }
+  static async #onEffectDelete(event, target) {
+    await this.actor.effects.get(target.dataset.effectId)?.delete();
   }
 
   /** Снять состояние со значка на портрете. */

@@ -1,0 +1,66 @@
+{{!-- Эффекты: что сейчас действует на персонажа — включённые силы, состояния, усиление кровью;
+     постоянные модификаторы (раны, броня, физические Дисциплины, прочность); черты с механикой; изъян клана. --}}
+<section class="tab r-pane r-effects {{tab.cssClass}}" data-tab="{{tab.id}}" data-group="{{tab.group}}">
+
+  <h2 class="r-h2"><span>{{localize "VTM20.FxTab.Now"}}</span>
+    {{#if fxBoosts.length}}{{#if editable}}<span class="r-h2-tools"><a class="r-h2-btn is-plain" data-action="clearBoosts"><i class="fa-solid fa-rotate-left"></i> <span class="r-h2-lbl">{{localize "VTM20.FxTab.ClearBoosts"}}</span></a></span>{{/if}}{{/if}}
+  </h2>
+  {{#if fxEmpty}}<div class="r-empty">{{localize "VTM20.FxTab.NothingNow"}}</div>{{/if}}
+  <div class="r-fx-grid">
+    {{#each fxPowers}}
+    <article class="r-fx-card is-power {{#if scene}}is-scene{{/if}}">
+      <header><img src="{{img}}" alt=""><b>{{name}}</b><em>{{mode}}</em>
+        {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="endPower" data-effect-id="{{id}}" data-tooltip="{{localize 'VTM20.Fx.End'}}"><i class="fa-solid fa-power-off"></i></a>{{/if}}</header>
+      {{#if lines.length}}<ul>{{#each lines}}<li>{{this}}</li>{{/each}}</ul>{{/if}}
+    </article>
+    {{/each}}
+    {{#each fxStatuses}}
+    <article class="r-fx-card is-status {{#if hot}}is-hot{{/if}}">
+      <header><i class="fa-solid {{icon}} r-fx-ico"></i><b>{{label}}</b>
+        {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="clearStatus" data-status="{{id}}" data-tooltip="{{localize 'VTM20.Sheet.ClearStatus'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}</header>
+      <p>{{text}}</p>
+    </article>
+    {{/each}}
+    {{#if fxBoosts.length}}
+    <article class="r-fx-card is-blood">
+      <header><i class="fa-solid fa-droplet r-fx-ico"></i><b>{{localize "VTM20.FxTab.Boosts"}}</b><em>{{localize "VTM20.Fx.Scene"}}</em></header>
+      <ul>{{#each fxBoosts}}<li>{{label}}</li>{{/each}}</ul>
+    </article>
+    {{/if}}
+    {{#each fxOther}}
+    <article class="r-fx-card {{#if disabled}}is-off{{/if}}">
+      <header><img src="{{img}}" alt=""><b>{{name}}</b>
+        {{#if @root.editable}}<a class="r-icon-btn" data-action="effectToggle" data-effect-id="{{id}}" data-tooltip="{{localize 'VTM20.FxTab.Toggle'}}"><i class="fa-solid {{#if disabled}}fa-toggle-off{{else}}fa-toggle-on{{/if}}"></i></a>
+        <a class="r-icon-btn is-danger" data-action="effectDelete" data-effect-id="{{id}}"><i class="fa-solid fa-trash"></i></a>{{/if}}</header>
+    </article>
+    {{/each}}
+  </div>
+
+  <h2 class="r-h2"><span>{{localize "VTM20.FxTab.Always"}}</span></h2>
+  <div class="r-fx-mods">
+    {{#each fxMods}}
+    <div class="r-fx-mod {{#if hot}}is-hot{{/if}}">
+      <i class="fa-solid {{icon}}"></i>
+      <span class="r-fx-mod-label">{{label}}</span>
+      <b class="r-fx-mod-val">{{value}}</b>
+      <span class="r-fx-mod-text">{{text}}</span>
+    </div>
+    {{/each}}
+  </div>
+
+  <h2 class="r-h2"><span>{{localize "VTM20.FxTab.Traits"}}</span></h2>
+  {{#each fxTraits}}
+  <div class="r-fx-trait {{#if flaw}}is-flaw{{/if}}">
+    <span class="r-fx-trait-name">{{name}}</span>
+    <b class="r-fx-trait-what">{{what}}</b>
+    <span class="r-fx-trait-where">{{where}}{{#if hint}} — <em>{{hint}}</em>{{/if}}</span>
+    <span class="r-tag {{#if auto}}is-red{{/if}}" data-tooltip="{{#if auto}}{{localize 'VTM20.FxTab.AutoHint'}}{{else}}{{localize 'VTM20.FxTab.SituHint'}}{{/if}}">{{#if auto}}{{localize "VTM20.FxTab.Auto"}}{{else}}{{localize "VTM20.FxTab.Situ"}}{{/if}}</span>
+  </div>
+  {{else}}<div class="r-empty">{{localize "VTM20.FxTab.NoTraits"}}</div>
+  {{/each}}
+
+  {{#if weakness}}
+  <h2 class="r-h2"><span>{{localize "VTM20.Sheet.Weakness"}} · {{weaknessTitle}}</span></h2>
+  <div class="r-fx-weakness">{{{weakness}}}</div>
+  {{/if}}
+</section>
