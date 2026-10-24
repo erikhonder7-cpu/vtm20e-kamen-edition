@@ -1,11 +1,13 @@
-{{!-- Окно опыта (01): слева — свободный опыт, разделы и начисление; справа — карточки черт с ценой следующей точки или история. --}}
+{{!-- Окно опыта (01) — на тех же элементах, что и лист: слева кошель опыта и разделы, справа черты строками «название … точки» с ценой. --}}
 <div class="r-xp-app-body">
   <aside class="r-xw-side">
-    <div class="r-xw-purse">
-      <span class="r-xw-kicker">{{localize "VTM20.Xp.available"}}</span>
-      <b class="r-xw-big">{{xp.available}}</b>
+    <div class="r-assignat r-xw-purse">
+      <div class="r-assignat-head">
+        <span class="r-assignat-title">{{localize "VTM20.Xp.available"}}</span>
+        <span class="r-assignat-num"><b>{{xp.available}}</b><small>/{{xp.total}}</small></span>
+      </div>
       <div class="r-xw-bar" data-tooltip="{{localize 'VTM20.Xp.spent'}}: {{pct}}%"><i style="width: {{pct}}%"></i></div>
-      <div class="r-xw-sub"><span>{{localize "VTM20.Xp.total"}} <b>{{xp.total}}</b></span><span>{{localize "VTM20.Xp.spent"}} <b>{{xp.spent}}</b></span></div>
+      <div class="r-assignat-meta"><span>{{localize "VTM20.Xp.spent"}} <b>{{xp.spent}}</b></span></div>
     </div>
 
     <nav class="r-xw-cats">
@@ -19,10 +21,10 @@
 
     {{#if editable}}
     <div class="r-xw-grant">
-      <span class="r-xw-kicker">{{localize "VTM20.Xp.Add"}}</span>
+      <h3 class="r-h3 r-colhead"><span>{{localize "VTM20.Xp.Add"}}</span></h3>
       <div class="r-xw-grant-row">
         <input type="number" name="amount" value="1" step="1" aria-label="{{localize 'VTM20.Xp.Add'}}">
-        <button type="button" data-action="grant" data-tooltip="{{localize 'VTM20.Xp.Add'}}"><i class="fa-solid fa-plus"></i></button>
+        <a class="r-h2-btn" data-action="grant"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Xp.Grant"}}</a>
       </div>
       <input type="text" name="reason" placeholder="{{localize 'VTM20.Xp.reason'}}">
     </div>
@@ -31,35 +33,40 @@
 
   <main class="r-xw-main">
     {{#if history}}
-    <header class="r-xw-top"><h2>{{localize "VTM20.Xp.History"}}</h2></header>
-    <ol class="r-xw-hist">
-      {{#each log}}<li class="{{#if spend}}is-spend{{else}}is-gain{{/if}}"><b>{{#if spend}}−{{else}}+{{/if}}{{abs}}</b><span>{{#if reason}}{{reason}}{{else}}—{{/if}}</span><small>{{date}}</small></li>
-      {{else}}<li class="r-xw-none">{{localize "VTM20.Xp.Nothing"}}</li>{{/each}}
-    </ol>
+    <div class="r-xp-list r-xw-list">
+      <h2 class="r-h2"><span>{{localize "VTM20.Xp.History"}}</span></h2>
+      <ol class="r-xw-hist">
+        {{#each log}}<li class="{{#if spend}}is-spend{{else}}is-gain{{/if}}"><b>{{#if spend}}−{{else}}+{{/if}}{{abs}}</b><span>{{#if reason}}{{reason}}{{else}}—{{/if}}</span><small>{{date}}</small></li>
+        {{else}}<li class="r-empty">{{localize "VTM20.Xp.Nothing"}}</li>{{/each}}
+      </ol>
+    </div>
     {{else}}
     <header class="r-xw-top">
-      <label class="r-xw-search"><i class="fa-solid fa-magnifying-glass"></i><input type="search" class="r-xp-search-input" value="{{query}}" placeholder="{{localize 'VTM20.Xp.Search'}}"></label>
-      <a class="r-xw-toggle {{#if onlyAffordable}}is-on{{/if}}" data-action="filter"><i class="fa-solid {{#if onlyAffordable}}fa-toggle-on{{else}}fa-toggle-off{{/if}}"></i> {{localize "VTM20.Xp.OnlyAffordable"}}</a>
+      <label class="r-cl-find r-xw-search"><i class="fa-solid fa-magnifying-glass"></i><input type="search" class="r-xp-search-input" value="{{query}}" placeholder="{{localize 'VTM20.Xp.Search'}}"></label>
+      <a class="r-h2-btn {{#if onlyAffordable}}is-on{{/if}}" data-action="filter"><i class="fa-solid {{#if onlyAffordable}}fa-square-check{{else}}fa-square{{/if}}"></i> {{localize "VTM20.Xp.OnlyAffordable"}}</a>
     </header>
     <div class="r-xp-list r-xw-list">
       {{#each groups}}
       <section class="r-xp-sec">
-        <h3 class="r-xw-group"><i class="fa-solid {{icon}}"></i><span>{{label}}</span></h3>
-        <div class="r-xw-grid">
+        <h2 class="r-h2"><span>{{label}}</span></h2>
+        <div class="r-xw-cols">
           {{#each rows}}
-          <div class="r-xp-item r-xw-card {{#unless can}}is-dim{{/unless}} {{#if flash}}is-flash{{/if}}" data-search="{{search}}">
-            <span class="r-xw-name">{{label}}</span>
-            <span class="r-xw-dots">{{#each dots}}<i class="{{#if on}}is-on{{/if}}{{#if next}} is-next{{/if}}"></i>{{/each}}</span>
-            <a class="r-xw-buy {{#unless can}}is-off{{/unless}}" {{#if @root.editable}}data-action="buy"{{/if}} data-ref="{{ref}}" data-label="{{label}}"
-               data-tooltip="{{#if isNew}}{{localize 'VTM20.Xp.New'}}{{else}}{{cur}} → {{next}}{{/if}}{{#if short}} · {{localize 'VTM20.Xp.Short' n=short}}{{/if}}">
-              {{#if can}}<i class="fa-solid fa-plus"></i>{{else}}<i class="fa-solid fa-lock"></i>{{/if}}<b>{{cost}}</b><small>{{localize "VTM20.Xp.Unit"}}</small>
-            </a>
+          <div class="r-xp-item r-trait r-xw-row {{#unless can}}is-dim{{/unless}} {{#if flash}}is-flash{{/if}}" data-search="{{search}}">
+            <div class="r-trait-main">
+              <span class="r-trait-label">{{label}}</span>
+              <span class="r-leader"></span>
+              <span class="r-dots">{{#each dots}}<span class="r-dot {{#if on}}is-filled{{/if}} {{#if next}}is-next{{/if}}"></span>{{/each}}</span>
+              <a class="r-h2-btn r-xw-buy {{#unless can}}is-off{{/unless}}" {{#if @root.editable}}data-action="buy"{{/if}} data-ref="{{ref}}" data-label="{{label}}"
+                 data-tooltip="{{#if isNew}}{{localize 'VTM20.Xp.New'}}{{else}}{{cur}} → {{next}}{{/if}}{{#if short}} · {{localize 'VTM20.Xp.Short' n=short}}{{/if}}">
+                <i class="fa-solid {{#if can}}fa-plus{{else}}fa-lock{{/if}}"></i><b>{{cost}}</b>
+              </a>
+            </div>
           </div>
           {{/each}}
         </div>
       </section>
       {{else}}
-      <p class="r-xw-none"><i class="fa-solid fa-hourglass"></i> {{localize "VTM20.Xp.Nothing"}}</p>
+      <p class="r-empty">{{localize "VTM20.Xp.Nothing"}}</p>
       {{/each}}
     </div>
     {{/if}}

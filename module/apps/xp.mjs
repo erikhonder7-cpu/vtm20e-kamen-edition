@@ -19,7 +19,7 @@ class XpWindow extends HandlebarsApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
     classes: ["vtm20", "r-dialog", "r-xp-app"],
     window: { title: "VTM20.Xp.Window", icon: "fa-solid fa-star", resizable: true },
-    position: { width: 860, height: 660 },
+    position: { width: 900, height: 680 },
     actions: { buy: XpWindow.#onBuy, filter: XpWindow.#onFilter, grant: XpWindow.#onGrant, cat: XpWindow.#onCat }
   };
 

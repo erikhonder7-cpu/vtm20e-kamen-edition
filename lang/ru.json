@@ -597,7 +597,8 @@
       "NewAbilities": "Новые способности",
       "Unit": "оп.",
       "History": "История",
-      "Short": "не хватает {n}"
+      "Short": "не хватает {n}",
+      "Grant": "Начислить"
     },
     "Confirm": {
       "DeleteTitle": "Удаление",

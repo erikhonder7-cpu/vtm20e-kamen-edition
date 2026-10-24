@@ -787,11 +787,13 @@ body.r-theme-light .vtm20 .r-motto { color: rgba(140, 28, 34, .75); }
   .vtm20 input.r-h2-find { width: 200px; flex-basis: 200px; }
 }
 @container rsheet (max-width: 1100px) {
-  /* три колонки черт → две раньше, чтобы названия всегда помещались («Обращение с животными» и др.) */
-  .vtm20 .r-cols3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .vtm20 .r-cols3 > .r-tcol:nth-child(3n) { grid-column: 1 / -1; }
+  /* три колонки черт держим и на средней ширине: точки мельче, длинное название («Обращение с животными») переносится, а не режется */
+  .vtm20 .r-cols3 { gap: 12px 10px; }
+  .vtm20 .r-tcol .r-dot { width: 10px; height: 10px; }
+  .vtm20 .r-tcol .r-dots { gap: 2px; }
+  .vtm20 .r-tcol .r-trait-label { white-space: normal; line-height: 1.12; }
 }
-@container rsheet (max-width: 800px) {
+@container rsheet (max-width: 760px) {
   .vtm20 .r-cols3 { grid-template-columns: minmax(0, 1fr); }
 }
 /* полоса действий не влезает — сначала значками становятся редкие (пробуждение, простой, урон, опасность), потом все */
