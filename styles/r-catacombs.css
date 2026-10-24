@@ -86,3 +86,15 @@
 /* Переключатели, поиск и кнопки не сжимаются, когда список длинный, — прокручивается только список */
 #r-citymap .rc-cata-seg, #r-citymap .rc-cata-search, #r-citymap .rc-cata-panel footer { flex: none; }
 #r-citymap .rc-cata-seg a { line-height: 18px; }
+
+/* Кисть рассказчика: режимы плиткой, размер, подсказка */
+#r-citymap .rc-cata-brush { flex: none; display: flex; flex-direction: column; gap: 6px; padding: 7px; border: 1px solid #4a3d2c; border-radius: 2px; background: rgba(0, 0, 0, .28); }
+#r-citymap .rc-cata-bmodes { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+#r-citymap .rc-cata-bmodes a { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 5px 2px; font-size: 10.5px; line-height: 1.1; text-align: center; cursor: pointer;
+  color: #b8a888; border: 1px solid #3a2f22; border-radius: 2px; transition: background .15s, color .15s, border-color .15s; }
+#r-citymap .rc-cata-bmodes a i { font-size: 14px; color: #d8c49a; }
+#r-citymap .rc-cata-bmodes a:hover { color: #f3e4c2; border-color: #6a5a40; }
+#r-citymap .rc-cata-bmodes a.on { color: #fff; border-color: #c4474c; background: rgba(196, 71, 76, .3); }
+#r-citymap .rc-cata-bhint { margin: 0; font-size: 11.5px; font-style: italic; line-height: 1.3; color: #9a8b70; }
+#r-citymap .rc-cata-panel footer a[data-cp="grid"] { flex: 0 0 34px; }
+#r-citymap .rc-cata-card.is-secret { border-top-color: #c9a0e0; }
