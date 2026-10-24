@@ -43,11 +43,12 @@
 
   <div class="r-vcard r-vc-morality">
     <div class="r-vc-head">
-      <h4 class="r-banner is-select">
+      {{#if isMortal}}<h4 class="r-banner"><span>{{#each paths}}{{#if selected}}{{name}}{{/if}}{{/each}}</span></h4>
+      {{else}}<h4 class="r-banner is-select">
         <select name="system.morality.path" class="r-path-select">
           {{#each paths}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}
         </select>
-      </h4>
+      </h4>{{/if}}
       <div class="r-vc-status"><b>{{system.morality.value}}</b></div>
     </div>
     {{> rDots dots=moralityDots cls="is-ten"}}

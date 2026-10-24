@@ -81,6 +81,8 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     const s = actor.system;
     this.type = actor.type in RULES ? actor.type : "mortal";
     this.rules = RULES[this.type];
+    // ревенант: 5 точек Добродетелей вместо 7 (Ghouls & Revenants)
+    if (this.type === "ghoul" && actor.system.ghoulType === "revenant") this.rules = { ...this.rules, virt: 5 };
     this.step = 0;
     this.st = {
       name: actor.name, concept: s.details.concept, nature: s.details.nature, demeanor: s.details.demeanor,

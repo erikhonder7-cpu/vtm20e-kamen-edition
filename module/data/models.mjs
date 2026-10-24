@@ -231,6 +231,8 @@ export class MortalData extends BaseActorData {
   }
 
   prepareDerivedData() {
+    // Пути Просветления — удел Сородичей: у смертного всегда Человечность (V20)
+    this.morality.path = "humanity";
     super.prepareDerivedData();
     this.traitMax = 5;
   }
