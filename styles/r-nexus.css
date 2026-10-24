@@ -3,7 +3,7 @@
    Тот же язык, что у листа: уголь, кость, кровь; тонкие линии, без позолоты.
    ══════════════════════════════════════════════════════════════════════════ */
 
-.vtm20, .r-topbar, .r-np, .r-nx, .r-time-card {
+.vtm20, .r-topbar, .r-np, .r-nx, .r-time-card, .r-dawn-card {
   --nx-coal: #0a0a0c;
   --nx-panel: #121214;
   --nx-bone: #d8cfbf;
@@ -269,3 +269,24 @@ body.r-nav-off #scene-navigation { display: none !important; }
 .r-cal-scene-row .r-cal-muted { color: var(--nx-muted); font-style: italic; }
 .r-cal-scene-row a { flex: 0 0 auto; cursor: pointer; padding: 4px 9px; border: 1px solid var(--nx-line-2); font-family: var(--nx-caps); font-size: 10.5px; letter-spacing: 1px; text-transform: uppercase; color: var(--nx-muted); }
 .r-cal-scene-row a:hover { color: var(--nx-bone); border-color: var(--nx-bone-2); }
+
+/* ── Журнал ночей и ближайшие события (К3), карточка рассвета (К4) ─────── */
+.r-cal-lbl-gap { margin-top: 14px; }
+.r-cal-tonight { margin-top: 4px; max-width: 360px; font-style: italic; font-size: 13px; color: var(--nx-bone); }
+.r-cal-tonight i { color: var(--nx-blood-l); margin-right: 4px; font-size: 11px; }
+.r-cal-events { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--nx-bone-2); }
+.r-cal-events i { width: 14px; color: var(--nx-dawn); font-size: 11px; }
+.r-cal-events b { font-family: var(--nx-display); font-weight: 400; color: var(--nx-bone); }
+.r-cal-journal { display: flex; flex-direction: column; max-height: 260px; overflow-y: auto; border-top: 1px solid var(--nx-line); }
+.r-cal-jr { display: grid; grid-template-columns: 52px minmax(0, 1fr); grid-template-rows: auto auto; column-gap: 8px; padding: 6px 2px; border-bottom: 1px solid var(--nx-line); }
+.r-cal-jr b { grid-row: 1; font-family: var(--nx-display); font-weight: 400; font-size: 16px; color: var(--nx-blood-l); }
+.r-cal-jr small { grid-row: 2; grid-column: 1; font-size: 10.5px; color: var(--nx-muted); }
+.r-cal-jr textarea { grid-row: 1 / span 2; grid-column: 2; min-height: 34px; resize: vertical; font-family: var(--nx-body); font-size: 13px; }
+.r-cal-jr.is-now b { color: #f1e9da; }
+.r-cal-jr.is-now textarea { border-color: var(--nx-blood-l); }
+.r-dawn-card { display: flex; gap: 10px; align-items: flex-start; padding: 8px 10px; border-left: 2px solid var(--nx-dawn); background: rgba(201, 164, 106, .08); }
+.r-dawn-card.is-rise { border-left-color: #e0414b; background: rgba(224, 65, 75, .1); }
+.r-dawn-card > i { margin-top: 3px; font-size: 16px; color: var(--nx-dawn); }
+.r-dawn-card.is-rise > i { color: #e0414b; }
+.r-dawn-card b { display: block; font-family: var(--nx-display); font-weight: 400; font-size: 15px; color: #f1e9da; }
+.r-dawn-card span { font-size: 13px; color: var(--nx-bone-2); }

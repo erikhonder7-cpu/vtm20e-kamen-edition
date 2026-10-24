@@ -180,7 +180,7 @@ export function stamp(ms = getClock()) { const d = new Date(ms); return `${longD
 const REP_MONTHS = ["вандемьера", "брюмера", "фримера", "нивоза", "плювиоза", "вантоза",
   "жерминаля", "флореаля", "прериаля", "мессидора", "термидора", "фрюктидора"];
 const REP_START_DAY = { 1: 22, 2: 22, 3: 22, 4: 23, 5: 22, 6: 22, 7: 22, 8: 23, 9: 23, 10: 23, 11: 23, 12: 24, 13: 23, 14: 23 };
-const ROMAN = n => { const m = [[10, "X"], [9, "IX"], [5, "V"], [4, "IV"], [1, "I"]]; let o = ""; for (const [v, r] of m) while (n >= v) { o += r; n -= v; } return o; };
+const ROMAN = n => { const m = [[1000, "M"], [900, "CM"], [500, "D"], [400, "CD"], [100, "C"], [90, "XC"], [50, "L"], [40, "XL"], [10, "X"], [9, "IX"], [5, "V"], [4, "IV"], [1, "I"]]; let o = ""; for (const [v, r] of m) while (n >= v) { o += r; n -= v; } return o; };
 
 function republicYearStart(year) {                 // year — номер республиканского года
   const day = REP_START_DAY[year] ?? 22;
@@ -333,6 +333,110 @@ export function nightSpan(ms = getClock()) {
   return { night, start, end, left, leftText: `${Math.floor(left / MS_HOUR)}:${pad(Math.floor((left % MS_HOUR) / MS_MIN))}`, pct, hot: night && left < MS_HOUR };
 }
 
+/* ── Журнал ночей (К3) ─────────────────────────────────────────────────── */
+
+const nightNotes = () => game.settings.get(SYSTEM_ID, "nightNotes") ?? {};
+
+/** Вечер ночи хроники n (ночь считается от заката, как в nightNumber). */
+function nightEvening(n) {
+  const start = chronicleStart() || DEFAULT_CLOCK, s = new Date(start - 12 * MS_HOUR);
+  return new Date(s.getFullYear(), s.getMonth(), s.getDate() + n - 1, 20);
+}
+
+/** Последние ночи хроники (текущая сверху) и все более ранние с заметками. */
+export function nightJournal(ms = getClock(), recent = 8) {
+  const cur = nightNumber(ms), notes = nightNotes();
+  const ns = new Set([...Array.from({ length: Math.min(recent, Math.max(cur, 1)) }, (_, i) => cur - i).filter(n => n >= 1),
+    ...Object.keys(notes).map(Number).filter(n => n >= 1 && n <= cur && notes[n])]);
+  return [...ns].sort((a, b) => b - a).map(n => ({ n, roman: ROMAN(n), date: shortDate(nightEvening(n)), text: notes[n] ?? "", current: n === cur }));
+}
+export const nightNote = (ms = getClock()) => nightNotes()[nightNumber(ms)] ?? "";
+
+export async function setNightNote(n, text) {
+  if (!game.user.isGM) return;
+  const notes = { ...nightNotes() };
+  if (String(text).trim()) notes[n] = String(text).trim(); else delete notes[n];
+  await game.settings.set(SYSTEM_ID, "nightNotes", notes);
+}
+
+/** Ближайшие полнолуние и новолуние: в какую ночь и через сколько ночей. */
+export function moonEvents(ms = getClock()) {
+  const out = [], step = 3 * MS_HOUR, cur = nightNumber(ms);
+  let prev = moonPhase(ms).value;
+  for (let t = ms + step; t < ms + 32 * MS_DAY && out.length < 2; t += step) {
+    const v = moonPhase(t).value;
+    const kind = prev < .5 && v >= .5 ? "full" : prev > .9 && v < .1 ? "new" : null;
+    if (kind && !out.some(e => e.kind === kind)) {
+      const n = nightNumber(t), inN = n - cur;
+      out.push({ kind, icon: kind === "full" ? "fa-circle" : "fa-circle-notch", label: L(`Moon.${kind}`),
+        when: inN <= 0 ? L("EventTonight") : game.i18n.format("VTM20.Calendar.EventIn", { night: ROMAN(n), n: inN }) });
+    }
+    prev = v;
+  }
+  return out;
+}
+
+/* ── Рассвет в чат (К4) ────────────────────────────────────────────────── */
+
+const DAWN_LEAD = 30 * MS_MIN;
+let _dawnBusy = false;
+
+/**
+ * За 30 минут до восхода и в момент восхода — карточка в чат и удар колокола у всех (один раз на рассвет).
+ * Пишет один активный рассказчик; вызывается из хода ночных часов.
+ */
+export async function checkDawn(ms = getClock()) {
+  if (_dawnBusy || !game.users.activeGM?.isSelf || !game.settings.get(SYSTEM_ID, "dawnWarnings")) return;
+  let sr = sunTimes(ms).sunrise;
+  if (ms >= sr + 10 * MS_MIN) sr = sunTimes(ms + MS_DAY).sunrise;
+  const key = ymd(new Date(sr)), done = game.settings.get(SYSTEM_ID, "dawnWarned") ?? {};
+  const kind = ms >= sr - DAWN_LEAD && ms < sr && done.soon !== key && done.rise !== key ? "soon"
+    : ms >= sr && ms < sr + 10 * MS_MIN && done.rise !== key ? "rise" : null;
+  if (!kind) return;
+  _dawnBusy = true;
+  try {
+    await game.settings.set(SYSTEM_ID, "dawnWarned", { ...done, [kind]: key });
+    const left = Math.max(0, Math.round((sr - ms) / MS_MIN));
+    await ChatMessage.create({
+      speaker: { alias: L("Title") }, flags: { [SYSTEM_ID]: { dawn: kind } },
+      content: `<div class="r-dawn-card is-${kind}"><i class="fa-solid ${kind === "soon" ? "fa-hourglass-end" : "fa-sun"}"></i>
+        <div><b>${kind === "soon" ? game.i18n.format("VTM20.Calendar.DawnSoon", { n: left }) : L("DawnRise")}</b>
+        <span>${L(kind === "soon" ? "DawnSoonText" : "DawnRiseText")}</span></div></div>`
+    });
+  } finally { _dawnBusy = false; }
+}
+
+/** Удар колокола — синтез (несколько негармонических призвуков с затуханием), громкость «Интерфейс». */
+function ringBell(times = 1) {
+  try {
+    const vol = Number(game.settings.get("core", "globalInterfaceVolume") ?? .5);
+    if (!vol) return;
+    const ac = game.audio?.interface?.context ?? new AudioContext();
+    for (let k = 0; k < times; k++) {
+      const t0 = ac.currentTime + k * 1.6;
+      for (const [f, a, d] of [[220, .32, 3.2], [440, .18, 2.4], [566, .12, 1.8], [693, .09, 1.4], [1010, .05, .9]]) {
+        const o = ac.createOscillator(), g = ac.createGain();
+        o.type = "sine"; o.frequency.value = f;
+        g.gain.setValueAtTime(.0001, t0);
+        g.gain.exponentialRampToValueAtTime(a * vol, t0 + .01);
+        g.gain.exponentialRampToValueAtTime(.0001, t0 + d);
+        o.connect(g); g.connect(ac.destination); o.start(t0); o.stop(t0 + d + .05);
+      }
+    }
+  } catch (e) { /* без звука — не беда */ }
+}
+
+/** Настройки журнала ночей и рассвета, колокол на новых карточках рассвета. */
+export function registerNightExtras() {
+  game.settings.register(SYSTEM_ID, "nightNotes", { scope: "world", config: false, type: Object, default: {}, onChange: () => refreshCalendar() });
+  game.settings.register(SYSTEM_ID, "dawnWarned", { scope: "world", config: false, type: Object, default: {} });
+  game.settings.register(SYSTEM_ID, "dawnWarnings", {
+    name: "VTM20.Settings.DawnWarnings.Name", hint: "VTM20.Settings.DawnWarnings.Hint",
+    scope: "world", config: true, type: Boolean, default: true
+  });
+  Hooks.on("createChatMessage", msg => { const k = msg.flags?.[SYSTEM_ID]?.dawn; if (k) ringBell(k === "rise" ? 3 : 1); });
+}
+
 /**
  * Циферблат ночи (К1): сутки по кругу, полночь сверху. Ночь — синяя дуга от заката до восхода, прошедшая её
  * часть — светлее; днём ночь впереди. Стрелка — сейчас, в центре — время и сколько осталось до рассвета (заката).
@@ -433,7 +537,7 @@ export class NightCalendar extends HandlebarsApplicationMixin(ApplicationV2) {
       // вкладки (К2): «Сейчас» — то, что нужно за столом; настройки хода и города — отдельно
       tabs: ["now", "flow", "chron"].map(id => ({ id, label: L(`Tab.${id}`), active: id === NightCalendar.tab })),
       tabNow: NightCalendar.tab === "now", tabFlow: NightCalendar.tab === "flow", tabChron: NightCalendar.tab === "chron",
-      dial: nightDial(ms)
+      dial: nightDial(ms), nightNote: nightNote(ms), journal: nightJournal(ms), events: moonEvents(ms)
     };
   }
 
@@ -444,6 +548,9 @@ export class NightCalendar extends HandlebarsApplicationMixin(ApplicationV2) {
     // Календарь и часы открываются щелчком по всему полю, а не только по крошечному значку.
     for (const i of this.element.querySelectorAll(".r-cal-set input[type=date], .r-cal-set input[type=time]"))
       i.addEventListener("click", () => { try { i.showPicker(); } catch {} });
+    // заметка к ночи сохраняется, когда ведущий уходит из поля
+    for (const t of this.element.querySelectorAll("textarea[data-night]"))
+      t.addEventListener("change", () => setNightNote(Number(t.dataset.night), t.value));
   }
 
   /** Раз в секунду меняем только текст: ГМ может в этот момент править дату. */
@@ -539,8 +646,8 @@ export function refreshCalendar({ force = false } = {}) {
   const app = foundry.applications.instances.get("r-calendar");
   if (!app?.rendered) return;
   const root = app.element;
-  const busy = root?.contains(document.activeElement) && document.activeElement?.matches("input, select")
-    || [...(root?.querySelectorAll("input") ?? [])].some(i => i.value !== i.defaultValue);
+  const busy = root?.contains(document.activeElement) && document.activeElement?.matches("input, select, textarea")
+    || [...(root?.querySelectorAll("input, textarea") ?? [])].some(i => i.value !== i.defaultValue);
   if (busy && !force) app._paintClock();
   else app.render();
 }

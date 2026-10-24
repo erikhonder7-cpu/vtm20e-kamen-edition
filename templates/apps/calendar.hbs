@@ -12,6 +12,7 @@
       <span><span data-cal-date>{{longDate}}</span> · <span data-cal-sub>{{weekday}} · {{phase.label}}</span></span>
       <span>{{localize "VTM20.Calendar.NightN"}} <b data-cal-night>{{night}}</b> · {{moon.glyph}} {{moon.label}}, {{moon.illumination}}%</span>
       <span class="r-cal-sun"><i class="fa-solid fa-moon"></i> {{localize "VTM20.Calendar.Sunset"}} {{sunset}} · <i class="fa-solid fa-sun"></i> {{localize "VTM20.Calendar.Sunrise"}} {{sunrise}}</span>
+      {{#if nightNote}}<span class="r-cal-tonight"><i class="fa-solid fa-feather"></i> {{nightNote}}</span>{{/if}}
     </div>
     <div class="r-cal-quick">
       <a class="r-cal-go {{#if running}}is-on{{/if}}" data-action="toggleRun"><i class="fa-solid {{#if running}}fa-pause{{else}}fa-play{{/if}}"></i> {{#if running}}{{localize "VTM20.Calendar.PauseShort"}}{{else}}{{localize "VTM20.Calendar.RunShort"}}{{/if}}</a>
@@ -89,6 +90,17 @@
       <label data-tooltip="{{localize 'VTM20.Settings.UtcOffset.Hint'}}">UTC</label>
       <input type="number" name="utcOffset" value="{{utcOffset}}" step="0.5" min="-12" max="14" class="r-cal-tz">
       <button type="submit" class="r-cal-ok" title="{{localize 'VTM20.Common.Apply'}}"><i class="fa-solid fa-check"></i></button>
+    </div>
+
+    <div class="r-cal-lbl r-cal-lbl-gap">{{localize "VTM20.Calendar.Upcoming"}}</div>
+    <ul class="r-cal-events">{{#each events as |e|}}<li><i class="fa-solid {{e.icon}}"></i> <b>{{e.label}}</b> — {{e.when}}</li>{{/each}}</ul>
+
+    <div class="r-cal-lbl r-cal-lbl-gap">{{localize "VTM20.Calendar.Journal"}}</div>
+    <div class="r-cal-journal">
+      {{#each journal as |j|}}
+      <label class="r-cal-jr {{#if j.current}}is-now{{/if}}"><b>{{j.roman}}</b><small>{{j.date}}</small>
+        <textarea data-night="{{j.n}}" rows="1" placeholder="{{localize 'VTM20.Calendar.NotePlaceholder'}}">{{j.text}}</textarea></label>
+      {{/each}}
     </div>
   </div>
   {{/if}}

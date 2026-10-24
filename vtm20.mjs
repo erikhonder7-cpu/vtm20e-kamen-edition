@@ -16,7 +16,7 @@ import { openHunt, nightfall, endScene, endStory, registerNightTools } from "./m
 import { openSceneNexus, refreshSceneNexus, execSceneTeleport, SceneNexus } from "./module/apps/scene-nexus.mjs";
 import { NEXUS_SCOPE } from "./module/constants/scene-nexus.mjs";
 import {
-  NightCalendar, openCalendar, refreshCalendar, startNightClock, announceTime,
+  NightCalendar, openCalendar, refreshCalendar, startNightClock, announceTime, registerNightExtras, checkDawn,
   getClock, getDate, stamp, clockBarData, nightPhase, moonPhase, republicanDate
 } from "./module/apps/calendar.mjs";
 import { initTopBar, removeTopBar, refreshTopBar, paintClockBar } from "./module/ui/topbar.mjs";
@@ -101,6 +101,7 @@ Hooks.once("init", () => {
   Items.registerSheet(SYSTEM_ID, VtMItemSheet, { makeDefault: true, label: "VTM20.Sheets.Item" });
 
   registerSettings();
+  registerNightExtras();
   registerHelpers();
   registerNightTools();
   registerHud();
@@ -148,7 +149,7 @@ Hooks.once("ready", async () => {
   const mountPanels = () => { if (game.settings.get(SYSTEM_ID, "nexusNav")) initTopBar(); };
   mountPanels();
   Hooks.on("canvasReady", mountPanels);
-  startNightClock(() => { foundry.applications.instances.get("r-calendar")?._paintClock?.(); paintClockBar(); });
+  startNightClock(() => { foundry.applications.instances.get("r-calendar")?._paintClock?.(); paintClockBar(); checkDawn(); });
 });
 
 /* ── Нексус: перенос токенов через флаги User ──────────────────────────── */
