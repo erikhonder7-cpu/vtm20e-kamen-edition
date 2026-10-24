@@ -327,3 +327,27 @@ body.r-skin prose-mirror .editor-menu .pm-dropdown ul { background: var(--rk-coa
 /* Журналы: текст как печатный лист */
 body.r-skin .journal-entry-page h1, body.r-skin .journal-entry-page h2, body.r-skin .journal-entry-page h3 { font-family: var(--rk-display); font-weight: 400; color: var(--rk-bone-b); border-bottom-color: var(--rk-line-2); }
 body.r-skin .journal-entry-page { font-family: var(--rk-body); color: var(--rk-bone); }
+
+/* ── Трекер боя (module/ui/combat-tracker.mjs) ─────────────────────────── */
+body.r-skin #combat .combatant.r-ct { position: relative; border-left: 3px solid transparent; transition: background .15s; }
+body.r-skin #combat .combatant.r-ct.active { border-left-color: #c4474c; background: linear-gradient(90deg, rgba(140, 28, 34, .28), transparent 75%); }
+body.r-skin #combat .combatant.r-ct.is-hurt .token-image { box-shadow: 0 0 0 2px rgba(196, 71, 76, .55); }
+body.r-skin #combat .combatant.r-ct.is-down { opacity: .55; }
+body.r-skin #combat .combatant.r-ct.is-down .token-image { filter: grayscale(1) brightness(.6); }
+body.r-skin #combat .combatant.r-ct.is-frenzy .token-image { box-shadow: 0 0 0 2px #c4474c, 0 0 10px rgba(196, 71, 76, .7); }
+body.r-skin #combat .combatant.r-ct.is-fear .token-image { box-shadow: 0 0 0 2px #d9822b, 0 0 10px rgba(217, 130, 43, .6); }
+body.r-skin #combat .combatant.r-ct.is-torpor .token-image { filter: grayscale(.9) brightness(.6) sepia(.25) hue-rotate(180deg); }
+body.r-skin #combat .combatant .token-image { border-radius: 2px; object-fit: cover; object-position: 50% 15%; }
+body.r-skin #combat .r-ct-line { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 10px; margin-top: 1px; font-size: 11.5px; color: var(--rk-bone-2, #a49d8e); }
+body.r-skin #combat .r-ct-line b { font-family: var(--rk-display, "Prata"), serif; font-weight: 400; color: #c4474c; }
+body.r-skin #combat .r-ct-line i { font-size: 10px; }
+body.r-skin #combat .r-ct-blood i, body.r-skin #combat .r-ct-state { color: #c4474c; }
+body.r-skin #combat .r-ct-will i { color: #b3aa98; }
+body.r-skin #combat .combatant.is-hurt .r-ct-health { color: #e3a6a8; }
+body.r-skin #combat .combatant.is-down .r-ct-health { color: #c4474c; }
+/* V20 — d10: значок броска инициативы */
+body.r-skin #combat .token-initiative .combatant-control.roll {
+  --initiative-icon: url("../../../icons/svg/d10-grey.svg") !important;
+  --initiative-icon-hover: url("../../../icons/svg/d10-grey.svg") !important;
+}
+body.r-skin #combat .token-initiative .initiative { font-family: var(--rk-display, "Prata"), serif; font-size: 18px; color: #e6ddcc; }
