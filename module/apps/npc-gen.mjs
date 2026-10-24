@@ -58,7 +58,7 @@ function spread(keys, n, base, cap) {
 /* ── Генерация по правилам создания ───────────────────────────────────── */
 
 /** Характеристики, способности, Добродетели, факты биографии по приоритетам книги. */
-function rollTraits({ attrs, abils, ugly = false }) {
+function rollTraits({ attrs, abils, ugly = false, type = "vampire" }) {
   const era = game.settings.get(SYSTEM_ID, "era");
   const attributes = {};
   shuffle(Object.keys(VTM20.attributeGroups)).forEach((g, i) => {
@@ -73,7 +73,7 @@ function rollTraits({ attrs, abils, ugly = false }) {
   const virtues = spread(["conscience", "selfControl", "courage"], 7, 1, 5);
   // Факты биографии: 5 точек на 2–3 факта
   // «Поколение» не разыгрываем: его задаёт рассказчик в окне
-  const pool = shuffle(Codex.backgrounds.filter(b => !b.sabbat && b.en !== "Generation" && Codex.visible(b))).slice(0, 2 + Math.floor(Math.random() * 2));
+  const pool = shuffle(Codex.backgrounds.filter(b => !b.sabbat && b.en !== "Generation" && Codex.visible(b) && VTM20.backgroundAllowed(b, type))).slice(0, 2 + Math.floor(Math.random() * 2));
   const backgrounds = spread(pool.map(b => b.name), 5 - pool.length, 1, 5);
   return { attributes, abilities, virtues, backgrounds };
 }
@@ -116,7 +116,7 @@ async function createRuleVampire({ name, folder, clan, generation }) {
 }
 
 async function createRuleGhoul({ name, folder, clan }) {
-  const tr = rollTraits({ attrs: [6, 4, 3], abils: [11, 7, 4] });
+  const tr = rollTraits({ attrs: [6, 4, 3], abils: [11, 7, 4], type: "ghoul" });
   // Мощь 1 бесплатно + точка Дисциплины домитора (вассал, гл. 07)
   const second = pick(clanDisciplines(clan));
   const disc = { potence: 1 };

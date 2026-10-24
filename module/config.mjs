@@ -220,3 +220,9 @@ VTM20.currencies = {
   pound:  { label: L("Money.Cur.pound"),  symbol: "£" },
   rouble: { label: L("Money.Cur.rouble"), symbol: "₽" }
 };
+
+/** Факты биографии только для Сородичей (по англ. названию): гулям и смертным недоступны (V20, гл. 7). */
+VTM20.kindredOnlyBackgrounds = ["Domain", "Rituals", "Generation", "Herd", "Status", "Black Hand Membership", "Anarch Status",
+  "Memento de Morte", "Clan Prestige", "Age", "Elder Status", "Elder Generation", "Pack Recognition", "Rank", "Anunnaki Status"];
+/** Доступен ли факт биографии персонажу этого типа. */
+VTM20.backgroundAllowed = (b, type) => type === "vampire" || !VTM20.kindredOnlyBackgrounds.includes(b?.en);

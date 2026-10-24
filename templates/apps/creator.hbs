@@ -58,13 +58,13 @@
           <label class="r-f"><span>{{localize "VTM20.Details.demeanor"}}</span>
             <input type="text" data-field="demeanor" value="{{st.demeanor}}" data-combo="r-cr-arch" placeholder="—"></label>
           <datalist id="r-cr-arch">{{#each archetypes}}<option value="{{name}}"></option>{{/each}}</datalist>
-          <label class="r-f"><span>{{localize "VTM20.Details.sire"}}</span><input type="text" data-field="sire" value="{{st.sire}}"></label>
+          {{#unless isGhoul}}<label class="r-f"><span>{{localize "VTM20.Details.sire"}}</span><input type="text" data-field="sire" value="{{st.sire}}"></label>{{/unless}}
           {{#if isGhoul}}<label class="r-f"><span>{{localize "VTM20.Details.domitor"}}</span><input type="text" data-field="domitor" value="{{st.domitor}}"></label>{{/if}}
         </div>
         {{#if natureRegain}}<div class="r-cr-note"><i class="fa-solid fa-star"></i> <b>{{st.nature}}</b> — {{localize "VTM20.Sheet.NatureRegain"}} {{natureRegain}}</div>{{/if}}
       </div>
       <div>
-        <h3 class="r-h3">{{localize "VTM20.Creator.TierTitle"}}</h3>
+        <h3 class="r-h3">{{tierTitle}}</h3>
         <div class="r-cr-tiles">
           {{#each tiers}}
           <a class="r-cr-tile {{#if active}}is-active{{/if}}" data-action="tier" data-tier="{{key}}">

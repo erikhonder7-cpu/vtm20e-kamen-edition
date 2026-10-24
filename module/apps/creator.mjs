@@ -44,6 +44,8 @@ const STEP_HINTS = {
   concept: "ConceptHint", clan: "ClanHint", attributes: "AttrHintShort", abilities: "AbilHintShort",
   disciplines: "DiscHint", advantages: "AdvHint", merits: "MeritHint", freebies: "FreeHint", xp: "XpHint", summary: "FinishHint"
 };
+/** Шаги, где у гуля свой текст подсказки (ключ + «Ghoul»). */
+const GHOUL_HINTS = new Set(["concept", "disciplines", "summary"]);
 
 export function openCreator(actor) {
   const existing = [...foundry.applications.instances.values()].find(a => a instanceof VtMCreator && a.actor === actor);
@@ -257,7 +259,8 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       typeLabel: loc(`TYPES.Actor.${this.type}`),
       steps: this.steps.map((k, i) => ({ i, key: k, n: i + 1, label: t(`Creator.Step.${k}`), active: i === this.step, done: this.stepOk(k, rem) && i !== this.step })),
       stepKey: key, stepNumber: this.step + 1, stepCount: this.steps.length,
-      title: t(`Creator.Step.${key}`), hint: t(`Creator.${STEP_HINTS[key]}`),
+      // у гуля свои подсказки там, где правила другие (нет Становления, Дисциплины — от домитора)
+      title: t(`Creator.Step.${key}`), hint: t(`Creator.${STEP_HINTS[key]}${this.type === "ghoul" && GHOUL_HINTS.has(key) ? "Ghoul" : ""}`),
       isFirst: this.step === 0, isLast: this.step === this.steps.length - 1,
       [`is_${key}`]: true
     };
@@ -289,7 +292,10 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     ctx.archetypes = Codex.archetypes;
     ctx.natureRegain = Codex.archetypes.find(a => a.name === st.nature)?.regain ?? "";
     ctx.demeanorRegain = Codex.archetypes.find(a => a.name === st.demeanor)?.regain ?? "";
-    ctx.tiers = Object.entries(TIERS).map(([k, v]) => ({ key: k, xp: v.xp, label: t(`Creator.Tier.${k}`), hint: t(`Creator.Tier.${k}Hint`), active: st.tier === k }));
+    // у гуля «срок службы» вместо возраста в Крови — опыт тот же
+    const tierKey = this.type === "ghoul" ? "TierGhoul" : "Tier";
+    ctx.tiers = Object.entries(TIERS).map(([k, v]) => ({ key: k, xp: v.xp, label: t(`Creator.${tierKey}.${k}`), hint: t(`Creator.${tierKey}.${k}Hint`), active: st.tier === k }));
+    ctx.tierTitle = t(this.type === "ghoul" ? "Creator.TierTitleGhoul" : "Creator.TierTitle");
     ctx.sects = SECTS.map(s => ({ ...s, label: t(s.label), sym: Codex.sectSymbol(t(s.label)), active: st.sectKey === s.key }));
 
     // II. Клан
@@ -351,7 +357,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       .sort((a, b) => a.label.localeCompare(b.label, "ru"));
 
     // VI. Факты биографии — каталог карточек, и Добродетели
-    ctx.bgCards = Codex.backgrounds.filter(b => Codex.visible(b) || b.name in st.bg).map(b => {
+    ctx.bgCards = Codex.backgrounds.filter(b => (Codex.visible(b) && VTM20.backgroundAllowed(b, this.type)) || b.name in st.bg).map(b => {
       const on = b.name in st.bg || (st.free.bg[b.name] ?? 0) > 0;
       return { name: b.name, en: b.en, sabbat: b.sabbat, on, value: this.value("bg", b.name), dots: dotRow("bg", b.name),
           text: VtMCreator.#preview(b.html, 170), html: b.html, open: this.ui.open.has(`bg:${b.name}`) };

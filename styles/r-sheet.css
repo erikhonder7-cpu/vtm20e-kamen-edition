@@ -180,7 +180,8 @@
 .vtm20 .r-dossier { display: flex; flex-wrap: wrap; gap: 0 18px; margin-top: 2px; }
 .vtm20 .r-df { display: flex; align-items: baseline; gap: 8px; flex: 1 1 150px; min-width: 0; height: 26px; border-bottom: 1px solid var(--r-line); }
 .vtm20 .r-df.is-wide { flex: 2 1 220px; }
-.vtm20 .r-df.is-narrow { flex: 0 0 112px; }
+.vtm20 .r-df.is-narrow { flex: 0 0 auto; min-width: 112px; }   /* «Поколение донора» у гуля — по ширине подписи */
+.vtm20 .r-df.is-narrow select { flex: 0 0 auto; width: 52px; }
 .vtm20 .r-df > span { flex: 0 0 auto; font-family: var(--r-caps); font-size: 11px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--r-muted); white-space: nowrap; }
 .vtm20 .r-df input, .vtm20 .r-df select {
   flex: 1 1 auto; min-width: 0; width: auto; height: 23px; padding: 0 2px; background: transparent; border: 0; box-shadow: none;
