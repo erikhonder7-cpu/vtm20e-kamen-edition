@@ -270,19 +270,13 @@
 .vtm20 .r-vc-hint.is-left { margin-left: 0; flex: 1 1 auto; min-width: 0; }
 .vtm20 .r-vc-hint b { font-style: normal; color: var(--r-ink-2); font-weight: 400; }
 
-/* Здоровье — «лесенка»: клетки растут и краснеют к «Без сознания», штраф мелко под клеткой */
-.vtm20 .r-hboxes { display: flex; align-items: flex-end; gap: 5px; }
-.vtm20 .r-hbox { --h: 20px; --edge: rgba(216, 207, 191, .32); display: flex; flex-direction: column; align-items: center; gap: 2px; }
-.vtm20 .r-hbox:nth-child(2) { --h: 21px; --edge: rgba(214, 190, 176, .34); }
-.vtm20 .r-hbox:nth-child(3) { --h: 22px; --edge: rgba(212, 170, 158, .36); }
-.vtm20 .r-hbox:nth-child(4) { --h: 23px; --edge: rgba(208, 140, 132, .4); }
-.vtm20 .r-hbox:nth-child(5) { --h: 24px; --edge: rgba(204, 110, 108, .45); }
-.vtm20 .r-hbox:nth-child(6) { --h: 25px; --edge: rgba(200, 80, 84, .52); }
-.vtm20 .r-hbox:nth-child(7) { --h: 26px; --edge: rgba(196, 71, 76, .6); }
+/* Здоровье: семь клеток в ряд, штраф мелко под клеткой */
+.vtm20 .r-hboxes { display: flex; gap: 4px; }
+.vtm20 .r-hbox { display: flex; flex-direction: column; align-items: center; gap: 1px; }
 .vtm20 .r-hbox-mark {
-  width: 24px; height: var(--h); display: grid; place-items: center; border-radius: 2px;
-  border: 1px solid var(--edge); background: linear-gradient(180deg, rgba(255, 255, 255, .03), rgba(0, 0, 0, .25));
-  font-family: var(--r-display); font-size: 14px; color: var(--r-ink); transition: background .15s, border-color .15s;
+  width: 22px; height: 22px; display: grid; place-items: center; border-radius: 2px;
+  border: 1px solid var(--r-dot-border); background: transparent; font-family: var(--r-display); font-size: 14px; color: var(--r-ink);
+  transition: background .15s, border-color .15s;
 }
 .vtm20 .r-hbox:hover .r-hbox-mark { border-color: var(--r-ink-2); }
 .vtm20 .r-hbox-pen { font-family: var(--r-display); font-size: 10.5px; line-height: 1.1; color: var(--r-muted); }
@@ -327,17 +321,19 @@
 .vtm20 input.r-trait-input { flex: 1 1 auto; min-width: 0; height: 22px; font-size: 14px; background: transparent; }
 .vtm20 .r-trait-roll { color: var(--r-muted); font-size: 12px; }
 .vtm20 .r-trait-roll:hover { color: var(--r-accent); }
-/* Специализация — строкой под чертой, курсивом; пустая почти не занимает места и видна под курсором */
+/* Специализация — курсивом в строке, сразу за названием. Название не сжимается; специализация занимает
+   остаток места и обрезается многоточием (полный текст — в подсказке). Пустая скрыта и появляется под курсором. */
+.vtm20 .r-trait-main:has(> input.r-spec) > .r-trait-label { flex-shrink: 0; }
 .vtm20 input.r-spec {
-  display: block; width: calc(100% - 16px); height: 18px; margin: -4px 0 3px 16px; padding: 0 3px;
-  font-family: var(--r-fell); font-style: italic; font-size: 13.5px; color: var(--r-accent);
+  flex: 0 100 auto; field-sizing: content; min-width: 0; max-width: none; height: 20px; margin: 0; padding: 0 3px;
+  font-family: var(--r-fell); font-style: italic; font-size: 13.5px; color: var(--r-accent); text-overflow: ellipsis;
   background: transparent; border: 0; border-bottom: 1px dotted transparent; box-shadow: none;
 }
-.vtm20 input.r-spec::placeholder { font-family: var(--r-body); font-size: 11.5px; color: var(--r-muted); opacity: 0; transition: opacity .12s; }
-.vtm20 .r-trait:hover input.r-spec::placeholder, .vtm20 input.r-spec:focus::placeholder { opacity: .8; }
+.vtm20 input.r-spec::placeholder { font-family: var(--r-body); font-size: 11.5px; color: var(--r-muted); opacity: .8; }
 .vtm20 input.r-spec:hover, .vtm20 input.r-spec:focus { border-bottom-color: var(--r-line-2); background: rgba(0, 0, 0, .2); }
-.vtm20 input.r-spec:placeholder-shown:not(:focus) { height: 8px; margin: -4px 0 2px 16px; }
-.vtm20 .r-trait:hover input.r-spec:placeholder-shown { height: 18px; margin: -4px 0 3px 16px; }
+.vtm20 input.r-spec:focus { flex: 1 1 0; text-overflow: clip; }
+.vtm20 input.r-spec:placeholder-shown { field-sizing: fixed; flex: 0 0 0; width: 0; padding: 0; opacity: 0; transition: opacity .12s; }
+.vtm20 .r-trait:hover input.r-spec:placeholder-shown, .vtm20 input.r-spec:placeholder-shown:focus { flex: 1 1 0; width: auto; padding: 0 3px; opacity: 1; }
 .vtm20 .r-boost { font-family: var(--r-display); font-size: 11.5px; color: #f1e9da; background: #8c1c22; padding: 0 5px; line-height: 16px; }
 .vtm20 .r-trait.is-boosted .r-trait-label { color: var(--r-accent); }
 .vtm20 .r-trait-label.is-ugly { text-decoration: line-through; text-decoration-color: var(--r-accent); }
@@ -626,6 +622,14 @@ body.r-theme-light .vtm20 .r-motto { color: rgba(140, 28, 34, .75); }
   .vtm20 .r-h2-lbl { display: none; }
   .vtm20 input.r-h2-find { width: 200px; flex-basis: 200px; }
 }
+@container rsheet (max-width: 1100px) {
+  /* три колонки черт → две раньше, чтобы названия всегда помещались («Обращение с животными» и др.) */
+  .vtm20 .r-cols3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .vtm20 .r-cols3 > .r-tcol:nth-child(3n) { grid-column: 1 / -1; }
+}
+@container rsheet (max-width: 800px) {
+  .vtm20 .r-cols3 { grid-template-columns: minmax(0, 1fr); }
+}
 @container rsheet (max-width: 1000px) {
   .vtm20 .r-act span { display: none; }
   .vtm20 .r-act { padding: 0 10px; }
@@ -635,8 +639,6 @@ body.r-theme-light .vtm20 .r-motto { color: rgba(140, 28, 34, .75); }
 @container rsheet (max-width: 860px) {
   .vtm20 .r-vitals { grid-template-columns: 1fr 1fr; }
   .vtm20 .r-vc-morality { grid-column: 1 / -1; }
-  .vtm20 .r-cols3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .vtm20 .r-cols3 > .r-tcol:nth-child(3n) { grid-column: 1 / -1; }
   .vtm20 .r-motto { display: none; }
 }
 @container rsheet (max-width: 700px) {
