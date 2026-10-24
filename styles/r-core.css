@@ -51,7 +51,7 @@
 .vtm20 {
   --r-ink: #d8cfbf;
   --r-ink-2: #b3aa98;
-  --r-muted: #7d766a;
+  --r-muted: #8c8577;
   --r-line: rgba(216, 207, 191, .1);
   --r-line-2: rgba(216, 207, 191, .2);
   --r-s1: rgba(255, 255, 255, .018);
@@ -250,6 +250,27 @@ body.r-theme-light .vtm20 {
 .vtm20 .r-h2:first-child { margin-top: 4px; }
 .vtm20 .r-h2-total { order: 3; font-family: var(--r-display); letter-spacing: 0; font-size: 15px; color: var(--r-accent); }
 .vtm20 .r-h2-tool { order: 4; color: var(--r-muted); font-size: 12px; letter-spacing: 0; }
+/* Кнопки раздела справа от черты: «Библиотека», «Своё», поиск заготовок — одинаково во всех главах листа */
+.vtm20 .r-h2-tools { order: 5; display: inline-flex; align-items: center; gap: 6px; flex: 0 1 auto; min-width: 0; }
+.vtm20 .r-h2-btn {
+  display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 9px; flex: 0 0 auto; white-space: nowrap;
+  font-family: var(--r-caps); font-size: 11.5px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--r-ink-2);
+  border: 1px solid var(--r-line-2); background: var(--r-s2); transition: color .12s, border-color .12s, background .12s;
+}
+.vtm20 .r-h2-btn i { font-size: 11px; color: var(--r-accent); }
+.vtm20 .r-h2-btn:hover { color: var(--r-ink); border-color: var(--r-ink-2); background: var(--r-s3); }
+.vtm20 .r-h2-btn.is-ghost { background: transparent; }
+.vtm20 .r-h2-btn.is-plain { border-color: transparent; background: transparent; color: var(--r-muted); }
+.vtm20 .r-h2-btn.is-plain i { color: inherit; }
+.vtm20 .r-h2-btn.is-plain:hover { color: var(--r-ink); border-color: transparent; }
+.vtm20 input.r-h2-find {
+  width: 300px; min-width: 120px; flex: 0 1 300px; height: 24px; margin: 0; padding: 0 18px 0 8px;
+  font-family: var(--r-body); font-size: 13.5px; letter-spacing: 0; text-transform: none; color: var(--r-ink);
+  background-color: var(--r-s2); border: 1px solid var(--r-line-2); border-radius: 0; box-shadow: none;
+}
+.vtm20 input.r-h2-find.is-short { width: 180px; flex-basis: 180px; }
+.vtm20 input.r-h2-find::placeholder { color: var(--r-muted); font-style: italic; }
+.vtm20 input.r-h2-find:focus { border-color: var(--r-accent); }
 .vtm20 .r-h2-tool:hover { color: var(--r-accent); }
 
 .vtm20 .r-h3 {
@@ -258,7 +279,7 @@ body.r-theme-light .vtm20 {
 }
 .vtm20 .r-h4 { margin: 12px 0 6px; font-family: var(--r-caps); font-weight: 400; font-size: 12.5px; letter-spacing: 2px; text-transform: uppercase; color: var(--r-muted); border: 0; }
 
-.vtm20 .r-empty { padding: 8px 4px; color: var(--r-muted); font-style: italic; text-align: center; font-size: 13px; }
+.vtm20 .r-empty { padding: 4px 2px 8px; color: var(--r-muted); font-style: italic; text-align: left; font-size: 13px; }
 .vtm20 .r-hint { margin: 6px 0 0; color: var(--r-muted); font-size: 12px; font-style: italic; line-height: 1.35; }
 .vtm20 .r-note { color: var(--r-muted); font-size: 12.5px; font-style: italic; }
 .vtm20 .r-muted { color: var(--r-muted); }
@@ -341,3 +362,8 @@ body.r-theme-light .vtm20 .r-sym { background: linear-gradient(170deg, #3a3029, 
 .r-combo-pop .r-combo-item.is-active { background: rgba(140, 28, 34, .35); color: var(--r-ink); }
 .r-combo-pop .r-combo-item.is-current { color: var(--r-accent); }
 .r-combo-pop .r-combo-item.is-current::before { content: "◆"; font-size: 8px; margin-right: 6px; vertical-align: 2px; }
+.r-combo-pop .r-combo-group {
+  position: sticky; top: 0; padding: 6px 12px 3px; background: var(--r-option-bg);
+  font-family: var(--r-caps); font-size: 11px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--r-muted); cursor: default;
+}
+.r-combo-pop .r-combo-group ~ .r-combo-item { padding-left: 18px; }

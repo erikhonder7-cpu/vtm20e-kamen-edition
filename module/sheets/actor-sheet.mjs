@@ -33,6 +33,10 @@ const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
 const dots = (value, max = 5, extra = {}) =>
   Array.from({ length: max }, (_, i) => ({ n: i + 1, filled: i < value, ...extra }));
 
+/** Значок строки оружия по виду: рукопашное, холодное, огнестрельное (луки и арбалеты — мишень), метательное. */
+const weaponIcon = (kind, name) => kind === "brawl" ? "fa-hand-fist" : kind === "thrown" ? "fa-location-arrow"
+  : kind === "firearms" ? (/лук|арбалет|праща/i.test(name) ? "fa-bullseye" : "fa-gun") : "fa-khanda";
+
 export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static DEFAULT_OPTIONS = {
     classes: ["vtm20", "r-sheet", "r-actor"],
@@ -60,8 +64,8 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       money: VtMActorSheet.#onMoney,
       togglePower: VtMActorSheet.#onTogglePower,
       endPower: VtMActorSheet.#onEndPower,
-      addPreset: VtMActorSheet.#onAddPreset,
       toggleRow: VtMActorSheet.#onToggleRow,
+      toggleAll: VtMActorSheet.#onToggleAll,
       powerToChat: VtMActorSheet.#onPowerToChat,
       rollPower: VtMActorSheet.#onRollPower,
       rollItemPower: VtMActorSheet.#onRollItemPower,
@@ -309,6 +313,22 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       id: p.id, name: p.name, level: p.system.level, roman: ROMAN[p.system.level - 1] ?? "—", html: p.system.description,
       open: this._open.has(p.id), roll: rollInfo(p.system.roll)
     });
+    // Путь магии крови: силы справочника до текущего уровня и записанные вручную
+    const mapPath = p => {
+      const k = p.system.discipline, data = Codex.discipline(k);
+      const pd = Codex.bloodPath(k, p.name);
+      const pi = (data?.paths ?? []).indexOf(pd);
+      return {
+        id: p.id, name: p.name, value: p.system.value, primary: p.system.primary,
+        dots: dots(p.system.value, 5, { path: "system.value", itemId: p.id }),
+        html: pd?.html ?? p.system.description ?? "",
+        powers: (pd?.powers ?? []).filter(x => x.level <= p.system.value).map((x, i) => ({
+          ...x, id: `${p.id}-p${i}`, roman: ROMAN[x.level - 1], open: this._open.has(`${p.id}-p${i}`),
+          roll: rollInfo(x.roll), codexRef: `${k}|path|${pi}|${i}`
+        })),
+        ownPowers: ownPowers.filter(o => o.system.discipline === k && o.system.path === p.name).sort((x, y) => x.system.level - y.system.level).map(mapOwn)
+      };
+    };
     const discKeys = new Set(items.map(i => i.system.key));
     const fxOn = new Set(a.powerEffects.map(x => x.power));
     const fxOf = (k, level) => {
@@ -355,20 +375,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
         physical: VTM20.physicalDisciplines[k] ? game.i18n.localize(VTM20.attributes[VTM20.physicalDisciplines[k]].label) : "",
         rules: (data?.rules ?? []).filter(r => r.title).map((r, i) => ({ ...r, id: `${it.id}-r${i}`, open: this._open.has(`${it.id}-r${i}`) })),
         isPathed,
-        paths: myPaths.map(p => {
-          const pd = Codex.bloodPath(k, p.name);
-          const pi = (data?.paths ?? []).indexOf(pd);
-          return {
-            id: p.id, name: p.name, value: p.system.value, primary: p.system.primary,
-            dots: dots(p.system.value, 5, { path: "system.value", itemId: p.id }),
-            html: pd?.html ?? p.system.description ?? "",
-            powers: (pd?.powers ?? []).filter(x => x.level <= p.system.value).map((x, i) => ({
-              ...x, id: `${p.id}-p${i}`, roman: ROMAN[x.level - 1], open: this._open.has(`${p.id}-p${i}`),
-              roll: rollInfo(x.roll), codexRef: `${k}|path|${pi}|${i}`
-            })),
-            ownPowers: ownPowers.filter(o => o.system.discipline === k && o.system.path === p.name).sort((x, y) => x.system.level - y.system.level).map(mapOwn)
-          };
-        }),
+        paths: myPaths.map(mapPath),
         pathChoices: VTM20.pathDisciplines.includes(k) ? (data?.paths ?? []).filter(pp => Codex.visible(pp) && !myPaths.some(m => m.name === pp.name)).map(pp => pp.name) : [],
         hasRituals: !!Codex.rituals[k]?.rituals?.some(r => Codex.visible(r)) || myRituals.length > 0,
         rituals: myRituals.sort((x, y) => x.system.level - y.system.level || x.name.localeCompare(y.name)).map(mapRitual),
@@ -377,9 +384,17 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
         open: this._open.has(it.id)
       };
     }).sort((x, y) => (y.inClan - x.inClan) || x.name.localeCompare(y.name, "ru"));
-    // Силы и ритуалы, чьей Дисциплины у персонажа нет
-    ctx.otherPowers = ownPowers.filter(p => !discKeys.has(p.system.discipline)).map(mapOwn);
-    ctx.otherRituals = rituals.filter(r => !discKeys.has(r.system.discipline)).map(mapRitual);
+    // Пути, ритуалы и силы, чьей Дисциплины у персонажа нет, — по школам; без школы — общим списком в конце
+    const orphan = [...paths, ...rituals, ...ownPowers].filter(i => !discKeys.has(i.system.discipline));
+    const byKey = Map.groupBy(orphan, i => Codex.discipline(i.system.discipline) ? i.system.discipline : "");
+    ctx.otherMagic = [...byKey].map(([k, list]) => ({
+      key: k, name: Codex.discipline(k)?.name ?? "", sym: k ? Codex.disciplineSymbol(k) : null,
+      icon: VTM20.disciplineIcons[k] ?? "fa-droplet",
+      paths: list.filter(i => i.type === "thaumPath").sort((x, y) => x.name.localeCompare(y.name, "ru")).map(mapPath),
+      rituals: list.filter(i => i.type === "ritual").sort((x, y) => x.system.level - y.system.level || x.name.localeCompare(y.name, "ru")).map(mapRitual),
+      powers: list.filter(i => i.type === "power" && !(i.system.path && paths.some(p => p.name === i.system.path))).sort((x, y) => x.system.level - y.system.level).map(mapOwn)
+    })).sort((x, y) => !x.key - !y.key || x.name.localeCompare(y.name, "ru"));
+    ctx.allOpen = ctx.disciplines.length > 0 && ctx.disciplines.every(d => d.open);
     const owned = new Set(items.map(i => i.system.key));
     ctx.missingClan = clanD.filter(k => !owned.has(k)).length > 0;
     if (ctx.isGhoul) ctx.ghoulCap = a.system.disciplineMax;
@@ -417,7 +432,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       const str = w.strength ? s.attributes.strength.total : 0;
       return {
         id: i.id, name: i.name, img: i.img, equipped: w.equipped,
-        kindLabel: game.i18n.localize(kind.label),
+        kindLabel: game.i18n.localize(kind.label), icon: weaponIcon(w.kind, i.name),
         pool: s.attributes[kind.attribute].total + s.abilities[kind.ability].value,
         damage: w.strength ? `${t("Attr.strength")} + ${w.damage}` : String(w.damage),
         damageDice: str + w.damage + (w.strength ? a.physicalDisciplineBonus("strength") : 0),
@@ -462,6 +477,17 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       set("[data-foot-time]", c.time); set("[data-foot-date]", c.longDate);
       set("[data-foot-rep]", c.republic); set("[data-foot-until]", c.phase.untilLabel);
     }, 20000);
+    // Готовое оружие и броня: выбор в списке сразу добавляет предмет (поле без name — в форму листа не попадает)
+    for (const el of this.element.querySelectorAll("input[data-preset]")) {
+      el.addEventListener("change", ev => {
+        ev.stopPropagation();
+        const key = el.dataset.key;
+        if (key === undefined || key === "") return;
+        delete el.dataset.key;
+        el.value = "";
+        this.#addPreset(el.dataset.preset, Number(key));
+      });
+    }
     // Поля предметов прямо на листе (имя пути, уровень ритуала…)
     for (const el of this.element.querySelectorAll("[data-item-field]")) {
       el.addEventListener("change", ev => {
@@ -639,15 +665,20 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     for (const k of this.actor.clanDisciplines) if (!owned.has(k)) await this.#createDiscipline(k, 0);
   }
 
-  static async #onAddPreset(event, target) {
-    const kind = target.dataset.kind;
-    const sel = this.element.querySelector(`select[name='preset-${kind}']`);
-    const i = Number(sel?.value);
-    if (!Number.isInteger(i) || sel.value === "") return;
+  /** Заготовка оружия или брони по номеру в полном списке (выбор в списке с поиском на вкладке «Снаряжение»). */
+  async #addPreset(kind, i) {
     const p = (kind === "weapon" ? WEAPON_PRESETS : ARMOR_PRESETS)[i];
     if (!p) return;
     const { name, group, ...system } = p;
     await this.actor.createEmbeddedDocuments("Item", [{ name, type: kind, img: `systems/${SYSTEM_ID}/assets/icons/${kind}.svg`, system }]);
+  }
+
+  /** Раскрыть все Дисциплины, а если все уже раскрыты — свернуть. */
+  static #onToggleAll() {
+    const ids = this.actor.items.filter(i => i.type === "discipline").map(i => i.id);
+    const open = ids.every(id => this._open.has(id));
+    for (const id of ids) open ? this._open.delete(id) : this._open.add(id);
+    this.render();
   }
 
   static #onToggleRow(event, target) {
@@ -820,3 +851,17 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     await this.actor.update({ "system.experience.spent": this.actor._source.system.experience.spent + cost, "system.experience.log": log });
   }
 }
+
+// Повтор той же Дисциплины, факта биографии, достоинства или недостатка у персонажа — не добавлять, а предупредить
+// (библиотека, перетаскивание из компендия, «Своё» с тем же именем).
+const UNIQUE_TYPES = ["discipline", "background", "merit", "flaw", "derangement", "thaumPath", "ritual"];
+Hooks.on("preCreateItem", (item, data, options, userId) => {
+  const actor = item.parent;
+  if (!(actor instanceof Actor) || !UNIQUE_TYPES.includes(item.type) || options.allowDuplicate) return;
+  const same = actor.items.find(i => i.type === item.type     // новый предмет ещё не в коллекции (а его _id может совпасть при копировании)
+    &&(item.type === "discipline" ? i.system.key && i.system.key === item.system.key : i.name === item.name)
+    && (!["thaumPath", "ritual"].includes(item.type) || i.system.discipline === item.system.discipline));   // один путь бывает в разных школах
+  if (!same) return;
+  if (userId === game.user.id) ui.notifications.warn(game.i18n.format("VTM20.Sheet.DuplicateItem", { name: same.name }));
+  return false;
+});

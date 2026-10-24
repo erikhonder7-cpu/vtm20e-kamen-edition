@@ -144,7 +144,8 @@ export class VtMActor extends Actor {
     return c?.started ? `${c.id}:${c.round}` : null;
   }
 
-  #roundFlag(name) {
+  // Обычный метод, не #приватный: его вызывает подготовка данных ещё внутри конструктора Actor, когда приватных членов подкласса нет
+  _roundFlag(name) {
     const f = this.getFlag(SYSTEM_ID, name);
     if (!f) return null;
     const key = VtMActor.roundKey();
@@ -153,9 +154,9 @@ export class VtMActor extends Actor {
   }
 
   /** Мощь включена кровью на этот ход. */
-  get potenceActive() { return !!this.#roundFlag("potence"); }
+  get potenceActive() { return !!this._roundFlag("potence"); }
   /** Сколько дополнительных действий Стремительности куплено на этот ход. */
-  get celerityActions() { return this.#roundFlag("celerity")?.n ?? 0; }
+  get celerityActions() { return this._roundFlag("celerity")?.n ?? 0; }
 
   /** Мощь: 1 кровь — до конца хода точки Мощи становятся автоуспехами всех проверок Силы, включая урон в ближнем бою. */
   async activatePotence() {

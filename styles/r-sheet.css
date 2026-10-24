@@ -26,36 +26,37 @@
 .vtm20 .r-rail-sigil img { width: 100%; height: 100%; border: 0; filter: grayscale(.6) brightness(.85); }
 .vtm20 .r-rtab {
   position: relative; display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 10px 4px 9px;
-  color: #6e685e; border: 0; transition: color .12s, background .12s;
+  color: #857e72; border: 0; transition: color .12s, background .12s;
 }
 .vtm20 .r-rtab-coin { display: grid; place-items: center; width: 20px; height: 20px; }
 .vtm20 .r-rtab-coin i { font-size: 15px; color: inherit; }
 .vtm20 .r-rtab-num { display: none; }
-.vtm20 .r-rtab-label { max-width: 100%; font-family: var(--r-caps); font-size: 9.5px; letter-spacing: .5px; text-transform: uppercase; text-align: center; line-height: 1.1; }
+.vtm20 .r-rtab-label { max-width: 100%; font-family: var(--r-caps); font-size: 10.5px; letter-spacing: .5px; text-transform: uppercase; text-align: center; line-height: 1.1; }
 .vtm20 .r-rtab:hover { color: #cfc6b5; background: rgba(255, 255, 255, .02); }
 .vtm20 .r-rtab.active { color: #e6ddcc; background: linear-gradient(90deg, rgba(140, 28, 34, .18), transparent); }
 .vtm20 .r-rtab.active .r-rtab-coin i { color: #c4474c; }
 .vtm20 .r-rtab.active::before { content: ""; position: absolute; left: 0; top: 6px; bottom: 6px; width: 2px; background: #b83a3f; }
 .vtm20 .r-rail-spacer { flex: 1 1 auto; }
-.vtm20 .r-rail-tool { display: grid; place-items: center; height: 32px; color: #6e685e; font-size: 15px; }
+.vtm20 .r-rail-tool { display: grid; place-items: center; height: 32px; color: #857e72; font-size: 15px; }
 .vtm20 .r-rail-tool:hover { color: #e6ddcc; }
 
 /* ── Шапка ─────────────────────────────────────────────────────────────── */
 
-.vtm20 .r-head { grid-area: head; position: relative; overflow: hidden; padding: 16px 20px 0; background: var(--r-head-bg); }
+.vtm20 .r-head { grid-area: head; position: relative; overflow: hidden; padding: 14px 20px 0; background: var(--r-head-bg); }
 .vtm20 .r-head-watermark {
   position: absolute; right: 260px; top: 50%; width: 170px; height: 170px; transform: translateY(-55%);
   opacity: .035; pointer-events: none; z-index: 0;
 }
 .vtm20 .r-head-main {
-  position: relative; z-index: 1; display: grid; align-items: start; gap: 6px 20px;
-  grid-template-columns: auto minmax(0, 1fr) auto; grid-template-areas: "portrait info side";
+  position: relative; z-index: 1; display: grid; align-items: start; gap: 8px 20px;
+  grid-template-columns: auto minmax(0, 1fr) auto; grid-template-rows: auto 1fr;
+  grid-template-areas: "portrait info side" "portrait acts acts";
 }
 
 /* Портрет «из дела» с подписью-поколением */
-.vtm20 .r-portrait-frame { grid-area: portrait; position: relative; width: 104px; margin: 0; display: flex; flex-direction: column; }
+.vtm20 .r-portrait-frame { grid-area: portrait; position: relative; width: 128px; margin: 0; display: flex; flex-direction: column; }
 .vtm20 .r-portrait-frame .r-portrait {
-  display: block; width: 104px; height: 128px; margin: 0; object-fit: cover; object-position: 50% 20%; cursor: pointer;
+  display: block; width: 128px; height: 148px; margin: 0; object-fit: cover; object-position: 50% 20%; cursor: pointer;
   border: 1px solid rgba(216, 207, 191, .22); background: #0c0c0e;
   filter: grayscale(.35) contrast(1.06) brightness(.92); transition: filter .2s;
 }
@@ -66,7 +67,7 @@
 }
 .vtm20 .r-seal-num { font-family: var(--r-display); font-size: 14px; line-height: 19px; color: #e6ddcc; }
 .vtm20 .r-seal-num.r-seal-icon { font-size: 11px; color: #c4474c; }
-.vtm20 .r-seal-cap { font-family: var(--r-caps); font-size: 9.5px; letter-spacing: 1.5px; text-transform: uppercase; color: #8a8274; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vtm20 .r-seal-cap { font-family: var(--r-caps); font-size: 10.5px; letter-spacing: 1.5px; text-transform: uppercase; color: #8a8274; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* Имя, амплуа, сведения */
 .vtm20 .r-head-info { grid-area: info; min-width: 0; }
@@ -100,7 +101,7 @@
 .vtm20 .r-df { display: flex; align-items: baseline; gap: 8px; flex: 1 1 150px; min-width: 0; height: 26px; border-bottom: 1px solid var(--r-line); }
 .vtm20 .r-df.is-wide { flex: 2 1 220px; }
 .vtm20 .r-df.is-narrow { flex: 0 0 112px; }
-.vtm20 .r-df > span { flex: 0 0 auto; font-family: var(--r-caps); font-size: 10.5px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--r-muted); white-space: nowrap; }
+.vtm20 .r-df > span { flex: 0 0 auto; font-family: var(--r-caps); font-size: 11px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--r-muted); white-space: nowrap; }
 .vtm20 .r-df input, .vtm20 .r-df select {
   flex: 1 1 auto; min-width: 0; width: auto; height: 23px; padding: 0 2px; background: transparent; border: 0; box-shadow: none;
   font-family: var(--r-body); font-size: 14.5px; color: var(--r-ink);
@@ -139,16 +140,19 @@
 .vtm20 .r-boost-chip.is-on { color: #f1e9da; background: #8c1c22; border-color: #b83a3f; }
 .vtm20 .r-boost-chip b { font-weight: 400; }
 
-/* Полоса ночных действий */
+/* Полоса ночных действий — под сведениями, по нижнему краю портрета; тревожные броски справа значками */
 .vtm20 .r-head-acts {
-  position: relative; z-index: 1; display: flex; align-items: stretch; flex-wrap: wrap; margin: 12px -20px 0; padding: 0 12px;
-  background: rgba(0, 0, 0, .35); border-top: 1px solid var(--r-line); border-bottom: 1px solid var(--r-line);
+  grid-area: acts; align-self: end; display: flex; align-items: stretch; flex-wrap: nowrap; min-width: 0; overflow: hidden; padding: 0 4px;
+  background: rgba(0, 0, 0, .35); border: 1px solid var(--r-line);
 }
 .vtm20 .r-act {
-  display: inline-flex; align-items: center; gap: 7px; height: 30px; padding: 0 11px;
-  font-family: var(--r-caps); font-size: 12px; letter-spacing: 1.4px; text-transform: uppercase; color: var(--r-ink-2);
+  display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 8px; flex: 0 0 auto; white-space: nowrap;
+  font-family: var(--r-caps); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: var(--r-ink-2);
   transition: color .12s, background .12s;
 }
+.vtm20 .r-act.is-hot { padding: 0 9px; }
+.vtm20 .r-act.is-hot span { display: none; }
+.vtm20 .r-act.is-hot i { font-size: 14px; }
 .vtm20 .r-act i { color: var(--r-muted); font-size: 12px; }
 .vtm20 .r-act b { font-family: var(--r-display); font-weight: 400; font-size: 15px; color: var(--r-ink); letter-spacing: 0; }
 .vtm20 .r-act:hover { color: var(--r-ink); background: var(--r-s2); }
@@ -159,12 +163,12 @@
 
 /* ── Шкалы ─────────────────────────────────────────────────────────────── */
 
-.vtm20 .r-vitals { grid-area: vitals; display: grid; grid-template-columns: 1.1fr .9fr 1.2fr; gap: 10px; padding: 12px 20px 4px; }
+.vtm20 .r-vitals { grid-area: vitals; display: grid; grid-template-columns: 1.1fr .9fr 1.2fr; gap: 10px; padding: 10px 20px 4px; }
 .vtm20 .r-vcard { display: flex; flex-direction: column; }
 .vtm20 .r-vcard > .r-vc-tools { margin-top: auto; }
-.vtm20 .r-vcard > :nth-last-child(2) { margin-bottom: 7px; }
+.vtm20 .r-vcard > :nth-last-child(2) { margin-bottom: 6px; }
 .vtm20 .r-vcard, .vtm20 .r-tcol {
-  position: relative; min-width: 0; padding: 8px 12px 8px;
+  position: relative; min-width: 0; padding: 7px 12px 7px;
   border: 1px solid var(--r-line); background: var(--r-card-bg);
 }
 .vtm20 .r-tcol { padding: 10px 14px 10px; }
@@ -192,7 +196,7 @@
 .vtm20 .r-vcard > .r-dots { display: flex; justify-content: flex-start; }
 .vtm20 .r-vcard .r-boxes { margin: 5px 0 0; }
 .vtm20 .r-vc-tools {
-  display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; padding-top: 6px; border-top-width: 1px;
+  display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; padding-top: 5px;
   border-top: 1px solid var(--r-line); font-size: 12px; color: var(--r-muted);
 }
 /* Кнопки в карточках шкал: рамка, подсветка при наведении; знаки урона — квадратами, как клетки здоровья */
@@ -207,7 +211,7 @@
 .vtm20 .r-vc-btn.is-lethal:hover { background: #4a0d11; border-color: #8c1c22; color: #f1e9da; }
 .vtm20 .r-vc-btn.is-aggravated:hover { background: #8c1c22; border-color: #c4474c; color: #fff; }
 .vtm20 .r-vc-btngroup { display: inline-flex; align-items: center; gap: 3px; }
-.vtm20 .r-vc-btnlabel { margin-right: 3px; font-family: var(--r-caps); font-size: 10.5px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--r-muted); }
+.vtm20 .r-vc-btnlabel { margin-right: 3px; font-family: var(--r-caps); font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--r-muted); }
 .vtm20 .r-vc-tools .is-right { margin-left: auto; }
 .vtm20 .r-vc-hint { margin-left: auto; font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .vtm20 .r-vc-hint.is-left { margin-left: 0; flex: 1 1 auto; min-width: 0; }
@@ -220,7 +224,7 @@
   width: 22px; height: 22px; display: grid; place-items: center;
   border: 1px solid var(--r-dot-border); background: transparent; font-family: var(--r-display); font-size: 14px; color: var(--r-ink);
 }
-.vtm20 .r-hbox-pen { font-family: var(--r-display); font-size: 9.5px; line-height: 1.1; color: var(--r-muted); }
+.vtm20 .r-hbox-pen { font-family: var(--r-display); font-size: 10.5px; line-height: 1.1; color: var(--r-muted); }
 .vtm20 .r-hbox.is-bashing .r-hbox-mark { color: var(--r-ink); background: var(--r-s3); }
 .vtm20 .r-hbox.is-lethal .r-hbox-mark { color: #f1e9da; background: #4a0d11; border-color: #8c1c22; }
 .vtm20 .r-hbox.is-aggravated .r-hbox-mark { color: #fff; background: #8c1c22; border-color: #c4474c; }
@@ -293,24 +297,25 @@
 
 /* ── Дисциплины ───────────────────────────────────────────────────────── */
 
-.vtm20 .r-disc { position: relative; margin: 0 0 8px; border: 1px solid var(--r-line); background: var(--r-card-bg); }
+.vtm20 .r-disc { position: relative; margin: 0 0 6px; border: 1px solid var(--r-line); background: var(--r-card-bg); }
 .vtm20 .r-disc.is-clan { box-shadow: inset 2px 0 0 #8c1c22; }
-.vtm20 .r-disc-head { display: flex; align-items: center; gap: 12px; padding: 8px 12px; }
+.vtm20 .r-disc-head { display: flex; align-items: center; gap: 12px; padding: 6px 12px; }
 .vtm20 .r-disc-sigil {
-  width: 36px; height: 36px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 50%;
-  color: var(--r-ink-2); font-size: 14px; background: rgba(0, 0, 0, .35); border: 1px solid var(--r-line-2);
+  width: 30px; height: 30px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 50%;
+  color: var(--r-ink-2); font-size: 13px; background: rgba(0, 0, 0, .35); border: 1px solid var(--r-line-2);
 }
 .vtm20 .r-disc.is-clan .r-disc-sigil { background: #3a0b0f; border-color: #8c1c22; }
-.vtm20 .r-disc-sigil .r-sym { width: 22px; height: 22px; }
-.vtm20 .r-disc-title { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
-.vtm20 .r-disc-name { font-family: var(--r-display); font-size: 17px; color: var(--r-ink); line-height: 1.15; }
+.vtm20 .r-disc-sigil .r-sym { width: 19px; height: 19px; }
+/* Название и подпись в одну строку — свёрнутая Дисциплина занимает одну строку */
+.vtm20 .r-disc-title { flex: 1 1 auto; min-width: 0; display: flex; align-items: baseline; gap: 10px; }
+.vtm20 .r-disc-name { flex: 0 1 auto; min-width: 0; font-family: var(--r-display); font-size: 17px; color: var(--r-ink); line-height: 1.15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .vtm20 .r-disc-name:hover { color: var(--r-accent); }
-.vtm20 .r-disc-sub { font-size: 12px; font-style: italic; color: var(--r-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vtm20 .r-disc-sub { flex: 0 1 auto; min-width: 0; font-size: 12.5px; font-style: italic; color: var(--r-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .vtm20 .r-disc-sub b { font-style: normal; font-family: var(--r-caps); letter-spacing: 1px; color: var(--r-accent); font-weight: 400; }
 .vtm20 .r-disc-tools { display: flex; align-items: center; gap: 2px; }
 .vtm20 .r-chevron i { transition: transform .15s; }
 .vtm20 .r-row-wrap.is-open > header .r-chevron i, .vtm20 .r-row-wrap.is-open > .r-disc-head .r-chevron i { transform: rotate(180deg); }
-.vtm20 .r-disc-body { display: none; padding: 2px 14px 10px 60px; border-top: 1px solid var(--r-line); }
+.vtm20 .r-disc-body { display: none; padding: 2px 14px 10px 54px; border-top: 1px solid var(--r-line); }
 .vtm20 .r-disc.is-open .r-disc-body { display: block; }
 
 .vtm20 .r-power { border-bottom: 1px dotted var(--r-line); }
@@ -535,17 +540,30 @@ body.r-theme-light .vtm20 .r-motto { color: rgba(140, 28, 34, .75); }
 
 /* ── Ширина окна ───────────────────────────────────────────────────────── */
 
-@container rsheet (max-width: 1040px) {
-  .vtm20 .r-head-main { grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "portrait info" "side side"; }
+@container rsheet (max-width: 900px) {
+  .vtm20 .r-head-main { grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto 1fr auto; grid-template-areas: "portrait info" "portrait acts" "side side"; }
   .vtm20 .r-assignat { width: auto; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; }
   .vtm20 .r-assignat-head { flex: 0 0 180px; }
   .vtm20 .r-assignat .r-drops { flex: 1 1 auto; margin: 0; }
   .vtm20 .r-assignat .r-boosts { flex: 1 1 100%; margin: 0; }
   .vtm20 .r-head-watermark { right: 30px; }
-  .vtm20 .r-vitals { grid-template-columns: 1fr 1fr; }
-  .vtm20 .r-vc-morality { grid-column: 1 / -1; }
+}
+@container rsheet (max-width: 1040px) {
+  .vtm20 .r-cols2 .r-h2-lbl { display: none; }
 }
 @container rsheet (max-width: 860px) {
+  .vtm20 .r-h2-lbl { display: none; }
+  .vtm20 input.r-h2-find { width: 200px; flex-basis: 200px; }
+}
+@container rsheet (max-width: 1000px) {
+  .vtm20 .r-act span { display: none; }
+  .vtm20 .r-act { padding: 0 10px; }
+  .vtm20 .r-vc-btnlabel { display: none; }
+  .vtm20 .r-motto { display: none; }
+}
+@container rsheet (max-width: 860px) {
+  .vtm20 .r-vitals { grid-template-columns: 1fr 1fr; }
+  .vtm20 .r-vc-morality { grid-column: 1 / -1; }
   .vtm20 .r-cols3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .vtm20 .r-cols3 > .r-tcol:nth-child(3n) { grid-column: 1 / -1; }
   .vtm20 .r-motto { display: none; }
@@ -554,8 +572,8 @@ body.r-theme-light .vtm20 .r-motto { color: rgba(140, 28, 34, .75); }
   .vtm20 .r-rail { width: 54px; }
   .vtm20 .r-rtab-label { display: none; }
   .vtm20 .r-rail-sigil { width: 40px; height: 40px; padding: 7px; }
-  .vtm20 .r-portrait-frame, .vtm20 .r-portrait-frame .r-portrait { width: 80px; }
-  .vtm20 .r-portrait-frame .r-portrait { height: 100px; }
+  .vtm20 .r-portrait-frame, .vtm20 .r-portrait-frame .r-portrait { width: 96px; }
+  .vtm20 .r-portrait-frame .r-portrait { height: 112px; }
   .vtm20 .r-name-row { flex-wrap: wrap; }
   .vtm20 input.r-concept { text-align: left; }
   .vtm20 .r-vitals { grid-template-columns: 1fr; }
@@ -617,3 +635,10 @@ body.r-theme-light .vtm20 .r-motto { color: rgba(140, 28, 34, .75); }
 .vtm20.r-choice-dialog .r-choice-text { grid-column: 2; font-size: 13px; line-height: 1.45; }
 .vtm20.r-choice-dialog .r-choice-text > summary { cursor: pointer; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--r-muted); }
 .application.vtm20.r-choice-dialog .window-content { padding: 10px 14px 12px; }
+
+/* Прочие силы и ритуалы: пути, ритуалы и силы, чьей Дисциплины на листе нет, — по школам */
+.vtm20 .r-other-school { margin: 0 0 10px; }
+.vtm20 .r-other-school > .r-h4 { display: flex; align-items: center; gap: 8px; margin: 8px 0 4px; color: var(--r-ink-2); }
+.vtm20 .r-other-sigil { display: inline-grid; place-items: center; width: 18px; height: 18px; color: var(--r-accent); }
+.vtm20 .r-other-sigil svg, .vtm20 .r-other-sigil .r-sym { width: 18px; height: 18px; }
+.vtm20 .r-other-note { margin-left: auto; font-family: var(--r-body); font-size: 12px; font-style: italic; letter-spacing: 0; text-transform: none; color: var(--r-accent); cursor: help; }

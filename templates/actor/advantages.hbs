@@ -17,7 +17,7 @@
   </div>
   {{/if}}
 
-  <h2 class="r-h2"><span>{{localize "VTM20.Sheet.Backgrounds"}}</span></h2>
+  <h2 class="r-h2"><span>{{localize "VTM20.Sheet.Backgrounds"}}</span>{{#if editable}}<span class="r-h2-tools"><a class="r-h2-btn" data-action="library" data-kind="background" data-tooltip="{{localize 'VTM20.Library.Open'}}"><i class="fa-solid fa-book-skull"></i> <span class="r-h2-lbl">{{localize "VTM20.Library.Open"}}</span></a><a class="r-h2-btn is-ghost" data-action="itemCreate" data-type="background" data-tooltip="{{localize 'VTM20.Sheet.Own'}}"><i class="fa-solid fa-feather"></i> <span class="r-h2-lbl">{{localize "VTM20.Sheet.Own"}}</span></a></span>{{/if}}</h2>
   <div class="r-cols2">
     {{#each backgrounds}}
     <div class="r-row-wrap r-bg {{#if open}}is-open{{/if}}" data-item-id="{{id}}">
@@ -33,17 +33,11 @@
     {{else}}<div class="r-empty">{{localize "VTM20.Sheet.NoBackgrounds"}}</div>
     {{/each}}
   </div>
-  {{#if editable}}
-  <div class="r-toolbar">
-    <a class="r-btn" data-action="library" data-kind="background"><i class="fa-solid fa-book-skull"></i> {{localize "VTM20.Library.Open"}}</a>
-    <a class="r-btn is-ghost" data-action="itemCreate" data-type="background"><i class="fa-solid fa-feather"></i> {{localize "VTM20.Sheet.Own"}}</a>
-  </div>
-  {{/if}}
 
   <div class="r-cols2 r-mf">
     {{#each mfColumns}}
     <div class="r-col">
-      <h2 class="r-h2"><span>{{localize label}}</span><em class="r-h2-total">{{total}}</em></h2>
+      <h2 class="r-h2"><span>{{localize label}}</span><em class="r-h2-total">{{total}}</em>{{#if @root.editable}}<span class="r-h2-tools"><a class="r-h2-btn" data-action="library" data-kind="{{key}}" data-tooltip="{{localize 'VTM20.Library.Open'}}"><i class="fa-solid fa-book-skull"></i> <span class="r-h2-lbl">{{localize "VTM20.Library.Open"}}</span></a><a class="r-h2-btn is-ghost" data-action="itemCreate" data-type="{{key}}" data-tooltip="{{localize 'VTM20.Sheet.Own'}}"><i class="fa-solid fa-feather"></i> <span class="r-h2-lbl">{{localize "VTM20.Sheet.Own"}}</span></a></span>{{/if}}</h2>
       {{#each list}}
       <div class="r-row-wrap r-mf-row {{#if open}}is-open{{/if}}" data-item-id="{{id}}">
         <div class="r-trait-main">
@@ -56,21 +50,15 @@
         </div>
         <div class="r-power-body">{{{html}}}</div>
       </div>
-      {{else}}<div class="r-empty">—</div>
+      {{else}}<div class="r-empty">{{#if (eq key "merit")}}{{localize "VTM20.Sheet.NoMerits"}}{{else}}{{localize "VTM20.Sheet.NoFlaws"}}{{/if}}</div>
       {{/each}}
-      {{#if @root.editable}}
-      <div class="r-toolbar is-inner">
-        <a class="r-btn" data-action="library" data-kind="{{key}}"><i class="fa-solid fa-book-skull"></i> {{localize "VTM20.Library.Open"}}</a>
-        <a class="r-btn is-ghost" data-action="itemCreate" data-type="{{key}}"><i class="fa-solid fa-feather"></i></a>
-      </div>
-      {{/if}}
     </div>
     {{/each}}
   </div>
 
   <div class="r-cols2">
     <div class="r-col">
-      <h2 class="r-h2"><span>{{localize "VTM20.Sheet.Derangements"}}</span>{{#if editable}}<a class="r-h2-tool" data-action="itemCreate" data-type="derangement"><i class="fa-solid fa-plus"></i></a>{{/if}}</h2>
+      <h2 class="r-h2"><span>{{localize "VTM20.Sheet.Derangements"}}</span>{{#if editable}}<span class="r-h2-tools"><a class="r-h2-btn" data-action="library" data-kind="derangement" data-tooltip="{{localize 'VTM20.Library.Open'}}"><i class="fa-solid fa-book-skull"></i> <span class="r-h2-lbl">{{localize "VTM20.Library.Open"}}</span></a><a class="r-h2-btn is-ghost" data-action="itemCreate" data-type="derangement" data-tooltip="{{localize 'VTM20.Sheet.Own'}}"><i class="fa-solid fa-feather"></i> <span class="r-h2-lbl">{{localize "VTM20.Sheet.Own"}}</span></a></span>{{/if}}</h2>
       {{#each derangements}}
       <div class="r-row-wrap r-mf-row {{#if open}}is-open{{/if}}" data-item-id="{{id}}">
         <div class="r-trait-main">
@@ -83,18 +71,13 @@
         </div>
         <div class="r-power-body">{{{html}}}</div>
       </div>
-      {{else}}<div class="r-empty">—</div>
+      {{else}}<div class="r-empty">{{localize "VTM20.Sheet.NoDerangements"}}</div>
       {{/each}}
-      {{#if editable}}
-      <div class="r-toolbar is-inner">
-        <a class="r-btn" data-action="library" data-kind="derangement"><i class="fa-solid fa-book-skull"></i> {{localize "VTM20.Library.Open"}}</a>
-      </div>
-      {{/if}}
     </div>
 
     {{#unless isMortal}}
     <div class="r-col">
-      <h2 class="r-h2"><span>{{localize "VTM20.Sheet.Bonds"}}</span>{{#if editable}}<a class="r-h2-tool" data-action="addBond"><i class="fa-solid fa-plus"></i></a>{{/if}}</h2>
+      <h2 class="r-h2"><span>{{localize "VTM20.Sheet.Bonds"}}</span>{{#if editable}}<span class="r-h2-tools"><a class="r-h2-btn" data-action="addBond" data-tooltip="{{localize 'VTM20.Sheet.Add'}}"><i class="fa-solid fa-plus"></i> <span class="r-h2-lbl">{{localize "VTM20.Sheet.Add"}}</span></a></span>{{/if}}</h2>
       {{#each bonds}}
       <div class="r-trait-main r-bond">
         <select name="system.bonds.{{index}}.role" class="r-mini-select">

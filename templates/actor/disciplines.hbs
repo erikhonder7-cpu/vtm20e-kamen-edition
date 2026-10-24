@@ -1,7 +1,15 @@
 {{!-- II. Дисциплины: точки, силы по уровню из справочника, пути и ритуалы магии крови. --}}
 <section class="tab r-pane r-disciplines {{tab.cssClass}}" data-tab="{{tab.id}}" data-group="{{tab.group}}">
 
-  <h2 class="r-h2"><span>{{localize "VTM20.Sheet.Disciplines"}}</span></h2>
+  <h2 class="r-h2"><span>{{localize "VTM20.Sheet.Disciplines"}}</span>
+    <span class="r-h2-tools">
+      {{#if disciplines.length}}<a class="r-h2-btn is-plain" data-action="toggleAll" data-tooltip="{{localize 'VTM20.Sheet.ToggleAllHint'}}"><i class="fa-solid {{#if allOpen}}fa-angles-up{{else}}fa-angles-down{{/if}}"></i> <span class="r-h2-lbl">{{#if allOpen}}{{localize "VTM20.Sheet.CollapseAll"}}{{else}}{{localize "VTM20.Sheet.ExpandAll"}}{{/if}}</span></a>{{/if}}
+      {{#if editable}}
+      <a class="r-h2-btn" data-action="library" data-kind="discipline" data-tooltip="{{localize 'VTM20.Library.Open'}}"><i class="fa-solid fa-book-skull"></i> <span class="r-h2-lbl">{{localize "VTM20.Library.Open"}}</span></a>
+      <a class="r-h2-btn" data-action="library" data-kind="combo" data-tooltip="{{localize 'VTM20.Library.Kinds.combo'}}"><i class="fa-solid fa-link"></i> <span class="r-h2-lbl">{{localize "VTM20.Library.Kinds.combo"}}</span></a>
+      {{/if}}
+    </span>
+  </h2>
   {{#if activeFx.length}}
   <div class="r-fx-strip">
     <span class="r-fx-label"><i class="fa-solid fa-wand-sparkles"></i> {{localize "VTM20.Fx.Active"}}</span>
@@ -9,14 +17,12 @@
   </div>
   {{/if}}
 
-  {{#if editable}}
+  {{#if editable}}{{#if (or missingClan isGhoul)}}
   <div class="r-toolbar">
-    <a class="r-btn" data-action="library" data-kind="discipline"><i class="fa-solid fa-book-skull"></i> {{localize "VTM20.Library.Kinds.discipline"}}</a>
-    <a class="r-btn" data-action="library" data-kind="combo"><i class="fa-solid fa-link"></i> {{localize "VTM20.Library.Kinds.combo"}}</a>
     {{#if missingClan}}<a class="r-btn is-accent" data-action="addClanDisciplines"><i class="fa-solid fa-droplet"></i> {{localize "VTM20.Sheet.AddClanDisciplines"}}</a>{{/if}}
     {{#if isGhoul}}<span class="r-note">{{localize "VTM20.Sheet.GhoulCap" n=ghoulCap}}</span>{{/if}}
   </div>
-  {{/if}}
+  {{/if}}{{/if}}
 
   {{#each disciplines}}
   <article class="r-row-wrap r-disc {{#if open}}is-open{{/if}} {{#if inClan}}is-clan{{/if}}" data-item-id="{{id}}">
@@ -88,10 +94,29 @@
   <div class="r-empty">{{localize "VTM20.Sheet.NoDisciplines"}}</div>
   {{/each}}
 
-  {{#if (or otherPowers.length otherRituals.length)}}
-  <h2 class="r-h2"><span>{{localize "VTM20.Sheet.OtherPowers"}}</span></h2>
-  {{#each otherPowers}}{{> rPower cls="is-own"}}{{/each}}
-  {{#each otherRituals}}{{> rPower cls="is-ritual"}}{{/each}}
-  {{/if}}
-  {{#if editable}}<a class="r-add-line" data-action="itemCreate" data-type="power"><i class="fa-solid fa-plus"></i> {{localize "TYPES.Item.power"}}</a>{{/if}}
+  {{!-- Пути, ритуалы и силы, чьей Дисциплины на листе нет (купили ритуал без Тауматургии, путь чужой школы…) --}}
+  <h2 class="r-h2"><span>{{localize "VTM20.Sheet.OtherPowers"}}</span>
+    {{#if editable}}<span class="r-h2-tools"><a class="r-h2-btn is-ghost" data-action="itemCreate" data-type="power" data-tooltip="{{localize 'VTM20.Sheet.OwnPower'}}"><i class="fa-solid fa-feather"></i> <span class="r-h2-lbl">{{localize "VTM20.Sheet.OwnPower"}}</span></a></span>{{/if}}
+  </h2>
+  {{#each otherMagic}}
+  <div class="r-other-school">
+    <h4 class="r-h4">{{#if key}}<span class="r-other-sigil">{{#if sym}}{{rSym sym}}{{else}}<i class="fa-solid {{icon}}"></i>{{/if}}</span>{{name}}
+      <em class="r-other-note" data-tooltip="{{localize 'VTM20.Sheet.NoDisciplineHint'}}">{{localize "VTM20.Sheet.NoDiscipline"}}</em>{{else}}{{localize "VTM20.Sheet.NoSchool"}}{{/if}}</h4>
+    {{#each paths}}
+    <div class="r-path {{#if primary}}is-primary{{/if}}" data-item-id="{{id}}">
+      <div class="r-path-head">
+        <span class="r-path-name">{{name}}</span>
+        {{> rDots dots=dots}}
+        {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="itemDelete"><i class="fa-solid fa-trash"></i></a>{{/if}}
+      </div>
+      {{#each powers}}{{> rPower pathId=../id disc=../../key}}{{/each}}
+      {{#each ownPowers}}{{> rPower cls="is-own"}}{{/each}}
+      {{#unless powers.length}}{{#unless ownPowers.length}}{{#if html}}<div class="r-path-text">{{{html}}}</div>{{/if}}{{/unless}}{{/unless}}
+    </div>
+    {{/each}}
+    {{#each powers}}{{> rPower cls="is-own"}}{{/each}}
+    {{#each rituals}}{{> rPower cls="is-ritual"}}{{/each}}
+  </div>
+  {{else}}<div class="r-empty">{{localize "VTM20.Sheet.NoOtherPowers"}}</div>
+  {{/each}}
 </section>

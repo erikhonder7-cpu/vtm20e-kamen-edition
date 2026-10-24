@@ -1,5 +1,5 @@
 {{!-- Шапка «дела»: портрет с подписью (поколение), имя и амплуа, сведения строками, справа — запас крови;
-     снизу полоса ночных действий. --}}
+     под сведениями, рядом с портретом, — полоса ночных действий. --}}
 <header class="r-head">
   {{#if sigil.sym}}{{rSym sigil.sym "r-head-watermark"}}{{/if}}
 
@@ -94,23 +94,23 @@
       </div>
     </aside>
     {{/if}}
-  </div>
 
-  {{#unless needsCreation}}
-  <nav class="r-head-acts">
-    {{#if hasBlood}}<a class="r-act" data-action="hunt"><i class="fa-solid fa-moon"></i><span>{{localize "VTM20.Hunt.Button"}}</span></a>{{/if}}
-    {{#if isVampire}}<a class="r-act" data-action="awaken" data-tooltip="{{localize 'VTM20.Sheet.Awaken'}}"><i class="fa-solid fa-cloud-moon"></i><span>{{localize "VTM20.Sheet.AwakenShort"}}</span></a>{{/if}}
-    <a class="r-act" data-action="attack"><i class="fa-solid fa-khanda"></i><span>{{localize "VTM20.Combat.Attack"}}</span></a>
-    <a class="r-act" data-action="rollInitiative"><i class="fa-solid fa-bolt"></i><span>{{localize "VTM20.Sheet.Initiative"}}</span><b>{{system.initiative}}</b></a>
-    <a class="r-act" data-action="takeDamage"><i class="fa-solid fa-heart-crack"></i><span>{{localize "VTM20.Sheet.TakeDamageShort"}}</span></a>
-    <a class="r-act" data-action="hazard" data-tooltip="{{localize 'VTM20.Hazard.Title'}}"><i class="fa-solid fa-fire"></i><span>{{localize "VTM20.Hud.Hazard"}}</span></a>
-    {{#if weaknessCheck}}<a class="r-act" data-action="rollVirtue" data-kind="weakness"><i class="fa-solid fa-dice-d10"></i><span>{{weaknessCheck}}</span></a>{{/if}}
-    <span class="r-acts-spacer"></span>
-    <a class="r-act is-hot" data-action="rollVirtue" data-kind="frenzy"><i class="fa-solid fa-face-angry"></i><span>{{localize "VTM20.Roll.frenzy.title"}}</span></a>
-    {{#if isVampire}}<a class="r-act is-hot" data-action="diablerie" data-tooltip="{{localize 'VTM20.Diablerie.Title'}}"><i class="fa-solid fa-skull"></i><span>{{localize "VTM20.Diablerie.Short"}}</span></a>{{/if}}
-    {{#unless isMortal}}<a class="r-act is-hot" data-action="rollVirtue" data-kind="rotschreck"><i class="fa-solid fa-fire"></i><span>{{localize "VTM20.Roll.rotschreck.title"}}</span></a>{{/unless}}
-  </nav>
-  {{/unless}}
+    {{#unless needsCreation}}
+    <nav class="r-head-acts">
+      {{#if hasBlood}}<a class="r-act" data-action="hunt" data-tooltip="{{localize 'VTM20.Hunt.Button'}}"><i class="fa-solid fa-moon"></i><span>{{localize "VTM20.Hunt.Button"}}</span></a>{{/if}}
+      {{#if isVampire}}<a class="r-act" data-action="awaken" data-tooltip="{{localize 'VTM20.Sheet.Awaken'}}"><i class="fa-solid fa-cloud-moon"></i><span>{{localize "VTM20.Sheet.AwakenShort"}}</span></a>{{/if}}
+      <a class="r-act" data-action="attack" data-tooltip="{{localize 'VTM20.Combat.Attack'}}"><i class="fa-solid fa-khanda"></i><span>{{localize "VTM20.Combat.Attack"}}</span></a>
+      <a class="r-act" data-action="rollInitiative" data-tooltip="{{localize 'VTM20.Sheet.Initiative'}}"><i class="fa-solid fa-bolt"></i><span>{{localize "VTM20.Sheet.Initiative"}}</span><b>{{system.initiative}}</b></a>
+      <a class="r-act" data-action="takeDamage" data-tooltip="{{localize 'VTM20.Sheet.TakeDamageShort'}}"><i class="fa-solid fa-heart-crack"></i><span>{{localize "VTM20.Sheet.TakeDamageShort"}}</span></a>
+      <a class="r-act" data-action="hazard" data-tooltip="{{localize 'VTM20.Hazard.Title'}}"><i class="fa-solid fa-triangle-exclamation"></i><span>{{localize "VTM20.Hud.Hazard"}}</span></a>
+      {{#if weaknessCheck}}<a class="r-act" data-action="rollVirtue" data-kind="weakness" data-tooltip="{{weaknessCheck}}"><i class="fa-solid fa-dice-d10"></i><span>{{weaknessCheck}}</span></a>{{/if}}
+      <span class="r-acts-spacer"></span>
+      <a class="r-act is-hot" data-action="rollVirtue" data-kind="frenzy" data-tooltip="{{localize 'VTM20.Roll.frenzy.title'}}"><i class="fa-solid fa-face-angry"></i><span>{{localize "VTM20.Roll.frenzy.title"}}</span></a>
+      {{#if isVampire}}<a class="r-act is-hot" data-action="diablerie" data-tooltip="{{localize 'VTM20.Diablerie.Title'}}"><i class="fa-solid fa-skull"></i><span>{{localize "VTM20.Diablerie.Short"}}</span></a>{{/if}}
+      {{#unless isMortal}}<a class="r-act is-hot" data-action="rollVirtue" data-kind="rotschreck" data-tooltip="{{localize 'VTM20.Roll.rotschreck.title'}}"><i class="fa-solid fa-fire"></i><span>{{localize "VTM20.Roll.rotschreck.title"}}</span></a>{{/unless}}
+    </nav>
+    {{/unless}}
+  </div>
 
   <datalist id="r-arch-{{actor.id}}">{{#each archetypes}}<option value="{{this}}"></option>{{/each}}</datalist>
   <datalist id="r-sect-{{actor.id}}">{{#each sects}}<option value="{{value}}"></option>{{/each}}</datalist>

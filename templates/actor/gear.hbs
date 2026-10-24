@@ -11,7 +11,12 @@
     {{#if editable}}<a class="r-btn" data-action="money"><i class="fa-solid fa-pen-nib"></i> {{localize "VTM20.Money.Edit"}}</a>{{/if}}
   </div>
 
-  <h2 class="r-h2"><span>{{localize "VTM20.Sheet.Weapons"}}</span></h2>
+  <h2 class="r-h2"><span>{{localize "VTM20.Sheet.Weapons"}}</span>
+    {{#if editable}}<span class="r-h2-tools">
+      <input type="text" class="r-h2-find" data-preset="weapon" data-combo="r-wpn-{{actor.id}}" placeholder="{{localize 'VTM20.Sheet.PresetWeapon'}}">
+      <a class="r-h2-btn is-ghost" data-action="itemCreate" data-type="weapon" data-tooltip="{{localize 'VTM20.Sheet.Own'}}"><i class="fa-solid fa-feather"></i> <span class="r-h2-lbl">{{localize "VTM20.Sheet.Own"}}</span></a>
+    </span>{{/if}}
+  </h2>
   <table class="r-table">
     <thead><tr>
       <th></th><th>{{localize "VTM20.Weapon.name"}}</th><th>{{localize "VTM20.Weapon.pool"}}</th><th>{{localize "VTM20.Weapon.diff"}}</th>
@@ -20,7 +25,7 @@
     <tbody>
       {{#each weapons}}
       <tr data-item-id="{{id}}" class="{{#unless equipped}}is-off{{/unless}}">
-        <td><a class="r-attack" data-action="rollWeapon" data-tooltip="{{localize 'VTM20.Weapon.attack'}}"><i class="fa-solid fa-khanda"></i></a></td>
+        <td><a class="r-attack" data-action="rollWeapon" data-tooltip="{{localize 'VTM20.Weapon.attack'}}"><i class="fa-solid {{icon}}"></i></a></td>
         <td class="r-td-name"><a data-action="itemEdit">{{name}}</a><span class="r-td-sub">{{kindLabel}}</span></td>
         <td class="r-num">{{pool}}</td>
         <td class="r-num">{{difficulty}}</td>
@@ -36,18 +41,15 @@
     </tbody>
   </table>
   {{#if editable}}
-  <div class="r-toolbar">
-    <select name="preset-weapon" class="r-select"><option value="">{{localize "VTM20.Sheet.ChoosePreset"}}</option>
-      {{#each weaponPresetGroups}}<optgroup label="{{label}}">{{#each options}}<option value="{{value}}">{{label}}</option>{{/each}}</optgroup>{{/each}}
-    </select>
-    <a class="r-btn" data-action="addPreset" data-kind="weapon"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Sheet.Add"}}</a>
-    <a class="r-btn is-ghost" data-action="itemCreate" data-type="weapon"><i class="fa-solid fa-feather"></i> {{localize "VTM20.Sheet.Own"}}</a>
-  </div>
+  <datalist id="r-wpn-{{actor.id}}">{{#each weaponPresetGroups}}{{#each options}}<option value="{{label}}" data-group="{{../label}}" data-key="{{value}}"></option>{{/each}}{{/each}}</datalist>
+  <datalist id="r-arm-{{actor.id}}">{{#each armorPresetGroups}}{{#each options}}<option value="{{label}}" data-group="{{../label}}" data-key="{{value}}"></option>{{/each}}{{/each}}</datalist>
   {{/if}}
 
   <div class="r-cols2">
     <div class="r-col">
-      <h2 class="r-h2"><span>{{localize "VTM20.Sheet.Armor"}}</span></h2>
+      <h2 class="r-h2"><span>{{localize "VTM20.Sheet.Armor"}}</span>
+        {{#if editable}}<span class="r-h2-tools"><input type="text" class="r-h2-find is-short" data-preset="armor" data-combo="r-arm-{{actor.id}}" placeholder="{{localize 'VTM20.Sheet.PresetArmor'}}"></span>{{/if}}
+      </h2>
       {{#each armors}}
       <div class="r-trait-main r-armor {{#unless equipped}}is-off{{/unless}}" data-item-id="{{id}}">
         <a class="r-icon-btn" data-action="itemToggle" data-field="system.equipped" data-tooltip="{{localize 'VTM20.Sheet.Equip'}}"><i class="fa-solid {{#if equipped}}fa-shield-halved{{else}}fa-shield{{/if}}"></i></a>
@@ -57,18 +59,14 @@
         {{#if penalty}}<span class="r-tag is-red">−{{penalty}}</span>{{/if}}
         {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="itemDelete"><i class="fa-solid fa-xmark"></i></a>{{/if}}
       </div>
-      {{else}}<div class="r-empty">—</div>
+      {{else}}<div class="r-empty">{{localize "VTM20.Sheet.NoArmor"}}</div>
       {{/each}}
-      {{#if editable}}
-      <div class="r-toolbar is-inner">
-        <select name="preset-armor" class="r-select"><option value="">{{localize "VTM20.Sheet.ChoosePreset"}}</option>{{#each armorPresetGroups}}<optgroup label="{{label}}">{{#each options}}<option value="{{value}}">{{label}}</option>{{/each}}</optgroup>{{/each}}</select>
-        <a class="r-btn" data-action="addPreset" data-kind="armor"><i class="fa-solid fa-plus"></i></a>
-      </div>
-      {{/if}}
     </div>
 
     <div class="r-col">
-      <h2 class="r-h2"><span>{{localize "VTM20.Sheet.Gear"}}</span>{{#if editable}}<a class="r-h2-tool" data-action="itemCreate" data-type="gear"><i class="fa-solid fa-plus"></i></a>{{/if}}</h2>
+      <h2 class="r-h2"><span>{{localize "VTM20.Sheet.Gear"}}</span>
+        {{#if editable}}<span class="r-h2-tools"><a class="r-h2-btn is-ghost" data-action="itemCreate" data-type="gear" data-tooltip="{{localize 'VTM20.Sheet.Own'}}"><i class="fa-solid fa-feather"></i> <span class="r-h2-lbl">{{localize "VTM20.Sheet.Own"}}</span></a></span>{{/if}}
+      </h2>
       {{#each gear}}
       <div class="r-trait-main" data-item-id="{{id}}">
         <img class="r-thumb" src="{{img}}" alt="">
@@ -78,7 +76,7 @@
         <a class="r-icon-btn" data-action="itemChat"><i class="fa-solid fa-comment-dots"></i></a>
         {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="itemDelete"><i class="fa-solid fa-xmark"></i></a>{{/if}}
       </div>
-      {{else}}<div class="r-empty">—</div>
+      {{else}}<div class="r-empty">{{localize "VTM20.Sheet.NoGear"}}</div>
       {{/each}}
     </div>
   </div>

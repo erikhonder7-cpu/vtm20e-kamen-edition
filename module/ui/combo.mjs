@@ -5,6 +5,7 @@
 //
 // Разметка: <input type="text" data-combo="id-списка"> и где-то рядом <datalist id="id-списка"> с вариантами
 // (datalist без атрибута list у поля браузер не показывает — он служит только хранилищем вариантов).
+// У варианта можно задать data-group (заголовок группы в списке) и data-key (выбранный ключ попадёт в input.dataset.key).
 
 const norm = s => String(s ?? "").toLowerCase().replace(/ё/g, "е").trim();
 
@@ -31,16 +32,16 @@ class Combo {
     input.addEventListener("blur", () => setTimeout(() => this.close(), 120));
   }
 
-  get values() {
+  get options() {
     const list = this.root.querySelector(`datalist#${CSS.escape(this.input.dataset.combo)}`);
-    return [...(list?.options ?? [])].map(o => o.value).filter(Boolean);
+    return [...(list?.options ?? [])].filter(o => o.value).map(o => ({ value: o.value, group: o.dataset.group ?? "", key: o.dataset.key }));
   }
 
   /** all — показать весь список (при фокусе); иначе — отфильтровать по набранному. */
   open(all) {
     const q = norm(this.input.value);
-    const values = this.values;
-    const shown = all || !q ? values : values.filter(v => norm(v).includes(q));
+    const options = this.options;
+    const shown = all || !q ? options : options.filter(o => norm(o.value).includes(q) || norm(o.group).includes(q));
     if (!shown.length) return this.close();
     if (!this.pop) {
       this.pop = document.createElement("div");
@@ -48,7 +49,7 @@ class Combo {
       this.pop.addEventListener("mousedown", e => {          // mousedown, а не click: поле не теряет фокус раньше выбора
         const li = e.target.closest("[data-value]");
         e.preventDefault();
-        if (li) this.pick(li.dataset.value);
+        if (li) this.pick(this.items[Number(li.dataset.i)]);
       });
       document.body.append(this.pop);
       this._reflow = () => this.place();
@@ -57,11 +58,12 @@ class Combo {
     }
     const cur = norm(this.input.value);
     this.items = shown;
-    this.active = Math.max(0, shown.findIndex(v => norm(v) === cur));
-    this.pop.innerHTML = shown.map((v, i) =>
-      `<div class="r-combo-item${norm(v) === cur ? " is-current" : ""}${i === this.active ? " is-active" : ""}" data-value="${foundry.utils.escapeHTML(v)}">${foundry.utils.escapeHTML(v)}</div>`).join("");
+    this.active = Math.max(0, shown.findIndex(o => norm(o.value) === cur));
+    const esc = foundry.utils.escapeHTML;
+    this.pop.innerHTML = shown.map((o, i) => (o.group && o.group !== shown[i - 1]?.group ? `<div class="r-combo-group">${esc(o.group)}</div>` : "")
+      + `<div class="r-combo-item${norm(o.value) === cur ? " is-current" : ""}${i === this.active ? " is-active" : ""}" data-value="${esc(o.value)}" data-i="${i}">${esc(o.value)}</div>`).join("");
     this.place();
-    this.pop.children[this.active]?.scrollIntoView({ block: "nearest" });
+    this.#rows()[this.active]?.scrollIntoView({ block: "nearest" });
   }
 
   /** Под полем; если снизу не хватает места — над ним. */
@@ -78,8 +80,12 @@ class Combo {
     });
   }
 
-  pick(value) {
-    this.input.value = value;
+  #rows() { return [...(this.pop?.querySelectorAll(".r-combo-item") ?? [])]; }
+
+  pick(o) {
+    if (!o) return;
+    this.input.value = o.value;
+    if (o.key !== undefined) this.input.dataset.key = o.key;
     this.input.dispatchEvent(new Event("change", { bubbles: true }));   // форма листа сохраняет по change
     this.close();
   }
@@ -98,8 +104,9 @@ class Combo {
     if (e.key === "ArrowDown" || e.key === "ArrowUp") {
       e.preventDefault();
       this.active = (this.active + (e.key === "ArrowDown" ? 1 : -1) + n) % n;
-      [...this.pop.children].forEach((el, i) => el.classList.toggle("is-active", i === this.active));
-      this.pop.children[this.active]?.scrollIntoView({ block: "nearest" });
+      const rows = this.#rows();
+      rows.forEach((el, i) => el.classList.toggle("is-active", i === this.active));
+      rows[this.active]?.scrollIntoView({ block: "nearest" });
     } else if (e.key === "Enter") {
       e.preventDefault();
       if (this.items[this.active] !== undefined) this.pick(this.items[this.active]);
