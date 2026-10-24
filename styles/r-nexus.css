@@ -180,22 +180,6 @@ body.r-nav-off #scene-navigation { display: none !important; }
 
 .application.vtm20.r-calendar .window-content { padding: 0; }
 .r-cal { display: flex; flex-direction: column; font-family: var(--nx-body); color: var(--nx-bone); }
-.r-cal-face { display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: center; padding: 14px 16px; background: var(--nx-coal); border-bottom: 1px solid #222226; }
-.r-cal[data-phase=day] .r-cal-face, .r-cal[data-phase=dawn] .r-cal-face { background: linear-gradient(180deg, rgba(201, 164, 106, .08), transparent), var(--nx-coal); }
-.r-cal-moon { font-size: 40px; line-height: 1; filter: grayscale(.7) drop-shadow(0 0 8px rgba(216, 207, 191, .2)); }
-.r-cal-main { display: flex; flex-direction: column; min-width: 0; }
-.r-cal-time { font-family: var(--nx-display); font-size: 42px; line-height: 1; color: var(--nx-bone); }
-.r-cal-date { font-size: 13px; color: var(--nx-bone-2); }
-.r-cal-sub { font-size: 11.5px; color: var(--nx-muted); }
-.vtm20 .r-cal-republic { font-family: "IM Fell", var(--nx-body); font-style: italic; color: var(--nx-bone-2); font-size: 14px; }
-.r-cal-side { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; text-align: right; }
-.r-cal-night { display: flex; flex-direction: column; align-items: flex-end; line-height: 1; }
-.r-cal-night small { font-family: var(--nx-caps); font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--nx-muted); }
-.r-cal-night b { font-family: var(--nx-display); font-weight: 400; font-size: 30px; color: var(--nx-blood-l); }
-.r-cal-until { font-size: 11.5px; font-style: italic; color: var(--nx-bone-2); white-space: nowrap; }
-.r-cal[data-phase=day] .r-cal-until, .r-cal[data-phase=dawn] .r-cal-until { color: var(--nx-dawn); }
-.r-cal-sun { font-size: 10.5px; color: var(--nx-muted); white-space: nowrap; }
-.r-cal-sun i { font-size: 9px; }
 .r-cal-sec { padding: 10px 16px; border-bottom: 1px solid var(--nx-line); }
 .r-cal-sec-last { border-bottom: 0; padding-bottom: 14px; }
 .r-cal-lbl { display: flex; align-items: center; margin-bottom: 7px; font-family: var(--nx-caps); font-size: 12.5px; letter-spacing: 2.2px; text-transform: uppercase; color: var(--nx-bone-2); }
@@ -241,3 +225,47 @@ body.r-nav-off #scene-navigation { display: none !important; }
 .r-time-card { --oc: var(--nx-bone-2); }
 .r-time-card[data-phase=day], .r-time-card[data-phase=dawn] { --oc: var(--nx-dawn); }
 .r-time-card .r-card-breakdown { padding-bottom: 8px; }
+
+/* ── Ночные часы: вкладки и циферблат ночи (К1, К2) ─────────────────────── */
+.r-cal-tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); background: var(--nx-coal); border-bottom: 1px solid #222226; }
+.r-cal-tabs a { padding: 10px 0 9px; text-align: center; cursor: pointer; font-family: var(--nx-caps); font-size: 12px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--nx-muted); }
+.r-cal-tabs a:hover { color: var(--nx-bone); }
+.r-cal-tabs a.is-active { color: #f1e9da; box-shadow: inset 0 -2px 0 var(--nx-blood-l); }
+.r-cal-now { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 16px 18px 14px; }
+.r-cal-dial { width: 250px; height: 250px; }
+.r-dial { display: block; width: 100%; height: 100%; overflow: visible; }
+.r-dial-face { fill: #0b0b0d; stroke: rgba(216, 207, 191, .14); }
+.r-dial-h { font-family: var(--nx-caps); font-size: 12px; fill: var(--nx-muted); }
+.r-dial-day { fill: none; stroke: rgba(216, 207, 191, .16); stroke-width: 3; }
+.r-dial-night { fill: none; stroke: #2f3b55; stroke-width: 13; }
+.r-dial-past { fill: none; stroke: #6a6f8a; stroke-width: 13; }
+.r-dial-sunset { fill: var(--nx-dawn); }
+.r-dial-sunrise { fill: #e0414b; }
+.r-dial-hand { stroke: var(--nx-blood-l); stroke-width: 3; stroke-linecap: round; }
+.r-dial-pin { fill: var(--nx-blood-l); }
+.r-dial-time { font-family: var(--nx-display); font-size: 42px; fill: #f1e9da; }
+.r-dial-cap { font-family: var(--nx-caps); font-size: 11.5px; letter-spacing: 2px; text-transform: uppercase; fill: var(--nx-bone-2); }
+.r-dial-left { font-family: var(--nx-display); font-size: 27px; fill: var(--nx-dawn); }
+.r-dial.is-day .r-dial-left, .r-dial.is-day .r-dial-cap { fill: var(--nx-dawn); }
+.r-dial.is-hot .r-dial-left, .r-dial.is-hot .r-dial-cap { fill: #ff9a8f; }
+.r-dial.is-hot .r-dial-past { stroke: #b06a5a; }
+.r-cal-meta { display: flex; flex-direction: column; align-items: center; gap: 2px; text-align: center; font-size: 13.5px; color: var(--nx-bone-2); }
+.r-cal-meta b { font-family: var(--nx-display); font-weight: 400; color: var(--nx-bone); }
+.vtm20 .r-cal-meta .r-cal-republic { font-size: 16px; color: #f1e9da; }
+.r-cal-meta .r-cal-sun { font-size: 12px; color: var(--nx-muted); }
+.r-cal-quick { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; width: 100%; }
+.r-cal-quick a { display: flex; align-items: center; justify-content: center; gap: 6px; height: 34px; cursor: pointer; border: 1px solid var(--nx-line-2);
+  font-family: var(--nx-caps); font-size: 11.5px; letter-spacing: 1px; text-transform: uppercase; color: var(--nx-bone-2); background: rgba(0, 0, 0, .25); }
+.r-cal-quick a:hover { color: var(--nx-bone); border-color: var(--nx-bone-2); }
+.r-cal-quick a i { color: var(--nx-blood-l); font-size: 11px; }
+.r-cal-quick a.r-cal-go { color: #f1e9da; background: var(--nx-blood); border-color: var(--nx-blood-l); }
+.r-cal-quick a.r-cal-go i { color: #f1e9da; }
+.r-cal-quick a.r-cal-go.is-on { background: rgba(0, 0, 0, .25); border-color: var(--nx-line-2); color: var(--nx-bone-2); }
+.r-cal-quick a.r-cal-go.is-on i { color: var(--nx-steel); }
+.r-cal-scene-row { display: flex; align-items: center; gap: 8px; width: 100%; padding-top: 10px; border-top: 1px solid var(--nx-line); font-size: 12.5px; color: var(--nx-bone-2); }
+.r-cal-scene-row > span { flex: 1; min-width: 0; }
+.r-cal-scene-row b { font-family: var(--nx-display); font-weight: 400; font-size: 15px; color: var(--nx-steel); }
+.r-cal-scene-row i { color: var(--nx-steel); margin-right: 3px; }
+.r-cal-scene-row .r-cal-muted { color: var(--nx-muted); font-style: italic; }
+.r-cal-scene-row a { flex: 0 0 auto; cursor: pointer; padding: 4px 9px; border: 1px solid var(--nx-line-2); font-family: var(--nx-caps); font-size: 10.5px; letter-spacing: 1px; text-transform: uppercase; color: var(--nx-muted); }
+.r-cal-scene-row a:hover { color: var(--nx-bone); border-color: var(--nx-bone-2); }

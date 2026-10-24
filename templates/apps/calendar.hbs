@@ -1,21 +1,33 @@
-{{!-- Ночные часы: время, фаза ночи, луна, промотка, таймер сцены. Корень — <form>. --}}
+{{!-- Ночные часы: вкладки «Сейчас» (циферблат ночи), «Ход времени» и «Хроника и город». Корень — <form>. --}}
 <div class="r-cal" data-cal-phase data-phase="{{phase.key}}">
+  <nav class="r-cal-tabs">
+    {{#each tabs as |t|}}<a class="{{#if t.active}}is-active{{/if}}" data-action="calTab" data-tab="{{t.id}}">{{t.label}}</a>{{/each}}
+  </nav>
 
-  <div class="r-cal-face">
-    <div class="r-cal-moon" title="{{moon.label}} · {{moon.illumination}}%">{{moon.glyph}}</div>
-    <div class="r-cal-main">
-      <b class="r-cal-time" data-cal-time>{{time}}</b>
-      <span class="r-cal-date" data-cal-date>{{longDate}}</span>
-      <span class="r-cal-sub" data-cal-sub>{{weekday}} · {{phase.label}}</span>
-      {{#if republic}}<span class="r-cal-republic">{{republic}}</span>{{/if}}
+  {{#if tabNow}}
+  <div class="r-cal-now">
+    <div class="r-cal-dial" data-cal-dial>{{{dial}}}</div>
+    <div class="r-cal-meta">
+      {{#if republic}}<b class="r-cal-republic">{{republic}}</b>{{/if}}
+      <span><span data-cal-date>{{longDate}}</span> · <span data-cal-sub>{{weekday}} · {{phase.label}}</span></span>
+      <span>{{localize "VTM20.Calendar.NightN"}} <b data-cal-night>{{night}}</b> · {{moon.glyph}} {{moon.label}}, {{moon.illumination}}%</span>
+      <span class="r-cal-sun"><i class="fa-solid fa-moon"></i> {{localize "VTM20.Calendar.Sunset"}} {{sunset}} · <i class="fa-solid fa-sun"></i> {{localize "VTM20.Calendar.Sunrise"}} {{sunrise}}</span>
     </div>
-    <div class="r-cal-side">
-      <span class="r-cal-night"><small>{{localize "VTM20.Calendar.NightN"}}</small><b data-cal-night>{{night}}</b></span>
-      <span class="r-cal-until" data-cal-until>{{phase.untilLabel}}</span>
-      <span class="r-cal-sun"><i class="fa-solid fa-sun"></i> {{sunrise}} · <i class="fa-solid fa-moon"></i> {{sunset}}</span>
+    <div class="r-cal-quick">
+      <a class="r-cal-go {{#if running}}is-on{{/if}}" data-action="toggleRun"><i class="fa-solid {{#if running}}fa-pause{{else}}fa-play{{/if}}"></i> {{#if running}}{{localize "VTM20.Calendar.PauseShort"}}{{else}}{{localize "VTM20.Calendar.RunShort"}}{{/if}}</a>
+      <a data-action="toSunset"><i class="fa-solid fa-moon"></i> {{localize "VTM20.Calendar.ToSunset"}}</a>
+      <a data-action="toSunrise"><i class="fa-solid fa-sun"></i> {{localize "VTM20.Calendar.ToSunrise"}}</a>
+    </div>
+    <div class="r-cal-scene-row">
+      {{#if hasScene}}<span><i class="fa-solid fa-stopwatch"></i> {{localize "VTM20.Calendar.SceneRunning"}} <b data-cal-scene>{{scene.text}}</b></span>
+      {{else}}<span class="r-cal-muted"><i class="fa-solid fa-stopwatch"></i> {{localize "VTM20.Calendar.SceneNone"}}<span data-cal-scene hidden></span></span>{{/if}}
+      <a data-action="sceneStart" data-tooltip="{{localize 'VTM20.Calendar.SceneHint'}}">{{localize "VTM20.Calendar.SceneStart"}}</a>
+      <a data-action="announce" data-tooltip="{{localize 'VTM20.Calendar.Announce'}}"><i class="fa-solid fa-comment"></i></a>
     </div>
   </div>
+  {{/if}}
 
+  {{#if tabFlow}}
   <div class="r-cal-sec">
     <div class="r-cal-lbl">{{localize "VTM20.Calendar.SetDateTime"}}</div>
     <div class="r-cal-set">
@@ -47,7 +59,7 @@
     <p class="r-hint">{{localize "VTM20.Calendar.FlowHint"}}</p>
   </div>
 
-  <div class="r-cal-sec">
+  <div class="r-cal-sec r-cal-sec-last">
     <div class="r-cal-lbl">{{localize "VTM20.Calendar.SceneTimer"}}</div>
     {{#if hasScene}}
       <div class="r-cal-scene"><span>{{localize "VTM20.Calendar.SceneRunning"}}</span><b data-cal-scene>{{scene.text}}</b>
@@ -60,7 +72,9 @@
       <a data-action="announce"><i class="fa-solid fa-comment"></i> {{localize "VTM20.Calendar.Announce"}}</a>
     </div>
   </div>
+  {{/if}}
 
+  {{#if tabChron}}
   <div class="r-cal-sec r-cal-sec-last">
     <div class="r-cal-lbl">{{localize "VTM20.Calendar.Chronicle"}}</div>
     <div class="r-cal-chron">
@@ -77,4 +91,5 @@
       <button type="submit" class="r-cal-ok" title="{{localize 'VTM20.Common.Apply'}}"><i class="fa-solid fa-check"></i></button>
     </div>
   </div>
+  {{/if}}
 </div>

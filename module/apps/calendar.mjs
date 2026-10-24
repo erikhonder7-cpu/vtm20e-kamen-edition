@@ -333,6 +333,47 @@ export function nightSpan(ms = getClock()) {
   return { night, start, end, left, leftText: `${Math.floor(left / MS_HOUR)}:${pad(Math.floor((left % MS_HOUR) / MS_MIN))}`, pct, hot: night && left < MS_HOUR };
 }
 
+/**
+ * Циферблат ночи (К1): сутки по кругу, полночь сверху. Ночь — синяя дуга от заката до восхода, прошедшая её
+ * часть — светлее; днём ночь впереди. Стрелка — сейчас, в центре — время и сколько осталось до рассвета (заката).
+ * @returns {string} SVG
+ */
+export function nightDial(ms = getClock()) {
+  const C = 120, R = 98;
+  const dayStart = t => { const d = new Date(t); return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime(); };
+  const ang = t => (t - dayStart(t)) / MS_DAY * 360;
+  const pt = (a, r = R) => [C + r * Math.sin(a * Math.PI / 180), C - r * Math.cos(a * Math.PI / 180)];
+  const f = n => n.toFixed(1);
+  const arc = (t0, t1, r = R) => {
+    const a0 = ang(t0), span = Math.max(.5, (t1 - t0) / MS_DAY * 360), [x0, y0] = pt(a0, r), [x1, y1] = pt(a0 + span, r);
+    return `M${f(x0)} ${f(y0)} A${r} ${r} 0 ${span > 180 ? 1 : 0} 1 ${f(x1)} ${f(y1)}`;
+  };
+  const s = nightSpan(ms);
+  // ночь, которую показываем: идущая — или предстоящая, если сейчас день
+  const night = s.night ? { start: s.start, end: s.end } : { start: s.end, end: sunTimes(s.end + MS_DAY / 2).sunrise };
+  const ticks = Array.from({ length: 24 }, (_, h) => {
+    const big = h % 6 === 0, [x0, y0] = pt(h * 15, R + 9), [x1, y1] = pt(h * 15, R + (big ? 17 : 13));
+    return `<line x1="${f(x0)}" y1="${f(y0)}" x2="${f(x1)}" y2="${f(y1)}" stroke="rgba(216,207,191,${big ? .55 : .22})" stroke-width="${big ? 1.6 : 1}"/>`;
+  }).join("");
+  const labels = [0, 6, 12, 18].map(h => { const [x, y] = pt(h * 15, R + 28); return `<text x="${f(x)}" y="${f(y + 4)}" text-anchor="middle" class="r-dial-h">${h}</text>`; }).join("");
+  // стрелка — отрезок у кольца, чтобы не перечёркивать время в центре
+  const [hx, hy] = pt(ang(ms), R + 6), [ix, iy] = pt(ang(ms), R - 30), [sx, sy] = pt(ang(night.start)), [ex, ey] = pt(ang(night.end));
+  const d = new Date(ms), left = s.leftText;
+  return `<svg class="r-dial${s.hot ? " is-hot" : ""}${s.night ? "" : " is-day"}" viewBox="-12 -12 264 264" role="img"
+      aria-label="${L(s.night ? "DialNight" : "DialDay")} ${left}">
+    <circle cx="${C}" cy="${C}" r="${R + 20}" class="r-dial-face"/>
+    ${ticks}${labels}
+    <circle cx="${C}" cy="${C}" r="${R}" class="r-dial-day"/>
+    <path d="${arc(night.start, night.end)}" class="r-dial-night"/>
+    ${s.night ? `<path d="${arc(night.start, ms)}" class="r-dial-past"/>` : ""}
+    <circle cx="${f(sx)}" cy="${f(sy)}" r="5" class="r-dial-sunset"/><circle cx="${f(ex)}" cy="${f(ey)}" r="5" class="r-dial-sunrise"/>
+    <line x1="${f(ix)}" y1="${f(iy)}" x2="${f(hx)}" y2="${f(hy)}" class="r-dial-hand"/><circle cx="${f(ix)}" cy="${f(iy)}" r="3.5" class="r-dial-pin"/>
+    <text x="${C}" y="${C - 18}" text-anchor="middle" class="r-dial-time">${hhmm(d)}</text>
+    <text x="${C}" y="${C + 16}" text-anchor="middle" class="r-dial-cap">${L(s.night ? "DialToSunrise" : "DialToSunset")}</text>
+    <text x="${C}" y="${C + 44}" text-anchor="middle" class="r-dial-left">${left}</text>
+  </svg>`;
+}
+
 /* ── Окно календаря (рассказчик) ──────────────────────────────────────── */
 
 /** Скорости хода часов: игровых минут за реальную. */
@@ -354,7 +395,7 @@ export class NightCalendar extends HandlebarsApplicationMixin(ApplicationV2) {
     classes: ["vtm20", "r-calendar"],
     tag: "form",
     window: { title: "VTM20.Calendar.Title", icon: "fa-solid fa-moon", resizable: false, contentClasses: ["r-cal-content"] },
-    position: { width: 460 },
+    position: { width: 440 },
     form: { handler: NightCalendar.#onSubmit, submitOnChange: false, closeOnSubmit: false },
     actions: {
       advance: NightCalendar.#onAdvance,
@@ -366,7 +407,8 @@ export class NightCalendar extends HandlebarsApplicationMixin(ApplicationV2) {
       sceneStart: NightCalendar.#onSceneStart,
       sceneClear: NightCalendar.#onSceneClear,
       chronicleHere: NightCalendar.#onChronicleHere,
-      announce: NightCalendar.#onAnnounce
+      announce: NightCalendar.#onAnnounce,
+      calTab: NightCalendar.#onTab
     }
   };
 
@@ -387,7 +429,11 @@ export class NightCalendar extends HandlebarsApplicationMixin(ApplicationV2) {
       scene: sceneElapsed(), hasScene: !!sceneStart(),
       latitude: latitude(),
       longitude: game.settings.get(SYSTEM_ID, "longitude"), utcOffset: game.settings.get(SYSTEM_ID, "utcOffset"),
-      chronicleStartLabel: chronicleStart() ? longDate(new Date(chronicleStart())) : "—"
+      chronicleStartLabel: chronicleStart() ? longDate(new Date(chronicleStart())) : "—",
+      // вкладки (К2): «Сейчас» — то, что нужно за столом; настройки хода и города — отдельно
+      tabs: ["now", "flow", "chron"].map(id => ({ id, label: L(`Tab.${id}`), active: id === NightCalendar.tab })),
+      tabNow: NightCalendar.tab === "now", tabFlow: NightCalendar.tab === "flow", tabChron: NightCalendar.tab === "chron",
+      dial: nightDial(ms)
     };
   }
 
@@ -412,6 +458,8 @@ export class NightCalendar extends HandlebarsApplicationMixin(ApplicationV2) {
     set("[data-cal-night]", String(c.night));
     set("[data-cal-scene]", c.scene);
     root.querySelector("[data-cal-phase]")?.setAttribute("data-phase", c.phase.key);
+    const dial = root.querySelector("[data-cal-dial]");
+    if (dial) dial.innerHTML = nightDial();
   }
 
   async close(options) {
@@ -458,6 +506,9 @@ export class NightCalendar extends HandlebarsApplicationMixin(ApplicationV2) {
   }
   static async #onSceneStart() { await setSceneStart(getClock()); this.render(); }
   static async #onSceneClear() { await setSceneStart(0); this.render(); }
+  /** Открытая вкладка — запоминается на время сессии. */
+  static tab = "now";
+  static #onTab(event, target) { NightCalendar.tab = target.dataset.tab; this.render(); }
   static async #onChronicleHere() {
     await game.settings.set(SYSTEM_ID, "chronicleStart", getClock()); this.render();
   }

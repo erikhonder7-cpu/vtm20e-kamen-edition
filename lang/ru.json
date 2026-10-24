@@ -893,6 +893,14 @@
       "RemoveScene": "Убрать из района"
     },
     "Calendar": {
+      "Tab": { "now": "Сейчас", "flow": "Ход времени", "chron": "Хроника и город" },
+      "DialNight": "Ночь, до рассвета",
+      "DialDay": "День, до заката",
+      "DialToSunrise": "до рассвета",
+      "DialToSunset": "до заката",
+      "SceneNone": "Сцена не отмечена",
+      "RunShort": "Пустить",
+      "PauseShort": "Стоп",
       "Title": "Ночные часы",
       "GMOnly": "Часы настраивает рассказчик.",
       "Hours": "ч",
