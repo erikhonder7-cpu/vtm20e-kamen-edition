@@ -23,12 +23,13 @@
 
 import { SYSTEM_ID, SYSTEM_PATH } from "../config.mjs";
 import {
-  getClock, clockRunning, clockRate, clockGliding, setClockRunning, setClockRate, glideTo, advanceClock,
-  hhmm, shortDate, longDate, ymd, nightPhase, sunTimes, realNow, MS_MIN, MS_DAY
+  getClock, clockRunning, clockRate, setClockRunning, setClockRate, glideTo, advanceClock,
+  longDate, ymd, sunTimes, realNow, MS_MIN, MS_DAY
 } from "../apps/calendar.mjs";
 import {
   whereIs, cityFlag, placeActor, leaderOf, followersOf, groupOf, joinGroup, leaveGroup, mapVisible, isHiddenOnMap, meters
 } from "./citychars.mjs";
+import { plateHTML, paintPlate } from "./night-plate.mjs";
 import { registerAssembly, attachAssembly, renderBoard, drawModes, boardMode, setMode, influenceData } from "./assembly.mjs";
 import { registerCatacombs, attachCatacombs, addCatacombLayers, catacombsButtons, catacombsAct, catacombsPlace, catacombsPick } from "./catacombs.mjs";
 
@@ -1560,11 +1561,8 @@ function drawClock() {
   if (!box || !state) return;
   const run = clockRunning(), rate = clockRate();
   const C = k => L(`Clock.${k}`);
-  box.innerHTML = `<div class="rc-clock-face">
-      <i class="fa-solid fa-moon" data-clock-icon></i>
-      <div><b data-clock-time></b><small data-clock-sub></small></div>
-      <span class="rc-clock-state" data-clock-state></span>
-    </div>
+  // Та же плашка ночи, что в полосе нексуса (Г1); под ней — кнопки хода времени для ведущего
+  box.innerHTML = `${plateHTML()}
     ${game.user.isGM ? `<div class="rc-clock-ctl">
       <a class="rc-clock-run ${run ? "on" : ""}" data-act="clockRun" data-tooltip="${esc(C(run ? "Pause" : "Run"))}"><i class="fa-solid ${run ? "fa-pause" : "fa-play"}"></i></a>
       <span class="rc-seg rc-clock-rates">${RATES.map(r => `<a class="${Math.abs(rate - r) < .01 ? "on" : ""}" data-act="clockRate" data-rate="${r}" data-tooltip="${esc(C("RateHint"))}">×${r}</a>`).join("")}</span>
@@ -1575,20 +1573,8 @@ function drawClock() {
 }
 
 /** Раз в полсекунды — только текст: кнопки не перерисовываются, пока по ним жмут. */
-function paintClock(now = getClock()) {
-  const box = document.querySelector(`#${ID} .rc-clock`);
-  if (!box) return;
-  const ph = nightPhase(now), d = new Date(now);
-  const set = (sel, v) => { const el = box.querySelector(sel); if (el && el.textContent !== v) el.textContent = v; };
-  set("[data-clock-time]", hhmm(d));
-  set("[data-clock-sub]", `${shortDate(d)} · ${ph.untilLabel}`);
-  const glide = clockGliding(), run = clockRunning();
-  set("[data-clock-state]", glide ? "»»" : run ? (clockRate() > 1 ? `×${clockRate()}` : "▸") : "❚❚");
-  box.classList.toggle("is-gliding", !!glide);
-  box.classList.toggle("is-stopped", !run);
-  box.setAttribute("data-phase", ph.key);
-  const icon = box.querySelector("[data-clock-icon]");
-  if (icon && !icon.classList.contains(ph.icon)) icon.className = `fa-solid ${ph.icon}`;
+function paintClock() {
+  paintPlate(document.querySelector(`#${ID} .rc-clock`));
 }
 
 function drawBody() {

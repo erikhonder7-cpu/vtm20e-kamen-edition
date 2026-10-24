@@ -289,16 +289,9 @@
   position: absolute; z-index: 6; top: 12px; right: 12px; width: 320px; display: flex; flex-direction: column;
   background: var(--c-mat-leather); border: 1px solid #000; box-shadow: 0 6px 18px rgba(0, 0, 0, .7); font-family: var(--c-font-body);
 }
-#r-citymap .rc-clock-face { display: flex; align-items: center; gap: 10px; padding: 6px 12px; }
-#r-citymap .rc-clock-face > i { font-size: 16px; color: var(--c-steel); }
-#r-citymap .rc-clock[data-phase=dawn] .rc-clock-face > i, #r-citymap .rc-clock[data-phase=day] .rc-clock-face > i { color: var(--c-warn); }
-#r-citymap .rc-clock-face > div { flex: 1; display: flex; align-items: baseline; gap: 10px; min-width: 0; }
-#r-citymap .rc-clock-face b { font-family: var(--c-font-display); font-weight: 500; font-size: 24px; line-height: 1; color: var(--c-bone-b); letter-spacing: 1px; }
-#r-citymap .rc-clock-face small { font-size: 11px; color: var(--c-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-#r-citymap .rc-clock-state { font-family: var(--c-font-display); font-size: 12px; color: var(--c-ok); }
-#r-citymap .rc-clock.is-stopped .rc-clock-state { color: var(--c-dim); }
-#r-citymap .rc-clock.is-gliding .rc-clock-state { color: var(--c-warn); animation: rc-blink 1s ease-in-out infinite; }
-#r-citymap .rc-clock.is-gliding b { color: var(--c-warn); }
+#r-citymap .rc-clock .r-np { width: 100%; max-width: none; border-left: 0; border-right: 0; border-bottom: 0; box-shadow: none; }
+#r-citymap .rc-clock .r-np-dawn { flex: 1; width: auto; }
+#r-citymap .rc-clock-ctl { padding-top: 7px; }
 #r-citymap .rc-clock-ctl { display: flex; align-items: center; gap: 4px; padding: 0 8px 7px; }
 #r-citymap .rc-clock-ctl > a { display: flex; align-items: center; justify-content: center; width: 28px; height: 24px; cursor: pointer;
   color: var(--c-muted); background: rgba(0, 0, 0, .35); border: 1px solid #000; }

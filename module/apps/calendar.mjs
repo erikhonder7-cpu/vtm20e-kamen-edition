@@ -313,8 +313,24 @@ export function clockBarData() {
   const scene = sceneElapsed();
   return {
     time: hhmm(d), date: shortDate(d), longDate: longDate(d), weekday: weekday(d), republic: republicanDate(ms),
-    phase, moon, night: nightNumber(ms), running: clockRunning(), scene: scene?.text || ""
+    phase, moon, night: nightNumber(ms), running: clockRunning(), gliding: !!clockGliding(), scene: scene?.text || "",
+    span: nightSpan(ms)
   };
+}
+
+/**
+ * Текущий отрезок суток для полоски «до рассвета»: ночь — от заката до восхода, день — от восхода до заката.
+ * @returns {{night:boolean, start:number, end:number, left:number, leftText:string, pct:number, hot:boolean}}
+ *          hot — ночью до рассвета меньше часа.
+ */
+export function nightSpan(ms = getClock()) {
+  const { sunrise, sunset, prevSunset } = nightPhase(ms);
+  const night = ms < sunrise || ms >= sunset;
+  const start = ms < sunrise ? prevSunset : ms >= sunset ? sunset : sunrise;
+  const end = ms < sunrise ? sunrise : ms >= sunset ? sunTimes(ms + MS_DAY).sunrise : sunset;
+  const left = Math.max(0, end - ms);
+  const pct = Math.clamp((ms - start) / Math.max(1, end - start) * 100, 0, 100);
+  return { night, start, end, left, leftText: `${Math.floor(left / MS_HOUR)}:${pad(Math.floor((left % MS_HOUR) / MS_MIN))}`, pct, hot: night && left < MS_HOUR };
 }
 
 /* ── Окно календаря (рассказчик) ──────────────────────────────────────── */

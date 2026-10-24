@@ -3,7 +3,7 @@
    Тот же язык, что у листа: уголь, кость, кровь; тонкие линии, без позолоты.
    ══════════════════════════════════════════════════════════════════════════ */
 
-.vtm20, .r-topbar, .r-nx, .r-time-card {
+.vtm20, .r-topbar, .r-np, .r-nx, .r-time-card {
   --nx-coal: #0a0a0c;
   --nx-panel: #121214;
   --nx-bone: #d8cfbf;
@@ -25,43 +25,46 @@
 /* ── Верхняя полоса (нексус, часы, сцена) ─────────────────────────────── */
 
 body.r-nav-off #scene-navigation { display: none !important; }
-.r-topbar {
-  position: relative; display: flex; flex-direction: column; width: 100%; max-width: 100%;
-  flex: 0 0 auto; align-self: flex-start; pointer-events: all; overflow: hidden;
+/* Полоса — плашка ночи (ui/night-plate.mjs) в колонке штатной навигации; шире колонки — поверх сцены */
+.r-topbar { position: relative; flex: 0 0 auto; align-self: flex-start; width: max-content; pointer-events: all; }
+
+/* ── Плашка ночи: сцена, время, «до рассвета» полоской (полоса нексуса и карта города) ── */
+.r-np {
+  display: flex; align-items: stretch; height: 48px; width: max-content; max-width: 100%;
   font-family: var(--nx-body); color: var(--nx-bone);
-  background: var(--nx-panel); border: 1px solid #000; box-shadow: 0 8px 24px rgba(0, 0, 0, .7);
+  background: linear-gradient(180deg, #141416, #0b0b0d); border: 1px solid #000; border-top: 2px solid var(--nx-blood);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .7);
 }
-.r-topbar::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: var(--nx-blood); }
-.r-tb-nexus {
-  position: relative; display: flex; align-items: center; gap: 9px; height: 34px; padding: 0 12px; cursor: pointer;
-  background: var(--nx-coal); border-bottom: 1px solid #000;
-  font-family: var(--nx-caps); font-size: 14px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--nx-bone);
+.r-np > * + * { border-left: 1px solid var(--nx-line); }
+.r-np-nexus { display: flex; align-items: center; justify-content: center; width: 46px; color: var(--nx-blood-l); font-size: 15px; cursor: pointer; }
+.r-np-nexus:hover { background: rgba(255, 255, 255, .04); color: #e0414b; }
+.r-np-scene { display: flex; flex-direction: column; justify-content: center; gap: 1px; padding: 0 13px; min-width: 0; max-width: 220px; }
+.r-np-scene small { font-family: var(--nx-caps); font-size: 9.5px; letter-spacing: 2.4px; text-transform: uppercase; color: var(--nx-muted); }
+.r-np-scene span { font-family: var(--nx-display); font-size: 14px; line-height: 1.15; color: var(--nx-bone); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.r-np-time { display: flex; align-items: center; padding: 0 13px; font-family: var(--nx-display); font-size: 23px; line-height: 1; color: #f1e9da; }
+.r-np-time.is-link { cursor: pointer; }
+.r-np-time.is-link:hover { background: rgba(255, 255, 255, .04); }
+.r-np-dawn { display: flex; flex-direction: column; justify-content: center; gap: 5px; width: 168px; padding: 0 13px; }
+.r-np-time > *, .r-np-dawn > * { pointer-events: none; }
+.r-np-lbl { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-family: var(--nx-caps); font-size: 10.5px; letter-spacing: 1.4px; text-transform: uppercase; color: var(--nx-bone-2); white-space: nowrap; }
+.r-np-lbl b { font-family: var(--nx-display); font-weight: 400; font-size: 14px; letter-spacing: 0; color: var(--nx-dawn); }
+.r-np-track { position: relative; height: 5px; background: rgba(216, 207, 191, .1); }
+.r-np-track i { position: absolute; left: 0; top: 0; bottom: 0; background: linear-gradient(90deg, #2f3b55, #6a6f8a); }
+.r-np-track em { position: absolute; top: -3px; width: 2px; height: 11px; margin-left: -1px; background: #f1e9da; }
+.r-np-timer { display: flex; align-items: center; gap: 6px; padding: 0 12px; font-family: var(--nx-display); font-size: 13px; color: var(--nx-steel); }
+.r-np-timer[hidden] { display: none; }
+.r-np.is-day .r-np-track i { background: linear-gradient(90deg, #6a5a3a, #c9a46a); }
+.r-np.is-day .r-np-lbl { color: var(--nx-dawn); }
+.r-np.is-paused .r-np-time { color: var(--nx-muted); }
+.r-np.is-gliding .r-np-time { color: var(--nx-dawn); }
+.r-np.is-hot { border-top-color: #e0414b; animation: r-np-hot 2.6s ease-in-out infinite; }
+.r-np.is-hot .r-np-track i { background: linear-gradient(90deg, #2f3b55, #c9a46a 70%, #e0414b); }
+.r-np.is-hot .r-np-lbl, .r-np.is-hot .r-np-lbl b { color: #ff9a8f; }
+@keyframes r-np-hot {
+  0%, 100% { box-shadow: 0 8px 24px rgba(0, 0, 0, .7), 0 0 0 1px rgba(224, 65, 75, .25); }
+  50% { box-shadow: 0 8px 24px rgba(0, 0, 0, .7), 0 0 0 1px rgba(224, 65, 75, .5), 0 0 26px rgba(224, 65, 75, .45); }
 }
-.r-tb-nexus::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px; opacity: .5;
-  background: linear-gradient(90deg, #2f3b55 0 33.33%, #a49d8e 33.33% 66.66%, #6e1c20 66.66%); }
-.r-tb-nexus i { color: var(--nx-blood-l); font-size: 12px; }
-.r-tb-nexus:hover { background: #141416; }
-.r-tb-row { display: flex; align-items: baseline; gap: 7px; padding: 5px 10px 5px 12px; min-width: 0; border-top: 1px solid var(--nx-line); }
-.r-tb-row > i { flex: 0 0 auto; width: 11px; text-align: center; font-size: 10px; color: var(--nx-muted); }
-.r-tb-name { flex: 1 1 auto; min-width: 0; font-family: var(--nx-display); font-size: 12px; color: var(--nx-bone-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.r-tb-scene:hover .r-tb-name { color: var(--nx-bone); }
-.r-tb-clock { cursor: pointer; }
-.r-tb-clock.is-flat { cursor: default; }
-.r-tb-clock > i { color: var(--nx-steel); }
-.r-tb-clock[data-phase=day] > i, .r-tb-clock[data-phase=dawn] > i { color: var(--nx-dawn); }
-.r-tb-clock.on > i { animation: r-blink 3s ease-in-out infinite; }
-.r-tb-time { flex: 0 0 auto; font-family: var(--nx-display); font-size: 19px; line-height: 1; color: var(--nx-bone); }
-.r-tb-date { flex: 1 1 auto; min-width: 0; text-align: right; font-family: var(--nx-caps); font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--nx-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.r-tb-clock:not(.is-flat):hover { background: rgba(255, 255, 255, .03); }
-.r-tb-phase { align-items: center; gap: 6px; }
-.r-tb-moon { font-size: 13px; line-height: 1; flex: 0 0 auto; filter: grayscale(.6); }
-.r-tb-until { flex: 1 1 auto; min-width: 0; font-size: 11px; font-style: italic; color: var(--nx-bone-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.r-tb-phase[data-phase=day] .r-tb-until, .r-tb-phase[data-phase=dawn] .r-tb-until { color: var(--nx-dawn); }
-.r-tb-night { flex: 0 0 auto; font-family: var(--nx-caps); font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--nx-blood-l); }
-.r-tb-scene-timer > i { color: var(--nx-steel); }
-.r-tb-timer { flex: 1 1 auto; font-family: var(--nx-display); font-size: 12px; color: var(--nx-steel); }
-.r-tb-republic { font-family: "IM Fell", var(--nx-body); font-style: italic; font-size: 12.5px; color: var(--nx-bone-2); }
-.r-tb-republic i { color: var(--nx-muted); }
+@media (prefers-reduced-motion: reduce) { .r-np.is-hot { animation: none; } }
 @keyframes r-blink { 0%, 100% { opacity: 1; } 50% { opacity: .45; } }
 
 /* ── Нексус ───────────────────────────────────────────────────────────── */
