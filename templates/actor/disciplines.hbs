@@ -43,9 +43,12 @@
     </header>
 
     <div class="r-disc-body">
-      {{#each powers}}{{> rPower disc=../key}}{{/each}}
+      {{!-- Лестница сил: уровни в медальонах на общей линии, следующая сила — бледной ступенькой --}}
+      <div class="r-ladder">
+        {{#each powers}}{{> rPower disc=../key}}{{/each}}
+        {{#if nextPower}}<div class="r-next"><span class="r-power-lvl">{{rRoman nextPower.level}}</span><span class="r-next-text">{{localize "VTM20.Sheet.NextPower"}}: <b>{{nextPower.name}}</b></span></div>{{/if}}
+      </div>
       {{#if ownPowers.length}}<h4 class="r-h4">{{localize "VTM20.Sheet.OwnPowers"}}</h4>{{#each ownPowers}}{{> rPower cls="is-own"}}{{/each}}{{/if}}
-      {{#if nextPower}}<div class="r-next">{{localize "VTM20.Sheet.NextPower"}}: <b>{{rRoman nextPower.level}} · {{nextPower.name}}</b></div>{{/if}}
 
       {{#if isPathed}}
       {{#each paths}}

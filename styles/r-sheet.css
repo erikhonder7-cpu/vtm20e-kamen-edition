@@ -443,6 +443,27 @@
 .vtm20 .r-next { margin: 6px 0 2px; font-size: 12.5px; font-style: italic; color: var(--r-muted); }
 .vtm20 .r-next b { font-style: normal; color: var(--r-ink-2); font-weight: 400; }
 
+/* Лестница сил Дисциплины: медальоны уровней на вертикальной линии */
+.vtm20 .r-ladder { position: relative; margin: 4px 0 2px; }
+.vtm20 .r-ladder::before {
+  content: ""; position: absolute; left: 12px; top: 14px; bottom: 14px; width: 1px;
+  background: linear-gradient(180deg, rgba(196, 71, 76, .7), rgba(196, 71, 76, .25));
+}
+.vtm20 .r-ladder > .r-power { border-bottom: 0; }
+/* разделитель между силами — только справа от медальонов, линию лестницы не пересекает */
+.vtm20 .r-ladder > .r-power + .r-power > .r-power-head,
+.vtm20 .r-ladder > .r-power + .r-next { background: linear-gradient(var(--r-line), var(--r-line)) 34px 0 / calc(100% - 34px) 1px no-repeat; }
+.vtm20 .r-ladder .r-power-lvl {
+  position: relative; z-index: 1; width: 25px; min-width: 25px; height: 25px; padding: 0; border-radius: 50%;
+  font-size: 11px; color: #f1e9da; background: radial-gradient(circle at 40% 32%, #9e2830, #5e1015 70%);
+  border: 1px solid #c4474c; box-shadow: 0 0 0 3px var(--r-gap-ring);
+}
+.vtm20 .r-ladder > .r-power.is-elder .r-power-lvl { background: radial-gradient(circle at 40% 32%, #d0565b, #8c1c22 70%); box-shadow: 0 0 0 3px var(--r-gap-ring), 0 0 8px rgba(196, 71, 76, .55); }
+.vtm20 .r-ladder > .r-power.is-choose .r-power-lvl { color: var(--r-accent); background: var(--r-gap-ring); border-style: dashed; }
+.vtm20 .r-ladder > .r-power-body, .vtm20 .r-ladder .r-power-body { padding-left: 34px; }
+.vtm20 .r-ladder > .r-next { display: flex; align-items: center; gap: 8px; min-height: 30px; margin: 0; }
+.vtm20 .r-ladder > .r-next .r-power-lvl { color: var(--r-muted); background: var(--r-gap-ring); border: 1px dashed var(--r-line-2); box-shadow: 0 0 0 3px var(--r-gap-ring); }
+
 .vtm20 .r-path { margin: 8px 0; padding: 4px 8px 6px; border: 1px solid var(--r-line); background: var(--r-s1); }
 .vtm20 .r-path.is-primary { box-shadow: inset 2px 0 0 #8c1c22; }
 .vtm20 .r-path-head { display: flex; align-items: center; gap: 8px; min-height: 28px; }
