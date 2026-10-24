@@ -867,3 +867,10 @@ body.r-theme-light .vtm20 .r-motto { color: rgba(140, 28, 34, .75); }
 .vtm20 .r-act:hover i { text-shadow: 0 0 8px rgba(216, 207, 191, .5); }
 .vtm20 .r-act.is-hot:hover i { color: #e3676c; text-shadow: 0 0 10px rgba(196, 71, 76, .8); }
 @media (prefers-reduced-motion: reduce) { .vtm20 .r-pane.is-entering, .vtm20 .r-portrait-veil { animation: none !important; } }
+
+/* Редактор в режиме правки: панель кнопок сверху, поле текста под ней обычным потоком
+   (у Foundry поле позиционировано абсолютно и на листе уезжало под панель — набранного текста не было видно) */
+.vtm20 .r-editor prose-mirror.active { display: flex; flex-direction: column; height: auto; min-height: 220px; }
+.vtm20 .r-editor prose-mirror.active .editor-menu { position: static; flex: 0 0 auto; }
+.vtm20 .r-editor prose-mirror.active .editor-content { position: static; flex: 1 1 auto; height: auto; min-height: 170px; overflow: visible; }
+.vtm20 .r-editor prose-mirror.active .ProseMirror { min-height: 160px; outline: none; }
