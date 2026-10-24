@@ -444,7 +444,7 @@
 .vtm20 .r-next { margin: 6px 0 2px; font-size: 12.5px; font-style: italic; color: var(--r-muted); }
 .vtm20 .r-next b { font-style: normal; color: var(--r-ink-2); font-weight: 400; }
 
-/* Лестница сил Дисциплины: медальоны уровней на вертикальной линии */
+/* Лестница сил Дисциплины: квадратные плашки уровней на вертикальной линии */
 .vtm20 .r-ladder { position: relative; margin: 4px 0 2px; }
 .vtm20 .r-ladder::before {
   content: ""; position: absolute; left: 12px; top: 14px; bottom: 14px; width: 1px;
@@ -455,7 +455,7 @@
 .vtm20 .r-ladder > .r-power + .r-power > .r-power-head,
 .vtm20 .r-ladder > .r-power + .r-next { background: linear-gradient(var(--r-line), var(--r-line)) 34px 0 / calc(100% - 34px) 1px no-repeat; }
 .vtm20 .r-ladder .r-power-lvl {
-  position: relative; z-index: 1; width: 25px; min-width: 25px; height: 25px; padding: 0; border-radius: 50%;
+  position: relative; z-index: 1; width: 26px; min-width: 26px; height: 22px; padding: 0; border-radius: 2px;
   font-size: 11px; color: #f1e9da; background: radial-gradient(circle at 40% 32%, #9e2830, #5e1015 70%);
   border: 1px solid #c4474c; box-shadow: 0 0 0 3px var(--r-gap-ring);
 }
@@ -479,9 +479,9 @@
 /* ── Преимущества ─────────────────────────────────────────────────────── */
 
 .vtm20 .r-bg .r-power-body, .vtm20 .r-mf-row .r-power-body { padding: 2px 4px 8px 6px; font-size: 13px; }
-/* Цена достоинства / недостатка — сургучная печать: достоинства тёмным воском, недостатки — кровавым */
+/* Цена достоинства / недостатка — квадратная печать: достоинства тёмным воском, недостатки — кровавым */
 .vtm20 .r-cost {
-  flex: 0 0 auto; width: 22px; height: 22px; display: grid; place-items: center; border-radius: 50%;
+  flex: 0 0 auto; width: 22px; height: 20px; display: grid; place-items: center; border-radius: 2px;
   font-family: var(--r-display); font-size: 12px; line-height: 1; color: #e6ddcc;
   background: radial-gradient(circle at 38% 32%, #4a4640, #2a2724 60%, #1a1816);
   border: 1px solid rgba(216, 207, 191, .35); box-shadow: inset 0 0 0 2px rgba(0, 0, 0, .35), 0 1px 2px rgba(0, 0, 0, .5);
