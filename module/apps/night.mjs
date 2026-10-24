@@ -105,7 +105,7 @@ class HuntDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const hungry = a.hasBlood && a.system.blood.value < 7 - selfC;
     return rollPool({
       actor: a, title: t("Hunt.Title", { name: "" }).replace(/:\s*$/, ""), subtitle: `${t(`Hunt.Ground.${v.ground}`)} · ${t(`Hunt.Method.${v.method}`)}`,
-      pool: c.pool, difficulty: c.diff, breakdown: c.bd, kind: "hunt", messageMode: v.messageMode, extra: { method: v.method },
+      pool: c.pool, difficulty: c.diff, breakdown: c.bd, kind: "hunt", messageMode: v.messageMode, extra: { method: v.method, hungry },
       notes: [
         ...(hungry ? [`<i class="fa-solid fa-face-angry"></i> ${t("Hunt.Hungry", { n: 7 - selfC })}`] : []),
         ...(a.system.clan === "ventrue" && a.system.weaknessNote ? [`<i class="fa-solid fa-wine-glass"></i> ${t("Hunt.Ventrue", { taste: a.system.weaknessNote })}`] : []),

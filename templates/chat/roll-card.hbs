@@ -64,6 +64,7 @@
     <button type="button" data-r-action="loseWill" data-permanent="1"><i class="fa-solid fa-star"></i> {{localize "VTM20.Magic.LoseWillPermanent"}}</button>
   </div>
   {{/if}}
+  {{#if canFrenzy}}<div class="r-card-buttons"><button type="button" data-r-action="huntFrenzy"><i class="fa-solid fa-face-angry"></i> {{localize "VTM20.Hunt.FrenzyCheck"}}</button></div>{{/if}}
   {{#if canFeed}}
   <div class="r-card-buttons"><button type="button" data-r-action="feed"><i class="fa-solid fa-droplet"></i> {{localize "VTM20.Hunt.Feed"}}</button></div>
   {{/if}}

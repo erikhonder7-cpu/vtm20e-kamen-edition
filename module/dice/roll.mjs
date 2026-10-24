@@ -225,6 +225,7 @@ export async function renderCard(state, actor = null) {
     damageType: extra.damageType ? game.i18n.localize(VTM20.damageTypes[extra.damageType]?.label ?? "") : "",
     canApply: state.kind === "damage" && ev.successes > 0,
     canFeed: state.kind === "hunt" && ev.outcome === "success",
+    canFrenzy: state.kind === "hunt" && !!extra.hungry,
     canLoseWill: ["magic", "ritual"].includes(state.kind) && ev.outcome === "botch" && !extra.willLost,
     powerHit: ev.outcome === "success" ? combatPowerLabel(combatPowerOf(extra.power), extra.power, ev.successes) : "",
     atavism: state.kind === "frenzy" && ev.successes < 5 && state.extra?.atavism,
@@ -311,6 +312,7 @@ export function onChatCardClick(event) {
   const action = btn.dataset.rAction;
   if (action === "damage") return onDamage(message, state);
   if (action === "apply") return onApply(state, { soak: btn.dataset.soak === "1" });
+  if (action === "huntFrenzy") return foundry.utils.fromUuid(state.actorUuid).then(a => a?.isOwner && import("./virtue-checks.mjs").then(m => m.rollVirtueCheck(a, "frenzy")));
   if (action === "feed") return foundry.utils.fromUuid(state.actorUuid).then(a => import("../apps/night.mjs").then(m => m.feedAfterHunt(a, { animal: state.extra?.method === "animals" })));
   if (action === "loseWill") return onLoseWill(message, state, btn.dataset.permanent === "1");
   if (action === "powerHit") return import("../data/combat-powers.mjs").then(m => m.powerHit(message, state, evaluate(state.values, state)));
