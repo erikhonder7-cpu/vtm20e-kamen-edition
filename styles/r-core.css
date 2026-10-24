@@ -170,7 +170,11 @@ body.r-theme-light .vtm20 {
 /* своя галочка Foundry (::before — квадрат 20px) рисовалась второй рамкой поверх нашей */
 .vtm20 input[type=checkbox]::before { content: none; display: none; }
 .vtm20 input[type=checkbox]:checked { background: var(--r-blood); border-color: var(--r-blood-l); }
-.vtm20 input[type=checkbox]:checked::after { content: "✓"; color: #f1e9da; font-size: 10px; line-height: 1; }
+/* галочка нарисована рамкой, а не символом «✓»: у шрифта свои отступы, и знак съезжал с середины */
+.vtm20 input[type=checkbox]:checked::after {
+  content: ""; position: static; inset: auto; display: block; width: 4px; height: 8px; margin: 0 0 2px; padding: 0;
+  border: solid #f1e9da; border-width: 0 2px 2px 0; background: none; font-size: 0; transform: rotate(45deg);
+}
 .vtm20 input[type=checkbox]:disabled { opacity: .4; cursor: default; }
 
 /* ── Кнопки ───────────────────────────────────────────────────────────── */
