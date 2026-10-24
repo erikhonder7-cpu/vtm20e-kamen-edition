@@ -151,8 +151,8 @@ export async function feedAfterHunt(actor, { animal = false } = {}) {
   const before = actor.system.blood.value;
   await actor.gainBlood(drink);
   if (drink > n) ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<div class="r-notice is-warn"><i class="fa-solid fa-face-angry"></i> ${t("Hunt.CouldNotStop", { n: drink })}</div>` });
-  // Больше 8 пунктов из человека — на грани убийства: проверка деградации
-  if (!animal && drink > 8) {
+  // Больше 8 пунктов из человека — на грани убийства: проверка деградации (только на Человечности, не на Путях)
+  if (!animal && drink > 8 && (actor.system.morality?.path ?? "humanity") === "humanity") {
     const { suggestCheck } = await import("../dice/virtue-checks.mjs");
     suggestCheck(actor, "degeneration", { reason: t("Hunt.Drained", { n: drink }), difficulty: 8 });
   }
