@@ -67,7 +67,9 @@ class BaseActorData extends foundry.abstract.TypeDataModel {
         log: new ArrayField(xpEntryField())
       }),
       biography: new HTMLField({ required: true, blank: true, initial: "" }),
-      notes: new HTMLField({ required: true, blank: true, initial: "" })
+      notes: new HTMLField({ required: true, blank: true, initial: "" }),
+      // Хроника персонажа: события по датам (Биография)
+      timeline: new ArrayField(new SchemaField({ date: str(), text: str() }))
     };
   }
 

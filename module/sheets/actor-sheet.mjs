@@ -93,6 +93,8 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       resistBond: VtMActorSheet.#onResistBond,
       removeBond: VtMActorSheet.#onRemoveBond,
       addXp: VtMActorSheet.#onAddXp,
+      addEvent: VtMActorSheet.#onAddEvent,
+      removeEvent: VtMActorSheet.#onRemoveEvent,
       removeXp: VtMActorSheet.#onRemoveXp,
       buy: { handler: VtMActorSheet.#onBuy, buttons: [0] },
       openCreator: VtMActorSheet.#onOpenCreator,
@@ -531,7 +533,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   _processFormData(event, form, formData) {
     const data = super._processFormData(event, form, formData);
     const src = this.actor._source.system;
-    for (const key of ["secondary", "bonds"]) {
+    for (const key of ["secondary", "bonds", "timeline"]) {
       const v = data.system?.[key];
       if (v && !Array.isArray(v)) {
         const arr = foundry.utils.deepClone(src[key]);
@@ -842,6 +844,19 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     list.splice(Number(target.dataset.index), 1);
     await this.actor.update({ "system.bonds": list });
   }
+  /** Хроника: новое событие в конец списка (по порядку дат). */
+  static async #onAddEvent() {
+    const list = foundry.utils.deepClone(this.actor._source.system.timeline ?? []);
+    list.push({ date: "", text: "" });
+    await this.actor.update({ "system.timeline": list });
+    this.element.querySelector(".r-tl-row:last-child .r-tl-date")?.focus();
+  }
+  static async #onRemoveEvent(event, target) {
+    const list = foundry.utils.deepClone(this.actor._source.system.timeline ?? []);
+    list.splice(Number(target.dataset.index), 1);
+    await this.actor.update({ "system.timeline": list });
+  }
+
   static async #onAddXp() {
     const s = this.actor._source.system.experience;
     const log = foundry.utils.deepClone(s.log);

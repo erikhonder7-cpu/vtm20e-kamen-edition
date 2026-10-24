@@ -1,7 +1,13 @@
-{{!-- V. Биография: даты, убежище, жизнеописание, заметки, журнал опыта. --}}
+{{!-- V. Биография — «досье»: приметы на карточке, хроника событий по датам, жизнеописание, заметки, журнал опыта. --}}
 <section class="tab r-pane r-bio {{tab.cssClass}}" data-tab="{{tab.id}}" data-group="{{tab.group}}">
 
-  <h2 class="r-h2"><span>{{localize "VTM20.Sheet.Particulars"}}</span></h2>
+  <div class="r-file-card">
+    <div class="r-file-head">
+      <span class="r-file-kicker">{{localize "VTM20.Sheet.Dossier"}}</span>
+      <span class="r-file-name">{{actor.name}}</span>
+      {{#if system.details.concept}}<em class="r-file-concept">{{system.details.concept}}</em>{{/if}}
+      <span class="r-file-stamp" aria-hidden="true">{{localize "VTM20.Sheet.Particulars"}}</span>
+    </div>
   <div class="r-fields is-wide">
     <label class="r-f"><span>{{localize "VTM20.Details.age"}}</span><input type="text" name="system.details.age" value="{{system.details.age}}"></label>
     <label class="r-f"><span>{{localize "VTM20.Details.apparentAge"}}</span><input type="text" name="system.details.apparentAge" value="{{system.details.apparentAge}}"></label>
@@ -11,15 +17,30 @@
     {{#if isVampire}}<label class="r-f is-span2"><span>{{localize "VTM20.Details.clanCustom"}}</span><input type="text" name="system.clanCustom" value="{{system.clanCustom}}" placeholder="{{localize 'VTM20.Details.clanCustomHint'}}"></label>{{/if}}
     {{#if isMortal}}<label class="r-f"><span>{{localize "VTM20.Details.trueFaith"}}</span><input type="number" name="system.trueFaith" value="{{system.trueFaith}}" min="0" max="10"></label>{{/if}}
   </div>
+  </div>
+
+  <h2 class="r-h2"><span>{{localize "VTM20.Sheet.Timeline"}}</span>
+    {{#if editable}}<span class="r-h2-tools"><a class="r-h2-btn" data-action="addEvent" data-tooltip="{{localize 'VTM20.Sheet.AddEvent'}}"><i class="fa-solid fa-plus"></i> <span class="r-h2-lbl">{{localize "VTM20.Sheet.AddEvent"}}</span></a></span>{{/if}}
+  </h2>
+  <ol class="r-timeline">
+    {{#each system.timeline}}
+    <li class="r-tl-row">
+      <input class="r-tl-date" type="text" name="system.timeline.{{@index}}.date" value="{{date}}" placeholder="{{localize 'VTM20.Sheet.EventDate'}}">
+      <input class="r-tl-text" type="text" name="system.timeline.{{@index}}.text" value="{{text}}" placeholder="{{localize 'VTM20.Sheet.EventText'}}">
+      {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="removeEvent" data-index="{{@index}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
+    </li>
+    {{else}}<li class="r-empty">{{localize "VTM20.Sheet.NoEvents"}}</li>
+    {{/each}}
+  </ol>
 
   <h2 class="r-h2"><span>{{localize "VTM20.Sheet.Biography"}}</span></h2>
   <div class="r-editor">
-    <prose-mirror name="system.biography" value="{{system.biography}}" toggled {{#unless editable}}disabled{{/unless}}>{{{biographyHTML}}}</prose-mirror>
+    <prose-mirror name="system.biography" value="{{system.biography}}" toggled {{#unless editable}}disabled{{/unless}}>{{#if biographyHTML}}{{{biographyHTML}}}{{else}}<p class="r-editor-hint">{{localize "VTM20.Sheet.BiographyHint"}}</p>{{/if}}</prose-mirror>
   </div>
 
   <h2 class="r-h2"><span>{{localize "VTM20.Sheet.Notes"}}</span></h2>
   <div class="r-editor">
-    <prose-mirror name="system.notes" value="{{system.notes}}" toggled {{#unless editable}}disabled{{/unless}}>{{{notesHTML}}}</prose-mirror>
+    <prose-mirror name="system.notes" value="{{system.notes}}" toggled {{#unless editable}}disabled{{/unless}}>{{#if notesHTML}}{{{notesHTML}}}{{else}}<p class="r-editor-hint">{{localize "VTM20.Sheet.NotesHint"}}</p>{{/if}}</prose-mirror>
   </div>
 
   <h2 class="r-h2"><span>{{localize "VTM20.Sheet.Experience"}}</span>{{#if editable}}<a class="r-h2-tool" data-action="addXp" data-tooltip="{{localize 'VTM20.Xp.Add'}}"><i class="fa-solid fa-plus"></i></a>{{/if}}</h2>
