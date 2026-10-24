@@ -56,7 +56,7 @@
   {{/unless}}
 
   <div class="r-roll-foot">
-    <select name="messageMode" class="r-mode">{{#each messageModes}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+    {{rModes messageModes}}
     {{#if complete}}<a class="r-btn is-primary" data-action="finish"><i class="fa-solid fa-skull"></i> {{localize "VTM20.Diablerie.Finish"}}</a>
     {{else}}<button type="submit" class="r-btn is-primary"><i class="fa-solid fa-droplet"></i> {{localize "VTM20.Diablerie.Drink"}}</button>{{/if}}
   </div>

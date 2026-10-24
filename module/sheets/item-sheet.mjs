@@ -18,7 +18,8 @@ const TEMPLATES = { ritual: "ritual", power: "power", discipline: "discipline", 
 export class VtMItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
   static DEFAULT_OPTIONS = {
     classes: ["vtm20", "r-sheet", "r-item"],
-    position: { width: 560, height: 640 },
+    // высота по содержимому: короткие предметы без пустого поля внизу; длинные упираются в max-height (r-sheet.css)
+    position: { width: 560, height: "auto" },
     window: { resizable: true, contentClasses: ["r-sheet-content"] },
     form: { submitOnChange: true, closeOnSubmit: false },
     actions: { toChat: VtMItemSheet.#onToChat, setDots: VtMItemSheet.#onSetDots, attack: VtMItemSheet.#onAttack,

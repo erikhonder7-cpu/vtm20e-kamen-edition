@@ -11,7 +11,7 @@
 
   <div class="r-roll-row">
     <span class="r-roll-label">{{localize "VTM20.Hunt.Method.label"}}</span>
-    <select name="method" class="r-hunt-method">{{#each methods}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+    <select name="method" class="r-hunt-method">{{#each methods}}<option value="{{key}}" title="{{title}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
   </div>
 
   <div class="r-roll-row">
@@ -28,8 +28,8 @@
   </div>
 
   <div class="r-roll-checks">
-    <label class="r-check {{#unless fameTotal}}is-dim{{/unless}}"><input type="checkbox" name="fame" {{checked v.fame}} {{#unless fameTotal}}disabled{{/unless}}> {{localize "VTM20.Hunt.FameDomain" n=fameTotal}}</label>
-    <label class="r-check {{#unless bg.herd}}is-dim{{/unless}}"><input type="checkbox" name="herd" {{checked v.herd}} {{#unless bg.herd}}disabled{{/unless}}> {{localize "VTM20.Hunt.Herd" n=bg.herd}}</label>
+    <label class="r-check {{#unless fameTotal}}is-dim{{/unless}}"><input type="checkbox" name="fame" {{checked v.fame}} {{#unless fameTotal}}disabled{{/unless}}> {{#if fameTotal}}{{localize "VTM20.Hunt.FameDomain" n=fameTotal}}{{else}}{{localize "VTM20.Hunt.FameDomainNone"}}{{/if}}</label>
+    <label class="r-check {{#unless bg.herd}}is-dim{{/unless}}"><input type="checkbox" name="herd" {{checked v.herd}} {{#unless bg.herd}}disabled{{/unless}}> {{#if bg.herd}}{{localize "VTM20.Hunt.Herd" n=bg.herd}}{{else}}{{localize "VTM20.Hunt.HerdNone"}}{{/if}}</label>
     <label class="r-check"><input type="checkbox" name="inhuman" {{checked v.inhuman}}> {{localize "VTM20.Hunt.Inhuman"}}</label>
   </div>
 
@@ -51,7 +51,7 @@
   <p class="r-roll-note"><i class="fa-solid fa-circle-info"></i> {{localize "VTM20.Hunt.Hint"}}</p>
 
   <div class="r-roll-foot">
-    <select name="messageMode" class="r-mode">{{#each messageModes}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+    {{rModes messageModes}}
     <button type="submit" class="r-btn is-primary"><i class="fa-solid fa-moon"></i> {{localize "VTM20.Hunt.Go"}}</button>
   </div>
 </div>

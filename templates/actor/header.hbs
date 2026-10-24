@@ -14,6 +14,7 @@
       {{/if}}
       <figcaption class="r-seal" {{#if isVampire}}data-tooltip="{{localize 'VTM20.Details.generation'}}: {{system.generation}}"{{/if}}>
         {{#if isVampire}}<span class="r-seal-num">{{rRoman system.generation}}</span><span class="r-seal-cap">{{localize "VTM20.Sheet.Gen"}}</span>
+        {{#if editable}}<i class="fa-solid fa-chevron-down r-seal-caret"></i><select name="system.generation" data-dtype="Number" class="r-seal-select" aria-label="{{localize 'VTM20.Details.generation'}}">{{#each generations}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{rRoman value}} — {{value}}</option>{{/each}}</select>{{/if}}
         {{else if isCreature}}<span class="r-seal-num r-seal-icon"><i class="fa-solid fa-paw"></i></span><span class="r-seal-cap">{{typeLabel}}</span>
         {{else if isGhoul}}<span class="r-seal-num r-seal-icon"><i class="fa-solid fa-hand-holding-droplet"></i></span><span class="r-seal-cap">{{typeLabel}}</span>
         {{else}}<span class="r-seal-num r-seal-icon"><i class="fa-solid fa-heart-pulse"></i></span><span class="r-seal-cap">{{typeLabel}}</span>{{/if}}
@@ -38,9 +39,6 @@
           <select name="system.clan">
             {{#each clanGroups}}<optgroup label="{{label}}">{{#each clans}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</optgroup>{{/each}}
           </select>
-        </label>
-        <label class="r-df is-narrow"><span>{{localize "VTM20.Sheet.Gen"}}</span>
-          <select name="system.generation" data-dtype="Number">{{#each generations}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{value}}</option>{{/each}}</select>
         </label>
         {{#if clanChoices}}
         <label class="r-df"><span>{{localize "VTM20.Details.clanChoice"}}</span>
@@ -104,12 +102,12 @@
     {{#unless needsCreation}}
     <nav class="r-head-acts">
       {{#if hasBlood}}<a class="r-act" data-action="hunt" data-tooltip="{{localize 'VTM20.Hunt.Button'}}"><i class="fa-solid fa-moon"></i><span>{{localize "VTM20.Hunt.Button"}}</span></a>{{/if}}
-      {{#if isVampire}}<a class="r-act" data-action="awaken" data-tooltip="{{localize 'VTM20.Sheet.Awaken'}}"><i class="fa-solid fa-cloud-moon"></i><span>{{localize "VTM20.Sheet.AwakenShort"}}</span></a>{{/if}}
-      <a class="r-act" data-action="downtime" data-tooltip="{{localize 'VTM20.Downtime.Tip'}}"><i class="fa-solid fa-hourglass-half"></i><span>{{localize "VTM20.Downtime.Short"}}</span></a>
+      {{#if isVampire}}<a class="r-act is-minor" data-action="awaken" data-tooltip="{{localize 'VTM20.Sheet.Awaken'}}"><i class="fa-solid fa-cloud-moon"></i><span>{{localize "VTM20.Sheet.AwakenShort"}}</span></a>{{/if}}
+      <a class="r-act is-minor" data-action="downtime" data-tooltip="{{localize 'VTM20.Downtime.Tip'}}"><i class="fa-solid fa-hourglass-half"></i><span>{{localize "VTM20.Downtime.Short"}}</span></a>
       <a class="r-act" data-action="attack" data-tooltip="{{localize 'VTM20.Combat.Attack'}}"><i class="fa-solid fa-khanda"></i><span>{{localize "VTM20.Combat.Attack"}}</span></a>
       <a class="r-act" data-action="rollInitiative" data-tooltip="{{localize 'VTM20.Sheet.Initiative'}}"><i class="fa-solid fa-bolt"></i><span>{{localize "VTM20.Sheet.Initiative"}}</span><b>{{system.initiative}}</b></a>
-      <a class="r-act" data-action="takeDamage" data-tooltip="{{localize 'VTM20.Sheet.TakeDamageShort'}}"><i class="fa-solid fa-heart-crack"></i><span>{{localize "VTM20.Sheet.TakeDamageShort"}}</span></a>
-      <a class="r-act" data-action="hazard" data-tooltip="{{localize 'VTM20.Hazard.Title'}}"><i class="fa-solid fa-triangle-exclamation"></i><span>{{localize "VTM20.Hud.Hazard"}}</span></a>
+      <a class="r-act is-minor" data-action="takeDamage" data-tooltip="{{localize 'VTM20.Sheet.TakeDamageShort'}}"><i class="fa-solid fa-heart-crack"></i><span>{{localize "VTM20.Sheet.TakeDamageShort"}}</span></a>
+      <a class="r-act is-minor" data-action="hazard" data-tooltip="{{localize 'VTM20.Hazard.Title'}}"><i class="fa-solid fa-triangle-exclamation"></i><span>{{localize "VTM20.Hud.Hazard"}}</span></a>
       {{#if weaknessCheck}}<a class="r-act" data-action="rollVirtue" data-kind="weakness" data-tooltip="{{weaknessCheck}}"><i class="fa-solid fa-dice-d10"></i><span>{{weaknessCheck}}</span></a>{{/if}}
       <span class="r-acts-spacer"></span>
       <a class="r-act is-hot" data-action="rollVirtue" data-kind="frenzy" data-tooltip="{{localize 'VTM20.Roll.frenzy.title'}}"><i class="fa-solid fa-face-angry"></i><span>{{localize "VTM20.Roll.frenzy.title"}}</span></a>

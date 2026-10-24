@@ -389,6 +389,16 @@ function registerHelpers() {
   Handlebars.registerHelper("rEq", (a, b) => a === b);
   Handlebars.registerHelper("rRoman", n => toRoman(n));
   // Знак (герб, секта, Дисциплина) золотой маской: {{rSym sym "доп-класс"}}
+  // Кому видно бросок: ряд значков вместо выпадающего списка; у выбранного — подпись. {{rModes messageModes}}
+  Handlebars.registerHelper("rModes", list => {
+    const esc = Handlebars.escapeExpression;
+    const items = (list ?? []).map(m => {
+      const icon = m.value === "ic" ? "fa-solid fa-masks-theater" : CONFIG.ChatMessage?.modes?.[m.value]?.icon ?? "fa-solid fa-comment";
+      const key = `VTM20.Mode.${m.value}`, label = game.i18n.has(key) ? game.i18n.localize(key) : m.label;
+      return `<label class="r-mode-opt${m.selected ? " is-active" : ""}" data-tooltip="${esc(label)}"><input type="radio" name="messageMode" value="${esc(m.value)}"${m.selected ? " checked" : ""}><i class="${esc(icon)}"></i><span>${esc(label)}</span></label>`;
+    }).join("");
+    return new Handlebars.SafeString(`<div class="r-mode r-modes" role="radiogroup">${items}</div>`);
+  });
   Handlebars.registerHelper("rSym", (sym, cls) => {
     if (!sym?.src) return "";
     const extra = typeof cls === "string" ? ` ${cls}` : "";

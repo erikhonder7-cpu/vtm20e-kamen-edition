@@ -7,9 +7,9 @@
     </div>
     <div class="r-hboxes">
       {{#each health}}
-      <div class="r-hbox is-{{state}}" data-tooltip="{{label}}{{#if penaltyLabel}} ({{penaltyLabel}}){{/if}}">
+      <div class="r-hbox is-{{state}} is-sev{{sev}} {{#if current}}is-current{{/if}}" data-tooltip="{{label}}{{#if penaltyLabel}} ({{penaltyLabel}}){{/if}}">
         <span class="r-hbox-mark">{{mark}}</span>
-        <span class="r-hbox-pen">{{#if penaltyLabel}}{{penaltyLabel}}{{else}}·{{/if}}</span>
+        <span class="r-hbox-pen">{{#if out}}<i class="fa-solid fa-skull"></i>{{else}}{{penaltyLabel}}{{/if}}</span>
       </div>
       {{/each}}
     </div>

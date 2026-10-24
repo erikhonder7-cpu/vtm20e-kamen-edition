@@ -72,7 +72,7 @@
   <p class="r-hint-note"><i class="fa-solid fa-circle-info"></i> {{note}}</p>
 
   <div class="r-roll-foot">
-    <select name="messageMode" class="r-mode">{{#each messageModes}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+    {{rModes messageModes}}
     <button type="submit" class="r-btn is-primary"><i class="fa-solid {{#if p.perTurn}}fa-hourglass-half{{else}}fa-person-falling{{/if}}"></i> {{#if p.perTurn}}{{localize "VTM20.Hazard.ApplyTurn"}}{{else}}{{localize "VTM20.Hazard.Apply"}}{{/if}}</button>
   </div>
 </div>

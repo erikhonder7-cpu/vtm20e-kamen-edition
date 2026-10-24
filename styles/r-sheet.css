@@ -223,7 +223,7 @@
 
 /* Полоса ночных действий — под сведениями, по нижнему краю портрета; тревожные броски справа значками */
 .vtm20 .r-head-acts {
-  grid-area: acts; align-self: end; display: flex; align-items: stretch; flex-wrap: nowrap; min-width: 0; overflow: hidden; padding: 0 4px;
+  grid-area: acts; align-self: end; display: flex; align-items: stretch; flex-wrap: nowrap; min-width: 0; overflow-x: auto; scrollbar-width: none; padding: 0 4px;
   background: rgba(0, 0, 0, .35); border: 1px solid var(--r-line);
 }
 .vtm20 .r-act {
@@ -303,16 +303,22 @@
 .vtm20 .r-vc-hint.is-left { margin-left: 0; flex: 1 1 auto; min-width: 0; }
 .vtm20 .r-vc-hint b { font-style: normal; color: var(--r-ink-2); font-weight: 400; }
 
-/* Здоровье: семь клеток в ряд, штраф мелко под клеткой */
-.vtm20 .r-hboxes { display: flex; gap: 4px; }
-.vtm20 .r-hbox { display: flex; flex-direction: column; align-items: center; gap: 1px; }
+/* Здоровье: семь клеток во всю ширину карточки, штраф под клеткой — от бледного к кровавому */
+.vtm20 .r-hboxes { display: flex; gap: 5px; }
+.vtm20 .r-hbox { flex: 1 1 0; max-width: 36px; display: flex; flex-direction: column; align-items: stretch; gap: 3px; }
 .vtm20 .r-hbox-mark {
-  width: 22px; height: 22px; display: grid; place-items: center; border-radius: 2px;
+  width: 100%; height: 26px; display: grid; place-items: center; border-radius: 2px;
   border: 1px solid var(--r-dot-border); background: transparent; font-family: var(--r-display); font-size: 14px; color: var(--r-ink);
   transition: background .15s, border-color .15s;
 }
 .vtm20 .r-hbox:hover .r-hbox-mark { border-color: var(--r-ink-2); }
-.vtm20 .r-hbox-pen { font-family: var(--r-display); font-size: 10.5px; line-height: 1.1; color: var(--r-muted); }
+.vtm20 .r-hbox-pen { font-family: var(--r-display); font-size: 12px; line-height: 1.1; text-align: center; color: var(--r-muted); border-top: 1px solid var(--r-line); padding-top: 2px; }
+.vtm20 .r-hbox.is-sev1 .r-hbox-pen { color: #b9a28f; }
+.vtm20 .r-hbox.is-sev2 .r-hbox-pen { color: #d08a80; border-top-color: rgba(196, 71, 76, .35); }
+.vtm20 .r-hbox.is-sev3 .r-hbox-pen { color: #e0645f; border-top-color: rgba(196, 71, 76, .6); }
+.vtm20 .r-hbox.is-sev4 .r-hbox-pen { color: #8a8276; font-size: 10px; }
+/* последняя занятая клетка — где персонаж сейчас */
+.vtm20 .r-hbox.is-current .r-hbox-mark { box-shadow: 0 0 0 1px #0a0a0c, 0 0 0 2px rgba(232, 163, 165, .65); }
 .vtm20 .r-hbox.is-bashing .r-hbox-mark { color: var(--r-ink); background: linear-gradient(180deg, #3a3935, #262522); border-color: rgba(216, 207, 191, .45); }
 .vtm20 .r-hbox.is-lethal .r-hbox-mark { color: #f1e9da; background: linear-gradient(180deg, #6a141a, #3e0b0e); border-color: #8c1c22; }
 .vtm20 .r-hbox.is-aggravated .r-hbox-mark { color: #fff; background: linear-gradient(180deg, #b0282f, #741419); border-color: #d0565b; box-shadow: 0 0 6px rgba(196, 71, 76, .45); }
@@ -321,7 +327,7 @@
 /* Мораль и добродетели: три добродетели в ряд — подпись над точками */
 .vtm20 .r-virtues { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 10px; margin-top: 6px; }
 .vtm20 .r-virtue { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; min-width: 0; }
-.vtm20 .r-virtue .r-trait-label { max-width: 100%; font-family: var(--r-caps); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--r-ink-2); }
+.vtm20 .r-virtue .r-trait-label { max-width: 100%; font-family: var(--r-caps); font-size: 10.5px; letter-spacing: .35px; text-transform: uppercase; color: var(--r-ink-2); }
 .vtm20 .r-virtue .r-trait-label:hover { color: var(--r-accent); }
 .vtm20 .r-virtue-dots { display: flex; align-items: center; gap: 4px; }
 .vtm20 .r-virtue-dots .r-dot { width: 10px; height: 10px; }
@@ -765,6 +771,11 @@ body.r-theme-light .vtm20 .r-motto { color: rgba(140, 28, 34, .75); }
 @container rsheet (max-width: 800px) {
   .vtm20 .r-cols3 { grid-template-columns: minmax(0, 1fr); }
 }
+/* полоса действий не влезает — сначала значками становятся редкие (пробуждение, простой, урон, опасность), потом все */
+@container rsheet (max-width: 1240px) {
+  .vtm20 .r-act.is-minor span { display: none; }
+  .vtm20 .r-act.is-minor { padding: 0 10px; }
+}
 @container rsheet (max-width: 1000px) {
   .vtm20 .r-act span { display: none; }
   .vtm20 .r-act { padding: 0 10px; }
@@ -952,3 +963,15 @@ body.r-theme-light .vtm20 .r-motto { color: rgba(140, 28, 34, .75); }
 .vtm20 .r-boon.is-done { opacity: .55; }
 .vtm20 .r-boon.is-done .r-trait-main .r-trait-input { text-decoration: line-through; text-decoration-color: rgba(196, 71, 76, .7); }
 .vtm20 .r-boon .r-icon-btn.is-on { color: var(--r-accent); }
+
+/* Поколение — сама печать под портретом: щелчок открывает список (поле в шапке больше не дублирует) */
+.vtm20 .r-seal { position: relative; }
+.vtm20 .r-seal-select { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+.vtm20 .r-seal-caret { position: absolute; right: 7px; top: 50%; transform: translateY(-50%); font-size: 8px; color: var(--r-muted); opacity: 0; transition: opacity .15s; pointer-events: none; }
+.vtm20 .r-seal:has(.r-seal-select):hover { border-color: #c4474c; box-shadow: 0 0 8px rgba(196, 71, 76, .35); }
+.vtm20 .r-seal:has(.r-seal-select):hover .r-seal-caret { opacity: 1; }
+.vtm20 .r-seal:has(.r-seal-select:focus-visible) { outline: 1px solid var(--r-accent); }
+
+/* Лист предмета растёт по содержимому, но не выше экрана — дальше прокрутка внутри */
+.vtm20.r-item { max-height: 88vh; }
+.vtm20.r-item .window-content { overflow-y: auto; }

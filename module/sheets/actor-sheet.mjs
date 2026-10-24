@@ -231,8 +231,9 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       ctx.donorGenerations = Object.keys(VTM20.generations).map(Number).sort((x, y) => x - y)
         .map(g => ({ value: g, label: t("GenerationN", { n: g }), selected: g === s.domitorGeneration }));
     }
-    // Герб на рельсе и водяной знак: клан, иначе секта; у прочих — кокарда
-    const sym = actor => actor.type === "vampire" ? Codex.clanSymbol(actor.system.clan) : null;
+    // Герб на рельсе и водяной знак: клан, иначе секта; у гуля — герб клана домитора или сердце в цепях; у прочих — кокарда
+    const sym = actor => actor.type === "vampire" ? Codex.clanSymbol(actor.system.clan)
+      : actor.type === "ghoul" ? (Codex.clanSymbol(actor.system.domitorClan) ?? Codex._sym(Codex.assets?.sects?.ghoul)) : null;
     ctx.sigil = { sym: sym(a) ?? Codex.sectSymbol(s.details.sect), label: a.clanLabel || s.details.sect || "", clan: a.type === "vampire" && !!Codex.clan(s.clan) };
     // Состояние на портрете: раны — кровавая дымка по краям, состояния (ярость, торпор…) — оттенок и значки
     const st = a.statuses ?? new Set();
@@ -313,9 +314,13 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
         short: game.i18n.localize(VTM20.attributes[k].label).slice(0, 4) + ".", value: s.boosts[k] }));
       ctx.anyBoost = Object.values(s.boosts).some(v => v > 0);
     }
-    ctx.health = s.health.levels.map(l => ({
+    // Шкала здоровья: штраф под клеткой (0, −1 … −5), у последней — «выбыл»; тяжесть штрафа — цветом
+    const lastHurt = s.health.levels.reduce((n, l, i) => l.state && l.state !== "none" ? i : n, -1);
+    ctx.health = s.health.levels.map((l, i) => ({
       ...l, label: game.i18n.localize(l.label),
-      penaltyLabel: l.penalty == null ? "" : l.penalty === 0 ? "" : String(l.penalty),
+      penaltyLabel: l.penalty == null ? "" : l.penalty === 0 ? "0" : `−${Math.abs(l.penalty)}`,
+      out: l.penalty == null, sev: l.penalty == null ? 4 : Math.min(3, Math.abs(l.penalty ?? 0) > 2 ? 3 : Math.abs(l.penalty ?? 0)),
+      current: i === lastHurt,
       mark: VTM20.damageTypes[l.state]?.mark ?? ""
     }));
     ctx.healthStatus = s.health.status === "healthy" ? t("Health.healthy") : t(`Health.${s.health.status}`);

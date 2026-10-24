@@ -52,8 +52,7 @@
   {{/if}}
 
   <div class="r-roll-checks">
-    <label class="r-check {{#unless specialtyName}}is-dim{{/unless}}"><input type="checkbox" name="specialty" {{checked v.specialty}}>
-      {{localize "VTM20.Roll.Specialty"}}{{#if specialtyName}}: <em>{{specialtyName}}</em>{{/if}}</label>
+    <label class="r-check r-check-spec {{#unless specialtyName}}is-dim{{/unless}}"><input type="checkbox" name="specialty" {{checked v.specialty}}> <span class="r-spec-main"><span class="r-spec-head">{{localize "VTM20.Roll.Specialty"}} <small>{{localize "VTM20.Roll.SpecialtyRule"}}</small></span>{{#if specialtyName}}<em class="r-spec-name">{{specialtyName}}</em>{{/if}}</span></label>
     {{#unless noWillpower}}
     <label class="r-check"><input type="checkbox" name="willpower" {{checked v.willpower}} {{#unless willpowerLeft}}disabled{{/unless}}>
       {{localize "VTM20.Roll.SpendWillpower"}} <em>({{willpowerLeft}})</em></label>
@@ -85,7 +84,7 @@
   </div>
 
   <div class="r-roll-foot">
-    <select name="messageMode" class="r-mode">{{#each messageModes}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+    {{rModes messageModes}}
     <button type="submit" class="r-btn is-primary"><i class="fa-solid fa-dice-d10"></i> {{localize "VTM20.Roll.Roll"}}</button>
   </div>
 </div>

@@ -38,7 +38,8 @@ const DISCIPLINE_SYMBOL_PARENT = { assamiteSorcery: "thaumaturgy", koldunism: "t
 const LUMINANCE = /\/markers\/|\/disciplines\/|clans\/(assamite|setite|ravnos|istinnyeBruha)\./;
 const SECT_KEYS = [
   [/камарил/i, "camarilla"], [/шабаш/i, "sabbat"], [/анарх/i, "anarchs"], [/инквизи/i, "inquisition"],
-  [/ересь/i, "cainiteHeresy"], [/роялист/i, "royalists"], [/аширр/i, "ashirra"], [/корол/i, "royalPower"], [/таль.?махе|tal.?mahe/i, "talMaheRa"]
+  [/ересь/i, "cainiteHeresy"], [/роялист/i, "royalists"], [/аширр/i, "ashirra"], [/корол/i, "royalPower"], [/таль.?махе|tal.?mahe/i, "talMaheRa"],
+  [/независим|independ/i, "independent"], [/автарх|autark/i, "autarkis"]
 ];
 
 export const Codex = {

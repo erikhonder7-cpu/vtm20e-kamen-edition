@@ -370,3 +370,10 @@ body.r-theme-light .vtm20 .r-sym { background: linear-gradient(170deg, #3a3029, 
   font-family: var(--r-caps); font-size: 11px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--r-muted); cursor: default;
 }
 .r-combo-pop .r-combo-group ~ .r-combo-item { padding-left: 18px; }
+
+/* Специализация в окнах бросков: подпись и правило строкой, название специализации — под ней */
+.vtm20 .r-check-spec { align-items: flex-start; }
+.vtm20 .r-check-spec input { margin-top: 2px; }
+.vtm20 .r-spec-main { display: flex; flex-direction: column; min-width: 0; }
+.vtm20 .r-spec-head small { margin-left: 4px; font-size: 11.5px; font-style: italic; color: var(--r-muted); }
+.vtm20 .r-spec-name { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12.5px; color: #d9a3a0; }

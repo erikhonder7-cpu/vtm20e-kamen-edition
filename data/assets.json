@@ -70,7 +70,10 @@
   "ashirra": "assets/sects/ashirra.png",
   "brokenAnkh": "assets/sects/brokenAnkh.png",
   "gesheri": "assets/sects/gesheri.png",
-  "talMaheRa": "assets/sects/talMaheRa.webp"
+  "talMaheRa": "assets/sects/talMaheRa.webp",
+  "independent": "assets/sects/independent.svg",
+  "autarkis": "assets/sects/autarkis.svg",
+  "ghoul": "assets/sects/ghoul.svg"
  },
  "disciplines": {
   "animalism": "assets/disciplines/animalism.webp",

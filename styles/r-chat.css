@@ -145,6 +145,18 @@
 .vtm20 .r-roll-pool i { color: var(--r-accent); }
 .vtm20 .r-roll-foot { display: flex; align-items: center; gap: 10px; }
 .vtm20 .r-roll-foot .r-mode { flex: 1 1 auto; height: 30px; }
+/* кому видно бросок — ряд значков; выбранный раскрывается подписью */
+.vtm20 .r-modes { display: flex; align-items: stretch; height: 32px; border: 1px solid var(--r-line-2); background: rgba(0, 0, 0, .25); }
+.vtm20 .r-mode-opt { position: relative; display: flex; align-items: center; justify-content: center; gap: 7px; min-width: 34px; padding: 0 9px; cursor: pointer;
+  color: var(--r-muted); border-right: 1px solid var(--r-line); transition: color .15s, background .15s; }
+.vtm20 .r-mode-opt:last-child { border-right: 0; }
+.vtm20 .r-mode-opt input { position: absolute; opacity: 0; pointer-events: none; }
+.vtm20 .r-mode-opt i { font-size: 13px; }
+.vtm20 .r-mode-opt span { display: none; font-family: var(--r-caps); font-size: 11px; letter-spacing: .8px; text-transform: uppercase; white-space: nowrap; }
+.vtm20 .r-mode-opt:hover { color: var(--r-ink); background: rgba(255, 255, 255, .03); }
+.vtm20 .r-mode-opt.is-active, .vtm20 .r-mode-opt:has(input:checked) { flex: 1 1 auto; color: #f1e9da; background: linear-gradient(180deg, rgba(140, 28, 34, .55), rgba(74, 13, 17, .55)); box-shadow: inset 0 -2px 0 #c4474c; }
+.vtm20 .r-mode-opt.is-active span, .vtm20 .r-mode-opt:has(input:checked) span { display: inline; }
+.vtm20 .r-mode-opt.is-active i, .vtm20 .r-mode-opt:has(input:checked) i { color: #e8a3a5; }
 .vtm20 .r-roll-note { margin: -4px 0 0 142px; font-size: 12.5px; font-style: italic; color: var(--r-muted); }
 
 .r-card-effect { margin-top: 6px; border-top: 1px solid var(--r-line); padding-top: 4px; }

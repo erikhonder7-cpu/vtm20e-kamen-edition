@@ -55,7 +55,7 @@
   <p class="r-roll-note"><i class="fa-solid fa-circle-info"></i> {{localize "VTM20.Downtime.Hint"}}</p>
 
   <div class="r-roll-foot">
-    <select name="messageMode" class="r-mode">{{#each messageModes}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+    {{rModes messageModes}}
     <button type="submit" class="r-btn is-primary"><i class="fa-solid fa-hourglass-half"></i> {{localize "VTM20.Downtime.Go"}}</button>
   </div>
 </div>

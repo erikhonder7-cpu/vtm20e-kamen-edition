@@ -77,7 +77,7 @@ class HuntDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       v, ...c, bg: this.bg, fameTotal: this.bg.fame + this.bg.domain,
       grounds: Object.entries(HUNTING_GROUNDS).map(([k, d]) => ({ key: k, d, label: t(`Hunt.Ground.${k}`), icon: GROUND_ICONS[k], active: k === v.ground })),
       methods: Object.entries(HUNTING_METHODS).map(([k, [x, y]]) => ({ key: k, selected: k === v.method,
-        label: `${t(`Hunt.Method.${k}`)} — ${a.traitLabel(x)} + ${a.traitLabel(y)} (${a.traitValue(x) + a.traitValue(y)})` })),
+        label: `${t(`Hunt.Method.${k}`)} · ${a.traitValue(x) + a.traitValue(y)}`, title: `${a.traitLabel(x)} + ${a.traitLabel(y)}` })),
       chances: chancesView(odds({ pool: c.pool, difficulty: c.diff })),
       messageModes: Object.entries(modes).map(([k, m]) => ({ value: k, label: game.i18n.localize(m.label ?? k), selected: k === v.messageMode }))
     };

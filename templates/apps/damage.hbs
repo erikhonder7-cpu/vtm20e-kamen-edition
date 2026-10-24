@@ -53,7 +53,7 @@
   {{#each p.notes}}<p class="r-hint-note"><i class="fa-solid fa-circle-info"></i> {{this}}</p>{{/each}}
 
   <div class="r-roll-foot">
-    <select name="messageMode" class="r-mode">{{#each messageModes}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+    {{rModes messageModes}}
     <button type="submit" class="r-btn is-primary"><i class="fa-solid fa-burst"></i> {{localize "VTM20.DamageDlg.Apply"}}</button>
   </div>
 </div>
