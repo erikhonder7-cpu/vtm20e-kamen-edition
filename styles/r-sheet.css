@@ -16,29 +16,76 @@
 /* ── Корешок ───────────────────────────────────────────────────────────── */
 
 .vtm20 .r-rail {
-  grid-area: rail; width: 88px; display: flex; flex-direction: column; align-items: stretch; gap: 2px; padding: 14px 0 10px;
-  background: #0a0a0c; border-right: 1px solid #222226; z-index: 2;
+  grid-area: rail; position: relative; width: 100px; display: flex; flex-direction: column; align-items: stretch; gap: 4px; padding: 16px 0 12px;
+  background:
+    radial-gradient(ellipse 120% 40% at 50% 0%, rgba(140, 28, 34, .14), transparent 70%),
+    linear-gradient(180deg, #0f0f12, #09090b 60%, #0b0a0c);
+  border-right: 1px solid #26252a; box-shadow: inset -1px 0 0 rgba(0, 0, 0, .6), 1px 0 0 rgba(216, 207, 191, .04); z-index: 2;
 }
+/* Тонкая «прошивка» корешка по правому краю */
+.vtm20 .r-rail::after {
+  content: ""; position: absolute; top: 14px; bottom: 14px; right: 6px; width: 1px; pointer-events: none;
+  background: repeating-linear-gradient(180deg, rgba(216, 207, 191, .1) 0 3px, transparent 3px 7px);
+}
+
+/* Герб клана в медальоне: костяное кольцо, кровавое кольцо, ромб-разделитель под ним */
 .vtm20 .r-rail-sigil {
-  width: 50px; height: 50px; margin: 0 auto 14px; padding: 9px; border-radius: 50%; display: grid; place-items: center; flex: 0 0 auto;
-  border: 1px solid rgba(216, 207, 191, .22); background: radial-gradient(circle at 50% 35%, #1d1d21, #0c0c0e);
+  position: relative; width: 58px; height: 58px; margin: 0 auto 26px; padding: 11px; border-radius: 50%; display: grid; place-items: center; flex: 0 0 auto;
+  color: #d8cfbf; background: radial-gradient(circle at 50% 32%, #232227, #0c0c0e 72%);
+  border: 1px solid rgba(216, 207, 191, .3);
+  box-shadow: 0 0 0 3px #0b0b0d, 0 0 0 4px rgba(140, 28, 34, .75), 0 0 18px rgba(140, 28, 34, .28), inset 0 2px 6px rgba(0, 0, 0, .6);
+}
+.vtm20 .r-rail-sigil::after {
+  content: ""; position: absolute; left: 50%; bottom: -17px; width: 46px; height: 7px; transform: translateX(-50%); pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(216, 207, 191, .24) 30%, transparent 42%, transparent 58%, rgba(216, 207, 191, .24) 70%, transparent) center / 100% 1px no-repeat;
+}
+.vtm20 .r-rail-sigil::before {
+  content: ""; position: absolute; left: 50%; bottom: -15px; width: 5px; height: 5px; margin-left: -2.5px; transform: rotate(45deg); pointer-events: none;
+  background: #b83a3f; box-shadow: 0 0 5px rgba(184, 58, 63, .6);
 }
 .vtm20 .r-rail-sigil img { width: 100%; height: 100%; border: 0; filter: grayscale(.6) brightness(.85); }
+.vtm20 .r-rail-sigil .r-sym { width: 100%; height: 100%; }
+
+/* Главы — монеты: значок в круге, подпись капителью; открытая глава — кровавая монета и ромб-закладка у края */
 .vtm20 .r-rtab {
-  position: relative; display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 10px 4px 9px;
-  color: #857e72; border: 0; transition: color .12s, background .12s;
+  position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 9px 2px 8px;
+  color: #8a8376; border: 0; transition: color .15s, background .15s;
 }
-.vtm20 .r-rtab-coin { display: grid; place-items: center; width: 20px; height: 20px; }
-.vtm20 .r-rtab-coin i { font-size: 15px; color: inherit; }
+.vtm20 .r-rtab-coin {
+  display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%;
+  border: 1px solid rgba(216, 207, 191, .16); background: radial-gradient(circle at 50% 35%, #1a1a1e, #0d0d0f);
+  transition: border-color .15s, background .15s, box-shadow .15s, transform .15s;
+}
+.vtm20 .r-rtab-coin i { font-size: 14px; color: inherit; }
 .vtm20 .r-rtab-num { display: none; }
-.vtm20 .r-rtab-label { max-width: 100%; font-family: var(--r-caps); font-size: 10.5px; letter-spacing: .5px; text-transform: uppercase; text-align: center; line-height: 1.1; }
-.vtm20 .r-rtab:hover { color: #cfc6b5; background: rgba(255, 255, 255, .02); }
-.vtm20 .r-rtab.active { color: #e6ddcc; background: linear-gradient(90deg, rgba(140, 28, 34, .18), transparent); }
-.vtm20 .r-rtab.active .r-rtab-coin i { color: #c4474c; }
-.vtm20 .r-rtab.active::before { content: ""; position: absolute; left: 0; top: 6px; bottom: 6px; width: 2px; background: #b83a3f; }
+.vtm20 .r-rtab-label {
+  max-width: 100%; font-family: var(--r-caps); font-size: 10px; letter-spacing: .3px; text-transform: uppercase;
+  text-align: center; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.vtm20 .r-rtab:hover { color: #d8cfbf; }
+.vtm20 .r-rtab:hover .r-rtab-coin { border-color: rgba(216, 207, 191, .42); transform: translateY(-1px); }
+.vtm20 .r-rtab.active { color: #ece3d2; background: linear-gradient(90deg, rgba(140, 28, 34, .2), rgba(140, 28, 34, .04) 70%, transparent); }
+.vtm20 .r-rtab.active .r-rtab-coin {
+  color: #f4ecdd; border-color: #c4474c; background: radial-gradient(circle at 50% 30%, #a3262c, #5e1015 70%);
+  box-shadow: 0 0 0 2px #0b0b0d, 0 0 0 3px rgba(196, 71, 76, .45), 0 0 14px rgba(196, 71, 76, .35);
+}
+.vtm20 .r-rtab.active::before { content: ""; position: absolute; left: 0; top: 8px; bottom: 8px; width: 3px; background: #b83a3f; box-shadow: 0 0 8px rgba(184, 58, 63, .6); }
+.vtm20 .r-rtab.active::after {
+  content: ""; position: absolute; right: -5px; top: 26px; width: 9px; height: 9px; transform: rotate(45deg); z-index: 3;
+  background: #8c1c22; border: 1px solid #c4474c; box-shadow: 0 0 6px rgba(196, 71, 76, .5);
+}
 .vtm20 .r-rail-spacer { flex: 1 1 auto; }
-.vtm20 .r-rail-tool { display: grid; place-items: center; height: 32px; color: #857e72; font-size: 15px; }
-.vtm20 .r-rail-tool:hover { color: #e6ddcc; }
+
+/* Мастер создания и свободная проверка — круглые кнопки под чертой */
+.vtm20 .r-rail-tools {
+  display: flex; flex-direction: column; align-items: center; gap: 8px; margin: 0 14px; padding-top: 12px;
+  border-top: 1px solid rgba(216, 207, 191, .1);
+}
+.vtm20 .r-rail-tool {
+  display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; font-size: 14px;
+  color: #8a8376; border: 1px solid rgba(216, 207, 191, .14); background: rgba(255, 255, 255, .02); transition: color .15s, border-color .15s, background .15s;
+}
+.vtm20 .r-rail-tool:hover { color: #f4ecdd; border-color: #c4474c; background: rgba(140, 28, 34, .25); }
 
 /* ── Шапка ─────────────────────────────────────────────────────────────── */
 
@@ -570,9 +617,13 @@ body.r-theme-light .vtm20 .r-motto { color: rgba(140, 28, 34, .75); }
   .vtm20 .r-motto { display: none; }
 }
 @container rsheet (max-width: 700px) {
-  .vtm20 .r-rail { width: 54px; }
+  .vtm20 .r-rail { width: 56px; }
+  .vtm20 .r-rail::after { display: none; }
   .vtm20 .r-rtab-label { display: none; }
-  .vtm20 .r-rail-sigil { width: 40px; height: 40px; padding: 7px; }
+  .vtm20 .r-rtab.active::after { top: 21px; }
+  .vtm20 .r-rail-sigil { width: 40px; height: 40px; padding: 7px; margin-bottom: 22px; }
+  .vtm20 .r-rail-sigil::after { width: 30px; }
+  .vtm20 .r-rail-tools { margin: 0 8px; }
   .vtm20 .r-portrait-frame, .vtm20 .r-portrait-frame .r-portrait { width: 104px; }
   .vtm20 .r-portrait-frame .r-portrait { height: 104px; }
   .vtm20 .r-name-row { flex-wrap: wrap; }
