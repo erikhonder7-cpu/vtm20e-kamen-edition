@@ -1,0 +1,57 @@
+{{!-- Окно охоты (03): угодья → сложность, способ → пул, Слава/Домен, Стадо, модификаторы, шансы. --}}
+<div class="r-roll-form r-hunt-form">
+  <div class="r-roll-label r-hunt-cap">{{localize "VTM20.Hunt.Ground.label"}}</div>
+  <div class="r-hunt-grounds">
+    {{#each grounds}}
+    <a class="r-hunt-ground {{#if active}}is-active{{/if}}" data-action="ground" data-key="{{key}}">
+      <i class="fa-solid {{icon}}"></i><span>{{label}}</span><b>{{d}}</b>
+    </a>
+    {{/each}}
+  </div>
+
+  <div class="r-roll-row">
+    <span class="r-roll-label">{{localize "VTM20.Hunt.Method.label"}}</span>
+    <select name="method" class="r-hunt-method">{{#each methods}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+  </div>
+
+  <div class="r-roll-row">
+    <span class="r-roll-label">{{localize "VTM20.Hunt.ModDice"}}</span>
+    <a class="r-step" data-action="bump" data-field="modDice" data-d="-1">−</a>
+    <input type="number" name="modDice" value="{{v.modDice}}" class="r-roll-num">
+    <a class="r-step" data-action="bump" data-field="modDice" data-d="1">+</a>
+  </div>
+  <div class="r-roll-row">
+    <span class="r-roll-label">{{localize "VTM20.Hunt.ModDiff"}}</span>
+    <a class="r-step" data-action="bump" data-field="modDiff" data-d="-1">−</a>
+    <input type="number" name="modDiff" value="{{v.modDiff}}" class="r-roll-num">
+    <a class="r-step" data-action="bump" data-field="modDiff" data-d="1">+</a>
+  </div>
+
+  <div class="r-roll-checks">
+    <label class="r-check {{#unless fameTotal}}is-dim{{/unless}}"><input type="checkbox" name="fame" {{checked v.fame}} {{#unless fameTotal}}disabled{{/unless}}> {{localize "VTM20.Hunt.FameDomain" n=fameTotal}}</label>
+    <label class="r-check {{#unless bg.herd}}is-dim{{/unless}}"><input type="checkbox" name="herd" {{checked v.herd}} {{#unless bg.herd}}disabled{{/unless}}> {{localize "VTM20.Hunt.Herd" n=bg.herd}}</label>
+    <label class="r-check"><input type="checkbox" name="inhuman" {{checked v.inhuman}}> {{localize "VTM20.Hunt.Inhuman"}}</label>
+  </div>
+
+  <div class="r-roll-total">
+    <div class="r-roll-breakdown">{{#each bd}}<span>{{label}} <b>{{rSigned value}}</b></span>{{/each}}</div>
+    <div class="r-roll-pool"><b>{{pool}}</b><i class="fa-solid fa-dice-d10"></i> <span>{{localize "VTM20.Roll.Vs"}}</span> <b>{{diff}}</b></div>
+  </div>
+  <div class="r-odds" data-tooltip="{{localize 'VTM20.Roll.OddsHint'}}">
+    <div class="r-odds-bar">
+      <i class="is-success" style="width: {{chances.success}}%"></i><i class="is-failure" style="width: {{chances.failure}}%"></i><i class="is-botch" style="width: {{chances.botch}}%"></i>
+    </div>
+    <div class="r-odds-legend">
+      <span class="is-success">{{localize "VTM20.Roll.OddsSuccess"}} <b>{{chances.success}}%</b></span>
+      <span class="is-failure">{{localize "VTM20.Outcome.failure"}} <b>{{chances.failure}}%</b></span>
+      <span class="is-botch">{{localize "VTM20.Outcome.botch"}} <b>{{chances.botch}}%</b></span>
+      <span class="r-odds-mean">{{localize "VTM20.Roll.OddsMean"}} <b>{{chances.mean}}</b></span>
+    </div>
+  </div>
+  <p class="r-roll-note"><i class="fa-solid fa-circle-info"></i> {{localize "VTM20.Hunt.Hint"}}</p>
+
+  <div class="r-roll-foot">
+    <select name="messageMode" class="r-mode">{{#each messageModes}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+    <button type="submit" class="r-btn is-primary"><i class="fa-solid fa-moon"></i> {{localize "VTM20.Hunt.Go"}}</button>
+  </div>
+</div>

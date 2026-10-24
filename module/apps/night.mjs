@@ -6,8 +6,8 @@
 //   · конец сцены — сброс усилений кровью; конец истории — воля восстанавливается полностью (03);
 //   · после боя усиления снимаются сами.
 
-import { VTM20, SYSTEM_ID } from "../config.mjs";
-import { rollPool } from "../dice/roll.mjs";
+import { VTM20, SYSTEM_ID, SYSTEM_PATH } from "../config.mjs";
+import { rollPool, odds, chancesView } from "../dice/roll.mjs";
 
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
 
@@ -27,52 +27,92 @@ export const HUNTING_METHODS = {
 
 const bgValue = (actor, name) => actor.items.find(i => i.type === "background" && i.name.toLowerCase() === name)?.system.value ?? 0;
 
-export async function openHunt(actor) {
-  const fame = bgValue(actor, "слава"), domain = bgValue(actor, "домен"), herd = bgValue(actor, "стадо");
-  const grounds = Object.entries(HUNTING_GROUNDS).map(([k, d]) => `<option value="${k}">${t(`Hunt.Ground.${k}`)} — ${d}</option>`).join("");
-  const methods = Object.entries(HUNTING_METHODS).map(([k, [a, b]]) =>
-    `<option value="${k}">${t(`Hunt.Method.${k}`)} (${actor.traitLabel(a)} + ${actor.traitLabel(b)}: ${actor.traitValue(a) + actor.traitValue(b)})</option>`).join("");
-  const content = `<div class="r-form">
-    <label class="r-field"><span>${t("Hunt.Ground.label")}</span><select name="ground">${grounds}</select></label>
-    <label class="r-field"><span>${t("Hunt.Method.label")}</span><select name="method">${methods}</select></label>
-    <label class="r-check"><input type="checkbox" name="fame" ${fame + domain ? "checked" : "disabled"}> ${t("Hunt.FameDomain", { n: fame + domain })}</label>
-    <label class="r-check"><input type="checkbox" name="herd" ${herd ? "checked" : "disabled"}> ${t("Hunt.Herd", { n: herd })}</label>
-    <label class="r-check"><input type="checkbox" name="inhuman"> ${t("Hunt.Inhuman")}</label>
-    <div class="r-hunt-mods">
-      <label class="r-field"><span>${t("Hunt.ModDice")}</span><input type="number" name="modDice" value="0" step="1" min="-10" max="10"></label>
-      <label class="r-field"><span>${t("Hunt.ModDiff")}</span><input type="number" name="modDiff" value="0" step="1" min="-5" max="5"></label>
-    </div>
-    <p class="r-hint">${t("Hunt.Hint")}</p></div>`;
-  const res = await foundry.applications.api.DialogV2.prompt({
-    window: { title: t("Hunt.Title", { name: actor.name }), icon: "fa-solid fa-moon" }, classes: ["vtm20", "r-dialog"], content,
-    ok: { label: t("Hunt.Go"), icon: "fa-solid fa-droplet", callback: (e, b) => new foundry.applications.ux.FormDataExtended(b.form).object },
-    rejectClose: false
-  });
-  if (!res) return;
-  const [a, b] = HUNTING_METHODS[res.method];
-  let diff = HUNTING_GROUNDS[res.ground];
-  const bd = [{ label: actor.traitLabel(a), value: actor.traitValue(a) }, { label: actor.traitLabel(b), value: actor.traitValue(b) }];
-  if (res.fame) diff = Math.max(3, diff - (fame + domain));
-  if (res.inhuman) diff += 1;
-  let pool = actor.traitValue(a) + actor.traitValue(b) + actor.system.health.penalty;
-  if (res.herd) { pool += herd; bd.push({ label: t("Hunt.HerdShort"), value: herd }); }
-  // Модификаторы рассказчика: кубики к пулу и поправка сложности (сложность 2–10)
-  const modDice = Math.trunc(Number(res.modDice) || 0), modDiff = Math.trunc(Number(res.modDiff) || 0);
-  if (modDice) { pool += modDice; bd.push({ label: t("Hunt.ModShort"), value: modDice }); }
-  if (modDiff) diff += modDiff;
-  diff = Math.min(10, Math.max(2, diff));
-  pool = Math.max(0, pool);
-  const selfC = actor.traitValue("virtues.selfControl");
-  const hungry = actor.hasBlood && actor.system.blood.value < 7 - selfC;
-  return rollPool({
-    actor, title: t("Hunt.Title", { name: "" }).replace(/:\s*$/, ""), subtitle: `${t(`Hunt.Ground.${res.ground}`)} · ${t(`Hunt.Method.${res.method}`)}`,
-    pool, difficulty: diff, breakdown: bd, kind: "hunt",
-    notes: [
-      ...(hungry ? [`<i class="fa-solid fa-face-angry"></i> ${t("Hunt.Hungry", { n: 7 - selfC })}`] : []),
-      ...(actor.system.clan === "ventrue" && actor.system.weaknessNote ? [`<i class="fa-solid fa-wine-glass"></i> ${t("Hunt.Ventrue", { taste: actor.system.weaknessNote })}`] : []),
-      ...(actor.system.clan === "giovanni" ? [`<i class="fa-solid fa-skull"></i> ${t("Hunt.Giovanni")}`] : [])
-    ]
-  });
+const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
+const GROUND_ICONS = { slums: "fa-dumpster-fire", poor: "fa-house-crack", business: "fa-building", industrial: "fa-industry", suburb: "fa-tree-city", guarded: "fa-shield-halved" };
+
+export function openHunt(actor) {
+  return new HuntDialog(actor).render({ force: true });
+}
+
+/** Окно охоты (03) в стиле окна броска: угодья плитками, способ, модификаторы, итог пула и шансы. */
+class HuntDialog extends HandlebarsApplicationMixin(ApplicationV2) {
+  static DEFAULT_OPTIONS = {
+    classes: ["vtm20", "r-dialog", "r-roll-dialog", "r-hunt-dialog"],
+    tag: "form",
+    window: { title: "VTM20.Hunt.Button", icon: "fa-solid fa-moon" },
+    position: { width: 460 },
+    form: { handler: HuntDialog.#onSubmit, closeOnSubmit: true, submitOnChange: false },
+    actions: { ground: HuntDialog.#onGround, bump: HuntDialog.#onBump }
+  };
+
+  static PARTS = { form: { template: `${SYSTEM_PATH}/templates/apps/hunt.hbs` } };
+
+  constructor(actor) {
+    super({ window: { title: t("Hunt.Title", { name: actor.name }) } });
+    this.actor = actor;
+    this.bg = { fame: bgValue(actor, "слава"), domain: bgValue(actor, "домен"), herd: bgValue(actor, "стадо") };
+    this.v = { ground: "business", method: "alleys", fame: this.bg.fame + this.bg.domain > 0, herd: this.bg.herd > 0, inhuman: false, modDice: 0, modDiff: 0,
+      messageMode: game.settings.get("core", "messageMode") };
+  }
+
+  /** Пул, сложность и разбор — общий расчёт для окна и броска. */
+  calc() {
+    const a = this.actor, v = this.v, [t1, t2] = HUNTING_METHODS[v.method];
+    const bd = [{ label: a.traitLabel(t1), value: a.traitValue(t1) }, { label: a.traitLabel(t2), value: a.traitValue(t2) }];
+    let pool = a.traitValue(t1) + a.traitValue(t2), diff = HUNTING_GROUNDS[v.ground];
+    const wounds = a.system.health.penalty ?? 0;
+    if (wounds) { pool += wounds; bd.push({ label: t("Roll.Wounds"), value: wounds }); }
+    if (v.herd && this.bg.herd) { pool += this.bg.herd; bd.push({ label: t("Hunt.HerdShort"), value: this.bg.herd }); }
+    if (v.modDice) { pool += v.modDice; bd.push({ label: t("Hunt.ModShort"), value: v.modDice }); }
+    if (v.fame && this.bg.fame + this.bg.domain) diff = Math.max(3, diff - (this.bg.fame + this.bg.domain));
+    if (v.inhuman) diff += 1;
+    diff = Math.min(10, Math.max(2, diff + v.modDiff));
+    return { pool: Math.max(0, pool), diff, bd };
+  }
+
+  async _prepareContext() {
+    const a = this.actor, v = this.v, c = this.calc();
+    const modes = CONFIG.ChatMessage?.modes ?? {};
+    return {
+      v, ...c, bg: this.bg, fameTotal: this.bg.fame + this.bg.domain,
+      grounds: Object.entries(HUNTING_GROUNDS).map(([k, d]) => ({ key: k, d, label: t(`Hunt.Ground.${k}`), icon: GROUND_ICONS[k], active: k === v.ground })),
+      methods: Object.entries(HUNTING_METHODS).map(([k, [x, y]]) => ({ key: k, selected: k === v.method,
+        label: `${t(`Hunt.Method.${k}`)} — ${a.traitLabel(x)} + ${a.traitLabel(y)} (${a.traitValue(x) + a.traitValue(y)})` })),
+      chances: chancesView(odds({ pool: c.pool, difficulty: c.diff })),
+      messageModes: Object.entries(modes).map(([k, m]) => ({ value: k, label: game.i18n.localize(m.label ?? k), selected: k === v.messageMode }))
+    };
+  }
+
+  _onFirstRender(context, options) {
+    super._onFirstRender(context, options);
+    this.element.addEventListener("change", ev => {
+      const f = new foundry.applications.ux.FormDataExtended(this.element).object;
+      Object.assign(this.v, { method: f.method ?? this.v.method, fame: !!f.fame, herd: !!f.herd, inhuman: !!f.inhuman,
+        modDice: Math.trunc(Number(f.modDice) || 0), modDiff: Math.trunc(Number(f.modDiff) || 0), messageMode: f.messageMode ?? this.v.messageMode });
+      this.render();
+    });
+  }
+
+  static #onGround(event, target) { this.v.ground = target.dataset.key; this.render(); }
+  static #onBump(event, target) {
+    const k = target.dataset.field, lim = k === "modDiff" ? 5 : 10;
+    this.v[k] = Math.max(-lim, Math.min(lim, this.v[k] + Number(target.dataset.d))); this.render();
+  }
+
+  static async #onSubmit() {
+    const a = this.actor, v = this.v, c = this.calc();
+    const selfC = a.traitValue("virtues.selfControl");
+    const hungry = a.hasBlood && a.system.blood.value < 7 - selfC;
+    return rollPool({
+      actor: a, title: t("Hunt.Title", { name: "" }).replace(/:\s*$/, ""), subtitle: `${t(`Hunt.Ground.${v.ground}`)} · ${t(`Hunt.Method.${v.method}`)}`,
+      pool: c.pool, difficulty: c.diff, breakdown: c.bd, kind: "hunt", messageMode: v.messageMode,
+      notes: [
+        ...(hungry ? [`<i class="fa-solid fa-face-angry"></i> ${t("Hunt.Hungry", { n: 7 - selfC })}`] : []),
+        ...(a.system.clan === "ventrue" && a.system.weaknessNote ? [`<i class="fa-solid fa-wine-glass"></i> ${t("Hunt.Ventrue", { taste: a.system.weaknessNote })}`] : []),
+        ...(a.system.clan === "giovanni" ? [`<i class="fa-solid fa-skull"></i> ${t("Hunt.Giovanni")}`] : [])
+      ]
+    });
+  }
 }
 
 /** Кровь после удачной охоты. */
