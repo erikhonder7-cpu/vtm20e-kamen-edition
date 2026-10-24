@@ -530,3 +530,8 @@
 #r-citymap .ra-roll { overflow: visible !important; }
 #r-citymap .ra-roll thead th { position: sticky; top: -22px; z-index: 3; background: #e4d8bd !important; box-shadow: 0 2px 0 rgba(109, 88, 57, .35); }
 #r-citymap .ra-roll tbody tr:not(.ra-facrow):hover td, #r-citymap .ra-roll tbody tr:not(.ra-facrow):hover th { background: rgba(138, 15, 31, .06) !important; }
+
+/* Герои: карточки в ряду одной высоты, форма услуг прижата к низу — без дыр в сетке */
+#r-citymap .ra-heroes { align-items: stretch; }
+#r-citymap .ra-hero { display: flex; flex-direction: column; }
+#r-citymap .ra-hero > .ra-boonform { margin-top: auto; padding-top: 8px; }
