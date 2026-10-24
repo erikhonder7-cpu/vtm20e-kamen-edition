@@ -575,3 +575,13 @@ body.r-theme-light .vtm20 .r-ng-item.is-active, body.r-theme-light .vtm20 .r-ng-
 .r-xp-hist li.is-spend b { color: var(--r-blood-l); }
 .r-xp-hist li span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--r-bone); }
 @media (prefers-reduced-motion: reduce) { .r-xp-item.is-flash { animation: none; } .r-xp-bar i { transition: none; } }
+
+/* ── Кормление после охоты ──────────────────────────────────────────────── */
+.r-feed-form { display: flex; flex-direction: column; gap: 8px; }
+.r-feed-pool { margin: 0; color: var(--r-bone); }
+.r-feed-pick { display: flex; gap: 6px; }
+.vtm20.r-feed .r-feed-pick button { flex: 1; height: 26px; }
+.r-feed-range { display: flex; align-items: center; gap: 10px; }
+.r-feed-range input { flex: 1; accent-color: var(--r-blood-l); }
+.r-feed-range output { min-width: 26px; text-align: center; font-family: "Forum", serif; font-size: 22px; color: var(--r-blood-l); }
+.r-feed-hint { margin: 0; font-size: 12px; font-style: italic; color: var(--r-bone-d); }

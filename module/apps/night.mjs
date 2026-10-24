@@ -66,14 +66,37 @@ export async function openHunt(actor) {
 }
 
 /** Кровь после удачной охоты. */
+/**
+ * Кормление после удачной охоты: сколько выпить, решает сам игрок (вампир обычно контролирует Поцелуй),
+ * в пределах свободного места в запасе. Сосуд-смертный — 10 пунктов крови: осушить его — убить.
+ */
 export async function feedAfterHunt(actor) {
   if (!actor?.hasBlood) return;
-  const r = await new Roll("1d10").evaluate();
+  const s = actor.system.blood, room = Math.max(0, s.max - s.value);
+  if (!room) return ui.notifications.info(t("Hunt.Full", { name: actor.name }));
+  const top = Math.min(room, 10);
+  const marks = [1, 2, 5, top].filter((v, i, a) => v <= top && a.indexOf(v) === i);
+  const n = await foundry.applications.api.DialogV2.prompt({
+    window: { title: t("Hunt.FeedTitle", { name: actor.name }), icon: "fa-solid fa-droplet" }, classes: ["vtm20", "r-dialog", "r-feed"],
+    content: `<div class="r-form r-feed-form">
+      <p class="r-feed-pool">${t("Hunt.FeedPool", { cur: s.value, max: s.max })}</p>
+      <div class="r-feed-pick">${marks.map(v => `<button type="button" data-feed="${v}">${v === top && top === room ? t("Hunt.FeedFull", { n: v }) : v}</button>`).join("")}</div>
+      <label class="r-feed-range"><input type="range" name="n" min="1" max="${top}" value="${top}" step="1"><output>${top}</output></label>
+      <p class="r-feed-hint">${t(s.value < 5 ? "Hunt.FeedHintHungry" : "Hunt.FeedHint")}</p>
+    </div>`,
+    render: (ev, dlg) => {
+      const el = dlg.element, range = el.querySelector("[name=n]"), out = el.querySelector("output");
+      range.addEventListener("input", () => { out.value = range.value; });
+      el.querySelectorAll("[data-feed]").forEach(b => b.addEventListener("click", () => { range.value = b.dataset.feed; out.value = b.dataset.feed; }));
+    },
+    ok: { label: t("Hunt.Feed"), icon: "fa-solid fa-droplet", callback: (e, b) => Number(b.form.elements.n.value) || 0 }, rejectClose: false
+  });
+  if (!n) return;
   const before = actor.system.blood.value;
-  await actor.gainBlood(r.total);
+  await actor.gainBlood(n);
   ChatMessage.create({
-    speaker: ChatMessage.getSpeaker({ actor }), rolls: [r],
-    content: `<div class="r-notice"><i class="fa-solid fa-droplet"></i> ${t("Hunt.Fed", { n: actor.system.blood.value - before, roll: r.total })}</div>`
+    speaker: ChatMessage.getSpeaker({ actor }),
+    content: `<div class="r-notice"><i class="fa-solid fa-droplet"></i> ${t("Hunt.Fed", { n: actor.system.blood.value - before, cur: actor.system.blood.value, max: s.max })}</div>`
   });
 }
 
