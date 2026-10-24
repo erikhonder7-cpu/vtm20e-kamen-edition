@@ -113,6 +113,7 @@
           {{#unless clan.disciplines.length}}<span class="r-cr-or">{{localize "VTM20.Creator.AnyDisc"}}</span>{{/unless}}
         </div>
         <div class="r-weakness-text"><b>{{localize "VTM20.Sheet.Weakness"}}:</b> {{{clan.weakness}}}</div>
+        <a class="r-cr-clan-more" data-action="clanAtlas" data-clan="{{clan.key}}"><i class="fa-solid fa-book-open"></i> {{localize "VTM20.Clans.More"}}</a>
         {{#if isVentrue}}<label class="r-f"><span>{{localize "VTM20.Creator.VentrueTaste"}}</span><input type="text" data-field="weaknessNote" value="{{st.weaknessNote}}"></label>{{/if}}
       </div>
     </div>

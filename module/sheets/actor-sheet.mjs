@@ -20,6 +20,7 @@ import { openXp } from "../apps/xp.mjs";
 import { openAttack } from "../combat/combat.mjs";
 import { openHazard } from "../apps/hazard.mjs";
 import { openDiablerie } from "../apps/diablerie.mjs";
+import { openClans } from "../apps/clans.mjs";
 import { clockBarData } from "../apps/calendar.mjs";
 import { openLibrary, LibraryItems } from "../apps/library.mjs";
 import { moneyView, openMoney } from "../data/money.mjs";
@@ -111,7 +112,8 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       hunt: VtMActorSheet.#onHunt,
       attack: VtMActorSheet.#onAttack,
       hazard: VtMActorSheet.#onHazard,
-      diablerie: VtMActorSheet.#onDiablerie
+      diablerie: VtMActorSheet.#onDiablerie,
+      clanAtlas: VtMActorSheet.#onClanAtlas
     }
   };
 
@@ -224,7 +226,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     }
     // Герб на рельсе и водяной знак: клан, иначе секта; у прочих — кокарда
     const sym = actor => actor.type === "vampire" ? Codex.clanSymbol(actor.system.clan) : null;
-    ctx.sigil = { sym: sym(a) ?? Codex.sectSymbol(s.details.sect), label: a.clanLabel || s.details.sect || "" };
+    ctx.sigil = { sym: sym(a) ?? Codex.sectSymbol(s.details.sect), label: a.clanLabel || s.details.sect || "", clan: a.type === "vampire" && !!Codex.clan(s.clan) };
     // Состояние на портрете: раны — кровавая дымка по краям, состояния (ярость, торпор…) — оттенок и значки
     const st = a.statuses ?? new Set();
     const wound = Math.min(7, s.health?.damage ?? 0);
@@ -720,6 +722,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static #onAttack() { return openAttack(this.actor); }
   static #onHazard() { return openHazard(this.actor); }
   static #onDiablerie() { return openDiablerie(this.actor); }
+  static #onClanAtlas() { return openClans(this.actor.system.clan); }
 
   static #onTakeDamage() { return openDamageDialog(this.actor); }
   static #onOpenCreator() { return openCreator(this.actor); }

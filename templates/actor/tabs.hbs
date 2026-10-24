@@ -1,6 +1,6 @@
 {{!-- Корешок слева: герб клана в медальоне, главы I–V монетами, мастер и свободная проверка. --}}
 <nav class="r-rail tabs" data-group="primary" role="tablist">
-  <div class="r-rail-sigil" {{#if sigil.label}}data-tooltip="{{sigil.label}}" data-tooltip-direction="RIGHT"{{/if}}>
+  <div class="r-rail-sigil {{#if sigil.clan}}is-link{{/if}}" {{#if sigil.clan}}data-action="clanAtlas"{{/if}} {{#if sigil.label}}data-tooltip="{{sigil.label}}{{#if sigil.clan}} — {{localize 'VTM20.Clans.Open'}}{{/if}}" data-tooltip-direction="RIGHT"{{/if}}>
     {{#if sigil.sym}}{{rSym sigil.sym}}
     {{else}}<img src="systems/vtm20e-kamen-edition/assets/ui/cockade.svg" alt="">{{/if}}
   </div>

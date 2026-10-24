@@ -12,6 +12,7 @@
 
 import { VTM20, SYSTEM_PATH, SYSTEM_ID } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
+import { openClans } from "./clans.mjs";
 import { blockerFor, checkTraits } from "../data/trait-rules.mjs";
 import { attachCombos } from "../ui/combo.mjs";
 import { weaponIcon, armorIcon, traitIcon, backgroundIcon } from "../data/icons.mjs";
@@ -62,7 +63,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     actions: {
       goto: VtMCreator.#onGoto, next: VtMCreator.#onNext, prev: VtMCreator.#onPrev,
       tier: VtMCreator.#onTier, sect: VtMCreator.#onSect, clan: VtMCreator.#onClan, clanGroup: VtMCreator.#onClanGroup,
-      gen: VtMCreator.#onGen, choice: VtMCreator.#onChoice,
+      gen: VtMCreator.#onGen, choice: VtMCreator.#onChoice, clanAtlas: VtMCreator.#onClanAtlas,
       dot: VtMCreator.#onDot, prio: VtMCreator.#onPrio,
       bgToggle: VtMCreator.#onBgToggle, mfToggle: VtMCreator.#onMfToggle, mfTab: VtMCreator.#onMfTab, mfCat: VtMCreator.#onMfCat,
       addDisc: VtMCreator.#onAddDisc, read: VtMCreator.#onRead,
@@ -501,6 +502,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     this.render();
   }
   static #onChoice(event, target) { this.st.clanChoice = target.dataset.key; this.render(); }
+  static #onClanAtlas(event, target) { return openClans(target.dataset.clan); }
   /** Поколение покупается фактом биографии «Поколение» (01). */
   static #onGen(event, target) {
     const n = 13 - Number(target.dataset.gen);

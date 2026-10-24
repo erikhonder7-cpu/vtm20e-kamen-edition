@@ -23,7 +23,7 @@
     <div class="r-head-info">
       <div class="r-kicker">
         <span class="r-kicker-type">{{typeLabel}}</span>
-        {{#if clan.nickname}}<i class="r-kicker-dia"></i><em class="r-kicker-nick">«{{clan.nickname}}»</em>{{/if}}
+        {{#if clan.nickname}}<i class="r-kicker-dia"></i><em class="r-kicker-nick is-link" data-action="clanAtlas" data-tooltip="{{localize 'VTM20.Clans.Open'}}">«{{clan.nickname}}»</em>{{/if}}
         {{#if sectSym}}<i class="r-kicker-dia"></i>{{rSym sectSym "r-sym-inline"}}{{/if}}
         <span class="r-motto" aria-hidden="true">La Liberté ou la Mort</span>
       </div>

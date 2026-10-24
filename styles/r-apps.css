@@ -625,3 +625,63 @@ body.r-theme-light .vtm20 .r-ng-item.is-active, body.r-theme-light .vtm20 .r-ng-
 .vtm20 .r-soul-track i.is-full { border-color: #c4474c; background: linear-gradient(180deg, #b0323a, #6e1218); color: #f6e9e2; box-shadow: 0 0 10px rgba(196, 71, 76, .45); }
 .vtm20 .r-soul-cap { font-size: 12.5px; color: var(--r-muted); }
 .vtm20 .r-soul-cap b { font-family: var(--r-display); font-weight: 400; font-size: 16px; color: var(--r-ink); }
+
+/* ── Справочник кланов ─────────────────────────────────────────────────── */
+.vtm20.r-clans .window-content { overflow: hidden; }
+.vtm20 .r-cl { display: grid; grid-template-columns: 270px minmax(0, 1fr); height: 100%; min-height: 0; }
+.vtm20 .r-cl-side { display: flex; flex-direction: column; gap: 8px; min-height: 0; padding: 12px 10px 10px 12px; border-right: 1px solid var(--r-line-2); background: rgba(0, 0, 0, .18); }
+.vtm20 .r-cl-groups { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+.vtm20 .r-cl-groups a { display: flex; justify-content: space-between; align-items: baseline; padding: 4px 7px; border: 1px solid var(--r-line); font-family: var(--r-caps); font-size: 11px; letter-spacing: .6px; text-transform: uppercase; color: var(--r-muted); cursor: pointer; }
+.vtm20 .r-cl-groups a b { font-family: var(--r-display); font-weight: 400; font-size: 12px; }
+.vtm20 .r-cl-groups a:hover { color: var(--r-ink); border-color: var(--r-line-2); }
+.vtm20 .r-cl-groups a.is-active { color: #f1e9da; border-color: #c4474c; background: rgba(140, 28, 34, .45); }
+.vtm20 .r-cl-groups a.is-dim { opacity: .45; }
+.vtm20 .r-cl-find { display: flex; align-items: center; gap: 7px; padding: 0 8px; border: 1px solid var(--r-line-2); background: var(--r-s1); color: var(--r-muted); }
+.vtm20 .r-cl-find input { flex: 1; height: 28px; border: 0; background: transparent; box-shadow: none; }
+.vtm20 .r-cl-list { flex: 1 1 auto; min-height: 0; overflow-y: auto; margin: 0; padding: 0 2px 0 0; list-style: none; display: flex; flex-direction: column; gap: 2px; }
+.vtm20 .r-cl-item a { display: flex; align-items: center; gap: 9px; padding: 4px 6px; border: 1px solid transparent; cursor: pointer; }
+.vtm20 .r-cl-item a:hover { background: var(--r-s2); }
+.vtm20 .r-cl-item a.is-active { border-color: rgba(196, 71, 76, .6); background: linear-gradient(90deg, rgba(140, 28, 34, .38), rgba(140, 28, 34, .05)); box-shadow: inset 2px 0 0 #c4474c; }
+.vtm20 .r-cl-medal { flex: 0 0 auto; width: 32px; height: 32px; padding: 5px; display: grid; place-items: center; color: var(--r-muted); }
+.vtm20 .r-cl-medal .r-sym { width: 100%; height: 100%; }
+.vtm20 .r-cl-item a.is-active .r-sym { background: linear-gradient(170deg, #e8a3a5, #b83a3f); }
+.vtm20 .r-cl-name { display: flex; flex-direction: column; min-width: 0; font-family: var(--r-display); font-size: 14px; line-height: 1.15; color: var(--r-ink); }
+.vtm20 .r-cl-name em { font-family: var(--r-body); font-size: 12px; color: var(--r-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vtm20 .r-cl-empty { padding: 12px 6px; font-style: italic; color: var(--r-muted); }
+
+.vtm20 .r-cl-card { position: relative; min-height: 0; overflow-y: auto; padding: 18px 22px 22px; display: flex; flex-direction: column; gap: 16px; }
+.vtm20 .r-cl-watermark { position: absolute; right: -40px; top: -30px; width: 300px; height: 300px; opacity: .05; pointer-events: none; }
+.vtm20 .r-cl-head { display: flex; gap: 18px; align-items: center; padding-bottom: 14px; border-bottom: 1px solid var(--r-line-2); }
+.vtm20 .r-cl-bigmedal { flex: 0 0 auto; width: 104px; height: 104px; padding: 18px; display: grid; place-items: center; box-shadow: 0 0 0 4px rgba(0, 0, 0, .35), 0 0 26px rgba(140, 28, 34, .35); }
+.vtm20 .r-cl-bigmedal .r-sym { width: 100%; height: 100%; }
+.vtm20 .r-cl-titles { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.vtm20 .r-cl-kicker { font-family: var(--r-caps); font-size: 11.5px; letter-spacing: 2px; text-transform: uppercase; color: var(--r-accent); }
+.vtm20 .r-cl-titles h2 { margin: 0; border: 0; font-family: var(--r-display); font-weight: 400; font-size: 34px; line-height: 1.05; color: var(--r-ink); }
+.vtm20 .r-cl-nick { font-family: var(--r-body); font-style: italic; font-size: 17px; color: var(--r-ink-2); }
+.vtm20 .r-cl-en { font-family: var(--r-caps); font-size: 12px; letter-spacing: 1.5px; color: var(--r-muted); }
+.vtm20 .r-cl-parent { align-self: flex-start; margin-top: 4px; font-size: 12.5px; color: var(--r-muted); cursor: pointer; }
+.vtm20 .r-cl-parent:hover { color: var(--r-accent); }
+.vtm20 .r-cl-sec h3 { display: flex; align-items: baseline; gap: 8px; margin: 0 0 7px; padding: 0; border: 0; font-family: var(--r-caps); font-weight: 400; font-size: 12.5px; letter-spacing: 2px; text-transform: uppercase; color: var(--r-muted); }
+.vtm20 .r-cl-sec h3::after { content: ""; flex: 1; height: 1px; background: var(--r-line); }
+.vtm20 .r-cl-sec h3 b { font-family: var(--r-display); font-weight: 400; color: var(--r-ink-2); letter-spacing: 0; }
+.vtm20 .r-cl-discs { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.vtm20 .r-cl-disc { display: inline-flex; align-items: center; gap: 7px; padding: 5px 11px 5px 8px; border: 1px solid var(--r-line-2); background: var(--r-s1); font-family: var(--r-display); font-size: 14px; color: var(--r-ink); }
+.vtm20 .r-cl-disc .r-sym { width: 18px; height: 18px; }
+.vtm20 .r-cl-disc.is-choice { border-style: dashed; }
+.vtm20 .r-cl-or { font-size: 13px; font-style: italic; color: var(--r-muted); }
+.vtm20 .r-cl-weak .r-weakness-text { padding: 10px 12px; border-left: 2px solid #8c1c22; background: rgba(74, 13, 17, .18); font-size: 13.5px; line-height: 1.5; }
+.vtm20 .r-cl-trait { border-bottom: 1px solid var(--r-line); }
+.vtm20 .r-cl-trait summary { display: flex; justify-content: space-between; gap: 10px; padding: 5px 2px; cursor: pointer; list-style: none; font-size: 14px; color: var(--r-ink); }
+.vtm20 .r-cl-trait summary::-webkit-details-marker { display: none; }
+.vtm20 .r-cl-trait summary::before { content: "▸"; color: var(--r-muted); margin-right: -4px; transition: transform .15s; }
+.vtm20 .r-cl-trait[open] summary::before { transform: rotate(90deg); }
+.vtm20 .r-cl-trait summary span { flex: 1; }
+.vtm20 .r-cl-trait summary b { font-family: var(--r-display); font-weight: 400; color: var(--r-accent); white-space: nowrap; }
+.vtm20 .r-cl-trait.is-flaw summary b { color: var(--r-blue-t); }
+.vtm20 .r-cl-trait-body { padding: 2px 4px 9px 16px; font-size: 13px; line-height: 1.45; color: var(--r-ink-2); }
+.vtm20 .r-cl-trait-body p { margin: 0 0 5px; }
+.vtm20 .r-cr-clan-more { align-self: flex-start; font-size: 12.5px; color: var(--r-muted); cursor: pointer; }
+.vtm20 .r-cr-clan-more:hover { color: var(--r-accent); }
+.vtm20 .r-rail-sigil.is-link { cursor: pointer; }
+.vtm20 .r-kicker-nick.is-link { cursor: pointer; }
+.vtm20 .r-kicker-nick.is-link:hover { color: var(--r-accent); }

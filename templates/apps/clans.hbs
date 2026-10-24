@@ -1,0 +1,63 @@
+{{!-- Справочник кланов: слева — группы, поиск и список с гербами; справа — карточка клана. --}}
+<div class="r-cl">
+  <aside class="r-cl-side">
+    <div class="r-cl-groups">
+      {{#each groups}}<a class="{{#if active}}is-active{{/if}}" data-action="group" data-group="{{key}}">{{label}} <b>{{n}}</b></a>{{/each}}
+    </div>
+    <label class="r-cl-find"><i class="fa-solid fa-magnifying-glass"></i><input type="search" class="r-cl-search" value="{{v.q}}" placeholder="{{localize 'VTM20.Clans.Search'}}"></label>
+    <ol class="r-cl-list">
+      {{#each list}}
+      <li class="r-cl-item" data-group="{{group}}" data-text="{{text}}">
+        <a class="{{#if active}}is-active{{/if}}" data-action="pick" data-key="{{key}}">
+          <span class="r-cl-medal r-cr-medal">{{#if sym}}{{rSym sym}}{{else}}<i class="fa-solid fa-droplet"></i>{{/if}}</span>
+          <span class="r-cl-name">{{name}}{{#if nickname}}<em>«{{nickname}}»</em>{{/if}}</span>
+        </a>
+      </li>
+      {{/each}}
+      <li class="r-cl-empty" hidden>{{localize "VTM20.Clans.Nothing"}}</li>
+    </ol>
+  </aside>
+
+  {{#with card}}
+  <article class="r-cl-card">
+    {{#if sym}}{{rSym sym "r-cl-watermark"}}{{/if}}
+    <header class="r-cl-head">
+      <span class="r-cl-bigmedal r-cr-medal">{{#if sym}}{{rSym sym}}{{else}}<i class="fa-solid fa-droplet"></i>{{/if}}</span>
+      <div class="r-cl-titles">
+        <div class="r-cl-kicker">{{groupLabel}}{{#if sect}} · {{sect}}{{/if}}</div>
+        <h2>{{name}}</h2>
+        {{#if nickname}}<div class="r-cl-nick">«{{nickname}}»</div>{{/if}}
+        {{#if en}}<div class="r-cl-en">{{en}}</div>{{/if}}
+        {{#if parent}}<a class="r-cl-parent" data-action="pick" data-key="{{parent.key}}"><i class="fa-solid fa-turn-up"></i> {{localize "VTM20.Clans.Parent"}}: {{parent.name}}</a>{{/if}}
+      </div>
+    </header>
+
+    <section class="r-cl-sec">
+      <h3>{{localize "VTM20.Clans.Disciplines"}}</h3>
+      <div class="r-cl-discs">
+        {{#each discs}}<span class="r-cl-disc">{{#if sym}}{{rSym sym}}{{/if}}{{label}}</span>{{/each}}
+        {{#if choice.length}}<span class="r-cl-or">+ {{localize "VTM20.Creator.OneOf"}}:</span>{{#each choice}}<span class="r-cl-disc is-choice">{{#if sym}}{{rSym sym}}{{/if}}{{label}}</span>{{/each}}{{/if}}
+        {{#unless discs.length}}{{#unless choice.length}}<span class="r-cl-or">{{#if disciplinesText}}{{disciplinesText}}{{else}}{{localize "VTM20.Creator.AnyDisc"}}{{/if}}</span>{{/unless}}{{/unless}}
+      </div>
+    </section>
+
+    <section class="r-cl-sec r-cl-weak">
+      <h3>{{localize "VTM20.Sheet.Weakness"}}</h3>
+      <div class="r-weakness-text">{{{weakness}}}</div>
+    </section>
+
+    {{#if merits.length}}
+    <section class="r-cl-sec">
+      <h3>{{localize "VTM20.Clans.Merits"}} <b>{{merits.length}}</b></h3>
+      {{#each merits}}<details class="r-cl-trait"><summary><span>{{name}}</span><b>{{cost}}</b></summary><div class="r-cl-trait-body">{{{html}}}</div></details>{{/each}}
+    </section>
+    {{/if}}
+    {{#if flaws.length}}
+    <section class="r-cl-sec">
+      <h3>{{localize "VTM20.Clans.Flaws"}} <b>{{flaws.length}}</b></h3>
+      {{#each flaws}}<details class="r-cl-trait is-flaw"><summary><span>{{name}}</span><b>{{cost}}</b></summary><div class="r-cl-trait-body">{{{html}}}</div></details>{{/each}}
+    </section>
+    {{/if}}
+  </article>
+  {{/with}}
+</div>
