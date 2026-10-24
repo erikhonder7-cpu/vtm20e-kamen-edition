@@ -275,6 +275,11 @@
   },
   "background": "systems/vtm20e-kamen-edition/assets/ui/background.png",
   "url": "https://github.com/erikhonder7-cpu/vtm20e-kamen-edition",
+  "relationships": {
+    "recommends": [
+      { "id": "vtm20e-kamen-city", "type": "module", "manifest": "https://github.com/erikhonder7-cpu/vtm20e-kamen-city/releases/latest/download/module.json", "reason": "Париж 1789 года для вкладки «Город»: план 1790, места, Собрание, катакомбы" }
+    ]
+  },
   "manifest": "https://github.com/erikhonder7-cpu/vtm20e-kamen-edition/releases/latest/download/system.json",
   "download": "https://github.com/erikhonder7-cpu/vtm20e-kamen-edition/releases/download/v0.7.0/vtm20e-kamen-edition.zip",
   "packFolders": [
