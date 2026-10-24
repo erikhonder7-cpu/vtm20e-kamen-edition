@@ -289,8 +289,31 @@ body.r-skin #hotbar .macro, body.r-skin #hotbar .slot { border-radius: 0; border
 body.r-skin #hotbar .macro:hover { border-color: var(--rk-blood-l); }
 body.r-skin #hotbar .macro .key, body.r-skin #hotbar .slot .key { font-family: var(--rk-display); color: var(--rk-dim); background: transparent; }
 body.r-skin #hotbar .macro:not(.inactive) { border-color: var(--rk-line-2); }
-body.r-skin #players { border: 1px solid #000; border-radius: 0; background: var(--rk-coal); box-shadow: 0 8px 24px rgba(0, 0, 0, .7); }
-body.r-skin #players .player-name { font-family: var(--rk-display); font-size: 12px; }
+/* Список игроков: плашки в стиле окон, роль или персонаж — подписью (renderPlayers в vtm20.mjs) */
+body.r-skin #players {
+  --player-name-color: var(--rk-bone); --player-name-self-color: var(--rk-bone-b); --player-name-idle-color: var(--rk-muted);
+  --color-rating-good: var(--rk-bone-2); --color-rating-fair: #c9a46a; --color-rating-poor: var(--rk-blood-l);
+  border: none; background: none; box-shadow: none;
+}
+body.r-skin #players #players-active, body.r-skin #players #players-inactive {
+  width: 210px; padding: 7px 10px 6px; border: 1px solid #000; border-radius: 0;
+  background: linear-gradient(180deg, var(--rk-coal-2), var(--rk-coal)); box-shadow: inset 0 1px 0 var(--rk-line), 0 8px 24px rgba(0, 0, 0, .7);
+}
+body.r-skin #players #players-active { border-top: 2px solid var(--rk-blood); }
+body.r-skin #players .player { align-items: center; gap: 7px; line-height: 20px; }
+body.r-skin #players .player::before { width: 8px; height: 8px; border: 1px solid rgba(0, 0, 0, .6); box-shadow: 0 0 0 1px var(--rk-line-2); }
+body.r-skin #players .player-name { font-family: var(--rk-body); font-size: 13.5px; }
+body.r-skin #players .player.self .player-name { font-weight: 700; }
+body.r-skin #players .r-pl-tag {
+  margin-left: 7px; font-family: var(--rk-caps); font-size: 10.5px; font-weight: 400; letter-spacing: 1.4px; text-transform: uppercase; color: var(--rk-blood-l);
+}
+body.r-skin #players #performance-stats {
+  margin-top: 5px; padding-top: 5px; border-top: 1px solid var(--rk-line); align-items: center;
+  font-family: var(--rk-caps); font-size: 11px; letter-spacing: 1.2px; color: var(--rk-muted);
+}
+body.r-skin #players #performance-stats label { text-transform: uppercase; margin-right: 5px; }
+body.r-skin #players #performance-stats .average { font-family: var(--rk-display); font-size: 13px; letter-spacing: 0; }
+body.r-skin #players #performance-stats button { --button-size: 18px; --button-text-color: var(--rk-muted); --button-hover-text-color: var(--rk-bone); }
 body.r-skin #players h3, body.r-skin #players .players-header { font-family: var(--rk-caps); letter-spacing: 2px; text-transform: uppercase; }
 body.r-skin #pause { color: var(--rk-blood-l); }
 body.r-skin #pause figcaption { font-family: var(--rk-caps); letter-spacing: 6px; text-transform: uppercase; color: var(--rk-bone); text-shadow: 0 2px 8px #000; }

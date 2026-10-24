@@ -124,6 +124,20 @@ Hooks.once("setup", () => {
   document.body.classList.toggle("r-theme-light", game.settings.get(SYSTEM_ID, "sheetTheme") === "light");
 });
 
+// Список игроков: «[Ведущий]» или «[персонаж]» из имени — отдельной подписью, без скобок
+Hooks.on("renderPlayers", (app, html) => {
+  if (!document.body.classList.contains("r-skin")) return;
+  for (const el of html.querySelectorAll(".player-name")) {
+    const m = el.textContent.match(/^(.*\S)\s\[(.+)\]$/);
+    if (!m) continue;
+    const tag = document.createElement("span");
+    tag.className = "r-pl-tag";
+    tag.textContent = m[2];
+    el.textContent = m[1];
+    el.append(tag);
+  }
+});
+
 Hooks.once("ready", async () => {
   await Codex.load();
   await migrateWorld();
