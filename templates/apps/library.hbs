@@ -1,16 +1,18 @@
 {{!-- Библиотека: поиск, фильтры, карточки записей справочника с полным текстом. --}}
-<div class="r-lib">
+<div class="r-lib {{#if compact}}is-compact{{/if}}">
   <header class="r-lib-head">
     <label class="r-lib-search"><i class="fa-solid fa-magnifying-glass"></i>
       <input type="search" data-search value="{{search}}" placeholder="{{localize 'VTM20.Library.Search'}}" autofocus></label>
     <a class="r-chip r-lib-avail {{#if avail}}is-active{{/if}}" data-action="setFilter" data-key="avail">
       <i class="fa-solid fa-lock-open"></i> {{localize "VTM20.Library.Filter.Available"}} <b>{{availCount}}</b></a>
+    <a class="r-chip r-lib-compact {{#if compact}}is-active{{/if}}" data-action="toggleCompact" data-tooltip="{{localize 'VTM20.Library.CompactHint'}}"><i class="fa-solid fa-list"></i> {{localize "VTM20.Library.Compact"}}</a>
     <span class="r-lib-count"><b data-count>{{total}}</b> / {{total}}</span>
   </header>
-  {{#if (or chips costChips)}}
+  {{#if (or chips costChips srcChips)}}
   <div class="r-lib-filters">
     {{#if chips}}<span class="r-lib-chips">{{#each chips}}<a class="r-chip {{#if active}}is-active{{/if}}" data-action="setFilter" data-key="{{key}}" data-value="{{value}}">{{#if icon}}<i class="fa-solid {{icon}}"></i> {{/if}}{{label}}</a>{{/each}}</span>{{/if}}
     {{#if costChips}}<span class="r-lib-chips" data-tooltip="{{localize 'VTM20.Library.Filter.Cost'}}">{{#each costChips}}<a class="r-chip {{#if active}}is-active{{/if}}" data-action="setFilter" data-key="{{key}}" data-value="{{value}}">{{label}}</a>{{/each}}</span>{{/if}}
+    {{#if srcChips}}<span class="r-lib-chips is-src" data-tooltip="{{localize 'VTM20.Library.Filter.Source'}}"><i class="fa-solid fa-book r-lib-chips-ico"></i>{{#each srcChips}}<a class="r-chip {{#if active}}is-active{{/if}}" data-action="setFilter" data-key="{{key}}" data-value="{{value}}">{{label}}</a>{{/each}}</span>{{/if}}
   </div>
   {{/if}}
   <div class="r-lib-info">
@@ -23,7 +25,7 @@
     {{#each entries}}
     {{#if groupHead}}<h3 class="r-lib-ghead" data-group-head="{{group}}"><span>{{groupName}}</span></h3>{{/if}}
     <article class="r-lib-card {{#if has}}is-owned{{/if}} {{#unless canTake}}is-locked{{/unless}} {{#if flaw}}is-flaw{{/if}} {{#if long}}is-long{{/if}} {{#if inClan}}is-clan{{/if}}"
-             data-entry="{{id}}" data-search="{{search}}" data-levels="{{levels}}" data-cat="{{cat}}" data-scope="{{scope}}"
+             data-entry="{{id}}" data-search="{{search}}" data-levels="{{levels}}" data-cat="{{cat}}" data-scope="{{scope}}" data-src="{{src}}"
              data-can="{{#if canTake}}1{{else}}0{{/if}}" {{#if group}}data-group="{{group}}"{{/if}}>
       <header class="r-lib-title">
         {{#if sym}}<span class="r-lib-sym"><span class="r-sym {{#if sym.lum}}is-lum{{/if}}" style="--sym:url('{{sym.src}}')"></span></span>{{/if}}
@@ -40,8 +42,8 @@
         {{/if}}{{/if}}
       </header>
       {{#if text}}<div class="r-lib-text r-power-body" {{#if long}}data-action="expand"{{/if}}>{{{text}}}</div>{{/if}}
-      {{#if powers.length}}
-      <ol class="r-lib-powers">{{#each powers}}<li><a data-action="peek" data-ref="{{ref}}"><span>{{roman}}</span>{{name}}</a></li>{{/each}}</ol>
+      {{#if powerRows}}
+      <ol class="r-lib-powers">{{#each powerRows}}<li {{#if wide}}class="is-wide"{{/if}}><span class="r-lib-plvl">{{roman}}</span><span class="r-lib-pnames">{{#each items}}<a data-action="peek" data-ref="{{ref}}">{{name}}</a>{{/each}}</span></li>{{/each}}</ol>
       <div class="r-lib-peek r-power-body" data-peek hidden></div>
       {{/if}}
       {{#if pathNames}}<p class="r-lib-paths"><i class="fa-solid fa-route"></i> {{pathNames}}</p>{{/if}}

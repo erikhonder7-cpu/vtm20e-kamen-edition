@@ -22,6 +22,19 @@ const plain = html => String(html ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g
 const sourceTags = x => [x.era === "darkAges" && { label: L("Filter.DarkAges"), red: true },
   x.source && x.source !== "V20" && { label: x.source }].filter(Boolean);
 const norm = s => s.toLowerCase().replace(/ё/g, "е");
+/** Вид источника для фильтра: основная книга, дополнение, Тёмные века, фанатское. */
+const srcKind = x => x.fan ? "fan" : x.era === "darkAges" ? "da" : (x.source && !/^V20(,|$)/.test(x.source.trim())) ? "ext" : "core";   // «V20 The Black Hand» — дополнение
+const SRC_KINDS = ["core", "ext", "da", "fan"];
+/** Силы карточки — строками по уровням: «VI: Любовь · Парализующий взор». */
+const byLevel = powers => {
+  const rows = [];
+  for (const p of powers) {
+    const row = rows.find(r => r.roman === p.roman) ?? rows[rows.push({ roman: p.roman, items: [] }) - 1];
+    row.items.push(p);
+  }
+  for (const r of rows) r.wide = r.items.length > 1;     // несколько сил на уровне — на всю ширину
+  return rows;
+};
 const ICON = type => `systems/${SYSTEM_ID}/assets/icons/${type}.svg`;
 const KINDS = ["discipline", "path", "ritual", "combo", "merit", "flaw", "background", "derangement"];
 
@@ -77,7 +90,8 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
     super({ id: `r-library-${o.actor?.id ?? "free"}-${o.kind}-${o.discipline ?? "all"}` });
     this.o = o;
     this.search = "";
-    this.filters = { avail: false, level: 0, cat: "", scope: "" };
+    this.filters = { avail: false, level: 0, cat: "", scope: "", src: "" };
+    try { this.compact = localStorage.getItem("vtm20.library.compact") === "1"; } catch { this.compact = false; }
   }
 
   static DEFAULT_OPTIONS = {
@@ -89,7 +103,8 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
       buy: VtMLibrary.#onBuy,
       peek: VtMLibrary.#onPeek,
       expand: VtMLibrary.#onExpand,
-      setFilter: VtMLibrary.#onSetFilter
+      setFilter: VtMLibrary.#onSetFilter,
+      toggleCompact: VtMLibrary.#onToggleCompact
     }
   };
 
@@ -135,12 +150,15 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
     } else if (kind === "discipline" && this.actor?.type === "vampire") {
       chips = [chip("scope", "", L("Filter.All")), chip("scope", "clan", L("Filter.Clan"), "fa-droplet")];
     }
+    // Источник — если в списке больше одного вида (основная книга, дополнения, Тёмные века, фанатское)
+    const srcSeen = SRC_KINDS.filter(k => entries.some(e => e.src === k));
+    const srcChips = srcSeen.length > 1 ? [chip("src", "", L("Filter.AllSources")), ...srcSeen.map(k => chip("src", k, L(`Filter.Src.${k}`)))] : null;
     const costChips = (kind === "merit" || kind === "flaw")
       ? [chip("level", 0, L("Filter.AnyCost")), ...[1, 2, 3, 4, 5, 6, 7].map(v => chip("level", v, String(v)))] : null;
 
     const xp = this.actor?.system?.experience;
     return {
-      kind, entries, chips, costChips, avail: f.avail,
+      kind, entries, chips, costChips, srcChips, avail: f.avail, compact: this.compact,
       availCount: entries.filter(e => e.canTake).length, total: entries.length,
       rule: L(`Rule.${kind}`),
       info: this.o.discipline ? { name: Codex.disciplineLabel(this.o.discipline), dots: this.dotsOf(this.o.discipline) } : null,
@@ -160,6 +178,8 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
       // сворачиваем только длинные тексты (таблицы точек, подробные правила)
       long: !!x.long && (text.length > 280 || /<table/.test(x.text)),
       single: x.variants?.length === 1,
+      src: x.src ?? "core",
+      powerRows: x.powers?.length ? byLevel(x.powers) : null,
       canTake: !x.has && !reasons.length,
       search: norm(`${x.name} ${x.en ?? ""} ${text}`)
     };
@@ -175,7 +195,7 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
       const inClan = clanD.includes(d.key);
       const paths = (d.paths ?? []).filter(p => Codex.visible(p));
       return this.#entry({
-        id: d.key, name: d.name, en: d.en, sym, inClan, has: have.has(d.key), xp, order: inClan ? 0 : 1,
+        id: d.key, name: d.name, en: d.en, sym, inClan, has: have.has(d.key), xp, order: inClan ? 0 : 1, src: srcKind(d),
         scope: inClan ? "clan" : "",
         tags: [inClan && { label: t("Sheet.InClan"), red: true }, paths.length && { label: L("PathsN", { n: paths.length }) }].filter(Boolean),
         text: d.rules?.find(r => !r.title)?.html ?? "", long: true,
@@ -194,7 +214,7 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
     const xp = this.actor ? this.actor.xpCost("path", 0) : 0;
     // id — номер в полном списке пути (по нему берётся запись при добавлении), поэтому фильтруем после нумерации
     return (d?.paths ?? []).map((p, pi) => [p, pi]).filter(([p]) => Codex.visible(p)).map(([p, pi]) => this.#entry({
-      id: String(pi), name: p.name, en: p.en, has: mine.includes(p.name), xp, sym: Codex.disciplineSymbol(disc),
+      id: String(pi), name: p.name, en: p.en, has: mine.includes(p.name), xp, sym: Codex.disciplineSymbol(disc), src: srcKind(p),
       reasons: dots < 1 ? [L("NeedDiscipline", { name: d.name })] : [],
       tags: [!mine.length && { label: L("Primary"), red: true }, ...sourceTags(p)].filter(Boolean),
       text: p.html ?? "",
@@ -208,7 +228,7 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
     const dots = this.dotsOf(disc);
     return (Codex.rituals[disc]?.rituals ?? []).map((r, i) => [r, i]).filter(([r]) => Codex.visible(r)).map(([r, i]) => this.#entry({
       id: String(i), name: r.name, en: r.en, level: r.level, levels: String(r.level), order: r.level,
-      roman: ROMAN[r.level - 1] ?? r.level, has: mine.has(r.name), text: r.html ?? "", long: true, tags: sourceTags(r),
+      roman: ROMAN[r.level - 1] ?? r.level, has: mine.has(r.name), text: r.html ?? "", long: true, tags: sourceTags(r), src: srcKind(r),
       reasons: r.level > dots ? [L("NeedLevel", { name: Codex.disciplineLabel(disc), level: r.level })] : []
     }));
   }
@@ -225,7 +245,7 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
       const first = c.requires?.[0]?.key ?? "";
       return this.#entry({
         id: String(i), name: c.name, en: c.en, has: mine.has(c.name), text: c.html ?? "", long: true,
-        xp: c.xp ?? 0, order: 0, reasons: this.actor ? miss : [],
+        xp: c.xp ?? 0, order: 0, reasons: this.actor ? miss : [], src: srcKind(c),
         group: `combo:${first}`, groupName: Codex.disciplineLabel(first) || "—", groupOrder: groupIdx.indexOf(first),
         tags: [{ label: c.requiresText }, ...sourceTags(c)]
       });
@@ -253,7 +273,7 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
       const blocker = blockerFor(m.name, mine);
       return this.#entry({
         id: String(Codex.merits.indexOf(m)), name: m.name, en: m.en, has: mine.includes(m.name), text: m.html ?? "", long: true,
-        flaw: kind === "flaw", cost: m.cost, order: costs[0],
+        flaw: kind === "flaw", cost: m.cost, order: costs[0], src: srcKind(m),
         ...place(m),
         levels: costs.join(","),
         tags: sourceTags(m),
@@ -267,7 +287,7 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
     const mine = new Set(this.itemsOf("background").map(i => i.name));
     // id — номер в полном списке; Факты биографии Тёмных веков — только с настройкой «Контент из Dark Ages»
     return Codex.backgrounds.map((b, i) => [b, i]).filter(([b]) => Codex.visible(b)).map(([b, i]) => this.#entry({
-      id: String(i), name: b.name, en: b.en, has: mine.has(b.name), text: b.html ?? "", long: true,
+      id: String(i), name: b.name, en: b.en, has: mine.has(b.name), text: b.html ?? "", long: true, src: srcKind(b),
       tags: [b.sabbat && { label: t("Sect.sabbat"), red: true }, b.source && b.source !== "V20" && { label: b.source }].filter(Boolean),
       variants: [1, 2, 3, 4, 5].map(v => ({ value: v, label: "●".repeat(v) }))
     }));
@@ -277,7 +297,7 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
     const mine = new Set(this.itemsOf("derangement").map(i => i.name));
     // id — номер в полном списке; расстройства Тёмных веков — только с настройкой «Контент из Dark Ages»
     return (Codex.derangements ?? []).map((d, i) => [d, i]).filter(([d]) => Codex.visible(d)).map(([d, i]) => this.#entry({
-      id: String(i), name: d.name, en: d.en, has: mine.has(d.name), text: d.html ?? "", long: true, tags: sourceTags(d)
+      id: String(i), name: d.name, en: d.en, has: mine.has(d.name), text: d.html ?? "", long: true, tags: sourceTags(d), src: srcKind(d)
     }));
   }
 
@@ -299,6 +319,7 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
         && (!f.level || d.levels.split(",").map(Number).includes(f.level))
         && (!f.cat || d.cat === f.cat)
         && (!f.scope || d.scope === f.scope)
+        && (!f.src || d.src === f.src)
         && (!f.avail || d.can === "1");
       card.hidden = !ok;
       if (ok) shown++;
@@ -325,6 +346,14 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
       b.classList.toggle("is-active", key === "avail" ? this.filters.avail : v === this.filters[key]);
     }
     this.#applyFilter();
+  }
+
+  /** «Кратко»: только названия (длинные списки — ритуалы, достоинства); запоминается в браузере. */
+  static #onToggleCompact(event, target) {
+    this.compact = !this.compact;
+    try { localStorage.setItem("vtm20.library.compact", this.compact ? "1" : "0"); } catch {}
+    this.element.querySelector(".r-lib")?.classList.toggle("is-compact", this.compact);
+    target.classList.toggle("is-active", this.compact);
   }
 
   /** Текст силы — под списком сил карточки, по запросу (полный справочник в DOM не кладём). */

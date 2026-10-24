@@ -326,7 +326,18 @@
 .vtm20 .r-lib-count { font-family: var(--r-display); font-size: 13px; color: var(--r-muted); white-space: nowrap; }
 .vtm20 .r-lib-count b { color: var(--r-ink); font-weight: 400; }
 .vtm20 .r-lib-filters { display: flex; flex-wrap: wrap; gap: 6px 14px; padding: 0 16px 8px; background: #0a0a0c; }
-.vtm20 .r-lib-chips { display: inline-flex; flex-wrap: wrap; gap: 4px; }
+.vtm20 .r-lib-chips { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.vtm20 .r-lib-chips.is-src { margin-left: auto; }
+.vtm20 .r-lib-chips-ico { margin-right: 2px; font-size: 11px; color: var(--r-muted); }
+/* «Кратко»: только заголовки карточек */
+.vtm20 .r-lib.is-compact .r-lib-card { gap: 0; padding-top: 6px; padding-bottom: 6px; }
+.vtm20 .r-lib.is-compact .r-lib-text, .vtm20 .r-lib.is-compact .r-lib-powers, .vtm20 .r-lib.is-compact .r-lib-peek,
+.vtm20 .r-lib.is-compact .r-lib-paths { display: none; }
+.vtm20 .r-lib.is-compact .r-lib-card { flex-direction: row; flex-wrap: wrap; align-items: center; column-gap: 12px; }
+.vtm20 .r-lib.is-compact .r-lib-title { flex: 1 1 320px; }
+.vtm20 .r-lib.is-compact .r-lib-foot { flex: 0 1 auto; margin: 0 0 0 auto; }
+.vtm20 .r-lib.is-compact .r-lib-list { gap: 4px; }
+.vtm20 .r-lib.is-compact .r-lib-sym { flex-basis: 26px; width: 26px; height: 26px; padding: 4px; }
 .vtm20 .r-lib .r-chip.is-active { color: var(--r-ink); border-color: var(--r-blood-l); background: rgba(140, 28, 34, .25); }
 .vtm20 .r-lib .r-chip.is-active b { color: var(--r-ink); }
 .vtm20 .r-lib-info {
@@ -375,26 +386,26 @@
 
 .vtm20 .r-lib-text { font-size: 13px; }
 .vtm20 .r-lib-text > :last-child { margin-bottom: 0; }
-.vtm20 .r-lib-card.is-long .r-lib-text { position: relative; max-height: 5.6em; overflow: hidden; cursor: pointer; }
-.vtm20 .r-lib-card.is-long .r-lib-text::after {
-  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2em;
-  background: linear-gradient(180deg, transparent, #141416); pointer-events: none;
+/* Длинный текст свёрнут до трёх строк и растворяется (маска, а не плашка поверх — фон карточки полупрозрачный) */
+.vtm20 .r-lib-card.is-long .r-lib-text {
+  position: relative; max-height: 5.6em; overflow: hidden; cursor: pointer;
+  -webkit-mask-image: linear-gradient(180deg, #000 55%, transparent); mask-image: linear-gradient(180deg, #000 55%, transparent);
 }
-.vtm20 .r-lib-card.is-long.is-open .r-lib-text { max-height: none; }
-.vtm20 .r-lib-card.is-long.is-open .r-lib-text::after { display: none; }
+.vtm20 .r-lib-card.is-long.is-open .r-lib-text { max-height: none; -webkit-mask-image: none; mask-image: none; }
 
-.vtm20 .r-lib-powers { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 4px; }
-.vtm20 .r-lib-powers a {
-  display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 8px 0 0;
-  font-size: 12.5px; color: var(--r-ink-2); border: 1px solid var(--r-line); background: rgba(0, 0, 0, .2);
+/* Силы — строками по уровням: квадратная плашка уровня, названия через точку */
+.vtm20 .r-lib-powers { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 3px 14px; }
+.vtm20 .r-lib-powers li.is-wide { grid-column: 1 / -1; }
+.vtm20 .r-lib-powers li { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+.vtm20 .r-lib-plvl {
+  flex: 0 0 auto; min-width: 34px; height: 19px; padding: 0 4px; display: inline-grid; place-items: center; border-radius: 2px;
+  font-family: var(--r-display); font-size: 11px; color: var(--r-ink-2); border: 1px solid var(--r-line-2); background: rgba(0, 0, 0, .25);
 }
-.vtm20 .r-lib-powers a span {
-  align-self: stretch; display: inline-grid; place-items: center; min-width: 24px; padding: 0 4px;
-  font-family: var(--r-display); font-size: 11px; color: var(--r-muted); border-right: 1px solid var(--r-line);
-}
-.vtm20 .r-lib-powers a:hover { color: var(--r-ink); border-color: var(--r-line-2); }
-.vtm20 .r-lib-powers a.is-active { color: var(--r-ink); border-color: var(--r-blood-l); }
-.vtm20 .r-lib-powers a.is-active span { color: var(--r-accent); }
+.vtm20 .r-lib-pnames { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 4px; min-width: 0; }
+.vtm20 .r-lib-pnames a { font-size: 13px; color: var(--r-ink-2); border-bottom: 1px dotted transparent; }
+.vtm20 .r-lib-pnames a + a::before { content: "·"; margin-right: 4px; color: var(--r-muted); }
+.vtm20 .r-lib-pnames a:hover { color: var(--r-ink); border-bottom-color: var(--r-line-2); }
+.vtm20 .r-lib-pnames a.is-active { color: var(--r-accent); border-bottom-color: var(--r-accent); }
 .vtm20 .r-lib-peek { padding: 8px 10px; font-size: 13px; border-left: 2px solid var(--r-blood); background: rgba(0, 0, 0, .25); }
 .vtm20 .r-lib-peek h4 { margin: 0 0 6px; font-family: var(--r-display); font-size: 15px; letter-spacing: 0; color: var(--r-ink); }
 .vtm20 .r-lib-peek h4 em { font-family: var(--r-body); font-size: 12px; color: var(--r-muted); }
