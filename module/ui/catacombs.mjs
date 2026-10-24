@@ -155,11 +155,41 @@ function tunnel(a, b) {
   return { line: pts.map(ll), type, spurs, rooms };
 }
 
+/**
+ * Фоновая сеть под всем городом: малые безымянные выработки и длинные галереи в пределах стены Откупщиков
+ * (эллипс вокруг центра Парижа). Тоньше и тусклее именных залов; одна на всех, строится один раз.
+ */
+let minorCache = null;
+function minorNetwork() {
+  if (minorCache) return minorCache;
+  const r = rng("paris-minor"), C = { lat: 48.8592, lng: 2.3445, id: "city" };
+  const inCity = (x, y) => (x / 3700) ** 2 + (y / 2650) ** 2 < 1;
+  const pick = () => { for (;;) { const x = (r() - .5) * 7400, y = (r() - .5) * 5300; if (inCity(x, y)) return [x, y]; } };
+  const minis = Array.from({ length: 34 }, (_, i) => { const [x, y] = pick(), [lng, lat] = toLL(C, x, y); return { id: `m${i}`, lat, lng, r: 60 + r() * 70, kind: "quarry" }; });
+  const lines = minis.flatMap(m => hall(m).lines);
+  for (const [a, b] of edges(minis)) { const t = tunnel(a, b); lines.push(t.line, ...t.spurs); }
+  // длинные галереи: блуждание под прямым углом в общей сетке города, у стены поворачивает назад
+  const ang = -.35;
+  for (let g = 0; g < 26; g++) {
+    let [x, y] = pick(), dir = Math.floor(r() * 4);
+    const pts = [[x, y]];
+    for (let k = 7 + Math.floor(r() * 8); k > 0; k--) {
+      const len = 110 + r() * 230, [ux, uy] = rot(...[[1, 0], [0, 1], [-1, 0], [0, -1]][dir], ang);
+      let nx = x + ux * len, ny = y + uy * len;
+      if (!inCity(nx, ny)) { dir = (dir + 2) % 4; continue; }
+      x = nx; y = ny; pts.push([x, y]);
+      dir = (dir + (r() < .5 ? 1 : 3)) % 4;
+    }
+    if (pts.length > 2) lines.push(pts.map(([px, py]) => toLL(C, px, py)));
+  }
+  return (minorCache = { lines, minis });
+}
+
 /* ═══ Слои карты ═══════════════════════════════════════════════════════════ */
 
 /** Ширина коридора в пикселях: растёт с приближением, как настоящий ход. */
 const corridor = (k = 1, plus = 0) => ["interpolate", ["exponential", 1.6], ["zoom"], 12, 2 * k + plus, 14, 4.5 * k + plus, 15, 6 * k + plus, 17, 12 * k + plus, 19, 28 * k + plus];
-const FLOOR = "#140d08", WALL = "#dcc79c";
+const FLOOR = "#22170e", WALL = "#e2cda0", LAMP = "#f0c27a";
 
 /** Источники и слои; карта зовёт при каждой загрузке стиля (смена «план / ночь» стирает слои). */
 export function addCatacombLayers() {
@@ -167,7 +197,7 @@ export function addCatacombLayers() {
   if (!map) return;
   surfaceKeep.delete(map);   // новый стиль — прежние значения притушенных слоёв больше не нужны
   const world = { type: "FeatureCollection", features: [{ type: "Feature", properties: {}, geometry: { type: "Polygon", coordinates: [[[-180, -85], [180, -85], [180, 85], [-180, 85], [-180, -85]]] } }] };
-  for (const src of ["rc-cata-dim", "rc-cata-area", "rc-cata-glow", "rc-cata-ways", "rc-cata-rooms", "rc-cata-label", "rc-cata-door"])
+  for (const src of ["rc-cata-dim", "rc-cata-area", "rc-cata-glow", "rc-cata-minor", "rc-cata-ways", "rc-cata-rooms", "rc-cata-label", "rc-cata-door"])
     if (!map.getSource(src)) map.addSource(src, { type: "geojson", data: src === "rc-cata-dim" ? world : EMPTY });
   const paper = host.view().style === "plan", vis = isOn() ? "visible" : "none";
   const known = (yes, no) => ["case", ["get", "known"], yes, no];
@@ -180,23 +210,38 @@ export function addCatacombLayers() {
   // свечение зала цветом хозяина: радиус — размер зала в метрах, переведённый в пиксели (Париж: 103 040 м на пиксель при z0)
   const px = k => ["*", ["get", "r"], k / 103040];
   add({ id: "rc-cata-glow", type: "circle", source: "rc-cata-glow",
-    paint: { "circle-color": ["get", "color"], "circle-blur": 1, "circle-opacity": known(.62, .22), "circle-pitch-alignment": "map",
+    paint: { "circle-color": ["get", "color"], "circle-blur": 1, "circle-opacity": known(.75, .22), "circle-pitch-alignment": "map",
       "circle-radius": ["interpolate", ["exponential", 2], ["zoom"], 10, px(1024 * 1.8), 20, px(1048576 * 1.8)] } });
   // невидимая площадь зала — для щелчка
   add({ id: "rc-cata-area-fill", type: "fill", source: "rc-cata-area", paint: { "fill-color": "#000", "fill-opacity": .01 } });
   // коридоры: тень породы → стены → пол поверх (на перекрёстках пол закрывает стены, стыки чистые)
-  add({ id: "rc-cata-rock", type: "line", source: "rc-cata-ways", layout: join,
-    paint: { "line-color": "#000", "line-opacity": .75, "line-width": corridor(2.6), "line-blur": corridor(1) } });
+  // фоновая сеть под всем городом — тоньше и тусклее, под основными ходами
+  add({ id: "rc-cata-minor-lamp", type: "line", source: "rc-cata-minor", layout: { "line-cap": "round", "line-join": "round" },
+    paint: { "line-color": LAMP, "line-opacity": .08, "line-width": corridor(2.4), "line-blur": corridor(1.6) } });
+  add({ id: "rc-cata-minor-wall", type: "line", source: "rc-cata-minor", layout: join,
+    paint: { "line-color": "#9c8763", "line-opacity": .55, "line-width": corridor(.75, 1.2) } });
+  add({ id: "rc-cata-minor-floor", type: "line", source: "rc-cata-minor", layout: join,
+    paint: { "line-color": FLOOR, "line-opacity": .9, "line-width": corridor(.55) } });
+  // тёплый свет фонаря вдоль ходов — на тёмном городе коридоры словно подсвечены изнутри
+  add({ id: "rc-cata-lamp", type: "line", source: "rc-cata-ways", layout: { "line-cap": "round", "line-join": "round" },
+    paint: { "line-color": ["match", ["get", "type"], "flooded", "#5fc6cc", "collapsed", "#7a6040", LAMP],
+      "line-opacity": known(.22, .07), "line-width": corridor(3.4), "line-blur": corridor(2.2) } });
   add({ id: "rc-cata-room-wall", type: "line", source: "rc-cata-rooms", layout: join,
     paint: { "line-color": ["coalesce", ["get", "wall"], WALL], "line-opacity": known(1, .45), "line-width": corridor(.3, 1.6) } });
   add({ id: "rc-cata-wall", type: "line", source: "rc-cata-ways", filter: ["!=", ["get", "type"], "collapsed"], layout: join,
     paint: { "line-color": wallColor, "line-opacity": known(1, .45), "line-width": corridor(1.3, 1.6) } });
   add({ id: "rc-cata-wall-x", type: "line", source: "rc-cata-ways", filter: ["==", ["get", "type"], "collapsed"],
     paint: { "line-color": wallColor, "line-opacity": known(.9, .4), "line-width": corridor(1.3, 1.6), "line-dasharray": [.6, .9] } });
-  add({ id: "rc-cata-room", type: "fill", source: "rc-cata-rooms", paint: { "fill-color": FLOOR, "fill-opacity": known(1, .55) } });
+  add({ id: "rc-cata-room", type: "fill", source: "rc-cata-rooms", paint: { "fill-color": "#2e2013", "fill-opacity": known(1, .55) } });
   add({ id: "rc-cata-floor", type: "line", source: "rc-cata-ways", layout: join,
-    paint: { "line-color": ["match", ["get", "type"], "flooded", "#12383c", "collapsed", "#241a11", FLOOR], "line-opacity": known(1, .6), "line-width": corridor(1) } });
-  // входы: колодец — кольцо стены и тёмная шахта
+    paint: { "line-color": ["match", ["get", "type"], "flooded", "#174a4f", "collapsed", "#1a120b", FLOOR], "line-opacity": known(1, .6), "line-width": corridor(1) } });
+  // ось хода пунктиром, как на старых планах землемеров, — только вблизи
+  add({ id: "rc-cata-axis", type: "line", source: "rc-cata-ways", minzoom: 15.3, filter: ["==", ["get", "tun"], true],
+    paint: { "line-color": ["match", ["get", "type"], "flooded", "#7fd0d4", "#b4473b"], "line-opacity": known(.6, .25),
+      "line-width": ["interpolate", ["linear"], ["zoom"], 15.3, .6, 18, 1.4], "line-dasharray": [5, 4] } });
+  // входы: ореол света сверху, кольцо стены и тёмная шахта
+  add({ id: "rc-cata-door-glow", type: "circle", source: "rc-cata-door", minzoom: 12.5,
+    paint: { "circle-radius": corridor(4.5), "circle-color": LAMP, "circle-blur": 1, "circle-opacity": known(.55, .18) } });
   add({ id: "rc-cata-door", type: "circle", source: "rc-cata-door", minzoom: 12.5,
     paint: { "circle-radius": corridor(1.4), "circle-color": "#050302", "circle-stroke-color": WALL, "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 12.5, 1, 17, 2.5],
       "circle-opacity": known(1, .5), "circle-stroke-opacity": known(1, .5) } });
@@ -219,7 +264,7 @@ export function drawCatacombs() {
   if (!map?.getSource("rc-cata-area")) return;
   const on = isOn(), vis = on ? "visible" : "none";
   for (const l of map.getStyle()?.layers ?? []) if (l.id.startsWith("rc-cata-") && l.id !== "rc-cata-dim") map.setLayoutProperty(l.id, "visibility", vis);
-  map.setPaintProperty("rc-cata-dim", "fill-opacity", on ? (host.view().style === "plan" ? .84 : .86) : 0);
+  map.setPaintProperty("rc-cata-dim", "fill-opacity", on ? (host.view().style === "plan" ? .88 : .87) : 0);
   // метки и фишки — HTML поверх карты, слой тени их не накрывает: притушить стилями (styles/r-catacombs.css)
   map.getContainer().closest("#r-citymap")?.classList.toggle("is-underground", on);
   dimSurface(map, on);
@@ -232,20 +277,21 @@ export function drawCatacombs() {
   // стены зала — цвет его вида, высветленный к кости
   const tint = s => mix(kind(s).color, WALL, .45);
   const halls = shown.map(s => ({ s, g: hall(s) }));
+  map.getSource("rc-cata-minor").setData(fc(minorNetwork().lines.map(l => line(l, {}))));
   map.getSource("rc-cata-area").setData(fc(halls.map(({ s, g }) => feat({ type: "Polygon", coordinates: [g.outline] }, { id: s.id }))));
   map.getSource("rc-cata-glow").setData(fc(shown.map(s => feat({ type: "Point", coordinates: [s.lng, s.lat] }, { color: kind(s).color, r: s.r, known: s.known }))));
   // сеть строится по всем участкам, а не по видимым: у игроков та же сеть, только часть её
   const tun = edges(all).filter(([a, b]) => gm || (a.known && b.known)).map(([a, b]) => ({ ...tunnel(a, b), known: a.known && b.known }));
   map.getSource("rc-cata-ways").setData(fc([
-    ...tun.flatMap(t => [line(t.line, { type: t.type, known: t.known }), ...t.spurs.map(l => line(l, { type: t.type === "collapsed" ? "open" : t.type, known: t.known }))]),
-    ...halls.flatMap(({ s, g }) => g.lines.map(l => line(l, { type: s.kind === "flooded" ? "flooded" : "open", wall: tint(s), known: s.known })))
+    ...tun.flatMap(t => [line(t.line, { type: t.type, known: t.known, tun: true }), ...t.spurs.map(l => line(l, { type: t.type === "collapsed" ? "open" : t.type, known: t.known, tun: true }))]),
+    ...halls.flatMap(({ s, g }) => g.lines.map(l => line(l, { type: s.kind === "flooded" ? "flooded" : "open", wall: tint(s), known: s.known, tun: false })))
   ]));
   map.getSource("rc-cata-rooms").setData(fc([
     ...halls.flatMap(({ s, g }) => g.rooms.map(rm => feat({ type: "Polygon", coordinates: [rm] }, { wall: tint(s), known: s.known }))),
     ...tun.flatMap(t => t.rooms.map(rm => feat({ type: "Polygon", coordinates: [rm] }, { known: t.known })))
   ]));
   map.getSource("rc-cata-label").setData(fc(shown.map(s => feat({ type: "Point", coordinates: [s.lng, s.lat] },
-    { name: s.name, sub: `${kind(s).label} · ${s.holder || "ничьё"}`, ink: mix(kind(s).color, "#f6ead0", .6), r: s.r, known: s.known }))));
+    { name: s.name, sub: `${kind(s).label} · ${s.holder || "ничьё"}`, ink: mix(kind(s).color, "#fbf0d8", .5), r: s.r, known: s.known }))));
   map.getSource("rc-cata-door").setData(fc(shown.flatMap(s => (s.entries ?? []).map(([lat, lng, name]) => feat({ type: "Point", coordinates: [lng, lat] }, { name, known: s.known })))));
 }
 
