@@ -69,7 +69,19 @@
 
   <div class="r-roll-total">
     <div class="r-roll-breakdown">{{#each breakdown}}<span>{{label}} <b>{{rSigned value}}</b></span>{{/each}}</div>
-    <div class="r-roll-pool"><b>{{pool}}</b><i class="fa-solid fa-dice-d10"></i> <span>{{localize "VTM20.Roll.Vs"}}</span> <b>{{effDifficulty}}</b></div>
+    <div class="r-roll-pool"><b>{{shownPool}}</b><i class="fa-solid fa-dice-d10"></i> <span>{{localize "VTM20.Roll.Vs"}}</span> <b>{{effDifficulty}}</b></div>
+  </div>
+  {{!-- Шансы броска: полоса успех / неудача / провал и среднее число успехов --}}
+  <div class="r-odds" data-tooltip="{{localize 'VTM20.Roll.OddsHint'}}">
+    <div class="r-odds-bar">
+      <i class="is-success" style="width: {{chances.success}}%"></i><i class="is-failure" style="width: {{chances.failure}}%"></i><i class="is-botch" style="width: {{chances.botch}}%"></i>
+    </div>
+    <div class="r-odds-legend">
+      <span class="is-success">{{localize "VTM20.Roll.OddsSuccess"}} <b>{{chances.success}}%</b></span>
+      <span class="is-failure">{{localize "VTM20.Outcome.failure"}} <b>{{chances.failure}}%</b></span>
+      <span class="is-botch">{{localize "VTM20.Outcome.botch"}} <b>{{chances.botch}}%</b></span>
+      <span class="r-odds-mean">{{localize "VTM20.Roll.OddsMean"}} <b>{{chances.mean}}</b></span>
+    </div>
   </div>
 
   <div class="r-roll-foot">

@@ -14,9 +14,23 @@
   border: 1px solid #2c2c31;
 }
 .r-roll-card::before { content: ""; position: absolute; left: -1px; top: -1px; width: 34px; height: 2px; background: #8c1c22; }
+/* Кромка слева — по исходу: успех костью, исключительный ярче, неудача серым, провал кровью */
+.r-roll-card { border-left: 3px solid #3a3833; }
+.r-roll-card.is-success { border-left-color: #b3aa98; }
+.r-roll-card.is-exceptional, .r-roll-card.is-phenomenal { border-left-color: #efe6d4; box-shadow: inset 3px 0 8px -4px rgba(239, 230, 212, .5); }
+.r-roll-card.is-botch { border-left-color: #c4474c; }
+.r-roll-card.is-damage { border-left-color: #8c1c22; }
+.r-roll-card.is-soak { border-left-color: #46557a; }
+/* Подсчёт под костями */
+.r-card-tally { display: flex; justify-content: center; gap: 14px; margin-top: 4px; font-size: 11.5px; color: var(--r-muted); }
+.r-card-tally span { display: inline-flex; align-items: center; gap: 4px; font-family: "Prata", serif; }
+.r-card-tally .is-hit { color: #cfc6b4; }
+.r-card-tally .is-one { color: #c4474c; }
+.r-card-tally .is-ten em { font-style: normal; color: #c4474c; }
+.r-card-tally i { font-size: 10px; }
 
 .r-card-head { display: flex; align-items: center; gap: 8px; margin: 2px 0 6px; }
-.r-card-img { width: 34px; height: 34px; border: 1px solid var(--r-line-2); border-radius: 50%; object-fit: cover; object-position: 50% 15%; flex: 0 0 auto; filter: grayscale(.3); }
+.r-card-img { width: 34px; height: 34px; border: 1px solid var(--r-line-2); border-radius: 2px; object-fit: cover; object-position: 50% 15%; flex: 0 0 auto; filter: grayscale(.3); }
 .r-card-titles { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; line-height: 1.15; }
 .r-card-title { font-family: "Prata", Georgia, serif; font-size: 15px; color: var(--r-ink); }
 .r-card-sub { font-size: 12px; font-style: italic; color: var(--r-muted); }
@@ -43,13 +57,13 @@
 .r-die.is-will { background: #2f3b55; color: #d8cfbf; font-size: 11px; }
 
 /* Исход */
-.r-outcome { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 8px; }
+.r-outcome { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 8px; margin-top: 8px; }
 .r-outcome-ribbon {
-  display: inline-flex; align-items: center; gap: 6px; padding: 3px 12px;
-  font-family: "IM Fell SC", "Forum", serif; font-size: 13.5px; letter-spacing: 2px; text-transform: uppercase;
+  display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; min-width: 0; white-space: nowrap;   /* в узком чате — в одну строку */
+  font-family: "IM Fell SC", "Forum", serif; font-size: 12.5px; letter-spacing: 1.2px; text-transform: uppercase;
   color: #e6ddcc; background: transparent; border: 1px solid var(--r-line-2);
 }
-.r-outcome-num { font-size: 12.5px; color: var(--r-muted); font-style: italic; }
+.r-outcome-num { flex: 0 0 auto; font-size: 12.5px; color: var(--r-muted); font-style: italic; white-space: nowrap; }
 .r-outcome-num b { font-family: "Prata", serif; font-style: normal; font-size: 21px; color: var(--r-ink); font-weight: 400; margin-right: 2px; }
 .r-roll-card.is-exceptional .r-outcome-ribbon, .r-roll-card.is-phenomenal .r-outcome-ribbon { color: #141416; background: #d8cfbf; border-color: #d8cfbf; }
 .r-roll-card.is-failure .r-outcome-ribbon { color: #7d766a; }
@@ -94,7 +108,7 @@
 .vtm20 .r-roll-traits select { flex: 1 1 0; min-width: 0; height: 30px; font-size: 14.5px; background: var(--r-s2); border: 1px solid var(--r-line-2); }
 .vtm20 .r-plus { font-family: var(--r-display); font-size: 18px; color: var(--r-accent); }
 .vtm20 .r-roll-row { display: flex; align-items: center; gap: 6px; }
-.vtm20 .r-roll-label { flex: 0 0 110px; font-family: var(--r-caps); font-size: 12.5px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--r-muted); }
+.vtm20 .r-roll-label { flex: 0 0 136px; font-family: var(--r-caps); font-size: 12.5px; letter-spacing: 1.2px; white-space: nowrap; text-transform: uppercase; color: var(--r-muted); }
 .vtm20 .r-roll-num { width: 52px; height: 28px; font-family: var(--r-display); font-size: 16px; }
 .vtm20 .r-roll-num.is-small { width: 44px; margin-left: auto; }
 .vtm20 .r-step {
@@ -118,7 +132,7 @@
 .vtm20 .r-roll-pool i { color: var(--r-accent); }
 .vtm20 .r-roll-foot { display: flex; align-items: center; gap: 10px; }
 .vtm20 .r-roll-foot .r-mode { flex: 1 1 auto; height: 30px; }
-.vtm20 .r-roll-note { margin: -4px 0 0 116px; font-size: 12.5px; font-style: italic; color: var(--r-muted); }
+.vtm20 .r-roll-note { margin: -4px 0 0 142px; font-size: 12.5px; font-style: italic; color: var(--r-muted); }
 
 .r-card-effect { margin-top: 6px; border-top: 1px solid var(--r-line); padding-top: 4px; }
 .r-card-effect summary { cursor: pointer; font-family: "IM Fell SC", "Forum", serif; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--r-ink-2); }
@@ -153,3 +167,16 @@
 .r-contest-card .r-cc-line { margin: 0 0 6px; font-size: 12.5px; color: var(--r-ink-2); }
 .vtm20 .r-roll-mode { flex: 1 1 auto; height: 28px; }
 .vtm20 .r-roll-need { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-style: italic; color: var(--r-muted); white-space: nowrap; }
+
+/* ── Шансы в окне проверки ────────────────────────────────────────────── */
+.vtm20 .r-odds { display: flex; flex-direction: column; gap: 5px; margin-top: -4px; }
+.vtm20 .r-odds-bar { display: flex; height: 7px; overflow: hidden; border: 1px solid var(--r-line-2); background: rgba(0, 0, 0, .3); }
+.vtm20 .r-odds-bar i { display: block; height: 100%; transition: width .2s; }
+.vtm20 .r-odds-bar .is-success { background: linear-gradient(180deg, #e3dbcc, #b3aa98); }
+.vtm20 .r-odds-bar .is-failure { background: #3a3833; }
+.vtm20 .r-odds-bar .is-botch { background: linear-gradient(180deg, #b0323a, #7a161c); }
+.vtm20 .r-odds-legend { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 14px; font-size: 12px; color: var(--r-muted); }
+.vtm20 .r-odds-legend b { font-family: var(--r-display); font-weight: 400; font-size: 14px; color: var(--r-ink); }
+.vtm20 .r-odds-legend .is-success b { color: #efe6d4; }
+.vtm20 .r-odds-legend .is-botch b { color: var(--r-accent); }
+.vtm20 .r-odds-legend .r-odds-mean { margin-left: auto; font-style: italic; }

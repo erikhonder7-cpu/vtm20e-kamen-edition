@@ -9,7 +9,7 @@
 
 import { VTM20, SYSTEM_PATH, SYSTEM_ID } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
-import { rollPool } from "../dice/roll.mjs";
+import { rollPool, odds, chancesView } from "../dice/roll.mjs";
 import { RollDialog } from "../dice/dialog.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -196,8 +196,9 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     };
     for (const tk of game.user.targets ?? []) push(tk.actor, true);
     for (const tk of canvas?.tokens?.placeables ?? []) push(tk.actor, false);
+    const chances = chancesView(odds({ pool: r.pool, difficulty: r.difficulty, specialty: v.specialty, willpower: v.willpower, auto: r.attackAuto ?? 0 }));
     return {
-      v, ...r, weapons, maneuvers, ranged: r.choice.ranged, foes,
+      v, ...r, weapons, maneuvers, ranged: r.choice.ranged, foes, chances,
       damageType: game.i18n.localize(VTM20.damageTypes[r.choice.type]?.label ?? ""),
       positions: opt(["front", "flank", "rear"], v.position, "Combat.Pos"),
       aims: opt(["none", "medium", "small", "tiny"], v.aim, "Combat.Aim"),
@@ -210,8 +211,9 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     };
   }
 
-  _onRender(context, options) {
-    super._onRender(context, options);
+  // Слушатель — один раз: корневой элемент окна живёт между перерисовками (раньше они копились с каждой)
+  _onFirstRender(context, options) {
+    super._onFirstRender(context, options);
     this.element.addEventListener("change", () => this.#read());
   }
 

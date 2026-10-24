@@ -41,6 +41,51 @@ export function evaluate(values, { difficulty = 6, specialty = false, willpower 
   return { successes: net, raw, ones, hits, tens, outcome, degree, difficulty: diff };
 }
 
+/**
+ * Шансы проверки по тем же правилам, что evaluate(): единицы отменяют успехи, со специализацией 10 — два успеха,
+ * успех воли и автоуспехи не отменяются; провал — ни одного успеха на кубах и хотя бы одна единица.
+ * @returns {{success:number, failure:number, botch:number, mean:number}|null} доли 0…1 и среднее число успехов
+ */
+export function odds({ pool = 0, difficulty = 6, specialty = false, willpower = false, auto = 0, noBotch = false } = {}) {
+  const diff = Math.clamp(difficulty, 2, 10);
+  const n = Math.max(0, Math.min(40, Math.floor(pool)));
+  const sure = (willpower ? 1 : 0) + (auto || 0);
+  if (!n) return { success: sure ? 1 : 0, failure: sure ? 0 : 1, botch: 0, mean: sure };
+  const pOne = .1, pTen = .1, pHit = (10 - diff) / 10, pMiss = 1 - pOne - pTen - pHit;   // 10 — всегда успех
+  const tenVal = specialty ? 2 : 1;
+  // состояние: «успехи на кубах|единицы|был ли хоть один успех»
+  let st = new Map([["0|0|0", 1]]);
+  for (let i = 0; i < n; i++) {
+    const next = new Map();
+    const add = (k, p) => next.set(k, (next.get(k) ?? 0) + p);
+    for (const [k, p] of st) {
+      const [r, o, h] = k.split("|").map(Number);
+      add(`${r}|${o + 1}|${h}`, p * pOne);
+      if (pMiss > 0) add(`${r}|${o}|${h}`, p * pMiss);
+      if (pHit > 0) add(`${r + 1}|${o}|1`, p * pHit);
+      add(`${r + tenVal}|${o}|1`, p * pTen);
+    }
+    st = next;
+  }
+  const out = { success: 0, failure: 0, botch: 0, mean: 0 };
+  for (const [k, p] of st) {
+    const [r, o, h] = k.split("|").map(Number);
+    const net = Math.max(0, r - o) + sure;
+    out.mean += p * net;
+    if (net > 0) out.success += p;
+    else if (!noBotch && !h && o > 0 && !sure) out.botch += p;
+    else out.failure += p;
+  }
+  return out;
+}
+
+/** Шансы для шаблона: проценты и среднее с одним знаком. */
+export function chancesView(o) {
+  const pct = x => Math.round(x * 100);
+  return { success: pct(o.success), failure: pct(o.failure), botch: pct(o.botch),
+    mean: o.mean.toLocaleString(game.i18n.lang, { maximumFractionDigits: 1 }) };
+}
+
 function dieView(v, diff, specialty) {
   const cls = [];
   if (v === 1) cls.push("is-one");

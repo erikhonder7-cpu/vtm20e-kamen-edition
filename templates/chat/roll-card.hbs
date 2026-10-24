@@ -18,6 +18,13 @@
     {{#if willpower}}<span class="r-die is-will" data-tooltip="{{localize 'VTM20.Roll.WillpowerSuccess'}}"><i class="fa-solid fa-star"></i></span>{{/if}}
     {{#if auto}}<span class="r-die is-will" data-tooltip="{{localize 'VTM20.Roll.AutoSuccess'}}"><i class="fa-solid fa-hand-fist"></i><small>{{auto}}</small></span>{{/if}}
   </div>
+  {{#if dice.length}}
+  <div class="r-card-tally">
+    <span class="is-hit" data-tooltip="{{localize 'VTM20.Roll.TallyHits'}}"><i class="fa-solid fa-check"></i> {{ev.hits}}</span>
+    {{#if ev.ones}}<span class="is-one" data-tooltip="{{localize 'VTM20.Roll.TallyOnes'}}"><i class="fa-solid fa-xmark"></i> {{ev.ones}}</span>{{/if}}
+    {{#if ev.tens}}<span class="is-ten" data-tooltip="{{localize 'VTM20.Roll.TallyTens'}}">10 × {{ev.tens}}{{#if specialty}} <em>×2</em>{{/if}}</span>{{/if}}
+  </div>
+  {{/if}}
 
   <div class="r-outcome">
     <span class="r-outcome-ribbon"><i class="fa-solid {{outcome.icon}}"></i> {{outcome.label}}</span>

@@ -4,7 +4,7 @@
 
 import { VTM20, SYSTEM_PATH } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
-import { rollPool } from "./roll.mjs";
+import { rollPool, odds, chancesView } from "./roll.mjs";
 import { meritModsFor } from "../data/merit-mods.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -132,8 +132,13 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const v = this.values;
     const { groups1, groups2 } = this.#traitOptions();
     const mark = (groups, cur) => groups.map(g => ({ ...g, options: g.options.map(o => ({ ...o, selected: o.value === cur })) }));
+    // Шансы: тот же пул, что уйдёт в бросок (фиксированный пул сил — со своими модификаторами)
+    const pool = this.cfg.pool != null ? Math.max(0, this.cfg.pool + v.bonus + (v.wounds ? this.actor.system.health.penalty : 0)) : c.pool;
+    const o = odds({ pool, difficulty: c.effDifficulty, specialty: v.specialty, willpower: v.willpower && !this.cfg.noWillpower,
+      auto: this.cfg.pool != null ? 0 : c.auto });
+    const chances = chancesView(o);
     return {
-      v, ...c,
+      v, ...c, chances, shownPool: pool,
       groups1: mark(groups1, v.trait1), groups2: mark(groups2, v.trait2),
       lockTraits: !!this.cfg.lockTraits, fixedPool: this.cfg.pool != null,
       difficulties: [3, 4, 5, 6, 7, 8, 9, 10].map(n => ({ n, active: n === v.difficulty })),
@@ -150,8 +155,9 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     };
   }
 
-  _onRender(context, options) {
-    super._onRender(context, options);
+  // Слушатели — один раз: корневой элемент окна живёт между перерисовками (раньше они копились с каждой)
+  _onFirstRender(context, options) {
+    super._onFirstRender(context, options);
     this.element.addEventListener("change", ev => this.#read(ev));
     this.element.addEventListener("input", ev => { if (ev.target.type === "number") this.#read(ev); });
   }
