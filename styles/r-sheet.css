@@ -324,6 +324,13 @@
 /* Специализация — курсивом в строке, сразу за названием. Название не сжимается; специализация занимает
    остаток места и обрезается многоточием (полный текст — в подсказке). Пустая скрыта и появляется под курсором. */
 .vtm20 .r-trait-main:has(> input.r-spec) > .r-trait-label { flex-shrink: 0; }
+/* Метка специализации у названия: закрашенный ромб — вписана, полый — можно вписать (4+ точки) */
+.vtm20 .r-spec-mark {
+  flex: 0 0 auto; width: 6px; height: 6px; margin: 0 1px 0 -1px; transform: rotate(45deg);
+  border: 1px solid var(--r-muted); opacity: .6; transition: opacity .12s;
+}
+.vtm20 .r-trait-main:has(> input.r-spec:not(:placeholder-shown)) > .r-spec-mark { background: var(--r-accent); border-color: var(--r-accent); opacity: 1; box-shadow: 0 0 4px rgba(196, 71, 76, .5); }
+.vtm20 .r-trait:hover .r-trait-main:has(> input.r-spec:placeholder-shown) > .r-spec-mark { opacity: 0; width: 0; margin: 0; border-width: 0; }
 .vtm20 input.r-spec {
   flex: 0 100 auto; field-sizing: content; min-width: 0; max-width: none; height: 20px; margin: 0; padding: 0 3px;
   font-family: var(--r-fell); font-style: italic; font-size: 13.5px; color: var(--r-accent); text-overflow: ellipsis;
