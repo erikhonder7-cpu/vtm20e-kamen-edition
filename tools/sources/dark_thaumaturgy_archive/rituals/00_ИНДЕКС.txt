@@ -1,0 +1,51 @@
+РИТУАЛЫ ТЁМНОЙ ТАУМАТУРГИИ — ИНДЕКС
+================================================
+Документов с ритуалами: 35
+Общие правила: 00_Общие_правила_и_различия_редакций.txt
+
+01. Aport Object (Аппорт предмета) — 01_Aport_Object.txt — уровень: 1 (Player's Guide to the Sabbat)
+02. Spectral Mask (Спектральная маска) — 02_Spectral_Mask.txt — уровень: 1 (Player's Guide to the Sabbat)
+03. Haunting Memories (Преследующие воспоминания) — 03_Haunting_Memories.txt — уровень: 2 (Player's Guide to the Sabbat)
+04. Sign of the Moon (Знак Луны) — 04_Sign_of_the_Moon.txt — уровень: 2 (Player's Guide to the Sabbat)
+05. Summon Grantel (Призвать Грантела) — 05_Summon_Grantel.txt — уровень: 2 (Player's Guide to the Sabbat; иногда отдельно индексируется как Basic в MET)
+06. Sign of the Wraith (Знак Призрака) — 06_Sign_of_the_Wraith.txt — уровень: 3 (Player's Guide to the Sabbat)
+07. Summon Tivilio (Призвать Тивилио) — 07_Summon_Tivilio.txt — уровень: 3 (Player's Guide to the Sabbat)
+08. Turn to Toad (Обратить в жабу) — 08_Turn_to_Toad.txt — уровень: 3 (Player's Guide to the Sabbat)
+09. Bind Tivilio (Связать Тивилио) — 09_Bind_Tivilio.txt — уровень: 4 (Player's Guide to the Sabbat)
+10. Summon Lucricia (Призвать Лукрицию) — 10_Summon_Lucricia.txt — уровень: 4 (Player's Guide to the Sabbat)
+11. Dismiss Tivilio (Изгнать Тивилио) — 11_Dismiss_Tivilio.txt — уровень: 4 (Player's Guide to the Sabbat)
+12. The Inner Furnace (Внутренняя печь) — 12_Inner_Furnace.txt — уровень: 4 (Player's Guide to the Sabbat / Storytellers Handbook to the Sabbat)
+13. Soul Leech (Пиявка душ) — 13_Soul_Leech.txt — уровень: 4 (Player's Guide to the Sabbat / Storytellers Handbook to the Sabbat)
+14. Summon Barliagus (Призвать Барлиагуса) — 14_Summon_Barliagus.txt — уровень: 6 (Player's Guide to the Sabbat / Storytellers Handbook to the Sabbat)
+15. Transfer Essence (Перенос сущности) — 15_Transfer_Essence.txt — уровень: 6 (Player's Guide to the Sabbat / Storytellers Handbook to the Sabbat)
+16. The Knotted Cord (Узловатый шнур) — 16_Knotted_Cord.txt — уровень: 1 (Dark Ages Companion)
+17. Bind the Familiar (Связать фамильяра) — 17_Bind_the_Familiar.txt — уровень: 1 (Dark Ages Companion)
+18. Bring Forth the Hell Beast (Явить адского зверя) — 18_Bring_Forth_Hell_Beast.txt — уровень: 2 (Dark Ages Companion)
+19. Warding Circle (Защитный круг) — 19_Warding_Circle.txt — уровень: 2 (Dark Ages Companion)
+20. Blood Imp (Кровавый бес) — 20_Blood_Imp.txt — уровень: 3 (Dark Ages Companion)
+21. Bloody Bones (Кровавые кости) — 21_Bloody_Bones.txt — уровень: 3 (Dark Ages Companion)
+22. The Leaden Heart (Свинцовое сердце) — 22_Leaden_Heart.txt — уровень: 3 (Dark Ages Companion)
+23. Vile Swarm (Отвратительный рой) — 23_Vile_Swarm.txt — уровень: 4 (Dark Ages Companion)
+24. Lethean Chains (Летейские цепи) — 24_Lethean_Chains.txt — уровень: 4 (Dark Ages Companion)
+25. The Hand of Glory (Рука славы) — 25_Hand_of_Glory.txt — уровень: 5 (Dark Ages Companion)
+26. Ward Versus Demons (Защита от демонов) — 26_Ward_Versus_Demons.txt — уровень: 5 (Dark Ages Companion)
+27. Call Forth the Host (Призвать воинство) — 27_Call_Forth_the_Host.txt — уровень: Переменный (Guide to the Sabbat; присутствует также в MET Sabbat Guide)
+28. Bind the Interloper (Связать незваного) — 28_Bind_the_Interloper.txt — уровень: Переменный (Guide to the Sabbat; также MET-версия)
+29. Curse of Oedipus (Проклятие Эдипа) — 29_Curse_of_Oedipus.txt — уровень: 1 (Guide to the Sabbat / поздний MET-вариант)
+30. Plague's Secret Domain (Тайное владение чумы) — 30_Plague_Secret_Domain.txt — уровень: 4 (указан в поздних каталогах; точная печатная версия требует сверки)
+31. Close the Ways (Закрыть пути) — 31_Close_the_Ways.txt — уровень: 5 (Guide to the Sabbat; есть MET-вариант)
+32. Into the Abyss / Into the Inferno (Войти в Бездну / Войти в Преисподнюю) — 32_Into_the_Abyss_Inferno.txt — уровень: 5 (каталоги указывают Guide to the Sabbat, с. 104; название разнится)
+33. Spite of the Harridan (Злоба ведьмы/Харридан) — 33_Spite_of_the_Harridan.txt — уровень: 2 (Sins of the Blood, с. 96)
+34. Felis Negrum / Felis Nigrum (Чёрная кошка) — 34_Felis_Negrum_MET_only.txt — уровень: Intermediate / уровень 3 в позднем MET-варианте
+35. Video Nefas (Зловещее откровение) — 35_Video_Nefas_MET_only.txt — уровень: В Dark Ages Companion — путь; в MET Sabbat Guide — ритуал уровня 2 (вариант)
+
+ИСТОЧНИКИ И СВЕРКА
+1) Player's Guide to the Sabbat (1997), раздел Dark Thaumaturgy Rituals, Wards and Pacts, с. 29–30. Доступная транскрипция: https://doczz.net/doc/3299453/player-s-guide-to-the-sabbat
+2) Storytellers Handbook to the Sabbat и Guide to the Sabbat — источники старых ритуалов и разделений по уровням. Сводные указатели: https://mrgone.rocksolidshells.com/pdf/VtM/VampireRitualsMasterList.pdf и https://wiki.rpg.net/index.php/OWoD:Vampire_Discipline_Index
+3) Dark Ages Companion, глава Infernalism / Dark Thaumaturgy rituals, с. 108–109. Доступная транскрипция: https://www.scribd.com/document/581663339/VtDA-Companion-Vampire-Dark-Ages-PDF
+4) Sins of the Blood, раздел Thaumaturgical Rituals, с. 96, и главы о путях. Онлайн-копия: https://housegriffon.com/RPG/Games/WW/WoD/Vampire/VtMr%20-%20Sins%20of%20The%20Blood.pdf
+5) Сводка традиционных путей Тёмной тауматургии и общих правил: https://wod.su/vampire/disciplines/dark_thaumaturgy
+6) Dark Thaumaturgy Rituals compendium с рядом поздних правил, смешивающих настольные и MET-версии: https://panoptes.directory/records/vampire/trait/morality_path/dark-thaumaturgy-rituals
+7) OWbN Guide to Dark Thaumaturgy — полезен как индекс и источник альтернативных правил, но это адаптация для Mind's Eye Theatre / организованной хроники, а не базовая настольная V20: https://files.spawningpool.net/docs/World%20of%20Darkness/One%20World%20By%20Night%20-%20v2%20Rev/OWBN%20Packets%20%26%20House%20Rules/_Superceded%20Packets/OWbNInfernalismGuidetoDarkThaumaturgy20150206.pdf
+
+Принцип чтения: названия и эффекты пересказаны, а не перепечатаны дословно. У разных книг встречаются переименования и разные системные параметры. Если ритуал помечен «MET/вариант», не переносите его броски и таблицы в настольную V20 без согласования с Рассказчиком.

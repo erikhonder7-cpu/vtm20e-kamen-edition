@@ -890,6 +890,8 @@ def main():
     combos = combos_extra.apply(combos)
     import magic_extra   # пути и ритуалы Revised, 2nd, Blood Magic / Blood Sacrifice и Тёмных веков (era = "darkAges")
     magic_extra.apply(disc, rituals)
+    import dt_archive    # Тёмная Тауматургия из архива конспектов (tools/sources/dark_thaumaturgy_archive): ритуалы, пути, аналоги
+    dt_archive.apply(disc, rituals)
     magus_extra(disc)
     setite_extra(disc)
     blood_equiv(disc)

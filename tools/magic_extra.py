@@ -75,7 +75,7 @@ PATHS = [
     ("DA_Tome_of_Secrets/05_Чародейство_Сетитов.md", [r"Путь Откровений Эдема"], "setiteSorcery", TOS, DA, "Путь Ведьм Эхидны.", None),
     ("DA_Tome_of_Secrets/05_Чародейство_Сетитов.md", [r"Путь Откровений Мидгарда"], "setiteSorcery", TOS, DA, "Путь Ведьм Эхидны.", None),
     ("DA_Tome_of_Secrets/10_Нечестивое_Тёмная_Тауматургия_демоны.md", [r"Тёмная Тауматургия", r"Путь «Die"], "darkThaumaturgy", TOS, DA, "",
-     {"name": "Тирания Змея Бездны", "en": "Die Heriroschaft des Wyrm"}),
+     {"name": "Тирания Змея Бездны", "en": "Die Herrschaft des Wyrm"}),
     ("DA_Tome_of_Secrets/10_Нечестивое_Тёмная_Тауматургия_демоны.md", [r"Тёмная Тауматургия", r"Путь «Rego"], "darkThaumaturgy", TOS, DA, "",
      {"name": "Закон призыва", "en": "Rego Calatio"}),
     ("DA_Low_Clans/10_Тауматургия_Perdo_Magica_и_ритуалы.md", [r"Новый путь: Perdo Magica"], "thaumaturgy", LOW, DA, "Контрмагия.",

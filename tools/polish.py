@@ -80,8 +80,10 @@ def ritual(r):
     book = book or "V20"                          # ритуалы основной книги (и их копии у Ассамитов) без пометки
     roll = r.get("roll") or {}
     pool = " + ".join(TRAIT.get(roll.get(k), "") for k in ("trait1", "trait2") if roll.get(k))
-    parts = [f"<strong>Уровень {r['level']}</strong>"]
-    if pool: parts.append(f"Бросок: {pool}" + (f", сложность {roll['difficulty']}" if roll.get("difficulty") else ""))
+    var = r.pop("levelVar", "")                   # переменный уровень: «1–5 (переменный)», сложность от выбранного уровня
+    parts = [f"<strong>Уровень {var or r['level']}</strong>"]
+    diff = "3 + уровень" if var else roll.get("difficulty")
+    if pool: parts.append(f"Бросок: {pool}" + (f", сложность {diff}" if diff else ""))
     if book: parts.append(f"Источник: {html.escape(book)}")
     head = f"<p class=\"r-ritual-meta\">{' · '.join(parts)}</p>"
     if note: head += f"<p><em>{html.escape(note)}</em></p>"

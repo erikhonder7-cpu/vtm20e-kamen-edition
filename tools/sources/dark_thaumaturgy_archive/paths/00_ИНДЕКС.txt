@@ -1,0 +1,34 @@
+ТЁМНАЯ ТАУМАТУРГИЯ — ПАКЕТ ПО ПУТЯМ
+==========================================
+
+Отдельных файлов путей/направлений: 20
+Дополнительный файл: 00_Общие_правила_и_различия_редакций.txt
+
+ПУТИ И ФАЙЛЫ
+
+01. Огни Преисподней — The Fires of the Inferno — 01_Огни_Преисподней.txt
+02. Путь Фобоса — The Path of Phobos — 02_Путь_Фобоса.txt
+03. Лишение Духа — The Taking of the Spirit — 03_Лишение_Духа.txt
+04. Оковы Наслаждения — Chains of Pleasure — 04_Оковы_Наслаждения.txt
+05. Длани Разрушения — Hands of Destruction — 05_Длани_Разрушения.txt
+06. Путь Боли — Path of Pain (Sins of the Blood) — 06_Путь_Боли_Sins_of_the_Blood.txt
+07. Путь Наслаждений — Path of Pleasure (Sins of the Blood) — 07_Путь_Наслаждений_Sins_of_the_Blood.txt
+08. Путь Осквернителя — Path of the Defiler — 08_Путь_Осквернителя.txt
+09. Путь Несказанного — Path of the Unspoken — 09_Путь_Несказанного.txt
+10. Путь Эпидемий — Path of Pestilence — 10_Путь_Эпидемий.txt
+11. Путь Тайного Знания — Path of Secret Knowledge — 11_Путь_Тайного_Знания.txt
+12. Путь Мучений — Path of Torture — 12_Путь_Мучений.txt
+13. Rego Venalis — Путь Порчи (Path of Corruption) — 13_Rego_Venalis.txt
+14. Video Nefas — Путь Зловещих Откровений (Path of Evil Revelations) — 14_Video_Nefas.txt
+15. Rego Dolor — Путь Боли (Dark Ages) — 15_Rego_Dolor.txt
+16. Rego Manes — Путь Духов (Path of Spirit) — 16_Rego_Manes.txt
+17. Rego Calatio — Правило призывания (Rule of Summoning) — 17_Rego_Calatio.txt
+18. Maleficia — Магия проклятий — 18_Maleficia.txt
+19. Strigia — Стригия — 19_Strigia.txt
+20. Тирания Вирма — Die Herrschaft des Wyrm / Tyranny of the Wyrm — 20_Тирания_Вирма.txt
+
+ВАЖНО О РЕДАКЦИЯХ
+Не все направления являются стандартным списком Revised/V20. Отдельно помечены Dark Ages и дополнительные/спорные материалы. Файлы содержат краткие авторские системные конспекты, не дословные тексты книг.
+
+КЛЮЧЕВЫЕ ИСТОЧНИКИ
+Guide to the Sabbat; Storytellers Handbook to the Sabbat; Player's Guide to the Sabbat; Sins of the Blood; Dark Ages Companion; Rites of the Blood; V20 Dark Ages: Tome of Secrets.

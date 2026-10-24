@@ -1,0 +1,33 @@
+Into the Abyss / Into the Inferno — Войти в Бездну / Войти в Преисподнюю
+==========================================================================
+Уровень: 5 (каталоги указывают Guide to the Sabbat, с. 104; название разнится)
+Редакционный статус: Не считать Into the Abyss и Into the Inferno одинаковым статблоком без сверки.
+
+ЭФФЕКТ
+Создаёт проход, через который практик может физически войти в Инферно/Ад ради знания или запретных артефактов.
+
+СИСТЕМА
+Поздняя версия Into the Inferno требует 24 часа бодрствующего ритуала; проход остаётся открытым число часов, равное Силе Воли практикующего. Через него могут войти посетители, но обитатели Инферно не могут просто выйти в земной мир этим же порталом. Ритуальное омовение стены кровью жертв описано в поздней версии; не переносить эти детали автоматически на настольное Into the Abyss.
+
+КОМПОНЕНТЫ / ЗАТРАТЫ
+Длительное бодрствование и крайне жестокие жертвенные компоненты в поздней версии; подробности зависят от источника.
+
+ИСТОЧНИК
+Guide to the Sabbat, с. 104 (Into the Abyss); MET Sabbat Guide (Into the Inferno).
+
+УВЕРЕННОСТЬ СВЕРКИ
+Функция подтверждена; название и числовые параметры между вариантами нужно сверить.
+
+ПРАВИЛО ИСПОЛЬЗОВАНИЯ
+Если ваша книга или перевод отличается, используйте конкретный печатный источник, одобренный Рассказчиком. Этот файл — краткий пересказ; он намеренно не смешивает настольные броски с MET-челленджами.
+
+ИСТОЧНИКИ И СВЕРКА
+1) Player's Guide to the Sabbat (1997), раздел Dark Thaumaturgy Rituals, Wards and Pacts, с. 29–30. Доступная транскрипция: https://doczz.net/doc/3299453/player-s-guide-to-the-sabbat
+2) Storytellers Handbook to the Sabbat и Guide to the Sabbat — источники старых ритуалов и разделений по уровням. Сводные указатели: https://mrgone.rocksolidshells.com/pdf/VtM/VampireRitualsMasterList.pdf и https://wiki.rpg.net/index.php/OWoD:Vampire_Discipline_Index
+3) Dark Ages Companion, глава Infernalism / Dark Thaumaturgy rituals, с. 108–109. Доступная транскрипция: https://www.scribd.com/document/581663339/VtDA-Companion-Vampire-Dark-Ages-PDF
+4) Sins of the Blood, раздел Thaumaturgical Rituals, с. 96, и главы о путях. Онлайн-копия: https://housegriffon.com/RPG/Games/WW/WoD/Vampire/VtMr%20-%20Sins%20of%20The%20Blood.pdf
+5) Сводка традиционных путей Тёмной тауматургии и общих правил: https://wod.su/vampire/disciplines/dark_thaumaturgy
+6) Dark Thaumaturgy Rituals compendium с рядом поздних правил, смешивающих настольные и MET-версии: https://panoptes.directory/records/vampire/trait/morality_path/dark-thaumaturgy-rituals
+7) OWbN Guide to Dark Thaumaturgy — полезен как индекс и источник альтернативных правил, но это адаптация для Mind's Eye Theatre / организованной хроники, а не базовая настольная V20: https://files.spawningpool.net/docs/World%20of%20Darkness/One%20World%20By%20Night%20-%20v2%20Rev/OWBN%20Packets%20%26%20House%20Rules/_Superceded%20Packets/OWbNInfernalismGuidetoDarkThaumaturgy20150206.pdf
+
+Принцип чтения: названия и эффекты пересказаны, а не перепечатаны дословно. У разных книг встречаются переименования и разные системные параметры. Если ритуал помечен «MET/вариант», не переносите его броски и таблицы в настольную V20 без согласования с Рассказчиком.
