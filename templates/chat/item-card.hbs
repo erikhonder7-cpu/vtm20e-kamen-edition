@@ -1,0 +1,19 @@
+{{!-- Карточка предмета или силы в чате — в одном стиле с карточкой броска: шапка, строка фактов, описание. --}}
+<div class="r-item-card kind-{{kind}}">
+  <header class="r-card-head">
+    {{#if img}}<img class="r-card-img" src="{{img}}" alt="">{{/if}}
+    <div class="r-card-titles">
+      <span class="r-card-kicker">{{kicker}}</span>
+      <span class="r-card-title">{{name}}{{#if en}} <em>{{en}}</em>{{/if}}</span>
+    </div>
+  </header>
+  {{#if facts.length}}
+  <div class="r-card-facts">{{#each facts}}<span class="{{#if hot}}is-hot{{/if}}"><small>{{label}}</small> <b>{{{value}}}</b></span>{{/each}}</div>
+  {{/if}}
+  {{#if body}}
+  <details class="r-card-more" {{#if short}}open{{/if}}>
+    <summary>{{summary}}</summary>
+    <div class="r-card-body">{{{body}}}</div>
+  </details>
+  {{/if}}
+</div>

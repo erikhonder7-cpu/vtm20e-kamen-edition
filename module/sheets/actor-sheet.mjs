@@ -24,6 +24,7 @@ import { moneyView, openMoney } from "../data/money.mjs";
 import { POWER_EFFECTS } from "../data/effects.mjs";
 import { MERIT_MODS, describeMeritMod } from "../data/merit-mods.mjs";
 import { togglePowerEffect } from "../apps/power-effects.mjs";
+import { itemCardHTML } from "../chat/item-card.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -864,9 +865,18 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     } else p = Codex.discipline(disc)?.powers.find(x => x.name === name && (String(x.level) === level || x.anyLevel));   // anyLevel — взята на 6–9
     if (!p) return;
     const dname = pathId ? this.actor.items.get(pathId).name : Codex.disciplineLabel(disc);
+    const r = p.roll ?? {};
+    const pool = r.trait1 ? [r.trait1, r.trait2].filter(Boolean).map(x => this.actor.traitLabel(x)).join(" + ") : (r.dice ? `${r.dice}d10` : "");
     ChatMessage.create({
       speaker: ChatMessage.getSpeaker({ actor: this.actor }),
-      content: `<div class="r-item-card"><header><span class="r-card-kicker">${dname} · ${ROMAN[(p.anyLevel ? Number(level) : p.level) - 1] ?? p.level}</span><h3>${p.name}</h3>${p.en ? `<em>${p.en}</em>` : ""}</header><div class="r-card-body">${p.html}</div></div>`
+      content: await itemCardHTML({ kind: "power", img: Codex.disciplineIcon(pathId ? this.actor.items.get(pathId).system.discipline : disc),
+        kicker: dname, name: p.name, en: p.en, body: p.html, facts: [
+          { label: t("Item.level"), value: ROMAN[(p.anyLevel ? Number(level) : p.level) - 1] ?? p.level },
+          { label: t("ItemSheet.Roll"), value: pool },
+          r.difficulty && { label: t("Roll.Difficulty"), value: r.difficulty },
+          r.blood && { label: t("ItemSheet.Cost"), value: `${r.blood} <i class="fa-solid fa-droplet"></i>`, hot: true },
+          r.willpower && { label: t("Willpower"), value: "1", hot: true },
+          p.source && { label: t("Item.source"), value: p.source }] })
     });
   }
 

@@ -86,13 +86,26 @@
 .r-card-buttons button[data-r-action=damage] { color: #f1e9da; background: #8c1c22; border-color: #b83a3f; }
 .r-card-buttons .r-dmg { font-size: 10.5px; opacity: .85; }
 
-/* Карточка предмета или силы */
-.r-item-card header { display: flex; align-items: center; gap: 8px; margin: 2px 0 6px; }
-.r-item-card header img { width: 32px; height: 32px; border: 0; border-radius: 50%; flex: 0 0 auto; filter: grayscale(.3); }
-.r-item-card header h3 { margin: 0; border: 0; font-family: "Prata", serif; font-weight: 400; font-size: 15.5px; color: var(--r-ink); }
-.r-item-card header em { font-size: 12px; color: var(--r-muted); }
+/* Карточка предмета или силы — в стиле карточки броска */
+.r-item-card { border-left: 3px solid #8a8376; }
+.r-item-card::before { content: ""; position: absolute; left: -3px; top: -1px; width: 34px; height: 2px; background: #8c1c22; }
+.r-item-card.kind-power, .r-item-card.kind-ritual, .r-item-card.kind-discipline, .r-item-card.kind-thaumPath { border-left-color: #8c1c22; }
+.r-item-card.kind-flaw, .r-item-card.kind-derangement { border-left-color: #6e1318; }
+.r-item-card.kind-weapon, .r-item-card.kind-armor { border-left-color: #b3aa98; }
+.r-item-card .r-card-img { border-radius: 2px; background: #0c0c0e; }
 .r-item-card .r-card-kicker { font-family: "IM Fell SC", "Forum", serif; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--r-accent); }
-.r-item-card .r-card-body { max-height: 320px; overflow-y: auto; font-size: 13px; }
+.r-item-card .r-card-title em { font-family: "Old Standard", Georgia, serif; font-size: 12px; color: var(--r-muted); }
+.r-card-facts { display: flex; flex-wrap: wrap; gap: 4px; margin: 0 0 6px; }
+.r-card-facts span { display: inline-flex; align-items: baseline; gap: 5px; padding: 2px 7px; border: 1px solid var(--r-line-2); background: rgba(0, 0, 0, .25); }
+.r-card-facts small { font-family: "IM Fell SC", "Forum", serif; font-size: 10.5px; letter-spacing: 1px; text-transform: uppercase; color: var(--r-muted); }
+.r-card-facts b { font-family: "Prata", serif; font-weight: 400; font-size: 13px; color: var(--r-ink); }
+.r-card-facts b i { font-size: 10px; color: var(--r-accent); }
+.r-card-facts .is-hot { border-color: rgba(196, 71, 76, .5); }
+.r-card-facts .is-hot b { color: #e3a6a8; }
+.r-card-more { border-top: 1px solid var(--r-line); padding-top: 4px; }
+.r-card-more summary { cursor: pointer; font-family: "IM Fell SC", "Forum", serif; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--r-ink-2); }
+.r-item-card .r-card-body { max-height: 320px; overflow-y: auto; margin-top: 4px; font-size: 13px; line-height: 1.45; }
+.r-item-card .r-card-body p { margin: 0 0 5px; }
 
 /* Короткое уведомление */
 .r-notice { padding: 4px 8px; font-size: 13px; font-style: italic; border-left: 2px solid #4a453c; background: rgba(0, 0, 0, .25); color: #d8cfbf; }

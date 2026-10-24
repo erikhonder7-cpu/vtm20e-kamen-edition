@@ -3,6 +3,7 @@
 
 import { VTM20, SYSTEM_ID } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
+import { itemCardHTML } from "../chat/item-card.mjs";
 
 export class VtMItem extends Item {
 
@@ -98,7 +99,36 @@ export class VtMItem extends Item {
     const body = await T.enrichHTML(this.system.description ?? "", { relativeTo: this });
     return ChatMessage.create({
       speaker: ChatMessage.getSpeaker({ actor: this.actor }),
-      content: `<div class="r-item-card"><header><img src="${this.img}" alt=""><div><span class="r-card-kicker">${this.kicker}</span><h3>${this.name}</h3></div></header><div class="r-card-body">${body}</div></div>`
+      content: await itemCardHTML({ kind: this.type, img: this.img, kicker: game.i18n.localize(`TYPES.Item.${this.type}`), name: this.name, facts: this.chatFacts, body })
     });
+  }
+
+  /** Строка фактов для карточки в чате: то, что нужно за столом с одного взгляда. */
+  get chatFacts() {
+    const s = this.system, loc = k => game.i18n.localize(k), L = k => loc(`VTM20.${k}`);
+    const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
+    const pool = r => r?.trait1 ? [r.trait1, r.trait2].filter(Boolean).map(p => this.actor?.traitLabel?.(p) ?? p).join(" + ") : "";
+    switch (this.type) {
+      case "discipline": return [{ label: L("Item.value"), value: "●".repeat(s.value) || "0" }];
+      case "thaumPath": return [{ label: Codex.disciplineLabel(s.discipline), value: "●".repeat(s.value) || "0" }];
+      case "ritual": case "power": return [
+        { label: L("Item.level"), value: ROMAN[s.level - 1] ?? s.level },
+        s.discipline && { label: this.type === "ritual" ? L("ItemSheet.School") : L("Item.discipline"), value: s.path || Codex.disciplineLabel(s.discipline) },
+        { label: L("ItemSheet.Roll"), value: pool(s.roll) },
+        s.roll?.difficulty && { label: L("Roll.Difficulty"), value: s.roll.difficulty },
+        s.roll?.blood && { label: L("ItemSheet.Cost"), value: `${s.roll.blood} <i class="fa-solid fa-droplet"></i>`, hot: true }];
+      case "weapon": return [
+        { label: L("Weapon.damage"), value: `${s.strength ? L("Attr.strength") + " + " : ""}${s.damage} ${loc(VTM20.damageTypes[s.damageType]?.short ?? "")}`, hot: true },
+        { label: L("Weapon.diff"), value: s.difficulty },
+        s.range && { label: L("Weapon.range"), value: s.range },
+        s.clip && { label: L("Weapon.clip"), value: s.clip }];
+      case "armor": return [{ label: L("Armor.rating"), value: s.rating }, s.penalty && { label: L("Armor.penalty"), value: `−${s.penalty}`, hot: true }];
+      case "merit": case "flaw": return [{ label: L("Item.cost"), value: s.cost, hot: this.type === "flaw" },
+        { label: L("Item.category"), value: loc(VTM20.meritCategories[s.category]?.label ?? "") }];
+      case "background": return [{ label: L("Item.value"), value: "●".repeat(s.value) || "0" }];
+      case "derangement": return s.permanent ? [{ label: L("Sheet.Permanent"), value: "✓", hot: true }] : [];
+      case "gear": return [{ label: L("Item.quantity"), value: s.quantity }];
+      default: return [];
+    }
   }
 }
