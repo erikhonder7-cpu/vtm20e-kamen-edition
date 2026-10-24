@@ -89,7 +89,7 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     classes: ["vtm20", "r-dialog", "r-roll-dialog", "r-attack-dialog"],
     tag: "form",
     window: { title: "VTM20.Combat.Attack", icon: "fa-solid fa-khanda" },
-    position: { width: 520 },
+    position: { width: 660 },
     form: { handler: AttackDialog.#onSubmit, closeOnSubmit: true, submitOnChange: false },
     actions: { pick: AttackDialog.#onPick, bump: AttackDialog.#onBump }
   };
@@ -186,7 +186,8 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       icon: { brawl: "fa-hand-back-fist", melee: "fa-khanda", firearms: "fa-gun", thrown: "fa-bullseye" }[w.kind] }));
     const maneuvers = Object.entries(MANEUVERS).filter(([k, m]) => k === "claws" ? !!a.system.fx?.claws : (!m.vampire || a.isVampire))
       .map(([k, m]) => ({ key: `m:${k}`, name: t(`Combat.M.${k}`), icon: m.icon, active: v.pick === `m:${k}` }));
-    const opt = (list, cur, prefix) => list.map(k => ({ value: k, label: t(`${prefix}.${k}`), selected: k === cur }));
+    const split = label => { const m = label.match(/^(.*?)\s*\(([^)]*)\)\s*$/); return m ? { name: m[1], mod: m[2] } : { name: label, mod: "" }; };
+    const opt = (list, cur, prefix) => list.map(k => ({ value: k, label: t(`${prefix}.${k}`), ...split(t(`${prefix}.${k}`)), selected: k === cur }));
     // Цели: отмеченные токены (T) и все токены сцены, кроме самого атакующего
     const seen = new Set(), foes = [];
     const push = (x, marked) => {
@@ -204,7 +205,9 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       aims: opt(["none", "medium", "small", "tiny"], v.aim, "Combat.Aim"),
       targets: opt(["normal", "held", "helpless"], v.target, "Combat.Target"),
       ranges: opt(["point", "normal", "long"], v.range, "Combat.Range"),
-      covers: [0, 1, 2, 3].map(n => ({ value: n, label: t(`Combat.Cover.c${n}`), selected: n === v.cover })),
+      covers: [0, 1, 2, 3].map(n => ({ value: n, label: t(`Combat.Cover.c${n}`), ...split(t(`Combat.Cover.c${n}`)), selected: n === v.cover })),
+      // «Ещё» раскрыто, если там что-то задано (или его раскрыли сами)
+      more: this.moreOpen || v.foes > 0 || v.actions > 1 || v.diffAdj !== 0 || v.blind,
       willpowerLeft: a.system.willpower.temporary, woundPenalty: a.system.health.penalty,
       physicalLabel: r.phys ? Codex.disciplineLabel(r.choice.attr === "strength" ? "potence" : "celerity") : "",
       messageModes: Object.entries(CONFIG.ChatMessage.modes ?? {}).map(([k, m]) => ({ value: k, label: game.i18n.localize(m.label ?? k), selected: k === v.messageMode }))
@@ -215,6 +218,7 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
   _onFirstRender(context, options) {
     super._onFirstRender(context, options);
     this.element.addEventListener("change", () => this.#read());
+    this.element.addEventListener("toggle", ev => { if (ev.target.matches?.(".r-atk-more")) this.moreOpen = ev.target.open; }, true);
   }
 
   #read() {

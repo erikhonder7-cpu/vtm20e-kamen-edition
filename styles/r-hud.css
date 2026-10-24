@@ -160,3 +160,24 @@ body.r-hud-on #chat-notifications > #chat-message { display: none !important; }
 /* действующие силы — значки Дисциплин */
 #r-hud .rh-chip.rh-fx { padding: 0 2px; }
 #r-hud .rh-chip.rh-fx img { width: 18px; height: 18px; border: 0; display: block; }
+
+/* ── Окно атаки: условия плитками-чипами, редкое под «Ещё» ── */
+.vtm20 .r-atk-target { display: grid; grid-template-columns: 132px minmax(0, 1fr); align-items: center; gap: 10px; }
+.vtm20 .r-atk-row { display: grid; grid-template-columns: 132px minmax(0, 1fr); align-items: start; gap: 10px; }
+.vtm20 .r-atk-row .r-roll-label { padding-top: 6px; }
+.vtm20 .r-atk-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.vtm20 .r-atk-chip { position: relative; display: inline-flex; flex-direction: column; justify-content: center; min-height: 30px; padding: 3px 10px; cursor: pointer;
+  border: 1px solid var(--r-line-2); background: rgba(0, 0, 0, .22); color: var(--r-ink-2); font-size: 13px; line-height: 1.15; transition: border-color .15s, background .15s, color .15s; }
+.vtm20 .r-atk-chip input { position: absolute; opacity: 0; pointer-events: none; }
+.vtm20 .r-atk-chip small { font-size: 10.5px; font-style: italic; color: var(--r-muted); }
+.vtm20 .r-atk-chip:hover { color: var(--r-ink); border-color: var(--r-ink-2); }
+.vtm20 .r-atk-chip.is-active, .vtm20 .r-atk-chip:has(input:checked) { color: #f1e9da; border-color: #c4474c; background: radial-gradient(ellipse at 50% 130%, rgba(184, 58, 63, .45), rgba(0, 0, 0, .25) 75%); }
+.vtm20 .r-atk-chip.is-active small, .vtm20 .r-atk-chip:has(input:checked) small { color: #e8a3a5; }
+.vtm20 .r-atk-more { border: 1px solid var(--r-line); background: rgba(0, 0, 0, .15); }
+.vtm20 .r-atk-more > summary { padding: 6px 10px; cursor: pointer; list-style: none; font-family: var(--r-caps); font-size: 11.5px; letter-spacing: 1px; text-transform: uppercase; color: var(--r-muted); }
+.vtm20 .r-atk-more > summary::-webkit-details-marker { display: none; }
+.vtm20 .r-atk-more > summary i { font-size: 9px; transition: transform .2s; }
+.vtm20 .r-atk-more[open] > summary i { transform: rotate(90deg); }
+.vtm20 .r-atk-more[open] > summary { border-bottom: 1px solid var(--r-line); color: var(--r-ink-2); }
+.vtm20 .r-atk-more .r-atk-grid { padding: 8px 10px 10px; }
+.vtm20 .r-atk-blind { align-self: end; }

@@ -5,28 +5,43 @@
     {{#each maneuvers}}<a class="r-atk-pick is-man {{#if active}}is-active{{/if}}" data-action="pick" data-key="{{key}}"><i class="fa-solid {{icon}}"></i><span>{{name}}</span></a>{{/each}}
   </div>
 
-  <div class="r-atk-grid">
-    <label class="is-wide" data-tooltip="{{localize 'VTM20.Combat.TargetHint'}}"><span>{{localize "VTM20.Combat.Target.label"}}</span>
-      <select name="foe"><option value="">{{localize "VTM20.Combat.NoTarget"}}</option>{{#each foes}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
-    <label><span>{{localize "VTM20.Combat.Position"}}</span><select name="position">{{#each positions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
-    <label><span>{{localize "VTM20.Combat.Aiming"}}</span><select name="aim">{{#each aims}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
-    <label><span>{{localize "VTM20.Combat.TargetState"}}</span><select name="target">{{#each targets}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
-    {{#if ranged}}
-    <label><span>{{localize "VTM20.Combat.RangeLbl"}}</span><select name="range">{{#each ranges}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
-    <label><span>{{localize "VTM20.Combat.CoverLbl"}}</span><select name="cover">{{#each covers}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
-    {{/if}}
-    <label data-tooltip="{{localize 'VTM20.Combat.FoesHint'}}"><span>{{localize "VTM20.Combat.Foes"}}</span>
-      <span class="r-atk-num"><a class="r-step" data-action="bump" data-field="foes" data-d="-1">−</a><input type="number" name="foes" value="{{v.foes}}" min="0" max="4"><a class="r-step" data-action="bump" data-field="foes" data-d="1">+</a></span></label>
-    <label data-tooltip="{{localize 'VTM20.Roll.MultiActionsHint'}}"><span>{{localize "VTM20.Roll.Actions"}}</span>
-      <span class="r-atk-num"><a class="r-step" data-action="bump" data-field="actions" data-d="-1">−</a><input type="number" name="actions" value="{{v.actions}}" min="1" max="6"><a class="r-step" data-action="bump" data-field="actions" data-d="1">+</a></span></label>
-    <label><span>{{localize "VTM20.Roll.Modifier"}}</span>
-      <span class="r-atk-num"><a class="r-step" data-action="bump" data-field="bonus" data-d="-1">−</a><input type="number" name="bonus" value="{{v.bonus}}"><a class="r-step" data-action="bump" data-field="bonus" data-d="1">+</a></span></label>
-    <label><span>{{localize "VTM20.Combat.DiffAdj"}}</span>
-      <span class="r-atk-num"><a class="r-step" data-action="bump" data-field="diffAdj" data-d="-1">−</a><input type="number" name="diffAdj" value="{{v.diffAdj}}"><a class="r-step" data-action="bump" data-field="diffAdj" data-d="1">+</a></span></label>
+  <label class="r-atk-target" data-tooltip="{{localize 'VTM20.Combat.TargetHint'}}"><span class="r-roll-label">{{localize "VTM20.Combat.Target.label"}}</span>
+    <select name="foe"><option value="">{{localize "VTM20.Combat.NoTarget"}}</option>{{#each foes}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+  <div class="r-atk-row"><span class="r-roll-label">{{localize "VTM20.Combat.Position"}}</span>
+    <div class="r-atk-chips">{{#each positions}}<label class="r-atk-chip {{#if selected}}is-active{{/if}}" data-tooltip="{{label}}"><input type="radio" name="position" value="{{value}}" {{#if selected}}checked{{/if}}><span>{{name}}</span>{{#if mod}}<small>{{mod}}</small>{{/if}}</label>{{/each}}</div>
   </div>
+  <div class="r-atk-row"><span class="r-roll-label">{{localize "VTM20.Combat.Aiming"}}</span>
+    <div class="r-atk-chips">{{#each aims}}<label class="r-atk-chip {{#if selected}}is-active{{/if}}" data-tooltip="{{label}}"><input type="radio" name="aim" value="{{value}}" {{#if selected}}checked{{/if}}><span>{{name}}</span>{{#if mod}}<small>{{mod}}</small>{{/if}}</label>{{/each}}</div>
+  </div>
+  <div class="r-atk-row"><span class="r-roll-label">{{localize "VTM20.Combat.TargetState"}}</span>
+    <div class="r-atk-chips">{{#each targets}}<label class="r-atk-chip {{#if selected}}is-active{{/if}}" data-tooltip="{{label}}"><input type="radio" name="target" value="{{value}}" {{#if selected}}checked{{/if}}><span>{{name}}</span>{{#if mod}}<small>{{mod}}</small>{{/if}}</label>{{/each}}</div>
+  </div>
+  {{#if ranged}}
+  <div class="r-atk-row"><span class="r-roll-label">{{localize "VTM20.Combat.RangeLbl"}}</span>
+    <div class="r-atk-chips">{{#each ranges}}<label class="r-atk-chip {{#if selected}}is-active{{/if}}" data-tooltip="{{label}}"><input type="radio" name="range" value="{{value}}" {{#if selected}}checked{{/if}}><span>{{name}}</span>{{#if mod}}<small>{{mod}}</small>{{/if}}</label>{{/each}}</div>
+  </div>
+  <div class="r-atk-row"><span class="r-roll-label">{{localize "VTM20.Combat.CoverLbl"}}</span>
+    <div class="r-atk-chips">{{#each covers}}<label class="r-atk-chip {{#if selected}}is-active{{/if}}" data-tooltip="{{label}}"><input type="radio" name="cover" value="{{value}}" {{#if selected}}checked{{/if}}><span>{{name}}</span>{{#if mod}}<small>{{mod}}</small>{{/if}}</label>{{/each}}</div>
+  </div>
+  {{/if}}
+  <div class="r-roll-row">
+    <span class="r-roll-label">{{localize "VTM20.Roll.Modifier"}}</span>
+    <a class="r-step" data-action="bump" data-field="bonus" data-d="-1">−</a><input type="number" name="bonus" value="{{v.bonus}}" class="r-roll-num"><a class="r-step" data-action="bump" data-field="bonus" data-d="1">+</a>
+  </div>
+  <details class="r-atk-more" {{#if more}}open{{/if}}>
+    <summary><i class="fa-solid fa-chevron-right"></i> {{localize "VTM20.Combat.More"}}</summary>
+    <div class="r-atk-grid">
+      <label data-tooltip="{{localize 'VTM20.Combat.FoesHint'}}"><span>{{localize "VTM20.Combat.Foes"}}</span>
+        <span class="r-atk-num"><a class="r-step" data-action="bump" data-field="foes" data-d="-1">−</a><input type="number" name="foes" value="{{v.foes}}" min="0" max="4"><a class="r-step" data-action="bump" data-field="foes" data-d="1">+</a></span></label>
+      <label data-tooltip="{{localize 'VTM20.Roll.MultiActionsHint'}}"><span>{{localize "VTM20.Roll.Actions"}}</span>
+        <span class="r-atk-num"><a class="r-step" data-action="bump" data-field="actions" data-d="-1">−</a><input type="number" name="actions" value="{{v.actions}}" min="1" max="6"><a class="r-step" data-action="bump" data-field="actions" data-d="1">+</a></span></label>
+      <label><span>{{localize "VTM20.Combat.DiffAdj"}}</span>
+        <span class="r-atk-num"><a class="r-step" data-action="bump" data-field="diffAdj" data-d="-1">−</a><input type="number" name="diffAdj" value="{{v.diffAdj}}"><a class="r-step" data-action="bump" data-field="diffAdj" data-d="1">+</a></span></label>
+      <label class="r-check r-atk-blind"><input type="checkbox" name="blind" {{checked v.blind}}> {{localize "VTM20.Combat.Blind"}} <em>(+2)</em></label>
+    </div>
+  </details>
 
   <div class="r-roll-checks">
-    <label class="r-check"><input type="checkbox" name="blind" {{checked v.blind}}> {{localize "VTM20.Combat.Blind"}} <em>(+2)</em></label>
     <label class="r-check r-check-spec {{#unless specialtyName}}is-dim{{/unless}}"><input type="checkbox" name="specialty" {{checked v.specialty}}> <span class="r-spec-main"><span class="r-spec-head">{{localize "VTM20.Roll.Specialty"}} <small>{{localize "VTM20.Roll.SpecialtyRule"}}</small></span>{{#if specialtyName}}<em class="r-spec-name">{{specialtyName}}</em>{{/if}}</span></label>
     <label class="r-check"><input type="checkbox" name="willpower" {{checked v.willpower}} {{#unless willpowerLeft}}disabled{{/unless}}> {{localize "VTM20.Roll.SpendWillpower"}} <em>({{willpowerLeft}})</em></label>
     {{#if woundPenalty}}<label class="r-check"><input type="checkbox" name="wounds" {{checked v.wounds}}> {{localize "VTM20.Roll.Wounds"}} <em>({{woundPenalty}})</em></label>{{/if}}

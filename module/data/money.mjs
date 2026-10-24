@@ -94,33 +94,51 @@ export async function openMoney(actor) {
   const rate = assignatRate();
   const opts = Object.entries(VTM20.currencies)
     .map(([k, c]) => `<option value="${k}" ${k === cur ? "selected" : ""}>${game.i18n.localize(c.label)}</option>`).join("");
+  const view = moneyView(actor);
+  // Сейчас в кошельке — монетами, как на листе (ливры, су, денье) или одной суммой
+  const now = lsd
+    ? `<div class="r-coins r-money-coins">${view.coins.map(c => `<span class="r-coin is-${c.metal}"><i></i><b>${c.n}</b> ${c.unit}</span>`).join("")}</div>`
+    : `<div class="r-money-sum">${fmtMoney(m.amount, cur)}</div>`;
+  const coinInput = (name, metal, unit) => `<label class="r-money-in is-${metal}"><i></i><input type="number" name="${name}" min="0" step="1" placeholder="0"><span>${unit}</span></label>`;
   const amountFields = lsd
-    ? `<div class="r-money-lsd">
-        <label><input type="number" name="l" min="0" step="1" placeholder="0" autofocus><span>${L("Livres")}</span></label>
-        <label><input type="number" name="s" min="0" step="1" placeholder="0"><span>${L("Sous")}</span></label>
-        <label><input type="number" name="d" min="0" step="1" placeholder="0"><span>${L("Deniers")}</span></label>
-      </div>`
-    : `<label class="r-field"><span>${L("Amount")}</span><input type="number" name="amount" min="0" step="any" autofocus></label>`;
+    ? `<div class="r-money-lsd">${coinInput("l", "gold", L("Livres"))}${coinInput("s", "silver", L("Sous"))}${coinInput("d", "copper", L("Deniers"))}</div>`
+    : `<label class="r-money-in is-gold is-wide"><i></i><input type="number" name="amount" min="0" step="any" placeholder="0"><span>${L("Amount")}</span></label>`;
+  const ops = [["1", "fa-plus", L("Add")], ["-1", "fa-minus", L("Sub")], ["0", "fa-equals", L("Set")]]
+    .map(([v, icon, label], k) => `<label class="r-tile is-flat r-money-op${k ? "" : " is-active"}"><input type="radio" name="op" value="${v}"${k ? "" : " checked"}><i class="fa-solid ${icon}"></i><span>${label}</span></label>`).join("");
   const paperFields = lsd ? `
-      <h4 class="r-h4">${L("Assignats")} <em>${L("RateNow", { rate: Math.round(rate * 100) })}</em></h4>
-      <p class="r-money-now">${L("PaperNow")}: <b>${fmtMoney(m.paper, cur)}</b>${m.paper > 0 ? ` <span class="r-muted">≈ ${fmtMoney(roundMoney(m.paper * rate, cur), cur)} ${L("InCoin")}</span>` : ""}</p>
-      <label class="r-field"><span>${L("PaperAmount")}</span><input type="number" name="paper" min="0" step="1" placeholder="0"></label>
-      <label class="r-check"><input type="checkbox" name="exchange"><span>${L("Exchange")}</span></label>` : "";
+      <details class="r-money-more"${m.paper > 0 ? " open" : ""}>
+        <summary><i class="fa-solid fa-scroll"></i> ${L("Assignats")} <em>${L("RateNow", { rate: Math.round(rate * 100) })}</em>${m.paper > 0 ? `<b>${fmtMoney(m.paper, cur)}</b>` : ""}</summary>
+        ${m.paper > 0 ? `<p class="r-money-note">≈ ${fmtMoney(roundMoney(m.paper * rate, cur), cur)} ${L("InCoin")}</p>` : ""}
+        <label class="r-money-in is-paper is-wide"><i class="fa-solid fa-scroll"></i><input type="number" name="paper" min="0" step="1" placeholder="0"><span>${L("PaperShort")}</span></label>
+        <label class="r-check"><input type="checkbox" name="exchange"><span>${L("Exchange")}</span></label>
+      </details>` : "";
   const res = await foundry.applications.api.DialogV2.wait({
     window: { title: `${L("Title")}: ${actor.name}`, icon: "fa-solid fa-coins" },
     classes: ["vtm20", "r-dialog", "r-money-dialog"],
-    position: { width: 420 },
+    position: { width: 440 },
     content: `<div class="r-form r-money-form">
-      <p class="r-money-now">${L("Now")}: <b>${fmtMoney(m.amount, cur)}</b></p>
+      <div class="r-money-purse"><span class="r-money-kicker">${L("Now")}</span>${now}</div>
+      <div class="r-tiles r-money-ops" style="--cols: 3">${ops}</div>
       ${amountFields}
-      <label class="r-field"><span>${L("Currency")}</span><select name="currency">${opts}</select></label>
       ${paperFields}
+      <details class="r-money-more">
+        <summary><i class="fa-solid fa-sliders"></i> ${L("Currency")} <em>${game.i18n.localize(VTM20.currencies[cur]?.label ?? cur)}</em></summary>
+        <select name="currency">${opts}</select>
+      </details>
       <p class="r-hint">${L(lsd ? "HintLsd" : "Hint")}</p>
     </div>`,
+    render: (ev, dlg) => {
+      // плитки действия подсвечиваются по выбору
+      const el = dlg.element;
+      el.addEventListener("change", e => {
+        if (e.target.name !== "op") return;
+        el.querySelectorAll(".r-money-op").forEach(t => t.classList.toggle("is-active", t.querySelector("input").checked));
+      });
+      el.querySelector("input[type=number]")?.focus();
+    },
     buttons: [
-      { action: "add", icon: "fa-solid fa-plus", label: L("Add"), callback: (e, b) => ({ op: 1, ...read(b.form, lsd) }) },
-      { action: "sub", icon: "fa-solid fa-minus", label: L("Sub"), callback: (e, b) => ({ op: -1, ...read(b.form, lsd) }) },
-      { action: "set", icon: "fa-solid fa-equals", label: L("Set"), callback: (e, b) => ({ op: 0, ...read(b.form, lsd) }) }
+      { action: "apply", icon: "fa-solid fa-check", label: L("Apply"), default: true,
+        callback: (e, b) => ({ op: Number(b.form.elements.op.value), ...read(b.form, lsd) }) }
     ],
     rejectClose: false
   });
