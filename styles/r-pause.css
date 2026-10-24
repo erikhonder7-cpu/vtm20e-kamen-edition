@@ -1,0 +1,305 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   Пауза «Капля» (module/ui/pause.mjs).
+   Пауза: нить крови стекает сверху, на её кончике набухает капля, отрывается, падает и замирает —
+   мир выцветает. Снятие: капля падает в лужу, брызги, круги, цвет возвращается.
+   Координаты сцены — в пикселях макета 1440×810; --rp-s уменьшает её на низких экранах.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+body.r-pause-drop #pause { display: none !important; }
+
+#r-pause {
+  --rp-right: 0px;
+  --rp-s: 1;
+  --rp-blood: #8a0d16;
+  --rp-red: #c4474c;
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--z-index-canvas, 0) + 1);
+  pointer-events: none;
+  overflow: hidden;
+  color: #efe6e2;
+  font-family: "Cormorant Garamond", "Old Standard", Georgia, serif;
+}
+
+/* ── Мир под паузой ───────────────────────────────────────────────────── */
+
+#r-pause .rp-veil {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 46% 62% at calc((100% - var(--rp-right)) / 2) 46%, rgba(60, 6, 10, .3), rgba(8, 6, 7, .82) 72%, rgba(7, 5, 6, .94) 100%);
+  animation: rp-veil-in 2.2s ease-out both;
+}
+@keyframes rp-veil-in {
+  0%   { opacity: 0; backdrop-filter: grayscale(0) brightness(1); }
+  30%  { opacity: .75; backdrop-filter: grayscale(.1) brightness(.85); }
+  70%  { opacity: .85; backdrop-filter: grayscale(.2) brightness(.8); }
+  80%  { opacity: 1; backdrop-filter: grayscale(1) brightness(.45) contrast(1.1); }
+  100% { opacity: 1; backdrop-filter: grayscale(1) brightness(.45) contrast(1.1); }
+}
+
+/* ── Сцена ────────────────────────────────────────────────────────────── */
+
+#r-pause .rp-stage {
+  position: absolute;
+  left: 0;
+  right: var(--rp-right);
+  top: 50%;
+  height: 520px;
+  margin-top: calc(-290px * var(--rp-s));
+  transform: scale(var(--rp-s));
+  transform-origin: 50% 0;
+}
+#r-pause .rp-stream {
+  position: absolute;
+  left: calc(50% - 1.5px);
+  width: 3px;
+  bottom: calc(100% + 64px);
+  height: max(0px, calc((50vh - 290px * var(--rp-s)) / var(--rp-s) - 64px));
+  border-radius: 0 0 3px 3px;
+  background: linear-gradient(180deg, rgba(138, 13, 22, 0), rgba(138, 13, 22, .55) 40%, var(--rp-blood) 90%, rgba(138, 13, 22, .3));
+  filter: drop-shadow(0 0 6px rgba(196, 71, 76, .4));
+  transform-origin: 50% 0;
+  animation: rp-stream-in .45s cubic-bezier(.5, 0, .9, .6) both;
+}
+@keyframes rp-stream-in { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+
+#r-pause .rp-drop {
+  position: absolute;
+  left: calc(50% - 40px);
+  top: 0;
+  width: 80px;
+  height: 115px;
+  filter: drop-shadow(0 0 22px rgba(212, 42, 53, .45)) drop-shadow(0 14px 18px rgba(0, 0, 0, .8));
+  transform-origin: 50% 0;
+  animation: rp-fall 1.7s .3s both;
+}
+#r-pause .rp-drop svg { display: block; width: 100%; height: 100%; }
+/* набухает на кончике нити → тянется → перетягивается шейкой и отрывается →
+   разгоняется → резко тормозит и замирает */
+@keyframes rp-fall {
+  0%   { opacity: 0; transform: translateY(-66px) scale(.06, .04); }
+  4%   { opacity: 1; }
+  24%  { transform: translateY(-66px) scale(.42, .36); }
+  44%  { transform: translateY(-66px) scale(.68, .74); }
+  54%  { transform: translateY(-63px) scale(.74, .96); }
+  60%  { transform: translateY(-58px) scale(.8, 1.05); animation-timing-function: cubic-bezier(.55, 0, 1, .45); }
+  80%  { transform: translateY(-8px) scale(.88, 1.14); animation-timing-function: cubic-bezier(0, .7, .3, 1); }
+  89%  { transform: translateY(5px) scale(1.06, .94); }
+  95%  { transform: translateY(-2px) scale(.99, 1.02); }
+  100% { opacity: 1; transform: none; }
+}
+/* шейка между нитью и каплей рвётся, на нити остаётся бусина */
+#r-pause .rp-neck {
+  position: absolute;
+  left: calc(50% - 1px);
+  top: -66px;
+  width: 2px;
+  height: 14px;
+  border-radius: 0 0 2px 2px;
+  background: var(--rp-blood);
+  transform-origin: 50% 0;
+  animation: rp-neck 1.7s .3s both;
+}
+@keyframes rp-neck {
+  0%, 50% { opacity: 1; transform: scaleY(0); }
+  56%  { transform: scaleY(.4); }
+  60%  { opacity: 1; transform: scaleY(.62); }
+  62%, 100% { opacity: 0; transform: scaleY(0); }
+}
+#r-pause .rp-bead {
+  position: absolute;
+  left: calc(50% - 3.5px);
+  top: -69px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #e0414b, var(--rp-blood) 60%, #3a0408);
+  animation: rp-bead 1.7s .3s both;
+}
+@keyframes rp-bead {
+  0%, 60% { transform: scale(0); }
+  63%  { transform: scale(1.5, 1.25); }
+  70%  { transform: scale(.85, 1.12); }
+  78%  { transform: scale(1.06, .95); }
+  100% { transform: scale(1); }
+}
+#r-pause .rp-hang { width: 100%; height: 100%; animation: rp-hang 6s ease-in-out 2.2s infinite; }
+@keyframes rp-hang { 50% { transform: translateY(3px) scaleY(1.015); } }
+
+/* миг остановки: тонкое кольцо расходится от капли */
+#r-pause .rp-shock {
+  position: absolute;
+  left: calc(50% - 360px);
+  top: calc(57px - 360px);
+  width: 720px;
+  height: 720px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(196, 71, 76, .7);
+  box-shadow: 0 0 24px rgba(196, 71, 76, .25), inset 0 0 24px rgba(196, 71, 76, .2);
+  animation: rp-shock 1s cubic-bezier(.1, .7, .3, 1) 1.72s both;
+}
+@keyframes rp-shock {
+  from { opacity: .9; transform: scale(.02); }
+  to   { opacity: 0; transform: scale(1); }
+}
+
+#r-pause .rp-pool {
+  position: absolute;
+  left: calc(50% - 310px);
+  top: 120px;
+  width: 620px;
+  height: 140px;
+}
+#r-pause .rp-pool svg { display: block; width: 100%; height: 100%; animation: rp-fade-in 1.2s .5s both; }
+#r-pause .rp-ring { transform-box: fill-box; transform-origin: center; animation: rp-ring-in 1.1s cubic-bezier(.2, .8, .3, 1) 1.65s both, rp-shim 7s ease-in-out 2.9s infinite; }
+#r-pause .rp-ring1 { animation-delay: 1.7s, 4.6s; }
+#r-pause .rp-ring2 { animation-delay: 1.75s, 6.3s; }
+#r-pause .rp-ring3 { animation-delay: 1.8s, 8s; }
+@keyframes rp-ring-in { from { opacity: 0; transform: scale(.45); } to { opacity: 1; transform: none; } }
+@keyframes rp-shim { 50% { opacity: .25; } }
+@keyframes rp-fade-in { from { opacity: 0; } to { opacity: 1; } }
+
+/* брызги и всплеск — только при снятии паузы */
+#r-pause .rp-splash { position: absolute; left: 310px; top: 66px; width: 0; height: 0; }
+#r-pause .rp-splash i,
+#r-pause .rp-splash b { position: absolute; opacity: 0; background: radial-gradient(circle at 35% 35%, #e0414b, var(--rp-blood) 60%, #3a0408); }
+#r-pause .rp-splash i { left: calc(var(--r) / -2); top: calc(var(--r) / -2); width: var(--r); height: var(--r); border-radius: 50%; }
+#r-pause .rp-splash b { left: -5px; top: -36px; width: 10px; height: 36px; border-radius: 50% 50% 40% 40%; transform-origin: 50% 100%; }
+
+/* ── Текст ────────────────────────────────────────────────────────────── */
+
+#r-pause .rp-sep,
+#r-pause .rp-title,
+#r-pause .rp-lead,
+#r-pause .rp-meta { position: absolute; left: 0; right: 0; margin: 0; text-align: center; }
+#r-pause .rp-sep { top: 258px; display: flex; justify-content: center; align-items: center; gap: 18px; color: var(--rp-red); animation: rp-rise .8s 1.95s both; }
+#r-pause .rp-sep i { width: 90px; height: 1px; }
+#r-pause .rp-sep i:first-child { background: linear-gradient(90deg, transparent, rgba(196, 71, 76, .7)); }
+#r-pause .rp-sep i:last-child { background: linear-gradient(90deg, rgba(196, 71, 76, .7), transparent); }
+#r-pause .rp-sep svg { width: 20px; height: 30px; }
+#r-pause .rp-title {
+  top: 292px;
+  font-family: "Cormorant Garamond", "IM Fell", "Old Standard", Georgia, serif;
+  font-weight: 300;
+  font-size: 104px;
+  line-height: 1;
+  letter-spacing: .015em;
+  color: #efe6e2;
+  text-shadow: 0 0 50px rgba(160, 20, 30, .55), 0 4px 14px #000;
+  white-space: nowrap;
+  animation: rp-rise .9s 2.05s both;
+}
+#r-pause .rp-title em { font-family: "Cormorant Garamond", "Old Standard", Georgia, serif; font-style: italic; color: #d9c9c4; }
+#r-pause .rp-lead {
+  top: 410px;
+  font-style: italic;
+  font-size: 22px;
+  line-height: 1.4;
+  color: #a8999a;
+  animation: rp-rise .9s 2.2s both;
+}
+#r-pause .rp-meta {
+  top: 466px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  font-family: "Cormorant SC", "IM Fell SC", "Old Standard", Georgia, serif;
+  font-weight: 500;
+  font-size: 18px;
+  letter-spacing: .28em;
+  color: #cfc2bd;
+  white-space: nowrap;
+  animation: rp-rise .9s 2.35s both;
+}
+#r-pause .rp-meta s { text-decoration: none; color: #9e1a24; }
+#r-pause .rp-meta b { font-weight: 500; color: #e05a62; }
+#r-pause .rp-moon { display: inline-block; width: 14px; height: 14px; border-radius: 50%; background: #140608; box-shadow: inset -5px 0 0 #cfc2bd; margin-right: -4px; }
+#r-pause .rp-foot {
+  position: absolute;
+  left: 0;
+  right: var(--rp-right);
+  bottom: 84px;
+  text-align: center;
+  font-family: "Cormorant SC", "IM Fell SC", "Old Standard", Georgia, serif;
+  font-size: 13px;
+  letter-spacing: .6em;
+  color: #7d6c6d;
+  animation: rp-rise .9s 2.5s both;
+}
+@keyframes rp-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+/* ── Снятие паузы ─────────────────────────────────────────────────────── */
+
+#r-pause .rp-wave {
+  position: absolute;
+  left: calc((100% - var(--rp-right)) / 2 - 700px);
+  top: calc(50% - 100px * var(--rp-s) - 700px);
+  width: 1400px;
+  height: 1400px;
+  border-radius: 50%;
+  opacity: 0;
+  background: radial-gradient(circle, transparent 60%, rgba(196, 71, 76, .26) 66.5%, rgba(140, 13, 22, .08) 69%, transparent 71%);
+}
+#r-pause.rp-out .rp-wave { animation: rp-wave 1.1s cubic-bezier(.15, .6, .3, 1) .43s both; }
+@keyframes rp-wave { from { opacity: 1; transform: scale(.04); } to { opacity: 0; transform: scale(1.6); } }
+
+#r-pause.rp-out .rp-veil { animation: rp-veil-out 1.3s ease-in-out .55s both; }
+@keyframes rp-veil-out {
+  from { opacity: 1; backdrop-filter: grayscale(1) brightness(.45) contrast(1.1); }
+  to   { opacity: 0; backdrop-filter: grayscale(0) brightness(1) contrast(1); }
+}
+
+#r-pause.rp-out .rp-stream { transform-origin: 50% 0; animation: rp-stream-out .35s ease-in both; }
+#r-pause.rp-out .rp-bead { animation: rp-fade-out .25s ease-in both; }
+#r-pause.rp-out .rp-neck { animation: none; opacity: 0; }
+@keyframes rp-stream-out { from { transform: scaleY(1); opacity: 1; } to { transform: scaleY(0); opacity: 0; } }
+
+#r-pause.rp-out .rp-hang { animation: none; }
+#r-pause.rp-out .rp-drop { animation: rp-drop-out .45s cubic-bezier(.55, 0, 1, .45) both; }
+@keyframes rp-drop-out {
+  0%   { opacity: 1; transform: none; }
+  85%  { opacity: 1; transform: translateY(80px) scale(.84, 1.22); }
+  100% { opacity: 0; transform: translateY(98px) scale(.7, .5); }
+}
+
+#r-pause.rp-out .rp-splash i { animation: rp-spl .7s cubic-bezier(.2, .6, .4, 1) calc(.43s + var(--d)) both; }
+@keyframes rp-spl {
+  0%   { opacity: 0; transform: translate(0, 0) scale(.4); }
+  10%  { opacity: 1; }
+  45%  { opacity: 1; transform: translate(calc(var(--dx) * .55), var(--dy)) scale(1); }
+  100% { opacity: 0; transform: translate(var(--dx), 14px) scale(.55); }
+}
+#r-pause.rp-out .rp-splash b { animation: rp-jet .6s cubic-bezier(.2, .7, .4, 1) .5s both; }
+@keyframes rp-jet {
+  0%   { opacity: 0; transform: translateY(0) scaleY(.2); }
+  15%  { opacity: 1; }
+  45%  { opacity: 1; transform: translateY(-48px) scaleY(1); }
+  100% { opacity: 0; transform: translateY(6px) scaleY(.3); }
+}
+
+#r-pause.rp-out .rp-ring { animation: rp-ring-out 1.4s cubic-bezier(.15, .6, .35, 1) .43s both; }
+#r-pause.rp-out .rp-ring2 { animation-delay: .5s; }
+#r-pause.rp-out .rp-ring1 { animation-delay: .58s; }
+#r-pause.rp-out .rp-ring0 { animation-delay: .66s; }
+@keyframes rp-ring-out { from { opacity: 1; transform: none; } to { opacity: 0; transform: scale(2.2); } }
+#r-pause.rp-out .rp-glow { transform-box: fill-box; transform-origin: center; animation: rp-flash .9s ease-out .43s both; }
+@keyframes rp-flash { 20% { opacity: 1; transform: scale(1.3); filter: brightness(1.8); } 100% { opacity: 0; transform: scale(1.5); } }
+#r-pause.rp-out .rp-pool svg { animation: rp-fade-out .7s ease-in 1.15s both; }
+
+#r-pause.rp-out .rp-shock { animation: none; opacity: 0; }
+#r-pause.rp-out .rp-sep,
+#r-pause.rp-out .rp-title,
+#r-pause.rp-out .rp-lead,
+#r-pause.rp-out .rp-meta,
+#r-pause.rp-out .rp-foot { animation: rp-text-out .5s ease-in both; }
+#r-pause.rp-out .rp-title { animation-delay: .04s; }
+#r-pause.rp-out .rp-lead { animation-delay: .08s; }
+#r-pause.rp-out .rp-meta { animation-delay: .12s; }
+@keyframes rp-text-out { to { opacity: 0; filter: blur(6px); transform: translateY(-8px); } }
+@keyframes rp-fade-out { to { opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  #r-pause, #r-pause * { animation-duration: .01ms !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; }
+}

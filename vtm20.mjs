@@ -28,6 +28,7 @@ import { openDiablerie } from "./module/apps/diablerie.mjs";
 import { openLibrary } from "./module/apps/library.mjs";
 import { openNpcGenerator } from "./module/apps/npc-gen.mjs";
 import { registerCityMap, openCity, closeCity, toggleCity, cityMap } from "./module/ui/citymap.mjs";
+import { registerPause } from "./module/ui/pause.mjs";
 import * as Money from "./module/data/money.mjs";
 
 /* ── init ──────────────────────────────────────────────────────────────── */
@@ -104,6 +105,7 @@ Hooks.once("init", () => {
   registerHud();
   registerCombatTracker();
   registerCityMap();
+  registerPause();
   foundry.applications.handlebars.loadTemplates({
     rDots: `${SYSTEM_PATH}/templates/actor/parts/dots.hbs`,
     rPower: `${SYSTEM_PATH}/templates/actor/parts/power.hbs`,
@@ -117,7 +119,7 @@ Hooks.once("init", () => {
 });
 
 Hooks.once("setup", () => {
-  ensureStyles(["styles/r-foundry.css", "styles/r-hud.css", "styles/r-city.css", "styles/r-assembly.css"]);
+  ensureStyles(["styles/r-foundry.css", "styles/r-hud.css", "styles/r-city.css", "styles/r-assembly.css", "styles/r-pause.css"]);
   document.body.classList.toggle("r-skin", game.settings.get(SYSTEM_ID, "uiSkin"));
   document.body.classList.toggle("r-theme-light", game.settings.get(SYSTEM_ID, "sheetTheme") === "light");
 });

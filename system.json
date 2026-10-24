@@ -42,6 +42,9 @@
     },
     {
       "src": "styles/r-assembly.css"
+    },
+    {
+      "src": "styles/r-pause.css"
     }
   ],
   "languages": [
