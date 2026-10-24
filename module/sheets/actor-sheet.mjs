@@ -23,6 +23,7 @@ import { openLibrary, LibraryItems } from "../apps/library.mjs";
 import { moneyView, openMoney } from "../data/money.mjs";
 import { POWER_EFFECTS } from "../data/effects.mjs";
 import { MERIT_MODS, describeMeritMod } from "../data/merit-mods.mjs";
+import { weaponIcon, armorIcon, traitIcon, backgroundIcon } from "../data/icons.mjs";
 import { togglePowerEffect } from "../apps/power-effects.mjs";
 import { itemCardHTML } from "../chat/item-card.mjs";
 
@@ -775,7 +776,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const p = (kind === "weapon" ? WEAPON_PRESETS : ARMOR_PRESETS)[i];
     if (!p) return;
     const { name, group, ...system } = p;
-    await this.actor.createEmbeddedDocuments("Item", [{ name, type: kind, img: `systems/${SYSTEM_ID}/assets/icons/${kind}.svg`, system }]);
+    await this.actor.createEmbeddedDocuments("Item", [{ name, type: kind, img: kind === "weapon" ? weaponIcon(name, system.kind) : armorIcon(system.rating), system }]);
   }
 
   /** Прочий эффект на актёре: включить/выключить, удалить. */

@@ -12,6 +12,7 @@
 import { VTM20, SYSTEM_PATH, SYSTEM_ID } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
 import { blockerFor } from "../data/trait-rules.mjs";
+import { weaponIcon, armorIcon, traitIcon, backgroundIcon } from "../data/icons.mjs";
 
 const { HandlebarsApplicationMixin, ApplicationV2 } = foundry.applications.api;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -68,10 +69,10 @@ export const LibraryItems = {
       discipline: first.key ?? "", path: "", level: first.level ?? 1, description: c.html ?? "", source: c.en ?? "", ...(c.roll ? { roll: c.roll } : {}) } };
   },
   background(b, value = 1) {
-    return { name: b.name, type: "background", img: ICON("background"), system: { value, description: b.html ?? "", source: b.en ?? "" } };
+    return { name: b.name, type: "background", img: backgroundIcon(b.en) ?? ICON("background"), system: { value, description: b.html ?? "", source: b.en ?? "" } };
   },
   trait(m, cost) {
-    return { name: m.name, type: m.kind, img: ICON(m.kind), system: { cost: cost ?? m.min ?? 1, category: m.category ?? "physical",
+    return { name: m.name, type: m.kind, img: traitIcon(m.category, m.kind === "flaw"), system: { cost: cost ?? m.min ?? 1, category: m.category ?? "physical",
       clan: m.clan ?? "", sect: m.sect ?? "", description: m.html ?? "", source: m.en ?? "" } };
   },
   derangement(d) {

@@ -37,6 +37,7 @@ const { ClassicLevel } = require("classic-level");
 const manifest = JSON.parse(fs.readFileSync(path.join(ROOT, "system.json"), "utf8"));
 const data = f => JSON.parse(fs.readFileSync(path.join(ROOT, "data", `${f}.json`), "utf8"));
 const { WEAPON_PRESETS, ARMOR_PRESETS } = await import(pathToFileURL(path.join(ROOT, "module/data/equipment.mjs")).href);
+const { weaponIcon, armorIcon, traitIcon, backgroundIcon } = await import(pathToFileURL(path.join(ROOT, "module/data/icons.mjs")).href);
 const ru = JSON.parse(fs.readFileSync(path.join(ROOT, "lang/ru.json"), "utf8"));
 
 const SYSTEM_ID = manifest.id;
@@ -122,9 +123,9 @@ const BUILDERS = {
   equipment() {
     const p = new Pack("equipment");
     for (const { name, group, source, description = "", era, ...system } of WEAPON_PRESETS)
-      p.add({ name, type: "weapon", folder: group, system: { ...system, source: source ?? "", description: description + sourceLine(source) } });
+      p.add({ name, type: "weapon", folder: group, img: weaponIcon(name, system.kind), system: { ...system, source: source ?? "", description: description + sourceLine(source) } });
     for (const { name, group, source, description = "", era, ...system } of ARMOR_PRESETS)
-      p.add({ name, type: "armor", folder: group, system: { ...system, source: source ?? "", description: description + sourceLine(source) } });
+      p.add({ name, type: "armor", folder: group, img: armorIcon(system.rating), system: { ...system, source: source ?? "", description: description + sourceLine(source) } });
     return p;
   },
 
@@ -204,7 +205,7 @@ const BUILDERS = {
       const folder = m.clan ? [`Клановые ${kindLabel.toLowerCase()}`, clanName[m.clan] ?? m.clan]
         : m.sect ? ["Черты сект", sectName[m.sect] ?? m.sect]
         : `${kindLabel} — ${cat[m.category] ?? m.category}`;
-      p.add({ name: m.name, type: m.kind, folder: daFolder(m, folder), key: `${m.kind}:${m.name}`,
+      p.add({ name: m.name, type: m.kind, folder: daFolder(m, folder), key: `${m.kind}:${m.name}`, img: traitIcon(m.category, m.kind === "flaw"),
         system: { cost: m.min || 1, category: m.category, clan: m.clan ?? "", sect: m.sect ?? "", source: m.en ?? "", description: `${m.html ?? ""}${range}` } });
     }
     return p;
@@ -213,7 +214,7 @@ const BUILDERS = {
   backgrounds() {
     const p = new Pack("backgrounds");
     for (const b of data("backgrounds"))
-      p.add({ name: b.name, type: "background", folder: b.fan ? "Век живых богов (фанатское)" : b.sabbat ? "Шабаш" : b.source && b.source !== "V20" ? "Из дополнений" : null, key: b.name, system: { value: 1, source: b.en ?? "", description: b.html ?? "" } });
+      p.add({ name: b.name, type: "background", folder: b.fan ? "Век живых богов (фанатское)" : b.sabbat ? "Шабаш" : b.source && b.source !== "V20" ? "Из дополнений" : null, key: b.name, img: backgroundIcon(b.en) ?? undefined, system: { value: 1, source: b.en ?? "", description: b.html ?? "" } });
     return p;
   },
 

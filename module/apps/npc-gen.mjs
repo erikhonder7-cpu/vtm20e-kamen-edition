@@ -28,6 +28,7 @@ const pick = list => list[Math.floor(Math.random() * list.length)];
 const esc = s => foundry.utils.escapeHTML(String(s ?? ""));
 const shuffle = list => { const a = [...list]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const ICON = type => `systems/${SYSTEM_ID}/assets/icons/${type}.svg`;
+import { weaponIcon, armorIcon, traitIcon, backgroundIcon } from "../data/icons.mjs";
 const COMMON_DISCIPLINES = ["animalism", "auspex", "celerity", "dominate", "fortitude", "obfuscate", "potence", "presence"];
 
 let DATA = null;
@@ -168,7 +169,7 @@ async function createFromTemplate(tpl, { name, folder, trained = false, ghoul = 
   if (tpl.humanity != null) system.morality = { path: "humanity", value: tpl.humanity };
   const items = [];
   for (const [k, v] of Object.entries(tpl.disciplines ?? {})) items.push(LibraryItems.discipline(k, v));
-  for (const at of tpl.attacks ?? []) items.push({ name: at.name, type: "weapon", img: ICON("weapon"),
+  for (const at of tpl.attacks ?? []) items.push({ name: at.name, type: "weapon", img: weaponIcon(at.name, "brawl"),
     system: { kind: "brawl", damage: at.dice, strength: false, damageType: at.damageType, difficulty: 6 } });
   if (tpl.swarm) items.push({ name: L("SwarmAttack"), type: "weapon", img: ICON("weapon"),
     system: { kind: "brawl", damage: tpl.swarm.damage, strength: false, damageType: "lethal", difficulty: 6 } });
@@ -334,7 +335,7 @@ export class NpcGenerator extends HandlebarsApplicationMixin(ApplicationV2) {
       if (!p) return null;
       const { name, group, ...system } = p;
       const type = ref.startsWith("w:") ? "weapon" : "armor";
-      return { name, type, img: ICON(type), system };
+      return { name, type, img: type === "weapon" ? weaponIcon(name, system.kind) : armorIcon(system.rating), system };
     }).filter(Boolean);
     const beast = tpl && ["animals", "swarms"].includes(tpl.group);
     const made = [];

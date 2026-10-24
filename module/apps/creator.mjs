@@ -14,6 +14,7 @@ import { VTM20, SYSTEM_PATH, SYSTEM_ID } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
 import { blockerFor, checkTraits } from "../data/trait-rules.mjs";
 import { attachCombos } from "../ui/combo.mjs";
+import { weaponIcon, armorIcon, traitIcon, backgroundIcon } from "../data/icons.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -650,10 +651,10 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     }
     for (const b of Codex.backgrounds) {
       const v = this.value("bg", b.name);
-      if (v > 0) items.push({ name: b.name, type: "background", img: icon("background"), system: { value: v, description: b.html, source: b.en } });
+      if (v > 0) items.push({ name: b.name, type: "background", img: backgroundIcon(b.en) ?? icon("background"), system: { value: v, description: b.html, source: b.en } });
     }
-    for (const m of st.merits) items.push({ name: m.name, type: "merit", img: icon("merit"), system: { cost: m.cost, category: m.category, clan: m.clan ?? "", sect: m.sect ?? "", description: m.html, source: m.en } });
-    for (const m of st.flaws) items.push({ name: m.name, type: "flaw", img: icon("flaw"), system: { cost: m.cost, category: m.category, clan: m.clan ?? "", sect: m.sect ?? "", description: m.html, source: m.en } });
+    for (const m of st.merits) items.push({ name: m.name, type: "merit", img: traitIcon(m.category), system: { cost: m.cost, category: m.category, clan: m.clan ?? "", sect: m.sect ?? "", description: m.html, source: m.en } });
+    for (const m of st.flaws) items.push({ name: m.name, type: "flaw", img: traitIcon(m.category, true), system: { cost: m.cost, category: m.category, clan: m.clan ?? "", sect: m.sect ?? "", description: m.html, source: m.en } });
     if (this.type === "vampire" && /^malkavian/.test(st.clan) && !a.items.some(i => i.type === "derangement")) {
       items.push({ name: t("Creator.MalkDerangement"), type: "derangement", img: icon("derangement"), system: { permanent: true, description: `<p>${t("Creator.MalkDerangementHint")}</p>` } });
     }
