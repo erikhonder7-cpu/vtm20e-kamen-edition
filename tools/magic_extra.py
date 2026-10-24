@@ -321,8 +321,13 @@ LABELS = {"система", "проведение", "эффект", "огран�
           "изучение", "исполнение", "основа", "суть", "дистанция", "цель", "сложность", "результат", "результаты", "побочный эффект",
           "взгляд жизни", "взгляд смерти", "происхождение", "посвящение", "особенности путей", "особенности", "внимание", "минус", "плюс"}
 
+# «**Ассамиты**» и т. п. под «Клановыми ритуалами» (V20 Dark Ages) — не ритуал, а школа для ритуалов ниже
+CLAN_SCHOOL = {"Ассамиты": "assamiteSorcery", "Последователи Сета": "setiteSorcery", "Тремер": "thaumaturgy"}
+# «Ур. 5. Имя», «Ур. 1: Имя», «Уровень 8 версия — Имя» — уровень уже взят, в названии он лишний
+LEVEL_PREFIX = re.compile(r"^(?:Ур\.?|Уровень)\s*\d+\s*(?:версия\s*)?[.:—–-]\s*")
+
 def rituals_from(lines, disc, book, era, note):
-    res, cur, lvl = [], None, None
+    res, cur, lvl, school = [], None, None, None
     def close():
         nonlocal cur
         if cur and cur["level"]:
@@ -333,15 +338,19 @@ def rituals_from(lines, disc, book, era, note):
     def start(raw, level, kind, body=None, hint=""):
         nonlocal cur
         close()
-        ru, en = name_en(raw)
+        ru, en = name_en(LEVEL_PREFIX.sub("", raw.strip()))
         if len(rkey(ru) or akey(en)) < 3: return
-        cur = {"discipline": disc_of(hint) if disc == "auto" else disc, "level": level, "name": ru, "en": en, "source": book, "era": era,
+        cur = {"discipline": school or (disc_of(hint) if disc == "auto" else disc), "level": level, "name": ru, "en": en, "source": book, "era": era,
                "kind": kind, "body": body or []}
     i = 0
     while i < len(lines):
         l = lines[i]
         h = heading_level(l)
+        mc = re.match(r"^\*\*(" + "|".join(CLAN_SCHOOL) + r")\*\*\s*$", l.strip())
+        if mc:
+            close(); school = CLAN_SCHOOL[mc.group(1)]; i += 1; continue
         if h:
+            school = None
             t = l[h + 1:].strip()
             m = RIT_LEVEL_HEAD.match(re.sub(r"^Ритуалы\s+", "", t))
             if m:

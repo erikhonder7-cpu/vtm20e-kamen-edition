@@ -764,6 +764,10 @@ SETITE_EQUIV = {
                 "Путь «Змея внутри»": "Искушение Мары", "Путь Дуата": "Путь Ямы — бросок Воли, без талисмана"},
     "Ванга": {"Путь Крови": None, "Путь Воплощения": None, "Путь Совращения": None, "Путь Управления духами": None,
               "Путь проклятий": None, "Управление Погодой": None, "Игра с Огнём": None},
+    # Blood Sacrifice, приложение: «параллели путей» Нахуаллотля
+    "Нахуаллотль": {"Путь Крови": "Цветок божественного напитка", "Путь Совращения": "Тайные пути Тескатлипоки",
+                    "Игра с Огнём": "Слава Уэуэтеотля", "Путь Управления духами": "Обряды Тескатлипоки",
+                    "Управление Погодой": "Дыхание Кетцалькоатля"},
 }
 
 def setite_extra(disc):
@@ -786,6 +790,46 @@ def setite_extra(disc):
         cp["html"] = note + "<p><em>Путь Тауматургии, равнозначный в чародействе Сеттитов: изучается как свой.</em></p>" + cp["html"]
         st["paths"].append(cp); n += 1
     print("Сеттиты: путей Тауматургии в своих традициях +", n)
+
+# Пути Тауматургии V20 ↔ герметические пути V20 Dark Ages: в книгах прямо не сказано — по сходству сил
+DA_EQUIV = {"Игра с Огнём": "Сотворение огня", "Мановение Мысли": "Власть движения", "Управление Погодой": "Власть над бурями",
+            "Власть над Стихиями": "Власть стихий", "Путь Крови": "Власть жизненной крови", "Путь проклятий": "Проклятая власть"}
+# прочие пары «один путь в двух редакциях»: (школа, путь) ↔ (школа, путь), пометка
+OTHER_EQUIV = [(("koldunism", f"Уклад {w}"), ("koldunism", f"Путь {p}"), "редакция Blood Magic (Revised), другие силы")
+               for w, p in (("Земли", "Земли"), ("Ветра", "Ветра"), ("Воды", "Воды"), ("Огня", "Огня"))] + [
+               (("necromancy", "Путь Тлена"), ("necromancy", "Распад могилы"), "редакция V20 Dark Ages (The Grave's Decay)")]
+
+def blood_equiv(disc):
+    """У путей Тауматургии — их названия в других школах магии крови; у аналогов — обратная ссылка на путь V20."""
+    def path(k, name):
+        return next((p for p in disc[k]["paths"] if p["name"] == name or p["name"].startswith(name + " (")), None)
+    def note(p, text):
+        p["html"] = f'<p class="r-path-equiv"><em>{html.escape(text)}</em></p>' + p.get("html", "")
+    th_names = {p["name"] for p in disc["thaumaturgy"]["paths"]}
+    n = 0
+    for name in sorted(th_names):
+        alts = []
+        for a in MAGUS_NAMES.get(name, []):                                   # «Вода жизни (Дур‑Ан‑Ки)» / «Движение разума»
+            m = re.match(r"^(.+?) \((.+)\)$", a)
+            alts.append(f"{m.group(2)} — «{m.group(1)}»" if m else f"Магусы (Ассамиты) — «{a}»")
+        for trad, paths in SETITE_EQUIV.items():
+            if name in paths:
+                v = paths[name]
+                alts.append(f"{trad} — «{v.split(' — ')[0]}»" if v else f"{trad} — под тем же названием")
+        da = DA_EQUIV.get(name)
+        if da and path("thaumaturgy", da):
+            alts.append(f"Тёмные века — «{da}» (по сходству сил)")
+            note(path("thaumaturgy", da), f"Аналог в V20: «{name}» (по сходству сил; в книгах прямо не сказано).")
+        if alts:
+            note(path("thaumaturgy", name), "Аналоги в других школах: " + "; ".join(alts) + ".")
+            n += 1
+    for (k1, a), (k2, b), why in OTHER_EQUIV:
+        pa, pb = path(k1, a), path(k2, b)
+        if pa and pb:
+            note(pa, f"Другая редакция: «{pb['name']}» — {why}.")
+            note(pb, f"Другая редакция: «{pa['name']}» (V20).")
+            n += 1
+    print("Аналоги путей магии крови: подписано", n)
 
 def annotate_rolls(disc, rituals):
     add_discipline_traits(disc)
@@ -833,6 +877,7 @@ def main():
     magic_extra.apply(disc, rituals)
     magus_extra(disc)
     setite_extra(disc)
+    blood_equiv(disc)
     import powers_extra   # высокие уровни (6–9) и новые силы Дисциплин из Revised и Тёмных веков (era = "darkAges")
     powers_extra.apply(disc)
     mdir = os.path.join(REF, "Достоинства_и_недостатки")
@@ -845,6 +890,8 @@ def main():
     for x in backgrounds: x["source"] = "V20"
     import backgrounds_extra
     backgrounds += backgrounds_extra.collect(backgrounds)
+    import alg_extra   # «Век живых богов» (фанатское): Мортис, Факты биографии, Способности — Тёмные века
+    abilities = alg_extra.apply(disc, backgrounds)
     paths = parse_paths(os.path.join(REF, "V20_Основные_правила", "06_Человечность_Пути_Добродетели.md"))
     import paths_extra   # Пути Просветления из дополнений и Дороги Тёмных веков (era = "darkAges")
     paths = paths_extra.apply(paths)
@@ -867,6 +914,7 @@ def main():
     dump("combos.json", combos)
     dump("merits.json", merits)
     dump("backgrounds.json", backgrounds)
+    dump("abilities.json", abilities)
     dump("paths.json", paths)
     core = os.path.join(REF, "V20_Основные_правила")
     clans = parse_clans(os.path.join(core, "02_Кланы_линии_крови_секты_Традиции.md"), disc)

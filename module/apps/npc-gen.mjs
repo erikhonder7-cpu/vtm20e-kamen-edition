@@ -73,7 +73,7 @@ function rollTraits({ attrs, abils, ugly = false }) {
   const virtues = spread(["conscience", "selfControl", "courage"], 7, 1, 5);
   // Факты биографии: 5 точек на 2–3 факта
   // «Поколение» не разыгрываем: его задаёт рассказчик в окне
-  const pool = shuffle(Codex.backgrounds.filter(b => !b.sabbat && b.en !== "Generation")).slice(0, 2 + Math.floor(Math.random() * 2));
+  const pool = shuffle(Codex.backgrounds.filter(b => !b.sabbat && b.en !== "Generation" && Codex.visible(b))).slice(0, 2 + Math.floor(Math.random() * 2));
   const backgrounds = spread(pool.map(b => b.name), 5 - pool.length, 1, 5);
   return { attributes, abilities, virtues, backgrounds };
 }

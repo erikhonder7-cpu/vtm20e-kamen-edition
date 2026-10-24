@@ -5,7 +5,7 @@
 
 import { SYSTEM_PATH, SYSTEM_ID } from "../config.mjs";
 
-const FILES = ["disciplines", "clans", "rituals", "paths", "merits", "backgrounds", "archetypes", "assets", "derangements", "combos"];
+const FILES = ["disciplines", "clans", "rituals", "paths", "merits", "backgrounds", "archetypes", "assets", "derangements", "combos", "abilities"];
 
 /** Чей герб показывать линии крови, ветви или антитрибу, если своего нет. */
 const CLAN_SYMBOL_PARENT = {
@@ -43,7 +43,7 @@ const SECT_KEYS = [
 
 export const Codex = {
   ready: false,
-  disciplines: {}, clans: [], rituals: {}, paths: [], merits: [], backgrounds: [], archetypes: [], derangements: [], combos: [],
+  disciplines: {}, clans: [], rituals: {}, paths: [], merits: [], backgrounds: [], archetypes: [], derangements: [], combos: [], abilities: [],
   _loading: null,
 
   /** Загрузить один раз; повторные вызовы ждут ту же загрузку. */

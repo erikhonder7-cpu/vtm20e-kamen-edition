@@ -197,6 +197,8 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     ctx.sigil = { sym: sym(a) ?? Codex.sectSymbol(s.details.sect), label: a.clanLabel || s.details.sect || "" };
     ctx.sectSym = Codex.sectSymbol(s.details.sect);
     ctx.archetypes = Codex.archetypes.map(x => x.name);
+    // Способности эпох (data/abilities.json) — подсказки для вторичных способностей; Тёмные века — с настройкой
+    ctx.extraAbilities = (Codex.abilities ?? []).filter(x => Codex.visible(x)).map(x => x.name);
     const nature = Codex.archetypes.find(x => x.name === s.details.nature);
     ctx.natureRegain = nature?.regain ?? "";
     // Дороги Тёмных веков — только при включённой настройке; уже выбранный путь не прячем

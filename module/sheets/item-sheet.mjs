@@ -46,7 +46,7 @@ export class VtMItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       hasRoll: ["ritual", "power"].includes(item.type),
       traitGroups: VtMItemSheet.traitGroups(s.roll ?? {}),
       disciplineOptions: [
-        ...Object.values(Codex.disciplines).map(d => ({ value: d.key, label: d.name, selected: d.key === discKey })),
+        ...Object.values(Codex.disciplines).filter(d => Codex.visible(d) || d.key === discKey).map(d => ({ value: d.key, label: d.name, selected: d.key === discKey })),
         // своя Дисциплина, которой нет в справочнике (Мистицизм Бездны и т. п.)
         ...(discKey && !Codex.disciplines[discKey] ? [{ value: discKey, label: discKey, selected: true }] : [])
       ].sort((a, b) => a.label.localeCompare(b.label, "ru")),
@@ -109,7 +109,7 @@ export class VtMItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       { label: loc("VTM20.Sheet.Abilities"), options: Object.entries(VTM20.abilities).map(([k, a]) => [`abilities.${k}`, loc(a.label)]) },
       { label: loc("VTM20.Sheet.Virtues"), options: [["virtues.conscience", loc("VTM20.Virtue.conscience")], ["virtues.selfControl", loc("VTM20.Virtue.selfControl")], ["virtues.courage", loc("VTM20.Virtue.courage")]] },
       { label: loc("VTM20.Sheet.Other"), options: [["willpower.permanent", loc("VTM20.Willpower")], ["morality.value", loc("VTM20.Humanity")]] },
-      { label: loc("VTM20.Sheet.Disciplines"), options: Object.values(Codex.disciplines).map(d => [`disciplines.${d.key}`, d.name]) }
+      { label: loc("VTM20.Sheet.Disciplines"), options: Object.values(Codex.disciplines).filter(d => Codex.visible(d)).map(d => [`disciplines.${d.key}`, d.name]) }
     ];
     const mark = cur => groups.map(g => ({ label: g.label, options: g.options.map(([value, label]) => ({ value, label, selected: value === cur })) }));
     return { t1: mark(roll.trait1), t2: mark(roll.trait2) };

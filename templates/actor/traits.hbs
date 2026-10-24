@@ -44,7 +44,7 @@
       <div class="r-trait is-secondary">
         <div class="r-trait-main">
           <a class="r-trait-roll" data-action="rollTrait" data-trait="secondary.{{index}}" data-tooltip="{{localize 'VTM20.Sheet.Roll'}}"><i class="fa-solid fa-dice-d10"></i></a>
-          <input class="r-trait-input" type="text" name="system.secondary.{{index}}.name" value="{{name}}" placeholder="{{localize 'VTM20.Sheet.SecondaryName'}}">
+          <input class="r-trait-input" type="text" name="system.secondary.{{index}}.name" value="{{name}}" placeholder="{{localize 'VTM20.Sheet.SecondaryName'}}" {{#if @root.extraAbilities.length}}data-combo="r-abil-{{@root.actor.id}}"{{/if}}>
           {{> rDots dots=dots}}
           <a class="r-icon-btn is-danger" data-action="removeSecondary" data-index="{{index}}"><i class="fa-solid fa-xmark"></i></a>
         </div>
@@ -55,4 +55,6 @@
     </div>
     {{/each}}
   </div>
+  {{!-- подсказки для названий вторичных способностей (module/ui/combo.mjs) --}}
+  <datalist id="r-abil-{{@root.actor.id}}">{{#each @root.extraAbilities}}<option value="{{this}}"></option>{{/each}}</datalist>
 </section>

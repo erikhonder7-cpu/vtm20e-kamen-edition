@@ -344,11 +344,11 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       };
     }).sort((a, b) => (b.inClan - a.inClan) || a.name.localeCompare(b.name, "ru"));
     ctx.anyDiscipline = allowed == null;
-    ctx.discChoices = Object.values(Codex.disciplines).filter(d => !discKeys.has(d.key)).map(d => ({ value: d.key, label: d.name }))
+    ctx.discChoices = Object.values(Codex.disciplines).filter(d => !discKeys.has(d.key) && Codex.visible(d)).map(d => ({ value: d.key, label: d.name }))
       .sort((a, b) => a.label.localeCompare(b.label, "ru"));
 
     // VI. Факты биографии — каталог карточек, и Добродетели
-    ctx.bgCards = Codex.backgrounds.map(b => {
+    ctx.bgCards = Codex.backgrounds.filter(b => Codex.visible(b) || b.name in st.bg).map(b => {
       const on = b.name in st.bg || (st.free.bg[b.name] ?? 0) > 0;
       return { name: b.name, en: b.en, sabbat: b.sabbat, on, value: this.value("bg", b.name), dots: dotRow("bg", b.name),
           text: VtMCreator.#preview(b.html, 170), html: b.html, open: this.ui.open.has(`bg:${b.name}`) };

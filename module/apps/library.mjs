@@ -170,7 +170,7 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
     const clanD = a?.clanDisciplines ?? [];
     const have = new Set(this.itemsOf("discipline").map(i => i.system.key));
     const xp = a ? a.xpCost("discipline", 0) : 0;
-    return Object.values(Codex.disciplines).map(d => {
+    return Object.values(Codex.disciplines).filter(d => Codex.visible(d)).map(d => {
       const sym = Codex.disciplineSymbol(d.key);
       const inClan = clanD.includes(d.key);
       const paths = (d.paths ?? []).filter(p => Codex.visible(p));
@@ -265,7 +265,8 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
 
   #backgrounds() {
     const mine = new Set(this.itemsOf("background").map(i => i.name));
-    return Codex.backgrounds.map((b, i) => this.#entry({
+    // id — номер в полном списке; Факты биографии Тёмных веков — только с настройкой «Контент из Dark Ages»
+    return Codex.backgrounds.map((b, i) => [b, i]).filter(([b]) => Codex.visible(b)).map(([b, i]) => this.#entry({
       id: String(i), name: b.name, en: b.en, has: mine.has(b.name), text: b.html ?? "", long: true,
       tags: [b.sabbat && { label: t("Sect.sabbat"), red: true }, b.source && b.source !== "V20" && { label: b.source }].filter(Boolean),
       variants: [1, 2, 3, 4, 5].map(v => ({ value: v, label: "●".repeat(v) }))
