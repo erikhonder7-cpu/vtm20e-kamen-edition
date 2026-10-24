@@ -79,11 +79,11 @@ function hall(s) {
   const sh = shapeOf(s), r = rng(`hall:${s.id}`), step = Math.min(90, Math.max(34, s.r / 3.6));
   const world = ([x, y]) => toLL(s, ...rot(x, y, sh.angle));
   const outline = Array.from({ length: 41 }, (_, i) => { const t = i / 40 * Math.PI * 2, d = sh.radius(t); return toLL(s, Math.cos(t) * d, Math.sin(t) * d); });
-  const lines = [], n = Math.ceil(s.r * 1.3 / step);
+  const pieces = [], n = Math.ceil(s.r * 1.3 / step);
   for (const dir of [0, 1]) for (let i = -n; i <= n; i++) {
     // линия сетки (в повёрнутых осях зала) режется формой зала на куски от узла до узла; часть кусков завалена
     let run = [];
-    const flush = () => { if (run.length > 1 && r() > .14) lines.push(run.map(world)); run = []; };
+    const flush = () => { if (run.length > 1 && r() > .14) pieces.push(run); run = []; };
     for (let j = -n * 6; j <= n * 6; j++) {
       const t = j * step / 6, p = dir ? [i * step, t] : [t, i * step];
       if (!sh.inside(...rot(p[0], p[1], sh.angle))) { flush(); continue; }
@@ -92,11 +92,23 @@ function hall(s) {
     }
     flush();
   }
-  // комнаты-склепы: прямоугольники на узлах сетки
+  // Оставить одну связную сеть галерей: куски, сходящиеся в узлах, — одна компонента; берём самую большую,
+  // чтобы у края зала не висели оторванные обрывки
+  const k = ([x, y]) => `${Math.round(x * 10)}|${Math.round(y * 10)}`, parent = new Map();
+  const find = a => { while (parent.get(a) !== a) { parent.set(a, parent.get(parent.get(a))); a = parent.get(a); } return a; };
+  const unite = (a, b) => { for (const x of [a, b]) if (!parent.has(x)) parent.set(x, x); parent.set(find(a), find(b)); };
+  for (const pc of pieces) unite(k(pc[0]), k(pc.at(-1)));
+  const size = new Map();
+  for (const pc of pieces) { const root = find(k(pc[0])); size.set(root, (size.get(root) ?? 0) + 1); }
+  const main = [...size.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
+  const kept = pieces.filter(pc => find(k(pc[0])) === main);
+  const nodes = new Set(kept.flatMap(pc => [k(pc[0]), k(pc.at(-1))]));
+  const lines = kept.map(pc => pc.map(world));
+  // комнаты-склепы: прямоугольники на узлах связной сети
   const rooms = [];
-  for (let k = 1 + Math.floor(r() * 3); k > 0; k--) {
+  for (let c = 1 + Math.floor(r() * 3); c > 0; c--) {
     const gx = Math.round((r() - .5) * n) * step, gy = Math.round((r() - .5) * n) * step;
-    if (!sh.inside(...rot(gx, gy, sh.angle))) continue;
+    if (!nodes.has(k([gx, gy]))) continue;
     const w = step * (.9 + r() * .7) / 2, h = step * (.6 + r() * .4) / 2;
     rooms.push([[-w, -h], [w, -h], [w, h], [-w, h], [-w, -h]].map(([x, y]) => world([gx + x, gy + y])));
   }
@@ -118,10 +130,14 @@ function edges(list) {
     }
     done.add(best.b.id); out.set(key(best.a, best.b), [best.a, best.b]);
   }
+  // петли: ко второму соседу, иногда к третьему — сеть получается сетью, а не деревом
   for (const a of list) {
     const near = list.filter(b => b !== a).map(b => ({ b, d: meters(a, b) })).sort((x, y) => x.d - y.d);
-    const second = near[1];
-    if (second && second.d < 1900 && !out.has(key(a, second.b))) out.set(key(a, second.b), [a, second.b]);
+    const roll = rng(`loop:${a.id}`)();
+    for (const [i, max] of [[1, 1900], [2, roll < .4 ? 1300 : 0]]) {
+      const nb = near[i];
+      if (nb && nb.d < max && !out.has(key(a, nb.b))) out.set(key(a, nb.b), [a, nb.b]);
+    }
   }
   return [...out.values()];
 }
@@ -150,14 +166,14 @@ function tunnel(a, b) {
     const horiz = Math.abs(x2 - x1) > Math.abs(y2 - y1), len = (50 + r() * 90) * (r() < .5 ? -1 : 1);
     const end = horiz ? [sx, sy + len] : [sx + len, sy];
     spurs.push([ll([sx, sy]), ll(end)]);
-    if (r() < .55) { const w = 16 + r() * 14; rooms.push([[-w, -w * .7], [w, -w * .7], [w, w * .7], [-w, w * .7], [-w, -w * .7]].map(([ox, oy]) => ll([end[0] + ox, end[1] + oy]))); }
+    { const w = 16 + r() * 14; rooms.push([[-w, -w * .7], [w, -w * .7], [w, w * .7], [-w, w * .7], [-w, -w * .7]].map(([ox, oy]) => ll([end[0] + ox, end[1] + oy]))); }
   }
   return { line: pts.map(ll), type, spurs, rooms };
 }
 
 /**
- * Фоновая сеть под всем городом: малые безымянные выработки и длинные галереи в пределах стены Откупщиков
- * (эллипс вокруг центра Парижа). Тоньше и тусклее именных залов; одна на всех, строится один раз.
+ * Фоновая сеть под всем городом: малые безымянные выработки в пределах стены Откупщиков (эллипс вокруг центра).
+ * Вместе с именными залами они — один граф (drawCatacombs), так что сеть единая, без оторванных веток.
  */
 let minorCache = null;
 function minorNetwork() {
@@ -165,25 +181,17 @@ function minorNetwork() {
   const r = rng("paris-minor"), C = { lat: 48.8592, lng: 2.3445, id: "city" };
   const inCity = (x, y) => (x / 3700) ** 2 + (y / 2650) ** 2 < 1;
   const pick = () => { for (;;) { const x = (r() - .5) * 7400, y = (r() - .5) * 5300; if (inCity(x, y)) return [x, y]; } };
-  const minis = Array.from({ length: 34 }, (_, i) => { const [x, y] = pick(), [lng, lat] = toLL(C, x, y); return { id: `m${i}`, lat, lng, r: 60 + r() * 70, kind: "quarry" }; });
-  const lines = minis.flatMap(m => hall(m).lines);
-  for (const [a, b] of edges(minis)) { const t = tunnel(a, b); lines.push(t.line, ...t.spurs); }
-  // длинные галереи: блуждание под прямым углом в общей сетке города, у стены поворачивает назад
-  const ang = -.35;
-  for (let g = 0; g < 26; g++) {
-    let [x, y] = pick(), dir = Math.floor(r() * 4);
-    const pts = [[x, y]];
-    for (let k = 7 + Math.floor(r() * 8); k > 0; k--) {
-      const len = 110 + r() * 230, [ux, uy] = rot(...[[1, 0], [0, 1], [-1, 0], [0, -1]][dir], ang);
-      let nx = x + ux * len, ny = y + uy * len;
-      if (!inCity(nx, ny)) { dir = (dir + 2) % 4; continue; }
-      x = nx; y = ny; pts.push([x, y]);
-      dir = (dir + (r() < .5 ? 1 : 3)) % 4;
-    }
-    if (pts.length > 2) lines.push(pts.map(([px, py]) => toLL(C, px, py)));
-  }
-  return (minorCache = { lines, minis });
+  const minis = Array.from({ length: 46 }, (_, i) => { const [x, y] = pick(), [lng, lat] = toLL(C, x, y); return { id: `m${i}`, lat, lng, r: 60 + r() * 70, kind: "quarry", minor: true }; });
+  return (minorCache = { minis });
 }
+
+/** Ходы с кэшем: одна пара залов — один ход. */
+const tunCache = new Map();
+const tunnelOf = (a, b) => {
+  const key = `${[a.id, b.id].sort().join("|")}|${a.lat},${a.lng}|${b.lat},${b.lng}`;
+  if (!tunCache.has(key)) tunCache.set(key, tunnel(a, b));
+  return tunCache.get(key);
+};
 
 /* ═══ Слои карты ═══════════════════════════════════════════════════════════ */
 
@@ -277,18 +285,32 @@ export function drawCatacombs() {
   // стены зала — цвет его вида, высветленный к кости
   const tint = s => mix(kind(s).color, WALL, .45);
   const halls = shown.map(s => ({ s, g: hall(s) }));
-  map.getSource("rc-cata-minor").setData(fc(minorNetwork().lines.map(l => line(l, {}))));
+  // единый граф: именные залы + малые выработки (те, что не налезают на залы); дерево гарантирует связность
+  const minis = minorNetwork().minis.filter(m => all.every(s => meters(s, m) > s.r + m.r + 60));
+  const graph = edges([...all, ...minis]);
+  const visible = n => n.minor || gm || n.known;
+  const minorLines = minis.flatMap(m => hall(m).lines), minorRooms = minis.flatMap(m => hall(m).rooms);
+  for (const [a, b] of graph) {
+    if (!a.minor && !b.minor) continue;                     // ход между именными залами — основной, ниже
+    if (!visible(a) || !visible(b)) continue;               // к скрытому залу игрокам хода не видно
+    const t = tunnelOf(a, b);
+    minorLines.push(t.line, ...t.spurs); minorRooms.push(...t.rooms);
+  }
+  map.getSource("rc-cata-minor").setData(fc(minorLines.map(l => line(l, {}))));
   map.getSource("rc-cata-area").setData(fc(halls.map(({ s, g }) => feat({ type: "Polygon", coordinates: [g.outline] }, { id: s.id }))));
   map.getSource("rc-cata-glow").setData(fc(shown.map(s => feat({ type: "Point", coordinates: [s.lng, s.lat] }, { color: kind(s).color, r: s.r, known: s.known }))));
   // сеть строится по всем участкам, а не по видимым: у игроков та же сеть, только часть её
-  const tun = edges(all).filter(([a, b]) => gm || (a.known && b.known)).map(([a, b]) => ({ ...tunnel(a, b), known: a.known && b.known }));
+  // основные ходы: между именными залами — из того же единого графа и из остова одних залов (чтобы залы были связаны и напрямую)
+  const named = new Map([...edges(all), ...graph.filter(([a, b]) => !a.minor && !b.minor)].map(e => [[e[0].id, e[1].id].sort().join("|"), e]));
+  const tun = [...named.values()].filter(([a, b]) => gm || (a.known && b.known)).map(([a, b]) => ({ ...tunnelOf(a, b), known: a.known && b.known }));
   map.getSource("rc-cata-ways").setData(fc([
     ...tun.flatMap(t => [line(t.line, { type: t.type, known: t.known, tun: true }), ...t.spurs.map(l => line(l, { type: t.type === "collapsed" ? "open" : t.type, known: t.known, tun: true }))]),
     ...halls.flatMap(({ s, g }) => g.lines.map(l => line(l, { type: s.kind === "flooded" ? "flooded" : "open", wall: tint(s), known: s.known, tun: false })))
   ]));
   map.getSource("rc-cata-rooms").setData(fc([
     ...halls.flatMap(({ s, g }) => g.rooms.map(rm => feat({ type: "Polygon", coordinates: [rm] }, { wall: tint(s), known: s.known }))),
-    ...tun.flatMap(t => t.rooms.map(rm => feat({ type: "Polygon", coordinates: [rm] }, { known: t.known })))
+    ...tun.flatMap(t => t.rooms.map(rm => feat({ type: "Polygon", coordinates: [rm] }, { known: t.known }))),
+    ...minorRooms.map(rm => feat({ type: "Polygon", coordinates: [rm] }, { wall: "#9c8763", known: true }))
   ]));
   map.getSource("rc-cata-label").setData(fc(shown.map(s => feat({ type: "Point", coordinates: [s.lng, s.lat] },
     { name: s.name, sub: `${kind(s).label} · ${s.holder || "ничьё"}`, ink: mix(kind(s).color, "#fbf0d8", .5), r: s.r, known: s.known }))));
