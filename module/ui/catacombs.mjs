@@ -13,8 +13,6 @@ const SETTING = "catacombs";
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const EMPTY = { type: "FeatureCollection", features: [] };
 const SIZES = { small: 140, medium: 240, large: 380 };
-const LAYERS = ["rc-cata-dim", "rc-cata-area-fill", "rc-cata-tun-case", "rc-cata-gal", "rc-cata-tun", "rc-cata-tun-x",
-  "rc-cata-area-line", "rc-cata-door", "rc-cata-door-label", "rc-cata-label"];
 
 let host = null;      // { map, gl, view, setView, city, drawTools, zoomed }
 let placing = false;  // рассказчик ставит новый участок следующим щелчком
@@ -45,6 +43,8 @@ function sections() {
 }
 
 /* ═══ Геометрия: всё из id, без случайности между клиентами ═══════════════ */
+// Вид — план подземелья: прямые коридоры с поворотами под прямым углом, залы — сетка галерей вокруг
+// каменных столбов (как в настоящих каменоломнях), в залах — комнаты-склепы.
 
 /** Генератор чисел 0…1 из строки. */
 function rng(str) {
@@ -57,36 +57,52 @@ function rng(str) {
 }
 
 const M = 111320;
-/** Сдвиг точки на dx, dy метров → [lng, lat]. */
-const shift = (lat, lng, dx, dy) => [lng + dx / (M * Math.cos(lat * Math.PI / 180)), lat + dy / M];
-const meters = (a, b) => Math.hypot((b.lng - a.lng) * M * Math.cos(a.lat * Math.PI / 180), (b.lat - a.lat) * M);
+const kx = lat => M * Math.cos(lat * Math.PI / 180);
+/** Точка в метрах от центра участка → [lng, lat]. */
+const toLL = (o, x, y) => [o.lng + x / kx(o.lat), o.lat + y / M];
+const meters = (a, b) => Math.hypot((b.lng - a.lng) * kx(a.lat), (b.lat - a.lat) * M);
+const rot = (x, y, a) => [x * Math.cos(a) - y * Math.sin(a), x * Math.sin(a) + y * Math.cos(a)];
 
-/** Неровный контур участка: окружность, искажённая несколькими гармониками. */
-function blob(s) {
-  const r = rng(`blob:${s.id}`), harm = [2, 3, 5].map(k => ({ k, a: .05 + r() * .12, p: r() * Math.PI * 2 }));
-  const ring = Array.from({ length: 40 }, (_, i) => {
-    const t = i / 40 * Math.PI * 2;
-    const k = 1 + harm.reduce((sum, h) => sum + h.a * Math.sin(h.k * t + h.p), 0) + (r() - .5) * .06;
-    return shift(s.lat, s.lng, Math.cos(t) * s.r * k, Math.sin(t) * s.r * k);
-  });
-  return [...ring, ring[0]];
+const geoCache = new Map();
+
+/** Форма зала: радиус по направлению (окружность, искажённая гармониками) и наклон сетки. */
+function shapeOf(s) {
+  const r = rng(`blob:${s.id}`), harm = [2, 3, 5].map(k => ({ k, a: .04 + r() * .1, p: r() * Math.PI * 2 }));
+  const radius = t => s.r * (1 + harm.reduce((sum, h) => sum + h.a * Math.sin(h.k * t + h.p), 0));
+  return { radius, angle: (r() - .5) * 1.1, inside: (x, y) => Math.hypot(x, y) < radius(Math.atan2(y, x)) };
 }
 
-/** Галереи внутри участка: блуждание от центра, у края поворачивает назад. */
-function galleries(s) {
-  const r = rng(`gal:${s.id}`), n = 4 + Math.floor(r() * 4), out = [];
-  for (let g = 0; g < n; g++) {
-    let x = 0, y = 0, a = r() * Math.PI * 2;
-    const line = [shift(s.lat, s.lng, 0, 0)], steps = 5 + Math.floor(r() * 4), step = s.r * (.16 + r() * .08);
-    for (let i = 0; i < steps; i++) {
-      a += (r() - .5) * 1.2;
-      if (Math.hypot(x, y) > s.r * .75) a = Math.atan2(-y, -x) + (r() - .5) * .8;
-      x += Math.cos(a) * step; y += Math.sin(a) * step;
-      line.push(shift(s.lat, s.lng, x, y));
+/** Зал: контур (для щелчка), галереи сеткой вокруг столбов, комнаты. Кэш по id, месту и размеру. */
+function hall(s) {
+  const key = `${s.id}|${s.r}|${s.lat}|${s.lng}`;
+  if (geoCache.has(key)) return geoCache.get(key);
+  const sh = shapeOf(s), r = rng(`hall:${s.id}`), step = Math.min(90, Math.max(34, s.r / 3.6));
+  const world = ([x, y]) => toLL(s, ...rot(x, y, sh.angle));
+  const outline = Array.from({ length: 41 }, (_, i) => { const t = i / 40 * Math.PI * 2, d = sh.radius(t); return toLL(s, Math.cos(t) * d, Math.sin(t) * d); });
+  const lines = [], n = Math.ceil(s.r * 1.3 / step);
+  for (const dir of [0, 1]) for (let i = -n; i <= n; i++) {
+    // линия сетки (в повёрнутых осях зала) режется формой зала на куски от узла до узла; часть кусков завалена
+    let run = [];
+    const flush = () => { if (run.length > 1 && r() > .14) lines.push(run.map(world)); run = []; };
+    for (let j = -n * 6; j <= n * 6; j++) {
+      const t = j * step / 6, p = dir ? [i * step, t] : [t, i * step];
+      if (!sh.inside(...rot(p[0], p[1], sh.angle))) { flush(); continue; }
+      run.push(p);
+      if (j % 6 === 0 && run.length > 1) { flush(); run = [p]; }
     }
-    out.push(line);
+    flush();
   }
-  return out;
+  // комнаты-склепы: прямоугольники на узлах сетки
+  const rooms = [];
+  for (let k = 1 + Math.floor(r() * 3); k > 0; k--) {
+    const gx = Math.round((r() - .5) * n) * step, gy = Math.round((r() - .5) * n) * step;
+    if (!sh.inside(...rot(gx, gy, sh.angle))) continue;
+    const w = step * (.9 + r() * .7) / 2, h = step * (.6 + r() * .4) / 2;
+    rooms.push([[-w, -h], [w, -h], [w, h], [-w, h], [-w, -h]].map(([x, y]) => world([gx + x, gy + y])));
+  }
+  const g = { outline, lines, rooms };
+  geoCache.set(key, g);
+  return g;
 }
 
 /** Остов сети: минимальное дерево по расстоянию плюс петли к второму соседу, если он недалеко. */
@@ -110,72 +126,88 @@ function edges(list) {
   return [...out.values()];
 }
 
-/** Извилистый ход между участками (смещение середины) и тупиковые ответвления. */
+/** Ход между залами: ступенями под прямым углом в повёрнутых осях, тупиковые ответвления с комнатами. */
 function tunnel(a, b) {
-  const r = rng(`tun:${[a.id, b.id].sort().join("|")}`);
-  const lat0 = a.lat, lng0 = a.lng, kx = M * Math.cos(lat0 * Math.PI / 180);
-  const toXY = p => [(p.lng - lng0) * kx, (p.lat - lat0) * M];
-  let pts = [toXY(a), toXY(b)];
-  for (let depth = 0, amp = .22; depth < 6; depth++, amp *= .55) {
-    const next = [pts[0]];
-    for (let i = 1; i < pts.length; i++) {
-      const [x1, y1] = pts[i - 1], [x2, y2] = pts[i], len = Math.hypot(x2 - x1, y2 - y1), off = (r() - .5) * 2 * amp * len;
-      next.push([(x1 + x2) / 2 - (y2 - y1) / len * off, (y1 + y2) / 2 + (x2 - x1) / len * off], pts[i]);
-    }
-    pts = next;
+  const r = rng(`tun:${[a.id, b.id].sort().join("|")}`), ang = (r() - .5) * .9;
+  const [dx, dy] = rot((b.lng - a.lng) * kx(a.lat), (b.lat - a.lat) * M, -ang);
+  // 2–3 ступени: шаг по x, затем по y; доли случайные
+  const n = 2 + Math.floor(r() * 2), parts = Array.from({ length: n }, () => .5 + r()), sum = parts.reduce((x, y) => x + y, 0);
+  const pts = [[0, 0]];
+  let x = 0, y = 0;
+  for (let i = 0; i < n; i++) {
+    x += dx * parts[i] / sum; pts.push([x, y]);
+    y += dy * parts[i] / sum; pts.push([x, y]);
   }
-  const ll = ([x, y]) => [lng0 + x / kx, lat0 + y / M];
+  const ll = ([px, py]) => toLL(a, ...rot(px, py, ang));
   const flood = a.kind === "flooded" || b.kind === "flooded";
-  const roll = r(), type = roll < .13 ? "collapsed" : roll < (flood ? .6 : .23) ? "flooded" : "open";
-  const spurs = [];
-  for (let n = 1 + Math.floor(r() * 3); n > 0; n--) {
-    let [x, y] = pts[4 + Math.floor(r() * (pts.length - 8))], ang = r() * Math.PI * 2;
-    const spur = [ll([x, y])];
-    for (let i = 3 + Math.floor(r() * 3); i > 0; i--) { ang += (r() - .5) * 1.1; const st = 50 + r() * 70; x += Math.cos(ang) * st; y += Math.sin(ang) * st; spur.push(ll([x, y])); }
-    spurs.push(spur);
+  const roll = r(), type = roll < .13 ? "collapsed" : roll < (flood ? .6 : .2) ? "flooded" : "open";
+  const spurs = [], rooms = [];
+  for (let k = r() < .7 ? 1 + Math.floor(r() * 2) : 0; k > 0; k--) {
+    // ответвление под прямым углом от середины одного из отрезков
+    const i = 1 + Math.floor(r() * (pts.length - 1)), [x1, y1] = pts[i - 1], [x2, y2] = pts[i];
+    if (Math.hypot(x2 - x1, y2 - y1) < 60) continue;
+    const f = .25 + r() * .5, sx = x1 + (x2 - x1) * f, sy = y1 + (y2 - y1) * f;
+    const horiz = Math.abs(x2 - x1) > Math.abs(y2 - y1), len = (50 + r() * 90) * (r() < .5 ? -1 : 1);
+    const end = horiz ? [sx, sy + len] : [sx + len, sy];
+    spurs.push([ll([sx, sy]), ll(end)]);
+    if (r() < .55) { const w = 16 + r() * 14; rooms.push([[-w, -w * .7], [w, -w * .7], [w, w * .7], [-w, w * .7], [-w, -w * .7]].map(([ox, oy]) => ll([end[0] + ox, end[1] + oy]))); }
   }
-  return { line: pts.map(ll), type, spurs };
+  return { line: pts.map(ll), type, spurs, rooms };
 }
 
 /* ═══ Слои карты ═══════════════════════════════════════════════════════════ */
+
+/** Ширина коридора в пикселях: растёт с приближением, как настоящий ход. */
+const corridor = (k = 1, plus = 0) => ["interpolate", ["exponential", 1.6], ["zoom"], 12, 2 * k + plus, 14, 4.5 * k + plus, 15, 6 * k + plus, 17, 12 * k + plus, 19, 28 * k + plus];
+const FLOOR = "#140d08", WALL = "#dcc79c";
 
 /** Источники и слои; карта зовёт при каждой загрузке стиля (смена «план / ночь» стирает слои). */
 export function addCatacombLayers() {
   const map = host?.map;
   if (!map) return;
   surfaceKeep.delete(map);   // новый стиль — прежние значения притушенных слоёв больше не нужны
-  for (const src of ["rc-cata-dim", "rc-cata-area", "rc-cata-tun", "rc-cata-gal", "rc-cata-label", "rc-cata-door"])
+  for (const src of ["rc-cata-dim", "rc-cata-area", "rc-cata-glow", "rc-cata-ways", "rc-cata-rooms", "rc-cata-label", "rc-cata-door"])
     if (!map.getSource(src)) map.addSource(src, { type: "geojson", data: EMPTY });
-  const paper = host.view().style === "plan", z = host.zoomed, vis = isOn() ? "visible" : "none";
+  const paper = host.view().style === "plan", vis = isOn() ? "visible" : "none";
   const known = (yes, no) => ["case", ["get", "known"], yes, no];
   const add = l => { if (!map.getLayer(l.id)) map.addLayer({ ...l, layout: { ...(l.layout ?? {}), visibility: vis } }); };
-  // Город над головой уходит в тень — мы под землёй; дальше всё светится одинаково в любом стиле карты
-  add({ id: "rc-cata-dim", type: "fill", source: "rc-cata-dim", paint: { "fill-color": paper ? "#140b04" : "#04020a", "fill-opacity": paper ? .66 : .6 } });
-  add({ id: "rc-cata-area-fill", type: "fill", source: "rc-cata-area", paint: { "fill-color": ["get", "color"], "fill-opacity": known(.3, .13) } });
-  const round = { "line-cap": "round", "line-join": "round" };
-  add({ id: "rc-cata-tun-case", type: "line", source: "rc-cata-tun", layout: round,
-    paint: { "line-color": "#000", "line-opacity": .85, "line-width": z(12, 3, 15, 7, 18, 15) } });
-  add({ id: "rc-cata-gal", type: "line", source: "rc-cata-gal", layout: round,
-    paint: { "line-color": ["get", "color"], "line-opacity": known(.85, .45), "line-width": z(12, .8, 15, 1.8, 18, 3.5) } });
-  add({ id: "rc-cata-tun", type: "line", source: "rc-cata-tun", filter: ["!=", ["get", "type"], "collapsed"], layout: round,
-    paint: { "line-color": ["match", ["get", "type"], "flooded", "#56b4ba", "#e2d0a5"],
-      "line-opacity": known(.95, .45), "line-width": z(12, 1.1, 15, 2.6, 18, 5.5) } });
-  add({ id: "rc-cata-tun-x", type: "line", source: "rc-cata-tun", filter: ["==", ["get", "type"], "collapsed"],
-    paint: { "line-color": "#9a8662", "line-opacity": known(.9, .4), "line-width": z(12, 1.1, 15, 2.6, 18, 5.5), "line-dasharray": [1, 1.8] } });
-  add({ id: "rc-cata-area-line", type: "line", source: "rc-cata-area", layout: { "line-join": "round" },
-    paint: { "line-color": ["get", "color"], "line-opacity": known(.95, .5), "line-width": z(12, 1.2, 16, 2.6), "line-dasharray": [3, 1.6] } });
+  const join = { "line-cap": "square", "line-join": "miter", "line-miter-limit": 4 };
+  const wallColor = ["match", ["get", "type"], "flooded", "#86cdd0", "collapsed", "#8c7a5a", ["coalesce", ["get", "wall"], WALL]];
+  // город над головой уходит в густую тень
+  add({ id: "rc-cata-dim", type: "fill", source: "rc-cata-dim", paint: { "fill-color": paper ? "#0f0904" : "#030206", "fill-opacity": .74 } });
+  // свечение зала цветом хозяина: радиус — размер зала в метрах, переведённый в пиксели (Париж: 103 040 м на пиксель при z0)
+  const px = k => ["*", ["get", "r"], k / 103040];
+  add({ id: "rc-cata-glow", type: "circle", source: "rc-cata-glow",
+    paint: { "circle-color": ["get", "color"], "circle-blur": 1, "circle-opacity": known(.62, .22), "circle-pitch-alignment": "map",
+      "circle-radius": ["interpolate", ["exponential", 2], ["zoom"], 10, px(1024 * 1.8), 20, px(1048576 * 1.8)] } });
+  // невидимая площадь зала — для щелчка
+  add({ id: "rc-cata-area-fill", type: "fill", source: "rc-cata-area", paint: { "fill-color": "#000", "fill-opacity": .01 } });
+  // коридоры: тень породы → стены → пол поверх (на перекрёстках пол закрывает стены, стыки чистые)
+  add({ id: "rc-cata-rock", type: "line", source: "rc-cata-ways", layout: join,
+    paint: { "line-color": "#000", "line-opacity": .75, "line-width": corridor(2.6), "line-blur": corridor(1) } });
+  add({ id: "rc-cata-room-wall", type: "line", source: "rc-cata-rooms", layout: join,
+    paint: { "line-color": ["coalesce", ["get", "wall"], WALL], "line-opacity": known(1, .45), "line-width": corridor(.3, 1.6) } });
+  add({ id: "rc-cata-wall", type: "line", source: "rc-cata-ways", filter: ["!=", ["get", "type"], "collapsed"], layout: join,
+    paint: { "line-color": wallColor, "line-opacity": known(1, .45), "line-width": corridor(1.3, 1.6) } });
+  add({ id: "rc-cata-wall-x", type: "line", source: "rc-cata-ways", filter: ["==", ["get", "type"], "collapsed"],
+    paint: { "line-color": wallColor, "line-opacity": known(.9, .4), "line-width": corridor(1.3, 1.6), "line-dasharray": [.6, .9] } });
+  add({ id: "rc-cata-room", type: "fill", source: "rc-cata-rooms", paint: { "fill-color": FLOOR, "fill-opacity": known(1, .55) } });
+  add({ id: "rc-cata-floor", type: "line", source: "rc-cata-ways", layout: join,
+    paint: { "line-color": ["match", ["get", "type"], "flooded", "#12383c", "collapsed", "#241a11", FLOOR], "line-opacity": known(1, .6), "line-width": corridor(1) } });
+  // входы: колодец — кольцо стены и тёмная шахта
   add({ id: "rc-cata-door", type: "circle", source: "rc-cata-door", minzoom: 12.5,
-    paint: { "circle-radius": z(12.5, 2.5, 16, 6.5), "circle-color": "#120c08", "circle-stroke-color": "#e8d7b0",
-      "circle-stroke-width": 1.6, "circle-opacity": known(1, .5), "circle-stroke-opacity": known(1, .5) } });
+    paint: { "circle-radius": corridor(1.4), "circle-color": "#050302", "circle-stroke-color": WALL, "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 12.5, 1, 17, 2.5],
+      "circle-opacity": known(1, .5), "circle-stroke-opacity": known(1, .5) } });
   add({ id: "rc-cata-door-label", type: "symbol", source: "rc-cata-door", minzoom: 15,
-    layout: { "text-field": ["get", "name"], "text-font": ["Noto Sans Italic"], "text-size": 11, "text-offset": [0, 1.1], "text-anchor": "top", "text-optional": true },
-    paint: { "text-color": "#e8d7b0", "text-halo-color": "rgba(8,5,3,.95)", "text-halo-width": 1.8 } });
-  add({ id: "rc-cata-label", type: "symbol", source: "rc-cata-label", minzoom: 12.2,
-    layout: { "text-field": ["format", ["upcase", ["get", "name"]], {}, "\n", {}, ["get", "sub"], { "font-scale": .78, "text-font": ["literal", ["Noto Sans Italic"]] }],
-      "text-font": ["Noto Sans Bold"], "text-size": z(12, 10.5, 16, 15), "text-letter-spacing": .1, "text-max-width": 11, "text-line-height": 1.2, "text-padding": 6,
-      "text-allow-overlap": true, "text-ignore-placement": true },
-    paint: { "text-color": "#f3e4c2", "text-halo-color": "rgba(8,5,3,.96)", "text-halo-width": 2.2,
-      "text-opacity": known(1, .6) } });
+    layout: { "text-field": ["get", "name"], "text-font": ["Noto Sans Italic"], "text-size": 11, "text-offset": [0, 1.3], "text-anchor": "top", "text-optional": true },
+    paint: { "text-color": "#e8d7b0", "text-halo-color": "rgba(5,3,2,.95)", "text-halo-width": 1.8, "text-opacity": known(1, .55) } });
+  // подписи поверх подписей города; издали — только крупные залы, чтобы центр не слипался
+  add({ id: "rc-cata-label", type: "symbol", source: "rc-cata-label", minzoom: 12, filter: ["any", [">=", ["zoom"], 13.4], [">=", ["get", "r"], 240]],
+    layout: { "text-field": ["step", ["zoom"], ["upcase", ["get", "name"]], 14.2,
+        ["format", ["upcase", ["get", "name"]], {}, "\n", {}, ["get", "sub"], { "font-scale": .8, "text-font": ["literal", ["Noto Sans Italic"]] }]],
+      "text-font": ["Noto Sans Bold"], "text-size": ["interpolate", ["linear"], ["zoom"], 12, 10, 16, 14.5], "text-letter-spacing": .16, "text-max-width": 9,
+      "text-line-height": 1.25, "text-padding": 4, "text-allow-overlap": true, "text-ignore-placement": true },
+    paint: { "text-color": ["get", "ink"], "text-halo-color": "rgba(3,2,1,.92)", "text-halo-width": 2.4, "text-halo-blur": .6, "text-opacity": known(1, .55) } });
   drawCatacombs();
 }
 
@@ -184,22 +216,40 @@ export function drawCatacombs() {
   const map = host?.map;
   if (!map?.getSource("rc-cata-area")) return;
   const vis = isOn() ? "visible" : "none";
-  for (const l of LAYERS) if (map.getLayer(l)) map.setLayoutProperty(l, "visibility", vis);
+  for (const l of map.getStyle()?.layers ?? []) if (l.id.startsWith("rc-cata-")) map.setLayoutProperty(l.id, "visibility", vis);
   dimSurface(map, vis === "visible");
   if (vis === "none") return;
   const gm = game.user.isGM, all = sections(), shown = all.filter(s => gm || s.known);
   const feat = (geometry, properties) => ({ type: "Feature", geometry, properties });
   const fc = features => ({ type: "FeatureCollection", features });
-  const color = s => (KINDS[s.kind] ?? KINDS.quarry).color;
+  const line = (coords, p) => feat({ type: "LineString", coordinates: coords }, p);
+  const kind = s => KINDS[s.kind] ?? KINDS.quarry;
+  // стены зала — цвет его вида, высветленный к кости
+  const tint = s => mix(kind(s).color, WALL, .45);
+  const halls = shown.map(s => ({ s, g: hall(s) }));
   map.getSource("rc-cata-dim").setData(fc([feat({ type: "Polygon", coordinates: [[[-180, -85], [180, -85], [180, 85], [-180, 85], [-180, -85]]] }, {})]));
-  map.getSource("rc-cata-area").setData(fc(shown.map(s => feat({ type: "Polygon", coordinates: [blob(s)] }, { id: s.id, color: color(s), known: s.known }))));
-  map.getSource("rc-cata-gal").setData(fc(shown.flatMap(s => galleries(s).map(l => feat({ type: "LineString", coordinates: l }, { color: color(s), known: s.known })))));
+  map.getSource("rc-cata-area").setData(fc(halls.map(({ s, g }) => feat({ type: "Polygon", coordinates: [g.outline] }, { id: s.id }))));
+  map.getSource("rc-cata-glow").setData(fc(shown.map(s => feat({ type: "Point", coordinates: [s.lng, s.lat] }, { color: kind(s).color, r: s.r, known: s.known }))));
   // сеть строится по всем участкам, а не по видимым: у игроков та же сеть, только часть её
   const tun = edges(all).filter(([a, b]) => gm || (a.known && b.known)).map(([a, b]) => ({ ...tunnel(a, b), known: a.known && b.known }));
-  map.getSource("rc-cata-tun").setData(fc(tun.flatMap(t => [t.line, ...t.spurs].map(l => feat({ type: "LineString", coordinates: l }, { type: t.type, known: t.known })))));
+  map.getSource("rc-cata-ways").setData(fc([
+    ...tun.flatMap(t => [line(t.line, { type: t.type, known: t.known }), ...t.spurs.map(l => line(l, { type: t.type === "collapsed" ? "open" : t.type, known: t.known }))]),
+    ...halls.flatMap(({ s, g }) => g.lines.map(l => line(l, { type: s.kind === "flooded" ? "flooded" : "open", wall: tint(s), known: s.known })))
+  ]));
+  map.getSource("rc-cata-rooms").setData(fc([
+    ...halls.flatMap(({ s, g }) => g.rooms.map(rm => feat({ type: "Polygon", coordinates: [rm] }, { wall: tint(s), known: s.known }))),
+    ...tun.flatMap(t => t.rooms.map(rm => feat({ type: "Polygon", coordinates: [rm] }, { known: t.known })))
+  ]));
   map.getSource("rc-cata-label").setData(fc(shown.map(s => feat({ type: "Point", coordinates: [s.lng, s.lat] },
-    { name: s.name, sub: `${(KINDS[s.kind] ?? KINDS.quarry).label} · ${s.holder || "ничьё"}${s.known ? "" : " · скрыто"}`, known: s.known }))));
+    { name: s.name, sub: `${kind(s).label} · ${s.holder || "ничьё"}`, ink: mix(kind(s).color, "#f6ead0", .6), r: s.r, known: s.known }))));
   map.getSource("rc-cata-door").setData(fc(shown.flatMap(s => (s.entries ?? []).map(([lat, lng, name]) => feat({ type: "Point", coordinates: [lng, lat] }, { name, known: s.known })))));
+}
+
+/** Смешать два цвета #rrggbb: t — доля второго. */
+function mix(a, b, t) {
+  const p = c => [1, 3, 5].map(i => parseInt(c.slice(i, i + 2), 16));
+  const x = p(a), y = p(b);
+  return `#${x.map((v, i) => Math.round(v + (y[i] - v) * t).toString(16).padStart(2, "0")).join("")}`;
 }
 
 /** Значки и подписи города над головой притушены, пока смотрим вниз; прежние значения возвращаются как были. */
