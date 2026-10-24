@@ -141,6 +141,9 @@ body.r-theme-light .vtm20 {
 .application.vtm20 .window-header .header-control { color: var(--r-bone-d); background: transparent; border: 0; }
 .application.vtm20 .window-header .header-control:hover { color: var(--r-bone); text-shadow: none; }
 .application.vtm20 .window-content { padding: 0; background: transparent; color: var(--r-ink); }
+/* Ядро Foundry размывает подложку под каждым окном (backdrop-filter: blur) — при перетаскивании
+   размытие сцены пересчитывается каждый кадр, и лист лагает. Наши окна непрозрачны: размытие не нужно. */
+.application.vtm20, .application.vtm20 .window-content { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
 .application.vtm20 .window-resize-handle { filter: grayscale(1) brightness(.6); }
 /* Глифы Font Awesome — своим шрифтом не заменять */
 .application.vtm20 [class*="fa-"]::before { font-family: "Font Awesome 7 Pro", "Font Awesome 6 Pro", "Font Awesome 7 Free", "Font Awesome 6 Free"; }
