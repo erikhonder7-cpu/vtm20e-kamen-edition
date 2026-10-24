@@ -41,12 +41,6 @@
       "src": "styles/r-city.css"
     },
     {
-      "src": "styles/r-assembly.css"
-    },
-    {
-      "src": "styles/r-catacombs.css"
-    },
-    {
       "src": "styles/r-pause.css"
     }
   ],

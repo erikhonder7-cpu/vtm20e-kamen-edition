@@ -120,7 +120,7 @@ Hooks.once("init", () => {
 });
 
 Hooks.once("setup", () => {
-  ensureStyles(["styles/r-foundry.css", "styles/r-hud.css", "styles/r-city.css", "styles/r-assembly.css", "styles/r-pause.css"]);
+  ensureStyles(["styles/r-foundry.css", "styles/r-hud.css", "styles/r-city.css", "styles/r-pause.css"]);
   document.body.classList.toggle("r-skin", game.settings.get(SYSTEM_ID, "uiSkin"));
   document.body.classList.toggle("r-theme-light", game.settings.get(SYSTEM_ID, "sheetTheme") === "light");
 });
