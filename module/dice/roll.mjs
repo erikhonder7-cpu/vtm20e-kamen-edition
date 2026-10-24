@@ -251,7 +251,7 @@ export function rollDamage({ actor, pool, damageType = "bashing", title, aggrava
  * Прочность и применение урона к актёру: бросок прочности, вычет, у вампира
  * лёгкие после прочности делятся пополам с округлением вниз (04).
  */
-export async function soakAndApply(target, amount, damageType, { soak = true, fangs = false, pierce = 0, bullet = false, head = false, difficulty = null, armor = true } = {}) {
+export async function soakAndApply(target, amount, damageType, { soak = true, fangs = false, pierce = 0, bullet = false, head = false, difficulty = null, armor = true, messageMode } = {}) {
   let left = amount, soaked = 0;
   // Пули и болты по вампиру — лёгкие повреждения, кроме выстрела в голову (04)
   if (bullet && target.isVampire && !head && damageType === "lethal") {
@@ -269,7 +269,7 @@ export async function soakAndApply(target, amount, damageType, { soak = true, fa
     if (pool > 0) {
       const res = await rollPool({
         actor: target, title: t("Roll.Soak"), subtitle: game.i18n.localize(VTM20.damageTypes[damageType].label),
-        pool, difficulty: (difficulty ?? 6) + (target.system.fx?.soakDiff ?? 0), kind: "soak", noBotch: true,
+        pool, difficulty: (difficulty ?? 6) + (target.system.fx?.soakDiff ?? 0), kind: "soak", noBotch: true, messageMode,
         breakdown: [{ label: t("Roll.Incoming"), value: amount }]
       });
       soaked = res.successes;

@@ -1,0 +1,59 @@
+{{!-- Получить урон (V20, гл. 4) в стиле окна броска: сколько, тип плитками, условия, прочность и шансы. --}}
+<div class="r-roll-form r-damage-form">
+  <div class="r-roll-row">
+    <span class="r-roll-label">{{localize "VTM20.DamageDlg.Amount"}}</span>
+    <a class="r-step" data-action="bump" data-field="amount" data-d="-1">−</a>
+    <input type="number" name="amount" value="{{v.amount}}" min="0" max="30" class="r-roll-num">
+    <a class="r-step" data-action="bump" data-field="amount" data-d="1">+</a>
+  </div>
+
+  <div class="r-tiles" style="--cols: 3">
+    {{#each types}}<a class="r-tile is-big {{#if active}}is-active{{/if}}" data-action="type" data-key="{{key}}"><i class="fa-solid {{icon}}"></i><span>{{label}}</span></a>{{/each}}
+  </div>
+
+  <div class="r-roll-checks">
+    <label class="r-check"><input type="checkbox" name="soak" {{checked v.soak}}> {{localize "VTM20.DamageDlg.Soak"}}</label>
+    <label class="r-check"><input type="checkbox" name="armor" {{checked v.armor}}> {{localize "VTM20.DamageDlg.Armor"}}</label>
+    {{#if showFangs}}<label class="r-check"><input type="checkbox" name="fangs" {{checked v.fangs}}> {{localize "VTM20.DamageDlg.Fangs"}}</label>{{/if}}
+    {{#if showBullet}}
+    <label class="r-check"><input type="checkbox" name="bullet" {{checked v.bullet}}> {{localize "VTM20.DamageDlg.Bullet"}}</label>
+    {{#if v.bullet}}<label class="r-check"><input type="checkbox" name="head" {{checked v.head}}> {{localize "VTM20.DamageDlg.Head"}}</label>{{/if}}
+    {{/if}}
+  </div>
+
+  {{#if v.soak}}
+  <div class="r-roll-row">
+    <span class="r-roll-label">{{localize "VTM20.DamageDlg.ModDiff"}}</span>
+    <a class="r-step" data-action="bump" data-field="modDiff" data-d="-1">−</a>
+    <input type="number" name="modDiff" value="{{v.modDiff}}" class="r-roll-num">
+    <a class="r-step" data-action="bump" data-field="modDiff" data-d="1">+</a>
+  </div>
+  {{/if}}
+
+  <div class="r-roll-total">
+    <div class="r-roll-breakdown">
+      <span>{{localize "VTM20.Roll.Incoming"}} <b>{{v.amount}}</b></span>
+      <span class="r-dmg-chip is-{{p.type}}">{{typeLabel}}</span>
+      {{#if v.soak}}{{#each p.bd}}<span>{{label}} <b>{{rSigned value}}</b></span>{{/each}}{{/if}}
+    </div>
+    {{#if v.soak}}<div class="r-roll-pool" data-tooltip="{{localize 'VTM20.Roll.Soak'}}"><b>{{p.pool}}</b><i class="fa-solid fa-shield"></i> <span>{{localize "VTM20.Roll.Vs"}}</span> <b>{{p.difficulty}}</b></div>{{/if}}
+  </div>
+  {{#if chances}}
+  <div class="r-odds" data-tooltip="{{localize 'VTM20.SoakOdds.Hint'}}">
+    <div class="r-odds-bar">
+      <i class="is-success" style="width: {{chances.success}}%"></i><i class="is-failure" style="width: {{chances.failure}}%"></i>
+    </div>
+    <div class="r-odds-legend">
+      <span class="is-success">{{localize "VTM20.SoakOdds.Soak"}} <b>{{chances.success}}%</b></span>
+      <span class="is-failure">{{localize "VTM20.SoakOdds.None"}} <b>{{chances.failure}}%</b></span>
+      <span class="r-odds-mean">{{localize "VTM20.SoakOdds.Mean"}} <b>{{chances.mean}}</b></span>
+    </div>
+  </div>
+  {{/if}}
+  {{#each p.notes}}<p class="r-hint-note"><i class="fa-solid fa-circle-info"></i> {{this}}</p>{{/each}}
+
+  <div class="r-roll-foot">
+    <select name="messageMode" class="r-mode">{{#each messageModes}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+    <button type="submit" class="r-btn is-primary"><i class="fa-solid fa-burst"></i> {{localize "VTM20.DamageDlg.Apply"}}</button>
+  </div>
+</div>

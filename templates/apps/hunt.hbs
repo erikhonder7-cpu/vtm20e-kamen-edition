@@ -1,9 +1,9 @@
 {{!-- Окно охоты (03): угодья → сложность, способ → пул, Слава/Домен, Стадо, модификаторы, шансы. --}}
 <div class="r-roll-form r-hunt-form">
-  <div class="r-roll-label r-hunt-cap">{{localize "VTM20.Hunt.Ground.label"}}</div>
-  <div class="r-hunt-grounds">
+  <div class="r-roll-label r-tiles-cap">{{localize "VTM20.Hunt.Ground.label"}}</div>
+  <div class="r-tiles">
     {{#each grounds}}
-    <a class="r-hunt-ground {{#if active}}is-active{{/if}}" data-action="ground" data-key="{{key}}">
+    <a class="r-tile {{#if active}}is-active{{/if}}" data-action="ground" data-key="{{key}}">
       <i class="fa-solid {{icon}}"></i><span>{{label}}</span><b>{{d}}</b>
     </a>
     {{/each}}

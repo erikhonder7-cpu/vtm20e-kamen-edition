@@ -4,10 +4,11 @@
 // по интенсивности (огонь — только Стойкостью, солнце — только у владеющих Стойкостью),
 // броня не помогает; повторяется каждый ход. Падение: 1d10 за 3 м, с 30 м — 10d10
 // тяжёлых, броня вдвое слабее. Электричество: тяжёлые каждый ход, провал прочности —
-// губительные.
+// губительные. Окно — в стиле окна броска: вид и сила опасности плитками, модификаторы
+// прочности ступеньками, разбор пула и шансы.
 
 import { VTM20, SYSTEM_PATH } from "../config.mjs";
-import { rollPool } from "../dice/roll.mjs";
+import { rollPool, odds, chancesView } from "../dice/roll.mjs";
 import { suggestCheck } from "../dice/virtue-checks.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -17,18 +18,19 @@ const FIRE_HEAT = { candle: 3, torch: 5, burner: 7, arc: 8, thermite: 9, metal: 
 const SUN_LIGHT = { dim: 3, covered: 5, window: 7, overcast: 9, direct: 10 };
 const AREA = { part: 1, half: 2, whole: 3 };
 const SHOCK = { outlet: 1, fence: 2, battery: 3, line: 4 };
+const KIND_ICONS = { fire: "fa-fire", sun: "fa-sun", fall: "fa-person-falling", shock: "fa-bolt" };
 
 export function openHazard(actor) {
   return new HazardDialog(actor).render({ force: true });
 }
 
 /** Прочность против опасности и запись повреждений. */
-async function sufferHazard(actor, amount, type, { pool, difficulty, title, botchToAggravated = false }) {
+async function sufferHazard(actor, amount, type, { pool, difficulty, title, botchToAggravated = false, breakdown = [], messageMode }) {
   let soaked = 0, botch = false;
   if (pool > 0) {
     const r = await rollPool({
-      actor, title: t("Roll.Soak"), subtitle: title, pool, difficulty, kind: "soak", noBotch: !botchToAggravated,
-      breakdown: [{ label: t("Roll.Incoming"), value: amount }]
+      actor, title: t("Roll.Soak"), subtitle: title, pool, difficulty, kind: "soak", noBotch: !botchToAggravated, messageMode,
+      breakdown: [{ label: t("Roll.Incoming"), value: amount }, ...breakdown]
     });
     soaked = r.successes; botch = r.outcome === "botch";
   }
@@ -42,12 +44,12 @@ async function sufferHazard(actor, amount, type, { pool, difficulty, title, botc
 
 class HazardDialog extends HandlebarsApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
-    classes: ["vtm20", "r-dialog", "r-hazard"],
+    classes: ["vtm20", "r-dialog", "r-roll-dialog", "r-hazard"],
     tag: "form",
     window: { title: "VTM20.Hazard.Title", icon: "fa-solid fa-fire" },
-    position: { width: 420 },
+    position: { width: 480 },
     form: { handler: HazardDialog.#onSubmit, closeOnSubmit: false, submitOnChange: false },
-    actions: { kind: HazardDialog.#onKind }
+    actions: { kind: HazardDialog.#onKind, pick: HazardDialog.#onPick, bump: HazardDialog.#onBump }
   };
 
   static PARTS = { form: { template: `${SYSTEM_PATH}/templates/apps/hazard.hbs` } };
@@ -55,46 +57,59 @@ class HazardDialog extends HandlebarsApplicationMixin(ApplicationV2) {
   constructor(actor) {
     super({ window: { title: `${t("Hazard.Title")}: ${actor.name}` } });
     this.actor = actor;
-    this.v = { kind: "fire", heat: "torch", light: "direct", area: "part", meters: 6, sharp: false, shock: "outlet" };
+    this.v = { kind: "fire", heat: "torch", light: "direct", area: "part", meters: 6, sharp: false, shock: "outlet",
+      modDice: 0, modDiff: 0, messageMode: game.settings.get("core", "messageMode") };
   }
 
   get tough() { const a = this.actor; return a.isVampire || (a.type === "creature" && a.system.supernatural); }
 
-  /** Что произойдёт за ход: повреждения, тип, пул и сложность прочности. */
+  /** Что произойдёт за ход: повреждения, тип, пул прочности с разбором и сложность. */
   preview() {
     const a = this.actor, v = this.v, fort = a.discipline("fortitude"), stamina = a.system.attributes.stamina.total;
+    const STA = { label: a.traitLabel("attributes.stamina"), value: stamina };
+    const FORT = { label: a.traitLabel("disciplines.fortitude"), value: fort };
+    let p;
     if (v.kind === "fire") {
-      const type = this.tough ? "aggravated" : "lethal";
-      return { amount: AREA[v.area], type, difficulty: FIRE_HEAT[v.heat], pool: type === "aggravated" ? fort : (this.tough ? stamina : 0) + fort, perTurn: true };
-    }
-    if (v.kind === "sun") {
-      if (!a.isVampire) return { harmless: true };
+      p = { amount: AREA[v.area], type: this.tough ? "aggravated" : "lethal", difficulty: FIRE_HEAT[v.heat], parts: [FORT], perTurn: true };
+    } else if (v.kind === "sun") {
+      if (!a.isVampire) return { harmless: true, bd: [], pool: 0 };
       // Светобоязнь: солнце наносит вдвое больше урона (V20, Appendix)
       const mult = a.hasTrait?.("Светобоязнь") ? 2 : 1;
-      return { amount: AREA[v.area] * mult, type: "aggravated", difficulty: SUN_LIGHT[v.light], pool: fort, perTurn: true };
-    }
-    if (v.kind === "fall") {
+      p = { amount: AREA[v.area] * mult, type: "aggravated", difficulty: SUN_LIGHT[v.light], parts: [FORT], perTurn: true };
+    } else if (v.kind === "fall") {
       const terminal = v.meters >= 30;
-      const dice = terminal ? 10 : Math.floor(v.meters / 3);
       const type = terminal || v.sharp ? "lethal" : "bashing";
       const arm = Math.floor(a.armor.rating / (terminal ? 2 : 1));
-      const pool = type === "bashing" || this.tough ? stamina + fort + arm : fort + arm;
-      return { dice, type, difficulty: 6, pool, terminal };
+      const parts = type === "bashing" || this.tough ? [STA, FORT] : [FORT];
+      if (arm) parts.push({ label: t("Sheet.Armor"), value: arm });
+      p = { dice: terminal ? 10 : Math.floor(v.meters / 3), type, difficulty: 6, parts };
+    } else {
+      p = { amount: SHOCK[v.shock], type: "lethal", difficulty: 6, parts: this.tough ? [STA, FORT] : [FORT], perTurn: true,
+        botchToAggravated: true, breakFree: a.isVampire ? 5 : 9 };
     }
-    const type = "lethal";
-    return { amount: SHOCK[v.shock], type, difficulty: 6, pool: (this.tough ? stamina : 0) + fort, perTurn: true, botchToAggravated: true, breakFree: a.isVampire ? 5 : 9 };
+    p.bd = p.parts.filter(x => x.value);
+    if (v.modDice) p.bd.push({ label: t("Hunt.ModShort"), value: v.modDice });
+    p.pool = Math.max(0, p.bd.reduce((n, x) => n + x.value, 0));
+    p.difficulty = Math.clamp(p.difficulty + v.modDiff, 2, 10);
+    return p;
   }
 
   async _prepareContext() {
     const v = this.v, p = this.preview();
-    const opt = (map, cur, prefix) => Object.entries(map).map(([k, n]) => ({ value: k, label: `${t(`${prefix}.${k}`)} (${n})`, selected: k === cur }));
+    const tiles = (map, cur, prefix, field) => Object.entries(map).map(([k, n]) => ({ key: k, n, field, label: t(`${prefix}.${k}`), active: k === cur }));
+    const levels = v.kind === "fire" ? { cap: t("Hazard.HeatLbl"), cols: 3, list: tiles(FIRE_HEAT, v.heat, "Hazard.Heat", "heat") }
+      : v.kind === "sun" ? { cap: t("Hazard.LightLbl"), cols: 3, list: tiles(SUN_LIGHT, v.light, "Hazard.Light", "light") }
+      : v.kind === "shock" ? { cap: t("Hazard.ShockLbl"), cols: 2, list: tiles(SHOCK, v.shock, "Hazard.Shock", "shock") } : null;
+    const modes = CONFIG.ChatMessage?.modes ?? {};
     return {
-      v, p, kinds: ["fire", "sun", "fall", "shock"].map(k => ({ key: k, label: t(`Hazard.Kind.${k}`), active: v.kind === k,
-        icon: { fire: "fa-fire", sun: "fa-sun", fall: "fa-person-falling", shock: "fa-bolt" }[k] })),
-      heats: opt(FIRE_HEAT, v.heat, "Hazard.Heat"), lights: opt(SUN_LIGHT, v.light, "Hazard.Light"),
-      areas: opt(AREA, v.area, "Hazard.Area"), shocks: opt(SHOCK, v.shock, "Hazard.Shock"),
+      v, p, levels,
+      areas: ["fire", "sun"].includes(v.kind) ? tiles(AREA, v.area, "Hazard.Area", "area") : null,
+      kinds: Object.entries(KIND_ICONS).map(([k, icon]) => ({ key: k, icon, label: t(`Hazard.Kind.${k}`), active: v.kind === k })),
       typeLabel: p.type ? game.i18n.localize(VTM20.damageTypes[p.type].label) : "",
-      isFire: v.kind === "fire", isSun: v.kind === "sun", isFall: v.kind === "fall", isShock: v.kind === "shock"
+      chances: p.harmless || !p.pool ? null : chancesView(odds({ pool: p.pool, difficulty: p.difficulty, noBotch: !p.botchToAggravated })),
+      note: { fire: t("Hazard.FireNote"), sun: t("Hazard.SunNote"), fall: t("Hazard.FallNote"), shock: t("Hazard.ShockNote", { n: p.breakFree }) }[v.kind],
+      isFall: v.kind === "fall",
+      messageModes: Object.entries(modes).map(([k, m]) => ({ value: k, label: game.i18n.localize(m.label ?? k), selected: k === v.messageMode }))
     };
   }
 
@@ -102,23 +117,32 @@ class HazardDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     super._onFirstRender(context, options);
     this.element.addEventListener("change", () => {
       const f = new foundry.applications.ux.FormDataExtended(this.element).object;
-      Object.assign(this.v, { heat: f.heat ?? this.v.heat, light: f.light ?? this.v.light, area: f.area ?? this.v.area,
-        shock: f.shock ?? this.v.shock, meters: Math.max(0, Number(f.meters) || 0), sharp: !!f.sharp });
+      Object.assign(this.v, {
+        meters: Math.clamp(Math.trunc(Number(f.meters ?? this.v.meters) || 0), 0, 500), sharp: !!f.sharp,
+        modDice: Math.trunc(Number(f.modDice) || 0), modDiff: Math.trunc(Number(f.modDiff) || 0), messageMode: f.messageMode ?? this.v.messageMode
+      });
       this.render();
     });
   }
 
   static #onKind(event, target) { this.v.kind = target.dataset.kind; this.render(); }
+  static #onPick(event, target) { this.v[target.dataset.field] = target.dataset.key; this.render(); }
+  static #onBump(event, target) {
+    const k = target.dataset.field, d = Number(target.dataset.d);
+    if (k === "meters") this.v.meters = Math.clamp(this.v.meters + d, 0, 500);
+    else { const lim = k === "modDiff" ? 5 : 10; this.v[k] = Math.clamp(this.v[k] + d, -lim, lim); }
+    this.render();
+  }
 
   static async #onSubmit() {
-    const a = this.actor, p = this.preview(), title = t(`Hazard.Kind.${this.v.kind}`);
+    const a = this.actor, p = this.preview(), title = t(`Hazard.Kind.${this.v.kind}`), messageMode = this.v.messageMode;
     if (p.harmless) return ui.notifications.info(t("Hazard.SunHarmless", { name: a.name }));
     if (this.v.kind === "fall") {
       if (p.dice <= 0) return ui.notifications.info(t("Hazard.NoFall"));
-      const dmg = await rollPool({ actor: a, title, subtitle: game.i18n.localize(VTM20.damageTypes[p.type].label), pool: p.dice, difficulty: 6, kind: "damage", noBotch: true });
-      return sufferHazard(a, dmg.successes, p.type, { pool: p.pool, difficulty: 6, title });
+      const dmg = await rollPool({ actor: a, title, subtitle: game.i18n.localize(VTM20.damageTypes[p.type].label), pool: p.dice, difficulty: 6, kind: "damage", noBotch: true, messageMode });
+      return sufferHazard(a, dmg.successes, p.type, { pool: p.pool, difficulty: p.difficulty, title, breakdown: p.bd, messageMode });
     }
-    const left = await sufferHazard(a, p.amount, p.type, { pool: p.pool, difficulty: p.difficulty, title, botchToAggravated: p.botchToAggravated });
+    const left = await sufferHazard(a, p.amount, p.type, { pool: p.pool, difficulty: p.difficulty, title, botchToAggravated: p.botchToAggravated, breakdown: p.bd, messageMode });
     // Огонь и солнце — Ротшрек (05): обжёгшись — 7, прямой солнечный свет — 8
     if (["fire", "sun"].includes(this.v.kind)) suggestCheck(a, "rotschreck", { reason: title, difficulty: left > 0 ? (this.v.kind === "sun" ? 8 : 7) : 6 });
     return left;

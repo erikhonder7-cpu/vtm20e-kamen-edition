@@ -588,13 +588,40 @@ body.r-theme-light .vtm20 .r-ng-item.is-active, body.r-theme-light .vtm20 .r-ng-
 .r-hunt-mods { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 
 /* ── Окно охоты ─────────────────────────────────────────────────────────── */
-.vtm20 .r-hunt-form .r-hunt-cap { display: block; flex: 0 0 auto; width: auto; height: auto; margin: 0 0 4px; }
-.r-hunt-grounds { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 8px; }
-.r-hunt-ground { position: relative; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 8px 4px 6px; border: 1px solid #3a3833; border-radius: 4px;
+.vtm20 .r-roll-form .r-tiles-cap { display: block; flex: 0 0 auto; width: auto; height: auto; margin: 0 0 -7px; }
+.r-tiles { display: grid; grid-template-columns: repeat(var(--cols, 3), minmax(0, 1fr)); gap: 6px; }
+.r-tile { position: relative; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 8px 4px 6px; border: 1px solid #3a3833; border-radius: 4px;
   background: rgba(0, 0, 0, .25); color: var(--r-bone-d); font-size: 11.5px; text-align: center; line-height: 1.15; cursor: pointer; transition: border-color .15s, background .15s, color .15s; }
-.r-hunt-ground i { font-size: 15px; color: var(--r-bone-d); }
-.r-hunt-ground b { position: absolute; top: 3px; right: 5px; font-family: "Forum", serif; font-size: 13px; font-weight: normal; color: var(--r-bone-d); }
-.r-hunt-ground:hover { border-color: #5a554b; color: var(--r-bone); }
-.r-hunt-ground.is-active { border-color: var(--r-blood-l); background: radial-gradient(ellipse at 50% 120%, rgba(184, 58, 63, .35), rgba(0, 0, 0, .25) 70%); color: #f1e9da; }
-.r-hunt-ground.is-active i, .r-hunt-ground.is-active b { color: var(--r-blood-l); }
+.r-tile i { font-size: 15px; color: var(--r-bone-d); }
+.r-tile b { position: absolute; top: 3px; right: 5px; font-family: "Forum", serif; font-size: 13px; font-weight: normal; color: var(--r-bone-d); }
+.r-tile:hover { border-color: #5a554b; color: var(--r-bone); }
+.r-tile.is-active { border-color: var(--r-blood-l); background: radial-gradient(ellipse at 50% 120%, rgba(184, 58, 63, .35), rgba(0, 0, 0, .25) 70%); color: #f1e9da; }
+.r-tile.is-active i, .r-tile.is-active b { color: var(--r-blood-l); }
+.r-tile.is-big { padding: 11px 3px 8px; gap: 5px; font-family: var(--r-caps); font-size: 11px; letter-spacing: .2px; text-transform: uppercase; }
+.r-tile.is-big i { font-size: 20px; }
+.r-tile.is-flat { justify-content: center; min-height: 34px; padding: 6px 18px 5px; }
 .vtm20 .r-hunt-method { flex: 1; min-width: 0; }
+
+/* ── Окна опасностей, урона и диаблери — по образцу охоты ─────────────── */
+.vtm20 .r-roll-row .r-roll-unit { font-size: 12.5px; font-style: italic; color: var(--r-muted); }
+.vtm20 .r-roll-form .r-hint-note { margin: -4px 0 0; font-size: 12.5px; font-style: italic; line-height: 1.4; color: var(--r-muted); }
+.vtm20 .r-dmg-chip { padding: 1px 7px; border: 1px solid var(--r-line-2); font-family: var(--r-caps); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--r-ink-2); }
+.vtm20 .r-dmg-chip.is-lethal { border-color: #8c1c22; color: #e3b5b7; background: rgba(74, 13, 17, .5); }
+.vtm20 .r-dmg-chip.is-aggravated { border-color: #c4474c; color: #fff; background: #8c1c22; }
+.vtm20 .r-roll-total .r-roll-breakdown { align-items: center; }
+
+/* Диаблери: поколение «сейчас → после» и душа жертвы клетками здоровья */
+.vtm20 .r-gen { display: flex; align-items: center; justify-content: center; gap: 18px; padding: 6px 0 2px; }
+.vtm20 .r-gen > div { display: flex; flex-direction: column; align-items: center; gap: 1px; }
+.vtm20 .r-gen b { font-family: var(--r-display); font-weight: 400; font-size: 32px; line-height: 1; color: var(--r-ink); }
+.vtm20 .r-gen .is-after b { color: var(--r-accent); text-shadow: 0 0 14px rgba(196, 71, 76, .45); }
+.vtm20 .r-gen small { font-family: var(--r-caps); font-size: 10.5px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--r-muted); }
+.vtm20 .r-gen > i { color: var(--r-muted); font-size: 16px; }
+.vtm20 .r-soul { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.vtm20 .r-soul-track { display: flex; gap: 5px; }
+.vtm20 .r-soul-track i { width: 28px; height: 28px; display: grid; place-items: center; border: 1px solid var(--r-line-2); background: rgba(0, 0, 0, .3);
+  font-style: normal; font-family: var(--r-display); font-size: 15px; color: transparent; transition: background .2s, border-color .2s; }
+.vtm20 .r-soul-track i.is-old { border-color: #3a1517; background: #1c0e0f; color: #5c2a2d; }
+.vtm20 .r-soul-track i.is-full { border-color: #c4474c; background: linear-gradient(180deg, #b0323a, #6e1218); color: #f6e9e2; box-shadow: 0 0 10px rgba(196, 71, 76, .45); }
+.vtm20 .r-soul-cap { font-size: 12.5px; color: var(--r-muted); }
+.vtm20 .r-soul-cap b { font-family: var(--r-display); font-weight: 400; font-size: 16px; color: var(--r-ink); }

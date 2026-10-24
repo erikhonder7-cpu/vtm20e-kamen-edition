@@ -1,41 +1,78 @@
-{{!-- Опасности среды (V20, гл. 4): огонь, солнце, падение, электричество. --}}
+{{!-- Опасности среды (V20, гл. 4) в стиле окна броска: вид и сила опасности плитками, прочность, шансы. --}}
 <div class="r-roll-form r-hazard-form">
-  <div class="r-atk-picks">
-    {{#each kinds}}<a class="r-atk-pick {{#if active}}is-active{{/if}}" data-action="kind" data-kind="{{key}}"><i class="fa-solid {{icon}}"></i><span>{{label}}</span></a>{{/each}}
+  <div class="r-tiles" style="--cols: 4">
+    {{#each kinds}}<a class="r-tile is-big {{#if active}}is-active{{/if}}" data-action="kind" data-kind="{{key}}"><i class="fa-solid {{icon}}"></i><span>{{label}}</span></a>{{/each}}
   </div>
 
-  <div class="r-atk-grid">
-    {{#if isFire}}
-    <label><span>{{localize "VTM20.Hazard.HeatLbl"}}</span><select name="heat">{{#each heats}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
-    <label><span>{{localize "VTM20.Hazard.AreaLbl"}}</span><select name="area">{{#each areas}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
-    {{/if}}
-    {{#if isSun}}
-    <label><span>{{localize "VTM20.Hazard.LightLbl"}}</span><select name="light">{{#each lights}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
-    <label><span>{{localize "VTM20.Hazard.AreaLbl"}}</span><select name="area">{{#each areas}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
-    {{/if}}
-    {{#if isFall}}
-    <label><span>{{localize "VTM20.Hazard.Meters"}}</span><input type="number" name="meters" value="{{v.meters}}" min="0" max="500"></label>
-    <label class="r-check"><input type="checkbox" name="sharp" {{checked v.sharp}}> {{localize "VTM20.Hazard.Sharp"}}</label>
-    {{/if}}
-    {{#if isShock}}
-    <label><span>{{localize "VTM20.Hazard.ShockLbl"}}</span><select name="shock">{{#each shocks}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
-    {{/if}}
+  {{#if levels}}
+  <div class="r-roll-label r-tiles-cap">{{levels.cap}}</div>
+  <div class="r-tiles" style="--cols: {{levels.cols}}">
+    {{#each levels.list}}<a class="r-tile is-flat {{#if active}}is-active{{/if}}" data-action="pick" data-field="{{field}}" data-key="{{key}}"><span>{{label}}</span><b>{{n}}</b></a>{{/each}}
   </div>
+  {{/if}}
+  {{#if areas}}
+  <div class="r-roll-label r-tiles-cap">{{localize "VTM20.Hazard.AreaLbl"}}</div>
+  <div class="r-tiles" style="--cols: 3">
+    {{#each areas}}<a class="r-tile is-flat {{#if active}}is-active{{/if}}" data-action="pick" data-field="{{field}}" data-key="{{key}}"><span>{{label}}</span><b>{{n}}</b></a>{{/each}}
+  </div>
+  {{/if}}
+
+  {{#if isFall}}
+  <div class="r-roll-row">
+    <span class="r-roll-label">{{localize "VTM20.Hazard.Meters"}}</span>
+    <a class="r-step" data-action="bump" data-field="meters" data-d="-3">−</a>
+    <input type="number" name="meters" value="{{v.meters}}" min="0" max="500" class="r-roll-num">
+    <a class="r-step" data-action="bump" data-field="meters" data-d="3">+</a>
+    <span class="r-roll-unit">{{localize "VTM20.Hazard.FallDice" n=p.dice}}</span>
+  </div>
+  <div class="r-roll-checks">
+    <label class="r-check"><input type="checkbox" name="sharp" {{checked v.sharp}}> {{localize "VTM20.Hazard.Sharp"}}</label>
+  </div>
+  {{/if}}
+
+  {{#unless p.harmless}}
+  <div class="r-roll-row">
+    <span class="r-roll-label">{{localize "VTM20.Hazard.ModDice"}}</span>
+    <a class="r-step" data-action="bump" data-field="modDice" data-d="-1">−</a>
+    <input type="number" name="modDice" value="{{v.modDice}}" class="r-roll-num">
+    <a class="r-step" data-action="bump" data-field="modDice" data-d="1">+</a>
+  </div>
+  <div class="r-roll-row">
+    <span class="r-roll-label">{{localize "VTM20.Hazard.ModDiff"}}</span>
+    <a class="r-step" data-action="bump" data-field="modDiff" data-d="-1">−</a>
+    <input type="number" name="modDiff" value="{{v.modDiff}}" class="r-roll-num">
+    <a class="r-step" data-action="bump" data-field="modDiff" data-d="1">+</a>
+  </div>
+  {{/unless}}
 
   <div class="r-roll-total">
     {{#if p.harmless}}<div class="r-roll-breakdown">{{localize "VTM20.Hazard.SunMortal"}}</div>
     {{else}}
     <div class="r-roll-breakdown">
       {{#if isFall}}<span>{{localize "VTM20.Roll.Damage"}} <b>{{p.dice}}</b>{{localize "VTM20.Combat.DiceShort"}}</span>{{else}}<span>{{localize "VTM20.Hazard.PerTurn"}} <b>{{p.amount}}</b></span>{{/if}}
-      <span>{{typeLabel}}</span>
-      <span>{{localize "VTM20.Roll.Soak"}} <b>{{p.pool}}</b>{{localize "VTM20.Combat.DiceShort"}} {{localize "VTM20.Roll.Vs"}} {{p.difficulty}}</span>
+      <span class="r-dmg-chip is-{{p.type}}">{{typeLabel}}</span>
+      {{#each p.bd}}<span>{{label}} <b>{{rSigned value}}</b></span>{{/each}}
     </div>
+    <div class="r-roll-pool" data-tooltip="{{localize 'VTM20.Roll.Soak'}}"><b>{{p.pool}}</b><i class="fa-solid fa-shield"></i> <span>{{localize "VTM20.Roll.Vs"}}</span> <b>{{p.difficulty}}</b></div>
     {{/if}}
   </div>
-  <p class="r-hint">{{#if isFire}}{{localize "VTM20.Hazard.FireNote"}}{{/if}}{{#if isSun}}{{localize "VTM20.Hazard.SunNote"}}{{/if}}{{#if isFall}}{{localize "VTM20.Hazard.FallNote"}}{{/if}}{{#if isShock}}{{localize "VTM20.Hazard.ShockNote" n=p.breakFree}}{{/if}}</p>
+  {{#if chances}}
+  <div class="r-odds" data-tooltip="{{localize 'VTM20.SoakOdds.Hint'}}">
+    <div class="r-odds-bar">
+      <i class="is-success" style="width: {{chances.success}}%"></i><i class="is-failure" style="width: {{chances.failure}}%"></i><i class="is-botch" style="width: {{chances.botch}}%"></i>
+    </div>
+    <div class="r-odds-legend">
+      <span class="is-success">{{localize "VTM20.SoakOdds.Soak"}} <b>{{chances.success}}%</b></span>
+      <span class="is-failure">{{localize "VTM20.SoakOdds.None"}} <b>{{chances.failure}}%</b></span>
+      {{#if p.botchToAggravated}}<span class="is-botch">{{localize "VTM20.Outcome.botch"}} <b>{{chances.botch}}%</b></span>{{/if}}
+      <span class="r-odds-mean">{{localize "VTM20.SoakOdds.Mean"}} <b>{{chances.mean}}</b></span>
+    </div>
+  </div>
+  {{/if}}
+  <p class="r-hint-note"><i class="fa-solid fa-circle-info"></i> {{note}}</p>
 
   <div class="r-roll-foot">
-    <span class="r-mode"></span>
-    <button type="submit" class="r-btn is-primary"><i class="fa-solid fa-hourglass-half"></i> {{#if p.perTurn}}{{localize "VTM20.Hazard.ApplyTurn"}}{{else}}{{localize "VTM20.Hazard.Apply"}}{{/if}}</button>
+    <select name="messageMode" class="r-mode">{{#each messageModes}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+    <button type="submit" class="r-btn is-primary"><i class="fa-solid {{#if p.perTurn}}fa-hourglass-half{{else}}fa-person-falling{{/if}}"></i> {{#if p.perTurn}}{{localize "VTM20.Hazard.ApplyTurn"}}{{else}}{{localize "VTM20.Hazard.Apply"}}{{/if}}</button>
   </div>
 </div>

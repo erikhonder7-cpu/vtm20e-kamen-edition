@@ -1,30 +1,62 @@
-{{!-- Диаблери (V20, гл. 5): продолжительная проверка Силы сл. 9 против здоровья жертвы. --}}
+{{!-- Диаблери (V20, гл. 5) в стиле окна броска: жертва, поколение «сейчас → после», душа клетками здоровья,
+      продолжительная проверка Силы сл. 9 и шансы. --}}
 <div class="r-roll-form r-diab">
-  <p class="r-hint">{{localize "VTM20.Diablerie.Intro"}}</p>
-  <div class="r-atk-grid">
-    <label class="is-wide"><span>{{localize "VTM20.Diablerie.Victim"}}</span>
-      <select name="victimId"><option value="">{{localize "VTM20.Diablerie.Unnamed"}}</option>{{#each victims}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
-    {{#unless victim}}<label><span>{{localize "VTM20.Diablerie.VictimGen"}}</span><input type="number" name="victimGen" value="{{v.victimGen}}" min="3" max="15"></label>{{/unless}}
-    <label><span>{{localize "VTM20.Diablerie.Drop"}}</span><input type="number" name="drop" value="{{drop}}" min="0" max="6"></label>
-  </div>
-  {{#if bigGap}}<div class="r-roll-note is-wide"><i class="fa-solid fa-circle-info"></i> {{localize "VTM20.Diablerie.BigGap"}}</div>{{/if}}
+  <p class="r-hint-note">{{localize "VTM20.Diablerie.Intro"}}</p>
 
-  <div class="r-diab-track">
-    <div class="r-diab-bar"><i style="width: {{pct}}%"></i></div>
-    <span><b>{{progress}}</b> / {{needed}} {{localize "VTM20.Diablerie.Levels"}}</span>
+  <div class="r-roll-row">
+    <span class="r-roll-label">{{localize "VTM20.Diablerie.Victim"}}</span>
+    <select name="victimId" class="r-hunt-method"><option value="">{{localize "VTM20.Diablerie.Unnamed"}}</option>{{#each victims}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select>
   </div>
-  {{#if victim}}{{#unless canHurt}}<p class="r-hint">{{localize "VTM20.Diablerie.NoOwner"}}</p>{{/unless}}{{/if}}
+  {{#unless victim}}
+  <div class="r-roll-row">
+    <span class="r-roll-label">{{localize "VTM20.Diablerie.VictimGen"}}</span>
+    <a class="r-step" data-action="bump" data-field="victimGen" data-d="-1">−</a>
+    <input type="number" name="victimGen" value="{{v.victimGen}}" min="3" max="15" class="r-roll-num">
+    <a class="r-step" data-action="bump" data-field="victimGen" data-d="1">+</a>
+  </div>
+  {{/unless}}
+  <div class="r-roll-row">
+    <span class="r-roll-label">{{localize "VTM20.Diablerie.Drop"}}</span>
+    <a class="r-step" data-action="bump" data-field="drop" data-d="-1">−</a>
+    <input type="number" name="drop" value="{{drop}}" min="0" max="6" class="r-roll-num">
+    <a class="r-step" data-action="bump" data-field="drop" data-d="1">+</a>
+  </div>
+  {{#if bigGap}}<p class="r-hint-note"><i class="fa-solid fa-circle-info"></i> {{localize "VTM20.Diablerie.BigGap"}}</p>{{/if}}
 
+  <div class="r-gen">
+    <div><b>{{gen}}</b><small>{{localize "VTM20.Diablerie.GenNow"}}</small></div>
+    <i class="fa-solid fa-arrow-right-long"></i>
+    <div class="is-after"><b>{{newGen}}</b><small>{{localize "VTM20.Diablerie.GenAfter"}}</small></div>
+    <div><b>{{years}}</b><small>{{localize "VTM20.Diablerie.AuraYears"}}</small></div>
+  </div>
+
+  <div class="r-soul">
+    <div class="r-roll-label r-tiles-cap">{{localize "VTM20.Diablerie.Soul"}}</div>
+    <div class="r-soul-track">{{#each soul}}<i class="{{this}}">✱</i>{{/each}}</div>
+    <div class="r-soul-cap">{{#if complete}}{{localize "VTM20.Diablerie.SoulDone"}}{{else}}<b>{{progress}}</b> / {{needed}} {{localize "VTM20.Diablerie.Levels"}}{{#if tries}} · {{localize "VTM20.Diablerie.Tries" n=tries}}{{/if}}{{/if}}</div>
+  </div>
+  {{#if victim}}{{#unless canHurt}}<p class="r-hint-note">{{localize "VTM20.Diablerie.NoOwner"}}</p>{{/unless}}{{/if}}
+
+  {{#unless complete}}
   <div class="r-roll-total">
-    <div class="r-roll-breakdown">
-      <span>{{localize "VTM20.Details.generation"}}: <b>{{gen}}</b> → <b>{{newGen}}</b></span>
-      <span>{{localize "VTM20.Diablerie.AuraShort"}}: <b>{{years}}</b></span>
-    </div>
+    <div class="r-roll-breakdown">{{#each bd}}<span>{{label}} <b>{{rSigned value}}</b></span>{{/each}}</div>
     <div class="r-roll-pool"><b>{{pool}}</b><i class="fa-solid fa-dice-d10"></i> <span>{{localize "VTM20.Roll.Vs"}}</span> <b>9</b></div>
   </div>
+  <div class="r-odds" data-tooltip="{{localize 'VTM20.Roll.OddsHint'}}">
+    <div class="r-odds-bar">
+      <i class="is-success" style="width: {{chances.success}}%"></i><i class="is-failure" style="width: {{chances.failure}}%"></i><i class="is-botch" style="width: {{chances.botch}}%"></i>
+    </div>
+    <div class="r-odds-legend">
+      <span class="is-success">{{localize "VTM20.Roll.OddsSuccess"}} <b>{{chances.success}}%</b></span>
+      <span class="is-failure">{{localize "VTM20.Outcome.failure"}} <b>{{chances.failure}}%</b></span>
+      <span class="is-botch">{{localize "VTM20.Outcome.botch"}} <b>{{chances.botch}}%</b></span>
+      <span class="r-odds-mean">{{localize "VTM20.Roll.OddsMean"}} <b>{{chances.mean}}</b></span>
+    </div>
+  </div>
+  {{/unless}}
 
   <div class="r-roll-foot">
-    <span class="r-mode"></span>
+    <select name="messageMode" class="r-mode">{{#each messageModes}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
     {{#if complete}}<a class="r-btn is-primary" data-action="finish"><i class="fa-solid fa-skull"></i> {{localize "VTM20.Diablerie.Finish"}}</a>
     {{else}}<button type="submit" class="r-btn is-primary"><i class="fa-solid fa-droplet"></i> {{localize "VTM20.Diablerie.Drink"}}</button>{{/if}}
   </div>
