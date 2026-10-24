@@ -2,11 +2,14 @@
 <section class="tab r-pane r-advantages {{tab.cssClass}}" data-tab="{{tab.id}}" data-group="{{tab.group}}">
 
   {{#if weakness}}
-  <div class="r-weakness-card">
+  {{!-- Изъян клана: свёрнут до заголовка (с уточнением игрока), раскрывается щелчком --}}
+  <div class="r-row-wrap r-weakness-card {{#if weaknessOpen}}is-open{{/if}}">
     <div class="r-weakness-head">
       {{#if sigil.sym}}{{rSym sigil.sym}}{{/if}}
-      <span class="r-weakness-title">{{localize "VTM20.Sheet.Weakness"}} · {{weaknessTitle}}</span>
+      <a class="r-weakness-title" data-action="toggleRow" data-row-id="weakness">{{localize "VTM20.Sheet.Weakness"}} · {{weaknessTitle}}</a>
+      {{#if system.weaknessNote}}<em class="r-weakness-note">{{system.weaknessNote}}</em>{{/if}}
       {{#if weaknessCheck}}<a class="r-chip" data-action="rollVirtue" data-kind="weakness"><i class="fa-solid fa-dice-d10"></i> {{weaknessCheck}}</a>{{/if}}
+      <a class="r-icon-btn r-chevron" data-action="toggleRow" data-row-id="weakness"><i class="fa-solid fa-chevron-down"></i></a>
     </div>
     <div class="r-weakness-text">{{{weakness}}}</div>
     <div class="r-weakness-foot">

@@ -457,18 +457,34 @@
 /* ── Преимущества ─────────────────────────────────────────────────────── */
 
 .vtm20 .r-bg .r-power-body, .vtm20 .r-mf-row .r-power-body { padding: 2px 4px 8px 6px; font-size: 13px; }
+/* Цена достоинства / недостатка — сургучная печать: достоинства тёмным воском, недостатки — кровавым */
 .vtm20 .r-cost {
-  flex: 0 0 auto; min-width: 22px; height: 20px; padding: 0 4px; display: grid; place-items: center;
-  font-family: var(--r-display); font-size: 12px; color: var(--r-ink); border: 1px solid var(--r-line-2);
+  flex: 0 0 auto; width: 22px; height: 22px; display: grid; place-items: center; border-radius: 50%;
+  font-family: var(--r-display); font-size: 12px; line-height: 1; color: #e6ddcc;
+  background: radial-gradient(circle at 38% 32%, #4a4640, #2a2724 60%, #1a1816);
+  border: 1px solid rgba(216, 207, 191, .35); box-shadow: inset 0 0 0 2px rgba(0, 0, 0, .35), 0 1px 2px rgba(0, 0, 0, .5);
 }
-.vtm20 .r-mf .r-col:last-child .r-cost { color: var(--r-accent); border-color: rgba(196, 71, 76, .45); }
+.vtm20 .r-mf .r-col:last-child .r-cost {
+  color: #fbe9e4; background: radial-gradient(circle at 38% 32%, #b0323a, #7a161c 60%, #4a0d11);
+  border-color: #c4474c; box-shadow: inset 0 0 0 2px rgba(0, 0, 0, .25), 0 0 5px rgba(196, 71, 76, .35);
+}
 .vtm20 .r-mini-select { flex: 0 0 auto; width: auto; max-width: 150px; height: 22px; font-size: 12px; }
 .vtm20 .r-bond { gap: 6px; }
 
 .vtm20 .r-weakness-card { margin: 8px 0 6px; padding: 10px 14px; border: 1px solid var(--r-line); box-shadow: inset 2px 0 0 #8c1c22; background: rgba(140, 28, 34, .06); }
 .vtm20 .r-weakness-head { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
 .vtm20 .r-weakness-head .r-sym { width: 26px; height: 26px; flex: 0 0 auto; }
-.vtm20 .r-weakness-title { flex: 1 1 auto; font-family: var(--r-caps); font-size: 13.5px; letter-spacing: 2px; text-transform: uppercase; color: var(--r-accent); }
+.vtm20 .r-weakness-title { flex: 0 1 auto; cursor: pointer; font-family: var(--r-caps); font-size: 13.5px; letter-spacing: 2px; text-transform: uppercase; color: var(--r-accent); }
+.vtm20 .r-weakness-title:hover { color: #e3676c; }
+.vtm20 .r-weakness-note { flex: 1 1 auto; min-width: 0; font-size: 13px; color: var(--r-ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vtm20 .r-weakness-head > .r-chip { margin-left: auto; }
+.vtm20 .r-weakness-head > .r-chevron { margin-left: auto; }
+.vtm20 .r-weakness-head > .r-chip + .r-chevron { margin-left: 0; }
+.vtm20 .r-weakness-card:not(.is-open) { padding-top: 6px; padding-bottom: 6px; }
+.vtm20 .r-weakness-card:not(.is-open) .r-weakness-head { margin-bottom: 0; }
+.vtm20 .r-weakness-card:not(.is-open) > .r-weakness-text, .vtm20 .r-weakness-card:not(.is-open) > .r-weakness-foot { display: none; }
+.vtm20 .r-weakness-card.is-open .r-weakness-note { display: none; }
+.vtm20 .r-weakness-card.is-open .r-chevron i { transform: rotate(180deg); }
 .vtm20 .r-weakness-text { font-size: 13px; line-height: 1.4; color: var(--r-ink-2); }
 .vtm20 .r-weakness-text p { margin: 0 0 4px; }
 .vtm20 .r-weakness-foot { display: flex; align-items: center; gap: 12px; margin-top: 6px; }

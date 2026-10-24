@@ -308,6 +308,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       const clan = Codex.clan(s.clan);
       ctx.weakness = clan?.weakness ?? "";
       ctx.weaknessTitle = clan?.name ?? "";
+      ctx.weaknessOpen = this._open.has("weakness");
       const w = VTM20.weaknessChecks[s.clan];
       ctx.weaknessCheck = w ? t(`Weakness.${w}`) : "";
       ctx.soilClan = VTM20.soilClans.includes(s.clan);
