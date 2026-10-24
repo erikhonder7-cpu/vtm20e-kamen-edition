@@ -1,8 +1,8 @@
 // tools/e2e.mjs — автотесты в браузере против песочницы Foundry:
 //   node tools/e2e.mjs [--url http://localhost:30002] [--user Gamemaster] [--headed] [--sync <папка системы в песочнице>]
 // Входит рассказчиком, открывает лист, бросает черту, открывает окна системы (опыт, библиотеку, охоту,
-// опасности, урон, диаблери, справочник кланов), ставит и снимает паузу; всё это время ловит ошибки
-// в консоли. Браузер — установленный Edge (playwright-core, channel «msedge»), ничего не скачивается.
+// опасности, урон, диаблери, справочник кланов, ночь простоя, реестр услуг), ставит и снимает паузу; проверяет
+// «Город» без модуля Парижа (новый мир) и автовключение модуля в старом мире; всё это время ловит ошибки в консоли. Браузер — установленный Edge (playwright-core, channel «msedge»), ничего не скачивается.
 // В CI не запускается: там нет Foundry. Песочницу не поднимать, пока открыт Foundry пользователя —
 // они делят компендии системы.
 // --sync копирует vtm20.mjs и system.json в песочницу: там это копии, остальное подключено ссылкой.
@@ -51,6 +51,18 @@ async function opens(name, js, selector) {
     }, selector);
   });
 }
+
+/** Перезагрузить мир и дождаться готовности (система может перезагрузить его ещё раз сама — ждём через навигации). */
+async function reloadUntil(predicate, arg, timeout = 120000) {
+  await page.reload({ waitUntil: "domcontentloaded" });
+  const end = Date.now() + timeout;
+  while (Date.now() < end) {
+    try { if (await page.evaluate(predicate, arg)) return; } catch { /* мир перезагружается */ }
+    await page.waitForTimeout(1000);
+  }
+  throw new Error("мир не дошёл до нужного состояния после перезагрузки");
+}
+const CITY_MODULE = "vtm20e-kamen-city";
 
 const browser = await chromium.launch({ channel: "msedge", headless: !HEADED });
 try {
@@ -106,6 +118,23 @@ try {
   await opens("Урон", "game.vtm20.openDamageDialog(window._e2e.actor)", ".r-damage");
   await opens("Диаблери", "game.vtm20.openDiablerie(window._e2e.actor)", ".r-diablerie");
   await opens("Справочник кланов", "game.vtm20.openClans(window._e2e.actor.system.clan)", "#r-clans");
+  await opens("Ночь простоя", "game.vtm20.openDowntime(window._e2e.actor)", ".r-downtime-dialog");
+
+  await check("Реестр услуг", async () => {
+    await page.evaluate(async () => {
+      const a = window._e2e.actor, { addBoon } = await import(`/systems/${game.system.id}/module/apps/boons.mjs`);
+      window._e2e.boons = foundry.utils.deepClone(a._source.system.boons ?? []);
+      await addBoon(a, "owe");
+      const list = foundry.utils.deepClone(a._source.system.boons);
+      list.at(-1).name = "E2E — кредитор";
+      await a.update({ "system.boons": list });
+      game.vtm20.openBoons();
+    });
+    await page.waitForSelector("#r-boons .r-bn-row", { timeout: 10000 });
+    const found = await page.evaluate(() => [...document.querySelectorAll("#r-boons .r-bn-row")].some(li => li.textContent.includes("E2E — кредитор")));
+    await page.evaluate(async () => { foundry.applications.instances.get("r-boons")?.close(); await window._e2e.actor.update({ "system.boons": window._e2e.boons }); });
+    if (!found) throw new Error("услуга с листа не попала в реестр");
+  });
 
   await check("Пауза «Капля»", async () => {
     await page.evaluate(() => game.togglePause(true, { broadcast: false }));
@@ -114,7 +143,7 @@ try {
     await page.waitForSelector("#r-pause", { state: "detached", timeout: 6000 });
   });
 
-  // Уборка: сообщения бросков и временный персонаж
+  // Уборка до перезагрузок мира: сообщения бросков и временный персонаж
   await page.evaluate(async () => {
     const extra = game.messages.contents.slice(window._e2e.messages).map(m => m.id);
     if (extra.length) await ChatMessage.deleteDocuments(extra);
@@ -122,6 +151,42 @@ try {
     a.sheet?.close();
     if (a.getFlag("world", "e2e")) await a.delete();
   });
+
+  // «Город» и Париж (vtm20.mjs, keepParis): новый мир — пустой «Город»; старый (до 0.8.0) — модуль включается сам.
+  // Состояние песочницы запоминаем и возвращаем.
+  const saved = await page.evaluate(id => ({ mod: game.settings.get("core", "moduleConfiguration")[id] ?? false,
+    installed: !!game.modules.get(id), paris: game.settings.get(game.system.id, "cityParis"), migrated: game.settings.get(game.system.id, "migrated") }), CITY_MODULE);
+  const setWorld = (mod, paris, migrated) => page.evaluate(async ([id, mod, paris, migrated]) => {
+    const cfg = foundry.utils.deepClone(game.settings.get("core", "moduleConfiguration"));
+    cfg[id] = mod;
+    await game.settings.set("core", "moduleConfiguration", cfg);
+    await game.settings.set(game.system.id, "cityParis", paris);
+    await game.settings.set(game.system.id, "migrated", migrated);
+  }, [CITY_MODULE, mod, paris, migrated]);
+
+  await check("Новый мир: «Город» без Парижа", async () => {
+    await setWorld(false, "", await page.evaluate(() => game.system.version));
+    await reloadUntil(() => game.ready === true);
+    const st = await page.evaluate(id => [game.settings.get(game.system.id, "cityParis"), !!game.modules.get(id)?.active], CITY_MODULE);
+    if (st[0] !== "new" || st[1]) throw new Error(`cityParis=${st[0]}, модуль ${st[1] ? "включился" : "выключен"}`);
+    await page.evaluate(() => game.vtm20.openCity());
+    await page.waitForFunction(() => !!game.vtm20.cityMap()?.loaded?.(), null, { timeout: 30000 });
+    const styles = await page.evaluate(async () => (await import(`/systems/${game.system.id}/module/ui/citymap.mjs`)).CITY_STYLES());
+    if (styles.includes("plan")) throw new Error("без модуля в стилях есть старинный план");
+    await page.evaluate(() => game.vtm20.closeCity());
+  });
+
+  if (saved.installed) await check("Старый мир: модуль Парижа включается сам", async () => {
+    await setWorld(false, "", "0.7.0");
+    await reloadUntil(id => game.ready === true && !!game.modules.get(id)?.active && game.settings.get(game.system.id, "cityParis") === "on", CITY_MODULE);
+  });
+  else results.push({ name: "Старый мир: модуль Парижа включается сам", ok: true, note: "пропущено — модуль не установлен в песочнице" });
+
+  await check("Песочница возвращена как была", async () => {
+    await setWorld(saved.mod, saved.paris, saved.migrated);
+    await reloadUntil(([id, mod]) => game.ready === true && !!game.modules.get(id)?.active === mod, [CITY_MODULE, !!saved.mod]);
+  });
+
 } catch (e) {
   // провал проверки уже записан — не дублировать
   if (results.at(-1)?.name !== step || results.at(-1)?.ok) results.push({ name: step, ok: false, note: String(e.message ?? e).split("\n")[0] });
