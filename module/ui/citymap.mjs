@@ -30,6 +30,7 @@ import {
   whereIs, cityFlag, placeActor, leaderOf, followersOf, groupOf, joinGroup, leaveGroup, mapVisible, isHiddenOnMap, meters
 } from "./citychars.mjs";
 import { registerAssembly, attachAssembly, renderBoard, drawModes, boardMode, setMode, influenceData } from "./assembly.mjs";
+import { registerCatacombs, attachCatacombs, addCatacombLayers, catacombsButtons, catacombsAct, catacombsPlace, catacombsPick } from "./catacombs.mjs";
 
 const ID = "r-citymap";
 const SLATS = 12, STAGGER = 24, SLIDE = 460;
@@ -990,6 +991,7 @@ async function ensureMap(root) {
     bearing: homeBearing(), ...(revolution() ? { minZoom: 12, maxBounds: PLAN_BOUNDS } : {}),
     attributionControl: { compact: true }, doubleClickZoom: false
   });
+  attachCatacombs({ map, gl, view, setView, city, drawTools, zoomed });
   map.addControl(new gl.NavigationControl({ visualizePitch: true }), "bottom-left");
   // Стили шторы приходят через @import позже карты — следим за размером контейнера сами.
   new ResizeObserver(() => map.resize()).observe(root.querySelector(".rc-gl"));
@@ -1174,6 +1176,8 @@ function addOverlay() {
       "text-size": zoomed(13, 11.5, 16, 16), "text-letter-spacing": .12, "text-max-width": 10, "text-padding": 4, "text-line-height": 1.15 },
     paint: { "text-color": paper ? "#3a140e" : "#fbefd2", "text-halo-color": paper ? "rgba(246,237,214,.97)" : "rgba(10,6,4,.97)", "text-halo-width": 2.6, "text-halo-blur": .3 } });
   drawSections();
+  // катакомбы Парижа под городом (module/ui/catacombs.mjs)
+  addCatacombLayers();
   // влияние фракций Собрания — пятна кварталов (module/ui/assembly.mjs)
   for (const s of ["rc-infl", "rc-infl-label"]) if (!map.getSource(s)) map.addSource(s, { type: "geojson", data: EMPTY });
   const iv = view().influence && revolution() ? "visible" : "none";
@@ -1387,6 +1391,7 @@ function drawDraft(hover = null) {
 
 function onMapClick(ev) {
   if (ev.originalEvent?.target?.closest?.(".rc-pin, .rc-char")) return;
+  if (catacombsPlace(ev)) return;
   const ll = ev.lngLat;
   if (placing) {
     const a = game.actors.get(placing);
@@ -1410,6 +1415,7 @@ function onMapClick(ev) {
   if (blood && game.user.isGM) return pick("stain", blood.properties.id);
   const zone = hit.find(f => f.layer.id === "rc-zone-fill");
   if (zone) return pick("zone", zone.properties.id);
+  if (catacombsPick(ev)) return;
   if (picked) { picked = null; drawBody(); drawOverlay(); }
 }
 
@@ -1517,6 +1523,7 @@ function drawTools() {
       ${metros[city().preset] ? `<a class="${v.metro ? "on" : ""}" data-act="metro" data-tooltip="${esc(L("MetroToggle"))}"><i class="fa-solid fa-train-subway"></i></a>` : ""}
       ${revolution() ? `<a class="${sectionsOn() ? "on" : ""}" data-act="sections" data-tooltip="${esc(L("SectionsToggle"))}"><i class="fa-solid fa-border-none"></i></a>` : ""}
       ${revolution() ? `<a class="${v.influence ? "on" : ""}" data-act="influence" data-tooltip="Влияние фракций Собрания по кварталам"><i class="fa-solid fa-chess-rook"></i></a>` : ""}
+      ${catacombsButtons()}
       ${revolution() ? `<a class="${fxOn() ? "on" : ""}" data-act="fx" data-tooltip="${esc(L("FxToggle"))}"><i class="fa-solid fa-fire-flame-curved"></i></a>`
         : `<a data-act="tilt" data-tooltip="${esc(L("Tilt"))}"><i class="fa-solid fa-cube"></i></a>`}
       <a data-act="goHome" data-tooltip="${esc(L("GoHome"))}"><i class="fa-solid fa-house"></i></a>
@@ -1874,6 +1881,7 @@ async function act(name, el) {
     }
     case "influence": await setView({ influence: !view().influence }); drawTools(); drawInfluence(); break;
     case "sections": await setView({ sections: !sectionsOn() }); drawTools(); drawSections(); break;
+    case "catacombs": case "cataAdd": case "cataRestore": await catacombsAct(name); break;
     case "tilt": {
       const flat = map.getPitch() < 5;
       map.easeTo({ pitch: flat ? 60 : 0, bearing: flat ? -20 : 0, zoom: flat ? Math.max(map.getZoom(), 15.5) : map.getZoom(), duration: 900 });
@@ -2048,6 +2056,7 @@ export function registerCityMap() {
   game.settings.register(SYSTEM_ID, "cityPing", { scope: "world", config: false, type: Object, default: {}, onChange: v => onPing(v) });
   game.settings.register(SYSTEM_ID, "cityView", { scope: "client", config: false, type: Object, default: {} });
   registerAssembly();
+  registerCatacombs();
   game.settings.register(SYSTEM_ID, "cityMapEnabled", {
     name: "VTM20.City.SettingName", hint: "VTM20.City.SettingHint",
     scope: "world", config: true, type: Boolean, default: true, requiresReload: true

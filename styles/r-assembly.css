@@ -535,3 +535,6 @@
 #r-citymap .ra-heroes { align-items: stretch; }
 #r-citymap .ra-hero { display: flex; flex-direction: column; }
 #r-citymap .ra-hero > .ra-boonform { margin-top: auto; padding-top: 8px; }
+
+/* Герои: портрет в карте безопасности — квадратный, как фотокарточка в документе */
+#r-citymap .ra-hero-top .ra-face { width: 96px; height: 96px; border-radius: 2px; }
