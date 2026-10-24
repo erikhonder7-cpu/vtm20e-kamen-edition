@@ -244,7 +244,30 @@
 
 /* ── Шкалы ─────────────────────────────────────────────────────────────── */
 
-.vtm20 .r-vitals { grid-area: vitals; display: grid; grid-template-columns: 1.1fr .9fr 1.2fr; gap: 10px; padding: 10px 20px 4px; }
+/* Шкалы сворачиваются: высота через grid 1fr → 0fr, сводка выезжает в полосе под ними */
+.vtm20 .r-vitals-wrap { grid-area: vitals; display: flex; flex-direction: column; min-width: 0; }
+.vtm20 .r-vitals-fold { display: grid; grid-template-rows: 1fr; transition: grid-template-rows .38s cubic-bezier(.4, 0, .2, 1), opacity .3s ease; }
+.vtm20 .r-vitals-fold > .r-vitals { min-height: 0; overflow: hidden; }
+.vtm20 .r-vitals-wrap.is-closed .r-vitals-fold { grid-template-rows: 0fr; opacity: 0; }
+.vtm20 .r-vitals-strip { position: relative; display: flex; align-items: center; justify-content: center; gap: 10px; height: 16px; margin: 0 20px; cursor: pointer;
+  color: var(--r-muted); transition: height .38s cubic-bezier(.4, 0, .2, 1), background .2s, color .2s; }
+/* развёрнуто — тонкая черта с шевроном посередине */
+.vtm20 .r-vitals-strip::before, .vtm20 .r-vitals-strip::after { content: ""; flex: 1 1 0; border-top: 1px solid var(--r-line); }
+.vtm20 .r-vitals-strip::after { order: 3; }
+.vtm20 .r-vitals-strip:hover { color: var(--r-ink); }
+.vtm20 .r-vs-caret { order: 2; padding: 0 4px; font-size: 10px; transition: transform .38s cubic-bezier(.4, 0, .2, 1); }
+.vtm20 .r-vs-sum { display: flex; align-items: center; gap: 22px; max-width: 0; overflow: hidden; opacity: 0; white-space: nowrap; transition: opacity .25s ease, max-width .38s ease; }
+.vtm20 .r-vs-item { display: inline-flex; align-items: baseline; gap: 6px; font-family: var(--r-caps); font-size: 11.5px; letter-spacing: 1px; text-transform: uppercase; color: var(--r-ink-2); }
+.vtm20 .r-vs-item i { font-size: 11px; color: var(--r-muted); }
+.vtm20 .r-vs-item b { font-family: var(--r-display); font-weight: 400; font-size: 16px; letter-spacing: 0; color: var(--r-ink); }
+.vtm20 .r-vs-item.is-hurt, .vtm20 .r-vs-item.is-hurt b, .vtm20 .r-vs-item.is-hurt i { color: #e0645f; }
+.vtm20 .r-vitals-wrap.is-closed .r-vitals-strip { height: 34px; margin: 6px 20px 2px; justify-content: space-between; padding: 0 12px;
+  border: 1px solid var(--r-line); border-top: 2px solid #8c1c22; background: rgba(0, 0, 0, .3); }
+.vtm20 .r-vitals-wrap.is-closed .r-vitals-strip::before, .vtm20 .r-vitals-wrap.is-closed .r-vitals-strip::after { display: none; }
+.vtm20 .r-vitals-wrap.is-closed .r-vitals-strip:hover { background: rgba(140, 28, 34, .14); }
+.vtm20 .r-vitals-wrap.is-closed .r-vs-sum { max-width: 100%; opacity: 1; transition-delay: .12s; }
+.vtm20 .r-vitals-wrap.is-closed .r-vs-caret { transform: rotate(180deg); }
+.vtm20 .r-vitals { display: grid; grid-template-columns: 1.1fr .9fr 1.2fr; gap: 10px; padding: 10px 20px 4px; }
 .vtm20 .r-vcard { display: flex; flex-direction: column; }
 .vtm20 .r-vcard > .r-vc-tools { margin-top: auto; }
 .vtm20 .r-vcard > :nth-last-child(2) { margin-bottom: 6px; }

@@ -85,6 +85,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       endPower: VtMActorSheet.#onEndPower,
       toggleRow: VtMActorSheet.#onToggleRow,
       toggleAll: VtMActorSheet.#onToggleAll,
+      toggleVitals: VtMActorSheet.#onToggleVitals,
       clearStatus: VtMActorSheet.#onClearStatus,
       effectToggle: VtMActorSheet.#onEffectToggle,
       openRules: VtMActorSheet.#onOpenRules,
@@ -155,6 +156,8 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
   /** Раскрытые строки (силы, ритуалы) — переживают перерисовку. */
   _open = new Set();
+  /** Шкалы (здоровье, воля, мораль) свёрнуты — общий выбор пользователя для всех листов, хранится в браузере. */
+  _vitalsClosed = (() => { try { return localStorage.getItem("vtm20.vitalsClosed") === "1"; } catch { return false; } })();
 
   /** Персонаж ещё не создан (все характеристики 1, способностей нет, мастер не пройден) — вместо листа ворота. */
   get needsCreation() {
@@ -327,6 +330,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     ctx.healthHurt = s.health.damage > 0;
     ctx.clock = clockBarData();
     ctx.woundPenalty = s.health.penalty;
+    ctx.vitalsClosed = this._vitalsClosed;
     ctx.torpor = VTM20.torporDuration[s.morality.value];
     ctx.soak = { bashing: a.soakPool("bashing"), lethal: a.soakPool("lethal"), aggravated: a.soakPool("aggravated") };
     ctx.xp = s.experience;
@@ -967,6 +971,14 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const list = foundry.utils.deepClone(this.actor._source.system.bonds ?? []);
     list.splice(Number(target.dataset.index), 1);
     await this.actor.update({ "system.bonds": list });
+  }
+  /** Свернуть или развернуть шкалы — классом, без перерисовки, чтобы сыграла анимация. */
+  static #onToggleVitals(event, target) {
+    this._vitalsClosed = !this._vitalsClosed;
+    try { localStorage.setItem("vtm20.vitalsClosed", this._vitalsClosed ? "1" : "0"); } catch { /* приватный режим */ }
+    const wrap = this.element.querySelector(".r-vitals-wrap");
+    wrap?.classList.toggle("is-closed", this._vitalsClosed);
+    target.dataset.tooltip = t(this._vitalsClosed ? "Sheet.VitalsOpen" : "Sheet.VitalsClose");
   }
   /** Престация (module/apps/boons.mjs): новая услуга в колонку, погасить или вернуть, вычеркнуть. */
   static async #onAddBoon(event, target) { return addBoon(this.actor, target.dataset.dir); }

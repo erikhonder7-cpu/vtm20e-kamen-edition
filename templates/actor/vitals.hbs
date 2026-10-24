@@ -1,5 +1,6 @@
 {{!-- Шкалы: здоровье, воля, Человечность или Путь с Добродетелями. Шапка карточки — название и число в одну строку. --}}
-<section class="r-vitals">
+<section class="r-vitals-wrap {{#if vitalsClosed}}is-closed{{/if}}">
+<div class="r-vitals-fold"><div class="r-vitals">
   <div class="r-vcard r-vc-health {{#if healthHurt}}is-hurt{{/if}}">
     <div class="r-vc-head">
       <h4 class="r-banner"><span>{{localize "VTM20.Sheet.Health"}}</span></h4>
@@ -63,4 +64,14 @@
       <a class="r-vc-btn is-right" data-action="rollVirtue" data-kind="degeneration"><i class="fa-solid fa-scale-unbalanced"></i> {{localize "VTM20.Sheet.DegenerationShort"}}</a>
     </div>
   </div>
+</div></div>
+  {{!-- Полоса под шкалами: свернуть или развернуть их; свёрнутые — сводкой в одну строку --}}
+  <a class="r-vitals-strip" data-action="toggleVitals" data-tooltip="{{#if vitalsClosed}}{{localize 'VTM20.Sheet.VitalsOpen'}}{{else}}{{localize 'VTM20.Sheet.VitalsClose'}}{{/if}}">
+    <span class="r-vs-sum">
+      <span class="r-vs-item {{#if healthHurt}}is-hurt{{/if}}"><i class="fa-solid fa-heart-pulse"></i> {{healthStatus}}{{#if woundPenalty}} <b>{{woundPenalty}}</b>{{/if}}</span>
+      <span class="r-vs-item"><i class="fa-solid fa-shield-heart"></i> {{localize "VTM20.Willpower"}} <b>{{system.willpower.temporary}}</b>/{{system.willpower.permanent}}</span>
+      <span class="r-vs-item"><i class="fa-solid fa-scale-balanced"></i> {{#each paths}}{{#if selected}}{{name}}{{/if}}{{/each}} <b>{{system.morality.value}}</b></span>
+    </span>
+    <i class="fa-solid fa-chevron-up r-vs-caret"></i>
+  </a>
 </section>
