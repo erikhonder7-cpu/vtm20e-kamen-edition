@@ -107,7 +107,7 @@ const FLOOR = 1, WATER = 2, RUBBLE = 3, SECRET = 4, SECRET_SHOWN = 5;
 
 /** Подземный план: тип клетки (0 — порода), хозяин (индекс зала или хода), убранство, двери. */
 class Plan {
-  constructor() { this.t = new Uint8Array(COLS * ROWS); this.o = new Int16Array(COLS * ROWS).fill(-1); this.items = []; this.doors = []; }
+  constructor() { this.t = new Uint8Array(COLS * ROWS); this.o = new Int16Array(COLS * ROWS).fill(-1); this.items = []; this.doors = []; this.gates = new Map(); }
   k(i, j) { return i < 0 || j < 0 || i >= COLS || j >= ROWS ? -1 : j * COLS + i; }
   put(i, j, type, owner) { const k = this.k(i, j); if (k >= 0) { this.t[k] = type; this.o[k] = owner; } }
   rock(i, j) { const k = this.k(i, j); if (k >= 0) this.t[k] = 0; }
@@ -137,6 +137,7 @@ function carveHall(plan, s, own) {
   const disc = (cx, cy, rad, type = FLOOR) => { for (let x = -rad; x <= rad; x++) for (let y = -rad; y <= rad; y++) if (x * x + y * y <= rad * rad + .5) put(cx + x, cy + y, type); };
   const rect = (x0, y0, x1, y1, type = FLOOR) => { for (let x = x0; x <= x1; x++) for (let y = y0; y <= y1; y++) put(x, y, type); };
   // убранство: значок в клетке (повёрнут вместе с планом)
+  const gate = (x, y) => { const [a, b] = at(x, y); plan.gates.set(`${ci + a},${cj + b}`, 1); };
   const item = (x, y, icon, size = 1, rot = 0) => { const [a, b] = at(x, y); plan.items.push({ fi: ci + a + .5, fj: cj + b + .5, icon, rot: (turn * 90 + rot) % 360, s: size, own }); };
   const randomFloor = (tries = 30) => { for (let k = 0; k < tries; k++) { const x = Math.round((r() - .5) * R * 1.6), y = Math.round((r() - .5) * R * 1.6); if (isFloor(x, y) && Math.hypot(x, y) > 1.5) return [x, y]; } return null; };
   const kind = s.minor ? (r() < .5 ? "quarry" : "cave") : s.kind;
@@ -230,7 +231,7 @@ function carveHall(plan, s, own) {
     for (const by of blocks) {
       for (let x = -L; x <= L; x++) put(x, by);
       for (let x = -L + 1; x + 1 <= L; x += 3) for (const side of [-1, 1]) {
-        put(x, by + side); item(x, by + side, "bars", .9);
+        put(x, by + side); gate(x, by + side);                              // решётка в двери камеры
         if (side > 0) rect(x, by + 2, x + 1, by + 3); else rect(x, by - 3, x + 1, by - 2);
       }
     }
@@ -393,7 +394,12 @@ function iconImage(kind) {
     const gate = () => { g.lineWidth = 5; line(4, 32, 60, 32); g.lineWidth = 3.5; for (let x = 10; x <= 54; x += 11) line(x, 16, x, 48); };
     switch (kind) {
       case "door": g.fillStyle = "#6b4a2a"; g.fillRect(4, 24, 56, 16); g.strokeRect(4, 24, 56, 16); line(32, 24, 32, 40); break;
-      case "stairs": g.fillStyle = "rgba(18,11,6,.85)"; g.fillRect(8, 4, 48, 56); g.strokeRect(8, 4, 48, 56); g.lineWidth = 3; for (let y = 12; y < 60; y += 8) line(8, y, 56, y); break;
+      case "stairs": {
+        // лестница вниз: ступени сужаются к нижнему ярусу, стрелка — куда спускаться
+        g.fillStyle = "rgba(18,11,6,.85)"; g.beginPath(); g.moveTo(6, 6); g.lineTo(58, 6); g.lineTo(46, 58); g.lineTo(18, 58); g.closePath(); g.fill(); g.stroke();
+        g.lineWidth = 3; for (let k = 1; k < 6; k++) { const y = 6 + k * 52 / 6, w = 26 - k * 12 / 6 * 1.0 - k; line(32 - w, y, 32 + w, y); }
+        g.fillStyle = "#d9b44a"; g.beginPath(); g.moveTo(32, 50); g.lineTo(25, 40); g.lineTo(39, 40); g.closePath(); g.fill(); break;
+      }
       case "gate": gate(); break;
       case "locked": gate(); g.fillStyle = RED; g.fillRect(24, 30, 16, 14); g.strokeStyle = RED; g.lineWidth = 3; g.beginPath(); g.arc(32, 30, 6, Math.PI, 0); g.stroke(); break;
       case "lock": g.fillStyle = RED; g.fillRect(16, 28, 32, 26); g.strokeStyle = RED; g.lineWidth = 6; g.beginPath(); g.arc(32, 28, 11, Math.PI, 0); g.stroke();
@@ -504,11 +510,15 @@ export function addCatacombLayers() {
     paint: { "line-color": ["get", "wall"], "line-opacity": o(1), "line-width": zw(12, 1, 14, 1.4, 16, 2.4, 18, 5), "line-dasharray": ["case", ["get", "secret"], ["literal", [1.5, 1.5]], ["literal", [1, 0]]] } });
   add({ id: "rc-cata-bones", type: "line", source: "rc-cata-walls", minzoom: 14.5, filter: ["==", ["get", "bones"], true],
     paint: { "line-color": "#f4e8c8", "line-opacity": o(.9), "line-width": zw(14.5, 2, 16, 4, 18, 8), "line-dasharray": [.25, 1.1] } });
-  // решётки: поперечина от стены до стены и прутья поверх (пунктир толстой линией), запертые — красные
+  // двери — деревянная створка поперёк проёма; решётки — поперечина от стены до стены и прутья поверх (пунктир толстой линией), запертые — красные
   const barW = (k = 1) => ["interpolate", ["exponential", 2], ["zoom"], 13, .8 * k, 19, 18 * k];
-  add({ id: "rc-cata-gate", type: "line", source: "rc-cata-gates", layout: { "line-cap": "butt" },
+  add({ id: "rc-cata-door-frame", type: "line", source: "rc-cata-gates", filter: ["==", ["get", "door"], true], layout: { "line-cap": "butt" },
+    paint: { "line-color": "#ead8ad", "line-opacity": o(1), "line-width": barW(1.5) } });
+  add({ id: "rc-cata-door-leaf", type: "line", source: "rc-cata-gates", filter: ["==", ["get", "door"], true], layout: { "line-cap": "butt" },
+    paint: { "line-color": "#7a5230", "line-opacity": o(1), "line-width": barW(1.05) } });
+  add({ id: "rc-cata-gate", type: "line", source: "rc-cata-gates", filter: ["!=", ["get", "door"], true], layout: { "line-cap": "butt" },
     paint: { "line-color": ["case", ["get", "locked"], "#c4474c", "#ead8ad"], "line-opacity": o(1), "line-width": barW(.45) } });
-  add({ id: "rc-cata-gate-bars", type: "line", source: "rc-cata-gates", minzoom: 14.5, layout: { "line-cap": "butt" },
+  add({ id: "rc-cata-gate-bars", type: "line", source: "rc-cata-gates", minzoom: 14.5, filter: ["!=", ["get", "door"], true], layout: { "line-cap": "butt" },
     paint: { "line-color": ["case", ["get", "locked"], "#e07a7d", "#ead8ad"], "line-opacity": o(1), "line-width": barW(1.1), "line-dasharray": [.35, .9] } });
   // значки: убранство, двери, лестницы, замки, ловушки — в размер клетки
   add({ id: "rc-cata-icons", type: "symbol", source: "rc-cata-icons", minzoom: 14.6,
@@ -672,13 +682,20 @@ function floorData(key, { plan, nodes, tunnels }, cells, gm, L) {
   return { key, vop, ops, sources: { "rc-cata-cells": cellsFc, "rc-cata-hatch": hatchFc, "rc-cata-walls": fc(walls), "rc-cata-preview": EMPTY } };
 }
 
-function iconData(key, { plan }, { vop, ops }, gates, traps, gm) {
+function iconData(key, { plan }, { vop, ops }, edits, traps, gm) {
+  const gates = { ...Object.fromEntries(plan.gates), ...edits };
   const at = (i, j) => (i < 0 || j < 0 || i >= COLS || j >= ROWS) ? 0 : ops[vop[j * COLS + i]];
   const icons = [], visAt = (fi, fj) => at(Math.floor(fi), Math.floor(fj));
   const icon = (fi, fj, name, rot, sz, p, extra = {}) => icons.push({ type: "Feature", geometry: { type: "Point", coordinates: cornerLL(fi, fj) }, properties: { icon: name, rot, s: sz, op: p, z: 1, ...extra } });
   for (const it of plan.items) { const p = visAt(it.fi, it.fj); if (p) icon(it.fi, it.fj, it.icon, it.rot, it.s, p); }
-  for (const d of plan.doors) { const p = visAt(d.f[0] - .01, d.f[1] - .01) || visAt(d.f[0], d.f[1]); if (p) icon(d.f[0], d.f[1], "door", d.rot, d.s, p); }
   const bars = [];
+  for (const d of plan.doors) {
+    const p = visAt(d.f[0] - .01, d.f[1] - .01) || visAt(d.f[0], d.f[1]);
+    if (!p) continue;
+    const [fi, fj] = d.f, h = d.s / 2;            // rot 0 — ход вертикальный, створка поперёк по x; rot 90 — наоборот
+    const line = d.rot ? [cornerLL(fi, fj - h), cornerLL(fi, fj + h)] : [cornerLL(fi - h, fj), cornerLL(fi + h, fj)];
+    bars.push({ type: "Feature", geometry: { type: "LineString", coordinates: line }, properties: { door: true, op: p } });
+  }
   for (const [ck, v] of Object.entries(gates)) {
     const [i, j] = ck.split(",").map(Number), p = at(i, j);
     if (!p || !v) continue;
@@ -688,7 +705,7 @@ function iconData(key, { plan }, { vop, ops }, gates, traps, gm) {
     const alongX = up + down <= left + right;
     const [a, b] = alongX ? [up, down] : [left, right];
     const line = alongX ? [cornerLL(i + .5, j - a), cornerLL(i + .5, j + b + 1)] : [cornerLL(i - a, j + .5), cornerLL(i + b + 1, j + .5)];
-    bars.push({ type: "Feature", geometry: { type: "LineString", coordinates: line }, properties: { locked: v === 2, op: p } });
+    bars.push({ type: "Feature", geometry: { type: "LineString", coordinates: line }, properties: { door: false, locked: v === 2, op: p } });
     if (v === 2) icon(i + .5, j + .5, "lock", 0, .7, p, { z: 2 });
   }
   for (const tr of traps) if (gm || tr.known) icon(tr.i + .5, tr.j + .5, "trap", 0, .9, tr.known ? 1 : .6, { trap: tr.id, z: 3 });
@@ -880,7 +897,12 @@ export function catacombsPlace(ev) {
   // с кистью щелчки по карте — её: решётка и ловушка ставятся щелчком, остальные режимы рисуют мазком
   if (brush && game.user.isGM && isOn()) {
     const [i, j] = cellOf(ev.lngLat.lat, ev.lngLat.lng), ck = `${i},${j}`;
-    if (brush.mode === "gate") { const gates = { ...(store().gates ?? {}) }, v = ((gates[ck] ?? 0) + 1) % 3; if (v) gates[ck] = v; else delete gates[ck]; save({ gates }); }
+    if (brush.mode === "gate") {
+      // решётка → заперто → убрать; у встроенных решёток (двери камер) «убрать» хранится явным 0
+      const gates = { ...(store().gates ?? {}) }, builtIn = planCache?.plan.gates.get(ck) ?? 0, v = ((gates[ck] ?? builtIn) + 1) % 3;
+      if (v || builtIn) gates[ck] = v; else delete gates[ck];
+      save({ gates });
+    }
     if (brush.mode === "trap") trapDialog(i, j);
     return true;
   }
