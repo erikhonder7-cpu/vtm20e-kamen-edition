@@ -314,6 +314,10 @@ body.r-skin #players #performance-stats {
 body.r-skin #players #performance-stats label { text-transform: uppercase; margin-right: 5px; }
 body.r-skin #players #performance-stats .average { font-family: var(--rk-display); font-size: 13px; letter-spacing: 0; }
 body.r-skin #players #performance-stats button { --button-size: 18px; --button-text-color: var(--rk-muted); --button-hover-text-color: var(--rk-bone); }
+/* стрелка развёртывания всегда в той же строке: без переноса, задержка и FPS ужимаются, а не выталкивают её вниз */
+body.r-skin #players #performance-stats { flex-wrap: nowrap; gap: 6px; letter-spacing: .8px; }
+body.r-skin #players #performance-stats #latency, body.r-skin #players #performance-stats #fps { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+body.r-skin #players #performance-stats #players-expand { flex: none; margin-left: auto; }
 body.r-skin #players h3, body.r-skin #players .players-header { font-family: var(--rk-caps); letter-spacing: 2px; text-transform: uppercase; }
 body.r-skin #pause { color: var(--rk-blood-l); }
 body.r-skin #pause figcaption { font-family: var(--rk-caps); letter-spacing: 6px; text-transform: uppercase; color: var(--rk-bone); text-shadow: 0 2px 8px #000; }
