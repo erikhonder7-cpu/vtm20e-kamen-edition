@@ -98,3 +98,11 @@
 #r-citymap .rc-cata-bhint { margin: 0; font-size: 11.5px; font-style: italic; line-height: 1.3; color: #9a8b70; }
 #r-citymap .rc-cata-panel footer a[data-cp="grid"] { flex: 0 0 34px; }
 #r-citymap .rc-cata-card.is-secret { border-top-color: #c9a0e0; }
+
+/* Мерцание фонаря под землёй: дрожит виньетка поверх карты — анимирует браузер, карта не перерисовывается */
+#r-citymap.is-underground .rc-gl::after { animation: rc-torch 3.4s ease-in-out infinite; }
+@keyframes rc-torch {
+  0%, 100% { opacity: 1; } 11% { opacity: .84; } 19% { opacity: .97; } 31% { opacity: .88; } 46% { opacity: 1; }
+  58% { opacity: .86; } 71% { opacity: .95; } 84% { opacity: .9; }
+}
+@media (prefers-reduced-motion: reduce) { #r-citymap.is-underground .rc-gl::after { animation: none; } }

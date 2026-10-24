@@ -9,7 +9,8 @@
 //   · меловые пометки: каждый ставит свои (флаг пользователя), мастер видит все, игроки — свои и открытые всем;
 //   · список залов сбоку: поиск, фильтры, перелёт к залу, сетка квадратов вкл./выкл.;
 //   · кисть рассказчика: копать, засыпать, вода, завал, тайные ходы (открываются игрокам группой), решётки, ловушки;
-//   · план со штриховкой породы вдоль стен, дверями, лестницами и убранством залов.
+//   · план со штриховкой породы вдоль стен, дверями, лестницами и убранством залов;
+//   · в покое карта не перерисовывается: данные залиты один раз, мерцание фонаря — CSS поверх карты.
 // Карта (module/ui/citymap.mjs) отдаёт сюда свой объект через attachCatacombs и зовёт слои при каждой смене стиля.
 
 import { SYSTEM_ID } from "../config.mjs";
@@ -24,7 +25,7 @@ const CHALK = { arrow: ["Стрелка", "fa-arrow-up"], cross: ["Крест", 
 
 let host = null;      // { map, gl, view, setView, city, drawTools, zoomed }
 let placing = null;   // { mode: "hall" | "move" | "door" | "mark", id } — следующий щелчок по карте
-let popup = null, panel = null, anim = null;
+let popup = null, panel = null;
 const list = { q: "", filter: "all" };
 
 /* ═══ Состояние ═══════════════════════════════════════════════════════════ */
@@ -295,23 +296,27 @@ function carveTunnel(plan, a, b, own, { width = 1, ownA, ownB, flooded = false }
 
 /** Остов сети: минимальное дерево по расстоянию плюс петли ко второму и иногда третьему соседу. */
 function edges(nodes) {
-  if (nodes.length < 2) return [];
+  const n = nodes.length;
+  if (n < 2) return [];
   const key = (a, b) => [a.id, b.id].sort().join("|");
-  const done = new Set([nodes[0].id]), out = new Map();
-  while (done.size < nodes.length) {
-    let best = null;
-    for (const a of nodes) if (done.has(a.id)) for (const b of nodes) if (!done.has(b.id)) {
-      const d = meters(a, b);
-      if (!best || d < best.d) best = { a, b, d };
-    }
-    done.add(best.b.id); out.set(key(best.a, best.b), [best.a, best.b]);
+  const D = new Float64Array(n * n);
+  for (let a = 0; a < n; a++) for (let b = a + 1; b < n; b++) D[a * n + b] = D[b * n + a] = meters(nodes[a], nodes[b]);
+  // Прим за n²: к дереву по одному присоединяется ближайший узел
+  const inTree = new Uint8Array(n), best = new Float64Array(n).fill(Infinity), from = new Int32Array(n).fill(-1), out = new Map();
+  best[0] = 0;
+  for (let it = 0; it < n; it++) {
+    let u = -1;
+    for (let v = 0; v < n; v++) if (!inTree[v] && (u < 0 || best[v] < best[u])) u = v;
+    inTree[u] = 1;
+    if (from[u] >= 0) out.set(key(nodes[from[u]], nodes[u]), [nodes[from[u]], nodes[u]]);
+    for (let v = 0; v < n; v++) if (!inTree[v] && D[u * n + v] < best[v]) { best[v] = D[u * n + v]; from[v] = u; }
   }
-  for (const a of nodes) {
-    const near = nodes.filter(b => b !== a).map(b => ({ b, d: meters(a, b) })).sort((x, y) => x.d - y.d);
-    const roll = rng(`loop:${a.id}`)();
+  for (let a = 0; a < n; a++) {
+    const near = [...Array(n).keys()].filter(b => b !== a).sort((x, y) => D[a * n + x] - D[a * n + y]);
+    const roll = rng(`loop:${nodes[a].id}`)();
     for (const [i, max] of [[1, 1900], [2, roll < .4 ? 1300 : 0]]) {
-      const nb = near[i];
-      if (nb && nb.d < max && !out.has(key(a, nb.b))) out.set(key(a, nb.b), [a, nb.b]);
+      const b = near[i];
+      if (b !== undefined && D[a * n + b] < max && !out.has(key(nodes[a], nodes[b]))) out.set(key(nodes[a], nodes[b]), [nodes[a], nodes[b]]);
     }
   }
   return [...out.values()];
@@ -336,6 +341,7 @@ function buildPlan(all) {
   const nodes = [...all, ...minis];
   const sig = nodes.map(n => `${n.id}:${n.lat.toFixed(5)}:${n.lng.toFixed(5)}:${n.r}:${n.kind}:${n.level}`).join("|");
   if (planCache?.sig === sig) return planCache;
+  const t0 = performance.now();
   const plan = new Plan(), index = new Map(nodes.map((n, i) => [n.id, i]));
   nodes.forEach((n, i) => carveHall(plan, n, i));
   const named = edges(all), graph = edges(nodes);
@@ -347,6 +353,7 @@ function buildPlan(all) {
     carveTunnel(plan, a, b, own, { width: !a.minor && !b.minor ? 2 : 1, ownA: index.get(a.id), ownB: index.get(b.id),
       flooded: a.kind === "flooded" || b.kind === "flooded" });
   }
+  perf.build = performance.now() - t0;
   return (planCache = { sig, plan, nodes, tunnels });
 }
 
@@ -376,7 +383,7 @@ function chalkImage(kind) {
 }
 
 /** Значок 64×64 = одна клетка на крупном масштабе: двери, лестницы, решётки, ловушки и убранство залов. */
-const ICONS = ["door", "stairs", "gate", "locked", "trap", "sarcophagus", "bones", "altar", "throne", "bars", "well", "nest", "brazier", "lantern", "cart"];
+const ICONS = ["door", "stairs", "gate", "locked", "lock", "trap", "sarcophagus", "bones", "altar", "throne", "bars", "well", "nest", "brazier", "lantern", "cart"];
 function iconImage(kind) {
   return canvasImage(64, 64, g => {
     const INK = "#ead8ad", DARK = "#120b06", RED = "#c4474c", FIRE = "#f0a040";
@@ -389,6 +396,8 @@ function iconImage(kind) {
       case "stairs": g.fillStyle = "rgba(18,11,6,.85)"; g.fillRect(8, 4, 48, 56); g.strokeRect(8, 4, 48, 56); g.lineWidth = 3; for (let y = 12; y < 60; y += 8) line(8, y, 56, y); break;
       case "gate": gate(); break;
       case "locked": gate(); g.fillStyle = RED; g.fillRect(24, 30, 16, 14); g.strokeStyle = RED; g.lineWidth = 3; g.beginPath(); g.arc(32, 30, 6, Math.PI, 0); g.stroke(); break;
+      case "lock": g.fillStyle = RED; g.fillRect(16, 28, 32, 26); g.strokeStyle = RED; g.lineWidth = 6; g.beginPath(); g.arc(32, 28, 11, Math.PI, 0); g.stroke();
+        g.fillStyle = DARK; circle(32, 40, 4, true); break;
       case "trap": g.fillStyle = "rgba(196,71,76,.92)"; g.beginPath(); g.moveTo(32, 6); g.lineTo(58, 54); g.lineTo(6, 54); g.closePath(); g.fill();
         g.strokeStyle = DARK; g.lineWidth = 5; line(32, 22, 32, 38); circle(32, 46, 2.5); break;
       case "sarcophagus": g.fillStyle = "rgba(18,11,6,.7)"; g.beginPath(); [[22, 4], [42, 4], [50, 18], [44, 60], [20, 60], [14, 18]].forEach(([x, y], i) => i ? g.lineTo(x, y) : g.moveTo(x, y)); g.closePath(); g.fill(); g.stroke();
@@ -446,15 +455,15 @@ function gridData() {
 }
 
 const SOURCES = ["rc-cata-dim", "rc-cata-fine", "rc-cata-sq", "rc-cata-sq-label", "rc-cata-area", "rc-cata-glow", "rc-cata-hatch", "rc-cata-cells",
-  "rc-cata-walls", "rc-cata-icons", "rc-cata-label", "rc-cata-door", "rc-cata-marks"];
-let pushedKey = null;
+  "rc-cata-walls", "rc-cata-preview", "rc-cata-gates", "rc-cata-icons", "rc-cata-label", "rc-cata-door", "rc-cata-marks"];
+const pushed = {};          // группа данных → ключ уже залитых в источники
 
 /** Источники и слои; карта зовёт при каждой загрузке стиля (смена «план / ночь» стирает слои). */
 export function addCatacombLayers() {
   const map = host?.map;
   if (!map) return;
   surfaceKeep.delete(map);   // новый стиль — прежние значения притушенных слоёв больше не нужны
-  pushedKey = null;          // и источники новые — данные залить заново
+  for (const k of Object.keys(pushed)) delete pushed[k];   // и источники новые — данные залить заново
   for (const k of Object.keys(CHALK)) if (!map.hasImage(`rc-chalk-${k}`)) map.addImage(`rc-chalk-${k}`, chalkImage(k));
   for (const k of ICONS) if (!map.hasImage(`rc-ico-${k}`)) map.addImage(`rc-ico-${k}`, iconImage(k));
   if (!map.hasImage("rc-cata-hatch")) map.addImage("rc-cata-hatch", hatchImage());
@@ -482,22 +491,33 @@ export function addCatacombLayers() {
   // штриховка — только вблизи: издали клетка с пиксель, и штрихи сливаются в рябь поверх стен
   add({ id: "rc-cata-hatch", type: "fill", source: "rc-cata-hatch", minzoom: 14.2,
     paint: { "fill-pattern": "rc-cata-hatch", "fill-opacity": ["interpolate", ["linear"], ["zoom"], 14.2, 0, 15, o(.9)], "fill-antialias": false } });
-  add({ id: "rc-cata-floor", type: "fill", source: "rc-cata-cells",
-    paint: { "fill-color": ["match", ["get", "type"], WATER, "#174a50", RUBBLE, "#4a3a26", PAPER], "fill-opacity": o(1), "fill-antialias": false } });
+  add({ id: "rc-cata-floor", type: "fill", source: "rc-cata-cells", filter: ["!=", ["get", "type"], WATER],
+    paint: { "fill-color": ["match", ["get", "type"], RUBBLE, "#4a3a26", PAPER], "fill-opacity": o(1), "fill-antialias": false } });
+  add({ id: "rc-cata-water", type: "fill", source: "rc-cata-cells", filter: ["==", ["get", "type"], WATER],
+    paint: { "fill-color": ["rgba", 23, 74, 80, ["get", "op"]], "fill-opacity": .85, "fill-antialias": false } });
+  // предпросмотр мазка кисти — пока кнопка мыши зажата; полный пересчёт — один раз, когда её отпустили
+  add({ id: "rc-cata-preview", type: "fill", source: "rc-cata-preview",
+    paint: { "fill-color": ["match", ["get", "v"], 0, "#b03a2e", -1, "#7a6a50", WATER, "#3f9aa0", RUBBLE, "#8a6a40", SECRET, "#c9a0e0", WALL], "fill-opacity": .5 } });
   add({ id: "rc-cata-lamp", type: "line", source: "rc-cata-walls", layout: { "line-cap": "round" },
-    paint: { "line-color": LAMP, "line-opacity": o(.2), "line-width": zw(12, 2, 15, 6, 18, 18), "line-blur": zw(12, 2, 15, 5, 18, 14) } });
+    paint: { "line-color": ["rgba", 240, 194, 122, ["get", "op"]], "line-opacity": .2, "line-width": zw(12, 2, 15, 6, 18, 18), "line-blur": zw(12, 2, 15, 5, 18, 14) } });
   add({ id: "rc-cata-wall", type: "line", source: "rc-cata-walls", layout: { "line-cap": "square" },
     paint: { "line-color": ["get", "wall"], "line-opacity": o(1), "line-width": zw(12, 1, 14, 1.4, 16, 2.4, 18, 5), "line-dasharray": ["case", ["get", "secret"], ["literal", [1.5, 1.5]], ["literal", [1, 0]]] } });
   add({ id: "rc-cata-bones", type: "line", source: "rc-cata-walls", minzoom: 14.5, filter: ["==", ["get", "bones"], true],
     paint: { "line-color": "#f4e8c8", "line-opacity": o(.9), "line-width": zw(14.5, 2, 16, 4, 18, 8), "line-dasharray": [.25, 1.1] } });
-  // значки: убранство, двери, лестницы, решётки, ловушки — в размер клетки
+  // решётки: поперечина от стены до стены и прутья поверх (пунктир толстой линией), запертые — красные
+  const barW = (k = 1) => ["interpolate", ["exponential", 2], ["zoom"], 13, .8 * k, 19, 18 * k];
+  add({ id: "rc-cata-gate", type: "line", source: "rc-cata-gates", layout: { "line-cap": "butt" },
+    paint: { "line-color": ["case", ["get", "locked"], "#c4474c", "#ead8ad"], "line-opacity": o(1), "line-width": barW(.45) } });
+  add({ id: "rc-cata-gate-bars", type: "line", source: "rc-cata-gates", minzoom: 14.5, layout: { "line-cap": "butt" },
+    paint: { "line-color": ["case", ["get", "locked"], "#e07a7d", "#ead8ad"], "line-opacity": o(1), "line-width": barW(1.1), "line-dasharray": [.35, .9] } });
+  // значки: убранство, двери, лестницы, замки, ловушки — в размер клетки
   add({ id: "rc-cata-icons", type: "symbol", source: "rc-cata-icons", minzoom: 14.6,
     layout: { "icon-image": ["concat", "rc-ico-", ["get", "icon"]], "icon-size": cellIcon, "icon-rotate": ["get", "rot"], "icon-rotation-alignment": "map",
       "icon-allow-overlap": true, "icon-ignore-placement": true, "symbol-sort-key": ["get", "z"] },
     paint: { "icon-opacity": o(1) } });
   // входы с поверхности: ореол света (мерцает), кольцо и тёмная шахта
   add({ id: "rc-cata-door-glow", type: "circle", source: "rc-cata-door", minzoom: 12.5,
-    paint: { "circle-radius": zw(12.5, 6, 16, 24, 18, 60), "circle-color": LAMP, "circle-blur": 1, "circle-opacity": o(.55) } });
+    paint: { "circle-radius": zw(12.5, 6, 16, 24, 18, 60), "circle-color": ["rgba", 240, 194, 122, ["get", "op"]], "circle-blur": 1, "circle-opacity": .55 } });
   add({ id: "rc-cata-door", type: "circle", source: "rc-cata-door", minzoom: 12.5,
     paint: { "circle-radius": zw(12.5, 2.5, 16, 7, 18, 16), "circle-color": "#050302", "circle-stroke-color": WALL, "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 12.5, 1, 17, 2.5],
       "circle-opacity": o(1), "circle-stroke-opacity": o(1) } });
@@ -536,52 +556,67 @@ export function drawCatacombs() {
   // метки и фишки — HTML поверх карты, слой тени их не накрывает: притушить стилями (styles/r-catacombs.css)
   map.getContainer().closest("#r-citymap")?.classList.toggle("is-underground", on);
   dimSurface(map, on);
-  animate(on);
   if (!on) { closePopup(); setBrush(null); renderPanel(); return; }
   pushData();
   renderPanel();
   drawMarks();
 }
 
-/** Залить данные в источники, если они поменялись (ключ — залы, правки, видимость, ярус). */
-const perf = { compute: 0, push: 0 };
+/** Залить в источники только те группы данных, что поменялись (ключ — залы, правки, видимость, ярус). */
+const perf = { compute: 0, push: 0, build: 0, data: 0 };
 function pushData() {
   const map = host?.map;
   if (!map?.getSource("rc-cata-cells")) return;
-  const t0 = performance.now(), d = computeData();
+  const t0 = performance.now(), groups = computeData();
   perf.compute = performance.now() - t0;
-  if (d.key === pushedKey) return;
-  pushedKey = d.key;
-  for (const [src, fc] of Object.entries(d.sources)) map.getSource(src)?.setData(fc);
+  for (const [name, g] of Object.entries(groups)) {
+    if (pushed[name] === g.key) continue;
+    pushed[name] = g.key;
+    for (const [src, fc] of Object.entries(g.sources)) map.getSource(src)?.setData(fc);
+  }
   perf.push = performance.now() - t0 - perf.compute;
 }
-/** Время последнего расчёта и заливки данных, мс (для автотестов). */
+/** Время последнего построения, расчёта и заливки, мс (для автотестов). */
 export const catacombsPerf = () => ({ ...perf });
 
-/** Правки клеток рассказчика с учётом ещё не сохранённого мазка кисти. */
-function cellEdits(st = store()) {
-  const cells = { ...(st.cells ?? {}) };
-  if (pending) for (const [k, v] of Object.entries(pending)) { if (v === null) delete cells[k]; else cells[k] = v; }
-  return cells;
+/** Правки клеток рассказчика (без мазка, который ещё рисуется, — он в предпросмотре). */
+const cellEdits = (st = store()) => st.cells ?? {};
+
+let floorCache = null, iconCache = null, hallCache = null;
+const kindOf = s => KINDS[s.kind] ?? KINDS.quarry;
+const fc = features => ({ type: "FeatureCollection", features });
+const feat = (geometry, properties) => ({ type: "Feature", geometry, properties });
+
+/**
+ * Данные слоёв по группам, каждая с кэшем по своему ключу:
+ *   floor — пол, штриховка, стены (меняются с залами, правками кистью, видимостью и ярусом);
+ *   icons — убранство, двери, решётки, ловушки (то же плюс решётки и ловушки);
+ *   halls — силуэты для щелчка, свечение, подписи, входы (меняются только с залами).
+ */
+function computeData() {
+  const gm = game.user.isGM, st = store(), all = sections(), L = curLevel(), cells = cellEdits(st);
+  const base = buildPlan(all);
+  const known = all.map(s => `${s.id}${s.known ? 1 : 0}`).join("");
+  const fKey = `${base.sig}#${gm}#${L}#${known}#${JSON.stringify(cells)}`;
+  if (floorCache?.key !== fKey) floorCache = floorData(fKey, base, cells, gm, L);
+  const iKey = `${fKey}#${JSON.stringify(st.gates ?? {})}#${JSON.stringify(st.traps ?? [])}`;
+  if (iconCache?.key !== iKey) iconCache = iconData(iKey, base, floorCache, st.gates ?? {}, st.traps ?? [], gm);
+  const hKey = `${gm}#${L}#${JSON.stringify(all)}#${base.nodes.length}`;
+  if (hallCache?.key !== hKey) hallCache = hallData(hKey, all, base.nodes, gm, L);
+  return { floor: floorCache, icons: iconCache, halls: hallCache };
 }
 
-let dataCache = null;
-/** Все данные слоёв для этого пользователя; кэш по ключу, чтобы повторное включение и перерисовки были мгновенными. */
-function computeData() {
-  const gm = game.user.isGM, st = store(), all = sections(), L = curLevel(), cells = cellEdits(st), gates = st.gates ?? {}, traps = st.traps ?? [];
-  const base = buildPlan(all);
-  const key = `${base.sig}#${gm}#${L}#${all.map(s => `${s.id}${s.known ? 1 : 0}`).join("")}#${JSON.stringify(cells)}#${JSON.stringify(gates)}#${JSON.stringify(traps)}`;
-  if (dataCache?.key === key) return dataCache;
-  const { plan, nodes, tunnels } = base, N = COLS * ROWS;
-  const kind = s => KINDS[s.kind] ?? KINDS.quarry;
-  const op = (known, level) => (known ? 1 : .45) * (L === "all" || level === "x" || level === L ? 1 : .13);
+const opOf = (L, known, level) => (known ? 1 : .45) * (L === "all" || level === "x" || level === L ? 1 : .13);
+
+function floorData(key, { plan, nodes, tunnels }, cells, gm, L) {
+  const tData = performance.now(), N = COLS * ROWS;
   const DIG = nodes.length + tunnels.length, SEC_H = DIG + 1, SEC_S = DIG + 2;
   // по хозяину клетки: виден ли этому пользователю, прозрачность, цвет стены, кости, тайный
   const meta = [
-    ...nodes.map(n => ({ vis: n.minor || gm || n.known, op: op(n.minor || n.known, n.level),
-      wall: n.minor ? "#a8936c" : mix(kind(n).color, WALL, .5), bones: n.kind === "ossuary" && !n.minor })),
-    ...tunnels.map(({ a, b }) => { const known = (a.minor || a.known) && (b.minor || b.known);
-      return { vis: gm || known, op: op(known, a.level === b.level ? a.level : "x"), wall: a.minor || b.minor ? "#a8936c" : WALL }; }),
+    ...nodes.map(n => ({ vis: n.minor || gm || n.known, op: opOf(L, n.minor || n.known, n.level),
+      wall: n.minor ? "#a8936c" : mix(kindOf(n).color, WALL, .5), bones: n.kind === "ossuary" && !n.minor })),
+    ...tunnels.map(({ a, b }) => { const kn = (a.minor || a.known) && (b.minor || b.known);
+      return { vis: gm || kn, op: opOf(L, kn, a.level === b.level ? a.level : "x"), wall: a.minor || b.minor ? "#a8936c" : WALL }; }),
     { vis: true, op: 1, wall: WALL },                                       // выкопано кистью
     { vis: gm, op: .45, wall: "#c9a0e0", secret: true },                    // тайный ход, скрыт от игроков
     { vis: true, op: 1, wall: WALL }                                        // тайный ход, открыт
@@ -589,92 +624,106 @@ function computeData() {
   // правки кистью поверх плана
   const t = plan.t.slice(), own = plan.o.slice();
   for (const [ck, v] of Object.entries(cells)) {
-    const [i, j] = ck.split(",").map(Number), k = plan.k(i, j);
+    const c = ck.indexOf(","), k = plan.k(+ck.slice(0, c), +ck.slice(c + 1));
     if (k < 0) continue;
     if (v === 0) t[k] = 0;
     else if (v === SECRET || v === SECRET_SHOWN) { t[k] = FLOOR; own[k] = v === SECRET ? SEC_H : SEC_S; }
     else { if (!t[k]) own[k] = DIG; t[k] = v; }
   }
-  // видимая прозрачность клетки (0 — не видна или порода)
-  const vop = new Float32Array(N);
-  for (let k = 0; k < N; k++) if (t[k] && meta[own[k]]?.vis) vop[k] = meta[own[k]].op;
-  const at = (i, j) => (i < 0 || j < 0 || i >= COLS || j >= ROWS) ? 0 : vop[j * COLS + i];
+  // видимость клетки: индекс прозрачности (0 — не видна или порода) — числа, а не строки, в горячих циклах
+  const ops = [0], opIndex = new Map(), vop = new Uint8Array(N);
+  const idx = p => { let i = opIndex.get(p); if (i === undefined) { i = ops.length; ops.push(p); opIndex.set(p, i); } return i; };
+  const metaOp = meta.map(m => idx(m.op));
+  for (let k = 0; k < N; k++) if (t[k]) { const m = meta[own[k]]; if (m?.vis) vop[k] = metaOp[own[k]]; }
   // штриховка: порода в одну клетку от видимого пола
-  const hop = new Float32Array(N);
+  const hop = new Uint8Array(N);
   for (let j = 0; j < ROWS; j++) for (let i = 0; i < COLS; i++) {
     const p = vop[j * COLS + i];
     if (!p) continue;
-    for (let dj = -1; dj <= 1; dj++) for (let di = -1; di <= 1; di++) {
-      const ii = i + di, jj = j + dj;
-      if (ii < 0 || jj < 0 || ii >= COLS || jj >= ROWS) continue;
+    for (let jj = Math.max(0, j - 1); jj <= Math.min(ROWS - 1, j + 1); jj++) for (let ii = Math.max(0, i - 1); ii <= Math.min(COLS - 1, i + 1); ii++) {
       const k = jj * COLS + ii;
-      if (!vop[k] && hop[k] < p) hop[k] = p;
+      if (!vop[k] && ops[hop[k]] < ops[p]) hop[k] = p;
     }
   }
-  const cellsFc = mesh((i, j) => { const k = j * COLS + i; return vop[k] ? `${t[k]}|${vop[k]}` : ""; }, key => { const [type, p] = key.split("|").map(Number); return { type, op: p }; });
-  const hatchFc = mesh((i, j) => { const p = hop[j * COLS + i]; return p ? String(p) : ""; }, key => ({ op: Number(key) }));
+  const cellsFc = mesh((i, j) => { const k = j * COLS + i; return vop[k] ? t[k] * 64 + vop[k] : 0; }, key => ({ type: key >> 6, op: ops[key & 63] }));
+  const hatchFc = mesh((i, j) => hop[j * COLS + i], key => ({ op: ops[key] }));
   // стены: границы между видимым полом и прочим; подряд идущие отрезки с одинаковыми свойствами сливаются
-  const walls = [];
-  const wallKey = k => { const m = meta[own[k]]; return m ? `${m.wall}|${vop[k]}|${m.bones ? 1 : 0}|${m.secret ? 1 : 0}` : ""; };
-  const pushWall = (key, a, b) => { const [wall, p, bones, secret] = key.split("|"); walls.push({ type: "Feature", geometry: { type: "LineString", coordinates: [a, b] }, properties: { wall, op: Number(p), bones: bones === "1", secret: secret === "1" } }); };
+  const walls = [], wallKeys = new Map();
+  const wallKey = k => { const o2 = own[k], key = o2 * 64 + vop[k]; if (!wallKeys.has(key)) { const m = meta[o2]; wallKeys.set(key, { wall: m.wall, op: ops[vop[k]], bones: !!m.bones, secret: !!m.secret }); } return key + 1; };
+  const pushWall = (key, a, b) => walls.push({ type: "Feature", geometry: { type: "LineString", coordinates: [a, b] }, properties: wallKeys.get(key - 1) });
+  const seen = (i, j) => i >= 0 && j >= 0 && i < COLS && j < ROWS && vop[j * COLS + i] > 0;
   for (let j = 0; j <= ROWS; j++) {
-    let start = -1, key = "";
+    let start = -1, key = 0;
     for (let i = 0; i <= COLS; i++) {
-      const up = i < COLS && at(i, j - 1) > 0, down = i < COLS && at(i, j) > 0;
-      const here = up !== down ? wallKey((up ? j - 1 : j) * COLS + i) : "";
+      const up = i < COLS && seen(i, j - 1), down = i < COLS && seen(i, j);
+      const here = up !== down ? wallKey((up ? j - 1 : j) * COLS + i) : 0;
       if (here !== key) { if (key) pushWall(key, cornerLL(start, j), cornerLL(i, j)); start = i; key = here; }
     }
   }
   for (let i = 0; i <= COLS; i++) {
-    let start = -1, key = "";
+    let start = -1, key = 0;
     for (let j = 0; j <= ROWS; j++) {
-      const left = j < ROWS && at(i - 1, j) > 0, right = j < ROWS && at(i, j) > 0;
-      const here = left !== right ? wallKey(j * COLS + (left ? i - 1 : i)) : "";
+      const left = j < ROWS && seen(i - 1, j), right = j < ROWS && seen(i, j);
+      const here = left !== right ? wallKey(j * COLS + (left ? i - 1 : i)) : 0;
       if (here !== key) { if (key) pushWall(key, cornerLL(i, start), cornerLL(i, j)); start = j; key = here; }
     }
   }
-  // значки: убранство и лестницы, двери, решётки, ловушки — только там, где пол виден
+  perf.data = performance.now() - tData;
+  return { key, vop, ops, sources: { "rc-cata-cells": cellsFc, "rc-cata-hatch": hatchFc, "rc-cata-walls": fc(walls), "rc-cata-preview": EMPTY } };
+}
+
+function iconData(key, { plan }, { vop, ops }, gates, traps, gm) {
+  const at = (i, j) => (i < 0 || j < 0 || i >= COLS || j >= ROWS) ? 0 : ops[vop[j * COLS + i]];
   const icons = [], visAt = (fi, fj) => at(Math.floor(fi), Math.floor(fj));
-  const icon = (fi, fj, name, rot, s, p, extra = {}) => icons.push({ type: "Feature", geometry: { type: "Point", coordinates: cornerLL(fi, fj) }, properties: { icon: name, rot, s, op: p, z: 1, ...extra } });
+  const icon = (fi, fj, name, rot, sz, p, extra = {}) => icons.push({ type: "Feature", geometry: { type: "Point", coordinates: cornerLL(fi, fj) }, properties: { icon: name, rot, s: sz, op: p, z: 1, ...extra } });
   for (const it of plan.items) { const p = visAt(it.fi, it.fj); if (p) icon(it.fi, it.fj, it.icon, it.rot, it.s, p); }
   for (const d of plan.doors) { const p = visAt(d.f[0] - .01, d.f[1] - .01) || visAt(d.f[0], d.f[1]); if (p) icon(d.f[0], d.f[1], "door", d.rot, d.s, p); }
+  const bars = [];
   for (const [ck, v] of Object.entries(gates)) {
     const [i, j] = ck.split(",").map(Number), p = at(i, j);
     if (!p || !v) continue;
-    const horiz = at(i - 1, j) > 0 || at(i + 1, j) > 0;                      // ход идёт вдоль — решётка поперёк
-    icon(i + .5, j + .5, v === 2 ? "locked" : "gate", horiz ? 90 : 0, 1, p, { z: 2 });
+    // решётка встаёт поперёк прохода — по более узкой его стороне, от стены до стены
+    const span = (di, dj) => { let n = 0; while (n < 8 && at(i + di * (n + 1), j + dj * (n + 1)) > 0) n++; return n; };
+    const up = span(0, -1), down = span(0, 1), left = span(-1, 0), right = span(1, 0);
+    const alongX = up + down <= left + right;
+    const [a, b] = alongX ? [up, down] : [left, right];
+    const line = alongX ? [cornerLL(i + .5, j - a), cornerLL(i + .5, j + b + 1)] : [cornerLL(i - a, j + .5), cornerLL(i + b + 1, j + .5)];
+    bars.push({ type: "Feature", geometry: { type: "LineString", coordinates: line }, properties: { locked: v === 2, op: p } });
+    if (v === 2) icon(i + .5, j + .5, "lock", 0, .7, p, { z: 2 });
   }
   for (const tr of traps) if (gm || tr.known) icon(tr.i + .5, tr.j + .5, "trap", 0, .9, tr.known ? 1 : .6, { trap: tr.id, z: 3 });
-  const halls = all.filter(s => gm || s.known).map(s => ({ s, op: op(s.known, s.level) }));
-  const feat = (geometry, properties) => ({ type: "Feature", geometry, properties });
-  const fc = features => ({ type: "FeatureCollection", features });
-  const minisShown = nodes.filter(n => n.minor);
-  dataCache = { key, sources: {
-    "rc-cata-cells": cellsFc, "rc-cata-hatch": hatchFc, "rc-cata-walls": fc(walls), "rc-cata-icons": fc(icons),
-    "rc-cata-area": fc([...halls.map(({ s, op: p }) => feat({ type: "Polygon", coordinates: [outlineOf(s)] }, { id: s.id, color: kind(s).color, op: p })),
-      ...minisShown.map(m => feat({ type: "Polygon", coordinates: [outlineOf(m)] }, { id: m.id, minor: true, color: "#a8936c", op: op(true, "upper") * .7 }))]),
-    "rc-cata-glow": fc(halls.map(({ s, op: p }) => feat({ type: "Point", coordinates: [s.lng, s.lat] }, { color: kind(s).color, r: s.r, op: p }))),
-    "rc-cata-label": fc(halls.filter(h => h.op > .2).map(({ s, op: p }) => feat({ type: "Point", coordinates: [s.lng, s.lat] },
-      { name: s.name, sub: `${kind(s).label} · ${s.holder || "ничьё"} · ${squareOf(s.lat, s.lng)}`, ink: mix(kind(s).color, "#fbf0d8", .5), r: s.r, op: p }))),
-    "rc-cata-door": fc(halls.flatMap(({ s, op: p }) => (s.entries ?? []).map(([lat, lng, name], i) => feat({ type: "Point", coordinates: [lng, lat] }, { name, hid: s.id, idx: i, op: p }))))
-  } };
-  return dataCache;
+  return { key, sources: { "rc-cata-icons": fc(icons), "rc-cata-gates": fc(bars) } };
 }
 
-/** Склейка клеток в прямоугольники: полосы в строке, одинаковые полосы соседних строк сливаются (меньше объектов — быстрее). */
+function hallData(key, all, nodes, gm, L) {
+  const halls = all.filter(s => gm || s.known).map(s => ({ s, op: opOf(L, s.known, s.level) }));
+  return { key, sources: {
+    "rc-cata-area": fc([...halls.map(({ s, op: p }) => feat({ type: "Polygon", coordinates: [outlineOf(s)] }, { id: s.id, op: p })),
+      ...nodes.filter(n => n.minor).map(m => feat({ type: "Polygon", coordinates: [outlineOf(m)] }, { id: m.id, minor: true, op: 1 }))]),
+    "rc-cata-glow": fc(halls.map(({ s, op: p }) => feat({ type: "Point", coordinates: [s.lng, s.lat] }, { color: kindOf(s).color, r: s.r, op: p }))),
+    "rc-cata-label": fc(halls.filter(h => h.op > .2).map(({ s, op: p }) => feat({ type: "Point", coordinates: [s.lng, s.lat] },
+      { name: s.name, sub: `${kindOf(s).label} · ${s.holder || "ничьё"} · ${squareOf(s.lat, s.lng)}`, ink: mix(kindOf(s).color, "#fbf0d8", .5), r: s.r, op: p }))),
+    "rc-cata-door": fc(halls.flatMap(({ s, op: p }) => (s.entries ?? []).map(([lat, lng, name], i) => feat({ type: "Point", coordinates: [lng, lat] }, { name, hid: s.id, idx: i, op: p }))))
+  } };
+}
+
+/**
+ * Склейка клеток в прямоугольники: полосы в строке, одинаковые полосы соседних строк сливаются (меньше объектов —
+ * быстрее и заливка, и отрисовка). keyAt(i, j) — число, 0 — пусто.
+ */
 function mesh(keyAt, propsOf) {
   const out = [], open = new Map();
   for (let j = 0; j <= ROWS; j++) {
-    const runs = new Set();
+    const runs = new Map();
     if (j < ROWS) {
-      let start = -1, key = "";
+      let start = -1, key = 0;
       for (let i = 0; i <= COLS; i++) {
-        const k = i < COLS ? keyAt(i, j) : "";
-        if (k !== key) { if (key) runs.add(`${start}|${i}|${key}`); start = i; key = k; }
+        const k = i < COLS ? keyAt(i, j) : 0;
+        if (k !== key) { if (key) runs.set((start * 1024 + i) * 4096 + key, [start, i, key]); start = i; key = k; }
       }
     }
     for (const [id, rc] of open) { if (runs.has(id)) { rc.j1 = j + 1; runs.delete(id); } else { out.push(rc); open.delete(id); } }
-    for (const id of runs) { const [i0, i1, ...rest] = id.split("|"); open.set(id, { i0: +i0, i1: +i1, j0: j, j1: j + 1, key: rest.join("|") }); }
+    for (const [id, [i0, i1, key]] of runs) open.set(id, { i0, i1, j0: j, j1: j + 1, key });
   }
   return { type: "FeatureCollection", features: out.map(rc => rectFeature(rc.i0, rc.j0, rc.i1, rc.j1, propsOf(rc.key))) };
 }
@@ -726,23 +775,8 @@ function dimSurface(map, on) {
   }
 }
 
-/**
- * Живые детали: фонари мерцают, вода в затопленных выработках дышит. Шесть кадров в секунду и только пока
- * катакомбы открыты и вкладка видна; при «уменьшить движение» в системе — без анимации.
- */
-function animate(on) {
-  if (!on || matchMedia?.("(prefers-reduced-motion: reduce)").matches) { clearInterval(anim); anim = null; return; }
-  if (anim) return;
-  anim = setInterval(() => {
-    const map = host?.map;
-    if (!map || !isOn() || document.hidden || !map.getLayer("rc-cata-lamp")) return;
-    const t = performance.now() / 1000, f = .86 + .1 * Math.sin(t * 2.3) + .06 * Math.sin(t * 7.1 + 1.3);
-    map.setPaintProperty("rc-cata-lamp", "line-opacity", o(.2 * f));
-    map.setPaintProperty("rc-cata-door-glow", "circle-opacity", o(.55 * (f + .04 * Math.sin(t * 11))));
-    const w = .78 + .14 * Math.sin(t * 1.6);
-    map.setPaintProperty("rc-cata-floor", "fill-opacity", ["*", ["match", ["get", "type"], WATER, w, 1], ["get", "op"]]);
-  }, 160);
-}
+// Мерцание фонаря — CSS-анимация виньетки поверх карты (styles/r-catacombs.css): внутри карты любая смена
+// оформления заставляет MapLibre перерисовывать её ещё секунды две, и анимация держала бы карту в постоянной перерисовке.
 
 /* ═══ Кисть рассказчика: копать, засыпать, вода, завал, тайный ход, решётки, ловушки ═══ */
 
@@ -776,9 +810,13 @@ function bindBrush(map) {
     if (!painting) return;
     painting = false;
     clearTimeout(paintTimer); paintTimer = null;
-    const cells = cellEdits();
+    const cells = { ...cellEdits() };
+    for (const [k, v] of Object.entries(pending ?? {})) { if (v === null) delete cells[k]; else cells[k] = v; }
     pending = null;
+    // если мазок ничего не поменял («Как было» по нетронутым клеткам), настройка не обновится и пересчёта не будет —
+    // поэтому предпросмотр стираем сами
     await save({ cells });
+    map.getSource("rc-cata-preview")?.setData(EMPTY);
   };
   map.on("mouseup", finish);
   map.getCanvas().addEventListener("mouseleave", finish);
@@ -787,7 +825,17 @@ function bindBrush(map) {
 function paintAt(ll) {
   const [ci, cj] = cellOf(ll.lat, ll.lng), n = brush.size ?? 1, h = Math.floor((n - 1) / 2), v = BRUSH_VALUE[brush.mode];
   for (let di = -h; di < n - h; di++) for (let dj = -h; dj < n - h; dj++) pending[`${ci + di},${cj + dj}`] = v;
-  if (!paintTimer) paintTimer = setTimeout(() => { paintTimer = null; pushData(); }, 90);
+  if (!paintTimer) paintTimer = setTimeout(() => { paintTimer = null; drawPreview(); }, 60);
+}
+
+/** Мазок, который ещё рисуется: клетки поверх плана полупрозрачной краской режима. */
+function drawPreview() {
+  const map = host?.map;
+  if (!map?.getSource("rc-cata-preview") || !pending) return;
+  map.getSource("rc-cata-preview").setData(fc(Object.entries(pending).map(([ck, v]) => {
+    const [i, j] = ck.split(",").map(Number);
+    return rectFeature(i, j, i + 1, j + 1, { v: v ?? -1 });
+  })));
 }
 
 /** Тайный ход: связная группа клеток (в правках 4/5) от этой. */
