@@ -225,6 +225,8 @@ export class VtMActor extends Actor {
     const base = doubled ? n / 2 : n;
     await this.update({ "system.blood.value": cur - n,
       ...(turnKey ? { [`flags.${SYSTEM_ID}.bloodTurn`]: { key: turnKey, n: spentTurn + base } } : {}) });
+    if (cur >= 5 && cur - n < 5 && this.isVampire)
+      import("../dice/virtue-checks.mjs").then(m => m.suggestCheck(this, "frenzy", { reason: t("CheckPrompt.Hunger", { n: cur - n }), difficulty: 6 }));
     if (doubled) this.#notice(`<i class="fa-solid fa-droplet"></i> ${t("Notify.BloodDoubled", { n })}`);
     else if (reason) this.#notice(`<i class="fa-solid fa-droplet"></i> ${t("Notify.BloodSpent", { n, reason })}`);
     return true;

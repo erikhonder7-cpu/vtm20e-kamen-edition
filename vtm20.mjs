@@ -231,7 +231,7 @@ async function migrateWorld() {
 Hooks.on("renderChatMessageHTML", (message, html) => {
   // Броски, карточки атаки и итога, урон силы без броска, командная работа — у всех есть кнопки
   const f = message.flags?.[SYSTEM_ID] ?? {};
-  if (!(f.roll || f.combat || f.combatResult || f.fixedDamage || f.team)) return;
+  if (!(f.roll || f.combat || f.combatResult || f.fixedDamage || f.team || f.checkPrompt)) return;
   html.addEventListener("click", onChatCardClick);
 });
 

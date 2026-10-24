@@ -8,6 +8,7 @@
 
 import { VTM20, SYSTEM_PATH } from "../config.mjs";
 import { rollPool } from "../dice/roll.mjs";
+import { suggestCheck } from "../dice/virtue-checks.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -97,8 +98,8 @@ class HazardDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     };
   }
 
-  _onRender(context, options) {
-    super._onRender(context, options);
+  _onFirstRender(context, options) {
+    super._onFirstRender(context, options);
     this.element.addEventListener("change", () => {
       const f = new foundry.applications.ux.FormDataExtended(this.element).object;
       Object.assign(this.v, { heat: f.heat ?? this.v.heat, light: f.light ?? this.v.light, area: f.area ?? this.v.area,
@@ -117,6 +118,9 @@ class HazardDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       const dmg = await rollPool({ actor: a, title, subtitle: game.i18n.localize(VTM20.damageTypes[p.type].label), pool: p.dice, difficulty: 6, kind: "damage", noBotch: true });
       return sufferHazard(a, dmg.successes, p.type, { pool: p.pool, difficulty: 6, title });
     }
-    return sufferHazard(a, p.amount, p.type, { pool: p.pool, difficulty: p.difficulty, title, botchToAggravated: p.botchToAggravated });
+    const left = await sufferHazard(a, p.amount, p.type, { pool: p.pool, difficulty: p.difficulty, title, botchToAggravated: p.botchToAggravated });
+    // Огонь и солнце — Ротшрек (05): обжёгшись — 7, прямой солнечный свет — 8
+    if (["fire", "sun"].includes(this.v.kind)) suggestCheck(a, "rotschreck", { reason: title, difficulty: left > 0 ? (this.v.kind === "sun" ? 8 : 7) : 6 });
+    return left;
   }
 }

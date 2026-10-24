@@ -193,3 +193,8 @@
 .vtm20 .r-odds-legend .is-success b { color: #efe6d4; }
 .vtm20 .r-odds-legend .is-botch b { color: var(--r-accent); }
 .vtm20 .r-odds-legend .r-odds-mean { margin-left: auto; font-style: italic; }
+
+/* Подсказка проверки ярости или Ротшрека по событию (огонь, солнце, голод) */
+.r-notice.r-check-prompt { font-style: normal; border-left-color: #b83a3f; }
+.r-notice.r-check-prompt.is-rotschreck i { color: #d98a3a; }
+.r-notice.r-check-prompt .r-card-buttons { margin-top: 6px; }

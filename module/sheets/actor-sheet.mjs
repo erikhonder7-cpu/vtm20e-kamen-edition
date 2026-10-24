@@ -10,6 +10,7 @@ import { Codex } from "../data/codex.mjs";
 import { attachCombos } from "../ui/combo.mjs";
 import { choosePower, fitsLevel } from "../apps/power-choice.mjs";
 import { RollDialog } from "../dice/dialog.mjs";
+import { rollVirtueCheck } from "../dice/virtue-checks.mjs";
 import { rollPool } from "../dice/roll.mjs";
 import { openDamageDialog } from "../apps/damage.mjs";
 import { WEAPON_PRESETS, ARMOR_PRESETS } from "../data/equipment.mjs";
@@ -699,16 +700,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static #onRollVirtue(event, target) {
     const kind = target.dataset.kind;
     const a = this.actor;
-    if (kind === "frenzy") {
-      // Бруха: +2 к сложности, воля не помогает предотвратить (02)
-      const brujah = a.system.clan === "brujah" || a.system.clan === "bruhaAntitribu";
-      return RollDialog.prompt(a, {
-        title: t("Roll.frenzy.title"), trait1: "virtues.selfControl", reflexive: true, kind: "frenzy",
-        extra: { atavism: VTM20.atavismClans.includes(a.system.clan) },
-        difficulty: 6 + (brujah ? 2 : 0) - (a.type === "ghoul" ? 3 : 0), noWillpower: brujah, lockTraits: true
-      });
-    }
-    if (kind === "rotschreck") return RollDialog.prompt(a, { title: t("Roll.rotschreck.title"), trait1: "virtues.courage", reflexive: true, kind: "rotschreck", difficulty: 6, lockTraits: true });
+    if (kind === "frenzy" || kind === "rotschreck") return rollVirtueCheck(a, kind);
     if (kind === "degeneration") return RollDialog.prompt(a, { title: t("Roll.degeneration.title"), trait1: "virtues.conscience", reflexive: true, kind: "degeneration", difficulty: 8, noWillpower: true, lockTraits: true });
     if (kind === "awakening") return RollDialog.prompt(a, { title: t("Roll.Awakening"), trait1: "morality.value", reflexive: true, difficulty: 8, lockTraits: true });
     if (kind === "willpower") return RollDialog.prompt(a, { title: t("Willpower"), trait1: "willpower.permanent", reflexive: true, difficulty: 6 });
