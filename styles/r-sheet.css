@@ -298,9 +298,13 @@
 .vtm20 .r-col { min-width: 0; }
 .vtm20 .r-colhead { color: var(--r-ink-2); font-size: 12px; letter-spacing: 2.5px; }
 
-/* Строка черты */
-.vtm20 .r-trait { margin: 0 0 1px; }
+/* Строка черты: подсветка под курсором, нулевые способности приглушены, специализация — курсивом в строке */
+.vtm20 .r-trait { margin: 0 -6px 1px; padding: 0 6px; border-radius: 2px; transition: background .12s; }
+.vtm20 .r-trait:hover { background: linear-gradient(90deg, rgba(140, 28, 34, .12), rgba(255, 255, 255, .025) 60%, transparent); }
 .vtm20 .r-trait-main { display: flex; align-items: center; gap: 6px; min-height: 25px; }
+.vtm20 .r-trait.is-zero .r-trait-label, .vtm20 .r-trait.is-zero input.r-trait-input { color: var(--r-muted); }
+.vtm20 .r-trait.is-zero .r-dot { border-color: rgba(216, 207, 191, .2); }
+.vtm20 .r-trait.is-zero:hover .r-trait-label { color: var(--r-ink-2); }
 .vtm20 .r-trait-label {
   flex: 0 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   font-family: var(--r-body); font-size: 14.5px; color: var(--r-ink); transition: color .1s;
@@ -310,11 +314,17 @@
 .vtm20 input.r-trait-input { flex: 1 1 auto; min-width: 0; height: 22px; font-size: 14px; background: transparent; }
 .vtm20 .r-trait-roll { color: var(--r-muted); font-size: 12px; }
 .vtm20 .r-trait-roll:hover { color: var(--r-accent); }
+/* Специализация — строкой под чертой, курсивом; пустая почти не занимает места и видна под курсором */
 .vtm20 input.r-spec {
-  display: block; width: calc(100% - 14px); height: 19px; margin: -3px 0 3px 14px; padding: 0 2px;
-  font-family: var(--r-hand); font-size: 15px; color: var(--r-ink-2); background: transparent; border-bottom: 1px dotted var(--r-line);
+  display: block; width: calc(100% - 16px); height: 18px; margin: -4px 0 3px 16px; padding: 0 3px;
+  font-family: var(--r-fell); font-style: italic; font-size: 13.5px; color: var(--r-accent);
+  background: transparent; border: 0; border-bottom: 1px dotted transparent; box-shadow: none;
 }
-.vtm20 input.r-spec::placeholder { font-family: var(--r-body); font-size: 12px; }
+.vtm20 input.r-spec::placeholder { font-family: var(--r-body); font-size: 11.5px; color: var(--r-muted); opacity: 0; transition: opacity .12s; }
+.vtm20 .r-trait:hover input.r-spec::placeholder, .vtm20 input.r-spec:focus::placeholder { opacity: .8; }
+.vtm20 input.r-spec:hover, .vtm20 input.r-spec:focus { border-bottom-color: var(--r-line-2); background: rgba(0, 0, 0, .2); }
+.vtm20 input.r-spec:placeholder-shown:not(:focus) { height: 8px; margin: -4px 0 2px 16px; }
+.vtm20 .r-trait:hover input.r-spec:placeholder-shown { height: 18px; margin: -4px 0 3px 16px; }
 .vtm20 .r-boost { font-family: var(--r-display); font-size: 11.5px; color: #f1e9da; background: #8c1c22; padding: 0 5px; line-height: 16px; }
 .vtm20 .r-trait.is-boosted .r-trait-label { color: var(--r-accent); }
 .vtm20 .r-trait-label.is-ugly { text-decoration: line-through; text-decoration-color: var(--r-accent); }

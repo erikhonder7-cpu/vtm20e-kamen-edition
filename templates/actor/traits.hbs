@@ -16,7 +16,7 @@
           {{#if fx}}<span class="r-boost is-fx" data-tooltip="{{localize 'VTM20.Fx.Active'}}">{{fx}}</span>{{/if}}
           {{#if @root.editable}}<a class="r-buy" data-action="buy" data-path="system.attributes.{{key}}.value" data-kind="attribute" data-label="{{label}}" data-tooltip="{{localize 'VTM20.Xp.Buy'}}: {{xp}}"><i class="fa-solid fa-plus"></i></a>{{/if}}
         </div>
-        {{#if canSpec}}<input class="r-spec" type="text" name="system.attributes.{{key}}.specialty" value="{{specialty}}" placeholder="{{localize 'VTM20.Sheet.Specialty'}}">{{/if}}
+        {{#if canSpec}}<input class="r-spec" type="text" name="system.attributes.{{key}}.specialty" value="{{specialty}}" placeholder="{{localize 'VTM20.Sheet.Specialty'}}" spellcheck="false">{{/if}}
       </div>
       {{/each}}
     </div>
@@ -29,26 +29,26 @@
     <div class="r-col r-tcol">
       <h3 class="r-h3 r-colhead"><span>{{label}}</span></h3>
       {{#each list}}
-      <div class="r-trait">
+      <div class="r-trait {{#unless value}}is-zero{{/unless}}">
         <div class="r-trait-main">
           <a class="r-trait-label" data-action="rollTrait" data-trait="abilities.{{key}}" data-tooltip="{{label}}">{{label}}</a>
           <span class="r-leader"></span>
           {{> rDots dots=dots}}
           {{#if @root.editable}}<a class="r-buy" data-action="buy" data-path="system.abilities.{{key}}.value" data-kind="ability" data-label="{{label}}" data-tooltip="{{localize 'VTM20.Xp.Buy'}}: {{xp}}"><i class="fa-solid fa-plus"></i></a>{{/if}}
         </div>
-        {{#if canSpec}}<input class="r-spec" type="text" name="system.abilities.{{key}}.specialty" value="{{specialty}}" placeholder="{{localize 'VTM20.Sheet.Specialty'}}">{{/if}}
+        {{#if canSpec}}<input class="r-spec" type="text" name="system.abilities.{{key}}.specialty" value="{{specialty}}" placeholder="{{localize 'VTM20.Sheet.Specialty'}}" spellcheck="false">{{/if}}
       </div>
       {{/each}}
 
       {{#each secondary}}
-      <div class="r-trait is-secondary">
+      <div class="r-trait is-secondary {{#unless value}}is-zero{{/unless}}">
         <div class="r-trait-main">
           <a class="r-trait-roll" data-action="rollTrait" data-trait="secondary.{{index}}" data-tooltip="{{localize 'VTM20.Sheet.Roll'}}"><i class="fa-solid fa-dice-d10"></i></a>
           <input class="r-trait-input" type="text" name="system.secondary.{{index}}.name" value="{{name}}" placeholder="{{localize 'VTM20.Sheet.SecondaryName'}}" {{#if @root.extraAbilities.length}}data-combo="r-abil-{{@root.actor.id}}"{{/if}}>
           {{> rDots dots=dots}}
           <a class="r-icon-btn is-danger" data-action="removeSecondary" data-index="{{index}}"><i class="fa-solid fa-xmark"></i></a>
         </div>
-        {{#if (gte value 4)}}<input class="r-spec" type="text" name="system.secondary.{{index}}.specialty" value="{{specialty}}" placeholder="{{localize 'VTM20.Sheet.Specialty'}}">{{/if}}
+        {{#if (gte value 4)}}<input class="r-spec" type="text" name="system.secondary.{{index}}.specialty" value="{{specialty}}" placeholder="{{localize 'VTM20.Sheet.Specialty'}}" spellcheck="false">{{/if}}
       </div>
       {{/each}}
       {{#if @root.editable}}<a class="r-add-line" data-action="addSecondary" data-group="{{key}}"><i class="fa-solid fa-plus"></i> {{localize (concat "VTM20.Sheet.AddSecondary." key)}}</a>{{/if}}
