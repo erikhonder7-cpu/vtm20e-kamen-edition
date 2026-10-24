@@ -42,7 +42,7 @@
       </div>
     </header>
 
-    <div class="r-disc-body">
+    <div class="r-disc-body"><div class="r-disc-inner">
       {{!-- Лестница сил: уровни в медальонах на общей линии, следующая сила — бледной ступенькой --}}
       <div class="r-ladder">
         {{#each powers}}{{> rPower disc=../key}}{{/each}}
@@ -91,7 +91,7 @@
         <div class="r-power-body">{{{html}}}</div>
       </div>
       {{/each}}
-    </div>
+    </div></div>
   </article>
   {{else}}
   <div class="r-empty">{{localize "VTM20.Sheet.NoDisciplines"}}</div>

@@ -575,6 +575,13 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
         this.#addPreset(el.dataset.preset, Number(key));
       });
     }
+    // Щелчок по пустому месту строки Дисциплины раскрывает её (кнопки, точки и поля работают как прежде)
+    for (const head of this.element.querySelectorAll(".r-disc-head")) {
+      head.addEventListener("click", ev => {
+        if (ev.target.closest("a, button, input, select, .r-dots")) return;
+        head.querySelector("[data-action=toggleRow]")?.click();
+      });
+    }
     // Поля предметов прямо на листе (имя пути, уровень ритуала…)
     for (const el of this.element.querySelectorAll("[data-item-field]")) {
       el.addEventListener("change", ev => {

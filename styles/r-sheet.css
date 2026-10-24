@@ -16,7 +16,7 @@
 /* ── Корешок ───────────────────────────────────────────────────────────── */
 
 .vtm20 .r-rail {
-  grid-area: rail; position: relative; width: 100px; display: flex; flex-direction: column; align-items: stretch; gap: 4px; padding: 16px 0 12px;
+  grid-area: rail; position: relative; width: 106px; display: flex; flex-direction: column; align-items: stretch; gap: 4px; padding: 16px 0 12px;
   background:
     radial-gradient(ellipse 120% 40% at 50% 0%, rgba(140, 28, 34, .14), transparent 70%),
     linear-gradient(180deg, #0f0f12, #09090b 60%, #0b0a0c);
@@ -59,7 +59,8 @@
 .vtm20 .r-rtab-coin i { font-size: 14px; color: inherit; }
 .vtm20 .r-rtab-num { display: none; }
 .vtm20 .r-rtab-label {
-  max-width: 100%; font-family: var(--r-caps); font-size: 10px; letter-spacing: .3px; text-transform: uppercase;
+  display: block; width: 100%; box-sizing: border-box; padding: 0 3px;
+  font-family: var(--r-caps); font-size: 9.5px; letter-spacing: 0; text-transform: uppercase;    /* «Преимущества» — самое длинное */
   text-align: center; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .vtm20 .r-rtab:hover { color: #d8cfbf; }
@@ -420,8 +421,14 @@
 .vtm20 .r-disc-tools { display: flex; align-items: center; gap: 2px; }
 .vtm20 .r-chevron i { transition: transform .15s; }
 .vtm20 .r-row-wrap.is-open > header .r-chevron i, .vtm20 .r-row-wrap.is-open > .r-disc-head .r-chevron i { transform: rotate(180deg); }
-.vtm20 .r-disc-body { display: none; padding: 2px 14px 10px 54px; border-top: 1px solid var(--r-line); }
-.vtm20 .r-disc.is-open .r-disc-body { display: block; }
+/* Раскрытие Дисциплины — плавно: высота тела растёт от 0 до содержимого (grid 0fr → 1fr) */
+.vtm20 .r-disc-body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .25s ease; }
+.vtm20 .r-disc.is-open .r-disc-body { grid-template-rows: 1fr; }
+.vtm20 .r-disc-inner { min-height: 0; overflow: hidden; padding: 0 14px 0 54px; opacity: 0; transition: opacity .2s ease, padding .25s ease; }
+.vtm20 .r-disc.is-open .r-disc-inner { padding: 2px 14px 10px 54px; border-top: 1px solid var(--r-line); opacity: 1; }
+.vtm20 .r-disc-head { cursor: pointer; }
+.vtm20 .r-disc-head:hover { background: rgba(255, 255, 255, .02); }
+@media (prefers-reduced-motion: reduce) { .vtm20 .r-disc-body, .vtm20 .r-disc-inner { transition: none; } }
 
 .vtm20 .r-power { border-bottom: 1px dotted var(--r-line); }
 .vtm20 .r-power-head { display: flex; align-items: center; gap: 8px; min-height: 28px; }
