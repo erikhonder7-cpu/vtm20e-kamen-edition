@@ -243,6 +243,11 @@
 .vtm20 .r-vc-health.is-hurt .r-vc-status, .vtm20 .r-vc-health.is-hurt .r-vc-status b { color: var(--r-accent); }
 .vtm20 .r-vcard > .r-dots { display: flex; justify-content: flex-start; }
 .vtm20 .r-vcard .r-boxes { margin: 5px 0 0; }
+/* Воля: временные клетки — в один стиль и одну сетку с точками постоянной Воли (столбец под точкой) */
+.vtm20 .r-vc-will .r-boxes { gap: 4px; margin-top: 6px; }
+.vtm20 .r-vc-will .r-box { width: 11px; height: 11px; border-radius: 2px; border-color: var(--r-dot-border); }
+.vtm20 .r-vc-will .r-box.is-filled { background: radial-gradient(circle at 40% 35%, #efe6d4, #b3aa98 60%, #7d766a); border-color: #e3dbcc; box-shadow: 0 0 4px rgba(227, 219, 204, .25); }
+.vtm20 .r-vc-will .r-box:nth-child(5n):not(:last-child) { margin-right: 4px; }
 .vtm20 .r-vc-tools {
   display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; padding-top: 5px;
   border-top: 1px solid var(--r-line); font-size: 12px; color: var(--r-muted);
@@ -265,17 +270,25 @@
 .vtm20 .r-vc-hint.is-left { margin-left: 0; flex: 1 1 auto; min-width: 0; }
 .vtm20 .r-vc-hint b { font-style: normal; color: var(--r-ink-2); font-weight: 400; }
 
-/* Здоровье: семь клеток в ряд, штраф мелко под клеткой */
-.vtm20 .r-hboxes { display: flex; gap: 4px; }
-.vtm20 .r-hbox { display: flex; flex-direction: column; align-items: center; gap: 1px; }
+/* Здоровье — «лесенка»: клетки растут и краснеют к «Без сознания», штраф мелко под клеткой */
+.vtm20 .r-hboxes { display: flex; align-items: flex-end; gap: 5px; }
+.vtm20 .r-hbox { --h: 20px; --edge: rgba(216, 207, 191, .32); display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.vtm20 .r-hbox:nth-child(2) { --h: 21px; --edge: rgba(214, 190, 176, .34); }
+.vtm20 .r-hbox:nth-child(3) { --h: 22px; --edge: rgba(212, 170, 158, .36); }
+.vtm20 .r-hbox:nth-child(4) { --h: 23px; --edge: rgba(208, 140, 132, .4); }
+.vtm20 .r-hbox:nth-child(5) { --h: 24px; --edge: rgba(204, 110, 108, .45); }
+.vtm20 .r-hbox:nth-child(6) { --h: 25px; --edge: rgba(200, 80, 84, .52); }
+.vtm20 .r-hbox:nth-child(7) { --h: 26px; --edge: rgba(196, 71, 76, .6); }
 .vtm20 .r-hbox-mark {
-  width: 22px; height: 22px; display: grid; place-items: center;
-  border: 1px solid var(--r-dot-border); background: transparent; font-family: var(--r-display); font-size: 14px; color: var(--r-ink);
+  width: 24px; height: var(--h); display: grid; place-items: center; border-radius: 2px;
+  border: 1px solid var(--edge); background: linear-gradient(180deg, rgba(255, 255, 255, .03), rgba(0, 0, 0, .25));
+  font-family: var(--r-display); font-size: 14px; color: var(--r-ink); transition: background .15s, border-color .15s;
 }
+.vtm20 .r-hbox:hover .r-hbox-mark { border-color: var(--r-ink-2); }
 .vtm20 .r-hbox-pen { font-family: var(--r-display); font-size: 10.5px; line-height: 1.1; color: var(--r-muted); }
-.vtm20 .r-hbox.is-bashing .r-hbox-mark { color: var(--r-ink); background: var(--r-s3); }
-.vtm20 .r-hbox.is-lethal .r-hbox-mark { color: #f1e9da; background: #4a0d11; border-color: #8c1c22; }
-.vtm20 .r-hbox.is-aggravated .r-hbox-mark { color: #fff; background: #8c1c22; border-color: #c4474c; }
+.vtm20 .r-hbox.is-bashing .r-hbox-mark { color: var(--r-ink); background: linear-gradient(180deg, #3a3935, #262522); border-color: rgba(216, 207, 191, .45); }
+.vtm20 .r-hbox.is-lethal .r-hbox-mark { color: #f1e9da; background: linear-gradient(180deg, #6a141a, #3e0b0e); border-color: #8c1c22; }
+.vtm20 .r-hbox.is-aggravated .r-hbox-mark { color: #fff; background: linear-gradient(180deg, #b0282f, #741419); border-color: #d0565b; box-shadow: 0 0 6px rgba(196, 71, 76, .45); }
 .vtm20 .r-hbox:last-child .r-hbox-mark { border-style: dashed; }
 
 /* Мораль и добродетели: три добродетели в ряд — подпись над точками */
