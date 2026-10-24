@@ -70,7 +70,7 @@ export function renderHud() {
   const clan = vamp ? (Codex.clan(s.clan)?.name ?? "") : game.i18n.localize(`TYPES.Actor.${a.type}`);
   const sub = [clan, vamp ? game.i18n.format("VTM20.GenerationN", { n: s.generation }) : ""].filter(Boolean).join(" · ");
   const path = Codex.path(s.morality.path);
-  const blood = a.hasBlood ? `<a class="rh-stat rh-blood" data-act="spend" data-tooltip="${esc(t("Hud.BloodTip", { n: s.blood.perTurn ?? 1 }))}">
+  const blood = a.hasBlood ? `<a class="rh-stat rh-blood" data-act="spend" data-tooltip="${esc((game.combat?.started ? t("Hud.BloodTipTurn", { n: s.blood.perTurn ?? 1, spent: a.bloodSpentThisTurn }) : t("Hud.BloodTip", { n: s.blood.perTurn ?? 1 })))}">
       <i class="fa-solid fa-droplet"></i><b>${s.blood.value}</b><small>/${s.blood.max}</small></a>` : "";
   const morality = `<span class="rh-stat rh-moral" data-tooltip="${esc(path?.name ?? t("Humanity"))}"><i class="fa-solid fa-scale-balanced"></i><b>${s.morality.value}</b></span>`;
 

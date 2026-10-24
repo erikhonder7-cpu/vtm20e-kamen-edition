@@ -504,7 +504,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       text: a.celerityActions ? t("FxTab.CelerityActions", { n: a.celerityActions }) : t("FxTab.Celerity", { n: cel }) });
     if (fort) mods.push({ icon: "fa-shield", label: Codex.disciplineLabel("fortitude"), value: `+${fort}`, text: t("FxTab.Fortitude", { n: fort }) });
     mods.push({ icon: "fa-shield-heart", label: t("FxTab.Soak"), value: `${a.soakPool("bashing")}/${a.soakPool("lethal")}/${a.soakPool("aggravated")}`, text: t("FxTab.SoakText") });
-    if (ctx.hasBlood) mods.push({ icon: "fa-droplet", label: t("FxTab.PerTurn"), value: `${s.blood.perTurn}`, text: t("FxTab.PerTurnText", { max: s.traitMax ?? 5 }) });
+    if (ctx.hasBlood) mods.push({ icon: "fa-droplet", label: t("FxTab.PerTurn"), value: game.combat?.started ? `${this.document.bloodSpentThisTurn}/${s.blood.perTurn}` : `${s.blood.perTurn}`, text: t("FxTab.PerTurnText", { max: s.traitMax ?? 5 }) });
     if (ctx.bearing?.name) mods.push({ icon: "fa-scale-balanced", label: t("Sheet.Bearing"), value: ctx.bearing.mod, text: ctx.bearing.name });
     ctx.fxMods = mods;
 

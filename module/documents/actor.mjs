@@ -153,6 +153,9 @@ export class VtMActor extends Actor {
     return null;
   }
 
+  /** Сколько крови потрачено в этот ход боя (вне боя лимит за ход не действует). */
+  get bloodSpentThisTurn() { return VtMActor.roundKey() ? (this._roundFlag("bloodTurn")?.n ?? 0) : 0; }
+
   /** Мощь включена кровью на этот ход. */
   get potenceActive() { return !!this._roundFlag("potence"); }
   /** Сколько дополнительных действий Стремительности куплено на этот ход. */
@@ -202,18 +205,26 @@ export class VtMActor extends Actor {
 
   /* ── Кровь и воля ───────────────────────────────────────────────────── */
 
-  async spendBlood(n = 1, { reason = "" } = {}) {
+  async spendBlood(n = 1, { reason = "", limit = true } = {}) {
     if (!this.hasBlood) return false;
     // Кол в сердце и торпор: кровь не тратится (04)
     if (this.statuses?.has("r-staked") || this.statuses?.has("r-torpor")) {
       ui.notifications.warn(t("Notify.NoBloodState", { name: this.name })); return false;
     }
     const cur = this.system.blood.value;
+    // Лимит поколения за ход — только в бою (ход = раунд текущего боя); удвоенная трата Слабой крови считается как одна
+    const turnKey = VtMActor.roundKey();
+    const spentTurn = this.bloodSpentThisTurn, perTurn = this.system.blood.perTurn ?? 1;
+    if (turnKey && limit && spentTurn + n > perTurn) {
+      ui.notifications.warn(t("Notify.BloodPerTurn", { name: this.name, max: perTurn, spent: spentTurn })); return false;
+    }
     // Слабая кровь и Пятнадцатое поколение: любая трата вдвое (кроме ежевечерней — она в awaken)
     const doubled = this.doubleBloodCost;
     if (doubled) n *= 2;
     if (cur < n) { ui.notifications.warn(t("Notify.NoBlood", { name: this.name })); return false; }
-    await this.update({ "system.blood.value": cur - n });
+    const base = doubled ? n / 2 : n;
+    await this.update({ "system.blood.value": cur - n,
+      ...(turnKey ? { [`flags.${SYSTEM_ID}.bloodTurn`]: { key: turnKey, n: spentTurn + base } } : {}) });
     if (doubled) this.#notice(`<i class="fa-solid fa-droplet"></i> ${t("Notify.BloodDoubled", { n })}`);
     else if (reason) this.#notice(`<i class="fa-solid fa-droplet"></i> ${t("Notify.BloodSpent", { n, reason })}`);
     return true;
