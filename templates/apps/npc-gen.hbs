@@ -81,7 +81,16 @@
         </div>
       </div>
       {{else}}
-      <div class="r-empty">{{localize "VTM20.NpcGen.PickFirst"}}</div>
+      {{!-- Пусто: подсказка и быстрые варианты вместо голой надписи --}}
+      <div class="r-ng-welcome">
+        <i class="fa-solid fa-users-viewfinder r-ng-welcome-ico"></i>
+        <h3>{{localize "VTM20.NpcGen.WelcomeTitle"}}</h3>
+        <p>{{localize "VTM20.NpcGen.WelcomeText"}}</p>
+        <div class="r-ng-welcome-acts">
+          <a class="r-btn is-accent" data-action="random"><i class="fa-solid fa-dice"></i> {{localize "VTM20.NpcGen.Random"}}</a>
+          {{#each rules}}<a class="r-btn" data-action="pick" data-key="{{key}}"><i class="fa-solid {{icon}}"></i> {{label}}</a>{{/each}}
+        </div>
+      </div>
       {{/if}}
     </div>
 
