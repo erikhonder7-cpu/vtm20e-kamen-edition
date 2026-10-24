@@ -530,7 +530,18 @@
       "total": "Всего",
       "spent": "Потрачено",
       "available": "Свободно",
-      "reason": "за что"
+      "reason": "за что",
+      "Window": "Опыт",
+      "WindowShort": "Потратить",
+      "OnlyAffordable": "только по карману",
+      "New": "новая",
+      "Paths": "Пути магии крови",
+      "Nothing": "Нечего покупать.",
+      "Search": "Найти черту…",
+      "All": "Все",
+      "NewAbilities": "Новые способности",
+      "Unit": "оп.",
+      "History": "История"
     },
     "Confirm": {
       "DeleteTitle": "Удаление",

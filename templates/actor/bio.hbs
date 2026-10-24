@@ -43,7 +43,7 @@
     <prose-mirror name="system.notes" value="{{system.notes}}" toggled {{#unless editable}}disabled{{/unless}}>{{#if notesHTML}}{{{notesHTML}}}{{else}}<p class="r-editor-hint">{{localize "VTM20.Sheet.NotesHint"}}</p>{{/if}}</prose-mirror>
   </div>
 
-  <h2 class="r-h2"><span>{{localize "VTM20.Sheet.Experience"}}</span>{{#if editable}}<a class="r-h2-tool" data-action="addXp" data-tooltip="{{localize 'VTM20.Xp.Add'}}"><i class="fa-solid fa-plus"></i></a>{{/if}}</h2>
+  <h2 class="r-h2"><span>{{localize "VTM20.Sheet.Experience"}}</span>{{#if editable}}<span class="r-h2-tools"><a class="r-h2-tool" data-action="openXp" data-tooltip="{{localize 'VTM20.Xp.Window'}}"><i class="fa-solid fa-star"></i> {{localize "VTM20.Xp.WindowShort"}}</a><a class="r-h2-tool" data-action="addXp" data-tooltip="{{localize 'VTM20.Xp.Add'}}"><i class="fa-solid fa-plus"></i></a></span>{{/if}}</h2>
   <div class="r-xp-sum">
     <label><span>{{localize "VTM20.Xp.total"}}</span><input type="number" name="system.experience.total" value="{{system.experience.total}}" min="0"></label>
     <label><span>{{localize "VTM20.Xp.spent"}}</span><input type="number" name="system.experience.spent" value="{{system.experience.spent}}" min="0"></label>

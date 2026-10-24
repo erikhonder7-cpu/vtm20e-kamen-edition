@@ -1,0 +1,57 @@
+{{!-- Окно опыта (01): что купить, почём, начисление и история. --}}
+<div class="r-xp-app-body">
+  <header class="r-xp-head">
+    <div class="r-xp-stats">
+      <div class="r-xp-stat"><span>{{localize "VTM20.Xp.total"}}</span><b>{{xp.total}}</b></div>
+      <div class="r-xp-stat"><span>{{localize "VTM20.Xp.spent"}}</span><b>{{xp.spent}}</b></div>
+      <div class="r-xp-stat is-avail"><span>{{localize "VTM20.Xp.available"}}</span><b>{{xp.available}}</b></div>
+    </div>
+    <div class="r-xp-bar" data-tooltip="{{localize 'VTM20.Xp.spent'}}: {{pct}}%"><i style="width: {{pct}}%"></i></div>
+    <div class="r-xp-tools">
+      <label class="r-xp-search"><i class="fa-solid fa-magnifying-glass"></i><input type="search" value="{{query}}" placeholder="{{localize 'VTM20.Xp.Search'}}"></label>
+      <div class="r-xp-seg">
+        <a class="{{#unless onlyAffordable}}is-on{{/unless}}" {{#if onlyAffordable}}data-action="filter"{{/if}}>{{localize "VTM20.Xp.All"}}</a>
+        <a class="{{#if onlyAffordable}}is-on{{/if}}" {{#unless onlyAffordable}}data-action="filter"{{/unless}}>{{localize "VTM20.Xp.OnlyAffordable"}} <small>{{affordable}}</small></a>
+      </div>
+    </div>
+  </header>
+
+  <div class="r-xp-list">
+    {{#each groups}}
+    {{#if fresh}}<details class="r-xp-sec r-xp-fresh" {{#if open}}open{{/if}}>
+      <summary class="r-xp-group"><i class="fa-solid fa-chevron-right"></i><span>{{label}}</span><small>{{rows.length}} · {{cost}} {{localize "VTM20.Xp.Unit"}}</small></summary>
+    {{else}}<section class="r-xp-sec">
+      <h3 class="r-xp-group"><span>{{label}}</span></h3>
+    {{/if}}
+      {{#each rows}}
+      <div class="r-xp-item {{#unless can}}is-dim{{/unless}} {{#if flash}}is-flash{{/if}}" data-search="{{search}}">
+        <span class="r-xp-name">{{label}}</span>
+        <span class="r-xp-dots">{{#each dots}}<i class="{{#if on}}is-on{{/if}}{{#if next}} is-next{{/if}}"></i>{{/each}}</span>
+        <a class="r-xp-buy {{#unless can}}is-off{{/unless}}" {{#if @root.editable}}data-action="buy"{{/if}} data-ref="{{ref}}" data-label="{{label}}"
+           data-tooltip="{{#if isNew}}{{localize 'VTM20.Xp.New'}}{{else}}{{cur}} → {{next}}{{/if}}">{{#unless can}}<i class="fa-solid fa-lock"></i>{{/unless}}{{cost}}</a>
+      </div>
+      {{/each}}
+    {{#if fresh}}</details>{{else}}</section>{{/if}}
+    {{else}}
+    <p class="r-xp-empty"><i class="fa-solid fa-hourglass"></i> {{localize "VTM20.Xp.Nothing"}}</p>
+    {{/each}}
+  </div>
+
+  <footer class="r-xp-foot">
+    {{#if editable}}
+    <div class="r-xp-grant">
+      <input type="number" name="amount" value="1" step="1" aria-label="{{localize 'VTM20.Xp.Add'}}">
+      <input type="text" name="reason" placeholder="{{localize 'VTM20.Xp.reason'}}">
+      <button type="button" data-action="grant"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Xp.Add"}}</button>
+    </div>
+    {{/if}}
+    {{#if log.length}}
+    <details class="r-xp-hist">
+      <summary><i class="fa-solid fa-chevron-right"></i> {{localize "VTM20.Xp.History"}} <small>{{log.length}}</small></summary>
+      <ol>
+        {{#each log}}<li class="{{#if spend}}is-spend{{/if}}"><b>{{#if spend}}−{{else}}+{{/if}}{{abs}}</b><span>{{#if reason}}{{reason}}{{else}}—{{/if}}</span><small>{{date}}</small></li>{{/each}}
+      </ol>
+    </details>
+    {{/if}}
+  </footer>
+</div>

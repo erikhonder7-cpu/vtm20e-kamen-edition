@@ -16,6 +16,7 @@ import { openDamageDialog } from "../apps/damage.mjs";
 import { WEAPON_PRESETS, ARMOR_PRESETS } from "../data/equipment.mjs";
 import { openCreator } from "../apps/creator.mjs";
 import { openHunt } from "../apps/night.mjs";
+import { openXp } from "../apps/xp.mjs";
 import { openAttack } from "../combat/combat.mjs";
 import { openHazard } from "../apps/hazard.mjs";
 import { openDiablerie } from "../apps/diablerie.mjs";
@@ -100,6 +101,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       resistBond: VtMActorSheet.#onResistBond,
       removeBond: VtMActorSheet.#onRemoveBond,
       addXp: VtMActorSheet.#onAddXp,
+      openXp: VtMActorSheet.#onOpenXp,
       addEvent: VtMActorSheet.#onAddEvent,
       removeEvent: VtMActorSheet.#onRemoveEvent,
       removeXp: VtMActorSheet.#onRemoveXp,
@@ -957,6 +959,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     await this.actor.update({ "system.timeline": list });
   }
 
+  static #onOpenXp() { return openXp(this.actor); }
   static async #onAddXp() {
     const s = this.actor._source.system.experience;
     const log = foundry.utils.deepClone(s.log);
@@ -976,21 +979,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static async #onBuy(event, target) {
     const { path, kind, itemId } = target.dataset;
     const doc = itemId ? this.actor.items.get(itemId) : this.actor;
-    const cur = Number(foundry.utils.getProperty(doc._source, path) ?? 0);
-    const extra = itemId && doc.type === "discipline" ? { key: doc.system.key, inClan: doc.system.inClan || this.actor.clanDisciplines.includes(doc.system.key) } : {};
-    const cost = this.actor.xpCost(kind, cur, extra);
-    if (cost == null) return;
-    const xp = this.actor.system.experience;
-    if (xp.available < cost) { ui.notifications.warn(t("Notify.NoXp", { cost, have: xp.available })); return; }
-    const label = itemId ? doc.name : target.dataset.label;
-    const ok = await foundry.applications.api.DialogV2.confirm({
-      window: { title: t("Xp.BuyTitle") }, content: `<p>${t("Xp.BuyConfirm", { label, from: cur, to: cur + 1, cost })}</p>`
-    });
-    if (!ok) return;
-    await doc.update({ [path]: cur + 1 });
-    const log = foundry.utils.deepClone(this.actor._source.system.experience.log);
-    log.unshift({ amount: -cost, reason: `${label}: ${cur} → ${cur + 1}`, date: new Date().toLocaleDateString("ru-RU") });
-    await this.actor.update({ "system.experience.spent": this.actor._source.system.experience.spent + cost, "system.experience.log": log });
+    return this.actor.buyWithXp({ doc, path, kind, label: itemId ? doc.name : target.dataset.label });
   }
 }
 

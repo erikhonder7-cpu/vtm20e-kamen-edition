@@ -415,6 +415,29 @@ export class VtMActor extends Actor {
     }
   }
 
+  /**
+   * Купить следующую точку за опыт (01): лист (кнопки «+») и окно опыта. doc — персонаж или его предмет,
+   * path — путь к значению в doc. Возвращает потраченный опыт или null.
+   */
+  async buyWithXp({ doc = this, path, kind, label, confirm = true }) {
+    const cur = Number(foundry.utils.getProperty(doc._source, path) ?? 0);
+    const extra = doc !== this && doc.type === "discipline" ? { key: doc.system.key, inClan: doc.system.inClan || this.clanDisciplines.includes(doc.system.key) }
+      : doc !== this && doc.type === "thaumPath" ? { primary: doc.system.primary } : {};
+    const cost = this.xpCost(kind, cur, extra);
+    if (cost == null) return null;
+    const xp = this.system.experience;
+    if (xp.available < cost) { ui.notifications.warn(t("Notify.NoXp", { cost, have: xp.available })); return null; }
+    label ??= doc.name;
+    if (confirm && !(await foundry.applications.api.DialogV2.confirm({
+      window: { title: t("Xp.BuyTitle") }, content: `<p>${t("Xp.BuyConfirm", { label, from: cur, to: cur + 1, cost })}</p>`
+    }))) return null;
+    await doc.update({ [path]: cur + 1 });
+    const log = foundry.utils.deepClone(this._source.system.experience.log);
+    log.unshift({ amount: -cost, reason: `${label}: ${cur} → ${cur + 1}`, date: new Date().toLocaleDateString("ru-RU") });
+    await this.update({ "system.experience.spent": this._source.system.experience.spent + cost, "system.experience.log": log });
+    return cost;
+  }
+
   /* ── Сообщения ──────────────────────────────────────────────────────── */
 
   #notice(html) {
