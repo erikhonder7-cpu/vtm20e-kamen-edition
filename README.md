@@ -62,3 +62,13 @@ node tools/build_packs.mjs       # компендии packs/* из data/*.json (
 ## Шрифты
 
 Prata, Forum, Old Standard TT, IM Fell DW Pica (RU), Marck Script — SIL Open Font License.
+
+## Проверка перед коммитом
+
+`node tools/check.mjs` — синтаксис всех модулей (включая повторные объявления имён), тесты подсчёта броска
+и шансов по правилам V20, чтение data/*.json и lang/ru.json, наличие иконок предметов в Foundry.
+
+## Справочник правил
+
+`tools/rules_extra.py` (вызывается из build_data.py) собирает главы «V20_Основные_правила» в data/rules.json;
+`node tools/build_packs.mjs rules` — компендий-журнал «Правила V20» (глава — запись, раздел — страница).

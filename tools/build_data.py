@@ -933,6 +933,8 @@ def main():
     dump("backgrounds.json", backgrounds)
     dump("abilities.json", abilities)
     dump("paths.json", paths)
+    import rules_extra   # справочник правил V20 для компендия «Правила V20»
+    dump("rules.json", rules_extra.collect(REF, md_to_html))
     core = os.path.join(REF, "V20_Основные_правила")
     clans = parse_clans(os.path.join(core, "02_Кланы_линии_крови_секты_Традиции.md"), disc)
     # линии без карточки в основной книге (Сыны Самуила и т. п.) — готовыми записями

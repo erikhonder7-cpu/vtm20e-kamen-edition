@@ -85,6 +85,15 @@ class Pack {
         image: {}, video: { controls: true, volume: 0.5 }, src: null, system: {}, category: null, sort: 100000,
         ownership: { default: -1 }, flags: {}, _stats: stats() }] });
   }
+  /** Журнал с несколькими страницами (справочник правил): pages — [{ name, html }]. */
+  addBook({ name, pages, folder = null, key }) {
+    const _id = this.id(`journal:${key}`);
+    this.items.push({ _id, name, folder: this.folder(folder), sort: (this.items.length + 1) * 1000, ownership: { default: 0 }, flags: {}, _stats: stats(),
+      categories: [], pages: pages.map((pg, i) => ({ _id: this.id(`page:${key}:${i}`), name: pg.name, type: "text",
+        title: { show: true, level: 1 }, text: { content: pg.html, format: 1, markdown: "" },
+        image: {}, video: { controls: true, volume: 0.5 }, src: null, system: {}, category: null, sort: (i + 1) * 1000,
+        ownership: { default: -1 }, flags: {}, _stats: stats() })) });
+  }
   async write() {
     const dir = path.join(ROOT, "packs", this.name);
     // Открытый компендиум держит LOCK — под работающим Foundry его не трогаем: сначала пробуем
@@ -257,6 +266,12 @@ const BUILDERS = {
     for (const it of p.items) if (roadsWithPaths.has(it.name)) it.sort = 0;
     return p;
   }
+};
+
+BUILDERS.rules = function () {
+  const p = new Pack("rules", "JournalEntry");
+  for (const ch of data("rules")) p.addBook({ name: ch.name, pages: ch.pages, key: `rules:${ch.key}` });
+  return p;
 };
 
 const only = process.argv.slice(2);
