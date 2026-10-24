@@ -262,6 +262,7 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
     const clanOrder = [...new Set(Codex.merits.filter(m => m.clan).map(m => m.clan))];
     const sectOrder = ["camarilla", "sabbat", "anarchs"];
     const place = m => {
+      if (m.ghoul) return { group: "ghoul", cat: m.category, groupName: L("Filter.GhoulTraits"), groupOrder: -1 };
       if (m.clan) return { group: `clan:${m.clan}`, cat: "clan", groupName: `${L("Filter.Clan")}: ${Codex.clanName(m.clan)}`,
         groupOrder: 200 + (m.clan === myClan ? 0 : 1 + clanOrder.indexOf(m.clan)) };
       if (m.sect) return { group: `sect:${m.sect}`, cat: "sect", groupName: `${L("Filter.SectTraits")}: ${t(`Sect.${m.sect}`)}`,
@@ -269,7 +270,8 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
       return { group: m.category, cat: m.category, groupOrder: cats.indexOf(m.category),
         groupName: game.i18n.localize(VTM20.meritCategories[m.category]?.label ?? m.category) };
     };
-    return Codex.merits.filter(m => m.kind === kind && Codex.visible(m)).map(m => {
+    const ghoulOk = !this.actor || this.actor.type === "ghoul";
+    return Codex.merits.filter(m => m.kind === kind && Codex.visible(m) && (!m.ghoul || ghoulOk)).map(m => {
       const costs = costsOf(m);
       const blocker = blockerFor(m.name, mine);
       return this.#entry({

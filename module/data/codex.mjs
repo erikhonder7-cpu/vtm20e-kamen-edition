@@ -5,7 +5,7 @@
 
 import { SYSTEM_PATH, SYSTEM_ID } from "../config.mjs";
 
-const FILES = ["disciplines", "clans", "rituals", "paths", "merits", "backgrounds", "archetypes", "assets", "derangements", "combos", "abilities"];
+const FILES = ["disciplines", "clans", "rituals", "paths", "merits", "merits-ghouls", "backgrounds", "archetypes", "assets", "derangements", "combos", "abilities"];
 
 /** Чей герб показывать линии крови, ветви или антитрибу, если своего нет. */
 const CLAN_SYMBOL_PARENT = {
@@ -58,6 +58,8 @@ export const Codex = {
   },
 
   _index() {
+    // черты гулей и ревенантов (Ghouls & Revenants) — в конце общего списка: номера прежних черт не сдвигаются
+    this.merits = [...this.merits, ...(this["merits-ghouls"] ?? []).map(m => ({ ...m, ghoul: true }))];
     this.clanByKey = Object.fromEntries(this.clans.map(c => [c.key, c]));
     this.pathByKey = Object.fromEntries(this.paths.map(p => [p.key, p]));
   },

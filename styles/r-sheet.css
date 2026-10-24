@@ -803,6 +803,7 @@ body.r-theme-light .vtm20 .r-motto { color: rgba(140, 28, 34, .75); }
 }
 @container rsheet (max-width: 1000px) {
   .vtm20 .r-act span { display: none; }
+  .vtm20 .r-virtue .r-trait-label { font-size: 10px; letter-spacing: 0; }
   .vtm20 .r-act { padding: 0 10px; }
   .vtm20 .r-vc-btnlabel { display: none; }
   .vtm20 .r-motto { display: none; }

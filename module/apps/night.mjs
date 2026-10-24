@@ -177,6 +177,12 @@ export async function nightfall() {
     await a.awaken({ willpower: will, quiet: true });
     lines.push(`<li><b>${a.name}</b>: ${t("Night.Line", { from: before, to: a.system.blood.value })}${before <= 0 ? ` <span class="r-fate">${t("Night.Starving")}</span>` : ""}</li>`);
   }
+  // ревенанты производят собственную витэ — пункт за ночь (Ghouls & Revenants; «Утечка витэ» — вдвое медленнее, решает рассказчик)
+  for (const a of game.actors.filter(x => x.isRevenant && x.system.blood.value < x.system.blood.max)) {
+    const before = a.system.blood.value;
+    await a.update({ "system.blood.value": before + 1 });
+    lines.push(`<li><b>${a.name}</b>: ${t("Night.Revenant", { from: before, to: before + 1 })}</li>`);
+  }
   // узы крови слабеют без крови сюзерена (05)
   const { decayBonds } = await import("./bonds.mjs");
   for (const a of game.actors.filter(x => (x.system.bonds ?? []).length)) for (const l of await decayBonds(a)) lines.push(`<li>${l}</li>`);

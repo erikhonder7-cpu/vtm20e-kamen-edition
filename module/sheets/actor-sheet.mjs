@@ -22,6 +22,7 @@ import { openAttack } from "../combat/combat.mjs";
 import { openHazard } from "../apps/hazard.mjs";
 import { openDiablerie } from "../apps/diablerie.mjs";
 import { openClans } from "../apps/clans.mjs";
+import { REVENANT_FAMILIES, revenantFamily } from "../data/revenants.mjs";
 import { BOON_LEVELS, boonLevelLabel, addBoon, toggleBoon, removeBoon, openBoons } from "../apps/boons.mjs";
 import { clockBarData } from "../apps/calendar.mjs";
 import { openLibrary, LibraryItems } from "../apps/library.mjs";
@@ -198,7 +199,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       isVampire: actor.type === "vampire", isGhoul: actor.type === "ghoul", isMortal: actor.type === "mortal",
       isCreature: actor.type === "creature",
       hasBlood: actor.hasBlood,
-      typeLabel: game.i18n.localize(`TYPES.Actor.${actor.type}`),
+      typeLabel: actor.type === "ghoul" && actor.system.ghoulType === "revenant" ? t("GhoulType.revenant") : game.i18n.localize(`TYPES.Actor.${actor.type}`),
       needsCreation: this.needsCreation,
       tabs: this._prepareTabs("primary")
     });
@@ -230,6 +231,10 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
         .map(g => ({ value: g, label: t("GenerationN", { n: g }), selected: g === s.generation }));
     }
     if (ctx.isGhoul) {
+      ctx.isRevenant = s.ghoulType === "revenant";
+      ctx.families = Object.entries(REVENANT_FAMILIES).map(([k, f]) => ({ value: k, label: f.name, selected: k === s.family }));
+      if (s.family && !REVENANT_FAMILIES[s.family]) ctx.families.push({ value: s.family, label: s.family, selected: true });
+      ctx.domitorClans = Codex.clans.filter(c => Codex.visible(c)).map(c => ({ value: c.key, label: c.name, selected: c.key === s.domitorClan || c.name === s.domitorClan }));
       ctx.ghoulTypes = ["vassal", "independent", "revenant"].map(k => ({ value: k, label: t(`GhoulType.${k}`), selected: k === s.ghoulType }));
       ctx.donorGenerations = Object.keys(VTM20.generations).map(Number).sort((x, y) => x - y)
         .map(g => ({ value: g, label: t("GenerationN", { n: g }), selected: g === s.domitorGeneration }));
@@ -334,6 +339,20 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     ctx.torpor = VTM20.torporDuration[s.morality.value];
     ctx.soak = { bashing: a.soakPool("bashing"), lethal: a.soakPool("lethal"), aggravated: a.soakPool("aggravated") };
     ctx.xp = s.experience;
+    if (ctx.isGhoul) {
+      // изъян: у ревенанта — семейный (всегда), у гуля — слабость клана домитора (после пяти кормлений от клана)
+      const fam = ctx.isRevenant ? revenantFamily(s.family) : null;
+      const dc = fam ? null : Codex.clan(s.domitorClan) ?? Codex.clans.find(c => c.name === s.domitorClan);
+      if (fam) {
+        ctx.weakness = `<p>${foundry.utils.escapeHTML(fam.flaw)}</p><p><em>${t("Revenant.FamilyDisciplines")}: ${fam.disciplines.map(k => Codex.disciplineLabel(k)).join(", ")}</em></p>`;
+        ctx.weaknessTitle = `${fam.name} — «${fam.nick}»`;
+        ctx.weaknessLabel = t("Revenant.FamilyFlaw");
+      } else if (dc?.weakness) {
+        ctx.weakness = `${dc.weakness}<p><em>${t("Revenant.ClanWeaknessGhoul")}</em></p>`;
+        ctx.weaknessTitle = dc.name;
+      }
+      ctx.weaknessOpen = this._open.has("weakness");
+    }
     if (ctx.isVampire) {
       const clan = Codex.clan(s.clan);
       ctx.weakness = clan?.weakness ?? "";

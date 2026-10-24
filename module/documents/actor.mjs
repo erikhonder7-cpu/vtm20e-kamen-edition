@@ -3,6 +3,7 @@
 
 import { VTM20, SYSTEM_ID } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
+import { revenantFamily } from "../data/revenants.mjs";
 import { effectDef, activePowerEffects } from "../data/effects.mjs";
 
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -45,13 +46,22 @@ export class VtMActor extends Actor {
 
   /** Клановые Дисциплины (по справочнику). */
   get clanDisciplines() {
-    if (this.type === "ghoul") return ["potence", "fortitude", "celerity"];
+    if (this.type === "ghoul") {
+      // ревенант — Мощь и семейные Дисциплины; гуль — Мощь и Дисциплины клана домитора; клан неизвестен — физические (Ghouls & Revenants)
+      const s = this.system, fam = s.ghoulType === "revenant" ? revenantFamily(s.family) : null;
+      const dc = fam ? null : Codex.clan(s.domitorClan) ?? Codex.clans.find(c => c.name === s.domitorClan);
+      const list = fam?.disciplines ?? dc?.disciplines ?? ["fortitude", "celerity"];
+      return ["potence", ...list.filter(k => k !== "potence")];
+    }
     if (this.type !== "vampire") return [];
     const clan = Codex.clan(this.system.clan);
     if (!clan) return [];
     const pick = clan.choice?.includes(this.system.clanChoice) ? [this.system.clanChoice] : [];
     return [...clan.disciplines, ...pick];
   }
+
+  /** Ревенант — гуль с типом «ревенант» (Ghouls & Revenants): своя витэ, семья и семейный изъян. */
+  get isRevenant() { return this.type === "ghoul" && this.system.ghoulType === "revenant"; }
 
   get clanLabel() {
     const s = this.system;

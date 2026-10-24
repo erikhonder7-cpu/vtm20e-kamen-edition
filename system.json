@@ -215,6 +215,18 @@
       "flags": {}
     },
     {
+      "name": "ghoul-merits",
+      "label": "Достоинства и недостатки гулей и ревенантов",
+      "path": "packs/ghoul-merits",
+      "type": "Item",
+      "system": "vtm20e-kamen-edition",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
+    },
+    {
       "name": "backgrounds",
       "label": "Факты биографии",
       "path": "packs/backgrounds",
@@ -289,6 +301,7 @@
         "blood-paths",
         "rituals",
         "merits-flaws",
+        "ghoul-merits",
         "backgrounds",
         "derangements",
         "enlightenment-paths"

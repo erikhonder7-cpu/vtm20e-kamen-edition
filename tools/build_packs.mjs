@@ -6,6 +6,7 @@
 //   blood-paths  — «Пути магии крови»: пути Тауматургии, Некромантии, Колдунства, чар Ассамитов
 //   rituals      — «Ритуалы»: data/rituals.json
 //   merits-flaws — «Достоинства и недостатки»: data/merits.json, папки по категориям
+//   ghoul-merits — «Достоинства и недостатки гулей и ревенантов»: data/merits-ghouls.json (Ghouls & Revenants)
 //   backgrounds  — «Факты биографии»: data/backgrounds.json
 //   derangements — «Психические расстройства»: data/derangements.json
 //
@@ -220,6 +221,18 @@ const BUILDERS = {
     return p;
   },
 
+  "ghoul-merits"() {
+    const p = new Pack("ghoul-merits");
+    const cat = ru.VTM20.MeritCat ?? {};
+    for (const m of data("merits-ghouls")) {
+      const range = m.max > m.min ? `<p><em>Цена: ${m.cost}</em></p>` : "";
+      const folder = `${m.kind === "merit" ? "Достоинства" : "Недостатки"} — ${cat[m.category] ?? m.category}`;
+      p.add({ name: m.name, type: m.kind, folder, key: `ghoul:${m.kind}:${m.name}`, img: traitIcon(m.category, m.kind === "flaw"),
+        system: { cost: m.min || 1, category: m.category, clan: "", sect: "", source: m.en ?? "", description: `${m.html ?? ""}${range}<p><em>Ghouls &amp; Revenants (V20)</em></p>` } });
+    }
+    return p;
+  },
+
   backgrounds() {
     const p = new Pack("backgrounds");
     for (const b of data("backgrounds"))
@@ -271,6 +284,8 @@ const BUILDERS = {
 BUILDERS.rules = function () {
   const p = new Pack("rules", "JournalEntry");
   for (const ch of data("rules")) p.addBook({ name: ch.name, pages: ch.pages, key: `rules:${ch.key}` });
+  // глава 8 — справочник Ghouls & Revenants (data/rules-ghouls.json): отдельным файлом, чтобы build_data.py его не перезаписал
+  for (const ch of data("rules-ghouls")) p.addBook({ name: ch.name, pages: ch.pages, key: `rules:${ch.key}` });
   return p;
 };
 
