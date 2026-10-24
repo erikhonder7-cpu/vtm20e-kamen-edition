@@ -53,7 +53,7 @@
     <div class="r-virtues">
       {{#each virtues}}
       <div class="r-virtue">
-        <a class="r-trait-label" data-action="rollTrait" data-trait="virtues.{{slot}}" data-tooltip="{{label}}">{{label}}</a>
+        <a class="r-trait-label" data-action="rollTrait" data-trait="virtues.{{slot}}">{{label}}</a>
         <span class="r-virtue-dots">{{> rDots dots=dots}}{{#if @root.editable}}<a class="r-buy" data-action="buy" data-path="system.virtues.{{slot}}.value" data-kind="virtue" data-label="{{label}}" data-tooltip="{{localize 'VTM20.Xp.Buy'}}: {{xp}}"><i class="fa-solid fa-plus"></i></a>{{/if}}</span>
       </div>
       {{/each}}

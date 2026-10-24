@@ -9,7 +9,7 @@
       {{#each list}}
       <div class="r-trait {{#if boost}}is-boosted{{/if}}">
         <div class="r-trait-main">
-          <a class="r-trait-label {{#if ugly}}is-ugly{{/if}}" data-action="rollTrait" data-trait="attributes.{{key}}" data-tooltip="{{#if ugly}}{{localize 'VTM20.Weakness.ugly'}}{{else}}{{label}}{{/if}}">{{label}}</a>
+          <a class="r-trait-label {{#if ugly}}is-ugly{{/if}}" data-action="rollTrait" data-trait="attributes.{{key}}" {{#if ugly}}data-tooltip="{{localize 'VTM20.Weakness.ugly'}}"{{/if}}>{{label}}</a>
           {{#if canSpec}}<i class="r-spec-mark" aria-hidden="true"></i><input class="r-spec" type="text" name="system.attributes.{{key}}.specialty" value="{{specialty}}" placeholder="{{localize 'VTM20.Sheet.Specialty'}}" spellcheck="false" data-tooltip="{{specialty}}">{{/if}}
           <span class="r-leader"></span>
           {{> rDots dots=dots}}
@@ -31,7 +31,7 @@
       {{#each list}}
       <div class="r-trait {{#unless value}}is-zero{{/unless}}">
         <div class="r-trait-main">
-          <a class="r-trait-label" data-action="rollTrait" data-trait="abilities.{{key}}" data-tooltip="{{label}}">{{label}}</a>
+          <a class="r-trait-label" data-action="rollTrait" data-trait="abilities.{{key}}">{{label}}</a>
           {{#if canSpec}}<i class="r-spec-mark" aria-hidden="true"></i><input class="r-spec" type="text" name="system.abilities.{{key}}.specialty" value="{{specialty}}" placeholder="{{localize 'VTM20.Sheet.Specialty'}}" spellcheck="false" data-tooltip="{{specialty}}">{{/if}}
           <span class="r-leader"></span>
           {{> rDots dots=dots}}

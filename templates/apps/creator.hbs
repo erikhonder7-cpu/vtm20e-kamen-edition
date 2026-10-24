@@ -162,7 +162,7 @@
         <div class="r-cr-prios">{{#each prios}}<a class="r-cr-prio {{#if active}}is-active{{/if}}" data-action="prio" data-kind="abil" data-group="{{../key}}" data-i="{{i}}"><b>{{n}}</b> {{label}}</a>{{/each}}</div>
         <div class="r-cr-left {{#if (lt left 0)}}is-over{{else if (eq left 0)}}is-done{{/if}}">{{localize "VTM20.Creator.LeftShort"}}: <b>{{left}}</b></div>
         {{#each list}}
-        <div class="r-trait-main"><span class="r-trait-label" data-tooltip="{{label}}">{{label}}</span><span class="r-leader"></span>
+        <div class="r-trait-main"><span class="r-trait-label">{{label}}</span><span class="r-leader"></span>
           <span class="r-dots">{{#each dots}}<a class="r-dot r-cr-dot is-{{state}}" data-action="dot" data-kind="{{kind}}" data-key="{{key}}" data-n="{{n}}"></a>{{/each}}</span>
         </div>
         {{/each}}
@@ -274,7 +274,7 @@
       <div class="r-cr-free-group"><h3 class="r-h3">{{label}}</h3>
         {{#each rows}}
         <div class="r-trait-main {{#if added}}has-add{{/if}}">
-          <span class="r-trait-label" data-tooltip="{{label}}">{{label}}</span><span class="r-leader"></span><b class="r-cr-val">{{value}}</b>
+          <span class="r-trait-label">{{label}}</span><span class="r-leader"></span><b class="r-cr-val">{{value}}</b>
           <a class="r-step" data-action="free" data-kind="{{kind}}" data-key="{{key}}" data-d="-1">−</a>
           <a class="r-step" data-action="free" data-kind="{{kind}}" data-key="{{key}}" data-d="1" data-tooltip="{{price}}">+</a>
           <span class="r-cr-added">{{#if added}}+{{added}}{{/if}}</span>
@@ -297,7 +297,7 @@
       <div class="r-cr-free-group"><h3 class="r-h3">{{label}}</h3>
         {{#each rows}}
         <div class="r-trait-main {{#if added}}has-add is-xp{{/if}}">
-          <span class="r-trait-label" data-tooltip="{{label}}">{{label}}</span><span class="r-leader"></span><b class="r-cr-val">{{value}}</b>
+          <span class="r-trait-label">{{label}}</span><span class="r-leader"></span><b class="r-cr-val">{{value}}</b>
           <a class="r-step" data-action="xp" data-kind="{{kind}}" data-key="{{key}}" data-d="-1">−</a>
           <a class="r-step" data-action="xp" data-kind="{{kind}}" data-key="{{key}}" data-d="1" data-tooltip="{{price}} {{localize 'VTM20.Creator.XpShort'}}">+</a>
           <span class="r-cr-added is-xp">{{#if added}}+{{added}}{{/if}}</span>
