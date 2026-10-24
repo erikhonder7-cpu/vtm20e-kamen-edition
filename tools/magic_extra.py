@@ -358,6 +358,8 @@ def rituals_from(lines, disc, book, era, note):
             md = re.match(r"^([•●]{1,10})\s+(.+)$", t)              # «### •••• Имя» — уровень точками
             if md: t = md.group(2)
             il = len(md.group(1)) if md else inline_level(t)
+            if re.match(r"^(?:Клановые|Общие|Прочие|Новые)\s+ритуалы", t, re.I):   # заголовок раздела, не ритуал
+                close(); i += 1; continue
             if h >= 3 and (il or lvl):
                 start(t, il or lvl, "heading")
             else:
