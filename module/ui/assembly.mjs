@@ -198,10 +198,10 @@ function seats(org) {
 function balance(s, org) {
   const st = seats(org);
   const w = Object.fromEntries(Object.entries(st).map(([k, v]) => [k, v.infl + Object.values(s.districts).filter(x => x === k).length * 2]));
-  const total = Object.values(w).reduce((a, b) => a + b, 0) || 1;
+  const total = Object.values(w).reduce((a, b) => a + b, 0) || 1, top = Math.max(1, ...Object.values(w));
   return `<table class="ra-ledger">${Object.entries(A.FACTIONS).map(([k, f]) => `<tr>
       <td>${seal(k)}${esc(f.label)}</td>
-      <td class="ra-bar"><i style="width: ${w[k] / total * 100}%; --c: ${f.color}"></i></td>
+      <td class="ra-bar"><i style="width: ${w[k] / top * 100}%; --c: ${f.color}"></i></td>
       <td class="ra-num" data-tooltip="Доля силы: влияние людей в крипте + кварталы по 2">${Math.round(w[k] / total * 100)}%</td>
       <td class="ra-num" data-tooltip="Голосов в крипте (делегатов в силе)">${st[k].n}</td></tr>`).join("")}</table>`;
 }
@@ -1026,7 +1026,7 @@ function tabChronicle(s, gm) {
     const yh = y !== year ? `<h4 class="ra-year">${y}</h4>` : "";
     year = y;
     return `${yh}<div class="ra-entry ${c.secret ? "is-secret" : ""} ${gm && !open ? "is-veiled" : ""}">
-      <time class="ra-hand">${esc(fmtDate(c.date))}</time>
+      <time class="ra-hand">${/-01-01$/.test(c.date) ? "" : esc(fmtDate(c.date))}</time>
       <div><b>${esc(c.title)}</b>${c.secret ? ` <em class="ra-hand ra-red">тайна</em>` : ""}<p>${esc(c.text)}</p>
         ${c.day ? `<p class="ra-day">Днём: ${esc(c.day)}</p>` : ""}</div>
       ${gm ? eye(`chr:${c.id}`, open) : ""}

@@ -493,3 +493,40 @@
 #r-citymap .ra-qed[data-who=members] .ra-qwho-ids { display: block; }
 #r-citymap .ra-qwho-ids p { margin: 0 0 4px !important; font-size: 13px; }
 #r-citymap .ra-qwho-ids label { display: inline-flex; margin: 0 12px 2px 0; }
+
+/* ── Доработки вкладок города (25.10) ────────────────────────────────────── */
+/* Летопись: поля шире, даты справа у красной линии и не заходят за неё; годы — в поле */
+#r-citymap .ra-register { padding-left: 176px; background-image: linear-gradient(90deg, transparent 152px, rgba(164, 40, 43, .5) 152px 153px, transparent 153px),
+  repeating-linear-gradient(180deg, transparent 0 25px, rgba(80, 110, 150, .14) 25px 26px), var(--p-grain), linear-gradient(176deg, #ebe1c9, #d8c9a8); }
+#r-citymap .ra-register .ra-sh-head { margin-left: -150px; }
+#r-citymap .ra-year { width: 132px; margin: 22px 0 2px -158px !important; text-align: right; line-height: 1; }
+#r-citymap .ra-entry { grid-template-columns: 132px minmax(0, 1fr) 20px; gap: 26px; margin-left: -158px; padding: 6px 0 10px; }
+#r-citymap .ra-entry time { text-align: right; font-size: 15px; line-height: 1.3; }
+#r-citymap .ra-entry.is-veiled { box-shadow: none; }
+#r-citymap .ra-entry.is-veiled > time { opacity: 1; }
+#r-citymap .ra-entry.is-veiled > div { opacity: .78; }
+#r-citymap .ra-entry.is-veiled > time::after { content: "скрыто"; display: block; font-size: 11px; letter-spacing: .3px; color: var(--p-faint); }
+#r-citymap .ra-entry + .ra-entry { border-top: 1px dotted rgba(109, 88, 57, .28); }
+
+/* Эдикт: резиновый штамп в правом углу шапки — не наезжает на текст и не обрезается */
+#r-citymap .ra-diag-stamp { top: 26px; right: 26px; width: auto; max-width: 210px; padding: 5px 12px 4px; transform: rotate(-8deg);
+  font-size: 15px; letter-spacing: 3px; line-height: 1.15; border: 3px double currentColor; border-radius: 4px; opacity: .78; }
+
+/* Мнения фракций: подпись фракции не слипается с мнением */
+#r-citymap .ra-positions th { padding-right: 18px !important; }
+
+/* Собрание: списки членов по левому краю, без растянутых пробелов */
+#r-citymap .ra-key { text-align: left; }
+
+/* Силы в крипте: полоска на «дорожке», длина — от самой сильной фракции */
+#r-citymap .ra-ledger td.ra-bar { width: 50%; padding-right: 10px; }
+#r-citymap .ra-ledger td.ra-bar { background: linear-gradient(180deg, transparent calc(50% - 5px), rgba(109, 88, 57, .14) calc(50% - 5px) calc(50% + 5px), transparent calc(50% + 5px)) !important; }
+#r-citymap .ra-ledger .ra-bar i { height: 10px; min-width: 2px; }
+
+/* Стена вестей: листки в несколько столбцов, как приколотые к доске */
+#r-citymap .ra-wall { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 18px 16px; align-items: start; padding: 4px 2px 8px; }
+
+/* Заседание: шапка поимённой таблицы остаётся видна при прокрутке */
+#r-citymap .ra-roll { overflow: visible !important; }
+#r-citymap .ra-roll thead th { position: sticky; top: -22px; z-index: 3; background: #e4d8bd !important; box-shadow: 0 2px 0 rgba(109, 88, 57, .35); }
+#r-citymap .ra-roll tbody tr:not(.ra-facrow):hover td, #r-citymap .ra-roll tbody tr:not(.ra-facrow):hover th { background: rgba(138, 15, 31, .06) !important; }
