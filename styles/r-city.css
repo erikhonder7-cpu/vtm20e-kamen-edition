@@ -315,29 +315,6 @@
 @keyframes rc-blink { 0%, 100% { opacity: 1; } 50% { opacity: .45; } }
 
 /* ── Атмосфера 1789 года: свеча, сургучные печати (module/ui/citymap.mjs) ── */
-#r-citymap .rc-fx { position: absolute; inset: 0; z-index: 3; pointer-events: none; overflow: hidden; --x: 50%; --y: 45%; --flick: 1; display: none; }
-#r-citymap[data-fx=on] .rc-fx { display: block; }
-/* тёплый свет на бумаге */
-#r-citymap .rc-fx-warm { position: absolute; inset: 0; background: rgba(150, 90, 30, .14); mix-blend-mode: multiply; }
-/* пламя у курсора: светлый круг, вокруг сумрак комнаты; радиус дрожит */
-#r-citymap .rc-fx-candle {
-  position: absolute; inset: 0;
-  background: radial-gradient(circle at var(--x) var(--y),
-    rgba(255, 196, 120, calc(.16 * var(--flick))) 0,
-    rgba(255, 170, 90, .05) calc(150px * var(--flick)),
-    rgba(18, 9, 4, .22) calc(340px * var(--flick)),
-    rgba(8, 4, 2, .46) calc(760px * var(--flick)),
-    rgba(4, 2, 1, .56) 1400px);
-  mix-blend-mode: normal; transition: background .08s linear;
-}
-#r-citymap[data-style=plannight] .rc-fx-candle {
-  background: radial-gradient(circle at var(--x) var(--y),
-    rgba(255, 186, 110, calc(.22 * var(--flick))) 0,
-    rgba(255, 150, 70, .06) calc(170px * var(--flick)),
-    rgba(10, 5, 2, .35) calc(360px * var(--flick)),
-    rgba(4, 2, 1, .7) calc(760px * var(--flick)));
-}
-/* метки хроники — сургучные печати */
 #r-citymap .rc-pin.is-seal .rc-seal { width: 38px; height: 38px; display: block; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .55)); transition: transform .12s; }
 #r-citymap .rc-pin.is-seal:hover .rc-seal { transform: scale(1.12); }
 #r-citymap .rc-pin.is-seal.is-picked .rc-seal { filter: drop-shadow(0 0 6px #f0d9a8) drop-shadow(0 2px 3px rgba(0, 0, 0, .6)); }
