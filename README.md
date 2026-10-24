@@ -72,3 +72,10 @@ Prata, Forum, Old Standard TT, IM Fell DW Pica (RU), Marck Script — SIL Open F
 
 `tools/rules_extra.py` (вызывается из build_data.py) собирает главы «V20_Основные_правила» в data/rules.json;
 `node tools/build_packs.mjs rules` — компендий-журнал «Правила V20» (глава — запись, раздел — страница).
+
+## Релиз
+
+`node tools/release.mjs 0.7.0 "заголовок"` — проверит, что Foundry закрыт и правки закоммичены, поднимет версию,
+пересоберёт компендии, прогонит tools/check.mjs, сделает коммит и тег и выложит архив и system.json на GitHub.
+Заметки — из tools/release-notes.md (если есть), иначе список коммитов с прошлого тега.
+На GitHub при каждом push запускается та же проверка (.github/workflows/check.yml).

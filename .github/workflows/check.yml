@@ -1,0 +1,18 @@
+# Проверка при каждом push и pull request: node tools/check.mjs
+# (синтаксис всех модулей, тесты подсчёта бросков и шансов, JSON данных, значки предметов).
+name: Проверка системы
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: tools/check.mjs
+        run: node tools/check.mjs
