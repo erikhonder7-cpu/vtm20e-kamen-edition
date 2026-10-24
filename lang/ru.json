@@ -588,7 +588,7 @@
       "reason": "за что",
       "Window": "Опыт",
       "WindowShort": "Потратить",
-      "OnlyAffordable": "только по карману",
+      "OnlyAffordable": "По карману",
       "New": "новая",
       "Paths": "Пути магии крови",
       "Nothing": "Нечего покупать.",
@@ -596,7 +596,8 @@
       "All": "Все",
       "NewAbilities": "Новые способности",
       "Unit": "оп.",
-      "History": "История"
+      "History": "История",
+      "Short": "не хватает {n}"
     },
     "Confirm": {
       "DeleteTitle": "Удаление",

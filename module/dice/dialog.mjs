@@ -127,6 +127,17 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     return { pool: Math.max(0, pool), breakdown: bd, specialtyName: specs.join(", "), physicalBonus: phys || auto, attr, diffAuto, diffSit, effDifficulty, auto };
   }
 
+  /** Проверка с заданными чертами (добродетели, воля, узы): вместо списков — плашка с чертой и точками. */
+  #locked(v) {
+    if (!this.cfg.lockTraits) return null;
+    const ICONS = { frenzy: "fa-face-angry", rotschreck: "fa-fire-flame-curved", degeneration: "fa-scale-unbalanced", bond: "fa-link", willpower: "fa-shield-heart" };
+    const traits = [v.trait1, v.trait2].filter(Boolean).map(p => {
+      const value = this.actor.traitValue(p);
+      return { label: this.actor.traitLabel(p), value, pips: Array.from({ length: Math.max(5, Math.min(10, value)) }, (_, i) => i < value) };
+    });
+    return { kind: this.cfg.kind ?? "check", icon: ICONS[this.cfg.kind] ?? "fa-dice-d10", traits };
+  }
+
   async _prepareContext() {
     const c = this.compute();
     const v = this.values;
@@ -140,7 +151,7 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     return {
       v, ...c, chances, shownPool: pool,
       groups1: mark(groups1, v.trait1), groups2: mark(groups2, v.trait2),
-      lockTraits: !!this.cfg.lockTraits, fixedPool: this.cfg.pool != null,
+      lockTraits: !!this.cfg.lockTraits, fixedPool: this.cfg.pool != null, locked: this.#locked(v),
       difficulties: [3, 4, 5, 6, 7, 8, 9, 10].map(n => ({ n, active: n === v.difficulty })),
       woundPenalty: this.actor.system.health.penalty,
       contests: this.cfg.onRolled ? [] : ["simple", "extended", "resisted", "teamwork"].map(k => ({ value: k, label: t(`Contest.Mode.${k}`), selected: k === v.contest })),

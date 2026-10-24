@@ -1,6 +1,13 @@
 {{!-- Окно проверки: пул из двух черт, модификаторы, сложность, специализация, воля. --}}
 <div class="r-roll-form">
-  {{#unless fixedPool}}
+  {{#if locked}}
+  <div class="r-check-banner is-{{locked.kind}}">
+    <span class="r-cb-medal"><i class="fa-solid {{locked.icon}}"></i></span>
+    <div class="r-cb-traits">
+      {{#each locked.traits}}<div class="r-cb-trait"><span class="r-cb-name">{{label}}</span><span class="r-cb-pips">{{#each pips}}<i class="{{#if this}}is-on{{/if}}"></i>{{/each}}</span><b>{{value}}</b></div>{{/each}}
+    </div>
+  </div>
+  {{else}}{{#unless fixedPool}}
   <div class="r-roll-traits">
     <select name="trait1" {{#if lockTraits}}disabled{{/if}}>
       <option value="">—</option>
@@ -12,7 +19,7 @@
       {{#each groups2}}<optgroup label="{{label}}">{{#each options}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</optgroup>{{/each}}
     </select>
   </div>
-  {{/unless}}
+  {{/unless}}{{/if}}
 
   <div class="r-roll-row">
     <span class="r-roll-label">{{localize "VTM20.Roll.Modifier"}}</span>
@@ -21,7 +28,7 @@
     <a class="r-step" data-action="bump" data-field="bonus" data-d="1">+</a>
   </div>
 
-  {{#if contests.length}}
+  {{#if (and contests.length (not locked))}}
   <div class="r-roll-row" data-tooltip="{{localize 'VTM20.Contest.ModeHint'}}">
     <span class="r-roll-label">{{localize "VTM20.Contest.ModeLabel"}}</span>
     <select name="contest" class="r-roll-mode">{{#each contests}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
@@ -29,12 +36,14 @@
   </div>
   {{/if}}
 
+  {{#unless locked}}
   <div class="r-roll-row" data-tooltip="{{localize 'VTM20.Roll.MultiActionsHint'}}">
     <span class="r-roll-label">{{localize "VTM20.Roll.Actions"}}</span>
     <a class="r-step" data-action="bump" data-field="actions" data-d="-1">−</a>
     <input type="number" name="actions" value="{{v.actions}}" min="1" max="6" class="r-roll-num">
     <a class="r-step" data-action="bump" data-field="actions" data-d="1">+</a>
   </div>
+  {{/unless}}
 
   <div class="r-roll-row">
     <span class="r-roll-label">{{localize "VTM20.Roll.Difficulty"}}</span>
@@ -52,7 +61,7 @@
   {{/if}}
 
   <div class="r-roll-checks">
-    <label class="r-check r-check-spec {{#unless specialtyName}}is-dim{{/unless}}"><input type="checkbox" name="specialty" {{checked v.specialty}}> <span class="r-spec-main"><span class="r-spec-head">{{localize "VTM20.Roll.Specialty"}} <small>{{localize "VTM20.Roll.SpecialtyRule"}}</small></span>{{#if specialtyName}}<em class="r-spec-name">{{specialtyName}}</em>{{/if}}</span></label>
+    {{#unless (and locked (not specialtyName))}}<label class="r-check r-check-spec {{#unless specialtyName}}is-dim{{/unless}}"><input type="checkbox" name="specialty" {{checked v.specialty}}> <span class="r-spec-main"><span class="r-spec-head">{{localize "VTM20.Roll.Specialty"}} <small>{{localize "VTM20.Roll.SpecialtyRule"}}</small></span>{{#if specialtyName}}<em class="r-spec-name">{{specialtyName}}</em>{{/if}}</span></label>{{/unless}}
     {{#unless noWillpower}}
     <label class="r-check"><input type="checkbox" name="willpower" {{checked v.willpower}} {{#unless willpowerLeft}}disabled{{/unless}}>
       {{localize "VTM20.Roll.SpendWillpower"}} <em>({{willpowerLeft}})</em></label>
