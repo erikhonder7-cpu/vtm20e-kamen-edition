@@ -1,7 +1,7 @@
 // tools/check.mjs — проверка перед коммитом: node tools/check.mjs
 // 1) синтаксис всех модулей .mjs (в том числе повторные объявления имён — из-за такой ошибки листы
 //    не открывались, а песочница её не показала); 2) тесты подсчёта броска (evaluate) и шансов (odds)
-//    по правилам V20; 3) все data/*.json и lang/ru.json читаются; 4) иконки предметов есть в Foundry.
+//    по правилам V20; 3) все data/*.json и lang/ru.json читаются; 4) свои значки предметов на месте.
 
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
@@ -69,14 +69,12 @@ for (const f of [...fs.readdirSync(path.join(ROOT, "data")).filter(f => f.endsWi
 }
 console.log("Данные: JSON читаются");
 
-// ── 4. Иконки предметов (если найден Foundry) ─────────────────────────────
-const FOUNDRY_PUBLIC = ["D:/FoundryVTT-WindowsPortable-14.365/App/resources/app/public", process.env.FOUNDRY_APP && path.join(process.env.FOUNDRY_APP, "public")]
-  .filter(Boolean).find(p => fs.existsSync(p));
-if (FOUNDRY_PUBLIC) {
-  const { ALL_ICON_PATHS } = await import(pathToFileURL(path.join(ROOT, "module/data/icons.mjs")).href);
-  const miss = ALL_ICON_PATHS.filter(p => !fs.existsSync(path.join(FOUNDRY_PUBLIC, p)));
-  ok(!miss.length, `нет иконок в Foundry: ${miss.join(", ")}`);
-  console.log(`Иконки: ${ALL_ICON_PATHS.length} путей`);
+// ── 4. Свои значки предметов ──────────────────────────────────────────────
+{
+  const { OWN_ICON_FILES } = await import(pathToFileURL(path.join(ROOT, "module/data/icons.mjs")).href);
+  const miss = OWN_ICON_FILES.filter(p => !fs.existsSync(path.join(ROOT, p)));
+  ok(!miss.length, `нет значков: ${miss.join(", ")}`);
+  console.log(`Значки: ${OWN_ICON_FILES.length} файлов`);
 }
 
 if (failed) { console.error(`\nПРОВАЛЕНО проверок: ${failed}`); process.exit(1); }

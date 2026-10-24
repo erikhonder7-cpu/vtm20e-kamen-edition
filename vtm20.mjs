@@ -215,6 +215,11 @@ async function migrateWorld() {
       } catch (e) { console.warn(`VTM20 | Не удалось обновить значки в ${pack.collection}`, e); }
     }
   }
+  // 0.6.1: вместо картинок из библиотеки Foundry (их ставила 0.6.0) — свои значки системы
+  if (foundry.utils.isNewerVersion("0.6.1", done)) {
+    const { restoreSystemIcons } = await import("./module/data/icons.mjs");
+    if (await restoreSystemIcons()) changed = true;
+  }
   if (foundry.utils.isNewerVersion(game.system.version, done) || changed) {
     await game.settings.set(SYSTEM_ID, "migrated", game.system.version);
     console.log("VTM20 | Миграция данных мира до", game.system.version);

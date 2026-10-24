@@ -1,94 +1,51 @@
 // module/data/icons.mjs
-// Картинки предметов из встроенной библиотеки Foundry (icons/…): оружие — по виду и названию, броня — по классу,
-// достоинства и недостатки — по категории, факты биографии — по смыслу. Без глобалов Foundry: модуль
-// используется и в игре (библиотека, заготовки снаряжения), и при сборке компендиев (tools/build_packs.mjs).
+// Картинки предметов — свои значки системы (assets/icons/*.svg). Без глобалов Foundry на уровне модуля:
+// его используют и в игре (библиотека, мастер, заготовки снаряжения), и при сборке компендиев (tools/build_packs.mjs).
+// В 0.6.0 предметам ставились картинки из библиотеки Foundry (icons/…) — restoreSystemIcons() возвращает свои.
 
-const I = p => `icons/${p}`;
+const SYS = "systems/vtm20e-kamen-edition/assets/icons";
+const own = type => `${SYS}/${type}.svg`;
 
-/** Оружие: сначала по названию (лук, пистолет, сабля…), иначе по виду. */
-const WEAPON_RULES = [
-  [/арбалет|crossbow/i, "weapons/crossbows/crossbow-heavy.webp"],
-  [/лук|bow/i, "weapons/bows/longbow-recurve-brown.webp"],
-  [/праща|sling/i, "weapons/slings/slingshot-wood.webp"],
-  [/автомат|пистолет-пулем|пулем|smg|uzi|submachine/i, "weapons/guns/gun-submachine-drum-magazine.webp"],
-  [/дробов|обрез|shotgun|мушкетон|blunderbuss/i, "weapons/guns/gun-blunderbuss-worn-brown.webp"],
-  [/пистол|револьв|pistol|revolver/i, "weapons/guns/gun-pistol-flintlock.webp"],
-  [/мушкет|ружь|винтов|карабин|штуцер|rifle|musket|carbine/i, "weapons/guns/gun-wood.webp"],
-  [/огнем|flamethrower/i, "weapons/guns/flamethrower-spray-fire-orange.webp"],
-  [/граната|бомб|grenade|bomb/i, "weapons/thrown/bomb-fuse-black.webp"],
-  [/нож|кинжал|стилет|knife|dagger|stiletto/i, "weapons/daggers/dagger-curved-black.webp"],
-  [/топор|секир|axe/i, "weapons/axes/axe-broad-brown.webp"],
-  [/коса|scythe/i, "weapons/polearms/glaive-simple.webp"],
-  [/вилы|pitchfork|трезуб|trident/i, "weapons/polearms/trident-fork-white.webp"],
-  [/кол\b|stake/i, "weapons/polearms/javelin-simple.webp"],
-  [/копь|пика|алебард|бердыш|spear|pike|halberd/i, "weapons/polearms/spear-flared-blue.webp"],
-  [/булав|кистен|моргенштерн|mace|flail/i, "weapons/maces/mace-round-steel.webp"],
-  [/молот|hammer/i, "weapons/hammers/hammer-war-rounding.webp"],
-  [/дубин|палиц|трост|бита|club|cane|bat/i, "weapons/clubs/club-banded-brown.webp"],
-  [/меч|сабл|шпаг|рапир|палаш|клинок|sword|sabre|saber|rapier/i, "weapons/swords/shortsword-guard-brass.webp"]
-];
-const WEAPON_KIND = {
-  brawl: "skills/melee/unarmed-punch-fist.webp",
-  melee: "weapons/swords/shortsword-guard-brass.webp",
-  firearms: "weapons/guns/gun-pistol-flintlock.webp",
-  thrown: "weapons/thrown/dagger-ringed-grey.webp"
-};
-export function weaponIcon(name = "", kind = "melee") {
-  const hit = WEAPON_RULES.find(([rx]) => rx.test(name));
-  return I(hit ? hit[1] : WEAPON_KIND[kind] ?? WEAPON_KIND.melee);
+export const weaponIcon = () => own("weapon");
+export const armorIcon = () => own("armor");
+export const traitIcon = (category, flaw = false) => own(flaw ? "flaw" : "merit");
+export const backgroundIcon = () => own("background");
+
+/** Свои значки, на которые ссылается модуль (tools/check.mjs проверяет, что файлы есть). */
+export const OWN_ICON_FILES = ["weapon", "armor", "merit", "flaw", "background"].map(t => `assets/icons/${t}.svg`);
+
+/** Картинки Foundry, которые ставила 0.6.0 (по ним restoreSystemIcons находит, что заменить). */
+const LEGACY_PREFIXES = ["icons/weapons/", "icons/equipment/chest/", "icons/magic/control/", "icons/magic/perception/",
+  "icons/skills/social/", "icons/skills/melee/", "icons/commodities/currency/", "icons/sundries/documents/",
+  "icons/sundries/books/", "icons/environment/people/"];
+const TYPES = { weapon: "weapon", armor: "armor", merit: "merit", flaw: "flaw", background: "background" };
+
+/**
+ * Вернуть свои значки предметам мира и персонажей, которым 0.6.0 поставила картинки Foundry.
+ * Вызывается у рассказчика при загрузке мира; ничего не делает, если таких предметов нет.
+ */
+export async function restoreSystemIcons() {
+  const stale = it => TYPES[it.type] && LEGACY_PREFIXES.some(p => String(it.img ?? "").startsWith(p));
+  const fix = it => ({ _id: it.id, img: own(TYPES[it.type]) });
+  let n = 0;
+  const world = game.items.filter(stale);
+  if (world.length) { await Item.updateDocuments(world.map(fix)); n += world.length; }
+  for (const a of game.actors) {
+    const list = a.items.filter(stale);
+    if (list.length) { await a.updateEmbeddedDocuments("Item", list.map(fix)); n += list.length; }
+  }
+  // Компендиумы системы, собранные с картинками Foundry, — поправить через Foundry (открытые файлы сборка не трогает)
+  for (const pack of game.packs.filter(p => p.metadata.packageType === "system" && p.metadata.packageName === "vtm20e-kamen-edition" && p.documentName === "Item")) {
+    try {
+      const docs = (await pack.getDocuments()).filter(stale);
+      if (!docs.length) continue;
+      const wasLocked = pack.locked;
+      if (wasLocked) await pack.configure({ locked: false });
+      await Item.updateDocuments(docs.map(fix), { pack: pack.collection });
+      if (wasLocked) await pack.configure({ locked: true });
+      n += docs.length;
+    } catch (e) { console.warn(`VTM20 | Не удалось вернуть значки в ${pack.collection}`, e); }
+  }
+  if (n) console.log(`VTM20 | возвращены свои значки предметов: ${n}`);
+  return n;
 }
-
-/** Броня: лёгкая — кожа, тяжёлая — сталь. */
-export function armorIcon(rating = 1) {
-  return I(rating >= 3 ? "equipment/chest/breastplate-cuirass-steel-grey.webp" : "equipment/chest/breastplate-banded-leather-brown.webp");
-}
-
-/** Достоинства и недостатки — по категории; у недостатков мрачнее. */
-const TRAIT = {
-  physical: ["magic/control/buff-strength-muscle-damage.webp", "magic/control/buff-strength-muscle-damage-red.webp"],
-  mental: ["magic/perception/eye-ringed-green.webp", "magic/perception/eye-ringed-glow-angry-red.webp"],
-  social: ["skills/social/diplomacy-handshake.webp", "skills/social/thumbs-down.webp"],
-  supernatural: ["magic/perception/third-eye-blue-red.webp", "magic/control/debuff-chains-purple.webp"]
-};
-export function traitIcon(category = "physical", flaw = false) {
-  const pair = TRAIT[category] ?? TRAIT.supernatural;
-  return I(pair[flaw ? 1 : 0]);
-}
-
-/** Факты биографии — по английскому названию из справочника. */
-const BACKGROUND = {
-  "Resources": "commodities/currency/coin-embossed-crown-gold.webp",
-  "Allies": "skills/social/diplomacy-unity-alliance.webp",
-  "Contacts": "sundries/documents/document-letter-tan.webp",
-  "Information Network": "sundries/documents/document-sealed-brown-red.webp",
-  "Anarch Information Exchange": "sundries/documents/document-letter-brown.webp",
-  "Influence": "magic/control/control-influence-crown-gold.webp",
-  "Mentor": "environment/people/cleric-grey.webp",
-  "Retainers": "environment/people/commoner.webp",
-  "Herd": "environment/people/group.webp",
-  "Fame": "skills/social/intimidation-impressing.webp",
-  "Status": "magic/control/control-influence-crown-yellow.webp",
-  "Anarch Status": "magic/control/control-influence-rally-purple.webp",
-  "Elder Status": "magic/control/control-influence-crown-yellow.webp",
-  "Clan Prestige": "magic/control/control-influence-crown-gold.webp",
-  "Generation": "skills/melee/blood-slash-foam-red.webp",
-  "Elder Generation": "skills/melee/blood-slash-foam-red.webp",
-  "Alternate Identity": "magic/perception/mask-stone-eyes-orange.webp",
-  "Domain": "sundries/documents/document-official-capital.webp",
-  "Military Force": "environment/people/infantry-army.webp",
-  "Mob": "environment/people/charge.webp",
-  "Library": "sundries/books/book-backed-wood-tan.webp",
-  "Rituals": "sundries/books/book-eye-red.webp",
-  "Cult": "skills/social/symbol-pyramid-eye.webp",
-  "Armory": "weapons/swords/greatsword-sheathed.webp",
-  "Black Hand Membership": "magic/perception/hand-eye-black.webp",
-  "Pack Recognition": "skills/social/diplomacy-peace-alliance.webp"
-};
-export function backgroundIcon(en = "") {
-  return BACKGROUND[en] ? I(BACKGROUND[en]) : null;
-}
-
-/** Все пути, на которые ссылается модуль (для проверки, что файлы есть в Foundry). */
-export const ALL_ICON_PATHS = [...WEAPON_RULES.map(r => r[1]), ...Object.values(WEAPON_KIND),
-  "equipment/chest/breastplate-cuirass-steel-grey.webp", "equipment/chest/breastplate-banded-leather-brown.webp",
-  ...Object.values(TRAIT).flat(), ...Object.values(BACKGROUND)].map(I);
