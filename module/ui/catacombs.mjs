@@ -166,15 +166,17 @@ export function addCatacombLayers() {
   const map = host?.map;
   if (!map) return;
   surfaceKeep.delete(map);   // новый стиль — прежние значения притушенных слоёв больше не нужны
+  const world = { type: "FeatureCollection", features: [{ type: "Feature", properties: {}, geometry: { type: "Polygon", coordinates: [[[-180, -85], [180, -85], [180, 85], [-180, 85], [-180, -85]]] } }] };
   for (const src of ["rc-cata-dim", "rc-cata-area", "rc-cata-glow", "rc-cata-ways", "rc-cata-rooms", "rc-cata-label", "rc-cata-door"])
-    if (!map.getSource(src)) map.addSource(src, { type: "geojson", data: EMPTY });
+    if (!map.getSource(src)) map.addSource(src, { type: "geojson", data: src === "rc-cata-dim" ? world : EMPTY });
   const paper = host.view().style === "plan", vis = isOn() ? "visible" : "none";
   const known = (yes, no) => ["case", ["get", "known"], yes, no];
   const add = l => { if (!map.getLayer(l.id)) map.addLayer({ ...l, layout: { ...(l.layout ?? {}), visibility: vis } }); };
   const join = { "line-cap": "square", "line-join": "miter", "line-miter-limit": 4 };
   const wallColor = ["match", ["get", "type"], "flooded", "#86cdd0", "collapsed", "#8c7a5a", ["coalesce", ["get", "wall"], WALL]];
-  // город над головой уходит в густую тень
-  add({ id: "rc-cata-dim", type: "fill", source: "rc-cata-dim", paint: { "fill-color": paper ? "#0f0904" : "#030206", "fill-opacity": .74 } });
+  // Город над головой уходит в густую тень. Слой тени виден всегда, меняется только прозрачность — так затемнение плавное
+  if (!map.getLayer("rc-cata-dim")) map.addLayer({ id: "rc-cata-dim", type: "fill", source: "rc-cata-dim",
+    paint: { "fill-color": paper ? "#0c0703" : "#020104", "fill-opacity": 0, "fill-opacity-transition": { duration: 700, delay: 0 } } });
   // свечение зала цветом хозяина: радиус — размер зала в метрах, переведённый в пиксели (Париж: 103 040 м на пиксель при z0)
   const px = k => ["*", ["get", "r"], k / 103040];
   add({ id: "rc-cata-glow", type: "circle", source: "rc-cata-glow",
@@ -215,10 +217,13 @@ export function addCatacombLayers() {
 export function drawCatacombs() {
   const map = host?.map;
   if (!map?.getSource("rc-cata-area")) return;
-  const vis = isOn() ? "visible" : "none";
-  for (const l of map.getStyle()?.layers ?? []) if (l.id.startsWith("rc-cata-")) map.setLayoutProperty(l.id, "visibility", vis);
-  dimSurface(map, vis === "visible");
-  if (vis === "none") return;
+  const on = isOn(), vis = on ? "visible" : "none";
+  for (const l of map.getStyle()?.layers ?? []) if (l.id.startsWith("rc-cata-") && l.id !== "rc-cata-dim") map.setLayoutProperty(l.id, "visibility", vis);
+  map.setPaintProperty("rc-cata-dim", "fill-opacity", on ? (host.view().style === "plan" ? .84 : .86) : 0);
+  // метки и фишки — HTML поверх карты, слой тени их не накрывает: притушить стилями (styles/r-catacombs.css)
+  map.getContainer().closest("#r-citymap")?.classList.toggle("is-underground", on);
+  dimSurface(map, on);
+  if (!on) return;
   const gm = game.user.isGM, all = sections(), shown = all.filter(s => gm || s.known);
   const feat = (geometry, properties) => ({ type: "Feature", geometry, properties });
   const fc = features => ({ type: "FeatureCollection", features });
@@ -227,7 +232,6 @@ export function drawCatacombs() {
   // стены зала — цвет его вида, высветленный к кости
   const tint = s => mix(kind(s).color, WALL, .45);
   const halls = shown.map(s => ({ s, g: hall(s) }));
-  map.getSource("rc-cata-dim").setData(fc([feat({ type: "Polygon", coordinates: [[[-180, -85], [180, -85], [180, 85], [-180, 85], [-180, -85]]] }, {})]));
   map.getSource("rc-cata-area").setData(fc(halls.map(({ s, g }) => feat({ type: "Polygon", coordinates: [g.outline] }, { id: s.id }))));
   map.getSource("rc-cata-glow").setData(fc(shown.map(s => feat({ type: "Point", coordinates: [s.lng, s.lat] }, { color: kind(s).color, r: s.r, known: s.known }))));
   // сеть строится по всем участкам, а не по видимым: у игроков та же сеть, только часть её
@@ -263,7 +267,7 @@ function dimSurface(map, on) {
       const k = `${l.id}|${prop}`;
       if (on) {
         if (!keep.has(k)) keep.set(k, map.getPaintProperty(l.id, prop) ?? 1);
-        map.setPaintProperty(l.id, prop, .3);
+        map.setPaintProperty(l.id, prop, .16);
       } else if (keep.has(k)) { map.setPaintProperty(l.id, prop, keep.get(k)); keep.delete(k); }
     }
   }

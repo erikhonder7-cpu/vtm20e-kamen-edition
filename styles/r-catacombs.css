@@ -22,3 +22,12 @@
   color: #e9dcbf; border: 1px solid #4a3d2c; border-radius: 2px; background: rgba(255, 255, 255, .03); transition: background .15s, border-color .15s; }
 #r-citymap .rc-cata-acts a:hover { border-color: var(--c); background: color-mix(in srgb, var(--c) 14%, transparent); }
 #r-citymap .rc-cata-acts a.is-danger:hover { border-color: #b83a3f; background: rgba(184, 58, 63, .18); color: #f3c9c9; }
+
+/* Под землёй: метки, булавки и фишки персонажей над картой притушены, по краям — виньетка */
+#r-citymap .rc-pin, #r-citymap .rc-char { transition: opacity .6s ease, filter .6s ease; }
+#r-citymap.is-underground .rc-pin, #r-citymap.is-underground .rc-char { opacity: .22; filter: grayscale(.7); }
+#r-citymap.is-underground .rc-pin:hover, #r-citymap.is-underground .rc-char:hover { opacity: .9; filter: none; }
+#r-citymap .rc-gl::after { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; opacity: 0; transition: opacity .7s ease;
+  background: radial-gradient(ellipse at 50% 50%, transparent 45%, rgba(0, 0, 0, .55) 85%, rgba(0, 0, 0, .8) 100%); }
+#r-citymap.is-underground .rc-gl::after { opacity: 1; }
+#r-citymap .rc-cata-pop { z-index: 3; }
