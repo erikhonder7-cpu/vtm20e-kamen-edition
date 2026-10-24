@@ -52,14 +52,7 @@
   "viziriAssamitov": "assets/clans/viziriAssamitov.svg",
   "charodeiAssamitov": "assets/clans/charodeiAssamitov.svg",
   "malkavianeDominatory": "assets/clans/malkavianeDominatory.svg",
-  "uDzao": "assets/clans/uDzao.svg",
-  "angraMaynyu": "assets/clans/angraMaynyu.svg",
-  "brahmany": "assets/clans/brahmany.svg",
-  "daytya": "assets/clans/daytya.svg",
-  "angelisAter": "assets/clans/angelisAter.svg",
-  "moreplavateli": "assets/clans/moreplavateli.svg",
-  "gorodskieGangrely": "assets/clans/gorodskieGangrely.svg",
-  "dikieGangrely": "assets/clans/dikieGangrely.svg"
+  "uDzao": "assets/clans/uDzao.svg"
  },
  "sects": {
   "camarilla": "assets/sects/camarilla.png",
