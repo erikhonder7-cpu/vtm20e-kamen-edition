@@ -33,6 +33,17 @@ const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
 const dots = (value, max = 5, extra = {}) =>
   Array.from({ length: max }, (_, i) => ({ n: i + 1, filled: i < value, ...extra }));
 
+/** Состояния персонажа, которые видны на портрете: значок, оттенок портрета (cls), тревожные — красным. */
+const PORTRAIT_STATES = [
+  { id: "r-frenzy", key: "frenzy", icon: "fa-face-angry", cls: "is-frenzy", hot: true },
+  { id: "r-rotschreck", key: "rotschreck", icon: "fa-fire", cls: "is-rotschreck", hot: true },
+  { id: "r-torpor", key: "torpor", icon: "fa-bed", cls: "is-torpor" },
+  { id: "r-staked", key: "staked", icon: "fa-thumbtack", cls: "is-torpor", hot: true },
+  { id: "r-stunned", key: "stunned", icon: "fa-face-dizzy" },
+  { id: "r-prone", key: "prone", icon: "fa-person-falling" },
+  { id: "r-held", key: "held", icon: "fa-hands-bound" }
+];
+
 /** Значок строки оружия по виду: рукопашное, холодное, огнестрельное (луки и арбалеты — мишень), метательное. */
 const weaponIcon = (kind, name) => kind === "brawl" ? "fa-hand-fist" : kind === "thrown" ? "fa-location-arrow"
   : kind === "firearms" ? (/лук|арбалет|праща/i.test(name) ? "fa-bullseye" : "fa-gun") : "fa-khanda";
@@ -66,6 +77,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       endPower: VtMActorSheet.#onEndPower,
       toggleRow: VtMActorSheet.#onToggleRow,
       toggleAll: VtMActorSheet.#onToggleAll,
+      clearStatus: VtMActorSheet.#onClearStatus,
       powerToChat: VtMActorSheet.#onPowerToChat,
       rollPower: VtMActorSheet.#onRollPower,
       rollItemPower: VtMActorSheet.#onRollItemPower,
@@ -199,6 +211,16 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     // Герб на рельсе и водяной знак: клан, иначе секта; у прочих — кокарда
     const sym = actor => actor.type === "vampire" ? Codex.clanSymbol(actor.system.clan) : null;
     ctx.sigil = { sym: sym(a) ?? Codex.sectSymbol(s.details.sect), label: a.clanLabel || s.details.sect || "" };
+    // Состояние на портрете: раны — кровавая дымка по краям, состояния (ярость, торпор…) — оттенок и значки
+    const st = a.statuses ?? new Set();
+    const wound = Math.min(7, s.health?.damage ?? 0);
+    ctx.portraitState = {
+      wound, cls: [wound >= 7 && "is-down", ...PORTRAIT_STATES.filter(x => x.cls && st.has(x.id)).map(x => x.cls)].filter(Boolean).join(" "),
+      badges: [
+        ...(wound >= 7 ? [{ icon: "fa-skull-crossbones", label: t("Health.incapacitated"), hot: true }] : []),
+        ...PORTRAIT_STATES.filter(x => st.has(x.id)).map(x => ({ id: x.id, icon: x.icon, label: t(`Status.${x.key}`), hot: x.hot }))
+      ]
+    };
     ctx.sectSym = Codex.sectSymbol(s.details.sect);
     ctx.archetypes = Codex.archetypes.map(x => x.name);
     // Способности эпох (data/abilities.json) — подсказки для вторичных способностей; Тёмные века — с настройкой
@@ -671,6 +693,11 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     if (!p) return;
     const { name, group, ...system } = p;
     await this.actor.createEmbeddedDocuments("Item", [{ name, type: kind, img: `systems/${SYSTEM_ID}/assets/icons/${kind}.svg`, system }]);
+  }
+
+  /** Снять состояние со значка на портрете. */
+  static async #onClearStatus(event, target) {
+    if (target.dataset.status) await this.actor.toggleStatusEffect(target.dataset.status, { active: false });
   }
 
   /** Раскрыть все Дисциплины, а если все уже раскрыты — свернуть. */

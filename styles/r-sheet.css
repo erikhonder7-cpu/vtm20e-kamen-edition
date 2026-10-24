@@ -109,6 +109,36 @@
   filter: grayscale(.35) contrast(1.06) brightness(.92); transition: filter .2s;
 }
 .vtm20 .r-portrait-frame .r-portrait:hover { filter: none; }
+
+/* Состояние на портрете. Раны: кровавая дымка по краям, гуще с каждым уровнем (--wound 0…7) */
+.vtm20 .r-portrait-veil {
+  position: absolute; left: 0; top: 0; width: 100%; aspect-ratio: 1; pointer-events: none;   /* портрет квадратный */
+  box-shadow: inset 0 0 calc(var(--wound, 0) * 5px) calc(var(--wound, 0) * 1.6px) rgba(120, 10, 16, calc(var(--wound, 0) * .11));
+  transition: box-shadow .3s;
+}
+.vtm20 .r-portrait-frame.is-down .r-portrait { filter: grayscale(1) brightness(.55) contrast(1.1); }
+.vtm20 .r-portrait-frame.is-frenzy .r-portrait { filter: sepia(.4) saturate(2.2) hue-rotate(-25deg) contrast(1.15); }
+.vtm20 .r-portrait-frame.is-frenzy .r-portrait-veil { animation: r-frenzy-pulse 1.6s ease-in-out infinite; }
+.vtm20 .r-portrait-frame.is-rotschreck .r-portrait { filter: sepia(.6) saturate(1.6) brightness(.9); }
+.vtm20 .r-portrait-frame.is-rotschreck .r-portrait-veil { animation: r-fear-flicker 2.4s steps(1) infinite; }
+.vtm20 .r-portrait-frame.is-torpor .r-portrait { filter: grayscale(.9) brightness(.6) sepia(.25) hue-rotate(180deg); }
+@keyframes r-frenzy-pulse {
+  0%, 100% { box-shadow: inset 0 0 18px 4px rgba(196, 30, 40, .45); }
+  50% { box-shadow: inset 0 0 34px 10px rgba(196, 30, 40, .75); }
+}
+@keyframes r-fear-flicker {
+  0%, 100% { box-shadow: inset 0 0 22px 6px rgba(230, 120, 30, .35); }
+  30% { box-shadow: inset 0 0 30px 9px rgba(230, 120, 30, .6); }
+  60% { box-shadow: inset 0 0 16px 4px rgba(230, 120, 30, .25); }
+}
+/* Значки состояний в углу портрета; щелчок снимает состояние */
+.vtm20 .r-portrait-badges { position: absolute; top: 5px; right: 5px; display: flex; flex-direction: column; gap: 3px; z-index: 2; }
+.vtm20 .r-pbadge {
+  display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; font-size: 11px;
+  color: #e6ddcc; background: rgba(10, 10, 12, .82); border: 1px solid rgba(216, 207, 191, .35); box-shadow: 0 1px 4px rgba(0, 0, 0, .6);
+}
+.vtm20 .r-pbadge.is-hot { color: #fff; background: rgba(140, 28, 34, .92); border-color: #d0565b; }
+.vtm20 a.r-pbadge:hover { transform: scale(1.1); }
 .vtm20 .r-seal {
   display: flex; align-items: baseline; justify-content: center; gap: 6px; height: 22px; padding: 0 6px;
   background: #0a0a0c; border: 1px solid rgba(216, 207, 191, .22); border-top: 2px solid #8c1c22;

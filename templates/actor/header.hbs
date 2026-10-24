@@ -4,8 +4,14 @@
   {{#if sigil.sym}}{{rSym sigil.sym "r-head-watermark"}}{{/if}}
 
   <div class="r-head-main">
-    <figure class="r-portrait-frame">
+    <figure class="r-portrait-frame {{portraitState.cls}}" style="--wound: {{portraitState.wound}}">
       <img class="r-portrait" src="{{actor.img}}" data-edit="img" data-action="editImage" alt="{{actor.name}}" title="{{actor.name}}">
+      <span class="r-portrait-veil" aria-hidden="true"></span>
+      {{#if portraitState.badges.length}}
+      <span class="r-portrait-badges">
+        {{#each portraitState.badges}}<a class="r-pbadge {{#if hot}}is-hot{{/if}}" {{#if id}}data-action="clearStatus" data-status="{{id}}" data-tooltip="{{label}} — {{localize 'VTM20.Sheet.ClearStatus'}}"{{else}}data-tooltip="{{label}}"{{/if}}><i class="fa-solid {{icon}}"></i></a>{{/each}}
+      </span>
+      {{/if}}
       <figcaption class="r-seal" {{#if isVampire}}data-tooltip="{{localize 'VTM20.Details.generation'}}: {{system.generation}}"{{/if}}>
         {{#if isVampire}}<span class="r-seal-num">{{rRoman system.generation}}</span><span class="r-seal-cap">{{localize "VTM20.Sheet.Gen"}}</span>
         {{else if isCreature}}<span class="r-seal-num r-seal-icon"><i class="fa-solid fa-paw"></i></span><span class="r-seal-cap">{{typeLabel}}</span>
