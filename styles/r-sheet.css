@@ -54,9 +54,10 @@
 }
 
 /* Портрет «из дела» с подписью-поколением */
-.vtm20 .r-portrait-frame { grid-area: portrait; position: relative; width: 128px; margin: 0; display: flex; flex-direction: column; }
+/* Портрет квадратный — как картинки персонажей и жетонов (256×256) */
+.vtm20 .r-portrait-frame { grid-area: portrait; position: relative; width: 148px; margin: 0; display: flex; flex-direction: column; }
 .vtm20 .r-portrait-frame .r-portrait {
-  display: block; width: 128px; height: 148px; margin: 0; object-fit: cover; object-position: 50% 20%; cursor: pointer;
+  display: block; width: 148px; height: 148px; margin: 0; object-fit: cover; object-position: 50% 20%; cursor: pointer;
   border: 1px solid rgba(216, 207, 191, .22); background: #0c0c0e;
   filter: grayscale(.35) contrast(1.06) brightness(.92); transition: filter .2s;
 }
@@ -572,8 +573,8 @@ body.r-theme-light .vtm20 .r-motto { color: rgba(140, 28, 34, .75); }
   .vtm20 .r-rail { width: 54px; }
   .vtm20 .r-rtab-label { display: none; }
   .vtm20 .r-rail-sigil { width: 40px; height: 40px; padding: 7px; }
-  .vtm20 .r-portrait-frame, .vtm20 .r-portrait-frame .r-portrait { width: 96px; }
-  .vtm20 .r-portrait-frame .r-portrait { height: 112px; }
+  .vtm20 .r-portrait-frame, .vtm20 .r-portrait-frame .r-portrait { width: 104px; }
+  .vtm20 .r-portrait-frame .r-portrait { height: 104px; }
   .vtm20 .r-name-row { flex-wrap: wrap; }
   .vtm20 input.r-concept { text-align: left; }
   .vtm20 .r-vitals { grid-template-columns: 1fr; }
