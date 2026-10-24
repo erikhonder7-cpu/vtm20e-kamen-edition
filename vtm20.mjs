@@ -213,7 +213,7 @@ async function keepParis() {
   const mod = game.modules.get(CITY_MODULE);
   if (mod?.active) { await game.settings.set(SYSTEM_ID, "cityParis", "on"); return false; }
   if (!mod) {
-    ui.notifications.warn(game.i18n.localize("VTM20.City.ParisMissing"), { permanent: true });
+    ui.notifications.warn(game.i18n.localize("VTM20.City.ParisMissing"));
     return false;
   }
   const cfg = foundry.utils.deepClone(game.settings.get("core", "moduleConfiguration"));
