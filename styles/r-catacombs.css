@@ -83,3 +83,6 @@
 .rc-chalk-pick span { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 4px; font-size: 12px; border: 1px solid #4a3d2c; border-radius: 3px; background: rgba(0, 0, 0, .25); }
 .rc-chalk-pick span i { font-size: 18px; color: #e8e2d0; }
 .rc-chalk-pick input:checked + span { border-color: #c4474c; background: rgba(196, 71, 76, .25); }
+/* Переключатели, поиск и кнопки не сжимаются, когда список длинный, — прокручивается только список */
+#r-citymap .rc-cata-seg, #r-citymap .rc-cata-search, #r-citymap .rc-cata-panel footer { flex: none; }
+#r-citymap .rc-cata-seg a { line-height: 18px; }
