@@ -141,6 +141,8 @@ Hooks.on("renderPlayers", (app, html) => {
 
 Hooks.once("ready", async () => {
   await Codex.load();
+  // до миграции: она запишет новую версию, а старый мир узнаём по старой
+  if (await keepParis()) return;
   await migrateWorld();
   // Нексус вместо ленты сцен и ночные часы (порт из vtm5e-kamen-edition)
   const mountPanels = () => { if (game.settings.get(SYSTEM_ID, "nexusNav")) initTopBar(); };
@@ -191,6 +193,38 @@ Hooks.on("getSceneControlButtons", controls => {
  * 0.2.0 — «клановость» Дисциплин считается по клану на лету: старые автоматические
  * отметки inClan снимаются, иначе после смены клана лишние Дисциплины оставались клановыми.
  */
+/**
+ * Париж 1789 года (план, места, секции, пятна крови, свеча, влияние, Собрание, катакомбы) с 0.8.0 живёт в модуле
+ * vtm20e-kamen-city. В мирах, созданных раньше, всё должно остаться как было: рассказчику модуль включается сам,
+ * один раз. Новый мир получает пустой «Город». Нет модуля — предупреждение, данные мира целы и вернутся с модулем.
+ * @returns {Promise<boolean>} true — включили модуль и перезагружаем мир
+ */
+const CITY_MODULE = "vtm20e-kamen-city";
+async function keepParis() {
+  if (!game.user.isGM) return false;
+  let state = game.settings.get(SYSTEM_ID, "cityParis");
+  if (!state) {
+    const done = game.settings.get(SYSTEM_ID, "migrated") || "0.0.0";
+    state = done !== "0.0.0" && foundry.utils.isNewerVersion("0.8.0", done) ? "pending" : "new";
+    await game.settings.set(SYSTEM_ID, "cityParis", state);
+  }
+  if (state !== "pending") return false;
+  const mod = game.modules.get(CITY_MODULE);
+  if (mod?.active) { await game.settings.set(SYSTEM_ID, "cityParis", "on"); return false; }
+  if (!mod) {
+    ui.notifications.warn(game.i18n.localize("VTM20.City.ParisMissing"), { permanent: true });
+    return false;
+  }
+  const cfg = foundry.utils.deepClone(game.settings.get("core", "moduleConfiguration"));
+  cfg[CITY_MODULE] = true;
+  await game.settings.set("core", "moduleConfiguration", cfg);
+  await game.settings.set(SYSTEM_ID, "cityParis", "on");
+  ui.notifications.info(game.i18n.localize("VTM20.City.ParisEnabled"));
+  game.socket.emit("reload");
+  foundry.utils.debouncedReload();
+  return true;
+}
+
 async function migrateWorld() {
   if (!game.user.isGM) return;
   const done = game.settings.get(SYSTEM_ID, "migrated") || "0.0.0";
@@ -282,6 +316,8 @@ function registerSettings() {
     scope: "world", config: true, type: Number, default: 100, range: { min: 1, max: 100, step: 1 }
   });
   game.settings.register(SYSTEM_ID, "migrated", { scope: "world", config: false, type: String, default: "0.0.0" });
+  // Париж в модуле (0.8.0): "" — ещё не решено, new — новый мир, pending — старый мир ждёт модуль, on — включён
+  game.settings.register(SYSTEM_ID, "cityParis", { scope: "world", config: false, type: String, default: "" });
   // Нексус сцен и ночные часы
   game.settings.register(SYSTEM_ID, "nexusNav", {
     name: "VTM20.Settings.NexusNav.Name", hint: "VTM20.Settings.NexusNav.Hint",
