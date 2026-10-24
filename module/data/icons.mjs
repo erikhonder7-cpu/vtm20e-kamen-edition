@@ -19,6 +19,7 @@ const WEAPON_RULES = [
   [/нож|кинжал|стилет|knife|dagger|stiletto/i, "weapons/daggers/dagger-curved-black.webp"],
   [/топор|секир|axe/i, "weapons/axes/axe-broad-brown.webp"],
   [/коса|scythe/i, "weapons/polearms/glaive-simple.webp"],
+  [/вилы|pitchfork|трезуб|trident/i, "weapons/polearms/trident-fork-white.webp"],
   [/кол\b|stake/i, "weapons/polearms/javelin-simple.webp"],
   [/копь|пика|алебард|бердыш|spear|pike|halberd/i, "weapons/polearms/spear-flared-blue.webp"],
   [/булав|кистен|моргенштерн|mace|flail/i, "weapons/maces/mace-round-steel.webp"],
