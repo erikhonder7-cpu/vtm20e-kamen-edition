@@ -1,7 +1,7 @@
 // module/apps/night.mjs
 // Автоматизация ночной жизни Сородичей:
 //   · охота (V20_Основные_правила/03): угодья → сложность, Слава и Домен −1, Стадо +1 кубик;
-//     успех — кровь 1d10 (по решению рассказчика можно и «сколько хочется»), голод — проверка ярости;
+//     модификаторы кубиков и сложности от рассказчика; успех — игрок выбирает, сколько выпить; голод — проверка ярости;
 //   · «Наступила ночь»: вечерний пункт крови у всех вампиров, сброс усилений, по настройке +1 воля (05);
 //   · конец сцены — сброс усилений кровью; конец истории — воля восстанавливается полностью (03);
 //   · после боя усиления снимаются сами.
@@ -38,6 +38,10 @@ export async function openHunt(actor) {
     <label class="r-check"><input type="checkbox" name="fame" ${fame + domain ? "checked" : "disabled"}> ${t("Hunt.FameDomain", { n: fame + domain })}</label>
     <label class="r-check"><input type="checkbox" name="herd" ${herd ? "checked" : "disabled"}> ${t("Hunt.Herd", { n: herd })}</label>
     <label class="r-check"><input type="checkbox" name="inhuman"> ${t("Hunt.Inhuman")}</label>
+    <div class="r-hunt-mods">
+      <label class="r-field"><span>${t("Hunt.ModDice")}</span><input type="number" name="modDice" value="0" step="1" min="-10" max="10"></label>
+      <label class="r-field"><span>${t("Hunt.ModDiff")}</span><input type="number" name="modDiff" value="0" step="1" min="-5" max="5"></label>
+    </div>
     <p class="r-hint">${t("Hunt.Hint")}</p></div>`;
   const res = await foundry.applications.api.DialogV2.prompt({
     window: { title: t("Hunt.Title", { name: actor.name }), icon: "fa-solid fa-moon" }, classes: ["vtm20", "r-dialog"], content,
@@ -52,6 +56,12 @@ export async function openHunt(actor) {
   if (res.inhuman) diff += 1;
   let pool = actor.traitValue(a) + actor.traitValue(b) + actor.system.health.penalty;
   if (res.herd) { pool += herd; bd.push({ label: t("Hunt.HerdShort"), value: herd }); }
+  // Модификаторы рассказчика: кубики к пулу и поправка сложности (сложность 2–10)
+  const modDice = Math.trunc(Number(res.modDice) || 0), modDiff = Math.trunc(Number(res.modDiff) || 0);
+  if (modDice) { pool += modDice; bd.push({ label: t("Hunt.ModShort"), value: modDice }); }
+  if (modDiff) diff += modDiff;
+  diff = Math.min(10, Math.max(2, diff));
+  pool = Math.max(0, pool);
   const selfC = actor.traitValue("virtues.selfControl");
   const hungry = actor.hasBlood && actor.system.blood.value < 7 - selfC;
   return rollPool({

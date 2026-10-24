@@ -585,3 +585,4 @@ body.r-theme-light .vtm20 .r-ng-item.is-active, body.r-theme-light .vtm20 .r-ng-
 .r-feed-range input { flex: 1; accent-color: var(--r-blood-l); }
 .r-feed-range output { min-width: 26px; text-align: center; font-family: "Forum", serif; font-size: 22px; color: var(--r-blood-l); }
 .r-feed-hint { margin: 0; font-size: 12px; font-style: italic; color: var(--r-bone-d); }
+.r-hunt-mods { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
