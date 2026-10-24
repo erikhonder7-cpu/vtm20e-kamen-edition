@@ -54,9 +54,10 @@
           <label class="r-f is-span2"><span>{{localize "VTM20.Sheet.Name"}}</span><input type="text" data-field="name" value="{{st.name}}"></label>
           <label class="r-f is-span2"><span>{{localize "VTM20.Details.concept"}}</span><input type="text" data-field="concept" value="{{st.concept}}" placeholder="{{localize 'VTM20.Creator.ConceptPh'}}"></label>
           <label class="r-f"><span>{{localize "VTM20.Details.nature"}}</span>
-            <select data-field="nature"><option value="">—</option>{{#each archetypes}}<option value="{{name}}" {{#if (eq name ../st.nature)}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
+            <input type="text" data-field="nature" value="{{st.nature}}" data-combo="r-cr-arch" placeholder="—"></label>
           <label class="r-f"><span>{{localize "VTM20.Details.demeanor"}}</span>
-            <select data-field="demeanor"><option value="">—</option>{{#each archetypes}}<option value="{{name}}" {{#if (eq name ../st.demeanor)}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
+            <input type="text" data-field="demeanor" value="{{st.demeanor}}" data-combo="r-cr-arch" placeholder="—"></label>
+          <datalist id="r-cr-arch">{{#each archetypes}}<option value="{{name}}"></option>{{/each}}</datalist>
           <label class="r-f"><span>{{localize "VTM20.Details.sire"}}</span><input type="text" data-field="sire" value="{{st.sire}}"></label>
           {{#if isGhoul}}<label class="r-f"><span>{{localize "VTM20.Details.domitor"}}</span><input type="text" data-field="domitor" value="{{st.domitor}}"></label>{{/if}}
         </div>
@@ -126,7 +127,8 @@
       </div>
       <div>
         <h3 class="r-h3">{{localize "VTM20.Sheet.Path"}}</h3>
-        <select data-field="path" class="r-cr-path">{{#each paths}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select>
+        <input type="text" data-field="path" class="r-cr-path" data-combo="r-cr-paths" data-key="{{st.path}}" value="{{pathName}}">
+        <datalist id="r-cr-paths">{{#each paths}}<option value="{{name}}" data-group="{{group}}" data-key="{{key}}"></option>{{/each}}</datalist>
         {{#if pathInfo}}<p class="r-note">{{localize "VTM20.Sheet.Virtues"}}: <b>{{pathInfo.virtues}}</b> · {{localize "VTM20.Sheet.Bearing"}}: <b>{{pathInfo.bearing}}</b>{{#unless (eq st.path "humanity")}}<br>{{localize "VTM20.Creator.PathRules"}}{{/unless}}</p>{{/if}}
       </div>
     </div>

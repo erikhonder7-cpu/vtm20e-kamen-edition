@@ -13,6 +13,7 @@
 import { VTM20, SYSTEM_PATH, SYSTEM_ID } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
 import { blockerFor, checkTraits } from "../data/trait-rules.mjs";
+import { attachCombos } from "../ui/combo.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -309,7 +310,9 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       ctx.generation = 13 - Math.min(5, genBg);
       ctx.gens = [13, 12, 11, 10, 9, 8].map(g => ({ g, cost: 13 - g, active: g === ctx.generation, pool: VTM20.generationOf(g).pool, perTurn: VTM20.generationOf(g).perTurn }));
       ctx.paths = Codex.paths.filter(p => Codex.visible(p) || p.key === st.path)
-        .map(p => ({ key: p.key, name: p.era ? `${p.name} · ${t("Library.Filter.DarkAges")}` : p.name, selected: p.key === st.path }));
+        .map(p => ({ key: p.key, name: p.name, selected: p.key === st.path,
+          group: p.key === "humanity" ? p.name : p.fan ? t("Library.Filter.Src.fan") : p.era ? t("Library.Filter.DarkAges") : t("Sheet.EnlightenmentPaths") }));
+      ctx.pathName = ctx.paths.find(p => p.selected)?.name ?? "";
       ctx.pathInfo = this.pathData ? { bearing: this.pathData.bearing, virtues: this.pathData.virtues.map(v => loc(VTM20.virtues[v].label)).join(", ") } : null;
     }
 
@@ -452,9 +455,11 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
 
   _onRender(context, options) {
     super._onRender(context, options);
+    attachCombos(this.element);                         // Натура и Маска — список с поиском, можно вписать свой архетип
     this.element.querySelectorAll("[data-field]").forEach(el => el.addEventListener("change", () => {
       const f = el.dataset.field;
-      const v = el.type === "number" ? Number(el.value) : el.value;
+      // список с ключами (Путь): берём ключ выбранного варианта, а не подпись
+      const v = el.dataset.combo && "key" in el.dataset ? el.dataset.key : el.type === "number" ? Number(el.value) : el.value;
       if (f === "xpTotal") { this.st.xpTotal = Math.max(0, v); this.st.tier = "custom"; return this.render(); }
       foundry.utils.setProperty(this.st, f, v);
       if (f === "path") this.st.virt = { conscience: 0, selfControl: 0, courage: 0 };
