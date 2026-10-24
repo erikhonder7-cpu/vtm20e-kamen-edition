@@ -1,7 +1,8 @@
 // tools/check.mjs — проверка перед коммитом: node tools/check.mjs
 // 1) синтаксис всех модулей .mjs (в том числе повторные объявления имён — из-за такой ошибки листы
 //    не открывались, а песочница её не показала); 2) тесты подсчёта броска (evaluate) и шансов (odds)
-//    по правилам V20; 3) все data/*.json и lang/ru.json читаются; 4) свои значки предметов на месте.
+//    по правилам V20; 3) все data/*.json и lang/ru.json читаются; 4) свои значки предметов на месте;
+// 5) компендии в индексе git целы и не пусты (tools/packs-check.mjs).
 
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
@@ -75,6 +76,15 @@ console.log("Данные: JSON читаются");
   const miss = OWN_ICON_FILES.filter(p => !fs.existsSync(path.join(ROOT, p)));
   ok(!miss.length, `нет значков: ${miss.join(", ")}`);
   console.log(`Значки: ${OWN_ICON_FILES.length} файлов`);
+}
+
+// ── 5. Компендии в индексе git ────────────────────────────────────────────
+{
+  const { checkPacks } = await import(pathToFileURL(path.join(ROOT, "tools/packs-check.mjs")).href);
+  const { problems, counts, opened } = await checkPacks(ROOT);
+  for (const p of problems) ok(false, `компендий ${p}`);
+  console.log(opened ? `Компендии: ${Object.entries(counts).map(([k, n]) => `${k} ${n}`).join(", ")}`
+    : "Компендии: состав файлов (classic-level из Foundry не найден — базы не открывались)");
 }
 
 if (failed) { console.error(`\nПРОВАЛЕНО проверок: ${failed}`); process.exit(1); }

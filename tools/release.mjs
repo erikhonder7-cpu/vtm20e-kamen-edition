@@ -9,7 +9,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import net from "node:net";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const [version, title] = process.argv.slice(2);
@@ -55,6 +55,12 @@ run(process.execPath, ["tools/check.mjs"]);
 step("Коммит и тег");
 const lastTag = out("git", ["describe", "--tags", "--abbrev=0"]);
 run("git", ["add", "-A", "system.json", "packs"]);
+{
+  // то, что уйдёт в коммит и архив, — ещё раз из индекса: битые компендии не выпускаем
+  const { checkPacks } = await import(pathToFileURL(path.join(ROOT, "tools/packs-check.mjs")).href);
+  const { problems } = await checkPacks(ROOT);
+  if (problems.length) { run("git", ["reset", "-q"]); console.error("Компендии в коммите битые:\n" + problems.join("\n")); process.exit(1); }
+}
 run("git", ["commit", "-q", "-m", `Релиз ${version}\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`]);
 run("git", ["push", "-q", "origin", "HEAD"]);
 run("git", ["tag", `v${version}`]);
