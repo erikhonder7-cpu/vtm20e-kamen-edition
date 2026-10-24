@@ -151,7 +151,7 @@ body.r-pause-drop #pause { display: none !important; }
   width: 620px;
   height: 140px;
 }
-#r-pause .rp-pool svg { display: block; width: 100%; height: 100%; animation: rp-fade-in 1.2s .5s both; }
+#r-pause .rp-pool svg { display: block; width: 100%; height: 100%; overflow: visible; animation: rp-fade-in 1.2s .5s both; }
 #r-pause .rp-ring { transform-box: fill-box; transform-origin: center; animation: rp-ring-in 1.1s cubic-bezier(.2, .8, .3, 1) 1.65s both, rp-shim 7s ease-in-out 2.9s infinite; }
 #r-pause .rp-ring1 { animation-delay: 1.7s, 4.6s; }
 #r-pause .rp-ring2 { animation-delay: 1.75s, 6.3s; }
