@@ -8,7 +8,7 @@
 import { VTM20, SYSTEM_PATH, SYSTEM_ID } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
 import { attachCombos } from "../ui/combo.mjs";
-import { choosePower } from "../apps/power-choice.mjs";
+import { choosePower, fitsLevel } from "../apps/power-choice.mjs";
 import { RollDialog } from "../dice/dialog.mjs";
 import { rollPool } from "../dice/roll.mjs";
 import { openDamageDialog } from "../apps/damage.mjs";
@@ -332,18 +332,18 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       const vis = (data?.powers ?? []).map((p, i) => [p, i]).filter(([p]) => Codex.visible(p));
       const powers = [];
       for (let lv = 1; lv <= v; lv++) {
-        const opts = vis.filter(([p]) => Number(p.level) === lv);
+        const opts = vis.filter(([p]) => fitsLevel(p, lv, choices));       // и «любой из 6–9» (Guide to the Camarilla)
         const pick = opts.length > 1 ? opts.find(([p]) => p.name === choices[lv]) : opts[0];
         if (!pick) {
           if (opts.length) powers.push({ choose: true, level: lv, roman: ROMAN[lv - 1] ?? lv, count: opts.length, itemId: it.id });
           continue;
         }
         const [p, i] = pick;
-        powers.push({ ...p, id: `${it.id}-p${i}`, roman: ROMAN[p.level - 1] ?? p.level, open: this._open.has(`${it.id}-p${i}`),
+        powers.push({ ...p, level: lv, id: `${it.id}-p${i}`, roman: ROMAN[lv - 1] ?? lv, open: this._open.has(`${it.id}-p${i}`),
           roll: rollInfo(p.roll), codexRef: `${k}|${i}`, fx: p.source ? null : fxOf(k, p.level),
           alts: opts.length > 1 ? opts.length : 0, itemId: it.id });
       }
-      const nextOpts = vis.filter(([p]) => Number(p.level) === v + 1);
+      const nextOpts = vis.filter(([p]) => fitsLevel(p, v + 1, choices));
       const nextPower = nextOpts.length ? { ...nextOpts[0][0], count: nextOpts.length } : null;
       const myRituals = rituals.filter(r => r.system.discipline === k);
       return {
@@ -712,12 +712,12 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     if (pathId) {
       const it = this.actor.items.get(pathId);
       p = Codex.bloodPath(it.system.discipline, it.name)?.powers.find(x => x.name === name);
-    } else p = Codex.discipline(disc)?.powers.find(x => x.name === name && String(x.level) === level);
+    } else p = Codex.discipline(disc)?.powers.find(x => x.name === name && (String(x.level) === level || x.anyLevel));   // anyLevel — взята на 6–9
     if (!p) return;
     const dname = pathId ? this.actor.items.get(pathId).name : Codex.disciplineLabel(disc);
     ChatMessage.create({
       speaker: ChatMessage.getSpeaker({ actor: this.actor }),
-      content: `<div class="r-item-card"><header><span class="r-card-kicker">${dname} · ${ROMAN[p.level - 1] ?? p.level}</span><h3>${p.name}</h3>${p.en ? `<em>${p.en}</em>` : ""}</header><div class="r-card-body">${p.html}</div></div>`
+      content: `<div class="r-item-card"><header><span class="r-card-kicker">${dname} · ${ROMAN[(p.anyLevel ? Number(level) : p.level) - 1] ?? p.level}</span><h3>${p.name}</h3>${p.en ? `<em>${p.en}</em>` : ""}</header><div class="r-card-body">${p.html}</div></div>`
     });
   }
 

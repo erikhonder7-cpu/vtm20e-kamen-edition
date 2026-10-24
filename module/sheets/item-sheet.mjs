@@ -69,9 +69,10 @@ export class VtMItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       // на уровне с выбором «изучена» только выбранная сила (system.choices), остальные — как не изученные
       const shown = (src ?? []).filter(p => Codex.visible(p) && (p.level <= Math.max(5, s.value + 1)));
       const many = lv => shown.filter(p => p.level === lv).length > 1;
-      const owned = p => p.level <= s.value && (item.type !== "discipline" || !many(p.level) || s.choices?.[p.level] === p.name);
+      const owned = p => p.anyLevel ? Object.values(s.choices ?? {}).includes(p.name)       // «любой из 6–9»: выбрана на каком-то уровне
+        : p.level <= s.value && (item.type !== "discipline" || !many(p.level) || s.choices?.[p.level] === p.name);
       ctx.powers = await Promise.all(shown
-        .map(async p => ({ roman: ROMAN[p.level - 1] ?? p.level, name: p.name, en: p.en, owned: owned(p),
+        .map(async p => ({ roman: p.anyLevel ? "VI–IX" : ROMAN[p.level - 1] ?? p.level, name: p.name, en: p.en, owned: owned(p),
           next: p.level === s.value + 1, pool: VtMItemSheet.poolLabel(p.roll), html: await enrich(p.html) })));
       ctx.rules = item.type === "discipline"
         ? await enrich((Codex.discipline(s.key)?.rules ?? []).find(r => !r.title)?.html ?? "") : "";

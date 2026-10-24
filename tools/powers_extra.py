@@ -105,6 +105,7 @@ def from_file(rel, book, era, obf):
         p = {"level": lv, "name": ru.rstrip(" .:"), "en": en, "source": book,
              "html": src_p(book, note) + md_to_html(body)}
         if era: p["era"] = era
+        if free: p["anyLevel"] = True                   # «одна способность на выбор на каждом из уровней 6–9» — окно выбора на любом из них
         roll = parse_roll(p["html"])
         if roll: p["roll"] = roll
         out.append((k, p))
