@@ -525,6 +525,16 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     }
   }
 
+  changeTab(tab, group, options) {
+    super.changeTab(tab, group, options);
+    const pane = this.element?.querySelector(`.r-pane[data-tab="${tab}"]`);
+    if (!pane) return;
+    pane.classList.remove("is-entering");
+    void pane.offsetWidth;                                   // перезапуск анимации
+    pane.classList.add("is-entering");
+    setTimeout(() => pane.classList.remove("is-entering"), 260);
+  }
+
   async close(options) {
     if (this._footTick) { clearInterval(this._footTick); this._footTick = null; }
     return super.close(options);

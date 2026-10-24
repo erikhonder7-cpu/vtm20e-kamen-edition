@@ -4,7 +4,8 @@
   <div class="r-purse">
     <i class="fa-solid fa-coins r-purse-icon"></i>
     <span class="r-purse-label">{{localize "VTM20.Money.Purse"}}</span>
-    <b class="r-purse-sum">{{money.text}}</b>
+    {{#if money.coins}}<span class="r-coins" data-tooltip="{{money.text}}">{{#each money.coins}}{{#if n}}<span class="r-coin is-{{metal}}"><i></i><b>{{n}}</b> {{unit}}</span>{{/if}}{{/each}}</span>
+    {{else}}<b class="r-purse-sum">{{money.text}}</b>{{/if}}
     {{#if money.paper}}<span class="r-purse-paper" data-tooltip="{{localize 'VTM20.Money.RateNow' rate=money.rate}}"><i class="fa-solid fa-scroll"></i> {{money.paper}} <em>≈ {{money.paperCoin}}</em></span>{{/if}}
     <span class="r-leader"></span>
     {{#if resources}}<span class="r-purse-res" data-tooltip="{{resources.html}}">{{localize "VTM20.Money.Resources"}} <b>{{resources.dots}}</b></span>{{/if}}

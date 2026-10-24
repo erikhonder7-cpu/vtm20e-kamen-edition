@@ -155,6 +155,7 @@
 }
 .vtm20 .r-kicker > span { overflow: hidden; text-overflow: ellipsis; }
 .vtm20 .r-kicker-type { color: var(--r-muted); }
+.vtm20 .r-kicker-nick { font-family: var(--r-fell); font-size: 14px; letter-spacing: .3px; text-transform: none; color: var(--r-accent); }
 .vtm20 .r-kicker em { font-family: var(--r-body); text-transform: none; letter-spacing: .3px; color: var(--r-muted); }
 .vtm20 .r-kicker-dia { width: 4px; height: 4px; flex: 0 0 auto; transform: rotate(45deg); background: var(--r-muted); opacity: .6; }
 .vtm20 .r-motto {
@@ -521,15 +522,21 @@
   color: var(--r-muted); background: rgba(0, 0, 0, .3); border: 0; border-bottom: 1px solid var(--r-line-2); text-align: left;
 }
 .vtm20 .r-table td { padding: 5px 6px; border: 0; border-top: 1px solid var(--r-line); vertical-align: middle; }
-.vtm20 .r-table tr:hover td { background: var(--r-s1); }
+.vtm20 .r-table tr:hover td { background: var(--r-s2); }
+.vtm20 .r-table tbody tr:hover td:first-child { box-shadow: inset 2px 0 0 #b83a3f; }
 .vtm20 .r-table tr.is-off td { opacity: .5; }
 .vtm20 .r-table .r-num { text-align: center; font-family: var(--r-display); font-size: 13px; }
 .vtm20 .r-td-name a { font-size: 14.5px; }
 .vtm20 .r-td-name a:hover { color: var(--r-accent); }
 .vtm20 .r-td-sub { display: block; font-size: 11.5px; font-style: italic; color: var(--r-muted); font-family: var(--r-body); }
 .vtm20 .r-td-tools { white-space: nowrap; text-align: right; }
-.vtm20 .r-attack { width: 28px; height: 28px; display: grid; place-items: center; color: #f1e9da; background: #8c1c22; border: 1px solid #b83a3f; }
-.vtm20 .r-attack:hover { background: #a3242a; }
+.vtm20 .r-attack {
+  width: 30px; height: 30px; display: grid; place-items: center; border-radius: 3px; color: #f4ecdd;
+  background: linear-gradient(180deg, #a3262c, #6e1318); border: 1px solid #c4474c;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .15), 0 2px 4px rgba(0, 0, 0, .5); transition: transform .1s, box-shadow .15s, filter .15s;
+}
+.vtm20 .r-attack:hover { filter: brightness(1.15); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .2), 0 0 10px rgba(196, 71, 76, .5); }
+.vtm20 .r-attack:active { transform: translateY(1px); }
 .vtm20 .r-dmg { font-family: var(--r-caps); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--r-muted); }
 .vtm20 .r-dmg.is-lethal { color: var(--r-ink-2); }
 .vtm20 .r-dmg.is-aggravated { color: var(--r-accent); }
@@ -683,6 +690,15 @@
 .vtm20 .r-foot-spacer { flex: 1 1 auto; }
 .vtm20 .r-foot-item i { color: #5f594f; margin-right: 3px; }
 .vtm20 .r-foot-item b { font-family: var(--r-display); font-weight: 400; color: #e6ddcc; }
+.vtm20 .r-foot {
+  background:
+    linear-gradient(90deg, transparent 0 18px, rgba(196, 71, 76, .25) 18px 19px, transparent 19px),
+    repeating-linear-gradient(180deg, transparent 0 9px, rgba(216, 207, 191, .035) 9px 10px),
+    #0a0a0c;
+}
+.vtm20 .r-foot-item.is-xp { padding: 2px 10px; border: 1px solid rgba(196, 71, 76, .45); background: rgba(140, 28, 34, .14); color: #a49d8e; }
+.vtm20 .r-foot-item.is-xp i { color: #c4474c; }
+.vtm20 .r-foot-item.is-xp b { font-size: 15px; color: #f4ecdd; }
 
 /* ── Ворота: персонаж ещё не создан ───────────────────────────────────── */
 
@@ -777,6 +793,17 @@ body.r-theme-light .vtm20 .r-motto { color: rgba(140, 28, 34, .75); }
 .vtm20 .r-purse-icon { color: var(--r-accent); }
 .vtm20 .r-purse-label { font-family: var(--r-caps); font-size: 12.5px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--r-muted); }
 .vtm20 .r-purse-sum { font-family: var(--r-display); font-weight: 400; font-size: 18px; color: var(--r-ink); }
+/* Монеты: ливры — золото, су — серебро, денье — медь */
+.vtm20 .r-coins { display: inline-flex; align-items: center; gap: 12px; }
+.vtm20 .r-coin { display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; color: var(--r-muted); }
+.vtm20 .r-coin b { font-family: var(--r-display); font-weight: 400; font-size: 18px; color: var(--r-ink); }
+.vtm20 .r-coin i {
+  width: 16px; height: 16px; border-radius: 50%; flex: 0 0 auto;
+  box-shadow: inset 0 0 0 2px rgba(0, 0, 0, .25), inset 0 0 0 3px rgba(255, 255, 255, .12), 0 1px 2px rgba(0, 0, 0, .6);
+}
+.vtm20 .r-coin.is-gold i { background: radial-gradient(circle at 35% 30%, #fbe7a1, #c9a24a 55%, #7d5d1c); }
+.vtm20 .r-coin.is-silver i { background: radial-gradient(circle at 35% 30%, #f4f4f2, #b5b3ad 55%, #6c6a65); }
+.vtm20 .r-coin.is-copper i { background: radial-gradient(circle at 35% 30%, #f3c49c, #b56d3e 55%, #6a3a1d); }
 .vtm20 .r-purse-paper { font-size: 13px; color: var(--r-ink-2); }
 .vtm20 .r-purse-paper i { color: var(--r-muted); }
 .vtm20 .r-purse-paper em { color: var(--r-muted); }
@@ -830,3 +857,13 @@ body.r-theme-light .vtm20 .r-motto { color: rgba(140, 28, 34, .75); }
 .vtm20 .r-other-sigil { display: inline-grid; place-items: center; width: 18px; height: 18px; color: var(--r-accent); }
 .vtm20 .r-other-sigil svg, .vtm20 .r-other-sigil .r-sym { width: 18px; height: 18px; }
 .vtm20 .r-other-note { margin-left: auto; font-family: var(--r-body); font-size: 12px; font-style: italic; letter-spacing: 0; text-transform: none; color: var(--r-accent); cursor: help; }
+
+/* ── Отклик на действия ───────────────────────────────────────────────── */
+.vtm20 .r-pane.is-entering { animation: r-pane-in .22s ease-out; }
+@keyframes r-pane-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+.vtm20 .r-dot:active, .vtm20 .r-box:active, .vtm20 .r-drop:active svg { transform: scale(.82); }
+.vtm20 .r-power-roll:hover, .vtm20 .r-trait-roll:hover, .vtm20 .r-icon-btn[data-action="rollTrait"]:hover { text-shadow: 0 0 8px rgba(196, 71, 76, .8); }
+.vtm20 a.r-trait-label:hover, .vtm20 .r-power-name:hover { text-shadow: 0 0 10px rgba(196, 71, 76, .35); }
+.vtm20 .r-act:hover i { text-shadow: 0 0 8px rgba(216, 207, 191, .5); }
+.vtm20 .r-act.is-hot:hover i { color: #e3676c; text-shadow: 0 0 10px rgba(196, 71, 76, .8); }
+@media (prefers-reduced-motion: reduce) { .vtm20 .r-pane.is-entering, .vtm20 .r-portrait-veil { animation: none !important; } }

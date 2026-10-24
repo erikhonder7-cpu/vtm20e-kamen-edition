@@ -75,6 +75,11 @@ export function moneyView(actor) {
   const rate = assignatRate();
   return {
     text: fmtMoney(m.amount, cur), currency: cur, lsd,
+    coins: lsd ? (({ l, s, d }) => [
+      { n: l.toLocaleString(game.i18n.lang), unit: L("L"), metal: "gold" },
+      { n: s, unit: L("S"), metal: "silver" },
+      { n: d, unit: L("D"), metal: "copper" }
+    ])(toLsd(m.amount)) : null,
     paper: lsd && m.paper > 0 ? fmtMoney(m.paper, cur) : "",
     paperCoin: lsd && m.paper > 0 ? fmtMoney(roundMoney(m.paper * rate, cur), cur) : "",
     rate: Math.round(rate * 100)

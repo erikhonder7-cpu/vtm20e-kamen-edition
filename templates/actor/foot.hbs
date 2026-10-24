@@ -5,5 +5,5 @@
   <span class="r-foot-until {{#if clock.phase.night}}is-night{{else}}is-day{{/if}}" data-foot-until>{{clock.phase.untilLabel}}</span>
   <span class="r-foot-spacer"></span>
   {{#if isVampire}}<span class="r-foot-item" data-tooltip="{{localize 'VTM20.Sheet.Torpor'}}"><i class="fa-solid fa-bed"></i> {{torpor}}</span>{{/if}}
-  <span class="r-foot-item"><i class="fa-solid fa-star"></i> {{localize "VTM20.Xp.available"}} <b>{{xp.available}}</b> / {{xp.total}}</span>
+  <span class="r-foot-item is-xp"><i class="fa-solid fa-star"></i> {{localize "VTM20.Xp.available"}} <b>{{xp.available}}</b> / {{xp.total}}</span>
 </footer>
