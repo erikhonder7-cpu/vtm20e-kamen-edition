@@ -1,0 +1,23 @@
+{{!-- Факт биографии: точки (щелчком), описание уровней. --}}
+<div class="r-item-sheet is-background">
+  {{> rItemHead}}
+  <div class="r-item-body">
+    <div class="r-item-dots">
+      <span class="r-dots">{{#each dots}}<a class="r-dot {{#if filled}}is-filled{{/if}}" data-action="setDots" data-path="{{path}}" data-n="{{n}}"></a>{{/each}}</span>
+      <b>{{system.value}}</b>
+    </div>
+    {{#if book}}<p class="r-item-src">{{localize "VTM20.Item.source"}}: {{book}}</p>{{/if}}
+    <h2 class="r-h2"><span>{{localize "VTM20.Item.description"}}</span></h2>
+    <div class="r-editor r-item-text">
+      <prose-mirror name="system.description" value="{{system.description}}" toggled {{#unless editable}}disabled{{/unless}}>{{{descriptionHTML}}}</prose-mirror>
+    </div>
+
+    <details class="r-item-setup">
+      <summary><i class="fa-solid fa-sliders"></i> {{localize "VTM20.ItemSheet.Setup"}}</summary>
+      <div class="r-fields is-wide">
+        <label class="r-f"><span>{{localize "VTM20.Item.value"}}</span><input type="number" name="system.value" value="{{system.value}}" min="0" max="10"></label>
+        <label class="r-f is-span2"><span>{{localize "VTM20.Item.source"}}</span><input type="text" name="system.source" value="{{system.source}}"></label>
+      </div>
+    </details>
+  </div>
+</div>

@@ -911,3 +911,23 @@ body.r-theme-light .vtm20 .r-motto { color: rgba(140, 28, 34, .75); }
 .vtm20 .r-fx-trait-where em { color: var(--r-ink-2); }
 .vtm20 .r-fx-weakness { padding: 8px 12px; font-size: 13px; line-height: 1.45; color: var(--r-ink-2); border-left: 2px solid #8c1c22; background: rgba(140, 28, 34, .06); }
 .vtm20 .r-fx-weakness p { margin: 0 0 4px; }
+
+/* ── Окна оружия, брони, вещей, черт ──────────────────────────────────── */
+.vtm20 .r-item-acts { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 10px; }
+.vtm20 .r-item-acts .r-note { font-size: 12.5px; }
+.vtm20 .r-badge.is-dmg { flex: 0 0 auto; min-width: 96px; padding: 6px 12px; }
+.vtm20 .r-badge.is-dmg > b { font-size: 20px; white-space: nowrap; }
+.vtm20 .r-badge.is-steps { flex: 0 0 auto; flex-direction: row; align-items: center; gap: 6px; border: 0; background: none; }
+.vtm20 .is-trait .r-badge.is-seal { border-color: rgba(216, 207, 191, .35); background: radial-gradient(circle at 40% 30%, #4a4640, #2a2724 70%); }
+.vtm20 .is-trait .r-badge.is-seal > b { color: #efe6d4; }
+.vtm20 .is-trait.is-flaw .r-badge.is-seal { border-color: #c4474c; background: radial-gradient(circle at 40% 30%, #b0323a, #5e1015 70%); }
+.vtm20 .is-trait.is-flaw .r-badge.is-seal > b, .vtm20 .is-trait .r-badge.is-seal > span { color: #f4ecdd; }
+.vtm20 .r-item-mech { display: flex; gap: 10px; align-items: baseline; margin: 0 0 10px; padding: 8px 12px; font-size: 13.5px; color: var(--r-ink-2);
+  border: 1px solid var(--r-line); border-left: 2px solid var(--r-blood); background: rgba(0, 0, 0, .2); }
+.vtm20 .r-item-mech > i { color: var(--r-accent); }
+.vtm20 .r-item-mech b { font-family: var(--r-display); font-weight: 400; color: var(--r-ink); }
+.vtm20 .r-item-mech em { color: var(--r-muted); }
+.vtm20 .r-item-mech .r-tag { margin-left: 6px; }
+.vtm20 .r-item-dots { display: flex; align-items: center; gap: 12px; margin: 2px 0 10px; }
+.vtm20 .r-item-dots .r-dot { width: 15px; height: 15px; }
+.vtm20 .r-item-dots b { font-family: var(--r-display); font-weight: 400; font-size: 22px; color: var(--r-ink); }

@@ -1,0 +1,22 @@
+{{!-- Расстройство: постоянное или временное (переключатель), описание. --}}
+<div class="r-item-sheet is-derangement">
+  {{> rItemHead}}
+  <div class="r-item-body">
+    <div class="r-item-acts">
+      <a class="r-chip {{#if system.permanent}}is-accent{{/if}}" data-action="toggleField" data-field="system.permanent"><i class="fa-solid fa-brain"></i> {{#if system.permanent}}{{localize "VTM20.Sheet.Permanent"}}{{else}}{{localize "VTM20.ItemSheet.Curable"}}{{/if}}</a>
+      <span class="r-note">{{localize "VTM20.ItemSheet.DerangementRule"}}</span>
+    </div>
+    {{#if book}}<p class="r-item-src">{{localize "VTM20.Item.source"}}: {{book}}</p>{{/if}}
+    <h2 class="r-h2"><span>{{localize "VTM20.Item.description"}}</span></h2>
+    <div class="r-editor r-item-text">
+      <prose-mirror name="system.description" value="{{system.description}}" toggled {{#unless editable}}disabled{{/unless}}>{{{descriptionHTML}}}</prose-mirror>
+    </div>
+
+    <details class="r-item-setup">
+      <summary><i class="fa-solid fa-sliders"></i> {{localize "VTM20.ItemSheet.Setup"}}</summary>
+      <div class="r-fields is-wide">
+        <label class="r-f is-span2"><span>{{localize "VTM20.Item.source"}}</span><input type="text" name="system.source" value="{{system.source}}"></label>
+      </div>
+    </details>
+  </div>
+</div>

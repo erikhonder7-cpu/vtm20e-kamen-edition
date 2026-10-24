@@ -22,7 +22,7 @@ import { clockBarData } from "../apps/calendar.mjs";
 import { openLibrary, LibraryItems } from "../apps/library.mjs";
 import { moneyView, openMoney } from "../data/money.mjs";
 import { POWER_EFFECTS } from "../data/effects.mjs";
-import { MERIT_MODS } from "../data/merit-mods.mjs";
+import { MERIT_MODS, describeMeritMod } from "../data/merit-mods.mjs";
 import { togglePowerEffect } from "../apps/power-effects.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
@@ -459,7 +459,6 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   #prepareEffects(ctx) {
     const a = this.actor, s = a.system;
     const attrL = k => game.i18n.localize(VTM20.attributes[k]?.label ?? k);
-    const abilL = k => game.i18n.localize(VTM20.abilities[k]?.label ?? k);
     const signed = n => n > 0 ? `+${n}` : `${n}`;
     const numOf = v => typeof v === "number" ? v : (String(v).startsWith("-") ? -1 : 1) * (a.discipline(String(v).replace(/^-/, "")) ?? 0);
 
@@ -508,14 +507,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
     // Черты с механикой (data/merit-mods.mjs): что, к чему, сами или по обстоятельствам
     const have = a.items.filter(i => i.type === "merit" || i.type === "flaw");
-    const groupL = { social: t("FxTab.Group.social"), physical: t("FxTab.Group.physical"), mental: t("FxTab.Group.mental") };
-    ctx.fxTraits = have.filter(i => MERIT_MODS[i.name]).map(i => {
-      const m = MERIT_MODS[i.name], w = m.when ?? {};
-      const where = [...(w.attrs ?? []).map(attrL), ...(w.abilities ?? []).map(abilL), w.group && groupL[w.group],
-        ...(w.kinds ?? []).map(k => t(`FxTab.Kind.${k}`)), w.willOrVirtue && t("FxTab.WillOrVirtue")].filter(Boolean).join(", ");
-      const what = [m.dice && t("FxTab.Dice", { n: signed(m.dice) }), m.diff && t("FxTab.DiffShort", { n: signed(m.diff) })].filter(Boolean).join(", ");
-      return { id: i.id, name: i.name, flaw: i.type === "flaw", what, where: where || t("FxTab.AnyRoll"), hint: m.hint ?? "", auto: !!m.auto };
-    });
+    ctx.fxTraits = have.filter(i => MERIT_MODS[i.name]).map(i => ({ id: i.id, name: i.name, flaw: i.type === "flaw", ...describeMeritMod(i.name) }));
     ctx.fxEmpty = !ctx.fxPowers.length && !ctx.fxStatuses.length && !ctx.fxOther.length && !ctx.fxBoosts.length;
   }
 

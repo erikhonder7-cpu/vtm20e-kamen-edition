@@ -7,6 +7,8 @@
 //   attrs / abilities — характеристики и способности пула; kinds — вид проверки (frenzy, rotschreck, virtue…);
 //   group — группа характеристик (social, physical, mental); willOrVirtue — проверки Воли и Добродетелей.
 
+import { VTM20 } from "../config.mjs";
+
 export const MERIT_MODS = {
   // ── физические
   "Знакомое лицо":        { diff: -1, when: { group: "social" }, hint: "при первой встрече с незнакомцем; не для запугивания" },
@@ -91,4 +93,21 @@ export function meritModsFor(actor, { traits = [], kind = "check", attributeGrou
     (m.auto ? out.auto : out.situ).push({ label: name, diff: m.diff ?? 0, dice: m.dice ?? 0, hint: m.hint ?? "" });
   }
   return out;
+}
+
+/**
+ * Механика черты словами: что меняет, к каким броскам, пояснение, сама ли срабатывает.
+ * @returns {{what:string, where:string, hint:string, auto:boolean}|null}
+ */
+export function describeMeritMod(name) {
+  const m = MERIT_MODS[name];
+  if (!m) return null;
+  const L = (k, d) => d ? game.i18n.format(`VTM20.FxTab.${k}`, d) : game.i18n.localize(`VTM20.FxTab.${k}`);
+  const loc = k => game.i18n.localize(k);
+  const signed = n => n > 0 ? `+${n}` : `${n}`;
+  const w = m.when ?? {};
+  const where = [...(w.attrs ?? []).map(k => loc(VTM20.attributes[k]?.label ?? k)), ...(w.abilities ?? []).map(k => loc(VTM20.abilities[k]?.label ?? k)),
+    w.group && L(`Group.${w.group}`), ...(w.kinds ?? []).map(k => L(`Kind.${k}`)), w.willOrVirtue && L("WillOrVirtue")].filter(Boolean).join(", ");
+  const what = [m.dice && L("Dice", { n: signed(m.dice) }), m.diff && L("DiffShort", { n: signed(m.diff) })].filter(Boolean).join(", ");
+  return { what, where: where || L("AnyRoll"), hint: m.hint ?? "", auto: !!m.auto };
 }

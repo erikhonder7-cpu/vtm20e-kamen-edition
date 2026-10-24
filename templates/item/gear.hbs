@@ -1,0 +1,22 @@
+{{!-- Вещь: количество (±), описание. --}}
+<div class="r-item-sheet is-gear">
+  {{> rItemHead}}
+  <div class="r-item-body">
+    <div class="r-badges">
+      <div class="r-badge is-level is-qty"><b>{{system.quantity}}</b><span>{{localize "VTM20.Item.quantity"}}</span></div>
+      {{#if editable}}<div class="r-badge is-steps"><a class="r-step" data-action="qty" data-d="-1">−</a><a class="r-step" data-action="qty" data-d="1">+</a></div>{{/if}}
+    </div>
+    <h2 class="r-h2"><span>{{localize "VTM20.Item.description"}}</span></h2>
+    <div class="r-editor r-item-text">
+      <prose-mirror name="system.description" value="{{system.description}}" toggled {{#unless editable}}disabled{{/unless}}>{{{descriptionHTML}}}</prose-mirror>
+    </div>
+
+    <details class="r-item-setup">
+      <summary><i class="fa-solid fa-sliders"></i> {{localize "VTM20.ItemSheet.Setup"}}</summary>
+      <div class="r-fields is-wide">
+        <label class="r-f"><span>{{localize "VTM20.Item.quantity"}}</span><input type="number" name="system.quantity" value="{{system.quantity}}" min="0"></label>
+        <label class="r-f is-span2"><span>{{localize "VTM20.Item.source"}}</span><input type="text" name="system.source" value="{{system.source}}"></label>
+      </div>
+    </details>
+  </div>
+</div>

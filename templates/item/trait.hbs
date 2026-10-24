@@ -1,0 +1,34 @@
+{{!-- Достоинство или недостаток: цена-печать, категория, клан/секта, механика в броске; поля — в «Настройках». --}}
+<div class="r-item-sheet is-trait {{#if is.flaw}}is-flaw{{/if}}">
+  {{> rItemHead}}
+  <div class="r-item-body">
+    <div class="r-badges">
+      <div class="r-badge is-level is-seal"><b>{{system.cost}}</b><span>{{#if is.flaw}}{{localize "VTM20.ItemSheet.FlawPoints"}}{{else}}{{localize "VTM20.ItemSheet.MeritPoints"}}{{/if}}</span></div>
+      <div class="r-badge"><span>{{localize "VTM20.Item.category"}}</span><b>{{categoryLabel}}</b></div>
+      {{#if clanLabel}}<div class="r-badge"><span>{{localize "VTM20.Details.clan"}}</span><b>{{clanLabel}}</b></div>{{/if}}
+      {{#if sectLabel}}<div class="r-badge"><span>{{localize "VTM20.Details.sect"}}</span><b>{{sectLabel}}</b></div>{{/if}}
+    </div>
+    {{#if mod}}
+    <div class="r-item-mech">
+      <i class="fa-solid fa-dice-d10"></i>
+      <div><b>{{mod.what}}</b> — {{mod.where}}{{#if mod.hint}}<em> ({{mod.hint}})</em>{{/if}}
+        <span class="r-tag {{#if mod.auto}}is-red{{/if}}">{{#if mod.auto}}{{localize "VTM20.FxTab.Auto"}}{{else}}{{localize "VTM20.FxTab.Situ"}}{{/if}}</span></div>
+    </div>
+    {{/if}}
+    {{#if book}}<p class="r-item-src">{{localize "VTM20.Item.source"}}: {{book}}</p>{{/if}}
+    <h2 class="r-h2"><span>{{localize "VTM20.Item.description"}}</span></h2>
+    <div class="r-editor r-item-text">
+      <prose-mirror name="system.description" value="{{system.description}}" toggled {{#unless editable}}disabled{{/unless}}>{{{descriptionHTML}}}</prose-mirror>
+    </div>
+
+    <details class="r-item-setup">
+      <summary><i class="fa-solid fa-sliders"></i> {{localize "VTM20.ItemSheet.Setup"}}</summary>
+      <div class="r-fields is-wide">
+        <label class="r-f"><span>{{localize "VTM20.Item.cost"}}</span><input type="number" name="system.cost" value="{{system.cost}}" min="0" max="10"></label>
+        <label class="r-f"><span>{{localize "VTM20.Item.category"}}</span>
+          <select name="system.category">{{#each categoryOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+        <label class="r-f is-span2"><span>{{localize "VTM20.Item.source"}}</span><input type="text" name="system.source" value="{{system.source}}"></label>
+      </div>
+    </details>
+  </div>
+</div>

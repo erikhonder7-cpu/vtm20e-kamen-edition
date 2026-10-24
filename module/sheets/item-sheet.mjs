@@ -1,16 +1,19 @@
 // module/sheets/item-sheet.mjs
-// Лист предмета. Ритуал, сила, Дисциплина и путь магии крови — свои окна: сверху то, что нужно в игре
-// (уровень, школа, бросок, силы по уровням), поля для правки — в свёрнутом блоке «Настройки».
-// Остальные типы (черты, снаряжение, факты биографии) — общее окно с полями и описанием.
+// Лист предмета. У каждого типа своё окно: сверху то, что нужно в игре (уровень, школа, бросок, силы по уровням;
+// урон и атака у оружия; класс брони; цена-печать и механика черты; точки факта биографии), поля для правки —
+// в свёрнутом блоке «Настройки». Общий шаблон item-sheet.hbs — запасной для неизвестных типов.
 
 import { VTM20, SYSTEM_PATH } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
+import { describeMeritMod } from "../data/merit-mods.mjs";
+import { openAttack } from "../combat/combat.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ItemSheetV2 } = foundry.applications.sheets;
 
 const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
-const TEMPLATES = { ritual: "ritual", power: "power", discipline: "discipline", thaumPath: "path" };
+const TEMPLATES = { ritual: "ritual", power: "power", discipline: "discipline", thaumPath: "path",
+  weapon: "weapon", armor: "armor", gear: "gear", merit: "trait", flaw: "trait", background: "background", derangement: "derangement" };
 
 export class VtMItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
   static DEFAULT_OPTIONS = {
@@ -18,7 +21,8 @@ export class VtMItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     position: { width: 560, height: 640 },
     window: { resizable: true, contentClasses: ["r-sheet-content"] },
     form: { submitOnChange: true, closeOnSubmit: false },
-    actions: { toChat: VtMItemSheet.#onToChat, setDots: VtMItemSheet.#onSetDots }
+    actions: { toChat: VtMItemSheet.#onToChat, setDots: VtMItemSheet.#onSetDots, attack: VtMItemSheet.#onAttack,
+      toggleField: VtMItemSheet.#onToggleField, qty: VtMItemSheet.#onQty }
   };
 
   static PARTS = { body: { template: `${SYSTEM_PATH}/templates/item/item-sheet.hbs`, scrollable: [".r-item-body"] } };
@@ -77,6 +81,25 @@ export class VtMItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       ctx.rules = item.type === "discipline"
         ? await enrich((Codex.discipline(s.key)?.rules ?? []).find(r => !r.title)?.html ?? "") : "";
     }
+    // Оружие: вид, урон словами, атака с листа владельца
+    if (item.type === "weapon") {
+      const kind = VTM20.weaponKinds[s.kind] ?? VTM20.weaponKinds.melee;
+      ctx.kindLabel = loc(kind.label);
+      ctx.damageText = s.strength ? `${loc("VTM20.Attr.strength")} + ${s.damage}` : String(s.damage);
+      ctx.damageTypeLabel = loc(VTM20.damageTypes[s.damageType]?.label ?? "");
+      ctx.ranged = s.kind === "firearms" || s.kind === "thrown";
+      ctx.canAttack = !!item.parent && item.parent.isOwner;
+    }
+    // Достоинство / недостаток: механика (data/merit-mods.mjs), клан или секта
+    if (item.type === "merit" || item.type === "flaw") {
+      ctx.mod = describeMeritMod(item.name);
+      ctx.categoryLabel = loc(VTM20.meritCategories[s.category]?.label ?? s.category ?? "");
+      ctx.clanLabel = s.clan ? Codex.clanName(s.clan) : "";
+      ctx.sectLabel = s.sect ? loc(`VTM20.Sect.${s.sect}`) : "";
+    }
+    // Факт биографии: точки
+    if (item.type === "background") ctx.dots = Array.from({ length: 5 }, (_, i) => ({ n: i + 1, filled: i < s.value, path: "system.value" }));
+
     // Сила: комбинированная — требования и опыт из справочника
     if (item.type === "power") {
       const combo = Codex.combos?.find(c => c.name === item.name);
@@ -117,6 +140,23 @@ export class VtMItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
   }
 
   static #onToChat() { return this.item.toChat(); }
+
+  /** Атака этим оружием — окно атаки владельца. */
+  static #onAttack() {
+    if (this.item.parent) return openAttack(this.item.parent, { weapon: this.item.id });
+  }
+
+  /** Переключатель-галочка из плашки (надето, постоянное…). */
+  static #onToggleField(event, target) {
+    const f = target.dataset.field;
+    return this.item.update({ [f]: !foundry.utils.getProperty(this.item, f) });
+  }
+
+  /** Количество вещей: ±1. */
+  static #onQty(event, target) {
+    const q = Math.max(0, (this.item.system.quantity ?? 0) + Number(target.dataset.d));
+    return this.item.update({ "system.quantity": q });
+  }
 
   /** Точки Дисциплины или пути: щелчок по последней закрашенной снимает её. */
   static #onSetDots(event, target) {

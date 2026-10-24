@@ -1,0 +1,45 @@
+{{!-- Оружие: вид, урон, сложность, дальность; атака с листа владельца; поля — в «Настройках». --}}
+<div class="r-item-sheet is-weapon">
+  {{> rItemHead}}
+  <div class="r-item-body">
+    <div class="r-badges">
+      <div class="r-badge is-level is-dmg"><b>{{damageText}}</b><span>{{damageTypeLabel}}</span></div>
+      <div class="r-badge"><span>{{localize "VTM20.Weapon.kind"}}</span><b>{{kindLabel}}</b></div>
+      <div class="r-badge"><span>{{localize "VTM20.Weapon.diff"}}</span><b>{{system.difficulty}}</b></div>
+      {{#if ranged}}
+      <div class="r-badge"><span>{{localize "VTM20.Weapon.range"}}</span><b>{{#if system.range}}{{system.range}}{{else}}—{{/if}}</b></div>
+      <div class="r-badge"><span>{{localize "VTM20.Weapon.rate"}} · {{localize "VTM20.Weapon.clip"}}</span><b>{{#if system.rate}}{{system.rate}}{{else}}—{{/if}} · {{#if system.clip}}{{system.clip}}{{else}}—{{/if}}</b></div>
+      {{/if}}
+      {{#if system.pierce}}<div class="r-badge" data-tooltip="{{localize 'VTM20.Weapon.pierceHint'}}"><span>{{localize "VTM20.Weapon.pierce"}}</span><b>{{system.pierce}}</b></div>{{/if}}
+      {{#if system.concealment}}<div class="r-badge"><span>{{localize "VTM20.Weapon.conceal"}}</span><b>{{system.concealment}}</b></div>{{/if}}
+    </div>
+    <div class="r-item-acts">
+      {{#if canAttack}}<a class="r-btn is-primary" data-action="attack"><i class="fa-solid fa-khanda"></i> {{localize "VTM20.Combat.Attack"}}</a>{{/if}}
+      <a class="r-chip {{#if system.equipped}}is-accent{{/if}}" data-action="toggleField" data-field="system.equipped"><i class="fa-solid {{#if system.equipped}}fa-hand-fist{{else}}fa-hand{{/if}}"></i> {{#if system.equipped}}{{localize "VTM20.ItemSheet.InHand"}}{{else}}{{localize "VTM20.ItemSheet.Stowed"}}{{/if}}</a>
+    </div>
+    {{#if book}}<p class="r-item-src">{{localize "VTM20.Item.source"}}: {{book}}</p>{{/if}}
+    <h2 class="r-h2"><span>{{localize "VTM20.Item.description"}}</span></h2>
+    <div class="r-editor r-item-text">
+      <prose-mirror name="system.description" value="{{system.description}}" toggled {{#unless editable}}disabled{{/unless}}>{{{descriptionHTML}}}</prose-mirror>
+    </div>
+
+    <details class="r-item-setup">
+      <summary><i class="fa-solid fa-sliders"></i> {{localize "VTM20.ItemSheet.Setup"}}</summary>
+      <div class="r-fields is-wide">
+        <label class="r-f"><span>{{localize "VTM20.Weapon.kind"}}</span>
+          <select name="system.kind">{{#each weaponKindOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+        <label class="r-f"><span>{{localize "VTM20.Weapon.damage"}}</span><input type="number" name="system.damage" value="{{system.damage}}" min="0" max="20"></label>
+        <label class="r-f r-f-check"><input type="checkbox" name="system.strength" {{checked system.strength}}><span>{{localize "VTM20.Weapon.plusStrength"}}</span></label>
+        <label class="r-f"><span>{{localize "VTM20.Weapon.type"}}</span>
+          <select name="system.damageType">{{#each damageTypeOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+        <label class="r-f"><span>{{localize "VTM20.Weapon.diff"}}</span><input type="number" name="system.difficulty" value="{{system.difficulty}}" min="2" max="10"></label>
+        <label class="r-f" data-tooltip="{{localize 'VTM20.Weapon.pierceHint'}}"><span>{{localize "VTM20.Weapon.pierce"}}</span><input type="number" name="system.pierce" value="{{system.pierce}}" min="0" max="10"></label>
+        <label class="r-f"><span>{{localize "VTM20.Weapon.range"}}</span><input type="text" name="system.range" value="{{system.range}}"></label>
+        <label class="r-f"><span>{{localize "VTM20.Weapon.rate"}}</span><input type="text" name="system.rate" value="{{system.rate}}"></label>
+        <label class="r-f"><span>{{localize "VTM20.Weapon.clip"}}</span><input type="text" name="system.clip" value="{{system.clip}}"></label>
+        <label class="r-f"><span>{{localize "VTM20.Weapon.conceal"}}</span><input type="text" name="system.concealment" value="{{system.concealment}}"></label>
+        <label class="r-f is-span2"><span>{{localize "VTM20.Item.source"}}</span><input type="text" name="system.source" value="{{system.source}}"></label>
+      </div>
+    </details>
+  </div>
+</div>

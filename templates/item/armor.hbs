@@ -1,0 +1,28 @@
+{{!-- Броня: класс, штраф Ловкости, надета ли; поля — в «Настройках». --}}
+<div class="r-item-sheet is-armor">
+  {{> rItemHead}}
+  <div class="r-item-body">
+    <div class="r-badges">
+      <div class="r-badge is-level"><b>{{system.rating}}</b><span>{{localize "VTM20.Armor.rating"}}</span></div>
+      <div class="r-badge"><span>{{localize "VTM20.Armor.penalty"}}</span><b>{{#if system.penalty}}−{{system.penalty}} {{localize "VTM20.ItemSheet.ToDex"}}{{else}}{{localize "VTM20.ItemSheet.NoPenalty"}}{{/if}}</b></div>
+      <div class="r-badge"><span>{{localize "VTM20.ItemSheet.Protects"}}</span><b>{{localize "VTM20.ItemSheet.ArmorRule"}}</b></div>
+    </div>
+    <div class="r-item-acts">
+      <a class="r-chip {{#if system.equipped}}is-accent{{/if}}" data-action="toggleField" data-field="system.equipped"><i class="fa-solid {{#if system.equipped}}fa-shield-halved{{else}}fa-shield{{/if}}"></i> {{#if system.equipped}}{{localize "VTM20.ItemSheet.Worn"}}{{else}}{{localize "VTM20.ItemSheet.NotWorn"}}{{/if}}</a>
+    </div>
+    {{#if book}}<p class="r-item-src">{{localize "VTM20.Item.source"}}: {{book}}</p>{{/if}}
+    <h2 class="r-h2"><span>{{localize "VTM20.Item.description"}}</span></h2>
+    <div class="r-editor r-item-text">
+      <prose-mirror name="system.description" value="{{system.description}}" toggled {{#unless editable}}disabled{{/unless}}>{{{descriptionHTML}}}</prose-mirror>
+    </div>
+
+    <details class="r-item-setup">
+      <summary><i class="fa-solid fa-sliders"></i> {{localize "VTM20.ItemSheet.Setup"}}</summary>
+      <div class="r-fields is-wide">
+        <label class="r-f"><span>{{localize "VTM20.Armor.rating"}}</span><input type="number" name="system.rating" value="{{system.rating}}" min="0" max="10"></label>
+        <label class="r-f"><span>{{localize "VTM20.Armor.penalty"}}</span><input type="number" name="system.penalty" value="{{system.penalty}}" min="0" max="10"></label>
+        <label class="r-f is-span2"><span>{{localize "VTM20.Item.source"}}</span><input type="text" name="system.source" value="{{system.source}}"></label>
+      </div>
+    </details>
+  </div>
+</div>
