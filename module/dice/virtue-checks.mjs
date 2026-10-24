@@ -22,13 +22,14 @@ export function rollVirtueCheck(actor, kind, { difficulty = 6 } = {}) {
       difficulty: Math.max(2, difficulty + (brujah ? 2 : 0) - (actor.type === "ghoul" ? 3 : 0)), noWillpower: brujah, lockTraits: true
     });
   }
+  if (kind === "degeneration") return RollDialog.prompt(actor, { title: t("Roll.degeneration.title"), trait1: "virtues.conscience", reflexive: true, kind: "degeneration", difficulty, noWillpower: true, lockTraits: true });
   return RollDialog.prompt(actor, { title: t("Roll.rotschreck.title"), trait1: "virtues.courage", reflexive: true, kind: "rotschreck", difficulty, lockTraits: true });
 }
 
 /** Карточка в чате: «стоит проверить ярость/Ротшрек» с кнопкой броска. Только вампирам, не в торпоре и не уже в этом состоянии. */
 export function suggestCheck(actor, kind, { reason, difficulty = 6 }) {
   if (!actor?.isVampire || actor.statuses?.has(`r-${kind}`) || actor.statuses?.has("r-torpor")) return null;
-  const icon = kind === "frenzy" ? "fa-face-angry" : "fa-fire";
+  const icon = { frenzy: "fa-face-angry", rotschreck: "fa-fire", degeneration: "fa-scale-unbalanced" }[kind];
   return ChatMessage.create({
     speaker: ChatMessage.getSpeaker({ actor }),
     whisper: game.users.filter(u => u.isGM || actor.testUserPermission(u, "OWNER")).map(u => u.id),

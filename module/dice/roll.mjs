@@ -311,7 +311,7 @@ export function onChatCardClick(event) {
   const action = btn.dataset.rAction;
   if (action === "damage") return onDamage(message, state);
   if (action === "apply") return onApply(state, { soak: btn.dataset.soak === "1" });
-  if (action === "feed") return foundry.utils.fromUuid(state.actorUuid).then(a => import("../apps/night.mjs").then(m => m.feedAfterHunt(a)));
+  if (action === "feed") return foundry.utils.fromUuid(state.actorUuid).then(a => import("../apps/night.mjs").then(m => m.feedAfterHunt(a, { animal: state.extra?.method === "animals" })));
   if (action === "loseWill") return onLoseWill(message, state, btn.dataset.permanent === "1");
   if (action === "powerHit") return import("../data/combat-powers.mjs").then(m => m.powerHit(message, state, evaluate(state.values, state)));
 }

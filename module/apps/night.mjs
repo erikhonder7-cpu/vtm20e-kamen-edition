@@ -105,7 +105,7 @@ class HuntDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const hungry = a.hasBlood && a.system.blood.value < 7 - selfC;
     return rollPool({
       actor: a, title: t("Hunt.Title", { name: "" }).replace(/:\s*$/, ""), subtitle: `${t(`Hunt.Ground.${v.ground}`)} · ${t(`Hunt.Method.${v.method}`)}`,
-      pool: c.pool, difficulty: c.diff, breakdown: c.bd, kind: "hunt", messageMode: v.messageMode,
+      pool: c.pool, difficulty: c.diff, breakdown: c.bd, kind: "hunt", messageMode: v.messageMode, extra: { method: v.method },
       notes: [
         ...(hungry ? [`<i class="fa-solid fa-face-angry"></i> ${t("Hunt.Hungry", { n: 7 - selfC })}`] : []),
         ...(a.system.clan === "ventrue" && a.system.weaknessNote ? [`<i class="fa-solid fa-wine-glass"></i> ${t("Hunt.Ventrue", { taste: a.system.weaknessNote })}`] : []),
@@ -120,7 +120,7 @@ class HuntDialog extends HandlebarsApplicationMixin(ApplicationV2) {
  * Кормление после удачной охоты: сколько выпить, решает сам игрок (вампир обычно контролирует Поцелуй),
  * в пределах свободного места в запасе. Сосуд-смертный — 10 пунктов крови: осушить его — убить.
  */
-export async function feedAfterHunt(actor) {
+export async function feedAfterHunt(actor, { animal = false } = {}) {
   if (!actor?.hasBlood) return;
   const s = actor.system.blood, room = Math.max(0, s.max - s.value);
   if (!room) return ui.notifications.info(t("Hunt.Full", { name: actor.name }));
@@ -142,8 +142,20 @@ export async function feedAfterHunt(actor) {
     ok: { label: t("Hunt.Feed"), icon: "fa-solid fa-droplet", callback: (e, b) => Number(b.form.elements.n.value) || 0 }, rejectClose: false
   });
   if (!n) return;
+  let drink = n;
+  // Сильный голод (крови меньше 5): чтобы оторваться раньше, чем насытится, — бросок Силы воли (сл. 6), иначе пьёт досыта
+  if (s.value < 5 && n < top) {
+    const r = await rollPool({ actor, title: t("Hunt.StopTitle"), subtitle: t("Hunt.StopSub", { n }), pool: actor.system.willpower.permanent, difficulty: 6, kind: "check" });
+    if (r.outcome !== "success") drink = top;
+  }
   const before = actor.system.blood.value;
-  await actor.gainBlood(n);
+  await actor.gainBlood(drink);
+  if (drink > n) ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<div class="r-notice is-warn"><i class="fa-solid fa-face-angry"></i> ${t("Hunt.CouldNotStop", { n: drink })}</div>` });
+  // Больше 8 пунктов из человека — на грани убийства: проверка деградации
+  if (!animal && drink > 8) {
+    const { suggestCheck } = await import("../dice/virtue-checks.mjs");
+    suggestCheck(actor, "degeneration", { reason: t("Hunt.Drained", { n: drink }), difficulty: 8 });
+  }
   ChatMessage.create({
     speaker: ChatMessage.getSpeaker({ actor }),
     content: `<div class="r-notice"><i class="fa-solid fa-droplet"></i> ${t("Hunt.Fed", { n: actor.system.blood.value - before, cur: actor.system.blood.value, max: s.max })}</div>`
