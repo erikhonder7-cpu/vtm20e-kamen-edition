@@ -1,5 +1,5 @@
 {{!-- Карточка проверки V20 — «бюллетень»: шапка, кости, исход-лента, кнопки. --}}
-<div class="r-roll-card kind-{{kind}} {{outcome.css}}">
+<div class="r-roll-card kind-{{kind}} {{outcome.css}} {{typeClass}}">
   <header class="r-card-head">
     {{#if actorImg}}<img class="r-card-img" src="{{actorImg}}" alt="">{{/if}}
     <div class="r-card-titles">
@@ -23,6 +23,15 @@
     <span class="is-hit" data-tooltip="{{localize 'VTM20.Roll.TallyHits'}}"><i class="fa-solid fa-check"></i> {{ev.hits}}</span>
     {{#if ev.ones}}<span class="is-one" data-tooltip="{{localize 'VTM20.Roll.TallyOnes'}}"><i class="fa-solid fa-xmark"></i> {{ev.ones}}</span>{{/if}}
     {{#if ev.tens}}<span class="is-ten" data-tooltip="{{localize 'VTM20.Roll.TallyTens'}}">10 × {{ev.tens}}{{#if specialty}} <em>×2</em>{{/if}}</span>{{/if}}
+  </div>
+  {{/if}}
+
+  {{!-- Призыв демона: кость Муки — отдельным огненным ромбом и исходом эффекта --}}
+  {{#if torment}}
+  <div class="r-torment-line {{#if torment.high}}is-high{{/if}}">
+    <span class="r-die is-torment"><span>{{torment.die}}</span></span>
+    <span class="r-tl-text"><b>{{#if torment.high}}{{localize "VTM20.Demon.EffectHigh"}}{{else}}{{localize "VTM20.Demon.EffectNormal"}}{{/if}}</b>
+      <em>{{localize "VTM20.Demon.TormentDieTitle"}} {{torment.die}} · {{localize "VTM20.Demon.Torment"}} {{torment.n}}</em></span>
   </div>
   {{/if}}
 

@@ -38,6 +38,7 @@ import { lineUp, childrenOf, bloodCheck, actorByName } from "../data/lineage.mjs
 import { isSabbat, vinculumMeaning, rollPackVinculi, openVaulderie, loyaltyConflict } from "../apps/vaulderie.mjs";
 import { coteriesOf, poolValue, openCoterie } from "../apps/coterie.mjs";
 import { itemCardHTML } from "../chat/item-card.mjs";
+import { themeClass } from "../ui/themes.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -753,7 +754,6 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     attachCombos(this.element);                         // Натура, Маска, Секта — свой список вместо <datalist>
     this.element.classList.toggle("is-mortal", this.actor.type === "mortal");
     this.element.classList.toggle("is-ghoul", this.actor.type === "ghoul");
-    this.element.classList.toggle("is-demon", this.actor.type === "demon");     // своя тема листа (styles/r-demon.css)
     this.element.classList.toggle("is-torpor", !!context.torporState);
     this.element.classList.toggle("is-dead", !!context.death);
     // AppV2 заменяет только перерисованные части: убираем ворота после создания и лист — до него
@@ -1049,7 +1049,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const mine = free.filter(l => !l.house || own.includes(l.key)), other = free.filter(l => !mine.includes(l));
     if (!free.length) return;
     const key = await foundry.applications.api.DialogV2.prompt({
-      window: { title: t("Demon.AddLore") }, position: { width: 380 },
+      window: { title: t("Demon.AddLore") }, position: { width: 380 }, classes: ["vtm20", "r-dialog"],
       content: `<label class="r-f"><span>${t("Demon.Lore")}</span><select name="lore">
         ${mine.length ? `<optgroup label="${t("Demon.OwnLores")}">${mine.map(opt).join("")}</optgroup>` : ""}
         ${other.length ? `<optgroup label="${t("Demon.OtherLores")}">${other.map(opt).join("")}</optgroup>` : ""}</select></label>`,
@@ -1069,7 +1069,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     if (s.apocalyptic) return a.update({ "system.apocalyptic": false });
     if (s.faith.temporary < 1) return ui.notifications.warn(t("Demon.NoFaith"));
     await a.update({ "system.apocalyptic": true, "system.faith.temporary": s.faith.temporary - 1 });
-    ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: a }), content: `<p>${t("Demon.FormTaken", { name: a.name, visage: Codex.house(s.house)?.visages?.[s.visage] ?? "" })}</p>` });
+    ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: a }), content: `<div class="r-notice ${themeClass(a)} is-form"><i class="fa-solid fa-dragon"></i> ${t("Demon.FormTaken", { name: foundry.utils.escapeHTML(a.name), visage: Codex.house(s.house)?.visages?.[s.visage] ?? "" })}</div>` });
   }
 
   static #onSpendFaith() {
@@ -1118,7 +1118,8 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const pool = r.trait1 ? [r.trait1, r.trait2].filter(Boolean).map(x => this.actor.traitLabel(x)).join(" + ") : (r.dice ? `${r.dice}d10` : "");
     ChatMessage.create({
       speaker: ChatMessage.getSpeaker({ actor: this.actor }),
-      content: await itemCardHTML({ kind: "power", img: Codex.disciplineIcon(pathId ? this.actor.items.get(pathId).system.discipline : disc),
+      content: await itemCardHTML({ kind: "power", typeClass: themeClass(this.actor),
+        img: disc?.startsWith("lore:") ? `systems/${SYSTEM_ID}/assets/ui/fallen-sigil.svg` : Codex.disciplineIcon(pathId ? this.actor.items.get(pathId).system.discipline : disc),
         kicker: dname, name: p.name, en: p.en, body: p.html, facts: [
           { label: t("Item.level"), value: ROMAN[(p.anyLevel ? Number(level) : p.level) - 1] ?? p.level },
           { label: t("ItemSheet.Roll"), value: pool },

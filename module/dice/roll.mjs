@@ -10,6 +10,7 @@
 
 import { VTM20, SYSTEM_ID, SYSTEM_PATH } from "../config.mjs";
 import { combatPowerOf, combatPowerLabel } from "../data/combat-powers.mjs";
+import { themeClass } from "../ui/themes.mjs";
 
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
 
@@ -148,7 +149,6 @@ export async function rollPool(o) {
     rolls.push(r);
     const die = r.total, high = die <= state.extra.torment;
     state.extra = { ...state.extra, tormentDie: die, tormentHigh: high };
-    state.notes = [...state.notes, t(high ? "Demon.TormentHigh" : "Demon.TormentNormal", { n: die, t: state.extra.torment })];
   }
   const result = evaluate(values, state);
   // Продолжительное действие (03): успехи копятся до цели; провал срывает работу
@@ -240,7 +240,9 @@ export async function renderCard(state, actor = null) {
     atavism: state.kind === "frenzy" && ev.successes < 5 && state.extra?.atavism,
     canSoak: state.kind === "damage" && ev.successes > 0,
     extended: extra.extended ? { ...extra.extended, pct: Math.min(100, Math.round((extra.extended.total / Math.max(1, extra.extended.need)) * 100)) } : null,
-    contest: ["resisted", "teamwork"].includes(extra.contest) ? extra.contest : null
+    contest: ["resisted", "teamwork"].includes(extra.contest) ? extra.contest : null,
+    typeClass: themeClass(actor),
+    torment: extra.tormentDie ? { die: extra.tormentDie, n: extra.torment, high: !!extra.tormentHigh } : null
   });
 }
 

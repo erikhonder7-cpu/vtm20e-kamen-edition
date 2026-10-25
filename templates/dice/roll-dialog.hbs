@@ -76,6 +76,17 @@
     {{#if physicalBonus}}<label class="r-check"><input type="checkbox" name="physical" {{checked v.physical}}> {{physicalLabel}} <em>(+{{physicalBonus}})</em></label>{{/if}}
   </div>
 
+  {{#if torment}}
+  <div class="r-torment-plate" data-tooltip="{{localize 'VTM20.Demon.TormentDieHint'}}">
+    <span class="r-die is-torment"><span><i class="fa-solid fa-fire-flame-curved"></i></span></span>
+    <div class="r-tp-text">
+      <span class="r-tp-title">{{localize "VTM20.Demon.TormentDieTitle"}} <em>· {{localize "VTM20.Demon.Torment"}} {{torment.n}}</em></span>
+      <div class="r-tp-bar"><i style="width: {{torment.high}}%"></i></div>
+      <span class="r-tp-legend"><span>{{localize "VTM20.Demon.TpHigh"}} <b>{{torment.high}}%</b></span><span>{{localize "VTM20.Demon.TpNormal"}} <b>{{torment.normal}}%</b></span></span>
+    </div>
+  </div>
+  {{/if}}
+
   <div class="r-roll-total">
     <div class="r-roll-breakdown">{{#each breakdown}}<span>{{label}} <b>{{rSigned value}}</b></span>{{/each}}</div>
     <div class="r-roll-pool"><b>{{shownPool}}</b><i class="fa-solid fa-dice-d10"></i> <span>{{localize "VTM20.Roll.Vs"}}</span> <b>{{effDifficulty}}</b></div>

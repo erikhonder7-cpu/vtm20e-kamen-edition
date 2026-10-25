@@ -164,6 +164,8 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       noWillpower: !!this.cfg.noWillpower,
       bloodCost: this.cfg.bloodCost ?? 0, hasBlood: this.actor.hasBlood, bloodLeft: this.actor.system.blood?.value ?? 0,
       willpowerCost: !!this.cfg.willpowerCost, diffNote: this.cfg.diffNote ?? "",
+      // призыв демона: отдельная кость Муки, высокая Мука — при выпадении не выше постоянной Муки
+      torment: this.cfg.extra?.torment != null ? { n: this.cfg.extra.torment, high: Math.clamp(this.cfg.extra.torment, 0, 10) * 10, normal: 100 - Math.clamp(this.cfg.extra.torment, 0, 10) * 10 } : null,
       lightBane: VTM20.lightBane.includes(this.actor.system.clan),
       physicalLabel: c.physicalBonus ? Codex.disciplineLabel(c.attr === "strength" ? "potence" : "celerity") : "",
       messageModes: Object.entries(CONFIG.ChatMessage.modes ?? {}).map(([k, m]) => ({ value: k, label: game.i18n.localize(m.label ?? k), selected: k === v.messageMode }))
