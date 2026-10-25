@@ -35,6 +35,7 @@ import { openCourt, registerCourt } from "./module/apps/court.mjs";
 import { openWeb, registerWeb } from "./module/apps/web.mjs";
 import { registerTimers, tickTimers } from "./module/apps/timers.mjs";
 import { registerTorpor, checkTorpor } from "./module/apps/torpor.mjs";
+import { registerIncome, checkIncome } from "./module/apps/income.mjs";
 import { registerExtras } from "./module/apps/extras.mjs";
 import { registerMasquerade } from "./module/ui/masquerade.mjs";
 import { registerCityMap, openCity, closeCity, toggleCity, cityMap } from "./module/ui/citymap.mjs";
@@ -115,6 +116,7 @@ Hooks.once("init", () => {
   registerNightExtras();
   registerTimers();
   registerTorpor();
+  registerIncome();
   registerSessionXp();
   registerCourt();
   registerWeb();
@@ -167,7 +169,7 @@ Hooks.once("ready", async () => {
   const mountPanels = () => { if (game.settings.get(SYSTEM_ID, "nexusNav")) initTopBar(); };
   mountPanels();
   Hooks.on("canvasReady", mountPanels);
-  startNightClock(() => { foundry.applications.instances.get("r-calendar")?._paintClock?.(); paintClockBar(); checkDawn(); tickTimers(); checkTorpor(); });
+  startNightClock(() => { foundry.applications.instances.get("r-calendar")?._paintClock?.(); paintClockBar(); checkDawn(); tickTimers(); checkTorpor(); checkIncome(); });
 });
 
 /* ── Нексус: перенос токенов через флаги User ──────────────────────────── */

@@ -328,6 +328,29 @@ try {
     if (r.thrall?.role !== "thrall") throw new Error("у донора нет записи о вассале");
   });
 
+  await check("Доход от Богатства раз в месяц", async () => {
+    const id = await temp("E2E — богач");
+    const r = await page.evaluate(async id => {
+      const SYS = game.system.id, a = game.actors.get(id), player = game.users.find(u => !u.isGM);
+      if (!player) return { skip: true };
+      await a.update({ [`ownership.${player.id}`]: 3 });
+      await a.createEmbeddedDocuments("Item", [{ name: "Богатство", type: "background", system: { value: 1 } }]);
+      const I = await import(`/systems/${SYS}/module/apps/income.mjs`), { getClock } = await import(`/systems/${SYS}/module/apps/calendar.mjs`);
+      const was = game.settings.get(SYS, "incomePaid"), d = new Date(getClock());
+      await game.settings.set(SYS, "incomePaid", `${d.getFullYear() - 1}-${String(d.getMonth() + 1).padStart(2, "0")}`);   // год назад
+      const before = a.system.money.amount;
+      await I.checkIncome();
+      const after = a.system.money.amount;
+      await I.checkIncome();                                   // тот же месяц — второй раз не платит
+      const again = a.system.money.amount;
+      await game.settings.set(SYS, "incomePaid", was);
+      return { gain: after - before, again: again - after, per: I.incomeFor(1, (await import(`/systems/${SYS}/module/data/money.mjs`)).currencyOf(a)) };
+    }, id);
+    if (r.skip) return;
+    if (r.gain !== r.per * 12) throw new Error(`за 12 месяцев начислено ${r.gain}, ждали ${r.per * 12}`);
+    if (r.again) throw new Error("доход начислен дважды за месяц");
+  });
+
   // Уборка до перезагрузок мира: сообщения бросков и временные персонажи
   await page.evaluate(async () => {
     const extra = game.messages.contents.slice(window._e2e.messages).map(m => m.id);

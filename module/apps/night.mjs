@@ -187,10 +187,13 @@ export async function nightfall() {
   if (!game.user.isGM) return ui.notifications.warn(t("Notify.GMOnly"));
   const will = game.settings.get(SYSTEM_ID, "nightlyWillpower");
   const lines = [];
+  const { herdBlood } = await import("./income.mjs");
   for (const a of kindredOf()) {
     const before = a.system.blood.value;
     await a.awaken({ willpower: will, quiet: true });
-    lines.push(`<li><b>${a.name}</b>: ${t("Night.Line", { from: before, to: a.system.blood.value })}${before <= 0 ? ` <span class="r-fate">${t("Night.Starving")}</span>` : ""}</li>`);
+    // кровь от Стада (apps/income.mjs, галочка мира) — после пробуждения
+    const herd = await herdBlood(a);
+    lines.push(`<li><b>${a.name}</b>: ${t("Night.Line", { from: before, to: a.system.blood.value })}${herd ? ` ${herd}` : ""}${before <= 0 ? ` <span class="r-fate">${t("Night.Starving")}</span>` : ""}</li>`);
   }
   // ревенанты производят собственную витэ — пункт за ночь (Ghouls & Revenants; «Утечка витэ» — вдвое медленнее, решает рассказчик)
   for (const a of game.actors.filter(x => x.isRevenant && x.system.blood.value < x.system.blood.max)) {
