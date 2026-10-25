@@ -1568,6 +1568,7 @@ function drawClock() {
 function paintClock() {
   paintPlate(document.querySelector(`#${ID} .rc-clock`));
   paintDawn();
+  placeInspector();
 }
 
 /**
@@ -1685,6 +1686,18 @@ function drawInspector() {
   else { const it = findPicked(); if (it) html = editor(it); }
   box.hidden = !html;
   if (box.innerHTML !== html) { const top = box.scrollTop; box.innerHTML = html; box.scrollTop = top; }
+  placeInspector();
+}
+
+/** Инспектор — под часами и плашкой жара Маскарада: у ведущего часы с кнопками выше, плашка появляется не всегда. */
+function placeInspector() {
+  const root = document.getElementById(ID), box = root?.querySelector(".rc-inspector");
+  if (!box || box.hidden) return;
+  const host = box.offsetParent ?? root, top0 = host.getBoundingClientRect().top;
+  const above = [...root.querySelectorAll(".rc-clock, .rc-masq-plate:not([hidden])")].filter(el => el.offsetParent === host || el.parentElement === box.parentElement);
+  const bottom = Math.max(0, ...above.map(el => el.getBoundingClientRect().bottom - top0));
+  const top = Math.round(bottom ? bottom + 8 : 78);
+  if (box.style.top !== `${top}px`) { box.style.top = `${top}px`; box.style.maxHeight = `calc(100% - ${top + 18}px)`; }
 }
 
 /** Редактор выбранной метки, места, зоны или найденного адреса. */
