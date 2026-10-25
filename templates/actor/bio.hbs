@@ -12,12 +12,65 @@
     <label class="r-f"><span>{{localize "VTM20.Details.age"}}</span><input type="text" name="system.details.age" value="{{system.details.age}}"></label>
     <label class="r-f"><span>{{localize "VTM20.Details.apparentAge"}}</span><input type="text" name="system.details.apparentAge" value="{{system.details.apparentAge}}"></label>
     <label class="r-f"><span>{{localize "VTM20.Details.born"}}</span><input type="text" name="system.details.born" value="{{system.details.born}}"></label>
-    {{#if isVampire}}<label class="r-f"><span>{{localize "VTM20.Details.embraced"}}</span><input type="text" name="system.details.embraced" value="{{system.details.embraced}}"></label>{{/if}}
+    {{#if isVampire}}<label class="r-f"><span>{{localize "VTM20.Details.embraced"}}</span><input type="text" name="system.details.embraced" value="{{system.details.embraced}}" placeholder="{{localize 'VTM20.Lineage.EmbracedHint'}}"></label>{{/if}}
     <label class="r-f is-span2"><span>{{localize "VTM20.Details.haven"}}</span><input type="text" name="system.details.haven" value="{{system.details.haven}}"></label>
     {{#if isVampire}}<label class="r-f is-span2"><span>{{localize "VTM20.Details.clanCustom"}}</span><input type="text" name="system.clanCustom" value="{{system.clanCustom}}" placeholder="{{localize 'VTM20.Details.clanCustomHint'}}"></label>{{/if}}
     {{#if isMortal}}<label class="r-f"><span>{{localize "VTM20.Details.trueFaith"}}</span><input type="number" name="system.trueFaith" value="{{system.trueFaith}}" min="0" max="10"></label>{{/if}}
   </div>
   </div>
+
+  {{#if lineage}}
+  <h2 class="r-h2"><span>{{localize "VTM20.Lineage.Title"}}</span>
+    <span class="r-h2-tools"><a class="r-h2-btn" data-action="linWeb" data-tooltip="{{localize 'VTM20.Lineage.WebHint'}}"><i class="fa-solid fa-diagram-project"></i> <span class="r-h2-lbl">{{localize "VTM20.Lineage.Web"}}</span></a></span>
+  </h2>
+  <div class="r-lin">
+    <div class="r-lin-sum">
+      <div><small>{{localize "VTM20.Details.sire"}}</small><b>{{#if lineage.sire}}{{lineage.sire}}{{else}}—{{/if}}</b></div>
+      <div><small>{{localize "VTM20.Lineage.Embrace"}}</small><b>{{#if lineage.embraced}}{{lineage.embraced}}{{else}}—{{/if}}</b></div>
+      <div><small>{{localize "VTM20.Details.generation"}}</small><b>{{lineage.gen}}</b></div>
+      <div><small>{{localize "VTM20.Lineage.Childer"}}</small><b>{{lineage.count}}</b></div>
+    </div>
+    <ol class="r-lin-line">
+      {{#each lineage.line as |x|}}
+      <li class="r-lin-row is-{{x.kind}}">
+        <span class="r-lin-gen">{{#if x.gen}}{{localize "VTM20.Lineage.GenShort" n=x.gen}}{{/if}}</span>
+        <span class="r-lin-mark" aria-hidden="true"></span>
+        <span class="r-lin-name">{{#if x.name}}{{x.name}}{{else}}{{localize "VTM20.Lineage.Unknown"}}{{/if}}</span>
+        <span class="r-lin-meta">{{x.clan}}{{#if x.byBlood}} — {{localize "VTM20.Lineage.ByBlood"}}{{/if}}{{#if x.embraced}} · {{localize "VTM20.Lineage.Embraced" when=x.embraced}}{{/if}}{{#if (rEq x.kind "named")}} · {{localize "VTM20.Lineage.NoSheet"}}{{/if}}</span>
+        <span class="r-lin-act">
+          {{#if (rEq x.kind "sheet")}}<a class="r-h2-btn is-plain" data-action="linOpen" data-actor-id="{{x.actorId}}"><i class="fa-solid fa-scroll"></i> {{localize "VTM20.Lineage.Sheet"}}</a>{{/if}}
+          {{#if (rEq x.kind "named")}}{{#if @root.isGM}}<a class="r-h2-btn is-plain" data-action="linSheet" data-name="{{x.name}}" data-gen="{{x.gen}}" data-clan="{{x.clanKey}}"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Lineage.Sheet"}}</a>{{/if}}{{/if}}
+          {{#if (rEq x.kind "unknown")}}{{#if @root.editable}}<a class="r-h2-btn is-plain" data-action="linSire" data-actor-id="{{x.holderId}}"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Lineage.Write"}}</a>{{/if}}{{/if}}
+        </span>
+      </li>
+      {{/each}}
+      {{#each lineage.kids as |k|}}
+      <li class="r-lin-row is-child">
+        <span class="r-lin-gen">{{#if k.gen}}{{localize "VTM20.Lineage.GenShort" n=k.gen}}{{/if}}</span>
+        <span class="r-lin-mark" aria-hidden="true"></span>
+        <span class="r-lin-name">{{k.name}}</span>
+        <span class="r-lin-meta">{{k.clan}}{{#if k.embraced}} · {{localize "VTM20.Lineage.Embraced" when=k.embraced}}{{/if}}</span>
+        <span class="r-lin-act"><a class="r-h2-btn is-plain" data-action="linOpen" data-actor-id="{{k.id}}"><i class="fa-solid fa-scroll"></i> {{localize "VTM20.Lineage.Sheet"}}</a></span>
+      </li>
+      {{/each}}
+      <li class="r-lin-row is-drop" data-lin-drop>
+        <span class="r-lin-gen">{{localize "VTM20.Lineage.GenShort" n=lineage.kidGen}}</span>
+        <span class="r-lin-mark" aria-hidden="true"></span>
+        <span class="r-lin-name">{{localize "VTM20.Lineage.Childer"}}</span>
+        <span class="r-lin-meta">{{#unless lineage.kids.length}}{{localize "VTM20.Lineage.NoChilder"}} — {{/unless}}{{localize "VTM20.Lineage.DropHint"}}</span>
+      </li>
+    </ol>
+    {{#if lineage.check}}
+    <div class="r-lin-check {{#unless lineage.check.ok}}is-warn{{/unless}}">
+      <i class="fa-solid {{#if lineage.check.ok}}fa-droplet{{else}}fa-triangle-exclamation{{/if}}"></i>
+      {{#if lineage.check.ok}}{{localize "VTM20.Lineage.CheckOk" sire=lineage.check.sireGen gen=lineage.check.gen}}{{else}}{{localize "VTM20.Lineage.CheckBad" sire=lineage.check.sireGen gen=lineage.check.gen}}{{/if}}
+    </div>
+    {{/if}}
+    {{#if lineage.sibs.length}}
+    <div class="r-lin-sibs"><small>{{localize "VTM20.Lineage.Siblings"}}</small>{{#each lineage.sibs}}<a data-action="linOpen" data-actor-id="{{id}}">{{name}}</a>{{/each}}</div>
+    {{/if}}
+  </div>
+  {{/if}}
 
   <h2 class="r-h2"><span>{{localize "VTM20.Sheet.Timeline"}}</span>
     {{#if editable}}<span class="r-h2-tools"><a class="r-h2-btn" data-action="addEvent" data-tooltip="{{localize 'VTM20.Sheet.AddEvent'}}"><i class="fa-solid fa-plus"></i> <span class="r-h2-lbl">{{localize "VTM20.Sheet.AddEvent"}}</span></a></span>{{/if}}

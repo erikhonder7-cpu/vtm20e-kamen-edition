@@ -1005,3 +1005,36 @@ body.r-theme-light .vtm20 .r-motto { color: rgba(140, 28, 34, .75); }
 /* булавка «в HUD» у силы */
 .vtm20 .r-power-pin.is-on { color: var(--r-accent); }
 .vtm20 .r-power-pin.is-on i { transform: rotate(-30deg); }
+
+/* ── Родословная (план 6): линия сиров сверху вниз к персонажу и потомкам ── */
+.vtm20 .r-lin { display: flex; flex-direction: column; gap: 8px; margin-bottom: 6px; }
+.vtm20 .r-lin-sum { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid var(--r-line); background: rgba(0, 0, 0, .14); }
+.vtm20 .r-lin-sum > div { display: flex; flex-direction: column; gap: 1px; padding: 6px 10px; min-width: 0; }
+.vtm20 .r-lin-sum > div + div { border-left: 1px solid var(--r-line); }
+.vtm20 .r-lin-sum small { font-family: var(--r-caps); font-size: 10.5px; letter-spacing: 1px; text-transform: uppercase; color: var(--r-muted); }
+.vtm20 .r-lin-sum b { font-family: var(--r-display); font-weight: 400; font-size: 15px; color: var(--r-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vtm20 .r-lin-line { position: relative; margin: 0; padding: 0; list-style: none; }
+.vtm20 .r-lin-line::before { content: ""; position: absolute; left: 75px; top: 14px; bottom: 14px; border-left: 1px solid var(--r-line-2); }
+.vtm20 .r-lin-row { position: relative; display: grid; grid-template-columns: 62px 26px minmax(0, auto) minmax(0, 1fr) auto; align-items: center; gap: 0 8px; min-height: 30px; padding: 2px 0; }
+.vtm20 .r-lin-gen { text-align: right; font-family: var(--r-caps); font-size: 11px; letter-spacing: .6px; color: var(--r-muted); white-space: nowrap; }
+.vtm20 .r-lin-mark { justify-self: center; width: 11px; height: 11px; transform: rotate(45deg); border: 1px solid var(--r-dot-border); background: var(--r-coal); z-index: 1; }
+.vtm20 .r-lin-row.is-sheet .r-lin-mark { background: #8c1c22; border-color: #c4474c; }
+.vtm20 .r-lin-row.is-self .r-lin-mark { width: 14px; height: 14px; background: var(--r-dot-fill); border-color: #e0414b; box-shadow: 0 0 8px rgba(196, 71, 76, .6); }
+.vtm20 .r-lin-row.is-named .r-lin-mark { border: 1px dashed #c4474c; }
+.vtm20 .r-lin-row.is-unknown .r-lin-mark, .vtm20 .r-lin-row.is-drop .r-lin-mark { border: 1px dashed var(--r-dot-border); }
+.vtm20 .r-lin-row.is-child .r-lin-mark { width: 9px; height: 9px; background: #6e1218; border-color: #c4474c; }
+.vtm20 .r-lin-name { font-family: var(--r-display); font-size: 15px; color: var(--r-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vtm20 .r-lin-row.is-self .r-lin-name { color: #f1e9da; }
+.vtm20 .r-lin-row.is-unknown .r-lin-name, .vtm20 .r-lin-row.is-named .r-lin-name { font-style: italic; color: var(--r-ink-2); }
+.vtm20 .r-lin-row.is-drop .r-lin-name { color: var(--r-muted); }
+.vtm20 .r-lin-meta { font-size: 12.5px; color: var(--r-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vtm20 .r-lin-act .r-h2-btn { padding: 1px 8px; }
+.vtm20 .r-lin-row.is-drop { margin-top: 2px; border: 1px dashed var(--r-line-2); }
+.vtm20 .r-lin-row.is-drop.is-over { border-color: #c4474c; background: rgba(140, 28, 34, .14); }
+.vtm20 .r-lin-check { display: flex; align-items: center; gap: 8px; padding: 6px 10px; font-size: 13px; color: var(--r-ink-2); border-left: 2px solid var(--r-line-2); background: rgba(0, 0, 0, .12); }
+.vtm20 .r-lin-check i { color: var(--r-accent); }
+.vtm20 .r-lin-check.is-warn { border-left-color: #c4474c; color: var(--r-ink); }
+.vtm20 .r-lin-sibs { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; font-size: 13px; }
+.vtm20 .r-lin-sibs small { font-family: var(--r-caps); font-size: 10.5px; letter-spacing: 1px; text-transform: uppercase; color: var(--r-muted); }
+.vtm20 .r-lin-sibs a { color: var(--r-ink); cursor: pointer; border-bottom: 1px dotted var(--r-line-2); }
+.vtm20 .r-lin-sibs a:hover { color: var(--r-accent); }

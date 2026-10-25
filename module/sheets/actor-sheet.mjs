@@ -31,6 +31,7 @@ import { POWER_EFFECTS } from "../data/effects.mjs";
 import { MERIT_MODS, describeMeritMod } from "../data/merit-mods.mjs";
 import { weaponIcon as weaponImg, armorIcon as armorImg } from "../data/icons.mjs";
 import { togglePowerEffect } from "../apps/power-effects.mjs";
+import { lineUp, childrenOf, bloodCheck, actorByName } from "../data/lineage.mjs";
 import { itemCardHTML } from "../chat/item-card.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
@@ -123,7 +124,11 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       attack: VtMActorSheet.#onAttack,
       hazard: VtMActorSheet.#onHazard,
       diablerie: VtMActorSheet.#onDiablerie,
-      clanAtlas: VtMActorSheet.#onClanAtlas
+      clanAtlas: VtMActorSheet.#onClanAtlas,
+      linSire: VtMActorSheet.#onLinSire,
+      linSheet: VtMActorSheet.#onLinSheet,
+      linOpen: VtMActorSheet.#onLinOpen,
+      linWeb: VtMActorSheet.#onLinWeb
     }
   };
 
@@ -211,6 +216,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     this.#prepareAdvantages(ctx);
     this.#prepareGear(ctx);
     this.#prepareEffects(ctx);
+    if (actor.type === "vampire") this.#prepareLineage(ctx);
     ctx.biographyHTML = await TextEditor().enrichHTML(sys.biography ?? "", { relativeTo: actor, secrets: actor.isOwner });
     ctx.notesHTML = await TextEditor().enrichHTML(sys.notes ?? "", { relativeTo: actor, secrets: actor.isOwner });
     return ctx;
@@ -506,6 +512,38 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       open: boons.filter(b => b.dir === dir && !b.done).length }));
   }
 
+  /** Родословная (план 6): линия сиров вверх по полям «Сир», потомки, проверка крови, братья и сёстры по сиру. */
+  #prepareLineage(ctx) {
+    const a = this.actor;
+    const clan = a.clanLabel;
+    const embraced = a.system.details.embraced;
+    const line = lineUp(a).map(x => {
+      const who = x.actor;
+      return {
+        gen: x.gen, name: x.name, self: !!x.self, actorId: who?.id ?? "",
+        kind: x.self ? "self" : who ? "sheet" : x.name ? "named" : "unknown",
+        clan: who?.isVampire ? who.clanLabel : clan,
+        embraced: who?.system?.details?.embraced ?? "",
+        byBlood: !who
+      };
+    });
+    // «Вписать» у неизвестного звена пишет сира тому, кто стоит под ним (у него поле «Сир» пустое);
+    // клан звена без листа — «по крови» ближайшего Сородича под ним
+    let below = clan, belowKey = a.system.clan;
+    for (let i = line.length - 1; i >= 0; i--) {
+      const x = line[i];
+      if (x.kind === "unknown") x.holderId = line[i + 1]?.actorId || a.id;
+      if (x.byBlood) { x.clan = below; x.clanKey = belowKey; }
+      else { below = x.clan; belowKey = game.actors.get(x.actorId)?.system?.clan ?? belowKey; }
+    }
+    const kids = childrenOf(a).map(k => ({ id: k.id, name: k.name, gen: k.isVampire ? k.system.generation : null,
+      clan: k.isVampire ? k.clanLabel : game.i18n.localize(`TYPES.Actor.${k.type}`), embraced: k.system.details?.embraced ?? "" }));
+    const sire = actorByName(a.system.details.sire);
+    const sibs = sire ? childrenOf(sire).filter(k => k.id !== a.id).map(k => ({ id: k.id, name: k.name, clan: k.isVampire ? k.clanLabel : "" })) : [];
+    ctx.lineage = { line, kids, kidGen: (a.system.generation ?? 13) + 1, sire: a.system.details.sire, embraced,
+      gen: a.system.generation, check: bloodCheck(a), sibs, count: kids.length };
+  }
+
   /** Вкладка «Эффекты»: всё, что сейчас действует на персонажа, — силы, состояния, кровь, постоянные модификаторы, черты. */
   #prepareEffects(ctx) {
     const a = this.actor, s = a.system;
@@ -632,6 +670,12 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
         if (ev.target.closest("a, button, input, select, .r-dots")) return;
         head.querySelector("[data-action=toggleRow]")?.click();
       });
+    }
+    // «Потомки» в родословной подсвечиваются, когда над ними несут персонажа
+    const drop = this.element.querySelector("[data-lin-drop]");
+    if (drop) {
+      drop.addEventListener("dragover", () => drop.classList.add("is-over"));
+      for (const ev of ["dragleave", "drop"]) drop.addEventListener(ev, () => drop.classList.remove("is-over"));
     }
     // Поля предметов прямо на листе (имя пути, уровень ритуала…)
     for (const el of this.element.querySelectorAll("[data-item-field]")) {
@@ -993,6 +1037,50 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     wrap?.classList.toggle("is-closed", this._vitalsClosed);
     target.dataset.tooltip = t(this._vitalsClosed ? "Sheet.VitalsOpen" : "Sheet.VitalsClose");
   }
+  /* ── Родословная (план 6) ───────────────────────────────────────────── */
+
+  /** «Вписать»: имя сира тому, у кого его ещё нет (самое старшее звено линии). */
+  static async #onLinSire(event, target) {
+    const holder = game.actors.get(target.dataset.actorId) ?? this.actor;
+    if (!holder.isOwner) return ui.notifications.warn(t("Lineage.NoRights"));
+    const name = await foundry.applications.api.DialogV2.prompt({
+      window: { title: t("Lineage.SireOf", { name: holder.name }), icon: "fa-solid fa-sitemap" },
+      classes: ["vtm20", "r-dialog"],
+      content: `<div class="r-form"><label class="r-field"><span>${t("Lineage.SireName")}</span><input type="text" name="sire" autofocus></label></div>`,
+      ok: { label: t("Lineage.Write"), callback: (e, b) => b.form.elements.sire.value.trim() },
+      rejectClose: false
+    });
+    if (name) await holder.update({ "system.details.sire": name });
+  }
+
+  /** «+ Лист»: завести НПС-сира по имени из поля «Сир» — того же клана, на поколение старше. */
+  static async #onLinSheet(event, target) {
+    if (!game.user.isGM && !game.user.can("ACTOR_CREATE")) return ui.notifications.warn(t("Lineage.NoRights"));
+    const a = this.actor, gen = Number(target.dataset.gen) || Math.max(3, (a.system.generation ?? 13) - 1);
+    const npc = await Actor.create({ name: target.dataset.name, type: "vampire",
+      system: { clan: target.dataset.clan || a.system.clan, generation: Math.clamp(gen, 3, 15) } });
+    npc?.sheet.render(true);
+  }
+
+  static #onLinOpen(event, target) { game.actors.get(target.dataset.actorId)?.sheet.render(true); }
+
+  static async #onLinWeb() {
+    const m = await import("../apps/web.mjs").catch(() => null);
+    m?.openWeb?.(this.actor);
+  }
+
+  /** Перетащили персонажа на «потомки» — он становится потомком этого Сородича. */
+  async _onDropActor(event, actor) {
+    if (event.target?.closest?.("[data-lin-drop]") && actor && actor.id !== this.actor.id) {
+      if (!actor.isOwner) return ui.notifications.warn(t("Lineage.NoRights"));
+      await actor.update({ "system.details.sire": this.actor.name });
+      ui.notifications.info(t("Lineage.ChildSet", { child: actor.name, sire: this.actor.name }));
+      this.render();                                   // поменялся чужой лист — свой перерисовываем сами
+      return true;
+    }
+    return super._onDropActor(event, actor);
+  }
+
   /** Престация (module/apps/boons.mjs): новая услуга в колонку, погасить или вернуть, вычеркнуть. */
   static async #onAddBoon(event, target) { return addBoon(this.actor, target.dataset.dir); }
   static async #onToggleBoon(event, target) { return toggleBoon(this.actor, Number(target.dataset.index)); }
