@@ -293,7 +293,7 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
     const type = this.actor?.type ?? "vampire";
     return Codex.backgrounds.map((b, i) => [b, i]).filter(([b]) => Codex.visible(b) && VTM20.backgroundAllowed(b, type)).map(([b, i]) => this.#entry({
       id: String(i), name: b.name, en: b.en, has: mine.has(b.name), text: b.html ?? "", long: true, src: srcKind(b),
-      tags: [b.sabbat && { label: t("Sect.sabbat"), red: true }, b.source && b.source !== "V20" && { label: b.source }].filter(Boolean),
+      tags: [b.sabbat && { label: t("Sect.sabbat"), red: true }, b.sect && { label: t(`Sect.${b.sect}`), red: true }, b.source && b.source !== "V20" && { label: b.source }].filter(Boolean),
       variants: [1, 2, 3, 4, 5].map(v => ({ value: v, label: "●".repeat(v) }))
     }));
   }

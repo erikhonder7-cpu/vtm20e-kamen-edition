@@ -21,6 +21,7 @@
     <span class="r-cr-stepno">{{localize "VTM20.Creator.StepN" n=(rRoman stepNumber) m=(rRoman stepCount)}}</span>
     <h1>{{title}}</h1>
     <p class="r-cr-hint">{{hint}}</p>
+    {{#if sectRule}}<p class="r-cr-hint r-cr-sectrule"><i class="fa-solid fa-scroll"></i> {{sectRule}}</p>{{/if}}
   </header>
 
   <aside class="r-cr-patent">
@@ -208,7 +209,7 @@
           <div class="r-cr-bg {{#if on}}is-on{{/if}} {{#if open}}is-open{{/if}}">
             <div class="r-cr-bg-head">
               <a class="r-cr-take" data-action="bgToggle" data-name="{{name}}" data-tooltip="{{#if on}}{{localize 'VTM20.Creator.Drop'}}{{else}}{{localize 'VTM20.Creator.Take'}}{{/if}}"><i class="fa-solid {{#if on}}fa-check{{else}}fa-plus{{/if}}"></i></a>
-              <a class="r-cr-bg-name" data-action="read" data-key="bg:{{name}}"><b>{{name}}</b>{{#if sabbat}} <small>{{localize "VTM20.Sect.sabbat"}}</small>{{/if}}</a>
+              <a class="r-cr-bg-name" data-action="read" data-key="bg:{{name}}"><b>{{name}}</b>{{#if sectLabel}} <small>{{sectLabel}}</small>{{/if}}</a>
               {{#if on}}<span class="r-dots">{{#each dots}}<a class="r-dot r-cr-dot is-{{state}}" data-action="dot" data-kind="{{kind}}" data-key="{{key}}" data-n="{{n}}"></a>{{/each}}</span>{{/if}}
               <a class="r-cr-readbtn" data-action="read" data-key="bg:{{name}}" data-tooltip="{{#if open}}{{localize 'VTM20.Creator.Collapse'}}{{else}}{{localize 'VTM20.Creator.Read'}}{{/if}}"><i class="fa-solid {{#if open}}fa-book{{else}}fa-book-open{{/if}}"></i></a>
             </div>

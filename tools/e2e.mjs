@@ -268,6 +268,22 @@ try {
     if (n === 0) throw new Error("звук не синтезировался");
   });
 
+  await check("Мастер создания: секты", async () => {
+    const id = await temp("E2E — секты");
+    const r = await page.evaluate(async id => {
+      const { VtMCreator } = await import(`/systems/${game.system.id}/module/apps/creator.mjs`);
+      const app = new VtMCreator(game.actors.get(id)), nums = () => [app.rules.disc, app.rules.bg, app.rules.virt].join("/");
+      const out = {};
+      for (const k of ["camarilla", "sabbat", "anarchs"]) { app.st.sectKey = k; out[k] = nums(); }
+      app.st.sectKey = "camarilla"; app.st.clan = "brujah";
+      out.banned = app.bannedDisc("obtenebration") && !app.bannedDisc("potence");
+      return out;
+    }, id);
+    if (r.camarilla !== "3/5/7" || r.anarchs !== "3/5/7") throw new Error(`числа Камарильи и анархов: ${r.camarilla}, ${r.anarchs}`);
+    if (r.sabbat !== "4/0/5") throw new Error(`числа Шабаша: ${r.sabbat}`);
+    if (!r.banned) throw new Error("Камарилье доступно внеклановое Затмение");
+  });
+
   // Уборка до перезагрузок мира: сообщения бросков и временные персонажи
   await page.evaluate(async () => {
     const extra = game.messages.contents.slice(window._e2e.messages).map(m => m.id);

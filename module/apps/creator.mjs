@@ -42,6 +42,16 @@ const SECTS = [
   { key: "autarkis", label: "Sect.autarkis" }
 ];
 
+/**
+ * Поправки создания по секте (только вампиры). Шабаш — Guide to the Sabbat (1999), гл. 3: 4 точки клановых
+ * Дисциплин (пандеры — любых), фактов биографии нет — только за свободные пункты, 5 точек Добродетелей.
+ * Анархи — V20 Anarchs Unbound: числа V20, свои факты биографии, архетипы и черты (в данных с пометкой секты).
+ * Камарилья — Guide to the Camarilla, гл. 3: числа V20, но внеклановые Дисциплины независимых и Шабаша недоступны.
+ */
+const SECT_RULES = { sabbat: { disc: 4, bg: 0, virt: 5 } };
+const CAMARILLA_BANNED = ["chimerstry", "melpominee", "mytherceria", "necromancy", "obeah", "obtenebration", "quietus",
+  "serpentis", "thanatosis", "visceratika", "vicissitude"];
+
 const STEP_HINTS = {
   concept: "ConceptHint", clan: "ClanHint", attributes: "AttrHintShort", abilities: "AbilHintShort",
   disciplines: "DiscHint", advantages: "AdvHint", merits: "MeritHint", freebies: "FreeHint", xp: "XpHint", summary: "FinishHint"
@@ -80,13 +90,13 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     this.actor = actor;
     const s = actor.system;
     this.type = actor.type in RULES ? actor.type : "mortal";
-    this.rules = RULES[this.type];
+    this.baseRules = RULES[this.type];
     // ревенант: 5 точек Добродетелей вместо 7 (Ghouls & Revenants)
-    if (this.type === "ghoul" && actor.system.ghoulType === "revenant") this.rules = { ...this.rules, virt: 5 };
+    if (this.type === "ghoul" && actor.system.ghoulType === "revenant") this.baseRules = { ...this.baseRules, virt: 5 };
     this.step = 0;
     this.st = {
       name: actor.name, concept: s.details.concept, nature: s.details.nature, demeanor: s.details.demeanor,
-      sire: s.details.sire, sect: s.details.sect || "", sectKey: "",
+      sire: s.details.sire, sect: s.details.sect || "", sectKey: Codex.sectKey(s.details.sect),
       clan: s.clan ?? "brujah", clanChoice: s.clanChoice ?? "", weaknessNote: s.weaknessNote ?? "",
       domitor: s.domitor ?? "", path: "humanity", tier: "fledgling", xpTotal: 0,
       attrPrio: ["physical", "social", "mental"], abilPrio: ["talents", "skills", "knowledges"],
@@ -115,6 +125,17 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
   get stepKey() { return this.steps[Math.min(this.step, this.steps.length - 1)]; }
 
   /* ── Расчёты ───────────────────────────────────────────────────────── */
+
+  /** Числа создания: по типу персонажа, у вампира — с поправкой секты (SECT_RULES). */
+  get rules() { return this.type === "vampire" ? { ...this.baseRules, ...(SECT_RULES[this.st?.sectKey] ?? {}) } : this.baseRules; }
+  /** Дисциплина закрыта сектой: Камарилья не учит внеклановым Дисциплинам независимых и Шабаша. */
+  bannedDisc(k) { return this.type === "vampire" && this.st.sectKey === "camarilla" && CAMARILLA_BANNED.includes(k) && !this.inClan(k); }
+  /** Подсказка о правилах выбранной секты (шаги концепции, Дисциплин, преимуществ и свободных пунктов). */
+  get sectRule() {
+    const k = this.type === "vampire" ? this.st.sectKey : "";
+    if (k === "camarilla") return t("Creator.SectRule.camarilla", { list: CAMARILLA_BANNED.map(d => Codex.disciplineLabel(d)).join(", ") });
+    return k === "sabbat" || k === "anarchs" ? t(`Creator.SectRule.${k}`) : "";
+  }
 
   get clanData() { return this.type === "vampire" ? Codex.clan(this.st.clan) : null; }
   get pathData() { return Codex.path(this.st.path); }
@@ -233,6 +254,8 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     if (rem.free) msg(t("Creator.Freebies"), rem.free);
     if (rem.xp < 0) msg(t("Sheet.Experience"), rem.xp);
     if (this.st.path !== "humanity" && this.willpower < 5) out.push(t("Creator.PathWill"));
+    for (const k of Object.keys({ ...this.st.disc, ...this.st.free.disc, ...this.st.xp.disc }))
+      if (this.bannedDisc(k) && this.value("disc", k) > this.base("disc", k)) out.push(t("Creator.SectBanned", { name: Codex.disciplineLabel(k) }));
     if (this.type === "vampire" && this.clanData?.choice?.length && !this.st.clanChoice) out.push(t("Creator.NeedChoice"));
     for (const c of this.traitIssues) out.push(t(`Creator.Trait${c.key}`, c.data));
     return out;
@@ -264,7 +287,8 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       steps: this.steps.map((k, i) => ({ i, key: k, n: i + 1, label: t(`Creator.Step.${k}`), active: i === this.step, done: this.stepOk(k, rem) && i !== this.step })),
       stepKey: key, stepNumber: this.step + 1, stepCount: this.steps.length,
       // у гуля свои подсказки там, где правила другие (нет Становления, Дисциплины — от домитора)
-      title: t(`Creator.Step.${key}`), hint: t(`Creator.${STEP_HINTS[key]}${this.type === "ghoul" && GHOUL_HINTS.has(key) ? "Ghoul" : ""}`),
+      title: t(`Creator.Step.${key}`), hint: t(`Creator.${STEP_HINTS[key]}${this.type === "ghoul" && GHOUL_HINTS.has(key) ? "Ghoul" : key === "advantages" && !this.rules.bg ? "NoBg" : ""}`, { n: this.rules.disc, bg: this.rules.bg, virt: this.rules.virt }),
+      sectRule: ["concept", "disciplines", "advantages", "freebies"].includes(key) ? this.sectRule : "",
       isFirst: this.step === 0, isLast: this.step === this.steps.length - 1,
       [`is_${key}`]: true
     };
@@ -357,13 +381,13 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       };
     }).sort((a, b) => (b.inClan - a.inClan) || a.name.localeCompare(b.name, "ru"));
     ctx.anyDiscipline = allowed == null;
-    ctx.discChoices = Object.values(Codex.disciplines).filter(d => !discKeys.has(d.key) && Codex.visible(d)).map(d => ({ value: d.key, label: d.name }))
+    ctx.discChoices = Object.values(Codex.disciplines).filter(d => !discKeys.has(d.key) && Codex.visible(d) && !this.bannedDisc(d.key)).map(d => ({ value: d.key, label: d.name }))
       .sort((a, b) => a.label.localeCompare(b.label, "ru"));
 
     // VI. Факты биографии — каталог карточек, и Добродетели
     ctx.bgCards = Codex.backgrounds.filter(b => (Codex.visible(b) && VTM20.backgroundAllowed(b, this.type)) || b.name in st.bg).map(b => {
       const on = b.name in st.bg || (st.free.bg[b.name] ?? 0) > 0;
-      return { name: b.name, en: b.en, sabbat: b.sabbat, on, value: this.value("bg", b.name), dots: dotRow("bg", b.name),
+      return { name: b.name, en: b.en, sectLabel: b.sabbat ? t("Sect.sabbat") : b.sect ? t(`Sect.${b.sect}`) : "", on, value: this.value("bg", b.name), dots: dotRow("bg", b.name),
           text: VtMCreator.#preview(b.html, 170), html: b.html, open: this.ui.open.has(`bg:${b.name}`) };
     });
     ctx.virtues = ["conscience", "selfControl", "courage"].map(slot => {
@@ -495,7 +519,19 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
   }
   static #onSect(event, target) {
     const s = SECTS.find(x => x.key === target.dataset.sect);
-    this.st.sectKey = s.key; this.st.sect = t(s.label); this.render();
+    this.st.sectKey = s.key; this.st.sect = t(s.label);
+    // новые числа секты меньше уже распределённого — распределение сбрасывается (факты биографии остаются отмеченными)
+    const r = this.rules, st = this.st, reset = [];
+    if (this.sum(st.disc) > r.disc) { st.disc = {}; reset.push(t("Sheet.Disciplines")); }
+    if (this.sum(st.bg) > r.bg) {
+      // «Поколение» Шабаш покупает свободными пунктами — переносим туда
+      if (!r.bg && st.bg["Поколение"]) st.free.bg["Поколение"] = (st.free.bg["Поколение"] ?? 0) + st.bg["Поколение"];
+      for (const k of Object.keys(st.bg)) st.bg[k] = 0;
+      reset.push(t("Sheet.Backgrounds"));
+    }
+    if (this.sum(st.virt) > r.virt) { st.virt = { conscience: 0, selfControl: 0, courage: 0 }; reset.push(t("Sheet.Virtues")); }
+    if (reset.length) ui.notifications.info(t("Creator.SectReset", { what: reset.join(", ") }));
+    this.render();
   }
   static #onClanGroup(event, target) { this.ui.clanGroup = target.dataset.group; this.render(); }
   static #onClan(event, target) {
@@ -508,7 +544,9 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
   /** Поколение покупается фактом биографии «Поколение» (01). */
   static #onGen(event, target) {
     const n = 13 - Number(target.dataset.gen);
-    if (n > 0) this.st.bg["Поколение"] = n; else { delete this.st.bg["Поколение"]; delete this.st.free.bg["Поколение"]; }
+    // у Шабаша фактов биографии на старте нет — «Поколение» идёт за свободные пункты
+    if (n > 0 && !this.rules.bg) { this.st.bg["Поколение"] = 0; this.st.free.bg["Поколение"] = n; }
+    else if (n > 0) this.st.bg["Поколение"] = n; else { delete this.st.bg["Поколение"]; delete this.st.free.bg["Поколение"]; }
     this.render();
   }
 
@@ -526,6 +564,8 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     if (kind === "disc" && this.type === "vampire" && this.clanDisciplines && !this.clanDisciplines.includes(key) && want > base) {
       ui.notifications.warn(t("Creator.OnlyClan")); return;
     }
+    if (kind === "disc" && want > base && this.bannedDisc(key)) { ui.notifications.warn(t("Creator.SectBanned", { name: Codex.disciplineLabel(key) })); return; }
+    if (kind === "bg" && want > base && !this.rules.bg) { ui.notifications.warn(t("Creator.SabbatNoBg")); return; }
     store[key] = want - base;
     this.render();
   }
@@ -586,6 +626,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       bag[kind] = Math.max(0, bag[kind] + d);
     } else {
       const max = kind === "disc" && this.type === "vampire" ? VTM20.generationOf(13 - Math.min(5, this.value("bg", "Поколение"))).trait : 5;
+      if (d > 0 && kind === "disc" && this.bannedDisc(key)) return ui.notifications.warn(t("Creator.SectBanned", { name: Codex.disciplineLabel(key) }));
       if (d > 0 && this.value(kind, key) >= max) return;
       bag[kind][key] = Math.max(0, (bag[kind][key] ?? 0) + d);
     }
