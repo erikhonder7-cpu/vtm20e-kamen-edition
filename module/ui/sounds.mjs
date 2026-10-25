@@ -1,6 +1,7 @@
 // module/ui/sounds.mjs
 // Звуки интерфейса в духе Мира Тьмы — синтез WebAudio без файлов (как колокол рассвета в calendar.mjs):
-// всё звучит в эхе каменного свода. Щелчок — мягкий глухой «тук»; окно — шорох старого пергамента;
+// всё звучит в эхе каменного свода. Щелчок — мягкий глухой «тук» (открытие окон — без звука: шорох
+// пергамента пользователь отверг);
 // трата крови — густая капля и удар сердца; урон — удар по плоти и гул; успех — далёкий колокол в миноре;
 // провал — низкий вздох струн вниз; провал с единицами — тритон и рык Зверя.
 // Стук костей не синтезируется — его уже играет Foundry (CONFIG.sounds.dice).
@@ -62,11 +63,11 @@ function tone(c, out, { type = "sine", from, to = from, dur, gain, at = 0, attac
   o.start(t0); o.stop(t0 + dur + .05);
 }
 
-/** Шум через фильтр (шорох, удар): частота from → to; type — bandpass или lowpass; grain — потрескивание. */
-function noise(c, out, { from, to = from, q = 1, dur, gain, at = 0, type = "bandpass", grain = 0 }) {
+/** Шум через фильтр (удар, гул): частота from → to; type — bandpass или lowpass. */
+function noise(c, out, { from, to = from, q = 1, dur, gain, at = 0, type = "bandpass" }) {
   const t0 = c.currentTime + at, len = Math.ceil(c.sampleRate * dur);
   const buf = c.createBuffer(1, len, c.sampleRate), d = buf.getChannelData(0);
-  for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * (grain && Math.random() < grain ? 4 : 1);
+  for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
   const src = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain();
   src.buffer = buf;
   f.type = type; f.Q.value = q;
@@ -98,10 +99,6 @@ export const SOUNDS = {
     tone(c, o, { from: 420, to: 250, dur: .08, gain: .13, attack: .006, lp: 900 });
     tone(c, o, { from: 150, to: 120, dur: .1, gain: .07, attack: .008, lp: 400 });
   }, .05],
-  page: [(c, o) => {
-    noise(c, o, { from: 500, to: 1700, q: .6, dur: .24, gain: .26, grain: .02 });
-    noise(c, o, { from: 1400, to: 650, q: .8, dur: .16, gain: .16, at: .11, grain: .03 });
-  }, .15],
   blood: [(c, o) => {
     tone(c, o, { from: 640, to: 150, dur: .14, gain: .22, lp: 1200 });
     tone(c, o, { from: 230, to: 320, dur: .07, gain: .07, at: .12, lp: 900 });
@@ -167,14 +164,10 @@ export function registerSounds() {
   });
 
   let ready = false;
-  // окна открываются пачкой при загрузке мира — шуршать начинаем чуть позже
+  // при загрузке мира листы и окна меняются пачкой — звучать начинаем чуть позже
   Hooks.once("ready", () => setTimeout(() => { ready = true; }, 3000));
 
   document.addEventListener("click", ev => { if (ready && ev.target.closest?.(BUTTONS)) playSound("click"); }, true);
-
-  Hooks.on("renderApplicationV2", (app, el, context, options) => {
-    if (ready && options?.isFirstRender && el?.classList?.contains("vtm20")) playSound("page");
-  });
 
   // трата крови и урон — у того, кто их вызвал (preUpdate идёт только на его клиенте)
   Hooks.on("preUpdateActor", (actor, changes) => {
