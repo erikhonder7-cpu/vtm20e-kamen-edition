@@ -3,6 +3,20 @@
 
 # Vampire: The Masquerade 20th — Kamen Edition
 
+## Установка
+
+Ссылка на манифест для Foundry VTT:
+
+```
+https://github.com/erikhonder7-cpu/vtm20e-kamen-edition/releases/latest/download/system.json
+```
+
+1. В Foundry: **Game Systems → Install System**.
+2. Вставьте ссылку в поле **Manifest URL** внизу окна и нажмите **Install**.
+3. Обновления Foundry будет предлагать сам.
+
+[Последний релиз](https://github.com/erikhonder7-cpu/vtm20e-kamen-edition/releases/latest) · [архив вручную](https://github.com/erikhonder7-cpu/vtm20e-kamen-edition/releases/latest/download/vtm20e-kamen-edition.zip) · Foundry VTT v14
+
 Система для Foundry VTT v14 по правилам V20. Оформление «Liberté» — революционная Франция: пергамент патентов и ассигнатов, ночная синева, триколор, лавр и сургуч.
 
 ## Что есть (0.2.0)
