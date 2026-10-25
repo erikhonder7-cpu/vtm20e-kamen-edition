@@ -24,7 +24,7 @@ const sourceTags = x => [x.era === "darkAges" && { label: L("Filter.DarkAges"), 
   x.source && x.source !== "V20" && { label: x.source }].filter(Boolean);
 const norm = s => s.toLowerCase().replace(/ё/g, "е");
 /** Вид источника для фильтра: основная книга, дополнение, Тёмные века, фанатское. */
-const srcKind = x => x.fan ? "fan" : x.era === "darkAges" ? "da" : (x.source && !/^V20(,|$)/.test(x.source.trim())) ? "ext" : "core";   // «V20 The Black Hand» — дополнение
+const srcKind = x => x.source === "Demon: The Fallen" ? "core" : x.fan ? "fan" : x.era === "darkAges" ? "da" : (x.source && !/^V20(,|$)/.test(x.source.trim())) ? "ext" : "core";   // «V20 The Black Hand» — дополнение
 const SRC_KINDS = ["core", "ext", "da", "fan"];
 /** Силы карточки — строками по уровням: «VI: Любовь · Парализующий взор». */
 const byLevel = powers => {
@@ -271,7 +271,8 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
         groupName: game.i18n.localize(VTM20.meritCategories[m.category]?.label ?? m.category) };
     };
     const ghoulOk = !this.actor || this.actor.type === "ghoul";
-    return Codex.merits.filter(m => m.kind === kind && Codex.visible(m) && (!m.ghoul || ghoulOk)).map(m => {
+    const line = VTM20.traitLine(this.actor?.type);           // у демона — только черты падших, у прочих — без них
+    return Codex.merits.filter(m => m.kind === kind && Codex.visible(m) && (!m.ghoul || ghoulOk) && (m.line ?? "") === line).map(m => {
       const costs = costsOf(m);
       const blocker = blockerFor(m.name, mine);
       return this.#entry({

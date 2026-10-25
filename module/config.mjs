@@ -162,8 +162,15 @@ VTM20.meritCategories = {
   physical:     { label: L("MeritCat.physical") },
   mental:       { label: L("MeritCat.mental") },
   social:       { label: L("MeritCat.social") },
-  supernatural: { label: L("MeritCat.supernatural") }
+  supernatural: { label: L("MeritCat.supernatural") },
+  // Demon Players Guide: инфернальные, юридические, экономические
+  infernal:     { label: L("MeritCat.infernal") },
+  legal:        { label: L("MeritCat.legal") },
+  economic:     { label: L("MeritCat.economic") }
 };
+
+/** Линия черт и Дополнений типа персонажа: вампиры, гули и смертные — общая (""), у демонов своя (data/demon-*.json). */
+VTM20.traitLine = type => ["demon"].includes(type) ? type : "";
 
 /** Чем атакуют: пул «Ловкость + …» и подпись. */
 VTM20.weaponKinds = {
@@ -228,4 +235,5 @@ VTM20.currencies = {
 VTM20.kindredOnlyBackgrounds = ["Domain", "Rituals", "Generation", "Herd", "Status", "Black Hand Membership", "Anarch Status",
   "Memento de Morte", "Clan Prestige", "Age", "Elder Status", "Elder Generation", "Pack Recognition", "Rank", "Anunnaki Status"];
 /** Доступен ли факт биографии персонажу этого типа. */
-VTM20.backgroundAllowed = (b, type) => type === "vampire" || !VTM20.kindredOnlyBackgrounds.includes(b?.en);
+VTM20.backgroundAllowed = (b, type) => (b?.line ?? "") === VTM20.traitLine(type)
+  && (type === "vampire" || !!b?.line || !VTM20.kindredOnlyBackgrounds.includes(b?.en));

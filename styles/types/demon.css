@@ -26,7 +26,7 @@
     radial-gradient(ellipse 90% 45% at 50% -8%, rgba(125, 146, 191, .13), transparent 60%),
     radial-gradient(ellipse 80% 35% at 50% 108%, rgba(180, 101, 31, .14), transparent 65%),
     radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(0, 0, 0, .55) 100%),
-    url("../../assets/ui/paper-dark.svg"),
+    url("../assets/ui/paper-dark.svg"),   /* в переменной путь считается от файла, где её используют (styles/) */
     linear-gradient(180deg, #12141b, #0a0b10);
 }
 body.r-theme-light .vtm20.r-type-demon {
@@ -38,7 +38,7 @@ body.r-theme-light .vtm20.r-type-demon {
   --r-bg:
     radial-gradient(ellipse 90% 45% at 50% -8%, rgba(70, 85, 122, .12), transparent 60%),
     radial-gradient(ellipse at 50% 50%, transparent 50%, rgba(40, 45, 60, .2) 100%),
-    url("../../assets/ui/paper.svg"),
+    url("../assets/ui/paper.svg"),
     linear-gradient(180deg, #e8e6e0, #dcd9d0);
 }
 
@@ -202,3 +202,40 @@ body.r-theme-light .vtm20.r-type-demon {
   --color-border-highlight: #d4a04c; --color-border-highlight-alt: #7d92bf;
   --color-text-hyperlink: #dba653; --color-text-selection-bg: #a8641f;
 }
+
+/* ── Справочник Домов (apps/houses.mjs): разметка справочника кланов в цветах падших ── */
+.vtm20.r-houses .r-cl-groups a.is-active { color: #1a1206; border-color: #f0c46a; background: linear-gradient(180deg, #f0c46a, #b97a2a); }
+.vtm20.r-houses .r-cl-item a.is-active { border-color: rgba(212, 160, 76, .6); background: linear-gradient(90deg, rgba(212, 160, 76, .22), rgba(125, 146, 191, .05)); box-shadow: none; }
+.vtm20.r-houses .r-cl-medal { color: #d4a04c; font-size: 15px; }
+.vtm20.r-houses .r-hs-medal { padding: 10px; border-radius: 50%; border: 1px solid rgba(212, 160, 76, .45); background: radial-gradient(circle at 50% 30%, #1d2130, #0b0c12 72%);
+  box-shadow: 0 0 0 4px #0a0b10, 0 0 0 5px rgba(125, 146, 191, .45), 0 0 24px rgba(212, 160, 76, .2); color: #f0c46a; font-size: 34px; }
+.vtm20.r-houses .r-hs-medal img { width: 100%; height: 100%; border: 0; }
+.vtm20.r-houses .r-hs-watermark { border: 0; opacity: .06; }
+.vtm20.r-houses .r-hs-text { margin: 0; font-size: 15px; line-height: 1.5; color: var(--r-ink-2); font-style: italic; }
+.vtm20.r-houses .r-cl-trait summary em { font-size: 12px; color: var(--r-muted); margin-left: 4px; }
+.vtm20.r-houses .r-hs-powers { margin: 4px 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 3px; }
+.vtm20.r-houses .r-hs-powers li { display: flex; align-items: baseline; gap: 8px; font-size: 14px; }
+.vtm20.r-houses .r-hs-powers em { margin-left: auto; font-size: 12px; color: var(--r-muted); }
+.vtm20.r-houses .r-hs-lvl { width: 22px; height: 22px; flex: 0 0 auto; display: grid; place-items: center; font-family: var(--r-display); font-size: 10.5px; color: #1a1206;
+  background: radial-gradient(circle at 40% 32%, #f0c46a, #a8641f 75%); clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
+.vtm20.r-houses .r-hs-visages { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
+.vtm20.r-houses .r-hs-visage { padding: 8px 12px; border: 1px solid var(--r-line-2); border-top: 2px solid #d4a04c; background: var(--r-card-bg); font-size: 13.5px; }
+.vtm20.r-houses .r-hs-visage > b { font-family: var(--r-display); font-weight: 400; font-size: 17px; color: var(--r-ink); }
+.vtm20.r-houses .r-hs-visage > em { color: var(--r-muted); font-size: 12.5px; }
+.vtm20.r-houses .r-hs-feats { margin-top: 5px; line-height: 1.4; color: var(--r-ink-2); }
+.vtm20.r-houses .r-hs-feats.is-high { color: #e09a50; }
+.vtm20.r-houses .r-hs-flab { font-family: var(--r-caps); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--r-muted); }
+
+/* Карточка: выбрать эффект высокой Муки; кости Муки в добром деле */
+.r-torment-line .r-tl-choose { margin-left: auto; flex: 0 0 auto; width: 28px; height: 26px; padding: 0; display: grid; place-items: center; line-height: 1;
+  color: #e08a3a; background: transparent; border: 1px solid rgba(192, 104, 42, .5); border-radius: 0; }
+.r-torment-line .r-tl-choose:hover { color: #fff0dc; background: rgba(192, 104, 42, .35); box-shadow: 0 0 8px rgba(224, 120, 40, .45); }
+.r-opposed-tray { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px; padding: 6px 2px; border-bottom: 1px solid var(--r-line); }
+.r-opposed-tray .r-opp-label { flex: 0 0 100%; text-align: center; font-family: "IM Fell SC", "Forum", serif; font-size: 11.5px; letter-spacing: 1px; text-transform: uppercase; color: #e09a50; }
+.r-opposed-tray .r-die.is-miss { background: #2a1a10; color: #8a6a50; }
+.vtm20.r-choice-dialog .r-choice-when { display: block; font-size: 12.5px; color: var(--r-muted); }
+.vtm20.r-type-demon.r-choice-dialog .r-choice:has(input:checked) { border-color: #d4a04c; background: rgba(212, 160, 76, .12); }
+.vtm20.r-type-demon.r-choice-dialog .r-choice input[type=radio]:checked { border-color: #d4a04c; background: radial-gradient(circle, #f0c46a 0 3.5px, transparent 4px); }
+.vtm20 .r-form-col.is-high .r-form-feat.is-scene { color: #f0a050; }
+.vtm20 .r-form-feat em { font-size: 12px; color: var(--r-muted); }
+.vtm20 a.r-form-feat.is-off[data-action]:hover { opacity: 1; color: #e09a50; cursor: pointer; }

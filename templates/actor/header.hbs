@@ -26,7 +26,7 @@
       <div class="r-kicker">
         <span class="r-kicker-type">{{typeLabel}}</span>
         {{#if clan.nickname}}<i class="r-kicker-dia"></i><em class="r-kicker-nick is-link" data-action="clanAtlas" data-tooltip="{{localize 'VTM20.Clans.Open'}}">«{{clan.nickname}}»</em>{{/if}}
-        {{#if house}}<i class="r-kicker-dia"></i><em class="r-kicker-nick" data-tooltip="{{house.text}}">«{{house.akkadian}}»</em>{{/if}}
+        {{#if house}}<i class="r-kicker-dia"></i><em class="r-kicker-nick is-link" data-action="houseAtlas" data-tooltip="{{localize 'VTM20.Demon.AtlasOpen'}}">«{{house.akkadian}}»</em>{{/if}}
         {{#if sectSym}}<i class="r-kicker-dia"></i>{{rSym sectSym "r-sym-inline"}}{{/if}}
         <span class="r-motto" aria-hidden="true">{{#if isDemon}}Non serviam{{else}}La Liberté ou la Mort{{/if}}</span>
       </div>
@@ -134,6 +134,8 @@
       <div class="r-assignat-meta">
         <span>{{#if system.apocalyptic}}<em>{{localize "VTM20.Demon.FormActive"}}</em>{{/if}}</span>
         <a data-action="spendFaith" data-tooltip="{{localize 'VTM20.Demon.SpendFaith'}}"><i class="fa-solid fa-minus"></i></a>
+        <a data-action="harvestFaith" data-tooltip="{{localize 'VTM20.Demon.HarvestTip'}}"><i class="fa-solid fa-wheat-awn"></i></a>
+        <a data-action="pactFaith" data-tooltip="{{localize 'VTM20.Demon.PactFaithTip'}}"><i class="fa-solid fa-file-signature"></i></a>
         <a data-action="apocalyptic" data-tooltip="{{#if system.apocalyptic}}{{localize 'VTM20.Demon.FormDrop'}}{{else}}{{localize 'VTM20.Demon.FormTake'}}{{/if}}" {{#if system.apocalyptic}}class="is-on"{{/if}}><i class="fa-solid fa-dragon"></i></a>
       </div>
     </aside>

@@ -55,7 +55,10 @@
       </div>
       <div class="r-form-col is-high">
         <h4 class="r-h4">{{localize "VTM20.Demon.FormHigh"}} <small>({{form.highN}}/4)</small></h4>
-        {{#each form.high}}<div class="r-trait r-form-feat {{#unless on}}is-off{{/unless}}">{{name}}</div>{{/each}}
+        {{#each form.high}}
+        {{#if (or on scene)}}<div class="r-trait r-form-feat {{#if scene}}is-scene{{/if}}">{{name}}{{#if scene}} <em>· {{localize "VTM20.Demon.SceneMark"}}</em>{{/if}}</div>
+        {{else}}<a class="r-trait r-form-feat is-off" {{#if ../form.on}}data-action="sceneHigh" data-index="{{index}}" data-tooltip="{{localize 'VTM20.Demon.SceneHighHint'}}"{{/if}}>{{name}}</a>{{/if}}
+        {{/each}}
       </div>
     </div>
     <p class="r-note">{{localize "VTM20.Demon.FormNote"}}</p>

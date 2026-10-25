@@ -280,6 +280,18 @@
       "flags": {}
     },
     {
+      "name": "demon-rules",
+      "label": "Правила падших",
+      "path": "packs/demon-rules",
+      "type": "JournalEntry",
+      "system": "vtm20e-kamen-edition",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
+    },
+    {
       "name": "demon-lores",
       "label": "Знания демонов",
       "path": "packs/demon-lores",
@@ -296,6 +308,30 @@
       "label": "Дома и фракции падших",
       "path": "packs/demon-houses",
       "type": "JournalEntry",
+      "system": "vtm20e-kamen-edition",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
+    },
+    {
+      "name": "demon-merits",
+      "label": "Достоинства и недостатки падших",
+      "path": "packs/demon-merits",
+      "type": "Item",
+      "system": "vtm20e-kamen-edition",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
+    },
+    {
+      "name": "demon-backgrounds",
+      "label": "Дополнения падших",
+      "path": "packs/demon-backgrounds",
+      "type": "Item",
       "system": "vtm20e-kamen-edition",
       "ownership": {
         "PLAYER": "OBSERVER",
@@ -353,8 +389,11 @@
       "sorting": "m",
       "color": "#2f3b55",
       "packs": [
+        "demon-rules",
         "demon-lores",
-        "demon-houses"
+        "demon-houses",
+        "demon-merits",
+        "demon-backgrounds"
       ]
     }
   ]

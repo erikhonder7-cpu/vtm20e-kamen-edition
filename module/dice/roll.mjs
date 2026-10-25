@@ -208,6 +208,14 @@ function hintFor(state, ev) {
     if (ev.outcome === "botch") return t("BondX.ResistBotch");
     return ev.successes >= need ? t("BondX.ResistOk", { n: ev.successes, need }) : t("BondX.ResistFail", { n: ev.successes, need });
   }
+  // Мука падшего (Demon: The Fallen, гл. 6): грех — Добродетель против сл. 8; доброе дело — Добродетель против костей Муки
+  if (k === "form") return ev.outcome === "botch" ? t("Demon.FormBotch") : ev.successes > 0 ? t("Demon.FormRolled") : t("Demon.FormFailed");
+  if (k === "sin") return ev.successes > 0 ? t("Demon.SinResisted") : t("Demon.SinFell");
+  if (k === "harvest") return ev.successes > (state.extra?.opposed?.successes ?? 0) ? t("Demon.HarvestWon") : t("Demon.HarvestLost");
+  if (k === "kindness") {
+    const o = state.extra?.opposed?.successes ?? 0;
+    return ev.successes > o ? t("Demon.KindWon") : ev.successes < o ? t("Demon.KindLost") : t("Demon.KindTie");
+  }
   if (k === "magic" || k === "ritual") {
     if (ev.outcome === "botch") return t(`Magic.${k}.botch`);
     if (ev.outcome === "failure") return t(`Magic.${k}.failed`);
@@ -242,7 +250,8 @@ export async function renderCard(state, actor = null) {
     extended: extra.extended ? { ...extra.extended, pct: Math.min(100, Math.round((extra.extended.total / Math.max(1, extra.extended.need)) * 100)) } : null,
     contest: ["resisted", "teamwork"].includes(extra.contest) ? extra.contest : null,
     typeClass: themeClass(actor),
-    torment: extra.tormentDie ? { die: extra.tormentDie, n: extra.torment, high: !!extra.tormentHigh } : null
+    torment: extra.tormentDie ? { die: extra.tormentDie, n: extra.torment, high: !!extra.tormentHigh, chosen: !!extra.tormentChosen } : null,
+    opposed: extra.opposed ? { label: extra.opposed.label, successes: extra.opposed.successes, dice: extra.opposed.values.map(v => dieView(v, 6, false)) } : null
   });
 }
 
@@ -326,6 +335,7 @@ export function onChatCardClick(event) {
   if (action === "huntFrenzy") return foundry.utils.fromUuid(state.actorUuid).then(a => a?.isOwner && import("./virtue-checks.mjs").then(m => m.rollVirtueCheck(a, "frenzy")));
   if (action === "feed") return foundry.utils.fromUuid(state.actorUuid).then(a => import("../apps/night.mjs").then(m => m.feedAfterHunt(a, { animal: state.extra?.method === "animals" })));
   if (action === "loseWill") return onLoseWill(message, state, btn.dataset.permanent === "1");
+  if (action === "chooseHigh") return import("../apps/torment.mjs").then(m => m.chooseHighTorment(message, state));
   if (action === "powerHit") return import("../data/combat-powers.mjs").then(m => m.powerHit(message, state, evaluate(state.values, state)));
 }
 

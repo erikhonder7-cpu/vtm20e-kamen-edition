@@ -404,14 +404,17 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     // Клановые черты и черты секты — только в своих категориях и только своего клана/секты
     const myClan = this.type === "vampire" ? Codex.traitClan(st.clan) : "";
     const mySect = st.sectKey || Codex.sectKey(st.sect);
-    const inCat = (m, cat) => !Codex.visible(m) ? false : cat === "clan" ? !!myClan && m.clan === myClan
+    const line = VTM20.traitLine(this.type);
+    const inCat = (m, cat) => !Codex.visible(m) || (m.line ?? "") !== line ? false : cat === "clan" ? !!myClan && m.clan === myClan
       : cat === "sect" ? !m.clan && !!mySect && m.sect === mySect
       : !m.clan && !m.sect && (cat === "all" || m.category === cat);
     const extra = ["sect", "clan"].filter(k => Codex.merits.some(m => m.kind === this.ui.mfTab && inCat(m, k)));
     if (!["all", ...Object.keys(VTM20.meritCategories), ...extra].includes(this.ui.mfCat)) this.ui.mfCat = "all";
     const catLabel = k => k === "all" ? t("Creator.All") : k === "clan" ? t("Library.Filter.Clan")
       : k === "sect" ? t("Library.Filter.SectTraits") : loc(VTM20.meritCategories[k].label);
-    ctx.mfCats = ["all", ...Object.keys(VTM20.meritCategories), ...extra].map(k => ({ key: k, label: catLabel(k), active: this.ui.mfCat === k }));
+    // только разделы, где у этой линии есть черты (у вампиров нет инфернальных, у демонов — сверхъестественных)
+    const cats = Object.keys(VTM20.meritCategories).filter(k => Codex.merits.some(m => m.kind === this.ui.mfTab && inCat(m, k)));
+    ctx.mfCats = ["all", ...cats, ...extra].map(k => ({ key: k, label: catLabel(k), active: this.ui.mfCat === k }));
     ctx.mfCards = Codex.merits.filter(m => m.kind === this.ui.mfTab && inCat(m, this.ui.mfCat)
       && (!q || m.name.toLowerCase().includes(q) || (m.en ?? "").toLowerCase().includes(q)))
       .map(m => ({ name: m.name, en: m.en, cost: m.cost,
@@ -694,7 +697,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       if (firstPath && v > 0) items.push({ name: firstPath, type: "thaumPath", img: Codex.disciplineIcon(k),
         system: { discipline: k, value: Math.min(5, v), primary: true, description: Codex.bloodPath(k, firstPath)?.html ?? "" } });
     }
-    for (const b of Codex.backgrounds) {
+    for (const b of Codex.backgrounds.filter(b => (b.line ?? "") === VTM20.traitLine(this.type))) {   // одноимённые у демонов — своя линия
       const v = this.value("bg", b.name);
       if (v > 0) items.push({ name: b.name, type: "background", img: backgroundIcon(b.en) ?? icon("background"), system: { value: v, description: b.html, source: b.en } });
     }

@@ -331,6 +331,21 @@ export class VtMActor extends Actor {
     this.#notice(`<i class="fa-solid fa-hand-holding-droplet"></i> ${t("Notify.Healed", { type: game.i18n.localize(VTM20.damageTypes[type].label), n: cost })}`);
   }
 
+  /**
+   * Исцеление Верой (Demon: The Fallen, гл. 7): пункт Веры — все ушибы разом или один уровень летального;
+   * усугублённый урон Верой не лечится.
+   */
+  async faithHeal(type = null) {
+    if (this.type !== "demon") return;
+    const h = this.system.health, f = this.system.faith;
+    type ??= h.bashing > 0 ? "bashing" : h.lethal > 0 ? "lethal" : null;
+    if (!type) { ui.notifications.info(t(h.aggravated > 0 ? "Demon.NoHealAgg" : "Notify.NothingToHeal")); return; }
+    if (f.temporary < 1) { ui.notifications.warn(t("Demon.NoFaith")); return; }
+    await this.update({ "system.faith.temporary": f.temporary - 1 });
+    await this.healDamage(type, type === "bashing" ? h.bashing : 1);
+    this.#notice(`<i class="fa-solid fa-fire-flame-curved"></i> ${t(type === "bashing" ? "Demon.HealedBashing" : "Demon.HealedLethal")}`);
+  }
+
   /** Пул прочности против типа урона (04). */
   soakPool(type, { armor = true, fangs = false, pierce = 0 } = {}) {
     const s = this.system;
@@ -339,7 +354,8 @@ export class VtMActor extends Actor {
     // пробитие брони: столько точек брони не учитывается (V20 Dark Ages, M20 Victorian Age)
     const arm = armor ? Math.max(0, this.armor.rating - pierce) : 0;
     if (type === "bashing") return stamina + fort + arm;
-    const tough = this.isVampire || (this.type === "creature" && s.supernatural);
+    // демон в апокалиптической форме поглощает и летальный урон Выносливостью (Demon: The Fallen, гл. 7)
+    const tough = this.isVampire || (this.type === "creature" && s.supernatural) || (this.type === "demon" && s.apocalyptic);
     if (type === "lethal") return (tough ? stamina : 0) + fort + arm;
     // губительный: только Стойкость; броня — лишь против клыков и когтей;
     // Шкура гадюки — и Выносливость против когтей и клыков (Серпентис 3)
@@ -472,7 +488,7 @@ export class VtMActor extends Actor {
   #notice(html) {
     ChatMessage.create({
       speaker: ChatMessage.getSpeaker({ actor: this }),
-      content: `<div class="r-notice">${html}</div>`,
+      content: `<div class="r-notice r-type-${this.type}">${html}</div>`,
       style: CONST.CHAT_MESSAGE_STYLES.OTHER
     });
   }

@@ -47,6 +47,7 @@
         <a class="r-vc-btn is-sq is-lethal" data-action="setHealth" data-type="lethal" aria-label="{{localize 'VTM20.Damage.lethal'}}">X</a>
         <a class="r-vc-btn is-sq is-aggravated" data-action="setHealth" data-type="aggravated" aria-label="{{localize 'VTM20.Damage.aggravated'}}">✱</a>
       </span>
+      {{#if isDemon}}<a class="r-vc-btn" data-action="faithHeal" data-tooltip="{{localize 'VTM20.Demon.FaithHealHint'}}"><i class="fa-solid fa-fire-flame-curved"></i> {{localize "VTM20.Demon.FaithHeal"}}</a>{{/if}}
       {{#if hasBlood}}<a class="r-vc-btn" data-action="bloodHeal" data-type="aggravated" data-tooltip="{{localize 'VTM20.Sheet.HealAggHint'}}"><i class="fa-solid fa-droplet"></i> {{localize "VTM20.Sheet.HealAggShort"}}</a>{{/if}}
       <span class="r-vc-hint" data-tooltip="{{localize 'VTM20.Sheet.SoakHint'}}"><i class="fa-solid fa-shield-halved"></i> {{soak.bashing}}/{{soak.lethal}}/{{soak.aggravated}}</span>
     </div>
@@ -71,7 +72,7 @@
   {{!-- Мука падшего: постоянная — точками, временная копится клетками (10 клеток — +1 постоянной); Добродетели демона --}}
   <div class="r-vcard r-vc-morality is-torment {{#if tormentHigh}}is-high{{/if}}">
     <div class="r-vc-head">
-      <h4 class="r-banner"><span>{{localize "VTM20.Demon.Torment"}}</span></h4>
+      <h4 class="r-banner" data-tooltip="{{localize 'VTM20.Demon.TormentDieHint'}}"><span>{{localize "VTM20.Demon.Torment"}}</span></h4>
       <div class="r-vc-status"><b>{{system.torment.permanent}}</b>{{#if tormentHigh}} · {{localize "VTM20.Demon.HighTorment"}}{{/if}}</div>
     </div>
     {{> rDots dots=tormentPerm cls="is-ten"}}
@@ -87,7 +88,9 @@
       {{/each}}
     </div>
     <div class="r-vc-tools">
-      <span class="r-vc-hint is-left" data-tooltip="{{localize 'VTM20.Demon.TormentDieHint'}}"><i class="fa-solid fa-dice-d10"></i> {{localize "VTM20.Demon.TormentDie" n=system.torment.permanent}}</span>
+      <a class="r-vc-btn" data-action="tormentSin" data-tooltip="{{localize 'VTM20.Demon.SinHint'}}"><i class="fa-solid fa-skull"></i> {{localize "VTM20.Demon.Sin"}}</a>
+      <a class="r-vc-btn" data-action="tormentKind" data-tooltip="{{localize 'VTM20.Demon.KindHint'}}"><i class="fa-solid fa-hand-holding-heart"></i> {{localize "VTM20.Demon.Kind"}}</a>
+      {{#if editable}}<a class="r-vc-btn is-right" data-action="tormentAtone" data-tooltip="{{localize 'VTM20.Demon.AtoneHint'}}"><i class="fa-solid fa-feather"></i> −1 · 10 {{localize "VTM20.Demon.XpShort"}}</a>{{/if}}
     </div>
   </div>
   {{else}}

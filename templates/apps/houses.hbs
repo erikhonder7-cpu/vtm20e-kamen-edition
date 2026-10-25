@@ -1,0 +1,81 @@
+{{!-- Справочник Домов: слева — Дома или фракции, справа — карточка (разметка справочника кланов). --}}
+<div class="r-cl">
+  <aside class="r-cl-side">
+    <div class="r-cl-groups">
+      {{#each groups}}<a class="{{#if active}}is-active{{/if}}" data-action="group" data-group="{{key}}">{{label}} <b>{{n}}</b></a>{{/each}}
+    </div>
+    <ol class="r-cl-list">
+      {{#each list}}
+      <li class="r-cl-item">
+        <a class="{{#if active}}is-active{{/if}}" data-action="pick" data-key="{{key}}">
+          <span class="r-cl-medal"><i class="fa-solid {{icon}}"></i></span>
+          <span class="r-cl-name">{{name}}{{#if sub}}<em>{{sub}}</em>{{/if}}</span>
+        </a>
+      </li>
+      {{/each}}
+    </ol>
+  </aside>
+
+  {{#if house}}{{#with house}}
+  <article class="r-cl-card">
+    <img class="r-cl-watermark r-hs-watermark" src="systems/vtm20e-kamen-edition/assets/ui/fallen-sigil.svg" alt="">
+    <header class="r-cl-head">
+      <span class="r-cl-bigmedal r-hs-medal"><img src="systems/vtm20e-kamen-edition/assets/ui/fallen-sigil.svg" alt=""></span>
+      <div class="r-cl-titles">
+        <div class="r-cl-kicker">{{localize "VTM20.Demon.House"}} · {{localize "VTM20.Demon.StartTorment"}} {{torment}}</div>
+        <h2>{{name}}</h2>
+        <div class="r-cl-nick">«{{akkadian}}»</div>
+        <div class="r-cl-en">{{en}}</div>
+      </div>
+    </header>
+
+    <section class="r-cl-sec"><p class="r-hs-text">{{text}}</p></section>
+
+    <section class="r-cl-sec">
+      <h3>{{localize "VTM20.Demon.HouseLores"}} <b>{{lores.length}}</b></h3>
+      {{#each lores}}
+      <details class="r-cl-trait"><summary><span>{{name}} <em>{{en}}</em></span><b>с. {{page}}</b></summary>
+        <div class="r-cl-trait-body"><ol class="r-hs-powers">{{#each powers}}<li><span class="r-hs-lvl">{{roman}}</span>{{name}} <em>с. {{page}}</em></li>{{/each}}</ol></div>
+      </details>
+      {{/each}}
+    </section>
+
+    <section class="r-cl-sec">
+      <h3>{{localize "VTM20.Demon.CommonLores"}}</h3>
+      {{#each common}}
+      <details class="r-cl-trait"><summary><span>{{name}} <em>{{en}}</em></span><b>с. {{page}}</b></summary>
+        <div class="r-cl-trait-body"><ol class="r-hs-powers">{{#each powers}}<li><span class="r-hs-lvl">{{roman}}</span>{{name}} <em>с. {{page}}</em></li>{{/each}}</ol></div>
+      </details>
+      {{/each}}
+    </section>
+
+    <section class="r-cl-sec">
+      <h3>{{localize "VTM20.Demon.Visages"}}</h3>
+      <div class="r-hs-visages">
+        {{#each visages}}
+        <div class="r-hs-visage">
+          <b>{{name}}</b> <em>{{lore}}</em>
+          {{#if form}}
+          <div class="r-hs-feats"><span class="r-hs-flab">{{localize "VTM20.Demon.FormLow"}}:</span> {{#each form.low}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}</div>
+          <div class="r-hs-feats is-high"><span class="r-hs-flab">{{localize "VTM20.Demon.FormHigh"}}:</span> {{#each form.high}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}</div>
+          {{/if}}
+        </div>
+        {{/each}}
+      </div>
+    </section>
+  </article>
+  {{/with}}{{/if}}
+
+  {{#if faction}}{{#with faction}}
+  <article class="r-cl-card">
+    <header class="r-cl-head">
+      <span class="r-cl-bigmedal r-hs-medal"><i class="fa-solid fa-flag"></i></span>
+      <div class="r-cl-titles">
+        <div class="r-cl-kicker">{{localize "VTM20.Demon.Faction"}}</div>
+        <h2>{{name}}</h2>
+      </div>
+    </header>
+    <section class="r-cl-sec"><p class="r-hs-text">{{text}}</p></section>
+  </article>
+  {{/with}}{{/if}}
+</div>

@@ -9,6 +9,7 @@
 //   ghoul-merits — «Достоинства и недостатки гулей и ревенантов»: data/merits-ghouls.json (Ghouls & Revenants)
 //   backgrounds  — «Факты биографии»: data/backgrounds.json
 //   derangements — «Психические расстройства»: data/derangements.json
+//   demon-*      — Demon: The Fallen: Знания и Дома (data/demon.json), черты (data/demon-merits.json), Дополнения (data/demon-backgrounds.json)
 //
 // Пишет LevelDB так же, как Foundry: ключи «!items!<id>» и «!folders!<id>». Идентификаторы
 // стабильные (хэш), поэтому пересборка не плодит дубликатов и не ломает ссылки на предметы.
@@ -321,6 +322,33 @@ BUILDERS["demon-houses"] = function () {
     p.addEntry({ name: h.name, html, folder: "Дома", key: `house:${h.key}` });
   }
   for (const f of dm.factions) p.addEntry({ name: f.name, html: `<p>${esc(f.text)}</p>`, folder: "Фракции", key: `faction:${f.key}` });
+  return p;
+};
+
+/** Правила падших (Demon: The Fallen, гл. 6, 7, 9; Earthbound) — своими словами: data/demon-rules.json. */
+BUILDERS["demon-rules"] = function () {
+  const p = new Pack("demon-rules", "JournalEntry");
+  for (const ch of data("demon-rules")) p.addBook({ name: ch.name, pages: ch.pages, key: `demon-rules:${ch.key}` });
+  return p;
+};
+/** Достоинства и недостатки падших (Demon Players Guide): папки «Достоинства — Инфернальные» и т. п. */
+BUILDERS["demon-merits"] = function () {
+  const p = new Pack("demon-merits");
+  const cat = ru.VTM20.MeritCat ?? {};
+  for (const m of data("demon-merits")) {
+    const range = m.max > m.min ? `<p><em>Цена: ${m.cost}</em></p>` : "";
+    const folder = `${m.kind === "merit" ? "Достоинства" : "Недостатки"} — ${cat[m.category] ?? m.category}`;
+    p.add({ name: m.name, type: m.kind, folder, key: `demon:${m.kind}:${m.name}`, img: traitIcon(m.category, m.kind === "flaw"),
+      system: { cost: m.min || 1, category: m.category, clan: "", sect: "", source: m.source, description: `${m.html}${range}<p><em>${m.source}, с. ${m.page}</em></p>` } });
+  }
+  return p;
+};
+/** Дополнения падших (Demon: The Fallen, гл. 6). */
+BUILDERS["demon-backgrounds"] = function () {
+  const p = new Pack("demon-backgrounds");
+  for (const b of data("demon-backgrounds"))
+    p.add({ name: b.name, type: "background", key: `demon:bg:${b.name}`, img: backgroundIcon(b.en) ?? undefined,
+      system: { value: 1, source: b.en, description: `${b.html}<p><em>${b.source}, с. ${b.page}</em></p>` } });
   return p;
 };
 

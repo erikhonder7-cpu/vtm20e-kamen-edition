@@ -26,8 +26,8 @@ export function registerThemes() {
     const isDialog = app instanceof foundry.applications.api.DialogV2;
     if (!element?.classList?.contains("vtm20") && !isDialog) return;
     const type = actorOf(app)?.type ?? (Date.now() - recent.at < FRESH_MS && isDialog ? recent.type : null);
+    if (!type) return;                                   // окно без персонажа — его тема задана им самим (справочник Домов)
     for (const c of [...element.classList]) if (c.startsWith("r-type-") && c !== `r-type-${type}`) element.classList.remove(c);
-    if (!type) return;
     element.classList.add(`r-type-${type}`);
     // щелчок в окне персонажа — его тему получит и подтверждение, которое откроется следом
     if (!element.dataset.rTheme) {

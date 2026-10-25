@@ -39,6 +39,8 @@ import { isSabbat, vinculumMeaning, rollPackVinculi, openVaulderie, loyaltyConfl
 import { coteriesOf, poolValue, openCoterie } from "../apps/coterie.mjs";
 import { itemCardHTML } from "../chat/item-card.mjs";
 import { themeClass } from "../ui/themes.mjs";
+import { openHouses } from "../apps/houses.mjs";
+import { virtuePrompt, atoneWithXp, assumeForm, sceneHighFeature, harvestFaith, pactFaith } from "../apps/torment.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -116,8 +118,16 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       powerToChat: VtMActorSheet.#onPowerToChat,
       rollPower: VtMActorSheet.#onRollPower,
       addLore: VtMActorSheet.#onAddLore,
+      houseAtlas: VtMActorSheet.#onHouseAtlas,
+      tormentSin: VtMActorSheet.#onTormentSin,
+      tormentKind: VtMActorSheet.#onTormentKind,
+      tormentAtone: VtMActorSheet.#onTormentAtone,
       addHouseLores: VtMActorSheet.#onAddHouseLores,
       apocalyptic: VtMActorSheet.#onApocalyptic,
+      sceneHigh: VtMActorSheet.#onSceneHigh,
+      faithHeal: VtMActorSheet.#onFaithHeal,
+      harvestFaith: VtMActorSheet.#onHarvest,
+      pactFaith: VtMActorSheet.#onPactFaith,
       spendFaith: VtMActorSheet.#onSpendFaith,
       pinPower: VtMActorSheet.#onPinPower,
       rollItemPower: VtMActorSheet.#onRollItemPower,
@@ -576,7 +586,8 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const highN = Math.max(0, Math.min(4, s.torment.permanent - 6));
     ctx.form = form ? {
       visage: Codex.house(s.house)?.visages?.[s.visage] ?? "", lore: lore.name, on: !!s.apocalyptic, highN,
-      low: form.low.map(name => ({ name })), high: form.high.map((name, i) => ({ name, on: i < highN }))
+      low: form.low.map(name => ({ name })),
+      high: form.high.map((name, i) => ({ name, index: i, on: i < highN, scene: (a.getFlag(SYSTEM_ID, "formScene") ?? []).includes(i) && i >= highN }))
     } : null;
   }
 
@@ -1058,19 +1069,22 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     if (key) return createLore(a, [key]);
   }
 
+  static #onHouseAtlas() { return openHouses(this.actor.system.house); }
+  static #onTormentSin() { return virtuePrompt(this.actor, "sin"); }
+  static #onTormentKind() { return virtuePrompt(this.actor, "kind"); }
+  static #onTormentAtone() { return atoneWithXp(this.actor); }
+
   static #onAddHouseLores() {
     const a = this.actor, have = new Set(a.items.filter(i => i.type === "lore").map(i => i.system.key));
     return createLore(a, (Codex.house(a.system.house)?.lores ?? []).filter(k => !have.has(k)));
   }
 
   /** Принять апокалиптическую форму — 1 пункт временной Веры (гл. 7); сбросить — даром. */
-  static async #onApocalyptic() {
-    const a = this.actor, s = a.system;
-    if (s.apocalyptic) return a.update({ "system.apocalyptic": false });
-    if (s.faith.temporary < 1) return ui.notifications.warn(t("Demon.NoFaith"));
-    await a.update({ "system.apocalyptic": true, "system.faith.temporary": s.faith.temporary - 1 });
-    ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: a }), content: `<div class="r-notice ${themeClass(a)} is-form"><i class="fa-solid fa-dragon"></i> ${t("Demon.FormTaken", { name: foundry.utils.escapeHTML(a.name), visage: Codex.house(s.house)?.visages?.[s.visage] ?? "" })}</div>` });
-  }
+  static #onApocalyptic() { return assumeForm(this.actor); }
+  static #onSceneHigh(event, target) { return sceneHighFeature(this.actor, Number(target.dataset.index)); }
+  static #onFaithHeal() { return this.actor.faithHeal(); }
+  static #onHarvest() { return harvestFaith(this.actor); }
+  static #onPactFaith() { return pactFaith(this.actor); }
 
   static #onSpendFaith() {
     const s = this.actor.system;

@@ -5,7 +5,7 @@
 
 import { SYSTEM_PATH, SYSTEM_ID } from "../config.mjs";
 
-const FILES = ["disciplines", "clans", "rituals", "paths", "merits", "merits-ghouls", "backgrounds", "archetypes", "assets", "derangements", "combos", "abilities", "demon"];
+const FILES = ["disciplines", "clans", "rituals", "paths", "merits", "merits-ghouls", "backgrounds", "archetypes", "assets", "derangements", "combos", "abilities", "demon", "demon-merits", "demon-backgrounds"];
 
 /** Чей герб показывать линии крови, ветви или антитрибу, если своего нет. */
 const CLAN_SYMBOL_PARENT = {
@@ -60,6 +60,9 @@ export const Codex = {
   _index() {
     // черты гулей и ревенантов (Ghouls & Revenants) — в конце общего списка: номера прежних черт не сдвигаются
     this.merits = [...this.merits, ...(this["merits-ghouls"] ?? []).map(m => ({ ...m, ghoul: true }))];
+    // черты и Дополнения демонов — своей линией (VTM20.traitLine) в самом конце, по той же причине
+    this.merits = [...this.merits, ...(this["demon-merits"] ?? []).map(m => ({ ...m, line: "demon" }))];
+    this.backgrounds = [...this.backgrounds, ...(this["demon-backgrounds"] ?? []).map(b => ({ ...b, line: "demon" }))];
     this.clanByKey = Object.fromEntries(this.clans.map(c => [c.key, c]));
     this.pathByKey = Object.fromEntries(this.paths.map(p => [p.key, p]));
     // демоны (data/demon.json) — свой справочник: Знания не смешиваются с Дисциплинами вампиров

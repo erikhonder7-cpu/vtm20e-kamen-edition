@@ -18,6 +18,9 @@
     {{#if willpower}}<span class="r-die is-will" data-tooltip="{{localize 'VTM20.Roll.WillpowerSuccess'}}"><i class="fa-solid fa-star"></i></span>{{/if}}
     {{#if auto}}<span class="r-die is-will" data-tooltip="{{localize 'VTM20.Roll.AutoSuccess'}}"><i class="fa-solid fa-hand-fist"></i><small>{{auto}}</small></span>{{/if}}
   </div>
+  {{#if opposed}}
+  <div class="r-opposed-tray"><span class="r-opp-label">{{opposed.label}} · <b>{{opposed.successes}}</b></span>{{#each opposed.dice}}<span class="r-die is-torment {{cls}}"><span>{{value}}</span></span>{{/each}}</div>
+  {{/if}}
   {{#if dice.length}}
   <div class="r-card-tally">
     <span class="is-hit" data-tooltip="{{localize 'VTM20.Roll.TallyHits'}}"><i class="fa-solid fa-check"></i> {{ev.hits}}</span>
@@ -31,7 +34,8 @@
   <div class="r-torment-line {{#if torment.high}}is-high{{/if}}">
     <span class="r-die is-torment"><span>{{torment.die}}</span></span>
     <span class="r-tl-text"><b>{{#if torment.high}}{{localize "VTM20.Demon.EffectHigh"}}{{else}}{{localize "VTM20.Demon.EffectNormal"}}{{/if}}</b>
-      <em>{{localize "VTM20.Demon.TormentDieTitle"}} {{torment.die}} · {{localize "VTM20.Demon.Torment"}} {{torment.n}}</em></span>
+      <em>{{#if torment.chosen}}{{localize "VTM20.Demon.ChoseHigh"}}{{else}}{{localize "VTM20.Demon.TormentDieTitle"}} {{torment.die}} · {{localize "VTM20.Demon.Torment"}} {{torment.n}}{{/if}}</em></span>
+    {{#unless torment.high}}<button type="button" class="r-tl-choose" data-r-action="chooseHigh" data-tooltip="{{localize 'VTM20.Demon.ChooseHighHint'}}"><i class="fa-solid fa-fire"></i></button>{{/unless}}
   </div>
   {{/if}}
 
