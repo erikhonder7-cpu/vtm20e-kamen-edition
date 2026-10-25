@@ -7,6 +7,7 @@ import { revenantFamily } from "../data/revenants.mjs";
 import { effectDef, activePowerEffects } from "../data/effects.mjs";
 import { untilFor } from "../apps/timers.mjs";
 import { proposeFate } from "../apps/torpor.mjs";
+import { mobState, applyMobDamage } from "../apps/extras.mjs";
 import { getClock } from "../apps/calendar.mjs";
 
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -282,6 +283,8 @@ export class VtMActor extends Actor {
   async applyDamage(amount, type = "bashing") {
     amount = Math.max(0, Math.floor(amount));
     if (!amount) return;
+    // толпа (apps/extras.mjs): общая шкала, по 3 уровня на человека
+    if (mobState(this)) return applyMobDamage(this, amount, type);
     const src = this._source.system.health;
     const h = { bashing: src.bashing, lethal: src.lethal, aggravated: src.aggravated };
     const wasFull = h.bashing + h.lethal + h.aggravated >= 7;

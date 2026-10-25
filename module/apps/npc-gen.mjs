@@ -29,6 +29,7 @@ const esc = s => foundry.utils.escapeHTML(String(s ?? ""));
 const shuffle = list => { const a = [...list]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const ICON = type => `systems/${SYSTEM_ID}/assets/icons/${type}.svg`;
 import { weaponIcon, armorIcon, traitIcon, backgroundIcon } from "../data/icons.mjs";
+import { makeExtra } from "./extras.mjs";
 const COMMON_DISCIPLINES = ["animalism", "auspex", "celerity", "dominate", "fortitude", "obfuscate", "potence", "presence"];
 
 let DATA = null;
@@ -201,7 +202,7 @@ const RULE_TEMPLATES = [
 export class NpcGenerator extends HandlebarsApplicationMixin(ApplicationV2) {
   constructor(options = {}) {
     super(options);
-    this.ng = { template: "", count: 1, names: "fr", gender: "", name: "", open: true, trained: false, ghoul: false,
+    this.ng = { template: "", count: 1, as: "sheet", names: "fr", gender: "", name: "", open: true, trained: false, ghoul: false,
       clan: "brujah", generation: 13, extra: [], search: "" };
   }
 
@@ -303,7 +304,7 @@ export class NpcGenerator extends HandlebarsApplicationMixin(ApplicationV2) {
 
   static #onForm(event, form, formData) {
     const o = formData.object;
-    for (const k of ["names", "gender", "name", "clan"]) if (o[k] !== undefined) this.ng[k] = String(o[k]);
+    for (const k of ["names", "gender", "name", "clan", "as"]) if (o[k] !== undefined) this.ng[k] = String(o[k]);
     if (o.generation !== undefined) this.ng.generation = Number(o.generation) || 13;
     if (o.count !== undefined) this.ng.count = Math.clamp(Number(o.count) || 1, 1, 10);
     if (o.open !== undefined) this.ng.open = !!o.open;
@@ -339,7 +340,9 @@ export class NpcGenerator extends HandlebarsApplicationMixin(ApplicationV2) {
     }).filter(Boolean);
     const beast = tpl && ["animals", "swarms"].includes(tpl.group);
     const made = [];
-    for (let i = 0; i < this.ng.count; i++) {
+    // толпа (план 4): один актёр на всех, численность — «Сколько»; статист — короткий лист у каждого
+    const mob = this.ng.as === "mob" && this.ng.count > 1, times = mob ? 1 : this.ng.count;
+    for (let i = 0; i < times; i++) {
       const typed = i === 0 && this.ng.name.trim();
       const name = typed || (beast ? (this.ng.count > 1 ? `${tpl.name} ${i + 1}` : tpl.name) : randomName(DATA.names[this.ng.names], this.ng.gender));
       const o = { name, folder: folder.id };
@@ -348,6 +351,8 @@ export class NpcGenerator extends HandlebarsApplicationMixin(ApplicationV2) {
       else if (rule === "ghoul") actor = await createRuleGhoul({ ...o, clan: this.ng.clan });
       else actor = await createFromTemplate(tpl, { ...o, trained: this.ng.trained, ghoul: this.ng.ghoul && tpl.group === "animals", gear });
       if (rule && gear.length) await actor.createEmbeddedDocuments("Item", gear);
+      if (mob) await actor.update({ name: typed || tpl?.name || actor.name });
+      if (mob || this.ng.as === "extra") await makeExtra(actor, { mob: mob ? this.ng.count : 0 });
       made.push(actor);
     }
     ui.notifications.info(L("Done", { n: made.length, name: tpl?.name ?? L(rule === "vampire" ? "RuleVampire" : "RuleGhoul") }));

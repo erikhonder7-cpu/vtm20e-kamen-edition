@@ -375,3 +375,12 @@
 #r-citymap .rc-chars li.is-off:hover img { filter: none; border-color: var(--c-bone-2); }
 #r-citymap .rc-chars li.is-off:active { cursor: grabbing; }
 #r-citymap .rc-sub small { margin-left: auto; font-size: 9.5px; letter-spacing: 1px; text-transform: none; font-family: var(--c-font-body); font-style: italic; color: var(--c-dim); }
+
+/* Инструмент «Угодья» (план 8): выбор вида угодий прямо в подсказке */
+#r-citymap .rc-hintbar.rc-groundbar { pointer-events: all; flex-wrap: wrap; max-width: 720px; }
+#r-citymap .rc-groundpick { display: flex; flex-wrap: wrap; gap: 4px; }
+#r-citymap .rc-groundpick a { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px; border: 1px solid var(--c-line-2); cursor: pointer; color: var(--c-muted); font-size: 12px; }
+#r-citymap .rc-groundpick a i { display: block; width: 10px; height: 10px; background: var(--g); }
+#r-citymap .rc-groundpick a b { font-weight: 400; color: var(--c-bone-2); }
+#r-citymap .rc-groundpick a:hover { color: var(--c-bone-b); }
+#r-citymap .rc-groundpick a.on { color: var(--c-bone-b); border-color: var(--g); background: rgba(0, 0, 0, .45); box-shadow: inset 0 -2px 0 var(--g); }

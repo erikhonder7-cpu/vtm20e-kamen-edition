@@ -30,6 +30,7 @@ import { moneyView, openMoney } from "../data/money.mjs";
 import { POWER_EFFECTS, MODE_LABEL } from "../data/effects.mjs";
 import { effectTimer, readingRituals, toggleRitualReading, cancelRitual } from "../apps/timers.mjs";
 import { torporView, deathOf, enterTorpor, wakeFromTorpor, undoDeath } from "../apps/torpor.mjs";
+import { makeExtra } from "../apps/extras.mjs";
 import { MERIT_MODS, describeMeritMod } from "../data/merit-mods.mjs";
 import { weaponIcon as weaponImg, armorIcon as armorImg } from "../data/icons.mjs";
 import { togglePowerEffect } from "../apps/power-effects.mjs";
@@ -89,6 +90,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       togglePower: VtMActorSheet.#onTogglePower,
       endPower: VtMActorSheet.#onEndPower,
       readRitual: VtMActorSheet.#onReadRitual,
+      makeExtra: VtMActorSheet.#onMakeExtra,
       torporEnter: VtMActorSheet.#onTorporEnter,
       torporWake: VtMActorSheet.#onTorporWake,
       torporWakeBlood: VtMActorSheet.#onTorporWakeBlood,
@@ -651,6 +653,14 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   }
 
   /* ── Рендер ─────────────────────────────────────────────────────────── */
+
+  /** Ведущему в шапке листа — «Сделать статистом» (план 4): короткий лист с готовыми пулами. */
+  _getHeaderControls() {
+    const controls = super._getHeaderControls();
+    if (game.user.isGM) controls.push({ icon: "fa-solid fa-user-shield", label: "VTM20.Extra.MakeExtra", action: "makeExtra" });
+    return controls;
+  }
+  static #onMakeExtra() { return makeExtra(this.actor); }
 
   _onRender(context, options) {
     super._onRender(context, options);

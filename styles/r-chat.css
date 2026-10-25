@@ -141,6 +141,9 @@
 }
 .vtm20 .r-diff:hover { border-color: var(--r-ink-2); color: var(--r-ink); }
 .vtm20 .r-diff.is-active { color: #f1e9da; background: #8c1c22; border-color: #b83a3f; }
+.vtm20 .r-diff.is-base { color: var(--r-ink); border: 1px dashed #c4474c; }
+.vtm20 .r-diff-why { margin: -4px 0 2px; padding-left: 2px; font-size: 12.5px; font-style: italic; color: var(--r-muted); }
+.vtm20 .r-diff-why b { font-weight: 400; font-style: normal; color: var(--r-accent); }
 .vtm20 .r-roll-checks { display: grid; grid-template-columns: 1fr; gap: 5px; padding: 8px 10px; border: 1px solid var(--r-line); background: var(--r-s1); }
 .vtm20 .r-roll-total { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-top: 8px; border-top: 1px solid var(--r-line-2); }
 .vtm20 .r-roll-breakdown { display: flex; flex-wrap: wrap; gap: 2px 8px; font-size: 12px; color: var(--r-muted); }

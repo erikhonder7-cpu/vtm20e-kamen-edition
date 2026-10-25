@@ -11,6 +11,7 @@ import { VTM20, SYSTEM_PATH, SYSTEM_ID } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
 import { rollPool, odds, chancesView } from "../dice/roll.mjs";
 import { RollDialog } from "../dice/dialog.mjs";
+import { mobBonus } from "../apps/extras.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -152,6 +153,7 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const attackAuto = v.physical ? a.physicalAuto(c.attr) : 0;
     add(t("Combat.Accuracy"), c.dice);
     add(t(`Combat.Pos.${v.position}`), { front: 0, flank: 1, rear: 2 }[v.position]);
+    add(t("Extra.MobBonus"), mobBonus(a));                 // толпа: +1 за каждого на ногах сверх первого (apps/extras.mjs)
     if (v.target === "held") add(t("Combat.Target.held"), 2);
     add(t("Roll.Modifier"), v.bonus);
     if (v.wounds) add(t("Roll.Wounds"), a.system.health.penalty);

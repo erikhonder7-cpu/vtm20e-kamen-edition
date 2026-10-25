@@ -23,6 +23,10 @@
       <label class="r-ng-field"><span>{{localize "VTM20.NpcGen.Names"}}</span><select name="names">{{selectOptions nameSets valueAttr="value" labelAttr="label"}}</select></label>
       <label class="r-ng-field"><span>{{localize "VTM20.NpcGen.Gender"}}</span><select name="gender">{{selectOptions genders valueAttr="value" labelAttr="label"}}</select></label>
       <label class="r-ng-field r-ng-count"><span>{{localize "VTM20.NpcGen.Count"}}</span><input type="number" name="count" value="{{s.count}}" min="1" max="10"></label>
+      <label class="r-ng-field r-ng-as" data-tooltip="{{localize 'VTM20.Extra.AsHint'}}"><span>{{localize "VTM20.Extra.As"}}</span><select name="as">
+        <option value="sheet" {{#if (rEq s.as "sheet")}}selected{{/if}}>{{localize "VTM20.Extra.AsSheet"}}</option>
+        <option value="extra" {{#if (rEq s.as "extra")}}selected{{/if}}>{{localize "VTM20.Extra.AsExtra"}}</option>
+        <option value="mob" {{#if (rEq s.as "mob")}}selected{{/if}}>{{localize "VTM20.Extra.AsMob"}}</option></select></label>
     </div>
 
     <div class="r-ng-preview">

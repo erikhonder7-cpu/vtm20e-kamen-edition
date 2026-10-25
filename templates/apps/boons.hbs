@@ -9,6 +9,7 @@
   <nav class="r-bn-levels">
     {{#each levels}}<a class="r-bn-lv is-w{{@index}} {{#if active}}is-active{{/if}}" data-action="level" data-level="{{key}}" data-tooltip="{{localize 'VTM20.Boon.OpenOfLevel'}}">{{label}}{{#if n}} <b>{{n}}</b>{{/if}}</a>{{/each}}
   </nav>
+  <div class="r-bn-body">
   <ol class="r-bn-list">
     {{#each rows}}
     <li class="r-bn-row {{#if done}}is-done{{/if}}" data-text="{{text}}">
@@ -20,4 +21,20 @@
     {{/each}}
     <li class="r-bn-none" hidden>{{#if empty}}{{localize "VTM20.Boon.LedgerEmpty"}}{{else}}{{localize "VTM20.Boon.Nothing"}}{{/if}}</li>
   </ol>
+  {{!-- Баланс (В4): счётчики сверху, ниже — кто сколько должен по открытым услугам; ромб за каждую ступень веса --}}
+  <aside class="r-bn-sum">
+    <div class="r-bn-asgs">
+      <div class="r-assignat"><div class="r-assignat-head"><span class="r-assignat-title">{{localize "VTM20.Boon.State.open"}}</span><span class="r-assignat-num"><b>{{openN}}</b></span></div></div>
+      <div class="r-assignat"><div class="r-assignat-head"><span class="r-assignat-title">{{localize "VTM20.Boon.State.done"}}</span><span class="r-assignat-num"><b>{{doneN}}</b></span></div></div>
+    </div>
+    <h3 class="r-h3 r-colhead"><span>{{localize "VTM20.Boon.Balance"}}</span></h3>
+    {{#each balance}}
+    <div class="r-bn-bal">
+      <b>{{name}}</b>
+      {{#if owes}}<span class="r-bn-bal-row"><span>{{localize "VTM20.Boon.Owes"}}</span><span class="r-leader"></span><i class="is-owe" data-tooltip="{{owesTip}}">{{owes}}</i></span>{{/if}}
+      {{#if owed}}<span class="r-bn-bal-row"><span>{{localize "VTM20.Boon.OwedTo"}}</span><span class="r-leader"></span><i class="is-owed" data-tooltip="{{owedTip}}">{{owed}}</i></span>{{/if}}
+    </div>
+    {{else}}<p class="r-empty">{{localize "VTM20.Boon.NoBalance"}}</p>{{/each}}
+  </aside>
+  </div>
 </div>

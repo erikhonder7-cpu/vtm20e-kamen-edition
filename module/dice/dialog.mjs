@@ -152,7 +152,11 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       v, ...c, chances, shownPool: pool,
       groups1: mark(groups1, v.trait1), groups2: mark(groups2, v.trait2),
       lockTraits: !!this.cfg.lockTraits, fixedPool: this.cfg.pool != null, locked: this.#locked(v),
-      difficulties: [3, 4, 5, 6, 7, 8, 9, 10].map(n => ({ n, active: n === v.difficulty })),
+      // одна шкала (В2): пунктир — выбранная сложность, заливка — итог с поправками от сил и черт
+      difficulties: [...new Set([3, 4, 5, 6, 7, 8, 9, 10, v.difficulty, c.effDifficulty])].sort((x, y) => x - y)
+        .map(n => ({ n, active: n === c.effDifficulty, base: n === v.difficulty && n !== c.effDifficulty })),
+      diffWhy: c.effDifficulty === v.difficulty ? null
+        : [...c.diffAuto.filter(d => !d.dice), ...c.diffSit.filter(d => d.on && !d.dice)].map(d => ({ label: d.label, value: d.value })),
       woundPenalty: this.actor.system.health.penalty,
       contests: this.cfg.onRolled ? [] : ["simple", "extended", "resisted", "teamwork"].map(k => ({ value: k, label: t(`Contest.Mode.${k}`), selected: k === v.contest })),
       isExtended: v.contest === "extended",

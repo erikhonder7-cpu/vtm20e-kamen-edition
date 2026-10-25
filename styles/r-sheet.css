@@ -1073,3 +1073,17 @@ body.r-theme-light .vtm20 .r-motto { color: rgba(140, 28, 34, .75); }
 .application.vtm20.is-torpor .r-power-roll, .application.vtm20.is-torpor .r-trait-roll { opacity: .35; pointer-events: none; }
 .application.vtm20.is-dead .window-content { filter: grayscale(.85); }
 .application.vtm20.is-dead .r-fate-plate.is-dead { filter: none; }
+
+/* Оружие строками (В3) */
+.vtm20 .r-wpn-list { display: flex; flex-direction: column; }
+.vtm20 .r-wpn-row { padding: 3px 6px; border-bottom: 1px dotted var(--r-line); }
+.vtm20 .r-wpn-row .r-trait-main { gap: 10px; min-height: 34px; }
+.vtm20 .r-wpn-row .r-attack { flex: 0 0 auto; }
+.vtm20 .r-wpn-name { display: flex; flex-direction: column; min-width: 0; line-height: 1.15; }
+.vtm20 .r-wpn-name .r-trait-label { font-family: var(--r-display); font-size: 15px; cursor: pointer; }
+.vtm20 .r-wpn-name small { font-size: 11.5px; font-style: italic; color: var(--r-muted); }
+.vtm20 .r-wpn-meta { flex: 0 0 auto; font-family: var(--r-caps); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--r-muted); white-space: nowrap; }
+.vtm20 .r-wpn-meta b { font-family: var(--r-display); font-weight: 400; font-size: 14px; letter-spacing: 0; color: var(--r-ink); }
+.vtm20 .r-wpn-row .r-dmg-chip { flex: 0 0 auto; white-space: nowrap; }
+.vtm20 .r-wpn-row .r-td-tools { flex: 0 0 auto; display: inline-flex; gap: 2px; }
+.vtm20 .r-wpn-row.is-off { opacity: .55; }

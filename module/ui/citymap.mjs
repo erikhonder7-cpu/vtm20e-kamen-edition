@@ -30,6 +30,7 @@ import {
   whereIs, cityFlag, placeActor, leaderOf, followersOf, groupOf, joinGroup, leaveGroup, mapVisible, isHiddenOnMap, meters
 } from "./citychars.mjs";
 import { plateHTML, paintPlate } from "./night-plate.mjs";
+import { HUNTING_GROUNDS, openHunt } from "../apps/night.mjs";
 
 /**
  * Расширения карты (модули): свои стили карты, готовые города, слои, кнопки, режимы щелчка, виды объектов в инспекторе,
@@ -460,6 +461,7 @@ const pins = new Map();     // id → { marker, sig }
 let tool = "select";        // select | marker | zone
 let picked = null;          // { kind: "marker"|"poi"|"zone"|"found", id }
 let draft = [];             // вершины новой зоны [lat, lng]
+let drawGround = "slums";   // какие угодья чертит инструмент «Угодья»
 let search = "", found = [];
 let busy = false, saveTimer = null, echo = null;
 let state = null;           // данные мира (все города)
@@ -474,6 +476,35 @@ let placing = null;         // актёр, которого ставят на к
 let raf = null, lastLabels = 0;
 let menuFolder = null;      // папка, у которой раскрыто меню «⋯»
 const T = (k, d) => L(`Travel.${k}`, d);
+
+/* ── Охота от карты (план 8): угодья у зоны, слой «Угодья», «Охотиться здесь» ─────────── */
+
+/** Цвет угодий на слое «Угодья»: от трущоб (кроваво-красный) к охраняемому кварталу (синий). */
+const GROUND_COLORS = { slums: "#9e1f24", poor: "#7a3a6e", business: "#c9a46a", industrial: "#7d6a45", suburb: "#4f6e55", guarded: "#2f3b55" };
+const groundLabel = k => game.i18n.localize(`VTM20.Hunt.Ground.${k}`);
+
+/** Точка внутри многоугольника зоны (points — [широта, долгота]). */
+function inZone(z, lat, lng) {
+  let inside = false;
+  for (let i = 0, j = z.points.length - 1; i < z.points.length; j = i++) {
+    const [ai, bi] = z.points[i], [aj, bj] = z.points[j];
+    if ((bi > lng) !== (bj > lng) && lat < (aj - ai) * (lng - bi) / (bj - bi) + ai) inside = !inside;
+  }
+  return inside;
+}
+/** Зона с угодьями, в которой стоит персонаж (самая маленькая из подходящих не нужна — первая по списку). */
+const huntZoneOf = a => { const w = whereIs(a); return w ? city().zones.find(z => z.grounds && (game.user.isGM || !z.gmOnly) && inZone(z, w.lat, w.lng)) : null; };
+/** Место для окна охоты: название, угодья и хозяин домена (поле «Владелец» зоны — имя персонажа). */
+function huntPlace(z) {
+  const owner = String(z.owner ?? "").trim(), who = owner ? game.actors.find(x => x.name.trim().toLowerCase() === owner.toLowerCase()) : null;
+  return { name: z.name || L("Zone"), ground: z.grounds, owner: owner ? { id: who?.id ?? null, name: who?.name ?? owner } : null };
+}
+/** Кто охотится из карточки зоны: свой персонаж игрока; ведущему — выделенный жетон. */
+function hunter() {
+  const ok = a => a?.hasBlood && a.isOwner;
+  if (game.user.isGM) return canvas?.tokens?.controlled?.map(t => t.actor).find(ok) ?? null;
+  return [game.user.character, ...game.actors.filter(a => a.isOwner)].find(ok) ?? null;
+}
 
 const view = () => {
   const v = foundry.utils.mergeObject({ style: defaultStyle(), lang: "ru", hidden: {}, open: {} }, game.settings.get(SYSTEM_ID, "cityView") ?? {}, { inplace: false });
@@ -757,6 +788,7 @@ function charCard(a) {
     </header>
     <div class="rc-ibtns">
       ${btn("flyChar", "fa-crosshairs", T("Find"))}
+      ${a.hasBlood && a.isOwner && huntZoneOf(a) ? btn("huntHere", "fa-moon", T("HuntHere"), T("HuntHereHint", { zone: huntZoneOf(a).name || groundLabel(huntZoneOf(a).grounds) })) : ""}
       ${a.testUserPermission(game.user, "OBSERVER") ? btn("sheet", "fa-id-card", T("Sheet")) : ""}
       ${game.user.isGM ? (isHiddenOnMap(a) ? btn("toggleHidden", "fa-eye", T("Show"), T("ShowHint"), "is-warn") : btn("toggleHidden", "fa-eye-slash", T("Hide"), T("HideHint"))) : ""}
       ${canManage(a) ? btn("unplace", "fa-trash", T("Unplace"), "", "rc-danger") : ""}
@@ -970,8 +1002,8 @@ async function ensureMap(root) {
   map.on("style.load", addOverlay);
   map.on("click", onMapClick);
   map.on("zoomend", () => spreadChars());
-  map.on("dblclick", ev => { if (tool === "zone" && draft.length > 2) { ev.preventDefault(); finishZone(); } });
-  map.on("mousemove", ev => { if (tool === "zone" && draft.length) drawDraft(ev.lngLat); });
+  map.on("dblclick", ev => { if (isDrawing() && draft.length > 2) { ev.preventDefault(); finishZone(); } });
+  map.on("mousemove", ev => { if (isDrawing() && draft.length) drawDraft(ev.lngLat); });
   map.on("mouseenter", "rc-poi", () => { map.getCanvas().style.cursor = "pointer"; });
   map.on("mouseleave", "rc-poi", () => { map.getCanvas().style.cursor = ""; });
   map.on("mousemove", "rc-poi", poiTip);
@@ -1171,16 +1203,21 @@ function drawOverlay() {
   const zones = city().zones.filter(z => game.user.isGM || !z.gmOnly);
   const sel = picked?.kind === "zone" ? picked.id : null;
   map.getSource("rc-zones").setData({ type: "FeatureCollection", features: zones.map(z => ({
-    type: "Feature", properties: { id: z.id, color: z.color || "#b0404c", sel: z.id === sel, gm: !!z.gmOnly },
+    type: "Feature", properties: { id: z.id, color: zoneColor(z), sel: z.id === sel, gm: !!z.gmOnly },
     geometry: { type: "Polygon", coordinates: [[...z.points, z.points[0]].map(([la, ln]) => [ln, la])] } })) });
-  map.getSource("rc-zone-labels").setData({ type: "FeatureCollection", features: zones.filter(z => z.name).map(z => {
+  const hunt = !!view().hunt;
+  map.getSource("rc-zone-labels").setData({ type: "FeatureCollection", features: zones.filter(z => z.name || (hunt && z.grounds)).map(z => {
     const [la, ln] = centroid(z.points);
-    return { type: "Feature", properties: { name: z.name, color: z.color || "#b0404c" }, geometry: { type: "Point", coordinates: [ln, la] } };
+    const name = hunt && z.grounds ? `${z.name || groundLabel(z.grounds)} · ${HUNTING_GROUNDS[z.grounds]}` : z.name;
+    return { type: "Feature", properties: { name, color: zoneColor(z) }, geometry: { type: "Point", coordinates: [ln, la] } };
   }) });
   for (const o of EXT.overlays) o.draw?.(api);
   drawPins();
   drawChars();
 }
+
+/** Цвет зоны: на слое «Угодья» — по угодьям, иначе свой. */
+const zoneColor = z => (view().hunt && z.grounds && GROUND_COLORS[z.grounds]) || z.color || "#b0404c";
 
 const centroid = pts => pts.reduce(([a, b], [x, y]) => [a + x / pts.length, b + y / pts.length], [0, 0]);
 
@@ -1264,7 +1301,7 @@ function onMapClick(ev) {
   if (tool === "marker") return addMarker(ll.lat, ll.lng);
   const tm = EXT.toolModes.find(t => t.id === tool);
   if (tm) return tm.click(ll, api);
-  if (tool === "zone") {
+  if (isDrawing()) {
     if (!game.user.isGM) return;
     const last = draft.at(-1);
     if (!last || Math.abs(last[0] - ll.lat) + Math.abs(last[1] - ll.lng) > 1e-7) draft.push([ll.lat, ll.lng]);
@@ -1289,11 +1326,16 @@ function addMarker(lat, lng, name = "") {
   pick("marker", m.id);
 }
 
+/** Чертим многоугольник: обычная зона или угодья (инструмент «Угодья» сразу ставит вид угодий и их цвет). */
+const isDrawing = () => tool === "zone" || tool === "grounds";
+
 function finishZone() {
-  const z = { id: uid(), name: "", color: "#b0404c", owner: "", text: "", gmOnly: false, points: draft };
+  const g = tool === "grounds" ? drawGround : "";
+  const z = { id: uid(), name: g ? groundLabel(g) : "", color: g ? GROUND_COLORS[g] : "#b0404c", owner: "", text: "", gmOnly: false, points: draft, ...(g ? { grounds: g } : {}) };
   city().zones.push(z);
   draft = []; drawDraft();
-  tool = "select"; drawTools();
+  // угодья чертят подряд: инструмент остаётся, зона выбрана — справа можно вписать хозяина домена
+  if (!g) { tool = "select"; drawTools(); }
   save({ own: false });
   pick("zone", z.id);
 }
@@ -1381,10 +1423,10 @@ function drawTools() {
   const group = (cap, inner, cls = "", attrs = "") => inner.trim() ? `<div class="rc-tgroup">
       <div class="rc-toolset ${cls}" ${attrs}>${inner}</div><small>${esc(L(`Group.${cap}`))}</small></div>` : "";
   box.innerHTML = `
-    ${group("Tools", `${btn("select", "fa-arrow-pointer", "ToolSelect")}${btn("marker", "fa-location-dot", "ToolMarker")}${btn("zone", "fa-draw-polygon", "ToolZone", true)}${EXT.toolModes.filter(t => !t.when || t.when()).map(t => btn(t.id, t.icon, t.tip, t.gm)).join("")}`)}
+    ${group("Tools", `${btn("select", "fa-arrow-pointer", "ToolSelect")}${btn("marker", "fa-location-dot", "ToolMarker")}${btn("zone", "fa-draw-polygon", "ToolZone", true)}${btn("grounds", "fa-paw", "ToolGrounds", true)}${EXT.toolModes.filter(t => !t.when || t.when()).map(t => btn(t.id, t.icon, t.tip, t.gm)).join("")}`)}
     ${group("Era", eraStyles().map(k => `<a class="${v.style === k ? "on" : ""}" data-act="style" data-style="${k}">${esc(styleExt(k)?.label ?? L(`Style.${k}`))}</a>`).join(""), "rc-textset")}
     ${group("Lang", eraLangs().map(k => `<a class="${v.lang === k ? "on" : ""}" data-act="lang" data-lang="${k}">${esc(L(`Lang.${k}`))}</a>`).join(""), "rc-textset", `data-tooltip="${esc(L("LangHint"))}"`)}
-    ${group("Layers", `${metros[city().preset] ? `<a class="${v.metro ? "on" : ""}" data-act="metro" data-tooltip="${esc(L("MetroToggle"))}"><i class="fa-solid fa-train-subway"></i></a>` : ""}${EXT.tools.map(t => t(api)).join("")}`)}
+    ${group("Layers", `<a class="${v.hunt ? "on" : ""}" data-act="huntLayer" data-tooltip="${esc(L("HuntLayer"))}"><i class="fa-solid fa-layer-group"></i></a>${metros[city().preset] ? `<a class="${v.metro ? "on" : ""}" data-act="metro" data-tooltip="${esc(L("MetroToggle"))}"><i class="fa-solid fa-train-subway"></i></a>` : ""}${EXT.tools.map(t => t(api)).join("")}`)}
     ${group("View", `${styleExt(v.style) ? "" : `<a data-act="tilt" data-tooltip="${esc(L("Tilt"))}"><i class="fa-solid fa-cube"></i></a>`}<a data-act="goHome" data-tooltip="${esc(L("GoHome"))}"><i class="fa-solid fa-house"></i></a>`)}
     ${hint()}`;
   syncAim();
@@ -1395,6 +1437,10 @@ function hint() {
   const bar = (icon, text) => `<div class="rc-hintbar"><i class="fa-solid ${icon}"></i> ${esc(text)} <kbd>Esc</kbd></div>`;
   if (placing) return bar("fa-location-crosshairs", T("PlaceHint", { name: game.actors.get(placing)?.name ?? "" }));
   if (tool === "zone") return bar("fa-draw-polygon", L("ZoneHint"));
+  // угодья: какие чертим — выбором прямо в подсказке
+  if (tool === "grounds") return `<div class="rc-hintbar rc-groundbar"><i class="fa-solid fa-paw"></i> ${esc(L("GroundsHint"))}
+    <span class="rc-groundpick">${Object.entries(HUNTING_GROUNDS).map(([k, d]) => `<a class="${k === drawGround ? "on" : ""}" data-act="drawGround" data-ground="${k}" style="--g:${GROUND_COLORS[k]}"><i></i>${esc(groundLabel(k))} <b>${d}</b></a>`).join("")}</span>
+    <kbd>Esc</kbd></div>`;
   if (tool === "marker") return bar("fa-location-dot", L("MarkerHint"));
   const tm = EXT.toolModes.find(t => t.id === tool);
   if (tm?.hint) return bar(tm.icon, tm.hint());
@@ -1585,7 +1631,8 @@ function editor(it) {
       <input data-field="name" value="${esc(isPoi && !city().overrides[it.id]?.name ? "" : it.name)}" placeholder="${esc(isPoi ? it.auto : L(isZone ? "ZoneName" : "MarkerName"))}" ${ro}>
       <a data-act="unpick" data-tooltip="${esc(L("Close"))}"><i class="fa-solid fa-xmark"></i></a></div>
     ${facts || wiki ? `<p class="rc-facts">${facts}${wiki ? `${facts ? " · " : ""}<a href="${esc(wiki)}" target="_blank" rel="noopener">${esc(L(it.wiki ? "Wiki" : "Wikidata"))}</a>` : ""}</p>` : ""}
-    ${isZone ? `<label>${esc(L("Owner"))}<input data-field="owner" value="${esc(it.owner)}" ${ro}></label>`
+    ${isZone ? `<label>${esc(L("Owner"))}<input data-field="owner" value="${esc(it.owner)}" placeholder="${esc(L("OwnerHint"))}" ${ro}></label>
+      <label>${esc(L("Grounds"))}<select data-field="grounds" ${ro}><option value="">${esc(L("GroundsNone"))}</option>${Object.entries(HUNTING_GROUNDS).map(([k, d]) => opt(k, it.grounds, `${groundLabel(k)} · ${d}`)).join("")}</select></label>`
       : `<label>${esc(L("Category"))}<select data-field="cat" ${ro}>${cats}</select></label>
       ${!isPoi && game.user.isGM && !it.mine ? `<label>${esc(L("Folder"))}<select data-field="folder">${ownFolders}</select></label>` : ""}`}
     ${isPoi ? "" : `<label class="rc-row">${esc(L("Color"))}<input type="color" data-field="color" value="${esc(color)}" ${ro}></label>`}
@@ -1594,6 +1641,7 @@ function editor(it) {
     <label>${esc(L("Journal"))}<select data-field="journalId" ${ro}>${journals}</select></label>
     ${game.user.isGM && !it.mine ? `<label class="rc-row rc-check"><input type="checkbox" data-field="gmOnly" ${it.gmOnly ? "checked" : ""}> ${esc(L("GmOnly"))}</label>` : ""}
     <div class="rc-edit-acts">
+      ${isZone && it.grounds ? `<a class="r-btn" data-act="huntZone" data-tooltip="${esc(L("HuntZoneHint"))}"><i class="fa-solid fa-moon"></i> ${esc(L("HuntZone"))}</a>` : ""}
       ${it.sceneId ? `<a class="r-btn" data-act="openScene"><i class="fa-solid fa-map"></i> ${esc(L("OpenScene"))}</a>` : ""}
       ${it.journalId ? `<a class="r-btn" data-act="openJournal"><i class="fa-solid fa-book-open"></i> ${esc(L("OpenJournal"))}</a>` : ""}
       ${game.user.isGM ? `<a class="r-btn" data-act="ping" data-tooltip="${esc(L("PingHint"))}"><i class="fa-solid fa-bullseye"></i> ${esc(L("Ping"))}</a>` : ""}
@@ -1694,7 +1742,11 @@ async function act(name, el) {
   const fid = el.dataset.folder;
   const folder = fid ? folders().find(f => f.id === fid) : null;
   switch (name) {
-    case "tool": tool = el.dataset.tool; draft = []; drawDraft(); drawTools(); drawPins(); break;
+    case "tool":
+      tool = el.dataset.tool; draft = []; drawDraft();
+      if (tool === "grounds" && !view().hunt) { await setView({ hunt: true }); drawOverlay(); }   // угодья видны в своих цветах
+      drawTools(); drawPins(); break;
+    case "drawGround": drawGround = el.dataset.ground; drawTools(); break;
     case "style": await setView({ style: el.dataset.style }); drawTools(); setStyle(); break;
     case "lang": await setView({ lang: el.dataset.lang }); drawTools(); setStyle(); drawBody(); break;
     case "metro": {
@@ -1783,6 +1835,14 @@ async function act(name, el) {
       fly(w.lat, w.lng, Math.min(map.getZoom(), 15));
       break;
     }
+    case "huntLayer": await setView({ hunt: !view().hunt }); drawTools(); drawOverlay(); break;
+    case "huntZone": {
+      const z = picked?.kind === "zone" ? findPicked() : null, a = hunter();
+      if (!z?.grounds) break;
+      if (!a) { ui.notifications.warn(L("HuntWho")); break; }
+      openHunt(a, huntPlace(z)); break;
+    }
+    case "huntHere": { const a = game.actors.get(picked?.id), z = a && huntZoneOf(a); if (z) openHunt(a, huntPlace(z)); break; }
     case "flyChar": { const w = whereIs(game.actors.get(picked?.id)); if (w) fly(w.lat, w.lng, 15); break; }
     case "toggleHidden": {
       const a = game.actors.get(picked?.id);

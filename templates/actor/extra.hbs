@@ -1,0 +1,53 @@
+{{!-- Короткий лист статиста и толпы (план 4): готовые пулы плитками, здоровье (у толпы — общее, отрезками по человеку), оружие строками. --}}
+<div class="r-extra">
+  <header class="r-extra-head">
+    <img class="r-extra-face" src="{{actor.img}}" alt="">
+    <div class="r-extra-who">
+      <b>{{actor.name}}</b>
+      <em>{{kind}}{{#if mob}} · {{localize "VTM20.Extra.MobOf" n=mob.size}}{{/if}}</em>
+    </div>
+    {{#if mob}}<div class="r-extra-alive"><span>{{localize "VTM20.Extra.Alive"}}</span><b>{{mob.alive}}<small>/{{mob.size}}</small></b>
+      {{#if editable}}<span class="r-extra-size"><a data-action="size" data-d="-1" aria-label="−1">−</a><a data-action="size" data-d="1" aria-label="+1">+</a></span>{{/if}}</div>{{/if}}
+  </header>
+
+  <div class="r-extra-pools">
+    {{#each pools}}
+    <a class="r-extra-pool {{#if hot}}is-hot{{/if}} {{#if (rEq key 'damage')}}is-flat{{/if}}" {{#unless (rEq key 'damage')}}data-action="{{key}}"{{/unless}} data-tooltip="{{label}}">
+      <b>{{n}}</b><small>{{label}}</small><em>{{sub}}</em>
+    </a>
+    {{/each}}
+  </div>
+
+  <section class="r-tcol r-extra-health">
+    <h3 class="r-h3 r-colhead"><span>{{health}}</span></h3>
+    <div class="r-extra-boxes {{#if mob}}is-mob{{/if}}">
+      {{#each boxes}}{{#if gap}}<span class="r-extra-gap"></span>{{/if}}<a class="r-extra-box {{#if on}}is-on{{/if}}" {{#if ../mob}}{{#if ../editable}}data-action="hit" data-i="{{i}}"{{/if}}{{/if}}>{{mark}}</a>{{/each}}
+    </div>
+    <p class="r-extra-note">{{healthNote}}</p>
+  </section>
+
+  {{#if weapons.length}}
+  <section class="r-tcol r-extra-wpn">
+    <h3 class="r-h3 r-colhead"><span>{{localize "VTM20.Sheet.Weapons"}}</span></h3>
+    {{#each weapons}}
+    <div class="r-trait"><div class="r-trait-main">
+      <span class="r-trait-label">{{name}}</span><span class="r-leader"></span>
+      <span class="r-wpn-meta">{{localize "VTM20.Weapon.pool"}} <b>{{pool}}</b>{{#if range}} · <b>{{range}}</b> {{localize "VTM20.Weapon.meters"}}{{/if}}</span>
+      <span class="r-dmg-chip is-{{type}}" data-tooltip="{{formula}}">{{dmg}} · {{typeLabel}}</span>
+    </div></div>
+    {{/each}}
+  </section>
+  {{/if}}
+
+  <footer class="r-extra-foot">
+    <a class="r-h2-btn" data-action="attack"><i class="fa-solid fa-hand-fist"></i> {{#if mob}}{{localize "VTM20.Extra.MobAttack"}}{{else}}{{localize "VTM20.Extra.Attack"}}{{/if}}</a>
+    {{#if mob}}<a class="r-h2-btn" data-action="will"><i class="fa-solid fa-flag"></i> {{localize "VTM20.Extra.Morale"}}</a>{{else}}<a class="r-h2-btn" data-action="dodge"><i class="fa-solid fa-person-running"></i> {{localize "VTM20.Extra.Dodge"}}</a>{{/if}}
+    <span class="r-extra-spacer"></span>
+    {{#if isGM}}
+    {{#if mob}}<a class="r-h2-btn is-plain" data-action="split" data-tooltip="{{localize 'VTM20.Extra.SplitHint'}}"><i class="fa-solid fa-people-arrows"></i> {{localize "VTM20.Extra.Split"}}</a>
+    {{else}}<a class="r-h2-btn is-plain" data-action="mob" data-tooltip="{{localize 'VTM20.Extra.MakeMobHint'}}"><i class="fa-solid fa-people-group"></i> {{localize "VTM20.Extra.MakeMob"}}</a>{{/if}}
+    <a class="r-h2-btn is-plain" data-action="normal" data-tooltip="{{localize 'VTM20.Extra.NormalHint'}}"><i class="fa-solid fa-user"></i> {{localize "VTM20.Extra.Normal"}}</a>
+    {{/if}}
+    <a class="r-h2-btn" data-action="full"><i class="fa-solid fa-scroll"></i> {{localize "VTM20.Extra.Full"}}</a>
+  </footer>
+</div>

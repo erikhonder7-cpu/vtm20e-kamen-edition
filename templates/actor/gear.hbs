@@ -18,29 +18,25 @@
       <a class="r-h2-btn is-ghost" data-action="itemCreate" data-type="weapon" data-tooltip="{{localize 'VTM20.Sheet.Own'}}"><i class="fa-solid fa-feather"></i> <span class="r-h2-lbl">{{localize "VTM20.Sheet.Own"}}</span></a>
     </span>{{/if}}
   </h2>
-  <table class="r-table">
-    <thead><tr>
-      <th></th><th>{{localize "VTM20.Weapon.name"}}</th><th>{{localize "VTM20.Weapon.pool"}}</th><th>{{localize "VTM20.Weapon.diff"}}</th>
-      <th>{{localize "VTM20.Weapon.damage"}}</th><th>{{localize "VTM20.Weapon.range"}}</th><th>{{localize "VTM20.Weapon.rate"}}</th><th>{{localize "VTM20.Weapon.clip"}}</th><th></th>
-    </tr></thead>
-    <tbody>
-      {{#each weapons}}
-      <tr data-item-id="{{id}}" class="{{#unless equipped}}is-off{{/unless}}">
-        <td><a class="r-attack" data-action="rollWeapon" data-tooltip="{{localize 'VTM20.Weapon.attack'}}"><i class="fa-solid {{icon}}"></i></a></td>
-        <td class="r-td-name"><a data-action="itemEdit">{{name}}</a><span class="r-td-sub">{{kindLabel}}</span></td>
-        <td class="r-num">{{pool}}</td>
-        <td class="r-num">{{difficulty}}</td>
-        <td class="r-num"><b>{{damageDice}}</b> <span class="r-dmg is-{{damageTypeKey}}">{{damageType}}</span><span class="r-td-sub">{{damage}}</span></td>
-        <td class="r-num">{{range}}</td><td class="r-num">{{rate}}</td><td class="r-num">{{clip}}</td>
-        <td class="r-td-tools">
+  {{!-- Оружие строками, как черты листа (В3): значок-атака, название, пул и сложность, урон чипом; дальность — только у стрелкового и метательного --}}
+  <div class="r-wpn-list">
+    {{#each weapons}}
+    <div class="r-trait r-wpn-row {{#unless equipped}}is-off{{/unless}}" data-item-id="{{id}}">
+      <div class="r-trait-main">
+        <a class="r-attack" data-action="rollWeapon" data-tooltip="{{localize 'VTM20.Weapon.attack'}}"><i class="fa-solid {{icon}}"></i></a>
+        <span class="r-wpn-name"><a class="r-trait-label" data-action="itemEdit">{{name}}</a><small>{{kindLabel}}</small></span>
+        <span class="r-leader"></span>
+        <span class="r-wpn-meta">{{localize "VTM20.Weapon.pool"}} <b>{{pool}}</b> · {{localize "VTM20.Weapon.diff"}} <b>{{difficulty}}</b>{{#if range}} · <b>{{range}}</b> {{localize "VTM20.Weapon.meters"}}{{#if rate}} · {{localize "VTM20.Weapon.rate"}} <b>{{rate}}</b>{{/if}}{{#if clip}} · {{localize "VTM20.Weapon.clip"}} <b>{{clip}}</b>{{/if}}{{/if}}</span>
+        <span class="r-dmg-chip is-{{damageTypeKey}}" data-tooltip="{{localize 'VTM20.Weapon.damage'}}: {{damage}}">{{damageDice}} · {{damageType}}</span>
+        <span class="r-td-tools">
           <a class="r-icon-btn" data-action="itemChat"><i class="fa-solid fa-comment-dots"></i></a>
           {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="itemDelete"><i class="fa-solid fa-trash"></i></a>{{/if}}
-        </td>
-      </tr>
-      {{else}}<tr><td colspan="9" class="r-empty">{{localize "VTM20.Sheet.NoWeapons"}}</td></tr>
-      {{/each}}
-    </tbody>
-  </table>
+        </span>
+      </div>
+    </div>
+    {{else}}<div class="r-empty">{{localize "VTM20.Sheet.NoWeapons"}}</div>
+    {{/each}}
+  </div>
   {{#if editable}}
   <datalist id="r-wpn-{{actor.id}}">{{#each weaponPresetGroups}}{{#each options}}<option value="{{label}}" data-group="{{../label}}" data-key="{{value}}"></option>{{/each}}{{/each}}</datalist>
   <datalist id="r-arm-{{actor.id}}">{{#each armorPresetGroups}}{{#each options}}<option value="{{label}}" data-group="{{../label}}" data-key="{{value}}"></option>{{/each}}{{/each}}</datalist>

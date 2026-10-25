@@ -1,5 +1,7 @@
 {{!-- Окно охоты (03): угодья → сложность, способ → пул, Слава/Домен, Стадо, модификаторы, шансы. --}}
 <div class="r-roll-form r-hunt-form">
+  {{#if place}}<div class="r-hunt-place {{#if place.foreign}}is-foreign{{/if}}"><span class="r-hunt-place-tag">{{localize "VTM20.Hunt.FromMap"}}</span><b>{{place.name}}</b>
+    {{#if place.own}}<em>{{localize "VTM20.Hunt.OwnDomain" n=place.n}}</em>{{else if place.foreign}}<em>{{localize "VTM20.Hunt.ForeignDomain" owner=place.owner}}</em>{{/if}}</div>{{/if}}
   <div class="r-roll-label r-tiles-cap">{{localize "VTM20.Hunt.Ground.label"}}</div>
   <div class="r-tiles">
     {{#each grounds}}

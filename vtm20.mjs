@@ -35,6 +35,7 @@ import { openCourt, registerCourt } from "./module/apps/court.mjs";
 import { openWeb, registerWeb } from "./module/apps/web.mjs";
 import { registerTimers, tickTimers } from "./module/apps/timers.mjs";
 import { registerTorpor, checkTorpor } from "./module/apps/torpor.mjs";
+import { registerExtras } from "./module/apps/extras.mjs";
 import { registerCityMap, openCity, closeCity, toggleCity, cityMap } from "./module/ui/citymap.mjs";
 import { registerPause } from "./module/ui/pause.mjs";
 import * as Money from "./module/data/money.mjs";
@@ -106,6 +107,7 @@ Hooks.once("init", () => {
   Actors.registerSheet(SYSTEM_ID, VtMActorSheet, { makeDefault: true, label: "VTM20.Sheets.Actor" });
   Items.unregisterSheet("core", foundry.appv1.sheets.ItemSheet);
   Items.registerSheet(SYSTEM_ID, VtMItemSheet, { makeDefault: true, label: "VTM20.Sheets.Item" });
+  registerExtras();
 
   registerSettings();
   registerNightExtras();

@@ -61,13 +61,23 @@ export function openBoons() {
   return new BoonLedger().render({ force: true });
 }
 
+/** Баланс по открытым услугам: на каждого — сколько должен и сколько должны ему; ромб за ступень веса (тривиальная 1 … жизненная 5). */
+function balanceOf(rows) {
+  const by = new Map(), get = name => by.get(name) ?? by.set(name, { name, owes: [], owed: [] }).get(name);
+  for (const r of rows) if (!r.done) { get(r.debtor).owes.push(r.level); get(r.creditor).owed.push(r.level); }
+  const marks = list => "◆".repeat(Math.min(15, list.reduce((s, l) => s + BOON_LEVELS.indexOf(l) + 1, 0)));
+  const tip = list => list.map(boonLevelLabel).join(", ");
+  return [...by.values()].map(x => ({ name: x.name, owes: marks(x.owes), owed: marks(x.owed), owesTip: tip(x.owes), owedTip: tip(x.owed),
+    weight: x.owes.length + x.owed.length })).sort((a, b) => b.weight - a.weight || a.name.localeCompare(b.name, "ru"));
+}
+
 /** Реестр услуг: открытые долги сверху, тяжёлые раньше пустяков; фильтр по состоянию, весу и имени. */
 class BoonLedger extends HandlebarsApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
     id: "r-boons",
     classes: ["vtm20", "r-dialog", "r-boons"],
     window: { title: "VTM20.Boon.Ledger", icon: "fa-solid fa-scale-balanced", resizable: true },
-    position: { width: 760, height: 560 },
+    position: { width: 900, height: 560 },
     actions: { state: BoonLedger.#onState, level: BoonLedger.#onLevel, open: BoonLedger.#onOpen }
   };
 
@@ -85,7 +95,9 @@ class BoonLedger extends HandlebarsApplicationMixin(ApplicationV2) {
       levels: BOON_LEVELS.map(k => ({ key: k, label: boonLevelLabel(k), active: v.level === k, n: all.filter(r => !r.done && r.level === k).length })),
       rows: rows.map(r => ({ ...r, levelLabel: boonLevelLabel(r.level), weight: BOON_LEVELS.indexOf(r.level),
         source: r.sources[0], text: [r.debtor, r.creditor, r.note].join(" ").toLowerCase() })),
-      empty: !all.length
+      empty: !all.length,
+      openN: all.filter(r => !r.done).length, doneN: all.filter(r => r.done).length,
+      balance: balanceOf(all)
     };
   }
 

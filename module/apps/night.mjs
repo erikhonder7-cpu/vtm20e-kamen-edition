@@ -30,8 +30,12 @@ const bgValue = (actor, name) => actor.items.find(i => i.type === "background" &
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const GROUND_ICONS = { slums: "fa-dumpster-fire", poor: "fa-house-crack", business: "fa-building", industrial: "fa-industry", suburb: "fa-tree-city", guarded: "fa-shield-halved" };
 
-export function openHunt(actor) {
-  return new HuntDialog(actor).render({ force: true });
+/**
+ * Окно охоты. place — место с карты города (план 8): { name, ground, owner: { id, name } | null }.
+ * В своём домене Домен считается (не меньше 1), в чужом — не считается, а хозяин попадает в карточку броска.
+ */
+export function openHunt(actor, place = null) {
+  return new HuntDialog(actor, place).render({ force: true });
 }
 
 /** Окно охоты (03) в стиле окна броска: угодья плитками, способ, модификаторы, итог пула и шансы. */
@@ -47,11 +51,15 @@ class HuntDialog extends HandlebarsApplicationMixin(ApplicationV2) {
 
   static PARTS = { form: { template: `${SYSTEM_PATH}/templates/apps/hunt.hbs` } };
 
-  constructor(actor) {
+  constructor(actor, place = null) {
     super({ window: { title: t("Hunt.Title", { name: actor.name }) } });
     this.actor = actor;
-    this.bg = { fame: bgValue(actor, "слава"), domain: bgValue(actor, "домен"), herd: bgValue(actor, "стадо") };
-    this.v = { ground: "business", method: "alleys", fame: this.bg.fame + this.bg.domain > 0, herd: this.bg.herd > 0, inhuman: false, modDice: 0, modDiff: 0,
+    this.place = place;
+    const own = place?.owner?.id === actor.id, foreign = !!place?.owner && !own;
+    const domain = bgValue(actor, "домен");
+    this.bg = { fame: bgValue(actor, "слава"), domain: own ? Math.max(1, domain) : foreign ? 0 : domain, herd: bgValue(actor, "стадо") };
+    this.domainState = own ? "own" : foreign ? "foreign" : "";
+    this.v = { ground: place?.ground in HUNTING_GROUNDS ? place.ground : "business", method: "alleys", fame: this.bg.fame + this.bg.domain > 0, herd: this.bg.herd > 0, inhuman: false, modDice: 0, modDiff: 0,
       messageMode: game.settings.get("core", "messageMode") };
   }
 
@@ -75,6 +83,8 @@ class HuntDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const modes = CONFIG.ChatMessage?.modes ?? {};
     return {
       v, ...c, bg: this.bg, fameTotal: this.bg.fame + this.bg.domain,
+      place: this.place ? { name: this.place.name, own: this.domainState === "own", foreign: this.domainState === "foreign", owner: this.place.owner?.name ?? "",
+        n: this.bg.domain } : null,
       grounds: Object.entries(HUNTING_GROUNDS).map(([k, d]) => ({ key: k, d, label: t(`Hunt.Ground.${k}`), icon: GROUND_ICONS[k], active: k === v.ground })),
       methods: Object.entries(HUNTING_METHODS).map(([k, [x, y]]) => ({ key: k, selected: k === v.method,
         label: `${t(`Hunt.Method.${k}`)} · ${a.traitValue(x) + a.traitValue(y)}`, title: `${a.traitLabel(x)} + ${a.traitLabel(y)}` })),
@@ -104,9 +114,11 @@ class HuntDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const selfC = a.traitValue("virtues.selfControl");
     const hungry = a.hasBlood && a.system.blood.value < 7 - selfC;
     return rollPool({
-      actor: a, title: t("Hunt.Title", { name: "" }).replace(/:\s*$/, ""), subtitle: `${t(`Hunt.Ground.${v.ground}`)} · ${t(`Hunt.Method.${v.method}`)}`,
+      actor: a, title: t("Hunt.Title", { name: "" }).replace(/:\s*$/, ""), subtitle: `${this.place ? `${this.place.name} · ` : ""}${t(`Hunt.Ground.${v.ground}`)} · ${t(`Hunt.Method.${v.method}`)}`,
       pool: c.pool, difficulty: c.diff, breakdown: c.bd, kind: "hunt", messageMode: v.messageMode, extra: { method: v.method, hungry },
       notes: [
+        ...(this.place ? [`<i class="fa-solid fa-map-location-dot"></i> ${t("Hunt.PlaceNote", { name: this.place.name })}`] : []),
+        ...(this.domainState === "foreign" ? [`<i class="fa-solid fa-crown"></i> ${t("Hunt.ForeignNote", { owner: this.place.owner.name })}`] : []),
         ...(hungry ? [`<i class="fa-solid fa-face-angry"></i> ${t("Hunt.Hungry", { n: 7 - selfC })}`] : []),
         ...(a.system.clan === "ventrue" && a.system.weaknessNote ? [`<i class="fa-solid fa-wine-glass"></i> ${t("Hunt.Ventrue", { taste: a.system.weaknessNote })}`] : []),
         ...(a.system.clan === "giovanni" ? [`<i class="fa-solid fa-skull"></i> ${t("Hunt.Giovanni")}`] : [])

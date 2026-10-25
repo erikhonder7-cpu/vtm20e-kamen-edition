@@ -584,6 +584,14 @@ body.r-theme-light .vtm20 .r-ng-item.is-active, body.r-theme-light .vtm20 .r-ng-
 .r-tile.is-big i { font-size: 20px; }
 .r-tile.is-flat { justify-content: center; min-height: 34px; padding: 6px 18px 5px; }
 .vtm20 .r-hunt-method { flex: 1; min-width: 0; }
+/* Охота с карты (план 8): плашка места и домена */
+.vtm20 .r-hunt-place { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; padding: 7px 10px; border: 1px solid rgba(196, 71, 76, .45);
+  background: linear-gradient(90deg, rgba(140, 28, 34, .25), transparent 75%); }
+.vtm20 .r-hunt-place-tag { font-family: var(--r-caps); font-size: 11px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--r-accent); }
+.vtm20 .r-hunt-place b { font-family: var(--r-display); font-weight: 400; font-size: 15px; color: var(--r-ink); }
+.vtm20 .r-hunt-place em { font-size: 12.5px; color: var(--r-muted); }
+.vtm20 .r-hunt-place.is-foreign { border-color: rgba(201, 164, 106, .45); background: linear-gradient(90deg, rgba(201, 164, 106, .14), transparent 75%); }
+.vtm20 .r-hunt-place.is-foreign .r-hunt-place-tag { color: #c9a46a; }
 
 /* ── Окна опасностей, урона и диаблери — по образцу охоты ─────────────── */
 .vtm20 .r-roll-row .r-roll-unit { font-size: 12.5px; font-style: italic; color: var(--r-muted); }
@@ -696,6 +704,18 @@ body.r-theme-light .vtm20 .r-ng-item.is-active, body.r-theme-light .vtm20 .r-ng-
 .vtm20 .is-w3.r-bn-badge { border-color: #c4474c; color: #f1e2dc; background: rgba(140, 28, 34, .35); }
 .vtm20 .is-w4.r-bn-badge { border-color: #e06a6f; color: #fff1ec; background: linear-gradient(180deg, #8c1c22, #4a0d11); box-shadow: 0 0 8px rgba(196, 71, 76, .4); }
 .vtm20 .r-bn-none { padding: 14px 6px; font-style: italic; color: var(--r-muted); }
+/* Баланс услуг (В4) */
+.vtm20 .r-bn-body { flex: 1 1 auto; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 250px; gap: 14px; }
+.vtm20 .r-bn-sum { display: flex; flex-direction: column; gap: 8px; min-height: 0; overflow-y: auto; padding-left: 14px; border-left: 1px solid var(--r-line-2); }
+.vtm20 .r-bn-asgs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.vtm20 .r-bn-asgs .r-assignat { grid-area: auto; width: auto; padding: 6px 9px 7px; }
+.vtm20 .r-bn-sum .r-colhead { margin: 6px 0 0; }
+.vtm20 .r-bn-bal { display: flex; flex-direction: column; padding: 4px 0 6px; border-bottom: 1px dotted var(--r-line); }
+.vtm20 .r-bn-bal > b { font-family: var(--r-display); font-weight: 400; font-size: 14.5px; color: var(--r-ink); }
+.vtm20 .r-bn-bal-row { display: flex; align-items: center; gap: 6px; min-height: 20px; font-family: var(--r-caps); font-size: 10.5px; letter-spacing: 1px; text-transform: uppercase; color: var(--r-muted); }
+.vtm20 .r-bn-bal-row i { font-style: normal; font-size: 10px; letter-spacing: 1px; }
+.vtm20 .r-bn-bal-row i.is-owe { color: #c4474c; }
+.vtm20 .r-bn-bal-row i.is-owed { color: #c9a46a; }
 
 /* ── Ночь простоя (module/apps/downtime.mjs) ───────────────────────────── */
 .r-tile.is-dim:not(.is-active) { opacity: .45; }
@@ -869,3 +889,37 @@ body.r-theme-light .vtm20 .r-ng-item.is-active, body.r-theme-light .vtm20 .r-ng-
 .vtm20 .r-web-li { padding: 3px 4px 3px 10px; font-size: 13px; border-left: 2px solid var(--r-bone); }
 .vtm20 .r-web-li.is-bond { border-left-color: #c4474c; }
 .vtm20 .r-web-li.is-boon { border-left: 2px dashed #c9a46a; }
+
+/* ── Статисты и толпы (план 4): короткий лист ─────────────────────────── */
+.vtm20.r-extra-sheet .window-content { padding: 0; }
+.vtm20 .r-extra { display: flex; flex-direction: column; gap: 12px; padding: 14px 16px 16px; }
+.vtm20 .r-extra-head { display: flex; align-items: center; gap: 12px; }
+.vtm20 .r-extra-face { width: 54px; height: 54px; flex: 0 0 auto; border-radius: 50%; object-fit: cover; object-position: top; border: 2px solid #2f3b55; }
+.vtm20 .r-extra-who { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.vtm20 .r-extra-who b { font-family: var(--r-display); font-weight: 400; font-size: 21px; color: var(--r-ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vtm20 .r-extra-who em { font-size: 12.5px; color: var(--r-muted); }
+.vtm20 .r-extra-alive { display: flex; flex-direction: column; align-items: flex-end; }
+.vtm20 .r-extra-alive > span { font-family: var(--r-caps); font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--r-accent); }
+.vtm20 .r-extra-alive b { font-family: var(--r-display); font-weight: 400; font-size: 24px; line-height: 1; color: var(--r-ink); }
+.vtm20 .r-extra-alive small { font-size: 13px; color: var(--r-muted); }
+.vtm20 .r-extra-size { display: flex; gap: 2px; margin-top: 2px; }
+.vtm20 .r-extra-size a { display: grid; place-items: center; width: 20px; height: 18px; border: 1px solid var(--r-line-2); color: var(--r-muted); cursor: pointer; font-family: var(--r-display); }
+.vtm20 .r-extra-size a:hover { color: var(--r-ink); border-color: var(--r-ink-2); }
+.vtm20 .r-extra-pools { display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 6px; }
+.vtm20 .r-extra-pool { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 4px 7px; border: 1px solid #3a3833; border-radius: 4px; background: rgba(0, 0, 0, .25); cursor: pointer; text-align: center; transition: border-color .15s, background .15s; }
+.vtm20 .r-extra-pool:hover { border-color: #5a554b; }
+.vtm20 .r-extra-pool.is-flat { cursor: default; }
+.vtm20 .r-extra-pool b { font-family: var(--r-display); font-weight: 400; font-size: 26px; line-height: 1; color: var(--r-ink); }
+.vtm20 .r-extra-pool small { font-family: var(--r-caps); font-size: 10.5px; letter-spacing: 1.4px; text-transform: uppercase; color: var(--r-ink-2); }
+.vtm20 .r-extra-pool em { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11.5px; color: var(--r-muted); }
+.vtm20 .r-extra-pool.is-hot { border-color: var(--r-blood-l); background: radial-gradient(ellipse at 50% 120%, rgba(184, 58, 63, .35), rgba(0, 0, 0, .25) 70%); }
+.vtm20 .r-extra-pool.is-hot em { color: var(--r-accent); }
+.vtm20 .r-extra-boxes { display: flex; flex-wrap: wrap; gap: 3px; }
+.vtm20 .r-extra-box { display: grid; place-items: center; width: 18px; height: 18px; border: 1px solid var(--r-dot-border); font-family: var(--r-display); font-size: 12px; color: #f1e9da; }
+.vtm20 .r-extra-box.is-on { border-color: #b83a3f; background: #4a0d11; }
+.vtm20 .r-extra-boxes.is-mob .r-extra-box { cursor: pointer; }
+.vtm20 .r-extra-gap { width: 7px; }
+.vtm20 .r-extra-note { margin: 6px 0 0; font-size: 12px; font-style: italic; color: var(--r-muted); }
+.vtm20 .r-extra-wpn .r-trait-main { gap: 8px; }
+.vtm20 .r-extra-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.vtm20 .r-extra-spacer { flex: 1; }

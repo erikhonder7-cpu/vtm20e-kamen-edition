@@ -48,10 +48,11 @@
   <div class="r-roll-row">
     <span class="r-roll-label">{{localize "VTM20.Roll.Difficulty"}}</span>
     <div class="r-diffs">
-      {{#each difficulties}}<a class="r-diff {{#if active}}is-active{{/if}}" data-action="setDifficulty" data-n="{{n}}">{{n}}</a>{{/each}}
+      {{#each difficulties}}<a class="r-diff {{#if active}}is-active{{/if}} {{#if base}}is-base{{/if}}" data-action="setDifficulty" data-n="{{n}}">{{n}}</a>{{/each}}
     </div>
-    <input type="number" name="difficulty" value="{{v.difficulty}}" min="2" max="12" class="r-roll-num is-small">
+    <input type="hidden" name="difficulty" value="{{v.difficulty}}">
   </div>
+  {{#if diffWhy}}<div class="r-diff-why">{{localize "VTM20.Roll.DiffChosen" n=v.difficulty}} · {{#each diffWhy}}<b>{{label}} {{rSigned value}}</b>{{#unless @last}}, {{/unless}}{{/each}} → {{localize "VTM20.Roll.DiffAgainst" n=effDifficulty}}</div>{{/if}}
   {{#if diffNote}}<div class="r-roll-note"><i class="fa-solid fa-circle-info"></i> {{diffNote}}</div>{{/if}}
   {{#if (or diffAuto.length diffSit.length)}}
   <div class="r-roll-fx">

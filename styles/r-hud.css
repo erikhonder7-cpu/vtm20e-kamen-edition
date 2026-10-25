@@ -178,16 +178,19 @@ body.r-hud-on #chat-notifications > #chat-message { display: none !important; }
 
 /* ── Окна атаки, опасностей и диаблери ────────────────────────────────── */
 
-.vtm20 .r-atk-picks { display: flex; flex-wrap: wrap; gap: 4px; }
+/* Оружие и манёвры — плитками со значком, как угодья охоты и виды опасности (В1) */
+.vtm20 .r-atk-picks { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 5px; }
 .vtm20 .r-atk-pick {
-  display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; font-size: 12.5px;
-  color: var(--r-ink-2); border: 1px solid var(--r-line-2); transition: border-color .12s, background .12s;
+  position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-height: 52px; padding: 7px 4px 6px;
+  border: 1px solid #3a3833; border-radius: 4px; background: rgba(0, 0, 0, .25); color: var(--r-bone-d);
+  font-size: 12.5px; line-height: 1.15; text-align: center; cursor: pointer; transition: border-color .15s, background .15s, color .15s;
 }
-.vtm20 .r-atk-pick i { color: var(--r-muted); font-size: 12px; }
+.vtm20 .r-atk-pick span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vtm20 .r-atk-pick i { color: var(--r-bone-d); font-size: 17px; }
 .vtm20 .r-atk-pick.is-man { border-style: dashed; }
-.vtm20 .r-atk-pick:hover { color: var(--r-ink); border-color: var(--r-ink-2); }
-.vtm20 .r-atk-pick.is-active { color: #f1e9da; background: #8c1c22; border-color: #c4474c; border-style: solid; }
-.vtm20 .r-atk-pick.is-active i { color: #f1e9da; }
+.vtm20 .r-atk-pick:hover { color: var(--r-bone); border-color: #5a554b; }
+.vtm20 .r-atk-pick.is-active { color: #f1e9da; border-style: solid; border-color: var(--r-blood-l); background: radial-gradient(ellipse at 50% 120%, rgba(184, 58, 63, .35), rgba(0, 0, 0, .25) 70%); }
+.vtm20 .r-atk-pick.is-active i { color: var(--r-blood-l); }
 .vtm20 .r-atk-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 14px; }
 .vtm20 .r-atk-grid > label { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .vtm20 .r-atk-grid > label.is-wide { grid-column: 1 / -1; }
@@ -211,12 +214,12 @@ body.r-hud-on #chat-notifications > #chat-message { display: none !important; }
 /* ── Окно атаки: условия плитками-чипами, редкое под «Ещё» ── */
 .vtm20 .r-atk-target { display: grid; grid-template-columns: 132px minmax(0, 1fr); align-items: center; gap: 10px; }
 .vtm20 .r-atk-row { display: grid; grid-template-columns: 132px minmax(0, 1fr); align-items: start; gap: 10px; }
-.vtm20 .r-atk-row .r-roll-label { padding-top: 6px; }
+.vtm20 .r-atk-row .r-roll-label { padding-top: 9px; }
 .vtm20 .r-atk-chips { display: flex; flex-wrap: wrap; gap: 4px; }
-.vtm20 .r-atk-chip { position: relative; display: inline-flex; flex-direction: column; justify-content: center; min-height: 30px; padding: 3px 10px; cursor: pointer;
-  border: 1px solid var(--r-line-2); background: rgba(0, 0, 0, .22); color: var(--r-ink-2); font-size: 13px; line-height: 1.15; transition: border-color .15s, background .15s, color .15s; }
+.vtm20 .r-atk-chip { position: relative; display: inline-flex; flex-direction: column; justify-content: center; min-height: 34px; padding: 4px 12px; cursor: pointer;
+  border: 1px solid #3a3833; border-radius: 4px; background: rgba(0, 0, 0, .25); color: var(--r-bone-d); font-size: 13.5px; line-height: 1.15; transition: border-color .15s, background .15s, color .15s; }
 .vtm20 .r-atk-chip input { position: absolute; opacity: 0; pointer-events: none; }
-.vtm20 .r-atk-chip small { font-size: 10.5px; font-style: italic; color: var(--r-muted); }
+.vtm20 .r-atk-chip small { font-size: 11px; font-style: italic; color: var(--r-muted); }
 .vtm20 .r-atk-chip:hover { color: var(--r-ink); border-color: var(--r-ink-2); }
 .vtm20 .r-atk-chip.is-active, .vtm20 .r-atk-chip:has(input:checked) { color: #f1e9da; border-color: #c4474c; background: radial-gradient(ellipse at 50% 130%, rgba(184, 58, 63, .45), rgba(0, 0, 0, .25) 75%); }
 .vtm20 .r-atk-chip.is-active small, .vtm20 .r-atk-chip:has(input:checked) small { color: #e8a3a5; }
