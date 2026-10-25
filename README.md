@@ -1,3 +1,6 @@
+<p align="center"><img src="docs/banner.webp" alt="VtM20 Kamen Edition — ночной город под луной" width="100%"></p>
+<p align="center"><img src="docs/emblem.webp" alt="" width="96"></p>
+
 # Vampire: The Masquerade 20th — Kamen Edition
 
 Система для Foundry VTT v14 по правилам V20. Оформление «Liberté» — революционная Франция: пергамент патентов и ассигнатов, ночная синева, триколор, лавр и сургуч.
