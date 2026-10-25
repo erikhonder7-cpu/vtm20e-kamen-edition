@@ -495,10 +495,62 @@ function inZone(z, lat, lng) {
 /** Зона с угодьями, в которой стоит персонаж (самая маленькая из подходящих не нужна — первая по списку). */
 const huntZoneOf = a => { const w = whereIs(a); return w ? city().zones.find(z => z.grounds && (game.user.isGM || !z.gmOnly) && inZone(z, w.lat, w.lng)) : null; };
 /** Место для окна охоты: название, угодья и хозяин домена (поле «Владелец» зоны — имя персонажа). */
-function huntPlace(z) {
+function huntPlace(z, at = centroid(z.points)) {
+  // хозяин: обведённый домен в этой точке, иначе поле «Владелец» зоны (имя персонажа)
+  const dom = domainAt(at[0], at[1]);
+  if (dom) return { name: z.name || L("Zone"), ground: z.grounds, owner: { id: dom.owner ?? null, name: dom.name } };
   const owner = String(z.owner ?? "").trim(), who = owner ? game.actors.find(x => x.name.trim().toLowerCase() === owner.toLowerCase()) : null;
   return { name: z.name || L("Zone"), ground: z.grounds, owner: owner ? { id: who?.id ?? null, name: who?.name ?? owner } : null };
 }
+/* ── Домены: каждый обводит домен своего персонажа (флаг пользователя cityDomains, по городам) ───── */
+
+const DOMAIN_FLAG = "cityDomains";
+const domainsOf = u => (u.getFlag(SYSTEM_ID, DOMAIN_FLAG) ?? {})[city().id] ?? [];
+/** Все домены города от всех пользователей: цвет — цвет игрока, имя — хозяин. */
+function allDomains() {
+  return game.users.contents.flatMap(u => domainsOf(u).map(d => ({ ...d, user: u.id, color: u.color?.css ?? "#c4474c",
+    name: game.actors.get(d.owner)?.name ?? L("DomainNobody") })));
+}
+const domainById = id => allDomains().find(d => d.id === id);
+const domainAt = (lat, lng) => allDomains().find(d => inZone(d, lat, lng));
+const canEditDomain = d => game.user.isGM || d.user === game.user.id;
+/** Чей домен можно обвести: свои Сородичи; ведущему — все. */
+const domainOwners = () => game.actors.filter(a => a.type === "vampire" && (game.user.isGM || a.isOwner));
+async function saveDomains(user, list) {
+  const all = foundry.utils.deepClone(user.getFlag(SYSTEM_ID, DOMAIN_FLAG) ?? {});
+  all[city().id] = list;
+  await user.setFlag(SYSTEM_ID, DOMAIN_FLAG, all);
+}
+/** Площадь многоугольника — при щелчке выбирается меньшая из перекрытых областей (домен внутри зоны и наоборот). */
+const areaOf = pts => Math.abs(pts.reduce((s, [a, b], i) => { const [c, d] = pts[(i + 1) % pts.length]; return s + a * d - c * b; }, 0)) / 2;
+
+EXT.kinds.domain = {
+  find: id => domainById(id),
+  editor: d => {
+    const edit = canEditDomain(d), opts = domainOwners().map(a => `<option value="${a.id}" ${a.id === d.owner ? "selected" : ""}>${esc(a.name)}</option>`).join("");
+    return `<section class="rc-edit">
+      <div class="rc-edit-head"><i class="fa-solid fa-crown" style="color:${esc(d.color)}"></i><b>${esc(L("DomainOf", { name: d.name }))}</b>
+        <a data-act="unpick" data-tooltip="${esc(L("Close"))}"><i class="fa-solid fa-xmark"></i></a></div>
+      <label>${esc(L("DomainOwner"))}<select data-field="owner" ${edit ? "" : "disabled"}>${opts || `<option>${esc(d.name)}</option>`}</select></label>
+      ${edit ? `<textarea data-field="text" rows="3" placeholder="${esc(L("DomainTextHint"))}">${esc(d.text ?? "")}</textarea>` : d.text ? `<p class="rc-text">${esc(d.text)}</p>` : ""}
+      <p class="rc-facts">${esc(L("DomainHint"))}</p>
+      ${edit ? `<div class="rc-edit-acts"><a class="r-btn rc-danger" data-act="remove" data-tooltip="${esc(L("Delete"))}"><i class="fa-solid fa-trash"></i></a></div>` : ""}
+    </section>`;
+  },
+  edit: async (d, field, value) => {
+    if (!canEditDomain(d)) return;
+    const u = game.users.get(d.user), list = foundry.utils.deepClone(domainsOf(u));
+    const x = list.find(y => y.id === d.id);
+    if (x) { x[field] = value; await saveDomains(u, list); }
+  },
+  remove: async d => {
+    if (!canEditDomain(d)) return;
+    const u = game.users.get(d.user);
+    await saveDomains(u, domainsOf(u).filter(y => y.id !== d.id));
+    picked = null; drawBody(); drawOverlay();
+  }
+};
+
 /** Кто охотится из карточки зоны: свой персонаж игрока; ведущему — выделенный жетон. */
 function hunter() {
   const ok = a => a?.hasBlood && a.isOwner;
@@ -1144,7 +1196,7 @@ function addOverlay() {
   for (const [n, s] of Object.entries(md?.stations ?? {})) mf.push({ type: "Feature", properties: { name: view().lang === "ru" ? s.ru : s.en, hub: s.lines.length > 1 }, geometry: { type: "Point", coordinates: [s.lng, s.lat] } });
   if (map.getSource("rc-metro")) map.getSource("rc-metro").setData({ type: "FeatureCollection", features: mf });
   else map.addSource("rc-metro", { type: "geojson", data: { type: "FeatureCollection", features: mf } });
-  for (const s of ["rc-poi", "rc-zones", "rc-zone-labels", "rc-draft"]) if (!map.getSource(s)) map.addSource(s, { type: "geojson", data: EMPTY });
+  for (const s of ["rc-poi", "rc-zones", "rc-zone-labels", "rc-domains", "rc-domain-labels", "rc-draft"]) if (!map.getSource(s)) map.addSource(s, { type: "geojson", data: EMPTY });
   const halo = view().style === "sat" ? "rgba(0,0,0,.9)" : "#0a0808";
   // подписи мест: на гравюре — чернила с бумажным ореолом, ночью — кость на угле
   const ink = view().style === "plan"
@@ -1168,6 +1220,12 @@ function addOverlay() {
   add({ id: "rc-zone-line-gm", type: "line", source: "rc-zones", filter: ["get", "gm"], paint: { "line-color": ["get", "color"], "line-width": 1.6, "line-dasharray": [3, 2] } });
   add({ id: "rc-zone-label", type: "symbol", source: "rc-zone-labels",
     layout: { "text-field": ["get", "name"], "text-font": ["Noto Sans Bold"], "text-size": 12, "text-transform": "uppercase", "text-letter-spacing": .25, "text-max-width": 10 },
+    paint: { "text-color": ["get", "color"], "text-halo-color": halo, "text-halo-width": 1.8 } });
+  // домены — цветом игрока, пунктиром; свой и выбранный ярче
+  add({ id: "rc-domain-fill", type: "fill", source: "rc-domains", paint: { "fill-color": ["get", "color"], "fill-opacity": ["case", ["get", "sel"], .3, ["get", "mine"], .18, .1] } });
+  add({ id: "rc-domain-line", type: "line", source: "rc-domains", paint: { "line-color": ["get", "color"], "line-width": ["case", ["get", "sel"], 3.5, 2.2], "line-dasharray": [4, 2] } });
+  add({ id: "rc-domain-label", type: "symbol", source: "rc-domain-labels",
+    layout: { "text-field": ["get", "name"], "text-font": ["Noto Sans Bold"], "text-size": 12, "text-letter-spacing": .1, "text-max-width": 12 },
     paint: { "text-color": ["get", "color"], "text-halo-color": halo, "text-halo-width": 1.8 } });
   const round = { "line-cap": "round", "line-join": "round" };
   const isLineF = ["==", ["geometry-type"], "LineString"];
@@ -1205,6 +1263,14 @@ function drawOverlay() {
   map.getSource("rc-zones").setData({ type: "FeatureCollection", features: zones.map(z => ({
     type: "Feature", properties: { id: z.id, color: zoneColor(z), sel: z.id === sel, gm: !!z.gmOnly },
     geometry: { type: "Polygon", coordinates: [[...z.points, z.points[0]].map(([la, ln]) => [ln, la])] } })) });
+  const doms = allDomains().filter(d => d.points?.length > 2), dsel = picked?.kind === "domain" ? picked.id : null;
+  map.getSource("rc-domains")?.setData({ type: "FeatureCollection", features: doms.map(d => ({
+    type: "Feature", properties: { id: d.id, color: d.color, sel: d.id === dsel, mine: d.user === game.user.id },
+    geometry: { type: "Polygon", coordinates: [[...d.points, d.points[0]].map(([la, ln]) => [ln, la])] } })) });
+  map.getSource("rc-domain-labels")?.setData({ type: "FeatureCollection", features: doms.map(d => {
+    const [la, ln] = centroid(d.points);
+    return { type: "Feature", properties: { name: L("DomainLabel", { name: d.name }), color: d.color }, geometry: { type: "Point", coordinates: [ln, la] } };
+  }) });
   const hunt = !!view().hunt;
   map.getSource("rc-zone-labels").setData({ type: "FeatureCollection", features: zones.filter(z => z.name || (hunt && z.grounds)).map(z => {
     const [la, ln] = centroid(z.points);
@@ -1302,18 +1368,23 @@ function onMapClick(ev) {
   const tm = EXT.toolModes.find(t => t.id === tool);
   if (tm) return tm.click(ll, api);
   if (isDrawing()) {
-    if (!game.user.isGM) return;
+    if (!game.user.isGM && tool !== "domain") return;
     const last = draft.at(-1);
     if (!last || Math.abs(last[0] - ll.lat) + Math.abs(last[1] - ll.lng) > 1e-7) draft.push([ll.lat, ll.lng]);
     drawDraft();
     return;
   }
   for (const c of EXT.clicks) if (c.hit?.(ev, api)) return;     // объекты модулей поверх зон (пятна…)
-  const hit = map.queryRenderedFeatures(ev.point, { layers: ["rc-poi", "rc-zone-fill"].filter(l => map.getLayer(l)) });
+  const hit = map.queryRenderedFeatures(ev.point, { layers: ["rc-poi", "rc-zone-fill", "rc-domain-fill"].filter(l => map.getLayer(l)) });
   const poi = hit.find(f => f.layer.id === "rc-poi");
   if (poi) return pick("poi", poi.properties.id);
-  const zone = hit.find(f => f.layer.id === "rc-zone-fill");
-  if (zone) return pick("zone", zone.properties.id);
+  // зона или домен под курсором: из перекрытых — меньшая по площади (домен внутри квартала и наоборот)
+  const areas = hit.filter(f => f.layer.id === "rc-zone-fill" || f.layer.id === "rc-domain-fill").map(f => {
+    const kind = f.layer.id === "rc-zone-fill" ? "zone" : "domain";
+    const it = kind === "zone" ? city().zones.find(z => z.id === f.properties.id) : domainById(f.properties.id);
+    return it ? { kind, id: it.id, area: areaOf(it.points) } : null;
+  }).filter(Boolean).sort((a, b) => a.area - b.area);
+  if (areas.length) return pick(areas[0].kind, areas[0].id);
   for (const c of EXT.clicks) if (c.pick?.(ev, api)) return;
   if (picked) { picked = null; drawBody(); drawOverlay(); }
 }
@@ -1327,9 +1398,10 @@ function addMarker(lat, lng, name = "") {
 }
 
 /** Чертим многоугольник: обычная зона или угодья (инструмент «Угодья» сразу ставит вид угодий и их цвет). */
-const isDrawing = () => tool === "zone" || tool === "grounds";
+const isDrawing = () => tool === "zone" || tool === "grounds" || tool === "domain";
 
 function finishZone() {
+  if (tool === "domain") return finishDomain();
   const g = tool === "grounds" ? drawGround : "";
   const z = { id: uid(), name: g ? groundLabel(g) : "", color: g ? GROUND_COLORS[g] : "#b0404c", owner: "", text: "", gmOnly: false, points: draft, ...(g ? { grounds: g } : {}) };
   city().zones.push(z);
@@ -1338,6 +1410,18 @@ function finishZone() {
   if (!g) { tool = "select"; drawTools(); }
   save({ own: false });
   pick("zone", z.id);
+}
+
+/** Домен обведён: хозяин — свой персонаж игрока (ведущему — выделенный жетон или первый Сородич), потом можно сменить справа. */
+async function finishDomain() {
+  const owners = domainOwners();
+  const owner = [game.user.character, canvas?.tokens?.controlled?.[0]?.actor].find(a => a && owners.includes(a)) ?? owners[0];
+  if (!owner) { ui.notifications.warn(L("DomainNoOwner")); draft = []; drawDraft(); return; }
+  const d = { id: uid(), owner: owner.id, text: "", points: draft };
+  draft = []; drawDraft();
+  tool = "select"; drawTools();
+  await saveDomains(game.user, [...domainsOf(game.user), d]);
+  pick("domain", d.id);
 }
 
 function pick(kind, id) {
@@ -1423,7 +1507,7 @@ function drawTools() {
   const group = (cap, inner, cls = "", attrs = "") => inner.trim() ? `<div class="rc-tgroup">
       <div class="rc-toolset ${cls}" ${attrs}>${inner}</div><small>${esc(L(`Group.${cap}`))}</small></div>` : "";
   box.innerHTML = `
-    ${group("Tools", `${btn("select", "fa-arrow-pointer", "ToolSelect")}${btn("marker", "fa-location-dot", "ToolMarker")}${btn("zone", "fa-draw-polygon", "ToolZone", true)}${btn("grounds", "fa-paw", "ToolGrounds", true)}${EXT.toolModes.filter(t => !t.when || t.when()).map(t => btn(t.id, t.icon, t.tip, t.gm)).join("")}`)}
+    ${group("Tools", `${btn("select", "fa-arrow-pointer", "ToolSelect")}${btn("marker", "fa-location-dot", "ToolMarker")}${btn("zone", "fa-draw-polygon", "ToolZone", true)}${btn("grounds", "fa-paw", "ToolGrounds", true)}${domainOwners().length ? btn("domain", "fa-crown", "ToolDomain") : ""}${EXT.toolModes.filter(t => !t.when || t.when()).map(t => btn(t.id, t.icon, t.tip, t.gm)).join("")}`)}
     ${group("Era", eraStyles().map(k => `<a class="${v.style === k ? "on" : ""}" data-act="style" data-style="${k}">${esc(styleExt(k)?.label ?? L(`Style.${k}`))}</a>`).join(""), "rc-textset")}
     ${group("Lang", eraLangs().map(k => `<a class="${v.lang === k ? "on" : ""}" data-act="lang" data-lang="${k}">${esc(L(`Lang.${k}`))}</a>`).join(""), "rc-textset", `data-tooltip="${esc(L("LangHint"))}"`)}
     ${group("Layers", `<a class="${v.hunt ? "on" : ""}" data-act="huntLayer" data-tooltip="${esc(L("HuntLayer"))}"><i class="fa-solid fa-layer-group"></i></a>${metros[city().preset] ? `<a class="${v.metro ? "on" : ""}" data-act="metro" data-tooltip="${esc(L("MetroToggle"))}"><i class="fa-solid fa-train-subway"></i></a>` : ""}${EXT.tools.map(t => t(api)).join("")}`)}
@@ -1437,6 +1521,7 @@ function hint() {
   const bar = (icon, text) => `<div class="rc-hintbar"><i class="fa-solid ${icon}"></i> ${esc(text)} <kbd>Esc</kbd></div>`;
   if (placing) return bar("fa-location-crosshairs", T("PlaceHint", { name: game.actors.get(placing)?.name ?? "" }));
   if (tool === "zone") return bar("fa-draw-polygon", L("ZoneHint"));
+  if (tool === "domain") return bar("fa-crown", L("DomainDrawHint"));
   // угодья: какие чертим — выбором прямо в подсказке
   if (tool === "grounds") return `<div class="rc-hintbar rc-groundbar"><i class="fa-solid fa-paw"></i> ${esc(L("GroundsHint"))}
     <span class="rc-groundpick">${Object.entries(HUNTING_GROUNDS).map(([k, d]) => `<a class="${k === drawGround ? "on" : ""}" data-act="drawGround" data-ground="${k}" style="--g:${GROUND_COLORS[k]}"><i></i>${esc(groundLabel(k))} <b>${d}</b></a>`).join("")}</span>
@@ -1573,7 +1658,11 @@ function drawBody() {
   }
   const zones = city().zones.filter(z => (game.user.isGM || !z.gmOnly) && q(z));
   html += `<h3 class="rc-sect">${esc(L("Zones"))} <b>${zones.length}</b></h3>
-    <ul class="rc-zones">${zones.map(z => row("zone", z, "fa-draw-polygon", z.color)).join("") || `<li class="empty">${esc(L("NoZones"))}</li>`}</ul></div>`;
+    <ul class="rc-zones">${zones.map(z => row("zone", z, "fa-draw-polygon", z.color)).join("") || `<li class="empty">${esc(L("NoZones"))}</li>`}</ul>`;
+  // домены персонажей — цветом игрока; пусто — подсказка, как обвести свой
+  const doms = allDomains().filter(d => q(d));
+  html += `<h3 class="rc-sect">${esc(L("Domains"))} <b>${doms.length}</b></h3>
+    <ul class="rc-zones">${doms.map(d => row("domain", d, "fa-crown", d.color)).join("") || `<li class="empty">${esc(L(domainOwners().length ? "NoDomainsDraw" : "NoDomains"))}</li>`}</ul></div>`;
   if (game.user.isGM) html += `<footer class="rc-foot"><a class="r-btn" data-act="home" data-tooltip="${esc(L("SetHomeHint"))}"><i class="fa-solid fa-crosshairs"></i> ${esc(L("SetHome"))}</a></footer>`;
   if (preset()) html += `<p class="rc-src">${esc(L("PresetSource", { date: preset().built ?? "" }))}</p>`;
   body.innerHTML = html;
@@ -1817,7 +1906,7 @@ async function act(name, el) {
     case "fly": {
       picked = { kind: el.dataset.kind, id: el.dataset.id };
       const it = findPicked();
-      if (it && picked.kind === "zone") {
+      if (it && (picked.kind === "zone" || picked.kind === "domain")) {
         const lats = it.points.map(p => p[0]), lngs = it.points.map(p => p[1]);
         map.fitBounds([[Math.min(...lngs), Math.min(...lats)], [Math.max(...lngs), Math.max(...lats)]], { padding: 80, maxZoom: 16, duration: 900 });
       } else if (it) fly(it.lat, it.lng);
@@ -1842,7 +1931,7 @@ async function act(name, el) {
       if (!a) { ui.notifications.warn(L("HuntWho")); break; }
       openHunt(a, huntPlace(z)); break;
     }
-    case "huntHere": { const a = game.actors.get(picked?.id), z = a && huntZoneOf(a); if (z) openHunt(a, huntPlace(z)); break; }
+    case "huntHere": { const a = game.actors.get(picked?.id), z = a && huntZoneOf(a), w = a && whereIs(a); if (z) openHunt(a, huntPlace(z, [w.lat, w.lng])); break; }
     case "flyChar": { const w = whereIs(game.actors.get(picked?.id)); if (w) fly(w.lat, w.lng, 15); break; }
     case "toggleHidden": {
       const a = game.actors.get(picked?.id);
@@ -1947,6 +2036,12 @@ export function registerCityMap() {
     if (!map || s.key !== `${SYSTEM_ID}.clock`) return;
     drawClock(); drawInspector(); drawChars();
     for (const o of EXT.overlays) o.clock?.(api);
+  });
+  // Кто-то обвёл, поправил или стёр свой домен — перерисовать области
+  Hooks.on("updateUser", (user, changes) => {
+    if (!map || !foundry.utils.hasProperty(changes, `flags.${SYSTEM_ID}.${DOMAIN_FLAG}`)) return;
+    drawOverlay(); drawInspector();
+    if (!document.activeElement?.closest?.(`#${ID} .rc-body`)) drawBody();
   });
   // Персонаж поехал, приехал, сменил портрет — перерисовать фишки и список (не мешая печатать).
   Hooks.on("updateActor", (actor, changes) => {
