@@ -14,7 +14,7 @@
 //   weapon    — естественное оружие (предмет создаётся при включении и убирается при выключении);
 //   charges   — сколько крови потрачено, столько зарядов (Ласка Ваала); venom — урон оружия губительный.
 // mode: scene — гаснет в конце сцены; toggle — до выключения (обратное превращение);
-//       hour — на час по часам хроники (hours: число часов или "successes" — спросить при включении);
+//       hour — на час по часам хроники (hours: число часов; "successes" или "ask" — спросить при включении);
 //       night — до рассвета по часам хроники (apps/timers.mjs гасит и пишет в чат).
 // Источник — V20, гл. 4 (Дисциплины), тексты сил в data/disciplines.json.
 
@@ -61,7 +61,35 @@ export const POWER_EFFECTS = {
   // Танатосис 1, Ведьмины морщины: длится столько часов, сколько успехов
   "thanatosis:1": { mode: "hour", hours: "successes", icon: "fa-face-grimace" },
   // Висцератика 2, Страж очага: 1 Воля; пока касается здания или внутри — до рассвета
-  "visceratika:2": { mode: "night", icon: "fa-house-chimney", cost: { willpower: 1 } }
+  "visceratika:2": { mode: "night", icon: "fa-house-chimney", cost: { willpower: 1 } },
+
+  // Сроки без поправок к броскам — чтобы видеть, что действует и когда погаснет (тексты V20 в data/disciplines.json)
+  // Величие 1, Благоговение: 1 кровь, до конца сцены или пока вампир не прекратит
+  "presence:1": { mode: "scene", icon: "fa-star", cost: { blood: 1 } },
+  // Величие 4, Приглашение: 1 кровь, действует до рассвета
+  "presence:4": { mode: "night", icon: "fa-envelope-open-text", cost: { blood: 1 } },
+  // Величие 5, Преклонение: 1 Воля, до конца сцены
+  "presence:5": { mode: "scene", icon: "fa-crown", cost: { willpower: 1 } },
+  // Затмение 1, Театр теней: 1 кровь, до конца сцены, концентрации не требует
+  "obtenebration:1": { mode: "scene", icon: "fa-cloud-moon", cost: { blood: 1 } },
+  // Фантасмагория 5, Кошмар наяву: 2 Воли, до конца сцены
+  "chimerstry:5": { mode: "scene", icon: "fa-skull", cost: { willpower: 2 } },
+  // Висцератика 1, Шкура хамелеона: 1 кровь, до конца сцены +5 кубов к маскировке, пока движется не быстрее шага
+  "visceratika:1": { mode: "scene", icon: "fa-mountain", cost: { blood: 1 } },
+  // Висцератика 5, Перемещение сквозь камень: после Слияния с камнем 2 крови, до конца сцены
+  "visceratika:5": { mode: "scene", icon: "fa-dungeon", cost: { blood: 2 } },
+  // Огам 1, Освящение рощи: 1–3 крови (ход ритуала за каждую) — кровь тратится вручную; до конца сцены
+  "ogham:1": { mode: "scene", icon: "fa-tree" },
+  // Огам 2, Алые узоры: 1 кровь, узоры держатся всю сцену
+  "ogham:2": { mode: "scene", icon: "fa-paintbrush", cost: { blood: 1 } },
+  // Сангвинус 3, Гештальт: каждый в круге тратит 1 кровь; коллективный разум до конца сцены
+  "sanguinus:3": { mode: "scene", icon: "fa-people-arrows", cost: { blood: 1 } },
+  // Сангвинус 5, Кровное единство: 3 крови с каждого, до конца сцены
+  "sanguinus:5": { mode: "scene", icon: "fa-circle-nodes", cost: { blood: 3 } },
+  // Бардо 4, Обелиск Осириса: ритуал на всю ночь, 1 Воля
+  "bardo:4": { mode: "night", icon: "fa-monument", cost: { willpower: 1 } },
+  // Спиритус 5, Дикий зверь: 2 крови; в облике — не больше Воли часов за ночь
+  "spiritus:5": { mode: "hour", hours: "ask", icon: "fa-paw", cost: { blood: 2 } }
 };
 
 /** Подпись вида длительности: сцена, до выключения, час, до рассвета. */

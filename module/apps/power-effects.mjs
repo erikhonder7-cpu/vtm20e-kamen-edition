@@ -14,7 +14,7 @@ export async function togglePowerEffect(actor, power) {
   const base = POWER_EFFECTS[power];
   if (!base) return null;
   const range = Array.isArray(base.cost?.blood) ? base.cost.blood : null;
-  const ask = base.hours === "successes";
+  const ask = base.hours === "successes" || base.hours === "ask";
   if (!base.variants && !range && !ask) return actor.startPower(power);
 
   const forms = base.variants ? Object.keys(base.variants)
@@ -22,7 +22,7 @@ export async function togglePowerEffect(actor, power) {
   const bloods = range ? Array.from({ length: range[1] - range[0] + 1 }, (_, i) => range[0] + i)
     .map(n => `<option value="${n}">${t(base.charges ? "Fx.BloodCharges" : "Fx.BloodTurns", { n, turns: 4 - n })}</option>`).join("") : "";
   const res = await foundry.applications.api.DialogV2.prompt({
-    window: ask && !forms && !bloods ? { title: t("Fx.HoursTitle"), icon: "fa-solid fa-hourglass-half" } : { title: t("Fx.ChooseTitle"), icon: "fa-solid fa-paw" },
+    window: ask && !forms && !bloods ? { title: t(base.hours === "ask" ? "Fx.HoursTitleAsk" : "Fx.HoursTitle"), icon: "fa-solid fa-hourglass-half" } : { title: t("Fx.ChooseTitle"), icon: "fa-solid fa-paw" },
     classes: ["vtm20", "r-dialog"],
     content: `<div class="r-form">
       ${forms ? `<label class="r-field"><span>${t("Fx.Form")}</span><select name="variant">${forms}</select></label>` : ""}
