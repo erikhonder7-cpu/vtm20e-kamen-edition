@@ -36,6 +36,12 @@
     {{else}}<div class="r-empty">{{localize "VTM20.Sheet.NoBackgrounds"}}</div>
     {{/each}}
   </div>
+  {{#each coteries}}
+  <div class="r-cot-sheet">
+    <a class="r-h2-btn is-plain" data-action="openCoterie"><i class="fa-solid fa-people-roof"></i> {{name}}</a>
+    {{#each pools}}<span class="r-cot-sheet-pool {{#if primary}}is-primary{{/if}}"><b>{{bg}}</b> {{value}}{{#if mine}} <em>{{localize "VTM20.Coterie.Mine" n=mine}}</em>{{/if}}</span>{{else}}<em>{{localize "VTM20.Coterie.NoPools"}}</em>{{/each}}
+  </div>
+  {{/each}}
 
   <div class="r-cols2 r-mf">
     {{#each mfColumns}}

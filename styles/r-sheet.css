@@ -1093,3 +1093,9 @@ body.r-theme-light .vtm20 .r-motto { color: rgba(140, 28, 34, .75); }
 .vtm20 .r-vinc .r-dots { flex: 0 0 auto; gap: 2px; }
 .vtm20 .r-vinc .r-dot { width: 9px; height: 9px; }
 .vtm20 .r-vinc-n { min-width: 18px; text-align: right; font-family: var(--r-display); font-weight: 400; color: var(--r-ink); }
+
+/* ── Котерия на листе: общие факты одной строкой ── */
+.vtm20 .r-cot-sheet { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; margin: 6px 0 2px; padding: 4px 6px; border-left: 2px solid var(--r-line-2); font-size: 13px; }
+.vtm20 .r-cot-sheet-pool b { font-weight: 400; color: var(--r-ink); }
+.vtm20 .r-cot-sheet-pool.is-primary b { color: #e07a7e; }
+.vtm20 .r-cot-sheet-pool em { color: var(--r-muted); }

@@ -36,6 +36,7 @@ import { weaponIcon as weaponImg, armorIcon as armorImg } from "../data/icons.mj
 import { togglePowerEffect } from "../apps/power-effects.mjs";
 import { lineUp, childrenOf, bloodCheck, actorByName } from "../data/lineage.mjs";
 import { isSabbat, vinculumMeaning, rollPackVinculi, openVaulderie, loyaltyConflict } from "../apps/vaulderie.mjs";
+import { coteriesOf, poolValue, openCoterie } from "../apps/coterie.mjs";
 import { itemCardHTML } from "../chat/item-card.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
@@ -118,6 +119,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       addBond: VtMActorSheet.#onAddBond,
       drinkBond: VtMActorSheet.#onDrinkBond,
       feedFrom: VtMActorSheet.#onFeedFrom,
+      openCoterie: VtMActorSheet.#onOpenCoterie,
       resistBond: VtMActorSheet.#onResistBond,
       removeBond: VtMActorSheet.#onRemoveBond,
       addVinc: VtMActorSheet.#onAddVinc,
@@ -531,6 +533,9 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     ctx.bonds = (a.system.bonds ?? []).map((b, i) => ({ ...b, index: i, dots: dots(b.rating, 3, { path: `system.bonds.${i}.rating` }),
       isRegnant: b.role === "regnant", tip: t("BondX.Tip", { n: b.drinks ?? 0, last: b.last || "—" }) }));
     // Винкулум — у вампиров Шабаша и у всех, у кого он уже записан
+    // котерии персонажа: общие факты и свой вклад (apps/coterie.mjs)
+    ctx.coteries = coteriesOf(a).map(c => ({ name: c.name, pools: Object.keys(c.pools ?? {}).map(bg => ({ bg, value: poolValue(c, bg),
+      primary: bg === c.primary, mine: c.pools[bg]?.[a.id] ?? 0 })) }));
     ctx.hasVinc = a.type === "vampire" && (isSabbat(a) || (a.system.vinculi ?? []).length > 0);
     if (ctx.hasVinc)
       ctx.vinculi = (a.system.vinculi ?? []).map((v, i) => ({ ...v, index: i, meaning: vinculumMeaning(v.rating),
@@ -1069,6 +1074,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const { drinkVitae } = await import("../apps/bonds.mjs");
     return drinkVitae(this.actor, Number(target.dataset.index));
   }
+  static #onOpenCoterie() { return openCoterie(this.actor); }
   static async #onFeedFrom() {
     const { feedFrom } = await import("../apps/bonds.mjs");
     return feedFrom(this.actor);

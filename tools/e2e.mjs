@@ -351,6 +351,25 @@ try {
     if (r.again) throw new Error("доход начислен дважды за месяц");
   });
 
+  await check("Котерия: общие факты и основа", async () => {
+    const [a, b] = [await temp("E2E — котерия А"), await temp("E2E — котерия Б")];
+    const r = await page.evaluate(async ([a, b]) => {
+      const SYS = game.system.id, C = await import(`/systems/${SYS}/module/apps/coterie.mjs`);
+      window._e2e.coteries = foundry.utils.deepClone(game.settings.get(SYS, "coteries"));
+      const c = { id: "e2e", name: "E2E — котерия", members: [a, b], primary: "Домен", lost: {},
+        pools: { "Домен": { [a]: 2, [b]: 1 }, "Стадо": { [a]: 3, [b]: 2 } } };
+      await game.settings.set(SYS, "coteries", [...window._e2e.coteries, c]);
+      const out = { dom: C.poolValue(c, "Домен"), herd: C.poolValue(c, "Стадо"), forA: C.coterieBg(game.actors.get(a), "Стадо") };
+      C.openCoterie(game.actors.get(a));
+      return out;
+    }, [a, b]);
+    await page.waitForSelector(".r-cot-app .r-cot-pool", { timeout: 10000 });
+    await page.evaluate(async () => { foundry.applications.instances.get("r-coterie")?.close(); await game.settings.set(game.system.id, "coteries", window._e2e.coteries); });
+    if (r.dom !== 3) throw new Error(`Домен котерии ${r.dom}, ждали 3`);
+    if (r.herd !== 3) throw new Error(`Стадо (вложено 5) должно быть не выше основы 3, а стало ${r.herd}`);
+    if (r.forA !== 3) throw new Error(`участнику котерии доступно Стадо ${r.forA}`);
+  });
+
   // Уборка до перезагрузок мира: сообщения бросков и временные персонажи
   await page.evaluate(async () => {
     const extra = game.messages.contents.slice(window._e2e.messages).map(m => m.id);

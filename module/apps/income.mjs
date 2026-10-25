@@ -10,7 +10,8 @@
 
 import { SYSTEM_ID } from "../config.mjs";
 import { getClock, ymd } from "./calendar.mjs";
-import { currencyOf, worldCurrency, changeMoney, fmtMoney } from "../data/money.mjs";
+import { currencyOf, worldCurrency, changeMoney, fmtMoney, roundMoney } from "../data/money.mjs";
+import { poolValue } from "./coterie.mjs";
 
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
 const esc = s => foundry.utils.escapeHTML(String(s ?? ""));
@@ -56,6 +57,15 @@ export async function checkIncome(now = getClock()) {
       if (!sum) continue;
       await changeMoney(a, sum);
       lines.push(`<li><b>${esc(a.name)}</b>: +${esc(fmtMoney(sum, cur))}</li>`);
+    }
+    // общее Богатство котерии (apps/coterie.mjs) — доход поровну между участниками; выше 5 — надёжность, а не размах
+    for (const c of game.settings.get(SYSTEM_ID, "coteries") ?? []) {
+      const dots = "Богатство" in (c.pools ?? {}) ? poolValue(c, "Богатство") : 0;
+      const members = (c.members ?? []).map(id => game.actors.get(id)).filter(a => a?.system.money);
+      if (!dots || !members.length) continue;
+      const cur = worldCurrency(), each = roundMoney(incomeFor(Math.min(5, dots), cur) * months / members.length, cur);
+      for (const a of members) await changeMoney(a, each);
+      lines.push(`<li>${t("Income.Coterie", { name: esc(c.name), sum: esc(fmtMoney(each, cur)), n: members.length })}</li>`);
     }
     if (lines.length) await ChatMessage.create({ speaker: { alias: t("Income.Title") },
       content: `<div class="r-notice"><i class="fa-solid fa-coins"></i> <b>${t(months > 1 ? "Income.Months" : "Income.Month", { n: months })}</b><ul>${lines.join("")}</ul></div>` });

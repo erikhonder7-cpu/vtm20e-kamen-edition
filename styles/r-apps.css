@@ -940,3 +940,27 @@ body.r-theme-light .vtm20 .r-ng-item.is-active, body.r-theme-light .vtm20 .r-ng-
 .vtm20 .r-web-arrow.is-vinc { fill: #9b7fc4; }
 .vtm20 .r-web-el.is-vinc { fill: #b9a2dc; }
 .vtm20 .r-web-li.is-vinc { border-left: 2px dotted #9b7fc4; }
+
+/* ── Котерия: участники плашками, общие факты строками как черты листа, вклады под строкой ── */
+.vtm20 .r-cot-name { width: 100%; background: transparent; border: 0; border-bottom: 1px dashed var(--r-line-2); font: inherit; color: inherit; }
+.vtm20 .r-cot-members { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; padding: 4px 2px 6px; }
+.vtm20 .r-cot-member { display: inline-flex; align-items: center; gap: 4px; padding: 2px 4px 2px 2px; border: 1px solid var(--r-line); }
+.vtm20 .r-cot-member > a:first-child { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+.vtm20 .r-cot-member img { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; object-position: top; border: 1px solid var(--r-line-2); }
+.vtm20 .r-cot-member b { font-family: var(--r-display); font-weight: 400; }
+.vtm20 .r-cot-add { display: inline-flex; align-items: center; gap: 6px; margin: 4px 0; }
+.vtm20 .r-cot-add select { width: auto; min-width: 160px; }
+.vtm20 .r-cot-pool { padding: 4px 4px 6px; border-bottom: 1px solid var(--r-line); }
+.vtm20 .r-cot-pool.is-primary { box-shadow: inset 2px 0 0 #c4474c; }
+.vtm20 .r-cot-pool .r-dots { flex: 0 0 auto; gap: 2px; }
+.vtm20 .r-cot-pool .r-dot { width: 9px; height: 9px; }
+.vtm20 .r-cot-val { min-width: 18px; text-align: right; font-family: var(--r-display); font-weight: 400; }
+.vtm20 .r-cot-tag { font-size: 11px; font-style: normal; text-transform: uppercase; letter-spacing: .08em; color: #c4474c; }
+.vtm20 .r-cot-cap { font-size: 11.5px; color: var(--r-muted); }
+.vtm20 .r-cot-shares { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; padding: 2px 0 0 12px; font-size: 13px; }
+.vtm20 .r-cot-share { display: inline-flex; align-items: center; gap: 3px; }
+.vtm20 .r-cot-share.is-zero { opacity: .6; }
+.vtm20 .r-cot-share b { font-weight: 400; color: var(--r-ink); }
+.vtm20 .r-cot-tools { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; }
+.vtm20.r-cot-app .r-court-list .r-colhead { margin: 14px 0 4px; }
+.vtm20.r-cot-app .r-court-list .r-colhead:first-child { margin-top: 2px; }

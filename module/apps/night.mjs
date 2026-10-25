@@ -7,6 +7,7 @@
 //   · после боя усиления снимаются сами.
 
 import { VTM20, SYSTEM_ID, SYSTEM_PATH } from "../config.mjs";
+import { coterieBg } from "./coterie.mjs";
 import { rollPool, odds, chancesView } from "../dice/roll.mjs";
 
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -26,6 +27,8 @@ export const HUNTING_METHODS = {
 };
 
 const bgValue = (actor, name) => actor.items.find(i => i.type === "background" && i.name.toLowerCase() === name)?.system.value ?? 0;
+/** Свой факт или общий факт котерии (apps/coterie.mjs) — что больше. */
+const bgOrCoterie = (actor, name, pooled) => Math.max(bgValue(actor, name), coterieBg(actor, pooled));
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const GROUND_ICONS = { slums: "fa-dumpster-fire", poor: "fa-house-crack", business: "fa-building", industrial: "fa-industry", suburb: "fa-tree-city", guarded: "fa-shield-halved" };
@@ -56,8 +59,8 @@ class HuntDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     this.actor = actor;
     this.place = place;
     const own = place?.owner?.id === actor.id, foreign = !!place?.owner && !own;
-    const domain = bgValue(actor, "домен");
-    this.bg = { fame: bgValue(actor, "слава"), domain: own ? Math.max(1, domain) : foreign ? 0 : domain, herd: bgValue(actor, "стадо") };
+    const domain = bgOrCoterie(actor, "домен", "Домен");
+    this.bg = { fame: bgValue(actor, "слава"), domain: own ? Math.max(1, domain) : foreign ? 0 : domain, herd: bgOrCoterie(actor, "стадо", "Стадо") };
     this.domainState = own ? "own" : foreign ? "foreign" : "";
     this.v = { ground: place?.ground in HUNTING_GROUNDS ? place.ground : "business", method: "alleys", fame: this.bg.fame + this.bg.domain > 0, herd: this.bg.herd > 0, inhuman: false, modDice: 0, modDiff: 0,
       messageMode: game.settings.get("core", "messageMode") };

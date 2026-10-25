@@ -1,0 +1,68 @@
+{{!-- Котерия: слева — котерии, посередине — участники и общие факты биографии строками, как черты листа. --}}
+<div class="r-court-body r-cot-body">
+  <aside class="r-xw-side r-court-side">
+    <h3 class="r-h3 r-colhead"><span>{{localize "VTM20.Coterie.List"}}</span></h3>
+    <nav class="r-xw-cats r-court-side-scroll">
+      {{#each cats}}
+      <a class="r-xw-cat {{#if active}}is-active{{/if}}" data-action="pick" data-id="{{id}}"><i class="fa-solid fa-people-roof"></i><span>{{name}}</span><small>{{n}}</small></a>
+      {{else}}<p class="r-empty">{{localize "VTM20.Coterie.None"}}</p>
+      {{/each}}
+    </nav>
+    {{#if gm}}<a class="r-h2-btn r-court-add" data-action="create"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Coterie.New"}}</a>{{/if}}
+    <small class="r-court-hint">{{localize "VTM20.Coterie.Rule"}}</small>
+  </aside>
+
+  <main class="r-court-main">
+    {{#if cot}}
+    <h2 class="r-h2"><span>{{#if gm}}<input class="r-cot-name" type="text" name="cot-name" value="{{cot.name}}">{{else}}{{cot.name}}{{/if}}</span>
+      {{#if gm}}<span class="r-h2-tools"><a class="r-h2-btn is-plain" data-action="remove" data-tooltip="{{localize 'VTM20.Coterie.Remove'}}"><i class="fa-solid fa-trash"></i></a></span>{{/if}}
+    </h2>
+    <div class="r-court-list">
+      <h3 class="r-h3 r-colhead"><span>{{localize "VTM20.Coterie.Members"}}</span></h3>
+      <div class="r-cot-members">
+        {{#each cot.members}}
+        <span class="r-cot-member"><a data-action="sheet" data-actor-id="{{id}}">{{#if img}}<img src="{{img}}" alt="">{{/if}}<b>{{name}}</b></a>
+          {{#if @root.gm}}<a class="r-icon-btn is-danger" data-action="dropMember" data-actor-id="{{id}}" data-tooltip="{{localize 'VTM20.Coterie.DropMember'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}</span>
+        {{else}}<p class="r-empty">{{localize "VTM20.Coterie.NoMembers"}}</p>
+        {{/each}}
+        {{#if gm}}{{#if cot.candidates.length}}<span class="r-cot-add"><select name="cot-member">{{#each cot.candidates}}<option value="{{id}}">{{name}}</option>{{/each}}</select>
+          <a class="r-h2-btn" data-action="addMember"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Coterie.AddMember"}}</a></span>{{/if}}{{/if}}
+      </div>
+      {{#if gm}}<small class="r-court-hint">{{localize "VTM20.Coterie.DragHint"}}</small>{{/if}}
+
+      <h3 class="r-h3 r-colhead"><span>{{localize "VTM20.Coterie.Pools"}}</span></h3>
+      {{#each cot.pools as |p|}}
+      <div class="r-cot-pool {{#if p.primary}}is-primary{{/if}}">
+        <div class="r-trait">
+          <span class="r-trait-main">
+            <span class="r-trait-label">{{p.bg}}{{#if p.primary}} <em class="r-cot-tag">{{localize "VTM20.Coterie.Primary"}}</em>{{/if}}{{#if p.capped}} <em class="r-cot-cap" data-tooltip="{{localize 'VTM20.Coterie.CappedHint'}}">{{localize "VTM20.Coterie.Capped"}}</em>{{/if}}{{#if p.lost}} <em class="r-cot-cap">{{localize "VTM20.Coterie.Lost" n=p.lost}}</em>{{/if}}</span>
+            <span class="r-leader"></span>
+            <b class="r-cot-val">{{p.value}}</b>
+            <span class="r-dots">{{#each p.dots}}<span class="r-dot {{#if on}}is-filled{{/if}}"></span>{{/each}}</span>
+          </span>
+        </div>
+        <div class="r-cot-shares">
+          {{#each p.shares as |s|}}
+          <span class="r-cot-share {{#unless s.n}}is-zero{{/unless}}"><b>{{s.name}}</b> {{s.n}}
+            {{#if @root.gm}}<a class="r-icon-btn" data-action="give" data-bg="{{p.bg}}" data-actor-id="{{s.id}}" data-tooltip="{{localize 'VTM20.Coterie.Give' n=s.sheet}}"><i class="fa-solid fa-plus"></i></a>
+            {{#if s.n}}<a class="r-icon-btn" data-action="take" data-bg="{{p.bg}}" data-actor-id="{{s.id}}" data-tooltip="{{localize 'VTM20.Coterie.Take' n=s.n}}"><i class="fa-solid fa-arrow-right-from-bracket"></i></a>{{/if}}{{/if}}
+          </span>
+          {{/each}}
+          {{#if @root.gm}}<span class="r-cot-tools">
+            {{#unless p.primary}}<a class="r-h2-btn is-plain" data-action="primary" data-bg="{{p.bg}}"><i class="fa-solid fa-anchor"></i> {{localize "VTM20.Coterie.MakePrimary"}}</a>{{/unless}}
+            <a class="r-h2-btn is-plain" data-action="lose" data-bg="{{p.bg}}" data-tooltip="{{localize 'VTM20.Coterie.LoseHint'}}"><i class="fa-solid fa-fire"></i> −1</a>
+            {{#if p.lost}}<a class="r-h2-btn is-plain" data-action="restore" data-bg="{{p.bg}}" data-tooltip="{{localize 'VTM20.Coterie.RestoreHint'}}"><i class="fa-solid fa-rotate-left"></i> +1</a>{{/if}}
+            <a class="r-icon-btn is-danger" data-action="dropPool" data-bg="{{p.bg}}" data-tooltip="{{localize 'VTM20.Coterie.DropPool'}}"><i class="fa-solid fa-xmark"></i></a>
+          </span>{{/if}}
+        </div>
+      </div>
+      {{else}}<p class="r-empty">{{localize "VTM20.Coterie.NoPools"}}</p>
+      {{/each}}
+      {{#if gm}}{{#if cot.canAdd.length}}<span class="r-cot-add"><select name="cot-pool">{{#each cot.canAdd}}<option value="{{this}}">{{this}}</option>{{/each}}</select>
+        <a class="r-h2-btn" data-action="addPool"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Coterie.AddPool"}}</a></span>{{/if}}{{/if}}
+    </div>
+    {{else}}
+    <p class="r-empty">{{#if gm}}{{localize "VTM20.Coterie.EmptyGM"}}{{else}}{{localize "VTM20.Coterie.EmptyPlayer"}}{{/if}}</p>
+    {{/if}}
+  </main>
+</div>
