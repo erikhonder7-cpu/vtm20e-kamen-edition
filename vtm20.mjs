@@ -39,6 +39,7 @@ import { registerExtras } from "./module/apps/extras.mjs";
 import { registerMasquerade } from "./module/ui/masquerade.mjs";
 import { registerCityMap, openCity, closeCity, toggleCity, cityMap } from "./module/ui/citymap.mjs";
 import { registerPause } from "./module/ui/pause.mjs";
+import { registerSounds } from "./module/ui/sounds.mjs";
 import * as Money from "./module/data/money.mjs";
 
 /* ── init ──────────────────────────────────────────────────────────────── */
@@ -124,6 +125,7 @@ Hooks.once("init", () => {
   registerCityMap();
   registerMasquerade();
   registerPause();
+  registerSounds();
   foundry.applications.handlebars.loadTemplates({
     rDots: `${SYSTEM_PATH}/templates/actor/parts/dots.hbs`,
     rPower: `${SYSTEM_PATH}/templates/actor/parts/power.hbs`,
