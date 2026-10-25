@@ -1,5 +1,31 @@
 {{!-- Шкалы: здоровье, воля, Человечность или Путь с Добродетелями. Шапка карточки — название и число в одну строку. --}}
 <section class="r-vitals-wrap {{#if vitalsClosed}}is-closed{{/if}}">
+{{!-- Торпор и Окончательная смерть (план 9): плашка над шкалами --}}
+{{#if death}}
+<div class="r-fate-plate is-dead">
+  <span class="r-fate-title">{{localize "VTM20.Torpor.Death.Title"}}</span>
+  <span class="r-fate-meta">{{death.at}} · <i>{{death.cause}}</i></span>
+  <span class="r-fate-note">{{localize "VTM20.Torpor.Death.Note"}}</span>
+  {{#if isGM}}<a class="r-h2-btn" data-action="undoDeath"><i class="fa-solid fa-rotate-left"></i> {{localize "VTM20.Torpor.Death.Undo"}}</a>{{/if}}
+</div>
+{{else if torporState}}
+<div class="r-vcard r-fate-plate is-torpor">
+  <div class="r-vc-head"><h4 class="r-banner"><span>{{localize "VTM20.Torpor.Title"}}</span></h4><div class="r-vc-status">{{torporState.cause}}</div></div>
+  <div class="r-fate-grid">
+    <div><span class="r-fate-lbl">{{localize "VTM20.Torpor.Since"}}</span><b>{{torporState.since}}</b></div>
+    <div><span class="r-fate-lbl">{{localize "VTM20.Torpor.Span"}}</span><b>{{torporState.span}}</b> <small>({{localize "VTM20.Torpor.Morality"}} {{torporState.morality}})</small></div>
+    <div><span class="r-fate-lbl">{{localize "VTM20.Torpor.Wakes"}}</span><b>{{torporState.until}}</b></div>
+  </div>
+  <div class="r-fate-bar"><i style="width: {{torporState.pct}}%"></i></div>
+  <div class="r-fate-nights"><span>{{localize "VTM20.Torpor.Passed" n=torporState.passed}}</span><span>{{localize "VTM20.Torpor.Left" n=torporState.left}}</span></div>
+  {{#if editable}}<div class="r-fate-tools">
+    <a class="r-h2-btn {{#unless torporState.ready}}is-off{{/unless}}" data-action="torporWake" data-tooltip="{{localize 'VTM20.Torpor.WakeHint'}}"><i class="fa-solid fa-sun"></i> {{localize "VTM20.Torpor.Wake"}}</a>
+    <a class="r-h2-btn" data-action="torporWakeBlood" data-tooltip="{{localize 'VTM20.Torpor.WakeBloodHint'}}"><i class="fa-solid fa-droplet"></i> {{localize "VTM20.Torpor.WakeBlood"}}</a>
+    {{#unless torporState.ready}}<span class="r-fate-note">{{localize "VTM20.Torpor.NotYetShort"}}</span>{{/unless}}
+  </div>{{/if}}
+</div>
+{{/if}}
+
 <div class="r-vitals-fold"><div class="r-vitals">
   <div class="r-vcard r-vc-health {{#if healthHurt}}is-hurt{{/if}}">
     <div class="r-vc-head">

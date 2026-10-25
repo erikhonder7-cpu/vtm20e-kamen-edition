@@ -1038,3 +1038,36 @@ body.r-theme-light .vtm20 .r-motto { color: rgba(140, 28, 34, .75); }
 .vtm20 .r-lin-sibs small { font-family: var(--r-caps); font-size: 10.5px; letter-spacing: 1px; text-transform: uppercase; color: var(--r-muted); }
 .vtm20 .r-lin-sibs a { color: var(--r-ink); cursor: pointer; border-bottom: 1px dotted var(--r-line-2); }
 .vtm20 .r-lin-sibs a:hover { color: var(--r-accent); }
+
+/* Сроки по часам хроники (план 7): кромка по виду длительности, остаток и тонкая полоска */
+.vtm20 .r-fx-card.is-power.is-hour { border-left-color: #c9a46a; }
+.vtm20 .r-fx-card.is-power.is-night { border-left-color: #2f3b55; }
+.vtm20 .r-fx-card.is-ritual { border-left-color: #8c1c22; background: linear-gradient(90deg, rgba(140, 28, 34, .14), transparent 60%), var(--r-card-bg); }
+.vtm20 .r-fx-left { display: flex; align-items: baseline; gap: 8px; margin: 6px 0 0 32px; }
+.vtm20 .r-fx-left span { font-family: var(--r-caps); font-size: 11px; letter-spacing: 1.4px; text-transform: uppercase; color: var(--r-muted); }
+.vtm20 .r-fx-left b { margin-left: auto; font-family: var(--r-display); font-weight: 400; font-size: 16px; color: var(--r-ink); }
+.vtm20 .r-fx-bar { height: 2px; margin: 5px 0 0 32px; background: var(--r-line); overflow: hidden; }
+.vtm20 .r-fx-bar > i { display: block; height: 100%; background: linear-gradient(90deg, #6e1218, #c4474c); transition: width .6s ease; }
+.vtm20 .r-fx-card.is-night .r-fx-bar > i { background: linear-gradient(90deg, #2f3b55, #8d9bb8); }
+
+/* Торпор и Окончательная смерть (план 9): плашка над шкалами, лист в торпоре приглушён, мёртвый — серый */
+.vtm20 .r-fate-plate { margin: 10px 20px 0; }
+.vtm20 .r-fate-plate.is-torpor { border-color: rgba(141, 155, 184, .35); background: linear-gradient(180deg, rgba(47, 59, 85, .22), transparent 70%), var(--r-card-bg); }
+.vtm20 .r-fate-plate.is-torpor .r-vc-status { color: #8d9bb8; font-style: italic; }
+.vtm20 .r-fate-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 6px 0 8px; }
+.vtm20 .r-fate-lbl { display: block; font-family: var(--r-caps); font-size: 10.5px; letter-spacing: 1.4px; text-transform: uppercase; color: var(--r-muted); }
+.vtm20 .r-fate-grid b { font-family: var(--r-display); font-weight: 400; font-size: 15px; color: var(--r-ink); }
+.vtm20 .r-fate-grid small { color: var(--r-muted); font-style: italic; }
+.vtm20 .r-fate-bar { height: 2px; background: var(--r-line); overflow: hidden; }
+.vtm20 .r-fate-bar > i { display: block; height: 100%; background: linear-gradient(90deg, #2f3b55, #8d9bb8); }
+.vtm20 .r-fate-nights { display: flex; justify-content: space-between; margin-top: 4px; font-size: 12px; font-style: italic; color: var(--r-muted); }
+.vtm20 .r-fate-tools { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+.vtm20 .r-fate-tools .r-h2-btn.is-off { opacity: .45; }
+.vtm20 .r-fate-note { font-size: 12.5px; font-style: italic; color: var(--r-muted); }
+.vtm20 .r-fate-plate.is-dead { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; padding: 10px 14px; border: 1px solid var(--r-line-2); background: rgba(0, 0, 0, .35); }
+.vtm20 .r-fate-title { font-family: var(--r-caps); font-size: 15px; letter-spacing: 3px; text-transform: uppercase; color: var(--r-ink); }
+.vtm20 .r-fate-meta { color: var(--r-ink-2); font-size: 13.5px; }
+.vtm20 .r-fate-plate.is-dead .r-fate-note { flex: 1 1 100%; }
+.application.vtm20.is-torpor .r-power-roll, .application.vtm20.is-torpor .r-trait-roll { opacity: .35; pointer-events: none; }
+.application.vtm20.is-dead .window-content { filter: grayscale(.85); }
+.application.vtm20.is-dead .r-fate-plate.is-dead { filter: none; }

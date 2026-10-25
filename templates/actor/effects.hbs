@@ -8,10 +8,21 @@
   {{#if fxEmpty}}<div class="r-empty">{{localize "VTM20.FxTab.NothingNow"}}</div>{{/if}}
   <div class="r-fx-grid">
     {{#each fxPowers}}
-    <article class="r-fx-card is-power {{#if scene}}is-scene{{/if}}">
+    <article class="r-fx-card is-power is-{{kind}}" {{#if timer}}data-fx-start="{{timer.start}}" data-fx-until="{{timer.until}}"{{/if}}>
       <header><img src="{{img}}" alt=""><b>{{name}}</b><em>{{mode}}</em>
         {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="endPower" data-effect-id="{{id}}" data-tooltip="{{localize 'VTM20.Fx.End'}}"><i class="fa-solid fa-power-off"></i></a>{{/if}}</header>
       {{#if lines.length}}<ul>{{#each lines}}<li>{{this}}</li>{{/each}}</ul>{{/if}}
+      {{#if timer}}<div class="r-fx-left"><span>{{#if toDawn}}{{localize "VTM20.Timer.ToDawn"}}{{else}}{{localize "VTM20.Timer.Left"}}{{/if}}</span><b data-left>{{timer.left}}</b></div>
+      <div class="r-fx-bar"><i style="width: {{timer.pctW}}%"></i></div>{{/if}}
+    </article>
+    {{/each}}
+    {{#each fxRituals}}
+    <article class="r-fx-card is-ritual" {{#if timer}}data-fx-start="{{timer.start}}" data-fx-until="{{timer.until}}"{{/if}}>
+      <header><img src="{{img}}" alt=""><b>{{name}}</b><em>{{localize "VTM20.Timer.Reading"}}</em>
+        {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="cancelRitual" data-effect-id="{{id}}" data-tooltip="{{localize 'VTM20.Timer.ReadCancel'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}</header>
+      <p>{{localize "VTM20.Timer.RitualTime" n=minutes l=level}}</p>
+      {{#if timer}}<div class="r-fx-left"><span>{{localize "VTM20.Timer.ReadyAt"}} {{timer.at}} · {{localize "VTM20.Timer.Left"}}</span><b data-left>{{timer.left}}</b></div>
+      <div class="r-fx-bar"><i style="width: {{timer.pctW}}%"></i></div>{{/if}}
     </article>
     {{/each}}
     {{#each fxStatuses}}

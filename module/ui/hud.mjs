@@ -11,6 +11,7 @@ import { openAttack, openDefense, weaponsOf, pendingAttacks, defendFromHud } fro
 import { openHazard } from "../apps/hazard.mjs";
 import { openHunt } from "../apps/night.mjs";
 import { rollPowerRef, powerByRef } from "../sheets/actor-sheet.mjs";
+import { effectTimer } from "../apps/timers.mjs";
 
 const ID = "r-hud";
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -111,7 +112,12 @@ export function renderHud() {
     return `<a class="rh-btn rh-power" data-act="power" data-ref="${esc(ref)}" data-tooltip="${esc(`${x.p.name} · ${x.pathName || x.d.name} ${x.p.level}`)}">
       <img class="rh-pico" src="${esc(foundry.utils.getRoute(Codex.disciplineIcon(x.disc)))}" alt=""><small>${x.p.level}</small></a>`;
   }).join("");
-  const fxChips = (a.powerEffects ?? []).map(x => `<span class="rh-chip rh-fx" data-tooltip="${esc(x.effect.name)}"><img src="${esc(x.effect.img)}" alt=""></span>`).join("");
+  // у сил «на час» и «до рассвета» — остаток полоской под знаком (apps/timers.mjs подкрашивает)
+  const fxChips = (a.powerEffects ?? []).map(x => {
+    const tm = effectTimer(x.effect);
+    const tip = tm ? `${x.effect.name} · ${t(x.def.mode === "night" ? "Timer.ToDawn" : "Timer.Left")} ${tm.left}` : x.effect.name;
+    return `<span class="rh-chip rh-fx" data-tooltip="${esc(tip)}" ${tm ? `data-fx-start="${tm.start}" data-fx-until="${tm.until}"` : ""}><img src="${esc(x.effect.img)}" alt="">${tm ? `<i class="rh-fx-bar" style="width:${tm.pctW}%"></i>` : ""}</span>`;
+  }).join("");
 
   const arm = a.armor;
   const soak = `${a.soakPool("bashing")}/${a.soakPool("lethal")}/${a.soakPool("aggravated")}`;

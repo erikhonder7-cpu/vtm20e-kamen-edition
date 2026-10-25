@@ -5,6 +5,9 @@ import { VTM20, SYSTEM_ID } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
 import { revenantFamily } from "../data/revenants.mjs";
 import { effectDef, activePowerEffects } from "../data/effects.mjs";
+import { untilFor } from "../apps/timers.mjs";
+import { proposeFate } from "../apps/torpor.mjs";
+import { getClock } from "../apps/calendar.mjs";
 
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
 
@@ -300,9 +303,10 @@ export class VtMActor extends Actor {
     else if (full) fate = t("Fate.incapacitated");
     const dmg = game.i18n.localize(VTM20.damageTypes[type].label);
     this.#notice(`<i class="fa-solid fa-heart-crack"></i> ${t("Notify.Damaged", { n: amount, type: dmg })}${fate ? ` <b class="r-fate">${fate}</b>` : ""}`);
-    // Состояние на токене: торпор или смерть
-    if (fate === t("Fate.finalDeath") || fate === t("Fate.death")) await this.toggleStatusEffect?.("dead", { active: true, overlay: true });
-    else if (fate === t("Fate.torpor")) await this.toggleStatusEffect?.("r-torpor", { active: true });
+    // Смертный умирает сразу; вампиру — карточка ведущему: торпор или Окончательная смерть (apps/torpor.mjs)
+    if (fate === t("Fate.death")) await this.toggleStatusEffect?.("dead", { active: true, overlay: true });
+    else if (fate === t("Fate.finalDeath")) await proposeFate(this, "death");
+    else if (fate === t("Fate.torpor")) await proposeFate(this, "torpor");
   }
 
   async healDamage(type, n = 1) {
@@ -346,9 +350,10 @@ export class VtMActor extends Actor {
   /**
    * Включить силу: цена кровью и волей, эффект на актёре, естественное оружие.
    * @param {string} power  «дисциплина:уровень»
-   * @param {object} o      variant (волк / летучая мышь), blood (сколько крови, где цена «1–3»)
+   * @param {object} o      variant (волк / летучая мышь), blood (сколько крови, где цена «1–3»),
+   *                         hours (сколько часов, где срок по успехам)
    */
-  async startPower(power, { variant = "", blood = null } = {}) {
+  async startPower(power, { variant = "", blood = null, hours = null } = {}) {
     const def = effectDef(power, variant);
     if (!def || this.powerEffects.some(x => x.power === power)) return null;
     const [disc, lvl] = power.split(":");
@@ -357,9 +362,11 @@ export class VtMActor extends Actor {
     const cost = blood ?? (Array.isArray(def.cost?.blood) ? def.cost.blood[0] : (def.cost?.blood ?? 0));
     if (cost && !(await this.spendBlood(cost))) return null;
     if (def.cost?.willpower && !(await this.spendWillpower(def.cost.willpower))) return null;
+    // «на час» и «до рассвета» — срок по часам хроники (apps/timers.mjs)
+    const now = getClock(), until = untilFor(def.mode, { hours: hours ?? (Number(def.hours) || 1), now });
     const [effect] = await this.createEmbeddedDocuments("ActiveEffect", [{
       name, img: Codex.disciplineIcon(disc), statuses: [`r-fx-${disc}-${lvl}`], description: p?.html ?? "",
-      flags: { [SYSTEM_ID]: { power, variant, mode: def.mode, ...(def.charges ? { charges: cost } : {}) } }
+      flags: { [SYSTEM_ID]: { power, variant, mode: def.mode, ...(def.charges ? { charges: cost } : {}), ...(until ? { start: now, until } : {}) } }
     }]);
     if (def.weapon) await this.createEmbeddedDocuments("Item", [{
       name: def.weapon.name, type: "weapon", img: `systems/${SYSTEM_ID}/assets/icons/weapon.svg`,
@@ -370,14 +377,14 @@ export class VtMActor extends Actor {
     return effect;
   }
 
-  /** Выключить силу: эффект и её естественное оружие. */
-  async endPower(effect) {
+  /** Выключить силу: эффект и её естественное оружие; quiet — без карточки (срок вышел, карточка общая). */
+  async endPower(effect, { quiet = false } = {}) {
     const power = effect.getFlag(SYSTEM_ID, "power");
     const items = this.items.filter(i => i.getFlag(SYSTEM_ID, "power") === power).map(i => i.id);
     if (items.length) await this.deleteEmbeddedDocuments("Item", items);
     const name = effect.name;
     await effect.delete();
-    this.#notice(`<i class="fa-solid fa-power-off"></i> ${t("Fx.Off", { name })}`);
+    if (!quiet) this.#notice(`<i class="fa-solid fa-power-off"></i> ${t("Fx.Off", { name })}`);
   }
 
   /* ── Пробуждение и ночь ─────────────────────────────────────────────── */

@@ -33,6 +33,8 @@ import { openDowntime } from "./module/apps/downtime.mjs";
 import { openSessionXp, registerSessionXp } from "./module/apps/session-xp.mjs";
 import { openCourt, registerCourt } from "./module/apps/court.mjs";
 import { openWeb, registerWeb } from "./module/apps/web.mjs";
+import { registerTimers, tickTimers } from "./module/apps/timers.mjs";
+import { registerTorpor, checkTorpor } from "./module/apps/torpor.mjs";
 import { registerCityMap, openCity, closeCity, toggleCity, cityMap } from "./module/ui/citymap.mjs";
 import { registerPause } from "./module/ui/pause.mjs";
 import * as Money from "./module/data/money.mjs";
@@ -107,6 +109,8 @@ Hooks.once("init", () => {
 
   registerSettings();
   registerNightExtras();
+  registerTimers();
+  registerTorpor();
   registerSessionXp();
   registerCourt();
   registerWeb();
@@ -157,7 +161,7 @@ Hooks.once("ready", async () => {
   const mountPanels = () => { if (game.settings.get(SYSTEM_ID, "nexusNav")) initTopBar(); };
   mountPanels();
   Hooks.on("canvasReady", mountPanels);
-  startNightClock(() => { foundry.applications.instances.get("r-calendar")?._paintClock?.(); paintClockBar(); checkDawn(); });
+  startNightClock(() => { foundry.applications.instances.get("r-calendar")?._paintClock?.(); paintClockBar(); checkDawn(); tickTimers(); checkTorpor(); });
 });
 
 /* ── Нексус: перенос токенов через флаги User ──────────────────────────── */

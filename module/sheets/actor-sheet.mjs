@@ -24,10 +24,12 @@ import { openDiablerie } from "../apps/diablerie.mjs";
 import { openClans } from "../apps/clans.mjs";
 import { REVENANT_FAMILIES, revenantFamily } from "../data/revenants.mjs";
 import { BOON_LEVELS, boonLevelLabel, addBoon, toggleBoon, removeBoon, openBoons } from "../apps/boons.mjs";
-import { clockBarData } from "../apps/calendar.mjs";
+import { clockBarData, longDate } from "../apps/calendar.mjs";
 import { openLibrary, LibraryItems } from "../apps/library.mjs";
 import { moneyView, openMoney } from "../data/money.mjs";
-import { POWER_EFFECTS } from "../data/effects.mjs";
+import { POWER_EFFECTS, MODE_LABEL } from "../data/effects.mjs";
+import { effectTimer, readingRituals, toggleRitualReading, cancelRitual } from "../apps/timers.mjs";
+import { torporView, deathOf, enterTorpor, wakeFromTorpor, undoDeath } from "../apps/torpor.mjs";
 import { MERIT_MODS, describeMeritMod } from "../data/merit-mods.mjs";
 import { weaponIcon as weaponImg, armorIcon as armorImg } from "../data/icons.mjs";
 import { togglePowerEffect } from "../apps/power-effects.mjs";
@@ -39,6 +41,7 @@ const { ActorSheetV2 } = foundry.applications.sheets;
 const TextEditor = () => foundry.applications.ux.TextEditor.implementation;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
 const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
+const clockDate = ms => longDate(new Date(ms));
 
 const dots = (value, max = 5, extra = {}) =>
   Array.from({ length: max }, (_, i) => ({ n: i + 1, filled: i < value, ...extra }));
@@ -85,6 +88,12 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       money: VtMActorSheet.#onMoney,
       togglePower: VtMActorSheet.#onTogglePower,
       endPower: VtMActorSheet.#onEndPower,
+      readRitual: VtMActorSheet.#onReadRitual,
+      torporEnter: VtMActorSheet.#onTorporEnter,
+      torporWake: VtMActorSheet.#onTorporWake,
+      torporWakeBlood: VtMActorSheet.#onTorporWakeBlood,
+      undoDeath: VtMActorSheet.#onUndoDeath,
+      cancelRitual: VtMActorSheet.#onCancelRitual,
       toggleRow: VtMActorSheet.#onToggleRow,
       toggleAll: VtMActorSheet.#onToggleAll,
       toggleVitals: VtMActorSheet.#onToggleVitals,
@@ -344,6 +353,10 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     ctx.woundPenalty = s.health.penalty;
     ctx.vitalsClosed = this._vitalsClosed;
     ctx.torpor = VTM20.torporDuration[s.morality.value];
+    ctx.torporState = torporView(a);
+    const dead = deathOf(a);
+    ctx.death = dead ? { at: clockDate(dead.at), cause: t(`Torpor.Death.Cause.${dead.cause ?? "aggravated"}`) } : null;
+    ctx.canSleep = this.isEditable && !ctx.torporState && !ctx.death;
     ctx.soak = { bashing: a.soakPool("bashing"), lethal: a.soakPool("lethal"), aggravated: a.soakPool("aggravated") };
     ctx.xp = s.experience;
     if (ctx.isGhoul) {
@@ -386,8 +399,9 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       label: r.dice ? `${r.dice}d10` : [r.trait1 && a.traitLabel(r.trait1), r.trait2 && a.traitLabel(r.trait2)].filter(Boolean).join(" + ") + (r.base ? ` (${t("Magic.BaseAttr")})` : ""),
       diff: r.difficulty || "", note: r.note ?? "", blood: r.blood ?? 0, willpower: !!r.willpower, canRoll: !!(r.trait1 || r.dice)
     } : null;
+    const reading = new Set(readingRituals(a).map(e => e.flags[SYSTEM_ID].ritual));
     const mapRitual = r => ({
-      id: r.id, name: r.name, level: r.system.level, roman: ROMAN[r.system.level - 1], html: r.system.description,
+      id: r.id, name: r.name, level: r.system.level, roman: ROMAN[r.system.level - 1], html: r.system.description, ritual: true, reading: reading.has(r.id),
       open: this._open.has(r.id),
       roll: rollInfo({ ...(r.system.roll ?? {}), trait1: r.system.roll?.trait1 || "attributes.intelligence",
         trait2: r.system.roll?.trait1 ? r.system.roll.trait2 : "abilities.occult", difficulty: r.system.roll?.difficulty || Math.min(9, 3 + r.system.level) })
@@ -417,10 +431,10 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const fxOf = (k, level) => {
       const key = `${k}:${level}`, def = POWER_EFFECTS[key];
       return def ? { key, on: fxOn.has(key), icon: def.icon ?? "fa-wand-sparkles",
-        tip: `${t("Fx.Toggle")} · ${t(def.mode === "scene" ? "Fx.Scene" : "Fx.Toggleable")}` } : null;
+        tip: `${t("Fx.Toggle")} · ${t(MODE_LABEL[def.mode] ?? "Fx.Toggleable")}` } : null;
     };
     ctx.activeFx = a.powerEffects.map(x => ({ id: x.effect.id, name: x.effect.name, img: x.effect.img,
-      mode: t(x.def.mode === "scene" ? "Fx.Scene" : "Fx.Toggleable"), hit: !!x.def.diff?.hit }));
+      mode: t(MODE_LABEL[x.def.mode] ?? "Fx.Toggleable"), hit: !!x.def.diff?.hit }));
     ctx.disciplines = items.map(it => {
       const k = it.system.key;
       const data = Codex.discipline(k);
@@ -564,15 +578,18 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       if (def.staminaVsFangs) lines.push(t("FxTab.StaminaVsFangs"));
       if (def.venom) lines.push(t("FxTab.Venom", { n: effect.flags?.[SYSTEM_ID]?.charges ?? 1 }));
       if (def.weapon) lines.push(t("FxTab.Weapon", { name: def.weapon.name }));
-      return { id: effect.id, name: effect.name, img: effect.img, scene: def.mode === "scene",
-        mode: t(def.mode === "scene" ? "Fx.Scene" : "Fx.Toggleable"), lines };
+      return { id: effect.id, name: effect.name, img: effect.img, kind: def.mode,
+        mode: t(MODE_LABEL[def.mode] ?? "Fx.Toggleable"), lines, timer: effectTimer(effect), toDawn: def.mode === "night" };
     });
+    // Ритуалы, которые сейчас читаются: остаток по часам хроники
+    ctx.fxRituals = readingRituals(a).map(e => ({ id: e.id, name: e.name, img: e.img, level: ROMAN[(e.flags[SYSTEM_ID].level ?? 1) - 1],
+      minutes: 5 * (e.flags[SYSTEM_ID].level ?? 1), timer: effectTimer(e) }));
 
     // Состояния (ярость, торпор…) и прочие эффекты на актёре
     const st = a.statuses ?? new Set();
     ctx.fxStatuses = PORTRAIT_STATES.filter(x => st.has(x.id)).map(x => ({ id: x.id, icon: x.icon, hot: x.hot,
       label: t(`Status.${x.key}`), text: t(`FxTab.StatusText.${x.key}`) }));
-    ctx.fxOther = a.effects.filter(e => !e.flags?.[SYSTEM_ID]?.power && !(e.statuses?.size && PORTRAIT_STATES.some(x => e.statuses.has(x.id))))
+    ctx.fxOther = a.effects.filter(e => !e.flags?.[SYSTEM_ID]?.power && !e.flags?.[SYSTEM_ID]?.ritual && !(e.statuses?.size && PORTRAIT_STATES.some(x => e.statuses.has(x.id))))
       .map(e => ({ id: e.id, name: e.name, img: e.img, disabled: e.disabled }));
 
     // Усиление кровью
@@ -597,7 +614,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     // Черты с механикой (data/merit-mods.mjs): что, к чему, сами или по обстоятельствам
     const have = a.items.filter(i => i.type === "merit" || i.type === "flaw");
     ctx.fxTraits = have.filter(i => MERIT_MODS[i.name]).map(i => ({ id: i.id, name: i.name, flaw: i.type === "flaw", ...describeMeritMod(i.name) }));
-    ctx.fxEmpty = !ctx.fxPowers.length && !ctx.fxStatuses.length && !ctx.fxOther.length && !ctx.fxBoosts.length;
+    ctx.fxEmpty = !ctx.fxPowers.length && !ctx.fxRituals.length && !ctx.fxStatuses.length && !ctx.fxOther.length && !ctx.fxBoosts.length;
   }
 
   #prepareGear(ctx) {
@@ -638,6 +655,8 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     attachCombos(this.element);                         // Натура, Маска, Секта — свой список вместо <datalist>
     this.element.classList.toggle("is-mortal", this.actor.type === "mortal");
     this.element.classList.toggle("is-ghoul", this.actor.type === "ghoul");
+    this.element.classList.toggle("is-torpor", !!context.torporState);
+    this.element.classList.toggle("is-dead", !!context.death);
     // AppV2 заменяет только перерисованные части: убираем ворота после создания и лист — до него
     const gated = this.needsCreation;
     const stale = gated ? Object.keys(this.constructor.PARTS).filter(p => !["header", "gate"].includes(p)) : ["gate"];
@@ -841,6 +860,24 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const e = this.actor.effects.get(target.dataset.effectId);
     if (e) return this.actor.endPower(e);
   }
+  /** Ритуал читается временем (план 7): 5 минут × уровень по часам хроники, бросок — когда время выйдет. */
+  static #onReadRitual(event, target) {
+    const item = this.actor.items.get(target.closest("[data-item-id]")?.dataset.itemId);
+    if (item) return toggleRitualReading(this.actor, item);
+  }
+  /** Торпор (план 9): уйти по своей воле, проснуться за 1 кровь по сроку, разбудить кровью раньше. */
+  static async #onTorporEnter() {
+    const ok = await foundry.applications.api.DialogV2.confirm({ window: { title: t("Torpor.Enter") },
+      content: `<p>${t("Torpor.EnterConfirm", { span: VTM20.torporDuration[this.actor.system.morality?.value] ?? "" })}</p>`, rejectClose: false });
+    if (ok) return enterTorpor(this.actor, "will");
+  }
+  static #onTorporWake() { return wakeFromTorpor(this.actor); }
+  static #onTorporWakeBlood() { return wakeFromTorpor(this.actor, { byBlood: true }); }
+  static #onUndoDeath() { return undoDeath(this.actor); }
+  static #onCancelRitual(event, target) {
+    const e = this.actor.effects.get(target.dataset.effectId);
+    if (e) return cancelRitual(this.actor, e);
+  }
 
   static #onLibrary(event, target) {
     return openLibrary({ actor: this.actor, kind: target.dataset.kind, discipline: target.dataset.discipline });
@@ -918,19 +955,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static #onRollItemPower(event, target) {
     const item = this.actor.items.get(target.closest("[data-item-id]")?.dataset.itemId);
     if (!item) return;
-    if (item.type === "ritual") {
-      // Ритуал (V20, гл. 4): Интеллект + Оккультизм, сл. 3 + уровень (≤ 9); 5 минут × уровень; уровень Дисциплины не ниже уровня ритуала
-      const lvl = item.system.level, disc = item.system.discipline, have = this.actor.discipline(disc);
-      if (have < lvl) return ui.notifications.warn(t("Magic.RitualTooHigh", { name: item.name, d: Codex.disciplineLabel(disc), n: have, l: lvl }));
-      // своё в ритуале берём только заполненное: пустые поля схемы (сложность 0) правило не затирают
-      const own = item.system.roll ?? {};
-      const r = { ...own, trait1: own.trait1 || "attributes.intelligence", trait2: own.trait1 ? own.trait2 : "abilities.occult",
-        difficulty: own.difficulty || Math.min(9, 3 + lvl) };
-      const time = t("Magic.RitualTime", { n: 5 * lvl });
-      return VtMActorSheet.#rollFromSpec(this.actor, { ...r, note: [r.note, time].filter(Boolean).join(" · ") },
-        { title: item.name, subtitle: `${t("Sheet.Ritual")} · ${Codex.disciplineLabel(disc)} · ${ROMAN[lvl - 1]}`, effect: item.system.description,
-          kind: "ritual", magic: { disc, level: lvl, ritual: true } });
-    }
+    if (item.type === "ritual") return rollRitual(this.actor, item);
     const sub = item.system.path || Codex.disciplineLabel(item.system.discipline) || "";
     const magic = VTM20.pathDisciplines.includes(item.system.discipline);
     return VtMActorSheet.#rollFromSpec(this.actor, item.system.roll ?? {}, { title: item.name, subtitle: sub, effect: item.system.description,
@@ -1144,6 +1169,21 @@ export function powerByRef(ref) {
   if (a === "path") { const pth = d.paths?.[Number(b)]; const p = pth?.powers?.[Number(c)]; return p ? { disc: k, d, p, pathName: pth.name ?? "" } : null; }
   const p = d.powers?.[Number(a)];
   return p ? { disc: k, d, p, pathName: "" } : null;
+}
+
+/** Бросок ритуала: с листа и из карточки «время вышло» (apps/timers.mjs). */
+export function rollRitual(actor, item) {
+  // Ритуал (V20, гл. 4): Интеллект + Оккультизм, сл. 3 + уровень (≤ 9); 5 минут × уровень; уровень Дисциплины не ниже уровня ритуала
+  const lvl = item.system.level, disc = item.system.discipline, have = actor.discipline(disc);
+  if (have < lvl) return ui.notifications.warn(t("Magic.RitualTooHigh", { name: item.name, d: Codex.disciplineLabel(disc), n: have, l: lvl }));
+  // своё в ритуале берём только заполненное: пустые поля схемы (сложность 0) правило не затирают
+  const own = item.system.roll ?? {};
+  const r = { ...own, trait1: own.trait1 || "attributes.intelligence", trait2: own.trait1 ? own.trait2 : "abilities.occult",
+    difficulty: own.difficulty || Math.min(9, 3 + lvl) };
+  const time = t("Magic.RitualTime", { n: 5 * lvl });
+  return rollFromSpec(actor, { ...r, note: [r.note, time].filter(Boolean).join(" · ") },
+    { title: item.name, subtitle: `${t("Sheet.Ritual")} · ${Codex.disciplineLabel(disc)} · ${ROMAN[lvl - 1]}`, effect: item.system.description,
+      kind: "ritual", magic: { disc, level: lvl, ritual: true } });
 }
 
 /** Бросок по записи силы или ритуала: пул из книги, сложность, цена кровью или волей. */

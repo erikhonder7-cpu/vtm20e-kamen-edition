@@ -232,3 +232,6 @@ body.r-hud-on #chat-notifications > #chat-message { display: none !important; }
 /* Действующие эффекты сил — рядом с избранными силами, того же размера; рамка-свечение: «сейчас действует» */
 #r-hud .rh-powers .rh-chip.rh-fx { width: 30px; height: 30px; padding: 0; justify-content: center; border-color: rgba(196, 71, 76, .6); box-shadow: inset 0 0 6px rgba(196, 71, 76, .35); }
 #r-hud .rh-powers .rh-chip.rh-fx img { width: 24px; height: 24px; }
+/* остаток силы «на час» / «до рассвета» — полоска по нижней кромке знака */
+#r-hud .rh-chip.rh-fx { position: relative; overflow: hidden; }
+#r-hud .rh-fx-bar { position: absolute; left: 0; bottom: 0; height: 2px; background: #c4474c; transition: width .6s ease; }

@@ -16,6 +16,7 @@
     {{#if roll}}<span class="r-power-pool" {{#if roll.note}}data-tooltip="{{roll.note}}"{{/if}}>{{roll.label}}{{#if roll.diff}} · {{localize "VTM20.Roll.Vs"}} {{roll.diff}}{{/if}}{{#if roll.blood}} · <i class="fa-solid fa-droplet"></i>{{roll.blood}}{{/if}}{{#if roll.willpower}} · <i class="fa-solid fa-star"></i>{{/if}}</span>{{/if}}
     {{#if alts}}{{#if @root.editable}}<a class="r-icon-btn r-power-swap" data-action="choosePower" data-item-id="{{itemId}}" data-level="{{level}}" data-tooltip="{{localize 'VTM20.Sheet.ChangePower'}} ({{localize 'VTM20.Sheet.ChoiceCount'}} {{alts}})"><i class="fa-solid fa-code-branch"></i></a>{{/if}}{{/if}}
     {{#if fx}}<a class="r-icon-btn r-power-fx {{#if fx.on}}is-on{{/if}}" data-action="togglePower" data-power="{{fx.key}}" data-tooltip="{{fx.tip}}"><i class="fa-solid {{fx.icon}}"></i></a>{{/if}}
+    {{#if ritual}}{{#if @root.editable}}<a class="r-icon-btn r-power-fx {{#if reading}}is-on{{/if}}" data-action="readRitual" data-tooltip="{{#if reading}}{{localize 'VTM20.Timer.ReadCancel'}}{{else}}{{localize 'VTM20.Timer.Read'}}{{/if}}"><i class="fa-solid fa-hourglass-half"></i></a>{{/if}}{{/if}}
     {{#if roll.canRoll}}
       {{#if codexRef}}<a class="r-icon-btn r-power-roll" data-action="rollPower" data-ref="{{codexRef}}" data-tooltip="{{localize 'VTM20.Sheet.RollPower'}}"><i class="fa-solid fa-dice-d10"></i></a>
       {{else}}<a class="r-icon-btn r-power-roll" data-action="rollItemPower" data-tooltip="{{localize 'VTM20.Sheet.RollPower'}}"><i class="fa-solid fa-dice-d10"></i></a>{{/if}}
