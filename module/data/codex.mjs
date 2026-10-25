@@ -5,7 +5,7 @@
 
 import { SYSTEM_PATH, SYSTEM_ID } from "../config.mjs";
 
-const FILES = ["disciplines", "clans", "rituals", "paths", "merits", "merits-ghouls", "backgrounds", "archetypes", "assets", "derangements", "combos", "abilities", "demon", "demon-merits", "demon-backgrounds", "demon-hof"];
+const FILES = ["disciplines", "clans", "rituals", "paths", "merits", "merits-ghouls", "backgrounds", "archetypes", "assets", "derangements", "combos", "abilities", "demon", "demon-merits", "demon-backgrounds", "demon-hof", "demon-pg"];
 
 /** Чей герб показывать линии крови, ветви или антитрибу, если своего нет. */
 const CLAN_SYMBOL_PARENT = {
@@ -77,6 +77,8 @@ export const Codex = {
   house(key) { return this.houseByKey?.[key] ?? null; },
   /** «Дома Падших» по Дому: история, ритуалы, реликвии (data/demon-hof.json — пересказ). */
   hof(key) { return this["demon-hof"]?.houses?.[key] ?? null; },
+  /** Ритуалы Дома по Demon Players Guide (data/demon-pg.json — пересказ). */
+  pgRituals(key) { return this["demon-pg"]?.rituals?.[key] ?? []; },
   faction(key) { return this.factionByKey?.[key] ?? null; },
   get lores() { return this.demon?.lores ?? []; },
   get houses() { return this.demon?.houses ?? []; },

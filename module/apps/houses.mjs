@@ -11,6 +11,7 @@ import { Codex } from "../data/codex.mjs";
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
 const ROMAN = ["I", "II", "III", "IV", "V"];
+const HOF = "Houses of the Fallen", PG = "Demon Players Guide";
 
 /** Открыть справочник (на Доме или фракции `key`); уже открытое окно переключается. */
 export async function openHouses(key = "") {
@@ -68,7 +69,9 @@ class HouseAtlas extends HandlebarsApplicationMixin(ApplicationV2) {
     return {
       ...h,
       history: hof.sections ?? [],
-      rituals: (hof.rituals ?? []).map(r => ({ ...r, primaryLabel: lname(r.primary), secondaryLabel: r.secondary.map(lname).join(", ") })),
+      // ритуалы Дома из «Домов Падших» и из Players Guide — с пометкой книги
+      rituals: [...(hof.rituals ?? []).map(r => ({ ...r, src: HOF })), ...Codex.pgRituals(h.key).map(r => ({ ...r, src: PG }))]
+        .map(r => ({ ...r, primaryLabel: lname(r.primary), secondaryLabel: r.secondary.map(lname).join(", ") })),
       ritualsNote: hof.rituals_note ?? "",
       relics: (hof.relics ?? []).map(r => ({ ...r, craft: r.kind === "craft", loreLabel: r.lores.map(k => Codex.lore(k)?.name ?? k).join(", ") })),
       lores: h.lores.map(lore).filter(Boolean),
