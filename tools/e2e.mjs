@@ -408,6 +408,23 @@ try {
     if (secret) throw new Error("секрет страницы попал игрокам");
   });
 
+  await check("Лист Пути с листа персонажа", async () => {
+    const id = await temp("E2E — путник");
+    const name = await page.evaluate(async id => {
+      const a = game.actors.get(id);
+      await a.setFlag(game.system.id, "created", true);
+      await a.update({ "system.morality.path": "night" });
+      await a.sheet.render({ force: true });
+      for (let i = 0; i < 20 && !a.sheet.element?.querySelector("[data-action=openPath]"); i++) await new Promise(r => setTimeout(r, 250));
+      a.sheet.element.querySelector("[data-action=openPath]").click();
+      let j = null;
+      for (let i = 0; i < 40 && !j; i++) { await new Promise(r => setTimeout(r, 250)); j = [...foundry.applications.instances.values()].find(w => w.document?.documentName === "JournalEntry" && w.rendered); }
+      const n = j?.document?.name; await j?.close(); await a.sheet.close();
+      return n;
+    }, id);
+    if (name !== "Путь Ночи") throw new Error(`открылось: ${name ?? "ничего"}`);
+  });
+
   // Уборка до перезагрузок мира: сообщения бросков и временные персонажи
   await page.evaluate(async () => {
     const extra = game.messages.contents.slice(window._e2e.messages).map(m => m.id);

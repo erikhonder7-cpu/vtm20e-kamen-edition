@@ -126,6 +126,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       addBond: VtMActorSheet.#onAddBond,
       drinkBond: VtMActorSheet.#onDrinkBond,
       feedFrom: VtMActorSheet.#onFeedFrom,
+      openPath: VtMActorSheet.#onOpenPath,
       openCoterie: VtMActorSheet.#onOpenCoterie,
       resistBond: VtMActorSheet.#onResistBond,
       removeBond: VtMActorSheet.#onRemoveBond,
@@ -1086,6 +1087,16 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     return drinkVitae(this.actor, Number(target.dataset.index));
   }
   static #onOpenCoterie() { return openCoterie(this.actor); }
+  /** Лист Пути: запись компендиума «Пути Просветления» (шапка, иерархия грехов, описание); нет — текст справочника. */
+  static async #onOpenPath() {
+    const p = Codex.path(this.actor.system.morality?.path);
+    if (!p) return;
+    const pack = game.packs.get(`${SYSTEM_ID}.enlightenment-paths`);
+    const entry = pack?.index.find(e => e.name === p.name);
+    if (entry) return (await pack.getDocument(entry._id))?.sheet.render(true);
+    return foundry.applications.api.DialogV2.prompt({ window: { title: p.name, icon: "fa-solid fa-book-open" }, classes: ["vtm20", "r-dialog"],
+      position: { width: 560 }, content: `<div class="r-path-text">${p.html ?? ""}</div>`, ok: { label: t("Common.Close") }, rejectClose: false });
+  }
   static async #onFeedFrom() {
     const { feedFrom } = await import("../apps/bonds.mjs");
     return feedFrom(this.actor);

@@ -69,12 +69,13 @@
 
   <div class="r-vcard r-vc-morality">
     <div class="r-vc-head">
-      {{#if isMortal}}<h4 class="r-banner"><span>{{#each paths}}{{#if selected}}{{name}}{{/if}}{{/each}}</span></h4>
+      {{#if isMortal}}<h4 class="r-banner"><a data-action="openPath" data-tooltip="{{localize 'VTM20.Sheet.OpenPath'}}">{{#each paths}}{{#if selected}}{{name}}{{/if}}{{/each}}</a></h4>
       {{else}}<h4 class="r-banner is-select">
         <select name="system.morality.path" class="r-path-select">
           {{#each paths}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}
         </select>
       </h4>{{/if}}
+      <a class="r-icon-btn r-path-open" data-action="openPath" data-tooltip="{{localize 'VTM20.Sheet.OpenPath'}}"><i class="fa-solid fa-book-open"></i></a>
       <div class="r-vc-status"><b>{{system.morality.value}}</b></div>
     </div>
     {{> rDots dots=moralityDots cls="is-ten"}}
