@@ -314,14 +314,59 @@ BUILDERS["demon-houses"] = function () {
   const p = new Pack("demon-houses", "JournalEntry");
   const dm = data("demon");
   const loreName = Object.fromEntries(dm.lores.map(l => [l.key, l.name]));
+  const hof = data("demon-hof").houses;
   for (const h of dm.houses) {
-    const vis = Object.entries(h.visages).map(([k, v]) => `<li><strong>${esc(v)}</strong> — ${esc(loreName[k] ?? k)}</li>`).join("");
+    const vis =Object.entries(h.visages).map(([k, v]) => `<li><strong>${esc(v)}</strong> — ${esc(loreName[k] ?? k)}</li>`).join("");
     const html = `<p><em>${esc(h.akkadian)} · ${esc(h.en)}</em></p><p>${esc(h.text)}</p>`
       + `<p><strong>Начальная Мука:</strong> ${h.torment}. <strong>Знания Дома:</strong> ${h.lores.map(k => esc(loreName[k] ?? k)).join(", ")}; общие — Знание Основания и Знание Человечества.</p>`
-      + `<h3>Облики (апокалиптическая форма по главному Знанию)</h3><ul>${vis}</ul>`;
+      + `<h3>Облики (апокалиптическая форма по главному Знанию)</h3><ul>${vis}</ul>`
+      // история Дома по «Домам Падших» — пересказ (data/demon-hof.json)
+      + (hof[h.key]?.sections ?? []).map(s => `<h3>${esc(s.title)}</h3><p>${esc(s.text)}</p>`).join("");
     p.addEntry({ name: h.name, html, folder: "Дома", key: `house:${h.key}` });
   }
   for (const f of dm.factions) p.addEntry({ name: f.name, html: `<p>${esc(f.text)}</p>`, folder: "Фракции", key: `faction:${f.key}` });
+  return p;
+};
+
+/** «Дома Падших» (Houses of the Fallen) — пересказ: ритуалы и реликвии Домов, папки по Домам (data/demon-hof.json). */
+const HOF = "Houses of the Fallen";
+const dots = n => "•".repeat(n);
+function hofHouses() {
+  const dm = data("demon"), hof = data("demon-hof").houses;
+  const loreName = Object.fromEntries(dm.lores.map(l => [l.key, l.name]));
+  return { dm, hof, lore: ([k, n]) => `${esc(loreName[k] ?? k)} ${dots(n)}`, loreName };
+}
+BUILDERS["demon-rituals"] = function () {
+  const p = new Pack("demon-rituals", "JournalEntry");
+  const { dm, hof, lore } = hofHouses();
+  for (const h of dm.houses) {
+    const H = hof[h.key];
+    if (!H) continue;
+    for (const r of H.rituals) {
+      const row = (k, v) => v ? `<tr><th>${k}</th><td>${v}</td></tr>` : "";
+      const html = `<p><em>${HOF} · Дом ${esc(h.name)} · пересказ</em></p><table>`
+        + row("Первичное Знание", lore(r.primary)) + row("Вторичные", r.secondary.map(lore).join(", "))
+        + row("Начальная стоимость", r.cost) + row("Время", esc(r.time)) + row("Ограничения", esc(r.limits)) + row("Бросок", esc(r.roll)) + "</table>"
+        + `<p>${esc(r.text)}</p>` + (r.high ? `<h3>Высокая Мука</h3><p>${esc(r.high)}</p>` : "")
+        + (r.variants ? `<h3>Варианты</h3><p>${esc(r.variants)}</p>` : "");
+      p.addEntry({ name: r.name, html, folder: h.name, key: `ritual:${h.key}:${r.name}` });
+    }
+    if (H.rituals_note) p.addEntry({ name: "Ритуалы предвидения", html: `<p><em>${HOF} · Дом ${esc(h.name)}</em></p><p>${esc(H.rituals_note)}</p>`, folder: h.name, key: `ritual:${h.key}:note` });
+  }
+  return p;
+};
+BUILDERS["demon-relics"] = function () {
+  const p = new Pack("demon-relics", "JournalEntry");
+  const { dm, hof, loreName } = hofHouses();
+  for (const h of dm.houses) {
+    for (const r of hof[h.key]?.relics ?? []) {
+      const kind = r.kind === "craft" ? `изготавливается${r.lores.length ? `: ${r.lores.map(k => esc(loreName[k] ?? k)).join(", ")}` : ""}` : "уникальная";
+      const html = `<p><em>${HOF} · Дом ${esc(h.name)} · ${kind}</em></p>`
+        + (r.use ? `<p><strong>Как пользоваться:</strong> ${esc(r.use)}</p>` : "")
+        + `<p>${esc(r.text)}</p><h3>Система</h3><p>${esc(r.system)}</p>`;
+      p.addEntry({ name: r.name, html, folder: h.name, key: `relic:${h.key}:${r.name}` });
+    }
+  }
   return p;
 };
 

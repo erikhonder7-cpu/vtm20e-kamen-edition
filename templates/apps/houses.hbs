@@ -31,6 +31,18 @@
 
     <section class="r-cl-sec"><p class="r-hs-text">{{text}}</p></section>
 
+    {{!-- «Дома Падших»: история, ритуалы и реликвии Дома (пересказ) --}}
+    {{#if history.length}}
+    <section class="r-cl-sec">
+      <h3>{{localize "VTM20.Demon.HofHistory"}}</h3>
+      {{#each history}}
+      <details class="r-cl-trait" {{#if @first}}open{{/if}}><summary><span>{{title}}</span></summary>
+        <div class="r-cl-trait-body"><p>{{text}}</p></div>
+      </details>
+      {{/each}}
+    </section>
+    {{/if}}
+
     <section class="r-cl-sec">
       <h3>{{localize "VTM20.Demon.HouseLores"}} <b>{{lores.length}}</b></h3>
       {{#each lores}}
@@ -63,6 +75,44 @@
         {{/each}}
       </div>
     </section>
+
+    {{#if rituals.length}}
+    <section class="r-cl-sec">
+      <h3>{{localize "VTM20.Demon.HofRituals"}} <b>{{rituals.length}}</b></h3>
+      {{#each rituals}}
+      <details class="r-cl-trait"><summary><span>{{name}} <em>{{primaryLabel}}</em></span><b>{{localize "VTM20.Demon.HofCost"}} {{cost}}</b></summary>
+        <div class="r-cl-trait-body">
+          <dl class="r-hs-meta">
+            {{#if secondaryLabel}}<dt>{{localize "VTM20.Demon.HofSecondary"}}</dt><dd>{{secondaryLabel}}</dd>{{/if}}
+            <dt>{{localize "VTM20.Demon.HofTime"}}</dt><dd>{{time}}</dd>
+            {{#if limits}}<dt>{{localize "VTM20.Demon.HofLimits"}}</dt><dd>{{limits}}</dd>{{/if}}
+            <dt>{{localize "VTM20.Demon.HofRoll"}}</dt><dd>{{roll}}</dd>
+          </dl>
+          <p>{{text}}</p>
+          {{#if high}}<p class="r-hs-high"><b>{{localize "VTM20.Demon.HofHigh"}}:</b> {{high}}</p>{{/if}}
+          {{#if variants}}<p><b>{{localize "VTM20.Demon.HofVariants"}}:</b> {{variants}}</p>{{/if}}
+        </div>
+      </details>
+      {{/each}}
+      {{#if ritualsNote}}<p class="r-hs-text r-hs-note">{{ritualsNote}}</p>{{/if}}
+    </section>
+    {{/if}}
+
+    {{#if relics.length}}
+    <section class="r-cl-sec">
+      <h3>{{localize "VTM20.Demon.HofRelics"}} <b>{{relics.length}}</b></h3>
+      {{#each relics}}
+      <details class="r-cl-trait"><summary><span>{{name}} <em>{{#if craft}}{{localize "VTM20.Demon.HofCraft"}}{{#if loreLabel}}: {{loreLabel}}{{/if}}{{else}}{{localize "VTM20.Demon.HofUnique"}}{{/if}}</em></span></summary>
+        <div class="r-cl-trait-body">
+          {{#if use}}<p><b>{{localize "VTM20.Demon.HofUse"}}:</b> {{use}}</p>{{/if}}
+          <p>{{text}}</p>
+          <p class="r-hs-sys">{{system}}</p>
+        </div>
+      </details>
+      {{/each}}
+    </section>
+    {{/if}}
+    {{#if history.length}}<p class="r-hs-src">{{localize "VTM20.Demon.HofSource"}}</p>{{/if}}
   </article>
   {{/with}}{{/if}}
 

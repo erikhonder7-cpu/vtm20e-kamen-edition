@@ -225,6 +225,15 @@ body.r-theme-light .vtm20.r-type-demon {
 .vtm20.r-houses .r-hs-feats { margin-top: 5px; line-height: 1.4; color: var(--r-ink-2); }
 .vtm20.r-houses .r-hs-feats.is-high { color: #e09a50; }
 .vtm20.r-houses .r-hs-flab { font-family: var(--r-caps); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--r-muted); }
+/* «Дома Падших»: история, ритуалы, реликвии */
+.vtm20.r-houses .r-cl-trait-body p { margin: 0 0 6px; font-size: 14px; line-height: 1.5; }
+.vtm20.r-houses .r-hs-meta { display: grid; grid-template-columns: max-content 1fr; gap: 2px 12px; margin: 2px 0 8px; font-size: 13px; }
+.vtm20.r-houses .r-hs-meta dt { font-family: var(--r-caps); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--r-muted); padding-top: 2px; }
+.vtm20.r-houses .r-hs-meta dd { margin: 0; color: var(--r-ink-2); }
+.vtm20.r-houses .r-hs-high { color: #e09a50; }
+.vtm20.r-houses .r-hs-sys { padding: 6px 10px; border-left: 2px solid #d4a04c; background: rgba(212, 160, 76, .07); color: var(--r-ink-2); }
+.vtm20.r-houses .r-hs-note { margin-top: 8px; font-size: 13.5px; }
+.vtm20.r-houses .r-hs-src { margin: 4px 0 0; font-size: 12px; font-style: italic; color: var(--r-muted); }
 
 /* Карточка: выбрать эффект высокой Муки; кости Муки в добром деле */
 .r-torment-line .r-tl-choose { margin-left: auto; flex: 0 0 auto; width: 28px; height: 26px; padding: 0; display: grid; place-items: center; line-height: 1;

@@ -1,6 +1,7 @@
 // module/apps/houses.mjs
 // Справочник Домов падших (Demon: The Fallen): семь Домов — аккадское имя, начальная Мука, Знания с призывами
 // по кругам, Облики с чертами апокалиптической формы; пять фракций. Данные — data/demon.json (своими словами).
+// По «Домам Падших» (data/demon-hof.json, пересказ) — история Дома, его ритуалы и реликвии.
 // Разметка и стили — как у справочника кланов (r-cl-*); тема окна — демонская (r-type-demon).
 // Открывается из листа демона (знак на корешке, имя Дома в шапке).
 
@@ -62,8 +63,14 @@ class HouseAtlas extends HandlebarsApplicationMixin(ApplicationV2) {
       const l = Codex.lore(k);
       return l ? { key: k, name: l.name, en: l.en, page: l.page, powers: l.powers.map(p => ({ roman: ROMAN[p.level - 1], name: p.name, page: p.page })) } : null;
     };
+    const hof = Codex.hof(h.key) ?? {};
+    const lname = ([k, n]) => `${Codex.lore(k)?.name ?? k} ${"•".repeat(n)}`;
     return {
       ...h,
+      history: hof.sections ?? [],
+      rituals: (hof.rituals ?? []).map(r => ({ ...r, primaryLabel: lname(r.primary), secondaryLabel: r.secondary.map(lname).join(", ") })),
+      ritualsNote: hof.rituals_note ?? "",
+      relics: (hof.relics ?? []).map(r => ({ ...r, craft: r.kind === "craft", loreLabel: r.lores.map(k => Codex.lore(k)?.name ?? k).join(", ") })),
       lores: h.lores.map(lore).filter(Boolean),
       common: (Codex.demon?.common ?? []).map(lore).filter(Boolean),
       visages: Object.entries(h.visages).map(([k, name]) => ({ name, lore: Codex.lore(k)?.name ?? k, form: Codex.lore(k)?.form }))

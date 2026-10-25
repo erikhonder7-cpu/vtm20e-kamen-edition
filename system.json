@@ -316,6 +316,30 @@
       "flags": {}
     },
     {
+      "name": "demon-rituals",
+      "label": "Ритуалы падших",
+      "path": "packs/demon-rituals",
+      "type": "JournalEntry",
+      "system": "vtm20e-kamen-edition",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
+    },
+    {
+      "name": "demon-relics",
+      "label": "Реликвии падших",
+      "path": "packs/demon-relics",
+      "type": "JournalEntry",
+      "system": "vtm20e-kamen-edition",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
+    },
+    {
       "name": "demon-merits",
       "label": "Достоинства и недостатки падших",
       "path": "packs/demon-merits",
@@ -392,6 +416,8 @@
         "demon-rules",
         "demon-lores",
         "demon-houses",
+        "demon-rituals",
+        "demon-relics",
         "demon-merits",
         "demon-backgrounds"
       ]
