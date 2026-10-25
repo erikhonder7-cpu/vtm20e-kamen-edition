@@ -822,3 +822,44 @@ body.r-theme-light .vtm20 .r-ng-item.is-active, body.r-theme-light .vtm20 .r-ng-
 .vtm20 .r-court-card textarea { resize: vertical; min-height: 56px; }
 .vtm20 .r-court-del { margin-top: auto; justify-content: center; }
 .vtm20 .r-court-hist li { grid-template-columns: 130px minmax(0, 1fr); }
+
+/* ── Паутина хроники (план 5): слои слева, схема посередине, связи выбранного справа ── */
+.vtm20.r-web-app .window-content { padding: 0; overflow: hidden; }
+.vtm20 .r-web-body { display: grid; grid-template-columns: 210px minmax(0, 1fr); height: 100%; min-height: 0; }
+.vtm20 .r-web-body.has-card { grid-template-columns: 210px minmax(0, 1fr) 280px; }
+.vtm20 .r-web-key { display: inline-block; width: 18px; height: 0; border-top: 2px solid var(--r-bone); }
+.vtm20 .r-web-key.is-bond { border-top: 3px solid #c4474c; }
+.vtm20 .r-web-key.is-boon { border-top: 2px dashed #c9a46a; }
+.vtm20 .r-web-layer:not(.is-active) { opacity: .55; }
+.vtm20 .r-web-relayout { margin-top: auto; justify-content: center; }
+.vtm20 .r-web-main { position: relative; min-width: 0; min-height: 0; }
+.vtm20 .r-web-main > .r-empty { padding: 40px 24px; text-align: center; }
+.vtm20 .r-web-stage { position: absolute; inset: 0; }
+.vtm20 .r-web-svg { width: 100%; height: 100%; display: block; user-select: none; touch-action: none; }
+.vtm20 .r-web-e { stroke: var(--r-bone); opacity: .7; fill: none; }
+.vtm20 .r-web-e.is-bond { stroke: #c4474c; opacity: .85; }
+.vtm20 .r-web-e.is-boon { stroke: #c9a46a; stroke-dasharray: 6 4; opacity: .8; }
+.vtm20 .r-web-e.is-hot { opacity: 1; filter: drop-shadow(0 0 3px rgba(255, 255, 255, .25)); }
+.vtm20 .r-web-arrow { fill: var(--r-bone); }
+.vtm20 .r-web-arrow.is-bond { fill: #c4474c; }
+.vtm20 .r-web-arrow.is-boon { fill: #c9a46a; }
+.vtm20 .r-web-el { font-family: var(--r-caps); font-size: 10px; letter-spacing: .06em; fill: #c9a46a; text-anchor: middle; paint-order: stroke; stroke: rgba(10, 8, 8, .85); stroke-width: 3px; }
+.vtm20 .r-web-el.is-bond { fill: #e07a7e; }
+.vtm20 .r-web-n { cursor: grab; }
+.vtm20 .r-web-n:active { cursor: grabbing; }
+.vtm20 .r-web-bg { fill: var(--r-coal-2, #1b1616); }
+.vtm20 .r-web-ring { fill: none; stroke: var(--r-gold-l); stroke-width: 1.5; }
+.vtm20 .r-web-n:hover .r-web-ring { stroke: var(--r-ink); }
+.vtm20 .r-web-n.is-sel .r-web-ring { stroke: #c4474c; stroke-width: 3; }
+.vtm20 .r-web-n.is-missing .r-web-bg { fill: transparent; }
+.vtm20 .r-web-n.is-missing .r-web-ring { stroke: var(--r-muted); stroke-dasharray: 4 3; }
+.vtm20 .r-web-n.is-dead { opacity: .5; }
+.vtm20 .r-web-name { font-family: var(--r-display); font-size: 14px; fill: var(--r-ink); text-anchor: middle; paint-order: stroke; stroke: rgba(10, 8, 8, .85); stroke-width: 3px; }
+.vtm20 .r-web-sub { font-size: 10.5px; font-style: italic; fill: var(--r-muted); text-anchor: middle; paint-order: stroke; stroke: rgba(10, 8, 8, .85); stroke-width: 3px; }
+.vtm20 .r-web-n.is-missing .r-web-name { fill: var(--r-muted); }
+.vtm20 .r-web-kv { display: grid; grid-template-columns: 82px minmax(0, 1fr); gap: 8px; padding: 2px 4px; font-size: 13px; }
+.vtm20 .r-web-kv span { color: var(--r-muted); }
+.vtm20 .r-web-kv b { font-weight: 400; color: var(--r-ink); }
+.vtm20 .r-web-li { padding: 3px 4px 3px 10px; font-size: 13px; border-left: 2px solid var(--r-bone); }
+.vtm20 .r-web-li.is-bond { border-left-color: #c4474c; }
+.vtm20 .r-web-li.is-boon { border-left: 2px dashed #c9a46a; }

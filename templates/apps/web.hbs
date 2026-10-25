@@ -1,0 +1,34 @@
+{{!-- Паутина хроники (план 5): слева слои связей, посередине схема, справа — связи выбранного. --}}
+<div class="r-web-body {{#if card}}has-card{{/if}}">
+  <aside class="r-xw-side r-web-side">
+    <h3 class="r-h3 r-colhead"><span>{{localize "VTM20.Web.Links"}}</span></h3>
+    <nav class="r-xw-cats">
+      {{#each layers}}
+      <a class="r-xw-cat r-web-layer is-{{key}} {{#if on}}is-active{{/if}}" data-action="layer" data-layer="{{key}}"><i class="r-web-key is-{{key}}"></i><span>{{label}}</span><small>{{n}}</small></a>
+      {{/each}}
+    </nav>
+    <a class="r-h2-btn {{#if onlyMine}}is-on{{/if}}" data-action="mine"><i class="fa-solid {{#if onlyMine}}fa-square-check{{else}}fa-square{{/if}}"></i> {{localize "VTM20.Web.OnlyMine"}}</a>
+    <small class="r-court-hint">{{localize "VTM20.Web.Hint"}}</small>
+    <a class="r-h2-btn is-plain r-web-relayout" data-action="relayout"><i class="fa-solid fa-wand-magic-sparkles"></i> {{localize "VTM20.Web.Relayout"}}</a>
+  </aside>
+
+  <main class="r-web-main">
+    {{#if nodes}}<div class="r-web-stage">{{{svg}}}</div>
+    {{else}}<p class="r-empty">{{localize "VTM20.Web.Empty"}}</p>{{/if}}
+  </main>
+
+  {{#if card}}
+  <aside class="r-court-card r-web-card">
+    <div class="r-court-person">{{#if card.img}}<img src="{{card.img}}" alt="">{{/if}}<span><b>{{card.name}}</b><em>{{#if card.missing}}{{localize "VTM20.Web.NotInWorld"}}{{else}}{{card.sub}}{{/if}}</em></span></div>
+    <h3 class="r-h3 r-colhead"><span>{{localize "VTM20.Web.Blood"}}</span></h3>
+    <div class="r-web-kv"><span>{{localize "VTM20.Details.sire"}}</span><b>{{#if card.sire}}{{card.sire}}{{else}}—{{/if}}</b></div>
+    <div class="r-web-kv"><span>{{localize "VTM20.Lineage.Childer"}}</span><b>{{#if card.childer.length}}{{#each card.childer}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}{{else}}{{localize "VTM20.Lineage.NoChilder"}}{{/if}}</b></div>
+    <h3 class="r-h3 r-colhead"><span>{{localize "VTM20.Web.Layer.bond"}}</span></h3>
+    {{#each card.bonds}}<div class="r-web-li is-bond">{{this}}</div>{{else}}<p class="r-empty">—</p>{{/each}}
+    <h3 class="r-h3 r-colhead"><span>{{localize "VTM20.Web.Layer.boon"}}</span></h3>
+    {{#each card.boons}}<div class="r-web-li is-boon">{{this}}</div>{{else}}<p class="r-empty">—</p>{{/each}}
+    {{#if card.actorId}}<a class="r-h2-btn r-court-del" data-action="sheet" data-actor-id="{{card.actorId}}"><i class="fa-solid fa-scroll"></i> {{localize "VTM20.Web.OpenSheet"}}</a>
+    {{else if gm}}<a class="r-h2-btn r-court-del" data-action="create"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Web.Create"}}</a>{{/if}}
+  </aside>
+  {{/if}}
+</div>
