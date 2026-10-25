@@ -38,6 +38,7 @@ import { registerTorpor, checkTorpor } from "./module/apps/torpor.mjs";
 import { registerIncome, checkIncome } from "./module/apps/income.mjs";
 import { registerCoterie, openCoterie } from "./module/apps/coterie.mjs";
 import { registerChronicle, openChronicle } from "./module/apps/chronicle.mjs";
+import { registerHandouts, giveHandout } from "./module/apps/handouts.mjs";
 import { registerExtras } from "./module/apps/extras.mjs";
 import { registerMasquerade } from "./module/ui/masquerade.mjs";
 import { registerCityMap, openCity, closeCity, toggleCity, cityMap } from "./module/ui/citymap.mjs";
@@ -55,7 +56,7 @@ Hooks.once("init", () => {
     config: VTM20, codex: Codex,
     rollPool, evaluate, rollDamage, soakAndApply, openDamageDialog, RollDialog, openCreator, VtMCreator,
     openHunt, nightfall, endScene, endStory, openAttack, openDefense, openHazard, openDiablerie, renderHud,
-    openLibrary, openNpcGenerator, openClans, openBoons, openDowntime, openSessionXp, openCourt, openWeb, openCoterie, openChronicle, money: Money, openCity, closeCity, toggleCity, cityMap,
+    openLibrary, openNpcGenerator, openClans, openBoons, openDowntime, openSessionXp, openCourt, openWeb, openCoterie, openChronicle, giveHandout, money: Money, openCity, closeCity, toggleCity, cityMap,
     openSceneNexus, openCalendar, announceTime, getClock, getDate, stamp, clockBarData, nightPhase, moonPhase, republicanDate,
     apps: { SceneNexus, NightCalendar }
   };
@@ -121,6 +122,7 @@ Hooks.once("init", () => {
   registerIncome();
   registerCoterie();
   registerChronicle();
+  registerHandouts();
   registerSessionXp();
   registerCourt();
   registerWeb();

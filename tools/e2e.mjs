@@ -387,6 +387,27 @@ try {
     if (r.rolls !== 2 || r.botches !== 1 || r.breaks !== 1) throw new Error(`сводка: ${JSON.stringify(r)}`);
   });
 
+  await check("Раздатка игрокам из журнала", async () => {
+    await page.evaluate(async () => {
+      const j = await JournalEntry.create({ name: "E2E — раздатка", flags: { world: { e2e: true } } });
+      await j.createEmbeddedDocuments("JournalEntryPage", [{ name: "E2E — письмо", type: "text",
+        text: { content: "<p>Открытый текст.</p><section class=\"secret\"><p>E2E-ТАЙНА</p></section>" } }]);
+      window._e2e.journal = j.id;
+      window._e2e.handout = game.vtm20.giveHandout(j.pages.contents[0]);
+    });
+    await page.waitForSelector(".application.dialog select[name=style]", { timeout: 10000 });
+    await page.evaluate(() => [...document.querySelectorAll(".application.dialog")].at(-1).querySelector("footer button").click());
+    await page.waitForSelector(".r-handout-app .r-ho-paper.is-kindred", { timeout: 10000 });
+    const secret = await page.evaluate(async () => {
+      await window._e2e.handout;
+      const el = document.querySelector(".r-handout-app"), leak = el.innerHTML.includes("E2E-ТАЙНА");
+      for (const w of [...foundry.applications.instances.values()]) if (w.element?.classList.contains("r-handout-app")) await w.close();
+      await game.journal.get(window._e2e.journal)?.delete();
+      return leak;
+    });
+    if (secret) throw new Error("секрет страницы попал игрокам");
+  });
+
   // Уборка до перезагрузок мира: сообщения бросков и временные персонажи
   await page.evaluate(async () => {
     const extra = game.messages.contents.slice(window._e2e.messages).map(m => m.id);

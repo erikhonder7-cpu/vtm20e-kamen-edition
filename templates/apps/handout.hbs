@@ -1,0 +1,12 @@
+{{!-- Раздатка: лист бумаги в стиле письма, указа, записки или газетной вырезки. --}}
+<div class="r-ho-scroll">
+  <article class="r-ho-paper {{styleClass}}">
+    {{#if (rEq style "gazette")}}<div class="r-ho-mast">{{localize "VTM20.Handout.Gazette"}}</div>{{/if}}
+    <h1 class="r-ho-title">{{title}}</h1>
+    <div class="r-ho-body">{{{html}}}</div>
+    {{#if (or sign seal)}}<footer class="r-ho-foot">
+      {{#if seal}}<img class="r-ho-seal" src="{{path}}/assets/ui/seal.svg" alt="">{{/if}}
+      {{#if sign}}<div class="r-ho-sign">{{sign}}</div>{{/if}}
+    </footer>{{/if}}
+  </article>
+</div>
