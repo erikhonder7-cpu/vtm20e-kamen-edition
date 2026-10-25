@@ -1,0 +1,40 @@
+{{!-- Летопись сессии: слева — за какой отрезок, посередине — что нашлось в чате и итог для записи. --}}
+<div class="r-court-body r-chron-body">
+  <aside class="r-xw-side r-court-side">
+    <h3 class="r-h3 r-colhead"><span>{{localize "VTM20.Chronicle.Range"}}</span></h3>
+    <nav class="r-xw-cats">
+      {{#each ranges}}<a class="r-xw-cat {{#if active}}is-active{{/if}}" data-action="range" data-range="{{key}}"><i class="fa-solid fa-clock-rotate-left"></i><span>{{label}}</span>{{#if note}}<small>{{note}}</small>{{/if}}</a>{{/each}}
+    </nav>
+    <div class="r-assignat r-xw-purse">
+      <div class="r-assignat-head"><span class="r-assignat-title">{{localize "VTM20.Chronicle.Messages"}}</span><span class="r-assignat-num"><b>{{count}}</b></span></div>
+      <div class="r-assignat-meta"><span>{{localize "VTM20.Chronicle.RollsN" n=rolls}}</span></div>
+    </div>
+    <small class="r-court-hint">{{localize "VTM20.Chronicle.Hint"}}</small>
+  </aside>
+
+  <main class="r-court-main">
+    <div class="r-court-list">
+      {{#if people.length}}<h3 class="r-h3 r-colhead"><span>{{localize "VTM20.Chronicle.PeopleT"}}</span></h3><p class="r-chron-p">{{#each people}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}</p>{{/if}}
+      <h3 class="r-h3 r-colhead"><span>{{localize "VTM20.Chronicle.Moments"}}</span></h3>
+      <ul class="r-chron-list">
+        {{#each greats}}<li class="is-great"><i class="fa-solid fa-star"></i> {{this}}</li>{{/each}}
+        {{#each botches}}<li class="is-botch"><i class="fa-solid fa-skull"></i> {{this}}</li>{{/each}}
+        {{#each breaks}}<li class="is-break"><i class="fa-solid fa-face-angry"></i> {{this}}</li>{{/each}}
+        {{#each fates}}<li class="is-fate"><i class="fa-solid fa-bed"></i> {{this}}</li>{{/each}}
+        {{#unless greats.length}}{{#unless botches.length}}{{#unless breaks.length}}{{#unless fates.length}}<li class="r-empty">{{localize "VTM20.Chronicle.Quiet"}}</li>{{/unless}}{{/unless}}{{/unless}}{{/unless}}
+      </ul>
+      {{#if damage.length}}<h3 class="r-h3 r-colhead"><span>{{localize "VTM20.Chronicle.DamageT"}}</span></h3>
+      {{#each damage}}<div class="r-trait"><span class="r-trait-main"><span class="r-trait-label">{{who}}</span><span class="r-leader"></span><b>{{n}}</b></span></div>{{/each}}{{/if}}
+      {{#if blood.length}}<h3 class="r-h3 r-colhead"><span>{{localize "VTM20.Chronicle.BloodT"}}</span></h3>
+      {{#each blood}}<div class="r-trait"><span class="r-trait-main"><span class="r-trait-label">{{who}}</span><span class="r-leader"></span><b>{{n}}</b></span></div>{{/each}}{{/if}}
+
+      <h2 class="r-h2"><span>{{localize "VTM20.Chronicle.Summary"}}</span>
+        <span class="r-h2-tools"><a class="r-h2-btn is-plain" data-action="redraft" data-tooltip="{{localize 'VTM20.Chronicle.RedraftHint'}}"><i class="fa-solid fa-rotate"></i> {{localize "VTM20.Chronicle.Redraft"}}</a></span></h2>
+      <textarea name="chron-text" class="r-chron-text" rows="9">{{text}}</textarea>
+      <div class="r-chron-foot">
+        <label class="r-chron-check"><input type="checkbox" name="chron-night" checked> {{localize "VTM20.Chronicle.ToNight" n=night}}</label>
+        <a class="r-h2-btn" data-action="write"><i class="fa-solid fa-feather-pointed"></i> {{localize "VTM20.Chronicle.Write"}}</a>
+      </div>
+    </div>
+  </main>
+</div>

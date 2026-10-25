@@ -370,6 +370,23 @@ try {
     if (r.forA !== 3) throw new Error(`участнику котерии доступно Стадо ${r.forA}`);
   });
 
+  await check("Летопись сессии: сводка из чата", async () => {
+    const id = await temp("E2E — летописец");
+    const r = await page.evaluate(async id => {
+      const SYS = game.system.id, a = game.actors.get(id), since = Date.now() - 1;
+      const sp = ChatMessage.getSpeaker({ actor: a });
+      await ChatMessage.create({ speaker: sp, content: "<div>E2E</div>", flags: { [SYS]: { roll: { title: "E2E — провал", kind: "check", values: [1, 3], difficulty: 6, pool: 2 } } } });
+      await ChatMessage.create({ speaker: sp, content: "<div>E2E</div>", flags: { [SYS]: { roll: { title: "E2E — ярость", kind: "frenzy", values: [2, 4], difficulty: 6, pool: 2 } } } });
+      const { collectSession, openChronicle } = await import(`/systems/${SYS}/module/apps/chronicle.mjs`);
+      const S = collectSession(since);
+      openChronicle();
+      return { rolls: S.rolls, botches: S.botches.length, breaks: S.breaks.length };
+    }, id);
+    await page.waitForSelector(".r-chron-app textarea[name=chron-text]", { timeout: 10000 });
+    await page.evaluate(() => foundry.applications.instances.get("r-chronicle")?.close());
+    if (r.rolls !== 2 || r.botches !== 1 || r.breaks !== 1) throw new Error(`сводка: ${JSON.stringify(r)}`);
+  });
+
   // Уборка до перезагрузок мира: сообщения бросков и временные персонажи
   await page.evaluate(async () => {
     const extra = game.messages.contents.slice(window._e2e.messages).map(m => m.id);

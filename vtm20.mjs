@@ -37,6 +37,7 @@ import { registerTimers, tickTimers } from "./module/apps/timers.mjs";
 import { registerTorpor, checkTorpor } from "./module/apps/torpor.mjs";
 import { registerIncome, checkIncome } from "./module/apps/income.mjs";
 import { registerCoterie, openCoterie } from "./module/apps/coterie.mjs";
+import { registerChronicle, openChronicle } from "./module/apps/chronicle.mjs";
 import { registerExtras } from "./module/apps/extras.mjs";
 import { registerMasquerade } from "./module/ui/masquerade.mjs";
 import { registerCityMap, openCity, closeCity, toggleCity, cityMap } from "./module/ui/citymap.mjs";
@@ -54,7 +55,7 @@ Hooks.once("init", () => {
     config: VTM20, codex: Codex,
     rollPool, evaluate, rollDamage, soakAndApply, openDamageDialog, RollDialog, openCreator, VtMCreator,
     openHunt, nightfall, endScene, endStory, openAttack, openDefense, openHazard, openDiablerie, renderHud,
-    openLibrary, openNpcGenerator, openClans, openBoons, openDowntime, openSessionXp, openCourt, openWeb, openCoterie, money: Money, openCity, closeCity, toggleCity, cityMap,
+    openLibrary, openNpcGenerator, openClans, openBoons, openDowntime, openSessionXp, openCourt, openWeb, openCoterie, openChronicle, money: Money, openCity, closeCity, toggleCity, cityMap,
     openSceneNexus, openCalendar, announceTime, getClock, getDate, stamp, clockBarData, nightPhase, moonPhase, republicanDate,
     apps: { SceneNexus, NightCalendar }
   };
@@ -119,6 +120,7 @@ Hooks.once("init", () => {
   registerTorpor();
   registerIncome();
   registerCoterie();
+  registerChronicle();
   registerSessionXp();
   registerCourt();
   registerWeb();
@@ -207,6 +209,7 @@ Hooks.on("getSceneControlButtons", controls => {
     "r-npc": { name: "r-npc", title: "VTM20.NpcGen.Title", icon: "fa-solid fa-users-viewfinder", order: 3, visible: isGM, button: true, onChange: () => openNpcGenerator() },
     "r-court": { name: "r-court", title: "VTM20.Court.Title", icon: "fa-solid fa-crown", order: 4, visible: true, button: true, onChange: () => openCourt() },
     "r-web": { name: "r-web", title: "VTM20.Web.Title", icon: "fa-solid fa-circle-nodes", order: 5, visible: true, button: true, onChange: () => openWeb() },
+    "r-chronicle": { name: "r-chronicle", title: "VTM20.Chronicle.Tool", icon: "fa-solid fa-book-open", order: 7, visible: isGM, button: true, onChange: () => openChronicle() },
     "r-coterie": { name: "r-coterie", title: "VTM20.Coterie.Title", icon: "fa-solid fa-people-roof", order: 5, visible: true, button: true, onChange: () => openCoterie() },
     "r-xp": { name: "r-xp", title: "VTM20.SessionXp.Title", icon: "fa-solid fa-star", order: 6, visible: isGM, button: true, onChange: () => openSessionXp() }
   };

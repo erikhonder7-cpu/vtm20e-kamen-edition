@@ -964,3 +964,15 @@ body.r-theme-light .vtm20 .r-ng-item.is-active, body.r-theme-light .vtm20 .r-ng-
 .vtm20 .r-cot-tools { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; }
 .vtm20.r-cot-app .r-court-list .r-colhead { margin: 14px 0 4px; }
 .vtm20.r-cot-app .r-court-list .r-colhead:first-child { margin-top: 2px; }
+
+/* ── Летопись сессии: главное списком, итог — правимый текст ── */
+.vtm20 .r-chron-list { list-style: none; margin: 4px 0 8px; padding: 0; }
+.vtm20 .r-chron-list li { padding: 3px 4px; border-bottom: 1px solid var(--r-line); font-size: 13.5px; }
+.vtm20 .r-chron-list li i { width: 16px; text-align: center; color: var(--r-muted); }
+.vtm20 .r-chron-list li.is-great i { color: #c9a46a; }
+.vtm20 .r-chron-list li.is-botch i, .vtm20 .r-chron-list li.is-break i { color: #c4474c; }
+.vtm20 .r-chron-p { margin: 2px 4px 6px; }
+.vtm20 .r-chron-text { width: 100%; min-height: 150px; resize: vertical; font-family: var(--r-body); font-size: 13.5px; line-height: 1.45; }
+.vtm20 .r-chron-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 8px; }
+.vtm20 .r-chron-check { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; }
+.vtm20.r-chron-app .r-court-list .r-colhead { margin: 12px 0 4px; }
