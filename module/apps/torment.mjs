@@ -8,6 +8,7 @@
 import { SYSTEM_ID } from "../config.mjs";
 import { rollPool, evaluate, renderCard } from "../dice/roll.mjs";
 import { Codex } from "../data/codex.mjs";
+import { RollDialog } from "../dice/dialog.mjs";
 
 const t = (k, d) => d ? game.i18n.format(`VTM20.Demon.${k}`, d) : game.i18n.localize(`VTM20.Demon.${k}`);
 const esc = s => foundry.utils.escapeHTML(String(s ?? ""));
@@ -141,6 +142,22 @@ export async function pactFaith(actor) {
   const f = actor.system.faith.temporary, next = Math.min(10, f + n);
   await actor.update({ "system.faith.temporary": next });
   return notice(actor, "fa-file-signature", t("PactFaith", { name: esc(actor.name), n: next - f }));
+}
+
+/**
+ * Врождённые способности (гл. 7, с. 169–170): мороки — Восприятие + Бдительность, сл. 7 (морок демона — его Вера или
+ * Мука, что выше); отклик на имя — бросок Веры, сл. 7 за Небесное имя и 6 за Истинное; изгнание из тела без Веры — бросок Воли.
+ */
+export function innateRoll(actor, kind) {
+  if (kind === "illusion") return RollDialog.prompt(actor, { title: t("InnateIllusion"), trait1: "attributes.perception", trait2: "abilities.alertness",
+    difficulty: 7, diffNote: t("InnateIllusionNote"), kind: "check" });
+  if (kind === "exorcism") return rollPool({ actor, title: t("InnateExorcism"), pool: actor.system.willpower.permanent, difficulty: 6, kind: "exorcism",
+    breakdown: [{ label: game.i18n.localize("VTM20.Willpower"), value: actor.system.willpower.permanent }] });
+  return foundry.applications.api.DialogV2.wait({
+    window: { title: t("InnateName") }, classes: ["vtm20", "r-dialog"], position: { width: 420 }, content: `<p>${t("InnateNameHow")}</p>`,
+    buttons: [{ action: "7", label: t("Celestial"), default: true }, { action: "6", label: t("TrueName") }]
+  }).then(d => d && rollPool({ actor, title: t("InnateName"), pool: actor.system.faith.temporary, difficulty: Number(d), kind: "names",
+    breakdown: [{ label: t("Faith"), value: actor.system.faith.temporary }] })).catch(() => null);
 }
 
 /** Кнопка карточки призыва: взять эффект высокой Муки ценой пункта временной Муки. */

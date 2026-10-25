@@ -39,6 +39,16 @@
   <div class="r-empty">{{localize "VTM20.Demon.NoLores"}}</div>
   {{/each}}
 
+  {{!-- Врождённые способности (гл. 7): без броска — иммунитеты, с броском — мороки, имена, изгнание --}}
+  <h2 class="r-h2"><span>{{localize "VTM20.Demon.Innate"}}</span>
+    <span class="r-h2-tools">
+      <a class="r-h2-btn" data-action="innate" data-kind="illusion" data-tooltip="{{localize 'VTM20.Demon.InnateIllusionNote'}}"><i class="fa-solid fa-eye"></i> <span class="r-h2-lbl">{{localize "VTM20.Demon.InnateIllusionShort"}}</span></a>
+      <a class="r-h2-btn" data-action="innate" data-kind="names" data-tooltip="{{localize 'VTM20.Demon.InnateNameHow'}}"><i class="fa-solid fa-signature"></i> <span class="r-h2-lbl">{{localize "VTM20.Demon.InnateNameShort"}}</span></a>
+      <a class="r-h2-btn" data-action="innate" data-kind="exorcism" data-tooltip="{{localize 'VTM20.Demon.InnateExorcismNote'}}"><i class="fa-solid fa-person-walking-arrow-right"></i> <span class="r-h2-lbl">{{localize "VTM20.Demon.InnateExorcismShort"}}</span></a>
+    </span>
+  </h2>
+  <p class="r-note r-innate-note">{{localize "VTM20.Demon.InnateText"}}</p>
+
   {{!-- Апокалиптическая форма: черты Облика; высокая Мука открывает тёмные черты --}}
   <h2 class="r-h2"><span>{{localize "VTM20.Demon.Form"}}</span>
     <span class="r-h2-tools">

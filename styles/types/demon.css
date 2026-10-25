@@ -259,3 +259,4 @@ body.r-theme-light .vtm20.r-type-demon {
 .vtm20.r-type-demon .r-cr-added:not(:empty) { color: #1a1206; background: #d4a04c; }
 .vtm20.r-type-demon .r-cr-ledger li.is-over i { background-image: linear-gradient(90deg, #6a2a0c, #e08a3a); }
 .vtm20.r-type-demon .r-cr-problems { border-left-color: #c0682a; background: rgba(192, 104, 42, .1); }
+.vtm20 .r-innate-note { margin: 0 0 10px; }

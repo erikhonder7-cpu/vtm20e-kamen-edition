@@ -40,7 +40,7 @@ import { coteriesOf, poolValue, openCoterie } from "../apps/coterie.mjs";
 import { itemCardHTML } from "../chat/item-card.mjs";
 import { themeClass } from "../ui/themes.mjs";
 import { openHouses } from "../apps/houses.mjs";
-import { virtuePrompt, atoneWithXp, assumeForm, sceneHighFeature, harvestFaith, pactFaith } from "../apps/torment.mjs";
+import { virtuePrompt, atoneWithXp, assumeForm, sceneHighFeature, harvestFaith, pactFaith, innateRoll } from "../apps/torment.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -127,6 +127,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       sceneHigh: VtMActorSheet.#onSceneHigh,
       faithHeal: VtMActorSheet.#onFaithHeal,
       harvestFaith: VtMActorSheet.#onHarvest,
+      innate: VtMActorSheet.#onInnate,
       pactFaith: VtMActorSheet.#onPactFaith,
       spendFaith: VtMActorSheet.#onSpendFaith,
       pinPower: VtMActorSheet.#onPinPower,
@@ -1084,6 +1085,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static #onSceneHigh(event, target) { return sceneHighFeature(this.actor, Number(target.dataset.index)); }
   static #onFaithHeal() { return this.actor.faithHeal(); }
   static #onHarvest() { return harvestFaith(this.actor); }
+  static #onInnate(event, target) { return innateRoll(this.actor, target.dataset.kind); }
   static #onPactFaith() { return pactFaith(this.actor); }
 
   static #onSpendFaith() {
