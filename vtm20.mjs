@@ -283,6 +283,14 @@ async function migrateWorld() {
 /* ── Карточки чата ─────────────────────────────────────────────────────── */
 
 Hooks.on("renderChatMessageHTML", (message, html) => {
+  // Бросок инициативы трекера — карточкой системы: имя, итог, кость и прибавка (вместо «rolls for initiative!» и формулы)
+  if (message.flags?.core?.initiativeRoll && message.rolls?.[0] && message.isContentVisible) {
+    const r = message.rolls[0], die = r.dice?.[0]?.results?.[0]?.result ?? "", mod = r.total - (Number(die) || 0);
+    const actor = ChatMessage.getSpeakerActor(message.speaker);
+    const box = html.querySelector(".message-content");
+    if (box) box.innerHTML = `<div class="r-roll-card r-init-card"><header class="r-card-head">${actor?.img ? `<img class="r-card-img" src="${actor.img}" alt="">` : ""}<div class="r-card-titles"><span class="r-card-title">${game.i18n.localize("VTM20.Sheet.Initiative")}</span><span class="r-card-sub">${foundry.utils.escapeHTML(message.speaker.alias ?? actor?.name ?? "")}</span></div><span class="r-card-pool"><b>${r.total}</b></span></header><div class="r-dice-tray"><span class="r-die is-hit"><span>${die}</span></span><span>+ ${mod}</span></div></div>`;
+    html.querySelector(".flavor-text")?.remove();
+  }
   // Броски, карточки атаки и итога, урон силы без броска, командная работа — у всех есть кнопки
   const f = message.flags?.[SYSTEM_ID] ?? {};
   if (!(f.roll || f.combat || f.combatResult || f.fixedDamage || f.team || f.checkPrompt)) return;

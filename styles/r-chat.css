@@ -32,7 +32,8 @@
 .r-card-head { display: flex; align-items: center; gap: 8px; margin: 2px 0 6px; }
 .r-card-img { width: 34px; height: 34px; border: 1px solid var(--r-line-2); border-radius: 2px; object-fit: cover; object-position: 50% 15%; flex: 0 0 auto; filter: grayscale(.3); }
 .r-card-titles { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; line-height: 1.15; }
-.r-card-title { font-family: "Prata", Georgia, serif; font-size: 15px; color: var(--r-ink); }
+/* названия не рвутся посреди слова (Foundry ставит в чате overflow-wrap: anywhere) — переносятся по словам */
+.r-card-title { font-family: "Prata", Georgia, serif; font-size: 15px; color: var(--r-ink); overflow-wrap: normal; word-break: normal; hyphens: manual; }
 .r-card-sub { font-size: 12px; font-style: italic; color: var(--r-muted); }
 .r-card-pool { flex: 0 0 auto; display: flex; align-items: baseline; gap: 3px; font-family: "Prata", serif; font-size: 16px; color: var(--r-navy-t); }
 .r-card-pool i { font-size: 12px; color: var(--r-muted); }
@@ -57,10 +58,12 @@
 .r-die.is-will { background: #2f3b55; color: #d8cfbf; font-size: 11px; }
 
 /* Исход */
-.r-outcome { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 8px; margin-top: 8px; }
+/* исход и число успехов — всегда в одну строку: длинная плашка сжимается, а не сталкивает число вниз */
+.r-outcome { display: flex; flex-wrap: nowrap; align-items: center; justify-content: space-between; gap: 6px; margin-top: 8px; }
+.r-outcome .r-outcome-ribbon { padding: 3px 8px; }
 .r-outcome-ribbon {
-  display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; min-width: 0; white-space: nowrap;   /* в узком чате — в одну строку */
-  font-family: "IM Fell SC", "Forum", serif; font-size: 12.5px; letter-spacing: 1.2px; text-transform: uppercase;
+  display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; min-width: 0; flex: 0 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;   /* в узком чате — в одну строку */
+  font-family: "IM Fell SC", "Forum", serif; font-size: 12px; letter-spacing: .5px; text-transform: uppercase;
   color: #e6ddcc; background: transparent; border: 1px solid var(--r-line-2);
 }
 .r-outcome-num { flex: 0 0 auto; font-size: 12.5px; color: var(--r-muted); font-style: italic; white-space: nowrap; }
@@ -226,3 +229,7 @@
 .vtm20 .r-cb-pips i { width: 11px; height: 11px; border-radius: 50%; border: 1px solid var(--r-dot-border, rgba(216, 207, 191, .35)); }
 .vtm20 .r-cb-pips i.is-on { border-color: #c4474c; background: radial-gradient(circle at 38% 32%, #e0645f, #8c1c22 70%); }
 .vtm20 .r-cb-trait b { min-width: 18px; text-align: right; font-family: var(--r-display); font-weight: 400; font-size: 24px; color: var(--r-ink); }
+
+/* Инициатива: вместо стандартной карточки Foundry — короткая карточка системы */
+.r-init-card .r-card-pool b { font-size: 26px; color: var(--r-ink); }
+.r-init-card .r-dice-tray { justify-content: flex-start; gap: 8px; align-items: center; font-size: 12.5px; color: var(--r-muted); }
