@@ -10,6 +10,7 @@ import { RollDialog } from "../dice/dialog.mjs";
 import { openAttack, openDefense, weaponsOf, pendingAttacks, defendFromHud } from "../combat/combat.mjs";
 import { openHazard } from "../apps/hazard.mjs";
 import { openHunt } from "../apps/night.mjs";
+import { rollPowerRef, powerByRef } from "../sheets/actor-sheet.mjs";
 
 const ID = "r-hud";
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -44,9 +45,23 @@ function mount() {
   return el;
 }
 
+/** Значок оружия по названию (у предметов один общий значок); иначе — по виду оружия. */
+const WEAPON_GLYPHS = [
+  [/лук|арбалет/i, "fa-bow-arrow"], [/коса/i, "fa-scythe"], [/серп/i, "fa-sickle"],
+  [/нож|кинжал|стилет|бритв|скальпел/i, "fa-dagger"], [/меч|сабл|шпаг|рапир|клинок|палаш|катан/i, "fa-sword"],
+  [/топор|секир|алебард|тесак/i, "fa-axe"], [/молот|кувалд/i, "fa-hammer-war"], [/бит[аы]/i, "fa-baseball-bat"],
+  [/булав|дубин|палиц|кистен|моргенштерн/i, "fa-mace"], [/посох|шест|копь|пика|трост/i, "fa-staff"],
+  [/пистол|револьвер|ружь|мушкет|винтов|карабин|автомат|пулем|дробов|обрез/i, "fa-gun"], [/кастет|кулак/i, "fa-hand-back-fist"]
+];
+function weaponGlyph(w) {
+  return WEAPON_GLYPHS.find(([re]) => re.test(w.name ?? ""))?.[1]
+    ?? { brawl: "fa-hand-back-fist", melee: "fa-khanda", firearms: "fa-gun", thrown: "fa-bullseye" }[w.kind] ?? "fa-khanda";
+}
+
 /** Здоровье: семь клеток с отметками /, X, ✱ (04). */
 function healthTrack(s) {
-  const cells = s.health.levels.map(l => `<i class="is-${l.state}" data-tooltip="${esc(game.i18n.localize(l.label))}">${l.state === "empty" ? "" : VTM20.damageTypes[l.state]?.mark ?? ""}</i>`);
+  const last = s.health.levels.reduce((n, l, i) => l.state && l.state !== "empty" && l.state !== "none" ? i : n, -1);
+  const cells = s.health.levels.map((l, i) => `<i class="is-${l.state}${i === last ? " is-current" : ""}" data-tooltip="${esc(game.i18n.localize(l.label))}">${l.state === "empty" ? "" : VTM20.damageTypes[l.state]?.mark ?? ""}</i>`);
   return `<span class="rh-track rh-health">${cells.join("")}</span>`;
 }
 
@@ -63,6 +78,7 @@ export function renderHud() {
   document.body.classList.add("r-hud-on");
   const a = hudActor();
   if (!a) {
+    el.classList.remove("is-turn");
     el.innerHTML = `<p class="rh-empty"><i class="fa-solid fa-user-slash"></i> ${esc(t(game.user.isGM ? "Hud.PickToken" : "Hud.NoCharacter"))}</p>`;
     fitHud(); return;
   }
@@ -70,12 +86,15 @@ export function renderHud() {
   const clan = vamp ? (Codex.clan(s.clan)?.name ?? "") : game.i18n.localize(`TYPES.Actor.${a.type}`);
   const sub = [clan, vamp ? game.i18n.format("VTM20.GenerationN", { n: s.generation }) : ""].filter(Boolean).join(" · ");
   const path = Codex.path(s.morality.path);
-  const blood = a.hasBlood ? `<a class="rh-stat rh-blood" data-act="spend" data-tooltip="${esc((game.combat?.started ? t("Hud.BloodTipTurn", { n: s.blood.perTurn ?? 1, spent: a.bloodSpentThisTurn }) : t("Hud.BloodTip", { n: s.blood.perTurn ?? 1 })))}">
-      <i class="fa-solid fa-droplet"></i><b>${s.blood.value}</b><small>/${s.blood.max}</small></a>` : "";
+  const perTurn = s.blood?.perTurn ?? 1, spentTurn = a.hasBlood ? a.bloodSpentThisTurn : 0;
+  const turnPips = a.hasBlood && perTurn <= 10 ? `<span class="rh-turn">${Array.from({ length: perTurn }, (_, i) => `<i class="${i < spentTurn ? "on" : ""}"></i>`).join("")}</span>` : "";
+  const blood = a.hasBlood ? `<a class="rh-stat rh-blood" data-act="spend" data-tooltip="${esc((game.combat?.started ? t("Hud.BloodTipTurn", { n: perTurn, spent: spentTurn }) : t("Hud.BloodTip", { n: perTurn })))}">
+      <i class="fa-solid fa-droplet"></i><b>${s.blood.value}</b><small>/${s.blood.max}</small>${turnPips}</a>` : "";
   const morality = `<span class="rh-stat rh-moral" data-tooltip="${esc(path?.name ?? t("Humanity"))}"><i class="fa-solid fa-scale-balanced"></i><b>${s.morality.value}</b></span>`;
 
-  const weapons = weaponsOf(a).map(w => `<a class="rh-weapon" data-act="attack" data-weapon="${w.id}" data-tooltip="${esc(`${w.name} · ${w.label} · ${game.i18n.localize(VTM20.damageTypes[w.damageType]?.label ?? "")}`)}">
-      <i class="fa-solid ${{ brawl: "fa-hand-back-fist", melee: "fa-khanda", firearms: "fa-gun", thrown: "fa-bullseye" }[w.kind]}"></i><span>${esc(w.name)}</span></a>`).join("");
+  // оружие — только значок, подобранный по названию (лук, коса, кинжал…); название и урон — в подсказке; лишнее с конца прячет fitWeapons
+  const weapons = weaponsOf(a).slice(0, 4).map(w => `<a class="rh-btn rh-weapon" data-act="attack" data-weapon="${w.id}" data-tooltip="${esc(`${w.name} · ${w.label} · ${game.i18n.localize(VTM20.damageTypes[w.damageType]?.label ?? "")}`)}" aria-label="${esc(w.name)}">
+      <i class="fa-solid ${weaponGlyph(w)}"></i></a>`).join("");
   const man = (k, icon) => {
     const tip = [t(`Combat.M.${k}`), t(`Combat.MNote.${k}`)].filter(Boolean).join(" — ");
     return `<a class="rh-btn rh-man ${k === "bite" ? "rh-bite" : ""}" data-act="maneuver" data-man="${k}" data-tooltip="${esc(tip)}" aria-label="${esc(t(`Combat.M.${k}`))}"><i class="fa-solid ${icon}"></i></a>`;
@@ -85,16 +104,25 @@ export function renderHud() {
   const pot = a.discipline("potence"), cel = a.discipline("celerity");
   const physBtns = (a.hasBlood && pot ? `<a class="rh-btn ${a.potenceActive ? "is-on" : ""}" data-act="potence" data-tooltip="${esc(t(a.potenceActive ? "Hud.PotenceOnTip" : "Hud.PotenceTip", { n: pot }))}"><i class="fa-solid fa-hand-fist"></i></a>` : "")
     + (a.hasBlood && cel ? `<a class="rh-btn ${a.celerityActions ? "is-on" : ""}" data-act="celerity" data-tooltip="${esc(t("Hud.CelerityTip", { n: cel, used: a.celerityActions }))}"><i class="fa-solid fa-forward"></i>${a.celerityActions ? `<small>${a.celerityActions}</small>` : ""}</a>` : "");
+  // силы, вынесенные булавкой с листа (флаг hudPowers): знак Дисциплины и уровень, щелчок — бросок
+  const powers = (a.getFlag(SYSTEM_ID, "hudPowers") ?? []).map(ref => {
+    const x = powerByRef(ref);
+    if (!x) return "";
+    return `<a class="rh-btn rh-power" data-act="power" data-ref="${esc(ref)}" data-tooltip="${esc(`${x.p.name} · ${x.pathName || x.d.name} ${x.p.level}`)}">
+      <img class="rh-pico" src="${esc(foundry.utils.getRoute(Codex.disciplineIcon(x.disc)))}" alt=""><small>${x.p.level}</small></a>`;
+  }).join("");
   const fxChips = (a.powerEffects ?? []).map(x => `<span class="rh-chip rh-fx" data-tooltip="${esc(x.effect.name)}"><img src="${esc(x.effect.img)}" alt=""></span>`).join("");
 
   const arm = a.armor;
   const soak = `${a.soakPool("bashing")}/${a.soakPool("lethal")}/${a.soakPool("aggravated")}`;
   const combatant = game.combat?.combatants?.find(c => c.actor?.id === a.id);
+  const myTurn = !!(combatant && game.combat?.started && game.combat.combatant === combatant);
+  const initBox = (tag, act, num, cap, tip = "") => `<${tag} class="rh-init ${myTurn ? "is-turn" : ""}" ${act ? `data-act="${act}"` : ""} ${tip ? `data-tooltip="${esc(tip)}"` : ""}><b>${num}</b><span>${cap}</span></${tag}>`;
   const init = game.combat ? (combatant
-    ? (combatant.initiative == null ? `<a class="rh-chip" data-act="init"><i class="fa-solid fa-bolt"></i> ${esc(t("Hud.Init"))}</a>`
-      : `<span class="rh-chip ${game.combat.combatant === combatant ? "is-turn" : ""}"><i class="fa-solid fa-bolt"></i> ${Math.floor(combatant.initiative)}${game.combat.combatant === combatant ? ` · ${esc(t("Hud.YourTurn"))}` : ""}</span>`)
-    : `<a class="rh-chip" data-act="join"><i class="fa-solid fa-swords"></i> ${esc(t("Hud.Join"))}</a>`)
-    : `<a class="rh-chip" data-act="initRoll" data-tooltip="${esc(t("Hud.InitTip"))}"><i class="fa-solid fa-bolt"></i> ${esc(t("Sheet.Initiative"))} ${s.initiative}</a>`;
+    ? (combatant.initiative == null ? initBox("a", "init", `<i class="fa-solid fa-dice-d10"></i>`, esc(t("Hud.Init")))
+      : initBox("span", "", Math.floor(combatant.initiative), myTurn ? esc(t("Hud.YourTurn")) : `<i class="fa-solid fa-bolt"></i> ${esc(t("Hud.InitShort"))}`, t("Sheet.Initiative")))
+    : initBox("a", "join", `<i class="fa-solid fa-swords"></i>`, esc(t("Hud.Join"))))
+    : initBox("a", "initRoll", s.initiative, `<i class="fa-solid fa-bolt"></i> ${esc(t("Hud.InitShort"))}`, t("Hud.InitTip"));
 
   // Атаки, ждущие защиты этого персонажа
   const pend = pendingAttacks(a);
@@ -120,10 +148,14 @@ export function renderHud() {
       + physBtns
       + (a.hasBlood ? btn("heal", "fa-hand-holding-droplet", t("Sheet.HealHint")) + btn("hunt", "fa-moon", t("Hunt.Button")) : "")
       + btn("hazard", "fa-fire", t("Hazard.Title")))}
-    <div class="rh-side">${init}${fxChips}
-      <span class="rh-chip ${arm.rating ? "" : "is-off"}" data-tooltip="${esc(arm.rating ? t("Hud.ArmorTip", { r: arm.rating, p: arm.penalty }) : t("Hud.NoArmor"))}"><i class="fa-solid fa-shield"></i> ${arm.rating}${arm.penalty ? ` <small>−${arm.penalty}</small>` : ""}</span>
-      <span class="rh-chip" data-tooltip="${esc(t("Sheet.SoakHint"))}"><i class="fa-solid fa-shield-halved"></i> ${soak}</span>
+    ${powers || fxChips ? group(t("Hud.Powers"), powers + fxChips, "rh-powers") : ""}
+    <div class="rh-side">${init}
+      <div class="rh-side-row">
+        <span class="rh-chip ${arm.rating ? "" : "is-off"}" data-tooltip="${esc(arm.rating ? t("Hud.ArmorTip", { r: arm.rating, p: arm.penalty }) : t("Hud.NoArmor"))}"><i class="fa-solid fa-shield"></i> ${arm.rating}${arm.penalty ? ` <small>−${arm.penalty}</small>` : ""}</span>
+        <span class="rh-chip" data-tooltip="${esc(t("Sheet.SoakHint"))}"><i class="fa-solid fa-shield-halved"></i> ${soak}</span>
+      </div>
     </div>`;
+  el.classList.toggle("is-turn", myTurn);
   fitHud();
 }
 
@@ -154,6 +186,7 @@ async function onClick(ev) {
       });
       return n ? a.buyCelerityActions(n) : null;
     }
+    case "power": return rollPowerRef(a, el.dataset.ref);
     case "hunt": return openHunt(a);
     case "hazard": return openHazard(a);
     case "defendPending": return defendFromHud(a);
@@ -184,6 +217,16 @@ function fitHud() {
   const busy = r && r.width > 0 && r.left < b.right && input && getComputedStyle(input).display !== "none";
   el.style.maxWidth = busy ? `${Math.max(420, r.left - b.left - 12)}px` : "";
   el.style.marginLeft = busy ? "0" : "";
+  fitWeapons(el);
+}
+
+/** Оружие в группе атаки: прятать с конца, пока приёмы и «…» не влезут целиком (хотя бы одно оружие остаётся). */
+function fitWeapons(el) {
+  const body = el.querySelector(".rh-attacks .rh-group-body");
+  if (!body) return;
+  const list = [...body.querySelectorAll(".rh-weapon")];
+  list.forEach(w => { w.hidden = false; });
+  for (let i = list.length - 1; i > 0 && body.scrollWidth > body.clientWidth + 1; i--) list[i].hidden = true;
 }
 
 /** Перерисовать не чаще раза в кадр. */

@@ -1001,3 +1001,7 @@ body.r-theme-light .vtm20 .r-motto { color: rgba(140, 28, 34, .75); }
 /* Лист предмета растёт по содержимому, но не выше экрана — дальше прокрутка внутри */
 .vtm20.r-item { max-height: 88vh; }
 .vtm20.r-item .window-content { overflow-y: auto; }
+
+/* булавка «в HUD» у силы */
+.vtm20 .r-power-pin.is-on { color: var(--r-accent); }
+.vtm20 .r-power-pin.is-on i { transform: rotate(-30deg); }

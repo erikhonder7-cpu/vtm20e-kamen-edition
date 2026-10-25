@@ -20,7 +20,8 @@
       {{#if codexRef}}<a class="r-icon-btn r-power-roll" data-action="rollPower" data-ref="{{codexRef}}" data-tooltip="{{localize 'VTM20.Sheet.RollPower'}}"><i class="fa-solid fa-dice-d10"></i></a>
       {{else}}<a class="r-icon-btn r-power-roll" data-action="rollItemPower" data-tooltip="{{localize 'VTM20.Sheet.RollPower'}}"><i class="fa-solid fa-dice-d10"></i></a>{{/if}}
     {{/if}}
-    {{#if codexRef}}<a class="r-icon-btn" data-action="powerToChat" data-disc="{{disc}}" data-level="{{level}}" data-name="{{name}}" {{#if pathId}}data-path-id="{{pathId}}"{{/if}} data-tooltip="{{localize 'VTM20.Sheet.ToChat'}}"><i class="fa-solid fa-comment-dots"></i></a>
+    {{#if codexRef}}{{#if @root.editable}}<a class="r-icon-btn r-power-pin {{#if pinned}}is-on{{/if}}" data-action="pinPower" data-ref="{{codexRef}}" data-tooltip="{{#if pinned}}{{localize 'VTM20.Hud.Unpin'}}{{else}}{{localize 'VTM20.Hud.Pin'}}{{/if}}"><i class="fa-solid fa-thumbtack"></i></a>{{/if}}
+    <a class="r-icon-btn" data-action="powerToChat" data-disc="{{disc}}" data-level="{{level}}" data-name="{{name}}" {{#if pathId}}data-path-id="{{pathId}}"{{/if}} data-tooltip="{{localize 'VTM20.Sheet.ToChat'}}"><i class="fa-solid fa-comment-dots"></i></a>
     {{else}}<a class="r-icon-btn" data-action="itemChat" data-tooltip="{{localize 'VTM20.Sheet.ToChat'}}"><i class="fa-solid fa-comment-dots"></i></a>
       <a class="r-icon-btn" data-action="itemEdit"><i class="fa-solid fa-pen-nib"></i></a>
       {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="itemDelete"><i class="fa-solid fa-trash"></i></a>{{/if}}{{/if}}

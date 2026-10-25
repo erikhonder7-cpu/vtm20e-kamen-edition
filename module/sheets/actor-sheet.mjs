@@ -93,6 +93,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       effectDelete: VtMActorSheet.#onEffectDelete,
       powerToChat: VtMActorSheet.#onPowerToChat,
       rollPower: VtMActorSheet.#onRollPower,
+      pinPower: VtMActorSheet.#onPinPower,
       rollItemPower: VtMActorSheet.#onRollItemPower,
       itemCreate: VtMActorSheet.#onItemCreate,
       itemEdit: VtMActorSheet.#onItemEdit,
@@ -373,6 +374,8 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const rituals = a.items.filter(i => i.type === "ritual");
     const ownPowers = a.items.filter(i => i.type === "power");
     const cap = Math.max(5, a.system.traitMax ?? 5);
+    // силы, вынесенные в HUD (флаг hudPowers)
+    const pins = new Set(this.actor.getFlag(SYSTEM_ID, "hudPowers") ?? []);
     const rollInfo = r => r && (r.trait1 || r.blood || r.willpower || r.dice) ? {
       label: r.dice ? `${r.dice}d10` : [r.trait1 && a.traitLabel(r.trait1), r.trait2 && a.traitLabel(r.trait2)].filter(Boolean).join(" + ") + (r.base ? ` (${t("Magic.BaseAttr")})` : ""),
       diff: r.difficulty || "", note: r.note ?? "", blood: r.blood ?? 0, willpower: !!r.willpower, canRoll: !!(r.trait1 || r.dice)
@@ -398,7 +401,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
         html: pd?.html ?? p.system.description ?? "",
         powers: (pd?.powers ?? []).filter(x => x.level <= p.system.value).map((x, i) => ({
           ...x, id: `${p.id}-p${i}`, roman: ROMAN[x.level - 1], open: this._open.has(`${p.id}-p${i}`),
-          roll: rollInfo(x.roll), codexRef: `${k}|path|${pi}|${i}`
+          roll: rollInfo(x.roll), codexRef: `${k}|path|${pi}|${i}`, pinned: pins.has(`${k}|path|${pi}|${i}`)
         })),
         ownPowers: ownPowers.filter(o => o.system.discipline === k && o.system.path === p.name).sort((x, y) => x.system.level - y.system.level).map(mapOwn)
       };
@@ -434,7 +437,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
         }
         const [p, i] = pick;
         powers.push({ ...p, level: lv, id: `${it.id}-p${i}`, roman: ROMAN[lv - 1] ?? lv, open: this._open.has(`${it.id}-p${i}`),
-          roll: rollInfo(p.roll), codexRef: `${k}|${i}`, fx: p.source ? null : fxOf(k, p.level),
+          roll: rollInfo(p.roll), codexRef: `${k}|${i}`, pinned: pins.has(`${k}|${i}`), fx: p.source ? null : fxOf(k, p.level),
           alts: opts.length > 1 ? opts.length : 0, itemId: it.id });
       }
       const nextOpts = vis.filter(([p]) => fitsLevel(p, v + 1, choices));
@@ -855,17 +858,16 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   }
 
   /** Бросок силы из справочника: пул и сложность разобраны из текста книги. */
-  static #onRollPower(event, target) {
-    const ref = target.dataset.ref.split("|");
-    const d = Codex.discipline(ref[0]);
-    let p, pathName = "";
-    if (ref[1] === "path") { const pth = d?.paths[Number(ref[2])]; p = pth?.powers[Number(ref[3])]; pathName = pth?.name ?? ""; }
-    else p = d?.powers[Number(ref[1])];
-    if (!p) return;
-    const magic = VTM20.pathDisciplines.includes(ref[0]);
-    return VtMActorSheet.#rollFromSpec(this.actor, p.roll ?? {}, { title: p.name, subtitle: `${pathName || d.name} · ${ROMAN[p.level - 1] ?? p.level}`, effect: p.html,
-      kind: magic ? "magic" : "check", magic: magic ? { disc: ref[0], level: p.level, path: pathName } : null,
-      power: { disc: ref[0], level: p.level, path: pathName, name: p.name } });
+  static #onRollPower(event, target) { return rollPowerRef(this.actor, target.dataset.ref); }
+
+  /** Сила в HUD и обратно (до шести — флаг hudPowers персонажа). */
+  static async #onPinPower(event, target) {
+    const ref = target.dataset.ref, pins = [...(this.actor.getFlag(SYSTEM_ID, "hudPowers") ?? [])];
+    const i = pins.indexOf(ref);
+    if (i >= 0) pins.splice(i, 1);
+    else if (pins.length >= 6) return ui.notifications.warn(t("Hud.PinsFull"));
+    else pins.push(ref);
+    await this.actor.setFlag(SYSTEM_ID, "hudPowers", pins);
   }
 
   /** Бросок записанной силы или ритуала (предмета). */
@@ -893,15 +895,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   }
 
   /** Бросок по описанию силы: черты, сложность, цена; фиксированный пул (Тауматургическая защита); «чистая» характеристика (Колдовство). */
-  static #rollFromSpec(actor, r, { title, subtitle, effect, kind = "check", magic = null, power = null }) {
-    return RollDialog.prompt(actor, {
-      title, subtitle, trait1: r.trait1 ?? "", trait2: r.trait2 ?? "",
-      difficulty: r.difficulty || VTM20.defaultDifficulty, bloodCost: r.blood ?? 0, willpowerCost: !!r.willpower,
-      diffNote: r.note ?? "", effect, kind, baseAttr: !!r.base,
-      ...(r.dice ? { pool: r.dice, lockTraits: true, breakdown: [{ label: t("Magic.FixedPool"), value: r.dice }] } : {}),
-      extra: { ...(magic ? { magic } : {}), ...(power ? { power } : {}) }
-    });
-  }
+  static #rollFromSpec(actor, r, opts) { return rollFromSpec(actor, r, opts); }
 
   /** Описание силы — в чат. */
   static async #onPowerToChat(event, target) {
@@ -1053,3 +1047,34 @@ Hooks.on("preCreateItem", (item, data, options, userId) => {
   if (userId === game.user.id) ui.notifications.warn(game.i18n.format("VTM20.Sheet.DuplicateItem", { name: same.name }));
   return false;
 });
+
+/** Сила справочника по ссылке «дисциплина|номер» или «дисциплина|path|путь|номер» (лист и HUD). */
+export function powerByRef(ref) {
+  const [k, a, b, c] = String(ref ?? "").split("|");
+  const d = Codex.discipline(k);
+  if (!d) return null;
+  if (a === "path") { const pth = d.paths?.[Number(b)]; const p = pth?.powers?.[Number(c)]; return p ? { disc: k, d, p, pathName: pth.name ?? "" } : null; }
+  const p = d.powers?.[Number(a)];
+  return p ? { disc: k, d, p, pathName: "" } : null;
+}
+
+/** Бросок по записи силы или ритуала: пул из книги, сложность, цена кровью или волей. */
+function rollFromSpec(actor, r, { title, subtitle, effect, kind = "check", magic = null, power = null }) {
+  return RollDialog.prompt(actor, {
+    title, subtitle, trait1: r.trait1 ?? "", trait2: r.trait2 ?? "",
+    difficulty: r.difficulty || VTM20.defaultDifficulty, bloodCost: r.blood ?? 0, willpowerCost: !!r.willpower,
+    diffNote: r.note ?? "", effect, kind, baseAttr: !!r.base,
+    ...(r.dice ? { pool: r.dice, lockTraits: true, breakdown: [{ label: t("Magic.FixedPool"), value: r.dice }] } : {}),
+    extra: { ...(magic ? { magic } : {}), ...(power ? { power } : {}) }
+  });
+}
+
+/** Бросок силы справочника по ссылке (лист и HUD). */
+export function rollPowerRef(actor, ref) {
+  const x = powerByRef(ref);
+  if (!x) return;
+  const { disc, d, p, pathName } = x, magic = VTM20.pathDisciplines.includes(disc);
+  return rollFromSpec(actor, p.roll ?? {}, { title: p.name, subtitle: `${pathName || d.name} · ${ROMAN[p.level - 1] ?? p.level}`, effect: p.html,
+    kind: magic ? "magic" : "check", magic: magic ? { disc, level: p.level, path: pathName } : null,
+    power: { disc, level: p.level, path: pathName, name: p.name } });
+}
