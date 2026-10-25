@@ -208,7 +208,7 @@
 #r-citymap .rc-gadd select { flex: 1; min-width: 0; }
 #r-citymap .rc-ibtn.is-warn { border-color: #a0843a; color: #e3c27a; }
 #r-citymap .rc-chars li img { width: 24px; height: 24px; flex: 0 0 auto; border-radius: 50%; object-fit: cover; object-position: top; border: 2px solid var(--c, var(--c-line-3)); }
-#r-citymap .rc-chars li.is-off img { filter: grayscale(1) brightness(.6); border-color: var(--c-line-2); }
+#r-citymap .rc-chars li.is-off img { width: 28px; height: 28px; filter: saturate(.55) brightness(.8); border-color: var(--c-line-2); }
 #r-citymap .rc-chars li.is-off { color: var(--c-muted); }
 
 #r-citymap .rc-charcard { border-left-color: var(--c); }
@@ -356,3 +356,22 @@
 #r-citymap .rc-stain-tip p { margin: 0; }
 #r-citymap .rc-stain-tip .rc-tip-line { display: flex; gap: 6px; align-items: baseline; margin-top: 4px; padding-top: 4px; border-top: 1px dotted rgba(38, 26, 16, .3); font-size: 12.5px; }
 #r-citymap .rc-stain-tip .rc-tip-line i { width: 13px; flex: 0 0 auto; color: #7d1a1c; font-size: 11px; }
+
+/* Г3 — панель группами с подписями */
+#r-citymap .rc-tools { align-items: flex-start; }
+#r-citymap .rc-tgroup { display: flex; flex-direction: column; pointer-events: all; border: 1px solid #000; background: var(--c-mat-leather); box-shadow: 0 4px 14px rgba(0, 0, 0, .6); }
+#r-citymap .rc-tgroup > .rc-toolset { border: 0; box-shadow: none; background: none; }
+#r-citymap .rc-tgroup > small { padding: 2px 6px 3px; text-align: center; font: 9px var(--c-font-display); letter-spacing: 1.8px; text-transform: uppercase;
+  color: var(--c-dim); border-top: 1px solid rgba(0, 0, 0, .6); white-space: nowrap; }
+#r-citymap .rc-tools > .rc-hintbar { align-self: flex-start; }
+
+/* Г2 — рассвет: в последний час ночи восточный край плана теплеет */
+#r-citymap .rc-dawn { position: absolute; inset: 0; z-index: 1; pointer-events: none; opacity: var(--dawn, 0); transition: opacity 3s ease;
+  background: linear-gradient(var(--dawn-a, 90deg), transparent 38%, rgba(232, 150, 80, .12) 60%, rgba(240, 160, 90, .46));
+  mix-blend-mode: screen; }
+
+/* Г5 — персонажи не на карте: лица, клан, перетаскивание на план */
+#r-citymap .rc-chars li.is-off { cursor: grab; }
+#r-citymap .rc-chars li.is-off:hover img { filter: none; border-color: var(--c-bone-2); }
+#r-citymap .rc-chars li.is-off:active { cursor: grabbing; }
+#r-citymap .rc-sub small { margin-left: auto; font-size: 9.5px; letter-spacing: 1px; text-transform: none; font-family: var(--c-font-body); font-style: italic; color: var(--c-dim); }

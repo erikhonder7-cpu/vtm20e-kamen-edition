@@ -24,7 +24,7 @@
 import { SYSTEM_ID, SYSTEM_PATH } from "../config.mjs";
 import {
   getClock, clockRunning, clockRate, setClockRunning, setClockRate, glideTo, advanceClock,
-  longDate, ymd, sunTimes, realNow, MS_MIN, MS_DAY
+  longDate, ymd, sunTimes, realNow, nightSpan, MS_MIN, MS_HOUR, MS_DAY
 } from "../apps/calendar.mjs";
 import {
   whereIs, cityFlag, placeActor, leaderOf, followersOf, groupOf, joinGroup, leaveGroup, mapVisible, isHiddenOnMap, meters
@@ -588,6 +588,10 @@ function mapActors() {
 function placeableActors() {
   return game.actors.filter(a => CHAR_TYPES.includes(a.type) && (game.user.isGM ? a.hasPlayerOwner : a.isOwner));
 }
+/** Подпись под именем в списке: клан Сородича, иначе тип персонажа. */
+function kindOf(a) {
+  return (a.type === "vampire" && a.clanLabel) || game.i18n.localize(CONFIG.Actor.typeLabels?.[a.type] ?? a.type);
+}
 /** НПС для ведущего: персонажи без игрока — ставятся на карту скрытыми. */
 function npcActors() {
   return game.user.isGM ? game.actors.filter(a => CHAR_TYPES.includes(a.type) && !a.hasPlayerOwner) : [];
@@ -780,7 +784,7 @@ function mount() {
         <label class="rc-search" data-tooltip="${esc(L("SearchHint"))}"><i class="fa-solid fa-magnifying-glass"></i><input data-search placeholder="${esc(L("Search"))}"></label>
         <div class="rc-body"></div>
       </aside>
-      <div class="rc-map"><div class="rc-gl"></div><div class="rc-tools"></div>
+      <div class="rc-map"><div class="rc-gl"></div><div class="rc-dawn"></div><div class="rc-tools"></div>
         <div class="rc-clock"></div><aside class="rc-inspector" hidden></aside>
         <nav class="rc-modes"></nav><section class="rc-board" hidden></section><div class="rc-stain-tip" hidden></div></div>
       <div class="rc-slats shut"></div>
@@ -811,6 +815,15 @@ function mount() {
   // разметка и доски режимов от модулей (свеча над старинным планом, вкладки Собрания…)
   for (const m of EXT.mounts) m(root, api);
   for (const b of boards()) b.attach(root, api);
+  // персонажа из списка слева можно перетащить на план — тот же перенос, что из каталога актёров Foundry
+  root.addEventListener("dragstart", ev => {
+    const a = game.actors.get(ev.target.closest?.("[data-drag-actor]")?.dataset.dragActor);
+    if (!a) return;
+    ev.dataTransfer.setData("text/plain", JSON.stringify({ type: "Actor", uuid: a.uuid }));
+    ev.dataTransfer.effectAllowed = "move";
+    const img = ev.target.querySelector("img");
+    if (img) ev.dataTransfer.setDragImage(img, 12, 12);
+  });
   box.addEventListener("dragover", ev => ev.preventDefault());
   box.addEventListener("drop", ev => onDrop(ev));
   const input = root.querySelector("[data-search]");
@@ -1339,16 +1352,15 @@ function drawTools() {
   const v = view();
   const btn = (t, icon, tip, gm = false) => gm && !game.user.isGM ? "" :
     `<a class="${tool === t ? "on" : ""}" data-act="tool" data-tool="${t}" data-tooltip="${esc(L(tip))}"><i class="fa-solid ${icon}"></i></a>`;
+  // Группы кнопок с подписями (Г3); пустая группа не показывается
+  const group = (cap, inner, cls = "", attrs = "") => inner.trim() ? `<div class="rc-tgroup">
+      <div class="rc-toolset ${cls}" ${attrs}>${inner}</div><small>${esc(L(`Group.${cap}`))}</small></div>` : "";
   box.innerHTML = `
-    <div class="rc-toolset">${btn("select", "fa-arrow-pointer", "ToolSelect")}${btn("marker", "fa-location-dot", "ToolMarker")}${btn("zone", "fa-draw-polygon", "ToolZone", true)}${EXT.toolModes.filter(t => !t.when || t.when()).map(t => btn(t.id, t.icon, t.tip, t.gm)).join("")}</div>
-    <div class="rc-toolset rc-textset">${eraStyles().map(k => `<a class="${v.style === k ? "on" : ""}" data-act="style" data-style="${k}">${esc(styleExt(k)?.label ?? L(`Style.${k}`))}</a>`).join("")}</div>
-    <div class="rc-toolset rc-textset" data-tooltip="${esc(L("LangHint"))}">${eraLangs().map(k => `<a class="${v.lang === k ? "on" : ""}" data-act="lang" data-lang="${k}">${esc(L(`Lang.${k}`))}</a>`).join("")}</div>
-    <div class="rc-toolset">
-      ${metros[city().preset] ? `<a class="${v.metro ? "on" : ""}" data-act="metro" data-tooltip="${esc(L("MetroToggle"))}"><i class="fa-solid fa-train-subway"></i></a>` : ""}
-      ${EXT.tools.map(t => t(api)).join("")}
-      ${styleExt(v.style) ? "" : `<a data-act="tilt" data-tooltip="${esc(L("Tilt"))}"><i class="fa-solid fa-cube"></i></a>`}
-      <a data-act="goHome" data-tooltip="${esc(L("GoHome"))}"><i class="fa-solid fa-house"></i></a>
-    </div>
+    ${group("Tools", `${btn("select", "fa-arrow-pointer", "ToolSelect")}${btn("marker", "fa-location-dot", "ToolMarker")}${btn("zone", "fa-draw-polygon", "ToolZone", true)}${EXT.toolModes.filter(t => !t.when || t.when()).map(t => btn(t.id, t.icon, t.tip, t.gm)).join("")}`)}
+    ${group("Era", eraStyles().map(k => `<a class="${v.style === k ? "on" : ""}" data-act="style" data-style="${k}">${esc(styleExt(k)?.label ?? L(`Style.${k}`))}</a>`).join(""), "rc-textset")}
+    ${group("Lang", eraLangs().map(k => `<a class="${v.lang === k ? "on" : ""}" data-act="lang" data-lang="${k}">${esc(L(`Lang.${k}`))}</a>`).join(""), "rc-textset", `data-tooltip="${esc(L("LangHint"))}"`)}
+    ${group("Layers", `${metros[city().preset] ? `<a class="${v.metro ? "on" : ""}" data-act="metro" data-tooltip="${esc(L("MetroToggle"))}"><i class="fa-solid fa-train-subway"></i></a>` : ""}${EXT.tools.map(t => t(api)).join("")}`)}
+    ${group("View", `${styleExt(v.style) ? "" : `<a data-act="tilt" data-tooltip="${esc(L("Tilt"))}"><i class="fa-solid fa-cube"></i></a>`}<a data-act="goHome" data-tooltip="${esc(L("GoHome"))}"><i class="fa-solid fa-house"></i></a>`)}
     ${hint()}`;
   syncAim();
 }
@@ -1396,6 +1408,21 @@ function drawClock() {
 /** Раз в полсекунды — только текст: кнопки не перерисовываются, пока по ним жмут. */
 function paintClock() {
   paintPlate(document.querySelector(`#${ID} .rc-clock`));
+  paintDawn();
+}
+
+/**
+ * Рассвет на карте (Г2): в последний час ночи восточный край плана теплеет, к восходу — сильнее;
+ * днём тепло держится. Восток — с учётом поворота карты.
+ */
+function paintDawn() {
+  const box = document.querySelector(`#${ID} .rc-map`);
+  if (!box) return;
+  const s = nightSpan();
+  const k = !s.night ? 1 : s.left < MS_HOUR ? 1 - s.left / MS_HOUR : 0;
+  const a = `${Math.round(90 - (map?.getBearing() ?? 0))}deg`;
+  if (box.style.getPropertyValue("--dawn") !== k.toFixed(2)) box.style.setProperty("--dawn", k.toFixed(2));
+  if (box.style.getPropertyValue("--dawn-a") !== a) box.style.setProperty("--dawn-a", a);
 }
 
 function drawBody() {
@@ -1419,18 +1446,21 @@ function drawBody() {
   const ids = new Set(onMap.map(a => a.id));
   const off = placeableActors().filter(a => !ids.has(a.id));
   const cq = a => !search || a.name.toLowerCase().includes(search);
-  const onRows = onMap.filter(cq).map(a => `<li class="${picked?.kind === "char" && picked.id === a.id ? "on" : ""} ${leaderOf(a) ? "is-crew" : ""}" data-act="pickChar" data-actor="${a.id}" style="--c:${ownerColor(a)}">
+  const onRows = onMap.filter(cq).map(a => `<li class="${picked?.kind === "char" && picked.id === a.id ? "on" : ""} ${leaderOf(a) ? "is-crew" : ""}" draggable="true" data-drag-actor="${a.id}" data-act="pickChar" data-actor="${a.id}" style="--c:${ownerColor(a)}">
       <img src="${esc(a.img)}" alt=""><span>${esc(a.name)}<small data-eta="${a.id}">${esc(statusText(a))}</small></span>${game.user.isGM && isHiddenOnMap(a) ? `<i class="fa-solid fa-eye-slash rc-mini" data-tooltip="${esc(T("HiddenTip"))}"></i>` : ""}</li>`);
   // Не на карте: персонажи игроков и (ведущему) НПС — деревом папок каталога актёров Foundry.
   const npcIds = new Set(npcActors().map(a => a.id));
   const offAll = [...off, ...npcActors().filter(a => !ids.has(a.id) && cityFlag(a)?.city !== city().id)].filter(cq);
-  const offRow = a => npcIds.has(a.id)
-    ? `<li class="is-off" data-act="placeNpc" data-actor="${a.id}" data-tooltip="${esc(T("PlaceNpcTip"))}"><img src="${esc(a.img)}" alt=""><span>${esc(a.name)}</span><i class="fa-solid fa-location-crosshairs rc-mini"></i></li>`
-    : `<li class="is-off" data-act="placeChar" data-actor="${a.id}" data-tooltip="${esc(T("PlaceTip"))}"><img src="${esc(a.img)}" alt=""><span>${esc(a.name)}</span><i class="fa-solid fa-location-crosshairs rc-mini"></i></li>`;
+  // Лицо, клан или тип; строку можно перетащить на план (Г5) или щёлкнуть и поставить щелчком по карте
+  const offRow = a => {
+    const npc = npcIds.has(a.id);
+    return `<li class="is-off" draggable="true" data-drag-actor="${a.id}" data-act="${npc ? "placeNpc" : "placeChar"}" data-actor="${a.id}" data-tooltip="${esc(T(npc ? "PlaceNpcTip" : "PlaceTip"))}">
+      <img src="${esc(a.img)}" alt=""><span>${esc(a.name)}<small>${esc(kindOf(a))}</small></span><i class="fa-solid fa-location-crosshairs rc-mini"></i></li>`;
+  };
   if (onRows.length || offAll.length) {
     html += `<h3 class="rc-sect">${esc(T("Characters"))} <b>${onMap.length}</b></h3>`;
     if (onRows.length) html += `<ul class="rc-chars">${onRows.join("")}</ul>`;
-    if (offAll.length) html += `<div class="rc-atree"><h4 class="rc-sub">${esc(T("OffMap"))} <b>${offAll.length}</b></h4>${actorTree(offAll, offRow, v)}</div>`;
+    if (offAll.length) html += `<div class="rc-atree"><h4 class="rc-sub">${esc(T("OffMap"))} <b>${offAll.length}</b><small>${esc(T("OffMapHint"))}</small></h4>${actorTree(offAll, offRow, v)}</div>`;
   }
 
   html += `<div class="rc-lists"><h3 class="rc-sect">${esc(L("Folders"))}${game.user.isGM ? `<a data-act="addFolder" data-tooltip="${esc(L("AddFolder"))}"><i class="fa-solid fa-folder-plus"></i></a>` : ""}</h3>`;

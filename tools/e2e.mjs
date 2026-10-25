@@ -166,7 +166,8 @@ try {
 
   await check("Новый мир: «Город» без Парижа", async () => {
     await setWorld(false, "", await page.evaluate(() => game.system.version));
-    await reloadUntil(() => game.ready === true);
+    // game.ready встаёт раньше, чем отработает асинхронный ready системы (Codex.load, keepParis): ждём решения
+    await reloadUntil(() => game.ready === true && !!game.settings.get(game.system.id, "cityParis"));
     const st = await page.evaluate(id => [game.settings.get(game.system.id, "cityParis"), !!game.modules.get(id)?.active], CITY_MODULE);
     if (st[0] !== "new" || st[1]) throw new Error(`cityParis=${st[0]}, модуль ${st[1] ? "включился" : "выключен"}`);
     await page.evaluate(() => game.vtm20.openCity());
