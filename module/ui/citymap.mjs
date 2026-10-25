@@ -495,8 +495,8 @@ function inZone(z, lat, lng) {
 }
 /** Зона с угодьями, в которой стоит персонаж (самая маленькая из подходящих не нужна — первая по списку). */
 const huntZoneOf = a => { const w = whereIs(a); return w ? city().zones.find(z => z.grounds && (game.user.isGM || !z.gmOnly) && inZone(z, w.lat, w.lng)) : null; };
-/** Место для окна охоты: название, угодья и хозяин домена (поле «Владелец» зоны — имя персонажа). */
-function huntPlace(z, at = centroid(z.points)) {
+/** Место для окна охоты: название, угодья и хозяин домена (поле «Владелец» зоны — имя персонажа). Экспорт — для автотестов. */
+export function huntPlace(z, at = centroid(z.points)) {
   // жар Маскарада в этой точке (ui/masquerade.mjs) — надбавка к сложности охоты
   const masq = masqueradeAt(city(), at[0], at[1]).diff;
   // хозяин: обведённый домен в этой точке, иначе поле «Владелец» зоны (имя персонажа)
