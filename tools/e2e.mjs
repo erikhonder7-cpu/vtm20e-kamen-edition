@@ -306,6 +306,28 @@ try {
     if (!ok) throw new Error("сила братских уз вне 1–10");
   });
 
+  await check("Узы крови: испить у Сородича", async () => {
+    const [drinker, donor] = [await temp("E2E — пьющий"), await temp("E2E — сюзерен")];
+    await page.evaluate(async ([d, s]) => {
+      await game.actors.get(d).update({ "system.blood.value": 2 }); await game.actors.get(s).update({ "system.blood.value": 8 });
+      window._e2e.feed = (await import(`/systems/${game.system.id}/module/apps/bonds.mjs`)).feedFrom(game.actors.get(d));
+    }, [drinker, donor]);
+    await page.waitForSelector(".application.dialog select[name=donor]", { timeout: 10000 });
+    await page.evaluate(s => {
+      const dlg = [...document.querySelectorAll(".application.dialog")].at(-1);
+      dlg.querySelector("select[name=donor]").value = s; dlg.querySelector("input[name=amount]").value = 3;
+      dlg.querySelector("footer button").click();
+    }, donor);
+    const r = await page.evaluate(async ([d, s]) => {
+      await window._e2e.feed;
+      const a = game.actors.get(d), b = game.actors.get(s);
+      return { blood: a.system.blood.value, donor: b.system.blood.value, bond: a.system.bonds[0], thrall: b.system.bonds[0] };
+    }, [drinker, donor]);
+    if (r.blood !== 5 || r.donor !== 5) throw new Error(`кровь: у пьющего ${r.blood}, у донора ${r.donor}`);
+    if (r.bond?.role !== "regnant" || r.bond.rating !== 1) throw new Error(`узы пьющего: ${JSON.stringify(r.bond)}`);
+    if (r.thrall?.role !== "thrall") throw new Error("у донора нет записи о вассале");
+  });
+
   // Уборка до перезагрузок мира: сообщения бросков и временные персонажи
   await page.evaluate(async () => {
     const extra = game.messages.contents.slice(window._e2e.messages).map(m => m.id);

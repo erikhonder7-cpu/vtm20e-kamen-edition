@@ -117,6 +117,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       removeSecondary: VtMActorSheet.#onRemoveSecondary,
       addBond: VtMActorSheet.#onAddBond,
       drinkBond: VtMActorSheet.#onDrinkBond,
+      feedFrom: VtMActorSheet.#onFeedFrom,
       resistBond: VtMActorSheet.#onResistBond,
       removeBond: VtMActorSheet.#onRemoveBond,
       addVinc: VtMActorSheet.#onAddVinc,
@@ -1067,6 +1068,10 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static async #onDrinkBond(event, target) {
     const { drinkVitae } = await import("../apps/bonds.mjs");
     return drinkVitae(this.actor, Number(target.dataset.index));
+  }
+  static async #onFeedFrom() {
+    const { feedFrom } = await import("../apps/bonds.mjs");
+    return feedFrom(this.actor);
   }
   static async #onResistBond(event, target) {
     const { resistBond } = await import("../apps/bonds.mjs");
