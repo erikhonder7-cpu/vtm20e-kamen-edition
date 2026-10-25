@@ -62,8 +62,11 @@ def section(rel, start, nth=0):
     print("  факт биографии не найден:", rel, start)
     return None, []
 
+# секта книги — пометка в мастере создания и библиотеке (у Шабаша — прежний флаг sabbat)
+SECT_OF_BOOK = {AU: "anarchs"}
+
 def entry(ru, en, book, body_html, note=""):
-    return {"name": ru, "en": en, "sabbat": False, "source": book,
+    return {"name": ru, "en": en, "sabbat": False, **({"sect": SECT_OF_BOOK[book]} if book in SECT_OF_BOOK else {}), "source": book,
             "html": f"<p><em>Источник: {html.escape(book)}.{(' ' + html.escape(note)) if note else ''}</em></p>" + body_html}
 
 def collect(core):

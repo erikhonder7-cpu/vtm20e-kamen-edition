@@ -945,6 +945,13 @@ def main():
             clans += [c for c in json.load(f) if c["key"] not in have_keys]
     dump("clans.json", clans)
     archetypes = parse_archetypes(os.path.join(core, "01_Создание_персонажа_архетипы_опыт.md"))
+    # архетипы V20 Anarchs Unbound (в справочнике таблицы нет) — по алфавиту среди основных
+    for after, name, regain in [
+        ("Автократ", "Анархист", "отверг лишнее правило, закон или обычай — и добился успеха именно поэтому"),
+        ("Конформист", "Критик", "нашёл изъян в замысле или устройстве и исправил его"),
+        ("Непоседа", "Нигилист", "поддался саморазрушительному порыву")]:
+        if not any(a["name"] == name for a in archetypes):
+            archetypes.insert(next((i + 1 for i, a in enumerate(archetypes) if a["name"] == after), len(archetypes)), {"name": name, "regain": regain})
     dump("archetypes.json", archetypes)
     for c in clans:
         print(f"  {c['group']:9} {c['key']:24} {c['name']:26} {','.join(c['disciplines'])}  выбор: {','.join(c['choice'])}")
