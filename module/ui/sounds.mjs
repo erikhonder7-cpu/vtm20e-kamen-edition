@@ -24,14 +24,15 @@ function volume() {
 const vaults = new WeakMap();
 function vault(c) {
   if (vaults.has(c)) return vaults.get(c);
-  const len = Math.ceil(c.sampleRate * 2.6), ir = c.createBuffer(2, len, c.sampleRate);
+  // хвост короткий (1,1 с) и гаснет быстро — длинное эхо мешало при частых щелчках
+  const len = Math.ceil(c.sampleRate * 1.1), ir = c.createBuffer(2, len, c.sampleRate);
   for (let ch = 0; ch < 2; ch++) {
     const d = ir.getChannelData(ch);
     let lp = 0;
     for (let i = 0; i < len; i++) {
       const k = i / len;
       lp += (Math.random() * 2 - 1 - lp) * (.5 - .42 * k);           // чем дальше, тем глуше
-      d[i] = lp * Math.pow(1 - k, 2.4) * (i < c.sampleRate * .012 ? i / (c.sampleRate * .012) : 1);
+      d[i] = lp * Math.pow(1 - k, 3.2) * (i < c.sampleRate * .012 ? i / (c.sampleRate * .012) : 1);
     }
   }
   const conv = c.createConvolver();
@@ -79,49 +80,49 @@ function noise(c, out, { from, to = from, q = 1, dur, gain, at = 0, type = "band
 }
 
 /** Колокол: негармонические призвуки над основой (малая терция — мрачнее). */
-function bell(c, out, base, gain, at = 0, dur = 3.2) {
+function bell(c, out, base, gain, at = 0, dur = 1.4) {
   for (const [k, a, d] of [[.5, .5, 1.25], [1, 1, 1], [1.19, .55, .85], [1.5, .35, .7], [2, .3, .55], [2.74, .16, .4], [3.76, .08, .3]])
     tone(c, out, { from: base * k, dur: dur * d, gain: gain * a, at, attack: .004 });
 }
 
 /** Удар сердца: два глухих толчка «тук-тук». */
 function heart(c, out, gain, at = 0) {
-  tone(c, out, { from: 62, to: 38, dur: .22, gain, at, lp: 160 });
-  tone(c, out, { from: 54, to: 34, dur: .26, gain: gain * .75, at: at + .24, lp: 140 });
+  tone(c, out, { from: 62, to: 38, dur: .16, gain, at, lp: 160 });
+  tone(c, out, { from: 54, to: 34, dur: .18, gain: gain * .75, at: at + .19, lp: 140 });
 }
 
 /** Звуки: [что звучит, доля эха]. Громкости подобраны так, чтобы щелчок был едва слышен, а удар и провал — заметны. */
 export const SOUNDS = {
   // мягкий глухой «тук» — без шума: шумовой всплеск звучал резким хлопком
   click: [(c, o) => {
-    tone(c, o, { from: 420, to: 250, dur: .1, gain: .13, attack: .006, lp: 900 });
-    tone(c, o, { from: 150, to: 120, dur: .13, gain: .07, attack: .008, lp: 400 });
-  }, .2],
+    tone(c, o, { from: 420, to: 250, dur: .08, gain: .13, attack: .006, lp: 900 });
+    tone(c, o, { from: 150, to: 120, dur: .1, gain: .07, attack: .008, lp: 400 });
+  }, .05],
   page: [(c, o) => {
-    noise(c, o, { from: 500, to: 1700, q: .6, dur: .42, gain: .26, grain: .02 });
-    noise(c, o, { from: 1400, to: 650, q: .8, dur: .3, gain: .16, at: .2, grain: .03 });
-  }, .3],
+    noise(c, o, { from: 500, to: 1700, q: .6, dur: .24, gain: .26, grain: .02 });
+    noise(c, o, { from: 1400, to: 650, q: .8, dur: .16, gain: .16, at: .11, grain: .03 });
+  }, .15],
   blood: [(c, o) => {
-    tone(c, o, { from: 640, to: 150, dur: .2, gain: .22, lp: 1200 });
-    tone(c, o, { from: 230, to: 320, dur: .1, gain: .07, at: .17, lp: 900 });
-    heart(c, o, .5, .32);
-  }, .35],
+    tone(c, o, { from: 640, to: 150, dur: .14, gain: .22, lp: 1200 });
+    tone(c, o, { from: 230, to: 320, dur: .07, gain: .07, at: .12, lp: 900 });
+    heart(c, o, .5, .22);
+  }, .2],
   damage: [(c, o) => {
-    tone(c, o, { from: 88, to: 36, dur: .45, gain: .55, lp: 300 });
-    noise(c, o, { from: 380, to: 120, q: .7, dur: .26, gain: .32, type: "lowpass" });
-    tone(c, o, { type: "sawtooth", from: 46, to: 40, dur: .9, gain: .07, at: .05, lp: 180, trem: 9 });
-  }, .4],
-  success: [(c, o) => { bell(c, o, 196, .13); }, .55],
+    tone(c, o, { from: 88, to: 36, dur: .28, gain: .55, lp: 300 });
+    noise(c, o, { from: 380, to: 120, q: .7, dur: .16, gain: .32, type: "lowpass" });
+    tone(c, o, { type: "sawtooth", from: 46, to: 40, dur: .45, gain: .07, at: .04, lp: 180, trem: 9 });
+  }, .25],
+  success: [(c, o) => { bell(c, o, 196, .13); }, .3],
   failure: [(c, o) => {
-    tone(c, o, { type: "sawtooth", from: 146.8, to: 130.8, dur: 1.3, gain: .18, attack: .12, lp: 650 });
-    tone(c, o, { type: "sawtooth", from: 73.4, to: 65.4, dur: 1.4, gain: .13, attack: .15, lp: 400 });
-  }, .5],
+    tone(c, o, { type: "sawtooth", from: 146.8, to: 130.8, dur: .6, gain: .18, attack: .06, lp: 650 });
+    tone(c, o, { type: "sawtooth", from: 73.4, to: 65.4, dur: .65, gain: .13, attack: .08, lp: 400 });
+  }, .3],
   botch: [(c, o) => {
-    tone(c, o, { type: "sawtooth", from: 55, to: 49, dur: 1.8, gain: .24, attack: .05, lp: 320, trem: 7 });
-    tone(c, o, { type: "sawtooth", from: 77.8, to: 69.3, dur: 1.7, gain: .18, attack: .08, lp: 380, trem: 5.5 });   // тритон
-    noise(c, o, { from: 140, to: 70, q: .5, dur: 1.2, gain: .32, type: "lowpass" });
-    bell(c, o, 98, .09, .15, 2.4);
-  }, .5]
+    tone(c, o, { type: "sawtooth", from: 55, to: 49, dur: .85, gain: .24, attack: .04, lp: 320, trem: 7 });
+    tone(c, o, { type: "sawtooth", from: 77.8, to: 69.3, dur: .8, gain: .18, attack: .05, lp: 380, trem: 5.5 });   // тритон
+    noise(c, o, { from: 140, to: 70, q: .5, dur: .55, gain: .32, type: "lowpass" });
+    bell(c, o, 98, .09, .1, 1.1);
+  }, .3]
 };
 
 /** Собрать звук в контексте c на выход dest с громкостью v (для игры и для записи образцов). */
