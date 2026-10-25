@@ -35,6 +35,7 @@ import { MERIT_MODS, describeMeritMod } from "../data/merit-mods.mjs";
 import { weaponIcon as weaponImg, armorIcon as armorImg } from "../data/icons.mjs";
 import { togglePowerEffect } from "../apps/power-effects.mjs";
 import { lineUp, childrenOf, bloodCheck, actorByName } from "../data/lineage.mjs";
+import { isSabbat, vinculumMeaning, rollPackVinculi, openVaulderie, loyaltyConflict } from "../apps/vaulderie.mjs";
 import { itemCardHTML } from "../chat/item-card.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
@@ -118,6 +119,11 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       drinkBond: VtMActorSheet.#onDrinkBond,
       resistBond: VtMActorSheet.#onResistBond,
       removeBond: VtMActorSheet.#onRemoveBond,
+      addVinc: VtMActorSheet.#onAddVinc,
+      removeVinc: VtMActorSheet.#onRemoveVinc,
+      packVinc: VtMActorSheet.#onPackVinc,
+      vaulderie: VtMActorSheet.#onVaulderie,
+      vincConflict: VtMActorSheet.#onVincConflict,
       addBoon: VtMActorSheet.#onAddBoon,
       toggleBoon: VtMActorSheet.#onToggleBoon,
       removeBoon: VtMActorSheet.#onRemoveBoon,
@@ -523,6 +529,11 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     ctx.derangements = byType("derangement").map(i => ({ id: i.id, name: i.name, html: i.system.description, permanent: i.system.permanent, open: this._open.has(i.id) }));
     ctx.bonds = (a.system.bonds ?? []).map((b, i) => ({ ...b, index: i, dots: dots(b.rating, 3, { path: `system.bonds.${i}.rating` }),
       isRegnant: b.role === "regnant", tip: t("BondX.Tip", { n: b.drinks ?? 0, last: b.last || "—" }) }));
+    // Винкулум — у вампиров Шабаша и у всех, у кого он уже записан
+    ctx.hasVinc = a.type === "vampire" && (isSabbat(a) || (a.system.vinculi ?? []).length > 0);
+    if (ctx.hasVinc)
+      ctx.vinculi = (a.system.vinculi ?? []).map((v, i) => ({ ...v, index: i, meaning: vinculumMeaning(v.rating),
+        dots: dots(v.rating, 10, { path: `system.vinculi.${i}.rating` }) }));
     // Престация: две колонки — кто должен мне и кому должен я
     const boons = (a.system.boons ?? []).map((b, i) => ({ ...b, index: i,
       levels: BOON_LEVELS.map(k => ({ key: k, label: boonLevelLabel(k), selected: k === b.level })) }));
@@ -739,7 +750,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   _processFormData(event, form, formData) {
     const data = super._processFormData(event, form, formData);
     const src = this.actor._source.system;
-    for (const key of ["secondary", "bonds", "boons", "timeline"]) {
+    for (const key of ["secondary", "bonds", "vinculi", "boons", "timeline"]) {
       const v = data.system?.[key];
       if (v && !Array.isArray(v)) {
         const arr = foundry.utils.deepClone(src[key]);
@@ -1061,6 +1072,20 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const { resistBond } = await import("../apps/bonds.mjs");
     return resistBond(this.actor, Number(target.dataset.index));
   }
+  /** Винкулум (module/apps/vaulderie.mjs): строка вручную, бросок к стае при создании, Братание, конфликт верностей. */
+  static async #onAddVinc() {
+    const list = foundry.utils.deepClone(this.actor._source.system.vinculi ?? []);
+    list.push({ name: "", rating: 1 });
+    await this.actor.update({ "system.vinculi": list });
+  }
+  static async #onRemoveVinc(event, target) {
+    const list = foundry.utils.deepClone(this.actor._source.system.vinculi ?? []);
+    list.splice(Number(target.dataset.index), 1);
+    await this.actor.update({ "system.vinculi": list });
+  }
+  static #onPackVinc() { return rollPackVinculi(this.actor); }
+  static #onVaulderie() { return openVaulderie(this.actor); }
+  static #onVincConflict(event, target) { return loyaltyConflict(this.actor, Number(target.dataset.index)); }
   static async #onRemoveBond(event, target) {
     const list = foundry.utils.deepClone(this.actor._source.system.bonds ?? []);
     list.splice(Number(target.dataset.index), 1);

@@ -68,7 +68,13 @@ const CITY_MODULE = "vtm20e-kamen-city";
 const browser = await chromium.launch({ channel: "msedge", headless: !HEADED });
 try {
   page = await browser.newPage({ viewport: { width: 1600, height: 1000 } });
-  page.on("pageerror", e => errors.push({ step, text: String(e.message ?? e) }));
+  // со стеком: по одному сообщению не понять, чей это код
+  page.on("pageerror", e => {
+    const where = String(e.stack ?? "").split("\n").slice(1, 3).map(x => x.trim()).join(" ← ");
+    // гонка ядра: уведомление пришло, пока мир перезагружается после смены настроек и панели уведомлений ещё нет
+    if (/#postNotification/.test(where)) return;
+    errors.push({ step, text: String(e.message ?? e), where });
+  });
   page.on("console", m => {
     if (m.type() !== "error") return;
     const text = m.text();
@@ -284,6 +290,22 @@ try {
     if (!r.banned) throw new Error("Камарилье доступно внеклановое Затмение");
   });
 
+  await check("Винкулум: Братание стаи", async () => {
+    const ids = [await temp("E2E — шабашит А"), await temp("E2E — шабашит Б")];
+    await page.evaluate(async ids => {
+      for (const id of ids) await game.actors.get(id).update({ "system.details.sect": "Шабаш" });
+      (await import(`/systems/${game.system.id}/module/apps/vaulderie.mjs`)).openVaulderie(game.actors.get(ids[0]));
+    }, ids);
+    await page.waitForSelector(".r-vinc-dialog input[name=pick]", { timeout: 10000 });
+    await page.evaluate(ids => {
+      for (const x of document.querySelectorAll(".r-vinc-dialog input[name=pick]")) x.checked = ids.includes(x.value);
+      document.querySelector(".r-vinc-dialog footer button").click();
+    }, ids);
+    await page.waitForFunction(ids => ids.every(id => (game.actors.get(id).system.vinculi ?? []).length === 1), ids, { timeout: 10000 });
+    const ok = await page.evaluate(ids => ids.every(id => { const v = game.actors.get(id).system.vinculi[0]; return v.rating >= 1 && v.rating <= 10; }), ids);
+    if (!ok) throw new Error("сила братских уз вне 1–10");
+  });
+
   // Уборка до перезагрузок мира: сообщения бросков и временные персонажи
   await page.evaluate(async () => {
     const extra = game.messages.contents.slice(window._e2e.messages).map(m => m.id);
@@ -339,7 +361,7 @@ try {
 for (const r of results) console.log(`${r.ok ? "✓" : "✗"} ${r.name}${r.note ? ` — ${r.note}` : ""}`);
 if (errors.length) {
   console.log("\nОшибки в консоли:");
-  for (const e of errors.slice(0, 20)) console.log(`  [${e.step}] ${e.text.split("\n")[0].slice(0, 300)}`);
+  for (const e of errors.slice(0, 20)) console.log(`  [${e.step}] ${e.text.split("\n")[0].slice(0, 300)}${e.where ? `\n      ${e.where.slice(0, 300)}` : ""}`);
 }
 const failed = results.filter(r => !r.ok).length;
 console.log(failed ? `\nНе прошло: ${failed} из ${results.length}.` : `\nВсё в порядке: ${results.length} проверок.`);

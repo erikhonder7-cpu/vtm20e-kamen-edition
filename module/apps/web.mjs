@@ -68,6 +68,11 @@ function buildGraph() {
       edges.push(b.dir === "owe" ? { kind: "boon", from: me.key, to: other.key, level: b.level }
         : { kind: "boon", from: other.key, to: me.key, level: b.level });
     }
+    // Винкулум Шабаша: верность этого персонажа к члену стаи (у каждого своя, поэтому стрелка от него)
+    for (const v of s.vinculi ?? []) {
+      if (!String(v.name ?? "").trim()) continue;
+      edges.push({ kind: "vinc", from: me.key, to: node(v.name, actorByName(v.name)).key, rating: v.rating });
+    }
   }
   // одна и та же связь, записанная в двух листах, — одной линией
   const uniq = new Map();
@@ -112,7 +117,7 @@ class ChronicleWeb extends HandlebarsApplicationMixin(ApplicationV2) {
 
   static PARTS = { body: { template: `${SYSTEM_PATH}/templates/apps/web.hbs` } };
 
-  layers = { sire: true, bond: true, boon: true };
+  layers = { sire: true, bond: true, boon: true, vinc: true };
   onlyMine = false;
   selected = null;
   #graph = null;
@@ -158,13 +163,15 @@ class ChronicleWeb extends HandlebarsApplicationMixin(ApplicationV2) {
       // связи разного вида между теми же двумя — со сдвигом, чтобы не лечь друг на друга;
       // сторону сдвига берём от пары, а не от направления, иначе встречные узы и долг сойдутся
       const flip = e.from < e.to ? 1 : -1;
-      const off = (e.kind === "bond" ? 6 : e.kind === "boon" ? -6 : 0) * flip, ox = -uy * off, oy = ux * off;
+      // Винкулум — от направления: встречные узы стаи ложатся по разные стороны
+      const off = e.kind === "vinc" ? 11 : (e.kind === "bond" ? 6 : e.kind === "boon" ? -6 : 0) * flip, ox = -uy * off, oy = ux * off;
       const x1 = a.x + ux * (R + 2) + ox, y1 = a.y + uy * (R + 2) + oy, x2 = b.x - ux * (R + 8) + ox, y2 = b.y - uy * (R + 8) + oy;
       const cls = `r-web-e is-${e.kind}${this.selected && (e.from === this.selected || e.to === this.selected) ? " is-hot" : ""}`;
-      const w = e.kind === "bond" ? 1 + (e.rating ?? 1) * 1.2 : 1.4;
+      const w = e.kind === "bond" ? 1 + (e.rating ?? 1) * 1.2 : e.kind === "vinc" ? .8 + (e.rating ?? 1) * .25 : 1.4;
       // подпись — по ту же сторону от линии, куда сдвинута сама линия
       const lx = ((x1 + x2) / 2 - Math.sign(off) * uy * 12).toFixed(1), ly = ((y1 + y2) / 2 + Math.sign(off) * ux * 12 + 3).toFixed(1);
-      const text = e.kind === "boon" ? boonLevelLabel(e.level).toLocaleLowerCase("ru") : e.kind === "bond" ? t("Web.BondN", { n: e.rating ?? 1 }) : "";
+      const text = e.kind === "boon" ? boonLevelLabel(e.level).toLocaleLowerCase("ru") : e.kind === "bond" ? t("Web.BondN", { n: e.rating ?? 1 })
+        : e.kind === "vinc" ? t("Web.VincN", { n: e.rating ?? 1 }) : "";
       const label = text ? `<text class="r-web-el is-${e.kind}" x="${lx}" y="${ly}">${esc(text)}</text>` : "";
       return `<line class="${cls}" x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke-width="${w}" marker-end="url(#rw-${e.kind})"/>${label}`;
     };
@@ -180,7 +187,7 @@ class ChronicleWeb extends HandlebarsApplicationMixin(ApplicationV2) {
     };
     return `<svg class="r-web-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="${esc(t("Web.Title"))}">
       <defs><clipPath id="rw-clip"><circle r="${R - 1}"/></clipPath>
-        ${["sire", "bond", "boon"].map(k => `<marker id="rw-${k}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="r-web-arrow is-${k}"/></marker>`).join("")}</defs>
+        ${["sire", "bond", "boon", "vinc"].map(k => `<marker id="rw-${k}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="r-web-arrow is-${k}"/></marker>`).join("")}</defs>
       ${edges.map(line).join("")}${nodes.map(dot).join("")}</svg>`;
   }
 
@@ -201,13 +208,15 @@ class ChronicleWeb extends HandlebarsApplicationMixin(ApplicationV2) {
         bonds: [...by("bond", "to").map(x => t("Web.DrankFrom", { name: x.n.name, n: x.e.rating ?? 1 })),
           ...by("bond", "from").map(x => t("Web.Fed", { name: x.n.name, n: x.e.rating ?? 1 }))],
         boons: [...by("boon", "to").map(x => t("Web.Owes", { name: x.n.name, level: boonLevelLabel(x.e.level).toLocaleLowerCase("ru") })),
-          ...by("boon", "from").map(x => t("Web.OwesTo", { name: x.n.name, level: boonLevelLabel(x.e.level).toLocaleLowerCase("ru") }))]
+          ...by("boon", "from").map(x => t("Web.OwesTo", { name: x.n.name, level: boonLevelLabel(x.e.level).toLocaleLowerCase("ru") }))],
+        vinc: [...by("vinc", "from").map(x => t("Web.VincTo", { name: x.n.name, n: x.e.rating ?? 1 })),
+          ...by("vinc", "to").map(x => t("Web.VincFrom", { name: x.n.name, n: x.e.rating ?? 1 }))]
       };
     }
     const count = k => this.#graph.edges.filter(e => e.kind === k).length;
     return {
       svg: this.#svg(), card, gm: game.user.isGM, onlyMine: this.onlyMine,
-      layers: ["sire", "bond", "boon"].map(k => ({ key: k, on: this.layers[k], label: t(`Web.Layer.${k}`), n: count(k) })),
+      layers: ["sire", "bond", "boon", "vinc"].map(k => ({ key: k, on: this.layers[k], label: t(`Web.Layer.${k}`), n: count(k) })),
       nodes: this.#graph.nodes.size
     };
   }

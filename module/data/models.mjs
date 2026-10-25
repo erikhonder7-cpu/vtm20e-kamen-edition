@@ -135,6 +135,8 @@ export class VampireData extends BaseActorData {
       // Временное усиление физических характеристик кровью (05): до конца сцены.
       boosts: new SchemaField({ strength: int(0, 0, 10), dexterity: int(0, 0, 10), stamina: int(0, 0, 10) }),
       bonds: new ArrayField(new SchemaField({ name: str(), rating: int(1, 1, 3), role: str("regnant"), drinks: int(1, 0, 99), last: str() })),
+      // Винкулум — братские узы Шабаша к членам стаи, 1–10 (module/apps/vaulderie.mjs)
+      vinculi: new ArrayField(new SchemaField({ name: str(), rating: int(1, 1, 10) })),
       // Престация: кто кому должен услугу (module/apps/boons.mjs)
       boons: new ArrayField(new SchemaField({ name: str(), dir: str("owed"), level: str("minor"), note: str(), date: str(), done: new BooleanField({ initial: false }) })),
       // Изъян клана — своё уточнение (вкус Вентру, расстройство Малкавиан…).

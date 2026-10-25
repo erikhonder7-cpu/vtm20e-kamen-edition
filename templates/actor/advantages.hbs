@@ -98,6 +98,24 @@
       {{else}}<div class="r-empty">{{localize "VTM20.Bond.none"}}</div>
       {{/each}}
       <p class="r-hint">{{localize "VTM20.Bond.hint"}}</p>
+
+      {{#if hasVinc}}
+      <h2 class="r-h2"><span>{{localize "VTM20.Vinc.Title"}}</span>{{#if editable}}<span class="r-h2-tools">
+        <a class="r-h2-btn" data-action="packVinc" data-tooltip="{{localize 'VTM20.Vinc.PackTip'}}"><i class="fa-solid fa-people-group"></i> <span class="r-h2-lbl">{{localize "VTM20.Vinc.Pack"}}</span></a>
+        {{#if isGM}}<a class="r-h2-btn" data-action="vaulderie" data-tooltip="{{localize 'VTM20.Vinc.RiteTip'}}"><i class="fa-solid fa-wine-glass"></i> <span class="r-h2-lbl">{{localize "VTM20.Vinc.Rite"}}</span></a>{{/if}}
+        <a class="r-h2-btn" data-action="addVinc" data-tooltip="{{localize 'VTM20.Sheet.Add'}}"><i class="fa-solid fa-plus"></i></a></span>{{/if}}</h2>
+      {{#each vinculi}}
+      <div class="r-trait-main r-vinc" data-tooltip="{{meaning}}">
+        <input class="r-trait-input" type="text" name="system.vinculi.{{index}}.name" value="{{name}}" placeholder="{{localize 'VTM20.Vinc.Name'}}">
+        {{> rDots dots=dots}}
+        <b class="r-vinc-n">{{rating}}</b>
+        <a class="r-icon-btn" data-action="vincConflict" data-index="{{index}}" data-tooltip="{{localize 'VTM20.Vinc.ConflictTip'}}"><i class="fa-solid fa-scale-unbalanced"></i></a>
+        {{#if ../editable}}<a class="r-icon-btn is-danger" data-action="removeVinc" data-index="{{index}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
+      </div>
+      {{else}}<div class="r-empty">{{localize "VTM20.Vinc.None"}}</div>
+      {{/each}}
+      <p class="r-hint">{{localize "VTM20.Vinc.Hint"}}</p>
+      {{/if}}
     </div>
     {{/unless}}
   </div>

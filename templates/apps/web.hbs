@@ -27,6 +27,8 @@
     {{#each card.bonds}}<div class="r-web-li is-bond">{{this}}</div>{{else}}<p class="r-empty">—</p>{{/each}}
     <h3 class="r-h3 r-colhead"><span>{{localize "VTM20.Web.Layer.boon"}}</span></h3>
     {{#each card.boons}}<div class="r-web-li is-boon">{{this}}</div>{{else}}<p class="r-empty">—</p>{{/each}}
+    {{#if card.vinc.length}}<h3 class="r-h3 r-colhead"><span>{{localize "VTM20.Web.Layer.vinc"}}</span></h3>
+    {{#each card.vinc}}<div class="r-web-li is-vinc">{{this}}</div>{{/each}}{{/if}}
     {{#if card.actorId}}<a class="r-h2-btn r-court-del" data-action="sheet" data-actor-id="{{card.actorId}}"><i class="fa-solid fa-scroll"></i> {{localize "VTM20.Web.OpenSheet"}}</a>
     {{else if gm}}<a class="r-h2-btn r-court-del" data-action="create"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Web.Create"}}</a>{{/if}}
   </aside>

@@ -1087,3 +1087,9 @@ body.r-theme-light .vtm20 .r-motto { color: rgba(140, 28, 34, .75); }
 .vtm20 .r-wpn-row .r-dmg-chip { flex: 0 0 auto; white-space: nowrap; }
 .vtm20 .r-wpn-row .r-td-tools { flex: 0 0 auto; display: inline-flex; gap: 2px; }
 .vtm20 .r-wpn-row.is-off { opacity: .55; }
+
+/* ── Винкулум (братские узы Шабаша): 10 точек в строке, число справа ── */
+.vtm20 .r-vinc { gap: 6px; }
+.vtm20 .r-vinc .r-dots { flex: 0 0 auto; gap: 2px; }
+.vtm20 .r-vinc .r-dot { width: 9px; height: 9px; }
+.vtm20 .r-vinc-n { min-width: 18px; text-align: right; font-family: var(--r-display); font-weight: 400; color: var(--r-ink); }
