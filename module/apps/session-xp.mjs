@@ -17,7 +17,7 @@ const STORY = ["success", "danger", "wisdom"];
 
 /** Персонажи игроков: Сородичи, гули и смертные, у которых есть владелец-игрок. */
 function players() {
-  return game.actors.filter(a => a.hasPlayerOwner && ["vampire", "ghoul", "mortal"].includes(a.type))
+  return game.actors.filter(a => a.hasPlayerOwner && ["vampire", "ghoul", "mortal", "demon"].includes(a.type))
     .sort((x, y) => x.name.localeCompare(y.name, "ru"));
 }
 

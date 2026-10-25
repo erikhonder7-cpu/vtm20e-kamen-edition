@@ -1,0 +1,50 @@
+{{!-- Знание демона: точки, Дом, призывы по кругам (из справочника), черты апокалиптической формы и описание. --}}
+<div class="r-item-sheet is-discipline is-lore">
+  {{> rItemHead}}
+  <div class="r-item-body">
+    <div class="r-item-level">
+      {{> rDots dots=dots cls="is-disc"}}
+      <span class="r-note">{{loreHouse}}</span>
+    </div>
+
+    {{#if powers.length}}
+    <h2 class="r-h2"><span>{{localize "VTM20.Demon.Evocations"}}</span></h2>
+    <div class="r-item-powers">
+      {{#each powers}}
+      <details class="r-ipower {{#if owned}}is-owned{{else}}is-locked{{/if}} {{#if next}}is-next{{/if}}">
+        <summary><span class="r-power-lvl">{{roman}}</span><span class="r-ipower-name">{{name}}</span>
+          {{#if pool}}<span class="r-power-pool">{{pool}}</span>{{/if}}</summary>
+        <div class="r-ipower-body">{{{html}}}</div>
+      </details>
+      {{/each}}
+    </div>
+    {{/if}}
+
+    {{#if form}}
+    <details class="r-item-setup is-text">
+      <summary><i class="fa-solid fa-dragon"></i> {{localize "VTM20.Demon.Form"}}</summary>
+      <div class="r-ipower-body">
+        <p><b>{{localize "VTM20.Demon.FormLow"}}:</b> {{#each form.low}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}</p>
+        <p><b>{{localize "VTM20.Demon.FormHigh"}}:</b> {{#each form.high}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}</p>
+      </div>
+    </details>
+    {{/if}}
+
+    <details class="r-item-setup is-text" {{#unless powers.length}}open{{/unless}}>
+      <summary><i class="fa-solid fa-feather-pointed"></i> {{localize "VTM20.Item.description"}}</summary>
+      <div class="r-editor r-item-text">
+        <prose-mirror name="system.description" value="{{system.description}}" toggled {{#unless editable}}disabled{{/unless}}>{{{descriptionHTML}}}</prose-mirror>
+      </div>
+    </details>
+
+    <details class="r-item-setup">
+      <summary><i class="fa-solid fa-sliders"></i> {{localize "VTM20.ItemSheet.Setup"}}</summary>
+      <div class="r-fields is-wide">
+        <label class="r-f"><span>{{localize "VTM20.Demon.Lore"}}</span>
+          <select name="system.key">{{#each loreOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+        <label class="r-f"><span>{{localize "VTM20.Item.value"}}</span><input type="number" name="system.value" value="{{system.value}}" min="0" max="5"></label>
+        <label class="r-f is-span2"><span>{{localize "VTM20.Item.source"}}</span><input type="text" name="system.source" value="{{system.source}}"></label>
+      </div>
+    </details>
+  </div>
+</div>

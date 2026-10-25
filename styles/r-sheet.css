@@ -1106,3 +1106,22 @@ body.r-theme-light .vtm20 .r-motto { color: rgba(140, 28, 34, .75); }
 .vtm20 .r-vc-head .r-path-open:hover { color: var(--r-ink); }
 .vtm20 .r-vc-head .r-banner a[data-action=openPath] { cursor: pointer; }
 .vtm20 .r-path-text table { width: 100%; }
+
+/* ── Демон (Demon: The Fallen): Вера — языками пламени, Мука, апокалиптическая форма ── */
+.vtm20 .r-assignat.is-faith { border-top-color: #b07a2c; }
+.vtm20 .r-assignat.is-faith .r-drop svg { stroke: #6b4a1c; }
+.vtm20 .r-assignat.is-faith .r-drop.is-filled svg { fill: #c98a2e; stroke: #e0a64a; }
+.vtm20 .r-faith-perm { display: flex; align-items: center; gap: 6px; margin: 0 0 5px; }
+.vtm20 .r-assignat-meta a.is-on { color: #e0a64a; }
+.vtm20 .r-vc-morality.is-torment.is-high .r-vc-status { color: var(--r-accent); }
+.vtm20 .r-form { border-left: 2px solid var(--r-line); padding: 2px 0 4px 12px; margin: 4px 0 10px; }
+.vtm20 .r-form.is-on { border-left-color: #b07a2c; }
+.vtm20 .r-form-title { margin: 0 0 6px; font-size: 14px; color: var(--r-muted); }
+.vtm20 .r-form-title b { font-family: var(--r-caps); letter-spacing: 1.2px; color: var(--r-ink); font-weight: 400; }
+.vtm20 .r-form-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 22px; }
+.vtm20 .r-form-feat { padding: 3px 0; border-bottom: 1px dotted var(--r-line); font-size: 14px; }
+.vtm20 .r-form-col.is-high .r-form-feat { color: var(--r-accent); }
+.vtm20 .r-form-col.is-high .r-form-feat.is-off { color: var(--r-muted); opacity: .6; }
+.vtm20 .r-form-col .r-h4 small { font-family: var(--r-body); letter-spacing: 0; text-transform: none; color: var(--r-muted); }
+.vtm20 .r-h2-btn.is-on { color: #e0a64a; }
+@container rsheet (max-width: 640px) { .vtm20 .r-form-cols { grid-template-columns: 1fr; } }

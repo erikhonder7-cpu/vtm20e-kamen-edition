@@ -114,6 +114,10 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       effectDelete: VtMActorSheet.#onEffectDelete,
       powerToChat: VtMActorSheet.#onPowerToChat,
       rollPower: VtMActorSheet.#onRollPower,
+      addLore: VtMActorSheet.#onAddLore,
+      addHouseLores: VtMActorSheet.#onAddHouseLores,
+      apocalyptic: VtMActorSheet.#onApocalyptic,
+      spendFaith: VtMActorSheet.#onSpendFaith,
       pinPower: VtMActorSheet.#onPinPower,
       rollItemPower: VtMActorSheet.#onRollItemPower,
       itemCreate: VtMActorSheet.#onItemCreate,
@@ -197,7 +201,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   /** Персонаж ещё не создан (все характеристики 1, способностей нет, мастер не пройден) — вместо листа ворота. */
   get needsCreation() {
     const a = this.actor, s = a.system;
-    return a.type !== "creature" && !a.getFlag(SYSTEM_ID, "created")
+    return !["creature", "demon"].includes(a.type) && !a.getFlag(SYSTEM_ID, "created")
       && Object.values(s.attributes).every(x => x.value === 1) && Object.values(s.abilities).every(x => x.value === 0);
   }
 
@@ -210,12 +214,15 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   _configureRenderParts(options) {
     const parts = super._configureRenderParts(options);
     if (this.actor.type === "mortal") delete parts.disciplines;
+    // у демона на месте Дисциплин — Знания и апокалиптическая форма
+    if (this.actor.type === "demon" && parts.disciplines) parts.disciplines = { ...parts.disciplines, template: `${SYSTEM_PATH}/templates/actor/lores.hbs` };
     return parts;
   }
 
   _prepareTabs(group) {
     const tabs = super._prepareTabs(group);
     if (this.actor.type === "mortal") delete tabs.disciplines;
+    if (this.actor.type === "demon" && tabs.disciplines) Object.assign(tabs.disciplines, { label: "VTM20.Demon.Lores", icon: "fa-solid fa-fire-flame-curved" });
     let i = 0;
     for (const tab of Object.values(tabs)) tab.roman = ROMAN[i++];
     return tabs;
@@ -233,7 +240,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       // длинное имя не обрезается в шапке: шрифт мельче
       nameSize: actor.name.length > 26 ? "is-xlong" : actor.name.length > 18 ? "is-long" : "",
       isVampire: actor.type === "vampire", isGhoul: actor.type === "ghoul", isMortal: actor.type === "mortal",
-      isCreature: actor.type === "creature",
+      isCreature: actor.type === "creature", isDemon: actor.type === "demon",
       hasBlood: actor.hasBlood,
       typeLabel: actor.type === "ghoul" && actor.system.ghoulType === "revenant" ? t("GhoulType.revenant") : game.i18n.localize(`TYPES.Actor.${actor.type}`),
       needsCreation: this.needsCreation,
@@ -242,7 +249,8 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     this.#prepareHeader(ctx);
     this.#prepareTraits(ctx);
     this.#prepareRegistry(ctx);
-    if (actor.type !== "mortal") this.#prepareDisciplines(ctx);
+    if (actor.type === "demon") this.#prepareLores(ctx);
+    else if (actor.type !== "mortal") this.#prepareDisciplines(ctx);
     this.#prepareAdvantages(ctx);
     this.#prepareGear(ctx);
     this.#prepareEffects(ctx);
@@ -276,10 +284,18 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       ctx.donorGenerations = Object.keys(VTM20.generations).map(Number).sort((x, y) => x - y)
         .map(g => ({ value: g, label: t("GenerationN", { n: g }), selected: g === s.domitorGeneration }));
     }
+    if (ctx.isDemon) {
+      const house = Codex.house(s.house);
+      ctx.house = house;
+      ctx.houses = Codex.houses.map(h => ({ value: h.key, label: `${h.name} · ${h.akkadian}`, selected: h.key === s.house }));
+      ctx.factions = Codex.factions.map(f => ({ value: f.key, label: f.name, selected: f.key === s.faction, tip: f.text }));
+      ctx.visages = Object.entries(house?.visages ?? {}).map(([k, name]) => ({ value: k, label: name, lore: Codex.lore(k)?.name ?? k, selected: k === s.visage }));
+      ctx.visageLore = ctx.visages.find(v => v.selected)?.lore ?? "";
+    }
     // Герб на рельсе и водяной знак: клан, иначе секта; у гуля — герб клана домитора или сердце в цепях; у прочих — кокарда
     const sym = actor => actor.type === "vampire" ? Codex.clanSymbol(actor.system.clan)
       : actor.type === "ghoul" ? (Codex.clanSymbol(actor.system.domitorClan) ?? Codex._sym(Codex.assets?.sects?.ghoul)) : null;
-    ctx.sigil = { sym: sym(a) ?? Codex.sectSymbol(s.details.sect), label: a.clanLabel || s.details.sect || "", clan: a.type === "vampire" && !!Codex.clan(s.clan) };
+    ctx.sigil = { sym: sym(a) ?? Codex.sectSymbol(s.details.sect), label: ctx.house?.name || a.clanLabel || s.details.sect || "", clan: a.type === "vampire" && !!Codex.clan(s.clan) };
     // Состояние на портрете: раны — кровавая дымка по краям, состояния (ярость, торпор…) — оттенок и значки
     const st = a.statuses ?? new Set();
     const wound = Math.min(7, s.health?.damage ?? 0);
@@ -322,7 +338,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       })
     }));
     const era = game.settings.get(SYSTEM_ID, "era");
-    const abil = VTM20.abilitiesForEra(era);
+    const abil = VTM20.abilitiesForEra(era, a.type);
     ctx.abilityGroups = Object.entries(abil).map(([gk, keys]) => ({
       key: gk, label: game.i18n.localize(VTM20.abilityGroups[gk].label),
       list: keys.map(k => {
@@ -351,6 +367,14 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       const v = s.virtues[slot].value;
       return { slot, key, label: game.i18n.localize(VTM20.virtues[key].label), value: v, dots: dots(v, 5, { path: `system.virtues.${slot}.value` }), xp: a.xpCost("virtue", v) };
     });
+    if (ctx.isDemon) {
+      ctx.faithPerm = dots(s.faith.permanent, 10, { path: "system.faith.permanent" });
+      ctx.faithBoxes = dots(s.faith.temporary, 10, { path: "system.faith.temporary" });
+      ctx.tormentPerm = dots(s.torment.permanent, 10, { path: "system.torment.permanent" });
+      ctx.tormentTemp = dots(s.torment.temporary, 10, { path: "system.torment.temporary" });
+      ctx.tormentHigh = s.torment.permanent >= 7;
+      ctx.faithXp = a.xpCost("faith", s.faith.permanent);
+    }
     ctx.willPerm = dots(s.willpower.permanent, 10, { path: "system.willpower.permanent" });
     ctx.willTemp = dots(s.willpower.temporary, 10, { path: "system.willpower.temporary" })
       .map((d, i) => ({ ...d, locked: i >= s.willpower.permanent }));
@@ -520,6 +544,39 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const owned = new Set(items.map(i => i.system.key));
     ctx.missingClan = clanD.filter(k => !owned.has(k)).length > 0;
     if (ctx.isGhoul) ctx.ghoulCap = a.system.disciplineMax;
+  }
+
+  #prepareLores(ctx) {
+    const a = this.actor, s = a.system;
+    const pins = new Set(a.getFlag(SYSTEM_ID, "hudPowers") ?? []);
+    const own = Codex.house(s.house)?.lores ?? [];
+    const rollInfo = r => r?.trait1 ? { label: [a.traitLabel(r.trait1), r.trait2 && a.traitLabel(r.trait2)].filter(Boolean).join(" + "),
+      diff: r.difficulty || "", canRoll: true } : null;
+    ctx.lores = a.items.filter(i => i.type === "lore").map(it => {
+      const k = it.system.key, data = Codex.lore(k), v = it.system.value;
+      const powers = (data?.powers ?? []).map((p, i) => [p, i]).filter(([p]) => p.level <= v).map(([p, i]) => ({
+        ...p, id: `${it.id}-p${i}`, roman: ROMAN[p.level - 1], open: this._open.has(`${it.id}-p${i}`),
+        roll: rollInfo(p.roll), codexRef: `lore:${k}|${i}`, pinned: pins.has(`lore:${k}|${i}`)
+      }));
+      const next = data?.powers?.find(p => p.level === v + 1);
+      const house = data?.house ? Codex.house(data.house) : null;
+      return {
+        id: it.id, key: k, name: data?.name ?? it.name, en: data?.en ?? "", value: v, own: own.includes(k), common: !data?.house,
+        houseName: house?.name ?? t("Demon.Common"), dots: dots(v, 5, { path: "system.value", itemId: it.id }),
+        powers, nextPower: next ? { name: next.name, level: next.level } : null,
+        xp: a.xpCost("lore", v, { key: k }), open: this._open.has(it.id)
+      };
+    }).sort((x, y) => (y.own - x.own) || (y.common - x.common) || x.name.localeCompare(y.name, "ru"));
+    ctx.allOpen = ctx.lores.length > 0 && ctx.lores.every(l => l.open);
+    const have = new Set(ctx.lores.map(l => l.key));
+    ctx.missingHouse = own.some(k => !have.has(k));
+    // Апокалиптическая форма (гл. 7): черты Облика; при Муке 7+ — по черте высокой Муки за каждый пункт сверх 6
+    const lore = Codex.lore(s.visage), form = lore?.form;
+    const highN = Math.max(0, Math.min(4, s.torment.permanent - 6));
+    ctx.form = form ? {
+      visage: Codex.house(s.house)?.visages?.[s.visage] ?? "", lore: lore.name, on: !!s.apocalyptic, highN,
+      low: form.low.map(name => ({ name })), high: form.high.map((name, i) => ({ name, on: i < highN }))
+    } : null;
   }
 
   #prepareAdvantages(ctx) {
@@ -696,6 +753,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     attachCombos(this.element);                         // Натура, Маска, Секта — свой список вместо <datalist>
     this.element.classList.toggle("is-mortal", this.actor.type === "mortal");
     this.element.classList.toggle("is-ghoul", this.actor.type === "ghoul");
+    this.element.classList.toggle("is-demon", this.actor.type === "demon");     // своя тема листа (styles/r-demon.css)
     this.element.classList.toggle("is-torpor", !!context.torporState);
     this.element.classList.toggle("is-dead", !!context.death);
     // AppV2 заменяет только перерисованные части: убираем ворота после создания и лист — до него
@@ -967,7 +1025,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
   /** Раскрыть все Дисциплины, а если все уже раскрыты — свернуть. */
   static #onToggleAll() {
-    const ids = this.actor.items.filter(i => i.type === "discipline").map(i => i.id);
+    const ids = this.actor.items.filter(i => i.type === (this.actor.type === "demon" ? "lore" : "discipline")).map(i => i.id);
     const open = ids.every(id => this._open.has(id));
     for (const id of ids) open ? this._open.delete(id) : this._open.add(id);
     this.render();
@@ -981,6 +1039,44 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
   /** Бросок силы из справочника: пул и сложность разобраны из текста книги. */
   static #onRollPower(event, target) { return rollPowerRef(this.actor, target.dataset.ref); }
+
+  /** Новое Знание: Знания своего Дома и общие — первыми, чужие — ниже (стоят дороже). */
+  static async #onAddLore() {
+    const a = this.actor, have = new Set(a.items.filter(i => i.type === "lore").map(i => i.system.key));
+    const own = Codex.house(a.system.house)?.lores ?? [];
+    const opt = l => `<option value="${l.key}">${foundry.utils.escapeHTML(l.name)}</option>`;
+    const free = Codex.lores.filter(l => !have.has(l.key));
+    const mine = free.filter(l => !l.house || own.includes(l.key)), other = free.filter(l => !mine.includes(l));
+    if (!free.length) return;
+    const key = await foundry.applications.api.DialogV2.prompt({
+      window: { title: t("Demon.AddLore") }, position: { width: 380 },
+      content: `<label class="r-f"><span>${t("Demon.Lore")}</span><select name="lore">
+        ${mine.length ? `<optgroup label="${t("Demon.OwnLores")}">${mine.map(opt).join("")}</optgroup>` : ""}
+        ${other.length ? `<optgroup label="${t("Demon.OtherLores")}">${other.map(opt).join("")}</optgroup>` : ""}</select></label>`,
+      ok: { label: t("Demon.AddLore"), callback: (ev, btn) => btn.form.elements.lore.value }
+    }).catch(() => null);
+    if (key) return createLore(a, [key]);
+  }
+
+  static #onAddHouseLores() {
+    const a = this.actor, have = new Set(a.items.filter(i => i.type === "lore").map(i => i.system.key));
+    return createLore(a, (Codex.house(a.system.house)?.lores ?? []).filter(k => !have.has(k)));
+  }
+
+  /** Принять апокалиптическую форму — 1 пункт временной Веры (гл. 7); сбросить — даром. */
+  static async #onApocalyptic() {
+    const a = this.actor, s = a.system;
+    if (s.apocalyptic) return a.update({ "system.apocalyptic": false });
+    if (s.faith.temporary < 1) return ui.notifications.warn(t("Demon.NoFaith"));
+    await a.update({ "system.apocalyptic": true, "system.faith.temporary": s.faith.temporary - 1 });
+    ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: a }), content: `<p>${t("Demon.FormTaken", { name: a.name, visage: Codex.house(s.house)?.visages?.[s.visage] ?? "" })}</p>` });
+  }
+
+  static #onSpendFaith() {
+    const s = this.actor.system;
+    if (s.faith.temporary < 1) return ui.notifications.warn(t("Demon.NoFaith"));
+    return this.actor.update({ "system.faith.temporary": s.faith.temporary - 1 });
+  }
 
   /** Сила в HUD и обратно (до шести — флаг hudPowers персонажа). */
   static async #onPinPower(event, target) {
@@ -1014,9 +1110,10 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     if (pathId) {
       const it = this.actor.items.get(pathId);
       p = Codex.bloodPath(it.system.discipline, it.name)?.powers.find(x => x.name === name);
-    } else p = Codex.discipline(disc)?.powers.find(x => x.name === name && (String(x.level) === level || x.anyLevel));   // anyLevel — взята на 6–9
+    } else if (disc?.startsWith("lore:")) p = Codex.lore(disc.slice(5))?.powers.find(x => x.name === name);
+    else p = Codex.discipline(disc)?.powers.find(x => x.name === name && (String(x.level) === level || x.anyLevel));   // anyLevel — взята на 6–9
     if (!p) return;
-    const dname = pathId ? this.actor.items.get(pathId).name : Codex.disciplineLabel(disc);
+    const dname = pathId ? this.actor.items.get(pathId).name : disc.startsWith("lore:") ? Codex.lore(disc.slice(5))?.name : Codex.disciplineLabel(disc);
     const r = p.roll ?? {};
     const pool = r.trait1 ? [r.trait1, r.trait2].filter(Boolean).map(x => this.actor.traitLabel(x)).join(" + ") : (r.dice ? `${r.dice}d10` : "");
     ChatMessage.create({
@@ -1219,21 +1316,32 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
 // Повтор той же Дисциплины, факта биографии, достоинства или недостатка у персонажа — не добавлять, а предупредить
 // (библиотека, перетаскивание из компендия, «Своё» с тем же именем).
-const UNIQUE_TYPES = ["discipline", "background", "merit", "flaw", "derangement", "thaumPath", "ritual"];
+const UNIQUE_TYPES = ["discipline", "lore", "background", "merit", "flaw", "derangement", "thaumPath", "ritual"];
 Hooks.on("preCreateItem", (item, data, options, userId) => {
   const actor = item.parent;
   if (!(actor instanceof Actor) || !UNIQUE_TYPES.includes(item.type) || options.allowDuplicate) return;
   const same = actor.items.find(i => i.type === item.type     // новый предмет ещё не в коллекции (а его _id может совпасть при копировании)
-    &&(item.type === "discipline" ? i.system.key && i.system.key === item.system.key : i.name === item.name)
+    &&(["discipline", "lore"].includes(item.type) ? i.system.key && i.system.key === item.system.key : i.name === item.name)
     && (!["thaumPath", "ritual"].includes(item.type) || i.system.discipline === item.system.discipline));   // один путь бывает в разных школах
   if (!same) return;
   if (userId === game.user.id) ui.notifications.warn(game.i18n.format("VTM20.Sheet.DuplicateItem", { name: same.name }));
   return false;
 });
 
+/** Знания демона предметами: имя и ключ из справочника, одна точка. */
+function createLore(actor, keys) {
+  const data = keys.map(k => Codex.lore(k)).filter(Boolean).map(l => ({ name: l.name, type: "lore", img: `systems/${SYSTEM_ID}/assets/icons/discipline.svg`,
+    system: { key: l.key, value: 1, description: `<p><em>${l.en}</em> · ${Codex.house(l.house)?.name ?? t("Demon.Common")}</p>` } }));
+  return data.length ? actor.createEmbeddedDocuments("Item", data) : null;
+}
+
 /** Сила справочника по ссылке «дисциплина|номер» или «дисциплина|path|путь|номер» (лист и HUD). */
 export function powerByRef(ref) {
   const [k, a, b, c] = String(ref ?? "").split("|");
+  if (k.startsWith("lore:")) {
+    const d = Codex.lore(k.slice(5)), p = d?.powers?.[Number(a)];
+    return p ? { disc: k, d, p, pathName: "" } : null;
+  }
   const d = Codex.discipline(k);
   if (!d) return null;
   if (a === "path") { const pth = d.paths?.[Number(b)]; const p = pth?.powers?.[Number(c)]; return p ? { disc: k, d, p, pathName: pth.name ?? "" } : null; }
@@ -1257,13 +1365,13 @@ export function rollRitual(actor, item) {
 }
 
 /** Бросок по записи силы или ритуала: пул из книги, сложность, цена кровью или волей. */
-function rollFromSpec(actor, r, { title, subtitle, effect, kind = "check", magic = null, power = null }) {
+function rollFromSpec(actor, r, { title, subtitle, effect, kind = "check", magic = null, power = null, torment = null }) {
   return RollDialog.prompt(actor, {
     title, subtitle, trait1: r.trait1 ?? "", trait2: r.trait2 ?? "",
     difficulty: r.difficulty || VTM20.defaultDifficulty, bloodCost: r.blood ?? 0, willpowerCost: !!r.willpower,
     diffNote: r.note ?? "", effect, kind, baseAttr: !!r.base,
     ...(r.dice ? { pool: r.dice, lockTraits: true, breakdown: [{ label: t("Magic.FixedPool"), value: r.dice }] } : {}),
-    extra: { ...(magic ? { magic } : {}), ...(power ? { power } : {}) }
+    extra: { ...(magic ? { magic } : {}), ...(power ? { power } : {}), ...(torment != null ? { torment } : {}) }
   });
 }
 
@@ -1272,6 +1380,8 @@ export function rollPowerRef(actor, ref) {
   const x = powerByRef(ref);
   if (!x) return;
   const { disc, d, p, pathName } = x, magic = VTM20.pathDisciplines.includes(disc);
+  if (disc.startsWith("lore:")) return rollFromSpec(actor, p.roll ?? {}, { title: p.name, subtitle: `${d.name} · ${ROMAN[p.level - 1]}`, effect: p.html,
+    torment: actor.system.torment?.permanent ?? 0, power: { disc, level: p.level, name: p.name } });
   return rollFromSpec(actor, p.roll ?? {}, { title: p.name, subtitle: `${pathName || d.name} · ${ROMAN[p.level - 1] ?? p.level}`, effect: p.html,
     kind: magic ? "magic" : "check", magic: magic ? { disc, level: p.level, path: pathName } : null,
     power: { disc, level: p.level, path: pathName, name: p.name } });

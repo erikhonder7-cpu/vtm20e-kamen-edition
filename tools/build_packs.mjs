@@ -289,6 +289,41 @@ BUILDERS.rules = function () {
   return p;
 };
 
+// ── Demon: The Fallen — свои компендии (папка «Demon: The Fallen» в system.json), данные — data/demon.json ──
+const ROMAN_LV = ["I", "II", "III", "IV", "V"];
+/** Знания демонов: по папкам Домов (общие — отдельно); в описании — призывы по кругам и черты апокалиптической формы. */
+BUILDERS["demon-lores"] = function () {
+  const p = new Pack("demon-lores", "Item");
+  const dm = data("demon");
+  const houseName = Object.fromEntries(dm.houses.map(h => [h.key, h.name]));
+  const pool = r => r ? `${r.trait1.split(".")[1]} + ${r.trait2.split(".")[1]}, сл. ${r.difficulty}` : "по книге";
+  for (const l of dm.lores) {
+    const rows = l.powers.map(x => `<tr><td>${ROMAN_LV[x.level - 1]}</td><td>${esc(x.name)}</td><td>${esc(pool(x.roll))}</td><td>с. ${x.page}</td></tr>`).join("");
+    const form = l.form ? `<h3>Апокалиптическая форма</h3><p><strong>При низкой Муке:</strong> ${l.form.low.map(esc).join(", ")}.</p>`
+      + `<p><strong>При высокой Муке</strong> (с 7-й Муки — по одной за точку): ${l.form.high.map(esc).join(", ")}.</p>` : "";
+    const description = `<p><em>${esc(l.en)} · Demon: The Fallen, с. ${l.page}.</em></p><h3>Призывы</h3>`
+      + `<table><thead><tr><th>Круг</th><th>Призыв</th><th>Бросок</th><th>Книга</th></tr></thead><tbody>${rows}</tbody></table>${form}`;
+    p.add({ name: l.name, type: "lore", folder: l.house ? houseName[l.house] : "Общие Знания", key: `lore:${l.key}`, img: ICON("discipline"),
+      system: { key: l.key, value: 1, source: l.en, description } });
+  }
+  return p;
+};
+/** Дома и фракции падших — журналы: Дом (Облики, Знания, стартовая Мука), фракция. */
+BUILDERS["demon-houses"] = function () {
+  const p = new Pack("demon-houses", "JournalEntry");
+  const dm = data("demon");
+  const loreName = Object.fromEntries(dm.lores.map(l => [l.key, l.name]));
+  for (const h of dm.houses) {
+    const vis = Object.entries(h.visages).map(([k, v]) => `<li><strong>${esc(v)}</strong> — ${esc(loreName[k] ?? k)}</li>`).join("");
+    const html = `<p><em>${esc(h.akkadian)} · ${esc(h.en)}</em></p><p>${esc(h.text)}</p>`
+      + `<p><strong>Начальная Мука:</strong> ${h.torment}. <strong>Знания Дома:</strong> ${h.lores.map(k => esc(loreName[k] ?? k)).join(", ")}; общие — Знание Основания и Знание Человечества.</p>`
+      + `<h3>Облики (апокалиптическая форма по главному Знанию)</h3><ul>${vis}</ul>`;
+    p.addEntry({ name: h.name, html, folder: "Дома", key: `house:${h.key}` });
+  }
+  for (const f of dm.factions) p.addEntry({ name: f.name, html: `<p>${esc(f.text)}</p>`, folder: "Фракции", key: `faction:${f.key}` });
+  return p;
+};
+
 const only = process.argv.slice(2);
 for (const [name, build] of Object.entries(BUILDERS)) {
   if (only.length && !only.includes(name)) continue;

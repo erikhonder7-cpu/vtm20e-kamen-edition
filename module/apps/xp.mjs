@@ -56,7 +56,7 @@ class XpWindow extends HandlebarsApplicationMixin(ApplicationV2) {
     const groups = [
       { key: "attr", icon: "fa-person", label: loc("VTM20.Sheet.Attributes"), rows: Object.keys(VTM20.attributes).map(k =>
         row(`a:system.attributes.${k}.value:attribute`, loc(VTM20.attributes[k].label), s.attributes[k].value, cap, "attribute")) },
-      ...Object.entries(VTM20.abilitiesForEra(era)).map(([g, keys]) => ({
+      ...Object.entries(VTM20.abilitiesForEra(era, a.type)).map(([g, keys]) => ({
         key: g, icon: { talents: "fa-bolt", skills: "fa-hammer", knowledges: "fa-book-open" }[g] ?? "fa-feather", label: loc(VTM20.abilityGroups[g].label),
         rows: keys.map(k => row(`a:system.abilities.${k}.value:ability`, loc(VTM20.abilities[k].label), s.abilities[k].value, cap, "ability"))
       }))
@@ -68,10 +68,17 @@ class XpWindow extends HandlebarsApplicationMixin(ApplicationV2) {
       const paths = a.items.filter(i => i.type === "thaumPath" && !i.system.primary);
       if (paths.length) groups.push({ key: "paths", icon: "fa-hand-sparkles", label: t("Xp.Paths"), rows: paths.map(i => row(`i:${i.id}:system.value:path`, i.name, i.system.value, 5, "path")) });
     }
+    // Демон: Знания (свой Дом и общие дешевле чужих) и Вера
+    if (a.type === "demon") {
+      const lores = a.items.filter(i => i.type === "lore").sort((x, y) => x.name.localeCompare(y.name, "ru"));
+      if (lores.length) groups.push({ key: "lore", icon: "fa-fire-flame-curved", label: loc("VTM20.Demon.Lores"), rows: lores.map(i =>
+        row(`i:${i.id}:system.value:lore`, i.name, i.system.value, 5, "lore", { key: i.system.key })) });
+    }
     groups.push({ key: "virt", icon: "fa-scale-balanced", label: loc("VTM20.Sheet.Virtues"), rows: ["conscience", "selfControl", "courage"].map(k =>
       row(`a:system.virtues.${k}.value:virtue`, a.traitLabel(`virtues.${k}`), s.virtues[k].value, 5, "virtue")) });
     groups.push({ key: "other", icon: "fa-shield-heart", label: loc("VTM20.Sheet.Other"), rows: [
-      row("a:system.morality.value:morality", a.traitLabel("morality.value"), s.morality.value, 10, "morality"),
+      a.type === "demon" ? row("a:system.faith.permanent:faith", loc("VTM20.Demon.Faith"), s.faith.permanent, 10, "faith")
+        : row("a:system.morality.value:morality", a.traitLabel("morality.value"), s.morality.value, 10, "morality"),
       row("a:system.willpower.permanent:willpower", t("Willpower"), s.willpower.permanent, 10, "willpower")
     ] });
     // Новые Способности (с нуля) — отдельной свёрнутой группой, чтобы не тонуть в списке

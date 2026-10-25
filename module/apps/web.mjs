@@ -45,7 +45,7 @@ function buildGraph() {
     });
     return nodes.get(key);
   };
-  const source = gm ? game.actors.filter(a => ["vampire", "ghoul", "mortal"].includes(a.type)) : game.actors.filter(a => a.isOwner);
+  const source = gm ? game.actors.filter(a => ["vampire", "ghoul", "mortal", "demon"].includes(a.type)) : game.actors.filter(a => a.isOwner);
   const seen = new Set();
   for (const a of source) {
     if (seen.has(a.id)) continue;

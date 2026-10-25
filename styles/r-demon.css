@@ -1,0 +1,117 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   Лист падшего (Demon: The Fallen). Каркас, шрифты и раскладка — общие с листом Сородича:
+   система одна. Меняется материал: вместо копоти и запёкшейся крови — холодная сталь ночного
+   неба, пепел и небесный огонь (золото и угли). Кокарду сменяют крылья, девиз — «Non serviam».
+   Всё под .vtm20.is-demon (класс ставит лист, actor-sheet.mjs → _onRender).
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.vtm20.is-demon {
+  --d-gold: #d4a04c; --d-gold-l: #f0c46a; --d-ember: #b4651f; --d-ember-d: #3d200c;
+  --d-steel: #7d92bf; --d-steel-d: #232c42;
+  --r-ink: #dcd8cf;
+  --r-ink-2: #b2b0aa;
+  --r-muted: #868b98;
+  --r-line: rgba(190, 200, 225, .1);
+  --r-line-2: rgba(190, 200, 225, .2);
+  --r-accent: #dba653;
+  --r-red-t: var(--r-accent);
+  --r-blood: #a8641f; --r-blood-l: #d4a04c; --r-blood-d: #3d200c;
+  --r-dot-border: rgba(200, 205, 220, .3);
+  --r-dot-fill: radial-gradient(circle at 38% 32%, #f6d58a, #c0822e 55%, #4e2a0e);
+  --r-gap-ring: #0b0d12;
+  --r-card-bg: rgba(160, 180, 220, .025);
+  --r-option-bg: #141720;
+  --r-bg:
+    radial-gradient(ellipse 90% 45% at 50% -8%, rgba(125, 146, 191, .13), transparent 60%),
+    radial-gradient(ellipse 80% 35% at 50% 108%, rgba(180, 101, 31, .14), transparent 65%),
+    radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(0, 0, 0, .55) 100%),
+    url("../assets/ui/paper-dark.svg"),
+    linear-gradient(180deg, #12141b, #0a0b10);
+}
+body.r-theme-light .vtm20.is-demon {
+  --r-ink: #1f1f24; --r-ink-2: #45444a; --r-muted: #6d6c72;
+  --r-line: rgba(30, 34, 48, .15); --r-line-2: rgba(30, 34, 48, .3);
+  --r-accent: #8a4a12; --r-red-t: var(--r-accent);
+  --r-dot-fill: radial-gradient(circle at 38% 32%, #e2b35c, #a8641f 55%, #4e2a0e);
+  --r-option-bg: #ecebe6; --r-gap-ring: #e7e5df;
+  --r-bg:
+    radial-gradient(ellipse 90% 45% at 50% -8%, rgba(70, 85, 122, .12), transparent 60%),
+    radial-gradient(ellipse at 50% 50%, transparent 50%, rgba(40, 45, 60, .2) 100%),
+    url("../assets/ui/paper.svg"),
+    linear-gradient(180deg, #e8e6e0, #dcd9d0);
+}
+
+/* ── Корешок: сигил с крыльями, золотые монеты глав ── */
+.vtm20.is-demon .r-rail {
+  background:
+    radial-gradient(ellipse 120% 40% at 50% 0%, rgba(125, 146, 191, .16), transparent 70%),
+    radial-gradient(ellipse 140% 30% at 50% 100%, rgba(180, 101, 31, .12), transparent 70%),
+    linear-gradient(180deg, #10121a, #0a0b10 60%, #0b0b0f);
+  border-right-color: #232633;
+}
+.vtm20.is-demon .r-rail::after { background: repeating-linear-gradient(180deg, rgba(212, 160, 76, .14) 0 2px, transparent 2px 8px); }
+.vtm20.is-demon .r-rail-sigil {
+  border-color: rgba(212, 160, 76, .45); background: radial-gradient(circle at 50% 30%, #1d2130, #0b0c12 72%);
+  box-shadow: 0 0 0 3px #0a0b10, 0 0 0 4px rgba(125, 146, 191, .5), 0 0 22px rgba(212, 160, 76, .22), inset 0 2px 6px rgba(0, 0, 0, .6);
+}
+.vtm20.is-demon .r-rail-sigil img { filter: none; }
+.vtm20.is-demon .r-rail-sigil::before { background: var(--d-gold); box-shadow: 0 0 6px rgba(240, 196, 106, .7); }
+.vtm20.is-demon .r-rtab.active { color: #efe6d2; background: linear-gradient(90deg, rgba(212, 160, 76, .16), rgba(125, 146, 191, .05) 70%, transparent); }
+.vtm20.is-demon .r-rtab.active .r-rtab-coin {
+  color: #1a1206; border-color: var(--d-gold-l); background: radial-gradient(circle at 50% 30%, #f3cf7f, #b97a2a 70%);
+  box-shadow: 0 0 0 2px #0a0b10, 0 0 0 3px rgba(240, 196, 106, .4), 0 0 16px rgba(240, 196, 106, .35);
+}
+.vtm20.is-demon .r-rtab.active::before { background: var(--d-gold); box-shadow: 0 0 8px rgba(240, 196, 106, .6); }
+.vtm20.is-demon .r-rtab.active::after { background: var(--d-steel-d); border-color: var(--d-gold); box-shadow: 0 0 6px rgba(240, 196, 106, .45); }
+.vtm20.is-demon .r-rail-tool:hover { color: #f4ecdd; border-color: var(--d-gold); background: rgba(212, 160, 76, .16); }
+
+/* ── Шапка: крылья водяным знаком, печать Дома, девиз ── */
+.vtm20.is-demon .r-head::before {
+  content: ""; position: absolute; right: 250px; top: -6px; width: 260px; height: 150px; pointer-events: none; opacity: .07;
+  background: url("../assets/ui/fallen-sigil.svg") center / contain no-repeat;
+}
+.vtm20.is-demon .r-portrait-frame { box-shadow: 0 0 0 1px rgba(212, 160, 76, .35), 0 6px 18px rgba(0, 0, 0, .6); }
+.vtm20.is-demon .r-seal { background: #0a0b10; border-color: rgba(190, 200, 225, .22); border-top-color: var(--d-gold); }
+.vtm20.is-demon .r-seal-num.r-seal-icon { color: var(--d-gold-l); }
+.vtm20.is-demon .r-seal-cap { color: #9aa0ae; }
+.vtm20.is-demon .r-motto { color: rgba(212, 160, 76, .75); }
+.vtm20.is-demon .r-kicker-dia { background: var(--d-gold); }
+.vtm20.is-demon .r-assignat { border-top-color: var(--d-gold); background: linear-gradient(180deg, rgba(180, 101, 31, .08), rgba(0, 0, 0, .3) 60%); }
+.vtm20.is-demon .r-act.is-hot:hover { background: rgba(212, 160, 76, .14); }
+.vtm20.is-demon .r-act:hover i { color: var(--d-gold-l); }
+
+/* ── Шкалы: стальные карточки с золотым штрихом; Мука — угли ── */
+.vtm20.is-demon .r-vcard::before, .vtm20.is-demon .r-tcol::before { background: linear-gradient(90deg, var(--d-gold), rgba(212, 160, 76, 0)); width: 54px; }
+.vtm20.is-demon .r-vcard::after, .vtm20.is-demon .r-tcol::after {
+  content: ""; position: absolute; right: -1px; bottom: -1px; width: 22px; height: 1px; background: rgba(125, 146, 191, .55);
+}
+.vtm20.is-demon .r-vc-morality.is-torment .r-box.is-filled { background: radial-gradient(circle at 40% 35%, #e08a3a, #7a2e0e 75%); border-color: #c0682a; }
+.vtm20.is-demon .r-vc-morality.is-torment.is-high { box-shadow: inset 0 -26px 30px -26px rgba(224, 120, 40, .35); }
+.vtm20.is-demon .r-vitals-wrap.is-closed .r-vitals-strip { border-top-color: var(--d-gold); }
+.vtm20.is-demon .r-vitals-wrap.is-closed .r-vitals-strip:hover { background: rgba(212, 160, 76, .1); }
+.vtm20.is-demon .r-trait:hover { background: linear-gradient(90deg, rgba(212, 160, 76, .1), rgba(125, 146, 191, .03) 60%, transparent); }
+.vtm20.is-demon .r-buy:hover { color: #1a1206; background: var(--d-gold); border-color: var(--d-gold-l); }
+
+/* ── Знания: свой Дом — золотая кромка, лестница призывов — огненная ── */
+.vtm20.is-demon .r-disc.is-clan { box-shadow: inset 2px 0 0 var(--d-gold); }
+.vtm20.is-demon .r-disc.is-clan .r-disc-sigil { color: var(--d-gold-l); background: #241708; border-color: rgba(212, 160, 76, .6); }
+.vtm20.is-demon .r-ladder::before { background: linear-gradient(180deg, rgba(240, 196, 106, .75), rgba(180, 101, 31, .2)); }
+.vtm20.is-demon .r-ladder .r-power-lvl {
+  color: #1a1206; background: radial-gradient(circle at 40% 32%, #f0c46a, #a8641f 75%); border-color: var(--d-gold-l);
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); width: 26px; height: 26px; border: 0;
+}
+.vtm20.is-demon .r-power.is-elder .r-power-lvl, .vtm20.is-demon .r-ipower.is-owned .r-power-lvl { color: #1a1206; background: var(--d-gold); border-color: var(--d-gold-l); }
+.vtm20.is-demon .r-power-roll:hover, .vtm20.is-demon .r-icon-btn[data-action="rollTrait"]:hover { text-shadow: 0 0 8px rgba(240, 196, 106, .8); }
+.vtm20.is-demon a.r-trait-label:hover, .vtm20.is-demon .r-power-name:hover { text-shadow: 0 0 10px rgba(240, 196, 106, .35); }
+.vtm20.is-demon .r-form { border-left-color: rgba(125, 146, 191, .4); }
+.vtm20.is-demon .r-form.is-on { border-left-color: var(--d-gold); background: linear-gradient(90deg, rgba(212, 160, 76, .07), transparent 55%); }
+
+/* ── Подвал ── */
+.vtm20.is-demon .r-foot {
+  background:
+    linear-gradient(90deg, transparent 0 18px, rgba(212, 160, 76, .3) 18px 19px, transparent 19px),
+    repeating-linear-gradient(180deg, transparent 0 9px, rgba(190, 200, 225, .035) 9px 10px),
+    #0a0b10;
+}
+.vtm20.is-demon .r-foot-item.is-xp { border-color: rgba(212, 160, 76, .45); background: rgba(212, 160, 76, .1); }
+.vtm20.is-demon .r-foot-item.is-xp i { color: var(--d-gold); }

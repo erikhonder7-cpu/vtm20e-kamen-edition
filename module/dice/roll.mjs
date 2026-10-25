@@ -141,6 +141,15 @@ export async function rollPool(o) {
     noBotch: !!o.noBotch, auto: Math.max(0, o.auto ?? 0), actorUuid: o.actor?.uuid ?? null, extra: o.extra ?? {}, notes: o.notes ?? [],
     effect: o.effect ?? ""
   };
+  // Призыв демона (Demon: The Fallen, гл. 7): отдельная кость Муки — выше постоянной Муки обычный эффект, иначе высокой Муки
+  if (state.extra?.torment != null) {
+    const r = await new Roll("1d10").evaluate();
+    r.dice[0].options.appearance = DIE_APPEARANCE;
+    rolls.push(r);
+    const die = r.total, high = die <= state.extra.torment;
+    state.extra = { ...state.extra, tormentDie: die, tormentHigh: high };
+    state.notes = [...state.notes, t(high ? "Demon.TormentHigh" : "Demon.TormentNormal", { n: die, t: state.extra.torment })];
+  }
   const result = evaluate(values, state);
   // Продолжительное действие (03): успехи копятся до цели; провал срывает работу
   const ext = state.extra?.extended;

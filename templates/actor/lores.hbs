@@ -1,0 +1,66 @@
+{{!-- II. Знания демона (Demon: The Fallen): точки, призывы по кругам из справочника, апокалиптическая форма Облика. --}}
+<section class="tab r-pane r-disciplines r-lores {{tab.cssClass}}" data-tab="{{tab.id}}" data-group="{{tab.group}}">
+
+  <h2 class="r-h2"><span>{{localize "VTM20.Demon.Lores"}}</span>
+    <span class="r-h2-tools">
+      {{#if lores.length}}<a class="r-h2-btn is-plain" data-action="toggleAll" data-tooltip="{{localize 'VTM20.Sheet.ToggleAllHint'}}"><i class="fa-solid {{#if allOpen}}fa-angles-up{{else}}fa-angles-down{{/if}}"></i> <span class="r-h2-lbl">{{#if allOpen}}{{localize "VTM20.Sheet.CollapseAll"}}{{else}}{{localize "VTM20.Sheet.ExpandAll"}}{{/if}}</span></a>{{/if}}
+      {{#if editable}}
+      {{#if missingHouse}}<a class="r-h2-btn" data-action="addHouseLores" data-tooltip="{{localize 'VTM20.Demon.AddHouseLoresHint'}}"><i class="fa-solid fa-fire-flame-curved"></i> <span class="r-h2-lbl">{{localize "VTM20.Demon.AddHouseLores"}}</span></a>{{/if}}
+      <a class="r-h2-btn" data-action="addLore" data-tooltip="{{localize 'VTM20.Demon.AddLore'}}"><i class="fa-solid fa-plus"></i> <span class="r-h2-lbl">{{localize "VTM20.Demon.AddLore"}}</span></a>
+      {{/if}}
+    </span>
+  </h2>
+
+  {{#each lores}}
+  <article class="r-row-wrap r-disc {{#if open}}is-open{{/if}} {{#if own}}is-clan{{/if}}" data-item-id="{{id}}">
+    <header class="r-disc-head">
+      <span class="r-disc-sigil"><i class="fa-solid {{#if common}}fa-book{{else}}fa-fire-flame-curved{{/if}}"></i></span>
+      <div class="r-disc-title">
+        <a class="r-disc-name" data-action="toggleRow" data-row-id="{{id}}">{{name}}</a>
+        <span class="r-disc-sub">{{#if en}}{{en}} · {{/if}}{{houseName}}{{#if own}}{{#unless common}} · <b>{{localize "VTM20.Demon.OwnHouse"}}</b>{{/unless}}{{/if}}</span>
+      </div>
+      {{> rDots dots=dots cls="is-disc"}}
+      <div class="r-disc-tools">
+        {{#if @root.editable}}<a class="r-buy" data-action="buy" data-item-id="{{id}}" data-path="system.value" data-kind="lore" data-tooltip="{{localize 'VTM20.Xp.Buy'}}: {{xp}}"><i class="fa-solid fa-plus"></i></a>{{/if}}
+        <a class="r-icon-btn" data-action="itemEdit" data-tooltip="{{localize 'VTM20.Sheet.Edit'}}"><i class="fa-solid fa-pen-nib"></i></a>
+        {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="itemDelete" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-trash"></i></a>{{/if}}
+        <a class="r-icon-btn r-chevron" data-action="toggleRow" data-row-id="{{id}}"><i class="fa-solid fa-chevron-down"></i></a>
+      </div>
+    </header>
+
+    <div class="r-disc-body"><div class="r-disc-inner">
+      <div class="r-ladder">
+        {{#each powers}}{{> rPower disc=(concat "lore:" ../key)}}{{/each}}
+        {{#if nextPower}}<div class="r-next"><span class="r-power-lvl">{{rRoman nextPower.level}}</span><span class="r-next-text">{{localize "VTM20.Demon.NextEvocation"}}: <b>{{nextPower.name}}</b></span></div>{{/if}}
+      </div>
+    </div></div>
+  </article>
+  {{else}}
+  <div class="r-empty">{{localize "VTM20.Demon.NoLores"}}</div>
+  {{/each}}
+
+  {{!-- Апокалиптическая форма: черты Облика; высокая Мука открывает тёмные черты --}}
+  <h2 class="r-h2"><span>{{localize "VTM20.Demon.Form"}}</span>
+    <span class="r-h2-tools">
+      {{#if form}}{{#if editable}}<a class="r-h2-btn {{#if form.on}}is-on{{/if}}" data-action="apocalyptic" data-tooltip="{{#if form.on}}{{localize 'VTM20.Demon.FormDrop'}}{{else}}{{localize 'VTM20.Demon.FormTake'}}{{/if}}"><i class="fa-solid fa-dragon"></i> <span class="r-h2-lbl">{{#if form.on}}{{localize "VTM20.Demon.FormDropShort"}}{{else}}{{localize "VTM20.Demon.FormTakeShort"}}{{/if}}</span></a>{{/if}}{{/if}}
+    </span>
+  </h2>
+  {{#if form}}
+  <div class="r-form {{#if form.on}}is-on{{/if}}">
+    <p class="r-form-title"><b>{{form.visage}}</b> · {{form.lore}}{{#if form.on}} · <em>{{localize "VTM20.Demon.FormActive"}}</em>{{/if}}</p>
+    <div class="r-form-cols">
+      <div class="r-form-col">
+        <h4 class="r-h4">{{localize "VTM20.Demon.FormLow"}}</h4>
+        {{#each form.low}}<div class="r-trait r-form-feat">{{name}}</div>{{/each}}
+      </div>
+      <div class="r-form-col is-high">
+        <h4 class="r-h4">{{localize "VTM20.Demon.FormHigh"}} <small>({{form.highN}}/4)</small></h4>
+        {{#each form.high}}<div class="r-trait r-form-feat {{#unless on}}is-off{{/unless}}">{{name}}</div>{{/each}}
+      </div>
+    </div>
+    <p class="r-note">{{localize "VTM20.Demon.FormNote"}}</p>
+  </div>
+  {{else}}
+  <div class="r-empty">{{localize "VTM20.Demon.NoVisage"}}</div>
+  {{/if}}
+</section>

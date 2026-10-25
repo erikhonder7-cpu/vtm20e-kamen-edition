@@ -67,6 +67,30 @@
     </div>
   </div>
 
+  {{#if isDemon}}
+  {{!-- Мука падшего: постоянная — точками, временная копится клетками (10 клеток — +1 постоянной); Добродетели демона --}}
+  <div class="r-vcard r-vc-morality is-torment {{#if tormentHigh}}is-high{{/if}}">
+    <div class="r-vc-head">
+      <h4 class="r-banner"><span>{{localize "VTM20.Demon.Torment"}}</span></h4>
+      <div class="r-vc-status"><b>{{system.torment.permanent}}</b>{{#if tormentHigh}} · {{localize "VTM20.Demon.HighTorment"}}{{/if}}</div>
+    </div>
+    {{> rDots dots=tormentPerm cls="is-ten"}}
+    <div class="r-boxes" data-tooltip="{{localize 'VTM20.Demon.TormentTempHint'}}">
+      {{#each tormentTemp}}<a class="r-box {{#if filled}}is-filled{{/if}}" data-action="setDots" data-path="{{path}}" data-n="{{n}}"></a>{{/each}}
+    </div>
+    <div class="r-virtues">
+      {{#each virtues}}
+      <div class="r-virtue">
+        <a class="r-trait-label" data-action="rollTrait" data-trait="virtues.{{slot}}">{{label}}</a>
+        <span class="r-virtue-dots">{{> rDots dots=dots}}{{#if @root.editable}}<a class="r-buy" data-action="buy" data-path="system.virtues.{{slot}}.value" data-kind="virtue" data-label="{{label}}" data-tooltip="{{localize 'VTM20.Xp.Buy'}}: {{xp}}"><i class="fa-solid fa-plus"></i></a>{{/if}}</span>
+      </div>
+      {{/each}}
+    </div>
+    <div class="r-vc-tools">
+      <span class="r-vc-hint is-left" data-tooltip="{{localize 'VTM20.Demon.TormentDieHint'}}"><i class="fa-solid fa-dice-d10"></i> {{localize "VTM20.Demon.TormentDie" n=system.torment.permanent}}</span>
+    </div>
+  </div>
+  {{else}}
   <div class="r-vcard r-vc-morality">
     <div class="r-vc-head">
       {{#if isMortal}}<h4 class="r-banner"><a data-action="openPath" data-tooltip="{{localize 'VTM20.Sheet.OpenPath'}}">{{#each paths}}{{#if selected}}{{name}}{{/if}}{{/each}}</a></h4>
@@ -92,13 +116,16 @@
       <a class="r-vc-btn is-right" data-action="rollVirtue" data-kind="degeneration"><i class="fa-solid fa-scale-unbalanced"></i> {{localize "VTM20.Sheet.DegenerationShort"}}</a>
     </div>
   </div>
+  {{/if}}
 </div></div>
   {{!-- Полоса под шкалами: свернуть или развернуть их; свёрнутые — сводкой в одну строку --}}
   <a class="r-vitals-strip" data-action="toggleVitals" data-tooltip="{{#if vitalsClosed}}{{localize 'VTM20.Sheet.VitalsOpen'}}{{else}}{{localize 'VTM20.Sheet.VitalsClose'}}{{/if}}">
     <span class="r-vs-sum">
       <span class="r-vs-item {{#if healthHurt}}is-hurt{{/if}}"><i class="fa-solid fa-heart-pulse"></i> {{healthStatus}}{{#if woundPenalty}} <b>{{woundPenalty}}</b>{{/if}}</span>
       <span class="r-vs-item"><i class="fa-solid fa-shield-heart"></i> {{localize "VTM20.Willpower"}} <b>{{system.willpower.temporary}}</b>/{{system.willpower.permanent}}</span>
-      <span class="r-vs-item"><i class="fa-solid fa-scale-balanced"></i> {{#each paths}}{{#if selected}}{{name}}{{/if}}{{/each}} <b>{{system.morality.value}}</b></span>
+      {{#if isDemon}}<span class="r-vs-item"><i class="fa-solid fa-fire-flame-curved"></i> {{localize "VTM20.Demon.Faith"}} <b>{{system.faith.temporary}}</b>/{{system.faith.permanent}}</span>
+      <span class="r-vs-item"><i class="fa-solid fa-link-slash"></i> {{localize "VTM20.Demon.Torment"}} <b>{{system.torment.permanent}}</b></span>
+      {{else}}<span class="r-vs-item"><i class="fa-solid fa-scale-balanced"></i> {{#each paths}}{{#if selected}}{{name}}{{/if}}{{/each}} <b>{{system.morality.value}}</b></span>{{/if}}
     </span>
     <i class="fa-solid fa-chevron-up r-vs-caret"></i>
   </a>

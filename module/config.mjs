@@ -41,6 +41,7 @@ VTM20.abilities = {
   brawl:        { group: "talents" }, empathy:     { group: "talents" }, expression: { group: "talents" },
   intimidation: { group: "talents" }, leadership:  { group: "talents" }, streetwise: { group: "talents" },
   subterfuge:   { group: "talents" },
+  intuition:    { group: "talents", only: "demon" },     // Demon: The Fallen — только у демонов
   animalKen:    { group: "skills" }, crafts:   { group: "skills" }, drive:       { group: "skills", era: "modern" },
   ride:         { group: "skills", era: "revolution" },
   etiquette:    { group: "skills" }, firearms: { group: "skills" }, larceny:     { group: "skills" },
@@ -51,7 +52,8 @@ VTM20.abilities = {
   finance:      { group: "knowledges" }, investigation: { group: "knowledges" }, law: { group: "knowledges" },
   medicine:     { group: "knowledges" }, occult: { group: "knowledges" }, politics: { group: "knowledges" },
   science:      { group: "knowledges" }, technology: { group: "knowledges", era: "modern" },
-  warfare:      { group: "knowledges", era: "revolution" }
+  warfare:      { group: "knowledges", era: "revolution" },
+  religion:     { group: "knowledges", only: "demon" }
 };
 for (const [k, a] of Object.entries(VTM20.abilities)) a.label = L(`Abil.${k}`);
 
@@ -61,10 +63,11 @@ VTM20.eras = {
 };
 
 /** Способности текущей эпохи, по группам, в алфавитном порядке подписи. */
-VTM20.abilitiesForEra = era => {
+VTM20.abilitiesForEra = (era, type = "") => {
   const out = { talents: [], skills: [], knowledges: [] };
   for (const [k, a] of Object.entries(VTM20.abilities)) {
     if (a.era && a.era !== era) continue;
+    if (a.only && a.only !== type) continue;          // Интуиция и Религия — только у демонов
     out[a.group].push(k);
   }
   for (const g of Object.keys(out)) {

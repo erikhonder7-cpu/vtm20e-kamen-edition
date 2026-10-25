@@ -12,7 +12,7 @@ const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ItemSheetV2 } = foundry.applications.sheets;
 
 const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
-const TEMPLATES = { ritual: "ritual", power: "power", discipline: "discipline", thaumPath: "path",
+const TEMPLATES = { ritual: "ritual", power: "power", discipline: "discipline", thaumPath: "path", lore: "lore",
   weapon: "weapon", armor: "armor", gear: "gear", merit: "trait", flaw: "trait", background: "background", derangement: "derangement" };
 
 export class VtMItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
@@ -81,6 +81,16 @@ export class VtMItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
           next: p.level === s.value + 1, pool: VtMItemSheet.poolLabel(p.roll), html: await enrich(p.html) })));
       ctx.rules = item.type === "discipline"
         ? await enrich((Codex.discipline(s.key)?.rules ?? []).find(r => !r.title)?.html ?? "") : "";
+    }
+    // Знание демона: точки и призывы по кругам из справочника, черты формы Облика
+    if (item.type === "lore") {
+      const lore = Codex.lore(s.key);
+      ctx.dots = Array.from({ length: 5 }, (_, i) => ({ n: i + 1, filled: i < s.value, path: "system.value" }));
+      ctx.powers = await Promise.all((lore?.powers ?? []).map(async p => ({ roman: ROMAN[p.level - 1], name: p.name, owned: p.level <= s.value,
+        next: p.level === s.value + 1, pool: VtMItemSheet.poolLabel(p.roll), html: await enrich(p.html) })));
+      ctx.loreOptions = Codex.lores.map(l => ({ value: l.key, label: l.name, selected: l.key === s.key }));
+      ctx.loreHouse = lore?.house ? Codex.house(lore.house)?.name : game.i18n.localize("VTM20.Demon.Common");
+      ctx.form = lore?.form ?? null;
     }
     // Оружие: вид, урон словами, атака с листа владельца
     if (item.type === "weapon") {

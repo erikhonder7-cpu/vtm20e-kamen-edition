@@ -15,6 +15,7 @@
       <figcaption class="r-seal" {{#if isVampire}}data-tooltip="{{localize 'VTM20.Details.generation'}}: {{system.generation}}"{{/if}}>
         {{#if isVampire}}<span class="r-seal-num">{{rRoman system.generation}}</span><span class="r-seal-cap">{{localize "VTM20.Sheet.Gen"}}</span>
         {{#if editable}}<i class="fa-solid fa-chevron-down r-seal-caret"></i><select name="system.generation" data-dtype="Number" class="r-seal-select" aria-label="{{localize 'VTM20.Details.generation'}}">{{#each generations}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{rRoman value}} — {{value}}</option>{{/each}}</select>{{/if}}
+        {{else if isDemon}}<span class="r-seal-num r-seal-icon"><i class="fa-solid fa-fire-flame-curved"></i></span><span class="r-seal-cap">{{#if house}}{{house.name}}{{else}}{{typeLabel}}{{/if}}</span>
         {{else if isCreature}}<span class="r-seal-num r-seal-icon"><i class="fa-solid fa-paw"></i></span><span class="r-seal-cap">{{typeLabel}}</span>
         {{else if isGhoul}}<span class="r-seal-num r-seal-icon"><i class="fa-solid {{#if isRevenant}}fa-dna{{else}}fa-hand-holding-droplet{{/if}}"></i></span><span class="r-seal-cap">{{typeLabel}}</span>
         {{else}}<span class="r-seal-num r-seal-icon"><i class="fa-solid fa-heart-pulse"></i></span><span class="r-seal-cap">{{typeLabel}}</span>{{/if}}
@@ -25,8 +26,9 @@
       <div class="r-kicker">
         <span class="r-kicker-type">{{typeLabel}}</span>
         {{#if clan.nickname}}<i class="r-kicker-dia"></i><em class="r-kicker-nick is-link" data-action="clanAtlas" data-tooltip="{{localize 'VTM20.Clans.Open'}}">«{{clan.nickname}}»</em>{{/if}}
+        {{#if house}}<i class="r-kicker-dia"></i><em class="r-kicker-nick" data-tooltip="{{house.text}}">«{{house.akkadian}}»</em>{{/if}}
         {{#if sectSym}}<i class="r-kicker-dia"></i>{{rSym sectSym "r-sym-inline"}}{{/if}}
-        <span class="r-motto" aria-hidden="true">La Liberté ou la Mort</span>
+        <span class="r-motto" aria-hidden="true">{{#if isDemon}}Non serviam{{else}}La Liberté ou la Mort{{/if}}</span>
       </div>
       <div class="r-name-row">
         <input class="r-name {{nameSize}}" type="text" name="name" value="{{actor.name}}" placeholder="{{localize 'VTM20.Sheet.Name'}}" spellcheck="false">
@@ -72,6 +74,18 @@
         <label class="r-df is-check"><input type="checkbox" name="system.supernatural" {{checked system.supernatural}}><span>{{localize "VTM20.Sheet.Supernatural"}}</span></label>
         {{/if}}
 
+        {{#if isDemon}}
+        {{!-- Падший: Дом и Облик (Знание, чья форма), фракция, имена — небесное и Истинное --}}
+        <label class="r-df is-wide" {{#if house}}data-tooltip="{{house.text}}"{{/if}}><span>{{localize "VTM20.Demon.House"}}</span>
+          <select name="system.house"><option value="">—</option>{{#each houses}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+        <label class="r-df" {{#if visageLore}}data-tooltip="{{visageLore}}"{{/if}}><span>{{localize "VTM20.Demon.Visage"}}</span>
+          <select name="system.visage"><option value="">—</option>{{#each visages}}<option value="{{value}}" {{#if selected}}selected{{/if}} title="{{lore}}">{{label}}</option>{{/each}}</select></label>
+        <label class="r-df is-wide"><span>{{localize "VTM20.Demon.Faction"}}</span>
+          <select name="system.faction"><option value="">—</option>{{#each factions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+        <label class="r-df"><span>{{localize "VTM20.Demon.Celestial"}}</span><input type="text" name="system.names.celestial" value="{{system.names.celestial}}"></label>
+        <label class="r-df"><span>{{localize "VTM20.Demon.TrueName"}}</span><input type="text" name="system.names.trueName" value="{{system.names.trueName}}"></label>
+        {{/if}}
+
         {{#if isMortal}}
         <label class="r-df"><span>{{localize "VTM20.Details.age"}}</span><input type="text" name="system.details.age" value="{{system.details.age}}"></label>
         <label class="r-df is-wide"><span>{{localize "VTM20.Details.haven"}}</span><input type="text" name="system.details.haven" value="{{system.details.haven}}"></label>
@@ -106,6 +120,25 @@
     </aside>
     {{/if}}
 
+    {{#if isDemon}}
+    {{!-- Вера вместо запаса крови: временная — языками пламени, постоянная — точками --}}
+    <aside class="r-assignat is-faith">
+      <div class="r-assignat-head">
+        <span class="r-assignat-title">{{localize "VTM20.Demon.Faith"}}</span>
+        <span class="r-assignat-num"><b>{{system.faith.temporary}}</b><small>/{{system.faith.permanent}}</small></span>
+      </div>
+      <div class="r-drops">
+        {{#each faithBoxes}}<a class="r-drop {{#if filled}}is-filled{{/if}}" data-action="setDots" data-path="{{path}}" data-n="{{n}}"><svg viewBox="0 0 24 30" aria-hidden="true"><path d="M12 1c1 5 7 8 7 16a7 7 0 0 1-14 0c0-4 2-6 3-8 0 3 1 5 3 5-1-5 1-9 1-13z"/></svg></a>{{/each}}
+      </div>
+      <div class="r-faith-perm">{{> rDots dots=faithPerm cls="is-ten"}}{{#if editable}}<a class="r-buy" data-action="buy" data-path="system.faith.permanent" data-kind="faith" data-label="{{localize 'VTM20.Demon.Faith'}}" data-tooltip="{{localize 'VTM20.Xp.Buy'}}: {{faithXp}}"><i class="fa-solid fa-plus"></i></a>{{/if}}</div>
+      <div class="r-assignat-meta">
+        <span>{{#if system.apocalyptic}}<em>{{localize "VTM20.Demon.FormActive"}}</em>{{/if}}</span>
+        <a data-action="spendFaith" data-tooltip="{{localize 'VTM20.Demon.SpendFaith'}}"><i class="fa-solid fa-minus"></i></a>
+        <a data-action="apocalyptic" data-tooltip="{{#if system.apocalyptic}}{{localize 'VTM20.Demon.FormDrop'}}{{else}}{{localize 'VTM20.Demon.FormTake'}}{{/if}}" {{#if system.apocalyptic}}class="is-on"{{/if}}><i class="fa-solid fa-dragon"></i></a>
+      </div>
+    </aside>
+    {{/if}}
+
     {{#unless needsCreation}}
     <nav class="r-head-acts">
       {{#if hasBlood}}<a class="r-act" data-action="hunt" data-tooltip="{{localize 'VTM20.Hunt.Button'}}"><i class="fa-solid fa-moon"></i><span>{{localize "VTM20.Hunt.Button"}}</span></a>{{/if}}
@@ -117,9 +150,9 @@
       <a class="r-act is-minor" data-action="hazard" data-tooltip="{{localize 'VTM20.Hazard.Title'}}"><i class="fa-solid fa-triangle-exclamation"></i><span>{{localize "VTM20.Hud.Hazard"}}</span></a>
       {{#if weaknessCheck}}<a class="r-act" data-action="rollVirtue" data-kind="weakness" data-tooltip="{{weaknessCheck}}"><i class="fa-solid fa-dice-d10"></i><span>{{weaknessCheck}}</span></a>{{/if}}
       <span class="r-acts-spacer"></span>
-      <a class="r-act is-hot" data-action="rollVirtue" data-kind="frenzy" data-tooltip="{{localize 'VTM20.Roll.frenzy.title'}}"><i class="fa-solid fa-face-angry"></i><span>{{localize "VTM20.Roll.frenzy.title"}}</span></a>
+      {{#unless isDemon}}<a class="r-act is-hot" data-action="rollVirtue" data-kind="frenzy" data-tooltip="{{localize 'VTM20.Roll.frenzy.title'}}"><i class="fa-solid fa-face-angry"></i><span>{{localize "VTM20.Roll.frenzy.title"}}</span></a>{{/unless}}
       {{#if isVampire}}<a class="r-act is-hot" data-action="diablerie" data-tooltip="{{localize 'VTM20.Diablerie.Title'}}"><i class="fa-solid fa-skull"></i><span>{{localize "VTM20.Diablerie.Short"}}</span></a>{{/if}}
-      {{#unless isMortal}}<a class="r-act is-hot" data-action="rollVirtue" data-kind="rotschreck" data-tooltip="{{localize 'VTM20.Roll.rotschreck.title'}}"><i class="fa-solid fa-fire"></i><span>{{localize "VTM20.Roll.rotschreck.title"}}</span></a>{{/unless}}
+      {{#unless (or isMortal isDemon)}}<a class="r-act is-hot" data-action="rollVirtue" data-kind="rotschreck" data-tooltip="{{localize 'VTM20.Roll.rotschreck.title'}}"><i class="fa-solid fa-fire"></i><span>{{localize "VTM20.Roll.rotschreck.title"}}</span></a>{{/unless}}
     </nav>
     {{/unless}}
   </div>

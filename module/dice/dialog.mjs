@@ -49,7 +49,7 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const loc = k => game.i18n.localize(k);
     const opt = (value, label, n) => ({ value, label: `${label} (${n})` });
     const era = game.settings.get("vtm20e-kamen-edition", "era");
-    const abil = VTM20.abilitiesForEra(era);
+    const abil = VTM20.abilitiesForEra(era, a.type);
     const groups1 = [
       { label: loc("VTM20.Sheet.Attributes"), options: Object.keys(VTM20.attributes).map(k => opt(`attributes.${k}`, loc(VTM20.attributes[k].label), s.attributes[k].total)) },
       { label: loc("VTM20.Sheet.Virtues"), options: ["conscience", "selfControl", "courage"].map(k => opt(`virtues.${k}`, a.traitLabel(`virtues.${k}`), a.traitValue(`virtues.${k}`))) },

@@ -18,12 +18,12 @@ export class VtMActor extends Actor {
 
   async _preCreate(data, options, user) {
     if ((await super._preCreate(data, options, user)) === false) return false;
-    const icons = { vampire: "vampire.svg", ghoul: "ghoul.svg", mortal: "mortal.svg", creature: "creature.svg" };
+    const icons = { vampire: "vampire.svg", ghoul: "ghoul.svg", mortal: "mortal.svg", demon: "demon.svg", creature: "creature.svg" };
     const upd = {};
     if (!data.img || data.img === CONST.DEFAULT_TOKEN) upd.img = `systems/${SYSTEM_ID}/assets/icons/${icons[this.type]}`;
     const proto = {
       "prototypeToken.bar1.attribute": "health",
-      "prototypeToken.bar2.attribute": this.type === "mortal" ? "willpower" : "blood",
+      "prototypeToken.bar2.attribute": ["mortal", "demon"].includes(this.type) ? "willpower" : "blood",
       "prototypeToken.displayBars": CONST.TOKEN_DISPLAY_MODES.OWNER_HOVER,
       "prototypeToken.displayName": CONST.TOKEN_DISPLAY_MODES.OWNER_HOVER
     };
@@ -42,6 +42,7 @@ export class VtMActor extends Actor {
   /** Какая Добродетель стоит в слоте: совесть/решимость, самоконтроль/инстинкты. */
   virtueKey(slot) {
     if (slot === "courage") return "courage";
+    if (this.type === "demon") return slot === "selfControl" ? "conviction" : slot;   // у падших — Совесть, Убеждённость, Мужество
     const v = this.path?.virtues ?? ["conscience", "selfControl"];
     if (slot === "conscience") return v.includes("conviction") ? "conviction" : "conscience";
     if (slot === "selfControl") return v.includes("instinct") ? "instinct" : "selfControl";
@@ -431,6 +432,13 @@ export class VtMActor extends Actor {
       case "virtue": return X.virtue(current);
       case "morality": return X.morality(current);
       case "willpower": return X.willpower(current);
+      // Demon: The Fallen, гл. 6: новое Знание 7 (чужого Дома 10), Знание × 5, Вера × 7
+      case "lore": {
+        if (current) return current * 5;
+        const own = Codex.house(this.system.house)?.lores ?? [];
+        return own.includes(extra.key) || (Codex.lore(extra.key) && !Codex.lore(extra.key).house) ? 7 : 10;
+      }
+      case "faith": return current * 7;
       default: return null;
     }
   }
@@ -442,7 +450,8 @@ export class VtMActor extends Actor {
   async buyWithXp({ doc = this, path, kind, label, confirm = true }) {
     const cur = Number(foundry.utils.getProperty(doc._source, path) ?? 0);
     const extra = doc !== this && doc.type === "discipline" ? { key: doc.system.key, inClan: doc.system.inClan || this.clanDisciplines.includes(doc.system.key) }
-      : doc !== this && doc.type === "thaumPath" ? { primary: doc.system.primary } : {};
+      : doc !== this && doc.type === "thaumPath" ? { primary: doc.system.primary }
+      : doc !== this && doc.type === "lore" ? { key: doc.system.key } : {};
     const cost = this.xpCost(kind, cur, extra);
     if (cost == null) return null;
     const xp = this.system.experience;

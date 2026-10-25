@@ -240,6 +240,32 @@ export class MortalData extends BaseActorData {
   }
 }
 
+/* ── Демон (Demon: The Fallen) ──────────────────────────────────────────── */
+
+/**
+ * Падший в теле смертного: Дом, фракция, Облик (Знание, по которому видна апокалиптическая форма), Небесное и
+ * Истинное имена; Вера — сила демона (постоянная и запас), Мука — память Бездны (постоянная и временная).
+ * Добродетели демона — Совесть, Убеждённость (слот selfControl) и Мужество; Человечности у демона нет.
+ */
+export class DemonData extends BaseActorData {
+  static defineSchema() {
+    return {
+      ...super.defineSchema(),
+      house: str(), faction: str(), visage: str(),
+      names: new SchemaField({ celestial: str(), trueName: str() }),
+      faith: new SchemaField({ permanent: int(3, 0, 10), temporary: int(3, 0, 10) }),
+      torment: new SchemaField({ permanent: int(3, 0, 10), temporary: int(0, 0, 10) }),
+      apocalyptic: new BooleanField({ initial: false })
+    };
+  }
+
+  prepareDerivedData() {
+    this.morality.path = "humanity";
+    super.prepareDerivedData();
+    this.traitMax = 5;
+  }
+}
+
 /* ── Предметы ───────────────────────────────────────────────────────────── */
 
 class BaseItemData extends foundry.abstract.TypeDataModel {
@@ -261,6 +287,13 @@ export class DisciplineData extends BaseItemData {
       inClan: new BooleanField({ initial: false }),
       choices: new ObjectField({ initial: {} })   // уровень → имя выбранной силы, если на уровне несколько сил на выбор
     };
+  }
+}
+
+/** Знание демона (Demon: The Fallen): ключ из справочника демонов и точки; призывы берутся из Codex по уровню. */
+export class LoreData extends BaseItemData {
+  static defineSchema() {
+    return { ...super.defineSchema(), key: str(), value: int(1, 0, 5) };
   }
 }
 
@@ -363,9 +396,9 @@ export class GearData extends BaseItemData {
 /* ── Регистрация ────────────────────────────────────────────────────────── */
 
 export function registerDataModels() {
-  Object.assign(CONFIG.Actor.dataModels, { vampire: VampireData, ghoul: GhoulData, mortal: MortalData, creature: CreatureData });
+  Object.assign(CONFIG.Actor.dataModels, { vampire: VampireData, ghoul: GhoulData, mortal: MortalData, creature: CreatureData, demon: DemonData });
   Object.assign(CONFIG.Item.dataModels, {
-    discipline: DisciplineData, thaumPath: BloodPathData, ritual: RitualData, power: PowerData,
+    discipline: DisciplineData, lore: LoreData, thaumPath: BloodPathData, ritual: RitualData, power: PowerData,
     background: BackgroundData, merit: MeritData, flaw: MeritData, derangement: DerangementData,
     weapon: WeaponData, armor: ArmorData, gear: GearData
   });

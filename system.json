@@ -26,6 +26,9 @@
       "src": "styles/r-sheet.css"
     },
     {
+      "src": "styles/r-demon.css"
+    },
+    {
       "src": "styles/r-chat.css"
     },
     {
@@ -84,6 +87,12 @@
           "biography",
           "notes"
         ]
+      },
+      "demon": {
+        "htmlFields": [
+          "biography",
+          "notes"
+        ]
       }
     },
     "Item": {
@@ -138,6 +147,11 @@
         ]
       },
       "gear": {
+        "htmlFields": [
+          "description"
+        ]
+      },
+      "lore": {
         "htmlFields": [
           "description"
         ]
@@ -264,6 +278,30 @@
         "ASSISTANT": "OWNER"
       },
       "flags": {}
+    },
+    {
+      "name": "demon-lores",
+      "label": "Знания демонов",
+      "path": "packs/demon-lores",
+      "type": "Item",
+      "system": "vtm20e-kamen-edition",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
+    },
+    {
+      "name": "demon-houses",
+      "label": "Дома и фракции падших",
+      "path": "packs/demon-houses",
+      "type": "JournalEntry",
+      "system": "vtm20e-kamen-edition",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
     }
   ],
   "grid": {
@@ -294,7 +332,7 @@
   "download": "https://github.com/erikhonder7-cpu/vtm20e-kamen-edition/releases/download/v0.13.0/vtm20e-kamen-edition.zip",
   "packFolders": [
     {
-      "name": "VTM20 «Liberté»",
+      "name": "Vampire: The Masquerade",
       "sorting": "m",
       "color": "#4a0d11",
       "packs": [
@@ -308,8 +346,16 @@
         "backgrounds",
         "derangements",
         "enlightenment-paths"
-      ],
-      "folders": []
+      ]
+    },
+    {
+      "name": "Demon: The Fallen",
+      "sorting": "m",
+      "color": "#2f3b55",
+      "packs": [
+        "demon-lores",
+        "demon-houses"
+      ]
     }
   ]
 }

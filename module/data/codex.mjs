@@ -5,7 +5,7 @@
 
 import { SYSTEM_PATH, SYSTEM_ID } from "../config.mjs";
 
-const FILES = ["disciplines", "clans", "rituals", "paths", "merits", "merits-ghouls", "backgrounds", "archetypes", "assets", "derangements", "combos", "abilities"];
+const FILES = ["disciplines", "clans", "rituals", "paths", "merits", "merits-ghouls", "backgrounds", "archetypes", "assets", "derangements", "combos", "abilities", "demon"];
 
 /** Чей герб показывать линии крови, ветви или антитрибу, если своего нет. */
 const CLAN_SYMBOL_PARENT = {
@@ -62,7 +62,20 @@ export const Codex = {
     this.merits = [...this.merits, ...(this["merits-ghouls"] ?? []).map(m => ({ ...m, ghoul: true }))];
     this.clanByKey = Object.fromEntries(this.clans.map(c => [c.key, c]));
     this.pathByKey = Object.fromEntries(this.paths.map(p => [p.key, p]));
+    // демоны (data/demon.json) — свой справочник: Знания не смешиваются с Дисциплинами вампиров
+    const dm = this.demon ?? {};
+    this.loreByKey = Object.fromEntries((dm.lores ?? []).map(l => [l.key, l]));
+    this.houseByKey = Object.fromEntries((dm.houses ?? []).map(h => [h.key, h]));
+    this.factionByKey = Object.fromEntries((dm.factions ?? []).map(f => [f.key, f]));
   },
+
+  /** Демоны: Знание, Дом и фракция по ключу; все Знания и Дома. */
+  lore(key) { return this.loreByKey?.[key] ?? null; },
+  house(key) { return this.houseByKey?.[key] ?? null; },
+  faction(key) { return this.factionByKey?.[key] ?? null; },
+  get lores() { return this.demon?.lores ?? []; },
+  get houses() { return this.demon?.houses ?? []; },
+  get factions() { return this.demon?.factions ?? []; },
 
   clan(key) { return this.clanByKey?.[key] ?? null; },
 

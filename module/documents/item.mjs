@@ -82,7 +82,7 @@ export class VtMItem extends Item {
     const s = this.system, loc = k => game.i18n.localize(k);
     const typeL = loc(`TYPES.Item.${this.type}`);
     switch (this.type) {
-      case "discipline": return `${typeL} · ${s.value}`;
+      case "discipline": case "lore": return `${typeL} · ${s.value}`;
       case "thaumPath": return `${Codex.disciplineLabel(s.discipline)} · ${s.value}`;
       case "ritual": return `${Codex.disciplineLabel(s.discipline)} · ${s.level}`;
       case "power": return [s.path || (s.discipline && Codex.disciplineLabel(s.discipline)), s.level].filter(Boolean).join(" · ") || typeL;
