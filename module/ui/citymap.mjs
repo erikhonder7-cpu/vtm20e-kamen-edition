@@ -31,6 +31,7 @@ import {
 } from "./citychars.mjs";
 import { plateHTML, paintPlate } from "./night-plate.mjs";
 import { HUNTING_GROUNDS, openHunt } from "../apps/night.mjs";
+import { masqueradeAt } from "./masquerade.mjs";
 
 /**
  * Расширения карты (модули): свои стили карты, готовые города, слои, кнопки, режимы щелчка, виды объектов в инспекторе,
@@ -496,11 +497,13 @@ function inZone(z, lat, lng) {
 const huntZoneOf = a => { const w = whereIs(a); return w ? city().zones.find(z => z.grounds && (game.user.isGM || !z.gmOnly) && inZone(z, w.lat, w.lng)) : null; };
 /** Место для окна охоты: название, угодья и хозяин домена (поле «Владелец» зоны — имя персонажа). */
 function huntPlace(z, at = centroid(z.points)) {
+  // жар Маскарада в этой точке (ui/masquerade.mjs) — надбавка к сложности охоты
+  const masq = masqueradeAt(city(), at[0], at[1]).diff;
   // хозяин: обведённый домен в этой точке, иначе поле «Владелец» зоны (имя персонажа)
   const dom = domainAt(at[0], at[1]);
-  if (dom) return { name: z.name || L("Zone"), ground: z.grounds, owner: { id: dom.owner ?? null, name: dom.name } };
+  if (dom) return { name: z.name || L("Zone"), ground: z.grounds, masq, owner: { id: dom.owner ?? null, name: dom.name } };
   const owner = String(z.owner ?? "").trim(), who = owner ? game.actors.find(x => x.name.trim().toLowerCase() === owner.toLowerCase()) : null;
-  return { name: z.name || L("Zone"), ground: z.grounds, owner: owner ? { id: who?.id ?? null, name: who?.name ?? owner } : null };
+  return { name: z.name || L("Zone"), ground: z.grounds, masq, owner: owner ? { id: who?.id ?? null, name: who?.name ?? owner } : null };
 }
 /* ── Домены: каждый обводит домен своего персонажа (флаг пользователя cityDomains, по городам) ───── */
 

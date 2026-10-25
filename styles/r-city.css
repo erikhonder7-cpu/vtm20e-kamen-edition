@@ -384,3 +384,19 @@
 #r-citymap .rc-groundpick a b { font-weight: 400; color: var(--c-bone-2); }
 #r-citymap .rc-groundpick a:hover { color: var(--c-bone-b); }
 #r-citymap .rc-groundpick a.on { color: var(--c-bone-b); border-color: var(--g); background: rgba(0, 0, 0, .45); box-shadow: inset 0 -2px 0 var(--g); }
+
+/* Нарушения Маскарада: плашка общего жара под часами, тяжесть плитками в инспекторе */
+#r-citymap .rc-masq-plate { position: absolute; z-index: 6; right: 12px; width: 320px; box-sizing: border-box; display: flex; align-items: center; gap: 8px;
+  padding: 6px 12px; background: var(--c-mat-leather); border: 1px solid #000; border-left: 3px solid #5a1a1e; box-shadow: 0 6px 18px rgba(0, 0, 0, .7);
+  font: 11px var(--c-font-display); letter-spacing: 1.6px; text-transform: uppercase; color: var(--c-muted); }
+#r-citymap .rc-masq-plate i { color: #c4474c; }
+#r-citymap .rc-masq-plate b { margin-left: auto; font-weight: 400; color: var(--c-bone-b); }
+#r-citymap .rc-masq-plate[data-step="2"] { border-left-color: #8c1c22; }
+#r-citymap .rc-masq-plate[data-step="3"] { border-left-color: #b83a3f; }
+#r-citymap .rc-masq-plate[data-step="4"] { border-left-color: #e0414b; box-shadow: 0 0 16px rgba(224, 65, 75, .45), 0 6px 18px rgba(0, 0, 0, .7); }
+#r-citymap .rc-masq-plate[data-step="3"] b, #r-citymap .rc-masq-plate[data-step="4"] b { color: #e8a3a5; }
+#r-citymap .rc-masq-lvs { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; }
+#r-citymap .rc-masq-lv { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 5px 2px 4px; border: 1px solid var(--c-line-2); cursor: pointer; font-size: 10.5px; color: var(--c-muted); text-align: center; }
+#r-citymap .rc-masq-lv b { font: 16px var(--c-font-display); color: var(--c-bone-2); }
+#r-citymap .rc-masq-lv:hover { color: var(--c-bone-b); }
+#r-citymap .rc-masq-lv.on { border-color: #c4474c; background: rgba(140, 28, 34, .35); color: var(--c-bone-b); }

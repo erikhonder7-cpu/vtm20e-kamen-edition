@@ -36,6 +36,7 @@ import { openWeb, registerWeb } from "./module/apps/web.mjs";
 import { registerTimers, tickTimers } from "./module/apps/timers.mjs";
 import { registerTorpor, checkTorpor } from "./module/apps/torpor.mjs";
 import { registerExtras } from "./module/apps/extras.mjs";
+import { registerMasquerade } from "./module/ui/masquerade.mjs";
 import { registerCityMap, openCity, closeCity, toggleCity, cityMap } from "./module/ui/citymap.mjs";
 import { registerPause } from "./module/ui/pause.mjs";
 import * as Money from "./module/data/money.mjs";
@@ -121,6 +122,7 @@ Hooks.once("init", () => {
   registerHud();
   registerCombatTracker();
   registerCityMap();
+  registerMasquerade();
   registerPause();
   foundry.applications.handlebars.loadTemplates({
     rDots: `${SYSTEM_PATH}/templates/actor/parts/dots.hbs`,

@@ -923,3 +923,5 @@ body.r-theme-light .vtm20 .r-ng-item.is-active, body.r-theme-light .vtm20 .r-ng-
 .vtm20 .r-extra-wpn .r-trait-main { gap: 8px; }
 .vtm20 .r-extra-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
 .vtm20 .r-extra-spacer { flex: 1; }
+.vtm20 .r-hunt-place em.r-hunt-masq { flex-basis: 100%; color: #e8a3a5; }
+.vtm20 .r-hunt-place em.r-hunt-masq i { color: var(--r-accent); }
