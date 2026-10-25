@@ -354,3 +354,5 @@
 #r-citymap .rc-stain-tip small { display: block; font-family: "Marck Script", cursive; font-size: 14px; color: #7d1a1c; }
 #r-citymap .rc-stain-tip b { display: block; margin: 1px 0 3px; font-family: "IM Fell SC", "IM Fell", Georgia, serif; font-weight: 400; font-size: 16px; }
 #r-citymap .rc-stain-tip p { margin: 0; }
+#r-citymap .rc-stain-tip .rc-tip-line { display: flex; gap: 6px; align-items: baseline; margin-top: 4px; padding-top: 4px; border-top: 1px dotted rgba(38, 26, 16, .3); font-size: 12.5px; }
+#r-citymap .rc-stain-tip .rc-tip-line i { width: 13px; flex: 0 0 auto; color: #7d1a1c; font-size: 11px; }

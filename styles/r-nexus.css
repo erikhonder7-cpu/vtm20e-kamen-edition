@@ -159,6 +159,9 @@ body.r-nav-off #scene-navigation { display: none !important; }
   color: var(--nx-muted); background: rgba(10, 10, 12, .88); border: 1px solid var(--nx-line-2); font-size: 9px; cursor: pointer;
 }
 .r-nx-peek:hover { color: var(--nx-bone); border-color: var(--nx-bone-2); }
+.r-nx-onmap { position: absolute; right: 29px; bottom: 5px; z-index: 2; display: flex; align-items: center; justify-content: center; width: 22px; height: 18px;
+  color: var(--nx-dawn); background: rgba(10, 10, 12, .88); border: 1px solid var(--nx-line-2); font-size: 10px; cursor: pointer; }
+.r-nx-onmap:hover { color: #f1e9da; border-color: var(--nx-dawn); }
 .r-nx-cname { padding: 6px 8px 7px; font-family: var(--nx-display); font-size: 13px; color: var(--nx-bone); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .r-nx-card.locked .r-nx-cname { color: var(--nx-muted); }
 .r-nx-ctools { display: flex; gap: 1px; padding: 0 5px 5px; flex-wrap: wrap; }
@@ -311,7 +314,8 @@ body.r-nav-off #scene-navigation { display: none !important; }
 .r-nx-body.is-list .r-nx-card .r-nx-cname { order: 1; flex: 1 1 auto; min-width: 0; padding: 8px; }
 .r-nx-body.is-list .r-nx-thumb { order: 2; position: static; flex: 0 0 auto; height: auto; padding: 0; background: none !important; filter: none !important;
   display: flex; align-items: center; gap: 10px; }
-.r-nx-body.is-list .r-nx-thumb > :not(.r-nx-badges):not(.r-nx-players) { display: none; }
+.r-nx-body.is-list .r-nx-thumb > :not(.r-nx-badges):not(.r-nx-players):not(.r-nx-onmap) { display: none; }
+.r-nx-body.is-list .r-nx-onmap { position: static; }
 .r-nx-body.is-list .r-nx-badges, .r-nx-body.is-list .r-nx-players { position: static; }
 .r-nx-body.is-list .r-nx-players { padding-right: 7px; }
 .r-nx-body.is-list .r-nx-pc { width: 24px; height: 24px; }

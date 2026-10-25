@@ -185,11 +185,12 @@ const WAX = {
 const sealURL = {};   // ключ значка → data URL печати (для булавок-меток в DOM)
 
 /** Записка над картой: что это за место, метка или пятно. x, y — в пикселях карты; null — спрятать. */
-function showTip(x, y, kicker, title, text) {
+function showTip(x, y, kicker, title, text, lines = []) {
   const tip = document.querySelector(`#${ID} .rc-stain-tip`);
   if (!tip) return;
   if (x == null || (!title && !text)) { tip.hidden = true; return; }
-  tip.innerHTML = `${kicker ? `<small>${esc(kicker)}</small>` : ""}<b>${esc(title)}</b>${text ? `<p>${esc(text)}</p>` : ""}`;
+  tip.innerHTML = `${kicker ? `<small>${esc(kicker)}</small>` : ""}<b>${esc(title)}</b>${text ? `<p>${esc(text)}</p>` : ""}`
+    + lines.map(l => `<span class="rc-tip-line"><i class="fa-solid ${l.icon}"></i>${esc(l.text)}</span>`).join("");
   const box = tip.parentElement.getBoundingClientRect();
   tip.hidden = false;
   // у правого и нижнего края — записка по другую сторону курсора
@@ -205,13 +206,63 @@ function poiTip(ev) {
   if (!x) return showTip(null);
   const p = poiView(x.base, x.folder);
   const fname = city().folderMeta?.[x.folder.id]?.name || x.folder.name;
-  showTip(ev.point.x, ev.point.y, [fname, districtName(p.d)].filter(Boolean).join(" · "), p.name, p.text);
+  showTip(ev.point.x, ev.point.y, [fname, districtName(p.d)].filter(Boolean).join(" · "), p.name, p.text, spotLines(p));
 }
 
 /** Подсказка над меткой хроники (DOM-булавка). */
 function pinTip(ev, m) {
   const r = map.getContainer().getBoundingClientRect();
-  showTip(ev.clientX - r.left, ev.clientY - r.top, L(`Cat.${m.cat in CITY_CATEGORIES ? m.cat : "other"}`), m.name || L("Unnamed"), m.text);
+  showTip(ev.clientX - r.left, ev.clientY - r.top, L(`Cat.${m.cat in CITY_CATEGORIES ? m.cat : "other"}`), m.name || L("Unnamed"), m.text, spotLines(m));
+}
+
+/** Строки карточки места при наведении (Г4): кто рядом, связанная сцена и журнал. */
+function spotLines(m) {
+  const out = [];
+  const near = game.actors.filter(a => {
+    const w = whereIs(a);
+    return w && cityFlag(a)?.city === city().id && mapVisible(a) && (game.user.isGM || !isHiddenOnMap(a))
+      && meters([w.lng, w.lat], [m.lng, m.lat]) < 150;
+  }).map(a => a.name);
+  if (near.length) out.push({ icon: "fa-user-group", text: `${L("TipNear")}: ${near.slice(0, 4).join(", ")}${near.length > 4 ? ` +${near.length - 4}` : ""}` });
+  const sc = m.sceneId && game.scenes.get(m.sceneId);
+  if (sc && (game.user.isGM || sc.visible)) out.push({ icon: "fa-map", text: `${L("Scene")}: ${sc.name} — ${L("TipClick")}` });
+  const j = m.journalId && game.journal.get(m.journalId);
+  if (j?.testUserPermission(game.user, "OBSERVER")) out.push({ icon: "fa-book-open", text: `${L("Journal")}: ${j.name}` });
+  return out;
+}
+
+/* ── Сцена ↔ место на карте (Н4) ───────────────────────────────────────── */
+
+/** Метка хроники или готовое место текущего города, связанное со сценой. */
+function sceneSpot(sceneId) {
+  const c = city();
+  const m = c.markers.find(x => x.sceneId === sceneId && (game.user.isGM || !x.gmOnly));
+  if (m) return { kind: "marker", id: m.id, lat: m.lat, lng: m.lng };
+  for (const [id, x] of poiIndex()) {
+    const p = poiView(x.base, x.folder);
+    if (p.sceneId === sceneId && !p.deleted && (game.user.isGM || !p.gmOnly)) return { kind: "poi", id, lat: p.lat, lng: p.lng };
+  }
+  return null;
+}
+
+/** Есть ли у сцены место на карте — по данным мира, не открывая карту (для кнопки в нексусе). */
+export function sceneHasSpot(sceneId) {
+  if (!game.settings.get(SYSTEM_ID, "cityMapEnabled")) return false;
+  const raw = game.settings.get(SYSTEM_ID, "cityMap") ?? {};
+  const c = raw.cities?.[raw.current] ?? Object.values(raw.cities ?? {})[0] ?? raw;
+  return (c.markers ?? []).some(m => m.sceneId === sceneId && (game.user.isGM || !m.gmOnly))
+    || Object.values(c.overrides ?? {}).some(o => o?.sceneId === sceneId && !o.deleted);
+}
+
+/** Открыть город на месте сцены и выбрать его. */
+export async function showSceneOnMap(sceneId) {
+  await openCity();
+  // штора могла уже открываться (busy) или карта ещё грузит стиль — ждём готовности, а не бросаем
+  for (let i = 0; i < 60 && !(state && map?.loaded?.()); i++) await new Promise(r => setTimeout(r, 100));
+  const spot = state && map ? sceneSpot(sceneId) : null;
+  if (!spot) return ui.notifications.info(L("NoSpot"));
+  fly(spot.lat, spot.lng, 17);
+  pick(spot.kind, spot.id);
 }
 
 /** Значок и цвет места: смена категории ведущим перебивает вид объекта. */

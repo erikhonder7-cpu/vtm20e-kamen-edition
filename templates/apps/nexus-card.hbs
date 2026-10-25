@@ -17,6 +17,7 @@
     </div>
     {{/if}}
     <div class="r-nx-go"><i class="fa-solid fa-right-to-bracket"></i> {{localize "VTM20.Nexus.Go"}}</div>
+    {{#if onMap}}<a class="r-nx-onmap" data-action="onMap" data-scene-id="{{id}}" data-card-tool data-tooltip="{{localize 'VTM20.Nexus.OnMap'}}"><i class="fa-solid fa-map-location-dot"></i></a>{{/if}}
     <a class="r-nx-peek" data-action="peek" data-scene-id="{{id}}" data-card-tool title="{{localize 'VTM20.Nexus.PeekHint'}}">
       <i class="fa-solid fa-eye"></i>
     </a>

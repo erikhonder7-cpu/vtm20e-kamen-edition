@@ -18,6 +18,7 @@ import {
   createSubgroup, renameSubgroup, deleteSubgroup, assignSceneToSub, unassignScene
 } from "../constants/scene-nexus.mjs";
 import { SYSTEM_PATH } from "../config.mjs";
+import { sceneHasSpot, showSceneOnMap } from "../ui/citymap.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -120,6 +121,7 @@ export class SceneNexus extends HandlebarsApplicationMixin(ApplicationV2) {
       removeScene: SceneNexus.#onRemoveScene,
       setEntry: SceneNexus.#onSetEntry,
       filter: SceneNexus.#onFilter,
+      onMap: SceneNexus.#onMap,
       view: SceneNexus.#onView
     }
   };
@@ -198,7 +200,7 @@ export class SceneNexus extends HandlebarsApplicationMixin(ApplicationV2) {
         players: here.slice(0, 5), more: Math.max(0, here.length - 5),
         thumb: sc.thumb || sc.firstLevel?.background?.src || "",
         isCurrent: sc.id === curId, isActive: sc.id === activeId,
-        open: nx.open, hasEntry: !!nx.entry, hasPlayers: here.length > 0
+        open: nx.open, hasEntry: !!nx.entry, hasPlayers: here.length > 0, onMap: sceneHasSpot(sc.id)
       };
     };
 
@@ -396,6 +398,8 @@ export class SceneNexus extends HandlebarsApplicationMixin(ApplicationV2) {
 
   /* ── Действия ────────────────────────────────────────────────────────── */
 
+  /** Сцена на карте города (Н4): окно нексуса уступает место шторе «Город». */
+  static async #onMap(event, target) { event.stopPropagation(); const id = target.dataset.sceneId; await this.close(); return showSceneOnMap(id); }
   static #onFilter(event, target) { this._filt = target.dataset.key; this.render(); }
   static #onView() {
     this._view = this._view === "list" ? "grid" : "list";
