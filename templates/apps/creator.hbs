@@ -2,7 +2,7 @@
 <div class="r-cr">
   <nav class="r-cr-steps">
     <div class="r-cr-steps-head">
-      <img src="systems/vtm20e-kamen-edition/assets/ui/cockade.svg" alt="">
+      <img src="systems/vtm20e-kamen-edition/assets/ui/{{#if isDemon}}fallen-sigil{{else}}cockade{{/if}}.svg" alt="">
       <b>{{typeLabel}}</b>
     </div>
     <ol>
@@ -37,6 +37,7 @@
     <div class="r-cr-patent-stats">
       <div><b>{{patent.morality}}</b><span>{{patent.pathName}}</span></div>
       <div><b>{{patent.willpower}}</b><span>{{localize "VTM20.Willpower"}}</span></div>
+      {{#if patent.demon}}<div><b>{{patent.torment}}</b><span>{{localize "VTM20.Demon.Torment"}}</span></div>{{/if}}
       {{#if patent.blood}}<div><b>{{patent.blood}}</b><span>{{localize "VTM20.Sheet.BloodPool"}}</span></div>{{/if}}
     </div>
     <h4 class="r-cr-ledger-title"><span>{{localize "VTM20.Creator.Ledger"}}</span></h4>
@@ -59,12 +60,13 @@
           <label class="r-f"><span>{{localize "VTM20.Details.demeanor"}}</span>
             <input type="text" data-field="demeanor" value="{{st.demeanor}}" data-combo="r-cr-arch" placeholder="—"></label>
           <datalist id="r-cr-arch">{{#each archetypes}}<option value="{{name}}"></option>{{/each}}</datalist>
-          {{#unless isGhoul}}<label class="r-f"><span>{{localize "VTM20.Details.sire"}}</span><input type="text" data-field="sire" value="{{st.sire}}"></label>{{/unless}}
+          {{#unless (or isGhoul isDemon)}}<label class="r-f"><span>{{localize "VTM20.Details.sire"}}</span><input type="text" data-field="sire" value="{{st.sire}}"></label>{{/unless}}
           {{#if isGhoul}}<label class="r-f"><span>{{localize "VTM20.Details.domitor"}}</span><input type="text" data-field="domitor" value="{{st.domitor}}"></label>{{/if}}
         </div>
         {{#if natureRegain}}<div class="r-cr-note"><i class="fa-solid fa-star"></i> <b>{{st.nature}}</b> — {{localize "VTM20.Sheet.NatureRegain"}} {{natureRegain}}</div>{{/if}}
       </div>
       <div>
+        {{#unless isDemon}}
         <h3 class="r-h3">{{tierTitle}}</h3>
         <div class="r-cr-tiles">
           {{#each tiers}}
@@ -73,6 +75,7 @@
           </a>
           {{/each}}
         </div>
+        {{else}}<h3 class="r-h3">{{localize "VTM20.Sheet.Experience"}}</h3><p class="r-note">{{localize "VTM20.Creator.XpDemon"}}</p>{{/unless}}
         <label class="r-cr-xpinput">{{localize "VTM20.Creator.XpCustom"}} <input type="number" data-field="xpTotal" value="{{st.xpTotal}}" min="0" step="5"></label>
       </div>
     </div>
@@ -136,6 +139,45 @@
     </div>
     {{/if}}
 
+    {{!-- II. Дом падшего: Дом, Облик, фракция, имена --}}
+    {{#if is_house}}
+    <div class="r-cr-clans r-cr-houses">
+      {{#each houses}}
+      <a class="r-cr-clan {{#if active}}is-active{{/if}}" data-action="house" data-house="{{key}}">
+        <span class="r-cr-clan-sym r-cr-medal"><i class="fa-solid fa-fire-flame-curved"></i></span>
+        <b>{{name}}</b><em>«{{akkadian}}» · {{localize "VTM20.Demon.Torment"}} {{torment}}</em>
+        <span class="r-cr-clan-disc">{{lores}}</span>
+      </a>
+      {{/each}}
+    </div>
+    {{#if house}}
+    <div class="r-cr-clancard">
+      <h4 class="r-banner"><span>{{house.name}}</span></h4>
+      <span class="r-cr-clancard-sym r-cr-medal"><img src="systems/vtm20e-kamen-edition/assets/ui/fallen-sigil.svg" alt=""></span>
+      <div class="r-cr-clancard-body">
+        <div class="r-cr-clancard-title">{{house.name}} <em>«{{house.akkadian}}»</em> · <small>{{localize "VTM20.Demon.StartTorment"}} {{house.torment}}</small></div>
+        <p class="r-note">{{house.text}}</p>
+        <div class="r-cr-discrow">
+          <span class="r-cr-or">{{localize "VTM20.Demon.Visage"}}:</span>
+          {{#each house.visages}}<a class="r-cr-disc-chip is-choice {{#if active}}is-active{{/if}}" data-action="visage" data-visage="{{key}}" data-tooltip="{{#each low}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}"><b>{{name}}</b>&nbsp;· {{lore}}</a>{{/each}}
+        </div>
+        <a class="r-cr-clan-more" data-action="houseAtlas"><i class="fa-solid fa-book-open"></i> {{localize "VTM20.Demon.Atlas"}}</a>
+      </div>
+    </div>
+    {{/if}}
+    <div class="r-cols2 r-cr-genrow">
+      <div>
+        <h3 class="r-h3">{{localize "VTM20.Demon.Faction"}}</h3>
+        <div class="r-cr-discrow">{{#each factions}}<a class="r-cr-disc-chip is-choice {{#if active}}is-active{{/if}}" data-action="faction" data-faction="{{key}}" data-tooltip="{{text}}">{{name}}</a>{{/each}}</div>
+        <p class="r-note">{{localize "VTM20.Creator.FactionHint"}}</p>
+      </div>
+      <div class="r-fields">
+        <label class="r-f"><span>{{localize "VTM20.Demon.Celestial"}}</span><input type="text" data-field="names.celestial" value="{{st.names.celestial}}"></label>
+        <label class="r-f"><span>{{localize "VTM20.Demon.TrueName"}}</span><input type="text" data-field="names.trueName" value="{{st.names.trueName}}"></label>
+      </div>
+    </div>
+    {{/if}}
+
     {{!-- III. Характеристики / IV. Способности --}}
     {{#if is_attributes}}
     <div class="r-cols3">
@@ -181,7 +223,7 @@
       <div class="r-cr-disc {{#if inClan}}is-clan{{/if}}">
         <div class="r-cr-disc-head">
           <span class="r-disc-sigil">{{#if sym}}{{rSym sym}}{{else}}<i class="fa-solid {{icon}}"></i>{{/if}}</span>
-          <div class="r-cr-disc-title"><b>{{name}}</b><em>{{en}}{{#if inClan}} · {{localize "VTM20.Sheet.InClan"}}{{/if}}</em></div>
+          <div class="r-cr-disc-title"><b>{{name}}</b><em>{{en}}{{#if inClan}} · {{@root.inClanLabel}}{{/if}}</em></div>
           <span class="r-dots">{{#each dots}}<a class="r-dot r-cr-dot is-{{state}}" data-action="dot" data-kind="{{kind}}" data-key="{{key}}" data-n="{{n}}"></a>{{/each}}</span>
         </div>
         <ol class="r-cr-powers">
@@ -203,7 +245,7 @@
     {{#if is_advantages}}
     <div class="r-cr-advgrid">
       <div>
-        <div class="r-cr-sub">{{localize "VTM20.Sheet.Backgrounds"}} <span class="r-cr-left {{#if (lt rem.bg 0)}}is-over{{else if (eq rem.bg 0)}}is-done{{/if}}">{{localize "VTM20.Creator.LeftShort"}}: <b>{{rem.bg}}</b></span></div>
+        <div class="r-cr-sub">{{bgLabel}} <span class="r-cr-left {{#if (lt rem.bg 0)}}is-over{{else if (eq rem.bg 0)}}is-done{{/if}}">{{localize "VTM20.Creator.LeftShort"}}: <b>{{rem.bg}}</b></span></div>
         <div class="r-cr-bgs">
           {{#each bgCards}}
           <div class="r-cr-bg {{#if on}}is-on{{/if}} {{#if open}}is-open{{/if}}">
@@ -269,7 +311,7 @@
       <span>{{localize "VTM20.Creator.FreeTotal"}}: <b>{{freeTotal}}</b></span>
       <span>{{localize "VTM20.Creator.FreeSpent"}}: <b>{{freeSpent}}</b></span>
       <span class="{{#if (lt freeLeft 0)}}is-over{{else if (eq freeLeft 0)}}is-done{{/if}}">{{localize "VTM20.Creator.LeftShort"}}: <b>{{freeLeft}}</b></span>
-      <span class="r-note">{{localize "VTM20.Creator.FreeCosts" attr=cost.attr abil=cost.abil disc=cost.disc bg=cost.bg virt=cost.virt mor=cost.morality will=cost.will}}</span>
+      <span class="r-note">{{#if isDemon}}{{localize "VTM20.Creator.FreeCostsDemon" attr=cost.attr abil=cost.abil disc=cost.disc bg=cost.bg virt=cost.virt mor=cost.morality will=cost.will}}{{else}}{{localize "VTM20.Creator.FreeCosts" attr=cost.attr abil=cost.abil disc=cost.disc bg=cost.bg virt=cost.virt mor=cost.morality will=cost.will}}{{/if}}</span>
     </div>
     <div class="r-cr-free">
       {{#each freeGroups}}
@@ -292,7 +334,7 @@
       <span>{{localize "VTM20.Xp.total"}}: <b>{{xpTotal}}</b></span>
       <span>{{localize "VTM20.Xp.spent"}}: <b>{{xpSpent}}</b></span>
       <span class="{{#if (lt xpLeft 0)}}is-over{{else if (eq xpLeft 0)}}is-done{{/if}}">{{localize "VTM20.Creator.LeftShort"}}: <b>{{xpLeft}}</b></span>
-      <span class="r-note">{{localize "VTM20.Creator.XpCosts"}}</span>
+      <span class="r-note">{{#if isDemon}}{{localize "VTM20.Creator.XpCostsDemon"}}{{else}}{{localize "VTM20.Creator.XpCosts"}}{{/if}}</span>
     </div>
     <div class="r-cr-free">
       {{#each xpGroups}}
@@ -314,11 +356,13 @@
     {{#if is_summary}}
     <div class="r-cr-sumhead">
       {{#if clanSym}}<span class="r-cr-sumsym">{{rSym clanSym}}</span>{{/if}}
-      <div><div class="r-cr-sumname">{{st.name}}</div><div class="r-kicker">{{typeLabel}}{{#if st.concept}} · {{st.concept}}{{/if}}{{#if st.sect}} · {{st.sect}}{{/if}}</div></div>
+      {{#if isDemon}}<span class="r-cr-sumsym"><img src="systems/vtm20e-kamen-edition/assets/ui/fallen-sigil.svg" alt=""></span>{{/if}}
+      <div><div class="r-cr-sumname">{{st.name}}</div><div class="r-kicker">{{typeLabel}}{{#if isDemon}} · {{houseName}}{{#if visageName}} · {{visageName}}{{/if}}{{#if factionName}} · {{factionName}}{{/if}}{{/if}}{{#if st.concept}} · {{st.concept}}{{/if}}{{#unless isDemon}}{{#if st.sect}} · {{st.sect}}{{/if}}{{/unless}}</div></div>
     </div>
     <div class="r-cr-summary">
       <div class="r-cr-sum-item"><span>{{pathName}}</span><b>{{morality}}</b></div>
       <div class="r-cr-sum-item"><span>{{localize "VTM20.Willpower"}}</span><b>{{willpower}}</b></div>
+      {{#if isDemon}}<div class="r-cr-sum-item"><span>{{localize "VTM20.Demon.Torment"}}</span><b>{{torment}}</b></div>{{/if}}
       {{#if isVampire}}
       <div class="r-cr-sum-item"><span>{{localize "VTM20.Details.generation"}}</span><b>{{rRoman generation}}</b></div>
       <div class="r-cr-sum-item"><span>{{localize "VTM20.Sheet.BloodPool"}}</span><b>{{#if st.blood}}{{st.blood}}{{else}}?{{/if}}/{{bloodMax}}</b>
@@ -328,8 +372,8 @@
     <div class="r-cr-sumgrid">
       {{#each summary.attrs}}<div><h4 class="r-h4">{{label}}</h4>{{#each list}}<div class="r-cr-sumrow"><span>{{label}}</span><b>{{value}}</b></div>{{/each}}</div>{{/each}}
       {{#each summary.abils}}<div><h4 class="r-h4">{{label}}</h4>{{#each list}}<div class="r-cr-sumrow"><span>{{label}}</span><b>{{value}}</b></div>{{else}}<div class="r-note">—</div>{{/each}}</div>{{/each}}
-      <div><h4 class="r-h4">{{localize "VTM20.Sheet.Disciplines"}}</h4>{{#each summary.discs}}<div class="r-cr-sumrow"><span>{{name}}</span><b>{{value}}</b></div>{{else}}<div class="r-note">—</div>{{/each}}</div>
-      <div><h4 class="r-h4">{{localize "VTM20.Sheet.Backgrounds"}}</h4>{{#each summary.bgs}}<div class="r-cr-sumrow"><span>{{name}}</span><b>{{value}}</b></div>{{else}}<div class="r-note">—</div>{{/each}}</div>
+      <div><h4 class="r-h4">{{discLabel}}</h4>{{#each summary.discs}}<div class="r-cr-sumrow"><span>{{name}}</span><b>{{value}}</b></div>{{else}}<div class="r-note">—</div>{{/each}}</div>
+      <div><h4 class="r-h4">{{bgLabel}}</h4>{{#each summary.bgs}}<div class="r-cr-sumrow"><span>{{name}}</span><b>{{value}}</b></div>{{else}}<div class="r-note">—</div>{{/each}}</div>
       <div><h4 class="r-h4">{{localize "VTM20.Sheet.Virtues"}}</h4>{{#each summary.virtues}}<div class="r-cr-sumrow"><span>{{label}}</span><b>{{value}}</b></div>{{/each}}</div>
       <div><h4 class="r-h4">{{localize "VTM20.Sheet.Merits"}} / {{localize "VTM20.Sheet.Flaws"}}</h4>
         {{#each summary.merits}}<div class="r-cr-sumrow"><span>{{name}}</span><b>{{cost}}</b></div>{{/each}}

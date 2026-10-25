@@ -1,7 +1,8 @@
 // module/apps/creator.mjs
 // Мастер создания персонажа V20 — по образцу мастера Становления из vtm5e-kamen-edition.
 // Правила: V20_Основные_правила/01 (Сородич), 07 (гуль); смертный — числа гуля без Дисциплин
-// (правило системы).
+// (правило системы); падший — Demon: The Fallen, гл. 6 (шаг «Дом» вместо клана, Знания вместо Дисциплин,
+// Вера вместо морали, Воля — две высшие Добродетели, Мука — по Дому).
 //
 // Шаги: концепция и возраст → клан и поколение → характеристики (7/5/3) → способности (13/9/5) →
 // Дисциплины → факты биографии и Добродетели → достоинства и недостатки → свободные пункты →
@@ -13,6 +14,7 @@
 import { VTM20, SYSTEM_PATH, SYSTEM_ID } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
 import { openClans } from "./clans.mjs";
+import { openHouses } from "./houses.mjs";
 import { blockerFor, checkTraits } from "../data/trait-rules.mjs";
 import { attachCombos } from "../ui/combo.mjs";
 import { weaponIcon, armorIcon, traitIcon, backgroundIcon } from "../data/icons.mjs";
@@ -28,8 +30,13 @@ const RULES = {
   ghoul: { attr: [6, 4, 3], abil: [11, 7, 4], disc: 1, bg: 5, virt: 7, free: 21,
     cost: { attr: 5, abil: 2, disc: 10, bg: 1, virt: 2, morality: 1, will: 1 } },
   mortal: { attr: [6, 4, 3], abil: [11, 7, 4], disc: 0, bg: 5, virt: 7, free: 21,
-    cost: { attr: 5, abil: 2, disc: 0, bg: 1, virt: 2, morality: 1, will: 1 } }
+    cost: { attr: 5, abil: 2, disc: 0, bg: 1, virt: 2, morality: 1, will: 1 } },
+  // Demon: The Fallen, гл. 6: Знания 3 (слот disc), Добродетели — по точке и ещё 3, Вера 3 (слот morality), 15 свободных
+  demon: { attr: [7, 5, 3], abil: [13, 9, 5], disc: 3, bg: 5, virt: 3, free: 15,
+    cost: { attr: 5, abil: 2, disc: 7, bg: 1, virt: 2, morality: 6, will: 1 } }
 };
+/** Начальная Вера падшего. */
+const DEMON_FAITH = 3;
 
 /** Возраст в Крови и опыт сверх создания (01: неонат 0–35, анцилла 75–220, старейшина 250–600). */
 const TIERS = {
@@ -53,11 +60,13 @@ const CAMARILLA_BANNED = ["chimerstry", "melpominee", "mytherceria", "necromancy
   "serpentis", "thanatosis", "visceratika", "vicissitude"];
 
 const STEP_HINTS = {
-  concept: "ConceptHint", clan: "ClanHint", attributes: "AttrHintShort", abilities: "AbilHintShort",
+  concept: "ConceptHint", clan: "ClanHint", house: "HouseHint", attributes: "AttrHintShort", abilities: "AbilHintShort",
   disciplines: "DiscHint", advantages: "AdvHint", merits: "MeritHint", freebies: "FreeHint", xp: "XpHint", summary: "FinishHint"
 };
 /** Шаги, где у гуля свой текст подсказки (ключ + «Ghoul»). */
 const GHOUL_HINTS = new Set(["concept", "disciplines", "summary"]);
+/** Шаги, где у демона свой текст подсказки (ключ + «Demon»). */
+const DEMON_HINTS = new Set(["concept", "disciplines", "advantages", "freebies", "summary"]);
 
 export function openCreator(actor) {
   const existing = [...foundry.applications.instances.values()].find(a => a instanceof VtMCreator && a.actor === actor);
@@ -73,6 +82,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     actions: {
       goto: VtMCreator.#onGoto, next: VtMCreator.#onNext, prev: VtMCreator.#onPrev,
       tier: VtMCreator.#onTier, sect: VtMCreator.#onSect, clan: VtMCreator.#onClan, clanGroup: VtMCreator.#onClanGroup,
+      house: VtMCreator.#onHouse, visage: VtMCreator.#onVisage, faction: VtMCreator.#onFaction, houseAtlas: VtMCreator.#onHouseAtlas,
       gen: VtMCreator.#onGen, choice: VtMCreator.#onChoice, clanAtlas: VtMCreator.#onClanAtlas,
       dot: VtMCreator.#onDot, prio: VtMCreator.#onPrio,
       bgToggle: VtMCreator.#onBgToggle, mfToggle: VtMCreator.#onMfToggle, mfTab: VtMCreator.#onMfTab, mfCat: VtMCreator.#onMfCat,
@@ -99,6 +109,8 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       sire: s.details.sire, sect: s.details.sect || "", sectKey: Codex.sectKey(s.details.sect),
       clan: s.clan ?? "brujah", clanChoice: s.clanChoice ?? "", weaknessNote: s.weaknessNote ?? "",
       domitor: s.domitor ?? "", path: "humanity", tier: "fledgling", xpTotal: 0,
+      house: s.house || "devils", visage: s.visage ?? "", faction: s.faction ?? "",
+      names: { celestial: s.names?.celestial ?? "", trueName: s.names?.trueName ?? "" },
       attrPrio: ["physical", "social", "mental"], abilPrio: ["talents", "skills", "knowledges"],
       attr: {}, abil: {}, disc: {}, bg: {},
       virt: { conscience: 0, selfControl: 0, courage: 0 },
@@ -115,6 +127,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
   get steps() {
     const s = ["concept"];
     if (this.type === "vampire") s.push("clan");
+    if (this.type === "demon") s.push("house");
     s.push("attributes", "abilities");
     if (this.rules.disc > 0) s.push("disciplines");
     s.push("advantages", "merits", "freebies");
@@ -138,6 +151,8 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   get clanData() { return this.type === "vampire" ? Codex.clan(this.st.clan) : null; }
+  get houseData() { return this.type === "demon" ? Codex.house(this.st.house) : null; }
+  get isDemon() { return this.type === "demon"; }
   get pathData() { return Codex.path(this.st.path); }
   get altVirtues() { return (this.pathData?.virtues ?? []).filter(v => v === "conviction" || v === "instinct"); }
   virtueBase(slot) {
@@ -149,6 +164,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
   /** Клановые Дисциплины; null — любые (каитиф, пандеры, гуль). */
   get clanDisciplines() {
     if (this.type === "ghoul") return null;
+    if (this.isDemon) return [...(this.houseData?.lores ?? []), ...(Codex.demon?.common ?? [])];   // Знания Дома и общие
     const c = this.clanData;
     if (!c || !c.disciplines.length) return null;
     return [...c.disciplines, ...(c.choice?.includes(this.st.clanChoice) ? [this.st.clanChoice] : [])];
@@ -175,11 +191,17 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
   value(kind, k) { return this.valueBeforeXp(kind, k) + (this.st.xp[kind]?.[k] ?? 0); }
 
   get moralityBase() {
+    if (this.isDemon) return Math.min(10, DEMON_FAITH + this.st.free.morality);                     // у падшего — Вера
     const v = this.value("virt", "conscience") + this.value("virt", "selfControl") + this.st.free.morality;
     return this.st.path === "humanity" ? Math.min(10, v) : Math.min(5, v);
   }
   get morality() { return Math.min(10, this.moralityBase + this.st.xp.morality); }
-  get willpowerBase() { return Math.min(10, this.value("virt", "courage") + this.st.free.will); }
+  get willpowerBase() {
+    // у падшего Воля — сумма двух высших Добродетелей (гл. 6), у прочих — Смелость
+    const base = this.isDemon ? ["conscience", "selfControl", "courage"].map(k => this.value("virt", k)).sort((x, y) => y - x).slice(0, 2).reduce((x, y) => x + y, 0)
+      : this.value("virt", "courage");
+    return Math.min(10, base + this.st.free.will);
+  }
   get willpower() { return Math.min(10, this.willpowerBase + this.st.xp.will); }
 
   get flawPoints() { return Math.min(VTM20.creation.flawCap, this.st.flaws.reduce((s, f) => s + f.cost, 0)); }
@@ -199,6 +221,8 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       const c = from + i;
       if (kind === "attr") total += c * 4;
       else if (kind === "abil") total += c === 0 ? 3 : c * 2;
+      else if (kind === "disc" && this.isDemon) total += c === 0 ? (this.inClan(k) ? 7 : 10) : c * 5;   // гл. 6
+      else if (kind === "morality" && this.isDemon) total += c * 7;                                     // Вера
       else if (kind === "disc") {
         if (this.type === "ghoul") total += c === 0 ? 20 : c * (["potence", "fortitude", "celerity"].includes(k) ? 15 : 25);
         else if (c === 0) total += 10;
@@ -233,6 +257,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     switch (key) {
       case "concept": return !!this.st.name;
       case "clan": return !!this.clanData && !(this.clanData.choice?.length && !this.st.clanChoice);
+      case "house": return !!this.houseData && !!this.st.visage;
       case "attributes": return Object.values(rem.attr).every(v => v === 0);
       case "abilities": return Object.values(rem.abil).every(v => v === 0);
       case "disciplines": return rem.disc === 0;
@@ -248,8 +273,8 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     const msg = (what, v) => out.push(t(v > 0 ? "Creator.Left" : "Creator.Over", { what, n: Math.abs(v) }));
     for (const [g, v] of Object.entries(rem.attr)) if (v) msg(loc(VTM20.attributeGroups[g].label), v);
     for (const [g, v] of Object.entries(rem.abil)) if (v) msg(loc(VTM20.abilityGroups[g].label), v);
-    if (rem.disc && this.rules.disc) msg(t("Sheet.Disciplines"), rem.disc);
-    if (rem.bg) msg(t("Sheet.Backgrounds"), rem.bg);
+    if (rem.disc && this.rules.disc) msg(this.discLabel, rem.disc);
+    if (rem.bg) msg(this.bgLabel, rem.bg);
     if (rem.virt) msg(t("Sheet.Virtues"), rem.virt);
     if (rem.free) msg(t("Creator.Freebies"), rem.free);
     if (rem.xp < 0) msg(t("Sheet.Experience"), rem.xp);
@@ -257,9 +282,19 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     for (const k of Object.keys({ ...this.st.disc, ...this.st.free.disc, ...this.st.xp.disc }))
       if (this.bannedDisc(k) && this.value("disc", k) > this.base("disc", k)) out.push(t("Creator.SectBanned", { name: Codex.disciplineLabel(k) }));
     if (this.type === "vampire" && this.clanData?.choice?.length && !this.st.clanChoice) out.push(t("Creator.NeedChoice"));
+    if (this.isDemon && !this.st.visage) out.push(t("Creator.NeedVisage"));
     for (const c of this.traitIssues) out.push(t(`Creator.Trait${c.key}`, c.data));
     return out;
   }
+
+  /** Подпись шага: у падшего Знания вместо Дисциплин и Дополнения вместо фактов биографии. */
+  stepName(k) { return this.isDemon ? ({ disciplines: "lores", advantages: "advantagesDemon" }[k] ?? k) : k; }
+  /** «Факты биографии» или «Дополнения» (у падшего). */
+  get bgLabel() { return this.isDemon ? t("Demon.Backgrounds") : t("Sheet.Backgrounds"); }
+  /** «Дисциплины» или «Знания» (у падшего). */
+  get discLabel() { return this.isDemon ? t("Demon.Lores") : t("Sheet.Disciplines"); }
+  /** Сила справочника по ключу: Дисциплина или Знание падшего. */
+  discData(k) { return this.isDemon ? Codex.lore(k) : Codex.discipline(k); }
 
   /** Противоречия выбранных достоинств и недостатков. */
   get traitIssues() {
@@ -282,12 +317,13 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     };
     const ctx = {
       st, ui: this.ui, rem, rules: this.rules, type: this.type,
-      isVampire: this.type === "vampire", isGhoul: this.type === "ghoul",
+      isVampire: this.type === "vampire", isGhoul: this.type === "ghoul", isDemon: this.isDemon, discLabel: this.discLabel, bgLabel: this.bgLabel,
       typeLabel: loc(`TYPES.Actor.${this.type}`),
-      steps: this.steps.map((k, i) => ({ i, key: k, n: i + 1, label: t(`Creator.Step.${k}`), active: i === this.step, done: this.stepOk(k, rem) && i !== this.step })),
+      steps: this.steps.map((k, i) => ({ i, key: k, n: i + 1, label: t(`Creator.Step.${this.stepName(k)}`), active: i === this.step, done: this.stepOk(k, rem) && i !== this.step })),
       stepKey: key, stepNumber: this.step + 1, stepCount: this.steps.length,
       // у гуля свои подсказки там, где правила другие (нет Становления, Дисциплины — от домитора)
-      title: t(`Creator.Step.${key}`), hint: t(`Creator.${STEP_HINTS[key]}${this.type === "ghoul" && GHOUL_HINTS.has(key) ? "Ghoul" : key === "advantages" && !this.rules.bg ? "NoBg" : ""}`, { n: this.rules.disc, bg: this.rules.bg, virt: this.rules.virt }),
+      title: t(`Creator.Step.${this.stepName(key)}`),
+      hint: t(`Creator.${STEP_HINTS[key]}${this.type === "ghoul" && GHOUL_HINTS.has(key) ? "Ghoul" : this.isDemon && DEMON_HINTS.has(key) ? "Demon" : key === "advantages" && !this.rules.bg ? "NoBg" : ""}`, { n: this.rules.disc, bg: this.rules.bg, virt: this.rules.virt }),
       sectRule: ["concept", "disciplines", "advantages", "freebies"].includes(key) ? this.sectRule : "",
       isFirst: this.step === 0, isLast: this.step === this.steps.length - 1,
       [`is_${key}`]: true
@@ -302,8 +338,8 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     });
     add(t("Sheet.Attributes"), total(Object.values(rem.attr)), total(this.rules.attr));
     add(t("Sheet.Abilities"), total(Object.values(rem.abil)), total(this.rules.abil));
-    if (this.rules.disc) add(t("Sheet.Disciplines"), rem.disc, this.rules.disc);
-    add(t("Sheet.Backgrounds"), rem.bg, this.rules.bg);
+    if (this.rules.disc) add(this.discLabel, rem.disc, this.rules.disc);
+    add(this.bgLabel, rem.bg, this.rules.bg);
     add(t("Sheet.Virtues"), rem.virt, this.rules.virt);
     add(t("Creator.Freebies"), rem.free, this.freeTotal);
     if (st.xpTotal) add(t("Sheet.Experience"), rem.xp, st.xpTotal);
@@ -313,8 +349,10 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       clan: this.clanData?.name ?? "",
       sym: this.type === "vampire" ? Codex.clanSymbol(st.clan) : Codex.sectSymbol(st.sect),
       generation: gen, blood: gen ? VTM20.generationOf(gen).pool : null,
-      morality: this.morality, willpower: this.willpower, pathName: this.pathData?.name ?? "", ledger
+      morality: this.morality, willpower: this.willpower, pathName: this.isDemon ? t("Demon.Faith") : this.pathData?.name ?? "", ledger,
+      torment: this.houseData?.torment ?? null, demon: this.isDemon
     };
+    if (this.isDemon) Object.assign(ctx.patent, { clan: this.houseData?.name ?? "", sect: Codex.faction(st.faction)?.name ?? "", sectSym: null });
 
     // I. Концепция и возраст
     ctx.archetypes = Codex.archetypes;
@@ -350,6 +388,16 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       ctx.pathInfo = this.pathData ? { bearing: this.pathData.bearing, virtues: this.pathData.virtues.map(v => loc(VTM20.virtues[v].label)).join(", ") } : null;
     }
 
+    // II. Дом падшего: Дом, Облик (главное Знание), фракция, Небесное и Истинное имя
+    if (this.isDemon) {
+      const h = this.houseData;
+      ctx.houses = Codex.houses.map(x => ({ key: x.key, name: x.name, akkadian: x.akkadian, torment: x.torment, active: x.key === st.house,
+        lores: x.lores.map(k => Codex.lore(k)?.name ?? k).join(", ") }));
+      ctx.house = h ? { ...h, visages: Object.entries(h.visages).map(([k, name]) => ({ key: k, name, lore: Codex.lore(k)?.name ?? k, active: k === st.visage,
+        low: Codex.lore(k)?.form?.low ?? [] })) } : null;
+      ctx.factions = Codex.factions.map(f => ({ ...f, active: f.key === st.faction }));
+    }
+
     // III–IV. Характеристики и способности
     const prioLabels = [t("Creator.Primary"), t("Creator.Secondary"), t("Creator.Tertiary")];
     ctx.attrGroups = Object.entries(VTM20.attributeGroups).map(([g, grp]) => ({
@@ -360,7 +408,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
         return { key: k, label: loc(VTM20.attributes[k].label), value: this.value("attr", k), locked, dots: dotRow("attr", k, 5, locked) };
       })
     }));
-    const abil = VTM20.abilitiesForEra(game.settings.get(SYSTEM_ID, "era"));
+    const abil = VTM20.abilitiesForEra(game.settings.get(SYSTEM_ID, "era"), this.type);
     ctx.abilGroups = Object.entries(abil).map(([g, keys]) => ({
       key: g, label: loc(VTM20.abilityGroups[g].label), left: rem.abil[g],
       prios: prioLabels.map((l, i) => ({ i, label: l, n: this.rules.abil[i], active: i === st.abilPrio.indexOf(g) })),
@@ -371,16 +419,17 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     const allowed = this.clanDisciplines;
     const discKeys = new Set([...(allowed ?? []), ...Object.keys(st.disc), ...Object.keys(st.free.disc), ...Object.keys(st.xp.disc)]);
     if (this.type === "ghoul") discKeys.add("potence");
-    ctx.discCards = [...discKeys].filter(k => Codex.discipline(k)).map(k => {
-      const d = Codex.discipline(k), v = this.value("disc", k);
+    ctx.discCards = [...discKeys].filter(k => this.discData(k)).map(k => {
+      const d = this.discData(k), v = this.value("disc", k);
       return {
-        key: k, name: d.name, en: d.en, value: v, inClan: this.inClan(k), sym: Codex.disciplineSymbol(k),
-        icon: VTM20.disciplineIcons[k] ?? "fa-droplet", dots: dotRow("disc", k),
+        key: k, name: d.name, en: d.en, value: v, inClan: this.inClan(k), sym: this.isDemon ? null : Codex.disciplineSymbol(k),
+        icon: this.isDemon ? (d.house ? "fa-fire-flame-curved" : "fa-book") : VTM20.disciplineIcons[k] ?? "fa-droplet", dots: dotRow("disc", k),
         powers: d.powers.filter(p => p.level <= Math.max(1, v) && p.level <= 5).map(p => ({ level: p.level, name: p.name, owned: p.level <= v })),
         pathed: VTM20.pathDisciplines.includes(k)
       };
     }).sort((a, b) => (b.inClan - a.inClan) || a.name.localeCompare(b.name, "ru"));
     ctx.anyDiscipline = allowed == null;
+    ctx.inClanLabel = this.isDemon ? t("Demon.OwnHouse") : t("Sheet.InClan");
     ctx.discChoices = Object.values(Codex.disciplines).filter(d => !discKeys.has(d.key) && Codex.visible(d) && !this.bannedDisc(d.key)).map(d => ({ value: d.key, label: d.name }))
       .sort((a, b) => a.label.localeCompare(b.label, "ru"));
 
@@ -391,7 +440,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
           text: VtMCreator.#preview(b.html, 170), html: b.html, open: this.ui.open.has(`bg:${b.name}`) };
     });
     ctx.virtues = ["conscience", "selfControl", "courage"].map(slot => {
-      const vk = slot === "courage" ? "courage" : slot === "conscience" ? (this.altVirtues.includes("conviction") ? "conviction" : "conscience")
+      const vk = slot === "courage" ? "courage" : this.isDemon ? (slot === "selfControl" ? "conviction" : "conscience") : slot === "conscience" ? (this.altVirtues.includes("conviction") ? "conviction" : "conscience")
         : (this.altVirtues.includes("instinct") ? "instinct" : "selfControl");
       return { key: slot, label: loc(VTM20.virtues[vk].label), value: this.value("virt", slot), dots: dotRow("virt", slot) };
     });
@@ -439,10 +488,10 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       const list = [
         ...ctx.attrGroups.flatMap(g => g.list.filter(x => !x.locked).map(x => row("attr", x.key, x.label, t("Creator.Step.attributes"), x.value))),
         ...ctx.abilGroups.flatMap(g => g.list.map(x => row("abil", x.key, x.label, g.label, x.value))),
-        ...(this.rules.disc ? ctx.discCards.map(x => row("disc", x.key, x.name, t("Sheet.Disciplines"), x.value)) : []),
-        ...(mode === "free" ? ctx.bgCards.filter(b => b.on).map(b => row("bg", b.name, b.name, t("Sheet.Backgrounds"), b.value)) : []),
+        ...(this.rules.disc ? ctx.discCards.map(x => row("disc", x.key, x.name, this.discLabel, x.value)) : []),
+        ...(mode === "free" ? ctx.bgCards.filter(b => b.on).map(b => row("bg", b.name, b.name, this.bgLabel, b.value)) : []),
         ...ctx.virtues.map(x => row("virt", x.key, x.label, t("Sheet.Virtues"), x.value)),
-        row("morality", "", this.pathData?.name ?? t("Humanity"), t("Sheet.Other"), this.morality),
+        row("morality", "", this.isDemon ? t("Demon.Faith") : this.pathData?.name ?? t("Humanity"), t("Sheet.Other"), this.morality),
         row("will", "", t("Willpower"), t("Sheet.Other"), this.willpower)
       ];
       return [...new Set(list.map(r => r.group))].map(g => ({ label: g, rows: list.filter(r => r.group === g) }));
@@ -474,7 +523,9 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       }
       ctx.problems = this.problems(rem);
       ctx.clanSym = this.type === "vampire" ? Codex.clanSymbol(st.clan) : null;
-      ctx.pathName = this.pathData?.name;
+      ctx.pathName = this.isDemon ? t("Demon.Faith") : this.pathData?.name;
+      if (this.isDemon) Object.assign(ctx, { torment: this.houseData?.torment ?? 3, houseName: this.houseData?.name ?? "",
+        visageName: this.houseData?.visages?.[st.visage] ?? "", factionName: Codex.faction(st.faction)?.name ?? "" });
     }
     ctx.footFree = rem.free; ctx.footXp = st.xpTotal ? rem.xp : null;
     return ctx;
@@ -536,6 +587,17 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     if (reset.length) ui.notifications.info(t("Creator.SectReset", { what: reset.join(", ") }));
     this.render();
   }
+  /** Дом: Знания чужих Домов, взятые раньше, снимаются; Облик — заново. */
+  static #onHouse(event, target) {
+    this.st.house = target.dataset.house;
+    this.st.visage = "";
+    const ok = new Set(this.clanDisciplines);
+    for (const bag of [this.st.disc, this.st.free.disc, this.st.xp.disc]) for (const k of Object.keys(bag)) if (!ok.has(k)) delete bag[k];
+    this.render();
+  }
+  static #onVisage(event, target) { this.st.visage = target.dataset.visage; this.render(); }
+  static #onFaction(event, target) { this.st.faction = this.st.faction === target.dataset.faction ? "" : target.dataset.faction; this.render(); }
+  static #onHouseAtlas() { return openHouses(this.st.house); }
   static #onClanGroup(event, target) { this.ui.clanGroup = target.dataset.group; this.render(); }
   static #onClan(event, target) {
     this.st.clan = target.dataset.clan; this.st.clanChoice = "";
@@ -564,8 +626,8 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     let want = n === cur ? n - 1 : n;
     want = Math.max(base, Math.min(want, 5 - extra));
     if (kind === "abil") want = Math.min(want, VTM20.creation.abilityCap);
-    if (kind === "disc" && this.type === "vampire" && this.clanDisciplines && !this.clanDisciplines.includes(key) && want > base) {
-      ui.notifications.warn(t("Creator.OnlyClan")); return;
+    if (kind === "disc" && (this.type === "vampire" || this.isDemon) && this.clanDisciplines && !this.clanDisciplines.includes(key) && want > base) {
+      ui.notifications.warn(t(this.isDemon ? "Creator.OnlyHouse" : "Creator.OnlyClan")); return;
     }
     if (kind === "disc" && want > base && this.bannedDisc(key)) { ui.notifications.warn(t("Creator.SectBanned", { name: Codex.disciplineLabel(key) })); return; }
     if (kind === "bg" && want > base && !this.rules.bg) { ui.notifications.warn(t("Creator.SabbatNoBg")); return; }
@@ -681,15 +743,27 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
         blood: { value: Math.min(max, st.blood ?? Math.ceil(max / 2)) } });
     }
     if (this.type === "ghoul") Object.assign(sys, { domitor: st.domitor, blood: { value: 1, max: a.system.blood.max } });
+    if (this.isDemon) {
+      delete sys.morality;
+      Object.assign(sys, { house: st.house, visage: st.visage, faction: st.faction, names: { ...st.names },
+        faith: { permanent: this.morality, temporary: this.morality },
+        torment: { permanent: this.houseData?.torment ?? 3, temporary: 0 }, apocalyptic: false });
+    }
     await a.update({ name: st.name, system: sys });
 
-    const kill = a.items.filter(i => ["discipline", "thaumPath", "background", "merit", "flaw"].includes(i.type)).map(i => i.id);
+    const kill = a.items.filter(i => ["discipline", "thaumPath", "lore", "background", "merit", "flaw"].includes(i.type)).map(i => i.id);
     if (kill.length) await a.deleteEmbeddedDocuments("Item", kill);
     const icon = n => `systems/${SYSTEM_ID}/assets/icons/${n}.svg`;
     const items = [];
     const discKeys = new Set([...(this.clanDisciplines ?? []), ...Object.keys(st.disc), ...Object.keys(st.free.disc), ...Object.keys(st.xp.disc)]);
     if (this.type === "ghoul") discKeys.add("potence");
     for (const k of discKeys) {
+      if (this.isDemon) {                               // Знания падшего — предметами «Знание» со справочным ключом
+        const l = Codex.lore(k), v = this.value("disc", k);
+        if (l && v > 0) items.push({ name: l.name, type: "lore", img: icon("discipline"),
+          system: { key: k, value: v, description: `<p><em>${l.en}</em> · ${Codex.house(l.house)?.name ?? t("Demon.Common")}</p>` } });
+        continue;
+      }
       const v = this.value("disc", k), d = Codex.discipline(k);
       if (!d || (v <= 0 && !this.inClan(k))) continue;
       items.push({ name: d.name, type: "discipline", img: Codex.disciplineIcon(k), system: { key: k, value: v, inClan: false } });

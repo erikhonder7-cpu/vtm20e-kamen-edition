@@ -20,7 +20,7 @@
   </div>
   {{/if}}
 
-  <h2 class="r-h2"><span>{{localize "VTM20.Sheet.Backgrounds"}}</span>{{#if editable}}<span class="r-h2-tools"><a class="r-h2-btn" data-action="library" data-kind="background" data-tooltip="{{localize 'VTM20.Library.Open'}}"><i class="fa-solid fa-book-skull"></i> <span class="r-h2-lbl">{{localize "VTM20.Library.Open"}}</span></a><a class="r-h2-btn is-ghost" data-action="itemCreate" data-type="background" data-tooltip="{{localize 'VTM20.Sheet.Own'}}"><i class="fa-solid fa-feather"></i> <span class="r-h2-lbl">{{localize "VTM20.Sheet.Own"}}</span></a></span>{{/if}}</h2>
+  <h2 class="r-h2"><span>{{#if isDemon}}{{localize "VTM20.Demon.Backgrounds"}}{{else}}{{localize "VTM20.Sheet.Backgrounds"}}{{/if}}</span>{{#if editable}}<span class="r-h2-tools"><a class="r-h2-btn" data-action="library" data-kind="background" data-tooltip="{{localize 'VTM20.Library.Open'}}"><i class="fa-solid fa-book-skull"></i> <span class="r-h2-lbl">{{localize "VTM20.Library.Open"}}</span></a><a class="r-h2-btn is-ghost" data-action="itemCreate" data-type="background" data-tooltip="{{localize 'VTM20.Sheet.Own'}}"><i class="fa-solid fa-feather"></i> <span class="r-h2-lbl">{{localize "VTM20.Sheet.Own"}}</span></a></span>{{/if}}</h2>
   <div class="r-cols2">
     {{#each backgrounds}}
     <div class="r-row-wrap r-bg {{#if open}}is-open{{/if}}" data-item-id="{{id}}">

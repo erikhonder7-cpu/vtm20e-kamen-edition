@@ -212,7 +212,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   /** Персонаж ещё не создан (все характеристики 1, способностей нет, мастер не пройден) — вместо листа ворота. */
   get needsCreation() {
     const a = this.actor, s = a.system;
-    return !["creature", "demon"].includes(a.type) && !a.getFlag(SYSTEM_ID, "created")
+    return a.type !== "creature" && !a.getFlag(SYSTEM_ID, "created")
       && Object.values(s.attributes).every(x => x.value === 1) && Object.values(s.abilities).every(x => x.value === 0);
   }
 
