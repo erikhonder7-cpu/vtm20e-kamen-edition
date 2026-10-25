@@ -170,6 +170,8 @@
   background: transparent; border: 0; box-shadow: none; text-shadow: var(--r-name-shadow);
 }
 .vtm20 input.r-name:focus { background: var(--r-s2); }
+.vtm20 input.r-name.is-long { font-size: 26px; }
+.vtm20 input.r-name.is-xlong { font-size: 21px; }
 .vtm20 input.r-concept {
   flex: 0 1 220px; min-width: 100px; height: 26px; margin: 0; padding: 0 2px; text-align: right;
   font-family: var(--r-hand); font-size: 19px; color: var(--r-muted); background: transparent; border: 0; box-shadow: none;

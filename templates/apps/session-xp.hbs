@@ -43,7 +43,7 @@
       <tbody>
         {{#each rows as |r|}}
         <tr class="{{#if r.absent}}is-absent{{/if}}">
-          <td class="r-sxp-who"><img src="{{r.img}}" alt=""><span><b>{{r.name}}</b>{{#if r.absent}}<em>{{localize "VTM20.SessionXp.Absent"}}</em>{{else}}<em>{{r.clan}}</em>{{/if}}</span></td>
+          <td class="r-sxp-who"><div class="r-sxp-whobox"><img src="{{r.img}}" alt=""><span><b data-tooltip="{{r.name}}">{{r.name}}</b>{{#if r.absent}}<em>{{localize "VTM20.SessionXp.Absent"}}</em>{{else}}<em>{{r.clan}}</em>{{/if}}</span></div></td>
           {{#each r.cells as |c|}}
           <td class="{{#if c.story}}is-story{{/if}}"><input type="checkbox" data-actor="{{r.id}}" data-crit="{{c.key}}" {{#if c.custom}}data-custom="1"{{/if}} {{checked c.on}} {{disabled c.off}} aria-label="{{c.key}}"></td>
           {{/each}}

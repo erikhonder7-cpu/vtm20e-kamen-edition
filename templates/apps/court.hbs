@@ -40,7 +40,7 @@
           <span class="r-trait-label">{{o.title}}</span>
           <span class="r-leader"></span>
           <span class="r-court-who">
-            {{#if o.vacant}}<em>{{localize "VTM20.Court.Vacant"}}{{#if @root.gm}} — {{localize "VTM20.Court.DragHint"}}{{/if}}</em>
+            {{#if o.vacant}}<em>{{localize "VTM20.Court.Vacant"}}{{#if @root.gm}}<span class="r-court-drag"> — {{localize "VTM20.Court.DragHint"}}</span>{{/if}}</em>
             {{else}}{{#if o.img}}<img src="{{o.img}}" alt="">{{/if}}<b>{{o.name}}</b>{{#if o.clan}}<em>{{o.clan}}</em>{{/if}}{{#if o.noSheet}}<em>{{localize "VTM20.Court.NoSheet"}}</em>{{/if}}{{/if}}
             {{#if o.domain}}<span class="r-court-dom"><i class="fa-solid fa-location-dot"></i> {{o.domain}}</span>{{/if}}
           </span>
@@ -91,6 +91,7 @@
     {{#if gm}}
     <h3 class="r-h3 r-colhead"><span>{{localize "VTM20.Court.Note"}}</span></h3>
     <textarea data-field="note" rows="3" placeholder="{{localize 'VTM20.Court.NoteHint'}}">{{picked.note}}</textarea>
+    <h3 class="r-h3 r-colhead"><span>{{localize "VTM20.Court.Rename"}}</span></h3>
     <input type="text" data-field="title" value="{{picked.title}}" aria-label="{{localize 'VTM20.Court.Rename'}}" placeholder="{{localize 'VTM20.Court.Rename'}}">
     <a class="r-h2-btn is-plain r-court-del" data-action="removeOffice"><i class="fa-solid fa-trash"></i> {{localize "VTM20.Court.RemoveOffice"}}</a>
     {{/if}}

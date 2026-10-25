@@ -211,6 +211,8 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     Object.assign(ctx, {
       actor, system: sys, source: actor._source.system, config: VTM20,
       editable: this.isEditable, isGM: game.user.isGM,
+      // длинное имя не обрезается в шапке: шрифт мельче
+      nameSize: actor.name.length > 26 ? "is-xlong" : actor.name.length > 18 ? "is-long" : "",
       isVampire: actor.type === "vampire", isGhoul: actor.type === "ghoul", isMortal: actor.type === "mortal",
       isCreature: actor.type === "creature",
       hasBlood: actor.hasBlood,
