@@ -786,3 +786,39 @@ body.r-theme-light .vtm20 .r-ng-item.is-active, body.r-theme-light .vtm20 .r-ng-
 .vtm20 .r-sxp-past li em { grid-column: 2; color: var(--r-muted); font-size: 13px; }
 .r-notice.r-sxp-card ul { margin: 4px 0 0; padding-left: 18px; }
 .r-notice.r-sxp-card i.fa-star { color: #c9a46a; }
+
+/* ── Двор города (план 3): секта слева, должности строками как черты листа, карточка справа ── */
+.vtm20.r-court-app .window-content { padding: 0; overflow: hidden; }
+.vtm20 .r-court-body { display: grid; grid-template-columns: 220px minmax(0, 1fr); height: 100%; min-height: 0; }
+.vtm20 .r-court-body.has-card { grid-template-columns: 220px minmax(0, 1fr) 290px; }
+.vtm20 .r-court-side .r-assignat-meta em { font-style: italic; }
+.vtm20 .r-court-add { justify-content: center; }
+.vtm20 .r-court-main { display: flex; flex-direction: column; min-height: 0; padding: 6px 18px 12px; }
+.vtm20 .r-court-list { flex: 1; min-height: 0; overflow-y: auto; scrollbar-gutter: stable; }
+.vtm20 .r-court-row { display: block; padding: 3px 6px; cursor: pointer; border-bottom: 1px solid var(--r-line); }
+.vtm20 .r-court-row:hover { background: var(--r-s2); }
+.vtm20 .r-court-row.is-picked { background: linear-gradient(90deg, rgba(140, 28, 34, .3), rgba(140, 28, 34, .04)); box-shadow: inset 2px 0 0 #c4474c; }
+.vtm20 .r-court-row .r-trait-main { gap: 10px; align-items: center; }
+.vtm20 .r-court-row .r-trait-label { flex: 0 0 auto; min-width: 150px; font-family: var(--r-display); font-size: 15px; color: var(--r-ink); cursor: pointer; }
+.vtm20 .r-court-row .r-dot { pointer-events: none; }
+.vtm20 .r-court-who { display: inline-flex; align-items: baseline; gap: 7px; min-width: 0; flex: 0 1 auto; overflow: hidden; }
+.vtm20 .r-court-row .r-dots { flex: 0 0 auto; }
+.vtm20 .r-court-who img { width: 24px; height: 24px; align-self: center; border-radius: 50%; object-fit: cover; object-position: top; border: 1px solid var(--r-line-2); }
+.vtm20 .r-court-who b { font-weight: 400; color: var(--r-ink); white-space: nowrap; }
+.vtm20 .r-court-who em { font-size: 12.5px; color: var(--r-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vtm20 .r-court-row.is-vacant .r-court-who em { font-style: italic; }
+.vtm20 .r-court-dom { font-size: 12px; color: var(--r-ink-2); white-space: nowrap; }
+.vtm20 .r-court-dom i { color: var(--r-accent); }
+.vtm20 .r-court-row.is-link .r-h2-btn { pointer-events: none; }
+.vtm20 .r-court-card { display: flex; flex-direction: column; gap: 6px; min-height: 0; overflow-y: auto; padding: 6px 14px 14px; border-left: 1px solid var(--r-line-2); background: rgba(0, 0, 0, .14); }
+.vtm20 .r-court-card .r-colhead { margin: 8px 0 0; }
+.vtm20 .r-court-card-tools { display: flex; flex-wrap: wrap; gap: 6px; }
+.vtm20 .r-court-person { display: flex; align-items: center; gap: 10px; padding: 6px 4px; cursor: pointer; }
+.vtm20 .r-court-person img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; object-position: top; border: 1px solid var(--r-line-2); }
+.vtm20 .r-court-person span { display: flex; flex-direction: column; }
+.vtm20 .r-court-person b { font-family: var(--r-display); font-weight: 400; font-size: 16px; color: var(--r-ink); }
+.vtm20 .r-court-person em { font-size: 12.5px; color: var(--r-muted); }
+.vtm20 .r-court-hint { font-style: italic; font-size: 12px; color: var(--r-muted); }
+.vtm20 .r-court-card textarea { resize: vertical; min-height: 56px; }
+.vtm20 .r-court-del { margin-top: auto; justify-content: center; }
+.vtm20 .r-court-hist li { grid-template-columns: 130px minmax(0, 1fr); }

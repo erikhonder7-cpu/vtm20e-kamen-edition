@@ -265,6 +265,31 @@ export async function showSceneOnMap(sceneId) {
   pick(spot.kind, spot.id);
 }
 
+/** Зоны и метки хроники текущего города — по данным мира, не открывая карту (домены «Двора»). */
+export function citySpots() {
+  const raw = game.settings.get(SYSTEM_ID, "cityMap") ?? {};
+  const c = raw.cities?.[raw.current] ?? Object.values(raw.cities ?? {})[0] ?? raw;
+  const vis = x => game.user.isGM || !x.gmOnly;
+  return {
+    city: c.name || L("DefaultCity"),
+    zones: (c.zones ?? []).filter(vis).map(z => ({ kind: "zone", id: z.id, name: z.name || L("Zone"), color: z.color || "#b0404c" })),
+    markers: (c.markers ?? []).filter(vis).map(m => ({ kind: "marker", id: m.id, name: m.name || "—" }))
+  };
+}
+
+/** Открыть город на зоне или метке и выбрать её (домен из «Двора»). */
+export async function showSpotOnMap(kind, id) {
+  await openCity();
+  for (let i = 0; i < 60 && !(state && map?.loaded?.()); i++) await new Promise(r => setTimeout(r, 100));
+  if (!state || !map) return;
+  const c = city();
+  const it = kind === "zone" ? c.zones.find(z => z.id === id) : c.markers.find(m => m.id === id);
+  if (!it) return ui.notifications.info(L("NoSpotFound"));
+  const [lat, lng] = kind === "zone" ? centroid(it.points) : [it.lat, it.lng];
+  fly(lat, lng, kind === "zone" ? 15 : 17);
+  pick(kind, id);
+}
+
 /** Значок и цвет места: смена категории ведущим перебивает вид объекта. */
 function looks(m) {
   if (m.preset && !m.catSet && CITY_KINDS[m.k]) {

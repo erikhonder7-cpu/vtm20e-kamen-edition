@@ -1,0 +1,99 @@
+{{!-- Двор города (план 3): слева — секта и счётчик должностей, посередине — должности строками как черты листа, справа — карточка выбранной. --}}
+<div class="r-court-body {{#if picked}}has-card{{/if}}">
+  <aside class="r-xw-side r-court-side">
+    <div class="r-assignat r-xw-purse">
+      <div class="r-assignat-head">
+        <span class="r-assignat-title">{{localize "VTM20.Court.Offices"}}</span>
+        <span class="r-assignat-num"><b>{{taken}}</b><small>/{{total}}</small></span>
+      </div>
+      <div class="r-assignat-meta"><span><em>{{city}}</em></span></div>
+    </div>
+    <nav class="r-xw-cats r-court-side-scroll">
+      {{#each cats}}
+      <a class="r-xw-cat {{#if active}}is-active{{/if}}" data-action="sect" data-sect="{{key}}"><i class="fa-solid {{#if (rEq key 'primogen')}}fa-chess-rook{{else if (rEq key 'sabbat')}}fa-cross{{else if (rEq key 'anarch')}}fa-flag{{else}}fa-crown{{/if}}"></i><span>{{label}}</span><small>{{filled}}/{{n}}</small></a>
+      {{/each}}
+      <a class="r-xw-cat {{#if history}}is-active{{/if}}" data-action="sect" data-sect="history"><i class="fa-solid fa-clock-rotate-left"></i><span>{{localize "VTM20.Court.History"}}</span><small>{{historyList.length}}</small></a>
+    </nav>
+    {{#if gm}}{{#unless history}}<a class="r-h2-btn r-court-add" data-action="addOffice"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Court.AddOffice"}}</a>{{/unless}}{{/if}}
+  </aside>
+
+  <main class="r-court-main">
+    <h2 class="r-h2"><span>{{sectLabel}}</span>
+      {{#unless history}}<span class="r-h2-tools"><a class="r-h2-btn" data-action="allDomains"><i class="fa-solid fa-map-location-dot"></i> <span class="r-h2-lbl">{{localize "VTM20.Court.AllDomains"}}</span></a></span>{{/unless}}
+    </h2>
+    <div class="r-court-list">
+      {{#if history}}
+      <ol class="r-sxp-past r-court-hist">
+        {{#each historyList}}<li><b>{{date}}</b><span>{{text}}</span></li>{{else}}<li class="r-empty">{{localize "VTM20.Court.NoHistory"}}</li>{{/each}}
+      </ol>
+      {{else}}
+      {{#each list as |o|}}
+      {{#if o.primogenLink}}
+      <a class="r-trait r-court-row is-link" data-action="pick" data-office="primogen-link">
+        <span class="r-trait-main"><span class="r-trait-label">{{o.title}}</span><span class="r-leader"></span>
+          <span class="r-court-who"><em>{{localize "VTM20.Court.PrimogenSeats" n=o.seats filled=o.filled}}</em></span>
+          <span class="r-h2-btn is-plain"><i class="fa-solid fa-arrow-right"></i> {{localize "VTM20.Court.Open"}}</span></span>
+      </a>
+      {{else}}
+      <a class="r-trait r-court-row {{#if o.picked}}is-picked{{/if}} {{#if o.vacant}}is-vacant{{/if}}" data-action="pick" data-office="{{o.id}}">
+        <span class="r-trait-main">
+          <span class="r-trait-label">{{o.title}}</span>
+          <span class="r-leader"></span>
+          <span class="r-court-who">
+            {{#if o.vacant}}<em>{{localize "VTM20.Court.Vacant"}}{{#if @root.gm}} — {{localize "VTM20.Court.DragHint"}}{{/if}}</em>
+            {{else}}{{#if o.img}}<img src="{{o.img}}" alt="">{{/if}}<b>{{o.name}}</b>{{#if o.clan}}<em>{{o.clan}}</em>{{/if}}{{#if o.noSheet}}<em>{{localize "VTM20.Court.NoSheet"}}</em>{{/if}}{{/if}}
+            {{#if o.domain}}<span class="r-court-dom"><i class="fa-solid fa-location-dot"></i> {{o.domain}}</span>{{/if}}
+          </span>
+          <span class="r-dots">{{#each o.dots}}<span class="r-dot {{#if on}}is-filled{{/if}}"></span>{{/each}}</span>
+        </span>
+      </a>
+      {{/if}}
+      {{else}}<p class="r-empty">{{localize "VTM20.Court.NoOffices"}}</p>
+      {{/each}}
+      {{/if}}
+    </div>
+  </main>
+
+  {{#if picked}}
+  <aside class="r-court-card">
+    <h2 class="r-h2"><span>{{picked.title}}</span></h2>
+    <div class="r-court-card-tools">
+      {{#if picked.domainRef}}<a class="r-h2-btn" data-action="showDomain" data-domain="{{picked.domainRef.kind}}:{{picked.domainRef.id}}"><i class="fa-solid fa-location-crosshairs"></i> {{localize "VTM20.Court.ShowDomain"}}</a>{{/if}}
+      {{#if gm}}{{#unless picked.vacant}}<a class="r-h2-btn" data-action="vacate" data-office="{{picked.id}}"><i class="fa-solid fa-user-xmark"></i> {{localize "VTM20.Court.Vacate"}}</a>{{/unless}}{{/if}}
+    </div>
+
+    <h3 class="r-h3 r-colhead"><span>{{localize "VTM20.Court.Who"}}</span></h3>
+    {{#if picked.actorId}}
+    <a class="r-court-person" data-action="openSheet" data-actor="{{picked.actorId}}"><img src="{{picked.img}}" alt=""><span><b>{{picked.name}}</b><em>{{picked.clan}}{{#if picked.gen}} · {{localize "VTM20.Court.Gen" n=picked.gen}}{{/if}}</em></span></a>
+    {{else if picked.name}}<div class="r-court-person"><span><b>{{picked.name}}</b><em>{{localize "VTM20.Court.NoSheet"}}</em></span></div>
+    {{else}}<p class="r-empty">{{localize "VTM20.Court.Vacant"}}</p>{{/if}}
+    {{#if gm}}
+    <select data-field="holder" aria-label="{{localize 'VTM20.Court.Who'}}">
+      <option value="">{{localize "VTM20.Court.Nobody"}}</option>
+      {{#each actors}}<option value="actor:{{id}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}
+    </select>
+    <input type="text" data-field="freeName" value="{{#unless picked.actorId}}{{picked.name}}{{/unless}}" placeholder="{{localize 'VTM20.Court.FreeName'}}">
+    {{/if}}
+
+    <h3 class="r-h3 r-colhead"><span>{{localize "VTM20.Court.StatusDomain"}}</span></h3>
+    <div class="r-trait"><span class="r-trait-main"><span class="r-trait-label">{{localize "VTM20.Court.Status"}}</span><span class="r-leader"></span>
+      <span class="r-dots">{{#each picked.dots}}<span class="r-dot {{#if on}}is-filled{{/if}}"></span>{{/each}}</span></span></div>
+    <small class="r-court-hint">{{localize "VTM20.Court.StatusHint"}}</small>
+    {{#if gm}}
+    <select data-field="domain" aria-label="{{localize 'VTM20.Court.Domain'}}">
+      <option value="">{{localize "VTM20.Court.WholeCity"}}</option>
+      {{#if zones.length}}<optgroup label="{{localize 'VTM20.Court.Zones'}}">{{#each zones}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</optgroup>{{/if}}
+      {{#if markers.length}}<optgroup label="{{localize 'VTM20.Court.Places'}}">{{#each markers}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</optgroup>{{/if}}
+    </select>
+    {{#unless hasSpots}}<small class="r-court-hint">{{localize "VTM20.Court.NoSpots"}}</small>{{/unless}}
+    {{else}}<p>{{#if picked.domain}}{{picked.domain}}{{else}}{{localize "VTM20.Court.WholeCity"}}{{/if}}</p>{{/if}}
+
+    {{#if gm}}
+    <h3 class="r-h3 r-colhead"><span>{{localize "VTM20.Court.Note"}}</span></h3>
+    <textarea data-field="note" rows="3" placeholder="{{localize 'VTM20.Court.NoteHint'}}">{{picked.note}}</textarea>
+    <input type="text" data-field="title" value="{{picked.title}}" aria-label="{{localize 'VTM20.Court.Rename'}}" placeholder="{{localize 'VTM20.Court.Rename'}}">
+    <a class="r-h2-btn is-plain r-court-del" data-action="removeOffice"><i class="fa-solid fa-trash"></i> {{localize "VTM20.Court.RemoveOffice"}}</a>
+    {{/if}}
+  </aside>
+  {{/if}}
+</div>
