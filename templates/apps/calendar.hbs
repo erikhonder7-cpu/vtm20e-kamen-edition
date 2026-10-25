@@ -95,7 +95,7 @@
     <div class="r-cal-lbl r-cal-lbl-gap">{{localize "VTM20.Calendar.Upcoming"}}</div>
     <ul class="r-cal-events">{{#each events as |e|}}<li><i class="fa-solid {{e.icon}}"></i> <b>{{e.label}}</b> — {{e.when}}</li>{{/each}}</ul>
 
-    <div class="r-cal-lbl r-cal-lbl-gap">{{localize "VTM20.Calendar.Journal"}}</div>
+    <div class="r-cal-lbl r-cal-lbl-gap">{{localize "VTM20.Calendar.Journal"}}<a class="r-cal-xp" data-action="sessionXp" data-tooltip="{{localize 'VTM20.SessionXp.Title'}}"><i class="fa-solid fa-star"></i> {{localize "VTM20.SessionXp.Button"}}</a></div>
     <div class="r-cal-journal">
       {{#each journal as |j|}}
       <label class="r-cal-jr {{#if j.current}}is-now{{/if}}"><b>{{j.roman}}</b><small>{{j.date}}</small>

@@ -512,7 +512,8 @@ export class NightCalendar extends HandlebarsApplicationMixin(ApplicationV2) {
       sceneClear: NightCalendar.#onSceneClear,
       chronicleHere: NightCalendar.#onChronicleHere,
       announce: NightCalendar.#onAnnounce,
-      calTab: NightCalendar.#onTab
+      calTab: NightCalendar.#onTab,
+      sessionXp: () => import("./session-xp.mjs").then(m => m.openSessionXp())
     }
   };
 

@@ -30,6 +30,7 @@ import { openNpcGenerator } from "./module/apps/npc-gen.mjs";
 import { openClans } from "./module/apps/clans.mjs";
 import { openBoons } from "./module/apps/boons.mjs";
 import { openDowntime } from "./module/apps/downtime.mjs";
+import { openSessionXp, registerSessionXp } from "./module/apps/session-xp.mjs";
 import { registerCityMap, openCity, closeCity, toggleCity, cityMap } from "./module/ui/citymap.mjs";
 import { registerPause } from "./module/ui/pause.mjs";
 import * as Money from "./module/data/money.mjs";
@@ -44,7 +45,7 @@ Hooks.once("init", () => {
     config: VTM20, codex: Codex,
     rollPool, evaluate, rollDamage, soakAndApply, openDamageDialog, RollDialog, openCreator, VtMCreator,
     openHunt, nightfall, endScene, endStory, openAttack, openDefense, openHazard, openDiablerie, renderHud,
-    openLibrary, openNpcGenerator, openClans, openBoons, openDowntime, money: Money, openCity, closeCity, toggleCity, cityMap,
+    openLibrary, openNpcGenerator, openClans, openBoons, openDowntime, openSessionXp, money: Money, openCity, closeCity, toggleCity, cityMap,
     openSceneNexus, openCalendar, announceTime, getClock, getDate, stamp, clockBarData, nightPhase, moonPhase, republicanDate,
     apps: { SceneNexus, NightCalendar }
   };
@@ -104,6 +105,7 @@ Hooks.once("init", () => {
 
   registerSettings();
   registerNightExtras();
+  registerSessionXp();
   registerHelpers();
   registerNightTools();
   registerHud();
@@ -184,7 +186,8 @@ Hooks.on("getSceneControlButtons", controls => {
   const tools = {
     "r-nexus": { name: "r-nexus", title: "VTM20.Nexus.Title", icon: "fa-solid fa-diagram-project", order: 1, visible: true, button: true, onChange: () => openSceneNexus() },
     "r-calendar": { name: "r-calendar", title: "VTM20.Calendar.Title", icon: "fa-solid fa-moon", order: 2, visible: isGM, button: true, onChange: () => openCalendar() },
-    "r-npc": { name: "r-npc", title: "VTM20.NpcGen.Title", icon: "fa-solid fa-users-viewfinder", order: 3, visible: isGM, button: true, onChange: () => openNpcGenerator() }
+    "r-npc": { name: "r-npc", title: "VTM20.NpcGen.Title", icon: "fa-solid fa-users-viewfinder", order: 3, visible: isGM, button: true, onChange: () => openNpcGenerator() },
+    "r-xp": { name: "r-xp", title: "VTM20.SessionXp.Title", icon: "fa-solid fa-star", order: 4, visible: isGM, button: true, onChange: () => openSessionXp() }
   };
   const group = { name: "vtm20", title: "VTM20.Controls.Title", icon: "fa-solid fa-landmark-flag", order: 99, visible: true, tools, onChange: () => {} };
   if (Array.isArray(controls)) controls.push({ ...group, tools: Object.values(tools).map(t => ({ ...t, onClick: t.onChange, onChange: undefined })) });

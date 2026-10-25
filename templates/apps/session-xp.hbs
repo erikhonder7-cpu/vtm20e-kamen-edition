@@ -1,0 +1,68 @@
+{{!-- Опыт за сессию (план 1): слева — сколько раздать, запись в журнал, быстрые кнопки; справа — критерии V20 по персонажам и прошлые ночи. --}}
+<div class="r-sxp-body">
+  <aside class="r-xw-side r-sxp-side">
+    <div class="r-assignat r-xw-purse">
+      <div class="r-assignat-head">
+        <span class="r-assignat-title">{{localize "VTM20.SessionXp.Give"}}</span>
+        <span class="r-assignat-num"><b>{{sum}}</b><small> {{localize "VTM20.SessionXp.XpUnit"}}</small></span>
+      </div>
+      <div class="r-assignat-meta"><span><em>{{who}}</em> · {{localize "VTM20.SessionXp.Night"}} <b>{{night}}</b></span></div>
+    </div>
+
+    <div class="r-sxp-entry">
+      <h3 class="r-h3 r-colhead"><span>{{localize "VTM20.SessionXp.Entry"}}</span></h3>
+      <input type="text" name="label" value="{{label}}" aria-label="{{localize 'VTM20.SessionXp.Entry'}}">
+      <small class="r-sxp-when">{{when}}</small>
+    </div>
+
+    <div class="r-sxp-quick">
+      <h3 class="r-h3 r-colhead"><span>{{localize "VTM20.SessionXp.Quick"}}</span></h3>
+      <a class="r-h2-btn" data-action="allPresent"><i class="fa-solid fa-check"></i> {{localize "VTM20.SessionXp.AllPresent"}}</a>
+      <a class="r-h2-btn {{#if story}}is-on{{/if}}" data-action="story"><i class="fa-solid fa-book"></i> {{localize "VTM20.SessionXp.StoryEnd"}}</a>
+    </div>
+
+    <a class="r-h2-btn r-sxp-grant" data-action="grant"><i class="fa-solid fa-plus"></i> {{localize "VTM20.SessionXp.Grant"}}</a>
+  </aside>
+
+  <main class="r-sxp-main r-sxp-scroll">
+    <h2 class="r-h2"><span>{{localize "VTM20.SessionXp.Criteria"}}</span>
+      <span class="r-h2-tools"><a class="r-h2-btn" data-action="custom"><i class="fa-solid fa-plus"></i> <span class="r-h2-lbl">{{localize "VTM20.SessionXp.Custom"}}</span></a></span>
+    </h2>
+
+    {{#if rows.length}}
+    <table class="r-sxp-table">
+      <thead>
+        <tr>
+          <th class="r-sxp-who">{{localize "VTM20.SessionXp.Character"}}</th>
+          {{#each crit}}<th class="{{#if story}}is-story{{/if}} {{#if off}}is-off{{/if}}"><span>{{label}}</span><small>{{sub}}</small></th>{{/each}}
+          {{#each rules}}<th class="is-custom"><span>{{label}}</span><small><a data-action="dropRule" data-rule="{{id}}" data-tooltip="{{localize 'VTM20.SessionXp.DropRule'}}"><i class="fa-solid fa-xmark"></i></a></small></th>{{/each}}
+          <th>{{localize "VTM20.SessionXp.Extra"}}</th>
+          <th class="r-sxp-tot">{{localize "VTM20.SessionXp.Total"}}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each rows as |r|}}
+        <tr class="{{#if r.absent}}is-absent{{/if}}">
+          <td class="r-sxp-who"><img src="{{r.img}}" alt=""><span><b>{{r.name}}</b>{{#if r.absent}}<em>{{localize "VTM20.SessionXp.Absent"}}</em>{{else}}<em>{{r.clan}}</em>{{/if}}</span></td>
+          {{#each r.cells as |c|}}
+          <td class="{{#if c.story}}is-story{{/if}}"><input type="checkbox" data-actor="{{r.id}}" data-crit="{{c.key}}" {{#if c.custom}}data-custom="1"{{/if}} {{checked c.on}} {{disabled c.off}} aria-label="{{c.key}}"></td>
+          {{/each}}
+          <td class="r-sxp-extra"><a data-action="bump" data-actor="{{r.id}}" data-step="-1" aria-label="−1">−</a><b>{{r.extra}}</b><a data-action="bump" data-actor="{{r.id}}" data-step="1" aria-label="+1">+</a></td>
+          <td class="r-sxp-tot"><b>{{r.total}}</b></td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+    {{else}}
+    <p class="r-empty">{{localize "VTM20.SessionXp.NoPlayers"}}</p>
+    {{/if}}
+
+    <h2 class="r-h2"><span>{{localize "VTM20.SessionXp.Past"}}</span></h2>
+    <ol class="r-sxp-past">
+      {{#each history}}
+      <li><b>{{localize "VTM20.SessionXp.NightShort" n=n}}</b><span>{{label}}{{#if story}} <i class="fa-solid fa-book" data-tooltip="{{localize 'VTM20.SessionXp.StoryEnd'}}"></i>{{/if}}</span><em>{{who}}</em></li>
+      {{else}}<li class="r-empty">{{localize "VTM20.SessionXp.NoPast"}}</li>
+      {{/each}}
+    </ol>
+  </main>
+</div>

@@ -14,8 +14,9 @@ const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "
  * @param {object} o
  * @param {boolean} [o.nexus]  кнопка нексуса слева
  * @param {string}  [o.scene]  название сцены (не задано — без блока сцены)
+ * @param {boolean} [o.xp]     звезда «Опыт за сессию» справа (только ведущему)
  */
-export function plateHTML({ nexus = false, scene = null } = {}) {
+export function plateHTML({ nexus = false, scene = null, xp = false } = {}) {
   return `<div class="r-np" data-np>
     ${nexus ? `<a class="r-np-nexus" data-nexus data-tooltip="${esc(L("NexusHint"))}" aria-label="${esc(L("Nexus"))}"><i class="fa-solid fa-diagram-project"></i></a>` : ""}
     ${scene !== null ? `<div class="r-np-scene"><small>${esc(L("Scene"))}</small><span data-np-scene>${esc(scene)}</span></div>` : ""}
@@ -25,6 +26,7 @@ export function plateHTML({ nexus = false, scene = null } = {}) {
       <span class="r-np-track"><i data-np-fill></i><em data-np-mark></em></span>
     </div>
     <div class="r-np-timer" data-np-timer hidden><i class="fa-solid fa-stopwatch"></i><span></span></div>
+    ${xp ? `<a class="r-np-xp" data-np-xp data-tooltip="${esc(game.i18n.localize("VTM20.SessionXp.Title"))}" aria-label="${esc(game.i18n.localize("VTM20.SessionXp.Title"))}"><i class="fa-solid fa-star"></i></a>` : ""}
   </div>`;
 }
 

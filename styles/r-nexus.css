@@ -324,3 +324,9 @@ body.r-nav-off #scene-navigation { display: none !important; }
 .r-nx-card[draggable=true] { cursor: grab; }
 .is-dragging .r-nx-group, .is-dragging .r-nx-sub { outline: 1px dashed rgba(196, 71, 76, .35); outline-offset: -2px; }
 .r-nx-group.is-drop, .r-nx-sub.is-drop { outline: 1px dashed var(--nx-blood-l) !important; background: rgba(140, 28, 34, .12); }
+
+/* Опыт за сессию: звезда на плашке ночи и кнопка у журнала ночей (только ведущему) */
+.r-np-xp { display: flex; align-items: center; justify-content: center; width: 40px; color: #c9a46a; font-size: 13px; cursor: pointer; }
+.r-np-xp:hover { background: rgba(255, 255, 255, .04); color: #e8c98e; }
+.r-cal-xp { margin-left: auto; display: inline-flex; align-items: center; gap: 5px; font-family: var(--nx-caps); font-size: 11px; letter-spacing: 1px; color: #c9a46a; cursor: pointer; }
+.r-cal-xp:hover { color: #e8c98e; }
