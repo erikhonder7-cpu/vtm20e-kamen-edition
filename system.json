@@ -1,6 +1,6 @@
 {
   "id": "vtm20e-kamen-edition",
-  "title": "Vampire: The Masquerade 20th — Kamen Edition",
+  "title": "Vampire: The Masquerade 20th — Kamen & Shamil Edition",
   "description": "Вампиры: Маскарад, юбилейная редакция (V20), для Foundry VTT v14. Пулы d10 со сложностью, единицы отменяют успехи, провалы, специализации и воля. Запас крови по поколению, семь уровней здоровья с лёгкими, тяжёлыми и губительными повреждениями, прочность, ярость и Ротшрек. Все Дисциплины V20 со силами 1–10, пути и ритуалы магии крови, Пути Просветления. Оформление — революционная Франция: «Liberté · Égalité · Éternité».",
   "version": "0.12.1",
   "compatibility": {
@@ -10,6 +10,9 @@
   "authors": [
     {
       "name": "Kamen"
+    },
+    {
+      "name": "Shamil"
     }
   ],
   "esmodules": [

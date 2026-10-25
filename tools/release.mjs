@@ -78,7 +78,7 @@ const notes = fs.existsSync(notesFile) ? fs.readFileSync(notesFile, "utf8")
     + out("git", ["log", "--format=- %s", `${lastTag}..v${version}`]).split("\n").filter(l => !/^- Релиз /.test(l)).join("\n");
 // шапка описания — арт из docs/release.webp (в архив системы docs/ не входит)
 const header = fs.existsSync(path.join(ROOT, "docs", "release.webp"))
-  ? `<p align="center"><img src="${repoUrl}/raw/main/docs/release.webp" alt="VtM20 Kamen Edition" width="100%"></p>
+  ? `<p align="center"><img src="${repoUrl}/raw/main/docs/release.webp" alt="VtM20 Kamen &amp; Shamil Edition" width="100%"></p>
 
 ` : "";
 fs.writeFileSync(path.join(tmp, "notes.md"), header + notes);

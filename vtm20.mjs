@@ -1,4 +1,4 @@
-// vtm20.mjs — точка входа системы «Vampire: The Masquerade 20th — Kamen Edition».
+// vtm20.mjs — точка входа системы «Vampire: The Masquerade 20th — Kamen & Shamil Edition».
 // Регистрирует модели данных, документы, листы, настройки и обработчики карточек чата.
 
 import { VTM20, SYSTEM_ID, SYSTEM_PATH } from "./module/config.mjs";
