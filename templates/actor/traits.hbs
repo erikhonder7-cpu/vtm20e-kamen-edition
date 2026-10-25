@@ -44,7 +44,8 @@
       <div class="r-trait is-secondary {{#unless value}}is-zero{{/unless}}">
         <div class="r-trait-main">
           <a class="r-trait-roll" data-action="rollTrait" data-trait="secondary.{{index}}" data-tooltip="{{localize 'VTM20.Sheet.Roll'}}"><i class="fa-solid fa-dice-d10"></i></a>
-          <input class="r-trait-input" type="text" name="system.secondary.{{index}}.name" value="{{name}}" placeholder="{{localize 'VTM20.Sheet.SecondaryName'}}" {{#if @root.extraAbilities.length}}data-combo="r-abil-{{@root.actor.id}}"{{/if}}>
+          <input class="r-trait-input" type="text" name="system.secondary.{{index}}.name" value="{{name}}" placeholder="{{localize 'VTM20.Sheet.SecondaryName'}}" {{#if ../combo}}data-combo="{{../combo}}"{{/if}}>
+          {{#if tip}}<i class="fa-solid fa-book-open r-abil-info" data-tooltip="{{tip}}"></i>{{/if}}
           {{#if (gte value 4)}}<i class="r-spec-mark" aria-hidden="true"></i><input class="r-spec" type="text" name="system.secondary.{{index}}.specialty" value="{{specialty}}" placeholder="{{localize 'VTM20.Sheet.Specialty'}}" spellcheck="false" data-tooltip="{{specialty}}">{{/if}}
           {{> rDots dots=dots}}
           <a class="r-icon-btn is-danger" data-action="removeSecondary" data-index="{{index}}"><i class="fa-solid fa-xmark"></i></a>
@@ -56,5 +57,5 @@
     {{/each}}
   </div>
   {{!-- подсказки для названий вторичных способностей (module/ui/combo.mjs) --}}
-  <datalist id="r-abil-{{@root.actor.id}}">{{#each @root.extraAbilities}}<option value="{{this}}"></option>{{/each}}</datalist>
+  {{#each abilityGroups}}{{#if combo}}<datalist id="{{combo}}">{{#each (lookup @root.extraAbilities key)}}<option value="{{this}}"></option>{{/each}}</datalist>{{/if}}{{/each}}
 </section>

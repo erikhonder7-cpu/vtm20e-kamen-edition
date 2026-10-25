@@ -909,6 +909,8 @@ def main():
     backgrounds += backgrounds_extra.collect(backgrounds)
     import alg_extra   # «Век живых богов» (фанатское): Мортис, Факты биографии, Способности — Тёмные века
     abilities = alg_extra.apply(disc, backgrounds)
+    import abilities_extra   # Способности Шабаша (Guide to the Sabbat) — вторичные, с пометкой секты
+    abilities += abilities_extra.collect()
     paths = parse_paths(os.path.join(REF, "V20_Основные_правила", "06_Человечность_Пути_Добродетели.md"))
     import paths_extra   # Пути Просветления из дополнений и Дороги Тёмных веков (era = "darkAges")
     paths = paths_extra.apply(paths)

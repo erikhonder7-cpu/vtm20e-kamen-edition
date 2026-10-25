@@ -46,6 +46,13 @@ const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`
 const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
 const clockDate = ms => longDate(new Date(ms));
 
+/** Описание вторичной способности из data/abilities.json — простым текстом для подсказки. */
+const abilityTip = name => {
+  const x = name && (Codex.abilities ?? []).find(y => y.name.toLowerCase() === String(name).trim().toLowerCase());
+  // без строки «Источник: …» — подсказка начинается с сути
+  return x ? x.html.replace(/^<p><em>[\s\S]*?<\/em><\/p>/, "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 420) : "";
+};
+
 const dots = (value, max = 5, extra = {}) =>
   Array.from({ length: max }, (_, i) => ({ n: i + 1, filled: i < value, ...extra }));
 
@@ -284,8 +291,11 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     };
     ctx.sectSym = Codex.sectSymbol(s.details.sect);
     ctx.archetypes = Codex.archetypes.map(x => x.name);
-    // Способности эпох (data/abilities.json) — подсказки для вторичных способностей; Тёмные века — с настройкой
-    ctx.extraAbilities = (Codex.abilities ?? []).filter(x => Codex.visible(x)).map(x => x.name);
+    // Способности эпох и сект (data/abilities.json) — подсказки для вторичных способностей по группам;
+    // Тёмные века — с настройкой, Способности секты — персонажам этой секты
+    const mySect = Codex.sectKey(s.details.sect);
+    const extra = (Codex.abilities ?? []).filter(x => Codex.visible(x) && (!x.sect || x.sect === mySect));
+    ctx.extraAbilities = Object.fromEntries(["talents", "skills", "knowledges"].map(g => [g, extra.filter(x => (x.group ?? "knowledges") === g).map(x => x.name)]));
     const nature = Codex.archetypes.find(x => x.name === s.details.nature);
     ctx.natureRegain = nature?.regain ?? "";
     // Дороги Тёмных веков — только при включённой настройке; уже выбранный путь не прячем
@@ -322,8 +332,9 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
           xp: a.xpCost("ability", ab.value)
         };
       }),
-      secondary: s.secondary.map((x, i) => ({ ...x, index: i, dots: dots(x.value, cap, { path: `system.secondary.${i}.value` }) }))
-        .filter(x => x.group === gk)
+      secondary: s.secondary.map((x, i) => ({ ...x, index: i, dots: dots(x.value, cap, { path: `system.secondary.${i}.value` }), tip: abilityTip(x.name) }))
+        .filter(x => x.group === gk),
+      combo: ctx.extraAbilities?.[gk]?.length ? `r-abil-${a.id}-${gk}` : ""
     }));
   }
 

@@ -1099,3 +1099,5 @@ body.r-theme-light .vtm20 .r-motto { color: rgba(140, 28, 34, .75); }
 .vtm20 .r-cot-sheet-pool b { font-weight: 400; color: var(--r-ink); }
 .vtm20 .r-cot-sheet-pool.is-primary b { color: #e07a7e; }
 .vtm20 .r-cot-sheet-pool em { color: var(--r-muted); }
+.vtm20 .r-abil-info { flex: 0 0 auto; font-size: 10px; color: var(--r-muted); cursor: help; margin: 0 2px; }
+.vtm20 .r-abil-info:hover { color: var(--r-ink); }
