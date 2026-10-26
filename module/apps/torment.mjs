@@ -19,6 +19,20 @@ const virtueLabel = (actor, slot) => actor.traitLabel(`virtues.${slot}`);
 /** +n временной Муки; каждые 10 — пункт постоянной (до 10). */
 /** Настройка мира: как решается эффект высокой Муки призыва (dice/roll.mjs → tormentRule). */
 export function registerTorment() {
+  // журнал Муки: до изменения запомнить, после — записать разницу с причиной (пишет тот, кто менял лист)
+  Hooks.on("preUpdateActor", (actor, changes, options) => {
+    if (actor.type === "demon" && foundry.utils.hasProperty(changes, "system.torment"))
+      options.tormentBefore = { temp: actor.system.torment.temporary, perm: actor.system.torment.permanent };
+  });
+  Hooks.on("updateActor", (actor, changes, options, userId) => {
+    const b = options.tormentBefore;
+    if (!b || userId !== game.user.id) return;
+    const tm = actor.system.torment, dp = tm.permanent - b.perm;
+    let dt = tm.temporary - b.temp;
+    if (dp > 0 && dt < 0) dt += 10 * dp;          // 10 временной перешли в постоянную: «временная +1, постоянная +1», а не «−9»
+    if (!dt && !dp) return;
+    logTorment(actor, { temp: dt, perm: dp, before: `${b.perm}/${b.temp}`, reason: options.tormentReason ?? t("LogManual") });
+  });
   // начало хода Привязанного в форме без носителя — плата Верой (делает активный рассказчик)
   Hooks.on("updateCombat", (combat, changed) => {
     if (!("turn" in changed || "round" in changed) || game.user !== game.users.activeGM) return;
@@ -40,13 +54,37 @@ export function registerTorment() {
   });
 }
 
+/** Запись в журнал Муки (последние 200). */
+async function logTorment(actor, { temp, perm, before, reason }) {
+  const { getClock, shortDate } = await import("./calendar.mjs");
+  const tm = actor.system.torment;
+  const row = { ts: Date.now(), date: shortDate(new Date(getClock())), temp, perm, tempAfter: tm.temporary, permAfter: tm.permanent, before, reason };
+  return actor.update({ "system.tormentLog": [...(actor.system.tormentLog ?? []), row].slice(-200) });
+}
+
+/** Окно журнала Муки: что и за что меняло Муку, новые сверху. */
+export async function openTormentLog(actor) {
+  const rows = [...(actor.system.tormentLog ?? [])].reverse();
+  const sign = n => n > 0 ? `+${n}` : String(n);
+  const delta = r => [r.temp ? `${t("LogTemp")} ${sign(r.temp)}` : "", r.perm ? `${t("LogPerm")} ${sign(r.perm)}` : ""].filter(Boolean).join(", ");
+  const content = rows.length ? `<table class="r-tlog"><thead><tr><th>${t("LogWhen")}</th><th>${t("LogWhat")}</th><th>${t("LogChange")}</th><th>${t("LogNow")}</th></tr></thead><tbody>${
+    rows.map(r => `<tr class="${r.temp + r.perm > 0 ? "is-up" : "is-down"}"><td>${esc(r.date)}<small>${new Date(r.ts).toLocaleString(game.i18n.lang, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</small></td>
+      <td>${esc(r.reason)}</td><td>${delta(r)}</td><td>${r.permAfter} / ${r.tempAfter}</td></tr>`).join("")}</tbody></table>`
+    : `<p class="r-empty">${t("LogEmpty")}</p>`;
+  const buttons = [{ action: "close", label: game.i18n.localize("Close"), default: true }];
+  if (game.user.isGM && rows.length) buttons.push({ action: "clear", label: t("LogClear"), icon: "fa-solid fa-eraser" });
+  const res = await foundry.applications.api.DialogV2.wait({ window: { title: `${t("Log")}: ${actor.name}`, icon: "fa-solid fa-scroll" },
+    classes: ["vtm20", "r-dialog", "r-type-demon"], position: { width: 600 }, content, buttons }).catch(() => null);
+  if (res === "clear") await actor.update({ "system.tormentLog": [] });
+}
+
 export async function gainTorment(actor, n = 1, reason = "") {
   const tm = actor.system.torment;
   let temp = tm.temporary + n, perm = tm.permanent;
   const grew = Math.floor(temp / 10);
   if (grew) { perm = Math.min(10, perm + grew); temp %= 10; }
   const before = tm.permanent;
-  await actor.update({ "system.torment.temporary": temp, "system.torment.permanent": perm });
+  await actor.update({ "system.torment.temporary": temp, "system.torment.permanent": perm }, { tormentReason: reason || t("SinReason") });
   await notice(actor, "fa-fire", t(grew ? "TormentGrewPerm" : "TormentGrew", { name: esc(actor.name), n: temp, p: perm, reason: esc(reason) }), "is-warn");
   if (perm > before) await pickHighFeatures(actor);
 }
@@ -93,7 +131,7 @@ export async function kindnessCheck(actor, slot) {
   const res = await rollPool({ actor, title: t("KindTitle"), subtitle: virtueLabel(actor, slot), pool, difficulty: 6, noBotch: true, kind: "kindness",
     breakdown: [{ label: virtueLabel(actor, slot), value: pool }], extra: { opposed } });
   if (res.successes > opposed.successes && actor.system.torment.temporary > 0)
-    await actor.update({ "system.torment.temporary": actor.system.torment.temporary - 1 });
+    await actor.update({ "system.torment.temporary": actor.system.torment.temporary - 1 }, { tormentReason: t("KindTitle") });
   return res;
 }
 
@@ -200,7 +238,8 @@ export async function atoneWithXp(actor) {
   if (!ok) return;
   const log = foundry.utils.deepClone(actor._source.system.experience.log);
   log.unshift({ amount: -10, reason: `${t("Torment")}: ${tm.permanent} → ${tm.permanent - 1}`, date: new Date().toLocaleDateString("ru-RU") });
-  await actor.update({ "system.torment.permanent": tm.permanent - 1, "system.experience.spent": actor._source.system.experience.spent + 10, "system.experience.log": log });
+  await actor.update({ "system.torment.permanent": tm.permanent - 1, "system.experience.spent": actor._source.system.experience.spent + 10, "system.experience.log": log },
+    { tormentReason: t("Atone") });
 }
 
 /**

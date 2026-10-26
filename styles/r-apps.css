@@ -1060,3 +1060,11 @@ body.r-theme-light .vtm20 .r-ng-item.is-active, body.r-theme-light .vtm20 .r-ng-
 .vtm20.r-gifts .r-gifts-add { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 10px; }
 .vtm20.r-gifts .r-gifts-add .is-span2 { grid-column: span 2; }
 .vtm20.r-gifts .r-gifts-add .r-btn { justify-self: start; }
+
+/* Журнал Муки падшего (apps/torment.mjs → openTormentLog) */
+.vtm20 .r-tlog { width: 100%; border-collapse: collapse; font-size: 13px; }
+.vtm20 .r-tlog th { text-align: left; font-family: var(--r-caps); font-size: 10.5px; font-weight: 400; letter-spacing: 1.2px; text-transform: uppercase; color: var(--r-bone-d); border-bottom: 1px solid #3a3833; padding: 3px 6px; }
+.vtm20 .r-tlog td { padding: 4px 6px; border-bottom: 1px dotted #3a3833; vertical-align: top; }
+.vtm20 .r-tlog td small { display: block; font-size: 11px; color: var(--r-bone-d); }
+.vtm20 .r-tlog tr.is-up td:nth-child(3) { color: var(--r-blood-l); }
+.vtm20 .r-tlog tr.is-down td:nth-child(3) { color: #8fb38a; }

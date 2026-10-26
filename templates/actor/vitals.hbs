@@ -73,6 +73,7 @@
   <div class="r-vcard r-vc-morality is-torment {{#if tormentHigh}}is-high{{/if}}">
     <div class="r-vc-head">
       <h4 class="r-banner" data-tooltip="{{localize 'VTM20.Demon.TormentDieHint'}}"><span>{{localize "VTM20.Demon.Torment"}}</span></h4>
+      <a class="r-icon-btn r-path-open" data-action="tormentLog" data-tooltip="{{localize 'VTM20.Demon.LogHint'}}"><i class="fa-solid fa-scroll"></i></a>
       <div class="r-vc-status"><b>{{system.torment.permanent}}</b>{{#if tormentHigh}} · {{localize "VTM20.Demon.HighTorment"}}{{/if}}</div>
     </div>
     {{> rDots dots=tormentPerm cls="is-ten"}}

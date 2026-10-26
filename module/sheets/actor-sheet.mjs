@@ -45,7 +45,7 @@ import { themeClass } from "../ui/themes.mjs";
 import { openHouses } from "../apps/houses.mjs";
 import { formFeatures, mechLabel, needsPick, signed } from "../data/form.mjs";
 import { ghoulify } from "../apps/embrace-ghoul.mjs";
-import { virtuePrompt, thrallSin, thrallPact, thrallBreak, formUpkeep, atoneWithXp, assumeForm, sceneHighFeature, harvestFaith, pactFaith, innateRoll, ritualTurn, ritualEffect, ritualNeed, suggestSin, revelation, gainTorment, thrallState, thrallCap, reliquaryInfo, worshipRitual, reliquaryDraw } from "../apps/torment.mjs";
+import { openTormentLog, virtuePrompt, thrallSin, thrallPact, thrallBreak, formUpkeep, atoneWithXp, assumeForm, sceneHighFeature, harvestFaith, pactFaith, innateRoll, ritualTurn, ritualEffect, ritualNeed, suggestSin, revelation, gainTorment, thrallState, thrallCap, reliquaryInfo, worshipRitual, reliquaryDraw } from "../apps/torment.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -133,7 +133,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       reliquaryDraw: VtMActorSheet.#onReliquaryDraw,
       houseAtlas: VtMActorSheet.#onHouseAtlas,
       tormentSin: VtMActorSheet.#onTormentSin, thrallSin: VtMActorSheet.#onThrallSin, thrallPact: VtMActorSheet.#onThrallPact, ghoulify: VtMActorSheet.#onGhoulify, formUpkeep: VtMActorSheet.#onFormUpkeep, thrallGifts: VtMActorSheet.#onThrallGifts,
-      hostLose: VtMActorSheet.#onHostLose, hostHold: VtMActorSheet.#onHostHold, hostNew: VtMActorSheet.#onHostNew, hostSummoned: VtMActorSheet.#onHostSummoned, formLookImg: VtMActorSheet.#onFormLookImg, formLookClear: VtMActorSheet.#onFormLookClear, thrallBreak: VtMActorSheet.#onThrallBreak, openUuid: VtMActorSheet.#onOpenUuid,
+      tormentLog: VtMActorSheet.#onTormentLog, hostLose: VtMActorSheet.#onHostLose, hostHold: VtMActorSheet.#onHostHold, hostNew: VtMActorSheet.#onHostNew, hostSummoned: VtMActorSheet.#onHostSummoned, formLookImg: VtMActorSheet.#onFormLookImg, formLookClear: VtMActorSheet.#onFormLookClear, thrallBreak: VtMActorSheet.#onThrallBreak, openUuid: VtMActorSheet.#onOpenUuid,
       sinSuggest: VtMActorSheet.#onSinSuggest,
       tormentKind: VtMActorSheet.#onTormentKind,
       tormentAtone: VtMActorSheet.#onTormentAtone,
@@ -1235,6 +1235,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     if (ok) return loseHost(this.actor, "death");
   }
   static #onHostHold() { return holdOn(this.actor); }
+  static #onTormentLog() { return openTormentLog(this.actor); }
   static #onHostNew() { return newHost(this.actor); }
   static #onHostSummoned() { return summonedBack(this.actor); }
   /** Картинка жетона в форме — выбирает игрок (своих картинок система не даёт). */

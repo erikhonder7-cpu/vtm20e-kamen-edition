@@ -265,6 +265,10 @@ export class DemonData extends BaseActorData {
       apocalyptic: new BooleanField({ initial: false }),
       // без тела-носителя (гибель или экзорцизм; apps/host.mjs) и утянут в Бездну
       hostless: new BooleanField({ initial: false }), abyss: new BooleanField({ initial: false }),
+      // журнал Муки (apps/torment.mjs): когда (реальное время и дата хроники), насколько изменилась временная и постоянная,
+      // что стало, за что; последние 200 записей
+      tormentLog: new ArrayField(new SchemaField({ ts: new NumberField({ required: true, integer: true, initial: 0 }), date: str(),
+        temp: int(0, -10, 10), perm: int(0, -10, 10), tempAfter: int(0, 0, 10), permAfter: int(0, 0, 10), before: str(), reason: str() })),
       // жетон в форме: своя картинка и размер в клетках (0 — не менять); прежние хранит флаг жетона formSave
       formLook: new SchemaField({ img: str(), size: new NumberField({ required: true, min: 0, max: 10, initial: 0, nullable: false }) }),
       earthbound: new BooleanField({ initial: false }),  // Привязанный к Земле (Earthbound): Тёмные Знания и ритуалы без Муки, свой опыт

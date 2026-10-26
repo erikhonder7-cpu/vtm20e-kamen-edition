@@ -27,6 +27,8 @@
       {{#each damage}}<div class="r-trait"><span class="r-trait-main"><span class="r-trait-label">{{who}}</span><span class="r-leader"></span><b>{{n}}</b></span></div>{{/each}}{{/if}}
       {{#if blood.length}}<h3 class="r-h3 r-colhead"><span>{{localize "VTM20.Chronicle.BloodT"}}</span></h3>
       {{#each blood}}<div class="r-trait"><span class="r-trait-main"><span class="r-trait-label">{{who}}</span><span class="r-leader"></span><b>{{n}}</b></span></div>{{/each}}{{/if}}
+      {{#if torment.length}}<h3 class="r-h3 r-colhead"><span>{{localize "VTM20.Chronicle.TormentT"}}</span></h3>
+      {{#each torment}}<div class="r-trait" data-tooltip="{{why}}"><span class="r-trait-main"><span class="r-trait-label">{{who}}</span><span class="r-leader"></span><b>{{from}} → {{to}}</b></span></div>{{/each}}{{/if}}
 
       <h2 class="r-h2"><span>{{localize "VTM20.Chronicle.Summary"}}</span>
         <span class="r-h2-tools"><a class="r-h2-btn is-plain" data-action="redraft" data-tooltip="{{localize 'VTM20.Chronicle.RedraftHint'}}"><i class="fa-solid fa-rotate"></i> {{localize "VTM20.Chronicle.Redraft"}}</a></span></h2>

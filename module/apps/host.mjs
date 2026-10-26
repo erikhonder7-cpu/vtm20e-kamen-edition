@@ -94,7 +94,7 @@ export async function newHost(actor) {
     "system.faith.permanent": faith, "system.faith.temporary": Math.min(f.temporary, faith),
     "system.torment.permanent": Math.min(10, tm.permanent + 1) };
   if (v.kind === "object") upd["system.earthbound"] = true;
-  await actor.update(upd);
+  await actor.update(upd, { tormentReason: t("LossReason") });
   await notice(actor, v.kind === "object" ? "fa-gem" : "fa-person", t(v.kind === "object" ? "NewObject" : "NewBody", { name: esc(actor.name), body: esc(body) || "—" }));
   // Мука выше шести — новая черта высокой Муки на выбор (как при росте Муки)
   if (tm.permanent < 10 && tm.permanent + 1 > 6) {

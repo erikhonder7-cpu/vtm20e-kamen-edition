@@ -1,6 +1,6 @@
 // module/apps/chronicle.mjs
 // Летопись сессии: «Конец сессии» собирает из чата, что было за вечер, — броски (удачи и провалы), срывы
-// (ярость, Ротшрек, деградация), урон, траты крови, торпор и смерть — и пишет итог страницей в журнал
+// (ярость, Ротшрек, деградация), урон, траты крови, торпор и смерть, Муку падших (журнал Муки) — и пишет итог страницей в журнал
 // «Летопись хроники» и строкой в журнал ночей (calendar.mjs). Начало сессии — метка прошлой летописи
 // (настройка мира chronicleMark), иначе начало суток. Ведущий правит текст перед записью.
 
@@ -54,6 +54,16 @@ export function collectSession(since) {
     else if ((x = text.match(reBlood))) S.blood[name] = (S.blood[name] ?? 0) + Number(x[1]);
     else if (/fa-bed|fa-skull"/.test(m.content) && /r-notice/.test(m.content)) S.fates.push(text);
   }
+  // Мука падших за сессию — из журнала Муки: было → стало, за что
+  S.torment = [];
+  for (const a of game.actors.filter(x => x.type === "demon")) {
+    const rows = (a.system.tormentLog ?? []).filter(r => r.ts > since);
+    if (!rows.length) continue;
+    const first = rows[0], last = rows.at(-1);
+    const from = first.before || "?", to = `${last.permAfter}/${last.tempAfter}`;
+    const why = rows.map(r => `${r.reason} ${[r.perm ? `${r.perm > 0 ? "+" : ""}${r.perm} ${t("Demon.LogPerm")}` : "", r.temp ? `${r.temp > 0 ? "+" : ""}${r.temp}` : ""].filter(Boolean).join(", ")}`);
+    S.torment.push({ who: a.name, from, to, why: why.join("; ") });
+  }
   return S;
 }
 
@@ -66,6 +76,7 @@ function draft(S, now = getClock()) {
   const dmg = Object.entries(S.damage).map(([k, v]) => `${k} ${v}`), bl = Object.entries(S.blood).map(([k, v]) => `${k} ${v}`);
   if (dmg.length) lines.push(t("Chronicle.Damage", { list: dmg.join(", ") }));
   if (bl.length) lines.push(t("Chronicle.Blood", { list: bl.join(", ") }));
+  for (const x of S.torment ?? []) lines.push(t("Chronicle.Torment", { who: x.who, from: x.from, to: x.to, why: x.why }));
   return lines.join("\n");
 }
 
@@ -103,6 +114,7 @@ class ChronicleWindow extends HandlebarsApplicationMixin(ApplicationV2) {
       count: S.count, rolls: S.rolls, people: [...S.people],
       greats: S.greats, botches: S.botches, breaks: S.breaks, fates: S.fates,
       damage: Object.entries(S.damage).map(([who, n]) => ({ who, n })), blood: Object.entries(S.blood).map(([who, n]) => ({ who, n })),
+      torment: S.torment,
       text: this.text, night: nightNumber(getClock())
     };
   }
