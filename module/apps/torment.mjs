@@ -112,6 +112,56 @@ export async function thrallSin(actor) {
   return res;
 }
 
+/**
+ * Договор готового смертного с падшим (Damned and Deceived, гл. 4–5): хозяин, Вера слуги 0–5, доля хозяину (до половины,
+ * вверх), условия и дары словами. Смертный становится слугой (system.thrall), строка договора — в system.thralls хозяина.
+ */
+export async function thrallPact(actor) {
+  const masters = game.actors.filter(a => a.type === "demon").sort((a, b) => a.name.localeCompare(b.name, "ru"));
+  if (!masters.length) return ui.notifications.warn(t("PactNoDemons"));
+  const cur = actor.system.thrall ?? {};
+  const content = `<p class="r-choice-hint">${t("PactExistingHint")}</p><div class="r-form r-pact-form">
+    <label class="r-field"><span>${game.i18n.localize("VTM20.Creator.PactMaster")}</span><select name="master">${masters.map(m =>
+      `<option value="${m.uuid}" ${m.uuid === cur.master ? "selected" : ""}>${esc(m.name)}</option>`).join("")}</select></label>
+    <label class="r-field"><span>${game.i18n.localize("VTM20.Creator.ThrallFaith")}</span><input type="number" name="faith" min="0" max="5" value="${cur.faith || 1}"></label>
+    <label class="r-field"><span>${game.i18n.localize("VTM20.Creator.PactShare")}</span><input type="number" name="share" min="0" max="3" value="${Math.ceil((cur.faith || 1) / 2)}"></label>
+    <label class="r-field"><span>${game.i18n.localize("VTM20.Creator.PactTerms")}</span><input type="text" name="terms" placeholder="${esc(game.i18n.localize("VTM20.Creator.PactTermsPh"))}"></label>
+    <label class="r-field"><span>${game.i18n.localize("VTM20.Creator.PactWords")}</span><textarea name="gifts" rows="3" placeholder="${esc(game.i18n.localize("VTM20.Creator.PactWordsPh"))}"></textarea></label>
+  </div>`;
+  const res = await foundry.applications.api.DialogV2.prompt({
+    window: { title: t("PactExisting") }, classes: ["vtm20", "r-dialog"], position: { width: 460 }, content,
+    ok: { label: t("PactSeal"), callback: (ev, btn) => { const f = btn.form.elements;
+      return { master: f.master.value, faith: Number(f.faith.value) || 0, share: Number(f.share.value) || 0, terms: f.terms.value.trim(), gifts: f.gifts.value.trim() }; } }
+  }).catch(() => null);
+  if (!res) return null;
+  const faith = Math.max(0, Math.min(5, res.faith)), share = Math.max(0, Math.min(thrallCap(faith), res.share));
+  const master = await fromUuid(res.master);
+  // прежний хозяин теряет строку договора
+  if (cur.master && cur.master !== res.master) await thrallUnlink(actor, cur.master);
+  await actor.update({ "system.thrall": { master: res.master, faith } });
+  if (master?.isOwner) {
+    const row = { name: actor.name, uuid: actor.uuid, faith, share, will: actor.system.willpower.permanent, wounds: 0, lost: 0, terms: res.terms, gifts: res.gifts };
+    await master.update({ "system.thralls": [...master.system.thralls.filter(x => x.uuid !== actor.uuid), row] });
+  } else if (master) ui.notifications.warn(game.i18n.format("VTM20.Creator.PactNoAccess", { name: master.name }));
+  return notice(actor, "fa-handshake", t("PactSealed", { name: esc(actor.name), master: esc(master?.name ?? "") }), "is-pact");
+}
+
+/** Разорвать договор слуги: смертный снова сам по себе, у хозяина строка договора убирается; дары гаснут (гл. 5). */
+export async function thrallBreak(actor) {
+  const cur = actor.system.thrall ?? {};
+  const ok = await foundry.applications.api.DialogV2.confirm({ window: { title: t("PactBreak") }, content: `<p>${t("PactBreakConfirm", { name: esc(actor.name) })}</p>` });
+  if (!ok) return null;
+  if (cur.master) await thrallUnlink(actor, cur.master);
+  await actor.update({ "system.thrall": { master: "", faith: 0 } });
+  return notice(actor, "fa-link-slash", t("PactBroken", { name: esc(actor.name) }), "is-pact");
+}
+
+/** Убрать строку слуги из листа хозяина (если есть права). */
+async function thrallUnlink(actor, masterUuid) {
+  const m = await fromUuid(masterUuid);
+  if (m?.isOwner && m.type === "demon") await m.update({ "system.thralls": m.system.thralls.filter(x => x.uuid !== actor.uuid) });
+}
+
 /** Окно выбора Добродетели для греха или доброго дела; подсказки — когда какую бросать (гл. 6). */
 export async function virtuePrompt(actor, kind) {
   const slots = ["conscience", "selfControl", "courage"];
