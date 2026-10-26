@@ -60,7 +60,7 @@ ABIL = {"Атлетизм": "athletics", "Атлетика": "athletics", "На�
         "Оккультизм": "occult", "Религия": "religion", "Убеждение": "expression", "Красноречие": "expression"}
 
 # Пулы, которые разбор не ловит: «Манипулирование», обратный порядок («Хитрость + Манипулирование»), «Осведомленность».
-# Ключ — «Знание|круг»: (Атрибут, Способность, сложность). Без пула в книге: firmament|5, forge|4, forge|5, longing|4.
+# Ключ — «Знание|круг»: (Атрибут, Способность, сложность). Последние четыре разбор не ловит из-за вёрстки (пул после «Веры»).
 ROLL_FIX = {
     "fundament|1": ("strength", "athletics", 6), "humanity|1": ("manipulation", "empathy", 6), "humanity|2": ("manipulation", "empathy", 6),
     "humanity|3": ("manipulation", "subterfuge", 6), "humanity|4": ("manipulation", "subterfuge", 6), "humanity|5": ("manipulation", "subterfuge", 7),
@@ -70,6 +70,8 @@ ROLL_FIX = {
     "earth|2": ("strength", "survival", 6), "portals|1": ("manipulation", "intuition", 6), "longing|2": ("manipulation", "empathy", 6),
     "transfiguration|4": ("manipulation", "empathy", 6), "beast|2": ("manipulation", "animalKen", 6), "death|3": ("manipulation", "intuition", 6),
     "spirit|1": ("manipulation", "awareness", 6), "spirit|2": ("manipulation", "leadership", 6), "spirit|3": ("manipulation", "leadership", 6),
+    "firmament|5": ("manipulation", "leadership", 6), "forge|4": ("dexterity", "crafts", 6), "forge|5": ("stamina", "crafts", 6),
+    "longing|4": ("manipulation", "empathy", 6),
 }
 
 
