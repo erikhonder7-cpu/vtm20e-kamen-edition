@@ -38,6 +38,7 @@ import { registerTorpor, checkTorpor } from "./module/apps/torpor.mjs";
 import { registerIncome, checkIncome } from "./module/apps/income.mjs";
 import { registerTorment } from "./module/apps/torment.mjs";
 import { registerPossession } from "./module/apps/possession.mjs";
+import { registerCult } from "./module/apps/cult.mjs";
 import { registerCoterie, openCoterie } from "./module/apps/coterie.mjs";
 import { registerChronicle, openChronicle } from "./module/apps/chronicle.mjs";
 import { registerHandouts, giveHandout } from "./module/apps/handouts.mjs";
@@ -126,6 +127,7 @@ Hooks.once("init", () => {
   registerIncome();
   registerTorment();
   registerPossession();
+  registerCult();
   registerCoterie();
   registerChronicle();
   registerHandouts();

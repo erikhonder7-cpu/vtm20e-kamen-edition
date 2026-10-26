@@ -267,6 +267,9 @@ export class DemonData extends BaseActorData {
       hostless: new BooleanField({ initial: false }), abyss: new BooleanField({ initial: false }),
       // завладение Привязанного телом поклонника (apps/possession.mjs): кто, с какого часа хроники, потрачено Веры (часов),
       // продлено часов; кем завладеть больше нельзя (провал)
+      // культ Привязанного (apps/cult.mjs): расписание и место ритуалов, последний ритуал, кубики почитания к призыву, культисты
+      cult: new SchemaField({ schedule: str(), place: str(), last: str(), veneration: int(0, 0, 10),
+        members: new ArrayField(new SchemaField({ name: str(), role: str("faithful"), uuid: str(), note: str() })) }),
       possession: new SchemaField({ name: str(), uuid: str(), start: new NumberField({ required: true, integer: true, initial: 0 }),
         spent: int(0, 0, 999), extended: int(0, 0, 999), banned: new ArrayField(str()) }),
       // журнал Муки (apps/torment.mjs): когда (реальное время и дата хроники), насколько изменилась временная и постоянная,

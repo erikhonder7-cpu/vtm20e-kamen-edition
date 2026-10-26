@@ -1,0 +1,48 @@
+{{!-- Культ Привязанного: частота и сила ритуалов, расписание, ритуалы поклонения и почитания, культисты. --}}
+<div class="r-cult-body">
+  <div class="r-cult-facts">
+    <div class="r-badge"><span>{{localize "VTM20.Cult.Cult"}}</span><b>{{cultDots}}</b><em>{{freq}}</em></div>
+    <div class="r-badge"><span>{{localize "VTM20.Cult.Worship"}}</span><b>{{worshipDots}}</b><em>{{localize "VTM20.Cult.PerRitual" n=perRitual}}</em></div>
+    <div class="r-badge {{#if stasis}}is-low{{/if}}"><span>{{localize "VTM20.Cult.Faith"}}</span><b>{{faith}}</b><em>{{localize "VTM20.Cult.InRel" n=relFaith max=relMax}}</em></div>
+  </div>
+  {{#if stasis}}<p class="r-cult-warn"><i class="fa-solid fa-bed"></i> {{localize "VTM20.Cult.StasisWarn"}}</p>{{/if}}
+  {{#if noCult}}<p class="r-note">{{localize "VTM20.Cult.NoCultHint"}}</p>{{/if}}
+
+  <div class="r-fields">
+    <label class="r-f is-span2"><span>{{localize "VTM20.Cult.Schedule"}}</span>
+      <input type="text" name="schedule" value="{{c.schedule}}" placeholder="{{localize 'VTM20.Cult.SchedulePh'}}" {{#unless editable}}disabled{{/unless}}></label>
+    <label class="r-f is-span2"><span>{{localize "VTM20.Cult.Place"}}</span>
+      <input type="text" name="place" value="{{c.place}}" placeholder="{{localize 'VTM20.Cult.PlacePh'}}" {{#unless editable}}disabled{{/unless}}></label>
+  </div>
+
+  <h4 class="r-h4">{{localize "VTM20.Cult.Rituals"}}</h4>
+  <div class="r-cult-acts">
+    {{#if editable}}
+    <a class="r-btn is-accent" data-action="worship" data-tooltip="{{localize 'VTM20.Cult.WorshipHint' n=perRitual}}"><i class="fa-solid fa-place-of-worship"></i> {{localize "VTM20.Cult.WorshipBtn" n=perRitual}}</a>
+    <a class="r-btn" data-action="broken"><i class="fa-solid fa-ban"></i> {{localize "VTM20.Cult.BrokenBtn"}}</a>
+    {{/if}}
+    {{#if c.last}}<span class="r-cult-last">{{localize "VTM20.Cult.Last"}}: <b>{{c.last}}</b></span>{{/if}}
+  </div>
+  <div class="r-cult-acts">
+    {{#if editable}}
+    <label class="r-cult-hours">{{localize "VTM20.Cult.Hours"}} <input type="number" name="venHours" value="{{venHours}}" min="1" max="{{venHours}}"></label>
+    <a class="r-btn" data-action="venerate" data-tooltip="{{localize 'VTM20.Cult.VenerateHint' max=venMax}}"><i class="fa-solid fa-hands-praying"></i> {{localize "VTM20.Cult.VenerateBtn"}}</a>
+    {{/if}}
+    {{#if c.veneration}}<span class="r-cult-last">{{localize "VTM20.Cult.Ready" n=c.veneration}}</span>{{/if}}
+  </div>
+
+  <h4 class="r-h4">{{localize "VTM20.Cult.Members"}} <small>({{count}})</small></h4>
+  <p class="r-note">{{localize "VTM20.Cult.MembersHint"}}</p>
+  <ul class="r-cult-list">
+    {{#each members}}
+    <li class="r-cult-member">
+      {{#if uuid}}<a class="r-cult-link" data-action="open" data-uuid="{{uuid}}"><i class="fa-solid fa-user"></i></a>{{/if}}
+      <input type="text" name="members.{{i}}.name" value="{{name}}" {{#unless @root.editable}}disabled{{/unless}}>
+      <select name="members.{{i}}.role" {{#unless @root.editable}}disabled{{/unless}}>{{#each roles}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+      <input type="text" name="members.{{i}}.note" value="{{note}}" placeholder="{{localize 'VTM20.Cult.NotePh'}}" {{#unless @root.editable}}disabled{{/unless}}>
+      {{#if @root.editable}}<a class="r-vc-btn is-sq" data-action="del" data-index="{{i}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
+    </li>
+    {{/each}}
+  </ul>
+  {{#if editable}}<a class="r-btn" data-action="add"><i class="fa-solid fa-user-plus"></i> {{localize "VTM20.Cult.Add"}}</a>{{/if}}
+</div>

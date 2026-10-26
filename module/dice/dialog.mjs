@@ -108,6 +108,8 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     for (const p of [v.trait1, v.trait2]) for (const d of a.system.formFx?.dice?.[p?.split(".")[1]] ?? []) { pool += d.value; bd.push({ label: d.label, value: d.value }); }
     // Перебор падшего (гл. 9): кубики, выжатые из слуг
     if (this.#overdraw()) { pool += this.#overdraw(); bd.push({ label: t("Demon.Overdraw"), value: this.#overdraw() }); }
+    // Ритуал почитания культа Привязанного (apps/cult.mjs): кубики к ближайшему призыву
+    if (this.#veneration()) { pool += this.#veneration(); bd.push({ label: t("Cult.VenerationDice"), value: this.#veneration() }); }
     // Множественные действия (03): наименьший пул делится между действиями
     if (v.actions > 1) {
       const part = Math.floor(Math.max(0, pool) / v.actions);
@@ -140,6 +142,8 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     return pacts ? a.system.faith.permanent : 0;
   }
   #overdraw() { return Math.clamp(this.values.overdraw ?? 0, 0, this.#overdrawMax()); }
+  /** Кубики ритуала почитания: только в призыве Привязанного. */
+  #veneration() { const a = this.actor; return this.cfg.extra?.torment != null && a.type === "demon" && a.system.earthbound ? a.system.cult?.veneration ?? 0 : 0; }
 
   /** Табличка Муки в окне призыва: шанс эффекта высокой Муки по выбранному правилу. */
   #torment(pool, difficulty) {
@@ -262,6 +266,8 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     });
     // Перебор: слуги платят Волей, провал — минус Вера (apps/torment.mjs)
     if (od) await (await import("../apps/torment.mjs")).overdrawPay(this.actor, od, res);
+    // кубики почитания израсходованы
+    if (this.#veneration()) await this.actor.update({ "system.cult.veneration": 0 });
     // Связанные броски (защита от атаки и т. п.) подводят итог сами
     if (cfg.onRolled) await cfg.onRolled(res);
   }
