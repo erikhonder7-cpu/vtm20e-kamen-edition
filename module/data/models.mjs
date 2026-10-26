@@ -235,13 +235,21 @@ export class MortalData extends BaseActorData {
       // Смертный как сосуд: сколько крови в нём осталось (10 у взрослого, 05).
       vessel: new SchemaField({ value: int(10, 0, 20), max: int(10, 1, 20) }),
       trueFaith: int(0, 0, 10),
-      // Слуга падшего (Damned and Deceived): uuid хозяина-демона и Вера слуги 0–5; Добродетели — Совесть, Убеждённость, Мужество
+      // охотник на падших (apps/exorcist.mjs): цель-демон, Истинное Имя, благословлённый предмет, помощники; обряд — душа
+      // найдена/нет и попытки, победы и часы; на ком обряд сорван навсегда; когда читалась молитва св. Михаилу (часы хроники);
+      // поиски оружия веры (сколько нужно, сколько набрано, сложность, Способность)
+      exorcist: new SchemaField({ target: str(), trueName: new BooleanField({ initial: false }), talisman: int(0, 0, 5),
+        helpers: new ArrayField(str()), soul: str(), soulTries: int(0, 0, 3), wins: int(0, 0, 99), hours: int(0, 0, 999),
+        failed: new ArrayField(str()), michael: new NumberField({ required: true, integer: true, initial: 0 }),
+        research: new ArrayField(new SchemaField({ key: str("prayer"), name: str(), need: int(10, 1, 999), got: int(0, 0, 999),
+          diff: int(7, 2, 10), ability: str("investigation") })) }),
       // слуга Привязанного (apps/eb-servant.mjs): хозяин, наделения (по 15 пунктов и 3 стигмата), силы, стигматы,
       // прибавки к чертам, урезанный призыв «ключ Знания:круг»
       ebServant: new SchemaField({ master: str(), empowerments: int(0, 0, 9),
         powers: new ArrayField(new SchemaField({ key: str(), cost: int(0, 0, 20), note: str() })),
         stigmata: new ArrayField(new SchemaField({ key: str(), cost: int(0, 0, 3), note: str() })),
         boosts: new ArrayField(new SchemaField({ key: str(), dots: int(0, 0, 5) })), evocation: str() }),
+      // Слуга падшего (Damned and Deceived): uuid хозяина-демона и Вера слуги 0–5; Добродетели — Совесть, Убеждённость, Мужество
       thrall: new SchemaField({ master: str(), faith: int(0, 0, 5),
         // дары хозяина (apps/thrall-gifts.mjs): вид, имя, ключ (черта, врождённая, призыв «ключ Знания:уровень»), точки прибавки,
         // черта высокой Муки, цена в Вере слуги, пояснение
@@ -276,11 +284,13 @@ export class DemonData extends BaseActorData {
       apocalyptic: new BooleanField({ initial: false }),
       // без тела-носителя (гибель или экзорцизм; apps/host.mjs) и утянут в Бездну
       hostless: new BooleanField({ initial: false }), abyss: new BooleanField({ initial: false }),
-      // завладение Привязанного телом поклонника (apps/possession.mjs): кто, с какого часа хроники, потрачено Веры (часов),
-      // продлено часов; кем завладеть больше нельзя (провал)
+      // ритуал Зар («Спасители и истребители»): до этого часа хроники гибель тела отправляет прямо в Бездну
+      zar: new NumberField({ required: true, integer: true, initial: 0 }),
       // культ Привязанного (apps/cult.mjs): расписание и место ритуалов, последний ритуал, кубики почитания к призыву, культисты
       cult: new SchemaField({ schedule: str(), place: str(), last: str(), veneration: int(0, 0, 10),
         members: new ArrayField(new SchemaField({ name: str(), role: str("faithful"), uuid: str(), note: str() })) }),
+      // завладение Привязанного телом поклонника (apps/possession.mjs): кто, с какого часа хроники, потрачено Веры (часов),
+      // продлено часов; кем завладеть больше нельзя (провал)
       possession: new SchemaField({ name: str(), uuid: str(), start: new NumberField({ required: true, integer: true, initial: 0 }),
         spent: int(0, 0, 999), extended: int(0, 0, 999), banned: new ArrayField(str()) }),
       // журнал Муки (apps/torment.mjs): когда (реальное время и дата хроники), насколько изменилась временная и постоянная,

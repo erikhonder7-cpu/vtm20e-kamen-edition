@@ -769,6 +769,36 @@ try {
     if (blood !== 8) throw new Error(`Коварный шёпот: крови ${blood} вместо 8`);
   });
 
+  await check("Смертный: вера против падших", async () => {
+    const id = await temp("E2E — экзорцист", "mortal"), did = await temp("E2E — изгоняемый", "demon");
+    const r = await page.evaluate(async ([id, did]) => {
+      const SYS = game.system.id, m = game.actors.get(id), d = game.actors.get(did), wait = ms => new Promise(r => setTimeout(r, ms));
+      await m.update({ "system.trueFaith": 2, "system.willpower.permanent": 5, "system.willpower.temporary": 1, "system.exorcist.target": d.uuid });
+      await d.update({ "system.torment.permanent": 5 });
+      const { openExorcist } = await import(`/systems/${SYS}/module/apps/exorcist.mjs`);
+      await openExorcist(m);
+      let el; for (let i = 0; i < 30 && !(el = document.getElementById(`r-exorcist-${m.id}`)); i++) await wait(150);
+      const n0 = game.messages.size;
+      el.querySelector('[data-action="pray"][data-kind="bind"]').click();
+      for (let i = 0; i < 30 && game.messages.size === n0; i++) await wait(150);
+      const prayed = game.messages.contents.at(-1)?.flags?.[SYS]?.roll?.kind;
+      el.querySelector('[data-action="michael"]').click();
+      for (let i = 0; i < 30 && m.system.willpower.temporary !== 5; i++) await wait(150);
+      el.querySelector('[data-action="researchAdd"]').click();
+      for (let i = 0; i < 30 && !m.system.exorcist.research.length; i++) await wait(150);
+      // ритуал Зар позади: гибель тела — сразу Бездна
+      const { getClock } = await import(`/systems/${SYS}/module/apps/calendar.mjs`), { loseHost } = await import(`/systems/${SYS}/module/apps/host.mjs`);
+      await d.update({ "system.zar": getClock() + 3600000 });
+      await loseHost(d);
+      for (const w of [...foundry.applications.instances.values()]) if (w.id === `r-exorcist-${m.id}`) await w.close();
+      return { prayed, will: m.system.willpower.temporary, research: m.system.exorcist.research.length, abyss: d.system.abyss, zar: d.system.zar };
+    }, [id, did]);
+    if (r.prayed !== "prayer") throw new Error(`молитва: карточка ${r.prayed}`);
+    if (r.will !== 5) throw new Error(`молитва св. Михаилу: Воля ${r.will}`);
+    if (r.research !== 1) throw new Error("поиск не добавлен");
+    if (!r.abyss || r.zar !== 0) throw new Error(`Зар: Бездна ${r.abyss}, zar ${r.zar}`);
+  });
+
   await check("Новый мир: «Город» без Парижа", async () => {
     await setWorld(false, "", await page.evaluate(() => game.system.version));
     // game.ready встаёт раньше, чем отработает асинхронный ready системы (Codex.load, keepParis): ждём решения

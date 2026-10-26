@@ -1,0 +1,85 @@
+{{!-- Вера против падших: цель и помощники, молитвы основной книги, экзорцизм (по настройке мира), оружие веры, поиски. --}}
+<div class="r-exo-body">
+  <div class="r-exo-facts">
+    <div class="r-badge"><span>{{localize "VTM20.Exorcist.Faith"}}</span><b>{{faith}}</b><em>{{localize "VTM20.Exorcist.PoolIs" n=pool}}</em></div>
+    <div class="r-badge"><span>{{localize "VTM20.Willpower"}}</span><b>{{wp}}</b><em>{{localize "VTM20.Exorcist.OfPerm" n=wpPerm}}</em></div>
+    {{#if demon}}<div class="r-badge is-demon"><span>{{demon.name}}</span><b>{{demon.wp}}</b><em>{{localize "VTM20.Exorcist.DemonStats" w=demon.wpPerm f=demon.faith t=demon.torment}}</em></div>{{/if}}
+  </div>
+
+  <div class="r-fields">
+    <label class="r-f is-span2"><span>{{localize "VTM20.Exorcist.Target"}}</span>
+      <select name="target" {{#unless editable}}disabled{{/unless}}><option value="">{{localize "VTM20.Exorcist.TargetNone"}}</option>
+        {{#each demons}}<option value="{{uuid}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
+    <label class="r-check"><input type="checkbox" name="trueName" {{#if e.trueName}}checked{{/if}} {{#unless editable}}disabled{{/unless}}> {{localize "VTM20.Exorcist.TrueName"}}</label>
+    <label class="r-f"><span>{{localize "VTM20.Exorcist.Talisman"}}</span><input type="number" name="talisman" value="{{e.talisman}}" min="0" max="5" {{#unless editable}}disabled{{/unless}}></label>
+  </div>
+  {{#if demon}}<p class="r-note">{{#if demon.uuid}}<a data-action="open" data-uuid="{{demon.uuid}}"><i class="fa-solid fa-user"></i> {{demon.name}}</a>{{/if}}
+    {{#if demon.abyss}} · {{localize "VTM20.Host.AbyssCard"}}{{else}}{{#if demon.hostless}} · {{localize "VTM20.Host.Card"}}{{/if}}{{/if}}
+    {{#if zarUntil}} · <i class="fa-solid fa-drum"></i> {{localize "VTM20.Exorcist.ZarUntil" date=zarUntil}}{{/if}}</p>{{/if}}
+
+  <h4 class="r-h4">{{localize "VTM20.Exorcist.Helpers"}}</h4>
+  <ul class="r-exo-helpers">
+    {{#each helpers}}<li><a data-action="open" data-uuid="{{uuid}}">{{name}}</a> <small>{{localize "VTM20.Exorcist.HelperStats" f=faith w=wp}}</small>
+      {{#if @root.editable}}<a class="r-vc-btn is-sq" data-action="delHelper" data-uuid="{{uuid}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}</li>
+    {{else}}<li class="r-empty">{{localize "VTM20.Exorcist.HelpersHint"}}</li>{{/each}}
+  </ul>
+
+  <h4 class="r-h4">{{localize "VTM20.Exorcist.Prayers"}}</h4>
+  {{#if demon.immune}}<p class="r-note"><i class="fa-solid fa-dove"></i> {{localize "VTM20.Exorcist.ImmuneHint"}}</p>{{/if}}
+  {{#unless faith}}<p class="r-note">{{localize "VTM20.Exorcist.NoFaithHint"}}</p>{{/unless}}
+  {{#if editable}}<div class="r-exo-acts">
+    <a class="r-btn" data-action="pray" data-kind="banish" data-tooltip="{{localize 'VTM20.Exorcist.Pray.banishHint'}}"><i class="fa-solid fa-person-walking-arrow-right"></i> {{localize "VTM20.Exorcist.Pray.banish"}}</a>
+    <a class="r-btn" data-action="pray" data-kind="ward" data-tooltip="{{localize 'VTM20.Exorcist.Pray.wardHint'}}"><i class="fa-solid fa-shield"></i> {{localize "VTM20.Exorcist.Pray.ward"}}</a>
+    <a class="r-btn" data-action="pray" data-kind="bind" data-tooltip="{{localize 'VTM20.Exorcist.Pray.bindHint'}}"><i class="fa-solid fa-link"></i> {{localize "VTM20.Exorcist.Pray.bind"}}</a>
+  </div>{{/if}}
+
+  <h4 class="r-h4">{{localize "VTM20.Exorcist.Exorcism"}} <small>· {{ruleLabel}}</small></h4>
+  {{#if isCore}}
+  <p class="r-note">{{localize "VTM20.Exorcist.CoreHint"}}</p>
+  <div class="r-exo-acts">
+    {{#if demon}}<span class="r-exo-score">{{localize "VTM20.Exorcist.Wins" n=e.wins need=need h=e.hours}}</span>{{/if}}
+    {{#if editable}}<a class="r-btn is-accent" data-action="hour"><i class="fa-solid fa-hourglass-half"></i> {{localize "VTM20.Exorcist.HourBtn"}}</a>
+    <a class="r-btn" data-action="restart"><i class="fa-solid fa-rotate-left"></i> {{localize "VTM20.Exorcist.Restart"}}</a>{{/if}}
+  </div>
+  {{else}}
+  <p class="r-note">{{localize "VTM20.Exorcist.SaviorsHint"}}</p>
+  {{#if failedHere}}<p class="r-exo-warn"><i class="fa-solid fa-skull"></i> {{localize "VTM20.Exorcist.FailedHere"}}</p>{{else}}
+  <div class="r-exo-acts">
+    {{#if demon}}<span class="r-exo-score">{{#if (eq e.soul "yes")}}<i class="fa-solid fa-heart-pulse"></i> {{localize "VTM20.Exorcist.SoulFound"}}
+      {{else if (eq e.soul "no")}}<i class="fa-solid fa-heart-crack"></i> {{localize "VTM20.Exorcist.SoulLost"}}
+      {{else}}{{localize "VTM20.Exorcist.SoulTries" n=soulLeft d=soulDiff}}{{/if}}</span>{{/if}}
+    {{#if editable}}{{#unless e.soul}}<a class="r-btn" data-action="soul"><i class="fa-solid fa-magnifying-glass"></i> {{localize "VTM20.Exorcist.SoulBtn"}}</a>{{/unless}}
+    {{#if (eq e.soul "yes")}}<a class="r-btn is-accent" data-action="hour"><i class="fa-solid fa-hourglass-half"></i> {{localize "VTM20.Exorcist.HourBtn"}}</a>
+    <span class="r-exo-score">{{localize "VTM20.Exorcist.Hours" n=e.hours}}</span>{{/if}}
+    <a class="r-btn" data-action="restart"><i class="fa-solid fa-rotate-left"></i> {{localize "VTM20.Exorcist.Restart"}}</a>{{/if}}
+  </div>{{/if}}
+  {{/if}}
+
+  <h4 class="r-h4">{{localize "VTM20.Exorcist.Weapons"}}</h4>
+  {{#if editable}}<div class="r-exo-acts">
+    <a class="r-btn" data-action="michael" data-tooltip="{{localize 'VTM20.Exorcist.MichaelHint'}}"><i class="fa-solid fa-shield-halved"></i> {{localize "VTM20.Exorcist.Michael"}}{{#unless michaelReady}} <small>({{michaelNext}})</small>{{/unless}}</a>
+    <a class="r-btn" data-action="medallion" data-tooltip="{{localize 'VTM20.Exorcist.MedallionHint'}}"><i class="fa-solid fa-medal"></i> {{localize "VTM20.Exorcist.Medallion"}}</a>
+    <a class="r-btn" data-action="kila" data-tooltip="{{localize 'VTM20.Exorcist.KilaHint'}}"><i class="fa-solid fa-khanda"></i> {{localize "VTM20.Exorcist.Kila"}}</a>
+    <a class="r-btn" data-action="zar" data-tooltip="{{localize 'VTM20.Exorcist.ZarHint'}}"><i class="fa-solid fa-drum"></i> {{localize "VTM20.Exorcist.Zar"}}</a>
+  </div>{{/if}}
+
+  <h4 class="r-h4">{{localize "VTM20.Exorcist.Searches"}}</h4>
+  <p class="r-note">{{localize "VTM20.Exorcist.SearchHint"}}</p>
+  <ul class="r-exo-research">
+    {{#each research}}
+    <li class="{{#if done}}is-done{{/if}}">
+      <input type="text" name="research.{{i}}.name" value="{{name}}" placeholder="{{label}}" {{#unless @root.editable}}disabled{{/unless}}>
+      <select name="research.{{i}}.ability" {{#unless @root.editable}}disabled{{/unless}}>{{#each @root.abilities}}<option value="{{value}}" {{#if (eq value ../ability)}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+      <select name="research.{{i}}.diff" {{#unless @root.editable}}disabled{{/unless}}>{{#each @root.sources}}<option value="{{value}}" {{#if (eq value ../diff)}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+      <span class="r-exo-got">{{#if done}}<i class="fa-solid fa-check"></i>{{else}}<b>{{got}}</b>{{#if @root.isGM}} / <input type="number" name="research.{{i}}.need" value="{{need}}" min="1">{{/if}}{{/if}}</span>
+      {{#if @root.editable}}{{#unless done}}<a class="r-vc-btn is-sq" data-action="researchRoll" data-index="{{i}}" data-tooltip="{{localize 'VTM20.Exorcist.ResearchRoll'}}"><i class="fa-solid fa-dice-d10"></i></a>
+      <a class="r-vc-btn is-sq" data-action="researchRoll" data-index="{{i}}" data-will="1" data-tooltip="{{localize 'VTM20.Exorcist.ResearchWill'}}"><i class="fa-solid fa-bolt"></i></a>{{/unless}}
+      <a class="r-vc-btn is-sq" data-action="researchDel" data-index="{{i}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
+    </li>
+    {{/each}}
+  </ul>
+  {{#if editable}}<div class="r-exo-acts">
+    <select name="preset">{{#each presets}}<option value="{{value}}">{{label}}</option>{{/each}}</select>
+    <a class="r-btn" data-action="researchAdd"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Exorcist.ResearchAdd"}}</a>
+  </div>{{/if}}
+</div>

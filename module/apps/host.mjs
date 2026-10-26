@@ -17,6 +17,11 @@ const notice = (actor, icon, html, cls = "is-form") => ChatMessage.create({ spea
 /** Падший потерял тело (гибель или экзорцизм): дух в апокалиптической форме, без носителя. */
 export async function loseHost(actor, why = "death") {
   if (actor.system.hostless) return null;
+  const { getClock } = await import("./calendar.mjs");
+  if (why === "death" && actor.system.zar && getClock() <= actor.system.zar) {
+    await actor.update({ "system.hostless": true, "system.abyss": true, "system.apocalyptic": false, "system.zar": 0 });
+    return notice(actor, "fa-drum", t("LostZar", { name: esc(actor.name) }), "is-sin");
+  }
   await actor.update({ "system.hostless": true, "system.abyss": false, "system.apocalyptic": true });
   return notice(actor, "fa-ghost", t(why === "exorcism" ? "LostExorcism" : "Lost", { name: esc(actor.name), miles: actor.system.willpower.permanent + 5 }));
 }

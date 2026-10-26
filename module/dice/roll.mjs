@@ -249,6 +249,10 @@ function hintFor(state, ev) {
   if (k === "sin") return ev.successes > 0 ? t("Demon.SinResisted") : t("Demon.SinFell");
   if (k === "thrallSin") return ev.outcome === "botch" ? t("Demon.ThrallSinOutBotch") : ev.successes > 0 ? t("Demon.ThrallSinOutOk") : t("Demon.ThrallSinOutFail");
   if (k === "harvest") return ev.successes > (state.extra?.opposed?.successes ?? 0) ? t("Demon.HarvestWon") : t("Demon.HarvestLost");
+  if (k === "prayer") {
+    const o = state.extra?.opposed?.successes ?? 0;
+    return ev.successes > o ? t("Exorcist.PrayWon") : t("Exorcist.PrayLost");
+  }
   if (k === "kindness") {
     const o = state.extra?.opposed?.successes ?? 0;
     return ev.successes > o ? t("Demon.KindWon") : ev.successes < o ? t("Demon.KindLost") : t("Demon.KindTie");
@@ -289,7 +293,7 @@ export async function renderCard(state, actor = null) {
     typeClass: themeClass(actor),
     torment: extra.tormentDie || extra.tormentLow != null
       ? { die: extra.tormentDie ?? null, low: extra.tormentLow ?? null, hi: extra.tormentHi ?? null, n: extra.torment, high: !!extra.tormentHigh, chosen: !!extra.tormentChosen } : null,
-    opposed: extra.opposed ? { label: extra.opposed.label, successes: extra.opposed.successes, dice: extra.opposed.values.map(v => dieView(v, 6, false)) } : null,
+    opposed: extra.opposed ? { label: extra.opposed.label, successes: extra.opposed.successes, dice: extra.opposed.values.map(v => dieView(v, extra.opposed.difficulty ?? 6, false)) } : null,
     ...effectByTorment(state.effect, extra)
   });
 }

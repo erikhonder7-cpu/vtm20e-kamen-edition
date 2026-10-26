@@ -1069,6 +1069,21 @@ body.r-theme-light .vtm20 .r-ng-item.is-active, body.r-theme-light .vtm20 .r-ng-
 .vtm20.r-ebs .r-gift-kind { flex: 0 0 26px; text-align: center; font-family: var(--r-display); font-size: 15px; }
 .vtm20.r-ebs .r-gift-name small { display: block; }
 
+/* Вера против падших (apps/exorcist.mjs) */
+.vtm20.r-exorcist .r-exo-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; margin-bottom: 8px; }
+.vtm20.r-exorcist .r-exo-acts { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; margin: 4px 0 8px; }
+.vtm20.r-exorcist .r-exo-acts select { flex: 1 1 200px; min-width: 0; }
+.vtm20.r-exorcist .r-exo-score { font-family: var(--r-display); }
+.vtm20.r-exorcist .r-exo-warn { color: var(--r-blood-l); }
+.vtm20.r-exorcist .r-exo-helpers { list-style: none; margin: 0 0 8px; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.vtm20.r-exorcist .r-exo-helpers li { display: flex; align-items: center; gap: 8px; }
+.vtm20.r-exorcist .r-exo-helpers li .r-vc-btn { margin-left: auto; }
+.vtm20.r-exorcist .r-exo-research { list-style: none; margin: 0 0 6px; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.vtm20.r-exorcist .r-exo-research li { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.9fr) minmax(0, 1.2fr) auto auto auto auto; align-items: center; gap: 6px; }
+.vtm20.r-exorcist .r-exo-research li.is-done input[type=text] { text-decoration: line-through; opacity: .7; }
+.vtm20.r-exorcist .r-exo-got { white-space: nowrap; }
+.vtm20.r-exorcist .r-exo-got input { width: 4em; }
+
 /* Культ Привязанного (apps/cult.mjs) */
 .vtm20.r-cult .r-cult-body { display: flex; flex-direction: column; gap: 8px; padding: 4px 2px; }
 .vtm20.r-cult .r-cult-facts { display: flex; flex-wrap: wrap; gap: 8px; }
