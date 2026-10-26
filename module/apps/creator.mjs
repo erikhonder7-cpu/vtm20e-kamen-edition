@@ -442,7 +442,10 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       .sort((a, b) => a.label.localeCompare(b.label, "ru"));
 
     // VI. Факты биографии — каталог карточек, и Добродетели
-    ctx.bgCards = Codex.backgrounds.filter(b => (Codex.visible(b) && VTM20.backgroundAllowed(b, this.type)) || b.name in st.bg).map(b => {
+    // Earthbound: факты биографии Привязанных — только им; Привязанному нельзя связей с людьми, наставника, договоров и наследия
+    const EB_BANNED = ["Contacts", "Fame", "Followers", "Mentor", "Pacts", "Legacy"];
+    const ebOk = b => this.isEarthbound ? !EB_BANNED.includes(b.en) : b.source !== "Earthbound";
+    ctx.bgCards = Codex.backgrounds.filter(b => (Codex.visible(b) && VTM20.backgroundAllowed(b, this.type) && ebOk(b)) || b.name in st.bg).map(b => {
       const on = b.name in st.bg || (st.free.bg[b.name] ?? 0) > 0;
       return { name: b.name, en: b.en, sectLabel: b.sabbat ? t("Sect.sabbat") : b.sect ? t(`Sect.${b.sect}`) : "", on, value: this.value("bg", b.name), dots: dotRow("bg", b.name),
           text: VtMCreator.#preview(b.html, 170), html: b.html, open: this.ui.open.has(`bg:${b.name}`) };
