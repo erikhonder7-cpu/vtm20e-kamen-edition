@@ -461,6 +461,42 @@ try {
     if (!r.seal) throw new Error("лист без темы падших");
   });
 
+  await check("Падший: слуги, Перебор, черты формы", async () => {
+    const id = await temp("E2E — хозяин", "demon"), slave = await temp("E2E — слуга", "mortal");
+    const r = await page.evaluate(async ([id, slave]) => {
+      const SYS = game.system.id, a = game.actors.get(id), m = game.actors.get(slave), out = {};
+      const T = await import(`/systems/${SYS}/module/apps/torment.mjs`);
+      await m.update({ "system.willpower.permanent": 3, "system.willpower.temporary": 1 });
+      await a.update({ "system.faith.permanent": 4, "system.faith.temporary": 1, "system.thralls": [
+        { name: "", uuid: m.uuid, faith: 3, share: 2, will: 0, wounds: 0, lost: 0, terms: "", gifts: "" },
+        { name: "Без листа", uuid: "", faith: 2, share: 1, will: 2, wounds: 0, lost: 0, terms: "", gifts: "" }] });
+      await T.pactFaith(a);
+      out.faith = a.system.faith.temporary;                          // 1 + 2 + 1
+      // Перебор на 2 кубика: раскладка по умолчанию — поровну; у слуги с листом Воли 1 → 1 тяжёлое
+      const pay = T.overdrawPay(a, 2, { outcome: "botch" });
+      await new Promise(r => setTimeout(r, 600));
+      [...foundry.applications.instances.values()].find(x => x.constructor.name === "DialogV2" && x.rendered)?.element.querySelector("footer button")?.click();
+      await pay;
+      out.slave = [m.system.willpower.temporary, m.system.health.lethal];
+      out.row = a.system.thralls[1].will;
+      out.botch = a.system.faith.temporary;                          // провал — −1 Вера
+      // форма: Облик Небожителей, Мука 8 → две черты высокой Муки; Чешуя даёт +4 к поглощению
+      await a.update({ "system.visage": "celestials", "system.torment.permanent": 8 });
+      await a.setFlag(SYS, "formHigh", [0, 1]);
+      const soak0 = a.soakPool("bashing");
+      await a.update({ "system.apocalyptic": true });
+      out.soak = a.soakPool("bashing") - soak0;
+      out.claws = a.system.formFx.weapons.map(w => w.name);
+      return out;
+    }, [id, slave]);
+    if (r.faith !== 4) throw new Error(`Вера по договорам: ${r.faith} вместо 4`);
+    // раскладка 2 кубиков поровну: по пункту Воли с каждого
+    if (r.slave[0] !== 0 || r.row !== 1) throw new Error(`Воля слуг после Перебора: лист ${r.slave[0]}, без листа ${r.row}`);
+    if (r.botch !== 3) throw new Error(`провал Перебора не снял Веру: ${r.botch}`);
+    if (r.soak !== 4) throw new Error(`броня формы: +${r.soak} вместо +4`);
+    if (!r.claws.length) throw new Error("нет оружия формы");
+  });
+
   // Уборка до перезагрузок мира: сообщения бросков и временные персонажи
   await page.evaluate(async () => {
     const extra = game.messages.contents.slice(window._e2e.messages).map(m => m.id);
