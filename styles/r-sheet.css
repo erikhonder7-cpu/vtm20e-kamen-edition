@@ -182,7 +182,16 @@
 .vtm20 .r-dossier { display: flex; flex-wrap: wrap; gap: 0 18px; margin-top: 2px; }
 .vtm20 .r-df { display: flex; align-items: baseline; gap: 8px; flex: 1 1 150px; min-width: 0; height: 26px; border-bottom: 1px solid var(--r-line); }
 .vtm20 .r-df.is-wide { flex: 2 1 220px; }
-.vtm20 .r-df.is-narrow { flex: 0 0 auto; min-width: 112px; }   /* «Поколение донора» у гуля — по ширине подписи */
+.vtm20 .r-df.is-narrow { flex: 0 0 auto; min-width: 112px; }
+/* досье падшего: Дом, Облик, фракция; Натура, Маска, игрок; Небесное и Истинное имя — по половине строки */
+.vtm20 .r-dossier.is-demon { gap: 0 14px; }
+.vtm20 .r-dossier.is-demon .r-df > span { letter-spacing: 1px; }
+.vtm20 .r-dossier.is-demon .r-df.is-house { flex: 3 1 150px; }
+.vtm20 .r-dossier.is-demon .r-df.is-visage { flex: 1 1 92px; }
+.vtm20 .r-dossier.is-demon .r-df.is-faction { flex: 2 1 138px; }
+.vtm20 .r-dossier.is-demon .r-df.is-player { flex: 1 1 110px; }
+.vtm20 .r-dossier.is-demon .r-df.is-arch { flex: 1 1 150px; }
+.vtm20 .r-dossier.is-demon .r-df.is-names { flex: 1 1 250px; }   /* «Поколение донора» у гуля — по ширине подписи */
 .vtm20 .r-df.is-narrow select { flex: 0 0 auto; width: 52px; }
 .vtm20 .r-df > span { flex: 0 0 auto; font-family: var(--r-caps); font-size: 11px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--r-muted); white-space: nowrap; }
 .vtm20 .r-df input, .vtm20 .r-df select {
@@ -243,6 +252,7 @@
 .vtm20 .r-act.is-hot i { color: var(--r-accent); }
 .vtm20 .r-act.is-hot:hover { background: rgba(140, 28, 34, .2); }
 .vtm20 .r-acts-spacer { flex: 1 1 auto; }
+.vtm20 .r-act.is-on, .vtm20 .r-act.is-on i { color: var(--r-accent); }   /* включённое состояние (форма падшего) */
 
 /* ── Шкалы ─────────────────────────────────────────────────────────────── */
 
@@ -302,10 +312,18 @@
 .vtm20 .r-vcard > .r-dots { display: flex; justify-content: flex-start; }
 .vtm20 .r-vcard .r-boxes { margin: 5px 0 0; }
 /* Воля: временные клетки — в один стиль и одну сетку с точками постоянной Воли (столбец под точкой) */
-.vtm20 .r-vc-will .r-boxes { gap: 4px; margin-top: 6px; }
-.vtm20 .r-vc-will .r-box { width: 11px; height: 11px; border-radius: 2px; border-color: var(--r-dot-border); }
+/* Воля — во всю ширину карточки: точки и клетки крупнее и разнесены по строке */
+.vtm20 .r-vc-will > .r-dots { display: flex; justify-content: space-between; margin: 4px 0 2px; }
+.vtm20 .r-vc-will > .r-dots .r-dot { width: 17px; height: 17px; }
+.vtm20 .r-vc-will .r-boxes { gap: 4px; margin-top: 8px; flex-wrap: nowrap; justify-content: space-between; }
+.vtm20 .r-vc-will .r-box { width: 17px; height: 17px; border-radius: 3px; border-color: var(--r-dot-border); }
+.vtm20 .r-vc-will .r-box:nth-child(5n):not(:last-child) { margin-right: 0; }
+/* Человечность, Путь или Мука — по центру карточки и крупнее */
+.vtm20 .r-vc-morality > .r-dots { justify-content: center; margin: 4px 0 4px; }
+.vtm20 .r-vc-morality > .r-dots .r-dot { width: 15px; height: 15px; }
+.vtm20 .r-vc-morality > .r-boxes { justify-content: center; }
+.vtm20 .r-vc-morality > .r-boxes .r-box { width: 14px; height: 14px; }
 .vtm20 .r-vc-will .r-box.is-filled { background: radial-gradient(circle at 40% 35%, #efe6d4, #b3aa98 60%, #7d766a); border-color: #e3dbcc; box-shadow: 0 0 4px rgba(227, 219, 204, .25); }
-.vtm20 .r-vc-will .r-box:nth-child(5n):not(:last-child) { margin-right: 4px; }
 .vtm20 .r-vc-tools {
   display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; padding-top: 5px;
   border-top: 1px solid var(--r-line); font-size: 12px; color: var(--r-muted);
@@ -1119,7 +1137,7 @@ body.r-theme-light .vtm20 .r-motto { color: rgba(140, 28, 34, .75); }
 .vtm20 .r-form-title { margin: 0 0 6px; font-size: 14px; color: var(--r-muted); }
 .vtm20 .r-form-title b { font-family: var(--r-caps); letter-spacing: 1.2px; color: var(--r-ink); font-weight: 400; }
 .vtm20 .r-form-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 22px; }
-.vtm20 .r-form-feat { padding: 3px 0; border-bottom: 1px dotted var(--r-line); font-size: 14px; }
+.vtm20 .r-form-feat { display: block; padding: 3px 0; border-bottom: 1px dotted var(--r-line); font-size: 14px; }   /* черты-ссылки (неактивные) — тоже строкой, не в одну кашу */
 .vtm20 .r-form-col.is-high .r-form-feat { color: var(--r-accent); }
 .vtm20 .r-form-col.is-high .r-form-feat.is-off { color: var(--r-muted); opacity: .6; }
 .vtm20 .r-form-col .r-h4 small { font-family: var(--r-body); letter-spacing: 0; text-transform: none; color: var(--r-muted); }

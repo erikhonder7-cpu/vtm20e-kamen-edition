@@ -299,7 +299,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     if (ctx.isDemon) {
       const house = Codex.house(s.house);
       ctx.house = house;
-      ctx.houses = Codex.houses.map(h => ({ value: h.key, label: `${h.name} · ${h.akkadian}`, selected: h.key === s.house }));
+      ctx.houses = Codex.houses.map(h => ({ value: h.key, label: h.name, selected: h.key === s.house }));   // аккадское имя — в строке над именем
       ctx.factions = Codex.factions.map(f => ({ value: f.key, label: f.name, selected: f.key === s.faction, tip: f.text }));
       ctx.visages = Object.entries(house?.visages ?? {}).map(([k, name]) => ({ value: k, label: name, lore: Codex.lore(k)?.name ?? k, selected: k === s.visage }));
       ctx.visageLore = ctx.visages.find(v => v.selected)?.lore ?? "";

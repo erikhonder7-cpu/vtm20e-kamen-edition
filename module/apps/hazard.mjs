@@ -6,10 +6,15 @@
 // тяжёлых, броня вдвое слабее. Электричество: тяжёлые каждый ход, провал прочности —
 // губительные. Окно — в стиле окна броска: вид и сила опасности плитками, модификаторы
 // прочности ступеньками, разбор пула и шансы.
+// Падший (Demon: The Fallen, гл. 9, с. 255–256): солнца нет — вместо него освящённая земля и святыни: при Муке 4+
+// летальные раны по Вере места или предмета (1–5) каждый ход, на земле — ещё бросок Воли, чтобы остаться; при Муке 3-
+// не действуют (кроме недостатка «Невозможность ступить на освящённую землю»). Летальный урон он поглощает
+// Выносливостью только в апокалиптической форме; Облик с «Устойчивостью»/«Невосприимчивостью к огню» в форме не горит.
 
 import { VTM20, SYSTEM_PATH } from "../config.mjs";
 import { rollPool, odds, chancesView } from "../dice/roll.mjs";
 import { suggestCheck } from "../dice/virtue-checks.mjs";
+import { Codex } from "../data/codex.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -19,6 +24,10 @@ const SUN_LIGHT = { dim: 3, covered: 5, window: 7, overcast: 9, direct: 10 };
 const AREA = { part: 1, half: 2, whole: 3 };
 const SHOCK = { outlet: 1, fence: 2, battery: 3, line: 4 };
 const KIND_ICONS = { fire: "fa-fire", sun: "fa-sun", fall: "fa-person-falling", shock: "fa-bolt" };
+/** Падшим: освящённая земля и святыни вместо солнца; потенциал Веры места или предмета — 1–5. */
+const DEMON_KINDS = { fire: "fa-fire", holyGround: "fa-church", holyRelic: "fa-cross", fall: "fa-person-falling", shock: "fa-bolt" };
+const HOLY_GROUND = { chapel: 1, church: 2, shrine: 3, ancient: 4, great: 5 };
+const HOLY_RELIC = { water: 1, blessed: 2, relic: 3, venerated: 4, unique: 5 };
 
 export function openHazard(actor) {
   return new HazardDialog(actor).render({ force: true });
@@ -57,11 +66,19 @@ class HazardDialog extends HandlebarsApplicationMixin(ApplicationV2) {
   constructor(actor) {
     super({ window: { title: `${t("Hazard.Title")}: ${actor.name}` } });
     this.actor = actor;
-    this.v = { kind: "fire", heat: "torch", light: "direct", area: "part", meters: 6, sharp: false, shock: "outlet",
+    this.v = { kind: "fire", heat: "torch", light: "direct", area: "part", meters: 6, sharp: false, shock: "outlet", ground: "church", relic: "water",
       modDice: 0, modDiff: 0, messageMode: game.settings.get("core", "messageMode") };
   }
 
-  get tough() { const a = this.actor; return a.isVampire || (a.type === "creature" && a.system.supernatural); }
+  get tough() { const a = this.actor; return a.isVampire || (a.type === "creature" && a.system.supernatural) || (a.type === "demon" && a.system.apocalyptic); }
+  get isDemon() { return this.actor.type === "demon"; }
+  /** Облик в принятой форме не горит: черта «Устойчивость к огню» или «Невосприимчивость к огню». */
+  get fireproof() {
+    const s = this.actor.system;
+    return this.isDemon && s.apocalyptic && (Codex.lore(s.visage)?.form?.low ?? []).some(n => /(Устойчивость|Невосприимчивость) к огню/.test(n));
+  }
+  /** Святыни ранят падшего при Муке 4+ — или при недостатке «Невозможность ступить на освящённую землю». */
+  get holyHurts() { const a = this.actor; return a.system.torment.permanent >= 4 || a.items.some(i => i.type === "flaw" && /освящ/i.test(i.name)); }
 
   /** Что произойдёт за ход: повреждения, тип, пул прочности с разбором и сложность. */
   preview() {
@@ -69,7 +86,13 @@ class HazardDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const STA = { label: a.traitLabel("attributes.stamina"), value: stamina };
     const FORT = { label: a.traitLabel("disciplines.fortitude"), value: fort };
     let p;
-    if (v.kind === "fire") {
+    if (v.kind === "fire" && this.fireproof) return { harmless: true, harmlessText: t("Hazard.Fireproof"), bd: [], pool: 0 };
+    if (v.kind === "holyGround" || v.kind === "holyRelic") {
+      if (!this.holyHurts) return { harmless: true, harmlessText: t("Hazard.HolyLowTorment"), bd: [], pool: 0 };
+      const n = v.kind === "holyGround" ? HOLY_GROUND[v.ground] : HOLY_RELIC[v.relic];
+      // поглощение — как у любого летального: Выносливость лишь в апокалиптической форме
+      p = { amount: n, type: "lethal", difficulty: 6, parts: this.tough ? [STA, FORT] : [FORT], perTurn: true, holy: v.kind };
+    } else if (v.kind === "fire") {
       p = { amount: AREA[v.area], type: this.tough ? "aggravated" : "lethal", difficulty: FIRE_HEAT[v.heat], parts: [FORT], perTurn: true };
     } else if (v.kind === "sun") {
       if (!a.isVampire) return { harmless: true, bd: [], pool: 0 };
@@ -99,15 +122,19 @@ class HazardDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const tiles = (map, cur, prefix, field) => Object.entries(map).map(([k, n]) => ({ key: k, n, field, label: t(`${prefix}.${k}`), active: k === cur }));
     const levels = v.kind === "fire" ? { cap: t("Hazard.HeatLbl"), cols: 3, list: tiles(FIRE_HEAT, v.heat, "Hazard.Heat", "heat") }
       : v.kind === "sun" ? { cap: t("Hazard.LightLbl"), cols: 3, list: tiles(SUN_LIGHT, v.light, "Hazard.Light", "light") }
-      : v.kind === "shock" ? { cap: t("Hazard.ShockLbl"), cols: 2, list: tiles(SHOCK, v.shock, "Hazard.Shock", "shock") } : null;
+      : v.kind === "shock" ? { cap: t("Hazard.ShockLbl"), cols: 2, list: tiles(SHOCK, v.shock, "Hazard.Shock", "shock") }
+      : v.kind === "holyGround" ? { cap: t("Hazard.HolyGroundLbl"), cols: 3, list: tiles(HOLY_GROUND, v.ground, "Hazard.Ground", "ground") }
+      : v.kind === "holyRelic" ? { cap: t("Hazard.HolyRelicLbl"), cols: 3, list: tiles(HOLY_RELIC, v.relic, "Hazard.Relic", "relic") } : null;
     const modes = CONFIG.ChatMessage?.modes ?? {};
     return {
       v, p, levels,
       areas: ["fire", "sun"].includes(v.kind) ? tiles(AREA, v.area, "Hazard.Area", "area") : null,
-      kinds: Object.entries(KIND_ICONS).map(([k, icon]) => ({ key: k, icon, label: t(`Hazard.Kind.${k}`), active: v.kind === k })),
+      kinds: Object.entries(this.isDemon ? DEMON_KINDS : KIND_ICONS).map(([k, icon]) => ({ key: k, icon, label: t(`Hazard.Kind.${k}`), active: v.kind === k })),
+      kindCols: this.isDemon ? 5 : 4,
       typeLabel: p.type ? game.i18n.localize(VTM20.damageTypes[p.type].label) : "",
       chances: p.harmless || !p.pool ? null : chancesView(odds({ pool: p.pool, difficulty: p.difficulty, noBotch: !p.botchToAggravated })),
-      note: { fire: t("Hazard.FireNote"), sun: t("Hazard.SunNote"), fall: t("Hazard.FallNote"), shock: t("Hazard.ShockNote", { n: p.breakFree }) }[v.kind],
+      note: { fire: t(this.isDemon ? "Hazard.FireNoteDemon" : "Hazard.FireNote"), sun: t("Hazard.SunNote"), fall: t("Hazard.FallNote"), shock: t("Hazard.ShockNote", { n: p.breakFree }),
+        holyGround: t("Hazard.HolyGroundNote"), holyRelic: t("Hazard.HolyRelicNote") }[v.kind],
       isFall: v.kind === "fall",
       messageModes: Object.entries(modes).map(([k, m]) => ({ value: k, label: game.i18n.localize(m.label ?? k), selected: k === v.messageMode }))
     };
@@ -136,13 +163,16 @@ class HazardDialog extends HandlebarsApplicationMixin(ApplicationV2) {
 
   static async #onSubmit() {
     const a = this.actor, p = this.preview(), title = t(`Hazard.Kind.${this.v.kind}`), messageMode = this.v.messageMode;
-    if (p.harmless) return ui.notifications.info(t("Hazard.SunHarmless", { name: a.name }));
+    if (p.harmless) return ui.notifications.info(p.harmlessText ? `${a.name}: ${p.harmlessText}` : t("Hazard.SunHarmless", { name: a.name }));
     if (this.v.kind === "fall") {
       if (p.dice <= 0) return ui.notifications.info(t("Hazard.NoFall"));
       const dmg = await rollPool({ actor: a, title, subtitle: game.i18n.localize(VTM20.damageTypes[p.type].label), pool: p.dice, difficulty: 6, kind: "damage", noBotch: true, messageMode });
       return sufferHazard(a, dmg.successes, p.type, { pool: p.pool, difficulty: p.difficulty, title, breakdown: p.bd, messageMode });
     }
     const left = await sufferHazard(a, p.amount, p.type, { pool: p.pool, difficulty: p.difficulty, title, botchToAggravated: p.botchToAggravated, breakdown: p.bd, messageMode });
+    // освящённая земля: бросок Воли, чтобы остаться (гл. 9); неудача — демон спешит уйти
+    if (p.holy === "holyGround") await rollPool({ actor: a, title: t("Hazard.HolyStay"), pool: a.system.willpower.permanent, difficulty: 6, kind: "holyStay", messageMode,
+      breakdown: [{ label: t("Willpower"), value: a.system.willpower.permanent }] });
     // Огонь и солнце — Ротшрек (05): обжёгшись — 7, прямой солнечный свет — 8
     if (["fire", "sun"].includes(this.v.kind)) suggestCheck(a, "rotschreck", { reason: title, difficulty: left > 0 ? (this.v.kind === "sun" ? 8 : 7) : 6 });
     return left;

@@ -1,6 +1,6 @@
 {{!-- Опасности среды (V20, гл. 4) в стиле окна броска: вид и сила опасности плитками, прочность, шансы. --}}
 <div class="r-roll-form r-hazard-form">
-  <div class="r-tiles" style="--cols: 4">
+  <div class="r-tiles" style="--cols: {{kindCols}}">
     {{#each kinds}}<a class="r-tile is-big {{#if active}}is-active{{/if}}" data-action="kind" data-kind="{{key}}"><i class="fa-solid {{icon}}"></i><span>{{label}}</span></a>{{/each}}
   </div>
 
@@ -46,7 +46,7 @@
   {{/unless}}
 
   <div class="r-roll-total">
-    {{#if p.harmless}}<div class="r-roll-breakdown">{{localize "VTM20.Hazard.SunMortal"}}</div>
+    {{#if p.harmless}}<div class="r-roll-breakdown">{{#if p.harmlessText}}{{p.harmlessText}}{{else}}{{localize "VTM20.Hazard.SunMortal"}}{{/if}}</div>
     {{else}}
     <div class="r-roll-breakdown">
       {{#if isFall}}<span>{{localize "VTM20.Roll.Damage"}} <b>{{p.dice}}</b>{{localize "VTM20.Combat.DiceShort"}}</span>{{else}}<span>{{localize "VTM20.Hazard.PerTurn"}} <b>{{p.amount}}</b></span>{{/if}}
