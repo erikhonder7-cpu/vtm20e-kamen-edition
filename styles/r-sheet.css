@@ -1136,6 +1136,10 @@ body.r-theme-light .vtm20 .r-motto { color: rgba(140, 28, 34, .75); }
 .vtm20 .r-form.is-on { border-left-color: #b07a2c; }
 .vtm20 .r-form-title { margin: 0 0 6px; font-size: 14px; color: var(--r-muted); }
 .vtm20 .r-form-title b { font-family: var(--r-caps); letter-spacing: 1.2px; color: var(--r-ink); font-weight: 400; }
+.vtm20 .r-form-look { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 10px; margin: 0 0 8px; font-size: 13px; color: var(--r-muted); }
+.vtm20 .r-form-look-img { width: 34px; height: 34px; object-fit: cover; border: 1px solid var(--r-line); border-radius: 50%; }
+.vtm20 .r-form-look-size { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; }
+.vtm20 .r-form-look-size select { width: auto; min-width: 74px; height: 24px; }
 .vtm20 .r-form-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 22px; }
 .vtm20 .r-form-feat { display: block; padding: 3px 0; border-bottom: 1px dotted var(--r-line); font-size: 14px; }   /* черты-ссылки (неактивные) — тоже строкой, не в одну кашу */
 .vtm20 .r-form-col.is-high .r-form-feat { color: var(--r-accent); }

@@ -259,6 +259,8 @@ export class DemonData extends BaseActorData {
       faith: new SchemaField({ permanent: int(3, 0, 10), temporary: int(3, 0, 10) }),
       torment: new SchemaField({ permanent: int(3, 0, 10), temporary: int(0, 0, 10) }),
       apocalyptic: new BooleanField({ initial: false }),
+      // жетон в форме: своя картинка и размер в клетках (0 — не менять); прежние хранит флаг жетона formSave
+      formLook: new SchemaField({ img: str(), size: new NumberField({ required: true, min: 0, max: 10, initial: 0, nullable: false }) }),
       earthbound: new BooleanField({ initial: false }),  // Привязанный к Земле (Earthbound): Тёмные Знания и ритуалы без Муки, свой опыт
       // реликварий Привязанного: идеальный / импровизированный / природный; Вера в нём — сверх своей, тратится первой
       reliquary: new SchemaField({ kind: str("ideal"), faith: int(0, 0, 35) }),

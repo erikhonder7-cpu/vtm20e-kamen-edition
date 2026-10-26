@@ -129,7 +129,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       worship: VtMActorSheet.#onWorship,
       reliquaryDraw: VtMActorSheet.#onReliquaryDraw,
       houseAtlas: VtMActorSheet.#onHouseAtlas,
-      tormentSin: VtMActorSheet.#onTormentSin, thrallSin: VtMActorSheet.#onThrallSin, thrallPact: VtMActorSheet.#onThrallPact, ghoulify: VtMActorSheet.#onGhoulify, formUpkeep: VtMActorSheet.#onFormUpkeep, thrallBreak: VtMActorSheet.#onThrallBreak, openUuid: VtMActorSheet.#onOpenUuid,
+      tormentSin: VtMActorSheet.#onTormentSin, thrallSin: VtMActorSheet.#onThrallSin, thrallPact: VtMActorSheet.#onThrallPact, ghoulify: VtMActorSheet.#onGhoulify, formUpkeep: VtMActorSheet.#onFormUpkeep, formLookImg: VtMActorSheet.#onFormLookImg, formLookClear: VtMActorSheet.#onFormLookClear, thrallBreak: VtMActorSheet.#onThrallBreak, openUuid: VtMActorSheet.#onOpenUuid,
       sinSuggest: VtMActorSheet.#onSinSuggest,
       tormentKind: VtMActorSheet.#onTormentKind,
       tormentAtone: VtMActorSheet.#onTormentAtone,
@@ -660,6 +660,8 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       pickable: needsPick(x?.entry), picked: picks[x?.name] ? a.traitLabel(`abilities.${picks[x?.name]}`) : "" }; };
     ctx.form = form ? {
       visage: Codex.house(s.house)?.visages?.[s.visage] ?? "", lore: lore.name, on: !!s.apocalyptic, highN,
+      look: { img: s.formLook?.img ?? "", sizes: [0, 1, 2, 3, 4].map(v => ({ v, label: v ? String(v) : game.i18n.localize("VTM20.Demon.FormLookSizeKeep"),
+        sel: (s.formLook?.size ?? 0) === v })) },
       fx: s.apocalyptic ? s.formFx : null, fxSummary: s.apocalyptic ? formSummary(s.formFx, a) : "",
       low: form.low.map((name, i) => ({ name, index: i, ...mech(false, i) })),
       // черты высокой Муки игрок выбирает сам (гл. 7): флаг formHigh — индексы в порядке выбора; действуют первые highN,
@@ -1220,6 +1222,13 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static #onThrallPact() { return thrallPact(this.actor); }
   static #onGhoulify() { return ghoulify(this.actor); }
   static #onFormUpkeep() { return formUpkeep(this.actor); }
+  /** Картинка жетона в форме — выбирает игрок (своих картинок система не даёт). */
+  static #onFormLookImg() {
+    const fp = new foundry.applications.apps.FilePicker.implementation({ type: "image", current: this.actor.system.formLook?.img || "",
+      callback: path => this.actor.update({ "system.formLook.img": path }) });
+    return fp.browse();
+  }
+  static #onFormLookClear() { return this.actor.update({ "system.formLook.img": "" }); }
   static #onThrallBreak() { return thrallBreak(this.actor); }
   /** Открыть лист по uuid (хозяин слуги и т. п.). */
   static async #onOpenUuid(event, target) { (await fromUuid(target.dataset.uuid))?.sheet?.render(true); }

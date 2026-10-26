@@ -25,6 +25,11 @@ export function registerTorment() {
     const a = combat.combatant?.actor;
     if (a?.type === "demon" && a.system.earthbound && a.system.apocalyptic) formUpkeep(a);
   });
+  // вход в форму и выход из неё (любой путь: кнопка, рассеяние, правка) — жетоны меняет тот, кто менял лист
+  Hooks.on("updateActor", (actor, changed, _opts, userId) => {
+    const on = foundry.utils.getProperty(changed, "system.apocalyptic");
+    if (actor.type === "demon" && on !== undefined && userId === game.user.id) formTokens(actor, on);
+  });
   game.settings.register(SYSTEM_ID, "tormentRule", {
     name: "VTM20.Settings.TormentRule.Name", hint: "VTM20.Settings.TormentRule.Hint",
     scope: "world", config: true, type: String, default: "die",
@@ -389,6 +394,29 @@ export async function worshipRitual(actor) {
   await actor.update({ "system.reliquary.faith": next });
   return notice(actor, "fa-place-of-worship", t("WorshipDone", { name: esc(actor.name), n: next - R.faith, f: next, max: R.max }));
 }
+/** Жетоны падшего на всех сценах: свой у незакреплённого, у закреплённого — все с его actorId. */
+const tokensOf = actor => actor.isToken ? [actor.token]
+  : game.scenes.contents.flatMap(sc => sc.tokens.filter(tk => tk.actorLink && tk.actorId === actor.id));
+
+/** Облик жетона в форме: надеть картинку и размер из formLook (прежние — во флаг formSave) или вернуть прежние. */
+export async function formTokens(actor, on) {
+  const look = actor.system.formLook ?? {};
+  for (const tk of tokensOf(actor)) {
+    if (!tk.isOwner) continue;
+    const save = tk.getFlag(SYSTEM_ID, "formSave");
+    if (on) {
+      if (save || (!look.img && !look.size)) continue;
+      const upd = { [`flags.${SYSTEM_ID}.formSave`]: { src: tk.texture.src, width: tk.width, height: tk.height } };
+      if (look.img) upd["texture.src"] = look.img;
+      if (look.size) Object.assign(upd, { width: look.size, height: look.size });
+      await tk.update(upd);
+    } else if (save) {
+      await tk.update({ "texture.src": save.src, width: save.width, height: save.height });
+      await tk.unsetFlag(SYSTEM_ID, "formSave");
+    }
+  }
+}
+
 /** Плата за ход формы Привязанного без носителя: 2 Веры (импровизированный реликварий — 1). */
 export const formUpkeepCost = actor => actor.system.reliquary?.kind === "improvised" ? 1 : 2;
 /** Списать Веру: сначала из реликвария, потом из своего запаса (Earthbound, гл. 3). */

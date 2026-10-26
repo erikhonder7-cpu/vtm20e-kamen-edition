@@ -149,6 +149,14 @@
   {{#if form}}
   <div class="r-form {{#if form.on}}is-on{{/if}}">
     <p class="r-form-title"><b>{{form.visage}}</b> · {{form.lore}}{{#if form.on}} · <em>{{localize "VTM20.Demon.FormActive"}}</em>{{/if}}</p>
+    <div class="r-form-look" data-tooltip="{{localize 'VTM20.Demon.FormLookHint'}}">
+      <span class="r-form-look-lbl"><i class="fa-solid fa-chess-pawn"></i> {{localize "VTM20.Demon.FormLook"}}</span>
+      {{#if form.look.img}}<img class="r-form-look-img" src="{{form.look.img}}" alt="">{{/if}}
+      {{#if editable}}<a class="r-h2-btn" data-action="formLookImg"><i class="fa-solid fa-image"></i> <span class="r-h2-lbl">{{#if form.look.img}}{{localize "VTM20.Demon.FormLookChange"}}{{else}}{{localize "VTM20.Demon.FormLookPick"}}{{/if}}</span></a>
+      {{#if form.look.img}}<a class="r-h2-btn" data-action="formLookClear" data-tooltip="{{localize 'VTM20.Demon.FormLookClear'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}{{/if}}
+      <label class="r-form-look-size">{{localize "VTM20.Demon.FormLookSize"}}
+        <select name="system.formLook.size" {{#unless editable}}disabled{{/unless}}>{{#each form.look.sizes}}<option value="{{v}}" {{#if sel}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+    </div>
     {{#if form.fxSummary}}<p class="r-form-sum"><i class="fa-solid fa-dragon"></i> {{form.fxSummary}}</p>{{/if}}
     <div class="r-form-cols">
       <div class="r-form-col">
