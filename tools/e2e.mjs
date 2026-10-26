@@ -425,6 +425,42 @@ try {
     if (name !== "Путь Ночи") throw new Error(`открылось: ${name ?? "ничего"}`);
   });
 
+  await check("Падший: кость Муки, форма, рост Муки, Знания", async () => {
+    const id = await temp("E2E — падший", "demon");
+    const r = await page.evaluate(async id => {
+      const SYS = game.system.id, a = game.actors.get(id), out = {};
+      const { rollPool } = await import(`/systems/${SYS}/module/dice/roll.mjs`);
+      const T = await import(`/systems/${SYS}/module/apps/torment.mjs`);
+      await a.setFlag(SYS, "created", true);
+      await a.update({ "system.house": "devils", "system.faith.permanent": 3, "system.faith.temporary": 3,
+        "system.torment.permanent": 4, "system.torment.temporary": 9 });
+      await a.createEmbeddedDocuments("Item", [{ name: "Знание Пламени", type: "lore", system: { key: "flame", value: 2 } }]);
+      // призыв: кость Муки или раскладка успехов по errata — что-то из двух
+      const res = await rollPool({ actor: a, title: "E2E", pool: 4, difficulty: 6, kind: "check", extra: { torment: a.system.torment.permanent } });
+      out.die = res.state.extra.tormentDie ?? res.state.extra.tormentLow ?? null;
+      // апокалиптическая форма: тяжёлые поглощаются Выносливостью
+      out.soak0 = a.soakPool("lethal");
+      await a.update({ "system.apocalyptic": true });
+      out.soak1 = a.soakPool("lethal");
+      // десятая временная Мука превращается в постоянную
+      await T.gainTorment(a, 1, "E2E");
+      out.torment = [a.system.torment.permanent, a.system.torment.temporary];
+      await a.sheet.render({ force: true });
+      for (let i = 0; i < 20 && !a.sheet.element?.querySelector(".r-actor"); i++) await new Promise(r => setTimeout(r, 250));
+      a.sheet.changeTab("disciplines", "primary");
+      await new Promise(r => setTimeout(r, 400));
+      out.lores = a.sheet.element.querySelectorAll(".r-lores .r-trait, .r-lores [data-item-id]").length;
+      out.seal = !!a.sheet.element.closest(".r-type-demon") || a.sheet.element.classList.contains("r-type-demon");
+      await a.sheet.close();
+      return out;
+    }, id);
+    if (r.die == null) throw new Error("нет кости Муки");
+    if (!(r.soak1 > r.soak0)) throw new Error(`форма не прибавила поглощения: ${r.soak0} → ${r.soak1}`);
+    if (r.torment[0] !== 5 || r.torment[1] !== 0) throw new Error(`Мука ${r.torment.join("/")} вместо 5/0`);
+    if (!r.lores) throw new Error("на вкладке нет Знаний");
+    if (!r.seal) throw new Error("лист без темы падших");
+  });
+
   // Уборка до перезагрузок мира: сообщения бросков и временные персонажи
   await page.evaluate(async () => {
     const extra = game.messages.contents.slice(window._e2e.messages).map(m => m.id);
