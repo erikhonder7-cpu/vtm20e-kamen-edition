@@ -31,8 +31,33 @@ export async function gainTorment(actor, n = 1, reason = "") {
   let temp = tm.temporary + n, perm = tm.permanent;
   const grew = Math.floor(temp / 10);
   if (grew) { perm = Math.min(10, perm + grew); temp %= 10; }
+  const before = tm.permanent;
   await actor.update({ "system.torment.temporary": temp, "system.torment.permanent": perm });
   await notice(actor, "fa-fire", t(grew ? "TormentGrewPerm" : "TormentGrew", { name: esc(actor.name), n: temp, p: perm, reason: esc(reason) }), "is-warn");
+  if (perm > before) await pickHighFeatures(actor);
+}
+
+/**
+ * Новая точка постоянной Муки сверх шести — новая черта высокой Муки (гл. 7): игрок выбирает её сам.
+ * Окно предлагает свободные черты Облика; выбор дописывается во флаг formHigh (порядок выбора).
+ */
+export async function pickHighFeatures(actor) {
+  const form = Codex.lore(actor.system.visage)?.form;
+  if (!form || !actor.isOwner) return;
+  const highN = Math.max(0, Math.min(4, actor.system.torment.permanent - 6));
+  const picked = (actor.getFlag(SYSTEM_ID, "formHigh") ?? []).filter(i => i < form.high.length);
+  for (let left = highN - picked.length; left > 0; left--) {
+    const free = form.high.map((name, i) => ({ name, i })).filter(x => !picked.includes(x.i));
+    if (!free.length) break;
+    const i = await foundry.applications.api.DialogV2.wait({
+      window: { title: t("FormHighNew", { name: actor.name }) }, classes: ["vtm20", "r-dialog"], position: { width: 420 },
+      content: `<p class="r-choice-hint">${t("FormHighNewHint", { n: actor.system.torment.permanent })}</p>`,
+      buttons: free.map((x, k) => ({ action: String(x.i), label: x.name, default: k === 0 }))
+    }).catch(() => null);
+    if (i == null || i === "") break;
+    picked.push(Number(i));
+    await actor.setFlag(SYSTEM_ID, "formHigh", picked);
+  }
 }
 
 /** Грех против Добродетели: бросок Добродетели, сл. 8. */
