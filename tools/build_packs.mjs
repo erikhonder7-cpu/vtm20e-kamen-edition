@@ -313,13 +313,13 @@ BUILDERS["demon-lores"] = function () {
       + `<table><thead><tr><th>Круг</th><th>Призыв</th><th>Бросок</th><th>Книга</th></tr></thead><tbody>${rows}</tbody></table>${form}`;
     // папка Знания внутри папки Дома: само Знание, затем его призывы — предметы «Призыв» (тип lorePower, порядок по кругу)
     const folder = [l.dark ? "Привязанные к Земле" : l.house ? houseName[l.house] : "Общие Знания", l.name];
-    p.add({ name: l.name, type: "lore", folder, key: `lore:${l.key}`, img: ICON("discipline"),
+    p.add({ name: l.name, type: "lore", folder, key: `lore:${l.key}`, img: ICON(l.dark ? "darkLore" : "lore"),
       system: { key: l.key, value: 1, source: l.en, description } });
     p.folders.get(folder.join("/")).sorting = "m";
     for (const x of l.powers) {
       const system = { lore: l.key, level: x.level, page: x.page ?? 0, source: l.dark ? "Earthbound" : "Demon: The Fallen", description: x.html ?? "" };
       const roll = rollOf(x.roll); if (roll) system.roll = roll;
-      p.add({ name: x.name, type: "lorePower", folder, key: `evocation:${l.key}:${x.level}`, img: ICON("discipline"), system });
+      p.add({ name: x.name, type: "lorePower", folder, key: `evocation:${l.key}:${x.level}`, img: ICON(l.dark ? "darkLore" : "lorePower"), system });
     }
   }
   return p;
@@ -370,7 +370,7 @@ BUILDERS["demon-rituals"] = function () {
   const p = new Pack("demon-rituals", "Item");
   const { dm, hof } = hofHouses();
   const pg = data("demon-pg").rituals;
-  const add = (r, src, house, folder, key) => p.add({ name: r.name, type: "demonRitual", folder, key, img: ICON("ritual"),
+  const add = (r, src, house, folder, key) => p.add({ name: r.name, type: "demonRitual", folder, key, img: ICON("demonRitual"),
     system: { house, primary: loreRef(r.primary), secondary: r.secondary.map(loreRef), cost: r.cost ?? 0, time: r.time ?? "", limits: r.limits ?? "",
       roll: parseRoll(r.roll), rollText: r.roll ?? "", high: r.high ?? "", variants: r.variants ?? "", page: r.page ?? 0, source: src,
       description: `<p>${esc(r.text)}</p>` } });
@@ -387,7 +387,7 @@ BUILDERS["demon-rituals"] = function () {
 BUILDERS["demon-relics"] = function () {
   const p = new Pack("demon-relics", "Item");
   const { dm, hof } = hofHouses();
-  const add = (r, src, kind, house, folder, key) => p.add({ name: r.name, type: "relic", folder, key, img: ICON("gear"),
+  const add = (r, src, kind, house, folder, key) => p.add({ name: r.name, type: "relic", folder, key, img: ICON("relic"),
     system: { kind, house, lores: r.lores ?? [], use: r.use ?? "", mechanics: r.system ?? "", page: r.page ?? 0, source: src, description: `<p>${esc(r.text)}</p>` } });
   for (const h of dm.houses)
     for (const r of hof[h.key]?.relics ?? []) add(r, HOF, r.kind === "craft" ? "demonic" : "unique", h.key, h.name, `relic:${h.key}:${r.name}`);

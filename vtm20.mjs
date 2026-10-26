@@ -311,6 +311,14 @@ async function migrateWorld() {
     const { restoreSystemIcons } = await import("./module/data/icons.mjs");
     if (await restoreSystemIcons()) changed = true;
   }
+  // Знания и призывы падших, ритуалы и реликвии — свои значки вместо общих (жетон Дисциплины, ритуал, снаряжение)
+  const ICONS = { lore: "lore", lorePower: "lorePower", demonRitual: "demonRitual", relic: "relic" };
+  const OLD = ["discipline", "ritual", "gear"].map(n => `systems/${SYSTEM_ID}/assets/icons/${n}.svg`);
+  for (const a of game.actors) {
+    const upd = a.items.filter(i => ICONS[i.type] && OLD.includes(i.img)).map(i => ({ _id: i.id,
+      img: `systems/${SYSTEM_ID}/assets/icons/${Codex.lore(i.system.key ?? i.system.lore)?.dark ? "darkLore" : ICONS[i.type]}.svg` }));
+    if (upd.length) { await a.updateEmbeddedDocuments("Item", upd); changed = true; }
+  }
   // Папка компендиев вампиров: Foundry создал её по первому манифесту («VTM20 «Liberté»») и сам не переименовывает
   for (const f of game.folders.filter(f => f.type === "Compendium" && f.name === "VTM20 «Liberté»")) {
     await f.update({ name: "Vampire: The Masquerade" }); changed = true;

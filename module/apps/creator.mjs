@@ -864,7 +864,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     for (const k of discKeys) {
       if (this.isDemon) {                               // Знания падшего — предметами «Знание» со справочным ключом
         const l = Codex.lore(k), v = this.value("disc", k);
-        if (l && v > 0) items.push({ name: l.name, type: "lore", img: icon("discipline"),
+        if (l && v > 0) items.push({ name: l.name, type: "lore", img: icon(l.dark ? "darkLore" : "lore"),
           system: { key: k, value: v, description: `<p><em>${l.en}</em> · ${Codex.house(l.house)?.name ?? t("Demon.Common")}</p>` } });
         continue;
       }

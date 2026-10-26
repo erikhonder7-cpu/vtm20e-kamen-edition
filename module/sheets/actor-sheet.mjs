@@ -1509,7 +1509,7 @@ Hooks.on("preCreateItem", (item, data, options, userId) => {
 
 /** Знания демона предметами: имя и ключ из справочника, одна точка. */
 function createLore(actor, keys) {
-  const data = keys.map(k => Codex.lore(k)).filter(Boolean).map(l => ({ name: l.name, type: "lore", img: `systems/${SYSTEM_ID}/assets/icons/discipline.svg`,
+  const data = keys.map(k => Codex.lore(k)).filter(Boolean).map(l => ({ name: l.name, type: "lore", img: `systems/${SYSTEM_ID}/assets/icons/${l.dark ? "darkLore" : "lore"}.svg`,
     system: { key: l.key, value: 1, description: `<p><em>${l.en}</em> · ${Codex.house(l.house)?.name ?? t("Demon.Common")}</p>` } }));
   return data.length ? actor.createEmbeddedDocuments("Item", data) : null;
 }
