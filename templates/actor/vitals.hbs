@@ -99,11 +99,12 @@
       </div>
       {{/each}}
     </div>
-    <div class="r-vc-tools">
+    <div class="r-vc-tools is-torment">
       <a class="r-vc-btn" data-action="tormentSin" data-tooltip="{{localize 'VTM20.Demon.SinHint'}}"><i class="fa-solid fa-skull"></i> {{localize "VTM20.Demon.Sin"}}</a>
       {{#if isGM}}<a class="r-vc-btn is-sq" data-action="sinSuggest" data-tooltip="{{localize 'VTM20.Demon.SinSuggestHint'}}"><i class="fa-solid fa-bell"></i></a>{{/if}}
       <a class="r-vc-btn" data-action="tormentKind" data-tooltip="{{localize 'VTM20.Demon.KindHint'}}"><i class="fa-solid fa-hand-holding-heart"></i> {{localize "VTM20.Demon.Kind"}}</a>
-      {{#if editable}}<a class="r-vc-btn is-right" data-action="tormentAtone" data-tooltip="{{localize 'VTM20.Demon.AtoneHint'}}"><i class="fa-solid fa-feather"></i> −1 · 10 {{localize "VTM20.Demon.XpShort"}}</a>{{/if}}
+      {{!-- искупление опытом: коротко, цена — в подсказке; длинная надпись выталкивала кнопку на вторую строку --}}
+      {{#if editable}}<a class="r-vc-btn is-right" data-action="tormentAtone" data-tooltip="{{localize 'VTM20.Demon.AtoneHint'}}"><i class="fa-solid fa-feather"></i> −1</a>{{/if}}
     </div>
     {{/if}}
   </div>

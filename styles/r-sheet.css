@@ -342,6 +342,9 @@
 .vtm20 .r-vc-btngroup { display: inline-flex; align-items: center; gap: 3px; }
 .vtm20 .r-vc-btnlabel { margin-right: 3px; font-family: var(--r-caps); font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--r-muted); }
 .vtm20 .r-vc-tools .is-right { margin-left: auto; }
+/* Мука: «Грех», колокол, «Доброе дело» и «−1» — в одну строку и в узкой карточке */
+.vtm20 .r-vc-tools.is-torment { gap: 4px 6px; }
+.vtm20 .r-vc-tools.is-torment .r-vc-btn:not(.is-sq) { padding: 0 6px; }
 .vtm20 .r-vc-hint { margin-left: auto; font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .vtm20 .r-vc-hint.is-left { margin-left: 0; flex: 1 1 auto; min-width: 0; }
 .vtm20 .r-vc-hint b { font-style: normal; color: var(--r-ink-2); font-weight: 400; }

@@ -2,7 +2,8 @@
 # Ритуалы по справочникам пользователя (tools/sources/rituals/*.md — пересказы, не текст книг):
 #   necromancy.md, thaumaturgy.md, assamiteSorcery.md, darkThaumaturgy.md, koldunism.md, setiteSorcery.md,
 #   obtenebration.md — те же ритуалы, что в каталоге, с полным
-#   описанием по разделам; koldunism-extra.md — ритуалы Колдовства, которых в каталоге не было.
+#   описанием по разделам; *-extra.md — ритуалы школы, которых в каталоге не было (Колдовство, Некромантия,
+#   Чародейство сетитов и ассамитов, Тёмная Тауматургия, Тауматургия, Мистика Бездны).
 # Запись справочника: «### [N.] Имя (En) — уровень X [**[пометка]**]», дальше разделы «**Описание:**», «**Компоненты…:**»,
 # «**Эффект…:**» и прочие («Правила и ограничения», «Расширенное пояснение», «Источник», «Как снять»…).
 # apply() кладёт в ритуал parts = {head, desc, components, effect, notes: [{title, html}], ref} и пересобирает html
@@ -16,16 +17,24 @@ SRC = os.path.join(os.path.dirname(os.path.abspath(__file__)), "sources", "ritua
 DOCS = {"necromancy": "necromancy.md", "thaumaturgy": "thaumaturgy.md", "assamiteSorcery": "assamiteSorcery.md",
         "darkThaumaturgy": "darkThaumaturgy.md", "koldunism": "koldunism.md",
         "setiteSorcery": "setiteSorcery.md", "obtenebration": "obtenebration.md"}
-EXTRA = {"koldunism": "koldunism-extra.md"}
+EXTRA = {"koldunism": "koldunism-extra.md", "necromancy": "necromancy-extra.md", "setiteSorcery": "setiteSorcery-extra.md",
+         "darkThaumaturgy": "darkThaumaturgy-extra.md", "obtenebration": "obtenebration-extra.md",
+         "assamiteSorcery": "assamiteSorcery-extra.md", "thaumaturgy": "thaumaturgy-extra.md"}
 
 HEAD = re.compile(r"^#{2,3}\s+(?:\d+\.\s+)?(?P<title>.+?)\s+—\s+(?P<lvl>.+?)\s*(?:\*\*\[(?P<tag>[^\]]+)\]\*\*)?\s*$")
 # без уровня в заголовке — уровень из раздела «# Уровень 1»: сетиты «## 1. Имя (En)», Мистика Бездны «### Имя (En)»
 HEAD_NUM = re.compile(r"^(?:#{2,3}\s+\d+\.\s+|###\s+)(?P<title>.+?)\s*(?:\*\*\[(?P<tag>[^\]]+)\]\*\*)?\s*$")
-SECTION_LEVEL = re.compile(r"^#{1,2}\s+(?:Уровень\s+\d+|Ритуал\w*\s+\w+\s+уровня)", re.I)
+SECTION_LEVEL = re.compile(r"^#{1,2}\s+(?:Уровень\b|Ритуал\w*\s+\w+\s+уровня)", re.I)
+# «*Источник: **Книга**, с. 177.*» строкой под заголовком ритуала
+SOURCE_LINE = re.compile(r"^\*Источник:\s*(?P<src>.+?)\*\s*$")
+# уровень, которого нет в книге, — по сложности броска раздела «Система» (сложность = 3 + уровень)
+DIFF = re.compile(r"(?:Интеллект|Смекалка) \+ Оккультизм, сложность (\d+)")
 # раздел: «**Имя:** текст» или «**Имя**» отдельной строкой; «**Практическое значение.**» — подзаголовок внутри раздела
 LABEL = re.compile(r"^\*\*(?P<label>[^*]+?)(?::\*\*|\*\*:|\*\*\s*$)\s*(?P<rest>.*)$")
 ROMAN_WORDS = {"первого": 1, "второго": 2, "третьего": 3, "четвёртого": 4, "пятого": 5, "шестого": 6, "седьмого": 7,
-               "восьмого": 8, "девятого": 9, "десятого": 10}
+               "восьмого": 8, "девятого": 9, "десятого": 10,
+               # ступени OWbN — как в адаптации для V20 того же справочника (базовый — 1-й уровень, промежуточный — 3-й)
+               "базов": 1, "промежуточ": 3}
 
 
 def _inline(s):
@@ -90,33 +99,43 @@ def _split_title(t):
     t = t.strip()
     m = re.match(r"^(.*?)\s*\(([^()]*[A-Za-z][^()]*)\)\s*$", t)
     if m:
-        return m.group(1).strip(), m.group(2).strip().strip("*_").strip()
+        return m.group(1).strip(), m.group(2).replace("*", "").strip("_ ")
     return t, ""
 
 
 def parse(path):
     """Записи справочника: [{name, en, level, levelText, tag, sections: [(label, [строки])]}]."""
-    entries, cur, sec, section_level = [], None, None, 0
+    entries, cur, sec, section_level, section_text, in_levels = [], None, None, 0, "", False
     with open(path, encoding="utf-8") as f:
         lines = f.read().split("\n")
     for line in lines:
         if line.startswith("#"):
             m, lvl = None, 0
             if SECTION_LEVEL.match(line):
-                section_level = _level(line)
+                section_level, in_levels = _level(line), True
+                section_text = line.lstrip("#").strip()
             else:
                 m = HEAD.match(line)
                 lvl = _level(m.group("lvl")) if m else 0
                 if m and m.group("title").count("(") > m.group("title").count(")"):
-                    m, lvl = HEAD_NUM.match(line), section_level   # тире внутри скобок: «(En; в некоторых списках — …)»
+                    # тире внутри скобок: «(En; в некоторых списках — …)»; уровень — после закрывающей скобки, если есть
+                    m = HEAD_NUM.match(line)
+                    tail = re.search(r"\)\s+—\s+([^()]*)$", m.group("title")) if m else None
+                    lvl = (_level(tail.group(1)) if tail else 0) or section_level
                 elif m and not lvl:                   # «— переменный уровень», «— название требует проверки»
                     lvl = section_level
                 elif not m:                           # «## 1. Имя (En)», «### Имя (En)» — уровень из раздела
                     m = HEAD_NUM.match(line)
                     lvl = section_level if m else 0
-            if m and lvl:
-                name, en = _split_title(m.group("title"))
-                lvl_text = (m.groupdict().get("lvl") or f"уровень {lvl}").strip()
+            # в разделе «Уровень не установлен…» запись есть, уровень — потом по сложности броска (apply)
+            if m and (lvl or (in_levels and line.startswith("### "))):
+                title = m.group("title")
+                tail = re.search(r"\)\s+—\s+([^()]*)$", title)
+                if tail:                              # «Имя (En; … — …) — уровень 3»: хвост после скобки — уровень
+                    title = title[:tail.start() + 1]
+                name, en = _split_title(title)
+                own = (tail.group(1) if tail else None) or m.groupdict().get("lvl")
+                lvl_text = (own or (section_text if HEAD_NUM.match(line) and section_text else "") or f"уровень {lvl}").strip()
                 cur = {"name": name, "en": en, "level": lvl, "levelText": lvl_text,
                        "tag": (m.group("tag") or "").strip(), "sections": []}
                 entries.append(cur)
@@ -127,6 +146,10 @@ def parse(path):
         if cur is None:
             continue
         if line.strip() == "---":
+            continue
+        src = SOURCE_LINE.match(line.strip())
+        if src and not cur["sections"]:
+            cur["sections"].append(("Источник", [src.group("src")]))
             continue
         m = LABEL.match(line.strip())
         if m and not m.group("label").rstrip().endswith("."):
@@ -156,6 +179,10 @@ def parts_of(e):
             p["ref"] = re.sub(r"<[^>]+>", "", body).strip()
         elif body:
             p["notes"].append({"title": label or "Примечание", "html": body})
+    # «уровень 1, Mortis», «переменный уровень», «уровень 4 в настольном варианте» — пометка из заголовка
+    lt = e.get("levelText", "")
+    if lt and not re.fullmatch(r"уровень\s+\d+|\d+-й\s+уровень", lt, re.I):
+        p["notes"].append({"title": "Уровень и традиция", "html": "<p>" + _inline(lt) + "</p>"})
     if e.get("tag"):
         p["notes"].append({"title": "Пометка составителя", "html": "<p>" + _inline(e["tag"]) + "</p>"})
     return p
@@ -261,9 +288,21 @@ def apply(rituals, report=None):
         if key not in rituals or not os.path.exists(path):
             continue
         group = rituals[key]["rituals"]
+        # уже есть в каталоге — по русскому имени или по английскому (другой перевод того же ритуала)
         have = {norm(r["name"]) for r in group}
-        added = [_new_ritual(key, group, e) for e in parse(path) if norm(e["name"]) not in have and e["level"]]
+        ens = lambda s: {norm(x) for x in re.split(r"[;/]", s or "") if norm(x)}   # «Loyal Eyes / Encrypt Missive»
+        have_en = {x for r in group for x in ens(r.get("en"))}
+        fresh = lambda e: norm(e["name"]) not in have and not (ens(e["en"]) & have_en)
+        entries = parse(path)
+        for e in entries:
+            if not e["level"]:                        # «Уровень не установлен в исходной книге» — по сложности броска
+                d = DIFF.search(" ".join(" ".join(ls) for _, ls in e["sections"]))
+                e["level"] = max(1, min(10, int(d.group(1)) - 3)) if d else 0
+                if e["level"]:
+                    e["levelText"] += f" (здесь — {e['level']}-й, по сложности броска)"
+        added = [_new_ritual(key, group, e) for e in entries if e["level"] and fresh(e)]
         group.extend(added)
         group.sort(key=lambda r: r["level"])
-        report[key + "+"] = {"added": [r["name"] for r in added]}
+        report[key + "+"] = {"added": [r["name"] for r in added],
+                             "skipped": [e["name"] for e in entries if e["level"] and not fresh(e)]}
     return report

@@ -146,9 +146,13 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
       chips = Array.from({ length: top + 1 }, (_, v) => chip("level", v, v ? ROMAN[v - 1] ?? v : L("Filter.All")));
     }
     else if (kind === "merit" || kind === "flaw") {
+      // только категории, что есть в списке этого персонажа: вампиру — без инфернальных, юридических и экономических
+      // черт падших, падшему — без клановых и сектантских
+      const has = new Set(entries.map(e => e.cat));
       chips = [chip("cat", "", L("Filter.All")), ...Object.entries(VTM20.meritCategories)
-        .map(([k, c]) => chip("cat", k, game.i18n.localize(c.label))),
-        chip("cat", "sect", L("Filter.SectTraits")), chip("cat", "clan", L("Filter.Clan"))];
+        .filter(([k]) => has.has(k)).map(([k, c]) => chip("cat", k, game.i18n.localize(c.label))),
+        ...(has.has("sect") ? [chip("cat", "sect", L("Filter.SectTraits"))] : []),
+        ...(has.has("clan") ? [chip("cat", "clan", L("Filter.Clan"))] : [])];
     } else if (kind === "discipline" && this.actor?.type === "vampire") {
       chips = [chip("scope", "", L("Filter.All")), chip("scope", "clan", L("Filter.Clan"), "fa-droplet")];
     }
