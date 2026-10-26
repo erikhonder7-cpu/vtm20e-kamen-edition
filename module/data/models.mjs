@@ -70,7 +70,12 @@ class BaseActorData extends foundry.abstract.TypeDataModel {
       biography: new HTMLField({ required: true, blank: true, initial: "" }),
       notes: new HTMLField({ required: true, blank: true, initial: "" }),
       // Хроника персонажа: события по датам (Биография)
-      timeline: new ArrayField(new SchemaField({ date: str(), text: str() }))
+      timeline: new ArrayField(new SchemaField({ date: str(), text: str() })),
+      // договоры с демонами (инфернализм, apps/infernal.mjs; V20 Rites of the Blood, Devil’s Due): с кем, форма сделки,
+      // условия, плата и злодеяние, метка слуги демона; рейтинг по Devil’s Due — обязательство + последствие − частота
+      pacts: new ArrayField(new SchemaField({ demon: str(), form: str("empowerment"), terms: str(), price: str(), deed: str(),
+        thrall: new BooleanField({ initial: false }), obligation: int(0, 0, 5), frequency: int(0, 0, 5), consequence: int(0, 0, 5),
+        broken: new BooleanField({ initial: false }) }))
     };
   }
 
@@ -404,6 +409,22 @@ export class RelicData extends BaseItemData {
   }
 }
 
+/** Инфернальное Вложение (V20 Rites of the Blood — 3 опыта, не больше постоянной Воли; старые — книги Шабаша, рейтинг 1–6):
+ *  цена применения кровью, Волей, постоянной Волей; бросок, если есть; с кем договор и каким злодеянием скреплён. */
+export class InvestmentData extends BaseItemData {
+  static defineSchema() {
+    return {
+      ...super.defineSchema(),
+      tier: str("v20"),                  // v20 | sabbat
+      rating: int(0, 0, 6), xp: int(3, 0, 99),
+      cost: new SchemaField({ blood: int(0, 0, 10), willpower: int(0, 0, 10), willpowerPerm: int(0, 0, 10) }),
+      costNote: str(),
+      roll: rollField(),
+      pact: str(), deed: str()
+    };
+  }
+}
+
 /** Записанная сила: своя или перенесённая из старой системы. Показывается в карточке Дисциплины. */
 /** Призыв падшего (тип lorePower): Знание, круг, бросок; описание — эффект и высокая Мука. Как сила Дисциплины у вампиров. */
 export class LorePowerData extends BaseItemData {
@@ -489,6 +510,6 @@ export function registerDataModels() {
   Object.assign(CONFIG.Item.dataModels, {
     discipline: DisciplineData, lore: LoreData, lorePower: LorePowerData, thaumPath: BloodPathData, ritual: RitualData, power: PowerData,
     background: BackgroundData, merit: MeritData, flaw: MeritData, derangement: DerangementData,
-    weapon: WeaponData, armor: ArmorData, gear: GearData, demonRitual: DemonRitualData, relic: RelicData
+    weapon: WeaponData, armor: ArmorData, gear: GearData, demonRitual: DemonRitualData, relic: RelicData, investment: InvestmentData
   });
 }

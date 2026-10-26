@@ -91,6 +91,52 @@
     {{/each}}
   </div>
 
+  {{#if infernal}}
+  {{!-- Инфернализм (apps/infernal.mjs): Вложения — 3 опыта, не больше постоянной Воли; договоры с демонами --}}
+  <div class="r-cols2 r-infernal">
+    <div class="r-col">
+      <h2 class="r-h2"><span>{{localize "VTM20.Infernal.Investments"}}</span><em class="r-h2-total" data-tooltip="{{localize 'VTM20.Infernal.LimitHint'}}">{{infernal.limit.v20}} / {{infernal.limit.max}}</em>
+        {{#if editable}}<span class="r-h2-tools"><a class="r-h2-btn" data-action="library" data-kind="investment" data-tooltip="{{localize 'VTM20.Library.Open'}}"><i class="fa-solid fa-book-skull"></i> <span class="r-h2-lbl">{{localize "VTM20.Library.Open"}}</span></a><a class="r-h2-btn is-ghost" data-action="itemCreate" data-type="investment" data-tooltip="{{localize 'VTM20.Sheet.Own'}}"><i class="fa-solid fa-feather"></i></a></span>{{/if}}</h2>
+      {{#each infernal.investments}}
+      <div class="r-row-wrap r-mf-row {{#if open}}is-open{{/if}}" data-item-id="{{id}}">
+        <div class="r-trait-main">
+          <i class="fa-solid fa-file-contract r-muted"></i>
+          <a class="r-trait-label" data-action="toggleRow" data-row-id="{{id}}">{{name}}</a>
+          <span class="r-leader"></span>
+          {{#if rating}}<span class="r-tag">{{rating}}</span>{{/if}}
+          {{#if cost}}<small class="r-muted">{{cost}}</small>{{/if}}
+          {{#if @root.editable}}<a class="r-icon-btn" data-action="investmentUse" data-tooltip="{{localize 'VTM20.Infernal.Use'}}"><i class="fa-solid fa-hand-sparkles"></i></a>{{/if}}
+          <a class="r-icon-btn" data-action="itemEdit"><i class="fa-solid fa-pen-nib"></i></a>
+          {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="itemDelete"><i class="fa-solid fa-xmark"></i></a>{{/if}}
+        </div>
+        <div class="r-power-body">{{#if pact}}<p class="r-note">{{localize "VTM20.Infernal.Demon"}}: {{pact}}{{#if deed}} · {{localize "VTM20.Infernal.Deed"}}: {{deed}}{{/if}}</p>{{/if}}{{{html}}}</div>
+      </div>
+      {{else}}<div class="r-empty">{{localize "VTM20.Infernal.NoInvestments"}}</div>
+      {{/each}}
+    </div>
+    <div class="r-col">
+      <h2 class="r-h2"><span>{{localize "VTM20.Infernal.Pacts"}}</span>
+        {{#if editable}}<span class="r-h2-tools"><a class="r-h2-btn" data-action="pactAdd"><i class="fa-solid fa-file-signature"></i> <span class="r-h2-lbl">{{localize "VTM20.Infernal.PactNew"}}</span></a></span>{{/if}}</h2>
+      {{#each infernal.pacts}}
+      <div class="r-pact {{#if broken}}is-broken{{/if}}">
+        <div class="r-trait-main">
+          <i class="fa-solid {{#if thrall}}fa-link{{else}}fa-handshake{{/if}} r-muted" {{#if thrall}}data-tooltip="{{localize 'VTM20.Infernal.Thrall'}}"{{/if}}></i>
+          <b>{{demon}}</b> <small class="r-muted">{{formLabel}}</small>
+          <span class="r-leader"></span>
+          {{#if value}}<span class="r-tag {{#unless valueOk}}is-red{{/unless}}" data-tooltip="{{localize 'VTM20.Infernal.ValueHint'}}">{{value}}</span>{{/if}}
+          {{#if @root.editable}}<a class="r-icon-btn" data-action="pactEdit" data-index="{{i}}"><i class="fa-solid fa-pen-nib"></i></a>
+          <a class="r-icon-btn is-danger" data-action="pactDel" data-index="{{i}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
+        </div>
+        {{#if terms}}<p class="r-pact-line">{{localize "VTM20.Infernal.Terms"}}: {{terms}}</p>{{/if}}
+        {{#if price}}<p class="r-pact-line">{{localize "VTM20.Infernal.Price"}}: {{price}}</p>{{/if}}
+        {{#if deed}}<p class="r-pact-line">{{localize "VTM20.Infernal.Deed"}}: {{deed}}</p>{{/if}}
+      </div>
+      {{else}}<div class="r-empty">{{localize "VTM20.Infernal.NoPacts"}}</div>
+      {{/each}}
+    </div>
+  </div>
+  {{/if}}
+
   <div class="r-cols2">
     <div class="r-col">
       <h2 class="r-h2"><span>{{localize "VTM20.Sheet.Derangements"}}</span>{{#if editable}}<span class="r-h2-tools"><a class="r-h2-btn" data-action="library" data-kind="derangement" data-tooltip="{{localize 'VTM20.Library.Open'}}"><i class="fa-solid fa-book-skull"></i> <span class="r-h2-lbl">{{localize "VTM20.Library.Open"}}</span></a><a class="r-h2-btn is-ghost" data-action="itemCreate" data-type="derangement" data-tooltip="{{localize 'VTM20.Sheet.Own'}}"><i class="fa-solid fa-feather"></i> <span class="r-h2-lbl">{{localize "VTM20.Sheet.Own"}}</span></a></span>{{/if}}</h2>

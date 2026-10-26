@@ -944,6 +944,8 @@ def main():
     dump("backgrounds.json", backgrounds)
     dump("abilities.json", abilities)
     dump("paths.json", paths)
+    import infernal_docs   # инфернализм: глава правил и Вложения (data/rules-infernal.json, data/investments.json)
+    print("  инфернализм:", infernal_docs.build())
     import rules_extra   # справочник правил V20 для компендия «Правила V20»
     dump("rules.json", rules_extra.collect(REF, md_to_html))
     core = os.path.join(REF, "V20_Основные_правила")

@@ -35,6 +35,7 @@ import { ritualHTML } from "../data/ritual-text.mjs";
 import { openThrallGifts } from "../apps/thrall-gifts.mjs";
 import { loseHost, holdOn, newHost, summonedBack } from "../apps/host.mjs";
 import { openCult } from "../apps/cult.mjs";
+import { useInvestment, pactDialog, pactDelete, pactValue, investmentLimit } from "../apps/infernal.mjs";
 import { possess, extend as possessExtend, leave as possessLeave, battleExpiry, possessionView } from "../apps/possession.mjs";
 import { MERIT_MODS, describeMeritMod } from "../data/merit-mods.mjs";
 import { weaponIcon as weaponImg, armorIcon as armorImg } from "../data/icons.mjs";
@@ -136,6 +137,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       houseAtlas: VtMActorSheet.#onHouseAtlas,
       tormentSin: VtMActorSheet.#onTormentSin, thrallSin: VtMActorSheet.#onThrallSin, thrallPact: VtMActorSheet.#onThrallPact, ghoulify: VtMActorSheet.#onGhoulify, formUpkeep: VtMActorSheet.#onFormUpkeep, thrallGifts: VtMActorSheet.#onThrallGifts,
       tormentLog: VtMActorSheet.#onTormentLog, hostLose: VtMActorSheet.#onHostLose,
+      investmentUse: VtMActorSheet.#onInvestmentUse, pactAdd: VtMActorSheet.#onPactAdd, pactEdit: VtMActorSheet.#onPactEdit, pactDel: VtMActorSheet.#onPactDel,
       cult: VtMActorSheet.#onCult, possess: VtMActorSheet.#onPossess, possessExtend: VtMActorSheet.#onPossessExtend, possessLeave: VtMActorSheet.#onPossessLeave, possessBattle: VtMActorSheet.#onPossessBattle, hostHold: VtMActorSheet.#onHostHold, hostNew: VtMActorSheet.#onHostNew, hostSummoned: VtMActorSheet.#onHostSummoned, formLookImg: VtMActorSheet.#onFormLookImg, formLookClear: VtMActorSheet.#onFormLookClear, thrallBreak: VtMActorSheet.#onThrallBreak, openUuid: VtMActorSheet.#onOpenUuid,
       sinSuggest: VtMActorSheet.#onSinSuggest,
       tormentKind: VtMActorSheet.#onTormentKind,
@@ -705,6 +707,19 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       { key: "flaw", label: "VTM20.Sheet.Flaws", list: ctx.flaws, total: ctx.flawTotal }
     ];
     ctx.derangements = byType("derangement").map(i => ({ id: i.id, name: i.name, html: i.system.description, permanent: i.system.permanent, open: this._open.has(i.id) }));
+    // Инфернализм (apps/infernal.mjs): Вложения и договоры с демонами — у всех, кроме падших
+    if (a.type !== "demon") {
+      const f = (k, n) => game.i18n.format(`VTM20.Infernal.${k}`, { n });
+      const costLine = c => [c.blood ? f("CostBlood", c.blood) : "", c.willpower ? f("CostWill", c.willpower) : "",
+        c.willpowerPerm ? f("CostWillPerm", c.willpowerPerm) : ""].filter(Boolean).join(" · ");
+      ctx.infernal = {
+        limit: investmentLimit(a),
+        investments: byType("investment").map(i => ({ id: i.id, name: i.name, html: i.system.description, open: this._open.has(i.id),
+          rating: i.system.tier === "sabbat" ? i.system.rating : 0, cost: costLine(i.system.cost ?? {}), pact: i.system.pact, deed: i.system.deed })),
+        pacts: (a.system.pacts ?? []).map((p, i) => ({ ...p, i, formLabel: game.i18n.localize(`VTM20.Infernal.Forms.${p.form}`),
+          value: p.obligation || p.frequency || p.consequence ? String(pactValue(p)) : "", valueOk: pactValue(p) > 0 }))
+      };
+    }
     ctx.bonds = (a.system.bonds ?? []).map((b, i) => ({ ...b, index: i, dots: dots(b.rating, 3, { path: `system.bonds.${i}.rating` }),
       isRegnant: b.role === "regnant", tip: t("BondX.Tip", { n: b.drinks ?? 0, last: b.last || "—" }) }));
     // Винкулум — у вампиров Шабаша и у всех, у кого он уже записан
@@ -1243,6 +1258,14 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   /** Завладение Привязанного (apps/possession.mjs). */
   static #onPossess() { return possess(this.actor); }
   static #onCult() { return openCult(this.actor); }
+  /** Инфернализм (apps/infernal.mjs): применить Вложение, договоры с демонами. */
+  static #onInvestmentUse(event, target) {
+    const item = this.actor.items.get(target.closest("[data-item-id]")?.dataset.itemId);
+    if (item) return useInvestment(this.actor, item);
+  }
+  static #onPactAdd() { return pactDialog(this.actor); }
+  static #onPactEdit(event, target) { return pactDialog(this.actor, Number(target.dataset.index)); }
+  static #onPactDel(event, target) { return pactDelete(this.actor, Number(target.dataset.index)); }
   static #onPossessExtend() { return possessExtend(this.actor); }
   static async #onPossessLeave() {
     const ok = await foundry.applications.api.DialogV2.confirm({ window: { title: game.i18n.localize("VTM20.Possess.Leave") }, content: `<p>${game.i18n.localize("VTM20.Possess.LeaveConfirm")}</p>` });

@@ -15,7 +15,7 @@ const { ItemSheetV2 } = foundry.applications.sheets;
 const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
 const TEMPLATES = { ritual: "ritual", power: "power", discipline: "discipline", thaumPath: "path", lore: "lore", lorePower: "lore-power",
   weapon: "weapon", armor: "armor", gear: "gear", merit: "trait", flaw: "trait", background: "background", derangement: "derangement",
-  demonRitual: "demon-ritual", relic: "relic" };
+  demonRitual: "demon-ritual", relic: "relic", investment: "investment" };
 const RELIC_KINDS = ["enhanced", "enchanted", "demonic", "ancient", "unique"];
 
 export class VtMItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
@@ -52,7 +52,8 @@ export class VtMItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       item, system: s, source: item._source.system, editable: this.isEditable,
       type: item.type, typeLabel: loc(`TYPES.Item.${item.type}`), kicker: item.kicker,
       is: Object.fromEntries(["discipline", "thaumPath", "ritual", "power", "background", "merit", "flaw", "derangement", "weapon", "armor", "gear"].map(k => [k, item.type === k])),
-      hasRoll: ["ritual", "power", "lorePower"].includes(item.type),
+      hasRoll: ["ritual", "power", "lorePower", "investment"].includes(item.type),
+      tierLabel: item.type === "investment" ? loc(`VTM20.Library.InvTier.${s.tier}`) : "",
       traitGroups: VtMItemSheet.traitGroups(s.roll ?? {}),
       disciplineOptions: [
         ...Object.values(Codex.disciplines).filter(d => Codex.visible(d) || d.key === discKey).map(d => ({ value: d.key, label: d.name, selected: d.key === discKey })),

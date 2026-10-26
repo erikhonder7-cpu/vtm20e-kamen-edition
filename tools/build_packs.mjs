@@ -290,6 +290,23 @@ BUILDERS.rules = function () {
   for (const ch of data("rules")) p.addBook({ name: ch.name, pages: ch.pages, key: `rules:${ch.key}` });
   // глава 8 — справочник Ghouls & Revenants (data/rules-ghouls.json): отдельным файлом, чтобы build_data.py его не перезаписал
   for (const ch of data("rules-ghouls")) p.addBook({ name: ch.name, pages: ch.pages, key: `rules:${ch.key}` });
+  // глава 9 — инфернализм: договоры и Вложения (data/rules-infernal.json, tools/infernal_docs.py)
+  for (const ch of data("rules-infernal")) p.addBook({ name: ch.name, pages: ch.pages, key: `rules:${ch.key}` });
+  return p;
+};
+
+/** Инфернальные Вложения (tools/infernal_docs.py): V20 Rites of the Blood и старые книги Шабаша по рейтингам. */
+BUILDERS.investments = function () {
+  const p = new Pack("investments", "Item");
+  const cost = c => [c.blood ? `${c.blood} крови` : "", c.willpower ? `${c.willpower} Воли` : "", c.willpowerPerm ? `${c.willpowerPerm} пост. Воли` : ""].filter(Boolean).join(", ");
+  for (const x of data("investments")) {
+    const folder = x.tier === "v20" ? "Rites of the Blood (V20)" : ["Книги Шабаша (старые)", `Рейтинг ${x.rating}`];
+    const head = `<p class="r-ritual-meta">${x.tier === "v20" ? "<strong>3 опыта</strong> · не больше постоянной Воли" : `<strong>Рейтинг ${x.rating}</strong> · цену назначает рассказчик`}`
+      + `${cost(x.cost) ? ` · Применение: ${esc(cost(x.cost))}` : ""} · Источник: ${esc(x.source)}</p>`;
+    const system = { tier: x.tier, rating: x.rating, xp: x.xp, cost: x.cost, costNote: x.costNote ?? "", source: x.en, description: head + x.html };
+    const roll = rollOf(x.roll); if (roll) system.roll = roll;
+    p.add({ name: x.name, type: "investment", folder, key: `investment:${x.en}`, img: `systems/${SYSTEM_ID}/assets/icons/investment.svg`, system });
+  }
   return p;
 };
 

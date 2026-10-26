@@ -172,6 +172,11 @@
           "description"
         ]
       },
+      "investment": {
+        "htmlFields": [
+          "description"
+        ]
+      },
       "lorePower": {
         "htmlFields": [
           "description"
@@ -280,6 +285,18 @@
       "name": "derangements",
       "label": "Психические расстройства",
       "path": "packs/derangements",
+      "type": "Item",
+      "system": "vtm20e-kamen-edition",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
+    },
+    {
+      "name": "investments",
+      "label": "Инфернальные Вложения",
+      "path": "packs/investments",
       "type": "Item",
       "system": "vtm20e-kamen-edition",
       "ownership": {
@@ -438,7 +455,8 @@
         "ghoul-merits",
         "backgrounds",
         "derangements",
-        "enlightenment-paths"
+        "enlightenment-paths",
+        "investments"
       ]
     },
     {

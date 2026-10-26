@@ -1,0 +1,50 @@
+{{!-- Инфернальное Вложение: ступень (V20 — 3 опыта / книги Шабаша — рейтинг), цена применения, договор и злодеяние;
+     описание; поля — в «Настройках». --}}
+<div class="r-item-sheet is-investment">
+  {{> rItemHead}}
+  <div class="r-item-body">
+    <div class="r-badges">
+      {{#if (eq system.tier "v20")}}
+      <div class="r-badge is-level"><b>{{system.xp}}</b><span>{{localize "VTM20.Infernal.XpShort"}}</span></div>
+      {{else}}
+      <div class="r-badge is-level"><b>{{system.rating}}</b><span>{{localize "VTM20.Infernal.Rating"}}</span></div>
+      {{/if}}
+      <div class="r-badge"><span>{{localize "VTM20.Infernal.Tier"}}</span><b>{{tierLabel}}</b></div>
+      {{#if (or system.cost.blood system.cost.willpower system.cost.willpowerPerm)}}
+      <div class="r-badge is-cost"><span>{{localize "VTM20.ItemSheet.Cost"}}</span>
+        <b>{{#if system.cost.blood}}{{system.cost.blood}} <i class="fa-solid fa-droplet"></i>{{/if}}
+          {{#if system.cost.willpower}}{{system.cost.willpower}} <i class="fa-solid fa-sun"></i>{{/if}}
+          {{#if system.cost.willpowerPerm}}{{system.cost.willpowerPerm}} <i class="fa-solid fa-sun"></i>!{{/if}}</b>
+        {{#if system.costNote}}<em>{{system.costNote}}</em>{{/if}}</div>
+      {{/if}}
+      {{#if pool}}<div class="r-badge"><span>{{localize "VTM20.ItemSheet.Roll"}}</span><b>{{pool}}</b>{{#if system.roll.difficulty}}<em>{{localize "VTM20.Roll.Difficulty"}} {{system.roll.difficulty}}</em>{{/if}}</div>{{/if}}
+    </div>
+    {{#if book}}<p class="r-item-src">{{localize "VTM20.Item.source"}}: {{book}}</p>{{/if}}
+
+    <div class="r-fields is-wide r-inv-pact">
+      <label class="r-f is-span2"><span>{{localize "VTM20.Infernal.Demon"}}</span><input type="text" name="system.pact" value="{{system.pact}}" placeholder="{{localize 'VTM20.Infernal.DemonPh'}}" {{#unless editable}}disabled{{/unless}}></label>
+      <label class="r-f is-span2"><span>{{localize "VTM20.Infernal.Deed"}}</span><input type="text" name="system.deed" value="{{system.deed}}" placeholder="{{localize 'VTM20.Infernal.DeedPh'}}" {{#unless editable}}disabled{{/unless}}></label>
+    </div>
+
+    <h2 class="r-h2"><span>{{localize "VTM20.Item.description"}}</span></h2>
+    <div class="r-editor r-item-text">
+      <prose-mirror name="system.description" value="{{system.description}}" toggled {{#unless editable}}disabled{{/unless}}>{{{descriptionHTML}}}</prose-mirror>
+    </div>
+
+    <details class="r-item-setup">
+      <summary><i class="fa-solid fa-sliders"></i> {{localize "VTM20.ItemSheet.Setup"}}</summary>
+      <div class="r-fields is-wide">
+        <label class="r-f"><span>{{localize "VTM20.Infernal.Tier"}}</span>
+          <select name="system.tier"><option value="v20" {{#if (eq system.tier "v20")}}selected{{/if}}>{{localize "VTM20.Library.InvTier.v20"}}</option><option value="sabbat" {{#if (eq system.tier "sabbat")}}selected{{/if}}>{{localize "VTM20.Library.InvTier.sabbat"}}</option></select></label>
+        <label class="r-f"><span>{{localize "VTM20.Infernal.Rating"}}</span><input type="number" name="system.rating" value="{{system.rating}}" min="0" max="6"></label>
+        <label class="r-f"><span>{{localize "VTM20.Infernal.XpShort"}}</span><input type="number" name="system.xp" value="{{system.xp}}" min="0"></label>
+        <label class="r-f"><span>{{localize "VTM20.Infernal.CostBloodL"}}</span><input type="number" name="system.cost.blood" value="{{system.cost.blood}}" min="0" max="10"></label>
+        <label class="r-f"><span>{{localize "VTM20.Infernal.CostWillL"}}</span><input type="number" name="system.cost.willpower" value="{{system.cost.willpower}}" min="0" max="10"></label>
+        <label class="r-f"><span>{{localize "VTM20.Infernal.CostWillPermL"}}</span><input type="number" name="system.cost.willpowerPerm" value="{{system.cost.willpowerPerm}}" min="0" max="10"></label>
+        <label class="r-f is-span2"><span>{{localize "VTM20.Infernal.CostNote"}}</span><input type="text" name="system.costNote" value="{{system.costNote}}"></label>
+        {{> rItemRoll}}
+        <label class="r-f is-span2"><span>{{localize "VTM20.Item.source"}}</span><input type="text" name="system.source" value="{{system.source}}"></label>
+      </div>
+    </details>
+  </div>
+</div>

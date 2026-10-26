@@ -1155,6 +1155,11 @@ body.r-theme-light .vtm20 .r-motto { color: rgba(140, 28, 34, .75); }
 .vtm20 .r-possess-who a { color: var(--r-accent); cursor: pointer; }
 .vtm20 .r-possess-left { margin-right: auto; color: var(--r-muted); font-style: italic; }
 .vtm20 .r-possess-left.is-low { color: var(--r-accent); font-weight: 600; }
+/* инфернализм (apps/infernal.mjs): договоры с демонами */
+.vtm20 .r-infernal .r-pact { padding: 4px 0 6px; border-bottom: 1px dotted var(--r-line); }
+.vtm20 .r-infernal .r-pact.is-broken { opacity: .55; }
+.vtm20 .r-infernal .r-pact-line { margin: 2px 0 0 22px; font-size: 12.5px; color: var(--r-muted); }
+.vtm20 .r-inv-pact { margin-bottom: 8px; }
 /* падший без тела-носителя (apps/host.mjs); в Бездне — красным */
 .vtm20 .r-host-card { margin: 4px 0 12px; padding: 6px 10px 8px; border: 1px solid #6b5a8a; border-left-width: 3px; background: rgba(60, 50, 90, .14); }
 .vtm20 .r-host-card.is-abyss { border-color: #8c1c22; background: rgba(140, 28, 34, .14); }

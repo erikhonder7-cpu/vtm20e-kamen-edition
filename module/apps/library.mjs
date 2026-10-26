@@ -14,6 +14,7 @@ import { Codex } from "../data/codex.mjs";
 import { blockerFor } from "../data/trait-rules.mjs";
 import { weaponIcon, armorIcon, traitIcon, backgroundIcon } from "../data/icons.mjs";
 import { ritualFields } from "../data/ritual-text.mjs";
+import { investmentLimit, sealInvestment } from "./infernal.mjs";
 
 const { HandlebarsApplicationMixin, ApplicationV2 } = foundry.applications.api;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -38,7 +39,7 @@ const byLevel = powers => {
   return rows;
 };
 const ICON = type => `systems/${SYSTEM_ID}/assets/icons/${type}.svg`;
-const KINDS = ["discipline", "path", "ritual", "combo", "merit", "flaw", "background", "derangement"];
+const KINDS = ["discipline", "path", "ritual", "combo", "merit", "flaw", "background", "derangement", "investment"];
 
 /** Возможные цены черты: «1 / 3» → [1, 3], «1–6» → [1…6], «2» → [2]. */
 function costsOf(m) {
@@ -68,6 +69,10 @@ export const LibraryItems = {
     const first = c.requires?.[0] ?? {};
     return { name: c.name, type: "power", img: Codex.disciplineIcon(first.key), system: {
       discipline: first.key ?? "", path: "", level: first.level ?? 1, description: c.html ?? "", source: c.en ?? "", ...(c.roll ? { roll: c.roll } : {}) } };
+  },
+  investment(x) {
+    return { name: x.name, type: "investment", img: `${SYSTEM_PATH}/assets/icons/investment.svg`, system: { tier: x.tier, rating: x.rating, xp: x.xp,
+      cost: x.cost, costNote: x.costNote ?? "", source: x.en, description: x.html ?? "", ...(x.roll ? { roll: x.roll } : {}) } };
   },
   background(b, value = 1) {
     return { name: b.name, type: "background", img: backgroundIcon(b.en) ?? ICON("background"), system: { value, description: b.html ?? "", source: b.en ?? "" } };
@@ -127,7 +132,7 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
     const build = {
       discipline: () => this.#disciplines(), path: () => this.#paths(), ritual: () => this.#rituals(), combo: () => this.#combos(),
       merit: () => this.#traits("merit"), flaw: () => this.#traits("flaw"),
-      background: () => this.#backgrounds(), derangement: () => this.#derangements()
+      background: () => this.#backgrounds(), derangement: () => this.#derangements(), investment: () => this.#investments()
     }[kind];
     const entries = build?.() ?? [];
 
@@ -304,6 +309,20 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
     }));
   }
 
+  /** Инфернальные Вложения (data/investments.json): V20 — 3 опыта, не больше постоянной Воли; старые — даром, цену назначает рассказчик. */
+  #investments() {
+    const mine = new Set(this.itemsOf("investment").map(i => i.name));
+    const lim = this.actor ? investmentLimit(this.actor) : { v20: 0, max: 99 };
+    return (Codex.investments ?? []).map((x, i) => this.#entry({
+      id: String(i), name: x.name, en: x.en, has: mine.has(x.name), text: x.html ?? "", long: true,
+      group: x.tier, groupName: L(`InvTier.${x.tier}`), groupOrder: x.tier === "v20" ? 0 : 1,
+      level: x.rating, levels: String(x.rating), order: x.rating, roman: x.rating ? String(x.rating) : "",
+      xp: x.tier === "v20" ? x.xp : 0, src: x.tier === "v20" ? "core" : "ext",
+      tags: [{ label: x.source }],
+      reasons: x.tier === "v20" && lim.v20 >= lim.max ? [L("InvLimit", { n: lim.max })] : []
+    }));
+  }
+
   #derangements() {
     const mine = new Set(this.itemsOf("derangement").map(i => i.name));
     // id — номер в полном списке; расстройства Тёмных веков — только с настройкой «Контент из Dark Ages»
@@ -408,6 +427,7 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
       case "merit": case "flaw": { const m = Codex.merits[Number(id)]; return m ? LibraryItems.trait(m, value) : null; }
       case "background": { const b = Codex.backgrounds[Number(id)]; return b ? LibraryItems.background(b, value ?? 1) : null; }
       case "derangement": { const d = Codex.derangements[Number(id)]; return d ? LibraryItems.derangement(d) : null; }
+      case "investment": { const x = Codex.investments?.[Number(id)]; return x ? LibraryItems.investment(x) : null; }
     }
     return null;
   }
@@ -440,8 +460,12 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
     return this.#after(data);
   }
 
-  /** Новая Тауматургия или Некромантия — сразу выбрать первичный путь. */
+  /** Новая Тауматургия или Некромантия — сразу выбрать первичный путь; Вложение — скрепить сделку злодеянием. */
   async #after(data) {
+    if (data.type === "investment") {
+      const item = this.actor?.items.find(i => i.type === "investment" && i.name === data.name);
+      if (item) return sealInvestment(this.actor, item);
+    }
     const key = data.type === "discipline" ? data.system.key : null;
     if (key && VTM20.pathDisciplines.includes(key) && Codex.discipline(key)?.paths?.length) {
       await this.close();
