@@ -41,7 +41,7 @@ import { itemCardHTML } from "../chat/item-card.mjs";
 import { themeClass } from "../ui/themes.mjs";
 import { openHouses } from "../apps/houses.mjs";
 import { formFeatures, mechLabel, needsPick, signed } from "../data/form.mjs";
-import { virtuePrompt, atoneWithXp, assumeForm, sceneHighFeature, harvestFaith, pactFaith, innateRoll, ritualTurn, ritualEffect, ritualNeed, suggestSin, revelation, gainTorment, thrallState, thrallCap } from "../apps/torment.mjs";
+import { virtuePrompt, atoneWithXp, assumeForm, sceneHighFeature, harvestFaith, pactFaith, innateRoll, ritualTurn, ritualEffect, ritualNeed, suggestSin, revelation, gainTorment, thrallState, thrallCap, reliquaryInfo, worshipRitual, reliquaryDraw } from "../apps/torment.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -125,6 +125,8 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       thrallDelete: VtMActorSheet.#onThrallDelete,
       thrallOpen: VtMActorSheet.#onThrallOpen,
       formPick: VtMActorSheet.#onFormPick,
+      worship: VtMActorSheet.#onWorship,
+      reliquaryDraw: VtMActorSheet.#onReliquaryDraw,
       houseAtlas: VtMActorSheet.#onHouseAtlas,
       tormentSin: VtMActorSheet.#onTormentSin,
       sinSuggest: VtMActorSheet.#onSinSuggest,
@@ -593,6 +595,11 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     }).sort((x, y) => (y.own - x.own) || (y.common - x.common) || x.name.localeCompare(y.name, "ru"));
     ctx.allOpen = ctx.lores.length > 0 && ctx.lores.every(l => l.open);
     ctx.earthbound = !!s.earthbound;
+    if (s.earthbound) {
+      const R = reliquaryInfo(a);
+      ctx.reliquary = { ...R, kinds: ["ideal", "improvised", "natural"].map(k => ({ value: k, label: t(`Demon.ReliquaryKind.${k}`), selected: k === R.kind })),
+        hint: t(`Demon.ReliquaryHint.${R.kind}`) };
+    }
     // Слуги по договорам (вкладка «Преимущества»)
     ctx.thralls = (s.thralls ?? []).map((x, i) => {
       const st = thrallState(x);
@@ -1123,6 +1130,9 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     }).catch(() => null);
     if (key) return createLore(a, [key]);
   }
+
+  static #onWorship() { return worshipRitual(this.actor); }
+  static #onReliquaryDraw() { return reliquaryDraw(this.actor); }
 
   /** Способность для черты формы с выбором («Улучшенная способность», «Увеличенная способность»). */
   static async #onFormPick(event, target) {

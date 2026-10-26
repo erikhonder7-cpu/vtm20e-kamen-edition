@@ -12,6 +12,18 @@
     </span>
   </h2>
 
+  {{#if reliquary}}
+  {{!-- Реликварий Привязанного (Earthbound, гл. 3): вид, Вера в нём, ритуал поклонения --}}
+  <div class="r-reliquary" data-tooltip="{{reliquary.hint}}">
+    <i class="fa-solid fa-gem"></i>
+    <label class="r-rq-kind"><span>{{localize "VTM20.Demon.Reliquary"}}</span>
+      <select name="system.reliquary.kind" {{#unless editable}}disabled{{/unless}}>{{#each reliquary.kinds}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+    <span class="r-rq-faith">{{localize "VTM20.Demon.Faith"}} <input type="number" name="system.reliquary.faith" value="{{reliquary.faith}}" min="0" max="{{reliquary.max}}" {{#unless editable}}disabled{{/unless}}> / {{reliquary.max}}</span>
+    {{#if editable}}<a class="r-h2-btn is-plain" data-action="reliquaryDraw" data-tooltip="{{localize 'VTM20.Demon.ReliquaryDrawTip'}}"><i class="fa-solid fa-arrow-right-to-bracket"></i> {{localize "VTM20.Demon.ReliquaryDraw"}}</a>
+    <a class="r-h2-btn" data-action="worship" data-tooltip="{{localize 'VTM20.Demon.WorshipTip' n=reliquary.worship}}"><i class="fa-solid fa-place-of-worship"></i> {{localize "VTM20.Demon.Worship"}}</a>{{/if}}
+  </div>
+  {{/if}}
+
   {{#each lores}}
   <article class="r-row-wrap r-disc {{#if open}}is-open{{/if}} {{#if own}}is-clan{{/if}}" data-item-id="{{id}}">
     <header class="r-disc-head">

@@ -253,6 +253,31 @@ export async function revelation(actor) {
       <table><thead><tr><th>#</th><th>${game.i18n.localize("VTM20.Willpower")}</th><th>${t("SuccShort")}</th><th>${t("RevealMemory")}</th><th>${t("RevealSees")}</th></tr></thead><tbody>${rows.join("")}</tbody></table></div>` });
 }
 
+/**
+ * Реликварий Привязанного (Earthbound, гл. 3): держит 10 Веры, «Запасы» — ещё по 5 за точку (импровизированный — не выше •••).
+ * Ритуал поклонения даёт по Вере за участника в центре — по «Поклонению» 2 / 4 / 6 / 8 / 10; Вера идёт в реликварий.
+ */
+export function reliquaryInfo(actor) {
+  const bg = name => actor.items.find(i => i.type === "background" && i.name === name)?.system.value ?? 0;
+  const r = actor.system.reliquary ?? { kind: "ideal", faith: 0 };
+  const hoard = r.kind === "improvised" ? Math.min(3, bg("Запасы")) : bg("Запасы");
+  return { kind: r.kind, faith: r.faith, max: 10 + 5 * hoard, worship: 2 * Math.min(5, bg("Поклонение")), cult: bg("Культ") };
+}
+export async function worshipRitual(actor) {
+  const R = reliquaryInfo(actor);
+  if (!R.worship) return ui.notifications.warn(t("NoWorship"));
+  const next = Math.min(R.max, R.faith + R.worship);
+  await actor.update({ "system.reliquary.faith": next });
+  return notice(actor, "fa-place-of-worship", t("WorshipDone", { name: esc(actor.name), n: next - R.faith, f: next, max: R.max }));
+}
+/** Взять пункт Веры из реликвария в запас Веры (тратится первой — книга; здесь — переложить перед тратой). */
+export async function reliquaryDraw(actor) {
+  const R = reliquaryInfo(actor), f = actor.system.faith.temporary;
+  if (!R.faith) return ui.notifications.info(t("ReliquaryEmpty"));
+  if (f >= 10) return ui.notifications.info(t("FaithFull"));
+  return actor.update({ "system.reliquary.faith": R.faith - 1, "system.faith.temporary": f + 1 });
+}
+
 /** Сколько Веры слуга может отдавать демону: не больше половины его Веры, с округлением вверх (гл. 9, с. 251). */
 export const thrallCap = faith => Math.ceil((faith ?? 0) / 2);
 
