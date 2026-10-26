@@ -1,7 +1,8 @@
 // module/data/lineage.mjs
 // Родословная (план 6) и паутина хроники (план 5) — из того, что уже вписано в листы:
 // поле «Сир» (system.details.sire), поколение, «Обращён» (system.details.embraced — год и место).
-// Сир ищется среди персонажей мира по имени; не нашёлся — звено «листа нет».
+// Сир ищется среди персонажей мира по имени; не нашёлся — звено «листа нет», а выше идут предки, вписанные
+// в лист того, у кого он сир (system.lineage.ancestors), — без листов.
 
 /** Сравнение имён: без регистра, лишних пробелов и ё/е. */
 export const nameKey = s => String(s ?? "").trim().toLocaleLowerCase("ru").replace(/ё/g, "е").replace(/\s+/g, " ");
@@ -36,8 +37,16 @@ export function lineUp(actor, max = 12) {
     if (!sireName) { out.unshift({ gen, name: "", actor: null, known: false }); break; }
     const sire = actorByName(sireName);
     if (sire && seen.has(sire.id)) break;                 // петля в полях «Сир»
-    out.unshift({ gen: sire?.isVampire ? sire.system.generation : gen, name: sireName, actor: sire, known: true });
-    if (!sire) { out.unshift({ gen: gen != null ? gen - 1 : null, name: "", actor: null, known: false }); break; }
+    out.unshift({ gen: sire?.isVampire ? sire.system.generation : gen, name: sireName, actor: sire, known: true, holder: cur });
+    if (!sire) {
+      // сир без листа: выше — предки, вписанные в лист cur; поколение — своё или на одно меньше нижнего
+      (cur.system.lineage?.ancestors ?? []).forEach((w, index) => {
+        gen = w.gen || (gen != null ? gen - 1 : null);
+        out.unshift({ gen, name: w.name, clan: w.clan, embraced: w.embraced, actor: null, known: true, written: index, holder: cur });
+      });
+      out.unshift({ gen: gen != null ? gen - 1 : null, name: "", actor: null, known: false, holder: cur });
+      break;
+    }
     seen.add(sire.id); cur = sire; gen = sire.isVampire ? sire.system.generation : gen;
   }
   return out;

@@ -227,7 +227,7 @@
         <div class="r-cr-discrow">{{#each factions}}<a class="r-cr-disc-chip is-choice {{#if active}}is-active{{/if}}" data-action="faction" data-faction="{{key}}" data-tooltip="{{text}}">{{name}}</a>{{/each}}</div>
         <p class="r-note">{{localize "VTM20.Creator.FactionHint"}}</p>
       </div>
-      <div class="r-fields">
+      <div class="r-fields is-two r-cr-names">
         <label class="r-f"><span>{{localize "VTM20.Demon.Celestial"}}</span><input type="text" data-field="names.celestial" value="{{st.names.celestial}}"></label>
         <label class="r-f"><span>{{localize "VTM20.Demon.TrueName"}}</span><input type="text" data-field="names.trueName" value="{{st.names.trueName}}"></label>
       </div>

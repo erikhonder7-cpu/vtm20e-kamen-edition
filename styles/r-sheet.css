@@ -184,11 +184,11 @@
 .vtm20 .r-df.is-wide { flex: 2 1 220px; }
 .vtm20 .r-df.is-narrow { flex: 0 0 auto; min-width: 112px; }
 /* досье падшего: Дом, Облик, фракция; Натура, Маска, игрок; Небесное и Истинное имя — по половине строки */
-.vtm20 .r-dossier.is-demon { gap: 0 14px; }
-.vtm20 .r-dossier.is-demon .r-df > span { letter-spacing: 1px; }
-.vtm20 .r-dossier.is-demon .r-df.is-house { flex: 3 1 150px; }
-.vtm20 .r-dossier.is-demon .r-df.is-visage { flex: 1 1 92px; }
-.vtm20 .r-dossier.is-demon .r-df.is-faction { flex: 2 1 138px; }
+.vtm20 .r-dossier.is-demon { gap: 0 12px; }
+.vtm20 .r-dossier.is-demon .r-df > span { letter-spacing: .5px; }
+.vtm20 .r-dossier.is-demon .r-df.is-house { flex: 1 1 112px; }
+.vtm20 .r-dossier.is-demon .r-df.is-visage { flex: 1 1 100px; }
+.vtm20 .r-dossier.is-demon .r-df.is-faction { flex: 1.6 1 175px; }
 .vtm20 .r-dossier.is-demon .r-df.is-player { flex: 1 1 110px; }
 .vtm20 .r-dossier.is-demon .r-df.is-arch { flex: 1 1 150px; }
 .vtm20 .r-dossier.is-demon .r-df.is-names { flex: 1 1 250px; }   /* «Поколение донора» у гуля — по ширине подписи */
@@ -539,6 +539,8 @@
 /* ── Преимущества ─────────────────────────────────────────────────────── */
 
 .vtm20 .r-bg .r-power-body, .vtm20 .r-mf-row .r-power-body { padding: 2px 4px 8px 6px; font-size: 13px; }
+/* достоинства, недостатки, Вложения: место — названию, ярлык категории сжимается первым */
+.vtm20 .r-mf-row .r-trait-main > .r-tag { display: inline-block; line-height: 15px; flex: 0 1000 auto; min-width: 34px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 /* Цена достоинства / недостатка — квадратная печать: достоинства тёмным воском, недостатки — кровавым */
 .vtm20 .r-cost {
   flex: 0 0 auto; width: 22px; height: 20px; display: grid; place-items: center; border-radius: 2px;

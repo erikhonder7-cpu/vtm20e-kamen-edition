@@ -137,6 +137,11 @@ export class VampireData extends BaseActorData {
       clanCustom: str(),
       clanChoice: str(),               // выбранная Дисциплина там, где клан даёт «одну из» (Колдуны, У-Дзао…)
       generation: int(13, 3, 15),
+      // родословная, вписанная прямо в лист (bio.hbs, data/lineage.mjs): предки выше сира без листа — от деда-сира вверх;
+      // потомки без листов; имя, клан словами, поколение (0 — считать по линии), когда и где обращён
+      lineage: new SchemaField({
+        ancestors: new ArrayField(new SchemaField({ name: str(), clan: str(), gen: int(0, 0, 15), embraced: str() })),
+        childer: new ArrayField(new SchemaField({ name: str(), clan: str(), gen: int(0, 0, 15), embraced: str() })) }),
       blood: new SchemaField({ value: int(10, 0, 100) }),
       // Временное усиление физических характеристик кровью (05): до конца сцены.
       boosts: new SchemaField({ strength: int(0, 0, 10), dexterity: int(0, 0, 10), stamina: int(0, 0, 10) }),

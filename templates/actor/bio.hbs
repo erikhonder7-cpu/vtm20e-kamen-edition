@@ -36,11 +36,13 @@
         <span class="r-lin-gen">{{#if x.gen}}{{localize "VTM20.Lineage.GenShort" n=x.gen}}{{/if}}</span>
         <span class="r-lin-mark" aria-hidden="true"></span>
         <span class="r-lin-name">{{#if x.name}}{{x.name}}{{else}}{{localize "VTM20.Lineage.Unknown"}}{{/if}}</span>
-        <span class="r-lin-meta">{{x.clan}}{{#if x.byBlood}} — {{localize "VTM20.Lineage.ByBlood"}}{{/if}}{{#if x.embraced}} · {{localize "VTM20.Lineage.Embraced" when=x.embraced}}{{/if}}{{#if (rEq x.kind "named")}} · {{localize "VTM20.Lineage.NoSheet"}}{{/if}}</span>
+        <span class="r-lin-meta">{{x.clan}}{{#if x.byBlood}} — {{localize "VTM20.Lineage.ByBlood"}}{{/if}}{{#if x.embraced}} · {{localize "VTM20.Lineage.Embraced" when=x.embraced}}{{/if}}{{#if (rEq x.kind "named")}} · {{localize "VTM20.Lineage.NoSheet"}}{{/if}}{{#if (rEq x.kind "written")}} · {{localize "VTM20.Lineage.InSheet"}}{{/if}}</span>
         <span class="r-lin-act">
           {{#if (rEq x.kind "sheet")}}<a class="r-h2-btn is-plain" data-action="linOpen" data-actor-id="{{x.actorId}}"><i class="fa-solid fa-scroll"></i> {{localize "VTM20.Lineage.Sheet"}}</a>{{/if}}
           {{#if (rEq x.kind "named")}}{{#if @root.isGM}}<a class="r-h2-btn is-plain" data-action="linSheet" data-name="{{x.name}}" data-gen="{{x.gen}}" data-clan="{{x.clanKey}}"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Lineage.Sheet"}}</a>{{/if}}{{/if}}
-          {{#if (rEq x.kind "unknown")}}{{#if @root.editable}}<a class="r-h2-btn is-plain" data-action="linSire" data-actor-id="{{x.holderId}}"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Lineage.Write"}}</a>{{/if}}{{/if}}
+          {{#if (rEq x.kind "written")}}{{#if @root.editable}}<a class="r-icon-btn" data-action="linEdit" data-list="ancestors" data-holder="{{x.holderId}}" data-index="{{x.index}}" data-tooltip="{{localize 'VTM20.Lineage.Edit'}}"><i class="fa-solid fa-pen-nib"></i></a>
+          <a class="r-icon-btn is-danger" data-action="linDel" data-list="ancestors" data-holder="{{x.holderId}}" data-index="{{x.index}}" data-tooltip="{{localize 'VTM20.Lineage.DelAncestor'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}{{/if}}
+          {{#if (rEq x.kind "unknown")}}{{#if @root.editable}}<a class="r-h2-btn is-plain" data-action="linSire" data-actor-id="{{x.holderId}}" data-mode="{{x.mode}}" data-tooltip="{{#if (rEq x.mode "ancestor")}}{{localize 'VTM20.Lineage.AncestorHint'}}{{else}}{{localize 'VTM20.Lineage.SireHint'}}{{/if}}"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Lineage.Write"}}</a>{{/if}}{{/if}}
         </span>
       </li>
       {{/each}}
@@ -53,11 +55,22 @@
         <span class="r-lin-act"><a class="r-h2-btn is-plain" data-action="linOpen" data-actor-id="{{k.id}}"><i class="fa-solid fa-scroll"></i> {{localize "VTM20.Lineage.Sheet"}}</a></span>
       </li>
       {{/each}}
+      {{#each lineage.written as |k|}}
+      <li class="r-lin-row is-child is-written">
+        <span class="r-lin-gen">{{localize "VTM20.Lineage.GenShort" n=k.gen}}</span>
+        <span class="r-lin-mark" aria-hidden="true"></span>
+        <span class="r-lin-name">{{k.name}}</span>
+        <span class="r-lin-meta">{{k.clan}}{{#if k.embraced}} · {{localize "VTM20.Lineage.Embraced" when=k.embraced}}{{/if}} · {{localize "VTM20.Lineage.InSheet"}}</span>
+        <span class="r-lin-act">{{#if @root.editable}}<a class="r-icon-btn" data-action="linEdit" data-list="childer" data-index="{{k.index}}" data-tooltip="{{localize 'VTM20.Lineage.Edit'}}"><i class="fa-solid fa-pen-nib"></i></a>
+          <a class="r-icon-btn is-danger" data-action="linDel" data-list="childer" data-index="{{k.index}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}</span>
+      </li>
+      {{/each}}
       <li class="r-lin-row is-drop" data-lin-drop>
         <span class="r-lin-gen">{{localize "VTM20.Lineage.GenShort" n=lineage.kidGen}}</span>
         <span class="r-lin-mark" aria-hidden="true"></span>
         <span class="r-lin-name">{{localize "VTM20.Lineage.Childer"}}</span>
-        <span class="r-lin-meta">{{#unless lineage.kids.length}}{{localize "VTM20.Lineage.NoChilder"}} — {{/unless}}{{localize "VTM20.Lineage.DropHint"}}</span>
+        <span class="r-lin-meta">{{#unless lineage.count}}{{localize "VTM20.Lineage.NoChilder"}} — {{/unless}}{{localize "VTM20.Lineage.DropHint"}}</span>
+        <span class="r-lin-act">{{#if @root.editable}}<a class="r-h2-btn is-plain" data-action="linChild" data-tooltip="{{localize 'VTM20.Lineage.ChildHint'}}"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Lineage.Write"}}</a>{{/if}}</span>
       </li>
     </ol>
     {{#if lineage.check}}

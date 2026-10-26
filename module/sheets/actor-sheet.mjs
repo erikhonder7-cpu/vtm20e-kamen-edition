@@ -196,6 +196,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       diablerie: VtMActorSheet.#onDiablerie,
       clanAtlas: VtMActorSheet.#onClanAtlas,
       linSire: VtMActorSheet.#onLinSire,
+      linChild: VtMActorSheet.#onLinChild, linEdit: VtMActorSheet.#onLinEdit, linDel: VtMActorSheet.#onLinDel,
       linSheet: VtMActorSheet.#onLinSheet,
       linOpen: VtMActorSheet.#onLinOpen,
       linWeb: VtMActorSheet.#onLinWeb
@@ -747,19 +748,26 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const line = lineUp(a).map(x => {
       const who = x.actor;
       return {
-        gen: x.gen, name: x.name, self: !!x.self, actorId: who?.id ?? "",
-        kind: x.self ? "self" : who ? "sheet" : x.name ? "named" : "unknown",
+        gen: x.gen, name: x.name, self: !!x.self, actorId: who?.id ?? "", holderId: x.holder?.id ?? "",
+        kind: x.self ? "self" : who ? "sheet" : x.written != null ? "written" : x.name ? "named" : "unknown",
+        index: x.written, writtenClan: x.clan ?? "",
         clan: who?.isVampire ? who.clanLabel : clan,
-        embraced: who?.system?.details?.embraced ?? "",
-        byBlood: !who
+        embraced: who?.system?.details?.embraced ?? x.embraced ?? "",
+        byBlood: !who && !x.clan
       };
     });
     // «Вписать» у неизвестного звена пишет сира тому, кто стоит под ним (у него поле «Сир» пустое);
     // клан звена без листа — «по крови» ближайшего Сородича под ним
     let below = clan, belowKey = a.system.clan;
+    // над звеном с листом «Вписать» ставит ему сира; над сиром без листа или вписанным предком — добавляет предка в лист
     for (let i = line.length - 1; i >= 0; i--) {
       const x = line[i];
-      if (x.kind === "unknown") x.holderId = line[i + 1]?.actorId || a.id;
+      if (x.kind === "unknown") {
+        const under = line[i + 1];
+        x.mode = !under || ["self", "sheet"].includes(under.kind) ? "sire" : "ancestor";
+        x.holderId = x.mode === "sire" ? (under?.actorId || a.id) : (x.holderId || a.id);
+      }
+      if (x.kind === "written" && x.writtenClan) { x.clan = x.writtenClan; below = x.clan; continue; }
       if (x.byBlood) { x.clan = below; x.clanKey = belowKey; }
       else { below = x.clan; belowKey = game.actors.get(x.actorId)?.system?.clan ?? belowKey; }
     }
@@ -767,8 +775,10 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       clan: k.isVampire ? k.clanLabel : game.i18n.localize(`TYPES.Actor.${k.type}`), embraced: k.system.details?.embraced ?? "" }));
     const sire = actorByName(a.system.details.sire);
     const sibs = sire ? childrenOf(sire).filter(k => k.id !== a.id).map(k => ({ id: k.id, name: k.name, clan: k.isVampire ? k.clanLabel : "" })) : [];
-    ctx.lineage = { line, kids, kidGen: (a.system.generation ?? 13) + 1, sire: a.system.details.sire, embraced,
-      gen: a.system.generation, check: bloodCheck(a), sibs, count: kids.length };
+    const kidGen = (a.system.generation ?? 13) + 1;
+    const written = (a.system.lineage?.childer ?? []).map((k, index) => ({ ...k, index, gen: k.gen || kidGen, clan: k.clan || clan }));
+    ctx.lineage = { line, kids, written, kidGen, sire: a.system.details.sire, embraced,
+      gen: a.system.generation, check: bloodCheck(a), sibs, count: kids.length + written.length };
   }
 
   /** Вкладка «Эффекты»: всё, что сейчас действует на персонажа, — силы, состояния, кровь, постоянные модификаторы, черты. */
@@ -927,10 +937,18 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
         item.update({ [el.dataset.itemField]: val });
       });
     }
+    requestAnimationFrame(() => this.#markTruncated());
+  }
+
+  /** Название, обрезанное многоточием, — целиком в подсказке (видимая вкладка; на скрытых ширины нет). */
+  #markTruncated() {
+    for (const el of this.element?.querySelectorAll(".r-trait-label:not([data-tooltip])") ?? [])
+      if (el.clientWidth && el.scrollWidth > el.clientWidth + 1) el.dataset.tooltip = el.textContent.trim();
   }
 
   changeTab(tab, group, options) {
     super.changeTab(tab, group, options);
+    requestAnimationFrame(() => this.#markTruncated());
     const pane = this.element?.querySelector(`.r-pane[data-tab="${tab}"]`);
     if (!pane) return;
     pane.classList.remove("is-entering");
@@ -1478,9 +1496,66 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   /* ── Родословная (план 6) ───────────────────────────────────────────── */
 
   /** «Вписать»: имя сира тому, у кого его ещё нет (самое старшее звено линии). */
+  /** Предок или потомок без листа: имя, клан, поколение (0 — по линии), когда обращён. */
+  static async #linDialog(title, v = {}) {
+    const esc = s => foundry.utils.escapeHTML(String(s ?? ""));
+    return foundry.applications.api.DialogV2.prompt({
+      window: { title, icon: "fa-solid fa-sitemap" }, classes: ["vtm20", "r-dialog"], position: { width: 420 },
+      content: `<div class="r-fields is-two">
+        <label class="r-f is-span2"><span>${t("Lineage.Name")}</span><input type="text" name="name" value="${esc(v.name)}" autofocus></label>
+        <label class="r-f"><span>${t("Lineage.Clan")}</span><input type="text" name="clan" value="${esc(v.clan)}" placeholder="${esc(t("Lineage.ClanPh"))}"></label>
+        <label class="r-f"><span>${t("Lineage.Gen")}</span><input type="number" name="gen" value="${v.gen || ""}" min="1" max="15" placeholder="${esc(t("Lineage.GenPh"))}"></label>
+        <label class="r-f is-span2"><span>${t("Lineage.Embrace")}</span><input type="text" name="embraced" value="${esc(v.embraced)}" placeholder="${esc(t("Lineage.EmbracedHint"))}"></label></div>`,
+      ok: { label: t("Lineage.Write"), callback: (e, b) => { const f = b.form.elements;
+        return { name: f.name.value.trim(), clan: f.clan.value.trim(), gen: Math.clamp(Number(f.gen.value) || 0, 0, 15), embraced: f.embraced.value.trim() }; } },
+      rejectClose: false
+    });
+  }
+
+  /** Вписанный список родословной у персонажа holder: ancestors или childer. */
+  static #linList(holder, list) { return foundry.utils.deepClone(holder.system.lineage?.[list] ?? []); }
+
+  /** «+ Вписать» над сиром без листа: ещё один предок в лист того, у кого этот сир. */
+  static async #linAncestor(holder) {
+    const v = await VtMActorSheet.#linDialog(t("Lineage.AncestorTitle"));
+    if (!v?.name) return;
+    const list = VtMActorSheet.#linList(holder, "ancestors");
+    list.push(v);
+    await holder.update({ "system.lineage.ancestors": list });
+  }
+
+  /** Потомок без листа — прямо в лист. */
+  static async #onLinChild() {
+    const v = await VtMActorSheet.#linDialog(t("Lineage.ChildTitle", { name: this.actor.name }));
+    if (!v?.name) return;
+    const list = VtMActorSheet.#linList(this.actor, "childer");
+    list.push(v);
+    await this.actor.update({ "system.lineage.childer": list });
+  }
+
+  static async #onLinEdit(event, target) {
+    const holder = game.actors.get(target.dataset.holder) ?? this.actor, key = target.dataset.list, i = Number(target.dataset.index);
+    if (!holder.isOwner) return ui.notifications.warn(t("Lineage.NoRights"));
+    const list = VtMActorSheet.#linList(holder, key);
+    if (!list[i]) return;
+    const v = await VtMActorSheet.#linDialog(t(key === "childer" ? "Lineage.ChildTitle" : "Lineage.AncestorTitle", { name: holder.name }), list[i]);
+    if (!v?.name) return;
+    list[i] = v;
+    await holder.update({ [`system.lineage.${key}`]: list });
+  }
+
+  static async #onLinDel(event, target) {
+    const holder = game.actors.get(target.dataset.holder) ?? this.actor, key = target.dataset.list, i = Number(target.dataset.index);
+    if (!holder.isOwner) return ui.notifications.warn(t("Lineage.NoRights"));
+    // предка убираем вместе со всеми, кто вписан выше него: линия не рвётся посередине
+    const list = VtMActorSheet.#linList(holder, key);
+    await holder.update({ [`system.lineage.${key}`]: key === "ancestors" ? list.slice(0, i) : list.filter((_, j) => j !== i) });
+  }
+
   static async #onLinSire(event, target) {
     const holder = game.actors.get(target.dataset.actorId) ?? this.actor;
     if (!holder.isOwner) return ui.notifications.warn(t("Lineage.NoRights"));
+    if (target.dataset.mode === "ancestor") return VtMActorSheet.#linAncestor(holder);
     const name = await foundry.applications.api.DialogV2.prompt({
       window: { title: t("Lineage.SireOf", { name: holder.name }), icon: "fa-solid fa-sitemap" },
       classes: ["vtm20", "r-dialog"],

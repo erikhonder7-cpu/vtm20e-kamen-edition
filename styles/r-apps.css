@@ -145,6 +145,8 @@
 .vtm20 .r-cr-disc-chip.is-active { border-style: solid; border-color: #b83a3f; background: rgba(140, 28, 34, .2); }
 .vtm20 .r-cr-or { font-style: italic; color: var(--r-muted); font-size: 13px; }
 .vtm20 .r-cr-genrow { margin-top: 6px; }
+.vtm20 .r-cr-names { align-content: start; }
+.vtm20 .r-cr-names .r-f > span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .vtm20 .r-cr-gens { display: flex; flex-wrap: wrap; gap: 6px; }
 .vtm20 .r-cr-gen { display: flex; flex-direction: column; align-items: center; min-width: 54px; padding: 6px 8px 5px; border: 1px solid var(--r-line); cursor: pointer; }
 .vtm20 .r-cr-gen:hover { border-color: var(--r-line-2); }
