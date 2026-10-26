@@ -75,6 +75,9 @@ ROLL_FIX = {
 
 def main():
     import pymupdf
+    from merge_evocations import evocation_html, load_evocations
+    global EVO
+    EVO = load_evocations()
     doc = pymupdf.open(PDF)
     pages = {i + 1: doc[i].get_text() for i in range(168, 216)}
     lores, cur, ev, buf = [], None, None, []
@@ -119,7 +122,8 @@ def main():
             fix = ROLL_FIX.get(f"{L['key']}|{p['level']}")
             if fix and not p.get("roll"):
                 p["roll"] = {"trait1": f"attributes.{fix[0]}", "trait2": f"abilities.{fix[1]}", "difficulty": fix[2]}
-            p["html"] = f"<p><em>{BOOK}, с. {p['page']}.</em> Призыв {p['level']}-го круга. Эффект обычный — если кость Муки выше Муки демона, иначе — эффект высокой Муки (см. книгу).</p>"
+            # пересказ эффекта и высокой Муки — data/demon-evocations.json (tools/merge_evocations.py)
+            p["html"] = evocation_html(p["page"], p["level"], EVO.get(f"{L['key']}|{p['level']}"))
         # первые четыре черты формы — при низкой Муке, остальные — при высокой (гл. 7)
         L["form"] = {"low": L["form"][:4], "high": L["form"][4:8]} if L["form"] else None
     houses = [{"key": k, "name": v[0], "akkadian": v[1], "en": v[2], "torment": v[3],
