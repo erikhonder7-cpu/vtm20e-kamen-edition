@@ -291,6 +291,8 @@ export class DemonData extends BaseActorData {
       hostless: new BooleanField({ initial: false }), abyss: new BooleanField({ initial: false }),
       // ритуал Зар («Спасители и истребители»): до этого часа хроники гибель тела отправляет прямо в Бездну
       zar: new NumberField({ required: true, integer: true, initial: 0 }),
+      // адский двор («Город Ангелов», гл. 4; правила падших, гл. 17): чей двор, звание, министерство
+      court: new SchemaField({ name: str(), rank: str(), ministry: str() }),
       // культ Привязанного (apps/cult.mjs): расписание и место ритуалов, последний ритуал, кубики почитания к призыву, культисты
       cult: new SchemaField({ schedule: str(), place: str(), last: str(), veneration: int(0, 0, 10),
         members: new ArrayField(new SchemaField({ name: str(), role: str("faithful"), uuid: str(), note: str() })) }),

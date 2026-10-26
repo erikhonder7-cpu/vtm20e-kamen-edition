@@ -422,6 +422,12 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
         dots: dots(v, 5, { path: `system.urges.${k}` }), xp: a.xpCost("urge", v) };
     });
     if (ctx.isDemon) {
+      // адский двор: звание и министерство (досье на вкладке «Биография»)
+      const opt = (keys, cur, k) => keys.map(v => ({ value: v, label: game.i18n.localize(`VTM20.Demon.Court.${k}.${v}`), tip: game.i18n.localize(`VTM20.Demon.Court.${k}Tip.${v}`), selected: v === cur }));
+      ctx.courtRanks = opt(["subject", "knight", "lord", "highLord", "baron", "duke"], s.court?.rank, "Rank");
+      ctx.courtMinistries = opt(["eagles", "aurochs", "lions", "dust", "dragons"], s.court?.ministry, "Ministry");
+      ctx.courtMinistryTip = s.court?.ministry ? game.i18n.localize(`VTM20.Demon.Court.MinistryTip.${s.court.ministry}`) : "";
+      ctx.courtRankTip = s.court?.rank ? game.i18n.localize(`VTM20.Demon.Court.RankTip.${s.court.rank}`) : "";
       ctx.hostMiles = (s.willpower?.permanent ?? 0) + 5;
       ctx.faithPerm = dots(s.faith.permanent, 10, { path: "system.faith.permanent" });
       ctx.faithBoxes = dots(s.faith.temporary, 10, { path: "system.faith.temporary" });

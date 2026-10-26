@@ -12,8 +12,13 @@
     <label class="r-f"><span>{{localize "VTM20.Details.age"}}</span><input type="text" name="system.details.age" value="{{system.details.age}}"></label>
     <label class="r-f"><span>{{localize "VTM20.Details.apparentAge"}}</span><input type="text" name="system.details.apparentAge" value="{{system.details.apparentAge}}"></label>
     <label class="r-f"><span>{{localize "VTM20.Details.born"}}</span><input type="text" name="system.details.born" value="{{system.details.born}}"></label>
+    {{#if isDemon}}<label class="r-f" data-tooltip="{{localize 'VTM20.Demon.Court.Hint'}}"><span>{{localize "VTM20.Demon.Court.Name"}}</span><input type="text" name="system.court.name" value="{{system.court.name}}" placeholder="{{localize 'VTM20.Demon.Court.NamePh'}}"></label>{{/if}}
     {{#if isVampire}}<label class="r-f"><span>{{localize "VTM20.Details.embraced"}}</span><input type="text" name="system.details.embraced" value="{{system.details.embraced}}" placeholder="{{localize 'VTM20.Lineage.EmbracedHint'}}"></label>{{/if}}
     <label class="r-f is-span2"><span>{{localize "VTM20.Details.haven"}}</span><input type="text" name="system.details.haven" value="{{system.details.haven}}"></label>
+    {{#if isDemon}}<label class="r-f" {{#if courtRankTip}}data-tooltip="{{courtRankTip}}"{{/if}}><span>{{localize "VTM20.Demon.Court.RankLabel"}}</span>
+      <select name="system.court.rank"><option value="">—</option>{{#each courtRanks}}<option value="{{value}}" {{#if selected}}selected{{/if}} title="{{tip}}">{{label}}</option>{{/each}}</select></label>
+    <label class="r-f" {{#if courtMinistryTip}}data-tooltip="{{courtMinistryTip}}"{{/if}}><span>{{localize "VTM20.Demon.Court.MinistryLabel"}}</span>
+      <select name="system.court.ministry"><option value="">—</option>{{#each courtMinistries}}<option value="{{value}}" {{#if selected}}selected{{/if}} title="{{tip}}">{{label}}</option>{{/each}}</select></label>{{/if}}
     {{#if isVampire}}<label class="r-f is-span2"><span>{{localize "VTM20.Details.clanCustom"}}</span><input type="text" name="system.clanCustom" value="{{system.clanCustom}}" placeholder="{{localize 'VTM20.Details.clanCustomHint'}}"></label>{{/if}}
     {{#if isMortal}}<label class="r-f"><span>{{localize "VTM20.Details.trueFaith"}}</span><input type="number" name="system.trueFaith" value="{{system.trueFaith}}" min="0" max="10"></label>{{/if}}
   </div>
