@@ -1062,6 +1062,13 @@ body.r-theme-light .vtm20 .r-ng-item.is-active, body.r-theme-light .vtm20 .r-ng-
 .vtm20.r-gifts .r-gifts-add .is-span2 { grid-column: span 2; }
 .vtm20.r-gifts .r-gifts-add .r-btn { justify-self: start; }
 
+/* Слуга Привязанного (apps/eb-servant.mjs): пункты и стигматы */
+.vtm20.r-ebs .r-ebs-budget { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 14px; }
+.vtm20.r-ebs .r-ebs-budget .is-over b { color: var(--r-blood-l); }
+.vtm20.r-ebs .r-ebs-budget .r-btn { margin-left: auto; }
+.vtm20.r-ebs .r-gift-kind { flex: 0 0 26px; text-align: center; font-family: var(--r-display); font-size: 15px; }
+.vtm20.r-ebs .r-gift-name small { display: block; }
+
 /* Культ Привязанного (apps/cult.mjs) */
 .vtm20.r-cult .r-cult-body { display: flex; flex-direction: column; gap: 8px; padding: 4px 2px; }
 .vtm20.r-cult .r-cult-facts { display: flex; flex-wrap: wrap; gap: 8px; }

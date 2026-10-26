@@ -236,6 +236,12 @@ export class MortalData extends BaseActorData {
       vessel: new SchemaField({ value: int(10, 0, 20), max: int(10, 1, 20) }),
       trueFaith: int(0, 0, 10),
       // Слуга падшего (Damned and Deceived): uuid хозяина-демона и Вера слуги 0–5; Добродетели — Совесть, Убеждённость, Мужество
+      // слуга Привязанного (apps/eb-servant.mjs): хозяин, наделения (по 15 пунктов и 3 стигмата), силы, стигматы,
+      // прибавки к чертам, урезанный призыв «ключ Знания:круг»
+      ebServant: new SchemaField({ master: str(), empowerments: int(0, 0, 9),
+        powers: new ArrayField(new SchemaField({ key: str(), cost: int(0, 0, 20), note: str() })),
+        stigmata: new ArrayField(new SchemaField({ key: str(), cost: int(0, 0, 3), note: str() })),
+        boosts: new ArrayField(new SchemaField({ key: str(), dots: int(0, 0, 5) })), evocation: str() }),
       thrall: new SchemaField({ master: str(), faith: int(0, 0, 5),
         // дары хозяина (apps/thrall-gifts.mjs): вид, имя, ключ (черта, врождённая, призыв «ключ Знания:уровень»), точки прибавки,
         // черта высокой Муки, цена в Вере слуги, пояснение

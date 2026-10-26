@@ -1,0 +1,52 @@
+{{!-- Слуга Привязанного: наделения, пункты на силы и стигматы, силы, стигматы, прибавки, урезанный призыв. --}}
+<div class="r-gifts-body r-ebs-body">
+  <p class="r-gifts-head">
+    {{#if master}}{{localize "VTM20.EbServant.Master"}}: <a data-action="open" data-uuid="{{masterUuid}}"><b>{{master}}</b></a>{{else}}<em>{{localize "VTM20.EbServant.NoMaster"}}</em>{{/if}}
+    <span class="r-gifts-budget">{{localize "VTM20.EbServant.Empowerments"}} <b>{{n}}</b>{{#if budget.slave}} · <em class="r-gift-high">{{localize "VTM20.EbServant.Slave"}}</em>{{/if}}</span>
+  </p>
+  {{#if budget.slave}}<p class="r-note">{{localize "VTM20.EbServant.SlaveText"}}</p>{{/if}}
+  <div class="r-ebs-budget">
+    <span class="{{#if over}}is-over{{/if}}">{{localize "VTM20.EbServant.Points"}} <b>{{budget.used}} / {{budget.total}}</b></span>
+    <span class="{{#if stigmaShort}}is-over{{/if}}" data-tooltip="{{localize 'VTM20.EbServant.StigmaHint'}}">{{localize "VTM20.EbServant.StigmaPoints"}} <b>{{budget.stigmaUsed}} / {{budget.stigmaNeed}}</b></span>
+    {{#if editable}}<a class="r-btn is-accent" data-action="empower" data-tooltip="{{localize 'VTM20.EbServant.RitualHint'}}"><i class="fa-solid fa-gem"></i> {{localize "VTM20.EbServant.Ritual"}}</a>{{/if}}
+  </div>
+
+  <h4 class="r-h4">{{localize "VTM20.EbServant.Powers"}}</h4>
+  <ul class="r-gifts-list">
+    {{#each powers}}<li class="r-gift"><span class="r-gift-kind">{{cost}}</span>
+      <span class="r-gift-name">{{name}}<small>{{text}}</small>{{#if note}}<small>{{note}}</small>{{/if}}</span>
+      {{#if usable}}<a class="r-vc-btn" data-action="use" data-key="{{key}}"><i class="fa-solid fa-hand-sparkles"></i> {{localize "VTM20.EbServant.Use"}}</a>{{/if}}
+      {{#if @root.editable}}<a class="r-vc-btn is-sq" data-action="del" data-kind="powers" data-index="{{i}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}</li>{{/each}}
+    {{#each boosts}}<li class="r-gift"><span class="r-gift-kind">{{cost}}</span><span class="r-gift-name">{{label}}</span>
+      {{#if @root.editable}}<a class="r-vc-btn is-sq" data-action="del" data-kind="boosts" data-index="{{i}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}</li>{{/each}}
+    {{#if evocation}}<li class="r-gift"><span class="r-gift-kind">{{evocation.cost}}</span>
+      <span class="r-gift-name">{{evocation.name}} <em class="r-gift-high">{{evocation.lore}} {{evocation.level}}</em><small>{{localize "VTM20.EbServant.EvoHow"}}</small></span>
+      <a class="r-vc-btn" data-action="useEvo"><i class="fa-solid fa-fire"></i> {{localize "VTM20.EbServant.Use"}}</a>
+      {{#if @root.editable}}<a class="r-vc-btn is-sq" data-action="del" data-kind="evocation"><i class="fa-solid fa-xmark"></i></a>{{/if}}</li>{{/if}}
+  </ul>
+
+  <h4 class="r-h4">{{localize "VTM20.EbServant.Stigmata"}}</h4>
+  <ul class="r-gifts-list">
+    {{#each stigmata}}<li class="r-gift"><span class="r-gift-kind">{{cost}}</span>
+      <span class="r-gift-name">{{name}}<small>{{text}}</small>{{#if note}}<small>{{note}}</small>{{/if}}</span>
+      {{#if @root.editable}}<a class="r-vc-btn is-sq" data-action="del" data-kind="stigmata" data-index="{{i}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}</li>
+    {{else}}<li class="r-empty">{{localize "VTM20.EbServant.NoStigmata"}}</li>{{/each}}
+  </ul>
+
+  {{#if editable}}{{#if n}}
+  <h4 class="r-h4">{{localize "VTM20.EbServant.Add"}}</h4>
+  <div class="r-gifts-add r-fields">
+    <label class="r-f"><span>{{localize "VTM20.EbServant.Power"}}</span><select name="power">{{#each powerOptions}}<option value="{{value}}">{{label}}</option>{{/each}}</select></label>
+    <label class="r-f"><span>{{localize "VTM20.EbServant.Note"}}</span><input type="text" name="powerNote"></label>
+    <a class="r-btn is-span2" data-action="addPower"><i class="fa-solid fa-plus"></i> {{localize "VTM20.EbServant.AddPower"}}</a>
+    <label class="r-f"><span>{{localize "VTM20.EbServant.Trait"}}</span><select name="trait">{{#each traitOptions}}<option value="{{value}}">{{label}}</option>{{/each}}</select></label>
+    <label class="r-f"><span>{{localize "VTM20.EbServant.Dots"}}</span><input type="number" name="dots" value="1" min="1" max="4"></label>
+    <a class="r-btn is-span2" data-action="addBoost"><i class="fa-solid fa-plus"></i> {{localize "VTM20.EbServant.AddBoost"}}</a>
+    {{#if evoOptions.length}}<label class="r-f is-span2"><span>{{localize "VTM20.EbServant.Evo"}}</span><select name="evo">{{#each evoOptions}}<option value="{{value}}">{{label}}</option>{{/each}}</select></label>
+    <a class="r-btn is-span2" data-action="setEvo"><i class="fa-solid fa-fire"></i> {{localize "VTM20.EbServant.SetEvo"}}</a>{{/if}}
+    <label class="r-f"><span>{{localize "VTM20.EbServant.Stigma"}}</span><select name="stigma">{{#each stigmaOptions}}<option value="{{value}}">{{label}}</option>{{/each}}</select></label>
+    <label class="r-f"><span>{{localize "VTM20.EbServant.Note"}}</span><input type="text" name="stigmaNote" placeholder="{{localize 'VTM20.EbServant.StigmaNotePh'}}"></label>
+    <a class="r-btn is-span2" data-action="addStigma"><i class="fa-solid fa-plus"></i> {{localize "VTM20.EbServant.AddStigma"}}</a>
+  </div>
+  {{/if}}{{/if}}
+</div>

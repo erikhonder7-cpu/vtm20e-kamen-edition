@@ -607,6 +607,168 @@ try {
     await game.settings.set(game.system.id, "migrated", migrated);
   }, [CITY_MODULE, mod, paris, migrated]);
 
+  // ── 1.0.0: дары слуг, тело-носитель, журнал Муки, завладение, культ, Вложения ──
+  /** Нажать кнопку открытого окна-подтверждения (DialogV2) по действию: yes, ok, spend… */
+  const clickDialog = action => page.evaluate(async action => {
+    for (let i = 0; i < 30; i++) {
+      const b = document.querySelector(`dialog[open] [data-action="${action}"]`);
+      if (b) { b.click(); return true; }
+      await new Promise(r => setTimeout(r, 150));
+    }
+    return false;
+  }, action);
+
+  await check("Слуга: дары хозяина", async () => {
+    const id = await temp("E2E — хозяин даров", "demon"), sid = await temp("E2E — слуга даров", "mortal");
+    const r = await page.evaluate(async ([id, sid]) => {
+      const SYS = game.system.id, d = game.actors.get(id), m = game.actors.get(sid), out = {};
+      const G = await import(`/systems/${SYS}/module/apps/thrall-gifts.mjs`);
+      await m.update({ "system.thrall.master": d.uuid, "system.thrall.faith": 5, "system.attributes.strength.value": 2,
+        "system.willpower.permanent": 6, "system.willpower.temporary": 6,
+        "system.thrall.gifts": [{ kind: "innate", key: "soak", name: "", dots: 0, high: false, cost: 1, note: "" },
+          { kind: "form", name: "Когти", key: "", dots: 0, high: true, cost: 1, note: "" },
+          { kind: "attr", key: "attributes.strength", name: "", dots: 2, high: false, cost: 0, note: "" }] });
+      await d.update({ "system.thralls": [{ name: m.name, uuid: m.uuid, faith: 5, share: 2, will: 6, wounds: 0, lost: 0, terms: "", gifts: "" }] });
+      out.budget = G.giftBudget(m);
+      await G.useGift(m, 0);                                   // поглощение — 2 Воли
+      out.will1 = m.system.willpower.temporary;
+      const t0 = d.system.torment.temporary;
+      await G.useGift(m, 1);                                   // черта высокой Муки — 1 Воля и Мука хозяину
+      out.will2 = m.system.willpower.temporary;
+      out.torment = d.system.torment.temporary - t0;
+      await m.update({ "system.attributes.strength.value": 4 });
+      await G.giftsRevoke(m);                                  // разрыв — прибавка уходит
+      out.str = m.system.attributes.strength.value;
+      out.left = m.system.thrall.gifts.length;
+      return out;
+    }, [id, sid]);
+    if (r.budget.total !== 3 || r.budget.used !== 3) throw new Error(`бюджет даров: ${JSON.stringify(r.budget)}`);
+    if (r.will1 !== 4 || r.will2 !== 3) throw new Error(`Воля за дары: ${r.will1}, ${r.will2}`);
+    if (r.torment !== 1) throw new Error(`Мука хозяину за черту высокой Муки: ${r.torment}`);
+    if (r.str !== 2 || r.left !== 0) throw new Error(`разрыв договора: Сила ${r.str}, даров ${r.left}`);
+  });
+
+  await check("Падший: тело-носитель", async () => {
+    const id = await temp("E2E — без тела", "demon");
+    const p = page.evaluate(async id => {
+      const SYS = game.system.id, a = game.actors.get(id), out = {};
+      const H = await import(`/systems/${SYS}/module/apps/host.mjs`);
+      await a.update({ "system.faith.permanent": 5, "system.faith.temporary": 5, "system.torment.permanent": 3,
+        "system.thralls": [{ name: "Верный", uuid: "", faith: 3, share: 1, will: 3, wounds: 0, lost: 0, terms: "", gifts: "" }] });
+      await H.loseHost(a, "death");
+      out.lost = [a.system.hostless, a.system.apocalyptic];
+      window._e2eHost = H.newHost(a);
+      return out;
+    }, id);
+    const r = await p;
+    // новое тело: слуга по доброй воле — без броска
+    await page.evaluate(async () => {
+      for (let i = 0; i < 30 && !document.querySelector("dialog[open] input[value=thrall]"); i++) await new Promise(r => setTimeout(r, 150));
+      const d = document.querySelector("dialog[open] input[value=thrall]").closest("dialog");
+      d.querySelector("input[value=thrall]").checked = true;
+      d.querySelector("[name=willing]").checked = true;
+      d.querySelector('[data-action="ok"]').click();
+    });
+    const after = await page.evaluate(async id => { await window._e2eHost; const s = game.actors.get(id).system;
+      return [s.hostless, s.faith.permanent, s.torment.permanent]; }, id);
+    if (!r.lost[0] || !r.lost[1]) throw new Error(`тело погибло, а падший не без тела: ${r.lost}`);
+    if (after[0] || after[1] !== 4 || after[2] !== 4) throw new Error(`новое тело: без тела ${after[0]}, Вера ${after[1]}, Мука ${after[2]}`);
+  });
+
+  await check("Падший: журнал Муки", async () => {
+    const id = await temp("E2E — журнал Муки", "demon");
+    const r = await page.evaluate(async id => {
+      const SYS = game.system.id, a = game.actors.get(id), T = await import(`/systems/${SYS}/module/apps/torment.mjs`);
+      await a.update({ "system.torment.permanent": 4, "system.torment.temporary": 9 });
+      // запись о подготовительной правке пишется вдогонку — дождаться её, потом очистить журнал
+      for (let i = 0; i < 20 && !a.system.tormentLog.length; i++) await new Promise(r => setTimeout(r, 150));
+      await a.update({ "system.tormentLog": [] });
+      const since = Date.now();
+      await T.gainTorment(a, 1, "сжёг приют");
+      for (let i = 0; i < 20 && !a.system.tormentLog.some(x => x.reason === "сжёг приют"); i++) await new Promise(r => setTimeout(r, 150));
+      const C = await import(`/systems/${SYS}/module/apps/chronicle.mjs`);
+      const S = C.collectSession(since);
+      return { log: a.system.tormentLog.map(x => [x.reason, x.temp, x.perm, x.before]), chron: S.torment.find(x => x.who === a.name) };
+    }, id);
+    // запись о подготовительной правке листа может дописаться позже очистки — берём запись по причине
+    const [reason, dt, dp, before] = r.log.find(x => x[0] === "сжёг приют") ?? [];
+    if (reason !== "сжёг приют" || dt !== 1 || dp !== 1 || before !== "4/9") throw new Error(`запись журнала: ${JSON.stringify(r.log)}`);
+    if (!r.chron || r.chron.from !== "4/9" || r.chron.to !== "5/0") throw new Error(`Мука в летописи: ${JSON.stringify(r.chron)}`);
+  });
+
+  await check("Привязанный: завладение и культ", async () => {
+    const id = await temp("E2E — Привязанный в теле", "demon");
+    const r = await page.evaluate(async id => {
+      const SYS = game.system.id, a = game.actors.get(id), out = {};
+      const P = await import(`/systems/${SYS}/module/apps/possession.mjs`), T = await import(`/systems/${SYS}/module/apps/torment.mjs`);
+      const { getClock } = await import(`/systems/${SYS}/module/apps/calendar.mjs`);
+      await a.update({ "system.earthbound": true, "system.faith.permanent": 6, "system.faith.temporary": 4, "system.reliquary.faith": 2 });
+      await a.createEmbeddedDocuments("Item", [{ name: "Культ", type: "background", system: { value: 2 } }, { name: "Поклонение", type: "background", system: { value: 3 } }]);
+      await a.update({ "system.possession": { name: "Сторож", uuid: "", start: getClock(), spent: 0, extended: 0, banned: [] } });
+      out.h0 = P.hoursLeft(a);
+      await a.update({ "system.reliquary.faith": 0 });         // 2 Веры в теле — 2 часа жизни тела
+      for (let i = 0; i < 20 && !a.system.possession.spent; i++) await new Promise(r => setTimeout(r, 150));
+      out.h1 = P.hoursLeft(a);
+      await P.leave(a);
+      out.left = a.system.possession.name;
+      await T.worshipRitual(a);                                 // Поклонение 3 — 6 Веры в реликварий
+      out.rel = a.system.reliquary.faith;
+      return out;
+    }, id);
+    if (r.h0 !== 48 || r.h1 !== 46) throw new Error(`срок тела: ${r.h0} → ${r.h1}`);
+    if (r.left !== "") throw new Error("не покинул тело");
+    if (r.rel !== 6) throw new Error(`ритуал поклонения: ${r.rel} Веры в реликварии`);
+  });
+
+  await check("Слуга Привязанного: наделение, силы, стигматы", async () => {
+    const id = await temp("E2E — Привязанный-хозяин", "demon"), sid = await temp("E2E — сектант", "mortal");
+    const p = page.evaluate(async ([id, sid]) => {
+      const SYS = game.system.id, d = game.actors.get(id), m = game.actors.get(sid);
+      await d.update({ "system.earthbound": true, "system.reliquary.faith": 2, "system.faith.temporary": 1 });
+      await m.update({ "system.willpower.permanent": 5, "system.willpower.temporary": 5 });
+      const E = await import(`/systems/${SYS}/module/apps/eb-servant.mjs`);
+      window._e2eEbs = E.empower(m);
+      for (let i = 0; i < 30 && !document.querySelector("dialog[open] select[name=master]"); i++) await new Promise(r => setTimeout(r, 150));
+      const dlg = document.querySelector("dialog[open] select[name=master]").closest("dialog");
+      dlg.querySelector("select[name=master]").value = d.uuid;
+      dlg.querySelector('[data-action="ok"]').click();
+      await window._e2eEbs;
+      await m.update({ "system.ebServant.powers": [{ key: "berserk", cost: 3, note: "" }], "system.ebServant.stigmata": [{ key: "major", cost: 2, note: "" }],
+        "system.ebServant.boosts": [{ key: "attributes.strength", dots: 2 }] });
+      const b = E.ebBudget(m), w0 = m.system.willpower.temporary;
+      await E.usePower(m, "berserk");
+      for (const w of [...foundry.applications.instances.values()]) if (w.id === `r-ebs-${m.id}`) await w.close();
+      return { n: m.system.ebServant.empowerments, perm: m.system.willpower.permanent, rel: d.system.reliquary.faith, b, will: w0 - m.system.willpower.temporary };
+    }, [id, sid]);
+    const r = await p;
+    if (r.n !== 1 || r.perm !== 4 || r.rel !== 1) throw new Error(`наделение: ${r.n}, Воля ${r.perm}, реликварий ${r.rel}`);
+    if (r.b.total !== 15 || r.b.used !== 13 || r.b.stigmaNeed !== 3 || r.b.stigmaUsed !== 2) throw new Error(`пункты: ${JSON.stringify(r.b)}`);
+    if (r.will !== 1) throw new Error(`Бешенство: Воли −${r.will}`);
+  });
+
+  await check("Вампир: Вложения и договоры", async () => {
+    const id = await temp("E2E — инферналист");
+    const p = page.evaluate(async id => {
+      const SYS = game.system.id, a = game.actors.get(id);
+      const { Codex } = await import(`/systems/${SYS}/module/data/codex.mjs`), { LibraryItems } = await import(`/systems/${SYS}/module/apps/library.mjs`);
+      const I = await import(`/systems/${SYS}/module/apps/infernal.mjs`);
+      await Codex.load();
+      await a.update({ "system.blood.value": 10, "system.willpower.permanent": 5,
+        "system.pacts": [{ demon: "Бельфегор", form: "foedus", terms: "", price: "", deed: "", thrall: true, obligation: 3, frequency: 3, consequence: 2, broken: false }] });
+      const x = Codex.investments.find(v => v.en === "Insidious Whispers");
+      const [it] = await a.createEmbeddedDocuments("Item", [LibraryItems.investment(x)]);
+      window._e2eInv = I.useInvestment(a, it);
+      return { n: Codex.investments.length, limit: I.investmentLimit(a), value: I.pactValue(a.system.pacts[0]) };
+    }, id);
+    const r = await p;
+    await clickDialog("yes");
+    const blood = await page.evaluate(async id => { await window._e2eInv; return game.actors.get(id).system.blood.value; }, id);
+    if (r.n !== 33) throw new Error(`Вложений в справочнике: ${r.n}`);
+    if (r.limit.v20 !== 1 || r.limit.max !== 5) throw new Error(`предел Вложений: ${JSON.stringify(r.limit)}`);
+    if (r.value !== 2) throw new Error(`рейтинг договора: ${r.value}`);
+    if (blood !== 8) throw new Error(`Коварный шёпот: крови ${blood} вместо 8`);
+  });
+
   await check("Новый мир: «Город» без Парижа", async () => {
     await setWorld(false, "", await page.evaluate(() => game.system.version));
     // game.ready встаёт раньше, чем отработает асинхронный ready системы (Codex.load, keepParis): ждём решения

@@ -160,7 +160,8 @@
     <div class="r-vc-tools">
       <span class="r-vc-hint is-left" data-tooltip="{{localize 'VTM20.Sheet.BearingHint'}}">{{localize "VTM20.Sheet.Bearing"}}: <b>{{bearing.name}}</b> {{bearing.mod}}</span>
       {{#if isMortal}}{{#if editable}}<a class="r-vc-btn is-sq" data-action="thrallPact" data-tooltip="{{localize 'VTM20.Demon.PactExistingBtn'}}"><i class="fa-solid fa-handshake-angle"></i></a>
-      <a class="r-vc-btn is-sq" data-action="ghoulify" data-tooltip="{{localize 'VTM20.Ghoulify.Btn'}}"><i class="fa-solid fa-droplet"></i></a>{{/if}}{{/if}}
+      <a class="r-vc-btn is-sq" data-action="ghoulify" data-tooltip="{{localize 'VTM20.Ghoulify.Btn'}}"><i class="fa-solid fa-droplet"></i></a>
+      <a class="r-vc-btn is-sq {{#if system.ebServant.empowerments}}is-on{{/if}}" data-action="ebServant" data-tooltip="{{localize 'VTM20.EbServant.BtnHint'}}"><i class="fa-solid fa-gem"></i></a>{{/if}}{{/if}}
       <a class="r-vc-btn is-right" data-action="rollVirtue" data-kind="degeneration"><i class="fa-solid fa-scale-unbalanced"></i> {{localize "VTM20.Sheet.DegenerationShort"}}</a>
     </div>
   </div>

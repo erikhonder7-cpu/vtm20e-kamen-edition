@@ -35,6 +35,7 @@ import { ritualHTML } from "../data/ritual-text.mjs";
 import { openThrallGifts } from "../apps/thrall-gifts.mjs";
 import { loseHost, holdOn, newHost, summonedBack } from "../apps/host.mjs";
 import { openCult } from "../apps/cult.mjs";
+import { openEbServant, empower as empowerServant } from "../apps/eb-servant.mjs";
 import { useInvestment, pactDialog, pactDelete, pactValue, investmentLimit } from "../apps/infernal.mjs";
 import { possess, extend as possessExtend, leave as possessLeave, battleExpiry, possessionView } from "../apps/possession.mjs";
 import { MERIT_MODS, describeMeritMod } from "../data/merit-mods.mjs";
@@ -138,7 +139,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       tormentSin: VtMActorSheet.#onTormentSin, thrallSin: VtMActorSheet.#onThrallSin, thrallPact: VtMActorSheet.#onThrallPact, ghoulify: VtMActorSheet.#onGhoulify, formUpkeep: VtMActorSheet.#onFormUpkeep, thrallGifts: VtMActorSheet.#onThrallGifts,
       tormentLog: VtMActorSheet.#onTormentLog, hostLose: VtMActorSheet.#onHostLose,
       investmentUse: VtMActorSheet.#onInvestmentUse, pactAdd: VtMActorSheet.#onPactAdd, pactEdit: VtMActorSheet.#onPactEdit, pactDel: VtMActorSheet.#onPactDel,
-      cult: VtMActorSheet.#onCult, possess: VtMActorSheet.#onPossess, possessExtend: VtMActorSheet.#onPossessExtend, possessLeave: VtMActorSheet.#onPossessLeave, possessBattle: VtMActorSheet.#onPossessBattle, hostHold: VtMActorSheet.#onHostHold, hostNew: VtMActorSheet.#onHostNew, hostSummoned: VtMActorSheet.#onHostSummoned, formLookImg: VtMActorSheet.#onFormLookImg, formLookClear: VtMActorSheet.#onFormLookClear, thrallBreak: VtMActorSheet.#onThrallBreak, openUuid: VtMActorSheet.#onOpenUuid,
+      ebServant: VtMActorSheet.#onEbServant, cult: VtMActorSheet.#onCult, possess: VtMActorSheet.#onPossess, possessExtend: VtMActorSheet.#onPossessExtend, possessLeave: VtMActorSheet.#onPossessLeave, possessBattle: VtMActorSheet.#onPossessBattle, hostHold: VtMActorSheet.#onHostHold, hostNew: VtMActorSheet.#onHostNew, hostSummoned: VtMActorSheet.#onHostSummoned, formLookImg: VtMActorSheet.#onFormLookImg, formLookClear: VtMActorSheet.#onFormLookClear, thrallBreak: VtMActorSheet.#onThrallBreak, openUuid: VtMActorSheet.#onOpenUuid,
       sinSuggest: VtMActorSheet.#onSinSuggest,
       tormentKind: VtMActorSheet.#onTormentKind,
       tormentAtone: VtMActorSheet.#onTormentAtone,
@@ -1258,6 +1259,8 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   /** Завладение Привязанного (apps/possession.mjs). */
   static #onPossess() { return possess(this.actor); }
   static #onCult() { return openCult(this.actor); }
+  /** Слуга Привязанного: нет наделений — сразу ритуал, есть — окно сил (apps/eb-servant.mjs). */
+  static #onEbServant() { return this.actor.system.ebServant?.empowerments ? openEbServant(this.actor) : empowerServant(this.actor); }
   /** Инфернализм (apps/infernal.mjs): применить Вложение, договоры с демонами. */
   static #onInvestmentUse(event, target) {
     const item = this.actor.items.get(target.closest("[data-item-id]")?.dataset.itemId);
