@@ -48,7 +48,7 @@
   {{#if extraNeeded}}<div class="r-card-note is-warn">{{localize "VTM20.Roll.ExtraNeeded" n=extraNeeded}}</div>{{/if}}
   {{#if hint}}<div class="r-card-hint">{{hint}}</div>{{/if}}
   {{#each notes}}<div class="r-card-note">{{{this}}}</div>{{/each}}
-  {{#if effect}}<details class="r-card-effect"><summary>{{localize "VTM20.Roll.Effect"}}</summary><div class="r-card-body">{{{effect}}}</div></details>{{/if}}
+  {{#if effect}}<details class="r-card-effect" {{#if effectLabel}}open{{/if}}><summary>{{#if effectLabel}}{{effectLabel}}{{else}}{{localize "VTM20.Roll.Effect"}}{{/if}}</summary><div class="r-card-body">{{{effect}}}</div></details>{{/if}}
 
   {{#if extended}}
   <div class="r-ext">

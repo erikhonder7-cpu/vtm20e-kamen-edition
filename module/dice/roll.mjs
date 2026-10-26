@@ -289,8 +289,21 @@ export async function renderCard(state, actor = null) {
     typeClass: themeClass(actor),
     torment: extra.tormentDie || extra.tormentLow != null
       ? { die: extra.tormentDie ?? null, low: extra.tormentLow ?? null, hi: extra.tormentHi ?? null, n: extra.torment, high: !!extra.tormentHigh, chosen: !!extra.tormentChosen } : null,
-    opposed: extra.opposed ? { label: extra.opposed.label, successes: extra.opposed.successes, dice: extra.opposed.values.map(v => dieView(v, 6, false)) } : null
+    opposed: extra.opposed ? { label: extra.opposed.label, successes: extra.opposed.successes, dice: extra.opposed.values.map(v => dieView(v, 6, false)) } : null,
+    ...effectByTorment(state.effect, extra)
   });
+}
+
+/**
+ * Призыв падшего: в описании обычный эффект и абзац «Высокая Мука: …» — карточка показывает тот, что сработал
+ * (кость Муки, errata или выбор игрока), с подписью; без Муки или без абзаца — описание как есть.
+ */
+function effectByTorment(html, extra) {
+  if (extra.torment == null || !html) return {};
+  const m = /<p>\s*<strong>\s*Высокая Мука:\s*<\/strong>\s*/i.exec(html);
+  if (!m) return {};
+  const normal = html.slice(0, m.index), high = `<p>${html.slice(m.index + m[0].length)}`;
+  return extra.tormentHigh ? { effect: high, effectLabel: t("Demon.EffectHighText") } : { effect: normal, effectLabel: t("Demon.EffectNormalText") };
 }
 
 /* ── Специальные броски ──────────────────────────────────────────────── */
