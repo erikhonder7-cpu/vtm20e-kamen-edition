@@ -578,9 +578,14 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const own = Codex.house(s.house)?.lores ?? [];
     const rollInfo = r => r?.trait1 ? { label: [a.traitLabel(r.trait1), r.trait2 && a.traitLabel(r.trait2)].filter(Boolean).join(" + "),
       diff: r.difficulty || "", canRoll: true } : null;
+    // Призывы предметами (свои или из компендия): под своим Знанием, на месте своего круга, заменяя тот же призыв справочника
+    const lorePowers = a.items.filter(i => i.type === "lorePower");
+    const mapOwnLore = p => ({ id: p.id, name: p.name, level: p.system.level, roman: ROMAN[p.system.level - 1] ?? "—", html: p.system.description,
+      open: this._open.has(p.id), roll: rollInfo(p.system.roll), cls: "is-own" });
     ctx.lores = a.items.filter(i => i.type === "lore").map(it => {
       const k = it.system.key, data = Codex.lore(k), v = it.system.value;
-      const powers = (data?.powers ?? []).map((p, i) => [p, i]).filter(([p]) => p.level <= v).map(([p, i]) => ({
+      const mine = lorePowers.filter(p => p.system.lore === k), taken = new Set(mine.map(p => `${p.system.level}|${p.name}`));
+      const powers = (data?.powers ?? []).map((p, i) => [p, i]).filter(([p]) => p.level <= v && !taken.has(`${p.level}|${p.name}`)).map(([p, i]) => ({
         ...p, id: `${it.id}-p${i}`, roman: ROMAN[p.level - 1], open: this._open.has(`${it.id}-p${i}`),
         roll: rollInfo(p.roll), codexRef: `lore:${k}|${i}`, pinned: pins.has(`lore:${k}|${i}`)
       }));
@@ -589,7 +594,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       return {
         id: it.id, key: k, name: data?.name ?? it.name, en: data?.en ?? "", value: v, own: own.includes(k), common: !data?.house && !data?.dark, dark: !!data?.dark,
         houseName: data?.dark ? t("Demon.DarkLore") : house?.name ?? t("Demon.Common"), dots: dots(v, 5, { path: "system.value", itemId: it.id }),
-        powers, nextPower: next ? { name: next.name, level: next.level } : null,
+        powers: [...powers, ...mine.map(mapOwnLore)].sort((x, y) => x.level - y.level), nextPower: next ? { name: next.name, level: next.level } : null,
         xp: a.xpCost("lore", v, { key: k }), open: this._open.has(it.id)
       };
     }).sort((x, y) => (y.own - x.own) || (y.common - x.common) || x.name.localeCompare(y.name, "ru"));
@@ -1243,6 +1248,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const item = this.actor.items.get(target.closest("[data-item-id]")?.dataset.itemId);
     if (!item) return;
     if (item.type === "ritual") return rollRitual(this.actor, item);
+    if (item.type === "lorePower") return rollLorePower(this.actor, item);
     const sub = item.system.path || Codex.disciplineLabel(item.system.discipline) || "";
     const magic = VTM20.pathDisciplines.includes(item.system.discipline);
     return VtMActorSheet.#rollFromSpec(this.actor, item.system.roll ?? {}, { title: item.name, subtitle: sub, effect: item.system.description,
@@ -1539,6 +1545,14 @@ function rollFromSpec(actor, r, { title, subtitle, effect, kind = "check", magic
     extra: { ...(magic ? { magic } : {}), ...(power ? { power } : {}), ...(torment != null ? { torment } : {}) },
     ...(onRolled ? { onRolled } : {})
   });
+}
+
+/** Бросок силы Знания-предмета: как призыв из справочника — кость Муки, Тёмное Знание падшему стоит Муки. */
+function rollLorePower(actor, item) {
+  const d = Codex.lore(item.system.lore), lv = item.system.level;
+  return rollFromSpec(actor, item.system.roll ?? {}, { title: item.name, subtitle: `${d?.name ?? ""} · ${ROMAN[lv - 1] ?? lv}`, effect: item.system.description,
+    torment: d?.dark ? 10 : actor.system.torment?.permanent ?? 0, power: { disc: `lore:${item.system.lore}`, level: lv, name: item.name },
+    onRolled: d?.dark && actor.type === "demon" && !actor.system.earthbound ? () => gainTorment(actor, 1, t("Demon.DarkReason")) : null });
 }
 
 /** Бросок силы справочника по ссылке (лист и HUD). */

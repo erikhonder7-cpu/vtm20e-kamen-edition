@@ -297,7 +297,8 @@ BUILDERS["demon-lores"] = function () {
   const p = new Pack("demon-lores", "Item");
   const dm = data("demon");
   const houseName = Object.fromEntries(dm.houses.map(h => [h.key, h.name]));
-  const pool = r => r ? `${r.trait1.split(".")[1]} + ${r.trait2.split(".")[1]}, сл. ${r.difficulty}` : "по книге";
+  const A = { ...ru.VTM20.Attr, ...ru.VTM20.Abil };
+  const pool = r => r?.trait1 ? `${A[r.trait1.split(".")[1]] ?? r.trait1} + ${A[r.trait2.split(".")[1]] ?? r.trait2}, сл. ${r.difficulty || 6}` : "по книге";
   const eb = data("demon-earthbound");
   for (const l of [...dm.lores, ...eb.lores]) {
     const rows = l.powers.map(x => `<tr><td>${ROMAN_LV[x.level - 1]}</td><td>${esc(x.name)}</td><td>${esc(pool(x.roll))}</td><td>с. ${x.page}</td></tr>`).join("");
@@ -310,23 +311,16 @@ BUILDERS["demon-lores"] = function () {
         + l.powers.map(x => `<h3>${ROMAN_LV[x.level - 1]}. ${esc(x.name)}</h3>${x.html}`).join("")
       : `<p><em>${esc(l.en)} · Demon: The Fallen, с. ${l.page}.</em></p><h3>Призывы</h3>`
       + `<table><thead><tr><th>Круг</th><th>Призыв</th><th>Бросок</th><th>Книга</th></tr></thead><tbody>${rows}</tbody></table>${form}`;
-    p.add({ name: l.name, type: "lore", folder: l.dark ? "Привязанные к Земле" : l.house ? houseName[l.house] : "Общие Знания", key: `lore:${l.key}`, img: ICON("discipline"),
+    // папка Знания внутри папки Дома: само Знание, затем его призывы — предметы «Призыв» (тип lorePower, порядок по кругу)
+    const folder = [l.dark ? "Привязанные к Земле" : l.house ? houseName[l.house] : "Общие Знания", l.name];
+    p.add({ name: l.name, type: "lore", folder, key: `lore:${l.key}`, img: ICON("discipline"),
       system: { key: l.key, value: 1, source: l.en, description } });
-  }
-  return p;
-};
-/** Призывы падших — справочник для чтения: журнал на Знание, страница на призыв (бросок, обычный эффект, высокая Мука).
- *  На листе призывы по-прежнему берутся из data/demon.json по точкам Знания — здесь только чтение и ссылки в чат. */
-BUILDERS["demon-evocations"] = function () {
-  const p = new Pack("demon-evocations", "JournalEntry");
-  const dm = data("demon"), eb = data("demon-earthbound");
-  const houseName = Object.fromEntries(dm.houses.map(h => [h.key, h.name]));
-  const A = { ...ru.VTM20.Attr, ...ru.VTM20.Abil };
-  const pool = r => r?.trait1 ? `${A[r.trait1.split(".")[1]] ?? r.trait1} + ${A[r.trait2.split(".")[1]] ?? r.trait2}, сл. ${r.difficulty || 6}${r.note ? `; ${r.note}` : ""}` : "по книге";
-  for (const l of [...dm.lores, ...eb.lores]) {
-    const pages = l.powers.map(x => ({ name: `${ROMAN_LV[x.level - 1]}. ${x.name}`,
-      html: `<p><strong>Бросок:</strong> ${esc(pool(x.roll))}</p>${x.html}` }));
-    p.addBook({ name: l.name, pages, folder: l.dark ? "Привязанные к Земле" : l.house ? houseName[l.house] : "Общие Знания", key: `evocations:${l.key}` });
+    p.folders.get(folder.join("/")).sorting = "m";
+    for (const x of l.powers) {
+      const system = { lore: l.key, level: x.level, page: x.page ?? 0, source: l.dark ? "Earthbound" : "Demon: The Fallen", description: x.html ?? "" };
+      const roll = rollOf(x.roll); if (roll) system.roll = roll;
+      p.add({ name: x.name, type: "lorePower", folder, key: `evocation:${l.key}:${x.level}`, img: ICON("discipline"), system });
+    }
   }
   return p;
 };

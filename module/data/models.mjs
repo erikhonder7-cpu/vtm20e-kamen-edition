@@ -379,6 +379,19 @@ export class RelicData extends BaseItemData {
 }
 
 /** Записанная сила: своя или перенесённая из старой системы. Показывается в карточке Дисциплины. */
+/** Призыв падшего (тип lorePower): Знание, круг, бросок; описание — эффект и высокая Мука. Как сила Дисциплины у вампиров. */
+export class LorePowerData extends BaseItemData {
+  static defineSchema() {
+    return {
+      ...super.defineSchema(),
+      lore: str(),                       // ключ Знания (data/demon.json, data/demon-earthbound.json)
+      level: int(1, 0, 5),
+      page: int(0, 0, 999),
+      roll: rollField()
+    };
+  }
+}
+
 export class PowerData extends BaseItemData {
   static defineSchema() {
     return {
@@ -448,7 +461,7 @@ export class GearData extends BaseItemData {
 export function registerDataModels() {
   Object.assign(CONFIG.Actor.dataModels, { vampire: VampireData, ghoul: GhoulData, mortal: MortalData, creature: CreatureData, demon: DemonData });
   Object.assign(CONFIG.Item.dataModels, {
-    discipline: DisciplineData, lore: LoreData, thaumPath: BloodPathData, ritual: RitualData, power: PowerData,
+    discipline: DisciplineData, lore: LoreData, lorePower: LorePowerData, thaumPath: BloodPathData, ritual: RitualData, power: PowerData,
     background: BackgroundData, merit: MeritData, flaw: MeritData, derangement: DerangementData,
     weapon: WeaponData, armor: ArmorData, gear: GearData, demonRitual: DemonRitualData, relic: RelicData
   });

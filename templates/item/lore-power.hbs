@@ -1,0 +1,31 @@
+{{!-- Призыв падшего (тип lorePower): круг, Знание, бросок; описание — эффект и высокая Мука. --}}
+<div class="r-item-sheet is-power is-lore-power">
+  {{> rItemHead}}
+  <div class="r-item-body">
+    <div class="r-badges">
+      <div class="r-badge is-level"><b>{{roman}}</b><span>{{localize "VTM20.Demon.Circle"}}</span></div>
+      <div class="r-badge"><span>{{localize "VTM20.Demon.Lore"}}</span><b>{{#if loreName}}{{loreName}}{{else}}—{{/if}}</b>{{#if loreHouse}}<em>{{loreHouse}}</em>{{/if}}</div>
+      <div class="r-badge"><span>{{localize "VTM20.ItemSheet.Roll"}}</span>
+        <b>{{#if pool}}{{pool}}{{else}}{{localize "VTM20.ItemSheet.NoRoll"}}{{/if}}</b>
+        {{#if system.roll.difficulty}}<em>{{localize "VTM20.Roll.Difficulty"}} {{system.roll.difficulty}}</em>{{/if}}
+        {{#if system.roll.note}}<em>{{system.roll.note}}</em>{{/if}}</div>
+    </div>
+    {{#if book}}<p class="r-item-src">{{localize "VTM20.Item.source"}}: {{book}}</p>{{/if}}
+
+    <h2 class="r-h2"><span>{{localize "VTM20.Item.description"}}</span></h2>
+    <div class="r-editor r-item-text">
+      <prose-mirror name="system.description" value="{{system.description}}" toggled {{#unless editable}}disabled{{/unless}}>{{{descriptionHTML}}}</prose-mirror>
+    </div>
+
+    <details class="r-item-setup">
+      <summary><i class="fa-solid fa-sliders"></i> {{localize "VTM20.ItemSheet.Setup"}}</summary>
+      <div class="r-fields is-wide">
+        <label class="r-f"><span>{{localize "VTM20.Demon.Lore"}}</span>
+          <select name="system.lore"><option value="">—</option>{{#each loreOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+        <label class="r-f"><span>{{localize "VTM20.Demon.Circle"}}</span><input type="number" name="system.level" value="{{system.level}}" min="0" max="5"></label>
+        <label class="r-f"><span>{{localize "VTM20.Item.page"}}</span><input type="number" name="system.page" value="{{system.page}}" min="0"></label>
+        {{> rItemRoll}}
+      </div>
+    </details>
+  </div>
+</div>

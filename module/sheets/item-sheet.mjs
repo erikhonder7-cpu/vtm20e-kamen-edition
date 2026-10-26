@@ -12,7 +12,7 @@ const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ItemSheetV2 } = foundry.applications.sheets;
 
 const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
-const TEMPLATES = { ritual: "ritual", power: "power", discipline: "discipline", thaumPath: "path", lore: "lore",
+const TEMPLATES = { ritual: "ritual", power: "power", discipline: "discipline", thaumPath: "path", lore: "lore", lorePower: "lore-power",
   weapon: "weapon", armor: "armor", gear: "gear", merit: "trait", flaw: "trait", background: "background", derangement: "derangement",
   demonRitual: "demon-ritual", relic: "relic" };
 const RELIC_KINDS = ["enhanced", "enchanted", "demonic", "ancient", "unique"];
@@ -50,7 +50,7 @@ export class VtMItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       item, system: s, source: item._source.system, editable: this.isEditable,
       type: item.type, typeLabel: loc(`TYPES.Item.${item.type}`), kicker: item.kicker,
       is: Object.fromEntries(["discipline", "thaumPath", "ritual", "power", "background", "merit", "flaw", "derangement", "weapon", "armor", "gear"].map(k => [k, item.type === k])),
-      hasRoll: ["ritual", "power"].includes(item.type),
+      hasRoll: ["ritual", "power", "lorePower"].includes(item.type),
       traitGroups: VtMItemSheet.traitGroups(s.roll ?? {}),
       disciplineOptions: [
         ...Object.values(Codex.disciplines).filter(d => Codex.visible(d) || d.key === discKey).map(d => ({ value: d.key, label: d.name, selected: d.key === discKey })),
@@ -139,6 +139,14 @@ export class VtMItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     // Факт биографии: точки
     if (item.type === "background") ctx.dots = Array.from({ length: 5 }, (_, i) => ({ n: i + 1, filled: i < s.value, path: "system.value" }));
 
+    // Призыв (lorePower): Знание и Дом по ключу
+    if (item.type === "lorePower") {
+      const lore = Codex.lore(s.lore);
+      ctx.loreName = lore?.name ?? "";
+      ctx.loreHouse = lore?.dark ? game.i18n.localize("VTM20.DRitual.Earthbound") : lore?.house ? Codex.house(lore.house)?.name : game.i18n.localize("VTM20.Demon.Common");
+      ctx.loreOptions = Codex.lores.map(l => ({ value: l.key, label: l.name, selected: l.key === s.lore }));
+      ctx.book = [s.source, s.page ? `с. ${s.page}` : ""].filter(Boolean).join(", ");
+    }
     // Сила: комбинированная — требования и опыт из справочника
     if (item.type === "power") {
       const combo = Codex.combos?.find(c => c.name === item.name);

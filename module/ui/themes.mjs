@@ -9,7 +9,7 @@ let recent = { type: null, at: 0 };
 const FRESH_MS = 3000;
 
 /** Предметы линии без владельца (лист из компендиума) — тема их линии. */
-const ITEM_THEMES = { lore: "demon", demonRitual: "demon", relic: "demon" };
+const ITEM_THEMES = { lore: "demon", lorePower: "demon", demonRitual: "demon", relic: "demon" };
 
 /** Персонаж окна: свой, документ-персонаж или владелец предмета. */
 function actorOf(app) {
