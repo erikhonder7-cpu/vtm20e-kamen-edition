@@ -4,7 +4,7 @@
 
 import { VTM20, SYSTEM_PATH } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
-import { rollPool, odds, chancesView } from "./roll.mjs";
+import { rollPool, odds, chancesView, tormentRule, tormentOdds } from "./roll.mjs";
 import { meritModsFor } from "../data/merit-mods.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -127,6 +127,15 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     return { pool: Math.max(0, pool), breakdown: bd, specialtyName: specs.join(", "), physicalBonus: phys || auto, attr, diffAuto, diffSit, effDifficulty, auto };
   }
 
+  /** Табличка Муки в окне призыва: шанс эффекта высокой Муки по выбранному правилу. */
+  #torment(pool, difficulty) {
+    const n = this.cfg.extra?.torment;
+    if (n == null) return null;
+    const errata = tormentRule() === "errata";
+    const high = errata ? Math.round(tormentOdds(pool, difficulty, n) * 100) : Math.clamp(n, 0, 10) * 10;
+    return { n, errata, high, normal: 100 - high };
+  }
+
   /** Проверка с заданными чертами (добродетели, воля, узы): вместо списков — плашка с чертой и точками. */
   #locked(v) {
     if (!this.cfg.lockTraits) return null;
@@ -164,8 +173,8 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       noWillpower: !!this.cfg.noWillpower,
       bloodCost: this.cfg.bloodCost ?? 0, hasBlood: this.actor.hasBlood, bloodLeft: this.actor.system.blood?.value ?? 0,
       willpowerCost: !!this.cfg.willpowerCost, diffNote: this.cfg.diffNote ?? "",
-      // призыв демона: отдельная кость Муки, высокая Мука — при выпадении не выше постоянной Муки
-      torment: this.cfg.extra?.torment != null ? { n: this.cfg.extra.torment, high: Math.clamp(this.cfg.extra.torment, 0, 10) * 10, normal: 100 - Math.clamp(this.cfg.extra.torment, 0, 10) * 10 } : null,
+      // призыв демона: высокая Мука по отдельной кости или по большинству успехов (настройка мира)
+      torment: this.#torment(pool, c.effDifficulty),
       lightBane: VTM20.lightBane.includes(this.actor.system.clan),
       physicalLabel: c.physicalBonus ? Codex.disciplineLabel(c.attr === "strength" ? "potence" : "celerity") : "",
       messageModes: Object.entries(CONFIG.ChatMessage.modes ?? {}).map(([k, m]) => ({ value: k, label: game.i18n.localize(m.label ?? k), selected: k === v.messageMode }))

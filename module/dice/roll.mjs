@@ -25,6 +25,33 @@ const DIE_APPEARANCE = {
  * @param {number[]} values
  * @param {object} o { difficulty, specialty, willpower, extraNeeded }
  */
+/** Правило высокой Муки призыва — настройка мира: "die" (отдельная кость) или "errata" (большинство успехов). */
+export function tormentRule() {
+  return game.settings.settings.has(`${SYSTEM_ID}.tormentRule`) ? game.settings.get(SYSTEM_ID, "tormentRule") : "die";
+}
+/**
+ * Errata Demon Players Guide (с. 17): единицы гасят успехи начиная с самых высоких; из оставшихся считают выпавшие
+ * не выше постоянной Муки (low) и выше неё (high). Высокая Мука — если low больше; ничья — обычный эффект.
+ */
+export function tormentSplit(values, difficulty, torment) {
+  const hits = values.filter(v => v >= difficulty).sort((a, b) => b - a);
+  const left = hits.slice(Math.min(hits.length, values.filter(v => v === 1).length));
+  const low = left.filter(v => v <= torment).length;
+  return { low, high: left.length - low };
+}
+/** Доля бросков, где сработает высокая Мука по errata (перебором, для окна броска). */
+export function tormentOdds(pool, difficulty, torment, n = 4000) {
+  pool = Math.max(0, Math.min(40, Math.floor(pool)));
+  if (!pool) return 0;
+  let hit = 0;
+  for (let i = 0; i < n; i++) {
+    const v = Array.from({ length: pool }, () => 1 + Math.floor(Math.random() * 10));
+    const s = tormentSplit(v, difficulty, torment);
+    if (s.low > s.high) hit++;
+  }
+  return hit / n;
+}
+
 export function evaluate(values, { difficulty = 6, specialty = false, willpower = false, extraNeeded = 0, noBotch = false, auto = 0 } = {}) {
   const diff = Math.clamp(difficulty, 2, 10);
   const hits = values.filter(v => v >= diff).length;
@@ -142,13 +169,18 @@ export async function rollPool(o) {
     noBotch: !!o.noBotch, auto: Math.max(0, o.auto ?? 0), actorUuid: o.actor?.uuid ?? null, extra: o.extra ?? {}, notes: o.notes ?? [],
     effect: o.effect ?? ""
   };
-  // Призыв демона (Demon: The Fallen, гл. 7): отдельная кость Муки — выше постоянной Муки обычный эффект, иначе высокой Муки
+  // Призыв демона: эффект высокой Муки — по отдельной кости (рус. основная книга, гл. 7) или по большинству успехов (errata Demon Players Guide)
   if (state.extra?.torment != null) {
-    const r = await new Roll("1d10").evaluate();
-    r.dice[0].options.appearance = DIE_APPEARANCE;
-    rolls.push(r);
-    const die = r.total, high = die <= state.extra.torment;
-    state.extra = { ...state.extra, tormentDie: die, tormentHigh: high };
+    if (tormentRule() === "errata") {
+      const { low, high: hi } = tormentSplit(values, diff, state.extra.torment);
+      state.extra = { ...state.extra, tormentLow: low, tormentHi: hi, tormentHigh: low > hi };
+    } else {
+      const r = await new Roll("1d10").evaluate();
+      r.dice[0].options.appearance = DIE_APPEARANCE;
+      rolls.push(r);
+      const die = r.total, high = die <= state.extra.torment;
+      state.extra = { ...state.extra, tormentDie: die, tormentHigh: high };
+    }
   }
   const result = evaluate(values, state);
   // Продолжительное действие (03): успехи копятся до цели; провал срывает работу
@@ -252,7 +284,8 @@ export async function renderCard(state, actor = null) {
     extended: extra.extended ? { ...extra.extended, pct: Math.min(100, Math.round((extra.extended.total / Math.max(1, extra.extended.need)) * 100)) } : null,
     contest: ["resisted", "teamwork"].includes(extra.contest) ? extra.contest : null,
     typeClass: themeClass(actor),
-    torment: extra.tormentDie ? { die: extra.tormentDie, n: extra.torment, high: !!extra.tormentHigh, chosen: !!extra.tormentChosen } : null,
+    torment: extra.tormentDie || extra.tormentLow != null
+      ? { die: extra.tormentDie ?? null, low: extra.tormentLow ?? null, hi: extra.tormentHi ?? null, n: extra.torment, high: !!extra.tormentHigh, chosen: !!extra.tormentChosen } : null,
     opposed: extra.opposed ? { label: extra.opposed.label, successes: extra.opposed.successes, dice: extra.opposed.values.map(v => dieView(v, 6, false)) } : null
   });
 }

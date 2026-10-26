@@ -32,9 +32,9 @@
   {{!-- Призыв демона: кость Муки — отдельным огненным ромбом и исходом эффекта --}}
   {{#if torment}}
   <div class="r-torment-line {{#if torment.high}}is-high{{/if}}">
-    <span class="r-die is-torment"><span>{{torment.die}}</span></span>
+    <span class="r-die is-torment"><span>{{#if torment.die}}{{torment.die}}{{else}}{{torment.low}}{{/if}}</span></span>
     <span class="r-tl-text"><b>{{#if torment.high}}{{localize "VTM20.Demon.EffectHigh"}}{{else}}{{localize "VTM20.Demon.EffectNormal"}}{{/if}}</b>
-      <em>{{#if torment.chosen}}{{localize "VTM20.Demon.ChoseHigh"}}{{else}}{{localize "VTM20.Demon.TormentDieTitle"}} {{torment.die}} · {{localize "VTM20.Demon.Torment"}} {{torment.n}}{{/if}}</em></span>
+      <em>{{#if torment.chosen}}{{localize "VTM20.Demon.ChoseHigh"}}{{else if torment.die}}{{localize "VTM20.Demon.TormentDieTitle"}} {{torment.die}} · {{localize "VTM20.Demon.Torment"}} {{torment.n}}{{else}}{{localize "VTM20.Demon.TormentSplit" n=torment.n low=torment.low hi=torment.hi}}{{/if}}</em></span>
     {{#unless torment.high}}<button type="button" class="r-tl-choose" data-r-action="chooseHigh" data-tooltip="{{localize 'VTM20.Demon.ChooseHighHint'}}"><i class="fa-solid fa-fire"></i></button>{{/unless}}
   </div>
   {{/if}}

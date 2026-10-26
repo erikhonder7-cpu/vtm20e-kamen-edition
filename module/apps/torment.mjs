@@ -17,6 +17,15 @@ const notice = (actor, icon, html, cls = "") => ChatMessage.create({ speaker: Ch
 const virtueLabel = (actor, slot) => actor.traitLabel(`virtues.${slot}`);
 
 /** +n временной Муки; каждые 10 — пункт постоянной (до 10). */
+/** Настройка мира: как решается эффект высокой Муки призыва (dice/roll.mjs → tormentRule). */
+export function registerTorment() {
+  game.settings.register(SYSTEM_ID, "tormentRule", {
+    name: "VTM20.Settings.TormentRule.Name", hint: "VTM20.Settings.TormentRule.Hint",
+    scope: "world", config: true, type: String, default: "die",
+    choices: { die: "VTM20.Settings.TormentRule.die", errata: "VTM20.Settings.TormentRule.errata" }
+  });
+}
+
 export async function gainTorment(actor, n = 1, reason = "") {
   const tm = actor.system.torment;
   let temp = tm.temporary + n, perm = tm.permanent;

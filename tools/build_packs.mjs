@@ -385,9 +385,28 @@ BUILDERS["demon-relics"] = function () {
 /** Правила падших (Demon: The Fallen, гл. 6, 7, 9; Earthbound) — своими словами: data/demon-rules.json. */
 BUILDERS["demon-rules"] = function () {
   const p = new Pack("demon-rules", "JournalEntry");
-  for (const ch of data("demon-rules")) p.addBook({ name: ch.name, pages: ch.pages, key: `demon-rules:${ch.key}` });
+  for (const ch of data("demon-rules")) {
+    const pages = ch.key === "pg-form" ? [...ch.pages, ...formCatalogPages()] : ch.pages;
+    p.addBook({ name: ch.name, pages, key: `demon-rules:${ch.key}` });
+  }
   return p;
 };
+/** Каталог способностей апокалиптической формы (data/demon-form.json) — страницы главы «Апокалиптическая форма». */
+function formCatalogPages() {
+  const f = data("demon-form"), dm = data("demon");
+  const A = { ...ru.VTM20.Attr, ...ru.VTM20.Abil };
+  const li = a => `<li><strong>${esc(a.name)}</strong> — ${a.cost}${a.high ? ", только высокая Мука" : ""}<br>${esc(a.text)}</li>`;
+  const pages = [{ name: "Общие способности", html: `<p>Доступны любому Дому.</p><ul>${f.common.map(li).join("")}</ul>` }];
+  for (const h of dm.houses) {
+    const H = f.houses[h.key];
+    if (!H) continue;
+    const r = H.rule;
+    pages.push({ name: h.name, html: `<ul>${H.abilities.map(li).join("")}</ul>`
+      + `<h3>Правило Дома (свободная форма)</h3><p><strong>Атрибуты:</strong> ${r.attrs.map(k => esc(A[k] ?? k)).join(", ")}. <strong>Способности:</strong> ${r.abilities.map(k => esc(A[k] ?? k)).join(", ")}.</p>`
+      + `<ul>${r.special.map(s => `<li><strong>${esc(s.name)}</strong> — ${esc(s.text)}</li>`).join("")}</ul>` });
+  }
+  return pages;
+}
 /** Достоинства и недостатки падших (Demon Players Guide): папки «Достоинства — Инфернальные» и т. п. */
 BUILDERS["demon-merits"] = function () {
   const p = new Pack("demon-merits");

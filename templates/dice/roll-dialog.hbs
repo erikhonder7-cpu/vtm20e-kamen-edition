@@ -77,10 +77,10 @@
   </div>
 
   {{#if torment}}
-  <div class="r-torment-plate" data-tooltip="{{localize 'VTM20.Demon.TormentDieHint'}}">
+  <div class="r-torment-plate" data-tooltip="{{#if torment.errata}}{{localize 'VTM20.Demon.TormentSplitHint'}}{{else}}{{localize 'VTM20.Demon.TormentDieHint'}}{{/if}}">
     <span class="r-die is-torment"><span><i class="fa-solid fa-fire-flame-curved"></i></span></span>
     <div class="r-tp-text">
-      <span class="r-tp-title">{{localize "VTM20.Demon.TormentDieTitle"}} <em>· {{localize "VTM20.Demon.Torment"}} {{torment.n}}</em></span>
+      <span class="r-tp-title">{{#if torment.errata}}{{localize "VTM20.Demon.TormentSplitTitle"}}{{else}}{{localize "VTM20.Demon.TormentDieTitle"}}{{/if}} <em>· {{localize "VTM20.Demon.Torment"}} {{torment.n}}</em></span>
       <div class="r-tp-bar"><i style="width: {{torment.high}}%"></i></div>
       <span class="r-tp-legend"><span>{{localize "VTM20.Demon.TpHigh"}} <b>{{torment.high}}%</b></span><span>{{localize "VTM20.Demon.TpNormal"}} <b>{{torment.normal}}%</b></span></span>
     </div>
