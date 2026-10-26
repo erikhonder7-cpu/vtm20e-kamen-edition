@@ -33,7 +33,10 @@ const RULES = {
     cost: { attr: 5, abil: 2, disc: 0, bg: 1, virt: 2, morality: 1, will: 1 } },
   // Demon: The Fallen, гл. 6: Знания 3 (слот disc), Добродетели — по точке и ещё 3, Вера 3 (слот morality), 15 свободных
   demon: { attr: [7, 5, 3], abil: [13, 9, 5], disc: 3, bg: 5, virt: 3, free: 15,
-    cost: { attr: 5, abil: 2, disc: 7, bg: 1, virt: 2, morality: 6, will: 1 } }
+    cost: { attr: 5, abil: 2, disc: 7, bg: 1, virt: 2, morality: 6, will: 1 } },
+  // Привязанный к Земле (Earthbound, гл. 3): Знаний 10 пунктов, Потребности в слотах Добродетелей (по точке и ещё 3), Вера 4, 21 свободный
+  earthbound: { attr: [8, 6, 4], abil: [17, 12, 7], disc: 10, bg: 10, virt: 3, free: 21,
+    cost: { attr: 6, abil: 2, disc: 5, bg: 1, virt: 3, morality: 5, will: 1 } }
 };
 /** Начальная Вера падшего. */
 const DEMON_FAITH = 3;
@@ -82,7 +85,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     actions: {
       goto: VtMCreator.#onGoto, next: VtMCreator.#onNext, prev: VtMCreator.#onPrev,
       tier: VtMCreator.#onTier, sect: VtMCreator.#onSect, clan: VtMCreator.#onClan, clanGroup: VtMCreator.#onClanGroup,
-      house: VtMCreator.#onHouse, visage: VtMCreator.#onVisage, faction: VtMCreator.#onFaction, houseAtlas: VtMCreator.#onHouseAtlas,
+      house: VtMCreator.#onHouse, earthbound: VtMCreator.#onEarthbound, visage: VtMCreator.#onVisage, faction: VtMCreator.#onFaction, houseAtlas: VtMCreator.#onHouseAtlas,
       gen: VtMCreator.#onGen, choice: VtMCreator.#onChoice, clanAtlas: VtMCreator.#onClanAtlas,
       dot: VtMCreator.#onDot, prio: VtMCreator.#onPrio,
       bgToggle: VtMCreator.#onBgToggle, mfToggle: VtMCreator.#onMfToggle, mfTab: VtMCreator.#onMfTab, mfCat: VtMCreator.#onMfCat,
@@ -140,7 +143,12 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
   /* ── Расчёты ───────────────────────────────────────────────────────── */
 
   /** Числа создания: по типу персонажа, у вампира — с поправкой секты (SECT_RULES). */
-  get rules() { return this.type === "vampire" ? { ...this.baseRules, ...(SECT_RULES[this.st?.sectKey] ?? {}) } : this.baseRules; }
+  get rules() {
+    if (this.isEarthbound) return RULES.earthbound;
+    return this.type === "vampire" ? { ...this.baseRules, ...(SECT_RULES[this.st?.sectKey] ?? {}) } : this.baseRules;
+  }
+  /** Падший создаётся Привязанным к Земле (переключатель на шаге Дома). */
+  get isEarthbound() { return this.type === "demon" && !!this.st?.earthbound; }
   /** Дисциплина закрыта сектой: Камарилья не учит внеклановым Дисциплинам независимых и Шабаша. */
   bannedDisc(k) { return this.type === "vampire" && this.st.sectKey === "camarilla" && CAMARILLA_BANNED.includes(k) && !this.inClan(k); }
   /** Подсказка о правилах выбранной секты (шаги концепции, Дисциплин, преимуществ и свободных пунктов). */
@@ -191,7 +199,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
   value(kind, k) { return this.valueBeforeXp(kind, k) + (this.st.xp[kind]?.[k] ?? 0); }
 
   get moralityBase() {
-    if (this.isDemon) return Math.min(10, DEMON_FAITH + this.st.free.morality);                     // у падшего — Вера
+    if (this.isDemon) return Math.min(10, (this.isEarthbound ? 4 : DEMON_FAITH) + this.st.free.morality);   // у падшего — Вера
     const v = this.value("virt", "conscience") + this.value("virt", "selfControl") + this.st.free.morality;
     return this.st.path === "humanity" ? Math.min(10, v) : Math.min(5, v);
   }
@@ -442,7 +450,9 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     ctx.virtues = ["conscience", "selfControl", "courage"].map(slot => {
       const vk = slot === "courage" ? "courage" : this.isDemon ? (slot === "selfControl" ? "conviction" : "conscience") : slot === "conscience" ? (this.altVirtues.includes("conviction") ? "conviction" : "conscience")
         : (this.altVirtues.includes("instinct") ? "instinct" : "selfControl");
-      return { key: slot, label: loc(VTM20.virtues[vk].label), value: this.value("virt", slot), dots: dotRow("virt", slot) };
+      // у Привязанного в слотах Добродетелей — Потребности: Плоть, Мысль, Эмоция
+      const urge = { conscience: "flesh", selfControl: "thought", courage: "emotion" }[slot];
+      return { key: slot, label: this.isEarthbound ? t(`Demon.Urge.${urge}`) : loc(VTM20.virtues[vk].label), value: this.value("virt", slot), dots: dotRow("virt", slot) };
     });
 
     // VII. Достоинства и недостатки — каталог с поиском
@@ -596,6 +606,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     this.render();
   }
   static #onVisage(event, target) { this.st.visage = target.dataset.visage; this.render(); }
+  static #onEarthbound() { this.st.earthbound = !this.st.earthbound; this.render(); }
   static #onFaction(event, target) { this.st.faction = this.st.faction === target.dataset.faction ? "" : target.dataset.faction; this.render(); }
   static #onHouseAtlas() { return openHouses(this.st.house); }
   static #onClanGroup(event, target) { this.ui.clanGroup = target.dataset.group; this.render(); }
@@ -748,6 +759,10 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       Object.assign(sys, { house: st.house, visage: st.visage, faction: st.faction, names: { ...st.names },
         faith: { permanent: this.morality, temporary: this.morality },
         torment: { permanent: this.houseData?.torment ?? 3, temporary: 0 }, apocalyptic: false });
+      // Привязанный: Мука 10, Добродетелей нет — их точки стали Потребностями
+      if (this.isEarthbound) Object.assign(sys, { earthbound: true, torment: { permanent: 10, temporary: 0 },
+        urges: { flesh: this.value("virt", "conscience"), thought: this.value("virt", "selfControl"), emotion: this.value("virt", "courage") },
+        virtues: { conscience: { value: 0 }, selfControl: { value: 0 }, courage: { value: 0 } } });
     }
     await a.update({ name: st.name, system: sys });
 
