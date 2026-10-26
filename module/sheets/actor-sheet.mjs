@@ -40,7 +40,7 @@ import { coteriesOf, poolValue, openCoterie } from "../apps/coterie.mjs";
 import { itemCardHTML } from "../chat/item-card.mjs";
 import { themeClass } from "../ui/themes.mjs";
 import { openHouses } from "../apps/houses.mjs";
-import { virtuePrompt, atoneWithXp, assumeForm, sceneHighFeature, harvestFaith, pactFaith, innateRoll, ritualTurn, ritualEffect, ritualNeed, suggestSin, revelation, gainTorment } from "../apps/torment.mjs";
+import { virtuePrompt, atoneWithXp, assumeForm, sceneHighFeature, harvestFaith, pactFaith, innateRoll, ritualTurn, ritualEffect, ritualNeed, suggestSin, revelation, gainTorment, thrallState, thrallCap } from "../apps/torment.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -119,6 +119,10 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       rollPower: VtMActorSheet.#onRollPower,
       addLore: VtMActorSheet.#onAddLore,
       toggleEarthbound: VtMActorSheet.#onToggleEarthbound,
+      thrallAdd: VtMActorSheet.#onThrallEdit,
+      thrallEdit: VtMActorSheet.#onThrallEdit,
+      thrallDelete: VtMActorSheet.#onThrallDelete,
+      thrallOpen: VtMActorSheet.#onThrallOpen,
       houseAtlas: VtMActorSheet.#onHouseAtlas,
       tormentSin: VtMActorSheet.#onTormentSin,
       sinSuggest: VtMActorSheet.#onSinSuggest,
@@ -587,6 +591,13 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     }).sort((x, y) => (y.own - x.own) || (y.common - x.common) || x.name.localeCompare(y.name, "ru"));
     ctx.allOpen = ctx.lores.length > 0 && ctx.lores.every(l => l.open);
     ctx.earthbound = !!s.earthbound;
+    // Слуги по договорам (вкладка «Преимущества»)
+    ctx.thralls = (s.thralls ?? []).map((x, i) => {
+      const st = thrallState(x);
+      return { ...x, name: st.name, index: i, rowId: `thrall-${i}`, open: this._open.has(`thrall-${i}`), linked: !!st.actor, will: st.will,
+        wounds: st.actor ? st.actor.system.health?.lethal ?? 0 : x.wounds, share: Math.min(x.share, thrallCap(x.faith)), cap: thrallCap(x.faith) };
+    });
+    ctx.thrallFaith = ctx.thralls.reduce((n, x) => n + x.share, 0);
     const have = new Set(ctx.lores.map(l => l.key));
     ctx.missingHouse = own.some(k => !have.has(k));
     // Апокалиптическая форма (гл. 7): черты Облика; при Муке 7+ — по черте высокой Муки за каждый пункт сверх 6
@@ -1103,6 +1114,48 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       ok: { label: t("Demon.AddLore"), callback: (ev, btn) => btn.form.elements.lore.value }
     }).catch(() => null);
     if (key) return createLore(a, [key]);
+  }
+
+  /** Слуга по договору: новый или правка (гл. 9; «Проклятые и обманутые», гл. 4–5). */
+  static async #onThrallEdit(event, target) {
+    const a = this.actor, list = foundry.utils.deepClone(a.system.thralls ?? []);
+    const i = target.closest("[data-index]")?.dataset.index, x = i != null ? list[Number(i)] : { name: "", uuid: "", faith: 2, share: 1, will: 3, wounds: 0, lost: 0, terms: "", gifts: "" };
+    const e = s => foundry.utils.escapeHTML(String(s ?? ""));
+    const actors = game.actors.filter(o => o.id !== a.id && o.type !== "demon").sort((p, q) => p.name.localeCompare(q.name, "ru"));
+    const opts = [`<option value="">${t("Demon.ThrallNoSheet")}</option>`, ...actors.map(o => `<option value="${o.uuid}" ${o.uuid === x.uuid ? "selected" : ""}>${e(o.name)}</option>`)].join("");
+    const num = (n, v, lo, hi) => `<input type="number" name="${n}" value="${v}" min="${lo}" max="${hi}">`;
+    const v = await foundry.applications.api.DialogV2.prompt({
+      window: { title: t(i != null ? "Demon.ThrallEdit" : "Demon.ThrallAdd") }, classes: ["vtm20", "r-dialog"], position: { width: 480 },
+      content: `<div class="r-fields">
+        <label class="r-f is-span2"><span>${t("Demon.ThrallName")}</span><input type="text" name="name" value="${e(x.name)}"></label>
+        <label class="r-f is-span2"><span>${t("Demon.ThrallSheet")}</span><select name="uuid">${opts}</select></label>
+        <label class="r-f"><span>${t("Demon.ThrallFaith")}</span>${num("faith", x.faith, 0, 5)}</label>
+        <label class="r-f"><span>${t("Demon.ThrallShare")}</span>${num("share", x.share, 0, 3)}</label>
+        <label class="r-f"><span>${t("Demon.ThrallWill")}</span>${num("will", x.will, 0, 10)}</label>
+        <label class="r-f"><span>${t("Demon.ThrallWounds")}</span>${num("wounds", x.wounds, 0, 7)}</label>
+        <label class="r-f is-span2"><span>${t("Demon.ThrallTerms")}</span><textarea name="terms" rows="2">${e(x.terms)}</textarea></label>
+        <label class="r-f is-span2"><span>${t("Demon.ThrallGifts")}</span><textarea name="gifts" rows="2">${e(x.gifts)}</textarea></label></div>
+        <p class="r-choice-hint">${t("Demon.ThrallHint")}</p>`,
+      ok: { label: game.i18n.localize("VTM20.Common.Save"), callback: (ev, btn) => new foundry.applications.ux.FormDataExtended(btn.form).object }
+    }).catch(() => null);
+    if (!v) return;
+    const faith = Math.clamp(Number(v.faith) || 0, 0, 5);
+    const row = { ...x, name: String(v.name ?? "").trim() || (v.uuid ? foundry.utils.fromUuidSync(v.uuid)?.name ?? "" : ""), uuid: v.uuid ?? "", faith,
+      share: Math.clamp(Number(v.share) || 0, 0, thrallCap(faith)), will: Math.clamp(Number(v.will) || 0, 0, 10), wounds: Math.clamp(Number(v.wounds) || 0, 0, 7),
+      terms: v.terms ?? "", gifts: v.gifts ?? "" };
+    if (i != null) list[Number(i)] = row; else list.push(row);
+    return a.update({ "system.thralls": list });
+  }
+  static async #onThrallDelete(event, target) {
+    const i = Number(target.closest("[data-index]")?.dataset.index), list = foundry.utils.deepClone(this.actor.system.thralls ?? []);
+    const ok = await foundry.applications.api.DialogV2.confirm({ window: { title: t("Demon.ThrallDelete") }, content: `<p>${t("Demon.ThrallDeleteAsk", { name: foundry.utils.escapeHTML(list[i]?.name ?? "") })}</p>` }).catch(() => false);
+    if (!ok) return;
+    list.splice(i, 1);
+    return this.actor.update({ "system.thralls": list });
+  }
+  static #onThrallOpen(event, target) {
+    const x = this.actor.system.thralls?.[Number(target.closest("[data-index]")?.dataset.index)];
+    return thrallState(x ?? {}).actor?.sheet.render({ force: true });
   }
 
   /** Привязанный к Земле (Earthbound): Тёмные Знания и ритуалы Привязанных без Муки, свой опыт. */

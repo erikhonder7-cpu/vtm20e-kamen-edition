@@ -36,7 +36,7 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       contest: "simple", need: 5,
       specialty: !!cfg.specialty, willpower: !!cfg.willpower,
       wounds: !cfg.reflexive, physical: true,
-      payBlood: (cfg.bloodCost ?? 0) > 0, payWill: !!cfg.willpowerCost, light: false, fxOn: [],
+      payBlood: (cfg.bloodCost ?? 0) > 0, payWill: !!cfg.willpowerCost, light: false, fxOn: [], overdraw: 0,
       messageMode: game.settings.get("core", "messageMode")
     };
   }
@@ -104,6 +104,8 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const mm = meritModsFor(a, { traits: [v.trait1, v.trait2], kind: this.cfg.kind ?? "check", attributeGroups: VTM20.attributeGroups });
     const meritSit = mm.situ.map(m => ({ ...m, kind: "merit", value: m.dice || m.diff, on: v.fxOn.includes(`merit:${m.label}`) }));
     for (const m of [...mm.auto, ...meritSit.filter(x => x.on)]) if (m.dice) { pool += m.dice; bd.push({ label: m.label, value: m.dice }); }
+    // Перебор падшего (гл. 9): кубики, выжатые из слуг
+    if (this.#overdraw()) { pool += this.#overdraw(); bd.push({ label: t("Demon.Overdraw"), value: this.#overdraw() }); }
     // Множественные действия (03): наименьший пул делится между действиями
     if (v.actions > 1) {
       const part = Math.floor(Math.max(0, pool) / v.actions);
@@ -126,6 +128,15 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const effDifficulty = Math.clamp(v.difficulty + diffShift, 2, 10);
     return { pool: Math.max(0, pool), breakdown: bd, specialtyName: specs.join(", "), physicalBonus: phys || auto, attr, diffAuto, diffSit, effDifficulty, auto };
   }
+
+  /** Перебор (гл. 9, с. 252): только в призыве падшего, у которого есть слуги или «Договоры»; не больше постоянной Веры. */
+  #overdrawMax() {
+    const a = this.actor;
+    if (this.cfg.extra?.torment == null || a.type !== "demon") return 0;
+    const pacts = a.system.thralls?.length || a.items.some(i => i.type === "background" && i.name === "Договоры" && i.system.value > 0);
+    return pacts ? a.system.faith.permanent : 0;
+  }
+  #overdraw() { return Math.clamp(this.values.overdraw ?? 0, 0, this.#overdrawMax()); }
 
   /** Табличка Муки в окне призыва: шанс эффекта высокой Муки по выбранному правилу. */
   #torment(pool, difficulty) {
@@ -153,7 +164,7 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const { groups1, groups2 } = this.#traitOptions();
     const mark = (groups, cur) => groups.map(g => ({ ...g, options: g.options.map(o => ({ ...o, selected: o.value === cur })) }));
     // Шансы: тот же пул, что уйдёт в бросок (фиксированный пул сил — со своими модификаторами)
-    const pool = this.cfg.pool != null ? Math.max(0, this.cfg.pool + v.bonus + (v.wounds ? this.actor.system.health.penalty : 0)) : c.pool;
+    const pool = this.cfg.pool != null ? Math.max(0, this.cfg.pool + v.bonus + this.#overdraw() + (v.wounds ? this.actor.system.health.penalty : 0)) : c.pool;
     const o = odds({ pool, difficulty: c.effDifficulty, specialty: v.specialty, willpower: v.willpower && !this.cfg.noWillpower,
       auto: this.cfg.pool != null ? 0 : c.auto });
     const chances = chancesView(o);
@@ -175,6 +186,7 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       willpowerCost: !!this.cfg.willpowerCost, diffNote: this.cfg.diffNote ?? "",
       // призыв демона: высокая Мука по отдельной кости или по большинству успехов (настройка мира)
       torment: this.#torment(pool, c.effDifficulty),
+      overdraw: this.#overdrawMax() ? { max: this.#overdrawMax(), value: this.#overdraw(), thralls: this.actor.system.thralls?.length ?? 0 } : null,
       lightBane: VTM20.lightBane.includes(this.actor.system.clan),
       physicalLabel: c.physicalBonus ? Codex.disciplineLabel(c.attr === "strength" ? "potence" : "celerity") : "",
       messageModes: Object.entries(CONFIG.ChatMessage.modes ?? {}).map(([k, m]) => ({ value: k, label: game.i18n.localize(m.label ?? k), selected: k === v.messageMode }))
@@ -196,7 +208,7 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       contest: f.contest ?? this.values.contest, need: Math.clamp(Number(f.need) || 1, 1, 50),
       difficulty: Math.clamp(Number(f.difficulty) || 6, 2, 12),
       specialty: !!f.specialty, willpower: !!f.willpower, wounds: !!f.wounds, physical: !!f.physical,
-      payBlood: !!f.payBlood, payWill: !!f.payWill, light: !!f.light,
+      payBlood: !!f.payBlood, payWill: !!f.payWill, light: !!f.light, overdraw: Math.max(0, Number(f.overdraw) || 0),
       messageMode: f.messageMode ?? this.values.messageMode
     });
     // отмеченные обстоятельства сил: name="fx.<kind>:<сила>"
@@ -222,7 +234,8 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
   static async #onSubmit() {
     const c = this.compute();
     const v = this.values, cfg = this.cfg;
-    const pool = cfg.pool != null ? Math.max(0, cfg.pool + v.bonus + (v.wounds ? this.actor.system.health.penalty : 0)) : c.pool;
+    const od = this.#overdraw();
+    const pool = cfg.pool != null ? Math.max(0, cfg.pool + v.bonus + od + (v.wounds ? this.actor.system.health.penalty : 0)) : c.pool;
     const title = cfg.title || c.breakdown.slice(0, 2).map(x => x.label).join(" + ") || t("Roll.Title");
     // Цена силы: кровь и воля списываются до броска (V20, гл. 4)
     const notes = [];
@@ -235,6 +248,7 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       notes.push(`<i class="fa-solid fa-star"></i> ${t("Roll.WillPaid")}`);
     }
     if (cfg.diffNote) notes.push(cfg.diffNote);
+    if (od) notes.push(`<i class="fa-solid fa-hand-holding-droplet"></i> ${t("Demon.OverdrawNote", { n: od })}`);
     const res = await rollPool({
       actor: this.actor, title, subtitle: cfg.subtitle ?? "",
       pool, difficulty: c.effDifficulty, specialty: v.specialty, specialtyName: c.specialtyName,
@@ -243,6 +257,8 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       extra: { ...(cfg.extra ?? {}), contest: v.contest, ...(v.contest === "extended" ? { extended: { need: v.need, prev: 0, step: 0 } } : {}) },
       notes, effect: cfg.effect ?? ""
     });
+    // Перебор: слуги платят Волей, провал — минус Вера (apps/torment.mjs)
+    if (od) await (await import("../apps/torment.mjs")).overdrawPay(this.actor, od, res);
     // Связанные броски (защита от атаки и т. п.) подводят итог сами
     if (cfg.onRolled) await cfg.onRolled(res);
   }

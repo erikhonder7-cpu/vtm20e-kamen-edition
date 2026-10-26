@@ -146,7 +146,10 @@ export async function harvestFaith(actor) {
 
 /** Вера по договорам (гл. 6, 9): раз в день — столько Веры, сколько точек в Дополнении «Договоры». */
 export async function pactFaith(actor) {
-  const n = actor.items.find(i => i.type === "background" && i.name === "Договоры")?.system.value ?? 0;
+  // список слуг на вкладке «Преимущества» важнее факта биографии «Договоры»
+  const list = actor.system.thralls ?? [];
+  const n = list.length ? list.reduce((s, x) => s + Math.min(x.share, thrallCap(x.faith)), 0)
+    : actor.items.find(i => i.type === "background" && i.name === "Договоры")?.system.value ?? 0;
   if (!n) return ui.notifications.info(t("NoPacts"));
   const f = actor.system.faith.temporary, next = Math.min(10, f + n);
   await actor.update({ "system.faith.temporary": next });
@@ -223,6 +226,67 @@ export async function revelation(actor) {
   return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), rolls,
     content: `<div class="r-notice r-type-demon r-reveal"><i class="fa-solid fa-eye"></i> <b>${t("RevealTitle", { name: esc(actor.name), d: s.faith.permanent })}</b>
       <table><thead><tr><th>#</th><th>${game.i18n.localize("VTM20.Willpower")}</th><th>${t("SuccShort")}</th><th>${t("RevealMemory")}</th><th>${t("RevealSees")}</th></tr></thead><tbody>${rows.join("")}</tbody></table></div>` });
+}
+
+/** Сколько Веры слуга может отдавать демону: не больше половины его Веры, с округлением вверх (гл. 9, с. 251). */
+export const thrallCap = faith => Math.ceil((faith ?? 0) / 2);
+
+/** Слуга по договору: лист персонажа (если привязан) и его Воля сейчас. */
+export function thrallState(x) {
+  const doc = x.uuid ? foundry.utils.fromUuidSync(x.uuid) : null;
+  const a = doc?.documentName === "Actor" ? doc : null;
+  return { actor: a, will: a ? a.system.willpower?.temporary ?? 0 : x.will, name: x.name || a?.name || "" };
+}
+
+/**
+ * Перебор (гл. 9, с. 252–253): к призыву добавлено n кубиков (не больше постоянной Веры). Каждый кубик — пункт Воли
+ * слуг, как решит игрок; сверх их Воли — тяжёлое повреждение без поглощения за каждый. Воля до нуля — постоянное
+ * расстройство. Провал броска — минус пункт временной Веры. По «Проклятым и обманутым» (дополнительное правило):
+ * за каждые 2 отнятые Воли слуга теряет пункт Веры. Мука за злоупотребление — на усмотрение рассказчика.
+ */
+export async function overdrawPay(actor, n, res) {
+  const list = foundry.utils.deepClone(actor.system.thralls ?? []);
+  const lines = [];
+  if (list.length) {
+    // раскладка: поровну, с тех, у кого Воли больше; при нескольких слугах — окно с правкой
+    const base = list.map((x, i) => ({ i, will: thrallState(x).will })).sort((a, b) => b.will - a.will);
+    const split = Object.fromEntries(list.map((_, i) => [i, 0]));
+    for (let k = 0; k < n; k++) split[base[k % base.length].i]++;
+    let take = split;
+    if (list.length > 1) {
+      const rows = list.map((x, i) => `<label class="r-f"><span>${esc(thrallState(x).name || t("ThrallUnnamed"))} · ${t("ThrallWill")} ${thrallState(x).will}</span>
+        <input type="number" name="t${i}" value="${split[i]}" min="0" max="${n}"></label>`).join("");
+      take = await foundry.applications.api.DialogV2.prompt({
+        window: { title: t("OverdrawSplit", { n }) }, classes: ["vtm20", "r-dialog"], position: { width: 420 },
+        content: `<p class="r-choice-hint">${t("OverdrawSplitHint", { n })}</p><div class="r-fields">${rows}</div>`,
+        ok: { label: t("OverdrawPay"), callback: (ev, btn) => Object.fromEntries(list.map((_, i) => [i, Math.max(0, Number(btn.form.elements[`t${i}`].value) || 0)])) }
+      }).catch(() => null) ?? split;
+      // сумма должна сойтись с числом кубиков: недостачу — первому в раскладке, излишек срезаем с конца
+      let sum = Object.values(take).reduce((s, v) => s + v, 0);
+      for (const b of [...base].reverse()) { if (sum <= n) break; const d = Math.min(take[b.i], sum - n); take[b.i] -= d; sum -= d; }
+      if (sum < n) take[base[0].i] += n - sum;
+    }
+    for (const [i, k] of Object.entries(take)) {
+      if (!k) continue;
+      const x = list[i], st = thrallState(x), spent = Math.min(k, st.will), hurt = k - spent, left = st.will - spent;
+      x.lost += k;
+      let faithLoss = 0;
+      while (x.lost >= 2 && x.faith > 0) { x.lost -= 2; x.faith--; faithLoss++; }
+      x.share = Math.min(x.share, thrallCap(x.faith));
+      if (st.actor?.isOwner) {
+        const h = st.actor.system.health;
+        await st.actor.update({ "system.willpower.temporary": left, ...(hurt ? { "system.health.lethal": Math.min(7, (h?.lethal ?? 0) + hurt) } : {}) });
+      } else { x.will = left; x.wounds = Math.min(7, x.wounds + hurt); }
+      lines.push(t("OverdrawLine", { name: esc(st.name || t("ThrallUnnamed")), w: spent, left })
+        + (hurt ? ` ${t("OverdrawHurt", { n: hurt })}` : "") + (left === 0 ? ` ${t("OverdrawMad")}` : "")
+        + (faithLoss ? ` ${t("OverdrawFaith", { f: x.faith })}` : ""));
+    }
+    await actor.update({ "system.thralls": list });
+  } else lines.push(t("OverdrawNoList", { n }));
+  const botch = res?.outcome === "botch";
+  if (botch) await actor.update({ "system.faith.temporary": Math.max(0, actor.system.faith.temporary - 1) });
+  return notice(actor, "fa-hand-holding-droplet", `<b>${t("OverdrawTitle", { name: esc(actor.name), n })}</b><br>${lines.join("<br>")}`
+    + (botch ? `<br>${t("OverdrawBotch")}` : "") + `<br><em>${t("OverdrawTorment")}</em>`, "is-warn");
 }
 
 /** Вера, потраченная падшим за сцену (для сложности Проявления): считается при каждом уменьшении временной Веры. */

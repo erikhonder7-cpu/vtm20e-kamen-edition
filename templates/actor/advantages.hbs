@@ -43,6 +43,32 @@
   </div>
   {{/each}}
 
+  {{#if isDemon}}
+  {{!-- Слуги по договорам (гл. 9, с. 251–253): Вера слуги, доля демону, Воля — для Перебора в окне призыва --}}
+  <h2 class="r-h2"><span>{{localize "VTM20.Demon.Thralls"}}</span>{{#if thralls.length}}<em class="r-h2-total" data-tooltip="{{localize 'VTM20.Demon.ThrallDailyHint'}}">{{localize "VTM20.Demon.ThrallDaily" n=thrallFaith}}</em>{{/if}}
+    {{#if editable}}<span class="r-h2-tools"><a class="r-h2-btn" data-action="thrallAdd"><i class="fa-solid fa-file-signature"></i> <span class="r-h2-lbl">{{localize "VTM20.Demon.ThrallAdd"}}</span></a></span>{{/if}}</h2>
+  <div class="r-cols2 r-thralls">
+    {{#each thralls}}
+    <div class="r-row-wrap r-thrall {{#if open}}is-open{{/if}}" data-index="{{index}}">
+      <div class="r-trait-main">
+        <a class="r-trait-label" data-action="toggleRow" data-row-id="{{rowId}}">{{#if name}}{{name}}{{else}}{{localize "VTM20.Demon.ThrallUnnamed"}}{{/if}}</a>
+        {{#if linked}}<a class="r-icon-btn" data-action="thrallOpen" data-tooltip="{{localize 'VTM20.Demon.ThrallOpen'}}"><i class="fa-solid fa-id-card"></i></a>{{/if}}
+        <span class="r-leader"></span>
+        <span class="r-thrall-stats"><span data-tooltip="{{localize 'VTM20.Demon.ThrallFaith'}}"><i class="fa-solid fa-fire-flame-curved"></i> {{faith}}<em>→{{share}}</em></span><span data-tooltip="{{localize 'VTM20.Demon.ThrallWill'}}"><i class="fa-solid fa-star"></i> {{will}}</span>{{#if wounds}}<span class="is-hurt" data-tooltip="{{localize 'VTM20.Demon.ThrallWounds'}}"><i class="fa-solid fa-droplet"></i> {{wounds}}</span>{{/if}}</span>
+        {{#if @root.editable}}<a class="r-icon-btn" data-action="thrallEdit"><i class="fa-solid fa-pen-nib"></i></a>
+        <a class="r-icon-btn is-danger" data-action="thrallDelete"><i class="fa-solid fa-xmark"></i></a>{{/if}}
+      </div>
+      <div class="r-power-body">
+        {{#if terms}}<p><b>{{localize "VTM20.Demon.ThrallTerms"}}:</b> {{terms}}</p>{{/if}}
+        {{#if gifts}}<p><b>{{localize "VTM20.Demon.ThrallGifts"}}:</b> {{gifts}}</p>{{/if}}
+        {{#unless (or terms gifts)}}<p><em>{{localize "VTM20.Demon.ThrallNoTerms"}}</em></p>{{/unless}}
+      </div>
+    </div>
+    {{else}}<div class="r-empty">{{localize "VTM20.Demon.ThrallNone"}}</div>
+    {{/each}}
+  </div>
+  {{/if}}
+
   <div class="r-cols2 r-mf">
     {{#each mfColumns}}
     <div class="r-col">

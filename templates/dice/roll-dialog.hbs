@@ -86,6 +86,13 @@
     </div>
   </div>
   {{/if}}
+  {{#if overdraw}}
+  <label class="r-overdraw" data-tooltip="{{localize 'VTM20.Demon.OverdrawHint'}}">
+    <i class="fa-solid fa-hand-holding-droplet"></i>
+    <span class="r-od-text"><b>{{localize "VTM20.Demon.Overdraw"}}</b> <em>{{localize "VTM20.Demon.OverdrawMax" n=overdraw.max}}</em></span>
+    <input type="number" name="overdraw" value="{{overdraw.value}}" min="0" max="{{overdraw.max}}">
+  </label>
+  {{/if}}
 
   <div class="r-roll-total">
     <div class="r-roll-breakdown">{{#each breakdown}}<span>{{label}} <b>{{rSigned value}}</b></span>{{/each}}</div>
