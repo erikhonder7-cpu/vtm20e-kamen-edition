@@ -219,6 +219,11 @@ export async function endScene() {
   for (const a of owned) for (const id of SCENE_STATUSES) if (a.statuses?.has(id)) await a.toggleStatusEffect(id, { active: false });
   // Силы «до конца сцены» (Когти Зверя…) гаснут
   for (const a of owned) for (const x of a.powerEffects ?? []) if (x.def.mode === "scene") await a.endPower(x.effect);
+  // падшие: Вера за сцену (сложность Проявления) и черты высокой Муки «на эпизод» — с концом сцены обнуляются
+  for (const a of owned.filter(x => x.type === "demon")) {
+    if (a.getFlag(SYSTEM_ID, "sceneFaith")) await a.unsetFlag(SYSTEM_ID, "sceneFaith");
+    if (a.getFlag(SYSTEM_ID, "formScene")) await a.unsetFlag(SYSTEM_ID, "formScene");
+  }
   ui.notifications.info(t("Notify.SceneEnded"));
 }
 

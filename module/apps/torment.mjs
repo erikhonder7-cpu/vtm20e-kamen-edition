@@ -192,6 +192,49 @@ export async function sinFromPrompt(message) {
   return virtuePrompt(actor, "sin");
 }
 
+/**
+ * Проявление (гл. 9, с. 255): смертные замечают падшего Восприятием + Шестым чувством, сл. 10 − Вера за сцену (флаг sceneFaith;
+ * при 0 и в апокалиптической форме — все и сразу). Каждый свидетель бросает Волю против постоянной Веры демона: провал — теряет
+ * себя, неудача — застывает или бежит и потом забудет, 1 / 2 / 3+ успеха — помнит сверхъестественное / детали / всё.
+ * Облик для свидетеля: Мука меньше половины его Воли — прекрасный ангел, больше Воли — кошмар, иначе — по восприятию.
+ */
+export async function revelation(actor) {
+  const s = actor.system, spent = actor.getFlag(SYSTEM_ID, "sceneFaith") ?? 0, notice = Math.max(0, 10 - spent);
+  const v = await foundry.applications.api.DialogV2.prompt({
+    window: { title: t("Reveal") }, classes: ["vtm20", "r-dialog"], position: { width: 460 },
+    content: `<p class="r-choice-hint">${t("RevealHint", { n: s.faith.permanent })}</p>
+      <p class="r-choice-hint">${s.apocalyptic || notice === 0 ? t("RevealAuto") : t("RevealNotice", { spent, d: notice })}</p>
+      <div class="r-fields"><label class="r-f is-span2"><span>${t("RevealWitnesses")}</span><input type="text" name="wills" value="3, 3, 2" placeholder="3, 5, 2"></label>
+      <label class="r-f r-f-check"><input type="checkbox" name="reset"> <span>${t("RevealReset")}</span></label></div>`,
+    ok: { label: t("RevealRoll"), callback: (ev, btn) => ({ wills: String(btn.form.elements.wills.value), reset: btn.form.elements.reset.checked }) }
+  }).catch(() => null);
+  if (!v) return;
+  if (v.reset) await actor.unsetFlag(SYSTEM_ID, "sceneFaith");
+  const wills = v.wills.split(/[,;\s]+/).map(Number).filter(n => n > 0).slice(0, 20);
+  if (!wills.length) return;
+  const rolls = [], rows = [];
+  for (const [i, w] of wills.entries()) {
+    const r = await new Roll(`${w}d10`).evaluate(); rolls.push(r);
+    const ev = evaluate(r.dice[0].results.map(x => x.result), { difficulty: Math.clamp(s.faith.permanent, 2, 10) });
+    const key = ev.outcome === "botch" ? "Botch" : ev.successes >= 3 ? "3" : `${ev.successes}`;
+    const look = s.torment.permanent < w / 2 ? "Angel" : s.torment.permanent > w ? "Nightmare" : "Either";
+    rows.push(`<tr><td>${i + 1}</td><td>${w}</td><td><b>${ev.outcome === "botch" ? "✕" : ev.successes}</b></td><td>${t(`RevealOut.${key}`)}</td><td><em>${t(`RevealLook.${look}`)}</em></td></tr>`);
+  }
+  return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), rolls,
+    content: `<div class="r-notice r-type-demon r-reveal"><i class="fa-solid fa-eye"></i> <b>${t("RevealTitle", { name: esc(actor.name), d: s.faith.permanent })}</b>
+      <table><thead><tr><th>#</th><th>${game.i18n.localize("VTM20.Willpower")}</th><th>${t("SuccShort")}</th><th>${t("RevealMemory")}</th><th>${t("RevealSees")}</th></tr></thead><tbody>${rows.join("")}</tbody></table></div>` });
+}
+
+/** Вера, потраченная падшим за сцену (для сложности Проявления): считается при каждом уменьшении временной Веры. */
+export function registerDemonHooks() {
+  Hooks.on("preUpdateActor", (actor, change) => {
+    if (actor.type !== "demon") return;
+    const next = foundry.utils.getProperty(change, "system.faith.temporary");
+    if (next == null || next >= actor.system.faith.temporary) return;
+    foundry.utils.setProperty(change, `flags.${SYSTEM_ID}.sceneFaith`, (actor.getFlag(SYSTEM_ID, "sceneFaith") ?? 0) + (actor.system.faith.temporary - next));
+  });
+}
+
 /** Сколько успехов нужно ритуалу: сумма точек его Знаний (Players Guide, гл. 6). */
 export const ritualNeed = s => (s.primary?.key ? s.primary.level : 0) + (s.secondary ?? []).reduce((n, x) => n + (x.key ? x.level : 0), 0);
 

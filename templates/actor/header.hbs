@@ -150,6 +150,7 @@
       {{!-- Падший: Жатва Веры, апокалиптическая форма, Вера по договорам на новый день --}}
       <a class="r-act" data-action="harvestFaith" data-tooltip="{{localize 'VTM20.Demon.HarvestTip'}}"><i class="fa-solid fa-wheat-awn"></i><span>{{localize "VTM20.Demon.ActHarvest"}}</span></a>
       <a class="r-act {{#if system.apocalyptic}}is-on{{/if}}" data-action="apocalyptic" data-tooltip="{{#if system.apocalyptic}}{{localize 'VTM20.Demon.FormDrop'}}{{else}}{{localize 'VTM20.Demon.FormTake'}}{{/if}}"><i class="fa-solid fa-dragon"></i><span>{{localize "VTM20.Demon.ActForm"}}</span></a>
+      <a class="r-act is-minor" data-action="revelation" data-tooltip="{{localize 'VTM20.Demon.RevealTip'}}"><i class="fa-solid fa-eye"></i><span>{{localize "VTM20.Demon.RevealShort"}}</span></a>
       <a class="r-act is-minor" data-action="pactFaith" data-tooltip="{{localize 'VTM20.Demon.PactFaithTip'}}"><i class="fa-solid fa-file-signature"></i><span>{{localize "VTM20.Demon.ActPacts"}}</span></a>
       {{/if}}
       {{#if isVampire}}<a class="r-act is-minor" data-action="awaken" data-tooltip="{{localize 'VTM20.Sheet.Awaken'}}"><i class="fa-solid fa-cloud-moon"></i><span>{{localize "VTM20.Sheet.AwakenShort"}}</span></a>{{/if}}

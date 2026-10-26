@@ -351,3 +351,9 @@ body.r-theme-light .vtm20.r-type-demon {
 .vtm20 .r-form-col.is-high .r-form-feat.is-pick i { font-size: 10px; color: #d4a04c; }
 .vtm20 .r-form-col.is-high .r-form-feat.is-pick:hover { color: #f0c46a; }
 .vtm20 .r-form-free { font-family: var(--r-body); font-style: italic; text-transform: none; letter-spacing: 0; color: #e08a3a; }
+
+/* карточка Проявления */
+.r-reveal table { width: 100%; margin-top: 6px; border-collapse: collapse; font-size: 12.5px; font-style: normal; }
+.r-reveal th { font-family: "IM Fell SC", "Forum", serif; font-weight: 400; font-size: 11px; letter-spacing: .5px; text-transform: uppercase; color: var(--r-muted); text-align: left; padding: 2px 4px; }
+.r-reveal td { padding: 3px 4px; border-top: 1px solid var(--r-line); vertical-align: top; }
+.r-reveal td b { font-family: "Prata", serif; font-weight: 400; color: #f0c46a; }

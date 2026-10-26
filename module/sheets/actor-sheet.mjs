@@ -40,7 +40,7 @@ import { coteriesOf, poolValue, openCoterie } from "../apps/coterie.mjs";
 import { itemCardHTML } from "../chat/item-card.mjs";
 import { themeClass } from "../ui/themes.mjs";
 import { openHouses } from "../apps/houses.mjs";
-import { virtuePrompt, atoneWithXp, assumeForm, sceneHighFeature, harvestFaith, pactFaith, innateRoll, ritualTurn, ritualEffect, ritualNeed, suggestSin } from "../apps/torment.mjs";
+import { virtuePrompt, atoneWithXp, assumeForm, sceneHighFeature, harvestFaith, pactFaith, innateRoll, ritualTurn, ritualEffect, ritualNeed, suggestSin, revelation } from "../apps/torment.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -127,6 +127,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       apocalyptic: VtMActorSheet.#onApocalyptic,
       sceneHigh: VtMActorSheet.#onSceneHigh,
       formHighPick: VtMActorSheet.#onFormHighPick,
+      revelation: VtMActorSheet.#onRevelation,
       faithHeal: VtMActorSheet.#onFaithHeal,
       harvestFaith: VtMActorSheet.#onHarvest,
       innate: VtMActorSheet.#onInnate,
@@ -1115,6 +1116,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   /** Принять апокалиптическую форму — 1 пункт временной Веры (гл. 7); сбросить — даром. */
   static #onApocalyptic() { return assumeForm(this.actor); }
   static #onSceneHigh(event, target) { return sceneHighFeature(this.actor, Number(target.dataset.index)); }
+  static #onRevelation() { return revelation(this.actor); }
   /** Выбрать черту высокой Муки в свободный слот или снять уже выбранную (снимается и всё, что выбрано после неё). */
   static async #onFormHighPick(event, target) {
     const i = Number(target.dataset.index), list = [...(this.actor.getFlag(SYSTEM_ID, "formHigh") ?? [])];
