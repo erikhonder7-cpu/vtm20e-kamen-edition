@@ -171,6 +171,11 @@
      "level": 1,
      "name": "Воздействие на силу тяжести",
      "page": 170,
+     "roll": {
+      "trait1": "attributes.strength",
+      "trait2": "abilities.athletics",
+      "difficulty": 6
+     },
      "html": "<p><em>Demon: The Fallen, с. 170.</em> Призыв 1-го круга. Эффект обычный — если кость Муки выше Муки демона, иначе — эффект высокой Муки (см. книгу).</p>"
     },
     {
@@ -231,30 +236,55 @@
      "level": 1,
      "name": "Перевод",
      "page": 171,
+     "roll": {
+      "trait1": "attributes.manipulation",
+      "trait2": "abilities.empathy",
+      "difficulty": 6
+     },
      "html": "<p><em>Demon: The Fallen, с. 171.</em> Призыв 1-го круга. Эффект обычный — если кость Муки выше Муки демона, иначе — эффект высокой Муки (см. книгу).</p>"
     },
     {
      "level": 2,
      "name": "Внушение",
      "page": 172,
+     "roll": {
+      "trait1": "attributes.manipulation",
+      "trait2": "abilities.empathy",
+      "difficulty": 6
+     },
      "html": "<p><em>Demon: The Fallen, с. 172.</em> Призыв 2-го круга. Эффект обычный — если кость Муки выше Муки демона, иначе — эффект высокой Муки (см. книгу).</p>"
     },
     {
      "level": 3,
      "name": "Исчезновение",
      "page": 172,
+     "roll": {
+      "trait1": "attributes.manipulation",
+      "trait2": "abilities.subterfuge",
+      "difficulty": 6
+     },
      "html": "<p><em>Demon: The Fallen, с. 172.</em> Призыв 3-го круга. Эффект обычный — если кость Муки выше Муки демона, иначе — эффект высокой Муки (см. книгу).</p>"
     },
     {
      "level": 4,
      "name": "Признание",
      "page": 172,
+     "roll": {
+      "trait1": "attributes.manipulation",
+      "trait2": "abilities.subterfuge",
+      "difficulty": 6
+     },
      "html": "<p><em>Demon: The Fallen, с. 172.</em> Призыв 4-го круга. Эффект обычный — если кость Муки выше Муки демона, иначе — эффект высокой Муки (см. книгу).</p>"
     },
     {
      "level": 5,
      "name": "Изменение памяти",
      "page": 172,
+     "roll": {
+      "trait1": "attributes.manipulation",
+      "trait2": "abilities.subterfuge",
+      "difficulty": 7
+     },
      "html": "<p><em>Demon: The Fallen, с. 172.</em> Призыв 5-го круга. Эффект обычный — если кость Муки выше Муки демона, иначе — эффект высокой Муки (см. книгу).</p>"
     }
    ],
@@ -282,12 +312,22 @@
      "level": 2,
      "name": "Послать Видение",
      "page": 173,
+     "roll": {
+      "trait1": "attributes.manipulation",
+      "trait2": "abilities.expression",
+      "difficulty": 6
+     },
      "html": "<p><em>Demon: The Fallen, с. 173.</em> Призыв 2-го круга. Эффект обычный — если кость Муки выше Муки демона, иначе — эффект высокой Муки (см. книгу).</p>"
     },
     {
      "level": 3,
      "name": "Опора Веры",
      "page": 173,
+     "roll": {
+      "trait1": "attributes.manipulation",
+      "trait2": "abilities.leadership",
+      "difficulty": 6
+     },
      "html": "<p><em>Demon: The Fallen, с. 173.</em> Призыв 3-го круга. Эффект обычный — если кость Муки выше Муки демона, иначе — эффект высокой Муки (см. книгу).</p>"
     },
     {
@@ -305,6 +345,11 @@
      "level": 5,
      "name": "Рука Веры",
      "page": 174,
+     "roll": {
+      "trait1": "attributes.manipulation",
+      "trait2": "abilities.leadership",
+      "difficulty": 6
+     },
      "html": "<p><em>Demon: The Fallen, с. 174.</em> Призыв 5-го круга. Эффект обычный — если кость Муки выше Муки демона, иначе — эффект высокой Муки (см. книгу).</p>"
     }
    ],
@@ -412,24 +457,44 @@
      "level": 1,
      "name": "Глас Небес",
      "page": 177,
+     "roll": {
+      "trait1": "attributes.manipulation",
+      "trait2": "abilities.leadership",
+      "difficulty": 8
+     },
      "html": "<p><em>Demon: The Fallen, с. 177.</em> Призыв 1-го круга. Эффект обычный — если кость Муки выше Муки демона, иначе — эффект высокой Муки (см. книгу).</p>"
     },
     {
      "level": 2,
      "name": "Прославление",
      "page": 177,
+     "roll": {
+      "trait1": "attributes.manipulation",
+      "trait2": "abilities.leadership",
+      "difficulty": 6
+     },
      "html": "<p><em>Demon: The Fallen, с. 177.</em> Призыв 2-го круга. Эффект обычный — если кость Муки выше Муки демона, иначе — эффект высокой Муки (см. книгу).</p>"
     },
     {
      "level": 3,
      "name": "Легендарная Аура",
      "page": 177,
+     "roll": {
+      "trait1": "attributes.manipulation",
+      "trait2": "abilities.leadership",
+      "difficulty": 6
+     },
      "html": "<p><em>Demon: The Fallen, с. 177.</em> Призыв 3-го круга. Эффект обычный — если кость Муки выше Муки демона, иначе — эффект высокой Муки (см. книгу).</p>"
     },
     {
      "level": 4,
      "name": "Знак Небожителей",
      "page": 178,
+     "roll": {
+      "trait1": "attributes.manipulation",
+      "trait2": "abilities.expression",
+      "difficulty": 6
+     },
      "html": "<p><em>Demon: The Fallen, с. 178.</em> Призыв 4-го круга. Эффект обычный — если кость Муки выше Муки демона, иначе — эффект высокой Муки (см. книгу).</p>"
     },
     {
@@ -570,12 +635,22 @@
      "level": 3,
      "name": "Уста проклятых",
      "page": 181,
+     "roll": {
+      "trait1": "attributes.manipulation",
+      "trait2": "abilities.leadership",
+      "difficulty": 6
+     },
      "html": "<p><em>Demon: The Fallen, с. 181.</em> Призыв 3-го круга. Эффект обычный — если кость Муки выше Муки демона, иначе — эффект высокой Муки (см. книгу).</p>"
     },
     {
      "level": 4,
      "name": "Удаленное прикосновение",
      "page": 182,
+     "roll": {
+      "trait1": "attributes.manipulation",
+      "trait2": "abilities.awareness",
+      "difficulty": 6
+     },
      "html": "<p><em>Demon: The Fallen, с. 182.</em> Призыв 4-го круга. Эффект обычный — если кость Муки выше Муки демона, иначе — эффект высокой Муки (см. книгу).</p>"
     },
     {
@@ -700,6 +775,11 @@
      "level": 2,
      "name": "Всколыхнуть землю",
      "page": 185,
+     "roll": {
+      "trait1": "attributes.strength",
+      "trait2": "abilities.survival",
+      "difficulty": 6
+     },
      "html": "<p><em>Demon: The Fallen, с. 185.</em> Призыв 2-го круга. Эффект обычный — если кость Муки выше Муки демона, иначе — эффект высокой Муки (см. книгу).</p>"
     },
     {
@@ -985,6 +1065,11 @@
      "level": 1,
      "name": "Открыть /Закрыть Проход",
      "page": 193,
+     "roll": {
+      "trait1": "attributes.manipulation",
+      "trait2": "abilities.intuition",
+      "difficulty": 6
+     },
      "html": "<p><em>Demon: The Fallen, с. 193.</em> Призыв 1-го круга. Эффект обычный — если кость Муки выше Муки демона, иначе — эффект высокой Муки (см. книгу).</p>"
     },
     {
@@ -1147,6 +1232,11 @@
      "level": 2,
      "name": "Чуткость",
      "page": 197,
+     "roll": {
+      "trait1": "attributes.manipulation",
+      "trait2": "abilities.empathy",
+      "difficulty": 6
+     },
      "html": "<p><em>Demon: The Fallen, с. 197.</em> Призыв 2-го круга. Эффект обычный — если кость Муки выше Муки демона, иначе — эффект высокой Муки (см. книгу).</p>"
     },
     {
@@ -1314,6 +1404,11 @@
      "level": 4,
      "name": "Двойник",
      "page": 201,
+     "roll": {
+      "trait1": "attributes.manipulation",
+      "trait2": "abilities.empathy",
+      "difficulty": 6
+     },
      "html": "<p><em>Demon: The Fallen, с. 201.</em> Призыв 4-го круга. Эффект обычный — если кость Муки выше Муки демона, иначе — эффект высокой Муки (см. книгу).</p>"
     },
     {
@@ -1364,6 +1459,11 @@
      "level": 2,
      "name": "Управление животными",
      "page": 203,
+     "roll": {
+      "trait1": "attributes.manipulation",
+      "trait2": "abilities.animalKen",
+      "difficulty": 6
+     },
      "html": "<p><em>Demon: The Fallen, с. 203.</em> Призыв 2-го круга. Эффект обычный — если кость Муки выше Муки демона, иначе — эффект высокой Муки (см. книгу).</p>"
     },
     {
@@ -1603,6 +1703,11 @@
      "level": 3,
      "name": "Образ Смерти",
      "page": 209,
+     "roll": {
+      "trait1": "attributes.manipulation",
+      "trait2": "abilities.intuition",
+      "difficulty": 6
+     },
      "html": "<p><em>Demon: The Fallen, с. 209.</em> Призыв 3-го круга. Эффект обычный — если кость Муки выше Муки демона, иначе — эффект высокой Муки (см. книгу).</p>"
     },
     {
@@ -1654,18 +1759,33 @@
      "level": 1,
      "name": "Говорить с мертвыми",
      "page": 210,
+     "roll": {
+      "trait1": "attributes.manipulation",
+      "trait2": "abilities.awareness",
+      "difficulty": 6
+     },
      "html": "<p><em>Demon: The Fallen, с. 210.</em> Призыв 1-го круга. Эффект обычный — если кость Муки выше Муки демона, иначе — эффект высокой Муки (см. книгу).</p>"
     },
     {
      "level": 2,
      "name": "Вызвать мертвых",
      "page": 210,
+     "roll": {
+      "trait1": "attributes.manipulation",
+      "trait2": "abilities.leadership",
+      "difficulty": 6
+     },
      "html": "<p><em>Demon: The Fallen, с. 210.</em> Призыв 2-го круга. Эффект обычный — если кость Муки выше Муки демона, иначе — эффект высокой Муки (см. книгу).</p>"
     },
     {
      "level": 3,
      "name": "Повелевать мертвыми",
      "page": 211,
+     "roll": {
+      "trait1": "attributes.manipulation",
+      "trait2": "abilities.leadership",
+      "difficulty": 6
+     },
      "html": "<p><em>Demon: The Fallen, с. 211.</em> Призыв 3-го круга. Эффект обычный — если кость Муки выше Муки демона, иначе — эффект высокой Муки (см. книгу).</p>"
     },
     {

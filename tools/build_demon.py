@@ -59,6 +59,19 @@ ABIL = {"Атлетизм": "athletics", "Атлетика": "athletics", "На�
         "Хитрость": "subterfuge", "Знание животных": "animalKen", "Запугивание": "intimidation", "Лидерство": "leadership",
         "Оккультизм": "occult", "Религия": "religion", "Убеждение": "expression", "Красноречие": "expression"}
 
+# Пулы, которые разбор не ловит: «Манипулирование», обратный порядок («Хитрость + Манипулирование»), «Осведомленность».
+# Ключ — «Знание|круг»: (Атрибут, Способность, сложность). Без пула в книге: firmament|5, forge|4, forge|5, longing|4.
+ROLL_FIX = {
+    "fundament|1": ("strength", "athletics", 6), "humanity|1": ("manipulation", "empathy", 6), "humanity|2": ("manipulation", "empathy", 6),
+    "humanity|3": ("manipulation", "subterfuge", 6), "humanity|4": ("manipulation", "subterfuge", 6), "humanity|5": ("manipulation", "subterfuge", 7),
+    "celestials|2": ("manipulation", "expression", 6), "celestials|3": ("manipulation", "leadership", 6), "celestials|5": ("manipulation", "leadership", 6),
+    "radiance|1": ("manipulation", "leadership", 8), "radiance|2": ("manipulation", "leadership", 6), "radiance|3": ("manipulation", "leadership", 6),
+    "radiance|4": ("manipulation", "expression", 6), "firmament|3": ("manipulation", "leadership", 6), "firmament|4": ("manipulation", "awareness", 6),
+    "earth|2": ("strength", "survival", 6), "portals|1": ("manipulation", "intuition", 6), "longing|2": ("manipulation", "empathy", 6),
+    "transfiguration|4": ("manipulation", "empathy", 6), "beast|2": ("manipulation", "animalKen", 6), "death|3": ("manipulation", "intuition", 6),
+    "spirit|1": ("manipulation", "awareness", 6), "spirit|2": ("manipulation", "leadership", 6), "spirit|3": ("manipulation", "leadership", 6),
+}
+
 
 def main():
     import pymupdf
@@ -103,6 +116,9 @@ def main():
     flush()
     for L in lores:
         for p in L["powers"]:
+            fix = ROLL_FIX.get(f"{L['key']}|{p['level']}")
+            if fix and not p.get("roll"):
+                p["roll"] = {"trait1": f"attributes.{fix[0]}", "trait2": f"abilities.{fix[1]}", "difficulty": fix[2]}
             p["html"] = f"<p><em>{BOOK}, с. {p['page']}.</em> Призыв {p['level']}-го круга. Эффект обычный — если кость Муки выше Муки демона, иначе — эффект высокой Муки (см. книгу).</p>"
         # первые четыре черты формы — при низкой Муке, остальные — при высокой (гл. 7)
         L["form"] = {"low": L["form"][:4], "high": L["form"][4:8]} if L["form"] else None

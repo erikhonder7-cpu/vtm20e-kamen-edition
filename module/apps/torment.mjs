@@ -169,6 +169,29 @@ export function innateRoll(actor, kind) {
     breakdown: [{ label: t("Faith"), value: actor.system.faith.temporary }] })).catch(() => null);
 }
 
+/**
+ * Подсказка греха (гл. 6: «Рассказчик предупреждает, что поступок может прибавить Муки»): шёпотом владельцам и ведущему —
+ * карточка с кнопкой проверки Добродетели. Как подсказки ярости у вампиров (dice/virtue-checks.mjs).
+ */
+export function suggestSin(actor, reason = "") {
+  return ChatMessage.create({
+    speaker: ChatMessage.getSpeaker({ actor }),
+    whisper: game.users.filter(u => u.isGM || actor.testUserPermission(u, "OWNER")).map(u => u.id),
+    content: `<div class="r-notice r-type-demon r-check-prompt is-sin"><i class="fa-solid fa-skull"></i>
+      <span>${t("SinPrompt", { name: esc(actor.name) })}${reason ? ` <em>${esc(reason)}</em>` : ""}</span>
+      <div class="r-card-buttons"><button type="button" data-r-action="sinPrompt"><i class="fa-solid fa-dice-d10"></i> ${t("SinTitle")}</button></div></div>`,
+    flags: { [SYSTEM_ID]: { sinPrompt: { actorUuid: actor.uuid } } }
+  });
+}
+
+/** Кнопка подсказки греха: проверку бросает тот, кто владеет падшим. */
+export async function sinFromPrompt(message) {
+  const p = message.getFlag(SYSTEM_ID, "sinPrompt");
+  const actor = p && await foundry.utils.fromUuid(p.actorUuid);
+  if (!actor?.isOwner) return ui.notifications.warn(game.i18n.localize("VTM20.CheckPrompt.NotOwner"));
+  return virtuePrompt(actor, "sin");
+}
+
 /** Сколько успехов нужно ритуалу: сумма точек его Знаний (Players Guide, гл. 6). */
 export const ritualNeed = s => (s.primary?.key ? s.primary.level : 0) + (s.secondary ?? []).reduce((n, x) => n + (x.key ? x.level : 0), 0);
 

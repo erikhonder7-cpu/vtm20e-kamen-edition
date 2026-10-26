@@ -359,6 +359,7 @@ export function onChatCardClick(event) {
   if (combatAction === "defend" || combatAction === "combatDamage") {
     return import("../combat/combat.mjs").then(m => combatAction === "defend" ? m.defendCard(message, btn.dataset.method) : m.rollLinkedDamage(message));
   }
+  if (combatAction === "sinPrompt") return import("../apps/torment.mjs").then(m => m.sinFromPrompt(message));
   if (combatAction === "virtueCheck") return import("./virtue-checks.mjs").then(m => m.rollFromPrompt(message));
   if (["extend", "resist", "assist"].includes(combatAction)) {
     return import("./contests.mjs").then(m => combatAction === "extend" ? m.continueExtended(message)

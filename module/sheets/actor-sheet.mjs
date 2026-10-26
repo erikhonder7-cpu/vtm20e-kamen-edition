@@ -40,7 +40,7 @@ import { coteriesOf, poolValue, openCoterie } from "../apps/coterie.mjs";
 import { itemCardHTML } from "../chat/item-card.mjs";
 import { themeClass } from "../ui/themes.mjs";
 import { openHouses } from "../apps/houses.mjs";
-import { virtuePrompt, atoneWithXp, assumeForm, sceneHighFeature, harvestFaith, pactFaith, innateRoll, ritualTurn, ritualEffect, ritualNeed } from "../apps/torment.mjs";
+import { virtuePrompt, atoneWithXp, assumeForm, sceneHighFeature, harvestFaith, pactFaith, innateRoll, ritualTurn, ritualEffect, ritualNeed, suggestSin } from "../apps/torment.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -120,6 +120,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       addLore: VtMActorSheet.#onAddLore,
       houseAtlas: VtMActorSheet.#onHouseAtlas,
       tormentSin: VtMActorSheet.#onTormentSin,
+      sinSuggest: VtMActorSheet.#onSinSuggest,
       tormentKind: VtMActorSheet.#onTormentKind,
       tormentAtone: VtMActorSheet.#onTormentAtone,
       addHouseLores: VtMActorSheet.#onAddHouseLores,
@@ -1094,6 +1095,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
   static #onHouseAtlas() { return openHouses(this.actor.system.house); }
   static #onTormentSin() { return virtuePrompt(this.actor, "sin"); }
+  static #onSinSuggest() { return suggestSin(this.actor); }
   static #onTormentKind() { return virtuePrompt(this.actor, "kind"); }
   static #onTormentAtone() { return atoneWithXp(this.actor); }
 
