@@ -598,7 +598,8 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     if (s.earthbound) {
       const R = reliquaryInfo(a);
       ctx.reliquary = { ...R, kinds: ["ideal", "improvised", "natural"].map(k => ({ value: k, label: t(`Demon.ReliquaryKind.${k}`), selected: k === R.kind })),
-        hint: t(`Demon.ReliquaryHint.${R.kind}`) };
+        hint: t(`Demon.ReliquaryHint.${R.kind}`),
+        urges: ["flesh", "thought", "emotion"].map(k => ({ key: k, label: t(`Demon.Urge.${k}`), tip: t(`Demon.UrgeTip.${k}`), value: s.urges?.[k] ?? 1 })) };
     }
     // Слуги по договорам (вкладка «Преимущества»)
     ctx.thralls = (s.thralls ?? []).map((x, i) => {

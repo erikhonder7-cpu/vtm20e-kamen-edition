@@ -385,3 +385,6 @@ body.r-theme-light .vtm20.r-type-demon {
 .r-reliquary .r-rq-faith input { width: 48px; text-align: center; }
 .r-reliquary .r-rq-kind { display: flex; align-items: center; gap: 6px; }
 .r-reliquary .r-rq-kind select { width: auto; min-width: 170px; }
+.r-reliquary .r-rq-urges { display: flex; align-items: center; gap: 10px; flex-basis: 100%; }
+.r-reliquary .r-rq-urges b { font-family: "IM Fell SC", "Forum", serif; font-weight: 400; text-transform: uppercase; letter-spacing: .5px; font-size: 12px; color: var(--r-muted); }
+.r-reliquary .r-rq-urges input { width: 40px; text-align: center; }

@@ -21,6 +21,8 @@
     <span class="r-rq-faith">{{localize "VTM20.Demon.Faith"}} <input type="number" name="system.reliquary.faith" value="{{reliquary.faith}}" min="0" max="{{reliquary.max}}" {{#unless editable}}disabled{{/unless}}> / {{reliquary.max}}</span>
     {{#if editable}}<a class="r-h2-btn is-plain" data-action="reliquaryDraw" data-tooltip="{{localize 'VTM20.Demon.ReliquaryDrawTip'}}"><i class="fa-solid fa-arrow-right-to-bracket"></i> {{localize "VTM20.Demon.ReliquaryDraw"}}</a>
     <a class="r-h2-btn" data-action="worship" data-tooltip="{{localize 'VTM20.Demon.WorshipTip' n=reliquary.worship}}"><i class="fa-solid fa-place-of-worship"></i> {{localize "VTM20.Demon.Worship"}}</a>{{/if}}
+    <span class="r-rq-urges" data-tooltip="{{localize 'VTM20.Demon.UrgesHint'}}"><b>{{localize "VTM20.Demon.Urges"}}</b>
+      {{#each reliquary.urges}}<label data-tooltip="{{tip}}">{{label}} <input type="number" name="system.urges.{{key}}" value="{{value}}" min="0" max="5" {{#unless @root.editable}}disabled{{/unless}}></label>{{/each}}</span>
   </div>
   {{/if}}
 

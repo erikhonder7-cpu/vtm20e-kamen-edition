@@ -260,6 +260,8 @@ export class DemonData extends BaseActorData {
       earthbound: new BooleanField({ initial: false }),  // Привязанный к Земле (Earthbound): Тёмные Знания и ритуалы без Муки, свой опыт
       // реликварий Привязанного: идеальный / импровизированный / природный; Вера в нём — сверх своей, тратится первой
       reliquary: new SchemaField({ kind: str("ideal"), faith: int(0, 0, 35) }),
+      // Потребности Привязанного вместо Добродетелей: Плоть, Мысль, Эмоция (в теле или форме — прибавки к Характеристикам)
+      urges: new SchemaField({ flesh: int(1, 0, 5), thought: int(1, 0, 5), emotion: int(1, 0, 5) }),
       // Слуги по договорам (гл. 9): Вера слуги 0–5, доля демону (не больше половины, вверх), Воля и раны — если у слуги нет листа
       thralls: new ArrayField(new SchemaField({
         name: str(), uuid: str(), faith: int(2, 0, 5), share: int(1, 0, 3), will: int(3, 0, 10), wounds: int(0, 0, 7),
