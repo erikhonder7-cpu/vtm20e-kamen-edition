@@ -44,16 +44,24 @@
     <span class="r-h2-tools"><a class="r-h2-btn is-plain" data-action="openRules" data-tooltip="{{localize 'VTM20.Demon.RitualsRules'}}"><i class="fa-solid fa-book-open-reader"></i></a></span>
   </h2>
   {{#each demonRituals}}
-  <article class="r-row-wrap r-disc r-dritual {{#if open}}is-open{{/if}}" data-item-id="{{id}}">
-    <header class="r-disc-head">
-      <span class="r-disc-sigil"><i class="fa-solid fa-circle-nodes"></i></span>
-      <div class="r-disc-title">
-        <a class="r-disc-name" data-action="toggleRow" data-row-id="{{id}}">{{name}}</a>
-        <span class="r-disc-sub">{{primary}}{{#if secondary}} · {{secondary}}{{/if}}</span>
+  <article class="r-row-wrap r-rite {{#if open}}is-open{{/if}} {{#if run}}is-live{{/if}}" data-item-id="{{id}}">
+    <header class="r-rite-head">
+      <a class="r-rite-seal" data-action="toggleRow" data-row-id="{{id}}" data-tooltip="{{localize 'VTM20.Demon.RitualNeedTip'}}">
+        <svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="17"/><circle cx="20" cy="20" r="12.5"/>
+          <path d="M20 3 L34.7 28.5 H5.3 Z"/><path d="M20 37 L5.3 11.5 H34.7 Z"/></svg>
+        <b>{{need}}</b>
+      </a>
+      <div class="r-rite-title">
+        <a class="r-rite-name" data-action="toggleRow" data-row-id="{{id}}">{{name}}</a>
+        <span class="r-rite-chips">{{#each chips}}<span class="r-lchip {{#if primary}}is-primary{{/if}} {{#unless has}}is-missing{{/unless}}" data-tooltip="{{#if primary}}{{localize 'VTM20.DRitual.Primary'}}{{else}}{{localize 'VTM20.DRitual.Secondary'}}{{/if}}{{#unless has}} — {{localize 'VTM20.Demon.RitualMissing'}}{{/unless}}">{{name}} <i>{{dots}}</i></span>{{/each}}</span>
       </div>
-      <span class="r-dritual-need" data-tooltip="{{localize 'VTM20.Demon.RitualNeedTip'}}">{{#if run}}<b>{{run.total}}</b>/{{need}} · {{run.turn}}/5{{else}}{{need}} {{localize "VTM20.Demon.SuccShort"}}{{/if}}</span>
+      <div class="r-rite-track" data-tooltip="{{#if run}}{{localize 'VTM20.Demon.RitualProgress' total=total need=need turn=run.turn}}{{else}}{{localize 'VTM20.Demon.RitualNeedTip'}}{{/if}}">
+        <span class="r-rite-turns">{{#each turns}}<i class="{{#if done}}is-done{{/if}} {{#if next}}is-next{{/if}}"></i>{{/each}}</span>
+        <span class="r-rite-meter"><i style="width: {{pct}}%"></i></span>
+        <span class="r-rite-count"><b>{{total}}</b>/{{need}}</span>
+      </div>
       <div class="r-disc-tools">
-        {{#if @root.editable}}<a class="r-icon-btn" data-action="ritualTurn" data-tooltip="{{localize 'VTM20.Demon.RitualTurn'}}"><i class="fa-solid fa-hourglass-half"></i></a>{{/if}}
+        {{#if @root.editable}}<a class="r-icon-btn r-rite-go" data-action="ritualTurn" data-tooltip="{{localize 'VTM20.Demon.RitualTurn'}}"><i class="fa-solid fa-hourglass-half"></i></a>{{/if}}
         {{#if canEffect}}<a class="r-icon-btn" data-action="ritualEffect" data-tooltip="{{localize 'VTM20.Demon.RitualEffect'}}: {{roll}}"><i class="fa-solid fa-dice-d10"></i></a>{{/if}}
         <a class="r-icon-btn" data-action="itemChat" data-tooltip="{{localize 'VTM20.Sheet.ToChat'}}"><i class="fa-solid fa-comment-dots"></i></a>
         <a class="r-icon-btn" data-action="itemEdit" data-tooltip="{{localize 'VTM20.Sheet.Edit'}}"><i class="fa-solid fa-pen-nib"></i></a>
@@ -61,17 +69,17 @@
         <a class="r-icon-btn r-chevron" data-action="toggleRow" data-row-id="{{id}}"><i class="fa-solid fa-chevron-down"></i></a>
       </div>
     </header>
-    <div class="r-disc-body"><div class="r-disc-inner">
-      <dl class="r-hs-meta r-dritual-meta">
-        {{#if time}}<dt>{{localize "VTM20.DRitual.Time"}}</dt><dd>{{time}}</dd>{{/if}}
-        {{#if limits}}<dt>{{localize "VTM20.DRitual.Limits"}}</dt><dd>{{limits}}</dd>{{/if}}
-        {{#if roll}}<dt>{{localize "VTM20.Demon.RitualEffect"}}</dt><dd>{{roll}}</dd>{{/if}}
-        <dt>{{localize "VTM20.DRitual.Cost"}}</dt><dd>{{cost}}</dd>
-      </dl>
-      <div class="r-dritual-text">{{{html}}}</div>
-      {{#if high}}<p class="r-ritual-high"><b>{{localize "VTM20.DRitual.High"}}:</b> {{high}}</p>{{/if}}
-      {{#if variants}}<p class="r-ritual-var"><b>{{localize "VTM20.DRitual.Variants"}}:</b> {{variants}}</p>{{/if}}
-    </div></div>
+    <div class="r-rite-body">
+      <div class="r-rite-facts">
+        {{#if time}}<span data-tooltip="{{localize 'VTM20.DRitual.Time'}}"><i class="fa-solid fa-clock"></i>{{time}}</span>{{/if}}
+        {{#if limits}}<span data-tooltip="{{localize 'VTM20.DRitual.Limits'}}"><i class="fa-solid fa-moon"></i>{{limits}}</span>{{/if}}
+        {{#if roll}}<span data-tooltip="{{localize 'VTM20.Demon.RitualEffect'}}"><i class="fa-solid fa-dice-d10"></i>{{roll}}</span>{{/if}}
+        <span data-tooltip="{{localize 'VTM20.DRitual.Cost'}}"><i class="fa-solid fa-star"></i>{{cost}} {{localize "VTM20.Demon.XpShort"}}</span>
+      </div>
+      <div class="r-rite-text">{{{html}}}</div>
+      {{#if high}}<div class="r-rite-note is-high"><b>{{localize "VTM20.DRitual.High"}}</b>{{high}}</div>{{/if}}
+      {{#if variants}}<div class="r-rite-note is-var"><b>{{localize "VTM20.DRitual.Variants"}}</b>{{variants}}</div>{{/if}}
+    </div>
   </article>
   {{else}}
   <div class="r-empty">{{localize "VTM20.Demon.NoRituals"}}</div>
@@ -80,12 +88,14 @@
   {{!-- Реликвии падших --}}
   <h2 class="r-h2"><span>{{localize "VTM20.Demon.Relics"}}</span></h2>
   {{#each relics}}
-  <article class="r-row-wrap r-disc r-relic {{#if open}}is-open{{/if}}" data-item-id="{{id}}">
-    <header class="r-disc-head">
-      <span class="r-disc-sigil"><i class="fa-solid fa-gem"></i></span>
-      <div class="r-disc-title">
-        <a class="r-disc-name" data-action="toggleRow" data-row-id="{{id}}">{{name}}</a>
-        <span class="r-disc-sub">{{kind}}{{#if use}} · {{use}}{{/if}}</span>
+  <article class="r-row-wrap r-rite r-relic-row is-{{kindKey}} {{#if open}}is-open{{/if}}" data-item-id="{{id}}">
+    <header class="r-rite-head">
+      <a class="r-rite-seal is-gem" data-action="toggleRow" data-row-id="{{id}}">
+        <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 4 L33 14 L20 36 L7 14 Z"/><path d="M7 14 H33 M14 14 L20 36 L26 14 M14 14 L20 4 L26 14"/></svg>
+      </a>
+      <div class="r-rite-title">
+        <a class="r-rite-name" data-action="toggleRow" data-row-id="{{id}}">{{name}}</a>
+        <span class="r-rite-chips"><span class="r-kindtag">{{kind}}</span>{{#each chips}}<span class="r-lchip">{{name}}</span>{{/each}}</span>
       </div>
       <div class="r-disc-tools">
         <a class="r-icon-btn" data-action="itemChat" data-tooltip="{{localize 'VTM20.Sheet.ToChat'}}"><i class="fa-solid fa-comment-dots"></i></a>
@@ -94,10 +104,11 @@
         <a class="r-icon-btn r-chevron" data-action="toggleRow" data-row-id="{{id}}"><i class="fa-solid fa-chevron-down"></i></a>
       </div>
     </header>
-    <div class="r-disc-body"><div class="r-disc-inner">
-      <div class="r-dritual-text">{{{html}}}</div>
-      {{#if mechanics}}<p class="r-relic-sys"><b>{{localize "VTM20.Relic.Mechanics"}}:</b> {{mechanics}}</p>{{/if}}
-    </div></div>
+    <div class="r-rite-body">
+      {{#if use}}<div class="r-rite-facts"><span data-tooltip="{{localize 'VTM20.Relic.Use'}}"><i class="fa-solid fa-hand-sparkles"></i>{{use}}</span></div>{{/if}}
+      <div class="r-rite-text">{{{html}}}</div>
+      {{#if mechanics}}<div class="r-rite-note is-sys"><b>{{localize "VTM20.Relic.Mechanics"}}</b>{{mechanics}}</div>{{/if}}
+    </div>
   </article>
   {{else}}
   <div class="r-empty">{{localize "VTM20.Demon.NoRelics"}}</div>

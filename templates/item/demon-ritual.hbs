@@ -2,29 +2,30 @@
 <div class="r-item-sheet is-ritual is-demon-ritual">
   {{> rItemHead}}
   <div class="r-item-body">
-    <div class="r-badges">
-      <div class="r-badge is-level"><b>{{primaryDots}}</b><span>{{primaryName}}</span></div>
-      <div class="r-badge"><span>{{localize "VTM20.DRitual.House"}}</span><b>{{houseName}}</b></div>
-      <div class="r-badge"><span>{{localize "VTM20.DRitual.Cost"}}</span><b>{{system.cost}}</b></div>
-      <div class="r-badge"><span>{{localize "VTM20.ItemSheet.Roll"}}</span>
-        <b>{{#if pool}}{{pool}}{{else if system.rollText}}{{system.rollText}}{{else}}—{{/if}}</b>
-        {{#if system.roll.difficulty}}<em>{{localize "VTM20.Roll.Difficulty"}} {{system.roll.difficulty}}</em>{{/if}}</div>
+    {{!-- печать ритуала: Знания чипами, факты строкой, сколько успехов нужно --}}
+    <div class="r-rite-sheet">
+      <span class="r-rite-seal is-big"><svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="17"/><circle cx="20" cy="20" r="12.5"/>
+        <path d="M20 3 L34.7 28.5 H5.3 Z"/><path d="M20 37 L5.3 11.5 H34.7 Z"/></svg><b>{{totalDots}}</b></span>
+      <div class="r-rite-sheet-main">
+        <span class="r-rite-chips">{{#each loreChips}}<span class="r-lchip {{#if primary}}is-primary{{/if}}">{{name}} <i>{{dots}}</i></span>{{/each}}</span>
+        <div class="r-rite-facts">
+          {{#if houseName}}<span data-tooltip="{{localize 'VTM20.DRitual.House'}}"><i class="fa-solid fa-fire-flame-curved"></i>{{houseName}}</span>{{/if}}
+          {{#if system.time}}<span data-tooltip="{{localize 'VTM20.DRitual.Time'}}"><i class="fa-solid fa-clock"></i>{{system.time}}</span>{{/if}}
+          <span data-tooltip="{{localize 'VTM20.DRitual.Cost'}}"><i class="fa-solid fa-star"></i>{{system.cost}} {{localize "VTM20.Demon.XpShort"}}</span>
+          <span data-tooltip="{{localize 'VTM20.ItemSheet.Roll'}}"><i class="fa-solid fa-dice-d10"></i>{{#if pool}}{{pool}}{{else if system.rollText}}{{system.rollText}}{{else}}—{{/if}}{{#if system.roll.difficulty}} · {{localize "VTM20.Roll.Vs"}} {{system.roll.difficulty}}{{/if}}</span>
+        </div>
+        {{#if system.limits}}<div class="r-rite-facts"><span data-tooltip="{{localize 'VTM20.DRitual.Limits'}}"><i class="fa-solid fa-moon"></i>{{system.limits}}</span></div>{{/if}}
+        <p class="r-rite-need">{{localize "VTM20.DRitual.NeedText" n=totalDots}}</p>
+      </div>
     </div>
-
-    <dl class="r-ritual-meta">
-      {{#if secondary.length}}<dt>{{localize "VTM20.DRitual.Secondary"}}</dt><dd>{{#each secondary}}{{name}} {{dots}}{{#unless @last}}, {{/unless}}{{/each}}</dd>{{/if}}
-      <dt>{{localize "VTM20.DRitual.Time"}}</dt><dd>{{#if system.time}}{{system.time}}{{else}}—{{/if}}</dd>
-      {{#if system.limits}}<dt>{{localize "VTM20.DRitual.Limits"}}</dt><dd>{{system.limits}}</dd>{{/if}}
-      <dt>{{localize "VTM20.DRitual.Need"}}</dt><dd>{{localize "VTM20.DRitual.NeedText" n=totalDots}}</dd>
-    </dl>
     {{#if book}}<p class="r-item-src">{{localize "VTM20.Item.source"}}: {{book}}</p>{{/if}}
 
     <h2 class="r-h2"><span>{{localize "VTM20.DRitual.Effect"}}</span></h2>
     <div class="r-editor r-item-text">
       <prose-mirror name="system.description" value="{{system.description}}" toggled {{#unless editable}}disabled{{/unless}}>{{{descriptionHTML}}}</prose-mirror>
     </div>
-    {{#if system.high}}<p class="r-ritual-high"><b>{{localize "VTM20.DRitual.High"}}:</b> {{system.high}}</p>{{/if}}
-    {{#if system.variants}}<p class="r-ritual-var"><b>{{localize "VTM20.DRitual.Variants"}}:</b> {{system.variants}}</p>{{/if}}
+    {{#if system.high}}<div class="r-rite-note is-high"><b>{{localize "VTM20.DRitual.High"}}</b>{{system.high}}</div>{{/if}}
+    {{#if system.variants}}<div class="r-rite-note is-var"><b>{{localize "VTM20.DRitual.Variants"}}</b>{{system.variants}}</div>{{/if}}
 
     <details class="r-item-setup">
       <summary><i class="fa-solid fa-sliders"></i> {{localize "VTM20.ItemSheet.Setup"}}</summary>

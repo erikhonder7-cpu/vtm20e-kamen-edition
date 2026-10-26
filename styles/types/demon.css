@@ -286,3 +286,58 @@ body.r-theme-light .vtm20.r-type-demon {
 .vtm20.r-type-demon .r-dritual .r-disc-sigil, .vtm20.r-type-demon .r-relic .r-disc-sigil { color: #d4a04c; }
 .vtm20 .r-dritual-text { font-size: 14px; line-height: 1.45; margin: 0 0 6px; }
 .vtm20 .r-dritual-text p { margin: 0 0 5px; }
+
+/* ── Ритуалы и реликвии (вкладка Знаний и листы предметов): печать, чипы Знаний, дорожка ходов ── */
+.vtm20 .r-rite { position: relative; margin: 0 0 6px; border: 1px solid var(--r-line); background: var(--r-card-bg); }
+.vtm20 .r-rite::before { content: ""; position: absolute; left: -1px; top: -1px; width: 40px; height: 2px; background: linear-gradient(90deg, #d4a04c, rgba(212, 160, 76, 0)); }
+.vtm20 .r-rite.is-live { border-color: rgba(212, 160, 76, .45); box-shadow: inset 0 0 22px rgba(212, 160, 76, .07); }
+.vtm20 .r-rite-head { display: flex; align-items: center; gap: 12px; padding: 7px 12px; }
+.vtm20 .r-rite-seal { position: relative; flex: 0 0 auto; width: 40px; height: 40px; display: grid; place-items: center; color: #d4a04c; }
+.vtm20 .r-rite-seal svg { position: absolute; inset: 0; width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 1; opacity: .75; }
+.vtm20 .r-rite-seal b { position: relative; font-family: var(--r-display); font-weight: 400; font-size: 15px; color: var(--r-ink); text-shadow: 0 0 6px rgba(0, 0, 0, .9); }
+.vtm20 .r-rite-seal.is-gem svg { stroke: #9fb0d4; opacity: .9; }
+.vtm20 .r-rite-seal.is-big { width: 64px; height: 64px; }
+.vtm20 .r-rite-seal.is-big b { font-size: 22px; }
+.vtm20 .r-rite.is-live .r-rite-seal svg { opacity: 1; filter: drop-shadow(0 0 4px rgba(240, 196, 106, .55)); }
+.vtm20 .r-rite-title { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.vtm20 .r-rite-name { font-family: var(--r-display); font-size: 18px; line-height: 1.15; color: var(--r-ink); }
+.vtm20 .r-rite-name:hover { color: var(--r-accent); }
+.vtm20 .r-rite-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.vtm20 .r-lchip { display: inline-flex; align-items: baseline; gap: 4px; padding: 0 7px; line-height: 19px; font-size: 12.5px; color: var(--r-ink-2);
+  border: 1px solid rgba(125, 146, 191, .35); border-radius: 10px; white-space: nowrap; }
+.vtm20 .r-lchip i { font-style: normal; color: #9fb0d4; letter-spacing: -1px; }
+.vtm20 .r-lchip.is-primary { color: var(--r-ink); border-color: rgba(212, 160, 76, .6); background: rgba(212, 160, 76, .08); }
+.vtm20 .r-lchip.is-primary i { color: #f0c46a; }
+.vtm20 .r-lchip.is-missing { border-style: dashed; opacity: .6; }
+.vtm20 .r-lchip.is-house { border-color: rgba(212, 160, 76, .45); }
+.vtm20 .r-kindtag { font-family: var(--r-caps); font-size: 11px; letter-spacing: 1.6px; text-transform: uppercase; color: #d4a04c; line-height: 21px; margin-right: 4px; }
+/* дорожка: пять ходов ромбами, полоса успехов и счёт */
+.vtm20 .r-rite-track { flex: 0 0 auto; display: grid; grid-template-columns: auto auto; grid-template-rows: auto auto; gap: 3px 8px; align-items: center; }
+.vtm20 .r-rite-turns { display: flex; gap: 4px; }
+.vtm20 .r-rite-turns i { width: 8px; height: 8px; transform: rotate(45deg); border: 1px solid rgba(212, 160, 76, .5); }
+.vtm20 .r-rite-turns i.is-done { background: #d4a04c; border-color: #f0c46a; }
+.vtm20 .r-rite-turns i.is-next { box-shadow: 0 0 5px rgba(240, 196, 106, .7); }
+.vtm20 .r-rite-meter { grid-column: 1; height: 3px; background: rgba(125, 146, 191, .2); overflow: hidden; }
+.vtm20 .r-rite-meter i { display: block; height: 100%; background: linear-gradient(90deg, #b4651f, #f0c46a); }
+.vtm20 .r-rite-count { grid-column: 2; grid-row: 1 / span 2; font-family: var(--r-display); font-size: 13px; color: var(--r-muted); }
+.vtm20 .r-rite-count b { font-weight: 400; font-size: 17px; color: var(--r-ink); }
+.vtm20 .r-rite-go { color: #d4a04c; }
+/* тело: факты строкой, текст, заметки с кромкой */
+.vtm20 .r-rite-body { display: none; padding: 0 14px 10px 64px; }
+.vtm20 .r-rite.is-open > .r-rite-body { display: block; }
+.vtm20 .r-rite-facts { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 2px 0 8px; font-size: 13px; color: var(--r-ink-2); }
+.vtm20 .r-rite-facts span { display: inline-flex; align-items: baseline; gap: 6px; }
+.vtm20 .r-rite-facts i { font-size: 11px; color: #d4a04c; }
+.vtm20 .r-rite-text { font-size: 14px; line-height: 1.5; color: var(--r-ink); margin: 0 0 8px; }
+.vtm20 .r-rite-text p { margin: 0 0 5px; }
+.vtm20 .r-rite-note { margin: 6px 0 0; padding: 5px 10px; font-size: 13.5px; line-height: 1.45; color: var(--r-ink-2); border-left: 2px solid rgba(125, 146, 191, .5); background: rgba(125, 146, 191, .05); }
+.vtm20 .r-rite-note b { display: block; font-family: var(--r-caps); font-weight: 400; font-size: 11px; letter-spacing: 1.4px; text-transform: uppercase; color: var(--r-muted); }
+.vtm20 .r-rite-note.is-high { border-left-color: #c0682a; background: linear-gradient(90deg, rgba(192, 104, 42, .1), transparent 70%); }
+.vtm20 .r-rite-note.is-high b { color: #e08a3a; }
+.vtm20 .r-rite-note.is-sys { border-left-color: #d4a04c; background: linear-gradient(90deg, rgba(212, 160, 76, .07), transparent 70%); }
+/* лист предмета */
+.vtm20 .r-rite-sheet { display: flex; align-items: center; gap: 16px; margin: 4px 0 12px; padding: 0 0 12px; border-bottom: 1px solid var(--r-line); }
+.vtm20 .r-rite-sheet-main { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.vtm20 .r-rite-sheet .r-rite-facts { margin: 0; }
+.vtm20 .r-rite-need { margin: 0; font-size: 12.5px; font-style: italic; color: var(--r-muted); }
+@container rsheet (max-width: 640px) { .vtm20 .r-rite-track { display: none; } .vtm20 .r-rite-body { padding-left: 14px; } }

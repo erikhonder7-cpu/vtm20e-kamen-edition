@@ -590,14 +590,21 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     // Ритуалы и реликвии падших — предметы на персонаже (перетащить из компендиев «Ритуалы падших», «Реликвии падших»)
     const run = a.getFlag(SYSTEM_ID, "ritualRun");
     const dname = x => x?.key ? `${Codex.lore(x.key)?.name ?? x.key} ${"•".repeat(x.level)}` : "";
+    // чип Знания: короткое имя без «Знание», точки; есть ли оно у персонажа на нужном уровне
+    const myLore = Object.fromEntries(a.items.filter(i => i.type === "lore").map(i => [i.system.key, i.system.value]));
+    const chip = (x, primary = false) => x?.key ? { name: (Codex.lore(x.key)?.name ?? x.key), dots: "•".repeat(x.level ?? 0),
+      primary, has: (myLore[x.key] ?? 0) >= (x.level ?? 0) } : null;
     ctx.demonRituals = a.items.filter(i => i.type === "demonRitual").map(it => {
-      const r = it.system;
-      return { id: it.id, name: it.name, primary: dname(r.primary), secondary: (r.secondary ?? []).map(dname).filter(Boolean).join(", "),
+      const r = it.system, live = run?.id === it.id ? run : null;
+      return { id: it.id, name: it.name, chips: [chip(r.primary, true), ...(r.secondary ?? []).map(x => chip(x))].filter(Boolean),
         need: ritualNeed(r), time: r.time, limits: r.limits, cost: r.cost, html: r.description, high: r.high, variants: r.variants,
         roll: r.roll?.trait1 ? [a.traitLabel(r.roll.trait1), r.roll.trait2 && a.traitLabel(r.roll.trait2)].filter(Boolean).join(" + ") : r.rollText,
-        canEffect: !!r.roll?.trait1, run: run?.id === it.id ? run : null, open: this._open.has(it.id) };
+        canEffect: !!r.roll?.trait1, run: live, total: live?.total ?? 0,
+        turns: [1, 2, 3, 4, 5].map(n => ({ n, done: !!live && n <= live.turn, next: (live?.turn ?? 0) + 1 === n })),
+        pct: live ? Math.min(100, Math.round(live.total / Math.max(1, ritualNeed(r)) * 100)) : 0, open: this._open.has(it.id) };
     }).sort((x, y) => x.name.localeCompare(y.name, "ru"));
     ctx.relics = a.items.filter(i => i.type === "relic").map(it => ({ id: it.id, name: it.name, kind: game.i18n.localize(`VTM20.Relic.Kind.${it.system.kind}`),
+      kindKey: it.system.kind, chips: (it.system.lores ?? []).filter(Boolean).map(k => ({ name: (Codex.lore(k)?.name ?? k) })),
       use: it.system.use, html: it.system.description, mechanics: it.system.mechanics, open: this._open.has(it.id) }))
       .sort((x, y) => x.name.localeCompare(y.name, "ru"));
     ctx.form = form ? {

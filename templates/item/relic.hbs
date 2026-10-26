@@ -2,22 +2,20 @@
 <div class="r-item-sheet is-relic">
   {{> rItemHead}}
   <div class="r-item-body">
-    <div class="r-badges">
-      <div class="r-badge"><span>{{localize "VTM20.Relic.KindLabel"}}</span><b>{{kindLabel}}</b></div>
-      {{#if houseName}}<div class="r-badge"><span>{{localize "VTM20.DRitual.House"}}</span><b>{{houseName}}</b></div>{{/if}}
-      {{#if loreNames}}<div class="r-badge"><span>{{localize "VTM20.Relic.Lores"}}</span><b>{{loreNames}}</b></div>{{/if}}
+    <div class="r-rite-sheet">
+      <span class="r-rite-seal is-gem is-big"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 4 L33 14 L20 36 L7 14 Z"/><path d="M7 14 H33 M14 14 L20 36 L26 14 M14 14 L20 4 L26 14"/></svg></span>
+      <div class="r-rite-sheet-main">
+        <span class="r-rite-chips"><span class="r-kindtag">{{kindLabel}}</span>{{#if houseName}}<span class="r-lchip is-house">{{houseName}}</span>{{/if}}{{#each loreChips}}<span class="r-lchip">{{this}}</span>{{/each}}</span>
+        {{#if system.use}}<div class="r-rite-facts"><span data-tooltip="{{localize 'VTM20.Relic.Use'}}"><i class="fa-solid fa-hand-sparkles"></i>{{system.use}}</span></div>{{/if}}
+      </div>
     </div>
-    {{#if system.use}}<p class="r-relic-use"><b>{{localize "VTM20.Relic.Use"}}:</b> {{system.use}}</p>{{/if}}
     {{#if book}}<p class="r-item-src">{{localize "VTM20.Item.source"}}: {{book}}</p>{{/if}}
 
     <h2 class="r-h2"><span>{{localize "VTM20.Item.description"}}</span></h2>
     <div class="r-editor r-item-text">
       <prose-mirror name="system.description" value="{{system.description}}" toggled {{#unless editable}}disabled{{/unless}}>{{{descriptionHTML}}}</prose-mirror>
     </div>
-    {{#if system.mechanics}}
-    <h2 class="r-h2"><span>{{localize "VTM20.Relic.Mechanics"}}</span></h2>
-    <p class="r-relic-sys">{{system.mechanics}}</p>
-    {{/if}}
+    {{#if system.mechanics}}<div class="r-rite-note is-sys"><b>{{localize "VTM20.Relic.Mechanics"}}</b>{{system.mechanics}}</div>{{/if}}
 
     <details class="r-item-setup">
       <summary><i class="fa-solid fa-sliders"></i> {{localize "VTM20.ItemSheet.Setup"}}</summary>

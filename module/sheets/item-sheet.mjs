@@ -108,12 +108,15 @@ export class VtMItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
         ctx.primaryOptions = loreOpts(s.primary?.key);
         ctx.secondary = (s.secondary ?? []).filter(x => x.key).map(x => ({ name: loreName(x.key), dots: "•".repeat(x.level) }));
         ctx.secondarySlots = [0, 1, 2, 3].map(i => ({ i, n: i + 1, level: s.secondary?.[i]?.level ?? 1, options: loreOpts(s.secondary?.[i]?.key) }));
+        ctx.loreChips = [s.primary?.key && { name: loreName(s.primary.key), dots: "•".repeat(s.primary.level), primary: true },
+          ...(s.secondary ?? []).filter(x => x.key).map(x => ({ name: loreName(x.key), dots: "•".repeat(x.level) }))].filter(Boolean);
         ctx.totalDots = (s.primary?.key ? s.primary.level : 0) + (s.secondary ?? []).reduce((n, x) => n + (x.key ? x.level : 0), 0);
         ctx.traitGroups = VtMItemSheet.traitGroups(s.roll ?? {});
       } else {
         ctx.kindLabel = loc(`VTM20.Relic.Kind.${s.kind}`);
         ctx.kindOptions = RELIC_KINDS.map(k => ({ value: k, label: loc(`VTM20.Relic.Kind.${k}`), selected: k === s.kind }));
         ctx.loreNames = (s.lores ?? []).filter(Boolean).map(loreName).join(", ");
+        ctx.loreChips = (s.lores ?? []).filter(Boolean).map(loreName);
         ctx.loreSlots = [0, 1, 2].map(i => ({ i, n: i + 1, options: loreOpts(s.lores?.[i]) }));
       }
     }
