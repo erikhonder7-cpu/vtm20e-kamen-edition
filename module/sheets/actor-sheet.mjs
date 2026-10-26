@@ -322,7 +322,8 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     // Герб на рельсе и водяной знак: клан, иначе секта; у гуля — герб клана домитора или сердце в цепях; у прочих — кокарда
     const sym = actor => actor.type === "vampire" ? Codex.clanSymbol(actor.system.clan)
       : actor.type === "ghoul" ? (Codex.clanSymbol(actor.system.domitorClan) ?? Codex._sym(Codex.assets?.sects?.ghoul)) : null;
-    ctx.sigil = { sym: sym(a) ?? Codex.sectSymbol(s.details.sect), label: ctx.house?.name || a.clanLabel || s.details.sect || "", clan: a.type === "vampire" && !!Codex.clan(s.clan) };
+    ctx.sigil = { sym: sym(a) ?? Codex.sectSymbol(s.details.sect), label: ctx.house?.name || a.clanLabel || s.details.sect || "", clan: a.type === "vampire" && !!Codex.clan(s.clan),
+      img: VTM20.typeSigil(a.type) };
     // Состояние на портрете: раны — кровавая дымка по краям, состояния (ярость, торпор…) — оттенок и значки
     const st = a.statuses ?? new Set();
     const wound = Math.min(7, s.health?.damage ?? 0);

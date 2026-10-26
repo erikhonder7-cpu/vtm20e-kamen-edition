@@ -2,8 +2,7 @@
 <nav class="r-rail tabs" data-group="primary" role="tablist">
   <div class="r-rail-sigil {{#if (or sigil.clan isDemon)}}is-link{{/if}}" {{#if sigil.clan}}data-action="clanAtlas"{{else if isDemon}}data-action="houseAtlas"{{/if}} {{#if sigil.label}}data-tooltip="{{sigil.label}}{{#if sigil.clan}} — {{localize 'VTM20.Clans.Open'}}{{/if}}" data-tooltip-direction="RIGHT"{{/if}}>
     {{#if sigil.sym}}{{rSym sigil.sym}}
-    {{else if isDemon}}<img src="systems/vtm20e-kamen-edition/assets/ui/fallen-sigil.svg" alt="">
-    {{else}}<img src="systems/vtm20e-kamen-edition/assets/ui/cockade.svg" alt="">{{/if}}
+    {{else}}<img src="{{sigil.img}}" alt="">{{/if}}
   </div>
   {{#each tabs}}
   <a class="r-rtab {{cssClass}}" data-action="tab" data-group="{{group}}" data-tab="{{id}}" role="tab" data-tooltip="{{localize label}}" data-tooltip-direction="RIGHT">

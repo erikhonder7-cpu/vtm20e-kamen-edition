@@ -363,7 +363,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     const ctx = {
       st, ui: this.ui, rem, rules: this.rules, type: this.type,
       isVampire: this.type === "vampire", isGhoul: this.type === "ghoul", isDemon: this.isDemon, isEarthbound: this.isEarthbound, isThrall: this.isThrall, isMortal: this.type === "mortal", discLabel: this.discLabel, bgLabel: this.bgLabel,
-      typeLabel: loc(`TYPES.Actor.${this.type}`),
+      typeLabel: loc(`TYPES.Actor.${this.type}`), typeSigil: VTM20.typeSigil(this.type),
       steps: this.steps.map((k, i) => ({ i, key: k, n: i + 1, label: t(`Creator.Step.${this.stepName(k)}`), active: i === this.step, done: this.stepOk(k, rem) && i !== this.step })),
       stepKey: key, stepNumber: this.step + 1, stepCount: this.steps.length,
       // у гуля свои подсказки там, где правила другие (нет Становления, Дисциплины — от домитора)

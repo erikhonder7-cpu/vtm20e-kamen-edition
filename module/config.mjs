@@ -172,6 +172,9 @@ VTM20.meritCategories = {
 /** Линия черт и Дополнений типа персонажа: вампиры, гули и смертные — общая (""), у демонов своя (data/demon-*.json). */
 VTM20.traitLine = type => ["demon"].includes(type) ? type : "";
 
+/** Знак типа персонажа (корешок листа, ворота создания, мастер), когда нет герба клана или секты. */
+VTM20.typeSigil = type => `systems/vtm20e-kamen-edition/assets/ui/${({ demon: "fallen-sigil", ghoul: "ghoul-sigil", mortal: "mortal-sigil" })[type] ?? "vampire-sigil"}.svg`;
+
 /** Чем атакуют: пул «Ловкость + …» и подпись. */
 VTM20.weaponKinds = {
   brawl:    { label: L("WeaponKind.brawl"),    attribute: "dexterity", ability: "brawl" },

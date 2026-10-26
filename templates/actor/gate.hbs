@@ -2,7 +2,7 @@
 <section class="r-gate">
   <div class="r-gate-card">
     <h4 class="r-banner"><span>{{typeLabel}}</span></h4>
-    <span class="r-gate-sigil r-cr-medal">{{#if sigil.sym}}{{rSym sigil.sym}}{{else}}<img src="systems/vtm20e-kamen-edition/assets/ui/{{#if isDemon}}fallen-sigil{{else}}cockade{{/if}}.svg" alt="">{{/if}}</span>
+    <span class="r-gate-sigil r-cr-medal">{{#if sigil.sym}}{{rSym sigil.sym}}{{else}}<img src="{{sigil.img}}" alt="">{{/if}}</span>
     <h2>{{localize "VTM20.Creator.GateTitle"}}</h2>
     <p>{{#if isDemon}}{{localize "VTM20.Creator.GateHintDemon"}}{{else if isMortal}}{{localize "VTM20.Creator.GateHintMortal"}}{{else if isGhoul}}{{localize "VTM20.Creator.GateHintGhoul"}}{{else}}{{localize "VTM20.Creator.GateHint"}}{{/if}}</p>
     {{#if editable}}

@@ -311,6 +311,10 @@ async function migrateWorld() {
     const { restoreSystemIcons } = await import("./module/data/icons.mjs");
     if (await restoreSystemIcons()) changed = true;
   }
+  // Папка компендиев вампиров: Foundry создал её по первому манифесту («VTM20 «Liberté»») и сам не переименовывает
+  for (const f of game.folders.filter(f => f.type === "Compendium" && f.name === "VTM20 «Liberté»")) {
+    await f.update({ name: "Vampire: The Masquerade" }); changed = true;
+  }
   if (foundry.utils.isNewerVersion(game.system.version, done) || changed) {
     await game.settings.set(SYSTEM_ID, "migrated", game.system.version);
     console.log("VTM20 | Миграция данных мира до", game.system.version);

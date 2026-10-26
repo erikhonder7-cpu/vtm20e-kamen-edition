@@ -2,7 +2,7 @@
 <div class="r-cr">
   <nav class="r-cr-steps">
     <div class="r-cr-steps-head">
-      <img src="systems/vtm20e-kamen-edition/assets/ui/{{#if isDemon}}fallen-sigil{{else}}cockade{{/if}}.svg" alt="">
+      <img src="{{typeSigil}}" alt="">
       <b>{{typeLabel}}</b>
     </div>
     <ol>
@@ -109,7 +109,7 @@
     <div class="r-cr-sects">
       {{#each sects}}
       <a class="r-cr-sect {{#if active}}is-active{{/if}}" data-action="sect" data-sect="{{key}}">
-        <span class="r-cr-sect-sym r-cr-medal">{{#if sym}}{{rSym sym}}{{else}}<img src="systems/vtm20e-kamen-edition/assets/ui/cockade.svg" alt="">{{/if}}</span>
+        <span class="r-cr-sect-sym r-cr-medal">{{#if sym}}{{rSym sym}}{{else}}<img src="{{../typeSigil}}" alt="">{{/if}}</span>
         <b>{{label}}</b>
       </a>
       {{/each}}
