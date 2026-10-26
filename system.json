@@ -2,7 +2,7 @@
   "id": "vtm20e-kamen-edition",
   "title": "Vampire: The Masquerade 20th — Kamen & Shamil Edition",
   "description": "Вампиры: Маскарад, юбилейная редакция (V20), для Foundry VTT v14. Пулы d10 со сложностью, единицы отменяют успехи, провалы, специализации и воля. Запас крови по поколению, семь уровней здоровья с лёгкими, тяжёлыми и губительными повреждениями, прочность, ярость и Ротшрек. Все Дисциплины V20 со силами 1–10, пути и ритуалы магии крови, Пути Просветления. Оформление — революционная Франция: «Liberté · Égalité · Éternité».",
-  "version": "0.15.0",
+  "version": "0.16.0",
   "compatibility": {
     "minimum": "14",
     "verified": "14"
@@ -410,7 +410,7 @@
   "background": "systems/vtm20e-kamen-edition/assets/ui/background.png",
   "url": "https://github.com/erikhonder7-cpu/vtm20e-kamen-edition",
   "manifest": "https://github.com/erikhonder7-cpu/vtm20e-kamen-edition/releases/latest/download/system.json",
-  "download": "https://github.com/erikhonder7-cpu/vtm20e-kamen-edition/releases/download/v0.15.0/vtm20e-kamen-edition.zip",
+  "download": "https://github.com/erikhonder7-cpu/vtm20e-kamen-edition/releases/download/v0.16.0/vtm20e-kamen-edition.zip",
   "packFolders": [
     {
       "name": "Vampire: The Masquerade",
