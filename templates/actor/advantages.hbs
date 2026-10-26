@@ -116,7 +116,7 @@
     </div>
     <div class="r-col">
       <h2 class="r-h2"><span>{{localize "VTM20.Infernal.Pacts"}}</span>
-        {{#if editable}}<span class="r-h2-tools"><a class="r-h2-btn" data-action="pactAdd"><i class="fa-solid fa-file-signature"></i> <span class="r-h2-lbl">{{localize "VTM20.Infernal.PactNew"}}</span></a></span>{{/if}}</h2>
+        {{#if editable}}<span class="r-h2-tools"><a class="r-h2-btn" data-action="library" data-kind="pact" data-tooltip="{{localize 'VTM20.Infernal.Templates'}}"><i class="fa-solid fa-book-skull"></i> <span class="r-h2-lbl">{{localize "VTM20.Library.Open"}}</span></a><a class="r-h2-btn is-ghost" data-action="pactAdd" data-tooltip="{{localize 'VTM20.Infernal.PactNew'}}"><i class="fa-solid fa-feather"></i></a></span>{{/if}}</h2>
       {{#each infernal.pacts}}
       <div class="r-pact {{#if broken}}is-broken{{/if}}">
         <div class="r-trait-main">

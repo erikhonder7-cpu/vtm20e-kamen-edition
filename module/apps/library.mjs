@@ -14,7 +14,7 @@ import { Codex } from "../data/codex.mjs";
 import { blockerFor } from "../data/trait-rules.mjs";
 import { weaponIcon, armorIcon, traitIcon, backgroundIcon } from "../data/icons.mjs";
 import { ritualFields } from "../data/ritual-text.mjs";
-import { investmentLimit, sealInvestment } from "./infernal.mjs";
+import { investmentLimit, sealInvestment, pactDialog } from "./infernal.mjs";
 
 const { HandlebarsApplicationMixin, ApplicationV2 } = foundry.applications.api;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -39,7 +39,7 @@ const byLevel = powers => {
   return rows;
 };
 const ICON = type => `systems/${SYSTEM_ID}/assets/icons/${type}.svg`;
-const KINDS = ["discipline", "path", "ritual", "combo", "merit", "flaw", "background", "derangement", "investment"];
+const KINDS = ["discipline", "path", "ritual", "combo", "merit", "flaw", "background", "derangement", "investment", "pact"];
 
 /** Возможные цены черты: «1 / 3» → [1, 3], «1–6» → [1…6], «2» → [2]. */
 function costsOf(m) {
@@ -132,7 +132,8 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
     const build = {
       discipline: () => this.#disciplines(), path: () => this.#paths(), ritual: () => this.#rituals(), combo: () => this.#combos(),
       merit: () => this.#traits("merit"), flaw: () => this.#traits("flaw"),
-      background: () => this.#backgrounds(), derangement: () => this.#derangements(), investment: () => this.#investments()
+      background: () => this.#backgrounds(), derangement: () => this.#derangements(), investment: () => this.#investments(),
+      pact: () => this.#pacts()
     }[kind];
     const entries = build?.() ?? [];
 
@@ -323,6 +324,18 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
     }));
   }
 
+  /** Готовые договоры (data/pact-templates.json): образцы справочника и домашние заготовки; «Взять» — диалог договора. */
+  #pacts() {
+    const mine = new Set((this.actor?.system.pacts ?? []).map(p => p.terms));
+    const W = game.i18n.localize("VTM20.Infernal.Who");
+    return (Codex["pact-templates"] ?? []).map((x, i) => this.#entry({
+      id: String(i), name: x.name, en: x.sub, has: mine.has(x.terms), text: x.html ?? "",
+      group: x.origin, groupName: L(`PactOrigin.${x.origin}`), groupOrder: x.origin === "doc" ? 0 : 1,
+      tags: [{ label: game.i18n.localize(`VTM20.Infernal.Forms.${x.form}`) }, { label: `${W}: ${L(`PactWho.${x.who}`)}` },
+        ...(x.thrall ? [{ label: game.i18n.localize("VTM20.Infernal.ThrallShort"), red: true }] : [])]
+    }));
+  }
+
   #derangements() {
     const mine = new Set(this.itemsOf("derangement").map(i => i.name));
     // id — номер в полном списке; расстройства Тёмных веков — только с настройкой «Контент из Dark Ages»
@@ -433,6 +446,11 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   static async #onTake(event, target) {
+    if (this.o.kind === "pact") {
+      const x = Codex["pact-templates"]?.[Number(target.closest("[data-entry]")?.dataset.entry)];
+      if (x && this.actor) await pactDialog(this.actor, null, x);
+      return this.render();
+    }
     const data = this.#itemFor(target);
     if (!data || !this.actor) return;
     await this.actor.createEmbeddedDocuments("Item", [data]);

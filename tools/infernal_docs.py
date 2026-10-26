@@ -5,6 +5,8 @@
 #   · data/investments.json — Вложения: восемь V20 (Rites of the Blood, раздел 7: 3 опыта, не больше постоянной Воли)
 #     и старые из книг Шабаша (раздел 11, рейтинг 1–6). Цена применения (кровь, Воля, постоянная Воля) и бросок —
 #     в COSTS по механике раздела.
+#   · data/pact-templates.json — готовые договоры для библиотеки листа: образцы раздела 15 и домашние заготовки
+#     по шкале Devil’s Due (раздел 9) — PACT_EXTRA, свои слова.
 # Запуск — из build_data.py (или сам: python -I tools/infernal_docs.py).
 
 import json
@@ -37,6 +39,92 @@ COSTS = {
     "Teleportation": {"blood": 1, "willpower": 1},
     "Turn to Toad": {"blood": 1, "willpower": 1},
 }
+
+
+# домашние заготовки договоров: кому, форма (barter | empowerment | foedus), метка слуги, дар, плата, границы, нарушение,
+# обязательство / частота / последствие по Devil’s Due (частота: 1 — каждый день … 5 — раз в месяц)
+PACT_EXTRA = [
+    {"name": "Исцеление за веру", "sub": "договор Веры для смертного", "who": "mortal", "form": "foedus", "thrall": True,
+     "terms": "Демон исцеляет болезнь или увечье — снимает недостаток вроде хромоты, хронической болезни или слепоты на один глаз.",
+     "price": "Каждый день — короткая молитва демону по имени; Вера слуги идёт хозяину по договору.",
+     "limits": "Новые раны и болезни договор не лечит; исцеление держится, пока договор в силе.",
+     "breach": "Пропущенная без причины молитва — болезнь возвращается, и слуга теряет точку Выносливости (вернуть — только опытом).",
+     "o": 1, "f": 1, "c": 4},
+    {"name": "Счастливая звезда", "sub": "удача в делах", "who": "mortal", "form": "foedus", "thrall": True,
+     "terms": "Пока договор в силе — +2 к факту биографии «Ресурсы» (не выше 5): сделки удаются, долги прощают, находятся покупатели.",
+     "price": "Раз в неделю — привести на встречу культа нового человека, который придёт по своей воле.",
+     "limits": "Деньги не защищают от закона и от тех, кого разорили; после разрыва Ресурсы падают до прежних.",
+     "breach": "Неделя без новичка по своей вине — уровень тяжёлых повреждений, не поглощаемых Выносливостью.",
+     "o": 3, "f": 3, "c": 2},
+    {"name": "Ответ из темноты", "sub": "одна правда за одну услугу", "who": "vampire", "form": "barter", "thrall": False,
+     "terms": "Демон честно отвечает на один вопрос о прошлом, о тайне или о слабости названного существа.",
+     "price": "Ответная услуга, которую демон называет сразу; выполнить до следующего новолуния.",
+     "limits": "Ответ правдив, но не обязан быть полным; о самом демоне и его хозяевах — не спрашивают.",
+     "breach": "Услуга не выполнена в срок — один заранее названный бросок проваливается сам, и это не отменить Волей.",
+     "o": 3, "f": 5, "c": 3},
+    {"name": "Чужое лицо", "sub": "месяц под маской", "who": "vampire", "form": "empowerment", "thrall": False,
+     "terms": "Лунный месяц смертные, камеры и зеркала видят вместо лица Сородича лицо, выбранное при сделке.",
+     "price": "Принести демону личную вещь своего сира и каплю его витэ.",
+     "limits": "Не обманывает Прорицание 4 и выше, истинную веру и тех, кто знает вампира по запаху или голосу.",
+     "breach": "Попытка подсунуть чужую вещь или чужую кровь — маска спадает в самый неудобный миг, и демон требует долг вдвойне.",
+     "o": 4, "f": 5, "c": 2},
+    {"name": "Падение соперника", "sub": "разрушить чужие опоры", "who": "vampire", "form": "barter", "thrall": False,
+     "terms": "За лунный месяц демон рушит смертные опоры названного врага: деньги, связи, доброе имя (два факта биографии врага −2 по выбору рассказчика).",
+     "price": "Раз в месяц — отдать убежище на одну ночь под ритуалы культа, не задавая вопросов.",
+     "limits": "Демон не убивает врага и не трогает его Дисциплины и узы; разрушенное враг может отстроить.",
+     "breach": "Не пустил культ в назначенную ночь — минус точка Характеристики, названной в договоре (вернуть — только опытом).",
+     "o": 3, "f": 5, "c": 4},
+    {"name": "Щит из бездны", "sub": "жизнь в обмен на дары", "who": "mortal", "form": "foedus", "thrall": True,
+     "terms": "Раз за сцену, когда удар грозит слуге смертью, — два лишних кубика поглощения против этого удара, и летальные, и тяжёлые.",
+     "price": "Раз в неделю — оставить в святилище демона что-то ценное: деньги, вещь, дорогую сердцу память.",
+     "limits": "Только против ударов; огонь, яд, падение и солнце договор не держит.",
+     "breach": "Неделя без дара — один заранее названный бросок проваливается сам.",
+     "o": 2, "f": 3, "c": 3},
+]
+
+
+def pact_templates(lines):
+    """Раздел 15: «## 15.N. «Название» — пояснение», поля «**Поле:** текст» → договоры для библиотеки + PACT_EXTRA."""
+    raw, cur, sec = [], None, None
+    for line in lines:
+        m = re.match(r"^##\s+15\.\d+\.\s+«(.+?)»\s+—\s+(.+)$", line)
+        if m:
+            cur = {"name": m.group(1).strip(), "sub": m.group(2).strip(), "parts": []}
+            raw.append(cur)
+            sec = None
+            continue
+        if re.match(r"^##\s", line):
+            cur = None
+            continue
+        if not cur:
+            continue
+        lm = re.match(r"^\*\*([^*]+?):\*\*\s*(.*)$", line.strip())
+        if lm:
+            sec = [lm.group(1), [lm.group(2)]]
+            cur["parts"].append(sec)
+        elif sec:
+            sec[1].append(line)
+    plain = lambda s: re.sub(r"\s+", " ", s.replace("*", "")).strip()
+    res = []
+    for c in raw:
+        f = {k: plain(" ".join(v)) for k, v in c["parts"]}
+        allt = " ".join(f.values())
+        num = lambda w: int(m.group(1)) if (m := re.search(w + r"\s+(\d)", allt)) else 0
+        model = f.get("Модель", "")
+        form = "foedus" if ("Devil" in model or "Pact" in model) else "barter"
+        res.append({"name": c["name"], "sub": c["sub"], "origin": "doc", "who": "vampire", "form": form, "thrall": False,
+                    "terms": f.get("Дар", ""), "price": f.get("Цена") or f.get("Обязательство", ""),
+                    "obligation": num("Obligation"), "frequency": num("Frequency"), "consequence": num("Consequence"),
+                    "html": "".join(f"<p><strong>{_inline(t)}:</strong> {_inline(' '.join(x.strip() for x in ls if x.strip()))}</p>"
+                                    for t, ls in c["parts"])})
+    labels = [("Дар", "terms"), ("Плата", "price"), ("Границы", "limits"), ("Нарушение", "breach")]
+    for x in PACT_EXTRA:
+        html = "".join(f"<p><strong>{t}:</strong> {x[k]}</p>" for t, k in labels) + (
+            f"<p><strong>Devil’s Due:</strong> обязательство {x['o']}, частота {x['f']}, последствие {x['c']} — рейтинг {x['o'] + x['c'] - x['f']}.</p>"
+            "<p><em>Домашняя заготовка по шкале справочника (раздел 9); рассказчик подгоняет под хронику.</em></p>")
+        res.append({"name": x["name"], "sub": x["sub"], "origin": "home", "who": x["who"], "form": x["form"], "thrall": x["thrall"],
+                    "terms": x["terms"], "price": x["price"], "obligation": x["o"], "frequency": x["f"], "consequence": x["c"], "html": html})
+    return res
 
 
 def table_html(rows):
@@ -163,10 +251,11 @@ def build():
                                   "пересказ. Вложения — отдельными предметами в компендии «Инфернальные Вложения».</p>"}] + pages}]
     by = {n: lines for n, _, lines in secs}
     inv = [finish(x) for x in investments_v20(by.get(7, []))] + [finish(x) for x in investments_sabbat(by.get(11, []))]
-    for name, obj in [("rules-infernal.json", chapter), ("investments.json", inv)]:
+    pacts = pact_templates(by.get(15, []))
+    for name, obj in [("rules-infernal.json", chapter), ("investments.json", inv), ("pact-templates.json", pacts)]:
         with open(os.path.join(OUT, name), "w", encoding="utf-8", newline="\n") as f:
             json.dump(obj, f, ensure_ascii=False, indent=1)
-    return {"pages": len(pages), "v20": sum(1 for x in inv if x["tier"] == "v20"), "sabbat": sum(1 for x in inv if x["tier"] == "sabbat")}
+    return {"pages": len(pages), "pacts": len(pacts), "v20": sum(1 for x in inv if x["tier"] == "v20"), "sabbat": sum(1 for x in inv if x["tier"] == "sabbat")}
 
 
 if __name__ == "__main__":

@@ -75,10 +75,12 @@ export async function useInvestment(actor, item) {
     t("Used", { name: esc(actor.name), inv: esc(item.name), cost: esc(parts.join(", ") || t("Free")) })}</div><div class="r-card-effect">${body}</div>` });
 }
 
-/** Договор с демоном: новый или правка (index). */
-export async function pactDialog(actor, index = null) {
+/** Договор с демоном: новый (можно по образцу из библиотеки — preset) или правка (index). */
+export async function pactDialog(actor, index = null, preset = null) {
   const list = foundry.utils.deepClone(actor.system.pacts ?? []);
-  const p = index != null ? list[index] : { demon: "", form: "empowerment", terms: "", price: "", deed: "", thrall: false, obligation: 0, frequency: 0, consequence: 0, broken: false };
+  const blank = { demon: "", form: "empowerment", terms: "", price: "", deed: "", thrall: false, obligation: 0, frequency: 0, consequence: 0, broken: false };
+  const p = index != null ? list[index] : { ...blank, ...(preset ? { form: preset.form, terms: preset.terms, price: preset.price, thrall: !!preset.thrall,
+    obligation: preset.obligation, frequency: preset.frequency, consequence: preset.consequence } : {}) };
   const sel = (name, n, max, hint) => `<label class="r-f"><span data-tooltip="${esc(hint)}">${t(name)}</span><input type="number" name="${name.toLowerCase()}" value="${n}" min="0" max="${max}"></label>`;
   const content = `<p class="r-choice-hint">${t("PactHint")}</p><div class="r-fields">
     <label class="r-f is-span2"><span>${t("Demon")}</span><input type="text" name="demon" value="${esc(p.demon)}" placeholder="${esc(t("DemonPh"))}"></label>
@@ -90,7 +92,7 @@ export async function pactDialog(actor, index = null) {
     <label class="r-check is-span2"><input type="checkbox" name="thrall" ${p.thrall ? "checked" : ""}> ${t("Thrall")}</label>
     <label class="r-check is-span2"><input type="checkbox" name="broken" ${p.broken ? "checked" : ""}> ${t("Broken")}</label></div>`;
   const v = await foundry.applications.api.DialogV2.prompt({
-    window: { title: t(index != null ? "PactEdit" : "PactNew") }, classes: ["vtm20", "r-dialog"], position: { width: 500 }, content,
+    window: { title: preset ? `${t("PactNew")}: ${preset.name}` : t(index != null ? "PactEdit" : "PactNew") }, classes: ["vtm20", "r-dialog"], position: { width: 500 }, content,
     ok: { label: t("PactSave"), callback: (ev, btn) => { const f = btn.form.elements, n = k => Math.max(0, Math.min(5, Number(f[k].value) || 0));
       return { demon: f.demon.value.trim(), form: f.form.value, terms: f.terms.value.trim(), price: f.price.value.trim(), deed: f.deed.value.trim(),
         thrall: f.thrall.checked, obligation: n("obligation"), frequency: n("frequency"), consequence: n("consequence"), broken: f.broken.checked }; } }
