@@ -139,9 +139,11 @@
         {{#each form.low}}<div class="r-trait r-form-feat">{{name}}</div>{{/each}}
       </div>
       <div class="r-form-col is-high">
-        <h4 class="r-h4">{{localize "VTM20.Demon.FormHigh"}} <small>({{form.highN}}/4)</small></h4>
+        <h4 class="r-h4">{{localize "VTM20.Demon.FormHigh"}} <small>({{form.highN}}/4)</small>{{#if form.free}} <em class="r-form-free">{{localize "VTM20.Demon.FormFree" n=form.free}}</em>{{/if}}</h4>
         {{#each form.high}}
-        {{#if (or on scene)}}<div class="r-trait r-form-feat {{#if scene}}is-scene{{/if}}">{{name}}{{#if scene}} <em>· {{localize "VTM20.Demon.SceneMark"}}</em>{{/if}}</div>
+        {{#if on}}<a class="r-trait r-form-feat is-chosen" {{#if @root.editable}}data-action="formHighPick" data-index="{{index}}" data-tooltip="{{localize 'VTM20.Demon.FormUnpick'}}"{{/if}}><b class="r-form-ord">{{order}}</b>{{name}}</a>
+        {{else if scene}}<div class="r-trait r-form-feat is-scene">{{name}} <em>· {{localize "VTM20.Demon.SceneMark"}}</em></div>
+        {{else if pick}}<a class="r-trait r-form-feat is-pick" {{#if @root.editable}}data-action="formHighPick" data-index="{{index}}" data-tooltip="{{localize 'VTM20.Demon.FormPick'}}"{{/if}}><i class="fa-solid fa-plus"></i> {{name}}</a>
         {{else}}<a class="r-trait r-form-feat is-off" {{#if ../form.on}}data-action="sceneHigh" data-index="{{index}}" data-tooltip="{{localize 'VTM20.Demon.SceneHighHint'}}"{{/if}}>{{name}}</a>{{/if}}
         {{/each}}
       </div>

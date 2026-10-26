@@ -126,6 +126,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       addHouseLores: VtMActorSheet.#onAddHouseLores,
       apocalyptic: VtMActorSheet.#onApocalyptic,
       sceneHigh: VtMActorSheet.#onSceneHigh,
+      formHighPick: VtMActorSheet.#onFormHighPick,
       faithHeal: VtMActorSheet.#onFaithHeal,
       harvestFaith: VtMActorSheet.#onHarvest,
       innate: VtMActorSheet.#onInnate,
@@ -611,7 +612,14 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     ctx.form = form ? {
       visage: Codex.house(s.house)?.visages?.[s.visage] ?? "", lore: lore.name, on: !!s.apocalyptic, highN,
       low: form.low.map(name => ({ name })),
-      high: form.high.map((name, i) => ({ name, index: i, on: i < highN, scene: (a.getFlag(SYSTEM_ID, "formScene") ?? []).includes(i) && i >= highN }))
+      // черты высокой Муки игрок выбирает сам (гл. 7): флаг formHigh — индексы в порядке выбора; действуют первые highN,
+      // при падении Муки уходит выбранная последней; свободный слот — щелчок по черте
+      ...(() => {
+        const picked = (a.getFlag(SYSTEM_ID, "formHigh") ?? []).filter(i => i < form.high.length), active = picked.slice(0, highN);
+        const scene = a.getFlag(SYSTEM_ID, "formScene") ?? [], free = highN - active.length;
+        return { free, high: form.high.map((name, i) => ({ name, index: i, on: active.includes(i), order: active.indexOf(i) + 1,
+          scene: scene.includes(i) && !active.includes(i), pick: free > 0 && !active.includes(i) })) };
+      })()
     } : null;
   }
 
@@ -1107,6 +1115,12 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   /** Принять апокалиптическую форму — 1 пункт временной Веры (гл. 7); сбросить — даром. */
   static #onApocalyptic() { return assumeForm(this.actor); }
   static #onSceneHigh(event, target) { return sceneHighFeature(this.actor, Number(target.dataset.index)); }
+  /** Выбрать черту высокой Муки в свободный слот или снять уже выбранную (снимается и всё, что выбрано после неё). */
+  static async #onFormHighPick(event, target) {
+    const i = Number(target.dataset.index), list = [...(this.actor.getFlag(SYSTEM_ID, "formHigh") ?? [])];
+    const at = list.indexOf(i);
+    return this.actor.setFlag(SYSTEM_ID, "formHigh", at >= 0 ? list.slice(0, at) : [...list, i]);
+  }
   static #onFaithHeal() { return this.actor.faithHeal(); }
   static #onHarvest() { return harvestFaith(this.actor); }
   static #onInnate(event, target) { return innateRoll(this.actor, target.dataset.kind); }

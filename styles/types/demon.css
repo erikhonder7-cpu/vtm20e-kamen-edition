@@ -341,3 +341,13 @@ body.r-theme-light .vtm20.r-type-demon {
 .vtm20 .r-rite-sheet .r-rite-facts { margin: 0; }
 .vtm20 .r-rite-need { margin: 0; font-size: 12.5px; font-style: italic; color: var(--r-muted); }
 @container rsheet (max-width: 640px) { .vtm20 .r-rite-track { display: none; } .vtm20 .r-rite-body { padding-left: 14px; } }
+
+/* выбор черт высокой Муки */
+.vtm20 .r-form-col.is-high .r-form-feat.is-chosen { color: var(--r-accent); cursor: pointer; }
+.vtm20 .r-form-ord { display: inline-grid; place-items: center; width: 16px; height: 16px; margin-right: 6px; font-family: var(--r-display); font-weight: 400; font-size: 10.5px;
+  color: #1a1206; background: #d4a04c; transform: rotate(45deg); }
+.vtm20 .r-form-ord { transform: none; clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
+.vtm20 .r-form-col.is-high .r-form-feat.is-pick { color: var(--r-ink-2); border-bottom-style: dashed; cursor: pointer; }
+.vtm20 .r-form-col.is-high .r-form-feat.is-pick i { font-size: 10px; color: #d4a04c; }
+.vtm20 .r-form-col.is-high .r-form-feat.is-pick:hover { color: #f0c46a; }
+.vtm20 .r-form-free { font-family: var(--r-body); font-style: italic; text-transform: none; letter-spacing: 0; color: #e08a3a; }
