@@ -162,6 +162,8 @@
           {{#each house.visages}}<a class="r-cr-disc-chip is-choice {{#if active}}is-active{{/if}}" data-action="visage" data-visage="{{key}}" data-tooltip="{{#each low}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}"><b>{{name}}</b>&nbsp;· {{lore}}</a>{{/each}}
         </div>
         <a class="r-cr-clan-more" data-action="houseAtlas"><i class="fa-solid fa-book-open"></i> {{localize "VTM20.Demon.Atlas"}}</a>
+        {{#if st.earthbound}}<div class="r-cr-discrow" data-tooltip="{{localize 'VTM20.Creator.ReliquaryHint'}}"><span class="r-kicker">{{localize "VTM20.Demon.Reliquary"}}</span>
+          {{#each reliquaryKinds}}<a class="r-cr-disc-chip is-choice {{#if active}}is-active{{/if}}" data-action="reliquary" data-kind="{{value}}" data-tooltip="{{hint}}">{{label}}</a>{{/each}}</div>{{/if}}
         <a class="r-cr-clan-more {{#if st.earthbound}}is-active{{/if}}" data-action="earthbound" data-tooltip="{{localize 'VTM20.Creator.EarthboundHint'}}"><i class="fa-solid {{#if st.earthbound}}fa-gem{{else}}fa-link-slash{{/if}}"></i> {{localize "VTM20.Creator.Earthbound"}}</a>
       </div>
     </div>

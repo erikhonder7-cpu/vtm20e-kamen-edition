@@ -85,7 +85,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     actions: {
       goto: VtMCreator.#onGoto, next: VtMCreator.#onNext, prev: VtMCreator.#onPrev,
       tier: VtMCreator.#onTier, sect: VtMCreator.#onSect, clan: VtMCreator.#onClan, clanGroup: VtMCreator.#onClanGroup,
-      house: VtMCreator.#onHouse, earthbound: VtMCreator.#onEarthbound, visage: VtMCreator.#onVisage, faction: VtMCreator.#onFaction, houseAtlas: VtMCreator.#onHouseAtlas,
+      house: VtMCreator.#onHouse, earthbound: VtMCreator.#onEarthbound, reliquary: VtMCreator.#onReliquary, visage: VtMCreator.#onVisage, faction: VtMCreator.#onFaction, houseAtlas: VtMCreator.#onHouseAtlas,
       gen: VtMCreator.#onGen, choice: VtMCreator.#onChoice, clanAtlas: VtMCreator.#onClanAtlas,
       dot: VtMCreator.#onDot, prio: VtMCreator.#onPrio,
       bgToggle: VtMCreator.#onBgToggle, mfToggle: VtMCreator.#onMfToggle, mfTab: VtMCreator.#onMfTab, mfCat: VtMCreator.#onMfCat,
@@ -172,7 +172,8 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
   /** Клановые Дисциплины; null — любые (каитиф, пандеры, гуль). */
   get clanDisciplines() {
     if (this.type === "ghoul") return null;
-    if (this.isDemon) return [...(this.houseData?.lores ?? []), ...(Codex.demon?.common ?? [])];   // Знания Дома и общие
+    if (this.isDemon) return [...(this.houseData?.lores ?? []), ...(Codex.demon?.common ?? []),        // Знания Дома и общие
+      ...(this.isEarthbound ? Codex.lores.filter(l => l.dark).map(l => l.key) : [])];                     // Привязанному — и Тёмные
     const c = this.clanData;
     if (!c || !c.disciplines.length) return null;
     return [...c.disciplines, ...(c.choice?.includes(this.st.clanChoice) ? [this.st.clanChoice] : [])];
@@ -227,6 +228,12 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     let total = 0;
     for (let i = 0; i < n; i++) {
       const c = from + i;
+      if (this.isEarthbound) {
+        const L = Codex.lore(k), near = kind === "disc" && (this.inClan(k) && !L?.dark);
+        total += kind === "attr" ? c * 5 : kind === "abil" ? (c === 0 ? 4 : c * 3) : kind === "disc" ? (c === 0 ? (near ? 6 : 8) : c * 4)
+          : kind === "bg" ? Math.max(1, c) * 4 : kind === "virt" ? c * 2 : kind === "morality" ? c * 6 : kind === "will" ? c : 0;
+        continue;
+      }
       if (kind === "attr") total += c * 4;
       else if (kind === "abil") total += c === 0 ? 3 : c * 2;
       else if (kind === "disc" && this.isDemon) total += c === 0 ? (this.inClan(k) ? 7 : 10) : c * 5;   // гл. 6
@@ -291,6 +298,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       if (this.bannedDisc(k) && this.value("disc", k) > this.base("disc", k)) out.push(t("Creator.SectBanned", { name: Codex.disciplineLabel(k) }));
     if (this.type === "vampire" && this.clanData?.choice?.length && !this.st.clanChoice) out.push(t("Creator.NeedChoice"));
     if (this.isDemon && !this.st.visage) out.push(t("Creator.NeedVisage"));
+    if (this.isEarthbound && this.value("bg", "Поклонение") > 0 && this.value("bg", "Культ") < 1) out.push(t("Creator.WorshipNeedsCult"));
     for (const c of this.traitIssues) out.push(t(`Creator.Trait${c.key}`, c.data));
     return out;
   }
@@ -363,7 +371,10 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     if (this.isDemon) Object.assign(ctx.patent, { clan: this.houseData?.name ?? "", sect: Codex.faction(st.faction)?.name ?? "", sectSym: null });
 
     // I. Концепция и возраст
-    ctx.archetypes = Codex.archetypes;
+    // Привязанному чужды архетипы человеческих надежд (Earthbound, гл. 3)
+    const EB_NO = ["Бонвиван", "Опекун", "Ребёнок", "Конформист", "Щёголь", "Мученик", "Кающийся грешник", "Искатель удовольствий"];
+    ctx.reliquaryKinds = ["ideal", "improvised", "natural"].map(k => ({ value: k, label: t(`Demon.ReliquaryKind.${k}`), hint: t(`Demon.ReliquaryHint.${k}`), active: (st.reliquary || "ideal") === k }));
+    ctx.archetypes = this.isEarthbound ? Codex.archetypes.filter(a => !EB_NO.includes(a.name)) : Codex.archetypes;
     ctx.natureRegain = Codex.archetypes.find(a => a.name === st.nature)?.regain ?? "";
     ctx.demeanorRegain = Codex.archetypes.find(a => a.name === st.demeanor)?.regain ?? "";
     // у гуля «срок службы» вместо возраста в Крови — опыт тот же
@@ -610,6 +621,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
   }
   static #onVisage(event, target) { this.st.visage = target.dataset.visage; this.render(); }
   static #onEarthbound() { this.st.earthbound = !this.st.earthbound; this.render(); }
+  static #onReliquary(event, target) { this.st.reliquary = target.dataset.kind; this.render(); }
   static #onFaction(event, target) { this.st.faction = this.st.faction === target.dataset.faction ? "" : target.dataset.faction; this.render(); }
   static #onHouseAtlas() { return openHouses(this.st.house); }
   static #onClanGroup(event, target) { this.ui.clanGroup = target.dataset.group; this.render(); }
@@ -633,6 +645,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     const { kind, key } = target.dataset;
     const n = Number(target.dataset.n);
     const st = this.st;
+    if (kind === "disc" && this.isEarthbound && Codex.lore(key)?.dark) { ui.notifications.warn(t("Creator.DarkFreeOnly")); return; }
     const store = kind === "attr" ? st.attr : kind === "abil" ? st.abil : kind === "disc" ? st.disc : kind === "bg" ? st.bg : st.virt;
     const base = this.base(kind, key);
     const extra = (st.free[kind]?.[key] ?? 0) + (st.xp[kind]?.[key] ?? 0);
@@ -763,7 +776,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
         faith: { permanent: this.morality, temporary: this.morality },
         torment: { permanent: this.houseData?.torment ?? 3, temporary: 0 }, apocalyptic: false });
       // Привязанный: Мука 10, Добродетелей нет — их точки стали Потребностями
-      if (this.isEarthbound) Object.assign(sys, { earthbound: true, torment: { permanent: 10, temporary: 0 },
+      if (this.isEarthbound) Object.assign(sys, { earthbound: true, torment: { permanent: 10, temporary: 0 }, reliquary: { kind: st.reliquary || "ideal", faith: 0 },
         urges: { flesh: this.value("virt", "conscience"), thought: this.value("virt", "selfControl"), emotion: this.value("virt", "courage") },
         virtues: { conscience: { value: 0 }, selfControl: { value: 0 }, courage: { value: 0 } } });
     }
