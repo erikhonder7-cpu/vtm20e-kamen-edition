@@ -298,13 +298,19 @@ BUILDERS["demon-lores"] = function () {
   const dm = data("demon");
   const houseName = Object.fromEntries(dm.houses.map(h => [h.key, h.name]));
   const pool = r => r ? `${r.trait1.split(".")[1]} + ${r.trait2.split(".")[1]}, сл. ${r.difficulty}` : "по книге";
-  for (const l of dm.lores) {
+  const eb = data("demon-earthbound");
+  for (const l of [...dm.lores, ...eb.lores]) {
     const rows = l.powers.map(x => `<tr><td>${ROMAN_LV[x.level - 1]}</td><td>${esc(x.name)}</td><td>${esc(pool(x.roll))}</td><td>с. ${x.page}</td></tr>`).join("");
     const form = l.form ? `<h3>Апокалиптическая форма</h3><p><strong>При низкой Муке:</strong> ${l.form.low.map(esc).join(", ")}.</p>`
       + `<p><strong>При высокой Муке</strong> (с 7-й Муки — по одной за точку): ${l.form.high.map(esc).join(", ")}.</p>` : "";
-    const description = `<p><em>${esc(l.en)} · Demon: The Fallen, с. ${l.page}.</em></p><h3>Призывы</h3>`
+    const description = l.dark
+      ? `<p><em>${esc(l.en)} · Earthbound.</em></p><p>${esc(l.text)}</p><p><strong>${esc(eb.darkNote)}</strong></p>`
+        + `<h3>Призывы</h3><table><thead><tr><th>Круг</th><th>Призыв</th><th>Бросок</th></tr></thead><tbody>`
+        + l.powers.map(x => `<tr><td>${ROMAN_LV[x.level - 1]}</td><td>${esc(x.name)}</td><td>${esc(pool(x.roll))}</td></tr>`).join("") + `</tbody></table>`
+        + l.powers.map(x => `<h3>${ROMAN_LV[x.level - 1]}. ${esc(x.name)}</h3>${x.html}`).join("")
+      : `<p><em>${esc(l.en)} · Demon: The Fallen, с. ${l.page}.</em></p><h3>Призывы</h3>`
       + `<table><thead><tr><th>Круг</th><th>Призыв</th><th>Бросок</th><th>Книга</th></tr></thead><tbody>${rows}</tbody></table>${form}`;
-    p.add({ name: l.name, type: "lore", folder: l.house ? houseName[l.house] : "Общие Знания", key: `lore:${l.key}`, img: ICON("discipline"),
+    p.add({ name: l.name, type: "lore", folder: l.dark ? "Привязанные к Земле" : l.house ? houseName[l.house] : "Общие Знания", key: `lore:${l.key}`, img: ICON("discipline"),
       system: { key: l.key, value: 1, source: l.en, description } });
   }
   return p;
@@ -329,7 +335,7 @@ BUILDERS["demon-houses"] = function () {
 };
 
 /** Ритуалы и реликвии падших — пересказ: «Дома Падших» (data/demon-hof.json) и Demon Players Guide (data/demon-pg.json). */
-const HOF = "Houses of the Fallen", PG = "Demon Players Guide";
+const HOF = "Houses of the Fallen", PG = "Demon Players Guide", EB = "Earthbound";
 const dots = n => "•".repeat(n);
 function hofHouses() {
   const dm = data("demon"), hof = data("demon-hof").houses;
@@ -364,6 +370,8 @@ BUILDERS["demon-rituals"] = function () {
     for (const r of pg[h.key] ?? []) add(r, PG, h.key, h.name, `ritual:pg:${h.key}:${r.name}`);
   }
   for (const r of pg.bastions ?? []) add(r, PG, "bastion", "Бастионы", `ritual:pg:bastion:${r.name}`);
+  const eb = data("demon-earthbound");
+  for (const r of eb.rituals) add({ ...r, text: `${r.text} ${eb.ritualNote}` }, EB, "earthbound", "Привязанные к Земле", `ritual:eb:${r.name}`);
   return p;
 };
 /** Реликвии падших предметами (тип relic): реликвии Домов («Дома Падших») и «Арсенал Бездны» Players Guide. */
@@ -377,13 +385,16 @@ BUILDERS["demon-relics"] = function () {
   // «Арсенал Бездны»: улучшенные и зачарованные предметы — шаблоны для любого падшего; древние чудеса
   const TYPE = { enhanced: "Улучшенные предметы", enchanted: "Зачарованные предметы", ancient: "Позабытые чудеса" };
   for (const r of data("demon-pg").relics) add(r, PG, r.type, "", TYPE[r.type], `relic:pg:${r.name}`);
+  // артефакты Привязанных к Земле (Earthbound, гл. 4)
+  const eb = data("demon-earthbound");
+  for (const r of eb.relics) add({ ...r, system: `${r.system} ${eb.relicNote}` }, EB, r.type, "earthbound", "Привязанные к Земле", `relic:eb:${r.name}`);
   return p;
 };
 
 /** Правила падших (Demon: The Fallen, гл. 6, 7, 9; Earthbound) — своими словами: data/demon-rules.json. */
 BUILDERS["demon-rules"] = function () {
   const p = new Pack("demon-rules", "JournalEntry");
-  for (const ch of data("demon-rules")) {
+  for (const ch of [...data("demon-rules"), data("demon-earthbound").rules]) {
     const pages = ch.key === "pg-form" ? [...ch.pages, ...formCatalogPages()] : ch.pages;
     p.addBook({ name: ch.name, pages, key: `demon-rules:${ch.key}` });
   }
@@ -423,6 +434,9 @@ BUILDERS["demon-backgrounds"] = function () {
   for (const b of data("demon-backgrounds"))
     p.add({ name: b.name, type: "background", key: `demon:bg:${b.name}`, img: backgroundIcon(b.en) ?? undefined,
       system: { value: 1, source: b.en, description: `${b.html}<p><em>${b.source}, с. ${b.page}</em></p>` } });
+  for (const b of data("demon-earthbound").backgrounds)
+    p.add({ name: b.name, type: "background", folder: "Привязанные к Земле", key: `demon:bg:eb:${b.name}`, img: backgroundIcon(b.en) ?? undefined,
+      system: { value: 1, source: b.en, description: `${b.html}<p><em>Earthbound</em></p>` } });
   return p;
 };
 

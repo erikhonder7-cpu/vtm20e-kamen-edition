@@ -268,8 +268,12 @@ export async function ritualTurn(actor, item) {
 export function ritualEffect(actor, item) {
   const s = item.system, r = s.roll ?? {};
   if (!r.trait1) return ui.notifications.info(t("RitualNoRoll", { roll: s.rollText || "—" }));
+  // ритуал Привязанных (Earthbound, гл. 4): варианта низкой Муки нет, падший-участник получает 1 временную Муку
+  const dark = s.house === "earthbound";
   return RollDialog.prompt(actor, { title: item.name, subtitle: t("RitualEffect"), trait1: r.trait1, trait2: r.trait2, difficulty: r.difficulty || 6,
-    effect: s.description + (s.high ? `<p><b>${game.i18n.localize("VTM20.DRitual.High")}:</b> ${esc(s.high)}</p>` : ""), extra: { torment: actor.system.torment.permanent } });
+    effect: s.description + (s.high ? `<p><b>${game.i18n.localize("VTM20.DRitual.High")}:</b> ${esc(s.high)}</p>` : ""),
+    extra: { torment: dark ? 10 : actor.system.torment.permanent },
+    ...(dark && !actor.system.earthbound ? { onRolled: () => gainTorment(actor, 1, t("DarkRitualReason")) } : {}) });
 }
 
 /** Кнопка карточки призыва: взять эффект высокой Муки ценой пункта временной Муки. */

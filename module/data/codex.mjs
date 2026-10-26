@@ -5,7 +5,7 @@
 
 import { SYSTEM_PATH, SYSTEM_ID } from "../config.mjs";
 
-const FILES = ["disciplines", "clans", "rituals", "paths", "merits", "merits-ghouls", "backgrounds", "archetypes", "assets", "derangements", "combos", "abilities", "demon", "demon-merits", "demon-backgrounds", "demon-hof", "demon-pg"];
+const FILES = ["disciplines", "clans", "rituals", "paths", "merits", "merits-ghouls", "backgrounds", "archetypes", "assets", "derangements", "combos", "abilities", "demon", "demon-merits", "demon-backgrounds", "demon-hof", "demon-pg", "demon-earthbound"];
 
 /** Чей герб показывать линии крови, ветви или антитрибу, если своего нет. */
 const CLAN_SYMBOL_PARENT = {
@@ -62,12 +62,13 @@ export const Codex = {
     this.merits = [...this.merits, ...(this["merits-ghouls"] ?? []).map(m => ({ ...m, ghoul: true }))];
     // черты и Дополнения демонов — своей линией (VTM20.traitLine) в самом конце, по той же причине
     this.merits = [...this.merits, ...(this["demon-merits"] ?? []).map(m => ({ ...m, line: "demon" }))];
-    this.backgrounds = [...this.backgrounds, ...(this["demon-backgrounds"] ?? []).map(b => ({ ...b, line: "demon" }))];
+    this.backgrounds = [...this.backgrounds, ...[...(this["demon-backgrounds"] ?? []), ...(this["demon-earthbound"]?.backgrounds ?? [])].map(b => ({ ...b, line: "demon" }))];
     this.clanByKey = Object.fromEntries(this.clans.map(c => [c.key, c]));
     this.pathByKey = Object.fromEntries(this.paths.map(p => [p.key, p]));
     // демоны (data/demon.json) — свой справочник: Знания не смешиваются с Дисциплинами вампиров
     const dm = this.demon ?? {};
-    this.loreByKey = Object.fromEntries((dm.lores ?? []).map(l => [l.key, l]));
+    // Тёмные Знания Привязанных к Земле (data/demon-earthbound.json) — в конце, с пометкой dark
+    this.loreByKey = Object.fromEntries(this.lores.map(l => [l.key, l]));
     this.houseByKey = Object.fromEntries((dm.houses ?? []).map(h => [h.key, h]));
     this.factionByKey = Object.fromEntries((dm.factions ?? []).map(f => [f.key, f]));
   },
@@ -80,7 +81,9 @@ export const Codex = {
   /** Ритуалы Дома по Demon Players Guide (data/demon-pg.json — пересказ). */
   pgRituals(key) { return this["demon-pg"]?.rituals?.[key] ?? []; },
   faction(key) { return this.factionByKey?.[key] ?? null; },
-  get lores() { return this.demon?.lores ?? []; },
+  get lores() { return [...(this.demon?.lores ?? []), ...(this["demon-earthbound"]?.lores ?? [])]; },
+  /** «Привязанные к Земле» (data/demon-earthbound.json — пересказ). */
+  get earthbound() { return this["demon-earthbound"] ?? null; },
   get houses() { return this.demon?.houses ?? []; },
   get factions() { return this.demon?.factions ?? []; },
 

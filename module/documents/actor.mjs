@@ -448,13 +448,15 @@ export class VtMActor extends Actor {
       case "virtue": return X.virtue(current);
       case "morality": return X.morality(current);
       case "willpower": return X.willpower(current);
-      // Demon: The Fallen, гл. 6: новое Знание 7 (чужого Дома 10), Знание × 5, Вера × 7
+      // Demon: The Fallen, гл. 6: новое Знание 7 (чужого Дома и Тёмное — 10), Знание × 5, Вера × 7.
+      // Привязанные к Земле (Earthbound, гл. 3): новое 6 (чужого Дома 8), Знание × 4, Вера × 6
       case "lore": {
-        if (current) return current * 5;
-        const own = Codex.house(this.system.house)?.lores ?? [];
-        return own.includes(extra.key) || (Codex.lore(extra.key) && !Codex.lore(extra.key).house) ? 7 : 10;
+        const eb = !!this.system.earthbound, L = Codex.lore(extra.key);
+        if (current) return current * (eb ? 4 : 5);
+        const near = (Codex.house(this.system.house)?.lores ?? []).includes(extra.key) || (L && !L.house && (!L.dark || eb));
+        return eb ? (near ? 6 : 8) : (near ? 7 : 10);
       }
-      case "faith": return current * 7;
+      case "faith": return current * (this.system.earthbound ? 6 : 7);
       default: return null;
     }
   }

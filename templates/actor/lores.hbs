@@ -7,6 +7,7 @@
       {{#if editable}}
       {{#if missingHouse}}<a class="r-h2-btn" data-action="addHouseLores" data-tooltip="{{localize 'VTM20.Demon.AddHouseLoresHint'}}"><i class="fa-solid fa-fire-flame-curved"></i> <span class="r-h2-lbl">{{localize "VTM20.Demon.AddHouseLores"}}</span></a>{{/if}}
       <a class="r-h2-btn" data-action="addLore" data-tooltip="{{localize 'VTM20.Demon.AddLore'}}"><i class="fa-solid fa-plus"></i> <span class="r-h2-lbl">{{localize "VTM20.Demon.AddLore"}}</span></a>
+      <a class="r-h2-btn is-plain {{#if earthbound}}is-on{{/if}}" data-action="toggleEarthbound" data-tooltip="{{localize 'VTM20.Demon.EarthboundTip'}}"><i class="fa-solid {{#if earthbound}}fa-gem{{else}}fa-link-slash{{/if}}"></i> <span class="r-h2-lbl">{{localize "VTM20.Demon.Earthbound"}}</span></a>
       {{/if}}
     </span>
   </h2>
@@ -14,7 +15,7 @@
   {{#each lores}}
   <article class="r-row-wrap r-disc {{#if open}}is-open{{/if}} {{#if own}}is-clan{{/if}}" data-item-id="{{id}}">
     <header class="r-disc-head">
-      <span class="r-disc-sigil"><i class="fa-solid {{#if common}}fa-book{{else}}fa-fire-flame-curved{{/if}}"></i></span>
+      <span class="r-disc-sigil"><i class="fa-solid {{#if dark}}fa-skull{{else if common}}fa-book{{else}}fa-fire-flame-curved{{/if}}"></i></span>
       <div class="r-disc-title">
         <a class="r-disc-name" data-action="toggleRow" data-row-id="{{id}}">{{name}}</a>
         <span class="r-disc-sub">{{#if en}}{{en}} · {{/if}}{{houseName}}{{#if own}}{{#unless common}} · <b>{{localize "VTM20.Demon.OwnHouse"}}</b>{{/unless}}{{/if}}</span>

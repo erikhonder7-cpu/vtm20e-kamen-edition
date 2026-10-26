@@ -40,7 +40,7 @@ import { coteriesOf, poolValue, openCoterie } from "../apps/coterie.mjs";
 import { itemCardHTML } from "../chat/item-card.mjs";
 import { themeClass } from "../ui/themes.mjs";
 import { openHouses } from "../apps/houses.mjs";
-import { virtuePrompt, atoneWithXp, assumeForm, sceneHighFeature, harvestFaith, pactFaith, innateRoll, ritualTurn, ritualEffect, ritualNeed, suggestSin, revelation } from "../apps/torment.mjs";
+import { virtuePrompt, atoneWithXp, assumeForm, sceneHighFeature, harvestFaith, pactFaith, innateRoll, ritualTurn, ritualEffect, ritualNeed, suggestSin, revelation, gainTorment } from "../apps/torment.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -118,6 +118,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       powerToChat: VtMActorSheet.#onPowerToChat,
       rollPower: VtMActorSheet.#onRollPower,
       addLore: VtMActorSheet.#onAddLore,
+      toggleEarthbound: VtMActorSheet.#onToggleEarthbound,
       houseAtlas: VtMActorSheet.#onHouseAtlas,
       tormentSin: VtMActorSheet.#onTormentSin,
       sinSuggest: VtMActorSheet.#onSinSuggest,
@@ -578,13 +579,14 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       const next = data?.powers?.find(p => p.level === v + 1);
       const house = data?.house ? Codex.house(data.house) : null;
       return {
-        id: it.id, key: k, name: data?.name ?? it.name, en: data?.en ?? "", value: v, own: own.includes(k), common: !data?.house,
-        houseName: house?.name ?? t("Demon.Common"), dots: dots(v, 5, { path: "system.value", itemId: it.id }),
+        id: it.id, key: k, name: data?.name ?? it.name, en: data?.en ?? "", value: v, own: own.includes(k), common: !data?.house && !data?.dark, dark: !!data?.dark,
+        houseName: data?.dark ? t("Demon.DarkLore") : house?.name ?? t("Demon.Common"), dots: dots(v, 5, { path: "system.value", itemId: it.id }),
         powers, nextPower: next ? { name: next.name, level: next.level } : null,
         xp: a.xpCost("lore", v, { key: k }), open: this._open.has(it.id)
       };
     }).sort((x, y) => (y.own - x.own) || (y.common - x.common) || x.name.localeCompare(y.name, "ru"));
     ctx.allOpen = ctx.lores.length > 0 && ctx.lores.every(l => l.open);
+    ctx.earthbound = !!s.earthbound;
     const have = new Set(ctx.lores.map(l => l.key));
     ctx.missingHouse = own.some(k => !have.has(k));
     // Апокалиптическая форма (гл. 7): черты Облика; при Муке 7+ — по черте высокой Муки за каждый пункт сверх 6
@@ -1089,19 +1091,22 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const a = this.actor, have = new Set(a.items.filter(i => i.type === "lore").map(i => i.system.key));
     const own = Codex.house(a.system.house)?.lores ?? [];
     const opt = l => `<option value="${l.key}">${foundry.utils.escapeHTML(l.name)}</option>`;
-    const free = Codex.lores.filter(l => !have.has(l.key));
-    const mine = free.filter(l => !l.house || own.includes(l.key)), other = free.filter(l => !mine.includes(l));
+    const free = Codex.lores.filter(l => !have.has(l.key)), dark = free.filter(l => l.dark);
+    const mine = free.filter(l => !l.dark && (!l.house || own.includes(l.key))), other = free.filter(l => !l.dark && !mine.includes(l));
     if (!free.length) return;
     const key = await foundry.applications.api.DialogV2.prompt({
       window: { title: t("Demon.AddLore") }, position: { width: 380 }, classes: ["vtm20", "r-dialog"],
       content: `<label class="r-f"><span>${t("Demon.Lore")}</span><select name="lore">
         ${mine.length ? `<optgroup label="${t("Demon.OwnLores")}">${mine.map(opt).join("")}</optgroup>` : ""}
-        ${other.length ? `<optgroup label="${t("Demon.OtherLores")}">${other.map(opt).join("")}</optgroup>` : ""}</select></label>`,
+        ${other.length ? `<optgroup label="${t("Demon.OtherLores")}">${other.map(opt).join("")}</optgroup>` : ""}
+        ${dark.length ? `<optgroup label="${t(a.system.earthbound ? "Demon.DarkLoresOwn" : "Demon.DarkLores")}">${dark.map(opt).join("")}</optgroup>` : ""}</select></label>`,
       ok: { label: t("Demon.AddLore"), callback: (ev, btn) => btn.form.elements.lore.value }
     }).catch(() => null);
     if (key) return createLore(a, [key]);
   }
 
+  /** Привязанный к Земле (Earthbound): Тёмные Знания и ритуалы Привязанных без Муки, свой опыт. */
+  static #onToggleEarthbound() { return this.actor.update({ "system.earthbound": !this.actor.system.earthbound }); }
   static #onHouseAtlas() { return openHouses(this.actor.system.house); }
   static #onTormentSin() { return virtuePrompt(this.actor, "sin"); }
   static #onSinSuggest() { return suggestSin(this.actor); }
@@ -1424,13 +1429,14 @@ export function rollRitual(actor, item) {
 }
 
 /** Бросок по записи силы или ритуала: пул из книги, сложность, цена кровью или волей. */
-function rollFromSpec(actor, r, { title, subtitle, effect, kind = "check", magic = null, power = null, torment = null }) {
+function rollFromSpec(actor, r, { title, subtitle, effect, kind = "check", magic = null, power = null, torment = null, onRolled = null }) {
   return RollDialog.prompt(actor, {
     title, subtitle, trait1: r.trait1 ?? "", trait2: r.trait2 ?? "",
     difficulty: r.difficulty || VTM20.defaultDifficulty, bloodCost: r.blood ?? 0, willpowerCost: !!r.willpower,
     diffNote: r.note ?? "", effect, kind, baseAttr: !!r.base,
     ...(r.dice ? { pool: r.dice, lockTraits: true, breakdown: [{ label: t("Magic.FixedPool"), value: r.dice }] } : {}),
-    extra: { ...(magic ? { magic } : {}), ...(power ? { power } : {}), ...(torment != null ? { torment } : {}) }
+    extra: { ...(magic ? { magic } : {}), ...(power ? { power } : {}), ...(torment != null ? { torment } : {}) },
+    ...(onRolled ? { onRolled } : {})
   });
 }
 
@@ -1439,8 +1445,10 @@ export function rollPowerRef(actor, ref) {
   const x = powerByRef(ref);
   if (!x) return;
   const { disc, d, p, pathName } = x, magic = VTM20.pathDisciplines.includes(disc);
+  // Тёмные Знания (Earthbound): эффекта низкой Муки нет; падший платит 1 временной Мукой за каждое применение
   if (disc.startsWith("lore:")) return rollFromSpec(actor, p.roll ?? {}, { title: p.name, subtitle: `${d.name} · ${ROMAN[p.level - 1]}`, effect: p.html,
-    torment: actor.system.torment?.permanent ?? 0, power: { disc, level: p.level, name: p.name } });
+    torment: d.dark ? 10 : actor.system.torment?.permanent ?? 0, power: { disc, level: p.level, name: p.name },
+    onRolled: d.dark && actor.type === "demon" && !actor.system.earthbound ? () => gainTorment(actor, 1, t("Demon.DarkReason")) : null });
   return rollFromSpec(actor, p.roll ?? {}, { title: p.name, subtitle: `${pathName || d.name} · ${ROMAN[p.level - 1] ?? p.level}`, effect: p.html,
     kind: magic ? "magic" : "check", magic: magic ? { disc, level: p.level, path: pathName } : null,
     power: { disc, level: p.level, path: pathName, name: p.name } });

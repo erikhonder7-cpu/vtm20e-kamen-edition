@@ -255,7 +255,8 @@ export class DemonData extends BaseActorData {
       names: new SchemaField({ celestial: str(), trueName: str() }),
       faith: new SchemaField({ permanent: int(3, 0, 10), temporary: int(3, 0, 10) }),
       torment: new SchemaField({ permanent: int(3, 0, 10), temporary: int(0, 0, 10) }),
-      apocalyptic: new BooleanField({ initial: false })
+      apocalyptic: new BooleanField({ initial: false }),
+      earthbound: new BooleanField({ initial: false })   // Привязанный к Земле (Earthbound): Тёмные Знания и ритуалы без Муки, свой опыт
     };
   }
 
