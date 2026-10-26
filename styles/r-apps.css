@@ -1027,9 +1027,9 @@ body.r-theme-light .vtm20 .r-ng-item.is-active, body.r-theme-light .vtm20 .r-ng-
 .vtm20 .r-ho-paper.is-gazette .r-ho-foot { min-height: 0; }
 
 /* Мастер: слуга падшего — шаг «Танец с Дьяволом» (блок .r-cr-eb — в styles/types/earthbound.css) */
-.vtm20 .r-cr-eb.is-thrall.is-on { border-color: rgba(212, 160, 76, .45); box-shadow: inset 2px 0 0 #b07024;
-  background: radial-gradient(ellipse 90% 120% at 50% 120%, rgba(180, 101, 31, .12), transparent 70%), var(--r-card-bg); }
-.vtm20 .r-cr-eb.is-thrall.is-on .r-cr-eb-sym { color: #f0c46a; border-color: rgba(212, 160, 76, .55); box-shadow: 0 0 12px rgba(212, 160, 76, .25); background: none; }
+.vtm20 .r-cr-eb.is-thrall.is-on { border-color: var(--r-line-2); box-shadow: inset 2px 0 0 var(--r-accent);
+  background: radial-gradient(ellipse 90% 120% at 50% 120%, rgba(255, 255, 255, .05), transparent 70%), var(--r-card-bg); }
+.vtm20 .r-cr-eb.is-thrall.is-on .r-cr-eb-sym { color: var(--r-accent); border-color: var(--r-line-2); box-shadow: 0 0 12px rgba(255, 255, 255, .12); background: none; }
 .vtm20 .r-cr-pact .r-cols2 { align-items: start; }
 .vtm20 .r-cr-pact-faith { display: flex; flex-direction: column; gap: 8px; }
 .vtm20 .r-cr-pact-faith .r-cr-sum-item.is-over b { color: var(--r-red-t, #c0392b); }

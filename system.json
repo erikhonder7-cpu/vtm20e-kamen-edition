@@ -32,6 +32,9 @@
       "src": "styles/types/earthbound.css"
     },
     {
+      "src": "styles/types/mortal.css"
+    },
+    {
       "src": "styles/r-chat.css"
     },
     {
