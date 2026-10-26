@@ -184,6 +184,7 @@ Hooks.once("ready", async () => {
   mountPanels();
   Hooks.on("canvasReady", mountPanels);
   startNightClock(() => { foundry.applications.instances.get("r-calendar")?._paintClock?.(); paintClockBar(); checkDawn(); tickTimers(); checkTorpor(); checkIncome(); });
+  checkIncome();   // запомнить месяц сразу (иначе при стоящих часах первая смена месяца не платила)
 });
 
 /* ── Нексус: перенос токенов через флаги User ──────────────────────────── */

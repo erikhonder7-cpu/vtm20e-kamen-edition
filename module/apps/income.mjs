@@ -6,7 +6,8 @@
 //     ливры 1789-го — оценка системы (подмастерье — около ливра в день).
 //   · Стадо: с наступлением ночи (кнопка «Ночь») — столько крови, сколько точек Стада, до предела запаса.
 //     Отдельная галочка: без неё Стадо, как в книге, только прибавляет кубы к охоте.
-// Месяц, за который уже заплачено, — скрытая настройка incomePaid; первый запуск только запоминает месяц.
+// Месяц, за который уже заплачено, — скрытая настройка incomePaid; её ставит загрузка мира (vtm20.mjs → checkIncome),
+// поэтому первая же смена месяца платит. Получают персонажи игроков: владелец-игрок или назначенный персонаж пользователя.
 
 import { SYSTEM_ID } from "../config.mjs";
 import { getClock, ymd } from "./calendar.mjs";
@@ -36,6 +37,9 @@ export function incomeFor(dots, cur) {
   return (DEFAULTS[cur] ?? DEFAULTS.dollar)[n - 1];
 }
 
+/** Персонаж игрока: им владеет игрок или он назначен чьим-то персонажем (игроки с ролью помощника тоже бывают). */
+const isPC = a => a.hasPlayerOwner || game.users.some(u => u.character?.id === a.id);
+
 /** Месяцев между «ГГГГ-ММ» a и b. */
 const monthsBetween = (a, b) => { const [y1, m1] = a.split("-").map(Number), [y2, m2] = b.split("-").map(Number); return (y2 - y1) * 12 + (m2 - m1); };
 
@@ -51,8 +55,9 @@ export async function checkIncome(now = getClock()) {
     await game.settings.set(SYSTEM_ID, "incomePaid", month);
     const months = paid ? monthsBetween(paid, month) : 0;
     if (months <= 0) return;                       // первый запуск или часы отмотаны назад — только запомнить месяц
-    const lines = [];
-    for (const a of game.actors.filter(x => x.hasPlayerOwner && x.system.money)) {
+    const lines = [], skipped = [];
+    for (const a of game.actors.filter(x => x.system.money)) {
+      if (!isPC(a)) { if (bgDots(a, "богатство", "ресурсы", "resources")) skipped.push(a.name); continue; }
       const cur = currencyOf(a), sum = incomeFor(bgDots(a, "богатство", "ресурсы", "resources"), cur) * months;
       if (!sum) continue;
       await changeMoney(a, sum);
@@ -69,6 +74,9 @@ export async function checkIncome(now = getClock()) {
     }
     if (lines.length) await ChatMessage.create({ speaker: { alias: t("Income.Title") },
       content: `<div class="r-notice"><i class="fa-solid fa-coins"></i> <b>${t(months > 1 ? "Income.Months" : "Income.Month", { n: months })}</b><ul>${lines.join("")}</ul></div>` });
+    // никому не заплачено — ведущему причина, иначе смена месяца проходит молча
+    else await ChatMessage.create({ speaker: { alias: t("Income.Title") }, whisper: ChatMessage.getWhisperRecipients("GM"),
+      content: `<div class="r-notice"><i class="fa-solid fa-coins"></i> ${t("Income.None")}${skipped.length ? ` ${t("Income.Skipped", { names: esc(skipped.join(", ")) })}` : ""}</div>` });
   } finally { busy = false; }
 }
 
