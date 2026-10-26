@@ -253,7 +253,8 @@ body.r-theme-light .vtm20 {
 }
 .vtm20 .r-h2::before { content: ""; width: 6px; height: 6px; flex: 0 0 auto; transform: rotate(45deg); background: var(--r-blood); }
 .vtm20 .r-h2::after { content: ""; flex: 1 1 auto; height: 1px; background: linear-gradient(90deg, var(--r-line-2), transparent); }
-.vtm20 .r-h2 > span { flex: 0 0 auto; }
+/* название сжимается с многоточием: длинный заголовок с числом и кнопками не залезает в соседнюю колонку */
+.vtm20 .r-h2 > span:not(.r-h2-tools) { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .vtm20 .r-h2:first-child { margin-top: 4px; }
 .vtm20 .r-h2-total { order: 3; font-family: var(--r-display); letter-spacing: 0; font-size: 15px; color: var(--r-accent); }
 .vtm20 .r-h2-tool { order: 4; color: var(--r-muted); font-size: 12px; letter-spacing: 0; }

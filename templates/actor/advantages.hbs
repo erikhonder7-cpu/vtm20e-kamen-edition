@@ -95,7 +95,7 @@
   {{!-- Инфернализм (apps/infernal.mjs): Вложения — 3 опыта, не больше постоянной Воли; договоры с демонами --}}
   <div class="r-cols2 r-infernal">
     <div class="r-col">
-      <h2 class="r-h2"><span>{{localize "VTM20.Infernal.Investments"}}</span><em class="r-h2-total" data-tooltip="{{localize 'VTM20.Infernal.LimitHint'}}">{{infernal.limit.v20}} / {{infernal.limit.max}}</em>
+      <h2 class="r-h2"><span data-tooltip="{{localize 'VTM20.Infernal.Investments'}}">{{localize "VTM20.Infernal.InvestmentsShort"}}</span><em class="r-h2-total" data-tooltip="{{localize 'VTM20.Infernal.LimitHint'}}">{{infernal.limit.v20}} / {{infernal.limit.max}}</em>
         {{#if editable}}<span class="r-h2-tools"><a class="r-h2-btn" data-action="library" data-kind="investment" data-tooltip="{{localize 'VTM20.Library.Open'}}"><i class="fa-solid fa-book-skull"></i> <span class="r-h2-lbl">{{localize "VTM20.Library.Open"}}</span></a><a class="r-h2-btn is-ghost" data-action="itemCreate" data-type="investment" data-tooltip="{{localize 'VTM20.Sheet.Own'}}"><i class="fa-solid fa-feather"></i></a></span>{{/if}}</h2>
       {{#each infernal.investments}}
       <div class="r-row-wrap r-mf-row {{#if open}}is-open{{/if}}" data-item-id="{{id}}">

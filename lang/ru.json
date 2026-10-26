@@ -1000,6 +1000,7 @@
     },
     "Infernal": {
       "Investments": "Инфернальные Вложения",
+      "InvestmentsShort": "Вложения",
       "LimitHint": "Вложения V20 (Rites of the Blood): не больше постоянной Воли",
       "NoInvestments": "Вложений нет.",
       "Pacts": "Договоры с демонами",

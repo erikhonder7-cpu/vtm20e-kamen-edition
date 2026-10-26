@@ -374,14 +374,15 @@
 .vtm20 .r-lib-card.is-first-locked::before {
   content: ""; position: absolute; left: 0; right: 0; top: -11px; height: 1px; background: var(--r-line-2);
 }
-.vtm20 .r-lib-title { display: flex; align-items: center; gap: 10px; min-width: 0; }
+/* название не уже своего длинного слова; метки и кнопки при нехватке места — на следующую строку, а не поверх названия */
+.vtm20 .r-lib-title { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 10px; min-width: 0; }
 .vtm20 .r-lib-sym { flex: 0 0 34px; width: 34px; height: 34px; padding: 5px; border: 1px solid var(--r-line-2); border-radius: 50%; background: radial-gradient(circle at 50% 38%, #26262a, #0c0c0e); }
 .vtm20 .r-lib-lvl, .vtm20 .r-lib-cost {
   flex: 0 0 auto; min-width: 26px; height: 26px; padding: 0 5px; display: inline-grid; place-items: center;
   font-family: var(--r-display); font-size: 13px; color: var(--r-ink); border: 1px solid var(--r-line-2);
 }
 .vtm20 .r-lib-card.is-flaw .r-lib-cost { color: var(--r-accent); border-color: rgba(196, 71, 76, .5); }
-.vtm20 .r-lib-name { flex: 1 1 auto; min-width: 0; display: flex; align-items: baseline; flex-wrap: wrap; gap: 0 9px; }
+.vtm20 .r-lib-name { flex: 1 1 9em; min-width: min-content; display: flex; align-items: baseline; flex-wrap: wrap; gap: 0 9px; }
 .vtm20 .r-lib-name b { font-family: var(--r-display); font-weight: 400; font-size: 17px; line-height: 1.2; color: var(--r-ink); }
 .vtm20 .r-lib-name em { font-size: 12px; color: var(--r-muted); }
 .vtm20 .r-tag.is-owned { color: var(--r-ink-2); }
