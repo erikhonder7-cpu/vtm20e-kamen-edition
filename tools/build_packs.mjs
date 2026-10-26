@@ -195,7 +195,10 @@ const BUILDERS = {
       for (const r of list) p.folder([...branch(r), `Уровень ${r.level}`]);
       for (const [key, f] of p.folders) if (key === school || key === `${school}/Тёмные века`) f.sorting = "m";
       for (const r of group.rituals ?? []) {
-        const system = { discipline: k, level: r.level, source: r.en ?? "", description: r.html ?? "" };
+        // разделы справочника (tools/ritual_docs.py): описание с шапкой, компоненты, эффект, прочие разделы, источник
+        const part = r.parts;
+        const system = { discipline: k, level: r.level, source: r.en ?? "", description: part ? (part.head ?? "") + part.desc : r.html ?? "",
+          ...(part ? { components: part.components, effect: part.effect, notes: part.notes, ref: part.ref } : {}) };
         const roll = rollOf(r.roll); if (roll) system.roll = roll;
         p.add({ name: r.name, type: "ritual", folder: [...branch(r), `Уровень ${r.level}`], key: `${k}:${r.name}`, img: DISC_ICON(k), system });
       }

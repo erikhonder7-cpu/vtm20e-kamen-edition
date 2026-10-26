@@ -1,7 +1,7 @@
 # tools/build_data.py
 # Собирает данные системы из справочника «Мир Тьмы» (books/Мир Тьмы/Вампиры/_справочник):
 #   data/disciplines.json — Дисциплины V20: правила, силы 1–5 и старшие, пути магии крови
-#   data/rituals.json     — ритуалы Тауматургии и Некромантии
+#   data/rituals.json     — ритуалы Тауматургии и Некромантии (полные описания — tools/ritual_docs.py)
 #   data/merits.json      — достоинства и недостатки основной книги
 #   data/backgrounds.json — факты биографии
 #   data/paths.json       — Человечность и Пути Просветления с Иерархиями грехов
@@ -921,6 +921,10 @@ def main():
     import polish   # шапка «Уровень · Бросок · Источник» и расшифровка сокращений в описаниях ритуалов
     polish.dedupe_rituals(rituals)
     polish.rituals(rituals)
+    # полные описания ритуалов по разделам (tools/sources/rituals) и недостающие ритуалы Колдовства
+    import ritual_docs
+    for k, v in ritual_docs.apply(rituals).items():
+        print("  справочник ритуалов", k, {x: (len(y) if isinstance(y, list) else y) for x, y in v.items()})
     polish.combos(combos)
     # расстройства: 10 из основной книги лежат в data/derangements.json готовыми; дополнения — заново при каждой сборке
     import derangements_extra

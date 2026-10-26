@@ -7,6 +7,7 @@ import { VTM20, SYSTEM_PATH } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
 import { describeMeritMod } from "../data/merit-mods.mjs";
 import { openAttack } from "../combat/combat.mjs";
+import { hasParts } from "../data/ritual-text.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ItemSheetV2 } = foundry.applications.sheets;
@@ -25,7 +26,8 @@ export class VtMItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     window: { resizable: true, contentClasses: ["r-sheet-content"] },
     form: { submitOnChange: true, closeOnSubmit: false },
     actions: { toChat: VtMItemSheet.#onToChat, setDots: VtMItemSheet.#onSetDots, attack: VtMItemSheet.#onAttack,
-      toggleField: VtMItemSheet.#onToggleField, qty: VtMItemSheet.#onQty }
+      toggleField: VtMItemSheet.#onToggleField, qty: VtMItemSheet.#onQty,
+      ritualNoteAdd: VtMItemSheet.#onRitualNoteAdd, ritualNoteDel: VtMItemSheet.#onRitualNoteDel }
   };
 
   static PARTS = { body: { template: `${SYSTEM_PATH}/templates/item/item-sheet.hbs`, scrollable: [".r-item-body"] } };
@@ -67,6 +69,14 @@ export class VtMItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       book: /Источник:\s*([^<·]+)/.exec(s.description ?? "")?.[1]?.trim() ?? "",
       pool: VtMItemSheet.poolLabel(s.roll)
     });
+
+    // Ритуал: разделы справочника (data/ritual-text.mjs) — компоненты, эффект, прочие разделы карточками
+    if (item.type === "ritual") {
+      ctx.parted = hasParts(s);
+      ctx.componentsHTML = await enrich(s.components);
+      ctx.effectHTML = await enrich(s.effect);
+      ctx.notes = await Promise.all((s.notes ?? []).map(async (n, i) => ({ i, n: i + 1, title: n.title, raw: n.html, html: await enrich(n.html) })));
+    }
 
     // Дисциплина и путь: точки и силы по уровням из справочника
     if (item.type === "discipline" || item.type === "thaumPath") {
@@ -199,10 +209,27 @@ export class VtMItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       data.system.lores = Object.values(data.lores).filter(Boolean);
       delete data.lores;
     }
+    // разделы ритуала: notes.N.title (в «Настройках») и notes.N.html (редактор) — в массив system.notes
+    if (data.notes) {
+      data.system ??= {};
+      const cur = this.item.system.notes ?? [];
+      data.system.notes = cur.map((n, i) => ({ title: data.notes[i]?.title ?? n.title, html: data.notes[i]?.html ?? n.html }));
+      delete data.notes;
+    }
     return data;
   }
 
   static #onToChat() { return this.item.toChat(); }
+
+  /** Новый раздел ритуала (у своего ритуала без разделов — сразу компоненты и эффект становятся видны). */
+  static #onRitualNoteAdd() {
+    const notes = [...(this.item.system.notes ?? []), { title: game.i18n.localize("VTM20.Ritual.NoteNew"), html: "" }];
+    return this.item.update({ "system.notes": notes });
+  }
+  static #onRitualNoteDel(event, target) {
+    const notes = (this.item.system.notes ?? []).filter((_, i) => i !== Number(target.dataset.index));
+    return this.item.update({ "system.notes": notes });
+  }
 
   /** Атака этим оружием — окно атаки владельца. */
   static #onAttack() {

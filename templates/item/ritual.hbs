@@ -1,4 +1,5 @@
-{{!-- Ритуал: уровень, школа, бросок; поля — в «Настройках»; описание. --}}
+{{!-- Ритуал: уровень, школа, бросок; разделы справочника — описание, компоненты, эффект, прочие разделы, источник;
+     поля и заголовки разделов — в «Настройках». --}}
 <div class="r-item-sheet is-ritual">
   {{> rItemHead}}
   <div class="r-item-body">
@@ -13,12 +14,32 @@
         <b>{{#if system.roll.blood}}{{system.roll.blood}} <i class="fa-solid fa-droplet"></i>{{/if}} {{#if system.roll.willpower}}1 <i class="fa-solid fa-sun"></i>{{/if}}</b></div>
       {{/if}}
     </div>
-    {{#if book}}<p class="r-item-src">{{localize "VTM20.Item.source"}}: {{book}}</p>{{/if}}
+    {{#if system.ref}}<p class="r-item-src">{{localize "VTM20.Ritual.Ref"}}: {{system.ref}}</p>
+    {{else if book}}<p class="r-item-src">{{localize "VTM20.Item.source"}}: {{book}}</p>{{/if}}
 
-    <h2 class="r-h2"><span>{{localize "VTM20.Item.description"}}</span></h2>
-    <div class="r-editor r-item-text">
+    <h2 class="r-h2"><span>{{localize "VTM20.Ritual.Desc"}}</span></h2>
+    <div class="r-editor r-item-text {{#if parted}}is-part{{/if}}">
       <prose-mirror name="system.description" value="{{system.description}}" toggled {{#unless editable}}disabled{{/unless}}>{{{descriptionHTML}}}</prose-mirror>
     </div>
+
+    {{#if parted}}
+    <h2 class="r-h2"><span><i class="fa-solid fa-mortar-pestle"></i> {{localize "VTM20.Ritual.Components"}}</span></h2>
+    <div class="r-editor r-item-text is-part">
+      <prose-mirror name="system.components" value="{{system.components}}" toggled {{#unless editable}}disabled{{/unless}}>{{{componentsHTML}}}</prose-mirror>
+    </div>
+    <h2 class="r-h2"><span><i class="fa-solid fa-wand-sparkles"></i> {{localize "VTM20.Ritual.Effect"}}</span></h2>
+    <div class="r-editor r-item-text is-part">
+      <prose-mirror name="system.effect" value="{{system.effect}}" toggled {{#unless editable}}disabled{{/unless}}>{{{effectHTML}}}</prose-mirror>
+    </div>
+    {{#each notes}}
+    <div class="r-rite-part">
+      <h3 class="r-rite-part-h">{{title}}</h3>
+      <div class="r-editor r-item-text is-part">
+        <prose-mirror name="notes.{{i}}.html" value="{{raw}}" toggled {{#unless @root.editable}}disabled{{/unless}}>{{{html}}}</prose-mirror>
+      </div>
+    </div>
+    {{/each}}
+    {{/if}}
 
     <details class="r-item-setup">
       <summary><i class="fa-solid fa-sliders"></i> {{localize "VTM20.ItemSheet.Setup"}}</summary>
@@ -27,6 +48,13 @@
           <select name="system.discipline">{{#each disciplineOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
         <label class="r-f"><span>{{localize "VTM20.Item.level"}}</span><input type="number" name="system.level" value="{{system.level}}" min="1" max="10"></label>
         {{> rItemRoll}}
+        <label class="r-f is-span2"><span>{{localize "VTM20.Ritual.Ref"}}</span><input type="text" name="system.ref" value="{{system.ref}}"></label>
+        {{#each notes}}
+        <label class="r-f is-span2 r-rite-note-title"><span>{{localize "VTM20.Ritual.NoteTitle"}} {{n}}</span>
+          <span class="r-rite-note-row"><input type="text" name="notes.{{i}}.title" value="{{title}}">
+            {{#if @root.editable}}<a data-action="ritualNoteDel" data-index="{{i}}" data-tooltip="{{localize 'VTM20.Ritual.NoteDel'}}"><i class="fa-solid fa-trash"></i></a>{{/if}}</span></label>
+        {{/each}}
+        {{#if editable}}<a class="r-f is-span2 r-rite-note-add" data-action="ritualNoteAdd"><i class="fa-solid fa-plus"></i> {{#if parted}}{{localize "VTM20.Ritual.NoteAdd"}}{{else}}{{localize "VTM20.Ritual.PartsAdd"}}{{/if}}</a>{{/if}}
       </div>
     </details>
   </div>

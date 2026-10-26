@@ -731,6 +731,18 @@
 /* строка «Уровень · Бросок · Источник» в тексте дублирует карточки — в окне источник отдельной подписью */
 .vtm20.r-item .r-item-text .r-ritual-meta { display: none; }
 .vtm20 .r-item-src { margin: -4px 0 10px; font-size: 12.5px; font-style: italic; color: var(--r-muted); }
+/* ритуал по разделам справочника: короткие поля без пустой высоты, прочие разделы — карточками */
+.vtm20.r-item .r-item-text.is-part, .vtm20.r-item .r-item-text.is-part prose-mirror { min-height: 0; }
+.vtm20.r-item .r-item-text.is-part { margin-bottom: 8px; }
+.vtm20 .r-rite-part { margin: 6px 0 10px; padding: 2px 0 2px 12px; border-left: 2px solid var(--r-line-2); }
+.vtm20 .r-rite-part-h { margin: 0 0 2px; font-family: var(--r-caps); font-size: 11.5px; font-weight: 400; letter-spacing: 1.6px; text-transform: uppercase; color: var(--r-accent); border: 0; }
+.vtm20 .r-rite-note-row { display: flex; align-items: center; gap: 8px; }
+.vtm20 .r-rite-note-row input { flex: 1; }
+.vtm20 .r-rite-note-add { cursor: pointer; color: var(--r-muted); font-size: 12.5px; }
+.vtm20 .r-rite-note-add:hover { color: var(--r-accent); }
+/* разделы ритуала в тексте (лист персонажа, библиотека, чат) */
+.vtm20 .r-rite-h { margin: 10px 0 3px; font-family: var(--r-caps); font-size: 11.5px; font-weight: 400; letter-spacing: 1.6px; text-transform: uppercase; color: var(--r-accent); border: 0; }
+.vtm20 .r-rite-ref { margin-top: 8px; font-size: 12.5px; color: var(--r-muted); }
 
 /* ── Подвал ────────────────────────────────────────────────────────────── */
 

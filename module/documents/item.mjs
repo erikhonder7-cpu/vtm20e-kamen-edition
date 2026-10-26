@@ -4,6 +4,7 @@
 import { VTM20, SYSTEM_ID } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
 import { itemCardHTML } from "../chat/item-card.mjs";
+import { ritualHTML } from "../data/ritual-text.mjs";
 
 export class VtMItem extends Item {
 
@@ -98,7 +99,7 @@ export class VtMItem extends Item {
 
   async toChat() {
     const T = foundry.applications.ux.TextEditor.implementation;
-    const body = await T.enrichHTML(this.system.description ?? "", { relativeTo: this });
+    const body = await T.enrichHTML(this.type === "ritual" ? ritualHTML(this.system) : this.system.description ?? "", { relativeTo: this });
     return ChatMessage.create({
       speaker: ChatMessage.getSpeaker({ actor: this.actor }),
       content: await itemCardHTML({ kind: this.type, img: this.img, kicker: game.i18n.localize(`TYPES.Item.${this.type}`), name: this.name, facts: this.chatFacts, body })

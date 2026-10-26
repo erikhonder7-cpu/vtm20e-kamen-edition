@@ -320,6 +320,22 @@ async function migrateWorld() {
       img: `systems/${SYSTEM_ID}/assets/icons/${Codex.lore(i.system.key ?? i.system.lore)?.dark ? "darkLore" : ICONS[i.type]}.svg` }));
     if (upd.length) { await a.updateEmbeddedDocuments("Item", upd); changed = true; }
   }
+  // Ритуалы у персонажей и в мире — текст по разделам справочника (описание, компоненты, эффект, прочие разделы, источник);
+  // трогаем только ритуалы без разделов, чьё имя есть в справочнике своей школы
+  {
+    const { hasParts, ritualFields } = await import("./module/data/ritual-text.mjs");
+    const fresh = i => {
+      if (i.type !== "ritual" || hasParts(i.system)) return null;
+      const r = Codex.rituals[i.system.discipline]?.rituals?.find(x => x.name === i.name && x.parts);
+      return r ? Object.fromEntries(Object.entries(ritualFields(r)).map(([k, v]) => [`system.${k}`, v])) : null;
+    };
+    for (const a of game.actors) {
+      const upd = a.items.map(i => ({ i, u: fresh(i) })).filter(x => x.u).map(x => ({ _id: x.i.id, ...x.u }));
+      if (upd.length) { await a.updateEmbeddedDocuments("Item", upd); changed = true; }
+    }
+    const world = game.items.map(i => ({ i, u: fresh(i) })).filter(x => x.u).map(x => ({ _id: x.i.id, ...x.u }));
+    if (world.length) { await Item.updateDocuments(world); changed = true; }
+  }
   // Папка компендиев вампиров: Foundry создал её по первому манифесту («VTM20 «Liberté»») и сам не переименовывает
   for (const f of game.folders.filter(f => f.type === "Compendium" && f.name === "VTM20 «Liberté»")) {
     await f.update({ name: "Vampire: The Masquerade" }); changed = true;

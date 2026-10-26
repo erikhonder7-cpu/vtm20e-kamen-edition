@@ -31,6 +31,7 @@ import { POWER_EFFECTS, MODE_LABEL } from "../data/effects.mjs";
 import { effectTimer, readingRituals, toggleRitualReading, cancelRitual } from "../apps/timers.mjs";
 import { torporView, deathOf, enterTorpor, wakeFromTorpor, undoDeath } from "../apps/torpor.mjs";
 import { makeExtra } from "../apps/extras.mjs";
+import { ritualHTML } from "../data/ritual-text.mjs";
 import { MERIT_MODS, describeMeritMod } from "../data/merit-mods.mjs";
 import { weaponIcon as weaponImg, armorIcon as armorImg } from "../data/icons.mjs";
 import { togglePowerEffect } from "../apps/power-effects.mjs";
@@ -491,7 +492,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     } : null;
     const reading = new Set(readingRituals(a).map(e => e.flags[SYSTEM_ID].ritual));
     const mapRitual = r => ({
-      id: r.id, name: r.name, level: r.system.level, roman: ROMAN[r.system.level - 1], html: r.system.description, ritual: true, reading: reading.has(r.id),
+      id: r.id, name: r.name, level: r.system.level, roman: ROMAN[r.system.level - 1], html: ritualHTML(r.system), ritual: true, reading: reading.has(r.id),
       open: this._open.has(r.id),
       roll: rollInfo({ ...(r.system.roll ?? {}), trait1: r.system.roll?.trait1 || "attributes.intelligence",
         trait2: r.system.roll?.trait1 ? r.system.roll.trait2 : "abilities.occult", difficulty: r.system.roll?.difficulty || Math.min(9, 3 + r.system.level) })

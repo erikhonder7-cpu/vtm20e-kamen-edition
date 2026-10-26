@@ -343,7 +343,12 @@ export class RitualData extends BaseItemData {
       ...super.defineSchema(),
       discipline: str("thaumaturgy"),
       level: int(1, 1, 10),
-      roll: rollField()
+      roll: rollField(),
+      // разделы справочника (data/ritual-text.mjs): description — «Описание», дальше компоненты, эффект, прочие разделы
+      components: new HTMLField({ required: true, blank: true, initial: "" }),
+      effect: new HTMLField({ required: true, blank: true, initial: "" }),
+      notes: new ArrayField(new SchemaField({ title: str(), html: new HTMLField({ required: true, blank: true, initial: "" }) })),
+      ref: str()                         // «Источник» справочника: книга и страница
     };
   }
 }

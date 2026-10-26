@@ -13,6 +13,7 @@ import { VTM20, SYSTEM_PATH, SYSTEM_ID } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
 import { blockerFor } from "../data/trait-rules.mjs";
 import { weaponIcon, armorIcon, traitIcon, backgroundIcon } from "../data/icons.mjs";
+import { ritualFields } from "../data/ritual-text.mjs";
 
 const { HandlebarsApplicationMixin, ApplicationV2 } = foundry.applications.api;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -60,7 +61,7 @@ export const LibraryItems = {
     return { name, type: "thaumPath", img: Codex.disciplineIcon(disc), system: { discipline: disc, value: 1, primary, description: pd?.html ?? "" } };
   },
   ritual(disc, r) {
-    return { name: r.name, type: "ritual", img: Codex.disciplineIcon(disc), system: { discipline: disc, level: r.level, description: r.html, source: r.en, ...(r.roll ? { roll: r.roll } : {}) } };
+    return { name: r.name, type: "ritual", img: Codex.disciplineIcon(disc), system: { discipline: disc, level: r.level, ...ritualFields(r), source: r.en, ...(r.roll ? { roll: r.roll } : {}) } };
   },
   /** Комбинированная Дисциплина — запись силы у первой из нужных Дисциплин. */
   combo(c) {
