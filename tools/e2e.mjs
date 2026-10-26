@@ -560,7 +560,8 @@ try {
       for (let i = 0; i < 30 && !a.system.thrall.master; i++) await new Promise(r => setTimeout(r, 200));
       const s = a.system;
       out.sys = { master: s.thrall.master === d.uuid, faith: s.thrall.faith, will: s.willpower.permanent, str: s.attributes.strength.value,
-        vk: a.virtueKey("selfControl"), thrall: a.isThrall, bg: a.items.find(i => i.type === "background")?.name ?? "" };
+        vk: a.virtueKey("selfControl"), thrall: a.isThrall, bg: a.items.find(i => i.type === "background")?.name ?? "",
+        gifts: (s.thrall.gifts ?? []).map(g => `${g.kind}:${g.key}:${g.dots}`).join(",") };
       out.row = d.system.thralls.map(x => [x.uuid === a.uuid, x.faith, x.share, x.gifts].join("|"));
       // грех слуги: бросок Добродетели, сл. 7, без Воли — Воля не растёт и падает только по исходу
       const T = await import(`/systems/${SYS}/module/apps/torment.mjs`);
@@ -580,6 +581,7 @@ try {
     const s = r.sys;
     if (!s.master || !s.thrall || s.faith !== 3 || s.will !== 5 || s.str !== 3 || s.vk !== "conviction") throw new Error(`лист слуги: ${JSON.stringify(s)}`);
     if (s.bg !== "Приобщение") throw new Error(`факт биографии слуги: ${s.bg}`);
+    if (s.gifts !== "attr:attributes.strength:2") throw new Error(`дары слуги: ${s.gifts}`);
     if (r.row.length !== 1 || !r.row[0].startsWith("true|3|2|")) throw new Error(`договор у хозяина: ${r.row.join("; ")}`);
     if (!r.sin.ok) throw new Error(`грех слуги: ${JSON.stringify(r.sin)}`);
   });

@@ -127,7 +127,8 @@
       {{/each}}
     </div>
     <div class="r-vc-tools">
-      <span class="r-vc-hint is-left" data-tooltip="{{thrallInfo.sin}}">{{localize "VTM20.Demon.ThrallSinGate"}}: <b>{{system.willpower.permanent}}</b></span>
+      <span class="r-vc-hint is-left" data-tooltip="{{localize 'VTM20.Demon.ThrallSinGateHint'}}: {{thrallInfo.sin}}">{{localize "VTM20.Demon.ThrallSinGate"}}: <b>{{system.willpower.permanent}}</b></span>
+      <a class="r-vc-btn" data-action="thrallGifts" data-tooltip="{{localize 'VTM20.Gifts.BtnHint'}}"><i class="fa-solid fa-gift"></i> {{thrallInfo.gifts}}</a>
       {{#if editable}}<a class="r-vc-btn is-sq" data-action="thrallPact" data-tooltip="{{localize 'VTM20.Demon.PactEditHint'}}"><i class="fa-solid fa-file-signature"></i></a>
       <a class="r-vc-btn is-sq" data-action="ghoulify" data-tooltip="{{localize 'VTM20.Ghoulify.Btn'}}"><i class="fa-solid fa-droplet"></i></a>
       <a class="r-vc-btn is-sq" data-action="thrallBreak" data-tooltip="{{localize 'VTM20.Demon.PactBreak'}}"><i class="fa-solid fa-link-slash"></i></a>{{/if}}

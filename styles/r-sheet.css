@@ -1166,5 +1166,7 @@ body.r-theme-light .vtm20 .r-motto { color: rgba(140, 28, 34, .75); }
 /* Лист смертного-слуги падшего: хозяин под точками Веры слуги */
 .vtm20 .r-vc-morality.is-thrall .r-thrall-master { margin: 4px 0 2px; font-size: 12.5px; color: var(--r-muted); }
 .vtm20 .r-vc-morality.is-thrall .r-thrall-master a { color: var(--r-accent); cursor: pointer; }
+/* ряд кнопок слуги (порог, дары, договор, гуль, разрыв, грех) — в одну строку */
+.vtm20 .r-vc-morality.is-thrall .r-vc-tools { flex-wrap: nowrap; gap: 4px 6px; }
 /* Знаки типа (анх, капля витэ, свеча) — в своих цветах, без приглушения герба */
 .vtm20 .r-rail-sigil img[src*="-sigil.svg"] { filter: none; }

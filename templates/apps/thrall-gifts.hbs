@@ -1,0 +1,40 @@
+{{!-- Дары слуге падшего: бюджет Веры, список с применением, добавить дар по виду. --}}
+<div class="r-gifts-body">
+  <p class="r-gifts-head">
+    {{#if master}}{{localize "VTM20.Creator.PactMaster"}}: <b>{{master}}</b>{{else}}<em>{{localize "VTM20.Demon.ThrallNoMaster"}}</em>{{/if}}
+    <span class="r-gifts-budget {{#if over}}is-over{{/if}}" data-tooltip="{{localize 'VTM20.Gifts.BudgetHint'}}">{{localize "VTM20.Gifts.Budget"}} <b>{{budget.used}} / {{budget.total}}</b></span>
+  </p>
+
+  {{#if gifts.length}}
+  <ul class="r-gifts-list">
+    {{#each gifts}}
+    <li class="r-gift">
+      <span class="r-gift-kind">{{kind}}</span>
+      <span class="r-gift-name">{{label}}{{#if high}} <em class="r-gift-high">{{localize "VTM20.Gifts.HighMark"}}</em>{{/if}}{{#if note}} <small>{{note}}</small>{{/if}}</span>
+      {{#if use}}<a class="r-vc-btn" data-action="use" data-index="{{i}}" data-tooltip="{{useHint}}"><i class="fa-solid fa-hand-sparkles"></i> {{localize "VTM20.Gifts.Use"}}</a>{{/if}}
+      {{#if @root.editable}}<a class="r-vc-btn is-sq" data-action="del" data-index="{{i}}" data-tooltip="{{localize 'VTM20.Gifts.Del'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
+    </li>
+    {{/each}}
+  </ul>
+  {{else}}<p class="r-empty">{{localize "VTM20.Gifts.None"}}</p>{{/if}}
+
+  {{#if editable}}
+  <h4 class="r-h4">{{localize "VTM20.Gifts.Add"}}</h4>
+  <div class="r-tiles r-gifts-kinds" style="--cols: 4">
+    {{#each kinds}}<a class="r-tile is-flat {{#if active}}is-active{{/if}}" data-action="kind" data-kind="{{key}}"><span>{{label}}</span></a>{{/each}}
+  </div>
+  <p class="r-choice-hint">{{kindHint}}</p>
+  <div class="r-gifts-add r-fields">
+    {{#if options}}
+      {{#if options.length}}<label class="r-f is-span2"><span>{{localize "VTM20.Gifts.Pick"}}</span>
+        <select name="pick">{{#each options}}<option value="{{value}}">{{label}}</option>{{/each}}</select></label>
+      {{else}}<p class="r-empty is-span2">{{#if noMaster}}{{localize "VTM20.Gifts.NeedMaster"}}{{else}}{{localize "VTM20.Gifts.NothingFromMaster"}}{{/if}}</p>{{/if}}
+    {{/if}}
+    {{#if needsText}}<label class="r-f is-span2"><span>{{localize "VTM20.Gifts.Text"}}</span><input type="text" name="text"></label>{{/if}}
+    {{#if needsDots}}<label class="r-f"><span>{{localize "VTM20.Gifts.Dots"}}</span><input type="number" name="dots" value="1" min="1" max="{{maxDots}}"></label>{{/if}}
+    {{#if needsCost}}<label class="r-f"><span>{{localize "VTM20.Gifts.Cost"}}</span><input type="number" name="cost" value="1" min="0" max="10"></label>{{/if}}
+    <label class="r-f is-span2"><span>{{localize "VTM20.Gifts.Note"}}</span><input type="text" name="note" placeholder="{{localize 'VTM20.Gifts.NotePh'}}"></label>
+    <a class="r-btn is-accent is-span2" data-action="add"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Gifts.AddBtn"}}</a>
+  </div>
+  {{/if}}
+</div>

@@ -149,7 +149,7 @@ export async function thrallPact(actor) {
   const master = await fromUuid(res.master);
   // прежний хозяин теряет строку договора
   if (cur.master && cur.master !== res.master) await thrallUnlink(actor, cur.master);
-  await actor.update({ "system.thrall": { master: res.master, faith } });
+  await actor.update({ "system.thrall.master": res.master, "system.thrall.faith": faith });
   if (master?.isOwner) {
     const row = { name: actor.name, uuid: actor.uuid, faith, share, will: actor.system.willpower.permanent, wounds: 0, lost: 0, terms: res.terms, gifts: res.gifts };
     await master.update({ "system.thralls": [...master.system.thralls.filter(x => x.uuid !== actor.uuid), row] });
@@ -163,7 +163,9 @@ export async function thrallBreak(actor) {
   const ok = await foundry.applications.api.DialogV2.confirm({ window: { title: t("PactBreak") }, content: `<p>${t("PactBreakConfirm", { name: esc(actor.name) })}</p>` });
   if (!ok) return null;
   if (cur.master) await thrallUnlink(actor, cur.master);
-  await actor.update({ "system.thrall": { master: "", faith: 0 } });
+  const { giftsRevoke } = await import("./thrall-gifts.mjs");
+  await giftsRevoke(actor);
+  await actor.update({ "system.thrall.master": "", "system.thrall.faith": 0 });
   return notice(actor, "fa-link-slash", t("PactBroken", { name: esc(actor.name) }), "is-pact");
 }
 

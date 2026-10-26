@@ -231,7 +231,11 @@ export class MortalData extends BaseActorData {
       vessel: new SchemaField({ value: int(10, 0, 20), max: int(10, 1, 20) }),
       trueFaith: int(0, 0, 10),
       // Слуга падшего (Damned and Deceived): uuid хозяина-демона и Вера слуги 0–5; Добродетели — Совесть, Убеждённость, Мужество
-      thrall: new SchemaField({ master: str(), faith: int(0, 0, 5) })
+      thrall: new SchemaField({ master: str(), faith: int(0, 0, 5),
+        // дары хозяина (apps/thrall-gifts.mjs): вид, имя, ключ (черта, врождённая, призыв «ключ Знания:уровень»), точки прибавки,
+        // черта высокой Муки, цена в Вере слуги, пояснение
+        gifts: new ArrayField(new SchemaField({ kind: str("other"), name: str(), key: str(), dots: int(0, 0, 5),
+          high: new BooleanField({ initial: false }), cost: int(1, 0, 10), note: str() })) })
     };
   }
 

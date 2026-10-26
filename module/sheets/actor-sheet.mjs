@@ -32,6 +32,7 @@ import { effectTimer, readingRituals, toggleRitualReading, cancelRitual } from "
 import { torporView, deathOf, enterTorpor, wakeFromTorpor, undoDeath } from "../apps/torpor.mjs";
 import { makeExtra } from "../apps/extras.mjs";
 import { ritualHTML } from "../data/ritual-text.mjs";
+import { openThrallGifts } from "../apps/thrall-gifts.mjs";
 import { MERIT_MODS, describeMeritMod } from "../data/merit-mods.mjs";
 import { weaponIcon as weaponImg, armorIcon as armorImg } from "../data/icons.mjs";
 import { togglePowerEffect } from "../apps/power-effects.mjs";
@@ -130,7 +131,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       worship: VtMActorSheet.#onWorship,
       reliquaryDraw: VtMActorSheet.#onReliquaryDraw,
       houseAtlas: VtMActorSheet.#onHouseAtlas,
-      tormentSin: VtMActorSheet.#onTormentSin, thrallSin: VtMActorSheet.#onThrallSin, thrallPact: VtMActorSheet.#onThrallPact, ghoulify: VtMActorSheet.#onGhoulify, formUpkeep: VtMActorSheet.#onFormUpkeep, formLookImg: VtMActorSheet.#onFormLookImg, formLookClear: VtMActorSheet.#onFormLookClear, thrallBreak: VtMActorSheet.#onThrallBreak, openUuid: VtMActorSheet.#onOpenUuid,
+      tormentSin: VtMActorSheet.#onTormentSin, thrallSin: VtMActorSheet.#onThrallSin, thrallPact: VtMActorSheet.#onThrallPact, ghoulify: VtMActorSheet.#onGhoulify, formUpkeep: VtMActorSheet.#onFormUpkeep, thrallGifts: VtMActorSheet.#onThrallGifts, formLookImg: VtMActorSheet.#onFormLookImg, formLookClear: VtMActorSheet.#onFormLookClear, thrallBreak: VtMActorSheet.#onThrallBreak, openUuid: VtMActorSheet.#onOpenUuid,
       sinSuggest: VtMActorSheet.#onSinSuggest,
       tormentKind: VtMActorSheet.#onTormentKind,
       tormentAtone: VtMActorSheet.#onTormentAtone,
@@ -401,7 +402,8 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       const master = s.thrall.master ? fromUuidSync(s.thrall.master) : null;
       ctx.thrallInfo = { faith: s.thrall.faith, faithDots: dots(s.thrall.faith, 5, { path: "system.thrall.faith" }),
         master: master?.name ?? "", masterUuid: master ? s.thrall.master : "",
-        sin: game.i18n.localize(`VTM20.Demon.ThrallSinRow.${Math.max(1, Math.min(10, s.willpower.permanent))}`) };
+        sin: game.i18n.localize(`VTM20.Demon.ThrallSinRow.${Math.max(1, Math.min(10, s.willpower.permanent))}`),
+        gifts: (s.thrall.gifts ?? []).length };
     }
     // Привязанный: в карточке Муки — Потребности вместо Добродетелей
     if (ctx.isDemon && s.earthbound) ctx.urges = ["flesh", "thought", "emotion"].map(k => {
@@ -1223,6 +1225,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static #onThrallPact() { return thrallPact(this.actor); }
   static #onGhoulify() { return ghoulify(this.actor); }
   static #onFormUpkeep() { return formUpkeep(this.actor); }
+  static #onThrallGifts() { return openThrallGifts(this.actor); }
   /** Картинка жетона в форме — выбирает игрок (своих картинок система не даёт). */
   static #onFormLookImg() {
     const fp = new foundry.applications.apps.FilePicker.implementation({ type: "image", current: this.actor.system.formLook?.img || "",

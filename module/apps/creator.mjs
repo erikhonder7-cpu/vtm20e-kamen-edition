@@ -841,7 +841,9 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       delete sys.morality;
       for (const [k, n] of Object.entries(st.pact.attr)) sys.attributes[k].value = Math.min(5, sys.attributes[k].value + n);
       for (const [k, n] of Object.entries(st.pact.abil)) sys.abilities[k].value = Math.min(5, sys.abilities[k].value + n);
-      sys.thrall = { master: st.pact.master, faith: this.morality };
+      const boosts = (kind, store) => Object.entries(store).filter(([, n]) => n > 0)
+        .map(([k, n]) => ({ kind, name: "", key: `${kind === "attr" ? "attributes" : "abilities"}.${k}`, dots: n, high: false, cost: 0, note: "" }));
+      sys.thrall = { master: st.pact.master, faith: this.morality, gifts: [...boosts("attr", st.pact.attr), ...boosts("abil", st.pact.abil)] };
     }
     if (this.isDemon) {
       delete sys.morality;
