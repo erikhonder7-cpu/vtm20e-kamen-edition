@@ -8,6 +8,9 @@
 let recent = { type: null, at: 0 };
 const FRESH_MS = 3000;
 
+/** Предметы линии без владельца (лист из компендиума) — тема их линии. */
+const ITEM_THEMES = { lore: "demon", demonRitual: "demon", relic: "demon" };
+
 /** Персонаж окна: свой, документ-персонаж или владелец предмета. */
 function actorOf(app) {
   if (app.actor instanceof Actor) return app.actor;
@@ -25,7 +28,7 @@ export function registerThemes() {
     // окна системы и стандартные подтверждения Foundry (их цвета — переменные Foundry, переопределены в теме типа)
     const isDialog = app instanceof foundry.applications.api.DialogV2;
     if (!element?.classList?.contains("vtm20") && !isDialog) return;
-    const type = actorOf(app)?.type ?? (Date.now() - recent.at < FRESH_MS && isDialog ? recent.type : null);
+    const type = actorOf(app)?.type ?? ITEM_THEMES[app.document?.type] ?? (Date.now() - recent.at < FRESH_MS && isDialog ? recent.type : null);
     if (!type) return;                                   // окно без персонажа — его тема задана им самим (справочник Домов)
     for (const c of [...element.classList]) if (c.startsWith("r-type-") && c !== `r-type-${type}`) element.classList.remove(c);
     element.classList.add(`r-type-${type}`);

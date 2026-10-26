@@ -241,6 +241,7 @@ function hintFor(state, ev) {
     return ev.successes >= need ? t("BondX.ResistOk", { n: ev.successes, need }) : t("BondX.ResistFail", { n: ev.successes, need });
   }
   // Мука падшего (Demon: The Fallen, гл. 6): грех — Добродетель против сл. 8; доброе дело — Добродетель против костей Муки
+  if (k === "ritualRun") return ev.outcome === "botch" ? t("Demon.RitualBotchHint") : t("Demon.RitualTurnHint", { n: ev.successes });
   if (k === "holyStay") return ev.successes > 0 ? t("Hazard.HolyStayed") : t("Hazard.HolyFled");
   if (k === "names") return ev.successes >= 3 ? t("Demon.Names3") : ev.successes === 2 ? t("Demon.Names2") : ev.successes === 1 ? t("Demon.Names1") : t("Demon.Names0");
   if (k === "exorcism") return ev.successes > 0 ? t("Demon.ExorcismHeld") : t("Demon.ExorcismLost");

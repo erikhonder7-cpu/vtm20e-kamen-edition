@@ -336,49 +336,47 @@ function hofHouses() {
   const loreName = Object.fromEntries(dm.lores.map(l => [l.key, l.name]));
   return { dm, hof, lore: ([k, n]) => `${esc(loreName[k] ?? k)} ${dots(n)}`, loreName };
 }
+/** Бросок из описания («Обаяние + Лидерство») — ключи черт; что не узнано (Вера, Воля), остаётся строкой rollText. */
+function parseRoll(text) {
+  const names = {};
+  for (const [k, v] of Object.entries(ru.VTM20.Attr ?? {})) names[String(v).toLowerCase()] = `attributes.${k}`;
+  for (const [k, v] of Object.entries(ru.VTM20.Abil ?? {})) names[String(v).toLowerCase()] = `abilities.${k}`;
+  // названия Demon: The Fallen, которых нет в листе V20 (Уклонение — Атлетика, как уворот в V20)
+  Object.assign(names, { "осведомлённость": "abilities.awareness", "осведомленность": "abilities.awareness", "уклонение": "abilities.athletics", "атлетизм": "abilities.athletics", "наука": "abilities.science" });
+  const raw = String(text ?? ""), diff = Number(/сл\.\s*(\d+)/.exec(raw)?.[1] ?? 0);
+  const head = raw.split(/;| — | против |\(/)[0];
+  const parts = head.split("+").map(x => x.trim().toLowerCase()).filter(Boolean);
+  const keys = parts.map(x => names[x]).filter(Boolean);
+  return keys.length === parts.length && keys.length ? { trait1: keys[0], trait2: keys[1] ?? "", difficulty: diff } : { trait1: "", trait2: "", difficulty: diff };
+}
+const loreRef = ([key, level]) => ({ key, level });
+/** Ритуалы падших предметами (тип demonRitual): папки по Домам, бастионы — отдельно. */
 BUILDERS["demon-rituals"] = function () {
-  const p = new Pack("demon-rituals", "JournalEntry");
-  const { dm, hof, lore } = hofHouses();
+  const p = new Pack("demon-rituals", "Item");
+  const { dm, hof } = hofHouses();
   const pg = data("demon-pg").rituals;
-  const row = (k, v) => v ? `<tr><th>${k}</th><td>${v}</td></tr>` : "";
-  const add = (r, src, where, folder, key) => {
-    const html = `<p><em>${src}${r.page ? `, с. ${r.page}` : ""} · ${where} · пересказ</em></p><table>`
-      + row("Первичное Знание", lore(r.primary)) + row("Вторичные", r.secondary.map(lore).join(", "))
-      + row("Начальная стоимость", r.cost) + row("Время", esc(r.time)) + row("Ограничения", esc(r.limits)) + row("Бросок", esc(r.roll)) + "</table>"
-      + `<p>${esc(r.text)}</p>` + (r.high ? `<h3>Высокая Мука</h3><p>${esc(r.high)}</p>` : "")
-      + (r.variants ? `<h3>Варианты</h3><p>${esc(r.variants)}</p>` : "");
-    p.addEntry({ name: r.name, html, folder, key });
-  };
+  const add = (r, src, house, folder, key) => p.add({ name: r.name, type: "demonRitual", folder, key, img: ICON("ritual"),
+    system: { house, primary: loreRef(r.primary), secondary: r.secondary.map(loreRef), cost: r.cost ?? 0, time: r.time ?? "", limits: r.limits ?? "",
+      roll: parseRoll(r.roll), rollText: r.roll ?? "", high: r.high ?? "", variants: r.variants ?? "", page: r.page ?? 0, source: src,
+      description: `<p>${esc(r.text)}</p>` } });
   for (const h of dm.houses) {
-    const H = hof[h.key] ?? {};
-    for (const r of H.rituals ?? []) add(r, HOF, `Дом ${esc(h.name)}`, h.name, `ritual:${h.key}:${r.name}`);
-    if (H.rituals_note) p.addEntry({ name: "Ритуалы предвидения", html: `<p><em>${HOF} · Дом ${esc(h.name)}</em></p><p>${esc(H.rituals_note)}</p>`, folder: h.name, key: `ritual:${h.key}:note` });
-    for (const r of pg[h.key] ?? []) add(r, PG, `Дом ${esc(h.name)}`, h.name, `ritual:pg:${h.key}:${r.name}`);
+    for (const r of hof[h.key]?.rituals ?? []) add(r, HOF, h.key, h.name, `ritual:${h.key}:${r.name}`);
+    for (const r of pg[h.key] ?? []) add(r, PG, h.key, h.name, `ritual:pg:${h.key}:${r.name}`);
   }
-  for (const r of pg.bastions ?? []) add(r, PG, "бастион", "Бастионы", `ritual:pg:bastion:${r.name}`);
+  for (const r of pg.bastions ?? []) add(r, PG, "bastion", "Бастионы", `ritual:pg:bastion:${r.name}`);
   return p;
 };
+/** Реликвии падших предметами (тип relic): реликвии Домов («Дома Падших») и «Арсенал Бездны» Players Guide. */
 BUILDERS["demon-relics"] = function () {
-  const p = new Pack("demon-relics", "JournalEntry");
-  const { dm, hof, loreName } = hofHouses();
-  for (const h of dm.houses) {
-    for (const r of hof[h.key]?.relics ?? []) {
-      const kind = r.kind === "craft" ? `изготавливается${r.lores.length ? `: ${r.lores.map(k => esc(loreName[k] ?? k)).join(", ")}` : ""}` : "уникальная";
-      const html = `<p><em>${HOF} · Дом ${esc(h.name)} · ${kind}</em></p>`
-        + (r.use ? `<p><strong>Как пользоваться:</strong> ${esc(r.use)}</p>` : "")
-        + `<p>${esc(r.text)}</p><h3>Система</h3><p>${esc(r.system)}</p>`;
-      p.addEntry({ name: r.name, html, folder: h.name, key: `relic:${h.key}:${r.name}` });
-    }
-  }
-  // «Арсенал Бездны» Players Guide — шаблоны, которые может сделать любой падший, и древние чудеса
+  const p = new Pack("demon-relics", "Item");
+  const { dm, hof } = hofHouses();
+  const add = (r, src, kind, house, folder, key) => p.add({ name: r.name, type: "relic", folder, key, img: ICON("gear"),
+    system: { kind, house, lores: r.lores ?? [], use: r.use ?? "", mechanics: r.system ?? "", page: r.page ?? 0, source: src, description: `<p>${esc(r.text)}</p>` } });
+  for (const h of dm.houses)
+    for (const r of hof[h.key]?.relics ?? []) add(r, HOF, r.kind === "craft" ? "demonic" : "unique", h.key, h.name, `relic:${h.key}:${r.name}`);
+  // «Арсенал Бездны»: улучшенные и зачарованные предметы — шаблоны для любого падшего; древние чудеса
   const TYPE = { enhanced: "Улучшенные предметы", enchanted: "Зачарованные предметы", ancient: "Позабытые чудеса" };
-  for (const r of data("demon-pg").relics) {
-    const kind = r.kind === "craft" ? `изготавливается${r.lores.length ? `: ${r.lores.map(k => esc(loreName[k] ?? k)).join(", ")}` : ""}` : "уникальная";
-    const html = `<p><em>${PG}, с. ${r.page} · ${TYPE[r.type].toLowerCase()} · ${kind}</em></p>`
-      + (r.use ? `<p><strong>Как пользоваться:</strong> ${esc(r.use)}</p>` : "")
-      + `<p>${esc(r.text)}</p><h3>Система</h3><p>${esc(r.system)}</p>`;
-    p.addEntry({ name: r.name, html, folder: TYPE[r.type], key: `relic:pg:${r.name}` });
-  }
+  for (const r of data("demon-pg").relics) add(r, PG, r.type, "", TYPE[r.type], `relic:pg:${r.name}`);
   return p;
 };
 

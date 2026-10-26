@@ -1,0 +1,39 @@
+{{!-- Реликвия падших: вид, Знания мастера, как пользоваться, описание и система; поля — в «Настройках». --}}
+<div class="r-item-sheet is-relic">
+  {{> rItemHead}}
+  <div class="r-item-body">
+    <div class="r-badges">
+      <div class="r-badge"><span>{{localize "VTM20.Relic.KindLabel"}}</span><b>{{kindLabel}}</b></div>
+      {{#if houseName}}<div class="r-badge"><span>{{localize "VTM20.DRitual.House"}}</span><b>{{houseName}}</b></div>{{/if}}
+      {{#if loreNames}}<div class="r-badge"><span>{{localize "VTM20.Relic.Lores"}}</span><b>{{loreNames}}</b></div>{{/if}}
+    </div>
+    {{#if system.use}}<p class="r-relic-use"><b>{{localize "VTM20.Relic.Use"}}:</b> {{system.use}}</p>{{/if}}
+    {{#if book}}<p class="r-item-src">{{localize "VTM20.Item.source"}}: {{book}}</p>{{/if}}
+
+    <h2 class="r-h2"><span>{{localize "VTM20.Item.description"}}</span></h2>
+    <div class="r-editor r-item-text">
+      <prose-mirror name="system.description" value="{{system.description}}" toggled {{#unless editable}}disabled{{/unless}}>{{{descriptionHTML}}}</prose-mirror>
+    </div>
+    {{#if system.mechanics}}
+    <h2 class="r-h2"><span>{{localize "VTM20.Relic.Mechanics"}}</span></h2>
+    <p class="r-relic-sys">{{system.mechanics}}</p>
+    {{/if}}
+
+    <details class="r-item-setup">
+      <summary><i class="fa-solid fa-sliders"></i> {{localize "VTM20.ItemSheet.Setup"}}</summary>
+      <div class="r-fields is-wide">
+        <label class="r-f"><span>{{localize "VTM20.Relic.KindLabel"}}</span>
+          <select name="system.kind">{{#each kindOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+        <label class="r-f"><span>{{localize "VTM20.DRitual.House"}}</span>
+          <select name="system.house">{{#each houseOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+        {{#each loreSlots}}
+        <label class="r-f"><span>{{localize "VTM20.Relic.Lore"}} {{n}}</span>
+          <select name="lores.{{i}}"><option value="">—</option>{{#each options}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+        {{/each}}
+        <label class="r-f is-span2"><span>{{localize "VTM20.Relic.Use"}}</span><input type="text" name="system.use" value="{{system.use}}"></label>
+        <label class="r-f is-span2"><span>{{localize "VTM20.Relic.Mechanics"}}</span><textarea name="system.mechanics" rows="3">{{system.mechanics}}</textarea></label>
+        <label class="r-f is-span2"><span>{{localize "VTM20.Item.source"}}</span><input type="text" name="system.source" value="{{system.source}}"></label>
+      </div>
+    </details>
+  </div>
+</div>

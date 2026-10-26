@@ -90,6 +90,8 @@ export class VtMItem extends Item {
       case "merit": case "flaw": return `${typeL} · ${s.cost}`;
       case "weapon": return `${loc(VTM20.weaponKinds[s.kind]?.label ?? "")} · ${s.strength ? loc("VTM20.Attr.strength") + " + " : ""}${s.damage} ${loc(VTM20.damageTypes[s.damageType]?.short ?? "")}`;
       case "armor": return `${typeL} · ${s.rating} / −${s.penalty}`;
+      case "demonRitual": return [Codex.lore(s.primary?.key)?.name, s.primary?.level ? "•".repeat(s.primary.level) : ""].filter(Boolean).join(" ") || typeL;
+      case "relic": return `${typeL} · ${loc(`VTM20.Relic.Kind.${s.kind}`)}`;
       default: return typeL;
     }
   }

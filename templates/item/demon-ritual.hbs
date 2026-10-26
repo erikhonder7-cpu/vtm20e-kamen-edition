@@ -1,0 +1,56 @@
+{{!-- Ритуал падших: Знания (первичное — у Анкиды, вторичные — у Маду), цена, время, бросок эффекта; текст, высокая Мука, варианты; поля — в «Настройках». --}}
+<div class="r-item-sheet is-ritual is-demon-ritual">
+  {{> rItemHead}}
+  <div class="r-item-body">
+    <div class="r-badges">
+      <div class="r-badge is-level"><b>{{primaryDots}}</b><span>{{primaryName}}</span></div>
+      <div class="r-badge"><span>{{localize "VTM20.DRitual.House"}}</span><b>{{houseName}}</b></div>
+      <div class="r-badge"><span>{{localize "VTM20.DRitual.Cost"}}</span><b>{{system.cost}}</b></div>
+      <div class="r-badge"><span>{{localize "VTM20.ItemSheet.Roll"}}</span>
+        <b>{{#if pool}}{{pool}}{{else if system.rollText}}{{system.rollText}}{{else}}—{{/if}}</b>
+        {{#if system.roll.difficulty}}<em>{{localize "VTM20.Roll.Difficulty"}} {{system.roll.difficulty}}</em>{{/if}}</div>
+    </div>
+
+    <dl class="r-ritual-meta">
+      {{#if secondary.length}}<dt>{{localize "VTM20.DRitual.Secondary"}}</dt><dd>{{#each secondary}}{{name}} {{dots}}{{#unless @last}}, {{/unless}}{{/each}}</dd>{{/if}}
+      <dt>{{localize "VTM20.DRitual.Time"}}</dt><dd>{{#if system.time}}{{system.time}}{{else}}—{{/if}}</dd>
+      {{#if system.limits}}<dt>{{localize "VTM20.DRitual.Limits"}}</dt><dd>{{system.limits}}</dd>{{/if}}
+      <dt>{{localize "VTM20.DRitual.Need"}}</dt><dd>{{localize "VTM20.DRitual.NeedText" n=totalDots}}</dd>
+    </dl>
+    {{#if book}}<p class="r-item-src">{{localize "VTM20.Item.source"}}: {{book}}</p>{{/if}}
+
+    <h2 class="r-h2"><span>{{localize "VTM20.DRitual.Effect"}}</span></h2>
+    <div class="r-editor r-item-text">
+      <prose-mirror name="system.description" value="{{system.description}}" toggled {{#unless editable}}disabled{{/unless}}>{{{descriptionHTML}}}</prose-mirror>
+    </div>
+    {{#if system.high}}<p class="r-ritual-high"><b>{{localize "VTM20.DRitual.High"}}:</b> {{system.high}}</p>{{/if}}
+    {{#if system.variants}}<p class="r-ritual-var"><b>{{localize "VTM20.DRitual.Variants"}}:</b> {{system.variants}}</p>{{/if}}
+
+    <details class="r-item-setup">
+      <summary><i class="fa-solid fa-sliders"></i> {{localize "VTM20.ItemSheet.Setup"}}</summary>
+      <div class="r-fields is-wide">
+        <label class="r-f"><span>{{localize "VTM20.DRitual.Primary"}}</span>
+          <select name="system.primary.key"><option value="">—</option>{{#each primaryOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+        <label class="r-f"><span>{{localize "VTM20.Item.level"}}</span><input type="number" name="system.primary.level" value="{{system.primary.level}}" min="1" max="5"></label>
+        {{#each secondarySlots}}
+        <label class="r-f"><span>{{localize "VTM20.DRitual.Secondary"}} {{n}}</span>
+          <select name="secondary.{{i}}.key"><option value="">—</option>{{#each options}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+        <label class="r-f"><span>{{localize "VTM20.Item.level"}}</span><input type="number" name="secondary.{{i}}.level" value="{{level}}" min="1" max="5"></label>
+        {{/each}}
+        <label class="r-f"><span>{{localize "VTM20.DRitual.House"}}</span>
+          <select name="system.house">{{#each houseOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+        <label class="r-f"><span>{{localize "VTM20.DRitual.Cost"}}</span><input type="number" name="system.cost" value="{{system.cost}}" min="0"></label>
+        <label class="r-f is-span2"><span>{{localize "VTM20.DRitual.Time"}}</span><input type="text" name="system.time" value="{{system.time}}"></label>
+        <label class="r-f is-span2"><span>{{localize "VTM20.DRitual.Limits"}}</span><input type="text" name="system.limits" value="{{system.limits}}"></label>
+        <label class="r-f"><span>{{localize "VTM20.Item.trait1"}}</span>
+          <select name="system.roll.trait1"><option value="">—</option>{{#each traitGroups.t1}}<optgroup label="{{label}}">{{#each options}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</optgroup>{{/each}}</select></label>
+        <label class="r-f"><span>{{localize "VTM20.Item.trait2"}}</span>
+          <select name="system.roll.trait2"><option value="">—</option>{{#each traitGroups.t2}}<optgroup label="{{label}}">{{#each options}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</optgroup>{{/each}}</select></label>
+        <label class="r-f"><span>{{localize "VTM20.Roll.Difficulty"}}</span><input type="number" name="system.roll.difficulty" value="{{system.roll.difficulty}}" min="0" max="10"></label>
+        <label class="r-f is-span2"><span>{{localize "VTM20.DRitual.High"}}</span><textarea name="system.high" rows="2">{{system.high}}</textarea></label>
+        <label class="r-f is-span2"><span>{{localize "VTM20.DRitual.Variants"}}</span><textarea name="system.variants" rows="2">{{system.variants}}</textarea></label>
+        <label class="r-f is-span2"><span>{{localize "VTM20.Item.source"}}</span><input type="text" name="system.source" value="{{system.source}}"></label>
+      </div>
+    </details>
+  </div>
+</div>

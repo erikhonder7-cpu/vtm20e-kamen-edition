@@ -39,6 +39,70 @@
   <div class="r-empty">{{localize "VTM20.Demon.NoLores"}}</div>
   {{/each}}
 
+  {{!-- Ритуалы падших (Players Guide, гл. 6): ход — длительный бросок Веры Анкиды, затем бросок эффекта --}}
+  <h2 class="r-h2"><span>{{localize "VTM20.Demon.Rituals"}}</span>
+    <span class="r-h2-tools"><a class="r-h2-btn is-plain" data-action="openRules" data-tooltip="{{localize 'VTM20.Demon.RitualsRules'}}"><i class="fa-solid fa-book-open-reader"></i></a></span>
+  </h2>
+  {{#each demonRituals}}
+  <article class="r-row-wrap r-disc r-dritual {{#if open}}is-open{{/if}}" data-item-id="{{id}}">
+    <header class="r-disc-head">
+      <span class="r-disc-sigil"><i class="fa-solid fa-circle-nodes"></i></span>
+      <div class="r-disc-title">
+        <a class="r-disc-name" data-action="toggleRow" data-row-id="{{id}}">{{name}}</a>
+        <span class="r-disc-sub">{{primary}}{{#if secondary}} · {{secondary}}{{/if}}</span>
+      </div>
+      <span class="r-dritual-need" data-tooltip="{{localize 'VTM20.Demon.RitualNeedTip'}}">{{#if run}}<b>{{run.total}}</b>/{{need}} · {{run.turn}}/5{{else}}{{need}} {{localize "VTM20.Demon.SuccShort"}}{{/if}}</span>
+      <div class="r-disc-tools">
+        {{#if @root.editable}}<a class="r-icon-btn" data-action="ritualTurn" data-tooltip="{{localize 'VTM20.Demon.RitualTurn'}}"><i class="fa-solid fa-hourglass-half"></i></a>{{/if}}
+        {{#if canEffect}}<a class="r-icon-btn" data-action="ritualEffect" data-tooltip="{{localize 'VTM20.Demon.RitualEffect'}}: {{roll}}"><i class="fa-solid fa-dice-d10"></i></a>{{/if}}
+        <a class="r-icon-btn" data-action="itemChat" data-tooltip="{{localize 'VTM20.Sheet.ToChat'}}"><i class="fa-solid fa-comment-dots"></i></a>
+        <a class="r-icon-btn" data-action="itemEdit" data-tooltip="{{localize 'VTM20.Sheet.Edit'}}"><i class="fa-solid fa-pen-nib"></i></a>
+        {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="itemDelete" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-trash"></i></a>{{/if}}
+        <a class="r-icon-btn r-chevron" data-action="toggleRow" data-row-id="{{id}}"><i class="fa-solid fa-chevron-down"></i></a>
+      </div>
+    </header>
+    <div class="r-disc-body"><div class="r-disc-inner">
+      <dl class="r-hs-meta r-dritual-meta">
+        {{#if time}}<dt>{{localize "VTM20.DRitual.Time"}}</dt><dd>{{time}}</dd>{{/if}}
+        {{#if limits}}<dt>{{localize "VTM20.DRitual.Limits"}}</dt><dd>{{limits}}</dd>{{/if}}
+        {{#if roll}}<dt>{{localize "VTM20.Demon.RitualEffect"}}</dt><dd>{{roll}}</dd>{{/if}}
+        <dt>{{localize "VTM20.DRitual.Cost"}}</dt><dd>{{cost}}</dd>
+      </dl>
+      <div class="r-dritual-text">{{{html}}}</div>
+      {{#if high}}<p class="r-ritual-high"><b>{{localize "VTM20.DRitual.High"}}:</b> {{high}}</p>{{/if}}
+      {{#if variants}}<p class="r-ritual-var"><b>{{localize "VTM20.DRitual.Variants"}}:</b> {{variants}}</p>{{/if}}
+    </div></div>
+  </article>
+  {{else}}
+  <div class="r-empty">{{localize "VTM20.Demon.NoRituals"}}</div>
+  {{/each}}
+
+  {{!-- Реликвии падших --}}
+  <h2 class="r-h2"><span>{{localize "VTM20.Demon.Relics"}}</span></h2>
+  {{#each relics}}
+  <article class="r-row-wrap r-disc r-relic {{#if open}}is-open{{/if}}" data-item-id="{{id}}">
+    <header class="r-disc-head">
+      <span class="r-disc-sigil"><i class="fa-solid fa-gem"></i></span>
+      <div class="r-disc-title">
+        <a class="r-disc-name" data-action="toggleRow" data-row-id="{{id}}">{{name}}</a>
+        <span class="r-disc-sub">{{kind}}{{#if use}} · {{use}}{{/if}}</span>
+      </div>
+      <div class="r-disc-tools">
+        <a class="r-icon-btn" data-action="itemChat" data-tooltip="{{localize 'VTM20.Sheet.ToChat'}}"><i class="fa-solid fa-comment-dots"></i></a>
+        <a class="r-icon-btn" data-action="itemEdit" data-tooltip="{{localize 'VTM20.Sheet.Edit'}}"><i class="fa-solid fa-pen-nib"></i></a>
+        {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="itemDelete" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-trash"></i></a>{{/if}}
+        <a class="r-icon-btn r-chevron" data-action="toggleRow" data-row-id="{{id}}"><i class="fa-solid fa-chevron-down"></i></a>
+      </div>
+    </header>
+    <div class="r-disc-body"><div class="r-disc-inner">
+      <div class="r-dritual-text">{{{html}}}</div>
+      {{#if mechanics}}<p class="r-relic-sys"><b>{{localize "VTM20.Relic.Mechanics"}}:</b> {{mechanics}}</p>{{/if}}
+    </div></div>
+  </article>
+  {{else}}
+  <div class="r-empty">{{localize "VTM20.Demon.NoRelics"}}</div>
+  {{/each}}
+
   {{!-- Врождённые способности (гл. 7): без броска — иммунитеты, с броском — мороки, имена, изгнание --}}
   <h2 class="r-h2"><span>{{localize "VTM20.Demon.Innate"}}</span>
     <span class="r-h2-tools">

@@ -269,3 +269,20 @@ body.r-theme-light .vtm20.r-type-demon {
 .vtm20.r-type-demon .r-cr-ledger li.is-over i { background-image: linear-gradient(90deg, #6a2a0c, #e08a3a); }
 .vtm20.r-type-demon .r-cr-problems { border-left-color: #c0682a; background: rgba(192, 104, 42, .1); }
 .vtm20 .r-innate-note { margin: 0 0 10px; }
+
+/* Лист ритуала и реликвии падших */
+.vtm20.r-item .r-ritual-meta { display: grid; grid-template-columns: max-content 1fr; gap: 3px 12px; margin: 8px 0; font-size: 13px; }
+.vtm20.r-item .r-ritual-meta dt { font-variant: small-caps; color: var(--r-muted); }
+.vtm20.r-item .r-ritual-meta dd { margin: 0; }
+.vtm20.r-item .r-ritual-high { border-left: 2px solid var(--r-blood, #8b1a1a); padding-left: 8px; }
+.vtm20.r-item .r-relic-use, .vtm20.r-item .r-ritual-var, .vtm20.r-item .r-relic-sys { margin: 6px 0; }
+
+/* Ритуалы и реликвии на вкладке Знаний */
+.vtm20 .r-dritual-need { flex: 0 0 auto; font-family: var(--r-display); font-size: 13px; color: var(--r-muted); white-space: nowrap; }
+.vtm20 .r-dritual-need b { color: var(--r-accent); font-weight: 400; }
+.vtm20 .r-dritual-meta { display: grid; grid-template-columns: max-content 1fr; gap: 2px 12px; margin: 4px 0 8px; font-size: 13px; }
+.vtm20 .r-dritual-meta dt { font-family: var(--r-caps); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--r-muted); }
+.vtm20 .r-dritual-meta dd { margin: 0; }
+.vtm20.r-type-demon .r-dritual .r-disc-sigil, .vtm20.r-type-demon .r-relic .r-disc-sigil { color: #d4a04c; }
+.vtm20 .r-dritual-text { font-size: 14px; line-height: 1.45; margin: 0 0 6px; }
+.vtm20 .r-dritual-text p { margin: 0 0 5px; }

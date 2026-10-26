@@ -40,7 +40,7 @@ import { coteriesOf, poolValue, openCoterie } from "../apps/coterie.mjs";
 import { itemCardHTML } from "../chat/item-card.mjs";
 import { themeClass } from "../ui/themes.mjs";
 import { openHouses } from "../apps/houses.mjs";
-import { virtuePrompt, atoneWithXp, assumeForm, sceneHighFeature, harvestFaith, pactFaith, innateRoll } from "../apps/torment.mjs";
+import { virtuePrompt, atoneWithXp, assumeForm, sceneHighFeature, harvestFaith, pactFaith, innateRoll, ritualTurn, ritualEffect, ritualNeed } from "../apps/torment.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -128,6 +128,8 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       faithHeal: VtMActorSheet.#onFaithHeal,
       harvestFaith: VtMActorSheet.#onHarvest,
       innate: VtMActorSheet.#onInnate,
+      ritualTurn: VtMActorSheet.#onRitualTurn,
+      ritualEffect: VtMActorSheet.#onRitualEffect,
       pactFaith: VtMActorSheet.#onPactFaith,
       spendFaith: VtMActorSheet.#onSpendFaith,
       pinPower: VtMActorSheet.#onPinPower,
@@ -585,6 +587,19 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     // Апокалиптическая форма (гл. 7): черты Облика; при Муке 7+ — по черте высокой Муки за каждый пункт сверх 6
     const lore = Codex.lore(s.visage), form = lore?.form;
     const highN = Math.max(0, Math.min(4, s.torment.permanent - 6));
+    // Ритуалы и реликвии падших — предметы на персонаже (перетащить из компендиев «Ритуалы падших», «Реликвии падших»)
+    const run = a.getFlag(SYSTEM_ID, "ritualRun");
+    const dname = x => x?.key ? `${Codex.lore(x.key)?.name ?? x.key} ${"•".repeat(x.level)}` : "";
+    ctx.demonRituals = a.items.filter(i => i.type === "demonRitual").map(it => {
+      const r = it.system;
+      return { id: it.id, name: it.name, primary: dname(r.primary), secondary: (r.secondary ?? []).map(dname).filter(Boolean).join(", "),
+        need: ritualNeed(r), time: r.time, limits: r.limits, cost: r.cost, html: r.description, high: r.high, variants: r.variants,
+        roll: r.roll?.trait1 ? [a.traitLabel(r.roll.trait1), r.roll.trait2 && a.traitLabel(r.roll.trait2)].filter(Boolean).join(" + ") : r.rollText,
+        canEffect: !!r.roll?.trait1, run: run?.id === it.id ? run : null, open: this._open.has(it.id) };
+    }).sort((x, y) => x.name.localeCompare(y.name, "ru"));
+    ctx.relics = a.items.filter(i => i.type === "relic").map(it => ({ id: it.id, name: it.name, kind: game.i18n.localize(`VTM20.Relic.Kind.${it.system.kind}`),
+      use: it.system.use, html: it.system.description, mechanics: it.system.mechanics, open: this._open.has(it.id) }))
+      .sort((x, y) => x.name.localeCompare(y.name, "ru"));
     ctx.form = form ? {
       visage: Codex.house(s.house)?.visages?.[s.visage] ?? "", lore: lore.name, on: !!s.apocalyptic, highN,
       low: form.low.map(name => ({ name })),
@@ -1086,6 +1101,8 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static #onFaithHeal() { return this.actor.faithHeal(); }
   static #onHarvest() { return harvestFaith(this.actor); }
   static #onInnate(event, target) { return innateRoll(this.actor, target.dataset.kind); }
+  static #onRitualTurn(event, target) { const it = this.actor.items.get(target.closest("[data-item-id]")?.dataset.itemId); return it && ritualTurn(this.actor, it); }
+  static #onRitualEffect(event, target) { const it = this.actor.items.get(target.closest("[data-item-id]")?.dataset.itemId); return it && ritualEffect(this.actor, it); }
   static #onPactFaith() { return pactFaith(this.actor); }
 
   static #onSpendFaith() {
@@ -1333,7 +1350,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
 // Повтор той же Дисциплины, факта биографии, достоинства или недостатка у персонажа — не добавлять, а предупредить
 // (библиотека, перетаскивание из компендия, «Своё» с тем же именем).
-const UNIQUE_TYPES = ["discipline", "lore", "background", "merit", "flaw", "derangement", "thaumPath", "ritual"];
+const UNIQUE_TYPES = ["discipline", "lore", "background", "merit", "flaw", "derangement", "thaumPath", "ritual", "demonRitual"];
 Hooks.on("preCreateItem", (item, data, options, userId) => {
   const actor = item.parent;
   if (!(actor instanceof Actor) || !UNIQUE_TYPES.includes(item.type) || options.allowDuplicate) return;

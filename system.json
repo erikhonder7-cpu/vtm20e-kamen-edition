@@ -155,6 +155,16 @@
         "htmlFields": [
           "description"
         ]
+      },
+      "demonRitual": {
+        "htmlFields": [
+          "description"
+        ]
+      },
+      "relic": {
+        "htmlFields": [
+          "description"
+        ]
       }
     }
   },
@@ -319,7 +329,7 @@
       "name": "demon-rituals",
       "label": "Ритуалы падших",
       "path": "packs/demon-rituals",
-      "type": "JournalEntry",
+      "type": "Item",
       "system": "vtm20e-kamen-edition",
       "ownership": {
         "PLAYER": "OBSERVER",
@@ -331,7 +341,7 @@
       "name": "demon-relics",
       "label": "Реликвии падших",
       "path": "packs/demon-relics",
-      "type": "JournalEntry",
+      "type": "Item",
       "system": "vtm20e-kamen-edition",
       "ownership": {
         "PLAYER": "OBSERVER",

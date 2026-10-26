@@ -169,6 +169,43 @@ export function innateRoll(actor, kind) {
     breakdown: [{ label: t("Faith"), value: actor.system.faith.temporary }] })).catch(() => null);
 }
 
+/** Сколько успехов нужно ритуалу: сумма точек его Знаний (Players Guide, гл. 6). */
+export const ritualNeed = s => (s.primary?.key ? s.primary.level : 0) + (s.secondary ?? []).reduce((n, x) => n + (x.key ? x.level : 0), 0);
+
+/**
+ * Ход ритуала (Players Guide, гл. 6): по истечении минимального времени — длительный бросок Веры Анкиды, сл. 6 и +1 за
+ * каждый следующий ход, всего пять ходов; нужно успехов по сумме точек Знаний. Вера Хауики — модификатором в окне.
+ * Провал или пять ходов без цели — ритуал сорван. Ход хранится флагом ritualRun на персонаже.
+ */
+export async function ritualTurn(actor, item) {
+  const f = actor.system.faith.temporary;
+  if (f < 1) return ui.notifications.warn(t("NoFaith"));
+  const prev = actor.getFlag(SYSTEM_ID, "ritualRun");
+  const run = prev?.id === item.id ? prev : { id: item.id, turn: 0, total: 0 };
+  const turn = run.turn + 1, need = ritualNeed(item.system);
+  return RollDialog.prompt(actor, {
+    title: t("RitualTurnTitle", { name: item.name, turn }), subtitle: t("RitualProgress", { total: run.total, need, turn: run.turn }),
+    pool: f, difficulty: Math.min(10, 5 + turn), lockTraits: true, kind: "ritualRun", diffNote: t("RitualTurnNote", { need }),
+    breakdown: [{ label: t("Faith"), value: f }],
+    onRolled: async res => {
+      const total = run.total + (res?.successes ?? 0), done = total >= need, botch = res?.outcome === "botch";
+      if (botch || done || turn >= 5) await actor.unsetFlag(SYSTEM_ID, "ritualRun");
+      else await actor.setFlag(SYSTEM_ID, "ritualRun", { id: item.id, turn, total });
+      const key = botch ? "RitualBotch" : done ? "RitualDone" : turn >= 5 ? "RitualFailed" : "RitualOnward";
+      await notice(actor, done ? "fa-circle-check" : botch || turn >= 5 ? "fa-burst" : "fa-hourglass-half",
+        t(key, { name: esc(item.name), total, need, turn }), botch || (!done && turn >= 5) ? "is-warn" : "");
+    }
+  });
+}
+
+/** Эффект удавшегося ритуала: бросок из описания с костью Муки Анкиды (как у призыва). */
+export function ritualEffect(actor, item) {
+  const s = item.system, r = s.roll ?? {};
+  if (!r.trait1) return ui.notifications.info(t("RitualNoRoll", { roll: s.rollText || "—" }));
+  return RollDialog.prompt(actor, { title: item.name, subtitle: t("RitualEffect"), trait1: r.trait1, trait2: r.trait2, difficulty: r.difficulty || 6,
+    effect: s.description + (s.high ? `<p><b>${game.i18n.localize("VTM20.DRitual.High")}:</b> ${esc(s.high)}</p>` : ""), extra: { torment: actor.system.torment.permanent } });
+}
+
 /** Кнопка карточки призыва: взять эффект высокой Муки ценой пункта временной Муки. */
 export async function chooseHighTorment(message, state) {
   const actor = state.actorUuid ? await foundry.utils.fromUuid(state.actorUuid) : null;

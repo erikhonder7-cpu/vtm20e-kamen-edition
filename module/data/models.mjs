@@ -328,6 +328,40 @@ export class RitualData extends BaseItemData {
   }
 }
 
+/** Ритуал падших (Players Guide, гл. 6; «Дома Падших»): Знания Анкиды и Маду, цена, время, условия, бросок эффекта. */
+export class DemonRitualData extends BaseItemData {
+  static defineSchema() {
+    const loreRef = () => new SchemaField({ key: str(), level: int(1, 1, 5) });
+    return {
+      ...super.defineSchema(),
+      house: str(),                      // ключ Дома; "bastion" — ритуал бастиона, "earthbound" — Привязанных
+      primary: loreRef(),
+      secondary: new ArrayField(loreRef()),
+      cost: int(0, 0),                   // начальная стоимость в опыте
+      time: str(), limits: str(),
+      roll: rollField(),                 // бросок эффекта после удачного хода ритуала
+      rollText: str(),                   // бросок, как в книге («Обаяние + Лидерство», «Вера»)
+      high: str(), variants: str(),      // эффект высокой Муки, варианты
+      page: int(0, 0)
+    };
+  }
+}
+
+/** Реликвия падших: улучшенная, зачарованная, демоническая или древняя вещь; Знания мастера и система. */
+export class RelicData extends BaseItemData {
+  static defineSchema() {
+    return {
+      ...super.defineSchema(),
+      kind: str("enchanted"),            // enhanced | enchanted | demonic | ancient | unique
+      house: str(),
+      lores: new ArrayField(str()),      // ключи Знаний, нужных для изготовления
+      use: str(),                        // как пользоваться (активация)
+      mechanics: str(),                  // система своими словами
+      page: int(0, 0)
+    };
+  }
+}
+
 /** Записанная сила: своя или перенесённая из старой системы. Показывается в карточке Дисциплины. */
 export class PowerData extends BaseItemData {
   static defineSchema() {
@@ -400,6 +434,6 @@ export function registerDataModels() {
   Object.assign(CONFIG.Item.dataModels, {
     discipline: DisciplineData, lore: LoreData, thaumPath: BloodPathData, ritual: RitualData, power: PowerData,
     background: BackgroundData, merit: MeritData, flaw: MeritData, derangement: DerangementData,
-    weapon: WeaponData, armor: ArmorData, gear: GearData
+    weapon: WeaponData, armor: ArmorData, gear: GearData, demonRitual: DemonRitualData, relic: RelicData
   });
 }
