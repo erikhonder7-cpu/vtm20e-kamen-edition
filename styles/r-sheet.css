@@ -613,7 +613,7 @@
 .vtm20 .r-bio .r-editor::before { content: ""; position: absolute; left: 14px; top: 8px; bottom: 8px; width: 1px; background: rgba(196, 71, 76, .35); }
 .vtm20 .r-bio .r-editor prose-mirror { min-height: 96px; padding-left: 16px; }
 .vtm20 .r-bio prose-mirror.inactive { height: auto; }
-.vtm20 .r-editor-hint { margin: 0; color: var(--r-muted); font-style: italic; font-size: 13.5px; }
+.vtm20 .r-editor-hint { margin: 0; padding-right: 34px; color: var(--r-muted); font-style: italic; font-size: 13.5px; }   /* справа — перо редактора */
 .vtm20 .r-bio prose-mirror.inactive .editor-content { position: static; height: auto; min-height: 80px; overflow: visible; }
 
 /* Досье: приметы на карточке с «штампом» */

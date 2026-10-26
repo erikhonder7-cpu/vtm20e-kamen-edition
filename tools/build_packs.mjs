@@ -239,7 +239,7 @@ const BUILDERS = {
 
   backgrounds() {
     const p = new Pack("backgrounds");
-    for (const b of data("backgrounds"))
+    for (const b of data("backgrounds").filter(b => !b.line))      // факты охотников — в hunter-backgrounds
       p.add({ name: b.name, type: "background", folder: b.fan ? "Век живых богов (фанатское)" : b.sabbat ? "Шабаш" : b.source && b.source !== "V20" ? "Из дополнений" : null, key: b.name, img: backgroundIcon(b.en) ?? undefined, system: { value: 1, source: b.en ?? "", description: b.html ?? "" } });
     return p;
   },
@@ -468,6 +468,15 @@ BUILDERS["hunter-merits"] = function () {
     p.add({ name: m.name, type: m.kind, folder, key: `hunter:${m.kind}:${m.name}`, img: traitIcon(m.category, m.kind === "flaw"),
       system: { cost: m.min || 1, category: m.category, clan: "", sect: "", source: m.en ?? "", description: `${m.html ?? ""}${range}` } });
   }
+  return p;
+};
+
+/** Hunter: The Reckoning — факты биографии смертных охотников (Hunters Hunted II). */
+BUILDERS["hunter-backgrounds"] = function () {
+  const p = new Pack("hunter-backgrounds");
+  for (const b of data("backgrounds").filter(b => b.line === "hunter"))
+    p.add({ name: b.name, type: "background", key: `hunter:${b.name}`, img: backgroundIcon(b.en) ?? undefined,
+      system: { value: 1, source: b.en ?? "", description: b.html ?? "" } });
   return p;
 };
 

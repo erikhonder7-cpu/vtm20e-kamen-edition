@@ -346,6 +346,8 @@ body.r-skin .placeable-hud input { font-family: var(--rk-display); font-size: 16
 /* Редактор ProseMirror */
 body.r-skin prose-mirror { border: 1px solid var(--rk-line); background: rgba(0, 0, 0, .3); }
 body.r-skin prose-mirror .editor-content { padding: 8px 10px; min-height: 120px; color: var(--rk-bone); }
+/* перо редактора (.toggle в правом верхнем углу) не ложится на первую строку текста; здесь, а не в r-sheet.css: этот файл вне слоя системы и перебивает его */
+body.r-skin prose-mirror.inactive .editor-content { padding-right: 36px; }
 body.r-skin .prosemirror menu, body.r-skin prose-mirror menu { background: var(--rk-coal); border-bottom: 1px solid #000; padding: 3px; }
 body.r-skin .prosemirror menu button, body.r-skin prose-mirror menu button { background: rgba(0, 0, 0, .35); border: 1px solid var(--rk-line-2); color: var(--rk-bone-2); border-radius: 0; }
 body.r-skin .prosemirror menu button:hover, body.r-skin prose-mirror menu button:hover { color: var(--rk-bone-b); border-color: var(--rk-blood-l); }

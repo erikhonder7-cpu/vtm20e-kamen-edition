@@ -912,6 +912,10 @@ def main():
     for x in backgrounds: x["source"] = "V20"
     import backgrounds_extra
     backgrounds += backgrounds_extra.collect(backgrounds)
+    # факты биографии смертных охотников (Hunters Hunted II) — линия «hunter», как их черты: вампирам не видны
+    for x in backgrounds:
+        if x.get("source", "").startswith("V20 Hunters Hunted II"):
+            x["line"] = "hunter"
     import alg_extra   # «Век живых богов» (фанатское): Мортис, Факты биографии, Способности — Тёмные века
     abilities = alg_extra.apply(disc, backgrounds)
     import abilities_extra   # Способности Шабаша (Guide to the Sabbat) — вторичные, с пометкой секты

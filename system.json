@@ -402,6 +402,18 @@
       "flags": {}
     },
     {
+      "name": "hunter-backgrounds",
+      "label": "Факты биографии охотников",
+      "path": "packs/hunter-backgrounds",
+      "type": "Item",
+      "system": "vtm20e-kamen-edition",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
+    },
+    {
       "name": "hunter-merits",
       "label": "Достоинства и недостатки охотников",
       "path": "packs/hunter-merits",
@@ -478,7 +490,8 @@
       "sorting": "m",
       "color": "#5a4a1c",
       "packs": [
-        "hunter-merits"
+        "hunter-merits",
+        "hunter-backgrounds"
       ]
     }
   ]
