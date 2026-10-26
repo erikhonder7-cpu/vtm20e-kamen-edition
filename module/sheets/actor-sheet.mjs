@@ -33,6 +33,7 @@ import { torporView, deathOf, enterTorpor, wakeFromTorpor, undoDeath } from "../
 import { makeExtra } from "../apps/extras.mjs";
 import { ritualHTML } from "../data/ritual-text.mjs";
 import { openThrallGifts } from "../apps/thrall-gifts.mjs";
+import { loseHost, holdOn, newHost, summonedBack } from "../apps/host.mjs";
 import { MERIT_MODS, describeMeritMod } from "../data/merit-mods.mjs";
 import { weaponIcon as weaponImg, armorIcon as armorImg } from "../data/icons.mjs";
 import { togglePowerEffect } from "../apps/power-effects.mjs";
@@ -131,7 +132,8 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       worship: VtMActorSheet.#onWorship,
       reliquaryDraw: VtMActorSheet.#onReliquaryDraw,
       houseAtlas: VtMActorSheet.#onHouseAtlas,
-      tormentSin: VtMActorSheet.#onTormentSin, thrallSin: VtMActorSheet.#onThrallSin, thrallPact: VtMActorSheet.#onThrallPact, ghoulify: VtMActorSheet.#onGhoulify, formUpkeep: VtMActorSheet.#onFormUpkeep, thrallGifts: VtMActorSheet.#onThrallGifts, formLookImg: VtMActorSheet.#onFormLookImg, formLookClear: VtMActorSheet.#onFormLookClear, thrallBreak: VtMActorSheet.#onThrallBreak, openUuid: VtMActorSheet.#onOpenUuid,
+      tormentSin: VtMActorSheet.#onTormentSin, thrallSin: VtMActorSheet.#onThrallSin, thrallPact: VtMActorSheet.#onThrallPact, ghoulify: VtMActorSheet.#onGhoulify, formUpkeep: VtMActorSheet.#onFormUpkeep, thrallGifts: VtMActorSheet.#onThrallGifts,
+      hostLose: VtMActorSheet.#onHostLose, hostHold: VtMActorSheet.#onHostHold, hostNew: VtMActorSheet.#onHostNew, hostSummoned: VtMActorSheet.#onHostSummoned, formLookImg: VtMActorSheet.#onFormLookImg, formLookClear: VtMActorSheet.#onFormLookClear, thrallBreak: VtMActorSheet.#onThrallBreak, openUuid: VtMActorSheet.#onOpenUuid,
       sinSuggest: VtMActorSheet.#onSinSuggest,
       tormentKind: VtMActorSheet.#onTormentKind,
       tormentAtone: VtMActorSheet.#onTormentAtone,
@@ -412,6 +414,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
         dots: dots(v, 5, { path: `system.urges.${k}` }), xp: a.xpCost("urge", v) };
     });
     if (ctx.isDemon) {
+      ctx.hostMiles = (s.willpower?.permanent ?? 0) + 5;
       ctx.faithPerm = dots(s.faith.permanent, 10, { path: "system.faith.permanent" });
       ctx.faithBoxes = dots(s.faith.temporary, 10, { path: "system.faith.temporary" });
       ctx.tormentPerm = dots(s.torment.permanent, 10, { path: "system.torment.permanent" });
@@ -1226,6 +1229,14 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static #onGhoulify() { return ghoulify(this.actor); }
   static #onFormUpkeep() { return formUpkeep(this.actor); }
   static #onThrallGifts() { return openThrallGifts(this.actor); }
+  /** Тело-носитель (apps/host.mjs): гибель тела, ход без тела, новое тело, призван из Бездны. */
+  static async #onHostLose() {
+    const ok = await foundry.applications.api.DialogV2.confirm({ window: { title: game.i18n.localize("VTM20.Host.Btn") }, content: `<p>${game.i18n.localize("VTM20.Host.BtnHint")}</p>` });
+    if (ok) return loseHost(this.actor, "death");
+  }
+  static #onHostHold() { return holdOn(this.actor); }
+  static #onHostNew() { return newHost(this.actor); }
+  static #onHostSummoned() { return summonedBack(this.actor); }
   /** Картинка жетона в форме — выбирает игрок (своих картинок система не даёт). */
   static #onFormLookImg() {
     const fp = new foundry.applications.apps.FilePicker.implementation({ type: "image", current: this.actor.system.formLook?.img || "",
@@ -1584,6 +1595,7 @@ function rollFromSpec(actor, r, { title, subtitle, effect, kind = "check", magic
 
 /** Бросок силы Знания-предмета: как призыв из справочника — кость Муки, Тёмное Знание падшему стоит Муки. */
 function rollLorePower(actor, item) {
+  if (actor.system.hostless) return ui.notifications.warn(game.i18n.localize("VTM20.Host.NoLore"));
   const d = Codex.lore(item.system.lore), lv = item.system.level;
   return rollFromSpec(actor, item.system.roll ?? {}, { title: item.name, subtitle: `${d?.name ?? ""} · ${ROMAN[lv - 1] ?? lv}`, effect: item.system.description,
     torment: d?.dark ? 10 : actor.system.torment?.permanent ?? 0, power: { disc: `lore:${item.system.lore}`, level: lv, name: item.name },
@@ -1596,6 +1608,7 @@ export function rollPowerRef(actor, ref) {
   if (!x) return;
   const { disc, d, p, pathName } = x, magic = VTM20.pathDisciplines.includes(disc);
   // Тёмные Знания (Earthbound): эффекта низкой Муки нет; падший платит 1 временной Мукой за каждое применение
+  if (disc.startsWith("lore:") && actor.system.hostless) return ui.notifications.warn(game.i18n.localize("VTM20.Host.NoLore"));
   if (disc.startsWith("lore:")) return rollFromSpec(actor, p.roll ?? {}, { title: p.name, subtitle: `${d.name} · ${ROMAN[p.level - 1]}`, effect: p.html,
     torment: d.dark ? 10 : actor.system.torment?.permanent ?? 0, power: { disc, level: p.level, name: p.name },
     onRolled: d.dark && actor.type === "demon" && !actor.system.earthbound ? () => gainTorment(actor, 1, t("Demon.DarkReason")) : null });

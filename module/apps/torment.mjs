@@ -23,7 +23,10 @@ export function registerTorment() {
   Hooks.on("updateCombat", (combat, changed) => {
     if (!("turn" in changed || "round" in changed) || game.user !== game.users.activeGM) return;
     const a = combat.combatant?.actor;
-    if (a?.type === "demon" && a.system.earthbound && a.system.apocalyptic) formUpkeep(a);
+    if (a?.type === "demon" && a.system.earthbound && a.system.apocalyptic && !a.system.hostless) formUpkeep(a);
+    if (a?.type === "demon" && a.system.hostless && !a.system.abyss) ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: a }),
+      whisper: game.users.filter(u => u.isGM || a.testUserPermission(u, "OWNER")).map(u => u.id),
+      content: `<div class="r-notice r-type-demon is-form"><i class="fa-solid fa-ghost"></i> ${game.i18n.format("VTM20.Host.TurnTell", { name: esc(a.name) })}</div>` });
   });
   // вход в форму и выход из неё (любой путь: кнопка, рассеяние, правка) — жетоны меняет тот, кто менял лист
   Hooks.on("updateActor", (actor, changed, _opts, userId) => {
@@ -315,7 +318,8 @@ export function innateRoll(actor, kind) {
   if (kind === "illusion") return RollDialog.prompt(actor, { title: t("InnateIllusion"), trait1: "attributes.perception", trait2: "abilities.alertness",
     difficulty: 7, diffNote: t("InnateIllusionNote"), kind: "check" });
   if (kind === "exorcism") return rollPool({ actor, title: t("InnateExorcism"), pool: actor.system.willpower.permanent, difficulty: 6, kind: "exorcism",
-    breakdown: [{ label: game.i18n.localize("VTM20.Willpower"), value: actor.system.willpower.permanent }] });
+    breakdown: [{ label: game.i18n.localize("VTM20.Willpower"), value: actor.system.willpower.permanent }] })
+    .then(async res => { if (res && res.successes === 0) { const { loseHost } = await import("./host.mjs"); await loseHost(actor, "exorcism"); } return res; });
   return foundry.applications.api.DialogV2.wait({
     window: { title: t("InnateName") }, classes: ["vtm20", "r-dialog"], position: { width: 420 }, content: `<p>${t("InnateNameHow")}</p>`,
     buttons: [{ action: "7", label: t("Celestial"), default: true }, { action: "6", label: t("TrueName") }]

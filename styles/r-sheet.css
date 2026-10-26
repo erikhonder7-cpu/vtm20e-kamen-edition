@@ -1148,6 +1148,13 @@ body.r-theme-light .vtm20 .r-motto { color: rgba(140, 28, 34, .75); }
 .vtm20 .r-assignat-meta a.is-on { color: #e0a64a; }
 .vtm20 .r-vc-morality.is-torment.is-high .r-vc-status { color: var(--r-accent); }
 .vtm20 .r-form { border-left: 2px solid var(--r-line); padding: 2px 0 4px 12px; margin: 4px 0 10px; }
+/* падший без тела-носителя (apps/host.mjs); в Бездне — красным */
+.vtm20 .r-host-card { margin: 4px 0 12px; padding: 6px 10px 8px; border: 1px solid #6b5a8a; border-left-width: 3px; background: rgba(60, 50, 90, .14); }
+.vtm20 .r-host-card.is-abyss { border-color: #8c1c22; background: rgba(140, 28, 34, .14); }
+.vtm20 .r-host-title { margin: 0 0 3px; font-family: var(--r-caps); letter-spacing: 1.4px; text-transform: uppercase; font-size: 12.5px; }
+.vtm20 .r-host-title i { margin-right: 6px; color: #a99ad0; }
+.vtm20 .r-host-card.is-abyss .r-host-title i { color: var(--r-accent); }
+.vtm20 .r-host-tools { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
 .vtm20 .r-form.is-on { border-left-color: #b07a2c; }
 .vtm20 .r-form-title { margin: 0 0 6px; font-size: 14px; color: var(--r-muted); }
 .vtm20 .r-form-title b { font-family: var(--r-caps); letter-spacing: 1.2px; color: var(--r-ink); font-weight: 400; }

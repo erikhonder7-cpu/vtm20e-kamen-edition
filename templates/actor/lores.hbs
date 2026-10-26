@@ -135,9 +135,23 @@
       <a class="r-h2-btn" data-action="innate" data-kind="illusion" data-tooltip="{{localize 'VTM20.Demon.InnateIllusionNote'}}"><i class="fa-solid fa-eye"></i> <span class="r-h2-lbl">{{localize "VTM20.Demon.InnateIllusionShort"}}</span></a>
       <a class="r-h2-btn" data-action="innate" data-kind="names" data-tooltip="{{localize 'VTM20.Demon.InnateNameHow'}}"><i class="fa-solid fa-signature"></i> <span class="r-h2-lbl">{{localize "VTM20.Demon.InnateNameShort"}}</span></a>
       <a class="r-h2-btn" data-action="innate" data-kind="exorcism" data-tooltip="{{localize 'VTM20.Demon.InnateExorcismNote'}}"><i class="fa-solid fa-person-walking-arrow-right"></i> <span class="r-h2-lbl">{{localize "VTM20.Demon.InnateExorcismShort"}}</span></a>
+      {{#if editable}}{{#unless system.hostless}}<a class="r-h2-btn" data-action="hostLose" data-tooltip="{{localize 'VTM20.Host.BtnHint'}}"><i class="fa-solid fa-ghost"></i> <span class="r-h2-lbl">{{localize "VTM20.Host.Btn"}}</span></a>{{/unless}}{{/if}}
     </span>
   </h2>
   <p class="r-note r-innate-note">{{localize "VTM20.Demon.InnateText"}}</p>
+  {{!-- Без тела-носителя (гл. 9): каждый ход — удержаться, поиск нового тела; в Бездне — только ритуал вызова --}}
+  {{#if system.hostless}}
+  <div class="r-host-card {{#if system.abyss}}is-abyss{{/if}}">
+    <p class="r-host-title"><i class="fa-solid {{#if system.abyss}}fa-hurricane{{else}}fa-ghost{{/if}}"></i>
+      <b>{{#if system.abyss}}{{localize "VTM20.Host.AbyssCard"}}{{else}}{{localize "VTM20.Host.Card"}}{{/if}}</b></p>
+    <p class="r-note">{{#if system.abyss}}{{localize "VTM20.Host.AbyssText"}}{{else}}{{localize "VTM20.Host.CardText" miles=hostMiles}}{{/if}}</p>
+    {{#if editable}}<div class="r-host-tools">
+      {{#if system.abyss}}<a class="r-vc-btn" data-action="hostSummoned"><i class="fa-solid fa-door-open"></i> {{localize "VTM20.Host.SummonBtn"}}</a>
+      {{else}}<a class="r-vc-btn" data-action="hostHold"><i class="fa-solid fa-anchor"></i> {{localize "VTM20.Host.HoldBtn"}}</a>
+      <a class="r-vc-btn" data-action="hostNew"><i class="fa-solid fa-person"></i> {{localize "VTM20.Host.NewBtn"}}</a>{{/if}}
+    </div>{{/if}}
+  </div>
+  {{/if}}
 
   {{!-- Апокалиптическая форма: черты Облика; высокая Мука открывает тёмные черты --}}
   <h2 class="r-h2"><span>{{localize "VTM20.Demon.Form"}}</span>
