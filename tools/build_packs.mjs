@@ -315,6 +315,21 @@ BUILDERS["demon-lores"] = function () {
   }
   return p;
 };
+/** Призывы падших — справочник для чтения: журнал на Знание, страница на призыв (бросок, обычный эффект, высокая Мука).
+ *  На листе призывы по-прежнему берутся из data/demon.json по точкам Знания — здесь только чтение и ссылки в чат. */
+BUILDERS["demon-evocations"] = function () {
+  const p = new Pack("demon-evocations", "JournalEntry");
+  const dm = data("demon"), eb = data("demon-earthbound");
+  const houseName = Object.fromEntries(dm.houses.map(h => [h.key, h.name]));
+  const A = { ...ru.VTM20.Attr, ...ru.VTM20.Abil };
+  const pool = r => r?.trait1 ? `${A[r.trait1.split(".")[1]] ?? r.trait1} + ${A[r.trait2.split(".")[1]] ?? r.trait2}, сл. ${r.difficulty || 6}${r.note ? `; ${r.note}` : ""}` : "по книге";
+  for (const l of [...dm.lores, ...eb.lores]) {
+    const pages = l.powers.map(x => ({ name: `${ROMAN_LV[x.level - 1]}. ${x.name}`,
+      html: `<p><strong>Бросок:</strong> ${esc(pool(x.roll))}</p>${x.html}` }));
+    p.addBook({ name: l.name, pages, folder: l.dark ? "Привязанные к Земле" : l.house ? houseName[l.house] : "Общие Знания", key: `evocations:${l.key}` });
+  }
+  return p;
+};
 /** Дома и фракции падших — журналы: Дом (Облики, Знания, стартовая Мука), фракция. */
 BUILDERS["demon-houses"] = function () {
   const p = new Pack("demon-houses", "JournalEntry");

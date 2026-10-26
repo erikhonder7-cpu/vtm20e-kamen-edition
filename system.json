@@ -314,6 +314,18 @@
       "flags": {}
     },
     {
+      "name": "demon-evocations",
+      "label": "Призывы падших",
+      "path": "packs/demon-evocations",
+      "type": "JournalEntry",
+      "system": "vtm20e-kamen-edition",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
+    },
+    {
       "name": "demon-houses",
       "label": "Дома и фракции падших",
       "path": "packs/demon-houses",
@@ -425,6 +437,7 @@
       "packs": [
         "demon-rules",
         "demon-lores",
+        "demon-evocations",
         "demon-houses",
         "demon-rituals",
         "demon-relics",
