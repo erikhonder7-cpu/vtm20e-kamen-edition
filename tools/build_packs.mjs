@@ -213,7 +213,7 @@ const BUILDERS = {
     const clanName = Object.fromEntries(data("clans").map(c => [c.key, c.name]));
     clanName.synySamuila ??= "Сыны Самуила";
     const sectName = { camarilla: "Камарилья", sabbat: "Шабаш", anarchs: "Анархи" };
-    for (const m of data("merits")) {
+    for (const m of data("merits").filter(m => !m.line)) {          // черты охотников — в hunter-merits
       const range = m.max > m.min ? `<p><em>Цена: ${m.min}–${m.max}</em></p>` : "";
       const kindLabel = m.kind === "merit" ? "Достоинства" : "Недостатки";
       const folder = m.clan ? [`Клановые ${kindLabel.toLowerCase()}`, clanName[m.clan] ?? m.clan]
@@ -441,6 +441,19 @@ BUILDERS["demon-merits"] = function () {
   return p;
 };
 /** Дополнения падших (Demon: The Fallen, гл. 6). */
+/** Hunter: The Reckoning — пока черты смертных охотников (Hunters Hunted II), папки по категориям. */
+BUILDERS["hunter-merits"] = function () {
+  const p = new Pack("hunter-merits");
+  const cat = ru.VTM20.MeritCat ?? {};
+  for (const m of data("merits").filter(m => m.line === "hunter")) {
+    const range = m.max > m.min ? `<p><em>Цена: ${m.min}–${m.max}</em></p>` : "";
+    const folder = `${m.kind === "merit" ? "Достоинства" : "Недостатки"} — ${cat[m.category] ?? m.category}`;
+    p.add({ name: m.name, type: m.kind, folder, key: `hunter:${m.kind}:${m.name}`, img: traitIcon(m.category, m.kind === "flaw"),
+      system: { cost: m.min || 1, category: m.category, clan: "", sect: "", source: m.en ?? "", description: `${m.html ?? ""}${range}` } });
+  }
+  return p;
+};
+
 BUILDERS["demon-backgrounds"] = function () {
   const p = new Pack("demon-backgrounds");
   for (const b of data("demon-backgrounds"))

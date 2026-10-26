@@ -383,6 +383,18 @@
         "ASSISTANT": "OWNER"
       },
       "flags": {}
+    },
+    {
+      "name": "hunter-merits",
+      "label": "Достоинства и недостатки охотников",
+      "path": "packs/hunter-merits",
+      "type": "Item",
+      "system": "vtm20e-kamen-edition",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
     }
   ],
   "grid": {
@@ -441,6 +453,14 @@
         "demon-relics",
         "demon-merits",
         "demon-backgrounds"
+      ]
+    },
+    {
+      "name": "Hunter: The Reckoning",
+      "sorting": "m",
+      "color": "#5a4a1c",
+      "packs": [
+        "hunter-merits"
       ]
     }
   ]

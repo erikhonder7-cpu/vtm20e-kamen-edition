@@ -902,6 +902,11 @@ def main():
     import merits_extra
     merits += merits_extra.collect(merits)
     merits = [merits_extra.with_clan(x) for x in merits]   # поле clan у всех; у общих черт — ""
+    # черты смертных охотников (Hunters Hunted II) — линия «hunter»: в библиотеке и мастере вампиров, гулей и смертных
+    # их нет (там только линия ""), в компендиях — папка Hunter: The Reckoning
+    for x in merits:
+        if x.get("source", "").startswith("V20 Hunters Hunted II"):
+            x["line"] = "hunter"
     bdir = os.path.join(REF, "Факты_биографии")
     backgrounds = parse_backgrounds(os.path.join(bdir, sorted(f for f in os.listdir(bdir) if f.endswith(".md"))[0]))
     for x in backgrounds: x["source"] = "V20"

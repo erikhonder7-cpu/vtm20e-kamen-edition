@@ -584,6 +584,9 @@ body.r-theme-light .vtm20 .r-ng-item.is-active, body.r-theme-light .vtm20 .r-ng-
 .r-tile.is-big { padding: 11px 3px 8px; gap: 5px; font-family: var(--r-caps); font-size: 10.5px; letter-spacing: 0; text-transform: uppercase; }
 .r-tile.is-big span { max-width: 100%; text-align: center; line-height: 1.15; }
 .r-tile.is-big i { font-size: 20px; }
+/* пять плиток в ряд (опасности падшего): длинные слова — «Электричество» — помещаются в плитку */
+.r-tiles[style*="--cols: 5"] .r-tile.is-big { font-size: 10px; }
+.r-tile.is-big span { overflow-wrap: anywhere; }
 .r-tile.is-flat { justify-content: center; min-height: 34px; padding: 6px 18px 5px; }
 .vtm20 .r-hunt-method { flex: 1; min-width: 0; }
 /* Охота с карты (план 8): плашка места и домена */

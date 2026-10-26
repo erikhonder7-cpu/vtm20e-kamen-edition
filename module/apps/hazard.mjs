@@ -64,7 +64,8 @@ class HazardDialog extends HandlebarsApplicationMixin(ApplicationV2) {
   static PARTS = { form: { template: `${SYSTEM_PATH}/templates/apps/hazard.hbs` } };
 
   constructor(actor) {
-    super({ window: { title: `${t("Hazard.Title")}: ${actor.name}` } });
+    // у падшего пять видов опасности в ряд — окно шире, иначе «Электричество» не влезает в плитку
+    super({ window: { title: `${t("Hazard.Title")}: ${actor.name}` }, position: { width: actor.type === "demon" ? 560 : 480 } });
     this.actor = actor;
     this.v = { kind: "fire", heat: "torch", light: "direct", area: "part", meters: 6, sharp: false, shock: "outlet", ground: "church", relic: "water",
       modDice: 0, modDiff: 0, messageMode: game.settings.get("core", "messageMode") };
