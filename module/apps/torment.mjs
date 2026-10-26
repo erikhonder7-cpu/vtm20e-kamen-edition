@@ -37,7 +37,7 @@ export function registerTorment() {
   Hooks.on("updateCombat", (combat, changed) => {
     if (!("turn" in changed || "round" in changed) || game.user !== game.users.activeGM) return;
     const a = combat.combatant?.actor;
-    if (a?.type === "demon" && a.system.earthbound && a.system.apocalyptic && !a.system.hostless) formUpkeep(a);
+    if (a?.type === "demon" && a.system.earthbound && a.system.apocalyptic && !a.system.hostless && !a.system.possession?.name) formUpkeep(a);
     if (a?.type === "demon" && a.system.hostless && !a.system.abyss) ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: a }),
       whisper: game.users.filter(u => u.isGM || a.testUserPermission(u, "OWNER")).map(u => u.id),
       content: `<div class="r-notice r-type-demon is-form"><i class="fa-solid fa-ghost"></i> ${game.i18n.format("VTM20.Host.TurnTell", { name: esc(a.name) })}</div>` });
@@ -250,7 +250,7 @@ export async function assumeForm(actor) {
   const s = actor.system, visage = Codex.house(s.house)?.visages?.[s.visage] ?? "";
   if (s.apocalyptic) { await actor.unsetFlag(SYSTEM_ID, "formScene"); await actor.unsetFlag(SYSTEM_ID, "urgeSplit"); return actor.update({ "system.apocalyptic": false }); }
   // Привязанный (Earthbound, гл. 3): тело из сгущённой Веры рядом с реликварием — без броска, но за каждый ход
-  if (s.earthbound) {
+  if (s.earthbound && !s.possession?.name) {
     const cost = formUpkeepCost(actor);
     if (reliquaryInfo(actor).faith + s.faith.temporary < cost) return ui.notifications.warn(t("FormNoUpkeep", { n: cost }));
     await payFaith(actor, cost);
@@ -475,7 +475,7 @@ async function payFaith(actor, n) {
  */
 export async function formUpkeep(actor) {
   const s = actor.system;
-  if (!s.earthbound || !s.apocalyptic) return null;
+  if (!s.earthbound || !s.apocalyptic || s.possession?.name) return null;   // в теле поклонника форма не стоит Веры за ход
   const cost = formUpkeepCost(actor), have = reliquaryInfo(actor).faith + s.faith.temporary;
   if (have < cost) {
     await actor.update({ "system.apocalyptic": false });

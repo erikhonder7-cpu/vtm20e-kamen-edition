@@ -34,6 +34,7 @@ import { makeExtra } from "../apps/extras.mjs";
 import { ritualHTML } from "../data/ritual-text.mjs";
 import { openThrallGifts } from "../apps/thrall-gifts.mjs";
 import { loseHost, holdOn, newHost, summonedBack } from "../apps/host.mjs";
+import { possess, extend as possessExtend, leave as possessLeave, battleExpiry, possessionView } from "../apps/possession.mjs";
 import { MERIT_MODS, describeMeritMod } from "../data/merit-mods.mjs";
 import { weaponIcon as weaponImg, armorIcon as armorImg } from "../data/icons.mjs";
 import { togglePowerEffect } from "../apps/power-effects.mjs";
@@ -133,7 +134,8 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       reliquaryDraw: VtMActorSheet.#onReliquaryDraw,
       houseAtlas: VtMActorSheet.#onHouseAtlas,
       tormentSin: VtMActorSheet.#onTormentSin, thrallSin: VtMActorSheet.#onThrallSin, thrallPact: VtMActorSheet.#onThrallPact, ghoulify: VtMActorSheet.#onGhoulify, formUpkeep: VtMActorSheet.#onFormUpkeep, thrallGifts: VtMActorSheet.#onThrallGifts,
-      tormentLog: VtMActorSheet.#onTormentLog, hostLose: VtMActorSheet.#onHostLose, hostHold: VtMActorSheet.#onHostHold, hostNew: VtMActorSheet.#onHostNew, hostSummoned: VtMActorSheet.#onHostSummoned, formLookImg: VtMActorSheet.#onFormLookImg, formLookClear: VtMActorSheet.#onFormLookClear, thrallBreak: VtMActorSheet.#onThrallBreak, openUuid: VtMActorSheet.#onOpenUuid,
+      tormentLog: VtMActorSheet.#onTormentLog, hostLose: VtMActorSheet.#onHostLose,
+      possess: VtMActorSheet.#onPossess, possessExtend: VtMActorSheet.#onPossessExtend, possessLeave: VtMActorSheet.#onPossessLeave, possessBattle: VtMActorSheet.#onPossessBattle, hostHold: VtMActorSheet.#onHostHold, hostNew: VtMActorSheet.#onHostNew, hostSummoned: VtMActorSheet.#onHostSummoned, formLookImg: VtMActorSheet.#onFormLookImg, formLookClear: VtMActorSheet.#onFormLookClear, thrallBreak: VtMActorSheet.#onThrallBreak, openUuid: VtMActorSheet.#onOpenUuid,
       sinSuggest: VtMActorSheet.#onSinSuggest,
       tormentKind: VtMActorSheet.#onTormentKind,
       tormentAtone: VtMActorSheet.#onTormentAtone,
@@ -623,6 +625,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     ctx.earthbound = !!s.earthbound;
     if (s.earthbound) {
       const R = reliquaryInfo(a);
+      ctx.possession = possessionView(a);
       ctx.reliquary = { ...R, kinds: ["ideal", "improvised", "natural"].map(k => ({ value: k, label: t(`Demon.ReliquaryKind.${k}`), selected: k === R.kind })),
         hint: t(`Demon.ReliquaryHint.${R.kind}`),
         urges: ["flesh", "thought", "emotion"].map(k => ({ key: k, label: t(`Demon.Urge.${k}`), tip: t(`Demon.UrgeTip.${k}`), value: s.urges?.[k] ?? 1 })) };
@@ -1236,6 +1239,14 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   }
   static #onHostHold() { return holdOn(this.actor); }
   static #onTormentLog() { return openTormentLog(this.actor); }
+  /** Завладение Привязанного (apps/possession.mjs). */
+  static #onPossess() { return possess(this.actor); }
+  static #onPossessExtend() { return possessExtend(this.actor); }
+  static async #onPossessLeave() {
+    const ok = await foundry.applications.api.DialogV2.confirm({ window: { title: game.i18n.localize("VTM20.Possess.Leave") }, content: `<p>${game.i18n.localize("VTM20.Possess.LeaveConfirm")}</p>` });
+    if (ok) return possessLeave(this.actor);
+  }
+  static #onPossessBattle() { return battleExpiry(this.actor); }
   static #onHostNew() { return newHost(this.actor); }
   static #onHostSummoned() { return summonedBack(this.actor); }
   /** Картинка жетона в форме — выбирает игрок (своих картинок система не даёт). */

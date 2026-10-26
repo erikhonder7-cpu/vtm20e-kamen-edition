@@ -24,6 +24,22 @@
     <span class="r-rq-urges" data-tooltip="{{localize 'VTM20.Demon.UrgesHint'}}"><b>{{localize "VTM20.Demon.Urges"}}</b>
       {{#each reliquary.urges}}<label data-tooltip="{{tip}}">{{label}} <input type="number" name="system.urges.{{key}}" value="{{value}}" min="0" max="5" {{#unless @root.editable}}disabled{{/unless}}></label>{{/each}}</span>
   </div>
+  {{!-- Завладение телом поклонника (Earthbound, гл. 3): 48 часов хроники, Вера в теле — минус час --}}
+  {{#if possession}}
+  <div class="r-possess {{#if possession.on}}is-on{{/if}}">
+    <i class="fa-solid fa-person-rays"></i>
+    {{#if possession.on}}
+    <span class="r-possess-who">{{localize "VTM20.Possess.In"}}: {{#if possession.uuid}}<a data-action="openUuid" data-uuid="{{possession.uuid}}">{{possession.name}}</a>{{else}}<b>{{possession.name}}</b>{{/if}}</span>
+    <span class="r-possess-left {{#if (lt possession.left 6)}}is-low{{/if}}" data-tooltip="{{localize 'VTM20.Possess.LeftHint' spent=possession.spent ext=possession.extended}}">{{localize "VTM20.Possess.Left" h=possession.left}}</span>
+    {{#if editable}}<a class="r-h2-btn" data-action="possessExtend" data-tooltip="{{localize 'VTM20.Possess.ExtendHint'}}"><i class="fa-solid fa-hourglass-half"></i> {{localize "VTM20.Possess.ExtendBtn"}}</a>
+    <a class="r-h2-btn" data-action="possessLeave"><i class="fa-solid fa-gem"></i> {{localize "VTM20.Possess.Leave"}}</a>{{/if}}
+    {{#if isGM}}<a class="r-h2-btn" data-action="possessBattle" data-tooltip="{{localize 'VTM20.Possess.BattleHint'}}"><i class="fa-solid fa-hourglass-end"></i> {{localize "VTM20.Possess.BattleBtn"}}</a>{{/if}}
+    {{else}}
+    <span class="r-possess-who">{{localize "VTM20.Possess.None"}}</span>
+    {{#if editable}}<a class="r-h2-btn" data-action="possess" data-tooltip="{{localize 'VTM20.Possess.Hint'}}"><i class="fa-solid fa-person-rays"></i> {{localize "VTM20.Possess.Btn"}}</a>{{/if}}
+    {{/if}}
+  </div>
+  {{/if}}
   {{/if}}
 
   {{#each lores}}

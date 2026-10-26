@@ -265,6 +265,10 @@ export class DemonData extends BaseActorData {
       apocalyptic: new BooleanField({ initial: false }),
       // без тела-носителя (гибель или экзорцизм; apps/host.mjs) и утянут в Бездну
       hostless: new BooleanField({ initial: false }), abyss: new BooleanField({ initial: false }),
+      // завладение Привязанного телом поклонника (apps/possession.mjs): кто, с какого часа хроники, потрачено Веры (часов),
+      // продлено часов; кем завладеть больше нельзя (провал)
+      possession: new SchemaField({ name: str(), uuid: str(), start: new NumberField({ required: true, integer: true, initial: 0 }),
+        spent: int(0, 0, 999), extended: int(0, 0, 999), banned: new ArrayField(str()) }),
       // журнал Муки (apps/torment.mjs): когда (реальное время и дата хроники), насколько изменилась временная и постоянная,
       // что стало, за что; последние 200 записей
       tormentLog: new ArrayField(new SchemaField({ ts: new NumberField({ required: true, integer: true, initial: 0 }), date: str(),
