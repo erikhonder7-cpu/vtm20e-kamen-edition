@@ -143,6 +143,7 @@
   <h2 class="r-h2"><span>{{localize "VTM20.Demon.Form"}}</span>
     <span class="r-h2-tools">
       {{#if form}}{{#if editable}}<a class="r-h2-btn {{#if form.on}}is-on{{/if}}" data-action="apocalyptic" data-tooltip="{{#if form.on}}{{localize 'VTM20.Demon.FormDrop'}}{{else}}{{localize 'VTM20.Demon.FormTake'}}{{/if}}"><i class="fa-solid fa-dragon"></i> <span class="r-h2-lbl">{{#if form.on}}{{localize "VTM20.Demon.FormDropShort"}}{{else}}{{localize "VTM20.Demon.FormTakeShort"}}{{/if}}</span></a>{{/if}}{{/if}}
+      {{#if earthbound}}{{#if form.on}}{{#if editable}}<a class="r-h2-btn" data-action="formUpkeep" data-tooltip="{{localize 'VTM20.Demon.FormUpkeepHint'}}"><i class="fa-solid fa-hourglass-half"></i> <span class="r-h2-lbl">{{localize "VTM20.Demon.FormUpkeepBtn"}}</span></a>{{/if}}{{/if}}{{/if}}
     </span>
   </h2>
   {{#if form}}

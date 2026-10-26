@@ -42,7 +42,7 @@ import { themeClass } from "../ui/themes.mjs";
 import { openHouses } from "../apps/houses.mjs";
 import { formFeatures, mechLabel, needsPick, signed } from "../data/form.mjs";
 import { ghoulify } from "../apps/embrace-ghoul.mjs";
-import { virtuePrompt, thrallSin, thrallPact, thrallBreak, atoneWithXp, assumeForm, sceneHighFeature, harvestFaith, pactFaith, innateRoll, ritualTurn, ritualEffect, ritualNeed, suggestSin, revelation, gainTorment, thrallState, thrallCap, reliquaryInfo, worshipRitual, reliquaryDraw } from "../apps/torment.mjs";
+import { virtuePrompt, thrallSin, thrallPact, thrallBreak, formUpkeep, atoneWithXp, assumeForm, sceneHighFeature, harvestFaith, pactFaith, innateRoll, ritualTurn, ritualEffect, ritualNeed, suggestSin, revelation, gainTorment, thrallState, thrallCap, reliquaryInfo, worshipRitual, reliquaryDraw } from "../apps/torment.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -129,7 +129,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       worship: VtMActorSheet.#onWorship,
       reliquaryDraw: VtMActorSheet.#onReliquaryDraw,
       houseAtlas: VtMActorSheet.#onHouseAtlas,
-      tormentSin: VtMActorSheet.#onTormentSin, thrallSin: VtMActorSheet.#onThrallSin, thrallPact: VtMActorSheet.#onThrallPact, ghoulify: VtMActorSheet.#onGhoulify, thrallBreak: VtMActorSheet.#onThrallBreak, openUuid: VtMActorSheet.#onOpenUuid,
+      tormentSin: VtMActorSheet.#onTormentSin, thrallSin: VtMActorSheet.#onThrallSin, thrallPact: VtMActorSheet.#onThrallPact, ghoulify: VtMActorSheet.#onGhoulify, formUpkeep: VtMActorSheet.#onFormUpkeep, thrallBreak: VtMActorSheet.#onThrallBreak, openUuid: VtMActorSheet.#onOpenUuid,
       sinSuggest: VtMActorSheet.#onSinSuggest,
       tormentKind: VtMActorSheet.#onTormentKind,
       tormentAtone: VtMActorSheet.#onTormentAtone,
@@ -1219,6 +1219,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static #onThrallSin() { return thrallSin(this.actor); }
   static #onThrallPact() { return thrallPact(this.actor); }
   static #onGhoulify() { return ghoulify(this.actor); }
+  static #onFormUpkeep() { return formUpkeep(this.actor); }
   static #onThrallBreak() { return thrallBreak(this.actor); }
   /** Открыть лист по uuid (хозяин слуги и т. п.). */
   static async #onOpenUuid(event, target) { (await fromUuid(target.dataset.uuid))?.sheet?.render(true); }

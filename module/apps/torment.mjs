@@ -19,6 +19,12 @@ const virtueLabel = (actor, slot) => actor.traitLabel(`virtues.${slot}`);
 /** +n временной Муки; каждые 10 — пункт постоянной (до 10). */
 /** Настройка мира: как решается эффект высокой Муки призыва (dice/roll.mjs → tormentRule). */
 export function registerTorment() {
+  // начало хода Привязанного в форме без носителя — плата Верой (делает активный рассказчик)
+  Hooks.on("updateCombat", (combat, changed) => {
+    if (!("turn" in changed || "round" in changed) || game.user !== game.users.activeGM) return;
+    const a = combat.combatant?.actor;
+    if (a?.type === "demon" && a.system.earthbound && a.system.apocalyptic) formUpkeep(a);
+  });
   game.settings.register(SYSTEM_ID, "tormentRule", {
     name: "VTM20.Settings.TormentRule.Name", hint: "VTM20.Settings.TormentRule.Hint",
     scope: "world", config: true, type: String, default: "die",
@@ -194,6 +200,15 @@ export async function atoneWithXp(actor) {
 export async function assumeForm(actor) {
   const s = actor.system, visage = Codex.house(s.house)?.visages?.[s.visage] ?? "";
   if (s.apocalyptic) { await actor.unsetFlag(SYSTEM_ID, "formScene"); await actor.unsetFlag(SYSTEM_ID, "urgeSplit"); return actor.update({ "system.apocalyptic": false }); }
+  // Привязанный (Earthbound, гл. 3): тело из сгущённой Веры рядом с реликварием — без броска, но за каждый ход
+  if (s.earthbound) {
+    const cost = formUpkeepCost(actor);
+    if (reliquaryInfo(actor).faith + s.faith.temporary < cost) return ui.notifications.warn(t("FormNoUpkeep", { n: cost }));
+    await payFaith(actor, cost);
+    await actor.update({ "system.apocalyptic": true });
+    await splitUrges(actor);
+    return notice(actor, "fa-dragon", t("FormManifest", { name: esc(actor.name), n: cost }), "is-form");
+  }
   if (s.faith.temporary < 1) return ui.notifications.warn(t("NoFaith"));
   const how = await foundry.applications.api.DialogV2.wait({
     window: { title: t("FormTake") }, classes: ["vtm20", "r-dialog"], position: { width: 420 },
@@ -374,6 +389,30 @@ export async function worshipRitual(actor) {
   await actor.update({ "system.reliquary.faith": next });
   return notice(actor, "fa-place-of-worship", t("WorshipDone", { name: esc(actor.name), n: next - R.faith, f: next, max: R.max }));
 }
+/** Плата за ход формы Привязанного без носителя: 2 Веры (импровизированный реликварий — 1). */
+export const formUpkeepCost = actor => actor.system.reliquary?.kind === "improvised" ? 1 : 2;
+/** Списать Веру: сначала из реликвария, потом из своего запаса (Earthbound, гл. 3). */
+async function payFaith(actor, n) {
+  const r = actor.system.reliquary?.faith ?? 0, fromRel = Math.min(r, n);
+  await actor.update({ "system.reliquary.faith": r - fromRel, "system.faith.temporary": Math.max(0, actor.system.faith.temporary - (n - fromRel)) });
+}
+/**
+ * Ход в форме без носителя: заплатить Верой или рассеяться. Вызывается в начале хода Привязанного в бою (updateCombat)
+ * и кнопкой на вкладке Знаний вне боя.
+ */
+export async function formUpkeep(actor) {
+  const s = actor.system;
+  if (!s.earthbound || !s.apocalyptic) return null;
+  const cost = formUpkeepCost(actor), have = reliquaryInfo(actor).faith + s.faith.temporary;
+  if (have < cost) {
+    await actor.update({ "system.apocalyptic": false });
+    await actor.unsetFlag(SYSTEM_ID, "urgeSplit");
+    return notice(actor, "fa-wind", t("FormDissipates", { name: esc(actor.name) }), "is-form");
+  }
+  await payFaith(actor, cost);
+  return notice(actor, "fa-fire-flame-curved", t("FormUpkeepPaid", { name: esc(actor.name), n: cost, left: reliquaryInfo(actor).faith + actor.system.faith.temporary }), "is-form");
+}
+
 /** Взять пункт Веры из реликвария в запас Веры (тратится первой — книга; здесь — переложить перед тратой). */
 export async function reliquaryDraw(actor) {
   const R = reliquaryInfo(actor), f = actor.system.faith.temporary;
