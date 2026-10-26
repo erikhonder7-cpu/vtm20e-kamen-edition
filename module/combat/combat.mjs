@@ -130,6 +130,12 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
           fangs: false, note: v ? t("Combat.VenomNote", { n: fx.venom }) : "", pierce: w.pierce ?? 0, bullet: w.kind === "firearms" };
       }
     }
+    // естественное оружие апокалиптической формы (когти, рога, хвост, чрево — data/form.mjs): Ловкость + Драка
+    if (kind === "f") {
+      const w = s.formFx?.weapons?.[Number(id)];
+      if (w) return { name: w.name, attr: "dexterity", ability: "brawl", dice: 0, diff: w.diff ?? 0, ranged: false,
+        dmg: str + w.dmg, auto, type: w.agg ? "aggravated" : "lethal", venom: false, fangs: true, note: t("Combat.FormWeaponNote"), pierce: 0, bullet: false };
+    }
     const m = MANEUVERS[id] ?? MANEUVERS.punch;
     // Чудовищный облик: +1 куб к урону в драке; Шкура гадюки: +1 куб к укусу (data/effects.mjs)
     const extra = m.dmg == null ? 0 : (m.ability === "brawl" ? fx.brawlDamage ?? 0 : 0) + (id === "bite" ? fx.biteDamage ?? 0 : 0);
@@ -187,7 +193,8 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const weapons = weaponsOf(a).map(w => ({ ...w, key: `w:${w.id}`, active: v.pick === `w:${w.id}`,
       icon: { brawl: "fa-hand-back-fist", melee: "fa-khanda", firearms: "fa-gun", thrown: "fa-bullseye" }[w.kind] }));
     const maneuvers = Object.entries(MANEUVERS).filter(([k, m]) => k === "claws" ? !!a.system.fx?.claws : (!m.vampire || a.isVampire))
-      .map(([k, m]) => ({ key: `m:${k}`, name: t(`Combat.M.${k}`), icon: m.icon, active: v.pick === `m:${k}` }));
+      .map(([k, m]) => ({ key: `m:${k}`, name: t(`Combat.M.${k}`), icon: m.icon, active: v.pick === `m:${k}` }))
+      .concat((a.system.formFx?.weapons ?? []).map((w, i) => ({ key: `f:${i}`, name: w.name, icon: "fa-dragon", active: v.pick === `f:${i}` })));
     const split = label => { const m = label.match(/^(.*?)\s*\(([^)]*)\)\s*$/); return m ? { name: m[1], mod: m[2] } : { name: label, mod: "" }; };
     const opt = (list, cur, prefix) => list.map(k => ({ value: k, label: t(`${prefix}.${k}`), ...split(t(`${prefix}.${k}`)), selected: k === cur }));
     // Цели: отмеченные токены (T) и все токены сцены, кроме самого атакующего

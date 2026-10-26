@@ -104,6 +104,8 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const mm = meritModsFor(a, { traits: [v.trait1, v.trait2], kind: this.cfg.kind ?? "check", attributeGroups: VTM20.attributeGroups });
     const meritSit = mm.situ.map(m => ({ ...m, kind: "merit", value: m.dice || m.diff, on: v.fxOn.includes(`merit:${m.label}`) }));
     for (const m of [...mm.auto, ...meritSit.filter(x => x.on)]) if (m.dice) { pool += m.dice; bd.push({ label: m.label, value: m.dice }); }
+    // Апокалиптическая форма: кубики к выбранной Способности («Увеличенная способность», data/form.mjs)
+    for (const p of [v.trait1, v.trait2]) for (const d of a.system.formFx?.dice?.[p?.split(".")[1]] ?? []) { pool += d.value; bd.push({ label: d.label, value: d.value }); }
     // Перебор падшего (гл. 9): кубики, выжатые из слуг
     if (this.#overdraw()) { pool += this.#overdraw(); bd.push({ label: t("Demon.Overdraw"), value: this.#overdraw() }); }
     // Множественные действия (03): наименьший пул делится между действиями
@@ -116,7 +118,8 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const fx = a.system.fx?.diff ?? {};
     const attrs = [v.trait1, v.trait2].filter(p => p?.startsWith("attributes.")).map(p => p.split(".")[1]);
     const social = attrs.some(k => VTM20.attributeGroups.social.attributes.includes(k));
-    const diffAuto = [...(attrs.includes("perception") ? (fx.perception ?? []) : []),
+    const formDiff = [v.trait1, v.trait2].flatMap(p => a.system.formFx?.diff?.[p?.split(".")[1]] ?? []);
+    const diffAuto = [...(attrs.includes("perception") ? (fx.perception ?? []) : []), ...formDiff,
       ...mm.auto.filter(m => m.diff).map(m => ({ label: m.label, value: m.diff }))];
     const diffSit = [
       ...(social ? fx.social ?? [] : []).map(d => ({ ...d, kind: "social" })),

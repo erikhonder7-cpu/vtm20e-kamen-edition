@@ -353,13 +353,15 @@ export class VtMActor extends Actor {
     const stamina = s.attributes.stamina.total;
     // пробитие брони: столько точек брони не учитывается (V20 Dark Ages, M20 Victorian Age)
     const arm = armor ? Math.max(0, this.armor.rating - pierce) : 0;
-    if (type === "bashing") return stamina + fort + arm;
+    // броня апокалиптической формы (Броня, Чешуя, Толстая шкура…) — от любого урона (data/form.mjs)
+    const form = s.formFx?.soak ?? 0;
+    if (type === "bashing") return stamina + fort + arm + form;
     // демон в апокалиптической форме поглощает и летальный урон Выносливостью (Demon: The Fallen, гл. 7)
     const tough = this.isVampire || (this.type === "creature" && s.supernatural) || (this.type === "demon" && s.apocalyptic);
-    if (type === "lethal") return (tough ? stamina : 0) + fort + arm;
+    if (type === "lethal") return (tough ? stamina : 0) + fort + arm + form;
     // губительный: только Стойкость; броня — лишь против клыков и когтей;
     // Шкура гадюки — и Выносливость против когтей и клыков (Серпентис 3)
-    return fort + (fangs ? arm : 0) + (fangs && s.fx?.staminaVsFangs ? stamina : 0);
+    return fort + (fangs ? arm : 0) + (fangs && s.fx?.staminaVsFangs ? stamina : 0) + form;
   }
 
   /* ── Силы Дисциплин, действующие во времени (data/effects.mjs) ─────────── */

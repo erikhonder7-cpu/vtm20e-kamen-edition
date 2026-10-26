@@ -174,6 +174,8 @@ Hooks.on("renderPlayers", (app, html) => {
 
 Hooks.once("ready", async () => {
   await Codex.load();
+  // черты апокалиптической формы считаются по справочнику — пересчитать падших в форме, загруженных до него
+  for (const a of game.actors.filter(x => x.type === "demon" && x.system.apocalyptic)) a.reset();
   // до миграции: она запишет новую версию, а старый мир узнаём по старой
   if (await keepParis()) return;
   await migrateWorld();

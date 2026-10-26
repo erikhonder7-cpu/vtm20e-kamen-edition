@@ -7,6 +7,7 @@
 
 import { VTM20 } from "../config.mjs";
 import { effectMods } from "./effects.mjs";
+import { formMods } from "./form.mjs";
 
 const { SchemaField, NumberField, StringField, BooleanField, ArrayField, HTMLField, ObjectField } = foundry.data.fields;
 
@@ -269,6 +270,11 @@ export class DemonData extends BaseActorData {
     this.morality.path = "humanity";
     super.prepareDerivedData();
     this.traitMax = 5;
+    // Апокалиптическая форма (data/form.mjs): прибавки к Характеристикам, инициатива, без штрафов за раны
+    const f = this.formFx = formMods(this.parent);
+    for (const [k, v] of Object.entries(f.attr)) if (this.attributes[k]) { this.attributes[k].total += v; this.attributes[k].form = v; }
+    if (f.noWoundPenalty) { this.initiative -= this.health.penalty; this.health.penalty = 0; }
+    this.initiative += (f.attr.dexterity ?? 0) + (f.attr.wits ?? 0) + f.init;
   }
 }
 

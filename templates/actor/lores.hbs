@@ -134,18 +134,19 @@
   {{#if form}}
   <div class="r-form {{#if form.on}}is-on{{/if}}">
     <p class="r-form-title"><b>{{form.visage}}</b> · {{form.lore}}{{#if form.on}} · <em>{{localize "VTM20.Demon.FormActive"}}</em>{{/if}}</p>
+    {{#if form.fxSummary}}<p class="r-form-sum"><i class="fa-solid fa-dragon"></i> {{form.fxSummary}}</p>{{/if}}
     <div class="r-form-cols">
       <div class="r-form-col">
         <h4 class="r-h4">{{localize "VTM20.Demon.FormLow"}}</h4>
-        {{#each form.low}}<div class="r-trait r-form-feat">{{name}}</div>{{/each}}
+        {{#each form.low}}<div class="r-trait r-form-feat" {{#if tip}}data-tooltip="{{tip}}"{{/if}}>{{name}}{{#if mech}} <small class="r-form-mech">{{mech}}</small>{{/if}}{{#if pickable}} <a class="r-form-pick" {{#if @root.editable}}data-action="formPick" data-name="{{name}}"{{/if}} data-tooltip="{{localize 'VTM20.Demon.FormPickHint'}}"><i class="fa-solid fa-sliders"></i> {{#if picked}}{{picked}}{{else}}{{localize "VTM20.Demon.FormPickShort"}}{{/if}}</a>{{/if}}</div>{{/each}}
       </div>
       <div class="r-form-col is-high">
         <h4 class="r-h4">{{localize "VTM20.Demon.FormHigh"}} <small>({{form.highN}}/4)</small>{{#if form.free}} <em class="r-form-free">{{localize "VTM20.Demon.FormFree" n=form.free}}</em>{{/if}}</h4>
         {{#each form.high}}
-        {{#if on}}<a class="r-trait r-form-feat is-chosen" {{#if @root.editable}}data-action="formHighPick" data-index="{{index}}" data-tooltip="{{localize 'VTM20.Demon.FormUnpick'}}"{{/if}}><b class="r-form-ord">{{order}}</b>{{name}}</a>
-        {{else if scene}}<div class="r-trait r-form-feat is-scene">{{name}} <em>· {{localize "VTM20.Demon.SceneMark"}}</em></div>
-        {{else if pick}}<a class="r-trait r-form-feat is-pick" {{#if @root.editable}}data-action="formHighPick" data-index="{{index}}" data-tooltip="{{localize 'VTM20.Demon.FormPick'}}"{{/if}}><i class="fa-solid fa-plus"></i> {{name}}</a>
-        {{else}}<a class="r-trait r-form-feat is-off" {{#if ../form.on}}data-action="sceneHigh" data-index="{{index}}" data-tooltip="{{localize 'VTM20.Demon.SceneHighHint'}}"{{/if}}>{{name}}</a>{{/if}}
+        {{#if on}}<div class="r-trait r-form-feat is-chosen"><a {{#if @root.editable}}data-action="formHighPick" data-index="{{index}}" data-tooltip="{{localize 'VTM20.Demon.FormUnpick'}}"{{/if}}><b class="r-form-ord">{{order}}</b>{{name}}</a>{{#if mech}} <small class="r-form-mech">{{mech}}</small>{{/if}}{{#if pickable}} <a class="r-form-pick" {{#if @root.editable}}data-action="formPick" data-name="{{name}}"{{/if}} data-tooltip="{{localize 'VTM20.Demon.FormPickHint'}}"><i class="fa-solid fa-sliders"></i> {{#if picked}}{{picked}}{{else}}{{localize "VTM20.Demon.FormPickShort"}}{{/if}}</a>{{/if}}</div>
+        {{else if scene}}<div class="r-trait r-form-feat is-scene">{{name}} <em>· {{localize "VTM20.Demon.SceneMark"}}</em>{{#if mech}} <small class="r-form-mech">{{mech}}</small>{{/if}}{{#if pickable}} <a class="r-form-pick" {{#if @root.editable}}data-action="formPick" data-name="{{name}}"{{/if}} data-tooltip="{{localize 'VTM20.Demon.FormPickHint'}}"><i class="fa-solid fa-sliders"></i> {{#if picked}}{{picked}}{{else}}{{localize "VTM20.Demon.FormPickShort"}}{{/if}}</a>{{/if}}</div>
+        {{else if pick}}<a class="r-trait r-form-feat is-pick" {{#if @root.editable}}data-action="formHighPick" data-index="{{index}}" data-tooltip="{{localize 'VTM20.Demon.FormPick'}}"{{/if}}><i class="fa-solid fa-plus"></i> {{name}}{{#if mech}} <small class="r-form-mech">{{mech}}</small>{{/if}}</a>
+        {{else}}<a class="r-trait r-form-feat is-off" {{#if ../form.on}}data-action="sceneHigh" data-index="{{index}}" data-tooltip="{{localize 'VTM20.Demon.SceneHighHint'}}"{{/if}}>{{name}}{{#if mech}} <small class="r-form-mech">{{mech}}</small>{{/if}}</a>{{/if}}
         {{/each}}
       </div>
     </div>

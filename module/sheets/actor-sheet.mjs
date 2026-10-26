@@ -40,6 +40,7 @@ import { coteriesOf, poolValue, openCoterie } from "../apps/coterie.mjs";
 import { itemCardHTML } from "../chat/item-card.mjs";
 import { themeClass } from "../ui/themes.mjs";
 import { openHouses } from "../apps/houses.mjs";
+import { formFeatures, mechLabel, needsPick, signed } from "../data/form.mjs";
 import { virtuePrompt, atoneWithXp, assumeForm, sceneHighFeature, harvestFaith, pactFaith, innateRoll, ritualTurn, ritualEffect, ritualNeed, suggestSin, revelation, gainTorment, thrallState, thrallCap } from "../apps/torment.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
@@ -123,6 +124,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       thrallEdit: VtMActorSheet.#onThrallEdit,
       thrallDelete: VtMActorSheet.#onThrallDelete,
       thrallOpen: VtMActorSheet.#onThrallOpen,
+      formPick: VtMActorSheet.#onFormPick,
       houseAtlas: VtMActorSheet.#onHouseAtlas,
       tormentSin: VtMActorSheet.#onTormentSin,
       sinSuggest: VtMActorSheet.#onSinSuggest,
@@ -623,15 +625,21 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       kindKey: it.system.kind, chips: (it.system.lores ?? []).filter(Boolean).map(k => ({ name: (Codex.lore(k)?.name ?? k) })),
       use: it.system.use, html: it.system.description, mechanics: it.system.mechanics, open: this._open.has(it.id) }))
       .sort((x, y) => x.name.localeCompare(y.name, "ru"));
+    // механика черт по каталогу Players Guide (data/form.mjs); у «Улучшенной способности» Способность выбирает игрок
+    const feats = formFeatures(a), picks = a.getFlag(SYSTEM_ID, "formPick") ?? {};
+    const featOf = (high, i) => feats.find(x => x.high === high && x.index === i);
+    const mech = (high, i) => { const x = featOf(high, i); return { mech: mechLabel(x?.entry?.mech, picks[x?.name]), tip: x?.entry?.text ?? "",
+      pickable: needsPick(x?.entry), picked: picks[x?.name] ? a.traitLabel(`abilities.${picks[x?.name]}`) : "" }; };
     ctx.form = form ? {
       visage: Codex.house(s.house)?.visages?.[s.visage] ?? "", lore: lore.name, on: !!s.apocalyptic, highN,
-      low: form.low.map(name => ({ name })),
+      fx: s.apocalyptic ? s.formFx : null, fxSummary: s.apocalyptic ? formSummary(s.formFx, a) : "",
+      low: form.low.map((name, i) => ({ name, index: i, ...mech(false, i) })),
       // черты высокой Муки игрок выбирает сам (гл. 7): флаг formHigh — индексы в порядке выбора; действуют первые highN,
       // при падении Муки уходит выбранная последней; свободный слот — щелчок по черте
       ...(() => {
         const picked = (a.getFlag(SYSTEM_ID, "formHigh") ?? []).filter(i => i < form.high.length), active = picked.slice(0, highN);
         const scene = a.getFlag(SYSTEM_ID, "formScene") ?? [], free = highN - active.length;
-        return { free, high: form.high.map((name, i) => ({ name, index: i, on: active.includes(i), order: active.indexOf(i) + 1,
+        return { free, high: form.high.map((name, i) => ({ name, index: i, ...mech(true, i), on: active.includes(i), order: active.indexOf(i) + 1,
           scene: scene.includes(i) && !active.includes(i), pick: free > 0 && !active.includes(i) })) };
       })()
     } : null;
@@ -1116,6 +1124,21 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     if (key) return createLore(a, [key]);
   }
 
+  /** Способность для черты формы с выбором («Улучшенная способность», «Увеличенная способность»). */
+  static async #onFormPick(event, target) {
+    const a = this.actor, name = target.dataset.name, picks = foundry.utils.deepClone(a.getFlag(SYSTEM_ID, "formPick") ?? {});
+    const opts = Object.keys(VTM20.abilities).map(k => [k, a.traitLabel(`abilities.${k}`)]).sort((x, y) => x[1].localeCompare(y[1], "ru"))
+      .map(([k, l]) => `<option value="${k}" ${picks[name] === k ? "selected" : ""}>${foundry.utils.escapeHTML(l)}</option>`).join("");
+    const key = await foundry.applications.api.DialogV2.prompt({
+      window: { title: t("Demon.FormPickTitle", { name }) }, classes: ["vtm20", "r-dialog"], position: { width: 380 },
+      content: `<p class="r-choice-hint">${t("Demon.FormPickHint")}</p><label class="r-f"><span>${t("Demon.FormPickAbility")}</span><select name="ability">${opts}</select></label>`,
+      ok: { label: game.i18n.localize("VTM20.Common.Save"), callback: (ev, btn) => btn.form.elements.ability.value }
+    }).catch(() => null);
+    if (!key) return;
+    picks[name] = key;
+    return a.setFlag(SYSTEM_ID, "formPick", picks);
+  }
+
   /** Слуга по договору: новый или правка (гл. 9; «Проклятые и обманутые», гл. 4–5). */
   static async #onThrallEdit(event, target) {
     const a = this.actor, list = foundry.utils.deepClone(a.system.thralls ?? []);
@@ -1450,6 +1473,20 @@ function createLore(actor, keys) {
   const data = keys.map(k => Codex.lore(k)).filter(Boolean).map(l => ({ name: l.name, type: "lore", img: `systems/${SYSTEM_ID}/assets/icons/discipline.svg`,
     system: { key: l.key, value: 1, description: `<p><em>${l.en}</em> · ${Codex.house(l.house)?.name ?? t("Demon.Common")}</p>` } }));
   return data.length ? actor.createEmbeddedDocuments("Item", data) : null;
+}
+
+/** Итог действующей формы строкой для листа. */
+function formSummary(f, a) {
+  if (!f) return "";
+  const out = Object.entries(f.attr).map(([k, v]) => `${a.traitLabel(`attributes.${k}`)} +${v}`);
+  if (f.soak) out.push(t("Demon.FormMech.Soak", { n: f.soak }));
+  if (f.init) out.push(t("Demon.FormMech.Init", { n: f.init }));
+  if (f.health) out.push(t("Demon.FormMech.Health", { n: f.health }));
+  if (f.noWoundPenalty) out.push(t("Demon.FormMech.NoWound"));
+  for (const [k, list] of Object.entries(f.diff)) out.push(t("Demon.FormMech.Diff", { t: a.traitLabel(k in a.system.attributes ? `attributes.${k}` : `abilities.${k}`), n: signed(list.reduce((s, d) => s + d.value, 0)) }));
+  for (const [k, list] of Object.entries(f.dice)) out.push(t("Demon.FormMech.Dice", { t: a.traitLabel(`abilities.${k}`), n: list.reduce((s, d) => s + d.value, 0) }));
+  for (const w of f.weapons) out.push(`${w.name} (${t(w.agg ? "Demon.FormMech.WeaponAgg" : "Demon.FormMech.Weapon", { n: w.dmg >= 0 ? `+${w.dmg}` : w.dmg })})`);
+  return out.join(" · ");
 }
 
 /** Сила справочника по ссылке «дисциплина|номер» или «дисциплина|path|путь|номер» (лист и HUD). */
