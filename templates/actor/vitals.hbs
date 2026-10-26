@@ -79,6 +79,18 @@
     <div class="r-boxes" data-tooltip="{{localize 'VTM20.Demon.TormentTempHint'}}">
       {{#each tormentTemp}}<a class="r-box {{#if filled}}is-filled{{/if}}" data-action="setDots" data-path="{{path}}" data-n="{{n}}"></a>{{/each}}
     </div>
+    {{#if urges}}
+    {{!-- Привязанный: Потребности (Earthbound, гл. 3) — в форме и в теле носителя раскладываются по Характеристикам --}}
+    <div class="r-virtues is-urges" data-tooltip="{{localize 'VTM20.Demon.UrgesHint'}}">
+      {{#each urges}}
+      <div class="r-virtue">
+        <span class="r-trait-label" data-tooltip="{{tip}}">{{label}}</span>
+        <span class="r-virtue-dots">{{> rDots dots=dots}}{{#if @root.editable}}<a class="r-buy" data-action="buy" data-path="system.urges.{{key}}" data-kind="urge" data-label="{{label}}" data-tooltip="{{localize 'VTM20.Xp.Buy'}}: {{xp}}"><i class="fa-solid fa-plus"></i></a>{{/if}}</span>
+      </div>
+      {{/each}}
+    </div>
+    <div class="r-vc-tools"><span class="r-note r-eb-doom">{{localize "VTM20.Demon.EarthboundDoom"}}</span></div>
+    {{else}}
     <div class="r-virtues">
       {{#each virtues}}
       <div class="r-virtue">
@@ -93,6 +105,7 @@
       <a class="r-vc-btn" data-action="tormentKind" data-tooltip="{{localize 'VTM20.Demon.KindHint'}}"><i class="fa-solid fa-hand-holding-heart"></i> {{localize "VTM20.Demon.Kind"}}</a>
       {{#if editable}}<a class="r-vc-btn is-right" data-action="tormentAtone" data-tooltip="{{localize 'VTM20.Demon.AtoneHint'}}"><i class="fa-solid fa-feather"></i> −1 · 10 {{localize "VTM20.Demon.XpShort"}}</a>{{/if}}
     </div>
+    {{/if}}
   </div>
   {{else}}
   <div class="r-vcard r-vc-morality">

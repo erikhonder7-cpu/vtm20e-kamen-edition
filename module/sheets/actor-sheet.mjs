@@ -393,6 +393,12 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       const v = s.virtues[slot].value;
       return { slot, key, label: game.i18n.localize(VTM20.virtues[key].label), value: v, dots: dots(v, 5, { path: `system.virtues.${slot}.value` }), xp: a.xpCost("virtue", v) };
     });
+    // Привязанный: в карточке Муки — Потребности вместо Добродетелей
+    if (ctx.isDemon && s.earthbound) ctx.urges = ["flesh", "thought", "emotion"].map(k => {
+      const v = s.urges?.[k] ?? 1;
+      return { key: k, label: game.i18n.localize(`VTM20.Demon.Urge.${k}`), tip: game.i18n.localize(`VTM20.Demon.UrgeTip.${k}`), value: v,
+        dots: dots(v, 5, { path: `system.urges.${k}` }), xp: a.xpCost("urge", v) };
+    });
     if (ctx.isDemon) {
       ctx.faithPerm = dots(s.faith.permanent, 10, { path: "system.faith.permanent" });
       ctx.faithBoxes = dots(s.faith.temporary, 10, { path: "system.faith.temporary" });

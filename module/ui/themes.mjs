@@ -32,6 +32,9 @@ export function registerThemes() {
     if (!type) return;                                   // окно без персонажа — его тема задана им самим (справочник Домов)
     for (const c of [...element.classList]) if (c.startsWith("r-type-") && c !== `r-type-${type}`) element.classList.remove(c);
     element.classList.add(`r-type-${type}`);
+    // Привязанный к Земле — своя, огненная палитра поверх темы падшего
+    const owner = actorOf(app);
+    if (owner) element.classList.toggle("r-earthbound", "isEarthbound" in app ? !!app.isEarthbound : !!owner.system?.earthbound);   // мастер решает сам
     // щелчок в окне персонажа — его тему получит и подтверждение, которое откроется следом
     if (!element.dataset.rTheme) {
       element.dataset.rTheme = "1";

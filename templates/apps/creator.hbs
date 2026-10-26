@@ -145,7 +145,7 @@
       {{#each houses}}
       <a class="r-cr-clan {{#if active}}is-active{{/if}}" data-action="house" data-house="{{key}}">
         <span class="r-cr-clan-sym r-cr-medal"><i class="fa-solid fa-fire-flame-curved"></i></span>
-        <b>{{name}}</b><em>«{{akkadian}}» · {{localize "VTM20.Demon.Torment"}} {{torment}}</em>
+        <b>{{name}}</b><em>«{{akkadian}}» · {{localize "VTM20.Demon.Torment"}} {{#if ../st.earthbound}}10{{else}}{{torment}}{{/if}}</em>
         <span class="r-cr-clan-disc">{{lores}}</span>
       </a>
       {{/each}}
@@ -155,17 +155,45 @@
       <h4 class="r-banner"><span>{{house.name}}</span></h4>
       <span class="r-cr-clancard-sym r-cr-medal"><img src="systems/vtm20e-kamen-edition/assets/ui/fallen-sigil.svg" alt=""></span>
       <div class="r-cr-clancard-body">
-        <div class="r-cr-clancard-title">{{house.name}} <em>«{{house.akkadian}}»</em> · <small>{{localize "VTM20.Demon.StartTorment"}} {{house.torment}}</small></div>
+        <div class="r-cr-clancard-title">{{house.name}} <em>«{{house.akkadian}}»</em> · <small>{{localize "VTM20.Demon.StartTorment"}} {{#if st.earthbound}}10{{else}}{{house.torment}}{{/if}}</small></div>
         <p class="r-note">{{house.text}}</p>
         <div class="r-cr-discrow">
           <span class="r-cr-or">{{localize "VTM20.Demon.Visage"}}:</span>
           {{#each house.visages}}<a class="r-cr-disc-chip is-choice {{#if active}}is-active{{/if}}" data-action="visage" data-visage="{{key}}" data-tooltip="{{#each low}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}"><b>{{name}}</b>&nbsp;· {{lore}}</a>{{/each}}
         </div>
         <a class="r-cr-clan-more" data-action="houseAtlas"><i class="fa-solid fa-book-open"></i> {{localize "VTM20.Demon.Atlas"}}</a>
-        {{#if st.earthbound}}<div class="r-cr-discrow" data-tooltip="{{localize 'VTM20.Creator.ReliquaryHint'}}"><span class="r-kicker">{{localize "VTM20.Demon.Reliquary"}}</span>
-          {{#each reliquaryKinds}}<a class="r-cr-disc-chip is-choice {{#if active}}is-active{{/if}}" data-action="reliquary" data-kind="{{value}}" data-tooltip="{{hint}}">{{label}}</a>{{/each}}</div>{{/if}}
-        <a class="r-cr-clan-more {{#if st.earthbound}}is-active{{/if}}" data-action="earthbound" data-tooltip="{{localize 'VTM20.Creator.EarthboundHint'}}"><i class="fa-solid {{#if st.earthbound}}fa-gem{{else}}fa-link-slash{{/if}}"></i> {{localize "VTM20.Creator.Earthbound"}}</a>
       </div>
+    </div>
+    {{!-- Привязанный к Земле (Earthbound, гл. 3): переключатель, правила, реликварий --}}
+    <div class="r-cr-eb {{#if st.earthbound}}is-on{{/if}}">
+      <div class="r-cr-eb-head">
+        <span class="r-cr-eb-sym"><i class="fa-solid fa-fire"></i></span>
+        <div class="r-cr-eb-titles">
+          <b>{{localize "VTM20.Creator.Earthbound"}}</b>
+          <span class="r-note">{{#if st.earthbound}}{{localize "VTM20.Creator.EarthboundOn"}}{{else}}{{localize "VTM20.Creator.EarthboundOff"}}{{/if}}</span>
+        </div>
+        <a class="r-btn {{#if st.earthbound}}is-ghost{{else}}is-primary{{/if}}" data-action="earthbound">{{#if st.earthbound}}<i class="fa-solid fa-rotate-left"></i> {{localize "VTM20.Creator.EarthboundBack"}}{{else}}<i class="fa-solid fa-gem"></i> {{localize "VTM20.Creator.EarthboundMake"}}{{/if}}</a>
+      </div>
+      {{#if st.earthbound}}
+      <ul class="r-cr-eb-rules">
+        <li><b>8 / 6 / 4</b><span>{{localize "VTM20.Sheet.Attributes"}}</span></li>
+        <li><b>17 / 12 / 7</b><span>{{localize "VTM20.Sheet.Abilities"}}</span></li>
+        <li><b>10</b><span>{{localize "VTM20.Demon.Lores"}}</span></li>
+        <li><b>10</b><span>{{localize "VTM20.Demon.Backgrounds"}}</span></li>
+        <li><b>1 + 3</b><span>{{localize "VTM20.Demon.Urges"}}</span></li>
+        <li><b>4</b><span>{{localize "VTM20.Demon.Faith"}}</span></li>
+        <li><b>10</b><span>{{localize "VTM20.Demon.Torment"}}</span></li>
+        <li><b>21</b><span>{{localize "VTM20.Creator.Freebies"}}</span></li>
+      </ul>
+      <h4 class="r-cr-eb-sub">{{localize "VTM20.Demon.Reliquary"}}</h4>
+      <div class="r-cr-eb-rel">
+        {{#each reliquaryKinds}}
+        <a class="r-cr-eb-relcard {{#if active}}is-active{{/if}}" data-action="reliquary" data-kind="{{value}}">
+          <i class="fa-solid {{icon}}"></i><b>{{label}}</b><span>{{hint}}</span>
+        </a>
+        {{/each}}
+      </div>
+      {{/if}}
     </div>
     {{/if}}
     <div class="r-cols2 r-cr-genrow">
@@ -360,12 +388,13 @@
     <div class="r-cr-sumhead">
       {{#if clanSym}}<span class="r-cr-sumsym">{{rSym clanSym}}</span>{{/if}}
       {{#if isDemon}}<span class="r-cr-sumsym"><img src="systems/vtm20e-kamen-edition/assets/ui/fallen-sigil.svg" alt=""></span>{{/if}}
-      <div><div class="r-cr-sumname">{{st.name}}</div><div class="r-kicker">{{typeLabel}}{{#if isDemon}} · {{houseName}}{{#if visageName}} · {{visageName}}{{/if}}{{#if factionName}} · {{factionName}}{{/if}}{{/if}}{{#if st.concept}} · {{st.concept}}{{/if}}{{#unless isDemon}}{{#if st.sect}} · {{st.sect}}{{/if}}{{/unless}}</div></div>
+      <div><div class="r-cr-sumname">{{st.name}}</div><div class="r-kicker">{{typeLabel}}{{#if isEarthbound}} · {{localize "VTM20.Creator.Earthbound"}}{{/if}}{{#if isDemon}} · {{houseName}}{{#if visageName}} · {{visageName}}{{/if}}{{#if factionName}} · {{factionName}}{{/if}}{{/if}}{{#if st.concept}} · {{st.concept}}{{/if}}{{#unless isDemon}}{{#if st.sect}} · {{st.sect}}{{/if}}{{/unless}}</div></div>
     </div>
     <div class="r-cr-summary">
       <div class="r-cr-sum-item"><span>{{pathName}}</span><b>{{morality}}</b></div>
       <div class="r-cr-sum-item"><span>{{localize "VTM20.Willpower"}}</span><b>{{willpower}}</b></div>
       {{#if isDemon}}<div class="r-cr-sum-item"><span>{{localize "VTM20.Demon.Torment"}}</span><b>{{torment}}</b></div>{{/if}}
+      {{#if reliquaryName}}<div class="r-cr-sum-item"><span>{{localize "VTM20.Demon.Reliquary"}}</span><b>{{reliquaryName}}</b></div>{{/if}}
       {{#if isVampire}}
       <div class="r-cr-sum-item"><span>{{localize "VTM20.Details.generation"}}</span><b>{{rRoman generation}}</b></div>
       <div class="r-cr-sum-item"><span>{{localize "VTM20.Sheet.BloodPool"}}</span><b>{{#if st.blood}}{{st.blood}}{{else}}?{{/if}}/{{bloodMax}}</b>
@@ -377,7 +406,7 @@
       {{#each summary.abils}}<div><h4 class="r-h4">{{label}}</h4>{{#each list}}<div class="r-cr-sumrow"><span>{{label}}</span><b>{{value}}</b></div>{{else}}<div class="r-note">—</div>{{/each}}</div>{{/each}}
       <div><h4 class="r-h4">{{discLabel}}</h4>{{#each summary.discs}}<div class="r-cr-sumrow"><span>{{name}}</span><b>{{value}}</b></div>{{else}}<div class="r-note">—</div>{{/each}}</div>
       <div><h4 class="r-h4">{{bgLabel}}</h4>{{#each summary.bgs}}<div class="r-cr-sumrow"><span>{{name}}</span><b>{{value}}</b></div>{{else}}<div class="r-note">—</div>{{/each}}</div>
-      <div><h4 class="r-h4">{{localize "VTM20.Sheet.Virtues"}}</h4>{{#each summary.virtues}}<div class="r-cr-sumrow"><span>{{label}}</span><b>{{value}}</b></div>{{/each}}</div>
+      <div><h4 class="r-h4">{{virtLabel}}</h4>{{#each summary.virtues}}<div class="r-cr-sumrow"><span>{{label}}</span><b>{{value}}</b></div>{{/each}}</div>
       <div><h4 class="r-h4">{{localize "VTM20.Sheet.Merits"}} / {{localize "VTM20.Sheet.Flaws"}}</h4>
         {{#each summary.merits}}<div class="r-cr-sumrow"><span>{{name}}</span><b>{{cost}}</b></div>{{/each}}
         {{#each summary.flaws}}<div class="r-cr-sumrow is-flaw"><span>{{name}}</span><b>−{{cost}}</b></div>{{/each}}</div>

@@ -459,6 +459,7 @@ export class VtMActor extends Actor {
         return eb ? (near ? 6 : 8) : (near ? 7 : 10);
       }
       case "faith": return current * (this.system.earthbound ? 6 : 7);
+      case "urge": return current * 2;                    // Потребность Привязанного (Earthbound, гл. 3)
       default: return null;
     }
   }

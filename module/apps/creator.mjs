@@ -70,6 +70,8 @@ const STEP_HINTS = {
 const GHOUL_HINTS = new Set(["concept", "disciplines", "summary"]);
 /** Шаги, где у демона свой текст подсказки (ключ + «Demon»). */
 const DEMON_HINTS = new Set(["concept", "disciplines", "advantages", "freebies", "summary"]);
+// у Привязанного свои подсказки: Знания с Тёмными, Потребности вместо Добродетелей, 21 пункт, Мука 10
+const EB_HINTS = new Set(["disciplines", "advantages", "freebies", "summary"]);
 
 export function openCreator(actor) {
   const existing = [...foundry.applications.instances.values()].find(a => a instanceof VtMCreator && a.actor === actor);
@@ -333,13 +335,13 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     };
     const ctx = {
       st, ui: this.ui, rem, rules: this.rules, type: this.type,
-      isVampire: this.type === "vampire", isGhoul: this.type === "ghoul", isDemon: this.isDemon, discLabel: this.discLabel, bgLabel: this.bgLabel,
+      isVampire: this.type === "vampire", isGhoul: this.type === "ghoul", isDemon: this.isDemon, isEarthbound: this.isEarthbound, discLabel: this.discLabel, bgLabel: this.bgLabel,
       typeLabel: loc(`TYPES.Actor.${this.type}`),
       steps: this.steps.map((k, i) => ({ i, key: k, n: i + 1, label: t(`Creator.Step.${this.stepName(k)}`), active: i === this.step, done: this.stepOk(k, rem) && i !== this.step })),
       stepKey: key, stepNumber: this.step + 1, stepCount: this.steps.length,
       // у гуля свои подсказки там, где правила другие (нет Становления, Дисциплины — от домитора)
       title: t(`Creator.Step.${this.stepName(key)}`),
-      hint: t(`Creator.${STEP_HINTS[key]}${this.type === "ghoul" && GHOUL_HINTS.has(key) ? "Ghoul" : this.isDemon && DEMON_HINTS.has(key) ? "Demon" : key === "advantages" && !this.rules.bg ? "NoBg" : ""}`, { n: this.rules.disc, bg: this.rules.bg, virt: this.rules.virt }),
+      hint: t(`Creator.${STEP_HINTS[key]}${this.type === "ghoul" && GHOUL_HINTS.has(key) ? "Ghoul" : this.isEarthbound && EB_HINTS.has(key) ? "Earthbound" : this.isDemon && DEMON_HINTS.has(key) ? "Demon" : key === "advantages" && !this.rules.bg ? "NoBg" : ""}`, { n: this.rules.disc, bg: this.rules.bg, virt: this.rules.virt }),
       sectRule: ["concept", "disciplines", "advantages", "freebies"].includes(key) ? this.sectRule : "",
       isFirst: this.step === 0, isLast: this.step === this.steps.length - 1,
       [`is_${key}`]: true
@@ -373,7 +375,8 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     // I. Концепция и возраст
     // Привязанному чужды архетипы человеческих надежд (Earthbound, гл. 3)
     const EB_NO = ["Бонвиван", "Опекун", "Ребёнок", "Конформист", "Щёголь", "Мученик", "Кающийся грешник", "Искатель удовольствий"];
-    ctx.reliquaryKinds = ["ideal", "improvised", "natural"].map(k => ({ value: k, label: t(`Demon.ReliquaryKind.${k}`), hint: t(`Demon.ReliquaryHint.${k}`), active: (st.reliquary || "ideal") === k }));
+    const RELIC_ICON = { ideal: "fa-gem", improvised: "fa-box-open", natural: "fa-mountain-sun" };
+    ctx.reliquaryKinds = ["ideal", "improvised", "natural"].map(k => ({ value: k, label: t(`Demon.ReliquaryKind.${k}`), hint: t(`Demon.ReliquaryHint.${k}`).replace(/^[^:]+:\s*/, ""), icon: RELIC_ICON[k], active: (st.reliquary || "ideal") === k }));
     ctx.archetypes = this.isEarthbound ? Codex.archetypes.filter(a => !EB_NO.includes(a.name)) : Codex.archetypes;
     ctx.natureRegain = Codex.archetypes.find(a => a.name === st.nature)?.regain ?? "";
     ctx.demeanorRegain = Codex.archetypes.find(a => a.name === st.demeanor)?.regain ?? "";
@@ -548,8 +551,11 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       ctx.problems = this.problems(rem);
       ctx.clanSym = this.type === "vampire" ? Codex.clanSymbol(st.clan) : null;
       ctx.pathName = this.isDemon ? t("Demon.Faith") : this.pathData?.name;
-      if (this.isDemon) Object.assign(ctx, { torment: this.houseData?.torment ?? 3, houseName: this.houseData?.name ?? "",
+      if (this.isDemon) Object.assign(ctx, { torment: this.isEarthbound ? 10 : this.houseData?.torment ?? 3, houseName: this.houseData?.name ?? "",
         visageName: this.houseData?.visages?.[st.visage] ?? "", factionName: Codex.faction(st.faction)?.name ?? "" });
+      // Привязанный: Потребности вместо Добродетелей, реликварий
+      ctx.virtLabel = this.isEarthbound ? t("Demon.Urges") : loc("VTM20.Sheet.Virtues");
+      if (this.isEarthbound) ctx.reliquaryName = t(`Demon.ReliquaryKind.${st.reliquary || "ideal"}`);
     }
     ctx.footFree = rem.free; ctx.footXp = st.xpTotal ? rem.xp : null;
     return ctx;
@@ -567,6 +573,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
 
   _onRender(context, options) {
     super._onRender(context, options);
+    this.element.classList.toggle("r-earthbound", this.isEarthbound);      // огненная палитра Привязанного (styles/types/demon.css)
     attachCombos(this.element);                         // Натура и Маска — список с поиском, можно вписать свой архетип
     this.element.querySelectorAll("[data-field]").forEach(el => el.addEventListener("change", () => {
       const f = el.dataset.field;

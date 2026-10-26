@@ -29,6 +29,9 @@
       "src": "styles/types/demon.css"
     },
     {
+      "src": "styles/types/earthbound.css"
+    },
+    {
       "src": "styles/r-chat.css"
     },
     {

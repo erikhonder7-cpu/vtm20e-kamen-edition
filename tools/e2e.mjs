@@ -497,6 +497,44 @@ try {
     if (!r.claws.length) throw new Error("нет оружия формы");
   });
 
+  await check("Мастер: Привязанный", async () => {
+    const id = await temp("E2E — Привязанный", "demon");
+    const r = await page.evaluate(async id => {
+      const { VtMCreator } = await import(`/systems/${game.system.id}/module/apps/creator.mjs`);
+      const a = game.actors.get(id), app = new VtMCreator(a), out = {};
+      Object.assign(app.st, { house: "fiends", visage: "patterns", earthbound: true, reliquary: "natural" });
+      Object.assign(app.st.virt, { conscience: 2, selfControl: 1, courage: 0 });     // +3: Плоть 3, Мысль 2, Эмоция 1
+      out.rules = [app.rules.attr.join(","), app.rules.free, app.morality].join("/");
+      out.darkBlocked = !!game.i18n.localize("VTM20.Creator.DarkFreeOnly");
+      app.step = app.steps.length - 1;
+      await app.render({ force: true });
+      await new Promise(r => setTimeout(r, 400));
+      const el = app.element;
+      out.summary = [...el.querySelectorAll(".r-cr-sum-item")].map(x => x.textContent.replace(/\s+/g, " ").trim());
+      out.urgeHead = [...el.querySelectorAll(".r-cr-sumgrid h4")].map(h => h.textContent.trim());
+      const L = k => game.i18n.localize(`VTM20.${k}`);
+      out.labels = { torment: L("Demon.Torment"), rel: L("Demon.Reliquary"), urges: L("Demon.Urges") };
+      el.querySelector('[data-action="finish"]').click();
+      await new Promise(r => setTimeout(r, 600));
+      [...foundry.applications.instances.values()].find(x => x.constructor.name === "DialogV2" && x.rendered)
+        ?.element.querySelector('[data-action="yes"]')?.click();
+      for (let i = 0; i < 30 && !a.system.earthbound; i++) await new Promise(r => setTimeout(r, 200));
+      const s = a.system;
+      out.sys = { eb: s.earthbound, torment: s.torment.permanent, rel: s.reliquary?.kind, urges: [s.urges.flesh, s.urges.thought, s.urges.emotion].join(","),
+        virt: s.virtues.conscience.value + s.virtues.selfControl.value + s.virtues.courage.value, faith: s.faith.permanent, will: s.willpower.permanent };
+      a.sheet?.close();
+      return out;
+    }, id);
+    if (r.rules !== "8,6,4/21/4") throw new Error(`правила Earthbound: ${r.rules}`);
+    const flat = x => x.replace(/\s+/g, "");
+    if (!r.summary.map(flat).includes(flat(`${r.labels.torment}10`)) || !r.summary.some(x => x.startsWith(r.labels.rel))) throw new Error(`итог: ${r.summary.join(" | ")}`);
+    if (!r.urgeHead.includes(r.labels.urges)) throw new Error(`в итоге нет Потребностей: ${r.urgeHead.join(", ")}`);
+    const s = r.sys;
+    if (!s.eb || s.torment !== 10 || s.rel !== "natural") throw new Error(`лист: ${JSON.stringify(s)}`);
+    if (s.urges !== "3,2,1" || s.virt !== 0) throw new Error(`Потребности/Добродетели: ${s.urges}, ${s.virt}`);
+    if (s.faith !== 4 || s.will !== 5) throw new Error(`Вера ${s.faith}, Воля ${s.will} (нужно 4 и 5)`);
+  });
+
   // Уборка до перезагрузок мира: сообщения бросков и временные персонажи
   await page.evaluate(async () => {
     const extra = game.messages.contents.slice(window._e2e.messages).map(m => m.id);
@@ -539,7 +577,8 @@ try {
 
   await check("Песочница возвращена как была", async () => {
     await setWorld(saved.mod, saved.paris, saved.migrated);
-    await reloadUntil(([id, mod]) => game.ready === true && !!game.modules.get(id)?.active === mod, [CITY_MODULE, !!saved.mod]);
+    // модуль, включённый в настройках, но не установленный в песочнице, активным не станет
+    await reloadUntil(([id, mod]) => game.ready === true && !!game.modules.get(id)?.active === mod, [CITY_MODULE, !!saved.mod && saved.installed]);
   });
 
 } catch (e) {

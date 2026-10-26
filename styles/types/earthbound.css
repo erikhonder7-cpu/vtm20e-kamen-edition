@@ -1,0 +1,140 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   Привязанный к Земле (Earthbound) — поверх темы падшего (demon.css). Вместо холодной стали ночного
+   неба — пепел и магма: тлеющий низ окна, раскалённые кромки, угли вместо золота.
+   Класс r-earthbound ставит module/ui/themes.mjs окну персонажа с system.earthbound,
+   мастер создания — сам (apps/creator.mjs), пока выбран режим Привязанного.
+   Только радиальные градиенты и одна мягкая пульсация — без мелкой фактуры (тормозит холст).
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.vtm20.r-type-demon.r-earthbound {
+  --d-gold: #ec6f2a; --d-gold-l: #ffae5c; --d-ember: #c2410f; --d-ember-d: #3a1206;
+  --d-steel: #9c3b22; --d-steel-d: #2b0e08;
+  --r-ink: #e2d6cc;
+  --r-ink-2: #bba99d;
+  --r-muted: #998175;
+  --r-line: rgba(236, 111, 42, .12);
+  --r-line-2: rgba(236, 111, 42, .24);
+  --r-accent: #f08a3c;
+  --r-red-t: var(--r-accent);
+  --r-blood: #c2410f; --r-blood-l: #ff8a3d; --r-blood-d: #3a1206;
+  --r-dot-border: rgba(255, 160, 100, .35);
+  --r-dot-fill: radial-gradient(circle at 38% 32%, #ffd08a, #e0561c 50%, #4a0f04);
+  --r-gap-ring: #0d0605;
+  --r-card-bg: rgba(236, 111, 42, .035);
+  --r-option-bg: #1a0d09;
+  --r-bg:
+    radial-gradient(ellipse 85% 40% at 50% 112%, rgba(236, 90, 30, .30), transparent 70%),
+    radial-gradient(ellipse 60% 25% at 18% 100%, rgba(255, 140, 60, .12), transparent 70%),
+    radial-gradient(ellipse 90% 40% at 50% -10%, rgba(120, 25, 10, .22), transparent 60%),
+    radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(0, 0, 0, .6) 100%),
+    url("../assets/ui/paper-dark.svg"),
+    linear-gradient(180deg, #140a08, #0b0505);
+}
+body.r-theme-light .vtm20.r-type-demon.r-earthbound {
+  --r-ink: #2a1712; --r-ink-2: #4e3229; --r-muted: #7a5a4e;
+  --r-line: rgba(120, 40, 15, .16); --r-line-2: rgba(120, 40, 15, .3);
+  --r-accent: #a8380e; --r-red-t: var(--r-accent);
+  --r-dot-fill: radial-gradient(circle at 38% 32%, #f7b06a, #c2410f 55%, #4a0f04);
+  --r-option-bg: #efe4dc; --r-gap-ring: #eadfd6;
+  --r-bg:
+    radial-gradient(ellipse 85% 40% at 50% 112%, rgba(220, 90, 30, .18), transparent 70%),
+    radial-gradient(ellipse at 50% 50%, transparent 50%, rgba(80, 30, 15, .18) 100%),
+    url("../assets/ui/paper.svg"),
+    linear-gradient(180deg, #ece2da, #e0d2c6);
+}
+
+/* Корешок: тлеющий сигил, монеты глав — угли */
+.vtm20.r-type-demon.r-earthbound .r-rail {
+  background:
+    radial-gradient(ellipse 140% 35% at 50% 100%, rgba(236, 90, 30, .28), transparent 70%),
+    radial-gradient(ellipse 120% 40% at 50% 0%, rgba(120, 25, 10, .25), transparent 70%),
+    linear-gradient(180deg, #160907, #0c0504 60%, #110605);
+  border-right-color: #3a1710;
+}
+.vtm20.r-type-demon.r-earthbound .r-rail::after { background: repeating-linear-gradient(180deg, rgba(236, 111, 42, .18) 0 2px, transparent 2px 8px); }
+.vtm20.r-type-demon.r-earthbound .r-rail-sigil {
+  border-color: rgba(236, 111, 42, .55); background: radial-gradient(circle at 50% 65%, #3a120a, #0c0504 72%);
+  animation: r-eb-smolder 4.5s ease-in-out infinite;
+}
+.vtm20.r-type-demon.r-earthbound .r-rail-sigil img { filter: sepia(1) saturate(5) hue-rotate(-25deg) brightness(.95); }
+@keyframes r-eb-smolder {
+  0%, 100% { box-shadow: 0 0 0 3px #0c0504, 0 0 0 4px rgba(194, 65, 15, .55), 0 0 16px rgba(236, 111, 42, .25), inset 0 -6px 12px rgba(236, 90, 30, .25); }
+  50% { box-shadow: 0 0 0 3px #0c0504, 0 0 0 4px rgba(255, 140, 60, .7), 0 0 28px rgba(236, 111, 42, .45), inset 0 -8px 16px rgba(255, 120, 40, .4); }
+}
+@media (prefers-reduced-motion: reduce) { .vtm20.r-type-demon.r-earthbound .r-rail-sigil { animation: none; } }
+.vtm20.r-type-demon.r-earthbound .r-rtab.active { background: linear-gradient(90deg, rgba(236, 111, 42, .2), rgba(120, 25, 10, .08) 70%, transparent); }
+.vtm20.r-type-demon.r-earthbound .r-rtab.active .r-rtab-coin {
+  color: #200703; border-color: var(--d-gold-l); background: radial-gradient(circle at 50% 30%, #ffc27a, #d0480f 70%);
+  box-shadow: 0 0 0 2px #0c0504, 0 0 0 3px rgba(255, 140, 60, .45), 0 0 18px rgba(236, 111, 42, .5);
+}
+
+/* Шапка: водяной знак — раскалённый, рамка портрета — угли */
+.vtm20.r-type-demon.r-earthbound .r-head::before { opacity: .1; filter: sepia(1) saturate(5) hue-rotate(-25deg); }
+.vtm20.r-type-demon.r-earthbound .r-portrait-frame { box-shadow: 0 0 0 1px rgba(236, 111, 42, .5), 0 0 18px rgba(236, 90, 30, .25), 0 6px 18px rgba(0, 0, 0, .7); }
+.vtm20.r-type-demon.r-earthbound .r-motto { color: rgba(255, 140, 60, .8); text-shadow: 0 0 10px rgba(236, 90, 30, .35); }
+.vtm20.r-type-demon.r-earthbound .r-assignat { background: linear-gradient(180deg, rgba(236, 90, 30, .12), rgba(0, 0, 0, .35) 60%); }
+
+/* Шкалы и Знания: кромки — магма */
+.vtm20.r-type-demon.r-earthbound .r-vcard::before, .vtm20.r-type-demon.r-earthbound .r-tcol::before { background: linear-gradient(90deg, var(--d-gold), rgba(236, 111, 42, 0)); }
+.vtm20.r-type-demon.r-earthbound .r-vcard::after, .vtm20.r-type-demon.r-earthbound .r-tcol::after { background: rgba(194, 65, 15, .6); }
+.vtm20.r-type-demon.r-earthbound .r-vc-morality.is-torment { box-shadow: inset 0 -30px 34px -26px rgba(236, 90, 30, .45); }
+.vtm20.r-type-demon.r-earthbound .r-trait:hover { background: linear-gradient(90deg, rgba(236, 111, 42, .12), rgba(120, 25, 10, .04) 60%, transparent); }
+.vtm20.r-type-demon.r-earthbound .r-disc.is-clan .r-disc-sigil { color: var(--d-gold-l); background: #2a0d06; border-color: rgba(236, 111, 42, .6); }
+.vtm20.r-type-demon.r-earthbound .r-ladder::before { background: linear-gradient(180deg, rgba(255, 150, 70, .8), rgba(194, 65, 15, .2)); }
+.vtm20.r-type-demon.r-earthbound .r-ladder .r-power-lvl { background: radial-gradient(circle at 40% 32%, #ffbe72, #c2410f 75%); color: #200703; }
+.vtm20.r-type-demon.r-earthbound .r-form.is-on { background: linear-gradient(90deg, rgba(236, 90, 30, .1), transparent 55%); }
+.vtm20.r-type-demon.r-earthbound .r-foot {
+  background: linear-gradient(90deg, transparent 0 18px, rgba(236, 111, 42, .35) 18px 19px, transparent 19px),
+    radial-gradient(ellipse 80% 120% at 50% 100%, rgba(236, 90, 30, .12), transparent 70%), #0c0504;
+}
+
+/* Окно: тёмно-багровая рамка, полоса шапки — от углей к магме */
+.application.vtm20.r-type-demon.r-earthbound { border-color: #3a1710; --background: #120807; --color-header-background: #0c0504; --color-border: #3a1710; }
+.application.vtm20.r-type-demon.r-earthbound .window-header { background: linear-gradient(180deg, #170907, #0c0504); border-bottom-color: #3a1710; }
+.application.vtm20.r-type-demon.r-earthbound .window-header::after { background: linear-gradient(90deg, rgba(120, 25, 10, .1), #9c3b22 30%, #ff8a3d 60%, rgba(194, 65, 15, .1)); }
+
+/* Мастер создания: шаги и выбор — угли */
+.vtm20.r-type-demon.r-earthbound .r-cr-step.is-done .r-cr-step-coin, .vtm20.r-type-demon.r-earthbound .r-cr-step.is-active .r-cr-step-coin { color: var(--d-gold); }
+.vtm20.r-type-demon.r-earthbound .r-cr-step.is-active a { background: linear-gradient(90deg, rgba(236, 111, 42, .2), transparent); }
+.vtm20.r-type-demon.r-earthbound .r-cr-step.is-active a::before { background: var(--d-gold); }
+.vtm20.r-type-demon.r-earthbound .r-cr-tile.is-active, .vtm20.r-type-demon.r-earthbound .r-cr-clan.is-active,
+.vtm20.r-type-demon.r-earthbound .r-cr-bg.is-on, .vtm20.r-type-demon.r-earthbound .r-cr-mf.is-on {
+  border-color: rgba(236, 111, 42, .6); background: rgba(236, 111, 42, .1); box-shadow: inset 2px 0 0 var(--d-gold); }
+.vtm20.r-type-demon.r-earthbound .r-cr-clan .r-cr-medal { color: var(--d-gold); }
+.vtm20.r-type-demon.r-earthbound .r-cr-clancard { box-shadow: inset 2px 0 0 var(--d-gold); }
+.vtm20.r-type-demon.r-earthbound .r-cr-disc-chip.is-active { border-color: var(--d-gold); background: rgba(236, 111, 42, .18); }
+.vtm20.r-type-demon.r-earthbound .r-cr-dot.is-alloc { border-color: var(--d-gold); }
+.vtm20.r-type-demon.r-earthbound .r-cr-bg.is-on .r-cr-take, .vtm20.r-type-demon.r-earthbound .r-cr-mf.is-on .r-cr-mf-take,
+.vtm20.r-type-demon.r-earthbound .r-cr-added:not(:empty) { color: #200703; background: var(--d-gold); }
+
+/* Блок «Привязанный к Земле» на шаге Дома (виден и падшему — как переключатель) */
+.vtm20 .r-cr-eb { margin: 4px 0 14px; padding: 12px 14px; border: 1px solid var(--r-line-2); background: var(--r-card-bg); }
+.vtm20 .r-cr-eb-head { display: flex; align-items: center; gap: 12px; }
+.vtm20 .r-cr-eb-sym { flex: 0 0 auto; display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%;
+  border: 1px solid var(--r-line-2); color: var(--r-muted); font-size: 17px; }
+.vtm20 .r-cr-eb-titles { flex: 1 1 auto; display: flex; flex-direction: column; gap: 2px; }
+.vtm20 .r-cr-eb-titles b { font-family: var(--r-display); font-size: 17px; color: var(--r-ink); }
+.vtm20 .r-cr-eb-titles .r-note { margin: 0; }
+.vtm20 .r-cr-eb.is-on { border-color: rgba(236, 111, 42, .45);
+  background: radial-gradient(ellipse 90% 120% at 50% 120%, rgba(236, 90, 30, .16), transparent 70%), var(--r-card-bg);
+  box-shadow: inset 2px 0 0 #ec6f2a; }
+.vtm20 .r-cr-eb.is-on .r-cr-eb-sym { color: #ffae5c; border-color: rgba(236, 111, 42, .6); background: radial-gradient(circle at 50% 70%, #4a1408, #120605 75%);
+  box-shadow: 0 0 14px rgba(236, 111, 42, .35); }
+.vtm20 .r-cr-eb-rules { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 12px 0 4px; padding: 0; list-style: none; }
+.vtm20 .r-cr-eb-rules li { display: flex; flex-direction: column; align-items: center; padding: 6px 4px; border: 1px solid var(--r-line); background: rgba(0, 0, 0, .18); }
+.vtm20 .r-cr-eb-rules b { font-family: var(--r-display); font-size: 16px; color: var(--r-accent); }
+.vtm20 .r-cr-eb-rules span { font-size: 11.5px; font-variant: small-caps; letter-spacing: .04em; color: var(--r-muted); text-align: center; }
+.vtm20 .r-cr-eb-sub { margin: 12px 0 6px; font-family: var(--r-caps); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--r-accent); }
+.vtm20 .r-cr-eb-rel { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.vtm20 .r-cr-eb-relcard { display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; border: 1px solid var(--r-line-2); background: rgba(0, 0, 0, .2); cursor: pointer; }
+.vtm20 .r-cr-eb-relcard i { color: var(--r-muted); font-size: 16px; }
+.vtm20 .r-cr-eb-relcard b { color: var(--r-ink); font-size: 14px; }
+.vtm20 .r-cr-eb-relcard span { font-size: 12px; line-height: 1.35; color: var(--r-ink-2); }
+.vtm20 .r-cr-eb-relcard:hover { border-color: rgba(236, 111, 42, .45); }
+.vtm20 .r-cr-eb-relcard.is-active { border-color: #ec6f2a; background: rgba(236, 111, 42, .12); box-shadow: inset 0 2px 0 #ec6f2a; }
+.vtm20 .r-cr-eb-relcard.is-active i { color: #ffae5c; }
+@media (max-width: 760px) { .vtm20 .r-cr-eb-rel { grid-template-columns: 1fr; } .vtm20 .r-cr-eb-rules { grid-template-columns: repeat(2, 1fr); } }
+.vtm20.r-type-demon.r-earthbound button.is-primary, .vtm20.r-type-demon.r-earthbound .r-btn.is-primary {
+  color: #200703; background: linear-gradient(180deg, #ff9a52, #c2410f); border-color: #ffae5c; }
+.vtm20.r-type-demon.r-earthbound .r-btn.is-primary:hover { background: linear-gradient(180deg, #ffb070, #d9500f); color: #200703; }
+.vtm20.r-type-demon.r-earthbound .r-eb-doom { margin: 0; font-size: 12px; font-style: italic; color: var(--r-accent); }
