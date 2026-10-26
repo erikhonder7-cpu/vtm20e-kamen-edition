@@ -363,7 +363,7 @@
     },
     {
       "name": "demon-backgrounds",
-      "label": "Дополнения падших",
+      "label": "Факты биографии падших",
       "path": "packs/demon-backgrounds",
       "type": "Item",
       "system": "vtm20e-kamen-edition",
