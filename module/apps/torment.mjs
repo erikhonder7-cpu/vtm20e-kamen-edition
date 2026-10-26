@@ -114,7 +114,7 @@ export async function atoneWithXp(actor) {
  */
 export async function assumeForm(actor) {
   const s = actor.system, visage = Codex.house(s.house)?.visages?.[s.visage] ?? "";
-  if (s.apocalyptic) { await actor.unsetFlag(SYSTEM_ID, "formScene"); return actor.update({ "system.apocalyptic": false }); }
+  if (s.apocalyptic) { await actor.unsetFlag(SYSTEM_ID, "formScene"); await actor.unsetFlag(SYSTEM_ID, "urgeSplit"); return actor.update({ "system.apocalyptic": false }); }
   if (s.faith.temporary < 1) return ui.notifications.warn(t("NoFaith"));
   const how = await foundry.applications.api.DialogV2.wait({
     window: { title: t("FormTake") }, classes: ["vtm20", "r-dialog"], position: { width: 420 },
@@ -132,7 +132,32 @@ export async function assumeForm(actor) {
   }
   if (!ok) return;
   await actor.update({ "system.apocalyptic": true });
+  if (s.earthbound) await splitUrges(actor);
   return notice(actor, "fa-dragon", t("FormTaken", { name: esc(actor.name), visage: esc(visage) }), "is-form");
+}
+
+/** Потребности Привязанного (Earthbound, гл. 3) в форме: игрок раскладывает каждую по её Характеристикам (флаг urgeSplit). */
+const URGE_ATTRS = { flesh: ["strength", "dexterity", "stamina"], thought: ["perception", "intelligence", "wits"], emotion: ["charisma", "manipulation", "appearance"] };
+export async function splitUrges(actor) {
+  const u = actor.system.urges ?? {}, prev = actor.getFlag(SYSTEM_ID, "urgeSplit") ?? {};
+  const rows = Object.entries(URGE_ATTRS).map(([k, attrs]) => {
+    const n = u[k] ?? 0, base = attrs.map((a, i) => prev[a] ?? (i === 0 ? n : 0));
+    return `<p class="r-choice-hint"><b>${t(`Urge.${k}`)} ${n}</b></p><div class="r-fields">` + attrs.map((a, i) =>
+      `<label class="r-f"><span>${actor.traitLabel(`attributes.${a}`)}</span><input type="number" name="${a}" value="${base[i]}" min="0" max="${n}"></label>`).join("") + "</div>";
+  }).join("");
+  const v = await foundry.applications.api.DialogV2.prompt({
+    window: { title: t("UrgeSplit") }, classes: ["vtm20", "r-dialog"], position: { width: 460 },
+    content: `<p class="r-choice-hint">${t("UrgeSplitHint")}</p>${rows}`,
+    ok: { label: game.i18n.localize("VTM20.Common.Apply"), callback: (ev, btn) => new foundry.applications.ux.FormDataExtended(btn.form).object }
+  }).catch(() => null);
+  if (!v) return;
+  // в каждой Потребности не больше её точек: лишнее срезаем с конца
+  const split = {};
+  for (const [k, attrs] of Object.entries(URGE_ATTRS)) {
+    let left = u[k] ?? 0;
+    for (const a of attrs) { const n = Math.min(left, Math.max(0, Number(v[a]) || 0)); if (n) split[a] = n; left -= n; }
+  }
+  return actor.setFlag(SYSTEM_ID, "urgeSplit", split);
 }
 
 /** Черта высокой Муки на эпизод (гл. 7): в минуту опасности — до конца эпизода, ценой пункта временной Муки. */

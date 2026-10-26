@@ -74,6 +74,8 @@ export function formMods(actor) {
   const m = { attr: {}, soak: 0, init: 0, health: 0, noWoundPenalty: false, diff: {}, dice: {}, weapons: [], list: [] };
   if (actor?.type !== "demon" || !actor.system.apocalyptic) return m;
   const picks = actor.getFlag?.(SYSTEM_ID, "formPick") ?? {};
+  // Потребности Привязанного, разложенные при принятии формы (apps/torment.mjs, splitUrges)
+  if (actor.system.earthbound) for (const [k, v] of Object.entries(actor.getFlag?.(SYSTEM_ID, "urgeSplit") ?? {})) m.attr[k] = (m.attr[k] ?? 0) + v;
   for (const x of formFeatures(actor)) {
     if (!x.active) continue;
     const mech = x.entry?.mech, pick = picks[x.name] ?? "";
