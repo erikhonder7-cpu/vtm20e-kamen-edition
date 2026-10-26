@@ -83,6 +83,35 @@ export async function kindnessCheck(actor, slot) {
   return res;
 }
 
+/**
+ * Грех слуги падшего (Damned and Deceived, гл. 4): порог — постоянная Воля слуги; бросок нужной Добродетели, сл. 7,
+ * без траты Воли. Успех — без последствий, неудача — −1 временная Воля, провал — −1 постоянная (на 3 и ниже — расстройство).
+ */
+export async function thrallSin(actor) {
+  const slots = ["conscience", "selfControl", "courage"];
+  const will = actor.system.willpower.permanent;
+  const content = `<p class="r-choice-hint">${t("ThrallSinHint", { n: will, sin: t(`ThrallSinRow.${Math.max(1, Math.min(10, will))}`) })}</p><div class="r-choice-list">` + slots.map((s, i) =>
+    `<label class="r-choice"><input type="radio" name="slot" value="${s}" ${i ? "" : "checked"}><span><b>${esc(virtueLabel(actor, s))}</b> ${actor.traitValue(`virtues.${s}`)}<em class="r-choice-when">${t(`ThrallSinWhen.${s}`)}</em></span></label>`).join("") + "</div>";
+  const slot = await foundry.applications.api.DialogV2.prompt({
+    window: { title: t("ThrallSin") }, classes: ["vtm20", "r-dialog", "r-choice-dialog"], position: { width: 460 }, content,
+    ok: { label: t("RollVirtue"), callback: (ev, btn) => btn.form.elements.slot.value }
+  }).catch(() => null);
+  if (!slot) return null;
+  const pool = actor.traitValue(`virtues.${slot}`);
+  const res = await rollPool({ actor, title: t("ThrallSin"), subtitle: virtueLabel(actor, slot), pool, difficulty: 7, kind: "thrallSin",
+    breakdown: [{ label: virtueLabel(actor, slot), value: pool }] });
+  const w = actor.system.willpower;
+  if (res.outcome === "botch") {
+    const perm = Math.max(0, w.permanent - 1);
+    await actor.update({ "system.willpower.permanent": perm, "system.willpower.temporary": Math.min(w.temporary, perm) });
+    await notice(actor, "fa-heart-crack", t(perm === 0 ? "ThrallSinBroken" : perm <= 3 ? "ThrallSinMad" : "ThrallSinPerm", { name: esc(actor.name), n: perm }), "is-sin");
+  } else if (res.successes === 0) {
+    await actor.update({ "system.willpower.temporary": Math.max(0, w.temporary - 1) });
+    await notice(actor, "fa-heart-crack", t("ThrallSinTemp", { name: esc(actor.name) }), "is-sin");
+  }
+  return res;
+}
+
 /** Окно выбора Добродетели для греха или доброго дела; подсказки — когда какую бросать (гл. 6). */
 export async function virtuePrompt(actor, kind) {
   const slots = ["conscience", "selfControl", "courage"];

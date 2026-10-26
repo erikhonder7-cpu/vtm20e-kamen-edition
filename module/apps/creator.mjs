@@ -36,8 +36,13 @@ const RULES = {
     cost: { attr: 5, abil: 2, disc: 7, bg: 1, virt: 2, morality: 6, will: 1 } },
   // Привязанный к Земле (Earthbound, гл. 3): Знаний 10 пунктов, Потребности в слотах Добродетелей (по точке и ещё 3), Вера 4, 21 свободный
   earthbound: { attr: [8, 6, 4], abil: [17, 12, 7], disc: 10, bg: 10, virt: 3, free: 21,
-    cost: { attr: 6, abil: 2, disc: 5, bg: 1, virt: 3, morality: 5, will: 1 } }
+    cost: { attr: 6, abil: 2, disc: 5, bg: 1, virt: 3, morality: 5, will: 1 } },
+  // Слуга падшего (Damned and Deceived, гл. 4): Добродетели падших по точке и ещё 3, Вера слуги 1 (слот morality, 7 за точку), 15 свободных
+  thrall: { attr: [6, 4, 3], abil: [11, 7, 4], disc: 0, bg: 5, virt: 3, free: 15,
+    cost: { attr: 5, abil: 2, disc: 0, bg: 1, virt: 2, morality: 7, will: 1 } }
 };
+/** Слуге нельзя: Высокое положение, Наследие, Договоры, Совершенство; знание ритуалов — удел падших. */
+const THRALL_BANNED = ["Eminence", "Legacy", "Pacts", "Paragon", "Ritual Knowledge"];
 /** Начальная Вера падшего. */
 const DEMON_FAITH = 3;
 
@@ -64,7 +69,7 @@ const CAMARILLA_BANNED = ["chimerstry", "melpominee", "mytherceria", "necromancy
 
 const STEP_HINTS = {
   concept: "ConceptHint", clan: "ClanHint", house: "HouseHint", attributes: "AttrHintShort", abilities: "AbilHintShort",
-  disciplines: "DiscHint", advantages: "AdvHint", merits: "MeritHint", freebies: "FreeHint", xp: "XpHint", summary: "FinishHint"
+  disciplines: "DiscHint", advantages: "AdvHint", merits: "MeritHint", freebies: "FreeHint", xp: "XpHint", pact: "PactHint", summary: "FinishHint"
 };
 /** Шаги, где у гуля свой текст подсказки (ключ + «Ghoul»). */
 const GHOUL_HINTS = new Set(["concept", "disciplines", "summary"]);
@@ -72,6 +77,7 @@ const GHOUL_HINTS = new Set(["concept", "disciplines", "summary"]);
 const DEMON_HINTS = new Set(["concept", "disciplines", "advantages", "freebies", "summary"]);
 // у Привязанного свои подсказки: Знания с Тёмными, Потребности вместо Добродетелей, 21 пункт, Мука 10
 const EB_HINTS = new Set(["disciplines", "advantages", "freebies", "summary"]);
+const THRALL_HINTS = new Set(["concept", "advantages", "freebies", "summary"]);
 
 export function openCreator(actor) {
   const existing = [...foundry.applications.instances.values()].find(a => a instanceof VtMCreator && a.actor === actor);
@@ -87,7 +93,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     actions: {
       goto: VtMCreator.#onGoto, next: VtMCreator.#onNext, prev: VtMCreator.#onPrev,
       tier: VtMCreator.#onTier, sect: VtMCreator.#onSect, clan: VtMCreator.#onClan, clanGroup: VtMCreator.#onClanGroup,
-      house: VtMCreator.#onHouse, earthbound: VtMCreator.#onEarthbound, reliquary: VtMCreator.#onReliquary, visage: VtMCreator.#onVisage, faction: VtMCreator.#onFaction, houseAtlas: VtMCreator.#onHouseAtlas,
+      house: VtMCreator.#onHouse, earthbound: VtMCreator.#onEarthbound, thrall: VtMCreator.#onThrall, pactShare: VtMCreator.#onPactShare, pactGift: VtMCreator.#onPactGift, reliquary: VtMCreator.#onReliquary, visage: VtMCreator.#onVisage, faction: VtMCreator.#onFaction, houseAtlas: VtMCreator.#onHouseAtlas,
       gen: VtMCreator.#onGen, choice: VtMCreator.#onChoice, clanAtlas: VtMCreator.#onClanAtlas,
       dot: VtMCreator.#onDot, prio: VtMCreator.#onPrio,
       bgToggle: VtMCreator.#onBgToggle, mfToggle: VtMCreator.#onMfToggle, mfTab: VtMCreator.#onMfTab, mfCat: VtMCreator.#onMfCat,
@@ -122,7 +128,9 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       merits: [], flaws: [],
       free: { attr: {}, abil: {}, disc: {}, bg: {}, virt: {}, morality: 0, will: 0 },
       xp: { attr: {}, abil: {}, disc: {}, virt: {}, morality: 0, will: 0 },
-      blood: null
+      blood: null,
+      // слуга: «Танец с Дьяволом» — хозяин (uuid демона), доля Веры хозяину (−1 — наибольшая), условия, дары словами и прибавками
+      pact: { master: "", share: -1, terms: "", gifts: "", attr: {}, abil: {} }
     };
     this.ui = { clanGroup: "clan", mfTab: "merit", mfCat: "all", mfSearch: "", open: new Set() };
   }
@@ -137,6 +145,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     if (this.rules.disc > 0) s.push("disciplines");
     s.push("advantages", "merits", "freebies");
     if (this.st.xpTotal > 0) s.push("xp");
+    if (this.isThrall) s.push("pact");                 // «Танец с Дьяволом»: хозяин, доля, дары
     s.push("summary");
     return s;
   }
@@ -147,10 +156,13 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
   /** Числа создания: по типу персонажа, у вампира — с поправкой секты (SECT_RULES). */
   get rules() {
     if (this.isEarthbound) return RULES.earthbound;
+    if (this.isThrall) return RULES.thrall;
     return this.type === "vampire" ? { ...this.baseRules, ...(SECT_RULES[this.st?.sectKey] ?? {}) } : this.baseRules;
   }
   /** Падший создаётся Привязанным к Земле (переключатель на шаге Дома). */
   get isEarthbound() { return this.type === "demon" && !!this.st?.earthbound; }
+  /** Смертный создаётся слугой падшего (переключатель на шаге концепции). */
+  get isThrall() { return this.type === "mortal" && !!this.st?.thrall; }
   /** Дисциплина закрыта сектой: Камарилья не учит внеклановым Дисциплинам независимых и Шабаша. */
   bannedDisc(k) { return this.type === "vampire" && this.st.sectKey === "camarilla" && CAMARILLA_BANNED.includes(k) && !this.inClan(k); }
   /** Подсказка о правилах выбранной секты (шаги концепции, Дисциплин, преимуществ и свободных пунктов). */
@@ -203,17 +215,25 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
 
   get moralityBase() {
     if (this.isDemon) return Math.min(10, (this.isEarthbound ? 4 : DEMON_FAITH) + this.st.free.morality);   // у падшего — Вера
+    if (this.isThrall) return Math.min(5, 1 + this.st.free.morality);                                        // у слуги — Вера слуги
     const v = this.value("virt", "conscience") + this.value("virt", "selfControl") + this.st.free.morality;
     return this.st.path === "humanity" ? Math.min(10, v) : Math.min(5, v);
   }
-  get morality() { return Math.min(10, this.moralityBase + this.st.xp.morality); }
+  get morality() { return Math.min(this.isThrall ? 5 : 10, this.moralityBase + this.st.xp.morality); }
   get willpowerBase() {
     // у падшего Воля — сумма двух высших Добродетелей (гл. 6), у прочих — Смелость
-    const base = this.isDemon ? ["conscience", "selfControl", "courage"].map(k => this.value("virt", k)).sort((x, y) => y - x).slice(0, 2).reduce((x, y) => x + y, 0)
+    const base = this.isDemon || this.isThrall ? ["conscience", "selfControl", "courage"].map(k => this.value("virt", k)).sort((x, y) => y - x).slice(0, 2).reduce((x, y) => x + y, 0)
       : this.value("virt", "courage");
     return Math.min(10, base + this.st.free.will);
   }
   get willpower() { return Math.min(10, this.willpowerBase + this.st.xp.will); }
+
+  /* Договор слуги (Damned and Deceived, гл. 4): до половины Веры слуги (вверх) — хозяину, остальное — на дары;
+     дары-прибавки: Характеристики — 2 точки за пункт, Способности — до 5 точек за пункт */
+  get pactShareMax() { return Math.ceil(this.morality / 2); }
+  get pactShare() { const s = this.st.pact.share; return s < 0 ? this.pactShareMax : Math.min(s, this.pactShareMax); }
+  get giftPoints() { return Math.max(0, this.morality - this.pactShare); }
+  get giftUsed() { const p = this.st.pact; return Math.ceil(this.sum(p.attr) / 2) + Math.ceil(this.sum(p.abil) / 5); }
 
   get flawPoints() { return Math.min(VTM20.creation.flawCap, this.st.flaws.reduce((s, f) => s + f.cost, 0)); }
   get meritPoints() { return this.st.merits.reduce((s, m) => s + m.cost, 0); }
@@ -234,6 +254,10 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
         const L = Codex.lore(k), near = kind === "disc" && (this.inClan(k) && !L?.dark);
         total += kind === "attr" ? c * 5 : kind === "abil" ? (c === 0 ? 4 : c * 3) : kind === "disc" ? (c === 0 ? (near ? 6 : 8) : c * 4)
           : kind === "bg" ? Math.max(1, c) * 4 : kind === "virt" ? c * 2 : kind === "morality" ? c * 6 : kind === "will" ? c : 0;
+        continue;
+      }
+      if (this.isThrall) {                             // опыт слуги (Damned and Deceived): Вера слуги × 10
+        total += kind === "attr" ? c * 4 : kind === "abil" ? (c === 0 ? 3 : c * 2) : kind === "virt" ? c * 2 : kind === "morality" ? c * 10 : kind === "will" ? c : 0;
         continue;
       }
       if (kind === "attr") total += c * 4;
@@ -281,6 +305,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       case "advantages": return rem.bg === 0 && rem.virt === 0;
       case "freebies": return rem.free === 0;
       case "xp": return rem.xp >= 0;
+      case "pact": return !!this.st.pact.master && this.giftUsed <= this.giftPoints;
       default: return true;
     }
   }
@@ -301,6 +326,8 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     if (this.type === "vampire" && this.clanData?.choice?.length && !this.st.clanChoice) out.push(t("Creator.NeedChoice"));
     if (this.isDemon && !this.st.visage) out.push(t("Creator.NeedVisage"));
     if (this.isEarthbound && this.value("bg", "Поклонение") > 0 && this.value("bg", "Культ") < 1) out.push(t("Creator.WorshipNeedsCult"));
+    if (this.isThrall && !this.st.pact.master) out.push(t("Creator.PactNoMaster"));
+    if (this.isThrall && this.giftUsed > this.giftPoints) out.push(t("Creator.PactOver", { n: this.giftUsed - this.giftPoints }));
     for (const c of this.traitIssues) out.push(t(`Creator.Trait${c.key}`, c.data));
     return out;
   }
@@ -335,13 +362,13 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     };
     const ctx = {
       st, ui: this.ui, rem, rules: this.rules, type: this.type,
-      isVampire: this.type === "vampire", isGhoul: this.type === "ghoul", isDemon: this.isDemon, isEarthbound: this.isEarthbound, discLabel: this.discLabel, bgLabel: this.bgLabel,
+      isVampire: this.type === "vampire", isGhoul: this.type === "ghoul", isDemon: this.isDemon, isEarthbound: this.isEarthbound, isThrall: this.isThrall, isMortal: this.type === "mortal", discLabel: this.discLabel, bgLabel: this.bgLabel,
       typeLabel: loc(`TYPES.Actor.${this.type}`),
       steps: this.steps.map((k, i) => ({ i, key: k, n: i + 1, label: t(`Creator.Step.${this.stepName(k)}`), active: i === this.step, done: this.stepOk(k, rem) && i !== this.step })),
       stepKey: key, stepNumber: this.step + 1, stepCount: this.steps.length,
       // у гуля свои подсказки там, где правила другие (нет Становления, Дисциплины — от домитора)
       title: t(`Creator.Step.${this.stepName(key)}`),
-      hint: t(`Creator.${STEP_HINTS[key]}${this.type === "ghoul" && GHOUL_HINTS.has(key) ? "Ghoul" : this.isEarthbound && EB_HINTS.has(key) ? "Earthbound" : this.isDemon && DEMON_HINTS.has(key) ? "Demon" : key === "advantages" && !this.rules.bg ? "NoBg" : ""}`, { n: this.rules.disc, bg: this.rules.bg, virt: this.rules.virt }),
+      hint: t(`Creator.${STEP_HINTS[key]}${this.type === "ghoul" && GHOUL_HINTS.has(key) ? "Ghoul" : this.isEarthbound && EB_HINTS.has(key) ? "Earthbound" : this.isThrall && THRALL_HINTS.has(key) ? "Thrall" : this.isDemon && DEMON_HINTS.has(key) ? "Demon" : key === "advantages" && !this.rules.bg ? "NoBg" : ""}`, { n: this.rules.disc, bg: this.rules.bg, virt: this.rules.virt }),
       sectRule: ["concept", "disciplines", "advantages", "freebies"].includes(key) ? this.sectRule : "",
       isFirst: this.step === 0, isLast: this.step === this.steps.length - 1,
       [`is_${key}`]: true
@@ -367,7 +394,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       clan: this.clanData?.name ?? "",
       sym: this.type === "vampire" ? Codex.clanSymbol(st.clan) : Codex.sectSymbol(st.sect),
       generation: gen, blood: gen ? VTM20.generationOf(gen).pool : null,
-      morality: this.morality, willpower: this.willpower, pathName: this.isDemon ? t("Demon.Faith") : this.pathData?.name ?? "", ledger,
+      morality: this.morality, willpower: this.willpower, pathName: this.isDemon ? t("Demon.Faith") : this.isThrall ? t("Creator.ThrallFaith") : this.pathData?.name ?? "", ledger,
       torment: this.houseData?.torment ?? null, demon: this.isDemon
     };
     if (this.isDemon) Object.assign(ctx.patent, { clan: this.houseData?.name ?? "", sect: Codex.faction(st.faction)?.name ?? "", sectSym: null });
@@ -458,14 +485,17 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     // VI. Факты биографии — каталог карточек, и Добродетели
     // Earthbound: факты биографии Привязанных — только им; Привязанному нельзя связей с людьми, наставника, договоров и наследия
     const EB_BANNED = ["Contacts", "Fame", "Followers", "Mentor", "Pacts", "Legacy"];
-    const ebOk = b => this.isEarthbound ? !EB_BANNED.includes(b.en) : b.source !== "Earthbound";
-    ctx.bgCards = Codex.backgrounds.filter(b => (Codex.visible(b) && VTM20.backgroundAllowed(b, this.type) && ebOk(b)) || b.name in st.bg).map(b => {
+    const ebOk = b => !b.thrall && (this.isEarthbound ? !EB_BANNED.includes(b.en) : b.source !== "Earthbound");
+    // слуга: факты биографии падших без запретных и без фактов Привязанных, плюс свои (Заботливый хозяин, Приобщение)
+    const bgOk = b => this.isThrall ? b.line === "demon" && b.source !== "Earthbound" && !THRALL_BANNED.includes(b.en)
+      : VTM20.backgroundAllowed(b, this.type) && ebOk(b);
+    ctx.bgCards = Codex.backgrounds.filter(b => (Codex.visible(b) && bgOk(b)) || b.name in st.bg).map(b => {
       const on = b.name in st.bg || (st.free.bg[b.name] ?? 0) > 0;
       return { name: b.name, en: b.en, sectLabel: b.sabbat ? t("Sect.sabbat") : b.sect ? t(`Sect.${b.sect}`) : "", on, value: this.value("bg", b.name), dots: dotRow("bg", b.name),
           text: VtMCreator.#preview(b.html, 170), html: b.html, open: this.ui.open.has(`bg:${b.name}`) };
     });
     ctx.virtues = ["conscience", "selfControl", "courage"].map(slot => {
-      const vk = slot === "courage" ? "courage" : this.isDemon ? (slot === "selfControl" ? "conviction" : "conscience") : slot === "conscience" ? (this.altVirtues.includes("conviction") ? "conviction" : "conscience")
+      const vk = slot === "courage" ? "courage" : this.isDemon || this.isThrall ? (slot === "selfControl" ? "conviction" : "conscience") : slot === "conscience" ? (this.altVirtues.includes("conviction") ? "conviction" : "conscience")
         : (this.altVirtues.includes("instinct") ? "instinct" : "selfControl");
       // у Привязанного в слотах Добродетелей — Потребности: Плоть, Мысль, Эмоция
       const urge = { conscience: "flesh", selfControl: "thought", courage: "emotion" }[slot];
@@ -480,8 +510,8 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     // Клановые черты и черты секты — только в своих категориях и только своего клана/секты
     const myClan = this.type === "vampire" ? Codex.traitClan(st.clan) : "";
     const mySect = st.sectKey || Codex.sectKey(st.sect);
-    const line = VTM20.traitLine(this.type);
-    const inCat = (m, cat) => !Codex.visible(m) || (m.line ?? "") !== line ? false : cat === "clan" ? !!myClan && m.clan === myClan
+    const line = this.isThrall ? "demon" : VTM20.traitLine(this.type);      // слуга берёт черты из книги падших, кроме инфернальных
+    const inCat = (m, cat) => !Codex.visible(m) || (m.line ?? "") !== line || (this.isThrall && m.category === "infernal") ? false : cat === "clan" ? !!myClan && m.clan === myClan
       : cat === "sect" ? !m.clan && !!mySect && m.sect === mySect
       : !m.clan && !m.sect && (cat === "all" || m.category === cat);
     const extra = ["sect", "clan"].filter(k => Codex.merits.some(m => m.kind === this.ui.mfTab && inCat(m, k)));
@@ -518,7 +548,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
         ...(this.rules.disc ? ctx.discCards.map(x => row("disc", x.key, x.name, this.discLabel, x.value)) : []),
         ...(mode === "free" ? ctx.bgCards.filter(b => b.on).map(b => row("bg", b.name, b.name, this.bgLabel, b.value)) : []),
         ...ctx.virtues.map(x => row("virt", x.key, x.label, t("Sheet.Virtues"), x.value)),
-        row("morality", "", this.isDemon ? t("Demon.Faith") : this.pathData?.name ?? t("Humanity"), t("Sheet.Other"), this.morality),
+        row("morality", "", this.isDemon ? t("Demon.Faith") : this.isThrall ? t("Creator.ThrallFaith") : this.pathData?.name ?? t("Humanity"), t("Sheet.Other"), this.morality),
         row("will", "", t("Willpower"), t("Sheet.Other"), this.willpower)
       ];
       return [...new Set(list.map(r => r.group))].map(g => ({ label: g, rows: list.filter(r => r.group === g) }));
@@ -531,6 +561,19 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     if (key === "xp") {
       ctx.xpTotal = st.xpTotal; ctx.xpSpent = this.xpSpent; ctx.xpLeft = this.xpLeft;
       ctx.xpGroups = rows("xp");
+    }
+
+    // IX½. Танец с Дьяволом — договор слуги
+    if (key === "pact") {
+      const p = st.pact;
+      ctx.pact = {
+        masters: game.actors.filter(a => a.type === "demon" && a.id !== this.actor.id).map(a => ({ value: a.uuid, label: a.name, selected: a.uuid === p.master }))
+          .sort((a, b) => a.label.localeCompare(b.label, "ru")),
+        faith: this.morality, share: this.pactShare, shareMax: this.pactShareMax, points: this.giftPoints, used: this.giftUsed,
+        over: this.giftUsed > this.giftPoints,
+        attrs: ctx.attrGroups.map(g => ({ label: g.label, list: g.list.map(x => ({ key: x.key, label: x.label, base: x.value, gift: p.attr[x.key] ?? 0, total: x.value + (p.attr[x.key] ?? 0) })) })),
+        abils: ctx.abilGroups.map(g => ({ label: g.label, list: g.list.map(x => ({ key: x.key, label: x.label, base: x.value, gift: p.abil[x.key] ?? 0, total: x.value + (p.abil[x.key] ?? 0) })) }))
+      };
     }
 
     // X. Итог
@@ -550,7 +593,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       }
       ctx.problems = this.problems(rem);
       ctx.clanSym = this.type === "vampire" ? Codex.clanSymbol(st.clan) : null;
-      ctx.pathName = this.isDemon ? t("Demon.Faith") : this.pathData?.name;
+      ctx.pathName = this.isDemon ? t("Demon.Faith") : this.isThrall ? t("Creator.ThrallFaith") : this.pathData?.name;
       if (this.isDemon) Object.assign(ctx, { torment: this.isEarthbound ? 10 : this.houseData?.torment ?? 3, houseName: this.houseData?.name ?? "",
         visageName: this.houseData?.visages?.[st.visage] ?? "", factionName: Codex.faction(st.faction)?.name ?? "" });
       // Привязанный: Потребности вместо Добродетелей, реликварий
@@ -628,6 +671,22 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
   }
   static #onVisage(event, target) { this.st.visage = target.dataset.visage; this.render(); }
   static #onEarthbound() { this.st.earthbound = !this.st.earthbound; this.render(); }
+  static #onThrall() { this.st.thrall = !this.st.thrall; this.render(); }
+  /** Доля Веры слуги хозяину: ±1 в пределах половины (вверх). */
+  static #onPactShare(event, target) {
+    this.st.pact.share = Math.max(0, Math.min(this.pactShareMax, this.pactShare + Number(target.dataset.d)));
+    this.render();
+  }
+  /** Дар-прибавка к Характеристике или Способности: ±1, не выше 5 и в пределах пунктов даров. */
+  static #onPactGift(event, target) {
+    const { kind, key } = target.dataset, d = Number(target.dataset.d), store = this.st.pact[kind];
+    const cur = store[key] ?? 0, next = cur + d;
+    if (next < 0 || this.value(kind, key) + next > 5) return;
+    store[key] = next;
+    if (d > 0 && this.giftUsed > this.giftPoints) { store[key] = cur; ui.notifications.warn(t("Creator.PactNoPoints")); return; }
+    if (!store[key]) delete store[key];
+    this.render();
+  }
   static #onReliquary(event, target) { this.st.reliquary = target.dataset.kind; this.render(); }
   static #onFaction(event, target) { this.st.faction = this.st.faction === target.dataset.faction ? "" : target.dataset.faction; this.render(); }
   static #onHouseAtlas() { return openHouses(this.st.house); }
@@ -777,6 +836,13 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
         blood: { value: Math.min(max, st.blood ?? Math.ceil(max / 2)) } });
     }
     if (this.type === "ghoul") Object.assign(sys, { domitor: st.domitor, blood: { value: 1, max: a.system.blood.max } });
+    // Слуга: Вера слуги и хозяин; Человечность не трогаем (грех слуги — по его Воле); дары-прибавки — сразу в черты
+    if (this.isThrall) {
+      delete sys.morality;
+      for (const [k, n] of Object.entries(st.pact.attr)) sys.attributes[k].value = Math.min(5, sys.attributes[k].value + n);
+      for (const [k, n] of Object.entries(st.pact.abil)) sys.abilities[k].value = Math.min(5, sys.abilities[k].value + n);
+      sys.thrall = { master: st.pact.master, faith: this.morality };
+    }
     if (this.isDemon) {
       delete sys.morality;
       Object.assign(sys, { house: st.house, visage: st.visage, faction: st.faction, names: { ...st.names },
@@ -809,7 +875,8 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       if (firstPath && v > 0) items.push({ name: firstPath, type: "thaumPath", img: Codex.disciplineIcon(k),
         system: { discipline: k, value: Math.min(5, v), primary: true, description: Codex.bloodPath(k, firstPath)?.html ?? "" } });
     }
-    for (const b of Codex.backgrounds.filter(b => (b.line ?? "") === VTM20.traitLine(this.type))) {   // одноимённые у демонов — своя линия
+    const bgLine = this.isThrall ? "demon" : VTM20.traitLine(this.type);       // слуга — факты биографии из книги падших
+    for (const b of Codex.backgrounds.filter(b => (b.line ?? "") === bgLine)) {   // одноимённые у демонов — своя линия
       const v = this.value("bg", b.name);
       if (v > 0) items.push({ name: b.name, type: "background", img: backgroundIcon(b.en) ?? icon("background"), system: { value: v, description: b.html, source: b.en } });
     }
@@ -820,6 +887,20 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     }
     await a.createEmbeddedDocuments("Item", items);
     await a.setFlag(SYSTEM_ID, "created", true);
+    if (this.isThrall) await this.#writePact();
     ui.notifications.info(t("Creator.Done", { name: st.name }));
+  }
+
+  /** Договор слуги — строкой в листе хозяина (system.thralls): Вера, доля, Воля, условия и дары. */
+  async #writePact() {
+    const a = this.actor, p = this.st.pact;
+    const master = p.master ? await fromUuid(p.master) : null;
+    if (!master || master.type !== "demon") return;
+    if (!master.isOwner) { ui.notifications.warn(t("Creator.PactNoAccess", { name: master.name })); return; }
+    const boosts = [...Object.entries(p.attr).map(([k, n]) => `${loc(VTM20.attributes[k].label)} +${n}`),
+      ...Object.entries(p.abil).map(([k, n]) => `${loc(VTM20.abilities[k].label)} +${n}`)].join(", ");
+    const row = { name: a.name, uuid: a.uuid, faith: this.morality, share: Math.min(3, this.pactShare), will: this.willpower, wounds: 0, lost: 0,
+      terms: p.terms, gifts: [p.gifts, boosts].filter(Boolean).join(" · ") };
+    await master.update({ "system.thralls": [...master.system.thralls.filter(x => x.uuid !== a.uuid), row] });
   }
 }

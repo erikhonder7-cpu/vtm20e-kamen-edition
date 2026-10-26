@@ -535,6 +535,55 @@ try {
     if (s.faith !== 4 || s.will !== 5) throw new Error(`Вера ${s.faith}, Воля ${s.will} (нужно 4 и 5)`);
   });
 
+  await check("Мастер: слуга падшего", async () => {
+    const master = await temp("E2E — хозяин слуги", "demon"), id = await temp("E2E — слуга", "mortal");
+    const r = await page.evaluate(async ([id, master]) => {
+      const SYS = game.system.id;
+      const { VtMCreator } = await import(`/systems/${SYS}/module/apps/creator.mjs`);
+      const a = game.actors.get(id), d = game.actors.get(master), app = new VtMCreator(a), out = {};
+      app.st.thrall = true;
+      out.rules = [app.rules.attr.join(","), app.rules.abil.join(","), app.rules.bg, app.rules.free].join("/");
+      Object.assign(app.st.virt, { conscience: 1, selfControl: 2, courage: 0 });       // Совесть 2, Убеждённость 3, Мужество 1
+      app.st.free.morality = 2;                                                         // Вера слуги 3
+      app.st.bg = { "Приобщение": 2 };
+      Object.assign(app.st.pact, { master: d.uuid, terms: "служить", gifts: "сила", attr: { strength: 2 } });
+      out.steps = app.steps.join(",");
+      out.bgBanned = ["Высокое положение", "Наследие", "Договоры", "Совершенство"].filter(n => Object.keys(app.st.bg).includes(n)).length;
+      out.pact = [app.morality, app.pactShare, app.giftPoints, app.giftUsed].join(",");
+      app.step = app.steps.length - 1;
+      await app.render({ force: true });
+      await new Promise(r => setTimeout(r, 400));
+      app.element.querySelector('[data-action="finish"]').click();
+      await new Promise(r => setTimeout(r, 600));
+      [...foundry.applications.instances.values()].find(x => x.constructor.name === "DialogV2" && x.rendered)
+        ?.element.querySelector('[data-action="yes"]')?.click();
+      for (let i = 0; i < 30 && !a.system.thrall.master; i++) await new Promise(r => setTimeout(r, 200));
+      const s = a.system;
+      out.sys = { master: s.thrall.master === d.uuid, faith: s.thrall.faith, will: s.willpower.permanent, str: s.attributes.strength.value,
+        vk: a.virtueKey("selfControl"), thrall: a.isThrall, bg: a.items.find(i => i.type === "background")?.name ?? "" };
+      out.row = d.system.thralls.map(x => [x.uuid === a.uuid, x.faith, x.share, x.gifts].join("|"));
+      // грех слуги: бросок Добродетели, сл. 7, без Воли — Воля не растёт и падает только по исходу
+      const T = await import(`/systems/${SYS}/module/apps/torment.mjs`);
+      const w0 = s.willpower.temporary, p0 = s.willpower.permanent;
+      const pr = T.thrallSin(a);
+      await new Promise(r => setTimeout(r, 600));
+      [...foundry.applications.instances.values()].find(x => x.constructor.name === "DialogV2" && x.rendered)?.element.querySelector("footer button")?.click();
+      const res = await pr;
+      out.sin = { outcome: res?.outcome, ok: res?.outcome === "botch" ? a.system.willpower.permanent === p0 - 1
+        : res?.successes > 0 ? a.system.willpower.temporary === w0 : a.system.willpower.temporary === w0 - 1 };
+      a.sheet?.close();
+      return out;
+    }, [id, master]);
+    if (r.rules !== "6,4,3/11,7,4/5/15") throw new Error(`числа слуги: ${r.rules}`);
+    if (!r.steps.includes("pact")) throw new Error(`нет шага договора: ${r.steps}`);
+    if (r.pact !== "3,2,1,1") throw new Error(`Вера/доля/дары: ${r.pact}`);
+    const s = r.sys;
+    if (!s.master || !s.thrall || s.faith !== 3 || s.will !== 5 || s.str !== 3 || s.vk !== "conviction") throw new Error(`лист слуги: ${JSON.stringify(s)}`);
+    if (s.bg !== "Приобщение") throw new Error(`факт биографии слуги: ${s.bg}`);
+    if (r.row.length !== 1 || !r.row[0].startsWith("true|3|2|")) throw new Error(`договор у хозяина: ${r.row.join("; ")}`);
+    if (!r.sin.ok) throw new Error(`грех слуги: ${JSON.stringify(r.sin)}`);
+  });
+
   // Уборка до перезагрузок мира: сообщения бросков и временные персонажи
   await page.evaluate(async () => {
     const extra = game.messages.contents.slice(window._e2e.messages).map(m => m.id);

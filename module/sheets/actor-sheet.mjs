@@ -41,7 +41,7 @@ import { itemCardHTML } from "../chat/item-card.mjs";
 import { themeClass } from "../ui/themes.mjs";
 import { openHouses } from "../apps/houses.mjs";
 import { formFeatures, mechLabel, needsPick, signed } from "../data/form.mjs";
-import { virtuePrompt, atoneWithXp, assumeForm, sceneHighFeature, harvestFaith, pactFaith, innateRoll, ritualTurn, ritualEffect, ritualNeed, suggestSin, revelation, gainTorment, thrallState, thrallCap, reliquaryInfo, worshipRitual, reliquaryDraw } from "../apps/torment.mjs";
+import { virtuePrompt, thrallSin, atoneWithXp, assumeForm, sceneHighFeature, harvestFaith, pactFaith, innateRoll, ritualTurn, ritualEffect, ritualNeed, suggestSin, revelation, gainTorment, thrallState, thrallCap, reliquaryInfo, worshipRitual, reliquaryDraw } from "../apps/torment.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -128,7 +128,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       worship: VtMActorSheet.#onWorship,
       reliquaryDraw: VtMActorSheet.#onReliquaryDraw,
       houseAtlas: VtMActorSheet.#onHouseAtlas,
-      tormentSin: VtMActorSheet.#onTormentSin,
+      tormentSin: VtMActorSheet.#onTormentSin, thrallSin: VtMActorSheet.#onThrallSin, openUuid: VtMActorSheet.#onOpenUuid,
       sinSuggest: VtMActorSheet.#onSinSuggest,
       tormentKind: VtMActorSheet.#onTormentKind,
       tormentAtone: VtMActorSheet.#onTormentAtone,
@@ -393,6 +393,13 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       const v = s.virtues[slot].value;
       return { slot, key, label: game.i18n.localize(VTM20.virtues[key].label), value: v, dots: dots(v, 5, { path: `system.virtues.${slot}.value` }), xp: a.xpCost("virtue", v) };
     });
+    // Слуга падшего: вместо Человечности — Вера слуги, хозяин и грех по порогу Воли
+    if (a.isThrall) {
+      const master = s.thrall.master ? fromUuidSync(s.thrall.master) : null;
+      ctx.thrallInfo = { faith: s.thrall.faith, faithDots: dots(s.thrall.faith, 5, { path: "system.thrall.faith" }),
+        master: master?.name ?? "", masterUuid: master ? s.thrall.master : "",
+        sin: game.i18n.localize(`VTM20.Demon.ThrallSinRow.${Math.max(1, Math.min(10, s.willpower.permanent))}`) };
+    }
     // Привязанный: в карточке Муки — Потребности вместо Добродетелей
     if (ctx.isDemon && s.earthbound) ctx.urges = ["flesh", "thought", "emotion"].map(k => {
       const v = s.urges?.[k] ?? 1;
@@ -1207,6 +1214,9 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static #onToggleEarthbound() { return this.actor.update({ "system.earthbound": !this.actor.system.earthbound }); }
   static #onHouseAtlas() { return openHouses(this.actor.system.house); }
   static #onTormentSin() { return virtuePrompt(this.actor, "sin"); }
+  static #onThrallSin() { return thrallSin(this.actor); }
+  /** Открыть лист по uuid (хозяин слуги и т. п.). */
+  static async #onOpenUuid(event, target) { (await fromUuid(target.dataset.uuid))?.sheet?.render(true); }
   static #onSinSuggest() { return suggestSin(this.actor); }
   static #onTormentKind() { return virtuePrompt(this.actor, "kind"); }
   static #onTormentAtone() { return atoneWithXp(this.actor); }

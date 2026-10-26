@@ -1025,3 +1025,20 @@ body.r-theme-light .vtm20 .r-ng-item.is-active, body.r-theme-light .vtm20 .r-ng-
 .vtm20 .r-ho-paper.is-decree { border: 3px double var(--r-blood-l); outline: 1px solid rgba(184, 58, 63, .35); }
 .vtm20 .r-ho-paper.is-decree .r-ho-title { color: var(--r-bone); border-bottom-color: var(--r-blood-l); }
 .vtm20 .r-ho-paper.is-gazette .r-ho-foot { min-height: 0; }
+
+/* Мастер: слуга падшего — шаг «Танец с Дьяволом» (блок .r-cr-eb — в styles/types/earthbound.css) */
+.vtm20 .r-cr-eb.is-thrall.is-on { border-color: rgba(212, 160, 76, .45); box-shadow: inset 2px 0 0 #b07024;
+  background: radial-gradient(ellipse 90% 120% at 50% 120%, rgba(180, 101, 31, .12), transparent 70%), var(--r-card-bg); }
+.vtm20 .r-cr-eb.is-thrall.is-on .r-cr-eb-sym { color: #f0c46a; border-color: rgba(212, 160, 76, .55); box-shadow: 0 0 12px rgba(212, 160, 76, .25); background: none; }
+.vtm20 .r-cr-pact .r-cols2 { align-items: start; }
+.vtm20 .r-cr-pact-faith { display: flex; flex-direction: column; gap: 8px; }
+.vtm20 .r-cr-pact-faith .r-cr-sum-item.is-over b { color: var(--r-red-t, #c0392b); }
+.vtm20 .r-cr-pm { display: inline-grid; place-items: center; width: 20px; height: 20px; border: 1px solid var(--r-line-2); font-size: 10px; color: var(--r-muted); cursor: pointer; vertical-align: middle; }
+.vtm20 .r-cr-pm:hover { color: var(--r-accent); border-color: var(--r-accent); }
+.vtm20 .r-cr-pact-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px 18px; }
+.vtm20 .r-cr-pact-row { display: grid; grid-template-columns: 1fr 20px 22px 24px 20px; align-items: center; gap: 4px; padding: 1px 0; font-size: 13px; }
+.vtm20 .r-cr-pact-row b { text-align: center; color: var(--r-ink); }
+.vtm20 .r-cr-pact-row em { font-style: normal; font-size: 11px; color: var(--r-accent); }
+.vtm20 .r-cr-pact-row.is-gift span { color: var(--r-accent); }
+.vtm20 .r-cr-pact .r-fields { display: grid; grid-template-columns: 1fr; gap: 10px; }
+.vtm20 .r-cr-pact .r-fields textarea { resize: vertical; min-height: 60px; }

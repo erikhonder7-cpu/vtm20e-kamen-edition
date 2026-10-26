@@ -24,7 +24,7 @@
 
     <div class="r-head-info">
       <div class="r-kicker">
-        <span class="r-kicker-type">{{#if earthbound}}{{localize "VTM20.Creator.Earthbound"}}{{else}}{{typeLabel}}{{/if}}</span>
+        <span class="r-kicker-type">{{#if earthbound}}{{localize "VTM20.Creator.Earthbound"}}{{else if thrallInfo}}{{localize "VTM20.Creator.Thrall"}}{{else}}{{typeLabel}}{{/if}}</span>
         {{#if clan.nickname}}<i class="r-kicker-dia"></i><em class="r-kicker-nick is-link" data-action="clanAtlas" data-tooltip="{{localize 'VTM20.Clans.Open'}}">«{{clan.nickname}}»</em>{{/if}}
         {{#if house}}<i class="r-kicker-dia"></i><em class="r-kicker-nick is-link" data-action="houseAtlas" data-tooltip="{{localize 'VTM20.Demon.AtlasOpen'}}">«{{house.akkadian}}»</em>{{/if}}
         {{#if sectSym}}<i class="r-kicker-dia"></i>{{rSym sectSym "r-sym-inline"}}{{/if}}

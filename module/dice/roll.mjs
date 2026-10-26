@@ -247,6 +247,7 @@ function hintFor(state, ev) {
   if (k === "exorcism") return ev.successes > 0 ? t("Demon.ExorcismHeld") : t("Demon.ExorcismLost");
   if (k === "form") return ev.outcome === "botch" ? t("Demon.FormBotch") : ev.successes > 0 ? t("Demon.FormRolled") : t("Demon.FormFailed");
   if (k === "sin") return ev.successes > 0 ? t("Demon.SinResisted") : t("Demon.SinFell");
+  if (k === "thrallSin") return ev.outcome === "botch" ? t("Demon.ThrallSinOutBotch") : ev.successes > 0 ? t("Demon.ThrallSinOutOk") : t("Demon.ThrallSinOutFail");
   if (k === "harvest") return ev.successes > (state.extra?.opposed?.successes ?? 0) ? t("Demon.HarvestWon") : t("Demon.HarvestLost");
   if (k === "kindness") {
     const o = state.extra?.opposed?.successes ?? 0;

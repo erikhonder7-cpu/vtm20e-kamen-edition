@@ -107,6 +107,29 @@
     </div>
     {{/if}}
   </div>
+  {{else if thrallInfo}}
+  {{!-- Слуга падшего (Damned and Deceived): Вера слуги, хозяин, Добродетели падших, грех по порогу постоянной Воли --}}
+  <div class="r-vcard r-vc-morality is-thrall">
+    <div class="r-vc-head">
+      <h4 class="r-banner"><span>{{localize "VTM20.Demon.ThrallCard"}}</span></h4>
+      <div class="r-vc-status">{{localize "VTM20.Creator.ThrallFaith"}} <b>{{thrallInfo.faith}}</b></div>
+    </div>
+    {{> rDots dots=thrallInfo.faithDots}}
+    <div class="r-thrall-master">{{localize "VTM20.Creator.PactMaster"}}:
+      {{#if thrallInfo.master}}<a data-action="openUuid" data-uuid="{{thrallInfo.masterUuid}}">{{thrallInfo.master}}</a>{{else}}<em>{{localize "VTM20.Demon.ThrallNoMaster"}}</em>{{/if}}</div>
+    <div class="r-virtues">
+      {{#each virtues}}
+      <div class="r-virtue">
+        <a class="r-trait-label" data-action="rollTrait" data-trait="virtues.{{slot}}">{{label}}</a>
+        <span class="r-virtue-dots">{{> rDots dots=dots}}{{#if @root.editable}}<a class="r-buy" data-action="buy" data-path="system.virtues.{{slot}}.value" data-kind="virtue" data-label="{{label}}" data-tooltip="{{localize 'VTM20.Xp.Buy'}}: {{xp}}"><i class="fa-solid fa-plus"></i></a>{{/if}}</span>
+      </div>
+      {{/each}}
+    </div>
+    <div class="r-vc-tools">
+      <span class="r-vc-hint is-left" data-tooltip="{{thrallInfo.sin}}">{{localize "VTM20.Demon.ThrallSinGate"}}: <b>{{system.willpower.permanent}}</b></span>
+      <a class="r-vc-btn is-right" data-action="thrallSin" data-tooltip="{{localize 'VTM20.Demon.ThrallSinBtnHint'}}"><i class="fa-solid fa-skull"></i> {{localize "VTM20.Demon.Sin"}}</a>
+    </div>
+  </div>
   {{else}}
   <div class="r-vcard r-vc-morality">
     <div class="r-vc-head">
@@ -142,6 +165,7 @@
       <span class="r-vs-item"><i class="fa-solid fa-shield-heart"></i> {{localize "VTM20.Willpower"}} <b>{{system.willpower.temporary}}</b>/{{system.willpower.permanent}}</span>
       {{#if isDemon}}<span class="r-vs-item"><i class="fa-solid fa-fire-flame-curved"></i> {{localize "VTM20.Demon.Faith"}} <b>{{system.faith.temporary}}</b>/{{system.faith.permanent}}</span>
       <span class="r-vs-item"><i class="fa-solid fa-link-slash"></i> {{localize "VTM20.Demon.Torment"}} <b>{{system.torment.permanent}}</b></span>
+      {{else if thrallInfo}}<span class="r-vs-item"><i class="fa-solid fa-handshake-angle"></i> {{localize "VTM20.Creator.ThrallFaith"}} <b>{{thrallInfo.faith}}</b></span>
       {{else}}<span class="r-vs-item"><i class="fa-solid fa-scale-balanced"></i> {{#each paths}}{{#if selected}}{{name}}{{/if}}{{/each}} <b>{{system.morality.value}}</b></span>{{/if}}
     </span>
     <i class="fa-solid fa-chevron-up r-vs-caret"></i>

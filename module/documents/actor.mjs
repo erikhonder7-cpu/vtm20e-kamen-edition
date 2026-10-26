@@ -40,9 +40,12 @@ export class VtMActor extends Actor {
   get path() { return Codex.path(this.system.morality.path); }
 
   /** Какая Добродетель стоит в слоте: совесть/решимость, самоконтроль/инстинкты. */
+  /** Слуга падшего: смертный, создан мастером в режиме слуги (system.thrall). */
+  get isThrall() { return this.type === "mortal" && !!(this.system.thrall?.master || this.system.thrall?.faith); }
+
   virtueKey(slot) {
     if (slot === "courage") return "courage";
-    if (this.type === "demon") return slot === "selfControl" ? "conviction" : slot;   // у падших — Совесть, Убеждённость, Мужество
+    if (this.type === "demon" || this.isThrall) return slot === "selfControl" ? "conviction" : slot;   // у падших и их слуг — Совесть, Убеждённость, Мужество
     const v = this.path?.virtues ?? ["conscience", "selfControl"];
     if (slot === "conscience") return v.includes("conviction") ? "conviction" : "conscience";
     if (slot === "selfControl") return v.includes("instinct") ? "instinct" : "selfControl";

@@ -60,13 +60,13 @@
           <label class="r-f"><span>{{localize "VTM20.Details.demeanor"}}</span>
             <input type="text" data-field="demeanor" value="{{st.demeanor}}" data-combo="r-cr-arch" placeholder="—"></label>
           <datalist id="r-cr-arch">{{#each archetypes}}<option value="{{name}}"></option>{{/each}}</datalist>
-          {{#unless (or isGhoul isDemon)}}<label class="r-f"><span>{{localize "VTM20.Details.sire"}}</span><input type="text" data-field="sire" value="{{st.sire}}"></label>{{/unless}}
+          {{#if isVampire}}<label class="r-f"><span>{{localize "VTM20.Details.sire"}}</span><input type="text" data-field="sire" value="{{st.sire}}"></label>{{/if}}
           {{#if isGhoul}}<label class="r-f"><span>{{localize "VTM20.Details.domitor"}}</span><input type="text" data-field="domitor" value="{{st.domitor}}"></label>{{/if}}
         </div>
         {{#if natureRegain}}<div class="r-cr-note"><i class="fa-solid fa-star"></i> <b>{{st.nature}}</b> — {{localize "VTM20.Sheet.NatureRegain"}} {{natureRegain}}</div>{{/if}}
       </div>
       <div>
-        {{#unless isDemon}}
+        {{#unless (or isDemon isMortal)}}
         <h3 class="r-h3">{{tierTitle}}</h3>
         <div class="r-cr-tiles">
           {{#each tiers}}
@@ -75,10 +75,35 @@
           </a>
           {{/each}}
         </div>
-        {{else}}<h3 class="r-h3">{{localize "VTM20.Sheet.Experience"}}</h3><p class="r-note">{{localize "VTM20.Creator.XpDemon"}}</p>{{/unless}}
+        {{else}}<h3 class="r-h3">{{localize "VTM20.Sheet.Experience"}}</h3><p class="r-note">{{#if isMortal}}{{localize "VTM20.Creator.XpMortal"}}{{else}}{{localize "VTM20.Creator.XpDemon"}}{{/if}}</p>{{/unless}}
         <label class="r-cr-xpinput">{{localize "VTM20.Creator.XpCustom"}} <input type="number" data-field="xpTotal" value="{{st.xpTotal}}" min="0" step="5"></label>
       </div>
     </div>
+        {{#if isMortal}}
+        {{!-- Слуга падшего (Damned and Deceived, гл. 4): свои числа и шаг «Танец с Дьяволом» --}}
+        <div class="r-cr-eb is-thrall {{#if st.thrall}}is-on{{/if}}">
+          <div class="r-cr-eb-head">
+            <span class="r-cr-eb-sym"><i class="fa-solid fa-handshake-angle"></i></span>
+            <div class="r-cr-eb-titles">
+              <b>{{localize "VTM20.Creator.Thrall"}}</b>
+              <span class="r-note">{{#if st.thrall}}{{localize "VTM20.Creator.ThrallOn"}}{{else}}{{localize "VTM20.Creator.ThrallOff"}}{{/if}}</span>
+            </div>
+            <a class="r-btn {{#if st.thrall}}is-ghost{{else}}is-primary{{/if}}" data-action="thrall">{{#if st.thrall}}<i class="fa-solid fa-rotate-left"></i> {{localize "VTM20.Creator.ThrallBack"}}{{else}}<i class="fa-solid fa-handshake"></i> {{localize "VTM20.Creator.ThrallMake"}}{{/if}}</a>
+          </div>
+          {{#if st.thrall}}
+          <ul class="r-cr-eb-rules">
+            <li><b>6 / 4 / 3</b><span>{{localize "VTM20.Sheet.Attributes"}}</span></li>
+            <li><b>11 / 7 / 4</b><span>{{localize "VTM20.Sheet.Abilities"}}</span></li>
+            <li><b>5</b><span>{{localize "VTM20.Sheet.Backgrounds"}}</span></li>
+            <li><b>1 + 3</b><span>{{localize "VTM20.Sheet.Virtues"}}</span></li>
+            <li><b>1</b><span>{{localize "VTM20.Creator.ThrallFaith"}}</span></li>
+            <li><b>0</b><span>{{localize "VTM20.Demon.Torment"}}</span></li>
+            <li><b>15</b><span>{{localize "VTM20.Creator.Freebies"}}</span></li>
+            <li><b>≤ 7</b><span>{{localize "VTM20.Sheet.Flaws"}}</span></li>
+          </ul>
+          {{/if}}
+        </div>
+        {{/if}}
     {{#if isVampire}}
     <h3 class="r-h3">{{localize "VTM20.Details.sect"}}</h3>
     <div class="r-cr-sects">
@@ -380,6 +405,40 @@
         {{/each}}
       </div>
       {{/each}}
+    </div>
+    {{/if}}
+
+    {{!-- IX½. Танец с Дьяволом: хозяин, доля Веры, условия, дары --}}
+    {{#if is_pact}}
+    <div class="r-cr-pact">
+      <div class="r-cols2">
+        <div class="r-fields">
+          <label class="r-f"><span>{{localize "VTM20.Creator.PactMaster"}}</span>
+            <select data-field="pact.master"><option value="">{{localize "VTM20.Creator.PactNoMasterOpt"}}</option>{{#each pact.masters}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+          <label class="r-f"><span>{{localize "VTM20.Creator.PactTerms"}}</span><input type="text" data-field="pact.terms" value="{{st.pact.terms}}" placeholder="{{localize 'VTM20.Creator.PactTermsPh'}}"></label>
+          <label class="r-f"><span>{{localize "VTM20.Creator.PactWords"}}</span><textarea data-field="pact.gifts" rows="3" placeholder="{{localize 'VTM20.Creator.PactWordsPh'}}">{{st.pact.gifts}}</textarea></label>
+        </div>
+        <div class="r-cr-pact-faith">
+          <div class="r-cr-sum-item"><span>{{localize "VTM20.Creator.ThrallFaith"}}</span><b>{{pact.faith}}</b></div>
+          <div class="r-cr-sum-item"><span>{{localize "VTM20.Creator.PactShare"}}</span>
+            <b><a class="r-cr-pm" data-action="pactShare" data-d="-1"><i class="fa-solid fa-minus"></i></a> {{pact.share}} / {{pact.shareMax}} <a class="r-cr-pm" data-action="pactShare" data-d="1"><i class="fa-solid fa-plus"></i></a></b></div>
+          <div class="r-cr-sum-item {{#if pact.over}}is-over{{/if}}"><span>{{localize "VTM20.Creator.PactGiftsPts"}}</span><b>{{pact.used}} / {{pact.points}}</b></div>
+        </div>
+      </div>
+      <h3 class="r-h3">{{localize "VTM20.Creator.PactBoosts"}}</h3>
+      <p class="r-note">{{localize "VTM20.Creator.PactBoostsHint"}}</p>
+      <div class="r-cr-pact-grid">
+        {{#each pact.attrs}}<div><h4 class="r-h4">{{label}}</h4>{{#each list}}
+          <div class="r-cr-pact-row {{#if gift}}is-gift{{/if}}"><span>{{label}}</span>
+            <a class="r-cr-pm" data-action="pactGift" data-kind="attr" data-key="{{key}}" data-d="-1"><i class="fa-solid fa-minus"></i></a>
+            <b>{{total}}</b><em>{{#if gift}}+{{gift}}{{/if}}</em>
+            <a class="r-cr-pm" data-action="pactGift" data-kind="attr" data-key="{{key}}" data-d="1"><i class="fa-solid fa-plus"></i></a></div>{{/each}}</div>{{/each}}
+        {{#each pact.abils}}<div><h4 class="r-h4">{{label}}</h4>{{#each list}}
+          <div class="r-cr-pact-row {{#if gift}}is-gift{{/if}}"><span>{{label}}</span>
+            <a class="r-cr-pm" data-action="pactGift" data-kind="abil" data-key="{{key}}" data-d="-1"><i class="fa-solid fa-minus"></i></a>
+            <b>{{total}}</b><em>{{#if gift}}+{{gift}}{{/if}}</em>
+            <a class="r-cr-pm" data-action="pactGift" data-kind="abil" data-key="{{key}}" data-d="1"><i class="fa-solid fa-plus"></i></a></div>{{/each}}</div>{{/each}}
+      </div>
     </div>
     {{/if}}
 
