@@ -1,5 +1,6 @@
 // module/apps/timers.mjs
-// Длительности по часам хроники (план 7): силы «на час» и «до рассвета» и чтение ритуалов
+// Длительности по часам хроники (план 7): силы «на час» и «до рассвета», чтение ритуалов и действие ритуала
+// (успешный бросок ритуала, в тексте эффекта которого сказано «до рассвета», «на час» или «до конца сцены»)
 // гаснут по часам календаря, а не по кнопке. Срок — флаги start/until (мс хроники) на эффекте.
 // Следит один активный ведущий: на каждом шаге часов и сразу после промотки всё, чьё время вышло,
 // гаснет, и в чат идёт одна карточка на всех. Остаток на листе и в HUD подкрашивается сам.
@@ -25,6 +26,34 @@ export function untilFor(mode, { hours = 1, now = getClock() } = {}) {
   if (mode === "hour") return now + Math.max(1, Number(hours) || 1) * MS_HOUR;
   if (mode === "night") return nextSunrise(now);
   return null;
+}
+
+/** Срок ритуала из текста его эффекта: night | hour | scene | null — что упомянуто раньше. */
+export function ritualDuration(text) {
+  const s = String(text ?? "").replace(/<[^>]+>/g, " ");
+  const found = [["night", /до рассвета|до восхода|до конца ночи|на (?:всю )?ночь/i], ["hour", /на (?:один )?час(?![а-яё])|в течение (?:одного )?часа/i],
+    ["scene", /до конца сцены|на (?:одну |всю )?сцену|всю сцену/i]]
+    .map(([mode, re]) => ({ mode, i: s.search(re) })).filter(x => x.i >= 0).sort((a, b) => a.i - b.i);
+  return found[0]?.mode ?? null;
+}
+
+/** Ритуал сработал: если у него есть срок, на персонаже появляется «Действует: …» с таймером (гаснет как силы). */
+async function startRitualEffect(message) {
+  const st = message.flags?.[SYSTEM_ID]?.roll;
+  if (st?.kind !== "ritual" || message.author?.id !== game.user.id) return;
+  const { evaluate } = await import("../dice/roll.mjs");
+  if (evaluate(st.values ?? [], st).successes <= 0) return;
+  const actor = st.actorUuid ? await fromUuid(st.actorUuid) : null;
+  const item = actor?.items.find(i => i.type === "ritual" && i.name === st.title);
+  if (!actor?.isOwner || !item) return;
+  const data = (Codex.rituals[item.system.discipline]?.rituals ?? []).find(r => r.name === item.name);
+  const mode = ritualDuration(data?.parts?.effect ?? item.system.effect ?? item.system.description);
+  if (!mode) return;
+  const now = getClock(), until = untilFor(mode, { now });
+  await actor.createEmbeddedDocuments("ActiveEffect", [{
+    name: t("Timer.RitualOnName", { name: item.name }), img: item.img, description: item.system.description ?? "",
+    flags: { [SYSTEM_ID]: { ritualOn: item.id, mode, start: now, ...(until ? { until } : {}) } }
+  }]);
 }
 
 /** Остаток: { left: "0:42", pct } — pct от 1 (только началось) до 0 (вышло). */
@@ -91,6 +120,7 @@ export async function expireTimers(now = getClock()) {
         const f = e.flags?.[SYSTEM_ID];
         if (!f?.until || f.until > now || e.disabled) continue;
         if (f.ritual) { read.push({ actor: a, item: a.items.get(f.ritual), name: e.name, at: hhmm(new Date(f.until)) }); await e.delete(); }
+        else if (f.ritualOn) { names.push(e.name); await e.delete(); }
         else if (f.power) { names.push(e.name); await a.endPower(e, { quiet: true }); }
       }
       if (names.length) off.push({ actor: a, names });
@@ -138,6 +168,7 @@ export function registerTimers() {
   // промотка часов (+10 минут, +час, к рассвету) — гасим сразу, не дожидаясь шага часов
   const onClock = s => { if (s.key === `${SYSTEM_ID}.clock`) { paintTimers(); expireTimers(); } };
   Hooks.on("updateSetting", onClock);
+  Hooks.on("createChatMessage", m => { startRitualEffect(m); });
   Hooks.on("createSetting", onClock);
   // остатки на листах и в HUD идут и у игроков: у них часов-сердцебиения нет
   Hooks.once("ready", () => setInterval(paintTimers, 5000));

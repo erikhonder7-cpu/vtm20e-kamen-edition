@@ -27,7 +27,7 @@ import { BOON_LEVELS, boonLevelLabel, addBoon, toggleBoon, removeBoon, openBoons
 import { clockBarData, longDate } from "../apps/calendar.mjs";
 import { openLibrary, LibraryItems } from "../apps/library.mjs";
 import { moneyView, openMoney } from "../data/money.mjs";
-import { POWER_EFFECTS, MODE_LABEL } from "../data/effects.mjs";
+import { POWER_EFFECTS, MODE_LABEL, fxKey } from "../data/effects.mjs";
 import { effectTimer, readingRituals, toggleRitualReading, cancelRitual } from "../apps/timers.mjs";
 import { torporView, deathOf, enterTorpor, wakeFromTorpor, undoDeath } from "../apps/torpor.mjs";
 import { makeExtra } from "../apps/extras.mjs";
@@ -550,8 +550,8 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     };
     const discKeys = new Set(items.map(i => i.system.key));
     const fxOn = new Set(a.powerEffects.map(x => x.power));
-    const fxOf = (k, level) => {
-      const key = `${k}:${level}`, def = POWER_EFFECTS[key];
+    const fxOf = (k, p) => {
+      const key = fxKey(k, p), def = POWER_EFFECTS[key];
       return def ? { key, on: fxOn.has(key), icon: def.icon ?? "fa-wand-sparkles",
         tip: `${t("Fx.Toggle")} · ${t(MODE_LABEL[def.mode] ?? "Fx.Toggleable")}` } : null;
     };
@@ -579,7 +579,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
         }
         const [p, i] = pick;
         powers.push({ ...p, level: lv, id: `${it.id}-p${i}`, roman: ROMAN[lv - 1] ?? lv, open: this._open.has(`${it.id}-p${i}`),
-          roll: rollInfo(p.roll), codexRef: `${k}|${i}`, pinned: pins.has(`${k}|${i}`), fx: p.source ? null : fxOf(k, p.level),
+          roll: rollInfo(p.roll), codexRef: `${k}|${i}`, pinned: pins.has(`${k}|${i}`), fx: fxOf(k, p),
           alts: opts.length > 1 ? opts.length : 0, itemId: it.id });
       }
       const nextOpts = vis.filter(([p]) => fitsLevel(p, v + 1, choices));
@@ -830,7 +830,10 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const st = a.statuses ?? new Set();
     ctx.fxStatuses = PORTRAIT_STATES.filter(x => st.has(x.id)).map(x => ({ id: x.id, icon: x.icon, hot: x.hot,
       label: t(`Status.${x.key}`), text: t(`FxTab.StatusText.${x.key}`) }));
-    ctx.fxOther = a.effects.filter(e => !e.flags?.[SYSTEM_ID]?.power && !e.flags?.[SYSTEM_ID]?.ritual && !(e.statuses?.size && PORTRAIT_STATES.some(x => e.statuses.has(x.id))))
+    // Действующие ритуалы (успешный бросок, срок из текста) — как силы, с остатком по часам хроники
+    ctx.fxRitualsOn = a.effects.filter(e => e.flags?.[SYSTEM_ID]?.ritualOn).map(e => ({ id: e.id, name: e.name, img: e.img,
+      mode: t(MODE_LABEL[e.flags[SYSTEM_ID].mode] ?? "Fx.Toggleable"), timer: effectTimer(e), toDawn: e.flags[SYSTEM_ID].mode === "night" }));
+    ctx.fxOther = a.effects.filter(e => !e.flags?.[SYSTEM_ID]?.power && !e.flags?.[SYSTEM_ID]?.ritual && !e.flags?.[SYSTEM_ID]?.ritualOn && !(e.statuses?.size && PORTRAIT_STATES.some(x => e.statuses.has(x.id))))
       .map(e => ({ id: e.id, name: e.name, img: e.img, disabled: e.disabled }));
 
     // Усиление кровью
@@ -855,7 +858,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     // Черты с механикой (data/merit-mods.mjs): что, к чему, сами или по обстоятельствам
     const have = a.items.filter(i => i.type === "merit" || i.type === "flaw");
     ctx.fxTraits = have.filter(i => MERIT_MODS[i.name]).map(i => ({ id: i.id, name: i.name, flaw: i.type === "flaw", ...describeMeritMod(i.name) }));
-    ctx.fxEmpty = !ctx.fxPowers.length && !ctx.fxRituals.length && !ctx.fxStatuses.length && !ctx.fxOther.length && !ctx.fxBoosts.length;
+    ctx.fxEmpty = !ctx.fxPowers.length && !ctx.fxRituals.length && !ctx.fxRitualsOn.length && !ctx.fxStatuses.length && !ctx.fxOther.length && !ctx.fxBoosts.length;
   }
 
   #prepareGear(ctx) {

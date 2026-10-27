@@ -25,6 +25,14 @@
       <div class="r-fx-bar"><i style="width: {{timer.pctW}}%"></i></div>{{/if}}
     </article>
     {{/each}}
+    {{#each fxRitualsOn}}
+    <article class="r-fx-card is-power is-ritual-on" {{#if timer}}data-fx-start="{{timer.start}}" data-fx-until="{{timer.until}}"{{/if}}>
+      <header><img src="{{img}}" alt=""><b>{{name}}</b><em>{{mode}}</em>
+        {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="effectDelete" data-effect-id="{{id}}" data-tooltip="{{localize 'VTM20.Fx.End'}}"><i class="fa-solid fa-power-off"></i></a>{{/if}}</header>
+      {{#if timer}}<div class="r-fx-left"><span>{{#if toDawn}}{{localize "VTM20.Timer.ToDawn"}}{{else}}{{localize "VTM20.Timer.Left"}}{{/if}}</span><b data-left>{{timer.left}}</b></div>
+      <div class="r-fx-bar"><i style="width: {{timer.pctW}}%"></i></div>{{/if}}
+    </article>
+    {{/each}}
     {{#each fxStatuses}}
     <article class="r-fx-card is-status {{#if hot}}is-hot{{/if}}">
       <header><i class="fa-solid {{icon}} r-fx-ico"></i><b>{{label}}</b>

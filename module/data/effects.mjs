@@ -16,6 +16,8 @@
 // mode: scene — гаснет в конце сцены; toggle — до выключения (обратное превращение);
 //       hour — на час по часам хроники (hours: число часов; "successes" или "ask" — спросить при включении);
 //       night — до рассвета по часам хроники (apps/timers.mjs гасит и пишет в чат).
+// Ключ: «Дисциплина:уровень» — для сил основной книги 1–5; «Дисциплина:название» — для старших уровней (на одном уровне
+// несколько сил) и сил из дополнений (fxKey).
 // Источник — V20, гл. 4 (Дисциплины), тексты сил в data/disciplines.json.
 
 import { SYSTEM_ID } from "../config.mjs";
@@ -89,8 +91,60 @@ export const POWER_EFFECTS = {
   // Бардо 4, Обелиск Осириса: ритуал на всю ночь, 1 Воля
   "bardo:4": { mode: "night", icon: "fa-monument", cost: { willpower: 1 } },
   // Спиритус 5, Дикий зверь: 2 крови; в облике — не больше Воли часов за ночь
-  "spiritus:5": { mode: "hour", hours: "ask", icon: "fa-paw", cost: { blood: 2 } }
+  "spiritus:5": { mode: "hour", hours: "ask", icon: "fa-paw", cost: { blood: 2 } },
+
+  // Старшие уровни и силы дополнений — по названию (сроки и цена из текстов data/disciplines.json)
+  "protean:Мраморная плоть": { mode: "scene", icon: "fa-gem", cost: { blood: 3 } },
+  "protean:Посмертная маска": { mode: "scene", icon: "fa-masks-theater" },
+  "protean:Облик яростного Зверя": { mode: "night", icon: "fa-dragon" },
+  "protean:Блаженное лето": { mode: "night", icon: "fa-smog", cost: { blood: 5 } },
+  "protean:Власть над обликом": { mode: "scene", icon: "fa-lock", cost: { blood: 1 } },
+  "protean:Власть над формой": { mode: "scene", icon: "fa-lock", cost: { blood: 1 } },
+  "protean:Форма Ярости Зверя": { mode: "night", icon: "fa-dragon", cost: { blood: 3 } },
+  "protean:Звериный рой": { mode: "night", icon: "fa-crow" },
+  "protean:Форма роя": { mode: "night", icon: "fa-crow" },
+  "protean:Мифический облик": { mode: "night", icon: "fa-dragon", cost: { blood: 3 } },
+  "potence:Отпечаток": { mode: "scene", icon: "fa-hand-back-fist", cost: { blood: 1 } },
+  "potence:Мощь героев": { mode: "scene", icon: "fa-hand-fist" },
+  "fortitude:Доспех": { mode: "scene", icon: "fa-shield-halved", cost: { blood: 2 } },
+  "celerity:Цветок смерти": { mode: "scene", icon: "fa-bolt", cost: { blood: 4 } },
+  "presence:Искушение": { mode: "scene", icon: "fa-heart" },
+  "presence:Фобия": { mode: "scene", icon: "fa-face-flushed" },
+  "dementation:Голос безумия": { mode: "scene", icon: "fa-bullhorn", cost: { blood: 1 } },
+  "dementation:Извержение безумия": { mode: "night", icon: "fa-city", cost: { willpower: 4 } },
+  "vicissitude:Экстатическая агония": { mode: "scene", icon: "fa-heart-crack", cost: { willpower: 2 } },
+  "vicissitude:Восторг боли": { mode: "scene", icon: "fa-heart-crack", cost: { willpower: 2 } },
+  "vicissitude:Убежище в лоне Земли": { mode: "night", icon: "fa-mound" },
+  "serpentis:Божественный облик": { mode: "scene", icon: "fa-ankh", cost: { blood: 3 } },
+  "serpentis:Тень Апепа": { mode: "scene", icon: "fa-worm", cost: { willpower: 1 } },
+  "serpentis:Тень Апофиса": { mode: "scene", icon: "fa-worm", cost: { willpower: 1 } },
+  "obfuscate:Подпитка": { mode: "night", icon: "fa-user-shield" },
+  "obfuscate:Мысленный лабиринт": { mode: "scene", icon: "fa-brain" },
+  "chimerstry:Ложный отклик": { mode: "night", icon: "fa-shoe-prints" },
+  "chimerstry:Майяпарисатья": { mode: "scene", icon: "fa-wand-magic-sparkles" },
+  "bardo:Парадокс": { mode: "scene", icon: "fa-infinity", cost: { willpower: 1 } },
+  "bardo:Зов рассвета": { mode: "hour", hours: "ask", icon: "fa-bed" },
+  "valeren:Броня гнева Каинова": { mode: "scene", icon: "fa-shield", cost: { blood: 1 } },
+  "valeren:Блаженная агония": { mode: "scene", icon: "fa-hand-holding-medical", cost: { blood: 1 } },
+  "daimoinon:Низменный страх": { mode: "scene", icon: "fa-ghost" },
+  "melpominee:Незримый собеседник": { mode: "scene", icon: "fa-comment-dots", cost: { blood: 1 } },
+  "ogham:Иссушение Земли": { mode: "scene", icon: "fa-seedling", cost: { blood: 1 } },
+  "ogham:Начертание забытых имён": { mode: "scene", icon: "fa-scroll" },
+  "mortis:Маска смерти": { mode: "hour", hours: 24, icon: "fa-skull", cost: { blood: 1 } },
+  "mortis:Восстание трупа": { mode: "night", icon: "fa-person-falling-burst", cost: { blood: 1 } },
+  "mortis:Буря Энлиля": { mode: "night", icon: "fa-cloud-showers-heavy", cost: { willpower: 2 } }
 };
+
+/** Ключ эффекта силы: основная книга 1–5 — «Дисциплина:уровень», прочие — «Дисциплина:название». */
+export const fxKey = (disc, p) => !p.source && p.level <= 5 ? `${disc}:${p.level}` : `${disc}:${p.name}`;
+
+/** Сила справочника по ключу эффекта (уровень или название). */
+export function powerOfKey(Codex, power) {
+  const i = power.indexOf(":"), disc = power.slice(0, i), rest = power.slice(i + 1);
+  const list = Codex.discipline(disc)?.powers ?? [];
+  const p = /^\d+$/.test(rest) ? list.find(x => x.level === Number(rest) && !x.source) ?? list.find(x => x.level === Number(rest)) : list.find(x => x.name === rest);
+  return { disc, power: p ?? null, level: p?.level ?? (Number(rest) || 0) };
+}
 
 /** Подпись вида длительности: сцена, до выключения, час, до рассвета. */
 export const MODE_LABEL = { scene: "Fx.Scene", toggle: "Fx.Toggleable", hour: "Fx.Hour", night: "Fx.Night" };

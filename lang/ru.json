@@ -3085,6 +3085,7 @@
       "Off": "{who}: погасло {what}.",
       "RitualDone": "{who}: дочитан ритуал «{name}» в {at}.",
       "RitualRoll": "Бросок: {name}",
+      "RitualOnName": "Действует: {name}",
       "NotYours": "Бросать ритуал может только хозяин персонажа."
     },
     "Fx": {

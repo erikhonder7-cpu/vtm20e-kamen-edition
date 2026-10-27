@@ -4,7 +4,7 @@
 import { VTM20, SYSTEM_ID } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
 import { revenantFamily } from "../data/revenants.mjs";
-import { effectDef, activePowerEffects } from "../data/effects.mjs";
+import { effectDef, activePowerEffects, powerOfKey } from "../data/effects.mjs";
 import { untilFor } from "../apps/timers.mjs";
 import { proposeFate } from "../apps/torpor.mjs";
 import { mobState, applyMobDamage } from "../apps/extras.mjs";
@@ -385,8 +385,7 @@ export class VtMActor extends Actor {
   async startPower(power, { variant = "", blood = null, hours = null } = {}) {
     const def = effectDef(power, variant);
     if (!def || this.powerEffects.some(x => x.power === power)) return null;
-    const [disc, lvl] = power.split(":");
-    const p = Codex.discipline(disc)?.powers.find(x => x.level === Number(lvl));
+    const { disc, power: p, level: lvl } = powerOfKey(Codex, power);
     const name = `${p?.name ?? power}${variant ? ` · ${t(`Fx.Variant.${variant}`)}` : ""}`;
     const cost = blood ?? (Array.isArray(def.cost?.blood) ? def.cost.blood[0] : (def.cost?.blood ?? 0));
     if (cost && !(await this.spendBlood(cost))) return null;
