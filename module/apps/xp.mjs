@@ -3,6 +3,7 @@
 // (через VtMActor.buyWithXp — так же, как кнопки «+» в листе), начисление и история трат.
 
 import { VTM20, SYSTEM_PATH } from "../config.mjs";
+import { growth, startConviction, VIRTUE_KEYS, H as hunterData } from "./hunter.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -74,13 +75,17 @@ class XpWindow extends HandlebarsApplicationMixin(ApplicationV2) {
       if (lores.length) groups.push({ key: "lore", icon: "fa-fire-flame-curved", label: loc("VTM20.Demon.Lores"), rows: lores.map(i =>
         row(`i:${i.id}:system.value:lore`, i.name, i.system.value, 5, "lore", { key: i.system.key })) });
     }
-    groups.push({ key: "virt", icon: "fa-scale-balanced", label: loc("VTM20.Sheet.Virtues"), rows: ["conscience", "selfControl", "courage"].map(k =>
+    const hunter = a.type === "hunter", hxp = hunter && growth() === "xp";
+    if (!hunter) groups.push({ key: "virt", icon: "fa-scale-balanced", label: loc("VTM20.Sheet.Virtues"), rows: ["conscience", "selfControl", "courage"].map(k =>
       row(`a:system.virtues.${k}.value:virtue`, a.traitLabel(`virtues.${k}`), s.virtues[k].value, 5, "virtue")) });
+    else if (hxp) groups.push({ key: "virt", icon: "fa-scale-balanced", label: t("Creator.HunterVirtues"), rows: VIRTUE_KEYS.map(k =>
+      row(`a:system.hunter.${k}:hunterVirtue`, hunterData().virtues[k], s.hunter[k] ?? 0, 10, "hunterVirtue", { key: k })) });
     groups.push({ key: "other", icon: "fa-shield-heart", label: loc("VTM20.Sheet.Other"), rows: [
       a.type === "demon" ? row("a:system.faith.permanent:faith", loc("VTM20.Demon.Faith"), s.faith.permanent, 10, "faith")
+        : hunter ? (hxp ? row("a:system.hunter.start:hunterConviction", t("Hunter.StartConviction"), startConviction(a), 10, "hunterConviction") : null)
         : row("a:system.morality.value:morality", a.traitLabel("morality.value"), s.morality.value, 10, "morality"),
       row("a:system.willpower.permanent:willpower", t("Willpower"), s.willpower.permanent, 10, "willpower")
-    ] });
+    ].filter(Boolean) });
     // Новые Способности (с нуля) — отдельной свёрнутой группой, чтобы не тонуть в списке
     const fresh = { key: "fresh", icon: "fa-seedling", label: t("Xp.NewAbilities"), fresh: true, rows: [] };
     for (const g of groups) {

@@ -15,7 +15,7 @@ import { blockerFor } from "../data/trait-rules.mjs";
 import { weaponIcon, armorIcon, traitIcon, backgroundIcon } from "../data/icons.mjs";
 import { ritualFields } from "../data/ritual-text.mjs";
 import { investmentLimit, sealInvestment, pactDialog } from "./infernal.mjs";
-import { edgeReasons, poolLabel, H as hunterData } from "./hunter.mjs";
+import { edgeReasons, poolLabel, takeEdge, growth as hunterGrowth, edgeXp, H as hunterData } from "./hunter.mjs";
 
 const { HandlebarsApplicationMixin, ApplicationV2 } = foundry.applications.api;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -332,7 +332,8 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
     const H = hunterData(), order = H.creeds.map(c => c.key);
     return H.edges.map((e, i) => {
       const c = H.creeds.find(x => x.key === e.path);
-      const cost = e.conviction ? ` · ${game.i18n.format("VTM20.Hunter.CostShort", { n: e.conviction })}` : "";
+      const cost = (e.conviction ? ` · ${game.i18n.format("VTM20.Hunter.CostShort", { n: e.conviction })}` : "")
+        + (a?.type === "hunter" && hunterGrowth() === "xp" ? ` · ${game.i18n.format("VTM20.Hunter.XpShort", { n: edgeXp(a, e) })}` : "");
       return this.#entry({
         id: String(i), name: e.name, has: mine.has(e.key), text: `<p><em>${a ? poolLabel(a, e) : ""}${cost}</em></p><p>${e.text}</p>`,
         group: e.path, groupName: `${c?.name ?? e.path} · ${H.virtues[e.virtue]}`, groupOrder: e.path === creed ? -1 : order.indexOf(e.path),
@@ -467,8 +468,7 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
     if (this.o.kind === "edge") {
       const e = hunterData().edges[Number(target.closest("[data-entry]")?.dataset.entry)];
       if (!e || this.actor?.type !== "hunter") return;
-      await this.actor.update({ "system.hunter.edges": [...new Set([...(this.actor.system.hunter?.edges ?? []), e.key])] });
-      ui.notifications.info(L("Added", { name: e.name }));
+      if (await takeEdge(this.actor, e.key)) ui.notifications.info(L("Added", { name: e.name }));
       return this.render();
     }
     if (this.o.kind === "pact") {

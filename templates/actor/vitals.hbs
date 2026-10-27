@@ -119,9 +119,9 @@
     {{> rDots dots=hunterInfo.convDots cls="is-ten"}}
     <div class="r-virtues r-hvirtues">
       {{#each hunterInfo.virtues}}
-      <div class="r-virtue {{#if primary}}is-primary{{/if}} {{#if over}}is-over{{/if}}" data-tooltip="{{#if primary}}{{localize 'VTM20.Hunter.PrimaryHint'}} {{/if}}{{localize 'VTM20.Hunter.UsedHint' used=used value=value}}{{#if madness}} {{localize 'VTM20.Hunter.MadnessHint' n=madness}}{{/if}}">
+      <div class="r-virtue {{#if primary}}is-primary{{/if}} {{#if over}}is-over{{/if}} {{#if frozen}}is-frozen{{/if}}" data-tooltip="{{#if frozen}}{{localize 'VTM20.Hunter.Frozen'}} {{/if}}{{#if primary}}{{localize 'VTM20.Hunter.PrimaryHint'}} {{/if}}{{localize 'VTM20.Hunter.UsedHint' used=used value=value}}{{#if madness}} {{localize 'VTM20.Hunter.MadnessHint' n=madness from=@root.hunterInfo.madFrom}}{{/if}}">
         <a class="r-trait-label" data-action="rollTrait" data-trait="hunter.{{key}}">{{label}}</a>
-        <span class="r-hv-num"><b>{{value}}</b>{{#if used}} <small>({{used}})</small>{{/if}}</span>
+        <span class="r-hv-num"><b>{{value}}</b>{{#if used}} <small>({{used}})</small>{{/if}}{{#if @root.hunterInfo.deeds}} <em class="r-hv-temp" data-tooltip="{{localize 'VTM20.Hunter.TempHint'}}">◇{{temp}}</em>{{/if}}</span>
         {{> rDots dots=dots cls="is-ten is-small"}}
       </div>
       {{/each}}
@@ -130,9 +130,14 @@
       <a class="r-vc-btn" data-action="hunterSight" data-tooltip="{{localize 'VTM20.Hunter.SightHint'}}"><i class="fa-solid fa-eye"></i> {{localize "VTM20.Hunter.Sight"}}</a>
       <a class="r-vc-btn is-sq" data-action="hunterTest" data-tooltip="{{localize 'VTM20.Hunter.VirtueTestHint'}}"><i class="fa-solid fa-scale-balanced"></i></a>
       {{#if editable}}<a class="r-vc-btn is-sq" data-action="hunterRestore" data-tooltip="{{localize 'VTM20.Hunter.RestoreHint'}}"><i class="fa-solid fa-rotate-left"></i></a>
-      {{#if hunterInfo.canTrade}}<a class="r-vc-btn is-on" data-action="hunterTrade" data-tooltip="{{localize 'VTM20.Hunter.TradeHint'}}"><i class="fa-solid fa-arrow-up"></i> {{localize "VTM20.Hunter.Trade"}}</a>{{/if}}{{/if}}
+      {{#if hunterInfo.canTrade}}<a class="r-vc-btn is-on" data-action="hunterTrade" data-tooltip="{{localize 'VTM20.Hunter.TradeHint'}}"><i class="fa-solid fa-arrow-up"></i> {{localize "VTM20.Hunter.Trade"}}</a>{{/if}}
+      {{#if hunterInfo.deeds}}{{#if hunterInfo.canShift}}<a class="r-vc-btn is-sq" data-action="hunterShift" data-tooltip="{{localize 'VTM20.Hunter.ShiftHint'}}"><i class="fa-solid fa-right-left"></i></a>{{/if}}
+      {{#if hunterInfo.canCash}}<a class="r-vc-btn is-on" data-action="hunterCash" data-tooltip="{{localize 'VTM20.Hunter.CashHint'}}"><i class="fa-solid fa-arrow-up"></i> {{localize "VTM20.Hunter.Cash"}}</a>{{/if}}{{/if}}
+      {{#if hunterInfo.sacrifice}}<a class="r-vc-btn is-sq" data-action="hunterSacrifice" data-tooltip="{{localize 'VTM20.Hunter.SacrificeHint'}}"><i class="fa-solid fa-fire-flame-simple"></i></a>
+      {{#if hunterInfo.advance}}<a class="r-vc-btn {{#if hunterInfo.canAdvance}}is-on{{/if}}" data-action="hunterAdvance" data-tooltip="{{localize 'VTM20.Hunter.AdvanceHint' n=hunterInfo.advance}}"><i class="fa-solid fa-angles-up"></i> {{hunterInfo.advance}}</a>{{/if}}{{/if}}{{/if}}
+      {{#if hunterInfo.deeds}}{{#if isGM}}<a class="r-vc-btn is-sq" data-action="hunterDeed" data-tooltip="{{localize 'VTM20.Hunter.DeedHint'}}"><i class="fa-solid fa-award"></i></a>{{/if}}{{/if}}
       <a class="r-vc-btn is-sq {{#if system.exorcist.target}}is-on{{/if}}" data-action="exorcist" data-tooltip="{{localize 'VTM20.Exorcist.BtnHint'}}"><i class="fa-solid fa-hands-praying"></i></a>
-      {{#if hunterInfo.madness}}<span class="r-vc-hint is-right is-warn" data-tooltip="{{localize 'VTM20.Hunter.MadnessHint' n=hunterInfo.madness}}"><i class="fa-solid fa-brain"></i> {{hunterInfo.madness}}</span>{{/if}}
+      {{#if hunterInfo.madness}}<span class="r-vc-hint is-right is-warn" data-tooltip="{{localize 'VTM20.Hunter.MadnessHint' n=hunterInfo.madness from=hunterInfo.madFrom}}"><i class="fa-solid fa-brain"></i> {{hunterInfo.madness}}</span>{{/if}}
     </div>
   </div>
   {{else if thrallInfo}}

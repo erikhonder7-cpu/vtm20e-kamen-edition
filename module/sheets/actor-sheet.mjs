@@ -36,7 +36,8 @@ import { openThrallGifts } from "../apps/thrall-gifts.mjs";
 import { loseHost, holdOn, newHost, summonedBack } from "../apps/host.mjs";
 import { openCult } from "../apps/cult.mjs";
 import { openExorcist } from "../apps/exorcist.mjs";
-import { hunterInfo, edgesView, useEdge, secondSight, virtueTest, tradeConviction, restoreConviction, H as hunterData } from "../apps/hunter.mjs";
+import { hunterInfo, edgesView, useEdge, secondSight, virtueTest, tradeConviction, restoreConviction, H as hunterData,
+  awardDeed, shiftDeed, cashDeed, sacrifice, advanceVirtue, callEdge, swapCalled, unblockCall, callView } from "../apps/hunter.mjs";
 import { openEbServant, empower as empowerServant } from "../apps/eb-servant.mjs";
 import { useInvestment, pactDialog, pactDelete, pactValue, investmentLimit } from "../apps/infernal.mjs";
 import { possess, extend as possessExtend, leave as possessLeave, battleExpiry, possessionView } from "../apps/possession.mjs";
@@ -199,6 +200,9 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       linSire: VtMActorSheet.#onLinSire,
       edgeUse: VtMActorSheet.#onEdgeUse, edgeDel: VtMActorSheet.#onEdgeDel, hunterSight: VtMActorSheet.#onHunterSight,
       hunterTest: VtMActorSheet.#onHunterTest, hunterTrade: VtMActorSheet.#onHunterTrade, hunterRestore: VtMActorSheet.#onHunterRestore,
+      hunterDeed: VtMActorSheet.#onHunterDeed, hunterShift: VtMActorSheet.#onHunterShift, hunterCash: VtMActorSheet.#onHunterCash,
+      hunterSacrifice: VtMActorSheet.#onHunterSacrifice, hunterAdvance: VtMActorSheet.#onHunterAdvance,
+      edgeCall: VtMActorSheet.#onEdgeCall, edgeSwap: VtMActorSheet.#onEdgeSwap, hunterUnblock: VtMActorSheet.#onHunterUnblock,
       linChild: VtMActorSheet.#onLinChild, linEdit: VtMActorSheet.#onLinEdit, linDel: VtMActorSheet.#onLinDel,
       linSheet: VtMActorSheet.#onLinSheet,
       linOpen: VtMActorSheet.#onLinOpen,
@@ -296,7 +300,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     this.#prepareTraits(ctx);
     this.#prepareRegistry(ctx);
     if (actor.type === "demon") this.#prepareLores(ctx);
-    else if (actor.type === "hunter") { ctx.hunterInfo = hunterInfo(actor, dots); ctx.edgePaths = edgesView(actor); }
+    else if (actor.type === "hunter") { ctx.hunterInfo = hunterInfo(actor, dots); ctx.edgePaths = edgesView(actor); ctx.hunterCall = callView(actor); }
     else if (actor.type !== "mortal") this.#prepareDisciplines(ctx);
     this.#prepareAdvantages(ctx);
     this.#prepareGear(ctx);
@@ -1315,6 +1319,15 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static #onHunterTest() { return virtueTest(this.actor); }
   static #onHunterTrade() { return tradeConviction(this.actor); }
   static #onHunterRestore() { return restoreConviction(this.actor); }
+  /** Players Guide, гл. 2: Деяния, Жертва, Грани «свыше». */
+  static #onHunterDeed() { return awardDeed(this.actor); }
+  static #onHunterShift() { return shiftDeed(this.actor); }
+  static #onHunterCash() { return cashDeed(this.actor); }
+  static #onHunterSacrifice() { return sacrifice(this.actor); }
+  static #onHunterAdvance() { return advanceVirtue(this.actor); }
+  static #onEdgeCall(event, target) { return callEdge(this.actor, target.dataset.key ?? ""); }
+  static #onEdgeSwap() { return swapCalled(this.actor); }
+  static #onHunterUnblock() { return unblockCall(this.actor); }
   /** Вера против падших: молитвы, экзорцизм, оружие веры (apps/exorcist.mjs). */
   static #onExorcist() { return openExorcist(this.actor); }
   static #onEbServant() { return this.actor.system.ebServant?.empowerments ? openEbServant(this.actor) : empowerServant(this.actor); }

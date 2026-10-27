@@ -7,8 +7,23 @@
       <a class="r-h2-btn is-plain" data-action="openRules" data-tooltip="{{localize 'VTM20.Hunter.RulesHint'}}"><i class="fa-solid fa-book-open-reader"></i></a>
     </span>
   </h2>
-  <p class="r-note r-edge-budget">{{#each hunterInfo.virtues}}<span class="{{#if over}}is-over{{/if}}">{{label}} <b>{{used}} / {{value}}</b></span>{{/each}}
-    <em>{{localize "VTM20.Hunter.BudgetHint"}}</em></p>
+  {{#unless hunterCall}}<p class="r-note r-edge-budget">{{#each hunterInfo.virtues}}<span class="{{#if over}}is-over{{/if}}">{{label}} <b>{{#if @root.hunterInfo.xpGrowth}}{{localize "VTM20.Hunter.UpTo"}} {{#if cap}}{{rRoman cap}}{{else}}—{{/if}}{{else}}{{used}} / {{value}}{{/if}}</b></span>{{/each}}
+    <em>{{#if hunterInfo.xpGrowth}}{{localize "VTM20.Hunter.BudgetHintXp"}}{{else}}{{localize "VTM20.Hunter.BudgetHint"}}{{/if}}</em></p>{{/unless}}
+  {{#if hunterInfo.fifth}}<p class="r-note r-edge-fifth"><i class="fa-solid fa-sun"></i> {{localize "VTM20.Hunter.FifthSheet" v=hunterInfo.fifth list=hunterInfo.fifthNotes}}</p>{{/if}}
+  {{#if hunterCall}}
+  {{!-- Грани «свыше» (Players Guide, гл. 2): своих Граней нет — пункт Убеждённости и бросок Добродетели на сцену --}}
+  <div class="r-edge-call">
+    <p class="r-note r-edge-budget">{{#each hunterCall.budget}}<span>{{label}} <b>{{used}} / {{value}}</b></span>{{/each}}<em>{{localize "VTM20.Hunter.CallBudget"}}</em></p>
+    {{#if hunterCall.scene}}
+    <div class="r-edge is-called"><span class="r-edge-lvl">{{rRoman hunterCall.scene.level}}</span>
+      <span class="r-edge-main"><b>{{hunterCall.scene.name}}</b> <small>{{localize "VTM20.Hunter.CallScene2"}} · {{hunterCall.scene.pool}}</small><span class="r-edge-text">{{hunterCall.scene.text}}</span></span>
+      {{#if @root.editable}}<a class="r-vc-btn" data-action="edgeUse" data-key="{{hunterCall.scene.key}}" data-tooltip="{{localize 'VTM20.Hunter.UseHint'}}"><i class="fa-solid fa-dice-d10"></i></a>{{/if}}
+      {{#if hunterCall.isGM}}<a class="r-vc-btn is-sq" data-action="edgeSwap" data-tooltip="{{localize 'VTM20.Hunter.SwapHint'}}"><i class="fa-solid fa-shuffle"></i></a>{{/if}}
+    </div>
+    {{else if hunterCall.block}}<p class="r-note r-edge-fifth"><i class="fa-solid fa-ban"></i> {{hunterCall.block}}{{#if hunterCall.isGM}} <a data-action="hunterUnblock">{{localize "VTM20.Hunter.Unblock"}}</a>{{/if}}</p>
+    {{else}}{{#if @root.editable}}<a class="r-vc-btn is-on" data-action="edgeCall" data-tooltip="{{localize 'VTM20.Hunter.CallHint'}}"><i class="fa-solid fa-hands-praying"></i> {{localize "VTM20.Hunter.Call"}}</a>{{/if}}{{/if}}
+  </div>
+  {{/if}}
 
   {{#each edgePaths}}
   <article class="r-edge-path {{#if primary}}is-primary{{/if}}">
@@ -22,7 +37,8 @@
         <span class="r-edge-lvl">{{rRoman level}}</span>
         <span class="r-edge-main"><b>{{name}}</b> <small>{{pool}}{{#if conviction}} · {{localize "VTM20.Hunter.CostShort" n=conviction}}{{/if}}</small>
           <span class="r-edge-text">{{text}}</span></span>
-        {{#if @root.editable}}<a class="r-vc-btn" data-action="edgeUse" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Hunter.UseHint'}}"><i class="fa-solid {{#if roll}}fa-dice-d10{{else}}fa-hand-sparkles{{/if}}"></i></a>
+        {{#if @root.editable}}{{#if @root.hunterCall}}<a class="r-vc-btn" data-action="edgeCall" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Hunter.CallThis'}}"><i class="fa-solid fa-hands-praying"></i></a>
+        {{else}}<a class="r-vc-btn" data-action="edgeUse" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Hunter.UseHint'}}"><i class="fa-solid {{#if roll}}fa-dice-d10{{else}}fa-hand-sparkles{{/if}}"></i></a>{{/if}}
         <a class="r-icon-btn is-danger" data-action="edgeDel" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
       </li>
       {{/each}}

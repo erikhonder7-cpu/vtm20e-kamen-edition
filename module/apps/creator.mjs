@@ -18,7 +18,7 @@ import { openHouses } from "./houses.mjs";
 import { blockerFor, checkTraits } from "../data/trait-rules.mjs";
 import { attachCombos } from "../ui/combo.mjs";
 import { weaponIcon, armorIcon, traitIcon, backgroundIcon } from "../data/icons.mjs";
-import { H as hunterData } from "./hunter.mjs";
+import { H as hunterData, edgeCost, growth as hunterGrowth, sacrificeOn as hunterSacrificeOn } from "./hunter.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -128,7 +128,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       name: actor.name, concept: s.details.concept, nature: s.details.nature, demeanor: s.details.demeanor,
       sire: s.details.sire, sect: s.details.sect || "", sectKey: Codex.sectKey(s.details.sect),
       clan: s.clan ?? "brujah", clanChoice: s.clanChoice ?? "", weaknessNote: s.weaknessNote ?? "",
-      domitor: s.domitor ?? "", path: "humanity", tier: "fledgling", xpTotal: 0,
+      domitor: s.domitor ?? "", path: "humanity", tier: "fledgling", xpTotal: 0, hunterExtra: 0,
       house: s.house || "devils", visage: s.visage ?? "", faction: s.faction ?? "",
       names: { celestial: s.names?.celestial ?? "", trueName: s.names?.trueName ?? "" },
       attrPrio: ["physical", "social", "mental"], abilPrio: ["talents", "skills", "knowledges"],
@@ -170,6 +170,8 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
   get rules() {
     if (this.isEarthbound) return RULES.earthbound;
     if (this.isThrall) return RULES.thrall;
+    // опытный охотник (Players Guide, гл. 2): рассказчик даёт 3–6 очков Добродетелей сверх трёх
+    if (this.isHunter) return { ...this.baseRules, virt: this.baseRules.virt + (this.st?.hunterExtra ?? 0) };
     return this.type === "vampire" ? { ...this.baseRules, ...(SECT_RULES[this.st?.sectKey] ?? {}) } : this.baseRules;
   }
   /** Падший создаётся Привязанным к Земле (переключатель на шаге Дома). */
@@ -186,12 +188,13 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     const H = hunterData(), e = H.edges.find(x => x.key === key);
     if (!e) return [];
     const have = new Set(this.st.edges), own = this.st.edges.map(k => H.edges.find(x => x.key === k)).filter(Boolean);
-    const used = own.filter(x => x.virtue === e.virtue && x.key !== key).reduce((s, x) => s + x.level, 0);
+    const used = own.filter(x => x.virtue === e.virtue && x.key !== key).reduce((s, x) => s + edgeCost(x.level), 0);
     const top = Math.max(0, ...own.filter(x => x.path === this.st.creed && x.key !== key).map(x => x.level));
     const out = [];
     if (e.level > 1 && !have.has(`${e.path}|${e.level - 1}`)) out.push(t("Hunter.NeedPrev", { n: e.level - 1 }));
-    if (used + e.level > this.hunterVirtue(e.virtue)) out.push(t("Hunter.NeedVirtue", { v: H.virtues[e.virtue], n: used + e.level }));
+    if (used + edgeCost(e.level) > this.hunterVirtue(e.virtue)) out.push(t("Hunter.NeedVirtue", { v: H.virtues[e.virtue], n: used + edgeCost(e.level) }));
     if (e.path !== this.st.creed && e.level > top) out.push(t("Hunter.NeedCreed", { n: top }));
+    if ((this.st.hunterExtra ?? 0) > 0 && e.path !== this.st.creed && e.level >= 4) out.push(t("Hunter.AdvancedOther"));
     if (e.level >= 5) out.push(t("Hunter.FifthLevel"));
     return out;
   }
@@ -253,7 +256,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     const v = this.value("virt", "conscience") + this.value("virt", "selfControl") + this.st.free.morality;
     return this.st.path === "humanity" ? Math.min(10, v) : Math.min(5, v);
   }
-  get morality() { return this.isHunter ? this.moralityBase : Math.min(this.isThrall ? 5 : 10, this.moralityBase + this.st.xp.morality); }
+  get morality() { return Math.min(this.isThrall ? 5 : 10, this.moralityBase + this.st.xp.morality); }
   get willpowerBase() {
     // у падшего Воля — сумма двух высших Добродетелей (гл. 6), у охотника — 3, у прочих — Смелость
     if (this.isHunter) return Math.min(10, 3 + this.st.free.will);
@@ -285,6 +288,11 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     let total = 0;
     for (let i = 0; i < n; i++) {
       const c = from + i;
+      // охотник при росте за опыт (Players Guide, гл. 2): основная Добродетель — новое × 3, прочие — × 5, начальная Убеждённость — × 5
+      if (this.isHunter && (kind === "virt" || kind === "morality")) {
+        total += kind === "virt" ? (c + 1) * (HUNTER_SLOTS[k] === this.creedData?.virtue ? 3 : 5) : (c + 1) * 5;
+        continue;
+      }
       if (this.isEarthbound) {
         const L = Codex.lore(k), near = kind === "disc" && (this.inClan(k) && !L?.dark);
         total += kind === "attr" ? c * 5 : kind === "abil" ? (c === 0 ? 4 : c * 3) : kind === "disc" ? (c === 0 ? (near ? 6 : 8) : c * 4)
@@ -452,7 +460,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
           return { ...e, on, why: why.join(" "), ok: on || !why.length };
         }) })).sort((a, b) => b.primary - a.primary);
       ctx.edgeBudget = ["mercy", "vision", "zeal"].map(v => ({ label: H.virtues[v], value: this.hunterVirtue(v),
-        used: st.edges.map(k => H.edges.find(x => x.key === k)).filter(e => e?.virtue === v).reduce((s, e) => s + e.level, 0) }));
+        used: st.edges.map(k => H.edges.find(x => x.key === k)).filter(e => e?.virtue === v).reduce((s, e) => s + edgeCost(e.level), 0) }));
     }
 
     // I. Концепция и возраст
@@ -556,7 +564,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       // у Привязанного в слотах Добродетелей — Потребности: Плоть, Мысль, Эмоция
       const urge = { conscience: "flesh", selfControl: "thought", courage: "emotion" }[slot];
       // у охотника в слотах — Добродетели охоты, до 10 (на старте — 3 очка)
-      if (this.isHunter) return { key: slot, label: hunterData().virtues[HUNTER_SLOTS[slot]], value: this.value("virt", slot), dots: dotRow("virt", slot),
+      if (this.isHunter) return { key: slot, label: hunterData().virtues[HUNTER_SLOTS[slot]], value: this.value("virt", slot), dots: dotRow("virt", slot, 10),
         primary: this.creedData?.virtue === HUNTER_SLOTS[slot] };
       return { key: slot, label: this.isEarthbound ? t(`Demon.Urge.${urge}`) : loc(VTM20.virtues[vk].label), value: this.value("virt", slot), dots: dotRow("virt", slot) };
     });
@@ -606,8 +614,10 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
         ...ctx.abilGroups.flatMap(g => g.list.map(x => row("abil", x.key, x.label, g.label, x.value))),
         ...(this.rules.disc ? ctx.discCards.map(x => row("disc", x.key, x.name, this.discLabel, x.value)) : []),
         ...(mode === "free" ? ctx.bgCards.filter(b => b.on).map(b => row("bg", b.name, b.name, this.bgLabel, b.value)) : []),
-        ...(this.isHunter ? [] : ctx.virtues.map(x => row("virt", x.key, x.label, t("Sheet.Virtues"), x.value))),   // Добродетели охоты — только охотой
-        ...(this.isHunter && mode === "xp" ? [] : [row("morality", "", this.isDemon ? t("Demon.Faith") : this.isThrall ? t("Creator.ThrallFaith") : this.isHunter ? t("Hunter.Conviction") : this.pathData?.name ?? t("Humanity"), t("Sheet.Other"), this.morality)]),
+        // Добродетели охоты — только охотой; при росте за опыт — и опытом
+        ...(!this.isHunter ? ctx.virtues.map(x => row("virt", x.key, x.label, t("Sheet.Virtues"), x.value))
+          : mode === "xp" && hunterGrowth() === "xp" ? ctx.virtues.map(x => row("virt", x.key, x.label, t("Creator.HunterVirtues"), x.value)) : []),
+        ...(this.isHunter && mode === "xp" && hunterGrowth() !== "xp" ? [] : [row("morality", "", this.isDemon ? t("Demon.Faith") : this.isThrall ? t("Creator.ThrallFaith") : this.isHunter ? t("Hunter.Conviction") : this.pathData?.name ?? t("Humanity"), t("Sheet.Other"), this.morality)]),
         row("will", "", t("Willpower"), t("Sheet.Other"), this.willpower)
       ];
       return [...new Set(list.map(r => r.group))].map(g => ({ label: g, rows: list.filter(r => r.group === g) }));
@@ -684,6 +694,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       // список с ключами (Путь): берём ключ выбранного варианта, а не подпись
       const v = el.dataset.combo && "key" in el.dataset ? el.dataset.key : el.type === "number" ? Number(el.value) : el.value;
       if (f === "xpTotal") { this.st.xpTotal = Math.max(0, v); this.st.tier = "custom"; return this.render(); }
+      if (f === "hunterExtra") { this.st.hunterExtra = Math.clamp(Number(v) || 0, 0, 6); return this.render(); }
       foundry.utils.setProperty(this.st, f, v);
       if (f === "path") this.st.virt = { conscience: 0, selfControl: 0, courage: 0 };
       this.render();
@@ -793,7 +804,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     const extra = (st.free[kind]?.[key] ?? 0) + (st.xp[kind]?.[key] ?? 0);
     const cur = base + (store[key] ?? 0);
     let want = n === cur ? n - 1 : n;
-    want = Math.max(base, Math.min(want, 5 - extra));
+    want = Math.max(base, Math.min(want, (kind === "virt" && this.isHunter ? 10 : 5) - extra));
     if (kind === "abil") want = Math.min(want, VTM20.creation.abilityCap);
     if (kind === "disc" && (this.type === "vampire" || this.isDemon) && this.clanDisciplines && !this.clanDisciplines.includes(key) && want > base) {
       ui.notifications.warn(t(this.isDemon ? "Creator.OnlyHouse" : "Creator.OnlyClan")); return;
@@ -855,13 +866,16 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     const { kind, key } = target.dataset;
     const d = event.button === 2 || target.dataset.d === "-1" ? -1 : 1;
     const bag = this.st[mode];
-    if (this.isHunter && (kind === "virt" || (kind === "morality" && mode === "xp"))) return ui.notifications.warn(t("Creator.HunterNoBuy"));
+    const hxp = this.isHunter && mode === "xp" && hunterGrowth() === "xp";
+    if (this.isHunter && !hxp && (kind === "virt" || (kind === "morality" && mode === "xp"))) return ui.notifications.warn(t("Creator.HunterNoBuy"));
+    // начальная Убеждённость за опыт — не выше Силы воли
+    if (hxp && kind === "morality" && d > 0 && this.morality >= this.willpower) return ui.notifications.warn(t("Creator.HunterConvWill"));
     if (kind === "morality" || kind === "will") {
-      const cap = this.isHunter ? 8 : this.st.path === "humanity" || mode === "xp" ? 10 : 5;
+      const cap = this.isHunter ? (mode === "xp" ? 10 : 8) : this.st.path === "humanity" || mode === "xp" ? 10 : 5;
       if (d > 0 && (kind === "will" ? this.willpower >= 10 : this.morality >= cap)) return;
       bag[kind] = Math.max(0, bag[kind] + d);
     } else {
-      const max = kind === "disc" && this.type === "vampire" ? VTM20.generationOf(13 - Math.min(5, this.value("bg", "Поколение"))).trait : 5;
+      const max = kind === "disc" && this.type === "vampire" ? VTM20.generationOf(13 - Math.min(5, this.value("bg", "Поколение"))).trait : kind === "virt" && this.isHunter ? 10 : 5;
       if (d > 0 && kind === "disc" && this.bannedDisc(key)) return ui.notifications.warn(t("Creator.SectBanned", { name: Codex.disciplineLabel(key) }));
       if (d > 0 && this.value(kind, key) >= max) return;
       bag[kind][key] = Math.max(0, (bag[kind][key] ?? 0) + d);
@@ -926,8 +940,9 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     // Охотник: кредо, Добродетели охоты, Убеждённость, Грани; Человечности и Добродетелей V20 нет
     if (this.isHunter) {
       delete sys.morality; delete sys.virtues;
+      // начальная Убеждённость, купленная опытом, — постоянная; свободные пункты — только текущая шкала
       sys.hunter = { creed: st.creed, mercy: this.hunterVirtue("mercy"), vision: this.hunterVirtue("vision"), zeal: this.hunterVirtue("zeal"),
-        conviction: this.morality, edges: [...st.edges] };
+        conviction: this.morality, edges: [...st.edges], start: st.xp.morality ? (this.creedData?.conviction ?? 3) + st.xp.morality : 0 };
     }
     if (this.isDemon) {
       delete sys.morality;
@@ -973,6 +988,12 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     }
     for (const m of st.merits) items.push({ name: m.name, type: "merit", img: traitIcon(m.category), system: { cost: m.cost, category: m.category, clan: m.clan ?? "", sect: m.sect ?? "", description: m.html, source: m.en } });
     for (const m of st.flaws) items.push({ name: m.name, type: "flaw", img: traitIcon(m.category, true), system: { cost: m.cost, category: m.category, clan: m.clan ?? "", sect: m.sect ?? "", description: m.html, source: m.en } });
+    // опытный охотник: по психозу за каждую точку Добродетели от 7 (при Жертве — от 9); какие — игрок выбирает в библиотеке
+    if (this.isHunter) {
+      const from = hunterSacrificeOn() ? 9 : 7, n = ["mercy", "vision", "zeal"].reduce((s, v) => s + Math.max(0, this.hunterVirtue(v) - from + 1), 0);
+      for (let i = 0; i < n; i++) items.push({ name: t("Creator.HunterMadnessName", { n: i + 1 }), type: "derangement", img: icon("derangement"),
+        system: { permanent: true, description: `<p>${t("Creator.HunterMadnessHint")}</p>` } });
+    }
     if (this.type === "vampire" && /^malkavian/.test(st.clan) && !a.items.some(i => i.type === "derangement")) {
       items.push({ name: t("Creator.MalkDerangement"), type: "derangement", img: icon("derangement"), system: { permanent: true, description: `<p>${t("Creator.MalkDerangementHint")}</p>` } });
     }

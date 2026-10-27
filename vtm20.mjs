@@ -40,6 +40,7 @@ import { registerTorment } from "./module/apps/torment.mjs";
 import { registerPossession } from "./module/apps/possession.mjs";
 import { registerCult } from "./module/apps/cult.mjs";
 import { registerExorcist } from "./module/apps/exorcist.mjs";
+import { registerHunter } from "./module/apps/hunter.mjs";
 import { registerCoterie, openCoterie } from "./module/apps/coterie.mjs";
 import { registerChronicle, openChronicle } from "./module/apps/chronicle.mjs";
 import { registerHandouts, giveHandout } from "./module/apps/handouts.mjs";
@@ -131,6 +132,7 @@ Hooks.once("init", () => {
   registerPossession();
   registerCult();
   registerExorcist();
+  registerHunter();
   registerCoterie();
   registerChronicle();
   registerHandouts();

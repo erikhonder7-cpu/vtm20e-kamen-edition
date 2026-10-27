@@ -537,7 +537,15 @@ export class HunterData extends MortalData {
     return {
       ...super.defineSchema(),
       hunter: new SchemaField({ creed: str("defense"), mercy: int(0, 0, 10), vision: int(0, 0, 10), zeal: int(0, 0, 10),
-        conviction: int(3, 0, 10), edges: new ArrayField(str()) })
+        conviction: int(3, 0, 10), edges: new ArrayField(str()), start: int(0, 0, 10), fifth: str(""),
+        // Players Guide, гл. 2: снятые жертвой условия Грани V; временные Добродетели (Деяния); очки роста и черты, отданные в этой истории (Жертва);
+        // Грани «свыше»: сумма уровней за историю по Добродетелям, Грань сцены и её предел, запреты после неудачи и провала, риск за сцену
+        fifthFree: new ArrayField(str()),
+        temp: new SchemaField({ mercy: int(0, 0, 10), vision: int(0, 0, 10), zeal: int(0, 0, 10) }),
+        advance: int(0, 0), sacrificed: new ArrayField(str()),
+        story: new SchemaField({ mercy: int(0, 0, 10), vision: int(0, 0, 10), zeal: int(0, 0, 10) }),
+        sceneEdge: str(""), sceneLevel: int(0, 0, 10), sceneBlock: new BooleanField({ initial: false }),
+        sessionBlock: new BooleanField({ initial: false }), sceneRisk: new BooleanField({ initial: false }) })
     };
   }
 }

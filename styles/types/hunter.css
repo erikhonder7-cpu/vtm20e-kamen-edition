@@ -199,3 +199,12 @@ body.r-theme-light .vtm20.r-type-hunter {
   border-right: 2px solid rgba(239, 229, 214, .45); border-bottom: 2px solid rgba(239, 229, 214, .45); }
 .vtm20.r-type-hunter .r-h2 > span:first-child { text-decoration: underline wavy rgba(239, 229, 214, .28); text-underline-offset: 6px; text-decoration-thickness: 1px; }
 .vtm20.r-type-hunter .r-rail::after { background: repeating-linear-gradient(180deg, rgba(239, 229, 214, .2) 0 5px, transparent 5px 11px); }
+/* Грань пятого уровня (Players Guide, гл. 2): застывшие Добродетели и предупреждение на вкладке Граней */
+.vtm20.r-type-hunter .r-hvirtues .r-virtue.is-frozen { opacity: .55; filter: grayscale(.6); }
+.vtm20.r-type-hunter .r-edge-fifth { border: 1px dashed rgba(255, 107, 90, .45); padding: 6px 10px; color: #f0c9a0; }
+.vtm20.r-type-hunter .r-edge-fifth i { color: #ff8a5c; }
+/* Деяния и Грани «свыше» (Players Guide, гл. 2) */
+.vtm20.r-type-hunter .r-hv-temp { font-style: normal; font-size: .8em; color: #c9a26b; margin-left: 4px; }
+.vtm20.r-type-hunter .r-edge-call { border: 1px dashed rgba(239, 229, 214, .2); padding: 8px 10px; margin: 6px 0 10px; display: grid; gap: 6px; }
+.vtm20.r-type-hunter .r-edge-call > .r-vc-btn { justify-self: start; }
+.vtm20.r-type-hunter .r-edge.is-called { display: flex; gap: 8px; align-items: flex-start; }

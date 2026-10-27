@@ -77,6 +77,8 @@
         </div>
         {{else}}<h3 class="r-h3">{{localize "VTM20.Sheet.Experience"}}</h3><p class="r-note">{{#if (or isMortal isHunter)}}{{localize "VTM20.Creator.XpMortal"}}{{else}}{{localize "VTM20.Creator.XpDemon"}}{{/if}}</p>{{/unless}}
         <label class="r-cr-xpinput">{{localize "VTM20.Creator.XpCustom"}} <input type="number" data-field="xpTotal" value="{{st.xpTotal}}" min="0" step="5"></label>
+        {{#if isHunter}}<label class="r-cr-xpinput">{{localize "VTM20.Creator.HunterExtra"}} <input type="number" data-field="hunterExtra" value="{{st.hunterExtra}}" min="0" max="6"></label>
+        <p class="r-note">{{localize "VTM20.Creator.HunterExtraHint"}}</p>{{/if}}
       </div>
     </div>
         {{#if isMortal}}

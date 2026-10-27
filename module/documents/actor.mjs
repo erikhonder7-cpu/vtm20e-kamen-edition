@@ -9,6 +9,7 @@ import { untilFor } from "../apps/timers.mjs";
 import { proposeFate } from "../apps/torpor.mjs";
 import { mobState, applyMobDamage } from "../apps/extras.mjs";
 import { getClock } from "../apps/calendar.mjs";
+import { hunterXpCost, startConviction } from "../apps/hunter.mjs";
 
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
 
@@ -466,6 +467,8 @@ export class VtMActor extends Actor {
       }
       case "faith": return current * (this.system.earthbound ? 6 : 7);
       case "urge": return current * 2;                    // Потребность Привязанного (Earthbound, гл. 3)
+      // Охотник при росте за опыт (Players Guide, гл. 2): начальная Убеждённость и Добродетели охоты
+      case "hunterConviction": case "hunterVirtue": return hunterXpCost(this, kind, current, extra.key);
       default: return null;
     }
   }
@@ -475,8 +478,9 @@ export class VtMActor extends Actor {
    * path — путь к значению в doc. Возвращает потраченный опыт или null.
    */
   async buyWithXp({ doc = this, path, kind, label, confirm = true }) {
-    const cur = Number(foundry.utils.getProperty(doc._source, path) ?? 0);
-    const extra = doc !== this && doc.type === "discipline" ? { key: doc.system.key, inClan: doc.system.inClan || this.clanDisciplines.includes(doc.system.key) }
+    const cur = kind === "hunterConviction" ? startConviction(this) : Number(foundry.utils.getProperty(doc._source, path) ?? 0);
+    const extra = kind === "hunterVirtue" ? { key: path.split(".").pop() }
+      : doc !== this && doc.type === "discipline" ? { key: doc.system.key, inClan: doc.system.inClan || this.clanDisciplines.includes(doc.system.key) }
       : doc !== this && doc.type === "thaumPath" ? { primary: doc.system.primary }
       : doc !== this && doc.type === "lore" ? { key: doc.system.key } : {};
     const cost = this.xpCost(kind, cur, extra);
@@ -487,7 +491,8 @@ export class VtMActor extends Actor {
     if (confirm && !(await foundry.applications.api.DialogV2.confirm({
       window: { title: t("Xp.BuyTitle") }, content: `<p>${t("Xp.BuyConfirm", { label, from: cur, to: cur + 1, cost })}</p>`
     }))) return null;
-    await doc.update({ [path]: cur + 1 });
+    // начальная Убеждённость растёт вместе со шкалой
+    await doc.update({ [path]: cur + 1, ...(kind === "hunterConviction" ? { "system.hunter.conviction": Math.min(10, (this.system.hunter?.conviction ?? 0) + 1) } : {}) });
     const log = foundry.utils.deepClone(this._source.system.experience.log);
     log.unshift({ amount: -cost, reason: `${label}: ${cur} → ${cur + 1}`, date: new Date().toLocaleDateString("ru-RU") });
     await this.update({ "system.experience.spent": this._source.system.experience.spent + cost, "system.experience.log": log });

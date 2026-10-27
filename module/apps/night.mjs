@@ -224,6 +224,9 @@ export async function endScene() {
     if (a.getFlag(SYSTEM_ID, "sceneFaith")) await a.unsetFlag(SYSTEM_ID, "sceneFaith");
     if (a.getFlag(SYSTEM_ID, "formScene")) await a.unsetFlag(SYSTEM_ID, "formScene");
   }
+  // охотники: Грань «свыше» сцены, запрет после неудачи, риск Убеждённостью
+  const { hunterSceneEnd, hunterStoryEnd } = await import("./hunter.mjs");
+  for (const a of owned.filter(x => x.type === "hunter")) await hunterSceneEnd(a);
   ui.notifications.info(t("Notify.SceneEnded"));
 }
 
@@ -232,6 +235,9 @@ export async function endStory() {
   for (const a of game.actors.filter(x => x.hasPlayerOwner)) {
     await a.update({ "system.willpower.temporary": a.system.willpower.permanent });
   }
+  // охотники: Убеждённость к начальной, счёт воззваний и жертв за историю — заново
+  const { hunterStoryEnd } = await import("./hunter.mjs");
+  for (const a of game.actors.filter(x => x.type === "hunter")) await hunterStoryEnd(a);
   ChatMessage.create({ content: `<div class="r-notice"><i class="fa-solid fa-book"></i> ${t("Night.StoryEnd")}</div>` });
 }
 
