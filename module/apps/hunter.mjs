@@ -13,6 +13,7 @@
 import { rollPool } from "../dice/roll.mjs";
 import { Codex } from "../data/codex.mjs";
 import { SYSTEM_ID } from "../config.mjs";
+import { playFx, playEvent, edgeTheme } from "./fx.mjs";
 
 const t = (k, d) => d ? game.i18n.format(`VTM20.Hunter.${k}`, d) : game.i18n.localize(`VTM20.Hunter.${k}`);
 const esc = s => foundry.utils.escapeHTML(String(s ?? ""));
@@ -237,6 +238,7 @@ export async function useEdge(actor, key) {
     // без броска: Нужда — уровень ушибов, Всплеск — пункт Убеждённости, Обновление — само
     if (e.conviction) await actor.update({ "system.hunter.conviction": conv - e.conviction });
     if (key === "martyrdom|1") await actor.applyDamage(1, "bashing");
+    playFx(edgeTheme(key), actor);
     return notice(actor, "fa-hand-sparkles", `<b>${esc(e.name)}</b> — ${esc(e.text)}`);
   }
   const attrs = ["strength", "dexterity", "stamina", "charisma", "manipulation", "intelligence", "perception", "wits"];
@@ -259,7 +261,7 @@ export async function useEdge(actor, key) {
     v.risk && { label: t("Risk"), value: v.risk }].filter(Boolean);
   if (e.conviction || v.risk) await actor.update({ "system.hunter.conviction": conv - e.conviction, ...(v.risk ? { "system.hunter.sceneRisk": true } : {}) });
   const res = await rollPool({ actor, title: e.name, subtitle: t("EdgeKicker", { path: creedOf(e.path)?.name ?? e.path, n: e.level }),
-    pool: val(t1) + val(t2) + v.risk, difficulty: v.diff, kind: "check", breakdown, effect: `<p>${esc(e.text)}</p>` });
+    pool: val(t1) + val(t2) + v.risk, difficulty: v.diff, kind: "check", breakdown, effect: `<p>${esc(e.text)}</p>`, extra: { edge: key } });
   if (!v.risk) return res;
   // риск Убеждённостью: успех — вложенное остаётся и +1; неудача — вложенное сгорает; провал — вся Убеждённость
   const now = actor.system.hunter.conviction ?? 0;
@@ -281,6 +283,7 @@ export async function secondSight(actor) {
   const c = actor.system.hunter?.conviction ?? 0;
   if (c < 1) return ui.notifications.warn(t("NoConviction", { n: 1 }));
   await actor.update({ "system.hunter.conviction": c - 1 });
+  playEvent("secondSight", actor);
   return notice(actor, "fa-eye", t("SightOn", { name: esc(actor.name) }));
 }
 
@@ -472,6 +475,7 @@ export async function callEdge(actor, wantKey = "") {
   await actor.update({ "system.hunter.sceneEdge": got.key, "system.hunter.sceneLevel": s,
     [`system.hunter.story.${virtue}`]: (h.story?.[virtue] ?? 0) + edgeCost(got.level), "system.hunter.edges": [...new Set([...(h.edges ?? []), got.key])],
     ...(v.risk ? { "system.hunter.conviction": Math.min(10, now + 1) } : {}) });
+  playEvent("called", actor);
   return notice(actor, "fa-hand-sparkles", t("CallGot", { name, edge: esc(got.name), n: s }) + (want && got !== want ? " " + t("CallLess", { want: esc(want.name) }) : ""));
 }
 
