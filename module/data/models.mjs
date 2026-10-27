@@ -528,8 +528,22 @@ export class GearData extends BaseItemData {
 
 /* ── Регистрация ────────────────────────────────────────────────────────── */
 
+/* ── Охотник (Hunter: The Reckoning) ─────────────────────────────────────── */
+
+// Смертный, получивший Послание: всё смертное (кровь сосуда, Истинная вера, экзорцизм) и сверх того — кредо, три Добродетели
+// охоты (Милосердие, Прозрение, Рвение 0–10), Убеждённость 0–10 и Грани — ключи «путь|уровень» из data/hunter.json (apps/hunter.mjs).
+export class HunterData extends MortalData {
+  static defineSchema() {
+    return {
+      ...super.defineSchema(),
+      hunter: new SchemaField({ creed: str("defense"), mercy: int(0, 0, 10), vision: int(0, 0, 10), zeal: int(0, 0, 10),
+        conviction: int(3, 0, 10), edges: new ArrayField(str()) })
+    };
+  }
+}
+
 export function registerDataModels() {
-  Object.assign(CONFIG.Actor.dataModels, { vampire: VampireData, ghoul: GhoulData, mortal: MortalData, creature: CreatureData, demon: DemonData });
+  Object.assign(CONFIG.Actor.dataModels, { vampire: VampireData, ghoul: GhoulData, mortal: MortalData, creature: CreatureData, demon: DemonData, hunter: HunterData });
   Object.assign(CONFIG.Item.dataModels, {
     discipline: DisciplineData, lore: LoreData, lorePower: LorePowerData, thaumPath: BloodPathData, ritual: RitualData, power: PowerData,
     background: BackgroundData, merit: MeritData, flaw: MeritData, derangement: DerangementData,

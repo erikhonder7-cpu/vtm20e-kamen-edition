@@ -36,6 +36,7 @@ import { openThrallGifts } from "../apps/thrall-gifts.mjs";
 import { loseHost, holdOn, newHost, summonedBack } from "../apps/host.mjs";
 import { openCult } from "../apps/cult.mjs";
 import { openExorcist } from "../apps/exorcist.mjs";
+import { hunterInfo, edgesView, useEdge, secondSight, virtueTest, tradeConviction, restoreConviction, H as hunterData } from "../apps/hunter.mjs";
 import { openEbServant, empower as empowerServant } from "../apps/eb-servant.mjs";
 import { useInvestment, pactDialog, pactDelete, pactValue, investmentLimit } from "../apps/infernal.mjs";
 import { possess, extend as possessExtend, leave as possessLeave, battleExpiry, possessionView } from "../apps/possession.mjs";
@@ -196,6 +197,8 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       diablerie: VtMActorSheet.#onDiablerie,
       clanAtlas: VtMActorSheet.#onClanAtlas,
       linSire: VtMActorSheet.#onLinSire,
+      edgeUse: VtMActorSheet.#onEdgeUse, edgeDel: VtMActorSheet.#onEdgeDel, hunterSight: VtMActorSheet.#onHunterSight,
+      hunterTest: VtMActorSheet.#onHunterTest, hunterTrade: VtMActorSheet.#onHunterTrade, hunterRestore: VtMActorSheet.#onHunterRestore,
       linChild: VtMActorSheet.#onLinChild, linEdit: VtMActorSheet.#onLinEdit, linDel: VtMActorSheet.#onLinDel,
       linSheet: VtMActorSheet.#onLinSheet,
       linOpen: VtMActorSheet.#onLinOpen,
@@ -253,6 +256,8 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   _configureRenderParts(options) {
     const parts = super._configureRenderParts(options);
     if (this.actor.type === "mortal") delete parts.disciplines;
+    // у охотника на месте Дисциплин — Грани
+    if (this.actor.type === "hunter" && parts.disciplines) parts.disciplines = { ...parts.disciplines, template: `${SYSTEM_PATH}/templates/actor/edges.hbs` };
     // у демона на месте Дисциплин — Знания и апокалиптическая форма
     if (this.actor.type === "demon" && parts.disciplines) parts.disciplines = { ...parts.disciplines, template: `${SYSTEM_PATH}/templates/actor/lores.hbs` };
     return parts;
@@ -261,6 +266,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   _prepareTabs(group) {
     const tabs = super._prepareTabs(group);
     if (this.actor.type === "mortal") delete tabs.disciplines;
+    if (this.actor.type === "hunter" && tabs.disciplines) Object.assign(tabs.disciplines, { label: "VTM20.Hunter.Edges", icon: "fa-solid fa-eye" });
     if (this.actor.type === "demon" && tabs.disciplines) Object.assign(tabs.disciplines, { label: "VTM20.Demon.Lores", icon: "fa-solid fa-fire-flame-curved" });
     let i = 0;
     for (const tab of Object.values(tabs)) tab.roman = ROMAN[i++];
@@ -278,7 +284,8 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       editable: this.isEditable, isGM: game.user.isGM,
       // длинное имя не обрезается в шапке: шрифт мельче
       nameSize: actor.name.length > 26 ? "is-xlong" : actor.name.length > 18 ? "is-long" : "",
-      isVampire: actor.type === "vampire", isGhoul: actor.type === "ghoul", isMortal: actor.type === "mortal",
+      // охотник — смертный с Гранями: где лист смертного и охотника совпадают, работает isMortal
+      isVampire: actor.type === "vampire", isGhoul: actor.type === "ghoul", isMortal: ["mortal", "hunter"].includes(actor.type), isHunter: actor.type === "hunter",
       isCreature: actor.type === "creature", isDemon: actor.type === "demon",
       hasBlood: actor.hasBlood,
       typeLabel: actor.type === "ghoul" && actor.system.ghoulType === "revenant" ? t("GhoulType.revenant") : game.i18n.localize(`TYPES.Actor.${actor.type}`),
@@ -289,6 +296,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     this.#prepareTraits(ctx);
     this.#prepareRegistry(ctx);
     if (actor.type === "demon") this.#prepareLores(ctx);
+    else if (actor.type === "hunter") { ctx.hunterInfo = hunterInfo(actor, dots); ctx.edgePaths = edgesView(actor); }
     else if (actor.type !== "mortal") this.#prepareDisciplines(ctx);
     this.#prepareAdvantages(ctx);
     this.#prepareGear(ctx);
@@ -322,6 +330,10 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       ctx.ghoulTypes = ["vassal", "independent", "revenant"].map(k => ({ value: k, label: t(`GhoulType.${k}`), selected: k === s.ghoulType }));
       ctx.donorGenerations = Object.keys(VTM20.generations).map(Number).sort((x, y) => x - y)
         .map(g => ({ value: g, label: t("GenerationN", { n: g }), selected: g === s.domitorGeneration }));
+    }
+    if (ctx.isHunter) {
+      ctx.creeds = hunterData().creeds.map(c => ({ value: c.key, label: c.name, who: c.who, selected: c.key === s.hunter?.creed, tip: c.text }));
+      ctx.creedTip = ctx.creeds.find(c => c.selected)?.tip ?? "";
     }
     if (ctx.isDemon) {
       const house = Codex.house(s.house);
@@ -1150,7 +1162,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
   /** Справочник правил V20 (компендий-журнал). */
   static #onOpenRules() {
-    const pack = game.packs.get(`${SYSTEM_ID}.rules`);
+    const pack = game.packs.get(`${SYSTEM_ID}.${this.actor.type === "hunter" ? "hunter-rules" : "rules"}`);
     if (pack) pack.render(true);
     else ui.notifications.warn(t("Sheet.RulesMissing"));
   }
@@ -1285,6 +1297,16 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static #onPossess() { return possess(this.actor); }
   static #onCult() { return openCult(this.actor); }
   /** Слуга Привязанного: нет наделений — сразу ритуал, есть — окно сил (apps/eb-servant.mjs). */
+  /** Охотник (apps/hunter.mjs): Грань — бросок с риском Убеждённостью; второе зрение; испытание Добродетели; 10 Убеждённости — в Добродетель. */
+  static #onEdgeUse(event, target) { return useEdge(this.actor, target.dataset.key); }
+  static async #onEdgeDel(event, target) {
+    const k = target.dataset.key, list = this.actor.system.hunter?.edges ?? [];
+    await this.actor.update({ "system.hunter.edges": list.filter(x => x !== k) });
+  }
+  static #onHunterSight() { return secondSight(this.actor); }
+  static #onHunterTest() { return virtueTest(this.actor); }
+  static #onHunterTrade() { return tradeConviction(this.actor); }
+  static #onHunterRestore() { return restoreConviction(this.actor); }
   /** Вера против падших: молитвы, экзорцизм, оружие веры (apps/exorcist.mjs). */
   static #onExorcist() { return openExorcist(this.actor); }
   static #onEbServant() { return this.actor.system.ebServant?.empowerments ? openEbServant(this.actor) : empowerServant(this.actor); }

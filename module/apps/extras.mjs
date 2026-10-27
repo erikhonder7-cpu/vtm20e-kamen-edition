@@ -151,5 +151,5 @@ export class ExtraSheet extends HandlebarsApplicationMixin(foundry.applications.
 
 /** Регистрация листа статиста (не по умолчанию: его ставит makeExtra). */
 export function registerExtras() {
-  foundry.documents.collections.Actors.registerSheet(SYSTEM_ID, ExtraSheet, { types: ["mortal", "creature", "ghoul", "vampire"], makeDefault: false, label: "VTM20.Sheets.Extra" });
+  foundry.documents.collections.Actors.registerSheet(SYSTEM_ID, ExtraSheet, { types: ["mortal", "hunter", "creature", "ghoul", "vampire"], makeDefault: false, label: "VTM20.Sheets.Extra" });
 }

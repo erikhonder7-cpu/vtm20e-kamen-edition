@@ -5,7 +5,7 @@
 
 import { SYSTEM_PATH, SYSTEM_ID } from "../config.mjs";
 
-const FILES = ["disciplines", "clans", "rituals", "paths", "merits", "merits-ghouls", "backgrounds", "archetypes", "assets", "derangements", "combos", "abilities", "demon", "demon-merits", "demon-backgrounds", "demon-hof", "demon-pg", "demon-earthbound", "demon-form", "investments", "pact-templates"];
+const FILES = ["disciplines", "clans", "rituals", "paths", "merits", "merits-ghouls", "backgrounds", "archetypes", "assets", "derangements", "combos", "abilities", "demon", "demon-merits", "demon-backgrounds", "demon-hof", "demon-pg", "demon-earthbound", "demon-form", "investments", "pact-templates", "hunter"];
 
 /** Чей герб показывать линии крови, ветви или антитрибу, если своего нет. */
 const CLAN_SYMBOL_PARENT = {
@@ -63,6 +63,8 @@ export const Codex = {
     // черты и Дополнения демонов — своей линией (VTM20.traitLine) в самом конце, по той же причине
     this.merits = [...this.merits, ...(this["demon-merits"] ?? []).map(m => ({ ...m, line: "demon" }))];
     this.backgrounds = [...this.backgrounds, ...[...(this["demon-backgrounds"] ?? []), ...(this["demon-earthbound"]?.backgrounds ?? [])].map(b => ({ ...b, line: "demon" }))];
+    // Дополнения охотника (data/hunter.json) — линией «hunter», тоже в конце
+    this.backgrounds = [...this.backgrounds, ...(this.hunter?.backgrounds ?? []).map(b => ({ ...b, line: "hunter" }))];
     this.clanByKey = Object.fromEntries(this.clans.map(c => [c.key, c]));
     this.pathByKey = Object.fromEntries(this.paths.map(p => [p.key, p]));
     // демоны (data/demon.json) — свой справочник: Знания не смешиваются с Дисциплинами вампиров

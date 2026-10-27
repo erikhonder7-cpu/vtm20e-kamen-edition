@@ -84,6 +84,10 @@
           <select name="system.faction"><option value="">—</option>{{#each factions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
         {{/if}}
 
+        {{#if isHunter}}
+        <label class="r-df is-wide r-df-creed" {{#if creedTip}}data-tooltip="{{creedTip}}"{{/if}}><span>{{localize "VTM20.Hunter.Creed"}}</span>
+          <select name="system.hunter.creed">{{#each creeds}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}} · {{who}}</option>{{/each}}</select></label>
+        {{/if}}
         {{#if isMortal}}
         <label class="r-df"><span>{{localize "VTM20.Details.age"}}</span><input type="text" name="system.details.age" value="{{system.details.age}}"></label>
         <label class="r-df is-wide"><span>{{localize "VTM20.Details.haven"}}</span><input type="text" name="system.details.haven" value="{{system.details.haven}}"></label>

@@ -66,7 +66,7 @@
         {{#if natureRegain}}<div class="r-cr-note"><i class="fa-solid fa-star"></i> <b>{{st.nature}}</b> — {{localize "VTM20.Sheet.NatureRegain"}} {{natureRegain}}</div>{{/if}}
       </div>
       <div>
-        {{#unless (or isDemon isMortal)}}
+        {{#unless (or isDemon isMortal isHunter)}}
         <h3 class="r-h3">{{tierTitle}}</h3>
         <div class="r-cr-tiles">
           {{#each tiers}}
@@ -75,7 +75,7 @@
           </a>
           {{/each}}
         </div>
-        {{else}}<h3 class="r-h3">{{localize "VTM20.Sheet.Experience"}}</h3><p class="r-note">{{#if isMortal}}{{localize "VTM20.Creator.XpMortal"}}{{else}}{{localize "VTM20.Creator.XpDemon"}}{{/if}}</p>{{/unless}}
+        {{else}}<h3 class="r-h3">{{localize "VTM20.Sheet.Experience"}}</h3><p class="r-note">{{#if (or isMortal isHunter)}}{{localize "VTM20.Creator.XpMortal"}}{{else}}{{localize "VTM20.Creator.XpDemon"}}{{/if}}</p>{{/unless}}
         <label class="r-cr-xpinput">{{localize "VTM20.Creator.XpCustom"}} <input type="number" data-field="xpTotal" value="{{st.xpTotal}}" min="0" step="5"></label>
       </div>
     </div>
@@ -104,6 +104,17 @@
           {{/if}}
         </div>
         {{/if}}
+    {{#if isHunter}}
+    {{!-- Кредо (Hunter: The Reckoning, гл. 3): основная Добродетель, начальная Убеждённость, путь Граней --}}
+    <h3 class="r-h3">{{localize "VTM20.Hunter.Creed"}}</h3>
+    <div class="r-cr-tiles r-cr-creeds">
+      {{#each creeds}}
+      <a class="r-cr-tile {{#if active}}is-active{{/if}}" data-action="creed" data-creed="{{key}}" data-tooltip="{{tips}}">
+        <b>{{name}} <small>· {{who}}</small></b><span>{{text}}</span><em>{{virtueName}} · {{localize "VTM20.Hunter.Conviction"}} {{conviction}}</em>
+      </a>
+      {{/each}}
+    </div>
+    {{/if}}
     {{#if isVampire}}
     <h3 class="r-h3">{{localize "VTM20.Details.sect"}}</h3>
     <div class="r-cr-sects">
@@ -318,15 +329,32 @@
         </div>
       </div>
       <div class="r-cr-panel r-tcol">
-        <h3 class="r-colhead"><span>{{localize "VTM20.Sheet.Virtues"}}</span></h3>
+        <h3 class="r-colhead"><span>{{#if isHunter}}{{localize "VTM20.Creator.HunterVirtues"}}{{else}}{{localize "VTM20.Sheet.Virtues"}}{{/if}}</span></h3>
         <div class="r-cr-left {{#if (lt rem.virt 0)}}is-over{{else if (eq rem.virt 0)}}is-done{{/if}}">{{localize "VTM20.Creator.LeftShort"}}: <b>{{rem.virt}}</b></div>
         {{#each virtues}}
-        <div class="r-trait-main"><span class="r-trait-label">{{label}}</span><span class="r-leader"></span>
+        <div class="r-trait-main"><span class="r-trait-label">{{#if primary}}◆ {{/if}}{{label}}</span><span class="r-leader"></span>
           <span class="r-dots">{{#each dots}}<a class="r-dot r-cr-dot is-{{state}}" data-action="dot" data-kind="{{kind}}" data-key="{{key}}" data-n="{{n}}"></a>{{/each}}</span>
         </div>
         {{/each}}
-        <p class="r-note">{{localize "VTM20.Creator.VirtueHint"}}</p>
+        <p class="r-note">{{#if isHunter}}{{localize "VTM20.Creator.VirtueHintHunter"}}{{else}}{{localize "VTM20.Creator.VirtueHint"}}{{/if}}</p>
       </div>
+    </div>
+    {{/if}}
+
+    {{!-- VI½. Грани охотника: очки Добродетелей, пути по порядку, чужие — не выше пути кредо --}}
+    {{#if is_edges}}
+    <div class="r-cr-freebar">{{#each edgeBudget}}<span class="{{#if (gt used value)}}is-over{{else if (eq used value)}}is-done{{/if}}">{{label}}: <b>{{used}} / {{value}}</b></span>{{/each}}</div>
+    <div class="r-cr-edges">
+      {{#each edgePaths}}
+      <div class="r-cr-edgepath {{#if primary}}is-primary{{/if}}">
+        <h3 class="r-h3">{{name}} <small>· {{virtue}}{{#if primary}} · {{localize "VTM20.Hunter.PrimaryPath"}}{{/if}}</small></h3>
+        {{#each edges}}
+        <a class="r-cr-edge {{#if on}}is-on{{/if}} {{#unless ok}}is-blocked{{/unless}}" data-action="edgeToggle" data-key="{{key}}" data-tooltip="{{#if why}}{{why}}{{else}}{{text}}{{/if}}">
+          <span class="r-cr-edge-lvl">{{rRoman level}}</span><b>{{name}}</b>{{#if on}}<i class="fa-solid fa-check"></i>{{/if}}
+        </a>
+        {{/each}}
+      </div>
+      {{/each}}
     </div>
     {{/if}}
 
@@ -447,7 +475,8 @@
     <div class="r-cr-sumhead">
       {{#if clanSym}}<span class="r-cr-sumsym">{{rSym clanSym}}</span>{{/if}}
       {{#if isDemon}}<span class="r-cr-sumsym"><img src="systems/vtm20e-kamen-edition/assets/ui/fallen-sigil.svg" alt=""></span>{{/if}}
-      <div><div class="r-cr-sumname">{{st.name}}</div><div class="r-kicker">{{typeLabel}}{{#if isEarthbound}} · {{localize "VTM20.Creator.Earthbound"}}{{/if}}{{#if isDemon}} · {{houseName}}{{#if visageName}} · {{visageName}}{{/if}}{{#if factionName}} · {{factionName}}{{/if}}{{/if}}{{#if st.concept}} · {{st.concept}}{{/if}}{{#unless isDemon}}{{#if st.sect}} · {{st.sect}}{{/if}}{{/unless}}</div></div>
+      {{#if isHunter}}<span class="r-cr-sumsym"><img src="systems/vtm20e-kamen-edition/assets/ui/hunter-sigil.svg" alt=""></span>{{/if}}
+      <div><div class="r-cr-sumname">{{st.name}}</div><div class="r-kicker">{{typeLabel}}{{#if isEarthbound}} · {{localize "VTM20.Creator.Earthbound"}}{{/if}}{{#if isHunter}}{{#if creed}} · {{creed.name}} · {{creed.who}}{{/if}}{{/if}}{{#if isDemon}} · {{houseName}}{{#if visageName}} · {{visageName}}{{/if}}{{#if factionName}} · {{factionName}}{{/if}}{{/if}}{{#if st.concept}} · {{st.concept}}{{/if}}{{#unless isDemon}}{{#if st.sect}} · {{st.sect}}{{/if}}{{/unless}}</div></div>
     </div>
     <div class="r-cr-summary">
       <div class="r-cr-sum-item"><span>{{pathName}}</span><b>{{morality}}</b></div>
@@ -463,6 +492,7 @@
     <div class="r-cr-sumgrid">
       {{#each summary.attrs}}<div><h4 class="r-h4">{{label}}</h4>{{#each list}}<div class="r-cr-sumrow"><span>{{label}}</span><b>{{value}}</b></div>{{/each}}</div>{{/each}}
       {{#each summary.abils}}<div><h4 class="r-h4">{{label}}</h4>{{#each list}}<div class="r-cr-sumrow"><span>{{label}}</span><b>{{value}}</b></div>{{else}}<div class="r-note">—</div>{{/each}}</div>{{/each}}
+      {{#if isHunter}}<div><h4 class="r-h4">{{localize "VTM20.Hunter.Edges"}}</h4>{{#each summary.edges}}<div class="r-cr-sumrow"><span>{{name}}</span><b>{{rRoman level}}</b></div>{{else}}<div class="r-note">—</div>{{/each}}</div>{{/if}}
       <div><h4 class="r-h4">{{discLabel}}</h4>{{#each summary.discs}}<div class="r-cr-sumrow"><span>{{name}}</span><b>{{value}}</b></div>{{else}}<div class="r-note">—</div>{{/each}}</div>
       <div><h4 class="r-h4">{{bgLabel}}</h4>{{#each summary.bgs}}<div class="r-cr-sumrow"><span>{{name}}</span><b>{{value}}</b></div>{{else}}<div class="r-note">—</div>{{/each}}</div>
       <div><h4 class="r-h4">{{virtLabel}}</h4>{{#each summary.virtues}}<div class="r-cr-sumrow"><span>{{label}}</span><b>{{value}}</b></div>{{/each}}</div>

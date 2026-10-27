@@ -18,12 +18,12 @@ export class VtMActor extends Actor {
 
   async _preCreate(data, options, user) {
     if ((await super._preCreate(data, options, user)) === false) return false;
-    const icons = { vampire: "vampire.svg", ghoul: "ghoul.svg", mortal: "mortal.svg", demon: "demon.svg", creature: "creature.svg" };
+    const icons = { vampire: "vampire.svg", ghoul: "ghoul.svg", mortal: "mortal.svg", demon: "demon.svg", creature: "creature.svg", hunter: "hunter.svg" };
     const upd = {};
     if (!data.img || data.img === CONST.DEFAULT_TOKEN) upd.img = `systems/${SYSTEM_ID}/assets/icons/${icons[this.type]}`;
     const proto = {
       "prototypeToken.bar1.attribute": "health",
-      "prototypeToken.bar2.attribute": ["mortal", "demon"].includes(this.type) ? "willpower" : "blood",
+      "prototypeToken.bar2.attribute": ["mortal", "demon", "hunter"].includes(this.type) ? "willpower" : "blood",
       "prototypeToken.displayBars": CONST.TOKEN_DISPLAY_MODES.OWNER_HOVER,
       "prototypeToken.displayName": CONST.TOKEN_DISPLAY_MODES.OWNER_HOVER
     };
@@ -34,6 +34,8 @@ export class VtMActor extends Actor {
   /* ── Свойства ───────────────────────────────────────────────────────── */
 
   get isVampire() { return this.type === "vampire"; }
+  /** Охотник (Hunter: The Reckoning) — отдельный тип на модели смертного: всё смертное плюс кредо, Убеждённость, Грани. */
+  get isHunter() { return this.type === "hunter"; }
   get hasBlood() { return !!this.system.hasBlood; }
 
   /** Ключ Пути и его данные из справочника. */
@@ -112,6 +114,7 @@ export class VtMActor extends Actor {
     if (group === "virtues") return Math.min(s.virtues[key]?.value ?? 0, s.morality.value);   // пул Добродетели ≤ морали (06)
     if (group === "disciplines") return this.discipline(key);
     if (group === "willpower") return s.willpower.permanent;
+    if (group === "hunter") return s.hunter?.[key] ?? 0;            // Добродетели охотника
     if (group === "morality") return s.morality.value;
     if (group === "blood") return s.blood?.value ?? 0;
     return 0;
@@ -126,6 +129,7 @@ export class VtMActor extends Actor {
     if (group === "virtues") return game.i18n.localize(VTM20.virtues[this.virtueKey(key)]?.label ?? key);
     if (group === "disciplines") return Codex.discipline(key)?.name ?? this.items.find(i => i.type === "discipline" && i.system.key === key)?.name ?? key;
     if (group === "willpower") return t("Willpower");
+    if (group === "hunter") return Codex.hunter?.virtues?.[key] ?? key;
     if (group === "morality") return this.path?.name ?? t("Humanity");
     return path;
   }

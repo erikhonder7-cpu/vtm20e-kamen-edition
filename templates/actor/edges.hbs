@@ -1,0 +1,34 @@
+{{!-- II. Грани охотника (Hunter: The Reckoning, гл. 5): пути кредо по порядку, у каждой Грани — бросок и цена в Убеждённости. --}}
+<section class="tab r-pane r-disciplines r-edges {{tab.cssClass}}" data-tab="{{tab.id}}" data-group="{{tab.group}}">
+
+  <h2 class="r-h2"><span>{{localize "VTM20.Hunter.Edges"}}</span>
+    <span class="r-h2-tools">
+      {{#if editable}}<a class="r-h2-btn" data-action="library" data-kind="edge" data-tooltip="{{localize 'VTM20.Library.Open'}}"><i class="fa-solid fa-book-skull"></i> <span class="r-h2-lbl">{{localize "VTM20.Library.Open"}}</span></a>{{/if}}
+      <a class="r-h2-btn is-plain" data-action="openRules" data-tooltip="{{localize 'VTM20.Hunter.RulesHint'}}"><i class="fa-solid fa-book-open-reader"></i></a>
+    </span>
+  </h2>
+  <p class="r-note r-edge-budget">{{#each hunterInfo.virtues}}<span class="{{#if over}}is-over{{/if}}">{{label}} <b>{{used}} / {{value}}</b></span>{{/each}}
+    <em>{{localize "VTM20.Hunter.BudgetHint"}}</em></p>
+
+  {{#each edgePaths}}
+  <article class="r-edge-path {{#if primary}}is-primary{{/if}}">
+    <header class="r-edge-head">
+      <span class="r-edge-sigil"><i class="fa-solid {{#if primary}}fa-eye{{else}}fa-circle-dot{{/if}}"></i></span>
+      <span class="r-edge-title"><b>{{name}}</b> <small>{{virtue}}{{#if primary}} · {{localize "VTM20.Hunter.PrimaryPath"}}{{/if}}</small></span>
+    </header>
+    <ul class="r-edge-list">
+      {{#each edges}}
+      <li class="r-edge">
+        <span class="r-edge-lvl">{{rRoman level}}</span>
+        <span class="r-edge-main"><b>{{name}}</b> <small>{{pool}}{{#if conviction}} · {{localize "VTM20.Hunter.CostShort" n=conviction}}{{/if}}</small>
+          <span class="r-edge-text">{{text}}</span></span>
+        {{#if @root.editable}}<a class="r-vc-btn" data-action="edgeUse" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Hunter.UseHint'}}"><i class="fa-solid {{#if roll}}fa-dice-d10{{else}}fa-hand-sparkles{{/if}}"></i></a>
+        <a class="r-icon-btn is-danger" data-action="edgeDel" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
+      </li>
+      {{/each}}
+    </ul>
+  </article>
+  {{else}}
+  <div class="r-empty">{{localize "VTM20.Hunter.NoEdges"}}</div>
+  {{/each}}
+</section>

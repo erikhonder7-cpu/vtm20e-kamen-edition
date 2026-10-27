@@ -14,6 +14,7 @@
 import { SYSTEM_ID, SYSTEM_PATH } from "../config.mjs";
 import { rollPool, evaluate } from "../dice/roll.mjs";
 import { getClock, shortDate } from "./calendar.mjs";
+import { Codex } from "../data/codex.mjs";
 
 const { HandlebarsApplicationMixin, ApplicationV2 } = foundry.applications.api;
 const t = (k, d) => d ? game.i18n.format(`VTM20.Exorcist.${k}`, d) : game.i18n.localize(`VTM20.Exorcist.${k}`);
@@ -68,7 +69,7 @@ class ExorcistWindow extends HandlebarsApplicationMixin(ApplicationV2) {
     form: { handler: ExorcistWindow.#onSave, submitOnChange: true, closeOnSubmit: false },
     actions: { pray: ExorcistWindow.#onPray, soul: ExorcistWindow.#onSoul, hour: ExorcistWindow.#onHour, restart: ExorcistWindow.#onRestart,
       delHelper: ExorcistWindow.#onDelHelper, open: ExorcistWindow.#onOpen, medallion: ExorcistWindow.#onMedallion,
-      kila: ExorcistWindow.#onKila, michael: ExorcistWindow.#onMichael, zar: ExorcistWindow.#onZar,
+      kila: ExorcistWindow.#onKila, michael: ExorcistWindow.#onMichael, zar: ExorcistWindow.#onZar, sight: ExorcistWindow.#onSight,
       researchAdd: ExorcistWindow.#onResearchAdd, researchRoll: ExorcistWindow.#onResearchRoll, researchDel: ExorcistWindow.#onResearchDel }
   };
 
@@ -99,6 +100,7 @@ class ExorcistWindow extends HandlebarsApplicationMixin(ApplicationV2) {
         faith: ds.faith.permanent, torment: ds.torment.permanent, hostless: ds.hostless, abyss: ds.abyss,
         immune: ds.torment.permanent <= 3 } : null,
       faith: a.system.trueFaith ?? 0, wp: wp(a).temporary, wpPerm: wp(a).permanent, pool: this.faithPool,
+      isHunter: a.type === "hunter", conviction: a.system.hunter?.conviction ?? 0,
       helpers: this.helpers.map(h => ({ uuid: h.uuid, name: h.name, faith: h.system.trueFaith ?? 0, wp: wp(h).temporary })),
       failedHere: !!d && (e.failed ?? []).includes(d.uuid),
       soulDiff: d ? Math.min(10, ds.willpower.permanent + 2) : 0, soulLeft: 3 - (e.soulTries ?? 0),
@@ -244,6 +246,18 @@ class ExorcistWindow extends HandlebarsApplicationMixin(ApplicationV2) {
   }
   static async #onOpen(event, target) { (await fromUuid(target.dataset.uuid))?.sheet?.render(true); }
 
+  /** Охотник (Hunter: The Reckoning): второе зрение видит падшего поверх тела-носителя — Дом и облик; пункт Убеждённости. */
+  static async #onSight() {
+    const a = this.actor, d = this.demon;
+    if (a.type !== "hunter") return;
+    const { secondSight } = await import("./hunter.mjs");
+    const c = a.system.hunter?.conviction ?? 0;
+    await secondSight(a);
+    if (!d || c < 1) return;
+    const house = Codex.house(d.system.house)?.name ?? "", visage = Codex.house(d.system.house)?.visages?.[d.system.visage] ?? "";
+    return notice(a, "fa-eye", t("SightDemon", { who: esc(a.name), name: esc(d.name), house: esc(house || "—"), visage: esc(visage || "—") }));
+  }
+
   /** Медальон св. Бенедикта: пункт Воли — сцена без власти Проявления и призывов над разумом. */
   static async #onMedallion() {
     if (!(await this.actor.spendWillpower(1))) return;
@@ -332,7 +346,7 @@ class ExorcistWindow extends HandlebarsApplicationMixin(ApplicationV2) {
       if (!doc || doc === this.actor) return;
       if (doc.type === "demon") return this.actor.update({ "system.exorcist.target": doc.uuid, "system.exorcist.soul": "",
         "system.exorcist.soulTries": 0, "system.exorcist.wins": 0, "system.exorcist.hours": 0 });
-      if (doc.type === "mortal" && !(e.helpers ?? []).includes(doc.uuid))
+      if (["mortal", "hunter"].includes(doc.type) && !(e.helpers ?? []).includes(doc.uuid))
         return this.actor.update({ "system.exorcist.helpers": [...(e.helpers ?? []), doc.uuid] });
     });
   }

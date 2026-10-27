@@ -475,8 +475,27 @@ BUILDERS["hunter-merits"] = function () {
 BUILDERS["hunter-backgrounds"] = function () {
   const p = new Pack("hunter-backgrounds");
   for (const b of data("backgrounds").filter(b => b.line === "hunter"))
-    p.add({ name: b.name, type: "background", key: `hunter:${b.name}`, img: backgroundIcon(b.en) ?? undefined,
+    p.add({ name: b.name, type: "background", folder: "Hunters Hunted II", key: `hunter:${b.name}`, img: backgroundIcon(b.en) ?? undefined,
       system: { value: 1, source: b.en ?? "", description: b.html ?? "" } });
+  // Дополнения Охотника: Расплаты (data/hunter.json, tools/hunter_data.py)
+  for (const b of data("hunter").backgrounds)
+    p.add({ name: b.name, type: "background", folder: "Охотник: Расплата", key: `htr:${b.name}`, img: backgroundIcon(b.en) ?? undefined,
+      system: { value: 1, source: b.en ?? "", description: b.html ?? "" } });
+  return p;
+};
+
+/** Охотник: Расплата — глава правил и Грани по путям кредо (data/hunter.json — пересказ). */
+BUILDERS["hunter-rules"] = function () {
+  const p = new Pack("hunter-rules", "JournalEntry");
+  const h = data("hunter");
+  p.addBook({ name: h.rules.name, pages: h.rules.pages, key: `hunter-rules:${h.rules.key}` });
+  const roman = ["I", "II", "III", "IV", "V"], V = h.virtues;
+  const pages = h.creeds.map(c => ({ name: `${c.name} (${V[c.virtue]})`, html: h.edges.filter(e => e.path === c.key).map(e => {
+    const roll = !e.roll ? "без броска" : `${[e.roll.trait1 === "pick" ? "любой Атрибут" : e.roll.trait1 ? ru.VTM20.Attr?.[e.roll.trait1.split(".")[1]] ?? e.roll.trait1 : "",
+      e.roll.trait2.startsWith("hunter.") ? V[e.roll.trait2.slice(7)] : "Фехтование или Драка"].filter(Boolean).join(" + ")}, ${e.roll.byTarget ? "сложность по цели" : `сл. ${e.roll.difficulty}`}`;
+    return `<h3>${roman[e.level - 1]}. ${e.name}</h3><p><em>${roll}${e.conviction ? ` · Убеждённость ${e.conviction}` : ""}</em></p><p>${e.text}</p>`;
+  }).join("") }));
+  p.addBook({ name: "Грани охотников", pages, key: "hunter-rules:edges" });
   return p;
 };
 

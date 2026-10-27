@@ -109,6 +109,32 @@
     </div>
     {{/if}}
   </div>
+  {{else if hunterInfo}}
+  {{!-- Охотник (Hunter: The Reckoning, гл. 4): Убеждённость 0–10 и Добродетели охоты; Человечности у наделённых нет --}}
+  <div class="r-vcard r-vc-morality r-vc-hunter">
+    <div class="r-vc-head">
+      <h4 class="r-banner"><a data-action="openRules" data-tooltip="{{localize 'VTM20.Hunter.RulesHint'}}">{{localize "VTM20.Hunter.Conviction"}}</a></h4>
+      <div class="r-vc-status" data-tooltip="{{localize 'VTM20.Hunter.BaseHint' n=hunterInfo.base}}"><b>{{hunterInfo.conviction}}</b> <small>/ {{hunterInfo.base}}</small></div>
+    </div>
+    {{> rDots dots=hunterInfo.convDots cls="is-ten"}}
+    <div class="r-virtues r-hvirtues">
+      {{#each hunterInfo.virtues}}
+      <div class="r-virtue {{#if primary}}is-primary{{/if}} {{#if over}}is-over{{/if}}" data-tooltip="{{#if primary}}{{localize 'VTM20.Hunter.PrimaryHint'}} {{/if}}{{localize 'VTM20.Hunter.UsedHint' used=used value=value}}{{#if madness}} {{localize 'VTM20.Hunter.MadnessHint' n=madness}}{{/if}}">
+        <a class="r-trait-label" data-action="rollTrait" data-trait="hunter.{{key}}">{{label}}</a>
+        <span class="r-hv-num"><b>{{value}}</b>{{#if used}} <small>({{used}})</small>{{/if}}</span>
+        {{> rDots dots=dots cls="is-ten is-small"}}
+      </div>
+      {{/each}}
+    </div>
+    <div class="r-vc-tools">
+      <a class="r-vc-btn" data-action="hunterSight" data-tooltip="{{localize 'VTM20.Hunter.SightHint'}}"><i class="fa-solid fa-eye"></i> {{localize "VTM20.Hunter.Sight"}}</a>
+      <a class="r-vc-btn is-sq" data-action="hunterTest" data-tooltip="{{localize 'VTM20.Hunter.VirtueTestHint'}}"><i class="fa-solid fa-scale-balanced"></i></a>
+      {{#if editable}}<a class="r-vc-btn is-sq" data-action="hunterRestore" data-tooltip="{{localize 'VTM20.Hunter.RestoreHint'}}"><i class="fa-solid fa-rotate-left"></i></a>
+      {{#if hunterInfo.canTrade}}<a class="r-vc-btn is-on" data-action="hunterTrade" data-tooltip="{{localize 'VTM20.Hunter.TradeHint'}}"><i class="fa-solid fa-arrow-up"></i> {{localize "VTM20.Hunter.Trade"}}</a>{{/if}}{{/if}}
+      <a class="r-vc-btn is-sq {{#if system.exorcist.target}}is-on{{/if}}" data-action="exorcist" data-tooltip="{{localize 'VTM20.Exorcist.BtnHint'}}"><i class="fa-solid fa-hands-praying"></i></a>
+      {{#if hunterInfo.madness}}<span class="r-vc-hint is-right is-warn" data-tooltip="{{localize 'VTM20.Hunter.MadnessHint' n=hunterInfo.madness}}"><i class="fa-solid fa-brain"></i> {{hunterInfo.madness}}</span>{{/if}}
+    </div>
+  </div>
   {{else if thrallInfo}}
   {{!-- Слуга падшего (Damned and Deceived): Вера слуги, хозяин, Добродетели падших, грех по порогу постоянной Воли --}}
   <div class="r-vcard r-vc-morality is-thrall">

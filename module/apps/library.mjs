@@ -15,6 +15,7 @@ import { blockerFor } from "../data/trait-rules.mjs";
 import { weaponIcon, armorIcon, traitIcon, backgroundIcon } from "../data/icons.mjs";
 import { ritualFields } from "../data/ritual-text.mjs";
 import { investmentLimit, sealInvestment, pactDialog } from "./infernal.mjs";
+import { edgeReasons, poolLabel, H as hunterData } from "./hunter.mjs";
 
 const { HandlebarsApplicationMixin, ApplicationV2 } = foundry.applications.api;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -39,7 +40,7 @@ const byLevel = powers => {
   return rows;
 };
 const ICON = type => `systems/${SYSTEM_ID}/assets/icons/${type}.svg`;
-const KINDS = ["discipline", "path", "ritual", "combo", "merit", "flaw", "background", "derangement", "investment", "pact"];
+const KINDS = ["discipline", "path", "ritual", "combo", "merit", "flaw", "background", "derangement", "investment", "pact", "edge"];
 
 /** Возможные цены черты: «1 / 3» → [1, 3], «1–6» → [1…6], «2» → [2]. */
 function costsOf(m) {
@@ -133,7 +134,7 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
       discipline: () => this.#disciplines(), path: () => this.#paths(), ritual: () => this.#rituals(), combo: () => this.#combos(),
       merit: () => this.#traits("merit"), flaw: () => this.#traits("flaw"),
       background: () => this.#backgrounds(), derangement: () => this.#derangements(), investment: () => this.#investments(),
-      pact: () => this.#pacts()
+      pact: () => this.#pacts(), edge: () => this.#edges()
     }[kind];
     const entries = build?.() ?? [];
 
@@ -283,7 +284,8 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
     };
     const ghoulOk = !this.actor || this.actor.type === "ghoul";
     const line = VTM20.traitLine(this.actor?.type);           // у демона — только черты падших, у прочих — без них
-    return Codex.merits.filter(m => m.kind === kind && Codex.visible(m) && (!m.ghoul || ghoulOk) && (m.line ?? "") === line).map(m => {
+    const hunter = this.actor?.type === "hunter";             // охотнику — и общие черты смертных, и охотничьи
+    return Codex.merits.filter(m => m.kind === kind && Codex.visible(m) && (!m.ghoul || ghoulOk) && ((m.line ?? "") === line || (hunter && !m.line))).map(m => {
       const costs = costsOf(m);
       const blocker = blockerFor(m.name, mine);
       return this.#entry({
@@ -322,6 +324,22 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
       tags: [{ label: x.source }],
       reasons: x.tier === "v20" && lim.v20 >= lim.max ? [L("InvLimit", { n: lim.max })] : []
     }));
+  }
+
+  /** Грани охотника (data/hunter.json): по путям кредо; свой путь — первым; причины, если взять нельзя. */
+  #edges() {
+    const a = this.actor, mine = new Set(a?.system.hunter?.edges ?? []), creed = a?.system.hunter?.creed;
+    const H = hunterData(), order = H.creeds.map(c => c.key);
+    return H.edges.map((e, i) => {
+      const c = H.creeds.find(x => x.key === e.path);
+      const cost = e.conviction ? ` · ${game.i18n.format("VTM20.Hunter.CostShort", { n: e.conviction })}` : "";
+      return this.#entry({
+        id: String(i), name: e.name, has: mine.has(e.key), text: `<p><em>${a ? poolLabel(a, e) : ""}${cost}</em></p><p>${e.text}</p>`,
+        group: e.path, groupName: `${c?.name ?? e.path} · ${H.virtues[e.virtue]}`, groupOrder: e.path === creed ? -1 : order.indexOf(e.path),
+        level: e.level, levels: String(e.level), order: e.level, roman: ROMAN[e.level - 1],
+        tags: [{ label: H.virtues[e.virtue] }], reasons: a?.type === "hunter" && !mine.has(e.key) ? edgeReasons(a, e.key) : []
+      });
+    });
   }
 
   /** Готовые договоры (data/pact-templates.json): образцы справочника и домашние заготовки; «Взять» — диалог договора. */
@@ -446,6 +464,13 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   static async #onTake(event, target) {
+    if (this.o.kind === "edge") {
+      const e = hunterData().edges[Number(target.closest("[data-entry]")?.dataset.entry)];
+      if (!e || this.actor?.type !== "hunter") return;
+      await this.actor.update({ "system.hunter.edges": [...new Set([...(this.actor.system.hunter?.edges ?? []), e.key])] });
+      ui.notifications.info(L("Added", { name: e.name }));
+      return this.render();
+    }
     if (this.o.kind === "pact") {
       const x = Codex["pact-templates"]?.[Number(target.closest("[data-entry]")?.dataset.entry)];
       if (x && this.actor) await pactDialog(this.actor, null, x);

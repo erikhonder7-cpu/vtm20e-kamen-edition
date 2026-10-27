@@ -115,7 +115,7 @@ class CoterieWindow extends HandlebarsApplicationMixin(ApplicationV2) {
           };
         }),
         canAdd: POOLABLE.filter(bg => !(bg in (c.pools ?? {}))),
-        candidates: game.actors.filter(a => ["vampire", "ghoul", "mortal", "demon"].includes(a.type) && !(c.members ?? []).includes(a.id))
+        candidates: game.actors.filter(a => ["vampire", "ghoul", "mortal", "demon", "hunter"].includes(a.type) && !(c.members ?? []).includes(a.id))
           .sort((x, y) => (y.hasPlayerOwner - x.hasPlayerOwner) || x.name.localeCompare(y.name, "ru")).map(a => ({ id: a.id, name: a.name })),
         primaryValue
       };

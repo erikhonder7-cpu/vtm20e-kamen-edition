@@ -687,7 +687,7 @@ const canEdit = it => game.user.isGM || !!it?.mine;
 
 /* ── Персонажи ────────────────────────────────────────────────────────── */
 
-const CHAR_TYPES = ["vampire", "ghoul", "mortal", "demon", "creature"];
+const CHAR_TYPES = ["vampire", "ghoul", "mortal", "demon", "hunter", "creature"];
 
 /** Персонажи на карте текущего города, которых видит этот пользователь. */
 function mapActors() {

@@ -69,14 +69,17 @@ export async function newHost(actor) {
       <label class="r-check is-span2"><input type="checkbox" name="willing"> ${t("Willing")}</label>` : ""}
       <label class="r-f is-span2"><span>${t("Body")}</span><input type="text" name="body" placeholder="${esc(t("BodyPh"))}"></label>
       <label class="r-check is-span2"><input type="checkbox" name="tied"> ${t("Tied")}</label>
+      <label class="r-check is-span2" data-tooltip="${esc(t("HunterHint"))}"><input type="checkbox" name="hunter"> ${t("Hunter")}</label>
     </div>`;
   const v = await foundry.applications.api.DialogV2.prompt({
     window: { title: t("New") }, classes: ["vtm20", "r-dialog", "r-choice-dialog"], position: { width: 480 }, content,
     ok: { label: t("NewTry"), callback: (ev, btn) => { const f = btn.form.elements;
-      return { kind: f.kind.value, thrall: thralls[Number(f.thrall?.value)] ?? null, willing: !!f.willing?.checked, body: f.body.value.trim(), tied: !!f.tied.checked }; } }
+      return { kind: f.kind.value, thrall: thralls[Number(f.thrall?.value)] ?? null, willing: !!f.willing?.checked, body: f.body.value.trim(), tied: !!f.tied.checked, hunter: !!f.hunter?.checked }; } }
   }).catch(() => null);
   if (!v) return null;
   const body = v.kind === "thrall" ? v.thrall?.name ?? "" : v.body;
+  // охотник, потративший Убеждённость на сцену (Hunter: The Reckoning, гл. 4): вселиться в него нельзя
+  if (v.hunter && v.kind !== "object") return notice(actor, "fa-eye", t("HunterRepels", { name: esc(actor.name), body: esc(body || t("KindHuman")) }), "is-sin");
   // слуга по доброй воле — без броска
   let ok = v.kind === "thrall" && v.willing, res = null;
   if (!ok) {

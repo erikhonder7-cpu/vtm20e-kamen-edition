@@ -3,6 +3,7 @@
   <div class="r-exo-facts">
     <div class="r-badge"><span>{{localize "VTM20.Exorcist.Faith"}}</span><b>{{faith}}</b><em>{{localize "VTM20.Exorcist.PoolIs" n=pool}}</em></div>
     <div class="r-badge"><span>{{localize "VTM20.Willpower"}}</span><b>{{wp}}</b><em>{{localize "VTM20.Exorcist.OfPerm" n=wpPerm}}</em></div>
+    {{#if isHunter}}<div class="r-badge"><span>{{localize "VTM20.Hunter.Conviction"}}</span><b>{{conviction}}</b><em>{{localize "VTM20.Exorcist.HunterNote"}}</em></div>{{/if}}
     {{#if demon}}<div class="r-badge is-demon"><span>{{demon.name}}</span><b>{{demon.wp}}</b><em>{{localize "VTM20.Exorcist.DemonStats" w=demon.wpPerm f=demon.faith t=demon.torment}}</em></div>{{/if}}
   </div>
 
@@ -57,6 +58,7 @@
 
   <h4 class="r-h4">{{localize "VTM20.Exorcist.Weapons"}}</h4>
   {{#if editable}}<div class="r-exo-acts">
+    {{#if isHunter}}<a class="r-btn is-accent" data-action="sight" data-tooltip="{{localize 'VTM20.Exorcist.SightHint'}}"><i class="fa-solid fa-eye"></i> {{localize "VTM20.Hunter.Sight"}}</a>{{/if}}
     <a class="r-btn" data-action="michael" data-tooltip="{{localize 'VTM20.Exorcist.MichaelHint'}}"><i class="fa-solid fa-shield-halved"></i> {{localize "VTM20.Exorcist.Michael"}}{{#unless michaelReady}} <small>({{michaelNext}})</small>{{/unless}}</a>
     <a class="r-btn" data-action="medallion" data-tooltip="{{localize 'VTM20.Exorcist.MedallionHint'}}"><i class="fa-solid fa-medal"></i> {{localize "VTM20.Exorcist.Medallion"}}</a>
     <a class="r-btn" data-action="kila" data-tooltip="{{localize 'VTM20.Exorcist.KilaHint'}}"><i class="fa-solid fa-khanda"></i> {{localize "VTM20.Exorcist.Kila"}}</a>

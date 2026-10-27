@@ -799,6 +799,39 @@ try {
     if (!r.abyss || r.zar !== 0) throw new Error(`Зар: Бездна ${r.abyss}, zar ${r.zar}`);
   });
 
+  await check("Охотник: мастер, Грани, Убеждённость, второе зрение", async () => {
+    const id = await temp("E2E — охотник", "hunter");
+    const r = await page.evaluate(async id => {
+      const SYS = game.system.id, a = game.actors.get(id), wait = ms => new Promise(r => setTimeout(r, ms));
+      const C = await import(`/systems/${SYS}/module/apps/creator.mjs`), H = await import(`/systems/${SYS}/module/apps/hunter.mjs`);
+      await C.openCreator(a);
+      let w; for (let i = 0; i < 30 && !(w = [...foundry.applications.instances.values()].find(x => x instanceof C.VtMCreator && x.actor === a)); i++) await wait(150);
+      Object.assign(w.st, { creed: "judgment", virt: { conscience: 1, selfControl: 0, courage: 2 }, edges: ["judgment|1", "martyrdom|1"] });
+      w.st.free.morality = 2;
+      const steps = w.steps.join(","), noEdge = w.edgeIssues("judgment|3").length;
+      await w.close();
+      // как мастер пишет охотника — без диалога «есть замечания»
+      await a.update({ "system.hunter": { creed: w.st.creed, mercy: w.hunterVirtue("mercy"), vision: w.hunterVirtue("vision"), zeal: w.hunterVirtue("zeal"),
+        conviction: w.morality, edges: [...w.st.edges] } });
+      await a.setFlag(SYS, "created", true);
+      const before = a.system.hunter.conviction;
+      await H.secondSight(a);
+      const sight = before - a.system.hunter.conviction;
+      const reasons = H.edgeReasons(a, "vengeance|1");          // Рвение 2 уже занято Гранью Суда I (1) — Мщение I ещё влезает
+      const reasons2 = H.edgeReasons(a, "judgment|2");          // 1 + 2 > 2
+      await a.sheet.render(true); await wait(800);
+      const tab = !!a.sheet.element.querySelector('nav [data-tab="disciplines"]'), card = !!a.sheet.element.querySelector(".r-vc-hunter");
+      await a.sheet.close();
+      return { steps, noEdge, conv: before, sight, reasons: reasons.length, reasons2: reasons2.length, tab, card, cls: a.sheet.options.classes };
+    }, id);
+    if (!r.steps.includes("edges")) throw new Error(`шаги мастера: ${r.steps}`);
+    if (!r.noEdge) throw new Error("Грань III без II и без очков — должна быть недоступна");
+    if (r.conv !== 5) throw new Error(`Убеждённость Судьи 3 + 2 = ${r.conv}`);
+    if (r.sight !== 1) throw new Error(`второе зрение: −${r.sight}`);
+    if (r.reasons !== 0 || r.reasons2 === 0) throw new Error(`бюджет Граней: ${r.reasons}/${r.reasons2}`);
+    if (!r.tab || !r.card) throw new Error("лист охотника без Граней или Убеждённости");
+  });
+
   await check("Новый мир: «Город» без Парижа", async () => {
     await setWorld(false, "", await page.evaluate(() => game.system.version));
     // game.ready встаёт раньше, чем отработает асинхронный ready системы (Codex.load, keepParis): ждём решения

@@ -170,10 +170,10 @@ VTM20.meritCategories = {
 };
 
 /** Линия черт и Дополнений типа персонажа: вампиры, гули и смертные — общая (""), у демонов своя (data/demon-*.json). */
-VTM20.traitLine = type => ["demon"].includes(type) ? type : "";
+VTM20.traitLine = type => ["demon", "hunter"].includes(type) ? type : "";
 
 /** Знак типа персонажа (корешок листа, ворота создания, мастер), когда нет герба клана или секты. */
-VTM20.typeSigil = type => `systems/vtm20e-kamen-edition/assets/ui/${({ demon: "fallen-sigil", ghoul: "ghoul-sigil", mortal: "mortal-sigil" })[type] ?? "vampire-sigil"}.svg`;
+VTM20.typeSigil = type => `systems/vtm20e-kamen-edition/assets/ui/${({ demon: "fallen-sigil", ghoul: "ghoul-sigil", mortal: "mortal-sigil", hunter: "hunter-sigil" })[type] ?? "vampire-sigil"}.svg`;
 
 /** Чем атакуют: пул «Ловкость + …» и подпись. */
 VTM20.weaponKinds = {
@@ -238,5 +238,6 @@ VTM20.currencies = {
 VTM20.kindredOnlyBackgrounds = ["Domain", "Rituals", "Generation", "Herd", "Status", "Black Hand Membership", "Anarch Status",
   "Memento de Morte", "Clan Prestige", "Age", "Elder Status", "Elder Generation", "Pack Recognition", "Rank", "Anunnaki Status"];
 /** Доступен ли факт биографии персонажу этого типа. */
-VTM20.backgroundAllowed = (b, type) => (b?.line ?? "") === VTM20.traitLine(type)
+// охотник — и общие факты смертных (линия ""), и свои (линия «hunter»), но не сектантские
+VTM20.backgroundAllowed = (b, type) => ((b?.line ?? "") === VTM20.traitLine(type) || (type === "hunter" && !b?.line && !b?.sect && !b?.sabbat))
   && (type === "vampire" || !!b?.line || !VTM20.kindredOnlyBackgrounds.includes(b?.en));

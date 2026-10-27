@@ -1,0 +1,201 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   Лист охотника (Hunter: The Reckoning): каркас — общий, материал свой — тёплый чёрный, обожжённый янтарь
+   и сигнальный огонь; от падших и Привязанных отличают знаки мелом — пунктир рамок, засечки углов. Собран из темы смертного (mortal.css):
+   те же места, другие краски; класс r-type-hunter ставит module/ui/themes.mjs.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.vtm20.r-type-hunter {
+  --h-amber: #e0893a; --h-amber-l: #ffd59c; --h-ash: #8a5a32; --h-ash-d: #2a1c12;
+  --h-steel: #c46f2a; --h-steel-d: #2e2016;
+  --r-ink: #efe5d6;
+  --r-ink-2: #c9b9a4;
+  --r-muted: #9a8670;
+  --r-line: rgba(222, 160, 98, .1);
+  --r-line-2: rgba(222, 160, 98, .2);
+  --r-accent: #f2a356;
+  --r-red-t: var(--r-accent);
+  --r-blood: #9b4f1d; --r-blood-l: #e0893a; --r-blood-d: #2a1c12;
+  --r-dot-border: rgba(226, 150, 80, .3);
+  --r-dot-fill: radial-gradient(circle at 38% 32%, #ffd59c, #b0682a 55%, #3d2a1b);
+  --r-gap-ring: #0d0a07;
+  --r-card-bg: rgba(222, 160, 98, .025);
+  --r-option-bg: #18120d;
+  --r-bg:
+    radial-gradient(ellipse 90% 45% at 50% -8%, rgba(176, 98, 38, .13), transparent 60%),
+    radial-gradient(ellipse 80% 35% at 50% 108%, rgba(128, 72, 32, .14), transparent 65%),
+    radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(6, 3, 0, .55) 100%),
+    url("../assets/ui/paper-dark.svg"),   
+    linear-gradient(180deg, #16110c, #0b0806);
+}
+body.r-theme-light .vtm20.r-type-hunter {
+  --r-ink: #21170f; --r-ink-2: #4d3a2a; --r-muted: #7a6450;
+  --r-line: rgba(40, 26, 14, .15); --r-line-2: rgba(40, 26, 14, .3);
+  --r-accent: #7a3f14; --r-red-t: var(--r-accent);
+  --r-dot-fill: radial-gradient(circle at 38% 32%, #e8b47c, #9b4f1d 55%, #3d2a1b);
+  --r-option-bg: #f3eadc; --r-gap-ring: #efe4d4;
+  --r-bg:
+    radial-gradient(ellipse 90% 45% at 50% -8%, rgba(120, 60, 22, .12), transparent 60%),
+    radial-gradient(ellipse at 50% 50%, transparent 50%, rgba(60, 36, 18, .2) 100%),
+    url("../assets/ui/paper.svg"),
+    linear-gradient(180deg, #f1e7d8, #e5d6c1);
+}
+.vtm20.r-type-hunter .r-rail {
+  background:
+    radial-gradient(ellipse 120% 40% at 50% 0%, rgba(176, 98, 38, .16), transparent 70%),
+    radial-gradient(ellipse 140% 30% at 50% 100%, rgba(128, 72, 32, .12), transparent 70%),
+    linear-gradient(180deg, #130e0a, #0b0806 60%, #0b0806);
+  border-right-color: #2c1f15;
+}
+.vtm20.r-type-hunter .r-rail::after { background: repeating-linear-gradient(180deg, rgba(224, 137, 58, .14) 0 2px, transparent 2px 8px); }
+.vtm20.r-type-hunter .r-rail-sigil {
+  border-color: rgba(224, 137, 58, .45); background: radial-gradient(circle at 50% 30%, #21170f, #0c0906 72%);
+  box-shadow: 0 0 0 3px #0b0806, 0 0 0 4px rgba(176, 98, 38, .5), 0 0 22px rgba(224, 137, 58, .22), inset 0 2px 6px rgba(6, 3, 0, .6);
+}
+.vtm20.r-type-hunter .r-rail-sigil::before { background: var(--h-amber); box-shadow: 0 0 6px rgba(255, 205, 140, .7); }
+.vtm20.r-type-hunter .r-rtab.active { color: #ffe9cc; background: linear-gradient(90deg, rgba(224, 137, 58, .16), rgba(176, 98, 38, .05) 70%, transparent); }
+.vtm20.r-type-hunter .r-rtab.active .r-rtab-coin {
+  color: #140d07; border-color: var(--h-amber-l); background: radial-gradient(circle at 50% 30%, #ffd59c, #b0682a 70%);
+  box-shadow: 0 0 0 2px #0b0806, 0 0 0 3px rgba(255, 205, 140, .4), 0 0 16px rgba(255, 205, 140, .35);
+}
+.vtm20.r-type-hunter .r-rtab.active::before { background: var(--h-amber); box-shadow: 0 0 8px rgba(255, 205, 140, .6); }
+.vtm20.r-type-hunter .r-rtab.active::after { background: var(--h-steel-d); border-color: var(--h-amber); box-shadow: 0 0 6px rgba(255, 205, 140, .45); }
+.vtm20.r-type-hunter .r-rail-tool:hover { color: #fff0d8; border-color: var(--h-amber); background: rgba(224, 137, 58, .16); }
+.vtm20.r-type-hunter .r-portrait-frame { box-shadow: 0 0 0 1px rgba(224, 137, 58, .35), 0 6px 18px rgba(6, 3, 0, .6); }
+.vtm20.r-type-hunter .r-seal { background: #0b0806; border-color: rgba(222, 160, 98, .22); border-top-color: var(--h-amber); }
+.vtm20.r-type-hunter .r-seal-num.r-seal-icon { color: var(--h-amber-l); }
+.vtm20.r-type-hunter .r-seal-cap { color: #c46f2a; }
+.vtm20.r-type-hunter .r-motto { color: rgba(224, 137, 58, .75); }
+.vtm20.r-type-hunter .r-kicker-dia { background: var(--h-amber); }
+.vtm20.r-type-hunter .r-assignat { border-top-color: var(--h-amber); background: linear-gradient(180deg, rgba(128, 72, 32, .08), rgba(6, 3, 0, .3) 60%); }
+.vtm20.r-type-hunter .r-act.is-hot:hover { background: rgba(224, 137, 58, .14); }
+.vtm20.r-type-hunter .r-act:hover i { color: var(--h-amber-l); }
+.vtm20.r-type-hunter .r-vcard::before, .vtm20.r-type-hunter .r-tcol::before { background: linear-gradient(90deg, var(--h-amber), rgba(224, 137, 58, 0)); width: 54px; }
+.vtm20.r-type-hunter .r-vcard::after, .vtm20.r-type-hunter .r-tcol::after {
+  content: ""; position: absolute; right: -1px; bottom: -1px; width: 22px; height: 1px; background: rgba(176, 98, 38, .55);
+}
+.vtm20.r-type-hunter .r-vitals-wrap.is-closed .r-vitals-strip { border-top-color: var(--h-amber); }
+.vtm20.r-type-hunter .r-vitals-wrap.is-closed .r-vitals-strip:hover { background: rgba(224, 137, 58, .1); }
+.vtm20.r-type-hunter .r-trait:hover { background: linear-gradient(90deg, rgba(224, 137, 58, .1), rgba(176, 98, 38, .03) 60%, transparent); }
+.vtm20.r-type-hunter .r-buy:hover { color: #140d07; background: var(--h-amber); border-color: var(--h-amber-l); }
+.vtm20.r-type-hunter .r-foot {
+  background:
+    linear-gradient(90deg, transparent 0 18px, rgba(224, 137, 58, .3) 18px 19px, transparent 19px),
+    repeating-linear-gradient(180deg, transparent 0 9px, rgba(222, 160, 98, .035) 9px 10px),
+    #0b0806;
+}
+.vtm20.r-type-hunter .r-foot-item.is-xp { border-color: rgba(224, 137, 58, .45); background: rgba(224, 137, 58, .1); }
+.vtm20.r-type-hunter .r-foot-item.is-xp i { color: var(--h-amber); }
+.application.vtm20.r-type-hunter { border-color: #2f2117; --background: #120d09; --color-header-background: #0b0806; --color-border: #2f2117; }
+.application.vtm20.r-type-hunter .window-header { background: linear-gradient(180deg, #0f0b08, #0b0806); border-bottom-color: #2a1c12; }
+.application.vtm20.r-type-hunter .window-header::after { background: linear-gradient(90deg, rgba(176, 98, 38, .1), #c46f2a 30%, #e0893a 60%, rgba(128, 72, 32, .1)); opacity: .6; }
+.application.vtm20.r-type-hunter .window-header .window-icon { color: var(--h-amber); }
+.vtm20.r-type-hunter .r-diff.is-active { color: #140d07; background: linear-gradient(180deg, #ffd59c, #b0682a); border-color: var(--h-amber-l); }
+.vtm20.r-type-hunter .r-diff.is-base { border-color: var(--h-amber); }
+.vtm20.r-type-hunter .r-roll-pool i, .vtm20.r-type-hunter .r-plus { color: var(--h-amber); }
+.vtm20.r-type-hunter .r-odds-bar .is-success { background: linear-gradient(180deg, #f6c17e, #cf8740); }
+.vtm20.r-type-hunter .r-odds-bar .is-failure { background: #30221a; }
+.vtm20.r-type-hunter .r-odds-bar .is-botch { background: linear-gradient(180deg, #8b4a1e, #3c2a1d); }
+.vtm20.r-type-hunter .r-check-banner { border-left-color: var(--h-amber); }
+.vtm20.r-type-hunter button.is-primary, .vtm20.r-type-hunter .r-btn.is-primary { color: #140d07; background: linear-gradient(180deg, #ffe9cc, #9a8670); border-color: var(--h-amber-l); }
+.vtm20.r-type-hunter button.is-primary:hover, .vtm20.r-type-hunter .r-btn.is-primary:hover { color: #000; background: linear-gradient(180deg, #f0b46c, #a8642b); box-shadow: 0 0 12px rgba(255, 205, 140, .35); }
+.r-roll-card.r-type-hunter {
+  --r-accent: #f2a356; --r-red-t: #f2a356; --r-muted: #9a8670; --r-line: rgba(222, 160, 98, .12); --r-line-2: rgba(222, 160, 98, .22);
+  background: radial-gradient(ellipse 90% 60% at 50% 0%, rgba(176, 98, 38, .12), transparent 70%),
+    radial-gradient(ellipse 90% 50% at 50% 110%, rgba(128, 72, 32, .12), transparent 70%),
+    linear-gradient(180deg, #19130e, #110c09);
+  border-color: #30221a; border-left-color: #3c2a1d;
+}
+.r-roll-card.r-type-hunter::before { width: 54px; background: linear-gradient(90deg, #e0893a, rgba(224, 137, 58, 0)); }
+.r-roll-card.r-type-hunter::after { content: ""; position: absolute; right: -1px; bottom: -1px; width: 22px; height: 1px; background: rgba(176, 98, 38, .6); }
+.r-roll-card.r-type-hunter .r-card-img { border-color: rgba(224, 137, 58, .5); filter: none; }
+.r-roll-card.r-type-hunter.is-success { border-left-color: #d07c34; }
+.r-roll-card.r-type-hunter.is-exceptional, .r-roll-card.r-type-hunter.is-phenomenal { border-left-color: #ffd59c; box-shadow: inset 3px 0 10px -4px rgba(255, 205, 140, .6); }
+.r-roll-card.r-type-hunter.is-botch { border-color: #33251b; border-left-color: #8b4a1e; background: linear-gradient(180deg, #19130e, #100b08); }
+.r-roll-card.r-type-hunter .r-die.is-miss { background: #21170f; color: #9b4f1d; }
+.r-roll-card.r-type-hunter .r-die.is-hit { background: linear-gradient(180deg, #efe5d6, #d9a26a); color: #110c09; }
+.r-roll-card.r-type-hunter .r-die.is-ten { background: radial-gradient(circle at 50% 35%, #f6c17e, #c48244 70%); color: #110c09; }
+.r-roll-card.r-type-hunter .r-die.is-double::before { color: #4d3624; }
+.r-roll-card.r-type-hunter .r-die.is-one { background: #3c2a1d; color: #f3dcc0; }
+.r-roll-card.r-type-hunter .r-die.is-will { background: #372719; }
+.r-roll-card.r-type-hunter .r-card-tally .is-one, .r-roll-card.r-type-hunter .r-card-tally .is-ten em { color: #b98a5c; }
+.r-roll-card.r-type-hunter.is-exceptional .r-outcome-ribbon, .r-roll-card.r-type-hunter.is-phenomenal .r-outcome-ribbon { color: #140d07; background: linear-gradient(180deg, #ffd59c, #a8642b); border-color: #ffd59c; }
+.r-roll-card.r-type-hunter.is-botch .r-outcome-ribbon { color: #ffe9cc; background: #57391f; border-color: #8b4a1e; }
+.r-roll-card.r-type-hunter .r-card-hint { border-left-color: rgba(224, 137, 58, .45); }
+.r-item-card.r-type-hunter { --r-accent: #f2a356; border-color: #30221a; border-left: 3px solid #e0893a;
+  background: radial-gradient(ellipse 90% 60% at 50% 0%, rgba(176, 98, 38, .12), transparent 70%), linear-gradient(180deg, #19130e, #110c09); }
+.r-item-card.r-type-hunter .r-card-img { border-color: rgba(224, 137, 58, .5); background: #110c09; filter: none; }
+.r-item-card.r-type-hunter .r-card-kicker { color: #e0893a; }
+.r-notice.r-type-hunter { border-left-color: #e0893a; background: linear-gradient(90deg, rgba(224, 137, 58, .12), rgba(6, 3, 0, .25) 60%); }
+.r-notice.r-type-hunter i { color: #ffd59c; }
+.r-notice.r-type-hunter.is-form { font-family: "Prata", Georgia, serif; font-style: normal; font-size: 13.5px; letter-spacing: .2px;
+  border: 1px solid rgba(224, 137, 58, .35); border-left-width: 3px; box-shadow: inset 0 0 18px rgba(224, 150, 80, .12); }
+.r-item-card.r-type-hunter::before { width: 54px; background: linear-gradient(90deg, #e0893a, rgba(224, 137, 58, 0)); }
+.vtm20.r-type-hunter .r-mode-opt.is-active, .vtm20.r-type-hunter .r-mode-opt:has(input:checked) {
+  color: #fff1de; background: linear-gradient(180deg, rgba(120, 60, 22, .55), rgba(48, 28, 14, .55)); box-shadow: inset 0 -2px 0 #e0893a; }
+.vtm20.r-type-hunter .r-mode-opt.is-active i, .vtm20.r-type-hunter .r-mode-opt:has(input:checked) i { color: #ffd59c; }
+.application.r-type-hunter {
+  --color-warm-1: #e0893a; --color-warm-2: #9b4f1d;
+  --color-border-highlight: #e0893a; --color-border-highlight-alt: #c46f2a;
+  --color-text-hyperlink: #f2a356; --color-text-selection-bg: #9b4f1d;
+}
+.vtm20.r-type-hunter.r-choice-dialog .r-choice:has(input:checked) { border-color: #e0893a; background: rgba(224, 137, 58, .12); }
+.vtm20.r-type-hunter.r-choice-dialog .r-choice input[type=radio]:checked { border-color: #e0893a; background: radial-gradient(circle, #ffd59c 0 3.5px, transparent 4px); }
+.vtm20.r-type-hunter .r-cr-step.is-done .r-cr-step-coin, .vtm20.r-type-hunter .r-cr-step.is-active .r-cr-step-coin { color: #e0893a; }
+.vtm20.r-type-hunter .r-cr-step.is-active a { background: linear-gradient(90deg, rgba(224, 137, 58, .16), transparent); }
+.vtm20.r-type-hunter .r-cr-step.is-active a::before { background: #e0893a; }
+.vtm20.r-type-hunter .r-cr-tile.is-active, .vtm20.r-type-hunter .r-cr-clan.is-active, .vtm20.r-type-hunter .r-cr-bg.is-on, .vtm20.r-type-hunter .r-cr-mf.is-on {
+  border-color: rgba(224, 137, 58, .55); background: rgba(224, 137, 58, .08); box-shadow: inset 2px 0 0 #e0893a; }
+.vtm20.r-type-hunter .r-cr-prio.is-active { color: #140d07; background: linear-gradient(180deg, #ffd59c, #b0682a); }
+.vtm20.r-type-hunter .r-cr-dot.is-alloc { border-color: #e0893a; }
+.vtm20.r-type-hunter .r-cr-dot.is-free { border-color: #d07c34; background: radial-gradient(circle at 38% 32%, #f8d3a2, #c46f2a 70%); }
+.vtm20.r-type-hunter .r-cr-bg.is-on .r-cr-take, .vtm20.r-type-hunter .r-cr-mf.is-on .r-cr-mf-take { color: #140d07; background: #e0893a; border-color: #ffd59c; }
+.vtm20.r-type-hunter .r-cr-added:not(:empty) { color: #140d07; background: #e0893a; }
+.vtm20.r-type-hunter .r-cr-ledger li.is-over i { background-image: linear-gradient(90deg, #3c2a1d, #b98a5c); }
+.vtm20.r-type-hunter .r-cr-problems { border-left-color: #8b4a1e; background: rgba(128, 72, 32, .1); }
+
+/* Остатки вампирской крови в общем каркасе: точки, вкладка, печать — серебро и белое (штрафы за раны остаются красными) */
+.vtm20.r-type-hunter .r-dot.is-filled { border-color: #f0a65a; box-shadow: 0 0 4px rgba(255, 214, 160, .22); }
+.vtm20.r-type-hunter .r-rtab.active::before { background: #f2b26a; box-shadow: 0 0 8px rgba(255, 214, 160, .45); }
+.vtm20.r-type-hunter .r-seal-num.r-seal-icon { color: #f0a65a; }
+.vtm20.r-type-hunter .r-tile.is-active, .vtm20.r-type-hunter .r-extra-pool.is-hot {
+  background: radial-gradient(ellipse at 50% 120%, rgba(245, 180, 110, .2), rgba(0, 0, 0, .25) 70%); }
+
+/* ── Охотник: Убеждённость, Добродетели охоты, Грани ───────────────────── */
+.vtm20.r-type-hunter .r-vc-hunter .r-vc-status b { color: #ffd59c; text-shadow: 0 0 10px rgba(255, 170, 80, .55); }
+.vtm20.r-type-hunter .r-vc-hunter .r-vc-status small { color: var(--r-muted); }
+.vtm20.r-type-hunter .r-hvirtues { display: grid; grid-template-columns: 1fr; gap: 2px; }
+.vtm20.r-type-hunter .r-hvirtues .r-virtue { display: grid; grid-template-columns: 96px 34px 1fr; align-items: center; gap: 6px; }
+.vtm20.r-type-hunter .r-hvirtues .r-virtue.is-primary .r-trait-label { color: #ffd59c; }
+.vtm20.r-type-hunter .r-hvirtues .r-virtue.is-primary .r-trait-label::before { content: "◆ "; color: #e0893a; font-size: 9px; }
+.vtm20.r-type-hunter .r-hvirtues .r-virtue.is-over .r-hv-num b { color: var(--r-blood-l, #ff6b5a); }
+.vtm20.r-type-hunter .r-hv-num { font-family: var(--r-display); font-size: 15px; text-align: right; }
+.vtm20.r-type-hunter .r-hv-num small { color: var(--r-muted); font-size: 11px; }
+.vtm20.r-type-hunter .r-hvirtues .r-dots.is-small .r-dot { width: 9px; height: 9px; }
+.vtm20.r-type-hunter .r-vc-hint.is-warn { color: #ff7b6b; }
+.vtm20.r-type-hunter .r-df-creed select { font-family: var(--r-display); color: #ffd59c; }
+
+.vtm20.r-type-hunter .r-edge-budget { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: baseline; }
+.vtm20.r-type-hunter .r-edge-budget .is-over b { color: #ff6b5a; }
+.vtm20.r-type-hunter .r-edge-budget em { flex-basis: 100%; }
+.vtm20.r-type-hunter .r-edge-path { position: relative; margin: 0 0 12px; border: 1px solid var(--r-line); background: var(--r-card-bg); }
+.vtm20.r-type-hunter .r-edge-path::before { content: ""; position: absolute; left: -1px; top: -1px; width: 54px; height: 2px; background: linear-gradient(90deg, #e0893a, transparent); }
+.vtm20.r-type-hunter .r-edge-path.is-primary { border-color: rgba(224, 137, 58, .35); box-shadow: inset 3px 0 0 #e0893a; }
+.vtm20.r-type-hunter .r-edge-head { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-bottom: 1px solid var(--r-line); }
+.vtm20.r-type-hunter .r-edge-sigil { width: 26px; height: 26px; display: grid; place-items: center; border-radius: 50%; color: #ffd59c;
+  border: 1px solid rgba(224, 137, 58, .55); background: radial-gradient(circle at 50% 30%, #3a2414, #0d0906 72%); box-shadow: 0 0 10px rgba(224, 137, 58, .25); }
+.vtm20.r-type-hunter .r-edge-title b { font-family: var(--r-display); font-size: 17px; color: var(--r-ink); }
+.vtm20.r-type-hunter .r-edge-title small { margin-left: 6px; font-family: var(--r-caps); font-size: 10.5px; letter-spacing: 1px; text-transform: uppercase; color: var(--r-muted); }
+.vtm20.r-type-hunter .r-edge-list { list-style: none; margin: 0; padding: 4px 12px 8px; }
+.vtm20.r-type-hunter .r-edge { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto auto; gap: 8px; align-items: start; padding: 6px 0; border-bottom: 1px dotted var(--r-line); }
+.vtm20.r-type-hunter .r-edge:last-child { border-bottom: 0; }
+.vtm20.r-type-hunter .r-edge-lvl { font-family: var(--r-display); font-size: 15px; color: #e0893a; text-align: center; padding-top: 1px; }
+.vtm20.r-type-hunter .r-edge-main b { font-family: var(--r-display); font-size: 15px; }
+.vtm20.r-type-hunter .r-edge-main small { margin-left: 4px; font-style: italic; color: var(--r-muted); }
+.vtm20.r-type-hunter .r-edge-text { display: block; margin-top: 2px; font-size: 13px; line-height: 1.35; color: var(--r-ink-2); }
+.r-notice.r-type-hunter i { color: #ffb066; }
+/* меловые знаки охотников: пунктир рамок карточек и столбцов, засечки по углам, подчёркивание заголовков мелом */
+.vtm20.r-type-hunter .r-vcard, .vtm20.r-type-hunter .r-tcol, .vtm20.r-type-hunter .r-edge-path { border-style: dashed; border-color: rgba(239, 229, 214, .16); }
+.vtm20.r-type-hunter .r-vcard::after, .vtm20.r-type-hunter .r-tcol::after { width: 10px; height: 10px; background: none;
+  border-right: 2px solid rgba(239, 229, 214, .45); border-bottom: 2px solid rgba(239, 229, 214, .45); }
+.vtm20.r-type-hunter .r-h2 > span:first-child { text-decoration: underline wavy rgba(239, 229, 214, .28); text-underline-offset: 6px; text-decoration-thickness: 1px; }
+.vtm20.r-type-hunter .r-rail::after { background: repeating-linear-gradient(180deg, rgba(239, 229, 214, .2) 0 5px, transparent 5px 11px); }
