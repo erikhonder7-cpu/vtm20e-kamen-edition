@@ -468,7 +468,8 @@ BUILDERS["hunter-merits"] = function () {
   for (const m of data("merits").filter(m => m.line === "hunter")) {
     const range = m.max > m.min ? `<p><em>Цена: ${/\//.test(m.cost) ? m.cost.replace(/\s*\/\s*/g, " или ") : `${m.min}–${m.max}`}</em></p>` : "";
     const book = m.source?.startsWith("Hunter: The Reckoning") ? "Охотник: Расплата" : "Hunters Hunted II";
-    const folder = [book, `${m.kind === "merit" ? "Достоинства" : "Недостатки"} — ${cat[m.category] ?? m.category}`];
+    const kindRu = m.kind === "merit" ? "Достоинства" : "Недостатки";
+    const folder = m.bystander ? [book, `Свидетели — ${kindRu}`] : [book, `${kindRu} — ${cat[m.category] ?? m.category}`];
     p.add({ name: m.name, type: m.kind, folder, key: `hunter:${m.kind}:${m.name}`, img: traitIcon(m.category, m.kind === "flaw"),
       system: { cost: m.min || 1, category: m.category, clan: "", sect: "", source: m.en ?? "", description: `${m.html ?? ""}${range}` } });
   }

@@ -834,6 +834,33 @@ try {
     if (!r.tab || !r.card) throw new Error("лист охотника без Граней или Убеждённости");
   });
 
+  await check("Свидетель: мастер, Добродетели, рассудок, без Граней", async () => {
+    const id = await temp("E2E — свидетель", "hunter");
+    const r = await page.evaluate(async id => {
+      const SYS = game.system.id, a = game.actors.get(id), wait = ms => new Promise(r => setTimeout(r, ms));
+      const C = await import(`/systems/${SYS}/module/apps/creator.mjs`), H = await import(`/systems/${SYS}/module/apps/hunter.mjs`);
+      await C.openCreator(a);
+      let w; for (let i = 0; i < 30 && !(w = [...foundry.applications.instances.values()].find(x => x instanceof C.VtMCreator && x.actor === a)); i++) await wait(150);
+      Object.assign(w.st, { creed: "bystander", virt: { conscience: 2, selfControl: 2, courage: 3 } });
+      const steps = w.steps.join(","), virt = w.rules.virt, conv = w.morality, left = w.remaining().virt;
+      await w.close();
+      await a.update({ "system.hunter": { creed: "bystander", conviction: 10, edges: [], bystander: { reason: 2, selfControl: 2, courage: 3 } } });
+      await a.setFlag(SYS, "created", true);
+      const edge = H.edgeReasons(a, "defense|1").length;
+      const xp = a.xpCost("lostVirtue", 3);
+      await a.sheet.render(true); await wait(800);
+      const tab = !!a.sheet.element.querySelector('nav [data-tab="disciplines"]'), card = !!a.sheet.element.querySelector(".r-vc-hunter.is-lost");
+      await a.sheet.close();
+      return { steps, virt, conv, left, edge, xp, tab, card };
+    }, id);
+    if (r.steps.includes("edges")) throw new Error(`у Свидетеля шаг Граней: ${r.steps}`);
+    if (r.virt !== 7 || r.left !== 0) throw new Error(`Добродетели Свидетеля: ${r.virt}, осталось ${r.left}`);
+    if (r.conv !== 10) throw new Error(`Убеждённость Свидетеля ${r.conv}`);
+    if (!r.edge) throw new Error("Свидетель может взять Грань");
+    if (r.xp !== 6) throw new Error(`опыт за Добродетель 3 → 4: ${r.xp}`);
+    if (r.tab || !r.card) throw new Error("лист Свидетеля: вкладка Граней или нет карточки рассудка");
+  });
+
   await check("Новый мир: «Город» без Парижа", async () => {
     await setWorld(false, "", await page.evaluate(() => game.system.version));
     // game.ready встаёт раньше, чем отработает асинхронный ready системы (Codex.load, keepParis): ждём решения

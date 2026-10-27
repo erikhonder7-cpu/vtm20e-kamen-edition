@@ -545,7 +545,9 @@ export class HunterData extends MortalData {
         advance: int(0, 0), sacrificed: new ArrayField(str()),
         story: new SchemaField({ mercy: int(0, 0, 10), vision: int(0, 0, 10), zeal: int(0, 0, 10) }),
         sceneEdge: str(""), sceneLevel: int(0, 0, 10), sceneBlock: new BooleanField({ initial: false }),
-        sessionBlock: new BooleanField({ initial: false }), sceneRisk: new BooleanField({ initial: false }) })
+        sessionBlock: new BooleanField({ initial: false }), sceneRisk: new BooleanField({ initial: false }),
+        // Свидетель (кредо «bystander», Players Guide, гл. 1): свои Добродетели 1–5; день, когда Добродетель уже отдана за Убеждённость
+        bystander: new SchemaField({ courage: int(1, 0, 5), reason: int(1, 0, 5), selfControl: int(1, 0, 5) }), tradedOn: str("") })
     };
   }
 }

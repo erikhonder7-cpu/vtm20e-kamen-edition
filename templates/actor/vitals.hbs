@@ -109,6 +109,32 @@
     </div>
     {{/if}}
   </div>
+  {{else if hunterInfo.lost}}
+  {{!-- Свидетель (Players Guide, гл. 1): Убеждённость — рассудок, только убывает; Смелость, Рассудок, Самоконтроль 1–5 --}}
+  <div class="r-vcard r-vc-morality r-vc-hunter is-lost">
+    <div class="r-vc-head">
+      <h4 class="r-banner"><a data-action="openRules" data-tooltip="{{localize 'VTM20.Hunter.RulesHint'}}">{{localize "VTM20.Hunter.LostSanity"}}</a></h4>
+      <div class="r-vc-status" data-tooltip="{{localize 'VTM20.Hunter.LostSanityHint'}}"><b>{{hunterInfo.conviction}}</b> <small>/ 10</small></div>
+    </div>
+    {{> rDots dots=hunterInfo.convDots cls="is-ten"}}
+    <div class="r-virtues r-hvirtues">
+      {{#each hunterInfo.virtues}}
+      <div class="r-virtue" data-tooltip="{{when}}">
+        <a class="r-trait-label" data-action="lostVirtue" data-key="{{key}}">{{label}}</a>
+        <span class="r-hv-num"><b>{{value}}</b></span>
+        {{> rDots dots=dots cls="is-small"}}
+      </div>
+      {{/each}}
+    </div>
+    <div class="r-vc-tools">
+      <a class="r-vc-btn" data-action="lostHardened" data-tooltip="{{localize 'VTM20.Hunter.LostHardenedHint'}}"><i class="fa-solid fa-shield-halved"></i> {{localize "VTM20.Hunter.LostHardened"}}</a>
+      <a class="r-vc-btn is-sq" data-action="lostOrdeal" data-tooltip="{{localize 'VTM20.Hunter.LostOrdealHint'}}"><i class="fa-solid fa-people-arrows"></i></a>
+      {{#if editable}}{{#if hunterInfo.canTrade}}<a class="r-vc-btn is-sq" data-action="lostTrade" data-tooltip="{{localize 'VTM20.Hunter.LostTradeHint'}}"><i class="fa-solid fa-scale-unbalanced"></i></a>{{/if}}{{/if}}
+      <a class="r-vc-btn is-sq {{#if system.exorcist.target}}is-on{{/if}}" data-action="exorcist" data-tooltip="{{localize 'VTM20.Exorcist.BtnHint'}}"><i class="fa-solid fa-hands-praying"></i></a>
+      {{#if hunterInfo.madness}}<span class="r-vc-hint is-right is-warn" data-tooltip="{{localize 'VTM20.Hunter.LostMadHint' n=hunterInfo.madness}}"><i class="fa-solid fa-brain"></i> {{hunterInfo.madness}}</span>{{/if}}
+      {{#if hunterInfo.broken}}<span class="r-vc-hint is-right is-warn"><i class="fa-solid fa-skull"></i> {{localize "VTM20.Hunter.LostBrokenShort"}}</span>{{/if}}
+    </div>
+  </div>
   {{else if hunterInfo}}
   {{!-- Охотник (Hunter: The Reckoning, гл. 4): Убеждённость 0–10 и Добродетели охоты; Человечности у наделённых нет --}}
   <div class="r-vcard r-vc-morality r-vc-hunter">

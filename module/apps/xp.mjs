@@ -3,7 +3,7 @@
 // (через VtMActor.buyWithXp — так же, как кнопки «+» в листе), начисление и история трат.
 
 import { VTM20, SYSTEM_PATH } from "../config.mjs";
-import { growth, startConviction, VIRTUE_KEYS, H as hunterData } from "./hunter.mjs";
+import { growth, startConviction, VIRTUE_KEYS, LOST_KEYS, isLost, H as hunterData } from "./hunter.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -75,9 +75,11 @@ class XpWindow extends HandlebarsApplicationMixin(ApplicationV2) {
       if (lores.length) groups.push({ key: "lore", icon: "fa-fire-flame-curved", label: loc("VTM20.Demon.Lores"), rows: lores.map(i =>
         row(`i:${i.id}:system.value:lore`, i.name, i.system.value, 5, "lore", { key: i.system.key })) });
     }
-    const hunter = a.type === "hunter", hxp = hunter && growth() === "xp";
+    const hunter = a.type === "hunter", lost = hunter && isLost(a), hxp = hunter && !lost && growth() === "xp";
     if (!hunter) groups.push({ key: "virt", icon: "fa-scale-balanced", label: loc("VTM20.Sheet.Virtues"), rows: ["conscience", "selfControl", "courage"].map(k =>
       row(`a:system.virtues.${k}.value:virtue`, a.traitLabel(`virtues.${k}`), s.virtues[k].value, 5, "virtue")) });
+    else if (lost) groups.push({ key: "virt", icon: "fa-scale-balanced", label: loc("VTM20.Sheet.Virtues"), rows: LOST_KEYS.map(k =>
+      row(`a:system.hunter.bystander.${k}:lostVirtue`, hunterData().bystander?.virtues?.[k] ?? k, s.hunter.bystander?.[k] ?? 0, 5, "lostVirtue")) });
     else if (hxp) groups.push({ key: "virt", icon: "fa-scale-balanced", label: t("Creator.HunterVirtues"), rows: VIRTUE_KEYS.map(k =>
       row(`a:system.hunter.${k}:hunterVirtue`, hunterData().virtues[k], s.hunter[k] ?? 0, 10, "hunterVirtue", { key: k })) });
     groups.push({ key: "other", icon: "fa-shield-heart", label: loc("VTM20.Sheet.Other"), rows: [

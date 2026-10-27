@@ -331,14 +331,14 @@
         </div>
       </div>
       <div class="r-cr-panel r-tcol">
-        <h3 class="r-colhead"><span>{{#if isHunter}}{{localize "VTM20.Creator.HunterVirtues"}}{{else}}{{localize "VTM20.Sheet.Virtues"}}{{/if}}</span></h3>
+        <h3 class="r-colhead"><span>{{#if isLost}}{{localize "VTM20.Sheet.Virtues"}}{{else if isHunter}}{{localize "VTM20.Creator.HunterVirtues"}}{{else}}{{localize "VTM20.Sheet.Virtues"}}{{/if}}</span></h3>
         <div class="r-cr-left {{#if (lt rem.virt 0)}}is-over{{else if (eq rem.virt 0)}}is-done{{/if}}">{{localize "VTM20.Creator.LeftShort"}}: <b>{{rem.virt}}</b></div>
         {{#each virtues}}
         <div class="r-trait-main"><span class="r-trait-label">{{#if primary}}◆ {{/if}}{{label}}</span><span class="r-leader"></span>
           <span class="r-dots">{{#each dots}}<a class="r-dot r-cr-dot is-{{state}}" data-action="dot" data-kind="{{kind}}" data-key="{{key}}" data-n="{{n}}"></a>{{/each}}</span>
         </div>
         {{/each}}
-        <p class="r-note">{{#if isHunter}}{{localize "VTM20.Creator.VirtueHintHunter"}}{{else}}{{localize "VTM20.Creator.VirtueHint"}}{{/if}}</p>
+        <p class="r-note">{{#if isLost}}{{localize "VTM20.Creator.VirtueHintLost"}}{{else if isHunter}}{{localize "VTM20.Creator.VirtueHintHunter"}}{{else}}{{localize "VTM20.Creator.VirtueHint"}}{{/if}}</p>
       </div>
     </div>
     {{/if}}
@@ -494,7 +494,7 @@
     <div class="r-cr-sumgrid">
       {{#each summary.attrs}}<div><h4 class="r-h4">{{label}}</h4>{{#each list}}<div class="r-cr-sumrow"><span>{{label}}</span><b>{{value}}</b></div>{{/each}}</div>{{/each}}
       {{#each summary.abils}}<div><h4 class="r-h4">{{label}}</h4>{{#each list}}<div class="r-cr-sumrow"><span>{{label}}</span><b>{{value}}</b></div>{{else}}<div class="r-note">—</div>{{/each}}</div>{{/each}}
-      {{#if isHunter}}<div><h4 class="r-h4">{{localize "VTM20.Hunter.Edges"}}</h4>{{#each summary.edges}}<div class="r-cr-sumrow"><span>{{name}}</span><b>{{rRoman level}}</b></div>{{else}}<div class="r-note">—</div>{{/each}}</div>{{/if}}
+      {{#if isHunter}}{{#unless isLost}}<div><h4 class="r-h4">{{localize "VTM20.Hunter.Edges"}}</h4>{{#each summary.edges}}<div class="r-cr-sumrow"><span>{{name}}</span><b>{{rRoman level}}</b></div>{{else}}<div class="r-note">—</div>{{/each}}</div>{{/unless}}{{/if}}
       <div><h4 class="r-h4">{{discLabel}}</h4>{{#each summary.discs}}<div class="r-cr-sumrow"><span>{{name}}</span><b>{{value}}</b></div>{{else}}<div class="r-note">—</div>{{/each}}</div>
       <div><h4 class="r-h4">{{bgLabel}}</h4>{{#each summary.bgs}}<div class="r-cr-sumrow"><span>{{name}}</span><b>{{value}}</b></div>{{else}}<div class="r-note">—</div>{{/each}}</div>
       <div><h4 class="r-h4">{{virtLabel}}</h4>{{#each summary.virtues}}<div class="r-cr-sumrow"><span>{{label}}</span><b>{{value}}</b></div>{{/each}}</div>

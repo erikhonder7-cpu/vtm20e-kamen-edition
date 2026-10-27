@@ -23,6 +23,9 @@ const notice = (actor, icon, html, cls = "", fx = null) => ChatMessage.create({ 
   content: `<div class="r-notice r-type-hunter ${cls}"><i class="fa-solid ${icon}"></i> ${html}</div>`, flags: { [SYSTEM_ID]: fxFlags(fx, actor) } });
 
 export const H = () => Codex.hunter ?? { creeds: [], edges: [], virtues: {} };
+/** Свидетель (Players Guide, гл. 1): кредо «bystander» — без Граней, свои Добродетели, Убеждённость как рассудок. */
+export const isLost = actor => actor?.system?.hunter?.creed === "bystander";
+export const LOST_KEYS = ["courage", "reason", "selfControl"];
 export const creedOf = key => H().creeds.find(c => c.key === key) ?? null;
 export const edgeOf = key => H().edges.find(e => e.key === key) ?? null;
 
@@ -62,7 +65,8 @@ export const edgeXp = (actor, e) => e.level * (e.path === actor.system.hunter?.c
 
 /** Цены опыта охотника (xpCost): Убеждённость — новое × 5 (не выше Силы воли), основная Добродетель — новое × 3, прочие — × 5. */
 export function hunterXpCost(actor, kind, current, key) {
-  if (growth() !== "xp" || actor.type !== "hunter") return null;
+  if (kind === "lostVirtue") return isLost(actor) && current < 5 ? Math.max(1, current) * 2 : null;   // Свидетель: текущее × 2
+  if (growth() !== "xp" || actor.type !== "hunter" || isLost(actor)) return null;
   const h = actor.system.hunter ?? {}, pv = creedOf(h.creed)?.virtue;
   if (kind === "hunterConviction") return current >= 10 || current + 1 > (actor.system.willpower?.permanent ?? 0) ? null : (current + 1) * 5;
   if (current >= 10 || isFrozen(h, key)) return null;                        // после Грани V прочие Добродетели застыли
@@ -107,6 +111,7 @@ export function edgeReasons(actor, key) {
   if (!e) return [t("NoEdge")];
   const have = new Set(h.edges ?? []), out = [];
   if (have.has(key)) return [];
+  if (isLost(actor)) return [t("LostNoEdges")];
   if (freeformOn()) return [t("FreeformNoTake")];                            // своих Граней нет — только воззвание
   if (e.level > 1 && !have.has(`${e.path}|${e.level - 1}`)) out.push(t("NeedPrev", { n: e.level - 1 }));
   const b = edgeBudget(actor), v = h[e.virtue] ?? 0;
@@ -191,6 +196,7 @@ export async function takeEdge(actor, key) {
 
 /** Контекст карточки охотника на листе. */
 export function hunterInfo(actor, dots) {
+  if (isLost(actor)) return lostInfo(actor, dots);
   const h = actor.system.hunter ?? {}, creed = creedOf(h.creed), b = edgeBudget(actor);
   return {
     creed, creedName: creed ? `${creed.name} · ${creed.who}` : "", creedVirtue: creed?.virtue ?? "",
@@ -310,6 +316,7 @@ export async function tradeConviction(actor) {
 
 /** Начальная Убеждённость в начале истории (если упала ниже; при росте за опыт — и если выросла выше). */
 export async function restoreConviction(actor) {
+  if (isLost(actor)) return null;                                            // рассудок Свидетеля не возвращается
   const h = actor.system.hunter ?? {}, base = startConviction(actor);
   if (growth() === "xp" && (h.conviction ?? 0) > base) {
     await actor.update({ "system.hunter.conviction": base });
@@ -521,7 +528,78 @@ export async function hunterSceneEnd(actor) {
 /** Конец истории: Убеждённость — к начальной (при росте за опыт — и сверху вниз), счёт воззваний и жертв — заново, Вестники снова слушают. */
 export async function hunterStoryEnd(actor) {
   const h = actor.system.hunter ?? {}, base = startConviction(actor), c = h.conviction ?? 0;
-  await actor.update({ "system.hunter.conviction": growth() === "xp" ? base : Math.max(c, base),
+  await actor.update({ "system.hunter.conviction": isLost(actor) ? c : growth() === "xp" ? base : Math.max(c, base),
     "system.hunter.story": { mercy: 0, vision: 0, zeal: 0 }, "system.hunter.sacrificed": [], "system.hunter.sessionBlock": false,
     "system.hunter.sceneEdge": "", "system.hunter.sceneLevel": 0, "system.hunter.sceneBlock": false, "system.hunter.sceneRisk": false });
+}
+
+/* ── Свидетели (Players Guide, гл. 1) ───────────────────────────────────── */
+const today = () => new Date().toDateString();
+/** Психозы Свидетеля по Убеждённости: 3 → один, 2 → два, 1 → три. */
+const lostMad = c => c > 0 ? Math.max(0, 4 - c) : 0;
+
+/** Карточка Свидетеля: Убеждённость-рассудок, Смелость, Рассудок, Самоконтроль. */
+export function lostInfo(actor, dots) {
+  const h = actor.system.hunter ?? {}, b = h.bystander ?? {}, c = h.conviction ?? 10, V = H().bystander?.virtues ?? {};
+  return {
+    lost: true, conviction: c, convDots: dots(c, 10, { path: "system.hunter.conviction" }), madness: lostMad(c), broken: c <= 0,
+    canTrade: (h.tradedOn ?? "") !== today() && c < 10 && LOST_KEYS.some(k => (b[k] ?? 0) > 0),
+    virtues: LOST_KEYS.map(k => ({ key: k, label: V[k] ?? k, value: b[k] ?? 0, when: t(`LostWhen.${k}`),
+      dots: dots(b[k] ?? 0, 5, { path: `system.hunter.bystander.${k}` }) }))
+  };
+}
+
+/** Бросок Добродетели Свидетеля: Смекалка + Добродетель, сл. 7. Неудача — −1 Убеждённости, провал — ещё и −1 Добродетели, паника. */
+export async function lostVirtue(actor, key) {
+  const h = actor.system.hunter ?? {}, b = h.bystander ?? {}, V = H().bystander?.virtues ?? {};
+  if (!LOST_KEYS.includes(key)) return null;
+  const v = await foundry.applications.api.DialogV2.prompt({
+    window: { title: t("LostRoll", { v: V[key] }) }, classes: ["vtm20", "r-dialog"], position: { width: 440 },
+    content: `<p class="r-choice-hint">${t(`LostWhen.${key}`)}</p><div class="r-fields">
+      <label class="r-f"><span>${t("Difficulty")}</span><input type="number" name="diff" value="7" min="3" max="10"></label></div>
+      <p class="r-note">${t("LostRollNote")}</p>`,
+    ok: { label: t("Roll"), callback: (ev, btn) => Number(btn.form.elements.diff.value) || 7 }
+  }).catch(() => null);
+  if (!v) return null;
+  const wits = actor.traitValue("attributes.wits"), val = b[key] ?? 0;
+  const res = await rollPool({ actor, title: t("LostRoll", { v: V[key] }), subtitle: t("LostKicker"), pool: wits + val, difficulty: v, kind: "check",
+    breakdown: [{ label: actor.traitLabel("attributes.wits"), value: wits }, { label: V[key], value: val }] });
+  if (res.successes > 0 && res.outcome !== "botch") return res;
+  const c = Math.max(0, (h.conviction ?? 10) - 1), botch = res.outcome === "botch";
+  await actor.update({ "system.hunter.conviction": c, ...(botch ? { [`system.hunter.bystander.${key}`]: Math.max(0, val - 1) } : {}) });
+  const name = esc(actor.name);
+  await notice(actor, botch ? "fa-person-running" : "fa-brain", botch ? t("LostBotch", { name, v: V[key], n: c }) : t("LostFail", { name, n: c }), "is-sin");
+  if (c <= 0) await notice(actor, "fa-skull", t("LostBroken", { name }), "is-sin");
+  else if (c <= 3) await notice(actor, "fa-brain", t("LostMad", { name, n: lostMad(c) }), "is-sin");
+  return res;
+}
+
+/** Раз за сессию (день): пункт Добродетели — за пункт Убеждённости. */
+export async function lostTrade(actor) {
+  const h = actor.system.hunter ?? {}, b = h.bystander ?? {}, V = H().bystander?.virtues ?? {};
+  if ((h.tradedOn ?? "") === today()) return ui.notifications.warn(t("LostTraded"));
+  if ((h.conviction ?? 10) >= 10) return ui.notifications.info(t("LostFull"));
+  const opts = LOST_KEYS.filter(k => (b[k] ?? 0) > 0);
+  if (!opts.length) return null;
+  const k = await foundry.applications.api.DialogV2.wait({
+    window: { title: t("LostTrade") }, classes: ["vtm20", "r-dialog"], position: { width: 420 }, content: `<p>${t("LostTradeHow")}</p>`,
+    buttons: opts.map((x, i) => ({ action: x, label: `${V[x]} ${b[x]} → ${b[x] - 1}`, default: i === 0 }))
+  }).catch(() => null);
+  if (!opts.includes(k)) return null;
+  const c = Math.min(10, (h.conviction ?? 10) + 1);
+  await actor.update({ [`system.hunter.bystander.${k}`]: b[k] - 1, "system.hunter.conviction": c, "system.hunter.tradedOn": today() });
+  return notice(actor, "fa-scale-unbalanced", t("LostTradeDone", { name: esc(actor.name), v: V[k], n: c }));
+}
+
+/** Закалённый дух: пункт Силы воли — на сцену не бежать от чудовища и устоять перед властью над разумом и телом. */
+export async function lostHardened(actor) {
+  if (!(await actor.spendWillpower(1))) return null;
+  return notice(actor, "fa-shield-halved", t("LostHardenedOn", { name: esc(actor.name) }));
+}
+
+/** Общая беда: Восприятие, сл. 6 — узнать другого Свидетеля или охотника. */
+export async function lostOrdeal(actor) {
+  const p = actor.traitValue("attributes.perception");
+  return rollPool({ actor, title: t("LostOrdeal"), subtitle: t("LostKicker"), pool: p, difficulty: 6, kind: "check",
+    breakdown: [{ label: actor.traitLabel("attributes.perception"), value: p }], notes: [t("LostOrdealNote")] });
 }

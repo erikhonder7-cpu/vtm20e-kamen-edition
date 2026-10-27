@@ -15,7 +15,7 @@ import { blockerFor } from "../data/trait-rules.mjs";
 import { weaponIcon, armorIcon, traitIcon, backgroundIcon } from "../data/icons.mjs";
 import { ritualFields } from "../data/ritual-text.mjs";
 import { investmentLimit, sealInvestment, pactDialog } from "./infernal.mjs";
-import { edgeReasons, poolLabel, takeEdge, growth as hunterGrowth, edgeXp, H as hunterData } from "./hunter.mjs";
+import { edgeReasons, poolLabel, takeEdge, growth as hunterGrowth, edgeXp, isLost, H as hunterData } from "./hunter.mjs";
 
 const { HandlebarsApplicationMixin, ApplicationV2 } = foundry.applications.api;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -285,7 +285,9 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
     const ghoulOk = !this.actor || this.actor.type === "ghoul";
     const line = VTM20.traitLine(this.actor?.type);           // у демона — только черты падших, у прочих — без них
     const hunter = this.actor?.type === "hunter";             // охотнику — и общие черты смертных, и охотничьи
-    return Codex.merits.filter(m => m.kind === kind && Codex.visible(m) && (!m.ghoul || ghoulOk) && ((m.line ?? "") === line || (hunter && !m.line))).map(m => {
+    const lost = isLost(this.actor);                          // черты Свидетелей — только Свидетелю
+    return Codex.merits.filter(m => m.kind === kind && Codex.visible(m) && (!m.ghoul || ghoulOk) && ((m.line ?? "") === line || (hunter && !m.line))
+      && (!m.bystander || lost)).map(m => {
       const costs = costsOf(m);
       const blocker = blockerFor(m.name, mine);
       return this.#entry({
@@ -304,8 +306,8 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
     const mine = new Set(this.itemsOf("background").map(i => i.name));
     // id — номер в полном списке; Факты биографии Тёмных веков — только с настройкой «Контент из Dark Ages»
     // гулям и смертным — без фактов только для Сородичей (Поколение, Стадо, Статус…)
-    const type = this.actor?.type ?? "vampire";
-    return Codex.backgrounds.map((b, i) => [b, i]).filter(([b]) => Codex.visible(b) && VTM20.backgroundAllowed(b, type)).map(([b, i]) => this.#entry({
+    const type = this.actor?.type ?? "vampire", lost = isLost(this.actor);   // Свидетелю — без Судьбы и Покровителей
+    return Codex.backgrounds.map((b, i) => [b, i]).filter(([b]) => Codex.visible(b) && VTM20.backgroundAllowed(b, type) && !(lost && b.noBystander)).map(([b, i]) => this.#entry({
       id: String(i), name: b.name, en: b.en, has: mine.has(b.name), text: b.html ?? "", long: true, src: srcKind(b),
       tags: [b.sabbat && { label: t("Sect.sabbat"), red: true }, b.sect && { label: t(`Sect.${b.sect}`), red: true }, b.source && b.source !== "V20" && { label: b.source }].filter(Boolean),
       variants: [1, 2, 3, 4, 5].map(v => ({ value: v, label: "●".repeat(v) }))

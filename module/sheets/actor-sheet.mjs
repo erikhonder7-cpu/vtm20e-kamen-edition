@@ -37,7 +37,8 @@ import { loseHost, holdOn, newHost, summonedBack } from "../apps/host.mjs";
 import { openCult } from "../apps/cult.mjs";
 import { openExorcist } from "../apps/exorcist.mjs";
 import { hunterInfo, edgesView, useEdge, secondSight, virtueTest, tradeConviction, restoreConviction, H as hunterData,
-  awardDeed, shiftDeed, cashDeed, sacrifice, advanceVirtue, callEdge, swapCalled, unblockCall, callView } from "../apps/hunter.mjs";
+  awardDeed, shiftDeed, cashDeed, sacrifice, advanceVirtue, callEdge, swapCalled, unblockCall, callView,
+  isLost, lostVirtue, lostTrade, lostHardened, lostOrdeal } from "../apps/hunter.mjs";
 import { openEbServant, empower as empowerServant } from "../apps/eb-servant.mjs";
 import { useInvestment, pactDialog, pactDelete, pactValue, investmentLimit } from "../apps/infernal.mjs";
 import { possess, extend as possessExtend, leave as possessLeave, battleExpiry, possessionView } from "../apps/possession.mjs";
@@ -203,6 +204,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       hunterDeed: VtMActorSheet.#onHunterDeed, hunterShift: VtMActorSheet.#onHunterShift, hunterCash: VtMActorSheet.#onHunterCash,
       hunterSacrifice: VtMActorSheet.#onHunterSacrifice, hunterAdvance: VtMActorSheet.#onHunterAdvance,
       edgeCall: VtMActorSheet.#onEdgeCall, edgeSwap: VtMActorSheet.#onEdgeSwap, hunterUnblock: VtMActorSheet.#onHunterUnblock,
+      lostVirtue: VtMActorSheet.#onLostVirtue, lostTrade: VtMActorSheet.#onLostTrade, lostHardened: VtMActorSheet.#onLostHardened, lostOrdeal: VtMActorSheet.#onLostOrdeal,
       linChild: VtMActorSheet.#onLinChild, linEdit: VtMActorSheet.#onLinEdit, linDel: VtMActorSheet.#onLinDel,
       linSheet: VtMActorSheet.#onLinSheet,
       linOpen: VtMActorSheet.#onLinOpen,
@@ -259,7 +261,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
   _configureRenderParts(options) {
     const parts = super._configureRenderParts(options);
-    if (this.actor.type === "mortal") delete parts.disciplines;
+    if (this.actor.type === "mortal" || isLost(this.actor)) delete parts.disciplines;    // у Свидетеля Граней нет
     // у охотника на месте Дисциплин — Грани
     if (this.actor.type === "hunter" && parts.disciplines) parts.disciplines = { ...parts.disciplines, template: `${SYSTEM_PATH}/templates/actor/edges.hbs` };
     // у демона на месте Дисциплин — Знания и апокалиптическая форма
@@ -269,7 +271,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
   _prepareTabs(group) {
     const tabs = super._prepareTabs(group);
-    if (this.actor.type === "mortal") delete tabs.disciplines;
+    if (this.actor.type === "mortal" || isLost(this.actor)) delete tabs.disciplines;
     if (this.actor.type === "hunter" && tabs.disciplines) Object.assign(tabs.disciplines, { label: "VTM20.Hunter.Edges", icon: "fa-solid fa-eye" });
     if (this.actor.type === "demon" && tabs.disciplines) Object.assign(tabs.disciplines, { label: "VTM20.Demon.Lores", icon: "fa-solid fa-fire-flame-curved" });
     let i = 0;
@@ -336,7 +338,8 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
         .map(g => ({ value: g, label: t("GenerationN", { n: g }), selected: g === s.domitorGeneration }));
     }
     if (ctx.isHunter) {
-      ctx.creeds = hunterData().creeds.map(c => ({ value: c.key, label: c.name, who: c.who, selected: c.key === s.hunter?.creed, tip: c.text }));
+      const by = hunterData().bystander;
+      ctx.creeds = [...hunterData().creeds, ...(by ? [by] : [])].map(c => ({ value: c.key, label: c.name, who: c.who, selected: c.key === s.hunter?.creed, tip: c.text }));
       ctx.creedTip = ctx.creeds.find(c => c.selected)?.tip ?? "";
     }
     if (ctx.isDemon) {
@@ -1328,6 +1331,11 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static #onEdgeCall(event, target) { return callEdge(this.actor, target.dataset.key ?? ""); }
   static #onEdgeSwap() { return swapCalled(this.actor); }
   static #onHunterUnblock() { return unblockCall(this.actor); }
+  /** Свидетель (Players Guide, гл. 1): бросок Добродетели, обмен Добродетели на рассудок, Закалённый дух, Общая беда. */
+  static #onLostVirtue(event, target) { return lostVirtue(this.actor, target.dataset.key); }
+  static #onLostTrade() { return lostTrade(this.actor); }
+  static #onLostHardened() { return lostHardened(this.actor); }
+  static #onLostOrdeal() { return lostOrdeal(this.actor); }
   /** Вера против падших: молитвы, экзорцизм, оружие веры (apps/exorcist.mjs). */
   static #onExorcist() { return openExorcist(this.actor); }
   static #onEbServant() { return this.actor.system.ebServant?.empowerments ? openEbServant(this.actor) : empowerServant(this.actor); }

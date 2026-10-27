@@ -65,6 +65,9 @@ export const Codex = {
     this.backgrounds = [...this.backgrounds, ...[...(this["demon-backgrounds"] ?? []), ...(this["demon-earthbound"]?.backgrounds ?? [])].map(b => ({ ...b, line: "demon" }))];
     // Дополнения охотника (data/hunter.json) — линией «hunter», тоже в конце
     this.backgrounds = [...this.backgrounds, ...(this.hunter?.backgrounds ?? []).map(b => ({ ...b, line: "hunter" }))];
+    // архетипы из Players Guide «Охотника» (Верящий, Переговорщик, Скептик) — для всех
+    const arch = new Set(this.archetypes.map(a => a.name));
+    this.archetypes = [...this.archetypes, ...(this.hunter?.archetypes ?? []).filter(a => !arch.has(a.name))];
     this.clanByKey = Object.fromEntries(this.clans.map(c => [c.key, c]));
     this.pathByKey = Object.fromEntries(this.paths.map(p => [p.key, p]));
     // демоны (data/demon.json) — свой справочник: Знания не смешиваются с Дисциплинами вампиров

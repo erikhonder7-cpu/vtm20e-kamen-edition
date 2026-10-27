@@ -468,7 +468,7 @@ export class VtMActor extends Actor {
       case "faith": return current * (this.system.earthbound ? 6 : 7);
       case "urge": return current * 2;                    // Потребность Привязанного (Earthbound, гл. 3)
       // Охотник при росте за опыт (Players Guide, гл. 2): начальная Убеждённость и Добродетели охоты
-      case "hunterConviction": case "hunterVirtue": return hunterXpCost(this, kind, current, extra.key);
+      case "hunterConviction": case "hunterVirtue": case "lostVirtue": return hunterXpCost(this, kind, current, extra.key);
       default: return null;
     }
   }
