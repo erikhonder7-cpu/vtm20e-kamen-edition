@@ -907,6 +907,8 @@ def main():
     for x in merits:
         if x.get("source", "").startswith("V20 Hunters Hunted II"):
             x["line"] = "hunter"
+    import hunter_traits   # черты наделённых (Hunter: The Reckoning Players Guide, гл. 3) — та же линия, в конце списка
+    merits += hunter_traits.collect(merits)
     bdir = os.path.join(REF, "Факты_биографии")
     backgrounds = parse_backgrounds(os.path.join(bdir, sorted(f for f in os.listdir(bdir) if f.endswith(".md"))[0]))
     for x in backgrounds: x["source"] = "V20"

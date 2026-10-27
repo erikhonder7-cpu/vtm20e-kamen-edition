@@ -460,13 +460,15 @@ BUILDERS["demon-merits"] = function () {
   return p;
 };
 /** Дополнения падших (Demon: The Fallen, гл. 6). */
-/** Hunter: The Reckoning — пока черты смертных охотников (Hunters Hunted II), папки по категориям. */
+/** Hunter: The Reckoning — черты смертных охотников (Hunters Hunted II) и наделённых (Players Guide, гл. 3):
+ *  папка книги, в ней — по категориям. */
 BUILDERS["hunter-merits"] = function () {
   const p = new Pack("hunter-merits");
   const cat = ru.VTM20.MeritCat ?? {};
   for (const m of data("merits").filter(m => m.line === "hunter")) {
-    const range = m.max > m.min ? `<p><em>Цена: ${m.min}–${m.max}</em></p>` : "";
-    const folder = `${m.kind === "merit" ? "Достоинства" : "Недостатки"} — ${cat[m.category] ?? m.category}`;
+    const range = m.max > m.min ? `<p><em>Цена: ${/\//.test(m.cost) ? m.cost.replace(/\s*\/\s*/g, " или ") : `${m.min}–${m.max}`}</em></p>` : "";
+    const book = m.source?.startsWith("Hunter: The Reckoning") ? "Охотник: Расплата" : "Hunters Hunted II";
+    const folder = [book, `${m.kind === "merit" ? "Достоинства" : "Недостатки"} — ${cat[m.category] ?? m.category}`];
     p.add({ name: m.name, type: m.kind, folder, key: `hunter:${m.kind}:${m.name}`, img: traitIcon(m.category, m.kind === "flaw"),
       system: { cost: m.min || 1, category: m.category, clan: "", sect: "", source: m.en ?? "", description: `${m.html ?? ""}${range}` } });
   }
