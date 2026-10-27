@@ -780,8 +780,10 @@ try {
       let el; for (let i = 0; i < 30 && !(el = document.getElementById(`r-exorcist-${m.id}`)); i++) await wait(150);
       const n0 = game.messages.size;
       el.querySelector('[data-action="pray"][data-kind="bind"]').click();
-      for (let i = 0; i < 30 && game.messages.size === n0; i++) await wait(150);
-      const prayed = game.messages.contents.at(-1)?.flags?.[SYS]?.roll?.kind;
+      // ищем карточку молитвы среди новых сообщений: в чат могут успеть упасть и чужие (предыдущие проверки)
+      const prayCard = () => game.messages.contents.slice(n0).find(m => m.flags?.[SYS]?.roll?.kind === "prayer");
+      for (let i = 0; i < 40 && !prayCard(); i++) await wait(150);
+      const prayed = prayCard()?.flags?.[SYS]?.roll?.kind;
       el.querySelector('[data-action="michael"]').click();
       for (let i = 0; i < 30 && m.system.willpower.temporary !== 5; i++) await wait(150);
       el.querySelector('[data-action="researchAdd"]').click();

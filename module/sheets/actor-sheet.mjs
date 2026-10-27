@@ -13,7 +13,7 @@ import { RollDialog } from "../dice/dialog.mjs";
 import { rollVirtueCheck } from "../dice/virtue-checks.mjs";
 import { rollPool } from "../dice/roll.mjs";
 import { openDamageDialog } from "../apps/damage.mjs";
-import { WEAPON_PRESETS, ARMOR_PRESETS } from "../data/equipment.mjs";
+import { WEAPON_PRESETS, ARMOR_PRESETS, GEAR_PRESETS } from "../data/equipment.mjs";
 import { openCreator } from "../apps/creator.mjs";
 import { openHunt } from "../apps/night.mjs";
 import { openDowntime } from "../apps/downtime.mjs";
@@ -890,6 +890,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     ctx.weaponPresets = WEAPON_PRESETS.map((p, i) => ({ value: i, label: p.name, group: p.group })).filter((_, i) => Codex.visible(WEAPON_PRESETS[i]));
     ctx.weaponPresetGroups = presetGroups(WEAPON_PRESETS);
     ctx.armorPresetGroups = presetGroups(ARMOR_PRESETS);
+    ctx.gearPresetGroups = presetGroups(GEAR_PRESETS);
   }
 
   /* ── Рендер ─────────────────────────────────────────────────────────── */
@@ -1157,8 +1158,12 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
   /** Заготовка оружия или брони по номеру в полном списке (выбор в списке с поиском на вкладке «Снаряжение»). */
   async #addPreset(kind, i) {
-    const p = (kind === "weapon" ? WEAPON_PRESETS : ARMOR_PRESETS)[i];
+    const p = (kind === "weapon" ? WEAPON_PRESETS : kind === "gear" ? GEAR_PRESETS : ARMOR_PRESETS)[i];
     if (!p) return;
+    if (kind === "gear") {
+      const { name, group, source, description = "", quantity = 1 } = p;
+      return this.actor.createEmbeddedDocuments("Item", [{ name, type: "gear", system: { quantity, description, source: source ?? "" } }]);
+    }
     const { name, group, ...system } = p;
     await this.actor.createEmbeddedDocuments("Item", [{ name, type: kind, img: kind === "weapon" ? weaponImg(name, system.kind) : armorImg(system.rating), system }]);
   }

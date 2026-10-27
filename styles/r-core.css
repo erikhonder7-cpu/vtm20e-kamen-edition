@@ -277,6 +277,7 @@ body.r-theme-light .vtm20 {
   background-color: var(--r-s2); border: 1px solid var(--r-line-2); border-radius: 0; box-shadow: none;
 }
 .vtm20 input.r-h2-find.is-short { width: 180px; flex-basis: 180px; }
+.vtm20 input.r-h2-find.is-short.is-gear { width: 140px; flex-basis: 140px; min-width: 0; flex-shrink: 1; }
 .vtm20 input.r-h2-find::placeholder { color: var(--r-muted); font-style: italic; }
 .vtm20 input.r-h2-find:focus { border-color: var(--r-accent); }
 .vtm20 .r-h2-tool:hover { color: var(--r-accent); }

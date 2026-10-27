@@ -38,7 +38,7 @@ const CORE_VERSION = FOUNDRY_PKG.release ? `${FOUNDRY_PKG.release.generation}.${
 const { ClassicLevel } = require("classic-level");
 const manifest = JSON.parse(fs.readFileSync(path.join(ROOT, "system.json"), "utf8"));
 const data = f => JSON.parse(fs.readFileSync(path.join(ROOT, "data", `${f}.json`), "utf8"));
-const { WEAPON_PRESETS, ARMOR_PRESETS } = await import(pathToFileURL(path.join(ROOT, "module/data/equipment.mjs")).href);
+const { WEAPON_PRESETS, ARMOR_PRESETS, GEAR_PRESETS } = await import(pathToFileURL(path.join(ROOT, "module/data/equipment.mjs")).href);
 const { weaponIcon, armorIcon, traitIcon, backgroundIcon } = await import(pathToFileURL(path.join(ROOT, "module/data/icons.mjs")).href);
 const ru = JSON.parse(fs.readFileSync(path.join(ROOT, "lang/ru.json"), "utf8"));
 
@@ -137,6 +137,8 @@ const BUILDERS = {
       p.add({ name, type: "weapon", folder: group, img: weaponIcon(name, system.kind), system: { ...system, source: source ?? "", description: description + sourceLine(source) } });
     for (const { name, group, source, description = "", era, ...system } of ARMOR_PRESETS)
       p.add({ name, type: "armor", folder: group, img: armorIcon(system.rating), system: { ...system, source: source ?? "", description: description + sourceLine(source) } });
+    for (const { name, group, source, description = "", quantity = 1 } of GEAR_PRESETS)
+      p.add({ name, type: "gear", folder: group, key: `gear:${group}:${name}`, system: { quantity, source: source ?? "", description: description + sourceLine(source) } });
     return p;
   },
 

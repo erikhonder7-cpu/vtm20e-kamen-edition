@@ -40,6 +40,7 @@
   {{#if editable}}
   <datalist id="r-wpn-{{actor.id}}">{{#each weaponPresetGroups}}{{#each options}}<option value="{{label}}" data-group="{{../label}}" data-key="{{value}}"></option>{{/each}}{{/each}}</datalist>
   <datalist id="r-arm-{{actor.id}}">{{#each armorPresetGroups}}{{#each options}}<option value="{{label}}" data-group="{{../label}}" data-key="{{value}}"></option>{{/each}}{{/each}}</datalist>
+  <datalist id="r-gear-{{actor.id}}">{{#each gearPresetGroups}}{{#each options}}<option value="{{label}}" data-group="{{../label}}" data-key="{{value}}"></option>{{/each}}{{/each}}</datalist>
   {{/if}}
 
   <div class="r-cols2">
@@ -62,7 +63,7 @@
 
     <div class="r-col">
       <h2 class="r-h2"><span>{{localize "VTM20.Sheet.Gear"}}</span>
-        {{#if editable}}<span class="r-h2-tools"><a class="r-h2-btn is-ghost" data-action="itemCreate" data-type="gear" data-tooltip="{{localize 'VTM20.Sheet.Own'}}"><i class="fa-solid fa-feather"></i> <span class="r-h2-lbl">{{localize "VTM20.Sheet.Own"}}</span></a></span>{{/if}}
+        {{#if editable}}<span class="r-h2-tools"><input type="text" class="r-h2-find is-short is-gear" data-preset="gear" data-combo="r-gear-{{actor.id}}" placeholder="{{localize 'VTM20.Sheet.PresetGear'}}"><a class="r-h2-btn is-ghost" data-action="itemCreate" data-type="gear" data-tooltip="{{localize 'VTM20.Sheet.Own'}}"><i class="fa-solid fa-feather"></i></a></span>{{/if}}
       </h2>
       {{#each gear}}
       <div class="r-trait-main" data-item-id="{{id}}">
