@@ -2,7 +2,8 @@
 // Анимации и звуки сил (data/fx-map.mjs): успешный бросок силы, ритуала, Знания падшего или Грани, включённая сила без броска,
 // срыв (Безумие, Ротшрек), молитва, апокалиптическая форма. Файлы лежат в данных Foundry (настройка fxRoot, по умолчанию
 // assets/vtm20-fx) — их кладёт туда tools/fx_extract.mjs из купленных паков; manifest.json там же говорит, какие темы есть.
-// Анимация — через модуль Sequencer (если включён); без него — только звук. Играет тот клиент, чей это бросок, и рассылает остальным.
+// Анимация — через модуль Sequencer (если включён); без него — только звук. Каждый клиент играет сам (по своим настройкам «анимации»
+// и «звуки»), если мастер не выключил эффекты в мире; цель — та, что выбрана у автора броска. Скрытый бросок видят только его зрители.
 
 import { SYSTEM_ID } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
@@ -49,37 +50,50 @@ function rollTheme(st) {
   return FX_KINDS[st?.kind] ?? null;
 }
 
-/** Проиграть тему на персонаже (и цели). Без токена на сцене — только звук. */
-export async function playFx(theme, actor, { target = null } = {}) {
+/** Проиграть тему на этом клиенте: на персонаже (и цели автора). Без токена на сцене — только звук. */
+export async function playFx(theme, actor, { user = game.user, target = null } = {}) {
   const def = FX_THEMES[theme];
-  if (!def || !get("fxOn")) return;
-  const has = (await themesOnDisk())[theme] ?? {};
+  if (!def || !get("fxWorld")) return;
+  const wantAnim = !!get("fxAnim"), wantSound = !!get("fxSound");
+  if (!wantAnim && !wantSound) return;
+  const on = (await themesOnDisk())[theme] ?? {};
+  const has = { anim: on.anim && wantAnim, sound: on.sound && wantSound };
   if (!has.anim && !has.sound) return;
   const anim = `${root()}/anim/${theme}.webm`, sound = `${root()}/sound/${theme}.ogg`, volume = Number(get("fxVolume") ?? 0.6);
   const from = actor?.getActiveTokens?.()[0] ?? null;
-  const to = target ?? [...(game.user.targets ?? [])][0] ?? null;
+  const to = target ?? [...(user?.targets ?? [])][0] ?? null;
   const Seq = game.modules.get("sequencer")?.active ? globalThis.Sequence : null;
   const ray = def.at === "ray";
   if (Seq && has.anim && from && (!ray || (to && to !== from))) {
     const seq = new Seq();
-    const e = seq.effect().file(anim);
+    const e = seq.effect().file(anim).locally();
     if (ray) e.atLocation(from).stretchTo(to);
     else {
       e.atLocation(def.at === "target" && to ? to : from).scaleToObject(def.scale ?? 1.5);
       if (def.at === "ground") e.belowTokens();
     }
-    if (has.sound) seq.sound().file(sound).volume(volume);
+    if (has.sound) seq.sound().file(sound).volume(volume).locally();
     return seq.play();
   }
-  if (has.sound) return foundry.audio.AudioHelper.play({ src: sound, volume, autoplay: true, loop: false }, true);
+  if (has.sound) return foundry.audio.AudioHelper.play({ src: sound, volume, autoplay: true, loop: false }, false);
 }
 
-/** Событие без броска (второе зрение, Грань «свыше», апокалиптическая форма…). */
+/** Событие без броска (апокалиптическая форма) — на этом клиенте. */
 export const playEvent = (key, actor, opts) => FX_EVENTS[key] ? playFx(FX_EVENTS[key], actor, opts) : null;
 
+/** Пометка для карточки в чат: эффект сыграют все, кто её увидит. */
+export const fxFlags = (theme, actor) => theme ? { fx: theme, fxActor: actor?.uuid ?? null } : {};
+export const eventTheme = key => FX_EVENTS[key] ?? null;
+
 export function registerFx() {
-  game.settings.register(SYSTEM_ID, "fxOn", {
-    name: "VTM20.Settings.FxOn.Name", hint: "VTM20.Settings.FxOn.Hint", scope: "client", config: true, type: Boolean, default: true
+  game.settings.register(SYSTEM_ID, "fxWorld", {
+    name: "VTM20.Settings.FxWorld.Name", hint: "VTM20.Settings.FxWorld.Hint", scope: "world", config: true, type: Boolean, default: true
+  });
+  game.settings.register(SYSTEM_ID, "fxAnim", {
+    name: "VTM20.Settings.FxAnim.Name", hint: "VTM20.Settings.FxAnim.Hint", scope: "client", config: true, type: Boolean, default: true
+  });
+  game.settings.register(SYSTEM_ID, "fxSound", {
+    name: "VTM20.Settings.FxSound.Name", hint: "VTM20.Settings.FxSound.Hint", scope: "client", config: true, type: Boolean, default: true
   });
   game.settings.register(SYSTEM_ID, "fxVolume", {
     name: "VTM20.Settings.FxVolume.Name", hint: "VTM20.Settings.FxVolume.Hint", scope: "client", config: true, type: Number, default: 0.6,
@@ -90,28 +104,28 @@ export function registerFx() {
     onChange: () => { manifest = null; }
   });
 
-  // бросок силы, ритуала, Грани; молитва; срыв — играет автор броска
+  // бросок силы, ритуала, Грани; молитва; срыв; карточка с темой (второе зрение, Грань без броска…) — у всех, кто видит сообщение
   Hooks.on("createChatMessage", async message => {
-    if (message.author?.id !== game.user.id) return;
-    const st = message.flags?.[SYSTEM_ID]?.roll;
-    const pick = st && rollTheme(st);
+    const f = message.flags?.[SYSTEM_ID] ?? {}, user = message.author ?? game.user;
+    if (f.fx) return playFx(f.fx, f.fxActor ? await fromUuid(f.fxActor) : null, { user });
+    const st = f.roll, pick = st && rollTheme(st);
     if (!pick?.theme) return;
     const ext = st.extra?.extended;
     const ok = ext ? ext.done : evaluate(st.values ?? [], st).successes > 0;
     if (pick.on === "fail" ? ok : !ok) return;
     const actor = st.actorUuid ? await fromUuid(st.actorUuid) : null;
-    return playFx(pick.theme, actor);
+    return playFx(pick.theme, actor, { user });
   });
   // сила включена без броска (лист, панель сил)
   Hooks.on("createActiveEffect", (effect, options, userId) => {
     const power = effect.flags?.[SYSTEM_ID]?.power;
-    if (userId !== game.user.id || !power || !(effect.parent instanceof Actor)) return;
+    if (!power || !(effect.parent instanceof Actor)) return;
     const { disc, level } = powerOfKey(Codex, power);
     const theme = powerTheme(disc, level);
-    if (theme) playFx(theme, effect.parent);
+    if (theme) playFx(theme, effect.parent, { user: game.users.get(userId) });
   });
   // падший принимает апокалиптическую форму
-  Hooks.on("updateActor", (actor, changes, options, userId) => {
-    if (userId === game.user.id && actor.type === "demon" && changes.system?.apocalyptic === true) playEvent("demonForm", actor);
+  Hooks.on("updateActor", (actor, changes) => {
+    if (actor.type === "demon" && changes.system?.apocalyptic === true) playEvent("demonForm", actor);
   });
 }
