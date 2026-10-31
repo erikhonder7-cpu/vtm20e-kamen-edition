@@ -8,11 +8,12 @@
 #
 # Запуск из корня системы:  python -I tools/build_data.py
 
-import sys, re, json, os, html
+import sys, re, json, os, html, copy
 
 sys.stdout.reconfigure(encoding="utf-8")
 # python -I не кладёт папку скрипта в пути импорта — без этого не найдутся supplements, merits_extra и др.
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import fsretry; fsretry.install()   # Windows: занятый на миг файл — повтор, а не обрыв сборки
 
 ROOT =os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 REF = os.path.join(ROOT, "books", "Мир Тьмы", "Вампиры", "_справочник")
@@ -873,6 +874,33 @@ def annotate_rolls(disc, rituals):
             rt["roll"] = {"trait1": "attributes.intelligence", "trait2": "abilities.occult", "difficulty": min(9, 3 + rt["level"])}
     return n
 
+TEXT_FIELDS = ("html", "parts")   # то же, что TEXT_FIELDS в module/data/text-split.mjs
+
+
+def split_texts(name, obj):
+    """Вынуть тексты из оглавления (на месте) и вернуть {id: {html, parts}}; id — как eachTextual() в text-split.mjs."""
+    texts = {}
+
+    def take(i, o):
+        t = {f: o.pop(f) for f in TEXT_FIELDS if f in o}
+        if t:
+            texts[i] = t
+    for key, d in obj.items():
+        for i, r in enumerate(d.get("rules") or []):
+            take(f"{key}|r{i}", r)
+        if name == "disciplines":
+            for i, p in enumerate(d.get("powers") or []):
+                take(f"{key}|p{i}", p)
+            for j, pa in enumerate(d.get("paths") or []):
+                take(f"{key}|P{j}", pa)
+                for i, p in enumerate(pa.get("powers") or []):
+                    take(f"{key}|P{j}|{i}", p)
+        else:
+            for i, r in enumerate(d.get("rituals") or []):
+                take(f"{key}|{i}", r)
+    return texts
+
+
 def main():
     os.makedirs(OUT, exist_ok=True)
     ddir = os.path.join(REF, "Дисциплины")
@@ -929,6 +957,13 @@ def main():
     def dump(name, obj):
         with open(os.path.join(OUT, name), "w", encoding="utf-8", newline="\n") as f:
             json.dump(obj, f, ensure_ascii=False, indent=1)
+
+    def dump_split(name, obj):
+        """Оглавление и тексты раздельно: data/<имя>.json и data/<имя>-text.json (module/data/text-split.mjs)."""
+        meta = copy.deepcopy(obj)            # obj нужен дальше целиком (кланы, комбинированные Дисциплины)
+        texts = split_texts(name, meta)
+        dump(f"{name}.json", meta)
+        dump(f"{name}-text.json", texts)
     import polish   # шапка «Уровень · Бросок · Источник» и расшифровка сокращений в описаниях ритуалов
     polish.dedupe_rituals(rituals)
     polish.rituals(rituals)
@@ -946,9 +981,9 @@ def main():
     print("  силы по разделам:", text_structure.disciplines(disc))
     print("  ритуалы по аудитам:", text_structure.rituals(rituals))
     merits = text_structure.merits(merits)
-    dump("disciplines.json", disc)
+    dump_split("disciplines", disc)
     dump("derangements.json", derangements)
-    dump("rituals.json", rituals)
+    dump_split("rituals", rituals)
     dump("combos.json", combos)
     dump("merits.json", merits)
     dump("backgrounds.json", backgrounds)

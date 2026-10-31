@@ -583,6 +583,7 @@ def merits(records, set_name="merits"):
 def main():
     sys.stdout.reconfigure(encoding="utf-8")
     sys.path.insert(0, HERE)
+    import fsretry; fsretry.install()
     for name in ("merits-ghouls", "demon-merits"):
         p = os.path.join(ROOT, "data", f"{name}.json")
         with open(p, encoding="utf-8") as f:

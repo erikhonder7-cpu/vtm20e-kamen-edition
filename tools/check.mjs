@@ -72,7 +72,9 @@ console.log("Данные: JSON читаются");
 
 // ── 3а. Тексты сил и черт: «Описание» + «Система» (tools/text_structure.py) ──
 {
-  const read = f => JSON.parse(fs.readFileSync(path.join(ROOT, "data", f), "utf8"));
+  const { mergeTexts } = await import(pathToFileURL(path.join(ROOT, "module/data/text-split.mjs")).href);
+  const raw = f => JSON.parse(fs.readFileSync(path.join(ROOT, "data", f), "utf8"));
+  const read = f => f === "disciplines.json" ? mergeTexts("disciplines", raw(f), raw("disciplines-text.json")) : raw(f);
   const plain = h => String(h ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
   const SEC = /<h4[^>]*>\s*Описание\s*<\/h4>([\s\S]*)<h4[^>]*>\s*Система\s*<\/h4>([\s\S]*)$/;
   const SERVICE = /Полный текст исходной записи|Стандартная активация:|Параметры, внесённые|Статус записи:|Параметры JSON/;

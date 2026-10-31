@@ -4,6 +4,7 @@
 // tools/build_data.py из книг (books/Мир Тьмы), здесь — только загрузка и поиск.
 
 import { SYSTEM_PATH, SYSTEM_ID } from "../config.mjs";
+import { mergeTexts } from "./text-split.mjs";
 
 const FILES = ["disciplines", "clans", "rituals", "paths", "merits", "merits-ghouls", "backgrounds", "archetypes", "assets", "derangements", "combos", "abilities", "demon", "demon-merits", "demon-backgrounds", "demon-hof", "demon-pg", "demon-earthbound", "demon-form", "investments", "pact-templates", "hunter"];
 
@@ -44,17 +45,41 @@ const SECT_KEYS = [
 
 export const Codex = {
   ready: false,
+  textsReady: false,
   disciplines: {}, clans: [], rituals: {}, paths: [], merits: [], backgrounds: [], archetypes: [], derangements: [], combos: [], abilities: [],
   _loading: null,
+  _texts: null,
 
-  /** Загрузить один раз; повторные вызовы ждут ту же загрузку. */
-  async load() {
-    if (this.ready) return this;
-    this._loading ??= Promise.all(FILES.map(async f => {
-      const res = await fetch(`${SYSTEM_PATH}/data/${f}.json`);
-      this[f] = await res.json();
-    })).then(() => { this.ready = true; this._index(); return this; });
-    return this._loading;
+  /**
+   * Загрузить один раз; повторные вызовы ждут ту же загрузку. По умолчанию — вместе с текстами Дисциплин и ритуалов
+   * (окна, которые их показывают, так и вызывают). { texts: false } — только оглавление: так ждёт старт мира,
+   * а тексты догружаются следом фоном (loadTexts).
+   */
+  async load({ texts = true } = {}) {
+    if (!this.ready) {
+      this._loading ??= Promise.all(FILES.map(async f => {
+        const res = await fetch(`${SYSTEM_PATH}/data/${f}.json`);
+        this[f] = await res.json();
+      })).then(() => { this.ready = true; this._index(); return this; });
+      await this._loading;
+    }
+    if (texts) await this.loadTexts();
+    return this;
+  },
+
+  /** Тексты сил, путей, правил и ритуалов (data/<имя>-text.json, module/data/text-split.mjs) — в оглавление на месте. */
+  async loadTexts() {
+    if (this.textsReady) return this;
+    this._texts ??= (async () => {
+      await this.load({ texts: false });
+      const [d, r] = await Promise.all(["disciplines", "rituals"].map(async f =>
+        (await fetch(`${SYSTEM_PATH}/data/${f}-text.json`)).json()));
+      mergeTexts("disciplines", this.disciplines, d);
+      mergeTexts("rituals", this.rituals, r);
+      this.textsReady = true;
+      return this;
+    })();
+    return this._texts;
   },
 
   _index() {

@@ -395,6 +395,7 @@ export class VtMActor extends Actor {
    *                         hours (сколько часов, где срок по успехам)
    */
   async startPower(power, { variant = "", blood = null, hours = null } = {}) {
+    await Codex.loadTexts();   // описание силы для эффекта — из текстов справочника (догружаются после старта)
     const def = effectDef(power, variant);
     if (!def || this.powerEffects.some(x => x.power === power)) return null;
     const { disc, power: p, level: lvl } = powerOfKey(Codex, power);

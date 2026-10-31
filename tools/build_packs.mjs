@@ -37,7 +37,10 @@ const FOUNDRY_PKG = JSON.parse(fs.readFileSync(path.join(FOUNDRY_APP, "package.j
 const CORE_VERSION = FOUNDRY_PKG.release ? `${FOUNDRY_PKG.release.generation}.${FOUNDRY_PKG.release.build}` : FOUNDRY_PKG.version;
 const { ClassicLevel } = require("classic-level");
 const manifest = JSON.parse(fs.readFileSync(path.join(ROOT, "system.json"), "utf8"));
-const data = f => JSON.parse(fs.readFileSync(path.join(ROOT, "data", `${f}.json`), "utf8"));
+const { mergeTexts } = await import(pathToFileURL(path.join(ROOT, "module/data/text-split.mjs")).href);
+const readJson = f => JSON.parse(fs.readFileSync(path.join(ROOT, "data", `${f}.json`), "utf8"));
+// Дисциплины и ритуалы: оглавление и тексты лежат раздельно (module/data/text-split.mjs) — компендиям нужно целиком
+const data = f => fs.existsSync(path.join(ROOT, "data", `${f}-text.json`)) ? mergeTexts(f, readJson(f), readJson(`${f}-text`)) : readJson(f);
 const { WEAPON_PRESETS, ARMOR_PRESETS, GEAR_PRESETS } = await import(pathToFileURL(path.join(ROOT, "module/data/equipment.mjs")).href);
 const { weaponIcon, armorIcon, traitIcon, backgroundIcon } = await import(pathToFileURL(path.join(ROOT, "module/data/icons.mjs")).href);
 const ru = JSON.parse(fs.readFileSync(path.join(ROOT, "lang/ru.json"), "utf8"));
