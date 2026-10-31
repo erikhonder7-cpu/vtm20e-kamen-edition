@@ -31,6 +31,7 @@ import { POWER_EFFECTS, MODE_LABEL, fxKey } from "../data/effects.mjs";
 import { effectTimer, readingRituals, toggleRitualReading, cancelRitual } from "../apps/timers.mjs";
 import { torporView, deathOf, enterTorpor, wakeFromTorpor, undoDeath } from "../apps/torpor.mjs";
 import { makeExtra } from "../apps/extras.mjs";
+import { refreshActor } from "../apps/codex-refresh.mjs";
 import { ritualHTML } from "../data/ritual-text.mjs";
 import { openThrallGifts } from "../apps/thrall-gifts.mjs";
 import { loseHost, holdOn, newHost, summonedBack } from "../apps/host.mjs";
@@ -116,6 +117,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       endPower: VtMActorSheet.#onEndPower,
       readRitual: VtMActorSheet.#onReadRitual,
       makeExtra: VtMActorSheet.#onMakeExtra,
+      refreshCodex: VtMActorSheet.#onRefreshCodex,
       torporEnter: VtMActorSheet.#onTorporEnter,
       torporWake: VtMActorSheet.#onTorporWake,
       torporWakeBlood: VtMActorSheet.#onTorporWakeBlood,
@@ -907,9 +909,12 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   _getHeaderControls() {
     const controls = super._getHeaderControls();
     if (game.user.isGM) controls.push({ icon: "fa-solid fa-user-shield", label: "VTM20.Extra.MakeExtra", action: "makeExtra" });
+    // тексты сил, ритуалов и черт на листе — заново из справочника (apps/codex-refresh.mjs)
+    if (this.actor.isOwner) controls.push({ icon: "fa-solid fa-book-open-reader", label: "VTM20.Refresh.Button", action: "refreshCodex" });
     return controls;
   }
   static #onMakeExtra() { return makeExtra(this.actor); }
+  static #onRefreshCodex() { return refreshActor(this.actor); }
 
   _onRender(context, options) {
     super._onRender(context, options);

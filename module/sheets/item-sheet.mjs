@@ -8,6 +8,7 @@ import { Codex } from "../data/codex.mjs";
 import { describeMeritMod } from "../data/merit-mods.mjs";
 import { openAttack } from "../combat/combat.mjs";
 import { hasParts } from "../data/ritual-text.mjs";
+import { refreshItem, refreshable } from "../apps/codex-refresh.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ItemSheetV2 } = foundry.applications.sheets;
@@ -27,8 +28,16 @@ export class VtMItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     form: { submitOnChange: true, closeOnSubmit: false },
     actions: { toChat: VtMItemSheet.#onToChat, setDots: VtMItemSheet.#onSetDots, attack: VtMItemSheet.#onAttack,
       toggleField: VtMItemSheet.#onToggleField, qty: VtMItemSheet.#onQty,
-      ritualNoteAdd: VtMItemSheet.#onRitualNoteAdd, ritualNoteDel: VtMItemSheet.#onRitualNoteDel }
+      ritualNoteAdd: VtMItemSheet.#onRitualNoteAdd, ritualNoteDel: VtMItemSheet.#onRitualNoteDel, refreshCodex: VtMItemSheet.#onRefreshCodex }
   };
+
+  /** В меню окна — «Обновить из справочника» для сил, ритуалов, путей и черт. */
+  _getHeaderControls() {
+    const controls = super._getHeaderControls();
+    if (refreshable(this.item) && this.item.isOwner) controls.push({ icon: "fa-solid fa-book-open-reader", label: "VTM20.Refresh.Button", action: "refreshCodex" });
+    return controls;
+  }
+  static #onRefreshCodex() { return refreshItem(this.item); }
 
   static PARTS = { body: { template: `${SYSTEM_PATH}/templates/item/item-sheet.hbs`, scrollable: [".r-item-body"] } };
 

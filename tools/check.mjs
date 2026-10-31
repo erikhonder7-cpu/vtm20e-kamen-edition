@@ -70,6 +70,34 @@ for (const f of [...fs.readdirSync(path.join(ROOT, "data")).filter(f => f.endsWi
 }
 console.log("Данные: JSON читаются");
 
+// ── 3а. Тексты сил и черт: «Описание» + «Система» (tools/text_structure.py) ──
+{
+  const read = f => JSON.parse(fs.readFileSync(path.join(ROOT, "data", f), "utf8"));
+  const plain = h => String(h ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  const SEC = /<h4[^>]*>\s*Описание\s*<\/h4>([\s\S]*)<h4[^>]*>\s*Система\s*<\/h4>([\s\S]*)$/;
+  const SERVICE = /Полный текст исходной записи|Стандартная активация:|Параметры, внесённые|Статус записи:|Параметры JSON/;
+  const bad = { noSections: [], service: [], repeat: [], empty: [] };
+  const look = (where, html) => {
+    const m = String(html ?? "").match(SEC);
+    if (!m) return bad.noSections.push(where);
+    if (SERVICE.test(html)) bad.service.push(where);
+    const [d, s] = [plain(m[1]), plain(m[2])];
+    if (!d || !s) bad.empty.push(where);
+    else if (s.replace(/\s/g, "").startsWith(d.replace(/\s/g, ""))) bad.repeat.push(where);   // система повторяет описание
+  };
+  let n = 0;
+  for (const [k, d] of Object.entries(read("disciplines.json")))
+    for (const p of [...(d.powers ?? []), ...(d.paths ?? []).flatMap(x => x.powers ?? [])]) { n++; look(`${k}: ${p.name}`, p.html); }
+  for (const f of ["merits.json", "merits-ghouls.json", "demon-merits.json"])
+    for (const m of read(f)) { n++; look(`${f}: ${m.name}`, m.html); }
+  const show = a => a.slice(0, 5).join("; ") + (a.length > 5 ? ` … и ещё ${a.length - 5}` : "");
+  ok(!bad.noSections.length, `без разделов «Описание»/«Система» (${bad.noSections.length}): ${show(bad.noSections)}`);
+  ok(!bad.service.length, `служебные пометки справочника в тексте (${bad.service.length}): ${show(bad.service)}`);
+  ok(!bad.empty.length, `пустое «Описание» или «Система» (${bad.empty.length}): ${show(bad.empty)}`);
+  ok(!bad.repeat.length, `«Система» повторяет «Описание» (${bad.repeat.length}): ${show(bad.repeat)}`);
+  console.log(`Тексты: ${n} сил и черт — «Описание» и «Система»`);
+}
+
 // ── 4. Свои значки предметов ──────────────────────────────────────────────
 {
   const { OWN_ICON_FILES } = await import(pathToFileURL(path.join(ROOT, "module/data/icons.mjs")).href);

@@ -378,6 +378,9 @@
 }
 /* название не уже своего длинного слова; метки и кнопки при нехватке места — на следующую строку, а не поверх названия */
 .vtm20 .r-lib-title { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 10px; min-width: 0; }
+/* длинная метка источника не вылезает за карточку — многоточие */
+.vtm20 .r-lib-title .r-tag { flex: 0 1 auto; display: inline-block; min-width: 0; max-width: 100%; line-height: 15px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .vtm20 .r-lib-sym { flex: 0 0 34px; width: 34px; height: 34px; padding: 5px; border: 1px solid var(--r-line-2); border-radius: 50%; background: radial-gradient(circle at 50% 38%, #26262a, #0c0c0e); }
 .vtm20 .r-lib-lvl, .vtm20 .r-lib-cost {
   flex: 0 0 auto; min-width: 26px; height: 26px; padding: 0 5px; display: inline-grid; place-items: center;
@@ -1188,3 +1191,10 @@ body.r-theme-light .vtm20 .r-ng-item.is-active, body.r-theme-light .vtm20 .r-ng-
 .vtm20.r-edge-dialog .r-edge-num > em { grid-area: sub; font-size: 12px; color: var(--r-muted); white-space: nowrap; }
 .vtm20.r-edge-dialog .r-edge-notes { display: flex; flex-direction: column; gap: 4px; padding-top: 8px; border-top: 1px solid var(--r-line); }
 .vtm20.r-edge-dialog .r-edge-notes p { margin: 0; font-size: 12.5px; line-height: 1.45; font-style: italic; color: var(--r-muted); }
+
+/* Обновить из справочника (apps/codex-refresh.mjs): список записей с галочками */
+.vtm20.r-refresh .r-refresh-list { display: flex; flex-direction: column; gap: 2px; max-height: 360px; overflow-y: auto; margin-top: 8px;
+  padding: 4px 6px; border: 1px solid var(--r-line); background: var(--r-card-bg); }
+.vtm20.r-refresh .r-refresh-row { padding: 3px 2px; border-bottom: 1px dotted var(--r-line); }
+.vtm20.r-refresh .r-refresh-row:last-child { border-bottom: 0; }
+.vtm20.r-refresh .r-refresh-row small { margin-left: 6px; font-family: var(--r-caps); font-size: 10.5px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--r-muted); }
