@@ -404,7 +404,8 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
         const ab = s.abilities[k];
         return {
           key: k, label: game.i18n.localize(VTM20.abilities[k].label), value: ab.value,
-          dots: dots(ab.value, cap, { path: `system.abilities.${k}.value` }), specialty: ab.specialty, canSpec: ab.value >= 4,
+          dots: dots(ab.value, cap, { path: `system.abilities.${k}.value` }), specialty: ab.specialty,
+          canSpec: VTM20.canChooseSpecialty("abilities", k, ab.value),
           xp: a.xpCost("ability", ab.value)
         };
       }),

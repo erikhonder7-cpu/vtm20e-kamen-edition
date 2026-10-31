@@ -182,10 +182,12 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     if (v.target === "helpless") notes.push(t("Combat.Target.helplessNote"));
     if (v.blind && c.ranged) notes.push(t("Combat.BlindRanged"));
     const dmg = c.dmg == null ? null : c.dmg + aimDmg;
-    const spec = a.traitSpecialty(`abilities.${c.ability}`) || a.traitSpecialty(`attributes.${c.attr}`);
+    const specialtyPaths = [`abilities.${c.ability}`, `attributes.${c.attr}`].filter(p => a.traitSpecialtyEligible(p));
+    const spec = specialtyPaths.map(p => a.traitSpecialty(p)).filter(Boolean).join(", ");
     if (c.auto) notes.push(t("Combat.PotenceDamage", { n: c.auto }));
     if (a.celerityActions) notes.push(t("Combat.CelerityNote", { n: a.celerityActions }));
-    return { pool: Math.max(0, pool), breakdown: bd, difficulty: Math.max(2, diff), damage: dmg, choice: c, notes, phys, specialtyName: spec, attackAuto };
+    return { pool: Math.max(0, pool), breakdown: bd, difficulty: Math.max(2, diff), damage: dmg, choice: c, notes, phys,
+      specialtyName: spec, specialtyEligible: specialtyPaths.length > 0, attackAuto };
   }
 
   async _prepareContext() {
@@ -206,9 +208,10 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     };
     for (const tk of game.user.targets ?? []) push(tk.actor, true);
     for (const tk of canvas?.tokens?.placeables ?? []) push(tk.actor, false);
-    const chances = chancesView(odds({ pool: r.pool, difficulty: r.difficulty, specialty: v.specialty, willpower: v.willpower, auto: r.attackAuto ?? 0 }));
+    const specialty = v.specialty && r.specialtyEligible;
+    const chances = chancesView(odds({ pool: r.pool, difficulty: r.difficulty, specialty, willpower: v.willpower, auto: r.attackAuto ?? 0 }));
     return {
-      v, ...r, weapons, maneuvers, ranged: r.choice.ranged, foes, chances,
+      v: { ...v, specialty }, ...r, canUseSpecialty: r.specialtyEligible, weapons, maneuvers, ranged: r.choice.ranged, foes, chances,
       damageType: game.i18n.localize(VTM20.damageTypes[r.choice.type]?.label ?? ""),
       positions: opt(["front", "flank", "rear"], v.position, "Combat.Pos"),
       aims: opt(["none", "medium", "small", "tiny"], v.aim, "Combat.Aim"),
@@ -264,7 +267,7 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       damageAuto: c.auto ?? 0, venom: !!c.venom };
     const res = await rollPool({
       actor: this.actor, title: c.name, subtitle: foe ? `${t("Combat.Attack")} → ${foe.name}` : t("Combat.Attack"),
-      pool: r.pool, difficulty: r.difficulty, specialty: v.specialty, specialtyName: r.specialtyName,
+      pool: r.pool, difficulty: r.difficulty, specialty: v.specialty && r.specialtyEligible, specialtyName: r.specialtyName,
       willpower: v.willpower, breakdown: r.breakdown, kind: "attack", messageMode: v.messageMode, auto: r.attackAuto,
       extra: r.damage == null ? link : { ...link, damagePool: r.damage, damageType: c.type, fangs: c.fangs },
       notes

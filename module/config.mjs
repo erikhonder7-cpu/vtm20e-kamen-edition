@@ -38,24 +38,28 @@ VTM20.abilityGroups = {
 
 VTM20.abilities = {
   alertness:    { group: "talents" }, athletics:   { group: "talents" }, awareness:  { group: "talents" },
-  brawl:        { group: "talents" }, empathy:     { group: "talents" }, expression: { group: "talents" },
+  brawl:        { group: "talents" }, empathy:     { group: "talents" }, expression: { group: "talents", earlySpecialty: true },
   intimidation: { group: "talents" }, leadership:  { group: "talents" }, streetwise: { group: "talents" },
   subterfuge:   { group: "talents" },
   intuition:    { group: "talents", only: "demon" },     // Demon: The Fallen — только у демонов
-  animalKen:    { group: "skills" }, crafts:   { group: "skills" }, drive:       { group: "skills", era: "modern" },
+  animalKen:    { group: "skills" }, crafts:   { group: "skills", earlySpecialty: true }, drive:       { group: "skills", era: "modern" },
   ride:         { group: "skills", era: "revolution" },
   etiquette:    { group: "skills" }, firearms: { group: "skills" }, larceny:     { group: "skills" },
-  melee:        { group: "skills" }, performance: { group: "skills" }, stealth:  { group: "skills" },
+  melee:        { group: "skills" }, performance: { group: "skills", earlySpecialty: true }, stealth:  { group: "skills" },
   survival:     { group: "skills" },
-  academics:    { group: "knowledges" }, computer: { group: "knowledges", era: "modern" },
+  academics:    { group: "knowledges", earlySpecialty: true }, computer: { group: "knowledges", era: "modern" },
   theology:     { group: "knowledges", era: "revolution" },
-  finance:      { group: "knowledges" }, investigation: { group: "knowledges" }, law: { group: "knowledges" },
+  finance:      { group: "knowledges" }, investigation: { group: "knowledges" }, law: { group: "knowledges", earlySpecialty: true },
   medicine:     { group: "knowledges" }, occult: { group: "knowledges" }, politics: { group: "knowledges" },
-  science:      { group: "knowledges" }, technology: { group: "knowledges", era: "modern" },
+  science:      { group: "knowledges", earlySpecialty: true }, technology: { group: "knowledges", era: "modern", earlySpecialty: true },
   warfare:      { group: "knowledges", era: "revolution" },
   religion:     { group: "knowledges", only: "demon" }
 };
 for (const [k, a] of Object.entries(VTM20.abilities)) a.label = L(`Abil.${k}`);
+
+/** Специализацию этих широких способностей можно указать с первой точки (01). */
+VTM20.canChooseSpecialty = (group, key, rating) => Number(rating) >= 4 ||
+  (group === "abilities" && Number(rating) >= 1 && !!VTM20.abilities[key]?.earlySpecialty);
 
 VTM20.eras = {
   modern:     { label: L("Era.modern") },

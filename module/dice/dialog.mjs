@@ -115,7 +115,7 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       const part = Math.floor(Math.max(0, pool) / v.actions);
       bd.push({ label: t("Roll.MultiActions", { n: v.actions }), value: part - pool }); pool = part;
     }
-    const specs = [v.trait1, v.trait2].map(p => a.traitSpecialty(p)).filter(Boolean);
+    const specs = [v.trait1, v.trait2].filter(p => a.traitSpecialtyEligible(p)).map(p => a.traitSpecialty(p)).filter(Boolean);
     // Сложность от включённых сил (data/effects.mjs): к Восприятию — сама, прочее — по обстоятельствам
     const fx = a.system.fx?.diff ?? {};
     const attrs = [v.trait1, v.trait2].filter(p => p?.startsWith("attributes.")).map(p => p.split(".")[1]);
@@ -131,7 +131,8 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       .concat(meritSit.map(m => ({ label: m.label, value: m.value, dice: !!m.dice, kind: "merit", on: m.on, hint: m.hint })));
     const diffShift = diffAuto.filter(d => !d.dice).reduce((s, d) => s + d.value, 0) + diffSit.filter(d => d.on && !d.dice).reduce((s, d) => s + d.value, 0);
     const effDifficulty = Math.clamp(v.difficulty + diffShift, 2, 10);
-    return { pool: Math.max(0, pool), breakdown: bd, specialtyName: specs.join(", "), physicalBonus: phys || auto, attr, diffAuto, diffSit, effDifficulty, auto };
+    return { pool: Math.max(0, pool), breakdown: bd, specialtyName: specs.join(", "), specialtyEligible: specs.length > 0,
+      physicalBonus: phys || auto, attr, diffAuto, diffSit, effDifficulty, auto };
   }
 
   /** Перебор (гл. 9, с. 252): только в призыве падшего, у которого есть слуги или «Договоры»; не больше постоянной Веры. */
@@ -172,11 +173,12 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const mark = (groups, cur) => groups.map(g => ({ ...g, options: g.options.map(o => ({ ...o, selected: o.value === cur })) }));
     // Шансы: тот же пул, что уйдёт в бросок (фиксированный пул сил — со своими модификаторами)
     const pool = this.cfg.pool != null ? Math.max(0, this.cfg.pool + v.bonus + this.#overdraw() + (v.wounds ? this.actor.system.health.penalty : 0)) : c.pool;
-    const o = odds({ pool, difficulty: c.effDifficulty, specialty: v.specialty, willpower: v.willpower && !this.cfg.noWillpower,
+    const specialty = v.specialty && c.specialtyEligible;
+    const o = odds({ pool, difficulty: c.effDifficulty, specialty, willpower: v.willpower && !this.cfg.noWillpower,
       auto: this.cfg.pool != null ? 0 : c.auto });
     const chances = chancesView(o);
     return {
-      v, ...c, chances, shownPool: pool,
+      v: { ...v, specialty }, ...c, canUseSpecialty: c.specialtyEligible, chances, shownPool: pool,
       groups1: mark(groups1, v.trait1), groups2: mark(groups2, v.trait2),
       lockTraits: !!this.cfg.lockTraits, fixedPool: this.cfg.pool != null, locked: this.#locked(v),
       // одна шкала (В2): пунктир — выбранная сложность, заливка — итог с поправками от сил и черт
@@ -258,7 +260,7 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     if (od) notes.push(`<i class="fa-solid fa-hand-holding-droplet"></i> ${t("Demon.OverdrawNote", { n: od })}`);
     const res = await rollPool({
       actor: this.actor, title, subtitle: cfg.subtitle ?? "",
-      pool, difficulty: c.effDifficulty, specialty: v.specialty, specialtyName: c.specialtyName,
+      pool, difficulty: c.effDifficulty, specialty: v.specialty && c.specialtyEligible, specialtyName: c.specialtyName,
       willpower: v.willpower && !cfg.noWillpower, breakdown: cfg.pool != null ? (cfg.breakdown ?? []) : c.breakdown,
       kind: cfg.kind ?? "check", messageMode: v.messageMode, auto: cfg.pool != null ? 0 : c.auto,
       extra: { ...(cfg.extra ?? {}), contest: v.contest, ...(v.contest === "extended" ? { extended: { need: v.need, prev: 0, step: 0 } } : {}) },

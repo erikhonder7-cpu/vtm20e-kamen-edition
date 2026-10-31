@@ -143,6 +143,17 @@ export class VtMActor extends Actor {
     return "";
   }
 
+  /** Специализация действует при 4+; у отмеченных широких способностей — уже с 1 (01). */
+  traitSpecialtyEligible(path) {
+    if (!path) return false;
+    const [group, key] = path.split(".");
+    const trait = group === "attributes" || group === "abilities" ? this.system[group]?.[key]
+      : group === "secondary" ? this.system.secondary?.[Number(key)] : null;
+    const rating = Number(trait?.value);
+    const earlyAbility = group === "abilities" && rating >= 1 && !!VTM20.abilities[key]?.earlySpecialty;
+    return !!trait?.specialty?.trim() && (rating >= 4 || earlyAbility);
+  }
+
   /**
    * Бонус к пулу от физических Дисциплин (Дисциплины/06, 14): Мощь к Силе, Стремительность к Ловкости.
    * Мощь, «включённая» кровью, в этот ход идёт автоуспехами, а не кубами (physicalAuto);
