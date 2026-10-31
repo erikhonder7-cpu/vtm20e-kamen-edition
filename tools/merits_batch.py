@@ -13,7 +13,7 @@ ROOT = os.path.dirname(HERE)
 SNAP = os.path.join(HERE, "sources", "structure", "merits_final.json")
 KEEP = ["kind", "category", "name", "en", "cost", "min", "max", "clan", "sect", "era", "source", "line", "bystander", "page",
         "source_ref", "description_text", "system_text"]
-CLAN_ALIAS = {"salubri": "salyubri"}
+CLAN_ALIAS = {"salubri": "salyubri", "cappadocian": "kappadokiytsy"}
 
 # Черты, у которых весь текст — одна механика: (вид, имя, книга) → (описание, система); None — остаток текста после описания
 SPLIT = {
