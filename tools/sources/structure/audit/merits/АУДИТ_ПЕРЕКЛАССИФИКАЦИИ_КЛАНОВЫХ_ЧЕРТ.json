@@ -1,0 +1,2071 @@
+{
+  "rule": "clan field populated => category clan",
+  "changed_records": [
+    {
+      "kind": "merit",
+      "name": "Союзник в секте",
+      "en": "Sectarian Ally",
+      "clan": "assamite",
+      "source": "V20 Lore of the Clans",
+      "from": "social",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Убийца на тысячу метров",
+      "en": "Thousand Meter Killer",
+      "clan": "assamite",
+      "source": "V20 Lore of the Clans",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Изгой касты",
+      "en": "Outcast",
+      "clan": "assamite",
+      "source": "V20 Lore of the Clans",
+      "from": "social",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Сломленный антитрибу",
+      "en": "Broken Antitribu",
+      "clan": "assamite",
+      "source": "V20 Lore of the Clans",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Множественные проклятия",
+      "en": "Multiple Curses",
+      "clan": "assamite",
+      "source": "V20 Lore of the Clans",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Фокус ярости",
+      "en": "Fury's Focus",
+      "clan": "brujah",
+      "source": "V20 Lore of the Clans",
+      "from": "mental",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Яркая личность",
+      "en": "Dynamic Personality",
+      "clan": "brujah",
+      "source": "V20 Lore of the Clans",
+      "from": "social",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Явный хищник",
+      "en": "Obvious Predator",
+      "clan": "brujah",
+      "source": "V20 Lore of the Clans",
+      "from": "social",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Устойчивость к наркотикам",
+      "en": "Drug Resistance",
+      "clan": "setite",
+      "source": "V20 Lore of the Clans",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Вызывающая привыкание кровь",
+      "en": "Addictive Blood",
+      "clan": "setite",
+      "source": "V20 Lore of the Clans",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Посвящённый Сета",
+      "en": "Setite Initiate",
+      "clan": "setite",
+      "source": "V20 Lore of the Clans",
+      "from": "social",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Чешуя",
+      "en": "Scales",
+      "clan": "setite",
+      "source": "V20 Lore of the Clans",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Ядовитый укус",
+      "en": "Venomous Bite",
+      "clan": "setite",
+      "source": "V20 Lore of the Clans",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Раздвоенный язык",
+      "en": "Forked Tongue",
+      "clan": "setite",
+      "source": "V20 Lore of the Clans",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Бессердечный",
+      "en": "Heartless",
+      "clan": "setite",
+      "source": "V20 Lore of the Clans",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Аура Тифона",
+      "en": "Aura of the Typhon",
+      "clan": "setite",
+      "source": "V20 Lore of the Clans",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Роевой разум",
+      "en": "Hive‑Minded",
+      "clan": "gangrel",
+      "source": "V20 Lore of the Clans",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Скальд",
+      "en": "Skald",
+      "clan": "gangrel",
+      "source": "V20 Lore of the Clans",
+      "from": "mental",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Малая метка Зверя",
+      "en": "Lesser Mark of the Beast",
+      "clan": "gangrel",
+      "source": "V20 Lore of the Clans",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Тотемная смена",
+      "en": "Totemic Change",
+      "clan": "gangrel",
+      "source": "V20 Lore of the Clans",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Член стаи",
+      "en": "Member of the Pack",
+      "clan": "gangrel",
+      "source": "V20 Lore of the Clans",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Крыса в клетке",
+      "en": "Rat in a Cage",
+      "clan": "gangrel",
+      "source": "V20 Lore of the Clans",
+      "from": "mental",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Каннибал",
+      "en": "Cannibal",
+      "clan": "giovanni",
+      "source": "V20 Lore of the Clans",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Единокровная невосприимчивость",
+      "en": "Consanguineous Resistance",
+      "clan": "giovanni",
+      "source": "V20 Lore of the Clans",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Мортуарио",
+      "en": "Mortuario",
+      "clan": "giovanni",
+      "source": "V20 Lore of the Clans",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Кровная несообразность",
+      "en": "Sanguine Incongruity",
+      "clan": "giovanni",
+      "source": "V20 Lore of the Clans",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Близкородственность",
+      "en": "Inbred",
+      "clan": "giovanni",
+      "source": "V20 Lore of the Clans",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Ходящий в тени",
+      "en": "Shadow Walker",
+      "clan": "giovanni",
+      "source": "V20 Lore of the Clans",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Фаворит Двора",
+      "en": "Court Favorite",
+      "clan": "lasombra",
+      "source": "V20 Lore of the Clans",
+      "from": "social",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Глаза тени",
+      "en": "Eyes of Shadow",
+      "clan": "lasombra",
+      "source": "V20 Lore of the Clans",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Пришли большие парни",
+      "en": "Bigger Boys Came",
+      "clan": "lasombra",
+      "source": "V20 Lore of the Clans",
+      "from": "social",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Зов моря",
+      "en": "Call of the Sea",
+      "clan": "lasombra",
+      "source": "V20 Lore of the Clans",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Управляемое ночное зрение",
+      "en": "Controllable Night Sight",
+      "clan": "lasombra",
+      "source": "V20 Lore of the Clans",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Тайный запас",
+      "en": "Secret Stash",
+      "clan": "lasombra",
+      "source": "V20 Lore of the Clans",
+      "from": "social",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Аура командира",
+      "en": "Aura of Command",
+      "clan": "lasombra",
+      "source": "V20 Lore of the Clans",
+      "from": "social",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Король/Королева Тени",
+      "en": "King or Queen of Shadow",
+      "clan": "lasombra",
+      "source": "V20 Lore of the Clans",
+      "from": "mental",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Долгосрочное планирование",
+      "en": "Long‑Term Planning",
+      "clan": "lasombra",
+      "source": "V20 Lore of the Clans",
+      "from": "mental",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Орудие Божье",
+      "en": "Instrument of God",
+      "clan": "lasombra",
+      "source": "V20 Lore of the Clans",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Неуправляемое ночное зрение",
+      "en": "Uncontrollable Night Sight",
+      "clan": "lasombra",
+      "source": "V20 Lore of the Clans",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Недоказавший",
+      "en": "Unproven",
+      "clan": "lasombra",
+      "source": "V20 Lore of the Clans",
+      "from": "social",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Сбивающая аура",
+      "en": "Distracting Aura",
+      "clan": "malkavian",
+      "source": "V20 Lore of the Clans",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Вещие сны",
+      "en": "Prophetic Dreams",
+      "clan": "malkavian",
+      "source": "V20 Lore of the Clans",
+      "from": "mental",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Холодное чтение",
+      "en": "Cold Read",
+      "clan": "malkavian",
+      "source": "V20 Lore of the Clans",
+      "from": "mental",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Бумажный след",
+      "en": "Paper Trail",
+      "clan": "malkavian",
+      "source": "V20 Lore of the Clans",
+      "from": "social",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Стигматы",
+      "en": "Stigmata",
+      "clan": "malkavian",
+      "source": "V20 Lore of the Clans",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Заразный",
+      "en": "Infectious",
+      "clan": "malkavian",
+      "source": "V20 Lore of the Clans",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Перевозбуждённый",
+      "en": "Overstimulated",
+      "clan": "malkavian",
+      "source": "V20 Lore of the Clans",
+      "from": "mental",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Мёртвый внутри",
+      "en": "Dead Inside",
+      "clan": "malkavian",
+      "source": "V20 Lore of the Clans",
+      "from": "mental",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Мерзкая кровь",
+      "en": "Foul Blood",
+      "clan": "nosferatu",
+      "source": "V20 Lore of the Clans",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Конечности ящерицы",
+      "en": "Lizard Limbs",
+      "clan": "nosferatu",
+      "source": "V20 Lore of the Clans",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Длинные пальцы",
+      "en": "Long Fingers",
+      "clan": "nosferatu",
+      "source": "V20 Lore of the Clans",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Чудовищная пасть",
+      "en": "Monstrous Maw",
+      "clan": "nosferatu",
+      "source": "V20 Lore of the Clans",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Рыбий",
+      "en": "Piscine",
+      "clan": "nosferatu",
+      "source": "V20 Lore of the Clans",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Склизкий",
+      "en": "Slimy",
+      "clan": "nosferatu",
+      "source": "V20 Lore of the Clans",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Нерестовый пруд",
+      "en": "Spawning Pool",
+      "clan": "nosferatu",
+      "source": "V20 Lore of the Clans",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Туннельная крыса",
+      "en": "Tunnel Rat",
+      "clan": "nosferatu",
+      "source": "V20 Lore of the Clans",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Незримый сон",
+      "en": "Sleep Unseen",
+      "clan": "nosferatu",
+      "source": "V20 Lore of the Clans",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Толстая шкура",
+      "en": "Tough Hide",
+      "clan": "nosferatu",
+      "source": "V20 Lore of the Clans",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Ложное отражение",
+      "en": "False Reflection",
+      "clan": "nosferatu",
+      "source": "V20 Lore of the Clans",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Летательные перепонки",
+      "en": "Patagia",
+      "clan": "nosferatu",
+      "source": "V20 Lore of the Clans",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Грубоватая некрасивость",
+      "en": "Rugged Bad Looks",
+      "clan": "nosferatu",
+      "source": "V20 Lore of the Clans",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Вонь",
+      "en": "Stench",
+      "clan": "nosferatu",
+      "source": "V20 Lore of the Clans",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Опасная тайна",
+      "en": "Dangerous Secret",
+      "clan": "nosferatu",
+      "source": "V20 Lore of the Clans",
+      "from": "social",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Аносмия",
+      "en": "Anosmia",
+      "clan": "nosferatu",
+      "source": "V20 Lore of the Clans",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Паразиты",
+      "en": "Parasitic Infestation",
+      "clan": "nosferatu",
+      "source": "V20 Lore of the Clans",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Звероподобный",
+      "en": "Bestial",
+      "clan": "nosferatu",
+      "source": "V20 Lore of the Clans",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Вражеский выводок",
+      "en": "Enemy Brood",
+      "clan": "nosferatu",
+      "source": "V20 Lore of the Clans",
+      "from": "social",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Гниющий",
+      "en": "Putrescent",
+      "clan": "nosferatu",
+      "source": "V20 Lore of the Clans",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Бессвязный",
+      "en": "Incoherent",
+      "clan": "nosferatu",
+      "source": "V20 Lore of the Clans",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Кровь‑противоядие",
+      "en": "Antitoxin Blood",
+      "clan": "ravnos",
+      "source": "V20 Lore of the Clans",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Брахман",
+      "en": "Brahmin",
+      "clan": "ravnos",
+      "source": "V20 Lore of the Clans",
+      "from": "mental",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Кшатрий",
+      "en": "Kshatriya",
+      "clan": "ravnos",
+      "source": "V20 Lore of the Clans",
+      "from": "social",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Ловкость рук",
+      "en": "Legerdemain",
+      "clan": "ravnos",
+      "source": "V20 Lore of the Clans",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Немая преданность",
+      "en": "Mute Devotion",
+      "clan": "ravnos",
+      "source": "V20 Lore of the Clans",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Вайшья",
+      "en": "Vaishya",
+      "clan": "ravnos",
+      "source": "V20 Lore of the Clans",
+      "from": "social",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Зверюшки",
+      "en": "Critters",
+      "clan": "ravnos",
+      "source": "V20 Lore of the Clans",
+      "from": "social",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Сердце из игл",
+      "en": "Heart of Needles",
+      "clan": "ravnos",
+      "source": "V20 Lore of the Clans",
+      "from": "mental",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Чандала",
+      "en": "Chandala",
+      "clan": "ravnos",
+      "source": "V20 Lore of the Clans",
+      "from": "social",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Несовершенная реальность",
+      "en": "Flawed Reality",
+      "clan": "ravnos",
+      "source": "V20 Lore of the Clans",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Клятвопреступник",
+      "en": "Oathbreaker",
+      "clan": "ravnos",
+      "source": "V20 Lore of the Clans",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Утраченная свадхарма",
+      "en": "Lost Svadharma",
+      "clan": "ravnos",
+      "source": "V20 Lore of the Clans",
+      "from": "social",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Несмываемый",
+      "en": "Indelible",
+      "clan": "toreador",
+      "source": "V20 Lore of the Clans",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Впечатляющая сдержанность",
+      "en": "Impressive Restraint",
+      "clan": "toreador",
+      "source": "V20 Lore of the Clans",
+      "from": "mental",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Мастер Маскарада",
+      "en": "Master of the Masquerade",
+      "clan": "toreador",
+      "source": "V20 Lore of the Clans",
+      "from": "social",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Замедленная деградация",
+      "en": "Slowed Degeneration",
+      "clan": "toreador",
+      "source": "V20 Lore of the Clans",
+      "from": "mental",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Измученный художник",
+      "en": "Tortured Artist",
+      "clan": "toreador",
+      "source": "V20 Lore of the Clans",
+      "from": "mental",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Тайная жизнь",
+      "en": "Private Life",
+      "clan": "toreador",
+      "source": "V20 Lore of the Clans",
+      "from": "social",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Обращён без Чаши",
+      "en": "Embraced without the Cup",
+      "clan": "tremere",
+      "source": "V20 Lore of the Clans",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Член тайного общества",
+      "en": "Secret Society Member",
+      "clan": "tremere",
+      "source": "V20 Lore of the Clans",
+      "from": "social",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Ключи от библиотеки",
+      "en": "Keys to the Library",
+      "clan": "tremere",
+      "source": "V20 Lore of the Clans",
+      "from": "mental",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Убежище вне капеллы",
+      "en": "Outside Haven",
+      "clan": "tremere",
+      "source": "V20 Lore of the Clans",
+      "from": "social",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Неотмеченный антитрибу",
+      "en": "Unmarked Antitribu",
+      "clan": "tremere",
+      "source": "V20 Lore of the Clans",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Квартирмейстер",
+      "en": "Quartermaster",
+      "clan": "tremere",
+      "source": "V20 Lore of the Clans",
+      "from": "social",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Тайное проклятие",
+      "en": "Arcane Curse",
+      "clan": "tremere",
+      "source": "V20 Lore of the Clans",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Затворник",
+      "en": "Cloistered",
+      "clan": "tremere",
+      "source": "V20 Lore of the Clans",
+      "from": "social",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Метка предателя",
+      "en": "Betrayer's Mark",
+      "clan": "tremere",
+      "source": "V20 Lore of the Clans",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Связан с кланом",
+      "en": "Bound to the Clan",
+      "clan": "tremere",
+      "source": "V20 Lore of the Clans",
+      "from": "social",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Кровь мага",
+      "en": "Mage Blood",
+      "clan": "tremere",
+      "source": "V20 Lore of the Clans",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Тауматургически неспособный",
+      "en": "Thaumaturgically Inept",
+      "clan": "tremere",
+      "source": "V20 Lore of the Clans",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Биолюминесценция",
+      "en": "Bioluminescence",
+      "clan": "tzimisce",
+      "source": "V20 Lore of the Clans",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Терпимость к боли",
+      "en": "Pain Tolerance",
+      "clan": "tzimisce",
+      "source": "V20 Lore of the Clans",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Нрав Дракона",
+      "en": "Dracon's Temperament",
+      "clan": "tzimisce",
+      "source": "V20 Lore of the Clans",
+      "from": "mental",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Связь с убежищем",
+      "en": "Haven Affinity",
+      "clan": "tzimisce",
+      "source": "V20 Lore of the Clans",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Дисциплины ревенанта",
+      "en": "Revenant Disciplines",
+      "clan": "tzimisce",
+      "source": "V20 Lore of the Clans",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Прометеева глина",
+      "en": "Promethean Clay",
+      "clan": "tzimisce",
+      "source": "V20 Lore of the Clans",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Немигающий",
+      "en": "Unblinking",
+      "clan": "tzimisce",
+      "source": "V20 Lore of the Clans",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Зависимость от земли предков",
+      "en": "Ancestral Soil Dependence",
+      "clan": "tzimisce",
+      "source": "V20 Lore of the Clans",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Безликий",
+      "en": "Faceless",
+      "clan": "tzimisce",
+      "source": "V20 Lore of the Clans",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Одержимость уединением",
+      "en": "Privacy Obsession",
+      "clan": "tzimisce",
+      "source": "V20 Lore of the Clans",
+      "from": "mental",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Слабость ревенанта",
+      "en": "Revenant Weakness",
+      "clan": "tzimisce",
+      "source": "V20 Lore of the Clans",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Пожирание",
+      "en": "Consumption",
+      "clan": "tzimisce",
+      "source": "V20 Lore of the Clans",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Знаток",
+      "en": "Connoisseur",
+      "clan": "ventrue",
+      "source": "V20 Lore of the Clans",
+      "from": "mental",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Благословлён св. Густавом",
+      "en": "Blessed by St. Gustav",
+      "clan": "ventrue",
+      "source": "V20 Lore of the Clans",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Редкое предпочтение витэ",
+      "en": "Uncommon Vitae Preference",
+      "clan": "ventrue",
+      "source": "V20 Lore of the Clans",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Личный Маскарад",
+      "en": "Personal Masquerade",
+      "clan": "caitiff",
+      "source": "V20 Lore of the Clans",
+      "from": "social",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Изъян клана",
+      "en": "Clan Weakness",
+      "clan": "caitiff",
+      "source": "V20 Lore of the Clans",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Без клыков",
+      "en": "Fangless",
+      "clan": "caitiff",
+      "source": "V20 Lore of the Clans",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Неведение",
+      "en": "Ignorance",
+      "clan": "caitiff",
+      "source": "V20 Lore of the Clans",
+      "from": "mental",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Булимия",
+      "en": "Bulimia",
+      "clan": "caitiff",
+      "source": "V20 Lore of the Clans",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Высокая цена",
+      "en": "The High Price",
+      "clan": "baali",
+      "source": "V20 Lore of the Bloodlines",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Просто ждёт",
+      "en": "Simply Waiting",
+      "clan": "baali",
+      "source": "V20 Lore of the Bloodlines",
+      "from": "mental",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Трупное присутствие",
+      "en": "Carrion Presence",
+      "clan": "baali",
+      "source": "V20 Lore of the Bloodlines",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Тёмная аура",
+      "en": "Dark Aura",
+      "clan": "baali",
+      "source": "V20 Lore of the Bloodlines",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Нашествие демонов",
+      "en": "Plague of Demons",
+      "clan": "baali",
+      "source": "V20 Lore of the Bloodlines",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Хоровая выучка",
+      "en": "Chorus Trained",
+      "clan": "docheriKakofonii",
+      "source": "V20 Lore of the Bloodlines",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Чутьё Фуги",
+      "en": "Fugue Instinct",
+      "clan": "docheriKakofonii",
+      "source": "V20 Lore of the Bloodlines",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Банши в ожидании",
+      "en": "Banshee-in-Waiting",
+      "clan": "docheriKakofonii",
+      "source": "V20 Lore of the Bloodlines",
+      "from": "mental",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Мёртвая неподвижность",
+      "en": "Stillness of Death",
+      "clan": "gorguli",
+      "source": "V20 Lore of the Bloodlines",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Тяжёлые руки",
+      "en": "Heavy Hands",
+      "clan": "gorguli",
+      "source": "V20 Lore of the Bloodlines",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Каменный язык",
+      "en": "Stone Tongue",
+      "clan": "gorguli",
+      "source": "V20 Lore of the Bloodlines",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Слабость крови",
+      "en": "Blood Weakness",
+      "clan": "gorguli",
+      "source": "V20 Lore of the Bloodlines",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Ученик Лазаря / Иафета",
+      "en": "Disciple of Lazarus / Japheth",
+      "clan": "predvestnikiCherepov",
+      "source": "V20 Lore of the Bloodlines",
+      "from": "social",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Крещение в Стиксе",
+      "en": "Styx Baptism",
+      "clan": "predvestnikiCherepov",
+      "source": "V20 Lore of the Bloodlines",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Полужизнь",
+      "en": "Half-Life",
+      "clan": "predvestnikiCherepov",
+      "source": "V20 Lore of the Bloodlines",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Незаконное Становление",
+      "en": "Unsanctioned Embrace",
+      "clan": "predvestnikiCherepov",
+      "source": "V20 Lore of the Bloodlines",
+      "from": "social",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Шрамы Теней",
+      "en": "Shadow Scarred",
+      "clan": "predvestnikiCherepov",
+      "source": "V20 Lore of the Bloodlines",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Ценная коллекция",
+      "en": "Prized Collection",
+      "clan": "kiasidy",
+      "source": "V20 Lore of the Bloodlines",
+      "from": "social",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Чуждое совершенство",
+      "en": "Alien Perfection",
+      "clan": "kiasidy",
+      "source": "V20 Lore of the Bloodlines",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Паранормальная связь",
+      "en": "Paranormal Link",
+      "clan": "kiasidy",
+      "source": "V20 Lore of the Bloodlines",
+      "from": "social",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Фарфоровая кожа",
+      "en": "Skin of Porcelain",
+      "clan": "kiasidy",
+      "source": "V20 Lore of the Bloodlines",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Мутация витэ",
+      "en": "Vitae Mutation",
+      "clan": "kiasidy",
+      "source": "V20 Lore of the Bloodlines",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Слабак",
+      "en": "Lightweight",
+      "clan": "kiasidy",
+      "source": "V20 Lore of the Bloodlines",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Неграмотный",
+      "en": "Illiterate",
+      "clan": "kiasidy",
+      "source": "V20 Lore of the Bloodlines",
+      "from": "mental",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Утончённый вкус",
+      "en": "Refined Palate",
+      "clan": "kiasidy",
+      "source": "V20 Lore of the Bloodlines",
+      "from": "mental",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Ужасная Мара",
+      "en": "Dreadful Mara",
+      "clan": "kiasidy",
+      "source": "V20 Lore of the Bloodlines",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Особо острые",
+      "en": "Extra Sharp",
+      "clan": "nagaradzha",
+      "source": "V20 Lore of the Bloodlines",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Скоростной едок",
+      "en": "Speed Eater",
+      "clan": "nagaradzha",
+      "source": "V20 Lore of the Bloodlines",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Вкус росомахи",
+      "en": "Wolverine's Palate",
+      "clan": "nagaradzha",
+      "source": "V20 Lore of the Bloodlines",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Огромная пасть",
+      "en": "The Largest Maw",
+      "clan": "nagaradzha",
+      "source": "V20 Lore of the Bloodlines",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Кровавый след",
+      "en": "Body Trail",
+      "clan": "nagaradzha",
+      "source": "V20 Lore of the Bloodlines",
+      "from": "social",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Запах чужака",
+      "en": "Scent of the Other",
+      "clan": "salyubri",
+      "source": "V20 Lore of the Bloodlines",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Зрение за пределами зрения",
+      "en": "Sight Beyond Sight",
+      "clan": "salyubri",
+      "source": "V20 Lore of the Bloodlines",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Сердце воина",
+      "en": "Warrior's Heart",
+      "clan": "salyubri",
+      "source": "V20 Lore of the Bloodlines",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Восьмой",
+      "en": "The Eighth",
+      "clan": "salyubri",
+      "source": "V20 Lore of the Bloodlines",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Постоянный третий глаз",
+      "en": "Permanent Third Eye",
+      "clan": "salyubri",
+      "source": "V20 Lore of the Bloodlines",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Хватка смерти",
+      "en": "Death Grip",
+      "clan": "samedi",
+      "source": "V20 Lore of the Bloodlines",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Швец",
+      "en": "Stitcher",
+      "clan": "samedi",
+      "source": "V20 Lore of the Bloodlines",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Хрупкое тело",
+      "en": "Brittle Body",
+      "clan": "samedi",
+      "source": "V20 Lore of the Bloodlines",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Смертные воспоминания",
+      "en": "Mortal Flashbacks",
+      "clan": "samedi",
+      "source": "V20 Lore of the Bloodlines",
+      "from": "mental",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Передовая техника",
+      "en": "Advanced Tech",
+      "clan": "istinnyeBruha",
+      "source": "V20 Lore of the Bloodlines",
+      "from": "social",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Фаталист",
+      "en": "Fatalist",
+      "clan": "istinnyeBruha",
+      "source": "V20 Lore of the Bloodlines",
+      "from": "mental",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Истинная Стремительность",
+      "en": "True Celerity",
+      "clan": "istinnyeBruha",
+      "source": "V20 Lore of the Bloodlines",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Вне фазы",
+      "en": "Out of Phase",
+      "clan": "istinnyeBruha",
+      "source": "V20 Lore of the Bloodlines",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Отступник",
+      "en": "Apostate",
+      "clan": "baali",
+      "source": "V20 The Black Hand",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Несвободный",
+      "en": "",
+      "clan": "assamite",
+      "source": "кланбук (Revised)",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Чувство погоды",
+      "en": "",
+      "clan": "lasombra",
+      "source": "кланбук (Revised)",
+      "from": "mental",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Морская гармония",
+      "en": "",
+      "clan": "lasombra",
+      "source": "кланбук (Revised)",
+      "from": "mental",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Зов Посейдона",
+      "en": "",
+      "clan": "lasombra",
+      "source": "кланбук (Revised)",
+      "from": "mental",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Одарённый доверием",
+      "en": "Proxy Kissed",
+      "clan": "giovanni",
+      "source": "кланбук (Revised)",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Сострадательный",
+      "en": "",
+      "clan": "brujah",
+      "source": "кланбук (Revised)",
+      "from": "mental",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Неуправляемый",
+      "en": "",
+      "clan": "brujah",
+      "source": "кланбук (Revised)",
+      "from": "mental",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Безупречная аура",
+      "en": "Immaculate Aura",
+      "clan": "malkavian",
+      "source": "кланбук (Revised)",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Благосклонная кровь",
+      "en": "Benevolent Blood",
+      "clan": "malkavian",
+      "source": "кланбук (Revised)",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Омертвевшие нервы",
+      "en": "Deadened Nerves",
+      "clan": "malkavian",
+      "source": "кланбук (Revised)",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Бестелесный наставник",
+      "en": "Disembodied Mentor",
+      "clan": "malkavian",
+      "source": "кланбук (Revised)",
+      "from": "mental",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Взаимные узы",
+      "en": "Sympathetic Bond",
+      "clan": "malkavian",
+      "source": "кланбук (Revised)",
+      "from": "social",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Огромные клыки",
+      "en": "Oversized Fangs",
+      "clan": "nosferatu",
+      "source": "кланбук (Revised)",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Зияющая пасть",
+      "en": "Gaping Maw",
+      "clan": "nosferatu",
+      "source": "кланбук (Revised)",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Фонтанирующая рвота",
+      "en": "Projectile Vomiting",
+      "clan": "nosferatu",
+      "source": "кланбук (Revised)",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Приятель‑рептилия",
+      "en": "Reptile Buddy",
+      "clan": "nosferatu",
+      "source": "кланбук (Revised)",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Печально известный автаркис",
+      "en": "Infamous Autarkis",
+      "clan": "nosferatu",
+      "source": "кланбук (Revised)",
+      "from": "social",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Некрофил",
+      "en": "Necrophile",
+      "clan": "nosferatu",
+      "source": "кланбук (Revised)",
+      "from": "mental",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Иссохшая нога",
+      "en": "Withered Leg",
+      "clan": "nosferatu",
+      "source": "кланбук (Revised)",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Предатель",
+      "en": "Traitor",
+      "clan": "nosferatu",
+      "source": "кланбук (Revised)",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Отступник (Тёмные века)",
+      "en": "",
+      "clan": "baali",
+      "source": "Dark Ages Clanbook: Baali (Тёмные века)",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Нечестивая Аура",
+      "en": "",
+      "clan": "baali",
+      "source": "Dark Ages Clanbook: Baali (Тёмные века)",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Повелитель Мух (Баали)",
+      "en": "",
+      "clan": "baali",
+      "source": "Dark Ages Clanbook: Baali (Тёмные века)",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Утеха падальщика",
+      "en": "",
+      "clan": "baali",
+      "source": "Dark Ages Clanbook: Baali (Тёмные века)",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Адская аура",
+      "en": "",
+      "clan": "baali",
+      "source": "Dark Ages Clanbook: Baali (Тёмные века)",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Затронутый потусторонней силой",
+      "en": "",
+      "clan": "baali",
+      "source": "Dark Ages Clanbook: Baali (Тёмные века)",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Защищённый",
+      "en": "Protected",
+      "clan": "salyubri",
+      "source": "Dark Ages Clanbook: Salubri (Тёмные века)",
+      "from": "social",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Посвящение по Кодексу",
+      "en": "Blooding by the Code",
+      "clan": "salyubri",
+      "source": "Dark Ages Clanbook: Salubri (Тёмные века)",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Странный глаз",
+      "en": "Odd Eye",
+      "clan": "salyubri",
+      "source": "Dark Ages Clanbook: Salubri (Тёмные века)",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Упрямый",
+      "en": "Stubborn",
+      "clan": "salyubri",
+      "source": "Dark Ages Clanbook: Salubri (Тёмные века)",
+      "from": "mental",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Непосвящённый",
+      "en": "Unblooded",
+      "clan": "salyubri",
+      "source": "Dark Ages Clanbook: Salubri (Тёмные века)",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Видимый глаз",
+      "en": "Visible Eye",
+      "clan": "salyubri",
+      "source": "Dark Ages Clanbook: Salubri (Тёмные века)",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Убежища",
+      "en": "Warrens",
+      "clan": "salyubri",
+      "source": "Dark Ages Clanbook: Salubri (Тёмные века)",
+      "from": "social",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Метка следопыта",
+      "en": "Tracker's Mark",
+      "clan": "salyubri",
+      "source": "V20 Dark Ages Companion (Тёмные века)",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Посвящён Кодексом",
+      "en": "Blooded by the Code",
+      "clan": "salyubri",
+      "source": "V20 Dark Ages Companion (Тёмные века)",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Джати Равнос",
+      "en": "Ravnos Jati",
+      "clan": "ravnos",
+      "source": "V20 Dark Ages Companion (Тёмные века)",
+      "from": "social",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Сочувствующий еретик",
+      "en": "Heretical Sympathizer",
+      "clan": "setite",
+      "source": "V20 Dark Ages: Tome of Secrets (Тёмные века)",
+      "from": "social",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Преследуемый Иерофантами",
+      "en": "Hunted by the Hierophants",
+      "clan": "setite",
+      "source": "V20 Dark Ages: Tome of Secrets (Тёмные века)",
+      "from": "social",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Постулант Эхидны",
+      "en": "Postulant of Echidna",
+      "clan": "setite",
+      "source": "V20 Dark Ages: Tome of Secrets (Тёмные века)",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Хрупкие кости",
+      "en": "",
+      "clan": "samedi",
+      "source": "Samedi (фанатская книга)",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Поистине отвратительный вид",
+      "en": "",
+      "clan": "samedi",
+      "source": "Samedi (фанатская книга)",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Гниющая плоть",
+      "en": "",
+      "clan": "samedi",
+      "source": "Samedi (фанатская книга)",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Духовный наставник",
+      "en": "",
+      "clan": "samedi",
+      "source": "Samedi (фанатская книга)",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Сродство с призраками",
+      "en": "",
+      "clan": "samedi",
+      "source": "Samedi (фанатская книга)",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Вывих",
+      "en": "",
+      "clan": "samedi",
+      "source": "Samedi (фанатская книга)",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Съёмные конечности",
+      "en": "",
+      "clan": "samedi",
+      "source": "Samedi (фанатская книга)",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Регенеративная кровь",
+      "en": "",
+      "clan": "synySamuila",
+      "source": "Samedi (фанатская книга)",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Склонность к медицине",
+      "en": "",
+      "clan": "synySamuila",
+      "source": "Samedi (фанатская книга)",
+      "from": "mental",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Медицинские связи",
+      "en": "",
+      "clan": "synySamuila",
+      "source": "Samedi (фанатская книга)",
+      "from": "social",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Медицинское учреждение",
+      "en": "",
+      "clan": "synySamuila",
+      "source": "Samedi (фанатская книга)",
+      "from": "social",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Контролируемый кровоток",
+      "en": "",
+      "clan": "synySamuila",
+      "source": "Samedi (фанатская книга)",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Вампирическая болезнь костей",
+      "en": "",
+      "clan": "synySamuila",
+      "source": "Samedi (фанатская книга)",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Сверхъестественная подпись",
+      "en": "",
+      "clan": "synySamuila",
+      "source": "Samedi (фанатская книга)",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Отступник клана",
+      "en": "Clan Apostate",
+      "clan": "baali",
+      "source": "V20 Dark Ages (Тёмные века)",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Истинный вампир",
+      "en": "",
+      "clan": "gorguli",
+      "source": "Dark Ages: Player's Guide to Low Clans (Тёмные века)",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Утончённый вкус (Тремер)",
+      "en": "",
+      "clan": "tremere",
+      "source": "кланбук (Revised)",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Лицо в шрамах",
+      "en": "",
+      "clan": "tzimisce",
+      "source": "кланбук (Revised)",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Зависимость от магии",
+      "en": "",
+      "clan": "assamite",
+      "source": "кланбук (Revised)",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "merit",
+      "name": "Совершенство",
+      "en": "",
+      "clan": "ventrue",
+      "source": "кланбук (Revised)",
+      "from": "social",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Морское принуждение",
+      "en": "",
+      "clan": "lasombra",
+      "source": "кланбук (Revised)",
+      "from": "mental",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Отражение смерти",
+      "en": "",
+      "clan": "lasombra",
+      "source": "кланбук (Revised)",
+      "from": "supernatural",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Тупые клыки (Носферату)",
+      "en": "Blunt Fangs",
+      "clan": "nosferatu",
+      "source": "кланбук (Revised)",
+      "from": "physical",
+      "to": "clan"
+    },
+    {
+      "kind": "flaw",
+      "name": "Заразный (Носферату)",
+      "en": "Contagious",
+      "clan": "nosferatu",
+      "source": "кланбук (Revised)",
+      "from": "physical",
+      "to": "clan"
+    }
+  ],
+  "counts": {
+    "clan_merits": 130,
+    "clan_flaws": 98,
+    "total": 228,
+    "changed_from_other_categories": 227,
+    "by_previous_category": {
+      "social": 42,
+      "physical": 65,
+      "supernatural": 85,
+      "mental": 35
+    }
+  },
+  "additions_after_reclassification": [
+    {
+      "kind": "flaw",
+      "name": "Неподчинение",
+      "en": "Insubordinate",
+      "clan": "lasombra",
+      "source": "V20 Lore of the Clans",
+      "category": "clan",
+      "note": "Новая запись; ранее отсутствовала в накопительной базе."
+    }
+  ]
+}

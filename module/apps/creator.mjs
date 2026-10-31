@@ -588,20 +588,22 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     const chosen = this.ui.mfTab === "merit" ? st.merits : st.flaws;
     ctx.mfTabs = ["merit", "flaw"].map(k => ({ key: k, label: t(k === "merit" ? "Sheet.Merits" : "Sheet.Flaws"), active: this.ui.mfTab === k,
       n: (k === "merit" ? st.merits : st.flaws).length }));
-    // Клановые черты и черты секты — только в своих категориях и только своего клана/секты
+    // Клановые черты и черты секты — только своего клана/секты: на своей вкладке и во «Всех»
     const myClan = this.type === "vampire" ? Codex.traitClan(st.clan) : "";
     const mySect = st.sectKey || Codex.sectKey(st.sect);
     const line = this.isThrall ? "demon" : VTM20.traitLine(this.type);      // слуга берёт черты из книги падших, кроме инфернальных
     const inCat = (m, cat) => !Codex.visible(m) || ((m.line ?? "") !== line && !(this.isHunter && !m.line)) || (this.isThrall && m.category === "infernal")
       || (m.bystander && !this.isLost) ? false : cat === "clan" ? !!myClan && m.clan === myClan
       : cat === "sect" ? !m.clan && !!mySect && m.sect === mySect
-      : !m.clan && !m.sect && (cat === "all" || m.category === cat);
+      : cat === "all" ? (!m.clan || (!!myClan && m.clan === myClan)) && (!m.sect || (!!mySect && m.sect === mySect))
+      : !m.clan && !m.sect && m.category === cat;
     const extra = ["sect", "clan"].filter(k => Codex.merits.some(m => m.kind === this.ui.mfTab && inCat(m, k)));
     if (!["all", ...Object.keys(VTM20.meritCategories), ...extra].includes(this.ui.mfCat)) this.ui.mfCat = "all";
     const catLabel = k => k === "all" ? t("Creator.All") : k === "clan" ? t("Library.Filter.Clan")
       : k === "sect" ? t("Library.Filter.SectTraits") : loc(VTM20.meritCategories[k].label);
     // только разделы, где у этой линии есть черты (у вампиров нет инфернальных, у демонов — сверхъестественных)
-    const cats = Object.keys(VTM20.meritCategories).filter(k => Codex.merits.some(m => m.kind === this.ui.mfTab && inCat(m, k)));
+    // категория «clan» — та же вкладка «Клановые» (extra), второй раз не показываем
+    const cats = Object.keys(VTM20.meritCategories).filter(k => k !== "clan" && Codex.merits.some(m => m.kind === this.ui.mfTab && inCat(m, k)));
     ctx.mfCats = ["all", ...cats, ...extra].map(k => ({ key: k, label: catLabel(k), active: this.ui.mfCat === k }));
     ctx.mfCards = Codex.merits.filter(m => m.kind === this.ui.mfTab && inCat(m, this.ui.mfCat)
       && (!q || m.name.toLowerCase().includes(q) || (m.en ?? "").toLowerCase().includes(q)))

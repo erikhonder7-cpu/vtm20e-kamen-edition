@@ -400,7 +400,7 @@
     "discipline": "necromancy",
     "level": 2,
     "name": "Приоткрытый покров",
-    "en": "название в OCR искажено; «Passive Veil»?",
+    "en": "название в OCR искажено, «Passive Veil» не подтверждено; ур. 2 — предварительно",
     "source": "Blood Sacrifice: The Thaumaturgy Companion",
     "era": "",
     "roll": {
@@ -1422,10 +1422,10 @@
    {
     "discipline": "thaumaturgy",
     "level": 1,
-    "name": "Возрождение смертного тщеславия",
-    "en": "",
-    "source": "The Vampire Players Guide (2nd Edition)",
-    "era": "",
+    "name": "Воззвание свечи / Тушение сала один ритуал, одна свеча: зажечь или погасить",
+    "en": "Evocation of the Taper / Quench the Tallow",
+    "source": "Dark Ages: Player's Guide to Low Clans",
+    "era": "darkAges",
     "roll": {
      "trait1": "attributes.intelligence",
      "trait2": "abilities.occult",
@@ -1435,10 +1435,10 @@
    {
     "discipline": "thaumaturgy",
     "level": 1,
-    "name": "Воплощение свечи / Тушение огня (название повреждено)",
+    "name": "Возрождение смертного тщеславия",
     "en": "",
-    "source": "Dark Ages: Player's Guide to Low Clans",
-    "era": "darkAges",
+    "source": "The Vampire Players Guide (2nd Edition)",
+    "era": "",
     "roll": {
      "trait1": "attributes.intelligence",
      "trait2": "abilities.occult",
@@ -2063,6 +2063,19 @@
     "en": "Ambrus Kelemen’s Aegis",
     "source": "V20 Dark Ages",
     "era": "darkAges",
+    "roll": {
+     "trait1": "attributes.intelligence",
+     "trait2": "abilities.occult",
+     "difficulty": 4
+    }
+   },
+   {
+    "discipline": "thaumaturgy",
+    "level": 1,
+    "name": "Воплощение свечи / Тушение огня (название повреждено)",
+    "en": "",
+    "source": "—",
+    "era": "",
     "roll": {
      "trait1": "attributes.intelligence",
      "trait2": "abilities.occult",
@@ -5656,7 +5669,7 @@
    {
     "discipline": "assamiteSorcery",
     "level": 1,
-    "name": "Кровь Земли",
+    "name": "Кровь Земли (Dowse the Earth’s Blood), ур. 1 — поиск воды",
     "en": "",
     "source": "Dark Ages: Player's Guide to Low Clans",
     "era": "darkAges",
@@ -5725,6 +5738,19 @@
     "en": "Strength of Haqim",
     "source": "V20 Dark Ages: Tome of Secrets",
     "era": "darkAges",
+    "roll": {
+     "trait1": "attributes.intelligence",
+     "trait2": "abilities.occult",
+     "difficulty": 4
+    }
+   },
+   {
+    "discipline": "assamiteSorcery",
+    "level": 1,
+    "name": "Кровь Земли",
+    "en": "",
+    "source": "—",
+    "era": "",
     "roll": {
      "trait1": "attributes.intelligence",
      "trait2": "abilities.occult",
@@ -6670,7 +6696,7 @@
    {
     "discipline": "assamiteSorcery",
     "level": 5,
-    "name": "Изгнать тёмные чувства",
+    "name": "Изгнать тёмные гуморы",
     "en": "",
     "source": "Dark Ages: Player's Guide to Low Clans",
     "era": "darkAges",
@@ -6726,6 +6752,19 @@
     "en": "Occlude the Western Road",
     "source": "V20 Dark Ages: Tome of Secrets",
     "era": "darkAges",
+    "roll": {
+     "trait1": "attributes.intelligence",
+     "trait2": "abilities.occult",
+     "difficulty": 8
+    }
+   },
+   {
+    "discipline": "assamiteSorcery",
+    "level": 5,
+    "name": "Изгнать тёмные чувства",
+    "en": "",
+    "source": "—",
+    "era": "",
     "roll": {
      "trait1": "attributes.intelligence",
      "trait2": "abilities.occult",

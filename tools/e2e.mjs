@@ -861,6 +861,101 @@ try {
     if (r.tab || !r.card) throw new Error("лист Свидетеля: вкладка Граней или нет карточки рассудка");
   });
 
+  // ── Права игрока: второй сеанс браузера входит игроком (без пароля), рассказчик даёт ему свой лист ──────
+  // Свой лист — правится, бросается, пополняется из библиотеки и обновляется из справочника; чужой — нет;
+  // пунктов меню рассказчика у игрока нет. Персонажи проверки удаляются в конце.
+  // временный пользователь с ролью игрока (у пользователей мира может быть роль помощника — для ядра это тоже рассказчик)
+  const player = await page.evaluate(async () => {
+    const u = await User.create({ name: "E2E — игрок", role: CONST.USER_ROLES.PLAYER, password: "" });
+    return u ? { id: u.id, name: u.name } : null;
+  });
+  const own = player && await page.evaluate(async uid => {
+    const mine = await Actor.create({ name: "E2E — лист игрока", type: "vampire", ownership: { default: 0, [uid]: 3 },
+      flags: { world: { e2e: true } } });
+    await mine.createEmbeddedDocuments("Item", [{ name: "Каскадёр", type: "merit",
+      system: { cost: 3, category: "physical", source: "Daredevil", description: "<p>Старый текст без разделов.</p>" } },
+      // клановая черта, взятая до категории «Клановые»
+      { name: "Убийца на тысячу метров", type: "merit", system: { cost: 2, category: "physical", source: "Thousand Meter Killer", description: "<p>Старый текст.</p>" } }]);
+    const other = await Actor.create({ name: "E2E — чужой лист", type: "vampire", ownership: { default: 0 }, flags: { world: { e2e: true } } });
+    return { mine: mine.id, other: other.id };
+  }, player.id);
+  let pp = null;
+  if (player) await check(`Игрок: вход (${player.name})`, async () => {
+    const ctx = await browser.newContext({ viewport: { width: 1600, height: 1000 } });
+    pp = await ctx.newPage();
+    pp.on("pageerror", e => errors.push({ step, text: `[игрок] ${String(e.message ?? e)}` }));
+    pp.on("console", m => { if (m.type() === "error" && !IGNORE.some(re => re.test(m.text()))) errors.push({ step, text: `[игрок] ${m.text()}` }); });
+    await pp.goto(`${URL}/join`, { waitUntil: "networkidle", timeout: 60000 });
+    await pp.selectOption("select[name=userid]", player.id);
+    await pp.click("button[name=join]");
+    await pp.waitForFunction(() => window.game?.ready === true, null, { timeout: 120000 }).catch(() => {
+      throw new Error("не вошёл — у игрока пароль? проверки игрока пропущены");
+    });
+  });
+  else results.push({ name: "Игрок: права", ok: true, note: "пропущено — в мире нет свободного игрока" });
+
+  if (pp && results.at(-1)?.ok) {
+    await check("Игрок: свой лист правится и бросается", async () => {
+      const r = await pp.evaluate(async id => {
+        const a = game.actors.get(id), n = game.messages.size;
+        await a.sheet.render({ force: true });
+        await new Promise(res => setTimeout(res, 800));
+        await a.update({ "system.attributes.strength.value": 3 });
+        return { owner: a.isOwner, editable: a.sheet.isEditable, str: a.system.attributes.strength.value, n,
+          controls: a.sheet._getHeaderControls().map(c => c.action) };
+      }, own.mine);
+      if (!r.owner || !r.editable || r.str !== 3) throw new Error(`владение ${r.owner}, правка ${r.editable}, Сила ${r.str}`);
+      if (r.controls.includes("makeExtra")) throw new Error("у игрока пункт рассказчика «Сделать статистом»");
+      if (!r.controls.includes("refreshCodex")) throw new Error("у игрока нет «Обновить из справочника»");
+      await pp.evaluate(id => document.querySelector(`.application.sheet[id$="${id}"] a[data-action=rollTrait]`).click(), own.mine);
+      await pp.waitForSelector(".r-roll-dialog", { timeout: 10000 });
+      await pp.click(".r-roll-dialog button[type=submit]");
+      await pp.waitForFunction(n => game.messages.size > n, r.n, { timeout: 15000 });
+    });
+
+    await check("Игрок: библиотека пополняет свой лист", async () => {
+      const r = await pp.evaluate(async id => {
+        const a = game.actors.get(id), before = a.items.size;
+        const { openLibrary } = await import(`/systems/${game.system.id}/module/apps/library.mjs`);
+        const app = openLibrary({ actor: a, kind: "derangement" });
+        await new Promise(res => setTimeout(res, 1500));
+        const btn = app.element.querySelector("[data-can='1'] [data-action=take]");
+        if (!btn) { await app.close(); return { skip: true }; }
+        btn.click();
+        await new Promise(res => setTimeout(res, 1200));
+        await app.close();
+        return { added: a.items.size - before };
+      }, own.mine);
+      if (!r.skip && r.added !== 1) throw new Error(`взято записей: ${r.added}`);
+    });
+
+    await check("Игрок: «Обновить из справочника»", async () => {
+      await pp.evaluate(async id => {
+        const { refreshActor } = await import(`/systems/${game.system.id}/module/apps/codex-refresh.mjs`);
+        refreshActor(game.actors.get(id));
+      }, own.mine);
+      await pp.waitForSelector(".r-refresh .r-refresh-row", { timeout: 10000 });
+      await pp.click(".r-refresh button[data-action=ok]");
+      await pp.waitForFunction(id => /class="r-sec"/.test(game.actors.get(id).items.getName("Каскадёр")?.system.description ?? ""),
+        own.mine, { timeout: 10000 });
+      const k = await pp.evaluate(id => game.actors.get(id).items.getName("Убийца на тысячу метров")?.system, own.mine);
+      if (k?.category !== "clan" || k?.clan !== "assamite") throw new Error(`клановая черта: категория ${k?.category}, клан ${k?.clan}`);
+    });
+
+    await check("Игрок: чужой лист закрыт", async () => {
+      const r = await pp.evaluate(async id => {
+        const a = game.actors.get(id);
+        if (!a) return { hidden: true };
+        // сама попытка правки пишет отказ ядра в консоль — проверяем право, а не ошибку
+        return { owner: a.isOwner, canUpdate: a.canUserModify(game.user, "update"), visible: a.visible };
+      }, own.other);
+      if (!r.hidden && (r.owner || r.canUpdate || r.visible)) throw new Error(`владение ${r.owner}, правка ${r.canUpdate}, виден ${r.visible}`);
+    });
+    await pp.context().close();
+  }
+  if (own) await page.evaluate(ids => Actor.deleteDocuments([ids.mine, ids.other].filter(id => game.actors.has(id))), own);
+  if (player) await page.evaluate(id => game.users.get(id)?.delete(), player.id);
+
   await check("Новый мир: «Город» без Парижа", async () => {
     await setWorld(false, "", await page.evaluate(() => game.system.version));
     // game.ready встаёт раньше, чем отработает асинхронный ready системы (Codex.load, keepParis): ждём решения

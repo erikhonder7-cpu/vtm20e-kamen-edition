@@ -1,9 +1,10 @@
 // module/apps/codex-refresh.mjs
 // «Обновить из справочника»: описания сил, путей магии крови, ритуалов, достоинств и недостатков, фактов биографии и
-// расстройств на листе — заново из data/*.json (Codex). Предмет, перенесённый на лист, хранит свою копию текста: она не
+// расстройств на листе — заново из data/*.json (Codex); у черт — ещё категория, клан, секта и английское имя. Предмет, перенесённый на лист, хранит свою копию текста: она не
 // меняется, когда меняется справочник (например, «Описание / Система» в 1.3–1.4). Правки рассказчика живут в той же
 // копии, поэтому окно показывает, что изменится, и обновляет только отмеченное. Броски, цена, уровень и точки не трогаются.
 
+import { VTM20 } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
 import { ritualFields } from "../data/ritual-text.mjs";
 
@@ -39,7 +40,13 @@ function entryOf(item) {
     }
     case "merit": case "flaw": {
       const m = Codex.merits.find(x => x.kind === item.type && byName(x));
-      return m ? { description: (m.html ?? "") + tailOf(s.description) } : null;
+      if (!m) return null;
+      // категория (клановые черты получили свою — «Клановые»), клан, секта и английское имя; пустые в справочнике — не стираем
+      const e = { description: (m.html ?? "") + tailOf(s.description), category: m.category };
+      if (m.clan) e.clan = m.clan;
+      if (m.sect) e.sect = m.sect;
+      if (m.en) e.source = m.en;
+      return e;
     }
     case "background": {
       const b = Codex.backgrounds.find(byName);
@@ -69,8 +76,15 @@ function changeOf(item) {
 /** Окно выбора: что обновить. Возвращает отмеченные изменения или null. */
 async function pick(changes, title) {
   const typeLabel = type => game.i18n.localize(`TYPES.Item.${type}`);
+  // что именно меняется, если не только текст: «категория: Клановые»
+  const extra = c => {
+    const cat = c.update["system.category"];
+    const bits = [cat && `${t("Category")}: ${game.i18n.localize(VTM20.meritCategories[cat]?.label ?? cat)}`,
+      (c.update["system.clan"] || c.update["system.sect"] || c.update["system.source"]) && t("Source")].filter(Boolean);
+    return bits.length ? ` <small class="r-refresh-extra">· ${esc(bits.join(", "))}</small>` : "";
+  };
   const rows = changes.map((c, i) => `<label class="r-check r-refresh-row"><input type="checkbox" name="c${i}" checked>
-    <span><b>${esc(c.item.name)}</b> <small>${esc(typeLabel(c.item.type))}</small></span></label>`).join("");
+    <span><b>${esc(c.item.name)}</b> <small>${esc(typeLabel(c.item.type))}</small>${extra(c)}</span></label>`).join("");
   const res = await foundry.applications.api.DialogV2.prompt({
     window: { title, icon: "fa-solid fa-book-open-reader" }, classes: ["vtm20", "r-dialog", "r-refresh"], position: { width: 460 },
     content: `<p class="r-choice-hint">${t("Hint", { n: changes.length })}</p><div class="r-refresh-list">${rows}</div>`,

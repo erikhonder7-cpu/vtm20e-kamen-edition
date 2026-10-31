@@ -1,0 +1,900 @@
+{
+  "batch": 20,
+  "source": "V20 Dark Ages",
+  "scope": "Appendix A: Merits and Flaws; complete edition-specific audit against the English text copy and project source extract.",
+  "source_rows_named_traits": 84,
+  "source_record_variants": 86,
+  "database_rows_before": 32,
+  "database_rows_after": 86,
+  "merits": 29,
+  "flaws": 57,
+  "new_records": 54,
+  "updated_records": 32,
+  "category_corrections": [
+    {
+      "en": "Animate Shadow",
+      "kind": "flaw",
+      "old_category": "social",
+      "new_category": "supernatural"
+    },
+    {
+      "en": "Cloaked in Shadow",
+      "kind": "flaw",
+      "old_category": "social",
+      "new_category": "supernatural"
+    },
+    {
+      "en": "Darksight",
+      "kind": "merit",
+      "old_category": "physical",
+      "new_category": "supernatural"
+    },
+    {
+      "en": "Ethical Prohibition",
+      "kind": "flaw",
+      "old_category": "social",
+      "new_category": "mental"
+    },
+    {
+      "en": "Flesh Eater",
+      "kind": "flaw",
+      "old_category": "physical",
+      "new_category": "mental"
+    },
+    {
+      "en": "Outspoken Heretic",
+      "kind": "flaw",
+      "old_category": "supernatural",
+      "new_category": "social"
+    },
+    {
+      "en": "Unlucky",
+      "kind": "flaw",
+      "old_category": "physical",
+      "new_category": "supernatural"
+    }
+  ],
+  "counts_by_category_and_kind": {
+    "merit_clan": 1,
+    "flaw_clan": 1,
+    "merit_physical": 6,
+    "flaw_physical": 11,
+    "merit_mental": 6,
+    "flaw_mental": 7,
+    "merit_social": 5,
+    "flaw_social": 16,
+    "merit_supernatural": 11,
+    "flaw_supernatural": 22
+  },
+  "printed_page_map": {
+    "Appendix A starts": 419,
+    "Physical Merits": 420,
+    "Physical Flaws": 421,
+    "Mental Merits and Flaws": "421–422 (individual lists p.422)",
+    "Social Merits and Flaws": "422–425 (merits p.423; flaws p.423–425)",
+    "Supernatural Merits and Flaws": "425–429 (merits p.425–426; flaws p.426–428; Road Aura table p.428–429)",
+    "Appendix B starts": 431
+  },
+  "page_range_correction": {
+    "old_project_extract": "417–429",
+    "corrected_appendix_a": "419–429"
+  },
+  "checks": {
+    "all_source_table_rows_accounted_for": true,
+    "all_84_english_names_present": true,
+    "both_aura_trait_kinds_present": true,
+    "costs_and_bounds_imported": true,
+    "all_records_era_darkAges": true,
+    "modern_v20_records_not_merged": true,
+    "no_new_duplicate_keys": true,
+    "clan_specific_traits_use_category_clan": true,
+    "project_category_overrides_documented": true,
+    "database_count_858": true,
+    "category_counts_match_project_policy": true,
+    "printed_section_categories_checked": true,
+    "all_clan_specific_entries_category_clan": true
+  },
+  "limitations": [
+    "The accessible book text is a third-party text reproduction; the publisher-issued book is official, but no publisher PDF raster pages were available for image-by-image verification in this session.",
+    "Printed section/page references were checked against the book contents listing and embedded page markers; individual line placement on page images was not independently inspected.",
+    "The source Markdown extract is a project-side Russian translation/summary, not an official Russian translation; translated titles are not represented as official localized names.",
+    "The two Road Aura traits each produce two separate database records (Merit and Flaw) according to Road rating, explaining 86 records for 84 distinct names.",
+    "Clan Apostate and Permanent Third Eye are categorized as clan-specific under KAMEN policy despite their placement in the book’s supernatural section; one prior Clan Apostate record was reused, not duplicated."
+  ],
+  "added_records": [
+    {
+      "en": "Addiction",
+      "kind": "flaw",
+      "category": "physical",
+      "cost": "3",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 421 (Physical Flaws)."
+    },
+    {
+      "en": "Ambidextrous",
+      "kind": "merit",
+      "category": "physical",
+      "cost": "1",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 420 (Physical Merits)."
+    },
+    {
+      "en": "Amnesia",
+      "kind": "flaw",
+      "category": "mental",
+      "cost": "2",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 422 (Mental Flaws)."
+    },
+    {
+      "en": "Apostate",
+      "kind": "flaw",
+      "category": "social",
+      "cost": "2",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 423–425 (Social Flaws)."
+    },
+    {
+      "en": "Blush of Health",
+      "kind": "merit",
+      "category": "physical",
+      "cost": "2",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 420 (Physical Merits)."
+    },
+    {
+      "en": "Can't Cross Running Water",
+      "kind": "flaw",
+      "category": "supernatural",
+      "cost": "4",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 426–428 (Supernatural Flaws / aura traits)."
+    },
+    {
+      "en": "Cast No Reflection",
+      "kind": "flaw",
+      "category": "supernatural",
+      "cost": "1",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 426–428 (Supernatural Flaws / aura traits)."
+    },
+    {
+      "en": "Child",
+      "kind": "flaw",
+      "category": "physical",
+      "cost": "4",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 421 (Physical Flaws)."
+    },
+    {
+      "en": "Common Sense",
+      "kind": "merit",
+      "category": "mental",
+      "cost": "1",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 422 (Mental Merits)."
+    },
+    {
+      "en": "Cursed",
+      "kind": "flaw",
+      "category": "supernatural",
+      "cost": "1–5",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 426–428 (Supernatural Flaws / aura traits)."
+    },
+    {
+      "en": "Dark Fate",
+      "kind": "flaw",
+      "category": "supernatural",
+      "cost": "5",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 426–428 (Supernatural Flaws / aura traits)."
+    },
+    {
+      "en": "Dark Secret",
+      "kind": "flaw",
+      "category": "social",
+      "cost": "1",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 423–425 (Social Flaws)."
+    },
+    {
+      "en": "Debt of Gratitude",
+      "kind": "merit",
+      "category": "social",
+      "cost": "1 или 3",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 423 (Social Merits)."
+    },
+    {
+      "en": "Deep Sleeper",
+      "kind": "flaw",
+      "category": "mental",
+      "cost": "1",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 422 (Mental Flaws)."
+    },
+    {
+      "en": "Eerie Presence",
+      "kind": "flaw",
+      "category": "supernatural",
+      "cost": "2",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 426–428 (Supernatural Flaws / aura traits)."
+    },
+    {
+      "en": "Efficient Digestion",
+      "kind": "merit",
+      "category": "physical",
+      "cost": "3",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 420 (Physical Merits)."
+    },
+    {
+      "en": "Eidetic Memory",
+      "kind": "merit",
+      "category": "mental",
+      "cost": "2",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 422 (Mental Merits)."
+    },
+    {
+      "en": "Enemy",
+      "kind": "flaw",
+      "category": "social",
+      "cost": "1–5",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 423–425 (Social Flaws)."
+    },
+    {
+      "en": "Flesh of the Corpse",
+      "kind": "flaw",
+      "category": "physical",
+      "cost": "5",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 421 (Physical Flaws)."
+    },
+    {
+      "en": "Grip of the Damned",
+      "kind": "flaw",
+      "category": "supernatural",
+      "cost": "4",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 426–428 (Supernatural Flaws / aura traits)."
+    },
+    {
+      "en": "Haunted",
+      "kind": "flaw",
+      "category": "supernatural",
+      "cost": "3",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 426–428 (Supernatural Flaws / aura traits)."
+    },
+    {
+      "en": "Hunted",
+      "kind": "flaw",
+      "category": "social",
+      "cost": "4",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 425 (Social Flaws)."
+    },
+    {
+      "en": "Infamous Sire",
+      "kind": "flaw",
+      "category": "social",
+      "cost": "1",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 423–425 (Social Flaws)."
+    },
+    {
+      "en": "Inoffensive to Animals",
+      "kind": "merit",
+      "category": "supernatural",
+      "cost": "1",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 425 (Supernatural Merits)."
+    },
+    {
+      "en": "Light Sleeper",
+      "kind": "merit",
+      "category": "mental",
+      "cost": "2",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 422 (Mental Merits)."
+    },
+    {
+      "en": "Light-Sensitive",
+      "kind": "flaw",
+      "category": "supernatural",
+      "cost": "5",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 428 (Supernatural Flaws / aura traits)."
+    },
+    {
+      "en": "Lucky",
+      "kind": "merit",
+      "category": "supernatural",
+      "cost": "1–5",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 425 (Supernatural Merits)."
+    },
+    {
+      "en": "Medium",
+      "kind": "merit",
+      "category": "supernatural",
+      "cost": "2",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 425 (Supernatural Merits)."
+    },
+    {
+      "en": "Mistaken Identity",
+      "kind": "flaw",
+      "category": "social",
+      "cost": "1",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 423–425 (Social Flaws)."
+    },
+    {
+      "en": "Monstrous",
+      "kind": "flaw",
+      "category": "physical",
+      "cost": "3",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 421 (Physical Flaws)."
+    },
+    {
+      "en": "Mute",
+      "kind": "flaw",
+      "category": "physical",
+      "cost": "4",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 421 (Physical Flaws)."
+    },
+    {
+      "en": "Nightmares",
+      "kind": "flaw",
+      "category": "mental",
+      "cost": "1",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 422 (Mental Flaws)."
+    },
+    {
+      "en": "Nine Lives",
+      "kind": "merit",
+      "category": "supernatural",
+      "cost": "6",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 426 (Supernatural Merits)."
+    },
+    {
+      "en": "Oathbreaker",
+      "kind": "flaw",
+      "category": "social",
+      "cost": "4",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 425 (Social Flaws)."
+    },
+    {
+      "en": "Oracular Ability",
+      "kind": "merit",
+      "category": "supernatural",
+      "cost": "3",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 425 (Supernatural Merits)."
+    },
+    {
+      "en": "Patron",
+      "kind": "merit",
+      "category": "social",
+      "cost": "1–5",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 423 (Social Merits)."
+    },
+    {
+      "en": "Permanent Third Eye",
+      "kind": "flaw",
+      "category": "supernatural",
+      "cost": "2 или 4",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 426–428 (Supernatural Flaws / aura traits)."
+    },
+    {
+      "en": "Permanent Wound",
+      "kind": "flaw",
+      "category": "physical",
+      "cost": "3",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 421 (Physical Flaws)."
+    },
+    {
+      "en": "Prestigious Sire",
+      "kind": "merit",
+      "category": "social",
+      "cost": "1",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 423 (Social Merits)."
+    },
+    {
+      "en": "Prey Exclusion",
+      "kind": "flaw",
+      "category": "mental",
+      "cost": "1",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 422 (Mental Flaws)."
+    },
+    {
+      "en": "Repulsed by Garlic",
+      "kind": "flaw",
+      "category": "supernatural",
+      "cost": "1",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 426–428 (Supernatural Flaws / aura traits)."
+    },
+    {
+      "en": "Sire's Resentment",
+      "kind": "flaw",
+      "category": "social",
+      "cost": "1",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 423–425 (Social Flaws)."
+    },
+    {
+      "en": "Slow Healing",
+      "kind": "flaw",
+      "category": "physical",
+      "cost": "3",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 421 (Physical Flaws)."
+    },
+    {
+      "en": "Smell of the Grave",
+      "kind": "flaw",
+      "category": "social",
+      "cost": "1",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 423–425 (Social Flaws)."
+    },
+    {
+      "en": "Spirit Mentor",
+      "kind": "merit",
+      "category": "supernatural",
+      "cost": "3",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 425 (Supernatural Merits)."
+    },
+    {
+      "en": "Territorial",
+      "kind": "flaw",
+      "category": "social",
+      "cost": "2",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 423–425 (Social Flaws)."
+    },
+    {
+      "en": "Touch of Frost",
+      "kind": "flaw",
+      "category": "supernatural",
+      "cost": "1",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 426–428 (Supernatural Flaws / aura traits)."
+    },
+    {
+      "en": "True Love",
+      "kind": "merit",
+      "category": "supernatural",
+      "cost": "4",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 426 (Supernatural Merits)."
+    },
+    {
+      "en": "Unbondable",
+      "kind": "merit",
+      "category": "supernatural",
+      "cost": "3",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 426 (Supernatural Merits)."
+    },
+    {
+      "en": "Vengeful",
+      "kind": "flaw",
+      "category": "mental",
+      "cost": "2",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 422 (Mental Flaws)."
+    },
+    {
+      "en": "Vulgar",
+      "kind": "flaw",
+      "category": "social",
+      "cost": "1",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 423–425 (Social Flaws)."
+    },
+    {
+      "en": "Weak Aura",
+      "kind": "flaw",
+      "category": "supernatural",
+      "cost": "2",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 428–429 (Supernatural Flaws / aura traits)."
+    },
+    {
+      "en": "Weak Blood",
+      "kind": "flaw",
+      "category": "supernatural",
+      "cost": "5",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 428 (Supernatural Flaws / aura traits)."
+    },
+    {
+      "en": "Without a Trace",
+      "kind": "merit",
+      "category": "physical",
+      "cost": "2",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 420 (Physical Merits)."
+    }
+  ],
+  "updated_records_detail": [
+    {
+      "en": "Animate Shadow",
+      "name": "Живая тень",
+      "kind": "flaw",
+      "before_category": "social",
+      "after_category": "supernatural",
+      "before_cost": "3",
+      "after_cost": "3",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 426–428 (Supernatural Flaws / aura traits).",
+      "category_changed": true,
+      "mechanic_text_refreshed_from_source_extract": true
+    },
+    {
+      "en": "Cannot Embrace",
+      "name": "Не может Обращать",
+      "kind": "flaw",
+      "before_category": "supernatural",
+      "after_category": "supernatural",
+      "before_cost": "2",
+      "after_cost": "2",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 426–428 (Supernatural Flaws / aura traits).",
+      "category_changed": false,
+      "mechanic_text_refreshed_from_source_extract": true
+    },
+    {
+      "en": "Celestial Attunement",
+      "name": "Небесная настройка",
+      "kind": "merit",
+      "before_category": "mental",
+      "after_category": "mental",
+      "before_cost": "1",
+      "after_cost": "1",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 422 (Mental Merits).",
+      "category_changed": false,
+      "mechanic_text_refreshed_from_source_extract": true
+    },
+    {
+      "en": "Cloaked in Shadow",
+      "name": "Окутан тенью",
+      "kind": "flaw",
+      "before_category": "social",
+      "after_category": "supernatural",
+      "before_cost": "3",
+      "after_cost": "3",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 426–428 (Supernatural Flaws / aura traits).",
+      "category_changed": true,
+      "mechanic_text_refreshed_from_source_extract": true
+    },
+    {
+      "en": "Darksight",
+      "name": "Тёмное зрение",
+      "kind": "merit",
+      "before_category": "physical",
+      "after_category": "supernatural",
+      "before_cost": "2",
+      "after_cost": "2",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 425 (Supernatural Merits).",
+      "category_changed": true,
+      "mechanic_text_refreshed_from_source_extract": true
+    },
+    {
+      "en": "Deceptive Eating",
+      "name": "Притворная трапеза",
+      "kind": "merit",
+      "before_category": "physical",
+      "after_category": "physical",
+      "before_cost": "1",
+      "after_cost": "1",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 420 (Physical Merits).",
+      "category_changed": false,
+      "mechanic_text_refreshed_from_source_extract": true
+    },
+    {
+      "en": "Demon-Hounded",
+      "name": "Преследуемый демоном",
+      "kind": "flaw",
+      "before_category": "supernatural",
+      "after_category": "supernatural",
+      "before_cost": "1–5",
+      "after_cost": "1–5",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 426–428 (Supernatural Flaws / aura traits).",
+      "category_changed": false,
+      "mechanic_text_refreshed_from_source_extract": true
+    },
+    {
+      "en": "Ethical Prohibition",
+      "name": "Этический запрет",
+      "kind": "flaw",
+      "before_category": "social",
+      "after_category": "mental",
+      "before_cost": "2 или 4",
+      "after_cost": "2 или 4",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 422 (Mental Flaws).",
+      "category_changed": true,
+      "mechanic_text_refreshed_from_source_extract": true
+    },
+    {
+      "en": "Flesh Eater",
+      "name": "Пожиратель плоти",
+      "kind": "flaw",
+      "before_category": "physical",
+      "after_category": "mental",
+      "before_cost": "2",
+      "after_cost": "2",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 422 (Mental Flaws).",
+      "category_changed": true,
+      "mechanic_text_refreshed_from_source_extract": true
+    },
+    {
+      "en": "Harbinger of the Abyss",
+      "name": "Вестник Бездны",
+      "kind": "flaw",
+      "before_category": "supernatural",
+      "after_category": "supernatural",
+      "before_cost": "5",
+      "after_cost": "5",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 426–428 (Supernatural Flaws / aura traits).",
+      "category_changed": false,
+      "mechanic_text_refreshed_from_source_extract": true
+    },
+    {
+      "en": "Impaired Sense",
+      "name": "Нарушенное чувство",
+      "kind": "flaw",
+      "before_category": "physical",
+      "after_category": "physical",
+      "before_cost": "4",
+      "after_cost": "4",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 421 (Physical Flaws).",
+      "category_changed": false,
+      "mechanic_text_refreshed_from_source_extract": true
+    },
+    {
+      "en": "Initiate of the Road",
+      "name": "Посвящённый Дороги",
+      "kind": "flaw",
+      "before_category": "supernatural",
+      "after_category": "supernatural",
+      "before_cost": "1",
+      "after_cost": "1",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 426–428 (Supernatural Flaws / aura traits).",
+      "category_changed": false,
+      "mechanic_text_refreshed_from_source_extract": true
+    },
+    {
+      "en": "Lingua Franca",
+      "name": "Общий язык",
+      "kind": "merit",
+      "before_category": "social",
+      "after_category": "social",
+      "before_cost": "1",
+      "after_cost": "1",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 423 (Social Merits).",
+      "category_changed": false,
+      "mechanic_text_refreshed_from_source_extract": true
+    },
+    {
+      "en": "Literacy",
+      "name": "Грамотность",
+      "kind": "merit",
+      "before_category": "mental",
+      "after_category": "mental",
+      "before_cost": "1",
+      "after_cost": "1",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 422 (Mental Merits).",
+      "category_changed": false,
+      "mechanic_text_refreshed_from_source_extract": true
+    },
+    {
+      "en": "Marked for Death",
+      "name": "Приговорён к смерти",
+      "kind": "flaw",
+      "before_category": "social",
+      "after_category": "social",
+      "before_cost": "4",
+      "after_cost": "4",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 425 (Social Flaws).",
+      "category_changed": false,
+      "mechanic_text_refreshed_from_source_extract": true
+    },
+    {
+      "en": "Multi-Lingual",
+      "name": "Многоязычие",
+      "kind": "merit",
+      "before_category": "mental",
+      "after_category": "mental",
+      "before_cost": "2",
+      "after_cost": "2",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 422 (Mental Merits).",
+      "category_changed": false,
+      "mechanic_text_refreshed_from_source_extract": true
+    },
+    {
+      "en": "Nameless",
+      "name": "Безымянный",
+      "kind": "flaw",
+      "before_category": "social",
+      "after_category": "social",
+      "before_cost": "5",
+      "after_cost": "5",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 423–425 (Social Flaws).",
+      "category_changed": false,
+      "mechanic_text_refreshed_from_source_extract": true
+    },
+    {
+      "en": "Odd Gait",
+      "name": "Странная походка",
+      "kind": "flaw",
+      "before_category": "physical",
+      "after_category": "physical",
+      "before_cost": "1",
+      "after_cost": "1",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 421 (Physical Flaws).",
+      "category_changed": false,
+      "mechanic_text_refreshed_from_source_extract": true
+    },
+    {
+      "en": "Outsider",
+      "name": "Чужак",
+      "kind": "flaw",
+      "before_category": "social",
+      "after_category": "social",
+      "before_cost": "1",
+      "after_cost": "1",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 423–425 (Social Flaws).",
+      "category_changed": false,
+      "mechanic_text_refreshed_from_source_extract": true
+    },
+    {
+      "en": "Outspoken Heretic",
+      "name": "Открытый еретик",
+      "kind": "flaw",
+      "before_category": "supernatural",
+      "after_category": "social",
+      "before_cost": "4",
+      "after_cost": "4",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 425 (Social Flaws).",
+      "category_changed": true,
+      "mechanic_text_refreshed_from_source_extract": true
+    },
+    {
+      "en": "Potent Aura",
+      "name": "Мощная аура",
+      "kind": "flaw",
+      "before_category": "supernatural",
+      "after_category": "supernatural",
+      "before_cost": "3",
+      "after_cost": "3",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 429 (Supernatural Flaws / aura traits).",
+      "category_changed": false,
+      "mechanic_text_refreshed_from_source_extract": true
+    },
+    {
+      "en": "Potent Aura",
+      "name": "Мощная аура",
+      "kind": "merit",
+      "before_category": "supernatural",
+      "after_category": "supernatural",
+      "before_cost": "3",
+      "after_cost": "3",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 425 (Supernatural Merits).",
+      "category_changed": false,
+      "mechanic_text_refreshed_from_source_extract": true
+    },
+    {
+      "en": "Ragged Bite",
+      "name": "Рваный укус",
+      "kind": "flaw",
+      "before_category": "physical",
+      "after_category": "physical",
+      "before_cost": "2",
+      "after_cost": "2",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 421 (Physical Flaws).",
+      "category_changed": false,
+      "mechanic_text_refreshed_from_source_extract": true
+    },
+    {
+      "en": "Repulsive to Animals",
+      "name": "Отталкивающий для животных",
+      "kind": "flaw",
+      "before_category": "supernatural",
+      "after_category": "supernatural",
+      "before_cost": "2",
+      "after_cost": "2",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 426–428 (Supernatural Flaws / aura traits).",
+      "category_changed": false,
+      "mechanic_text_refreshed_from_source_extract": true
+    },
+    {
+      "en": "Rivalry",
+      "name": "Соперничество",
+      "kind": "flaw",
+      "before_category": "social",
+      "after_category": "social",
+      "before_cost": "1–5",
+      "after_cost": "1–5",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 423–425 (Social Flaws).",
+      "category_changed": false,
+      "mechanic_text_refreshed_from_source_extract": true
+    },
+    {
+      "en": "Sturdy",
+      "name": "Крепыш",
+      "kind": "merit",
+      "before_category": "physical",
+      "after_category": "physical",
+      "before_cost": "4",
+      "after_cost": "4",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 420 (Physical Merits).",
+      "category_changed": false,
+      "mechanic_text_refreshed_from_source_extract": true
+    },
+    {
+      "en": "The Company of Saints and Heroes",
+      "name": "Общество святых и героев",
+      "kind": "merit",
+      "before_category": "social",
+      "after_category": "social",
+      "before_cost": "1",
+      "after_cost": "1",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 423 (Social Merits).",
+      "category_changed": false,
+      "mechanic_text_refreshed_from_source_extract": true
+    },
+    {
+      "en": "Thirteenth Generation",
+      "name": "Тринадцатое поколение",
+      "kind": "flaw",
+      "before_category": "supernatural",
+      "after_category": "supernatural",
+      "before_cost": "2",
+      "after_cost": "2",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 426–428 (Supernatural Flaws / aura traits).",
+      "category_changed": false,
+      "mechanic_text_refreshed_from_source_extract": true
+    },
+    {
+      "en": "Unclean",
+      "name": "Нечистый",
+      "kind": "flaw",
+      "before_category": "physical",
+      "after_category": "physical",
+      "before_cost": "2 или 3",
+      "after_cost": "2 или 3",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 421 (Physical Flaws).",
+      "category_changed": false,
+      "mechanic_text_refreshed_from_source_extract": true
+    },
+    {
+      "en": "Unlucky",
+      "name": "Невезучий",
+      "kind": "flaw",
+      "before_category": "physical",
+      "after_category": "supernatural",
+      "before_cost": "1–5",
+      "after_cost": "1–5",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 426–428 (Supernatural Flaws / aura traits).",
+      "category_changed": true,
+      "mechanic_text_refreshed_from_source_extract": true
+    },
+    {
+      "en": "Weak Aura",
+      "name": "Слабая аура",
+      "kind": "merit",
+      "before_category": "supernatural",
+      "after_category": "supernatural",
+      "before_cost": "2",
+      "after_cost": "2",
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 425 (Supernatural Merits).",
+      "category_changed": false,
+      "mechanic_text_refreshed_from_source_extract": true
+    },
+    {
+      "en": "Clan Apostate",
+      "name": "Отступник клана",
+      "kind": "merit",
+      "before_category": "clan",
+      "after_category": "clan",
+      "before_source_title": "V20 Dark Ages (Тёмные века)",
+      "after_source_title": "V20 Dark Ages",
+      "clan": "baali",
+      "reused_existing_card": true,
+      "source_ref": "V20 Dark Ages, Appendix A: Merits and Flaws; печатная с. 425 (Supernatural Merits).",
+      "category_changed": false
+    }
+  ],
+  "counts_by_printed_book_section_and_kind": {
+    "merit_physical": 6,
+    "flaw_physical": 11,
+    "merit_mental": 6,
+    "flaw_mental": 7,
+    "merit_social": 5,
+    "flaw_social": 16,
+    "merit_supernatural": 12,
+    "flaw_supernatural": 23
+  },
+  "project_category_overrides": [
+    {
+      "en": "Clan Apostate",
+      "book_category": "supernatural",
+      "project_category": "clan",
+      "clan": "baali",
+      "note": "Baali Rite of Apostasy; prior clan-category record reused."
+    },
+    {
+      "en": "Permanent Third Eye",
+      "book_category": "supernatural",
+      "project_category": "clan",
+      "clans": [
+        "salubri",
+        "tremere"
+      ],
+      "note": "Source explicitly limits the Flaw to Salubri and Tremere."
+    }
+  ]
+}

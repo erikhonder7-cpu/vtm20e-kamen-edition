@@ -558,24 +558,39 @@ def _mkey(x):
     return (x.get("kind"), norm(x.get("name")), norm(x.get("en")), norm(x.get("source")), x.get("line", ""))
 
 
+# Поля, в которых редакция главнее сборки: категория (клановые черты — «clan»), английское имя, книга, цена…
+MERIT_FIELDS = ("category", "en", "source", "clan", "sect", "cost", "min", "max", "era", "line", "bystander", "ghoul", "page")
+CLAN_ALIAS = {"salubri": "salyubri"}
+
+
 def merits(records, set_name="merits"):
-    """Описание и система — из финальной редакции; записи, которых нет в сборке, добавляются (порядок — как в редакции)."""
+    """Описание и система — из финальной редакции; записи, которых нет в сборке, добавляются (порядок — как в редакции).
+    Запись сборки находится по виду, имени, английскому имени и книге, а если редакция дописала английское имя или
+    сменила книгу — по виду, имени и линии; поля MERIT_FIELDS берутся из редакции."""
     with open(os.path.join(SRC, "merits_final.json"), encoding="utf-8") as f:
         final = json.load(f)[set_name]
-    have = {}
+    loose = lambda x: (x.get("kind"), norm(x.get("name")), x.get("line", ""))
+    exact, by_name = {}, {}
     for x in records:
-        have.setdefault(_mkey(x), x)
+        exact.setdefault(_mkey(x), x)
+        by_name.setdefault(loose(x), []).append(x)
     out, used = [], set()
     for y in final:
-        k = _mkey(y)
-        x = have.get(k)
+        x = exact.get(_mkey(y))
+        if x is None or id(x) in used:
+            free = [c for c in by_name.get(loose(y), []) if id(c) not in used]
+            x = free[0] if len(free) == 1 else None
         rec = dict(x) if x else {k2: v for k2, v in y.items() if k2 not in ("description_text", "system_text", "source_ref")}
+        rec.update({k2: y[k2] for k2 in MERIT_FIELDS if k2 in y})
         rec["html"] = merit_html(y["description_text"], y["system_text"])
         if x: used.add(id(x))
-        out.append(rec)
-    # черты сборки, которых нет в редакции, — в конце, разложенные по разделам
+        # у черты один клан: «salubri,tremere» — по записи на клан; написание редакции — к ключам кланов системы
+        clans = [CLAN_ALIAS.get(c.strip(), c.strip()) for c in str(rec.get("clan") or "").split(",") if c.strip()]
+        out.extend([{**rec, "clan": c} for c in clans] if len(clans) > 1 else [{**rec, "clan": clans[0]} if clans else rec])
+    # черты сборки, которых нет в редакции (ни по ключу, ни по имени), — в конце, разложенные по разделам
+    named = {loose(y) for y in final}
     for x in records:
-        if id(x) not in used and _mkey(x) not in {_mkey(y) for y in final}:
+        if id(x) not in used and loose(x) not in named:
             out.append({**x, "html": restructure(x.get("html", ""))})
     return out
 

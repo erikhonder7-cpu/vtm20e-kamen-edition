@@ -79,7 +79,12 @@ class Pack {
     return parent;
   }
   add({ name, type, system, folder = null, key = null, img = null }) {
-    this.items.push({ _id: this.id(`${type}:${key ?? `${folder}:${name}`}`), name, type, img: img ?? ICON(type), system,
+    // одинаковый id молча перезаписал бы запись в базе компендия: повтор ключа — с номером (первая запись хранит прежний id)
+    const base = `${type}:${key ?? `${folder}:${name}`}`;
+    let _id = this.id(base);
+    for (let n = 2; this.items.some(x => x._id === _id); n++) _id = this.id(`${base}#${n}`);
+    if (_id !== this.id(base)) this.repeats = (this.repeats ?? 0) + 1;
+    this.items.push({ _id, name, type, img: img ?? ICON(type), system,
       effects: [], folder: this.folder(folder), sort: (this.items.length + 1) * 1000, ownership: { default: 0 }, flags: {}, _stats: stats() });
   }
   /** Журнал из одной текстовой страницы (компендиум JournalEntry). */
@@ -125,7 +130,7 @@ class Pack {
     }
     await batch.write();
     await db.close();
-    console.log(`packs/${this.name}: ${this.items.length} предм., ${this.folders.size} папок`);
+    console.log(`packs/${this.name}: ${this.items.length} предм., ${this.folders.size} папок${this.repeats ? `, повторов имени: ${this.repeats}` : ""}`);
     return true;
   }
 }
@@ -218,13 +223,20 @@ const BUILDERS = {
     const clanName = Object.fromEntries(data("clans").map(c => [c.key, c.name]));
     clanName.synySamuila ??= "Сыны Самуила";
     const sectName = { camarilla: "Камарилья", sabbat: "Шабаш", anarchs: "Анархи" };
+    const keys = new Set();
     for (const m of data("merits").filter(m => !m.line)) {          // черты охотников — в hunter-merits
-      const range = m.max > m.min ? `<p><em>Цена: ${m.min}–${m.max}</em></p>` : "";
+      // одноимённые черты (современная и тёмновековая редакции, клановые на два клана): первая — прежний ключ, остальные — с эпохой, кланом и книгой
+      let key = `${m.kind}:${m.name}`;
+      if (keys.has(key)) key = `${key}:${m.era ?? ""}:${m.clan ?? ""}:${m.en ?? ""}:${m.source ?? ""}`;
+      keys.add(key);
+      // цена на выбор («2 / 4», «1 или 3») — не диапазон
+      const choice = /\/|или/.test(m.cost ?? "") ? String(m.cost).replace(/\s*(?:\/|или)\s*/g, " или ").replace(/\s*\(special\)/, "") : "";
+      const range = m.max > m.min ? `<p><em>Цена: ${choice || `${m.min}–${m.max}`}</em></p>` : "";
       const kindLabel = m.kind === "merit" ? "Достоинства" : "Недостатки";
       const folder = m.clan ? [`Клановые ${kindLabel.toLowerCase()}`, clanName[m.clan] ?? m.clan]
         : m.sect ? ["Черты сект", sectName[m.sect] ?? m.sect]
         : `${kindLabel} — ${cat[m.category] ?? m.category}`;
-      p.add({ name: m.name, type: m.kind, folder: daFolder(m, folder), key: `${m.kind}:${m.name}`, img: traitIcon(m.category, m.kind === "flaw"),
+      p.add({ name: m.name, type: m.kind, folder: daFolder(m, folder), key, img: traitIcon(m.category, m.kind === "flaw"),
         system: { cost: m.min || 1, category: m.category, clan: m.clan ?? "", sect: m.sect ?? "", source: m.en ?? "", description: `${m.html ?? ""}${range}` } });
     }
     return p;

@@ -482,12 +482,12 @@
   "group": "bloodline",
   "sect": "",
   "disciplines": [
-   "obtenebration",
+   "obfuscate",
    "fortitude",
    "thanatosis"
   ],
   "choice": [],
-  "disciplinesText": "Затмение, Стойкость, Танатозис",
+  "disciplinesText": "Сокрытие, Стойкость, Танатозис",
   "weakness": "<p>Гниющие трупы: <strong>Привлекательность 0</strong>, проверки с ней <strong>автоматически неудачны</strong>.</p>"
  },
  {

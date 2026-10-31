@@ -167,6 +167,7 @@ VTM20.meritCategories = {
   mental:       { label: L("MeritCat.mental") },
   social:       { label: L("MeritCat.social") },
   supernatural: { label: L("MeritCat.supernatural") },
+  clan:         { label: L("MeritCat.clan") },          // клановые черты (поле clan) — отдельной категорией
   // Demon Players Guide: инфернальные, юридические, экономические
   infernal:     { label: L("MeritCat.infernal") },
   legal:        { label: L("MeritCat.legal") },

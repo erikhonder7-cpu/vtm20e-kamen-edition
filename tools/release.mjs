@@ -17,7 +17,31 @@ if (!/^\d+\.\d+\.\d+$/.test(version ?? "")) { console.error("Укажите ве
 
 const run = (cmd, args, opts = {}) => execFileSync(cmd, args, { cwd: ROOT, stdio: opts.quiet ? "pipe" : "inherit", encoding: "utf8", ...opts });
 const out = (cmd, args) => execFileSync(cmd, args, { cwd: ROOT, encoding: "utf8" }).trim();
-const step = s => console.log(`\n── ${s}`);
+let current = "";
+const done = [];   // шаг, на котором идём, и что уже сделано — для сообщения об остановке
+const step = s => { current = s; console.log(`\n── ${s}`); };
+// Сбой любого шага — одной строкой: где, какая команда, что уже сделано и как продолжить (а не стек execFileSync)
+const stop = e => {
+  const cmd = e?.spawnargs ? e.spawnargs.join(" ") : "";
+  const why = String(e?.stderr || e?.message || e).trim().split("\n").filter(Boolean).slice(-3).join(" / ");
+  console.error(`\n✗ Релиз остановлен на шаге «${current}»${cmd ? ` (команда: ${cmd})` : ""}: ${why}`);
+  if (done.length) console.error(`  Уже сделано: ${done.join("; ")}.`);
+  if (done.includes("тег отправлен")) console.error(`  Осталось выложить архив: gh release create v${version} … (или удалить тег и запустить релиз заново).`);
+  else if (done.includes("коммит")) console.error("  Коммит релиза уже есть: отмените его (git reset --soft HEAD~1) и запустите релиз заново.");
+  process.exit(1);
+};
+process.on("uncaughtException", stop);
+process.on("unhandledRejection", stop);
+/** Сетевые шаги (push, GitHub) — до трёх попыток с паузой 5 и 10 с. */
+const retry = (what, fn) => {
+  for (let i = 1; ; i++) {
+    try { return fn(); } catch (e) {
+      if (i >= 3) throw e;
+      console.warn(`  ${what}: попытка ${i} не удалась — повтор через ${5 * i} с`);
+      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 5000 * i);
+    }
+  }
+};
 const manifest = JSON.parse(fs.readFileSync(path.join(ROOT, "system.json"), "utf8"));
 const repoUrl = manifest.url;                                  // https://github.com/<owner>/<repo>
 const repo = repoUrl.replace(/^https:\/\/github\.com\//, "");
@@ -62,9 +86,12 @@ run("git", ["add", "-A", "system.json", "packs"]);
   if (problems.length) { run("git", ["reset", "-q"]); console.error("Компендии в коммите битые:\n" + problems.join("\n")); process.exit(1); }
 }
 run("git", ["commit", "-q", "-m", `Релиз ${version}\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`]);
-run("git", ["push", "-q", "origin", "HEAD"]);
+done.push("коммит");
+retry("git push", () => run("git", ["push", "-q", "origin", "HEAD"]));
+done.push("коммит отправлен");
 run("git", ["tag", `v${version}`]);
-run("git", ["push", "-q", "origin", `v${version}`]);
+retry("git push тега", () => run("git", ["push", "-q", "origin", `v${version}`]));
+done.push("тег отправлен");
 
 // 7. Архив и релиз
 step("Релиз на GitHub");
@@ -82,6 +109,6 @@ const header = fs.existsSync(path.join(ROOT, "docs", "release.webp"))
 
 ` : "";
 fs.writeFileSync(path.join(tmp, "notes.md"), header + notes);
-run("gh", ["release", "create", `v${version}`, zip, path.join(tmp, "system.json"), "--repo", repo,
-  "--title", title ? `${version} — ${title}` : version, "--notes-file", path.join(tmp, "notes.md"), "--latest"]);
+retry("gh release create", () => run("gh", ["release", "create", `v${version}`, zip, path.join(tmp, "system.json"), "--repo", repo,
+  "--title", title ? `${version} — ${title}` : version, "--notes-file", path.join(tmp, "notes.md"), "--latest"]));
 console.log(`\nГотово: ${repoUrl}/releases/tag/v${version}`);
