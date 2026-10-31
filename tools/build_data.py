@@ -944,6 +944,7 @@ def main():
     derangements = derangements_extra.apply(derangements)
     import text_structure   # силы и черты — «Описание» + «Система» (снимок V38, справочники, финальная редакция черт)
     print("  силы по разделам:", text_structure.disciplines(disc))
+    print("  ритуалы по аудитам:", text_structure.rituals(rituals))
     merits = text_structure.merits(merits)
     dump("disciplines.json", disc)
     dump("derangements.json", derangements)

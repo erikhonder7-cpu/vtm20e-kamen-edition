@@ -1,0 +1,12 @@
+﻿power,book,edition,pages,prerequisites,type,verification_status,notes
+Animus Ligature,Rites of the Blood,V20,124–125,Auspex 2; Thaumaturgy 1,Combo Discipline,PARTIAL — direct text read; screenshot unavailable,"Aura detection of bonds, vincula, oaths and soul bargains; Perception + Empathy diff 8."
+Blood Sight,Lore of the Clans,V20,220,Auspex 2; Path of Blood 1,Combo Discipline,PARTIAL — index/prerequisites; full primary page needed,Analyses sample blood beyond A Taste for Blood.
+Thaumaturgical Sight,Lore of the Clans,V20,220,Auspex 2; Thaumaturgy 1,Combo Discipline / optional power,PARTIAL — index + Revised antecedent; distinguish versions,Perceives magical patterns and blood magic traces.
+Theft of Will,Lore of the Clans,V20,220,Dominate 3; Path of Blood 4,Combo Discipline,REQUIRES PRIMARY PAGE,Prerequisites reported by secondary Tremere reference; effect/system not reconstructed.
+The Humberside Panic,Anarchs Unbound,V20,106,Celerity 1; Thaumaturgy 1,Anarch Combo Discipline,PARTIAL — extracted V20 text; check original pagination/translation,Grants coterie members limited access to the user’s Celerity for a turn; blood per recipient/turn.
+Internet Famous,Anarchs Unbound,V20,106,Presence 4; Thaumaturgy 4 (Path of Technomancy implied by text),Anarch Combo Discipline,PARTIAL — extracted description; exact path preq unresolved,Uses social media to reproduce mass Summons among followers.
+Remote Access Buffer,Anarchs Unbound,V20,107–108,Special Thaumaturgy requirement; conflicting index/MET level data,Special / combination power,PARTIAL — excerpt and indices conflict,Transfers a single-use encoded Discipline power via digital message/file.
+Name the Fallen,Archons & Templars,Revised-era,140,Auspex 3; Path of Blood 1 (secondary index),Historical Combo Discipline,PARTIAL — index only,"Historical, not a modern V20 path."
+Sanguinary Expulsion,Archons & Templars,Revised-era,142,Fortitude 2; Thaumaturgy 3 or Protean 3 (conflicting indices),Historical Combo Discipline,PARTIAL — conflicting prereqs; primary page required,"Historical, not a modern V20 path."
+Scent of Caine,Player’s Guide to Low Clans,Dark Ages,164,Auspex 2; Thaumaturgy/Path of Blood variant in secondary indexes,Dark Ages Combo Discipline,OUT OF SCOPE — separate branch,Do not import into modern V20.
+Drink the Mind,Player’s Guide to Low Clans,Dark Ages,160,Auspex 4; Quietus 5 or Path of Blood 5,Dark Ages Combo Discipline,OUT OF SCOPE — separate branch,Do not import into modern V20.
