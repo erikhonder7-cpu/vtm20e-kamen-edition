@@ -181,9 +181,10 @@ try {
       const now = getClock();
       const fx = await a.startPower("quietus:3");                    // Зов Дагона — на час, без цены
       const until = fx?.getFlag(game.system.id, "until") ?? 0;
-      const [, ritual] = await a.createEmbeddedDocuments("Item", [
+      // порядок созданных предметов не обязан совпадать с порядком в запросе — ритуал ищем по типу
+      const ritual = (await a.createEmbeddedDocuments("Item", [
         { name: "E2E — Тауматургия", type: "discipline", system: { key: "thaumaturgy", value: 1 } },
-        { name: "E2E — ритуал", type: "ritual", system: { discipline: "thaumaturgy", level: 1 } }]);
+        { name: "E2E — ритуал", type: "ritual", system: { discipline: "thaumaturgy", level: 1 } }])).find(i => i.type === "ritual");
       await T.toggleRitualReading(a, ritual);
       const reading = T.readingRituals(a).length;
       const n = game.messages.size;

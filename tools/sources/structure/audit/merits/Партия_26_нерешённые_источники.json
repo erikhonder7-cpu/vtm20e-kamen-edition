@@ -1,0 +1,58 @@
+[
+  {
+    "index": 393,
+    "name": "Несвободный",
+    "en": "",
+    "kind": "flaw",
+    "category": "clan",
+    "reason": "Source cluster and/or individual page not sufficiently established; left unchanged to avoid guessing."
+  },
+  {
+    "index": 394,
+    "name": "Чувство погоды",
+    "en": "",
+    "kind": "merit",
+    "category": "clan",
+    "reason": "Source cluster and/or individual page not sufficiently established; left unchanged to avoid guessing."
+  },
+  {
+    "index": 395,
+    "name": "Морская гармония",
+    "en": "",
+    "kind": "merit",
+    "category": "clan",
+    "reason": "Source cluster and/or individual page not sufficiently established; left unchanged to avoid guessing."
+  },
+  {
+    "index": 396,
+    "name": "Зов Посейдона",
+    "en": "",
+    "kind": "flaw",
+    "category": "clan",
+    "reason": "Source cluster and/or individual page not sufficiently established; left unchanged to avoid guessing."
+  },
+  {
+    "index": 397,
+    "name": "Одарённый доверием",
+    "en": "Proxy Kissed",
+    "kind": "merit",
+    "category": "clan",
+    "reason": "Source cluster and/or individual page not sufficiently established; left unchanged to avoid guessing."
+  },
+  {
+    "index": 615,
+    "name": "Морское принуждение",
+    "en": "",
+    "kind": "flaw",
+    "category": "clan",
+    "reason": "Source cluster and/or individual page not sufficiently established; left unchanged to avoid guessing."
+  },
+  {
+    "index": 616,
+    "name": "Отражение смерти",
+    "en": "",
+    "kind": "flaw",
+    "category": "clan",
+    "reason": "Source cluster and/or individual page not sufficiently established; left unchanged to avoid guessing."
+  }
+]
