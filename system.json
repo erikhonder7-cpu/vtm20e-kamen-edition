@@ -7,11 +7,6 @@
     "minimum": "14",
     "verified": "14"
   },
-  "relationships": {
-    "recommends": [
-      { "id": "sequencer", "type": "module", "reason": "Анимации сил (tools/fx_extract.mjs кладёт файлы эффектов из купленных паков)." }
-    ]
-  },
   "authors": [
     {
       "name": "Kamen"

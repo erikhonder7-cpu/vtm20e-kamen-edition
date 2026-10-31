@@ -538,6 +538,12 @@ body.r-theme-light .vtm20 .r-ng-item.is-active, body.r-theme-light .vtm20 .r-ng-
 .vtm20 .r-xw-cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 26px; }
 .vtm20 .r-xw-row .r-trait-main { gap: 8px; }
 .vtm20 .r-xw-row .r-trait-label { cursor: default; }
+/* длинное название переносится на вторую строку, а не режется; десять точек (Человечность, Воля) — двумя рядами */
+.vtm20 .r-xw-row .r-trait-label { white-space: normal; overflow: visible; line-height: 1.15; overflow-wrap: anywhere; }
+.vtm20 .r-xw-row .r-trait-main { gap: 6px; }
+.vtm20 .r-xw-row .r-leader { min-width: 4px; }
+.vtm20 .r-xw-row .r-dots:has(> .r-dot:nth-child(6)) { display: grid; grid-template-columns: repeat(5, 11px); gap: 2px 3px; }
+.vtm20 .r-xw-row .r-dots:has(> .r-dot:nth-child(6)) .r-dot { width: 11px; height: 11px; }
 /* следующая точка — пунктирная кокарда, мерцает, пока по карману */
 .vtm20 .r-xw-row .r-dot { pointer-events: none; }
 .vtm20 .r-xw-row .r-dot.is-next { border-style: dashed; border-color: #c4474c; animation: r-xw-next 1.8s ease-in-out infinite; }
@@ -713,10 +719,14 @@ body.r-theme-light .vtm20 .r-ng-item.is-active, body.r-theme-light .vtm20 .r-ng-
 .vtm20 .is-w4.r-bn-badge { border-color: #e06a6f; color: #fff1ec; background: linear-gradient(180deg, #8c1c22, #4a0d11); box-shadow: 0 0 8px rgba(196, 71, 76, .4); }
 .vtm20 .r-bn-none { padding: 14px 6px; font-style: italic; color: var(--r-muted); }
 /* Баланс услуг (В4) */
-.vtm20 .r-bn-body { flex: 1 1 auto; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 250px; gap: 14px; }
+.vtm20 .r-bn-body { flex: 1 1 auto; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 14px; }
 .vtm20 .r-bn-sum { display: flex; flex-direction: column; gap: 8px; min-height: 0; overflow-y: auto; padding-left: 14px; border-left: 1px solid var(--r-line-2); }
 .vtm20 .r-bn-asgs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-.vtm20 .r-bn-asgs .r-assignat { grid-area: auto; width: auto; padding: 6px 9px 7px; }
+.vtm20 .r-bn-asgs .r-assignat { grid-area: auto; width: auto; min-width: 0; padding: 6px 9px 7px; }
+/* узкая колонка: подпись сверху, число под ней — «ПОГАШЕННЫЕ» не вылезает за плашку */
+.vtm20 .r-bn-asgs .r-assignat-head { flex-direction: column; align-items: flex-start; gap: 3px; }
+.vtm20 .r-bn-asgs .r-assignat-title { font-size: 10.5px; letter-spacing: 1px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vtm20 .r-bn-asgs .r-assignat-num { margin-left: 0; }
 .vtm20 .r-bn-sum .r-colhead { margin: 6px 0 0; }
 .vtm20 .r-bn-bal { display: flex; flex-direction: column; padding: 4px 0 6px; border-bottom: 1px dotted var(--r-line); }
 .vtm20 .r-bn-bal > b { font-family: var(--r-display); font-weight: 400; font-size: 14.5px; color: var(--r-ink); }
@@ -1087,14 +1097,43 @@ body.r-theme-light .vtm20 .r-ng-item.is-active, body.r-theme-light .vtm20 .r-ng-
 .vtm20 .r-cr-edge-lvl { flex: 0 0 26px; font-family: var(--r-display); color: var(--r-accent); text-align: center; }
 
 /* Вера против падших (apps/exorcist.mjs) */
-.vtm20.r-exorcist .r-exo-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; margin-bottom: 8px; }
-.vtm20.r-exorcist .r-exo-acts { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; margin: 4px 0 8px; }
+.vtm20.r-exorcist .window-content { padding: 12px 14px 14px; }
+.vtm20.r-exorcist .r-exo-body { display: flex; flex-direction: column; gap: 10px; }
+.vtm20.r-exorcist .r-exo-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; }
+.vtm20.r-exorcist .r-exo-facts .r-badge { padding: 7px 11px 8px; }
+.vtm20.r-exorcist .r-exo-facts .r-badge > b { font-size: 24px; line-height: 1.1; }
+.vtm20.r-exorcist .r-exo-facts .r-badge > em { font-size: 12px; }
+.vtm20.r-exorcist .r-exo-facts .r-badge.is-demon { border-color: rgba(196, 71, 76, .55); background: rgba(140, 28, 34, .14); }
+/* раздел-карточка (r-card-sec — общий: Вера против падших, Культ): заголовок-печать с линией, подсказка мелким курсивом */
+.vtm20 .r-card-sec { display: flex; flex-direction: column; gap: 7px; min-width: 0; padding: 9px 11px 11px; border: 1px solid var(--r-line); background: var(--r-card-bg); }
+.vtm20 .r-card-h { display: flex; align-items: center; gap: 8px; margin: 0; padding: 0; border: 0;
+  font-family: var(--r-caps); font-weight: 400; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--r-ink); }
+.vtm20 .r-card-h > i { width: 16px; text-align: center; font-size: 12px; color: var(--r-accent); }
+.vtm20 .r-card-h::after { content: ""; order: 2; flex: 1; height: 1px; background: linear-gradient(to right, var(--r-line-2), transparent); }
+.vtm20 .r-card-h > small { order: 3; font-family: var(--r-body); font-size: 12px; font-style: italic; letter-spacing: 0; text-transform: none; color: var(--r-muted); }
+.vtm20 .r-card-hint { margin: 0; font-size: 12.5px; line-height: 1.45; font-style: italic; color: var(--r-muted); }
+.vtm20 .r-card-hint a { font-style: normal; color: var(--r-ink); }
+/* цель: падший — во всю ширину, рядом узкое поле предмета и флажок имени */
+.vtm20.r-exorcist .r-exo-target { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "demon num" "tn num"; align-items: end; gap: 6px 14px; }
+.vtm20.r-exorcist .r-exo-field.is-demon { grid-area: demon; }
+.vtm20.r-exorcist .r-exo-field.is-num { grid-area: num; align-self: start; }
+.vtm20.r-exorcist .r-exo-field { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.vtm20.r-exorcist .r-exo-field > span { font-family: var(--r-caps); font-size: 10.5px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--r-muted); white-space: nowrap; }
+.vtm20.r-exorcist .r-exo-field.is-num input { width: 86px; text-align: center; }
+.vtm20.r-exorcist .r-exo-tn { grid-area: tn; white-space: nowrap; }
+.vtm20.r-exorcist .r-exo-cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.vtm20.r-exorcist .r-exo-btns { display: grid; grid-template-columns: 1fr; gap: 5px; }
+.vtm20.r-exorcist .r-exo-btns .r-btn { justify-content: flex-start; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vtm20.r-exorcist .r-exo-btns .r-btn i { width: 16px; text-align: center; }
+.vtm20.r-exorcist .r-exo-acts { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
 .vtm20.r-exorcist .r-exo-acts select { flex: 1 1 200px; min-width: 0; }
-.vtm20.r-exorcist .r-exo-score { font-family: var(--r-display); }
-.vtm20.r-exorcist .r-exo-warn { color: var(--r-blood-l); }
-.vtm20.r-exorcist .r-exo-helpers { list-style: none; margin: 0 0 8px; padding: 0; display: flex; flex-direction: column; gap: 4px; }
-.vtm20.r-exorcist .r-exo-helpers li { display: flex; align-items: center; gap: 8px; }
-.vtm20.r-exorcist .r-exo-helpers li .r-vc-btn { margin-left: auto; }
+.vtm20.r-exorcist .r-exo-score { margin-right: auto; font-family: var(--r-display); color: var(--r-ink); }
+.vtm20.r-exorcist .r-exo-warn { margin: 0; color: var(--r-blood-l); }
+.vtm20 .r-card-helpers { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.vtm20 .r-card-helpers li { display: flex; align-items: center; gap: 8px; }
+.vtm20 .r-card-helpers li.r-exo-drop { justify-content: center; padding: 9px 10px; border: 1px dashed var(--r-line-2); font-size: 12.5px; font-style: italic; color: var(--r-muted); text-align: center; }
+.vtm20 .r-card-helpers li.r-exo-drop i { font-style: normal; color: var(--r-accent); }
+.vtm20 .r-card-helpers li .r-vc-btn { margin-left: auto; }
 .vtm20.r-exorcist .r-exo-research { list-style: none; margin: 0 0 6px; padding: 0; display: flex; flex-direction: column; gap: 4px; }
 .vtm20.r-exorcist .r-exo-research li { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.9fr) minmax(0, 1.2fr) auto auto auto auto; align-items: center; gap: 6px; }
 .vtm20.r-exorcist .r-exo-research li.is-done input[type=text] { text-decoration: line-through; opacity: .7; }
@@ -1102,13 +1141,21 @@ body.r-theme-light .vtm20 .r-ng-item.is-active, body.r-theme-light .vtm20 .r-ng-
 .vtm20.r-exorcist .r-exo-got input { width: 4em; }
 
 /* Культ Привязанного (apps/cult.mjs) */
-.vtm20.r-cult .r-cult-body { display: flex; flex-direction: column; gap: 8px; padding: 4px 2px; }
+.vtm20.r-cult .window-content { padding: 12px 14px 14px; }
+.vtm20.r-cult .r-cult-body { display: flex; flex-direction: column; gap: 10px; }
+.vtm20.r-cult .r-cult-facts .r-badge { padding: 7px 11px 8px; }
+.vtm20.r-cult .r-cult-facts .r-badge > b { font-size: 24px; line-height: 1.1; }
+.vtm20.r-cult .r-cult-place { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 14px; }
+.vtm20.r-cult .r-cult-place label { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.vtm20.r-cult .r-cult-place label > span { font-family: var(--r-caps); font-size: 10.5px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--r-muted); }
+.vtm20.r-cult .r-cult-hours { display: inline-flex; align-items: center; gap: 6px; font-family: var(--r-caps); font-size: 11px; letter-spacing: 1.4px; text-transform: uppercase; color: var(--r-muted); }
+.vtm20.r-cult .r-cult-acts + .r-cult-acts { padding-top: 7px; border-top: 1px dotted var(--r-line); }
 .vtm20.r-cult .r-cult-facts { display: flex; flex-wrap: wrap; gap: 8px; }
 .vtm20.r-cult .r-badge.is-low b { color: var(--r-blood-l); }
 .vtm20.r-cult .r-cult-warn { margin: 0; color: var(--r-blood-l); }
 .vtm20.r-cult .r-cult-acts { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 10px; }
 .vtm20.r-cult .r-cult-last { font-size: 12.5px; color: var(--r-bone-d); }
-.vtm20.r-cult .r-cult-hours input { width: 48px; }
+.vtm20.r-cult .r-cult-hours input { width: 56px; text-align: center; }
 .vtm20.r-cult .r-cult-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
 .vtm20.r-cult .r-cult-member { display: grid; grid-template-columns: auto 1.2fr 0.9fr 1.6fr auto; align-items: center; gap: 6px; }
 .vtm20.r-cult .r-cult-member:not(:has(.r-cult-link)) { grid-template-columns: 1.2fr 0.9fr 1.6fr auto; }
@@ -1121,3 +1168,23 @@ body.r-theme-light .vtm20 .r-ng-item.is-active, body.r-theme-light .vtm20 .r-ng-
 .vtm20 .r-tlog td small { display: block; font-size: 11px; color: var(--r-bone-d); }
 .vtm20 .r-tlog tr.is-up td:nth-child(3) { color: var(--r-blood-l); }
 .vtm20 .r-tlog tr.is-down td:nth-child(3) { color: #8fb38a; }
+
+/* Бросок Грани и воззвание (apps/hunter.mjs, edgeForm): текст Грани карточкой, пул строкой, числа в ряд */
+.vtm20.r-edge-dialog .r-edge-form { display: flex; flex-direction: column; gap: 10px; }
+.vtm20.r-edge-dialog .r-edge-form > .r-kicker { margin: 0; }
+.vtm20.r-edge-dialog .r-edge-text { margin: 0; padding: 9px 12px; border-left: 2px solid var(--r-blood-l); background: var(--r-card-bg);
+  font-family: var(--r-body); font-size: 14px; line-height: 1.5; color: var(--r-ink); }
+.vtm20.r-edge-dialog .r-edge-lab { font-family: var(--r-caps); font-size: 10.5px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--r-muted); white-space: nowrap; }
+.vtm20.r-edge-dialog .r-edge-pool { display: flex; flex-direction: column; gap: 4px; }
+.vtm20.r-edge-dialog .r-edge-pool > div { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 10px; font-family: var(--r-display); font-size: 15px; color: var(--r-ink); }
+.vtm20.r-edge-dialog .r-edge-pool > div > select { flex: 1 1 200px; min-width: 0; }
+.vtm20.r-edge-dialog .r-edge-pool b { font-weight: 400; color: var(--r-accent); }
+.vtm20.r-edge-dialog .r-edge-pool em { font-style: normal; color: var(--r-muted); }
+.vtm20.r-edge-dialog .r-edge-nums { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+.vtm20.r-edge-dialog .r-edge-num { display: grid; grid-template-columns: 1fr auto; grid-template-areas: "lab lab" "num sub"; align-items: center; gap: 4px 8px;
+  padding: 7px 10px 8px; border: 1px solid var(--r-line); background: var(--r-card-bg); }
+.vtm20.r-edge-dialog .r-edge-num > .r-edge-lab { grid-area: lab; overflow: hidden; text-overflow: ellipsis; }
+.vtm20.r-edge-dialog .r-edge-num > input { grid-area: num; width: 72px; height: 30px; text-align: center; font-family: var(--r-display); font-size: 18px; }
+.vtm20.r-edge-dialog .r-edge-num > em { grid-area: sub; font-size: 12px; color: var(--r-muted); white-space: nowrap; }
+.vtm20.r-edge-dialog .r-edge-notes { display: flex; flex-direction: column; gap: 4px; padding-top: 8px; border-top: 1px solid var(--r-line); }
+.vtm20.r-edge-dialog .r-edge-notes p { margin: 0; font-size: 12.5px; line-height: 1.45; font-style: italic; color: var(--r-muted); }

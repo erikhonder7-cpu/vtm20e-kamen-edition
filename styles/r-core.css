@@ -327,6 +327,17 @@ body.r-theme-light .vtm20 {
 .vtm20 .r-power-body tr:nth-child(even) td, .r-item-card .r-card-body tr:nth-child(even) td { background: rgba(var(--r-shade-rgb), .08); }
 .vtm20 .r-power-body blockquote { margin: 4px 0; padding: 4px 10px; border-left: 2px solid var(--r-blood); font-style: italic; color: var(--r-ink-2); }
 
+/* Разделы силы и черты: «Описание» и «Система» — печатный заголовок с линией до края */
+:is(.vtm20 .r-power-body, .vtm20 .r-item-text, .vtm20 .r-editor, .r-item-card .r-card-body, .r-card-effect .r-card-body) h4.r-sec {
+  display: flex; align-items: center; gap: 8px; margin: 12px 0 5px; padding: 0;
+  font-family: var(--r-caps); font-weight: 400; font-size: 11.5px; letter-spacing: 2.2px; text-transform: uppercase;
+  color: var(--r-accent); border: 0; background: none; line-height: 1.2;
+}
+:is(.vtm20 .r-power-body, .vtm20 .r-item-text, .vtm20 .r-editor, .r-item-card .r-card-body, .r-card-effect .r-card-body) h4.r-sec::after {
+  content: ""; flex: 1; height: 1px; background: linear-gradient(to right, var(--r-line-2), transparent);
+}
+:is(.vtm20 .r-power-body, .vtm20 .r-item-text, .vtm20 .r-editor, .r-item-card .r-card-body, .r-card-effect .r-card-body) h4.r-sec:first-child { margin-top: 2px; }
+
 /* ── Диалоги ──────────────────────────────────────────────────────────── */
 
 .application.vtm20.r-dialog .window-content { padding: 14px 16px; }

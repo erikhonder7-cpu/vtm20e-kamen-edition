@@ -16,7 +16,7 @@
     </div>
     {{/if}}
     {{#if book}}<p class="r-item-src">{{localize "VTM20.Item.source"}}: {{book}}</p>{{/if}}
-    <h2 class="r-h2"><span>{{localize "VTM20.Item.description"}}</span></h2>
+    {{!-- заголовка нет: в тексте свои разделы «Описание» и «Система» --}}
     <div class="r-editor r-item-text">
       <prose-mirror name="system.description" value="{{system.description}}" toggled {{#unless editable}}disabled{{/unless}}>{{{descriptionHTML}}}</prose-mirror>
     </div>

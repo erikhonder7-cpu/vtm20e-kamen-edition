@@ -13,14 +13,22 @@
 import { rollPool } from "../dice/roll.mjs";
 import { Codex } from "../data/codex.mjs";
 import { SYSTEM_ID } from "../config.mjs";
-import { fxFlags, eventTheme, edgeTheme } from "./fx.mjs";
 
 const t = (k, d) => d ? game.i18n.format(`VTM20.Hunter.${k}`, d) : game.i18n.localize(`VTM20.Hunter.${k}`);
 const esc = s => foundry.utils.escapeHTML(String(s ?? ""));
 export const VIRTUE_KEYS = ["mercy", "vision", "zeal"];
-// fx — тема анимации (apps/fx.mjs): её сыграют все, кто увидит карточку
-const notice = (actor, icon, html, cls = "", fx = null) => ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }),
-  content: `<div class="r-notice r-type-hunter ${cls}"><i class="fa-solid ${icon}"></i> ${html}</div>`, flags: { [SYSTEM_ID]: fxFlags(fx, actor) } });
+const notice = (actor, icon, html, cls = "") => ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }),
+  content: `<div class="r-notice r-type-hunter ${cls}"><i class="fa-solid ${icon}"></i> ${html}</div>` });
+
+/** Окно броска Грани и воззвания: подпись, текст Грани карточкой, строка пула, числовые поля в ряд, пояснения под чертой. */
+const edgeForm = ({ kicker, text, pool, poolLabel, fields = [], notes = [] }) => `<div class="r-edge-form">
+  ${kicker ? `<span class="r-kicker">${esc(kicker)}</span>` : ""}
+  ${text ? `<p class="r-edge-text">${esc(text)}</p>` : ""}
+  ${pool ? `<div class="r-edge-pool"><span class="r-edge-lab">${esc(poolLabel ?? t("PoolLine"))}</span><div>${pool}</div></div>` : ""}
+  <div class="r-edge-nums">${fields.map(f => `<label class="r-edge-num"><span class="r-edge-lab">${esc(f.label)}</span>
+    <input type="number" name="${f.name}" value="${f.value}" min="${f.min}" max="${f.max}">${f.sub ? `<em>${esc(f.sub)}</em>` : ""}</label>`).join("")}</div>
+  ${notes.filter(Boolean).length ? `<div class="r-edge-notes">${notes.filter(Boolean).map(n => `<p>${esc(n)}</p>`).join("")}</div>` : ""}
+</div>`;
 
 export const H = () => Codex.hunter ?? { creeds: [], edges: [], virtues: {} };
 /** Свидетель (Players Guide, гл. 1): кредо «bystander» — без Граней, свои Добродетели, Убеждённость как рассудок. */
@@ -245,29 +253,36 @@ export async function useEdge(actor, key) {
     // без броска: Нужда — уровень ушибов, Всплеск — пункт Убеждённости, Обновление — само
     if (e.conviction) await actor.update({ "system.hunter.conviction": conv - e.conviction });
     if (key === "martyrdom|1") await actor.applyDamage(1, "bashing");
-    return notice(actor, "fa-hand-sparkles", `<b>${esc(e.name)}</b> — ${esc(e.text)}`, "", edgeTheme(key));
+    return notice(actor, "fa-hand-sparkles", `<b>${esc(e.name)}</b> — ${esc(e.text)}`);
   }
   const attrs = ["strength", "dexterity", "stamina", "charisma", "manipulation", "intelligence", "perception", "wits"];
   const free = h.sceneRisk ? 0 : conv - e.conviction;
-  const content = `<p class="r-choice-hint">${esc(e.text)}</p><div class="r-fields">
-    ${e.roll.trait1 === "pick" ? `<label class="r-f is-span2"><span>${t("Attribute")}</span><select name="attr">${attrs.map(k => `<option value="attributes.${k}">${actor.traitLabel(`attributes.${k}`)}</option>`).join("")}</select></label>` : ""}
-    <label class="r-f"><span>${t("Difficulty")}</span><input type="number" name="diff" value="${e.roll.difficulty}" min="2" max="10"></label>
-    <label class="r-f"><span>${t("Risk")}</span><input type="number" name="risk" value="0" min="0" max="${free}"></label></div>
-    <p class="r-note">${e.conviction ? t("CostNote", { n: e.conviction }) + " " : ""}${h.sceneRisk ? t("RiskUsed") : t("RiskNote", { n: free })}${e.roll.byTarget ? " " + t("ByTargetNote") : ""}</p>`;
+  const val = p => !p ? 0 : p.startsWith("hunter.") ? (h[p.slice(7)] ?? 0) : actor.traitValue(p);
+  const lab = p => p.startsWith("hunter.") ? H().virtues[p.slice(7)] : actor.traitLabel(p);
+  const pick = e.roll.trait1 === "pick";
+  const pool = pick
+    ? `<select name="attr">${attrs.map(k => `<option value="attributes.${k}">${actor.traitLabel(`attributes.${k}`)} (${actor.traitValue(`attributes.${k}`)})</option>`).join("")}</select>
+       <span>+ ${esc(lab(e.roll.trait2))} <b>${val(e.roll.trait2)}</b></span>`
+    : `<span>${[e.roll.trait1, e.roll.trait2].filter(Boolean).map(p => `${esc(lab(p))} <b>${val(p)}</b>`).join(" + ")}</span>
+       <em>= ${val(e.roll.trait1) + val(e.roll.trait2)}</em>`;
+  const content = edgeForm({
+    kicker: t("EdgeKicker", { path: creedOf(e.path)?.name ?? e.path, n: e.level }), text: e.text, pool,
+    fields: [{ label: t("Difficulty"), name: "diff", value: e.roll.difficulty, min: 2, max: 10 },
+      { label: t("Risk"), name: "risk", value: 0, min: 0, max: free, sub: t("RiskLeft", { n: free }) }],
+    notes: [e.conviction && t("CostNote", { n: e.conviction }), h.sceneRisk ? t("RiskUsed") : t("RiskNote", { n: free }),
+      e.roll.byTarget && t("ByTargetNote")] });
   const v = await foundry.applications.api.DialogV2.prompt({
-    window: { title: e.name }, classes: ["vtm20", "r-dialog"], position: { width: 460 }, content,
+    window: { title: e.name, icon: "fa-solid fa-hand-sparkles" }, classes: ["vtm20", "r-dialog", "r-edge-dialog"], position: { width: 480 }, content,
     ok: { label: t("Roll"), callback: (ev, btn) => { const f = btn.form.elements;
       return { attr: f.attr?.value ?? e.roll.trait1, diff: Number(f.diff.value) || 6, risk: Math.clamp(Number(f.risk.value) || 0, 0, free) }; } }
   }).catch(() => null);
   if (!v) return null;
   const t1 = v.attr, t2 = e.roll.trait2;
-  const val = p => !p ? 0 : p.startsWith("hunter.") ? (h[p.slice(7)] ?? 0) : actor.traitValue(p);
-  const lab = p => p.startsWith("hunter.") ? H().virtues[p.slice(7)] : actor.traitLabel(p);
   const breakdown = [t1 && { label: lab(t1), value: val(t1) }, { label: lab(t2), value: val(t2) },
     v.risk && { label: t("Risk"), value: v.risk }].filter(Boolean);
   if (e.conviction || v.risk) await actor.update({ "system.hunter.conviction": conv - e.conviction, ...(v.risk ? { "system.hunter.sceneRisk": true } : {}) });
   const res = await rollPool({ actor, title: e.name, subtitle: t("EdgeKicker", { path: creedOf(e.path)?.name ?? e.path, n: e.level }),
-    pool: val(t1) + val(t2) + v.risk, difficulty: v.diff, kind: "check", breakdown, effect: `<p>${esc(e.text)}</p>`, extra: { edge: key } });
+    pool: val(t1) + val(t2) + v.risk, difficulty: v.diff, kind: "check", breakdown, effect: `<p>${esc(e.text)}</p>` });
   if (!v.risk) return res;
   // риск Убеждённостью: успех — вложенное остаётся и +1; неудача — вложенное сгорает; провал — вся Убеждённость
   const now = actor.system.hunter.conviction ?? 0;
@@ -289,7 +304,7 @@ export async function secondSight(actor) {
   const c = actor.system.hunter?.conviction ?? 0;
   if (c < 1) return ui.notifications.warn(t("NoConviction", { n: 1 }));
   await actor.update({ "system.hunter.conviction": c - 1 });
-  return notice(actor, "fa-eye", t("SightOn", { name: esc(actor.name) }), "", eventTheme("secondSight"));
+  return notice(actor, "fa-eye", t("SightOn", { name: esc(actor.name) }));
 }
 
 /** Испытание основной Добродетели против древнего чудовища (сл. по выбору рассказчика). */
@@ -329,7 +344,7 @@ export async function restoreConviction(actor) {
 
 /* ── Общие окна ─────────────────────────────────────────────────────────── */
 const form = (title, content, label, read, width = 460) => foundry.applications.api.DialogV2.prompt({
-  window: { title }, classes: ["vtm20", "r-dialog"], position: { width }, content,
+  window: { title }, classes: ["vtm20", "r-dialog", "r-edge-dialog"], position: { width }, content,
   ok: { label, callback: (ev, btn) => read(btn.form.elements) } }).catch(() => null);
 const pick = (title, content, opts, label) => foundry.applications.api.DialogV2.wait({
   window: { title }, classes: ["vtm20", "r-dialog"], position: { width: 440 }, content,
@@ -454,10 +469,10 @@ export async function callEdge(actor, wantKey = "") {
       `<option value="${e.key}" ${e.key === wantKey ? "selected" : ""}>${ROMAN[e.level]} · ${esc(e.name)} (${esc(creedOf(e.path)?.name ?? e.path)})</option>`).join("")}</optgroup>`).join("");
   if (!groups) return ui.notifications.warn(t("CallSpent"));
   const free = h.sceneRisk ? 0 : conv - 1;
-  const v = await form(t("Call"), `<p class="r-choice-hint">${t("CallHow")}</p><div class="r-fields">
-    <label class="r-f is-span2"><span>${t("CallWant")}</span><select name="want">${groups}</select></label>
-    <label class="r-f"><span>${t("Risk")}</span><input type="number" name="risk" value="0" min="0" max="${free}"></label></div>
-    <p class="r-note">${h.sceneRisk ? t("RiskUsed") : t("RiskNote", { n: free })}</p>`, t("Roll"),
+  const v = await form(t("Call"), edgeForm({ kicker: t("ConvNow", { n: conv }), text: t("CallHow"),
+    pool: `<select name="want">${groups}</select>`, poolLabel: t("CallWant"),
+    fields: [{ label: t("Risk"), name: "risk", value: 0, min: 0, max: free, sub: t("RiskLeft", { n: free }) }],
+    notes: [h.sceneRisk ? t("RiskUsed") : t("RiskNote", { n: free })] }), t("Roll"),
     f => ({ want: f.want.value, risk: Math.clamp(Number(f.risk.value) || 0, 0, free) }), 500);
   if (!v) return null;
   const want = v.want.startsWith("v:") ? null : edgeOf(v.want), virtue = want?.virtue ?? v.want.slice(2), name = esc(actor.name);
@@ -481,8 +496,7 @@ export async function callEdge(actor, wantKey = "") {
   await actor.update({ "system.hunter.sceneEdge": got.key, "system.hunter.sceneLevel": s,
     [`system.hunter.story.${virtue}`]: (h.story?.[virtue] ?? 0) + edgeCost(got.level), "system.hunter.edges": [...new Set([...(h.edges ?? []), got.key])],
     ...(v.risk ? { "system.hunter.conviction": Math.min(10, now + 1) } : {}) });
-  return notice(actor, "fa-hand-sparkles", t("CallGot", { name, edge: esc(got.name), n: s }) + (want && got !== want ? " " + t("CallLess", { want: esc(want.name) }) : ""),
-    "", eventTheme("called"));
+  return notice(actor, "fa-hand-sparkles", t("CallGot", { name, edge: esc(got.name), n: s }) + (want && got !== want ? " " + t("CallLess", { want: esc(want.name) }) : ""));
 }
 
 /** Рассказчик выбирает другую Грань сцены (той же Добродетели, не выше числа успехов). */

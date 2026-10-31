@@ -71,7 +71,7 @@ export async function openTormentLog(actor) {
     rows.map(r => `<tr class="${r.temp + r.perm > 0 ? "is-up" : "is-down"}"><td>${esc(r.date)}<small>${new Date(r.ts).toLocaleString(game.i18n.lang, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</small></td>
       <td>${esc(r.reason)}</td><td>${delta(r)}</td><td>${r.permAfter} / ${r.tempAfter}</td></tr>`).join("")}</tbody></table>`
     : `<p class="r-empty">${t("LogEmpty")}</p>`;
-  const buttons = [{ action: "close", label: game.i18n.localize("Close"), default: true }];
+  const buttons = [{ action: "close", label: game.i18n.localize("VTM20.Common.Close"), default: true }];
   if (game.user.isGM && rows.length) buttons.push({ action: "clear", label: t("LogClear"), icon: "fa-solid fa-eraser" });
   const res = await foundry.applications.api.DialogV2.wait({ window: { title: `${t("Log")}: ${actor.name}`, icon: "fa-solid fa-scroll" },
     classes: ["vtm20", "r-dialog", "r-type-demon"], position: { width: 600 }, content, buttons }).catch(() => null);

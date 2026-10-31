@@ -17,7 +17,7 @@ const int = (initial = 0, min = 0, max = undefined) =>
   new NumberField({ required: true, integer: true, min, max, initial, nullable: false });
 const str = (initial = "") => new StringField({ required: true, blank: true, initial });
 
-/** Характеристика: точки и специализация (при 4+, файл 01). */
+/** Характеристика: точки и специализация (обычно при 4+; исключения — файл 01). */
 const traitField = (initial, max = 10) => new SchemaField({ value: int(initial, 0, max), specialty: str() });
 
 const xpEntryField = () => new SchemaField({ amount: int(0, -999), reason: str(), date: str() });
@@ -379,7 +379,8 @@ const rollField = () => new SchemaField({
   trait1: str(), trait2: str(),
   difficulty: int(0, 0, 10),          // 0 — не задана (6 или по описанию)
   blood: int(0, 0, 10),               // сколько крови стоит применение
-  willpower: new BooleanField({ initial: false })
+  willpower: new BooleanField({ initial: false }),
+  note: str()                         // пояснение к сложности, второму пулу или переменной цене
 });
 
 export class RitualData extends BaseItemData {

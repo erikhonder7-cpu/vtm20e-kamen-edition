@@ -14,6 +14,18 @@
       "port": 30001
     },
     {
+      "name": "foundry-portable",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "D:/FoundryVTT-WindowsPortable-14.365/App/resources/app/main.mjs",
+        "--dataPath=D:/FoundryVTT-WindowsPortable-14.365",
+        "--port=30002",
+        "--noupnp",
+        "--world=vtm20-test"
+      ],
+      "port": 30002
+    },
+    {
       "name": "mock",
       "runtimeExecutable": "python",
       "runtimeArgs": [

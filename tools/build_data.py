@@ -942,6 +942,9 @@ def main():
     with open(os.path.join(OUT, "derangements.json"), encoding="utf-8") as f:
         derangements = [d for d in json.load(f) if d.get("source", "V20") == "V20"]
     derangements = derangements_extra.apply(derangements)
+    import text_structure   # силы и черты — «Описание» + «Система» (снимок V38, справочники, финальная редакция черт)
+    print("  силы по разделам:", text_structure.disciplines(disc))
+    merits = text_structure.merits(merits)
     dump("disciplines.json", disc)
     dump("derangements.json", derangements)
     dump("rituals.json", rituals)

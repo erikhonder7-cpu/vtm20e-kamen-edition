@@ -52,7 +52,7 @@ export const POWER_EFFECTS = {
   // Упокоение 1, Безмолвие смерти: 1 кровь — на час сфера тишины вокруг вампира
   "quietus:1": { mode: "hour", hours: 1, icon: "fa-volume-xmark", cost: { blood: 1 } },
   // Упокоение 3, Зов Дагона: в течение часа после касания — 1 Воля и встречная Выносливость
-  "quietus:3": { mode: "hour", hours: 1, icon: "fa-water" },
+  "quietus:3": { mode: "hour", hours: 1, icon: "fa-water", cost: { willpower: 1 } },
   // Упокоение 4, Ласка Ваала: 1 кровь = 1 пункт ихора; урон оружия и ногтей — губительный, попадание тратит пункт
   "quietus:4": { mode: "toggle", icon: "fa-skull-crossbones", cost: { blood: [1, 5] }, charges: true, venom: true },
   // Сокрытие 1–2: держится, пока не выдаст себя

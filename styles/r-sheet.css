@@ -199,7 +199,7 @@
   font-family: var(--r-body); font-size: 14.5px; color: var(--r-ink);
 }
 .vtm20 .r-df:focus-within { border-bottom-color: var(--r-accent); }
-.vtm20 .r-df.is-check { align-items: center; }
+.vtm20 .r-df.is-check { flex: 0 0 auto; align-items: center; }   /* по ширине подписи — не налезает на соседнее поле */
 .vtm20 .r-df.is-check > span { font-size: 10.5px; }
 
 /* Запас крови */
@@ -443,9 +443,9 @@
 .vtm20 .r-trait.is-secondary .r-trait-main { gap: 5px; }
 
 /* Черты до 10 (существа, старейшины) */
-.vtm20 .r-tcol .r-dots:has(.r-dot.is-over) { gap: 2px; }
+/* десять точек — двумя рядами по пять: длинные названия («Обращение с животными») не обрезаются */
+.vtm20 .r-tcol .r-dots:has(.r-dot.is-over) { display: grid; grid-template-columns: repeat(5, 10px); gap: 2px 3px; }
 .vtm20 .r-tcol .r-dots:has(.r-dot.is-over) .r-dot { width: 10px; height: 10px; }
-.vtm20 .r-tcol .r-dots:has(.r-dot.is-over) .r-dot:nth-child(5n):not(:last-child) { margin-right: 3px; }
 
 /* ── Панели инструментов ──────────────────────────────────────────────── */
 

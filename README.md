@@ -29,19 +29,6 @@ https://github.com/erikhonder7-cpu/vtm20e-kamen-edition/releases/latest/download
 
 [Последний релиз](https://github.com/erikhonder7-cpu/vtm20e-kamen-edition/releases/latest) · [архив вручную](https://github.com/erikhonder7-cpu/vtm20e-kamen-edition/releases/latest/download/vtm20e-kamen-edition.zip) · [история изменений](https://github.com/erikhonder7-cpu/vtm20e-kamen-edition/releases)
 
-### Анимации и звуки сил (необязательно)
-
-Успешные Дисциплины, ритуалы, Знания падших, Грани охотников, молитвы и срывы (Безумие, Ротшрек) умеют проигрывать анимацию и звук — 65 тем
-(`module/data/fx-map.mjs`). Файлы берутся из платных паков **JB2A Patreon**, **Boss Loot (BLFX)** и **PSFX Patreon**: их лицензии запрещают
-выкладывать файлы, поэтому в системе их нет. Если паки у вас куплены, скрипт забирает из них только нужное (≈50 МБ вместо 22 ГБ):
-
-```
-node tools/fx_extract.mjs "<папка с распакованными паками>" "<папка Data вашего Foundry>"
-```
-
-Файлы лягут в `Data/assets/vtm20-fx` (папка меняется в настройках). Анимации показывает модуль **Sequencer**, без него играет только звук.
-Мастер включает и выключает эффекты для всего мира, каждый игрок у себя — отдельно анимации и звуки и их громкость (настройки системы).
-
 ---
 
 ## Как это выглядит

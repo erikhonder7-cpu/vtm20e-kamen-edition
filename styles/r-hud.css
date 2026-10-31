@@ -213,7 +213,7 @@ body.r-hud-on #chat-notifications > #chat-message { display: none !important; }
 
 /* ── Окно атаки: условия плитками-чипами, редкое под «Ещё» ── */
 .vtm20 .r-atk-target { display: grid; grid-template-columns: 132px minmax(0, 1fr); align-items: center; gap: 10px; }
-.vtm20 .r-atk-row { display: grid; grid-template-columns: 132px minmax(0, 1fr); align-items: start; gap: 10px; }
+.vtm20 .r-atk-row { display: grid; grid-template-columns: 146px minmax(0, 1fr); align-items: start; gap: 10px; }
 .vtm20 .r-atk-row .r-roll-label { padding-top: 9px; }
 .vtm20 .r-atk-chips { display: flex; flex-wrap: wrap; gap: 4px; }
 .vtm20 .r-atk-chip { position: relative; display: inline-flex; flex-direction: column; justify-content: center; min-height: 34px; padding: 4px 12px; cursor: pointer;
