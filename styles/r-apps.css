@@ -1198,3 +1198,8 @@ body.r-theme-light .vtm20 .r-ng-item.is-active, body.r-theme-light .vtm20 .r-ng-
 .vtm20.r-refresh .r-refresh-row { padding: 3px 2px; border-bottom: 1px dotted var(--r-line); }
 .vtm20.r-refresh .r-refresh-row:last-child { border-bottom: 0; }
 .vtm20.r-refresh .r-refresh-row small { margin-left: 6px; font-family: var(--r-caps); font-size: 10.5px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--r-muted); }
+
+/* Статус по аудиту справочника: пометка у силы в списке и строка над текстом силы */
+.vtm20 .r-lib-pmark { margin-left: 3px; font-family: var(--r-caps); font-size: 9.5px; letter-spacing: .8px; color: var(--r-muted); vertical-align: 1px; }
+.vtm20 .r-lib-status { margin: -2px 0 6px; font-size: 12px; font-style: italic; color: var(--r-muted); }
+.vtm20 .r-lib-status i { margin-right: 3px; font-style: normal; color: var(--r-accent); }

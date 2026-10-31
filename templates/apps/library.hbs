@@ -32,7 +32,7 @@
         {{#if roman}}<span class="r-lib-lvl">{{roman}}</span>{{/if}}
         {{#if cost}}<span class="r-lib-cost">{{cost}}</span>{{/if}}
         <div class="r-lib-name"><b>{{name}}</b>{{#if en}}<em>{{en}}</em>{{/if}}</div>
-        {{#each tags}}<span class="r-tag {{#if red}}is-red{{/if}}">{{label}}</span>{{/each}}
+        {{#each tags}}<span class="r-tag {{#if red}}is-red{{/if}}" {{#if tip}}data-tooltip="{{tip}}"{{/if}}>{{label}}</span>{{/each}}
         {{#if has}}<span class="r-tag is-owned"><i class="fa-solid fa-check"></i>&nbsp;{{localize "VTM20.Library.Owned"}}</span>
         {{else if variants}}{{#if (or canTake @root.isGM)}}
         <span class="r-lib-acts">
@@ -43,7 +43,7 @@
       </header>
       {{#if text}}<div class="r-lib-text r-power-body" {{#if long}}data-action="expand"{{/if}}>{{{text}}}</div>{{/if}}
       {{#if powerRows}}
-      <ol class="r-lib-powers">{{#each powerRows}}<li {{#if wide}}class="is-wide"{{/if}}><span class="r-lib-plvl">{{roman}}</span><span class="r-lib-pnames">{{#each items}}<a data-action="peek" data-ref="{{ref}}">{{name}}</a>{{/each}}</span></li>{{/each}}</ol>
+      <ol class="r-lib-powers">{{#each powerRows}}<li {{#if wide}}class="is-wide"{{/if}}><span class="r-lib-plvl">{{roman}}</span><span class="r-lib-pnames">{{#each items}}<a data-action="peek" data-ref="{{ref}}">{{name}}{{#if mark}}<small class="r-lib-pmark">{{mark}}</small>{{/if}}</a>{{/each}}</span></li>{{/each}}</ol>
       <div class="r-lib-peek r-power-body" data-peek hidden></div>
       {{/if}}
       {{#if pathNames}}<p class="r-lib-paths"><i class="fa-solid fa-route"></i> {{pathNames}}</p>{{/if}}

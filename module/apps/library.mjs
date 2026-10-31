@@ -22,9 +22,23 @@ const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`
 const L = (k, d) => t(`Library.${k}`, d);
 const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
 const plain = html => String(html ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
-/** Метки записи: книга (кроме основной V20) и «Тёмные века» для материалов эпохи. */
+/** Статус по аудиту справочника (поле status, tools/text_structure.py): старая редакция, путь другой традиции,
+ *  неподтверждённые сведения; подсказка — полная пометка аудитора. */
+const statusTags = x => {
+  const s = String(x.status ?? ""), tip = x.sourceNote || s;
+  return [/^legacy/i.test(s) && { label: L("Status.legacy"), tip },
+    /^cross-tradition/i.test(s) && { label: L("Status.cross"), tip },
+    /unresolved|unconfirmed|unverified/i.test(s) && { label: L("Status.check"), tip, red: true }].filter(Boolean);
+};
+/** Метки записи: книга (кроме основной V20), «Тёмные века» для материалов эпохи и статус по аудиту. */
 const sourceTags = x => [x.era === "darkAges" && { label: L("Filter.DarkAges"), red: true },
-  x.source && x.source !== "V20" && { label: x.source }].filter(Boolean);
+  x.source && x.source !== "V20" && { label: x.source, tip: x.sourceNote }, ...statusTags(x)].filter(Boolean);
+/** Пометка у силы в списке: старая редакция (Revised) или старый путь — мелко после названия. */
+const powerMark = p => p.edition === "Revised" || /^legacy/i.test(p.status ?? "") ? L("Status.revisedShort") : "";
+const statusLine = p => {
+  const tags = [p.edition === "Revised" && L("Status.revised"), ...statusTags(p).map(x => x.label)].filter(Boolean);
+  return tags.length ? `<p class="r-lib-status"><i class="fa-solid fa-circle-info"></i> ${tags.join(" · ")}</p>` : "";
+};
 const norm = s => s.toLowerCase().replace(/ё/g, "е");
 /** Вид источника для фильтра: основная книга, дополнение, Тёмные века, фанатское. */
 const srcKind = x => x.source === "Demon: The Fallen" ? "core" : x.fan ? "fan" : x.era === "darkAges" ? "da" : (x.source && !/^V20(,|$)/.test(x.source.trim())) ? "ext" : "core";   // «V20 The Black Hand» — дополнение
@@ -213,7 +227,7 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
         tags: [inClan && { label: t("Sheet.InClan"), red: true }, paths.length && { label: L("PathsN", { n: paths.length }) }].filter(Boolean),
         text: d.rules?.find(r => !r.title)?.html ?? "", long: true,
         powers: (d.powers ?? []).map((p, i) => [p, i]).filter(([p]) => Codex.visible(p))
-          .map(([p, i]) => ({ roman: p.anyLevel ? "VI–IX" : ROMAN[p.level - 1] ?? p.level, name: p.name, ref: `${d.key}|${i}` })),
+          .map(([p, i]) => ({ roman: p.anyLevel ? "VI–IX" : ROMAN[p.level - 1] ?? p.level, name: p.name, ref: `${d.key}|${i}`, mark: powerMark(p) })),
         pathNames: paths.map(p => p.name).join(" · ")
       });
     });
@@ -231,7 +245,7 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
       reasons: dots < 1 ? [L("NeedDiscipline", { name: d.name })] : [],
       tags: [!mine.length && { label: L("Primary"), red: true }, ...sourceTags(p)].filter(Boolean),
       text: p.html ?? "",
-      powers: (p.powers ?? []).map((x, i) => ({ roman: ROMAN[x.level - 1] ?? x.level, name: x.name, ref: `${disc}|path|${pi}|${i}` }))
+      powers: (p.powers ?? []).map((x, i) => ({ roman: ROMAN[x.level - 1] ?? x.level, name: x.name, ref: `${disc}|path|${pi}|${i}`, mark: powerMark(x) }))
     }));
   }
 
@@ -433,7 +447,7 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
     const p = a === "path" ? d?.paths[Number(b)]?.powers[Number(c)] : d?.powers[Number(a)];
     if (!p) return;
     target.classList.add("is-active");
-    box.innerHTML = `<h4>${ROMAN[p.level - 1] ?? p.level} · ${p.name}${p.en ? ` <em>${p.en}</em>` : ""}</h4>${p.html ?? ""}`;
+    box.innerHTML = `<h4>${ROMAN[p.level - 1] ?? p.level} · ${p.name}${p.en ? ` <em>${p.en}</em>` : ""}</h4>${statusLine(p)}${p.html ?? ""}`;
     box.hidden = false;
   }
 
