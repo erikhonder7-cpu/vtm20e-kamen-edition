@@ -1,0 +1,732 @@
+// module/ui/strategy.mjs
+// Стратегия города: долгие ходы старейшин между сессиями (по мотивам стратегической игры Зиора, «Request for Quest»).
+//
+// Доска на шторе «Город» (registerCityExtension → boards): гексы-сферы города (полиция, мэрия, порт, пресса…),
+// в каждом — фишки влияния (0–7) персонажей, NPC и фракций. Ход длится месяцы и годы:
+//   · игрок раскладывает по гексам жетоны — 3 жетона внимания, по жетону за каждые 2 точки Влияния, по жетону
+//     за каждую точку Подручных (гуль действует сам) и услуги (кого-то зовут на помощь — долг в реестре услуг);
+//     к жетону — заявка: что делаем (усилить, вытеснить, подорвать, разведать, защитить) и каким пулом;
+//   · ведущий на «Столе» бросает всё разом (пул = Атрибут + Способность + свои фишки в гексе ± поправки;
+//     сопротивление — рефлекторный пул из фишек соперника), смотрит итог, при нужде перебрасывает и «проводит ход»;
+//   · отчёт хода — журнал: общая страница всем и личная страница каждому игроку; ход сменяется.
+// Туман войны: игрок видит свои фишки, фишки гексов, открытых ведущим, и разведанное своим персонажем.
+// Сектор можно привязать к кварталу карты (кварталы дают модули — EXT.strategy.districts).
+//
+// Состояние — настройка мира «strategy» (пишет ведущий); заявки — флаг актёра «strategy» (пишет владелец).
+
+import { SYSTEM_ID, VTM20 } from "../config.mjs";
+import { EXT, registerCityExtension } from "./city-ext.mjs";
+import { odds } from "../dice/roll.mjs";
+
+const FLAG = "strategy";
+const S = (k, d) => d ? game.i18n.format(`VTM20.Strategy.${k}`, d) : game.i18n.localize(`VTM20.Strategy.${k}`);
+const esc = s => foundry.utils.escapeHTML(String(s ?? ""));
+const uid = () => foundry.utils.randomID(8);
+const MAX = 7, HEX = 56;
+
+/** Жетоны хода: сколько у персонажа (null — без предела). */
+const KINDS = {
+  attention: { icon: "fa-chess-pawn", count: () => 3 },
+  influence: { icon: "fa-landmark", count: a => Math.floor(bg(a, /^(Влияние|Influence)$/i) / 2) },
+  retainer: { icon: "fa-user-secret", count: a => bg(a, /^(Подручные|Retainers)$/i) },
+  boon: { icon: "fa-handshake", count: () => 2 }
+};
+/** Что делаем в гексе: сложность и против кого. */
+const INTENTS = {
+  grow: { icon: "fa-arrow-trend-up", diff: 0 },
+  displace: { icon: "fa-people-arrows", diff: 1, target: true },
+  undermine: { icon: "fa-burst", diff: 0, target: true },
+  scout: { icon: "fa-eye", diff: 0 },
+  defend: { icon: "fa-shield-halved", diff: 0 }
+};
+const bg = (a, re) => a?.items.filter(i => i.type === "background" && re.test(i.name)).reduce((n, i) => n + (i.system.value ?? 0), 0) ?? 0;
+
+/* ── Заготовка по умолчанию: современный город (сферы, как у Зиора) ───────── */
+
+const SPHERES = [
+  { key: "power", color: "#8a2b2b" }, { key: "order", color: "#2e4a7d" }, { key: "money", color: "#a8862e" },
+  { key: "faith", color: "#6b4f8a" }, { key: "street", color: "#4c5846" }, { key: "culture", color: "#2f6f6a" }
+];
+const MODERN = {
+  id: "modern", spheres: SPHERES.map(s => ({ ...s, name: "" })),
+  sectors: [
+    ["mayor", "power", 0, 0], ["council", "power", 1, -1], ["courts", "order", -1, 1], ["police", "order", 0, 1],
+    ["crime", "street", 1, 1], ["port", "street", 2, 0], ["unions", "street", 2, 1], ["industry", "money", 2, -1],
+    ["finance", "money", 1, 0], ["highsociety", "money", -1, 0], ["church", "faith", -2, 1], ["health", "faith", -2, 2],
+    ["media", "culture", -1, -1], ["university", "culture", 0, -1], ["telecom", "culture", -2, 0], ["internet", "culture", -3, 1]
+  ].map(([key, sphere, q, r]) => ({ key, sphere, q, r, name: "", about: "" }))
+};
+const sphereName = s => s.name || S(`Sphere.${s.key}`);
+const sectorName = s => s.name || S(`Sector.${s.key}`);
+
+/* ── Состояние ─────────────────────────────────────────────────────────── */
+
+const blank = () => ({ spheres: [], sectors: [], tokens: {}, owners: {}, known: {}, reveal: {}, mods: {}, rolls: {}, npc: [], turn: { n: 1, label: "", open: true }, draft: null, reports: [] });
+const DEFAULT_BID = { id: "", kind: "attention", intent: "grow", target: "", attr: "manipulation", ability: "subterfuge", text: "", helper: "" };
+export function strat() {
+  const s = game.settings.get(SYSTEM_ID, "strategy") ?? {};
+  return { ...blank(), ...foundry.utils.deepClone(s) };
+}
+async function save(patch) {
+  if (!game.user.isGM) return;
+  await game.settings.set(SYSTEM_ID, "strategy", { ...strat(), ...patch });
+}
+
+/** Чей жетон: актёр (id) или фракция ведущего («f:…»). */
+function owner(k, s = strat()) {
+  if (k?.startsWith("f:")) { const f = s.owners[k] ?? {}; return { key: k, name: f.name || "?", color: f.color || "#777", img: f.img || "" }; }
+  const a = game.actors.get(k);
+  const user = a && game.users.find(u => !u.isGM && a.testUserPermission(u, "OWNER"));
+  return { key: k, name: a?.name ?? "?", img: a?.img ?? "", color: user?.color?.css ?? user?.color ?? hue(k), actor: a };
+}
+const hue = k => `hsl(${[...String(k)].reduce((n, c) => n * 31 + c.charCodeAt(0) >>> 0, 7) % 360} 45% 45%)`;
+
+/** Мои персонажи (игрок) — те, чьи заявки он пишет. Ведущий видит всех. */
+const mine = () => game.actors.filter(a => a.isOwner && a.hasPlayerOwner && ["vampire", "ghoul", "mortal", "hunter", "werewolf", "demon"].includes(a.type));
+let me = null;            // выбранный персонаж игрока
+const meActor = () => { const list = mine(); if (!list.some(a => a.id === me)) me = (game.user.character && list.includes(game.user.character) ? game.user.character : list[0])?.id ?? null; return game.actors.get(me) ?? null; };
+
+/** Заявки персонажа на текущий ход. */
+function bidsOf(a, s = strat()) {
+  const f = a?.getFlag(SYSTEM_ID, FLAG);
+  return f?.turn === s.turn.n ? (f.bids ?? []) : [];
+}
+const doneOf = (a, s = strat()) => { const f = a?.getFlag(SYSTEM_ID, FLAG); return f?.turn === s.turn.n && !!f.done; };
+async function setBids(a, bids, done = doneOf(a)) {
+  await a.setFlag(SYSTEM_ID, FLAG, { turn: strat().turn.n, bids, done });
+}
+/** Все заявки хода: [{ actor, bid, key }]. Ходы NPC и фракций (s.npc) — с готовым пулом, «актёр» у них — владелец влияния. */
+function allBids(s = strat()) {
+  const npc = (s.npc ?? []).map(b => ({ actor: { id: b.owner, name: owner(b.owner, s).name, npc: true }, bid: b, key: `npc.${b.id}` }));
+  return [...game.actors.contents.flatMap(a => bidsOf(a, s).map(b => ({ actor: a, bid: b, key: `${a.id}.${b.id}` }))), ...npc];
+}
+
+/** Видит ли пользователь фишки владельца в секторе. */
+function sees(sec, ownerKey, s = strat()) {
+  if (game.user.isGM || s.reveal[sec]) return true;
+  const mineIds = mine().map(a => a.id);
+  if (mineIds.includes(ownerKey)) return true;
+  return mineIds.some(id => s.known[id]?.[sec]);
+}
+const visibleSectors = s => s.sectors.filter(x => game.user.isGM || !x.hidden);
+
+/* ── Пул заявки ───────────────────────────────────────────────────────── */
+
+function poolOf(a, bid, s = strat(), mods = s.mods[bid.npc ? `npc.${bid.id}` : `${a.id}.${bid.id}`] ?? {}) {
+  const at = bid.npc ? bid.dice ?? 0 : a.system.attributes?.[bid.attr]?.total ?? a.system.attributes?.[bid.attr]?.value ?? 0;
+  const ab = bid.npc ? 0 : a.system.abilities?.[bid.ability]?.value ?? 0;
+  const own = s.tokens[bid.sector]?.[a.id] ?? 0;
+  const dice = Math.max(0, at + ab + own + (mods.dice ?? 0));
+  const diff = Math.clamp(6 + (INTENTS[bid.intent]?.diff ?? 0) - (mods.disc ?? 0) + (mods.diff ?? 0), 3, 10);
+  return { dice, diff, at, ab, own };
+}
+
+async function rollDice(n, diff) {
+  if (n <= 0) return { faces: [], succ: 0, botch: false };
+  const r = await new Roll(`${n}d10`).evaluate();
+  const faces = r.dice[0].results.map(x => x.result);
+  const hits = faces.filter(f => f >= diff).length, ones = faces.filter(f => f === 1).length;
+  return { faces, succ: Math.max(0, hits - ones), botch: hits === 0 && ones > 0 };
+}
+const gain = n => n >= 5 ? 2 : n >= 3 ? 1 : 0;
+
+/**
+ * Итог хода по сектору из бросков (s.rolls): прибавки и потери фишек, разведка, беды подручных, долги.
+ * Сопротивление — один рефлекторный бросок на соперника: его фишки + успехи его «Защиты» в этом гексе.
+ */
+function outcome(sec, s, bids) {
+  const here = bids.filter(x => x.bid.sector === sec);
+  const tokens = { ...(s.tokens[sec] ?? {}) };
+  const res = { delta: {}, lines: [], scouted: [], trouble: [], debts: [] };
+  const succ = x => s.rolls[x.key]?.succ ?? 0;
+  const defend = {};
+  for (const x of here.filter(x => x.bid.intent === "defend")) defend[x.actor.id] = (defend[x.actor.id] ?? 0) + succ(x);
+  const groups = {};
+  for (const x of here) {
+    if (s.rolls[x.key]?.botch && x.bid.kind === "retainer") res.trouble.push(x);
+    if (x.bid.kind === "boon") res.debts.push(x);
+    if (x.bid.intent === "defend") continue;
+    const g = `${x.actor.id}|${x.bid.intent}|${x.bid.target ?? ""}`;
+    (groups[g] ??= { actor: x.actor, intent: x.bid.intent, target: x.bid.target, total: 0 }).total += succ(x);
+  }
+  const add = (k, n) => { if (!n) return; tokens[k] = Math.max(0, (tokens[k] ?? 0) + n); res.delta[k] = (res.delta[k] ?? 0) + n; };
+  for (const g of Object.values(groups)) {
+    const who = g.actor.name, sum = () => Object.values(tokens).reduce((a, b) => a + b, 0);
+    const say = (t, ...ids) => res.lines.push({ t, ids: [g.actor.id, ...ids] });
+    if (g.intent === "scout") { if (g.total > 0) res.scouted.push(g.actor.id); say(S(g.total > 0 ? "Out.scoutOk" : "Out.scoutFail", { who })); continue; }
+    if (g.intent === "grow") {
+      const n = Math.min(gain(g.total), MAX - sum());
+      add(g.actor.id, n);
+      say(n ? S("Out.grow", { who, n }) : S(sum() >= MAX ? "Out.full" : "Out.growFail", { who, n: g.total }));
+      continue;
+    }
+    // вытеснить / подорвать: против фишек цели
+    const t = g.target, rr = s.rolls[`resist.${sec}.${t}.${g.actor.id}`];
+    const net = g.total - (rr?.succ ?? 0), n = Math.min(gain(net), tokens[t] ?? 0);
+    add(t, -n);
+    if (g.intent === "displace") add(g.actor.id, Math.min(n, MAX - sum()));
+    say(S(n ? `Out.${g.intent}` : "Out.resisted", { who, target: owner(t, s).name, n, net: g.total, resist: rr?.succ ?? 0 }), t);
+  }
+  return { ...res, tokens };
+}
+
+/** Броски сопротивления, которые нужны этому ходу: «resist.сектор.цель.нападающий» → пул. */
+function resistPools(s, bids) {
+  const out = {};
+  for (const x of bids) {
+    if (!INTENTS[x.bid.intent]?.target || !x.bid.target) continue;
+    const sec = x.bid.sector, t = x.bid.target;
+    const def = bids.filter(y => y.bid.sector === sec && y.actor.id === t && y.bid.intent === "defend").reduce((n, y) => n + (s.rolls[y.key]?.succ ?? 0), 0);
+    out[`resist.${sec}.${t}.${x.actor.id}`] = (s.tokens[sec]?.[t] ?? 0) + def;
+  }
+  return out;
+}
+
+/* ── Доска ─────────────────────────────────────────────────────────────── */
+
+let host = null, mode = "map", view = "map", sel = null, editBid = null, hist = null;
+
+export function registerStrategy() {
+  game.settings.register(SYSTEM_ID, "strategy", { scope: "world", config: false, type: Object, default: {}, onChange: () => { renderBoard(); host?.drawOverlay?.(); } });
+  Hooks.on("updateActor", (a, ch) => { if (mode !== "map" && foundry.utils.hasProperty(ch, `flags.${SYSTEM_ID}.${FLAG}`)) renderBoard(); });
+  registerCityExtension({
+    boards: [{ order: 10, attach, drawModes, renderBoard, mode: () => mode, setMode }],
+    // печати влияния над кварталами, к которым привязаны сектора (кнопка в «Слоях»)
+    overlays: [{ add: api => addLayer(api), draw: api => drawLayer(api), world: api => drawLayer(api) }],
+    tools: [api => strat().sectors.some(x => x.district) && EXT.strategy.districts.length
+      ? `<a class="${api.view().strat ? "on" : ""}" data-act="stratLayer" data-tooltip="${esc(S("MapLayer"))}"><i class="fa-solid fa-chess-knight"></i></a>` : ""],
+    acts: { stratLayer: (el, api) => api.setView({ strat: !api.view().strat }).then(() => { api.drawTools(); api.drawOverlay(); }) }
+  });
+}
+
+/* ── Слой на карте: печати влияния по кварталам ───────────────────────── */
+
+function addLayer(api) {
+  const map = api.map;
+  if (!map.getSource("rs-infl")) map.addSource("rs-infl", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
+  const add = l => { if (!map.getLayer(l.id)) map.addLayer(l); };
+  add({ id: "rs-infl-seal", type: "circle", source: "rs-infl", paint: {
+    "circle-color": ["get", "color"], "circle-radius": ["+", 7, ["*", 1.6, ["get", "n"]]], "circle-opacity": .9,
+    "circle-stroke-color": "#0a0808", "circle-stroke-width": 2 } });
+  add({ id: "rs-infl-n", type: "symbol", source: "rs-infl", layout: { "text-field": ["to-string", ["get", "n"]], "text-font": ["Noto Sans Bold"], "text-size": 12, "text-allow-overlap": true },
+    paint: { "text-color": "#f3ece0", "text-halo-color": "#0a0808", "text-halo-width": 1.4 } });
+  add({ id: "rs-infl-name", type: "symbol", source: "rs-infl", minzoom: 14.5, layout: { "text-field": ["get", "name"], "text-font": ["Noto Sans Bold"], "text-size": 10,
+    "text-offset": [0, 1.9], "text-anchor": "top" }, paint: { "text-color": "#d8cfbf", "text-halo-color": "#0a0808", "text-halo-width": 1.4 } });
+  drawLayer(api);
+}
+
+/** Видимое пользователю влияние по кварталам: печать на владельца, кругом у центра квартала. */
+function drawLayer(api) {
+  const map = api.map;
+  if (!map?.getSource("rs-infl")) return;
+  const on = !!api.view().strat;
+  for (const l of ["rs-infl-seal", "rs-infl-n", "rs-infl-name"]) if (map.getLayer(l)) map.setLayoutProperty(l, "visibility", on ? "visible" : "none");
+  if (!on) return;
+  const s = strat(), feats = [];
+  for (const d of EXT.strategy.districts.flatMap(f => f())) {
+    const sum = {};
+    for (const x of visibleSectors(s).filter(y => y.district === d.key))
+      for (const [k, n] of Object.entries(s.tokens[x.key] ?? {})) if (n > 0 && sees(x.key, k, s)) sum[k] = (sum[k] ?? 0) + n;
+    const list = Object.entries(sum).sort((p, q) => q[1] - p[1]);
+    list.forEach(([k, n], i) => {
+      const a = 2 * Math.PI * i / list.length - Math.PI / 2, r = list.length > 1 ? .0011 : 0, o = owner(k, s);
+      feats.push({ type: "Feature", properties: { color: o.color, n, name: o.name },
+        geometry: { type: "Point", coordinates: [d.lng + r * Math.cos(a) / Math.cos(d.lat * Math.PI / 180), d.lat + r * Math.sin(a)] } });
+    });
+  }
+  map.getSource("rs-infl").setData({ type: "FeatureCollection", features: feats });
+}
+
+/** Гайдбук стратегии — книга в компендии правил. */
+async function openGuide() {
+  const pack = game.packs.get(`${SYSTEM_ID}.rules`);
+  const idx = await pack?.getIndex();
+  const e = idx?.find(x => x.name === S("GuideName") || x.name === "Стратегия города — гайдбук");
+  if (!e) return ui.notifications.warn(S("GuideMissing"));
+  (await pack.getDocument(e._id))?.sheet.render(true);
+}
+
+/* ── Влияние в бросках ────────────────────────────────────────────────── */
+
+/** Сектора, где у персонажа есть влияние: опора для броска (+1 кубик за каждые 2 фишки, вверх). */
+export function swayOf(actor) {
+  let s;
+  try { s = strat(); } catch { return []; }
+  return s.sectors.filter(x => (s.tokens[x.key]?.[actor?.id] ?? 0) > 0)
+    .map(x => { const n = s.tokens[x.key][actor.id]; return { key: x.key, name: sectorName(x), n, dice: Math.ceil(n / 2) }; });
+}
+
+function attach(root, api) {
+  host = api;
+  const b = api.boardEl;
+  b.classList.add("rs-board");
+  b.addEventListener("click", onClick);
+  b.addEventListener("change", onChange);
+  // жетон со счётчика — на гекс: открывается заявка этим жетоном в этом гексе
+  b.addEventListener("dragstart", ev => { const k = ev.target.closest?.("[data-rs-drag]")?.dataset.rsDrag; if (k) ev.dataTransfer.setData("text/x-rs-kind", k); });
+  b.addEventListener("dragover", ev => { if (ev.target.closest?.(".rs-hex") && ev.dataTransfer.types.includes("text/x-rs-kind")) { ev.preventDefault(); ev.target.closest(".rs-hex").classList.add("is-drop"); } });
+  b.addEventListener("dragleave", ev => ev.target.closest?.(".rs-hex")?.classList.remove("is-drop"));
+  b.addEventListener("drop", ev => {
+    const hex = ev.target.closest?.(".rs-hex"), k = ev.dataTransfer.getData("text/x-rs-kind");
+    if (!hex || !k) return;
+    ev.preventDefault();
+    sel = hex.dataset.key; view = "map"; hist = null; editBid = { ...DEFAULT_BID, kind: k, sector: sel };
+    renderBoard();
+  });
+  api.modesEl.addEventListener("click", ev => { if (ev.target.closest("[data-mode]")) setMode(ev.target.closest("[data-mode]").dataset.mode); });
+  drawModes();
+}
+function setMode(m) {
+  if (!host) return;
+  if (m !== "map") host.opened?.();
+  mode = m === "strategy" ? "strategy" : "map";
+  drawModes(); renderBoard(); host.syncModes?.();
+}
+function drawModes() {
+  if (!host?.modesEl) return;
+  const s = strat();
+  host.modesEl.innerHTML = game.user.isGM || s.sectors.length
+    ? `<a class="${mode === "strategy" ? "on" : ""}" data-mode="strategy"><i class="fa-solid fa-chess-knight"></i><span>${esc(S("Tab"))}</span></a>` : "";
+  host.syncModes?.();
+}
+
+function renderBoard() {
+  const b = host?.boardEl;
+  if (!b) return;
+  drawModes();
+  b.hidden = mode === "map";
+  if (mode === "map") return;
+  const ae = document.activeElement;
+  if (b.contains(ae) && ae.matches("textarea, input[type=text]")) return;
+  const now = strat(), gm = game.user.isGM;
+  if (!now.sectors.length) { b.innerHTML = `<div class="rs-wrap">${head(now)}${emptyView(now)}</div>`; return; }
+  // история: сота после выбранного хода — только смотреть
+  const snap = hist != null && now.reports.find(r => r.n === hist);
+  const s = snap ? { ...now, tokens: snap.tokens ?? {}, sectors: snap.sectors ?? now.sectors } : now;
+  const scroll = b.querySelector(".rs-side")?.scrollTop ?? 0;
+  const side = view === "turn" ? (gm ? deskView(s) : turnView(s)) : view === "reports" ? reportsView(s) : view === "setup" && gm ? setupView(s) : sectorView(s);
+  const banner = snap ? `<div class="rs-histbar"><i class="fa-solid fa-clock-rotate-left"></i> ${esc(S("HistoryTitle", { n: snap.n, label: snap.label || "" }))}<a data-rs="histOff">${esc(S("HistoryBack"))}</a></div>` : "";
+  b.innerHTML = `<div class="rs-wrap">${head(now)}<div class="rs-body"><div class="rs-hexes ${snap ? "is-hist" : ""}">${banner}${hexes(s)}</div><aside class="rs-side">${side}</aside></div></div>`;
+  const sd = b.querySelector(".rs-side"); if (sd) sd.scrollTop = scroll;
+}
+
+/** Шапка: ход, вкладки, выбор персонажа игрока. */
+function head(s) {
+  const gm = game.user.isGM, a = meActor();
+  const tabs = [["map", "fa-hexagon-nodes"], ["turn", gm ? "fa-dice-d10" : "fa-feather-pointed"], ["reports", "fa-scroll"], ...(gm ? [["setup", "fa-gear"]] : [])];
+  const who = !gm && mine().length > 1 ? `<select class="rs-me" data-rs-me>${mine().map(x => `<option value="${x.id}" ${x.id === a?.id ? "selected" : ""}>${esc(x.name)}</option>`).join("")}</select>` : "";
+  return `<header class="rs-head">
+    <div class="rs-title"><i class="fa-solid fa-chess-knight"></i><b>${esc(S("Title"))}</b>
+      <span class="rs-turn">${esc(S("TurnN", { n: s.turn.n }))}${s.turn.label ? ` · ${esc(s.turn.label)}` : ""}${s.turn.open ? "" : ` · <em>${esc(S("Closed"))}</em>`}</span></div>
+    <nav class="rs-tabs">${tabs.map(([k, i]) => `<a class="${view === k ? "on" : ""}" data-rs="view" data-v="${k}"><i class="fa-solid ${i}"></i> ${esc(S(`View.${k}${k === "turn" && gm ? "Gm" : ""}`))}</a>`).join("")}</nav>
+    ${who}<a class="rs-help" data-rs="guide" data-tooltip="${esc(S("Guide"))}"><i class="fa-solid fa-circle-question"></i></a></header>`;
+}
+
+function emptyView(s) {
+  if (!game.user.isGM) return `<p class="rs-note">${esc(S("EmptyPlayer"))}</p>`;
+  const presets = [{ id: "modern", name: S("PresetModern") }, ...EXT.strategy.presets.map(p => ({ id: p.id, name: p.name }))];
+  return `<div class="rs-empty"><p>${esc(S("EmptyGm"))}</p>
+    <div class="rs-row">${presets.map(p => `<a class="r-btn" data-rs="preset" data-id="${p.id}"><i class="fa-solid fa-hexagon-nodes"></i> ${esc(p.name)}</a>`).join("")}</div></div>`;
+}
+
+/* ── Гексы ── */
+
+function hexes(s) {
+  const list = visibleSectors(s), sph = Object.fromEntries(s.spheres.map(x => [x.key, x]));
+  const px = x => ({ x: HEX * Math.sqrt(3) * (x.q + x.r / 2), y: HEX * 1.5 * x.r });
+  const pts = list.map(px), pad = HEX * 1.2;
+  const minX = Math.min(...pts.map(p => p.x)) - pad, minY = Math.min(...pts.map(p => p.y)) - pad;
+  const w = Math.max(...pts.map(p => p.x)) - minX + pad, h = Math.max(...pts.map(p => p.y)) - minY + pad;
+  const ring = (c, rad) => [0, 1, 2, 3, 4, 5].map(i => { const a = Math.PI / 180 * (60 * i - 30); return `${(c.x + rad * Math.cos(a)).toFixed(1)},${(c.y + rad * Math.sin(a)).toFixed(1)}`; }).join(" ");
+  const a = meActor(), myBids = game.user.isGM ? allBids(s).map(x => x.bid) : bidsOf(a, s);
+  const cells = list.map((x, i) => {
+    const c = pts[i], color = sph[x.sphere]?.color ?? "#555";
+    const toks = Object.entries(s.tokens[x.key] ?? {}).filter(([k, n]) => n > 0 && sees(x.key, k, s));
+    const hiddenToks = !game.user.isGM && Object.entries(s.tokens[x.key] ?? {}).some(([k, n]) => n > 0 && !sees(x.key, k, s));
+    const pips = toks.flatMap(([k, n]) => Array(n).fill(owner(k, s).color));
+    // сургучные печати в ряд под названием: цвет владельца, тёмный ободок, блик
+    const seals = pips.slice(0, MAX).map((col, j) => { const cx = c.x + (j - (Math.min(pips.length, MAX) - 1) / 2) * 12, cy = c.y + 20;
+      return `<g class="rs-seal" style="--o:${col}"><circle cx="${cx.toFixed(1)}" cy="${cy}" r="5.4"/><circle class="rs-seal-in" cx="${cx.toFixed(1)}" cy="${cy}" r="2.7"/></g>`; }).join("");
+    const nb = myBids.filter(b => b.sector === x.key).length;
+    // подпись в пластину: строки не длиннее 12 знаков, до трёх строк, по центру над печатями
+    const label = (c, t) => {
+      const lines = [];
+      for (const w of t.split(" ")) { const last = lines.at(-1); if (last && (last + " " + w).length <= 12) lines[lines.length - 1] = `${last} ${w}`; else lines.push(w); }
+      const ls = lines.slice(0, 3), top = c.y - 4 - (ls.length - 1) * 11.5;
+      return `<text class="rs-name" x="${c.x.toFixed(1)}" y="${top.toFixed(1)}">${ls.map((l, k) => `<tspan x="${c.x.toFixed(1)}" dy="${k ? 11.5 : 0}">${esc(l)}</tspan>`).join("")}</text>`;
+    };
+    return `<g class="rs-hex ${sel === x.key ? "is-sel" : ""} ${x.hidden ? "is-hidden" : ""}" data-rs="sector" data-key="${x.key}">
+      <polygon class="rs-plate" points="${ring(c, HEX - 2)}" style="--h:${color}"/><polygon class="rs-inlay" points="${ring(c, HEX - 7)}" style="--h:${color}"/>
+      ${label(c, sectorName(x))}${seals}
+      ${hiddenToks ? `<g class="rs-fog"><circle cx="${c.x.toFixed(1)}" cy="${(c.y + 36).toFixed(1)}" r="6.5"/><text x="${c.x.toFixed(1)}" y="${(c.y + 39.2).toFixed(1)}">?</text></g>` : ""}
+      ${nb ? `<g class="rs-bidmark"><circle cx="${(c.x + 30).toFixed(1)}" cy="${(c.y - 30).toFixed(1)}" r="9"/><text x="${(c.x + 30).toFixed(1)}" y="${(c.y - 26.5).toFixed(1)}">${nb}</text></g>` : ""}</g>`;
+  }).join("");
+  const legend = s.spheres.map(x => `<span style="--h:${x.color}"><i></i>${esc(sphereName(x))}</span>`).join("");
+  return `<svg viewBox="${minX.toFixed(0)} ${minY.toFixed(0)} ${w.toFixed(0)} ${h.toFixed(0)}" preserveAspectRatio="xMidYMid meet">${cells}</svg><div class="rs-legend">${legend}</div>`;
+}
+
+/* ── Сектор ── */
+
+function sectorView(s) {
+  const x = s.sectors.find(y => y.key === sel);
+  if (!x) return `<p class="rs-note">${esc(S("PickSector"))}</p>${myCounters(s)}`;
+  const gm = game.user.isGM, sph = s.spheres.find(y => y.key === x.sphere);
+  const toks = Object.entries(s.tokens[x.key] ?? {}).filter(([, n]) => n > 0);
+  const vis = toks.filter(([k]) => sees(x.key, k, s)), total = toks.reduce((n, [, v]) => n + v, 0);
+  const row = ([k, n]) => { const o = owner(k, s);
+    return `<li style="--c:${o.color}">${o.img ? `<img src="${esc(o.img)}">` : `<i class="rs-dot"></i>`}<span>${esc(o.name)}</span>
+      <b class="rs-pips">${"●".repeat(n)}<small>${"○".repeat(Math.max(0, MAX - n))}</small></b>
+      ${gm ? `<a data-rs="tok" data-owner="${k}" data-d="-1"><i class="fa-solid fa-minus"></i></a><a data-rs="tok" data-owner="${k}" data-d="1"><i class="fa-solid fa-plus"></i></a>` : ""}</li>`; };
+  const district = x.district && EXT.strategy.districts.flatMap(f => f()).find(d => d.key === x.district);
+  const addOwner = gm ? `<div class="rs-row"><select data-rs-addowner><option value="">${esc(S("AddOwner"))}</option>
+      ${ownerOptions(s).map(o => `<option value="${o.key}">${esc(o.name)}</option>`).join("")}</select></div>` : "";
+  const a = meActor(), mineHere = (gm ? allBids(s) : bidsOf(a, s).map(b => ({ actor: a, bid: b }))).filter(y => y.bid.sector === x.key);
+  return `<section class="rs-sector">
+    <h3 style="--h:${sph?.color ?? "#555"}"><i></i>${esc(sectorName(x))}${gm ? ` <a class="rs-eye ${s.reveal[x.key] ? "is-open" : ""}" data-rs="reveal" data-tooltip="${esc(S(s.reveal[x.key] ? "RevealOff" : "RevealOn"))}"><i class="fa-solid ${s.reveal[x.key] ? "fa-eye" : "fa-eye-slash"}"></i></a>` : ""}</h3>
+    <p class="rs-sph">${esc(sph ? sphereName(sph) : "")}${district ? ` · <a data-rs="fly" data-key="${x.district}"><i class="fa-solid fa-map-location-dot"></i> ${esc(district.name)}</a>` : ""}</p>
+    ${x.about ? `<p class="rs-about">${esc(x.about)}</p>` : ""}
+    <h4>${esc(S("Influence"))} <small>${gm ? `${total}/${MAX}` : ""}</small></h4>
+    <ul class="rs-owners">${vis.map(row).join("") || `<li class="rs-note">${esc(S("NoOneKnown"))}</li>`}</ul>
+    ${!gm && vis.length < toks.length ? `<p class="rs-note"><i class="fa-solid fa-question"></i> ${esc(S("Fog"))}</p>` : ""}
+    ${addOwner}
+    <h4>${esc(S(gm ? "BidsHere" : "MyBidsHere"))}</h4>
+    <ul class="rs-bids">${mineHere.map(y => bidRow(y.actor, y.bid, s, gm)).join("") || `<li class="rs-note">${esc(S("NoBids"))}</li>`}</ul>
+    ${!gm && a && s.turn.open ? bidForm(a, s, x.key) : ""}
+  </section>`;
+}
+function ownerOptions(s) {
+  const acts = game.actors.filter(a => ["vampire", "ghoul", "mortal", "hunter", "werewolf", "demon", "creature"].includes(a.type)).sort((p, q) => p.name.localeCompare(q.name, "ru"));
+  return [...Object.keys(s.owners).map(k => owner(k, s)), ...acts.map(a => owner(a.id, s))];
+}
+
+/** Строка заявки: жетон, намерение, цель, пул, текст. */
+function bidRow(a, b, s, gm) {
+  const sec = s.sectors.find(x => x.key === b.sector), p = poolOf(a, b, s);
+  const pool = b.npc ? `${esc(S("NpcPool"))} ${b.dice}${p.own ? ` + ${p.own}` : ""} = ${p.dice} · ${esc(S("DiffShort"))} ${p.diff}`
+    : `${esc(a.traitLabel?.(`attributes.${b.attr}`) ?? b.attr)} + ${esc(a.traitLabel?.(`abilities.${b.ability}`) ?? b.ability)}${p.own ? ` + ${p.own}` : ""} = ${p.dice} · ${esc(S("DiffShort"))} ${p.diff}`;
+  const edit = !gm && s.turn.open && a.isOwner;
+  return `<li class="rs-bid">
+    <span class="rs-bidk" data-tooltip="${esc(S(`Kind.${b.kind}`))}"><i class="fa-solid ${KINDS[b.kind]?.icon}"></i></span>
+    <div><b>${gm ? `${esc(a.name)} → ` : ""}${esc(S(`Intent.${b.intent}`))}${b.target ? ` · ${esc(owner(b.target, s).name)}` : ""}${sec && view !== "map" ? ` · ${esc(sectorName(sec))}` : ""}</b>
+      <small>${pool}${b.helper ? ` · ${esc(S("Helper"))}: ${esc(b.helper)}` : ""}</small>${b.text ? `<p>${esc(b.text)}</p>` : ""}</div>
+    ${edit ? `<a data-rs="bidEdit" data-id="${b.id}"><i class="fa-solid fa-pen"></i></a><a data-rs="bidDel" data-id="${b.id}"><i class="fa-solid fa-xmark"></i></a>` : ""}
+    ${gm && b.npc && !s.draft ? `<a data-rs="npcDel" data-id="${b.id}" data-tooltip="${esc(S("Delete"))}"><i class="fa-solid fa-xmark"></i></a>` : ""}</li>`;
+}
+
+/** Сколько жетонов осталось у персонажа. */
+function counters(a, s) {
+  const bids = bidsOf(a, s);
+  return Object.entries(KINDS).map(([k, d]) => { const max = d.count(a), used = bids.filter(b => b.kind === k).length; return { k, max, used, left: max - used, icon: d.icon }; });
+}
+function myCounters(s) {
+  const a = meActor();
+  if (game.user.isGM || !a) return "";
+  const drag = s.turn.open;
+  return `<div class="rs-counters">${counters(a, s).filter(c => c.max).map(c => `<span class="${drag && c.left > 0 ? "is-drag" : ""}" ${drag && c.left > 0 ? `draggable="true" data-rs-drag="${c.k}"` : ""}
+    data-tooltip="${esc(S(`KindHint.${c.k}`))}${drag && c.left > 0 ? ` ${esc(S("DragHint"))}` : ""}"><i class="fa-solid ${c.icon}"></i> ${esc(S(`Kind.${c.k}`))} <b>${c.left}/${c.max}</b></span>`).join("")}</div>`;
+}
+
+/** Форма заявки игрока: жетон, намерение, цель, пул с шансами, текст. */
+function bidForm(a, s, sec) {
+  const b = editBid?.sector === sec ? { ...DEFAULT_BID, ...editBid } : DEFAULT_BID;
+  const cs = counters(a, s), free = cs.filter(c => c.left > 0 || c.k === b.kind && b.id);
+  if (!free.length) return `${myCounters(s)}<p class="rs-note">${esc(S("NoTokens"))}</p>`;
+  const others = Object.entries(s.tokens[sec] ?? {}).filter(([k, n]) => n > 0 && k !== a.id && sees(sec, k, s)).map(([k]) => owner(k, s));
+  const opt = (list, cur) => list.map(([v, l]) => `<option value="${v}" ${v === cur ? "selected" : ""}>${esc(l)}</option>`).join("");
+  const attrs = Object.keys(VTM20.attributes).map(k => [k, a.traitLabel?.(`attributes.${k}`) ?? k]);
+  const era = game.settings.get(SYSTEM_ID, "era"), eraAbils = Object.values(VTM20.abilitiesForEra(era, a.type)).flat();
+  const abils = eraAbils.filter(k => VTM20.abilities[k] && a.system.abilities?.[k]).map(k => [k, a.traitLabel?.(`abilities.${k}`) ?? k]).sort((p, q) => p[1].localeCompare(q[1], "ru"));
+  const p = poolOf(a, { ...b, sector: sec }, s), o = odds({ pool: p.dice, difficulty: p.diff });
+  return `${myCounters(s)}<form class="rs-form" data-sec="${sec}" data-id="${b.id}">
+    <h4>${esc(S(b.id ? "EditBid" : "NewBid"))}</h4>
+    <div class="rs-grid">
+      <label>${esc(S("Token"))}<select name="kind">${opt(free.map(c => [c.k, `${S(`Kind.${c.k}`)} (${c.left})`]), b.kind)}</select></label>
+      <label>${esc(S("IntentLabel"))}<select name="intent">${opt(Object.keys(INTENTS).map(k => [k, S(`Intent.${k}`)]), b.intent)}</select></label>
+      ${INTENTS[b.intent]?.target ? `<label>${esc(S("Target"))}<select name="target">${others.length ? opt(others.map(x => [x.key, x.name]), b.target) : `<option value="">${esc(S("NoTargets"))}</option>`}</select></label>` : ""}
+      <label>${esc(S("Attr"))}<select name="attr">${opt(attrs, b.attr)}</select></label>
+      <label>${esc(S("Ability"))}<select name="ability">${opt(abils, b.ability)}</select></label>
+      ${b.kind === "boon" ? `<label class="is-wide">${esc(S("Helper"))}<input type="text" name="helper" value="${esc(b.helper)}" placeholder="${esc(S("HelperHint"))}"></label>` : ""}
+    </div>
+    <p class="rs-odds">${esc(S("PoolLine", { dice: p.dice, own: p.own, diff: p.diff, mean: (o?.mean ?? 0).toFixed(1) }))}</p>
+    <p class="rs-note">${esc(S(`IntentHint.${b.intent}`))}</p>
+    <textarea name="text" rows="4" placeholder="${esc(S("TextHint"))}">${esc(b.text)}</textarea>
+    <div class="rs-row"><a class="r-btn is-accent" data-rs="bidSave"><i class="fa-solid fa-check"></i> ${esc(S(b.id ? "Save" : "Place"))}</a>
+      ${b.id ? `<a class="r-btn" data-rs="bidCancel">${esc(S("Cancel"))}</a>` : ""}</div>
+  </form>`;
+}
+
+/* ── Мой ход (игрок) ── */
+
+function turnView(s) {
+  const a = meActor();
+  if (!a) return `<p class="rs-note">${esc(S("NoActor"))}</p>`;
+  const bids = bidsOf(a, s), done = doneOf(a, s);
+  return `<section class="rs-turnv"><h3>${esc(S("MyTurn", { name: a.name }))}</h3>${myCounters(s)}
+    <p class="rs-note">${esc(S(s.turn.open ? "TurnHint" : "TurnClosedHint"))}</p>
+    <ul class="rs-bids">${bids.map(b => bidRow(a, b, s, false)).join("") || `<li class="rs-note">${esc(S("NoBids"))}</li>`}</ul>
+    ${s.turn.open ? `<a class="r-btn ${done ? "" : "is-accent"}" data-rs="done"><i class="fa-solid ${done ? "fa-rotate-left" : "fa-flag-checkered"}"></i> ${esc(S(done ? "Undone" : "Done"))}</a>` : ""}
+  </section>`;
+}
+
+/* ── Стол ведущего ── */
+
+function deskView(s) {
+  const bids = allBids(s), secs = [...new Set(bids.map(x => x.bid.sector))];
+  const players = game.actors.filter(a => bidsOf(a, s).length || doneOf(a, s));
+  const rolled = bids.length && bids.every(x => s.rolls[x.key]);
+  if (s.draft) return draftView(s);
+  const resist = resistPools(s, bids);
+  const sec = secs.map(k => {
+    const x = s.sectors.find(y => y.key === k), here = bids.filter(y => y.bid.sector === k);
+    const out = here.every(y => s.rolls[y.key]) ? outcome(k, s, bids) : null;
+    const rows = here.map(y => { const p = poolOf(y.actor, y.bid, s), m = s.mods[y.key] ?? {}, r = s.rolls[y.key];
+      return `<li class="rs-dbid">${bidRow(y.actor, y.bid, s, true).replace(/^<li class="rs-bid">|<\/li>$/g, "")}
+        <div class="rs-mods" data-key="${y.key}">
+          <label data-tooltip="${esc(S("ModDiceHint"))}">±<input type="number" data-mod="dice" value="${m.dice ?? 0}"></label>
+          <label data-tooltip="${esc(S("ModDiscHint"))}"><i class="fa-solid fa-droplet"></i><input type="number" min="0" max="3" data-mod="disc" value="${m.disc ?? 0}"></label>
+          <label data-tooltip="${esc(S("ModDiffHint"))}">${esc(S("DiffShort"))}±<input type="number" data-mod="diff" value="${m.diff ?? 0}"></label>
+          <span class="rs-res">${r ? `${faces(r, p.diff)} → <b>${r.succ}</b>${r.botch ? ` <em>${esc(S("Botch"))}</em>` : ""}` : `${p.dice}d10 / ${p.diff}`}</span>
+          <a data-rs="roll" data-key="${y.key}" data-tooltip="${esc(S(r ? "Reroll" : "Roll"))}"><i class="fa-solid ${r ? "fa-rotate" : "fa-dice-d10"}"></i></a></div></li>`; }).join("");
+    const rs = Object.entries(resist).filter(([rk]) => rk.split(".")[1] === k)
+      .map(([rk, n]) => { const r = s.rolls[rk], [, , t, at] = rk.split(".");
+        return `<li class="rs-resist">${esc(S("Resist", { who: owner(t, s).name, vs: owner(at, s).name }))} · ${n}d10 / 6 ${r ? `→ <b>${r.succ}</b>` : ""}</li>`; }).join("");
+    return `<section class="rs-dsec"><h4>${esc(x ? sectorName(x) : k)}</h4><ul class="rs-bids">${rows}${rs}</ul>
+      ${out ? `<ul class="rs-out">${out.lines.map(l => `<li>${esc(l.t)}</li>`).join("")}${out.trouble.map(t => `<li class="is-warn">${esc(S("Trouble", { who: t.actor.name }))}</li>`).join("")}</ul>` : ""}</section>`;
+  }).join("");
+  return `<section class="rs-desk">
+    <div class="rs-row"><label class="rs-lbl">${esc(S("TurnLabel"))}<input type="text" data-rs-label value="${esc(s.turn.label)}" placeholder="${esc(S("TurnLabelHint"))}"></label>
+      <a class="r-btn" data-rs="open">${esc(S(s.turn.open ? "CloseBids" : "OpenBids"))}</a></div>
+    <p class="rs-note">${players.length ? players.map(a => `${doneOf(a, s) ? "✔" : "…"} ${esc(a.name)}`).join(" · ") : esc(S("NoPlayersYet"))}</p>
+    ${secs.length ? sec : `<p class="rs-note">${esc(S("NoBidsAll"))}</p>`}
+    ${npcForm(s)}
+    <div class="rs-row">${bids.length ? `<a class="r-btn" data-rs="rollAll"><i class="fa-solid fa-dice"></i> ${esc(S("RollAll"))}</a>` : ""}
+      <a class="r-btn ${rolled ? "is-accent" : ""}" data-rs="resolve"><i class="fa-solid fa-gavel"></i> ${esc(S("Resolve"))}</a></div>
+  </section>`;
+}
+/** Ход NPC или фракции: владелец, гекс, что делает, против кого, готовый пул. */
+function npcForm(s) {
+  const opt = (list, cur = "") => list.map(([v, l]) => `<option value="${v}" ${v === cur ? "selected" : ""}>${esc(l)}</option>`).join("");
+  const owners = ownerOptions(s).filter(o => !o.actor?.hasPlayerOwner).map(o => [o.key, o.name]);
+  return `<details class="rs-npc"><summary><i class="fa-solid fa-chess-rook"></i> ${esc(S("NpcTurn"))}</summary>
+    <form class="rs-npcform"><p class="rs-note">${esc(S("NpcHint"))}</p><div class="rs-grid">
+      <label>${esc(S("NpcOwner"))}<select name="owner">${opt(owners)}</select></label>
+      <label>${esc(S("NpcSector"))}<select name="sector">${opt(visibleSectors(s).map(x => [x.key, sectorName(x)]), sel ?? "")}</select></label>
+      <label>${esc(S("IntentLabel"))}<select name="intent">${opt(Object.keys(INTENTS).map(k => [k, S(`Intent.${k}`)]))}</select></label>
+      <label>${esc(S("Target"))}<select name="target"><option value="">—</option>${opt(ownerOptions(s).map(o => [o.key, o.name]))}</select></label>
+      <label>${esc(S("NpcDice"))}<input type="number" name="dice" value="6" min="0" max="20"></label>
+    </div><textarea name="text" rows="2" placeholder="${esc(S("NpcText"))}"></textarea>
+    <div class="rs-row"><a class="r-btn" data-rs="npcAdd"><i class="fa-solid fa-plus"></i> ${esc(S("NpcAdd"))}</a></div></form></details>`;
+}
+const faces = (r, diff) => r.faces.map(f => `<i class="${f >= diff ? "is-hit" : f === 1 ? "is-one" : ""}">${f}</i>`).join("");
+
+/** Черновик отчёта: общий текст и личные куски — правит ведущий, потом «Опубликовать». */
+function draftView(s) {
+  const d = s.draft;
+  return `<section class="rs-draft"><h3>${esc(S("Report", { n: s.turn.n }))}</h3>
+    <label>${esc(S("ReportPublic"))}<textarea data-rs-draft="public" rows="8">${esc(d.public)}</textarea></label>
+    ${Object.entries(d.private).map(([id, t]) => `<label>${esc(S("ReportPrivate", { name: game.actors.get(id)?.name ?? "?" }))}<textarea data-rs-draft="${id}" rows="5">${esc(t)}</textarea></label>`).join("")}
+    <div class="rs-row"><a class="r-btn is-accent" data-rs="publish"><i class="fa-solid fa-feather"></i> ${esc(S("Publish"))}</a>
+      <a class="r-btn" data-rs="draftCancel">${esc(S("DraftCancel"))}</a></div></section>`;
+}
+
+/* ── Отчёты ── */
+
+function reportsView(s) {
+  const list = [...s.reports].reverse();
+  return `<section class="rs-reports"><h3>${esc(S("Reports"))}</h3>
+    <ul>${list.map(r => `<li><a data-rs="openReport" data-uuid="${r.uuid}"><i class="fa-solid fa-scroll"></i> ${esc(S("TurnN", { n: r.n }))}${r.label ? ` · ${esc(r.label)}` : ""}</a> <small>${esc(r.date ?? "")}</small>
+      ${r.tokens ? `<a class="rs-histbtn ${hist === r.n ? "on" : ""}" data-rs="hist" data-n="${r.n}" data-tooltip="${esc(S("HistoryShow"))}"><i class="fa-solid fa-hexagon-nodes"></i></a>` : ""}</li>`).join("") || `<li class="rs-note">${esc(S("NoReports"))}</li>`}</ul></section>`;
+}
+
+/* ── Настройка (ведущий) ── */
+
+function setupView(s) {
+  const dists = EXT.strategy.districts.flatMap(f => f());
+  const sph = s.spheres.map((x, i) => `<li><input type="color" data-rs-sph="${i}" data-f="color" value="${x.color}"><input type="text" data-rs-sph="${i}" data-f="name" value="${esc(sphereName(x))}"></li>`).join("");
+  const secs = s.sectors.map((x, i) => `<li class="rs-setsec ${sel === x.key ? "is-sel" : ""}">
+    <input type="text" data-rs-sec="${i}" data-f="name" value="${esc(sectorName(x))}">
+    <select data-rs-sec="${i}" data-f="sphere">${s.spheres.map(y => `<option value="${y.key}" ${y.key === x.sphere ? "selected" : ""}>${esc(sphereName(y))}</option>`).join("")}</select>
+    <span class="rs-qr"><a data-rs="move" data-i="${i}" data-dq="-1" data-dr="0">◀</a><a data-rs="move" data-i="${i}" data-dq="1" data-dr="-1">◥</a><a data-rs="move" data-i="${i}" data-dq="0" data-dr="-1">◤</a>
+      <a data-rs="move" data-i="${i}" data-dq="0" data-dr="1">◣</a><a data-rs="move" data-i="${i}" data-dq="-1" data-dr="1">◢</a><a data-rs="move" data-i="${i}" data-dq="1" data-dr="0">▶</a></span>
+    ${dists.length ? `<select data-rs-sec="${i}" data-f="district"><option value="">${esc(S("NoDistrict"))}</option>${dists.map(d => `<option value="${d.key}" ${d.key === x.district ? "selected" : ""}>${esc(d.name)}</option>`).join("")}</select>` : ""}
+    <label class="rs-chk"><input type="checkbox" data-rs-sec="${i}" data-f="hidden" ${x.hidden ? "checked" : ""}> ${esc(S("Hidden"))}</label>
+    <a data-rs="secDel" data-i="${i}" data-tooltip="${esc(S("Delete"))}"><i class="fa-solid fa-trash"></i></a>
+    <textarea data-rs-sec="${i}" data-f="about" rows="2" placeholder="${esc(S("AboutHint"))}">${esc(x.about)}</textarea></li>`).join("");
+  const facs = Object.entries(s.owners).map(([k, f]) => `<li><input type="color" data-rs-fac="${k}" data-f="color" value="${f.color}"><input type="text" data-rs-fac="${k}" data-f="name" value="${esc(f.name)}"><a data-rs="facDel" data-key="${k}"><i class="fa-solid fa-trash"></i></a></li>`).join("");
+  return `<section class="rs-setup">
+    <h4>${esc(S("Spheres"))}</h4><ul class="rs-setsph">${sph}</ul><a class="r-btn" data-rs="sphAdd"><i class="fa-solid fa-plus"></i> ${esc(S("SphereAdd"))}</a>
+    <h4>${esc(S("Factions"))}</h4><p class="rs-note">${esc(S("FactionsHint"))}</p><ul class="rs-setsph">${facs}</ul><a class="r-btn" data-rs="facAdd"><i class="fa-solid fa-plus"></i> ${esc(S("FactionAdd"))}</a>
+    <h4>${esc(S("Sectors"))}</h4><ul class="rs-setsecs">${secs}</ul><a class="r-btn" data-rs="secAdd"><i class="fa-solid fa-plus"></i> ${esc(S("SectorAdd"))}</a>
+    <h4>${esc(S("Danger"))}</h4><a class="r-btn rc-danger" data-rs="wipe"><i class="fa-solid fa-trash"></i> ${esc(S("Wipe"))}</a>
+  </section>`;
+}
+
+/* ── События ───────────────────────────────────────────────────────────── */
+
+async function onClick(ev) {
+  const el = ev.target.closest("[data-rs]");
+  if (!el) return;
+  ev.preventDefault();
+  const s = strat(), gm = game.user.isGM, act = el.dataset.rs;
+  switch (act) {
+    case "view": view = el.dataset.v; editBid = null; return renderBoard();
+    case "sector": sel = el.dataset.key; editBid = null; if (view !== "setup") view = "map"; return renderBoard();
+    case "preset": return loadPreset(el.dataset.id);
+    case "fly": { const d = EXT.strategy.districts.flatMap(f => f()).find(x => x.key === el.dataset.key); if (d) { setMode("map"); host.fly?.(d.lat, d.lng, 15); } return; }
+    case "tok": {
+      const t = s.tokens[sel] ?? {}, n = Math.clamp((t[el.dataset.owner] ?? 0) + Number(el.dataset.d), 0, MAX);
+      const sum = Object.entries(t).reduce((m, [k, v]) => m + (k === el.dataset.owner ? 0 : v), 0);
+      if (sum + n > MAX) return ui.notifications.warn(S("Full", { n: MAX }));
+      return save({ tokens: { ...s.tokens, [sel]: { ...t, [el.dataset.owner]: n } } });
+    }
+    case "reveal": return save({ reveal: { ...s.reveal, [sel]: !s.reveal[sel] } });
+    case "bidSave": return saveBid(el.closest("form"));
+    case "bidCancel": editBid = null; return renderBoard();
+    case "bidEdit": { const a = meActor(); editBid = bidsOf(a, s).find(b => b.id === el.dataset.id) ?? null; if (editBid) { sel = editBid.sector; view = "map"; } return renderBoard(); }
+    case "bidDel": { const a = meActor(); return setBids(a, bidsOf(a, s).filter(b => b.id !== el.dataset.id)); }
+    case "done": { const a = meActor(); return setBids(a, bidsOf(a, s), !doneOf(a, s)); }
+    case "openReport": return (await fromUuid(el.dataset.uuid))?.sheet?.render(true);
+    case "hist": hist = hist === Number(el.dataset.n) ? null : Number(el.dataset.n); return renderBoard();
+    case "histOff": hist = null; return renderBoard();
+    case "guide": return openGuide();
+  }
+  if (!gm) return;
+  switch (act) {
+    case "open": return save({ turn: { ...s.turn, open: !s.turn.open } });
+    case "roll": return rollKeys([el.dataset.key], true);
+    case "rollAll": return rollKeys(allBids(s).map(x => x.key), false);
+    case "resolve": return resolve();
+    case "publish": return publish();
+    case "draftCancel": return save({ draft: null });
+    case "npcAdd": {
+      const fd = new foundry.applications.ux.FormDataExtended(el.closest("form")).object;
+      if (!fd.owner || !fd.sector) return;
+      if (INTENTS[fd.intent]?.target && !fd.target) return ui.notifications.warn(S("NeedTarget"));
+      return save({ npc: [...(s.npc ?? []), { id: uid(), npc: true, owner: fd.owner, sector: fd.sector, kind: "attention", intent: fd.intent,
+        target: INTENTS[fd.intent]?.target ? fd.target : "", dice: Number(fd.dice) || 0, text: String(fd.text ?? "").trim() }] });
+    }
+    case "npcDel": return save({ npc: (s.npc ?? []).filter(b => b.id !== el.dataset.id) });
+    case "secAdd": { const key = uid(), q = Math.max(0, ...s.sectors.map(x => x.q)) + 1; sel = key;
+      return save({ sectors: [...s.sectors, { key, name: S("NewSector"), sphere: s.spheres[0]?.key ?? "", q, r: 0, about: "" }] }); }
+    case "secDel": { const x = s.sectors[Number(el.dataset.i)];
+      if (!(await foundry.applications.api.DialogV2.confirm({ window: { title: S("Delete") }, content: `<p>${esc(S("DeleteSector", { name: sectorName(x) }))}</p>` }))) return;
+      const tokens = { ...s.tokens }; delete tokens[x.key];
+      return save({ sectors: s.sectors.filter((_, i) => i !== Number(el.dataset.i)), tokens }); }
+    case "move": { const secs = s.sectors.map(x => ({ ...x })), x = secs[Number(el.dataset.i)];
+      x.q += Number(el.dataset.dq); x.r += Number(el.dataset.dr); sel = x.key; return save({ sectors: secs }); }
+    case "sphAdd": return save({ spheres: [...s.spheres, { key: uid(), name: S("NewSphere"), color: "#777777" }] });
+    case "facAdd": return save({ owners: { ...s.owners, [`f:${uid()}`]: { name: S("NewFaction"), color: "#5a6b7d" } } });
+    case "facDel": { const owners = { ...s.owners }; delete owners[el.dataset.key]; return save({ owners }); }
+    case "wipe": if (await foundry.applications.api.DialogV2.confirm({ window: { title: S("Wipe") }, content: `<p>${esc(S("WipeConfirm"))}</p>` })) return game.settings.set(SYSTEM_ID, "strategy", {});
+  }
+}
+
+async function onChange(ev) {
+  const el = ev.target, s = strat();
+  if (el.matches("[data-rs-me]")) { me = el.value; editBid = null; return renderBoard(); }
+  if (el.closest(".rs-npcform")) return;
+  if (el.closest(".rs-form")) {         // форма заявки: пересчитать пул и шансы
+    const f = el.closest(".rs-form"), fd = new foundry.applications.ux.FormDataExtended(f).object;
+    editBid = { ...(editBid ?? {}), ...fd, id: f.dataset.id, sector: f.dataset.sec };
+    if (!INTENTS[editBid.intent]?.target) editBid.target = "";
+    return renderBoard();
+  }
+  if (!game.user.isGM) return;
+  if (el.matches("[data-rs-addowner]") && el.value) return save({ tokens: { ...s.tokens, [sel]: { ...(s.tokens[sel] ?? {}), [el.value]: Math.max(1, s.tokens[sel]?.[el.value] ?? 0) } } });
+  if (el.matches("[data-rs-label]")) return save({ turn: { ...s.turn, label: el.value } });
+  if (el.dataset.mod) { const k = el.closest("[data-key]").dataset.key; return save({ mods: { ...s.mods, [k]: { ...(s.mods[k] ?? {}), [el.dataset.mod]: Number(el.value) || 0 } } }); }
+  if (el.dataset.rsDraft) return save({ draft: el.dataset.rsDraft === "public" ? { ...s.draft, public: el.value } : { ...s.draft, private: { ...s.draft.private, [el.dataset.rsDraft]: el.value } } });
+  const v = el.type === "checkbox" ? el.checked : el.value;
+  if (el.dataset.rsSec) { const secs = s.sectors.map(x => ({ ...x })); secs[Number(el.dataset.rsSec)][el.dataset.f] = v; return save({ sectors: secs }); }
+  if (el.dataset.rsSph) { const sp = s.spheres.map(x => ({ ...x })); sp[Number(el.dataset.rsSph)][el.dataset.f] = v; return save({ spheres: sp }); }
+  if (el.dataset.rsFac) return save({ owners: { ...s.owners, [el.dataset.rsFac]: { ...s.owners[el.dataset.rsFac], [el.dataset.f]: v } } });
+}
+
+/** Заявка игрока: проверить жетоны и записать во флаг актёра. */
+async function saveBid(form) {
+  const a = meActor(), s = strat();
+  if (!a || !s.turn.open) return;
+  const fd = new foundry.applications.ux.FormDataExtended(form).object, id = form.dataset.id;
+  const bid = { id: id || uid(), sector: form.dataset.sec, kind: fd.kind, intent: fd.intent, target: INTENTS[fd.intent]?.target ? fd.target ?? "" : "",
+    attr: fd.attr, ability: fd.ability, text: String(fd.text ?? "").trim(), helper: fd.helper ?? "" };
+  if (INTENTS[bid.intent].target && !bid.target) return ui.notifications.warn(S("NeedTarget"));
+  const left = counters(a, s).find(c => c.k === bid.kind);
+  if (!id && (!left || left.left <= 0)) return ui.notifications.warn(S("NoTokens"));
+  const bids = bidsOf(a, s), next = id ? bids.map(b => b.id === id ? bid : b) : [...bids, bid];
+  editBid = null;
+  await setBids(a, next);
+}
+
+/** Бросить заявки (и нужное им сопротивление). force — перебросить уже брошенные. */
+async function rollKeys(keys, force) {
+  const s = strat(), bids = allBids(s), rolls = { ...s.rolls };
+  for (const x of bids.filter(y => keys.includes(y.key))) {
+    if (rolls[x.key] && !force) continue;
+    const p = poolOf(x.actor, x.bid, s);
+    rolls[x.key] = await rollDice(p.dice, p.diff);
+  }
+  // сопротивление — после «Защиты» (её успехи входят в пул)
+  for (const [k, n] of Object.entries(resistPools({ ...s, rolls }, bids))) {
+    const [, sec, , at] = k.split(".");
+    if (rolls[k] && !(force && keys.some(x => x.startsWith(`${at}.`) && bids.find(y => y.key === x)?.bid.sector === sec))) continue;
+    rolls[k] = await rollDice(n, 6);
+  }
+  await save({ rolls });
+}
+
+/** Провести ход: добросить недостающее, применить итог, собрать черновик отчёта. */
+async function resolve() {
+  await rollKeys(allBids().map(x => x.key), false);
+  const s = strat(), bids = allBids(s), secs = [...new Set(bids.map(x => x.bid.sector))];
+  const tokens = foundry.utils.deepClone(s.tokens), known = foundry.utils.deepClone(s.known);
+  const pub = [], priv = {};
+  for (const sec of secs) {
+    const x = s.sectors.find(y => y.key === sec), name = x ? sectorName(x) : sec, out = outcome(sec, s, bids);
+    tokens[sec] = out.tokens;
+    for (const id of out.scouted) (known[id] ??= {})[sec] = true;
+    if (Object.keys(out.delta).length) pub.push(`${name}: ${Object.entries(out.delta).map(([k, n]) => `${owner(k, s).name} ${n > 0 ? "+" : ""}${n}`).join(", ")}`);
+    for (const y of bids.filter(z => z.bid.sector === sec && !z.actor.npc)) {
+      const r = s.rolls[y.key];
+      (priv[y.actor.id] ??= []).push(`${name} — ${S(`Intent.${y.bid.intent}`)} (${S(`Kind.${y.bid.kind}`)}): ${S("Successes", { n: r?.succ ?? 0 })}${r?.botch ? `, ${S("Botch")}` : ""}.`);
+    }
+    for (const l of out.lines) for (const id of l.ids) if (priv[id]) priv[id].push(`  ${l.t}`);
+    for (const t of out.trouble) priv[t.actor.id].push(`  ${S("Trouble", { who: t.actor.name })}`);
+    for (const d of out.debts) priv[d.actor.id].push(`  ${S("Debt", { who: d.bid.helper || "?" })}`);
+  }
+  await save({ tokens, known, draft: {
+    public: `${S("ReportIntro", { label: s.turn.label || S("TurnN", { n: s.turn.n }) })}\n\n${pub.join("\n") || S("QuietTurn")}`,
+    private: Object.fromEntries(Object.entries(priv).map(([k, v]) => [k, v.join("\n")]))
+  } });
+}
+
+/** Опубликовать отчёт журналом (общая страница + личные), записать долги, начать новый ход. */
+async function publish() {
+  const s = strat(), d = s.draft;
+  if (!d) return;
+  const p = t => t.split(/\n{2,}/).map(par => `<p>${esc(par).replace(/\n/g, "<br>")}</p>`).join("");
+  const title = `${S("Title")} — ${S("TurnN", { n: s.turn.n })}${s.turn.label ? ` (${s.turn.label})` : ""}`;
+  const pages = [{ name: S("ReportCity"), type: "text", text: { content: p(d.public) } },
+    ...Object.entries(d.private).map(([id, t]) => {
+      const a = game.actors.get(id), users = game.users.filter(u => !u.isGM && a?.testUserPermission(u, "OWNER"));
+      return { name: a?.name ?? "?", type: "text", text: { content: p(t) }, ownership: { default: 0, ...Object.fromEntries(users.map(u => [u.id, 2])) } };
+    })];
+  const je = await JournalEntry.create({ name: title, ownership: { default: 2 }, pages });
+  // услуги → долги в реестре
+  for (const x of allBids(s).filter(y => y.bid.kind === "boon" && !y.actor.npc)) {
+    const boons = [...(x.actor.system.boons ?? []), { name: x.bid.helper || "?", dir: "owe", level: "minor", note: S("DebtNote", { n: s.turn.n, sector: sectorName(s.sectors.find(y => y.key === x.bid.sector) ?? {}) }), date: "", done: false }];
+    if (x.actor.system.boons) await x.actor.update({ "system.boons": boons });
+  }
+  await save({ draft: null, rolls: {}, mods: {}, turn: { n: s.turn.n + 1, label: "", open: true },
+    npc: [], reports: [...s.reports, { n: s.turn.n, label: s.turn.label, uuid: je.uuid, date: new Date().toLocaleDateString(game.i18n.lang),
+      tokens: foundry.utils.deepClone(s.tokens), sectors: foundry.utils.deepClone(s.sectors) }] });
+  hist = null;
+  ui.notifications.info(S("Published", { n: s.turn.n }));
+}
+
+/** Заготовка: сферы и сектора (свои или модуля). */
+async function loadPreset(id) {
+  const p = id === "modern" ? MODERN : EXT.strategy.presets.find(x => x.id === id);
+  if (!p) return;
+  const s = strat();
+  await save({ spheres: foundry.utils.deepClone(p.spheres), sectors: foundry.utils.deepClone(p.sectors), owners: { ...s.owners, ...(p.owners ?? {}) }, tokens: { ...(p.tokens ?? {}), ...s.tokens } });
+}

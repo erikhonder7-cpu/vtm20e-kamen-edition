@@ -46,6 +46,7 @@ import { registerChronicle, openChronicle } from "./module/apps/chronicle.mjs";
 import { registerHandouts, giveHandout } from "./module/apps/handouts.mjs";
 import { registerExtras } from "./module/apps/extras.mjs";
 import { registerMasquerade } from "./module/ui/masquerade.mjs";
+import { registerStrategy } from "./module/ui/strategy.mjs";
 import { registerCityMap, openCity, closeCity, toggleCity, cityMap } from "./module/ui/citymap.mjs";
 import { registerPause } from "./module/ui/pause.mjs";
 import { registerThemes } from "./module/ui/themes.mjs";
@@ -147,6 +148,7 @@ Hooks.once("init", () => {
   registerCombatTracker();
   registerCityMap();
   registerMasquerade();
+  registerStrategy();
   registerPause();
   registerThemes();
   registerDemonHooks();

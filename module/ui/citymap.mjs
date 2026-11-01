@@ -632,7 +632,7 @@ function mount() {
       </aside>
       <div class="rc-map"><div class="rc-gl"></div><div class="rc-dawn"></div><div class="rc-tools"></div>
         <div class="rc-clock"></div><aside class="rc-inspector" hidden></aside>
-        <nav class="rc-modes"></nav><section class="rc-board" hidden></section><div class="rc-stain-tip" hidden></div></div>
+        <nav class="rc-modes is-empty"></nav><div class="rc-stain-tip" hidden></div></div>
       <div class="rc-slats shut"></div>
       <a class="rc-handle" data-toggle data-tooltip="${esc(L("Hint"))}">
         <i class="fa-solid fa-map-location-dot"></i><span>${esc(L("Button"))}</span><i class="rc-arrow fa-solid fa-chevron-down"></i>
@@ -660,7 +660,23 @@ function mount() {
   const box = root.querySelector(".rc-map");
   // разметка и доски режимов от модулей (свеча над старинным планом, вкладки Собрания…)
   for (const m of EXT.mounts) m(root, api);
-  for (const b of boards()) b.attach(root, api);
+  // Доски режимов (Собрание модуля, Стратегия системы…): у каждой своя часть полосы вкладок и свой стол поверх карты;
+  // вкладка «Карта» общая. Открыла одна доска — прочие возвращаются к карте (boardOpened).
+  const nav = root.querySelector(".rc-modes");
+  nav.innerHTML = `<a class="rc-mode-home on" data-sysmap><i class="fa-solid fa-map"></i><span>${esc(L("ModeMap"))}</span></a>`;
+  for (const b of [...boards()].sort((x, y) => (x.order ?? 0) - (y.order ?? 0))) {
+    const modesEl = document.createElement("span"), boardEl = document.createElement("section");
+    modesEl.className = "rc-modes-part"; boardEl.className = "rc-board"; boardEl.hidden = true;
+    nav.appendChild(modesEl); nav.before(boardEl);
+    // свои свойства, а не прототип: модули копируют api разворотом ({ ...api })
+    b.attach(root, Object.defineProperties({ modesEl, boardEl, opened: () => boardOpened(b), syncModes: () => syncModes() }, Object.getOwnPropertyDescriptors(api)));
+  }
+  nav.addEventListener("click", ev => {
+    if (!ev.target.closest("[data-sysmap]")) return;
+    for (const b of boards()) if (b.mode() !== "map") b.setMode("map");
+    syncModes();
+  });
+  syncModes();
   // персонажа из списка слева можно перетащить на план — тот же перенос, что из каталога актёров Foundry
   root.addEventListener("dragstart", ev => {
     const a = game.actors.get(ev.target.closest?.("[data-drag-actor]")?.dataset.dragActor);
@@ -701,6 +717,20 @@ function mount() {
   return root;
 }
 
+/** Доска открыла свой режим — остальные к карте. */
+function boardOpened(b) {
+  for (const x of boards()) if (x !== b && x.mode() !== "map") x.setMode("map");
+}
+/** Общая вкладка «Карта» и data-mode шторы — по доскам; полоса прячется, если у досок нет вкладок. */
+function syncModes() {
+  const root = document.getElementById(ID), nav = root?.querySelector(".rc-modes");
+  if (!nav) return;
+  const active = boards().find(b => b.mode() !== "map");
+  root.setAttribute("data-mode", active?.mode() ?? "map");
+  nav.querySelector("[data-sysmap]")?.classList.toggle("on", !active);
+  nav.classList.toggle("is-empty", !nav.querySelector(".rc-modes-part a"));
+}
+
 /** Сам объект карты MapLibre — для макросов (null, пока штору не открывали). */
 export const cityMap = () => map;
 
@@ -721,6 +751,7 @@ export async function openCity() {
     if (shownCity !== city().id) jumpToCity();
     drawAll();
     for (const b of boards()) { b.drawModes(); b.renderBoard(); }
+    syncModes();
     root.classList.add("open");
     root.querySelector(".rc-slats").classList.remove("shut");
     raf ??= requestAnimationFrame(frame);

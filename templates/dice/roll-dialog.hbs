@@ -27,6 +27,13 @@
     <input type="number" name="bonus" value="{{v.bonus}}" class="r-roll-num">
     <a class="r-step" data-action="bump" data-field="bonus" data-d="1">+</a>
   </div>
+  {{#if sways.length}}
+  <div class="r-roll-row" data-tooltip="{{localize 'VTM20.Strategy.SwayHint'}}">
+    <span class="r-roll-label"><i class="fa-solid fa-chess-knight"></i> {{localize "VTM20.Strategy.Sway"}}</span>
+    <select name="sway" class="r-roll-mode"><option value="">{{localize "VTM20.Strategy.SwayNone"}}</option>
+      {{#each sways}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}} (+{{dice}})</option>{{/each}}</select>
+  </div>
+  {{/if}}
 
   {{#if (and contests.length (not locked))}}
   <div class="r-roll-row" data-tooltip="{{localize 'VTM20.Contest.ModeHint'}}">

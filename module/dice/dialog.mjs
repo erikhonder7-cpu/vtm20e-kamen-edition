@@ -2,6 +2,7 @@
 // Окно проверки: две черты пула, модификаторы, сложность, специализация, воля,
 // штраф за раны. Пул пересчитывается на лету.
 
+import { swayOf } from "../ui/strategy.mjs";
 import { VTM20, SYSTEM_PATH } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
 import { rollPool, odds, chancesView, tormentRule, tormentOdds } from "./roll.mjs";
@@ -36,7 +37,7 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       contest: "simple", need: 5,
       specialty: !!cfg.specialty, willpower: !!cfg.willpower,
       wounds: !cfg.reflexive, physical: true,
-      payBlood: (cfg.bloodCost ?? 0) > 0, payWill: !!cfg.willpowerCost, light: false, fxOn: [], overdraw: 0,
+      payBlood: (cfg.bloodCost ?? 0) > 0, payWill: !!cfg.willpowerCost, light: false, fxOn: [], overdraw: 0, sway: "",
       messageMode: game.settings.get("core", "messageMode")
     };
   }
@@ -89,6 +90,9 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     // Мощь, включённая кровью: точки — автоуспехи проверки Силы (Дисциплины/06)
     const auto = attr && !base && v.physical ? a.physicalAuto(attr) : 0;
     if (v.bonus) { pool += v.bonus; bd.push({ label: t("Roll.Modifier"), value: v.bonus }); }
+    // опора на влияние в сфере города (Стратегия): +1 кубик за каждые 2 фишки
+    const sway = v.sway && swayOf(a).find(x => x.key === v.sway);
+    if (sway) { pool += sway.dice; bd.push({ label: game.i18n.format("VTM20.Strategy.SwayLine", { name: sway.name }), value: sway.dice }); }
     const wp = a.system.health.penalty;
     if (wp && v.wounds) { pool += wp; bd.push({ label: t("Roll.Wounds"), value: wp }); }
     const arm = a.armor.penalty;
@@ -190,6 +194,7 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       diffWhy: c.effDifficulty === v.difficulty ? null
         : [...c.diffAuto.filter(d => !d.dice), ...c.diffSit.filter(d => d.on && !d.dice)].map(d => ({ label: d.label, value: d.value })),
       woundPenalty: this.actor.system.health.penalty,
+      sways: this.cfg.pool != null ? [] : swayOf(this.actor).map(x => ({ ...x, selected: x.key === v.sway })),
       contests: this.cfg.onRolled ? [] : ["simple", "extended", "resisted", "teamwork"].map(k => ({ value: k, label: t(`Contest.Mode.${k}`), selected: k === v.contest })),
       isExtended: v.contest === "extended",
       willpowerLeft: this.actor.system.willpower.temporary,
@@ -216,7 +221,7 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const f = new foundry.applications.ux.FormDataExtended(this.element).object;
     Object.assign(this.values, {
       trait1: f.trait1 ?? this.values.trait1, trait2: f.trait2 ?? this.values.trait2,
-      bonus: Number(f.bonus) || 0, actions: Math.clamp(Number(f.actions) || 1, 1, 6),
+      bonus: Number(f.bonus) || 0, actions: Math.clamp(Number(f.actions) || 1, 1, 6), sway: f.sway ?? this.values.sway,
       contest: f.contest ?? this.values.contest, need: Math.clamp(Number(f.need) || 1, 1, 50),
       difficulty: Math.clamp(Number(f.difficulty) || 6, 2, 12),
       specialty: !!f.specialty, willpower: !!f.willpower, wounds: !!f.wounds, physical: !!f.physical,

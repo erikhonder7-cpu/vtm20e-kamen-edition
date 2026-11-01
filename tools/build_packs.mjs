@@ -307,6 +307,8 @@ BUILDERS.rules = function () {
   for (const ch of data("rules")) p.addBook({ name: ch.name, pages: ch.pages, key: `rules:${ch.key}` });
   // глава 8 — справочник Ghouls & Revenants (data/rules-ghouls.json): отдельным файлом, чтобы build_data.py его не перезаписал
   for (const ch of data("rules-ghouls")) p.addBook({ name: ch.name, pages: ch.pages, key: `rules:${ch.key}` });
+  // гайдбук «Стратегии города» (module/ui/strategy.mjs): data/strategy-guide.json
+  { const g = readJson("strategy-guide"); p.addBook({ name: g.name, pages: g.pages, key: `rules:${g.key}` }); }
   // глава 9 — инфернализм: договоры и Вложения (data/rules-infernal.json, tools/infernal_docs.py)
   for (const ch of data("rules-infernal")) p.addBook({ name: ch.name, pages: ch.pages, key: `rules:${ch.key}` });
   return p;

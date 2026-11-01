@@ -62,6 +62,9 @@
       "src": "styles/r-city.css"
     },
     {
+      "src": "styles/r-strategy.css"
+    },
+    {
       "src": "styles/r-pause.css"
     }
   ],
