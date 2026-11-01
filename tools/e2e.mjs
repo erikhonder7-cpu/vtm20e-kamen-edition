@@ -973,6 +973,62 @@ try {
 
   // Дампир-гуль и правило «кому видна черта»
   // Оборотень (W20): формы меняют итог Атрибутов (и после перезагрузки данных), смена формы за Ярость, Дар списывает свою цену
+  // Стратегия города (module/ui/strategy.mjs): полный ход через доску — заявка, «Провести ход», отчёт с личной страницей,
+  // нарушение договора → большая услуга, рост тренда, польза сектора, сдвиг часов при публикации и его отмена; всё убирается за собой
+  await check("Стратегия города: ход, отчёт, договор, тренд, часы", async () => {
+    const a = await temp("E2E — стратег"), b = await temp("E2E — соперник");
+    const r = await page.evaluate(async ([a, b]) => {
+      const SYS = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {};
+      const A = game.actors.get(a), B = game.actors.get(b);
+      const saved = foundry.utils.deepClone(game.settings.get(SYS, "strategy") ?? {});
+      const { getClock, setClock } = await import(`/systems/${SYS}/module/apps/calendar.mjs`), c0 = getClock();
+      const msgs = new Set(game.messages.map(m => m.id));
+      try {
+        await game.settings.set(SYS, "strategy", { spheres: [{ key: "x", name: "Сфера", color: "#777777" }],
+          sectors: [{ key: "s1", name: "Порт", sphere: "x", q: 0, r: 0, perk: "herd" }, { key: "s2", name: "Пресса", sphere: "x", q: 1, r: 0, perk: "hunt" }],
+          tokens: { s1: { [a]: 3, [b]: 2 } }, trends: [{ id: "t1", sector: "s2", name: "Бунт", level: 2, grow: 1 }],
+          pacts: [{ id: "p1", a, b, scope: "*", kind: "peace", note: "" }], turn: { n: 1, label: "", open: true, shift: { n: 3, unit: "days" } } });
+        await A.setFlag(SYS, "strategy", { turn: 1, done: true, bids: [{ id: "x1", sector: "s1", kind: "attention", intent: "undermine", target: b,
+          attr: "manipulation", ability: "subterfuge", text: "", proxy: "", crude: false }] });
+        const S = await import(`/systems/${SYS}/module/ui/strategy.mjs`);
+        out.perk = S.perkBonus(A, "herd").dice;
+        out.sheet = !!S.sheetStrategy(A)?.sectors?.length;
+        const C = await import(`/systems/${SYS}/module/ui/citymap.mjs`);
+        await C.openCity(); await wait(1500);
+        const root = document.getElementById("r-citymap"), click = sel => root.querySelector(sel)?.click();
+        click('.rc-modes [data-mode=strategy]'); await wait(300);
+        click('[data-rs=view][data-v=turn]'); await wait(300);
+        click('[data-rs=resolve]'); await wait(2000);
+        out.draft = !!root.querySelector(".rs-draft");
+        click('[data-rs=publish]'); await wait(1000);
+        [...foundry.applications.instances.values()].find(x => x.constructor.name === "DialogV2" && x.rendered)?.element.querySelector("button[data-action=shift]")?.click();
+        await wait(2500);
+        const st = game.settings.get(SYS, "strategy"), rep = st.reports.at(-1);
+        Object.assign(out, { turn: st.turn.n, pacts: st.pacts.length, trend: st.trends[0]?.level, shift: Math.round((getClock() - c0) / 86400000),
+          boon: A.system.boons.some(x => x.dir === "owe" && x.level === "major") && B.system.boons.some(x => x.dir === "owed" && x.level === "major") });
+        const je = rep && await fromUuid(rep.uuid);
+        out.pages = je?.pages.size ?? 0;
+        click('[data-rs=view][data-v=reports]'); await wait(300);
+        click('[data-rs=clockUndo]'); await wait(800);
+        document.querySelector(".application.dialog button[data-action=yes]")?.click(); await wait(1500);
+        out.back = Math.round((getClock() - c0) / 86400000);
+        await je?.delete();
+        await C.closeCity?.();
+      } finally {
+        if (getClock() !== c0) await setClock(c0);
+        await game.settings.set(SYS, "strategy", saved);
+        const fresh = game.messages.filter(m => !msgs.has(m.id)).map(m => m.id);
+        if (fresh.length) await ChatMessage.deleteDocuments(fresh);
+      }
+      return out;
+    }, [a, b]);
+    if (r.perk !== 2 || !r.sheet) throw new Error(`польза сектора ${r.perk}, лист ${r.sheet}`);
+    if (!r.draft || r.turn !== 2 || r.pages !== 2) throw new Error(`ход: черновик ${r.draft}, ход ${r.turn}, страниц отчёта ${r.pages}`);
+    if (r.pacts !== 0 || !r.boon) throw new Error(`договор: осталось ${r.pacts}, услуги ${r.boon}`);
+    if (r.trend !== 3) throw new Error(`тренд не вырос: ${r.trend}`);
+    if (r.shift !== 3 || r.back !== 0) throw new Error(`часы: сдвиг ${r.shift} дн., после отмены ${r.back}`);
+  });
+
   await check("Оборотень: формы, Ярость, Дары, лист", async () => {
     const id = await temp("E2E — Гару", "werewolf");
     const r = await page.evaluate(async id => {

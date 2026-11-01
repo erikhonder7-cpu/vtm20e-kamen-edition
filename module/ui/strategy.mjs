@@ -243,9 +243,13 @@ function addLayer(api) {
   if (!map.getSource("rs-infl")) map.addSource("rs-infl", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
   const add = l => { if (!map.getLayer(l.id)) map.addLayer(l); };
   add({ id: "rs-infl-seal", type: "circle", source: "rs-infl", paint: {
-    "circle-color": ["get", "color"], "circle-radius": ["+", 7, ["*", 1.6, ["get", "n"]]], "circle-opacity": .9,
-    "circle-stroke-color": "#0a0808", "circle-stroke-width": 2 } });
-  add({ id: "rs-infl-n", type: "symbol", source: "rs-infl", layout: { "text-field": ["to-string", ["get", "n"]], "text-font": ["Noto Sans Bold"], "text-size": 12, "text-allow-overlap": true },
+    "circle-color": ["get", "color"], "circle-radius": ["interpolate", ["linear"], ["zoom"], 12, ["+", 6, ["get", "n"]], 15, ["+", 11, ["*", 1.8, ["get", "n"]]]],
+    "circle-opacity": .95, "circle-stroke-color": "#b0894a", "circle-stroke-width": 2.5 } });
+  // тёмная подложка под печатью — читается и на светлом старинном плане
+  if (!map.getLayer("rs-infl-halo")) map.addLayer({ id: "rs-infl-halo", type: "circle", source: "rs-infl", paint: {
+    "circle-color": "#0a0808", "circle-opacity": .55, "circle-blur": .6,
+    "circle-radius": ["interpolate", ["linear"], ["zoom"], 12, ["+", 10, ["get", "n"]], 15, ["+", 17, ["*", 1.8, ["get", "n"]]]] } }, "rs-infl-seal");
+  add({ id: "rs-infl-n", type: "symbol", source: "rs-infl", layout: { "text-field": ["to-string", ["get", "n"]], "text-font": ["Noto Sans Bold"], "text-size": ["interpolate", ["linear"], ["zoom"], 12, 10, 15, 14], "text-allow-overlap": true },
     paint: { "text-color": "#f3ece0", "text-halo-color": "#0a0808", "text-halo-width": 1.4 } });
   add({ id: "rs-infl-name", type: "symbol", source: "rs-infl", minzoom: 14.5, layout: { "text-field": ["get", "name"], "text-font": ["Noto Sans Bold"], "text-size": 10,
     "text-offset": [0, 1.9], "text-anchor": "top" }, paint: { "text-color": "#d8cfbf", "text-halo-color": "#0a0808", "text-halo-width": 1.4 } });
@@ -257,7 +261,7 @@ function drawLayer(api) {
   const map = api.map;
   if (!map?.getSource("rs-infl")) return;
   const on = !!api.view().strat;
-  for (const l of ["rs-infl-seal", "rs-infl-n", "rs-infl-name"]) if (map.getLayer(l)) map.setLayoutProperty(l, "visibility", on ? "visible" : "none");
+  for (const l of ["rs-infl-halo", "rs-infl-seal", "rs-infl-n", "rs-infl-name"]) if (map.getLayer(l)) map.setLayoutProperty(l, "visibility", on ? "visible" : "none");
   if (!on) return;
   const s = strat(), feats = [];
   for (const d of EXT.strategy.districts.flatMap(f => f())) {
@@ -266,7 +270,7 @@ function drawLayer(api) {
       for (const [k, n] of Object.entries(s.tokens[x.key] ?? {})) if (n > 0 && sees(x.key, k, s)) sum[k] = (sum[k] ?? 0) + n;
     const list = Object.entries(sum).sort((p, q) => q[1] - p[1]);
     list.forEach(([k, n], i) => {
-      const a = 2 * Math.PI * i / list.length - Math.PI / 2, r = list.length > 1 ? .0011 : 0, o = owner(k, s);
+      const a = 2 * Math.PI * i / list.length - Math.PI / 2, r = list.length > 1 ? .0019 : 0, o = owner(k, s);
       feats.push({ type: "Feature", properties: { color: o.color, n, name: o.name },
         geometry: { type: "Point", coordinates: [d.lng + r * Math.cos(a) / Math.cos(d.lat * Math.PI / 180), d.lat + r * Math.sin(a)] } });
     });
