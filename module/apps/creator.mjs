@@ -18,7 +18,7 @@ import { openHouses } from "./houses.mjs";
 import { blockerFor, checkTraits } from "../data/trait-rules.mjs";
 import { attachCombos } from "../ui/combo.mjs";
 import { weaponIcon, armorIcon, traitIcon, backgroundIcon } from "../data/icons.mjs";
-import { H as hunterData, edgeCost, growth as hunterGrowth, sacrificeOn as hunterSacrificeOn, hasOwnPath, creedCapped, edgeBarred, HERMIT_PATH, hermitEdgeMadness } from "./hunter.mjs";
+import { H as hunterData, edgeCost, growth as hunterGrowth, sacrificeOn as hunterSacrificeOn, hasOwnPath, creedCapped, edgeBarred, HERMIT_PATH, hermitEdgeMadness, hasPrevEdge } from "./hunter.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -215,7 +215,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     const used = own.filter(x => x.virtue === e.virtue && x.key !== key).reduce((s, x) => s + edgeCost(x.level), 0);
     const top = Math.max(0, ...own.filter(x => x.path === this.st.creed && x.key !== key).map(x => x.level));
     const out = [];
-    if (e.level > 1 && !have.has(`${e.path}|${e.level - 1}`)) out.push(t("Hunter.NeedPrev", { n: e.level - 1 }));
+    if (!hasPrevEdge(have, e)) out.push(t("Hunter.NeedPrev", { n: e.level - 1 }));
     if (used + edgeCost(e.level) > this.hunterVirtue(e.virtue)) out.push(t("Hunter.NeedVirtue", { v: H.virtues[e.virtue], n: used + edgeCost(e.level) }));
     if (edgeBarred(this.st.creed, key)) out.push(t("Hunter.Barred", { creed: this.creedData?.who ?? "" }));
     if (e.path !== this.st.creed && creedCapped(this.st.creed) && e.level > top) out.push(t("Hunter.NeedCreed", { n: top }));
@@ -646,11 +646,9 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     // Клановые черты и черты секты — только своего клана/секты: на своей вкладке и во «Всех»
     const myClan = this.type === "vampire" ? Codex.traitClan(st.clan) : "";
     const mySect = st.sectKey || Codex.sectKey(st.sect);
-    const line = this.isThrall ? "demon" : VTM20.traitLine(this.type);      // слуга берёт черты из книги падших, кроме инфернальных
-    const inCat = (m, cat) => !Codex.visible(m) || ((m.line ?? "") !== line && !(this.isHunter && !m.line)) || (this.isThrall && m.category === "infernal")
-      || (!!m.dhampir !== this.isDhampir && (m.dhampir || m.ghoul))      // черты дампиров — только дампиру; гулей (G&R) — не дампиру
-      || (m.mortal && !["mortal", "hunter"].includes(this.type))          // только для смертных (Vampire Players Guide 2003)
-      || (m.bystander && !this.isLost) ? false : cat === "clan" ? !!myClan && m.clan === myClan
+    // кому видна черта — VTM20.traitFor (то же правило, что в библиотеке); слуга берёт черты падших, кроме инфернальных
+    const who = { type: this.type, dhampir: this.isDhampir, lost: this.isLost, thrall: this.isThrall };
+    const inCat = (m, cat) => !Codex.visible(m) || !VTM20.traitFor(m, who) ? false : cat === "clan" ? !!myClan && m.clan === myClan
       : cat === "sect" ? !m.clan && !!mySect && m.sect === mySect
       : cat === "all" ? (!m.clan || (!!myClan && m.clan === myClan)) && (!m.sect || (!!mySect && m.sect === mySect))
       : !m.clan && !m.sect && m.category === cat;
@@ -839,9 +837,14 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
   static #onEdgeToggle(event, target) {
     const k = target.dataset.key, list = this.st.edges;
     if (list.includes(k)) {
-      // снять Грань — и все выше по тому же пути
-      const [path, lvl] = k.split("|");
-      this.st.edges = list.filter(x => !(x.startsWith(`${path}|`) && Number(x.split("|")[1]) >= Number(lvl)));
+      // снять Грань — и те выше по тому же пути, которым больше не на что опереться (у Граней книг кредо — свой уровень рядом)
+      const E = key => hunterData().edges.find(x => x.key === key);
+      let rest = list.filter(x => x !== k), changed = true;
+      while (changed) {
+        const keep = rest.filter(x => { const e = E(x); return !e || hasPrevEdge(rest, e); });
+        changed = keep.length !== rest.length; rest = keep;
+      }
+      this.st.edges = rest;
     } else {
       const why = this.edgeIssues(k);
       if (why.length) return ui.notifications.warn(why.join(" "));

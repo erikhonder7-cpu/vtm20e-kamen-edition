@@ -4,7 +4,7 @@
 // меняется, когда меняется справочник (например, «Описание / Система» в 1.3–1.4). Правки рассказчика живут в той же
 // копии, поэтому окно показывает, что изменится, и обновляет только отмеченное. Броски, цена, уровень и точки не трогаются.
 
-import { VTM20 } from "../config.mjs";
+import { VTM20, SYSTEM_ID } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
 import { ritualFields } from "../data/ritual-text.mjs";
 
@@ -116,6 +116,37 @@ export async function refreshItem(item) {
   if (!ok) return;
   await item.update(c.update);
   ui.notifications.info(t("Done", { n: 1 }));
+}
+
+/**
+ * Старые миры (вход рассказчика после обновления системы): на листах могут быть записи со старыми текстами и категориями.
+ * Раз на версию системы — окно со списком листов: обновить всё, пройти по листам (с выбором, как кнопкой листа) или позже.
+ */
+export async function offerWorldRefresh() {
+  if (!game.user.isGM || game.users.activeGM?.id !== game.user.id) return;
+  const ver = game.system.version;
+  if (game.settings.get(SYSTEM_ID, "refreshChecked") === ver) return;
+  await Codex.loadTexts();
+  const rows = game.actors.contents.map(a => ({ a, changes: a.items.contents.map(changeOf).filter(Boolean) })).filter(r => r.changes.length);
+  if (!rows.length) return game.settings.set(SYSTEM_ID, "refreshChecked", ver);
+  const list = rows.map(r => `<li><b>${esc(r.a.name)}</b> — ${r.changes.length}</li>`).join("");
+  const v = await foundry.applications.api.DialogV2.wait({
+    window: { title: t("WorldTitle", { v: ver }), icon: "fa-solid fa-book-open-reader" }, classes: ["vtm20", "r-dialog", "r-refresh"], position: { width: 480 },
+    content: `<p>${t("WorldHint", { n: rows.length })}</p><ul class="r-refresh-list">${list}</ul>`,
+    buttons: [
+      { action: "sheets", label: t("WorldBySheet"), icon: "fa-solid fa-list-check", default: true },
+      { action: "all", label: t("WorldAll"), icon: "fa-solid fa-rotate" },
+      { action: "later", label: t("WorldLater") },
+      { action: "skip", label: t("WorldSkip") }
+    ]
+  }).catch(() => "later");
+  if (v === "all") {
+    for (const r of rows) await r.a.updateEmbeddedDocuments("Item", r.changes.map(c => ({ _id: c.item.id, ...c.update })));
+    ui.notifications.info(t("WorldDone", { n: rows.reduce((s, r) => s + r.changes.length, 0), a: rows.length }));
+  } else if (v === "sheets") {
+    for (const r of rows) await refreshActor(r.a);
+  }
+  if (v !== "later") await game.settings.set(SYSTEM_ID, "refreshChecked", ver);
 }
 
 /** Можно ли сверить предмет со справочником (для кнопки в листе предмета). */

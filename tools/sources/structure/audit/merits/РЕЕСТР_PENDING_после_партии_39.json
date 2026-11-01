@@ -1,0 +1,87 @@
+[
+  {
+    "kind": "merit",
+    "category": "supernatural",
+    "name": "Прометеева глина",
+    "en": "Promethean Clay",
+    "cost": "5",
+    "min": 5,
+    "max": 5,
+    "clan": "",
+    "sect": "",
+    "era": "darkAges",
+    "source_title": "Players Guide to High Clans",
+    "source_ref": "“Merits and Flaws”, printed p. 207.",
+    "status": "pending_primary_text",
+    "reason": "An OWbN Tzimisce packet identifies Promethean Clay as a 5-point merit from Players Guide to the High Clans, p. 207, but the recoverable mechanics are a conversion/paraphrase rather than the book text. The current V20 Lore of the Clans card is not an acceptable substitute: its recorded effect differs. Do not merge into the master until High Clans p. 207 is checked."
+  },
+  {
+    "source_title": "Libellus Sanguinis II: Keepers of the Word, White Wolf Publishing",
+    "original_name": "Closer Than Blood",
+    "kind": "merit",
+    "cost": "3–5",
+    "printed_page": 37,
+    "status": "pending_primary_visual_confirmation",
+    "reason": "Доступный первичный PDF-текст обрывается посреди описания. Полное продолжение найдено в OCR-копии скана того же издания. Текстовые ступени 3 и 5 точек внесены с явной оговоркой; для 4 точек отдельный эффект не описан и не придуман. Нужна визуальная проверка исходной страницы."
+  },
+  {
+    "source_title": "Libellus Sanguinis II: Keepers of the Word, White Wolf Publishing",
+    "original_name": "Fury’s Focus",
+    "kind": "merit",
+    "cost": "3",
+    "printed_page": 100,
+    "status": "source_internal_contradiction",
+    "reason": "Вводное описание говорит, что персонаж не способен сопротивляться зову Зверя, но далее система описывает бросок Самоконтроля/Инстинктов «to resist frenzy». Противоречие отражено в карточке; для разъяснения нужна отдельная редакторская/печатная сверка, но текст не переписан по догадке."
+  },
+  {
+    "source_title": "Libellus Sanguinis III: Wolves at the Door, White Wolf Publishing",
+    "original_name": "Pied Piper",
+    "kind": "flaw",
+    "cost": "2–4",
+    "printed_page": 28,
+    "status": "pending_primary_visual_confirmation",
+    "reason": "Заголовок OCR повреждён и читается как PEDPIPER; рабочее чтение Pied Piper поддержано перекрёстными указателями. Двухколоночный текст OCR повреждён; визуальная проверка оригинальной страницы необходима для окончательного подтверждения границ текста."
+  },
+  {
+    "source_title": "Libellus Sanguinis IV: Thieves in the Night, White Wolf Publishing",
+    "original_name": "Blood Bloat; Feeding Tongue; Legendary Accomplishment; Blessed; Touched by the Ancients; Glossolalia",
+    "status": "pending_primary_source_verification",
+    "reason": "Все шесть карточек остаются в базе с пометкой о вторичной полной транскрипции и перекрёстном указателе. Прямой полный текст издательского PDF и растровые страницы для независимой проверки в текущем проходе недоступны; не повышать их source_status без первичного экземпляра."
+  },
+  {
+    "source_title": "Clanbook: Tzimisce (Revised Edition)",
+    "original_name": "Dracon’s Temperament",
+    "kind": "merit",
+    "cost": "3",
+    "printed_page": 69,
+    "status": "pending_primary_visual_confirmation",
+    "reason": "The OCR column heading reads “DRAGON”, while the exact title Dracon’s Temperament is supported by a secondary transcription/index. The description and system are read from the source text layer, but the printed heading needs visual confirmation."
+  },
+  {
+    "source_title": "Clanbook: Lasombra (Revised Edition)",
+    "original_name": "Controllable Night Sight; Uncontrollable Night Sight; Pelagic Compulsion",
+    "status": "pending_original_english_visual_confirmation",
+    "reason": "The source mechanics and printed Russian-translation pages 134–136 were checked from a digital transcription of the Russian translation. The English original pages 63–65 were not independently visually checked; retain this lower source-confidence label until a primary English page image is inspected."
+  },
+  {
+    "source_title": "Clanbook: Brujah (Revised Edition)",
+    "original_name": "Compassionate; Dynamic Personality; Obvious Predator; Uncontrollable",
+    "printed_pages": "68–69",
+    "status": "pending_primary_visual_confirmation",
+    "reason": "Три карточки добавлены на основании нескольких согласующихся вторичных транскрипций и указателей, одна совпадающая запись связана с уже имеющейся карточкой. Требуется сверка оригинальных печатных страниц 68–69; отдельно проверить фиксированную цену 2 XP у Dynamic Personality против цены текущего уровня в V20 Lore of the Clans."
+  },
+  {
+    "source_title": "Clanbook: Malkavian (Revised Edition)",
+    "original_name": "Immaculate Aura; Benevolent Blood; Deadened Nerves; Disembodied Mentor; Sympathetic Bond; Stigmata; Infectious",
+    "printed_pages": "64–66",
+    "status": "pending_primary_visual_confirmation",
+    "reason": "Английский настольный текст и печатные маркеры страниц извлечены из цифровой копии. Растровые изображения страниц не проверялись визуально. Механика MET System исключена; в карточках описан только tabletop-текст."
+  },
+  {
+    "source_title": "Clanbook: Assamite (Revised Edition)",
+    "original_name": "UnBroken",
+    "printed_page": 76,
+    "status": "pending_primary_visual_confirmation",
+    "reason": "Английский настольный текст и маркер печатной с. 76 извлечены из цифровой копии. Растровая страница не проверялась визуально. Прежнее указание о том, что Fortitude не защищает, удалено как часть MET System."
+  }
+]

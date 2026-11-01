@@ -11,8 +11,33 @@ const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`
 /** Ниже этого запаса крови вампир голоден (V20, 05). */
 export const HUNGER_BELOW = 5;
 
+/** Поводы к Безумию гулей и дампиров (Accursed Heirs, гл. 1; по образцу Ghouls: Fatal Addiction): ключ → сложность. */
+export const GHOUL_PROVOCATIONS = [
+  ["insult", 3], ["intoxication", 3], ["arousal", 3, "rapture"], ["beaten", 4], ["lovedOne", 4],
+  ["privateHumiliation", 4], ["intimacy", 4, "rapture"], ["publicHumiliation", 5], ["lethal", 5], ["rejection", 6]
+];
+
+/** Выбор повода перед проверкой гуля или дампира; null — отмена, 0 — «иное» (прежнее правило). */
+async function pickProvocation(kind) {
+  const list = GHOUL_PROVOCATIONS.filter(p => kind !== "rapture" || p[2] === "rapture");
+  const buttons = list.map(([k, d], i) => ({ action: k, label: `${t(`Provocation.${k}`)} — ${d}`, default: i === 0 }));
+  if (kind === "frenzy") buttons.push({ action: "other", label: t("Provocation.other") });
+  const v = await foundry.applications.api.DialogV2.wait({
+    window: { title: t(kind === "rapture" ? "Roll.rapture.title" : "Roll.frenzy.title") }, classes: ["vtm20", "r-dialog", "r-provocation"],
+    position: { width: 460 }, content: `<p>${t("Provocation.Hint")}</p>`, buttons
+  }).catch(() => null);
+  if (!v) return null;
+  return v === "other" ? 0 : list.find(p => p[0] === v)?.[1] ?? 0;
+}
+
 /** Окно проверки ярости (Самоконтроль) или Ротшрека (Мужество). difficulty — сложность по событию, без поправок клана. */
-export function rollVirtueCheck(actor, kind, { difficulty = 6 } = {}) {
+export async function rollVirtueCheck(actor, kind, { difficulty = 6, fromPrompt = false } = {}) {
+  // гуль и дампир: сложность — по поводу из таблицы (без поправки «−3» — таблица уже для гулей)
+  let table = 0;
+  if (actor.type === "ghoul" && (kind === "frenzy" || kind === "rapture") && !fromPrompt) {
+    table = await pickProvocation(kind);
+    if (table === null) return null;
+  }
   // Дампир (Accursed Heirs, гл. 1, «Жажда крови»): против Безумия — не больше кубиков Самоконтроля, чем крови в запасе
   const bloodlust = () => {
     if (!actor.isDhampir) return {};
@@ -25,7 +50,7 @@ export function rollVirtueCheck(actor, kind, { difficulty = 6 } = {}) {
     return RollDialog.prompt(actor, {
       title: t("Roll.frenzy.title"), trait1: "virtues.selfControl", reflexive: true, kind: "frenzy",
       extra: { atavism: VTM20.atavismClans.includes(actor.system.clan) },
-      difficulty: Math.max(2, difficulty + (brujah ? 2 : 0) - (actor.type === "ghoul" ? 3 : 0)), noWillpower: brujah, lockTraits: true,
+      difficulty: table ? table : Math.max(2, difficulty + (brujah ? 2 : 0) - (actor.type === "ghoul" ? 3 : 0)), noWillpower: brujah, lockTraits: true,
       ...bloodlust()
     });
   }
@@ -33,7 +58,7 @@ export function rollVirtueCheck(actor, kind, { difficulty = 6 } = {}) {
   // интимная близость — 4 (таблица поводов к Безумию гулей и дампиров)
   if (kind === "rapture") return RollDialog.prompt(actor, {
     title: t("Roll.rapture.title"), trait1: "virtues.selfControl", reflexive: true, kind: "rapture", lockTraits: true,
-    difficulty: difficulty === 6 ? 3 : difficulty, ...bloodlust(),
+    difficulty: table || (difficulty === 6 ? 3 : difficulty), ...bloodlust(),
     diffNote: [bloodlust().diffNote, `<i class="fa-solid fa-heart-pulse"></i> ${t("Roll.rapture.note")}`].filter(Boolean).join("<br>")
   });
   if (kind === "degeneration") return RollDialog.prompt(actor, { title: t("Roll.degeneration.title"), trait1: "virtues.conscience", reflexive: true, kind: "degeneration", difficulty, noWillpower: true, lockTraits: true });
@@ -59,5 +84,5 @@ export async function rollFromPrompt(message) {
   const p = message.getFlag(SYSTEM_ID, "checkPrompt");
   const actor = p && await foundry.utils.fromUuid(p.actorUuid);
   if (!actor?.isOwner) return ui.notifications.warn(t("CheckPrompt.NotOwner"));
-  return rollVirtueCheck(actor, p.kind, { difficulty: p.difficulty });
+  return rollVirtueCheck(actor, p.kind, { difficulty: p.difficulty, fromPrompt: true });
 }

@@ -140,6 +140,7 @@
       <span class="r-edge-sigil"><i class="fa-solid fa-droplet"></i></span>
       <span class="r-edge-title" data-tooltip="{{text}}"><b>{{name}}</b> <small>{{en}}{{#if req}} · {{req}}{{/if}}{{#if rare}} · {{localize "VTM20.Dhampir.Rare"}}{{/if}}</small></span>
       {{> rDots dots=dots cls="is-disc"}}
+      {{#if @root.editable}}{{#if xp}}<a class="r-buy" data-action="buy" data-path="system.dhampir.bloodrights.{{key}}" data-kind="bloodright" data-label="{{name}}" data-tooltip="{{localize 'VTM20.Xp.Buy'}}: {{xp}}"><i class="fa-solid fa-plus"></i></a>{{/if}}{{/if}}
       {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="bloodrightRemove" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-trash"></i></a>{{/if}}
     </header>
     <ul class="r-edge-list">

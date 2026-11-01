@@ -47,6 +47,7 @@ export function dhampirView(actor, dots) {
     // у растущих прав (Крепь, Спешка, Сила жил) одна запись — свойство, сила которого — точки
     const powers = r.scaling ? [{ ...r.levels[0], level, on: level > 0 }] : r.levels.map(p => ({ ...p, on: p.level <= level }));
     return { key, name: r.name, en: r.en, text: r.text, rare: r.rare, req: r.key === "dririmancy" ? t("BloodMagic") : label(r.req),
+      xp: actor.xpCost("bloodright", level),
       dots: dots(level, 3, { path: `system.dhampir.bloodrights.${key}` }),
       powers: powers.map(p => ({ ...p, pool: poolLabel(p.roll) })) };
   }).filter(Boolean).sort((a, b) => a.rare - b.rare || a.name.localeCompare(b.name, "ru"));
@@ -65,7 +66,11 @@ export async function addBloodright(actor, key) {
   if (!r) return null;
   if (!meetsReq(actor, r) && !game.user.isGM) return ui.notifications.warn(t("NeedReq", { d: Codex.disciplineLabel?.(r.req) ?? r.req }));
   if (r.rare) ui.notifications.info(t("RareNote", { name: r.name }));
-  return actor.update({ [`system.dhampir.bloodrights.${key}`]: 1 });
+  // новое право — за опыт (7); рассказчик без опыта у персонажа может выдать даром
+  const path = `system.dhampir.bloodrights.${key}`;
+  if ((actor.system.experience?.available ?? 0) >= 7 || !game.user.isGM) return actor.buyWithXp({ path, kind: "bloodright", label: r.name });
+  await actor.update({ [path]: 1 });
+  return ui.notifications.info(t("GrantedFree", { name: r.name }));
 }
 
 export async function removeBloodright(actor, key) {

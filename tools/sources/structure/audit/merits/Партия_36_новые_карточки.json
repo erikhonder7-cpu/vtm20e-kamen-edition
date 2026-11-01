@@ -1,0 +1,187 @@
+{
+  "batch": 36,
+  "title": "Players Guide to High Clans — completion of merits and flaws audit",
+  "baseline_file": "VTM20e_Kamen_merits_batches_01_02_03_04_05_06_07_08_09_10_11_12_13_14_15_16_17_18_19_20_21_22_23_24_25_26_27_28_29_30_31_32_33_34_35.json",
+  "baseline_count": 1120,
+  "after_count": 1125,
+  "added_count": 5,
+  "updated_count": 1,
+  "added": [
+    {
+      "kind": "flaw",
+      "category": "physical",
+      "name": "Гниение",
+      "en": "Bloodrot",
+      "cost": "1 / 3",
+      "min": 1,
+      "max": 3,
+      "clan": "",
+      "sect": "",
+      "era": "darkAges",
+      "source": "Players Guide to High Clans",
+      "html": "<p><strong>Описание</strong></p><p>Неживая плоть персонажа медленно разрушается: кожа и вены чернеют и покрываются плесенью. Болезнь не заразна, однако в цивилизованном обществе покрытое гнилью лицо вызывает у других Каинитов такое же социальное отторжение, как проказа, если персонаж не прилагает усилий, чтобы скрыть его.</p><p><strong>Система</strong></p><p>Внешность персонажа не может быть выше 1. Каждый раз при пробуждении в сумерках он получает 3 кубика непоглощаемого летального урона. В цивилизованном обществе его внешний вид вызывает те же социальные затруднения, что и недостаток Leprosy, если гниение не скрыто. Стоимость — 3 точки; для Носферату и других вампиров с чудовищной внешностью — 1 точка.</p><p><strong>Источник</strong></p><p>Players Guide to High Clans; Players Guide to High Clans, “Merits and Flaws”, printed printed pp. 203–204.</p><p><em>Сверено по доступной англоязычной текстовой транскрипции раздела Merits and Flaws и сопоставлено с независимыми указателями. Растровые страницы оригинала визуально не проверены. Русский текст — редакционный пересказ KAMEN; транскрипция не выдаётся за скан оригинала.</em></p>",
+      "description_text": "Неживая плоть персонажа медленно разрушается: кожа и вены чернеют и покрываются плесенью. Болезнь не заразна, однако в цивилизованном обществе покрытое гнилью лицо вызывает у других Каинитов такое же социальное отторжение, как проказа, если персонаж не прилагает усилий, чтобы скрыть его.",
+      "system_text": "Внешность персонажа не может быть выше 1. Каждый раз при пробуждении в сумерках он получает 3 кубика непоглощаемого летального урона. В цивилизованном обществе его внешний вид вызывает те же социальные затруднения, что и недостаток Leprosy, если гниение не скрыто. Стоимость — 3 точки; для Носферату и других вампиров с чудовищной внешностью — 1 точка.",
+      "source_html_original": "Англоязычная текстовая транскрипция; в карточке хранится редакционный пересказ, а не дословная цитата.",
+      "source_title": "Players Guide to High Clans",
+      "source_ref": "Players Guide to High Clans, “Merits and Flaws”, printed printed pp. 203–204.",
+      "source_status": "Сверено по доступной англоязычной текстовой транскрипции раздела Merits and Flaws и сопоставлено с независимыми указателями. Растровые страницы оригинала визуально не проверены. Русский текст — редакционный пересказ KAMEN; транскрипция не выдаётся за скан оригинала."
+    },
+    {
+      "kind": "merit",
+      "category": "mental",
+      "name": "Особая способность",
+      "en": "Ability Aptitude",
+      "cost": "1",
+      "min": 1,
+      "max": 1,
+      "clan": "",
+      "sect": "",
+      "era": "darkAges",
+      "source": "Players Guide to High Clans",
+      "html": "<p><strong>Описание</strong></p><p>Персонаж особенно одарён в одной конкретной Способности — например, в поэзии или мастерстве плоти.</p><p><strong>Система</strong></p><p>В рамках выбранной Способности сложность всех соответствующих бросков уменьшается на 2. Достоинство можно приобретать несколько раз, выбирая новую Способность каждый раз. Рассказчик может отклонить чрезмерно сильный или несбалансированный выбор, особенно если он связан с боевыми Способностями.</p><p><strong>Источник</strong></p><p>Players Guide to High Clans; Players Guide to High Clans, “Merits and Flaws”, printed printed p. 204.</p><p><em>Сверено по доступной англоязычной текстовой транскрипции раздела Merits and Flaws и сопоставлено с независимыми указателями. Растровые страницы оригинала визуально не проверены. Русский текст — редакционный пересказ KAMEN; транскрипция не выдаётся за скан оригинала.</em></p>",
+      "description_text": "Персонаж особенно одарён в одной конкретной Способности — например, в поэзии или мастерстве плоти.",
+      "system_text": "В рамках выбранной Способности сложность всех соответствующих бросков уменьшается на 2. Достоинство можно приобретать несколько раз, выбирая новую Способность каждый раз. Рассказчик может отклонить чрезмерно сильный или несбалансированный выбор, особенно если он связан с боевыми Способностями.",
+      "source_html_original": "Англоязычная текстовая транскрипция; в карточке хранится редакционный пересказ, а не дословная цитата.",
+      "source_title": "Players Guide to High Clans",
+      "source_ref": "Players Guide to High Clans, “Merits and Flaws”, printed printed p. 204.",
+      "source_status": "Сверено по доступной англоязычной текстовой транскрипции раздела Merits and Flaws и сопоставлено с независимыми указателями. Растровые страницы оригинала визуально не проверены. Русский текст — редакционный пересказ KAMEN; транскрипция не выдаётся за скан оригинала.",
+      "related_sources": [
+        {
+          "source_title": "Dark Ages: Player's Guide to Low Clans",
+          "source_ref": "Chapter 4, “Blessings of Unclean Blood”, printed p. 186.",
+          "relationship": "parallel_entry_same_name_and_core_effect; separate source card",
+          "source_status": "separate Dark Ages book; do not merge records"
+        }
+      ]
+    },
+    {
+      "kind": "merit",
+      "category": "supernatural",
+      "name": "Личная аура",
+      "en": "Personal Aura",
+      "cost": "2",
+      "min": 2,
+      "max": 2,
+      "clan": "",
+      "sect": "",
+      "era": "darkAges",
+      "source": "Players Guide to High Clans",
+      "html": "<p><strong>Описание</strong></p><p>Персонаж не излучает ауру, связанную с его Дорогой. Вместо неё его аура отражает более глубокую сторону его Натуры или личности.</p><p><strong>Система</strong></p><p>Персонаж может выбрать ауру, связанную с любой Дорогой, либо разработать собственную с одобрения Рассказчика. Модификатор ауры рассчитывается на основе постоянного значения Силы воли.</p><p><strong>Источник</strong></p><p>Players Guide to High Clans; Players Guide to High Clans, “Merits and Flaws”, printed printed p. 207.</p><p><em>Сверено по доступной англоязычной текстовой транскрипции раздела Merits and Flaws и сопоставлено с независимыми указателями. Растровые страницы оригинала визуально не проверены. Русский текст — редакционный пересказ KAMEN; транскрипция не выдаётся за скан оригинала.</em></p>",
+      "description_text": "Персонаж не излучает ауру, связанную с его Дорогой. Вместо неё его аура отражает более глубокую сторону его Натуры или личности.",
+      "system_text": "Персонаж может выбрать ауру, связанную с любой Дорогой, либо разработать собственную с одобрения Рассказчика. Модификатор ауры рассчитывается на основе постоянного значения Силы воли.",
+      "source_html_original": "Англоязычная текстовая транскрипция; в карточке хранится редакционный пересказ, а не дословная цитата.",
+      "source_title": "Players Guide to High Clans",
+      "source_ref": "Players Guide to High Clans, “Merits and Flaws”, printed printed p. 207.",
+      "source_status": "Сверено по доступной англоязычной текстовой транскрипции раздела Merits and Flaws и сопоставлено с независимыми указателями. Растровые страницы оригинала визуально не проверены. Русский текст — редакционный пересказ KAMEN; транскрипция не выдаётся за скан оригинала.",
+      "related_sources": [
+        {
+          "source_title": "Dark Ages: Player's Guide to Low Clans",
+          "source_ref": "Chapter 4, “Blessings of Unclean Blood”, printed p. 188.",
+          "relationship": "parallel_entry_same_name_and_core_effect; separate source card",
+          "source_status": "separate Dark Ages book; do not merge records"
+        }
+      ]
+    },
+    {
+      "kind": "merit",
+      "category": "supernatural",
+      "name": "Вундеркинд Дисциплины",
+      "en": "Discipline Prodigy",
+      "cost": "5",
+      "min": 5,
+      "max": 5,
+      "clan": "",
+      "sect": "",
+      "era": "darkAges",
+      "source": "Players Guide to High Clans",
+      "html": "<p><strong>Описание</strong></p><p>Персонаж особенно искусен в применении одной из своих клановых Дисциплин.</p><p><strong>Система</strong></p><p>Сложность применения любого уровня выбранной Дисциплины уменьшается на 1, но не может стать ниже 4. Достоинство можно приобрести только один раз; оно не даёт преимуществ при использовании техник Дисциплин. Для знатоков Колдовства Кольдуна или других форм магии крови это снижение сложности распространяется на все Пути и ритуалы.</p><p><strong>Источник</strong></p><p>Players Guide to High Clans; Players Guide to High Clans, “Merits and Flaws”, printed printed p. 207.</p><p><em>Сверено по доступной англоязычной текстовой транскрипции раздела Merits and Flaws и сопоставлено с независимыми указателями. Растровые страницы оригинала визуально не проверены. Русский текст — редакционный пересказ KAMEN; транскрипция не выдаётся за скан оригинала.</em></p>",
+      "description_text": "Персонаж особенно искусен в применении одной из своих клановых Дисциплин.",
+      "system_text": "Сложность применения любого уровня выбранной Дисциплины уменьшается на 1, но не может стать ниже 4. Достоинство можно приобрести только один раз; оно не даёт преимуществ при использовании техник Дисциплин. Для знатоков Колдовства Кольдуна или других форм магии крови это снижение сложности распространяется на все Пути и ритуалы.",
+      "source_html_original": "Англоязычная текстовая транскрипция; в карточке хранится редакционный пересказ, а не дословная цитата.",
+      "source_title": "Players Guide to High Clans",
+      "source_ref": "Players Guide to High Clans, “Merits and Flaws”, printed printed p. 207.",
+      "source_status": "Сверено по доступной англоязычной текстовой транскрипции раздела Merits and Flaws и сопоставлено с независимыми указателями. Растровые страницы оригинала визуально не проверены. Русский текст — редакционный пересказ KAMEN; транскрипция не выдаётся за скан оригинала.",
+      "related_sources": [
+        {
+          "source_title": "Dark Ages: Player's Guide to Low Clans",
+          "source_ref": "Chapter 4, “Blessings of Unclean Blood”, printed pp. 188–189.",
+          "relationship": "parallel_entry_same_name; High Clans transcription has explicit blood-sorcery clause",
+          "source_status": "separate Dark Ages book; do not merge records"
+        }
+      ]
+    },
+    {
+      "kind": "merit",
+      "category": "supernatural",
+      "name": "Таинственность",
+      "en": "Arcane",
+      "cost": "1–5",
+      "min": 1,
+      "max": 5,
+      "clan": "",
+      "sect": "",
+      "era": "darkAges",
+      "source": "Players Guide to High Clans",
+      "html": "<p><strong>Описание</strong></p><p>Персонаж мистически неуловим: обстоятельства и чужое безразличие словно скрывают его от внимания и памяти окружающих. Люди, которые его видят, редко запоминают встречу.</p><p><strong>Система</strong></p><p>За каждую вложенную точку вычитается 1 кубик из любого пула, используемого для активного поиска персонажа (обычно Восприятие и/или Расследование). Это не делает его невидимым и не помогает проверкам Скрытности или иным активным попыткам спрятаться. Персонажи с Влиянием или Статусом не могут приобретать это достоинство, и наоборот. Оно также может мешать другим Фонам: например, Наставник может потерять интерес к ученику, которого никто не замечает.</p><p><strong>Источник</strong></p><p>Players Guide to High Clans; Players Guide to High Clans, “Merits and Flaws”, printed printed pp. 207–208.</p><p><em>Сверено по доступной англоязычной текстовой транскрипции раздела Merits and Flaws и сопоставлено с независимыми указателями. Растровые страницы оригинала визуально не проверены. Русский текст — редакционный пересказ KAMEN; транскрипция не выдаётся за скан оригинала.</em></p>",
+      "description_text": "Персонаж мистически неуловим: обстоятельства и чужое безразличие словно скрывают его от внимания и памяти окружающих. Люди, которые его видят, редко запоминают встречу.",
+      "system_text": "За каждую вложенную точку вычитается 1 кубик из любого пула, используемого для активного поиска персонажа (обычно Восприятие и/или Расследование). Это не делает его невидимым и не помогает проверкам Скрытности или иным активным попыткам спрятаться. Персонажи с Влиянием или Статусом не могут приобретать это достоинство, и наоборот. Оно также может мешать другим Фонам: например, Наставник может потерять интерес к ученику, которого никто не замечает.",
+      "source_html_original": "Англоязычная текстовая транскрипция; в карточке хранится редакционный пересказ, а не дословная цитата.",
+      "source_title": "Players Guide to High Clans",
+      "source_ref": "Players Guide to High Clans, “Merits and Flaws”, printed printed pp. 207–208.",
+      "source_status": "Сверено по доступной англоязычной текстовой транскрипции раздела Merits and Flaws и сопоставлено с независимыми указателями. Растровые страницы оригинала визуально не проверены. Русский текст — редакционный пересказ KAMEN; транскрипция не выдаётся за скан оригинала.",
+      "related_sources": [
+        {
+          "source_title": "Dark Ages: Player's Guide to Low Clans",
+          "source_ref": "Chapter 4, “Blessings of Unclean Blood”, printed p. 187.",
+          "relationship": "parallel_entry_same_name_and_core_effect; separate source card",
+          "source_status": "separate Dark Ages book; do not merge records"
+        },
+        {
+          "source_title": "V20 The Black Hand: A Guide to the Tal’Mahe’Ra",
+          "source_ref": "printed p. 177.",
+          "relationship": "later/reprinted related entry; separate edition and source card",
+          "source_status": "separate V20-era book; do not merge records"
+        }
+      ]
+    }
+  ],
+  "updated": [
+    {
+      "index_before_append": 1084,
+      "en": "Poor Digestion",
+      "field": "source_ref/html/source_status",
+      "old_source_ref": "“Merits and Flaws”, printed p.203.",
+      "new_source_ref": "Players Guide to High Clans, “Merits and Flaws”, printed p. 204.",
+      "reason": "Independent source index places Poor Digestion on printed p. 204, not p. 203."
+    }
+  ],
+  "pending_primary_verification": [
+    {
+      "kind": "merit",
+      "category": "supernatural",
+      "name": "Прометеева глина",
+      "en": "Promethean Clay",
+      "cost": "5",
+      "min": 5,
+      "max": 5,
+      "clan": "",
+      "sect": "",
+      "era": "darkAges",
+      "source_title": "Players Guide to High Clans",
+      "source_ref": "“Merits and Flaws”, printed p. 207.",
+      "status": "pending_primary_text",
+      "reason": "An OWbN Tzimisce packet identifies Promethean Clay as a 5-point merit from Players Guide to the High Clans, p. 207, but the recoverable mechanics are a conversion/paraphrase rather than the book text. The current V20 Lore of the Clans card is not an acceptable substitute: its recorded effect differs. Do not merge into the master until High Clans p. 207 is checked."
+    }
+  ],
+  "validation": {
+    "master_count": 1125,
+    "merits": 541,
+    "flaws": 584,
+    "high_clans_cards_after_merge": 48,
+    "high_clans_merits": 28,
+    "high_clans_flaws": 20,
+    "duplicate_keys_in_high_clans_source": 0,
+    "primary_visual_scan_checked": false
+  }
+}

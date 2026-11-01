@@ -182,6 +182,33 @@ EDGES = [
      "или −1 к Воле или Интеллекту навсегда. Провал — сам Отшельник получает расстройство или теряет пункт Интеллекта. "
      "Раз в день; Отшельники и Скитальцы неподвластны; древних чудовищ рассказчик может избавить."),
 ]
+# Грани из книг кредо — вторая пятёрка того же пути: ключ «путь|уровень|книга», цена и бюджет как у основных,
+# прежний уровень — любая Грань пути (edgeReasons). Hunter Book: Visionary (2001), гл. 3 «Messages from Above».
+BOOK_EDGES = [
+    ("visionary", 1, "vb", "Сосредоточение", A("charisma"), 6, 0, False,
+     "Тихий разговор один на один возвращает упавшему духом наделённому веру: если его Убеждённость ниже начальной для его "
+     "кредо, при успехе она поднимается до начальной. Ход на обоих, больше никаких действий. Людное место — сл. 8, бой — 9; "
+     "если охотники в ссоре — +1, если цель поддерживает великую идею Провидца — −1. Для остальных мир будто отступает."),
+    ("visionary", 2, "vb", "Призыв", A("manipulation"), 7, 0, False,
+     "Знак сбора (не меньше двух футов, на стене, щите, полу или машине) становится маяком: все наделённые в миле за точку "
+     "Прозрения чуют ветер, который тянет к знаку, — идти или нет, решают сами. Час за успех; неудача — просто знак, провал — "
+     "ложный след (рассказчик может бросать тайно). Знак стёрт — маяк гаснет. Раз за главу."),
+    ("visionary", 3, "vb", "Воодушевление", A("charisma"), 8, 0, False,
+     "Речь перед схваткой — не меньше трёх ходов, слушатели должны внимать и не быть против мечты Провидца. Успехи — пул "
+     "Убеждённости, который сразу делится между слушателями (себе — нельзя). Отдельный пул: тратится в эту или следующую сцену, "
+     "не меняется на Добродетель, выше 10 не поднимает. Перебили — не сработало."),
+    ("visionary", 4, "vb", "Единство", A("wits"), 6, 1, False,
+     "Час обходить место и продумывать встречу, затем начертить знак единства. Ярд радиуса за успех: охотники, не враждебные "
+     "цели Провидца, внутри круга до конца сцены видят вторым зрением и защищены от ментальных атак без траты Убеждённости, "
+     "а сложности бросков Граней у них −1 (цена Граней не меняется). Враждебное действие против наделённого внутри или "
+     "испорченный знак — круг рушится для всех. Один круг за раз; держится, даже если Провидец пал."),
+    ("visionary", 5, "vb", "Предопределение", A("manipulation"), 7, 2, False,
+     "Как Предвидение, но для чудовища в поле зрения: каждый успех — один дополнительный бросок для его действия в эту главу. "
+     "Объявить до броска рассказчика; он бросает дважды и описывает оба исхода, игрок выбирает (даже если оба плохи). Только "
+     "простые действия одним броском (атаки); не больше одного лишнего броска на действие; людей и охотников не берёт. "
+     "Риск Убеждённости даёт ещё попытки."),
+]
+BOOKS = {"vb": "Hunter Book: Visionary"}
 PATH_VIRTUE = {"innocence": "mercy", "martyrdom": "mercy", "redemption": "mercy", "visionary": "vision",
                "defense": "zeal", "judgment": "zeal", "vengeance": "zeal", "hermit": "vision"}
 ROLL_ABILITY = {"vengeance|1": "abilities.melee"}   # Рассечение — обычная атака
@@ -384,12 +411,17 @@ ARCHETYPES = [
 
 def build():
     edges = []
-    for path, lvl, name, attr, diff, cost, passive, text in EDGES:
-        key = f"{path}|{lvl}"
-        edges.append({"key": key, "path": path, "virtue": PATH_VIRTUE[path], "level": lvl, "name": name,
-                      "roll": None if passive else {"trait1": attr or "", "trait2": ROLL_ABILITY.get(key, f"hunter.{PATH_VIRTUE[path]}"),
-                                                    "difficulty": diff or 6, "byTarget": diff is None},
-                      "conviction": cost, "text": text})
+    rows = [(p, l, None, *r) for p, l, *r in EDGES] + BOOK_EDGES
+    for path, lvl, book, name, attr, diff, cost, passive, text in rows:
+        key = f"{path}|{lvl}" + (f"|{book}" if book else "")
+        e = {"key": key, "path": path, "virtue": PATH_VIRTUE[path], "level": lvl, "name": name,
+             "roll": None if passive else {"trait1": attr or "", "trait2": ROLL_ABILITY.get(key, f"hunter.{PATH_VIRTUE[path]}"),
+                                           "difficulty": diff or 6, "byTarget": diff is None},
+             "conviction": cost, "text": text}
+        if book: e["book"] = BOOKS[book]
+        edges.append(e)
+    order = list(dict.fromkeys(e["path"] for e in edges))
+    edges.sort(key=lambda e: (order.index(e["path"]), e["level"]))   # грань из книги — рядом с основной того же уровня
     for b in BACKGROUNDS:
         b.update({"line": "hunter", "source": "Hunter: The Reckoning", "min": 1, "max": 5})
         if b["en"] in ("Destiny", "Patron"):    # Свидетелям недоступны (Players Guide, гл. 1)

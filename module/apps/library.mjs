@@ -298,13 +298,9 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
       return { group: m.category, cat: m.category, groupOrder: cats.indexOf(m.category),
         groupName: game.i18n.localize(VTM20.meritCategories[m.category]?.label ?? m.category) };
     };
-    const dhampir = !!this.actor?.isDhampir;                  // черты дампиров — только дампиру, черт гулей (G&R) у него нет
-    const ghoulOk = !this.actor || (this.actor.type === "ghoul" && !dhampir);
-    const line = VTM20.traitLine(this.actor?.type);           // у демона — только черты падших, у прочих — без них
-    const hunter = this.actor?.type === "hunter";             // охотнику — и общие черты смертных, и охотничьи
-    const lost = isLost(this.actor);                          // черты Свидетелей — только Свидетелю
-    return Codex.merits.filter(m => m.kind === kind && Codex.visible(m) && (!m.ghoul || ghoulOk) && (!m.dhampir || dhampir) && (!m.mortal || ["mortal", "hunter"].includes(this.actor?.type ?? "mortal")) && ((m.line ?? "") === line || (hunter && !m.line))
-      && (!m.bystander || lost)).map(m => {
+    // кому видна черта — VTM20.traitFor (то же правило, что в мастере создания)
+    const who = { type: this.actor?.type, dhampir: !!this.actor?.isDhampir, lost: isLost(this.actor) };
+    return Codex.merits.filter(m => m.kind === kind && Codex.visible(m) && VTM20.traitFor(m, who)).map(m => {
       const costs = costsOf(m);
       const blocker = blockerFor(m.name, mine);
       return this.#entry({
@@ -357,7 +353,7 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
         id: String(i), name: e.name, has: mine.has(e.key), text: `<p><em>${a ? poolLabel(a, e) : ""}${cost}</em></p><p>${e.text}</p>`,
         group: e.path, groupName: `${c?.name ?? e.path} · ${H.virtues[e.virtue]}`, groupOrder: e.path === creed ? -1 : order.indexOf(e.path),
         level: e.level, levels: String(e.level), order: e.level, roman: ROMAN[e.level - 1],
-        tags: [{ label: H.virtues[e.virtue] }], reasons: a?.type === "hunter" && !mine.has(e.key) ? edgeReasons(a, e.key) : []
+        tags: [{ label: H.virtues[e.virtue] }, ...(e.book ? [{ label: e.book }] : [])], reasons: a?.type === "hunter" && !mine.has(e.key) ? edgeReasons(a, e.key) : []
       });
     });
   }

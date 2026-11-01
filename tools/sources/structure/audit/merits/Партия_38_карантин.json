@@ -1,0 +1,17 @@
+[
+  {
+    "source_title": "Clanbook: Tzimisce (Revised Edition)",
+    "original_name": "Dracon’s Temperament",
+    "kind": "merit",
+    "cost": "3",
+    "printed_page": 69,
+    "status": "pending_primary_visual_confirmation",
+    "reason": "The OCR column heading reads “DRAGON”, while the exact title Dracon’s Temperament is supported by a secondary transcription/index. The description and system are read from the source text layer, but the printed heading needs visual confirmation."
+  },
+  {
+    "source_title": "Clanbook: Lasombra (Revised Edition)",
+    "original_name": "Controllable Night Sight; Uncontrollable Night Sight; Pelagic Compulsion",
+    "status": "pending_original_english_visual_confirmation",
+    "reason": "The source mechanics and printed Russian-translation pages 134–136 were checked from a digital transcription of the Russian translation. The English original pages 63–65 were not independently visually checked; retain this lower source-confidence label until a primary English page image is inspected."
+  }
+]

@@ -187,6 +187,7 @@ export class GhoulData extends BaseActorData {
       // Дампир (Accursed Heirs: Dhampirs): концепция, Предок-вампир и его клан, Кровные права (ключ → 1–3), ритуалы Дриримантии
       dhampir: new SchemaField({
         concept: str(), antecedent: str(), antecedentClan: str(),
+        vitae: int(0, 0, 20),            // витэ вампира сверх своего запаса — дампир-гуль («Gast»)
         bloodrights: new ObjectField({ initial: {} }),
         rituals: new ArrayField(str())
       }),
@@ -215,7 +216,9 @@ export class GhoulData extends BaseActorData {
       const antiquity = bg("Antiquity"), effluence = bg("Effluence");
       this.blood.max = 10 + antiquity;
       this.blood.perTurn = effluence >= 5 ? 2 : 1;
-      this.disciplineMax = Math.max(effluence >= 4 ? 2 : 1, this.domitor ? this.disciplineMax : 1);
+      // гуль-дампир: пока есть витэ вампира — предел по поколению донора
+      this.disciplineMax = Math.max(effluence >= 4 ? 2 : 1, (this.dhampir?.vitae ?? 0) > 0 ? this.disciplineMax : 1);
+      this.gast = (this.dhampir?.vitae ?? 0) > 0;
     }
     this.blood.value = Math.min(this.blood.value, this.blood.max);
   }

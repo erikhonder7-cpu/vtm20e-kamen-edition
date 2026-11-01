@@ -167,7 +167,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       clanAtlas: VtMActorSheet.#onClanAtlas,
       linSire: VtMActorSheet.#onLinSire,
       edgeUse: VtMActorSheet.#onEdgeUse, edgeDel: VtMActorSheet.#onEdgeDel, hunterSight: VtMActorSheet.#onHunterSight,
-      bloodrightAdd: VtMActorSheet.#onBloodrightAdd, bloodrightRemove: VtMActorSheet.#onBloodrightRemove,
+      drinkVitae: VtMActorSheet.#onDrinkVitae, setVitae: VtMActorSheet.#onSetVitae, bloodrightAdd: VtMActorSheet.#onBloodrightAdd, bloodrightRemove: VtMActorSheet.#onBloodrightRemove,
       bloodrightRoll: VtMActorSheet.#onBloodrightRoll, dririToggle: VtMActorSheet.#onDririToggle, dririRoll: VtMActorSheet.#onDririRoll,
       hunterTest: VtMActorSheet.#onHunterTest, hunterTrade: VtMActorSheet.#onHunterTrade, hunterRestore: VtMActorSheet.#onHunterRestore,
       hunterDeed: VtMActorSheet.#onHunterDeed, hunterShift: VtMActorSheet.#onHunterShift, hunterCash: VtMActorSheet.#onHunterCash,
@@ -722,6 +722,11 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static #onBloodrightAdd(event, target) {
     const key = target.closest(".r-toolbar")?.querySelector(".r-dh-add")?.value;
     return key ? addBloodright(this.actor, key) : null;
+  }
+  static #onDrinkVitae() { return this.actor.drinkVitae(1); }
+  static #onSetVitae(event, target) {
+    const v = Math.max(0, (this.actor.system.dhampir?.vitae ?? 0) + Number(target.dataset.n));
+    return this.actor.update({ "system.dhampir.vitae": v });
   }
   static #onBloodrightRemove(event, target) { return removeBloodright(this.actor, target.dataset.key); }
   static #onBloodrightRoll(event, target) { return rollBloodright(this.actor, target.dataset.key, Number(target.dataset.level)); }

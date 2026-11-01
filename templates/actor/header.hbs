@@ -124,8 +124,10 @@
         <span>{{localize "VTM20.Sheet.PerTurn"}} <b>{{system.blood.perTurn}}</b></span>
         <a data-action="spendBlood" data-tooltip="{{localize 'VTM20.Sheet.SpendBlood'}}"><i class="fa-solid fa-minus"></i></a>
         <a data-action="bloodHeal" data-tooltip="{{localize 'VTM20.Sheet.HealHint'}}"><i class="fa-solid fa-hand-holding-droplet"></i></a>
+        {{#if isDhampir}}<a data-action="drinkVitae" data-tooltip="{{localize 'VTM20.Dhampir.DrinkHint'}}"><i class="fa-solid fa-wine-glass"></i></a>{{/if}}
         {{#if anyBoost}}<a data-action="clearBoosts" data-tooltip="{{localize 'VTM20.Sheet.ClearBoosts'}}"><i class="fa-solid fa-rotate-left"></i></a>{{/if}}
       </div>
+      {{#if isDhampir}}{{#if system.dhampir.vitae}}<div class="r-assignat-meta r-dh-vitae" data-tooltip="{{localize 'VTM20.Dhampir.VitaeHint'}}"><span>{{localize "VTM20.Dhampir.Vitae"}} <b>{{system.dhampir.vitae}}</b></span>{{#if editable}}<a data-action="setVitae" data-n="-1"><i class="fa-solid fa-minus"></i></a>{{/if}}</div>{{/if}}{{/if}}
       <div class="r-boosts">
         {{#each boosts}}<a class="r-boost-chip {{#if value}}is-on{{/if}}" data-action="boost" data-attr="{{key}}" data-tooltip="{{label}}: {{localize 'VTM20.Sheet.BoostHint'}}">{{short}}{{#if value}} <b>+{{value}}</b>{{/if}}</a>{{/each}}
       </div>

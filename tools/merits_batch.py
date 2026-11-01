@@ -239,10 +239,10 @@ def main():
     if ghouls:
         cur = snap["merits-ghouls"]
         pairs, _, new = pair(cur, ghouls)
-        changed = sum(1 for i, j in pairs if {**ghouls[j], "ghoul": cur[i].get("ghoul", "True")} != cur[i])
+        changed = sum(1 for i, j in pairs if {**ghouls[j], "ghoul": cur[i].get("ghoul", True)} != cur[i])
         for i, j in pairs:
-            cur[i] = {**ghouls[j], "ghoul": cur[i].get("ghoul", "True")}
-        cur += [{**ghouls[j], "ghoul": "True"} for j in new]
+            cur[i] = {**ghouls[j], "ghoul": cur[i].get("ghoul", True)}
+        cur += [{**ghouls[j], "ghoul": True} for j in new]
         print(f"черты гулей: изменено {changed}, добавлено {len(new)} (всего {len(cur)})")
     print(f"черт: {before} → {len(out)}; повтор описания в системе убран: {report['fixed']}")
     if report["unresolved"]:

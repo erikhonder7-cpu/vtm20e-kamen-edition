@@ -1,0 +1,35 @@
+[
+  {
+    "source_title": "Libellus Sanguinis II: Keepers of the Word, White Wolf Publishing",
+    "original_name": "Closer Than Blood",
+    "kind": "merit",
+    "cost": "3–5",
+    "printed_page": 37,
+    "status": "pending_primary_visual_confirmation",
+    "reason": "Доступный первичный PDF-текст обрывается посреди описания. Полное продолжение найдено в OCR-копии скана того же издания. Текстовые ступени 3 и 5 точек внесены с явной оговоркой; для 4 точек отдельный эффект не описан и не придуман. Нужна визуальная проверка исходной страницы."
+  },
+  {
+    "source_title": "Libellus Sanguinis II: Keepers of the Word, White Wolf Publishing",
+    "original_name": "Fury’s Focus",
+    "kind": "merit",
+    "cost": "3",
+    "printed_page": 100,
+    "status": "source_internal_contradiction",
+    "reason": "Вводное описание говорит, что персонаж не способен сопротивляться зову Зверя, но далее система описывает бросок Самоконтроля/Инстинктов «to resist frenzy». Противоречие отражено в карточке; для разъяснения нужна отдельная редакторская/печатная сверка, но текст не переписан по догадке."
+  },
+  {
+    "source_title": "Libellus Sanguinis III: Wolves at the Door, White Wolf Publishing",
+    "original_name": "Pied Piper",
+    "kind": "flaw",
+    "cost": "2–4",
+    "printed_page": 28,
+    "status": "pending_primary_visual_confirmation",
+    "reason": "Заголовок OCR повреждён и читается как PEDPIPER; рабочее чтение Pied Piper поддержано перекрёстными указателями. Двухколоночный текст OCR повреждён; визуальная проверка оригинальной страницы необходима для окончательного подтверждения границ текста."
+  },
+  {
+    "source_title": "Libellus Sanguinis IV: Thieves in the Night, White Wolf Publishing",
+    "original_name": "Blood Bloat; Feeding Tongue; Legendary Accomplishment; Blessed; Touched by the Ancients; Glossolalia",
+    "status": "pending_primary_source_verification",
+    "reason": "Все шесть карточек остаются в базе с пометкой о вторичной полной транскрипции и перекрёстном указателе. Прямой полный текст издательского PDF и растровые страницы для независимой проверки в текущем проходе недоступны; не повышать их source_status без первичного экземпляра."
+  }
+]

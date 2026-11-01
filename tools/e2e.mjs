@@ -33,7 +33,11 @@ async function check(name, fn) {
   step = name;
   const before = errors.length;
   try {
-    await fn();
+    // зависшая проверка (окно ждёт ответа и т. п.) не должна вешать весь прогон
+    let timer;
+    await Promise.race([fn(), new Promise((_, rej) => { timer = setTimeout(() => rej(new Error("зависла: нет ответа за 3 минуты")), 180000); })])
+      .finally(() => clearTimeout(timer));
+    process.stdout.write(`… ${name}\n`);
     const fresh = errors.length - before;
     results.push({ name, ok: !fresh, note: fresh ? `ошибок в консоли: ${fresh}` : "" });
   } catch (e) {
@@ -94,6 +98,12 @@ try {
   await check("Система загружена", async () => {
     const v = await page.evaluate(() => [game.system.id, game.system.version, !!game.vtm20]);
     if (v[0] !== "vtm20e-kamen-edition" || !v[2]) throw new Error(`система ${v[0]}, game.vtm20 ${v[2]}`);
+    // окно «Справочник обновился» (offerWorldRefresh) — не мешает проверкам, которые жмут кнопки диалогов
+    await page.waitForTimeout(1500);
+    await page.evaluate(async () => {
+      for (const app of [...foundry.applications.instances.values()]) if (app.element?.classList.contains("r-refresh")) await app.close();
+      await game.settings.set(game.system.id, "refreshChecked", game.system.version);
+    });
   });
 
   // Персонаж для проверок: первый вампир мира, иначе временный (удаляется в конце)
@@ -907,6 +917,84 @@ try {
     if (!r.rapture || r.rot) throw new Error(`панель проверок: Безумие страсти ${r.rapture}, Ротшрек ${r.rot}`);
     if (!r.cls) throw new Error("лист без класса is-dhampir");
     if (!r.dhMerits) throw new Error("в библиотеке дампира нет его черт (Кулак Бога)");
+  });
+
+  // Опыт: покупка точки Дисциплины и Кровного права списывает опыт по ценам (V20 / Accursed Heirs), журнал пополняется
+  await check("Опыт: покупка Дисциплины и Кровного права", async () => {
+    const id = await temp("E2E — опыт", "vampire");
+    const r = await page.evaluate(async id => {
+      const a = game.actors.get(id);
+      await a.update({ "system.clan": "brujah", "system.experience.total": 60 });
+      const [d] = await a.createEmbeddedDocuments("Item", [{ name: "Мощь", type: "discipline", system: { key: "potence", value: 1 } }]);
+      const c1 = await a.buyWithXp({ doc: d, path: "system.value", kind: "discipline", confirm: false });
+      const out = { c1, val: d.system.value, spent: a.system.experience.spent, log: a.system.experience.log.length };
+      const g = await Actor.create({ name: "E2E — опыт дампира", type: "ghoul", system: { ghoulType: "dhampir", experience: { total: 20 } }, flags: { world: { e2e: true } } });
+      out.b1 = await g.buyWithXp({ path: "system.dhampir.bloodrights.abjurence", kind: "bloodright", label: "Отречение", confirm: false });
+      out.b2 = await g.buyWithXp({ path: "system.dhampir.bloodrights.abjurence", kind: "bloodright", label: "Отречение", confirm: false });
+      out.lvl = g.system.dhampir.bloodrights.abjurence; out.left = g.system.experience.available;
+      await g.delete();
+      return out;
+    }, id);
+    if (r.c1 !== 5 || r.val !== 2 || r.spent !== 5 || r.log < 1) throw new Error(`Мощь клана 1→2: ${JSON.stringify(r)}`);
+    if (r.b1 !== 7 || r.b2 !== 5 || r.lvl !== 2 || r.left !== 8) throw new Error(`Кровное право: ${JSON.stringify(r)}`);
+  });
+
+  // Бой нескольких участников: инициатива у всех, порядок по убыванию, ход переходит
+  await check("Бой: инициатива и ходы трёх участников", async () => {
+    const r = await page.evaluate(async () => {
+      const make = n => Actor.create({ name: `E2E — бой ${n}`, type: "vampire", flags: { world: { e2e: true } } });
+      const actors = [await make(1), await make(2), await make(3)];
+      const scene = game.scenes.viewed ?? game.scenes.contents[0];
+      const combat = await Combat.create({ scene: scene?.id ?? null, active: true });
+      await combat.createEmbeddedDocuments("Combatant", actors.map(a => ({ actorId: a.id, name: a.name })));
+      await combat.rollAll();
+      await combat.startCombat();
+      const inits = combat.turns.map(c => c.initiative);
+      const first = combat.combatant?.id; await combat.nextTurn();
+      const out = { n: combat.combatants.size, all: inits.every(v => Number.isFinite(v)),
+        sorted: inits.every((v, i) => i === 0 || inits[i - 1] >= v), moved: combat.combatant?.id !== first, round: combat.round };
+      await combat.delete(); await Actor.deleteDocuments(actors.map(a => a.id));
+      return out;
+    });
+    if (r.n !== 3 || !r.all || !r.sorted || !r.moved) throw new Error(JSON.stringify(r));
+  });
+
+  // Карта города: открывается и закрывается без ошибок
+  await check("Карта города открывается", async () => {
+    const r = await page.evaluate(async () => {
+      const C = await import(`/systems/${game.system.id}/module/ui/citymap.mjs`);
+      await C.openCity(); await new Promise(res => setTimeout(res, 2500));
+      const el = document.querySelector(".vtm20.r-city"), open = !!el?.classList.contains("open");
+      C.closeCity(); await new Promise(res => setTimeout(res, 400));
+      return { open };
+    });
+    if (!r.open) throw new Error("карта не открылась");
+  });
+
+  // Дампир-гуль и правило «кому видна черта»
+  await check("Дампир: витэ гуля, траты, видимость черт", async () => {
+    const r = await page.evaluate(async () => {
+      const { Codex } = await import(`/systems/${game.system.id}/module/data/codex.mjs`);
+      const { GHOUL_PROVOCATIONS } = await import(`/systems/${game.system.id}/module/dice/virtue-checks.mjs`);
+      const g = await Actor.create({ name: "E2E — гуль-дампир", type: "ghoul", system: { ghoulType: "dhampir", blood: { value: 10 } }, flags: { world: { e2e: true } } });
+      await g.drinkVitae(1);
+      const out = { vitae: g.system.dhampir.vitae, gast: g.system.gast };
+      await g.update({ "system.blood.value": 0 });
+      out.spent = await g.spendBlood(1, { limit: false }); out.vitaeAfter = g.system.dhampir.vitae;
+      await g.delete();
+      const see = (who, f) => Codex.merits.some(m => f(m) && VTM20.traitFor(m, who));
+      const VTM20 = CONFIG.VTM20;
+      out.vampGhoul = see({ type: "vampire" }, m => m.ghoul); out.ghoulGhoul = see({ type: "ghoul" }, m => m.ghoul);
+      out.dhGhoul = see({ type: "ghoul", dhampir: true }, m => m.ghoul); out.dhOwn = see({ type: "ghoul", dhampir: true }, m => m.dhampir);
+      out.vampMortal = see({ type: "vampire" }, m => m.mortal); out.mortalMortal = see({ type: "mortal" }, m => m.mortal);
+      out.prov = GHOUL_PROVOCATIONS.length;
+      return out;
+    });
+    if (r.vitae !== 1 || !r.gast) throw new Error(`витэ гуля: ${r.vitae}, гуль ${r.gast}`);
+    if (!r.spent || r.vitaeAfter !== 0) throw new Error(`трата из витэ: ${r.spent}, осталось ${r.vitaeAfter}`);
+    if (r.vampGhoul || !r.ghoulGhoul || r.dhGhoul || !r.dhOwn) throw new Error(`черты гулей/дампиров: ${JSON.stringify(r)}`);
+    if (r.vampMortal || !r.mortalMortal) throw new Error(`«только для смертных»: ${JSON.stringify(r)}`);
+    if (r.prov !== 10) throw new Error(`поводов к Безумию ${r.prov}`);
   });
 
   await check("Свидетель: мастер, Добродетели, рассудок, без Граней", async () => {

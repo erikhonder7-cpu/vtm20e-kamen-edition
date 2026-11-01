@@ -358,7 +358,7 @@
         <h3 class="r-h3">{{name}} <small>· {{virtue}}{{#if primary}} · {{localize "VTM20.Hunter.PrimaryPath"}}{{/if}}</small></h3>
         {{#each edges}}
         <a class="r-cr-edge {{#if on}}is-on{{/if}} {{#unless ok}}is-blocked{{/unless}}" data-action="edgeToggle" data-key="{{key}}" data-tooltip="{{#if why}}{{why}}{{else}}{{text}}{{/if}}">
-          <span class="r-cr-edge-lvl">{{rRoman level}}</span><b>{{name}}</b>{{#if mad}} <i class="fa-solid fa-brain" aria-hidden="true"></i>{{/if}}{{#if on}}<i class="fa-solid fa-check"></i>{{/if}}
+          <span class="r-cr-edge-lvl">{{rRoman level}}</span><b>{{name}}</b>{{#if book}} <small class="r-cr-edge-book" data-tooltip="{{book}}"><i class="fa-solid fa-book" aria-hidden="true"></i></small>{{/if}}{{#if mad}} <i class="fa-solid fa-brain" aria-hidden="true"></i>{{/if}}{{#if on}}<i class="fa-solid fa-check"></i>{{/if}}
         </a>
         {{/each}}
       </div>

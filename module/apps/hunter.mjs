@@ -36,6 +36,8 @@ export const isLost = actor => actor?.system?.hunter?.creed === "bystander";
 export const LOST_KEYS = ["courage", "reason", "selfControl"];
 export const creedOf = key => H().creeds.find(c => c.key === key) ?? null;
 export const edgeOf = key => H().edges.find(e => e.key === key) ?? null;
+/** Есть ли у охотника Грань того же пути уровнем ниже (основная или из книги кредо — любая). */
+export const hasPrevEdge = (keys, e) => e.level <= 1 || [...keys].some(k => { const x = edgeOf(k); return x?.path === e.path && x.level === e.level - 1; });
 /** Есть ли у кредо свой путь Граней (у потерянных кредо Players Guide — нет: Грани из чужих путей без потолка по своему). */
 export const hasOwnPath = creed => H().edges.some(e => e.path === creed);
 /** Ограничены ли чужие Грани высшей Гранью пути кредо: нет — у потерянных кредо (Players Guide; Hunter Book: Hermit). */
@@ -130,7 +132,7 @@ export function edgeReasons(actor, key) {
   if (have.has(key)) return [];
   if (isLost(actor)) return [t("LostNoEdges")];
   if (freeformOn()) return [t("FreeformNoTake")];                            // своих Граней нет — только воззвание
-  if (e.level > 1 && !have.has(`${e.path}|${e.level - 1}`)) out.push(t("NeedPrev", { n: e.level - 1 }));
+  if (!hasPrevEdge(have, e)) out.push(t("NeedPrev", { n: e.level - 1 }));
   const b = edgeBudget(actor), v = h[e.virtue] ?? 0;
   // за опытом Добродетель ограничивает лишь высший уровень, по книге — сумму цен Граней
   if (growth() === "xp") { if (e.level < 5 && e.level > levelCap(v)) out.push(t("NeedLevel", { v: H().virtues[e.virtue], n: needFor(e.level) })); }

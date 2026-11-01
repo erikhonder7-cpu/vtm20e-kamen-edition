@@ -259,14 +259,27 @@ export class VtMActor extends Actor {
     // Слабая кровь и Пятнадцатое поколение: любая трата вдвое (кроме ежевечерней — она в awaken)
     const doubled = this.doubleBloodCost;
     if (doubled) n *= 2;
-    if (cur < n) { ui.notifications.warn(t("Notify.NoBlood", { name: this.name })); return false; }
+    // гуль-дампир (Accursed Heirs): сначала своя кровь, витэ вампира — когда своя кончилась
+    const vitae = this.isDhampir ? this.system.dhampir?.vitae ?? 0 : 0;
+    if (cur + vitae < n) { ui.notifications.warn(t("Notify.NoBlood", { name: this.name })); return false; }
     const base = doubled ? n / 2 : n;
-    await this.update({ "system.blood.value": cur - n,
+    const fromVitae = Math.max(0, n - cur);
+    await this.update({ "system.blood.value": cur - (n - fromVitae), ...(fromVitae ? { "system.dhampir.vitae": vitae - fromVitae } : {}),
       ...(turnKey ? { [`flags.${SYSTEM_ID}.bloodTurn`]: { key: turnKey, n: spentTurn + base } } : {}) });
     if (cur >= 5 && cur - n < 5 && this.isVampire)
       import("../dice/virtue-checks.mjs").then(m => m.suggestCheck(this, "frenzy", { reason: t("CheckPrompt.Hunger", { n: cur - n }), difficulty: 6 }));
     if (doubled) this.#notice(`<i class="fa-solid fa-droplet"></i> ${t("Notify.BloodDoubled", { n })}`);
     else if (reason) this.#notice(`<i class="fa-solid fa-droplet"></i> ${t("Notify.BloodSpent", { n, reason })}`);
+    return true;
+  }
+
+  /** Дампир пьёт витэ вампира: сначала восполняется свой «заряд», излишек — витэ гуля (в желудке — 2, сверх — перебор). */
+  async drinkVitae(n = 1) {
+    if (!this.isDhampir) return null;
+    const b = this.system.blood, room = Math.max(0, b.max - b.value), own = Math.min(room, n), extra = n - own;
+    const vitae = (this.system.dhampir?.vitae ?? 0) + extra;
+    await this.update({ "system.blood.value": b.value + own, ...(extra ? { "system.dhampir.vitae": vitae } : {}) });
+    this.#notice(`<i class="fa-solid fa-droplet"></i> ${t(extra ? (vitae > 2 ? "Dhampir.VitaeOver" : "Dhampir.VitaeGast") : "Dhampir.VitaeCharge", { name: this.name, n: vitae })}`);
     return true;
   }
 
@@ -483,6 +496,8 @@ export class VtMActor extends Actor {
       }
       case "faith": return current * (this.system.earthbound ? 6 : 7);
       case "urge": return current * 2;                    // Потребность Привязанного (Earthbound, гл. 3)
+      // Кровное право дампира (Accursed Heirs, гл. 4): новое — 7, далее текущее × 5, не выше 3
+      case "bloodright": return current >= 3 ? null : current === 0 ? 7 : current * 5;
       // Охотник при росте за опыт (Players Guide, гл. 2): начальная Убеждённость и Добродетели охоты
       case "hunterConviction": case "hunterVirtue": case "lostVirtue": return hunterXpCost(this, kind, current, extra.key);
       default: return null;

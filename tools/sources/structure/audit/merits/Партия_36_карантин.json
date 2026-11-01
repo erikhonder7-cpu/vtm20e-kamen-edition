@@ -1,0 +1,18 @@
+[
+  {
+    "kind": "merit",
+    "category": "supernatural",
+    "name": "Прометеева глина",
+    "en": "Promethean Clay",
+    "cost": "5",
+    "min": 5,
+    "max": 5,
+    "clan": "",
+    "sect": "",
+    "era": "darkAges",
+    "source_title": "Players Guide to High Clans",
+    "source_ref": "“Merits and Flaws”, printed p. 207.",
+    "status": "pending_primary_text",
+    "reason": "An OWbN Tzimisce packet identifies Promethean Clay as a 5-point merit from Players Guide to the High Clans, p. 207, but the recoverable mechanics are a conversion/paraphrase rather than the book text. The current V20 Lore of the Clans card is not an acceptable substitute: its recorded effect differs. Do not merge into the master until High Clans p. 207 is checked."
+  }
+]

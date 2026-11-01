@@ -176,6 +176,23 @@ VTM20.meritCategories = {
 
 /** Линия черт и Дополнений типа персонажа: вампиры, гули и смертные — общая (""), у демонов своя (data/demon-*.json). */
 VTM20.traitLine = type => ["demon", "hunter"].includes(type) ? type : "";
+/**
+ * Кому видна черта (библиотека и мастер — одно правило). who: { type, dhampir, lost, thrall }; без type — библиотека без
+ * персонажа (общие черты, гулей и «только для смертных», без падших, охотников и дампиров).
+ *   · line — линия книги: «» вампиры, гули и смертные (охотник видит и её), «demon» падшие и слуги, «hunter» охотники;
+ *   · ghoul — Ghouls & Revenants: гулям (не дампирам); dhampir — только дампирам; mortal — смертным и охотникам;
+ *   · bystander — Свидетелям (Players Guide «Охотника»); слуге падшего — без инфернальных.
+ */
+VTM20.traitFor = (m, who = {}) => {
+  const line = who.thrall ? "demon" : VTM20.traitLine(who.type);
+  if ((m.line ?? "") !== line && !(who.type === "hunter" && !m.line)) return false;
+  if (who.thrall && m.category === "infernal") return false;
+  if (m.ghoul && who.type && !(who.type === "ghoul" && !who.dhampir)) return false;
+  if (m.dhampir && !who.dhampir) return false;
+  if (m.mortal && who.type && !["mortal", "hunter"].includes(who.type)) return false;
+  if (m.bystander && !who.lost) return false;
+  return true;
+};
 
 /** Знак типа персонажа (корешок листа, ворота создания, мастер), когда нет герба клана или секты. */
 VTM20.typeSigil = type => `systems/vtm20e-kamen-edition/assets/ui/${({ demon: "fallen-sigil", ghoul: "ghoul-sigil", mortal: "mortal-sigil", hunter: "hunter-sigil" })[type] ?? "vampire-sigil"}.svg`;

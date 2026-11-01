@@ -191,6 +191,8 @@ Hooks.once("ready", async () => {
   // до миграции: она запишет новую версию, а старый мир узнаём по старой
   if (await keepParis()) return;
   await migrateWorld();
+  // старые миры: записи на листах со старыми текстами — предложить обновить из справочника (раз на версию)
+  import("./module/apps/codex-refresh.mjs").then(m => m.offerWorldRefresh()).catch(e => console.error(e));
   // Нексус вместо ленты сцен и ночные часы (порт из vtm5e-kamen-edition)
   const mountPanels = () => { if (game.settings.get(SYSTEM_ID, "nexusNav")) initTopBar(); };
   mountPanels();
@@ -378,6 +380,7 @@ Hooks.on("renderChatMessageHTML", (message, html) => {
 /* ── Настройки ─────────────────────────────────────────────────────────── */
 
 function registerSettings() {
+  game.settings.register(SYSTEM_ID, "refreshChecked", { scope: "world", config: false, type: String, default: "" });
   game.settings.register(SYSTEM_ID, "era", {
     name: "VTM20.Settings.Era.Name", hint: "VTM20.Settings.Era.Hint",
     scope: "world", config: true, type: String, default: "revolution",
