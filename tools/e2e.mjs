@@ -1048,6 +1048,8 @@ try {
     };
     const dh = await mk("E2E — дампир игрока", "ghoul", { ghoulType: "dhampir", experience: { total: 7 }, blood: { value: 5 },
       dhampir: { antecedentClan: "brujah", bloodrights: {} } });
+    // Мощь 1 — у дампира с создания; «Мощь тела» (thew) без неё игроку не купить
+    await dh.createEmbeddedDocuments("Item", [{ name: "Мощь", type: "discipline", system: { key: "potence", value: 1 } }]);
     const hu = await mk("E2E — охотник игрока", "hunter", { hunter: { creed: "visionary", mercy: 1, vision: 3, zeal: 1, conviction: 5, edges: [] } });
     return { mine: mine.id, other: other.id, dh: dh.id, hu: hu.id };
   }, player.id);
