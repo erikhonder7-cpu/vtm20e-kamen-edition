@@ -46,8 +46,8 @@
     <section class="r-cl-sec">
       <h3>{{localize "VTM20.Demon.HouseLores"}} <b>{{lores.length}}</b></h3>
       {{#each lores}}
-      <details class="r-cl-trait"><summary><span>{{name}} <em>{{en}}</em></span><b>с. {{page}}</b></summary>
-        <div class="r-cl-trait-body"><ol class="r-hs-powers">{{#each powers}}<li><span class="r-hs-lvl">{{roman}}</span>{{name}} <em>с. {{page}}</em></li>{{/each}}</ol></div>
+      <details class="r-cl-trait"><summary><span>{{name}} <em>{{en}}</em></span><b>{{localize "VTM20.Sheet.PageShort" n=page}}</b></summary>
+        <div class="r-cl-trait-body"><ol class="r-hs-powers">{{#each powers}}<li><span class="r-hs-lvl">{{roman}}</span>{{name}} <em>{{localize "VTM20.Sheet.PageShort" n=page}}</em></li>{{/each}}</ol></div>
       </details>
       {{/each}}
     </section>
@@ -55,8 +55,8 @@
     <section class="r-cl-sec">
       <h3>{{localize "VTM20.Demon.CommonLores"}}</h3>
       {{#each common}}
-      <details class="r-cl-trait"><summary><span>{{name}} <em>{{en}}</em></span><b>с. {{page}}</b></summary>
-        <div class="r-cl-trait-body"><ol class="r-hs-powers">{{#each powers}}<li><span class="r-hs-lvl">{{roman}}</span>{{name}} <em>с. {{page}}</em></li>{{/each}}</ol></div>
+      <details class="r-cl-trait"><summary><span>{{name}} <em>{{en}}</em></span><b>{{localize "VTM20.Sheet.PageShort" n=page}}</b></summary>
+        <div class="r-cl-trait-body"><ol class="r-hs-powers">{{#each powers}}<li><span class="r-hs-lvl">{{roman}}</span>{{name}} <em>{{localize "VTM20.Sheet.PageShort" n=page}}</em></li>{{/each}}</ol></div>
       </details>
       {{/each}}
     </section>
@@ -91,7 +91,7 @@
           <p>{{text}}</p>
           {{#if high}}<p class="r-hs-high"><b>{{localize "VTM20.Demon.HofHigh"}}:</b> {{high}}</p>{{/if}}
           {{#if variants}}<p><b>{{localize "VTM20.Demon.HofVariants"}}:</b> {{variants}}</p>{{/if}}
-          <p class="r-hs-src">{{src}}{{#if page}}, с. {{page}}{{/if}}</p>
+          <p class="r-hs-src">{{src}}{{#if page}}, {{localize "VTM20.Sheet.PageShort" n=page}}{{/if}}</p>
         </div>
       </details>
       {{/each}}

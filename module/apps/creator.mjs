@@ -604,7 +604,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       return {
         key: k, name: d.name, en: d.en, value: v, inClan: this.inClan(k), sym: this.isDemon ? null : Codex.disciplineSymbol(k),
         icon: this.isDemon ? (d.house ? "fa-fire-flame-curved" : "fa-book") : VTM20.disciplineIcons[k] ?? "fa-droplet", dots: dotRow("disc", k),
-        powers: d.powers.filter(p => p.level <= Math.max(1, v) && p.level <= 5).map(p => ({ level: p.level, name: p.name, owned: p.level <= v })),
+        powers: d.powers.filter(p => p.level <= Math.max(1, v) && p.level <= 5).map(p => ({ level: p.level, name: p.name, en: p.en, owned: p.level <= v })),
         pathed: VTM20.pathDisciplines.includes(k)
       };
     }).sort((a, b) => (b.inClan - a.inClan) || a.name.localeCompare(b.name, "ru"));
@@ -722,8 +722,8 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       ctx.summary = {
         attrs: ctx.attrGroups.map(g => ({ label: g.label, list: g.list.map(x => ({ label: x.label, value: x.value })) })),
         abils: ctx.abilGroups.map(g => ({ label: g.label, list: g.list.filter(x => x.value > 0).map(x => ({ label: x.label, value: x.value })) })),
-        discs: ctx.discCards.filter(d => d.value > 0).map(d => ({ name: d.name, value: d.value, sym: d.sym })),
-        bgs: ctx.bgCards.filter(b => b.value > 0).map(b => ({ name: b.name, value: b.value })),
+        discs: ctx.discCards.filter(d => d.value > 0).map(d => ({ name: d.name, en: d.en, value: d.value, sym: d.sym })),
+        bgs: ctx.bgCards.filter(b => b.value > 0).map(b => ({ name: b.name, en: b.en, value: b.value })),
         virtues: ctx.virtues.map(v => ({ label: v.label, value: v.value })),
         merits: st.merits, flaws: st.flaws
       };

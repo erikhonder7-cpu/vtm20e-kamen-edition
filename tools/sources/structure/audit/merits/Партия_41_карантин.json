@@ -1,0 +1,28 @@
+[
+  {
+    "source_title": "Clanbook: Setites (1995; 2nd Edition-era source)",
+    "original_name": "Drug Resistance; Poisonous Bite; Addictive Blood; Scales; Forked Tongue; Heartless; Aura of the Wyrm",
+    "printed_page": 39,
+    "status": "pending_primary_visual_confirmation",
+    "reason": "Названия и цены всех семи traits поддерживаются доступным каталогом/перепечатками; для Aura of the Wyrm использовано вторичное описание. Требуется сверка оригинальной страницы 39. Не повышать source_status до первичной визуальной проверки."
+  },
+  {
+    "source_title": "Clanbook: Ravnos (Second Edition)",
+    "original_name": "Charmed Samadji; Family Allegiance; Phralmulo; Family Enmity; Marhime; Wuzho Enemy",
+    "printed_page": "43 vs 44",
+    "status": "pending_primary_visual_confirmation",
+    "reason": "Издание исправлено на Second Edition. Текущая карточная база указывает с. 43; один внешний указатель относит раздел к с. 44. Нужна проверка оригинальной страницы/скана."
+  },
+  {
+    "source_title": "Clanbook: Followers of Set Revised",
+    "original_name": "No dedicated priced M/F list identified in available contents/index",
+    "status": "pending_primary_scope_confirmation",
+    "reason": "Вывод основан на публичном содержании главы и доступном индексированном тексте; оригинальная книга не просмотрена целиком постранично. Не считать отсутствие записей окончательно доказанным без полного первичного текста."
+  },
+  {
+    "source_title": "Clanbook: Ravnos Revised",
+    "original_name": "No dedicated priced M/F list identified in available contents/index",
+    "status": "pending_primary_scope_confirmation",
+    "reason": "Содержание Revised описывает jati/castes, Disciplines, Path material and templates, but no priced M/F section. Оригинальная книга не просмотрена целиком постранично; не считать отсутствие окончательно доказанным без полного первичного текста."
+  }
+]

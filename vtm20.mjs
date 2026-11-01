@@ -477,6 +477,9 @@ function registerHelpers() {
   Handlebars.registerHelper("rSigned", n => (Number(n) > 0 ? `+${n}` : Number(n) < 0 ? `−${Math.abs(Number(n))}` : `${n}`));
   Handlebars.registerHelper("rEq", (a, b) => a === b);
   Handlebars.registerHelper("rRoman", n => toRoman(n));
+  // Имя записи справочника: при английском интерфейсе — английское (en), если оно есть; rAlt — второе имя для подписи
+  Handlebars.registerHelper("rName", x => VTM20.label(x));
+  Handlebars.registerHelper("rAlt", x => VTM20.altLabel(x));
   // Знак (герб, секта, Дисциплина) золотой маской: {{rSym sym "доп-класс"}}
   // Кому видно бросок: ряд значков вместо выпадающего списка; у выбранного — подпись. {{rModes messageModes}}
   Handlebars.registerHelper("rModes", list => {

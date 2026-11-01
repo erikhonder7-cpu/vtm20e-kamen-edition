@@ -36,10 +36,10 @@ export function groupsForScene(sceneId) {
 
 /* ── Группы (ГМ) ──────────────────────────────────────────────────────── */
 
-export async function createGroup(name = "Новый район") {
+export async function createGroup(name = game.i18n.localize("VTM20.Nexus.NewGroup")) {
   const list = cloneGroups();
   const g = {
-    id: foundry.utils.randomID(), name: String(name || "Район").trim() || "Район",
+    id: foundry.utils.randomID(), name: String(name || "").trim() || game.i18n.localize("VTM20.Nexus.Group"),
     color: DEFAULT_GROUP_COLOR, sceneIds: [], subgroups: [], order: list.length
   };
   list.push(g);
@@ -82,11 +82,11 @@ export async function removeSceneFromGroup(groupId, sceneId) {
 
 /* ── Подгруппы ────────────────────────────────────────────────────────── */
 
-export async function createSubgroup(groupId, name = "Подгруппа") {
+export async function createSubgroup(groupId, name = game.i18n.localize("VTM20.Nexus.Sub")) {
   const list = cloneGroups(); const g = list.find(x => x.id === groupId); if (!g) return;
   (g.subgroups ||= []).push({
     id: foundry.utils.randomID(),
-    name: String(name || "Подгруппа").trim() || "Подгруппа", sceneIds: []
+    name: String(name || "").trim() || game.i18n.localize("VTM20.Nexus.Sub"), sceneIds: []
   });
   await saveGroups(list);
 }

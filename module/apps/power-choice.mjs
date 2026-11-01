@@ -3,6 +3,7 @@
 // the Bloodlines). Выбор хранится в предмете Дисциплины: system.choices = { уровень: имя силы }.
 // Окно открывается само, когда точки Дисциплины доходят до уровня с выбором, и по кнопке на листе.
 
+import { VTM20 } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
 
 const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
@@ -39,20 +40,20 @@ export async function choosePower(item, level) {
   const opts = levelOptions(item.system.key, level, item.system.choices ?? {});
   if (!d || opts.length < 2) return null;
   const cur = item.system.choices?.[level];
-  const content = `<p class="r-choice-hint">На ${ROMAN[level - 1] ?? level} уровне ${esc(d.name)} несколько сил — персонаж знает одну.
-      Другую можно взять позже как новую способность того же уровня (по решению Рассказчика).</p>
+  const L = (k, data) => data ? game.i18n.format(`VTM20.PowerChoice.${k}`, data) : game.i18n.localize(`VTM20.PowerChoice.${k}`);
+  const content = `<p class="r-choice-hint">${L("Hint", { level: ROMAN[level - 1] ?? level, disc: esc(VTM20.label(d)) })}</p>
     <div class="r-choice-list">${opts.map((p, i) => `
       <label class="r-choice">
         <input type="radio" name="power" value="${esc(p.name)}" ${p.name === cur || (!cur && i === 0) ? "checked" : ""}>
         <span class="r-choice-head"><b>${esc(p.name)}</b>${p.en ? ` <em>${esc(p.en)}</em>` : ""}
-          <small>${esc(p.source || "V20")}${p.era ? " · Тёмные века" : ""}${p.anyLevel ? " · любой уровень VI–IX" : ""}</small></span>
-        <details class="r-choice-text"><summary>Описание</summary>${p.html ?? ""}</details>
+          <small>${esc(p.source || "V20")}${p.era ? ` · ${L("DarkAges")}` : ""}${p.anyLevel ? ` · ${L("AnyLevel")}` : ""}</small></span>
+        <details class="r-choice-text"><summary>${L("Desc")}</summary>${p.html ?? ""}</details>
       </label>`).join("")}</div>`;
   const picked = await foundry.applications.api.DialogV2.prompt({
-    window: { title: `${d.name}: сила ${ROMAN[level - 1] ?? level} уровня`, icon: "fa-solid fa-code-branch" },
+    window: { title: L("Title", { disc: VTM20.label(d), level: ROMAN[level - 1] ?? level }), icon: "fa-solid fa-code-branch" },
     classes: ["vtm20", "r-choice-dialog"], position: { width: 560 },
     content, rejectClose: false,
-    ok: { label: "Выбрать", icon: "fa-solid fa-check", callback: (event, button) => button.form.elements.power?.value ?? null }
+    ok: { label: L("Pick"), icon: "fa-solid fa-check", callback: (event, button) => button.form.elements.power?.value ?? null }
   });
   if (!picked) return null;
   await item.update({ [`system.choices.${level}`]: picked });

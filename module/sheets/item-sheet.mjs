@@ -73,7 +73,7 @@ export class VtMItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       weaponKindOptions: opts(VTM20.weaponKinds, s.kind),
       damageTypeOptions: opts(VTM20.damageTypes, s.damageType),
       descriptionHTML: await enrich(s.description),
-      disciplineName: discKey ? (discKey === "obtenebration" && item.type === "ritual" ? "Мистика Бездны" : Codex.disciplineLabel(discKey)) : "",
+      disciplineName: discKey ? (discKey === "obtenebration" && item.type === "ritual" ? game.i18n.localize("VTM20.Sheet.AbyssMysticism") : Codex.disciplineLabel(discKey)) : "",
       roman: ROMAN[(s.level ?? s.value) - 1] ?? String(s.level ?? s.value ?? ""),
       // книга — из шапки описания справочника («… · Источник: V20 Rites of the Blood»), её в окне прячем
       book: /Источник:\s*([^<·]+)/.exec(s.description ?? "")?.[1]?.trim() ?? "",
@@ -121,7 +121,7 @@ export class VtMItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       const houses = [...Codex.houses.map(h => [h.key, h.name]), ["bastion", loc("VTM20.DRitual.Bastion")], ["earthbound", loc("VTM20.DRitual.Earthbound")]];
       ctx.houseOptions = [{ value: "", label: "—", selected: !s.house }, ...houses.map(([value, label]) => ({ value, label, selected: value === s.house }))];
       ctx.houseName = houses.find(([k]) => k === s.house)?.[1] ?? "";
-      ctx.book = [s.source, s.page ? `с. ${s.page}` : ""].filter(Boolean).join(", ");
+      ctx.book = [s.source, s.page ? game.i18n.format("VTM20.Sheet.PageShort", { n: s.page }) : ""].filter(Boolean).join(", ");
       if (item.type === "demonRitual") {
         ctx.primaryName = s.primary?.key ? loreName(s.primary.key) : "—";
         ctx.primaryDots = "•".repeat(s.primary?.level ?? 0);
@@ -165,7 +165,7 @@ export class VtMItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       ctx.loreName = lore?.name ?? "";
       ctx.loreHouse = lore?.dark ? game.i18n.localize("VTM20.DRitual.Earthbound") : lore?.house ? Codex.house(lore.house)?.name : game.i18n.localize("VTM20.Demon.Common");
       ctx.loreOptions = Codex.lores.map(l => ({ value: l.key, label: l.name, selected: l.key === s.lore }));
-      ctx.book = [s.source, s.page ? `с. ${s.page}` : ""].filter(Boolean).join(", ");
+      ctx.book = [s.source, s.page ? game.i18n.format("VTM20.Sheet.PageShort", { n: s.page }) : ""].filter(Boolean).join(", ");
     }
     // Сила: комбинированная — требования и опыт из справочника
     if (item.type === "power") {

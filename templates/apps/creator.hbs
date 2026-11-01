@@ -298,11 +298,11 @@
       <div class="r-cr-disc {{#if inClan}}is-clan{{/if}}">
         <div class="r-cr-disc-head">
           <span class="r-disc-sigil">{{#if sym}}{{rSym sym}}{{else}}<i class="fa-solid {{icon}}"></i>{{/if}}</span>
-          <div class="r-cr-disc-title"><b>{{name}}</b><em>{{en}}{{#if inClan}} · {{@root.inClanLabel}}{{/if}}</em></div>
+          <div class="r-cr-disc-title"><b>{{rName this}}</b><em>{{rAlt this}}{{#if inClan}} · {{@root.inClanLabel}}{{/if}}</em></div>
           <span class="r-dots">{{#each dots}}<a class="r-dot r-cr-dot is-{{state}}" data-action="dot" data-kind="{{kind}}" data-key="{{key}}" data-n="{{n}}"></a>{{/each}}</span>
         </div>
         <ol class="r-cr-powers">
-          {{#each powers}}<li class="{{#if owned}}is-owned{{/if}}"><span>{{rRoman level}}</span> {{name}}</li>{{/each}}
+          {{#each powers}}<li class="{{#if owned}}is-owned{{/if}}"><span>{{rRoman level}}</span> {{rName this}}</li>{{/each}}
           {{#if pathed}}<li class="r-note">{{localize "VTM20.Creator.PathedNote"}}</li>{{/if}}
         </ol>
       </div>
@@ -326,7 +326,7 @@
           <div class="r-cr-bg {{#if on}}is-on{{/if}} {{#if open}}is-open{{/if}}">
             <div class="r-cr-bg-head">
               <a class="r-cr-take" data-action="bgToggle" data-name="{{name}}" data-tooltip="{{#if on}}{{localize 'VTM20.Creator.Drop'}}{{else}}{{localize 'VTM20.Creator.Take'}}{{/if}}"><i class="fa-solid {{#if on}}fa-check{{else}}fa-plus{{/if}}"></i></a>
-              <a class="r-cr-bg-name" data-action="read" data-key="bg:{{name}}"><b>{{name}}</b>{{#if sectLabel}} <small>{{sectLabel}}</small>{{/if}}{{#if bonus}} <small>{{localize "VTM20.Hunter.PatronFree" n=bonus}}</small>{{/if}}</a>
+              <a class="r-cr-bg-name" data-action="read" data-key="bg:{{name}}"><b>{{rName this}}</b>{{#if sectLabel}} <small>{{sectLabel}}</small>{{/if}}{{#if bonus}} <small>{{localize "VTM20.Hunter.PatronFree" n=bonus}}</small>{{/if}}</a>
               {{#if on}}<span class="r-dots">{{#each dots}}<a class="r-dot r-cr-dot is-{{state}}" data-action="dot" data-kind="{{kind}}" data-key="{{key}}" data-n="{{n}}"></a>{{/each}}</span>{{/if}}
               <a class="r-cr-readbtn" data-action="read" data-key="bg:{{name}}" data-tooltip="{{#if open}}{{localize 'VTM20.Creator.Collapse'}}{{else}}{{localize 'VTM20.Creator.Read'}}{{/if}}"><i class="fa-solid {{#if open}}fa-book{{else}}fa-book-open{{/if}}"></i></a>
             </div>
@@ -372,7 +372,7 @@
     <div class="r-cr-edges r-cr-bloodrights">
       {{#each brList}}
       <div class="r-cr-br {{#if n}}is-on{{/if}} {{#if favored}}is-favored{{/if}}" data-tooltip="{{text}}">
-        <b>{{name}}</b> <small>{{en}}{{#if req}} · {{req}} I{{/if}}{{#if rare}} · {{localize "VTM20.Dhampir.Rare"}}{{/if}}{{#if favored}} · {{localize "VTM20.Creator.BloodrightFavored"}}{{/if}}</small>
+        <b>{{rName this}}</b> <small>{{rAlt this}}{{#if req}} · {{req}} I{{/if}}{{#if rare}} · {{localize "VTM20.Dhampir.Rare"}}{{/if}}{{#if favored}} · {{localize "VTM20.Creator.BloodrightFavored"}}{{/if}}</small>
         <span class="r-dots">{{#each dots}}<a class="r-dot {{#if on}}is-filled{{/if}}" data-action="brSet" data-key="{{../key}}" data-n="{{i}}"></a>{{/each}}</span>
         <span class="r-cr-br-powers">{{powers}}</span>
       </div>
@@ -391,15 +391,15 @@
     <div class="r-cr-mfsum">
       <span>{{localize "VTM20.Sheet.Merits"}}: <b>{{meritPoints}}</b></span>
       <span>{{localize "VTM20.Sheet.Flaws"}}: <b>{{flawRaw}}</b>{{#if (gt flawRaw 7)}} ({{localize "VTM20.Creator.FlawCap"}}){{/if}}</span>
-      {{#each merits}}<span class="r-cr-picked is-merit">{{name}} {{#if ranged}}<input type="number" class="r-qty" data-field="merits.{{index}}.cost" value="{{cost}}" min="{{min}}" max="{{max}}">{{else}}({{cost}}){{/if}} <a data-action="mfToggle" data-kind="merit" data-name="{{name}}"><i class="fa-solid fa-xmark"></i></a></span>{{/each}}
-      {{#each flaws}}<span class="r-cr-picked is-flaw">{{name}} {{#if ranged}}<input type="number" class="r-qty" data-field="flaws.{{index}}.cost" value="{{cost}}" min="{{min}}" max="{{max}}">{{else}}({{cost}}){{/if}} <a data-action="mfToggle" data-kind="flaw" data-name="{{name}}"><i class="fa-solid fa-xmark"></i></a></span>{{/each}}
+      {{#each merits}}<span class="r-cr-picked is-merit">{{rName this}} {{#if ranged}}<input type="number" class="r-qty" data-field="merits.{{index}}.cost" value="{{cost}}" min="{{min}}" max="{{max}}">{{else}}({{cost}}){{/if}} <a data-action="mfToggle" data-kind="merit" data-name="{{name}}"><i class="fa-solid fa-xmark"></i></a></span>{{/each}}
+      {{#each flaws}}<span class="r-cr-picked is-flaw">{{rName this}} {{#if ranged}}<input type="number" class="r-qty" data-field="flaws.{{index}}.cost" value="{{cost}}" min="{{min}}" max="{{max}}">{{else}}({{cost}}){{/if}} <a data-action="mfToggle" data-kind="flaw" data-name="{{name}}"><i class="fa-solid fa-xmark"></i></a></span>{{/each}}
     </div>
     <div class="r-cr-mfgrid">
       {{#each mfCards}}
       <div class="r-cr-mf is-{{@root.ui.mfTab}} {{#if on}}is-on{{/if}} {{#if open}}is-open{{/if}}">
         <span class="r-cr-mf-cost" data-tooltip="{{#if (eq @root.ui.mfTab 'flaw')}}{{localize 'VTM20.Creator.FlawGives'}}{{else}}{{localize 'VTM20.Creator.MeritCosts'}}{{/if}}">{{cost}}</span>
         <div class="r-cr-mf-main">
-          <a class="r-cr-mf-title" data-action="read" data-key="{{key}}"><b>{{name}}</b>{{#if en}}<em>{{en}}</em>{{/if}}</a>
+          <a class="r-cr-mf-title" data-action="read" data-key="{{key}}"><b>{{rName this}}</b>{{#if (rAlt this)}}<em>{{rAlt this}}</em>{{/if}}</a>
           <span class="r-tag">{{cat}}</span>
           {{#if open}}<div class="r-cr-fulltext">{{{html}}}</div>
           {{else}}<p class="r-cr-preview" data-action="read" data-key="{{key}}">{{text}} <span>{{localize "VTM20.Creator.Read"}}</span></p>{{/if}}
@@ -515,12 +515,12 @@
       {{#each summary.attrs}}<div><h4 class="r-h4">{{label}}</h4>{{#each list}}<div class="r-cr-sumrow"><span>{{label}}</span><b>{{value}}</b></div>{{/each}}</div>{{/each}}
       {{#each summary.abils}}<div><h4 class="r-h4">{{label}}</h4>{{#each list}}<div class="r-cr-sumrow"><span>{{label}}</span><b>{{value}}</b></div>{{else}}<div class="r-note">—</div>{{/each}}</div>{{/each}}
       {{#if isHunter}}{{#unless isLost}}<div><h4 class="r-h4">{{localize "VTM20.Hunter.Edges"}}</h4>{{#each summary.edges}}<div class="r-cr-sumrow"><span>{{name}}</span><b>{{rRoman level}}</b></div>{{else}}<div class="r-note">—</div>{{/each}}</div>{{/unless}}{{/if}}
-      <div><h4 class="r-h4">{{discLabel}}</h4>{{#each summary.discs}}<div class="r-cr-sumrow"><span>{{name}}</span><b>{{value}}</b></div>{{else}}<div class="r-note">—</div>{{/each}}</div>
-      <div><h4 class="r-h4">{{bgLabel}}</h4>{{#each summary.bgs}}<div class="r-cr-sumrow"><span>{{name}}</span><b>{{value}}</b></div>{{else}}<div class="r-note">—</div>{{/each}}</div>
+      <div><h4 class="r-h4">{{discLabel}}</h4>{{#each summary.discs}}<div class="r-cr-sumrow"><span>{{rName this}}</span><b>{{value}}</b></div>{{else}}<div class="r-note">—</div>{{/each}}</div>
+      <div><h4 class="r-h4">{{bgLabel}}</h4>{{#each summary.bgs}}<div class="r-cr-sumrow"><span>{{rName this}}</span><b>{{value}}</b></div>{{else}}<div class="r-note">—</div>{{/each}}</div>
       <div><h4 class="r-h4">{{virtLabel}}</h4>{{#each summary.virtues}}<div class="r-cr-sumrow"><span>{{label}}</span><b>{{value}}</b></div>{{/each}}</div>
       <div><h4 class="r-h4">{{localize "VTM20.Sheet.Merits"}} / {{localize "VTM20.Sheet.Flaws"}}</h4>
-        {{#each summary.merits}}<div class="r-cr-sumrow"><span>{{name}}</span><b>{{cost}}</b></div>{{/each}}
-        {{#each summary.flaws}}<div class="r-cr-sumrow is-flaw"><span>{{name}}</span><b>−{{cost}}</b></div>{{/each}}</div>
+        {{#each summary.merits}}<div class="r-cr-sumrow"><span>{{rName this}}</span><b>{{cost}}</b></div>{{/each}}
+        {{#each summary.flaws}}<div class="r-cr-sumrow is-flaw"><span>{{rName this}}</span><b>−{{cost}}</b></div>{{/each}}</div>
     </div>
     {{#if problems.length}}
     <div class="r-cr-problems"><b>{{localize "VTM20.Creator.Problems"}}</b><ul>{{#each problems}}<li>{{this}}</li>{{/each}}</ul></div>

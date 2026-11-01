@@ -1040,7 +1040,16 @@ try {
       // клановая черта, взятая до категории «Клановые»
       { name: "Убийца на тысячу метров", type: "merit", system: { cost: 2, category: "physical", source: "Thousand Meter Killer", description: "<p>Старый текст.</p>" } }]);
     const other = await Actor.create({ name: "E2E — чужой лист", type: "vampire", ownership: { default: 0 }, flags: { world: { e2e: true } } });
-    return { mine: mine.id, other: other.id };
+    // дампир и охотник игрока: Кровные права за опыт, витэ, Грани по бюджету Добродетели (в т. ч. из книги кредо)
+    const SYS = game.system.id, mk = async (name, type, system) => {
+      const x = await Actor.create({ name, type, system, ownership: { default: 0, [uid]: 3 }, flags: { world: { e2e: true } } });
+      await x.setFlag(SYS, "created", true);
+      return x;
+    };
+    const dh = await mk("E2E — дампир игрока", "ghoul", { ghoulType: "dhampir", experience: { total: 7 }, blood: { value: 5 },
+      dhampir: { antecedentClan: "brujah", bloodrights: {} } });
+    const hu = await mk("E2E — охотник игрока", "hunter", { hunter: { creed: "visionary", mercy: 1, vision: 3, zeal: 1, conviction: 5, edges: [] } });
+    return { mine: mine.id, other: other.id, dh: dh.id, hu: hu.id };
   }, player.id);
   let pp = null;
   if (player) await check(`Игрок: вход (${player.name})`, async () => {
@@ -1114,9 +1123,50 @@ try {
       }, own.other);
       if (!r.hidden && (r.owner || r.canUpdate || r.visible)) throw new Error(`владение ${r.owner}, правка ${r.canUpdate}, виден ${r.visible}`);
     });
+
+    await check("Игрок: дампир — Кровное право за опыт, витэ", async () => {
+      const r = await pp.evaluate(async id => {
+        const SYS = game.system.id, a = game.actors.get(id), wait = ms => new Promise(res => setTimeout(res, ms));
+        const D = await import(`/systems/${SYS}/module/apps/dhampir.mjs`);
+        await a.sheet.render({ force: true }); await wait(800);
+        const out = { cls: a.sheet.element.classList.contains("is-dhampir"), list: !!a.sheet.element.querySelector(".r-dh-add") };
+        // покупка за опыт — окно подтверждения, жмём «да»
+        const buy = D.addBloodright(a, "thew"); await wait(600);
+        [...foundry.applications.instances.values()].find(x => x.constructor.name === "DialogV2" && x.rendered)?.element.querySelector("button[data-action=yes], footer button")?.click();
+        await buy; await wait(300);
+        out.thew = a.system.dhampir.bloodrights.thew ?? 0; out.xp = a.system.experience.available;
+        // опыта больше нет — игроку даром не выдаётся
+        await D.addBloodright(a, "fettle"); await wait(300);
+        out.free = a.system.dhampir.bloodrights.fettle ?? 0;
+        const b0 = a.system.blood.value; await a.drinkVitae(1); out.blood = a.system.blood.value - b0;
+        await a.sheet.close();
+        return out;
+      }, own.dh);
+      if (!r.cls || !r.list) throw new Error(`лист дампира у игрока: класс ${r.cls}, список прав ${r.list}`);
+      if (r.thew !== 1 || r.xp !== 0) throw new Error(`Кровное право за опыт: уровень ${r.thew}, опыта осталось ${r.xp}`);
+      if (r.free) throw new Error("игроку без опыта Кровное право выдано даром");
+      if (r.blood !== 1) throw new Error(`витэ не восполнило кровь: ${r.blood}`);
+    });
+
+    await check("Игрок: охотник — Грани по бюджету, Грань из книги кредо, второе зрение", async () => {
+      const r = await pp.evaluate(async id => {
+        const SYS = game.system.id, a = game.actors.get(id);
+        const H = await import(`/systems/${SYS}/module/apps/hunter.mjs`);
+        const out = {};
+        out.book = await H.takeEdge(a, "visionary|1|vb");                // Сосредоточение (Hunter Book: Visionary), 1 очко Прозрения
+        out.two = await H.takeEdge(a, "visionary|2");                   // прошлый уровень закрыт Гранью из книги; 1 + 2 = 3
+        out.three = H.edgeReasons(a, "visionary|3").length;              // бюджет Прозрения исчерпан
+        out.edges = [...a.system.hunter.edges];
+        const c0 = a.system.hunter.conviction; await H.secondSight(a); out.conv = c0 - a.system.hunter.conviction;
+        return out;
+      }, own.hu);
+      if (!r.book || !r.two) throw new Error(`Грани: из книги ${r.book}, II уровень ${r.two} (${r.edges.join(", ")})`);
+      if (!r.three) throw new Error("Грань III взята сверх бюджета Прозрения");
+      if (r.conv !== 1) throw new Error(`второе зрение: −${r.conv} Убеждённости`);
+    });
     await pp.context().close();
   }
-  if (own) await page.evaluate(ids => Actor.deleteDocuments([ids.mine, ids.other].filter(id => game.actors.has(id))), own);
+  if (own) await page.evaluate(ids => Actor.deleteDocuments([ids.mine, ids.other, ids.dh, ids.hu].filter(id => game.actors.has(id))), own);
   if (player) await page.evaluate(id => game.users.get(id)?.delete(), player.id);
 
   await check("Новый мир: «Город» без Парижа", async () => {

@@ -1061,7 +1061,8 @@
       "sabbat": "Sabbat",
       "anarchs": "Anarchs",
       "independent": "Independents",
-      "autarkis": "Autarkis"
+      "autarkis": "Autarkis",
+      "inquisition": "Inquisition"
     },
     "Vinc": {
       "Title": "Vinculum",
@@ -1385,7 +1386,10 @@
       "Supernatural": "Soaks lethal damage",
       "DamageMarks": "Damage",
       "HealAggShort": "Heal ✱",
-      "ChooseDerangement": "— Derangement from the book —"
+      "ChooseDerangement": "— Derangement from the book —",
+      "ChoiceOf": "choice of {n} powers",
+      "PageShort": "p. {n}",
+      "AbyssMysticism": "Abyss Mysticism"
     },
     "Roll": {
       "DiffChosen": "{n} chosen",
@@ -2815,7 +2819,23 @@
       "LibertyYear": "Year {year} of Liberty",
       "Sansculottide": "sansculottide {n}, year {year}",
       "YearWord": "year",
-      "Republic": "By the Republican calendar"
+      "Republic": "By the Republican calendar",
+      "Days": "d",
+      "RepMonths": [
+        "Vendémiaire",
+        "Brumaire",
+        "Frimaire",
+        "Nivôse",
+        "Pluviôse",
+        "Ventôse",
+        "Germinal",
+        "Floréal",
+        "Prairial",
+        "Messidor",
+        "Thermidor",
+        "Fructidor"
+      ],
+      "RepDate": "{day} {month}, Year {year}"
     },
     "Topbar": {
       "NoScene": "— no scene —",
@@ -3466,6 +3486,19 @@
         "Undo": "Undo",
         "Done": "{name} — Final Death.",
         "Undone": "{name}: Final Death undone by the GM."
+      },
+      "Dur": {
+        "10": "1 day",
+        "9": "3 days",
+        "8": "1 week",
+        "7": "2 weeks",
+        "6": "1 month",
+        "5": "1 year",
+        "4": "10 years",
+        "3": "50 years",
+        "2": "100 years",
+        "1": "500 years",
+        "0": "1000+ years"
       }
     },
     "Timer": {
@@ -3811,6 +3844,14 @@
       "Roll": "Roll the check",
       "NotOwner": "Only whoever controls the character can roll the check.",
       "degeneration": "{name}: {reason} — a degeneration roll (Conscience, difficulty {n})."
+    },
+    "PowerChoice": {
+      "Hint": "Level {level} of {disc} has several powers — the character knows one. Another can be taken later as a new power of the same level (at the Storyteller's discretion).",
+      "Title": "{disc}: level {level} power",
+      "DarkAges": "Dark Ages",
+      "AnyLevel": "any level VI–IX",
+      "Desc": "Description",
+      "Pick": "Choose"
     }
   }
 }

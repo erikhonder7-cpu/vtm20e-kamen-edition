@@ -345,6 +345,33 @@ def translit(s):
     r = "".join(out)
     return r[:1].lower() + r[1:]
 
+# Английские имена линий крови, ветвей и антитрибу, которых нет в таблице кланов основной книги
+CLAN_EN = {
+    "angraMaynyu": "Angra Mainyu", "anda": "Anda", "baali": "Baali", "gorguli": "Gargoyles", "detiOsirisa": "Children of Osiris",
+    "docheriKakofonii": "Daughters of Cacophony", "istinnyeBruha": "True Brujah", "kappadokiytsy": "Cappadocians",
+    "kiasidy": "Kiasyd", "krovnyeBratya": "Blood Brothers", "lamii": "Lamia", "liannan": "Lhiannan", "nagaradzha": "Nagaraja",
+    "noyady": "Noiad", "predvestnikiCherepov": "Harbingers of Skulls", "salyubri": "Salubri", "samedi": "Samedi",
+    "viziriAssamitov": "Assamite Viziers", "charodeiAssamitov": "Assamite Sorcerers", "moreplavateli": "Mariners",
+    "tlatsik": "Tlacique", "brahmany": "Brahman", "uDzao": "Wu Zao", "telyaveli": "Telyav", "kolduny": "Koldun",
+    "staryyKlanTsimishov": "Old Clan Tzimisce", "assamityAntitribu": "Assamite antitribu", "bruhaAntitribu": "Brujah antitribu",
+    "ventruAntitribu": "Ventrue antitribu", "malkavianeAntitribu": "Malkavian antitribu", "malkavianeDominatory": "Dominate Malkavians",
+    "nosferatuAntitribu": "Nosferatu antitribu", "ravnosAntitribu": "Ravnos antitribu", "salyubriAntitribu": "Salubri antitribu",
+    "toreadorAntitribu": "Toreador antitribu", "tremerAntitribu": "Tremere antitribu", "gorodskieGangrely": "City Gangrel",
+    "dikieGangrely": "Country Gangrel", "zmeiSveta": "Serpents of the Light", "voinySeta": "Warriors of Set", "daytya": "Daitya",
+    "lasombraAntitribu": "Lasombra antitribu", "angelisAter": "Angellis Ater", "pandery": "Panders",
+}
+
+# Английские имена расстройств, фактов биографии и Путей, которых нет в справочнике
+EN_FILL = {
+    "Расстройство общественного устройства": "Social Order Disorder", "Скрытная жажда крови": "Hidden Bloodlust",
+    "Тауматургическая глоссолалия": "Thaumaturgical Glossolalia", "Истерическое расстройство личности": "Histrionic Personality Disorder",
+    "Посттравматическое стрессовое расстройство": "Post-Traumatic Stress Disorder", "Половая дисфункция": "Sexual Dysfunction",
+    "Агорафобия": "Agoraphobia", "Острое отвращение к крови": "Acute Sanguinary Aversion", "Мазохизм": "Masochism",
+    "Регрессия": "Regression", "Синестезия": "Synesthesia", "Меланхолик": "Melancholic", "Флегматик": "Phlegmatic",
+    "Сангвиник": "Sanguine", "Холерик": "Choleric", "Пляска Святого Вита": "St. Vitus' Dance", "Видения": "Visions", "Голоса": "Voices",
+    "Статус клана": "Clan Status", "Статус фракции": "Faction Status", "Западный Путь Парадокса": "Western Path of Paradox",
+}
+
 def parse_clans(path, disc):
     """Таблицы кланов, линий крови, ветвей и антитрибу из V20_Основные_правила/02."""
     by_ru = {}
@@ -984,6 +1011,11 @@ def main():
     import dhampir_data   # дампиры, гл. 3: Путь биотауматургии и силы старейшин (Accursed Heirs)
     dhampir_data.extend_disciplines(disc)
     dump_split("disciplines", disc)
+    # английские имена, которых нет в справочнике (для английского интерфейса); берутся, только если en пусто
+    for items in (derangements, backgrounds, paths if isinstance(paths, list) else paths.values()):
+        for x in items:
+            if isinstance(x, dict) and not x.get("en") and x.get("name") in EN_FILL:
+                x["en"] = EN_FILL[x["name"]]
     dump("derangements.json", derangements)
     dump_split("rituals", rituals)
     dump("combos.json", combos)
@@ -1007,6 +1039,8 @@ def main():
         have_keys = {c["key"] for c in clans}
         with open(manual, encoding="utf-8") as f:
             clans += [c for c in json.load(f) if c["key"] not in have_keys]
+    for c in clans:   # английские имена линий, которых нет в таблице основной книги (для английского интерфейса)
+        c["en"] = c.get("en") or CLAN_EN.get(c["key"], "")
     dump("clans.json", clans)
     archetypes = parse_archetypes(os.path.join(core, "01_Создание_персонажа_архетипы_опыт.md"))
     # архетипы V20 Anarchs Unbound (в справочнике таблицы нет) — по алфавиту среди основных

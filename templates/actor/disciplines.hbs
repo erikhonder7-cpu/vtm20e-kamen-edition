@@ -29,8 +29,8 @@
     <header class="r-disc-head">
       <span class="r-disc-sigil">{{#if sym}}{{rSym sym}}{{else}}<i class="fa-solid {{icon}}"></i>{{/if}}</span>
       <div class="r-disc-title">
-        <a class="r-disc-name" data-action="toggleRow" data-row-id="{{id}}">{{name}}</a>
-        <span class="r-disc-sub">{{#if en}}{{en}}{{/if}}{{#if inClan}} · <b>{{localize "VTM20.Sheet.InClan"}}</b>{{/if}}{{#if physical}} · +{{value}} {{localize "VTM20.Sheet.DiceTo"}} {{physical}}{{/if}}</span>
+        <a class="r-disc-name" data-action="toggleRow" data-row-id="{{id}}">{{rName this}}</a>
+        <span class="r-disc-sub">{{rAlt this}}{{#if inClan}} · <b>{{localize "VTM20.Sheet.InClan"}}</b>{{/if}}{{#if physical}} · +{{value}} {{localize "VTM20.Sheet.DiceTo"}} {{physical}}{{/if}}</span>
       </div>
       {{> rDots dots=dots cls="is-disc"}}
       <div class="r-disc-tools">
@@ -46,7 +46,7 @@
       {{!-- Лестница сил: уровни в медальонах на общей линии, следующая сила — бледной ступенькой --}}
       <div class="r-ladder">
         {{#each powers}}{{> rPower disc=../key}}{{/each}}
-        {{#if nextPower}}<div class="r-next"><span class="r-power-lvl">{{rRoman nextPower.level}}</span><span class="r-next-text">{{localize "VTM20.Sheet.NextPower"}}: <b>{{nextPower.name}}</b></span></div>{{/if}}
+        {{#if nextPower}}<div class="r-next"><span class="r-power-lvl">{{rRoman nextPower.level}}</span><span class="r-next-text">{{localize "VTM20.Sheet.NextPower"}}: <b>{{rName nextPower}}</b></span></div>{{/if}}
       </div>
       {{#if ownPowers.length}}<h4 class="r-h4">{{localize "VTM20.Sheet.OwnPowers"}}</h4>{{#each ownPowers}}{{> rPower cls="is-own"}}{{/each}}{{/if}}
 
@@ -55,7 +55,7 @@
       <div class="r-path {{#if primary}}is-primary{{/if}}" data-item-id="{{id}}">
         <div class="r-path-head">
           <a class="r-icon-btn r-star" data-action="itemToggle" data-field="system.primary" data-tooltip="{{localize 'VTM20.Sheet.PrimaryPath'}}"><i class="fa-{{#if primary}}solid{{else}}regular{{/if}} fa-star"></i></a>
-          <span class="r-path-name">{{name}}</span>
+          <span class="r-path-name">{{rName this}}</span>
           {{> rDots dots=dots}}
           {{#if @root.editable}}<a class="r-buy" data-action="buy" data-item-id="{{id}}" data-path="system.value" data-kind="path" data-tooltip="{{localize 'VTM20.Xp.Buy'}}"><i class="fa-solid fa-plus"></i></a>
           <a class="r-icon-btn is-danger" data-action="itemDelete"><i class="fa-solid fa-trash"></i></a>{{/if}}
@@ -108,7 +108,7 @@
     {{#each paths}}
     <div class="r-path {{#if primary}}is-primary{{/if}}" data-item-id="{{id}}">
       <div class="r-path-head">
-        <span class="r-path-name">{{name}}</span>
+        <span class="r-path-name">{{rName this}}</span>
         {{> rDots dots=dots}}
         {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="itemDelete"><i class="fa-solid fa-trash"></i></a>{{/if}}
       </div>
@@ -138,7 +138,7 @@
   <article class="r-edge-path r-bloodright {{#if rare}}is-rare{{/if}}">
     <header class="r-edge-head">
       <span class="r-edge-sigil"><i class="fa-solid fa-droplet"></i></span>
-      <span class="r-edge-title" data-tooltip="{{text}}"><b>{{name}}</b> <small>{{en}}{{#if req}} · {{req}}{{/if}}{{#if rare}} · {{localize "VTM20.Dhampir.Rare"}}{{/if}}</small></span>
+      <span class="r-edge-title" data-tooltip="{{text}}"><b>{{rName this}}</b> <small>{{rAlt this}}{{#if req}} · {{req}}{{/if}}{{#if rare}} · {{localize "VTM20.Dhampir.Rare"}}{{/if}}</small></span>
       {{> rDots dots=dots cls="is-disc"}}
       {{#if @root.editable}}{{#if xp}}<a class="r-buy" data-action="buy" data-path="system.dhampir.bloodrights.{{key}}" data-kind="bloodright" data-label="{{name}}" data-tooltip="{{localize 'VTM20.Xp.Buy'}}: {{xp}}"><i class="fa-solid fa-plus"></i></a>{{/if}}{{/if}}
       {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="bloodrightRemove" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-trash"></i></a>{{/if}}
@@ -147,7 +147,7 @@
       {{#each powers}}
       <li class="r-edge {{#unless on}}is-off{{/unless}}">
         <span class="r-edge-lvl">{{rRoman level}}</span>
-        <span class="r-edge-main"><b>{{name}}</b> <small>{{en}}{{#if pool}} · {{pool}}{{/if}}{{#if cost}} · {{cost}}{{/if}}</small>
+        <span class="r-edge-main"><b>{{rName this}}</b> <small>{{rAlt this}}{{#if pool}} · {{pool}}{{/if}}{{#if cost}} · {{cost}}{{/if}}</small>
           <span class="r-edge-text">{{text}}</span></span>
         {{#if roll}}{{#if on}}<a class="r-vc-btn" data-action="bloodrightRoll" data-key="{{../key}}" data-level="{{level}}" data-tooltip="{{localize 'VTM20.Sheet.Roll'}}"><i class="fa-solid fa-dice-d10"></i></a>{{/if}}{{/if}}
       </li>
@@ -164,7 +164,7 @@
       {{#each dhampir.rituals}}
       <li class="r-edge {{#unless known}}is-off{{/unless}}">
         <span class="r-edge-lvl">{{rRoman level}}</span>
-        <span class="r-edge-main"><b>{{name}}</b> <small>{{en}} · {{pool}}</small><span class="r-edge-text">{{text}}</span></span>
+        <span class="r-edge-main"><b>{{rName this}}</b> <small>{{rAlt this}} · {{pool}}</small><span class="r-edge-text">{{text}}</span></span>
         {{#if @root.editable}}<a class="r-vc-btn is-sq {{#if known}}is-on{{/if}}" data-action="dririToggle" data-key="{{key}}" data-tooltip="{{#if known}}{{localize 'VTM20.Dhampir.Forget'}}{{else}}{{localize 'VTM20.Dhampir.Learn'}}{{/if}}"><i class="fa-solid {{#if known}}fa-check{{else}}fa-plus{{/if}}"></i></a>{{/if}}
         {{#if known}}<a class="r-vc-btn" data-action="dririRoll" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Sheet.Roll'}}"><i class="fa-solid fa-dice-d10"></i></a>{{/if}}
       </li>

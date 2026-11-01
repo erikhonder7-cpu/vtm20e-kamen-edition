@@ -228,7 +228,7 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
         tags: [inClan && { label: t("Sheet.InClan"), red: true }, paths.length && { label: L("PathsN", { n: paths.length }) }].filter(Boolean),
         text: d.rules?.find(r => !r.title)?.html ?? "", long: true,
         powers: (d.powers ?? []).map((p, i) => [p, i]).filter(([p]) => Codex.visible(p))
-          .map(([p, i]) => ({ roman: p.anyLevel ? "VI–IX" : ROMAN[p.level - 1] ?? p.level, name: p.name, ref: `${d.key}|${i}`, mark: powerMark(p) })),
+          .map(([p, i]) => ({ roman: p.anyLevel ? "VI–IX" : ROMAN[p.level - 1] ?? p.level, name: p.name, en: p.en, ref: `${d.key}|${i}`, mark: powerMark(p) })),
         pathNames: paths.map(p => p.name).join(" · ")
       });
     });
@@ -246,7 +246,7 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
       reasons: dots < 1 ? [L("NeedDiscipline", { name: d.name })] : [],
       tags: [!mine.length && { label: L("Primary"), red: true }, ...sourceTags(p)].filter(Boolean),
       text: p.html ?? "",
-      powers: (p.powers ?? []).map((x, i) => ({ roman: ROMAN[x.level - 1] ?? x.level, name: x.name, ref: `${disc}|path|${pi}|${i}`, mark: powerMark(x) }))
+      powers: (p.powers ?? []).map((x, i) => ({ roman: ROMAN[x.level - 1] ?? x.level, name: x.name, en: x.en, ref: `${disc}|path|${pi}|${i}`, mark: powerMark(x) }))
     }));
   }
 

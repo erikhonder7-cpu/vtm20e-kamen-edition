@@ -1,5 +1,8 @@
-# Проверка при каждом push и pull request: node tools/check.mjs
-# (синтаксис всех модулей, тесты подсчёта бросков и шансов, JSON данных, значки предметов).
+# Проверка при каждом push и pull request:
+#  · node tools/check.mjs — синтаксис модулей, тесты бросков и шансов, JSON данных, перевод (ru/en), значки,
+#    компендии в git (с classic-level базы открываются и не пусты);
+#  · node tools/packs-fresh.mjs — компендии пересобираются из data/*.json и сверяются с закоммиченными.
+# classic-level ставится отдельно: build_packs берёт его и версию ядра (release) из папки «Foundry» (FOUNDRY_APP).
 name: Проверка системы
 
 on:
@@ -9,10 +12,19 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
+    env:
+      FOUNDRY_APP: ${{ github.workspace }}/../foundry-app
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: classic-level (вместо установленного Foundry)
+        run: |
+          mkdir -p "$FOUNDRY_APP" && cd "$FOUNDRY_APP"
+          echo '{"name":"foundry-app","version":"14.365.0","private":true,"release":{"generation":14,"build":365}}' > package.json
+          npm install --no-audit --no-fund classic-level@3
       - name: tools/check.mjs
         run: node tools/check.mjs
+      - name: Компендии собраны из данных
+        run: node tools/packs-fresh.mjs

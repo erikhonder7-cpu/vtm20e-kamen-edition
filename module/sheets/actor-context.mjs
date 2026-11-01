@@ -280,7 +280,7 @@ export function prepareDisciplines(sheet, ctx) {
   } : null;
   const reading = new Set(readingRituals(a).map(e => e.flags[SYSTEM_ID].ritual));
   const mapRitual = r => ({
-    id: r.id, name: r.name, level: r.system.level, roman: ROMAN[r.system.level - 1], html: ritualHTML(r.system), ritual: true, reading: reading.has(r.id),
+    id: r.id, name: r.name, en: Codex.enOf(r), level: r.system.level, roman: ROMAN[r.system.level - 1], html: ritualHTML(r.system), ritual: true, reading: reading.has(r.id),
     open: sheet._open.has(r.id),
     roll: rollInfo({ ...(r.system.roll ?? {}), trait1: r.system.roll?.trait1 || "attributes.intelligence",
       trait2: r.system.roll?.trait1 ? r.system.roll.trait2 : "abilities.occult", difficulty: r.system.roll?.difficulty || Math.min(9, 3 + r.system.level) })
@@ -295,7 +295,7 @@ export function prepareDisciplines(sheet, ctx) {
     const pd = Codex.bloodPath(k, p.name);
     const pi = (data?.paths ?? []).indexOf(pd);
     return {
-      id: p.id, name: p.name, value: p.system.value, primary: p.system.primary,
+      id: p.id, name: p.name, en: pd?.en ?? "", value: p.system.value, primary: p.system.primary,
       dots: dots(p.system.value, 5, { path: "system.value", itemId: p.id }),
       html: pd?.html ?? p.system.description ?? "",
       powers: (pd?.powers ?? []).filter(x => x.level <= p.system.value).map((x, i) => ({
@@ -346,7 +346,7 @@ export function prepareDisciplines(sheet, ctx) {
       id: it.id, key: k, name: data?.name ?? it.name, en: data?.en ?? "", value: v,
       icon: VTM20.disciplineIcons[k] ?? "fa-droplet", sym: Codex.disciplineSymbol(k), inClan,
       dots: dots(v, cap, { path: "system.value", itemId: it.id }),
-      powers, nextPower: nextPower ? { name: nextPower.count > 1 ? `выбор из ${nextPower.count} сил` : nextPower.name, level: nextPower.level } : null,
+      powers, nextPower: nextPower ? { name: nextPower.count > 1 ? t("Sheet.ChoiceOf", { n: nextPower.count }) : nextPower.name, level: nextPower.level } : null,
       ownPowers: ownPowers.filter(p => p.system.discipline === k && !p.system.path).sort((x, y) => x.system.level - y.system.level).map(mapOwn),
       physical: VTM20.physicalDisciplines[k] ? game.i18n.localize(VTM20.attributes[VTM20.physicalDisciplines[k]].label) : "",
       rules: (data?.rules ?? []).filter(r => r.title).map((r, i) => ({ ...r, id: `${it.id}-r${i}`, open: sheet._open.has(`${it.id}-r${i}`) })),
@@ -470,11 +470,11 @@ export function prepareAdvantages(sheet, ctx) {
   const a = sheet.actor;
   const byType = type => a.items.filter(i => i.type === type).sort((x, y) => x.name.localeCompare(y.name, "ru"));
   ctx.backgrounds = byType("background").map(i => ({
-    id: i.id, name: i.name, value: i.system.value, html: i.system.description, open: sheet._open.has(i.id),
+    id: i.id, name: i.name, en: Codex.enOf(i), value: i.system.value, html: i.system.description, open: sheet._open.has(i.id),
     dots: dots(i.system.value, Math.max(5, i.system.value), { path: "system.value", itemId: i.id })
   }));
   const mf = type => byType(type).map(i => ({
-    id: i.id, name: i.name, cost: i.system.cost, html: i.system.description, open: sheet._open.has(i.id),
+    id: i.id, name: i.name, en: Codex.enOf(i), cost: i.system.cost, html: i.system.description, open: sheet._open.has(i.id),
     category: game.i18n.localize(VTM20.meritCategories[i.system.category]?.label ?? "")
   }));
   ctx.merits = mf("merit");
@@ -485,7 +485,7 @@ export function prepareAdvantages(sheet, ctx) {
     { key: "merit", label: "VTM20.Sheet.Merits", list: ctx.merits, total: ctx.meritTotal },
     { key: "flaw", label: "VTM20.Sheet.Flaws", list: ctx.flaws, total: ctx.flawTotal }
   ];
-  ctx.derangements = byType("derangement").map(i => ({ id: i.id, name: i.name, html: i.system.description, permanent: i.system.permanent, open: sheet._open.has(i.id) }));
+  ctx.derangements = byType("derangement").map(i => ({ id: i.id, name: i.name, en: Codex.enOf(i), html: i.system.description, permanent: i.system.permanent, open: sheet._open.has(i.id) }));
   // Инфернализм (apps/infernal.mjs): Вложения и договоры с демонами — у всех, кроме падших
   if (a.type !== "demon") {
     const f = (k, n) => game.i18n.format(`VTM20.Infernal.${k}`, { n });

@@ -70,6 +70,21 @@ for (const f of [...fs.readdirSync(path.join(ROOT, "data")).filter(f => f.endsWi
 }
 console.log("Данные: JSON читаются");
 
+// ── 3б. Перевод: в en.json те же ключи, что в ru.json, и те же подстановки {name} ──
+{
+  const flat = (o, p = "") => Object.entries(o).flatMap(([k, v]) => v && typeof v === "object" && !Array.isArray(v) ? flat(v, `${p}${k}.`) : [[`${p}${k}`, v]]);
+  const lang = l => Object.fromEntries(flat(JSON.parse(fs.readFileSync(path.join(ROOT, `lang/${l}.json`), "utf8"))));
+  const ru = lang("ru"), en = lang("en");
+  const holes = s => JSON.stringify(s ?? "").match(/\{\w+\}/g)?.sort().join() ?? "";
+  const miss = Object.keys(ru).filter(k => !(k in en)), extra = Object.keys(en).filter(k => !(k in ru));
+  const ph = Object.keys(ru).filter(k => k in en && holes(ru[k]) !== holes(en[k]));
+  const show = a => a.slice(0, 5).join(", ") + (a.length > 5 ? ` … и ещё ${a.length - 5}` : "");
+  ok(!miss.length, `en.json: нет перевода (${miss.length}): ${show(miss)}`);
+  ok(!extra.length, `en.json: лишние ключи (${extra.length}): ${show(extra)}`);
+  ok(!ph.length, `en.json: подстановки не совпадают с ru.json (${ph.length}): ${show(ph)}`);
+  console.log(`Перевод: ${Object.keys(ru).length} строк, ru и en совпадают`);
+}
+
 // ── 3а. Тексты сил и черт: «Описание» + «Система» (tools/text_structure.py) ──
 {
   const { mergeTexts } = await import(pathToFileURL(path.join(ROOT, "module/data/text-split.mjs")).href);

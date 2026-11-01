@@ -281,7 +281,7 @@
  },
  {
   "name": "Статус клана",
-  "en": "",
+  "en": "Clan Status",
   "sabbat": false,
   "source": "Vampire: Age of the Living Gods (фанатское)",
   "era": "darkAges",
@@ -290,7 +290,7 @@
  },
  {
   "name": "Статус фракции",
-  "en": "",
+  "en": "Faction Status",
   "sabbat": false,
   "source": "Vampire: Age of the Living Gods (фанатское)",
   "era": "darkAges",

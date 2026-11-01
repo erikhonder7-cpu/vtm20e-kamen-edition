@@ -222,7 +222,7 @@
  {
   "key": "angraMaynyu",
   "name": "Ангра-Майнью",
-  "en": "",
+  "en": "Angra Mainyu",
   "nickname": "Кошки; все — женщины, бывшие гангрелы, «дети» Мариции",
   "group": "bloodline",
   "sect": "",
@@ -238,7 +238,7 @@
  {
   "key": "anda",
   "name": "Анда",
-  "en": "",
+  "en": "Anda",
   "nickname": "Тартары; монгольская ветвь Гангрелов",
   "group": "bloodline",
   "sect": "",
@@ -254,7 +254,7 @@
  {
   "key": "baali",
   "name": "Баали",
-  "en": "",
+  "en": "Baali",
   "nickname": "Демоны",
   "group": "bloodline",
   "sect": "",
@@ -270,7 +270,7 @@
  {
   "key": "gorguli",
   "name": "Горгульи",
-  "en": "",
+  "en": "Gargoyles",
   "nickname": "Рабы; созданы Тремер",
   "group": "bloodline",
   "sect": "",
@@ -287,7 +287,7 @@
  {
   "key": "detiOsirisa",
   "name": "Дети Осириса",
-  "en": "",
+  "en": "Children of Osiris",
   "nickname": "",
   "group": "bloodline",
   "sect": "",
@@ -301,7 +301,7 @@
  {
   "key": "docheriKakofonii",
   "name": "Дочери Какофонии",
-  "en": "",
+  "en": "Daughters of Cacophony",
   "nickname": "Сирены",
   "group": "bloodline",
   "sect": "",
@@ -317,7 +317,7 @@
  {
   "key": "istinnyeBruha",
   "name": "Истинные Бруха",
-  "en": "",
+  "en": "True Brujah",
   "nickname": "",
   "group": "bloodline",
   "sect": "",
@@ -333,7 +333,7 @@
  {
   "key": "kappadokiytsy",
   "name": "Каппадокийцы",
-  "en": "",
+  "en": "Cappadocians",
   "nickname": "вымерший клан",
   "group": "bloodline",
   "sect": "",
@@ -349,7 +349,7 @@
  {
   "key": "kiasidy",
   "name": "Киасиды",
-  "en": "",
+  "en": "Kiasyd",
   "nickname": "Чужаки",
   "group": "bloodline",
   "sect": "",
@@ -365,7 +365,7 @@
  {
   "key": "krovnyeBratya",
   "name": "Кровные Братья",
-  "en": "",
+  "en": "Blood Brothers",
   "nickname": "Франкенштейны; Шабаш",
   "group": "bloodline",
   "sect": "",
@@ -381,7 +381,7 @@
  {
   "key": "lamii",
   "name": "Ламии",
-  "en": "",
+  "en": "Lamia",
   "nickname": "Горгоны; вымершие",
   "group": "bloodline",
   "sect": "",
@@ -397,7 +397,7 @@
  {
   "key": "liannan",
   "name": "Лианнан",
-  "en": "",
+  "en": "Lhiannan",
   "nickname": "Друиды; вымершие",
   "group": "bloodline",
   "sect": "",
@@ -413,7 +413,7 @@
  {
   "key": "nagaradzha",
   "name": "Нагараджа",
-  "en": "",
+  "en": "Nagaraja",
   "nickname": "Пожиратели Плоти",
   "group": "bloodline",
   "sect": "",
@@ -429,7 +429,7 @@
  {
   "key": "noyady",
   "name": "Нойады",
-  "en": "",
+  "en": "Noiad",
   "nickname": "Странники; саамская ветвь Гангрелов",
   "group": "bloodline",
   "sect": "",
@@ -445,7 +445,7 @@
  {
   "key": "predvestnikiCherepov",
   "name": "Предвестники Черепов",
-  "en": "",
+  "en": "Harbingers of Skulls",
   "nickname": "Лазари",
   "group": "bloodline",
   "sect": "",
@@ -461,7 +461,7 @@
  {
   "key": "salyubri",
   "name": "Салюбри",
-  "en": "",
+  "en": "Salubri",
   "nickname": "Циклопы",
   "group": "bloodline",
   "sect": "",
@@ -477,7 +477,7 @@
  {
   "key": "samedi",
   "name": "Самеди",
-  "en": "",
+  "en": "Samedi",
   "nickname": "Мертвяки",
   "group": "bloodline",
   "sect": "",
@@ -493,7 +493,7 @@
  {
   "key": "viziriAssamitov",
   "name": "Визири Ассамитов",
-  "en": "",
+  "en": "Assamite Viziers",
   "nickname": "",
   "group": "variant",
   "sect": "",
@@ -509,7 +509,7 @@
  {
   "key": "charodeiAssamitov",
   "name": "Чародеи Ассамитов",
-  "en": "",
+  "en": "Assamite Sorcerers",
   "nickname": "Магусы",
   "group": "variant",
   "sect": "",
@@ -525,7 +525,7 @@
  {
   "key": "moreplavateli",
   "name": "Мореплаватели",
-  "en": "",
+  "en": "Mariners",
   "nickname": "водные Гангрелы",
   "group": "variant",
   "sect": "",
@@ -541,7 +541,7 @@
  {
   "key": "tlatsik",
   "name": "Тлацик",
-  "en": "",
+  "en": "Tlacique",
   "nickname": "Ягуары; ветвь Сетитов",
   "group": "variant",
   "sect": "",
@@ -557,7 +557,7 @@
  {
   "key": "brahmany",
   "name": "Брахманы",
-  "en": "",
+  "en": "Brahman",
   "nickname": "ветвь Равнос",
   "group": "variant",
   "sect": "",
@@ -573,7 +573,7 @@
  {
   "key": "uDzao",
   "name": "У-Дзао",
-  "en": "",
+  "en": "Wu Zao",
   "nickname": "Сироты; ветвь Салюбри",
   "group": "variant",
   "sect": "",
@@ -591,7 +591,7 @@
  {
   "key": "telyaveli",
   "name": "Телявели",
-  "en": "",
+  "en": "Telyav",
   "nickname": "Овчары; языческие Тремер",
   "group": "variant",
   "sect": "",
@@ -607,7 +607,7 @@
  {
   "key": "kolduny",
   "name": "Колдуны",
-  "en": "",
+  "en": "Koldun",
   "nickname": "",
   "group": "variant",
   "sect": "",
@@ -625,7 +625,7 @@
  {
   "key": "staryyKlanTsimishov",
   "name": "Старый клан Цимисхов",
-  "en": "",
+  "en": "Old Clan Tzimisce",
   "nickname": "",
   "group": "variant",
   "sect": "",
@@ -641,7 +641,7 @@
  {
   "key": "assamityAntitribu",
   "name": "Ассамиты-антитрибу",
-  "en": "",
+  "en": "Assamite antitribu",
   "nickname": "Ангелы Каина",
   "group": "antitribu",
   "sect": "",
@@ -657,7 +657,7 @@
  {
   "key": "bruhaAntitribu",
   "name": "Бруха-антитрибу",
-  "en": "",
+  "en": "Brujah antitribu",
   "nickname": "Громилы",
   "group": "antitribu",
   "sect": "",
@@ -673,7 +673,7 @@
  {
   "key": "ventruAntitribu",
   "name": "Вентру-антитрибу",
-  "en": "",
+  "en": "Ventrue antitribu",
   "nickname": "Крестоносцы",
   "group": "antitribu",
   "sect": "",
@@ -691,7 +691,7 @@
  {
   "key": "malkavianeAntitribu",
   "name": "Малкавиане-антитрибу",
-  "en": "",
+  "en": "Malkavian antitribu",
   "nickname": "Фрики",
   "group": "antitribu",
   "sect": "",
@@ -707,7 +707,7 @@
  {
   "key": "malkavianeDominatory",
   "name": "Малкавиане-Доминаторы",
-  "en": "",
+  "en": "Dominate Malkavians",
   "nickname": "Разносчики",
   "group": "antitribu",
   "sect": "",
@@ -723,7 +723,7 @@
  {
   "key": "nosferatuAntitribu",
   "name": "Носферату-антитрибу",
-  "en": "",
+  "en": "Nosferatu antitribu",
   "nickname": "Тараканы",
   "group": "antitribu",
   "sect": "",
@@ -739,7 +739,7 @@
  {
   "key": "ravnosAntitribu",
   "name": "Равнос-антитрибу",
-  "en": "",
+  "en": "Ravnos antitribu",
   "nickname": "Проходимцы",
   "group": "antitribu",
   "sect": "",
@@ -755,7 +755,7 @@
  {
   "key": "salyubriAntitribu",
   "name": "Салюбри-антитрибу",
-  "en": "",
+  "en": "Salubri antitribu",
   "nickname": "Фурии",
   "group": "antitribu",
   "sect": "",
@@ -771,7 +771,7 @@
  {
   "key": "toreadorAntitribu",
   "name": "Тореадор-антитрибу",
-  "en": "",
+  "en": "Toreador antitribu",
   "nickname": "Извращенцы",
   "group": "antitribu",
   "sect": "",
@@ -787,7 +787,7 @@
  {
   "key": "tremerAntitribu",
   "name": "Тремер-антитрибу",
-  "en": "",
+  "en": "Tremere antitribu",
   "nickname": "Заклинатели",
   "group": "antitribu",
   "sect": "",
@@ -803,7 +803,7 @@
  {
   "key": "gorodskieGangrely",
   "name": "Городские Гангрелы",
-  "en": "",
+  "en": "City Gangrel",
   "nickname": "Койоты",
   "group": "antitribu",
   "sect": "",
@@ -819,7 +819,7 @@
  {
   "key": "dikieGangrely",
   "name": "Дикие Гангрелы",
-  "en": "",
+  "en": "Country Gangrel",
   "nickname": "Охотники",
   "group": "antitribu",
   "sect": "",
@@ -835,7 +835,7 @@
  {
   "key": "zmeiSveta",
   "name": "Змеи Света",
-  "en": "",
+  "en": "Serpents of the Light",
   "nickname": "Кобры",
   "group": "antitribu",
   "sect": "",
@@ -851,7 +851,7 @@
  {
   "key": "voinySeta",
   "name": "Воины Сета",
-  "en": "",
+  "en": "Warriors of Set",
   "nickname": "Рогатые Гадюки",
   "group": "antitribu",
   "sect": "",
@@ -867,7 +867,7 @@
  {
   "key": "daytya",
   "name": "Дайтья",
-  "en": "",
+  "en": "Daitya",
   "nickname": "Богохульники",
   "group": "antitribu",
   "sect": "",
@@ -883,7 +883,7 @@
  {
   "key": "lasombraAntitribu",
   "name": "Ласомбра-антитрибу",
-  "en": "",
+  "en": "Lasombra antitribu",
   "nickname": "Магистры; в Камарилье",
   "group": "antitribu",
   "sect": "",
@@ -899,7 +899,7 @@
  {
   "key": "angelisAter",
   "name": "Ангелис Атер",
-  "en": "",
+  "en": "Angellis Ater",
   "nickname": "Чёрные Ангелы",
   "group": "antitribu",
   "sect": "",
@@ -918,7 +918,7 @@
  {
   "key": "pandery",
   "name": "Пандеры",
-  "en": "",
+  "en": "Panders",
   "nickname": "Дворняги; шабашевы каитифы",
   "group": "antitribu",
   "sect": "",

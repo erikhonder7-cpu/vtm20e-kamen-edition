@@ -3,7 +3,7 @@
 // достоинства и недостатки, факты биографии, архетипы. Данные собирает
 // tools/build_data.py из книг (books/Мир Тьмы), здесь — только загрузка и поиск.
 
-import { SYSTEM_PATH, SYSTEM_ID } from "../config.mjs";
+import { VTM20, SYSTEM_PATH, SYSTEM_ID } from "../config.mjs";
 import { mergeTexts } from "./text-split.mjs";
 
 const FILES = ["disciplines", "clans", "rituals", "paths", "merits", "merits-ghouls", "backgrounds", "archetypes", "assets", "derangements", "combos", "abilities", "demon", "demon-merits", "demon-backgrounds", "demon-hof", "demon-pg", "demon-earthbound", "demon-form", "investments", "pact-templates", "hunter", "dhampir"];
@@ -123,7 +123,7 @@ export const Codex = {
   clan(key) { return this.clanByKey?.[key] ?? null; },
 
   /** Название клана или линии по ключу (в т. ч. линий, у которых есть черты, но нет карточки клана). */
-  clanName(key) { return this.clan(key)?.name ?? TRAIT_CLAN_NAMES[key] ?? key; },
+  clanName(key) { const c = this.clan(key); return c ? VTM20.label(c) : TRAIT_CLAN_NAMES[key] ?? key; },
 
   /** Чьи клановые черты доступны персонажу: антитрибу и ветви берут черты родительского клана. */
   traitClan(key) { return TRAIT_CLAN_PARENT[key] ?? key; },
@@ -164,14 +164,33 @@ export const Codex = {
   },
   sectList() {
     const s = this.assets?.sects ?? {};
-    return [["camarilla", "Камарилья"], ["sabbat", "Шабаш"], ["anarchs", "Анархи"], ["independent", "Независимые"], ["inquisition", "Инквизиция"]]
-      .map(([k, label]) => ({ key: k, label, sym: this._sym(s[k]) }));
+    return ["camarilla", "sabbat", "anarchs", "independent", "inquisition"]
+      .map(k => ({ key: k, label: game.i18n.localize(`VTM20.Sect.${k}`), sym: this._sym(s[k]) }));
   },
   discipline(key) { return this.disciplines[key] ?? null; },
   path(key) { return this.pathByKey?.[key] ?? this.pathByKey?.humanity ?? null; },
 
-  /** Подпись Дисциплины по ключу (из данных справочника). */
-  disciplineLabel(key) { return this.disciplines[key]?.name ?? key; },
+  /** Подпись Дисциплины по ключу (из данных справочника; при английском интерфейсе — английская). */
+  disciplineLabel(key) { const d = this.disciplines[key]; return d ? VTM20.label(d) : key; },
+
+  /**
+   * Английское имя предмета на листе — по записи справочника (черта, факт, расстройство, ритуал); «» — своя запись.
+   * Только для показа: связь предмета со справочником — по русскому имени.
+   */
+  enOf(item) {
+    const key = `${item.type}|${item.name}`;
+    this._en ??= new Map();
+    if (!this._en.has(key)) {
+      const byName = list => (list ?? []).find(x => x.name === item.name)?.en ?? "";
+      const en = item.type === "merit" || item.type === "flaw" ? (this.merits ?? []).find(m => m.kind === item.type && m.name === item.name)?.en
+        : item.type === "background" ? byName(this.backgrounds)
+        : item.type === "derangement" ? byName(this.derangements)
+        : item.type === "ritual" ? byName(Object.values(this.rituals ?? {}).flatMap(g => g.rituals ?? []))
+        : "";
+      this._en.set(key, en ?? "");
+    }
+    return this._en.get(key);
+  },
 
   /** Силы Дисциплины до уровня включительно (без путей). */
   powersUpTo(key, level) {

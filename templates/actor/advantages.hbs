@@ -25,7 +25,7 @@
     {{#each backgrounds}}
     <div class="r-row-wrap r-bg {{#if open}}is-open{{/if}}" data-item-id="{{id}}">
       <div class="r-trait-main">
-        <a class="r-trait-label" data-action="toggleRow" data-row-id="{{id}}">{{name}}</a>
+        <a class="r-trait-label" data-action="toggleRow" data-row-id="{{id}}">{{rName this}}</a>
         <span class="r-leader"></span>
         {{> rDots dots=dots}}
         <a class="r-icon-btn" data-action="itemEdit"><i class="fa-solid fa-pen-nib"></i></a>
@@ -77,7 +77,7 @@
       <div class="r-row-wrap r-mf-row {{#if open}}is-open{{/if}}" data-item-id="{{id}}">
         <div class="r-trait-main">
           <span class="r-cost">{{cost}}</span>
-          <a class="r-trait-label" data-action="toggleRow" data-row-id="{{id}}">{{name}}</a>
+          <a class="r-trait-label" data-action="toggleRow" data-row-id="{{id}}">{{rName this}}</a>
           <span class="r-leader"></span>
           <span class="r-tag">{{category}}</span>
           <a class="r-icon-btn" data-action="itemEdit"><i class="fa-solid fa-pen-nib"></i></a>
@@ -101,7 +101,7 @@
       <div class="r-row-wrap r-mf-row {{#if open}}is-open{{/if}}" data-item-id="{{id}}">
         <div class="r-trait-main">
           <i class="fa-solid fa-file-contract r-muted"></i>
-          <a class="r-trait-label" data-action="toggleRow" data-row-id="{{id}}">{{name}}</a>
+          <a class="r-trait-label" data-action="toggleRow" data-row-id="{{id}}">{{rName this}}</a>
           <span class="r-leader"></span>
           {{#if rating}}<span class="r-tag">{{rating}}</span>{{/if}}
           {{#if cost}}<small class="r-muted">{{cost}}</small>{{/if}}
@@ -144,7 +144,7 @@
       <div class="r-row-wrap r-mf-row {{#if open}}is-open{{/if}}" data-item-id="{{id}}">
         <div class="r-trait-main">
           <i class="fa-solid fa-brain r-muted"></i>
-          <a class="r-trait-label" data-action="toggleRow" data-row-id="{{id}}">{{name}}</a>
+          <a class="r-trait-label" data-action="toggleRow" data-row-id="{{id}}">{{rName this}}</a>
           <span class="r-leader"></span>
           {{#if permanent}}<span class="r-tag is-red">{{localize "VTM20.Sheet.Permanent"}}</span>{{/if}}
           <a class="r-icon-btn" data-action="itemEdit"><i class="fa-solid fa-pen-nib"></i></a>

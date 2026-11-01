@@ -177,8 +177,9 @@ export function stamp(ms = getClock()) { const d = new Date(ms); return `${longD
 // по 30 дней и 5–6 дополнительных дней — санкюлотиды. До 22.09.1792 Республики нет:
 // с 14 июля 1789 года считается «год Свободы».
 
-const REP_MONTHS = ["вандемьера", "брюмера", "фримера", "нивоза", "плювиоза", "вантоза",
-  "жерминаля", "флореаля", "прериаля", "мессидора", "термидора", "фрюктидора"];
+// месяцы — в языковом файле (VTM20.Calendar.RepMonths: по-русски в родительном падеже, «28 вандемьера»)
+const repMonth = i => foundry.utils.getProperty(game.i18n.translations, "VTM20.Calendar.RepMonths")?.[i]
+  ?? foundry.utils.getProperty(game.i18n._fallback, "VTM20.Calendar.RepMonths")?.[i] ?? "";
 const REP_START_DAY = { 1: 22, 2: 22, 3: 22, 4: 23, 5: 22, 6: 22, 7: 22, 8: 23, 9: 23, 10: 23, 11: 23, 12: 24, 13: 23, 14: 23 };
 const ROMAN = n => { const m = [[1000, "M"], [900, "CM"], [500, "D"], [400, "CD"], [100, "C"], [90, "XC"], [50, "L"], [40, "XL"], [10, "X"], [9, "IX"], [5, "V"], [4, "IV"], [1, "I"]]; let o = ""; for (const [v, r] of m) while (n >= v) { o += r; n -= v; } return o; };
 
@@ -201,7 +202,7 @@ export function republicanDate(ms = getClock()) {
   while (republicYearStart(year + 1) <= dayStart) year++;
   const day = Math.round((dayStart - republicYearStart(year)) / MS_DAY);   // 0…365
   if (day >= 360) return game.i18n.format("VTM20.Calendar.Sansculottide", { n: day - 359, year: ROMAN(year) });
-  return `${day % 30 + 1} ${REP_MONTHS[Math.floor(day / 30)]} ${ROMAN(year)} ${game.i18n.localize("VTM20.Calendar.YearWord")}`;
+  return game.i18n.format("VTM20.Calendar.RepDate", { day: day % 30 + 1, month: repMonth(Math.floor(day / 30)), year: ROMAN(year) });
 }
 
 /* ── Солнце ────────────────────────────────────────────────────────────── */
@@ -483,15 +484,9 @@ export function nightDial(ms = getClock()) {
 /** Скорости хода часов: игровых минут за реальную. */
 const RATES = [1, 10, 60, 300];
 
-const ADVANCES = [
-  { ms: -MS_HOUR, label: "−1 ч" },
-  { ms: 10 * MS_MIN, label: "+10 м" },
-  { ms: 30 * MS_MIN, label: "+30 м" },
-  { ms: MS_HOUR, label: "+1 ч" },
-  { ms: 3 * MS_HOUR, label: "+3 ч" },
-  { ms: MS_DAY, label: "+1 сут" },
-  { ms: 7 * MS_DAY, label: "+7 сут" }
-];
+const ADVANCES = [[-MS_HOUR, "−1", "Hours"], [10 * MS_MIN, "+10", "Minutes"], [30 * MS_MIN, "+30", "Minutes"], [MS_HOUR, "+1", "Hours"],
+  [3 * MS_HOUR, "+3", "Hours"], [MS_DAY, "+1", "Days"], [7 * MS_DAY, "+7", "Days"]];
+const advances = () => ADVANCES.map(([ms, n, unit]) => ({ ms, label: `${n} ${game.i18n.localize(`VTM20.Calendar.${unit}`)}` }));
 
 export class NightCalendar extends HandlebarsApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
@@ -528,7 +523,7 @@ export class NightCalendar extends HandlebarsApplicationMixin(ApplicationV2) {
       dateInput: ymd(d), timeInput: hhmm(d),
       ...c,
       sunrise: hhmm(new Date(c.phase.sunrise)), sunset: hhmm(new Date(c.phase.sunset)),
-      advances: ADVANCES,
+      advances: advances(),
       smooth: NightCalendar.smooth,
       rates: RATES.map(r => ({ r, label: `×${r}`, on: Math.abs(clockRate() - r) < 0.01 })),
       scene: sceneElapsed(), hasScene: !!sceneStart(),
