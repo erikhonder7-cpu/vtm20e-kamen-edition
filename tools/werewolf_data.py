@@ -391,6 +391,69 @@ def parse_rules():
     return books
 
 
+# Достоинства и недостатки (14) и Факты биографии (02) W20 — линия «werewolf»: видны только Гару (VTM20.traitFor).
+TRAIT_CAT = {"Физические": "physical", "Умственные": "mental", "Социальные": "social", "Сверхъестественные": "supernatural"}
+TRAIT_EN = {"Физически впечатляющий": "Physically Impressive", "Монохромное зрение": "Monochrome Vision",
+            "Нет частичного превращения": "No Partial Transformation", "Одна рука": "One Arm",
+            "Склонность к компьютерам": "Computer Aptitude", "Опытный водитель": "Expert Driver",
+            "Молниеносный счёт": "Lightning Calculator", "Чувство времени": "Time Sense", "Эйдетическая память": "Eidetic Memory",
+            "Внутренняя сила": "Inner Strength", "Прирождённый лингвист": "Natural Linguist", "Спокойное сердце": "Calm Heart",
+            "Амнезия": "Amnesia", "Стайное мышление": "Pack Mentality", "Прирождённый лидер": "Natural Leader",
+            "Сверхъестественный спутник": "Supernatural Companion", "Метка хищника": "Mark of the Predator",
+            "Механический склад": "Mechanical Aptitude", "Кодекс чести": "Code of Honor", "Железная воля": "Iron Will",
+            "Дефект речи": "Speech Impediment", "Любопытство": "Curiosity", "Иммунитет к эманациям Червя": "Immune to Wyrm Emanations"}
+SRC_W20 = "Werewolf: The Apocalypse 20th Anniversary Edition"
+
+
+def name_en(cell):
+    cell = re.sub(r"\*\*", "", cell).strip()
+    m = re.match(r"^(.*?)\s*\(([^()]*[A-Za-z][^()]*)\)$", cell)
+    return (m.group(1).strip(), m.group(2).strip()) if m else (cell, TRAIT_EN.get(cell, ""))
+
+
+def parse_merits():
+    out, kind, cat = [], None, None
+    for line in read("14_Достоинства_и_недостатки.md").splitlines():
+        h = re.match(r"^## (\S+) (достоинства|недостатки)$", line)
+        if line.startswith("## "):
+            kind, cat = (("merit" if h.group(2) == "достоинства" else "flaw"), TRAIT_CAT.get(h.group(1))) if h else (None, None)
+            continue
+        if not (kind and cat and line.startswith("| ")):
+            continue
+        cells = [c.strip() for c in line.strip().strip("|").split("|")]
+        if len(cells) != 3 or cells[0] == "Название" or set(cells[1]) <= set("-: "):
+            continue
+        name, en = name_en(cells[0])
+        nums = [int(x) for x in re.findall(r"\d+", cells[1])]
+        out.append({"kind": kind, "category": cat, "name": name, "en": en, "cost": cells[1].replace("–", "–"),
+                    "min": min(nums), "max": max(nums), "clan": "", "sect": "", "era": "", "source": SRC_W20,
+                    "line": "werewolf", "html": f"<p>{md_inline(cells[2])}</p>"})
+    return out
+
+
+def parse_backgrounds():
+    text = read("02_Факты_биографии.md")
+    lines = text.splitlines()
+    totem = []
+    if "## Тотем (подробно)" in lines:
+        i = lines.index("## Тотем (подробно)") + 1
+        while i < len(lines) and not lines[i].startswith("## "):
+            totem.append(lines[i]); i += 1
+    out = []
+    for line in lines:
+        if not line.startswith("| **"):
+            continue
+        cells = [c.strip() for c in line.strip().strip("|").split("|")]
+        name, en = name_en(cells[0])
+        levels = [(i + 1, c) for i, c in enumerate(cells[2:7]) if c and not c.startswith("см. ")]
+        rows = "".join(f"<tr><td>{'•' * n}</td><td>{md_inline(c)}</td></tr>" for n, c in levels)
+        html_ = f"<p>{md_inline(cells[1])}</p>" + (f"<table><tbody>{rows}</tbody></table>" if rows else "")
+        if en == "Totem":
+            html_ += md_html(totem)
+        out.append({"name": name, "en": en, "sabbat": False, "source": SRC_W20, "line": "werewolf", "html": html_})
+    return out
+
+
 def build():
     gifts = parse_gifts()
     rites = parse_rites()
@@ -399,7 +462,8 @@ def build():
         for x in items:
             x["icon"] = ICONS[kind].get(x["key"], "fa-moon")
     data = {"source": "Werewolf: The Apocalypse 20th Anniversary Edition", "breeds": breeds, "auspices": auspices, "tribes": tribes,
-            "forms": FORMS, "gifts": gifts, "rites": rites, "rankNames": RANK_NAMES, "rank": RANK, "xp": XP}
+            "forms": FORMS, "gifts": gifts, "rites": rites, "rankNames": RANK_NAMES, "rank": RANK, "xp": XP,
+            "merits": parse_merits(), "backgrounds": parse_backgrounds()}
     with open(OUT, "w", encoding="utf-8", newline="\n") as f:
         json.dump(data, f, ensure_ascii=False, indent=1)
     rules = parse_rules()
@@ -408,7 +472,7 @@ def build():
     starts = sum(len(x["startGifts"]) for x in breeds + auspices + tribes)
     return {"breeds": len(breeds), "auspices": len(auspices), "tribes": len(tribes), "gifts": len(gifts), "rites": len(rites),
             "startGifts": starts, "rolls": sum(1 for g in gifts if g["roll"]),
-            "rulePages": sum(len(b["pages"]) for b in rules)}
+            "rulePages": sum(len(b["pages"]) for b in rules), "merits": len(data["merits"]), "backgrounds": len(data["backgrounds"])}
 
 
 if __name__ == "__main__":

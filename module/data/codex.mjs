@@ -93,6 +93,9 @@ export const Codex = {
     // дампиры (data/dhampir.json, Accursed Heirs) — свои Дополнения и черты с пометкой dhampir: только дампиру, в конце
     this.backgrounds = [...this.backgrounds, ...(this.dhampir?.backgrounds ?? []).map(b => ({ ...b, dhampir: true }))];
     this.merits = [...this.merits, ...(this.dhampir?.merits ?? []).map(m => ({ ...m, dhampir: true }))];
+    // оборотни (data/werewolf.json, W20): свои Достоинства, недостатки и Факты — линией «werewolf», в конце
+    this.merits = [...this.merits, ...(this.werewolf?.merits ?? []).map(m => ({ ...m, line: "werewolf" }))];
+    this.backgrounds = [...this.backgrounds, ...(this.werewolf?.backgrounds ?? []).map(b => ({ ...b, line: "werewolf" }))];
     // архетипы из Players Guide «Охотника» (Верящий, Переговорщик, Скептик) — для всех
     const arch = new Set(this.archetypes.map(a => a.name));
     this.archetypes = [...this.archetypes, ...(this.hunter?.archetypes ?? []).filter(a => !arch.has(a.name))];

@@ -491,6 +491,22 @@ BUILDERS["hunter-merits"] = function () {
   return p;
 };
 
+/** Оборотни (W20): Достоинства и недостатки, Факты биографии (data/werewolf.json — пересказ). */
+BUILDERS["werewolf-merits"] = function () {
+  const p = new Pack("werewolf-merits");
+  const cat = ru.VTM20.MeritCat ?? {};
+  for (const m of data("werewolf").merits) {
+    const range = m.max > m.min ? `<p><em>Цена: ${m.cost}</em></p>` : "";
+    const folder = `${m.kind === "merit" ? "Достоинства" : "Недостатки"} — ${cat[m.category] ?? m.category}`;
+    p.add({ name: m.name, type: m.kind, folder, key: `werewolf:${m.kind}:${m.name}`, img: traitIcon(m.category, m.kind === "flaw"),
+      system: { cost: m.min || 1, category: m.category, clan: "", sect: "", source: m.en ?? "", description: `${m.html ?? ""}${range}` } });
+  }
+  for (const b of data("werewolf").backgrounds)
+    p.add({ name: b.name, type: "background", folder: "Факты биографии", key: `werewolf:${b.name}`, img: backgroundIcon(b.en) ?? undefined,
+      system: { value: 1, source: b.en ?? "", description: b.html ?? "" } });
+  return p;
+};
+
 /** Hunter: The Reckoning — факты биографии смертных охотников (Hunters Hunted II). */
 BUILDERS["hunter-backgrounds"] = function () {
   const p = new Pack("hunter-backgrounds");

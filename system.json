@@ -447,6 +447,18 @@
       "flags": {}
     },
     {
+      "name": "werewolf-merits",
+      "label": "Оборотень: Апокалипсис — Достоинства, недостатки, Факты",
+      "path": "packs/werewolf-merits",
+      "type": "Item",
+      "system": "vtm20e-kamen-edition",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
+    },
+    {
       "name": "hunter-backgrounds",
       "label": "Факты биографии охотников",
       "path": "packs/hunter-backgrounds",
@@ -571,7 +583,8 @@
       "sorting": "m",
       "color": "#3d5247",
       "packs": [
-        "werewolf-rules"
+        "werewolf-rules",
+        "werewolf-merits"
       ]
     }
   ]

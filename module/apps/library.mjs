@@ -365,6 +365,7 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
         groupOrder: (own(g) ? 0 : 1000) + kindOrder.indexOf(gr.kind) * 100 + seen(gr) % 100,
         level: g.level, levels: String(g.level), order: g.level, roman: ROMAN[g.level - 1],
         tags: own(g) || !w ? [] : [{ label: game.i18n.localize("VTM20.Werewolf.OtherList") }],
+        xp: w ? a.xpCost("gift", 0, { level: g.level, own: own(g) }) : 0,
         reasons: w && !mine.has(g.key) && g.level > Math.max(1, w.rank) ? [game.i18n.format("VTM20.Werewolf.NeedRank", { n: g.level })] : []
       });
     });
@@ -549,6 +550,7 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
 
   /** Новая Дисциплина или путь за опыт (V20, гл. 01, таблица опыта). */
   static async #onBuy(event, target) {
+    if (this.o.kind === "gift") return this.#buyGift(target);
     const data = this.#itemFor(target);
     const actor = this.actor;
     if (!data || !actor) return;
@@ -565,6 +567,24 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
     await actor.createEmbeddedDocuments("Item", [data]);
     ui.notifications.info(L("Added", { name: data.name }));
     return this.#after(data);
+  }
+
+  /** Дар Гару за опыт: списать опыт с записью в журнал и добавить Дар. */
+  async #buyGift(target) {
+    const g = werewolfData().gifts[Number(target.closest("[data-entry]")?.dataset.entry)], actor = this.actor;
+    if (!g || actor?.type !== "werewolf") return;
+    const cost = Number(target.dataset.xp ?? 0), xp = actor.system.experience;
+    if (xp.available < cost) return ui.notifications.warn(t("Notify.NoXp", { cost, have: xp.available }));
+    const ok = await foundry.applications.api.DialogV2.confirm({
+      window: { title: t("Xp.BuyTitle") }, content: `<p>${L("BuyConfirm", { name: g.name, cost })}</p>`
+    });
+    if (!ok) return;
+    const log = foundry.utils.deepClone(actor._source.system.experience.log);
+    log.unshift({ amount: -cost, reason: L("Learned", { name: g.name }), date: new Date().toLocaleDateString("ru-RU") });
+    await actor.update({ "system.experience.spent": actor._source.system.experience.spent + cost, "system.experience.log": log });
+    await addGift(actor, g.key);
+    ui.notifications.info(L("Added", { name: g.name }));
+    return this.render();
   }
 
   /** Новая Тауматургия или Некромантия — сразу выбрать первичный путь; Вложение — скрепить сделку злодеянием. */

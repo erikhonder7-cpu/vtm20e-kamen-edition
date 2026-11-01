@@ -1005,9 +1005,15 @@ try {
       Object.assign(out, { gifts: a.system.werewolf.gifts.length, rites: a.system.werewolf.rites.length });
       const pack = game.packs.get(`${SYS}.werewolf-rules`);
       out.rulesBooks = pack ? (await pack.getIndex()).size : 0;
+      const { Codex } = await import(`/systems/${SYS}/module/data/codex.mjs`);
+      out.wwTraits = Codex.merits.filter(m => CONFIG.VTM20.traitFor(m, { type: "werewolf" })).length;
+      out.wwBackgrounds = Codex.backgrounds.filter(b => CONFIG.VTM20.backgroundAllowed(b, "werewolf")).length;
+      out.xp = [a.xpCost("rage", 5), a.xpCost("gnosis", 3), a.xpCost("gift", 0, { level: 2, own: true }), a.xpCost("gift", 0, { level: 2, own: false })].join(",");
       return out;
     }, id);
     if (r.giftEntries < 300 || r.riteEntries < 50 || r.gifts !== 2 || r.rites !== 1) throw new Error(`библиотека: Даров ${r.giftEntries}, ритуалов ${r.riteEntries}, взято ${r.gifts}/${r.rites}`);
+    if (r.wwTraits !== 119 || r.wwBackgrounds !== 12) throw new Error(`черты Гару: ${r.wwTraits}, Факты: ${r.wwBackgrounds}`);
+    if (r.xp !== "5,6,6,10") throw new Error(`цены опыта Гару (Ярость, Гнозис, Дар свой/чужой): ${r.xp}`);
     if (r.rulesBooks < 9) throw new Error(`компендий правил оборотней: ${r.rulesBooks} книг`);
     if (r.str !== 7 || r.app !== 0 || r.strAgain !== 7) throw new Error(`Кринос: Сила ${r.str}/${r.strAgain}, Внешность ${r.app}`);
     if (r.form !== "lupus" || r.rage !== 4 || r.strLupus !== 4) throw new Error(`смена формы за Ярость: ${r.form}, Ярость ${r.rage}, Сила ${r.strLupus}`);

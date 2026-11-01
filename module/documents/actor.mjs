@@ -502,6 +502,10 @@ export class VtMActor extends Actor {
       case "urge": return current * 2;                    // Потребность Привязанного (Earthbound, гл. 3)
       // Кровное право дампира (Accursed Heirs, гл. 4): новое — 7, далее текущее × 5, не выше 3
       case "bloodright": return current >= 3 ? null : current === 0 ? 7 : current * 5;
+      // Оборотень (W20, гл. 3): Ярость — текущее, Гнозис — текущее × 2 (с нуля — как 1), Дар — уровень × 3 своего списка, × 5 чужого
+      case "rage": return Math.max(1, current);
+      case "gnosis": return Math.max(1, current) * 2;
+      case "gift": return extra.level * (extra.own ? 3 : 5);
       // Охотник при росте за опыт (Players Guide, гл. 2): начальная Убеждённость и Добродетели охоты
       case "hunterConviction": case "hunterVirtue": case "lostVirtue": return hunterXpCost(this, kind, current, extra.key);
       default: return null;

@@ -3934,7 +3934,8 @@
       "OtherList": "other list",
       "NeedRank": "Requires Rank {n}",
       "NeedRituals": "Requires Rituals {n}",
-      "Outsiders": "Outsiders"
+      "Outsiders": "Outsiders",
+      "Garou": "Garou"
     }
   }
 }
