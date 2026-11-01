@@ -288,3 +288,5 @@ body.r-theme-light .vtm20.r-type-werewolf .r-form-badge.is-down { color: #7a2a18
 .application.vtm20.r-dialog.r-type-werewolf .form-footer button[data-action=ok], .application.vtm20.r-dialog.r-type-werewolf button.default { color: #0b120e; border: 1px solid #eef3f0;
   background: linear-gradient(180deg, #eef3f0, #9fb3aa); box-shadow: 0 0 10px rgba(185, 200, 195, .2); font-weight: 600; }
 .application.vtm20.r-dialog.r-type-werewolf .form-footer button[data-action=ok]:hover, .application.vtm20.r-dialog.r-type-werewolf button.default:hover { background: linear-gradient(180deg, #ffffff, #b9c8c3); color: #000; }
+.vtm20.r-type-werewolf .r-vc-garou .r-boxes.is-gnosis { margin-bottom: 10px; }
+.vtm20.r-type-werewolf .r-vc-garou .r-boxes.is-rage { margin-bottom: 2px; }
