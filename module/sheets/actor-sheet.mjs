@@ -5,6 +5,7 @@
 // Раскладка: шапка-«патент» с медальоном, вкладки слева от «реестра»
 // (правая колонка: мораль, воля, кровь, здоровье, быстрые действия).
 
+import { sheetStrategy, openStrategy } from "../ui/strategy.mjs";
 import { VTM20, SYSTEM_PATH, SYSTEM_ID } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
 import { attachCombos } from "../ui/combo.mjs";
@@ -171,7 +172,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       wwForm: VtMActorSheet.#onWwForm, wwGift: VtMActorSheet.#onWwGift, wwGiftAdd: VtMActorSheet.#onWwGiftAdd, wwGiftDel: VtMActorSheet.#onWwGiftDel,
       wwRite: VtMActorSheet.#onWwRite, wwRiteAdd: VtMActorSheet.#onWwRiteAdd, wwRiteDel: VtMActorSheet.#onWwRiteDel,
       wwStanding: VtMActorSheet.#onWwStanding, wwFrenzy: VtMActorSheet.#onWwFrenzy, wwStep: VtMActorSheet.#onWwStep, wwSpend: VtMActorSheet.#onWwSpend,
-      wwRegen: VtMActorSheet.#onWwRegen, wwActions: VtMActorSheet.#onWwActions,
+      wwRegen: VtMActorSheet.#onWwRegen, wwActions: VtMActorSheet.#onWwActions, openStrategy: () => openStrategy(),
       drinkVitae: VtMActorSheet.#onDrinkVitae, setVitae: VtMActorSheet.#onSetVitae, bloodrightAdd: VtMActorSheet.#onBloodrightAdd, bloodrightRemove: VtMActorSheet.#onBloodrightRemove,
       bloodrightRoll: VtMActorSheet.#onBloodrightRoll, dririToggle: VtMActorSheet.#onDririToggle, dririRoll: VtMActorSheet.#onDririRoll,
       hunterTest: VtMActorSheet.#onHunterTest, hunterTrade: VtMActorSheet.#onHunterTrade, hunterRestore: VtMActorSheet.#onHunterRestore,
@@ -274,7 +275,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       // длинное имя не обрезается в шапке: шрифт мельче
       nameSize: actor.name.length > 26 ? "is-xlong" : actor.name.length > 18 ? "is-long" : "",
       // охотник — смертный с Гранями: где лист смертного и охотника совпадают, работает isMortal
-      isVampire: actor.type === "vampire", isGhoul: actor.type === "ghoul", isDhampir: actor.isDhampir, isMortal: ["mortal", "hunter"].includes(actor.type), isHunter: actor.type === "hunter", isWerewolf: actor.type === "werewolf",
+      isVampire: actor.type === "vampire", isGhoul: actor.type === "ghoul", isDhampir: actor.isDhampir, isMortal: ["mortal", "hunter"].includes(actor.type), isHunter: actor.type === "hunter", isWerewolf: actor.type === "werewolf", stratInfo: sheetStrategy(actor),
       isCreature: actor.type === "creature", isDemon: actor.type === "demon",
       hasBlood: actor.hasBlood,
       typeLabel: actor.type === "ghoul" && ["revenant", "dhampir"].includes(actor.system.ghoulType) ? t(`GhoulType.${actor.system.ghoulType}`) : game.i18n.localize(`TYPES.Actor.${actor.type}`),

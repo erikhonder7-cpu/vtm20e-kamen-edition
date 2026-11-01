@@ -7,6 +7,7 @@
 import { VTM20, SYSTEM_PATH } from "../config.mjs";
 import { rollPool, odds, chancesView } from "../dice/roll.mjs";
 import { getClock, longDate, nightNumber, nightNote, setNightNote } from "./calendar.mjs";
+import { perkBonus } from "../ui/strategy.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -60,6 +61,9 @@ class DowntimeDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const t1 = `attributes.${v.attr}`;
     const bd = [{ label: a.traitLabel(t1), value: a.traitValue(t1) }];
     if (v.second === "bg") bd.push({ label: t(`Downtime.Bg.${v.key}`), value: bg.value });
+    // Стратегия города: фишки в секторах, дающих этот факт, — +1 кубик за каждые 2
+    const pk = perkBonus(a, v.key);
+    if (pk.dice) bd.push({ label: game.i18n.format("VTM20.Strategy.PerkLine", { name: pk.names.join(", ") }), value: pk.dice });
     else bd.push({ label: a.traitLabel(`abilities.${v.second}`), value: a.traitValue(`abilities.${v.second}`) });
     const wounds = a.system.health?.penalty ?? 0;
     if (wounds) bd.push({ label: t("Roll.Wounds"), value: wounds });

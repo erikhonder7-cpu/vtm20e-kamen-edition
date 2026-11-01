@@ -8,6 +8,7 @@
 
 import { VTM20, SYSTEM_ID, SYSTEM_PATH } from "../config.mjs";
 import { coterieBg } from "./coterie.mjs";
+import { perkBonus } from "../ui/strategy.mjs";
 import { rollPool, odds, chancesView } from "../dice/roll.mjs";
 
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -77,6 +78,9 @@ class HuntDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     if (v.modDice) { pool += v.modDice; bd.push({ label: t("Hunt.ModShort"), value: v.modDice }); }
     if (v.fame && this.bg.fame + this.bg.domain) diff = Math.max(3, diff - (this.bg.fame + this.bg.domain));
     if (v.inhuman) diff += 1;
+    // Стратегия города: влияние в секторе с пользой «охота» — сложность −1 (от 5 фишек −2)
+    const sh = perkBonus(a, "hunt");
+    if (sh.n) diff = Math.max(3, diff - (sh.n >= 5 ? 2 : 1));
     // жар Маскарада с карты: после нарушений охотиться в этом месте труднее
     if (this.place?.masq) diff += this.place.masq;
     diff = Math.min(10, Math.max(2, diff + v.modDiff));

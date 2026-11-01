@@ -226,4 +226,15 @@
   </div>
   <p class="r-hint">{{localize "VTM20.Boon.Hint"}}</p>
   {{/unless}}
+  {{#if stratInfo}}
+  {{!-- Стратегия города (module/ui/strategy.mjs): влияние персонажа в сферах, заявки хода, проекты, договоры --}}
+  <h2 class="r-h2"><span><i class="fa-solid fa-chess-knight"></i> {{localize "VTM20.Strategy.SheetTitle"}}</span>
+    <span class="r-h2-tools"><a class="r-h2-btn" data-action="openStrategy"><i class="fa-solid fa-hexagon-nodes"></i> <span class="r-h2-lbl">{{localize "VTM20.Strategy.Tab"}}</span></a></span></h2>
+  <div class="r-strat-sheet">
+    <p class="r-hint">{{stratInfo.turn}}</p>
+    {{#if stratInfo.sectors.length}}<ul class="r-strat-list">{{#each stratInfo.sectors}}<li><b>{{name}}</b><span class="r-strat-pips">{{pips}}</span>{{#if perk}}<small><i class="fa-solid fa-gift"></i> {{perk}}</small>{{/if}}</li>{{/each}}</ul>{{/if}}
+    {{#if stratInfo.projects.length}}<h4>{{localize "VTM20.Strategy.Projects"}}</h4><ul class="r-strat-list">{{#each stratInfo.projects}}<li class="{{#if done}}is-done{{/if}}"><b>{{name}}</b><small>{{sector}}</small><span class="r-strat-bar"><i style="width:{{pct}}%"></i></span><small>{{now}}/{{need}}</small></li>{{/each}}</ul>{{/if}}
+    {{#if stratInfo.pacts.length}}<h4>{{localize "VTM20.Strategy.Pacts"}}</h4><ul class="r-strat-list">{{#each stratInfo.pacts}}<li><i class="fa-solid fa-handshake-simple"></i> <b>{{with}}</b><small>{{kind}} · {{where}}</small></li>{{/each}}</ul>{{/if}}
+  </div>
+  {{/if}}
 </section>

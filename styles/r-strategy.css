@@ -182,8 +182,44 @@
 #r-citymap .rs-npc summary { padding: 6px 10px; cursor: pointer; font-family: var(--c-font-display); letter-spacing: .06em; color: var(--rs-brass-b); }
 #r-citymap .rs-npcform { padding: 0 10px 10px; }
 
+/* тренды, проекты, договоры, подставной, грубость */
+#r-citymap .rs-trendmark circle { fill: #7a3a16; stroke: #d08a3a; stroke-width: 1; }
+#r-citymap .rs-trendmark.is-storm circle { fill: #b4541f; stroke: #f0b060; }
+#r-citymap .rs-trendmark text { fill: #fde9cf; font-size: 10px; font-weight: 700; text-anchor: middle; pointer-events: none; }
+#r-citymap :is(.rs-trends, .rs-projects, .rs-pacts) li { display: flex; align-items: center; gap: 7px; padding: 4px 0; font-size: 13px; border-bottom: 1px dotted rgba(176, 137, 74, .18); }
+#r-citymap .rs-trendrow > i { color: #d0702f; }
+#r-citymap .rs-trendrow span, #r-citymap .rs-projrow span { flex: 1; }
+#r-citymap .rs-lvl { color: #d0702f; font-size: 11px; letter-spacing: 1px; }
+#r-citymap .rs-lvl small { color: rgba(208, 112, 47, .3); font-size: 11px; }
+#r-citymap :is(.rs-trends, .rs-projects, .rs-pacts) a { color: var(--rs-dim); cursor: pointer; padding: 0 2px; }
+#r-citymap :is(.rs-trends, .rs-projects, .rs-pacts) a:hover { color: var(--rs-bone); }
+#r-citymap .rs-projrow > i { color: var(--rs-verdigris); }
+#r-citymap .rs-projrow.is-done span { color: var(--rs-brass-b); }
+#r-citymap .rs-bar { flex: 0 0 70px; height: 6px; background: #2a221a; border: 1px solid #3b3024; }
+#r-citymap .rs-bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--rs-verdigris), var(--rs-brass)); }
+#r-citymap .rs-pacts li > i { color: var(--rs-brass); }
+#r-citymap .rs-pacts small { color: var(--rs-dim); }
+#r-citymap .rs-perk { margin: 6px 0 0; font-size: 12.5px; color: var(--rs-brass-b); }
+#r-citymap .rs-note.is-warn { color: #d0702f; }
+#r-citymap .rs-inline { margin-top: 6px; align-items: center; flex-wrap: nowrap; }
+#r-citymap .rs-inline input[type=text] { flex: 1; }
+#r-citymap .rs-inline input[type=number] { width: 60px; }
+#r-citymap .rs-tag { display: inline-flex; gap: 4px; align-items: center; margin: 2px 6px 0 0; padding: 0 6px; font-style: normal; font-size: 11px; border: 1px solid #3b3024; color: var(--rs-bone-2); }
+#r-citymap .rs-tag.is-crude { border-color: var(--rs-blood); color: var(--rs-blood-b); }
+#r-citymap .rs-crude { margin-top: 8px; }
+
 @media (max-width: 1100px) {
   #r-citymap .rs-body { grid-template-columns: 1fr; grid-template-rows: minmax(260px, 45%) 1fr; }
   #r-citymap .rs-head { flex-wrap: wrap; }
 }
 @media (prefers-reduced-motion: reduce) { #r-citymap .rs-hex .rs-plate { transition: none; } }
+
+/* Лист персонажа: «Влияние в городе» */
+.vtm20 .r-strat-sheet .r-strat-list { list-style: none; margin: 0 0 6px; padding: 0; }
+.vtm20 .r-strat-sheet .r-strat-list li { display: flex; align-items: center; gap: 8px; padding: 3px 0; border-bottom: 1px dotted rgba(140, 120, 90, .3); }
+.vtm20 .r-strat-sheet .r-strat-list b { flex: 1; font-weight: 500; }
+.vtm20 .r-strat-sheet .r-strat-list small { opacity: .75; }
+.vtm20 .r-strat-sheet .r-strat-pips { letter-spacing: 1px; color: var(--r-blood, #a3242a); }
+.vtm20 .r-strat-sheet .r-strat-bar { flex: 0 0 70px; height: 6px; background: rgba(0, 0, 0, .25); }
+.vtm20 .r-strat-sheet .r-strat-bar i { display: block; height: 100%; background: var(--r-blood, #a3242a); }
+.vtm20 .r-strat-sheet h4 { margin: 8px 0 4px; }
