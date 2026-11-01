@@ -1029,6 +1029,8 @@ def main():
     print("  охотник:", hunter_data.build())
     import dhampir_data   # дампиры (Accursed Heirs): концепции, Кровные права, черты, Дополнения, глава правил (data/dhampir.json)
     print("  дампиры:", dhampir_data.build())
+    import werewolf_data   # Оборотень: Апокалипсис (W20) — породы, аугурии, племена, формы, Дары, ритуалы (data/werewolf.json)
+    print("  оборотни:", werewolf_data.build())
     import rules_extra   # справочник правил V20 для компендия «Правила V20»
     dump("rules.json", rules_extra.collect(REF, md_to_html))
     core = os.path.join(REF, "V20_Основные_правила")
