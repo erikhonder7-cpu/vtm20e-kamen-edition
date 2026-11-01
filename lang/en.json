@@ -3921,7 +3921,12 @@
       },
       "FormMod": "Form modifier: total for rolls",
       "RenownRank": "Renown and Rank",
-      "RankReady": "Enough Renown for the next Rank — time to issue a challenge"
+      "RankReady": "Enough Renown for the next Rank — time to issue a challenge",
+      "StandingTitle": "Renown and Rank: {name}",
+      "Permanent": "permanent",
+      "Temporary": "temporary",
+      "Save": "Save",
+      "ToRank": "to Rank {n}"
     }
   }
 }

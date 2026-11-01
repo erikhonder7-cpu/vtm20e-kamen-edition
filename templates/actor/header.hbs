@@ -98,8 +98,11 @@
           <select name="system.werewolf.auspice">{{#each werewolfInfo.auspices}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
         <label class="r-df is-wide" data-tooltip="{{localize 'VTM20.Werewolf.Totem'}}: {{werewolfInfo.tribe.totem}}"><span>{{localize "VTM20.Werewolf.Tribe"}}</span>
           <select name="system.werewolf.tribe">{{#each werewolfInfo.tribes}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
-        <label class="r-df is-narrow" data-tooltip="{{werewolfInfo.rankName}}"><span>{{localize "VTM20.Werewolf.Rank"}}</span>
-          <input type="number" name="system.werewolf.rank" value="{{system.werewolf.rank}}" min="0" max="6"></label>
+        {{!-- Ранг — узким полем; Слава — в подсказке; щелчок — окно правки Славы и Ранга (apps/werewolf.mjs, editStanding) --}}
+        <a class="r-df is-narrow r-ww-standing {{#if werewolfInfo.canRank}}is-ready{{/if}}" {{#if editable}}data-action="wwStanding"{{/if}}
+           data-tooltip="{{#each werewolfInfo.standing}}{{label}} {{perm}}{{#if temp}} (+{{temp}}){{/if}}{{#unless @last}} · {{/unless}}{{/each}}{{#if werewolfInfo.nextRank}}<br>{{localize 'VTM20.Werewolf.NextRank'}}: {{werewolfInfo.nextRank}}{{/if}}">
+          <span>{{localize "VTM20.Werewolf.Rank"}}</span><b class="r-ww-rank-num">{{werewolfInfo.rank}}{{#if werewolfInfo.canRank}} <i class="fa-solid fa-arrow-up r-ww-up"></i>{{/if}}</b>
+        </a>
         {{/if}}
         {{#if isHunter}}
         <label class="r-df is-wide r-df-creed" {{#if creedTip}}data-tooltip="{{creedTip}}"{{/if}}><span>{{localize "VTM20.Hunter.Creed"}}</span>

@@ -214,22 +214,6 @@ body.r-theme-light .vtm20.r-type-werewolf {
 .vtm20.r-type-werewolf .r-dots.is-rage { --r-dot-fill: radial-gradient(circle at 38% 32%, #f0a58c, #a3442c 55%, #2a0f08); --r-dot-border: rgba(208, 106, 74, .4); }
 .vtm20.r-type-werewolf .r-dots.is-gnosis { --r-dot-fill: radial-gradient(circle at 38% 32%, #eef3f0, #7f9a8a 55%, #15211a); }
 .vtm20.r-type-werewolf .r-vc-garou .r-banner i { color: var(--w-moon); margin-right: 4px; }
-.vtm20.r-type-werewolf .r-ww-more { margin-top: 8px; border-top: 1px dashed var(--r-line-2); }
-.vtm20.r-type-werewolf .r-ww-more-head { display: flex; align-items: center; gap: 6px; padding: 6px 2px 2px; color: var(--r-ink-2); font-size: 12.5px; cursor: pointer; }
-.vtm20.r-type-werewolf .r-ww-more-head:hover { color: var(--r-ink); }
-.vtm20.r-type-werewolf .r-ww-more-head > i:first-child { color: var(--w-moon); }
-.vtm20.r-type-werewolf .r-ww-more-head small { color: var(--r-muted); }
-.vtm20.r-type-werewolf .r-ww-ready { color: var(--w-rage-l); font-style: normal; filter: drop-shadow(0 0 4px rgba(208, 106, 74, .6)); }
-.vtm20.r-type-werewolf .r-ww-chev { margin-left: auto; font-size: 10px; color: var(--r-muted); transition: transform .15s; }
-.vtm20.r-type-werewolf .r-ww-more.is-open .r-ww-chev { transform: rotate(180deg); }
-.vtm20.r-type-werewolf .r-ww-more:not(.is-open) .r-ww-renown { display: none; }
-.vtm20.r-type-werewolf .r-ww-renown { display: grid; gap: 4px; margin-top: 4px; }
-.vtm20.r-type-werewolf .r-ww-renown-row { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 8px; }
-.vtm20.r-type-werewolf .r-ww-renown-num small { color: var(--r-muted); }
-.vtm20.r-type-werewolf .r-ww-rank { margin-top: 4px; font-size: 12.5px; color: var(--r-ink-2); }
-.vtm20.r-type-werewolf .r-ww-rank i { color: var(--w-moon); }
-.vtm20.r-type-werewolf .r-ww-rank.is-ready { color: var(--w-moon-l); }
-.vtm20.r-type-werewolf .r-ww-rank.is-ready i { color: var(--w-rage-l); filter: drop-shadow(0 0 4px rgba(208, 106, 74, .6)); }
 .vtm20.r-type-werewolf .r-ww-forms { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; margin: 4px 0 14px; }
 .vtm20.r-type-werewolf .r-ww-form { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 8px 4px 6px;
   border: 1px solid var(--r-line-2); border-radius: 3px; background: var(--r-card-bg); color: var(--r-ink-2); cursor: pointer; text-align: center; }
@@ -258,3 +242,49 @@ body.r-theme-light .vtm20.r-type-werewolf { --w-moon: #3f5d50; --w-moon-l: #2239
 .vtm20.r-type-werewolf .r-form-badge i { font-size: 11px; opacity: .85; }
 body.r-theme-light .vtm20.r-type-werewolf .r-form-badge.is-up { color: #22392f; border-color: #3f5d50; background: rgba(63, 93, 80, .12); box-shadow: none; }
 body.r-theme-light .vtm20.r-type-werewolf .r-form-badge.is-down { color: #7a2a18; border-color: #a3442c; background: rgba(163, 68, 44, .1); }
+
+/* Карточка Гару: Ярость и Гнозис — как Воля (кружки — постоянное, квадратики — пул) */
+.vtm20.r-type-werewolf .r-vc-garou .r-vc-head.is-second { margin-top: 10px; }
+.vtm20.r-type-werewolf .r-boxes.is-rage .r-box.is-filled { background: linear-gradient(180deg, #d06a4a, #6b2c1c); border-color: #d06a4a; }
+.vtm20.r-type-werewolf .r-boxes.is-gnosis .r-box.is-filled { background: linear-gradient(180deg, #eef3f0, #7f9a8a); border-color: #b9c8c3; }
+/* Шапка: Ранг и Слава одной строкой, щелчок — окно правки */
+.vtm20.r-type-werewolf .r-ww-standing { cursor: pointer; text-decoration: none; }
+.vtm20.r-type-werewolf .r-ww-rank-num { color: var(--r-ink); font-weight: 600; }
+.vtm20.r-type-werewolf .r-ww-standing:hover .r-ww-rank-num { color: var(--w-moon-l); }
+.vtm20.r-type-werewolf .r-ww-standing .r-ww-up { color: var(--w-rage-l); filter: drop-shadow(0 0 4px rgba(208, 106, 74, .6)); }
+
+/* Окно «Слава и Ранг»: медальон Ранга, три карточки Славы — кружки (постоянная) и квадратики (временная) */
+.r-ww-standing-dlg .window-content { padding: 14px 16px 10px; }
+.r-ws-rank { display: grid; grid-template-columns: auto auto auto 1fr; align-items: center; gap: 10px; padding: 4px 4px 14px; border-bottom: 1px dashed var(--r-line-2); }
+.r-ws-medal { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center;
+  background: radial-gradient(circle at 40% 35%, #eef3f0, #b9c8c3 45%, #4f6b5a 80%, #15211a); box-shadow: 0 0 0 2px #0b120e, 0 0 0 3px rgba(185, 200, 195, .5), 0 0 14px rgba(185, 200, 195, .25); }
+.r-ws-roman { font-family: "Prata", Georgia, serif; font-size: 26px; color: #0b120e; text-shadow: 0 1px 0 rgba(255, 255, 255, .35); }
+.r-ws-step { width: 22px; height: 22px; display: grid; place-items: center; border: 1px solid var(--r-line-2); border-radius: 50%; color: var(--r-ink-2); cursor: pointer; font-size: 10px; }
+.r-ws-step:hover { color: var(--w-moon-l); border-color: var(--w-moon); }
+.r-ws-title { display: flex; flex-direction: column; gap: 2px; margin-left: 6px; }
+.r-ws-title b { font-family: "Prata", Georgia, serif; font-size: 20px; font-weight: 400; color: var(--r-ink); letter-spacing: .5px; }
+.r-ws-title span { color: var(--r-ink-2); font-size: 12.5px; }
+.r-ws-title span i { color: var(--w-moon); margin-right: 3px; }
+.r-ws-title em { font-style: normal; color: var(--r-muted); font-size: 12px; }
+.r-ws-title em b { font-family: inherit; font-size: 12px; color: #d9785a; }
+.r-ws-title em b.is-met { color: var(--w-moon-l); }
+.r-ws-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+.r-ws-card { border: 1px solid var(--r-line-2); border-radius: 4px; padding: 10px 10px 8px; background: radial-gradient(ellipse at 50% 0%, rgba(185, 200, 195, .08), transparent 70%), var(--r-card-bg); }
+.r-ws-card header { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+.r-ws-card header i { color: var(--w-moon); }
+.r-ws-card header b { font-family: "Prata", Georgia, serif; font-weight: 400; font-size: 15px; color: var(--r-ink); }
+.r-ws-num { margin-left: auto; font-family: "Prata", Georgia, serif; font-size: 22px; color: var(--w-moon-l); line-height: 1; }
+.r-ws-card small { display: block; color: var(--r-muted); font-size: 10.5px; text-transform: uppercase; letter-spacing: .6px; margin: 4px 0 3px; }
+.r-ws-track { display: grid; grid-template-columns: repeat(10, 1fr); gap: 3px; }
+.r-ws-pip { aspect-ratio: 1; border: 1px solid rgba(185, 200, 195, .35); cursor: pointer; }
+.r-ws-track.is-permanent .r-ws-pip { border-radius: 50%; }
+.r-ws-track.is-temporary .r-ws-pip { border-radius: 1px; }
+.r-ws-pip:hover { border-color: var(--w-moon-l); }
+.r-ws-track.is-permanent .r-ws-pip.is-on { background: radial-gradient(circle at 38% 32%, #eef3f0, #7f9a8a 55%, #15211a); border-color: #b9c8c3; }
+.r-ws-track.is-temporary .r-ws-pip.is-on { background: linear-gradient(180deg, #c6d6cf, #5f706b); border-color: #b9c8c3; }
+.r-ws-card footer { margin-top: 8px; font-size: 11.5px; color: #d9785a; min-height: 14px; }
+.r-ws-card footer.is-met { color: var(--w-moon-l); }
+.application.vtm20.r-dialog.r-ww-standing-dlg .form-footer button[data-action=ok] { flex: 0 0 auto; min-width: 160px; margin: 0 auto; }
+.application.vtm20.r-dialog.r-type-werewolf .form-footer button[data-action=ok], .application.vtm20.r-dialog.r-type-werewolf button.default { color: #0b120e; border: 1px solid #eef3f0;
+  background: linear-gradient(180deg, #eef3f0, #9fb3aa); box-shadow: 0 0 10px rgba(185, 200, 195, .2); font-weight: 600; }
+.application.vtm20.r-dialog.r-type-werewolf .form-footer button[data-action=ok]:hover, .application.vtm20.r-dialog.r-type-werewolf button.default:hover { background: linear-gradient(180deg, #ffffff, #b9c8c3); color: #000; }

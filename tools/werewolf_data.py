@@ -46,7 +46,7 @@ FORMS = [
 ICONS = {
     "breed": {"homid": "fa-person", "metis": "fa-bone-break", "lupus": "fa-paw"},
     "auspice": {"ragabash": "fa-moon-new", "theurge": "fa-moon-waxing-crescent", "philodox": "fa-moon-first-quarter",
-                "galliard": "fa-moon-waxing-gibbous", "ahroun": "fa-moon-full"},
+                "galliard": "fa-moon-waxing-gibbous", "ahroun": "fa-circle"},
     "tribe": {"blackFuries": "fa-horse", "boneGnawers": "fa-bone", "childrenOfGaia": "fa-unicorn", "fianna": "fa-deer",
               "getOfFenris": "fa-teeth", "glassWalkers": "fa-tree-city", "redTalons": "fa-claw-marks", "shadowLords": "fa-cloud-bolt",
               "silentStriders": "fa-owl", "silverFangs": "fa-crown", "stargazers": "fa-moon-stars", "uktena": "fa-snake",

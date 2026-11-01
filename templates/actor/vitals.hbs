@@ -110,45 +110,28 @@
     {{/if}}
   </div>
   {{else if werewolfInfo}}
-  {{!-- Гару (W20, гл. 4): Ярость и Гнозис — постоянные точками, текущие числом; Слава — Слава, Честь, Мудрость; Ранг — по Славе аугурии --}}
+  {{!-- Гару (W20, гл. 4): Ярость и Гнозис — как Воля: постоянное кружками, текущий пул квадратиками (щелчок — поставить).
+       Текущая Ярость может быть выше постоянной; Гнозис — нет. Слава и Ранг — строкой в шапке. --}}
   <div class="r-vcard r-vc-morality r-vc-garou">
     <div class="r-vc-head">
-      <h4 class="r-banner"><i class="fa-solid {{werewolfInfo.auspice.icon}}"></i> {{localize "VTM20.Werewolf.Rage"}}</h4>
-      <div class="r-vc-status" data-tooltip="{{localize 'VTM20.Werewolf.RageHint'}}"><b>{{werewolfInfo.rage}}</b> <small>/ {{werewolfInfo.ragePerm}}</small></div>
+      <h4 class="r-banner"><a data-action="rollTrait" data-trait="werewolf.rage" data-tooltip="{{localize 'VTM20.Werewolf.RageHint'}}">{{localize "VTM20.Werewolf.Rage"}}</a></h4>
+      <div class="r-vc-status"><b>{{werewolfInfo.rage}}</b> / {{werewolfInfo.ragePerm}}</div>
     </div>
     {{> rDots dots=werewolfInfo.rageDots cls="is-ten is-rage"}}
-    <div class="r-vc-head">
-      <h4 class="r-banner"><i class="fa-solid fa-spiral"></i> {{localize "VTM20.Werewolf.Gnosis"}}</h4>
-      <div class="r-vc-status" data-tooltip="{{localize 'VTM20.Werewolf.GnosisHint'}}"><b>{{werewolfInfo.gnosis}}</b> <small>/ {{werewolfInfo.gnosisPerm}}</small></div>
+    <div class="r-boxes is-rage">
+      {{#each werewolfInfo.rageTemp}}<a class="r-box {{#if filled}}is-filled{{/if}}" data-action="setDots" data-path="{{path}}" data-n="{{n}}"></a>{{/each}}
+    </div>
+    <div class="r-vc-head is-second">
+      <h4 class="r-banner"><a data-action="rollTrait" data-trait="werewolf.gnosis" data-tooltip="{{localize 'VTM20.Werewolf.GnosisHint'}}">{{localize "VTM20.Werewolf.Gnosis"}}</a></h4>
+      <div class="r-vc-status"><b>{{werewolfInfo.gnosis}}</b> / {{werewolfInfo.gnosisPerm}}</div>
     </div>
     {{> rDots dots=werewolfInfo.gnosisDots cls="is-ten is-gnosis"}}
-    {{!-- Слава и Ранг — раскрываются по щелчку (по умолчанию в карточке только Ярость и Гнозис); открытое — помнит лист --}}
-    <div class="r-row-wrap r-ww-more {{#if wwMoreOpen}}is-open{{/if}}">
-    <a class="r-ww-more-head" data-action="toggleRow" data-row-id="ww-renown">
-      <i class="fa-solid fa-medal"></i> {{localize "VTM20.Werewolf.RenownRank"}} <small>· {{localize "VTM20.Werewolf.Rank"}} {{werewolfInfo.rank}}{{#if werewolfInfo.rankName}}, {{werewolfInfo.rankName}}{{/if}}</small>
-      {{#if werewolfInfo.canRank}}<em class="r-ww-ready" data-tooltip="{{localize 'VTM20.Werewolf.RankReady'}}"><i class="fa-solid fa-arrow-up"></i></em>{{/if}}
-      <i class="fa-solid fa-chevron-down r-ww-chev"></i>
-    </a>
-    <div class="r-ww-renown">
-      {{#each werewolfInfo.renown}}
-      <div class="r-ww-renown-row" data-tooltip="{{localize 'VTM20.Werewolf.RenownHint'}}">
-        <span class="r-trait-label">{{label}}</span><span class="r-ww-renown-num"><b>{{perm}}</b> <small>◇{{temp}}</small></span>
-        {{> rDots dots=dots cls="is-small"}}
-      </div>
-      {{/each}}
-      <div class="r-ww-rank {{#if werewolfInfo.canRank}}is-ready{{/if}}" data-tooltip="{{localize 'VTM20.Werewolf.RankHint'}}">
-        <i class="fa-solid fa-medal"></i> {{localize "VTM20.Werewolf.Rank"}} {{werewolfInfo.rank}} · {{werewolfInfo.rankName}}
-        {{#if werewolfInfo.nextRank}}<small>· {{localize "VTM20.Werewolf.NextRank"}}: {{werewolfInfo.nextRank}}</small>{{/if}}
-      </div>
-    </div>
+    <div class="r-boxes is-gnosis">
+      {{#each werewolfInfo.gnosisTemp}}<a class="r-box {{#if filled}}is-filled{{/if}} {{#if locked}}is-locked{{/if}}" data-action="setDots" data-path="{{path}}" data-n="{{n}}"></a>{{/each}}
     </div>
     <div class="r-vc-tools">
       <a class="r-vc-btn" data-action="wwFrenzy" data-tooltip="{{localize 'VTM20.Werewolf.FrenzyHint'}}"><i class="fa-solid fa-fire"></i> {{localize "VTM20.Werewolf.Frenzy"}}</a>
       <a class="r-vc-btn" data-action="wwStep" data-tooltip="{{localize 'VTM20.Werewolf.StepHint'}}"><i class="fa-solid fa-moon-over-sun"></i> {{localize "VTM20.Werewolf.StepSideways"}}</a>
-      {{#if editable}}
-      <a class="r-vc-btn is-sq" data-action="wwSpend" data-what="rage" data-tooltip="{{localize 'VTM20.Werewolf.SpendRage'}}"><i class="fa-solid fa-fire"></i> −1</a>
-      <a class="r-vc-btn is-sq" data-action="wwSpend" data-what="gnosis" data-tooltip="{{localize 'VTM20.Werewolf.SpendGnosis'}}"><i class="fa-solid fa-spiral"></i> −1</a>
-      {{/if}}
       {{#if werewolfInfo.beast}}<span class="r-vc-hint is-right is-warn" data-tooltip="{{localize 'VTM20.Werewolf.BeastHint' n=werewolfInfo.beast}}"><i class="fa-solid fa-paw-claws"></i> −{{werewolfInfo.beast}}</span>{{/if}}
     </div>
   </div>

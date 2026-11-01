@@ -33,7 +33,7 @@ import { openThrallGifts } from "../apps/thrall-gifts.mjs";
 import { loseHost, holdOn, newHost, summonedBack } from "../apps/host.mjs";
 import { openCult } from "../apps/cult.mjs";
 import { openExorcist } from "../apps/exorcist.mjs";
-import { werewolfInfo, giftsView, changeForm, rollGift, rollRite, frenzyCheck, stepSideways, spend as wwSpend, addGift, removeGift, addRite, removeRite } from "../apps/werewolf.mjs";
+import { werewolfInfo, giftsView, editStanding, changeForm, rollGift, rollRite, frenzyCheck, stepSideways, spend as wwSpend, addGift, removeGift, addRite, removeRite } from "../apps/werewolf.mjs";
 import { hunterInfo, edgesView, useEdge, secondSight, virtueTest, tradeConviction, restoreConviction, awardDeed, shiftDeed, cashDeed, sacrifice, advanceVirtue, callEdge, swapCalled, unblockCall, callView, isLost, lostVirtue, lostTrade, lostHardened, lostOrdeal } from "../apps/hunter.mjs";
 import { addBloodright, removeBloodright, rollBloodright, toggleRitual as toggleDririRitual, rollRitual as rollDririRitual } from "../apps/dhampir.mjs";
 import { openEbServant, empower as empowerServant } from "../apps/eb-servant.mjs";
@@ -170,7 +170,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       edgeUse: VtMActorSheet.#onEdgeUse, edgeDel: VtMActorSheet.#onEdgeDel, hunterSight: VtMActorSheet.#onHunterSight,
       wwForm: VtMActorSheet.#onWwForm, wwGift: VtMActorSheet.#onWwGift, wwGiftAdd: VtMActorSheet.#onWwGiftAdd, wwGiftDel: VtMActorSheet.#onWwGiftDel,
       wwRite: VtMActorSheet.#onWwRite, wwRiteAdd: VtMActorSheet.#onWwRiteAdd, wwRiteDel: VtMActorSheet.#onWwRiteDel,
-      wwFrenzy: VtMActorSheet.#onWwFrenzy, wwStep: VtMActorSheet.#onWwStep, wwSpend: VtMActorSheet.#onWwSpend,
+      wwStanding: VtMActorSheet.#onWwStanding, wwFrenzy: VtMActorSheet.#onWwFrenzy, wwStep: VtMActorSheet.#onWwStep, wwSpend: VtMActorSheet.#onWwSpend,
       drinkVitae: VtMActorSheet.#onDrinkVitae, setVitae: VtMActorSheet.#onSetVitae, bloodrightAdd: VtMActorSheet.#onBloodrightAdd, bloodrightRemove: VtMActorSheet.#onBloodrightRemove,
       bloodrightRoll: VtMActorSheet.#onBloodrightRoll, dririToggle: VtMActorSheet.#onDririToggle, dririRoll: VtMActorSheet.#onDririRoll,
       hunterTest: VtMActorSheet.#onHunterTest, hunterTrade: VtMActorSheet.#onHunterTrade, hunterRestore: VtMActorSheet.#onHunterRestore,
@@ -285,7 +285,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     prepareRegistry(this, ctx);
     if (actor.type === "demon") prepareLores(this, ctx);
     else if (actor.type === "hunter") { ctx.hunterInfo = hunterInfo(actor, dots); ctx.edgePaths = edgesView(actor); ctx.hunterCall = callView(actor); }
-    else if (actor.type === "werewolf") { ctx.werewolfInfo = werewolfInfo(actor, dots); ctx.ww = giftsView(actor); ctx.wwMoreOpen = this._open.has("ww-renown"); }
+    else if (actor.type === "werewolf") { ctx.werewolfInfo = werewolfInfo(actor, dots); ctx.ww = giftsView(actor); }
     else if (actor.type !== "mortal") prepareDisciplines(this, ctx);
     prepareAdvantages(this, ctx);
     prepareGear(this, ctx);
@@ -741,6 +741,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static #onWwRite(event, target) { return rollRite(this.actor, target.dataset.key); }
   static #onWwRiteAdd(event, target) { return addRite(this.actor, target.closest(".r-toolbar")?.querySelector(".r-ww-rite-add")?.value); }
   static #onWwRiteDel(event, target) { return removeRite(this.actor, target.dataset.key); }
+  static #onWwStanding() { return editStanding(this.actor); }
   static #onWwFrenzy() { return frenzyCheck(this.actor); }
   static #onWwStep() { return stepSideways(this.actor); }
   static #onWwSpend(event, target) { return wwSpend(this.actor, target.dataset.what, 1); }
