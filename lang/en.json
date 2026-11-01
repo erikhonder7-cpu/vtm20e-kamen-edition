@@ -6,7 +6,8 @@
       "mortal": "Mortal",
       "creature": "Creature",
       "demon": "Demon",
-      "hunter": "Hunter"
+      "hunter": "Hunter",
+      "werewolf": "Werewolf"
     },
     "Item": {
       "discipline": "Discipline",
@@ -988,7 +989,10 @@
       "technology": "Technology",
       "warfare": "Warfare",
       "intuition": "Intuition",
-      "religion": "Religion"
+      "religion": "Religion",
+      "primalUrge": "Primal-Urge",
+      "enigmas": "Enigmas",
+      "rituals": "Rituals"
     },
     "Era": {
       "modern": "Modern nights (V20 as written)",
@@ -3852,6 +3856,70 @@
       "AnyLevel": "any level VI–IX",
       "Desc": "Description",
       "Pick": "Choose"
+    },
+    "Werewolf": {
+      "Breed": "Breed",
+      "Auspice": "Auspice",
+      "Tribe": "Tribe",
+      "Totem": "Totem",
+      "Rank": "Rank",
+      "Rage": "Rage",
+      "Gnosis": "Gnosis",
+      "Renown": {
+        "glory": "Glory",
+        "honor": "Honor",
+        "wisdom": "Wisdom"
+      },
+      "RageHint": "Current Rage / permanent. Rage — extra actions (no more than half of permanent per turn), instant shapeshifting, ignore stun; a Rage roll — frenzy.",
+      "GnosisHint": "Current Gnosis / permanent: Gifts, fetishes, stepping sideways.",
+      "RenownHint": "Permanent Renown in dots, temporary — ◇. Ten temporary — a permanent point.",
+      "RankHint": "Rank: Gifts no higher than Rank; a new Rank — when Renown meets the auspice requirements and a challenge is made.",
+      "NextRank": "next",
+      "RankSum": "Renown total {n}",
+      "RankEach": "Glory {g}, Honor {h}, Wisdom {w}",
+      "Frenzy": "Frenzy",
+      "FrenzyHint": "A roll of current Rage (diff. 6, Rank 3 — +1, Rank 4+ — +2): 4 or more successes — frenzy (Rank 5 — 5+).",
+      "FrenzyNote": "Frenzy — {n} or more successes.",
+      "FrenzyOn": "{name} frenzies: the Beast takes over.",
+      "StepSideways": "Step sideways",
+      "StepHint": "Stepping sideways: a Gnosis roll against the local Gauntlet (city — 8–9, wilderness — 5–6, caern — 2–4); a mirror or shiny surface helps.",
+      "GauntletNote": "Difficulty — the local Gauntlet: caern 2–4, wilderness 5–6, suburbs 7, city 8–9.",
+      "SpendRage": "Spend a point of Rage",
+      "SpendGnosis": "Spend a point of Gnosis",
+      "NoRage": "Not enough Rage: {n} needed.",
+      "NoGnosis": "Not enough Gnosis: {n} needed.",
+      "BeastHint": "The Beast within: Rage above Willpower — −{n} to social rolls.",
+      "Forms": "Forms",
+      "ShiftDiff": "shift difficulty {n}",
+      "Delirium": "Delirium in mortals",
+      "FormTitle": "Form: {form}",
+      "FormHow": "Instantly for a point of Rage — or a Stamina + Primal-Urge roll (diff. {diff}): {steps} successes needed, one for each form along the way.",
+      "FormRage": "For Rage",
+      "FormRoll": "Roll",
+      "FormNeed": "Successes needed: {n}.",
+      "FormDone": "{name} assumes {form} form.",
+      "Gifts": "Gifts",
+      "RulesHint": "Werewolf: The Apocalypse — rules (compendium)",
+      "AddGift": "New Gift…",
+      "AddGiftHint": "Gifts of your breed, auspice and tribe no higher than Rank",
+      "GiftUse": "Use the Gift: the cost is paid, then the roll",
+      "NoGifts": "No Gifts yet.",
+      "Rites": "Rites",
+      "AddRite": "New rite…",
+      "AddRiteHint": "Rites no higher than the Rituals Ability",
+      "RiteUse": "Perform the rite",
+      "NoRites": "No rites.",
+      "Diff": "diff. {n}",
+      "DiffByTarget": "difficulty by target",
+      "DiffByTargetNote": "The difficulty depends on the target — adjust it in the dialog.",
+      "CostRage": "Rage {n}",
+      "CostGnosis": "Gnosis {n}",
+      "CostWill": "Willpower {n}",
+      "Outsider": {
+        "ronin": "Ronin",
+        "skinDancers": "Skin Dancers"
+      },
+      "FormMod": "Form modifier: total for rolls"
     }
   }
 }

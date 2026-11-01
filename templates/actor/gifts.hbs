@@ -1,0 +1,57 @@
+{{!-- II. Гару (W20): пять форм (поправки Атрибутов — в итоге черт), Дары по уровням, ритуалы. --}}
+<section class="tab r-pane r-disciplines r-edges r-gifts {{tab.cssClass}}" data-tab="{{tab.id}}" data-group="{{tab.group}}">
+
+  <h2 class="r-h2"><span>{{localize "VTM20.Werewolf.Forms"}}</span></h2>
+  <div class="r-ww-forms">
+    {{#each werewolfInfo.forms}}
+    <a class="r-ww-form {{#if active}}is-active{{/if}}" {{#unless active}}{{#if @root.editable}}data-action="wwForm" data-form="{{key}}"{{/if}}{{/unless}}
+       data-tooltip="{{localize 'VTM20.Werewolf.ShiftDiff' n=diff}}{{#if mods}} · {{mods}}{{/if}}{{#if delirium}} · {{localize 'VTM20.Werewolf.Delirium'}}{{/if}}">
+      <i class="fa-solid {{icon}}"></i><b>{{rName this}}</b><small>{{localize "VTM20.Roll.Vs"}} {{diff}}</small>
+    </a>
+    {{/each}}
+  </div>
+
+  <h2 class="r-h2"><span>{{localize "VTM20.Werewolf.Gifts"}}</span>
+    <span class="r-h2-tools"><a class="r-h2-btn is-plain" data-action="openRules" data-tooltip="{{localize 'VTM20.Werewolf.RulesHint'}}"><i class="fa-solid fa-book-open-reader"></i></a></span>
+  </h2>
+  {{#if editable}}{{#if ww.avail.length}}
+  <div class="r-toolbar r-ww-add">
+    <select class="r-ww-gift-add" data-tooltip="{{localize 'VTM20.Werewolf.AddGiftHint'}}"><option value="">{{localize "VTM20.Werewolf.AddGift"}}</option>
+      {{#each ww.avail}}<option value="{{key}}">{{label}}</option>{{/each}}</select>
+    <a class="r-vc-btn" data-action="wwGiftAdd"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Common.Add"}}</a>
+  </div>
+  {{/if}}{{/if}}
+  <ul class="r-edge-list r-ww-gifts">
+    {{#each ww.gifts}}
+    <li class="r-edge {{#unless own}}is-foreign{{/unless}}">
+      <span class="r-edge-lvl">{{rRoman level}}</span>
+      <span class="r-edge-main"><b>{{rName this}}</b> <small>{{rAlt this}}{{#if from}} · {{from}}{{/if}}{{#if pool}} · {{pool}}{{/if}}{{#if cost}} · {{cost}}{{/if}}</small>
+        <div class="r-edge-text">{{{text}}}</div></span>
+      {{#if @root.editable}}<a class="r-vc-btn" data-action="wwGift" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Werewolf.GiftUse'}}"><i class="fa-solid {{#if roll}}fa-dice-d10{{else}}fa-hand-sparkles{{/if}}"></i></a>
+      <a class="r-icon-btn is-danger" data-action="wwGiftDel" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
+    </li>
+    {{else}}<li class="r-note">{{localize "VTM20.Werewolf.NoGifts"}}</li>
+    {{/each}}
+  </ul>
+
+  <h2 class="r-h2"><span>{{localize "VTM20.Werewolf.Rites"}}</span></h2>
+  {{#if editable}}{{#if ww.ritesAvail.length}}
+  <div class="r-toolbar r-ww-add">
+    <select class="r-ww-rite-add" data-tooltip="{{localize 'VTM20.Werewolf.AddRiteHint'}}"><option value="">{{localize "VTM20.Werewolf.AddRite"}}</option>
+      {{#each ww.ritesAvail}}<option value="{{key}}">{{label}}</option>{{/each}}</select>
+    <a class="r-vc-btn" data-action="wwRiteAdd"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Common.Add"}}</a>
+  </div>
+  {{/if}}{{/if}}
+  <ul class="r-edge-list r-ww-rites">
+    {{#each ww.rites}}
+    <li class="r-edge">
+      <span class="r-edge-lvl">{{#if level}}{{rRoman level}}{{else}}—{{/if}}</span>
+      <span class="r-edge-main"><b>{{rName this}}</b> <small>{{rAlt this}} · {{kindName}} · {{pool}}</small>
+        <div class="r-edge-text">{{{text}}}</div></span>
+      {{#if @root.editable}}<a class="r-vc-btn" data-action="wwRite" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Werewolf.RiteUse'}}"><i class="fa-solid fa-dice-d10"></i></a>
+      <a class="r-icon-btn is-danger" data-action="wwRiteDel" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
+    </li>
+    {{else}}<li class="r-note">{{localize "VTM20.Werewolf.NoRites"}}</li>
+    {{/each}}
+  </ul>
+</section>

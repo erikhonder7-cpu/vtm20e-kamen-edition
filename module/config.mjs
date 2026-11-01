@@ -42,6 +42,7 @@ VTM20.abilities = {
   intimidation: { group: "talents" }, leadership:  { group: "talents" }, streetwise: { group: "talents" },
   subterfuge:   { group: "talents" },
   intuition:    { group: "talents", only: "demon" },     // Demon: The Fallen — только у демонов
+  primalUrge:   { group: "talents", only: "werewolf" },  // W20: Первобытный инстинкт, Загадки, Ритуалы — только у оборотней
   animalKen:    { group: "skills" }, crafts:   { group: "skills", earlySpecialty: true }, drive:       { group: "skills", era: "modern" },
   ride:         { group: "skills", era: "revolution" },
   etiquette:    { group: "skills" }, firearms: { group: "skills" }, larceny:     { group: "skills" },
@@ -53,7 +54,8 @@ VTM20.abilities = {
   medicine:     { group: "knowledges" }, occult: { group: "knowledges" }, politics: { group: "knowledges" },
   science:      { group: "knowledges", earlySpecialty: true }, technology: { group: "knowledges", era: "modern", earlySpecialty: true },
   warfare:      { group: "knowledges", era: "revolution" },
-  religion:     { group: "knowledges", only: "demon" }
+  religion:     { group: "knowledges", only: "demon" },
+  enigmas:      { group: "knowledges", only: "werewolf" }, rituals: { group: "knowledges", only: "werewolf" }
 };
 for (const [k, a] of Object.entries(VTM20.abilities)) a.label = L(`Abil.${k}`);
 
@@ -174,7 +176,19 @@ VTM20.meritCategories = {
 };
 
 /** Линия черт и Дополнений типа персонажа: вампиры, гули и смертные — общая (""), у демонов своя (data/demon-*.json). */
-VTM20.traitLine = type => ["demon", "hunter"].includes(type) ? type : "";
+/**
+ * Пять форм Гару (W20, гл. 6; поправки — по листу персонажа W20): сложность смены, прибавки к итогу Атрибутов, set — значение
+ * ставится (Внешность в Криносе — 0). Здесь, а не в data/werewolf.json: итог черт считается при загрузке мира, до справочника.
+ */
+VTM20.garouForms = [
+  { key: "homid", name: "Хомид", en: "Homid", icon: "fa-person", diff: 6, mods: {}, set: {} },
+  { key: "glabro", name: "Глабро", en: "Glabro", icon: "fa-person-falling-burst", diff: 7, mods: { strength: 2, stamina: 2, manipulation: -2, appearance: -1 }, set: {} },
+  { key: "crinos", name: "Кринос", en: "Crinos", icon: "fa-claw-marks", diff: 6, mods: { strength: 4, dexterity: 1, stamina: 3, manipulation: -3 }, set: { appearance: 0 }, delirium: true },
+  { key: "hispo", name: "Хиспо", en: "Hispo", icon: "fa-paw-claws", diff: 7, mods: { strength: 3, dexterity: 2, stamina: 3, manipulation: -3 }, set: {} },
+  { key: "lupus", name: "Лупус", en: "Lupus", icon: "fa-paw", diff: 6, mods: { strength: 1, dexterity: 2, stamina: 2, manipulation: -3 }, set: {} }
+];
+
+VTM20.traitLine = type => ["demon", "hunter", "werewolf"].includes(type) ? type : "";
 /**
  * Английский интерфейс: имена записей справочника (силы, черты, факты, Дисциплины) — английские, если они есть;
  * тексты остаются русскими. altLabel — второе имя для подписи (при английском — русское, при русском — английское).
@@ -202,7 +216,7 @@ VTM20.traitFor = (m, who = {}) => {
 };
 
 /** Знак типа персонажа (корешок листа, ворота создания, мастер), когда нет герба клана или секты. */
-VTM20.typeSigil = type => `systems/vtm20e-kamen-edition/assets/ui/${({ demon: "fallen-sigil", ghoul: "ghoul-sigil", mortal: "mortal-sigil", hunter: "hunter-sigil" })[type] ?? "vampire-sigil"}.svg`;
+VTM20.typeSigil = type => `systems/vtm20e-kamen-edition/assets/ui/${({ demon: "fallen-sigil", ghoul: "ghoul-sigil", mortal: "mortal-sigil", hunter: "hunter-sigil", werewolf: "werewolf-sigil" })[type] ?? "vampire-sigil"}.svg`;
 
 /** Чем атакуют: пул «Ловкость + …» и подпись. */
 VTM20.weaponKinds = {

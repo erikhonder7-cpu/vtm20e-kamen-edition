@@ -33,6 +33,7 @@ import { openThrallGifts } from "../apps/thrall-gifts.mjs";
 import { loseHost, holdOn, newHost, summonedBack } from "../apps/host.mjs";
 import { openCult } from "../apps/cult.mjs";
 import { openExorcist } from "../apps/exorcist.mjs";
+import { werewolfInfo, giftsView, changeForm, rollGift, rollRite, frenzyCheck, stepSideways, spend as wwSpend, addGift, removeGift, addRite, removeRite } from "../apps/werewolf.mjs";
 import { hunterInfo, edgesView, useEdge, secondSight, virtueTest, tradeConviction, restoreConviction, awardDeed, shiftDeed, cashDeed, sacrifice, advanceVirtue, callEdge, swapCalled, unblockCall, callView, isLost, lostVirtue, lostTrade, lostHardened, lostOrdeal } from "../apps/hunter.mjs";
 import { addBloodright, removeBloodright, rollBloodright, toggleRitual as toggleDririRitual, rollRitual as rollDririRitual } from "../apps/dhampir.mjs";
 import { openEbServant, empower as empowerServant } from "../apps/eb-servant.mjs";
@@ -167,6 +168,9 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       clanAtlas: VtMActorSheet.#onClanAtlas,
       linSire: VtMActorSheet.#onLinSire,
       edgeUse: VtMActorSheet.#onEdgeUse, edgeDel: VtMActorSheet.#onEdgeDel, hunterSight: VtMActorSheet.#onHunterSight,
+      wwForm: VtMActorSheet.#onWwForm, wwGift: VtMActorSheet.#onWwGift, wwGiftAdd: VtMActorSheet.#onWwGiftAdd, wwGiftDel: VtMActorSheet.#onWwGiftDel,
+      wwRite: VtMActorSheet.#onWwRite, wwRiteAdd: VtMActorSheet.#onWwRiteAdd, wwRiteDel: VtMActorSheet.#onWwRiteDel,
+      wwFrenzy: VtMActorSheet.#onWwFrenzy, wwStep: VtMActorSheet.#onWwStep, wwSpend: VtMActorSheet.#onWwSpend,
       drinkVitae: VtMActorSheet.#onDrinkVitae, setVitae: VtMActorSheet.#onSetVitae, bloodrightAdd: VtMActorSheet.#onBloodrightAdd, bloodrightRemove: VtMActorSheet.#onBloodrightRemove,
       bloodrightRoll: VtMActorSheet.#onBloodrightRoll, dririToggle: VtMActorSheet.#onDririToggle, dririRoll: VtMActorSheet.#onDririRoll,
       hunterTest: VtMActorSheet.#onHunterTest, hunterTrade: VtMActorSheet.#onHunterTrade, hunterRestore: VtMActorSheet.#onHunterRestore,
@@ -224,7 +228,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
   get needsCreation() {
     const a = this.actor, s = a.system;
-    return a.type !== "creature" && !a.getFlag(SYSTEM_ID, "created")
+    return !["creature", "werewolf"].includes(a.type) && !a.getFlag(SYSTEM_ID, "created")
       && Object.values(s.attributes).every(x => x.value === 1) && Object.values(s.abilities).every(x => x.value === 0);
   }
 
@@ -239,6 +243,8 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     if (this.actor.type === "mortal" || isLost(this.actor)) delete parts.disciplines;    // у Свидетеля Граней нет
     // у охотника на месте Дисциплин — Грани
     if (this.actor.type === "hunter" && parts.disciplines) parts.disciplines = { ...parts.disciplines, template: `${SYSTEM_PATH}/templates/actor/edges.hbs` };
+    // у оборотня — формы, Дары и ритуалы
+    if (this.actor.type === "werewolf" && parts.disciplines) parts.disciplines = { ...parts.disciplines, template: `${SYSTEM_PATH}/templates/actor/gifts.hbs` };
     // у демона на месте Дисциплин — Знания и апокалиптическая форма
     if (this.actor.type === "demon" && parts.disciplines) parts.disciplines = { ...parts.disciplines, template: `${SYSTEM_PATH}/templates/actor/lores.hbs` };
     return parts;
@@ -248,6 +254,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const tabs = super._prepareTabs(group);
     if (this.actor.type === "mortal" || isLost(this.actor)) delete tabs.disciplines;
     if (this.actor.type === "hunter" && tabs.disciplines) Object.assign(tabs.disciplines, { label: "VTM20.Hunter.Edges", icon: "fa-solid fa-eye" });
+    if (this.actor.type === "werewolf" && tabs.disciplines) Object.assign(tabs.disciplines, { label: "VTM20.Werewolf.Gifts", icon: "fa-solid fa-paw" });
     if (this.actor.type === "demon" && tabs.disciplines) Object.assign(tabs.disciplines, { label: "VTM20.Demon.Lores", icon: "fa-solid fa-fire-flame-curved" });
     let i = 0;
     for (const tab of Object.values(tabs)) tab.roman = ROMAN[i++];
@@ -266,7 +273,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       // длинное имя не обрезается в шапке: шрифт мельче
       nameSize: actor.name.length > 26 ? "is-xlong" : actor.name.length > 18 ? "is-long" : "",
       // охотник — смертный с Гранями: где лист смертного и охотника совпадают, работает isMortal
-      isVampire: actor.type === "vampire", isGhoul: actor.type === "ghoul", isDhampir: actor.isDhampir, isMortal: ["mortal", "hunter"].includes(actor.type), isHunter: actor.type === "hunter",
+      isVampire: actor.type === "vampire", isGhoul: actor.type === "ghoul", isDhampir: actor.isDhampir, isMortal: ["mortal", "hunter"].includes(actor.type), isHunter: actor.type === "hunter", isWerewolf: actor.type === "werewolf",
       isCreature: actor.type === "creature", isDemon: actor.type === "demon",
       hasBlood: actor.hasBlood,
       typeLabel: actor.type === "ghoul" && ["revenant", "dhampir"].includes(actor.system.ghoulType) ? t(`GhoulType.${actor.system.ghoulType}`) : game.i18n.localize(`TYPES.Actor.${actor.type}`),
@@ -278,6 +285,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     prepareRegistry(this, ctx);
     if (actor.type === "demon") prepareLores(this, ctx);
     else if (actor.type === "hunter") { ctx.hunterInfo = hunterInfo(actor, dots); ctx.edgePaths = edgesView(actor); ctx.hunterCall = callView(actor); }
+    else if (actor.type === "werewolf") { ctx.werewolfInfo = werewolfInfo(actor, dots); ctx.ww = giftsView(actor); }
     else if (actor.type !== "mortal") prepareDisciplines(this, ctx);
     prepareAdvantages(this, ctx);
     prepareGear(this, ctx);
@@ -724,6 +732,18 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     return key ? addBloodright(this.actor, key) : null;
   }
   static #onDrinkVitae() { return this.actor.drinkVitae(1); }
+
+  /** Оборотень (apps/werewolf.mjs): смена формы, Дары и ритуалы, бешенство, шаг в Умбру, траты Ярости и Гнозиса. */
+  static #onWwForm(event, target) { return changeForm(this.actor, target.dataset.form); }
+  static #onWwGift(event, target) { return rollGift(this.actor, target.dataset.key); }
+  static #onWwGiftAdd(event, target) { return addGift(this.actor, target.closest(".r-toolbar")?.querySelector(".r-ww-gift-add")?.value); }
+  static #onWwGiftDel(event, target) { return removeGift(this.actor, target.dataset.key); }
+  static #onWwRite(event, target) { return rollRite(this.actor, target.dataset.key); }
+  static #onWwRiteAdd(event, target) { return addRite(this.actor, target.closest(".r-toolbar")?.querySelector(".r-ww-rite-add")?.value); }
+  static #onWwRiteDel(event, target) { return removeRite(this.actor, target.dataset.key); }
+  static #onWwFrenzy() { return frenzyCheck(this.actor); }
+  static #onWwStep() { return stepSideways(this.actor); }
+  static #onWwSpend(event, target) { return wwSpend(this.actor, target.dataset.what, 1); }
   static #onSetVitae(event, target) {
     const v = Math.max(0, (this.actor.system.dhampir?.vitae ?? 0) + Number(target.dataset.n));
     return this.actor.update({ "system.dhampir.vitae": v });

@@ -77,9 +77,10 @@ Hooks.once("init", () => {
     ghoul:   { bar: ["health", "blood", "willpower"], value: ["morality.value"] },
     mortal:  { bar: ["health", "willpower"], value: ["morality.value"] },
     hunter:  { bar: ["health", "willpower"], value: ["hunter.conviction"] },
+    werewolf: { bar: ["health", "willpower", "werewolf.rage", "werewolf.gnosis"], value: ["werewolf.rank"] },
     creature: { bar: ["health", "blood", "willpower"], value: [] }
   };
-  CONFIG.Actor.typeIcons = { vampire: "fa-solid fa-droplet", ghoul: "fa-solid fa-hand-holding-droplet", mortal: "fa-solid fa-user", creature: "fa-solid fa-paw", hunter: "fa-solid fa-crosshairs" };
+  CONFIG.Actor.typeIcons = { vampire: "fa-solid fa-droplet", ghoul: "fa-solid fa-hand-holding-droplet", mortal: "fa-solid fa-user", creature: "fa-solid fa-paw", hunter: "fa-solid fa-crosshairs", werewolf: "fa-solid fa-moon" };
   CONFIG.Item.typeIcons = {
     discipline: "fa-solid fa-eye", thaumPath: "fa-solid fa-book-skull", ritual: "fa-solid fa-pentagram", power: "fa-solid fa-hand-sparkles",
     background: "fa-solid fa-landmark", merit: "fa-solid fa-plus", flaw: "fa-solid fa-minus",

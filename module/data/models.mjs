@@ -571,8 +571,51 @@ export class HunterData extends MortalData {
   }
 }
 
+/* ── Оборотень (Werewolf: The Apocalypse 20th) ──────────────────────────── */
+
+// Гару: порода, аугурия, племя (ключи data/werewolf.json), Ранг 0–6, Слава (Слава, Честь, Мудрость — постоянная и временная),
+// Ярость и Гнозис (постоянное и текущее; текущая Ярость может быть выше постоянной), форма и Дары (ключи Даров), ритуалы.
+// Форма меняет итог Атрибутов (attributes.*.total; W20, гл. 6 — по листу персонажа: Манипуляция −3 в Криносе, Хиспо, Лупусе).
+const renown = () => new SchemaField({ permanent: int(0, 0, 10), temporary: int(0, 0, 10) });
+export class WerewolfData extends MortalData {
+  static defineSchema() {
+    return {
+      ...super.defineSchema(),
+      werewolf: new SchemaField({
+        breed: str("homid"), auspice: str("ragabash"), tribe: str("boneGnawers"), rank: int(1, 0, 6),
+        renown: new SchemaField({ glory: renown(), honor: renown(), wisdom: renown() }),
+        rage: new SchemaField({ permanent: int(1, 0, 10), value: int(1, 0, 20) }),
+        gnosis: new SchemaField({ permanent: int(1, 0, 10), value: int(1, 0, 10) }),
+        form: str("homid"), gifts: new ArrayField(str()), rites: new ArrayField(str()),
+        // временный Атрибут формы вне таблицы (Дар, частичное превращение) — пока не используется
+        deformity: str("")
+      })
+    };
+  }
+
+  /** Данные формы (VTM20.garouForms — доступны при загрузке мира, до справочника). */
+  get formData() { return VTM20.garouForms.find(f => f.key === this.werewolf.form) ?? null; }
+
+  prepareDerivedData() {
+    super.prepareDerivedData();
+    // форма: поправки к итогу Атрибутов (Внешность в Криносе — 0); породная форма — без поправок
+    const f = this.formData;
+    for (const [k, v] of Object.entries(f?.mods ?? {})) if (this.attributes[k]) {
+      this.attributes[k].form = v; this.attributes[k].total = Math.max(0, this.attributes[k].total + v);
+    }
+    for (const [k, v] of Object.entries(f?.set ?? {})) if (this.attributes[k]) { this.attributes[k].form = "set"; this.attributes[k].total = v; }
+    // кровь оборотня — 20 пунктов (V20: сильная кровь)
+    this.vessel.max = 20; this.vessel.value = Math.min(this.vessel.value, 20);
+    const w = this.werewolf;
+    w.rage.value = Math.min(w.rage.value, 20);
+    w.gnosis.value = Math.min(w.gnosis.value, w.gnosis.permanent);
+    // для шкал жетона: текущая Ярость может быть выше постоянной (начало истории, W20, гл. 4)
+    w.rage.max = Math.max(w.rage.permanent, w.rage.value); w.gnosis.max = w.gnosis.permanent;
+  }
+}
+
 export function registerDataModels() {
-  Object.assign(CONFIG.Actor.dataModels, { vampire: VampireData, ghoul: GhoulData, mortal: MortalData, creature: CreatureData, demon: DemonData, hunter: HunterData });
+  Object.assign(CONFIG.Actor.dataModels, { vampire: VampireData, ghoul: GhoulData, mortal: MortalData, creature: CreatureData, demon: DemonData, hunter: HunterData, werewolf: WerewolfData });
   Object.assign(CONFIG.Item.dataModels, {
     discipline: DisciplineData, lore: LoreData, lorePower: LorePowerData, thaumPath: BloodPathData, ritual: RitualData, power: PowerData,
     background: BackgroundData, merit: MeritData, flaw: MeritData, derangement: DerangementData,

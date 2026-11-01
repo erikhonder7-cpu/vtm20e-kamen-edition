@@ -109,6 +109,41 @@
     </div>
     {{/if}}
   </div>
+  {{else if werewolfInfo}}
+  {{!-- Гару (W20, гл. 4): Ярость и Гнозис — постоянные точками, текущие числом; Слава — Слава, Честь, Мудрость; Ранг — по Славе аугурии --}}
+  <div class="r-vcard r-vc-morality r-vc-garou">
+    <div class="r-vc-head">
+      <h4 class="r-banner"><i class="fa-solid {{werewolfInfo.auspice.icon}}"></i> {{localize "VTM20.Werewolf.Rage"}}</h4>
+      <div class="r-vc-status" data-tooltip="{{localize 'VTM20.Werewolf.RageHint'}}"><b>{{werewolfInfo.rage}}</b> <small>/ {{werewolfInfo.ragePerm}}</small></div>
+    </div>
+    {{> rDots dots=werewolfInfo.rageDots cls="is-ten is-rage"}}
+    <div class="r-vc-head">
+      <h4 class="r-banner"><i class="fa-solid fa-spiral"></i> {{localize "VTM20.Werewolf.Gnosis"}}</h4>
+      <div class="r-vc-status" data-tooltip="{{localize 'VTM20.Werewolf.GnosisHint'}}"><b>{{werewolfInfo.gnosis}}</b> <small>/ {{werewolfInfo.gnosisPerm}}</small></div>
+    </div>
+    {{> rDots dots=werewolfInfo.gnosisDots cls="is-ten is-gnosis"}}
+    <div class="r-ww-renown">
+      {{#each werewolfInfo.renown}}
+      <div class="r-ww-renown-row" data-tooltip="{{localize 'VTM20.Werewolf.RenownHint'}}">
+        <span class="r-trait-label">{{label}}</span><span class="r-ww-renown-num"><b>{{perm}}</b> <small>◇{{temp}}</small></span>
+        {{> rDots dots=dots cls="is-small"}}
+      </div>
+      {{/each}}
+      <div class="r-ww-rank {{#if werewolfInfo.canRank}}is-ready{{/if}}" data-tooltip="{{localize 'VTM20.Werewolf.RankHint'}}">
+        <i class="fa-solid fa-medal"></i> {{localize "VTM20.Werewolf.Rank"}} {{werewolfInfo.rank}} · {{werewolfInfo.rankName}}
+        {{#if werewolfInfo.nextRank}}<small>· {{localize "VTM20.Werewolf.NextRank"}}: {{werewolfInfo.nextRank}}</small>{{/if}}
+      </div>
+    </div>
+    <div class="r-vc-tools">
+      <a class="r-vc-btn" data-action="wwFrenzy" data-tooltip="{{localize 'VTM20.Werewolf.FrenzyHint'}}"><i class="fa-solid fa-fire"></i> {{localize "VTM20.Werewolf.Frenzy"}}</a>
+      <a class="r-vc-btn" data-action="wwStep" data-tooltip="{{localize 'VTM20.Werewolf.StepHint'}}"><i class="fa-solid fa-moon-over-sun"></i> {{localize "VTM20.Werewolf.StepSideways"}}</a>
+      {{#if editable}}
+      <a class="r-vc-btn is-sq" data-action="wwSpend" data-what="rage" data-tooltip="{{localize 'VTM20.Werewolf.SpendRage'}}"><i class="fa-solid fa-fire"></i> −1</a>
+      <a class="r-vc-btn is-sq" data-action="wwSpend" data-what="gnosis" data-tooltip="{{localize 'VTM20.Werewolf.SpendGnosis'}}"><i class="fa-solid fa-spiral"></i> −1</a>
+      {{/if}}
+      {{#if werewolfInfo.beast}}<span class="r-vc-hint is-right is-warn" data-tooltip="{{localize 'VTM20.Werewolf.BeastHint' n=werewolfInfo.beast}}"><i class="fa-solid fa-paw-claws"></i> −{{werewolfInfo.beast}}</span>{{/if}}
+    </div>
+  </div>
   {{else if hunterInfo.lost}}
   {{!-- Свидетель (Players Guide, гл. 1): Убеждённость — рассудок, только убывает; Смелость, Рассудок, Самоконтроль 1–5 --}}
   <div class="r-vcard r-vc-morality r-vc-hunter is-lost">
@@ -234,6 +269,9 @@
       <span class="r-vs-item"><i class="fa-solid fa-shield-heart"></i> {{localize "VTM20.Willpower"}} <b>{{system.willpower.temporary}}</b>/{{system.willpower.permanent}}</span>
       {{#if isDemon}}<span class="r-vs-item"><i class="fa-solid fa-fire-flame-curved"></i> {{localize "VTM20.Demon.Faith"}} <b>{{system.faith.temporary}}</b>/{{system.faith.permanent}}</span>
       <span class="r-vs-item"><i class="fa-solid fa-link-slash"></i> {{localize "VTM20.Demon.Torment"}} <b>{{system.torment.permanent}}</b></span>
+      {{else if werewolfInfo}}<span class="r-vs-item"><i class="fa-solid fa-fire"></i> {{localize "VTM20.Werewolf.Rage"}} <b>{{werewolfInfo.rage}}</b>/{{werewolfInfo.ragePerm}}</span>
+      <span class="r-vs-item"><i class="fa-solid fa-spiral"></i> {{localize "VTM20.Werewolf.Gnosis"}} <b>{{werewolfInfo.gnosis}}</b>/{{werewolfInfo.gnosisPerm}}</span>
+      <span class="r-vs-item"><i class="fa-solid {{werewolfInfo.formIcon}}"></i> {{werewolfInfo.formName}}</span>
       {{else if thrallInfo}}<span class="r-vs-item"><i class="fa-solid fa-handshake-angle"></i> {{localize "VTM20.Creator.ThrallFaith"}} <b>{{thrallInfo.faith}}</b></span>
       {{else}}<span class="r-vs-item"><i class="fa-solid fa-scale-balanced"></i> {{#each paths}}{{#if selected}}{{name}}{{/if}}{{/each}} <b>{{system.morality.value}}</b></span>{{/if}}
     </span>

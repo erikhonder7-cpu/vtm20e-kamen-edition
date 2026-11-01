@@ -972,6 +972,38 @@ try {
   });
 
   // Дампир-гуль и правило «кому видна черта»
+  // Оборотень (W20): формы меняют итог Атрибутов (и после перезагрузки данных), смена формы за Ярость, Дар списывает свою цену
+  await check("Оборотень: формы, Ярость, Дары, лист", async () => {
+    const id = await temp("E2E — Гару", "werewolf");
+    const r = await page.evaluate(async id => {
+      const SYS = game.system.id, a = game.actors.get(id), wait = ms => new Promise(res => setTimeout(res, ms));
+      const WW = await import(`/systems/${SYS}/module/apps/werewolf.mjs`);
+      await a.update({ "system.attributes.strength.value": 3, "system.attributes.appearance.value": 3, "system.werewolf": {
+        breed: "homid", auspice: "ahroun", tribe: "getOfFenris", rank: 1, rage: { permanent: 5, value: 5 }, gnosis: { permanent: 3, value: 3 },
+        gifts: ["razor-claws"], form: "crinos" } });
+      const out = { str: a.system.attributes.strength.total, app: a.system.attributes.appearance.total, img: a.img };
+      a.prepareData(); out.strAgain = a.system.attributes.strength.total;
+      const p = WW.changeForm(a, "lupus"); await wait(600);
+      [...foundry.applications.instances.values()].find(x => x.constructor.name === "DialogV2" && x.rendered)?.element.querySelector("button[data-action=rage]")?.click();
+      await p; await wait(300);
+      Object.assign(out, { form: a.system.werewolf.form, rage: a.system.werewolf.rage.value, strLupus: a.system.attributes.strength.total });
+      WW.rollGift(a, "razor-claws"); await wait(800);
+      const rd = [...foundry.applications.instances.values()].find(x => x.constructor.name === "RollDialog" && x.rendered);
+      out.giftRoll = !!rd; await rd?.close(); out.rageGift = a.system.werewolf.rage.value;
+      await a.sheet.render(true); await wait(900);
+      const el = a.sheet.element;
+      Object.assign(out, { cls: el.classList.contains("r-type-werewolf"), card: !!el.querySelector(".r-vc-garou"), formMark: !!el.querySelector(".r-boost.is-form"),
+        tab: !!el.querySelector('[data-tab="disciplines"] .r-ww-forms') });
+      await a.sheet.close();
+      return out;
+    }, id);
+    if (r.str !== 7 || r.app !== 0 || r.strAgain !== 7) throw new Error(`Кринос: Сила ${r.str}/${r.strAgain}, Внешность ${r.app}`);
+    if (r.form !== "lupus" || r.rage !== 4 || r.strLupus !== 4) throw new Error(`смена формы за Ярость: ${r.form}, Ярость ${r.rage}, Сила ${r.strLupus}`);
+    if (!r.giftRoll || r.rageGift !== 3) throw new Error(`Дар: окно броска ${r.giftRoll}, Ярость после Дара ${r.rageGift}`);
+    if (!r.cls || !r.card || !r.formMark || !r.tab) throw new Error(`лист: тема ${r.cls}, карточка ${r.card}, поправка формы ${r.formMark}, вкладка ${r.tab}`);
+    if (!/werewolf\.svg$/.test(r.img)) throw new Error(`значок: ${r.img}`);
+  });
+
   await check("Дампир: витэ гуля, траты, видимость черт", async () => {
     const r = await page.evaluate(async () => {
       const { Codex } = await import(`/systems/${game.system.id}/module/data/codex.mjs`);

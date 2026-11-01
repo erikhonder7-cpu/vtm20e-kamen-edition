@@ -41,6 +41,22 @@ FORMS = [
      "perception": -2},
 ]
 
+# Значки (Font Awesome Pro из Foundry): аугурии — фазы луны, племена — по тотему, формы — облик; картинки Даров и ритуалов —
+# из библиотеки Foundry (icons/…), путь от корня сервера
+ICONS = {
+    "breed": {"homid": "fa-person", "metis": "fa-bone-break", "lupus": "fa-paw"},
+    "auspice": {"ragabash": "fa-moon-new", "theurge": "fa-moon-waxing-crescent", "philodox": "fa-moon-first-quarter",
+                "galliard": "fa-moon-waxing-gibbous", "ahroun": "fa-moon-full"},
+    "tribe": {"blackFuries": "fa-horse", "boneGnawers": "fa-bone", "childrenOfGaia": "fa-unicorn", "fianna": "fa-deer",
+              "getOfFenris": "fa-teeth", "glassWalkers": "fa-tree-city", "redTalons": "fa-claw-marks", "shadowLords": "fa-cloud-bolt",
+              "silentStriders": "fa-owl", "silverFangs": "fa-crown", "stargazers": "fa-moon-stars", "uktena": "fa-snake",
+              "wendigo": "fa-snowflake"},
+    "form": {"homid": "fa-person", "glabro": "fa-person-falling-burst", "crinos": "fa-claw-marks", "hispo": "fa-paw-claws", "lupus": "fa-paw"},
+}
+IMG = {"gift": {"breed": "icons/magic/nature/wolf-paw-glow-large-teal-blue.webp", "auspice": "icons/creatures/abilities/wolf-howl-moon-white.webp",
+                "tribe": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp", "outsider": "icons/creatures/mammals/wolf-shadow-black.webp"},
+       "rite": "icons/creatures/abilities/wolf-heads-swirl-purple.webp"}
+
 # Слава для Рангов 1–5 (W20, гл. 4): Рагабаш — сумма в любом сочетании; остальные — Слава/Честь/Мудрость.
 RANK_NAMES = ["Клиат", "Фостерн", "Адрен", "Атро", "Старейшина"]
 RANK = {
@@ -192,6 +208,7 @@ def parse_gifts():
     out = sorted(gifts.values(), key=lambda g: (g["level"], g["name"]))
     for g in out:
         g.pop("_body", None)
+        g["img"] = IMG["gift"].get(g["groups"][0]["kind"], IMG["gift"]["tribe"])
     return out
 
 
@@ -217,7 +234,7 @@ def parse_rites():
         g = re.search(r"Гнозис\s*(\d+)", body[:40])
         out.append({"key": re.sub(r"[^a-z0-9]+", "-", e["en"].lower()).strip("-"), "name": e["name"], "en": e["en"], "kind": kind,
                     "kindName": kind_name, "level": level, "gnosis": int(g.group(1)) if g else 0, "roll": roll_of(body),
-                    "text": f"<p>{md_inline(body)}</p>", "source": BOOK})
+                    "text": f"<p>{md_inline(body)}</p>", "img": IMG["rite"], "source": BOOK})
     return out
 
 
@@ -278,6 +295,9 @@ def build():
     gifts = parse_gifts()
     rites = parse_rites()
     breeds, auspices, tribes = parse_core(gifts)
+    for kind, items in (("breed", breeds), ("auspice", auspices), ("tribe", tribes), ("form", FORMS)):
+        for x in items:
+            x["icon"] = ICONS[kind].get(x["key"], "fa-moon")
     data = {"source": "Werewolf: The Apocalypse 20th Anniversary Edition", "breeds": breeds, "auspices": auspices, "tribes": tribes,
             "forms": FORMS, "gifts": gifts, "rites": rites, "rankNames": RANK_NAMES, "rank": RANK, "xp": XP}
     with open(OUT, "w", encoding="utf-8", newline="\n") as f:

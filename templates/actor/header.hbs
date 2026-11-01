@@ -90,6 +90,17 @@
           <select name="system.faction"><option value="">—</option>{{#each factions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
         {{/if}}
 
+        {{#if isWerewolf}}
+        {{!-- Гару (W20): порода, аугурия (фаза луны), племя (тотем), Ранг; Слава, Ярость и Гнозис — на вкладке шкал --}}
+        <label class="r-df" data-tooltip="{{werewolfInfo.breed.notes}}"><span>{{localize "VTM20.Werewolf.Breed"}}</span>
+          <select name="system.werewolf.breed">{{#each werewolfInfo.breeds}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+        <label class="r-df" data-tooltip="{{werewolfInfo.auspice.role}}"><span>{{localize "VTM20.Werewolf.Auspice"}}</span>
+          <select name="system.werewolf.auspice">{{#each werewolfInfo.auspices}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+        <label class="r-df is-wide" data-tooltip="{{localize 'VTM20.Werewolf.Totem'}}: {{werewolfInfo.tribe.totem}}"><span>{{localize "VTM20.Werewolf.Tribe"}}</span>
+          <select name="system.werewolf.tribe">{{#each werewolfInfo.tribes}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+        <label class="r-df is-narrow" data-tooltip="{{werewolfInfo.rankName}}"><span>{{localize "VTM20.Werewolf.Rank"}}</span>
+          <input type="number" name="system.werewolf.rank" value="{{system.werewolf.rank}}" min="0" max="6"></label>
+        {{/if}}
         {{#if isHunter}}
         <label class="r-df is-wide r-df-creed" {{#if creedTip}}data-tooltip="{{creedTip}}"{{/if}}><span>{{localize "VTM20.Hunter.Creed"}}</span>
           <select name="system.hunter.creed">{{#each creeds}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}} · {{who}}</option>{{/each}}</select></label>

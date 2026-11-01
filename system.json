@@ -38,6 +38,9 @@
       "src": "styles/types/hunter.css"
     },
     {
+      "src": "styles/types/werewolf.css"
+    },
+    {
       "src": "styles/types/dhampir.css"
     },
     {
@@ -107,6 +110,12 @@
         ]
       },
       "hunter": {
+        "htmlFields": [
+          "biography",
+          "notes"
+        ]
+      },
+      "werewolf": {
         "htmlFields": [
           "biography",
           "notes"

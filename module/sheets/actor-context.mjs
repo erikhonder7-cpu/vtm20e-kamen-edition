@@ -139,6 +139,8 @@ export function prepareTraits(sheet, ctx) {
       return {
         key: k, label: game.i18n.localize(VTM20.attributes[k].label), value: at.value, total: at.total, boost: at.boost, ugly: !!at.ugly,
         fx: at.fxSet ? `=${at.total}` : at.fx ? `+${at.fx}` : "",
+        // форма оборотня (W20): поправка к итогу и сам итог — «→ 7»
+        form: at.form === "set" ? `= ${at.total}` : at.form ? `${at.form > 0 ? "+" : "−"}${Math.abs(at.form)} → ${at.total}` : "",
         dots: dots(at.value, cap, { path: `system.attributes.${k}.value` }), specialty: at.specialty, canSpec: at.value >= 4,
         boostable: ctx.hasBlood && VTM20.bloodBoostable.includes(k),
         xp: a.xpCost("attribute", at.value)
