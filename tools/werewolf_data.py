@@ -54,7 +54,7 @@ ICONS = {
     "form": {"homid": "fa-person", "glabro": "fa-person-falling-burst", "crinos": "fa-claw-marks", "hispo": "fa-paw-claws", "lupus": "fa-paw"},
 }
 IMG = {"gift": {"breed": "icons/magic/nature/wolf-paw-glow-large-teal-blue.webp", "auspice": "icons/creatures/abilities/wolf-howl-moon-white.webp",
-                "tribe": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp", "outsider": "icons/creatures/mammals/wolf-shadow-black.webp"},
+                "tribe": "icons/creatures/mammals/wolf-howl-moon-gray.webp", "outsider": "icons/creatures/mammals/wolf-shadow-black.webp"},
        "rite": "icons/creatures/abilities/wolf-heads-swirl-purple.webp"}
 
 # Слава для Рангов 1–5 (W20, гл. 4): Рагабаш — сумма в любом сочетании; остальные — Слава/Честь/Мудрость.

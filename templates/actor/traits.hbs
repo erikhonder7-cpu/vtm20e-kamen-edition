@@ -15,7 +15,7 @@
           {{> rDots dots=dots}}
           {{#if boost}}<span class="r-boost" data-tooltip="{{localize 'VTM20.Sheet.BloodBoost'}}">+{{boost}}</span>{{/if}}
           {{#if fx}}<span class="r-boost is-fx" data-tooltip="{{localize 'VTM20.Fx.Active'}}">{{fx}}</span>{{/if}}
-          {{#if form}}<span class="r-boost is-form" data-tooltip="{{localize 'VTM20.Werewolf.FormMod'}}">{{form}}</span>{{/if}}
+          {{#if form}}<span class="r-form-badge is-{{form.dir}}" data-tooltip="{{form.tip}}"><i class="fa-solid {{form.icon}}"></i><b>{{form.total}}</b></span>{{/if}}
           {{#if @root.editable}}<a class="r-buy" data-action="buy" data-path="system.attributes.{{key}}.value" data-kind="attribute" data-label="{{label}}" data-tooltip="{{localize 'VTM20.Xp.Buy'}}: {{xp}}"><i class="fa-solid fa-plus"></i></a>{{/if}}
         </div>
       </div>

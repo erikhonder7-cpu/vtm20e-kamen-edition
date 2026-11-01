@@ -19,9 +19,11 @@ export class VtMActor extends Actor {
 
   async _preCreate(data, options, user) {
     if ((await super._preCreate(data, options, user)) === false) return false;
-    const icons = { vampire: "vampire.svg", ghoul: "ghoul.svg", mortal: "mortal.svg", demon: "demon.svg", creature: "creature.svg", hunter: "hunter.svg", werewolf: "werewolf.svg" };
+    // оборотню — картина из библиотеки Foundry (волк воет на луну над лесом): в тон палитре «лунный лес»
+    const icons = { vampire: "vampire.svg", ghoul: "ghoul.svg", mortal: "mortal.svg", demon: "demon.svg", creature: "creature.svg", hunter: "hunter.svg",
+      werewolf: "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp" };
     const upd = {};
-    if (!data.img || data.img === CONST.DEFAULT_TOKEN) upd.img = `systems/${SYSTEM_ID}/assets/icons/${icons[this.type]}`;
+    if (!data.img || data.img === CONST.DEFAULT_TOKEN) upd.img = icons[this.type].startsWith("icons/") ? icons[this.type] : `systems/${SYSTEM_ID}/assets/icons/${icons[this.type]}`;
     const proto = {
       "prototypeToken.bar1.attribute": "health",
       "prototypeToken.bar2.attribute": this.type === "werewolf" ? "werewolf.rage" : ["mortal", "demon", "hunter"].includes(this.type) ? "willpower" : "blood",

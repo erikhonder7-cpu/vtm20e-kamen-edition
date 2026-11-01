@@ -476,7 +476,7 @@
    "cost": {},
    "text": "<p>дух предков. <strong>Постоянно:</strong> мешает искать в нём слабости и читать его ауру (мысли читать можно).</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "apecraft-s-blessings",
@@ -524,7 +524,7 @@
    },
    "text": "<p>слуга Великого Вендиго. Нужна вещь цели, частица её (кровь, волосы) или раньше пробованная её кровь. <strong>1 Гнозис</strong>, <strong>Восприятие + Выживание</strong> (сл. 7): <strong>1 день за успех</strong> слышит её сердцебиение на любом расстоянии; ближе — громче, выслеживание без труда.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "brother-s-scent",
@@ -549,7 +549,7 @@
    },
    "text": "<p>слуга Единорога. <strong>1 Гнозис</strong>, <strong>Внешность + Эмпатия</strong> (сл. 6): кто не насторожен специально, не замечает несоответствий его облика (голый окровавленный мужчина с клэйвом на светском балу, волк в жилом квартале) — даже при разговоре. Ломается, если сам привлечёт внимание (крик, драка, выбивание двери). Охрана, специально ищущая чужих, поддаётся, только если её <strong>Воля &lt; успехов</strong>.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "razor-claws",
@@ -598,7 +598,7 @@
    },
    "text": "<p>дух совы. <strong>1 Гнозис</strong>, <strong>Восприятие + Оккультизм</strong> (сл. 7): до конца сцены видит и слышит призраков; заметить места с призраками — ещё <strong>Восприятие + Оккультизм</strong> (сл. по силе присутствия). Касаться мёртвых и говорить с ними не даёт (для этого — ритуал Нисхождения в Подземный мир). <strong>Провал</strong> — глаза сияют маяками в Подземном мире, привлекая мстительных теней.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "see-past-the-skin",
@@ -636,7 +636,7 @@
    },
    "text": "<p>слуга Пегаса. Ход концентрации, <strong>1 Гнозис:</strong> сразу лечит <strong>3 ударных</strong> или <strong>2 летальных</strong>; <strong>+1 Воля</strong> — вместо этого <strong>1 губительный</strong>. Раны от серебра не лечит.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "wolf-at-the-door",
@@ -661,7 +661,7 @@
    },
    "text": "<p>любой дух‑хищник. Зрительный контакт (в любой форме), <strong>Обаяние + Первобытный инстинкт</strong> (сл. = Воля цели): человек на <strong>1 день за успех</strong> боится дикой природы: чтобы выйти из дома — бросок <strong>Воли</strong>; приблизиться к лесу, тундре, болоту — <strong>1 Воля</strong>; вне дома <strong>−3 кубика</strong> к ментальным и социальным броскам. Вариант: столько людей, сколько у него <strong>Ярости</strong> (сл. = наибольшая Воля), слыша его вой в <strong>Лупусе</strong>. На Родню, магов, гулей и прочих «сверхъестественных людей» — <strong>+2 к сложности</strong>.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "inspiration",
@@ -708,7 +708,7 @@
    "cost": {},
    "text": "<p>дух волка. <strong>Восприятие + Первобытный инстинкт</strong> (сл. 7): кто в видимой группе сильнейший, слабейший и вожак. При нападении на эту группу — <strong>+1 кубик к атакам</strong> только против слабейшего до конца сцены.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "eye-of-the-falcon",
@@ -728,7 +728,7 @@
    },
    "text": "<p>дух сокола. <strong>1 Гнозис:</strong> до конца сцены <strong>−1 к сложности</strong> дальних атак и зрительных бросков Восприятия.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "city-running",
@@ -773,7 +773,7 @@
    },
    "text": "<p>дух предков. <strong>1 Воля:</strong> до конца сцены ведёт <strong>два разговора одновременно</strong> и решает, кто что слышит. Заметить второй разговор и понять его — <strong>Восприятие + Бдительность</strong> (сл. 9).</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "diagnostics",
@@ -793,7 +793,7 @@
    },
    "text": "<p>любой технологический дух. <strong>Автоматически</strong> определяет неисправность техники. <strong>1 Гнозис</strong> — дух устройства помогает чинить: время и нужные успехи на ремонт <strong>вдвое меньше</strong>.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "spirit-of-the-lizard",
@@ -818,7 +818,7 @@
    },
    "text": "<p>дух геккона. <strong>1 Гнозис:</strong> до конца сцены ходит шагом по любой твёрдой поверхности, включая потолки. Удержаться при усилии (бой, бег, срывание решётки) — рефлекторно <strong>Выносливость + Атлетика</strong> (сл. 7).</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "breath-of-the-wyld",
@@ -836,7 +836,7 @@
    "cost": {},
    "text": "<p>слуга Пегаса. Касание кожи, бросок <strong>Гнозиса</strong> (сл. 5 для Гару и Родни, 6 для прочих): <strong>+1 кубик ко всем ментальным броскам</strong> до конца сцены, но сложность бросков Ярости <strong>+1</strong>.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "iron-resolve",
@@ -856,7 +856,7 @@
    },
    "text": "<p>дух предков. Раз в сцену <strong>1 Воля</strong> даёт <strong>2 автоуспеха</strong> вместо одного.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "jam-weapon",
@@ -876,7 +876,7 @@
    },
    "text": "<p>дух голубя. Древнее слово силы, <strong>1 Гнозис</strong>, бросок <strong>Воли</strong> (сл. = наибольшая Воля среди вооружённых в пределах слышимости): <strong>1 ход за успех</strong> не работает всё рукотворное оружие (огнестрел, арбалеты, огнемёты, даже ножи и мечи не режут). Естественное оружие и природные предметы (камни, упавшие ветки) работают.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "scent-of-the-true-form",
@@ -924,7 +924,7 @@
    },
    "text": "<p>духи насекомых. Цель, которой касался в последний час: <strong>1 Гнозис</strong>, <strong>Сообразительность + Хитрость</strong> (сл. 7) — от цели пахнет сладким, её облепляют мошки, мухи, пчёлы, жуки: <strong>−1 ко всем действиям</strong> на <strong>1 час за успех</strong>; запах не смывается.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "scent-of-running-water",
@@ -1070,7 +1070,7 @@
    "cost": {},
    "text": "<p>дух оленя. В дикой местности сложность заметить его <strong>+3</strong>.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "mother-s-touch",
@@ -1162,7 +1162,7 @@
    "cost": {},
    "text": "<p>дух предков или морского конька. <strong>Обаяние + Хитрость</strong> (сл. 7): для наблюдателей выглядит мужчиной (метис‑мужчина — женщиной), похожим на неё как родственник; цвет волос, глаз, кожи тот же. <strong>1 сцена за успех</strong> или до смены облика. Выдерживает лёгкое касание, но не грубый контакт.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "rat-head",
@@ -1212,7 +1212,7 @@
    },
    "text": "<p>дух предков. <strong>1 Гнозис:</strong> зеркальная (отражённая) копия себя в пределах <strong>30 м</strong>; говорит и движется по его воле, но без запаха и тепла, неосязаема. Отличить — <strong>Восприятие + Загадки</strong> (сл. = Гнозис Гару).</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "liar-s-face",
@@ -1260,7 +1260,7 @@
    "cost": {},
    "text": "<p>дух волка или жабы. <strong>Обаяние + Запугивание</strong>, сцена. Против не‑Гару и Гару равного Ранга — 1 успех; против старших — успехов <strong>≥ 2 × разница Рангов</strong> (Ранг 2 против Ранга 4 — 4 успеха). Союзники видят его благородным (<strong>−1 к сложности</strong> всех социальных бросков); враги медлят (<strong>−1 к инициативе</strong>).</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "shed",
@@ -1303,7 +1303,7 @@
    },
    "text": "<p>дух ворона или летучей мыши. <strong>1 Воля:</strong> до конца сцены любой шёпот в радиусе <strong>~60 м</strong> слышит ясно, как сказанное рядом.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "spirit-snare",
@@ -1348,7 +1348,7 @@
    },
    "text": "<p>Лун. <strong>1 Воля:</strong> тело сияет серебряным светом, освещает <strong>30 м</strong> вокруг до конца сцены; все атаки против него <strong>+1 к сложности</strong>.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "mercy",
@@ -1368,7 +1368,7 @@
    },
    "text": "<p>дух голубя. <strong>1 Гнозис:</strong> до конца сцены весь урон, наносимый его телом, — <strong>ударный</strong>; «убитые» лишь теряют сознание.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "lightning-reflexes",
@@ -1388,7 +1388,7 @@
    },
    "text": "<p>дух мангуста. Рефлекторно <strong>1 Воля:</strong> на сутки переход к защитному действию (прерывание) — без броска и траты Воли.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "trash-is-treasure",
@@ -1406,7 +1406,7 @@
    "cost": {},
    "text": "<p>дух енота. Держит сломанную вещь, <strong>Сообразительность + Ремесло:</strong> вещь работает идеально <strong>1 ход за успех</strong> и сама даёт себе питание, топливо, патроны (сломанная микроволновка без розетки, старый ствол без патронов). За <strong>1 Волю</strong> — сутки, но тогда нужны настоящие питание/топливо/патроны.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "mindspeak",
@@ -1449,7 +1449,7 @@
    "cost": {},
    "text": "<p>дух огня. Может тратить <strong>до 3 Ярости на одно действие</strong>: каждая — <strong>+1 кубик</strong> к этому броску.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "heavens-guidance",
@@ -1467,7 +1467,7 @@
    "cost": {},
    "text": "<p>слуга Полярной звезды. <strong>Постоянно:</strong> всегда знает, где север и каким путём пришёл (пока светят звёзды).</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "heightened-senses",
@@ -1523,7 +1523,7 @@
    "cost": {},
    "text": "<p>дух болот. <strong>Сообразительность + Загадки</strong> (сл. 6): светящийся шарик (как факел) в любом месте в поле зрения, по команде летает <strong>3 м в ход</strong>, до конца сцены. Можно заманить врагов в засаду.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "open-seal",
@@ -1561,7 +1561,7 @@
    "cost": {},
    "text": "<p>дух барсука. При броске <strong>подвига силы</strong> (стр. 270): <strong>+1 кубик за каждый уровень ударного урона</strong>, который он добровольно принимает.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "falling-touch",
@@ -1628,7 +1628,7 @@
    },
    "text": "<p>слуга Дедушки Грома. <strong>Постоянно:</strong> любые <strong>ничьи</strong> в состязательных бросках — в его пользу. Больше одной ничьей за сцену — <strong>1 Гнозис</strong> за каждую следующую.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "shadow-weaving",
@@ -1653,7 +1653,7 @@
    },
    "text": "<p>дух тени. <strong>1 Гнозис</strong>, <strong>Ловкость + Оккультизм</strong> (сл. 7): до конца сцены искажает тени в радиусе <strong>~90 м</strong> (длиннее/короче, темнее/светлее, жуткие формы); среди прочего <strong>−1</strong> к сложности Скрытности и Запугивания.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "master-of-fire",
@@ -1697,7 +1697,7 @@
    },
    "text": "<p>Сетевой Паук. <strong>1 Воля:</strong> на сутки любой его компьютер (даже простейший) полностью совместим с любым цифровым устройством, невзирая на ОС, отсутствие портов и даже приёмника сигнала (смартфон как ключ к сетям, камерам, GPS машин).</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "sense-wyrm",
@@ -1785,7 +1785,7 @@
    "cost": {},
    "text": "<p>слуга Уктены. <strong>Восприятие + Загадки</strong> (сл. по силе и тонкости магии): ощущает магическую энергию (Дары, магию магов, силы вампиров, чёрные искусства Червя) в радиусе <strong>6 м за успех</strong>. Точную природу не узнаёт, но с <strong>3+ успехами</strong> — подсказки («Геи», «сны», «магия крови»).</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "truth-of-gaia",
@@ -1826,7 +1826,7 @@
    "cost": {},
    "text": "<p>воздушный элементаль. Свистит или выдыхает: сильный холодный ветер (<strong>~30 км/ч</strong>) по его воле — разгоняет газы (слезоточивый, токсины) и рои насекомых. Пойманные ветром — <strong>−1 кубик к Восприятию</strong>, через минуту без тёплой одежды <strong>−1 ко всем действиям</strong>.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "balance",
@@ -1844,7 +1844,7 @@
    "cost": {},
    "text": "<p>духи ветра. <strong>Постоянно:</strong> по любому карнизу, канату, узкому мосту (хоть скользкому); сложность лазания <strong>−3</strong>, попытки удержать равновесие — <strong>автоуспех</strong>.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "prey-mind",
@@ -1934,7 +1934,7 @@
    "cost": {},
    "text": "<p>Буревестник (Stormcrow). Полный ход концентрации, <strong>Восприятие + Эмпатия</strong> (сл. = Сообразительность + Хитрость цели): <strong>+1 кубик урона</strong> в бою с этой целью; доп. успехи — знание других слабостей, но не больше кубиков.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "shroud",
@@ -1954,7 +1954,7 @@
    },
    "text": "<p>дух ночи. <strong>1 Гнозис</strong>, бросок <strong>Гнозиса</strong> (сл. 3 сумерки, 6 в помещении, 9 яркое солнце): каждый успех — куб <strong>3×3×3 м</strong> кромешной тьмы в поле зрения; видит сквозь неё только он. Силы, дающие зрение в полной темноте, её преодолевают.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "hidden-killer",
@@ -1977,7 +1977,7 @@
    "cost": {},
    "text": "<p>дух змеи. После боя коснуться или лизнуть каждый убитый им труп, <strong>Интеллект + Воровство</strong> (сл. 7): раны выглядят как колотые или резаные, а не укусы и следы когтей; его шерсть, слюна, кровь исчезают с места. Прочий разгром остаётся.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "perfect-recall",
@@ -2019,7 +2019,7 @@
    "cost": {},
    "text": "<p>дух крысы. <strong>Постоянно:</strong> иммунитет к обычным ядам (от мышьяка до алкоголя); <strong>+3 кубика</strong> против ядов, усиленных Червём. Можно включать и отключать (чтобы выпить).</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "create-element",
@@ -2062,7 +2062,7 @@
    "cost": {},
    "text": "<p>дух енота. Котелок (сойдёт банка) и что попало (окурки, газеты, листья) + вода (или слюна): <strong>Сообразительность + Выживание</strong> (сл. 6) — пресная, но сытная каша, <strong>1 человек за успех</strong>.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "pack-tactics",
@@ -2137,7 +2137,7 @@
    "cost": {},
    "text": "<p>дух совы. <strong>Постоянно:</strong> <strong>+2 кубика</strong> ко всем броскам <strong>Ловкость + Скрытность</strong>.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "trick-shot",
@@ -2155,7 +2155,7 @@
    "cost": {},
    "text": "<p>духи воздуха. <strong>Постоянно:</strong> при немыслимых трюках с винтовкой или пистолетом (выбить оружие из руки, выстрел в ствол врага) добавляет к пулу <strong>постоянную Славу</strong>. Прямой урон так наносить нельзя, косвенный — можно (прострелить затемнённое окно, чтобы солнце попало на вампира).</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "persuasion",
@@ -2235,7 +2235,7 @@
    },
    "text": "<p>любой технологический дух. <strong>1 Воля</strong>, <strong>Манипуляция + Ремесло</strong> (сл. 7): до конца сцены повелевает духами простейших механизмов (рычаги, засовы, блоки).</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "falcon-s-grasp",
@@ -2255,7 +2255,7 @@
    },
    "text": "<p>дух сокола. <strong>1 Ярость:</strong> до конца сцены хватка руками и челюстями — Сила <strong>+3</strong> для захватов и приёмов вроде мёртвой хватки челюстей (не для урона).</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "unicorn-s-arsenal",
@@ -2275,7 +2275,7 @@
    },
    "text": "<p>аватар Единорога. <strong>1 Гнозис:</strong> когти и клыки сияют перламутром; раненный ими теряет <strong>2 кубика ко всем атакам</strong>, пока рана не заживёт.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "blissful-ignorance",
@@ -2356,7 +2356,7 @@
    },
    "text": "<p>дух кролика. <strong>1 Гнозис</strong>, <strong>Сообразительность + Выражение</strong> (сл. = Сообразительность + Бдительность слушателя): слушатель полностью согласен с любой его речью, даже с чепухой, <strong>1 ход за успех</strong>.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "sight-from-beyond",
@@ -2446,7 +2446,7 @@
    "cost": {},
    "text": "<p>Эпифлинг Истины. Шагая в Умбру, <strong>всегда</strong> считается, что использует зеркало.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "inner-strength",
@@ -2471,7 +2471,7 @@
    },
    "text": "<p>духи предков. 5 минут медитации, <strong>Сообразительность + Загадки</strong> (сл. 8): каждый успех превращает <strong>1 Ярость в 1 Волю</strong>.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "howl-of-the-banshee",
@@ -2491,7 +2491,7 @@
    },
    "text": "<p>Банши (скорбный дух мёртвых). <strong>1 Гнозис</strong>, <strong>Обаяние + Запугивание:</strong> все слышащие бросают <strong>Волю</strong> (сл. 8, союзникам Фианны — 6) или в ужасе бегут на <strong>1 ход за успех</strong> Гару.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "howls-in-the-night",
@@ -2542,7 +2542,7 @@
    "cost": {},
    "text": "<p>дух сверчка. Бросок <strong>Гнозиса</strong> (сл. = Преграда): <strong>1 ход за успех</strong> его вой или речь ясно слышны <strong>по обе стороны Преграды</strong>.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "jam-technology",
@@ -2594,7 +2594,7 @@
    "cost": {},
    "text": "<p>дух ветра. В Умбре — автоматически говорит с ними. В физическом мире: один вопрос о <strong>ближайшей</strong> местности, <strong>Манипуляция + Выражение</strong> (сл. 8), точность по успехам. Без ветра (застоявшийся воздух в помещении) не работает.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "fetish-fetch",
@@ -2614,7 +2614,7 @@
    },
    "text": "<p>дух крысы‑барахольщицы. Создать тайник: <strong>1 Гнозис</strong>, закопать или укрыть вещи. Затем <strong>1 Гнозис</strong> — любые или все фетиши появляются в руке (на любом расстоянии) или возвращаются в тайник. Тайник один, можно сменить.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "luna-s-armor",
@@ -2647,7 +2647,7 @@
    },
    "text": "<p>Лун. Ход концентрации, <strong>1 Гнозис</strong>, <strong>Выносливость + Выживание</strong> (сл. 6): <strong>+1 кубик поглощения за успех</strong> на сцену; <strong>только этими кубиками</strong> можно поглощать урон от <strong>серебра</strong>.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "spirit-of-the-bird",
@@ -2667,7 +2667,7 @@
    },
    "text": "<p>любой дух птицы. <strong>1 Гнозис:</strong> час полёта (<strong>~32 км/ч</strong>), может зависать; боевые манёвры <strong>+1 к сложности</strong>.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "spirit-of-the-fish",
@@ -2692,7 +2692,7 @@
    },
    "text": "<p>любой дух рыбы. <strong>1 Гнозис</strong>, <strong>Выносливость + Обращение с животными</strong> (сл. 7): <strong>1 час за успех</strong> дышит под водой и плавает со скоростью бега в Хиспо.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "spirit-of-the-fray",
@@ -2730,7 +2730,7 @@
    "cost": {},
    "text": "<p>дух волка. <strong>Постоянно:</strong> когда он рядом, вся его стая (и он) получает <strong>+1 кубик</strong> ко всем броскам Тактики стаи (стр. 300). Один он бонуса не получает.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "beastmind",
@@ -2755,7 +2755,7 @@
    },
    "text": "<p>аватар Грифона. <strong>Манипуляция + Эмпатия</strong> (сл. = Воля цели): цель ведёт себя как дикое животное (логика, сложные инструменты, язык недоступны) <strong>1 минуту за успех</strong>; против обычного человека за <strong>1 Ярость</strong> — <strong>1 день за успех</strong>.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "call-of-the-wyrm",
@@ -2871,7 +2871,7 @@
    "cost": {},
    "text": "<p>как Касание Матери, но можно лечить и <strong>себя</strong>. Требует знания Касания Матери.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "cybersenses",
@@ -2891,7 +2891,7 @@
    },
    "text": "<p>любой технологический дух. <strong>1 Гнозис за каждое чувство</strong>, сцена: заменяет чувство машинным (слух — радаром, зрение — ИК или УФ).</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "hand-blade",
@@ -2916,7 +2916,7 @@
    },
    "text": "<p>дух предков (обычно бывший мастер дуэлей на клэйвах). <strong>1 Ярость:</strong> одна или обе руки — острый как бритва клинок до конца сцены: <strong>Ловкость + Фехтование</strong> (сл. 6), урон <strong>Сила + 2 губительного</strong>.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "fangs-of-the-north",
@@ -2941,7 +2941,7 @@
    },
    "text": "<p>дух снега. <strong>1 Гнозис</strong>, <strong>Сообразительность + Выживание</strong> (сл. 7): когти и зубы — изогнутые ледяные кинжалы, до конца сцены. Раненный — <strong>−1</strong> до конца сцены (озноб); раны заживают плохо: смертные могут потерять конечность от некроза, существа с быстрым исцелением (вампиры, Танцоры Чёрной Спирали) <strong>не лечат эти раны 1 день за успех</strong>. Не в Хомиде.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "claws-of-frozen-death",
@@ -2959,7 +2959,7 @@
    "cost": {},
    "text": "<p>как Клыки Севера (Дети Фенриса).</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "coils-of-the-serpent",
@@ -2982,7 +2982,7 @@
    "cost": {},
    "text": "<p>дух змеи. <strong>Ловкость + Оккультизм</strong> (сл. 7): каждый успех — одно туманное щупальце длиной <strong>9 м</strong> с физическими чертами Гару, в пределах <strong>30 м</strong>. Нацелить — ход концентрации и <strong>Ловкость + Драка</strong> (против нескольких — штрафы множественных действий). Только связывают, урона нет. Вырваться — <strong>Сила</strong> (сл. 7) с большим числом успехов, чем щупалец на нём. До конца сцены или пока не отпустит.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "odious-aroma",
@@ -3002,7 +3002,7 @@
    },
    "text": "<p>дух клопа‑вонючки. <strong>1 Гнозис:</strong> до конца сцены все, кто чует запах, в <strong>6 м</strong> (кроме него и стаи) — <strong>−2 ко всем броскам</strong>.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "mark-of-the-wolf",
@@ -3050,7 +3050,7 @@
    },
    "text": "<p>из выводка Пегаса. Указывает пальцем/когтем, <strong>Манипуляция + Запугивание</strong> (сл. = Воля цели): цель падает на колени на <strong>1 ход за успех</strong>, если не тратит <strong>1 Гнозис</strong> (другие сверхъестественные — свою энергию: кровь, Квинтэссенцию; смертные беспомощны).</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "name-the-spirit",
@@ -3148,7 +3148,7 @@
    "cost": {},
    "text": "<p>дух собаки. <strong>Манипуляция + Хитрость</strong> (сл. 7): форма Лупус выглядит как большая собака, а не волк, <strong>1 сцена за успех</strong>. Другие племена считают это унижением.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "eye-of-the-eagle",
@@ -3194,7 +3194,7 @@
    "cost": {},
    "text": "<p>дух волка. Ход концентрации, <strong>Обаяние + Запугивание</strong> (сл. = Воля цели): скорость <strong>убегающей</strong> (не атакующей) цели <strong>вдвое ниже</strong> до конца сцены.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "axis-mundi",
@@ -3259,7 +3259,7 @@
    },
    "text": "<p>дух медведя. Только в начале боя, начатого <strong>не</strong> им, его стаей или союзниками. <strong>1 Ярость:</strong> до конца сцены <strong>+1 Сила и +1 Ловкость</strong> при атаках на того, кто начал бой, и на любого, кто ранил члена его стаи в этой сцене.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "song-of-the-earth-mother",
@@ -3284,7 +3284,7 @@
    },
    "text": "<p>дух земли. 10 минут единения с землёй (без других действий), <strong>2 Гнозиса</strong>, <strong>Восприятие + Оккультизм</strong> (сл. 7): любое сверхъестественное присутствие в радиусе <strong>~90 м за успех</strong>; без подробностей, но с указанием, порчено ли оно Червём.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "spider-s-song",
@@ -3329,7 +3329,7 @@
    },
    "text": "<p>дух лосося. Только природная пресная вода (озёра, реки, пруды; не бассейны). <strong>1 Гнозис</strong>, <strong>Ловкость + Атлетика</strong> (сл. 7): <strong>1 сцена за успех</strong> свободно плавает и ходит по поверхности; плюс может использовать <strong>Заячий прыжок</strong>, если прыжок начинается и кончается в крупном водоёме.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "tread-sebek-s-back",
@@ -3354,7 +3354,7 @@
    },
    "text": "<p>дух крокодила. <strong>1 Гнозис</strong>, <strong>Ловкость + Выживание</strong> (сл. 7): <strong>1 час за успех</strong> ходит и бегает по воде и другим жидкостям, как по земле (от ядов Червя ноги не защищены).</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "command-spirit",
@@ -3457,7 +3457,7 @@
    "cost": {},
    "text": "<p>дух тумана. Бросок <strong>Гнозиса</strong> (сл. по влажности: берег озера 4 … пустыня 9): густой жуткий туман. Все, кроме Фурии, теряют <strong>половину кубиков Восприятия</strong> (вверх); все внутри, кроме Фурии и её стаи, <strong>−1 кубик к броскам Воли</strong>. Фурия видит сквозь туман.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "curse-of-hatred",
@@ -3534,7 +3534,7 @@
    },
    "text": "<p>слуга Великого Вендиго. <strong>1 Воля</strong>, нацелить — <strong>Ловкость + Оккультизм:</strong> ледяной порыв, задетые <strong>−2 кубика ко всему на 2 хода</strong>; может сбросить с карниза, на дорогу, в яму. Средняя дистанция <strong>18 м</strong> (модификаторы как у огнестрела); <strong>1 ход за успех</strong>.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "speech-of-the-world",
@@ -3606,7 +3606,7 @@
    },
    "text": "<p>технологический дух или дух войны. <strong>1 Гнозис:</strong> до конца сцены любое его оружие, если в нём были патроны, <strong>не кончается</strong> (у автоматического огня всё же рекомендуют ограничения очередей, чтобы не перегрелось).</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "snarl-of-the-predator",
@@ -3629,7 +3629,7 @@
    "cost": {},
    "text": "<p>дух волка. Полный ход, <strong>Обаяние + Запугивание</strong> (сл. = Сообразительность противника + 3): <strong>−1 кубик за успех</strong> ко всем броскам противника на <strong>3 хода</strong>.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "strength-of-purpose",
@@ -3677,7 +3677,7 @@
    },
    "text": "<p>электрический элементаль. <strong>1 Гнозис</strong>, <strong>Сообразительность + Наука</strong> (сл. 7): отключение электричества: <strong>1 успех</strong> — комната, <strong>5</strong> — целый район.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "between-the-cracks",
@@ -3702,7 +3702,7 @@
    },
    "text": "<p>любой городской дух. <strong>1 Воля</strong>, <strong>Сообразительность + Знание улиц</strong> (сл. 5): чутьё ведёт к ближайшему «пустому» месту в городе — там неделю не ступал человек, и до утра никто не придёт (заброшенный дом, пустая квартира, мёртвая станция метро). Больше успехов — укромнее.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "surface-attunement",
@@ -3725,7 +3725,7 @@
    "cost": {},
    "text": "<p>духи мелких зверьков (кролики, воробьи, мыши). Ход концентрации, <strong>Ловкость + Атлетика</strong> (сл. 6), сцена: ходит с обычной скоростью по воде, грязи, снегу, зыбучему песку, не проваливаясь и не оставляя следов.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "steel-fur",
@@ -3750,7 +3750,7 @@
    },
    "text": "<p>элементали металла или земли. Только Кринос, Хиспо, Лупус. <strong>1 Воля</strong>, <strong>Выносливость + Наука</strong> (сл. 7): <strong>+1 кубик поглощения за успех</strong> до конца сцены; броски Ловкости и социальные (кроме общения со Стеклоходами) <strong>+1 к сложности</strong>.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "messenger-s-fortitude",
@@ -3770,7 +3770,7 @@
    },
    "text": "<p>дух верблюда или волка. <strong>1 Гнозис:</strong> <strong>3 суток</strong> бежит в полную силу без отдыха, еды и воды; на месте — <strong>10 минут</strong> на дела, потом сутки сна. Любое действие, кроме бега, прекращает Дар. Другим — <strong>+1 Гнозис за каждого</strong> бегуна.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "flame-dance",
@@ -3790,7 +3790,7 @@
    },
    "text": "<p>дух мангуста. Рефлекторно <strong>1 Ярость:</strong> уклонение от <strong>одной</strong> атаки полным пулом независимо от других действий в раунде; или <strong>+3 кубика</strong> к обычному уклонению.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "shadows-of-the-impergium",
@@ -3808,7 +3808,7 @@
    "cost": {},
    "text": "<p>дух страха. <strong>Постоянно</strong> (можно подавить на сцену): вызывает <strong>Бред</strong> уже в <strong>Хиспо</strong> (наблюдатели считаются с Волей <strong>+2</strong>); видящие его в <strong>Криносе</strong> считаются с Волей на <strong>5 ниже</strong> (мин. 1) для определения реакции.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "shadows-at-dawn",
@@ -3831,7 +3831,7 @@
    "cost": {},
    "text": "<p>дух предков. Поделившись знанием, <strong>Сообразительность + Хитрость</strong> (сл. = Сообразительность + Хитрость собеседника): на следующем восходе сказанное полностью стирается из памяти собеседника.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "clap-of-thunder",
@@ -3851,7 +3851,7 @@
    },
    "text": "<p>Буревестник. Только Хомид, Глабро, Кринос. <strong>1 Гнозис:</strong> хлопок; все в <strong>6 м</strong> бросают <strong>Волю</strong> (сл. 8 враги, 4 стая) или оглушены и не действуют <strong>1 ход</strong>.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "calm",
@@ -3877,7 +3877,7 @@
    },
    "text": "<p>дух единорога. <strong>1 Гнозис</strong>, <strong>Обаяние + Эмпатия</strong> (сл. = Воля цели): цель теряет <strong>1 Ярость за успех</strong> (восстанавливает обычно). У склонных к бешенству без Ярости (вампиры, некоторые фоморы) <strong>3+ успеха</strong> снимают бешенство.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "resist-temptation",
@@ -3897,7 +3897,7 @@
    },
    "text": "<p>дух земли. Ритуальные жесты по чакрам, <strong>1 Гнозис</strong>, <strong>Сообразительность + Ритуалы:</strong> до конца сцены <strong>+1 за успех</strong> к сложности его зачаровать или сверхъестественно принудить (включая порчу). Против несверхъестественного принуждения — автоуспех.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "wuxing",
@@ -3920,7 +3920,7 @@
    "cost": {},
    "text": "<p>аватар Химеры. <strong>Манипуляция + Загадки</strong> (сл. 7): каждый успех превращает <strong>~0,09 м²</strong> (1 кв. фут) одной из азиатских стихий (вода, огонь, земля, металл, дерево) в другую, форма сохраняется (огонь в камине из дерева или из воды той же формы). <strong>Число ходов = Гнозис</strong>.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "cold-voice-of-reason",
@@ -3945,7 +3945,7 @@
    },
    "text": "<p>дух ворона. Атакованный, отпускает ловкую реплику: <strong>1 Гнозис</strong>, <strong>Манипуляция + Хитрость</strong> (сл. 8): нападающий задержан <strong>1 раунд за успех</strong>, пока его самого не атакуют; другие действия (включая атаки на других) свободны.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "king-of-the-beasts",
@@ -3993,7 +3993,7 @@
    },
    "text": "<p>земной элементаль. <strong>1 Гнозис</strong>, <strong>Выносливость + Первобытный инстинкт</strong> (сл. 7): <strong>+1 кубик поглощения за успех</strong> до конца сцены (серебро остаётся непоглощаемым); социальные броски, кроме Запугивания, <strong>+1 к сложности</strong>.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "shield-of-rage",
@@ -4038,7 +4038,7 @@
    },
    "text": "<p>дух сокола. <strong>1 Гнозис</strong>, <strong>Интеллект + Эмпатия</strong> (сл. 4): общие чувства и ожидания одной группы; больше успехов — глубже понимание её желаний.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "kali-s-tongue",
@@ -4063,7 +4063,7 @@
    },
    "text": "<p>дух кобры. <strong>1 Ярость</strong>, <strong>Манипуляция + Медицина</strong> (сл. = меньшее из Ярости или Воли цели <strong>−3</strong>): каждый успех — цель <strong>1 ход не исцеляется никак</strong> (включая Касание Матери).</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "cornered-rat-s-ferocity",
@@ -4083,7 +4083,7 @@
    },
    "text": "<p>духи крыс. <strong>1 Ярость</strong>, бросок <strong>Ярости</strong> (сл. 8): <strong>+1 кубик к Драке за успех</strong> до конца боя; автоматически и неизбежно впадает в <strong>бешенство берсерка</strong>; магия, прекращающая бешенство, прекращает и Дар.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "sky-running",
@@ -4103,7 +4103,7 @@
    },
    "text": "<p>аватар Великого Вендиго. Ход концентрации, <strong>1 Воля:</strong> бежит по небу <strong>80 км/ч</strong>, оставляя огненный след; должен всё время двигаться, иначе упадёт. <strong>4 часа</strong>, продлевается Волей.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "elemental-favor",
@@ -4130,7 +4130,7 @@
    "cost": {},
    "text": "<p>городской элементаль. <strong>Обаяние + Хитрость</strong> (сл. 7): уговорами или угрозами просит городского элементаля об услуге — стекло взрывается в сторону врагов, дверь не открывается, у машины отказывают тормоза. Эффект — на усмотрение рассказчика.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "great-leap",
@@ -4150,7 +4150,7 @@
    },
    "text": "<p>дух зайца‑беляка. <strong>1 Воля</strong>, <strong>Сила + Атлетика:</strong> прыжок <strong>~30 м за успех</strong>.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "wind-claws",
@@ -4195,7 +4195,7 @@
    },
    "text": "<p>дух ветра. В ответ на атаку ближнего боя оружием: <strong>1 Воля</strong>, <strong>Ловкость + Атлетика</strong> (сл. = Сообразительность + Фехтование противника): его успехи вычитаются из успехов атаки; если их больше — отбирает оружие и может использовать в следующем ходу.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "intrusion",
@@ -4215,7 +4215,7 @@
    },
    "text": "<p>дух таракана. <strong>1 Гнозис</strong>, бросок <strong>Гнозиса</strong> (сл. 7): ровно <strong>1 минуту</strong> все замки и преграды пропускают его (от компьютерных сейфов до досок, приколоченных к двери). Против магических печатей — бросок, но каждый успех Гнозиса — <strong>+1 автоуспех</strong>. Открытое само не запирается.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "eye-of-the-cobra",
@@ -4258,7 +4258,7 @@
    },
    "text": "<p>аватар самой Геи. <strong>1 Гнозис</strong>, <strong>Обаяние + Запугивание:</strong> до конца сцены каждый приспешник Червя, взглянувший на него, бросает <strong>Волю</strong> (сл. 7) и должен <strong>сравняться или превзойти</strong> его успехи, иначе в ужасе бежит.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "gremlins",
@@ -4304,7 +4304,7 @@
    "cost": {},
    "text": "<p>дух скунса. Струя: <strong>Ловкость + Первобытный инстинкт</strong> (сл. 7, до <strong>3 м</strong>). Поражённый первый ход только давится от рвоты (если не потратит <strong>1 Волю</strong>); дальше <strong>−1 за каждые 2 успеха</strong> ко всем броскам до конца сцены. Погружение в воду снимает; не действует на тех, у кого нет обоняния.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "gift-of-the-termite",
@@ -4329,7 +4329,7 @@
    },
    "text": "<p>дух термита. <strong>1 Гнозис</strong>, <strong>Интеллект + Ремесло</strong> (сл. 7): дерево и бумага гниют: <strong>1 успех</strong> — пачка бумаги, <strong>3</strong> — стена, <strong>5</strong> — обрушить крышу небольшого здания.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "spirit-friend",
@@ -4352,7 +4352,7 @@
    "cost": {},
    "text": "<p>дух единорога. <strong>Обаяние + Эмпатия</strong> (сл. 7): <strong>+1 кубик за успех</strong> ко всем броскам общения с духами (не Бейнами) до конца сцены; кроме безумных и порченых, духи вежливы.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "scent-of-the-oathbreaker",
@@ -4435,7 +4435,7 @@
    },
    "text": "<p>дух предков. Ход концентрации, нужно знать тотем жертв; <strong>1 Гнозис + 1 Воля</strong>, бросок <strong>Гнозиса</strong> (сл. = суммарный Тотем стаи, макс. 10): стая теряет все черты от тотема и до конца сцены не может применять Тактику стаи и действовать согласованно. Отменяется, если Уктена без сознания или мёртв.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "lover-s-touch",
@@ -4460,7 +4460,7 @@
    },
    "text": "<p>дух любви или аватар Единорога. Тёплое, ласковое касание (объятие, ласка или интимнее), <strong>1 Гнозис</strong>, <strong>Интеллект + Медицина</strong> (сл. = большее из Ярости и Воли цели): каждый успех — лечит <strong>1 ударный или летальный</strong>, или <strong>+1 Воля</strong>, или <strong>+1 Эссенция</strong> духу; успехи можно делить. Либо вместо этого подавить <strong>расстройство</strong> на <strong>1 день за успех</strong> (не излечивает навсегда, но начало пути).</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "heart-claw",
@@ -4485,7 +4485,7 @@
    },
    "text": "<p>дух осы. После удачной атаки когтем <strong>1 Воля:</strong> обломанный коготь вгрызается в плоть — <strong>1 непоглощаемый летальный каждый ход</strong>, пока не убьёт или не будет извлечён (<strong>Ловкость + Медицина</strong>, сл. 7, полный ход).</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "talons-of-the-falcon",
@@ -4505,7 +4505,7 @@
    },
    "text": "<p>дух сокола. <strong>1 Гнозис</strong>, атака <strong>Ловкость + Драка:</strong> <strong>+3 уровня урона</strong>, и этот урон <strong>нельзя регенерировать</strong> до конца сцены.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "eyes-of-the-cat",
@@ -4559,7 +4559,7 @@
    "cost": {},
    "text": "<p>аватар Великого Вендиго. Укусить и вкусить кровь (нанести ≥1 летальный или губительный тому, кто кровоточит; с ядовитой кровью или без крови — не работает); бросок <strong>Гнозиса</strong> (сл. = Выносливость цели + 3): <strong>+1 Сила за каждые 2 нанесённых укусом уровня</strong> (макс. +5), <strong>2 хода за успех</strong>. В следующий ход — обязательная проверка <strong>бешенства</strong>.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "blood-of-the-north",
@@ -4577,7 +4577,7 @@
    "cost": {},
    "text": "<p>дух снега. <strong>Постоянно:</strong> игнорирует штрафы от холода, <strong>+5 кубиков поглощения</strong> против холодовых атак, Выживание в холоде <strong>−2 к сложности</strong>.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "wings-of-pegasus",
@@ -4602,7 +4602,7 @@
    },
    "text": "<p>аватар Пегаса. В <strong>Хиспо</strong>, <strong>1 Гнозис:</strong> крылья, полёт <strong>80 км/ч</strong>, пока не уберёт. Тонкие манёвры — <strong>Ловкость + Атлетика</strong>.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "icy-chill-of-despair",
@@ -4628,7 +4628,7 @@
    },
    "text": "<p>Буревестник. Ход концентрации, <strong>1 Гнозис</strong>, <strong>Манипуляция + Запугивание</strong> (сл. 7): кажется больше и страшнее — тенью самого себя. Каждый, кто желает ему зла, бросает <strong>Волю</strong> (сл. 8) и должен <strong>превзойти его успехи</strong>; иначе, чтобы атаковать, действовать против или даже возразить ему, — <strong>1 Воля</strong>. Контроля не даёт.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "ley-lines",
@@ -4653,7 +4653,7 @@
    },
    "text": "<p>дух земли. <strong>1 Гнозис</strong>, <strong>Сообразительность + Оккультизм</strong> (сл. 7): выслеживающий должен сначала пройти <strong>Восприятие + Оккультизм</strong> (сл. 8) с большим числом успехов, иначе его попытка выследить <strong>автоматически катастрофически проваливается</strong> (ложные следы, круги).</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "combat-healing",
@@ -4696,7 +4696,7 @@
    },
    "text": "<p>дух совы. Полный ход когтями вырезает знак, <strong>1 Гнозис</strong>, <strong>Сообразительность + Оккультизм</strong> (сл. 7): знак притягивает неупокоенных мёртвых, место становится <strong>сильно населено призраками</strong> (если они есть поблизости) на <strong>1 неделю за успех</strong>; уничтожение знака прекращает эффект.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "merciful-blow",
@@ -4716,7 +4716,7 @@
    },
    "text": "<p>дух мангуста. <strong>1 Гнозис:</strong> до конца сцены его атаки наносят урон, но <strong>без видимых ран</strong>; выведенный так из строя сразу восстанавливает здоровье, отнятое этими ударами, и гарантированно без сознания минимум до конца сцены.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "might-of-thor",
@@ -4736,7 +4736,7 @@
    },
    "text": "<p>дух волка. <strong>1 Гнозис + 1 Ярость</strong>, бросок <strong>Воли</strong> (сл. 8): <strong>Сила ×2</strong> на <strong>1 ход за успех</strong>. Раз в сцену.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "wisdom-of-the-ancient-ways",
@@ -4807,7 +4807,7 @@
    },
    "text": "<p>Буревестник. <strong>1 Гнозис</strong>, бросок <strong>Воли</strong> (сл. = Ярость цели): управляет бешенством Гару (друга или врага) и натравливает его на кого угодно <strong>2 хода за успех</strong>. Против Гару в <strong>Рабстве Червя</strong> (Thrall of the Wyrm) — сам бросает <strong>Ярость</strong> (сл. 7) на бешенство.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "invisibility",
@@ -4832,7 +4832,7 @@
    },
    "text": "<p>слуга Уктены. <strong>1 Гнозис</strong>, <strong>Интеллект + Оккультизм</strong> (сл. 4 — уже скрыт, 6 — на открытом месте, 9 — на виду): ищущий должен превзойти его успехи на <strong>Восприятие + Бдительность</strong> (сл. 8); неищущие не заметят вовсе. Нужна концентрация; не быстрее половины шага, нельзя привлекать внимание.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "visceral-agony",
@@ -4852,7 +4852,7 @@
    },
    "text": "<p>дух боли. <strong>1 Ярость</strong> перед атакой: штрафы за раны от её атак в этот ход до конца сцены <strong>удваиваются</strong> (Израненный — −4). Нечувствительным к боли (в бешенстве) — обычные штрафы.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "monkey-tail",
@@ -4902,7 +4902,7 @@
    "cost": {},
    "text": "<p>дух единорога. <strong>Обаяние + Эмпатия</strong> (сл. = Воля цели, <strong>+1</strong> для тварей Червя): цель до конца сцены стоит в немом благоговении, пока её не атакуют. Раз в сцену на цель.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "open-moon-bridge",
@@ -4965,7 +4965,7 @@
    },
    "text": "<p>Буревестник. Ход концентрации, <strong>1 Гнозис</strong>, <strong>Обаяние + Запугивание</strong> (сл. = Воля цели): цель (видит его) застывает на <strong>1 ход за успех</strong> — не двигается и не атакует (защищаться может).</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "reshape-object",
@@ -5023,7 +5023,7 @@
    },
    "text": "<p>дух кукушки. <strong>1 Ярость</strong>, <strong>Манипуляция + Первобытный инстинкт</strong> (сл. 8): на сцену цель несёт штрафы за раны, соответствующие <strong>текущим ранам Фенрира</strong>.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "song-of-heroes",
@@ -5120,7 +5120,7 @@
    },
    "text": "<p>дух ворона. Коснуться цели кончиками пальцев, <strong>1 Гнозис</strong>, <strong>Манипуляция + Огнестрел:</strong> проклятие на <strong>1 день за успех</strong> — сложность попасть в цель <strong>любым</strong> метательным/стрелковым оружием <strong>−2</strong> («несчастный случай»).</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "sense-the-unnatural",
@@ -5201,7 +5201,7 @@
    },
    "text": "<p>водный элементаль. Свистит сквозь зубы, <strong>1 Гнозис</strong>, <strong>Сообразительность + Ремесло</strong> (сл. по количеству металла: пистолет или нож — 6, машина — 8): металл рядом мгновенно ржавеет.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "adaptation",
@@ -5226,7 +5226,7 @@
    },
    "text": "<p>дух медведя. <strong>1 Гнозис</strong>, <strong>Выносливость + Выживание</strong> (сл. 7), <strong>1 час за успех:</strong> не страдает от ядов и болезней, живёт в любой среде (давление, температура, атмосфера). От опасных ситуаций (падение) не защищает.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "pulse-of-the-invisible",
@@ -5269,7 +5269,7 @@
    },
    "text": "<p>любой дух дикой природы. <strong>1 Гнозис</strong>, <strong>Интеллект + Первобытный инстинкт</strong> (сл. 6): радиус <strong>3,2 км за успех</strong> до рассвета. Люди автоматически проваливают ориентирование; другие оборотни — <strong>Восприятие + Первобытный инстинкт</strong>, нужно больше успехов, чем у Когтя. Ведомые им самим не путаются.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "burning-blade",
@@ -5287,7 +5287,7 @@
    "cost": {},
    "text": "<p>дух жар‑птицы. Ход концентрации, бросок <strong>Гнозиса</strong> (сл. 7): оружие (меч, клэйв, топор) горит — <strong>+2 кубика губительного огненного</strong> урона, поджигает горючее; <strong>1 ход за успех</strong>.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "render-down",
@@ -5305,7 +5305,7 @@
    "cost": {},
    "text": "<p>дух таракана. Касание, только <strong>искусственные</strong> материалы (пластик, сплавы); бросок <strong>Ярости</strong> (сл. 7): каждый успех — <strong>~9 кг</strong> материала распадается на составляющие (пластиковый стол растекается, деревянный не страдает).</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "rending-the-craft",
@@ -5325,7 +5325,7 @@
    },
    "text": "<p>дух предков. После удачной атаки когтями <strong>1 Воля:</strong> снимает <strong>действующие временные</strong> магические эффекты, усиливающие цель (Бритвенные когти, Чары «Броня»). Постоянные эффекты и врождённые свойства — нет (Дары Гару — да, смену облика — нет; Дисциплины вампира — да, бессмертие и усиление Атрибутов кровью — нет). Смешанные эффекты теряют временную часть (Мощь даёт кубики Силы, но кровь в автоуспехи не превращается).</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "shadow-cutting",
@@ -5345,7 +5345,7 @@
    },
    "text": "<p>дух ночи. Плевок в тень противника, <strong>1 Гнозис:</strong> до конца сцены, ударяя по тени (только фетиш‑оружием или естественным оружием), ранит противника. Уклонение от таких атак <strong>−2 кубика</strong>, парировать нельзя.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "liar-s-craft",
@@ -5391,7 +5391,7 @@
    "cost": {},
    "text": "<p>дух сна. Особый вой, <strong>≥1 Гнозис</strong>, <strong>Манипуляция + Оккультизм</strong> (сл. 8): откликаются фэйри поблизости (больше Гнозиса — сильнее, больше успехов — больше их); подчиняются, но не без вопросов. На Земле обычно приходят химеры, при большом Гнозисе — подменыши или их тёмная родня; истинные фэйри — только в подходящих царствах Умбры.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "heart-of-fury",
@@ -5517,7 +5517,7 @@
    "cost": {},
    "text": "<p>дух гиены. Пока громко хохочет — все попытки ментального принуждения против него <strong>+2 к сложности</strong>.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "territory",
@@ -5540,7 +5540,7 @@
    "cost": {},
    "text": "<p>дух волка. Метит места мочой (меток не больше <strong>Гнозиса</strong>). Потом <strong>Восприятие + Первобытный инстинкт</strong> (сл. 7): ощущает помеченное место, как если бы стоял там, где метил. Метка держится <strong>1 неделю за точку Гнозиса</strong> (в глуши) или <strong>1 день за точку</strong> (в городе).</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "chains-of-mist",
@@ -5565,7 +5565,7 @@
    },
    "text": "<p>дух тумана. Ход концентрации, <strong>1 Гнозис</strong>, <strong>Ловкость + Загадки</strong> (сл. 7): <strong>1 дух за успех</strong> в <strong>60 м</strong>; их Ярость, Гнозис и Воля для всех бросков <strong>−1</strong> до конца сцены.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "coup-de-grace",
@@ -5590,7 +5590,7 @@
    },
    "text": "<p>дух совы. <strong>1 Воля</strong>, <strong>Восприятие + Драка</strong> (сл. = Выносливость + Атлетика цели): следующая удачная атака — <strong>кубики урона ×2</strong>.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "fair-fortune",
@@ -5610,7 +5610,7 @@
    },
    "text": "<p>Химерлинг. Раз в сцену, <strong>1 Гнозис:</strong> перебросить любой проваленный или неудачный (botch) бросок; второй результат окончательный.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "cowing-the-bullet",
@@ -5693,7 +5693,7 @@
    },
    "text": "<p>Сетевой Паук. <strong>1 Воля</strong>, <strong>Манипуляция + Наука или Компьютеры</strong> (сл. по сложности; ноутбук — 8): сцена власти над духами электроники (компьютеры, смартфоны, машины).</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "calm-the-savage-beast",
@@ -5790,7 +5790,7 @@
    "cost": {},
    "text": "<p>дух электричества. Тратит <strong>Ярость</strong> (не больше половины постоянной за ход): за каждую — <strong>2 губительных</strong> противникам, которых касается или которые касаются проводника (металл, вода); урон можно делить между столькими целями, сколько потрачено Ярости.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "venom-blood",
@@ -5815,7 +5815,7 @@
    },
    "text": "<p>дух змеи или паука. <strong>1 Ярость</strong>, <strong>Выносливость + Первобытный инстинкт</strong> (сл. 7): до конца сцены каждый, кого коснулась его кровь, получает <strong>1 кубик губительного урона за успех</strong>.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "scrying",
@@ -5840,7 +5840,7 @@
    },
    "text": "<p>дух мухи. Взгляд в отражающую поверхность, <strong>1 Гнозис</strong>, <strong>Восприятие + Оккультизм</strong> (сл. 10; с вещью, принадлежащей человеку или месту, — 8): до конца сцены видит всё, что происходит там. Многие сверхъестественные существа знают защиту.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "clarity",
@@ -5863,7 +5863,7 @@
    "cost": {},
    "text": "<p>дух ветра. <strong>Восприятие + Загадки</strong> (сл. 7): видит сквозь туман, кромешную тьму и невидимость, распознаёт иллюзии (против чужой иллюзии — сравнять или превзойти успехи создателя); снимает штрафы зрения.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "serenity",
@@ -5888,7 +5888,7 @@
    },
    "text": "<p>аватар Единорога. <strong>1 Гнозис</strong>, <strong>Обаяние + Выражение</strong> (сл. = Воля цели): на <strong>1 ход за успех</strong> цель автоматически проваливает броски Ярости, не может впасть в бешенство и тратить Ярость.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "lash-of-rage",
@@ -5951,7 +5951,7 @@
    },
    "text": "<p>дух боли. <strong>1 Ярость + 1 Гнозис</strong>, <strong>Восприятие + Оккультизм</strong> (сл. 8): до конца сцены каждый враг, на кого он свирепо смотрит, бросает <strong>Волю</strong> (сл. 8) и должен <strong>превзойти его успехи</strong>, иначе скорчивается от боли — штраф <strong>−5</strong> как Искалеченный (независимо от реального здоровья); уже Искалеченные — Обездвижены.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "howl-of-death",
@@ -5974,7 +5974,7 @@
    "cost": {},
    "text": "<p>дух боли. Цель видна ясно и слышит вой; <strong>Обаяние + Первобытный инстинкт</strong> (сл. 6): <strong>1 летальный за успех</strong> (можно поглощать) — внутренние органы лопаются. Другие слышащие лишь напуганы.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "mastery",
@@ -5997,7 +5997,7 @@
    "cost": {},
    "text": "<p>дух сокола. Только против <strong>Гару</strong> (включая Танцоров Чёрной Спирали). <strong>Обаяние + Лидерство</strong> (сл. = Сообразительность цели + 3): один несамоубийственный приказ, выполняется <strong>1 ход за успех</strong>.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "gnaw",
@@ -6087,7 +6087,7 @@
    },
    "text": "<p>дух хамелеона. <strong>1 Гнозис</strong>, <strong>Обаяние + Исполнение</strong> (сл. 8): точный облик любого человека, волка или Гару (голос, осанка, запах; черты не копирует), <strong>1 день за успех</strong> (может прекратить раньше).</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "beast-life",
@@ -6168,7 +6168,7 @@
    },
    "text": "<p>дух кобры. <strong>1 Гнозис</strong>, <strong>Манипуляция + Оккультизм</strong> (сл. = Воля цели): каждый успех — <strong>1 ход</strong> цель не может пользоваться <strong>никакой магией, связанной с кровью</strong>, и тратить пункты крови (вампиры, гули, Ананаси). Странники ненавидят вампиров, отнявших у них родину.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "durance",
@@ -6192,7 +6192,7 @@
    },
    "text": "<p>дух паука. Использовав <strong>талену</strong>, рефлекторно <strong>1 Гнозис:</strong> дух в ней не уходит (талена не расходуется). Не действует на талены, уничтожаемые физически по природе (вроде настойки из паслёна, которую выпивают), но сохраняет те, что разрушаются метафизически (Лунный свет, Чешуя Червя).</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "blurring-the-mirror",
@@ -6237,7 +6237,7 @@
    },
    "text": "<p>аватар Великого Вендиго. Нужна частица цели. 3 полных хода танца под ночным небом, <strong>1 Ярость + 1 Гнозис</strong>, <strong>Обаяние + Оккультизм</strong> (сл. 8): аватар Великого Вендиго выслеживает цель и пожирает её сердце. При <strong>провале</strong> или если ему помешали убить — вернётся и убьёт призвавшего.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "quicksand",
@@ -6262,7 +6262,7 @@
    },
    "text": "<p>земной элементаль (также дух волка). <strong>1 Гнозис</strong>, <strong>Манипуляция + Первобытный инстинкт</strong> (сл. 7): трясина радиусом <strong>3 м + 3 м за каждый доп. успех</strong>. Все, кроме Гару и стаи, — половина шаговой скорости, нельзя манёвры с перемещением, прочие манёвры <strong>+1 к сложности</strong>.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "spirit-drain",
@@ -6370,7 +6370,7 @@
    "cost": {},
    "text": "<p>дух сокола. <strong>Постоянно:</strong> сложность прямых ментальных атак, контроля разума, чтения мыслей, иллюзий, одержимости против него — <strong>10</strong>. На магию, влияющую на <strong>эмоции</strong>, не распространяется.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "blink",
@@ -6395,7 +6395,7 @@
    },
    "text": "<p>дух крысы. Ныряет в тень (мусорный бак, тёмный переулок, под машину), <strong>1 Гнозис</strong>, <strong>Манипуляция + Скрытность</strong> (сл. 6): выныривает из другой тени в пределах <strong>18 м за успех</strong>.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "signal-rider",
@@ -6420,7 +6420,7 @@
    },
    "text": "<p>Паук Узора. <strong>1 Воля + 1 Гнозис:</strong> лунный мост «на спине» телефонного сигнала — мгновенно к собеседнику на том конце (проводной или сотовый; через видеосвязь — <strong>Сообразительность + Компьютеры</strong>, сл. 7). Дальность — <strong>Гнозис × 8 км</strong>, иначе не работает.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "attunement",
@@ -6453,7 +6453,7 @@
    },
    "text": "<p>дух крысы. Только в городе. <strong>1 Гнозис</strong>, <strong>Восприятие + Знание улиц</strong> (сл. 6): духи города рассказывают о районе (примерное население, анклавы Гару и других существ, тайные ходы); объём и точность — по успехам.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "infest",
@@ -6478,7 +6478,7 @@
    },
    "text": "<p>любой дух паразитов. <strong>1 Гнозис</strong>, <strong>Манипуляция + Обращение с животными</strong> (сл. 7): местные паразиты (насекомые, слизни, грызуны) заселяют здание (не больше крупного): <strong>1 успех</strong> — пора звать дезинсектора, <strong>5</strong> — жить там невозможно долгое время.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "uncaught-since-the-primal-morn",
@@ -6503,7 +6503,7 @@
    },
    "text": "<p>аватар Единорога. <strong>1 Гнозис</strong>, <strong>Выносливость + Атлетика</strong> (сл. = наибольшая Выносливость + Атлетика преследователей): неизменно быстрее преследователей <strong>1 сцену за успех</strong>.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "spirit-ward",
@@ -6550,7 +6550,7 @@
    "cost": {},
    "text": "<p>дух волка. При изучении выбрать черту (<strong>Ярость, Гнозис или Воля</strong>): может держать на <strong>3 пункта больше</strong> постоянного значения (восстанавливаются обычно, лишних кубиков не дают). Для другой черты — выучить Дар заново.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "wasp-talons",
@@ -6570,7 +6570,7 @@
    },
    "text": "<p>дух осы. <strong>1 Ярость</strong>, <strong>Ловкость + Драка:</strong> выстреливает когтями как дротиками; сложность как у огнестрела, средняя дистанция <strong>18 м</strong>; урон как от когтей. Когти отрастают за ход (до тех пор этой рукой когтями бить нельзя).</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "open-wounds",
@@ -6595,7 +6595,7 @@
    },
    "text": "<p>дух боли. <strong>1 Гнозис</strong>, <strong>Сила + Медицина</strong> (сл. 7): если следующая атака наносит урон — кровотечение, <strong>1 непоглощаемый летальный в ход</strong> столько ходов, сколько успехов.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "roll-over",
@@ -6689,7 +6689,7 @@
    },
    "text": "<p>элементаль. <strong>1 Гнозис</strong>, бросок <strong>Гнозиса</strong> (сл. = Преграда): является элементаль одной из четырёх стихий; затем <strong>Манипуляция + Оккультизм</strong> (сл. 7), чтобы склонить его помочь. Уходит в конце сцены.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "take-the-true-form",
@@ -6757,7 +6757,7 @@
    },
    "text": "<p>учат вместе элементали воздуха и земли. <strong>1 Гнозис</strong>, <strong>Ловкость + Оккультизм</strong> (сл. 7): жестом двигает один предмет до <strong>900 кг</strong> со скоростью <strong>~32 км/ч</strong>, <strong>1 ход за успех</strong>, нужна концентрация.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "preternatural-awareness",
@@ -6782,7 +6782,7 @@
    },
    "text": "<p>дух ветра. <strong>1 Гнозис</strong>, <strong>Восприятие + Атлетика</strong> (сл. 7), сцена: пулы всех противников на попадание по нему <strong>−1 кубик за успех</strong>, даже если он атаку не видит.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "full-moon-s-light",
@@ -6822,7 +6822,7 @@
    },
    "text": "<p>дух горного козла. <strong>1 Ярость + 1 Воля:</strong> до конца сцены <strong>не может провалить</strong> ни одной задачи на <strong>Выносливость</strong>; пытки не сломят; под водой лёгкие заполнятся, но не умрёт. Поглощение — всегда хотя бы <strong>1 уровень</strong>, в остальном урон как обычно.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "strength-of-the-dominator",
@@ -6847,7 +6847,7 @@
    },
    "text": "<p>Буревестник. <strong>Сообразительность + Запугивание</strong> (сл. = Воля цели): столько ходов, сколько успехов, цель теряет <strong>1 Ярость в ход</strong>, а он её получает. Раз в сцену на цель.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "speed-beyond-thought",
@@ -6872,7 +6872,7 @@
    },
    "text": "<p>дух гепарда или воздуха. <strong>1 Гнозис</strong>, <strong>Выносливость + Атлетика</strong> (сл. 7): бег <strong>×10</strong> до <strong>8 часов</strong>, только бег. После — сразу поесть, иначе бешенство от голода.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "clenched-jaw",
@@ -6918,7 +6918,7 @@
    "cost": {},
    "text": "<p>земной элементаль. Бросок <strong>Воли</strong> (сл. 8): <strong>+1 кубик за успех</strong> ко всем физическим броскам; его нельзя застать врасплох, все атаки считаются фронтальными. <strong>Не может сойти с места</strong>, пока все враги не повержены или не бежали.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "grasp-the-beyond",
@@ -7001,7 +7001,7 @@
    },
    "text": "<p>дух боли. <strong>1 Гнозис</strong>, бросок <strong>Гнозиса</strong> (сл. = Выносливость цели + 3): цель оглушена и бьётся в судорогах <strong>1 раунд за успех</strong>, и до конца сцены <strong>−1 кубик</strong> ко всем броскам.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "tech-speak",
@@ -7026,7 +7026,7 @@
    },
    "text": "<p>Паук Узора. <strong>1 Гнозис</strong>, <strong>Обаяние + Наука</strong> (сл. по расстоянию: соседняя комната 4, здание 5, квартал 6, 16 км 7, часовой пояс 8, дальше 9): послание доставляется через любую технику рядом с адресатом (телефоны кричат сами, табло показывают, принтеры печатают). <strong>1 успех</strong> — одно слово, <strong>5</strong> — любой длины. Без техники рядом с адресатом — не работает.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "strike-the-air",
@@ -7055,7 +7055,7 @@
    },
    "text": "<p>дух мангуста. <strong>1 Воля</strong>, <strong>Сообразительность + Атлетика</strong> (сл. = Воля противника): до конца сцены этот противник <strong>не может по нему попасть</strong>, как бы ни бросал. Отменяется, если Гару атакует его или кто‑то атакует в его интересах. Против каждого нападающего — отдельная Воля и бросок.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "terror-of-the-dire-wolf",
@@ -7100,7 +7100,7 @@
    },
    "text": "<p>дух льва (по легенде, с ним переродился первый Серебряный Клык). Раз в сцену <strong>3 Воли:</strong> уклоняется от <strong>одной</strong> атаки, которая (до поглощения) опустила бы его ниже Искалеченного, — мгновенно оказывается в ближайшем месте вне атаки (сантиметр, километр или дальше).</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "rattler-s-bite",
@@ -7165,7 +7165,7 @@
    },
    "text": "<p>дух зерна («дух духов»). <strong>1 Гнозис за каждые 3 м радиуса</strong>, <strong>Интеллект + Выражение:</strong> неподвижная иллюзия (зрение, звук, запах, даже осязание). Усомнившийся — <strong>Восприятие + Бдительность</strong> с большим числом успехов, чтобы раскусить.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "bridge-walker",
@@ -7210,7 +7210,7 @@
    },
    "text": "<p>слуга Великого Вендиго. <strong>1 Гнозис</strong>, <strong>Интеллект + Оккультизм</strong> (сл. 4 зимой, 6 весной, 9 летом): температура ниже нуля в радиусе <strong>8 км</strong> (зимой — ещё ниже) на <strong>1 день за успех</strong>. Все без природного меха <strong>−2 кубика ко всему</strong>. В городе — катастрофа (трубы, дороги).</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "black-mark",
@@ -7230,7 +7230,7 @@
    },
    "text": "<p>дух совы. При удачном ударе когтями до броска урона <strong>1 Гнозис:</strong> цель «населена призраками» (как Метка Волка‑Смерти) на <strong>1 день за каждый нанесённый уровень урона</strong>.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "assimilation",
@@ -7301,7 +7301,7 @@
    "cost": {},
    "text": "<p>ур. 5, дух предков или слуга Наруками, Владыки Грома. <strong>Выносливость + Загадки</strong> (сл. 7) и <strong>≥1 Ярость</strong>: мощная буря (вырывает деревья, переворачивает машины) радиусом <strong>1,6 км за успех</strong>; каждая потраченная Ярость — <strong>+1 успех</strong>. Не дольше сцены. </p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "riot",
@@ -7326,7 +7326,7 @@
    },
    "text": "<p>дух крысы. <strong>1 Гнозис</strong>, <strong>Сообразительность + Хитрость</strong> (сл. 8): злые духи поднимают отверженных горожан (бедные, бездомные, мигранты) на погромы против выбранной цели; легко выходит из‑под контроля. Радиус <strong>1,6 км за успех</strong>.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "gorgon-s-gaze",
@@ -7351,7 +7351,7 @@
    },
    "text": "<p>легендарный Василиск. Зрительный контакт, <strong>1 Гнозис</strong>, <strong>Внешность + Оккультизм</strong> (сл. = Воля цели): полный паралич <strong>1 ход за успех</strong>; <strong>5 успехов</strong> — цель <strong>навсегда каменеет</strong>.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "thieving-talons-of-the-magpie",
@@ -7401,7 +7401,7 @@
    },
    "text": "<p>Лун. Хотя бы краешек луны виден в точке отправления. <strong>1 Гнозис за каждые ~160 км</strong>, <strong>Интеллект + Бдительность</strong> (сл. по дальности и знанию пути): мгновенный перенос в пункт назначения.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "survivor",
@@ -7421,7 +7421,7 @@
    },
    "text": "<p>дух черепахи. <strong>1 Гнозис</strong>, <strong>Выносливость + Выживание:</strong> на <strong>1 день за успех</strong> не нужны еда, вода, сон; нипочём жара, холод, болезни, яды; токсины Червя — вполсилы. <strong>Второй Гнозис:</strong> <strong>+3 Выносливости</strong> и без штрафов за раны, но Дар кончится через <strong>10 раундов</strong>. После окончания — сон не меньше 8 часов, просыпается зверски голодным. </p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "endurance-of-heimdall",
@@ -7441,7 +7441,7 @@
    },
    "text": "<p>дух вепря. <strong>2 Гнозиса</strong>, бросок <strong>Воли</strong> (сл. 6): <strong>Выносливость ×2</strong> до конца сцены.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "harmonious-unity-of-the-emerald-mother",
@@ -7461,7 +7461,7 @@
    },
    "text": "<p>аватар самой Геи. <strong>1 Гнозис:</strong> на сутки в <strong>Хомиде</strong> — бонусы физических Атрибутов и регенерация <strong>Криноса</strong> (без когтей, клыков, обострённых чувств и без Бреда).</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "geas",
@@ -7506,7 +7506,7 @@
    },
    "text": "<p>ур. 1, дух обезьяны или войны. <strong>1 Гнозис:</strong> дополнительное действие; до конца сцены может атаковать, не видя противника; без штрафов за видимость и «неосновную руку».</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "wall-of-granite",
@@ -7551,7 +7551,7 @@
    },
    "text": "<p>Химерлинг. <strong>1 Гнозис</strong>, <strong>Выносливость + Первобытный инстинкт</strong> (сл. 8): растёт <strong>втрое</strong> или сжимается до щенка, <strong>1 час за успех</strong> (или пока не отменит). Больше — <strong>+3 кубика Силы за каждые +100 % размера</strong>; меньше — черты те же, но может красться незаметно или выдавать себя за питомца. </p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "elemental-gift",
@@ -7637,7 +7637,7 @@
    "cost": {},
    "text": "<p>дух совы. Шагает в Умбру и обратно <strong>мгновенно, когда угодно, без броска</strong> и без зеркала, без риска «застрять». Входы и выходы в царства Умбры <strong>−2 к сложности</strong>. В ход перехода нельзя тратить Ярость; нельзя уйти в Умбру, чтобы избежать уже объявленной атаки. </p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "huang-di-s-sacrifice",
@@ -7662,7 +7662,7 @@
    },
    "text": "<p>ур. 5, учит единственный безликий плачущий дух у подножия Бычьей горы, только на рассвете. <strong>2 Гнозиса</strong>, <strong>Выносливость + Лидерство</strong> (сл. 8): каждый успех — один член стаи лечит столько уровней урона (даже губительного), сколько выпало успехов. </p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "living-treasure",
@@ -7685,7 +7685,7 @@
    "cost": {},
    "text": "<p>ур. 4, дух предков. Касание вещи, <strong>Манипуляция + Этикет</strong> (сл. 7): дух вещи рассказывает <strong>1 факт о себе за успех</strong>. Годится и для обычных вещей (расследования). Раз на предмет.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "the-living-wood",
@@ -7710,7 +7710,7 @@
    },
    "text": "<p>Дитя Поляны. <strong>1 Гнозис</strong>, <strong>Обаяние + Выживание</strong> (сл. 8): оживает <strong>1 дерево за успех</strong> — ветви и лозы сковывают, загораживают и бьют тех, кто ему вредит. </p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "head-games",
@@ -7758,7 +7758,7 @@
    },
    "text": "<p>Дикарь. <strong>1 Гнозис + 1 Ярость</strong>, <strong>Сообразительность + Загадки</strong> (сл. = Преграда): рой духов Дикости, число по успехам; ведут себя непредсказуемо, но на пользу (рвут врагов, восполняют Ярость стае, крушат творения Ткачихи, уносят врагов в Глубокую Умбру). </p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "circular-attack",
@@ -7783,7 +7783,7 @@
    },
    "text": "<p>дух ветра. <strong>1 Воля</strong>, <strong>Сообразительность + Атлетика</strong> (сл. = наибольшая Сообразительность противников + 3): в этот ход каждый успех — идеально уклониться от одной атаки или <strong>перенаправить</strong> её в другую цель. Не дважды за ход, и в тот же ход нельзя тратить Ярость (обычные множественные действия можно).</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "fetish-doll",
@@ -7806,7 +7806,7 @@
    "cost": {},
    "text": "<p>дух предков. Нужна часть жертвы или её вещь, вплетённая в куклу. Неделя изготовления, <strong>Восприятие + Ремесло</strong> (сл. 8). Затем <strong>Интеллект + Медицина</strong> (сл. = Воля жертвы): <strong>1 губительный за успех</strong> (жертва поглощает, если может). После <strong>10 успехов</strong> кукла слишком изуродована. </p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "paws-of-the-newborn-cub",
@@ -7826,7 +7826,7 @@
    },
    "text": "<p>дух сокола. <strong>2 Гнозиса</strong>, бросок <strong>Гнозиса</strong> (сл. = Воля цели): каждый успех — <strong>1 ход</strong> цель лишена всех сверхъестественных сил (смена облика, Дары, Дисциплины, магия).</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "heart-of-ice",
@@ -7851,7 +7851,7 @@
    },
    "text": "<p>аватар Великого Вендиго. Прошептать имя цели голодным ветрам, <strong>1 Гнозис</strong>, <strong>Сообразительность + Оккультизм</strong> (сл. = Воля цели): внутренности цели обращаются в лёд — <strong>1 непоглощаемый губительный за успех</strong>, по 1 в ход, пока весь урон не нанесён. </p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "gaia-s-vengeance",
@@ -7876,7 +7876,7 @@
    },
    "text": "<p>аватар самой Геи. <strong>1 Гнозис + 1 Ярость</strong>, <strong>Обаяние + Первобытный инстинкт</strong> (сл. = Преграда): местность нападает на врагов (камни катятся, лозы душат, вода утягивает); эффект по рельефу — на усмотрение рассказчика.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "chaos-mechanics",
@@ -7894,7 +7894,7 @@
    "cost": {},
    "text": "<p>сильнейшие Луны. <strong>Постоянно:</strong> можно тратить <strong>Ярость и Гнозис в один ход</strong> без штрафа.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "luna-s-avenger",
@@ -7914,7 +7914,7 @@
    },
    "text": "<p>Лун. Полный ход концентрации, <strong>1 Гнозис:</strong> тело из живого серебра до конца сцены — иммунитет к <strong>серебру</strong>; все атаки телом считаются <strong>серебряным</strong> оружием; <strong>+2 Выносливости</strong> и <strong>+1 уровень здоровья</strong> (урон на нём исчезает, когда Дар кончится).</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "wisdom-of-the-seer",
@@ -7939,7 +7939,7 @@
    },
    "text": "<p>Химерлинг. Час созерцания ночного неба, <strong>1 Гнозис</strong>, <strong>Интеллект + Загадки</strong> (сл. 7): один простой вопрос рассказчику — честный, но туманный, символический ответ; ясность по успехам. </p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "horde-of-valhalla",
@@ -7962,7 +7962,7 @@
    "cost": {},
    "text": "<p>аватар Фенриса. Нужны хорошие отношения с Фенрисом и действительно достойный повод. Тратит сколько угодно <strong>Ярости и Гнозиса</strong>, <strong>Обаяние + Обращение с животными</strong> (сл. 6): появляется по одному <strong>Великому Волку за каждый потраченный пункт</strong> (как гончие Дикой Охоты, стр. 370), до конца сцены.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "halo-of-the-sun",
@@ -7982,7 +7982,7 @@
    },
    "text": "<p>слуга Гелиоса. Священное слово, <strong>1 Гнозис</strong>, сцена: сфера солнечного света. <strong>+2 кубика урона</strong> в рукопашной, в Хомиде и Глабро урон <strong>губительный</strong>; все, кто смотрит на него прямо, <strong>+3 к сложности атак</strong>; вампиры в <strong>18 м</strong> получают <strong>3 губительных в ход</strong>. Твари Червя, боящиеся солнца, могут бежать.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "song-of-the-great-beast",
@@ -8025,7 +8025,7 @@
    "cost": {},
    "text": "<p>ур. 3, как Благосклонность элементаля; при изучении выбрать навсегда: <strong>восточные</strong> элементали (вода, дерево, огонь, земля, металл) или <strong>городские</strong>.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "obedience",
@@ -8050,7 +8050,7 @@
    },
    "text": "<p>Буревестник. <strong>1 Гнозис</strong>, <strong>Обаяние + Лидерство</strong> (сл. 8): все вокруг бросают <strong>Волю</strong> (сл. 8) и должны <strong>сравняться или превзойти</strong> его успехи. Перевес <strong>1</strong> — исполняют приказы, которые не причиняют им прямых неудобств; <strong>3</strong> — считают его вожаком и сражаются за него; <strong>5</strong> — пойдут за ним в Бездну и на почти самоубийственные поступки. Сутки.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "malleable-spirit",
@@ -8136,7 +8136,7 @@
    },
    "text": "<p>сам Охотник. Час песнопений и концентрации, <strong>1 Гнозис</strong>, <strong>Обаяние + Оккультизм</strong> (сл. 8): является <strong>Охотник</strong> кельтских мифов с одной гончей + <strong>1 гончая за каждую доп. Ярость или Гнозис</strong> — травить великое зло. Если зло недостаточно велико или Охотника уже призывали в последний месяц — целью охоты становится сам Гару.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "summon-net-spider",
@@ -8161,7 +8161,7 @@
    },
    "text": "<p>аватар Таракана. <strong>1 Гнозис</strong>, <strong>Обаяние + Компьютеры</strong> (сл. 8): является Сетевой Паук и почти абсолютно управляет любой системой (сбой, стирание, уничтожение — обычно разрушительно). Плюс <strong>постоянно</strong>: сложность всех бросков на использование, сборку и взлом компьютеров <strong>вдвое ниже</strong>.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "invoke-the-spirits-of-the-storm",
@@ -8186,7 +8186,7 @@
    },
    "text": "<p>аватар Великого Вендиго. <strong>1 Гнозис</strong>, бросок <strong>Воли</strong> (сл. по близости к текущей погоде): любая погода (туман, торнадо, метель, гроза) на <strong>16 км за успех</strong>. В грозу — за Гнозис молнии во врагов: <strong>Сообразительность + Оккультизм</strong> на попадание, <strong>10 кубиков губительного</strong>.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "curse-of-lycaon",
@@ -8206,7 +8206,7 @@
    },
    "text": "<p>дух волка. <strong>1 Гнозис</strong>, бросок <strong>Гнозиса</strong> (сл. = Воля цели): Гару заперт в <strong>Лупусе</strong> до конца сцены; человек или животное становится <strong>обычным волком навсегда</strong>.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "scabwalker-curse",
@@ -8231,7 +8231,7 @@
    },
    "text": "<p>аватар Грифона. Ход рычания на цель в <strong>6 м</strong>, <strong>1 Гнозис</strong>, <strong>Манипуляция + Выживание</strong> (сл. 7): на <strong>1 день за успех</strong> цель получает <strong>1 ударный за каждый ход контакта</strong> с любым искусственным материалом (асфальт, синтетика, сталь). Предметы целиком из природных материалов безопасны. В городе может убить.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "protean-form",
@@ -8362,7 +8362,7 @@
    },
    "text": "<p>ур. 1, дух предков. Полный ход складывает журавлика оригами, <strong>1 Гнозис</strong>, <strong>Обаяние + Оккультизм:</strong> до конца сцены <strong>по 1 кубику за успех</strong> в запас — добавлять к любым броскам (каждый кубик — один раз).</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "yu-s-endurance",
@@ -8380,7 +8380,7 @@
    "cost": {},
    "text": "<p>ур. 4, как Сердце горы (Дети Фенриса).</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "shadow-pack",
@@ -8398,7 +8398,7 @@
    "cost": {},
    "text": "<p>дух ночи. Бросок <strong>Гнозиса</strong> (сл. 8) и трата Гнозиса: <strong>по двойнику‑тени за каждый потраченный пункт</strong>. Те же Атрибуты и Способности, но без фетишей, Даров, Гнозиса и Воли; <strong>1 уровень здоровья</strong>. Исчезают в конце сцены.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "fabric-of-the-mind",
@@ -8447,7 +8447,7 @@
    },
    "text": "<p>дух тумана. <strong>1 Воля</strong>, бросок <strong>Гнозиса</strong> (сл. 7): призрачная форма на <strong>1 ход за успех</strong> (вернуться можно по желанию) — проходит сквозь всё, кроме серебра; ранить его может <strong>только серебро</strong>; может говорить и бить как обычно. В этой форме <strong>не регенерирует</strong>.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "thousand-forms",
@@ -8501,7 +8501,7 @@
    },
    "text": "<p>ур. 3, дух ворона. Разливает пузырёк туши, <strong>1 Гнозис</strong>, <strong>Манипуляция + Хитрость</strong> против <strong>Гнозиса</strong> цели (если есть): ослепление на <strong>1 час за успех</strong>. Только против приспешников Червя (так велит честь).</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "storm-winds-slash",
@@ -8526,7 +8526,7 @@
    },
    "text": "<p>ур. 2, дух металла или ветра. <strong>1 Гнозис</strong>, <strong>Ловкость + Фехтование</strong> (сл. 7): удар клинком по твари Червя на расстоянии до <strong>45 м</strong> (можно уклониться; урон летальный как от оружия).</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "fenris-bite",
@@ -8551,7 +8551,7 @@
    },
    "text": "<p>аватар Фенриса. <strong>1 Ярость</strong>, <strong>Сила + Первобытный инстинкт</strong> (сл. = Выносливость цели + 3): следующий удачный укус калечит конечность — <strong>+3 автоматических непоглощаемых губительных</strong> сверх урона, конечность бесполезна до регенерации (у людей — навсегда); <strong>5+ успехов</strong> — конечность <strong>оторвана</strong>.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "fu-xi-s-honor",
@@ -8571,7 +8571,7 @@
    },
    "text": "<p>ур. 2, дух любого моногамного животного. Когда беспомощному члену его семьи или стаи угрожают (люди перед Гару почти всегда беспомощны): <strong>1 Ярость</strong> — <strong>+1 кубик ко всем физическим Атрибутам за каждую точку постоянной Чести</strong> до конца сцены.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "fair-path",
@@ -8589,7 +8589,7 @@
    "cost": {},
    "text": "<p>ур. 1, дух воды. Руку в чистую воду, <strong>Обаяние + Этикет:</strong> на церемониях опрятен и одет как положено, даже прямо из боя; <strong>+1 кубик</strong> ко всем броскам, связанным с Внешностью, до конца сцены.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "crocodile-pact",
@@ -8614,7 +8614,7 @@
    },
    "text": "<p>ур. 5, духи Королей‑Драконов. <strong>2 Гнозиса</strong>, <strong>Обаяние + Ритуалы</strong> (сл. 7): в течение часа приходит помощь Моколе‑мбембе — от разъярённых крокодилов‑оборотней до великих духов предков с советом (решает рассказчик).</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "predator-s-many-eyes",
@@ -8637,7 +8637,7 @@
    "cost": {},
    "text": "<p>ур. 3. Как Территория, но «метит» хищника (не мочой): <strong>Обаяние + Обращение с животными</strong> (сл. 7), пока тот в поле зрения; затем может смотреть его глазами. Другого Фера — только с его согласия.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "feed-the-pack",
@@ -8655,7 +8655,7 @@
    "cost": {},
    "text": "<p>ур. 2, дух гиеновой собаки. Бросок <strong>Гнозиса</strong> перед едой (сл. 6 для стаи, 7 для Родни): каждый успех — съеденное насыщает ещё одно существо.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "unstoppable-warrior",
@@ -8693,7 +8693,7 @@
    },
    "text": "<p>учит только аватар самой Геи. Состязание <strong>Гнозиса</strong> Гару против <strong>Воли</strong> нежити (обе сл. 8): при победе нежить возвращается в естественное состояние — свежий труп перестаёт двигаться, древний вампир обращается в прах; мумии лишь изгоняются в сон на сезон. Цена: <strong>1 Гнозис за каждые 100 лет</strong> (или их часть) противоестественного существования; если не хватает — <strong>1 постоянный Гнозис за 500 лет</strong>.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "firebringer",
@@ -8736,7 +8736,7 @@
    },
    "text": "<p>сам Великий Фенрис. <strong>1 Гнозис</strong>, <strong>Выносливость + Оккультизм</strong> (сл. 6): является <strong>боевой аватар Фенриса</strong> и сражается до конца сцены, убивая всех, кто не из Детей Фенриса и не под их защитой. После боя призвавший автоматически получает <strong>боевой шрам «Искалеченная конечность»</strong> (стр. 260) — даже повторно (Фенрис пожирает ещё одну). Призвавший без веской причины может быть сожран целиком. <strong>Боевой аватар Фенриса:</strong> волк ~3 м в холке. <strong>Воля 15, Ярость 20, Гнозис 10, Эссенция 45–80.</strong> Чары: Чутьё пути (Airt Sense), Броня, Удар (громовой), <strong>Ужасающее присутствие</strong> (только аватары Инкарн, постоянно: враждебные духи рядом <strong>−2 кубика</strong> ко всему), Материализация, Восстановление, <strong>Свирепость</strong> (1 Эссенция: <strong>+2 кубика</strong> ко всем броскам урона до конца сцены), Быстрый бег (как Быстрый полёт), Выслеживание. </p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "break-the-bonds",
@@ -8787,7 +8787,7 @@
    },
    "text": "<p>дух дорожной кукушки или гепарда. <strong>1 Гнозис:</strong> скорость бега <strong>×2</strong> до конца сцены.</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   },
   {
    "key": "shield-of-gaia",
@@ -8805,7 +8805,7 @@
    "cost": {},
    "text": "<p>Грифон. <strong>Постоянно:</strong> иммунитет к одному виду технологии, выбранному при покупке (пули, фотография — нельзя сфотографировать, электричество, химические яды и т. п.).</p>",
    "source": "W20",
-   "img": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+   "img": "icons/creatures/mammals/wolf-howl-moon-gray.webp"
   }
  ],
  "rites": [

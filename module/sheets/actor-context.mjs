@@ -40,6 +40,20 @@ export const abilityTip = name => {
 export const dots = (value, max = 5, extra = {}) =>
   Array.from({ length: max }, (_, i) => ({ n: i + 1, filled: i < value, ...extra }));
 
+/** Ряд точек Атрибута в форме Гару: свои точки, прибавленные формой (gain, не нажимаются) и отнятые ею (loss).
+ *  Ряд не длиннее предела черт: итог сверх него (Сила 7 в Криносе) показывает значок рядом. */
+const formDots = (at, cap, path) => Array.from({ length: Math.max(cap, at.value) }, (_, i) => {
+  const n = i + 1, own = n <= at.value;
+  return own ? { n, filled: true, path, loss: n > at.total } : n <= at.total ? { n, gain: true } : { n, filled: false, path };
+});
+/** Значок итога Атрибута в форме: значок формы, итог; вверх — серебро, вниз — ржавчина. */
+const formBadge = (s, k, at) => {
+  const f = VTM20.garouForms.find(x => x.key === s.werewolf?.form);
+  const d = at.total - at.value, L = game.i18n.localize(VTM20.attributes[k].label);
+  return { total: at.total, icon: f?.icon ?? "fa-paw", dir: d > 0 ? "up" : d < 0 ? "down" : "same",
+    tip: `${VTM20.label(f ?? {})}: ${L} ${at.value} ${at.form === "set" ? "→" : d >= 0 ? `+${d} →` : `−${-d} →`} ${at.total}` };
+};
+
 /** Состояния персонажа, которые видны на портрете: значок, оттенок портрета (cls), тревожные — красным. */
 export const PORTRAIT_STATES = [
   { id: "r-frenzy", key: "frenzy", icon: "fa-face-angry", cls: "is-frenzy", hot: true },
@@ -139,9 +153,9 @@ export function prepareTraits(sheet, ctx) {
       return {
         key: k, label: game.i18n.localize(VTM20.attributes[k].label), value: at.value, total: at.total, boost: at.boost, ugly: !!at.ugly,
         fx: at.fxSet ? `=${at.total}` : at.fx ? `+${at.fx}` : "",
-        // форма оборотня (W20): поправка к итогу и сам итог — «→ 7»
-        form: at.form === "set" ? `= ${at.total}` : at.form ? `${at.form > 0 ? "+" : "−"}${Math.abs(at.form)} → ${at.total}` : "",
-        dots: dots(at.value, cap, { path: `system.attributes.${k}.value` }), specialty: at.specialty, canSpec: at.value >= 4,
+        // форма оборотня (W20): точки, что форма прибавила (призрачные) или отняла (тусклые), и значок итога
+        form: at.form ? formBadge(s, k, at) : null,
+        dots: at.form ? formDots(at, cap, `system.attributes.${k}.value`) : dots(at.value, cap, { path: `system.attributes.${k}.value` }), specialty: at.specialty, canSpec: at.value >= 4,
         boostable: ctx.hasBlood && VTM20.bloodBoostable.includes(k),
         xp: a.xpCost("attribute", at.value)
       };

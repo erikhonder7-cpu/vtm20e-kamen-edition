@@ -992,7 +992,7 @@ try {
       out.giftRoll = !!rd; await rd?.close(); out.rageGift = a.system.werewolf.rage.value;
       await a.sheet.render(true); await wait(900);
       const el = a.sheet.element;
-      Object.assign(out, { cls: el.classList.contains("r-type-werewolf"), card: !!el.querySelector(".r-vc-garou"), formMark: !!el.querySelector(".r-boost.is-form"),
+      Object.assign(out, { cls: el.classList.contains("r-type-werewolf"), card: !!el.querySelector(".r-vc-garou"), formMark: !!el.querySelector(".r-form-badge.is-up") && !!el.querySelector(".r-dot.is-gain"),
         tab: !!el.querySelector('[data-tab="disciplines"] .r-ww-forms') });
       await a.sheet.close();
       return out;
@@ -1001,7 +1001,7 @@ try {
     if (r.form !== "lupus" || r.rage !== 4 || r.strLupus !== 4) throw new Error(`смена формы за Ярость: ${r.form}, Ярость ${r.rage}, Сила ${r.strLupus}`);
     if (!r.giftRoll || r.rageGift !== 3) throw new Error(`Дар: окно броска ${r.giftRoll}, Ярость после Дара ${r.rageGift}`);
     if (!r.cls || !r.card || !r.formMark || !r.tab) throw new Error(`лист: тема ${r.cls}, карточка ${r.card}, поправка формы ${r.formMark}, вкладка ${r.tab}`);
-    if (!/werewolf\.svg$/.test(r.img)) throw new Error(`значок: ${r.img}`);
+    if (!/wolf-howl-moon-forest-blue\.webp$/.test(r.img)) throw new Error(`значок: ${r.img}`);
   });
 
   await check("Дампир: витэ гуля, траты, видимость черт", async () => {
