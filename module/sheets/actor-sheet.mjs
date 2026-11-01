@@ -285,7 +285,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     prepareRegistry(this, ctx);
     if (actor.type === "demon") prepareLores(this, ctx);
     else if (actor.type === "hunter") { ctx.hunterInfo = hunterInfo(actor, dots); ctx.edgePaths = edgesView(actor); ctx.hunterCall = callView(actor); }
-    else if (actor.type === "werewolf") { ctx.werewolfInfo = werewolfInfo(actor, dots); ctx.ww = giftsView(actor); }
+    else if (actor.type === "werewolf") { ctx.werewolfInfo = werewolfInfo(actor, dots); ctx.ww = giftsView(actor); ctx.wwMoreOpen = this._open.has("ww-renown"); }
     else if (actor.type !== "mortal") prepareDisciplines(this, ctx);
     prepareAdvantages(this, ctx);
     prepareGear(this, ctx);

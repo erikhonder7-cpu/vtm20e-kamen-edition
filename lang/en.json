@@ -3919,7 +3919,9 @@
         "ronin": "Ronin",
         "skinDancers": "Skin Dancers"
       },
-      "FormMod": "Form modifier: total for rolls"
+      "FormMod": "Form modifier: total for rolls",
+      "RenownRank": "Renown and Rank",
+      "RankReady": "Enough Renown for the next Rank — time to issue a challenge"
     }
   }
 }

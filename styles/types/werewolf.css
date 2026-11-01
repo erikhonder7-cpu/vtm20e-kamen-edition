@@ -214,7 +214,16 @@ body.r-theme-light .vtm20.r-type-werewolf {
 .vtm20.r-type-werewolf .r-dots.is-rage { --r-dot-fill: radial-gradient(circle at 38% 32%, #f0a58c, #a3442c 55%, #2a0f08); --r-dot-border: rgba(208, 106, 74, .4); }
 .vtm20.r-type-werewolf .r-dots.is-gnosis { --r-dot-fill: radial-gradient(circle at 38% 32%, #eef3f0, #7f9a8a 55%, #15211a); }
 .vtm20.r-type-werewolf .r-vc-garou .r-banner i { color: var(--w-moon); margin-right: 4px; }
-.vtm20.r-type-werewolf .r-ww-renown { display: grid; gap: 4px; margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--r-line-2); }
+.vtm20.r-type-werewolf .r-ww-more { margin-top: 8px; border-top: 1px dashed var(--r-line-2); }
+.vtm20.r-type-werewolf .r-ww-more-head { display: flex; align-items: center; gap: 6px; padding: 6px 2px 2px; color: var(--r-ink-2); font-size: 12.5px; cursor: pointer; }
+.vtm20.r-type-werewolf .r-ww-more-head:hover { color: var(--r-ink); }
+.vtm20.r-type-werewolf .r-ww-more-head > i:first-child { color: var(--w-moon); }
+.vtm20.r-type-werewolf .r-ww-more-head small { color: var(--r-muted); }
+.vtm20.r-type-werewolf .r-ww-ready { color: var(--w-rage-l); font-style: normal; filter: drop-shadow(0 0 4px rgba(208, 106, 74, .6)); }
+.vtm20.r-type-werewolf .r-ww-chev { margin-left: auto; font-size: 10px; color: var(--r-muted); transition: transform .15s; }
+.vtm20.r-type-werewolf .r-ww-more.is-open .r-ww-chev { transform: rotate(180deg); }
+.vtm20.r-type-werewolf .r-ww-more:not(.is-open) .r-ww-renown { display: none; }
+.vtm20.r-type-werewolf .r-ww-renown { display: grid; gap: 4px; margin-top: 4px; }
 .vtm20.r-type-werewolf .r-ww-renown-row { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 8px; }
 .vtm20.r-type-werewolf .r-ww-renown-num small { color: var(--r-muted); }
 .vtm20.r-type-werewolf .r-ww-rank { margin-top: 4px; font-size: 12.5px; color: var(--r-ink-2); }

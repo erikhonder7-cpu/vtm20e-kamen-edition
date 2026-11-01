@@ -122,6 +122,13 @@
       <div class="r-vc-status" data-tooltip="{{localize 'VTM20.Werewolf.GnosisHint'}}"><b>{{werewolfInfo.gnosis}}</b> <small>/ {{werewolfInfo.gnosisPerm}}</small></div>
     </div>
     {{> rDots dots=werewolfInfo.gnosisDots cls="is-ten is-gnosis"}}
+    {{!-- Слава и Ранг — раскрываются по щелчку (по умолчанию в карточке только Ярость и Гнозис); открытое — помнит лист --}}
+    <div class="r-row-wrap r-ww-more {{#if wwMoreOpen}}is-open{{/if}}">
+    <a class="r-ww-more-head" data-action="toggleRow" data-row-id="ww-renown">
+      <i class="fa-solid fa-medal"></i> {{localize "VTM20.Werewolf.RenownRank"}} <small>· {{localize "VTM20.Werewolf.Rank"}} {{werewolfInfo.rank}}{{#if werewolfInfo.rankName}}, {{werewolfInfo.rankName}}{{/if}}</small>
+      {{#if werewolfInfo.canRank}}<em class="r-ww-ready" data-tooltip="{{localize 'VTM20.Werewolf.RankReady'}}"><i class="fa-solid fa-arrow-up"></i></em>{{/if}}
+      <i class="fa-solid fa-chevron-down r-ww-chev"></i>
+    </a>
     <div class="r-ww-renown">
       {{#each werewolfInfo.renown}}
       <div class="r-ww-renown-row" data-tooltip="{{localize 'VTM20.Werewolf.RenownHint'}}">
@@ -133,6 +140,7 @@
         <i class="fa-solid fa-medal"></i> {{localize "VTM20.Werewolf.Rank"}} {{werewolfInfo.rank}} · {{werewolfInfo.rankName}}
         {{#if werewolfInfo.nextRank}}<small>· {{localize "VTM20.Werewolf.NextRank"}}: {{werewolfInfo.nextRank}}</small>{{/if}}
       </div>
+    </div>
     </div>
     <div class="r-vc-tools">
       <a class="r-vc-btn" data-action="wwFrenzy" data-tooltip="{{localize 'VTM20.Werewolf.FrenzyHint'}}"><i class="fa-solid fa-fire"></i> {{localize "VTM20.Werewolf.Frenzy"}}</a>
