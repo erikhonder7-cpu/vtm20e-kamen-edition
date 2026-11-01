@@ -12,7 +12,8 @@
   </div>
 
   <h2 class="r-h2"><span>{{localize "VTM20.Werewolf.Gifts"}}</span>
-    <span class="r-h2-tools"><a class="r-h2-btn is-plain" data-action="openRules" data-tooltip="{{localize 'VTM20.Werewolf.RulesHint'}}"><i class="fa-solid fa-book-open-reader"></i></a></span>
+    <span class="r-h2-tools">{{#if editable}}<a class="r-h2-btn" data-action="library" data-kind="gift" data-tooltip="{{localize 'VTM20.Library.Open'}}"><i class="fa-solid fa-book-skull"></i> <span class="r-h2-lbl">{{localize "VTM20.Library.Open"}}</span></a>{{/if}}
+      <a class="r-h2-btn is-plain" data-action="openRules" data-tooltip="{{localize 'VTM20.Werewolf.RulesHint'}}"><i class="fa-solid fa-book-open-reader"></i></a></span>
   </h2>
   {{#if editable}}{{#if ww.avail.length}}
   <div class="r-toolbar r-ww-add">
@@ -34,7 +35,9 @@
     {{/each}}
   </ul>
 
-  <h2 class="r-h2"><span>{{localize "VTM20.Werewolf.Rites"}}</span></h2>
+  <h2 class="r-h2"><span>{{localize "VTM20.Werewolf.Rites"}}</span>
+    {{#if editable}}<span class="r-h2-tools"><a class="r-h2-btn" data-action="library" data-kind="rite" data-tooltip="{{localize 'VTM20.Library.Open'}}"><i class="fa-solid fa-book-skull"></i> <span class="r-h2-lbl">{{localize "VTM20.Library.Open"}}</span></a></span>{{/if}}
+  </h2>
   {{#if editable}}{{#if ww.ritesAvail.length}}
   <div class="r-toolbar r-ww-add">
     <select class="r-ww-rite-add" data-tooltip="{{localize 'VTM20.Werewolf.AddRiteHint'}}"><option value="">{{localize "VTM20.Werewolf.AddRite"}}</option>

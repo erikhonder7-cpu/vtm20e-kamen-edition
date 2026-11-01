@@ -3227,7 +3227,9 @@
         "derangement": "Derangements",
         "investment": "Infernal Investments",
         "pact": "Ready-made pacts",
-        "edge": "Hunter Edges"
+        "edge": "Hunter Edges",
+        "gift": "Garou Gifts",
+        "rite": "Garou Rites"
       },
       "PactOrigin": {
         "doc": "Reference samples",
@@ -3281,7 +3283,9 @@
         "derangement": "A derangement appears over the course of the chronicle — from losing Humanity, Dementation or horror.",
         "investment": "An Investment is a separate deal with a demon: 3 XP (V20, no more than permanent Willpower), sealed with an atrocity and a Humanity roll. Older Investments from the Sabbat books — the Storyteller sets the price. Details — “V20 rules”, chapter 9.",
         "edge": "An Edge costs points of its Virtue by level; path levels — in order; Edges of other paths no higher than the highest Edge of the creed's path. Not bought with experience — they grow with Virtues (Hunter: The Reckoning, ch. 4–5).",
-        "pact": "A ready-made pact is a preset: “Take” opens a pact with the gift, price and Devil’s Due rating filled in; enter the demon and the atrocity yourself. The numbers are a guide, the Storyteller adjusts them to the chronicle (reference, sections 9 and 15)."
+        "pact": "A ready-made pact is a preset: “Take” opens a pact with the gift, price and Devil’s Due rating filled in; enter the demon and the atrocity yourself. The numbers are a guide, the Storyteller adjusts them to the chronicle (reference, sections 9 and 15).",
+        "gift": "A Gift no higher than Rank. Your Gifts — from your breed, auspice and tribe lists; others are taught by a spirit through the story (W20, ch. 4). XP: own — level × 3, other — level × 5.",
+        "rite": "A rite no higher than the Rituals Ability. Taught by elder Garou and spirits (W20, ch. 4)."
       }
     },
     "NpcGen": {
@@ -3926,7 +3930,11 @@
       "Permanent": "permanent",
       "Temporary": "temporary",
       "Save": "Save",
-      "ToRank": "to Rank {n}"
+      "ToRank": "to Rank {n}",
+      "OtherList": "other list",
+      "NeedRank": "Requires Rank {n}",
+      "NeedRituals": "Requires Rituals {n}",
+      "Outsiders": "Outsiders"
     }
   }
 }

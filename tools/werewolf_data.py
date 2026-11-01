@@ -291,6 +291,106 @@ def parse_core(gifts):
     return breeds, auspices, tribes
 
 
+# Главы справочника → книги компендия «Оборотни — правила» (data/werewolf-rules.json): «## » — страница.
+RULE_CHAPTERS = ["01_Создание_персонажа_породы_аугурии_племена.md", "09_Слава_Ранг_Ярость_Гнозис_Воля_опыт.md",
+                 "10_Правила_и_бой.md", "08_Фетиши_и_талены.md", "11_Умбра_и_духи.md", "12_Союзники_тотемы.md", "13_Враги.md"]
+RULE_NAMES = {"01": "Создание персонажа", "09": "Слава, Ранг, Ярость, Гнозис", "10": "Правила и бой", "08": "Фетиши и талены",
+              "11": "Умбра и духи", "12": "Союзники и тотемы", "13": "Враги Гайи"}
+RULES_OUT = os.path.join(os.path.dirname(OUT), "werewolf-rules.json")
+
+
+def md_html(lines):
+    """Небольшой Markdown → HTML: заголовки ###/####, списки (два уровня), нумерованные, таблицы, цитаты, абзацы."""
+    out, para, i = [], [], 0
+    lists = []                                   # стек открытых списков: (отступ, тег)
+
+    def flush():
+        if para:
+            out.append(f"<p>{md_inline(' '.join(para))}</p>")
+            para.clear()
+
+    def close(to=-1):
+        while lists and lists[-1][0] > to:
+            out.append(f"</li></{lists.pop()[1]}>")
+
+    while i < len(lines):
+        line = lines[i].rstrip()
+        m = re.match(r"^(\s*)([-*]|\d+[.)])\s+(.*)", line)
+        if not line.strip():
+            flush(); i += 1; continue
+        if line.startswith("|"):
+            flush(); close()
+            rows = []
+            while i < len(lines) and lines[i].startswith("|"):
+                cells = [c.strip() for c in lines[i].strip().strip("|").split("|")]
+                if not all(re.fullmatch(r":?-{2,}:?", c) for c in cells):
+                    rows.append(cells)
+                i += 1
+            if rows:
+                head = "".join(f"<th>{md_inline(c)}</th>" for c in rows[0])
+                body = "".join("<tr>" + "".join(f"<td>{md_inline(c)}</td>" for c in r) + "</tr>" for r in rows[1:])
+                out.append(f"<table><thead><tr>{head}</tr></thead><tbody>{body}</tbody></table>")
+            continue
+        if m:
+            flush()
+            ind, tag = len(m.group(1)), ("ol" if m.group(2)[0].isdigit() else "ul")
+            if lists and ind > lists[-1][0]:
+                lists.append((ind, tag)); out.append(f"<{tag}><li>")
+            else:
+                close(ind)
+                if lists and lists[-1][0] == ind and lists[-1][1] == tag:
+                    out.append("</li><li>")
+                else:
+                    if lists and lists[-1][0] == ind:
+                        out.append(f"</li></{lists.pop()[1]}>")
+                    lists.append((ind, tag)); out.append(f"<{tag}><li>")
+            out.append(md_inline(m.group(3)))
+            i += 1; continue
+        if lists and line.startswith(" "):           # продолжение пункта
+            out.append(" " + md_inline(line.strip())); i += 1; continue
+        close()
+        h = re.match(r"^(#{3,6})\s+(.*)", line)
+        if h:
+            flush(); lvl = min(len(h.group(1)), 4)
+            out.append(f"<h{lvl}>{md_inline(h.group(2))}</h{lvl}>")
+        elif line.startswith(">"):
+            flush(); out.append(f"<blockquote><p>{md_inline(line.lstrip('> '))}</p></blockquote>")
+        elif re.fullmatch(r"-{3,}|\*{3,}", line.strip()):
+            flush()
+        else:
+            para.append(line.strip())
+        i += 1
+    flush(); close()
+    return "".join(out)
+
+
+def parse_rules():
+    books = []
+    for fn in RULE_CHAPTERS:
+        text = read(fn)
+        if text.startswith("---"):
+            text = text.split("---", 2)[2]
+        title, pages, cur, lead = fn, [], None, []
+        for line in text.splitlines():
+            if line.startswith("# "):
+                title = line[2:].strip()
+            elif line.startswith("## "):
+                if cur:
+                    pages.append(cur)
+                cur = {"name": line[3:].strip(), "lines": lead + [""] if not pages and lead else []}
+                lead = []
+            elif cur is None:
+                lead.append(line)
+            else:
+                cur["lines"].append(line)
+        if cur:
+            pages.append(cur)
+        title = RULE_NAMES.get(fn[:2], title)
+        books.append({"key": fn[:2], "name": title,
+                      "pages": [{"name": re.sub(r"^\d+\.\s*", "", p["name"]), "html": md_html(p["lines"])} for p in pages if any(x.strip() for x in p["lines"])]})
+    return books
+
+
 def build():
     gifts = parse_gifts()
     rites = parse_rites()
@@ -302,9 +402,13 @@ def build():
             "forms": FORMS, "gifts": gifts, "rites": rites, "rankNames": RANK_NAMES, "rank": RANK, "xp": XP}
     with open(OUT, "w", encoding="utf-8", newline="\n") as f:
         json.dump(data, f, ensure_ascii=False, indent=1)
+    rules = parse_rules()
+    with open(RULES_OUT, "w", encoding="utf-8", newline="\n") as f:
+        json.dump(rules, f, ensure_ascii=False, indent=1)
     starts = sum(len(x["startGifts"]) for x in breeds + auspices + tribes)
     return {"breeds": len(breeds), "auspices": len(auspices), "tribes": len(tribes), "gifts": len(gifts), "rites": len(rites),
-            "startGifts": starts, "rolls": sum(1 for g in gifts if g["roll"])}
+            "startGifts": starts, "rolls": sum(1 for g in gifts if g["roll"]),
+            "rulePages": sum(len(b["pages"]) for b in rules)}
 
 
 if __name__ == "__main__":

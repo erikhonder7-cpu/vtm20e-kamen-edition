@@ -15,6 +15,7 @@ import { blockerFor } from "../data/trait-rules.mjs";
 import { weaponIcon, armorIcon, traitIcon, backgroundIcon } from "../data/icons.mjs";
 import { ritualFields } from "../data/ritual-text.mjs";
 import { investmentLimit, sealInvestment, pactDialog } from "./infernal.mjs";
+import { W as werewolfData, addGift, addRite } from "./werewolf.mjs";
 import { edgeReasons, poolLabel, takeEdge, growth as hunterGrowth, edgeXp, isLost, H as hunterData } from "./hunter.mjs";
 
 const { HandlebarsApplicationMixin, ApplicationV2 } = foundry.applications.api;
@@ -55,7 +56,7 @@ const byLevel = powers => {
   return rows;
 };
 const ICON = type => `systems/${SYSTEM_ID}/assets/icons/${type}.svg`;
-const KINDS = ["discipline", "path", "ritual", "combo", "merit", "flaw", "background", "derangement", "investment", "pact", "edge"];
+const KINDS = ["discipline", "path", "ritual", "combo", "merit", "flaw", "background", "derangement", "investment", "pact", "edge", "gift", "rite"];
 
 /** Возможные цены черты: «1 / 3» → [1, 3], «1–6» → [1…6], «2» → [2]. */
 function costsOf(m) {
@@ -149,7 +150,7 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
       discipline: () => this.#disciplines(), path: () => this.#paths(), ritual: () => this.#rituals(), combo: () => this.#combos(),
       merit: () => this.#traits("merit"), flaw: () => this.#traits("flaw"),
       background: () => this.#backgrounds(), derangement: () => this.#derangements(), investment: () => this.#investments(),
-      pact: () => this.#pacts(), edge: () => this.#edges()
+      pact: () => this.#pacts(), edge: () => this.#edges(), gift: () => this.#gifts(), rite: () => this.#rites()
     }[kind];
     const entries = build?.() ?? [];
 
@@ -341,6 +342,47 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
     }));
   }
 
+  /**
+   * Дары Гару (data/werewolf.json): группами — породы, аугурии, племена (свои — первыми); Дар выше Ранга — с причиной.
+   * Чужие списки взять можно (учит дух по сюжету, W20, гл. 4) — они ниже и с пометкой.
+   */
+  #gifts() {
+    const a = this.actor, w = a?.type === "werewolf" ? a.system.werewolf : null, mine = new Set(w?.gifts ?? []), D = werewolfData();
+    const names = { breed: D.breeds, auspice: D.auspices, tribe: D.tribes };
+    const kindOrder = ["breed", "auspice", "tribe", "outsider"];
+    const idx = new Map(), seen = gr => { const k = `${gr.kind}:${gr.key}`; if (!idx.has(k)) idx.set(k, idx.size); return idx.get(k); };
+    D.gifts.forEach(g => g.groups.forEach(seen));
+    const head = { breed: "Breed", auspice: "Auspice", tribe: "Tribe", outsider: "Outsiders" };
+    const own = g => w && g.groups.some(x => (x.kind === "breed" && x.key === w.breed) || (x.kind === "auspice" && x.key === w.auspice) || (x.kind === "tribe" && x.key === w.tribe));
+    return D.gifts.map((g, i) => {
+      const gr = (w && g.groups.find(x => [w.breed, w.auspice, w.tribe].includes(x.key))) ?? g.groups[0];
+      const label = (names[gr.kind] ?? []).find(x => x.key === gr.key)?.name ?? game.i18n.localize(`VTM20.Werewolf.Outsider.${gr.key}`);
+      const pool = g.roll ? [g.roll.trait1, g.roll.trait2].map(t => a?.traitLabel?.(t) ?? t.split(".").pop()).join(" + ") : "";
+      return this.#entry({
+        id: String(i), name: g.name, en: g.en, has: mine.has(g.key), long: true,
+        text: pool ? `<p><em>${pool}</em></p>${g.text}` : g.text,
+        group: `${gr.kind}:${gr.key}`, groupName: `${game.i18n.localize(`VTM20.Werewolf.${head[gr.kind] ?? "Outsiders"}`)}: ${label}`,
+        groupOrder: (own(g) ? 0 : 1000) + kindOrder.indexOf(gr.kind) * 100 + seen(gr) % 100,
+        level: g.level, levels: String(g.level), order: g.level, roman: ROMAN[g.level - 1],
+        tags: own(g) || !w ? [] : [{ label: game.i18n.localize("VTM20.Werewolf.OtherList") }],
+        reasons: w && !mine.has(g.key) && g.level > Math.max(1, w.rank) ? [game.i18n.format("VTM20.Werewolf.NeedRank", { n: g.level })] : []
+      });
+    });
+  }
+
+  /** Ритуалы Гару: группами по видам; уровень выше «Ритуалов» — с причиной. */
+  #rites() {
+    const a = this.actor, w = a?.type === "werewolf" ? a.system.werewolf : null, mine = new Set(w?.rites ?? []), D = werewolfData();
+    const kinds = [...new Set(D.rites.map(r => r.kind))];
+    const skill = a?.system.abilities?.rituals?.value ?? 0;
+    return D.rites.map((r, i) => this.#entry({
+      id: String(i), name: r.name, en: r.en, has: mine.has(r.key), text: r.text, long: true,
+      group: r.kind, groupName: r.kindName, groupOrder: kinds.indexOf(r.kind),
+      level: r.level, levels: String(r.level), order: r.level, roman: r.level ? ROMAN[r.level - 1] : "—",
+      reasons: w && !mine.has(r.key) && r.level > Math.max(1, skill) ? [game.i18n.format("VTM20.Werewolf.NeedRituals", { n: r.level })] : []
+    }));
+  }
+
   /** Грани охотника (data/hunter.json): по путям кредо; свой путь — первым; причины, если взять нельзя. */
   #edges() {
     const a = this.actor, mine = new Set(a?.system.hunter?.edges ?? []), creed = a?.system.hunter?.creed;
@@ -480,6 +522,13 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   static async #onTake(event, target) {
+    if (this.o.kind === "gift" || this.o.kind === "rite") {
+      const D = werewolfData(), x = (this.o.kind === "gift" ? D.gifts : D.rites)[Number(target.closest("[data-entry]")?.dataset.entry)];
+      if (!x || this.actor?.type !== "werewolf") return;
+      await (this.o.kind === "gift" ? addGift : addRite)(this.actor, x.key);
+      ui.notifications.info(L("Added", { name: x.name }));
+      return this.render();
+    }
     if (this.o.kind === "edge") {
       const e = hunterData().edges[Number(target.closest("[data-entry]")?.dataset.entry)];
       if (!e || this.actor?.type !== "hunter") return;

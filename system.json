@@ -435,6 +435,18 @@
       "flags": {}
     },
     {
+      "name": "werewolf-rules",
+      "label": "Оборотень: Апокалипсис — правила, Дары, ритуалы",
+      "path": "packs/werewolf-rules",
+      "type": "JournalEntry",
+      "system": "vtm20e-kamen-edition",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
+    },
+    {
       "name": "hunter-backgrounds",
       "label": "Факты биографии охотников",
       "path": "packs/hunter-backgrounds",
@@ -552,6 +564,14 @@
         "hunter-rules",
         "hunter-merits",
         "hunter-backgrounds"
+      ]
+    },
+    {
+      "name": "Werewolf: The Apocalypse",
+      "sorting": "m",
+      "color": "#3d5247",
+      "packs": [
+        "werewolf-rules"
       ]
     }
   ]

@@ -544,6 +544,33 @@ BUILDERS["dhampir-rules"] = function () {
   return p;
 };
 
+/** Оборотни (W20) — главы справочника, Дары по спискам пород/аугурий/племён, ритуалы по видам (data/werewolf*.json — пересказ). */
+BUILDERS["werewolf-rules"] = function () {
+  const p = new Pack("werewolf-rules", "JournalEntry");
+  const w = data("werewolf"), roman = ["I", "II", "III", "IV", "V", "VI"], W = ru.VTM20.Werewolf ?? {};
+  for (const b of readJson("werewolf-rules")) p.addBook({ name: b.name, pages: b.pages, key: `werewolf-rules:${b.key}` });
+  const trait = k => k?.startsWith("attributes.") ? ru.VTM20.Attr?.[k.slice(11)] : k?.startsWith("abilities.") ? ru.VTM20.Abil?.[k.slice(10)] : k;
+  const cost = c => Object.entries(c ?? {}).map(([k, n]) => `${n} ${{ rage: "Ярости", gnosis: "Гнозиса", willpower: "Воли" }[k] ?? k}`).join(" + ");
+  const roll = r => !r ? "" : `${[trait(r.trait1), trait(r.trait2)].filter(Boolean).join(" + ")}, ${r.byTarget ? "сложность по цели" : `сл. ${r.difficulty}`}`;
+  const groups = [["breed", "Порода", w.breeds], ["auspice", "Аугурия", w.auspices], ["tribe", "Племя", w.tribes]]
+    .flatMap(([kind, label, list]) => list.map(x => ({ kind, key: x.key, name: `${label}: ${x.name}` })));
+  for (const g of w.gifts) for (const x of g.groups) if (x.kind === "outsider" && !groups.some(y => y.kind === x.kind && y.key === x.key))
+    groups.push({ kind: x.kind, key: x.key, name: `${W.Outsiders ?? "Изгои"}: ${W.Outsider?.[x.key] ?? x.key}` });
+  const pages = groups.map(gr => ({ name: gr.name, html: w.gifts.filter(g => g.groups.some(x => x.kind === gr.kind && x.key === gr.key))
+    .sort((a, b) => a.level - b.level).map(g => {
+      const line = [roll(g.roll), cost(g.cost) && `цена: ${cost(g.cost)}`].filter(Boolean).join(" · ");
+      return `<h3>${roman[g.level - 1]}. ${g.name} <small>(${g.en})</small></h3>${line ? `<p><em>${line}</em></p>` : ""}${g.text}`;
+    }).join("") }));
+  p.addBook({ name: "Дары Гару", pages, key: "werewolf-rules:gifts" });
+  const kinds = [...new Map(w.rites.map(r => [r.kind, r.kindName])).entries()];
+  p.addBook({ name: "Ритуалы Гару", key: "werewolf-rules:rites", pages: kinds.map(([k, name]) => ({ name, html: w.rites.filter(r => r.kind === k)
+    .sort((a, b) => a.level - b.level).map(r => {
+      const line = [roll(r.roll), r.gnosis && `Гнозис ${r.gnosis}`].filter(Boolean).join(" · ");
+      return `<h3>${r.level ? roman[r.level - 1] : "—"}. ${r.name} <small>(${r.en})</small></h3>${line ? `<p><em>${line}</em></p>` : ""}${r.text}`;
+    }).join("") })) });
+  return p;
+};
+
 BUILDERS["dhampir-merits"] = function () {
   const p = new Pack("dhampir-merits");
   const d = data("dhampir"), cat = ru.VTM20.MeritCat ?? {};

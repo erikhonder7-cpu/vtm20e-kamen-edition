@@ -995,8 +995,20 @@ try {
       Object.assign(out, { cls: el.classList.contains("r-type-werewolf"), card: !!el.querySelector(".r-vc-garou"), formMark: !!el.querySelector(".r-form-badge.is-up") && !!el.querySelector(".r-dot.is-gain"),
         tab: !!el.querySelector('[data-tab="disciplines"] .r-ww-forms') });
       await a.sheet.close();
+      const { openLibrary } = await import(`/systems/${SYS}/module/apps/library.mjs`);
+      for (const kind of ["gift", "rite"]) {
+        const lib = await openLibrary({ actor: a, kind }); await wait(900);
+        out[`${kind}Entries`] = lib.element.querySelectorAll("[data-entry]").length;
+        lib.element.querySelector("[data-entry] [data-action=take]")?.click(); await wait(700);
+        await lib.close();
+      }
+      Object.assign(out, { gifts: a.system.werewolf.gifts.length, rites: a.system.werewolf.rites.length });
+      const pack = game.packs.get(`${SYS}.werewolf-rules`);
+      out.rulesBooks = pack ? (await pack.getIndex()).size : 0;
       return out;
     }, id);
+    if (r.giftEntries < 300 || r.riteEntries < 50 || r.gifts !== 2 || r.rites !== 1) throw new Error(`библиотека: Даров ${r.giftEntries}, ритуалов ${r.riteEntries}, взято ${r.gifts}/${r.rites}`);
+    if (r.rulesBooks < 9) throw new Error(`компендий правил оборотней: ${r.rulesBooks} книг`);
     if (r.str !== 7 || r.app !== 0 || r.strAgain !== 7) throw new Error(`Кринос: Сила ${r.str}/${r.strAgain}, Внешность ${r.app}`);
     if (r.form !== "lupus" || r.rage !== 4 || r.strLupus !== 4) throw new Error(`смена формы за Ярость: ${r.form}, Ярость ${r.rage}, Сила ${r.strLupus}`);
     if (!r.giftRoll || r.rageGift !== 3) throw new Error(`Дар: окно броска ${r.giftRoll}, Ярость после Дара ${r.rageGift}`);
