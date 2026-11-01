@@ -122,4 +122,54 @@
   </div>
   {{else}}<div class="r-empty">{{localize "VTM20.Sheet.NoOtherPowers"}}</div>
   {{/each}}
+
+  {{#if dhampir}}
+  {{!-- Кровные права дампира (Accursed Heirs: Dhampirs, гл. 4): до 3 точек, силы по уровню; ритуалы Дриримантии --}}
+  <h2 class="r-h2"><span>{{localize "VTM20.Dhampir.Bloodrights"}}</span>
+    <span class="r-h2-tools"><a class="r-h2-btn is-plain" data-action="openRules" data-rules="dhampir" data-tooltip="{{localize 'VTM20.Dhampir.RulesHint'}}"><i class="fa-solid fa-book-open-reader"></i></a></span>
+  </h2>
+  {{#if editable}}{{#if dhampir.available.length}}
+  <div class="r-toolbar">
+    <select class="r-dh-add" data-tooltip="{{localize 'VTM20.Dhampir.AddHint'}}"><option value="">{{localize "VTM20.Dhampir.AddPick"}}</option>{{#each dhampir.available}}<option value="{{key}}">{{name}}{{#if req}} ({{req}}){{/if}}{{#if rare}} · {{localize "VTM20.Dhampir.Rare"}}{{/if}}</option>{{/each}}</select>
+    <a class="r-btn" data-action="bloodrightAdd"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Dhampir.Add"}}</a>
+  </div>
+  {{/if}}{{/if}}
+  {{#each dhampir.rights}}
+  <article class="r-edge-path r-bloodright {{#if rare}}is-rare{{/if}}">
+    <header class="r-edge-head">
+      <span class="r-edge-sigil"><i class="fa-solid fa-droplet"></i></span>
+      <span class="r-edge-title" data-tooltip="{{text}}"><b>{{name}}</b> <small>{{en}}{{#if req}} · {{req}}{{/if}}{{#if rare}} · {{localize "VTM20.Dhampir.Rare"}}{{/if}}</small></span>
+      {{> rDots dots=dots cls="is-disc"}}
+      {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="bloodrightRemove" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-trash"></i></a>{{/if}}
+    </header>
+    <ul class="r-edge-list">
+      {{#each powers}}
+      <li class="r-edge {{#unless on}}is-off{{/unless}}">
+        <span class="r-edge-lvl">{{rRoman level}}</span>
+        <span class="r-edge-main"><b>{{name}}</b> <small>{{en}}{{#if pool}} · {{pool}}{{/if}}{{#if cost}} · {{cost}}{{/if}}</small>
+          <span class="r-edge-text">{{text}}</span></span>
+        {{#if roll}}{{#if on}}<a class="r-vc-btn" data-action="bloodrightRoll" data-key="{{../key}}" data-level="{{level}}" data-tooltip="{{localize 'VTM20.Sheet.Roll'}}"><i class="fa-solid fa-dice-d10"></i></a>{{/if}}{{/if}}
+      </li>
+      {{/each}}
+    </ul>
+  </article>
+  {{else}}<div class="r-empty">{{localize "VTM20.Dhampir.NoRights"}}</div>
+  {{/each}}
+  {{#if dhampir.dririmancy}}
+  <article class="r-edge-path r-bloodright">
+    <header class="r-edge-head"><span class="r-edge-sigil"><i class="fa-solid fa-book-skull"></i></span>
+      <span class="r-edge-title"><b>{{localize "VTM20.Dhampir.Rituals"}}</b> <small>{{localize "VTM20.Dhampir.RitualsHint"}}</small></span></header>
+    <ul class="r-edge-list">
+      {{#each dhampir.rituals}}
+      <li class="r-edge {{#unless known}}is-off{{/unless}}">
+        <span class="r-edge-lvl">{{rRoman level}}</span>
+        <span class="r-edge-main"><b>{{name}}</b> <small>{{en}} · {{pool}}</small><span class="r-edge-text">{{text}}</span></span>
+        {{#if @root.editable}}<a class="r-vc-btn is-sq {{#if known}}is-on{{/if}}" data-action="dririToggle" data-key="{{key}}" data-tooltip="{{#if known}}{{localize 'VTM20.Dhampir.Forget'}}{{else}}{{localize 'VTM20.Dhampir.Learn'}}{{/if}}"><i class="fa-solid {{#if known}}fa-check{{else}}fa-plus{{/if}}"></i></a>{{/if}}
+        {{#if known}}<a class="r-vc-btn" data-action="dririRoll" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Sheet.Roll'}}"><i class="fa-solid fa-dice-d10"></i></a>{{/if}}
+      </li>
+      {{/each}}
+    </ul>
+  </article>
+  {{/if}}
+  {{/if}}
 </section>

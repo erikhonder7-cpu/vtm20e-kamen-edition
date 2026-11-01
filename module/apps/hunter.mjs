@@ -36,6 +36,15 @@ export const isLost = actor => actor?.system?.hunter?.creed === "bystander";
 export const LOST_KEYS = ["courage", "reason", "selfControl"];
 export const creedOf = key => H().creeds.find(c => c.key === key) ?? null;
 export const edgeOf = key => H().edges.find(e => e.key === key) ?? null;
+/** Есть ли у кредо свой путь Граней (у потерянных кредо Players Guide — нет: Грани из чужих путей без потолка по своему). */
+export const hasOwnPath = creed => H().edges.some(e => e.path === creed);
+/** Ограничены ли чужие Грани высшей Гранью пути кредо: нет — у потерянных кредо (Players Guide; Hunter Book: Hermit). */
+export const creedCapped = creed => hasOwnPath(creed) && !creedOf(creed)?.freeEdges;
+/** Грани Одиночества у чужих кредо (Hunter Book: Hermit, гл. 3): только при Прозрении 4+; Милосердию и Рвению — расстройство. */
+export const HERMIT_PATH = "hermit";
+export const hermitEdgeMadness = creed => creed !== HERMIT_PATH && ["mercy", "zeal"].includes(creedOf(creed)?.virtue);
+/** Грань запрещена кредо (Скиталец не различает чудовищ: Распознание, Освидетельствование, Освещение). */
+export const edgeBarred = (creed, key) => (creedOf(creed)?.noEdges ?? []).includes(key);
 
 /* ── Рост наделённых (Players Guide, гл. 2) ─────────────────────────────── */
 const setting = k => { try { return game.settings.get(SYSTEM_ID, k); } catch { return null; } };
@@ -126,7 +135,9 @@ export function edgeReasons(actor, key) {
   // за опытом Добродетель ограничивает лишь высший уровень, по книге — сумму цен Граней
   if (growth() === "xp") { if (e.level < 5 && e.level > levelCap(v)) out.push(t("NeedLevel", { v: H().virtues[e.virtue], n: needFor(e.level) })); }
   else if (b.used[e.virtue] + edgeCost(e.level) > v) out.push(t("NeedVirtue", { v: H().virtues[e.virtue], n: b.used[e.virtue] + edgeCost(e.level) }));
-  if (e.path !== h.creed && e.level > b.top) out.push(t("NeedCreed", { n: b.top }));
+  if (edgeBarred(h.creed, key)) out.push(t("Barred", { creed: creedOf(h.creed)?.who ?? "" }));
+  if (e.path !== h.creed && creedCapped(h.creed) && e.level > b.top) out.push(t("NeedCreed", { n: b.top }));
+  if (e.path === HERMIT_PATH && h.creed !== HERMIT_PATH && (h.vision ?? 0) < 4) out.push(t("NeedVision4"));
   if (e.level >= 5) out.push(...fifthReasons(actor, e));
   return out;
 }
@@ -197,6 +208,7 @@ export async function takeEdge(actor, key) {
   else if (xp && !(await foundry.applications.api.DialogV2.confirm({ window: { title: e.name }, content: `<p>${t("BuyEdge", { name: esc(e.name), n: xp })}</p>` }))) return false;
   Object.assign(upd, { "system.hunter.edges": [...new Set([...(h.edges ?? []), key])] }, xp ? spendXp(actor, xp, t("EdgeLearned", { name: e.name })) : {});
   await actor.update(upd);
+  if (e.path === HERMIT_PATH && hermitEdgeMadness(h.creed)) await notice(actor, "fa-brain", t("HermitMadness", { name: esc(actor.name), edge: esc(e.name) }), "is-sin");
   if (upd["system.hunter.fifth"]) await notice(actor, "fa-sun", t("FifthDone", { name: esc(actor.name), edge: esc(e.name) })
     + (upd["system.hunter.fifthFree"]?.length ? " " + t("FifthWaived", { list: upd["system.hunter.fifthFree"].map(k => t(`FifthTerm.${k}`)).join(", ") }) : ""), "is-sin");
   return true;
@@ -208,6 +220,7 @@ export function hunterInfo(actor, dots) {
   const h = actor.system.hunter ?? {}, creed = creedOf(h.creed), b = edgeBudget(actor);
   return {
     creed, creedName: creed ? `${creed.name} · ${creed.who}` : "", creedVirtue: creed?.virtue ?? "",
+    creedRules: creed?.lost ? `${creed.who}: ${creed.rules}` : "", sightAlways: creed?.sight === "always",
     conviction: h.conviction ?? 0, base: startConviction(actor), xpGrowth: growth() === "xp", deeds: growth() === "deeds",
     convDots: dots(h.conviction ?? 0, 10, { path: "system.hunter.conviction" }), canTrade: growth() === "core" && (h.conviction ?? 0) >= 10,
     canCash: growth() === "deeds" && VIRTUE_KEYS.some(v => (h.temp?.[v] ?? 0) >= 10 && canRaise(h, v)),
@@ -304,7 +317,9 @@ export async function secondSight(actor) {
   const c = actor.system.hunter?.conviction ?? 0;
   if (c < 1) return ui.notifications.warn(t("NoConviction", { n: 1 }));
   await actor.update({ "system.hunter.conviction": c - 1 });
-  return notice(actor, "fa-eye", t("SightOn", { name: esc(actor.name) }));
+  // Скиталец видит чудовищ всегда (Players Guide, с. 23) — Убеждённость нужна только защите разума и тела
+  const always = creedOf(actor.system.hunter?.creed)?.sight === "always";
+  return notice(actor, "fa-eye", t(always ? "SightGuardOn" : "SightOn", { name: esc(actor.name) }));
 }
 
 /** Испытание основной Добродетели против древнего чудовища (сл. по выбору рассказчика). */

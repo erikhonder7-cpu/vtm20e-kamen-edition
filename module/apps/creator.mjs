@@ -18,7 +18,7 @@ import { openHouses } from "./houses.mjs";
 import { blockerFor, checkTraits } from "../data/trait-rules.mjs";
 import { attachCombos } from "../ui/combo.mjs";
 import { weaponIcon, armorIcon, traitIcon, backgroundIcon } from "../data/icons.mjs";
-import { H as hunterData, edgeCost, growth as hunterGrowth, sacrificeOn as hunterSacrificeOn } from "./hunter.mjs";
+import { H as hunterData, edgeCost, growth as hunterGrowth, sacrificeOn as hunterSacrificeOn, hasOwnPath, creedCapped, edgeBarred, HERMIT_PATH, hermitEdgeMadness } from "./hunter.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -74,7 +74,7 @@ const CAMARILLA_BANNED = ["chimerstry", "melpominee", "mytherceria", "necromancy
 
 const STEP_HINTS = {
   concept: "ConceptHint", clan: "ClanHint", house: "HouseHint", attributes: "AttrHintShort", abilities: "AbilHintShort",
-  disciplines: "DiscHint", advantages: "AdvHint", edges: "EdgesHint", merits: "MeritHint", freebies: "FreeHint", xp: "XpHint", pact: "PactHint", summary: "FinishHint"
+  disciplines: "DiscHint", advantages: "AdvHint", edges: "EdgesHint", bloodrights: "BloodrightsHint", merits: "MeritHint", freebies: "FreeHint", xp: "XpHint", pact: "PactHint", summary: "FinishHint"
 };
 /** Шаги, где у гуля свой текст подсказки (ключ + «Ghoul»). */
 const GHOUL_HINTS = new Set(["concept", "disciplines", "summary"]);
@@ -103,7 +103,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     actions: {
       goto: VtMCreator.#onGoto, next: VtMCreator.#onNext, prev: VtMCreator.#onPrev,
       tier: VtMCreator.#onTier, sect: VtMCreator.#onSect, clan: VtMCreator.#onClan, clanGroup: VtMCreator.#onClanGroup,
-      creed: VtMCreator.#onCreed, edgeToggle: VtMCreator.#onEdgeToggle,
+      creed: VtMCreator.#onCreed, edgeToggle: VtMCreator.#onEdgeToggle, brSet: VtMCreator.#onBrSet, dhSwap: VtMCreator.#onDhSwap,
       house: VtMCreator.#onHouse, earthbound: VtMCreator.#onEarthbound, thrall: VtMCreator.#onThrall, pactShare: VtMCreator.#onPactShare, pactGift: VtMCreator.#onPactGift, reliquary: VtMCreator.#onReliquary, visage: VtMCreator.#onVisage, faction: VtMCreator.#onFaction, houseAtlas: VtMCreator.#onHouseAtlas,
       gen: VtMCreator.#onGen, choice: VtMCreator.#onChoice, clanAtlas: VtMCreator.#onClanAtlas,
       dot: VtMCreator.#onDot, prio: VtMCreator.#onPrio,
@@ -143,7 +143,10 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       // слуга: «Танец с Дьяволом» — хозяин (uuid демона), доля Веры хозяину (−1 — наибольшая), условия, дары словами и прибавками
       pact: { master: "", share: -1, terms: "", gifts: "", attr: {}, abil: {} },
       // охотник: кредо и Грани (ключи «путь|уровень»)
-      creed: s.hunter?.creed || "defense", edges: [...(s.hunter?.edges ?? [])]
+      creed: s.hunter?.creed || "defense", edges: [...(s.hunter?.edges ?? [])],
+      // дампир (Accursed Heirs): концепция, клан Предка, Кровные права (ключ → точки)
+      dhConcept: s.dhampir?.concept ?? "", dhSwap: false, antecedent: s.dhampir?.antecedent ?? "", antecedentClan: s.dhampir?.antecedentClan ?? "",
+      bloodrights: { ...(s.dhampir?.bloodrights ?? {}) }
     };
     this.ui = { clanGroup: "clan", mfTab: "merit", mfCat: "all", mfSearch: "", open: new Set() };
   }
@@ -158,6 +161,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     if (this.rules.disc > 0) s.push("disciplines");
     s.push("advantages");
     if (this.isHunter && !this.isLost) s.push("edges");     // Грани — на очки Добродетелей охоты; у Свидетеля Граней нет
+    if (this.isDhampir) s.push("bloodrights");              // Кровные права дампира (Accursed Heirs, гл. 4)
     s.push("merits", "freebies");
     if (this.st.xpTotal > 0) s.push("xp");
     if (this.isThrall) s.push("pact");                 // «Танец с Дьяволом»: хозяин, доля, дары
@@ -176,6 +180,8 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     if (this.isLost) return { ...this.baseRules, virt: 7, cost: { ...this.baseRules.cost, virt: 2, morality: 0 } };
     // опытный охотник (Players Guide, гл. 2): рассказчик даёт 3–6 очков Добродетелей сверх трёх
     if (this.isHunter) return { ...this.baseRules, virt: this.baseRules.virt + (this.st?.hunterExtra ?? 0) };
+    // дампир (Accursed Heirs, гл. 4): как гуль, но 18 свободных пунктов и Кровное право 1 (дальше — 5 за точку)
+    if (this.isDhampir) return { ...this.baseRules, free: 18, disc: this.baseRules.disc + (this.st?.dhSwap ? 1 : 0) };
     return this.type === "vampire" ? { ...this.baseRules, ...(SECT_RULES[this.st?.sectKey] ?? {}) } : this.baseRules;
   }
   /** Падший создаётся Привязанным к Земле (переключатель на шаге Дома). */
@@ -184,6 +190,18 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
   get isThrall() { return this.type === "mortal" && !!this.st?.thrall; }
   /** Охотник (Hunter: The Reckoning). */
   get isHunter() { return this.type === "hunter"; }
+  /** Дампир (Accursed Heirs: Dhampirs) — гуль с типом «dhampir» (выбирается в шапке листа). */
+  get isDhampir() { return this.type === "ghoul" && this.actor.system.ghoulType === "dhampir"; }
+  /** Бесплатных точек Кровных прав: 1, Древность 3–4 — ещё 1, 5 — ещё 2. */
+  get bloodrightBase() { const a = this.value("bg", Codex.backgrounds.find(b => b.en === "Antiquity")?.name ?? ""); return 1 + (a >= 5 ? 2 : a >= 3 ? 1 : 0); }
+  get bloodrightDots() { return this.sum(this.st.bloodrights); }
+  /** Дисциплины клана Предка дампира (Мощь — всегда «своя»). */
+  get dhampirClanDiscs() {
+    const c = Codex.clan(Codex.traitClan(this.st.antecedentClan)) ?? Codex.clan(this.st.antecedentClan);
+    return ["potence", ...(c?.disciplines ?? [])];
+  }
+  /** Точки сверх бесплатных — за свободные пункты (5 за точку). */
+  get bloodrightExtra() { return this.isDhampir ? Math.max(0, this.bloodrightDots - this.bloodrightBase) : 0; }
   get creedData() { return this.isHunter ? hunterData().creeds.find(c => c.key === this.st.creed) ?? null : null; }
   /** Свидетель — кредо «bystander». */
   get isLost() { return this.isHunter && this.st?.creed === "bystander"; }
@@ -199,7 +217,9 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     const out = [];
     if (e.level > 1 && !have.has(`${e.path}|${e.level - 1}`)) out.push(t("Hunter.NeedPrev", { n: e.level - 1 }));
     if (used + edgeCost(e.level) > this.hunterVirtue(e.virtue)) out.push(t("Hunter.NeedVirtue", { v: H.virtues[e.virtue], n: used + edgeCost(e.level) }));
-    if (e.path !== this.st.creed && e.level > top) out.push(t("Hunter.NeedCreed", { n: top }));
+    if (edgeBarred(this.st.creed, key)) out.push(t("Hunter.Barred", { creed: this.creedData?.who ?? "" }));
+    if (e.path !== this.st.creed && creedCapped(this.st.creed) && e.level > top) out.push(t("Hunter.NeedCreed", { n: top }));
+    if (e.path === HERMIT_PATH && this.st.creed !== HERMIT_PATH && this.hunterVirtue("vision") < 4) out.push(t("Hunter.NeedVision4"));
     if ((this.st.hunterExtra ?? 0) > 0 && e.path !== this.st.creed && e.level >= 4) out.push(t("Hunter.AdvancedOther"));
     if (e.level >= 5) out.push(t("Hunter.FifthLevel"));
     return out;
@@ -244,7 +264,8 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
   base(kind, k) {
     if (kind === "attr") return (k === "appearance" && this.ugly) ? 0 : 1;
     if (kind === "virt") return this.virtueBase(k);
-    if (kind === "disc") return this.type === "ghoul" && k === "potence" ? 1 : 0;
+    // гуль — Мощь 1 даром; дампир клана может взять вместо неё Дисциплину клана Предка (Accursed Heirs, гл. 3)
+    if (kind === "disc") return this.type === "ghoul" && k === "potence" && !(this.isDhampir && this.st.dhSwap) ? 1 : 0;
     return 0;
   }
   /** Без опыта — то, что видит шаг свободных пунктов. */
@@ -285,7 +306,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
   get freeSpent() {
     const c = this.rules.cost, f = this.st.free;
     return this.sum(f.attr) * c.attr + this.sum(f.abil) * c.abil + this.sum(f.disc) * c.disc + this.sum(f.bg) * c.bg
-      + this.sum(f.virt) * c.virt + f.morality * c.morality + f.will * c.will;
+      + this.sum(f.virt) * c.virt + f.morality * c.morality + f.will * c.will + this.bloodrightExtra * 5;
   }
   get freeTotal() { return this.rules.free + this.flawPoints; }
   get freeLeft() { return this.freeTotal - this.meritPoints - this.freeSpent; }
@@ -316,7 +337,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       else if (kind === "disc" && this.isDemon) total += c === 0 ? (this.inClan(k) ? 7 : 10) : c * 5;   // гл. 6
       else if (kind === "morality" && this.isDemon) total += c * 7;                                     // Вера
       else if (kind === "disc") {
-        if (this.type === "ghoul") total += c === 0 ? 20 : c * (["potence", "fortitude", "celerity"].includes(k) ? 15 : 25);
+        if (this.type === "ghoul") total += c === 0 ? 20 : c * ((this.isDhampir ? this.dhampirClanDiscs : ["potence", "fortitude", "celerity"]).includes(k) ? 15 : 25);
         else if (c === 0) total += 10;
         else if (this.st.clan === "caitiff" || this.st.clan === "pandery") total += c * 6;
         else total += c * (this.inClan(k) ? 5 : 7);
@@ -353,6 +374,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       case "attributes": return Object.values(rem.attr).every(v => v === 0);
       case "abilities": return Object.values(rem.abil).every(v => v === 0);
       case "disciplines": return rem.disc === 0;
+      case "bloodrights": return this.bloodrightDots >= this.bloodrightBase;
       case "advantages": return rem.bg === 0 && rem.virt === 0;
       case "freebies": return rem.free === 0;
       case "xp": return rem.xp >= 0;
@@ -389,6 +411,16 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       for (const k of this.st.edges) for (const why of this.edgeIssues(k)) out.push(`${H.edges.find(x => x.key === k)?.name ?? k}: ${why}`);
     }
     if (this.isThrall && this.giftUsed > this.giftPoints) out.push(t("Creator.PactOver", { n: this.giftUsed - this.giftPoints }));
+    if (this.isDhampir) {
+      if (this.st.dhSwap && !this.dhampirClanDiscs.slice(1).some(k => this.value("disc", k) > 0))
+        out.push(t("Creator.DhSwapNeedsClan"));
+      if (this.bloodrightDots < this.bloodrightBase) out.push(t("Creator.BloodrightsLeft", { n: this.bloodrightBase - this.bloodrightDots }));
+      for (const [k, n] of Object.entries(this.st.bloodrights)) {
+        const r = Codex.dhampir?.bloodrights?.find(x => x.key === k);
+        if (r?.req && !this.brReqOk(r)) out.push(t("Creator.BloodrightReq", { name: r.name, d: Codex.disciplineLabel(r.req) }));
+        if (n > 3) out.push(t("Creator.BloodrightMax", { name: r?.name ?? k }));
+      }
+    }
     for (const c of this.traitIssues) out.push(t(`Creator.Trait${c.key}`, c.data));
     return out;
   }
@@ -464,16 +496,38 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     // Охотник: кредо (концепция) и Грани (свой шаг)
     if (this.isHunter) {
       const H = hunterData();
-      ctx.creeds = [...H.creeds.map(c => ({ ...c, virtueName: H.virtues[c.virtue], active: c.key === st.creed })),
+      ctx.creeds = [...H.creeds.map(c => ({ ...c, tips: c.rules ? `${c.tips} ${c.rules}` : c.tips, virtueName: H.virtues[c.virtue], active: c.key === st.creed })),
         ...(by ? [{ ...by, virtueName: Object.values(by.virtues).join(" · "), active: this.isLost }] : [])];
       ctx.creed = this.creedData;
-      if (key === "edges") ctx.edgePaths = H.creeds.map(c => ({ key: c.key, name: c.name, virtue: H.virtues[c.virtue], primary: c.key === st.creed,
+      if (key === "edges") ctx.edgePaths = H.creeds.filter(c => hasOwnPath(c.key)).map(c => ({ key: c.key, name: c.name, virtue: H.virtues[c.virtue], primary: c.key === st.creed,
         edges: H.edges.filter(e => e.path === c.key).map(e => {
           const on = st.edges.includes(e.key), why = this.edgeIssues(e.key);
-          return { ...e, on, why: why.join(" "), ok: on || !why.length };
+          // Грань Одиночества у кредо Милосердия и Рвения — с неизлечимым расстройством (Hunter Book: Hermit)
+          const mad = e.path === HERMIT_PATH && hermitEdgeMadness(st.creed);
+          return { ...e, on, mad, text: mad ? `${t("Hunter.HermitMadnessShort")} ${e.text}` : e.text, why: why.join(" "), ok: on || !why.length };
         }) })).sort((a, b) => b.primary - a.primary);
       ctx.edgeBudget = ["mercy", "vision", "zeal"].map(v => ({ label: H.virtues[v], value: this.hunterVirtue(v),
         used: st.edges.map(k => H.edges.find(x => x.key === k)).filter(e => e?.virtue === v).reduce((s, e) => s + edgeCost(e.level), 0) }));
+    }
+
+    // Дампир (Accursed Heirs): концепция и клан Предка — на шаге концепции, Кровные права — свой шаг
+    if (this.isDhampir) {
+      const DH = Codex.dhampir ?? {};
+      ctx.isDhampir = true;
+      ctx.dhConcepts = (DH.concepts ?? []).map(c => ({ value: c.key, label: c.name, tip: `${c.text} ${c.tips}`, selected: c.key === st.dhConcept }));
+      ctx.antecedentClans = Codex.clans.filter(c => Codex.visible(c)).map(c => ({ value: c.key, label: c.name, selected: c.key === st.antecedentClan }));
+      ctx.dhWeakness = DH.clans?.[Codex.traitClan(st.antecedentClan)]?.weakness ?? "";
+      if (key === "bloodrights") {
+        const favored = new Set(DH.clans?.[Codex.traitClan(st.antecedentClan)]?.rights ?? []);
+        ctx.brBudget = { base: this.bloodrightBase, used: this.bloodrightDots, extra: this.bloodrightExtra };
+        ctx.brList = (DH.bloodrights ?? []).filter(r => (st.bloodrights[r.key] ?? 0) > 0 || this.brReqOk(r)).map(r => {
+          const n = st.bloodrights[r.key] ?? 0;
+          return { key: r.key, name: r.name, en: r.en, rare: r.rare, favored: favored.has(r.key), n, text: r.text,
+            req: r.req ? (r.key === "dririmancy" ? t("Dhampir.BloodMagic") : Codex.disciplineLabel(r.req)) : "",
+            powers: r.levels.map(l => `${r.scaling ? "I–III" : ["I", "II", "III"][l.level - 1]}. ${l.name}`).join(" · "),
+            dots: [1, 2, 3].map(i => ({ i, on: i <= n })) };
+        }).sort((a, b) => b.favored - a.favored || a.rare - b.rare || a.name.localeCompare(b.name, "ru"));
+      }
     }
 
     // I. Концепция и возраст
@@ -565,10 +619,11 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     const ebOk = b => !b.thrall && (this.isEarthbound ? !EB_BANNED.includes(b.en) : b.source !== "Earthbound");
     // слуга: факты биографии падших без запретных и без фактов Привязанных, плюс свои (Заботливый хозяин, Приобщение)
     const bgOk = b => this.isThrall ? b.line === "demon" && b.source !== "Earthbound" && !THRALL_BANNED.includes(b.en)
-      : VTM20.backgroundAllowed(b, this.type) && ebOk(b) && !(this.isLost && b.noBystander);
+      : VTM20.backgroundAllowed(b, this.type) && ebOk(b) && !(this.isLost && b.noBystander) && (!b.dhampir || this.isDhampir);
     ctx.bgCards = Codex.backgrounds.filter(b => (Codex.visible(b) && bgOk(b)) || b.name in st.bg).map(b => {
       const on = b.name in st.bg || (st.free.bg[b.name] ?? 0) > 0;
-      return { name: b.name, en: b.en, sectLabel: b.sabbat ? t("Sect.sabbat") : b.sect ? t(`Sect.${b.sect}`) : "", on, value: this.value("bg", b.name), dots: dotRow("bg", b.name),
+      const bonus = this.isHunter && !this.isLost && b.en === "Patron" ? this.creedData?.patron ?? 0 : 0;   // Отшельник — Покровители 3 даром
+      return { name: b.name, en: b.en, sectLabel: b.sabbat ? t("Sect.sabbat") : b.sect ? t(`Sect.${b.sect}`) : "", bonus, on, value: this.value("bg", b.name), dots: dotRow("bg", b.name),
           text: VtMCreator.#preview(b.html, 170), html: b.html, open: this.ui.open.has(`bg:${b.name}`) };
     });
     ctx.virtues = ["conscience", "selfControl", "courage"].map(slot => {
@@ -593,6 +648,8 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     const mySect = st.sectKey || Codex.sectKey(st.sect);
     const line = this.isThrall ? "demon" : VTM20.traitLine(this.type);      // слуга берёт черты из книги падших, кроме инфернальных
     const inCat = (m, cat) => !Codex.visible(m) || ((m.line ?? "") !== line && !(this.isHunter && !m.line)) || (this.isThrall && m.category === "infernal")
+      || (!!m.dhampir !== this.isDhampir && (m.dhampir || m.ghoul))      // черты дампиров — только дампиру; гулей (G&R) — не дампиру
+      || (m.mortal && !["mortal", "hunter"].includes(this.type))          // только для смертных (Vampire Players Guide 2003)
       || (m.bystander && !this.isLost) ? false : cat === "clan" ? !!myClan && m.clan === myClan
       : cat === "sect" ? !m.clan && !!mySect && m.sect === mySect
       : cat === "all" ? (!m.clan || (!!myClan && m.clan === myClan)) && (!m.sect || (!!mySect && m.sect === mySect))
@@ -763,6 +820,22 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
   static #onThrall() { this.st.thrall = !this.st.thrall; this.render(); }
   /** Охотник: кредо — основная Добродетель и начальная Убеждённость; Грани чужих путей пересчитываются. */
   static #onCreed(event, target) { this.st.creed = target.dataset.creed; this.render(); }
+  /** Кровное право дампира: точка n (повторный щелчок по последней точке — снять). */
+  static #onDhSwap() { this.st.dhSwap = !this.st.dhSwap; this.render(); }
+  static #onBrSet(event, target) {
+    const k = target.dataset.key, n = Number(target.dataset.n), cur = this.st.bloodrights[k] ?? 0;
+    const v = cur === n ? n - 1 : n;
+    if (v <= 0) delete this.st.bloodrights[k]; else this.st.bloodrights[k] = v;
+    this.render();
+  }
+  /** Требование Кровного права: Дисциплина I (с учётом точек мастера), Дриримантия — любая магия крови. */
+  brReqOk(r) {
+    if (!r.req) return true;
+    const has = k => this.value("disc", k) > 0;
+    if (r.key === "dririmancy") return ["thaumaturgy", "necromancy", "assamiteSorcery", "setiteSorcery", "koldunism", "darkThaumaturgy"].some(has);
+    return has(r.req);
+  }
+
   static #onEdgeToggle(event, target) {
     const k = target.dataset.key, list = this.st.edges;
     if (list.includes(k)) {
@@ -946,6 +1019,10 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
         blood: { value: Math.min(max, st.blood ?? Math.ceil(max / 2)) } });
     }
     if (this.type === "ghoul") Object.assign(sys, { domitor: st.domitor, blood: { value: 1, max: a.system.blood.max } });
+    // дампир: своя кровь — полный запас (10 + Древность пересчитает лист), концепция, Предок, Кровные права
+    if (this.isDhampir) Object.assign(sys, { domitor: "", blood: { value: 10 + this.value("bg", Codex.backgrounds.find(b => b.en === "Antiquity")?.name ?? ""), max: 10 },
+      dhampir: { concept: st.dhConcept, antecedent: st.antecedent, antecedentClan: st.antecedentClan, bloodrights: { ...st.bloodrights },
+        rituals: [...(a.system.dhampir?.rituals ?? [])] } });
     // Слуга: Вера слуги и хозяин; Человечность не трогаем (грех слуги — по его Воле); дары-прибавки — сразу в черты
     if (this.isThrall) {
       delete sys.morality;
@@ -975,6 +1052,9 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
         urges: { flesh: this.value("virt", "conscience"), thought: this.value("virt", "selfControl"), emotion: this.value("virt", "courage") },
         virtues: { conscience: { value: 0 }, selfControl: { value: 0 }, courage: { value: 0 } } });
     }
+    // Кровные права — словарь: снятые в мастере права убрать отдельно (обычное обновление словарь только дополняет)
+    const goneRights = this.isDhampir ? Object.keys(a.system.dhampir?.bloodrights ?? {}).filter(k => !(k in st.bloodrights)) : [];
+    if (goneRights.length) await a.update(Object.fromEntries(goneRights.map(k => [`system.dhampir.bloodrights.-=${k}`, null])));
     await a.update({ name: st.name, system: sys });
 
     const kill = a.items.filter(i => ["discipline", "thaumPath", "lore", "background", "merit", "flaw"].includes(i.type)).map(i => i.id);
@@ -999,12 +1079,14 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     }
     const bgLine = this.isThrall ? "demon" : VTM20.traitLine(this.type);       // слуга — факты биографии из книги падших
     const bgDone = new Set();                           // одноимённые (охотничий и анархов «Арсенал») — один раз, своя линия первой
-    const bgList = Codex.backgrounds.filter(b => ((b.line ?? "") === bgLine || (this.isHunter && VTM20.backgroundAllowed(b, "hunter"))) && !(this.isLost && b.noBystander))
+    const bgList = Codex.backgrounds.filter(b => (!b.dhampir || this.isDhampir) && ((b.line ?? "") === bgLine || (this.isHunter && VTM20.backgroundAllowed(b, "hunter"))) && !(this.isLost && b.noBystander))
       .sort((x, y) => ((y.line ?? "") === bgLine) - ((x.line ?? "") === bgLine));
     for (const b of bgList) {   // одноимённые у демонов — своя линия
       if (bgDone.has(b.name)) continue;
       bgDone.add(b.name);
-      const v = this.value("bg", b.name);
+      // Отшельник (Hunter Players Guide, с. 19): Покровители 3 даром, купленные точки — сверху (4-я и 5-я — как 1-я и 2-я)
+      const free = this.isHunter && !this.isLost && b.en === "Patron" ? this.creedData?.patron ?? 0 : 0;
+      const v = Math.min(5, this.value("bg", b.name) + free);
       if (v > 0) items.push({ name: b.name, type: "background", img: backgroundIcon(b.en) ?? icon("background"), system: { value: v, description: b.html, source: b.en } });
     }
     for (const m of st.merits) items.push({ name: m.name, type: "merit", img: traitIcon(m.category), system: { cost: m.cost, category: m.category, clan: m.clan ?? "", sect: m.sect ?? "", description: m.html, source: m.en } });

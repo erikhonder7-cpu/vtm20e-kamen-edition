@@ -559,7 +559,7 @@ def _mkey(x):
 
 
 # Поля, в которых редакция главнее сборки: категория (клановые черты — «clan»), английское имя, книга, цена…
-MERIT_FIELDS = ("category", "en", "source", "clan", "sect", "cost", "min", "max", "era", "line", "bystander", "ghoul", "page")
+MERIT_FIELDS = ("category", "en", "source", "clan", "sect", "cost", "min", "max", "era", "line", "bystander", "ghoul", "page", "mortal")
 CLAN_ALIAS = {"salubri": "salyubri", "cappadocian": "kappadokiytsy"}
 
 
@@ -568,7 +568,10 @@ def merits(records, set_name="merits"):
     Запись сборки находится по виду, имени, английскому имени и книге, а если редакция дописала английское имя или
     сменила книгу — по виду, имени и линии; поля MERIT_FIELDS берутся из редакции."""
     with open(os.path.join(SRC, "merits_final.json"), encoding="utf-8") as f:
-        final = json.load(f)[set_name]
+        snap = json.load(f)
+    final = snap[set_name]
+    # убранные аудитом (переименованные, слитые) — их находит и сборка из глав справочника; не возвращать (merits_batch.py)
+    retired = {(r["kind"], norm(r["name"])) for r in snap.get("retired", [])}
     loose = lambda x: (x.get("kind"), norm(x.get("name")), x.get("line", ""))
     exact, by_name = {}, {}
     for x in records:
@@ -590,7 +593,7 @@ def merits(records, set_name="merits"):
     # черты сборки, которых нет в редакции (ни по ключу, ни по имени), — в конце, разложенные по разделам
     named = {loose(y) for y in final}
     for x in records:
-        if id(x) not in used and loose(x) not in named:
+        if id(x) not in used and loose(x) not in named and (x.get("kind"), norm(x.get("name"))) not in retired:
             out.append({**x, "html": restructure(x.get("html", ""))})
     return out
 

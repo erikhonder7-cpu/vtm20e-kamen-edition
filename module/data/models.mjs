@@ -182,8 +182,14 @@ export class GhoulData extends BaseActorData {
       domitor: str(),
       domitorClan: str(),
       domitorGeneration: int(13, 3, 15),
-      ghoulType: str("vassal"),        // vassal | independent | revenant
+      ghoulType: str("vassal"),        // vassal | independent | revenant | dhampir
       family: str(),
+      // Дампир (Accursed Heirs: Dhampirs): концепция, Предок-вампир и его клан, Кровные права (ключ → 1–3), ритуалы Дриримантии
+      dhampir: new SchemaField({
+        concept: str(), antecedent: str(), antecedentClan: str(),
+        bloodrights: new ObjectField({ initial: {} }),
+        rituals: new ArrayField(str())
+      }),
       // Активный запас витэ: 1 на старте, предел 2 (растёт с возрастом).
       blood: new SchemaField({ value: int(1, 0, 20), max: int(2, 1, 20) }),
       boosts: new SchemaField({ strength: int(0, 0, 10), dexterity: int(0, 0, 10), stamina: int(0, 0, 10) }),
@@ -196,13 +202,22 @@ export class GhoulData extends BaseActorData {
 
   prepareDerivedData() {
     super.prepareDerivedData();
-    this.blood.value = Math.min(this.blood.value, this.blood.max);
     this.blood.perTurn = 1;
     this.traitMax = 5;
     this.boostMax = 6;
     // Предел Дисциплин по поколению донора (07)
     const g = this.domitorGeneration;
     this.disciplineMax = g >= 8 ? 1 : g === 7 ? 2 : g === 6 ? 3 : g === 5 ? 4 : 5;
+    // Дампир (Accursed Heirs): запас 10 + Древность — своя кровь, не витэ домитора; Дисциплины не выше 1 (Истечение 4+ — 2,
+    // гуль-дампир — и по поколению донора), за ход — 1 пункт (Истечение 5 — 2)
+    if (this.ghoulType === "dhampir") {
+      const bg = en => this.parent?.items?.find(i => i.type === "background" && i.system.source === en)?.system.value ?? 0;
+      const antiquity = bg("Antiquity"), effluence = bg("Effluence");
+      this.blood.max = 10 + antiquity;
+      this.blood.perTurn = effluence >= 5 ? 2 : 1;
+      this.disciplineMax = Math.max(effluence >= 4 ? 2 : 1, this.domitor ? this.disciplineMax : 1);
+    }
+    this.blood.value = Math.min(this.blood.value, this.blood.max);
   }
 }
 

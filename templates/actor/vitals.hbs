@@ -131,7 +131,8 @@
       <a class="r-vc-btn is-sq" data-action="lostOrdeal" data-tooltip="{{localize 'VTM20.Hunter.LostOrdealHint'}}"><i class="fa-solid fa-people-arrows"></i></a>
       {{#if editable}}{{#if hunterInfo.canTrade}}<a class="r-vc-btn is-sq" data-action="lostTrade" data-tooltip="{{localize 'VTM20.Hunter.LostTradeHint'}}"><i class="fa-solid fa-scale-unbalanced"></i></a>{{/if}}{{/if}}
       <a class="r-vc-btn is-sq {{#if system.exorcist.target}}is-on{{/if}}" data-action="exorcist" data-tooltip="{{localize 'VTM20.Exorcist.BtnHint'}}"><i class="fa-solid fa-hands-praying"></i></a>
-      {{#if hunterInfo.madness}}<span class="r-vc-hint is-right is-warn" data-tooltip="{{localize 'VTM20.Hunter.LostMadHint' n=hunterInfo.madness}}"><i class="fa-solid fa-brain"></i> {{hunterInfo.madness}}</span>{{/if}}
+      {{#if hunterInfo.creedRules}}<span class="r-vc-hint is-right" data-tooltip="{{hunterInfo.creedRules}}"><i class="fa-solid fa-satellite-dish"></i></span>{{/if}}
+      {{#if hunterInfo.madness}}<span class="r-vc-hint {{#unless hunterInfo.creedRules}}is-right{{/unless}} is-warn" data-tooltip="{{localize 'VTM20.Hunter.LostMadHint' n=hunterInfo.madness}}"><i class="fa-solid fa-brain"></i> {{hunterInfo.madness}}</span>{{/if}}
       {{#if hunterInfo.broken}}<span class="r-vc-hint is-right is-warn"><i class="fa-solid fa-skull"></i> {{localize "VTM20.Hunter.LostBrokenShort"}}</span>{{/if}}
     </div>
   </div>
@@ -153,7 +154,7 @@
       {{/each}}
     </div>
     <div class="r-vc-tools">
-      <a class="r-vc-btn" data-action="hunterSight" data-tooltip="{{localize 'VTM20.Hunter.SightHint'}}"><i class="fa-solid fa-eye"></i> {{localize "VTM20.Hunter.Sight"}}</a>
+      <a class="r-vc-btn" data-action="hunterSight" data-tooltip="{{#if hunterInfo.sightAlways}}{{localize 'VTM20.Hunter.SightAlwaysHint'}}{{else}}{{localize 'VTM20.Hunter.SightHint'}}{{/if}}"><i class="fa-solid fa-eye"></i> {{#if hunterInfo.sightAlways}}{{localize "VTM20.Hunter.SightGuard"}}{{else}}{{localize "VTM20.Hunter.Sight"}}{{/if}}</a>
       <a class="r-vc-btn is-sq" data-action="hunterTest" data-tooltip="{{localize 'VTM20.Hunter.VirtueTestHint'}}"><i class="fa-solid fa-scale-balanced"></i></a>
       {{#if editable}}<a class="r-vc-btn is-sq" data-action="hunterRestore" data-tooltip="{{localize 'VTM20.Hunter.RestoreHint'}}"><i class="fa-solid fa-rotate-left"></i></a>
       {{#if hunterInfo.canTrade}}<a class="r-vc-btn is-on" data-action="hunterTrade" data-tooltip="{{localize 'VTM20.Hunter.TradeHint'}}"><i class="fa-solid fa-arrow-up"></i> {{localize "VTM20.Hunter.Trade"}}</a>{{/if}}
@@ -163,7 +164,8 @@
       {{#if hunterInfo.advance}}<a class="r-vc-btn {{#if hunterInfo.canAdvance}}is-on{{/if}}" data-action="hunterAdvance" data-tooltip="{{localize 'VTM20.Hunter.AdvanceHint' n=hunterInfo.advance}}"><i class="fa-solid fa-angles-up"></i> {{hunterInfo.advance}}</a>{{/if}}{{/if}}{{/if}}
       {{#if hunterInfo.deeds}}{{#if isGM}}<a class="r-vc-btn is-sq" data-action="hunterDeed" data-tooltip="{{localize 'VTM20.Hunter.DeedHint'}}"><i class="fa-solid fa-award"></i></a>{{/if}}{{/if}}
       <a class="r-vc-btn is-sq {{#if system.exorcist.target}}is-on{{/if}}" data-action="exorcist" data-tooltip="{{localize 'VTM20.Exorcist.BtnHint'}}"><i class="fa-solid fa-hands-praying"></i></a>
-      {{#if hunterInfo.madness}}<span class="r-vc-hint is-right is-warn" data-tooltip="{{localize 'VTM20.Hunter.MadnessHint' n=hunterInfo.madness from=hunterInfo.madFrom}}"><i class="fa-solid fa-brain"></i> {{hunterInfo.madness}}</span>{{/if}}
+      {{#if hunterInfo.creedRules}}<span class="r-vc-hint is-right" data-tooltip="{{hunterInfo.creedRules}}"><i class="fa-solid fa-satellite-dish"></i></span>{{/if}}
+      {{#if hunterInfo.madness}}<span class="r-vc-hint {{#unless hunterInfo.creedRules}}is-right{{/unless}} is-warn" data-tooltip="{{localize 'VTM20.Hunter.MadnessHint' n=hunterInfo.madness from=hunterInfo.madFrom}}"><i class="fa-solid fa-brain"></i> {{hunterInfo.madness}}</span>{{/if}}
     </div>
   </div>
   {{else if thrallInfo}}

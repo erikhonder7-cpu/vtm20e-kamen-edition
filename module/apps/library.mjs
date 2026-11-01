@@ -32,6 +32,7 @@ const statusTags = x => {
 };
 /** Метки записи: книга (кроме основной V20), «Тёмные века» для материалов эпохи и статус по аудиту. */
 const sourceTags = x => [x.era === "darkAges" && { label: L("Filter.DarkAges"), red: true },
+  x.era === "elder-only" && { label: L("Filter.ElderOnly"), tip: L("Filter.ElderOnlyTip") },
   x.source && x.source !== "V20" && { label: x.source, tip: x.sourceNote }, ...statusTags(x)].filter(Boolean);
 /** Пометка у силы в списке: старая редакция (Revised) или старый путь — мелко после названия. */
 const powerMark = p => p.edition === "Revised" || /^legacy/i.test(p.status ?? "") ? L("Status.revisedShort") : "";
@@ -297,11 +298,12 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
       return { group: m.category, cat: m.category, groupOrder: cats.indexOf(m.category),
         groupName: game.i18n.localize(VTM20.meritCategories[m.category]?.label ?? m.category) };
     };
-    const ghoulOk = !this.actor || this.actor.type === "ghoul";
+    const dhampir = !!this.actor?.isDhampir;                  // черты дампиров — только дампиру, черт гулей (G&R) у него нет
+    const ghoulOk = !this.actor || (this.actor.type === "ghoul" && !dhampir);
     const line = VTM20.traitLine(this.actor?.type);           // у демона — только черты падших, у прочих — без них
     const hunter = this.actor?.type === "hunter";             // охотнику — и общие черты смертных, и охотничьи
     const lost = isLost(this.actor);                          // черты Свидетелей — только Свидетелю
-    return Codex.merits.filter(m => m.kind === kind && Codex.visible(m) && (!m.ghoul || ghoulOk) && ((m.line ?? "") === line || (hunter && !m.line))
+    return Codex.merits.filter(m => m.kind === kind && Codex.visible(m) && (!m.ghoul || ghoulOk) && (!m.dhampir || dhampir) && (!m.mortal || ["mortal", "hunter"].includes(this.actor?.type ?? "mortal")) && ((m.line ?? "") === line || (hunter && !m.line))
       && (!m.bystander || lost)).map(m => {
       const costs = costsOf(m);
       const blocker = blockerFor(m.name, mine);
@@ -322,7 +324,7 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
     // id — номер в полном списке; Факты биографии Тёмных веков — только с настройкой «Контент из Dark Ages»
     // гулям и смертным — без фактов только для Сородичей (Поколение, Стадо, Статус…)
     const type = this.actor?.type ?? "vampire", lost = isLost(this.actor);   // Свидетелю — без Судьбы и Покровителей
-    return Codex.backgrounds.map((b, i) => [b, i]).filter(([b]) => Codex.visible(b) && VTM20.backgroundAllowed(b, type) && !(lost && b.noBystander)).map(([b, i]) => this.#entry({
+    return Codex.backgrounds.map((b, i) => [b, i]).filter(([b]) => Codex.visible(b) && VTM20.backgroundAllowed(b, type) && !(lost && b.noBystander) && (!b.dhampir || !!this.actor?.isDhampir)).map(([b, i]) => this.#entry({
       id: String(i), name: b.name, en: b.en, has: mine.has(b.name), text: b.html ?? "", long: true, src: srcKind(b),
       tags: [b.sabbat && { label: t("Sect.sabbat"), red: true }, b.sect && { label: t(`Sect.${b.sect}`), red: true }, b.source && b.source !== "V20" && { label: b.source }].filter(Boolean),
       variants: [1, 2, 3, 4, 5].map(v => ({ value: v, label: "●".repeat(v) }))

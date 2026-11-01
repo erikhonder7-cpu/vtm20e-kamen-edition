@@ -13,15 +13,29 @@ export const HUNGER_BELOW = 5;
 
 /** Окно проверки ярости (Самоконтроль) или Ротшрека (Мужество). difficulty — сложность по событию, без поправок клана. */
 export function rollVirtueCheck(actor, kind, { difficulty = 6 } = {}) {
+  // Дампир (Accursed Heirs, гл. 1, «Жажда крови»): против Безумия — не больше кубиков Самоконтроля, чем крови в запасе
+  const bloodlust = () => {
+    if (!actor.isDhampir) return {};
+    const sc = actor.traitValue?.("virtues.selfControl") ?? 0, blood = actor.system.blood?.value ?? 0;
+    return blood < sc ? { bonus: blood - sc, diffNote: `<i class="fa-solid fa-droplet"></i> ${t("Roll.Bloodlust", { n: blood })}` } : {};
+  };
   if (kind === "frenzy") {
     // Бруха: +2 к сложности, воля не помогает предотвратить (02); гули — −3
     const brujah = actor.system.clan === "brujah" || actor.system.clan === "bruhaAntitribu";
     return RollDialog.prompt(actor, {
       title: t("Roll.frenzy.title"), trait1: "virtues.selfControl", reflexive: true, kind: "frenzy",
       extra: { atavism: VTM20.atavismClans.includes(actor.system.clan) },
-      difficulty: Math.max(2, difficulty + (brujah ? 2 : 0) - (actor.type === "ghoul" ? 3 : 0)), noWillpower: brujah, lockTraits: true
+      difficulty: Math.max(2, difficulty + (brujah ? 2 : 0) - (actor.type === "ghoul" ? 3 : 0)), noWillpower: brujah, lockTraits: true,
+      ...bloodlust()
     });
   }
+  // Безумие страсти (Accursed Heirs, гл. 1): у гулей и дампиров желание сильнее рассудка. Сильное возбуждение — сл. 3,
+  // интимная близость — 4 (таблица поводов к Безумию гулей и дампиров)
+  if (kind === "rapture") return RollDialog.prompt(actor, {
+    title: t("Roll.rapture.title"), trait1: "virtues.selfControl", reflexive: true, kind: "rapture", lockTraits: true,
+    difficulty: difficulty === 6 ? 3 : difficulty, ...bloodlust(),
+    diffNote: [bloodlust().diffNote, `<i class="fa-solid fa-heart-pulse"></i> ${t("Roll.rapture.note")}`].filter(Boolean).join("<br>")
+  });
   if (kind === "degeneration") return RollDialog.prompt(actor, { title: t("Roll.degeneration.title"), trait1: "virtues.conscience", reflexive: true, kind: "degeneration", difficulty, noWillpower: true, lockTraits: true });
   return RollDialog.prompt(actor, { title: t("Roll.rotschreck.title"), trait1: "virtues.courage", reflexive: true, kind: "rotschreck", difficulty, lockTraits: true });
 }

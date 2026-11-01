@@ -1,0 +1,36 @@
+/* styles/types/dhampir.css — дампир (Accursed Heirs: Dhampirs): лист гуля с типом «Дампир».
+   Пепельная кожа и живая кровь: бледный пергамент рамок и тёплый кармин — кровь, которая бьётся, а не застыла. */
+
+.vtm20.is-dhampir { --r-dh-blood: #c2414b; --r-dh-pale: rgba(226, 214, 205, .18); }
+
+/* Кровные права: семейство — карточка с каплей, силы — строки с уровнем I–III; не открытые уровни бледнее */
+.vtm20 .r-bloodright { position: relative; margin: 0 0 12px; border: 1px solid var(--r-dh-pale, var(--r-line)); background: var(--r-card-bg); }
+.vtm20 .r-bloodright::before { content: ""; position: absolute; left: -1px; top: -1px; width: 54px; height: 2px;
+  background: linear-gradient(90deg, var(--r-dh-blood, #c2414b), transparent); }
+.vtm20 .r-bloodright.is-rare { box-shadow: inset 3px 0 0 rgba(194, 65, 75, .55); }
+.vtm20 .r-bloodright .r-edge-head { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-bottom: 1px solid var(--r-line); }
+.vtm20 .r-bloodright .r-edge-sigil { flex: none; width: 26px; height: 26px; display: grid; place-items: center; border-radius: 50%; color: #ffd2d2;
+  border: 1px solid rgba(194, 65, 75, .55); background: radial-gradient(circle at 50% 30%, #3a1418, #0d0607 72%); box-shadow: 0 0 10px rgba(194, 65, 75, .25); }
+.vtm20 .r-bloodright .r-edge-title { flex: 1; min-width: 0; }
+.vtm20 .r-bloodright .r-edge-title b { font-family: var(--r-display); font-size: 17px; color: var(--r-ink); }
+.vtm20 .r-bloodright .r-edge-title small { margin-left: 6px; font-family: var(--r-caps); font-size: 10.5px; letter-spacing: 1px; text-transform: uppercase; color: var(--r-muted); }
+.vtm20 .r-bloodright .r-edge-list { list-style: none; margin: 0; padding: 4px 12px 8px; }
+.vtm20 .r-bloodright .r-edge { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto auto; gap: 8px; align-items: start; padding: 6px 0; border-bottom: 1px dotted var(--r-line); }
+.vtm20 .r-bloodright .r-edge:last-child { border-bottom: 0; }
+.vtm20 .r-bloodright .r-edge.is-off { opacity: .45; }
+.vtm20 .r-bloodright .r-edge-lvl { font-family: var(--r-display); font-size: 15px; color: var(--r-dh-blood, #c2414b); text-align: center; padding-top: 1px; }
+.vtm20 .r-bloodright .r-edge-main { min-width: 0; }
+.vtm20 .r-bloodright .r-edge-main b { font-family: var(--r-display); font-size: 15px; }
+.vtm20 .r-bloodright .r-edge-main small { margin-left: 4px; font-style: italic; color: var(--r-muted); }
+.vtm20 .r-bloodright .r-edge-text { display: block; margin-top: 2px; font-size: 13px; line-height: 1.35; color: var(--r-ink-2); }
+.vtm20 .r-dh-add { min-width: 0; max-width: 340px; flex: 1; }
+
+/* мастер: шаг Кровных прав — карточки с точками I–III, любимые права клана Предка подсвечены */
+.vtm20 .r-cr-bloodrights { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px; }
+.vtm20 .r-cr-br { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 8px; padding: 7px 9px; border: 1px solid var(--r-line); background: var(--r-card-bg); }
+.vtm20 .r-cr-br > b { font-family: var(--r-display); font-size: 15px; }
+.vtm20 .r-cr-br > small { grid-column: 1 / -1; order: 3; font-style: italic; color: var(--r-muted); }
+.vtm20 .r-cr-br .r-dots { grid-row: 1; grid-column: 2; }
+.vtm20 .r-cr-br-powers { grid-column: 1 / -1; order: 4; font-size: 12px; color: var(--r-ink-2); }
+.vtm20 .r-cr-br.is-on { border-color: rgba(194, 65, 75, .55); }
+.vtm20 .r-cr-br.is-favored { box-shadow: inset 3px 0 0 rgba(194, 65, 75, .45); }

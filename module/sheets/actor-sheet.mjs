@@ -34,6 +34,7 @@ import { loseHost, holdOn, newHost, summonedBack } from "../apps/host.mjs";
 import { openCult } from "../apps/cult.mjs";
 import { openExorcist } from "../apps/exorcist.mjs";
 import { hunterInfo, edgesView, useEdge, secondSight, virtueTest, tradeConviction, restoreConviction, awardDeed, shiftDeed, cashDeed, sacrifice, advanceVirtue, callEdge, swapCalled, unblockCall, callView, isLost, lostVirtue, lostTrade, lostHardened, lostOrdeal } from "../apps/hunter.mjs";
+import { addBloodright, removeBloodright, rollBloodright, toggleRitual as toggleDririRitual, rollRitual as rollDririRitual } from "../apps/dhampir.mjs";
 import { openEbServant, empower as empowerServant } from "../apps/eb-servant.mjs";
 import { useInvestment, pactDialog, pactDelete } from "../apps/infernal.mjs";
 import { possess, extend as possessExtend, leave as possessLeave, battleExpiry } from "../apps/possession.mjs";
@@ -166,6 +167,8 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       clanAtlas: VtMActorSheet.#onClanAtlas,
       linSire: VtMActorSheet.#onLinSire,
       edgeUse: VtMActorSheet.#onEdgeUse, edgeDel: VtMActorSheet.#onEdgeDel, hunterSight: VtMActorSheet.#onHunterSight,
+      bloodrightAdd: VtMActorSheet.#onBloodrightAdd, bloodrightRemove: VtMActorSheet.#onBloodrightRemove,
+      bloodrightRoll: VtMActorSheet.#onBloodrightRoll, dririToggle: VtMActorSheet.#onDririToggle, dririRoll: VtMActorSheet.#onDririRoll,
       hunterTest: VtMActorSheet.#onHunterTest, hunterTrade: VtMActorSheet.#onHunterTrade, hunterRestore: VtMActorSheet.#onHunterRestore,
       hunterDeed: VtMActorSheet.#onHunterDeed, hunterShift: VtMActorSheet.#onHunterShift, hunterCash: VtMActorSheet.#onHunterCash,
       hunterSacrifice: VtMActorSheet.#onHunterSacrifice, hunterAdvance: VtMActorSheet.#onHunterAdvance,
@@ -213,6 +216,12 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   _vitalsClosed = (() => { try { return localStorage.getItem("vtm20.vitalsClosed") === "1"; } catch { return false; } })();
 
   /** Персонаж ещё не создан (все характеристики 1, способностей нет, мастер не пройден) — вместо листа ворота. */
+  /** Заголовок окна: у дампира и ревенанта — свой тип вместо «Гуль». */
+  get title() {
+    const g = this.actor.type === "ghoul" ? this.actor.system.ghoulType : "";
+    return ["revenant", "dhampir"].includes(g) ? `${t(`GhoulType.${g}`)}: ${this.actor.name}` : super.title;
+  }
+
   get needsCreation() {
     const a = this.actor, s = a.system;
     return a.type !== "creature" && !a.getFlag(SYSTEM_ID, "created")
@@ -257,10 +266,10 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       // длинное имя не обрезается в шапке: шрифт мельче
       nameSize: actor.name.length > 26 ? "is-xlong" : actor.name.length > 18 ? "is-long" : "",
       // охотник — смертный с Гранями: где лист смертного и охотника совпадают, работает isMortal
-      isVampire: actor.type === "vampire", isGhoul: actor.type === "ghoul", isMortal: ["mortal", "hunter"].includes(actor.type), isHunter: actor.type === "hunter",
+      isVampire: actor.type === "vampire", isGhoul: actor.type === "ghoul", isDhampir: actor.isDhampir, isMortal: ["mortal", "hunter"].includes(actor.type), isHunter: actor.type === "hunter",
       isCreature: actor.type === "creature", isDemon: actor.type === "demon",
       hasBlood: actor.hasBlood,
-      typeLabel: actor.type === "ghoul" && actor.system.ghoulType === "revenant" ? t("GhoulType.revenant") : game.i18n.localize(`TYPES.Actor.${actor.type}`),
+      typeLabel: actor.type === "ghoul" && ["revenant", "dhampir"].includes(actor.system.ghoulType) ? t(`GhoulType.${actor.system.ghoulType}`) : game.i18n.localize(`TYPES.Actor.${actor.type}`),
       needsCreation: this.needsCreation,
       tabs: this._prepareTabs("primary")
     });
@@ -302,6 +311,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     attachCombos(this.element);                         // Натура, Маска, Секта — свой список вместо <datalist>
     this.element.classList.toggle("is-mortal", this.actor.type === "mortal");
     this.element.classList.toggle("is-ghoul", this.actor.type === "ghoul");
+    this.element.classList.toggle("is-dhampir", !!this.actor.isDhampir);     // styles/types/dhampir.css
     this.element.classList.toggle("is-torpor", !!context.torporState);
     this.element.classList.toggle("is-dead", !!context.death);
     // AppV2 заменяет только перерисованные части: убираем ворота после создания и лист — до него
@@ -465,7 +475,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static #onRollVirtue(event, target) {
     const kind = target.dataset.kind;
     const a = this.actor;
-    if (kind === "frenzy" || kind === "rotschreck") return rollVirtueCheck(a, kind);
+    if (kind === "frenzy" || kind === "rotschreck" || kind === "rapture") return rollVirtueCheck(a, kind);
     if (kind === "degeneration") return RollDialog.prompt(a, { title: t("Roll.degeneration.title"), trait1: "virtues.conscience", reflexive: true, kind: "degeneration", difficulty: 8, noWillpower: true, lockTraits: true });
     if (kind === "awakening") return RollDialog.prompt(a, { title: t("Roll.Awakening"), trait1: "morality.value", reflexive: true, difficulty: 8, lockTraits: true });
     if (kind === "willpower") return RollDialog.prompt(a, { title: t("Willpower"), trait1: "willpower.permanent", reflexive: true, difficulty: 6 });
@@ -563,8 +573,9 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   }
 
   /** Справочник правил V20 (компендий-журнал). */
-  static #onOpenRules() {
-    const pack = game.packs.get(`${SYSTEM_ID}.${this.actor.type === "hunter" ? "hunter-rules" : "rules"}`);
+  static #onOpenRules(event, target) {
+    const name = target?.dataset?.rules === "dhampir" ? "dhampir-rules" : this.actor.type === "hunter" ? "hunter-rules" : "rules";
+    const pack = game.packs.get(`${SYSTEM_ID}.${name}`);
     if (pack) pack.render(true);
     else ui.notifications.warn(t("Sheet.RulesMissing"));
   }
@@ -706,6 +717,16 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     await this.actor.update({ "system.hunter.edges": list.filter(x => x !== k) });
   }
   static #onHunterSight() { return secondSight(this.actor); }
+
+  /** Дампир (apps/dhampir.mjs): Кровные права — добавить из списка, убрать, бросок силы; ритуалы Дриримантии. */
+  static #onBloodrightAdd(event, target) {
+    const key = target.closest(".r-toolbar")?.querySelector(".r-dh-add")?.value;
+    return key ? addBloodright(this.actor, key) : null;
+  }
+  static #onBloodrightRemove(event, target) { return removeBloodright(this.actor, target.dataset.key); }
+  static #onBloodrightRoll(event, target) { return rollBloodright(this.actor, target.dataset.key, Number(target.dataset.level)); }
+  static #onDririToggle(event, target) { return toggleDririRitual(this.actor, target.dataset.key); }
+  static #onDririRoll(event, target) { return rollDririRitual(this.actor, target.dataset.key); }
   static #onHunterTest() { return virtueTest(this.actor); }
   static #onHunterTrade() { return tradeConviction(this.actor); }
   static #onHunterRestore() { return restoreConviction(this.actor); }

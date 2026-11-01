@@ -6,7 +6,7 @@
 import { SYSTEM_PATH, SYSTEM_ID } from "../config.mjs";
 import { mergeTexts } from "./text-split.mjs";
 
-const FILES = ["disciplines", "clans", "rituals", "paths", "merits", "merits-ghouls", "backgrounds", "archetypes", "assets", "derangements", "combos", "abilities", "demon", "demon-merits", "demon-backgrounds", "demon-hof", "demon-pg", "demon-earthbound", "demon-form", "investments", "pact-templates", "hunter"];
+const FILES = ["disciplines", "clans", "rituals", "paths", "merits", "merits-ghouls", "backgrounds", "archetypes", "assets", "derangements", "combos", "abilities", "demon", "demon-merits", "demon-backgrounds", "demon-hof", "demon-pg", "demon-earthbound", "demon-form", "investments", "pact-templates", "hunter", "dhampir"];
 
 /** Чей герб показывать линии крови, ветви или антитрибу, если своего нет. */
 const CLAN_SYMBOL_PARENT = {
@@ -90,6 +90,9 @@ export const Codex = {
     this.backgrounds = [...this.backgrounds, ...[...(this["demon-backgrounds"] ?? []), ...(this["demon-earthbound"]?.backgrounds ?? [])].map(b => ({ ...b, line: "demon" }))];
     // Дополнения охотника (data/hunter.json) — линией «hunter», тоже в конце
     this.backgrounds = [...this.backgrounds, ...(this.hunter?.backgrounds ?? []).map(b => ({ ...b, line: "hunter" }))];
+    // дампиры (data/dhampir.json, Accursed Heirs) — свои Дополнения и черты с пометкой dhampir: только дампиру, в конце
+    this.backgrounds = [...this.backgrounds, ...(this.dhampir?.backgrounds ?? []).map(b => ({ ...b, dhampir: true }))];
+    this.merits = [...this.merits, ...(this.dhampir?.merits ?? []).map(m => ({ ...m, dhampir: true }))];
     // архетипы из Players Guide «Охотника» (Верящий, Переговорщик, Скептик) — для всех
     const arch = new Set(this.archetypes.map(a => a.name));
     this.archetypes = [...this.archetypes, ...(this.hunter?.archetypes ?? []).filter(a => !arch.has(a.name))];
@@ -131,7 +134,8 @@ export const Codex = {
   },
 
   /** Показывать ли запись (путь, ритуал, черту): материалы Тёмных веков — только при включённой настройке. */
-  visible(x) { return !x?.era || (x.era === "darkAges" && this.darkAgesOn()); },
+  // «elder-only» (Elysium: The Elder Wars) — не эпоха, а черты для старейшин: видны всегда, с пометкой в библиотеке
+  visible(x) { return !x?.era || x.era === "elder-only" || (x.era === "darkAges" && this.darkAgesOn()); },
 
   /** Ключ секты по свободному тексту (поле «Секта» на листе): «Камарилья» → camarilla. */
   sectKey(text) { return SECT_KEYS.find(([re]) => re.test(text ?? ""))?.[1] ?? ""; },

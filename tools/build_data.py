@@ -981,6 +981,8 @@ def main():
     print("  силы по разделам:", text_structure.disciplines(disc))
     print("  ритуалы по аудитам:", text_structure.rituals(rituals))
     merits = text_structure.merits(merits)
+    import dhampir_data   # дампиры, гл. 3: Путь биотауматургии и силы старейшин (Accursed Heirs)
+    dhampir_data.extend_disciplines(disc)
     dump_split("disciplines", disc)
     dump("derangements.json", derangements)
     dump_split("rituals", rituals)
@@ -993,6 +995,8 @@ def main():
     print("  инфернализм:", infernal_docs.build())
     import hunter_data   # Охотник: Расплата — кредо, Грани, Дополнения, глава правил (data/hunter.json)
     print("  охотник:", hunter_data.build())
+    import dhampir_data   # дампиры (Accursed Heirs): концепции, Кровные права, черты, Дополнения, глава правил (data/dhampir.json)
+    print("  дампиры:", dhampir_data.build())
     import rules_extra   # справочник правил V20 для компендия «Правила V20»
     dump("rules.json", rules_extra.collect(REF, md_to_html))
     core = os.path.join(REF, "V20_Основные_правила")

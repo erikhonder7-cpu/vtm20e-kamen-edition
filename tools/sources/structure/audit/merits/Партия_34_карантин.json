@@ -1,0 +1,46 @@
+[
+  {
+    "source_title": "Dirty Secrets of the Black Hand (1994)",
+    "en": "Animal Affinity",
+    "name": "Родство с животными (версия Dirty Secrets)",
+    "kind": "merit",
+    "category": "supernatural",
+    "cost": "1",
+    "source_ref": "Dirty Secrets of the Black Hand (1994), Chapter Four “Building Better Bastards”, printed p. 80.",
+    "reason": "В OCR различимо, что выбирается определённый тип животного и снижается сложность связанных бросков Animalism/Animal Ken, но точное число не читается. Не переносить MET +2 traits из OWBN в настольный Storyteller System.",
+    "status": "quarantined_pending_primary_page_review"
+  },
+  {
+    "source_title": "Dirty Secrets of the Black Hand (1994)",
+    "en": "Faerie Hatred",
+    "name": "Ненависть фей",
+    "kind": "flaw",
+    "category": "supernatural",
+    "cost": "2",
+    "source_ref": "Dirty Secrets of the Black Hand (1994), Chapter Four “Building Better Bastards”, printed p. 81.",
+    "reason": "Название, цена и общий смысл в OCR различимы, но описание и условия эффекта повреждены. Нужна сверка по изображению оригинальной страницы.",
+    "status": "quarantined_pending_primary_page_review"
+  },
+  {
+    "source_title": "Dirty Secrets of the Black Hand (1994)",
+    "en": "Demon Plagued",
+    "name": "Преследуемый демоном",
+    "kind": "flaw",
+    "category": "supernatural",
+    "cost": "2",
+    "source_ref": "Dirty Secrets of the Black Hand (1994), Chapter Four “Building Better Bastards”, printed p. 81.",
+    "reason": "Название, цена и категория подтверждены, но текст механики в OCR недоступен в достаточном объёме. Нужна первичная постраничная сверка.",
+    "status": "quarantined_pending_primary_page_review"
+  },
+  {
+    "source_title": "Dirty Secrets of the Black Hand (1994)",
+    "en": "Safe Passage",
+    "name": "Безопасный проход",
+    "kind": "merit",
+    "category": "social",
+    "cost": "1",
+    "source_ref": "Dirty Secrets of the Black Hand (1994), Chapter Four “Building Better Bastards”, printed p. 82.",
+    "reason": "Название и цена видны, но описание прав на проход и границы этого права в OCR повреждены. Не подменять его правилами других черт с похожими названиями.",
+    "status": "quarantined_pending_primary_page_review"
+  }
+]

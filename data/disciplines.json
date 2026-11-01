@@ -1622,6 +1622,18 @@
     "roll": {
      "blood": 1
     }
+   },
+   {
+    "level": 6,
+    "name": "Подобие жизни",
+    "en": "Facsimile of Life",
+    "source": "Accursed Heirs: Dhampirs",
+    "fan": true,
+    "roll": {
+     "trait1": "willpower.permanent",
+     "difficulty": 8,
+     "blood": 2
+    }
    }
   ],
   "paths": []
@@ -6022,6 +6034,65 @@
       }
      }
     ]
+   },
+   {
+    "name": "Путь биотауматургии",
+    "en": "Path of Biothaumaturgy",
+    "era": "",
+    "source": "Accursed Heirs: Dhampirs",
+    "fan": true,
+    "powers": [
+     {
+      "level": 1,
+      "name": "Тайная криминалистика",
+      "en": "Arcane Forensics",
+      "source": "Accursed Heirs: Dhampirs",
+      "roll": {
+       "trait1": "willpower.permanent",
+       "difficulty": 4
+      }
+     },
+     {
+      "level": 2,
+      "name": "Оживление",
+      "en": "Revitalization",
+      "source": "Accursed Heirs: Dhampirs",
+      "roll": {
+       "trait1": "willpower.permanent",
+       "difficulty": 5
+      }
+     },
+     {
+      "level": 3,
+      "name": "Малое преображение",
+      "en": "Lesser Transfiguration",
+      "source": "Accursed Heirs: Dhampirs",
+      "roll": {
+       "trait1": "willpower.permanent",
+       "difficulty": 6
+      }
+     },
+     {
+      "level": 4,
+      "name": "Большое преображение",
+      "en": "Greater Transfiguration",
+      "source": "Accursed Heirs: Dhampirs",
+      "roll": {
+       "trait1": "willpower.permanent",
+       "difficulty": 7
+      }
+     },
+     {
+      "level": 5,
+      "name": "Высшее преображение",
+      "en": "Supernal Transfiguration",
+      "source": "Accursed Heirs: Dhampirs",
+      "roll": {
+       "trait1": "willpower.permanent",
+       "difficulty": 8
+      }
+     }
+    ]
    }
   ]
  },
@@ -6862,6 +6933,18 @@
     "roll": {
      "blood": 10,
      "note": "После месяца поста и медитаций и ритуального омовения тратится 10 крови и проводится проверка Человечности, сложность 9. Каждый успех даёт 1 час безопасного пребывания на солнце; провал запрещает повторную попытку на 10 лет. Каждый час на солнце — отдельная проверка Человечности или Добродетели (сложность 9). Эти проверки не выражаются поддерживаемыми trait ID и сохраняются в примечании."
+    }
+   },
+   {
+    "level": 7,
+    "name": "Тоска Исиды",
+    "en": "Longing of Isis",
+    "source": "Accursed Heirs: Dhampirs",
+    "fan": true,
+    "roll": {
+     "trait1": "morality.value",
+     "difficulty": 9,
+     "blood": 2
     }
    }
   ],
@@ -8755,6 +8838,18 @@
      "note": "Guide to the Sabbat (Revised). 8 пунктов крови; постоянная Воля, сложность 9. На ближайшем рассвете Киасид становится смертным. Длительность по успехам: 1 — 10 минут; 2 — час; 3 — 4 часа; 4 — 12 часов; 5 — сутки. Показатели выше 5 ограничены 5; Дисциплины и расход крови для вампирских эффектов невозможны. Это вариант источника Revised, сохраняемый отдельной записью."
     },
     "elder": true
+   },
+   {
+    "level": 8,
+    "name": "Вырвать проклятие вечности",
+    "en": "Wrest the Curse of Eternity",
+    "source": "Accursed Heirs: Dhampirs",
+    "fan": true,
+    "roll": {
+     "trait1": "willpower.permanent",
+     "difficulty": 9,
+     "blood": 8
+    }
    }
   ],
   "paths": []

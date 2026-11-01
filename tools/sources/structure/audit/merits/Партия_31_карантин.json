@@ -1,0 +1,24 @@
+[
+  {
+    "kind": "flaw",
+    "category": "supernatural",
+    "name": "Реки крови",
+    "en": "",
+    "cost": "3",
+    "min": 3,
+    "max": 3,
+    "clan": "",
+    "sect": "",
+    "era": "",
+    "source": "UNRESOLVED — previous Guide to the Camarilla attribution unsupported",
+    "html": "<p><strong>Описание</strong></p><p>Те, кто рядом с вами, под постоянной угрозой.</p><p><strong>Система</strong></p><p>Куда бы вы ни пошли, вскоре начинается кровавая резня; Конкретику подбирает Рассказчик.</p><p><strong>Источник</strong></p><p>Guide to the Camarilla (Revised). Книга/раздел указаны по исходной записи; индивидуальная страница не установлена.<br><em>Статус ссылки: название источника указано; индивидуальная страница не установлена.</em></p>",
+    "description_text": "Те, кто рядом с вами, под постоянной угрозой.",
+    "system_text": "Куда бы вы ни пошли, вскоре начинается кровавая резня; Конкретику подбирает Рассказчик.",
+    "source_html_original": "<p><strong>Описание</strong></p><p>Те, кто рядом с вами, под постоянной угрозой.</p><p><strong>Система</strong></p><p>Куда бы вы ни пошли, вскоре начинается кровавая резня; Конкретику подбирает Рассказчик.</p><p><em>Источник: Guide to the Camarilla (Revised).</em></p>",
+    "source_title": "UNRESOLVED — source not established",
+    "source_ref": "Кандидат «Реки крови»: запись не обнаружена в разделе Merits and Flaws, печатные с. 72–79, и отсутствует в оглавлении/указателях черт Guide to the Camarilla. Страница и английское название не установлены.",
+    "source_status": "КАРАНТИН: прежняя привязка к Guide to the Camarilla не подтверждена; не использовать как проверенную игровую черту до установления оригинального названия и источника.",
+    "review_status": "quarantined",
+    "exclude_from_approved_catalog": true
+  }
+]

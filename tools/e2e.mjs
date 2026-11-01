@@ -835,6 +835,80 @@ try {
     if (!r.tab || !r.card) throw new Error("лист охотника без Граней или Убеждённости");
   });
 
+  // Потерянные кредо (Players Guide; Hunter Book: Hermit): Отшельник — свой путь Одиночества, чужие Грани без потолка,
+  // Покровители 3 и «Шум Вестников» в окне броска; Скиталец — без различающих Граней, второе зрение всегда
+  await check("Охотник: Отшельник и Скиталец", async () => {
+    const id = await temp("E2E — отшельник", "hunter");
+    const r = await page.evaluate(async id => {
+      const SYS = game.system.id, a = game.actors.get(id), wait = ms => new Promise(r => setTimeout(r, ms));
+      const H = await import(`/systems/${SYS}/module/apps/hunter.mjs`), D = await import(`/systems/${SYS}/module/dice/dialog.mjs`);
+      await a.update({ "system.hunter": { creed: "hermit", mercy: 1, vision: 3, zeal: 1, conviction: 3, edges: ["hermit|1"] } });
+      await a.setFlag(SYS, "created", true);
+      const own = H.edgeReasons(a, "hermit|2").length;                // Прозрение 3: Одиночество I (1) + II (2) — влезает
+      const other = H.edgeReasons(a, "visionary|1").length;          // чужая Грань I без потолка по своему пути
+      await a.sheet.render(true); await wait(700);
+      const rules = !!a.sheet.element.querySelector(".r-vc-hunter .fa-satellite-dish");
+      await a.sheet.close();
+      const noise = new D.RollDialog(a, { trait1: "attributes.perception", trait2: "abilities.alertness" }).compute().diffSit.some(d => d.kind === "hermit");
+      await a.update({ "system.hunter.creed": "wayward", "system.hunter.edges": [] });
+      const barred = H.edgeReasons(a, "judgment|1").length, ok = H.edgeReasons(a, "defense|1").length;
+      const vis4 = H.edgeReasons(a, "hermit|1").length;              // чужому кредо Одиночество — с Прозрения 4
+      return { own, other, rules, noise, barred, ok, vis4, sightAlways: H.hunterInfo(a, () => []).sightAlways };
+    }, id);
+    if (r.own || r.other) throw new Error(`Отшельник: своя II — ${r.own}, чужая I — ${r.other} замечаний`);
+    if (!r.rules) throw new Error("на листе нет пометки правил потерянного кредо");
+    if (!r.noise) throw new Error("в окне броска Отшельника нет «Шума Вестников»");
+    if (!r.barred || r.ok) throw new Error(`Скиталец: Распознание ${r.barred ? "закрыто" : "открыто"}, Ограждение — ${r.ok} замечаний`);
+    if (!r.vis4) throw new Error("Скитальцу с Прозрением 3 открыта Грань Одиночества");
+    if (!r.sightAlways) throw new Error("у Скитальца второе зрение не помечено постоянным");
+  });
+
+  // Дампир (Accursed Heirs): гуль с типом «dhampir» — кровь 10, Дисциплины до 1, Кровные права на вкладке Дисциплин,
+  // шаг мастера, «Безумие страсти» в панели проверок, без Ротшрека; черты дампиров — только дампиру
+  await check("Дампир: кровь, Кровные права, мастер, Безумие страсти", async () => {
+    const id = await temp("E2E — дампир", "ghoul");
+    const r = await page.evaluate(async id => {
+      const SYS = game.system.id, a = game.actors.get(id), wait = ms => new Promise(r => setTimeout(r, ms));
+      const C = await import(`/systems/${SYS}/module/apps/creator.mjs`), L = await import(`/systems/${SYS}/module/apps/library.mjs`);
+      await a.update({ "system.ghoulType": "dhampir", "system.blood.value": 10, "system.dhampir.antecedentClan": "brujah" });
+      await a.createEmbeddedDocuments("Item", [{ name: "Мощь", type: "discipline", system: { key: "potence", value: 1 } }]);
+      await a.update({ "system.dhampir.bloodrights.thew": 2, "system.dhampir.bloodrights.consanguinity": 1 });
+      const out = { max: a.system.blood.max, value: a.system.blood.value, cap: a.system.disciplineMax };
+      await C.openCreator(a);
+      let w; for (let i = 0; i < 30 && !(w = [...foundry.applications.instances.values()].find(x => x instanceof C.VtMCreator && x.actor === a)); i++) await wait(150);
+      out.steps = w.steps.join(","); out.free = w.rules.free;
+      w.st.bloodrights = { abjurence: 2 }; out.extra = w.bloodrightExtra;
+      w.st.antecedentClan = "brujah"; w.st.dhSwap = true;
+      out.swap = { potence: w.base("disc", "potence"), disc: w.rules.disc, xp: w.xpCostOf("disc", "presence", 1, 1) };
+      await w.close();
+      out.clanDisc = a.clanDisciplines.includes("presence"); out.xpPresence = a.xpCost("discipline", 1, { key: "presence" });
+      const { Codex } = await import(`/systems/${SYS}/module/data/codex.mjs`);
+      out.elder = Codex.merits.some(m => m.era === "elder-only" && Codex.visible(m));
+      await a.setFlag(SYS, "created", true);
+      await a.sheet.render(true); await wait(900);
+      const el = a.sheet.element;
+      out.rights = el.querySelectorAll(".r-bloodright").length;
+      out.rapture = !!el.querySelector('[data-kind="rapture"]'); out.rot = !!el.querySelector('[data-kind="rotschreck"]');
+      out.cls = el.classList.contains("is-dhampir");
+      await a.sheet.close();
+      const lib = L.openLibrary({ actor: a, kind: "merit" }); await wait(1200);
+      out.dhMerits = lib.element.textContent.includes("Кулак Бога");
+      await lib.close();
+      return out;
+    }, id);
+    if (r.max !== 10 || r.value !== 10) throw new Error(`кровь дампира ${r.value}/${r.max}`);
+    if (r.cap !== 1) throw new Error(`предел Дисциплин дампира ${r.cap}`);
+    if (!r.steps.includes("bloodrights") || r.free !== 18) throw new Error(`мастер: шаги ${r.steps}, свободных ${r.free}`);
+    if (r.extra !== 1) throw new Error(`мастер: точек Кровных прав сверх бесплатной ${r.extra}`);
+    if (r.swap.potence !== 0 || r.swap.disc !== 2 || r.swap.xp !== 15) throw new Error(`замена Мощи: ${JSON.stringify(r.swap)}`);
+    if (!r.clanDisc || r.xpPresence !== 15) throw new Error(`Дисциплины клана Предка: ${r.clanDisc}, цена ${r.xpPresence}`);
+    if (!r.elder) throw new Error("черты «Старейшинам» скрыты");
+    if (r.rights !== 2) throw new Error(`на листе Кровных прав: ${r.rights}`);
+    if (!r.rapture || r.rot) throw new Error(`панель проверок: Безумие страсти ${r.rapture}, Ротшрек ${r.rot}`);
+    if (!r.cls) throw new Error("лист без класса is-dhampir");
+    if (!r.dhMerits) throw new Error("в библиотеке дампира нет его черт (Кулак Бога)");
+  });
+
   await check("Свидетель: мастер, Добродетели, рассудок, без Граней", async () => {
     const id = await temp("E2E — свидетель", "hunter");
     const r = await page.evaluate(async id => {

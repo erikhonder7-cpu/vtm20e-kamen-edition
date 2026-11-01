@@ -61,9 +61,14 @@
             <input type="text" data-field="demeanor" value="{{st.demeanor}}" data-combo="r-cr-arch" placeholder="—"></label>
           <datalist id="r-cr-arch">{{#each archetypes}}<option value="{{name}}"></option>{{/each}}</datalist>
           {{#if isVampire}}<label class="r-f"><span>{{localize "VTM20.Details.sire"}}</span><input type="text" data-field="sire" value="{{st.sire}}"></label>{{/if}}
-          {{#if isGhoul}}<label class="r-f"><span>{{localize "VTM20.Details.domitor"}}</span><input type="text" data-field="domitor" value="{{st.domitor}}"></label>{{/if}}
+          {{#if isDhampir}}
+          <label class="r-f"><span>{{localize "VTM20.Dhampir.Concept"}}</span><select data-field="dhConcept"><option value="">—</option>{{#each dhConcepts}}<option value="{{value}}" {{#if selected}}selected{{/if}} title="{{tip}}">{{label}}</option>{{/each}}</select></label>
+          <label class="r-f"><span>{{localize "VTM20.Dhampir.Antecedent"}}</span><input type="text" data-field="antecedent" value="{{st.antecedent}}"></label>
+          <label class="r-f"><span>{{localize "VTM20.Dhampir.AntecedentClan"}}</span><select data-field="antecedentClan"><option value="">—</option>{{#each antecedentClans}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+          {{else if isGhoul}}<label class="r-f"><span>{{localize "VTM20.Details.domitor"}}</span><input type="text" data-field="domitor" value="{{st.domitor}}"></label>{{/if}}
         </div>
         {{#if natureRegain}}<div class="r-cr-note"><i class="fa-solid fa-star"></i> <b>{{st.nature}}</b> — {{localize "VTM20.Sheet.NatureRegain"}} {{natureRegain}}</div>{{/if}}
+        {{#if dhWeakness}}<div class="r-cr-note"><i class="fa-solid fa-droplet"></i> <b>{{localize "VTM20.Dhampir.WeaknessOf"}}:</b> {{dhWeakness}}</div>{{/if}}
       </div>
       <div>
         {{#unless (or isDemon isMortal isHunter)}}
@@ -112,7 +117,7 @@
     <div class="r-cr-tiles r-cr-creeds">
       {{#each creeds}}
       <a class="r-cr-tile {{#if active}}is-active{{/if}}" data-action="creed" data-creed="{{key}}" data-tooltip="{{tips}}">
-        <b>{{name}} <small>· {{who}}</small></b><span>{{text}}</span><em>{{virtueName}} · {{localize "VTM20.Hunter.Conviction"}} {{conviction}}</em>
+        <b>{{name}} <small>· {{who}}</small></b><span>{{text}}</span><em>{{virtueName}} · {{localize "VTM20.Hunter.Conviction"}} {{conviction}}{{#if lost}} · {{localize "VTM20.Hunter.LostCreed"}}{{/if}}</em>
       </a>
       {{/each}}
     </div>
@@ -287,6 +292,7 @@
     {{!-- V. Дисциплины --}}
     {{#if is_disciplines}}
     <div class="r-cr-left {{#if (lt rem.disc 0)}}is-over{{else if (eq rem.disc 0)}}is-done{{/if}}">{{localize "VTM20.Creator.LeftShort"}}: <b>{{rem.disc}}</b>{{#if isGhoul}} · {{localize "VTM20.Creator.GhoulDisc"}}{{/if}}</div>
+    {{#if isDhampir}}<label class="r-check r-cr-dhswap" data-tooltip="{{localize 'VTM20.Creator.DhSwapHint'}}"><input type="checkbox" data-action="dhSwap" {{#if st.dhSwap}}checked{{/if}}> {{localize "VTM20.Creator.DhSwap"}}</label>{{/if}}
     <div class="r-cr-discs">
       {{#each discCards}}
       <div class="r-cr-disc {{#if inClan}}is-clan{{/if}}">
@@ -320,7 +326,7 @@
           <div class="r-cr-bg {{#if on}}is-on{{/if}} {{#if open}}is-open{{/if}}">
             <div class="r-cr-bg-head">
               <a class="r-cr-take" data-action="bgToggle" data-name="{{name}}" data-tooltip="{{#if on}}{{localize 'VTM20.Creator.Drop'}}{{else}}{{localize 'VTM20.Creator.Take'}}{{/if}}"><i class="fa-solid {{#if on}}fa-check{{else}}fa-plus{{/if}}"></i></a>
-              <a class="r-cr-bg-name" data-action="read" data-key="bg:{{name}}"><b>{{name}}</b>{{#if sectLabel}} <small>{{sectLabel}}</small>{{/if}}</a>
+              <a class="r-cr-bg-name" data-action="read" data-key="bg:{{name}}"><b>{{name}}</b>{{#if sectLabel}} <small>{{sectLabel}}</small>{{/if}}{{#if bonus}} <small>{{localize "VTM20.Hunter.PatronFree" n=bonus}}</small>{{/if}}</a>
               {{#if on}}<span class="r-dots">{{#each dots}}<a class="r-dot r-cr-dot is-{{state}}" data-action="dot" data-kind="{{kind}}" data-key="{{key}}" data-n="{{n}}"></a>{{/each}}</span>{{/if}}
               <a class="r-cr-readbtn" data-action="read" data-key="bg:{{name}}" data-tooltip="{{#if open}}{{localize 'VTM20.Creator.Collapse'}}{{else}}{{localize 'VTM20.Creator.Read'}}{{/if}}"><i class="fa-solid {{#if open}}fa-book{{else}}fa-book-open{{/if}}"></i></a>
             </div>
@@ -352,9 +358,23 @@
         <h3 class="r-h3">{{name}} <small>· {{virtue}}{{#if primary}} · {{localize "VTM20.Hunter.PrimaryPath"}}{{/if}}</small></h3>
         {{#each edges}}
         <a class="r-cr-edge {{#if on}}is-on{{/if}} {{#unless ok}}is-blocked{{/unless}}" data-action="edgeToggle" data-key="{{key}}" data-tooltip="{{#if why}}{{why}}{{else}}{{text}}{{/if}}">
-          <span class="r-cr-edge-lvl">{{rRoman level}}</span><b>{{name}}</b>{{#if on}}<i class="fa-solid fa-check"></i>{{/if}}
+          <span class="r-cr-edge-lvl">{{rRoman level}}</span><b>{{name}}</b>{{#if mad}} <i class="fa-solid fa-brain" aria-hidden="true"></i>{{/if}}{{#if on}}<i class="fa-solid fa-check"></i>{{/if}}
         </a>
         {{/each}}
+      </div>
+      {{/each}}
+    </div>
+    {{/if}}
+
+    {{#if is_bloodrights}}
+    {{!-- Кровные права дампира (Accursed Heirs, гл. 4): бесплатные точки, сверх — 5 свободных пунктов за точку; не выше 3 --}}
+    <div class="r-cr-freebar"><span class="{{#if (gt brBudget.used brBudget.base)}}is-over{{else if (eq brBudget.used brBudget.base)}}is-done{{/if}}">{{localize "VTM20.Dhampir.Bloodrights"}}: <b>{{brBudget.used}} / {{brBudget.base}}</b></span>{{#if brBudget.extra}}<span>{{localize "VTM20.Creator.BloodrightsExtra" n=brBudget.extra}}</span>{{/if}}</div>
+    <div class="r-cr-edges r-cr-bloodrights">
+      {{#each brList}}
+      <div class="r-cr-br {{#if n}}is-on{{/if}} {{#if favored}}is-favored{{/if}}" data-tooltip="{{text}}">
+        <b>{{name}}</b> <small>{{en}}{{#if req}} · {{req}} I{{/if}}{{#if rare}} · {{localize "VTM20.Dhampir.Rare"}}{{/if}}{{#if favored}} · {{localize "VTM20.Creator.BloodrightFavored"}}{{/if}}</small>
+        <span class="r-dots">{{#each dots}}<a class="r-dot {{#if on}}is-filled{{/if}}" data-action="brSet" data-key="{{../key}}" data-n="{{i}}"></a>{{/each}}</span>
+        <span class="r-cr-br-powers">{{powers}}</span>
       </div>
       {{/each}}
     </div>

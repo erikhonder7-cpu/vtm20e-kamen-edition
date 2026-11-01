@@ -60,7 +60,9 @@ export class VtMActor extends Actor {
     if (this.type === "ghoul") {
       // ревенант — Мощь и семейные Дисциплины; гуль — Мощь и Дисциплины клана домитора; клан неизвестен — физические (Ghouls & Revenants)
       const s = this.system, fam = s.ghoulType === "revenant" ? revenantFamily(s.family) : null;
-      const dc = fam ? null : Codex.clan(s.domitorClan) ?? Codex.clans.find(c => c.name === s.domitorClan);
+      // дампир — Мощь и Дисциплины клана Предка (Accursed Heirs: растут за текущее × 15)
+      const donor = s.ghoulType === "dhampir" ? s.dhampir?.antecedentClan : s.domitorClan;
+      const dc = fam ? null : Codex.clan(donor) ?? Codex.clans.find(c => c.name === donor);
       const list = fam?.disciplines ?? dc?.disciplines ?? ["fortitude", "celerity"];
       return ["potence", ...list.filter(k => k !== "potence")];
     }
@@ -73,6 +75,8 @@ export class VtMActor extends Actor {
 
   /** Ревенант — гуль с типом «ревенант» (Ghouls & Revenants): своя витэ, семья и семейный изъян. */
   get isRevenant() { return this.type === "ghoul" && this.system.ghoulType === "revenant"; }
+  /** Дампир (Accursed Heirs: Dhampirs) — гуль с типом «dhampir»: живой ребёнок вампира, без домитора. */
+  get isDhampir() { return this.type === "ghoul" && this.system.ghoulType === "dhampir"; }
 
   get clanLabel() {
     const s = this.system;

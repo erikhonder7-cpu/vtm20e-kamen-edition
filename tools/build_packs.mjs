@@ -519,6 +519,45 @@ BUILDERS["hunter-rules"] = function () {
   return p;
 };
 
+/** Дампиры (Accursed Heirs: Dhampirs) — глава правил, Кровные права по семействам, ритуалы и кланы (data/dhampir.json — пересказ). */
+BUILDERS["dhampir-rules"] = function () {
+  const p = new Pack("dhampir-rules", "JournalEntry");
+  const d = data("dhampir"), roman = ["I", "II", "III"];
+  const disc = Object.fromEntries(Object.entries(data("disciplines")).map(([k, v]) => [k, v.name]));
+  const attr = k => k?.startsWith("attributes.") ? ru.VTM20.Attr?.[k.slice(11)] : k?.startsWith("abilities.") ? ru.VTM20.Abil?.[k.slice(10)]
+    : k?.startsWith("virtues.") ? ru.VTM20.Virtue?.[k.slice(8)] : k?.startsWith("willpower") ? "Воля" : k;
+  const roll = r => !r ? "" : `<p><em>${[attr(r.trait1), attr(r.trait2)].filter(Boolean).join(" + ")}, ${r.difficulty ? `сл. ${r.difficulty}` : "сложность по цели"}</em></p>`;
+  p.addBook({ name: d.rules.name, pages: d.rules.pages, key: `dhampir-rules:${d.rules.key}` });
+  const pages = d.bloodrights.map(r => ({ name: `${r.name}${r.rare ? " (редкое)" : ""}`,
+    html: `<p><strong>${r.en}</strong>${r.req ? ` · требует: ${r.key === "dririmancy" ? "магия крови" : disc[r.req] ?? r.req} I` : ""}</p><p>${r.text}</p>`
+      + r.levels.map(l => `<h3>${r.scaling ? "I–III" : roman[l.level - 1]}. ${l.name} <small>(${l.en})</small></h3>${roll(l.roll)}${l.cost ? `<p><em>Цена: ${l.cost}</em></p>` : ""}<p>${l.text}</p>`).join("") }));
+  pages.push({ name: "Ритуалы Дриримантии", html: "<p>Смекалка + Оккультизм, сложность 5 + уровень; почти всегда — уровень летального урона себе.</p>"
+    + d.rituals.map(r => `<h3>${roman[r.level - 1]}. ${r.name} <small>(${r.en})</small></h3><p>${r.text}</p>`).join("") });
+  p.addBook({ name: "Кровные права", pages, key: "dhampir-rules:bloodrights" });
+  const clans = Object.fromEntries(data("clans").map(c => [c.key, c.name]));
+  p.addBook({ name: "Концепции и кланы дампиров", key: "dhampir-rules:concepts", pages: [
+    { name: "Концепции", html: d.concepts.map(c => `<h3>${c.name} <small>(${c.en}; ${c.nick})</small></h3><p>${c.text}</p><p><em>${c.tips}</em></p>`).join("") },
+    { name: "Дампиры кланов", html: "<p>Дампир клана страдает ослабленной слабостью клана Предка; Дисциплины этого клана растут за текущее × 15 опыта, "
+      + "на создании точку Мощи можно заменить Дисциплиной клана.</p>" + Object.entries(d.clans).map(([k, c]) =>
+        `<h3>${clans[k] ?? k}${c.nick !== "—" ? ` <small>(${c.nick})</small>` : ""}</h3>${c.rights.length ? `<p><em>Кровные права: ${c.rights.map(x => d.bloodrights.find(r => r.key === x)?.name ?? x).join(", ")}</em></p>` : ""}<p>${c.weakness}</p>`).join("") }
+  ] });
+  return p;
+};
+
+BUILDERS["dhampir-merits"] = function () {
+  const p = new Pack("dhampir-merits");
+  const d = data("dhampir"), cat = ru.VTM20.MeritCat ?? {};
+  for (const m of d.merits) {
+    const kindLabel = m.kind === "merit" ? "Достоинства" : "Недостатки";
+    p.add({ name: m.name, type: m.kind, folder: `${kindLabel} — ${cat[m.category] ?? m.category}`, key: `dhampir:${m.kind}:${m.name}`,
+      img: traitIcon(m.category, m.kind === "flaw"), system: { cost: m.min || 1, category: m.category, clan: "", sect: "", source: m.en ?? "", description: m.html } });
+  }
+  for (const b of d.backgrounds)
+    p.add({ name: b.name, type: "background", folder: "Дополнения", key: `dhampir:bg:${b.name}`, img: backgroundIcon(b.en) ?? undefined,
+      system: { value: 1, source: b.en ?? "", description: b.html ?? "" } });
+  return p;
+};
+
 BUILDERS["demon-backgrounds"] = function () {
   const p = new Pack("demon-backgrounds");
   for (const b of data("demon-backgrounds"))

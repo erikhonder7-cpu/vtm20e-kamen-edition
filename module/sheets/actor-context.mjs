@@ -12,6 +12,7 @@ import { clockBarData, longDate } from "../apps/calendar.mjs";
 import { moneyView } from "../data/money.mjs";
 import { POWER_EFFECTS, MODE_LABEL, fxKey } from "../data/effects.mjs";
 import { effectTimer, readingRituals } from "../apps/timers.mjs";
+import { dhampirView } from "../apps/dhampir.mjs";
 import { torporView, deathOf } from "../apps/torpor.mjs";
 import { ritualHTML } from "../data/ritual-text.mjs";
 import { H as hunterData } from "../apps/hunter.mjs";
@@ -43,6 +44,7 @@ export const dots = (value, max = 5, extra = {}) =>
 export const PORTRAIT_STATES = [
   { id: "r-frenzy", key: "frenzy", icon: "fa-face-angry", cls: "is-frenzy", hot: true },
   { id: "r-rotschreck", key: "rotschreck", icon: "fa-fire", cls: "is-rotschreck", hot: true },
+  { id: "r-rapture", key: "rapture", icon: "fa-heart-pulse", cls: "is-frenzy", hot: true },
   { id: "r-torpor", key: "torpor", icon: "fa-bed", cls: "is-torpor" },
   { id: "r-staked", key: "staked", icon: "fa-thumbtack", cls: "is-torpor", hot: true },
   { id: "r-stunned", key: "stunned", icon: "fa-face-dizzy" },
@@ -67,10 +69,20 @@ export function prepareHeader(sheet, ctx) {
   }
   if (ctx.isGhoul) {
     ctx.isRevenant = s.ghoulType === "revenant";
+    ctx.isDhampir = s.ghoulType === "dhampir";
     ctx.families = Object.entries(REVENANT_FAMILIES).map(([k, f]) => ({ value: k, label: f.name, selected: k === s.family }));
     if (s.family && !REVENANT_FAMILIES[s.family]) ctx.families.push({ value: s.family, label: s.family, selected: true });
     ctx.domitorClans = Codex.clans.filter(c => Codex.visible(c)).map(c => ({ value: c.key, label: c.name, selected: c.key === s.domitorClan || c.name === s.domitorClan }));
-    ctx.ghoulTypes = ["vassal", "independent", "revenant"].map(k => ({ value: k, label: t(`GhoulType.${k}`), selected: k === s.ghoulType }));
+    ctx.ghoulTypes = ["vassal", "independent", "revenant", "dhampir"].map(k => ({ value: k, label: t(`GhoulType.${k}`), selected: k === s.ghoulType }));
+    // Дампир (Accursed Heirs): концепция и Предок-вампир с кланом — вместо домитора; слабость клана Предка
+    if (ctx.isDhampir) {
+      const D = Codex.dhampir ?? {}, d = s.dhampir ?? {};
+      ctx.dhampirConcepts = (D.concepts ?? []).map(c => ({ value: c.key, label: c.name, selected: c.key === d.concept, tip: `${c.text} ${c.tips}` }));
+      ctx.dhampirConceptTip = ctx.dhampirConcepts.find(c => c.selected)?.tip ?? "";
+      ctx.antecedentClans = Codex.clans.filter(c => Codex.visible(c)).map(c => ({ value: c.key, label: c.name, selected: c.key === d.antecedentClan }));
+      const clan = D.clans?.[Codex.traitClan?.(d.antecedentClan) || d.antecedentClan] ?? D.clans?.[d.antecedentClan];
+      ctx.dhampirWeakness = clan?.weakness ?? "";
+    }
     ctx.donorGenerations = Object.keys(VTM20.generations).map(Number).sort((x, y) => x - y)
       .map(g => ({ value: g, label: t("GenerationN", { n: g }), selected: g === s.domitorGeneration }));
   }
@@ -89,7 +101,7 @@ export function prepareHeader(sheet, ctx) {
   }
   // Герб на рельсе и водяной знак: клан, иначе секта; у гуля — герб клана домитора или сердце в цепях; у прочих — кокарда
   const sym = actor => actor.type === "vampire" ? Codex.clanSymbol(actor.system.clan)
-    : actor.type === "ghoul" ? (Codex.clanSymbol(actor.system.domitorClan) ?? Codex._sym(Codex.assets?.sects?.ghoul)) : null;
+    : actor.type === "ghoul" ? (Codex.clanSymbol(actor.isDhampir ? actor.system.dhampir?.antecedentClan : actor.system.domitorClan) ?? Codex._sym(Codex.assets?.sects?.ghoul)) : null;
   ctx.sigil = { sym: sym(a) ?? Codex.sectSymbol(s.details.sect), label: ctx.house?.name || a.clanLabel || s.details.sect || "", clan: a.type === "vampire" && !!Codex.clan(s.clan),
     img: VTM20.typeSigil(a.type) };
   // Состояние на портрете: раны — кровавая дымка по краям, состояния (ярость, торпор…) — оттенок и значки
@@ -362,6 +374,7 @@ export function prepareDisciplines(sheet, ctx) {
   const owned = new Set(items.map(i => i.system.key));
   ctx.missingClan = clanD.filter(k => !owned.has(k)).length > 0;
   if (ctx.isGhoul) ctx.ghoulCap = a.system.disciplineMax;
+  if (a.isDhampir) ctx.dhampir = dhampirView(a, dots);
 }
 
 export function prepareLores(sheet, ctx) {

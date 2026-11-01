@@ -38,6 +38,9 @@
       "src": "styles/types/hunter.css"
     },
     {
+      "src": "styles/types/dhampir.css"
+    },
+    {
       "src": "styles/r-chat.css"
     },
     {
@@ -445,6 +448,30 @@
         "ASSISTANT": "OWNER"
       },
       "flags": {}
+    },
+    {
+      "name": "dhampir-rules",
+      "label": "Дампиры — правила и Кровные права",
+      "path": "packs/dhampir-rules",
+      "type": "JournalEntry",
+      "system": "vtm20e-kamen-edition",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
+    },
+    {
+      "name": "dhampir-merits",
+      "label": "Дампиры — черты и Дополнения",
+      "path": "packs/dhampir-merits",
+      "type": "Item",
+      "system": "vtm20e-kamen-edition",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
     }
   ],
   "grid": {
@@ -489,7 +516,9 @@
         "backgrounds",
         "derangements",
         "enlightenment-paths",
-        "investments"
+        "investments",
+        "dhampir-rules",
+        "dhampir-merits"
       ]
     },
     {

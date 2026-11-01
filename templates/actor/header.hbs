@@ -56,7 +56,13 @@
         {{!-- Гуль ↔ ревенант: у ревенанта вместо домитора — семейство (своя витэ, семейные Дисциплины и изъян) --}}
         <label class="r-df"><span>{{localize "VTM20.Details.ghoulType"}}</span>
           <select name="system.ghoulType">{{#each ghoulTypes}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
-        {{#if isRevenant}}
+        {{#if isDhampir}}
+        <label class="r-df is-wide" data-tooltip="{{dhampirConceptTip}}"><span>{{localize "VTM20.Dhampir.Concept"}}</span>
+          <select name="system.dhampir.concept"><option value="">—</option>{{#each dhampirConcepts}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+        <label class="r-df"><span>{{localize "VTM20.Dhampir.Antecedent"}}</span><input type="text" name="system.dhampir.antecedent" value="{{system.dhampir.antecedent}}"></label>
+        <label class="r-df" {{#if dhampirWeakness}}data-tooltip="{{localize 'VTM20.Dhampir.WeaknessOf'}}: {{dhampirWeakness}}"{{/if}}><span>{{localize "VTM20.Dhampir.AntecedentClan"}}</span>
+          <select name="system.dhampir.antecedentClan"><option value="">—</option>{{#each antecedentClans}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+        {{else if isRevenant}}
         <label class="r-df is-wide"><span>{{localize "VTM20.Details.family"}}</span>
           <select name="system.family"><option value="">—</option>{{#each families}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
         {{else}}
@@ -168,7 +174,8 @@
       {{#if isDemon}}<a class="r-act is-hot" data-action="tormentSin" data-tooltip="{{localize 'VTM20.Demon.SinHint'}}"><i class="fa-solid fa-skull"></i><span>{{localize "VTM20.Demon.Sin"}}</span></a>{{/if}}
       {{#unless isDemon}}<a class="r-act is-hot" data-action="rollVirtue" data-kind="frenzy" data-tooltip="{{localize 'VTM20.Roll.frenzy.title'}}"><i class="fa-solid fa-face-angry"></i><span>{{localize "VTM20.Roll.frenzy.title"}}</span></a>{{/unless}}
       {{#if isVampire}}<a class="r-act is-hot" data-action="diablerie" data-tooltip="{{localize 'VTM20.Diablerie.Title'}}"><i class="fa-solid fa-skull"></i><span>{{localize "VTM20.Diablerie.Short"}}</span></a>{{/if}}
-      {{#unless (or isMortal isDemon)}}<a class="r-act is-hot" data-action="rollVirtue" data-kind="rotschreck" data-tooltip="{{localize 'VTM20.Roll.rotschreck.title'}}"><i class="fa-solid fa-fire"></i><span>{{localize "VTM20.Roll.rotschreck.title"}}</span></a>{{/unless}}
+      {{#if isGhoul}}<a class="r-act is-hot" data-action="rollVirtue" data-kind="rapture" data-tooltip="{{localize 'VTM20.Roll.rapture.hint'}}"><i class="fa-solid fa-heart-pulse"></i><span>{{localize "VTM20.Roll.rapture.title"}}</span></a>{{/if}}
+      {{#unless (or isMortal isDemon isDhampir)}}<a class="r-act is-hot" data-action="rollVirtue" data-kind="rotschreck" data-tooltip="{{localize 'VTM20.Roll.rotschreck.title'}}"><i class="fa-solid fa-fire"></i><span>{{localize "VTM20.Roll.rotschreck.title"}}</span></a>{{/unless}}
     </nav>
     {{/unless}}
   </div>

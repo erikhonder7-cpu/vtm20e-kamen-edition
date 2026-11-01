@@ -204,6 +204,13 @@ export async function nightfall() {
     await a.update({ "system.blood.value": before + 1 });
     lines.push(`<li><b>${a.name}</b>: ${t("Night.Revenant", { from: before, to: before + 1 })}</li>`);
   }
+  // дампиры восполняют пункт в сутки, если сыты, здоровы (не ниже «Задет») и выспались (Accursed Heirs, гл. 1)
+  for (const a of game.actors.filter(x => x.isDhampir && x.system.blood.value < x.system.blood.max)) {
+    const before = a.system.blood.value, hurt = (a.system.health?.damage ?? 0) > 2;
+    if (hurt) { lines.push(`<li><b>${a.name}</b>: ${t("Night.DhampirHurt")}</li>`); continue; }
+    await a.update({ "system.blood.value": before + 1 });
+    lines.push(`<li><b>${a.name}</b>: ${t("Night.Dhampir", { from: before, to: before + 1 })}</li>`);
+  }
   // узы крови слабеют без крови сюзерена (05)
   const { decayBonds } = await import("./bonds.mjs");
   for (const a of game.actors.filter(x => (x.system.bonds ?? []).length)) for (const l of await decayBonds(a)) lines.push(`<li>${l}</li>`);

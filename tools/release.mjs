@@ -32,7 +32,7 @@ const stop = e => {
 };
 process.on("uncaughtException", stop);
 process.on("unhandledRejection", stop);
-/** Сетевые шаги (push, GitHub) — до трёх попыток с паузой 5 и 10 с. */
+/** Шаги, которые могут сорваться не по нашей вине (сеть, GitHub, занятые Windows файлы), — до трёх попыток с паузой 5 и 10 с. */
 const retry = (what, fn) => {
   for (let i = 1; ; i++) {
     try { return fn(); } catch (e) {
@@ -46,18 +46,21 @@ const manifest = JSON.parse(fs.readFileSync(path.join(ROOT, "system.json"), "utf
 const repoUrl = manifest.url;                                  // https://github.com/<owner>/<repo>
 const repo = repoUrl.replace(/^https:\/\/github\.com\//, "");
 
-// 1. Foundry не держит компендии (порт 30000 свободен)
+// 1. Foundry не держит компендии: свободны порт обычного запуска (30000) и проверочных (30001, 30002 — .claude/launch.json)
 step("Foundry закрыт?");
-const busy = await new Promise(res => {
-  const s = net.connect({ host: "127.0.0.1", port: 30000 }, () => { s.destroy(); res(true); });
+const listening = port => new Promise(res => {
+  const s = net.connect({ host: "127.0.0.1", port }, () => { s.destroy(); res(true); });
   s.on("error", () => res(false));
 });
-if (busy) { console.error("Порт 30000 занят — закройте Foundry полностью (и в трее), иначе компендии не пересобрать."); process.exit(1); }
+const busy = [];
+for (const port of [30000, 30001, 30002]) if (await listening(port)) busy.push(port);
+if (busy.length) { console.error(`Порт ${busy.join(", ")} занят — закройте Foundry полностью (и в трее), иначе компендии не пересобрать.`); process.exit(1); }
 
 // 2. Нет незакоммиченных правок кода (компендии Foundry переписывает сам — их сбрасываем)
 step("Рабочая копия");
 for (const f of fs.readdirSync(path.join(ROOT, "packs"))) for (const x of ["LOCK", "LOG", "LOG.old"]) fs.rmSync(path.join(ROOT, "packs", f, x), { force: true });
-run("git", ["checkout", "--", "packs"]); run("git", ["clean", "-fq", "packs"]);
+// Windows ненадолго держит файлы баз после сборки или проверок («unable to unlink … Invalid argument») — повтор
+retry("сброс компендиев", () => { run("git", ["checkout", "--", "packs"]); run("git", ["clean", "-fq", "packs"]); });
 const dirty = out("git", ["status", "--porcelain"]).split("\n").filter(Boolean);
 if (dirty.length) { console.error("Есть незакоммиченные правки:\n" + dirty.join("\n")); process.exit(1); }
 if (out("git", ["tag", "-l", `v${version}`])) { console.error(`Тег v${version} уже есть.`); process.exit(1); }

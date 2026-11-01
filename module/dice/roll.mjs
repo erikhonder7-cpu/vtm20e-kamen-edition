@@ -199,7 +199,7 @@ export async function rollPool(o) {
   }, o.messageMode ?? game.settings.get("core", "messageMode"));
   const message = await ChatMessage.create(data);
   // Проваленная ярость или Ротшрек — состояние на токене (05)
-  if (o.actor && ["frenzy", "rotschreck"].includes(state.kind) && result.successes === 0)
+  if (o.actor && ["frenzy", "rotschreck", "rapture"].includes(state.kind) && result.successes === 0)
     await o.actor.toggleStatusEffect?.(`r-${state.kind}`, { active: true });
   return { ...result, message, state };
 }
@@ -216,7 +216,7 @@ function outcomeView(state, ev) {
 
 function hintFor(state, ev) {
   const k = state.kind;
-  if (k === "frenzy" || k === "rotschreck") {
+  if (k === "frenzy" || k === "rotschreck" || k === "rapture") {
     if (ev.outcome === "botch") return t(`Roll.${k}.botch`);
     if (ev.successes >= 5) return t(`Roll.${k}.resisted`);
     if (ev.successes > 0) return t(`Roll.${k}.partial`, { n: ev.successes });

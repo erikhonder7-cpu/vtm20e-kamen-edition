@@ -1,0 +1,128 @@
+[
+  {
+    "index": 393,
+    "name": "Несвободный",
+    "old": {
+      "en": "",
+      "source": "кланбук (Revised)",
+      "source_title": "Clanbook (Revised Edition; precise title unresolved unless indexed)",
+      "source_ref": "Книга/раздел указаны по исходной записи; индивидуальная страница не установлена.",
+      "source_status": "название источника указано; индивидуальная страница не установлена"
+    },
+    "new": {
+      "en": "",
+      "source": "Clanbook: Assamite (Revised Edition)",
+      "source_title": "Clanbook: Assamite (Revised Edition)",
+      "source_ref": "Раздел «Достоинства и Недостатки», запись «Несвободный»; точная печатная страница не подтверждена по доступной цифровой копии.",
+      "source_status": "название книги и текст записи подтверждены по цифровой копии русской редакции; печатная страница и английское название не установлены"
+    }
+  },
+  {
+    "index": 394,
+    "name": "Чувство погоды",
+    "old": {
+      "en": "",
+      "source": "кланбук (Revised)",
+      "source_title": "Clanbook (Revised Edition; precise title unresolved unless indexed)",
+      "source_ref": "Книга/раздел указаны по исходной записи; индивидуальная страница не установлена.",
+      "source_status": "название источника указано; индивидуальная страница не установлена"
+    },
+    "new": {
+      "en": "Weather Sense",
+      "source": "Clanbook: Lasombra (Revised Edition), p. 63",
+      "source_title": "Clanbook: Lasombra (Revised Edition)",
+      "source_ref": "Chapter Two: The Keepers’ Unlit Halls, printed p. 63.",
+      "source_status": "название и печатная страница подтверждены по текстовой копии страницы; оригинальный скан разворота отдельно не проверен"
+    }
+  },
+  {
+    "index": 395,
+    "name": "Морская гармония",
+    "old": {
+      "en": "",
+      "source": "кланбук (Revised)",
+      "source_title": "Clanbook (Revised Edition; precise title unresolved unless indexed)",
+      "source_ref": "Книга/раздел указаны по исходной записи; индивидуальная страница не установлена.",
+      "source_status": "название источника указано; индивидуальная страница не установлена"
+    },
+    "new": {
+      "en": "Pelagic Harmony",
+      "source": "Clanbook: Lasombra (Revised Edition), p. 64",
+      "source_title": "Clanbook: Lasombra (Revised Edition)",
+      "source_ref": "Chapter Two: The Keepers’ Unlit Halls, printed p. 64.",
+      "source_status": "название и печатная страница подтверждены по текстовой копии страницы и независимому индексу; оригинальный скан разворота отдельно не проверен"
+    }
+  },
+  {
+    "index": 396,
+    "name": "Зов Посейдона",
+    "old": {
+      "en": "",
+      "source": "кланбук (Revised)",
+      "source_title": "Clanbook (Revised Edition; precise title unresolved unless indexed)",
+      "source_ref": "Книга/раздел указаны по исходной записи; индивидуальная страница не установлена.",
+      "source_status": "название источника указано; индивидуальная страница не установлена"
+    },
+    "new": {
+      "en": "Poseidon's Call",
+      "source": "Clanbook: Lasombra (Revised Edition), p. 64",
+      "source_title": "Clanbook: Lasombra (Revised Edition)",
+      "source_ref": "Chapter Two: The Keepers’ Unlit Halls, printed p. 64.",
+      "source_status": "название и печатная страница подтверждены по текстовой копии страницы и независимому индексу; оригинальный скан разворота отдельно не проверен"
+    }
+  },
+  {
+    "index": 397,
+    "name": "Одарённый доверием",
+    "old": {
+      "en": "Proxy Kissed",
+      "source": "кланбук (Revised)",
+      "source_title": "Clanbook (Revised Edition; precise title unresolved unless indexed)",
+      "source_ref": "Книга/раздел указаны по исходной записи; индивидуальная страница не установлена.",
+      "source_status": "название источника указано; индивидуальная страница не установлена"
+    },
+    "new": {
+      "en": "Proxy Kissed",
+      "source": "Clanbook: Giovanni (Revised Edition), pp. 76–77",
+      "source_title": "Clanbook: Giovanni (Revised Edition)",
+      "source_ref": "Chapter Two: It Runs in the Family; entry starts on/around printed p. 76 and continues into p. 77.",
+      "source_status": "название книги, английское название и текст достоинства подтверждены по цифровой копии Revised Clanbook: Giovanni; точное распределение текста по печатным страницам указано диапазоном"
+    }
+  },
+  {
+    "index": 615,
+    "name": "Морское принуждение",
+    "old": {
+      "en": "",
+      "source": "кланбук (Revised)",
+      "source_title": "Clanbook (Revised Edition; precise title unresolved unless indexed)",
+      "source_ref": "Книга/раздел указаны по исходной записи; индивидуальная страница не установлена.",
+      "source_status": "название источника указано; индивидуальная страница не установлена"
+    },
+    "new": {
+      "en": "Pelagic Compulsion",
+      "source": "Clanbook: Lasombra (Revised Edition), p. 64",
+      "source_title": "Clanbook: Lasombra (Revised Edition)",
+      "source_ref": "Chapter Two: The Keepers’ Unlit Halls, printed p. 64.",
+      "source_status": "название и печатная страница подтверждены несколькими независимыми индексами; оригинальный скан разворота отдельно не проверен"
+    }
+  },
+  {
+    "index": 616,
+    "name": "Отражение смерти",
+    "old": {
+      "en": "",
+      "source": "кланбук (Revised)",
+      "source_title": "Clanbook (Revised Edition; precise title unresolved unless indexed)",
+      "source_ref": "Книга/раздел указаны по исходной записи; индивидуальная страница не установлена.",
+      "source_status": "название источника указано; индивидуальная страница не установлена"
+    },
+    "new": {
+      "en": "Death's Reflection",
+      "source": "Clanbook: Lasombra (Revised Edition), p. 65",
+      "source_title": "Clanbook: Lasombra (Revised Edition)",
+      "source_ref": "Chapter Two: The Keepers’ Unlit Halls, printed p. 65.",
+      "source_status": "название и печатная страница подтверждены несколькими независимыми индексами; оригинальный скан разворота отдельно не проверен"
+    }
+  }
+]

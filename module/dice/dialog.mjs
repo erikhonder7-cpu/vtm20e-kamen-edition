@@ -126,7 +126,10 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const diffSit = [
       ...(social ? fx.social ?? [] : []).map(d => ({ ...d, kind: "social" })),
       ...(fx.climb ?? []).map(d => ({ ...d, kind: "climb" })),
-      ...(attrs.includes("perception") ? fx.hearing ?? [] : []).map(d => ({ ...d, kind: "hearing" }))
+      ...(attrs.includes("perception") ? fx.hearing ?? [] : []).map(d => ({ ...d, kind: "hearing" })),
+      // Отшельник (Hunter Players Guide, с. 19): рядом с чудовищами или наделёнными — все сложности +1
+      ...(a.type === "hunter" && (Codex.hunter?.creeds ?? []).find(c => c.key === a.system.hunter?.creed)?.near
+        ? [{ label: t("Hunter.NearNoise"), value: (Codex.hunter.creeds.find(c => c.key === a.system.hunter.creed).near), kind: "hermit" }] : [])
     ].map((d, i) => ({ ...d, i, on: v.fxOn.includes(`${d.kind}:${d.label}`), hint: t(`Fx.Situ.${d.kind}`) }))
       .concat(meritSit.map(m => ({ label: m.label, value: m.value, dice: !!m.dice, kind: "merit", on: m.on, hint: m.hint })));
     const diffShift = diffAuto.filter(d => !d.dice).reduce((s, d) => s + d.value, 0) + diffSit.filter(d => d.on && !d.dice).reduce((s, d) => s + d.value, 0);
