@@ -239,7 +239,7 @@
    {
     "level": 6,
     "name": "Глаза шляхты",
-    "en": "",
+    "en": "Eyes of the Szlachta",
     "source": "Clanbook: Tzimisce (Revised)",
     "roll": {
      "trait1": "attributes.manipulation",
@@ -551,7 +551,7 @@
    {
     "level": 6,
     "name": "Парализующий Взгляд",
-    "en": "",
+    "en": "Paralyzing Glance",
     "source": "Guide to the Camarilla (Revised)",
     "anyLevel": true,
     "roll": {
@@ -567,7 +567,7 @@
    {
     "level": 6,
     "name": "Нерушимый Приказ",
-    "en": "",
+    "en": "Ironclad Command",
     "source": "Guide to the Camarilla (Revised)",
     "anyLevel": true,
     "variantOf": "Нерушимое владычество (Ironclad Command)",
@@ -693,7 +693,7 @@
    {
     "level": 8,
     "name": "Моральное разложение",
-    "en": "",
+    "en": "Corruption",
     "source": "Clanbook: Followers of Set (Revised)",
     "roll": {
      "trait1": "attributes.manipulation",
@@ -1207,7 +1207,7 @@
    {
     "level": 6,
     "name": "Эгида Теней",
-    "en": "",
+    "en": "Aegis of Shadows",
     "source": "Dark Ages: Player's Guide to High Clans",
     "era": "darkAges",
     "roll": {
@@ -1243,7 +1243,7 @@
    {
     "level": 7,
     "name": "Укрепись против Ахура Мазды",
-    "en": "",
+    "en": "Fortify Against Ahura Mazda",
     "source": "Dark Ages: Player's Guide to High Clans",
     "era": "darkAges",
     "roll": {
@@ -1289,7 +1289,7 @@
    {
     "level": 9,
     "name": "Войти в Бездну",
-    "en": "",
+    "en": "Enter the Abyss",
     "source": "Dark Ages: Player's Guide to High Clans",
     "era": "darkAges",
     "roll": {
@@ -1344,7 +1344,7 @@
    {
     "level": 4,
     "name": "Модифицированный Облик Зверя",
-    "en": "",
+    "en": "Shape of the Beast Revisited",
     "source": "Clanbook: Gangrel (Revised)",
     "roll": {
      "blood": 1
@@ -1408,14 +1408,14 @@
    {
     "level": 6,
     "name": "Управление Землёй",
-    "en": "",
+    "en": "Earth Control",
     "source": "Guide to the Camarilla (Revised)",
     "anyLevel": true
    },
    {
     "level": 6,
     "name": "Восстановление Смертного Облика",
-    "en": "",
+    "en": "Restore the Mortal Visage",
     "source": "Guide to the Camarilla (Revised)",
     "anyLevel": true,
     "roll": {
@@ -1429,7 +1429,7 @@
    {
     "level": 6,
     "name": "Форма Ярости Зверя",
-    "en": "",
+    "en": "Shape of the Beast’s Wrath",
     "source": "Guide to the Camarilla (Revised)",
     "anyLevel": true,
     "roll": {
@@ -1439,7 +1439,7 @@
    {
     "level": 6,
     "name": "Призрачное Тело",
-    "en": "",
+    "en": "Spectral Body",
     "source": "Guide to the Camarilla (Revised)",
     "anyLevel": true,
     "roll": {
@@ -1450,7 +1450,7 @@
    {
     "level": 6,
     "name": "Очищение Пронзённой Груди",
-    "en": "",
+    "en": "Purify the Impaled Breast",
     "source": "Guide to the Camarilla (Revised)",
     "anyLevel": true,
     "roll": {
@@ -1463,7 +1463,7 @@
    {
     "level": 6,
     "name": "Внутренний Фокус",
-    "en": "",
+    "en": "Inward Focus",
     "source": "Guide to the Camarilla (Revised)",
     "anyLevel": true,
     "roll": {
@@ -1474,7 +1474,7 @@
    {
     "level": 6,
     "name": "Власть над формой",
-    "en": "",
+    "en": "Shape Mastery",
     "source": "Clanbook: Gangrel (Revised)",
     "roll": {
      "trait1": "attributes.perception",
@@ -1486,7 +1486,7 @@
    {
     "level": 6,
     "name": "Бич Протея",
-    "en": "",
+    "en": "Proteus’ Bane",
     "source": "Dark Ages: Player's Guide to Low Clans",
     "era": "darkAges",
     "roll": {
@@ -1549,13 +1549,13 @@
    {
     "level": 7,
     "name": "Форма стаи",
-    "en": "",
+    "en": "Animal Swarm",
     "source": "Clanbook: Gangrel (Revised)"
    },
    {
     "level": 7,
     "name": "Форма роя",
-    "en": "",
+    "en": "Form of the Bloodswarm",
     "source": "Dark Ages: Player's Guide to Low Clans",
     "era": "darkAges"
    },
@@ -1583,7 +1583,7 @@
    {
     "level": 8,
     "name": "Мифическая форма",
-    "en": "",
+    "en": "Mythic Form",
     "source": "Clanbook: Gangrel (Revised)",
     "roll": {
      "trait1": "attributes.dexterity",
@@ -1595,7 +1595,7 @@
    {
     "level": 8,
     "name": "Форма внутреннего зверя",
-    "en": "",
+    "en": "Shape of the Inner Beast",
     "source": "Dark Ages: Player's Guide to Low Clans",
     "era": "darkAges",
     "roll": {
@@ -1616,7 +1616,7 @@
    {
     "level": 9,
     "name": "Адаптация",
-    "en": "",
+    "en": "Adaptation",
     "source": "Dark Ages: Player's Guide to Low Clans",
     "era": "darkAges",
     "roll": {
@@ -1678,7 +1678,7 @@
    {
     "level": 6,
     "name": "Оттиск",
-    "en": "",
+    "en": "Imprint",
     "source": "Guide to the Camarilla (Revised)",
     "anyLevel": true,
     "roll": {
@@ -1688,7 +1688,7 @@
    {
     "level": 6,
     "name": "Сотрясение Земли",
-    "en": "",
+    "en": "Earthshock",
     "source": "Guide to the Camarilla (Revised)",
     "anyLevel": true,
     "roll": {
@@ -1700,7 +1700,7 @@
    {
     "level": 6,
     "name": "Мастер кузни",
-    "en": "",
+    "en": "Master of the Forge",
     "source": "Dark Ages: Player's Guide to High Clans",
     "era": "darkAges",
     "roll": {
@@ -1733,7 +1733,7 @@
    {
     "level": 7,
     "name": "Кулак титанов",
-    "en": "",
+    "en": "нет оригинала",
     "source": "Dark Ages: Player's Guide to High Clans",
     "era": "darkAges",
     "roll": {
@@ -1756,7 +1756,7 @@
    {
     "level": 8,
     "name": "Передать мощь",
-    "en": "",
+    "en": "нет оригинала",
     "source": "Dark Ages: Player's Guide to High Clans",
     "era": "darkAges",
     "roll": {
@@ -1768,7 +1768,7 @@
    {
     "level": 9,
     "name": "Мощь героев",
-    "en": "",
+    "en": "Might of Heroes",
     "source": "Dark Ages: Player's Guide to High Clans",
     "era": "darkAges"
    }
@@ -2433,7 +2433,7 @@
      {
       "level": 4,
       "name": "Истинная Смерть",
-      "en": ""
+      "en": "True Death"
      },
      {
       "level": 5,
@@ -2567,7 +2567,7 @@
      {
       "level": 1,
       "name": "Calvaria Emissicius",
-      "en": "",
+      "en": "Calvaria Emissicus",
       "roll": {
        "trait1": "attributes.perception",
        "trait2": "abilities.occult",
@@ -2579,7 +2579,7 @@
      {
       "level": 2,
       "name": "Consilium Mortuus",
-      "en": "",
+      "en": "Consilium Mortuus",
       "roll": {
        "trait1": "attributes.manipulation",
        "trait2": "abilities.empathy",
@@ -2591,12 +2591,12 @@
      {
       "level": 3,
       "name": "Ammorsus Vicarius",
-      "en": ""
+      "en": "Ammorsus Vicarius"
      },
      {
       "level": 4,
       "name": "Exedo Animus",
-      "en": "",
+      "en": "Exedo Animus",
       "roll": {
        "trait1": "attributes.intelligence",
        "trait2": "abilities.occult",
@@ -2608,7 +2608,7 @@
      {
       "level": 5,
       "name": "Degulo",
-      "en": "",
+      "en": "Degulo",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 9,
@@ -2952,13 +2952,13 @@
    {
     "level": 6,
     "name": "Восторг боли",
-    "en": "",
+    "en": "Ecstatic Agony",
     "source": "Clanbook: Tzimisce (Revised)"
    },
    {
     "level": 6,
     "name": "Перенести жизнь в жизнь",
-    "en": "",
+    "en": "Graft Life to Life",
     "source": "Dark Ages: Player's Guide to High Clans",
     "era": "darkAges",
     "roll": {
@@ -2993,7 +2993,7 @@
    {
     "level": 7,
     "name": "Превзойти плоть",
-    "en": "",
+    "en": "Transcend the Flesh",
     "source": "Dark Ages: Player's Guide to High Clans",
     "era": "darkAges"
    },
@@ -3017,7 +3017,7 @@
    {
     "level": 8,
     "name": "Воля над формой",
-    "en": "",
+    "en": "Will Over Form",
     "source": "Dark Ages: Player's Guide to High Clans",
     "era": "darkAges"
    },
@@ -3033,7 +3033,7 @@
    {
     "level": 9,
     "name": "Совершенная сущность",
-    "en": "",
+    "en": "Perfect Essence",
     "source": "Dark Ages: Player's Guide to High Clans",
     "era": "darkAges"
    }
@@ -3099,7 +3099,7 @@
    {
     "level": 6,
     "name": "Аспект бога",
-    "en": "",
+    "en": "Aspect of the God",
     "source": "Dark Ages: Player's Guide to Low Clans",
     "era": "darkAges",
     "roll": {
@@ -3120,7 +3120,7 @@
    {
     "level": 7,
     "name": "Семя коррупции",
-    "en": "",
+    "en": "Seed of Corruption",
     "source": "Dark Ages: Player's Guide to Low Clans",
     "era": "darkAges",
     "roll": {
@@ -3145,7 +3145,7 @@
    {
     "level": 8,
     "name": "Украсть сердце",
-    "en": "",
+    "en": "Heart Thief",
     "source": "Clanbook: Followers of Set (Revised)",
     "roll": {
      "trait1": "attributes.dexterity",
@@ -3158,7 +3158,7 @@
    {
     "level": 8,
     "name": "Тело Великого Господина Сета",
-    "en": "",
+    "en": "Body of the Great Lord Set",
     "source": "Dark Ages: Player's Guide to Low Clans",
     "era": "darkAges",
     "roll": {
@@ -3179,7 +3179,7 @@
    {
     "level": 9,
     "name": "Тень Апофиса",
-    "en": "",
+    "en": "Shadow of Apep",
     "source": "Clanbook: Followers of Set (Revised)",
     "roll": {
      "willpower": true,
@@ -3189,7 +3189,7 @@
    {
     "level": 9,
     "name": "Договор с Ра",
-    "en": "",
+    "en": "Pact with Ra",
     "source": "Dark Ages: Player's Guide to Low Clans",
     "era": "darkAges"
    }
@@ -3332,7 +3332,7 @@
    {
     "level": 6,
     "name": "Скрытие объекта",
-    "en": "",
+    "en": "Conceal",
     "source": "Guide to the Camarilla (Revised)",
     "anyLevel": true,
     "roll": {
@@ -3345,14 +3345,14 @@
    {
     "level": 6,
     "name": "Маска Души",
-    "en": "",
+    "en": "Soul Mask",
     "source": "Guide to the Camarilla (Revised)",
     "anyLevel": true
    },
    {
     "level": 6,
     "name": "Тайник",
-    "en": "",
+    "en": "Cache",
     "source": "Guide to the Camarilla (Revised)",
     "anyLevel": true,
     "roll": {
@@ -3363,7 +3363,7 @@
    {
     "level": 6,
     "name": "Покров Блаженного Неведения",
-    "en": "",
+    "en": "Veil of Blissful Ignorance",
     "source": "Guide to the Camarilla (Revised)",
     "anyLevel": true,
     "roll": {
@@ -3373,7 +3373,7 @@
    {
     "level": 6,
     "name": "Сотворение Имени",
-    "en": "",
+    "en": "Create Name",
     "source": "Guide to the Camarilla (Revised)",
     "anyLevel": true,
     "roll": {
@@ -3386,7 +3386,7 @@
    {
     "level": 6,
     "name": "Мысленный лабиринт",
-    "en": "",
+    "en": "Mental Maze",
     "source": "Clanbook: Followers of Set (Revised)",
     "roll": {
      "trait1": "attributes.charisma",
@@ -3397,7 +3397,7 @@
    {
     "level": 6,
     "name": "Смущение взора",
-    "en": "",
+    "en": "Confusion of the Eye",
     "source": "Clanbook: Followers of Set (Revised)",
     "roll": {
      "trait1": "willpower.permanent",
@@ -3408,7 +3408,7 @@
    {
     "level": 6,
     "name": "Несерьёзное восприятие",
-    "en": "",
+    "en": "Blithe Acceptance",
     "source": "Clanbook: Assamite (Revised)",
     "roll": {
      "blood": 1,
@@ -3421,7 +3421,7 @@
    {
     "level": 6,
     "name": "Невидимое оружие",
-    "en": "",
+    "en": "Invisible Weapon",
     "source": "Dark Ages: Player's Guide to Low Clans",
     "era": "darkAges",
     "roll": {
@@ -3457,7 +3457,7 @@
    {
     "level": 7,
     "name": "Завеса блаженного неведения",
-    "en": "",
+    "en": "Veil of Blissful Ignorance",
     "source": "Dark Ages: Player's Guide to Low Clans",
     "era": "darkAges",
     "roll": {
@@ -3481,7 +3481,7 @@
    {
     "level": 8,
     "name": "Ужасный лик",
-    "en": "",
+    "en": "Horrid Countenance",
     "source": "Dark Ages: Player's Guide to Low Clans",
     "era": "darkAges",
     "roll": {
@@ -3504,7 +3504,7 @@
    {
     "level": 9,
     "name": "Непонятное Божье творение",
-    "en": "",
+    "en": "Obscure God’s Creation",
     "source": "Dark Ages: Player's Guide to Low Clans",
     "era": "darkAges",
     "roll": {
@@ -3568,7 +3568,7 @@
    {
     "level": 6,
     "name": "Личная Броня",
-    "en": "",
+    "en": "Personal Armor",
     "source": "Guide to the Camarilla (Revised)",
     "anyLevel": true,
     "roll": {
@@ -3579,7 +3579,7 @@
    {
     "level": 6,
     "name": "Разделённая Сила",
-    "en": "",
+    "en": "Shared Strength",
     "source": "Guide to the Camarilla (Revised)",
     "anyLevel": true,
     "roll": {
@@ -3591,7 +3591,7 @@
    {
     "level": 6,
     "name": "Адамантин",
-    "en": "",
+    "en": "Adamantine",
     "source": "Guide to the Camarilla (Revised)",
     "anyLevel": true,
     "roll": {
@@ -3602,7 +3602,7 @@
    {
     "level": 6,
     "name": "Щит чувств",
-    "en": "",
+    "en": "Sensory Shield",
     "source": "Clanbook: Gangrel (Revised)",
     "roll": {
      "blood": 2,
@@ -3612,7 +3612,7 @@
    {
     "level": 6,
     "name": "Встань против всех врагов",
-    "en": "",
+    "en": "Stand Against All Foes",
     "source": "Dark Ages: Player's Guide to High Clans",
     "era": "darkAges",
     "roll": {
@@ -3633,13 +3633,13 @@
    {
     "level": 7,
     "name": "Непреклонный разум",
-    "en": "",
+    "en": "Resilient Mind",
     "source": "Clanbook: Gangrel (Revised)"
    },
    {
     "level": 7,
     "name": "Доспехи королей",
-    "en": "",
+    "en": "Armor of Kings",
     "source": "Dark Ages: Player's Guide to High Clans",
     "era": "darkAges",
     "roll": {
@@ -3660,7 +3660,7 @@
    {
     "level": 8,
     "name": "Царь горы",
-    "en": "",
+    "en": "King of the Mountain",
     "source": "Clanbook: Gangrel (Revised)",
     "roll": {
      "blood": 3,
@@ -3670,7 +3670,7 @@
    {
     "level": 8,
     "name": "Восстановить плоть нежити",
-    "en": "",
+    "en": "Repair the Undead Flesh",
     "source": "Dark Ages: Player's Guide to High Clans",
     "era": "darkAges",
     "roll": {
@@ -3680,7 +3680,7 @@
    {
     "level": 9,
     "name": "Рука Прометея",
-    "en": "",
+    "en": "Arm of Prometheus",
     "source": "Dark Ages: Player's Guide to High Clans",
     "era": "darkAges",
     "roll": {
@@ -3729,7 +3729,7 @@
    {
     "level": 6,
     "name": "Точность",
-    "en": "",
+    "en": "Precision",
     "source": "Clanbook: Assamite (Revised)",
     "roll": {
      "trait1": "attributes.dexterity",
@@ -3743,7 +3743,7 @@
    {
     "level": 6,
     "name": "Безупречное парирование",
-    "en": "",
+    "en": "Flawless Parry",
     "source": "Dark Ages: Player's Guide to High Clans",
     "era": "darkAges",
     "roll": {
@@ -3762,7 +3762,7 @@
    {
     "level": 7,
     "name": "Утончённость быстроты",
-    "en": "",
+    "en": "Grace of Speed",
     "source": "Dark Ages: Player's Guide to High Clans",
     "era": "darkAges"
    },
@@ -3780,7 +3780,7 @@
    {
     "level": 8,
     "name": "Незримый шторм",
-    "en": "",
+    "en": "Invisible Storm",
     "source": "Dark Ages: Player's Guide to High Clans",
     "era": "darkAges",
     "roll": {
@@ -3790,7 +3790,7 @@
    {
     "level": 9,
     "name": "Образец движения",
-    "en": "",
+    "en": "Mastery of Movement",
     "source": "Dark Ages: Player's Guide to High Clans",
     "era": "darkAges",
     "roll": {
@@ -4001,7 +4001,7 @@
      {
       "level": 1,
       "name": "Свеча",
-      "en": "",
+      "en": "Candle",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 4,
@@ -4011,7 +4011,7 @@
      {
       "level": 2,
       "name": "Факел",
-      "en": "",
+      "en": "Torch",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 5,
@@ -4021,7 +4021,7 @@
      {
       "level": 3,
       "name": "Костёр",
-      "en": "",
+      "en": "Campfire",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 6,
@@ -4031,7 +4031,7 @@
      {
       "level": 4,
       "name": "Пожар",
-      "en": "",
+      "en": "Bonfire",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 7,
@@ -4041,7 +4041,7 @@
      {
       "level": 5,
       "name": "Пекло",
-      "en": "",
+      "en": "Inferno",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 8,
@@ -4058,7 +4058,7 @@
      {
       "level": 1,
       "name": "Мановение Мысли — 0,5 кг",
-      "en": "",
+      "en": "Movement of the Mind",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 4,
@@ -4068,7 +4068,7 @@
      {
       "level": 2,
       "name": "Мановение Мысли — 10 кг",
-      "en": "",
+      "en": "Movement of the Mind",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 5,
@@ -4078,7 +4078,7 @@
      {
       "level": 3,
       "name": "Мановение Мысли — 100 кг",
-      "en": "",
+      "en": "Movement of the Mind",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 6,
@@ -4088,7 +4088,7 @@
      {
       "level": 4,
       "name": "Мановение Мысли — 250 кг",
-      "en": "",
+      "en": "Movement of the Mind",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 7,
@@ -4098,7 +4098,7 @@
      {
       "level": 5,
       "name": "Мановение Мысли — 500 кг",
-      "en": "",
+      "en": "Movement of the Mind",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 8,
@@ -4523,7 +4523,7 @@
      {
       "level": 1,
       "name": "Пул: 2d10",
-      "en": "",
+      "en": "Thaumaturgical Countermagic",
       "roll": {
        "dice": 2,
        "blood": 1,
@@ -4534,7 +4534,7 @@
      {
       "level": 2,
       "name": "Пул: 4d10",
-      "en": "",
+      "en": "Thaumaturgical Countermagic",
       "roll": {
        "dice": 4,
        "blood": 1,
@@ -4545,7 +4545,7 @@
      {
       "level": 3,
       "name": "Пул: 6d10",
-      "en": "",
+      "en": "Thaumaturgical Countermagic",
       "roll": {
        "dice": 6,
        "blood": 1,
@@ -4556,7 +4556,7 @@
      {
       "level": 4,
       "name": "Пул: 8d10",
-      "en": "",
+      "en": "Thaumaturgical Countermagic",
       "roll": {
        "dice": 8,
        "blood": 1,
@@ -4567,7 +4567,7 @@
      {
       "level": 5,
       "name": "Пул: 10d10",
-      "en": "",
+      "en": "Thaumaturgical Countermagic",
       "roll": {
        "dice": 10,
        "blood": 1,
@@ -4585,7 +4585,7 @@
      {
       "level": 1,
       "name": "Туман / бриз",
-      "en": "",
+      "en": "Fog or Light Breezes",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 4,
@@ -4595,7 +4595,7 @@
      {
       "level": 2,
       "name": "Дождь или снег",
-      "en": "",
+      "en": "Rain or Snow",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 5,
@@ -4605,7 +4605,7 @@
      {
       "level": 3,
       "name": "Сильный ветер",
-      "en": "",
+      "en": "High Winds",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 6,
@@ -4615,7 +4615,7 @@
      {
       "level": 4,
       "name": "Буря",
-      "en": "",
+      "en": "Storm",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 7,
@@ -4625,7 +4625,7 @@
      {
       "level": 5,
       "name": "Молния",
-      "en": "",
+      "en": "Thunderstorm",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 8,
@@ -4939,7 +4939,7 @@
      {
       "level": 1,
       "name": "Вызвать сон",
-      "en": "",
+      "en": "Cause Sleep",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 4,
@@ -4949,7 +4949,7 @@
      {
       "level": 2,
       "name": "Массовый сон",
-      "en": "",
+      "en": "Mass Slumber",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 5,
@@ -4959,7 +4959,7 @@
      {
       "level": 3,
       "name": "Зачарованный сон",
-      "en": "",
+      "en": "Enchanted Slumber",
       "roll": {
        "trait1": "attributes.intelligence",
        "difficulty": 6,
@@ -4970,7 +4970,7 @@
      {
       "level": 4,
       "name": "Пейзаж мечты",
-      "en": "",
+      "en": "Dreamscape",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 7,
@@ -4980,7 +4980,7 @@
      {
       "level": 5,
       "name": "Мастер снов",
-      "en": "",
+      "en": "Master of Dreams",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 8,
@@ -4998,7 +4998,7 @@
      {
       "level": 1,
       "name": "Без света",
-      "en": "",
+      "en": "Out Light",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 4,
@@ -5008,7 +5008,7 @@
      {
       "level": 2,
       "name": "Насмешка тени",
-      "en": "",
+      "en": "Shadow Taunt",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 5,
@@ -5018,7 +5018,7 @@
      {
       "level": 3,
       "name": "Блистающая тень",
-      "en": "",
+      "en": "Coruscating Shadow",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 6,
@@ -5028,7 +5028,7 @@
      {
       "level": 4,
       "name": "Покрывало ночи",
-      "en": "",
+      "en": "Night’s Veil",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 7,
@@ -5038,7 +5038,7 @@
      {
       "level": 5,
       "name": "Абиссальный договор",
-      "en": "",
+      "en": "Abyssal Pact",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 8,
@@ -5364,7 +5364,7 @@
      {
       "level": 1,
       "name": "Укрепить твёрдую форму",
-      "en": "",
+      "en": "Fortify the Solid Form",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 4,
@@ -5374,7 +5374,7 @@
      {
       "level": 2,
       "name": "Кристаллизовать жидкую форму",
-      "en": "",
+      "en": "Crystallize Liquid",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 5,
@@ -5384,7 +5384,7 @@
      {
       "level": 3,
       "name": "Разжижить твёрдую форму",
-      "en": "",
+      "en": "Liquefy the Solid Form",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 6,
@@ -5538,7 +5538,7 @@
      {
       "level": 1,
       "name": "Дурной глаз",
-      "en": "",
+      "en": "Evil Eye",
       "roll": {
        "trait1": "attributes.manipulation",
        "difficulty": 4,
@@ -5549,7 +5549,7 @@
      {
       "level": 2,
       "name": "Зрение духов",
-      "en": "",
+      "en": "Spirit Sight",
       "roll": {
        "trait1": "attributes.perception",
        "difficulty": 5,
@@ -5560,7 +5560,7 @@
      {
       "level": 3,
       "name": "Раб‑дух",
-      "en": "",
+      "en": "Spirit Slave",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 6,
@@ -5570,7 +5570,7 @@
      {
       "level": 4,
       "name": "Фетиши",
-      "en": "",
+      "en": "Fetishes",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 7,
@@ -5580,7 +5580,7 @@
      {
       "level": 5,
       "name": "Странствие",
-      "en": "",
+      "en": "Journey",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 8,
@@ -5598,7 +5598,7 @@
      {
       "level": 1,
       "name": "Сотворение огня — Свеча",
-      "en": "",
+      "en": "Candle",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 4,
@@ -5608,7 +5608,7 @@
      {
       "level": 2,
       "name": "Сотворение огня — Пламя в ладони",
-      "en": "",
+      "en": "Palm of Flame",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 5,
@@ -5618,7 +5618,7 @@
      {
       "level": 3,
       "name": "Сотворение огня — Костёр",
-      "en": "",
+      "en": "Campfire",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 6,
@@ -5628,7 +5628,7 @@
      {
       "level": 4,
       "name": "Сотворение огня — Большой костёр",
-      "en": "",
+      "en": "Bonfire",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 7,
@@ -5656,7 +5656,7 @@
      {
       "level": 1,
       "name": "Быстрый путь — Одно существо",
-      "en": "",
+      "en": "Iter Pernix",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 4,
@@ -5666,7 +5666,7 @@
      {
       "level": 2,
       "name": "Быстрый путь — До 6 ездовых или одна гружёная повозка",
-      "en": "",
+      "en": "Iter Pernix",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 5,
@@ -5676,7 +5676,7 @@
      {
       "level": 3,
       "name": "Быстрый путь — До 12 ездовых или 4 обозных повозки",
-      "en": "",
+      "en": "Iter Pernix",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 6,
@@ -5686,7 +5686,7 @@
      {
       "level": 4,
       "name": "Быстрый путь — До 24 ездовых",
-      "en": "",
+      "en": "Iter Pernix",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 7,
@@ -5696,7 +5696,7 @@
      {
       "level": 5,
       "name": "Быстрый путь — До 48 ездовых",
-      "en": "",
+      "en": "Iter Pernix",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 8,
@@ -5714,7 +5714,7 @@
      {
       "level": 1,
       "name": "Власть движения — 0,5 кг",
-      "en": "",
+      "en": "Potestas Motus",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 4,
@@ -5724,7 +5724,7 @@
      {
       "level": 2,
       "name": "Власть движения — 10 кг",
-      "en": "",
+      "en": "Potestas Motus",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 5,
@@ -5734,7 +5734,7 @@
      {
       "level": 3,
       "name": "Власть движения — 100 кг",
-      "en": "",
+      "en": "Potestas Motus",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 6,
@@ -5744,7 +5744,7 @@
      {
       "level": 4,
       "name": "Власть движения — 250 кг",
-      "en": "",
+      "en": "Potestas Motus",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 7,
@@ -5754,7 +5754,7 @@
      {
       "level": 5,
       "name": "Власть движения — 500 кг",
-      "en": "",
+      "en": "Potestas Motus",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 8,
@@ -5772,7 +5772,7 @@
      {
       "level": 1,
       "name": "Власть над бурями — Туман или лёгкий ветер",
-      "en": "",
+      "en": "Potestas Tempestatum",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 4,
@@ -5782,7 +5782,7 @@
      {
       "level": 2,
       "name": "Власть над бурями — Дождь или снег",
-      "en": "",
+      "en": "Potestas Tempestatum",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 5,
@@ -5792,7 +5792,7 @@
      {
       "level": 3,
       "name": "Власть над бурями — Сильный ветер",
-      "en": "",
+      "en": "Potestas Tempestatum",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 6,
@@ -5802,7 +5802,7 @@
      {
       "level": 4,
       "name": "Власть над бурями — Буря",
-      "en": "",
+      "en": "Potestas Tempestatum",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 7,
@@ -5812,7 +5812,7 @@
      {
       "level": 5,
       "name": "Власть над бурями — Гроза",
-      "en": "",
+      "en": "Potestas Tempestatum",
       "roll": {
        "trait1": "attributes.perception",
        "difficulty": 8,
@@ -6025,7 +6025,7 @@
      {
       "level": 1,
       "name": "Путь Управления Магией",
-      "en": "",
+      "en": "нет оригинала",
       "roll": {
        "trait1": "attributes.intelligence",
        "difficulty": 4,
@@ -6184,7 +6184,7 @@
    {
     "level": 6,
     "name": "Порыв чувств",
-    "en": "",
+    "en": "нет оригинала",
     "elder": true,
     "roll": {
      "trait1": "attributes.charisma",
@@ -6197,13 +6197,13 @@
    {
     "level": 6,
     "name": "Омовение",
-    "en": "",
+    "en": "нет оригинала",
     "elder": true
    },
    {
     "level": 6,
     "name": "Отзвуки сердца",
-    "en": "",
+    "en": "Ripples of the Heart",
     "source": "Clanbook: Assamite (Revised)",
     "roll": {
      "trait1": "attributes.charisma",
@@ -6216,20 +6216,20 @@
    {
     "level": 6,
     "name": "Очищение",
-    "en": "",
+    "en": "Purification",
     "source": "Clanbook: Assamite (Revised)"
    },
    {
     "level": 6,
     "name": "Хищное прикосновение",
-    "en": "",
+    "en": "Rapturous Touch",
     "source": "Dark Ages: Player's Guide to Low Clans",
     "era": "darkAges"
    },
    {
     "level": 7,
     "name": "Кровавые когти Ваала",
-    "en": "",
+    "en": "нет оригинала",
     "elder": true,
     "roll": {
      "trait1": "willpower.permanent",
@@ -6240,7 +6240,7 @@
    {
     "level": 7,
     "name": "Отравленный родник",
-    "en": "",
+    "en": "нет оригинала",
     "elder": true,
     "roll": {
      "trait1": "attributes.stamina",
@@ -6253,7 +6253,7 @@
    {
     "level": 7,
     "name": "Кровавые когти Баала",
-    "en": "",
+    "en": "Baal’s Bloody Talons",
     "source": "Clanbook: Assamite (Revised)",
     "roll": {
      "blood": 1,
@@ -6265,7 +6265,7 @@
    {
     "level": 7,
     "name": "Отравление источника жизни",
-    "en": "",
+    "en": "Poison the Well of Life",
     "source": "Clanbook: Assamite (Revised)",
     "roll": {
      "trait1": "attributes.stamina",
@@ -6278,7 +6278,7 @@
    {
     "level": 7,
     "name": "Запрудить реку сердца",
-    "en": "",
+    "en": "Dam the Heart’s River",
     "source": "Dark Ages: Player's Guide to Low Clans",
     "era": "darkAges",
     "roll": {
@@ -6289,7 +6289,7 @@
    {
     "level": 8,
     "name": "Песнь чужой витэ",
-    "en": "",
+    "en": "нет оригинала",
     "elder": true,
     "roll": {
      "trait1": "attributes.wits",
@@ -6302,7 +6302,7 @@
    {
     "level": 8,
     "name": "Напевы далёкого витэ",
-    "en": "",
+    "en": "Songs of Distant Vitae",
     "source": "Clanbook: Assamite (Revised)",
     "roll": {
      "blood": 4,
@@ -6315,7 +6315,7 @@
    {
     "level": 8,
     "name": "Кровь разрушения",
-    "en": "",
+    "en": "Blood of Destruction",
     "source": "Dark Ages: Player's Guide to Low Clans",
     "era": "darkAges",
     "roll": {
@@ -6338,7 +6338,7 @@
    {
     "level": 9,
     "name": "Осуждение грехов отца",
-    "en": "",
+    "en": "Condemnation of the Father’s Sins",
     "source": "Clanbook: Assamite (Revised)",
     "roll": {
      "trait1": "attributes.stamina",
@@ -6350,7 +6350,7 @@
    {
     "level": 9,
     "name": "Ослабить кровь древних",
-    "en": "",
+    "en": "Weaken the Blood of the Ancients",
     "source": "Dark Ages: Player's Guide to Low Clans",
     "era": "darkAges",
     "roll": {
@@ -6448,7 +6448,7 @@
    {
     "level": 6,
     "name": "Ужасный клинок демонов",
-    "en": "",
+    "en": "Horrid Blade of the Demons",
     "source": "Dark Ages: Player's Guide to Low Clans",
     "era": "darkAges",
     "roll": {
@@ -6479,7 +6479,7 @@
    {
     "level": 7,
     "name": "Помощь гандхарвов",
-    "en": "",
+    "en": "Aid of the Gandharvas",
     "source": "Dark Ages: Player's Guide to Low Clans",
     "era": "darkAges",
     "roll": {
@@ -6502,7 +6502,7 @@
    {
     "level": 8,
     "name": "Видения от асуры",
-    "en": "",
+    "en": "Visions from the Asura",
     "source": "Dark Ages: Player's Guide to Low Clans",
     "era": "darkAges",
     "roll": {
@@ -6526,7 +6526,7 @@
    {
     "level": 9,
     "name": "Истины вселенной",
-    "en": "",
+    "en": "Truths of the Universe",
     "source": "Dark Ages: Player's Guide to Low Clans",
     "era": "darkAges"
    }
@@ -7563,7 +7563,7 @@
      {
       "level": 1,
       "name": "Шёпот ветра",
-      "en": "",
+      "en": "Breath of Whispers",
       "roll": {
        "trait1": "attributes.perception",
        "trait2": "abilities.occult",
@@ -7575,7 +7575,7 @@
      {
       "level": 2,
       "name": "Метель",
-      "en": "",
+      "en": "Biting Gale",
       "roll": {
        "trait1": "attributes.perception",
        "trait2": "abilities.occult",
@@ -7587,7 +7587,7 @@
      {
       "level": 3,
       "name": "Летаргический бриз",
-      "en": "",
+      "en": "Breeze of Lethargy",
       "roll": {
        "trait1": "attributes.perception",
        "trait2": "abilities.occult",
@@ -7599,7 +7599,7 @@
      {
       "level": 4,
       "name": "Крылья бури",
-      "en": "",
+      "en": "Ride the Tempest",
       "roll": {
        "trait1": "attributes.perception",
        "trait2": "abilities.occult",
@@ -7611,7 +7611,7 @@
      {
       "level": 5,
       "name": "Гроза",
-      "en": "",
+      "en": "Tempest",
       "roll": {
        "trait1": "attributes.perception",
        "trait2": "abilities.occult",
@@ -7631,7 +7631,7 @@
      {
       "level": 1,
       "name": "Колодец лжи",
-      "en": "",
+      "en": "Pool of Lies",
       "roll": {
        "trait1": "attributes.wits",
        "trait2": "abilities.occult",
@@ -7643,7 +7643,7 @@
      {
       "level": 2,
       "name": "Водное убежище",
-      "en": "",
+      "en": "Watery Haven",
       "roll": {
        "trait1": "attributes.wits",
        "trait2": "abilities.occult",
@@ -7655,7 +7655,7 @@
      {
       "level": 3,
       "name": "Морской туман",
-      "en": "",
+      "en": "Fog Over Sea",
       "roll": {
        "trait1": "attributes.wits",
        "trait2": "abilities.occult",
@@ -7667,7 +7667,7 @@
      {
       "level": 4,
       "name": "Слуги глубин",
-      "en": "",
+      "en": "Minions of the Deep",
       "roll": {
        "trait1": "attributes.wits",
        "trait2": "abilities.occult",
@@ -7680,7 +7680,7 @@
      {
       "level": 5,
       "name": "Роковая пучина",
-      "en": "",
+      "en": "Doom Tide",
       "roll": {
        "trait1": "attributes.wits",
        "trait2": "abilities.occult",
@@ -7700,7 +7700,7 @@
      {
       "level": 1,
       "name": "Зыбкая твердь",
-      "en": "",
+      "en": "Grasping Soil",
       "roll": {
        "trait1": "attributes.stamina",
        "trait2": "abilities.occult",
@@ -7712,7 +7712,7 @@
      {
       "level": 2,
       "name": "Прочность камня",
-      "en": "",
+      "en": "Endurance of Stone",
       "roll": {
        "trait1": "attributes.stamina",
        "trait2": "abilities.occult",
@@ -7724,7 +7724,7 @@
      {
       "level": 3,
       "name": "Голодное чрево земли",
-      "en": "",
+      "en": "Hungry Earth",
       "roll": {
        "trait1": "attributes.stamina",
        "trait2": "abilities.occult",
@@ -7736,7 +7736,7 @@
      {
       "level": 4,
       "name": "Колыбель жизни",
-      "en": "",
+      "en": "Root of Vitality",
       "roll": {
        "trait1": "attributes.stamina",
        "trait2": "abilities.occult",
@@ -7748,7 +7748,7 @@
      {
       "level": 5,
       "name": "Ярость Купалы",
-      "en": "",
+      "en": "Kupala’s Fury",
       "roll": {
        "trait1": "attributes.stamina",
        "trait2": "abilities.occult",
@@ -7768,7 +7768,7 @@
      {
       "level": 1,
       "name": "Пламенная отвага",
-      "en": "",
+      "en": "Fiery Courage",
       "roll": {
        "trait1": "attributes.manipulation",
        "trait2": "abilities.occult",
@@ -7780,7 +7780,7 @@
      {
       "level": 2,
       "name": "Возгорание",
-      "en": "",
+      "en": "Combust",
       "roll": {
        "trait1": "attributes.manipulation",
        "trait2": "abilities.occult",
@@ -7792,7 +7792,7 @@
      {
       "level": 3,
       "name": "Стена магмы",
-      "en": "",
+      "en": "Wall of Magma",
       "roll": {
        "trait1": "attributes.manipulation",
        "trait2": "abilities.occult",
@@ -7804,7 +7804,7 @@
      {
       "level": 4,
       "name": "Тепловая волна",
-      "en": "",
+      "en": "Heat Wave",
       "roll": {
        "trait1": "attributes.manipulation",
        "trait2": "abilities.occult",
@@ -7816,7 +7816,7 @@
      {
       "level": 5,
       "name": "Извержение вулкана",
-      "en": "",
+      "en": "Volcanic Blast",
       "roll": {
        "trait1": "attributes.manipulation",
        "trait2": "abilities.occult",
@@ -7973,7 +7973,7 @@
      {
       "level": 1,
       "name": "Гений места — 15 м",
-      "en": "",
+      "en": "нет оригинала",
       "roll": {
        "trait1": "attributes.charisma",
        "trait2": "abilities.occult",
@@ -7986,7 +7986,7 @@
      {
       "level": 2,
       "name": "Гений места — 100 м",
-      "en": "",
+      "en": "нет оригинала",
       "roll": {
        "trait1": "attributes.charisma",
        "trait2": "abilities.occult",
@@ -7999,7 +7999,7 @@
      {
       "level": 3,
       "name": "Гений места — 500 м",
-      "en": "",
+      "en": "нет оригинала",
       "roll": {
        "trait1": "attributes.charisma",
        "trait2": "abilities.occult",
@@ -8012,7 +8012,7 @@
      {
       "level": 4,
       "name": "Гений места — 1,5 км",
-      "en": "",
+      "en": "нет оригинала",
       "roll": {
        "trait1": "attributes.charisma",
        "trait2": "abilities.occult",
@@ -8025,7 +8025,7 @@
      {
       "level": 5,
       "name": "Гений места — 8 км",
-      "en": "",
+      "en": "нет оригинала",
       "roll": {
        "trait1": "attributes.charisma",
        "trait2": "abilities.occult",
@@ -8182,7 +8182,7 @@
      {
       "level": 1,
       "name": "Путь Духа — 15 м",
-      "en": "",
+      "en": "The Way of the Spirit",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 4,
@@ -8193,7 +8193,7 @@
      {
       "level": 2,
       "name": "Путь Духа — 90 м",
-      "en": "",
+      "en": "The Way of the Spirit",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 5,
@@ -8204,7 +8204,7 @@
      {
       "level": 3,
       "name": "Путь Духа — 0,5 км",
-      "en": "",
+      "en": "The Way of the Spirit",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 6,
@@ -8215,7 +8215,7 @@
      {
       "level": 4,
       "name": "Путь Духа — 1,5 км",
-      "en": "",
+      "en": "The Way of the Spirit",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 7,
@@ -8226,7 +8226,7 @@
      {
       "level": 5,
       "name": "Путь Духа — 8 км",
-      "en": "",
+      "en": "The Way of the Spirit",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 8,
@@ -9791,7 +9791,7 @@
      {
       "level": 1,
       "name": "Свеча",
-      "en": "",
+      "en": "Candle",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 4,
@@ -9801,7 +9801,7 @@
      {
       "level": 2,
       "name": "Факел",
-      "en": "",
+      "en": "Torch",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 5,
@@ -9811,7 +9811,7 @@
      {
       "level": 3,
       "name": "Костёр",
-      "en": "",
+      "en": "Campfire",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 6,
@@ -9821,7 +9821,7 @@
      {
       "level": 4,
       "name": "Пожар",
-      "en": "",
+      "en": "Bonfire",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 7,
@@ -9831,7 +9831,7 @@
      {
       "level": 5,
       "name": "Пекло",
-      "en": "",
+      "en": "Inferno",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 8,
@@ -9851,7 +9851,7 @@
      {
       "level": 1,
       "name": "Мановение Мысли — 0,5 кг",
-      "en": "",
+      "en": "Movement of the Mind",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 4,
@@ -9861,7 +9861,7 @@
      {
       "level": 2,
       "name": "Мановение Мысли — 10 кг",
-      "en": "",
+      "en": "Movement of the Mind",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 5,
@@ -9871,7 +9871,7 @@
      {
       "level": 3,
       "name": "Мановение Мысли — 100 кг",
-      "en": "",
+      "en": "Movement of the Mind",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 6,
@@ -9881,7 +9881,7 @@
      {
       "level": 4,
       "name": "Мановение Мысли — 250 кг",
-      "en": "",
+      "en": "Movement of the Mind",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 7,
@@ -9891,7 +9891,7 @@
      {
       "level": 5,
       "name": "Мановение Мысли — 500 кг",
-      "en": "",
+      "en": "Movement of the Mind",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 8,
@@ -10094,7 +10094,7 @@
      {
       "level": 1,
       "name": "Туман / бриз",
-      "en": "",
+      "en": "Fog or Light Breezes",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 4,
@@ -10104,7 +10104,7 @@
      {
       "level": 2,
       "name": "Дождь или снег",
-      "en": "",
+      "en": "Rain or Snow",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 5,
@@ -10114,7 +10114,7 @@
      {
       "level": 3,
       "name": "Сильный ветер",
-      "en": "",
+      "en": "High Winds",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 6,
@@ -10124,7 +10124,7 @@
      {
       "level": 4,
       "name": "Буря",
-      "en": "",
+      "en": "Storm",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 7,
@@ -10134,7 +10134,7 @@
      {
       "level": 5,
       "name": "Молния",
-      "en": "",
+      "en": "Thunderstorm",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 8,
@@ -10852,7 +10852,7 @@
      {
       "level": 1,
       "name": "Путь Нектара крови — передать 1 ур.",
-      "en": "",
+      "en": "Path of Blood Nectar",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 4,
@@ -10862,7 +10862,7 @@
      {
       "level": 2,
       "name": "Путь Нектара крови — передать 2 ур.",
-      "en": "",
+      "en": "Path of Blood Nectar",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 5,
@@ -10872,7 +10872,7 @@
      {
       "level": 3,
       "name": "Путь Нектара крови — передать 3 ур.",
-      "en": "",
+      "en": "Path of Blood Nectar",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 6,
@@ -10882,7 +10882,7 @@
      {
       "level": 4,
       "name": "Путь Нектара крови — передать 4 ур.",
-      "en": "",
+      "en": "Path of Blood Nectar",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 7,
@@ -10892,7 +10892,7 @@
      {
       "level": 5,
       "name": "Путь Нектара крови — передать 5 ур.",
-      "en": "",
+      "en": "Path of Blood Nectar",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 8,
@@ -10976,7 +10976,7 @@
      {
       "level": 1,
       "name": "Путь Праапти — 10 м",
-      "en": "",
+      "en": "The Path of Praapti",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 4,
@@ -10986,7 +10986,7 @@
      {
       "level": 2,
       "name": "Путь Праапти — 50 м",
-      "en": "",
+      "en": "The Path of Praapti",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 5,
@@ -10996,7 +10996,7 @@
      {
       "level": 3,
       "name": "Путь Праапти — 500 м",
-      "en": "",
+      "en": "The Path of Praapti",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 6,
@@ -11006,7 +11006,7 @@
      {
       "level": 4,
       "name": "Путь Праапти — 8 км",
-      "en": "",
+      "en": "The Path of Praapti",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 7,
@@ -11016,7 +11016,7 @@
      {
       "level": 5,
       "name": "Путь Праапти — 800 км",
-      "en": "",
+      "en": "The Path of Praapti",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 8,
@@ -11322,7 +11322,7 @@
      {
       "level": 1,
       "name": "Путь Нектара крови — передать 1 ур.",
-      "en": "",
+      "en": "Path of Blood Nectar",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 4,
@@ -11332,7 +11332,7 @@
      {
       "level": 2,
       "name": "Путь Нектара крови — передать 2 ур.",
-      "en": "",
+      "en": "Path of Blood Nectar",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 5,
@@ -11342,7 +11342,7 @@
      {
       "level": 3,
       "name": "Путь Нектара крови — передать 3 ур.",
-      "en": "",
+      "en": "Path of Blood Nectar",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 6,
@@ -11352,7 +11352,7 @@
      {
       "level": 4,
       "name": "Путь Нектара крови — передать 4 ур.",
-      "en": "",
+      "en": "Path of Blood Nectar",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 7,
@@ -11362,7 +11362,7 @@
      {
       "level": 5,
       "name": "Путь Нектара крови — передать 5 ур.",
-      "en": "",
+      "en": "Path of Blood Nectar",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 8,
@@ -11673,7 +11673,7 @@
      {
       "level": 1,
       "name": "Путь Откровений Эдема — −1 к постоянной Воле жертвы",
-      "en": "",
+      "en": "The Revelations of Eden",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 4,
@@ -11683,7 +11683,7 @@
      {
       "level": 2,
       "name": "Путь Откровений Эдема — −1 к рейтингу Дороги",
-      "en": "",
+      "en": "The Revelations of Eden",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 5,
@@ -11693,7 +11693,7 @@
      {
       "level": 3,
       "name": "Путь Откровений Эдема — −1 к Самоконтролю/Инстинктам",
-      "en": "",
+      "en": "The Revelations of Eden",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 6,
@@ -12213,7 +12213,7 @@
      {
       "level": 1,
       "name": "Туман / бриз",
-      "en": "",
+      "en": "Fog or Light Breezes",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 4,
@@ -12223,7 +12223,7 @@
      {
       "level": 2,
       "name": "Дождь или снег",
-      "en": "",
+      "en": "Rain or Snow",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 5,
@@ -12233,7 +12233,7 @@
      {
       "level": 3,
       "name": "Сильный ветер",
-      "en": "",
+      "en": "High Winds",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 6,
@@ -12243,7 +12243,7 @@
      {
       "level": 4,
       "name": "Буря",
-      "en": "",
+      "en": "Storm",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 7,
@@ -12253,7 +12253,7 @@
      {
       "level": 5,
       "name": "Молния",
-      "en": "",
+      "en": "Thunderstorm",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 8,
@@ -12387,7 +12387,7 @@
      {
       "level": 1,
       "name": "Мановение Мысли — 0,5 кг",
-      "en": "",
+      "en": "Movement of the Mind",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 4,
@@ -12397,7 +12397,7 @@
      {
       "level": 2,
       "name": "Мановение Мысли — 10 кг",
-      "en": "",
+      "en": "Movement of the Mind",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 5,
@@ -12407,7 +12407,7 @@
      {
       "level": 3,
       "name": "Мановение Мысли — 100 кг",
-      "en": "",
+      "en": "Movement of the Mind",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 6,
@@ -12417,7 +12417,7 @@
      {
       "level": 4,
       "name": "Мановение Мысли — 250 кг",
-      "en": "",
+      "en": "Movement of the Mind",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 7,
@@ -12427,7 +12427,7 @@
      {
       "level": 5,
       "name": "Мановение Мысли — 500 кг",
-      "en": "",
+      "en": "Movement of the Mind",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 8,
@@ -12559,7 +12559,7 @@
      {
       "level": 1,
       "name": "Свеча",
-      "en": "",
+      "en": "Candle",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 4,
@@ -12569,7 +12569,7 @@
      {
       "level": 2,
       "name": "Факел",
-      "en": "",
+      "en": "Torch",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 5,
@@ -12579,7 +12579,7 @@
      {
       "level": 3,
       "name": "Костёр",
-      "en": "",
+      "en": "Campfire",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 6,
@@ -12589,7 +12589,7 @@
      {
       "level": 4,
       "name": "Пожар",
-      "en": "",
+      "en": "Bonfire",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 7,
@@ -12599,7 +12599,7 @@
      {
       "level": 5,
       "name": "Пекло",
-      "en": "",
+      "en": "Inferno",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 8,
@@ -12748,7 +12748,7 @@
      {
       "level": 1,
       "name": "Взятие духа — 1",
-      "en": "",
+      "en": "The Taking of the Spirit",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 4,
@@ -12758,7 +12758,7 @@
      {
       "level": 2,
       "name": "Взятие духа — 2",
-      "en": "",
+      "en": "The Taking of the Spirit",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 5,
@@ -12768,7 +12768,7 @@
      {
       "level": 3,
       "name": "Взятие духа — 3",
-      "en": "",
+      "en": "The Taking of the Spirit",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 6,
@@ -12778,7 +12778,7 @@
      {
       "level": 4,
       "name": "Взятие духа — 4",
-      "en": "",
+      "en": "The Taking of the Spirit",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 7,
@@ -12788,7 +12788,7 @@
      {
       "level": 5,
       "name": "Взятие духа — 5",
-      "en": "",
+      "en": "The Taking of the Spirit",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 8,
@@ -13704,7 +13704,7 @@
    {
     "level": 1,
     "name": "Маска смерти",
-    "en": "",
+    "en": "нет оригинала",
     "source": "Vampire: Age of the Living Gods (фанатское)",
     "era": "darkAges",
     "roll": {
@@ -13717,14 +13717,14 @@
    {
     "level": 2,
     "name": "Трупное окоченение",
-    "en": "",
+    "en": "нет оригинала",
     "source": "Vampire: Age of the Living Gods (фанатское)",
     "era": "darkAges"
    },
    {
     "level": 3,
     "name": "Иссушение",
-    "en": "",
+    "en": "нет оригинала",
     "source": "Vampire: Age of the Living Gods (фанатское)",
     "era": "darkAges",
     "roll": {
@@ -13735,7 +13735,7 @@
    {
     "level": 4,
     "name": "Порча нежитой плоти",
-    "en": "",
+    "en": "нет оригинала",
     "source": "Vampire: Age of the Living Gods (фанатское)",
     "era": "darkAges",
     "roll": {
@@ -13749,7 +13749,7 @@
    {
     "level": 5,
     "name": "Растворение плоти",
-    "en": "",
+    "en": "нет оригинала",
     "source": "Vampire: Age of the Living Gods (фанатское)",
     "era": "darkAges",
     "roll": {
@@ -13759,7 +13759,7 @@
    {
     "level": 6,
     "name": "Прохождение Жнеца",
-    "en": "",
+    "en": "нет оригинала",
     "source": "Vampire: Age of the Living Gods (фанатское)",
     "era": "darkAges",
     "roll": {
@@ -13772,7 +13772,7 @@
    {
     "level": 6,
     "name": "Восстание трупа",
-    "en": "",
+    "en": "нет оригинала",
     "source": "Vampire: Age of the Living Gods (фанатское)",
     "era": "darkAges",
     "roll": {
@@ -13782,7 +13782,7 @@
    {
     "level": 6,
     "name": "Хранение нектара богов",
-    "en": "",
+    "en": "нет оригинала",
     "source": "Vampire: Age of the Living Gods (фанатское)",
     "era": "darkAges",
     "roll": {
@@ -13795,7 +13795,7 @@
    {
     "level": 6,
     "name": "Дар жизни",
-    "en": "",
+    "en": "нет оригинала",
     "source": "Vampire: Age of the Living Gods (фанатское)",
     "era": "darkAges",
     "roll": {
@@ -13805,14 +13805,14 @@
    {
     "level": 7,
     "name": "Марш прокажённого",
-    "en": "",
+    "en": "нет оригинала",
     "source": "Vampire: Age of the Living Gods (фанатское)",
     "era": "darkAges"
    },
    {
     "level": 7,
     "name": "Армия трупов",
-    "en": "",
+    "en": "нет оригинала",
     "source": "Vampire: Age of the Living Gods (фанатское)",
     "era": "darkAges",
     "roll": {
@@ -13826,7 +13826,7 @@
    {
     "level": 8,
     "name": "Чумной ветер",
-    "en": "",
+    "en": "нет оригинала",
     "source": "Vampire: Age of the Living Gods (фанатское)",
     "era": "darkAges",
     "roll": {
@@ -13837,7 +13837,7 @@
    {
     "level": 9,
     "name": "Буря Энлиля",
-    "en": "",
+    "en": "нет оригинала",
     "source": "Vampire: Age of the Living Gods (фанатское)",
     "era": "darkAges"
    }

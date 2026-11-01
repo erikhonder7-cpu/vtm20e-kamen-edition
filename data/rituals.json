@@ -1332,7 +1332,7 @@
     "discipline": "thaumaturgy",
     "level": 1,
     "name": "Блуждающий огонёк",
-    "en": "",
+    "en": "Will o’ the Wisp",
     "source": "The Player's Guide to the Sabbat (2nd Edition, 1992)",
     "era": "",
     "roll": {
@@ -1345,7 +1345,7 @@
     "discipline": "thaumaturgy",
     "level": 1,
     "name": "Вавилонское послание",
-    "en": "",
+    "en": "нет оригинала",
     "source": "Dark Ages: Player's Guide to Low Clans",
     "era": "darkAges",
     "roll": {
@@ -1436,7 +1436,7 @@
     "discipline": "thaumaturgy",
     "level": 1,
     "name": "Возрождение смертного тщеславия",
-    "en": "",
+    "en": "Rebirth of Mortal Vanity",
     "source": "The Vampire Players Guide (2nd Edition)",
     "era": "",
     "roll": {
@@ -1475,7 +1475,7 @@
     "discipline": "thaumaturgy",
     "level": 1,
     "name": "Задержание Трупных Мух",
-    "en": "",
+    "en": "The Carrion Fly Delayed",
     "source": "Dark Ages: House of Tremere",
     "era": "darkAges",
     "roll": {
@@ -1540,7 +1540,7 @@
     "discipline": "thaumaturgy",
     "level": 1,
     "name": "Капля Молчаливого Согласия",
-    "en": "",
+    "en": "нет оригинала",
     "source": "Dark Ages: House of Tremere",
     "era": "darkAges",
     "roll": {
@@ -1579,7 +1579,7 @@
     "discipline": "thaumaturgy",
     "level": 1,
     "name": "Кровавая лихорадка",
-    "en": "",
+    "en": "Blood Rush",
     "source": "The Player's Guide to the Sabbat (2nd Edition, 1992)",
     "era": "",
     "roll": {
@@ -1631,7 +1631,7 @@
     "discipline": "thaumaturgy",
     "level": 1,
     "name": "Мёртвая линия",
-    "en": "",
+    "en": "Flatline",
     "source": "Guide to the Anarchs (Revised)",
     "era": "",
     "roll": {
@@ -1670,7 +1670,7 @@
     "discipline": "thaumaturgy",
     "level": 1,
     "name": "Освещённый след добычи",
-    "en": "",
+    "en": "Illuminate Trail of the Prey",
     "source": "The Player's Guide to the Sabbat (2nd Edition, 1992)",
     "era": "",
     "roll": {
@@ -1696,7 +1696,7 @@
     "discipline": "thaumaturgy",
     "level": 1,
     "name": "Освящение капеллы",
-    "en": "",
+    "en": "Dedicate the Chantry",
     "source": "Clanbook: Tremere (Revised)",
     "era": "",
     "roll": {
@@ -1709,7 +1709,7 @@
     "discipline": "thaumaturgy",
     "level": 1,
     "name": "Отныне Его Взор",
-    "en": "",
+    "en": "Now Its Sight Is Ours",
     "source": "Dark Ages: House of Tremere",
     "era": "darkAges",
     "roll": {
@@ -1813,7 +1813,7 @@
     "discipline": "thaumaturgy",
     "level": 1,
     "name": "Сангвинический камень",
-    "en": "",
+    "en": "Sanguine Lodestone",
     "source": "Dark Ages: Player's Guide to Low Clans",
     "era": "darkAges",
     "roll": {
@@ -1839,7 +1839,7 @@
     "discipline": "thaumaturgy",
     "level": 1,
     "name": "Связать Обличающий Язык",
-    "en": "",
+    "en": "Bind the Accusing Tongue",
     "source": "Guide to the Camarilla (Revised)",
     "era": "",
     "roll": {
@@ -1904,7 +1904,7 @@
     "discipline": "thaumaturgy",
     "level": 1,
     "name": "След прошедшего волка",
-    "en": "",
+    "en": "Scent of the Lupine’s Passing",
     "source": "Clanbook: Tremere (Revised)",
     "era": "",
     "roll": {
@@ -1943,7 +1943,7 @@
     "discipline": "thaumaturgy",
     "level": 1,
     "name": "Сохранить кровь",
-    "en": "",
+    "en": "Preserve Blood",
     "source": "The Player's Guide to the Sabbat (2nd Edition, 1992)",
     "era": "",
     "roll": {
@@ -2073,7 +2073,7 @@
     "discipline": "thaumaturgy",
     "level": 1,
     "name": "Воплощение свечи / Тушение огня (название повреждено)",
-    "en": "",
+    "en": "нет оригинала",
     "source": "—",
     "era": "",
     "roll": {
@@ -2203,7 +2203,7 @@
     "discipline": "thaumaturgy",
     "level": 2,
     "name": "Вниз по Крови",
-    "en": "",
+    "en": "Blood Walk",
     "source": "Guide to the Camarilla (Revised)",
     "era": "",
     "roll": {
@@ -2229,7 +2229,7 @@
     "discipline": "thaumaturgy",
     "level": 2,
     "name": "Вызов духа-хранителя",
-    "en": "",
+    "en": "Summon Guardian Spirit",
     "source": "The Player's Guide to the Sabbat (2nd Edition, 1992)",
     "era": "",
     "roll": {
@@ -2255,7 +2255,7 @@
     "discipline": "thaumaturgy",
     "level": 2,
     "name": "Глоток Расплавленной Ярости",
-    "en": "",
+    "en": "Draught of Molten Fury",
     "source": "Dark Ages: House of Tremere",
     "era": "darkAges",
     "roll": {
@@ -2268,7 +2268,7 @@
     "discipline": "thaumaturgy",
     "level": 2,
     "name": "Горящий Клинок",
-    "en": "",
+    "en": "Burning Blade",
     "source": "Guide to the Camarilla (Revised)",
     "era": "",
     "roll": {
@@ -2281,7 +2281,7 @@
     "discipline": "thaumaturgy",
     "level": 2,
     "name": "Железное тело",
-    "en": "",
+    "en": "Iron Body",
     "source": "Guide to the Anarchs (Revised)",
     "era": "",
     "roll": {
@@ -2320,7 +2320,7 @@
     "discipline": "thaumaturgy",
     "level": 2,
     "name": "Зелье Мученичества",
-    "en": "",
+    "en": "Potio Martyrium",
     "source": "Dark Ages: House of Tremere",
     "era": "darkAges",
     "roll": {
@@ -2398,7 +2398,7 @@
     "discipline": "thaumaturgy",
     "level": 2,
     "name": "Машинный блиц",
-    "en": "",
+    "en": "Machine Blitz",
     "source": "The Player's Guide to the Sabbat (2nd Edition, 1992)",
     "era": "",
     "roll": {
@@ -2411,7 +2411,7 @@
     "discipline": "thaumaturgy",
     "level": 2,
     "name": "Мембранное Соответствие",
-    "en": "",
+    "en": "Membranous Appropriation",
     "source": "Dark Ages: House of Tremere",
     "era": "darkAges",
     "roll": {
@@ -2424,7 +2424,7 @@
     "discipline": "thaumaturgy",
     "level": 2,
     "name": "Молоко Змеиной Злобы",
-    "en": "",
+    "en": "The Serpent’s Cruel Milk",
     "source": "Dark Ages: House of Tremere",
     "era": "darkAges",
     "roll": {
@@ -2437,7 +2437,7 @@
     "discipline": "thaumaturgy",
     "level": 2,
     "name": "Надевание Маски Теней",
-    "en": "",
+    "en": "Donning the Mask of Shadows",
     "source": "Guide to the Camarilla (Revised)",
     "era": "",
     "roll": {
@@ -2450,7 +2450,7 @@
     "discipline": "thaumaturgy",
     "level": 2,
     "name": "Непроходимая тропа",
-    "en": "",
+    "en": "нет оригинала",
     "source": "The Player's Guide to the Sabbat (2nd Edition, 1992)",
     "era": "",
     "roll": {
@@ -2528,7 +2528,7 @@
     "discipline": "thaumaturgy",
     "level": 2,
     "name": "Оно Крадет Ваши Шёпоты",
-    "en": "",
+    "en": "It Steals Your Whispers",
     "source": "Dark Ages: House of Tremere",
     "era": "darkAges",
     "roll": {
@@ -2541,7 +2541,7 @@
     "discipline": "thaumaturgy",
     "level": 2,
     "name": "Отказ незваному гостю",
-    "en": "",
+    "en": "Deny the Intruder",
     "source": "Clanbook: Tremere (Revised)",
     "era": "",
     "roll": {
@@ -2567,7 +2567,7 @@
     "discipline": "thaumaturgy",
     "level": 2,
     "name": "Открытый проход",
-    "en": "",
+    "en": "The Open Passage",
     "source": "Clanbook: Tremere (Revised)",
     "era": "",
     "roll": {
@@ -2645,7 +2645,7 @@
     "discipline": "thaumaturgy",
     "level": 2,
     "name": "Призыв беспокойного духа",
-    "en": "",
+    "en": "Calling the Restless Spirit",
     "source": "Chicago by Night (2nd Edition)",
     "era": "",
     "roll": {
@@ -2710,7 +2710,7 @@
     "discipline": "thaumaturgy",
     "level": 2,
     "name": "Пыль Напоминания",
-    "en": "",
+    "en": "Dust of Remembrance",
     "source": "Dark Ages: House of Tremere",
     "era": "darkAges",
     "roll": {
@@ -2723,7 +2723,7 @@
     "discipline": "thaumaturgy",
     "level": 2,
     "name": "Распознавание ритуала",
-    "en": "",
+    "en": "Ritual’s Recognition",
     "source": "Clanbook: Tremere (Revised)",
     "era": "",
     "roll": {
@@ -2775,7 +2775,7 @@
     "discipline": "thaumaturgy",
     "level": 2,
     "name": "Связь с кровным партнёром",
-    "en": "",
+    "en": "Communicate with Kindred Bond Mate",
     "roll": {
      "trait1": "attributes.intelligence",
      "trait2": "abilities.occult",
@@ -2801,7 +2801,7 @@
     "discipline": "thaumaturgy",
     "level": 2,
     "name": "Сила невидимого пламени",
-    "en": "",
+    "en": "Power of the Invisible Flame",
     "source": "The Player's Guide to the Sabbat (2nd Edition, 1992)",
     "era": "",
     "roll": {
@@ -2827,7 +2827,7 @@
     "discipline": "thaumaturgy",
     "level": 2,
     "name": "Сладострастие веселья",
-    "en": "",
+    "en": "нет оригинала",
     "source": "Dark Ages: Player's Guide to Low Clans",
     "era": "darkAges",
     "roll": {
@@ -2879,7 +2879,7 @@
     "discipline": "thaumaturgy",
     "level": 2,
     "name": "Твоя Судьба Известна",
-    "en": "",
+    "en": "Your Fate Shall Be Known",
     "source": "Dark Ages: House of Tremere",
     "era": "darkAges",
     "roll": {
@@ -2892,7 +2892,7 @@
     "discipline": "thaumaturgy",
     "level": 2,
     "name": "Транссубстанция юмора",
-    "en": "",
+    "en": "нет оригинала",
     "source": "Dark Ages: Player's Guide to Low Clans",
     "era": "darkAges",
     "roll": {
@@ -2931,7 +2931,7 @@
     "discipline": "thaumaturgy",
     "level": 2,
     "name": "Фокус вливания витэ",
-    "en": "",
+    "en": "Principal Focus of Vitae Infusion",
     "source": "The Vampire Players Guide (2nd Edition)",
     "era": "",
     "roll": {
@@ -2983,7 +2983,7 @@
     "discipline": "thaumaturgy",
     "level": 2,
     "name": "Шаги напуганных",
-    "en": "",
+    "en": "Steps of the Terrified",
     "source": "The Player's Guide to the Sabbat (2nd Edition, 1992)",
     "era": "",
     "roll": {
@@ -3009,7 +3009,7 @@
     "discipline": "thaumaturgy",
     "level": 2,
     "name": "Эль Истинных Воспоминаний",
-    "en": "",
+    "en": "нет оригинала",
     "source": "Dark Ages: House of Tremere",
     "era": "darkAges",
     "roll": {
@@ -3178,7 +3178,7 @@
     "discipline": "thaumaturgy",
     "level": 3,
     "name": "Вызов озорного духа",
-    "en": "",
+    "en": "Summon Mischievous Spirit",
     "source": "The Player's Guide to the Sabbat (2nd Edition, 1992)",
     "era": "",
     "roll": {
@@ -3191,7 +3191,7 @@
     "discipline": "thaumaturgy",
     "level": 3,
     "name": "Глаза прошлого",
-    "en": "",
+    "en": "Eyes of the Past",
     "source": "Chicago by Night (2nd Edition)",
     "era": "",
     "roll": {
@@ -3204,7 +3204,7 @@
     "discipline": "thaumaturgy",
     "level": 3,
     "name": "Гнилое дерево",
-    "en": "",
+    "en": "Rotten-wood",
     "source": "The Player's Guide to the Sabbat (2nd Edition, 1992)",
     "era": "",
     "roll": {
@@ -3256,7 +3256,7 @@
     "discipline": "thaumaturgy",
     "level": 3,
     "name": "Дом с привидениями",
-    "en": "",
+    "en": "Haunted House",
     "source": "Milwaukee by Night (2nd Edition)",
     "era": "",
     "roll": {
@@ -3269,7 +3269,7 @@
     "discipline": "thaumaturgy",
     "level": 3,
     "name": "Друг деревьев",
-    "en": "",
+    "en": "Friend of the Trees",
     "source": "The Player's Guide to the Sabbat (2nd Edition, 1992)",
     "era": "",
     "roll": {
@@ -3295,7 +3295,7 @@
     "discipline": "thaumaturgy",
     "level": 3,
     "name": "Едкая Желчь",
-    "en": "",
+    "en": "Caustic Bile",
     "source": "Dark Ages: House of Tremere",
     "era": "darkAges",
     "roll": {
@@ -3321,7 +3321,7 @@
     "discipline": "thaumaturgy",
     "level": 3,
     "name": "Загадочное мерцание",
-    "en": "",
+    "en": "нет оригинала",
     "source": "The Player's Guide to the Sabbat (2nd Edition, 1992)",
     "era": "",
     "roll": {
@@ -3347,7 +3347,7 @@
     "discipline": "thaumaturgy",
     "level": 3,
     "name": "Засеять Сады Ночи",
-    "en": "",
+    "en": "Populate Night’s Gardens",
     "source": "Dark Ages: House of Tremere",
     "era": "darkAges",
     "roll": {
@@ -3399,7 +3399,7 @@
     "discipline": "thaumaturgy",
     "level": 3,
     "name": "Зов Преисподней",
-    "en": "",
+    "en": "Hell’s Calling",
     "source": "Guide to the Anarchs (Revised)",
     "era": "",
     "roll": {
@@ -3412,7 +3412,7 @@
     "discipline": "thaumaturgy",
     "level": 3,
     "name": "Иллюзия совершенства",
-    "en": "",
+    "en": "Illusion of Perfection",
     "source": "Milwaukee by Night (2nd Edition)",
     "era": "",
     "roll": {
@@ -3425,7 +3425,7 @@
     "discipline": "thaumaturgy",
     "level": 3,
     "name": "Испытание Симпатической Агонии",
-    "en": "",
+    "en": "Crucible of Sympathetic Agony",
     "source": "Dark Ages: House of Tremere",
     "era": "darkAges",
     "roll": {
@@ -3438,7 +3438,7 @@
     "discipline": "thaumaturgy",
     "level": 3,
     "name": "Ихор Шестинога",
-    "en": "",
+    "en": "Ichor of the Hexaped",
     "source": "Dark Ages: House of Tremere",
     "era": "darkAges",
     "roll": {
@@ -3503,7 +3503,7 @@
     "discipline": "thaumaturgy",
     "level": 3,
     "name": "Лекарство от Меняющейся Плоти",
-    "en": "",
+    "en": "нет оригинала",
     "source": "Dark Ages: House of Tremere",
     "era": "darkAges",
     "roll": {
@@ -3516,7 +3516,7 @@
     "discipline": "thaumaturgy",
     "level": 3,
     "name": "Мощь Пирамиды",
-    "en": "",
+    "en": "Power of the Pyramid",
     "source": "Clanbook: Tremere (Revised)",
     "era": "",
     "roll": {
@@ -3529,7 +3529,7 @@
     "discipline": "thaumaturgy",
     "level": 3,
     "name": "Мягкий разум",
-    "en": "",
+    "en": "Gentle Mind",
     "source": "Chicago by Night (2nd Edition)",
     "era": "",
     "roll": {
@@ -3542,7 +3542,7 @@
     "discipline": "thaumaturgy",
     "level": 3,
     "name": "Наблюдатель",
-    "en": "",
+    "en": "The Watcher",
     "source": "Milwaukee by Night (2nd Edition)",
     "era": "",
     "roll": {
@@ -3568,7 +3568,7 @@
     "discipline": "thaumaturgy",
     "level": 3,
     "name": "Невидимое изменение",
-    "en": "",
+    "en": "The Unseen Change",
     "source": "Chicago by Night (2nd Edition)",
     "era": "",
     "roll": {
@@ -3633,7 +3633,7 @@
     "discipline": "thaumaturgy",
     "level": 3,
     "name": "Огонь в крови",
-    "en": "",
+    "en": "Fire in the Blood",
     "source": "The Player's Guide to the Sabbat (2nd Edition, 1992)",
     "era": "",
     "roll": {
@@ -3698,7 +3698,7 @@
     "discipline": "thaumaturgy",
     "level": 3,
     "name": "Паучьи лапы",
-    "en": "",
+    "en": "нет оригинала",
     "roll": {
      "trait1": "attributes.intelligence",
      "trait2": "abilities.occult",
@@ -3711,7 +3711,7 @@
     "discipline": "thaumaturgy",
     "level": 3,
     "name": "Перемещение Пневмы",
-    "en": "",
+    "en": "Displacement of the Pneuma",
     "source": "Dark Ages: House of Tremere",
     "era": "darkAges",
     "roll": {
@@ -3737,7 +3737,7 @@
     "discipline": "thaumaturgy",
     "level": 3,
     "name": "Превращение Семи",
-    "en": "",
+    "en": "Transubstantiation of Seven",
     "source": "Clanbook: Tremere (Revised)",
     "era": "",
     "roll": {
@@ -3776,7 +3776,7 @@
     "discipline": "thaumaturgy",
     "level": 3,
     "name": "Пробуждение вердантного терна (Телявельские Тремер)",
-    "en": "",
+    "en": "Awakening of the Verdant Thorn",
     "source": "Dark Ages: Player's Guide to Low Clans",
     "era": "darkAges",
     "roll": {
@@ -3789,7 +3789,7 @@
     "discipline": "thaumaturgy",
     "level": 3,
     "name": "Ритуал тьмы",
-    "en": "",
+    "en": "Ritual of Darkness",
     "source": "Milwaukee by Night (2nd Edition)",
     "era": "",
     "roll": {
@@ -3802,7 +3802,7 @@
     "discipline": "thaumaturgy",
     "level": 3,
     "name": "Ртутный Угорь",
-    "en": "",
+    "en": "Quicksilver Eel",
     "source": "Dark Ages: House of Tremere",
     "era": "darkAges",
     "roll": {
@@ -3828,7 +3828,7 @@
     "discipline": "thaumaturgy",
     "level": 3,
     "name": "Руки с клинками",
-    "en": "",
+    "en": "нет оригинала",
     "source": "Milwaukee by Night (2nd Edition)",
     "era": "",
     "roll": {
@@ -3867,7 +3867,7 @@
     "discipline": "thaumaturgy",
     "level": 3,
     "name": "Слёзы Феба",
-    "en": "",
+    "en": "The Tears of Phoebus",
     "source": "Dark Ages: House of Tremere",
     "era": "darkAges",
     "roll": {
@@ -3906,7 +3906,7 @@
     "discipline": "thaumaturgy",
     "level": 3,
     "name": "Унаследованная тяга",
-    "en": "",
+    "en": "Inherited Affinity",
     "source": "Clanbook: Tremere (Revised)",
     "era": "",
     "roll": {
@@ -3919,7 +3919,7 @@
     "discipline": "thaumaturgy",
     "level": 3,
     "name": "Черпак земной крови",
-    "en": "",
+    "en": "Draught of the Earth’s Blood",
     "source": "Dark Ages: Player's Guide to Low Clans",
     "era": "darkAges",
     "roll": {
@@ -4036,7 +4036,7 @@
     "discipline": "thaumaturgy",
     "level": 4,
     "name": "Голос Бронзовой Головы",
-    "en": "",
+    "en": "The Bronze Head Speaks",
     "source": "Dark Ages: House of Tremere",
     "era": "darkAges",
     "roll": {
@@ -4088,7 +4088,7 @@
     "discipline": "thaumaturgy",
     "level": 4,
     "name": "Защита от фей",
-    "en": "",
+    "en": "Ward Versus Fae",
     "source": "Dark Ages: Player's Guide to Low Clans",
     "era": "darkAges",
     "roll": {
@@ -4114,7 +4114,7 @@
     "discipline": "thaumaturgy",
     "level": 4,
     "name": "Зеркальная прогулка",
-    "en": "",
+    "en": "Mirror Walk",
     "source": "The Player's Guide to the Sabbat (2nd Edition, 1992)",
     "era": "",
     "roll": {
@@ -4140,7 +4140,7 @@
     "discipline": "thaumaturgy",
     "level": 4,
     "name": "Изменчивое проклятие",
-    "en": "",
+    "en": "нет оригинала",
     "source": "Chicago by Night (2nd Edition)",
     "era": "",
     "roll": {
@@ -4153,7 +4153,7 @@
     "discipline": "thaumaturgy",
     "level": 4,
     "name": "Инфернальный договор",
-    "en": "",
+    "en": "Infernal Compact",
     "source": "Dark Ages: Player's Guide to Low Clans",
     "era": "darkAges",
     "roll": {
@@ -4192,7 +4192,7 @@
     "discipline": "thaumaturgy",
     "level": 4,
     "name": "Кровный сертамен",
-    "en": "",
+    "en": "Blood Certamen",
     "source": "Clanbook: Tremere (Revised)",
     "era": "",
     "roll": {
@@ -4231,7 +4231,7 @@
     "discipline": "thaumaturgy",
     "level": 4,
     "name": "Невидимые цепи связывания",
-    "en": "",
+    "en": "Invisible Chains of Binding",
     "source": "The Player's Guide to the Sabbat (2nd Edition, 1992)",
     "era": "",
     "roll": {
@@ -4270,7 +4270,7 @@
     "discipline": "thaumaturgy",
     "level": 4,
     "name": "Оберег от витэ",
-    "en": "",
+    "en": "Ward Versus Vitae",
     "source": "Guide to the Anarchs (Revised)",
     "era": "",
     "roll": {
@@ -4296,7 +4296,7 @@
     "discipline": "thaumaturgy",
     "level": 4,
     "name": "Опираясь на границу",
-    "en": "",
+    "en": "нет оригинала",
     "source": "The Player's Guide to the Sabbat (2nd Edition, 1992)",
     "era": "",
     "roll": {
@@ -4309,7 +4309,7 @@
     "discipline": "thaumaturgy",
     "level": 4,
     "name": "Освящение святилища",
-    "en": "",
+    "en": "Consecration of the Sanctum",
     "source": "Dark Ages: Player's Guide to Low Clans",
     "era": "darkAges",
     "roll": {
@@ -4322,7 +4322,7 @@
     "discipline": "thaumaturgy",
     "level": 4,
     "name": "Печать Амаранта",
-    "en": "",
+    "en": "Mark of Amaranth",
     "source": "Clanbook: Tremere (Revised)",
     "era": "",
     "roll": {
@@ -4361,7 +4361,7 @@
     "discipline": "thaumaturgy",
     "level": 4,
     "name": "Преследующий",
-    "en": "",
+    "en": "The Haunting",
     "source": "The Player's Guide to the Sabbat (2nd Edition, 1992)",
     "era": "",
     "roll": {
@@ -4387,7 +4387,7 @@
     "discipline": "thaumaturgy",
     "level": 4,
     "name": "Приостановление инкантации",
-    "en": "",
+    "en": "Suspension of Incantation",
     "source": "Dark Ages: Player's Guide to Low Clans",
     "era": "darkAges",
     "roll": {
@@ -4413,7 +4413,7 @@
     "discipline": "thaumaturgy",
     "level": 4,
     "name": "Разделение банши",
-    "en": "",
+    "en": "Keening of the Banshee",
     "source": "The Player's Guide to the Sabbat (2nd Edition, 1992)",
     "era": "",
     "roll": {
@@ -4504,7 +4504,7 @@
     "discipline": "thaumaturgy",
     "level": 4,
     "name": "Тайный Покров",
-    "en": "",
+    "en": "Furtive Integument",
     "source": "Dark Ages: House of Tremere",
     "era": "darkAges",
     "roll": {
@@ -4517,7 +4517,7 @@
     "discipline": "thaumaturgy",
     "level": 4,
     "name": "Уважение к животным",
-    "en": "",
+    "en": "Respect of the Animals",
     "source": "The Player's Guide to the Sabbat (2nd Edition, 1992)",
     "era": "",
     "roll": {
@@ -4673,7 +4673,7 @@
     "discipline": "thaumaturgy",
     "level": 5,
     "name": "Глаза зверя",
-    "en": "",
+    "en": "Eyes of the Beast",
     "source": "The Player's Guide to the Sabbat (2nd Edition, 1992)",
     "era": "",
     "roll": {
@@ -4686,7 +4686,7 @@
     "discipline": "thaumaturgy",
     "level": 5,
     "name": "Доминион",
-    "en": "",
+    "en": "Dominion",
     "source": "The Player's Guide to the Sabbat (2nd Edition, 1992)",
     "era": "",
     "roll": {
@@ -4699,7 +4699,7 @@
     "discipline": "thaumaturgy",
     "level": 5,
     "name": "Дух мучений",
-    "en": "",
+    "en": "Spirit of Torment",
     "source": "The Player's Guide to the Sabbat (2nd Edition, 1992)",
     "era": "",
     "roll": {
@@ -4738,7 +4738,7 @@
     "discipline": "thaumaturgy",
     "level": 5,
     "name": "Защита от магов",
-    "en": "",
+    "en": "Ward Versus Magi",
     "source": "Dark Ages: Player's Guide to Low Clans",
     "era": "darkAges",
     "roll": {
@@ -4790,7 +4790,7 @@
     "discipline": "thaumaturgy",
     "level": 5,
     "name": "Ихор Оккультной Передачи (ур. = уровень силы Пути + 2)",
-    "en": "",
+    "en": "Ichor of Occult Transmission",
     "source": "Dark Ages: House of Tremere",
     "era": "darkAges",
     "roll": {
@@ -4868,7 +4868,7 @@
     "discipline": "thaumaturgy",
     "level": 5,
     "name": "Кровавый филактерий",
-    "en": "",
+    "en": "Blood Phylactery",
     "source": "Dark Ages: Player's Guide to Low Clans",
     "era": "darkAges",
     "roll": {
@@ -4894,7 +4894,7 @@
     "discipline": "thaumaturgy",
     "level": 5,
     "name": "Львиное сердце",
-    "en": "",
+    "en": "Lion Heart",
     "source": "The Player's Guide to the Sabbat (2nd Edition, 1992)",
     "era": "",
     "roll": {
@@ -4920,7 +4920,7 @@
     "discipline": "thaumaturgy",
     "level": 5,
     "name": "Настройка защиты",
-    "en": "",
+    "en": "нет оригинала",
     "source": "Guide to the Camarilla (Revised)",
     "era": "",
     "roll": {
@@ -4946,7 +4946,7 @@
     "discipline": "thaumaturgy",
     "level": 5,
     "name": "Неутолимая жажда",
-    "en": "",
+    "en": "Thirst Unquenchable",
     "source": "The Player's Guide to the Sabbat (2nd Edition, 1992)",
     "era": "",
     "roll": {
@@ -4959,7 +4959,7 @@
     "discipline": "thaumaturgy",
     "level": 5,
     "name": "Ночь красного сердца",
-    "en": "",
+    "en": "Night of the Red Heart",
     "source": "Clanbook: Tremere (Revised)",
     "era": "",
     "roll": {
@@ -4998,7 +4998,7 @@
     "discipline": "thaumaturgy",
     "level": 5,
     "name": "По Нашей Воле Оно Дышит",
-    "en": "",
+    "en": "At Our Command It Breathes",
     "source": "Dark Ages: House of Tremere",
     "era": "darkAges",
     "roll": {
@@ -5063,7 +5063,7 @@
     "discipline": "thaumaturgy",
     "level": 5,
     "name": "Проклятие Клитемнестры",
-    "en": "",
+    "en": "Curse of Clytaemnestra",
     "source": "Milwaukee by Night (2nd Edition)",
     "era": "",
     "roll": {
@@ -5141,7 +5141,7 @@
     "discipline": "thaumaturgy",
     "level": 5,
     "name": "Сканер разума",
-    "en": "",
+    "en": "Mind Scanner",
     "source": "The Player's Guide to the Sabbat (2nd Edition, 1992)",
     "era": "",
     "roll": {
@@ -5167,7 +5167,7 @@
     "discipline": "thaumaturgy",
     "level": 5,
     "name": "Сыворотка Воспроизводства Витэ",
-    "en": "",
+    "en": "Serum of Perpetuating Vitae",
     "source": "Dark Ages: House of Tremere",
     "era": "darkAges",
     "roll": {
@@ -5180,7 +5180,7 @@
     "discipline": "thaumaturgy",
     "level": 5,
     "name": "Сыворотка Хвалебного Призыва",
-    "en": "",
+    "en": "Serum of Vacinated Exhortation",
     "source": "Dark Ages: House of Tremere",
     "era": "darkAges",
     "roll": {
@@ -5271,7 +5271,7 @@
     "discipline": "thaumaturgy",
     "level": 6,
     "name": "«Подарок»",
-    "en": "",
+    "en": "The Gift",
     "source": "The Player's Guide to the Sabbat (2nd Edition, 1992)",
     "era": "",
     "roll": {
@@ -5310,7 +5310,7 @@
     "discipline": "thaumaturgy",
     "level": 6,
     "name": "Железный разум",
-    "en": "",
+    "en": "Iron Mind",
     "source": "The Player's Guide to the Sabbat (2nd Edition, 1992)",
     "era": "",
     "roll": {
@@ -5323,7 +5323,7 @@
     "discipline": "thaumaturgy",
     "level": 6,
     "name": "Кость раздора",
-    "en": "",
+    "en": "Bone of Contention",
     "source": "Clanbook: Tremere (Revised)",
     "era": "",
     "roll": {
@@ -5336,7 +5336,7 @@
     "discipline": "thaumaturgy",
     "level": 6,
     "name": "Паучья паутина",
-    "en": "",
+    "en": "Spider’s Web",
     "source": "The Player's Guide to the Sabbat (2nd Edition, 1992)",
     "era": "",
     "roll": {
@@ -5349,7 +5349,7 @@
     "discipline": "thaumaturgy",
     "level": 6,
     "name": "Пески времени",
-    "en": "",
+    "en": "Sands of Time",
     "source": "Chicago by Night (2nd Edition)",
     "era": "",
     "roll": {
@@ -5466,7 +5466,7 @@
     "discipline": "thaumaturgy",
     "level": 7,
     "name": "Тень волка",
-    "en": "",
+    "en": "Shadow of the Wolf",
     "source": "The Player's Guide to the Sabbat (2nd Edition, 1992)",
     "era": "",
     "roll": {
@@ -5479,7 +5479,7 @@
     "discipline": "thaumaturgy",
     "level": 7,
     "name": "Холод Меча Ветра",
-    "en": "",
+    "en": "Chill of the Windsaber",
     "source": "The Player's Guide to the Sabbat (2nd Edition, 1992)",
     "era": "",
     "roll": {
@@ -5579,7 +5579,7 @@
     "discipline": "assamiteSorcery",
     "level": 1,
     "name": "Глаз переводчика",
-    "en": "",
+    "en": "Eye of the Translator",
     "source": "Dark Ages: Player's Guide to Low Clans",
     "era": "darkAges",
     "roll": {
@@ -5670,7 +5670,7 @@
     "discipline": "assamiteSorcery",
     "level": 1,
     "name": "Кровь Земли (Dowse the Earth’s Blood), ур. 1 — поиск воды",
-    "en": "",
+    "en": "Dowse the Earth’s Blood",
     "source": "Dark Ages: Player's Guide to Low Clans",
     "era": "darkAges",
     "roll": {
@@ -5748,7 +5748,7 @@
     "discipline": "assamiteSorcery",
     "level": 1,
     "name": "Кровь Земли",
-    "en": "",
+    "en": "нет оригинала",
     "source": "—",
     "era": "",
     "roll": {
@@ -5930,7 +5930,7 @@
     "discipline": "assamiteSorcery",
     "level": 2,
     "name": "Глоссолалический пыл",
-    "en": "",
+    "en": "нет оригинала",
     "source": "Dark Ages: Player's Guide to Low Clans",
     "era": "darkAges",
     "roll": {
@@ -5995,7 +5995,7 @@
     "discipline": "assamiteSorcery",
     "level": 2,
     "name": "Крик крови о мести",
-    "en": "",
+    "en": "Blood’s Cry for Vengeance",
     "source": "Dark Ages: Player's Guide to Low Clans",
     "era": "darkAges",
     "roll": {
@@ -6268,7 +6268,7 @@
     "discipline": "assamiteSorcery",
     "level": 3,
     "name": "Клятва на крови",
-    "en": "",
+    "en": "Bound by Oath",
     "source": "Dark Ages: Player's Guide to Low Clans",
     "era": "darkAges",
     "roll": {
@@ -6333,7 +6333,7 @@
     "discipline": "assamiteSorcery",
     "level": 3,
     "name": "Посланник ветров",
-    "en": "",
+    "en": "Messenger of the Winds",
     "source": "Dark Ages: Player's Guide to Low Clans",
     "era": "darkAges",
     "roll": {
@@ -6567,7 +6567,7 @@
     "discipline": "assamiteSorcery",
     "level": 4,
     "name": "Пальцы образуют руку",
-    "en": "",
+    "en": "Fingers From the Hand",
     "source": "Dark Ages: Player's Guide to Low Clans",
     "era": "darkAges",
     "roll": {
@@ -6580,7 +6580,7 @@
     "discipline": "assamiteSorcery",
     "level": 4,
     "name": "Принудить профана",
-    "en": "",
+    "en": "Coerce the Profane",
     "source": "Dark Ages: Player's Guide to Low Clans",
     "era": "darkAges",
     "roll": {
@@ -6684,7 +6684,7 @@
     "discipline": "assamiteSorcery",
     "level": 5,
     "name": "Из горла Мардука",
-    "en": "",
+    "en": "From Marduk’s Throat",
     "roll": {
      "trait1": "attributes.intelligence",
      "trait2": "abilities.occult",
@@ -6697,7 +6697,7 @@
     "discipline": "assamiteSorcery",
     "level": 5,
     "name": "Изгнать тёмные гуморы",
-    "en": "",
+    "en": "Expel the Dark Humors",
     "source": "Dark Ages: Player's Guide to Low Clans",
     "era": "darkAges",
     "roll": {
@@ -6762,7 +6762,7 @@
     "discipline": "assamiteSorcery",
     "level": 5,
     "name": "Изгнать тёмные чувства",
-    "en": "",
+    "en": "нет оригинала",
     "source": "—",
     "era": "",
     "roll": {
@@ -8848,7 +8848,7 @@
     "discipline": "obtenebration",
     "level": 10,
     "name": "Plot Device (ритуал-сюжетный механизм)",
-    "en": "",
+    "en": "Plot Device",
     "source": "Gehenna",
     "era": "",
     "roll": {
@@ -8972,7 +8972,7 @@
     "discipline": "darkThaumaturgy",
     "level": 2,
     "name": "Video Nefas",
-    "en": "",
+    "en": "Video Nefas",
     "roll": {
      "trait1": "attributes.intelligence",
      "trait2": "abilities.occult",
@@ -9063,7 +9063,7 @@
     "discipline": "darkThaumaturgy",
     "level": 3,
     "name": "Felis Negrum",
-    "en": "",
+    "en": "Felis Negrum",
     "roll": {
      "trait1": "attributes.intelligence",
      "trait2": "abilities.occult",

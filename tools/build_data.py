@@ -1010,6 +1010,24 @@ def main():
     merits = text_structure.merits(merits)
     import dhampir_data   # дампиры, гл. 3: Путь биотауматургии и силы старейшин (Accursed Heirs)
     dhampir_data.extend_disciplines(disc)
+    # английские названия сил и ритуалов, которых нет в справочнике (сверка аудитора: tools/sources/structure/en_names_powers_rituals.json)
+    en_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "sources", "structure", "en_names_powers_rituals.json")
+    if os.path.exists(en_file):
+        with open(en_file, encoding="utf-8") as f:
+            names = {(x["name"].strip().lower(), int(x.get("level") or 0)): x["en"] for x in json.load(f) if x.get("en")}
+        hit = 0
+        def fill(x):
+            nonlocal hit
+            k = (x.get("name", "").strip().lower(), int(x.get("level") or 0))
+            if not x.get("en") and k in names:
+                x["en"] = names[k]; hit += 1
+        for d in disc.values():
+            for p in d.get("powers", []): fill(p)
+            for pa in d.get("paths", []):
+                for p in pa.get("powers", []): fill(p)
+        for g in rituals.values():
+            for r in g.get("rituals", []): fill(r)
+        print(f"  английские названия сил и ритуалов: +{hit}")
     dump_split("disciplines", disc)
     # английские имена, которых нет в справочнике (для английского интерфейса); берутся, только если en пусто
     for items in (derangements, backgrounds, paths if isinstance(paths, list) else paths.values()):

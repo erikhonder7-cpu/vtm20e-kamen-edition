@@ -1,0 +1,3652 @@
+[
+  {
+    "kind": "power",
+    "discipline": "Анимализм",
+    "path": "",
+    "level": 6,
+    "name": "Глаза шляхты",
+    "en": "Eyes of the Szlachta",
+    "page": "Clanbook: Tzimisce (Revised), p. 69",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Величие",
+    "path": "",
+    "level": 6,
+    "name": "Нерушимый Приказ",
+    "en": "Ironclad Command",
+    "page": "Guide to the Camarilla (Revised), p. 96",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Величие",
+    "path": "",
+    "level": 6,
+    "name": "Парализующий Взгляд",
+    "en": "Paralyzing Glance",
+    "page": "Guide to the Camarilla (Revised), p. 95",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Величие",
+    "path": "",
+    "level": 8,
+    "name": "Моральное разложение",
+    "en": "Corruption",
+    "page": "Clanbook: Followers of Set (Revised), p. 69",
+    "note": "В источнике название силы — Corruption; «Моральное разложение» является русской локализацией."
+  },
+  {
+    "kind": "power",
+    "discipline": "Затмение",
+    "path": "",
+    "level": 6,
+    "name": "Эгида Теней",
+    "en": "Aegis of Shadows",
+    "page": "Dark Ages: Player’s Guide to High Clans, p. 156",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Затмение",
+    "path": "",
+    "level": 7,
+    "name": "Укрепись против Ахура Мазды",
+    "en": "Fortify Against Ahura Mazda",
+    "page": "Dark Ages: Player’s Guide to High Clans, p. 157",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Затмение",
+    "path": "",
+    "level": 9,
+    "name": "Войти в Бездну",
+    "en": "Enter the Abyss",
+    "page": "Dark Ages: Player’s Guide to High Clans, p. 158",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Метаморфозы",
+    "path": "",
+    "level": 4,
+    "name": "Модифицированный Облик Зверя",
+    "en": "Shape of the Beast Revisited",
+    "page": "Clanbook: Gangrel (Revised), p. 67",
+    "note": "Печатный заголовок в источнике — Shape of the Beast Revisited."
+  },
+  {
+    "kind": "power",
+    "discipline": "Метаморфозы",
+    "path": "",
+    "level": 6,
+    "name": "Бич Протея",
+    "en": "Proteus’ Bane",
+    "page": "Dark Ages: Player’s Guide to Low Clans, p. 152",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Метаморфозы",
+    "path": "",
+    "level": 6,
+    "name": "Власть над формой",
+    "en": "Shape Mastery",
+    "page": "Clanbook: Gangrel (Revised), p. 69",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Метаморфозы",
+    "path": "",
+    "level": 6,
+    "name": "Внутренний Фокус",
+    "en": "Inward Focus",
+    "page": "Guide to the Camarilla (Revised), p. 98",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Метаморфозы",
+    "path": "",
+    "level": 6,
+    "name": "Восстановление Смертного Облика",
+    "en": "Restore the Mortal Visage",
+    "page": "Guide to the Camarilla (Revised), p. 97",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Метаморфозы",
+    "path": "",
+    "level": 6,
+    "name": "Очищение Пронзённой Груди",
+    "en": "Purify the Impaled Breast",
+    "page": "Guide to the Camarilla (Revised), p. 98",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Метаморфозы",
+    "path": "",
+    "level": 6,
+    "name": "Призрачное Тело",
+    "en": "Spectral Body",
+    "page": "Guide to the Camarilla (Revised), p. 98",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Метаморфозы",
+    "path": "",
+    "level": 6,
+    "name": "Управление Землёй",
+    "en": "Earth Control",
+    "page": "Guide to the Camarilla (Revised), p. 96",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Метаморфозы",
+    "path": "",
+    "level": 6,
+    "name": "Форма Ярости Зверя",
+    "en": "Shape of the Beast’s Wrath",
+    "page": "Guide to the Camarilla (Revised), p. 98",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Метаморфозы",
+    "path": "",
+    "level": 7,
+    "name": "Форма роя",
+    "en": "Form of the Bloodswarm",
+    "page": "Dark Ages: Player’s Guide to Low Clans, p. 152",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Метаморфозы",
+    "path": "",
+    "level": 7,
+    "name": "Форма стаи",
+    "en": "Animal Swarm",
+    "page": "Clanbook: Gangrel (Revised), p. 70",
+    "note": "Печатный заголовок в источнике — Animal Swarm; русская строка является вольной локализацией."
+  },
+  {
+    "kind": "power",
+    "discipline": "Метаморфозы",
+    "path": "",
+    "level": 8,
+    "name": "Мифическая форма",
+    "en": "Mythic Form",
+    "page": "Clanbook: Gangrel (Revised), p. 71",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Метаморфозы",
+    "path": "",
+    "level": 8,
+    "name": "Форма внутреннего зверя",
+    "en": "Shape of the Inner Beast",
+    "page": "Dark Ages: Player’s Guide to Low Clans, p. 153",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Метаморфозы",
+    "path": "",
+    "level": 9,
+    "name": "Адаптация",
+    "en": "Adaptation",
+    "page": "Dark Ages: Player’s Guide to Low Clans, p. 154",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Мортис (Век живых богов)",
+    "path": "",
+    "level": 1,
+    "name": "Маска смерти",
+    "en": "нет оригинала",
+    "page": null,
+    "note": "Источник в исходной таблице обозначен как фанатский Vampire: Age of the Living Gods; официального английского оригинала White Wolf/Onyx Path для этой записи нет."
+  },
+  {
+    "kind": "power",
+    "discipline": "Мортис (Век живых богов)",
+    "path": "",
+    "level": 2,
+    "name": "Трупное окоченение",
+    "en": "нет оригинала",
+    "page": null,
+    "note": "Источник в исходной таблице обозначен как фанатский Vampire: Age of the Living Gods; официального английского оригинала White Wolf/Onyx Path для этой записи нет."
+  },
+  {
+    "kind": "power",
+    "discipline": "Мортис (Век живых богов)",
+    "path": "",
+    "level": 3,
+    "name": "Иссушение",
+    "en": "нет оригинала",
+    "page": null,
+    "note": "Источник в исходной таблице обозначен как фанатский Vampire: Age of the Living Gods; официального английского оригинала White Wolf/Onyx Path для этой записи нет."
+  },
+  {
+    "kind": "power",
+    "discipline": "Мортис (Век живых богов)",
+    "path": "",
+    "level": 4,
+    "name": "Порча нежитой плоти",
+    "en": "нет оригинала",
+    "page": null,
+    "note": "Источник в исходной таблице обозначен как фанатский Vampire: Age of the Living Gods; официального английского оригинала White Wolf/Onyx Path для этой записи нет."
+  },
+  {
+    "kind": "power",
+    "discipline": "Мортис (Век живых богов)",
+    "path": "",
+    "level": 5,
+    "name": "Растворение плоти",
+    "en": "нет оригинала",
+    "page": null,
+    "note": "Источник в исходной таблице обозначен как фанатский Vampire: Age of the Living Gods; официального английского оригинала White Wolf/Onyx Path для этой записи нет."
+  },
+  {
+    "kind": "power",
+    "discipline": "Мортис (Век живых богов)",
+    "path": "",
+    "level": 6,
+    "name": "Восстание трупа",
+    "en": "нет оригинала",
+    "page": null,
+    "note": "Источник в исходной таблице обозначен как фанатский Vampire: Age of the Living Gods; официального английского оригинала White Wolf/Onyx Path для этой записи нет."
+  },
+  {
+    "kind": "power",
+    "discipline": "Мортис (Век живых богов)",
+    "path": "",
+    "level": 6,
+    "name": "Дар жизни",
+    "en": "нет оригинала",
+    "page": null,
+    "note": "Источник в исходной таблице обозначен как фанатский Vampire: Age of the Living Gods; официального английского оригинала White Wolf/Onyx Path для этой записи нет."
+  },
+  {
+    "kind": "power",
+    "discipline": "Мортис (Век живых богов)",
+    "path": "",
+    "level": 6,
+    "name": "Прохождение Жнеца",
+    "en": "нет оригинала",
+    "page": null,
+    "note": "Источник в исходной таблице обозначен как фанатский Vampire: Age of the Living Gods; официального английского оригинала White Wolf/Onyx Path для этой записи нет."
+  },
+  {
+    "kind": "power",
+    "discipline": "Мортис (Век живых богов)",
+    "path": "",
+    "level": 6,
+    "name": "Хранение нектара богов",
+    "en": "нет оригинала",
+    "page": null,
+    "note": "Источник в исходной таблице обозначен как фанатский Vampire: Age of the Living Gods; официального английского оригинала White Wolf/Onyx Path для этой записи нет."
+  },
+  {
+    "kind": "power",
+    "discipline": "Мортис (Век живых богов)",
+    "path": "",
+    "level": 7,
+    "name": "Армия трупов",
+    "en": "нет оригинала",
+    "page": null,
+    "note": "Источник в исходной таблице обозначен как фанатский Vampire: Age of the Living Gods; официального английского оригинала White Wolf/Onyx Path для этой записи нет."
+  },
+  {
+    "kind": "power",
+    "discipline": "Мортис (Век живых богов)",
+    "path": "",
+    "level": 7,
+    "name": "Марш прокажённого",
+    "en": "нет оригинала",
+    "page": null,
+    "note": "Источник в исходной таблице обозначен как фанатский Vampire: Age of the Living Gods; официального английского оригинала White Wolf/Onyx Path для этой записи нет."
+  },
+  {
+    "kind": "power",
+    "discipline": "Мортис (Век живых богов)",
+    "path": "",
+    "level": 8,
+    "name": "Чумной ветер",
+    "en": "нет оригинала",
+    "page": null,
+    "note": "Источник в исходной таблице обозначен как фанатский Vampire: Age of the Living Gods; официального английского оригинала White Wolf/Onyx Path для этой записи нет."
+  },
+  {
+    "kind": "power",
+    "discipline": "Мортис (Век живых богов)",
+    "path": "",
+    "level": 9,
+    "name": "Буря Энлиля",
+    "en": "нет оригинала",
+    "page": null,
+    "note": "Источник в исходной таблице обозначен как фанатский Vampire: Age of the Living Gods; официального английского оригинала White Wolf/Onyx Path для этой записи нет."
+  },
+  {
+    "kind": "power",
+    "discipline": "Мощь",
+    "path": "",
+    "level": 6,
+    "name": "Мастер кузни",
+    "en": "Master of the Forge",
+    "page": "Dark Ages: Player’s Guide to High Clans, p. 159",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Мощь",
+    "path": "",
+    "level": 6,
+    "name": "Оттиск",
+    "en": "Imprint",
+    "page": "Guide to the Camarilla (Revised), p. 93",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Мощь",
+    "path": "",
+    "level": 6,
+    "name": "Сотрясение Земли",
+    "en": "Earthshock",
+    "page": "Guide to the Camarilla (Revised), p. 93",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Мощь",
+    "path": "",
+    "level": 7,
+    "name": "Кулак титанов",
+    "en": "нет оригинала",
+    "page": null,
+    "note": "Для указанной строки Player’s Guide to High Clans не найдено подтверждение названия «Fist of the Titans»; не подменяю его похожей силой."
+  },
+  {
+    "kind": "power",
+    "discipline": "Мощь",
+    "path": "",
+    "level": 8,
+    "name": "Передать мощь",
+    "en": "нет оригинала",
+    "page": null,
+    "note": "В указанном Player’s Guide to High Clans не удалось подтвердить отдельную силу с таким названием."
+  },
+  {
+    "kind": "power",
+    "discipline": "Мощь",
+    "path": "",
+    "level": 9,
+    "name": "Мощь героев",
+    "en": "Might of Heroes",
+    "page": "Dark Ages: Player’s Guide to High Clans, p. 160",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Преображение",
+    "path": "",
+    "level": 6,
+    "name": "Восторг боли",
+    "en": "Ecstatic Agony",
+    "page": "Clanbook: Tzimisce (Revised), p. 68",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Преображение",
+    "path": "",
+    "level": 6,
+    "name": "Перенести жизнь в жизнь",
+    "en": "Graft Life to Life",
+    "page": "Dark Ages: Player’s Guide to High Clans, p. 162",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Преображение",
+    "path": "",
+    "level": 7,
+    "name": "Превзойти плоть",
+    "en": "Transcend the Flesh",
+    "page": "Dark Ages: Player’s Guide to High Clans, p. 162",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Преображение",
+    "path": "",
+    "level": 8,
+    "name": "Воля над формой",
+    "en": "Will Over Form",
+    "page": "Dark Ages: Player’s Guide to High Clans, p. 163",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Преображение",
+    "path": "",
+    "level": 9,
+    "name": "Совершенная сущность",
+    "en": "Perfect Essence",
+    "page": "Dark Ages: Player’s Guide to High Clans, p. 163",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Серпентис",
+    "path": "",
+    "level": 6,
+    "name": "Аспект бога",
+    "en": "Aspect of the God",
+    "page": "Dark Ages: Player’s Guide to Low Clans, p. 156",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Серпентис",
+    "path": "",
+    "level": 7,
+    "name": "Семя коррупции",
+    "en": "Seed of Corruption",
+    "page": "Dark Ages: Player’s Guide to Low Clans, p. 157",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Серпентис",
+    "path": "",
+    "level": 8,
+    "name": "Тело Великого Господина Сета",
+    "en": "Body of the Great Lord Set",
+    "page": "Dark Ages: Player’s Guide to Low Clans, p. 158",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Серпентис",
+    "path": "",
+    "level": 8,
+    "name": "Украсть сердце",
+    "en": "Heart Thief",
+    "page": "Clanbook: Followers of Set (Revised), p. 67",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Серпентис",
+    "path": "",
+    "level": 9,
+    "name": "Договор с Ра",
+    "en": "Pact with Ra",
+    "page": "Dark Ages: Player’s Guide to Low Clans, p. 158",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Серпентис",
+    "path": "",
+    "level": 9,
+    "name": "Тень Апофиса",
+    "en": "Shadow of Apep",
+    "page": "Clanbook: Followers of Set (Revised), p. 67",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Сокрытие",
+    "path": "",
+    "level": 6,
+    "name": "Маска Души",
+    "en": "Soul Mask",
+    "page": "Guide to the Camarilla (Revised), p. 91",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Сокрытие",
+    "path": "",
+    "level": 6,
+    "name": "Мысленный лабиринт",
+    "en": "Mental Maze",
+    "page": "Clanbook: Followers of Set (Revised), p. 67",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Сокрытие",
+    "path": "",
+    "level": 6,
+    "name": "Невидимое оружие",
+    "en": "Invisible Weapon",
+    "page": "Dark Ages: Player’s Guide to Low Clans, p. 150",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Сокрытие",
+    "path": "",
+    "level": 6,
+    "name": "Несерьёзное восприятие",
+    "en": "Blithe Acceptance",
+    "page": "Clanbook: Assamite (Revised), pp. 64–65",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Сокрытие",
+    "path": "",
+    "level": 6,
+    "name": "Покров Блаженного Неведения",
+    "en": "Veil of Blissful Ignorance",
+    "page": "Guide to the Camarilla (Revised), p. 92",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Сокрытие",
+    "path": "",
+    "level": 6,
+    "name": "Скрытие объекта",
+    "en": "Conceal",
+    "page": "Guide to the Camarilla (Revised), p. 91",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Сокрытие",
+    "path": "",
+    "level": 6,
+    "name": "Смущение взора",
+    "en": "Confusion of the Eye",
+    "page": "Clanbook: Followers of Set (Revised), p. 68",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Сокрытие",
+    "path": "",
+    "level": 6,
+    "name": "Сотворение Имени",
+    "en": "Create Name",
+    "page": "Guide to the Camarilla (Revised), p. 92",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Сокрытие",
+    "path": "",
+    "level": 6,
+    "name": "Тайник",
+    "en": "Cache",
+    "page": "Guide to the Camarilla (Revised), p. 92",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Сокрытие",
+    "path": "",
+    "level": 7,
+    "name": "Завеса блаженного неведения",
+    "en": "Veil of Blissful Ignorance",
+    "page": "Dark Ages: Player’s Guide to Low Clans, p. 150",
+    "note": "Совпадает по английской форме с одноимённой силой из Guide to the Camarilla; запись в другой книге/редакции."
+  },
+  {
+    "kind": "power",
+    "discipline": "Сокрытие",
+    "path": "",
+    "level": 8,
+    "name": "Ужасный лик",
+    "en": "Horrid Countenance",
+    "page": "Dark Ages: Player’s Guide to Low Clans, p. 151",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Сокрытие",
+    "path": "",
+    "level": 9,
+    "name": "Непонятное Божье творение",
+    "en": "Obscure God’s Creation",
+    "page": "Dark Ages: Player’s Guide to Low Clans, p. 151",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Стойкость",
+    "path": "",
+    "level": 6,
+    "name": "Адамантин",
+    "en": "Adamantine",
+    "page": "Guide to the Camarilla (Revised), p. 91",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Стойкость",
+    "path": "",
+    "level": 6,
+    "name": "Встань против всех врагов",
+    "en": "Stand Against All Foes",
+    "page": "Dark Ages: Player’s Guide to High Clans, p. 155",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Стойкость",
+    "path": "",
+    "level": 6,
+    "name": "Личная Броня",
+    "en": "Personal Armor",
+    "page": "Guide to the Camarilla (Revised), p. 90",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Стойкость",
+    "path": "",
+    "level": 6,
+    "name": "Разделённая Сила",
+    "en": "Shared Strength",
+    "page": "Guide to the Camarilla (Revised), p. 91",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Стойкость",
+    "path": "",
+    "level": 6,
+    "name": "Щит чувств",
+    "en": "Sensory Shield",
+    "page": "Clanbook: Gangrel (Revised), p. 64",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Стойкость",
+    "path": "",
+    "level": 7,
+    "name": "Доспехи королей",
+    "en": "Armor of Kings",
+    "page": "Dark Ages: Player’s Guide to High Clans, p. 155",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Стойкость",
+    "path": "",
+    "level": 7,
+    "name": "Непреклонный разум",
+    "en": "Resilient Mind",
+    "page": "Clanbook: Gangrel (Revised), p. 65",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Стойкость",
+    "path": "",
+    "level": 8,
+    "name": "Восстановить плоть нежити",
+    "en": "Repair the Undead Flesh",
+    "page": "Dark Ages: Player’s Guide to High Clans, p. 156",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Стойкость",
+    "path": "",
+    "level": 8,
+    "name": "Царь горы",
+    "en": "King of the Mountain",
+    "page": "Clanbook: Gangrel (Revised), p. 66",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Стойкость",
+    "path": "",
+    "level": 9,
+    "name": "Рука Прометея",
+    "en": "Arm of Prometheus",
+    "page": "Dark Ages: Player’s Guide to High Clans, p. 156",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Стремительность",
+    "path": "",
+    "level": 6,
+    "name": "Безупречное парирование",
+    "en": "Flawless Parry",
+    "page": "Dark Ages: Player’s Guide to High Clans, p. 163",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Стремительность",
+    "path": "",
+    "level": 6,
+    "name": "Точность",
+    "en": "Precision",
+    "page": "Clanbook: Assamite (Revised), p. 69",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Стремительность",
+    "path": "",
+    "level": 7,
+    "name": "Утончённость быстроты",
+    "en": "Grace of Speed",
+    "page": "Dark Ages: Player’s Guide to High Clans, p. 164",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Стремительность",
+    "path": "",
+    "level": 8,
+    "name": "Незримый шторм",
+    "en": "Invisible Storm",
+    "page": "Dark Ages: Player’s Guide to High Clans, p. 164",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Стремительность",
+    "path": "",
+    "level": 9,
+    "name": "Образец движения",
+    "en": "Mastery of Movement",
+    "page": "Dark Ages: Player’s Guide to High Clans, p. 165",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Упокоение",
+    "path": "",
+    "level": 6,
+    "name": "Омовение",
+    "en": "нет оригинала",
+    "page": null,
+    "note": "Источник в исходной таблице не указан; название не удалось однозначно сопоставить с опубликованной силой Quietus."
+  },
+  {
+    "kind": "power",
+    "discipline": "Упокоение",
+    "path": "",
+    "level": 6,
+    "name": "Отзвуки сердца",
+    "en": "Ripples of the Heart",
+    "page": "Clanbook: Assamite (Revised), p. 67",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Упокоение",
+    "path": "",
+    "level": 6,
+    "name": "Очищение",
+    "en": "Purification",
+    "page": "Clanbook: Assamite (Revised), p. 67",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Упокоение",
+    "path": "",
+    "level": 6,
+    "name": "Порыв чувств",
+    "en": "нет оригинала",
+    "page": null,
+    "note": "Источник в исходной таблице не указан; нет надёжного совпадения с печатной силой Quietus."
+  },
+  {
+    "kind": "power",
+    "discipline": "Упокоение",
+    "path": "",
+    "level": 6,
+    "name": "Хищное прикосновение",
+    "en": "Rapturous Touch",
+    "page": "Dark Ages: Player’s Guide to Low Clans, p. 154",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Упокоение",
+    "path": "",
+    "level": 7,
+    "name": "Запрудить реку сердца",
+    "en": "Dam the Heart’s River",
+    "page": "Dark Ages: Player’s Guide to Low Clans, p. 155",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Упокоение",
+    "path": "",
+    "level": 7,
+    "name": "Кровавые когти Баала",
+    "en": "Baal’s Bloody Talons",
+    "page": "Clanbook: Assamite (Revised), p. 68",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Упокоение",
+    "path": "",
+    "level": 7,
+    "name": "Кровавые когти Ваала",
+    "en": "нет оригинала",
+    "page": null,
+    "note": "Похоже на альтернативный перевод Baal’s Bloody Talons; отдельное печатное название не подтверждено."
+  },
+  {
+    "kind": "power",
+    "discipline": "Упокоение",
+    "path": "",
+    "level": 7,
+    "name": "Отравление источника жизни",
+    "en": "Poison the Well of Life",
+    "page": "Clanbook: Assamite (Revised), p. 69",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Упокоение",
+    "path": "",
+    "level": 7,
+    "name": "Отравленный родник",
+    "en": "нет оригинала",
+    "page": null,
+    "note": "Похоже на альтернативный перевод Poison the Well of Life; отдельное печатное название не подтверждено."
+  },
+  {
+    "kind": "power",
+    "discipline": "Упокоение",
+    "path": "",
+    "level": 8,
+    "name": "Кровь разрушения",
+    "en": "Blood of Destruction",
+    "page": "Dark Ages: Player’s Guide to Low Clans, p. 155",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Упокоение",
+    "path": "",
+    "level": 8,
+    "name": "Напевы далёкого витэ",
+    "en": "Songs of Distant Vitae",
+    "page": "Clanbook: Assamite (Revised), p. 69",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Упокоение",
+    "path": "",
+    "level": 8,
+    "name": "Песнь чужой витэ",
+    "en": "нет оригинала",
+    "page": null,
+    "note": "Похоже на альтернативный перевод Songs of Distant Vitae; отдельное печатное название не подтверждено."
+  },
+  {
+    "kind": "power",
+    "discipline": "Упокоение",
+    "path": "",
+    "level": 9,
+    "name": "Ослабить кровь древних",
+    "en": "Weaken the Blood of the Ancients",
+    "page": "Dark Ages: Player’s Guide to Low Clans, p. 156",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Упокоение",
+    "path": "",
+    "level": 9,
+    "name": "Осуждение грехов отца",
+    "en": "Condemnation of the Father’s Sins",
+    "page": "Clanbook: Assamite (Revised), p. 69",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Фантасмагория",
+    "path": "",
+    "level": 6,
+    "name": "Ужасный клинок демонов",
+    "en": "Horrid Blade of the Demons",
+    "page": "Dark Ages: Player’s Guide to Low Clans, p. 146",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Фантасмагория",
+    "path": "",
+    "level": 7,
+    "name": "Помощь гандхарвов",
+    "en": "Aid of the Gandharvas",
+    "page": "Dark Ages: Player’s Guide to Low Clans, p. 147",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Фантасмагория",
+    "path": "",
+    "level": 8,
+    "name": "Видения от асуры",
+    "en": "Visions from the Asura",
+    "page": "Dark Ages: Player’s Guide to Low Clans, p. 147",
+    "note": ""
+  },
+  {
+    "kind": "power",
+    "discipline": "Фантасмагория",
+    "path": "",
+    "level": 9,
+    "name": "Истины вселенной",
+    "en": "Truths of the Universe",
+    "page": "Dark Ages: Player’s Guide to Low Clans, p. 148",
+    "note": ""
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Колдовство",
+    "path": "Гений места / Genius Loci",
+    "level": 1,
+    "name": "Гений места — 15 м",
+    "en": "нет оригинала",
+    "page": null,
+    "note": "В исходной таблице нет источника; не удалось подтвердить, что это название официального пути с такими дальностями."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Колдовство",
+    "path": "Гений места / Genius Loci",
+    "level": 2,
+    "name": "Гений места — 100 м",
+    "en": "нет оригинала",
+    "page": null,
+    "note": "В исходной таблице нет источника; не удалось подтвердить, что это название официального пути с такими дальностями."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Колдовство",
+    "path": "Гений места / Genius Loci",
+    "level": 3,
+    "name": "Гений места — 500 м",
+    "en": "нет оригинала",
+    "page": null,
+    "note": "В исходной таблице нет источника; не удалось подтвердить, что это название официального пути с такими дальностями."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Колдовство",
+    "path": "Гений места / Genius Loci",
+    "level": 4,
+    "name": "Гений места — 1,5 км",
+    "en": "нет оригинала",
+    "page": null,
+    "note": "В исходной таблице нет источника; не удалось подтвердить, что это название официального пути с такими дальностями."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Колдовство",
+    "path": "Гений места / Genius Loci",
+    "level": 5,
+    "name": "Гений места — 8 км",
+    "en": "нет оригинала",
+    "page": null,
+    "note": "В исходной таблице нет источника; не удалось подтвердить, что это название официального пути с такими дальностями."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Колдовство",
+    "path": "Путь Духа / The Way of the Spirit",
+    "level": 1,
+    "name": "Путь Духа — 15 м",
+    "en": "The Way of the Spirit",
+    "page": "Rites of the Blood, p. 156",
+    "note": "Это название пути; уровни в исходной записи задают дальность и не имеют отдельных печатных названий."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Колдовство",
+    "path": "Путь Духа / The Way of the Spirit",
+    "level": 2,
+    "name": "Путь Духа — 90 м",
+    "en": "The Way of the Spirit",
+    "page": "Rites of the Blood, p. 156",
+    "note": "Это название пути; уровни в исходной записи задают дальность и не имеют отдельных печатных названий."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Колдовство",
+    "path": "Путь Духа / The Way of the Spirit",
+    "level": 3,
+    "name": "Путь Духа — 0,5 км",
+    "en": "The Way of the Spirit",
+    "page": "Rites of the Blood, p. 156",
+    "note": "Это название пути; уровни в исходной записи задают дальность и не имеют отдельных печатных названий."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Колдовство",
+    "path": "Путь Духа / The Way of the Spirit",
+    "level": 4,
+    "name": "Путь Духа — 1,5 км",
+    "en": "The Way of the Spirit",
+    "page": "Rites of the Blood, p. 156",
+    "note": "Это название пути; уровни в исходной записи задают дальность и не имеют отдельных печатных названий."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Колдовство",
+    "path": "Путь Духа / The Way of the Spirit",
+    "level": 5,
+    "name": "Путь Духа — 8 км",
+    "en": "The Way of the Spirit",
+    "page": "Rites of the Blood, p. 156",
+    "note": "Это название пути; уровни в исходной записи задают дальность и не имеют отдельных печатных названий."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Колдовство",
+    "path": "Уклад Ветра (Восприятие)",
+    "level": 1,
+    "name": "Шёпот ветра",
+    "en": "Breath of Whispers",
+    "page": "V20 Dark Ages, Koldunic Sorcery: Way of Wind, p. 449–450",
+    "note": ""
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Колдовство",
+    "path": "Уклад Ветра (Восприятие)",
+    "level": 2,
+    "name": "Метель",
+    "en": "Biting Gale",
+    "page": "V20 Dark Ages, Koldunic Sorcery: Way of Wind, p. 449–450",
+    "note": ""
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Колдовство",
+    "path": "Уклад Ветра (Восприятие)",
+    "level": 3,
+    "name": "Летаргический бриз",
+    "en": "Breeze of Lethargy",
+    "page": "V20 Dark Ages, Koldunic Sorcery: Way of Wind, p. 449–450",
+    "note": ""
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Колдовство",
+    "path": "Уклад Ветра (Восприятие)",
+    "level": 4,
+    "name": "Крылья бури",
+    "en": "Ride the Tempest",
+    "page": "V20 Dark Ages, Koldunic Sorcery: Way of Wind, p. 449–450",
+    "note": ""
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Колдовство",
+    "path": "Уклад Ветра (Восприятие)",
+    "level": 5,
+    "name": "Гроза",
+    "en": "Tempest",
+    "page": "V20 Dark Ages, Koldunic Sorcery: Way of Wind, p. 449–450",
+    "note": ""
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Колдовство",
+    "path": "Уклад Воды (Смекалка)",
+    "level": 1,
+    "name": "Колодец лжи",
+    "en": "Pool of Lies",
+    "page": "V20 Dark Ages, Koldunic Sorcery: Way of Water, p. 450–452",
+    "note": ""
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Колдовство",
+    "path": "Уклад Воды (Смекалка)",
+    "level": 2,
+    "name": "Водное убежище",
+    "en": "Watery Haven",
+    "page": "V20 Dark Ages, Koldunic Sorcery: Way of Water, p. 450–452",
+    "note": ""
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Колдовство",
+    "path": "Уклад Воды (Смекалка)",
+    "level": 3,
+    "name": "Морской туман",
+    "en": "Fog Over Sea",
+    "page": "V20 Dark Ages, Koldunic Sorcery: Way of Water, p. 450–452",
+    "note": ""
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Колдовство",
+    "path": "Уклад Воды (Смекалка)",
+    "level": 4,
+    "name": "Слуги глубин",
+    "en": "Minions of the Deep",
+    "page": "V20 Dark Ages, Koldunic Sorcery: Way of Water, p. 450–452",
+    "note": ""
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Колдовство",
+    "path": "Уклад Воды (Смекалка)",
+    "level": 5,
+    "name": "Роковая пучина",
+    "en": "Doom Tide",
+    "page": "V20 Dark Ages, Koldunic Sorcery: Way of Water, p. 450–452",
+    "note": ""
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Колдовство",
+    "path": "Уклад Земли (Выносливость)",
+    "level": 1,
+    "name": "Зыбкая твердь",
+    "en": "Grasping Soil",
+    "page": "V20 Dark Ages, Koldunic Sorcery: Way of Earth, p. 448–449",
+    "note": ""
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Колдовство",
+    "path": "Уклад Земли (Выносливость)",
+    "level": 2,
+    "name": "Прочность камня",
+    "en": "Endurance of Stone",
+    "page": "V20 Dark Ages, Koldunic Sorcery: Way of Earth, p. 448–449",
+    "note": ""
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Колдовство",
+    "path": "Уклад Земли (Выносливость)",
+    "level": 3,
+    "name": "Голодное чрево земли",
+    "en": "Hungry Earth",
+    "page": "V20 Dark Ages, Koldunic Sorcery: Way of Earth, p. 448–449",
+    "note": ""
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Колдовство",
+    "path": "Уклад Земли (Выносливость)",
+    "level": 4,
+    "name": "Колыбель жизни",
+    "en": "Root of Vitality",
+    "page": "V20 Dark Ages, Koldunic Sorcery: Way of Earth, p. 448–449",
+    "note": ""
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Колдовство",
+    "path": "Уклад Земли (Выносливость)",
+    "level": 5,
+    "name": "Ярость Купалы",
+    "en": "Kupala’s Fury",
+    "page": "V20 Dark Ages, Koldunic Sorcery: Way of Earth, p. 448–449",
+    "note": ""
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Колдовство",
+    "path": "Уклад Огня (Манипуляция)",
+    "level": 1,
+    "name": "Пламенная отвага",
+    "en": "Fiery Courage",
+    "page": "V20 Dark Ages, Koldunic Sorcery: Way of Fire, p. 452–453",
+    "note": ""
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Колдовство",
+    "path": "Уклад Огня (Манипуляция)",
+    "level": 2,
+    "name": "Возгорание",
+    "en": "Combust",
+    "page": "V20 Dark Ages, Koldunic Sorcery: Way of Fire, p. 452–453",
+    "note": ""
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Колдовство",
+    "path": "Уклад Огня (Манипуляция)",
+    "level": 3,
+    "name": "Стена магмы",
+    "en": "Wall of Magma",
+    "page": "V20 Dark Ages, Koldunic Sorcery: Way of Fire, p. 452–453",
+    "note": ""
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Колдовство",
+    "path": "Уклад Огня (Манипуляция)",
+    "level": 4,
+    "name": "Тепловая волна",
+    "en": "Heat Wave",
+    "page": "V20 Dark Ages, Koldunic Sorcery: Way of Fire, p. 452–453",
+    "note": ""
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Колдовство",
+    "path": "Уклад Огня (Манипуляция)",
+    "level": 5,
+    "name": "Извержение вулкана",
+    "en": "Volcanic Blast",
+    "page": "V20 Dark Ages, Koldunic Sorcery: Way of Fire, p. 452–453",
+    "note": ""
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Некромантия",
+    "path": "Путь Мортуус / Mortuus Path",
+    "level": 4,
+    "name": "Истинная Смерть",
+    "en": "True Death",
+    "page": "Guide to the Sabbat, p. 109",
+    "note": "Соответствие названия подтверждается справочниками дисциплин; в исходной строке путь не содержит отдельного источника."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Некромантия",
+    "path": "Путь Черепов / Path of Skulls",
+    "level": 1,
+    "name": "Calvaria Emissicius",
+    "en": "Calvaria Emissicus",
+    "page": "Vampire: The Dark Ages 20th Anniversary Edition, p. 54",
+    "note": "В исходной строке допущена опечатка: печатная форма — Calvaria Emissicus."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Некромантия",
+    "path": "Путь Черепов / Path of Skulls",
+    "level": 2,
+    "name": "Consilium Mortuus",
+    "en": "Consilium Mortuus",
+    "page": "Vampire: The Dark Ages 20th Anniversary Edition, p. 54",
+    "note": ""
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Некромантия",
+    "path": "Путь Черепов / Path of Skulls",
+    "level": 3,
+    "name": "Ammorsus Vicarius",
+    "en": "Ammorsus Vicarius",
+    "page": "Vampire: The Dark Ages 20th Anniversary Edition, p. 55",
+    "note": ""
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Некромантия",
+    "path": "Путь Черепов / Path of Skulls",
+    "level": 4,
+    "name": "Exedo Animus",
+    "en": "Exedo Animus",
+    "page": "Vampire: The Dark Ages 20th Anniversary Edition, p. 56",
+    "note": ""
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Некромантия",
+    "path": "Путь Черепов / Path of Skulls",
+    "level": 5,
+    "name": "Degulo",
+    "en": "Degulo",
+    "page": "Vampire: The Dark Ages 20th Anniversary Edition, p. 56",
+    "note": ""
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Быстрый путь / Iter Pernix",
+    "level": 1,
+    "name": "Быстрый путь — Одно существо",
+    "en": "Iter Pernix",
+    "page": "V20 Dark Ages, “V20 Dark Ages: Thaumaturgy Paths” (online article)",
+    "note": "Отдельных названий уровней нет: уровни задают число существ/повозок, охватываемых действием пути."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Быстрый путь / Iter Pernix",
+    "level": 2,
+    "name": "Быстрый путь — До 6 ездовых или одна гружёная повозка",
+    "en": "Iter Pernix",
+    "page": "V20 Dark Ages, “V20 Dark Ages: Thaumaturgy Paths” (online article)",
+    "note": "Отдельных названий уровней нет: уровни задают число существ/повозок, охватываемых действием пути."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Быстрый путь / Iter Pernix",
+    "level": 3,
+    "name": "Быстрый путь — До 12 ездовых или 4 обозных повозки",
+    "en": "Iter Pernix",
+    "page": "V20 Dark Ages, “V20 Dark Ages: Thaumaturgy Paths” (online article)",
+    "note": "Отдельных названий уровней нет: уровни задают число существ/повозок, охватываемых действием пути."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Быстрый путь / Iter Pernix",
+    "level": 4,
+    "name": "Быстрый путь — До 24 ездовых",
+    "en": "Iter Pernix",
+    "page": "V20 Dark Ages, “V20 Dark Ages: Thaumaturgy Paths” (online article)",
+    "note": "Отдельных названий уровней нет: уровни задают число существ/повозок, охватываемых действием пути."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Быстрый путь / Iter Pernix",
+    "level": 5,
+    "name": "Быстрый путь — До 48 ездовых",
+    "en": "Iter Pernix",
+    "page": "V20 Dark Ages, “V20 Dark Ages: Thaumaturgy Paths” (online article)",
+    "note": "Отдельных названий уровней нет: уровни задают число существ/повозок, охватываемых действием пути."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Власть движения / Potestas Motus",
+    "level": 1,
+    "name": "Власть движения — 0,5 кг",
+    "en": "Potestas Motus",
+    "page": "V20 Dark Ages, “V20 Dark Ages: Thaumaturgy Paths” (online article)",
+    "note": "Отдельных названий уровней нет: в таблице указана только масса перемещаемого объекта."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Власть движения / Potestas Motus",
+    "level": 2,
+    "name": "Власть движения — 10 кг",
+    "en": "Potestas Motus",
+    "page": "V20 Dark Ages, “V20 Dark Ages: Thaumaturgy Paths” (online article)",
+    "note": "Отдельных названий уровней нет: в таблице указана только масса перемещаемого объекта."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Власть движения / Potestas Motus",
+    "level": 3,
+    "name": "Власть движения — 100 кг",
+    "en": "Potestas Motus",
+    "page": "V20 Dark Ages, “V20 Dark Ages: Thaumaturgy Paths” (online article)",
+    "note": "Отдельных названий уровней нет: в таблице указана только масса перемещаемого объекта."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Власть движения / Potestas Motus",
+    "level": 4,
+    "name": "Власть движения — 250 кг",
+    "en": "Potestas Motus",
+    "page": "V20 Dark Ages, “V20 Dark Ages: Thaumaturgy Paths” (online article)",
+    "note": "Отдельных названий уровней нет: в таблице указана только масса перемещаемого объекта."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Власть движения / Potestas Motus",
+    "level": 5,
+    "name": "Власть движения — 500 кг",
+    "en": "Potestas Motus",
+    "page": "V20 Dark Ages, “V20 Dark Ages: Thaumaturgy Paths” (online article)",
+    "note": "Отдельных названий уровней нет: в таблице указана только масса перемещаемого объекта."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Власть над бурями / Potestas Tempestatum",
+    "level": 1,
+    "name": "Власть над бурями — Туман или лёгкий ветер",
+    "en": "Potestas Tempestatum",
+    "page": "V20 Dark Ages, “V20 Dark Ages: Thaumaturgy Paths” (online article)",
+    "note": "В источнике это название всего пути; уровни обозначены погодными эффектами, а не собственными именами."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Власть над бурями / Potestas Tempestatum",
+    "level": 2,
+    "name": "Власть над бурями — Дождь или снег",
+    "en": "Potestas Tempestatum",
+    "page": "V20 Dark Ages, “V20 Dark Ages: Thaumaturgy Paths” (online article)",
+    "note": "В источнике это название всего пути; уровни обозначены погодными эффектами, а не собственными именами."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Власть над бурями / Potestas Tempestatum",
+    "level": 3,
+    "name": "Власть над бурями — Сильный ветер",
+    "en": "Potestas Tempestatum",
+    "page": "V20 Dark Ages, “V20 Dark Ages: Thaumaturgy Paths” (online article)",
+    "note": "В источнике это название всего пути; уровни обозначены погодными эффектами, а не собственными именами."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Власть над бурями / Potestas Tempestatum",
+    "level": 4,
+    "name": "Власть над бурями — Буря",
+    "en": "Potestas Tempestatum",
+    "page": "V20 Dark Ages, “V20 Dark Ages: Thaumaturgy Paths” (online article)",
+    "note": "В источнике это название всего пути; уровни обозначены погодными эффектами, а не собственными именами."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Власть над бурями / Potestas Tempestatum",
+    "level": 5,
+    "name": "Власть над бурями — Гроза",
+    "en": "Potestas Tempestatum",
+    "page": "V20 Dark Ages, “V20 Dark Ages: Thaumaturgy Paths” (online article)",
+    "note": "В источнике это название всего пути; уровни обозначены погодными эффектами, а не собственными именами."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Игра с Огнём / Lure of Flames",
+    "level": 1,
+    "name": "Свеча",
+    "en": "Candle",
+    "page": "Guide to the Camarilla (Revised), p. 99",
+    "note": "Уровни Lure of Flames имеют короткие обозначения-ступени, а не самостоятельные именованные силы."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Игра с Огнём / Lure of Flames",
+    "level": 2,
+    "name": "Факел",
+    "en": "Torch",
+    "page": "Guide to the Camarilla (Revised), p. 99",
+    "note": "Уровни Lure of Flames имеют короткие обозначения-ступени, а не самостоятельные именованные силы."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Игра с Огнём / Lure of Flames",
+    "level": 3,
+    "name": "Костёр",
+    "en": "Campfire",
+    "page": "Guide to the Camarilla (Revised), p. 99",
+    "note": "Уровни Lure of Flames имеют короткие обозначения-ступени, а не самостоятельные именованные силы."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Игра с Огнём / Lure of Flames",
+    "level": 4,
+    "name": "Пожар",
+    "en": "Bonfire",
+    "page": "Guide to the Camarilla (Revised), p. 99",
+    "note": "Уровни Lure of Flames имеют короткие обозначения-ступени, а не самостоятельные именованные силы."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Игра с Огнём / Lure of Flames",
+    "level": 5,
+    "name": "Пекло",
+    "en": "Inferno",
+    "page": "Guide to the Camarilla (Revised), p. 99",
+    "note": "Уровни Lure of Flames имеют короткие обозначения-ступени, а не самостоятельные именованные силы."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Мановение Мысли / Movement of the Mind",
+    "level": 1,
+    "name": "Мановение Мысли — 0,5 кг",
+    "en": "Movement of the Mind",
+    "page": null,
+    "note": "В исходной таблице уровни различаются только грузоподъёмностью; отдельные печатные имена уровней не указаны."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Мановение Мысли / Movement of the Mind",
+    "level": 2,
+    "name": "Мановение Мысли — 10 кг",
+    "en": "Movement of the Mind",
+    "page": null,
+    "note": "В исходной таблице уровни различаются только грузоподъёмностью; отдельные печатные имена уровней не указаны."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Мановение Мысли / Movement of the Mind",
+    "level": 3,
+    "name": "Мановение Мысли — 100 кг",
+    "en": "Movement of the Mind",
+    "page": null,
+    "note": "В исходной таблице уровни различаются только грузоподъёмностью; отдельные печатные имена уровней не указаны."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Мановение Мысли / Movement of the Mind",
+    "level": 4,
+    "name": "Мановение Мысли — 250 кг",
+    "en": "Movement of the Mind",
+    "page": null,
+    "note": "В исходной таблице уровни различаются только грузоподъёмностью; отдельные печатные имена уровней не указаны."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Мановение Мысли / Movement of the Mind",
+    "level": 5,
+    "name": "Мановение Мысли — 500 кг",
+    "en": "Movement of the Mind",
+    "page": null,
+    "note": "В исходной таблице уровни различаются только грузоподъёмностью; отдельные печатные имена уровней не указаны."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Путь Дара Морфея / Gift of Morpheus",
+    "level": 1,
+    "name": "Вызвать сон",
+    "en": "Cause Sleep",
+    "page": "Players Guide to the Sabbat, pp. 114–115",
+    "note": ""
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Путь Дара Морфея / Gift of Morpheus",
+    "level": 2,
+    "name": "Массовый сон",
+    "en": "Mass Slumber",
+    "page": "Players Guide to the Sabbat, pp. 114–115",
+    "note": ""
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Путь Дара Морфея / Gift of Morpheus",
+    "level": 3,
+    "name": "Зачарованный сон",
+    "en": "Enchanted Slumber",
+    "page": "Players Guide to the Sabbat, pp. 114–115",
+    "note": ""
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Путь Дара Морфея / Gift of Morpheus",
+    "level": 4,
+    "name": "Пейзаж мечты",
+    "en": "Dreamscape",
+    "page": "Players Guide to the Sabbat, pp. 114–115",
+    "note": ""
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Путь Дара Морфея / Gift of Morpheus",
+    "level": 5,
+    "name": "Мастер снов",
+    "en": "Master of Dreams",
+    "page": "Players Guide to the Sabbat, pp. 114–115",
+    "note": ""
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Путь Трансмутации / Path of Transmutation",
+    "level": 1,
+    "name": "Укрепить твёрдую форму",
+    "en": "Fortify the Solid Form",
+    "page": "Dark Ages Companion, pp. 92–93",
+    "note": "Сопоставляется с действиями Thaumaturgical Alchemy; название пути в англоязычном указателе отличается."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Путь Трансмутации / Path of Transmutation",
+    "level": 2,
+    "name": "Кристаллизовать жидкую форму",
+    "en": "Crystallize Liquid",
+    "page": "Dark Ages Companion, pp. 92–93",
+    "note": "Сопоставляется с действиями Thaumaturgical Alchemy; название пути в англоязычном указателе отличается."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Путь Трансмутации / Path of Transmutation",
+    "level": 3,
+    "name": "Разжижить твёрдую форму",
+    "en": "Liquefy the Solid Form",
+    "page": "Dark Ages Companion, pp. 92–93",
+    "note": "Сопоставляется с действиями Thaumaturgical Alchemy; название пути в англоязычном указателе отличается."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Путь Управления Магией",
+    "level": 1,
+    "name": "Путь Управления Магией",
+    "en": "нет оригинала",
+    "page": null,
+    "note": "Не удалось подтвердить оригинальное название уровня пути по указанному источнику."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Путь создания теней / Shadowcrafting",
+    "level": 1,
+    "name": "Без света",
+    "en": "Out Light",
+    "page": "Clanbook: Tremere (Revised), pp. 53–55",
+    "note": ""
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Путь создания теней / Shadowcrafting",
+    "level": 2,
+    "name": "Насмешка тени",
+    "en": "Shadow Taunt",
+    "page": "Clanbook: Tremere (Revised), pp. 53–55",
+    "note": ""
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Путь создания теней / Shadowcrafting",
+    "level": 3,
+    "name": "Блистающая тень",
+    "en": "Coruscating Shadow",
+    "page": "Clanbook: Tremere (Revised), pp. 53–55",
+    "note": ""
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Путь создания теней / Shadowcrafting",
+    "level": 4,
+    "name": "Покрывало ночи",
+    "en": "Night’s Veil",
+    "page": "Clanbook: Tremere (Revised), pp. 53–55",
+    "note": ""
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Путь создания теней / Shadowcrafting",
+    "level": 5,
+    "name": "Абиссальный договор",
+    "en": "Abyssal Pact",
+    "page": "Clanbook: Tremere (Revised), pp. 53–55",
+    "note": ""
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Сотворение огня / Creatio Ignis",
+    "level": 1,
+    "name": "Сотворение огня — Свеча",
+    "en": "Candle",
+    "page": "Onyx Path, “V20 Dark Ages: Thaumaturgy Paths” (online article; no printed page)",
+    "note": ""
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Сотворение огня / Creatio Ignis",
+    "level": 2,
+    "name": "Сотворение огня — Пламя в ладони",
+    "en": "Palm of Flame",
+    "page": "Onyx Path, “V20 Dark Ages: Thaumaturgy Paths” (online article; no printed page)",
+    "note": ""
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Сотворение огня / Creatio Ignis",
+    "level": 3,
+    "name": "Сотворение огня — Костёр",
+    "en": "Campfire",
+    "page": "Onyx Path, “V20 Dark Ages: Thaumaturgy Paths” (online article; no printed page)",
+    "note": ""
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Сотворение огня / Creatio Ignis",
+    "level": 4,
+    "name": "Сотворение огня — Большой костёр",
+    "en": "Bonfire",
+    "page": "Onyx Path, “V20 Dark Ages: Thaumaturgy Paths” (online article; no printed page)",
+    "note": ""
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Тауматургическая Защита / Thaumaturgical Countermagic",
+    "level": 1,
+    "name": "Пул: 2d10",
+    "en": "Thaumaturgical Countermagic",
+    "page": "V20 core, p. 228",
+    "note": "Это название пути; в представленной таблице перечислены значения пула сопротивления, а не имена отдельных сил."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Тауматургическая Защита / Thaumaturgical Countermagic",
+    "level": 2,
+    "name": "Пул: 4d10",
+    "en": "Thaumaturgical Countermagic",
+    "page": "V20 core, p. 228",
+    "note": "Это название пути; в представленной таблице перечислены значения пула сопротивления, а не имена отдельных сил."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Тауматургическая Защита / Thaumaturgical Countermagic",
+    "level": 3,
+    "name": "Пул: 6d10",
+    "en": "Thaumaturgical Countermagic",
+    "page": "V20 core, p. 228",
+    "note": "Это название пути; в представленной таблице перечислены значения пула сопротивления, а не имена отдельных сил."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Тауматургическая Защита / Thaumaturgical Countermagic",
+    "level": 4,
+    "name": "Пул: 8d10",
+    "en": "Thaumaturgical Countermagic",
+    "page": "V20 core, p. 228",
+    "note": "Это название пути; в представленной таблице перечислены значения пула сопротивления, а не имена отдельных сил."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Тауматургическая Защита / Thaumaturgical Countermagic",
+    "level": 5,
+    "name": "Пул: 10d10",
+    "en": "Thaumaturgical Countermagic",
+    "page": "V20 core, p. 228",
+    "note": "Это название пути; в представленной таблице перечислены значения пула сопротивления, а не имена отдельных сил."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Тауматургия духов / Spirit Thaumaturgy",
+    "level": 1,
+    "name": "Дурной глаз",
+    "en": "Evil Eye",
+    "page": "Guide to the Camarilla (Revised), pp. 106–107",
+    "note": "В исходнике путь подписан Spirit Thaumaturgy; в части справочников он проходит как Spirit Manipulation."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Тауматургия духов / Spirit Thaumaturgy",
+    "level": 2,
+    "name": "Зрение духов",
+    "en": "Spirit Sight",
+    "page": "Guide to the Camarilla (Revised), pp. 106–107",
+    "note": "В исходнике путь подписан Spirit Thaumaturgy; в части справочников он проходит как Spirit Manipulation."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Тауматургия духов / Spirit Thaumaturgy",
+    "level": 3,
+    "name": "Раб‑дух",
+    "en": "Spirit Slave",
+    "page": "Guide to the Camarilla (Revised), pp. 106–107",
+    "note": "В исходнике путь подписан Spirit Thaumaturgy; в части справочников он проходит как Spirit Manipulation."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Тауматургия духов / Spirit Thaumaturgy",
+    "level": 4,
+    "name": "Фетиши",
+    "en": "Fetishes",
+    "page": "Guide to the Camarilla (Revised), pp. 106–107",
+    "note": "В исходнике путь подписан Spirit Thaumaturgy; в части справочников он проходит как Spirit Manipulation."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Тауматургия духов / Spirit Thaumaturgy",
+    "level": 5,
+    "name": "Странствие",
+    "en": "Journey",
+    "page": "Guide to the Camarilla (Revised), pp. 106–107",
+    "note": "В исходнике путь подписан Spirit Thaumaturgy; в части справочников он проходит как Spirit Manipulation."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Управление Погодой / Weather Control",
+    "level": 1,
+    "name": "Туман / бриз",
+    "en": "Fog or Light Breezes",
+    "page": "Guide to the Camarilla (Revised), p. 108",
+    "note": "Официальные ступени Weather Control; пятый уровень называется Thunderstorm."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Управление Погодой / Weather Control",
+    "level": 2,
+    "name": "Дождь или снег",
+    "en": "Rain or Snow",
+    "page": "Guide to the Camarilla (Revised), p. 108",
+    "note": "Официальные ступени Weather Control; пятый уровень называется Thunderstorm."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Управление Погодой / Weather Control",
+    "level": 3,
+    "name": "Сильный ветер",
+    "en": "High Winds",
+    "page": "Guide to the Camarilla (Revised), p. 108",
+    "note": "Официальные ступени Weather Control; пятый уровень называется Thunderstorm."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Управление Погодой / Weather Control",
+    "level": 4,
+    "name": "Буря",
+    "en": "Storm",
+    "page": "Guide to the Camarilla (Revised), p. 108",
+    "note": "Официальные ступени Weather Control; пятый уровень называется Thunderstorm."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тауматургия",
+    "path": "Управление Погодой / Weather Control",
+    "level": 5,
+    "name": "Молния",
+    "en": "Thunderstorm",
+    "page": "Guide to the Camarilla (Revised), p. 108",
+    "note": "Официальные ступени Weather Control; пятый уровень называется Thunderstorm."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тёмная Тауматургия",
+    "path": "Взятие духа / The Taking of the Spirit",
+    "level": 1,
+    "name": "Взятие духа — 1",
+    "en": "The Taking of the Spirit",
+    "page": "Dark Thaumaturgy path; page not established",
+    "note": "Это название пути; уровни в исходной таблице являются числовыми отметками и не имеют отдельных имён."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тёмная Тауматургия",
+    "path": "Взятие духа / The Taking of the Spirit",
+    "level": 2,
+    "name": "Взятие духа — 2",
+    "en": "The Taking of the Spirit",
+    "page": "Dark Thaumaturgy path; page not established",
+    "note": "Это название пути; уровни в исходной таблице являются числовыми отметками и не имеют отдельных имён."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тёмная Тауматургия",
+    "path": "Взятие духа / The Taking of the Spirit",
+    "level": 3,
+    "name": "Взятие духа — 3",
+    "en": "The Taking of the Spirit",
+    "page": "Dark Thaumaturgy path; page not established",
+    "note": "Это название пути; уровни в исходной таблице являются числовыми отметками и не имеют отдельных имён."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тёмная Тауматургия",
+    "path": "Взятие духа / The Taking of the Spirit",
+    "level": 4,
+    "name": "Взятие духа — 4",
+    "en": "The Taking of the Spirit",
+    "page": "Dark Thaumaturgy path; page not established",
+    "note": "Это название пути; уровни в исходной таблице являются числовыми отметками и не имеют отдельных имён."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Тёмная Тауматургия",
+    "path": "Взятие духа / The Taking of the Spirit",
+    "level": 5,
+    "name": "Взятие духа — 5",
+    "en": "The Taking of the Spirit",
+    "page": "Dark Thaumaturgy path; page not established",
+    "note": "Это название пути; уровни в исходной таблице являются числовыми отметками и не имеют отдельных имён."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Чародейство Ассамитов",
+    "path": "Игра с Огнём / Lure of Flames",
+    "level": 1,
+    "name": "Свеча",
+    "en": "Candle",
+    "page": "Guide to the Camarilla (Revised), p. 99",
+    "note": "Уровни Lure of Flames имеют короткие обозначения-ступени, а не самостоятельные именованные силы."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Чародейство Ассамитов",
+    "path": "Игра с Огнём / Lure of Flames",
+    "level": 2,
+    "name": "Факел",
+    "en": "Torch",
+    "page": "Guide to the Camarilla (Revised), p. 99",
+    "note": "Уровни Lure of Flames имеют короткие обозначения-ступени, а не самостоятельные именованные силы."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Чародейство Ассамитов",
+    "path": "Игра с Огнём / Lure of Flames",
+    "level": 3,
+    "name": "Костёр",
+    "en": "Campfire",
+    "page": "Guide to the Camarilla (Revised), p. 99",
+    "note": "Уровни Lure of Flames имеют короткие обозначения-ступени, а не самостоятельные именованные силы."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Чародейство Ассамитов",
+    "path": "Игра с Огнём / Lure of Flames",
+    "level": 4,
+    "name": "Пожар",
+    "en": "Bonfire",
+    "page": "Guide to the Camarilla (Revised), p. 99",
+    "note": "Уровни Lure of Flames имеют короткие обозначения-ступени, а не самостоятельные именованные силы."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Чародейство Ассамитов",
+    "path": "Игра с Огнём / Lure of Flames",
+    "level": 5,
+    "name": "Пекло",
+    "en": "Inferno",
+    "page": "Guide to the Camarilla (Revised), p. 99",
+    "note": "Уровни Lure of Flames имеют короткие обозначения-ступени, а не самостоятельные именованные силы."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Чародейство Ассамитов",
+    "path": "Мановение Мысли / Movement of the Mind",
+    "level": 1,
+    "name": "Мановение Мысли — 0,5 кг",
+    "en": "Movement of the Mind",
+    "page": null,
+    "note": "В исходной таблице уровни различаются только грузоподъёмностью; отдельные печатные имена уровней не указаны."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Чародейство Ассамитов",
+    "path": "Мановение Мысли / Movement of the Mind",
+    "level": 2,
+    "name": "Мановение Мысли — 10 кг",
+    "en": "Movement of the Mind",
+    "page": null,
+    "note": "В исходной таблице уровни различаются только грузоподъёмностью; отдельные печатные имена уровней не указаны."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Чародейство Ассамитов",
+    "path": "Мановение Мысли / Movement of the Mind",
+    "level": 3,
+    "name": "Мановение Мысли — 100 кг",
+    "en": "Movement of the Mind",
+    "page": null,
+    "note": "В исходной таблице уровни различаются только грузоподъёмностью; отдельные печатные имена уровней не указаны."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Чародейство Ассамитов",
+    "path": "Мановение Мысли / Movement of the Mind",
+    "level": 4,
+    "name": "Мановение Мысли — 250 кг",
+    "en": "Movement of the Mind",
+    "page": null,
+    "note": "В исходной таблице уровни различаются только грузоподъёмностью; отдельные печатные имена уровней не указаны."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Чародейство Ассамитов",
+    "path": "Мановение Мысли / Movement of the Mind",
+    "level": 5,
+    "name": "Мановение Мысли — 500 кг",
+    "en": "Movement of the Mind",
+    "page": null,
+    "note": "В исходной таблице уровни различаются только грузоподъёмностью; отдельные печатные имена уровней не указаны."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Чародейство Ассамитов",
+    "path": "Путь Нектара крови / Path of Blood Nectar",
+    "level": 1,
+    "name": "Путь Нектара крови — передать 1 ур.",
+    "en": "Path of Blood Nectar",
+    "page": "Blood Sacrifice: The Thaumaturgy Companion, p. 62",
+    "note": "В книге это название пути; представленные в системе уровни описаны как объём передаваемой дисциплины, а не отдельные названия сил."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Чародейство Ассамитов",
+    "path": "Путь Нектара крови / Path of Blood Nectar",
+    "level": 2,
+    "name": "Путь Нектара крови — передать 2 ур.",
+    "en": "Path of Blood Nectar",
+    "page": "Blood Sacrifice: The Thaumaturgy Companion, p. 62",
+    "note": "В книге это название пути; представленные в системе уровни описаны как объём передаваемой дисциплины, а не отдельные названия сил."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Чародейство Ассамитов",
+    "path": "Путь Нектара крови / Path of Blood Nectar",
+    "level": 3,
+    "name": "Путь Нектара крови — передать 3 ур.",
+    "en": "Path of Blood Nectar",
+    "page": "Blood Sacrifice: The Thaumaturgy Companion, p. 62",
+    "note": "В книге это название пути; представленные в системе уровни описаны как объём передаваемой дисциплины, а не отдельные названия сил."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Чародейство Ассамитов",
+    "path": "Путь Нектара крови / Path of Blood Nectar",
+    "level": 4,
+    "name": "Путь Нектара крови — передать 4 ур.",
+    "en": "Path of Blood Nectar",
+    "page": "Blood Sacrifice: The Thaumaturgy Companion, p. 62",
+    "note": "В книге это название пути; представленные в системе уровни описаны как объём передаваемой дисциплины, а не отдельные названия сил."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Чародейство Ассамитов",
+    "path": "Путь Нектара крови / Path of Blood Nectar",
+    "level": 5,
+    "name": "Путь Нектара крови — передать 5 ур.",
+    "en": "Path of Blood Nectar",
+    "page": "Blood Sacrifice: The Thaumaturgy Companion, p. 62",
+    "note": "В книге это название пути; представленные в системе уровни описаны как объём передаваемой дисциплины, а не отдельные названия сил."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Чародейство Ассамитов",
+    "path": "Управление Погодой / Weather Control",
+    "level": 1,
+    "name": "Туман / бриз",
+    "en": "Fog or Light Breezes",
+    "page": "Guide to the Camarilla (Revised), p. 108",
+    "note": "Официальные ступени Weather Control; пятый уровень называется Thunderstorm."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Чародейство Ассамитов",
+    "path": "Управление Погодой / Weather Control",
+    "level": 2,
+    "name": "Дождь или снег",
+    "en": "Rain or Snow",
+    "page": "Guide to the Camarilla (Revised), p. 108",
+    "note": "Официальные ступени Weather Control; пятый уровень называется Thunderstorm."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Чародейство Ассамитов",
+    "path": "Управление Погодой / Weather Control",
+    "level": 3,
+    "name": "Сильный ветер",
+    "en": "High Winds",
+    "page": "Guide to the Camarilla (Revised), p. 108",
+    "note": "Официальные ступени Weather Control; пятый уровень называется Thunderstorm."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Чародейство Ассамитов",
+    "path": "Управление Погодой / Weather Control",
+    "level": 4,
+    "name": "Буря",
+    "en": "Storm",
+    "page": "Guide to the Camarilla (Revised), p. 108",
+    "note": "Официальные ступени Weather Control; пятый уровень называется Thunderstorm."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Чародейство Ассамитов",
+    "path": "Управление Погодой / Weather Control",
+    "level": 5,
+    "name": "Молния",
+    "en": "Thunderstorm",
+    "page": "Guide to the Camarilla (Revised), p. 108",
+    "note": "Официальные ступени Weather Control; пятый уровень называется Thunderstorm."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Чародейство Сетитов",
+    "path": "Игра с Огнём / Lure of Flames",
+    "level": 1,
+    "name": "Свеча",
+    "en": "Candle",
+    "page": "Guide to the Camarilla (Revised), p. 99",
+    "note": "Уровни Lure of Flames имеют короткие обозначения-ступени, а не самостоятельные именованные силы."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Чародейство Сетитов",
+    "path": "Игра с Огнём / Lure of Flames",
+    "level": 2,
+    "name": "Факел",
+    "en": "Torch",
+    "page": "Guide to the Camarilla (Revised), p. 99",
+    "note": "Уровни Lure of Flames имеют короткие обозначения-ступени, а не самостоятельные именованные силы."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Чародейство Сетитов",
+    "path": "Игра с Огнём / Lure of Flames",
+    "level": 3,
+    "name": "Костёр",
+    "en": "Campfire",
+    "page": "Guide to the Camarilla (Revised), p. 99",
+    "note": "Уровни Lure of Flames имеют короткие обозначения-ступени, а не самостоятельные именованные силы."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Чародейство Сетитов",
+    "path": "Игра с Огнём / Lure of Flames",
+    "level": 4,
+    "name": "Пожар",
+    "en": "Bonfire",
+    "page": "Guide to the Camarilla (Revised), p. 99",
+    "note": "Уровни Lure of Flames имеют короткие обозначения-ступени, а не самостоятельные именованные силы."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Чародейство Сетитов",
+    "path": "Игра с Огнём / Lure of Flames",
+    "level": 5,
+    "name": "Пекло",
+    "en": "Inferno",
+    "page": "Guide to the Camarilla (Revised), p. 99",
+    "note": "Уровни Lure of Flames имеют короткие обозначения-ступени, а не самостоятельные именованные силы."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Чародейство Сетитов",
+    "path": "Мановение Мысли / Movement of the Mind",
+    "level": 1,
+    "name": "Мановение Мысли — 0,5 кг",
+    "en": "Movement of the Mind",
+    "page": null,
+    "note": "В исходной таблице уровни различаются только грузоподъёмностью; отдельные печатные имена уровней не указаны."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Чародейство Сетитов",
+    "path": "Мановение Мысли / Movement of the Mind",
+    "level": 2,
+    "name": "Мановение Мысли — 10 кг",
+    "en": "Movement of the Mind",
+    "page": null,
+    "note": "В исходной таблице уровни различаются только грузоподъёмностью; отдельные печатные имена уровней не указаны."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Чародейство Сетитов",
+    "path": "Мановение Мысли / Movement of the Mind",
+    "level": 3,
+    "name": "Мановение Мысли — 100 кг",
+    "en": "Movement of the Mind",
+    "page": null,
+    "note": "В исходной таблице уровни различаются только грузоподъёмностью; отдельные печатные имена уровней не указаны."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Чародейство Сетитов",
+    "path": "Мановение Мысли / Movement of the Mind",
+    "level": 4,
+    "name": "Мановение Мысли — 250 кг",
+    "en": "Movement of the Mind",
+    "page": null,
+    "note": "В исходной таблице уровни различаются только грузоподъёмностью; отдельные печатные имена уровней не указаны."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Чародейство Сетитов",
+    "path": "Мановение Мысли / Movement of the Mind",
+    "level": 5,
+    "name": "Мановение Мысли — 500 кг",
+    "en": "Movement of the Mind",
+    "page": null,
+    "note": "В исходной таблице уровни различаются только грузоподъёмностью; отдельные печатные имена уровней не указаны."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Чародейство Сетитов",
+    "path": "Путь Нектара крови / Path of Blood Nectar",
+    "level": 1,
+    "name": "Путь Нектара крови — передать 1 ур.",
+    "en": "Path of Blood Nectar",
+    "page": "Blood Sacrifice: The Thaumaturgy Companion, p. 62",
+    "note": "В книге это название пути; представленные в системе уровни описаны как объём передаваемой дисциплины, а не отдельные названия сил."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Чародейство Сетитов",
+    "path": "Путь Нектара крови / Path of Blood Nectar",
+    "level": 2,
+    "name": "Путь Нектара крови — передать 2 ур.",
+    "en": "Path of Blood Nectar",
+    "page": "Blood Sacrifice: The Thaumaturgy Companion, p. 62",
+    "note": "В книге это название пути; представленные в системе уровни описаны как объём передаваемой дисциплины, а не отдельные названия сил."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Чародейство Сетитов",
+    "path": "Путь Нектара крови / Path of Blood Nectar",
+    "level": 3,
+    "name": "Путь Нектара крови — передать 3 ур.",
+    "en": "Path of Blood Nectar",
+    "page": "Blood Sacrifice: The Thaumaturgy Companion, p. 62",
+    "note": "В книге это название пути; представленные в системе уровни описаны как объём передаваемой дисциплины, а не отдельные названия сил."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Чародейство Сетитов",
+    "path": "Путь Нектара крови / Path of Blood Nectar",
+    "level": 4,
+    "name": "Путь Нектара крови — передать 4 ур.",
+    "en": "Path of Blood Nectar",
+    "page": "Blood Sacrifice: The Thaumaturgy Companion, p. 62",
+    "note": "В книге это название пути; представленные в системе уровни описаны как объём передаваемой дисциплины, а не отдельные названия сил."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Чародейство Сетитов",
+    "path": "Путь Нектара крови / Path of Blood Nectar",
+    "level": 5,
+    "name": "Путь Нектара крови — передать 5 ур.",
+    "en": "Path of Blood Nectar",
+    "page": "Blood Sacrifice: The Thaumaturgy Companion, p. 62",
+    "note": "В книге это название пути; представленные в системе уровни описаны как объём передаваемой дисциплины, а не отдельные названия сил."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Чародейство Сетитов",
+    "path": "Путь Откровений Эдема / The Revelations of Eden",
+    "level": 1,
+    "name": "Путь Откровений Эдема — −1 к постоянной Воле жертвы",
+    "en": "The Revelations of Eden",
+    "page": "Akhu path; official OWBN Schools of Blood Magic listing; page not established",
+    "note": "Официально засвидетельствовано название пути Akhu. Конкретные уровни в таблице — игровые эффекты без отдельных имён."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Чародейство Сетитов",
+    "path": "Путь Откровений Эдема / The Revelations of Eden",
+    "level": 2,
+    "name": "Путь Откровений Эдема — −1 к рейтингу Дороги",
+    "en": "The Revelations of Eden",
+    "page": "Akhu path; official OWBN Schools of Blood Magic listing; page not established",
+    "note": "Официально засвидетельствовано название пути Akhu. Конкретные уровни в таблице — игровые эффекты без отдельных имён."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Чародейство Сетитов",
+    "path": "Путь Откровений Эдема / The Revelations of Eden",
+    "level": 3,
+    "name": "Путь Откровений Эдема — −1 к Самоконтролю/Инстинктам",
+    "en": "The Revelations of Eden",
+    "page": "Akhu path; official OWBN Schools of Blood Magic listing; page not established",
+    "note": "Официально засвидетельствовано название пути Akhu. Конкретные уровни в таблице — игровые эффекты без отдельных имён."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Чародейство Сетитов",
+    "path": "Путь Праапти / The Path of Praapti",
+    "level": 1,
+    "name": "Путь Праапти — 10 м",
+    "en": "The Path of Praapti",
+    "page": "Blood Sacrifice: The Thaumaturgy Companion, p. 64",
+    "note": "В книге это название пути; значения дальности в исходной системе не являются отдельными печатными именами сил."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Чародейство Сетитов",
+    "path": "Путь Праапти / The Path of Praapti",
+    "level": 2,
+    "name": "Путь Праапти — 50 м",
+    "en": "The Path of Praapti",
+    "page": "Blood Sacrifice: The Thaumaturgy Companion, p. 64",
+    "note": "В книге это название пути; значения дальности в исходной системе не являются отдельными печатными именами сил."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Чародейство Сетитов",
+    "path": "Путь Праапти / The Path of Praapti",
+    "level": 3,
+    "name": "Путь Праапти — 500 м",
+    "en": "The Path of Praapti",
+    "page": "Blood Sacrifice: The Thaumaturgy Companion, p. 64",
+    "note": "В книге это название пути; значения дальности в исходной системе не являются отдельными печатными именами сил."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Чародейство Сетитов",
+    "path": "Путь Праапти / The Path of Praapti",
+    "level": 4,
+    "name": "Путь Праапти — 8 км",
+    "en": "The Path of Praapti",
+    "page": "Blood Sacrifice: The Thaumaturgy Companion, p. 64",
+    "note": "В книге это название пути; значения дальности в исходной системе не являются отдельными печатными именами сил."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Чародейство Сетитов",
+    "path": "Путь Праапти / The Path of Praapti",
+    "level": 5,
+    "name": "Путь Праапти — 800 км",
+    "en": "The Path of Praapti",
+    "page": "Blood Sacrifice: The Thaumaturgy Companion, p. 64",
+    "note": "В книге это название пути; значения дальности в исходной системе не являются отдельными печатными именами сил."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Чародейство Сетитов",
+    "path": "Управление Погодой / Weather Control",
+    "level": 1,
+    "name": "Туман / бриз",
+    "en": "Fog or Light Breezes",
+    "page": "Guide to the Camarilla (Revised), p. 108",
+    "note": "Официальные ступени Weather Control; пятый уровень называется Thunderstorm."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Чародейство Сетитов",
+    "path": "Управление Погодой / Weather Control",
+    "level": 2,
+    "name": "Дождь или снег",
+    "en": "Rain or Snow",
+    "page": "Guide to the Camarilla (Revised), p. 108",
+    "note": "Официальные ступени Weather Control; пятый уровень называется Thunderstorm."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Чародейство Сетитов",
+    "path": "Управление Погодой / Weather Control",
+    "level": 3,
+    "name": "Сильный ветер",
+    "en": "High Winds",
+    "page": "Guide to the Camarilla (Revised), p. 108",
+    "note": "Официальные ступени Weather Control; пятый уровень называется Thunderstorm."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Чародейство Сетитов",
+    "path": "Управление Погодой / Weather Control",
+    "level": 4,
+    "name": "Буря",
+    "en": "Storm",
+    "page": "Guide to the Camarilla (Revised), p. 108",
+    "note": "Официальные ступени Weather Control; пятый уровень называется Thunderstorm."
+  },
+  {
+    "kind": "pathpower",
+    "discipline": "Чародейство Сетитов",
+    "path": "Управление Погодой / Weather Control",
+    "level": 5,
+    "name": "Молния",
+    "en": "Thunderstorm",
+    "page": "Guide to the Camarilla (Revised), p. 108",
+    "note": "Официальные ступени Weather Control; пятый уровень называется Thunderstorm."
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Затмение",
+    "path": "",
+    "level": 10,
+    "name": "Plot Device (ритуал-сюжетный механизм)",
+    "en": "Plot Device",
+    "page": "Gehenna, p. 182",
+    "note": "Оригинальное название в Gehenna; это сюжетный инструмент, а не обычный ритуал для персонажа."
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 1,
+    "name": "Блуждающий огонёк",
+    "en": "Will o’ the Wisp",
+    "page": "The Player’s Guide to the Sabbat (2nd Edition), p. 117",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 1,
+    "name": "Вавилонское послание",
+    "en": "нет оригинала",
+    "page": null,
+    "note": "В Dark Ages: Player’s Guide to Low Clans не удалось подтвердить точное английское печатное название для этой русской строки."
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 1,
+    "name": "Возрождение смертного тщеславия",
+    "en": "Rebirth of Mortal Vanity",
+    "page": "The Vampire Players Guide (2nd Edition), p. 86",
+    "note": "В справочных перечнях ритуал обычно отнесён к уровню 2; исходная таблица помечает его как уровень 1. Уровень сохранён без изменения."
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 1,
+    "name": "Воплощение свечи / Тушение огня (название повреждено)",
+    "en": "нет оригинала",
+    "page": null,
+    "note": "Название в исходной таблице явно повреждено; невозможно установить, какая именно запись имелась в виду."
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 1,
+    "name": "Задержание Трупных Мух",
+    "en": "The Carrion Fly Delayed",
+    "page": "Dark Ages: House of Tremere, p. 110",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 1,
+    "name": "Капля Молчаливого Согласия",
+    "en": "нет оригинала",
+    "page": null,
+    "note": "Не удалось подтвердить английский заголовок в House of Tremere; буквальный перевод не выдаю за печатное название."
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 1,
+    "name": "Кровавая лихорадка",
+    "en": "Blood Rush",
+    "page": "The Player’s Guide to the Sabbat (2nd Edition), p. 116",
+    "note": "Русское название не совпадает с оригинальным заголовком; в указанном источнике ритуал называется Blood Rush."
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 1,
+    "name": "Мёртвая линия",
+    "en": "Flatline",
+    "page": "Guide to the Anarchs (Revised), p. 163",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 1,
+    "name": "Освещённый след добычи",
+    "en": "Illuminate Trail of the Prey",
+    "page": "The Player’s Guide to the Sabbat (2nd Edition), p. 116",
+    "note": "В этой редакции печатное название содержит the перед Prey; в Guide to the Sabbat встречается вариант Illuminate Trail of Prey."
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 1,
+    "name": "Освящение капеллы",
+    "en": "Dedicate the Chantry",
+    "page": "Clanbook: Tremere (Revised), p. 57",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 1,
+    "name": "Отныне Его Взор",
+    "en": "Now Its Sight Is Ours",
+    "page": "Dark Ages: House of Tremere, p. 110",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 1,
+    "name": "Сангвинический камень",
+    "en": "Sanguine Lodestone",
+    "page": "Dark Ages: Player’s Guide to Low Clans, p. 169",
+    "note": "Печатный заголовок — Sanguine Lodestone; не следует смешивать с Craft Bloodstone."
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 1,
+    "name": "Связать Обличающий Язык",
+    "en": "Bind the Accusing Tongue",
+    "page": "Guide to the Camarilla (Revised), p. 109",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 1,
+    "name": "След прошедшего волка",
+    "en": "Scent of the Lupine’s Passing",
+    "page": "Clanbook: Tremere (Revised), p. 58",
+    "note": "В исходной локализации название передано вольно; печатный заголовок — Scent of the Lupine’s Passing."
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 1,
+    "name": "Сохранить кровь",
+    "en": "Preserve Blood",
+    "page": "The Player’s Guide to the Sabbat (2nd Edition), p. 117",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 2,
+    "name": "Вниз по Крови",
+    "en": "Blood Walk",
+    "page": "Guide to the Camarilla (Revised), p. 110",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 2,
+    "name": "Вызов духа-хранителя",
+    "en": "Summon Guardian Spirit",
+    "page": "The Player’s Guide to the Sabbat (2nd Edition), p. 118",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 2,
+    "name": "Глоток Расплавленной Ярости",
+    "en": "Draught of Molten Fury",
+    "page": "Dark Ages: House of Tremere, p. 117",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 2,
+    "name": "Горящий Клинок",
+    "en": "Burning Blade",
+    "page": "Guide to the Camarilla (Revised), p. 110",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 2,
+    "name": "Железное тело",
+    "en": "Iron Body",
+    "page": "Guide to the Anarchs (Revised), p. 163",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 2,
+    "name": "Зелье Мученичества",
+    "en": "Potio Martyrium",
+    "page": "Dark Ages: House of Tremere, p. 118",
+    "note": "В источнике напечатано латинское название Potio Martyrium."
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 2,
+    "name": "Машинный блиц",
+    "en": "Machine Blitz",
+    "page": "The Player’s Guide to the Sabbat (2nd Edition), p. 117",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 2,
+    "name": "Мембранное Соответствие",
+    "en": "Membranous Appropriation",
+    "page": "Dark Ages: House of Tremere, p. 111",
+    "note": "Именно Membranous Appropriation — печатное название в House of Tremere; «Соответствие» не является буквальным переводом."
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 2,
+    "name": "Молоко Змеиной Злобы",
+    "en": "The Serpent’s Cruel Milk",
+    "page": "Dark Ages: House of Tremere, p. 118",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 2,
+    "name": "Надевание Маски Теней",
+    "en": "Donning the Mask of Shadows",
+    "page": "Guide to the Camarilla (Revised), p. 110",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 2,
+    "name": "Непроходимая тропа",
+    "en": "нет оригинала",
+    "page": null,
+    "note": "В указателях найдено Impassable Trail, но оно привязано к Blood Magic: Secrets of Thaumaturgy, а не к указанному в исходнике Player’s Guide to the Sabbat; точное соответствие не подтверждено."
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 2,
+    "name": "Оно Крадет Ваши Шёпоты",
+    "en": "It Steals Your Whispers",
+    "page": "Dark Ages: House of Tremere, p. 111",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 2,
+    "name": "Отказ незваному гостю",
+    "en": "Deny the Intruder",
+    "page": "Clanbook: Tremere (Revised), p. 58",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 2,
+    "name": "Открытый проход",
+    "en": "The Open Passage",
+    "page": "Clanbook: Tremere (Revised), p. 59",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 2,
+    "name": "Призыв беспокойного духа",
+    "en": "Calling the Restless Spirit",
+    "page": "Chicago by Night (2nd Edition), p. 121",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 2,
+    "name": "Пыль Напоминания",
+    "en": "Dust of Remembrance",
+    "page": "Dark Ages: House of Tremere, p. 111",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 2,
+    "name": "Распознавание ритуала",
+    "en": "Ritual’s Recognition",
+    "page": "Clanbook: Tremere (Revised), p. 59",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 2,
+    "name": "Связь с кровным партнёром",
+    "en": "Communicate with Kindred Bond Mate",
+    "page": "V20 Dread Names, Red List, p. 101",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 2,
+    "name": "Сила невидимого пламени",
+    "en": "Power of the Invisible Flame",
+    "page": "The Player’s Guide to the Sabbat (2nd Edition), p. 117",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 2,
+    "name": "Сладострастие веселья",
+    "en": "нет оригинала",
+    "page": null,
+    "note": "Не удалось сопоставить русское название с английским заголовком в Player’s Guide to Low Clans."
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 2,
+    "name": "Твоя Судьба Известна",
+    "en": "Your Fate Shall Be Known",
+    "page": "Dark Ages: House of Tremere, p. 112",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 2,
+    "name": "Транссубстанция юмора",
+    "en": "нет оригинала",
+    "page": null,
+    "note": "Не удалось подтвердить этот английский заголовок в указанном первоисточнике; не подменяю его предполагаемым обратным переводом."
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 2,
+    "name": "Фокус вливания витэ",
+    "en": "Principal Focus of Vitae Infusion",
+    "page": "The Vampire Players Guide (2nd Edition), p. 88",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 2,
+    "name": "Шаги напуганных",
+    "en": "Steps of the Terrified",
+    "page": "The Player’s Guide to the Sabbat (2nd Edition), p. 118",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 2,
+    "name": "Эль Истинных Воспоминаний",
+    "en": "нет оригинала",
+    "page": null,
+    "note": "Не удалось подтвердить точный английский заголовок в House of Tremere."
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 3,
+    "name": "Вызов озорного духа",
+    "en": "Summon Mischievous Spirit",
+    "page": "The Player’s Guide to the Sabbat (2nd Edition), p. 118",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 3,
+    "name": "Глаза прошлого",
+    "en": "Eyes of the Past",
+    "page": "Chicago by Night (2nd Edition), p. 121",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 3,
+    "name": "Гнилое дерево",
+    "en": "Rotten-wood",
+    "page": "The Player’s Guide to the Sabbat (2nd Edition), p. 118",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 3,
+    "name": "Дом с привидениями",
+    "en": "Haunted House",
+    "page": "Milwaukee by Night (2nd Edition), p. 54",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 3,
+    "name": "Друг деревьев",
+    "en": "Friend of the Trees",
+    "page": "The Player’s Guide to the Sabbat (2nd Edition), p. 118",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 3,
+    "name": "Едкая Желчь",
+    "en": "Caustic Bile",
+    "page": "Dark Ages: House of Tremere, p. 119",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 3,
+    "name": "Загадочное мерцание",
+    "en": "нет оригинала",
+    "page": null,
+    "note": "Точное печатное название в Player’s Guide to the Sabbat не подтверждено."
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 3,
+    "name": "Засеять Сады Ночи",
+    "en": "Populate Night’s Gardens",
+    "page": "Dark Ages: House of Tremere, p. 114",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 3,
+    "name": "Зов Преисподней",
+    "en": "Hell’s Calling",
+    "page": "Guide to the Anarchs (Revised), p. 163",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 3,
+    "name": "Иллюзия совершенства",
+    "en": "Illusion of Perfection",
+    "page": "Milwaukee by Night (2nd Edition), p. 54",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 3,
+    "name": "Испытание Симпатической Агонии",
+    "en": "Crucible of Sympathetic Agony",
+    "page": "Dark Ages: House of Tremere, p. 112",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 3,
+    "name": "Ихор Шестинога",
+    "en": "Ichor of the Hexaped",
+    "page": "Dark Ages: House of Tremere, p. 115",
+    "note": "В печатном заголовке — Hexaped, не Hexapod."
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 3,
+    "name": "Лекарство от Меняющейся Плоти",
+    "en": "нет оригинала",
+    "page": null,
+    "note": "Точное английское название не подтверждено в House of Tremere."
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 3,
+    "name": "Мощь Пирамиды",
+    "en": "Power of the Pyramid",
+    "page": "Clanbook: Tremere (Revised), p. 60",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 3,
+    "name": "Мягкий разум",
+    "en": "Gentle Mind",
+    "page": "Chicago by Night (2nd Edition), p. 121",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 3,
+    "name": "Наблюдатель",
+    "en": "The Watcher",
+    "page": "Milwaukee by Night (2nd Edition)",
+    "note": "Английское название сопоставлено по списку ритуалов; страница не подтверждена."
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 3,
+    "name": "Невидимое изменение",
+    "en": "The Unseen Change",
+    "page": "Chicago by Night (2nd Edition), p. 121",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 3,
+    "name": "Огонь в крови",
+    "en": "Fire in the Blood",
+    "page": "The Player’s Guide to the Sabbat (2nd Edition), p. 118",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 3,
+    "name": "Паучьи лапы",
+    "en": "нет оригинала",
+    "page": null,
+    "note": "Для V20 не удалось подтвердить печатное название, соответствующее данной русской строке."
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 3,
+    "name": "Перемещение Пневмы",
+    "en": "Displacement of the Pneuma",
+    "page": "Dark Ages: House of Tremere, p. 113",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 3,
+    "name": "Превращение Семи",
+    "en": "Transubstantiation of Seven",
+    "page": "Clanbook: Tremere (Revised), p. 61",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 3,
+    "name": "Пробуждение вердантного терна (Телявельские Тремер)",
+    "en": "Awakening of the Verdant Thorn",
+    "page": "Dark Ages: Player’s Guide to Low Clans",
+    "note": "Название указано для телявельских Тремеров; страница в доступном указателе не подтверждена."
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 3,
+    "name": "Ритуал тьмы",
+    "en": "Ritual of Darkness",
+    "page": "Milwaukee by Night (2nd Edition), p. 54",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 3,
+    "name": "Ртутный Угорь",
+    "en": "Quicksilver Eel",
+    "page": "Dark Ages: House of Tremere, p. 115",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 3,
+    "name": "Руки с клинками",
+    "en": "нет оригинала",
+    "page": null,
+    "note": "Не найдено однозначного печатного английского названия для русской строки."
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 3,
+    "name": "Слёзы Феба",
+    "en": "The Tears of Phoebus",
+    "page": "Dark Ages: House of Tremere, p. 119",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 3,
+    "name": "Унаследованная тяга",
+    "en": "Inherited Affinity",
+    "page": "Clanbook: Tremere (Revised), p. 60",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 3,
+    "name": "Черпак земной крови",
+    "en": "Draught of the Earth’s Blood",
+    "page": "Dark Ages: Player’s Guide to Low Clans, p. 173",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 4,
+    "name": "Голос Бронзовой Головы",
+    "en": "The Bronze Head Speaks",
+    "page": "Dark Ages: House of Tremere, p. 115",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 4,
+    "name": "Защита от фей",
+    "en": "Ward Versus Fae",
+    "page": "Dark Ages: Player’s Guide to Low Clans",
+    "note": "Английское название соответствует спискам ритуалов; страница в доступном указателе не подтверждена."
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 4,
+    "name": "Зеркальная прогулка",
+    "en": "Mirror Walk",
+    "page": "The Player’s Guide to the Sabbat (2nd Edition), p. 120",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 4,
+    "name": "Изменчивое проклятие",
+    "en": "нет оригинала",
+    "page": null,
+    "note": "Точное английское название в Chicago by Night (2nd Edition) не подтверждено; возможная буквальная форма не считается официальной."
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 4,
+    "name": "Инфернальный договор",
+    "en": "Infernal Compact",
+    "page": "Dark Ages: Player’s Guide to Low Clans",
+    "note": "Название подтверждается справочными списками; страница не установлена."
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 4,
+    "name": "Кровный сертамен",
+    "en": "Blood Certamen",
+    "page": "Clanbook: Tremere (Revised), p. 61",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 4,
+    "name": "Невидимые цепи связывания",
+    "en": "Invisible Chains of Binding",
+    "page": "The Player’s Guide to the Sabbat (2nd Edition), p. 120",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 4,
+    "name": "Оберег от витэ",
+    "en": "Ward Versus Vitae",
+    "page": "Guide to the Anarchs (Revised), p. 163",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 4,
+    "name": "Опираясь на границу",
+    "en": "нет оригинала",
+    "page": null,
+    "note": "Не удалось установить оригинальный заголовок в Player’s Guide to the Sabbat."
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 4,
+    "name": "Освящение святилища",
+    "en": "Consecration of the Sanctum",
+    "page": "Dark Ages: Player’s Guide to Low Clans",
+    "note": "Сопоставление с заголовком Consecration of the Sanctum; точная страница не подтверждена."
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 4,
+    "name": "Печать Амаранта",
+    "en": "Mark of Amaranth",
+    "page": "Clanbook: Tremere (Revised), p. 63",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 4,
+    "name": "Преследующий",
+    "en": "The Haunting",
+    "page": "The Player’s Guide to the Sabbat (2nd Edition), p. 120",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 4,
+    "name": "Приостановление инкантации",
+    "en": "Suspension of Incantation",
+    "page": "Dark Ages: Player’s Guide to Low Clans",
+    "note": "В исходной русской записи существительное передано как «Приостановление»; точная страница не подтверждена."
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 4,
+    "name": "Разделение банши",
+    "en": "Keening of the Banshee",
+    "page": "The Player’s Guide to the Sabbat (2nd Edition), p. 120",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 4,
+    "name": "Тайный Покров",
+    "en": "Furtive Integument",
+    "page": "Dark Ages: House of Tremere, p. 116",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 4,
+    "name": "Уважение к животным",
+    "en": "Respect of the Animals",
+    "page": "The Player’s Guide to the Sabbat (2nd Edition), p. 120",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 5,
+    "name": "Глаза зверя",
+    "en": "Eyes of the Beast",
+    "page": "The Player’s Guide to the Sabbat (2nd Edition), p. 121",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 5,
+    "name": "Доминион",
+    "en": "Dominion",
+    "page": "The Player’s Guide to the Sabbat (2nd Edition), p. 120",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 5,
+    "name": "Дух мучений",
+    "en": "Spirit of Torment",
+    "page": "The Player’s Guide to the Sabbat (2nd Edition), p. 121",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 5,
+    "name": "Защита от магов",
+    "en": "Ward Versus Magi",
+    "page": "Dark Ages: Player’s Guide to Low Clans",
+    "note": "Оригинальное название подтверждено справочными списками; страница не установлена."
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 5,
+    "name": "Ихор Оккультной Передачи (ур. = уровень силы Пути + 2)",
+    "en": "Ichor of Occult Transmission",
+    "page": "Dark Ages: House of Tremere, p. 119",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 5,
+    "name": "Кровавый филактерий",
+    "en": "Blood Phylactery",
+    "page": "Dark Ages: Player’s Guide to Low Clans",
+    "note": "Английское название подтверждается справочными списками; страница не установлена."
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 5,
+    "name": "Львиное сердце",
+    "en": "Lion Heart",
+    "page": "The Player’s Guide to the Sabbat (2nd Edition), p. 121",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 5,
+    "name": "Настройка защиты",
+    "en": "нет оригинала",
+    "page": null,
+    "note": "Точное название в Guide to the Camarilla (Revised) не подтверждено; не подменяю его догадкой Tune the Ward."
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 5,
+    "name": "Неутолимая жажда",
+    "en": "Thirst Unquenchable",
+    "page": "The Player’s Guide to the Sabbat (2nd Edition), p. 121",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 5,
+    "name": "Ночь красного сердца",
+    "en": "Night of the Red Heart",
+    "page": "Clanbook: Tremere (Revised), p. 65",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 5,
+    "name": "По Нашей Воле Оно Дышит",
+    "en": "At Our Command It Breathes",
+    "page": "Dark Ages: House of Tremere, p. 116",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 5,
+    "name": "Проклятие Клитемнестры",
+    "en": "Curse of Clytaemnestra",
+    "page": "Milwaukee by Night (2nd Edition), p. 53",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 5,
+    "name": "Сканер разума",
+    "en": "Mind Scanner",
+    "page": "The Player’s Guide to the Sabbat (2nd Edition), p. 121",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 5,
+    "name": "Сыворотка Воспроизводства Витэ",
+    "en": "Serum of Perpetuating Vitae",
+    "page": "Dark Ages: House of Tremere, p. 119",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 5,
+    "name": "Сыворотка Хвалебного Призыва",
+    "en": "Serum of Vacinated Exhortation",
+    "page": "Dark Ages: House of Tremere, p. 119",
+    "note": "Сохранено написание Vacinated, извлечённое из печатного текста источника."
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 6,
+    "name": "«Подарок»",
+    "en": "The Gift",
+    "page": "The Player’s Guide to the Sabbat (2nd Edition), p. 121",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 6,
+    "name": "Железный разум",
+    "en": "Iron Mind",
+    "page": "The Player’s Guide to the Sabbat (2nd Edition), p. 122",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 6,
+    "name": "Кость раздора",
+    "en": "Bone of Contention",
+    "page": "Clanbook: Tremere (Revised), p. 65",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 6,
+    "name": "Паучья паутина",
+    "en": "Spider’s Web",
+    "page": "The Player’s Guide to the Sabbat (2nd Edition), p. 122",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 6,
+    "name": "Пески времени",
+    "en": "Sands of Time",
+    "page": "Chicago by Night (2nd Edition), p. 122",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 7,
+    "name": "Тень волка",
+    "en": "Shadow of the Wolf",
+    "page": "The Player’s Guide to the Sabbat (2nd Edition), p. 122",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тауматургия",
+    "path": "",
+    "level": 7,
+    "name": "Холод Меча Ветра",
+    "en": "Chill of the Windsaber",
+    "page": "The Player’s Guide to the Sabbat (2nd Edition), p. 122",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тёмная Тауматургия",
+    "path": "",
+    "level": 2,
+    "name": "Video Nefas",
+    "en": "Video Nefas",
+    "page": "V20 Dread Names, Red List",
+    "note": "Название уже дано в оригинале."
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Тёмная Тауматургия",
+    "path": "",
+    "level": 3,
+    "name": "Felis Negrum",
+    "en": "Felis Negrum",
+    "page": "V20 Dread Names, Red List",
+    "note": "Название уже дано в оригинале."
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Чародейство Ассамитов",
+    "path": "",
+    "level": 1,
+    "name": "Глаз переводчика",
+    "en": "Eye of the Translator",
+    "page": "Libellus Sanguinis 3: Wolves at the Door, p. 70",
+    "note": "В исходной таблице указан Player’s Guide to Low Clans, но подтверждённый библиографический указатель относит этот ритуал к Libellus Sanguinis 3; источник в таблице, вероятно, ошибочен."
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Чародейство Ассамитов",
+    "path": "",
+    "level": 1,
+    "name": "Кровь Земли",
+    "en": "нет оригинала",
+    "page": null,
+    "note": "Источник в исходной таблице отсутствует; возможно, дублирует Dowse the Earth’s Blood, но отдельный оригинал не подтверждён."
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Чародейство Ассамитов",
+    "path": "",
+    "level": 1,
+    "name": "Кровь Земли (Dowse the Earth’s Blood), ур. 1 — поиск воды",
+    "en": "Dowse the Earth’s Blood",
+    "page": "Dark Ages: Player’s Guide to Low Clans",
+    "note": "Оригинальное название сохранено в самой русской записи; точная страница не подтверждена."
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Чародейство Ассамитов",
+    "path": "",
+    "level": 2,
+    "name": "Глоссолалический пыл",
+    "en": "нет оригинала",
+    "page": null,
+    "note": "Не удалось подтвердить точное печатное английское название в Player’s Guide to Low Clans."
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Чародейство Ассамитов",
+    "path": "",
+    "level": 2,
+    "name": "Крик крови о мести",
+    "en": "Blood’s Cry for Vengeance",
+    "page": "Libellus Sanguinis 3: Wolves at the Door, p. 71",
+    "note": "В исходной таблице указан Player’s Guide to Low Clans, но подтверждённый указатель относит ритуал к Libellus Sanguinis 3."
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Чародейство Ассамитов",
+    "path": "",
+    "level": 3,
+    "name": "Клятва на крови",
+    "en": "Bound by Oath",
+    "page": "Dark Ages: Player’s Guide to Low Clans",
+    "note": "Соответствие с печатным Bound by Oath подтверждается списком ритуалов Dur-An-Ki; страница не установлена."
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Чародейство Ассамитов",
+    "path": "",
+    "level": 3,
+    "name": "Посланник ветров",
+    "en": "Messenger of the Winds",
+    "page": "Libellus Sanguinis 3: Wolves at the Door, p. 71",
+    "note": "В исходной таблице указан Dark Ages: Player’s Guide to Low Clans; библиографический указатель приводит ритуал в Libellus Sanguinis 3."
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Чародейство Ассамитов",
+    "path": "",
+    "level": 4,
+    "name": "Пальцы образуют руку",
+    "en": "Fingers From the Hand",
+    "page": "Dark Ages: Player’s Guide to Low Clans",
+    "note": "В официальном списке Dur-An-Ki название дано как Fingers From the Hand; источник/страница в исходной таблице требуют сверки."
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Чародейство Ассамитов",
+    "path": "",
+    "level": 4,
+    "name": "Принудить профана",
+    "en": "Coerce the Profane",
+    "page": "Dark Ages: Player’s Guide to Low Clans",
+    "note": "В списке ритуалов Dur-An-Ki название дано как Coerce the Profane; страница не установлена."
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Чародейство Ассамитов",
+    "path": "",
+    "level": 5,
+    "name": "Из горла Мардука",
+    "en": "From Marduk’s Throat",
+    "page": "V20 Lore of the Clans, p. 31",
+    "note": ""
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Чародейство Ассамитов",
+    "path": "",
+    "level": 5,
+    "name": "Изгнать тёмные гуморы",
+    "en": "Expel the Dark Humors",
+    "page": "Dark Ages: Player’s Guide to Low Clans",
+    "note": "Точное название присутствует в официальном списке ритуалов Dur-An-Ki; страница не установлена."
+  },
+  {
+    "kind": "ritual",
+    "discipline": "Чародейство Ассамитов",
+    "path": "",
+    "level": 5,
+    "name": "Изгнать тёмные чувства",
+    "en": "нет оригинала",
+    "page": null,
+    "note": "Источник отсутствует; вероятно, вариант ошибочной локализации/дубль Expel the Dark Humors."
+  }
+]
