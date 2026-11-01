@@ -3935,7 +3935,32 @@
       "NeedRank": "Requires Rank {n}",
       "NeedRituals": "Requires Rituals {n}",
       "Outsiders": "Outsiders",
-      "Garou": "Garou"
+      "Garou": "Garou",
+      "Natural": {
+        "bite": "Bite",
+        "claw": "Claws"
+      },
+      "Silver": "Silver",
+      "SilverHint": "Silver against Garou outside breed form (metis — in any form): aggravated, cannot be soaked (W20, ch. 6). Homid and lupus in breed form take normal damage.",
+      "SilverHit": "Silver: aggravated damage, cannot be soaked.",
+      "Regen": "Regenerate",
+      "RegenHint": "Heal the worst bashing or lethal level per turn; in combat — Stamina roll, difficulty 8 (W20, ch. 6).",
+      "RegenStress": "in combat — Stamina, difficulty 8",
+      "RegenBreed": "Homid and lupus in breed form don't regenerate — they heal like humans.",
+      "RegenAgg": "Aggravated damage doesn't regenerate — 1 level per day of rest in a regenerating form.",
+      "RegenNothing": "Nothing to heal.",
+      "RegenFail": "Regeneration failed this turn.",
+      "RegenBotch": "Botch: no regeneration until rest.",
+      "RegenDone": "Regeneration: healed one level — {type}.",
+      "Actions": "Extra actions",
+      "ActionsHint": "Spend Rage for extra actions: 1 point — 1 action, no more than half permanent Rage per turn (W20, ch. 6).",
+      "ActionsNone": "Not enough Rage for extra actions.",
+      "ActionsHow": "How many actions",
+      "ActionsText": "Up to {cap} per turn. Without penalty — {free} (lower of Dexterity and Wits); beyond that all difficulties +3 this turn. Extra actions come after normal ones, in initiative order; the pool isn't split.",
+      "ActionsFast": "+3 to difficulties",
+      "ActionsSpend": "Spend Rage",
+      "ActionsDone": "{name} spends Rage: extra actions — {n}.",
+      "ActionsFastNote": "Beyond Dexterity and Wits: all difficulties +3 this turn."
     }
   }
 }

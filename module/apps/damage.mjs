@@ -28,17 +28,19 @@ class DamageDialog extends HandlebarsApplicationMixin(ApplicationV2) {
   constructor(actor) {
     super({ window: { title: t("DamageDlg.Title", { name: actor.name }) } });
     this.actor = actor;
-    this.v = { amount: 1, type: "lethal", soak: true, armor: true, fangs: false, bullet: false, head: false, modDiff: 0,
+    this.v = { amount: 1, type: "lethal", soak: true, armor: true, fangs: false, bullet: false, head: false, silver: false, modDiff: 0,
       messageMode: game.settings.get("core", "messageMode") };
   }
 
-  get tough() { const a = this.actor; return a.isVampire || (a.type === "creature" && a.system.supernatural); }
+  get tough() { const a = this.actor; return a.isVampire || a.type === "werewolf" || (a.type === "creature" && a.system.supernatural); }
 
   /** Итоговый тип (как в soakAndApply), пул прочности с разбором, сложность и пояснения. */
   preview() {
     const a = this.actor, v = this.v, notes = [];
     let type = v.type;
     if (v.bullet && a.isVampire && !v.head && type === "lethal") { type = "bashing"; notes.push(t("Combat.BulletBashing")); }
+    const silver = v.silver && a.type === "werewolf";
+    if (silver && !a.system.werewolf.breedForm) { type = "aggravated"; notes.push(t("Werewolf.SilverHit")); }
     if (type === "aggravated" && !this.tough) { type = "lethal"; notes.push(t("Combat.MortalAggravated")); }
     const sta = a.system.attributes.stamina.total, fort = a.discipline("fortitude"), arm = v.armor ? a.armor.rating : 0;
     const STA = { label: a.traitLabel("attributes.stamina"), value: sta };
@@ -48,7 +50,7 @@ class DamageDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       : type === "lethal" ? [...(this.tough ? [STA] : []), FORT, ARM]
       : [FORT, ...(v.fangs ? [ARM] : [])];
     let bd = parts.filter(x => x.value);
-    const pool = a.soakPool(type, { armor: v.armor, fangs: v.fangs });
+    const pool = a.soakPool(type, { armor: v.armor, fangs: v.fangs, silver });
     // особые силы (Шкура гадюки и т. п.) — разбор не сходится, показываем итог одной строкой
     if (bd.reduce((n, x) => n + x.value, 0) !== pool) bd = [{ label: t("Roll.Soak"), value: pool }];
     const difficulty = Math.clamp(6 + v.modDiff + (a.system.fx?.soakDiff ?? 0), 2, 10);
@@ -63,7 +65,7 @@ class DamageDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       v, p,
       types: Object.entries(VTM20.damageTypes).map(([k, d]) => ({ key: k, icon: TYPE_ICONS[k], label: game.i18n.localize(d.label), active: k === v.type })),
       typeLabel: game.i18n.localize(VTM20.damageTypes[p.type].label),
-      showFangs: v.type === "aggravated", showBullet: v.type === "lethal" && a.isVampire,
+      showFangs: v.type === "aggravated", showBullet: v.type === "lethal" && a.isVampire, showSilver: a.type === "werewolf",
       chances: v.soak && p.pool ? chancesView(odds({ pool: p.pool, difficulty: p.difficulty, noBotch: true })) : null,
       messageModes: Object.entries(modes).map(([k, m]) => ({ value: k, label: game.i18n.localize(m.label ?? k), selected: k === v.messageMode }))
     };
@@ -75,7 +77,7 @@ class DamageDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       const f = new foundry.applications.ux.FormDataExtended(this.element).object;
       Object.assign(this.v, {
         amount: Math.clamp(Math.trunc(Number(f.amount) || 0), 0, 30), modDiff: Math.trunc(Number(f.modDiff) || 0),
-        soak: !!f.soak, armor: !!f.armor, fangs: !!f.fangs, bullet: !!f.bullet, head: !!f.head, messageMode: f.messageMode ?? this.v.messageMode
+        soak: !!f.soak, armor: !!f.armor, fangs: !!f.fangs, bullet: !!f.bullet, head: !!f.head, silver: !!f.silver, messageMode: f.messageMode ?? this.v.messageMode
       });
       this.render();
     });
@@ -92,7 +94,7 @@ class DamageDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const v = this.v;
     if (v.amount <= 0) return;
     return soakAndApply(this.actor, v.amount, v.type, {
-      soak: v.soak, armor: v.armor, fangs: v.fangs, bullet: v.bullet, head: v.head, difficulty: 6 + v.modDiff, messageMode: v.messageMode
+      soak: v.soak, armor: v.armor, fangs: v.fangs, bullet: v.bullet, head: v.head, silver: v.silver, difficulty: 6 + v.modDiff, messageMode: v.messageMode
     });
   }
 }

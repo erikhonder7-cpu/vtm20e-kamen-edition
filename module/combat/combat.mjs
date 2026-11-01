@@ -48,7 +48,7 @@ export function weaponsOf(actor) {
     const w = i.system;
     const kind = VTM20.weaponKinds[w.kind] ? w.kind : "melee";
     return { id: i.id, name: i.name, img: i.img, kind, ranged: kind === "firearms" || kind === "thrown",
-      damage: w.damage, strength: w.strength, damageType: w.damageType, difficulty: w.difficulty, pierce: w.pierce ?? 0,
+      damage: w.damage, strength: w.strength, damageType: w.damageType, difficulty: w.difficulty, pierce: w.pierce ?? 0, silver: !!w.silver,
       label: `${w.strength ? `${t("Attr.strength")} + ` : ""}${w.damage}` };
   });
 }
@@ -125,7 +125,7 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       if (w) {
         const k = VTM20.weaponKinds[w.kind];
         const v = venom(w.damageType, w.ranged);
-        return { name: w.name, attr: k.attribute, ability: k.ability, dice: 0, diff: w.difficulty - 6, ranged: w.ranged,
+        return { name: w.name, attr: k.attribute, ability: k.ability, dice: 0, diff: w.difficulty - 6, ranged: w.ranged, silver: !!w.silver,
           dmg: (w.strength ? str : 0) + w.damage, auto: w.strength && !w.ranged ? auto : 0, type: v ? "aggravated" : w.damageType, venom: v,
           fangs: false, note: v ? t("Combat.VenomNote", { n: fx.venom }) : "", pierce: w.pierce ?? 0, bullet: w.kind === "firearms" };
       }
@@ -134,7 +134,7 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     if (kind === "f") {
       const w = s.formFx?.weapons?.[Number(id)];
       if (w) return { name: w.name, attr: "dexterity", ability: "brawl", dice: 0, diff: w.diff ?? 0, ranged: false,
-        dmg: str + w.dmg, auto, type: w.agg ? "aggravated" : "lethal", venom: false, fangs: true, note: t("Combat.FormWeaponNote"), pierce: 0, bullet: false };
+        dmg: str + w.dmg, auto, type: w.type ?? (w.agg ? "aggravated" : "lethal"), venom: false, fangs: true, note: a.type === "werewolf" ? "" : t("Combat.FormWeaponNote"), pierce: 0, bullet: false };
     }
     const m = MANEUVERS[id] ?? MANEUVERS.punch;
     // Чудовищный облик: +1 куб к урону в драке; Шкура гадюки: +1 куб к укусу (data/effects.mjs)
@@ -196,7 +196,7 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       icon: { brawl: "fa-hand-back-fist", melee: "fa-khanda", firearms: "fa-gun", thrown: "fa-bullseye" }[w.kind] }));
     const maneuvers = Object.entries(MANEUVERS).filter(([k, m]) => k === "claws" ? !!a.system.fx?.claws : (!m.vampire || a.isVampire))
       .map(([k, m]) => ({ key: `m:${k}`, name: t(`Combat.M.${k}`), icon: m.icon, active: v.pick === `m:${k}` }))
-      .concat((a.system.formFx?.weapons ?? []).map((w, i) => ({ key: `f:${i}`, name: w.name, icon: "fa-dragon", active: v.pick === `f:${i}` })));
+      .concat((a.system.formFx?.weapons ?? []).map((w, i) => ({ key: `f:${i}`, name: w.name, icon: w.icon ?? "fa-dragon", active: v.pick === `f:${i}` })));
     const split = label => { const m = label.match(/^(.*?)\s*\(([^)]*)\)\s*$/); return m ? { name: m[1], mod: m[2] } : { name: label, mod: "" }; };
     const opt = (list, cur, prefix) => list.map(k => ({ value: k, label: t(`${prefix}.${k}`), ...split(t(`${prefix}.${k}`)), selected: k === cur }));
     // Цели: отмеченные токены (T) и все токены сцены, кроме самого атакующего
@@ -264,7 +264,7 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     if (c.pierce) notes.push(t("Combat.PierceNote", { n: c.pierce }));
     const head = ["small", "tiny"].includes(v.aim);
     const link = { weaponName: c.name, target: foe?.uuid ?? null, targetName: foe?.name ?? "", pierce: c.pierce, bullet: c.bullet, head, ranged: c.ranged,
-      damageAuto: c.auto ?? 0, venom: !!c.venom };
+      damageAuto: c.auto ?? 0, venom: !!c.venom, silver: !!c.silver };
     const res = await rollPool({
       actor: this.actor, title: c.name, subtitle: foe ? `${t("Combat.Attack")} → ${foe.name}` : t("Combat.Attack"),
       pool: r.pool, difficulty: r.difficulty, specialty: v.specialty && r.specialtyEligible, specialtyName: r.specialtyName,
@@ -393,7 +393,7 @@ export async function rollLinkedDamage(message) {
   const { rollDamage } = await import("../dice/roll.mjs");
   return rollDamage({
     actor: attacker, pool: r.damage, damageType: r.damageType, title: r.weaponName, aggravatedFangs: r.fangs, auto: r.damageAuto ?? 0,
-    target: r.target, pierce: r.pierce ?? 0, bullet: !!r.bullet, head: !!r.head,
+    target: r.target, pierce: r.pierce ?? 0, bullet: !!r.bullet, head: !!r.head, silver: !!r.silver,
     notes: r.targetName ? [`<i class="fa-solid fa-crosshairs"></i> ${esc(t("Combat.DamageTo", { name: r.targetName }))}`] : []
   });
 }

@@ -387,8 +387,15 @@ export class VtMActor extends Actor {
   }
 
   /** Пул прочности против типа урона (04). */
-  soakPool(type, { armor = true, fangs = false, pierce = 0 } = {}) {
+  soakPool(type, { armor = true, fangs = false, pierce = 0, silver = false } = {}) {
     const s = this.system;
+    if (this.type === "werewolf") {
+      const sta = s.attributes.stamina.total, arm = armor ? Math.max(0, this.armor.rating - pierce) : 0, weak = s.werewolf.breedForm;
+      if (silver && !weak) return 0;
+      if (type === "bashing") return sta + arm;
+      if (type === "lethal") return (weak ? 0 : sta) + arm;
+      return (weak ? 0 : sta) + (fangs ? arm : 0);
+    }
     const fort = this.discipline("fortitude");
     const stamina = s.attributes.stamina.total;
     // пробитие брони: столько точек брони не учитывается (V20 Dark Ages, M20 Victorian Age)

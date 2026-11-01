@@ -313,12 +313,12 @@ function effectByTorment(html, extra) {
 /* ── Специальные броски ──────────────────────────────────────────────── */
 
 /** Урон по оружию (04): пул = урон + лишние успехи атаки, сложность 6, не проваливается. */
-export function rollDamage({ actor, pool, damageType = "bashing", title, aggravatedFangs = false, target = null, pierce = 0, bullet = false, head = false, notes = [], auto = 0, soakDiff = null }) {
+export function rollDamage({ actor, pool, damageType = "bashing", title, aggravatedFangs = false, target = null, pierce = 0, bullet = false, head = false, silver = false, notes = [], auto = 0, soakDiff = null }) {
   const bd = auto ? [{ label: t("Roll.PotenceAuto"), value: auto }] : [];
   return rollPool({
     actor, title: title ?? t("Roll.Damage"), subtitle: game.i18n.localize(VTM20.damageTypes[damageType].label),
     pool: Math.max(auto ? 0 : 1, pool), difficulty: 6, kind: "damage", noBotch: true, notes, auto, breakdown: bd,
-    extra: { damageType, fangs: aggravatedFangs, damage: true, target, pierce, bullet, head, soakDiff }
+    extra: { damageType, fangs: aggravatedFangs, damage: true, target, pierce, bullet, head, silver, soakDiff }
   });
 }
 
@@ -326,21 +326,27 @@ export function rollDamage({ actor, pool, damageType = "bashing", title, aggrava
  * Прочность и применение урона к актёру: бросок прочности, вычет, у вампира
  * лёгкие после прочности делятся пополам с округлением вниз (04).
  */
-export async function soakAndApply(target, amount, damageType, { soak = true, fangs = false, pierce = 0, bullet = false, head = false, difficulty = null, armor = true, messageMode } = {}) {
+export async function soakAndApply(target, amount, damageType, { soak = true, fangs = false, pierce = 0, bullet = false, head = false, difficulty = null, armor = true, silver = false, messageMode } = {}) {
   let left = amount, soaked = 0;
+  // Серебро по Гару вне породной формы (метису — всегда): губительный, без поглощения (W20, гл. 6)
+  silver = silver && target.type === "werewolf";
+  if (silver && !target.system.werewolf.breedForm) {
+    damageType = "aggravated";
+    ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: target }), content: `<div class="r-notice is-warn"><i class="fa-solid fa-moon"></i> ${t("Werewolf.SilverHit")}</div>` });
+  }
   // Пули и болты по вампиру — лёгкие повреждения, кроме выстрела в голову (04)
   if (bullet && target.isVampire && !head && damageType === "lethal") {
     damageType = "bashing";
     ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: target }), content: `<div class="r-notice"><i class="fa-solid fa-gun"></i> ${t("Combat.BulletBashing")}</div>` });
   }
   // Смертному огонь, клыки и когти наносят тяжёлые повреждения, а не губительные (04)
-  const tough = target.isVampire || (target.type === "creature" && target.system.supernatural);
+  const tough = target.isVampire || target.type === "werewolf" || (target.type === "creature" && target.system.supernatural);
   if (damageType === "aggravated" && !tough) {
     damageType = "lethal";
     ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: target }), content: `<div class="r-notice"><i class="fa-solid fa-person"></i> ${t("Combat.MortalAggravated")}</div>` });
   }
   if (soak) {
-    const pool = target.soakPool(damageType, { fangs, pierce, armor });
+    const pool = target.soakPool(damageType, { fangs, pierce, armor, silver });
     if (pool > 0) {
       const res = await rollPool({
         actor: target, title: t("Roll.Soak"), subtitle: game.i18n.localize(VTM20.damageTypes[damageType].label),
@@ -413,7 +419,7 @@ async function onDamage(message, state) {
   const pool = (state.extra.damagePool ?? 0) + Math.max(0, ev.successes - 1);
   const x = state.extra;
   return rollDamage({ actor, pool, damageType: x.damageType ?? "bashing", title: x.weaponName || t("Roll.Damage"), aggravatedFangs: x.fangs,
-    pierce: x.pierce ?? 0, bullet: !!x.bullet, head: !!x.head, auto: x.damageAuto ?? 0 });
+    pierce: x.pierce ?? 0, bullet: !!x.bullet, head: !!x.head, silver: !!x.silver, auto: x.damageAuto ?? 0 });
 }
 
 async function onApply(state, { soak }) {
@@ -426,6 +432,6 @@ async function onApply(state, { soak }) {
   if (!list.length) { ui.notifications.warn(t("Notify.NoTarget")); return; }
   for (const a of list) {
     if (!a.isOwner) { ui.notifications.warn(t("Notify.NotOwner", { name: a.name })); continue; }
-    await soakAndApply(a, ev.successes, x.damageType ?? "bashing", { soak, fangs: x.fangs, pierce: x.pierce ?? 0, bullet: !!x.bullet, head: !!x.head, difficulty: x.soakDiff ?? null });
+    await soakAndApply(a, ev.successes, x.damageType ?? "bashing", { soak, fangs: x.fangs, pierce: x.pierce ?? 0, bullet: !!x.bullet, head: !!x.head, silver: !!x.silver, difficulty: x.soakDiff ?? null });
   }
 }

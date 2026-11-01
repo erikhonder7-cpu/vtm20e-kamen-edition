@@ -182,11 +182,17 @@ VTM20.meritCategories = {
  */
 VTM20.garouForms = [
   { key: "homid", name: "Хомид", en: "Homid", icon: "fa-person", diff: 6, mods: {}, set: {} },
-  { key: "glabro", name: "Глабро", en: "Glabro", icon: "fa-person-falling-burst", diff: 7, mods: { strength: 2, stamina: 2, manipulation: -2, appearance: -1 }, set: {} },
-  { key: "crinos", name: "Кринос", en: "Crinos", icon: "fa-claw-marks", diff: 6, mods: { strength: 4, dexterity: 1, stamina: 3, manipulation: -3 }, set: { appearance: 0 }, delirium: true },
-  { key: "hispo", name: "Хиспо", en: "Hispo", icon: "fa-paw-claws", diff: 7, mods: { strength: 3, dexterity: 2, stamina: 3, manipulation: -3 }, set: {} },
-  { key: "lupus", name: "Лупус", en: "Lupus", icon: "fa-paw", diff: 6, mods: { strength: 1, dexterity: 2, stamina: 2, manipulation: -3 }, set: {} }
+  { key: "glabro", name: "Глабро", en: "Glabro", icon: "fa-person-falling-burst", diff: 7, mods: { strength: 2, stamina: 2, manipulation: -2, appearance: -1 }, set: {},
+    natural: { claw: "bashing" } },
+  { key: "crinos", name: "Кринос", en: "Crinos", icon: "fa-claw-marks", diff: 6, mods: { strength: 4, dexterity: 1, stamina: 3, manipulation: -3 }, set: { appearance: 0 }, delirium: true,
+    natural: { bite: "aggravated", claw: "aggravated" } },
+  { key: "hispo", name: "Хиспо", en: "Hispo", icon: "fa-paw-claws", diff: 7, mods: { strength: 3, dexterity: 2, stamina: 3, manipulation: -3 }, set: {},
+    natural: { bite: "aggravated", claw: "aggravated" } },
+  { key: "lupus", name: "Лупус", en: "Lupus", icon: "fa-paw", diff: 6, mods: { strength: 1, dexterity: 2, stamina: 2, manipulation: -3 }, set: {},
+    natural: { bite: "aggravated", claw: "bashing" } }
 ];
+/** Укус и коготь Гару (W20, гл. 6): поправка к сложности 6 и урон сверх Силы. */
+VTM20.garouNatural = { bite: { diff: -1, dmg: 1, icon: "fa-teeth" }, claw: { diff: 0, dmg: 1, icon: "fa-claw-marks" } };
 
 VTM20.traitLine = type => ["demon", "hunter", "werewolf"].includes(type) ? type : "";
 /**

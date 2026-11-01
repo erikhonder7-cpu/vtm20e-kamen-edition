@@ -522,6 +522,7 @@ export class WeaponData extends BaseItemData {
       damageType: str("lethal"),
       difficulty: int(6, 2, 10),
       pierce: int(0, 0, 10),                    // пробитие брони: столько точек брони не учитывается (DA, Victorian Age)
+      silver: new BooleanField({ initial: false }), // серебро: Гару вне породной формы — губительный без поглощения (W20, гл. 6)
       range: str(), rate: str(), clip: str(), concealment: str(),
       equipped: new BooleanField({ initial: true })
     };
@@ -604,6 +605,11 @@ export class WerewolfData extends MortalData {
       this.attributes[k].form = v; this.attributes[k].total = Math.max(0, this.attributes[k].total + v);
     }
     for (const [k, v] of Object.entries(f?.set ?? {})) if (this.attributes[k]) { this.attributes[k].form = "set"; this.attributes[k].total = v; }
+    // естественное оружие формы — тем же путём, что у демонов (combat.mjs, «f:N»); породная форма Хомида/Лупуса слабее к урону
+    this.formFx = { attr: {}, soak: 0, init: 0, health: 0, diff: {}, dice: {}, list: [],
+      weapons: Object.entries(f?.natural ?? {}).map(([k, type]) => ({ ...VTM20.garouNatural[k], key: k, type,
+        name: game.i18n.localize(`VTM20.Werewolf.Natural.${k}`) })) };
+    this.werewolf.breedForm = this.werewolf.breed !== "metis" && this.werewolf.form === this.werewolf.breed;
     // кровь оборотня — 20 пунктов (V20: сильная кровь)
     this.vessel.max = 20; this.vessel.value = Math.min(this.vessel.value, 20);
     const w = this.werewolf;

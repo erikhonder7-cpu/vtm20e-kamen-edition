@@ -72,6 +72,7 @@
         <select name="system.damageType">{{#each damageTypeOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
       <label class="r-f"><span>{{localize "VTM20.Weapon.diff"}}</span><input type="number" name="system.difficulty" value="{{system.difficulty}}" min="2" max="10"></label>
       <label class="r-f" data-tooltip="{{localize 'VTM20.Weapon.pierceHint'}}"><span>{{localize "VTM20.Weapon.pierce"}}</span><input type="number" name="system.pierce" value="{{system.pierce}}" min="0" max="10"></label>
+        <label class="r-f r-f-check" data-tooltip="{{localize 'VTM20.Werewolf.SilverHint'}}"><input type="checkbox" name="system.silver" {{checked system.silver}}><span>{{localize "VTM20.Werewolf.Silver"}}</span></label>
       <label class="r-f"><span>{{localize "VTM20.Weapon.range"}}</span><input type="text" name="system.range" value="{{system.range}}"></label>
       <label class="r-f"><span>{{localize "VTM20.Weapon.rate"}}</span><input type="text" name="system.rate" value="{{system.rate}}"></label>
       <label class="r-f"><span>{{localize "VTM20.Weapon.clip"}}</span><input type="text" name="system.clip" value="{{system.clip}}"></label>

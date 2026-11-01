@@ -15,6 +15,7 @@
     <label class="r-check"><input type="checkbox" name="soak" {{checked v.soak}}> {{localize "VTM20.DamageDlg.Soak"}}</label>
     <label class="r-check"><input type="checkbox" name="armor" {{checked v.armor}}> {{localize "VTM20.DamageDlg.Armor"}}</label>
     {{#if showFangs}}<label class="r-check"><input type="checkbox" name="fangs" {{checked v.fangs}}> {{localize "VTM20.DamageDlg.Fangs"}}</label>{{/if}}
+    {{#if showSilver}}<label class="r-check" data-tooltip="{{localize 'VTM20.Werewolf.SilverHint'}}"><input type="checkbox" name="silver" {{checked v.silver}}> {{localize "VTM20.Werewolf.Silver"}}</label>{{/if}}
     {{#if showBullet}}
     <label class="r-check"><input type="checkbox" name="bullet" {{checked v.bullet}}> {{localize "VTM20.DamageDlg.Bullet"}}</label>
     {{#if v.bullet}}<label class="r-check"><input type="checkbox" name="head" {{checked v.head}}> {{localize "VTM20.DamageDlg.Head"}}</label>{{/if}}

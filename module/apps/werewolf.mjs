@@ -224,6 +224,47 @@ export function frenzyCheck(actor) {
     } });
 }
 
+/**
+ * Регенерация (W20, гл. 6): худший уровень ударного или летального за ход; в бою — рефлекторный бросок Выносливости сл. 8
+ * (провал — нет, провал с единицами — до отдыха нельзя). Хомид и Лупус в породной форме не регенерируют, губительное — 1 в день отдыха.
+ */
+export async function regenerate(actor) {
+  const w = actor.system.werewolf, h = actor.system.health;
+  const say = html => ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<div class="r-notice r-type-werewolf">${html}</div>` });
+  if (w.breedForm) return ui.notifications.warn(t("RegenBreed"));
+  const type = h.lethal > 0 ? "lethal" : h.bashing > 0 ? "bashing" : null;
+  if (!type) return ui.notifications.info(t(h.aggravated > 0 ? "RegenAgg" : "RegenNothing"));
+  const fight = !!game.combat?.started && game.combat.combatants.some(c => c.actor === actor);
+  if (fight) {
+    const { rollPool } = await import("../dice/roll.mjs");
+    const res = await rollPool({ actor, title: t("Regen"), subtitle: t("RegenStress"), pool: actor.system.attributes.stamina.total, difficulty: 8,
+      breakdown: [{ label: actor.traitLabel("attributes.stamina"), value: actor.system.attributes.stamina.total }] });
+    if (!(res?.successes > 0)) return say(`<i class="fa-solid fa-heart-crack"></i> ${t(res?.outcome === "botch" ? "RegenBotch" : "RegenFail")}`);
+  }
+  await actor.healDamage(type, 1);
+  return say(`<i class="fa-solid fa-heart-pulse"></i> ${t("RegenDone", { type: game.i18n.localize(VTM20.damageTypes[type].label) })}`);
+}
+
+/**
+ * Доп. действия за Ярость (W20, гл. 6): 1 очко — 1 действие, не больше половины постоянной Ярости (вверх) за ход;
+ * сверх меньшего из Ловкости и Смекалки — +3 ко всем сложностям в этот ход.
+ */
+export async function rageActions(actor) {
+  const w = actor.system.werewolf, at = actor.system.attributes;
+  const cap = Math.min(Math.ceil(w.rage.permanent / 2), w.rage.value), free = Math.min(at.dexterity.total, at.wits.total);
+  if (cap < 1) return ui.notifications.warn(t("ActionsNone"));
+  const opts = Array.from({ length: cap }, (_, i) => `<option value="${i + 1}">${i + 1}${i + 1 > free ? ` — ${t("ActionsFast")}` : ""}</option>`).join("");
+  const n = await foundry.applications.api.DialogV2.prompt({
+    window: { title: t("Actions"), icon: "fa-solid fa-bolt" }, classes: ["vtm20", "r-dialog", "r-type-werewolf"],
+    content: `<p>${t("ActionsText", { cap, free })}</p><label class="r-f"><span>${t("ActionsHow")}</span><select name="n">${opts}</select></label>`,
+    ok: { label: t("ActionsSpend"), icon: "fa-solid fa-fire", callback: (ev, btn) => Number(btn.form.elements.n.value) }, rejectClose: false
+  });
+  if (!n) return;
+  await actor.update({ "system.werewolf.rage.value": w.rage.value - n });
+  return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<div class="r-notice r-type-werewolf"><i class="fa-solid fa-bolt"></i> ${
+    t("ActionsDone", { name: esc(actor.name), n })}${n > free ? ` ${t("ActionsFastNote")}` : ""}</div>` });
+}
+
 /** Шаг в Умбру (W20, гл. 7): бросок Гнозиса против Преграды; зеркало или отражение — сложность −? по решению рассказчика. */
 export function stepSideways(actor) {
   return RollDialog.prompt(actor, { title: t("StepSideways"), trait1: "werewolf.gnosis", difficulty: 7, diffNote: t("GauntletNote") });
