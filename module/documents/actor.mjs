@@ -393,10 +393,12 @@ export class VtMActor extends Actor {
     const s = this.system;
     if (this.type === "werewolf") {
       const sta = s.attributes.stamina.total, arm = armor ? Math.max(0, this.armor.rating - pierce) : 0, weak = s.werewolf.breedForm;
+      // кубики поглощения от уродств метиса (Грубая шкура, Косматость — models.mjs, formFx.soak)
+      const fx = s.formFx?.soak ?? 0;
       if (silver && !weak) return 0;
-      if (type === "bashing") return sta + arm;
-      if (type === "lethal") return (weak ? 0 : sta) + arm;
-      return (weak ? 0 : sta) + (fangs ? arm : 0);
+      if (type === "bashing") return sta + arm + fx;
+      if (type === "lethal") return (weak ? 0 : sta) + arm + fx;
+      return (weak ? 0 : sta) + (fangs ? arm : 0) + fx;
     }
     const fort = this.discipline("fortitude");
     const stamina = s.attributes.stamina.total;

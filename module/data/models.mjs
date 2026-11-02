@@ -599,6 +599,8 @@ export class WerewolfData extends MortalData {
         fetishes: new ArrayField(new SchemaField({ key: str(), attuned: new BooleanField({ initial: false }), n: int(1, 0, 20) })),
         // боевые шрамы (W20, гл. 6) — ключи data/werewolf.json → scars
         scars: new ArrayField(str()),
+        // уродства метиса (W20, гл. 1; Changing Ways) — ключи data/werewolf.json → deformities
+        deformities: new ArrayField(str()),
         // временный Атрибут формы вне таблицы (Дар, частичное превращение) — пока не используется
         deformity: str("")
       })
@@ -632,6 +634,14 @@ export class WerewolfData extends MortalData {
     this.formFx = { attr: {}, soak: 0, init: 0, health: 0, diff: {}, dice: {}, list: [],
       weapons: Object.entries(f?.natural ?? {}).map(([k, type]) => ({ ...VTM20.garouNatural[k], key: k, type,
         name: game.i18n.localize(`VTM20.Werewolf.Natural.${k}`) })) };
+    // уродства метиса с механикой (deformities[].fx): кубики поглощения (в своих формах), Внешность, укус без клыков — ударный
+    const deform = globalThis.game?.vtm20Codex?.werewolf?.deformities ?? [], ap = this.attributes.appearance;
+    for (const fx of this.werewolf.deformities.map(k => deform.find(d => d.key === k)?.fx).filter(Boolean)) {
+      if (fx.soak && (!fx.forms || fx.forms.includes(this.werewolf.form))) this.formFx.soak += fx.soak;
+      if (fx.appearance !== undefined) { ap.form = "set"; ap.total = fx.appearance; }
+      if (fx.appearanceMax !== undefined) ap.total = Math.min(ap.total, fx.appearanceMax);
+      if (fx.bite) for (const wpn of this.formFx.weapons) if (wpn.key === "bite") wpn.type = fx.bite;
+    }
     this.werewolf.breedForm = this.werewolf.breed !== "metis" && this.werewolf.form === this.werewolf.breed;
     // кровь оборотня — 20 пунктов (V20: сильная кровь)
     this.vessel.max = 20; this.vessel.value = Math.min(this.vessel.value, 20);

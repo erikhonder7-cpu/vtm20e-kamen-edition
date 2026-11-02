@@ -4095,7 +4095,11 @@
       "Fera": "Fera",
       "FeraKind": "Breed",
       "FeraTraits": "Breed traits and forms",
-      "FeraHint": "Garou — or one of the Changing Breeds (W20 Changing Breeds): each has its own forms, Gifts and traits."
+      "FeraHint": "Garou — or one of the Changing Breeds (W20 Changing Breeds): each has its own forms, Gifts and traits.",
+      "Deformities": "Metis deformities",
+      "NoDeformities": "No deformities. A metis must have at least one — hiding it is dishonourable.",
+      "AddDeformity": "+ Deformity…",
+      "DeformFx": "applied on the sheet"
     },
     "Strategy": {
       "Tab": "Strategy",
@@ -4406,6 +4410,8 @@
       "FlawPts": "Flaws",
       "NeedConcept": "Choose breed, auspice and tribe.",
       "NeedGifts": "Three Gifts are needed: breed, auspice and tribe.",
+      "Deformity": "Deformity",
+      "NeedDeformity": "A metis needs at least one deformity.",
       "NeedRenown": "A Ragabash splits exactly 3 Renown.",
       "OverFree": "Not enough freebies: {n}.",
       "Create": "Create Garou",

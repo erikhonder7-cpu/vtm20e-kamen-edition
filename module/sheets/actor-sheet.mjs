@@ -37,7 +37,7 @@ import { openThrallGifts } from "../apps/thrall-gifts.mjs";
 import { loseHost, holdOn, newHost, summonedBack } from "../apps/host.mjs";
 import { openCult } from "../apps/cult.mjs";
 import { openExorcist } from "../apps/exorcist.mjs";
-import { werewolfInfo, giftsView, editStanding, changeForm, rollGift, rollRite, frenzyCheck, stepSideways, scarView, addScar, removeScar, renownAward, kinfolkInfo, kinAddGift, kinRemoveGift, kinUseGift, spiritInfo, addCharm, removeCharm, spiritEssenceReset, fetishView, addFetish, removeFetish, attuneFetish, useFetish, delirium, W as werewolfDataSheet, regenerate, rageActions, spend as wwSpend, addGift, removeGift, addRite, removeRite } from "../apps/werewolf.mjs";
+import { werewolfInfo, giftsView, editStanding, changeForm, rollGift, rollRite, frenzyCheck, stepSideways, scarView, addScar, removeScar, deformityView, addDeformity, removeDeformity, renownAward, kinfolkInfo, kinAddGift, kinRemoveGift, kinUseGift, spiritInfo, addCharm, removeCharm, spiritEssenceReset, fetishView, addFetish, removeFetish, attuneFetish, useFetish, delirium, W as werewolfDataSheet, regenerate, rageActions, spend as wwSpend, addGift, removeGift, addRite, removeRite } from "../apps/werewolf.mjs";
 import { hunterInfo, edgesView, useEdge, secondSight, virtueTest, tradeConviction, restoreConviction, awardDeed, shiftDeed, cashDeed, sacrifice, advanceVirtue, callEdge, swapCalled, unblockCall, callView, isLost, lostVirtue, lostTrade, lostHardened, lostOrdeal } from "../apps/hunter.mjs";
 import { addBloodright, removeBloodright, rollBloodright, toggleRitual as toggleDririRitual, rollRitual as rollDririRitual } from "../apps/dhampir.mjs";
 import { openEbServant, empower as empowerServant } from "../apps/eb-servant.mjs";
@@ -175,7 +175,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       wwForm: VtMActorSheet.#onWwForm, wwGift: VtMActorSheet.#onWwGift, wwGiftAdd: VtMActorSheet.#onWwGiftAdd, wwGiftDel: VtMActorSheet.#onWwGiftDel,
       wwRite: VtMActorSheet.#onWwRite, wwRiteAdd: VtMActorSheet.#onWwRiteAdd, wwRiteDel: VtMActorSheet.#onWwRiteDel,
       wwStanding: VtMActorSheet.#onWwStanding, wwFrenzy: VtMActorSheet.#onWwFrenzy, wwStep: VtMActorSheet.#onWwStep, wwSpend: VtMActorSheet.#onWwSpend,
-      wwRegen: VtMActorSheet.#onWwRegen, wwActions: VtMActorSheet.#onWwActions, wwDelirium: VtMActorSheet.#onWwDelirium, wwRenown: VtMActorSheet.#onWwRenown, wwSept: VtMActorSheet.#onWwSept, wwUmbra: VtMActorSheet.#onWwUmbra, wwScarAdd: VtMActorSheet.#onWwScarAdd, wwScarDel: VtMActorSheet.#onWwScarDel,
+      wwRegen: VtMActorSheet.#onWwRegen, wwActions: VtMActorSheet.#onWwActions, wwDelirium: VtMActorSheet.#onWwDelirium, wwRenown: VtMActorSheet.#onWwRenown, wwSept: VtMActorSheet.#onWwSept, wwUmbra: VtMActorSheet.#onWwUmbra, wwScarAdd: VtMActorSheet.#onWwScarAdd, wwScarDel: VtMActorSheet.#onWwScarDel, wwDeformAdd: VtMActorSheet.#onWwDeformAdd, wwDeformDel: VtMActorSheet.#onWwDeformDel,
       kinAdd: VtMActorSheet.#onKinAdd, kinBuy: VtMActorSheet.#onKinBuy, kinDel: VtMActorSheet.#onKinDel, kinUse: VtMActorSheet.#onKinUse,
       spCharmAdd: VtMActorSheet.#onSpCharmAdd, spCharmDel: VtMActorSheet.#onSpCharmDel, spEssence: VtMActorSheet.#onSpEssence, spStep: VtMActorSheet.#onSpStep,
       wwFetishAdd: VtMActorSheet.#onWwFetishAdd, wwFetishAttune: VtMActorSheet.#onWwFetishAttune, wwFetishUse: VtMActorSheet.#onWwFetishUse, wwFetishDel: VtMActorSheet.#onWwFetishDel, openStrategy: () => openStrategy(),
@@ -297,6 +297,11 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       ctx.ww.fetishes = fetishView(this.actor);
       ctx.ww.scars = scarView(this.actor);
       ctx.ww.scarAvail = (werewolfDataSheet().scars ?? []).map(x => ({ key: x.key, label: `${x.name} (+${x.glory})` }));
+      // уродства — у метиса (и у того, кому их уже записали)
+      ctx.ww.deformities = deformityView(this.actor);
+      ctx.ww.showDeform = actor.system.werewolf.breed === "metis" || ctx.ww.deformities.length > 0;
+      ctx.ww.needDeform = actor.system.werewolf.breed === "metis" && !ctx.ww.deformities.length;
+      ctx.ww.deformAvail = (werewolfDataSheet().deformities ?? []).filter(d => !actor.system.werewolf.deformities.includes(d.key)).map(d => ({ key: d.key, label: VTM20.label(d) }));
       ctx.ww.fetishAvail = (werewolfDataSheet().fetishes ?? []).map(f => ({ key: f.key, talen: f.kind === "talen",
         label: `${VTM20.label(f)} (${f.kind === "talen" ? "" : `ур. ${f.level}, `}${game.i18n.localize("VTM20.Werewolf.Gnosis")} ${f.gnosis})` })); }
     else if (actor.type !== "mortal") prepareDisciplines(this, ctx);
@@ -767,6 +772,8 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static #onWwUmbra() { return openUmbra(this.actor); }
   static #onWwScarAdd() { const k = this.element.querySelector(".r-ww-scar-add")?.value; if (k) return addScar(this.actor, k); }
   static #onWwScarDel(event, target) { return removeScar(this.actor, Number(target.dataset.i)); }
+  static #onWwDeformAdd() { const k = this.element.querySelector(".r-ww-deform-add")?.value; if (k) return addDeformity(this.actor, k); }
+  static #onWwDeformDel(event, target) { return removeDeformity(this.actor, target.dataset.key); }
   static #onKinAdd() { return kinAddGift(this.actor, this.element.querySelector(".r-kin-add")?.value, false); }
   static #onKinBuy() { return kinAddGift(this.actor, this.element.querySelector(".r-kin-add")?.value, true); }
   static #onKinDel(event, target) { return kinRemoveGift(this.actor, target.dataset.key); }

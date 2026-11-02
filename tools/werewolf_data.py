@@ -834,6 +834,7 @@ def parse_supp_mech(core_rites, core_fetishes, core_merits):
                 m = re.match(r"^### (.+?)\s*\(([^()]+)\)\s*—\s*(.+)$", line)
                 if m and re.search(r"(ритуал|обряд|rite)", (m.group(1) + m.group(2)).lower()):
                     name, en, rest = m.groups()
+                    name = re.sub(r"^Нов(?:ый|ая) (?:обряд|ритуал)\s*:\s*", "", name)   # «### Новый обряд: Обряд сдирания (…)»
                     lv = re.search(r"ур\.\s*(\d+)", rest)
                     kind = next((k for w, k in RITE_WORDS if w in rest.lower()), "mystic")
                     key = slug(en)
@@ -998,6 +999,68 @@ def parse_fera(core_keys):
     return breeds, gifts
 
 
+# Уродства метисов: примеры основной книги (гл. 1) и новые из W20 Changing Ways; у части — механика (fx):
+# soak — кубики поглощения (forms — только в этих формах), appearance — Внешность во всех формах, appearanceMax — потолок, bite — тип урона укуса
+DEFORM_KEYS = {"Хрупкие когти и клыки": "brittle-claws", "Дисплазия бедра": "hip-dysplasia", "Нервное превращение": "nervous-shift",
+               "Без мышечной массы": "no-muscle-mass", "Духовное уродство": "spiritual-deformity", "Третий глаз": "third-eye",
+               "Неестественный окрас": "unnatural-coloration", "Слабый голос": "weak-voice"}
+DEFORM_FX = {"tough-hide": {"soak": 1, "appearanceMax": 1}, "hirsute": {"soak": 1, "forms": ["crinos", "hispo", "lupus"]},
+             "monstrous": {"appearance": 0}, "no-fangs": {"bite": "bashing"}}
+
+
+def parse_deformities():
+    out = []
+
+    def table(text, source):
+        for line in text.splitlines():
+            if not line.startswith("| ") or line.startswith("| Уродство") or set(line) <= set("|-: "):
+                continue
+            c = [x.strip() for x in line.strip().strip("|").split("|")]
+            if len(c) < 2:
+                continue
+            name, en = name_en(c[0])
+            key = slug(en) if en else DEFORM_KEYS.get(name, slug(name))
+            if any(d["key"] == key for d in out):
+                continue
+            d = {"key": key, "name": name, "en": en, "text": md_inline(c[1]), "source": source}
+            if key in DEFORM_FX:
+                d["fx"] = DEFORM_FX[key]
+            out.append(d)
+
+    core = read("01_Создание_персонажа_породы_аугурии_племена.md")
+    table(core.split("### Уродства метисов", 1)[1].split("\n---", 1)[0].split("\n## ", 1)[0], "W20")
+    cw = changing_ways_01()
+    if cw:
+        table(cw.split("### Новые уродства метисов", 1)[1].split("\n## ", 1)[0], "W20 Changing Ways")
+    return out
+
+
+def changing_ways_01():
+    p = os.path.join(os.path.dirname(REF), "W20_Changing_Ways")
+    fn = next((f for f in sorted(os.listdir(p)) if f.startswith("01")), None) if os.path.isdir(p) else None
+    return open(os.path.join(p, fn), encoding="utf-8").read() if fn else ""
+
+
+def parse_changing_ways_extras(taken_gifts):
+    """Пути перемен, гл. 1: Дар метисов «Отринуть наследие» и тотем Мудрости Обатала — заголовками, не списком."""
+    text, gifts, totems = changing_ways_01(), [], []
+    if not text:
+        return gifts, totems
+    m = re.search(r"\n### Новый Дар метисов: (.+?) \(([^()]+)\) — ур\. (\d+)\n(.*?)(?=\n### |\n## )", text, re.S)
+    if m and slug(m.group(2)) not in taken_gifts:
+        name, en, lv, body = m.groups()
+        gifts.append({"key": slug(en), "name": name.strip(), "en": en.strip(), "level": int(lv), "groups": [{"kind": "breed", "key": "metis"}],
+                      "teacher": "", "roll": None, "cost": cost_of(body), "text": md_html(body.strip().splitlines()), "source": "W20 Changing Ways"})
+    m = re.search(r"\n### Новый тотем: (.+?) \(([^()]+)\) — тотем (\S+)\n(.*?)(?=\n### |\n## )", text, re.S)
+    if m:
+        name, en, cat, body = m.groups()
+        field = lambda label: md_inline(next((re.sub(r"^- \*\*[^*]+:\*\*\s*", "", l) for l in body.splitlines() if l.startswith(f"- **{label}")), ""))
+        totems.append({"key": slug(en), "name": name.strip(), "en": en.strip(), "cat": cat, "cost": first_int(field("Цена")),
+                       "individual": field("Личные черты"), "pack": field("Черты стаи"), "ban": field("Запрет"), "text": field("Покровитель") or md_inline(
+                           next((l[2:] for l in body.splitlines() if l.startswith("- ") and "**" not in l), "")), "source": "W20 Changing Ways"})
+    return gifts, totems
+
+
 def build():
     gifts = parse_gifts()
     rites = parse_rites()
@@ -1006,6 +1069,8 @@ def build():
     gifts = gifts + supp
     fera, fera_gifts_list = parse_fera({g["key"] for g in gifts})
     gifts = gifts + fera_gifts_list
+    cw_gifts, cw_totems = parse_changing_ways_extras({g["key"] for g in gifts})
+    gifts = gifts + cw_gifts
     for kind, items in (("breed", breeds), ("auspice", auspices), ("tribe", tribes), ("form", FORMS)):
         for x in items:
             x["icon"] = ICONS[kind].get(x["key"], "fa-moon")
@@ -1014,7 +1079,8 @@ def build():
     rites = rites + s_rites
     data = {"source": "Werewolf: The Apocalypse 20th Anniversary Edition", "breeds": breeds, "auspices": auspices, "tribes": tribes,
             "forms": FORMS, "gifts": gifts, "rites": rites, "rankNames": RANK_NAMES, "rank": RANK, "xp": XP,
-            "merits": core_merits + s_merits, "backgrounds": parse_backgrounds(), "fetishes": core_fetishes + s_fetishes, "charms": parse_charms(), "kinGifts": parse_kin_gifts(tribes), "totems": parse_totems(), "renownAwards": parse_renown_awards(), "scars": parse_scars(), "sept": parse_sept(), "umbra": parse_umbra(), "fera": fera}
+            "merits": core_merits + s_merits, "backgrounds": parse_backgrounds(), "fetishes": core_fetishes + s_fetishes, "charms": parse_charms(), "kinGifts": parse_kin_gifts(tribes), "totems": parse_totems() + cw_totems, "renownAwards": parse_renown_awards(), "scars": parse_scars(), "sept": parse_sept(), "umbra": parse_umbra(), "fera": fera,
+            "deformities": parse_deformities()}
     with open(OUT, "w", encoding="utf-8", newline="\n") as f:
         json.dump(data, f, ensure_ascii=False, indent=1)
     rules = parse_rules()
@@ -1026,7 +1092,7 @@ def build():
     starts = sum(len(x["startGifts"]) for x in breeds + auspices + tribes)
     return {"breeds": len(breeds), "auspices": len(auspices), "tribes": len(tribes), "gifts": len(gifts), "rites": len(rites),
             "startGifts": starts, "rolls": sum(1 for g in gifts if g["roll"]),
-            "rulePages": sum(len(b["pages"]) for b in rules), "merits": len(data["merits"]), "backgrounds": len(data["backgrounds"]), "fetishes": len(data["fetishes"]), "charms": len(data["charms"]), "kinGifts": len(data["kinGifts"]), "totems": len(data["totems"]), "awards": len(data["renownAwards"]), "scars": len(data["scars"]), "positions": len(data["sept"]["positions"]), "caernTypes": len(data["sept"]["caerns"]), "realms": len(data["umbra"]["realms"]), "fera": len(fera), "feraGifts": len(fera_gifts_list), "books": len(books), "bookPages": sum(len(b["pages"]) for b in books)}
+            "rulePages": sum(len(b["pages"]) for b in rules), "merits": len(data["merits"]), "backgrounds": len(data["backgrounds"]), "fetishes": len(data["fetishes"]), "charms": len(data["charms"]), "kinGifts": len(data["kinGifts"]), "totems": len(data["totems"]), "awards": len(data["renownAwards"]), "scars": len(data["scars"]), "positions": len(data["sept"]["positions"]), "caernTypes": len(data["sept"]["caerns"]), "realms": len(data["umbra"]["realms"]), "fera": len(fera), "feraGifts": len(fera_gifts_list), "deformities": len(data["deformities"]), "cwGifts": len(cw_gifts), "cwTotems": len(cw_totems), "books": len(books), "bookPages": sum(len(b["pages"]) for b in books)}
 
 
 if __name__ == "__main__":

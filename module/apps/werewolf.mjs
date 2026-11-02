@@ -336,6 +336,18 @@ export async function removeScar(actor, i) {
   return actor.update({ "system.werewolf.scars": list });
 }
 
+/* ── Уродства метисов (W20, гл. 1; Changing Ways): хотя бы одно врождённое, скрывать — бесчестье ── */
+
+export const deformityOf = key => (W().deformities ?? []).find(d => d.key === key) ?? null;
+export const deformityView = actor => (actor.system.werewolf.deformities ?? []).map(deformityOf).filter(Boolean);
+export function addDeformity(actor, key) {
+  if (!deformityOf(key) || actor.system.werewolf.deformities.includes(key)) return;
+  return actor.update({ "system.werewolf.deformities": [...actor.system.werewolf.deformities, key] });
+}
+export function removeDeformity(actor, key) {
+  return actor.update({ "system.werewolf.deformities": actor.system.werewolf.deformities.filter(k => k !== key) });
+}
+
 /**
  * Регенерация (W20, гл. 6): худший уровень ударного или летального за ход; в бою — рефлекторный бросок Выносливости сл. 8
  * (провал — нет, провал с единицами — до отдыха нельзя). Хомид и Лупус в породной форме не регенерируют, губительное — 1 в день отдыха.

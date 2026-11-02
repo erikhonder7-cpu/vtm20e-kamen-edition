@@ -1128,11 +1128,19 @@ try {
       const feraOwn = WW.giftsView(a).avail.every(g => WW.W().gifts.find(x => x.key === g.key)?.groups.some(x => x.kind === "fera" && x.key === "corax"));
       out.fera = `${feraForm}:${a.system.formData?.name}:${a.system.attributes.perception.total - per0}:${feraOwn}`;
       await a.update({ "system.werewolf.fera": "" }); out.feraBack = a.system.werewolf.form;
+      // уродства метиса (Changing Ways): Грубая шкура — +1 к поглощению, Внешность не выше 1; без клыков — укус Криноса ударный; на листе блок
+      await a.update({ "system.werewolf.breed": "metis", "system.werewolf.form": "crinos", "system.werewolf.deformities": ["tough-hide", "no-fangs"], "system.attributes.appearance.value": 3 });
+      out.deform = `${a.soakPool("bashing")}:${a.system.formFx.weapons.find(w => w.key === "bite")?.type}`;
+      await a.update({ "system.werewolf.form": "homid" }); out.deform += `:${a.system.attributes.appearance.total}`;
+      await a.sheet.render(true); await wait(900); out.deformBlock = a.sheet.element.querySelectorAll(".r-ww-deforms .r-edge").length; await a.sheet.close();
+      out.denyGift = !!WW.W().gifts.find(g => g.key === "deny-the-birthright")?.groups.some(x => x.key === "metis");
+      await a.update({ "system.werewolf.breed": "homid", "system.werewolf.form": "homid", "system.werewolf.deformities": [] });
       return out;
     }, id);
     if (r.giftEntries < 300 || r.riteEntries < 50 || r.gifts !== 2 || r.rites !== 1) throw new Error(`библиотека: Даров ${r.giftEntries}, ритуалов ${r.riteEntries}, взято ${r.gifts}/${r.rites}`);
     if (r.wwTraits < 119 || r.wwBackgrounds !== 12) throw new Error(`черты Гару: ${r.wwTraits}, Факты: ${r.wwBackgrounds}`);
     if (r.fera !== "f0:Кринос:3:true" || r.feraBack !== "homid") throw new Error(`Фера: ${r.fera}, назад в Гару — ${r.feraBack}`);
+    if (r.deform !== "6:bashing:1" || r.deformBlock !== 2 || !r.denyGift) throw new Error(`уродства метиса (поглощение:укус:Внешность): ${r.deform}, на листе ${r.deformBlock}, Дар «Отринуть наследие» ${r.denyGift}`);
     if (r.xp !== "5,6,6,10") throw new Error(`цены опыта Гару (Ярость, Гнозис, Дар свой/чужой): ${r.xp}`);
     if (r.soak !== "5/5/5 0" || r.soakHomid !== "2/0") throw new Error(`прочность Гару: Кринос ${r.soak}, Хомид ${r.soakHomid}`);
     if (r.natural !== "bite:aggravated,claw:aggravated") throw new Error(`когти и укус Криноса: ${r.natural}`);

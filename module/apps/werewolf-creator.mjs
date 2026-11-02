@@ -33,7 +33,7 @@ class GarouCreator extends ApplicationV2 {
     const D = W();
     this.st = { breed: D.breeds[0]?.key ?? "", auspice: D.auspices[0]?.key ?? "", tribe: D.tribes[0]?.key ?? "",
       attr: Object.fromEntries(Object.keys(VTM20.attributes).map(k => [k, 1])), abil: {}, bg: {}, gifts: { breed: "", auspice: "", tribe: "" }, extra: [],
-      rage: 0, gnosis: 0, will: 0, renown: { glory: 0, honor: 0, wisdom: 0 }, traits: [] };
+      rage: 0, gnosis: 0, will: 0, renown: { glory: 0, honor: 0, wisdom: 0 }, traits: [], deform: "" };
   }
 
   get D() { return W(); }
@@ -80,6 +80,7 @@ class GarouCreator extends ApplicationV2 {
     const p = [];
     if (!this.breed || !this.auspice || !this.tribe) p.push(t("NeedConcept"));
     if (!this.st.gifts.breed || !this.st.gifts.auspice || !this.st.gifts.tribe) p.push(t("NeedGifts"));
+    if (this.st.breed === "metis" && !this.st.deform) p.push(t("NeedDeformity"));
     if (!this.auspice?.renown && RENOWN.reduce((n, k) => n + this.st.renown[k], 0) !== 3) p.push(t("NeedRenown"));
     if (l.remaining < 0) p.push(t("OverFree", { n: -l.remaining }));
     return p;
@@ -98,6 +99,7 @@ class GarouCreator extends ApplicationV2 {
       if (!f) return;
       if (["breed", "auspice", "tribe"].includes(f)) { this.st[f] = el.value; this.st.gifts[f] = ""; }
       else if (f.startsWith("gift.")) this.st.gifts[f.slice(5)] = el.value;
+      else if (f === "deform") this.st.deform = el.value;
       else if (f === "extraGift" && el.value) this.st.extra = [...new Set([...this.st.extra, el.value])];
       else if (f === "addTrait" && el.value) { const m = Codex.merits.find(x => x.line === "werewolf" && `${x.kind}:${x.name}` === el.value); if (m) this.st.traits.push({ kind: m.kind, name: m.name, cost: m.min || 1 }); }
       else if (f === "addBg" && el.value) this.st.bg[el.value] = Math.max(1, this.st.bg[el.value] ?? 0);
@@ -128,6 +130,7 @@ class GarouCreator extends ApplicationV2 {
     return `<div class="r-gcr-wrap"><div class="r-gcr-body">
       <section class="r-gcr-concept">
         <label><span>${t("Breed")}</span><select data-f="breed">${opt(D.breeds, st.breed)}</select><small>${this.breed?.notes ?? ""}</small></label>
+        ${st.breed === "metis" ? `<label><span>${t("Deformity")}</span><select data-f="deform"><option value=""></option>${opt(D.deformities ?? [], st.deform)}</select><small>${(D.deformities ?? []).find(x => x.key === st.deform)?.text ?? ""}</small></label>` : ""}
         <label><span>${t("Auspice")}</span><select data-f="auspice">${opt(D.auspices, st.auspice)}</select><small>${esc(this.auspice?.role ?? "")}</small></label>
         <label><span>${t("Tribe")}</span><select data-f="tribe">${opt(D.tribes, st.tribe)}</select><small>${esc(t("TribeLine", { totem: this.tribe?.totem ?? "", bg: this.tribe?.backgrounds ?? "" }))}</small></label>
       </section>
@@ -195,6 +198,7 @@ class GarouCreator extends ApplicationV2 {
       "system.werewolf.form": st.breed === "lupus" ? "lupus" : st.breed === "metis" ? "crinos" : "homid",
       "system.werewolf.rage": { permanent: rage, value: rage }, "system.werewolf.gnosis": { permanent: gnosis, value: gnosis },
       "system.werewolf.gifts": [...Object.values(st.gifts), ...st.extra].filter(Boolean),
+      "system.werewolf.deformities": st.breed === "metis" && st.deform ? [st.deform] : [],
       "system.werewolf.renown": Object.fromEntries(RENOWN.map(k => [k, { permanent: r[k], temporary: 0 }])),
       "system.willpower.permanent": will, "system.willpower.temporary": will
     };
