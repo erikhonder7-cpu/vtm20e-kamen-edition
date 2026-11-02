@@ -70,6 +70,7 @@ export async function rollVirtueCheck(actor, kind, { difficulty = 6, fromPrompt 
   if (kind === "frenzy") {
     // Бруха: +2 к сложности, воля не помогает предотвратить (02); гули — −3
     const brujah = actor.system.clan === "brujah" || actor.system.clan === "bruhaAntitribu";
+    if (actor.virtueKey?.("selfControl") === "instinct" && actor.type !== "ghoul") return instinctFrenzy(actor, Math.max(2, difficulty + (brujah ? 2 : 0)));
     return RollDialog.prompt(actor, {
       title: t("Roll.frenzy.title"), trait1: "virtues.selfControl", reflexive: true, kind: "frenzy",
       extra: { atavism: VTM20.atavismClans.includes(actor.system.clan) },
@@ -88,9 +89,61 @@ export async function rollVirtueCheck(actor, kind, { difficulty = 6, fromPrompt 
     const pickd = fromPrompt ? { sin: null } : await pickSin(actor);
     if (!pickd || pickd.skip) return null;
     return RollDialog.prompt(actor, { title: t("Roll.degeneration.title"), trait1: "virtues.conscience", reflexive: true, kind: "degeneration", difficulty, noWillpower: true, lockTraits: true,
-      ...(pickd.sin ? { diffNote: `<i class="fa-solid fa-scale-unbalanced"></i> ${t("Sins.Note", { r: pickd.sin.rating, sin: foundry.utils.escapeHTML(pickd.sin.sin) })}` } : {}) });
+      ...(pickd.sin ? { diffNote: `<i class="fa-solid fa-scale-unbalanced"></i> ${t("Sins.Note", { r: pickd.sin.rating, sin: foundry.utils.escapeHTML(pickd.sin.sin) })}` } : {}),
+      onRolled: res => degenerate(actor, res) });
   }
   return RollDialog.prompt(actor, { title: t("Roll.rotschreck.title"), trait1: "virtues.courage", reflexive: true, kind: "rotschreck", difficulty, lockTraits: true });
+}
+
+/**
+ * Итог проверки деградации (V20, гл. 7): успех — мораль та же; неудача — −1 Человечность/Путь;
+ * провал — ещё −1 Совесть/Убеждённость и психическое расстройство (выбирают игрок и рассказчик). 0 — Зверь победил.
+ */
+export async function degenerate(actor, res) {
+  if (!res || res.successes > 0 && res.outcome !== "botch") return;
+  const m = actor.system.morality, v = actor.system.virtues.conscience, botch = res.outcome === "botch";
+  const now = Math.max(0, m.value - 1), upd = { "system.morality.value": now };
+  if (botch) upd["system.virtues.conscience.value"] = Math.max(0, v.value - 1);
+  await actor.update(upd);
+  const virtue = game.i18n.localize(VTM20.virtues[actor.virtueKey?.("conscience") ?? "conscience"]?.label ?? "");
+  const path = VTM20.label(Codex.path(m.path ?? "humanity") ?? {}) || t("Humanity");
+  const lines = [t("Degen.Lost", { name: foundry.utils.escapeHTML(actor.name), path, n: now }),
+    ...(botch ? [t("Degen.Botch", { virtue, n: Math.max(0, v.value - 1) })] : []), ...(now === 0 ? [t("Degen.Beast")] : [])];
+  return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), flags: { [SYSTEM_ID]: { degeneration: true } },
+    content: `<div class="r-notice is-warn"><i class="fa-solid fa-scale-unbalanced"></i> ${lines.join("<br>")}</div>` });
+}
+
+/**
+ * Ярость при Инстинктах (V20, гл. 7, «Альтернативные Добродетели»): проверки сопротивления нет — персонаж впадает в ярость,
+ * но если сложность повода ниже Инстинктов, может по желанию не впадать. Уже в ярости — «оседлать волну»: бросок Инстинктов
+ * со сложностью повода, чтобы совершить сознательное действие (ярость продолжается).
+ */
+async function instinctFrenzy(actor, difficulty) {
+  // сравнивается само значение Инстинктов (пул Добродетели ограничен моралью — это только для бросков)
+  const inst = actor.system.virtues?.selfControl?.value ?? 0;
+  if (actor.statuses?.has("r-frenzy")) return RollDialog.prompt(actor, { title: t("Instinct.RideTitle"), trait1: "virtues.selfControl", reflexive: true, lockTraits: true,
+    difficulty, kind: "rideWave", diffNote: `<i class="fa-solid fa-water"></i> ${t("Instinct.RideNote")}` });
+  const esc = s => foundry.utils.escapeHTML(String(s ?? ""));
+  let d = difficulty;
+  const choice = await foundry.applications.api.DialogV2.wait({
+    window: { title: t("Roll.frenzy.title"), icon: "fa-solid fa-face-angry" }, classes: ["vtm20", "r-dialog", "r-instinct"], position: { width: 460 }, rejectClose: false,
+    content: `<p>${t("Instinct.Lead", { n: inst })}</p>
+      <label class="r-field"><span>${t("Instinct.Diff")}</span><input type="number" name="d" value="${difficulty}" min="2" max="10"></label>
+      <p class="r-note" data-instinct-note></p>`,
+    buttons: [{ action: "resist", label: t("Instinct.Resist"), icon: "fa-solid fa-hand" }, { action: "frenzy", label: t("Instinct.Frenzy"), icon: "fa-solid fa-face-angry", default: true }],
+    render: (ev, dlg) => {
+      const root = dlg.element, inp = root.querySelector("input[name=d]"), note = root.querySelector("[data-instinct-note]"), btn = root.querySelector("button[data-action=resist]");
+      const upd = () => { d = Math.clamp(Number(inp.value) || difficulty, 2, 10); const can = d < inst;
+        btn.disabled = !can; note.textContent = t(can ? "Instinct.CanResist" : "Instinct.NoResist", { d, n: inst }); };
+      inp.addEventListener("input", upd); upd();
+    }
+  });
+  if (!choice) return null;
+  if (choice === "resist" && d < inst) return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }),
+    content: `<div class="r-notice"><i class="fa-solid fa-hand"></i> ${t("Instinct.Resisted", { name: esc(actor.name), d, n: inst })}</div>` });
+  await actor.toggleStatusEffect?.("r-frenzy", { active: true });
+  return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }),
+    content: `<div class="r-notice is-warn"><i class="fa-solid fa-face-angry"></i> ${t("Instinct.Frenzied", { name: esc(actor.name), d })}</div>` });
 }
 
 /** Карточка в чате: «стоит проверить ярость/Ротшрек» с кнопкой броска. Только вампирам, не в торпоре и не уже в этом состоянии. */

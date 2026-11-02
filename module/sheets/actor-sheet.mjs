@@ -143,7 +143,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       addBond: VtMActorSheet.#onAddBond,
       drinkBond: VtMActorSheet.#onDrinkBond,
       feedFrom: VtMActorSheet.#onFeedFrom,
-      openPath: VtMActorSheet.#onOpenPath,
+      openPath: VtMActorSheet.#onOpenPath, pathShift: VtMActorSheet.#onPathShift,
       openCoterie: VtMActorSheet.#onOpenCoterie,
       resistBond: VtMActorSheet.#onResistBond,
       removeBond: VtMActorSheet.#onRemoveBond,
@@ -512,7 +512,8 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const kind = target.dataset.kind;
     const a = this.actor;
     if (kind === "frenzy" || kind === "rotschreck" || kind === "rapture") return rollVirtueCheck(a, kind);
-    if (kind === "degeneration") return RollDialog.prompt(a, { title: t("Roll.degeneration.title"), trait1: "virtues.conscience", reflexive: true, kind: "degeneration", difficulty: 8, noWillpower: true, lockTraits: true });
+    // деградация — с выбором греха по иерархии Пути и итогом (−1 Путь; провал — и −1 Совесть/Убеждённость)
+    if (kind === "degeneration") return rollVirtueCheck(a, "degeneration", { difficulty: 8 });
     if (kind === "awakening") return RollDialog.prompt(a, { title: t("Roll.Awakening"), trait1: "morality.value", reflexive: true, difficulty: 8, lockTraits: true });
     if (kind === "willpower") return RollDialog.prompt(a, { title: t("Willpower"), trait1: "willpower.permanent", reflexive: true, difficulty: 6 });
     if (kind === "weakness") {
@@ -1009,6 +1010,9 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   }
   static #onOpenCoterie() { return openCoterie(this.actor); }
   /** Лист Пути: запись компендиума «Пути Просветления» (шапка, иерархия грехов, описание); нет — текст справочника. */
+  /** Переход с Человечности на Путь Просветления в игре (V20, гл. 7). */
+  static async #onPathShift() { return (await import("../apps/path-shift.mjs")).openPathShift(this.actor); }
+
   static async #onOpenPath() {
     const p = Codex.path(this.actor.system.morality?.path);
     if (!p) return;

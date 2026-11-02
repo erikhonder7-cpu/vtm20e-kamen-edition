@@ -142,13 +142,27 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       ...(attrs.includes("perception") ? fx.hearing ?? [] : []).map(d => ({ ...d, kind: "hearing" })),
       // Отшельник (Hunter Players Guide, с. 19): рядом с чудовищами или наделёнными — все сложности +1
       ...(a.type === "hunter" && (Codex.hunter?.creeds ?? []).find(c => c.key === a.system.hunter?.creed)?.near
-        ? [{ label: t("Hunter.NearNoise"), value: (Codex.hunter.creeds.find(c => c.key === a.system.hunter.creed).near), kind: "hermit" }] : [])
+        ? [{ label: t("Hunter.NearNoise"), value: (Codex.hunter.creeds.find(c => c.key === a.system.hunter.creed).near), kind: "hermit" }] : []),
+      ...this.#bearing(social)
     ].map((d, i) => ({ ...d, i, on: v.fxOn.includes(`${d.kind}:${d.label}`), hint: t(`Fx.Situ.${d.kind}`) }))
       .concat(meritSit.map(m => ({ label: m.label, value: m.value, dice: !!m.dice, kind: "merit", on: m.on, hint: m.hint })));
     const diffShift = diffAuto.filter(d => !d.dice).reduce((s, d) => s + d.value, 0) + diffSit.filter(d => d.on && !d.dice).reduce((s, d) => s + d.value, 0);
     const effDifficulty = Math.clamp(v.difficulty + diffShift, 2, 10);
     return { pool: Math.max(0, pool), breakdown: bd, specialtyName: specs.join(", "), specialtyEligible: specs.length > 0,
       physicalBonus: phys || auto, attr, diffAuto, diffSit, effDifficulty, auto };
+  }
+
+  /**
+   * Столп (V20, гл. 7): аура морали меняет сложность проверок, прямо с ней связанных (10 — −2, 9–8 — −1, 7–4 — нет, 3–2 — +1, 1 — +2).
+   * У Человечности (Нормальность) — социальные броски, где персонаж выдаёт себя за человека или ищет симпатии смертных;
+   * у Путей — любые броски, к которым относится их аура. Галочкой: применимость решает рассказчик.
+   */
+  #bearing(social) {
+    const a = this.actor, m = a.system.morality;
+    if (!a.isVampire || !m || this.cfg.lockTraits) return [];
+    const path = Codex.path(m.path ?? "humanity"), bm = VTM20.bearingMod(m.value);
+    if (!bm || !path?.bearing || (path.key === "humanity" && !social)) return [];
+    return [{ label: `${t("Sheet.Bearing")}: ${path.bearing}`, value: bm, kind: "bearing" }];
   }
 
   /** Перебор (гл. 9, с. 252): только в призыве падшего, у которого есть слуги или «Договоры»; не больше постоянной Веры. */

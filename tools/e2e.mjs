@@ -187,6 +187,43 @@ try {
     await page.evaluate(id => game.actors.get(id).sheet.close(), id);
   });
 
+  await check("Пути Просветления: деградация, Инстинкты, столп, переход с Человечности", async () => {
+    const id = await temp("E2E — путник");
+    const r = await page.evaluate(async id => {
+      const SYS = game.system.id, a = game.actors.get(id), wait = ms => new Promise(res => setTimeout(res, ms)), out = {};
+      const { Codex } = await import(`/systems/${SYS}/module/data/codex.mjs`);
+      const V = await import(`/systems/${SYS}/module/dice/virtue-checks.mjs`), P = await import(`/systems/${SYS}/module/apps/path-shift.mjs`);
+      const { RollDialog } = await import(`/systems/${SYS}/module/dice/dialog.mjs`);
+      // деградация: неудача — Путь −1; провал — ещё и Совесть −1
+      await a.update({ "system.morality.value": 7, "system.virtues.conscience.value": 3 });
+      await V.degenerate(a, { successes: 0, outcome: "failure" }); out.fail = a.system.morality.value;
+      await V.degenerate(a, { successes: 0, outcome: "botch" }); out.botch = `${a.system.morality.value}/${a.system.virtues.conscience.value}`;
+      await V.degenerate(a, { successes: 2, outcome: "success" }); out.kept = a.system.morality.value;
+      // столп: Человечность 10 — −2 к сложности социального броска, галочкой
+      await a.update({ "system.morality.value": 10 });
+      const dlg = new RollDialog(a, { trait1: "attributes.charisma", trait2: "abilities.empathy", difficulty: 6 });
+      out.bearing = dlg.compute().diffSit.find(d => d.kind === "bearing")?.value ?? null;
+      // переход с Человечности: 3 успеха — Путь 2, новые Добродетели по 1
+      const path = Codex.paths.find(p => p.virtues.includes("conviction") && p.virtues.includes("instinct"));
+      await a.update({ "system.morality.value": 3, "system.virtues.conscience.value": 1, "system.virtues.selfControl.value": 1 });
+      await P.settle(a, path, { successes: 3, outcome: "success" });
+      out.shift = `${a.system.morality.path === path.key}/${a.system.morality.value}/${a.virtueKey("conscience")}/${a.virtueKey("selfControl")}`;
+      // Инстинкты: проверки нет — окно с выбором; повод ниже Инстинктов разрешает «не поддаться»
+      await a.update({ "system.virtues.selfControl.value": 4, "system.clan": "toreador" });   // без поправки Бруха (+2)
+      V.rollVirtueCheck(a, "frenzy", { difficulty: 3 });
+      let box = null;
+      for (let i = 0; i < 30 && !box; i++) { await wait(100); box = document.querySelector(".application.r-instinct"); }
+      out.instinct = !!box && !box.querySelector("button[data-action=resist]")?.disabled;
+      box?.querySelector("button[data-action=resist]")?.click(); await wait(400);
+      out.calm = !a.statuses.has("r-frenzy");
+      return out;
+    }, id);
+    if (r.fail !== 6 || r.botch !== "5/2" || r.kept !== 5) throw new Error(`деградация: неудача ${r.fail}, провал ${r.botch}, успех ${r.kept}`);
+    if (r.bearing !== -2) throw new Error(`столп при Человечности 10: ${r.bearing}`);
+    if (r.shift !== "true/2/conviction/instinct") throw new Error(`переход на Путь: ${r.shift}`);
+    if (!r.instinct || !r.calm) throw new Error(`Инстинкты: окно ${r.instinct}, без ярости ${r.calm}`);
+  });
+
   await check("Сроки: сила на час и чтение ритуала", async () => {
     const id = await temp("E2E — сроки");
     const r = await page.evaluate(async id => {

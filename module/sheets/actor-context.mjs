@@ -142,6 +142,8 @@ export function prepareHeader(sheet, ctx) {
   // Дороги Тёмных веков — только при включённой настройке; уже выбранный путь не прячем
   ctx.paths = Codex.paths.filter(p => Codex.visible(p) || p.key === s.morality.path)
     .map(p => ({ key: p.key, name: p.era ? `${p.name} · ${t("Library.Filter.DarkAges")}` : p.name, selected: p.key === s.morality.path }));
+  // переход с Человечности на Путь в игре (apps/path-shift.mjs) — кнопкой у вампира на Человечности
+  ctx.pathShift = a.isVampire && sheet.isEditable && (s.morality.path ?? "humanity") === "humanity";
   ctx.sects = ["camarilla", "sabbat", "anarchs", "independent", "autarkis"].map(k => ({ value: t(`Sect.${k}`), label: t(`Sect.${k}`) }));
 }
 

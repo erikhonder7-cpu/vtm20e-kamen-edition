@@ -3900,7 +3900,8 @@
         "social": "with mortals, if the eyes aren't hidden",
         "climb": "climbing",
         "hermit": "within about 30 m of monsters or other imbued",
-        "hearing": "by hearing only"
+        "hearing": "by hearing only",
+        "bearing": "the morality's aura bears directly on the roll (Humanity — passing as human, winning mortals' sympathy)"
       },
       "HitHint": "+2 to the difficulty to hit the vampire",
       "BloodCharges": "Blood: {n} — the same number of ichor points"
@@ -5186,6 +5187,45 @@
         "conviction": "Conviction",
         "faith": "Faith"
       }
+    },
+    "Degen": {
+      "Lost": "{name}: degeneration — {path} drops to {n}.",
+      "Botch": "Botch: {virtue} −1 (now {n}) and a derangement — chosen by player and Storyteller.",
+      "Beast": "Morality at zero — the Beast has won: the character goes to the Storyteller."
+    },
+    "Instinct": {
+      "Lead": "Instinct {n}: no roll to resist — the character frenzies. If the provocation's difficulty is below Instinct, they may choose not to.",
+      "Diff": "Provocation difficulty",
+      "CanResist": "Provocation {d} is below Instinct {n} — the frenzy may be refused.",
+      "NoResist": "Provocation {d} is not below Instinct {n} — frenzy is unavoidable.",
+      "Resist": "Refuse",
+      "Frenzy": "Frenzy",
+      "Resisted": "{name} accepts the Beast and holds it back: provocation {d} is below Instinct {n}.",
+      "Frenzied": "{name} frenzies (provocation {d}). To act consciously — “ride the wave”: an Instinct roll.",
+      "RideTitle": "Ride the wave",
+      "RideNote": "In frenzy: success — a conscious action, the frenzy goes on"
+    },
+    "PathShift": {
+      "Btn": "Take a Path of Enlightenment (leave Humanity)",
+      "OnlyHumanity": "Only a vampire on Humanity can switch to a Path.",
+      "Title": "Switch to a Path: {name}",
+      "Lead": "Humanity {n}. Required: Humanity 3 or less, replaced Virtues at 1, a mentor of this Path, a year of study and a trial with a monstrous act. Willpower roll, difficulty {d}; Willpower can't buy a success.",
+      "Path": "Path",
+      "Story": "Marked by the Storyteller",
+      "Cond": {
+        "mentor": "A mentor of this Path",
+        "year": "A year of study",
+        "trial": "The trial passed — the monstrous act understood"
+      },
+      "NeedHumanity": "Humanity {n} — needs 3 or less.",
+      "NeedVirtue": "{v} {n} — must be 1 before switching.",
+      "Ready": "Requirements met — roll.",
+      "Roll": "Willpower roll, diff. {d}",
+      "RollTitle": "Switching to {path}",
+      "RollNote": "Success — Path 1 (3+ successes — Path 2), new Virtues at 1",
+      "Done": "{name} renounces Humanity: {path} {n}, new Virtues at 1.",
+      "Fail": "{name} commits a senseless atrocity, but the Path doesn't open: Humanity {n}. May try again in a month.",
+      "Botch": "{name}: botch — the Path is closed, may try again only in a year."
     }
   }
 }
