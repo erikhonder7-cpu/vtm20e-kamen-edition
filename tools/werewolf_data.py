@@ -667,6 +667,43 @@ def parse_totems():
     return out
 
 
+def parse_renown_awards():
+    """Таблица примерных наград Славы (гл. 9): раздел, поступок, варианты [Слава, Честь, Мудрость]."""
+    text = read("09_Слава_Ранг_Ярость_Гнозис_Воля_опыт.md")
+    part = text.split("### Таблица примерных наград", 1)[1].split("\n## ", 1)[0]
+    out, sec = [], ""
+    num = lambda c: [int(x.replace("−", "-")) for x in re.findall(r"[-−]?\d+", c)] or [0]
+    for line in part.splitlines():
+        if not line.startswith("| ") or set(line) <= set("|-: "):
+            continue
+        cells = [c.strip() for c in line.strip().strip("|").split("|")]
+        if cells[0].startswith("**") and not any(cells[1:]):
+            sec = cells[0].strip("*").strip(); continue
+        if len(cells) < 4 or cells[0] == "Поступок":
+            continue
+        g, h, w = num(cells[1]), num(cells[2]), num(cells[3])
+        n = max(len(g), len(h), len(w))
+        pick = lambda v, i: v[i] if i < len(v) else (v[0] if len(v) == 1 else 0)
+        out.append({"sec": sec, "text": md_inline(cells[0]), "yearly": "год" in "".join(cells[1:]),
+                    "v": [[pick(g, i), pick(h, i), pick(w, i)] for i in range(n)]})
+    return out
+
+
+def parse_scars():
+    """Боевые шрамы (гл. 10, раздел 3): название, эффект, временная Слава."""
+    part = read("10_Правила_и_бой.md").split("## 3. Боевые шрамы", 1)[1].split("\n## ", 1)[0]
+    out = []
+    for line in part.splitlines():
+        if not line.startswith("| ") or line.startswith("| Шрам") or set(line) <= set("|-: "):
+            continue
+        cells = [c.strip() for c in line.strip().strip("|").split("|")]
+        if len(cells) < 3:
+            continue
+        name, en = name_en(cells[0])
+        out.append({"key": f"scar-{len(out) + 1}", "name": name, "en": en, "effect": md_inline(cells[1]), "glory": first_int(cells[2])})
+    return out
+
+
 def build():
     gifts = parse_gifts()
     rites = parse_rites()
@@ -678,7 +715,7 @@ def build():
             x["icon"] = ICONS[kind].get(x["key"], "fa-moon")
     data = {"source": "Werewolf: The Apocalypse 20th Anniversary Edition", "breeds": breeds, "auspices": auspices, "tribes": tribes,
             "forms": FORMS, "gifts": gifts, "rites": rites, "rankNames": RANK_NAMES, "rank": RANK, "xp": XP,
-            "merits": parse_merits(), "backgrounds": parse_backgrounds(), "fetishes": parse_fetishes(), "charms": parse_charms(), "kinGifts": parse_kin_gifts(tribes), "totems": parse_totems()}
+            "merits": parse_merits(), "backgrounds": parse_backgrounds(), "fetishes": parse_fetishes(), "charms": parse_charms(), "kinGifts": parse_kin_gifts(tribes), "totems": parse_totems(), "renownAwards": parse_renown_awards(), "scars": parse_scars()}
     with open(OUT, "w", encoding="utf-8", newline="\n") as f:
         json.dump(data, f, ensure_ascii=False, indent=1)
     rules = parse_rules()
@@ -690,7 +727,7 @@ def build():
     starts = sum(len(x["startGifts"]) for x in breeds + auspices + tribes)
     return {"breeds": len(breeds), "auspices": len(auspices), "tribes": len(tribes), "gifts": len(gifts), "rites": len(rites),
             "startGifts": starts, "rolls": sum(1 for g in gifts if g["roll"]),
-            "rulePages": sum(len(b["pages"]) for b in rules), "merits": len(data["merits"]), "backgrounds": len(data["backgrounds"]), "fetishes": len(data["fetishes"]), "charms": len(data["charms"]), "kinGifts": len(data["kinGifts"]), "totems": len(data["totems"]), "books": len(books), "bookPages": sum(len(b["pages"]) for b in books)}
+            "rulePages": sum(len(b["pages"]) for b in rules), "merits": len(data["merits"]), "backgrounds": len(data["backgrounds"]), "fetishes": len(data["fetishes"]), "charms": len(data["charms"]), "kinGifts": len(data["kinGifts"]), "totems": len(data["totems"]), "awards": len(data["renownAwards"]), "scars": len(data["scars"]), "books": len(books), "bookPages": sum(len(b["pages"]) for b in books)}
 
 
 if __name__ == "__main__":

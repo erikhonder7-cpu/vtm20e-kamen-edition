@@ -90,6 +90,8 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     // Мощь, включённая кровью: точки — автоуспехи проверки Силы (Дисциплины/06)
     const auto = attr && !base && v.physical ? a.physicalAuto(attr) : 0;
     if (v.bonus) { pool += v.bonus; bd.push({ label: t("Roll.Modifier"), value: v.bonus }); }
+    // Харано Гару (W20): уныние — −1 кубик к каждому пулу
+    if (a.statuses?.has("r-harano")) { pool -= 1; bd.push({ label: game.i18n.localize("VTM20.Status.harano"), value: -1 }); }
     // опора на влияние в сфере города (Стратегия): +1 кубик за каждые 2 фишки
     const sway = v.sway && swayOf(a).find(x => x.key === v.sway);
     if (sway) { pool += sway.dice; bd.push({ label: game.i18n.format("VTM20.Strategy.SwayLine", { name: sway.name }), value: sway.dice }); }

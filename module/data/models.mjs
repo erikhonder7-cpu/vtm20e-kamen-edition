@@ -595,6 +595,8 @@ export class WerewolfData extends MortalData {
         form: str("homid"), gifts: new ArrayField(str()), rites: new ArrayField(str()),
         // фетиши (привязан ли) и талены (сколько штук) — ключи data/werewolf.json → fetishes
         fetishes: new ArrayField(new SchemaField({ key: str(), attuned: new BooleanField({ initial: false }), n: int(1, 0, 20) })),
+        // боевые шрамы (W20, гл. 6) — ключи data/werewolf.json → scars
+        scars: new ArrayField(str()),
         // временный Атрибут формы вне таблицы (Дар, частичное превращение) — пока не используется
         deformity: str("")
       })

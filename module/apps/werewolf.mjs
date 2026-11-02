@@ -159,6 +159,66 @@ export async function editStanding(actor) {
   return actor.update(upd);
 }
 
+/**
+ * Награда Славой (W20, гл. 3): поступок из таблицы или своя награда — временная Слава; ниже нуля — сгорает
+ * постоянная точка (и превращается в 10 временных); 10 временных — можно просить Признания (+1 постоянная).
+ */
+export async function renownAward(actor) {
+  const rows = W().renownAwards ?? [], secs = [...new Set(rows.map(r => r.sec))];
+  const sign = (n, k) => n ? `${n > 0 ? "+" : "−"}${Math.abs(n)} ${t(`RenownShort.${k}`)}` : "";
+  const chip = (v, i) => { const lab = ["glory", "honor", "wisdom"].map((k, j) => sign(v[j], k)).filter(Boolean).join(" ") || "0";
+    return `<a class="r-ra-chip ${v.some(x => x < 0) ? "is-neg" : ""}" data-v="${v.join(",")}" data-i="${i}">${lab}</a>`; };
+  const list = secs.map(sec => `<h4>${esc(sec)}</h4>${rows.map((r, ri) => ({ r, ri })).filter(x => x.r.sec === sec).map(({ r, ri }) =>
+    `<div class="r-ra-row" data-row="${ri}" data-search="${esc((sec + " " + r.text).toLowerCase().replace(/<[^>]+>/g, ""))}"><span>${r.text}${r.yearly ? ` <small>${t("RenownYearly")}</small>` : ""}</span>${r.v.map(chip).join("")}</div>`).join("")}`).join("");
+  const recog = () => ["glory", "honor", "wisdom"].filter(k => actor.system.werewolf.renown[k].temporary >= 10)
+    .map(k => `<a class="r-btn" data-recog="${k}"><i class="fa-solid fa-medal"></i> ${t("Recognition", { r: t(`Renown.${k}`) })}</a>`).join("");
+  const content = `<div class="r-ra"><input type="search" class="r-ra-search" placeholder="${esc(t("RenownSearch"))}">
+    <div class="r-ra-list">${list}</div>
+    <div class="r-ra-custom"><span>${t("RenownCustom")}</span>${["glory", "honor", "wisdom"].map(k => `<label>${t(`RenownShort.${k}`)}<input type="number" name="${k}" value="0"></label>`).join("")}
+      <input type="text" name="note" placeholder="${esc(t("RenownWhy"))}"><a class="r-btn" data-custom><i class="fa-solid fa-plus"></i></a></div>
+    <div class="r-ra-recog">${recog()}</div></div>`;
+  const apply = async (v, why) => {
+    const ren = foundry.utils.deepClone(actor.system.werewolf.renown), lines = [];
+    ["glory", "honor", "wisdom"].forEach((k, j) => {
+      if (!v[j]) return;
+      let tmp = ren[k].temporary + v[j], perm = ren[k].permanent;
+      while (tmp < 0 && perm > 0) { perm -= 1; tmp += 10; lines.push(t("RenownBurn", { r: t(`Renown.${k}`) })); }
+      ren[k] = { permanent: perm, temporary: Math.max(0, tmp) };
+    });
+    await actor.update({ "system.werewolf.renown": ren });
+    const what = ["glory", "honor", "wisdom"].map((k, j) => sign(v[j], k)).filter(Boolean).join(", ");
+    await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<div class="r-notice r-type-werewolf"><i class="fa-solid fa-award"></i> <b>${esc(actor.name)}</b>: ${esc(what)}${why ? ` — ${why}` : ""}${lines.map(l => `<br><em>${esc(l)}</em>`).join("")}</div>` });
+  };
+  return foundry.applications.api.DialogV2.wait({
+    window: { title: t("RenownAwardTitle", { name: actor.name }), icon: "fa-solid fa-award" }, classes: ["vtm20", "r-dialog", "r-type-werewolf", "r-ra-dlg"],
+    position: { width: 640, height: 640 }, content, rejectClose: false,
+    buttons: [{ action: "close", label: t("Close"), icon: "fa-solid fa-check", default: true }],
+    render: (ev, dlg) => {
+      const root = dlg.element, redrawRecog = () => { root.querySelector(".r-ra-recog").innerHTML = recog(); };
+      root.querySelector(".r-ra-search").addEventListener("input", e => {
+        const q = e.target.value.trim().toLowerCase();
+        for (const r of root.querySelectorAll(".r-ra-row")) r.hidden = !!q && !r.dataset.search.includes(q);
+      });
+      root.addEventListener("click", async e => {
+        const c = e.target.closest(".r-ra-chip");
+        if (c) { const row = rows[Number(c.closest("[data-row]").dataset.row)]; await apply(c.dataset.v.split(",").map(Number), row.text); c.classList.add("is-done"); redrawRecog(); return; }
+        if (e.target.closest("[data-custom]")) {
+          const v = ["glory", "honor", "wisdom"].map(k => Number(root.querySelector(`input[name=${k}]`).value) || 0);
+          if (v.some(Boolean)) await apply(v, esc(root.querySelector("input[name=note]").value.trim()));
+          redrawRecog(); return;
+        }
+        const rk = e.target.closest("[data-recog]")?.dataset.recog;
+        if (rk) {
+          const r = actor.system.werewolf.renown[rk];
+          await actor.update({ [`system.werewolf.renown.${rk}`]: { permanent: Math.min(10, r.permanent + 1), temporary: r.temporary - 10 } });
+          await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<div class="r-notice r-type-werewolf"><i class="fa-solid fa-medal"></i> ${esc(t("RecognitionDone", { name: actor.name, r: t(`Renown.${rk}`) }))}</div>` });
+          redrawRecog();
+        }
+      });
+    }
+  });
+}
+
 /** Потратить Ярость или Гнозис (текущий пул). */
 export async function spend(actor, what, n = 1) {
   const cur = actor.system.werewolf[what].value;
@@ -214,15 +274,51 @@ export function rollRite(actor, key) {
 }
 
 /** Проверка бешенства (W20, гл. 6): бросок текущей Ярости; 4+ успеха — бешенство (Ранг 5 — 5+); Ранг 3–4 — сложность +1/+2. */
-export function frenzyCheck(actor) {
+/** Сложность броска Ярости по Луне (W20, гл. 6): новая 8, серп 7, половина 6, выпуклая 5, полная 4. */
+const MOON_CLASS = { new: "new", waxingCrescent: "crescent", waningCrescent: "crescent", firstQuarter: "half", lastQuarter: "half",
+  waxingGibbous: "gibbous", waningGibbous: "gibbous", full: "full" };
+const MOON_DIFF = { new: 8, crescent: 7, half: 6, gibbous: 5, full: 4 };
+const AUSPICE_MOON = { ragabash: "new", theurge: "crescent", philodox: "half", galliard: "gibbous", ahroun: "full" };
+
+/**
+ * Бешенство (W20, гл. 6): бросок Ярости, сложность по Луне хроники; −1, если Луна аугурии или в Криносе (не вместе);
+ * Ранг 3+ — сложность выше. 4+ успеха — бешенство (Ранг 5 — 5+, Ранг 6 — 6+); 6+ — Хватка Червя.
+ */
+export async function frenzyCheck(actor) {
   const w = actor.system.werewolf, rank = w.rank;
+  const { moonPhase } = await import("./calendar.mjs");
+  const m = moonPhase(), cls = MOON_CLASS[m.key] ?? "half";
+  const minus = AUSPICE_MOON[w.auspice] === cls || w.form === "crinos" ? 1 : 0;
   const add = rank >= 4 ? 2 : rank === 3 ? 1 : 0, need = rank >= 6 ? 6 : rank >= 5 ? 5 : 4;
-  return RollDialog.prompt(actor, { title: t("Frenzy"), trait1: "werewolf.rage", difficulty: 6 + add, diffNote: t("FrenzyNote", { n: need }),
+  const diff = MOON_DIFF[cls] - minus + add;
+  return RollDialog.prompt(actor, { title: t("Frenzy"), trait1: "werewolf.rage", difficulty: diff,
+    diffNote: t("FrenzyMoon", { moon: `${m.glyph} ${m.label}`, n: need }),
     onRolled: async r => {
-      if ((r?.successes ?? 0) < need) return;
+      const s = r?.successes ?? 0;
+      if (s < need) return;
       await actor.toggleStatusEffect?.("r-frenzy", { active: true });
-      await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<p><i class="fa-solid fa-fire"></i> ${t("FrenzyOn", { name: esc(actor.name) })}</p>` });
+      const thrall = s >= 6;
+      await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<div class="r-notice r-type-werewolf ${thrall ? "is-warn" : ""}">
+        <p><i class="fa-solid fa-fire"></i> ${t("FrenzyOn", { name: esc(actor.name) })}</p><p>${t("FrenzyKinds")}</p>
+        ${thrall ? `<p><b><i class="fa-solid fa-skull"></i> ${t("ThrallTitle")}</b> ${t(`Thrall.${w.breed}`)}</p>` : ""}
+        <p><small>${t("FrenzyExit", { n: w.rage.value })}</small></p></div>` });
     } });
+}
+
+/* ── Боевые шрамы (W20, гл. 6): за каждый — временная Слава ─────────── */
+
+export const scarOf = key => (W().scars ?? []).find(s => s.key === key) ?? null;
+export async function addScar(actor, key) {
+  const sc = scarOf(key);
+  if (!sc) return;
+  const g = actor.system.werewolf.renown.glory;
+  await actor.update({ "system.werewolf.scars": [...actor.system.werewolf.scars, key], "system.werewolf.renown.glory.temporary": g.temporary + sc.glory });
+  return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<div class="r-notice r-type-werewolf"><i class="fa-solid fa-bandage"></i> ${t("ScarAdded", { name: esc(actor.name), scar: esc(sc.name), n: sc.glory })}<br><small>${sc.effect}</small></div>` });
+}
+export async function removeScar(actor, i) {
+  const list = [...actor.system.werewolf.scars];
+  list.splice(i, 1);
+  return actor.update({ "system.werewolf.scars": list });
 }
 
 /**
@@ -269,6 +365,9 @@ export async function rageActions(actor) {
 /* ── Фетиши и талены (W20, гл. 4) ────────────────────────────────────── */
 
 export const fetishOf = key => (W().fetishes ?? []).find(f => f.key === key) ?? null;
+
+/** Шрамы персонажа для вкладки Даров. */
+export const scarView = actor => (actor.system.werewolf.scars ?? []).map((k, i) => ({ i, ...(scarOf(k) ?? { name: k, effect: "" }) }));
 
 /** Список фетишей и тален персонажа для вкладки Даров. */
 export function fetishView(actor) {

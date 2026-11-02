@@ -79,4 +79,14 @@
     {{else}}<li class="r-note">{{localize "VTM20.Werewolf.NoFetishes"}}</li>
     {{/each}}
   </ul>
+
+  <h2 class="r-h2"><span>{{localize "VTM20.Werewolf.Scars"}}</span></h2>
+  <ul class="r-edge-list r-ww-scars">
+    {{#each ww.scars}}<li class="r-edge"><span class="r-edge-lvl"><i class="fa-solid fa-bandage"></i></span>
+      <span class="r-edge-main"><b>{{name}}</b> <small>+{{glory}} {{localize "VTM20.Werewolf.RenownShort.glory"}}</small><div class="r-edge-text">{{{effect}}}</div></span>
+      {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="wwScarDel" data-i="{{i}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}</li>
+    {{else}}<li class="r-note">{{localize "VTM20.Werewolf.NoScars"}}</li>{{/each}}
+  </ul>
+  {{#if editable}}<div class="r-toolbar r-ww-add"><select class="r-ww-scar-add"><option value="">{{localize "VTM20.Werewolf.AddScar"}}</option>{{#each ww.scarAvail}}<option value="{{key}}">{{label}}</option>{{/each}}</select>
+    <a class="r-vc-btn" data-action="wwScarAdd"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Common.Add"}}</a></div>{{/if}}
 </section>

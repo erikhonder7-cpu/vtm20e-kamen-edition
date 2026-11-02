@@ -99,6 +99,7 @@ Hooks.once("init", () => {
     { id: "r-held", name: S("held"), img: "icons/svg/net.svg" },
     { id: "r-staked", name: S("staked"), img: "icons/svg/thrust.svg" },
     { id: "r-frenzy", name: S("frenzy"), img: "icons/svg/blood.svg" },
+    { id: "r-harano", name: S("harano"), img: "icons/svg/downgrade.svg" },
     { id: "r-rotschreck", name: S("rotschreck"), img: "icons/svg/terror.svg" },
     { id: "r-rapture", name: S("rapture"), img: "icons/svg/aura.svg" },
     { id: "r-torpor", name: S("torpor"), img: "icons/svg/sleep.svg" },

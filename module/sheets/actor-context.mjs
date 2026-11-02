@@ -57,6 +57,7 @@ const formBadge = (s, k, at) => {
 /** Состояния персонажа, которые видны на портрете: значок, оттенок портрета (cls), тревожные — красным. */
 export const PORTRAIT_STATES = [
   { id: "r-frenzy", key: "frenzy", icon: "fa-face-angry", cls: "is-frenzy", hot: true },
+  { id: "r-harano", key: "harano", icon: "fa-cloud-rain", cls: "is-torpor" },
   { id: "r-rotschreck", key: "rotschreck", icon: "fa-fire", cls: "is-rotschreck", hot: true },
   { id: "r-rapture", key: "rapture", icon: "fa-heart-pulse", cls: "is-frenzy", hot: true },
   { id: "r-torpor", key: "torpor", icon: "fa-bed", cls: "is-torpor" },

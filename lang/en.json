@@ -905,7 +905,8 @@
         "staked": "A stake in the heart: the character is paralyzed until the stake is removed.",
         "stunned": "Stunned: loses the next action.",
         "prone": "Knocked down: getting up is an action; a prone target is easier to hit.",
-        "held": "Held: can act only against the one holding them."
+        "held": "Held: can act only against the one holding them.",
+        "harano": "Garou Harano: gloom and despair — −1 die to every pool until the Storyteller removes the state."
       },
       "Wounds": "Wound penalty",
       "WoundsText": "to the pools of all actions (except soak)",
@@ -3195,7 +3196,8 @@
       "frenzy": "Frenzy",
       "rotschreck": "Rötschreck",
       "torpor": "Torpor",
-      "rapture": "Rapture"
+      "rapture": "Rapture",
+      "harano": "Harano"
     },
     "Library": {
       "Title": "Library",
@@ -4059,7 +4061,36 @@
         "addXp": "Learn for XP"
       },
       "KinLearned": "Kinfolk Gift: {name}",
-      "DeliriumKin": "Kinfolk — immune to the Delirium"
+      "DeliriumKin": "Kinfolk — immune to the Delirium",
+      "RenownShort": {
+        "glory": "Gl",
+        "honor": "Ho",
+        "wisdom": "Wi"
+      },
+      "RenownAward": "Renown",
+      "RenownAwardHint": "Award Renown: a deed from the W20 table or your own; Recognition at 10 temporary",
+      "RenownAwardTitle": "Renown: {name}",
+      "RenownSearch": "Find a deed…",
+      "RenownCustom": "Custom award:",
+      "RenownWhy": "for what",
+      "RenownYearly": "per year",
+      "RenownBurn": "{r}: temporary below zero — a permanent dot burned",
+      "Recognition": "Recognition: +1 permanent {r}",
+      "RecognitionDone": "{name} — recognition: +1 permanent {r}.",
+      "Close": "Done",
+      "Thrall": {
+        "homid": "Devourer of Souls: after killing or downing a foe — Wits (diff. 7); on a botch the turn goes to eating the victim.",
+        "metis": "Defiler: after killing or downing a foe — Wits (diff. 7); on a botch the turn goes to desecrating the body.",
+        "lupus": "Beast of War: after killing or downing a foe — Wits (diff. 7); on a botch it tears the corpse apart."
+      },
+      "FrenzyMoon": "Moon: {moon}. Frenzy — {n}+ successes; 6+ — Thrall of the Wyrm.",
+      "FrenzyKinds": "Berserk — Crinos or Hispo and attack; fox — Lupus and flee. In frenzy: only bite, claws, running.",
+      "FrenzyExit": "Exit — once the trigger is gone: Willpower roll, difficulty {n} (Rage).",
+      "ThrallTitle": "Thrall of the Wyrm!",
+      "Scars": "Battle scars",
+      "NoScars": "No scars.",
+      "AddScar": "+ Scar…",
+      "ScarAdded": "{name}: scar “{scar}” — +{n} temporary Glory."
     },
     "Strategy": {
       "Tab": "Strategy",

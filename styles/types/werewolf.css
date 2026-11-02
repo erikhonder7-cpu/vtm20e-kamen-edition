@@ -353,3 +353,19 @@ body.r-theme-light .vtm20.r-type-werewolf .r-form-badge.is-down { color: #7a2a18
 .vtm20 .r-cot-totem p { margin: 4px 0; font-size: 13px; line-height: 1.4; }
 .vtm20 .r-cot-totem p > i { width: 16px; opacity: .7; }
 .vtm20 .r-cot-totem .r-cot-ban { color: #c8794f; }
+
+/* Награда Славой */
+.r-ra-dlg .r-ra { display: flex; flex-direction: column; gap: 8px; height: 100%; }
+.r-ra-dlg .r-ra-list { flex: 1; overflow-y: auto; max-height: 420px; padding-right: 4px; }
+.r-ra-dlg .r-ra-list h4 { margin: 10px 0 4px; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; opacity: .75; }
+.r-ra-dlg .r-ra-row { display: flex; align-items: center; gap: 6px; padding: 3px 0; border-bottom: 1px dotted rgba(140, 160, 150, .3); font-size: 13px; }
+.r-ra-dlg .r-ra-row > span { flex: 1; }
+.r-ra-dlg .r-ra-chip { padding: 1px 7px; border: 1px solid #5d6b66; border-radius: 10px; font-size: 11.5px; white-space: nowrap; cursor: pointer; }
+.r-ra-dlg .r-ra-chip:hover { background: rgba(185, 200, 195, .15); }
+.r-ra-dlg .r-ra-chip.is-neg { border-color: #a3442c; color: #d06a4a; }
+.r-ra-dlg .r-ra-chip.is-done { background: rgba(143, 179, 156, .3); }
+.r-ra-dlg .r-ra-custom { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.r-ra-dlg .r-ra-custom label { display: inline-flex; gap: 3px; align-items: center; }
+.r-ra-dlg .r-ra-custom input[type=number] { width: 46px; }
+.r-ra-dlg .r-ra-custom input[type=text] { flex: 1; min-width: 120px; }
+.r-ra-dlg .r-ra-recog { display: flex; gap: 6px; flex-wrap: wrap; }
