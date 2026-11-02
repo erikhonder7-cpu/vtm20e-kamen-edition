@@ -1279,6 +1279,149 @@ def plain_roll(text):
     return None
 
 
+def parse_primal_uses():
+    """Пути перемен, гл. 1: частичное превращение и дополнительные применения Первобытного инстинкта — с пулами для окна бросков."""
+    text = changing_ways_01()
+    if not text:
+        return []
+    out = []
+    pt = text.split("### Частичное превращение", 1)[1].split("\n### ", 1)[0].split("\n## ", 1)[0]
+    out.append({"key": "partial", "name": "Частичное превращение", "text": md_html(pt.strip().splitlines()),
+                "roll": {"trait1": "attributes.dexterity", "trait2": "abilities.primalUrge", "difficulty": 6, "byTarget": True}})
+    part = text.split("## Первобытный инстинкт", 1)[1].split("\n## ", 1)[0]
+    for line in part.splitlines():
+        m = re.match(r"^- \*\*(.+?):\*\*\s*(.+)$", line)
+        if not m:
+            continue
+        name, body = m.group(1).strip(), m.group(2)
+        # «(Харизма или Внешность) + …» — первая из двух; «…, сложность 8» — сложность; «против сложности = Воля цели» — по цели
+        b = re.sub(r"\((\S+) или \S+\)", r"\1", body)
+        pools = []
+        for pm in re.finditer(r"([А-ЯЁ][а-яё]+)\s*\+\s*Первобытный инстинкт(?:,\s*сложность\s*(\d+))?", b):
+            t1 = TRAITS.get(pm.group(1))
+            if t1:
+                pools.append({"trait1": t1, "trait2": "abilities.primalUrge", "difficulty": int(pm.group(2) or 6), "byTarget": not pm.group(2)})
+        for i, roll in enumerate(pools or [None]):
+            out.append({"key": f"{slug(name) or name}-{i}", "name": name + (f" ({i + 1})" if len(pools) > 1 else ""), "text": f"<p>{md_inline(body)}</p>", "roll": roll})
+    return out
+
+
+# Силы фомори без английского названия в справочнике (гл. 13) — как их зовёт Книга Червя
+FOMOR_EN = {"Окраска хамелеона": "Chameleon Coloration", "Когти и клыки": "Claws and Fangs", "Лишняя скорость": "Extra Speed",
+            "Иммунитет к Бреду": "Immunity to the Delirium", "Крысиная голова": "Rat Head", "Регенерация": "Regeneration",
+            "Чуять неестественное": "Sense the Unnatural", "Ядовитый укус": "Venomous Bite", "Игра теней": "Shadowplay",
+            "Заразное касание": "Infectious Touch", "Пасть Червя": "Maw of the Wyrm", "Подушечки лап": "Footpads", "Хождение по стенам": "Wall Walking",
+            "Паутина": "Webbing", "Хлещущий хвост": "Lashing Tail", "Язык лягушки": "Frog Tongue", "Рёв Червя": "Roar of the Wyrm",
+            "Мега-Атрибут": "Mega-Attribute", "Невидимость": "Invisibility", "Газообразная форма": "Gaseous Form", "Крылья": "Wings",
+            "Смена размера": "Size Shift", "Дыхание под водой": "Water Breathing", "Прохождение Умбры": "Umbral Passage", "Экзоскелет": "Exoskeleton",
+            "Лишние конечности": "Extra Limbs", "Глаза Червя": "Eyes of the Wyrm", "Бестиальная мутация": "Bestial Mutation"}
+FOMOR_ALIAS = {"fangs": "claws-and-fangs", "mega-strength": "mega-attribute", "mega-stamina": "mega-attribute", "mega-intelligence": "mega-attribute",
+               "mega-dexterity": "mega-attribute", "shadowwalking": "chameleon-coloration"}
+
+
+def parse_fomori():
+    """Фоморы: силы (W20, гл. 13 — таблица) и породы фомори (Книга Червя, гл. 2: Воля, силы, особые силы строками ниже)."""
+    core = read("13_Враги.md").split("### Силы фомори", 1)[1].split("\n## ", 1)[0]
+    powers = []
+    for line in core.splitlines():
+        if not line.startswith("| **"):
+            continue
+        c = [x.strip() for x in line.strip().strip("|").split("|")]
+        name, en = name_en(c[0])
+        en = en or FOMOR_EN.get(name, "")
+        powers.append({"key": slug(en) or name, "name": name, "en": en, "text": md_inline(c[1]), "roll": plain_roll(c[1]) or roll_of(c[1]),
+                       "repeat": bool(re.search(r"до 3 раз", c[1])), "max": 3 if re.search(r"до 3 раз", c[1]) else 1,
+                       "rage": "Берсерк" in name, "source": "W20"})
+    by = {p["en"].lower(): p["key"] for p in powers if p["en"]}
+    by.update({p["name"].lower(): p["key"] for p in powers})
+    p = os.path.join(os.path.dirname(REF), "W20_Book_of_the_Wyrm")
+    fn = next((f for f in sorted(os.listdir(p)) if f.startswith("02")), None) if os.path.isdir(p) else None
+    breeds = []
+    if fn:
+        part = open(os.path.join(p, fn), encoding="utf-8").read().split("## Породы фомори", 1)[1].split("\n## ", 1)[0]
+        cur = None
+        for line in part.splitlines():
+            m = re.match(r"^(\s*)- \*\*(.+?)\*\*\s*—\s*(.+)$", line)
+            if not m:
+                continue
+            if m.group(1) and cur:
+                n, e = name_en(m.group(2))     # особая сила породы строкой ниже
+                cur["specials"][n] = {"en": e, "text": md_inline(m.group(3))}
+                continue
+            name, en = name_en(m.group(2))
+            body = m.group(3)
+            wp = re.search(r"Воля (\d+)", body)
+            pm = re.search(r"(?:Силы|модель):\s*([^.;]+)", body)      # у Гончих бойни — «"Старая" модель: …»
+            raw = pm.group(1).split(",") if pm else []
+            cur = {"key": slug(en) or name, "name": name, "en": en, "willpower": int(wp.group(1)) if wp else 3, "raw": raw, "specials": {},
+                   "text": md_inline(body), "source": "W20 Book of the Wyrm"}
+            breeds.append(cur)
+    for b in breeds:
+        keys, sp = [], {}
+        by_en = {v["en"].lower(): n for n, v in b["specials"].items() if v["en"]}
+        for r in [x.strip().rstrip(".") for x in b.pop("raw")] + list(b["specials"]):
+            r = re.sub(r"\s*\(.*$", "", r).strip()
+            if not r or r[0].islower():
+                continue
+            k = by.get(r.lower()) or FOMOR_ALIAS.get(slug(r))
+            if not k:
+                n = r if r in b["specials"] else by_en.get(r.lower(), r)
+                k = f"~{b['key']}:{n}"
+                sp[n] = b["specials"].get(n, {}).get("text", "")
+            if k not in keys:
+                keys.append(k)
+        b["powers"], b["specials"] = keys, sp
+    return {"powers": powers, "breeds": breeds}
+
+
+# «Сопротивление боли — как Дар Ахрун» и т. п.: в справочнике Дары основной книги названы иначе — тот же Дар по ключу
+BSD_SAME = {"Сопротивление боли": "resist-pain", "Сопротивление токсину": "resist-toxin", "Чутьё Червя": "sense-wyrm"}
+
+
+def parse_bsd(gifts):
+    """Танцоры Чёрной Спирали как племя (W20, гл. 13): Воля 3, тотем Козодой, начальные Дары; Дары главы — в список изгоев
+    «blackSpiralDancers» (новые — отдельными Дарами, «как у Ахрун/Костегрызов…» — группой к уже известному Дару)."""
+    text = read("13_Враги.md").split("## 1. Танцоры Чёрной Спирали", 1)[1].split("\n## ", 1)[0]
+    grp = {"kind": "outsider", "key": "blackSpiralDancers"}
+    by_en = {g["en"].lower(): g for g in gifts if g.get("en")}
+    by_ru = {g["name"].lower(): g for g in gifts}
+    by_key = {g["key"]: g for g in gifts}
+    part, level, added = text.split("### Дары Танцоров Чёрной Спирали", 1)[1], 0, []
+    for line in part.splitlines():
+        lv = re.match(r"^\*\*Ур\. (\d+)\*\*", line)
+        if lv:
+            level = int(lv.group(1)); continue
+        if not line.startswith("- **") or not level:
+            continue
+        for seg in re.split(r"(?<=\.)\s+(?=\*\*[^*]+\*\*\s*(?:\([^)]*\)\s*)?—)", line[2:]):
+            m = re.match(r"^\*\*(.+?)(?:\s*\(([^()]+)\))?\*\*\s*(?:\(([^)]*)\)\s*)?—\s*(.*)$", seg)
+            if not m:
+                continue
+            name, en, body = m.group(1).strip(), (m.group(2) or "").strip(), m.group(4).strip()
+            g = by_en.get(en.lower()) if en else by_ru.get(name.lower()) or by_key.get(BSD_SAME.get(name, ""))
+            if g:
+                if grp not in g["groups"]:
+                    g["groups"].append(dict(grp))
+                continue
+            key = slug(en, "bsd-") if en else f"bsd-{name}"
+            if any(x["key"] == key for x in gifts + added):
+                continue
+            added.append({"key": key, "name": name, "en": en, "level": level, "groups": [dict(grp)], "teacher": m.group(3) or "",
+                          "roll": roll_of(body) or plain_roll(body), "cost": cost_of(body), "text": f"<p>{md_inline(body)}</p>", "source": "W20"})
+    head = text.split("###", 1)[0].split("\n", 1)[1]          # без хвоста заголовка «(Black Spiral Dancers)»
+    starts = []
+    sm = re.search(r"Начальные Дары:\s*(.+)", head)
+    for n in re.sub(r"\*\*", "", sm.group(1) if sm else "").rstrip(".").split(","):      # «**Защитник Бейнов, …, Покров (Shroud)**»
+        n, e = name_en(n.strip())
+        g = by_en.get(e.lower()) if e else by_ru.get(n.lower()) or by_key.get(BSD_SAME.get(n, ""))
+        g = g or next((x for x in added if x["name"].lower() == n.lower()), None)
+        if g:
+            starts.append(g["key"])
+    tribe = {"key": "blackSpiralDancers", "name": "Танцоры Чёрной Спирали", "en": "Black Spiral Dancers", "willpower": first_int(re.search(r"Воля (\d+)", head).group(1)) if re.search(r"Воля (\d+)", head) else 3,
+             "totem": "Козодой", "backgrounds": md_inline(re.sub(r"^- ", "", head.strip().splitlines()[0])), "startGifts": starts, "icon": "fa-hurricane", "wyrm": True}
+    return added, tribe
+
+
 def parse_fetch_rites(tribes):
     """Огненное крещение кин-фетча по племенам (W20 Kinfolk, гл. 3): «| Племя | Особенность |» → ключ племени по русскому названию."""
     p = os.path.join(os.path.dirname(REF), "W20_Kinfolk")
@@ -1354,9 +1497,12 @@ def build():
     gifts = gifts + fera_gifts_list
     cw_gifts, cw_totems = parse_changing_ways_extras({g["key"] for g in gifts})
     gifts = gifts + cw_gifts
+    bsd_gifts, bsd_tribe = parse_bsd(gifts)
+    gifts = gifts + bsd_gifts
     for kind, items in (("breed", breeds), ("auspice", auspices), ("tribe", tribes), ("form", FORMS)):
         for x in items:
             x["icon"] = ICONS[kind].get(x["key"], "fa-moon")
+    tribes.append(bsd_tribe)          # после значков: у Танцоров свой (fa-hurricane)
     core_merits, core_fetishes = parse_merits(), parse_fetishes()
     s_rites, s_fetishes, s_merits = parse_supp_mech(rites, core_fetishes, core_merits)
     rites = rites + s_rites
@@ -1364,7 +1510,7 @@ def build():
     data = {"source": "Werewolf: The Apocalypse 20th Anniversary Edition", "breeds": breeds, "auspices": auspices, "tribes": tribes,
             "forms": FORMS, "gifts": gifts, "rites": rites, "rankNames": RANK_NAMES, "rank": RANK, "xp": XP,
             "merits": core_merits + s_merits, "backgrounds": parse_backgrounds(), "fetishes": core_fetishes + s_fetishes, "charms": charms, "kinGifts": parse_kin_gifts(tribes), "totems": parse_totems() + cw_totems, "renownAwards": parse_renown_awards(), "scars": parse_scars(), "sept": parse_sept(), "umbra": parse_umbra(), "fera": fera,
-            "deformities": parse_deformities(), "numina": parse_numina(), "kami": parse_kami(), "spirits": parse_spirit_templates(charms), "fetchRites": parse_fetch_rites(tribes)}
+            "deformities": parse_deformities(), "numina": parse_numina(), "kami": parse_kami(), "spirits": parse_spirit_templates(charms), "fetchRites": parse_fetch_rites(tribes), "primalUses": parse_primal_uses(), "fomori": parse_fomori()}
     with open(OUT, "w", encoding="utf-8", newline="\n") as f:
         json.dump(data, f, ensure_ascii=False, indent=1)
     rules = parse_rules()

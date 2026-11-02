@@ -294,6 +294,30 @@
   </div>
   {{/if}}
   {{/if}}
+  {{#if fomorInfo}}
+  {{!-- Фомор (W20, гл. 13; Book of the Wyrm): порода даёт силы и Волю, особые силы породы — с её текстом; «Берсерк» — 5 Ярости --}}
+  <h2 class="r-h2"><span><i class="fa-solid fa-biohazard"></i> {{localize "VTM20.Werewolf.Fomor.title"}}</span>
+    {{#if editable}}<label class="r-h2-tools r-kin-toggle"><input type="checkbox" name="system.fomor.on" {{checked fomorInfo.on}}> {{localize "VTM20.Werewolf.Fomor.toggle"}}</label>{{/if}}</h2>
+  {{#if fomorInfo.on}}
+  <div class="r-kin r-fomor">
+    <div class="r-kin-row">
+      <label><span>{{localize "VTM20.Werewolf.Fomor.breed"}}</span><select class="r-fomor-breed" {{#unless editable}}disabled{{/unless}}>{{#each fomorInfo.breeds}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+      {{#if editable}}<a class="r-vc-btn" data-action="fomorBreed" data-tooltip="{{localize 'VTM20.Werewolf.Fomor.breedHint'}}"><i class="fa-solid fa-check"></i></a>{{/if}}
+      <label><span>{{localize "VTM20.Werewolf.Rage"}}</span><input type="number" name="system.fomor.rage" value="{{fomorInfo.rage}}" min="0" max="10"></label>
+    </div>
+    {{#if fomorInfo.breed}}<p class="r-hint">{{{fomorInfo.breed.text}}}</p>{{/if}}
+    <ul class="r-edge-list r-fomor-powers">{{#each fomorInfo.powers}}<li class="r-edge">
+      <span class="r-edge-lvl">{{#if (gt n 1)}}×{{n}}{{else}}<i class="fa-solid fa-biohazard"></i>{{/if}}</span>
+      <span class="r-edge-main"><b>{{rName this}}</b> <small>{{rAlt this}}</small><div class="r-edge-text">{{{text}}}</div></span>
+      {{#if @root.editable}}{{#if more}}<a class="r-vc-btn" data-action="fomorMore" data-key="{{key}}"><i class="fa-solid fa-plus"></i></a>{{/if}}
+      <a class="r-vc-btn" data-action="fomorUse" data-key="{{key}}"><i class="fa-solid {{#if roll}}fa-dice-d10{{else}}fa-hand-sparkles{{/if}}"></i></a>
+      <a class="r-icon-btn is-danger" data-action="fomorDel" data-key="{{key}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}</li>
+      {{else}}<li class="r-note">{{localize "VTM20.Werewolf.Fomor.none"}}</li>{{/each}}</ul>
+    {{#if editable}}<div class="r-toolbar"><select class="r-fomor-add"><option value="">{{localize "VTM20.Werewolf.Fomor.add"}}</option>{{#each fomorInfo.avail}}<option value="{{key}}">{{label}}</option>{{/each}}</select>
+      <a class="r-vc-btn" data-action="fomorAdd"><i class="fa-solid fa-plus"></i></a></div>{{/if}}
+  </div>
+  {{/if}}
+  {{/if}}
   {{#if stratInfo}}
   {{!-- Стратегия города (module/ui/strategy.mjs): влияние персонажа в сферах, заявки хода, проекты, договоры --}}
   <h2 class="r-h2"><span><i class="fa-solid fa-chess-knight"></i> {{localize "VTM20.Strategy.SheetTitle"}}</span>

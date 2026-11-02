@@ -4064,6 +4064,22 @@
         "bound": "{name}: kin-fetch “{fetch}” bound, the brand is set.",
         "burned": "{name}: the fetch brand burned — “{fetch}” carries word of the First Change to the tribe."
       },
+      "Primal": {
+        "title": "Primal-Urge",
+        "short": "Instinct",
+        "hint": "Partial transformation and bestial tricks (W20 Changing Ways)",
+        "diff": "diff. {n}"
+      },
+      "Fomor": {
+        "title": "Fomor — Bane-possessed",
+        "toggle": "Fomor",
+        "breed": "Fomori breed",
+        "breedHint": "Take the breed's powers and Willpower (existing powers stay)",
+        "wp": "Willpower {n}",
+        "none": "No powers.",
+        "add": "+ Fomori power…",
+        "specialOf": "A special power of “{name}” — see its description."
+      },
       "Kami": {
         "title": "Kami — Gaia's chosen",
         "toggle": "Kami",
@@ -4101,7 +4117,7 @@
         "addXp": "Learn for XP"
       },
       "KinLearned": "Kinfolk Gift: {name}",
-      "DeliriumKin": "Kinfolk or Kami — immune to the Delirium",
+      "DeliriumKin": "Kinfolk, Kami or fomor — immune to the Delirium",
       "RenownShort": {
         "glory": "Gl",
         "honor": "Ho",

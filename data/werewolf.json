@@ -361,6 +361,23 @@
     "resist-pain"
    ],
    "icon": "fa-snowflake"
+  },
+  {
+   "key": "blackSpiralDancers",
+   "name": "Танцоры Чёрной Спирали",
+   "en": "Black Spiral Dancers",
+   "willpower": 3,
+   "totem": "Козодой",
+   "backgrounds": "Бывшие Белые Выли (см. файл 12), ныне племя слуг Червя. <strong>Воля 3.</strong> Тотем — Козодой (Whippoorwill). Факты почти любые; <strong>Чистая кровь (Pure Breed)</strong> ограничена — только при покупке всех 5 точек (отголосок Белых Выли).",
+   "startGifts": [
+    "bsd-bane-protector",
+    "resist-pain",
+    "resist-toxin",
+    "sense-wyrm",
+    "shroud"
+   ],
+   "icon": "fa-hurricane",
+   "wyrm": true
   }
  ],
  "forms": [
@@ -1732,6 +1749,10 @@
     {
      "kind": "tribe",
      "key": "uktena"
+    },
+    {
+     "kind": "outsider",
+     "key": "blackSpiralDancers"
     }
    ],
    "teacher": "любой дух Геи",
@@ -1945,6 +1966,10 @@
     {
      "kind": "tribe",
      "key": "uktena"
+    },
+    {
+     "kind": "outsider",
+     "key": "blackSpiralDancers"
     }
    ],
    "teacher": "дух ночи",
@@ -2012,6 +2037,10 @@
     {
      "kind": "tribe",
      "key": "fianna"
+    },
+    {
+     "kind": "outsider",
+     "key": "blackSpiralDancers"
     }
    ],
    "teacher": "дух крысы",
@@ -2105,6 +2134,10 @@
     {
      "kind": "tribe",
      "key": "wendigo"
+    },
+    {
+     "kind": "outsider",
+     "key": "blackSpiralDancers"
     }
    ],
    "teacher": "дух медведя или барсука",
@@ -6581,6 +6614,10 @@
     {
      "kind": "tribe",
      "key": "shadowLords"
+    },
+    {
+     "kind": "outsider",
+     "key": "blackSpiralDancers"
     }
    ],
    "teacher": "дух боли",
@@ -12815,6 +12852,284 @@
    "cost": {},
    "text": "<p>Почти только у тайного (по слухам, истреблённого) Общества Эрихтония; считается ересью. Учит только дух предка, который сам при жизни был метисом.</p><ul><li>1 Воля и 1 Гнозис: на сцену врождённое уродство метиса полностью перестаёт действовать (конечности отрастают, слепой прозревает, психические и духовные уродства не влияют). Не лечит боевые шрамы и увечья от Даров и прочих сил.</li><li>+1 сцена за каждый дополнительный Гнозис, пока он есть. Всё это время Гнозис нельзя восстанавливать никаким способом.</li><li>Узнавший о Даре мир отнимает у метиса <strong>1 постоянную точку Чести</strong>. Каждый раз, когда кто-то видит применение, — −1 временная Честь и −1 временная Мудрость.</li><li>По слухам, есть версия 5-го уровня, переносящая уродство на другого Гару.</li></ul>",
    "source": "W20 Changing Ways"
+  },
+  {
+   "key": "bsd-bane-protector",
+   "name": "Защитник Бейнов",
+   "en": "Bane Protector",
+   "level": 1,
+   "groups": [
+    {
+     "kind": "outsider",
+     "key": "blackSpiralDancers"
+    }
+   ],
+   "teacher": "",
+   "roll": {
+    "trait1": "attributes.manipulation",
+    "trait2": "abilities.leadership",
+    "difficulty": 6,
+    "byTarget": true
+   },
+   "cost": {},
+   "text": "<p>1 Гнозис, Манипулирование + Лидерство: 1 успех — союз на сцену; 3 — договор на час; 5 — на сутки. Бейны потребуют услугу или жертву.</p>",
+   "source": "W20"
+  },
+  {
+   "key": "bsd-smell-fear",
+   "name": "Чуять страх",
+   "en": "Smell Fear",
+   "level": 1,
+   "groups": [
+    {
+     "kind": "outsider",
+     "key": "blackSpiralDancers"
+    }
+   ],
+   "teacher": "Дар Философа Червя",
+   "roll": {
+    "trait1": "attributes.perception",
+    "trait2": "abilities.empathy",
+    "difficulty": 6,
+    "byTarget": true
+   },
+   "cost": {},
+   "text": "<p>Восприятие + Эмпатия против Воли цели (или наибольшей Воли врагов); каждый час активности стоит 1 Гнозис; чувствует, когда кто-то использует против неё «Чутьё Червя» или иной Дар на Восприятии.</p>",
+   "source": "W20"
+  },
+  {
+   "key": "bsd-ears-of-the-bat",
+   "name": "Уши нетопыря",
+   "en": "Ears of the Bat",
+   "level": 2,
+   "groups": [
+    {
+     "kind": "outsider",
+     "key": "blackSpiralDancers"
+    }
+   ],
+   "teacher": "",
+   "roll": {
+    "trait1": "attributes.perception",
+    "trait2": "abilities.occult",
+    "difficulty": 6,
+    "byTarget": true
+   },
+   "cost": {},
+   "text": "<p>эхолокация; даже в полной темноте чувствует форму предметов; против скрытых сверхъестественно (Невидимость вампира, Размытие Млечного глаза) — Восприятие + Оккультизм против броска активации.</p>",
+   "source": "W20"
+  },
+  {
+   "key": "bsd-wyrm-hide",
+   "name": "Шкура Червя",
+   "en": "Wyrm Hide",
+   "level": 2,
+   "groups": [
+    {
+     "kind": "outsider",
+     "key": "blackSpiralDancers"
+    }
+   ],
+   "teacher": "",
+   "roll": {
+    "trait1": "attributes.manipulation",
+    "trait2": "abilities.leadership",
+    "difficulty": 6,
+    "byTarget": true
+   },
+   "cost": {},
+   "text": "<p>1 Гнозис, Манипулирование + Лидерство: за успех +1 кубик поглощения (макс. 3); если не фиаско — летальный урон считается ударным.</p>",
+   "source": "W20"
+  },
+  {
+   "key": "bsd-a-thousand-voices",
+   "name": "Тысяча голосов",
+   "en": "A Thousand Voices",
+   "level": 2,
+   "groups": [
+    {
+     "kind": "outsider",
+     "key": "blackSpiralDancers"
+    }
+   ],
+   "teacher": "Теург Червя",
+   "roll": {
+    "trait1": "attributes.perception",
+    "trait2": "abilities.alertness",
+    "difficulty": 6,
+    "byTarget": true
+   },
+   "cost": {},
+   "text": "<p>за каждую Волю — одна иллюзорная союзница; Рассказчик тайно бросает Восприятие + Бдительность каждого свидетеля (сл. 4 в густом лесу, 9 на равнине); при обнаружении Дар рушится; 1 успех — стая Спирали; 3 — союзные Фера; 5 — чудовищные ужасы.</p>",
+   "source": "W20"
+  },
+  {
+   "key": "bsd-allies-below",
+   "name": "Союзники снизу",
+   "en": "Allies Below",
+   "level": 2,
+   "groups": [
+    {
+     "kind": "outsider",
+     "key": "blackSpiralDancers"
+    }
+   ],
+   "teacher": "Галлиард Червя",
+   "roll": null,
+   "cost": {},
+   "text": "<p>тремор в радиусе 10 ярдов; 1 Гнозис — Ловк. + Атлетика, меньше 3 успехов — падение; 3 — обвалы тоннелей, воронки; 5 — повреждение зданий (5 кубиков урона, уклонение возможно).</p>",
+   "source": "W20"
+  },
+  {
+   "key": "bsd-horns-of-the-impaler",
+   "name": "Рога Пронзателя",
+   "en": "Horns of the Impaler",
+   "level": 2,
+   "groups": [
+    {
+     "kind": "outsider",
+     "key": "blackSpiralDancers"
+    }
+   ],
+   "teacher": "Ахрун Червя",
+   "roll": null,
+   "cost": {},
+   "text": "<p>рога как укус (Сила +2), дважды за ход без деления пула; либо бодание с разбега ≥10 фт. (Сила +5, без иных атак в раунде).</p>",
+   "source": "W20"
+  },
+  {
+   "key": "bsd-patagia",
+   "name": "Патагия",
+   "en": "Patagia",
+   "level": 3,
+   "groups": [
+    {
+     "kind": "outsider",
+     "key": "blackSpiralDancers"
+    }
+   ],
+   "teacher": "",
+   "roll": null,
+   "cost": {},
+   "text": "<p>планирование до 25 миль/ч; подъём тратит Ярость; скорость за ход ≤ двойного обычного; 1 Ярость — рывок вверх или +Ловкость ярдов; рефлекторно при падении.</p>",
+   "source": "W20"
+  },
+  {
+   "key": "bsd-foaming-fury",
+   "name": "Пенящаяся ярость",
+   "en": "Foaming Fury",
+   "level": 3,
+   "groups": [
+    {
+     "kind": "outsider",
+     "key": "blackSpiralDancers"
+    }
+   ],
+   "teacher": "",
+   "roll": null,
+   "cost": {},
+   "text": "<p>укушенный бросает Стойкость сл. 8 или впадает в бешенство; если потратить 1 Гнозис — выбирает, бежит жертва или дерётся без удержу.</p>",
+   "source": "W20"
+  },
+  {
+   "key": "bsd-beautiful-lie",
+   "name": "Красивая ложь",
+   "en": "Beautiful Lie",
+   "level": 3,
+   "groups": [
+    {
+     "kind": "outsider",
+     "key": "blackSpiralDancers"
+    }
+   ],
+   "teacher": "",
+   "roll": {
+    "trait1": "attributes.wits",
+    "trait2": "abilities.subterfuge",
+    "difficulty": 6,
+    "byTarget": true
+   },
+   "cost": {},
+   "text": "<p>1 Гнозис, Смекалка + Хитрость сл. 6 (правдоподобно): массовое самообъяснение преступления; 3 успеха — ложные улики на час.</p>",
+   "source": "W20"
+  },
+  {
+   "key": "bsd-touch-of-the-eel",
+   "name": "Прикосновение угря",
+   "en": "Touch of the Eel",
+   "level": 3,
+   "groups": [
+    {
+     "kind": "outsider",
+     "key": "blackSpiralDancers"
+    }
+   ],
+   "teacher": "Рагабаш Червя",
+   "roll": {
+    "trait1": "attributes.dexterity",
+    "trait2": "abilities.athletics",
+    "difficulty": 6,
+    "byTarget": true
+   },
+   "cost": {},
+   "text": "<p>1 Ярость: на расстоянии до 30 ярдов 3 кубика летального (поглощение сл. 7) через проводник; касанием — 4 кубика (Ловкость + Атлетика; уклон возможен).</p>",
+   "source": "W20"
+  },
+  {
+   "key": "bsd-crawling-poison",
+   "name": "Ползучий яд",
+   "en": "Crawling Poison",
+   "level": 4,
+   "groups": [
+    {
+     "kind": "outsider",
+     "key": "blackSpiralDancers"
+    }
+   ],
+   "teacher": "",
+   "roll": null,
+   "cost": {},
+   "text": "<p>после попадания когтем/укусом: Гнозис против Стойкости (оба сл. 8); больше успехов — жертва не регенерирует: 1 час за успех.</p>",
+   "source": "W20"
+  },
+  {
+   "key": "bsd-Призыв стихии",
+   "name": "Призыв стихии",
+   "en": "",
+   "level": 4,
+   "groups": [
+    {
+     "kind": "outsider",
+     "key": "blackSpiralDancers"
+    }
+   ],
+   "teacher": "",
+   "roll": null,
+   "cost": {},
+   "text": "<p>как у Уктена, но призывается стихия Червя (Furmling, Hogling).</p>",
+   "source": "W20"
+  },
+  {
+   "key": "bsd-balefire",
+   "name": "Огонь скверны",
+   "en": "Balefire",
+   "level": 5,
+   "groups": [
+    {
+     "kind": "outsider",
+     "key": "blackSpiralDancers"
+    }
+   ],
+   "teacher": "",
+   "roll": {
+    "trait1": "attributes.dexterity",
+    "trait2": "abilities.athletics",
+    "difficulty": 6,
+    "byTarget": true
+   },
+   "cost": {},
+   "text": "<p>Ловкость + Атлетика сл. 6 (модификаторы как у Огнестрела); жертва бросает Стойкость сл. 8 против такого числа уровней; кто не сравнялся — получает <strong>мутацию Червя</strong>: каждый успех = 1 уровень губительного, лечится как губительный, но только с кислотой, огнём, хирургией; пока не вылечена — «осквернён» для Чутья Червя.</p>",
+   "source": "W20"
   }
  ],
  "rites": [
@@ -23334,5 +23649,1139 @@
    "name": "Вендиго",
    "text": "младенца ненадолго оставляют под открытым небом: фетч +1 Ярость"
   }
- ]
+ ],
+ "primalUses": [
+  {
+   "key": "partial",
+   "name": "Частичное превращение",
+   "text": "<p>Изменить лишь часть тела: волчий нос в Хомиде, когти в Хомиде, человеческие руки или глаза у Хиспо и Лупуса, ночное зрение в Хомиде. Требует сосредоточенности, бросок <strong>Ловкость + Первобытный инстинкт</strong>. Метисы, годами тренируясь до Обряда посвящения, особенно в нём сильны; Кайлиндо на этом построено.</p><ul><li>Включить полную регенерацию в форме рождения частичным превращением <strong>нельзя</strong> — регенерация работает только на всё тело.</li><li>Усилить естественное оружие можно (например, губительный урон когтями Глабро или бонус укуса Хиспо в Криносе), но изменение всегда видно и выглядит жутко.</li><li>Незаметное изменение органов чувств — на усмотрение Рассказчика при <strong>5+ успехах</strong>.</li></ul>",
+   "roll": {
+    "trait1": "attributes.dexterity",
+    "trait2": "abilities.primalUrge",
+    "difficulty": 6,
+    "byTarget": true
+   }
+  },
+  {
+   "key": "Аура убийцы-0",
+   "name": "Аура убийцы",
+   "text": "<p>(Харизма или Внешность) + Первобытный инстинкт, сложность 8. Всю сцену все встречные люди подвержены Проклятию (Curse) независимо от их Воли.</p>",
+   "roll": {
+    "trait1": "attributes.charisma",
+    "trait2": "abilities.primalUrge",
+    "difficulty": 8,
+    "byTarget": false
+   }
+  },
+  {
+   "key": "Чтение и передача намерения-0",
+   "name": "Чтение и передача намерения (1)",
+   "text": "<p>Восприятие + Первобытный инстинкт, сложность 8 — понять общий смысл эмоционального сообщения без общего языка («уходи», «ешь», «благодарю»). Манипуляция + Первобытный инстинкт, сложность 9 — одной позой передать простое отношение (голод, раздражение, гнев, мир, удовольствие).</p>",
+   "roll": {
+    "trait1": "attributes.perception",
+    "trait2": "abilities.primalUrge",
+    "difficulty": 8,
+    "byTarget": false
+   }
+  },
+  {
+   "key": "Чтение и передача намерения-1",
+   "name": "Чтение и передача намерения (2)",
+   "text": "<p>Восприятие + Первобытный инстинкт, сложность 8 — понять общий смысл эмоционального сообщения без общего языка («уходи», «ешь», «благодарю»). Манипуляция + Первобытный инстинкт, сложность 9 — одной позой передать простое отношение (голод, раздражение, гнев, мир, удовольствие).</p>",
+   "roll": {
+    "trait1": "attributes.manipulation",
+    "trait2": "abilities.primalUrge",
+    "difficulty": 9,
+    "byTarget": false
+   }
+  },
+  {
+   "key": "cowing-0",
+   "name": "Подавить взглядом (Cowing)",
+   "text": "<p>Харизма + Первобытный инстинкт против сложности = Воля цели, нужно успехов не меньше, чем у цели текущих пунктов Воли. Одна цель; при успехе она перестаёт противостоять (но не обязана подчиняться). Не действует на духов, оборотней и сверхъестественных существ, способных на нечеловеческую ярость (вампиров и т.п.).</p>",
+   "roll": {
+    "trait1": "attributes.charisma",
+    "trait2": "abilities.primalUrge",
+    "difficulty": 6,
+    "byTarget": true
+   }
+  }
+ ],
+ "fomori": {
+  "powers": [
+   {
+    "key": "animal-control",
+    "name": "Контроль животных",
+    "en": "Animal Control",
+    "text": "1 Воля, Манипулирование + Обращение с животными сл. 6; по одному животному за успех в 120 ярдах; простая команда до 5 слов; на сцену",
+    "roll": {
+     "trait1": "attributes.manipulation",
+     "trait2": "abilities.animalKen",
+     "difficulty": 6,
+     "byTarget": true
+    },
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "armored-hide",
+    "name": "Бронированная шкура",
+    "en": "Armored Hide",
+    "text": "+3 кубика поглощения ударного и летального; можно пробовать поглотить губительный сл. 8",
+    "roll": null,
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "armored-skin",
+    "name": "Бронированная кожа",
+    "en": "Armored Skin",
+    "text": "поглощает и лечит летальное как ударное",
+    "roll": null,
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "berserker",
+    "name": "Берсерк",
+    "en": "Berserker",
+    "text": "5 Ярости, тратятся как у Гару; склонен к бешенству; часть сил требует Берсерка",
+    "roll": null,
+    "repeat": false,
+    "max": 1,
+    "rage": true,
+    "source": "W20"
+   },
+   {
+    "key": "bestial-mutation",
+    "name": "Бестиальная мутация",
+    "en": "Bestial Mutation",
+    "text": "смена формы (Ловкость + Первобытный инстинкт); +2 кубика Физическим Атрибутам; Внешность 0",
+    "roll": {
+     "trait1": "attributes.dexterity",
+     "trait2": "abilities.primalUrge",
+     "difficulty": 6,
+     "byTarget": true
+    },
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "body-barbs",
+    "name": "Шипы тела",
+    "en": "Body-Barbs",
+    "text": "+2 кубика урона к атаке; можно покупать до 3 раз (по +2 каждый)",
+    "roll": null,
+    "repeat": true,
+    "max": 3,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "body-expansion",
+    "name": "Расширение тела",
+    "en": "Body Expansion",
+    "text": "1 Воля, Сила + Атлетика сл. 6; рост до ×3: урон рукопашной Сила + 4; +10 ярдов к бегу; фиаско на поглощении — кости ломаются: 1 уровень",
+    "roll": {
+     "trait1": "attributes.strength",
+     "trait2": "abilities.athletics",
+     "difficulty": 6,
+     "byTarget": true
+    },
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "brain-eating",
+    "name": "Поедание мозга",
+    "en": "Brain Eating",
+    "text": "касание (Ловк. + Атлетика), затем 1 Воля и Интеллект + Оккультизм сл. 6 против Воли сл. 6: временно −1 Умственного Атрибута; лечится как губительный",
+    "roll": {
+     "trait1": "attributes.intelligence",
+     "trait2": "abilities.occult",
+     "difficulty": 6,
+     "byTarget": true
+    },
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "cancerous-carapace",
+    "name": "Раковый панцирь",
+    "en": "Cancerous Carapace",
+    "text": "1 Ярость: панцирь на сцену, +2 кубика поглощения; не совмещается с Бронированной шкурой",
+    "roll": null,
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "cause-insanity",
+    "name": "Вызов безумия",
+    "en": "Cause Insanity",
+    "text": "линия видимости, 1 Воля, Воля сл. 8: 1–2 успеха — фобия на сцену; 3–4 — иллюзия/фобия на час или сцену; 5 — приступ на сутки",
+    "roll": null,
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "chameleon-coloration",
+    "name": "Окраска хамелеона",
+    "en": "Chameleon Coloration",
+    "text": "ход на активацию; заметить — Смекалка + Бдительность сл. 7; вариант «Хождение тенью»",
+    "roll": {
+     "trait1": "attributes.wits",
+     "trait2": "abilities.alertness",
+     "difficulty": 6,
+     "byTarget": true
+    },
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "claws-and-fangs",
+    "name": "Когти и клыки",
+    "en": "Claws and Fangs",
+    "text": "Укус/Коготь: Сила +1 губительный; скрыть нельзя",
+    "roll": null,
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "darksight",
+    "name": "Ночное зрение",
+    "en": "Darksight",
+    "text": "видит в полной темноте; внезапный яркий свет слепит на ходы = Восприятие",
+    "roll": null,
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "deception",
+    "name": "Обман",
+    "en": "Deception",
+    "text": "касание, 1 Воля, Смекалка + Хитрость сл. 7; скрыть свою скверну — 1 успех; чужую — 3; сфальсифицировать — 5; оспаривается Восприятием + Оккультизм (+3 успеха с Даром/Дисциплиной)",
+    "roll": {
+     "trait1": "attributes.wits",
+     "trait2": "abilities.subterfuge",
+     "difficulty": 6,
+     "byTarget": true
+    },
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "dentata-orifice",
+    "name": "Зубастое отверстие",
+    "en": "Dentata Orifice",
+    "text": "после успешного захвата — дополнительный укус каждый ход",
+    "roll": null,
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "echoes-of-wrath",
+    "name": "Эхо гнева",
+    "en": "Echoes of Wrath",
+    "text": "раз за сцену: Присутствие + Запугивание против Воли цели сл. 6; лишние успехи = ходы бессильной вспышки эмоций; если цель употребляла продукт Pentex — сл. +1–2",
+    "roll": null,
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "Эктоплазменные щупальца",
+    "name": "Эктоплазменные щупальца",
+    "en": "",
+    "text": "1 Воля, Стойкость + Оккультизм сл. 6; до 4 щупалец по 5 ярдов; +3 Силы для подъёма; атака Ловк. + Драка сл. 8, урон Сила +2",
+    "roll": {
+     "trait1": "attributes.stamina",
+     "trait2": "abilities.occult",
+     "difficulty": 6,
+     "byTarget": true
+    },
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "exoskeleton",
+    "name": "Экзоскелет",
+    "en": "Exoskeleton",
+    "text": "+3 Силы и +3 Стойкости; выше 5 — вызывает Бред",
+    "roll": null,
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "extra-limbs",
+    "name": "Лишние конечности",
+    "en": "Extra Limbs",
+    "text": "+3 кубика на захват",
+    "roll": null,
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "extra-speed",
+    "name": "Лишняя скорость",
+    "en": "Extra Speed",
+    "text": "1 лишнее действие за ход без деления пула; скорость ×1,5 (шаг 11, трусца 20, бег 30 ярдов вместо 7/13/20)",
+    "roll": null,
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "eyes-of-the-wyrm",
+    "name": "Глаза Червя",
+    "en": "Eyes of the Wyrm",
+    "text": "противник, встретивший взгляд — Воля сл. 8, иначе парализован на (5 − Смекалка) ходов, минимум 1",
+    "roll": null,
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "Огненный выброс",
+    "name": "Огненный выброс",
+    "en": "",
+    "text": "Смекалка + Атлетика (как Огнестрел), раз в 2 раунда; успех = дальность в ярдах; губительный (смягчается «Сопротивлением токсину»)",
+    "roll": {
+     "trait1": "attributes.wits",
+     "trait2": "abilities.athletics",
+     "difficulty": 6,
+     "byTarget": true
+    },
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "footpads",
+    "name": "Подушечки лап",
+    "en": "Footpads",
+    "text": "Скрытность −2 к сложности",
+    "roll": null,
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "frog-tongue",
+    "name": "Язык лягушки",
+    "en": "Frog Tongue",
+    "text": "Ловк. + Атлетика, до 2 ярдов; урон Сила; тянет с бонусом +2 кубика Силы",
+    "roll": null,
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "Грибное касание",
+    "name": "Грибное касание",
+    "en": "",
+    "text": "касанием (Ловк. + Драка), Стойкость сл. 7: иначе −1 к каждому Физическому и Внешности на сутки",
+    "roll": null,
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "Грибное вымя",
+    "name": "Грибное вымя",
+    "en": "",
+    "text": "как Дар Костегрызов «Готовка» без Гнозиса: успех кормит одно осквернённое существо в сутки; питьё даёт +1 Силы/Ловкости/Стойкости на сцену",
+    "roll": null,
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "gaseous-form",
+    "name": "Газообразная форма",
+    "en": "Gaseous Form",
+    "text": "1 Воля, ход на превращение, ≤ сцены",
+    "roll": null,
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "gifted-fomor",
+    "name": "Одарённый фомор",
+    "en": "Gifted Fomor",
+    "text": "может учить Дары ур. 1–2 хомидов, Ахрун или Чёрной Спирали (искажённые); вместо Ярости/Гнозиса тратит Волю; каждый Дар — отдельная сила",
+    "roll": null,
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "Ядовитое дыхание",
+    "name": "Ядовитое дыхание",
+    "en": "",
+    "text": "1 уровень урона за успех Ловк. + Драка сл. 7; раз за сцену на очко Стойкости",
+    "roll": null,
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "hazardous-heave",
+    "name": "Ядовитая рвота",
+    "en": "Hazardous Heave",
+    "text": "требует Ядовитого дыхания; 2 уровня урона в ход, пока не смыть",
+    "roll": null,
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "hell-s-hide",
+    "name": "Адская шкура",
+    "en": "Hell's Hide",
+    "text": "+3 кубика поглощения только против жара/огня/радиации",
+    "roll": null,
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "homogeneity",
+    "name": "Однородность",
+    "en": "Homogeneity",
+    "text": "1 Воля, Манипулирование + Запугивание сл. 7 на сверхъестественное существо в 5 ярдах (оспаривается Волей сл. 7): каждый успех снимает 1 кубик со следующего броска активации",
+    "roll": {
+     "trait1": "attributes.manipulation",
+     "trait2": "abilities.intimidation",
+     "difficulty": 6,
+     "byTarget": true
+    },
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "immunity-to-the-delirium",
+    "name": "Иммунитет к Бреду",
+    "en": "Immunity to the Delirium",
+    "text": "самая частая",
+    "roll": null,
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "infectious-touch",
+    "name": "Заразное касание",
+    "en": "Infectious Touch",
+    "text": "Ловк. + Рукопашная, уклонение Ловк. + Атлетика; 1 Воля; жертва бросает Стойкость + 3 сл. 8; 6 уровней губительного − успехи; 1 уровень в неделю; штраф −2 к физическим действиям неделю за уровень",
+    "roll": null,
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "invisibility",
+    "name": "Невидимость",
+    "en": "Invisibility",
+    "text": "1 Воля, Смекалка + Скрытность сл. 7 (искавшие — Восприятие + Бдительность сл. 8); до конца сцены или боя",
+    "roll": {
+     "trait1": "attributes.wits",
+     "trait2": "abilities.stealth",
+     "difficulty": 6,
+     "byTarget": true
+    },
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "lashing-tail",
+    "name": "Хлещущий хвост",
+    "en": "Lashing Tail",
+    "text": "досягаемость 6 футов, сл. 8, Сила +2",
+    "roll": null,
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "malleate",
+    "name": "Размягчение",
+    "en": "Malleate",
+    "text": "1 Воля; укус; каждый ход 1 неотражаемый губительный за успех; «Сопротивление токсину» и др. защищают",
+    "roll": null,
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "maw-of-the-wyrm",
+    "name": "Пасть Червя",
+    "en": "Maw of the Wyrm",
+    "text": "после захвата 2 хода Ловк. + Рукопашная против Ловк. + Атлетика; за 3 хода проглатывает",
+    "roll": null,
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "mega-attribute",
+    "name": "Мега-Атрибут",
+    "en": "Mega-Attribute",
+    "text": "до 3 раз, +3 к разным Физическим Атрибутам; выше 5 — Бред; не выше 10",
+    "roll": null,
+    "repeat": true,
+    "max": 3,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "mind-blast",
+    "name": "Удар по разуму",
+    "en": "Mind Blast",
+    "text": "1 Воля, Смекалка + Бдительность сл. 8 против Воли сл. 6: ход оцепенения за успех",
+    "roll": {
+     "trait1": "attributes.wits",
+     "trait2": "abilities.alertness",
+     "difficulty": 6,
+     "byTarget": true
+    },
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "Молекулярное ослабление",
+    "name": "Молекулярное ослабление",
+    "en": "",
+    "text": "попасть касанием; 1 Воля, Восприятие + Медицина (орг.) или Ремонт (неорг.) сл. 8; урон ×2",
+    "roll": {
+     "trait1": "attributes.perception",
+     "trait2": "abilities.medicine",
+     "difficulty": 6,
+     "byTarget": true
+    },
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "Проворство",
+    "name": "Проворство",
+    "en": "",
+    "text": "+2 кубика на лазание, прыжки, равновесие",
+    "roll": null,
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "noxious-breath",
+    "name": "Отравляющее дыхание",
+    "en": "Noxious Breath",
+    "text": "Стойкость + Медицина сл. 6; 20 ярдов; Воля сл. 8 или тяга к вредному + 1 неотражаемый губительный; 3 раза за сцену",
+    "roll": {
+     "trait1": "attributes.stamina",
+     "trait2": "abilities.medicine",
+     "difficulty": 6,
+     "byTarget": true
+    },
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "Ядовитая дымка",
+    "name": "Ядовитая дымка",
+    "en": "",
+    "text": "раз за сцену, Присутствие + Хитрость сл. 8; жертвы — Стойкость + Первобытный инстинкт сл. 8; обездвижен на ход за успех",
+    "roll": {
+     "trait1": "attributes.stamina",
+     "trait2": "abilities.primalUrge",
+     "difficulty": 6,
+     "byTarget": true
+    },
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "numbing",
+    "name": "Онемение",
+    "en": "Numbing",
+    "text": "1 Воля, Стойкость + Медицина сл. 6; нет штрафов от ран, +3 уровня здоровья на сцену; по окончании лишние исчезают (при Обездвижен — смерть)",
+    "roll": {
+     "trait1": "attributes.stamina",
+     "trait2": "abilities.medicine",
+     "difficulty": 6,
+     "byTarget": true
+    },
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "Феникс",
+    "name": "Феникс",
+    "en": "",
+    "text": "1 Воля, Стойкость + Оккультизм сл. 7; огонь как химический (3 уровня, поглощение сл. 9), ходов = успехи",
+    "roll": {
+     "trait1": "attributes.stamina",
+     "trait2": "abilities.occult",
+     "difficulty": 6,
+     "byTarget": true
+    },
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "Ядовитые опухоли",
+    "name": "Ядовитые опухоли",
+    "en": "",
+    "text": "при попадании по фомору: стоящие в ярде — 3 кубика летального (5 при укусе); оружием ближнего боя можно уклониться Ловкостью сл. 6",
+    "roll": null,
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "rat-head",
+    "name": "Крысиная голова",
+    "en": "Rat Head",
+    "text": "Ловк. + Атлетика сл. 6; протискивание в отверстие 5% обхвата; провал +1 к сл.",
+    "roll": null,
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "regeneration",
+    "name": "Регенерация",
+    "en": "Regeneration",
+    "text": "1 уровень ударного/летального за ход; губительный — день и 1 Воля",
+    "roll": null,
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "roar-of-the-wyrm",
+    "name": "Рёв Червя",
+    "en": "Roar of the Wyrm",
+    "text": "1 Воля, Обаяние + Запугивание; в 30 футах — Воля 1 успех (или трата Воли), иначе лисье бешенство: 2 хода за успех",
+    "roll": {
+     "trait1": "attributes.charisma",
+     "trait2": "abilities.intimidation",
+     "difficulty": 6,
+     "byTarget": true
+    },
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "sense-gaia",
+    "name": "Чуять Гею",
+    "en": "Sense Gaia",
+    "text": "1 Воля/Гнозис, Восприятие + Оккультизм (сл. 6, средний оборотень), 20 ярдов; 3+ успеха — племя",
+    "roll": {
+     "trait1": "attributes.perception",
+     "trait2": "abilities.occult",
+     "difficulty": 6,
+     "byTarget": true
+    },
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "sense-the-unnatural",
+    "name": "Чуять неестественное",
+    "en": "Sense the Unnatural",
+    "text": "Восприятие + Оккультизм сл. 6; 20 ярдов; вид — Интеллект + Загадки сл. 6; «Запах бегущей воды» нейтрализует",
+    "roll": {
+     "trait1": "attributes.perception",
+     "trait2": "abilities.occult",
+     "difficulty": 6,
+     "byTarget": true
+    },
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "shadowplay",
+    "name": "Игра теней",
+    "en": "Shadowplay",
+    "text": "Смекалка + Скрытность сл. 6; ход за успех (сцена за Волю); 30 ярдов; +1 кубик на Скрытность/Запугивание за успех",
+    "roll": {
+     "trait1": "attributes.wits",
+     "trait2": "abilities.stealth",
+     "difficulty": 6,
+     "byTarget": true
+    },
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "size-shift",
+    "name": "Смена размера",
+    "en": "Size Shift",
+    "text": "до 3 раз; 1 Воля/Ярость на сцену; каждый уровень +1 временный уровень здоровья и +1 Силы/Стойкости",
+    "roll": null,
+    "repeat": true,
+    "max": 3,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "Зрение-«прыгун»",
+    "name": "Зрение-«прыгун»",
+    "en": "",
+    "text": "вырывает глаза (Воля сл. 8), видит через них до часа; регенерация глаз месяц (с Регенерацией — день)",
+    "roll": null,
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "Сбрасывание кожи",
+    "name": "Сбрасывание кожи",
+    "en": "",
+    "text": "1 Воля, Ловк. + Атлетика сл. 6; кожа — 1 точка в Физических, 1 уровень, команда ≤5 слов; без кожи −1 уровень и Внешность 0",
+    "roll": null,
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "slobbersnot",
+    "name": "Слизь",
+    "en": "Slobbersnot",
+    "text": "1 Воля на сцену; −1 кубик к захвату; +1 кубик поглощения тупого; выслеживание −3 к сл.",
+    "roll": null,
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "spirit-ties",
+    "name": "Духовные связи",
+    "en": "Spirit Ties",
+    "text": "до 5 раз: +1 Гнозис за покупку; нельзя шагать в Умбру, но можно активировать фетиши Бейнов",
+    "roll": null,
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "Желудочный насос",
+    "name": "Желудочный насос",
+    "en": "",
+    "text": "дальность 25 футов; Ловк. + Атлетика сл. 7; 2 кубика урона; 3 раза в день; Воля — не блевать раунд",
+    "roll": null,
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "Смоляная кожа",
+    "name": "Смоляная кожа",
+    "en": "",
+    "text": "оружие липнет; атаковавший голыми руками прилипает; освободиться — оспариваемый Ловк. + Первобытный инстинкт против Ловк. + Атлетика",
+    "roll": null,
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "Токсичные выделения",
+    "name": "Токсичные выделения",
+    "en": "",
+    "text": "до 5 уровней; каждый уровень 1 кубик урона, убывает каждый ход; 3 уровня плавят одежду, 4 — верёвку, 5 — бетон",
+    "roll": null,
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "triatic-sense",
+    "name": "Триадное чутьё",
+    "en": "Triatic Sense",
+    "text": "скрывается под Дикость или Ткачиху; «Чутьё Червя» против него сл. 9 (исключения: Стеклоходы — Ткачиха, Красные Когти — Дикость); духи — сл. 6",
+    "roll": null,
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "Извращённые чувства",
+    "name": "Извращённые чувства",
+    "en": "",
+    "text": "видит через Преграду (Восприятие + Оккультизм, как «Выглядывание»); с 1 Волей определяет Гару в любой форме и тварей Червя",
+    "roll": {
+     "trait1": "attributes.perception",
+     "trait2": "abilities.occult",
+     "difficulty": 6,
+     "byTarget": true
+    },
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "umbral-passage",
+    "name": "Прохождение Умбры",
+    "en": "Umbral Passage",
+    "text": "как шаг в сторону, но Воля вместо Гнозиса (или Гнозис при Духовных связях); один",
+    "roll": null,
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "Неестественная сила",
+    "name": "Неестественная сила",
+    "en": "",
+    "text": "+4 Силы; выше 5 — нельзя скрыть; при подвиге Силы — бушует сцену",
+    "roll": null,
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "venomous-bite",
+    "name": "Ядовитый укус",
+    "en": "Venomous Bite",
+    "text": "при ≥1 уровне урона укусом — Сила +2 неотражаемый губительный; «Сопротивление токсину» защищает",
+    "roll": null,
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "Вязкая форма",
+    "name": "Вязкая форма",
+    "en": "",
+    "text": "1 Воля; сцена; иммунитет к кинетическим атакам; не атакует; по стенам с половинной скоростью",
+    "roll": null,
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "Голос Червя",
+    "name": "Голос Червя",
+    "en": "",
+    "text": "слышащие (кроме тварей Червя) — Воля сл. 8, иначе теряют половину временного Гнозиса; раз за встречу на цель; язык как оружие — 2 уровня губительного",
+    "roll": null,
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "wall-walking",
+    "name": "Хождение по стенам",
+    "en": "Wall Walking",
+    "text": "бег по вертикали без броска; в кризис — Ловк. + Атлетика",
+    "roll": null,
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "water-breathing",
+    "name": "Дыхание под водой",
+    "en": "Water Breathing",
+    "text": "раз — дышит водой; дважды — не дышит",
+    "roll": null,
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "webbing",
+    "name": "Паутина",
+    "en": "Webbing",
+    "text": "6 кубиков поглощения, 3 уровня здоровья, Сила 8; жертва — Сила; заметить Восприятие + Бдительность сл. 7; временная броня 3 уровня на две сцены, плетётся 3 хода",
+    "roll": {
+     "trait1": "attributes.perception",
+     "trait2": "abilities.alertness",
+     "difficulty": 6,
+     "byTarget": true
+    },
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "wings",
+    "name": "Крылья",
+    "en": "Wings",
+    "text": "полёт до 13 ярдов/ход (+ Ловкость за 1 Волю/Ярость); вертикально 3 ярда/ход",
+    "roll": null,
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   },
+   {
+    "key": "wrathful-invective",
+    "name": "Гневная речь",
+    "en": "Wrathful Invective",
+    "text": "Присутствие + Запугивание сл. 6; сцену −2 кубика, если атакует не фомора; одна цель",
+    "roll": null,
+    "repeat": false,
+    "max": 1,
+    "rage": false,
+    "source": "W20"
+   }
+  ],
+  "breeds": [
+   {
+    "key": "enticer",
+    "name": "Соблазнитель",
+    "en": "Enticer",
+    "willpower": 5,
+    "specials": {
+     "Затягивающее присутствие": "сцена общения с целью, 1 Воля; Манипуляция + Хитрость против Смекалки + Первобытного инстинкта цели (сл. 6 у обоих). Победа — цель зависима от присутствия и на всё идёт, чтобы быть рядом; раз в неделю цель может повторить бросок, чтобы избавиться от зависимости.",
+     "Покров сирены": "+2 к соц. Атрибутам; Привлекательность + Эмпатия против сл. = Воля цели: фомор выглядит идеальным партнёром цели (может меняться возраст и пол). Провал — просто привлекательный незнакомец."
+    },
+    "text": "Воля 5. Силы: Addictive Presence, Claws and Fangs, Siren's Veil. Соц. Атрибуты 6 (Харизма, Манипуляция, Привлекательность). Творит Magadon (Siren Pharmaceuticals).",
+    "source": "W20 Book of the Wyrm",
+    "powers": [
+     "~enticer:Затягивающее присутствие",
+     "claws-and-fangs",
+     "~enticer:Покров сирены"
+    ]
+   },
+   {
+    "key": "ferectoi",
+    "name": "Феректои, личинки Червя",
+    "en": "Ferectoi, «дети Бейнов»",
+    "willpower": 7,
+    "specials": {},
+    "text": "Воля 7. Минимум пять сил фомори; все Феректои полностью скрывают облик (лишние конечности убираются). Рождаются уже фомори от Бейна-Размножителя (Breeder Bane), крадущего генетический материал спящих; в иерархии Червя и Pentex им не мешает «стеклянный потолок».",
+    "source": "W20 Book of the Wyrm",
+    "powers": []
+   },
+   {
+    "key": "flesh-packs",
+    "name": "Стаи плоти",
+    "en": "Flesh Packs",
+    "willpower": 4,
+    "specials": {},
+    "text": "Воля 4. Силы: Claws and Fangs (только альфа), Extra Speed, Immunity to the Delirium, Regeneration. Заразны: «бета»-фомори заражаются, когда кто-то выжил после укуса альфы; создавать новых может только альфа. Общий размер стаи ограничен силой Бейна Winding Hunger — 15–25 фомори. Беты жертвуют собой, защищая альфу.",
+    "source": "W20 Book of the Wyrm",
+    "powers": [
+     "claws-and-fangs",
+     "extra-speed",
+     "immunity-to-the-delirium",
+     "regeneration"
+    ]
+   },
+   {
+    "key": "freakfeet",
+    "name": "Урод-ноги",
+    "en": "Freakfeet",
+    "willpower": 2,
+    "specials": {},
+    "text": "Воля 2. Силы: Fangs, Immunity to the Delirium, Malleate, Rat Head, Slobbersnot. Созданы Panacea (Magadon) из генов людей и амфибий и Бейна Х'руггли; общий язык с Х'руггли. В каждом гнезде одна «Королева» втрое крупнее с жалом у основания позвоночника.",
+    "source": "W20 Book of the Wyrm",
+    "powers": [
+     "claws-and-fangs",
+     "immunity-to-the-delirium",
+     "malleate",
+     "rat-head",
+     "slobbersnot"
+    ]
+   },
+   {
+    "key": "gorehounds",
+    "name": "Гончие бойни",
+    "en": "Gorehounds",
+    "willpower": 10,
+    "specials": {},
+    "text": "Воля 10. «Старая» модель: Immunity to the Delirium, Mega-Strength, Mega-Stamina, Regeneration. «Новая» (Take Two): Cause Insanity (через затяжную пытку), Immunity to the Delirium, Mega-Intelligence, Regeneration; хитрее, строят ловушки и пыточные. Производитель — Slaughterhouse Video.",
+    "source": "W20 Book of the Wyrm",
+    "powers": [
+     "immunity-to-the-delirium",
+     "mega-attribute",
+     "regeneration"
+    ]
+   },
+   {
+    "key": "hollow-men",
+    "name": "Полые люди",
+    "en": "Hollow Men",
+    "willpower": 8,
+    "specials": {
+     "Colony Powers": "",
+     "Dispersion": "",
+     "Prolonged Life": ""
+    },
+    "text": "Воля 8. Силы: Colony Powers, Dispersion, Immunity to the Delirium, Prolonged Life, Regeneration (требует призыва зверей поблизости; без них не работает). Одержимы Бейном Стаи падальщиков (Scavenger Pack Bane). Примеры сил колонии:",
+    "source": "W20 Book of the Wyrm",
+    "powers": [
+     "~hollow-men:Colony Powers",
+     "~hollow-men:Dispersion",
+     "immunity-to-the-delirium",
+     "~hollow-men:Prolonged Life",
+     "regeneration"
+    ]
+   },
+   {
+    "key": "normalites",
+    "name": "Нормалиты",
+    "en": "Normalites",
+    "willpower": 3,
+    "specials": {},
+    "text": "Воля 3. Силы: Homogeneity, Immunity to the Delirium, Sense the Unnatural, Venomous Bite. Безликие, бесполые, бегают на четвереньках, инстинктивно чуют сверхъестественное; Pentex использует их, чтобы находить и обезвреживать Гару/Родню. Атрибуты: Сила 3, Ловкость 4, Выносливость 3, Восприятие 3, Интеллект 2, Смекалка 3; Запугивание 4.",
+    "source": "W20 Book of the Wyrm",
+    "powers": [
+     "homogeneity",
+     "immunity-to-the-delirium",
+     "sense-the-unnatural",
+     "venomous-bite"
+    ]
+   },
+   {
+    "key": "shadowfiends",
+    "name": "Тенеходцы",
+    "en": "Shadowfiends",
+    "willpower": 6,
+    "specials": {
+     "Тихая аура": "Смекалка + Скрытность (сл. 6): абсолютная тишина в радиусе 15 футов на ход за успех."
+    },
+    "text": "Воля 6. Силы: Chameleon Coloration (Shadowwalking), Darksight, Immunity to the Delirium, Shadowplay, Silent Aura.",
+    "source": "W20 Book of the Wyrm",
+    "powers": [
+     "chameleon-coloration",
+     "darksight",
+     "immunity-to-the-delirium",
+     "shadowplay",
+     "~shadowfiends:Тихая аура"
+    ]
+   },
+   {
+    "key": "sons-of-typhon",
+    "name": "Сыны Тифона",
+    "en": "Sons of Typhon",
+    "willpower": 5,
+    "specials": {
+     "Маскировка": "выглядят в точности как до одержимости; маску можно сбросить.",
+     "Язык Тифона": "как хомидский Дар Persuasion."
+    },
+    "text": "Воля 5. Силы: Armored Skin, Disguise, Immunity to the Delirium, Tongue of Typhon.",
+    "source": "W20 Book of the Wyrm",
+    "powers": [
+     "armored-skin",
+     "~sons-of-typhon:Маскировка",
+     "immunity-to-the-delirium",
+     "~sons-of-typhon:Язык Тифона"
+    ]
+   },
+   {
+    "key": "toads",
+    "name": "Жабы",
+    "en": "Toads",
+    "willpower": 5,
+    "specials": {
+     "Колючий язык": "гибрид Lashing Tail и Frog Tongue: хватает цели и бьёт острым кончиком по выбору; язык до 15 футов. Старые и злые Жабы могут иметь Venomous Bite, наносимый языком."
+    },
+    "text": "Воля 5. Силы: Barbed Tongue, Immunity to the Delirium.",
+    "source": "W20 Book of the Wyrm",
+    "powers": [
+     "~toads:Колючий язык",
+     "immunity-to-the-delirium"
+    ]
+   }
+  ]
+ }
 }

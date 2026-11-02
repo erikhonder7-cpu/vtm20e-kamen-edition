@@ -73,7 +73,9 @@ function meetsRank(w, need) {
 export function ownGift(w, g) {
   if (!w) return false;
   if (w.fera) return g.groups.some(x => x.kind === "fera" && x.key === w.fera);
-  return g.groups.some(x => (x.kind === "breed" && x.key === w.breed) || (x.kind === "auspice" && x.key === w.auspice) || (x.kind === "tribe" && x.key === w.tribe));
+  // у Танцоров Чёрной Спирали племенные Дары — список изгоев blackSpiralDancers
+  return g.groups.some(x => (x.kind === "breed" && x.key === w.breed) || (x.kind === "auspice" && x.key === w.auspice)
+    || ((x.kind === "tribe" || x.kind === "outsider") && x.key === w.tribe));
 }
 
 /** Дары персонажа и доступные к добавлению (свои списки, уровень ≤ Ранга). */
@@ -591,7 +593,7 @@ export async function delirium(actor) {
   const targets = [...game.user.targets].map(tk => tk.actor).filter(a => a && ["mortal", "hunter", "ghoul"].includes(a.type));
   const row = (name, wp, kin = false) => { if (kin) return `<tr><td>${esc(name)}</td><td>—</td><td><b>${t("DeliriumKin")}</b></td></tr>`; const d = deliriumOf(wp);
     return `<tr><td>${esc(name)}</td><td>${d.n}</td><td><b>${t(`DeliriumR.${d.key}`)}</b><br><small>${t(d.forgets ? "DeliriumForgets" : d.n <= 8 ? "DeliriumExplains" : "DeliriumRemembers")}</small></td></tr>`; };
-  const rows = targets.length ? targets.map(a => row(a.name, a.system.willpower?.permanent ?? 3, !!a.system.kinfolk?.on || kamiDeliriumImmune(a))).join("")
+  const rows = targets.length ? targets.map(a => row(a.name, a.system.willpower?.permanent ?? 3, !!a.system.kinfolk?.on || kamiDeliriumImmune(a) || (!!a.system.fomor?.on && a.system.fomor.powers.some(p => p.key === "immunity-to-the-delirium")))).join("")
     : Array.from({ length: 10 }, (_, k) => row("", k + 1)).join("");
   return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), whisper: targets.length ? [] : ChatMessage.getWhisperRecipients("GM"),
     content: `<div class="r-notice r-type-werewolf r-delirium"><h4><i class="fa-solid fa-eye-low-vision"></i> ${t("DeliriumTitle")}</h4>
@@ -717,4 +719,69 @@ export async function addRite(actor, key) {
 }
 export async function removeRite(actor, key) {
   return actor.update({ "system.werewolf.rites": (actor.system.werewolf.rites ?? []).filter(k => k !== key) });
+}
+
+/* ── Первобытный инстинкт (W20 Changing Ways, гл. 1): частичное превращение и звериные приёмы ── */
+
+/** Окно приёмов: описание каждого и бросок по пулу из книги (у частичного превращения сложность — на усмотрение Рассказчика). */
+export async function primalUses(actor) {
+  const list = W().primalUses ?? [];
+  const key = await foundry.applications.api.DialogV2.wait({
+    window: { title: t("Primal.title"), icon: "fa-solid fa-paw" }, classes: ["vtm20", "r-dialog", "r-type-werewolf"],
+    content: `<div class="r-primal">${list.map(u => `<details><summary><b>${esc(u.name)}</b>${u.roll ? ` <small>${esc(poolLabel(actor, u.roll))}${u.roll.byTarget ? "" : ` · ${t("Primal.diff", { n: u.roll.difficulty })}`}</small>` : ""}</summary>${u.text}</details>`).join("")}</div>`,
+    buttons: list.filter(u => u.roll).map(u => ({ action: u.key, label: u.name })), rejectClose: false });
+  const u = list.find(x => x.key === key);
+  if (u?.roll) return RollDialog.prompt(actor, { title: u.name, trait1: u.roll.trait1, trait2: u.roll.trait2, difficulty: u.roll.difficulty });
+}
+
+/* ── Фоморы (W20, гл. 13; Book of the Wyrm, гл. 2): люди и звери, одержимые Бейнами ── */
+
+const FOMORI = () => W().fomori ?? { powers: [], breeds: [] };
+export const fomorBreedOf = key => FOMORI().breeds.find(b => b.key === key) ?? null;
+/** Сила фомори: из общей таблицы или особая сила породы («~порода:Название»). */
+export const fomorPowerOf = key => {
+  if (key?.startsWith("~")) {
+    const [b, name] = key.slice(1).split(/:(.*)/s), br = fomorBreedOf(b);
+    return { key, name, en: "", text: br?.specials?.[name] || t("Fomor.specialOf", { name: br?.name ?? b }), roll: null, repeat: false, max: 1 };
+  }
+  return FOMORI().powers.find(p => p.key === key) ?? null;
+};
+export function fomorInfo(actor) {
+  const f = actor.system.fomor;
+  if (!f) return null;
+  const br = fomorBreedOf(f.breed);
+  const powers = f.powers.map(p => ({ ...p, data: fomorPowerOf(p.key) })).filter(p => p.data).map(p => ({ key: p.key, n: p.n, name: p.data.name, en: p.data.en,
+    text: p.data.text, more: p.data.repeat && p.n < p.data.max, roll: !!p.data.roll }));
+  return { on: f.on, rage: f.rage, breed: br, powers,
+    breeds: [{ key: "", label: "—", selected: !f.breed }, ...FOMORI().breeds.map(b => ({ key: b.key, label: `${VTM20.label(b)} — ${t("Fomor.wp", { n: b.willpower })}`, selected: b.key === f.breed }))],
+    avail: FOMORI().powers.filter(p => !f.powers.some(x => x.key === p.key)).map(p => ({ key: p.key, label: VTM20.label(p) })) };
+}
+/** Порода фомори: её силы (особые — с текстом породы) и Воля; прежние силы остаются. */
+export async function fomorBreed(actor, key) {
+  const br = fomorBreedOf(key), f = actor.system.fomor;
+  const list = f.powers.map(x => ({ ...x }));
+  for (const k of br?.powers ?? []) if (!list.some(x => x.key === k)) list.push({ key: k, n: 1 });
+  return actor.update({ "system.fomor.breed": key, "system.fomor.powers": list,
+    ...(br ? { "system.willpower.permanent": br.willpower, "system.willpower.temporary": br.willpower } : {}),
+    ...(list.some(x => fomorPowerOf(x.key)?.rage) && f.rage < 5 ? { "system.fomor.rage": 5 } : {}) });
+}
+export function fomorAdd(actor, key) {
+  const p = fomorPowerOf(key), f = actor.system.fomor;
+  if (!p) return;
+  const list = f.powers.map(x => ({ ...x })), have = list.find(x => x.key === key);
+  if (have && (!p.repeat || have.n >= p.max)) return;
+  if (have) have.n += 1; else list.push({ key, n: 1 });
+  // «Берсерк»: 5 Ярости, тратятся как у Гару
+  return actor.update({ "system.fomor.powers": list, ...(p.rage && f.rage < 5 ? { "system.fomor.rage": 5 } : {}) });
+}
+export function fomorRemove(actor, key) {
+  const list = actor.system.fomor.powers.map(x => ({ ...x })), have = list.find(x => x.key === key);
+  if (!have) return;
+  return actor.update({ "system.fomor.powers": have.n > 1 ? list.map(x => x.key === key ? { ...x, n: x.n - 1 } : x) : list.filter(x => x.key !== key) });
+}
+export function fomorUse(actor, key) {
+  const p = fomorPowerOf(key);
+  if (!p) return;
+  if (p.roll) return RollDialog.prompt(actor, { title: p.name, trait1: p.roll.trait1, trait2: p.roll.trait2, difficulty: p.roll.difficulty ?? 6 });
+  return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<div class="r-notice r-type-werewolf"><b>${esc(p.name)}</b><p>${p.text}</p></div>` });
 }

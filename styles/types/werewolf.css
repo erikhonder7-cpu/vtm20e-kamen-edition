@@ -439,3 +439,10 @@ body.r-theme-light .vtm20.r-type-werewolf .r-form-badge.is-down { color: #7a2a18
 /* Ками: Гейс во всю ширину под строкой облика */
 .vtm20 .r-kami-geas { display: flex; flex-direction: column; gap: 2px; margin: 8px 0 4px; }
 .vtm20 .r-kami-geas > span { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; opacity: .7; }
+
+/* Окно Первобытного инстинкта: приёмы раскрываются по щелчку */
+.vtm20.r-dialog .r-primal details { margin: 4px 0; }
+.vtm20.r-dialog .r-primal summary { cursor: pointer; }
+.vtm20.r-dialog .r-primal summary small { opacity: .75; margin-left: 6px; }
+/* Фомор: порода — список и кнопка «взять» рядом, Ярость справа */
+.vtm20 .r-fomor .r-kin-row { grid-template-columns: 1fr auto 80px; align-items: end; }

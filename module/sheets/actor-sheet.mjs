@@ -37,7 +37,7 @@ import { openThrallGifts } from "../apps/thrall-gifts.mjs";
 import { loseHost, holdOn, newHost, summonedBack } from "../apps/host.mjs";
 import { openCult } from "../apps/cult.mjs";
 import { openExorcist } from "../apps/exorcist.mjs";
-import { werewolfInfo, giftsView, editStanding, changeForm, rollGift, rollRite, frenzyCheck, stepSideways, scarView, addScar, removeScar, deformityView, addDeformity, removeDeformity, renownAward, kinfolkInfo, kinAddGift, kinRemoveGift, kinUseGift, kinAddNumen, kinRemoveNumen, kinNumenDots, kinUseNumen, kamiInfo, kamiAdd, kamiRemove, kamiUse, fetchInfo, bindFetch, burnFetch, spiritTplGroups, applySpiritTpl, spiritInfo, addCharm, removeCharm, spiritEssenceReset, fetishView, addFetish, removeFetish, attuneFetish, useFetish, delirium, W as werewolfDataSheet, regenerate, rageActions, spend as wwSpend, addGift, removeGift, addRite, removeRite } from "../apps/werewolf.mjs";
+import { werewolfInfo, giftsView, editStanding, changeForm, rollGift, rollRite, frenzyCheck, stepSideways, scarView, addScar, removeScar, deformityView, addDeformity, removeDeformity, renownAward, kinfolkInfo, kinAddGift, kinRemoveGift, kinUseGift, kinAddNumen, kinRemoveNumen, kinNumenDots, kinUseNumen, kamiInfo, kamiAdd, kamiRemove, kamiUse, fetchInfo, bindFetch, burnFetch, primalUses, fomorInfo, fomorBreed, fomorAdd, fomorRemove, fomorUse, spiritTplGroups, applySpiritTpl, spiritInfo, addCharm, removeCharm, spiritEssenceReset, fetishView, addFetish, removeFetish, attuneFetish, useFetish, delirium, W as werewolfDataSheet, regenerate, rageActions, spend as wwSpend, addGift, removeGift, addRite, removeRite } from "../apps/werewolf.mjs";
 import { hunterInfo, edgesView, useEdge, secondSight, virtueTest, tradeConviction, restoreConviction, awardDeed, shiftDeed, cashDeed, sacrifice, advanceVirtue, callEdge, swapCalled, unblockCall, callView, isLost, lostVirtue, lostTrade, lostHardened, lostOrdeal } from "../apps/hunter.mjs";
 import { addBloodright, removeBloodright, rollBloodright, toggleRitual as toggleDririRitual, rollRitual as rollDririRitual } from "../apps/dhampir.mjs";
 import { openEbServant, empower as empowerServant } from "../apps/eb-servant.mjs";
@@ -179,7 +179,8 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       kinAdd: VtMActorSheet.#onKinAdd, kinBuy: VtMActorSheet.#onKinBuy, kinDel: VtMActorSheet.#onKinDel, kinUse: VtMActorSheet.#onKinUse,
       kinNumAdd: VtMActorSheet.#onKinNumAdd, kinNumDel: VtMActorSheet.#onKinNumDel, kinNumDots: VtMActorSheet.#onKinNumDots, kinNumUse: VtMActorSheet.#onKinNumUse,
       kamiAdd: VtMActorSheet.#onKamiAdd, kamiBuy: VtMActorSheet.#onKamiBuy, kamiMore: VtMActorSheet.#onKamiMore, kamiDel: VtMActorSheet.#onKamiDel, kamiUse: VtMActorSheet.#onKamiUse,
-      kinFetchBind: VtMActorSheet.#onKinFetchBind, kinFetchBurn: VtMActorSheet.#onKinFetchBurn, spTpl: VtMActorSheet.#onSpTpl,
+      kinFetchBind: VtMActorSheet.#onKinFetchBind, kinFetchBurn: VtMActorSheet.#onKinFetchBurn, spTpl: VtMActorSheet.#onSpTpl, wwPrimal: VtMActorSheet.#onWwPrimal,
+      fomorAdd: VtMActorSheet.#onFomorAdd, fomorMore: VtMActorSheet.#onFomorMore, fomorDel: VtMActorSheet.#onFomorDel, fomorUse: VtMActorSheet.#onFomorUse, fomorBreed: VtMActorSheet.#onFomorBreed,
       spCharmAdd: VtMActorSheet.#onSpCharmAdd, spCharmDel: VtMActorSheet.#onSpCharmDel, spEssence: VtMActorSheet.#onSpEssence, spStep: VtMActorSheet.#onSpStep,
       wwFetishAdd: VtMActorSheet.#onWwFetishAdd, wwFetishAttune: VtMActorSheet.#onWwFetishAttune, wwFetishUse: VtMActorSheet.#onWwFetishUse, wwFetishDel: VtMActorSheet.#onWwFetishDel, openStrategy: () => openStrategy(),
       drinkVitae: VtMActorSheet.#onDrinkVitae, setVitae: VtMActorSheet.#onSetVitae, bloodrightAdd: VtMActorSheet.#onBloodrightAdd, bloodrightRemove: VtMActorSheet.#onBloodrightRemove,
@@ -309,7 +310,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
         label: `${VTM20.label(f)} (${f.kind === "talen" ? "" : `ур. ${f.level}, `}${game.i18n.localize("VTM20.Werewolf.Gnosis")} ${f.gnosis})` })); }
     else if (actor.type !== "mortal") prepareDisciplines(this, ctx);
     prepareAdvantages(this, ctx);
-    if (actor.type === "mortal") { ctx.kinInfo = kinfolkInfo(actor); ctx.kamiInfo = kamiInfo(actor); if (actor.system.kinfolk?.on) ctx.kinInfo.fetch = fetchInfo(actor); }
+    if (actor.type === "mortal") { ctx.kinInfo = kinfolkInfo(actor); ctx.kamiInfo = kamiInfo(actor); ctx.fomorInfo = fomorInfo(actor); if (actor.system.kinfolk?.on) ctx.kinInfo.fetch = fetchInfo(actor); }
     if (actor.type === "creature" && actor.system.spirit?.on) { ctx.spiritInfo = spiritInfo(actor, dots); ctx.spiritInfo.tpls = spiritTplGroups(); }
     prepareGear(this, ctx);
     prepareEffects(this, ctx);
@@ -792,6 +793,12 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static #onKamiUse(event, target) { return kamiUse(this.actor, target.dataset.key); }
   static #onKinFetchBind() { const k = this.element.querySelector(".r-kin-fetch-tpl")?.value; if (k) return bindFetch(this.actor, k); }
   static #onKinFetchBurn() { return burnFetch(this.actor); }
+  static #onWwPrimal() { return primalUses(this.actor); }
+  static #onFomorAdd() { const k = this.element.querySelector(".r-fomor-add")?.value; if (k) return fomorAdd(this.actor, k); }
+  static #onFomorMore(event, target) { return fomorAdd(this.actor, target.dataset.key); }
+  static #onFomorDel(event, target) { return fomorRemove(this.actor, target.dataset.key); }
+  static #onFomorUse(event, target) { return fomorUse(this.actor, target.dataset.key); }
+  static #onFomorBreed() { const k = this.element.querySelector(".r-fomor-breed")?.value; return fomorBreed(this.actor, k ?? ""); }
   static #onSpTpl() { const k = this.element.querySelector(".r-sp-tpl")?.value; if (k) return applySpiritTpl(this.actor, k); }
   static #onSpCharmAdd() { return addCharm(this.actor, this.element.querySelector(".r-sp-charm-add")?.value); }
   static #onSpCharmDel(event, target) { return removeCharm(this.actor, target.dataset.key); }

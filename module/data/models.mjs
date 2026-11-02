@@ -270,6 +270,10 @@ export class MortalData extends BaseActorData {
       // силы (ключи data/werewolf.json → kami.powers; n — сколько раз куплена повторяемая)
       kami: new SchemaField({ on: new BooleanField({ initial: false }), kind: str("human"), geas: str(""), gnosis: int(1, 0, 10), rage: int(0, 0, 10),
         powers: new ArrayField(new SchemaField({ key: str(), n: int(1, 1, 10) })) }),
+      // фомор (W20, гл. 13; Book of the Wyrm): одержимый Бейном — порода фомори, силы (ключи data/werewolf.json → fomori.powers
+      // или «~порода:Название» — особая сила породы), Ярость — с «Берсерком»
+      fomor: new SchemaField({ on: new BooleanField({ initial: false }), breed: str(""), rage: int(0, 0, 10),
+        powers: new ArrayField(new SchemaField({ key: str(), n: int(1, 1, 10) })) }),
       trueFaith: int(0, 0, 10),
       // охотник на падших (apps/exorcist.mjs): цель-демон, Истинное Имя, благословлённый предмет, помощники; обряд — душа
       // найдена/нет и попытки, победы и часы; на ком обряд сорван навсегда; когда читалась молитва св. Михаилу (часы хроники);

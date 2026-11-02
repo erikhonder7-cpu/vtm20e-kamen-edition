@@ -1061,20 +1061,25 @@ try {
       out.kin = `${k.system.kinfolk.gifts.length}:${k.system.experience.spent}:${ki.avail.length > 5}`;
       // нумины Родни: Прорицание до 3 точек, на листе — 3 открытых уровня; бросок — Восприятие + Оккультизм
       await WW.kinAddNumen(k, "divination"); await WW.kinNumenDots(k, "divination", 3);
-      await k.sheet.render(true); await wait(900); out.kinBlock = !!k.sheet.element.querySelector(".r-kin");
+      await k.sheet.render({ force: true }); await wait(300); out.kinBlock = !!k.sheet.element.querySelector(".r-kin");
       out.numen = `${k.system.kinfolk.numina[0]?.dots}:${k.sheet.element.querySelectorAll(".r-kin-numina li li:not(.is-locked)").length}:${WW.numenOf("divination")?.roll?.trait2}`;
       await k.sheet.close();
       // Ками: «Берсерк» даёт 5 Ярости, «Размер» покупается повторно, сила за опыт — (число сил × 3); животное-Ками не видит Бреда
       await k.update({ "system.kami": { on: true, kind: "animal" }, "system.experience.total": 40 });
       await WW.kamiAdd(k, "berserker"); await WW.kamiAdd(k, "Размер"); await WW.kamiAdd(k, "Размер");
       const xp0 = k.system.experience.spent; await WW.kamiAdd(k, "Мягкие лапы", true);
-      await k.sheet.render(true); await wait(900);
+      await k.sheet.render({ force: true }); await wait(300);
+      out.kami = `${k.system.kami.rage}:${k.system.kami.powers.find(p => p.key === "Размер")?.n}:${k.system.experience.spent - xp0}:${WW.kamiDeliriumImmune(k)}:${k.sheet.element.querySelectorAll(".r-kami-powers .r-edge").length}`;
+      await k.sheet.close();
+      // фомор: порода Нормалитов — Воля 3 и 4 силы (с Иммунитетом к Бреду), блок на листе
+      await k.update({ "system.fomor.on": true }); await WW.fomorBreed(k, "normalites");
+      await k.sheet.render({ force: true }); await wait(300);
+      out.fomor = `${k.system.willpower.permanent}:${k.system.fomor.powers.length}:${k.sheet.element.querySelectorAll(".r-fomor-powers .r-edge").length}`;
+      await k.sheet.close();
       // кин-фетч: Огненное крещение создаёт существо-духа по образцу (особая Чара «Клеймо фетча» с текстом), Перемена сжигает клеймо
       await WW.bindFetch(k, "fetch-Кин-фетч"); const fa = await fromUuid(k.system.kinfolk.fetch);
       out.fetch = `${!!fa?.system.spirit.on}:${fa?.system.spirit.willpower}:${!!WW.charmOf(fa?.system.spirit.charms.find(c => c.startsWith("~")))?.text}`;
       await WW.burnFetch(k); out.fetch += `:${k.system.kinfolk.fetch === ""}`; await fa?.delete();
-      out.kami = `${k.system.kami.rage}:${k.system.kami.powers.find(p => p.key === "Размер")?.n}:${k.system.experience.spent - xp0}:${WW.kamiDeliriumImmune(k)}:${k.sheet.element.querySelectorAll(".r-kami-powers .r-edge").length}`;
-      await k.sheet.close();
       // стая: котерия с Гару и тотемом — тотем на карточке
       const cots = foundry.utils.deepClone(game.settings.get(SYS, "coteries") ?? []);
       try {
@@ -1090,6 +1095,7 @@ try {
     if (r.delirium !== "controlled:false") throw new Error(`Бред: ${r.delirium}`);
     if (r.essence !== 15 || r.spiritRoll !== 6 || !r.card) throw new Error(`дух: Эссенция ${r.essence}, Гнозис ${r.spiritRoll}, карточка ${r.card}`);
     if (r.kin !== "1:15:true" || !r.kinBlock) throw new Error(`Родня: ${r.kin}, блок ${r.kinBlock}`);
+    if (r.fomor !== "3:4:4") throw new Error(`фомор (Воля:сил:на листе): ${r.fomor}`);
     if (r.fetch !== "true:5:true:true") throw new Error(`кин-фетч (дух:Воля:особая Чара:клеймо сгорело): ${r.fetch}`);
     if (r.spTpl !== "8:true") throw new Error(`образец духа (Ярость Халасша:Чары по образцу): ${r.spTpl}`);
     if (r.kami !== "5:2:9:true:3") throw new Error(`Ками (Ярость:Размер:опыт за силу:без Бреда:на листе): ${r.kami}`);
@@ -1156,11 +1162,16 @@ try {
       await a.sheet.render(true); await wait(900); out.deformBlock = a.sheet.element.querySelectorAll(".r-ww-deforms .r-edge").length; await a.sheet.close();
       out.denyGift = !!WW.W().gifts.find(g => g.key === "deny-the-birthright")?.groups.some(x => x.key === "metis");
       await a.update({ "system.werewolf.breed": "homid", "system.werewolf.form": "homid", "system.werewolf.deformities": [] });
+      // Танцоры Чёрной Спирали — племя: Дары изгоев blackSpiralDancers свои, 5 начальных; приёмы Первобытного инстинкта с бросками
+      const tribe0 = a.system.werewolf.tribe; await a.update({ "system.werewolf.tribe": "blackSpiralDancers" });
+      out.bsd = `${WW.ownGift(a.system.werewolf, WW.W().gifts.find(g => g.key === "bsd-bane-protector"))}:${WW.W().tribes.find(x => x.key === "blackSpiralDancers")?.startGifts.length}:${WW.W().primalUses.filter(u => u.roll).length}`;
+      await a.update({ "system.werewolf.tribe": tribe0 });
       return out;
     }, id);
     if (r.giftEntries < 300 || r.riteEntries < 50 || r.gifts !== 2 || r.rites !== 1) throw new Error(`библиотека: Даров ${r.giftEntries}, ритуалов ${r.riteEntries}, взято ${r.gifts}/${r.rites}`);
     if (r.wwTraits < 119 || r.wwBackgrounds !== 12) throw new Error(`черты Гару: ${r.wwTraits}, Факты: ${r.wwBackgrounds}`);
     if (r.fera !== "f0:Кринос:3:true" || r.feraBack !== "homid") throw new Error(`Фера: ${r.fera}, назад в Гару — ${r.feraBack}`);
+    if (r.bsd !== "true:5:5") throw new Error(`Танцоры (свой Дар:начальных:приёмов Инстинкта): ${r.bsd}`);
     if (r.deform !== "6:bashing:1" || r.deformBlock !== 2 || !r.denyGift) throw new Error(`уродства метиса (поглощение:укус:Внешность): ${r.deform}, на листе ${r.deformBlock}, Дар «Отринуть наследие» ${r.denyGift}`);
     if (r.xp !== "5,6,6,10") throw new Error(`цены опыта Гару (Ярость, Гнозис, Дар свой/чужой): ${r.xp}`);
     if (r.soak !== "5/5/5 0" || r.soakHomid !== "2/0") throw new Error(`прочность Гару: Кринос ${r.soak}, Хомид ${r.soakHomid}`);
