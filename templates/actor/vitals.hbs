@@ -134,6 +134,7 @@
       <a class="r-vc-btn" data-action="wwStep" data-tooltip="{{localize 'VTM20.Werewolf.StepHint'}}"><i class="fa-solid fa-moon-over-sun"></i> {{localize "VTM20.Werewolf.StepSideways"}}</a>
       <a class="r-vc-btn" data-action="wwActions" data-tooltip="{{localize 'VTM20.Werewolf.ActionsHint'}}"><i class="fa-solid fa-bolt"></i> {{localize "VTM20.Werewolf.Actions"}}</a>
       <a class="r-vc-btn" data-action="wwRegen" data-tooltip="{{localize 'VTM20.Werewolf.RegenHint'}}"><i class="fa-solid fa-heart-pulse"></i> {{localize "VTM20.Werewolf.Regen"}}</a>
+      {{#if werewolfInfo.packTotem.totem}}<span class="r-vc-hint" data-tooltip="{{werewolfInfo.packTotem.pack}}: {{werewolfInfo.packTotem.totem.individual}}"><i class="fa-solid fa-feather-pointed"></i> {{werewolfInfo.packTotem.totem.name}}</span>{{/if}}
       <a class="r-vc-btn" data-action="wwDelirium" data-tooltip="{{localize 'VTM20.Werewolf.DeliriumBtnHint'}}"><i class="fa-solid fa-eye-low-vision"></i> {{localize "VTM20.Werewolf.DeliriumBtn"}}</a>
       {{#if werewolfInfo.beast}}<span class="r-vc-hint is-right is-warn" data-tooltip="{{localize 'VTM20.Werewolf.BeastHint' n=werewolfInfo.beast}}"><i class="fa-solid fa-paw-claws"></i> −{{werewolfInfo.beast}}</span>{{/if}}
     </div>

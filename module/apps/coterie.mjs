@@ -10,6 +10,7 @@
 // Чем пользуются правила: охота берёт Стадо и Домен котерии, если они больше своих; доход от Богатства
 // котерии делится между участниками (apps/income.mjs).
 
+import { Codex } from "../data/codex.mjs";
 import { SYSTEM_ID, SYSTEM_PATH } from "../config.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -17,7 +18,9 @@ const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`
 const uid = () => foundry.utils.randomID(8);
 
 /** Какие факты биографии можно складывать (имена — как в data/backgrounds.json). */
-export const POOLABLE = ["Домен", "Стадо", "Богатство", "Влияние", "Союзники", "Информаторы", "Подручные", "Общее убежище"];
+export const POOLABLE = ["Домен", "Стадо", "Богатство", "Влияние", "Союзники", "Информаторы", "Подручные", "Общее убежище",
+  // стая Гару (W20, гл. 3): объединяемые Факты и Тотем
+  "Связи", "Судьба", "Родня", "Ресурсы", "Тотем"];
 const MAX = 10;
 
 export function registerCoterie() {
@@ -32,6 +35,22 @@ export function registerCoterie() {
 
 const read = () => foundry.utils.deepClone(game.settings.get(SYSTEM_ID, "coteries") ?? []);
 const save = list => game.settings.set(SYSTEM_ID, "coteries", list);
+
+/**
+ * Тотем стаи (W20, гл. 12): у котерии с Гару — выбор тотема, его цена против общего Факта «Тотем»,
+ * бонусы каждому и стае, запрет. Данные — data/werewolf.json → totems.
+ */
+function packTotem(c, members) {
+  if (!members.some(a => a.type === "werewolf")) return { pack: false };
+  const all = Codex.werewolf?.totems ?? [], tot = all.find(x => x.key === c.totem) ?? null, pool = c.pools?.["Тотем"] ? poolValue(c, "Тотем") : 0;
+  return { pack: true, totem: tot, totemPool: pool, totemShort: tot ? Math.max(0, tot.cost - pool) : 0,
+    totems: all.map(x => ({ key: x.key, label: `${x.name} (${x.cat}, ${x.cost})`, selected: x.key === c.totem })) };
+}
+/** Тотем стаи персонажа — для карточки Гару. */
+export function totemOf(actor) {
+  const c = coteriesOf(actor).find(x => x.totem);
+  return c ? { pack: c.name, totem: (Codex.werewolf?.totems ?? []).find(x => x.key === c.totem) ?? null } : null;
+}
 
 /** Сколько вложено в общий факт. */
 const vested = (c, bg) => Object.values(c.pools?.[bg] ?? {}).reduce((s, n) => s + (n || 0), 0);
@@ -81,7 +100,7 @@ class CoterieWindow extends HandlebarsApplicationMixin(ApplicationV2) {
       pick: CoterieWindow.#onPick, create: CoterieWindow.#onCreate, rename: CoterieWindow.#onRename, remove: CoterieWindow.#onRemove,
       addMember: CoterieWindow.#onAddMember, dropMember: CoterieWindow.#onDropMember, addPool: CoterieWindow.#onAddPool,
       dropPool: CoterieWindow.#onDropPool, primary: CoterieWindow.#onPrimary, give: CoterieWindow.#onGive, take: CoterieWindow.#onTake,
-      lose: CoterieWindow.#onLose, restore: CoterieWindow.#onRestore, sheet: CoterieWindow.#onSheet
+      lose: CoterieWindow.#onLose, restore: CoterieWindow.#onRestore, sheet: CoterieWindow.#onSheet, totem: CoterieWindow.#onTotem
     }
   };
 
@@ -115,9 +134,9 @@ class CoterieWindow extends HandlebarsApplicationMixin(ApplicationV2) {
           };
         }),
         canAdd: POOLABLE.filter(bg => !(bg in (c.pools ?? {}))),
-        candidates: game.actors.filter(a => ["vampire", "ghoul", "mortal", "demon", "hunter"].includes(a.type) && !(c.members ?? []).includes(a.id))
+        candidates: game.actors.filter(a => ["vampire", "ghoul", "mortal", "demon", "hunter", "werewolf"].includes(a.type) && !(c.members ?? []).includes(a.id))
           .sort((x, y) => (y.hasPlayerOwner - x.hasPlayerOwner) || x.name.localeCompare(y.name, "ru")).map(a => ({ id: a.id, name: a.name })),
-        primaryValue
+        primaryValue, ...packTotem(c, members)
       };
     }
     return {
@@ -128,6 +147,11 @@ class CoterieWindow extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   /** Изменить текущую котерию и сохранить. */
+  static async #onTotem(event, target) {
+    const key = target.closest(".r-cot-totem")?.querySelector("select")?.value ?? "";
+    return this.#edit(c => { c.totem = key; });
+  }
+
   async #edit(fn) {
     if (!game.user.isGM) return ui.notifications.warn(t("Coterie.GMOnly"));
     const all = read(), c = all.find(x => x.id === this.current);

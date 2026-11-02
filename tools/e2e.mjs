@@ -1030,7 +1030,7 @@ try {
   });
 
   // Оборотни, часть 2: мастер создания Гару (W20, гл. 3), фетиши и талены, Бред по Силе воли, дух Умбры (существо с Чарами)
-  await check("Оборотень: мастер создания, фетиши, Бред, дух Умбры, Родня", async () => {
+  await check("Оборотень: мастер создания, фетиши, Бред, дух Умбры, Родня, тотем стаи", async () => {
     const id = await temp("E2E — новый Гару", "werewolf"), sp = await temp("E2E — дух", "creature");
     const r = await page.evaluate(async ([id, sp]) => {
       const SYS = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {};
@@ -1058,6 +1058,14 @@ try {
       await WW.kinAddGift(k, own.key, true);
       out.kin = `${k.system.kinfolk.gifts.length}:${k.system.experience.spent}:${ki.avail.length > 5}`;
       await k.sheet.render(true); await wait(900); out.kinBlock = !!k.sheet.element.querySelector(".r-kin"); await k.sheet.close();
+      // стая: котерия с Гару и тотемом — тотем на карточке
+      const cots = foundry.utils.deepClone(game.settings.get(SYS, "coteries") ?? []);
+      try {
+        await game.settings.set(SYS, "coteries", [...cots, { id: "e2e-pack", name: "E2E — стая", members: [id], pools: {}, lost: {}, totem: "falcon" }]);
+        const Co = await import(`/systems/${SYS}/module/apps/coterie.mjs`);
+        out.totem = Co.totemOf(a)?.totem?.name ?? "";
+        await a.sheet.render(true); await wait(900); out.totemHint = /Сокол/.test(a.sheet.element.querySelector(".r-vc-garou")?.textContent ?? ""); await a.sheet.close();
+      } finally { await game.settings.set(SYS, "coteries", cots); }
       return out;
     }, [id, sp]);
     if (!r.created || r.rage !== 2 || r.gnosis !== 5 || r.wisdom !== 3 || r.gifts !== 3 || r.form !== "lupus") throw new Error(`мастер создания: ${JSON.stringify(r)}`);
@@ -1065,6 +1073,7 @@ try {
     if (r.delirium !== "controlled:false") throw new Error(`Бред: ${r.delirium}`);
     if (r.essence !== 15 || r.spiritRoll !== 6 || !r.card) throw new Error(`дух: Эссенция ${r.essence}, Гнозис ${r.spiritRoll}, карточка ${r.card}`);
     if (r.kin !== "1:15:true" || !r.kinBlock) throw new Error(`Родня: ${r.kin}, блок ${r.kinBlock}`);
+    if (r.totem !== "Сокол" || !r.totemHint) throw new Error(`тотем стаи: ${r.totem}, на карточке ${r.totemHint}`);
   });
 
   await check("Оборотень: формы, Ярость, Дары, лист", async () => {

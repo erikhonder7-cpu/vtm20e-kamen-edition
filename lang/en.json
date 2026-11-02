@@ -3867,7 +3867,14 @@
       "Breed": "Breed",
       "Auspice": "Auspice",
       "Tribe": "Tribe",
-      "Totem": "Totem",
+      "Totem": {
+        "title": "Pack totem",
+        "choose": "Accept totem",
+        "cost": "cost {n}",
+        "pool": "pooled Totem {n}",
+        "short": "{n} short — the pack must invest in the Totem Background",
+        "none": "No totem chosen. The pack pools the Totem Background, the Storyteller picks the patron spirit."
+      },
       "Rank": "Rank",
       "Rage": "Rage",
       "Gnosis": "Gnosis",

@@ -30,6 +30,22 @@
       </div>
       {{#if gm}}<small class="r-court-hint">{{localize "VTM20.Coterie.DragHint"}}</small>{{/if}}
 
+      {{#if cot.pack}}
+      {{!-- Стая Гару: тотем (W20, гл. 12) — цена против общего Факта «Тотем», бонусы каждому и стае, запрет --}}
+      <h3 class="r-h3 r-colhead"><span><i class="fa-solid fa-feather-pointed"></i> {{localize "VTM20.Werewolf.Totem.title"}}</span></h3>
+      <div class="r-cot-totem">
+        {{#if gm}}<span class="r-cot-add"><select name="cot-totem"><option value="">—</option>{{#each cot.totems}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+          <a class="r-h2-btn" data-action="totem"><i class="fa-solid fa-check"></i> {{localize "VTM20.Werewolf.Totem.choose"}}</a></span>{{/if}}
+        {{#if cot.totem}}
+        <p><b>{{cot.totem.name}}</b> <small>{{cot.totem.en}} · {{cot.totem.cat}} · {{localize "VTM20.Werewolf.Totem.cost" n=cot.totem.cost}} · {{localize "VTM20.Werewolf.Totem.pool" n=cot.totemPool}}</small>
+          {{#if cot.totemShort}}<em class="r-cot-cap">{{localize "VTM20.Werewolf.Totem.short" n=cot.totemShort}}</em>{{/if}}</p>
+        {{#if cot.totem.individual}}<p><i class="fa-solid fa-user"></i> {{{cot.totem.individual}}}</p>{{/if}}
+        {{#if cot.totem.pack}}<p><i class="fa-solid fa-people-group"></i> {{{cot.totem.pack}}}</p>{{/if}}
+        {{#if cot.totem.ban}}<p class="r-cot-ban"><i class="fa-solid fa-ban"></i> {{{cot.totem.ban}}}</p>{{/if}}
+        {{#if cot.totem.text}}<p>{{{cot.totem.text}}}</p>{{/if}}
+        {{else}}<p class="r-empty">{{localize "VTM20.Werewolf.Totem.none"}}</p>{{/if}}
+      </div>
+      {{/if}}
       <h3 class="r-h3 r-colhead"><span>{{localize "VTM20.Coterie.Pools"}}</span></h3>
       {{#each cot.pools as |p|}}
       <div class="r-cot-pool {{#if p.primary}}is-primary{{/if}}">
