@@ -3,6 +3,7 @@
 // штраф за раны. Пул пересчитывается на лету.
 
 import { swayOf } from "../ui/strategy.mjs";
+import { totemTraits } from "../apps/coterie.mjs";
 import { VTM20, SYSTEM_PATH } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
 import { rollPool, odds, chancesView, tormentRule, tormentOdds } from "./roll.mjs";
@@ -90,6 +91,12 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     // Мощь, включённая кровью: точки — автоуспехи проверки Силы (Дисциплины/06)
     const auto = attr && !base && v.physical ? a.physicalAuto(attr) : 0;
     if (v.bonus) { pool += v.bonus; bd.push({ label: t("Roll.Modifier"), value: v.bonus }); }
+    // тотем стаи (W20, гл. 7): «дети Химеры получают три точки Загадок» — точки тотема прибавляются к черте в броске
+    const tt = totemTraits(a);
+    if (tt) for (const p of [v.trait1, v.trait2]) {
+      const extra = p ? tt.traits[p] ?? 0 : 0;
+      if (extra > 0) { pool += extra; bd.push({ label: game.i18n.format("VTM20.Werewolf.TotemTrait", { totem: tt.name }), value: extra }); }
+    }
     // Харано Гару (W20): уныние — −1 кубик к каждому пулу
     if (a.statuses?.has("r-harano")) { pool -= 1; bd.push({ label: game.i18n.localize("VTM20.Status.harano"), value: -1 }); }
     // опора на влияние в сфере города (Стратегия): +1 кубик за каждые 2 фишки

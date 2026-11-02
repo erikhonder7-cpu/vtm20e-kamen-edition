@@ -258,6 +258,16 @@ export function poolLabel(actor, e) {
 }
 
 /** Применить Грань: цена в Убеждённости, бросок с риском, итог риска. */
+/**
+ * Грань в действии — значком на токене до конца сцены (видно всем на сцене: охотник-НПС против игроков тоже).
+ * Снимается в hunterSceneEnd.
+ */
+async function markEdge(actor, e) {
+  if (!actor.isOwner || actor.effects.some(x => x.getFlag(game.system.id, "edge") === e.key)) return;
+  await actor.createEmbeddedDocuments("ActiveEffect", [{ name: t("EdgeOnToken", { name: e.name }), img: "icons/svg/aura.svg",
+    duration: { seconds: 3600 }, flags: { [game.system.id]: { edge: e.key } }, description: `<p>${esc(e.text)}</p>` }]);
+}
+
 export async function useEdge(actor, key) {
   const e = edgeOf(key), h = actor.system.hunter ?? {};
   if (!e) return null;
@@ -268,6 +278,7 @@ export async function useEdge(actor, key) {
     // без броска: Нужда — уровень ушибов, Всплеск — пункт Убеждённости, Обновление — само
     if (e.conviction) await actor.update({ "system.hunter.conviction": conv - e.conviction });
     if (key === "martyrdom|1") await actor.applyDamage(1, "bashing");
+    await markEdge(actor, e);
     return notice(actor, "fa-hand-sparkles", `<b>${esc(e.name)}</b> — ${esc(e.text)}`);
   }
   const attrs = ["strength", "dexterity", "stamina", "charisma", "manipulation", "intelligence", "perception", "wits"];
@@ -298,6 +309,7 @@ export async function useEdge(actor, key) {
   if (e.conviction || v.risk) await actor.update({ "system.hunter.conviction": conv - e.conviction, ...(v.risk ? { "system.hunter.sceneRisk": true } : {}) });
   const res = await rollPool({ actor, title: e.name, subtitle: t("EdgeKicker", { path: creedOf(e.path)?.name ?? e.path, n: e.level }),
     pool: val(t1) + val(t2) + v.risk, difficulty: v.diff, kind: "check", breakdown, effect: `<p>${esc(e.text)}</p>` });
+  if ((res?.successes ?? 0) > 0) await markEdge(actor, e);
   if (!v.risk) return res;
   // риск Убеждённостью: успех — вложенное остаётся и +1; неудача — вложенное сгорает; провал — вся Убеждённость
   const now = actor.system.hunter.conviction ?? 0;
@@ -552,6 +564,8 @@ export function callView(actor) {
 /** Конец сцены: Грань «свыше», запрет после неудачи и риск Убеждённостью — заново. */
 export async function hunterSceneEnd(actor) {
   const h = actor.system.hunter ?? {};
+  const marks = actor.effects.filter(x => x.getFlag(game.system.id, "edge")).map(x => x.id);
+  if (marks.length) await actor.deleteEmbeddedDocuments("ActiveEffect", marks);
   if (h.sceneEdge || h.sceneBlock || h.sceneRisk)
     await actor.update({ "system.hunter.sceneEdge": "", "system.hunter.sceneLevel": 0, "system.hunter.sceneBlock": false, "system.hunter.sceneRisk": false });
 }

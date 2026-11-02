@@ -9,6 +9,33 @@
 import { VTM20, SYSTEM_PATH } from "../config.mjs";
 import { rollPool, odds, chancesView } from "../dice/roll.mjs";
 import { RollDialog } from "../dice/dialog.mjs";
+import { Codex } from "../data/codex.mjs";
+import { getClock } from "./calendar.mjs";
+
+const YEAR = 365.25 * 86400000;
+
+/** Факт «Поколение» по поколению листа (V20, гл. 1: 13-е — без факта, каждая точка — на поколение ниже, не больше 5). */
+export async function syncGenerationBackground(actor) {
+  if (!actor?.isVampire || !actor.isOwner) return;
+  const dots = Math.clamp(13 - (actor.system.generation ?? 13), 0, 5);
+  const item = actor.items.find(i => i.type === "background" && (i.system.source === "Generation" || /^(Поколение|Generation)$/i.test(i.name)));
+  if (item) { if (item.system.value !== dots) await item.update({ "system.value": dots }); return; }
+  const b = Codex.backgrounds.find(x => x.en === "Generation");
+  if (b && dots > 0) await actor.createEmbeddedDocuments("Item", [{ name: b.name, type: "background", img: `systems/${game.system.id}/assets/icons/background.svg`,
+    system: { value: dots, description: b.html ?? "", source: "Generation" } }]);
+}
+/** Смена поколения на листе — факт следом (только у того, кто менял). */
+export function registerGeneration() {
+  Hooks.on("updateActor", (a, ch, opts, userId) => { if (userId === game.user.id && foundry.utils.hasProperty(ch, "system.generation")) syncGenerationBackground(a); });
+}
+/** Следы диаблери на листе: последняя запись и видны ли ещё чёрные прожилки (по часам хроники). */
+export function diablerieMark(actor) {
+  const list = actor?.getFlag?.(game.system.id, "diablerie") ?? [];
+  const last = list.at(-1);
+  if (!last) return null;
+  const now = getClock(), veins = now < (last.veinsUntil ?? 0);
+  return { ...last, veins, count: list.length, until: new Date(last.veinsUntil ?? 0).toLocaleDateString(game.i18n.lang, { day: "numeric", month: "long", year: "numeric" }) };
+}
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -116,7 +143,11 @@ class DiablerieDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const newGen = Math.max(3, gen - drop);
     const morality = Math.max(0, a.system.morality.value - 1);
     await a.update({ "system.generation": newGen, "system.morality.value": morality });
-    const years = Math.max(1, gen - vg);
+    const years = Math.max(1, gen - vg), now = getClock();
+    // запись на листе: кого, когда, поколение было/стало; прожилки в ауре — столько лет, сколько поколений разницы (минимум год)
+    const log = [...(a.getFlag(game.system.id, "diablerie") ?? []), { victim: this.victim?.name ?? t("Diablerie.Victim"), at: now, from: gen, to: newGen,
+      veinsUntil: now + years * YEAR }];
+    await a.setFlag(game.system.id, "diablerie", log);
     const lines = [
       `<b>${t("Diablerie.Consumed", { name: this.victim?.name ?? t("Diablerie.Victim") })}</b>`,
       drop ? t("Diablerie.GenDrop", { from: toGen(gen), to: toGen(newGen) }) : t("Diablerie.GenSame"),

@@ -1,0 +1,93 @@
+{{!-- Лист котерии, стаи или ячейки охотников (module/sheets/group-sheet.mjs) — в языке листа персонажа. --}}
+<div class="r-gs is-{{system.kind}}">
+  <header class="r-head r-gs-head">
+    <i class="fa-solid {{icon}} r-gs-watermark" aria-hidden="true"></i>
+    <div class="r-head-main r-gs-main">
+      <figure class="r-portrait-frame">
+        <img class="r-portrait" src="{{actor.img}}" {{#if editable}}data-action="editImage" data-edit="img"{{/if}} alt="{{actor.name}}">
+        <figcaption class="r-seal"><span class="r-seal-num r-seal-icon"><i class="fa-solid {{icon}}"></i></span><span class="r-seal-cap">{{kindLabel}}</span></figcaption>
+      </figure>
+      <div class="r-head-info">
+        <div class="r-kicker"><span class="r-kicker-type">{{typeLabel}}</span><span class="r-motto" aria-hidden="true">Liberté, Égalité, Fraternité</span></div>
+        <div class="r-name-row"><input class="r-name" type="text" name="name" value="{{actor.name}}" spellcheck="false" {{#unless editable}}disabled{{/unless}}></div>
+        <div class="r-dossier">
+          <label class="r-df"><span>{{localize "VTM20.Group.KindLabel"}}</span>
+            <select name="system.kind" {{#unless editable}}disabled{{/unless}}>{{#each kinds}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+          <label class="r-df is-wide"><span>{{localize "VTM20.Group.Domain"}}</span>
+            <select name="system.domain" {{#unless editable}}disabled{{/unless}}><option value="">—</option>{{#each domains}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
+          {{#if cell}}<label class="r-df is-wide"><span>{{localize "VTM20.Group.Net"}}</span><input type="text" name="system.net" value="{{system.net}}" placeholder="{{localize 'VTM20.Group.NetHint'}}" {{#unless editable}}disabled{{/unless}}></label>{{/if}}
+        </div>
+      </div>
+      <div class="r-gs-tally"><b>{{members.length}}</b><span>{{localize "VTM20.Group.Members"}}</span></div>
+    </div>
+  </header>
+
+  <div class="r-gs-body">
+    <h2 class="r-h2"><span>{{localize "VTM20.Group.Members"}}</span>
+      {{#if sabbat}}{{#if gm}}<span class="r-h2-tools"><a class="r-h2-btn" data-action="vaulderie" data-tooltip="{{localize 'VTM20.Vinc.RiteTip'}}"><i class="fa-solid fa-wine-glass"></i> <span class="r-h2-lbl">{{localize "VTM20.Vinc.Rite"}}</span></a></span>{{/if}}{{/if}}</h2>
+    <div class="r-gs-gallery">
+      {{#each members}}
+      <article class="r-gs-card">
+        <a class="r-gs-face" data-action="openActor" data-id="{{id}}" data-tooltip="{{localize 'VTM20.Group.OpenSheet'}}"><img src="{{img}}" alt=""></a>
+        <div class="r-gs-who">
+          <a class="r-gs-cname" data-action="openActor" data-id="{{id}}">{{name}}</a>
+          <span class="r-gs-ctype">{{type}}</span>
+          {{#if line}}<span class="r-gs-cline">{{line}}</span>{{/if}}
+          {{#if concept}}<span class="r-gs-cconcept">{{concept}}</span>{{/if}}
+        </div>
+        {{#if ../editable}}<a class="r-gs-x" data-action="dropMember" data-id="{{id}}" data-tooltip="{{localize 'VTM20.Group.Drop'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
+      </article>
+      {{/each}}
+      {{#if editable}}<div class="r-gs-dropzone" data-drop="members"><i class="fa-solid fa-user-plus"></i><span>{{localize "VTM20.Group.DropMember"}}</span></div>{{/if}}
+    </div>
+
+    <div class="r-gs-cols">
+      <section>
+        <h2 class="r-h2"><span>{{localize "VTM20.Group.Pools"}}</span>
+          <span class="r-h2-tools"><a class="r-h2-btn" data-action="pools"><i class="fa-solid fa-people-roof"></i> <span class="r-h2-lbl">{{localize "VTM20.Group.PoolsOpen"}}</span></a></span></h2>
+        {{#each pools}}<div class="r-gs-line"><span>{{bg}}{{#if primary}} <i class="fa-solid fa-anchor r-gs-anchor" data-tooltip="{{localize 'VTM20.Group.Primary'}}"></i>{{/if}}</span>
+          <i class="r-gs-dots">{{#each dots}}<b class="{{#if this}}on{{/if}}"></b>{{/each}}</i></div>
+        {{else}}<p class="r-gs-empty">{{localize "VTM20.Group.NoPools"}}</p>{{/each}}
+      </section>
+      <section>
+        <h2 class="r-h2"><span>{{localize "VTM20.Group.Domain"}}</span></h2>
+        {{#if domain}}
+        <a class="r-gs-domain" data-action="openActor" data-id="{{domain.id}}">
+          <img src="{{domain.img}}" alt=""><span><b>{{domain.name}}</b><i class="r-gs-dots">{{#each domain.dots}}<b class="{{#if this}}on{{/if}}"></b>{{/each}}</i></span>
+        </a>
+        {{else}}<div class="r-gs-dropzone is-slim" data-drop="domain"><i class="fa-solid fa-city"></i><span>{{localize "VTM20.Group.DropDomain"}}</span></div>{{/if}}
+      </section>
+    </div>
+
+    {{!-- «Общее убежище» (V20 Anarchs Unbound): точки общего факта — между роскошью, размером и защитой --}}
+    <h2 class="r-h2"><span>{{localize "VTM20.Group.HavenTitle"}}</span><span class="r-h2-tools"><span class="r-gs-src">Anarchs Unbound</span>
+      {{#if haven.pool}}<span class="r-gs-pool {{#if haven.over}}is-diff{{/if}}">{{localize "VTM20.Group.HavenUsed" used=haven.used n=haven.pool}}</span>{{/if}}</span></h2>
+    <div class="r-gs-haven">
+      {{#each haven.rows}}
+      <div class="r-gs-scale is-row">
+        <span class="r-gs-stat-cap">{{label}}</span>
+        <i class="r-gs-dots">{{#each dots}}<b class="{{#if on}}on{{/if}}" {{#if @root.editable}}data-action="haven"{{/if}} data-key="{{../key}}" data-n="{{n}}"></b>{{/each}}</i>
+        <small>{{hint}}</small>
+      </div>
+      {{/each}}
+    </div>
+    {{#unless haven.pool}}<p class="r-hint">{{localize "VTM20.Group.HavenNoPool"}}</p>{{/unless}}
+
+    {{#if totem}}
+    <h2 class="r-h2"><span>{{localize "VTM20.Group.Totem"}} — {{totem.name}}</span></h2>
+    <dl class="r-gs-dl">
+      <dt>{{localize "VTM20.Group.TotemEach"}}</dt><dd>{{{totem.individual}}}</dd>
+      <dt>{{localize "VTM20.Group.TotemPack"}}</dt><dd>{{{totem.pack}}}</dd>
+      <dt>{{localize "VTM20.Group.TotemBan"}}</dt><dd>{{{totem.ban}}}</dd>
+    </dl>
+    {{/if}}
+
+    {{#if cell}}
+    <h2 class="r-h2"><span>{{localize "VTM20.Group.Cell"}}</span></h2>
+    <div class="r-gs-tallies">{{#each cell}}<div><b>{{n}}</b><span>{{label}}</span></div>{{/each}}</div>
+    {{/if}}
+
+    <h2 class="r-h2"><span>{{localize "VTM20.Group.Notes"}}</span></h2>
+    <textarea class="r-gs-notes" name="system.notes" rows="5" {{#unless editable}}disabled{{/unless}}>{{system.notes}}</textarea>
+  </div>
+</div>

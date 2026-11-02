@@ -117,6 +117,13 @@ const monthsBetween = (a, b) => {
   return (y2 - y1) * 12 + (m2 - m1) - (d2 < d1 ? 1 : 0);
 };
 
+/** Сколько месяцев хроники до следующего ослабления уз (вассал, без новой крови): (12 − воля) месяцев от последнего глотка. */
+export function bondFade(actor, b) {
+  if (!b?.last || b.role !== "regnant" || !(b.rating > 0)) return null;
+  const period = Math.max(1, 12 - (actor.system.willpower?.permanent ?? 5));
+  return Math.max(0, period - monthsBetween(b.last, today()) % period);
+}
+
 /** Ослабление уз без крови сюзерена; вызывается при наступлении ночи. Возвращает строки для сводки. */
 export async function decayBonds(actor) {
   const src = actor._source.system.bonds ?? [];

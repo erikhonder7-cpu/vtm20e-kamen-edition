@@ -56,6 +56,7 @@ export const KIND_GROUPS = [
   { key: "mortal", label: "Люди", icon: "fa-user" },
   { key: "garou", label: "Мир Гару", icon: "fa-paw" },
   { key: "fallen", label: "Падшие", icon: "fa-fire-flame-curved" },
+  { key: "groups", label: "Группы", icon: "fa-people-group" },
   { key: "book", label: "Из книги", icon: "fa-book" }
 ];
 export const KINDS = [
@@ -75,8 +76,40 @@ export const KINDS = [
   { key: "demon", group: "fallen", label: "Падший", icon: "fa-fire-flame-curved", actor: "demon" },
   { key: "earthbound", group: "fallen", label: "Привязанный к Земле", icon: "fa-gem", actor: "demon" },
   { key: "thrall", group: "fallen", label: "Слуга падшего", icon: "fa-link", actor: "mortal" },
+  { key: "group", group: "groups", label: "Группа целиком", icon: "fa-people-group", actor: null },
   { key: "book", group: "book", label: "Статблоки книги", icon: "fa-book", actor: null }
 ];
+
+/**
+ * Готовые группы: кто входит (подвид, роль, специализация, сдвиг силы от выбранной, выбор подвида) и какой котерией
+ * их оформить. Сила группы — выбранная в окне; у лидера она выше на ступень, у рядовых — как есть или ниже.
+ */
+const M = (kind, role, sub = "", shift = 0, params = {}) => ({ kind, role, sub, shift, params });
+export const GROUPS = [
+  { key: "court", label: "Двор князя", coterie: "coterie", members: [M("vampire", "leader", "boss", 2, { sect: "camarilla" }), M("vampire", "schemer", "harpy", 1, { sect: "camarilla" }),
+    M("vampire", "bodyguard", "elysium", 1, { sect: "camarilla" }), M("vampire", "detective", "", 0, { sect: "camarilla" }), M("ghoul", "servant", "butler", 0, { ghoulType: "vassal" }), M("ghoul", "bodyguard", "escort", 0, { ghoulType: "vassal" })] },
+  { key: "anarchs", label: "Банда анархов", coterie: "coterie", members: [M("vampire", "leader", "gangleader", 1, { sect: "anarchs" }), M("vampire", "brute", "biker", 0, { sect: "anarchs" }),
+    M("vampire", "streetrat", "punk", 0, { sect: "anarchs" }), M("vampire", "techie", "hacker", 0, { sect: "anarchs" })] },
+  { key: "sabbat", label: "Стая Шабаша", coterie: "sabbat", members: [M("vampire", "leader", "preacher", 1, { sect: "sabbat" }), M("vampire", "brute", "pitfighter", 0, { sect: "sabbat" }),
+    M("vampire", "assassin", "blade", 0, { sect: "sabbat" }), M("vampire", "occultist", "warlock", 0, { sect: "sabbat" }), M("vampire", "madman", "maniac", 0, { sect: "sabbat" })] },
+  { key: "garou", label: "Стая Гару", coterie: "pack", members: [M("garou", "brute", "", 1, { auspice: "ahroun" }), M("garou", "artist", "", 0, { auspice: "galliard" }),
+    M("garou", "lawyer", "", 0, { auspice: "philodox" }), M("garou", "seer", "shaman", 0, { auspice: "theurge" }), M("garou", "thief", "", 0, { auspice: "ragabash" })] },
+  { key: "cell", label: "Ячейка охотников", coterie: "cell", members: [M("hunter", "soldier", "veteran", 1), M("hunter", "detective", "cop", 0), M("hunter", "cleric", "priest", 0), M("hunter", "techie", "hacker", 0)] },
+  { key: "cult", label: "Культ падшего", coterie: "coterie", members: [M("demon", "leader", "preacher", 1), M("thrall", "cleric", "cultist", 0), M("thrall", "broker", "banker", 0),
+    M("thrall", "bodyguard", "escort", 0), M("thrall", "servant", "secretary", -1)] },
+  { key: "ghouls", label: "Гули одного дома", coterie: "coterie", members: [M("ghoul", "servant", "butler", 0, { ghoulType: "vassal" }), M("ghoul", "bodyguard", "", 0, { ghoulType: "vassal" }),
+    M("ghoul", "broker", "", 0, { ghoulType: "vassal" }), M("ghoul", "doctor", "", -1, { ghoulType: "vassal" })] },
+  { key: "pentex", label: "Фоморы Пентекса", coterie: "coterie", members: [M("fomor", "broker", "banker", 1), M("fomor", "brute", "thug", 0), M("fomor", "assassin", "hitman", 0), M("fomor", "techie", "engineer", 0)] },
+  { key: "kin", label: "Семья Родни", coterie: "coterie", members: [M("garou", "leader", "", 1), M("kinfolk", "worker", "farmer", 0), M("kinfolk", "doctor", "", 0), M("kinfolk", "drifter", "", -1)] },
+  { key: "police", label: "Полицейский наряд", coterie: "", members: [M("mortal", "detective", "cop", 1), M("mortal", "soldier", "guard", 0), M("mortal", "soldier", "guard", 0), M("mortal", "detective", "forensic", -1)] }
+];
+export const groupOf = key => GROUPS.find(g => g.key === key) ?? GROUPS[0];
+
+/** Черновики группы: по одному на участника; сила — выбранная со сдвигом участника. */
+export function buildGroup(key, power = "normal") {
+  const g = groupOf(key), keys = ["mook", "normal", "seasoned", "veteran", "legend"], base = Math.max(0, keys.indexOf(power));
+  return g.members.map(m => buildNpc({ kind: m.kind, role: m.role, sub: m.sub || undefined, power: keys[Math.clamp(base + m.shift, 0, 4)], params: m.params }));
+}
 export const kindOf = key => KINDS.find(k => k.key === key) ?? KINDS[0];
 
 /** Роль по умолчанию у подвида — чтобы «любая роль» была правдоподобной. */

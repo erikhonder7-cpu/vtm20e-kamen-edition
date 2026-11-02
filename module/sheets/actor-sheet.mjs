@@ -37,7 +37,8 @@ import { openThrallGifts } from "../apps/thrall-gifts.mjs";
 import { loseHost, holdOn, newHost, summonedBack } from "../apps/host.mjs";
 import { openCult } from "../apps/cult.mjs";
 import { openExorcist } from "../apps/exorcist.mjs";
-import { werewolfInfo, giftsView, editStanding, changeForm, rollGift, rollRite, frenzyCheck, stepSideways, scarView, addScar, removeScar, deformityView, addDeformity, removeDeformity, renownAward, kinfolkInfo, kinAddGift, kinRemoveGift, kinUseGift, kinAddNumen, kinRemoveNumen, kinNumenDots, kinUseNumen, kamiInfo, kamiAdd, kamiRemove, kamiUse, fetchInfo, bindFetch, burnFetch, primalUses, fomorInfo, fomorBreed, fomorAdd, fomorRemove, fomorUse, spiritTplGroups, applySpiritTpl, spiritInfo, addCharm, removeCharm, spiritEssenceReset, fetishView, addFetish, removeFetish, attuneFetish, useFetish, delirium, W as werewolfDataSheet, regenerate, rageActions, spend as wwSpend, addGift, removeGift, addRite, removeRite } from "../apps/werewolf.mjs";
+import { diablerieMark } from "../apps/diablerie.mjs";
+import { craftFetish, werewolfInfo, giftsView, editStanding, changeForm, rollGift, rollRite, frenzyCheck, stepSideways, scarView, addScar, removeScar, deformityView, addDeformity, removeDeformity, renownAward, kinfolkInfo, kinAddGift, kinRemoveGift, kinUseGift, kinAddNumen, kinRemoveNumen, kinNumenDots, kinUseNumen, kamiInfo, kamiAdd, kamiRemove, kamiUse, fetchInfo, bindFetch, burnFetch, primalUses, fomorInfo, fomorBreed, fomorAdd, fomorRemove, fomorUse, spiritTplGroups, applySpiritTpl, spiritInfo, addCharm, removeCharm, spiritEssenceReset, fetishView, addFetish, removeFetish, attuneFetish, useFetish, delirium, W as werewolfDataSheet, regenerate, rageActions, spend as wwSpend, addGift, removeGift, addRite, removeRite } from "../apps/werewolf.mjs";
 import { hunterInfo, edgesView, useEdge, secondSight, virtueTest, tradeConviction, restoreConviction, awardDeed, shiftDeed, cashDeed, sacrifice, advanceVirtue, callEdge, swapCalled, unblockCall, callView, isLost, lostVirtue, lostTrade, lostHardened, lostOrdeal } from "../apps/hunter.mjs";
 import { addBloodright, removeBloodright, rollBloodright, toggleRitual as toggleDririRitual, rollRitual as rollDririRitual } from "../apps/dhampir.mjs";
 import { openEbServant, empower as empowerServant } from "../apps/eb-servant.mjs";
@@ -182,7 +183,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       kinFetchBind: VtMActorSheet.#onKinFetchBind, kinFetchBurn: VtMActorSheet.#onKinFetchBurn, spTpl: VtMActorSheet.#onSpTpl, wwPrimal: VtMActorSheet.#onWwPrimal,
       fomorAdd: VtMActorSheet.#onFomorAdd, fomorMore: VtMActorSheet.#onFomorMore, fomorDel: VtMActorSheet.#onFomorDel, fomorUse: VtMActorSheet.#onFomorUse, fomorBreed: VtMActorSheet.#onFomorBreed,
       spCharmAdd: VtMActorSheet.#onSpCharmAdd, spCharmDel: VtMActorSheet.#onSpCharmDel, spEssence: VtMActorSheet.#onSpEssence, spStep: VtMActorSheet.#onSpStep,
-      wwFetishAdd: VtMActorSheet.#onWwFetishAdd, wwFetishAttune: VtMActorSheet.#onWwFetishAttune, wwFetishUse: VtMActorSheet.#onWwFetishUse, wwFetishDel: VtMActorSheet.#onWwFetishDel, openStrategy: () => openStrategy(),
+      wwFetishAdd: VtMActorSheet.#onWwFetishAdd, wwFetishCraft: VtMActorSheet.#onWwFetishCraft, wwFetishAttune: VtMActorSheet.#onWwFetishAttune, wwFetishUse: VtMActorSheet.#onWwFetishUse, wwFetishDel: VtMActorSheet.#onWwFetishDel, openStrategy: () => openStrategy(),
       drinkVitae: VtMActorSheet.#onDrinkVitae, setVitae: VtMActorSheet.#onSetVitae, bloodrightAdd: VtMActorSheet.#onBloodrightAdd, bloodrightRemove: VtMActorSheet.#onBloodrightRemove,
       bloodrightRoll: VtMActorSheet.#onBloodrightRoll, dririToggle: VtMActorSheet.#onDririToggle, dririRoll: VtMActorSheet.#onDririRoll,
       hunterTest: VtMActorSheet.#onHunterTest, hunterTrade: VtMActorSheet.#onHunterTrade, hunterRestore: VtMActorSheet.#onHunterRestore,
@@ -285,6 +286,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       // длинное имя не обрезается в шапке: шрифт мельче
       nameSize: actor.name.length > 26 ? "is-xlong" : actor.name.length > 18 ? "is-long" : "",
       // охотник — смертный с Гранями: где лист смертного и охотника совпадают, работает isMortal
+      diablerie: actor.type === "vampire" ? diablerieMark(actor) : null,
       isVampire: actor.type === "vampire", isGhoul: actor.type === "ghoul", isDhampir: actor.isDhampir, isMortal: ["mortal", "hunter"].includes(actor.type), isHunter: actor.type === "hunter", isWerewolf: actor.type === "werewolf", stratInfo: sheetStrategy(actor),
       isCreature: actor.type === "creature", isDemon: actor.type === "demon",
       hasBlood: actor.hasBlood,
@@ -805,6 +807,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static #onSpEssence() { return spiritEssenceReset(this.actor); }
   static #onSpStep() { return stepSideways(this.actor, "spirit.gnosis"); }
   static #onWwFetishAdd() { const k = this.element.querySelector(".r-ww-fetish-add")?.value; if (k) return addFetish(this.actor, k); }
+  static #onWwFetishCraft() { return craftFetish(this.actor, this.element.querySelector(".r-ww-fetish-add")?.value); }
   static #onWwFetishAttune(event, target) { return attuneFetish(this.actor, Number(target.dataset.i)); }
   static #onWwFetishUse(event, target) { return useFetish(this.actor, Number(target.dataset.i)); }
   static #onWwFetishDel(event, target) { return removeFetish(this.actor, Number(target.dataset.i)); }

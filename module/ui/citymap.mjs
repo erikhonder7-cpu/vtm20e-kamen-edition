@@ -233,6 +233,13 @@ const huntZoneOf = a => { const w = whereIs(a); return w ? city().zones.find(z =
 export function huntPlace(z, at = centroid(z.points)) {
   // жар Маскарада в этой точке (ui/masquerade.mjs) — надбавка к сложности охоты
   const masq = masqueradeAt(city(), at[0], at[1]).diff;
+  // домен-актёр на этой зоне (V20, факт «Домен»): хозяин, гости, размер и защищённость
+  const da = game.actors.find(a => a.type === "domain" && a.system.zone === z.id);
+  if (da) {
+    const own = game.actors.get(da.system.owner);
+    return { name: da.name, ground: da.system.ground || z.grounds, masq, owner: { id: own?.id ?? null, name: own?.name ?? da.name },
+      domain: { id: da.id, size: da.system.rating ?? 0, security: da.system.security ?? 0, guests: [...(da.system.guests ?? [])] } };
+  }
   // хозяин: обведённый домен в этой точке, иначе поле «Владелец» зоны (имя персонажа)
   const dom = domainAt(at[0], at[1]);
   if (dom) return { name: z.name || L("Zone"), ground: z.grounds, masq, owner: { id: dom.owner ?? null, name: dom.name } };

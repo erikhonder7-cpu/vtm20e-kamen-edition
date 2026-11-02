@@ -1,0 +1,127 @@
+{{!-- Лист домена (module/sheets/group-sheet.mjs) — в языке листа персонажа. --}}
+<div class="r-gs is-domain">
+  <header class="r-head r-gs-head">
+    <i class="fa-solid fa-city r-gs-watermark" aria-hidden="true"></i>
+    <div class="r-head-main r-gs-main">
+      <figure class="r-portrait-frame">
+        <img class="r-portrait" src="{{actor.img}}" {{#if editable}}data-action="editImage" data-edit="img"{{/if}} alt="{{actor.name}}">
+        <figcaption class="r-seal"><span class="r-seal-num">{{system.rating}}</span><span class="r-seal-cap">{{localize "VTM20.Group.Stat.rating"}}</span></figcaption>
+      </figure>
+      <div class="r-head-info">
+        <div class="r-kicker"><span class="r-kicker-type">{{typeLabel}}</span>{{#if zoneName}}<i class="r-kicker-dia"></i><em>{{zoneName}}</em>{{/if}}
+          <span class="r-motto" aria-hidden="true">Droit inviolable et sacré</span></div>
+        <div class="r-name-row"><input class="r-name" type="text" name="name" value="{{actor.name}}" spellcheck="false" {{#unless editable}}disabled{{/unless}}></div>
+        <div class="r-dossier">
+          <label class="r-df is-wide"><span>{{localize "VTM20.Group.Ground"}}</span>
+            <select name="system.ground" {{#unless editable}}disabled{{/unless}}>{{#each grounds}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+          <label class="r-df is-wide"><span>{{localize "VTM20.Group.Zone"}}</span>
+            <select name="system.zone" {{#unless editable}}disabled{{/unless}}><option value="">—</option>{{#each zones}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select>
+            {{#if system.zone}}<a class="r-gs-mapbtn" data-action="showMap" data-tooltip="{{localize 'VTM20.Group.ShowMap'}}"><i class="fa-solid fa-map-location-dot"></i></a>{{/if}}</label>
+          <label class="r-df is-wide"><span>{{localize "VTM20.Group.Population"}}</span><input type="text" name="system.population" value="{{system.population}}" placeholder="{{localize 'VTM20.Group.PopulationHint'}}" {{#unless editable}}disabled{{/unless}}></label>
+        </div>
+        <p class="r-gs-hunt"><i class="fa-solid fa-droplet"></i> {{huntLine}}</p>
+      </div>
+      {{!-- владелец — печатью справа, как запас крови у персонажа; лист можно бросить прямо сюда --}}
+      <div class="r-gs-owner {{#unless owner}}is-empty{{/unless}}" data-drop="owner">
+        <span class="r-gs-owner-cap">{{localize "VTM20.Group.Owner"}}</span>
+        {{#if owner}}
+        <a class="r-gs-owner-face" data-action="openActor" data-id="{{owner.id}}" data-tooltip="{{localize 'VTM20.Group.OpenSheet'}}"><img src="{{owner.img}}" alt=""></a>
+        <a class="r-gs-owner-name" data-action="openActor" data-id="{{owner.id}}">{{owner.name}}</a>
+        <small>{{owner.line}}</small>
+        {{#if editable}}<a class="r-gs-x" data-action="unlink" data-list="owner" data-tooltip="{{localize 'VTM20.Group.Unlink'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
+        {{else}}
+        <i class="fa-solid fa-chess-king"></i><small>{{localize "VTM20.Group.DropOwner"}}</small>
+        {{#if editable}}<select name="system.owner"><option value="">{{localize "VTM20.Group.PickOwner"}}</option>{{#each owners}}<option value="{{id}}">{{name}}</option>{{/each}}</select>{{/if}}
+        {{/if}}
+      </div>
+    </div>
+  </header>
+
+  <div class="r-gs-body">
+    {{!-- V20, факт «Домен»: размер и защищённость --}}
+    <h2 class="r-h2"><span>{{localize "VTM20.Group.SecDomain"}}</span>
+      {{#if pool}}<span class="r-h2-tools"><span class="r-gs-pool {{#if poolDiff}}is-diff{{/if}}" data-tooltip="{{localize 'VTM20.Group.PoolHint'}}"><i class="fa-solid fa-people-roof"></i> {{localize "VTM20.Group.PoolLine" n=pool}}</span>
+        {{#if poolDiff}}{{#if editable}}<a class="r-h2-btn" data-action="syncPool"><i class="fa-solid fa-rotate"></i> <span class="r-h2-lbl">{{localize "VTM20.Group.PoolSync"}}</span></a>{{/if}}{{/if}}</span>{{/if}}</h2>
+    <div class="r-gs-stats is-two">
+      {{#each v20}}
+      <div class="r-gs-stat" data-tooltip="{{hint}}">
+        <span class="r-gs-stat-cap"><i class="fa-solid {{icon}}"></i> {{label}}</span>
+        <i class="r-gs-dots is-big">{{#each dots}}<b class="{{#if on}}on{{/if}}" {{#if @root.editable}}data-action="rate"{{/if}} data-key="{{key}}" data-n="{{n}}"></b>{{/each}}</i>
+      </div>
+      {{/each}}
+    </div>
+    <p class="r-gs-note"><i class="fa-solid fa-droplet"></i> {{startBlood}}{{#if combined}} · <b>{{localize "VTM20.Group.Combined" n=combined.size}}</b>{{/if}}</p>
+
+    <div class="r-gs-cols">
+      <section data-drop="guests" class="r-gs-zone">
+        <h2 class="r-h2"><span><i class="fa-solid fa-key"></i> {{localize "VTM20.Group.Guests"}}</span></h2>
+        {{#each guests}}
+        <div class="r-gs-chip"><img src="{{img}}" alt=""><a data-action="openActor" data-id="{{id}}">{{name}}</a><small>{{line}}</small>
+          {{#if @root.editable}}<a class="r-gs-x" data-action="unlink" data-list="guests" data-id="{{id}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}</div>
+        {{/each}}
+        {{#if editable}}<div class="r-gs-dropzone is-slim"><i class="fa-solid fa-user-plus"></i><span>{{localize "VTM20.Group.DropGuest"}}</span></div>{{/if}}
+      </section>
+      <section data-drop="people" class="r-gs-zone">
+        <h2 class="r-h2"><span><i class="fa-solid fa-people-group"></i> {{localize "VTM20.Group.People"}}</span></h2>
+        {{#each people}}
+        <div class="r-gs-chip"><img src="{{img}}" alt=""><a data-action="openActor" data-id="{{id}}">{{name}}</a><small>{{line}}</small>
+          {{#if @root.editable}}<a class="r-gs-x" data-action="unlink" data-list="people" data-id="{{id}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}</div>
+        {{/each}}
+        {{#if editable}}<div class="r-gs-dropzone is-slim"><i class="fa-solid fa-user-plus"></i><span>{{localize "VTM20.Group.DropPerson"}}</span></div>{{/if}}
+      </section>
+    </div>
+
+    {{!-- V20 Dark Ages Companion, гл. 7: поместье, население, челядь --}}
+    <h2 class="r-h2"><span>{{localize "VTM20.Group.SecEstate"}}</span><span class="r-h2-tools"><span class="r-gs-src">DA Companion</span></span></h2>
+    <div class="r-gs-stats is-two">
+      {{#each estate}}
+      <div class="r-gs-stat" data-tooltip="{{hint}}">
+        <span class="r-gs-stat-cap"><i class="fa-solid {{icon}}"></i> {{label}}</span>
+        <i class="r-gs-dots is-big">{{#each dots}}<b class="{{#if on}}on{{/if}}" {{#if @root.editable}}data-action="rate"{{/if}} data-key="{{key}}" data-n="{{n}}"></b>{{/each}}</i>
+      </div>
+      {{/each}}
+    </div>
+    <div class="r-gs-scale">
+      <span class="r-gs-stat-cap"><i class="fa-solid fa-house-chimney"></i> {{localize "VTM20.Group.Stat.populace"}}</span>
+      <i class="r-gs-dots">{{#each populace.dots}}<b class="{{#if on}}on{{/if}}" {{#if @root.editable}}data-action="rate"{{/if}} data-key="{{key}}" data-n="{{n}}"></b>{{/each}}</i>
+      <small>{{populace.line}}</small>
+    </div>
+    <div class="r-gs-scale">
+      <span class="r-gs-stat-cap"><i class="fa-solid fa-bell-concierge"></i> {{localize "VTM20.Group.Stat.servants"}}</span>
+      <i class="r-gs-dots">{{#each servants.dots}}<b class="{{#if on}}on{{/if}}" {{#if @root.editable}}data-action="rate"{{/if}} data-key="{{key}}" data-n="{{n}}"></b>{{/each}}</i>
+      <small>{{servants.line}}</small>
+    </div>
+
+    {{!-- сюзерен и вассалы: объединённый домен --}}
+    <h2 class="r-h2"><span>{{localize "VTM20.Group.SecFeudal"}}</span></h2>
+    <div class="r-gs-cols">
+      <label class="r-gs-field"><span>{{localize "VTM20.Group.Liege"}}</span>
+        <select name="system.liege" {{#unless editable}}disabled{{/unless}}><option value="">—</option>{{#each lieges}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select>
+        {{#if liege}}<a class="r-gs-link" data-action="openActor" data-id="{{liege.id}}"><i class="fa-solid fa-chess-king"></i> {{liege.name}}</a>{{/if}}</label>
+      <div class="r-gs-field"><span>{{localize "VTM20.Group.Vassals"}}</span>
+        {{#each combined.list}}<a class="r-gs-link" data-action="openActor" data-id="{{id}}"><i class="fa-solid fa-chess-pawn"></i> {{name}}</a>{{else}}<small>{{localize "VTM20.Group.NoVassals"}}</small>{{/each}}</div>
+    </div>
+    <p class="r-hint">{{localize "VTM20.Group.FeudalHint"}}</p>
+
+    {{!-- события домена --}}
+    <h2 class="r-h2"><span>{{localize "VTM20.Group.SecEvents"}}</span></h2>
+    <ul class="r-gs-events">
+      {{#each events}}
+      <li><b>{{name}}</b>{{#if date}} <small>· {{date}}</small>{{/if}}{{#if note}}<em>{{note}}</em>{{/if}}<span>{{text}}</span>
+        {{#if @root.editable}}<a class="r-gs-x" data-action="delEvent" data-i="{{i}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}</li>
+      {{else}}<li class="r-gs-empty">{{localize "VTM20.Group.NoEvents"}}</li>{{/each}}
+    </ul>
+    {{#if editable}}
+    <div class="r-gs-addev">
+      <select data-ev="kind">{{#each eventKinds}}<option value="{{key}}">{{label}}</option>{{/each}}</select>
+      <input type="text" data-ev="note" placeholder="{{localize 'VTM20.Group.EventNote'}}">
+      <a class="r-btn" data-action="addEvent"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Group.AddEvent"}}</a>
+    </div>
+    {{/if}}
+
+    <h2 class="r-h2"><span>{{localize "VTM20.Group.Holdings"}}</span></h2>
+    <textarea class="r-gs-notes is-short" name="system.holdings" rows="3" placeholder="{{localize 'VTM20.Group.HoldingsHint'}}" {{#unless editable}}disabled{{/unless}}>{{system.holdings}}</textarea>
+    <h2 class="r-h2"><span>{{localize "VTM20.Group.Notes"}}</span></h2>
+    <textarea class="r-gs-notes" name="system.notes" rows="5" {{#unless editable}}disabled{{/unless}}>{{system.notes}}</textarea>
+  </div>
+</div>

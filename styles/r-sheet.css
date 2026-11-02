@@ -1191,3 +1191,8 @@ body.r-theme-light .vtm20 .r-motto { color: rgba(140, 28, 34, .75); }
 .vtm20 .r-vc-morality.is-thrall .r-vc-tools { flex-wrap: nowrap; gap: 4px 6px; }
 /* Знаки типа (анх, капля витэ, свеча) — в своих цветах, без приглушения герба */
 .vtm20 .r-rail-sigil img[src*="-sigil.svg"] { filter: none; }
+
+/* диаблери: пока в ауре видны чёрные прожилки — череп на печати поколения */
+.vtm20 .r-seal { position: relative; }
+.vtm20 .r-seal-veins { position: absolute; top: -6px; right: -6px; font-size: 10px; color: #d8cfbf; background: #0d0d0f; border: 1px solid #8c1c22; border-radius: 50%; padding: 3px; }
+.vtm20 .r-seal.has-veins { box-shadow: 0 0 0 1px rgba(0, 0, 0, .8), 0 0 8px rgba(0, 0, 0, .9) inset; }

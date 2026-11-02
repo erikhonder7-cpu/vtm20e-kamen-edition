@@ -18,6 +18,15 @@
       <h2>{{kind.label}}</h2>
       <a class="r-btn r-ng-surprise" data-action="surprise" data-tooltip="{{localize 'VTM20.NpcGen.SurpriseHint'}}"><i class="fa-solid fa-shuffle"></i> {{localize "VTM20.NpcGen.Surprise"}}</a>
     </header>
+    {{!-- заготовки рассказчика: щелчок — загрузить, крестик — удалить --}}
+    <div class="r-ng-presets">
+      <span class="r-ng-rlabel"><i class="fa-solid fa-bookmark"></i> {{localize "VTM20.NpcGen.Presets"}}</span>
+      <div class="r-ng-chips">
+        {{#each presets}}<span class="r-ng-chip is-preset"><a data-action="presetLoad" data-i="{{i}}">{{name}}</a><a class="r-ng-px" data-action="presetDrop" data-i="{{i}}"><i class="fa-solid fa-xmark"></i></a></span>
+        {{else}}<em class="r-note">{{localize "VTM20.NpcGen.NoPresets"}}</em>{{/each}}
+        <a class="r-ng-chip is-soft" data-action="presetSave"><i class="fa-solid fa-floppy-disk"></i> {{localize "VTM20.NpcGen.PresetSave"}}</a>
+      </div>
+    </div>
 
     {{#if isBook}}
     <label class="r-ng-search"><i class="fa-solid fa-magnifying-glass"></i><input type="search" data-ng-search value="{{s.search}}" placeholder="{{localize 'VTM20.NpcGen.Search' n=book.total}}"></label>
@@ -53,7 +62,7 @@
     </div>
     {{/if}}
 
-    {{#unless isSpirit}}
+    {{#unless isSpirit}}{{#unless isGroup}}
     <div class="r-ng-sec">
       <div class="r-ng-sub">{{localize "VTM20.NpcGen.RoleTitle"}} <a class="r-ng-anyrole {{#unless s.role}}is-active{{/unless}}" data-action="role" data-role=""><i class="fa-solid fa-dice"></i> {{localize "VTM20.NpcGen.AnyRole"}}</a></div>
       <div class="r-ng-roles">
@@ -74,6 +83,7 @@
       </div>
       {{/if}}
     </div>
+    {{/unless}}
 
     <div class="r-ng-sec">
       <div class="r-ng-sub">{{localize "VTM20.NpcGen.PowerTitle"}}</div>
@@ -144,6 +154,21 @@
       {{else}}
       <div class="r-ng-empty"><i class="fa-solid fa-book"></i><p>{{localize "VTM20.NpcGen.PickBook"}}</p></div>
       {{/with}}
+    {{else if group}}
+    <article class="r-ng-card">
+      <span class="r-ng-seal" aria-hidden="true"><i class="fa-solid fa-people-group"></i></span>
+      <header class="r-ng-chead">
+        <span class="r-ng-kicker">{{localize "VTM20.NpcGen.GroupKicker" n=group.members.length}}</span>
+        <h3>{{group.title}}</h3>
+        {{#if group.coterie}}<span class="r-ng-concept">{{localize "VTM20.NpcGen.GroupAsCoterie"}}</span>{{/if}}
+      </header>
+      <ol class="r-ng-roster">
+        {{#each group.members}}
+        <li><i class="fa-solid {{icon}}"></i><div><b>{{name}}</b><small>{{kind}}{{#if role}} · {{role}}{{/if}} · {{power}}</small>
+          <span class="r-ng-rconcept">{{concept}}</span>{{#if tags}}<small>{{tags}}</small>{{/if}}{{#if traits}}<small class="r-ng-rtraits">{{traits}}</small>{{/if}}</div></li>
+        {{/each}}
+      </ol>
+    </article>
     {{else if draft}}
     <article class="r-ng-card">
       <span class="r-ng-seal" aria-hidden="true"><i class="fa-solid {{draft.kindIcon}}"></i></span>

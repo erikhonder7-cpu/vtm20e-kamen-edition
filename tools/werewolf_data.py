@@ -1335,6 +1335,13 @@ def parse_fera(gifts_core):
         name, en = h1.group(1).strip(), h1.group(2).strip()
         key = re.sub(r"[^a-z0-9]+", "", en.lower().replace("é", "e"))
         forms, forms_html = fera_forms(text)
+        # природное оружие: у боевых форм — укус и когти (губительные), у звериной (последней) — укус; у Рокеа и Корвов — только укус (клюв, пасть)
+        # Бред вызывает форма войны — Кринос, иначе с наибольшей прибавкой Силы
+        for i, f in enumerate(forms[1:], 1):
+            f["natural"] = {"bite": "aggravated"} if i == len(forms) - 1 or key in ("rokea", "corax") else {"bite": "aggravated", "claw": "aggravated"}
+        if len(forms) > 1:
+            war = next((f for f in forms if f["name"].startswith("Кринос")), None) or max(forms[1:], key=lambda f: f["mods"].get("strength", 0))
+            war["delirium"] = True
         dims = fera_dims(key, text, forms)
         fbase = fera_stats(text, dims)
         tm = re.search(r"\n## Черты\n(.*?)(?=\n## )", text, re.S)

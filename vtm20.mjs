@@ -26,7 +26,7 @@ import { openAttack, openDefense, AttackDialog } from "./module/combat/combat.mj
 import { openHazard } from "./module/apps/hazard.mjs";
 import { openDiablerie } from "./module/apps/diablerie.mjs";
 import { openLibrary } from "./module/apps/library.mjs";
-import { openNpcGenerator } from "./module/apps/npc-gen.mjs";
+import { openNpcGenerator, registerNpcPresets } from "./module/apps/npc-gen.mjs";
 import { openClans } from "./module/apps/clans.mjs";
 import { openBoons } from "./module/apps/boons.mjs";
 import { openDowntime } from "./module/apps/downtime.mjs";
@@ -48,6 +48,9 @@ import { registerExtras } from "./module/apps/extras.mjs";
 import { registerMasquerade } from "./module/ui/masquerade.mjs";
 import { registerStrategy } from "./module/ui/strategy.mjs";
 import { registerSepts } from "./module/apps/sept.mjs";
+import { registerGarouLog } from "./module/apps/werewolf.mjs";
+import { registerGeneration } from "./module/apps/diablerie.mjs";
+import { CoterieSheet, DomainSheet } from "./module/sheets/group-sheet.mjs";
 import { registerCityMap, openCity, closeCity, toggleCity, cityMap } from "./module/ui/citymap.mjs";
 import { registerPause } from "./module/ui/pause.mjs";
 import { registerThemes } from "./module/ui/themes.mjs";
@@ -82,7 +85,8 @@ Hooks.once("init", () => {
     werewolf: { bar: ["health", "willpower", "werewolf.rage", "werewolf.gnosis"], value: ["werewolf.rank"] },
     creature: { bar: ["health", "blood", "willpower"], value: [] }
   };
-  CONFIG.Actor.typeIcons = { vampire: "fa-solid fa-droplet", ghoul: "fa-solid fa-hand-holding-droplet", mortal: "fa-solid fa-user", creature: "fa-solid fa-paw", hunter: "fa-solid fa-crosshairs", werewolf: "fa-solid fa-moon" };
+  CONFIG.Actor.typeIcons = { vampire: "fa-solid fa-droplet", ghoul: "fa-solid fa-hand-holding-droplet", mortal: "fa-solid fa-user", creature: "fa-solid fa-paw", hunter: "fa-solid fa-crosshairs", werewolf: "fa-solid fa-moon",
+    coterie: "fa-solid fa-people-roof", domain: "fa-solid fa-city" };
   CONFIG.Item.typeIcons = {
     discipline: "fa-solid fa-eye", thaumPath: "fa-solid fa-book-skull", ritual: "fa-solid fa-pentagram", power: "fa-solid fa-hand-sparkles",
     background: "fa-solid fa-landmark", merit: "fa-solid fa-plus", flaw: "fa-solid fa-minus",
@@ -123,7 +127,11 @@ Hooks.once("init", () => {
 
   const { Actors, Items } = foundry.documents.collections;
   Actors.unregisterSheet("core", foundry.appv1.sheets.ActorSheet);
-  Actors.registerSheet(SYSTEM_ID, VtMActorSheet, { makeDefault: true, label: "VTM20.Sheets.Actor" });
+  Actors.registerSheet(SYSTEM_ID, VtMActorSheet, { makeDefault: true, label: "VTM20.Sheets.Actor",
+    types: ["vampire", "ghoul", "mortal", "creature", "demon", "hunter", "werewolf"] });
+  // котерия и домен — свои листы (module/sheets/group-sheet.mjs)
+  Actors.registerSheet(SYSTEM_ID, CoterieSheet, { makeDefault: true, label: "VTM20.Sheets.Coterie", types: ["coterie"] });
+  Actors.registerSheet(SYSTEM_ID, DomainSheet, { makeDefault: true, label: "VTM20.Sheets.Domain", types: ["domain"] });
   Items.unregisterSheet("core", foundry.appv1.sheets.ItemSheet);
   Items.registerSheet(SYSTEM_ID, VtMItemSheet, { makeDefault: true, label: "VTM20.Sheets.Item" });
   registerExtras();
@@ -152,6 +160,9 @@ Hooks.once("init", () => {
   registerMasquerade();
   registerStrategy();
   registerSepts();
+  registerGarouLog();
+  registerGeneration();
+  registerNpcPresets();
   registerPause();
   registerThemes();
   registerDemonHooks();

@@ -204,7 +204,7 @@ export async function renownAward(actor) {
     });
     await actor.update({ "system.werewolf.renown": ren });
     const what = ["glory", "honor", "wisdom"].map((k, j) => sign(v[j], k)).filter(Boolean).join(", ");
-    await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<div class="r-notice r-type-werewolf"><i class="fa-solid fa-award"></i> <b>${esc(actor.name)}</b>: ${esc(what)}${why ? ` — ${why}` : ""}${lines.map(l => `<br><em>${esc(l)}</em>`).join("")}</div>` });
+    await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), flags: { [game.system.id]: { garou: "renown" } }, content: `<div class="r-notice r-type-werewolf"><i class="fa-solid fa-award"></i> <b>${esc(actor.name)}</b>: ${esc(what)}${why ? ` — ${why}` : ""}${lines.map(l => `<br><em>${esc(l)}</em>`).join("")}</div>` });
   };
   return foundry.applications.api.DialogV2.wait({
     window: { title: t("RenownAwardTitle", { name: actor.name }), icon: "fa-solid fa-award" }, classes: ["vtm20", "r-dialog", "r-type-werewolf", "r-ra-dlg"],
@@ -261,12 +261,17 @@ export async function changeForm(actor, key) {
   if (how === "rage") {
     if (!(await spend(actor, "rage"))) return null;
     await actor.update({ "system.werewolf.form": key });
-    return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<p>${t("FormDone", { name: esc(actor.name), form: esc(f.name) })}</p>` });
+    await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<p>${t("FormDone", { name: esc(actor.name), form: esc(f.name) })}</p>` });
+    if (f.delirium && sceneWitnesses(actor).length) await delirium(actor);
+    return true;
   }
   if (how === "roll") {
     return RollDialog.prompt(actor, { title: t("FormTitle", { form: f.name }), trait1: "attributes.stamina", trait2: "abilities.primalUrge",
       difficulty: f.diff, diffNote: t("FormNeed", { n: steps }), onRolled: async r => {
-        if ((r?.successes ?? 0) >= steps) await actor.update({ "system.werewolf.form": key });
+        if ((r?.successes ?? 0) >= steps) {
+          await actor.update({ "system.werewolf.form": key });
+          if (f.delirium && sceneWitnesses(actor).length) await delirium(actor);
+        }
       } });
   }
   return null;
@@ -318,11 +323,21 @@ export async function frenzyCheck(actor) {
       if (s < need) return;
       await actor.toggleStatusEffect?.("r-frenzy", { active: true });
       const thrall = s >= 6;
-      await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<div class="r-notice r-type-werewolf ${thrall ? "is-warn" : ""}">
+      await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), flags: { [game.system.id]: { garou: thrall ? "thrall" : "frenzy" } },
+        content: `<div class="r-notice r-type-werewolf ${thrall ? "is-warn" : ""}">
         <p><i class="fa-solid fa-fire"></i> ${t("FrenzyOn", { name: esc(actor.name) })}</p><p>${t("FrenzyKinds")}</p>
         ${thrall ? `<p><b><i class="fa-solid fa-skull"></i> ${t("ThrallTitle")}</b> ${t(`Thrall.${w.breed}`)}</p>` : ""}
         <p><small>${t("FrenzyExit", { n: w.rage.value })}</small></p></div>` });
     } });
+}
+
+/** Харано (W20, гл. 6): включение и снятие отметки — запись для рассказчика и «Летописи сессии». */
+export function registerGarouLog() {
+  const note = (actor, on) => game.user.isGM && actor && ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), whisper: ChatMessage.getWhisperRecipients("GM"),
+    flags: { [game.system.id]: { garou: on ? "harano" : "haranoEnd" } },
+    content: `<div class="r-notice r-type-werewolf"><i class="fa-solid fa-cloud-rain"></i> ${t(on ? "HaranoOn" : "HaranoOff", { name: esc(actor.name) })}</div>` });
+  Hooks.on("createActiveEffect", ef => { if (ef.statuses?.has("r-harano")) note(ef.parent, true); });
+  Hooks.on("deleteActiveEffect", ef => { if (ef.statuses?.has("r-harano")) note(ef.parent, false); });
 }
 
 /* ── Боевые шрамы (W20, гл. 6): за каждый — временная Слава ─────────── */
@@ -333,7 +348,7 @@ export async function addScar(actor, key) {
   if (!sc) return;
   const g = actor.system.werewolf.renown.glory;
   await actor.update({ "system.werewolf.scars": [...actor.system.werewolf.scars, key], "system.werewolf.renown.glory.temporary": g.temporary + sc.glory });
-  return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<div class="r-notice r-type-werewolf"><i class="fa-solid fa-bandage"></i> ${t("ScarAdded", { name: esc(actor.name), scar: esc(sc.name), n: sc.glory })}<br><small>${sc.effect}</small></div>` });
+  return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), flags: { [game.system.id]: { garou: "scar" } }, content: `<div class="r-notice r-type-werewolf"><i class="fa-solid fa-bandage"></i> ${t("ScarAdded", { name: esc(actor.name), scar: esc(sc.name), n: sc.glory })}<br><small>${sc.effect}</small></div>` });
 }
 export async function removeScar(actor, i) {
   const list = [...actor.system.werewolf.scars];
@@ -458,6 +473,40 @@ export async function useFetish(actor, i) {
   }
   return RollDialog.prompt(actor, { title: f.name, trait1: "werewolf.gnosis", difficulty: f.gnosis,
     onRolled: async r => { if ((r?.successes ?? 0) > 0) { await spendTalen(); await say(t("Awakened", { name: esc(f.name) })); } } });
+}
+
+/**
+ * Создать фетиш или талену обрядом (W20, гл. 7). Фетиш — «Ритуал фетиша»: Смекалка + Ритуалы, сл. 10, каждый потраченный
+ * постоянный Гнозис — сложность −2 (предмет очищен три ночи, дух уговорен или побеждён — решает рассказчик).
+ * Талена — «Ритуал связывания»: Воля против Гнозиса духа (= Гнозис талены), каждый потраченный Гнозис — Гнозис духа −1.
+ * Успех — предмет на листе (фетиш — уже настроен на создателя).
+ */
+export async function craftFetish(actor, key) {
+  const f = fetishOf(key);
+  if (!f) return ui.notifications.warn(t("CraftPick"));
+  const talen = f.kind === "talen", rite = talen ? "rite-of-binding" : "rite-of-the-fetish", w = actor.system.werewolf;
+  const knows = (w.rites ?? []).includes(rite), gn = w.gnosis;
+  const max = talen ? gn.value : gn.permanent;
+  const n = await foundry.applications.api.DialogV2.prompt({
+    window: { title: t("CraftTitle", { name: f.name }), icon: "fa-solid fa-gem" }, classes: ["vtm20", "r-dialog", "r-type-werewolf"], rejectClose: false,
+    content: `<p>${t(talen ? "CraftTalenHow" : "CraftFetishHow", { g: f.gnosis })}</p>${knows ? "" : `<p class="r-warn"><i class="fa-solid fa-triangle-exclamation"></i> ${t("CraftNoRite", { rite: riteOf(rite)?.name ?? rite })}</p>`}
+      <label>${t(talen ? "CraftSpendTemp" : "CraftSpendPerm")} <input type="number" name="n" value="0" min="0" max="${max}"></label>`,
+    ok: { label: t("CraftGo"), icon: "fa-solid fa-hand-sparkles", callback: (ev, btn) => Math.clamp(Number(btn.form.elements.n.value) || 0, 0, max) }
+  });
+  if (n == null) return;
+  if (n > 0) await actor.update(talen ? { "system.werewolf.gnosis.value": gn.value - n }
+    : { "system.werewolf.gnosis.permanent": gn.permanent - n, "system.werewolf.gnosis.value": Math.min(gn.value, gn.permanent - n) });
+  const done = async r => {
+    if (!((r?.successes ?? 0) > 0)) return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<div class="r-notice r-type-werewolf"><i class="fa-solid fa-ghost"></i> ${t("CraftFail", { name: esc(f.name) })}</div>` });
+    const list = foundry.utils.deepClone(actor.system.werewolf.fetishes ?? []), have = list.find(x => x.key === key);
+    if (have && talen) have.n += 1; else if (!have) list.push({ key, attuned: !talen, n: 1 }); else have.attuned = true;
+    await actor.update({ "system.werewolf.fetishes": list });
+    return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<div class="r-notice r-type-werewolf"><i class="fa-solid fa-gem"></i> ${t("CraftDone", { name: esc(actor.name), item: esc(f.name) })}</div>` });
+  };
+  return talen
+    ? RollDialog.prompt(actor, { title: t("CraftTitle", { name: f.name }), trait1: "willpower", difficulty: Math.max(2, f.gnosis - n), diffNote: t("CraftTalenNote"), onRolled: done })
+    : RollDialog.prompt(actor, { title: t("CraftTitle", { name: f.name }), trait1: "attributes.wits", trait2: "abilities.rituals", difficulty: Math.max(3, 10 - 2 * n),
+        diffNote: t("CraftFetishNote"), onRolled: done });
 }
 
 /* ── Родня Гару (W20 Kinfolk): Дары 1-го уровня своей породы и племени и особые Дары Родни ─── */
@@ -592,8 +641,17 @@ const DELIRIUM = [null, "catatonic", "panic", "disbelief", "berserk", "terror", 
 export const deliriumOf = wp => { const n = Math.clamp(wp, 1, 10); return { n, key: DELIRIUM[n], forgets: n <= 6 }; };
 
 /** Бред: целям (выделенным токенам) — реакция по их Воле; без целей — справочная таблица. */
+/** Свидетели на сцене: смертные, охотники и гули на текущей сцене (кроме самого оборотня). */
+export function sceneWitnesses(actor) {
+  const seen = new Set();
+  return (canvas?.scene?.tokens?.contents ?? []).map(tk => tk.actor).filter(a => a && a.id !== actor?.id && ["mortal", "hunter", "ghoul"].includes(a.type)
+    && !seen.has(a.id) && seen.add(a.id));
+}
+
+/** Бред (W20, гл. 7): по целям, иначе по свидетелям на сцене, иначе — таблица для рассказчика. */
 export async function delirium(actor) {
-  const targets = [...game.user.targets].map(tk => tk.actor).filter(a => a && ["mortal", "hunter", "ghoul"].includes(a.type));
+  let targets = [...game.user.targets].map(tk => tk.actor).filter(a => a && ["mortal", "hunter", "ghoul"].includes(a.type));
+  if (!targets.length) targets = sceneWitnesses(actor);
   const row = (name, wp, kin = false) => { if (kin) return `<tr><td>${esc(name)}</td><td>—</td><td><b>${t("DeliriumKin")}</b></td></tr>`; const d = deliriumOf(wp);
     return `<tr><td>${esc(name)}</td><td>${d.n}</td><td><b>${t(`DeliriumR.${d.key}`)}</b><br><small>${t(d.forgets ? "DeliriumForgets" : d.n <= 8 ? "DeliriumExplains" : "DeliriumRemembers")}</small></td></tr>`; };
   const rows = targets.length ? targets.map(a => row(a.name, a.system.willpower?.permanent ?? 3, !!a.system.kinfolk?.on || kamiDeliriumImmune(a) || (!!a.system.fomor?.on && a.system.fomor.powers.some(p => p.key === "immunity-to-the-delirium")))).join("")

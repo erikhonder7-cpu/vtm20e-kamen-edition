@@ -7,7 +7,9 @@
       "creature": "Creature",
       "demon": "Demon",
       "hunter": "Hunter",
-      "werewolf": "Werewolf"
+      "werewolf": "Werewolf",
+      "coterie": "Coterie",
+      "domain": "Domain"
     },
     "Item": {
       "discipline": "Discipline",
@@ -299,7 +301,8 @@
       "NearNoise": "Messengers' noise (Hermit)",
       "SightGuard": "Protection",
       "SightAlwaysHint": "A Wayward's Second Sight always sees monsters, for free. A point of Conviction — protection of mind and body until the end of the scene.",
-      "SightGuardOn": "{name} spends Conviction: protection of mind and body until the end of the scene (the Wayward sees monsters anyway)."
+      "SightGuardOn": "{name} spends Conviction: protection of mind and body until the end of the scene (the Wayward sees monsters anyway).",
+      "EdgeOnToken": "Edge: {name}"
     },
     "Exorcist": {
       "HunterNote": "Second Sight and protection — a point per scene",
@@ -858,7 +861,9 @@
     "Sheets": {
       "Actor": "V20 “Liberté” sheet",
       "Extra": "Extra and crowd",
-      "Item": "V20 item"
+      "Item": "V20 item",
+      "Coterie": "Coterie sheet",
+      "Domain": "Domain sheet"
     },
     "Tabs": {
       "traits": "Traits",
@@ -2063,7 +2068,9 @@
       "Owes": "{name} owes · {level}",
       "OwesTo": "Owes {name} · {level}",
       "OpenSheet": "Open sheet",
-      "Create": "Create sheet"
+      "Create": "Create sheet",
+      "FadeShort": "−1 in {n} mo.",
+      "Fade": "weakens without blood in {n} chronicle months"
     },
     "SessionXp": {
       "Title": "Session experience",
@@ -2277,6 +2284,14 @@
         "frenzy": "{who} frenzies",
         "rotschreck": "{who} is gripped by Rötschreck",
         "degeneration": "{who} loses Humanity"
+      },
+      "Garou": {
+        "frenzy": "{who} falls into frenzy",
+        "thrall": "{who} — Thrall of the Wyrm",
+        "harano": "{who} succumbs to Harano",
+        "haranoEnd": "{who} comes out of Harano",
+        "scar": "{who}: battle scar — {what}",
+        "renown": "{who}: Renown — {what}"
       }
     },
     "Coterie": {
@@ -2556,7 +2571,20 @@
       "TraitBlocked": "“{a}” is incompatible with “{b}” — as the trait's text says.",
       "TraitExclusive": "“{a}” and “{b}” are incompatible.",
       "TraitCamarillaOnly": "“{name}” is meant for the Camarilla — check with the Storyteller.",
-      "GateHintWerewolf": "Breed, auspice and tribe, three Gifts, Rage and Gnosis — the wizard builds the Garou by W20 rules."
+      "GateHintWerewolf": "Breed, auspice and tribe, three Gifts, Rage and Gnosis — the wizard builds the Garou by W20 rules.",
+      "Mark": {
+        "title": "Unusual mortal",
+        "none": "An ordinary human — or Garou Kinfolk, Kami, fomor.",
+        "kinfolk": "Garou Kinfolk",
+        "kami": "Kami",
+        "fomor": "Fomor",
+        "kinfolkHint": "Kinfolk (W20 Kinfolk): immune to the Delirium; Gifts and numina are bought with experience on the sheet.",
+        "kamiHint": "Kami (W20 Umbra): Willpower, Gnosis and Rage by form; the Destiny Background at least 1.",
+        "fomorHint": "Fomor (Book of the Wyrm): breed powers are given automatically; Humanity drops with every power.",
+        "kamiPick": "Kami powers — one to three.",
+        "fomorBreed": "Breed",
+        "fomorPick": "Breed powers are marked; pick up to two more."
+      }
     },
     "Settings": {
       "MonthlyIncome": {
@@ -3098,7 +3126,9 @@
       "AuraYears": "years in the aura",
       "Soul": "Victim's soul",
       "SoulDone": "The soul is drunk — it remains to consume it.",
-      "Tries": "on average {n} more rolls"
+      "Tries": "on average {n} more rolls",
+      "Mark": "Diablerie: {victim} (generation {from} → {to})",
+      "Veins": "Black veins in the aura until {date}"
     },
     "Clans": {
       "Title": "Clans reference",
@@ -3442,7 +3472,8 @@
         "mortal": "Mortals",
         "garou": "World of the Garou",
         "fallen": "The Fallen",
-        "book": "From the book"
+        "book": "From the book",
+        "groups": "Groups"
       },
       "Kind": {
         "vampire": "Kindred",
@@ -3461,7 +3492,8 @@
         "demon": "Fallen",
         "earthbound": "Earthbound",
         "thrall": "Thrall",
-        "book": "Book stat blocks"
+        "book": "Book stat blocks",
+        "group": "Whole group"
       },
       "RoleGroup": {
         "combat": "Combat",
@@ -3572,7 +3604,28 @@
         "vagabond": "Wanderer"
       },
       "RoleTitle": "Role",
-      "PowerTitle": "Power"
+      "PowerTitle": "Power",
+      "GroupKind": "Roster",
+      "Presets": "Presets",
+      "NoPresets": "no presets of your own yet",
+      "PresetSave": "Save preset",
+      "PresetName": "Preset name",
+      "PresetSaved": "Preset “{name}” saved.",
+      "GroupKicker": "Group · {n} members",
+      "GroupAsCoterie": "and a coterie with them",
+      "GroupDone": "Created: {n} — the group is in its own folder.",
+      "Group": {
+        "court": "Prince's court",
+        "anarchs": "Anarch gang",
+        "sabbat": "Sabbat pack",
+        "garou": "Garou pack",
+        "cell": "Hunter cell",
+        "cult": "Fallen's cult",
+        "ghouls": "Ghouls of one house",
+        "pentex": "Pentex fomori",
+        "kin": "Kinfolk family",
+        "police": "Police patrol"
+      }
     },
     "Money": {
       "Title": "Purse",
@@ -4401,7 +4454,24 @@
       "NoDeformities": "No deformities. A metis must have at least one — hiding it is dishonourable.",
       "AddDeformity": "+ Deformity…",
       "DeformFx": "applied on the sheet",
-      "GauntletPerk": "city caern ({name}): −{n}"
+      "GauntletPerk": "city caern ({name}): −{n}",
+      "Craft": "Create by rite",
+      "CraftHint": "Bind a spirit into the chosen fetish (Rite of the Fetish) or talen (Rite of Binding)",
+      "CraftPick": "Pick a fetish or talen in the list.",
+      "CraftTitle": "Creating: {name}",
+      "CraftFetishHow": "Rite of the Fetish: the object was cleansed three nights in a row, the spirit persuaded or defeated. Wits + Rituals, difficulty 10; each permanent Gnosis spent is −2. Fetish Gnosis {g}.",
+      "CraftTalenHow": "Rite of Binding: the spirit is present and not hostile to the totem. Willpower roll against the spirit's Gnosis ({g}); each Gnosis spent lowers it by 1.",
+      "CraftNoRite": "The sheet lacks {rite} — only with the Storyteller's leave.",
+      "CraftSpendPerm": "Spend permanent Gnosis:",
+      "CraftSpendTemp": "Spend Gnosis:",
+      "CraftGo": "Perform the rite",
+      "CraftFetishNote": "W20 ch. 7: −2 per permanent Gnosis",
+      "CraftTalenNote": "Spirit's Gnosis minus Gnosis spent",
+      "CraftFail": "The spirit did not enter {name}: the rite failed — the spirit may bear a grudge.",
+      "CraftDone": "{name}: created {item}.",
+      "TotemTrait": "Pack totem ({totem})",
+      "HaranoOn": "{name}: Harano — despair for the dying world, −1 die to every roll.",
+      "HaranoOff": "{name}: Harano has lifted."
     },
     "Strategy": {
       "Tab": "Strategy",
@@ -4779,6 +4849,175 @@
         "astral": "Astral Umbra",
         "dark": "Dark Umbra",
         "deep": "Deep Umbra"
+      }
+    },
+    "Sins": {
+      "Ask": "Path: {path}, rating {n}. What was done? Sins above {n} (dimmed) need no check.",
+      "Go": "Check",
+      "Safe": "{name}: “{sin}” ({r}) is above rating {n} — no degeneration check.",
+      "Note": "Sin {r}: {sin}"
+    },
+    "Group": {
+      "KindLabel": "Kind",
+      "Kind": {
+        "coterie": "Coterie",
+        "sabbat": "Sabbat pack",
+        "pack": "Garou pack",
+        "cell": "Hunter cell"
+      },
+      "Members": "Members",
+      "Drop": "Remove from the group",
+      "NoMembers": "No one yet — drag characters from the directory.",
+      "DropHint": "Drag a character in to add a member, a domain to set the Domain.",
+      "Pools": "Shared Backgrounds",
+      "PoolsOpen": "Shares and base",
+      "Primary": "Base: no shared Background is higher",
+      "NoPools": "No shared Backgrounds.",
+      "Domain": "Domain",
+      "Rating": "Rating",
+      "Totem": "Pack totem",
+      "TotemEach": "Each member",
+      "TotemPack": "The pack",
+      "TotemBan": "Ban",
+      "Cell": "Hunter cell",
+      "Net": "Net handle",
+      "NetHint": "hunter-net nickname",
+      "Notes": "Notes",
+      "Conviction": "Conviction {n}",
+      "Owner": "Owner",
+      "Security": "Security",
+      "Masquerade": "Masquerade threat",
+      "RatingHint": "Rating works as Domain Background dots: when the owner or their coterie hunts, it lowers the difficulty together with Fame.",
+      "Ground": "Hunting ground",
+      "Zone": "Map zone",
+      "ShowMap": "Show on the map",
+      "Population": "Population",
+      "PopulationHint": "who lives and passes here",
+      "Holdings": "Holdings",
+      "HoldingsHint": "havens, clubs, businesses, the owner's people",
+      "HuntLine": "Hunting here: difficulty {diff}, domain −{cut} → {res}",
+      "OpenSheet": "Open sheet",
+      "DropMember": "Drag a character sheet from the directory here to add them",
+      "DropDomain": "Drag a domain sheet",
+      "Unlink": "Remove",
+      "DropOwner": "Drag the owner's sheet — a character or a coterie",
+      "PickOwner": "…or pick",
+      "OnlyPeople": "Characters only here.",
+      "Guests": "Allowed to hunt",
+      "People": "Own people",
+      "DropGuest": "Drop a sheet: the owner allowed them to hunt",
+      "DropPerson": "Drop a sheet: the owner's ghoul, Herd, servant",
+      "Stat": {
+        "rating": "Size",
+        "security": "Security",
+        "prosperity": "Prosperity",
+        "passages": "Secret passages",
+        "populace": "Population",
+        "servants": "Servants",
+        "masquerade": "Masquerade threat"
+      },
+      "StatHint": {
+        "rating": "V20: each dot is −1 to hunting difficulty for the owner and guests, +1 blood at the start of play. 1 — a house or business; 3 — a block; 5 — a district, an ethnic enclave.",
+        "security": "V20: each dot is +1 to the difficulty to sneak in and for uninvited vampires to hunt, −1 to find and identify trespassers.",
+        "prosperity": "DA Companion: each dot is −1 to Commerce difficulty; Resources up to this rating cost half the maturation experience.",
+        "passages": "DA Companion: each dot is −1 to difficulty to hide and evade attention for those who know the domain.",
+        "masquerade": ""
+      },
+      "SecDomain": "Domain",
+      "SecEstate": "Estate",
+      "SecFeudal": "Liege and vassals",
+      "SecEvents": "Domain events",
+      "StartBlood": "Size {n}: +{n} blood at the start of play for the owner",
+      "Combined": "with vassals — domain {n}",
+      "PoolLine": "coterie shared Domain — {n}",
+      "PoolHint": "V20: Domain may be shared — both size and security.",
+      "PoolSync": "Take from the coterie",
+      "PopulaceLine": "{h} households (as many militia), ~{p} people, {a} sq. miles",
+      "PopulaceNone": "Herd may be turned into Population (DA Companion).",
+      "ServantsLine": "Management and Leadership in domain affairs: difficulty −{n}; up to {k} servants on a journey",
+      "ServantsNone": "Without servants the estate merely doesn't fall apart.",
+      "Liege": "Liege",
+      "Vassals": "Vassals",
+      "NoVassals": "No vassals.",
+      "FeudalHint": "DA Companion: for each dot the liege grants a vassal as an anchor, the vassal gives 2; revoking an anchor costs the liege 1 dot. The combined domain is own size plus the vassals'.",
+      "NoEvents": "No events yet.",
+      "EventNote": "what and where",
+      "AddEvent": "To the log",
+      "HavenTitle": "Communal haven",
+      "HavenUsed": "{used} of {n} allotted",
+      "HavenNoPool": "Add the shared Background Communal Haven in Shares and base — its dots are split here.",
+      "Haven": {
+        "luxury": "Luxury",
+        "size": "Size",
+        "security": "Security"
+      },
+      "HavenHint": {
+        "luxury": {
+          "0": "—",
+          "1": "dumpster furniture",
+          "2": "modest, all basics",
+          "3": "comfort",
+          "4": "a luxurious oasis",
+          "5": "rich and famous"
+        },
+        "size": {
+          "0": "—",
+          "1": "small flat, 1–2 rooms",
+          "2": "big flat or house, 3–4",
+          "3": "warehouse, church, big house, 5–8",
+          "4": "mansion or tunnels, 9–15",
+          "5": "estate, subway tunnels, 20+"
+        },
+        "security": {
+          "0": "—",
+          "1": "cheap locks",
+          "2": "sturdy doors, bars, a dog",
+          "3": "alarm, cameras, guards",
+          "4": "secure facility, panic rooms",
+          "5": "plus unique protection"
+        }
+      },
+      "Event": {
+        "curse": {
+          "name": "Curse",
+          "text": "−1 or more to Herd (Population) or local Resources until lifted; may draw a Saint."
+        },
+        "disaster": {
+          "name": "Disaster",
+          "text": "−1 or more to Herd (Population), Size or Prosperity; servants restore as many dots as their rating. Unrepaired — Invasion, Brigands, Famine."
+        },
+        "saint": {
+          "name": "Saint",
+          "text": "True Faith, miracles; staying a season or longer — Resources +1 while here. Pilgrims, Heresy."
+        },
+        "famine": {
+          "name": "Famine",
+          "text": "−1 or more to Herd (Population), in time to Servants; Brigands."
+        },
+        "invasion": {
+          "name": "Invasion",
+          "text": "Mass combat: households are the militia, servants are troops, Allies and vassals other forces. A long war cuts Population, a siege — Size and outside Resources."
+        },
+        "court": {
+          "name": "Liege's visit",
+          "text": "Servants at least the liege's Status or Influence; cover the gap with Resources (−1 Resources dot). Failure — punishment, success — Resources, Influence, standing."
+        },
+        "heresy": {
+          "name": "Heresy",
+          "text": "Gives Influence over its followers but risks excommunication: lost Influence, Kindred Status, Resources."
+        },
+        "miracle": {
+          "name": "Miracle",
+          "text": "True Faith in a place or object (or a fake): Resources, Influence, Status; Pilgrims, Heresy."
+        },
+        "brigands": {
+          "name": "Brigands",
+          "text": "Take Prosperity, Resources, Herd (Population); lawlessness hits Influence and Status."
+        },
+        "pilgrims": {
+          "name": "Pilgrims",
+          "text": "One domain Resource +1 while they stay; with hospitality — permanently."
+        }
       }
     }
   }

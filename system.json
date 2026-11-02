@@ -123,6 +123,18 @@
           "biography",
           "notes"
         ]
+      },
+      "coterie": {
+        "htmlFields": [
+          "biography",
+          "notes"
+        ]
+      },
+      "domain": {
+        "htmlFields": [
+          "biography",
+          "notes"
+        ]
       }
     },
     "Item": {

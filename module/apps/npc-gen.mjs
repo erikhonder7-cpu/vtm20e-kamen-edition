@@ -18,7 +18,13 @@ import { REVENANT_FAMILIES } from "../data/revenants.mjs";
 import { W as WW } from "./werewolf.mjs";
 import { H as HH } from "./hunter.mjs";
 import { ROLES, ROLE_GROUPS, POWERS, roleOf, lab } from "./npc-roles.mjs";
-import { KINDS, KIND_GROUPS, kindOf, buildNpc, npcView, createNpc } from "./npc-build.mjs";
+import { KINDS, KIND_GROUPS, kindOf, buildNpc, npcView, createNpc, GROUPS, groupOf, buildGroup } from "./npc-build.mjs";
+
+/** Заготовки рассказчика (настройка мира): имя и всё, что выбрано в окне. */
+export function registerNpcPresets() {
+  game.settings.register(SYSTEM_ID, "npcPresets", { scope: "world", config: false, type: Array, default: [] });
+}
+const presets = () => foundry.utils.deepClone(game.settings.get(SYSTEM_ID, "npcPresets") ?? []);
 
 const { HandlebarsApplicationMixin, ApplicationV2 } = foundry.applications.api;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -165,6 +171,9 @@ function paramFields(kind, p) {
       F.push({ name: "spirit", label: L("SpiritTpl"), options: [any(p.spirit), ...(D.spirits ?? []).filter(s => !p.spiritKind || s.kind === p.spiritKind).map(s => opt(s.key, s.name, p.spirit))] });
       break;
     }
+    case "group":
+      F.push({ name: "group", label: L("GroupKind"), options: GROUPS.map(g => opt(g.key, lab(`Group.${g.key}`, g.label), p.group || GROUPS[0].key)) });
+      break;
     case "demon": case "earthbound":
       F.push({ name: "house", label: L("House"), options: [any(p.house), ...Codex.houses.map(h => opt(h.key, h.name, p.house))] });
       F.push({ name: "faction", label: L("Faction"), options: [any(p.faction), ...Codex.factions.map(f => opt(f.key, f.name, p.faction))] });
@@ -194,7 +203,8 @@ export class NpcGenerator extends HandlebarsApplicationMixin(ApplicationV2) {
     actions: {
       kind: NpcGenerator.#onKind, role: NpcGenerator.#onRole, sub: NpcGenerator.#onSub, power: NpcGenerator.#onPower,
       reroll: NpcGenerator.#onReroll, surprise: NpcGenerator.#onSurprise, pick: NpcGenerator.#onPick, rollName: NpcGenerator.#onRollName,
-      create: NpcGenerator.#onCreate, gearAdd: NpcGenerator.#onGearAdd, gearDrop: NpcGenerator.#onGearDrop
+      create: NpcGenerator.#onCreate, gearAdd: NpcGenerator.#onGearAdd, gearDrop: NpcGenerator.#onGearDrop,
+      presetSave: NpcGenerator.#onPresetSave, presetLoad: NpcGenerator.#onPresetLoad, presetDrop: NpcGenerator.#onPresetDrop
     }
   };
 
@@ -204,9 +214,18 @@ export class NpcGenerator extends HandlebarsApplicationMixin(ApplicationV2) {
   get template() { return this.isBook ? DATA?.templates.find(x => x.key === this.ng.template) ?? null : null; }
 
   /** Черновик по текущим условиям (пересобирается, когда условия меняются). */
+  get isGroup() { return this.ng.kind === "group"; }
+
   #ensureDraft() {
     if (this.isBook || this.draft) return;
     const s = this.ng;
+    if (this.isGroup) {
+      try {
+        const list = buildGroup(s.params.group || GROUPS[0].key, s.power);
+        this.draft = { group: true, list, names: list.map(d => d.spirit ? d.name : randomName(DATA.names[s.names], s.gender)) };
+      } catch (err) { console.error(err); this.draft = null; ui.notifications.error(L("BuildFailed")); }
+      return;
+    }
     try {
       this.draft = buildNpc({ kind: s.kind, role: s.role, sub: s.sub, power: s.power, params: s.params });
     } catch (err) {
@@ -274,20 +293,25 @@ export class NpcGenerator extends HandlebarsApplicationMixin(ApplicationV2) {
           key: x.key, name: x.name, active: x.key === s.template, s: norm(`${g.label} ${x.name}`) })) })) };
     }
 
-    const d = this.draft;
+    const d = this.draft?.group ? null : this.draft;
+    const grp = this.draft?.group ? this.draft : null;
     const presetOpts = (list, cat) => [...new Set(list.filter(p => Codex.visible(p)).map(p => p.group))].map(g => ({
       label: g, options: list.map((p, i) => ({ value: `${cat}:${i}`, label: p.name, group: p.group, show: Codex.visible(p) })).filter(p => p.group === g && p.show)
     }));
     return {
       s, kinds, kind: { ...kind, label: lab(`Kind.${kind.key}`, kind.label) }, roleGroups, subs, role: role ? { key: role.key, label: lab(`Role.${role.key}`, role.label) } : null,
-      powers, isBook: this.isBook, isSpirit: s.kind === "spirit", book, fields: this.isBook ? [] : paramFields(s.kind, s.params),
+      powers, isBook: this.isBook, isSpirit: s.kind === "spirit", isGroup: this.isGroup, book,
+      group: grp ? { title: lab(`Group.${groupOf(s.params.group || GROUPS[0].key).key}`, groupOf(s.params.group || GROUPS[0].key).label),
+        coterie: groupOf(s.params.group || GROUPS[0].key).coterie, members: grp.list.map((x, i) => ({ name: grp.names[i], kind: x.kindLabel, icon: x.kindIcon, role: x.roleLabel,
+          concept: x.concept, power: x.powerLabel, tags: (x.tags ?? []).filter(Boolean).slice(0, 3).join(" · "), traits: (x.traits ?? []).slice(0, 3).map(([l, v]) => `${l} ${v}`).join(" · ") })) } : null,
+      presets: presets().map((p, i) => ({ i, name: p.name })), fields: this.isBook ? [] : paramFields(s.kind, s.params),
       draft: d ? { ...npcView(d), name: s.name.trim() || this.draftName, kindLabel: d.kindLabel, kindIcon: d.kindIcon, roleLabel: d.roleLabel, roleIcon: d.roleIcon,
         subLabel: d.subLabel, powerLabel: d.powerLabel, concept: d.concept } : null,
       nameSets: Object.entries(D.names).map(([k, n]) => ({ value: k, label: n.label, selected: k === s.names })),
       genders: [{ value: "", label: L("GenderAny") }, { value: "m", label: L("GenderM") }, { value: "f", label: L("GenderF") }].map(o => ({ ...o, selected: o.value === s.gender })),
       weaponGroups: presetOpts(WEAPON_PRESETS, "w"), armorGroups: presetOpts(ARMOR_PRESETS, "a"),
       extra: s.extra.map((k, i) => ({ i, label: this.#preset(k)?.name ?? "" })),
-      canCreate: this.isBook ? !!this.template : !!d, multi: s.count > 1
+      canCreate: this.isBook ? !!this.template : !!this.draft, multi: s.count > 1 && !this.isGroup
     };
   }
 
@@ -353,6 +377,48 @@ export class NpcGenerator extends HandlebarsApplicationMixin(ApplicationV2) {
   }
   static #onGearDrop(event, target) { this.ng.extra.splice(Number(target.dataset.i), 1); this.render(); }
 
+  /** Заготовка: сохранить всё, что выбрано (имя спросить). */
+  static async #onPresetSave() {
+    const name = await foundry.applications.api.DialogV2.prompt({ window: { title: L("PresetSave") }, classes: ["vtm20", "r-dialog"], rejectClose: false,
+      content: `<label class="r-field"><span>${L("PresetName")}</span><input type="text" name="name" autofocus value="${esc(this.draft?.concept ?? "")}"></label>`,
+      ok: { label: L("PresetSave"), callback: (e, b) => b.form.elements.name.value.trim() } });
+    if (!name) return;
+    const s = this.ng, keep = ["kind", "role", "sub", "power", "params", "names", "gender", "extra", "as", "count", "template", "trained", "ghoul"];
+    const list = presets();
+    list.push({ name, ...foundry.utils.deepClone(Object.fromEntries(keep.map(k => [k, s[k]]))) });
+    await game.settings.set(SYSTEM_ID, "npcPresets", list);
+    ui.notifications.info(L("PresetSaved", { name }));
+    this.render();
+  }
+  static #onPresetLoad(event, target) {
+    const p = presets()[Number(target.dataset.i)];
+    if (!p) return;
+    const { name, ...rest } = p;
+    Object.assign(this.ng, foundry.utils.deepClone(rest), { name: "" });
+    this.draft = null; this.render();
+  }
+  static async #onPresetDrop(event, target) {
+    const list = presets(); list.splice(Number(target.dataset.i), 1);
+    await game.settings.set(SYSTEM_ID, "npcPresets", list); this.render();
+  }
+
+  /** Группа целиком: все участники — по показанным черновикам; котерия нужного вида с ними. */
+  async #createGroup(folder, gear) {
+    const s = this.ng, g = groupOf(s.params.group || GROUPS[0].key), made = [];
+    const sub = await Folder.create({ name: lab(`Group.${g.key}`, g.label), type: "Actor", folder: folder.id, color: "#4a0d11" });
+    for (const [i, d] of this.draft.list.entries()) {
+      const a = await createNpc(d, { name: this.draft.names[i], folder: sub.id });
+      if (!a) continue;
+      if (gear.length && !d.spirit) await a.createEmbeddedDocuments("Item", gear);
+      made.push(a);
+    }
+    if (g.coterie) {
+      const c = await Actor.create({ name: lab(`Group.${g.key}`, g.label), type: "coterie", folder: sub.id, system: { kind: g.coterie, members: made.map(a => a.id) } });
+      made.unshift(c);
+    }
+    return made;
+  }
+
   /** Создать: первый — ровно показанный черновик, остальные — новые с теми же условиями. */
   static async #onCreate() {
     const s = this.ng, tpl = this.template;
@@ -366,6 +432,13 @@ export class NpcGenerator extends HandlebarsApplicationMixin(ApplicationV2) {
       const type = ref.startsWith("w:") ? "weapon" : "armor";
       return { name, type, img: type === "weapon" ? weaponIcon(name, system.kind) : armorIcon(system.rating), system };
     }).filter(Boolean);
+    if (this.isGroup) {
+      const made = await this.#createGroup(folder, gear);
+      ui.notifications.info(L("GroupDone", { n: made.length }));
+      this.#reset(); this.render();
+      if (s.open && made[0]) made[0].sheet.render({ force: true });
+      return;
+    }
     const beast = tpl && ["animals", "swarms"].includes(tpl.group);
     const made = [];
     // толпа: один актёр на всех, численность — «Сколько»; статист — короткий лист у каждого

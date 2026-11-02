@@ -22,6 +22,7 @@ import { MERIT_MODS, describeMeritMod } from "../data/merit-mods.mjs";
 import { lineUp, childrenOf, bloodCheck, actorByName } from "../data/lineage.mjs";
 import { isSabbat, vinculumMeaning } from "../apps/vaulderie.mjs";
 import { coteriesOf, poolValue } from "../apps/coterie.mjs";
+import { bondFade } from "../apps/bonds.mjs";
 import { formFeatures, mechLabel, needsPick, signed } from "../data/form.mjs";
 import { ritualNeed, thrallState, thrallCap, reliquaryInfo } from "../apps/torment.mjs";
 
@@ -517,7 +518,8 @@ export function prepareAdvantages(sheet, ctx) {
     };
   }
   ctx.bonds = (a.system.bonds ?? []).map((b, i) => ({ ...b, index: i, dots: dots(b.rating, 3, { path: `system.bonds.${i}.rating` }),
-    isRegnant: b.role === "regnant", tip: t("BondX.Tip", { n: b.drinks ?? 0, last: b.last || "—" }) }));
+    isRegnant: b.role === "regnant", tip: t("BondX.Tip", { n: b.drinks ?? 0, last: b.last || "—" })
+      + (bondFade(a, b) != null ? ` · ${game.i18n.format("VTM20.Web.Fade", { n: bondFade(a, b) })}` : "") }));
   // Винкулум — у вампиров Шабаша и у всех, у кого он уже записан
   // котерии персонажа: общие факты и свой вклад (apps/coterie.mjs)
   ctx.coteries = coteriesOf(a).map(c => ({ name: c.name, pools: Object.keys(c.pools ?? {}).map(bg => ({ bg, value: poolValue(c, bg),

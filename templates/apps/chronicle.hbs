@@ -21,7 +21,8 @@
         {{#each botches}}<li class="is-botch"><i class="fa-solid fa-skull"></i> {{this}}</li>{{/each}}
         {{#each breaks}}<li class="is-break"><i class="fa-solid fa-face-angry"></i> {{this}}</li>{{/each}}
         {{#each fates}}<li class="is-fate"><i class="fa-solid fa-bed"></i> {{this}}</li>{{/each}}
-        {{#unless greats.length}}{{#unless botches.length}}{{#unless breaks.length}}{{#unless fates.length}}<li class="r-empty">{{localize "VTM20.Chronicle.Quiet"}}</li>{{/unless}}{{/unless}}{{/unless}}{{/unless}}
+        {{#each garou}}<li class="is-break"><i class="fa-solid fa-paw"></i> {{this}}</li>{{/each}}
+        {{#unless greats.length}}{{#unless botches.length}}{{#unless breaks.length}}{{#unless fates.length}}{{#unless garou.length}}<li class="r-empty">{{localize "VTM20.Chronicle.Quiet"}}</li>{{/unless}}{{/unless}}{{/unless}}{{/unless}}{{/unless}}
       </ul>
       {{#if damage.length}}<h3 class="r-h3 r-colhead"><span>{{localize "VTM20.Chronicle.DamageT"}}</span></h3>
       {{#each damage}}<div class="r-trait"><span class="r-trait-main"><span class="r-trait-label">{{who}}</span><span class="r-leader"></span><b>{{n}}</b></span></div>{{/each}}{{/if}}

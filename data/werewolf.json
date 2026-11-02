@@ -24104,7 +24104,11 @@
       "manipulation": -1,
       "appearance": -3
      },
-     "set": {}
+     "set": {},
+     "natural": {
+      "bite": "aggravated",
+      "claw": "aggravated"
+     }
     },
     {
      "key": "f2",
@@ -24118,7 +24122,12 @@
      },
      "set": {
       "appearance": 0
-     }
+     },
+     "natural": {
+      "bite": "aggravated",
+      "claw": "aggravated"
+     },
+     "delirium": true
     },
     {
      "key": "f3",
@@ -24132,6 +24141,10 @@
      },
      "set": {
       "appearance": 0
+     },
+     "natural": {
+      "bite": "aggravated",
+      "claw": "aggravated"
      }
     },
     {
@@ -24144,7 +24157,10 @@
       "stamina": 2,
       "manipulation": -2
      },
-     "set": {}
+     "set": {},
+     "natural": {
+      "bite": "aggravated"
+     }
     }
    ],
    "formsHtml": "",
@@ -24237,6 +24253,10 @@
      },
      "set": {
       "appearance": 0
+     },
+     "natural": {
+      "bite": "aggravated",
+      "claw": "aggravated"
      }
     },
     {
@@ -24251,7 +24271,12 @@
      },
      "set": {
       "appearance": 0
-     }
+     },
+     "natural": {
+      "bite": "aggravated",
+      "claw": "aggravated"
+     },
+     "delirium": true
     },
     {
      "key": "f3",
@@ -24262,6 +24287,9 @@
      },
      "set": {
       "appearance": 0
+     },
+     "natural": {
+      "bite": "aggravated"
      }
     }
    ],
@@ -24362,6 +24390,10 @@
      "en": "Sokto",
      "mods": {},
      "set": {},
+     "natural": {
+      "bite": "aggravated",
+      "claw": "aggravated"
+     },
      "modsBy": {
       "tribe:bagheera": {
        "mods": {
@@ -24456,6 +24488,11 @@
      "en": "Crinos",
      "mods": {},
      "set": {},
+     "natural": {
+      "bite": "aggravated",
+      "claw": "aggravated"
+     },
+     "delirium": true,
      "modsBy": {
       "tribe:bagheera": {
        "mods": {
@@ -24564,6 +24601,10 @@
      "en": "Chatro",
      "mods": {},
      "set": {},
+     "natural": {
+      "bite": "aggravated",
+      "claw": "aggravated"
+     },
      "modsBy": {
       "tribe:bagheera": {
        "mods": {
@@ -24655,6 +24696,9 @@
      "en": "Feline",
      "mods": {},
      "set": {},
+     "natural": {
+      "bite": "aggravated"
+     },
      "modsBy": {
       "tribe:bagheera": {
        "mods": {
@@ -24904,7 +24948,11 @@
      },
      "set": {
       "appearance": 0
-     }
+     },
+     "natural": {
+      "bite": "aggravated"
+     },
+     "delirium": true
     },
     {
      "key": "f2",
@@ -24916,7 +24964,10 @@
       "manipulation": -3,
       "perception": 4
      },
-     "set": {}
+     "set": {},
+     "natural": {
+      "bite": "aggravated"
+     }
     }
    ],
    "formsHtml": "<table><thead><tr><th>Форма</th><th>Сил</th><th>Лов</th><th>Сто</th><th>Ман</th><th>Внеш</th><th>Воспр</th></tr></thead><tbody><tr><td>Хомид</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr><tr><td>Кринос</td><td>+1</td><td>+1</td><td>+1</td><td>−2</td><td>0</td><td>+3</td></tr><tr><td>Корвид</td><td>−1</td><td>+1</td><td>—</td><td>−3</td><td>—</td><td>+4</td></tr></tbody></table><p>Кринос — только для боя; когтями (руки и ноги) наносит губительный урон; ходить неуклюже.</p>",
@@ -24972,7 +25023,11 @@
       "manipulation": -2,
       "appearance": -2
      },
-     "set": {}
+     "set": {},
+     "natural": {
+      "bite": "aggravated",
+      "claw": "aggravated"
+     }
     },
     {
      "key": "f2",
@@ -24986,7 +25041,12 @@
      },
      "set": {
       "appearance": 0
-     }
+     },
+     "natural": {
+      "bite": "aggravated",
+      "claw": "aggravated"
+     },
+     "delirium": true
     },
     {
      "key": "bjornen",
@@ -24998,7 +25058,11 @@
       "stamina": 4,
       "manipulation": -3
      },
-     "set": {}
+     "set": {},
+     "natural": {
+      "bite": "aggravated",
+      "claw": "aggravated"
+     }
     },
     {
      "key": "f4",
@@ -25009,7 +25073,10 @@
       "stamina": 3,
       "manipulation": -3
      },
-     "set": {}
+     "set": {},
+     "natural": {
+      "bite": "aggravated"
+     }
     }
    ],
    "formsHtml": "<table><thead><tr><th>Форма</th><th>Сил</th><th>Лов</th><th>Сто</th><th>Ман</th><th>Внеш</th></tr></thead><tbody><tr><td>Хомид</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr><tr><td>Артрен (Arthren)</td><td>+3</td><td>0</td><td>+3</td><td>−2</td><td>−2</td></tr><tr><td>Кринос</td><td>+5</td><td>−1</td><td>+5</td><td>−3</td><td>0</td></tr><tr><td>Бьёрнен (Bjornen)</td><td>+4</td><td>−2</td><td>+4</td><td>−3</td><td>—</td></tr><tr><td>Урсус</td><td>+3</td><td>—</td><td>+3</td><td>−3</td><td>—</td></tr></tbody></table><ul><li>Артрен — без Бреда; Кринос 14–16 футов, тонна и больше, когти 9 дюймов; Бьёрнен — пещерный медведь, нет человеческой речи; Урсус — обычный медведь.</li></ul>",
@@ -25101,7 +25168,11 @@
       "stamina": 1,
       "manipulation": -1
      },
-     "set": {}
+     "set": {},
+     "natural": {
+      "bite": "aggravated",
+      "claw": "aggravated"
+     }
     },
     {
      "key": "f2",
@@ -25114,7 +25185,12 @@
       "manipulation": -1,
       "perception": 1
      },
-     "set": {}
+     "set": {},
+     "natural": {
+      "bite": "aggravated",
+      "claw": "aggravated"
+     },
+     "delirium": true
     },
     {
      "key": "f3",
@@ -25126,7 +25202,11 @@
       "manipulation": -2,
       "perception": 1
      },
-     "set": {}
+     "set": {},
+     "natural": {
+      "bite": "aggravated",
+      "claw": "aggravated"
+     }
     },
     {
      "key": "f4",
@@ -25138,7 +25218,10 @@
       "manipulation": -1,
       "perception": 2
      },
-     "set": {}
+     "set": {},
+     "natural": {
+      "bite": "aggravated"
+     }
     }
    ],
    "formsHtml": "<table><thead><tr><th>Форма</th><th>Сил</th><th>Лов</th><th>Сто</th><th>Ман</th><th>Воспр</th></tr></thead><tbody><tr><td>Хитогата</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr><tr><td>Самбухэнгэ</td><td>0</td><td>+1</td><td>+1</td><td>−1</td><td>0</td></tr><tr><td>Кото</td><td>+1</td><td>+2</td><td>+2</td><td>−1</td><td>+1</td></tr><tr><td>Дзюко</td><td>—</td><td>+3</td><td>+3</td><td>−2</td><td>+1</td></tr><tr><td>Кюби</td><td>—</td><td>+4</td><td>+2</td><td>−1</td><td>+2</td></tr></tbody></table><p>Слуховые Восприятия −2 к сложности во всех формах, кроме Хитогаты. Кото: укус Сила + 1 губительный. Дзюко — лиса размером с волка.</p>",
@@ -25247,7 +25330,12 @@
      },
      "set": {
       "appearance": 0
-     }
+     },
+     "natural": {
+      "bite": "aggravated",
+      "claw": "aggravated"
+     },
+     "delirium": true
     },
     {
      "key": "f2",
@@ -25255,6 +25343,9 @@
      "en": "Suchid",
      "mods": {},
      "set": {},
+     "natural": {
+      "bite": "aggravated"
+     },
      "modsBy": {
       "varna:champsa": {
        "mods": {
@@ -25541,7 +25632,11 @@
       "manipulation": -2,
       "appearance": -2
      },
-     "set": {}
+     "set": {},
+     "natural": {
+      "bite": "aggravated",
+      "claw": "aggravated"
+     }
     },
     {
      "key": "azhi-dahaka",
@@ -25555,7 +25650,12 @@
      },
      "set": {
       "appearance": 0
-     }
+     },
+     "natural": {
+      "bite": "aggravated",
+      "claw": "aggravated"
+     },
+     "delirium": true
     },
     {
      "key": "kali-dahaka",
@@ -25569,6 +25669,10 @@
      },
      "set": {
       "appearance": 0
+     },
+     "natural": {
+      "bite": "aggravated",
+      "claw": "aggravated"
      }
     },
     {
@@ -25580,7 +25684,10 @@
       "dexterity": 2,
       "stamina": 1
      },
-     "set": {}
+     "set": {},
+     "natural": {
+      "bite": "aggravated"
+     }
     }
    ],
    "formsHtml": "<table><thead><tr><th>Форма</th><th>Сил</th><th>Лов</th><th>Сто</th><th>Ман</th><th>Внеш</th></tr></thead><tbody><tr><td>Баларам</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr><tr><td>Силькарам (Silkaram)</td><td>+2</td><td>0</td><td>+2</td><td>−2</td><td>−2</td></tr><tr><td>Ажи Дахака (Azhi Dahaka)</td><td>+3</td><td>+2</td><td>+3</td><td>−3</td><td>0</td></tr><tr><td>Кали Дахака (Kali Dahaka)</td><td>+2</td><td>+2</td><td>+2</td><td>−3</td><td>0</td></tr><tr><td>Васуки</td><td>−1</td><td>+2</td><td>+1</td><td>0</td><td>—</td></tr></tbody></table><ul><li>Силькарам: чешуйчатый гуманоид; когти Сила + 0 летальный; +10–30% массы. Ажи Дахака: до 25 футов, руки с когтями (Сила + 1 губительный), капюшон кобры. Кали Дахака: змея до 30 футов. Васуки: ядовитая змея; узор переносится на другие формы.</li></ul>",
@@ -25685,6 +25792,10 @@
      },
      "set": {
       "appearance": 0
+     },
+     "natural": {
+      "bite": "aggravated",
+      "claw": "aggravated"
      }
     },
     {
@@ -25699,7 +25810,12 @@
      },
      "set": {
       "appearance": 0
-     }
+     },
+     "natural": {
+      "bite": "aggravated",
+      "claw": "aggravated"
+     },
+     "delirium": true
     },
     {
      "key": "sendeh",
@@ -25711,7 +25827,11 @@
       "stamina": 3,
       "manipulation": -3
      },
-     "set": {}
+     "set": {},
+     "natural": {
+      "bite": "aggravated",
+      "claw": "aggravated"
+     }
     },
     {
      "key": "f4",
@@ -25722,7 +25842,10 @@
       "stamina": 3,
       "manipulation": -3
      },
-     "set": {}
+     "set": {},
+     "natural": {
+      "bite": "aggravated"
+     }
     }
    ],
    "formsHtml": "<table><thead><tr><th>Форма</th><th>Сил</th><th>Лов</th><th>Сто</th><th>Ман</th><th>Внеш</th></tr></thead><tbody><tr><td>Хомид</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr><tr><td>Тситсу (Tsitsu)</td><td>+1</td><td>+1</td><td>+2</td><td>−1</td><td>0</td></tr><tr><td>Манабозо (Manabozho)</td><td>+2</td><td>+3</td><td>+3</td><td>−2</td><td>0</td></tr><tr><td>Сендех (Sendeh)</td><td>+2</td><td>+3</td><td>+3</td><td>−3</td><td>—</td></tr><tr><td>Латрани</td><td>—</td><td>+3</td><td>+3</td><td>−3</td><td>—</td></tr></tbody></table><ul><li>Манабозо — <strong>ослабленный Бред</strong> (Воля жертвы +2 для таблицы). Сендех — красный волк; может подражать звукам.</li></ul>",
@@ -25782,7 +25905,12 @@
       "appearance": -1,
       "perception": 1
      },
-     "set": {}
+     "set": {},
+     "natural": {
+      "bite": "aggravated",
+      "claw": "aggravated"
+     },
+     "delirium": true
     },
     {
      "key": "f2",
@@ -25794,7 +25922,10 @@
       "stamina": 2,
       "perception": 3
      },
-     "set": {}
+     "set": {},
+     "natural": {
+      "bite": "aggravated"
+     }
     }
    ],
    "formsHtml": "<table><thead><tr><th>Форма</th><th>Сил</th><th>Лов</th><th>Сто</th><th>Ман</th><th>Внеш</th><th>Воспр</th></tr></thead><tbody><tr><td>Хомид</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr><tr><td>Кринос</td><td>+1*</td><td>+4</td><td>+2*</td><td>−2</td><td>−1</td><td>+1</td></tr><tr><td>Родэнс</td><td>−1</td><td>+2</td><td>+2</td><td>—</td><td>—</td><td>+3</td></tr></tbody></table><p>\\* Метисы в Криносе: Сила +2, Стойкость +1.</p><ul><li>Кринос: +15% массы; протиснется всюду, куда пролезает голова; укус губительный, когти летальные; оружие хвостом (+2 к сложности, Сила хвоста = половина). Родэнс: крыса с «руками» с противопоставленными большими пальцами.</li></ul>",
@@ -25932,7 +26063,10 @@
       "manipulation": -2,
       "appearance": -2
      },
-     "set": {}
+     "set": {},
+     "natural": {
+      "bite": "aggravated"
+     }
     },
     {
      "key": "f2",
@@ -25946,6 +26080,9 @@
      },
      "set": {
       "appearance": 0
+     },
+     "natural": {
+      "bite": "aggravated"
      }
     },
     {
@@ -25957,7 +26094,11 @@
       "stamina": 3,
       "manipulation": -4
      },
-     "set": {}
+     "set": {},
+     "natural": {
+      "bite": "aggravated"
+     },
+     "delirium": true
     },
     {
      "key": "f4",
@@ -25968,7 +26109,10 @@
       "stamina": 2,
       "manipulation": -4
      },
-     "set": {}
+     "set": {},
+     "natural": {
+      "bite": "aggravated"
+     }
     }
    ],
    "formsHtml": "<table><thead><tr><th>Форма</th><th>Сил</th><th>Лов</th><th>Сто</th><th>Ман</th><th>Внеш</th></tr></thead><tbody><tr><td>Хомид («Длинные плавники»)</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr><tr><td>Глабрус («Круглая спина»)</td><td>+2</td><td>0 (+1)</td><td>+2</td><td>−2</td><td>−2</td></tr><tr><td>Гладиус («Стоячие челюсти»)</td><td>+3</td><td>−1 (+2)</td><td>+2</td><td>−4</td><td>0</td></tr><tr><td>Хазмус («Боевые челюсти»)</td><td>+4</td><td>— (+1)</td><td>+3</td><td>−4</td><td>—</td></tr><tr><td>Сквамус («Плавающие челюсти»)</td><td>+2</td><td>— (+3)</td><td>+2</td><td>−4</td><td>—</td></tr></tbody></table><ul><li>Глабрус: узнаётся после жизни на суше; укус сл. 5, летальный = Сила; ослабленный Бред (Воля свидетеля +2). Гладиус: &gt;3 м, укус Сила + 1 губительный, Бред полный. Хазмус: длина ×1,5, укус Сила + 2 губительный, Бред полный. Сквамус: обычная крупная акула.</li></ul>",

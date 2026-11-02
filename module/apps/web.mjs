@@ -10,6 +10,7 @@
 import { SYSTEM_ID, SYSTEM_PATH } from "../config.mjs";
 import { nameKey, actorByName, childrenOf } from "../data/lineage.mjs";
 import { boonLevelLabel } from "./boons.mjs";
+import { bondFade } from "./bonds.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -58,7 +59,8 @@ function buildGraph() {
       if (!String(b.name ?? "").trim()) continue;
       const other = node(b.name, actorByName(b.name));
       // regnant — у него пили: узы идут от того, кто поит, к пьющему
-      edges.push(b.role === "regnant" ? { kind: "bond", from: other.key, to: me.key, rating: b.rating }
+      // у вассала — сколько месяцев хроники до ослабления без новой крови
+      edges.push(b.role === "regnant" ? { kind: "bond", from: other.key, to: me.key, rating: b.rating, fade: bondFade(a, b) }
         : { kind: "bond", from: me.key, to: other.key, rating: b.rating });
     }
     for (const b of s.boons ?? []) {
@@ -170,7 +172,7 @@ class ChronicleWeb extends HandlebarsApplicationMixin(ApplicationV2) {
       const w = e.kind === "bond" ? 1 + (e.rating ?? 1) * 1.2 : e.kind === "vinc" ? .8 + (e.rating ?? 1) * .25 : 1.4;
       // подпись — по ту же сторону от линии, куда сдвинута сама линия
       const lx = ((x1 + x2) / 2 - Math.sign(off) * uy * 12).toFixed(1), ly = ((y1 + y2) / 2 + Math.sign(off) * ux * 12 + 3).toFixed(1);
-      const text = e.kind === "boon" ? boonLevelLabel(e.level).toLocaleLowerCase("ru") : e.kind === "bond" ? t("Web.BondN", { n: e.rating ?? 1 })
+      const text = e.kind === "boon" ? boonLevelLabel(e.level).toLocaleLowerCase("ru") : e.kind === "bond" ? t("Web.BondN", { n: e.rating ?? 1 }) + (e.fade != null ? ` · ${t("Web.FadeShort", { n: e.fade })}` : "")
         : e.kind === "vinc" ? t("Web.VincN", { n: e.rating ?? 1 }) : "";
       const label = text ? `<text class="r-web-el is-${e.kind}" x="${lx}" y="${ly}">${esc(text)}</text>` : "";
       return `<line class="${cls}" x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke-width="${w}" marker-end="url(#rw-${e.kind})"/>${label}`;
@@ -205,7 +207,7 @@ class ChronicleWeb extends HandlebarsApplicationMixin(ApplicationV2) {
         name: sel.name, img: sel.img, missing: sel.missing, actorId: sel.actor?.id ?? "",
         sub: [sel.clan, sel.gen ? t("Web.Gen", { n: sel.gen }) : ""].filter(Boolean).join(" · "),
         sire: by("sire", "to")[0]?.n?.name ?? "", childer: by("sire", "from").map(x => x.n.name),
-        bonds: [...by("bond", "to").map(x => t("Web.DrankFrom", { name: x.n.name, n: x.e.rating ?? 1 })),
+        bonds: [...by("bond", "to").map(x => t("Web.DrankFrom", { name: x.n.name, n: x.e.rating ?? 1 }) + (x.e.fade != null ? ` (${t("Web.Fade", { n: x.e.fade })})` : "")),
           ...by("bond", "from").map(x => t("Web.Fed", { name: x.n.name, n: x.e.rating ?? 1 }))],
         boons: [...by("boon", "to").map(x => t("Web.Owes", { name: x.n.name, level: boonLevelLabel(x.e.level).toLocaleLowerCase("ru") })),
           ...by("boon", "from").map(x => t("Web.OwesTo", { name: x.n.name, level: boonLevelLabel(x.e.level).toLocaleLowerCase("ru") }))],

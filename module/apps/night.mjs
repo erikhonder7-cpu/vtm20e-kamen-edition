@@ -8,6 +8,7 @@
 
 import { VTM20, SYSTEM_ID, SYSTEM_PATH } from "../config.mjs";
 import { coterieBg } from "./coterie.mjs";
+import { domainRating, domainsOf } from "./domain.mjs";
 import { perkBonus } from "../ui/strategy.mjs";
 import { rollPool, odds, chancesView } from "../dice/roll.mjs";
 
@@ -29,7 +30,7 @@ export const HUNTING_METHODS = {
 
 const bgValue = (actor, name) => actor.items.find(i => i.type === "background" && i.name.toLowerCase() === name)?.system.value ?? 0;
 /** Свой факт или общий факт котерии (apps/coterie.mjs) — что больше. */
-const bgOrCoterie = (actor, name, pooled) => Math.max(bgValue(actor, name), coterieBg(actor, pooled));
+const bgOrCoterie = (actor, name, pooled) => Math.max(bgValue(actor, name), coterieBg(actor, pooled), name === "домен" ? domainRating(actor) : 0);
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const GROUND_ICONS = { slums: "fa-dumpster-fire", poor: "fa-house-crack", business: "fa-building", industrial: "fa-industry", suburb: "fa-tree-city", guarded: "fa-shield-halved" };
@@ -59,9 +60,12 @@ class HuntDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     super({ window: { title: t("Hunt.Title", { name: actor.name }) } });
     this.actor = actor;
     this.place = place;
-    const own = place?.owner?.id === actor.id, foreign = !!place?.owner && !own;
+    // домен-актёр (V20): хозяин (и его котерия) и гости охотятся с размером домена, незваным — защищённость к сложности
+    const pd = place?.domain, mine = pd && (domainsOf(actor).some(d => d.id === pd.id) || pd.guests.includes(actor.id));
+    const own = pd ? !!mine : place?.owner?.id === actor.id, foreign = pd ? !mine : !!place?.owner && !own;
     const domain = bgOrCoterie(actor, "домен", "Домен");
-    this.bg = { fame: bgValue(actor, "слава"), domain: own ? Math.max(1, domain) : foreign ? 0 : domain, herd: bgOrCoterie(actor, "стадо", "Стадо") };
+    this.bg = { fame: bgValue(actor, "слава"), domain: own ? Math.max(1, domain, pd?.size ?? 0) : foreign ? 0 : domain, herd: bgOrCoterie(actor, "стадо", "Стадо") };
+    this.uninvited = pd && foreign ? pd.security : 0;
     this.domainState = own ? "own" : foreign ? "foreign" : "";
     this.v = { ground: place?.ground in HUNTING_GROUNDS ? place.ground : "business", method: "alleys", fame: this.bg.fame + this.bg.domain > 0, herd: this.bg.herd > 0, inhuman: false, modDice: 0, modDiff: 0,
       messageMode: game.settings.get("core", "messageMode") };
@@ -78,6 +82,8 @@ class HuntDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     if (v.modDice) { pool += v.modDice; bd.push({ label: t("Hunt.ModShort"), value: v.modDice }); }
     if (v.fame && this.bg.fame + this.bg.domain) diff = Math.max(3, diff - (this.bg.fame + this.bg.domain));
     if (v.inhuman) diff += 1;
+    // незваный в защищённом домене: +1 к сложности за точку защищённости (V20, «Домен»)
+    if (this.uninvited) diff += this.uninvited;
     // Стратегия города: влияние в секторе с пользой «охота» — сложность −1 (от 5 фишек −2)
     const sh = perkBonus(a, "hunt");
     if (sh.n) diff = Math.max(3, diff - (sh.n >= 5 ? 2 : 1));

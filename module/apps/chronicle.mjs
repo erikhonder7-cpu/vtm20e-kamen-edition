@@ -48,6 +48,9 @@ export function collectSession(since) {
       if (["frenzy", "rotschreck", "degeneration"].includes(st.kind) && r.outcome !== "success") S.breaks.push(t(`Chronicle.Break.${st.kind}`, { who: name }));
       continue;
     }
+    // Гару: бешенство, Хватка Червя, Харано, шрамы, Слава — по метке сообщения
+    const g = m.flags?.[SYSTEM_ID]?.garou;
+    if (g) { (S.garou ??= []).push(t(`Chronicle.Garou.${g}`, { who: name, what: plain(m.content).slice(0, 140) })); continue; }
     const text = plain(m.content);
     let x;
     if ((x = text.match(reDmg))) S.damage[name] = (S.damage[name] ?? 0) + Number(x[1]);
@@ -72,7 +75,7 @@ function draft(S, now = getClock()) {
   const lines = [t("Chronicle.Head", { date: shortDate(new Date(now)), n: nightNumber(now) })];
   if (S.people.size) lines.push(t("Chronicle.People", { list: [...S.people].join(", ") }));
   lines.push(t("Chronicle.Rolls", { n: S.rolls, b: S.botches.length }));
-  for (const l of [...S.greats, ...S.botches, ...S.breaks, ...S.fates]) lines.push(`— ${l}`);
+  for (const l of [...S.greats, ...S.botches, ...S.breaks, ...S.fates, ...(S.garou ?? [])]) lines.push(`— ${l}`);
   const dmg = Object.entries(S.damage).map(([k, v]) => `${k} ${v}`), bl = Object.entries(S.blood).map(([k, v]) => `${k} ${v}`);
   if (dmg.length) lines.push(t("Chronicle.Damage", { list: dmg.join(", ") }));
   if (bl.length) lines.push(t("Chronicle.Blood", { list: bl.join(", ") }));
@@ -114,7 +117,7 @@ class ChronicleWindow extends HandlebarsApplicationMixin(ApplicationV2) {
       count: S.count, rolls: S.rolls, people: [...S.people],
       greats: S.greats, botches: S.botches, breaks: S.breaks, fates: S.fates,
       damage: Object.entries(S.damage).map(([who, n]) => ({ who, n })), blood: Object.entries(S.blood).map(([who, n]) => ({ who, n })),
-      torment: S.torment,
+      torment: S.torment, garou: S.garou ?? [],
       text: this.text, night: nightNumber(getClock())
     };
   }

@@ -677,8 +677,51 @@ export class WerewolfData extends MortalData {
   }
 }
 
+/* ── Котерия и домен — актёры-группы без черт персонажа ─────────────────── */
+
+/**
+ * Котерия (V20), стая (W20) или ячейка охотников (Hunter): участники, общие факты биографии (V20, «Общие факты
+ * биографии котерии»: вклады участников, основа, потери сюжетом), тотем стаи, домен, позывной в сети охотников.
+ */
+export class CoterieData extends foundry.abstract.TypeDataModel {
+  static defineSchema() {
+    return {
+      kind: str("coterie"),                 // coterie | sabbat (стая Шабаша) | pack (стая Гару) | cell (ячейка охотников)
+      // «Общее убежище» (V20 Anarchs Unbound): точки общего факта — между роскошью, размером и защитой
+      haven: new SchemaField({ luxury: int(0, 0, 5), size: int(0, 0, 5), security: int(0, 0, 5) }),
+      members: new ArrayField(str()),       // id актёров
+      primary: str(), pools: new ObjectField({ initial: {} }), lost: new ObjectField({ initial: {} }),
+      totem: str(), domain: str(), net: str(),
+      biography: new HTMLField({ required: true, blank: true, initial: "" }), notes: new HTMLField({ required: true, blank: true, initial: "" })
+    };
+  }
+}
+
+/**
+ * Домен (V20, факт «Домен»; Факты_биографии/01): охотничья территория. Точки — в размер (rating: −1 к сложности охоты
+ * хозяину и гостям, +1 кровь в начале игры) и защищённость (+1 к сложности тайно проникнуть и охотиться незваным,
+ * −1 к сложности найти нарушителя). Поместье (V20 Dark Ages Companion, гл. 7): процветание (−1 к Торговле),
+ * тайные ходы (−1 к сложности скрываться знающим), население (домохозяйства и территория по таблице), челядь
+ * (−рейтинг к сложности Управления и Лидерства), сюзерен и вассалы (объединённый домен), события домена.
+ * Угодья — сложность охоты здесь; зона — место на карте города (охота в зоне знает хозяина, гостей и защищённость).
+ */
+export class DomainData extends foundry.abstract.TypeDataModel {
+  static defineSchema() {
+    return {
+      owner: str(), rating: int(1, 0, 10), ground: str("business"), security: int(0, 0, 5), masquerade: int(0, 0, 5),
+      prosperity: int(0, 0, 5), passages: int(0, 0, 5), populace: int(0, 0, 10), servants: int(0, 0, 5), liege: str(),
+      events: new ArrayField(new SchemaField({ key: str(), note: str(), date: str() })),
+      population: str(), zone: str(), holdings: str(),
+      guests: new ArrayField(str()),      // кому хозяин позволил охотиться (id актёров)
+      people: new ArrayField(str()),      // свои люди в домене: гули, Стадо, слуги (id актёров)
+      biography: new HTMLField({ required: true, blank: true, initial: "" }), notes: new HTMLField({ required: true, blank: true, initial: "" })
+    };
+  }
+}
+
 export function registerDataModels() {
-  Object.assign(CONFIG.Actor.dataModels, { vampire: VampireData, ghoul: GhoulData, mortal: MortalData, creature: CreatureData, demon: DemonData, hunter: HunterData, werewolf: WerewolfData });
+  Object.assign(CONFIG.Actor.dataModels, { vampire: VampireData, ghoul: GhoulData, mortal: MortalData, creature: CreatureData, demon: DemonData, hunter: HunterData, werewolf: WerewolfData,
+    coterie: CoterieData, domain: DomainData });
   Object.assign(CONFIG.Item.dataModels, {
     discipline: DisciplineData, lore: LoreData, lorePower: LorePowerData, thaumPath: BloodPathData, ritual: RitualData, power: PowerData,
     background: BackgroundData, merit: MeritData, flaw: MeritData, derangement: DerangementData,

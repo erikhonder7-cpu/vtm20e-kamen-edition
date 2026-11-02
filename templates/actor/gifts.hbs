@@ -79,6 +79,7 @@
       <optgroup label="{{localize 'VTM20.Werewolf.FetishGroup'}}">{{#each ww.fetishAvail}}{{#unless talen}}<option value="{{key}}">{{label}}</option>{{/unless}}{{/each}}</optgroup>
       <optgroup label="{{localize 'VTM20.Werewolf.TalenGroup'}}">{{#each ww.fetishAvail}}{{#if talen}}<option value="{{key}}">{{label}}</option>{{/if}}{{/each}}</optgroup></select>
     <a class="r-vc-btn" data-action="wwFetishAdd"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Common.Add"}}</a>
+    <a class="r-vc-btn" data-action="wwFetishCraft" data-tooltip="{{localize 'VTM20.Werewolf.CraftHint'}}"><i class="fa-solid fa-hand-sparkles"></i> {{localize "VTM20.Werewolf.Craft"}}</a>
   </div>{{/if}}
   <ul class="r-edge-list r-ww-fetishes">
     {{#each ww.fetishes}}

@@ -1269,3 +1269,156 @@ body.r-theme-light .vtm20 .r-ng-concept { color: #7a4f1d; }
 .vtm20 .r-lib-pmark { margin-left: 3px; font-family: var(--r-caps); font-size: 9.5px; letter-spacing: .8px; color: var(--r-muted); vertical-align: 1px; }
 .vtm20 .r-lib-status { margin: -2px 0 6px; font-size: 12px; font-style: italic; color: var(--r-muted); }
 .vtm20 .r-lib-status i { margin-right: 3px; font-style: normal; color: var(--r-accent); }
+
+/* мастер создания: особый смертный — Родня, Ками, фомор */
+.vtm20 .r-cr-eb.is-mark .r-cr-mark-opts { display: flex; gap: 6px; flex-wrap: wrap; }
+.vtm20 .r-cr-mark-row { display: flex; gap: 12px; flex-wrap: wrap; }
+.vtm20 .r-cr-mark-field { display: flex; flex-direction: column; gap: 3px; margin: 8px 0 4px; min-width: 180px; }
+.vtm20 .r-cr-mark-field.is-wide { flex: 1 1 260px; }
+.vtm20 .r-cr-mark-field > span { font-family: var(--r-caps); font-size: 10.5px; letter-spacing: 1.4px; text-transform: uppercase; color: var(--r-muted); }
+.vtm20 .r-cr-mark-powers { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 4px; }
+.vtm20 .r-cr-mark-pw { padding: 3px 9px; border: 1px solid var(--r-line-2); font-size: 12.5px; color: var(--r-ink-2); cursor: pointer; }
+.vtm20 .r-cr-mark-pw:hover { border-color: var(--r-accent); color: var(--r-ink); }
+.vtm20 .r-cr-mark-pw.is-on { border-color: var(--r-blood-l); color: #f1e9da; background: rgba(140, 28, 34, .45); }
+.vtm20 .r-cr-mark-pw.is-own { cursor: default; font-style: italic; }
+
+/* проверка деградации: иерархия грехов Пути */
+.vtm20.r-sins .r-sin-list { display: flex; flex-direction: column; gap: 2px; max-height: 380px; overflow-y: auto; margin-top: 6px; }
+.vtm20.r-sins .r-sin { display: grid; grid-template-columns: auto 28px 1fr; gap: 8px; align-items: center; padding: 4px 6px; cursor: pointer; border-left: 2px solid transparent; }
+.vtm20.r-sins .r-sin:hover { background: rgba(255, 255, 255, .03); border-left-color: var(--r-accent); }
+.vtm20.r-sins .r-sin b { font-family: var(--r-display); font-weight: 400; font-size: 16px; text-align: center; color: var(--r-accent); }
+.vtm20.r-sins .r-sin.is-safe { opacity: .45; }
+
+/* ── Листы котерии и домена: язык листа персонажа (шапка «дела», печать, досье, главы) ───────────── */
+.application.vtm20.r-group-sheet .window-content { padding: 0; overflow: hidden; display: flex; flex-direction: column; min-height: 0; }
+.vtm20 .r-gs { display: flex; flex-direction: column; min-height: 0; flex: 1 1 auto; }
+.vtm20 .r-gs-head { padding: 14px 20px 14px; border-bottom: 1px solid var(--r-line); }
+.vtm20 .r-gs-watermark { position: absolute; right: 190px; top: 50%; transform: translateY(-55%); font-size: 150px; opacity: .035; pointer-events: none; }
+.vtm20 .r-gs-main { grid-template-areas: "portrait info side"; grid-template-rows: auto; align-items: center; }
+.vtm20 .r-gs-main .r-portrait-frame { width: 120px; }
+.vtm20 .r-gs-main .r-portrait-frame .r-portrait { width: 120px; height: 120px; }
+.vtm20 .r-gs-main .r-df select { flex: 1 1 auto; }
+.vtm20 .r-gs-hunt { margin: 6px 0 0; font-size: 12.5px; font-style: italic; color: var(--r-muted); }
+.vtm20 .r-gs-hunt i { color: var(--r-accent); font-style: normal; }
+.vtm20 .r-gs-mapbtn { flex: 0 0 auto; color: var(--r-accent); }
+
+/* справа в шапке: число участников или печать владельца домена — как блок крови на листе персонажа */
+.vtm20 .r-gs-tally { grid-area: side; display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 86px; padding: 10px 12px;
+  border: 1px solid rgba(216, 207, 191, .18); border-top: 2px solid var(--r-blood); background: #0a0a0c; }
+.vtm20 .r-gs-tally b { font-family: var(--r-display); font-weight: 400; font-size: 34px; line-height: 1; color: var(--r-ink); }
+.vtm20 .r-gs-tally span { margin-top: 4px; font-family: var(--r-caps); font-size: 10px; letter-spacing: 1.8px; text-transform: uppercase; color: var(--r-muted); }
+.vtm20 .r-gs-owner { grid-area: side; position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px; width: 150px; padding: 10px 10px 12px;
+  border: 1px solid rgba(216, 207, 191, .18); border-top: 2px solid var(--r-blood); background: #0a0a0c; text-align: center; transition: border-color .15s, box-shadow .15s; }
+.vtm20 .r-gs-owner-cap { font-family: var(--r-caps); font-size: 10px; letter-spacing: 1.8px; text-transform: uppercase; color: var(--r-accent); }
+.vtm20 .r-gs-owner-face img { width: 64px; height: 64px; object-fit: cover; border-radius: 50%; border: 2px solid var(--r-blood); box-shadow: 0 0 0 3px #0a0a0c, 0 0 0 4px rgba(216, 207, 191, .2); }
+.vtm20 .r-gs-owner-name { font-family: var(--r-display); font-size: 15px; line-height: 1.15; color: var(--r-ink); }
+.vtm20 .r-gs-owner small { font-size: 11px; color: var(--r-muted); }
+.vtm20 .r-gs-owner.is-empty { border-style: dashed; border-top-style: solid; }
+.vtm20 .r-gs-owner.is-empty > i { font-size: 26px; color: var(--r-muted); opacity: .6; margin: 6px 0 2px; }
+.vtm20 .r-gs-owner select { width: 100%; margin-top: 4px; font-size: 12px; }
+.vtm20 .r-gs-owner .r-gs-x { position: absolute; top: 6px; right: 6px; }
+
+.vtm20 .r-gs-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 6px 20px 20px; display: flex; flex-direction: column; gap: 6px; }
+
+/* участники — карточки из «дела»: портрет, имя, вид, клан или племя */
+.vtm20 .r-gs-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 8px; }
+.vtm20 .r-gs-card { position: relative; display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 10px; align-items: center; padding: 8px 26px 8px 8px;
+  border: 1px solid var(--r-line); border-left: 2px solid var(--r-blood); background: var(--r-card-bg); transition: border-color .15s, background .15s; }
+.vtm20 .r-gs-card:hover { border-color: rgba(196, 71, 76, .45); background: rgba(140, 28, 34, .06); }
+.vtm20 .r-gs-face img { display: block; width: 64px; height: 64px; object-fit: cover; object-position: 50% 20%; border: 1px solid rgba(216, 207, 191, .22);
+  filter: grayscale(.35) contrast(1.06) brightness(.92); transition: filter .2s; }
+.vtm20 .r-gs-card:hover .r-gs-face img { filter: none; }
+.vtm20 .r-gs-who { display: flex; flex-direction: column; min-width: 0; }
+.vtm20 .r-gs-cname { font-family: var(--r-display); font-size: 16px; line-height: 1.2; color: var(--r-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vtm20 .r-gs-ctype { font-family: var(--r-caps); font-size: 9.5px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--r-accent); }
+.vtm20 .r-gs-cline { font-size: 12px; color: var(--r-ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vtm20 .r-gs-cconcept { font-family: var(--r-hand); font-size: 15px; line-height: 1.1; color: var(--r-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vtm20 .r-gs-x { position: absolute; top: 6px; right: 7px; font-size: 11px; color: var(--r-muted); opacity: 0; transition: opacity .15s, color .15s; }
+.vtm20 .r-gs-card:hover .r-gs-x, .vtm20 .r-gs-chip:hover .r-gs-x, .vtm20 .r-gs-owner:hover .r-gs-x { opacity: 1; }
+.vtm20 .r-gs-x:hover { color: var(--r-accent); }
+
+/* куда бросить лист */
+.vtm20 .r-gs-dropzone { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-height: 82px; padding: 8px;
+  border: 1px dashed rgba(216, 207, 191, .22); color: var(--r-muted); font-size: 12.5px; text-align: center; transition: border-color .15s, background .15s, color .15s; }
+.vtm20 .r-gs-dropzone i { font-size: 18px; opacity: .7; }
+.vtm20 .r-gs-dropzone.is-slim { flex-direction: row; min-height: 0; padding: 7px 10px; margin-top: 4px; }
+.vtm20 .is-over > .r-gs-dropzone, .vtm20 .r-gs-dropzone.is-over, .vtm20 .r-gs-owner.is-over { border-color: var(--r-blood-l); background: rgba(140, 28, 34, .12); color: var(--r-ink); box-shadow: 0 0 12px rgba(196, 71, 76, .2); }
+
+.vtm20 .r-gs-cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 22px; }
+.vtm20 .r-gs-line { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 26px; border-bottom: 1px solid var(--r-line); }
+.vtm20 .r-gs-anchor { font-size: 10px; color: var(--r-accent); }
+.vtm20 .r-gs-empty { margin: 4px 0; font-size: 12.5px; font-style: italic; color: var(--r-muted); }
+.vtm20 .r-gs-dots { display: inline-flex; gap: 3px; font-style: normal; }
+.vtm20 .r-gs-dots b { width: 11px; height: 11px; border-radius: 50%; border: 1px solid var(--r-dot-border); }
+.vtm20 .r-gs-dots b.on { border-color: transparent; background: var(--r-dot-fill); }
+.vtm20 .r-gs-dots.is-big { gap: 6px; }
+.vtm20 .r-gs-dots.is-big b { width: 16px; height: 16px; cursor: pointer; transition: transform .12s; }
+.vtm20 .r-gs-dots.is-big b:hover { transform: scale(1.15); }
+.vtm20 .r-gs-domain { display: flex; align-items: center; gap: 10px; padding: 6px; border: 1px solid var(--r-line); border-left: 2px solid var(--r-blood); background: var(--r-card-bg); margin-top: 4px; }
+.vtm20 .r-gs-domain img { width: 46px; height: 46px; object-fit: cover; border: 1px solid rgba(216, 207, 191, .22); }
+.vtm20 .r-gs-domain span { display: flex; flex-direction: column; gap: 4px; }
+.vtm20 .r-gs-domain b { font-family: var(--r-display); font-weight: 400; font-size: 15px; color: var(--r-ink); }
+.vtm20 .r-gs-dl { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 5px 14px; margin: 0; font-size: 13.5px; line-height: 1.4; }
+.vtm20 .r-gs-dl dt { font-family: var(--r-caps); font-size: 10.5px; letter-spacing: 1.4px; text-transform: uppercase; color: var(--r-muted); padding-top: 2px; }
+.vtm20 .r-gs-dl dd { margin: 0; color: var(--r-ink); }
+.vtm20 .r-gs-tallies, .vtm20 .r-gs-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid var(--r-line); background: var(--r-card-bg); }
+.vtm20 .r-gs-tallies > div, .vtm20 .r-gs-stat { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 6px; }
+.vtm20 .r-gs-tallies > div + div, .vtm20 .r-gs-stat + .r-gs-stat { border-left: 1px solid var(--r-line); }
+.vtm20 .r-gs-tallies b { font-family: var(--r-display); font-weight: 400; font-size: 24px; line-height: 1; color: var(--r-ink); }
+.vtm20 .r-gs-tallies span, .vtm20 .r-gs-stat-cap { font-family: var(--r-caps); font-size: 10.5px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--r-muted); }
+.vtm20 .r-gs-stat-cap i { color: var(--r-accent); margin-right: 3px; }
+.vtm20 .r-gs-stat.is-threat .r-gs-dots b.on { background: radial-gradient(circle at 38% 32%, #e6ddcc, #9a917f 55%, #4a453c); }
+.vtm20 .r-gs-stats { margin: 8px 0 4px; }
+.vtm20 .r-gs-chip { position: relative; display: grid; grid-template-columns: 30px minmax(0, 1fr); grid-template-rows: auto auto; column-gap: 8px; align-items: center;
+  padding: 4px 22px 4px 4px; border-bottom: 1px solid var(--r-line); }
+.vtm20 .r-gs-chip img { grid-row: span 2; width: 30px; height: 30px; object-fit: cover; border-radius: 50%; border: 1px solid rgba(216, 207, 191, .25); }
+.vtm20 .r-gs-chip a { font-size: 13.5px; color: var(--r-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vtm20 .r-gs-chip small { grid-column: 2; font-size: 11px; color: var(--r-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vtm20 .r-gs-chip .r-gs-x { top: 50%; transform: translateY(-50%); }
+.vtm20 .r-gs-zone { min-height: 60px; }
+.vtm20 .r-gs-notes { width: 100%; min-height: 100px; resize: vertical; font-family: var(--r-body); font-size: 14px; line-height: 1.45; }
+.vtm20 .r-gs-notes.is-short { min-height: 64px; }
+@container (max-width: 640px) { .vtm20 .r-gs-cols { grid-template-columns: 1fr; } }
+
+body.r-theme-light .vtm20 .r-gs-tally, body.r-theme-light .vtm20 .r-gs-owner { background: var(--r-paper-2); }
+
+.vtm20 .r-gs-stats.is-two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.vtm20 .r-gs-note { margin: 2px 0 6px; font-size: 12.5px; font-style: italic; color: var(--r-muted); }
+.vtm20 .r-gs-note i { color: var(--r-accent); font-style: normal; }
+.vtm20 .r-gs-note b { font-style: normal; color: var(--r-ink-2); font-weight: 400; }
+.vtm20 .r-gs-src { font-family: var(--r-fell); font-style: italic; font-size: 12px; letter-spacing: 0; text-transform: none; color: var(--r-muted); }
+.vtm20 .r-gs-pool { font-family: var(--r-body); font-size: 12.5px; letter-spacing: 0; text-transform: none; color: var(--r-ink-2); }
+.vtm20 .r-gs-pool.is-diff { color: var(--r-accent); }
+.vtm20 .r-gs-scale { display: grid; grid-template-columns: 170px auto minmax(0, 1fr); gap: 12px; align-items: center; min-height: 30px; border-bottom: 1px solid var(--r-line); }
+.vtm20 .r-gs-scale small { font-size: 12px; color: var(--r-muted); font-style: italic; }
+.vtm20 .r-gs-scale .r-gs-dots b { cursor: pointer; }
+.vtm20 .r-gs-haven { display: flex; flex-direction: column; }
+.vtm20 .r-gs-events { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.vtm20 .r-gs-events li { position: relative; display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; padding: 6px 22px 6px 10px; border-left: 2px solid var(--r-blood); border-bottom: 1px solid var(--r-line); }
+.vtm20 .r-gs-events li b { font-family: var(--r-display); font-weight: 400; font-size: 15px; color: var(--r-ink); }
+.vtm20 .r-gs-events li small { color: var(--r-muted); }
+.vtm20 .r-gs-events li em { font-family: var(--r-hand); font-style: normal; font-size: 16px; color: var(--r-lantern); }
+.vtm20 .r-gs-events li span { flex: 1 1 100%; font-size: 12.5px; color: var(--r-ink-2); }
+.vtm20 .r-gs-events li:hover .r-gs-x { opacity: 1; }
+.vtm20 .r-gs-events li.r-gs-empty { border-left-color: transparent; }
+.vtm20 .r-gs-addev { display: grid; grid-template-columns: 200px minmax(0, 1fr) auto; gap: 8px; margin-top: 6px; }
+.vtm20 .r-gs-head { overflow: visible; }
+.vtm20 .r-gs-main { align-items: start; }
+.vtm20 .r-gs-owner { padding: 8px 10px 10px; }
+.vtm20 .r-gs-owner-face img { width: 54px; height: 54px; }
+.vtm20 .r-gs-field > span:first-child { font-family: var(--r-caps); font-size: 10.5px; letter-spacing: 1.4px; text-transform: uppercase; color: var(--r-muted); }
+.vtm20 .r-gs-field .r-gs-link { margin-top: 4px; }
+
+/* генератор: заготовки и группа целиком */
+.vtm20 .r-ng-presets { display: grid; grid-template-columns: 118px minmax(0, 1fr); gap: 8px; align-items: start; padding-bottom: 10px; border-bottom: 1px solid var(--r-line); }
+.vtm20 .r-ng-chip.is-preset { padding: 0; gap: 0; }
+.vtm20 .r-ng-chip.is-preset > a:first-child { padding: 3px 4px 3px 10px; color: var(--r-ink); }
+.vtm20 .r-ng-px { padding: 3px 8px 3px 4px; color: var(--r-muted); font-size: 11px; }
+.vtm20 .r-ng-px:hover { color: var(--r-accent); }
+.vtm20 .r-ng-roster { list-style: none; margin: 10px 0 0; padding: 0; counter-reset: r; display: flex; flex-direction: column; }
+.vtm20 .r-ng-roster li { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 8px; padding: 7px 0; border-bottom: 1px solid var(--r-line); }
+.vtm20 .r-ng-roster li > i { margin-top: 3px; color: var(--r-accent); text-align: center; }
+.vtm20 .r-ng-roster b { display: block; font-family: var(--r-display); font-weight: 400; font-size: 16px; color: var(--r-ink); }
+.vtm20 .r-ng-roster small { display: block; font-size: 11.5px; color: var(--r-muted); }
+.vtm20 .r-ng-rconcept { display: block; font-family: var(--r-hand); font-size: 16px; line-height: 1.1; color: var(--r-lantern); }
+.vtm20 .r-ng-rtraits { color: var(--r-ink-2) !important; }

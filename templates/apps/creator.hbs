@@ -110,6 +110,36 @@
           </ul>
           {{/if}}
         </div>
+        {{#unless st.thrall}}
+        {{!-- Особый смертный: Родня Гару (W20 Kinfolk), Ками (W20 Umbra), фомор (Book of the Wyrm) --}}
+        <div class="r-cr-eb is-mark {{#if marks.mark}}is-on{{/if}}">
+          <div class="r-cr-eb-head">
+            <span class="r-cr-eb-sym"><i class="fa-solid fa-paw"></i></span>
+            <div class="r-cr-eb-titles"><b>{{localize "VTM20.Creator.Mark.title"}}</b><span class="r-note">{{marks.hint}}</span></div>
+            <span class="r-cr-mark-opts">{{#each marks.opts}}<a class="r-btn {{#if active}}is-primary{{else}}is-ghost{{/if}}" data-action="mark" data-mark="{{key}}">{{label}}</a>{{/each}}</span>
+          </div>
+          {{#if (rEq marks.mark "kinfolk")}}
+          <label class="r-cr-mark-field"><span>{{localize "VTM20.Werewolf.Tribe"}}</span>
+            <select data-field="markTribe"><option value="">—</option>{{#each marks.tribes}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+          {{/if}}
+          {{#if (rEq marks.mark "kami")}}
+          <div class="r-cr-mark-row">
+            <label class="r-cr-mark-field"><span>{{localize "VTM20.Werewolf.Kami.kindLabel"}}</span>
+              <select data-field="kamiKind">{{#each marks.kamiKinds}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+            <label class="r-cr-mark-field is-wide"><span>{{localize "VTM20.Werewolf.Kami.geas"}}</span><input type="text" data-field="kamiGeas" value="{{st.kamiGeas}}"></label>
+          </div>
+          <p class="r-note">{{localize "VTM20.Creator.Mark.kamiPick"}}</p>
+          <div class="r-cr-mark-powers">{{#each marks.kamiPowers}}<a class="r-cr-mark-pw {{#if on}}is-on{{/if}}" data-action="markPower" data-key="{{key}}" data-tooltip="{{text}}">{{label}}</a>{{/each}}</div>
+          {{/if}}
+          {{#if (rEq marks.mark "fomor")}}
+          <label class="r-cr-mark-field"><span>{{localize "VTM20.Creator.Mark.fomorBreed"}}</span>
+            <select data-field="fomorBreed"><option value="">—</option>{{#each marks.fomorBreeds}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+          {{#if marks.fomorText}}<p class="r-note">{{marks.fomorText}}</p>{{/if}}
+          <p class="r-note">{{localize "VTM20.Creator.Mark.fomorPick"}}</p>
+          <div class="r-cr-mark-powers">{{#each marks.fomorPowers}}<a class="r-cr-mark-pw {{#if on}}is-on{{/if}} {{#if own}}is-own{{/if}}" {{#unless own}}data-action="markPower" data-key="{{key}}"{{/unless}} data-tooltip="{{text}}">{{label}}</a>{{/each}}</div>
+          {{/if}}
+        </div>
+        {{/unless}}
         {{/if}}
     {{#if isHunter}}
     {{!-- Кредо (Hunter: The Reckoning, гл. 3): основная Добродетель, начальная Убеждённость, путь Граней --}}

@@ -6,12 +6,13 @@
 //     восстановлена — восстанавливаются (не выше вложенного);
 //   · выйти можно в любой момент, но вернётся на 1 точку меньше;
 //   · пользуются все вложившиеся; предел выше 5 допустим (рекомендуется до 10).
-// Вклад переносит точки с листа участника в общий факт. Всё — в настройке мира «coteries»; правит ведущий.
+// Вклад переносит точки с листа участника в общий факт. Котерия — актёр типа «coterie» (свой лист: участники, домен,
+// тотем, сеть охотников); старые котерии из настройки мира «coteries» читаются по-прежнему и при запуске переносятся в актёров.
 // Чем пользуются правила: охота берёт Стадо и Домен котерии, если они больше своих; доход от Богатства
 // котерии делится между участниками (apps/income.mjs).
 
 import { Codex } from "../data/codex.mjs";
-import { SYSTEM_ID, SYSTEM_PATH } from "../config.mjs";
+import { SYSTEM_ID, SYSTEM_PATH, VTM20 } from "../config.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -24,6 +25,24 @@ export const POOLABLE = ["Домен", "Стадо", "Богатство", "Вл
 const MAX = 10;
 
 export function registerCoterie() {
+  // котерия-актёр изменилась — окно общих фактов и листы участников перерисовать
+  const redraw = a => {
+    if (a?.type !== "coterie") return;
+    foundry.applications.instances.get("r-coterie")?.render();
+    for (const id of a.system?.members ?? []) game.actors.get(id)?.sheet?.rendered && game.actors.get(id).sheet.render();
+  };
+  for (const h of ["createActor", "updateActor", "deleteActor"]) Hooks.on(h, redraw);
+  // перенос старых котерий (настройка мира) в актёров — один раз, у активного ведущего
+  Hooks.once("ready", async () => {
+    if (!game.users.activeGM?.isSelf) return;
+    const old = foundry.utils.deepClone(game.settings.get(SYSTEM_ID, "coteries") ?? []);
+    if (!old.length || game.settings.get(SYSTEM_ID, "coteriesMoved")) return;
+    for (const c of old) await Actor.create({ name: c.name || t("Coterie.Title"), type: "coterie", system: { kind: c.totem ? "pack" : "coterie",
+      members: c.members ?? [], primary: c.primary ?? "", pools: c.pools ?? {}, lost: c.lost ?? {}, totem: c.totem ?? "" } });
+    await game.settings.set(SYSTEM_ID, "coteries", []);
+    await game.settings.set(SYSTEM_ID, "coteriesMoved", true);
+  });
+  game.settings.register(SYSTEM_ID, "coteriesMoved", { scope: "world", config: false, type: Boolean, default: false });
   game.settings.register(SYSTEM_ID, "coteries", {
     scope: "world", config: false, type: Array, default: [],
     onChange: () => {
@@ -33,8 +52,35 @@ export function registerCoterie() {
   });
 }
 
-const read = () => foundry.utils.deepClone(game.settings.get(SYSTEM_ID, "coteries") ?? []);
-const save = list => game.settings.set(SYSTEM_ID, "coteries", list);
+/** Котерия-актёр в общем виде (как запись из настройки). */
+export const coterieFromActor = a => ({ id: a.id, actorId: a.id, name: a.name, kind: a.system.kind, members: [...(a.system.members ?? [])], primary: a.system.primary ?? "",
+  pools: foundry.utils.deepClone(a.system.pools ?? {}), lost: foundry.utils.deepClone(a.system.lost ?? {}), totem: a.system.totem ?? "", domain: a.system.domain ?? "" });
+const legacy = () => foundry.utils.deepClone(game.settings.get(SYSTEM_ID, "coteries") ?? []);
+const read = () => [...(game.actors?.filter(a => a.type === "coterie").map(coterieFromActor) ?? []), ...legacy()];
+/** Сохранить: котерии-актёры — в актёров (удалённые ключи — через «-=»), старые — в настройку; пропавшие из списка — удалить. */
+async function save(list) {
+  for (const a of game.actors.filter(x => x.type === "coterie" && !list.some(c => c.actorId === x.id))) await a.delete();
+  for (const c of list.filter(c => c.actorId)) {
+    const a = game.actors.get(c.actorId);
+    if (!a) continue;
+    const upd = { name: c.name, "system.members": c.members ?? [], "system.primary": c.primary ?? "", "system.totem": c.totem ?? "" };
+    for (const field of ["pools", "lost"]) {
+      const was = a.system[field] ?? {}, now = c[field] ?? {};
+      for (const k of Object.keys(was)) {
+        if (!(k in now)) { upd[`system.${field}.-=${k}`] = null; continue; }
+        if (field === "pools") for (const id of Object.keys(was[k] ?? {})) if (!(id in (now[k] ?? {}))) upd[`system.pools.${k}.-=${id}`] = null;
+      }
+      for (const [k, v] of Object.entries(now)) {
+        if (field === "pools") for (const [id, n] of Object.entries(v ?? {})) upd[`system.pools.${k}.${id}`] = n;
+        else upd[`system.lost.${k}`] = v;
+        if (field === "pools" && !Object.keys(v ?? {}).length && !(k in was)) upd[`system.pools.${k}`] = {};
+      }
+    }
+    await a.update(upd);
+  }
+  const rest = list.filter(c => !c.actorId);
+  if (JSON.stringify(rest) !== JSON.stringify(legacy())) await game.settings.set(SYSTEM_ID, "coteries", rest);
+}
 
 /**
  * Тотем стаи (W20, гл. 12): у котерии с Гару — выбор тотема, его цена против общего Факта «Тотем»,
@@ -50,6 +96,29 @@ function packTotem(c, members) {
 export function totemOf(actor) {
   const c = coteriesOf(actor).find(x => x.totem);
   return c ? { pack: c.name, totem: (Codex.werewolf?.totems ?? []).find(x => x.key === c.totem) ?? null } : null;
+}
+
+/** Синонимы названий черт в описаниях тотемов (W20) — к ключам листа. */
+const TOTEM_ALIAS = { "знание улиц": "abilities.streetwise", "загадки": "abilities.enigmas", "первобытный инстинкт": "abilities.primalUrge",
+  "обращение с животными": "abilities.animalKen", "хитрость": "abilities.subterfuge", "драка": "abilities.brawl" };
+
+/**
+ * Черты тотема стаи (W20, гл. 7: «Лидерство 3», «Скрытность 3, Знание улиц 3»): точки, которые тотем даёт каждому члену стаи,
+ * — прибавка к черте в броске. Возвращает { [путь черты]: точки } и имя тотема.
+ */
+export function totemTraits(actor) {
+  const tt = totemOf(actor)?.totem;
+  if (!tt?.pack) return null;
+  const names = {};
+  for (const [k, x] of Object.entries(VTM20.attributes)) names[game.i18n.localize(x.label).toLowerCase()] = `attributes.${k}`;
+  for (const [k, x] of Object.entries(VTM20.abilities)) names[game.i18n.localize(x.label).toLowerCase()] = `abilities.${k}`;
+  Object.assign(names, TOTEM_ALIAS);
+  const traits = {};
+  for (const [, name, n] of String(tt.pack).replace(/<[^>]+>/g, "").matchAll(/(?:^|[,;]\s*)([А-ЯЁа-яёA-Za-z][А-ЯЁа-яёA-Za-z ]+?)\s+(\d)(?=\s*(?:[,;.]|$))/g)) {
+    const path = names[name.trim().toLowerCase()];
+    if (path) traits[path] = Math.max(traits[path] ?? 0, Number(n));
+  }
+  return Object.keys(traits).length ? { name: tt.name, traits } : null;
 }
 
 /** Сколько вложено в общий факт. */
@@ -81,11 +150,12 @@ async function setSheetBg(actor, bg, value) {
   if (value > 0) return actor.createEmbeddedDocuments("Item", [{ name: bg, type: "background", system: { value } }]);
 }
 
-export function openCoterie(actor = null) {
+export function openCoterie(actor = null, id = null) {
   const open = foundry.applications.instances.get("r-coterie");
   const app = open ?? new CoterieWindow();
   const mine = actor && coteriesOf(actor)[0];
-  if (mine) app.current = mine.id;
+  if (id) app.current = id;
+  else if (mine) app.current = mine.id;
   app.render({ force: true });
   return app;
 }
@@ -172,9 +242,9 @@ class CoterieWindow extends HandlebarsApplicationMixin(ApplicationV2) {
       ok: { label: t("Coterie.Create"), callback: (e, b) => b.form.elements.name.value.trim() }, rejectClose: false
     });
     if (!name) return;
-    const all = read(), c = { id: uid(), name, members: [], primary: "", pools: {}, lost: {} };
-    all.push(c); this.current = c.id;
-    await save(all);
+    const a = await Actor.create({ name, type: "coterie" });
+    this.current = a.id;
+    this.render();
   }
 
   static async #onRename(event, target) { await this.#edit(c => { c.name = target.value.trim() || c.name; }); }

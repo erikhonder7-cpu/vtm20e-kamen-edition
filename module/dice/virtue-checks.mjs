@@ -5,6 +5,29 @@
 
 import { VTM20, SYSTEM_ID } from "../config.mjs";
 import { RollDialog } from "./dialog.mjs";
+import { Codex } from "../data/codex.mjs";
+
+/**
+ * Иерархия грехов Пути (V20, гл. 6; Пути Просветления — свои): что совершено. Грех с рейтингом выше нынешней морали
+ * проверки не требует; иначе — бросок с грехом в заметке. Возвращает { sin } | null (отмена) | { skip: true }.
+ */
+async function pickSin(actor) {
+  const path = Codex.path(actor.system.morality?.path ?? "humanity"), cur = actor.system.morality?.value ?? 7;
+  const list = path?.hierarchy ?? [];
+  if (!list.length) return { sin: null };
+  const esc = s => foundry.utils.escapeHTML(String(s ?? ""));
+  const rows = list.map((h, i) => `<label class="r-sin ${h.rating > cur ? "is-safe" : ""}"><input type="radio" name="sin" value="${i}" ${i === list.findIndex(x => x.rating <= cur) ? "checked" : ""}>
+    <b>${h.rating}</b><span>${esc(h.sin)}</span></label>`).join("");
+  const i = await foundry.applications.api.DialogV2.prompt({
+    window: { title: t("Roll.degeneration.title"), icon: "fa-solid fa-scale-unbalanced" }, classes: ["vtm20", "r-dialog", "r-sins"], position: { width: 520 }, rejectClose: false,
+    content: `<p>${t("Sins.Ask", { path: esc(VTM20.label(path)), n: cur })}</p><div class="r-sin-list">${rows}</div>`,
+    ok: { label: t("Sins.Go"), icon: "fa-solid fa-dice-d10", callback: (ev, btn) => Number(btn.form.elements.sin.value) }
+  });
+  if (i == null || Number.isNaN(i)) return null;
+  const h = list[i];
+  if (h.rating > cur) { await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<div class="r-notice"><i class="fa-solid fa-scale-balanced"></i> ${t("Sins.Safe", { name: esc(actor.name), sin: esc(h.sin), r: h.rating, n: cur })}</div>` }); return { skip: true }; }
+  return { sin: h };
+}
 
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
 
@@ -61,7 +84,12 @@ export async function rollVirtueCheck(actor, kind, { difficulty = 6, fromPrompt 
     difficulty: table || (difficulty === 6 ? 3 : difficulty), ...bloodlust(),
     diffNote: [bloodlust().diffNote, `<i class="fa-solid fa-heart-pulse"></i> ${t("Roll.rapture.note")}`].filter(Boolean).join("<br>")
   });
-  if (kind === "degeneration") return RollDialog.prompt(actor, { title: t("Roll.degeneration.title"), trait1: "virtues.conscience", reflexive: true, kind: "degeneration", difficulty, noWillpower: true, lockTraits: true });
+  if (kind === "degeneration") {
+    const pickd = fromPrompt ? { sin: null } : await pickSin(actor);
+    if (!pickd || pickd.skip) return null;
+    return RollDialog.prompt(actor, { title: t("Roll.degeneration.title"), trait1: "virtues.conscience", reflexive: true, kind: "degeneration", difficulty, noWillpower: true, lockTraits: true,
+      ...(pickd.sin ? { diffNote: `<i class="fa-solid fa-scale-unbalanced"></i> ${t("Sins.Note", { r: pickd.sin.rating, sin: foundry.utils.escapeHTML(pickd.sin.sin) })}` } : {}) });
+  }
   return RollDialog.prompt(actor, { title: t("Roll.rotschreck.title"), trait1: "virtues.courage", reflexive: true, kind: "rotschreck", difficulty, lockTraits: true });
 }
 

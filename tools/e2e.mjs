@@ -1191,7 +1191,7 @@ try {
     const r = await page.evaluate(async () => {
       const SYS = game.system.id, B = await import(`/systems/${SYS}/module/apps/npc-build.mjs`), R = await import(`/systems/${SYS}/module/apps/npc-roles.mjs`);
       const out = { built: 0, errs: [] };
-      for (const k of B.KINDS.filter(k => k.key !== "book")) for (const p of R.POWERS) for (const role of ["", R.ROLES[0].key, R.ROLES.at(-1).key]) {
+      for (const k of B.KINDS.filter(k => k.actor)) for (const p of R.POWERS) for (const role of ["", R.ROLES[0].key, R.ROLES.at(-1).key]) {
         try { const d = B.buildNpc({ kind: k.key, role, power: p.key, params: {} }); B.npcView(d); out.built++; } catch (e) { out.errs.push(`${k.key}/${p.key}: ${e.message}`); }
       }
       // выбранное — соблюдается: клан и поколение, племя Бастет и поправки форм по племени
@@ -1210,6 +1210,47 @@ try {
     if (r.vamp !== "toreador:9:1") throw new Error(`выбор вампира: ${r.vamp}`);
     if (r.fera !== "bastet:khan:feline" || r.khanCrinos !== 3) throw new Error(`Фера: ${r.fera}, Кринос Хана Сила +${r.khanCrinos}`);
     return `${r.built} черновиков`;
+  });
+
+  await check("Котерия и домен, группы НПС, поколение, Фера в бою, тотем, узы", async () => {
+    const r = await page.evaluate(async () => {
+      const SYS = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {}, made = [];
+      const mk = async (data) => { const a = await Actor.create({ ...data, flags: { world: { e2e: true }, [SYS]: { created: true } } }); made.push(a); return a; };
+      try {
+        const v1 = await mk({ name: "E2E — котерия 1", type: "vampire" }), v2 = await mk({ name: "E2E — котерия 2", type: "vampire" });
+        const cot = await mk({ name: "E2E — котерия", type: "coterie", system: { members: [v1.id, v2.id], pools: { "Домен": { [v1.id]: 2 } }, primary: "Домен" } });
+        const dom = await mk({ name: "E2E — домен", type: "domain", system: { owner: cot.id, rating: 3, security: 2, guests: [] } });
+        const D = await import(`/systems/${SYS}/module/apps/domain.mjs`), C = await import(`/systems/${SYS}/module/apps/coterie.mjs`);
+        out.rating = D.domainRating(v2);
+        out.coteriesOf = C.coteriesOf(v1).some(c => c.actorId === cot.id);
+        await cot.sheet.render(true); await wait(900); out.cards = cot.sheet.element?.querySelectorAll(".r-gs-card").length ?? 0; await cot.sheet.close();
+        await dom.sheet.render(true); await wait(900); out.owner = !!dom.sheet.element?.querySelector(".r-gs-owner-name"); await dom.sheet.close();
+        // группа целиком
+        const B = await import(`/systems/${SYS}/module/apps/npc-build.mjs`);
+        out.cell = B.buildGroup("cell", "normal").map(d => d.actor).join(",");
+        // поколение → факт «Поколение»
+        await v1.update({ "system.generation": 10 }); await wait(700);
+        out.genBg = v1.items.find(i => i.type === "background" && /Поколение|Generation/.test(i.name))?.system.value ?? 0;
+        // Фера в бою: Кринос Бастет — укус и когти
+        const f = await mk({ name: "E2E — Бастет", type: "werewolf", system: { werewolf: { fera: "bastet", form: "f2" } } });
+        out.feraNatural = (f.system.formFx?.weapons ?? []).map(w => w.key).sort().join(",");
+        // тотем стаи: Химера даёт Загадки 3
+        const g = await mk({ name: "E2E — Гару тотема", type: "werewolf" });
+        const pack = await mk({ name: "E2E — стая", type: "coterie", system: { kind: "pack", members: [g.id], totem: "chimera" } });
+        out.totem = C.totemTraits(g)?.traits?.["abilities.enigmas"] ?? 0;
+        // узы: таймер ослабления
+        const Bo = await import(`/systems/${SYS}/module/apps/bonds.mjs`), Cal = await import(`/systems/${SYS}/module/apps/calendar.mjs`);
+        out.fade = Bo.bondFade(v2, { role: "regnant", rating: 2, last: Cal.ymd(new Date(Cal.getClock())) });
+      } finally {
+        await Actor.deleteDocuments(made.map(a => a.id).filter(id => game.actors.get(id)));
+      }
+      return out;
+    });
+    if (r.rating !== 3 || !r.coteriesOf || r.cards !== 2 || !r.owner) throw new Error(`котерия/домен: рейтинг ${r.rating}, котерии ${r.coteriesOf}, карточек ${r.cards}, хозяин ${r.owner}`);
+    if (r.cell !== "hunter,hunter,hunter,hunter") throw new Error(`группа: ${r.cell}`);
+    if (r.genBg !== 3) throw new Error(`факт «Поколение» после 10-го поколения: ${r.genBg}`);
+    if (r.feraNatural !== "bite,claw" || r.totem !== 3) throw new Error(`Фера: ${r.feraNatural}; тотем Химеры: ${r.totem}`);
+    if (!(r.fade >= 1 && r.fade <= 12)) throw new Error(`таймер уз: ${r.fade}`);
   });
 
   await check("Дампир: витэ гуля, траты, видимость черт", async () => {

@@ -104,7 +104,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       goto: VtMCreator.#onGoto, next: VtMCreator.#onNext, prev: VtMCreator.#onPrev,
       tier: VtMCreator.#onTier, sect: VtMCreator.#onSect, clan: VtMCreator.#onClan, clanGroup: VtMCreator.#onClanGroup,
       creed: VtMCreator.#onCreed, edgeToggle: VtMCreator.#onEdgeToggle, brSet: VtMCreator.#onBrSet, dhSwap: VtMCreator.#onDhSwap,
-      house: VtMCreator.#onHouse, earthbound: VtMCreator.#onEarthbound, thrall: VtMCreator.#onThrall, pactShare: VtMCreator.#onPactShare, pactGift: VtMCreator.#onPactGift, reliquary: VtMCreator.#onReliquary, visage: VtMCreator.#onVisage, faction: VtMCreator.#onFaction, houseAtlas: VtMCreator.#onHouseAtlas,
+      house: VtMCreator.#onHouse, earthbound: VtMCreator.#onEarthbound, thrall: VtMCreator.#onThrall, mark: VtMCreator.#onMark, markPower: VtMCreator.#onMarkPower, pactShare: VtMCreator.#onPactShare, pactGift: VtMCreator.#onPactGift, reliquary: VtMCreator.#onReliquary, visage: VtMCreator.#onVisage, faction: VtMCreator.#onFaction, houseAtlas: VtMCreator.#onHouseAtlas,
       gen: VtMCreator.#onGen, choice: VtMCreator.#onChoice, clanAtlas: VtMCreator.#onClanAtlas,
       dot: VtMCreator.#onDot, prio: VtMCreator.#onPrio,
       bgToggle: VtMCreator.#onBgToggle, mfToggle: VtMCreator.#onMfToggle, mfTab: VtMCreator.#onMfTab, mfCat: VtMCreator.#onMfCat,
@@ -146,7 +146,11 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       creed: s.hunter?.creed || "defense", edges: [...(s.hunter?.edges ?? [])],
       // дампир (Accursed Heirs): концепция, клан Предка, Кровные права (ключ → точки)
       dhConcept: s.dhampir?.concept ?? "", dhSwap: false, antecedent: s.dhampir?.antecedent ?? "", antecedentClan: s.dhampir?.antecedentClan ?? "",
-      bloodrights: { ...(s.dhampir?.bloodrights ?? {}) }
+      bloodrights: { ...(s.dhampir?.bloodrights ?? {}) },
+      // особый смертный (W20 Kinfolk, W20 Umbra, Book of the Wyrm): Родня Гару, Ками, фомор — отметки на листе смертного
+      mark: s.kinfolk?.on ? "kinfolk" : s.kami?.on ? "kami" : s.fomor?.on ? "fomor" : "",
+      markTribe: s.kinfolk?.tribe || "", kamiKind: s.kami?.kind || "human", kamiGeas: s.kami?.geas || "",
+      kamiPowers: (s.kami?.powers ?? []).map(x => x.key), fomorBreed: s.fomor?.breed || "", fomorPowers: []
     };
     this.ui = { clanGroup: "clan", mfTab: "merit", mfCat: "all", mfSearch: "", open: new Set() };
   }
@@ -184,6 +188,26 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     if (this.isDhampir) return { ...this.baseRules, free: 18, disc: this.baseRules.disc + (this.st?.dhSwap ? 1 : 0) };
     return this.type === "vampire" ? { ...this.baseRules, ...(SECT_RULES[this.st?.sectKey] ?? {}) } : this.baseRules;
   }
+  /** Особый смертный для шаблона: варианты, поля и силы. */
+  markView() {
+    const W = Codex.werewolf ?? {}, st = this.st, lbl = x => VTM20.label(x);
+    const fb = (W.fomori?.breeds ?? []).find(b => b.key === st.fomorBreed);
+    const own = new Set((fb?.powers ?? []).filter(k => !k.startsWith("~")));
+    return {
+      mark: st.mark,
+      opts: ["kinfolk", "kami", "fomor"].map(k => ({ key: k, label: t(`Creator.Mark.${k}`), active: st.mark === k })),
+      hint: st.mark ? t(`Creator.Mark.${st.mark}Hint`) : t("Creator.Mark.none"),
+      tribes: (W.tribes ?? []).map(x => ({ key: x.key, label: lbl(x), selected: x.key === st.markTribe })),
+      kamiKinds: ["human", "animal", "plant"].map(k => ({ key: k, label: loc(`VTM20.Werewolf.Kami.form.${k}`), selected: k === st.kamiKind })),
+      kamiPowers: (W.kami?.powers ?? []).filter(x => x.kind === "kami" || (st.kamiKind === "plant" && x.kind === "immobile"))
+        .map(x => ({ key: x.key, label: lbl(x), text: String(x.text ?? "").replace(/<[^>]+>/g, "").slice(0, 220), on: st.kamiPowers.includes(x.key) })),
+      fomorBreeds: (W.fomori?.breeds ?? []).map(b => ({ key: b.key, label: lbl(b), selected: b.key === st.fomorBreed })),
+      fomorText: fb ? String(fb.text ?? "").replace(/<[^>]+>/g, "").slice(0, 400) : "",
+      fomorPowers: (W.fomori?.powers ?? []).map(x => ({ key: x.key, label: lbl(x), text: String(x.text ?? "").replace(/<[^>]+>/g, "").slice(0, 200),
+        own: own.has(x.key), on: own.has(x.key) || st.fomorPowers.includes(x.key) }))
+    };
+  }
+
   /** Падший создаётся Привязанным к Земле (переключатель на шаге Дома). */
   get isEarthbound() { return this.type === "demon" && !!this.st?.earthbound; }
   /** Смертный создаётся слугой падшего (переключатель на шаге концепции). */
@@ -455,6 +479,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     };
     const ctx = {
       st, ui: this.ui, rem, rules: this.rules, type: this.type,
+      marks: this.type === "mortal" ? this.markView() : null,
       isVampire: this.type === "vampire", isGhoul: this.type === "ghoul", isDemon: this.isDemon, isEarthbound: this.isEarthbound, isThrall: this.isThrall, isMortal: this.type === "mortal", isHunter: this.isHunter, isLost: this.isLost, discLabel: this.discLabel, bgLabel: this.bgLabel,
       typeLabel: loc(`TYPES.Actor.${this.type}`), typeSigil: VTM20.typeSigil(this.type),
       steps: this.steps.map((k, i) => ({ i, key: k, n: i + 1, label: t(`Creator.Step.${this.stepName(k)}`), active: i === this.step, done: this.stepOk(k, rem) && i !== this.step })),
@@ -815,7 +840,16 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
   }
   static #onVisage(event, target) { this.st.visage = target.dataset.visage; this.render(); }
   static #onEarthbound() { this.st.earthbound = !this.st.earthbound; this.render(); }
-  static #onThrall() { this.st.thrall = !this.st.thrall; this.render(); }
+  static #onThrall() { this.st.thrall = !this.st.thrall; if (this.st.thrall) this.st.mark = ""; this.render(); }
+  /** Особый смертный: Родня, Ками или фомор (повторный щелчок — обычный смертный). */
+  static #onMark(event, target) { const m = target.dataset.mark; this.st.mark = this.st.mark === m ? "" : m; if (this.st.mark) this.st.thrall = false; this.render(); }
+  /** Сила Ками (1–3) или фомора (до двух сверх сил породы). */
+  static #onMarkPower(event, target) {
+    const k = target.dataset.key, list = this.st.mark === "kami" ? "kamiPowers" : "fomorPowers", cap = this.st.mark === "kami" ? 3 : 2;
+    const cur = this.st[list];
+    this.st[list] = cur.includes(k) ? cur.filter(x => x !== k) : cur.length < cap ? [...cur, k] : cur;
+    this.render();
+  }
   /** Охотник: кредо — основная Добродетель и начальная Убеждённость; Грани чужих путей пересчитываются. */
   static #onCreed(event, target) { this.st.creed = target.dataset.creed; this.render(); }
   /** Кровное право дампира: точка n (повторный щелчок по последней точке — снять). */
@@ -1034,6 +1068,20 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       const boosts = (kind, store) => Object.entries(store).filter(([, n]) => n > 0)
         .map(([k, n]) => ({ kind, name: "", key: `${kind === "attr" ? "attributes" : "abilities"}.${k}`, dots: n, high: false, cost: 0, note: "" }));
       sys.thrall = { master: st.pact.master, faith: this.morality, gifts: [...boosts("attr", st.pact.attr), ...boosts("abil", st.pact.abil)] };
+    }
+    // особый смертный: отметка Родни, Ками или фомора с выбранным
+    if (this.type === "mortal" && !this.isThrall) {
+      const W = Codex.werewolf ?? {}, m = st.mark;
+      sys.kinfolk = { ...(a.system.kinfolk ?? {}), on: m === "kinfolk", ...(m === "kinfolk" ? { tribe: st.markTribe || W.tribes?.[0]?.key || "", breed: "homid" } : {}) };
+      const ks = W.kami?.start?.[st.kamiKind] ?? { gnosis: 1, rage: 0, willpower: 3 };
+      sys.kami = { ...(a.system.kami ?? {}), on: m === "kami", ...(m === "kami" ? { kind: st.kamiKind, geas: st.kamiGeas, gnosis: ks.gnosis, rage: ks.rage,
+        powers: st.kamiPowers.map(key => ({ key, n: 1 })) } : {}) };
+      const fb = (W.fomori?.breeds ?? []).find(b => b.key === st.fomorBreed);
+      const own = (fb?.powers ?? []).filter(k => !k.startsWith("~") && (W.fomori?.powers ?? []).some(x => x.key === k));
+      sys.fomor = { ...(a.system.fomor ?? {}), on: m === "fomor", ...(m === "fomor" ? { breed: st.fomorBreed, rage: 0,
+        powers: [...new Set([...own, ...st.fomorPowers])].map(key => ({ key, n: 1 })) } : {}) };
+      if (m === "fomor" && fb?.willpower) sys.willpower = { permanent: Math.max(sys.willpower.permanent, fb.willpower), temporary: Math.max(sys.willpower.permanent, fb.willpower) };
+      if (m === "kami") sys.willpower = { permanent: Math.max(sys.willpower.permanent, ks.willpower), temporary: Math.max(sys.willpower.permanent, ks.willpower) };
     }
     // Охотник: кредо, Добродетели охоты, Убеждённость, Грани; Человечности и Добродетелей V20 нет
     if (this.isHunter) {
