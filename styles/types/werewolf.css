@@ -342,3 +342,9 @@ body.r-theme-light .vtm20.r-type-werewolf .r-form-badge.is-down { color: #7a2a18
 .vtm20 .r-vc-spirit .r-sp-charms small { opacity: .55; font-size: 10.5px; }
 .vtm20 .r-vc-spirit .r-boxes.is-essence { flex-wrap: wrap; }
 .vtm20 .r-vc-spirit .r-mini-num { width: 44px; }
+
+/* Родня Гару на листе смертного */
+.vtm20 .r-kin-row { display: grid; grid-template-columns: 1fr 1fr 80px; gap: 10px; }
+.vtm20 .r-kin-row label { display: flex; flex-direction: column; gap: 2px; }
+.vtm20 .r-kin-row label > span { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; opacity: .7; }
+.vtm20 .r-kin-toggle { display: inline-flex; gap: 5px; align-items: center; font-size: 12px; }

@@ -615,6 +615,27 @@ def parse_supp_gifts(core, breeds, auspices, tribes):
     return out
 
 
+def parse_kin_gifts(tribes):
+    """Дары Родни: «- **Племя — Название (English).** текст» (W20 Kinfolk, все 1-го уровня)."""
+    p = os.path.join(os.path.dirname(REF), "W20_Kinfolk")
+    fn = next((f for f in sorted(os.listdir(p)) if f.startswith("01")), None) if os.path.isdir(p) else None
+    if not fn:
+        return []
+    with open(os.path.join(p, fn), encoding="utf-8") as f:
+        text = f.read()
+    part = text.split("### Дары племён для Родни", 1)[1].split("\n## ", 1)[0] if "### Дары племён для Родни" in text else ""
+    out = []
+    for line in part.splitlines():
+        m = re.match(r"^- \*\*(.+?)\s+—\s+(.+?)\s*\(([^()]+)\)\.?\*\*\s*(.*)$", line)
+        if not m:
+            continue
+        tribe_ru, name, en, body = m.groups()
+        tribe = next((t["key"] for t in tribes if t["name"].lower() == tribe_ru.strip().lower()), "")
+        out.append({"key": "kin-" + re.sub(r"[^a-z0-9]+", "-", en.lower()).strip("-"), "tribe": tribe, "name": name.strip(), "en": en.strip(),
+                    "level": 1, "roll": roll_of(body), "text": f"<p>{md_inline(body)}</p>"})
+    return out
+
+
 def build():
     gifts = parse_gifts()
     rites = parse_rites()
@@ -626,7 +647,7 @@ def build():
             x["icon"] = ICONS[kind].get(x["key"], "fa-moon")
     data = {"source": "Werewolf: The Apocalypse 20th Anniversary Edition", "breeds": breeds, "auspices": auspices, "tribes": tribes,
             "forms": FORMS, "gifts": gifts, "rites": rites, "rankNames": RANK_NAMES, "rank": RANK, "xp": XP,
-            "merits": parse_merits(), "backgrounds": parse_backgrounds(), "fetishes": parse_fetishes(), "charms": parse_charms()}
+            "merits": parse_merits(), "backgrounds": parse_backgrounds(), "fetishes": parse_fetishes(), "charms": parse_charms(), "kinGifts": parse_kin_gifts(tribes)}
     with open(OUT, "w", encoding="utf-8", newline="\n") as f:
         json.dump(data, f, ensure_ascii=False, indent=1)
     rules = parse_rules()
@@ -638,7 +659,7 @@ def build():
     starts = sum(len(x["startGifts"]) for x in breeds + auspices + tribes)
     return {"breeds": len(breeds), "auspices": len(auspices), "tribes": len(tribes), "gifts": len(gifts), "rites": len(rites),
             "startGifts": starts, "rolls": sum(1 for g in gifts if g["roll"]),
-            "rulePages": sum(len(b["pages"]) for b in rules), "merits": len(data["merits"]), "backgrounds": len(data["backgrounds"]), "fetishes": len(data["fetishes"]), "charms": len(data["charms"]), "books": len(books), "bookPages": sum(len(b["pages"]) for b in books)}
+            "rulePages": sum(len(b["pages"]) for b in rules), "merits": len(data["merits"]), "backgrounds": len(data["backgrounds"]), "fetishes": len(data["fetishes"]), "charms": len(data["charms"]), "kinGifts": len(data["kinGifts"]), "books": len(books), "bookPages": sum(len(b["pages"]) for b in books)}
 
 
 if __name__ == "__main__":

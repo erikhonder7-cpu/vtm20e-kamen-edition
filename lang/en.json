@@ -4040,7 +4040,19 @@
       },
       "GauntletAsk": "Where are you? The difficulty is the local Gauntlet rating.",
       "StepGo": "Step",
-      "GauntletTimes": "Successes: 1 — 5 minutes, 2 — 30 seconds, 3+ — at once. Failure — wait an hour; botch — caught in the Gauntlet."
+      "GauntletTimes": "Successes: 1 — 5 minutes, 2 — 30 seconds, 3+ — at once. Failure — wait an hour; botch — caught in the Gauntlet.",
+      "Kin": {
+        "title": "Garou Kinfolk",
+        "toggle": "Kinfolk",
+        "gnosisHint": "Kinfolk Gnosis comes from the Gnosis merit; without it — only Gifts that don't spend Gnosis",
+        "hint": "Level 1 Gifts only: for experience (own — 15, other — 20) or as a reward from Garou and spirits. Kinfolk are immune to the Delirium.",
+        "noGifts": "No Gifts.",
+        "addGift": "+ Kinfolk Gift…",
+        "addFree": "Add (reward, no XP)",
+        "addXp": "Learn for XP"
+      },
+      "KinLearned": "Kinfolk Gift: {name}",
+      "DeliriumKin": "Kinfolk — immune to the Delirium"
     },
     "Strategy": {
       "Tab": "Strategy",

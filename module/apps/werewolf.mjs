@@ -328,6 +328,49 @@ export async function useFetish(actor, i) {
     onRolled: async r => { if ((r?.successes ?? 0) > 0) { await spendTalen(); await say(t("Awakened", { name: esc(f.name) })); } } });
 }
 
+/* ── Родня Гару (W20 Kinfolk): Дары 1-го уровня своей породы и племени и особые Дары Родни ─── */
+
+const kinGiftOf = key => (W().kinGifts ?? []).find(g => g.key === key) ?? giftOf(key);
+/** Цена Дара для Родни в опыте: свой — 15, чужой — 20 (+5 за учителя-Гару — по решению рассказчика). */
+const kinCost = (k, g) => (g.groups ? g.groups.some(x => x.key === k.tribe || x.key === k.breed) : g.tribe === k.tribe) ? 15 : 20;
+
+/** Блок «Родня Гару» на листе смертного. */
+export function kinfolkInfo(actor) {
+  const k = actor.system.kinfolk;
+  if (!k) return null;
+  const D = W();
+  const gifts = k.gifts.map(kinGiftOf).filter(Boolean).map(g => ({ key: g.key, name: g.name, en: g.en, text: g.text, roll: !!g.roll,
+    gnosis: /Гнозис/.test(g.text ?? "") }));
+  const own = [...(D.kinGifts ?? []).filter(g => g.tribe === k.tribe), ...D.gifts.filter(g => g.level === 1 && g.groups.some(x => x.key === k.tribe || x.key === k.breed))];
+  const other = (D.kinGifts ?? []).filter(g => g.tribe !== k.tribe);
+  const avail = [...own, ...other].filter(g => !k.gifts.includes(g.key))
+    .map(g => ({ key: g.key, label: `${VTM20.label(g)}${g.tribe != null && g.tribe !== k.tribe && !g.groups ? ` (${D.tribes.find(t => t.key === g.tribe)?.name ?? "?"})` : ""} — ${kinCost(k, g)}`, xp: kinCost(k, g) }));
+  return { on: k.on, tribe: k.tribe, breed: k.breed, gnosis: k.gnosis,
+    tribes: D.tribes.map(t => ({ key: t.key, label: VTM20.label(t), selected: t.key === k.tribe })),
+    breeds: ["homid", "lupus"].map(b => ({ key: b, label: VTM20.label(D.breeds.find(x => x.key === b) ?? { name: b }), selected: b === k.breed })),
+    gifts, avail };
+}
+export async function kinAddGift(actor, key, buy = false) {
+  const k = actor.system.kinfolk, g = kinGiftOf(key);
+  if (!g || k.gifts.includes(key)) return;
+  if (buy) {
+    const cost = kinCost(k, g), xp = actor.system.experience;
+    if (xp.available < cost) return ui.notifications.warn(game.i18n.format("VTM20.Notify.NoXp", { cost, have: xp.available }));
+    const log = foundry.utils.deepClone(actor._source.system.experience.log);
+    log.unshift({ amount: -cost, reason: t("KinLearned", { name: g.name }), date: new Date().toLocaleDateString(game.i18n.lang) });
+    await actor.update({ "system.experience.spent": actor._source.system.experience.spent + cost, "system.experience.log": log });
+  }
+  return actor.update({ "system.kinfolk.gifts": [...k.gifts, key] });
+}
+export const kinRemoveGift = (actor, key) => actor.update({ "system.kinfolk.gifts": actor.system.kinfolk.gifts.filter(x => x !== key) });
+/** Дар Родни: бросок, если он указан, иначе — описание в чат. */
+export function kinUseGift(actor, key) {
+  const g = kinGiftOf(key);
+  if (!g) return;
+  if (g.roll) return RollDialog.prompt(actor, { title: g.name, trait1: g.roll.trait1, trait2: g.roll.trait2, difficulty: g.roll.difficulty ?? 6 });
+  return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<div class="r-notice r-type-werewolf"><b>${esc(g.name)}</b>${g.text}</div>` });
+}
+
 /* ── Бред (W20, гл. 6): реакция смертного на Кринос — по его Силе воли ─────── */
 
 const DELIRIUM = [null, "catatonic", "panic", "disbelief", "berserk", "terror", "conciliatory", "controlled", "curious", "bloodlust", "none"];
@@ -337,9 +380,9 @@ export const deliriumOf = wp => { const n = Math.clamp(wp, 1, 10); return { n, k
 /** Бред: целям (выделенным токенам) — реакция по их Воле; без целей — справочная таблица. */
 export async function delirium(actor) {
   const targets = [...game.user.targets].map(tk => tk.actor).filter(a => a && ["mortal", "hunter", "ghoul"].includes(a.type));
-  const row = (name, wp) => { const d = deliriumOf(wp);
+  const row = (name, wp, kin = false) => { if (kin) return `<tr><td>${esc(name)}</td><td>—</td><td><b>${t("DeliriumKin")}</b></td></tr>`; const d = deliriumOf(wp);
     return `<tr><td>${esc(name)}</td><td>${d.n}</td><td><b>${t(`DeliriumR.${d.key}`)}</b><br><small>${t(d.forgets ? "DeliriumForgets" : d.n <= 8 ? "DeliriumExplains" : "DeliriumRemembers")}</small></td></tr>`; };
-  const rows = targets.length ? targets.map(a => row(a.name, a.system.willpower?.permanent ?? 3)).join("")
+  const rows = targets.length ? targets.map(a => row(a.name, a.system.willpower?.permanent ?? 3, !!a.system.kinfolk?.on)).join("")
     : Array.from({ length: 10 }, (_, k) => row("", k + 1)).join("");
   return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), whisper: targets.length ? [] : ChatMessage.getWhisperRecipients("GM"),
     content: `<div class="r-notice r-type-werewolf r-delirium"><h4><i class="fa-solid fa-eye-low-vision"></i> ${t("DeliriumTitle")}</h4>

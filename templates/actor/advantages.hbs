@@ -226,6 +226,27 @@
   </div>
   <p class="r-hint">{{localize "VTM20.Boon.Hint"}}</p>
   {{/unless}}
+  {{#if kinInfo}}
+  {{!-- Родня Гару (W20 Kinfolk): племя и порода, Гнозис (достоинство), Дары 1-го уровня; к Бреду невосприимчивы --}}
+  <h2 class="r-h2"><span><i class="fa-solid fa-paw"></i> {{localize "VTM20.Werewolf.Kin.title"}}</span>
+    {{#if editable}}<label class="r-h2-tools r-kin-toggle"><input type="checkbox" name="system.kinfolk.on" {{checked kinInfo.on}}> {{localize "VTM20.Werewolf.Kin.toggle"}}</label>{{/if}}</h2>
+  {{#if kinInfo.on}}
+  <div class="r-kin">
+    <div class="r-kin-row">
+      <label><span>{{localize "VTM20.Werewolf.Tribe"}}</span><select name="system.kinfolk.tribe"><option value="">—</option>{{#each kinInfo.tribes}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+      <label><span>{{localize "VTM20.Werewolf.Breed"}}</span><select name="system.kinfolk.breed">{{#each kinInfo.breeds}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+      <label data-tooltip="{{localize 'VTM20.Werewolf.Kin.gnosisHint'}}"><span>{{localize "VTM20.Werewolf.Gnosis"}}</span><input type="number" name="system.kinfolk.gnosis" value="{{kinInfo.gnosis}}" min="0" max="3"></label>
+    </div>
+    <p class="r-hint">{{localize "VTM20.Werewolf.Kin.hint"}}</p>
+    <ul class="r-edge-list">{{#each kinInfo.gifts}}<li class="r-edge"><span class="r-edge-lvl">I</span><span class="r-edge-main"><b>{{rName this}}</b> <small>{{rAlt this}}</small><div class="r-edge-text">{{{text}}}</div></span>
+      {{#if @root.editable}}<a class="r-vc-btn" data-action="kinUse" data-key="{{key}}"><i class="fa-solid {{#if roll}}fa-dice-d10{{else}}fa-hand-sparkles{{/if}}"></i></a><a class="r-icon-btn is-danger" data-action="kinDel" data-key="{{key}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}</li>
+      {{else}}<li class="r-note">{{localize "VTM20.Werewolf.Kin.noGifts"}}</li>{{/each}}</ul>
+    {{#if editable}}<div class="r-toolbar"><select class="r-kin-add"><option value="">{{localize "VTM20.Werewolf.Kin.addGift"}}</option>{{#each kinInfo.avail}}<option value="{{key}}">{{label}}</option>{{/each}}</select>
+      <a class="r-vc-btn" data-action="kinAdd" data-tooltip="{{localize 'VTM20.Werewolf.Kin.addFree'}}"><i class="fa-solid fa-plus"></i></a>
+      <a class="r-vc-btn" data-action="kinBuy" data-tooltip="{{localize 'VTM20.Werewolf.Kin.addXp'}}"><i class="fa-solid fa-star"></i></a></div>{{/if}}
+  </div>
+  {{/if}}
+  {{/if}}
   {{#if stratInfo}}
   {{!-- Стратегия города (module/ui/strategy.mjs): влияние персонажа в сферах, заявки хода, проекты, договоры --}}
   <h2 class="r-h2"><span><i class="fa-solid fa-chess-knight"></i> {{localize "VTM20.Strategy.SheetTitle"}}</span>

@@ -1030,7 +1030,7 @@ try {
   });
 
   // Оборотни, часть 2: мастер создания Гару (W20, гл. 3), фетиши и талены, Бред по Силе воли, дух Умбры (существо с Чарами)
-  await check("Оборотень: мастер создания, фетиши, Бред, дух Умбры", async () => {
+  await check("Оборотень: мастер создания, фетиши, Бред, дух Умбры, Родня", async () => {
     const id = await temp("E2E — новый Гару", "werewolf"), sp = await temp("E2E — дух", "creature");
     const r = await page.evaluate(async ([id, sp]) => {
       const SYS = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {};
@@ -1051,12 +1051,20 @@ try {
       await s.update({ "system.spirit": { on: true, rage: 4, gnosis: 6, willpower: 5 } });
       await WW.spiritEssenceReset(s); out.essence = s.system.spirit.essence.max; out.spiritRoll = s.traitValue("spirit.gnosis");
       await s.sheet.render(true); await wait(900); out.card = !!s.sheet.element.querySelector(".r-vc-spirit"); await s.sheet.close();
+      // Родня Гару: Дар за опыт (свой — 15), блок на листе
+      const k = await Actor.create({ name: "E2E — Родня", type: "mortal", flags: { world: { e2e: true }, [SYS]: { created: true } },
+        system: { experience: { total: 20 }, kinfolk: { on: true, tribe: "boneGnawers", breed: "homid" } } });
+      const ki = WW.kinfolkInfo(k), own = ki.avail.find(x => x.xp === 15);
+      await WW.kinAddGift(k, own.key, true);
+      out.kin = `${k.system.kinfolk.gifts.length}:${k.system.experience.spent}:${ki.avail.length > 5}`;
+      await k.sheet.render(true); await wait(900); out.kinBlock = !!k.sheet.element.querySelector(".r-kin"); await k.sheet.close();
       return out;
     }, [id, sp]);
     if (!r.created || r.rage !== 2 || r.gnosis !== 5 || r.wisdom !== 3 || r.gifts !== 3 || r.form !== "lupus") throw new Error(`мастер создания: ${JSON.stringify(r)}`);
     if (r.fetishes !== "baneskin:1,gaia-s-breath:2") throw new Error(`фетиши: ${r.fetishes}`);
     if (r.delirium !== "controlled:false") throw new Error(`Бред: ${r.delirium}`);
     if (r.essence !== 15 || r.spiritRoll !== 6 || !r.card) throw new Error(`дух: Эссенция ${r.essence}, Гнозис ${r.spiritRoll}, карточка ${r.card}`);
+    if (r.kin !== "1:15:true" || !r.kinBlock) throw new Error(`Родня: ${r.kin}, блок ${r.kinBlock}`);
   });
 
   await check("Оборотень: формы, Ярость, Дары, лист", async () => {

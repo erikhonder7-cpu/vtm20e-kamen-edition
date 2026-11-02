@@ -260,6 +260,8 @@ export class MortalData extends BaseActorData {
       ...super.defineSchema(),
       // Смертный как сосуд: сколько крови в нём осталось (10 у взрослого, 05).
       vessel: new SchemaField({ value: int(10, 0, 20), max: int(10, 1, 20) }),
+      // Родня Гару (W20 Kinfolk): племя, порода, Гнозис (достоинство), Дары 1-го уровня; невосприимчивы к Бреду
+      kinfolk: new SchemaField({ on: new BooleanField({ initial: false }), tribe: str(""), breed: str("homid"), gnosis: int(0, 0, 3), gifts: new ArrayField(str()) }),
       trueFaith: int(0, 0, 10),
       // охотник на падших (apps/exorcist.mjs): цель-демон, Истинное Имя, благословлённый предмет, помощники; обряд — душа
       // найдена/нет и попытки, победы и часы; на ком обряд сорван навсегда; когда читалась молитва св. Михаилу (часы хроники);
