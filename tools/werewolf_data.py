@@ -1692,6 +1692,22 @@ def parse_kami():
                       "plant": {"willpower": 3, "gnosis": 5, "rage": 0, "gnosisMax": 10}}}
 
 
+def fill_en(node):
+    """Английские названия там, где справочник их не дал (tools/werewolf-en.json) — для английского интерфейса."""
+    names = json.load(open(os.path.join(HERE, "werewolf-en.json"), encoding="utf-8"))["names"]
+
+    def walk(x):
+        if isinstance(x, dict):
+            if isinstance(x.get("name"), str) and not x.get("en") and x["name"] in names:
+                x["en"] = names[x["name"]]
+            for v in x.values():
+                walk(v)
+        elif isinstance(x, list):
+            for v in x:
+                walk(v)
+    walk(node)
+
+
 def build():
     gifts = parse_gifts()
     rites = parse_rites()
@@ -1716,6 +1732,7 @@ def build():
             "forms": FORMS, "gifts": gifts, "rites": rites, "rankNames": RANK_NAMES, "rank": RANK, "xp": XP,
             "merits": core_merits + s_merits, "backgrounds": parse_backgrounds(), "fetishes": core_fetishes + s_fetishes, "charms": charms, "kinGifts": parse_kin_gifts(tribes), "totems": parse_totems() + cw_totems, "renownAwards": parse_renown_awards(), "scars": parse_scars(), "sept": parse_sept(), "umbra": parse_umbra(), "fera": fera,
             "deformities": parse_deformities(), "numina": parse_numina(), "kami": parse_kami(), "spirits": parse_spirit_templates(charms), "fetchRites": parse_fetch_rites(tribes), "primalUses": parse_primal_uses(), "fomori": parse_fomori()}
+    fill_en(data)
     with open(OUT, "w", encoding="utf-8", newline="\n") as f:
         json.dump(data, f, ensure_ascii=False, indent=1)
     rules = parse_rules()

@@ -31,9 +31,9 @@ export function werewolfInfo(actor, dots) {
   const next = rankNeed(w.auspice, w.rank + 1);
   return {
     breed, auspice, tribe, rank: w.rank, rankName: D.rankNames?.[w.rank - 1] ?? "", fera, feraOptions: [{ key: "", label: t("Garou"), selected: !w.fera },
-      ...(D.fera ?? []).map(b => ({ key: b.key, label: b.name, selected: b.key === w.fera }))],
+      ...(D.fera ?? []).map(b => ({ key: b.key, label: VTM20.label(b), selected: b.key === w.fera }))],
     feraDims: (fera?.dims ?? []).filter(d => d.options.length).map(d => ({ key: d.key, label: d.label, value: w.feraSub?.[d.key] ?? "",
-      options: d.options.map(o => ({ key: o.key, name: o.name, selected: o.key === w.feraSub?.[d.key] })) })), packTotem: totemOf(actor), sept: septOf(actor), umbra: umbraOf(actor),
+      options: d.options.map(o => ({ key: o.key, name: VTM20.label(o), selected: o.key === w.feraSub?.[d.key] })) })), packTotem: totemOf(actor), sept: septOf(actor), umbra: umbraOf(actor),
     rage: w.rage.value, ragePerm: w.rage.permanent, gnosis: w.gnosis.value, gnosisPerm: w.gnosis.permanent,
     rageDots: dots(w.rage.permanent, 10, { path: "system.werewolf.rage.permanent" }),
     gnosisDots: dots(w.gnosis.permanent, 10, { path: "system.werewolf.gnosis.permanent" }),
@@ -617,7 +617,11 @@ export async function stepSideways(actor, trait = "werewolf.gnosis") {
     ok: { label: t("StepGo"), icon: "fa-solid fa-moon", callback: (ev, btn) => Number(btn.form.elements.g.value) }
   });
   if (!diff) return;
-  return RollDialog.prompt(actor, { title: t("StepSideways"), trait1: trait, difficulty: diff, diffNote: t("GauntletNote"),
+  // Стратегия города: фишки в секторе с каэрном — Преграда −1 за каждые 2 (не больше −2, не ниже 2)
+  const { perkBonus } = await import("../ui/strategy.mjs");
+  const pk = perkBonus(actor, "caern"), cut = Math.min(2, pk.dice), d = Math.max(2, diff - cut);
+  return RollDialog.prompt(actor, { title: t("StepSideways"), trait1: trait, difficulty: d,
+    diffNote: cut ? `${t("GauntletNote")} · ${t("GauntletPerk", { n: cut, name: pk.names.join(", ") })}` : t("GauntletNote"),
     onRolled: async r => { if ((r?.successes ?? 0) > 0) { const { setUmbra } = await import("./umbra.mjs"); await setUmbra(actor, "penumbra"); } } });
 }
 

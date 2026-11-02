@@ -37,7 +37,9 @@ const KINDS = {
   attention: { icon: "fa-chess-pawn", count: () => 3 },
   influence: { icon: "fa-landmark", count: a => Math.floor(bg(a, /^(Влияние|Influence)$/i) / 2) },
   retainer: { icon: "fa-user-secret", count: a => bg(a, /^(Подручные|Retainers)$/i) },
-  boon: { icon: "fa-handshake", count: () => 2 }
+  boon: { icon: "fa-handshake", count: () => 2 },
+  // Гару и их Родня: родичи-люди в городе — жетон за каждые 2 точки Факта «Родня» (W20)
+  kinfolk: { icon: "fa-people-group", count: a => Math.floor(bg(a, /^(Родня|Kinfolk)$/i) / 2) }
 };
 /** Что делаем в гексе: сложность и против кого. */
 const INTENTS = {
@@ -50,8 +52,9 @@ const INTENTS = {
   project: { icon: "fa-compass-drafting", diff: 0, target: "project" }
 };
 /** Польза сектора: факт ночи простоя (+1 кубик за каждые 2 фишки) или охота (сложность −1, от 5 фишек −2). */
-const PERKS = ["herd", "resources", "influence", "allies", "contacts", "retainers", "fame", "status", "domain", "mentor", "hunt"];
-const perkName = k => k === "hunt" ? S("PerkHunt") : game.i18n.localize(`VTM20.Downtime.Bg.${k}`);
+// «caern» — каэрн в секторе: шаг в Умбру отсюда легче (Преграда −1 за каждые 2 фишки, не больше −2)
+const PERKS = ["herd", "resources", "influence", "allies", "contacts", "retainers", "fame", "status", "domain", "mentor", "hunt", "caern"];
+const perkName = k => k === "hunt" ? S("PerkHunt") : k === "caern" ? S("PerkCaern") : game.i18n.localize(`VTM20.Downtime.Bg.${k}`);
 /** Проекты персонажа (флаг актёра): [{ id, sector, name }]; ход и цель — у ведущего (s.progress, s.projNeed). */
 const PROJ = "strategyProj";
 const projectsOf = a => a?.getFlag?.(SYSTEM_ID, PROJ) ?? [];
@@ -71,9 +74,11 @@ const MODERN = {
     ["mayor", "power", 0, 0], ["council", "power", 1, -1], ["courts", "order", -1, 1], ["police", "order", 0, 1],
     ["crime", "street", 1, 1], ["port", "street", 2, 0], ["unions", "street", 2, 1], ["industry", "money", 2, -1],
     ["finance", "money", 1, 0], ["highsociety", "money", -1, 0], ["church", "faith", -2, 1], ["health", "faith", -2, 2],
-    ["media", "culture", -1, -1], ["university", "culture", 0, -1], ["telecom", "culture", -2, 0], ["internet", "culture", -3, 1]
+    ["media", "culture", -1, -1], ["university", "culture", 0, -1], ["telecom", "culture", -2, 0], ["internet", "culture", -3, 1],
+    ["wilds", "street", 3, -1]
   ].map(([key, sphere, q, r]) => ({ key, sphere, q, r, name: "", about: "",
-    perk: { finance: "resources", health: "herd", police: "contacts", crime: "hunt", media: "influence", highsociety: "allies", mayor: "status", unions: "retainers" }[key] ?? "" }))
+    perk: { finance: "resources", health: "herd", police: "contacts", crime: "hunt", media: "influence", highsociety: "allies", mayor: "status", unions: "retainers",
+      wilds: "caern" }[key] ?? "" }))
 };
 const sphereName = s => s.name || S(`Sphere.${s.key}`);
 const sectorName = s => s.name || S(`Sector.${s.key}`);
@@ -462,7 +467,7 @@ function sectorView(s) {
     <h3 style="--h:${sph?.color ?? "#555"}"><i></i>${esc(sectorName(x))}${gm ? ` <a class="rs-eye ${s.reveal[x.key] ? "is-open" : ""}" data-rs="reveal" data-tooltip="${esc(S(s.reveal[x.key] ? "RevealOff" : "RevealOn"))}"><i class="fa-solid ${s.reveal[x.key] ? "fa-eye" : "fa-eye-slash"}"></i></a>` : ""}</h3>
     <p class="rs-sph">${esc(sph ? sphereName(sph) : "")}${district ? ` · <a data-rs="fly" data-key="${x.district}"><i class="fa-solid fa-map-location-dot"></i> ${esc(district.name)}</a>` : ""}</p>
     ${x.about ? `<p class="rs-about">${esc(x.about)}</p>` : ""}
-    ${x.perk ? `<p class="rs-perk"><i class="fa-solid fa-gift"></i> ${esc(S(x.perk === "hunt" ? "PerkHuntLine" : "PerkLineSector", { name: perkName(x.perk) }))}</p>` : ""}
+    ${x.perk ? `<p class="rs-perk"><i class="fa-solid fa-gift"></i> ${esc(S(x.perk === "hunt" ? "PerkHuntLine" : x.perk === "caern" ? "PerkCaernLine" : "PerkLineSector", { name: perkName(x.perk) }))}</p>` : ""}
     ${trendsBlock(s, x, gm)}
     <h4>${esc(S("Influence"))} <small>${gm ? `${total}/${MAX}` : ""}</small></h4>
     <ul class="rs-owners">${vis.map(row).join("") || `<li class="rs-note">${esc(S("NoOneKnown"))}</li>`}</ul>

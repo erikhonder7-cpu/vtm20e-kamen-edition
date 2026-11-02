@@ -4400,7 +4400,8 @@
       "Deformities": "Metis deformities",
       "NoDeformities": "No deformities. A metis must have at least one — hiding it is dishonourable.",
       "AddDeformity": "+ Deformity…",
-      "DeformFx": "applied on the sheet"
+      "DeformFx": "applied on the sheet",
+      "GauntletPerk": "city caern ({name}): −{n}"
     },
     "Strategy": {
       "Tab": "Strategy",
@@ -4431,13 +4432,15 @@
         "attention": "Attention",
         "influence": "Influence",
         "retainer": "Retainer",
-        "boon": "Boon"
+        "boon": "Boon",
+        "kinfolk": "Kinfolk"
       },
       "KindHint": {
         "attention": "The character's personal attention: three tokens per turn.",
         "influence": "One token per 2 dots of Influence; works best paired with attention.",
         "retainer": "A ghoul or retainer acts alone — one token per dot of Retainers. A botch means trouble to sort out in play.",
-        "boon": "Call in outside help — afterwards you owe them (recorded in the boons ledger)."
+        "boon": "Call in outside help — afterwards you owe them (recorded in the boons ledger).",
+        "kinfolk": "The Garou's human kin: one token per 2 dots of the Kinfolk Background."
       },
       "Intent": {
         "grow": "Strengthen",
@@ -4595,7 +4598,8 @@
         "media": "Press and TV",
         "university": "University",
         "telecom": "Telecom",
-        "internet": "Internet"
+        "internet": "Internet",
+        "wilds": "Parks and Outskirts"
       },
       "Unit": {
         "days": "day|days",
@@ -4663,7 +4667,9 @@
       "SheetTitle": "Influence in the city",
       "SheetTurn": "Turn {n}: {bids} bids, {done}.",
       "SheetDone": "turn done",
-      "SheetNotDone": "turn not done"
+      "SheetNotDone": "turn not done",
+      "PerkCaern": "Caern",
+      "PerkCaernLine": "A caern lies here: stepping sideways is easier — Gauntlet −1 per 2 tokens (at most −2)."
     },
     "GarouCr": {
       "Title": "Garou creation",

@@ -12023,7 +12023,7 @@
   {
    "key": "ananasi-vosstanovlenie-ploti",
    "name": "Восстановление плоти",
-   "en": "",
+   "en": "Restore Flesh",
    "level": 2,
    "groups": [
     {
@@ -12156,7 +12156,7 @@
   {
    "key": "ananasi-dykhanie-ananasy",
    "name": "Дыхание Ананасы",
-   "en": "",
+   "en": "Breath of Ananasa",
    "level": 2,
    "groups": [
     {
@@ -12175,7 +12175,7 @@
   {
    "key": "ananasi-ponimanie-gobelena",
    "name": "Понимание гобелена",
-   "en": "",
+   "en": "Understanding the Tapestry",
    "level": 4,
    "groups": [
     {
@@ -12232,7 +12232,7 @@
   {
    "key": "ananasi-rodstvo-s-otrodyami-chervya",
    "name": "Родство с отродьями Червя",
-   "en": "",
+   "en": "Kinship with Wyrmspawn",
    "level": 1,
    "groups": [
     {
@@ -12346,7 +12346,7 @@
   {
    "key": "ananasi-arakhnofobiya",
    "name": "Арахнофобия",
-   "en": "",
+   "en": "Arachnophobia",
    "level": 2,
    "groups": [
     {
@@ -12384,7 +12384,7 @@
   {
    "key": "ananasi-khvost-skorpiona",
    "name": "Хвост скорпиона",
-   "en": "",
+   "en": "Scorpion's Tail",
    "level": 3,
    "groups": [
     {
@@ -12422,7 +12422,7 @@
   {
    "key": "ananasi-proklyatie-velikoi-pautiny",
    "name": "Проклятие Великой Паутины",
-   "en": "",
+   "en": "Curse of the Great Web",
    "level": 1,
    "groups": [
     {
@@ -12536,7 +12536,7 @@
   {
    "key": "ananasi-slepyaschii-plevok",
    "name": "Слепящий плевок",
-   "en": "",
+   "en": "Blinding Spit",
    "level": 2,
    "groups": [
     {
@@ -12574,7 +12574,7 @@
   {
    "key": "ananasi-lezviya-bogomola",
    "name": "Лезвия богомола",
-   "en": "",
+   "en": "Mantis Blades",
    "level": 4,
    "groups": [
     {
@@ -12745,7 +12745,7 @@
   {
    "key": "bastet-khozhdenie-mezhdu-mirami",
    "name": "Хождение между мирами",
-   "en": "",
+   "en": "Walking Between Worlds",
    "level": 4,
    "groups": [
     {
@@ -12810,7 +12810,7 @@
   {
    "key": "bastet-chute-pervichnoi-prirody",
    "name": "Чутьё первичной природы",
-   "en": "",
+   "en": "Sense Primal Nature",
    "level": 1,
    "groups": [
     {
@@ -12829,7 +12829,7 @@
   {
    "key": "bastet-slepyaschii-lunnyi-vzglyad",
    "name": "Слепящий лунный взгляд",
-   "en": "",
+   "en": "Blinding Moon Gaze",
    "level": 2,
    "groups": [
     {
@@ -12905,7 +12905,7 @@
   {
    "key": "bastet-pobeg-khumbaby",
    "name": "Побег Хумбабы",
-   "en": "",
+   "en": "Humbaba's Escape",
    "level": 1,
    "groups": [
     {
@@ -12943,7 +12943,7 @@
   {
    "key": "bastet-paradoks-vremeni",
    "name": "Парадокс времени",
-   "en": "",
+   "en": "Time Paradox",
    "level": 4,
    "groups": [
     {
@@ -13019,7 +13019,7 @@
   {
    "key": "bastet-podayanie-bednym",
    "name": "Подаяние бедным",
-   "en": "",
+   "en": "Alms for the Poor",
    "level": 1,
    "groups": [
     {
@@ -13057,7 +13057,7 @@
   {
    "key": "bastet-izgnanie-otrodya-kakhlasha",
    "name": "Изгнание отродья Кахлаша",
-   "en": "",
+   "en": "Banish Khalash Spawn",
    "level": 3,
    "groups": [
     {
@@ -13076,7 +13076,7 @@
   {
    "key": "bastet-mudrost-satira",
    "name": "Мудрость сатира",
-   "en": "",
+   "en": "Satyr's Wisdom",
    "level": 1,
    "groups": [
     {
@@ -13095,7 +13095,7 @@
   {
    "key": "bastet-klinok-charodeya",
    "name": "Клинок чародея",
-   "en": "",
+   "en": "Sorcerer's Blade",
    "level": 2,
    "groups": [
     {
@@ -13133,7 +13133,7 @@
   {
    "key": "bastet-milost-nosoroga",
    "name": "Милость носорога",
-   "en": "",
+   "en": "Rhino's Grace",
    "level": 1,
    "groups": [
     {
@@ -13152,7 +13152,7 @@
   {
    "key": "bastet-nefritovaya-kozha",
    "name": "Нефритовая кожа",
-   "en": "",
+   "en": "Jade Skin",
    "level": 1,
    "groups": [
     {
@@ -13171,7 +13171,7 @@
   {
    "key": "bastet-shag-po-risovoi-bumage",
    "name": "Шаг по рисовой бумаге",
-   "en": "",
+   "en": "Ricepaper Step",
    "level": 2,
    "groups": [
     {
@@ -13190,7 +13190,7 @@
   {
    "key": "bastet-lapy-razyarennogo-dukha-tigra",
    "name": "Лапы разъярённого духа-тигра",
-   "en": "",
+   "en": "Paws of the Raging Tiger Spirit",
    "level": 3,
    "groups": [
     {
@@ -13228,7 +13228,7 @@
   {
    "key": "bastet-molot-nebesnogo-groma",
    "name": "Молот небесного грома",
-   "en": "",
+   "en": "Hammer of Heaven's Thunder",
    "level": 5,
    "groups": [
     {
@@ -13291,7 +13291,7 @@
   {
    "key": "bastet-net-skrytykh-veschei",
    "name": "Нет скрытых вещей",
-   "en": "",
+   "en": "Nothing Hidden",
    "level": 2,
    "groups": [
     {
@@ -13310,7 +13310,7 @@
   {
    "key": "bastet-zapadnyi-veter",
    "name": "Западный ветер",
-   "en": "",
+   "en": "West Wind",
    "level": 2,
    "groups": [
     {
@@ -13348,7 +13348,7 @@
   {
    "key": "bastet-solnechnye-kogti",
    "name": "Солнечные когти",
-   "en": "",
+   "en": "Sun Claws",
    "level": 2,
    "groups": [
     {
@@ -13367,7 +13367,7 @@
   {
    "key": "bastet-prizrachnaya-laska",
    "name": "Призрачная ласка",
-   "en": "",
+   "en": "Phantom Caress",
    "level": 4,
    "groups": [
     {
@@ -13386,7 +13386,7 @@
   {
    "key": "bastet-reka-krovi",
    "name": "Река крови",
-   "en": "",
+   "en": "River of Blood",
    "level": 5,
    "groups": [
     {
@@ -13443,7 +13443,7 @@
   {
    "key": "gurahl-sny-buri-dzhana",
    "name": "Сны Бури-Джана",
-   "en": "",
+   "en": "Dreams of Buri-Jaan",
    "level": 3,
    "groups": [
     {
@@ -13462,7 +13462,7 @@
   {
    "key": "gurahl-skryt-presleduemykh",
    "name": "Скрыть преследуемых",
-   "en": "",
+   "en": "Hide the Hunted",
    "level": 4,
    "groups": [
     {
@@ -13538,7 +13538,7 @@
   {
    "key": "gurahl-upravlenie-klimatom",
    "name": "Управление климатом",
-   "en": "",
+   "en": "Control Climate",
    "level": 2,
    "groups": [
     {
@@ -13557,7 +13557,7 @@
   {
    "key": "gurahl-chuyat-nuzhdu",
    "name": "Чуять нужду",
-   "en": "",
+   "en": "Sense Need",
    "level": 3,
    "groups": [
     {
@@ -13595,7 +13595,7 @@
   {
    "key": "gurahl-prismotr-za-pogodoi",
    "name": "Присмотр за погодой",
-   "en": "",
+   "en": "Weather Watch",
    "level": 2,
    "groups": [
     {
@@ -13614,7 +13614,7 @@
   {
    "key": "gurahl-zov-izbrannoi-zemli",
    "name": "Зов избранной земли",
-   "en": "",
+   "en": "Call of the Chosen Land",
    "level": 3,
    "groups": [
     {
@@ -13633,7 +13633,7 @@
   {
    "key": "gurahl-ukrytie-zemli",
    "name": "Укрытие земли",
-   "en": "",
+   "en": "Shelter of the Earth",
    "level": 3,
    "groups": [
     {
@@ -13690,7 +13690,7 @@
   {
    "key": "gurahl-bezopasnyi-prokhod",
    "name": "Безопасный проход",
-   "en": "",
+   "en": "Safe Passage",
    "level": 3,
    "groups": [
     {
@@ -13709,7 +13709,7 @@
   {
    "key": "gurahl-prirodnoe-sostoyanie",
    "name": "Природное состояние",
-   "en": "",
+   "en": "Natural State",
    "level": 5,
    "groups": [
     {
@@ -13728,7 +13728,7 @@
   {
    "key": "gurahl-ultimatum",
    "name": "Ультиматум",
-   "en": "",
+   "en": "Ultimatum",
    "level": 1,
    "groups": [
     {
@@ -13747,7 +13747,7 @@
   {
    "key": "gurahl-silnye-ruki-mangi",
    "name": "Сильные руки Манги",
-   "en": "",
+   "en": "Strong Arms of Mangi",
    "level": 2,
    "groups": [
     {
@@ -13804,7 +13804,7 @@
   {
    "key": "gurahl-otsrochit-prikhod-medvedya-smerti",
    "name": "Отсрочить приход Медведя Смерти",
-   "en": "",
+   "en": "Delay the Death Bear",
    "level": 4,
    "groups": [
     {
@@ -13823,7 +13823,7 @@
   {
    "key": "gurahl-yarost-materi-medveditsy",
    "name": "Ярость матери-медведицы",
-   "en": "",
+   "en": "Mother Bear's Fury",
    "level": 5,
    "groups": [
     {
@@ -13899,7 +13899,7 @@
   {
    "key": "gurahl-istselenie-dukha",
    "name": "Исцеление духа",
-   "en": "",
+   "en": "Spirit Healing",
    "level": 4,
    "groups": [
     {
@@ -13937,7 +13937,7 @@
   {
    "key": "gurahl-terapiya-otvrascheniya",
    "name": "Терапия отвращения",
-   "en": "",
+   "en": "Aversion Therapy",
    "level": 5,
    "groups": [
     {
@@ -13956,7 +13956,7 @@
   {
    "key": "gurahl-diagnoz",
    "name": "Диагноз",
-   "en": "",
+   "en": "Diagnosis",
    "level": 1,
    "groups": [
     {
@@ -13994,7 +13994,7 @@
   {
    "key": "gurahl-oblik-dukha",
    "name": "Облик духа",
-   "en": "",
+   "en": "Spirit Form",
    "level": 4,
    "groups": [
     {
@@ -14051,7 +14051,7 @@
   {
    "key": "gurahl-prinudit-k-pravde",
    "name": "Принудить к правде",
-   "en": "",
+   "en": "Compel Truth",
    "level": 2,
    "groups": [
     {
@@ -14089,7 +14089,7 @@
   {
    "key": "gurahl-puti-gobelena",
    "name": "Пути гобелена",
-   "en": "",
+   "en": "Paths of the Tapestry",
    "level": 3,
    "groups": [
     {
@@ -14108,7 +14108,7 @@
   {
    "key": "gurahl-dar-blagosloveniya-ursy",
    "name": "Дар благословения Урсы",
-   "en": "",
+   "en": "Ursa's Blessing",
    "level": 4,
    "groups": [
     {
@@ -14127,7 +14127,7 @@
   {
    "key": "gurahl-unyat-yarost-tolpy",
    "name": "Унять ярость толпы",
-   "en": "",
+   "en": "Calm the Mob",
    "level": 4,
    "groups": [
     {
@@ -14203,7 +14203,7 @@
   {
    "key": "kitsune-taina-kuklovoda",
    "name": "Тайна кукловода",
-   "en": "",
+   "en": "Puppeteer's Secret",
    "level": 3,
    "groups": [
     {
@@ -14241,7 +14241,7 @@
   {
    "key": "kitsune-oderzhimost",
    "name": "Одержимость",
-   "en": "",
+   "en": "Possession",
    "level": 5,
    "groups": [
     {
@@ -14298,7 +14298,7 @@
   {
    "key": "kitsune-chute-disbalansa",
    "name": "Чутьё дисбаланса",
-   "en": "",
+   "en": "Sense Imbalance",
    "level": 1,
    "groups": [
     {
@@ -14336,7 +14336,7 @@
   {
    "key": "kitsune-potok-aury",
    "name": "Поток ауры",
-   "en": "",
+   "en": "Aura Flow",
    "level": 1,
    "groups": [
     {
@@ -14355,7 +14355,7 @@
   {
    "key": "kitsune-imperskaya-vlast",
    "name": "Имперская власть",
-   "en": "",
+   "en": "Imperial Authority",
    "level": 1,
    "groups": [
     {
@@ -14374,7 +14374,7 @@
   {
    "key": "kitsune-shepot-proshlogo",
    "name": "Шёпот прошлого",
-   "en": "",
+   "en": "Whispers of the Past",
    "level": 1,
    "groups": [
     {
@@ -14393,7 +14393,7 @@
   {
    "key": "kitsune-osvyaschenie-klinka",
    "name": "Освящение клинка",
-   "en": "",
+   "en": "Consecrate the Blade",
    "level": 1,
    "groups": [
     {
@@ -14412,7 +14412,7 @@
   {
    "key": "kitsune-znamenie-krovi",
    "name": "Знамение крови",
-   "en": "",
+   "en": "Blood Omen",
    "level": 2,
    "groups": [
     {
@@ -14431,7 +14431,7 @@
   {
    "key": "kitsune-pri-svete-luny",
    "name": "При свете луны",
-   "en": "",
+   "en": "By the Light of the Moon",
    "level": 3,
    "groups": [
     {
@@ -14450,7 +14450,7 @@
   {
    "key": "kitsune-roi-slug",
    "name": "Рой слуг",
-   "en": "",
+   "en": "Swarm of Servants",
    "level": 3,
    "groups": [
     {
@@ -14469,7 +14469,7 @@
   {
    "key": "kitsune-pechat-inari",
    "name": "Печать Инари",
-   "en": "",
+   "en": "Seal of Inari",
    "level": 5,
    "groups": [
     {
@@ -14488,7 +14488,7 @@
   {
    "key": "kitsune-chute-vrazhdebnosti",
    "name": "Чутьё враждебности",
-   "en": "",
+   "en": "Sense Hostility",
    "level": 1,
    "groups": [
     {
@@ -14526,7 +14526,7 @@
   {
    "key": "kitsune-stoikii-voin",
    "name": "Стойкий воин",
-   "en": "",
+   "en": "Steadfast Warrior",
    "level": 2,
    "groups": [
     {
@@ -14564,7 +14564,7 @@
   {
    "key": "kitsune-pesn-strakha",
    "name": "Песнь страха",
-   "en": "",
+   "en": "Song of Fear",
    "level": 3,
    "groups": [
     {
@@ -14583,7 +14583,7 @@
   {
    "key": "kitsune-sliyanie-so-stikhiei",
    "name": "Слияние со стихией",
-   "en": "",
+   "en": "Merge with the Element",
    "level": 4,
    "groups": [
     {
@@ -14602,7 +14602,7 @@
   {
    "key": "kitsune-koldovskoi-ukus",
    "name": "Колдовской укус",
-   "en": "",
+   "en": "Witch Bite",
    "level": 4,
    "groups": [
     {
@@ -14621,7 +14621,7 @@
   {
    "key": "kitsune-veer-ten-plasch",
    "name": "Веер-тень-плащ",
-   "en": "",
+   "en": "Fan-Shadow-Cloak",
    "level": 2,
    "groups": [
     {
@@ -14678,7 +14678,7 @@
   {
    "key": "kitsune-uzume-poet",
    "name": "Узумэ поёт",
-   "en": "",
+   "en": "Uzume Sings",
    "level": 3,
    "groups": [
     {
@@ -14716,7 +14716,7 @@
   {
    "key": "mokole-blagosloveniya-gnezda",
    "name": "Благословения гнезда",
-   "en": "",
+   "en": "Blessings of the Nest",
    "level": 2,
    "groups": [
     {
@@ -14754,7 +14754,7 @@
   {
    "key": "mokole-dykhanie-drakona",
    "name": "Дыхание дракона",
-   "en": "",
+   "en": "Dragon's Breath",
    "level": 3,
    "groups": [
     {
@@ -14849,7 +14849,7 @@
   {
    "key": "mokole-magiya-sochlenennoi-zmei",
    "name": "Магия сочлененной змеи",
-   "en": "",
+   "en": "Jointed Serpent Magic",
    "level": 4,
    "groups": [
     {
@@ -14868,7 +14868,7 @@
   {
    "key": "mokole-priruchit-solnechnyi-luch",
    "name": "Приручить солнечный луч",
-   "en": "",
+   "en": "Tame the Sunbeam",
    "level": 1,
    "groups": [
     {
@@ -14887,7 +14887,7 @@
   {
    "key": "mokole-bronya-cherepakhi",
    "name": "Броня черепахи",
-   "en": "",
+   "en": "Turtle's Armor",
    "level": 1,
    "groups": [
     {
@@ -14906,7 +14906,7 @@
   {
    "key": "mokole-nochnoe-zrenie",
    "name": "Ночное зрение",
-   "en": "",
+   "en": "Night Sight",
    "level": 1,
    "groups": [
     {
@@ -14931,7 +14931,7 @@
   {
    "key": "mokole-dukhi-smekha",
    "name": "Духи смеха",
-   "en": "",
+   "en": "Spirits of Laughter",
    "level": 1,
    "groups": [
     {
@@ -14950,7 +14950,7 @@
   {
    "key": "mokole-probivaya-stenu-zavtra",
    "name": "Пробивая стену завтра",
-   "en": "",
+   "en": "Breaking Tomorrow's Wall",
    "level": 2,
    "groups": [
     {
@@ -14969,7 +14969,7 @@
   {
    "key": "mokole-vezenie-duraka",
    "name": "Везение дурака",
-   "en": "",
+   "en": "Fool's Luck",
    "level": 4,
    "groups": [
     {
@@ -14988,7 +14988,7 @@
   {
    "key": "mokole-glubokie-legkie",
    "name": "Глубокие лёгкие",
-   "en": "",
+   "en": "Deep Lungs",
    "level": 3,
    "groups": [
     {
@@ -15064,7 +15064,7 @@
   {
    "key": "mokole-solntse-vo-ploti",
    "name": "Солнце во плоти",
-   "en": "",
+   "en": "Sun in the Flesh",
    "level": 1,
    "groups": [
     {
@@ -15083,7 +15083,7 @@
   {
    "key": "mokole-ostanovit-dreif-materikov",
    "name": "Остановить дрейф материков",
-   "en": "",
+   "en": "Halt the Drifting Continents",
    "level": 1,
    "groups": [
     {
@@ -15102,7 +15102,7 @@
   {
    "key": "nagah-glaza-drakonikh-korolei",
    "name": "Глаза Драконьих Королей",
-   "en": "",
+   "en": "Eyes of the Dragon Kings",
    "level": 1,
    "groups": [
     {
@@ -15140,7 +15140,7 @@
   {
    "key": "nagah-pokrov-vani",
    "name": "Покров Вани",
-   "en": "",
+   "en": "Veil of Wani",
    "level": 2,
    "groups": [
     {
@@ -15159,7 +15159,7 @@
   {
    "key": "nagah-blagoslovenie-kali",
    "name": "Благословение Кали",
-   "en": "",
+   "en": "Kali's Blessing",
    "level": 3,
    "groups": [
     {
@@ -15178,7 +15178,7 @@
   {
    "key": "nagah-chistyi-yad",
    "name": "Чистый яд",
-   "en": "",
+   "en": "Pure Venom",
    "level": 3,
    "groups": [
     {
@@ -15216,7 +15216,7 @@
   {
    "key": "nagah-plyt-po-reke-dukhov",
    "name": "Плыть по реке духов",
-   "en": "",
+   "en": "Swim the Spirit River",
    "level": 4,
    "groups": [
     {
@@ -15235,7 +15235,7 @@
   {
    "key": "nagah-dykhanie-lordov-drakonov",
    "name": "Дыхание Лордов Драконов",
-   "en": "",
+   "en": "Breath of the Dragon Lords",
    "level": 5,
    "groups": [
     {
@@ -15273,7 +15273,7 @@
   {
    "key": "nagah-khvatatelnoe-telo",
    "name": "Хватательное тело",
-   "en": "",
+   "en": "Prehensile Body",
    "level": 1,
    "groups": [
     {
@@ -15292,7 +15292,7 @@
   {
    "key": "nagah-tonkii-zmei",
    "name": "Тонкий змей",
-   "en": "",
+   "en": "Slender Serpent",
    "level": 2,
    "groups": [
     {
@@ -15311,7 +15311,7 @@
   {
    "key": "nagah-neozhidannyi-yad",
    "name": "Неожиданный яд",
-   "en": "",
+   "en": "Unexpected Venom",
    "level": 2,
    "groups": [
     {
@@ -15330,7 +15330,7 @@
   {
    "key": "nagah-pronzit-illyuziyu",
    "name": "Пронзить иллюзию",
-   "en": "",
+   "en": "Pierce Illusion",
    "level": 3,
    "groups": [
     {
@@ -15387,7 +15387,7 @@
   {
    "key": "nagah-chute-tkachikhi",
    "name": "Чутьё Ткачихи",
-   "en": "",
+   "en": "Sense the Weaver",
    "level": 1,
    "groups": [
     {
@@ -15412,7 +15412,7 @@
   {
    "key": "nagah-chute-chervya",
    "name": "Чутьё Червя",
-   "en": "",
+   "en": "Sense Wyrm",
    "level": 1,
    "groups": [
     {
@@ -15435,7 +15435,7 @@
   {
    "key": "nagah-vostorg-glubin",
    "name": "Восторг глубин",
-   "en": "",
+   "en": "Rapture of the Deep",
    "level": 3,
    "groups": [
     {
@@ -15454,7 +15454,7 @@
   {
    "key": "nagah-vodovorot",
    "name": "Водоворот",
-   "en": "",
+   "en": "Whirlpool",
    "level": 4,
    "groups": [
     {
@@ -15473,7 +15473,7 @@
   {
    "key": "nagah-ditya-bur",
    "name": "Дитя бурь",
-   "en": "",
+   "en": "Child of Storms",
    "level": 5,
    "groups": [
     {
@@ -15492,7 +15492,7 @@
   {
    "key": "nagah-dar-reki",
    "name": "Дар реки",
-   "en": "",
+   "en": "Gift of the River",
    "level": 1,
    "groups": [
     {
@@ -15511,7 +15511,7 @@
   {
    "key": "nagah-blagoslovenie-drevesnoi-zmei",
    "name": "Благословение древесной змеи",
-   "en": "",
+   "en": "Tree Snake's Blessing",
    "level": 1,
    "groups": [
     {
@@ -15530,7 +15530,7 @@
   {
    "key": "nagah-dalnii-vypad",
    "name": "Дальний выпад",
-   "en": "",
+   "en": "Long Strike",
    "level": 3,
    "groups": [
     {
@@ -15587,7 +15587,7 @@
   {
    "key": "nagah-kolodets-ubiitsy",
    "name": "Колодец убийцы",
-   "en": "",
+   "en": "Assassin's Well",
    "level": 5,
    "groups": [
     {
@@ -15625,7 +15625,7 @@
   {
    "key": "nagah-nastoichivost-ubiitsy",
    "name": "Настойчивость убийцы",
-   "en": "",
+   "en": "Assassin's Persistence",
    "level": 3,
    "groups": [
     {
@@ -15644,7 +15644,7 @@
   {
    "key": "nagah-kratkoe-oschuschenie",
    "name": "Краткое ощущение",
-   "en": "",
+   "en": "Brief Sensation",
    "level": 1,
    "groups": [
     {
@@ -15663,7 +15663,7 @@
   {
    "key": "nagah-glaza-boga-voiny",
    "name": "Глаза бога войны",
-   "en": "",
+   "en": "Eyes of the War God",
    "level": 1,
    "groups": [
     {
@@ -15682,7 +15682,7 @@
   {
    "key": "nagah-kope-letnego-solntsa",
    "name": "Копьё летнего солнца",
-   "en": "",
+   "en": "Spear of the Summer Sun",
    "level": 3,
    "groups": [
     {
@@ -15701,7 +15701,7 @@
   {
    "key": "nagah-terpenie-khischnika",
    "name": "Терпение хищника",
-   "en": "",
+   "en": "Predator's Patience",
    "level": 1,
    "groups": [
     {
@@ -15720,7 +15720,7 @@
   {
    "key": "nagah-udushayuschii-vopros",
    "name": "Удушающий вопрос",
-   "en": "",
+   "en": "Strangling Question",
    "level": 2,
    "groups": [
     {
@@ -15739,7 +15739,7 @@
   {
    "key": "nagah-napravlennyi-udar",
    "name": "Направленный удар",
-   "en": "",
+   "en": "Directed Strike",
    "level": 1,
    "groups": [
     {
@@ -15777,7 +15777,7 @@
   {
    "key": "ratkin-pokrov-tenei",
    "name": "Покров теней",
-   "en": "",
+   "en": "Shroud of Shadows",
    "level": 1,
    "groups": [
     {
@@ -15796,7 +15796,7 @@
   {
    "key": "ratkin-glubokie-karmany",
    "name": "Глубокие карманы",
-   "en": "",
+   "en": "Deep Pockets",
    "level": 2,
    "groups": [
     {
@@ -15872,7 +15872,7 @@
   {
    "key": "ratkin-instinkt",
    "name": "Инстинкт",
-   "en": "",
+   "en": "Instinct",
    "level": 1,
    "groups": [
     {
@@ -15929,7 +15929,7 @@
   {
    "key": "ratkin-vyzhivanie",
    "name": "Выживание",
-   "en": "",
+   "en": "Survival",
    "level": 1,
    "groups": [
     {
@@ -15948,7 +15948,7 @@
   {
    "key": "ratkin-pozhrat-mertvykh",
    "name": "Пожрать мёртвых",
-   "en": "",
+   "en": "Devour the Dead",
    "level": 2,
    "groups": [
     {
@@ -15986,7 +15986,7 @@
   {
    "key": "ratkin-razum-roya",
    "name": "Разум роя",
-   "en": "",
+   "en": "Hive Mind",
    "level": 3,
    "groups": [
     {
@@ -16005,7 +16005,7 @@
   {
    "key": "ratkin-chuvstvo-opasnosti",
    "name": "Чувство опасности",
-   "en": "",
+   "en": "Sense of Danger",
    "level": 1,
    "groups": [
     {
@@ -16030,7 +16030,7 @@
   {
    "key": "ratkin-besshumnyi-beg",
    "name": "Бесшумный бег",
-   "en": "",
+   "en": "Silent Running",
    "level": 1,
    "groups": [
     {
@@ -16049,7 +16049,7 @@
   {
    "key": "ratkin-gorodskoi-kamuflyazh",
    "name": "Городской камуфляж",
-   "en": "",
+   "en": "Urban Camouflage",
    "level": 2,
    "groups": [
     {
@@ -16106,7 +16106,7 @@
   {
    "key": "ratkin-pir-mertvykh",
    "name": "Пир мёртвых",
-   "en": "",
+   "en": "Feast of the Dead",
    "level": 1,
    "groups": [
     {
@@ -16125,7 +16125,7 @@
   {
    "key": "ratkin-lipkie-lapy",
    "name": "Липкие лапы",
-   "en": "",
+   "en": "Sticky Paws",
    "level": 1,
    "groups": [
     {
@@ -16144,7 +16144,7 @@
   {
    "key": "ratkin-krysinye-zuby",
    "name": "Крысиные зубы",
-   "en": "",
+   "en": "Rat's Teeth",
    "level": 1,
    "groups": [
     {
@@ -16163,7 +16163,7 @@
   {
    "key": "ratkin-improvizatsiya",
    "name": "Импровизация",
-   "en": "",
+   "en": "Improvisation",
    "level": 1,
    "groups": [
     {
@@ -16182,7 +16182,7 @@
   {
    "key": "ratkin-myshelovka",
    "name": "Мышеловка",
-   "en": "",
+   "en": "Mousetrap",
    "level": 1,
    "groups": [
     {
@@ -16201,7 +16201,7 @@
   {
    "key": "ratkin-otravit-edu",
    "name": "Отравить еду",
-   "en": "",
+   "en": "Poison Food",
    "level": 1,
    "groups": [
     {
@@ -16220,7 +16220,7 @@
   {
    "key": "ratkin-sopenie",
    "name": "Сопение",
-   "en": "",
+   "en": "Snuffle",
    "level": 1,
    "groups": [
     {
@@ -16239,7 +16239,7 @@
   {
    "key": "ratkin-prichinit-bol",
    "name": "Причинить боль",
-   "en": "",
+   "en": "Inflict Pain",
    "level": 2,
    "groups": [
     {
@@ -16258,7 +16258,7 @@
   {
    "key": "ratkin-vkus-bezumiya",
    "name": "Вкус безумия",
-   "en": "",
+   "en": "Taste of Madness",
    "level": 1,
    "groups": [
     {
@@ -16277,7 +16277,7 @@
   {
    "key": "ratkin-ognennyi-zhuk",
    "name": "Огненный жук",
-   "en": "",
+   "en": "Fire Beetle",
    "level": 1,
    "groups": [
     {
@@ -16296,7 +16296,7 @@
   {
    "key": "ratkin-pirotekhnika",
    "name": "Пиротехника",
-   "en": "",
+   "en": "Pyrotechnics",
    "level": 1,
    "groups": [
     {
@@ -16334,7 +16334,7 @@
   {
    "key": "rokea-ubiistvennyi-ukus",
    "name": "Убийственный укус",
-   "en": "",
+   "en": "Killing Bite",
    "level": 1,
    "groups": [
     {
@@ -16391,7 +16391,7 @@
   {
    "key": "rokea-dar-skata",
    "name": "Дар ската",
-   "en": "",
+   "en": "Gift of the Ray",
    "level": 3,
    "groups": [
     {
@@ -16429,7 +16429,7 @@
   {
    "key": "rokea-terpelivyi-okhotnik",
    "name": "Терпеливый охотник",
-   "en": "",
+   "en": "Patient Hunter",
    "level": 4,
    "groups": [
     {
@@ -16448,7 +16448,7 @@
   {
    "key": "rokea-iznachalnaya-uverennost",
    "name": "Изначальная уверенность",
-   "en": "",
+   "en": "Primal Confidence",
    "level": 5,
    "groups": [
     {
@@ -16467,7 +16467,7 @@
   {
    "key": "rokea-past-vodovorot",
    "name": "Пасть-водоворот",
-   "en": "",
+   "en": "Maelstrom Maw",
    "level": 5,
    "groups": [
     {
@@ -16505,7 +16505,7 @@
   {
    "key": "rokea-razdroblyayuschii-ukus",
    "name": "Раздробляющий укус",
-   "en": "",
+   "en": "Crushing Bite",
    "level": 1,
    "groups": [
     {
@@ -16524,7 +16524,7 @@
   {
    "key": "rokea-neozhidannaya-ataka",
    "name": "Неожиданная атака",
-   "en": "",
+   "en": "Surprise Attack",
    "level": 1,
    "groups": [
     {
@@ -16543,7 +16543,7 @@
   {
    "key": "rokea-dar-narke",
    "name": "Дар Нарке",
-   "en": "",
+   "en": "Gift of Narke",
    "level": 2,
    "groups": [
     {
@@ -16562,7 +16562,7 @@
   {
    "key": "rokea-luchshaya-politika",
    "name": "Лучшая политика",
-   "en": "",
+   "en": "Best Policy",
    "level": 4,
    "groups": [
     {
@@ -16581,7 +16581,7 @@
   {
    "key": "rokea-net-sten",
    "name": "Нет стен",
-   "en": "",
+   "en": "No Walls",
    "level": 4,
    "groups": [
     {
@@ -16600,7 +16600,7 @@
   {
    "key": "rokea-vetra-morya",
    "name": "Ветра моря",
-   "en": "",
+   "en": "Winds of the Sea",
    "level": 5,
    "groups": [
     {
@@ -16619,7 +16619,7 @@
   {
    "key": "rokea-korol-ryba",
    "name": "Король-рыба",
-   "en": "",
+   "en": "King Fish",
    "level": 1,
    "groups": [
     {
@@ -16657,7 +16657,7 @@
   {
    "key": "rokea-plevok-zubami",
    "name": "Плевок зубами",
-   "en": "",
+   "en": "Tooth Spit",
    "level": 2,
    "groups": [
     {
@@ -16695,7 +16695,7 @@
   {
    "key": "rokea-zhivoe-more",
    "name": "Живое море",
-   "en": "",
+   "en": "Living Sea",
    "level": 4,
    "groups": [
     {
@@ -16714,7 +16714,7 @@
   {
    "key": "rokea-leviafan",
    "name": "Левиафан",
-   "en": "",
+   "en": "Leviathan",
    "level": 5,
    "groups": [
     {
@@ -16733,7 +16733,7 @@
   {
    "key": "rokea-ranit-podmore",
    "name": "Ранить Подморье",
-   "en": "",
+   "en": "Wound the Undersea",
    "level": 5,
    "groups": [
     {
@@ -16752,7 +16752,7 @@
   {
    "key": "rokea-krov-glubin",
    "name": "Кровь глубин",
-   "en": "",
+   "en": "Blood of the Deep",
    "level": 1,
    "groups": [
     {
@@ -16771,7 +16771,7 @@
   {
    "key": "rokea-kholod",
    "name": "Холод",
-   "en": "",
+   "en": "Chill",
    "level": 1,
    "groups": [
     {
@@ -16790,7 +16790,7 @@
   {
    "key": "rokea-voiti-v-dushu-morya",
    "name": "Войти в душу моря",
-   "en": "",
+   "en": "Enter the Soul of the Sea",
    "level": 2,
    "groups": [
     {
@@ -16809,7 +16809,7 @@
   {
    "key": "rokea-pronzitelnyi-vizg",
    "name": "Пронзительный визг",
-   "en": "",
+   "en": "Piercing Shriek",
    "level": 2,
    "groups": [
     {
@@ -16828,7 +16828,7 @@
   {
    "key": "rokea-plyt-skvoz-kosyak",
    "name": "Плыть сквозь косяк",
-   "en": "",
+   "en": "Swim Through the School",
    "level": 3,
    "groups": [
     {
@@ -16847,7 +16847,7 @@
   {
    "key": "rokea-dykhanie-morya",
    "name": "Дыхание моря",
-   "en": "",
+   "en": "Breath of the Sea",
    "level": 4,
    "groups": [
     {
@@ -16866,7 +16866,7 @@
   {
    "key": "rokea-udarnaya-volna",
    "name": "Ударная волна",
-   "en": "",
+   "en": "Shockwave",
    "level": 4,
    "groups": [
     {
@@ -17141,7 +17141,7 @@
   {
    "key": "bsd-Призыв стихии",
    "name": "Призыв стихии",
-   "en": "",
+   "en": "Call the Elements",
    "level": 4,
    "groups": [
     {
@@ -21185,21 +21185,21 @@
   {
    "key": "control-electrical-systems",
    "name": "Управление электрическими системами",
-   "en": "",
+   "en": "Control Electrical Systems",
    "general": false,
    "text": "<p>Гнозис, сл. 3–9 по сложности системы (отключить, управлять, перегрузить).</p>"
   },
   {
    "key": "create-fire",
    "name": "Создание огня",
-   "en": "",
+   "en": "Create Fires",
    "general": false,
    "text": "<p>Гнозис: сл. 3 (факел), 6 (костёр), 9 (пожар); без топлива горит 1 ход.</p>"
   },
   {
    "key": "create-wind",
    "name": "Создание ветра",
-   "en": "",
+   "en": "Create Wind",
    "general": false,
    "text": "<p>Гнозис: 3 (сильный бриз), 6 (буря), 9 (торнадо).</p>"
   },
@@ -21234,7 +21234,7 @@
   {
    "key": "open-moon-bridge",
    "name": "Открытие лунного моста",
-   "en": "",
+   "en": "Open Moon Bridge",
    "general": false,
    "text": "<p>на 1000 миль; каэрн не нужен.</p>"
   },
@@ -21255,7 +21255,7 @@
   {
    "key": "shatter-glass",
    "name": "Разбить стекло",
-   "en": "",
+   "en": "Shatter Glass",
    "general": false,
    "text": "<p>Гнозис сл. 6.</p>"
   },
@@ -21634,7 +21634,7 @@
   {
    "key": "",
    "name": "Вендиго",
-   "en": "",
+   "en": "Wendigo",
    "cat": "Войны",
    "cost": 7,
    "individual": "<strong>+5 Ярости в начале каждой истории</strong> (поверх рейтинга); +2 Славы",
@@ -21689,7 +21689,7 @@
   {
    "key": "",
    "name": "Уктена",
-   "en": "",
+   "en": "Uktena",
    "cat": "Мудрости",
    "cost": 7,
    "individual": "+3 кубика к поглощению в Умбре; +2 опыта за историю (только на Загадки, Оккультизм, Ритуалы, Дары и мистику); +2 Мудрости; +1 к сложности социальных бросков с оборотнями не-Уктена и не-Вендиго",
@@ -23515,28 +23515,28 @@
   {
    "key": "scar-3",
    "name": "Плохо сросшаяся кость",
-   "en": "",
+   "en": "Badly Set Bone",
    "effect": "если эта область получает ≥2 уровня за раз — кость ломается: +1 летальный",
    "glory": 1
   },
   {
    "key": "scar-4",
    "name": "Косметический дефект",
-   "en": "",
+   "en": "Cosmetic Disfigurement",
    "effect": "заметная травма (нет уха, заячья губа); Внешность −1 для людей, пока не скрыт",
    "glory": 2
   },
   {
    "key": "scar-5",
    "name": "Сломанная челюсть",
-   "en": "",
+   "en": "Broken Jaw",
    "effect": "речь +2 к сложности; укус +1 к сложности",
    "glory": 1
   },
   {
    "key": "scar-6",
    "name": "Потеря глаза",
-   "en": "",
+   "en": "Lost Eye",
    "effect": "глубина/стрельба/метание +3 к сложности; Восприятие на зрение +2",
    "glory": 2
   },
@@ -23550,35 +23550,35 @@
   {
    "key": "scar-8",
    "name": "Пробитое лёгкое",
-   "en": "",
+   "en": "Punctured Lung",
    "effect": "−1 кубик к броскам Стойкости на нагрузку, ещё −1 после 5 ходов; задержка дыхания вдвое меньше",
    "glory": 1
   },
   {
    "key": "scar-9",
    "name": "Потеря пальцев (≥3 на руке)",
-   "en": "",
+   "en": "Lost Fingers",
    "effect": "Ловкость этой рукой +3 к сложности; урон когтем этой руки вдвое меньше (с округлением вниз)",
    "glory": 2
   },
   {
    "key": "scar-10",
    "name": "Изувеченная конечность",
-   "en": "",
+   "en": "Mangled Limb",
    "effect": "нога — скорость вдвое; рука — скорость Хиспо/Лупус ×¾; конечность бесполезна",
    "glory": 3
   },
   {
    "key": "scar-11",
    "name": "Повреждение позвоночника",
-   "en": "",
+   "en": "Spinal Injury",
    "effect": "Ловкость −1, инициатива −2; Воля на любой бросок равновесия/точности/неподвижности",
    "glory": 2
   },
   {
    "key": "scar-12",
    "name": "Повреждение мозга",
-   "en": "",
+   "en": "Brain Damage",
    "effect": "−1 к одному Умственному Атрибуту (по выбору Рассказчика) и бросок 1 куб.: столько точек вычесть из Гнозиса, Воли или Знаний (выбор игрока); возможна амнезия",
    "glory": 2
   }
@@ -23733,70 +23733,70 @@
    {
     "key": "c1",
     "name": "Гнозис",
-    "en": "",
+    "en": "Gnosis",
     "gives": "очки Гнозиса",
     "spirits": "Энглинг, призрак"
    },
    {
     "key": "c2",
     "name": "Исцеление",
-    "en": "",
+    "en": "Healing",
     "gives": "уровни здоровья",
     "spirits": "Мир, Спокойствие, водная стихия"
    },
    {
     "key": "c3",
     "name": "Лидерство",
-    "en": "",
+    "en": "Leadership",
     "gives": "Лидерство, Запугивание",
     "spirits": "Война, дух-птица"
    },
    {
     "key": "c4",
     "name": "Ярость",
-    "en": "",
+    "en": "Rage",
     "gives": "очки Ярости",
     "spirits": "Война, Боль"
    },
    {
     "key": "c5",
     "name": "Стойкость",
-    "en": "",
+    "en": "Fortitude",
     "gives": "кубики поглощения",
     "spirits": "Защита, Страж, дух-черепаха"
    },
    {
     "key": "c6",
     "name": "Сила",
-    "en": "",
+    "en": "Strength",
     "gives": "Атрибут Сила",
     "spirits": "Война"
    },
    {
     "key": "c7",
     "name": "Городской",
-    "en": "",
+    "en": "Urban",
     "gives": "Знание улиц",
     "spirits": "городская стихия"
    },
    {
     "key": "c8",
     "name": "Видения",
-    "en": "",
+    "en": "Visions",
     "gives": "оракульные видения",
     "spirits": "дух-птица"
    },
    {
     "key": "c9",
     "name": "Воля",
-    "en": "",
+    "en": "Willpower",
     "gives": "очки Воли",
     "spirits": "Война, дух-предок"
    },
    {
     "key": "c10",
     "name": "Мудрость",
-    "en": "",
+    "en": "Wisdom",
     "gives": "Ритуалы, Выразительность",
     "spirits": "дух-сова, дух-предок"
    },
@@ -23821,7 +23821,7 @@
    {
     "key": "r0",
     "name": "Малфеас",
-    "en": "",
+    "en": "Malfeas",
     "group": "near",
     "html": "<p>Царство Червя. Ничего дружественного Гару. Подробнее — Book of the Wyrm.</p>"
    },
@@ -23884,14 +23884,14 @@
    {
     "key": "r9",
     "name": "Легендарное царство",
-    "en": "",
+    "en": "Legendary Realm",
     "group": "near",
     "html": "<p>Королевства героев Серебряного летописного свода, Дикие земли с аллегорическими чудовищами. Беды:</p><ul><li><strong>Полночная земля</strong> — осколок Малфеаса, Третий город;</li><li><strong>Фимбулвинтер</strong> — королевства забытых героев замерзают;</li><li><strong>Голодная пыль</strong> — саранча и голод;</li><li><strong>Великий смрад</strong> — болота Червя, заразная болезнь от их воздуха и воды.</li></ul><p>Состояние королевства отражает здоровье правителя.</p>"
    },
    {
     "key": "r10",
     "name": "Пангея",
-    "en": "",
+    "en": "Pangaea",
     "group": "near",
     "html": "<p>Отзвук древнейших эпох Геи. Ландшафт меняется за часы. Здесь нет делений на племена: все — просто Гару (или Бастет и т.п.), и это забывается на время пребывания.</p><ul><li>Выйти — найти Глен, без броска. Зона Снов доступна в глубоком сне (обычно с помощью местных наркотических растений).</li><li><strong>Старший Змей</strong> — правитель: даёт задания (обычно истребить ставших слишком сильными слуг Дикости или Ткачихи). Отказать можно один раз и сразу уйти; вернувшегося он уничтожит. Знает утраченные обряды огня и камня.</li><li><strong>Кладбище потерянных</strong> — каэрн 5-го уровня из костей вымерших видов.</li><li>Племена людей: туланцы (союзники, их язык близок Высокому языку Гару), зарак-ур (людоеды на службе Червя, с письменностью), пустынники, пещерные троглодиты.</li></ul><p><strong>Обряд Земной кости (Rite of the Earthbone)</strong> — каэрна, ур. 4.</p><ul><li><strong>Проведение:</strong> вымыть руки в чистой воде и погрузить их по запястья в здоровую землю более чем на час. Затем из трещины с лавой поднимается базальтовый обелиск.</li><li><strong>Бросок:</strong> 1 точка <strong>постоянного</strong> Гнозиса + сколько угодно временного, Выносливость + Первобытный инстинкт, сложность 7.</li><li><strong>Эффект:</strong> коснувшийся обелиска действует как в <strong>каэрне 1-го уровня</strong> диаметром 10 ярдов (~9 м), но только для обрядов, Даров и Чар. Сам обелиск Гнозиса не порождает, но потраченный при обряде временный Гнозис делится между всеми, кто касается камня.</li><li>Камень постоянен, пока его не сдвинут или не разрушат. Повторный обряд на целом камне (чтобы раздать ещё Гнозис) не требует постоянного Гнозиса.</li></ul>"
    },
@@ -23919,154 +23919,154 @@
    {
     "key": "home-14",
     "name": "Чёрные Фурии",
-    "en": "",
+    "en": "Black Furies",
     "group": "homeland",
     "html": "<p>мифическая Греция, священная охота. Недавно появились мужчины, а Пегас запретил их истреблять</p><p>Священные царства, их поддерживают тотемы. Без вопросов входят Гару Ранга 4+, младшие — с сопровождением старших (дурное поведение стоит Славы). Молчаливые Странники по обычаю могут ждать на границе любой родины и просить аудиенции.</p><p><strong>Отключение на родине:</strong></p><ul><li>Член племени на своей родине повышает сложность возвращения в физический мир <strong>раз в год</strong>, а не каждый лунный цикл.</li><li>На чужой родине — +1 за каждые <strong>два</strong> лунных цикла.</li><li>Отключение накапливается: выйти с родины в Ближнюю Умбру, чтобы «сбросить счётчик», нельзя.</li></ul>"
    },
    {
     "key": "home-15",
     "name": "Костегрызы",
-    "en": "",
+    "en": "Bone Gnawers",
     "group": "homeland",
     "html": "<p>трущобы вокруг огромного запущенного парка. Подземка связана с КиберЦарством, родиной Стеклоходов и другими «городскими» родинами. Духи-крысы торгуют сплетнями</p><p>Священные царства, их поддерживают тотемы. Без вопросов входят Гару Ранга 4+, младшие — с сопровождением старших (дурное поведение стоит Славы). Молчаливые Странники по обычаю могут ждать на границе любой родины и просить аудиенции.</p><p><strong>Отключение на родине:</strong></p><ul><li>Член племени на своей родине повышает сложность возвращения в физический мир <strong>раз в год</strong>, а не каждый лунный цикл.</li><li>На чужой родине — +1 за каждые <strong>два</strong> лунных цикла.</li><li>Отключение накапливается: выйти с родины в Ближнюю Умбру, чтобы «сбросить счётчик», нельзя.</li></ul>"
    },
    {
     "key": "home-16",
     "name": "Дети Геи",
-    "en": "",
+    "en": "Children of Gaia",
     "group": "homeland",
     "html": "<p>цветущий рай, пять идеальных городов Шумера, люди без Бреда. Гостям с мирными намерениями дают проводника-единорога (анамэ)</p><p>Священные царства, их поддерживают тотемы. Без вопросов входят Гару Ранга 4+, младшие — с сопровождением старших (дурное поведение стоит Славы). Молчаливые Странники по обычаю могут ждать на границе любой родины и просить аудиенции.</p><p><strong>Отключение на родине:</strong></p><ul><li>Член племени на своей родине повышает сложность возвращения в физический мир <strong>раз в год</strong>, а не каждый лунный цикл.</li><li>На чужой родине — +1 за каждые <strong>два</strong> лунных цикла.</li><li>Отключение накапливается: выйти с родины в Ближнюю Умбру, чтобы «сбросить счётчик», нельзя.</li></ul>"
    },
    {
     "key": "home-17",
     "name": "Фианна",
-    "en": "",
+    "en": "Fianna",
     "group": "homeland",
     "html": "<p>фэнтезийная Европа, феи-эманации, Дикая охота Оленя карает расточительных охотников</p><p>Священные царства, их поддерживают тотемы. Без вопросов входят Гару Ранга 4+, младшие — с сопровождением старших (дурное поведение стоит Славы). Молчаливые Странники по обычаю могут ждать на границе любой родины и просить аудиенции.</p><p><strong>Отключение на родине:</strong></p><ul><li>Член племени на своей родине повышает сложность возвращения в физический мир <strong>раз в год</strong>, а не каждый лунный цикл.</li><li>На чужой родине — +1 за каждые <strong>два</strong> лунных цикла.</li><li>Отключение накапливается: выйти с родины в Ближнюю Умбру, чтобы «сбросить счётчик», нельзя.</li></ul>"
    },
    {
     "key": "home-18",
     "name": "Дети Фенриса",
-    "en": "",
+    "en": "Get of Fenris",
     "group": "homeland",
     "html": "<p>вечная зима, ложи сражаются между собой. Павший не умирает: доползёт до ложи — за ночь исцелится (помощь стаи считается слабостью). Смерть возможна только в официальных поединках между стычками ложи</p><p>Священные царства, их поддерживают тотемы. Без вопросов входят Гару Ранга 4+, младшие — с сопровождением старших (дурное поведение стоит Славы). Молчаливые Странники по обычаю могут ждать на границе любой родины и просить аудиенции.</p><p><strong>Отключение на родине:</strong></p><ul><li>Член племени на своей родине повышает сложность возвращения в физический мир <strong>раз в год</strong>, а не каждый лунный цикл.</li><li>На чужой родине — +1 за каждые <strong>два</strong> лунных цикла.</li><li>Отключение накапливается: выйти с родины в Ближнюю Умбру, чтобы «сбросить счётчик», нельзя.</li></ul>"
    },
    {
     "key": "home-19",
     "name": "Стеклоходы",
-    "en": "",
+    "en": "Glass Walkers",
     "group": "homeland",
     "html": "<p>идеальный Город гармонии Ткачихи и Дикости, сады в башнях. Требует постоянного ухода, иначе техника отказывает, а сады разрастаются</p><p>Священные царства, их поддерживают тотемы. Без вопросов входят Гару Ранга 4+, младшие — с сопровождением старших (дурное поведение стоит Славы). Молчаливые Странники по обычаю могут ждать на границе любой родины и просить аудиенции.</p><p><strong>Отключение на родине:</strong></p><ul><li>Член племени на своей родине повышает сложность возвращения в физический мир <strong>раз в год</strong>, а не каждый лунный цикл.</li><li>На чужой родине — +1 за каждые <strong>два</strong> лунных цикла.</li><li>Отключение накапливается: выйти с родины в Ближнюю Умбру, чтобы «сбросить счётчик», нельзя.</li></ul>"
    },
    {
     "key": "home-20",
     "name": "Красные Когти",
-    "en": "",
+    "en": "Red Talons",
     "group": "homeland",
     "html": "<p>дремучий лес, где хищник — король. Перенаселение волков губит дичь. Хомиду нужен поручитель, иначе на него охотятся</p><p>Священные царства, их поддерживают тотемы. Без вопросов входят Гару Ранга 4+, младшие — с сопровождением старших (дурное поведение стоит Славы). Молчаливые Странники по обычаю могут ждать на границе любой родины и просить аудиенции.</p><p><strong>Отключение на родине:</strong></p><ul><li>Член племени на своей родине повышает сложность возвращения в физический мир <strong>раз в год</strong>, а не каждый лунный цикл.</li><li>На чужой родине — +1 за каждые <strong>два</strong> лунных цикла.</li><li>Отключение накапливается: выйти с родины в Ближнюю Умбру, чтобы «сбросить счётчик», нельзя.</li></ul>"
    },
    {
     "key": "home-21",
     "name": "Владыки Теней",
-    "en": "",
+    "en": "Shadow Lords",
     "group": "homeland",
     "html": "<p>Великая гора с крепостью: кто ею овладеет, тот, по легенде, станет правителем Нации Гару. Вороны-буревестники служат гонцами</p><p>Священные царства, их поддерживают тотемы. Без вопросов входят Гару Ранга 4+, младшие — с сопровождением старших (дурное поведение стоит Славы). Молчаливые Странники по обычаю могут ждать на границе любой родины и просить аудиенции.</p><p><strong>Отключение на родине:</strong></p><ul><li>Член племени на своей родине повышает сложность возвращения в физический мир <strong>раз в год</strong>, а не каждый лунный цикл.</li><li>На чужой родине — +1 за каждые <strong>два</strong> лунных цикла.</li><li>Отключение накапливается: выйти с родины в Ближнюю Умбру, чтобы «сбросить счётчик», нельзя.</li></ul>"
    },
    {
     "key": "home-22",
     "name": "Серебряные Клыки",
-    "en": "",
+    "en": "Silver Fangs",
     "group": "homeland",
     "html": "<p>замки и охотничьи угодья, у каждого Клыка дух-сокол (Гаффлинг) как глашатай. Царство приходит в упадок, хотя сами Клыки этого не видят</p><p>Священные царства, их поддерживают тотемы. Без вопросов входят Гару Ранга 4+, младшие — с сопровождением старших (дурное поведение стоит Славы). Молчаливые Странники по обычаю могут ждать на границе любой родины и просить аудиенции.</p><p><strong>Отключение на родине:</strong></p><ul><li>Член племени на своей родине повышает сложность возвращения в физический мир <strong>раз в год</strong>, а не каждый лунный цикл.</li><li>На чужой родине — +1 за каждые <strong>два</strong> лунных цикла.</li><li>Отключение накапливается: выйти с родины в Ближнюю Умбру, чтобы «сбросить счётчик», нельзя.</li></ul>"
    },
    {
     "key": "home-23",
     "name": "Звездочёты",
-    "en": "",
+    "en": "Stargazers",
     "group": "homeland",
     "html": "<p>кольцевые горы и святилища. С вершины, разгадав коан, можно уйти разумом в Астральную Умбру (тело остаётся беспомощным, рискует зачахнуть). Лёгкий вход в Зону Снов</p><p>Священные царства, их поддерживают тотемы. Без вопросов входят Гару Ранга 4+, младшие — с сопровождением старших (дурное поведение стоит Славы). Молчаливые Странники по обычаю могут ждать на границе любой родины и просить аудиенции.</p><p><strong>Отключение на родине:</strong></p><ul><li>Член племени на своей родине повышает сложность возвращения в физический мир <strong>раз в год</strong>, а не каждый лунный цикл.</li><li>На чужой родине — +1 за каждые <strong>два</strong> лунных цикла.</li><li>Отключение накапливается: выйти с родины в Ближнюю Умбру, чтобы «сбросить счётчик», нельзя.</li></ul>"
    },
    {
     "key": "home-24",
     "name": "Уктена",
-    "en": "",
+    "en": "Uktena",
     "group": "homeland",
     "html": "<p>смесь земель всех родин Уктена, духи вымерших существ и утраченных культур. Через каньон — проход в Бездну, которым пользуются для набегов за утраченным знанием</p><p>Священные царства, их поддерживают тотемы. Без вопросов входят Гару Ранга 4+, младшие — с сопровождением старших (дурное поведение стоит Славы). Молчаливые Странники по обычаю могут ждать на границе любой родины и просить аудиенции.</p><p><strong>Отключение на родине:</strong></p><ul><li>Член племени на своей родине повышает сложность возвращения в физический мир <strong>раз в год</strong>, а не каждый лунный цикл.</li><li>На чужой родине — +1 за каждые <strong>два</strong> лунных цикла.</li><li>Отключение накапливается: выйти с родины в Ближнюю Умбру, чтобы «сбросить счётчик», нельзя.</li></ul>"
    },
    {
     "key": "home-25",
     "name": "Вендиго",
-    "en": "",
+    "en": "Wendigo",
     "group": "homeland",
     "html": "<p>для чужих — ледяная пустыня с трупами, для своих — чистые деревни и леса. Пускают только Гурахлов. Прекрасно связана с Пангеей, Легендарным и Эфирным царствами, родиной Уктена</p><p>Священные царства, их поддерживают тотемы. Без вопросов входят Гару Ранга 4+, младшие — с сопровождением старших (дурное поведение стоит Славы). Молчаливые Странники по обычаю могут ждать на границе любой родины и просить аудиенции.</p><p><strong>Отключение на родине:</strong></p><ul><li>Член племени на своей родине повышает сложность возвращения в физический мир <strong>раз в год</strong>, а не каждый лунный цикл.</li><li>На чужой родине — +1 за каждые <strong>два</strong> лунных цикла.</li><li>Отключение накапливается: выйти с родины в Ближнюю Умбру, чтобы «сбросить счётчик», нельзя.</li></ul>"
    },
    {
     "key": "home-26",
     "name": "Танцоры Чёрной Спирали (бывшая родина Белых Воющих)",
-    "en": "",
+    "en": "Black Spiral Dancers (former White Howler homeland)",
     "group": "homeland",
     "html": "<p>токсичный ад, жизнь в подземных туннелях. Обсидиановые врата ведут в Чёрную спираль Малфеаса. Серебряная тропа отсюда прямо в Эребус, и закрыть её Танцоры не могут</p><p>Священные царства, их поддерживают тотемы. Без вопросов входят Гару Ранга 4+, младшие — с сопровождением старших (дурное поведение стоит Славы). Молчаливые Странники по обычаю могут ждать на границе любой родины и просить аудиенции.</p><p><strong>Отключение на родине:</strong></p><ul><li>Член племени на своей родине повышает сложность возвращения в физический мир <strong>раз в год</strong>, а не каждый лунный цикл.</li><li>На чужой родине — +1 за каждые <strong>два</strong> лунных цикла.</li><li>Отключение накапливается: выйти с родины в Ближнюю Умбру, чтобы «сбросить счётчик», нельзя.</li></ul>"
    },
    {
     "key": "home-27",
     "name": "Буньип",
-    "en": "",
+    "en": "Bunyip",
     "group": "homeland",
     "html": "<p>утерянная, отражение всей Австралии. Пути помнят Гумаган-Моколе и австралийские Нага</p><p>Священные царства, их поддерживают тотемы. Без вопросов входят Гару Ранга 4+, младшие — с сопровождением старших (дурное поведение стоит Славы). Молчаливые Странники по обычаю могут ждать на границе любой родины и просить аудиенции.</p><p><strong>Отключение на родине:</strong></p><ul><li>Член племени на своей родине повышает сложность возвращения в физический мир <strong>раз в год</strong>, а не каждый лунный цикл.</li><li>На чужой родине — +1 за каждые <strong>два</strong> лунных цикла.</li><li>Отключение накапливается: выйти с родины в Ближнюю Умбру, чтобы «сбросить счётчик», нельзя.</li></ul>"
    },
    {
     "key": "home-28",
     "name": "Кроатаны",
-    "en": "",
+    "en": "Croatan",
     "group": "homeland",
     "html": "<p>тихие холмы с цветами, под одним спит Черепаха. Если две Родни Кроатанов однажды дадут чистого Кроатана, тот сможет вернуть родину и разбудить его</p><p>Священные царства, их поддерживают тотемы. Без вопросов входят Гару Ранга 4+, младшие — с сопровождением старших (дурное поведение стоит Славы). Молчаливые Странники по обычаю могут ждать на границе любой родины и просить аудиенции.</p><p><strong>Отключение на родине:</strong></p><ul><li>Член племени на своей родине повышает сложность возвращения в физический мир <strong>раз в год</strong>, а не каждый лунный цикл.</li><li>На чужой родине — +1 за каждые <strong>два</strong> лунных цикла.</li><li>Отключение накапливается: выйти с родины в Ближнюю Умбру, чтобы «сбросить счётчик», нельзя.</li></ul>"
    },
    {
     "key": "home-29",
     "name": "Молчаливые Странники",
-    "en": "",
+    "en": "Silent Striders",
     "group": "homeland",
     "html": "<p>отрезаны клятвой перед Луной (Сокхта не пускает к ним Лунные тропы). Страж — дух предка Уепуат, под пирамидами спят предки</p><p>Священные царства, их поддерживают тотемы. Без вопросов входят Гару Ранга 4+, младшие — с сопровождением старших (дурное поведение стоит Славы). Молчаливые Странники по обычаю могут ждать на границе любой родины и просить аудиенции.</p><p><strong>Отключение на родине:</strong></p><ul><li>Член племени на своей родине повышает сложность возвращения в физический мир <strong>раз в год</strong>, а не каждый лунный цикл.</li><li>На чужой родине — +1 за каждые <strong>два</strong> лунных цикла.</li><li>Отключение накапливается: выйти с родины в Ближнюю Умбру, чтобы «сбросить счётчик», нельзя.</li></ul>"
    },
    {
     "key": "home-30",
     "name": "Коракс",
-    "en": "",
+    "en": "Corax",
     "group": "homeland",
     "html": "<p>гигантское дерево с ходами почти во все части Умбры</p><p>Священные царства, их поддерживают тотемы. Без вопросов входят Гару Ранга 4+, младшие — с сопровождением старших (дурное поведение стоит Славы). Молчаливые Странники по обычаю могут ждать на границе любой родины и просить аудиенции.</p><p><strong>Отключение на родине:</strong></p><ul><li>Член племени на своей родине повышает сложность возвращения в физический мир <strong>раз в год</strong>, а не каждый лунный цикл.</li><li>На чужой родине — +1 за каждые <strong>два</strong> лунных цикла.</li><li>Отключение накапливается: выйти с родины в Ближнюю Умбру, чтобы «сбросить счётчик», нельзя.</li></ul>"
    },
    {
     "key": "home-31",
     "name": "Нувиша",
-    "en": "",
+    "en": "Nuwisha",
     "group": "homeland",
     "html": "<p>Нора Койота: зал с пиршественным столом и бесчисленными дверями</p><p>Священные царства, их поддерживают тотемы. Без вопросов входят Гару Ранга 4+, младшие — с сопровождением старших (дурное поведение стоит Славы). Молчаливые Странники по обычаю могут ждать на границе любой родины и просить аудиенции.</p><p><strong>Отключение на родине:</strong></p><ul><li>Член племени на своей родине повышает сложность возвращения в физический мир <strong>раз в год</strong>, а не каждый лунный цикл.</li><li>На чужой родине — +1 за каждые <strong>два</strong> лунных цикла.</li><li>Отключение накапливается: выйти с родины в Ближнюю Умбру, чтобы «сбросить счётчик», нельзя.</li></ul>"
    },
    {
     "key": "membrane",
     "name": "Мембрана и Якорные головы",
-    "en": "",
+    "en": "Membrane and Anchorheads",
     "group": "membrane",
     "html": "<ul><li><strong>Мембрана</strong> отделяет Ближнюю Умбру от Глубокой. Её видно как далёкую лиловую ленту, но коснуться нельзя. Магические чувства показывают её лишь как предел.</li><li><strong>Якорная голова (Anchorhead)</strong> — туннель сквозь Мембрану. Дикие возникают сами; Гару стабилизируют их, привязывая к «якорям» — ценным предметам. Обычно рукотворная Якорная голова вмещает Кринос, и путь по ней занимает не больше суток.</li><li><strong>Переход:</strong> медитация на связь через Мембрану, бросок <strong>Гнозиса</strong> — сложность <strong>8</strong> у дикой, <strong>6</strong> у стабилизированной. Рассказчик меняет сложность: −1, если голову очищают обрядом после каждого использования; +1 и больше, если ею пользуются без перерыва.</li><li>У голов есть <strong>тема</strong> (например, водоворот в морской заводи). Принять тему (прыгнуть в воду, пережить «утопление») — −1 к сложности. Пройти без неё можно, но это изнашивает голову.</li><li><strong>Провал</strong> — ждать час (другие пока могут пройти). <strong>Ботч</strong> — связь нарушена: сложность +2, пока голову не очистят обрядом; дикая голова от ботча рушится.</li><li><strong>Отключение</strong> внутри Якорной головы идёт как в Ближней Умбре. Выход в Глубокую Умбру лишь приостанавливает его, но не сбрасывает.</li></ul><h3>Обряд Закрепления разлома (Rite of Anchoring the Divide) — каэрна, ур. 5</h3><p>Вариант Обряда основания каэрна, соединяющий две части мира духов. Проводится одновременно по обе стороны Мембраны: минимум один ритемастер в Ближней Умбре и один в Глубокой (ему труднее — найти защищённое место, синхронизироваться, отбиваться от духов). Для синхронизации используют связанных Дарами барабанщиков, фетиши-часы и т.п. Ценный предмет (якорь, часто Путевой камень, стр. 207) магически раскалывается надвое.</p><ul><li><strong>Бросок:</strong> каждый ритемастер делает расширенный <strong>Сообразительность + Ритуалы, сложность 8</strong>, по броску в час. Хорошая синхронизация может снизить сложность.</li><li>Каждому нужно <strong>5 успехов</strong>. Набравший первым продолжает бросать, пока не наберёт второй.</li><li><strong>Ботч</strong> любого — обряд провален, а его половина якоря духовно испорчена и больше не годится.</li><li><strong>Успех:</strong> между половинами открывается Якорная голова, обе половины выглядят целыми, но восстановленная призрачна. Уничтожение любой из них — мгновенный обвал. Через несколько часов у устьев складываются малые царства с темой по подсознанию ритемастеров.</li></ul><p>Другие пути через Мембрану: Узор (повсюду, где есть хоть какая-то структура), туннели, прорытые слугами Червя (каждый приближает гибель Мембраны), Зона Снов (дух проснётся в Глубокой Умбре, а тело останется беззащитным, связанное серебряной нитью; по этой нити может пройти и чужой).</p>"
    },
    {
     "key": "astral",
     "name": "Астральная Умбра",
-    "en": "",
+    "en": "Astral Umbra",
     "group": "astral",
     "html": "<p>Царство мыслей и понятий. Гару знают о нём меньше всего.</p><ul><li><strong>Обитатели:</strong><ul><li><strong>понятийные духи</strong> всех видов, включая богов;</li><li><strong>маги</strong> — здесь их не сдерживают законы реальности и Парадокс;</li><li><strong>Кошмары</strong> — воплощённые страхи, имеющие слабости своего прообраза (Кошмар Дракулы уязвим для кола);</li><li><strong>вампиры</strong> — проекции на серебряных нитях. Обычно не замечают окружения, могут атаковать чужие серебряные нити и бегут от Гару.</li></ul></li><li><strong>Вход:</strong> из Зоны Снов, но тогда в Астрал попадает и физическое тело. Оно подчинено законам понятий и может «распасться», а <strong>Ярость оборотня раздражает Астрал</strong>, и он становится враждебным. Через Мембрану из глубинных понятийных царств. Безопаснее всего — медитация на родине Звездочётов: туда уходит только разум, но он теряет чувство времени и тела, и тело может умереть от небрежения.</li><li><strong>Движение</strong> психореактивно: подумал — оказался. Но Астрал реагирует на подлинные мысли и тревоги, и группа видит общую картину по самым сильным понятиям.</li><li><strong>Выход:</strong> проецированному разуму достаточно подумать о возвращении (если такая мысль придёт). Вошедшему телом нужен провожатый-дух за плату (обычно выводит в Зону Снов).</li></ul>"
    },
    {
     "key": "dark",
     "name": "Тёмная Умбра",
-    "en": "",
+    "en": "Dark Umbra",
     "group": "dark",
     "html": "<p>Отражение смерти и распада: Сумеречные земли (Тёмная Пенумбра) и Буря (Tempest) с островами-городами мёртвых. Всё построено из душ.</p><ul><li><strong>Призраки</strong> нападают на живых, привлечённые их жизненной силой. Некоторые дают поручения и жетоны покровительства (одни призраки уважают их, другие — нет).</li><li><strong>Спектры</strong> — призраки, отдавшиеся Забвению. Гару часто путают их с Бейнами. <strong>Дары, действующие на духов, на призраков и Спектров не действуют</strong>, но когти и клыки работают.</li><li><strong>Призраки Гару:</strong> немногие Кроатаны, не нашедшие покоя; Корорук и его маленькая стая «Белых Воющих», очищающих или уничтожающих Танцоров.</li><li><strong>Вход:</strong> Молчаливые Странники знают обряд (они поделились им с другими племенами). Можно через духов Смерти и сильных Бейнов (но они не выведут обратно), если застрять в Преграде (призраки могут утянуть), или через Бездну (обратно тем же путём не вернуться). Путь по Буре — дорогами призраков (Byways), с риском заблудиться и сгинуть в Забвении.</li></ul>"
    },
    {
     "key": "deep",
     "name": "Глубокая Умбра",
-    "en": "",
+    "en": "Deep Umbra",
     "group": "deep",
     "html": "<p>За Мембраной. Законы реальности почти не действуют. Царства возникают по нужде и тают; время течёт странно. Здесь обитают Целестины, тела Триады, чуждые существа.</p><ul><li><strong>Отключение здесь не идёт:</strong> пока Гару в Глубокой Умбре, счёт отключения от физического и духовного мира останавливается.</li><li>Луны на входе от владений Луны: в полнолуние приветливы, на убывающей луне коварны.</li><li>Царство Гелиоса жжёт: нелетающие сгорают; огненные Инкарны нападают на Гару, но привечают Коракс и почитателей Гелиоса.</li><li>Подходы к Триаде: через Царство Изменчивости — к Дикости; через Узор КиберЦарства — к Ткачихе (её Инкарны запутывают в паутине навечно); через центр Спирали Малфеаса — к Червю (выжившие возвращаются его слугами).</li><li>Подойдя слишком близко к владениям Целестины, путник «прицепляется» к ним, и путь сам ведёт вглубь. Ещё можно попробовать развернуться, пока не зашёл далеко.</li><li><strong>Коракс</strong> ходят знакомыми маршрутами и могут взять попутчиков, но только по своему текущему пути. <strong>Нувиша</strong> устраивают тут «уроки».</li></ul>"
    }
@@ -24089,14 +24089,14 @@
     {
      "key": "f0",
      "name": "Хомид",
-     "en": "",
+     "en": "Homid",
      "mods": {},
      "set": {}
     },
     {
      "key": "f1",
      "name": "Анфрос",
-     "en": "",
+     "en": "Anthros",
      "mods": {
       "strength": 2,
       "dexterity": 1,
@@ -24109,7 +24109,7 @@
     {
      "key": "f2",
      "name": "Кринос",
-     "en": "",
+     "en": "Crinos",
      "mods": {
       "strength": 3,
       "dexterity": 2,
@@ -24123,7 +24123,7 @@
     {
      "key": "f3",
      "name": "Крокас",
-     "en": "",
+     "en": "Crocas",
      "mods": {
       "strength": 3,
       "dexterity": 2,
@@ -24137,7 +24137,7 @@
     {
      "key": "f4",
      "name": "Гиенид",
-     "en": "",
+     "en": "Hyaenid",
      "mods": {
       "strength": 1,
       "dexterity": 2,
@@ -24155,15 +24155,18 @@
      "options": [
       {
        "key": "homid",
-       "name": "Хомид"
+       "name": "Хомид",
+       "en": "Homid"
       },
       {
        "key": "metis",
-       "name": "Метис"
+       "name": "Метис",
+       "en": "Metis"
       },
       {
        "key": "hyaenid",
-       "name": "Гиенид"
+       "name": "Гиенид",
+       "en": "Hyaenid"
       }
      ]
     },
@@ -24177,7 +24180,8 @@
        "stats": {
         "rage": 5,
         "gnosis": 1
-       }
+       },
+       "en": "Dawn"
       },
       {
        "key": "midnight",
@@ -24185,7 +24189,8 @@
        "stats": {
         "rage": 3,
         "gnosis": 3
-       }
+       },
+       "en": "Midnight"
       },
       {
        "key": "dusk",
@@ -24193,7 +24198,8 @@
        "stats": {
         "rage": 1,
         "gnosis": 5
-       }
+       },
+       "en": "Dusk"
       }
      ]
     }
@@ -24215,7 +24221,7 @@
     {
      "key": "f0",
      "name": "Хомид",
-     "en": "",
+     "en": "Homid",
      "mods": {},
      "set": {}
     },
@@ -24250,7 +24256,7 @@
     {
      "key": "f3",
      "name": "Крауллерлинг",
-     "en": "",
+     "en": "Crawlerling",
      "mods": {
       "dexterity": 5
      },
@@ -24271,7 +24277,8 @@
        "stats": {
         "gnosis": 1,
         "will": 3
-       }
+       },
+       "en": "Homid"
       },
       {
        "key": "arachnid",
@@ -24279,7 +24286,8 @@
        "stats": {
         "gnosis": 5,
         "will": 4
-       }
+       },
+       "en": "Arachnid"
       }
      ]
     },
@@ -24289,15 +24297,18 @@
      "options": [
       {
        "key": "tenere",
-       "name": "Тенере"
+       "name": "Тенере",
+       "en": "Tenere"
       },
       {
        "key": "hatar",
-       "name": "Хатар"
+       "name": "Хатар",
+       "en": "Hatar"
       },
       {
        "key": "kumoti",
-       "name": "Кумоти"
+       "name": "Кумоти",
+       "en": "Kumoti"
       }
      ]
     },
@@ -24307,15 +24318,18 @@
      "options": [
       {
        "key": "myrmidon",
-       "name": "Мирмидон"
+       "name": "Мирмидон",
+       "en": "Myrmidon"
       },
       {
        "key": "viskr",
-       "name": "Вискр"
+       "name": "Вискр",
+       "en": "Viskr"
       },
       {
        "key": "wyrsta",
-       "name": "Вирст"
+       "name": "Вирст",
+       "en": "Wyrsta"
       }
      ]
     }
@@ -24338,14 +24352,14 @@
     {
      "key": "f0",
      "name": "Хомид",
-     "en": "",
+     "en": "Homid",
      "mods": {},
      "set": {}
     },
     {
      "key": "f1",
      "name": "Сокто",
-     "en": "",
+     "en": "Sokto",
      "mods": {},
      "set": {},
      "modsBy": {
@@ -24439,7 +24453,7 @@
     {
      "key": "f2",
      "name": "Кринос",
-     "en": "",
+     "en": "Crinos",
      "mods": {},
      "set": {},
      "modsBy": {
@@ -24547,7 +24561,7 @@
     {
      "key": "f3",
      "name": "Чатро",
-     "en": "",
+     "en": "Chatro",
      "mods": {},
      "set": {},
      "modsBy": {
@@ -24638,7 +24652,7 @@
     {
      "key": "f4",
      "name": "Фелайн",
-     "en": "",
+     "en": "Feline",
      "mods": {},
      "set": {},
      "modsBy": {
@@ -24727,21 +24741,24 @@
        "name": "Хомид",
        "stats": {
         "gnosis": 1
-       }
+       },
+       "en": "Homid"
       },
       {
        "key": "metis",
        "name": "Метис",
        "stats": {
         "gnosis": 3
-       }
+       },
+       "en": "Metis"
       },
       {
        "key": "feline",
        "name": "Фелайн",
        "stats": {
         "gnosis": 5
-       }
+       },
+       "en": "Feline"
       }
      ]
     },
@@ -24755,7 +24772,8 @@
        "stats": {
         "rage": 2,
         "will": 4
-       }
+       },
+       "en": "Bagheera"
       },
       {
        "key": "balam",
@@ -24763,7 +24781,8 @@
        "stats": {
         "rage": 4,
         "will": 3
-       }
+       },
+       "en": "Balam"
       },
       {
        "key": "bubasti",
@@ -24771,7 +24790,8 @@
        "stats": {
         "rage": 1,
         "will": 5
-       }
+       },
+       "en": "Bubasti"
       },
       {
        "key": "ceilican",
@@ -24779,7 +24799,8 @@
        "stats": {
         "rage": 3,
         "will": 3
-       }
+       },
+       "en": "Ceilican"
       },
       {
        "key": "khan",
@@ -24787,7 +24808,8 @@
        "stats": {
         "rage": 5,
         "will": 2
-       }
+       },
+       "en": "Khan"
       },
       {
        "key": "pumonca",
@@ -24795,7 +24817,8 @@
        "stats": {
         "rage": 4,
         "will": 4
-       }
+       },
+       "en": "Pumonca"
       },
       {
        "key": "qualmi",
@@ -24803,7 +24826,8 @@
        "stats": {
         "rage": 2,
         "will": 5
-       }
+       },
+       "en": "Qualmi"
       },
       {
        "key": "simba",
@@ -24811,7 +24835,8 @@
        "stats": {
         "rage": 5,
         "will": 2
-       }
+       },
+       "en": "Simba"
       },
       {
        "key": "swara",
@@ -24819,7 +24844,8 @@
        "stats": {
         "rage": 2,
         "will": 4
-       }
+       },
+       "en": "Swara"
       }
      ]
     },
@@ -24829,15 +24855,18 @@
      "options": [
       {
        "key": "daylight",
-       "name": "Дневное"
+       "name": "Дневное",
+       "en": "Daylight"
       },
       {
        "key": "twilight",
-       "name": "Сумеречное"
+       "name": "Сумеречное",
+       "en": "Twilight"
       },
       {
        "key": "night",
-       "name": "Ночное"
+       "name": "Ночное",
+       "en": "Night"
       }
      ]
     }
@@ -24858,14 +24887,14 @@
     {
      "key": "f0",
      "name": "Хомид",
-     "en": "",
+     "en": "Homid",
      "mods": {},
      "set": {}
     },
     {
      "key": "f1",
      "name": "Кринос",
-     "en": "",
+     "en": "Crinos",
      "mods": {
       "strength": 1,
       "dexterity": 1,
@@ -24880,7 +24909,7 @@
     {
      "key": "f2",
      "name": "Корвид",
-     "en": "",
+     "en": "Corvid",
      "mods": {
       "strength": -1,
       "dexterity": 1,
@@ -24898,11 +24927,13 @@
      "options": [
       {
        "key": "homid",
-       "name": "Хомид"
+       "name": "Хомид",
+       "en": "Homid"
       },
       {
        "key": "corvid",
-       "name": "Корвид"
+       "name": "Корвид",
+       "en": "Corvid"
       }
      ]
     }
@@ -24927,7 +24958,7 @@
     {
      "key": "f0",
      "name": "Хомид",
-     "en": "",
+     "en": "Homid",
      "mods": {},
      "set": {}
     },
@@ -24946,7 +24977,7 @@
     {
      "key": "f2",
      "name": "Кринос",
-     "en": "",
+     "en": "Crinos",
      "mods": {
       "strength": 5,
       "dexterity": -1,
@@ -24972,7 +25003,7 @@
     {
      "key": "f4",
      "name": "Урсус",
-     "en": "",
+     "en": "Ursus",
      "mods": {
       "strength": 3,
       "stamina": 3,
@@ -24993,7 +25024,8 @@
        "stats": {
         "rage": 3,
         "gnosis": 4
-       }
+       },
+       "en": "Homid"
       },
       {
        "key": "ursine",
@@ -25001,7 +25033,8 @@
        "stats": {
         "rage": 4,
         "gnosis": 5
-       }
+       },
+       "en": "Ursine"
       }
      ]
     },
@@ -25011,23 +25044,28 @@
      "options": [
       {
        "key": "arcas",
-       "name": "Арка"
+       "name": "Арка",
+       "en": "Arcas"
       },
       {
        "key": "uzmati",
-       "name": "Узмати"
+       "name": "Узмати",
+       "en": "Uzmati"
       },
       {
        "key": "kojubat",
-       "name": "Кожубат"
+       "name": "Кожубат",
+       "en": "Kojubat"
       },
       {
        "key": "kieh",
-       "name": "Киех"
+       "name": "Киех",
+       "en": "Kieh"
       },
       {
        "key": "rishi",
-       "name": "Риши"
+       "name": "Риши",
+       "en": "Rishi"
       }
      ]
     }
@@ -25050,14 +25088,14 @@
     {
      "key": "f0",
      "name": "Хитогата",
-     "en": "",
+     "en": "Hitogata",
      "mods": {},
      "set": {}
     },
     {
      "key": "f1",
      "name": "Самбухэнгэ",
-     "en": "",
+     "en": "Sambuhenge",
      "mods": {
       "dexterity": 1,
       "stamina": 1,
@@ -25068,7 +25106,7 @@
     {
      "key": "f2",
      "name": "Кото",
-     "en": "",
+     "en": "Koto",
      "mods": {
       "strength": 1,
       "dexterity": 2,
@@ -25081,7 +25119,7 @@
     {
      "key": "f3",
      "name": "Дзюко",
-     "en": "",
+     "en": "Juko",
      "mods": {
       "dexterity": 3,
       "stamina": 3,
@@ -25093,7 +25131,7 @@
     {
      "key": "f4",
      "name": "Кюби",
-     "en": "",
+     "en": "Kyubi",
      "mods": {
       "dexterity": 4,
       "stamina": 2,
@@ -25114,21 +25152,24 @@
        "name": "Кодзин",
        "stats": {
         "gnosis": 3
-       }
+       },
+       "en": "Kojin"
       },
       {
        "key": "shinju",
        "name": "Синдзю",
        "stats": {
         "gnosis": 4
-       }
+       },
+       "en": "Shinju"
       },
       {
        "key": "roko",
        "name": "Роко",
        "stats": {
         "gnosis": 5
-       }
+       },
+       "en": "Roko"
       }
      ]
     },
@@ -25141,28 +25182,32 @@
        "name": "Досю",
        "stats": {
         "rage": 3
-       }
+       },
+       "en": "Doshi"
       },
       {
        "key": "eji",
        "name": "Эдзи",
        "stats": {
         "rage": 4
-       }
+       },
+       "en": "Eji"
       },
       {
        "key": "gukutsushi",
        "name": "Гукуцусси",
        "stats": {
         "rage": 2
-       }
+       },
+       "en": "Gukutsushi"
       },
       {
        "key": "kataribe",
        "name": "Кататибэ",
        "stats": {
         "rage": 2
-       }
+       },
+       "en": "Kataribe"
       }
      ]
     }
@@ -25186,14 +25231,14 @@
     {
      "key": "f0",
      "name": "Хомид",
-     "en": "",
+     "en": "Homid",
      "mods": {},
      "set": {}
     },
     {
      "key": "f1",
      "name": "Архид",
-     "en": "",
+     "en": "Archid",
      "mods": {
       "strength": 4,
       "dexterity": -1,
@@ -25207,7 +25252,7 @@
     {
      "key": "f2",
      "name": "Сухид",
-     "en": "",
+     "en": "Suchid",
      "mods": {},
      "set": {},
      "modsBy": {
@@ -25302,14 +25347,16 @@
        "name": "Хомид",
        "stats": {
         "gnosis": 2
-       }
+       },
+       "en": "Homid"
       },
       {
        "key": "suchid",
        "name": "Сухид",
        "stats": {
         "gnosis": 4
-       }
+       },
+       "en": "Suchid"
       }
      ]
     },
@@ -25322,49 +25369,56 @@
        "name": "Восходящее Солнце",
        "stats": {
         "will": 3
-       }
+       },
+       "en": "Rising Sun"
       },
       {
        "key": "noonday",
        "name": "Полуденное Солнце",
        "stats": {
         "will": 5
-       }
+       },
+       "en": "Noonday Sun"
       },
       {
        "key": "setting",
        "name": "Заходящее Солнце",
        "stats": {
         "will": 3
-       }
+       },
+       "en": "Setting Sun"
       },
       {
        "key": "midnight",
        "name": "Полуночное Солнце",
        "stats": {
         "will": 4
-       }
+       },
+       "en": "Midnight Sun"
       },
       {
        "key": "shrouded",
        "name": "Затенённое Солнце",
        "stats": {
         "will": 4
-       }
+       },
+       "en": "Shrouded Sun"
       },
       {
        "key": "decorated",
        "name": "Украшенное Солнце",
        "stats": {
         "will": 5
-       }
+       },
+       "en": "Decorated Sun"
       },
       {
        "key": "eclipsed",
        "name": "Затменное Солнце",
        "stats": {
         "will": 5
-       }
+       },
+       "en": "Eclipsed Sun"
       }
      ]
     },
@@ -25378,7 +25432,8 @@
        "rage": 3,
        "stats": {
         "rage": 3
-       }
+       },
+       "en": "Champsa"
       },
       {
        "key": "gkharial",
@@ -25386,7 +25441,8 @@
        "rage": 4,
        "stats": {
         "rage": 4
-       }
+       },
+       "en": "Gharial"
       },
       {
        "key": "khalpati",
@@ -25394,7 +25450,8 @@
        "rage": 4,
        "stats": {
         "rage": 4
-       }
+       },
+       "en": "Halpatee"
       },
       {
        "key": "karna",
@@ -25402,7 +25459,8 @@
        "rage": 3,
        "stats": {
         "rage": 3
-       }
+       },
+       "en": "Karna"
       },
       {
        "key": "makara",
@@ -25410,7 +25468,8 @@
        "rage": 3,
        "stats": {
         "rage": 3
-       }
+       },
+       "en": "Makara"
       },
       {
        "key": "ora",
@@ -25418,7 +25477,8 @@
        "rage": 5,
        "stats": {
         "rage": 5
-       }
+       },
+       "en": "Ora"
       },
       {
        "key": "piasa",
@@ -25426,7 +25486,8 @@
        "rage": 4,
        "stats": {
         "rage": 4
-       }
+       },
+       "en": "Piasa"
       },
       {
        "key": "sirta",
@@ -25434,7 +25495,8 @@
        "rage": 4,
        "stats": {
         "rage": 4
-       }
+       },
+       "en": "Syrta"
       },
       {
        "key": "unktekhi",
@@ -25442,7 +25504,8 @@
        "rage": 5,
        "stats": {
         "rage": 5
-       }
+       },
+       "en": "Unktehi"
       }
      ]
     }
@@ -25464,7 +25527,7 @@
     {
      "key": "f0",
      "name": "Баларам",
-     "en": "",
+     "en": "Balaram",
      "mods": {},
      "set": {}
     },
@@ -25511,7 +25574,7 @@
     {
      "key": "f4",
      "name": "Васуки",
-     "en": "",
+     "en": "Vasuki",
      "mods": {
       "strength": -1,
       "dexterity": 2,
@@ -25531,18 +25594,21 @@
        "name": "Баларам",
        "stats": {
         "gnosis": 1
-       }
+       },
+       "en": "Balaram"
       },
       {
        "key": "ahi",
-       "name": "Ахи"
+       "name": "Ахи",
+       "en": "Ahi"
       },
       {
        "key": "vasuki",
        "name": "Васуки",
        "stats": {
         "gnosis": 5
-       }
+       },
+       "en": "Vasuki"
       }
      ]
     },
@@ -25555,28 +25621,32 @@
        "name": "Камакши",
        "stats": {
         "rage": 3
-       }
+       },
+       "en": "Kamakshi"
       },
       {
        "key": "kartikeya",
        "name": "Картикея",
        "stats": {
         "rage": 4
-       }
+       },
+       "en": "Kartikeya"
       },
       {
        "key": "kamsa",
        "name": "Камса",
        "stats": {
         "rage": 3
-       }
+       },
+       "en": "Kamsa"
       },
       {
        "key": "kali",
        "name": "Кали",
        "stats": {
         "rage": 4
-       }
+       },
+       "en": "Kali"
       }
      ]
     }
@@ -25599,7 +25669,7 @@
     {
      "key": "f0",
      "name": "Хомид",
-     "en": "",
+     "en": "Homid",
      "mods": {},
      "set": {}
     },
@@ -25646,7 +25716,7 @@
     {
      "key": "f4",
      "name": "Латрани",
-     "en": "",
+     "en": "Latrani",
      "mods": {
       "dexterity": 3,
       "stamina": 3,
@@ -25666,14 +25736,16 @@
        "name": "Хомид",
        "stats": {
         "gnosis": 1
-       }
+       },
+       "en": "Homid"
       },
       {
        "key": "latrani",
        "name": "Латрани",
        "stats": {
         "gnosis": 5
-       }
+       },
+       "en": "Latrani"
       }
      ]
     }
@@ -25696,14 +25768,14 @@
     {
      "key": "f0",
      "name": "Хомид",
-     "en": "",
+     "en": "Homid",
      "mods": {},
      "set": {}
     },
     {
      "key": "f1",
      "name": "Кринос",
-     "en": "",
+     "en": "Crinos",
      "mods": {
       "dexterity": 4,
       "manipulation": -2,
@@ -25715,7 +25787,7 @@
     {
      "key": "f2",
      "name": "Родэнс",
-     "en": "",
+     "en": "Rodens",
      "mods": {
       "strength": -1,
       "dexterity": 2,
@@ -25736,21 +25808,24 @@
        "name": "Хомид",
        "stats": {
         "gnosis": 1
-       }
+       },
+       "en": "Homid"
       },
       {
        "key": "metis",
        "name": "Метис",
        "stats": {
         "gnosis": 3
-       }
+       },
+       "en": "Metis"
       },
       {
        "key": "rodens",
        "name": "Родэнс",
        "stats": {
         "gnosis": 5
-       }
+       },
+       "en": "Rodens"
       }
      ]
     },
@@ -25763,56 +25838,64 @@
        "name": "Бегун",
        "stats": {
         "rage": 1
-       }
+       },
+       "en": "Tunnel Runner"
       },
       {
        "key": "shadow-seer",
        "name": "Теневой провидец",
        "stats": {
         "rage": 2
-       }
+       },
+       "en": "Shadow Seer"
       },
       {
        "key": "knife-skulker",
        "name": "Ножевой крадущийся",
        "stats": {
         "rage": 3
-       }
+       },
+       "en": "Knife Skulker"
       },
       {
        "key": "blade-slave",
        "name": "Раб клинка",
        "stats": {
         "rage": 5
-       }
+       },
+       "en": "Blade Slave"
       },
       {
        "key": "engineer",
        "name": "Инженер",
        "stats": {
         "rage": 2
-       }
+       },
+       "en": "Engineer"
       },
       {
        "key": "plague-lord",
        "name": "Лорд чумы",
        "stats": {
         "rage": 3
-       }
+       },
+       "en": "Plague Lord"
       },
       {
        "key": "munchmausen",
        "name": "Мюнхгаузен",
        "stats": {
         "rage": 4
-       }
+       },
+       "en": "Munchmausen"
       },
       {
        "key": "twitcher",
        "name": "Дёрганый",
        "stats": {
         "rage": 5
-       }
+       },
+       "en": "Twitcher"
       }
      ]
     }
@@ -25835,14 +25918,14 @@
     {
      "key": "f0",
      "name": "Хомид («Длинные плавники»)",
-     "en": "",
+     "en": "Homid (Long Fins)",
      "mods": {},
      "set": {}
     },
     {
      "key": "f1",
      "name": "Глабрус («Круглая спина»)",
-     "en": "",
+     "en": "Glabrus (Round Back)",
      "mods": {
       "strength": 2,
       "stamina": 2,
@@ -25854,7 +25937,7 @@
     {
      "key": "f2",
      "name": "Гладиус («Стоячие челюсти»)",
-     "en": "",
+     "en": "Gladius (Standing Jaws)",
      "mods": {
       "strength": 3,
       "dexterity": -1,
@@ -25868,7 +25951,7 @@
     {
      "key": "f3",
      "name": "Хазмус («Боевые челюсти»)",
-     "en": "",
+     "en": "Chasmus (Fighting Jaws)",
      "mods": {
       "strength": 4,
       "stamina": 3,
@@ -25879,7 +25962,7 @@
     {
      "key": "f4",
      "name": "Сквамус («Плавающие челюсти»)",
-     "en": "",
+     "en": "Squamus (Swimming Jaws)",
      "mods": {
       "strength": 2,
       "stamina": 2,
@@ -25899,14 +25982,16 @@
        "name": "Сквамус",
        "stats": {
         "gnosis": 5
-       }
+       },
+       "en": "Squamus"
       },
       {
        "key": "homid",
        "name": "Хомид",
        "stats": {
         "gnosis": 1
-       }
+       },
+       "en": "Homid"
       }
      ]
     },
@@ -25919,21 +26004,24 @@
        "name": "Яркие воды",
        "stats": {
         "rage": 5
-       }
+       },
+       "en": "Brightwater"
       },
       {
        "key": "dim",
        "name": "Тусклые воды",
        "stats": {
         "rage": 4
-       }
+       },
+       "en": "Dimwater"
       },
       {
        "key": "dark",
        "name": "Тёмные воды",
        "stats": {
         "rage": 3
-       }
+       },
+       "en": "Darkwater"
       }
      ]
     }
@@ -26056,7 +26144,7 @@
   {
    "key": "brittle-claws",
    "name": "Хрупкие когти и клыки",
-   "en": "",
+   "en": "Brittle Claws and Fangs",
    "text": "Если цель поглотила хоть 1 уровень урона или удар пришёлся по твёрдому предмету (дерево, камень, металл), эта атака недоступна целый ход, пока оружие отрастает. Ботч атаки — когти или клыки вырываются: 1 уровень летального урона и +1 ход на отрастание",
    "source": "W20 Changing Ways"
   },
@@ -26070,7 +26158,7 @@
   {
    "key": "hip-dysplasia",
    "name": "Дисплазия бедра",
-   "en": "",
+   "en": "Hip Dysplasia",
    "text": "Скорость в любой форме вдвое ниже. Двигаться с обычной скоростью — −1 ко всем нерефлексивным броскам от боли. Ботч физического броска с участием ног — бедро вылетает из сустава, персонаж падает и не встанет, пока кто-то минимум минуту вправляет сустав (без опыта — Интеллект + Медицина, сложность 4)",
    "source": "W20 Changing Ways"
   },
@@ -26109,7 +26197,7 @@
   {
    "key": "nervous-shift",
    "name": "Нервное превращение",
-   "en": "",
+   "en": "Nervous Shift",
    "text": "При угрозе, запугивании, нападении — бросок Воли (сложность 8), иначе мгновенно переходите в Кринос. Выйти можно только после исчезновения угрозы (или повторным броском Воли при изменении ситуации)",
    "source": "W20 Changing Ways"
   },
@@ -26126,7 +26214,7 @@
   {
    "key": "no-muscle-mass",
    "name": "Без мышечной массы",
-   "en": "",
+   "en": "No Muscle Mass",
    "text": "Формы почти не наращивают мышцы: Кринос 6–7 футов (~2 м) и тонкий, Хиспо долговязый, Лупус истощённый. Над вами смеются, и Гару не теряют Славу, отказываясь от ваших физических вызовов",
    "source": "W20 Changing Ways"
   },
@@ -26140,28 +26228,28 @@
   {
    "key": "spiritual-deformity",
    "name": "Духовное уродство",
-   "en": "",
+   "en": "Spiritual Deformity",
    "text": "Духи, верные Гару, чувствуют нарушение Литании: +1 к сложности шага вбок везде, кроме каэрнов Червя и Скверны, и к общению с духами, уважающими Гару. Факт «Тотем» нежелателен (стр. 135). Зато −1 к сложности социальных бросков с Бейнами. У метисов Танцоров Чёрной Спирали не бывает",
    "source": "W20 Changing Ways"
   },
   {
    "key": "third-eye",
    "name": "Третий глаз",
-   "en": "",
+   "en": "Third Eye",
    "text": "Видит как обычный и нужен для глубины зрения: закрыт — +2 к сложности дальних атак. Видимый третий глаз — +1 к сложности социальных бросков с Гару",
    "source": "W20 Changing Ways"
   },
   {
    "key": "unnatural-coloration",
    "name": "Неестественный окрас",
-   "en": "",
+   "en": "Unnatural Coloring",
    "text": "Шерсть зелёная, синяя, розовая и т.п.: +2 к сложности социальных бросков с Гару, видевшими вас в Криносе, Хиспо или Лупусе",
    "source": "W20 Changing Ways"
   },
   {
    "key": "weak-voice",
    "name": "Слабый голос",
-   "en": "",
+   "en": "Weak Voice",
    "text": "Тонкий или хриплый голос, рык смешон, вой — как у щенка. На сходах +1 ко всем социальным броскам; воем (стр. 58–59) пользоваться нельзя; Дары с воем (например, «Вой баньши») недоступны",
    "source": "W20 Changing Ways"
   }
@@ -26509,7 +26597,7 @@
    {
     "key": "Аура спокойствия",
     "name": "Аура спокойствия",
-    "en": "",
+    "en": "Aura of Calm",
     "kind": "kami",
     "text": "Действует постоянно (можно выключить). В радиусе (Воля × 3) ярдов никто не может действовать насильственно или тратить Ярость без борьбы: нужен встречный бросок Воли с Ками (сложность 7), после него можно до конца сцены",
     "repeat": false,
@@ -26531,7 +26619,7 @@
    {
     "key": "Проклятие Геи",
     "name": "Проклятие Геи",
-    "en": "",
+    "en": "Gaia's Curse",
     "kind": "kami",
     "text": "Произнести свой Гейс вслух, Восприятие + Оккультизм против Воли цели: цель связана тем же Гейсом на 1 день за успех. Нарушит — Ками мгновенно знает и может тратить Гнозис: 1 Гнозис = 1 уровень летального урона в виде ужасного невезения (не больше, чем выпало успехов, минус 1 за каждый день, когда цель соблюдала Гейс)",
     "repeat": false,
@@ -26547,7 +26635,7 @@
    {
     "key": "Стойкость к стихии",
     "name": "Стойкость к стихии",
-    "en": "",
+    "en": "Elemental Resistance",
     "kind": "kami",
     "text": "Каждая покупка: +2 кубика поглощения против одной стихии (можно и против неестественных — огня Червя, паутины). Всего до +6",
     "repeat": true,
@@ -26558,7 +26646,7 @@
    {
     "key": "Мягкие лапы",
     "name": "Мягкие лапы",
-    "en": "",
+    "en": "Soft Paws",
     "kind": "kami",
     "text": "−2 к сложности Скрытности для бесшумного движения",
     "repeat": false,
@@ -26569,7 +26657,7 @@
    {
     "key": "Одарённый Ками",
     "name": "Одарённый Ками",
-    "en": "",
+    "en": "Gifted Kami",
     "kind": "kami",
     "text": "Каждая покупка — один Дар 1–2-го уровня (породы, аугурии, племени; изредка утерянного племени или вымершей породы). Научить ему оборотней Ками не может. Каждый Дар оставляет телесную метку. Дар с Яростью требует «Берсерка»",
     "repeat": true,
@@ -26580,7 +26668,7 @@
    {
     "key": "Чувство сердца",
     "name": "Чувство сердца",
-    "en": "",
+    "en": "Heart Sense",
     "kind": "kami",
     "text": "1 Гнозис, Восприятие + Эмпатия (сложность 7): за каждый успех один факт — духовная принадлежность (Червь, Ткачиха, Гея, иное), вина или невиновность, истинный облик, главное желание, связь с прошлым",
     "repeat": false,
@@ -26596,7 +26684,7 @@
    {
     "key": "Долголетие",
     "name": "Долголетие",
-    "en": "",
+    "en": "Longevity",
     "kind": "kami",
     "text": "Каждая покупка — срок жизни ×10; после 5 покупок — фактически без естественного конца. Ками земли бессмертны и без неё",
     "repeat": true,
@@ -26607,7 +26695,7 @@
    {
     "key": "Милосердие",
     "name": "Милосердие",
-    "en": "",
+    "en": "Mercy",
     "kind": "kami",
     "text": "Рефлекторно: весь урон, нанесённый Ками после активации, полностью заживает к концу сцены; «убитый» очнётся в следующей сцене",
     "repeat": false,
@@ -26618,7 +26706,7 @@
    {
     "key": "Пронзающий взгляд",
     "name": "Пронзающий взгляд",
-    "en": "",
+    "en": "Piercing Gaze",
     "kind": "kami",
     "text": "Восприятие + Запугивание против Воли цели: +2 к сложности всех её бросков Воли на 1 ход за успех",
     "repeat": false,
@@ -26634,7 +26722,7 @@
    {
     "key": "Оживление растений",
     "name": "Оживление растений",
-    "en": "",
+    "en": "Animate Plants",
     "kind": "kami",
     "text": "За каждый Гнозис цели в пределах 10 ярдов получают −1 ко всем пулам на сцену (максимум −3). Нужны растения рядом",
     "repeat": false,
@@ -26645,7 +26733,7 @@
    {
     "key": "Родство с растениями",
     "name": "Родство с растениями",
-    "en": "",
+    "en": "Plant Kinship",
     "kind": "kami",
     "text": "Постоянно: речь с любыми растениями (им мало что есть сказать). Растения не жалят, не травят, не цепляются",
     "repeat": false,
@@ -26656,7 +26744,7 @@
    {
     "key": "Хранитель обрядов",
     "name": "Хранитель обрядов",
-    "en": "",
+    "en": "Rite Keeper",
     "kind": "kami",
     "text": "Знает обряды общим уровнем = постоянный Гнозис. Проведение стоит ещё 1 Волю. Обучая оборотня, вдвое сокращает срок обучения",
     "repeat": false,
@@ -26667,7 +26755,7 @@
    {
     "key": "Благословение сезона",
     "name": "Благословение сезона",
-    "en": "",
+    "en": "Season's Blessing",
     "kind": "kami",
     "text": "Каждая покупка — власть над приметами одного времени года. Харизма + Первобытный инстинкт (сложность 7): 1 успех — цветы сквозь снег, 5 — метель среди лета",
     "repeat": true,
@@ -26683,7 +26771,7 @@
    {
     "key": "Размер",
     "name": "Размер",
-    "en": "",
+    "en": "Size",
     "kind": "kami",
     "text": "До 3 покупок. Увеличение: +1 уровень здоровья, +1 Сила и Выносливость. Уменьшение: максимум Силы и Выносливости −1, сложность заметить и попасть +1",
     "repeat": true,
@@ -26705,7 +26793,7 @@
    {
     "key": "Пробуждение духов",
     "name": "Пробуждение духов",
-    "en": "",
+    "en": "Spirit Awakening",
     "kind": "kami",
     "text": "Как Обряд пробуждения духа (стр. 212), но разговором, пением или выступлением: Харизма + Исполнение вместо Сообразительность + Ритуалы. Пробуждённые духи почти всегда к нему благосклонны",
     "repeat": false,
@@ -26721,7 +26809,7 @@
    {
     "key": "Чара духа",
     "name": "Чара духа",
-    "en": "",
+    "en": "Spirit Charm",
     "kind": "kami",
     "text": "Каждая покупка — одна Чара (при наличии Гнозиса или Ярости для оплаты). Чара с Яростью требует «Берсерка»",
     "repeat": true,
@@ -26732,7 +26820,7 @@
    {
     "key": "Родство с духами",
     "name": "Родство с духами",
-    "en": "",
+    "en": "Spirit Kinship",
     "kind": "kami",
     "text": "−2 к сложности социальных бросков с элементалями. 1 Гнозис + Манипуляция + Выражение — призвать элементаль на помощь (своенравную)",
     "repeat": false,
@@ -26748,7 +26836,7 @@
    {
     "key": "Чувство духов",
     "name": "Чувство духов",
-    "en": "",
+    "en": "Spirit Sense",
     "kind": "kami",
     "text": "1 Воля, Гнозис против Преграды — заглянуть в Пенумбру. Ещё 1 Воля — видеть оба мира и распознавать Гару, Фера, фоморов. Ботч — внимание Пауков Узора",
     "repeat": false,
@@ -26759,7 +26847,7 @@
    {
     "key": "Превращение",
     "name": "Превращение",
-    "en": "",
+    "en": "Transformation",
     "kind": "kami",
     "text": "Каждая покупка — ещё одна форма с теми же чертами, но со своим набором из (число покупок) сил. Смена формы: Выносливость + Первобытный инстинкт (сложность 7)",
     "repeat": true,
@@ -26775,7 +26863,7 @@
    {
     "key": "Чувство Триады",
     "name": "Чувство Триады",
-    "en": "",
+    "en": "Triat Sense",
     "kind": "kami",
     "text": "Восприятие + Оккультизм. Сложность по силе влияния: распознать в бешеном кабане Горгону — 6, след Паука Узора часовой давности — 8. Там, где господствует одна сила Триады, −2 к сложности распознать слуг двух других",
     "repeat": false,
@@ -26791,7 +26879,7 @@
    {
     "key": "Всеобщий язык",
     "name": "Всеобщий язык",
-    "en": "",
+    "en": "Universal Tongue",
     "kind": "kami",
     "text": "Постоянно: понимает любое живое существо и говорит с ним",
     "repeat": false,
@@ -26802,7 +26890,7 @@
    {
     "key": "Оживить себя",
     "name": "Оживить себя",
-    "en": "",
+    "en": "Animate Self",
     "kind": "immobile",
     "text": "1 Гнозис: на сцену действует физическими атрибутами на мир в пределах своего тела (камни сталкивают, корни хватают). Растение человеческого роста может двигаться как человек, но тогда у него обычная защита и уровни здоровья",
     "repeat": false,
@@ -26824,7 +26912,7 @@
    {
     "key": "Владыка земли",
     "name": "Владыка земли",
-    "en": "",
+    "en": "Lord of the Land",
     "kind": "immobile",
     "text": "1 успех на Восприятие + Бдительность (сложность 6) — знает обо всём, что происходит на её поверхности и до (Воля × 3) ярдов над ней. Если кто-то скрывается магией и бросок не удался, Ками всё равно знает, что на ней кто-то есть. Доступно Рорквалам",
     "repeat": false,
@@ -26840,7 +26928,7 @@
    {
     "key": "Лунный камень",
     "name": "Лунный камень",
-    "en": "",
+    "en": "Moonstone",
     "kind": "immobile",
     "text": "Тело работает как Путевой камень: к нему можно провести Лунный мост (обряд всё равно нужен). Требует «Логова духов». Доступно Рорквалам",
     "repeat": false,
@@ -26851,7 +26939,7 @@
    {
     "key": "Безопасное место",
     "name": "Безопасное место",
-    "en": "",
+    "en": "Safe Haven",
     "kind": "immobile",
     "text": "У Ками нет отражения в Пенумбре. Преграда в радиусе (Гнозис × 5) ярдов — <strong>сложность 9</strong>, и даже успешный переход выбрасывает за границу этой зоны",
     "repeat": false,
@@ -26862,7 +26950,7 @@
    {
     "key": "Логово духов",
     "name": "Логово духов",
-    "en": "",
+    "en": "Spirit Lair",
     "kind": "immobile",
     "text": "Преграда настолько тонка, что пройти через центр Ками — то же, что шаг вбок, без броска. С «Безопасным местом» — как после Обряда сокрытой поляны (стр. 207). Доступно Рорквалам",
     "repeat": false,
@@ -26933,7 +27021,7 @@
    {
     "key": "Хамелеон",
     "name": "Хамелеон",
-    "en": "",
+    "en": "Chameleon",
     "kind": "borrowed",
     "text": "ход на активацию; заметить — Смекалка + Бдительность сл. 7; вариант «Хождение тенью»",
     "repeat": false,
@@ -26949,7 +27037,7 @@
    {
     "key": "Когти и клыки",
     "name": "Когти и клыки",
-    "en": "",
+    "en": "Claws and Fangs",
     "kind": "borrowed",
     "text": "Укус/Коготь: Сила +1 губительный; скрыть нельзя",
     "repeat": false,
@@ -26971,7 +27059,7 @@
    {
     "key": "Скорость",
     "name": "Скорость",
-    "en": "",
+    "en": "Speed",
     "kind": "borrowed",
     "text": "1 лишнее действие за ход без деления пула; скорость ×1,5 (шаг 11, трусца 20, бег 30 ярдов вместо 7/13/20)",
     "repeat": false,
@@ -26982,7 +27070,7 @@
    {
     "key": "Газообразная форма",
     "name": "Газообразная форма",
-    "en": "",
+    "en": "Gaseous Form",
     "kind": "borrowed",
     "text": "1 Воля, ход на превращение, ≤ сцены",
     "repeat": false,
@@ -27009,7 +27097,7 @@
    {
     "key": "Иммунитет к Бреду",
     "name": "Иммунитет к Бреду",
-    "en": "",
+    "en": "Immunity to the Delirium",
     "kind": "borrowed",
     "text": "самая частая",
     "repeat": false,
@@ -27020,7 +27108,7 @@
    {
     "key": "Невидимость",
     "name": "Невидимость",
-    "en": "",
+    "en": "Invisibility",
     "kind": "borrowed",
     "text": "1 Воля, Смекалка + Скрытность сл. 7 (искавшие — Восприятие + Бдительность сл. 8); до конца сцены или боя",
     "repeat": false,
@@ -27036,7 +27124,7 @@
    {
     "key": "Хвост-хлыст",
     "name": "Хвост-хлыст",
-    "en": "",
+    "en": "Lashing Tail",
     "kind": "borrowed",
     "text": "досягаемость 6 футов, сл. 8, Сила +2",
     "repeat": false,
@@ -27047,7 +27135,7 @@
    {
     "key": "Мега-атрибут",
     "name": "Мега-атрибут",
-    "en": "",
+    "en": "Mega-Attribute",
     "kind": "borrowed",
     "text": "до 3 раз, +3 к разным Физическим Атрибутам; выше 5 — Бред; не выше 10",
     "repeat": true,
@@ -27058,7 +27146,7 @@
    {
     "key": "Регенерация",
     "name": "Регенерация",
-    "en": "",
+    "en": "Regeneration",
     "kind": "borrowed",
     "text": "1 уровень ударного/летального за ход; губительный — день и 1 Воля",
     "repeat": false,
@@ -27069,7 +27157,7 @@
    {
     "key": "Чувство неестественного",
     "name": "Чувство неестественного",
-    "en": "",
+    "en": "Sense the Unnatural",
     "kind": "borrowed",
     "text": "Восприятие + Оккультизм сл. 6; 20 ярдов; вид — Интеллект + Загадки сл. 6; «Запах бегущей воды» нейтрализует",
     "repeat": false,
@@ -27085,7 +27173,7 @@
    {
     "key": "Смена размера",
     "name": "Смена размера",
-    "en": "",
+    "en": "Size Shift",
     "kind": "borrowed",
     "text": "до 3 раз; 1 Воля/Ярость на сцену; каждый уровень +1 временный уровень здоровья и +1 Силы/Стойкости",
     "repeat": true,
@@ -27107,7 +27195,7 @@
    {
     "key": "Проход в Умбру",
     "name": "Проход в Умбру",
-    "en": "",
+    "en": "Umbral Passage",
     "kind": "borrowed",
     "text": "как шаг в сторону, но Воля вместо Гнозиса (или Гнозис при Духовных связях); один",
     "repeat": false,
@@ -27118,7 +27206,7 @@
    {
     "key": "Дыхание под водой",
     "name": "Дыхание под водой",
-    "en": "",
+    "en": "Water Breathing",
     "kind": "borrowed",
     "text": "раз — дышит водой; дважды — не дышит",
     "repeat": false,
@@ -27129,7 +27217,7 @@
    {
     "key": "Крылья",
     "name": "Крылья",
-    "en": "",
+    "en": "Wings",
     "kind": "borrowed",
     "text": "полёт до 13 ярдов/ход (+ Ловкость за 1 Волю/Ярость); вертикально 3 ярда/ход",
     "repeat": false,
@@ -27551,7 +27639,7 @@
   {
    "key": "weaver-Культурная апроприация",
    "name": "Культурная апроприация",
-   "en": "",
+   "en": "Cultural Appropriation",
    "kind": "weaver",
    "rank": "gaffling",
    "rage": 4,
@@ -27571,7 +27659,7 @@
   {
    "key": "weaver-Потребительские развлечения",
    "name": "Потребительские развлечения",
-   "en": "",
+   "en": "Consumer Entertainment",
    "kind": "weaver",
    "rank": "jaggling",
    "rage": 6,
@@ -27646,7 +27734,7 @@
   {
    "key": "weaver-Старое снова в моде",
    "name": "Старое снова в моде",
-   "en": "",
+   "en": "Retro Chic",
    "kind": "weaver",
    "rank": "jaggling",
    "rage": 6,
@@ -27990,7 +28078,7 @@
   {
    "key": "fetch-Кин-фетч",
    "name": "Кин-фетч",
-   "en": "",
+   "en": "Kin-Fetch",
    "kind": "fetch",
    "rank": "gaffling",
    "rage": 3,
@@ -28245,7 +28333,7 @@
   {
    "key": "bane-Психомахии",
    "name": "Психомахии",
-   "en": "",
+   "en": "Psychomachiae",
    "kind": "bane",
    "rank": "jaggling",
    "rage": 10,
@@ -28264,7 +28352,7 @@
   {
    "key": "bane-Скраги",
    "name": "Скраги",
-   "en": "",
+   "en": "Scrags",
    "kind": "bane",
    "rank": "jaggling",
    "rage": 10,
@@ -28375,7 +28463,7 @@
   {
    "key": "weaver-Структурный геомид",
    "name": "Структурный геомид",
-   "en": "",
+   "en": "Structural Geomid",
    "kind": "weaver",
    "rank": "jaggling",
    "rage": 5,
@@ -28393,7 +28481,7 @@
   {
    "key": "weaver-Атомный дух",
    "name": "Атомный дух",
-   "en": "",
+   "en": "Atomic Spirit",
    "kind": "weaver",
    "rank": "jaggling",
    "rage": 5,
@@ -28415,7 +28503,7 @@
   {
    "key": "weaver-Монитор Хаоса",
    "name": "Монитор Хаоса",
-   "en": "",
+   "en": "Chaos Monitor",
    "kind": "weaver",
    "rank": "jaggling",
    "rage": 10,
@@ -28477,7 +28565,7 @@
   {
    "key": "wyld-Эхо",
    "name": "Эхо",
-   "en": "",
+   "en": "Echo",
    "kind": "wyld",
    "rank": "gaffling",
    "rage": 1,
@@ -28538,7 +28626,7 @@
   {
    "key": "wyld-Вектор",
    "name": "Вектор",
-   "en": "",
+   "en": "Vector",
    "kind": "wyld",
    "rank": "gaffling",
    "rage": 2,
@@ -28556,7 +28644,7 @@
   {
    "key": "wyld-Пески времени",
    "name": "Пески времени",
-   "en": "",
+   "en": "Sands of Time",
    "kind": "wyld",
    "rank": "gaffling",
    "rage": 7,
@@ -28865,62 +28953,74 @@
   {
    "tribe": "blackFuries",
    "name": "Чёрные Фурии",
-   "text": "часть пуповины в обряде: ритемастер +2 кубика"
+   "text": "часть пуповины в обряде: ритемастер +2 кубика",
+   "en": "Black Furies"
   },
   {
    "tribe": "boneGnawers",
    "name": "Костегрызы",
-   "text": "щедрое подношение и приказ «сообщи и о братьях и сёстрах своего подопечного»"
+   "text": "щедрое подношение и приказ «сообщи и о братьях и сёстрах своего подопечного»",
+   "en": "Bone Gnawers"
   },
   {
    "tribe": "childrenOfGaia",
    "name": "Дети Геи",
-   "text": "фетч с даром здоровья: −1 Ярость, +1 Гнозис"
+   "text": "фетч с даром здоровья: −1 Ярость, +1 Гнозис",
+   "en": "Children of Gaia"
   },
   {
    "tribe": "fianna",
    "name": "Фианна",
-   "text": "шумный обряд (если безопасно шуметь): Гнозис фетча +1"
+   "text": "шумный обряд (если безопасно шуметь): Гнозис фетча +1",
+   "en": "Fianna"
   },
   {
    "tribe": "getOfFenris",
    "name": "Дети Фенриса",
-   "text": "кровь младенца. Ловкость + Медицина, сложность 8, — без боли; если ребёнок не заплакал — фетч +1 Ярость и +1 Воля"
+   "text": "кровь младенца. Ловкость + Медицина, сложность 8, — без боли; если ребёнок не заплакал — фетч +1 Ярость и +1 Воля",
+   "en": "Get of Fenris"
   },
   {
    "tribe": "glassWalkers",
    "name": "Стеклоходы",
-   "text": "маскируется под религиозный обряд, можно при неведающей Родне; ритемастеру нужна хотя бы 1 точка Хитрости. Обнаружить фетча или клеймо +1 к сложности для всех, кроме Стеклоходов и свиты Таракана"
+   "text": "маскируется под религиозный обряд, можно при неведающей Родне; ритемастеру нужна хотя бы 1 точка Хитрости. Обнаружить фетча или клеймо +1 к сложности для всех, кроме Стеклоходов и свиты Таракана",
+   "en": "Glass Walkers"
   },
   {
    "tribe": "shadowLords",
    "name": "Владыки Теней",
-   "text": "момент поцелуя в полной темноте: обнаружить клеймо +2 к сложности для всех, кроме Владык Теней и свиты Дедушки Грома"
+   "text": "момент поцелуя в полной темноте: обнаружить клеймо +2 к сложности для всех, кроме Владык Теней и свиты Дедушки Грома",
+   "en": "Shadow Lords"
   },
   {
    "tribe": "silentStriders",
    "name": "Молчаливые Странники",
-   "text": "обряд шёпотом, фетч помогает прятать ребёнка: обнаружить фетча или клеймо +1 к сложности для всех, кроме Странников и свиты Совы"
+   "text": "обряд шёпотом, фетч помогает прятать ребёнка: обнаружить фетча или клеймо +1 к сложности для всех, кроме Странников и свиты Совы",
+   "en": "Silent Striders"
   },
   {
    "tribe": "silverFangs",
    "name": "Серебряные Клыки",
-   "text": "долгое чтение родословной: фетч +1 Воля"
+   "text": "долгое чтение родословной: фетч +1 Воля",
+   "en": "Silver Fangs"
   },
   {
    "tribe": "stargazers",
    "name": "Звездочёты",
-   "text": "только под открытым небом: ритемастер год получает +1 кубик к Дарам и обрядам, предсказывающим судьбу, местонахождение или благополучие ребёнка"
+   "text": "только под открытым небом: ритемастер год получает +1 кубик к Дарам и обрядам, предсказывающим судьбу, местонахождение или благополучие ребёнка",
+   "en": "Stargazers"
   },
   {
    "tribe": "uktena",
    "name": "Уктена",
-   "text": "фетча вызывают из живой проточной воды: +1 кубик ко всем действиям в пределах слышимости ручья или реки"
+   "text": "фетча вызывают из живой проточной воды: +1 кубик ко всем действиям в пределах слышимости ручья или реки",
+   "en": "Uktena"
   },
   {
    "tribe": "wendigo",
    "name": "Вендиго",
-   "text": "младенца ненадолго оставляют под открытым небом: фетч +1 Ярость"
+   "text": "младенца ненадолго оставляют под открытым небом: фетч +1 Ярость",
+   "en": "Wendigo"
   }
  ],
  "primalUses": [
@@ -28933,7 +29033,8 @@
     "trait2": "abilities.primalUrge",
     "difficulty": 6,
     "byTarget": true
-   }
+   },
+   "en": "Partial Transformation"
   },
   {
    "key": "Аура убийцы-0",
@@ -28944,7 +29045,8 @@
     "trait2": "abilities.primalUrge",
     "difficulty": 8,
     "byTarget": false
-   }
+   },
+   "en": "Killer's Aura"
   },
   {
    "key": "Чтение и передача намерения-0",
@@ -28955,7 +29057,8 @@
     "trait2": "abilities.primalUrge",
     "difficulty": 8,
     "byTarget": false
-   }
+   },
+   "en": "Read and Send Intent (1)"
   },
   {
    "key": "Чтение и передача намерения-1",
@@ -28966,7 +29069,8 @@
     "trait2": "abilities.primalUrge",
     "difficulty": 9,
     "byTarget": false
-   }
+   },
+   "en": "Read and Send Intent (2)"
   },
   {
    "key": "cowing-0",
@@ -28977,7 +29081,8 @@
     "trait2": "abilities.primalUrge",
     "difficulty": 6,
     "byTarget": true
-   }
+   },
+   "en": "Cowing"
   }
  ],
  "fomori": {
@@ -29191,7 +29296,7 @@
    {
     "key": "Эктоплазменные щупальца",
     "name": "Эктоплазменные щупальца",
-    "en": "",
+    "en": "Ectoplasmic Tentacles",
     "text": "1 Воля, Стойкость + Оккультизм сл. 6; до 4 щупалец по 5 ярдов; +3 Силы для подъёма; атака Ловк. + Драка сл. 8, урон Сила +2",
     "roll": {
      "trait1": "attributes.stamina",
@@ -29251,7 +29356,7 @@
    {
     "key": "Огненный выброс",
     "name": "Огненный выброс",
-    "en": "",
+    "en": "Fire Bolt",
     "text": "Смекалка + Атлетика (как Огнестрел), раз в 2 раунда; успех = дальность в ярдах; губительный (смягчается «Сопротивлением токсину»)",
     "roll": {
      "trait1": "attributes.wits",
@@ -29289,7 +29394,7 @@
    {
     "key": "Грибное касание",
     "name": "Грибное касание",
-    "en": "",
+    "en": "Fungal Touch",
     "text": "касанием (Ловк. + Драка), Стойкость сл. 7: иначе −1 к каждому Физическому и Внешности на сутки",
     "roll": null,
     "repeat": false,
@@ -29300,7 +29405,7 @@
    {
     "key": "Грибное вымя",
     "name": "Грибное вымя",
-    "en": "",
+    "en": "Fungal Udders",
     "text": "как Дар Костегрызов «Готовка» без Гнозиса: успех кормит одно осквернённое существо в сутки; питьё даёт +1 Силы/Ловкости/Стойкости на сцену",
     "roll": null,
     "repeat": false,
@@ -29333,7 +29438,7 @@
    {
     "key": "Ядовитое дыхание",
     "name": "Ядовитое дыхание",
-    "en": "",
+    "en": "Noxious Breath",
     "text": "1 уровень урона за успех Ловк. + Драка сл. 7; раз за сцену на очко Стойкости",
     "roll": null,
     "repeat": false,
@@ -29480,7 +29585,7 @@
    {
     "key": "Молекулярное ослабление",
     "name": "Молекулярное ослабление",
-    "en": "",
+    "en": "Molecular Weakening",
     "text": "попасть касанием; 1 Воля, Восприятие + Медицина (орг.) или Ремонт (неорг.) сл. 8; урон ×2",
     "roll": {
      "trait1": "attributes.perception",
@@ -29496,7 +29601,7 @@
    {
     "key": "Проворство",
     "name": "Проворство",
-    "en": "",
+    "en": "Nimbleness",
     "text": "+2 кубика на лазание, прыжки, равновесие",
     "roll": null,
     "repeat": false,
@@ -29523,7 +29628,7 @@
    {
     "key": "Ядовитая дымка",
     "name": "Ядовитая дымка",
-    "en": "",
+    "en": "Poison Haze",
     "text": "раз за сцену, Присутствие + Хитрость сл. 8; жертвы — Стойкость + Первобытный инстинкт сл. 8; обездвижен на ход за успех",
     "roll": {
      "trait1": "attributes.stamina",
@@ -29555,7 +29660,7 @@
    {
     "key": "Феникс",
     "name": "Феникс",
-    "en": "",
+    "en": "Phoenix",
     "text": "1 Воля, Стойкость + Оккультизм сл. 7; огонь как химический (3 уровня, поглощение сл. 9), ходов = успехи",
     "roll": {
      "trait1": "attributes.stamina",
@@ -29571,7 +29676,7 @@
    {
     "key": "Ядовитые опухоли",
     "name": "Ядовитые опухоли",
-    "en": "",
+    "en": "Poison Tumors",
     "text": "при попадании по фомору: стоящие в ярде — 3 кубика летального (5 при укусе); оружием ближнего боя можно уклониться Ловкостью сл. 6",
     "roll": null,
     "repeat": false,
@@ -29679,7 +29784,7 @@
    {
     "key": "Зрение-«прыгун»",
     "name": "Зрение-«прыгун»",
-    "en": "",
+    "en": "Hopper Sight",
     "text": "вырывает глаза (Воля сл. 8), видит через них до часа; регенерация глаз месяц (с Регенерацией — день)",
     "roll": null,
     "repeat": false,
@@ -29690,7 +29795,7 @@
    {
     "key": "Сбрасывание кожи",
     "name": "Сбрасывание кожи",
-    "en": "",
+    "en": "Skin Shedding",
     "text": "1 Воля, Ловк. + Атлетика сл. 6; кожа — 1 точка в Физических, 1 уровень, команда ≤5 слов; без кожи −1 уровень и Внешность 0",
     "roll": null,
     "repeat": false,
@@ -29723,7 +29828,7 @@
    {
     "key": "Желудочный насос",
     "name": "Желудочный насос",
-    "en": "",
+    "en": "Stomach Pumper",
     "text": "дальность 25 футов; Ловк. + Атлетика сл. 7; 2 кубика урона; 3 раза в день; Воля — не блевать раунд",
     "roll": null,
     "repeat": false,
@@ -29734,7 +29839,7 @@
    {
     "key": "Смоляная кожа",
     "name": "Смоляная кожа",
-    "en": "",
+    "en": "Tar Skin",
     "text": "оружие липнет; атаковавший голыми руками прилипает; освободиться — оспариваемый Ловк. + Первобытный инстинкт против Ловк. + Атлетика",
     "roll": null,
     "repeat": false,
@@ -29745,7 +29850,7 @@
    {
     "key": "Токсичные выделения",
     "name": "Токсичные выделения",
-    "en": "",
+    "en": "Toxic Secretions",
     "text": "до 5 уровней; каждый уровень 1 кубик урона, убывает каждый ход; 3 уровня плавят одежду, 4 — верёвку, 5 — бетон",
     "roll": null,
     "repeat": false,
@@ -29767,7 +29872,7 @@
    {
     "key": "Извращённые чувства",
     "name": "Извращённые чувства",
-    "en": "",
+    "en": "Twisted Senses",
     "text": "видит через Преграду (Восприятие + Оккультизм, как «Выглядывание»); с 1 Волей определяет Гару в любой форме и тварей Червя",
     "roll": {
      "trait1": "attributes.perception",
@@ -29794,7 +29899,7 @@
    {
     "key": "Неестественная сила",
     "name": "Неестественная сила",
-    "en": "",
+    "en": "Unnatural Strength",
     "text": "+4 Силы; выше 5 — нельзя скрыть; при подвиге Силы — бушует сцену",
     "roll": null,
     "repeat": false,
@@ -29816,7 +29921,7 @@
    {
     "key": "Вязкая форма",
     "name": "Вязкая форма",
-    "en": "",
+    "en": "Viscous Form",
     "text": "1 Воля; сцена; иммунитет к кинетическим атакам; не атакует; по стенам с половинной скоростью",
     "roll": null,
     "repeat": false,
@@ -29827,7 +29932,7 @@
    {
     "key": "Голос Червя",
     "name": "Голос Червя",
-    "en": "",
+    "en": "Voice of the Wyrm",
     "text": "слышащие (кроме тварей Червя) — Воля сл. 8, иначе теряют половину временного Гнозиса; раз за встречу на цель; язык как оружие — 2 уровня губительного",
     "roll": null,
     "repeat": false,

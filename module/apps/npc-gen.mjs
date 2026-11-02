@@ -144,10 +144,10 @@ function paramFields(kind, p) {
       F.push({ name: "tribe", label: L("Tribe"), options: [any(p.tribe), ...D.tribes.map(x => opt(x.key, x.name, p.tribe))] });
       break;
     case "fera": {
-      F.push({ name: "fera", label: L("FeraKind"), options: [any(p.fera), ...(D.fera ?? []).map(b => opt(b.key, b.name, p.fera))] });
+      F.push({ name: "fera", label: L("FeraKind"), options: [any(p.fera), ...(D.fera ?? []).map(b => opt(b.key, VTM20.label(b), p.fera))] });
       const fera = (D.fera ?? []).find(b => b.key === p.fera);
       for (const d of (fera?.dims ?? []).filter(d => d.options.length))
-        F.push({ name: `sub.${d.key}`, label: d.label, options: [any(p.sub?.[d.key]), ...d.options.map(o => opt(o.key, o.name, p.sub?.[d.key]))] });
+        F.push({ name: `sub.${d.key}`, label: d.label, options: [any(p.sub?.[d.key]), ...d.options.map(o => opt(o.key, VTM20.label(o), p.sub?.[d.key]))] });
       break;
     }
     case "kinfolk":

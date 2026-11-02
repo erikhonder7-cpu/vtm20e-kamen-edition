@@ -166,11 +166,11 @@ class GarouCreator extends ApplicationV2 {
     const r = this.renown, base = this.base, fera = this.fera;
     const me = fera ? { fera: fera.key, feraSub: st.sub } : { breed: st.breed, auspice: st.auspice, tribe: st.tribe };
     const ownLvl1 = D.gifts.filter(g => g.level === 1 && ownGift(me, g) && !Object.values(st.gifts).includes(g.key) && !st.extra.includes(g.key));
-    const feraSel = `<label><span>${t("Fera")}</span><select data-f="fera"><option value="">${game.i18n.localize("VTM20.Werewolf.Garou")}</option>${(D.fera ?? []).map(b => `<option value="${b.key}" ${b.key === st.fera ? "selected" : ""}>${esc(b.name)}</option>`).join("")}</select><small>${esc(fera?.en ?? "")}</small></label>`;
+    const feraSel = `<label><span>${t("Fera")}</span><select data-f="fera"><option value="">${game.i18n.localize("VTM20.Werewolf.Garou")}</option>${(D.fera ?? []).map(b => `<option value="${b.key}" ${b.key === st.fera ? "selected" : ""}>${esc(VTM20.label(b))}</option>`).join("")}</select><small>${esc(fera?.en ?? "")}</small></label>`;
     const deformSel = this.isMetis ? `<label><span>${t("Deformity")}</span><select data-f="deform"><option value=""></option>${opt(D.deformities ?? [], st.deform)}</select><small>${(D.deformities ?? []).find(x => x.key === st.deform)?.text ?? ""}</small></label>` : "";
     const statLine = o => Object.entries(o?.stats ?? {}).map(([k, n]) => `${t(`T.${k}`)} ${n}`).join(", ");
     const concept = fera
-      ? feraSel + this.dims.map(d => `<label><span>${esc(d.label)}</span><select data-f="sub.${d.key}"><option value="">—</option>${d.options.map(o => `<option value="${o.key}" ${o.key === st.sub[d.key] ? "selected" : ""}>${esc(o.name)}</option>`).join("")}</select>
+      ? feraSel + this.dims.map(d => `<label><span>${esc(d.label)}</span><select data-f="sub.${d.key}"><option value="">—</option>${d.options.map(o => `<option value="${o.key}" ${o.key === st.sub[d.key] ? "selected" : ""}>${esc(VTM20.label(o))}</option>`).join("")}</select>
           <small>${esc(statLine(d.options.find(o => o.key === st.sub[d.key])))}</small></label>`).join("") + deformSel
       : null;
     return `<div class="r-gcr-wrap"><div class="r-gcr-body">

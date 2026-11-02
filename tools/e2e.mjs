@@ -985,13 +985,15 @@ try {
       const msgs = new Set(game.messages.map(m => m.id));
       try {
         await game.settings.set(SYS, "strategy", { spheres: [{ key: "x", name: "Сфера", color: "#777777" }],
-          sectors: [{ key: "s1", name: "Порт", sphere: "x", q: 0, r: 0, perk: "herd" }, { key: "s2", name: "Пресса", sphere: "x", q: 1, r: 0, perk: "hunt" }],
-          tokens: { s1: { [a]: 3, [b]: 2 } }, trends: [{ id: "t1", sector: "s2", name: "Бунт", level: 2, grow: 1 }],
+          sectors: [{ key: "s1", name: "Порт", sphere: "x", q: 0, r: 0, perk: "herd" }, { key: "s2", name: "Пресса", sphere: "x", q: 1, r: 0, perk: "hunt" },
+            { key: "s3", name: "Окраины", sphere: "x", q: 2, r: 0, perk: "caern" }],
+          tokens: { s1: { [a]: 3, [b]: 2 }, s3: { [a]: 4 } }, trends: [{ id: "t1", sector: "s2", name: "Бунт", level: 2, grow: 1 }],
           pacts: [{ id: "p1", a, b, scope: "*", kind: "peace", note: "" }], turn: { n: 1, label: "", open: true, shift: { n: 3, unit: "days" } } });
         await A.setFlag(SYS, "strategy", { turn: 1, done: true, bids: [{ id: "x1", sector: "s1", kind: "attention", intent: "undermine", target: b,
           attr: "manipulation", ability: "subterfuge", text: "", proxy: "", crude: false }] });
         const S = await import(`/systems/${SYS}/module/ui/strategy.mjs`);
         out.perk = S.perkBonus(A, "herd").dice;
+        out.caern = S.perkBonus(A, "caern").dice;           // каэрн в секторе: Преграда −2 при 4 фишках
         out.sheet = !!S.sheetStrategy(A)?.sectors?.length;
         const C = await import(`/systems/${SYS}/module/ui/citymap.mjs`);
         await C.openCity(); await wait(1500);
@@ -1022,7 +1024,7 @@ try {
       }
       return out;
     }, [a, b]);
-    if (r.perk !== 2 || !r.sheet) throw new Error(`польза сектора ${r.perk}, лист ${r.sheet}`);
+    if (r.perk !== 2 || !r.sheet || r.caern !== 2) throw new Error(`польза сектора ${r.perk}, каэрн ${r.caern}, лист ${r.sheet}`);
     if (!r.draft || r.turn !== 2 || r.pages !== 2) throw new Error(`ход: черновик ${r.draft}, ход ${r.turn}, страниц отчёта ${r.pages}`);
     if (r.pacts !== 0 || !r.boon) throw new Error(`договор: осталось ${r.pacts}, услуги ${r.boon}`);
     if (r.trend !== 3) throw new Error(`тренд не вырос: ${r.trend}`);
