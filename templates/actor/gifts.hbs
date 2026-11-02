@@ -57,4 +57,26 @@
     {{else}}<li class="r-note">{{localize "VTM20.Werewolf.NoRites"}}</li>
     {{/each}}
   </ul>
+
+  <h2 class="r-h2"><span>{{localize "VTM20.Werewolf.Fetishes"}}</span></h2>
+  {{#if editable}}<div class="r-toolbar r-ww-add">
+    <select class="r-ww-fetish-add"><option value="">{{localize "VTM20.Werewolf.AddFetish"}}</option>
+      <optgroup label="{{localize 'VTM20.Werewolf.FetishGroup'}}">{{#each ww.fetishAvail}}{{#unless talen}}<option value="{{key}}">{{label}}</option>{{/unless}}{{/each}}</optgroup>
+      <optgroup label="{{localize 'VTM20.Werewolf.TalenGroup'}}">{{#each ww.fetishAvail}}{{#if talen}}<option value="{{key}}">{{label}}</option>{{/if}}{{/each}}</optgroup></select>
+    <a class="r-vc-btn" data-action="wwFetishAdd"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Common.Add"}}</a>
+  </div>{{/if}}
+  <ul class="r-edge-list r-ww-fetishes">
+    {{#each ww.fetishes}}
+    <li class="r-edge {{#if talen}}is-talen{{/if}}">
+      <span class="r-edge-lvl">{{#if talen}}<i class="fa-solid fa-feather"></i>{{else}}{{rRoman level}}{{/if}}</span>
+      <span class="r-edge-main"><b>{{rName this}}</b> <small>{{rAlt this}} · {{localize "VTM20.Werewolf.Gnosis"}} {{gnosis}}{{#if talen}} · ×{{n}}{{else}}{{#if attuned}} · {{localize "VTM20.Werewolf.Attuned"}}{{else}} · <em>{{localize "VTM20.Werewolf.NotAttunedShort"}}</em>{{/if}}{{/if}}</small>
+        <div class="r-edge-text">{{{text}}}</div></span>
+      {{#if @root.editable}}
+      {{#unless talen}}{{#unless attuned}}<a class="r-vc-btn" data-action="wwFetishAttune" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Werewolf.AttuneHint'}}"><i class="fa-solid fa-link"></i></a>{{/unless}}{{/unless}}
+      <a class="r-vc-btn" data-action="wwFetishUse" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Werewolf.UseHint'}}"><i class="fa-solid fa-gem"></i></a>
+      <a class="r-icon-btn is-danger" data-action="wwFetishDel" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
+    </li>
+    {{else}}<li class="r-note">{{localize "VTM20.Werewolf.NoFetishes"}}</li>
+    {{/each}}
+  </ul>
 </section>

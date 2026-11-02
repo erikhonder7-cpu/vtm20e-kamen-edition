@@ -588,6 +588,8 @@ export class WerewolfData extends MortalData {
         rage: new SchemaField({ permanent: int(1, 0, 10), value: int(1, 0, 20) }),
         gnosis: new SchemaField({ permanent: int(1, 0, 10), value: int(1, 0, 10) }),
         form: str("homid"), gifts: new ArrayField(str()), rites: new ArrayField(str()),
+        // фетиши (привязан ли) и талены (сколько штук) — ключи data/werewolf.json → fetishes
+        fetishes: new ArrayField(new SchemaField({ key: str(), attuned: new BooleanField({ initial: false }), n: int(1, 0, 20) })),
         // временный Атрибут формы вне таблицы (Дар, частичное превращение) — пока не используется
         deformity: str("")
       })

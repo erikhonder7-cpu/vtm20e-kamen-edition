@@ -2554,7 +2554,8 @@
       "XpCreation": "Spent at creation",
       "TraitBlocked": "“{a}” is incompatible with “{b}” — as the trait's text says.",
       "TraitExclusive": "“{a}” and “{b}” are incompatible.",
-      "TraitCamarillaOnly": "“{name}” is meant for the Camarilla — check with the Storyteller."
+      "TraitCamarillaOnly": "“{name}” is meant for the Camarilla — check with the Storyteller.",
+      "GateHintWerewolf": "Breed, auspice and tribe, three Gifts, Rage and Gnosis — the wizard builds the Garou by W20 rules."
     },
     "Settings": {
       "MonthlyIncome": {
@@ -3961,7 +3962,45 @@
       "ActionsFast": "+3 to difficulties",
       "ActionsSpend": "Spend Rage",
       "ActionsDone": "{name} spends Rage: extra actions — {n}.",
-      "ActionsFastNote": "Beyond Dexterity and Wits: all difficulties +3 this turn."
+      "ActionsFastNote": "Beyond Dexterity and Wits: all difficulties +3 this turn.",
+      "Fetishes": "Fetishes and talens",
+      "AddFetish": "+ Fetish or talen…",
+      "FetishGroup": "Fetishes",
+      "TalenGroup": "Talens",
+      "NoFetishes": "No fetishes.",
+      "Attuned": "attuned",
+      "NotAttunedShort": "not attuned",
+      "AttuneHint": "Attune: Gnosis against the fetish's Gnosis, 1 success needed",
+      "UseHint": "Awaken: roll Gnosis against the item's Gnosis or spend 1 Gnosis",
+      "Attune": "Attuning: {name}",
+      "AttuneNote": "1 success needed; on a failure the fetish rejects its owner, next try no sooner than the next moon.",
+      "NotAttuned": "The fetish isn't attuned yet.",
+      "UseFetish": "Awaken the fetish: roll Gnosis (diff. {g}) or spend 1 Gnosis — then the power works automatically.",
+      "UseTalen": "Use the talen: roll Gnosis (diff. {g}) or spend 1 Gnosis. The talen is gone after use.",
+      "UseRoll": "Roll Gnosis",
+      "UseSpend": "Spend 1 Gnosis",
+      "Awakened": "{name}: the spirit answers.",
+      "DeliriumBtn": "Delirium",
+      "DeliriumBtnHint": "Mortals seeing the Crinos: reactions by Willpower for targeted tokens (no targets — the table for the Storyteller)",
+      "DeliriumTitle": "Delirium",
+      "DeliriumWp": "Willpower",
+      "DeliriumHint": "Reaction to the Crinos by Willpower. Wits + Occult (diff. 9) — +1 Willpower per success if the Storyteller allows; Kinfolk are immune.",
+      "DeliriumNoTargets": "No targets — the table for the Storyteller.",
+      "DeliriumForgets": "will forget",
+      "DeliriumExplains": "remembers but explains it away",
+      "DeliriumRemembers": "remembers",
+      "DeliriumR": {
+        "catatonic": "Catatonic fear: faints",
+        "panic": "Panic: runs away",
+        "disbelief": "Disbelief: hides from the “hallucination”",
+        "berserk": "Berserk: attacks with anything",
+        "terror": "Terror: flees, but rationally — locks doors, drives off",
+        "conciliatory": "Conciliatory: pleads, bargains",
+        "controlled": "Controlled fear: flees or fights deliberately",
+        "curious": "Curiosity: may start investigating",
+        "bloodlust": "Bloodlust: enraged, will hunt it down",
+        "none": "No reaction — suspicious"
+      }
     },
     "Strategy": {
       "Tab": "Strategy",
@@ -4158,7 +4197,11 @@
         "telecom": "Telecom",
         "internet": "Internet"
       },
-      "Unit": {"days": "day|days", "months": "month|months", "years": "year|years"},
+      "Unit": {
+        "days": "day|days",
+        "months": "month|months",
+        "years": "year|years"
+      },
       "PactKind": {
         "peace": "non-aggression",
         "split": "split of the sphere"
@@ -4221,6 +4264,57 @@
       "SheetTurn": "Turn {n}: {bids} bids, {done}.",
       "SheetDone": "turn done",
       "SheetNotDone": "turn not done"
+    },
+    "GarouCr": {
+      "Title": "Garou creation",
+      "Breed": "Breed",
+      "Auspice": "Auspice",
+      "Tribe": "Tribe",
+      "TribeLine": "Totem: {totem}. Backgrounds: {bg}.",
+      "Attributes": "Attributes",
+      "AttrHint": "7 / 5 / 3 by group — the wizard picks which group gets what, whichever is cheapest",
+      "Abilities": "Abilities",
+      "AbilHint": "13 / 9 / 5, at most 3 at creation — higher only with freebies",
+      "Backgrounds": "Backgrounds",
+      "AddBg": "+ Background…",
+      "Gifts": "Gifts",
+      "GiftFrom": {
+        "breed": "Breed Gift",
+        "auspice": "Auspice Gift",
+        "tribe": "Tribe Gift"
+      },
+      "ExtraGift": "+ Gift for freebies (7)…",
+      "Traits": "Rage, Gnosis, Willpower",
+      "T": {
+        "rage": "Rage",
+        "gnosis": "Gnosis",
+        "will": "Willpower"
+      },
+      "Base": "base {n}",
+      "Renown": "Renown",
+      "MeritsFlaws": "Merits and Flaws",
+      "AddTrait": "+ Trait…",
+      "Merits": "Merits",
+      "Flaws": "Flaws",
+      "Left": "{n} left",
+      "Over": "+{n} freebies",
+      "FreeLeft": "freebie points",
+      "NoFree": "Freebies untouched.",
+      "CostHint": "W20 costs: Attribute 5, Ability 2, Background 1, Gift 7, Rage 1, Gnosis 2, Willpower 1. Flaws give points, at most 7.",
+      "FreeAttr": "Attributes over: {g}",
+      "FreeAbil": "Abilities over: {g}",
+      "FreeBg": "Backgrounds over 5",
+      "FreeGift": "Gifts beyond three: {n}",
+      "FreeRage": "Rage",
+      "FreeGnosis": "Gnosis",
+      "FreeWill": "Willpower",
+      "FlawPts": "Flaws",
+      "NeedConcept": "Choose breed, auspice and tribe.",
+      "NeedGifts": "Three Gifts are needed: breed, auspice and tribe.",
+      "NeedRenown": "A Ragabash splits exactly 3 Renown.",
+      "OverFree": "Not enough freebies: {n}.",
+      "Create": "Create Garou",
+      "Done": "{name}: the Garou is created. Welcome to the Nation."
     }
   }
 }

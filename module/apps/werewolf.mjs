@@ -265,6 +265,87 @@ export async function rageActions(actor) {
     t("ActionsDone", { name: esc(actor.name), n })}${n > free ? ` ${t("ActionsFastNote")}` : ""}</div>` });
 }
 
+/* ── Фетиши и талены (W20, гл. 4) ────────────────────────────────────── */
+
+export const fetishOf = key => (W().fetishes ?? []).find(f => f.key === key) ?? null;
+
+/** Список фетишей и тален персонажа для вкладки Даров. */
+export function fetishView(actor) {
+  return (actor.system.werewolf.fetishes ?? []).map((x, i) => ({ ...x, i, data: fetishOf(x.key) })).filter(x => x.data)
+    .map(x => ({ i: x.i, key: x.key, attuned: x.attuned, n: x.n, talen: x.data.kind === "talen", name: x.data.name, en: x.data.en, level: x.data.level,
+      gnosis: x.data.gnosis, text: x.data.text }));
+}
+export async function addFetish(actor, key) {
+  const f = fetishOf(key);
+  if (!f) return;
+  const list = foundry.utils.deepClone(actor.system.werewolf.fetishes ?? []), have = list.find(x => x.key === key);
+  if (have && f.kind === "talen") have.n += 1;
+  else if (!have) list.push({ key, attuned: false, n: 1 });
+  return actor.update({ "system.werewolf.fetishes": list });
+}
+export async function removeFetish(actor, i) {
+  const list = foundry.utils.deepClone(actor.system.werewolf.fetishes ?? []);
+  list.splice(i, 1);
+  return actor.update({ "system.werewolf.fetishes": list });
+}
+/** Настройка фетиша: Гнозис против Гнозиса фетиша, нужен 1 успех (провал — фетиш отверг владельца). */
+export function attuneFetish(actor, i) {
+  const x = actor.system.werewolf.fetishes[i], f = fetishOf(x?.key);
+  if (!f) return;
+  return RollDialog.prompt(actor, { title: t("Attune", { name: f.name }), trait1: "werewolf.gnosis", difficulty: f.gnosis, diffNote: t("AttuneNote"),
+    onRolled: async r => {
+      if (!((r?.successes ?? 0) > 0)) return;
+      const list = foundry.utils.deepClone(actor.system.werewolf.fetishes);
+      list[i].attuned = true;
+      await actor.update({ "system.werewolf.fetishes": list });
+    } });
+}
+/** Пробудить фетиш или использовать талену: бросок Гнозиса против Гнозиса предмета или трата 1 Гнозиса (талена — и тратится). */
+export async function useFetish(actor, i) {
+  const x = actor.system.werewolf.fetishes[i], f = fetishOf(x?.key);
+  if (!f) return;
+  if (f.kind === "fetish" && !x.attuned) return ui.notifications.warn(t("NotAttuned"));
+  const how = await foundry.applications.api.DialogV2.wait({
+    window: { title: f.name, icon: "fa-solid fa-gem" }, classes: ["vtm20", "r-dialog", "r-type-werewolf"], rejectClose: false,
+    content: `<p>${t(f.kind === "talen" ? "UseTalen" : "UseFetish", { g: f.gnosis })}</p>${f.text}`,
+    buttons: [{ action: "roll", label: t("UseRoll"), icon: "fa-solid fa-dice-d10", default: true }, { action: "spend", label: t("UseSpend"), icon: "fa-solid fa-moon" }]
+  });
+  if (!how) return;
+  const spendTalen = async () => {
+    if (f.kind !== "talen") return;
+    const list = foundry.utils.deepClone(actor.system.werewolf.fetishes);
+    list[i].n -= 1;
+    if (list[i].n <= 0) list.splice(i, 1);
+    await actor.update({ "system.werewolf.fetishes": list });
+  };
+  const say = html => ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<div class="r-notice r-type-werewolf"><i class="fa-solid fa-gem"></i> ${html}</div>` });
+  if (how === "spend") {
+    if (!(await spend(actor, "gnosis", 1))) return;
+    await spendTalen();
+    return say(t("Awakened", { name: esc(f.name) }));
+  }
+  return RollDialog.prompt(actor, { title: f.name, trait1: "werewolf.gnosis", difficulty: f.gnosis,
+    onRolled: async r => { if ((r?.successes ?? 0) > 0) { await spendTalen(); await say(t("Awakened", { name: esc(f.name) })); } } });
+}
+
+/* ── Бред (W20, гл. 6): реакция смертного на Кринос — по его Силе воли ─────── */
+
+const DELIRIUM = [null, "catatonic", "panic", "disbelief", "berserk", "terror", "conciliatory", "controlled", "curious", "bloodlust", "none"];
+/** Реакция по Воле 1–10 и помнит ли смотрящий. */
+export const deliriumOf = wp => { const n = Math.clamp(wp, 1, 10); return { n, key: DELIRIUM[n], forgets: n <= 6 }; };
+
+/** Бред: целям (выделенным токенам) — реакция по их Воле; без целей — справочная таблица. */
+export async function delirium(actor) {
+  const targets = [...game.user.targets].map(tk => tk.actor).filter(a => a && ["mortal", "hunter", "ghoul"].includes(a.type));
+  const row = (name, wp) => { const d = deliriumOf(wp);
+    return `<tr><td>${esc(name)}</td><td>${d.n}</td><td><b>${t(`DeliriumR.${d.key}`)}</b><br><small>${t(d.forgets ? "DeliriumForgets" : d.n <= 8 ? "DeliriumExplains" : "DeliriumRemembers")}</small></td></tr>`; };
+  const rows = targets.length ? targets.map(a => row(a.name, a.system.willpower?.permanent ?? 3)).join("")
+    : Array.from({ length: 10 }, (_, k) => row("", k + 1)).join("");
+  return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), whisper: targets.length ? [] : ChatMessage.getWhisperRecipients("GM"),
+    content: `<div class="r-notice r-type-werewolf r-delirium"><h4><i class="fa-solid fa-eye-low-vision"></i> ${t("DeliriumTitle")}</h4>
+      <p>${t(targets.length ? "DeliriumHint" : "DeliriumNoTargets")}</p><table><thead><tr><th></th><th>${t("DeliriumWp")}</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>` });
+}
+
 /** Шаг в Умбру (W20, гл. 7): бросок Гнозиса против Преграды; зеркало или отражение — сложность −? по решению рассказчика. */
 export function stepSideways(actor) {
   return RollDialog.prompt(actor, { title: t("StepSideways"), trait1: "werewolf.gnosis", difficulty: 7, diffNote: t("GauntletNote") });
