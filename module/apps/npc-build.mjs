@@ -459,7 +459,8 @@ function garouLike(ctx, o) {
     renown: Object.fromEntries(RN.map(k => [k, { permanent: ren[k], temporary: 0 }])), rage: { permanent: rage, value: rage }, gnosis: { permanent: gnosis, value: gnosis } };
   if (o.breed) Object.assign(sys.werewolf, { breed: o.breed.key, auspice: o.auspice.key, tribe: o.tribe.key });
   const gname = k => D.gifts.find(g => g.key === k);
-  return { actor: "werewolf", img: "creature", system: sys, items: bgItems(c), c,
+  // картинку не задаём: _preCreate ставит оборотню волка над лесом
+  return { actor: "werewolf", img: null, system: sys, items: bgItems(c), c,
     powers: [...gifts.map(gname).filter(Boolean).sort((a, b) => a.level - b.level).map(g => ({ label: g.name, v: g.level })),
       ...rites.map(k => D.rites.find(r => r.key === k)).filter(Boolean).map(r => ({ label: r.name, hint: t("NpcGen.Rite") }))],
     powersLabel: t("NpcGen.Gifts"),
@@ -510,7 +511,7 @@ export async function createNpc(d, { name, folder }) {
     return a;
   }
   const notes = [`<p><em>${[d.kindLabel, d.roleLabel, d.subLabel, d.powerLabel].filter(Boolean).join(" · ")}</em></p>`, d.system.notes ?? ""].join("");
-  const a = await Actor.create({ name, type: d.actor, folder, img: ICON(d.img ?? d.actor), system: { ...d.system, notes },
+  const a = await Actor.create({ name, type: d.actor, folder, ...(d.img === null ? {} : { img: ICON(d.img ?? d.actor) }), system: { ...d.system, notes },
     flags: { [SYSTEM_ID]: { created: true, npc: { kind: d.kind, role: d.role, sub: d.sub, power: d.power } } } });
   if (d.items.length) await a.createEmbeddedDocuments("Item", d.items);
   return a;
