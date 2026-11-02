@@ -483,6 +483,56 @@ export function kinfolkInfo(actor) {
     gifts, avail, numina, numAvail };
 }
 
+/* ── Ками (W20 Umbra, гл. 4): избранники Геи — силы, Гейс; новая сила за опыт — (число сил × 3) ── */
+
+export const kamiPowerOf = key => (W().kami?.powers ?? []).find(p => p.key === key) ?? null;
+const kamiCount = k => (k.powers ?? []).reduce((n, p) => n + p.n, 0);
+export function kamiInfo(actor) {
+  const k = actor.system.kami;
+  if (!k) return null;
+  const D = W().kami ?? {};
+  const powers = k.powers.map(p => ({ ...p, data: kamiPowerOf(p.key) })).filter(p => p.data).map(p => ({ key: p.key, n: p.n, name: p.data.name, en: p.data.en,
+    text: p.data.text, more: p.data.repeat && p.n < p.data.max, roll: !!p.data.roll, kind: t(`Kami.kind.${p.data.kind}`) }));
+  // силы неподвижных — растениям и земле; повторяемые — пока не исчерпан предел покупок
+  const avail = (D.powers ?? []).filter(p => (p.kind !== "immobile" || k.kind === "plant") && !k.powers.some(x => x.key === p.key))
+    .map(p => ({ key: p.key, label: `${VTM20.label(p)} — ${t(`Kami.kind.${p.kind}`)}` }));
+  const st = D.start?.[k.kind] ?? {};
+  return { on: k.on, geas: k.geas, gnosis: k.gnosis, rage: k.rage, xp: kamiCount(k) * 3, gnosisMax: st.gnosisMax ?? 10,
+    start: t("Kami.start", { wp: st.willpower ?? 3, gnosis: st.gnosis ?? 1 }), geasHint: D.geas ?? "", create: D.create ?? "", examples: D.examples ?? "",
+    kinds: ["human", "animal", "plant"].map(x => ({ key: x, label: t(`Kami.form.${x}`), selected: x === k.kind })), powers, avail };
+}
+/** Сила Ками: новая или ещё одна покупка повторяемой; за опыт — (число сил × 3). «Берсерк» даёт 5 Ярости. */
+export async function kamiAdd(actor, key, buy = false) {
+  const k = actor.system.kami, p = kamiPowerOf(key);
+  if (!p) return;
+  const list = k.powers.map(x => ({ ...x })), have = list.find(x => x.key === key);
+  if (have && (!p.repeat || have.n >= p.max)) return;
+  if (buy) {
+    const cost = kamiCount(k) * 3, xp = actor.system.experience;
+    if (xp.available < cost) return ui.notifications.warn(game.i18n.format("VTM20.Notify.NoXp", { cost, have: xp.available }));
+    const log = foundry.utils.deepClone(actor._source.system.experience.log);
+    log.unshift({ amount: -cost, reason: t("Kami.learned", { name: p.name }), date: new Date().toLocaleDateString(game.i18n.lang) });
+    await actor.update({ "system.experience.spent": actor._source.system.experience.spent + cost, "system.experience.log": log });
+  }
+  if (have) have.n += 1; else list.push({ key, n: 1 });
+  return actor.update({ "system.kami.powers": list, ...(key === "berserker" && k.rage < 5 ? { "system.kami.rage": 5 } : {}) });
+}
+/** Снять одну покупку силы (последняя — сила уходит целиком). */
+export function kamiRemove(actor, key) {
+  const list = actor.system.kami.powers.map(x => ({ ...x })), have = list.find(x => x.key === key);
+  if (!have) return;
+  return actor.update({ "system.kami.powers": have.n > 1 ? list.map(x => x.key === key ? { ...x, n: x.n - 1 } : x) : list.filter(x => x.key !== key) });
+}
+/** Сила Ками: бросок, если в книге указан пул, иначе — описание в чат. */
+export function kamiUse(actor, key) {
+  const p = kamiPowerOf(key);
+  if (!p) return;
+  if (p.roll) return RollDialog.prompt(actor, { title: p.name, trait1: p.roll.trait1, trait2: p.roll.trait2, difficulty: p.roll.difficulty ?? 6 });
+  return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<div class="r-notice r-type-werewolf"><b>${esc(p.name)}</b><p>${p.text}</p></div>` });
+}
+/** Ками-животные, растения и земля к Бреду невосприимчивы; человек — с силой «Иммунитет к Бреду». */
+export const kamiDeliriumImmune = a => !!a.system.kami?.on && (a.system.kami.kind !== "human" || a.system.kami.powers.some(p => kamiPowerOf(p.key)?.name === "Иммунитет к Бреду"));
+
 /* ── Нумины Родни (W20 Kinfolk, гл. 3): ворожба — только через ритуалы своего уровня, психические феномены ── */
 
 export const numenOf = key => (W().numina ?? []).find(n => n.key === key) ?? null;
@@ -541,7 +591,7 @@ export async function delirium(actor) {
   const targets = [...game.user.targets].map(tk => tk.actor).filter(a => a && ["mortal", "hunter", "ghoul"].includes(a.type));
   const row = (name, wp, kin = false) => { if (kin) return `<tr><td>${esc(name)}</td><td>—</td><td><b>${t("DeliriumKin")}</b></td></tr>`; const d = deliriumOf(wp);
     return `<tr><td>${esc(name)}</td><td>${d.n}</td><td><b>${t(`DeliriumR.${d.key}`)}</b><br><small>${t(d.forgets ? "DeliriumForgets" : d.n <= 8 ? "DeliriumExplains" : "DeliriumRemembers")}</small></td></tr>`; };
-  const rows = targets.length ? targets.map(a => row(a.name, a.system.willpower?.permanent ?? 3, !!a.system.kinfolk?.on)).join("")
+  const rows = targets.length ? targets.map(a => row(a.name, a.system.willpower?.permanent ?? 3, !!a.system.kinfolk?.on || kamiDeliriumImmune(a))).join("")
     : Array.from({ length: 10 }, (_, k) => row("", k + 1)).join("");
   return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), whisper: targets.length ? [] : ChatMessage.getWhisperRecipients("GM"),
     content: `<div class="r-notice r-type-werewolf r-delirium"><h4><i class="fa-solid fa-eye-low-vision"></i> ${t("DeliriumTitle")}</h4>
@@ -569,7 +619,62 @@ export async function stepSideways(actor, trait = "werewolf.gnosis") {
 /* ── Духи Умбры (тип «Существо» с отметкой «Дух»; W20, гл. 7) ─────────── */
 
 export const SPIRIT_RANKS = ["gaffling", "jaggling", "incarna", "celestine"];
-export const charmOf = key => (W().charms ?? []).find(c => c.key === key) ?? null;
+export const charmOf = key => {
+  // особая Чара образца духа: «~образец:Название», текст — в spirits[].specials
+  if (key?.startsWith("~")) {
+    const [tpl, name] = key.slice(1).split(/:(.*)/s), sp = spiritTplOf(tpl);
+    return { key, name, en: "", general: false, text: sp?.specials?.[name] || game.i18n.format("VTM20.Werewolf.Spirit.specialOf", { name: sp?.name ?? tpl }) };
+  }
+  return (W().charms ?? []).find(c => c.key === key) ?? null;
+};
+
+/* ── Образцы духов (бестиарии основной книги, Умбры, Книги Червя; кин-фетчи Родни) ── */
+
+export const spiritTplOf = key => (W().spirits ?? []).find(s => s.key === key) ?? null;
+const SPIRIT_KINDS = ["gaia", "wyld", "weaver", "fetch", "bane"];
+/** Образцы, сгруппированные по видам, — для выпадающего списка. */
+export const spiritTplGroups = () => SPIRIT_KINDS.map(k => ({ label: t(`Spirit.kind.${k}`),
+  list: (W().spirits ?? []).filter(s => s.kind === k).map(s => ({ key: s.key, label: `${VTM20.label(s)} — ${s.rage}/${s.gnosis}/${s.willpower} · ${s.source}` })) }))
+  .filter(g => g.list.length);
+const spiritData = sp => ({ on: true, rank: sp.rank, rage: sp.rage, gnosis: sp.gnosis, willpower: sp.willpower,
+  essence: { value: sp.essence, max: sp.essence }, charms: sp.charms });
+/** Дух по образцу: черты, Эссенция и Чары; вид существа — по образцу, описание — в чат при применении. */
+export async function applySpiritTpl(actor, key) {
+  const sp = spiritTplOf(key);
+  if (!sp) return;
+  await actor.update({ "system.spirit": spiritData(sp), "system.kind": `${t(`Spirit.kind.${sp.kind}`)}: ${sp.name}` });
+  return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), whisper: ChatMessage.getWhisperRecipients("GM"),
+    content: `<div class="r-notice r-type-werewolf"><b>${esc(sp.name)}</b>${sp.en ? ` <small>(${esc(sp.en)})</small>` : ""}<p>${sp.text}</p><small>${esc(sp.source)}</small></div>` });
+}
+/** Новое существо-дух по образцу (для кин-фетча и рассказчика). */
+export async function createSpirit(key, name) {
+  const sp = spiritTplOf(key);
+  if (!sp) return null;
+  return Actor.create({ name: name || sp.name, type: "creature",
+    flags: { [game.system.id]: { created: true, spiritTpl: key } },
+    system: { kind: `${t(`Spirit.kind.${sp.kind}`)}: ${sp.name}`, spirit: spiritData(sp) } });
+}
+
+/* ── Кин-фетч (W20 Kinfolk, гл. 3): дух-хранитель Родни, клеймо сгорает при Первой Перемене ── */
+
+export function fetchInfo(actor) {
+  const k = actor.system.kinfolk, f = k.fetch ? fromUuidSync(k.fetch) : null;
+  const rite = (W().fetchRites ?? []).find(r => r.tribe === k.tribe);
+  return { actor: f ? { uuid: f.uuid, name: f.name } : null, rite: rite?.text ?? "", tribe: rite?.name ?? "",
+    tpls: (W().spirits ?? []).filter(s => s.source === "W20 Kinfolk").map(s => ({ key: s.key, label: VTM20.label(s) })) };
+}
+export async function bindFetch(actor, key) {
+  const f = await createSpirit(key, `${spiritTplOf(key)?.name ?? "Кин-фетч"}: ${actor.name}`);
+  if (!f) return;
+  await actor.update({ "system.kinfolk.fetch": f.uuid });
+  return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<div class="r-notice r-type-werewolf"><i class="fa-solid fa-feather"></i> ${t("Fetch.bound", { name: esc(actor.name), fetch: esc(f.name) })}</div>` });
+}
+/** Первая Перемена: клеймо сгорает, фетч летит к племени. */
+export async function burnFetch(actor) {
+  const f = actor.system.kinfolk.fetch ? await fromUuid(actor.system.kinfolk.fetch) : null;
+  await actor.update({ "system.kinfolk.fetch": "" });
+  return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<div class="r-notice r-type-werewolf"><i class="fa-solid fa-fire"></i> ${t("Fetch.burned", { name: esc(actor.name), fetch: esc(f?.name ?? "—") })}</div>` });
+}
 
 /** Карточка духа: черты точками, Эссенция квадратиками, Чары (общие — у всех). */
 export function spiritInfo(actor, dots) {

@@ -526,11 +526,170 @@ def parse_charms():
     for line in part.splitlines():
         if line.startswith("**Специальные"):
             general = False
-        m = re.match(r"^- \*\*(.+?)\s*\(([^()]+)\)\*\*\s*—\s*(.*)$", line)
-        if m:
-            name, en, body = m.groups()
-            out.append({"key": re.sub(r"[^a-z0-9]+", "-", en.lower()).strip("-"), "name": name.strip(), "en": en.strip(), "general": general,
+        if not line.startswith("- **"):
+            continue
+        # «- **Разбить стекло** — Гнозис сл. 6. **Замыкание (Short Out)** — Гнозис сл. 6.» — две Чары в одной строке
+        for seg in re.split(r"(?<=\.)\s+(?=\*\*[^*]+\*\*\s*—)", line[2:]):
+            m = re.match(r"^\*\*(.+?)(?:\s*\(([^()]+)\))?\*\*\s*—\s*(.*)$", seg)
+            if not m:
+                continue
+            name, en, body = m.group(1).strip(), (m.group(2) or "").strip(), m.group(3)
+            out.append({"key": slug(en) if en else CHARM_KEYS.get(name, name), "name": name, "en": en, "general": general,
                         "text": f"<p>{md_inline(body)}</p>"})
+    return out
+
+
+# Чары без английского названия в справочнике (гл. 11) — ключи по W20
+CHARM_KEYS = {"Управление электрическими системами": "control-electrical-systems", "Создание огня": "create-fire", "Создание ветра": "create-wind",
+              "Открытие лунного моста": "open-moon-bridge", "Разбить стекло": "shatter-glass"}
+# Как те же Чары зовутся в бестиариях дополнений → ключ Чары основной книги
+CHARM_ALIAS = {"Подглядывание": "peek", "Тлетворное касание": "blighted-touch", "Порча": "corruption", "Подстрекательство к бешенству": "incite-frenzy",
+               "Выстрел": "blast", "Броня": "armor", "Очищение скверны": "cleanse-the-blight", "Открыть лунный мост": "open-moon-bridge",
+               "Уплотнить реальность": "solidify-reality", "Короткое замыкание": "short-out", "Управление электросистемами": "control-electrical-systems",
+               "Управление электрикой": "control-electrical-systems", "Создать ветер": "create-wind", "Создать огонь": "create-fire",
+               "Чувство воздушных путей": "airt-sense", "Чувство царства": "realm-sense", "Восстановление": "re-form", "Incite Rage": "incite-frenzy",
+               "Сломать реальность": "break-reality", "Наводнение": "flood", "Помехи духам": "spirit-static", "Domain Sense": "realm-sense",
+               "Control Electrical Systems": "control-electrical-systems", "Shatter Glass": "shatter-glass"}
+SPIRIT_KINDS = [("Бейн", "bane"), ("Геи", "gaia"), ("Ткачих", "weaver"), ("Дикост", "wyld"), ("фетч", "fetch")]
+SPIRIT_RANK = {"Гаффлинг": "gaffling", "Джагглинг": "jaggling", "Джаглинг": "jaggling", "Инкарна": "incarna"}
+SPIRIT_STAT = re.compile(r"(Ярость|Яр\.?|Гнозис|Гн\.?|Воля|Вол\.?|Эссенция|Эсс\.?|Сущность)\s+(\d+)")
+STAT_KEY = {"Я": "rage", "Г": "gnosis", "В": "willpower", "Э": "essence", "С": "essence"}
+
+
+def parse_spirit_templates(charms):
+    """Образцы духов для существа-духа: бестиарии основной книги (гл. 13), Умбры (гл. 3), Книги Червя (гл. 3), кин-фетчи Родни.
+    Чары — ключами общего списка (по русскому/английскому названию или CHARM_ALIAS); особые — «~образец:Название» с текстом в specials."""
+    by_name = {}
+    for c in charms:
+        by_name[c["name"].lower()] = c["key"]
+        if c["en"]:
+            by_name[c["en"].lower()] = c["key"]
+    for k, v in CHARM_ALIAS.items():
+        by_name[k.lower()] = v
+    base = os.path.dirname(REF)
+    out = []
+
+    def add(name, en, kind, stats, rank, raw_charms, text, specials, source):
+        key = f"{kind}-{slug(en) or name}"
+        if any(t["key"] == key for t in out):
+            return
+        r, g, w = stats.get("rage", 0), stats.get("gnosis", 0), stats.get("willpower", 0)
+        # специальные Чары: {русское: {"en", "text"}}; сопоставление с общим списком — в конце (resolve), когда подписаны все строки
+        # foot — сноски главы (только для поиска текста), specials — свои особые Чары образца (строками ниже него)
+        out.append({"key": key, "name": name, "en": en, "kind": kind, "rank": rank or ("jaggling" if r + g + w > 18 else "gaffling"),
+                    "rage": r, "gnosis": g, "willpower": w, "essence": stats.get("essence", r + g + w), "raw": list(raw_charms),
+                    "foot": specials, "specials": {}, "text": text, "source": source})
+
+    def clean(c):
+        """«Материализация (стоимость 26» → «Материализация»; «Окаменение.» → «Окаменение»; «2–3 Чары», «Ловк. 3» — не Чары."""
+        c = re.split(r"\s*[(;]", c.strip())[0].strip().strip("*\\«»").strip().rstrip(".").strip()
+        return c if c and c[0].isupper() and not re.search(r"\d", c) and len(c) <= 40 else ""
+
+    def resolve(t):
+        keys, sp, look = [], {}, {**t["foot"], **t["specials"]}
+        by_en = {v["en"].lower(): n for n, v in look.items() if v.get("en")}
+        for c in [clean(x) for x in t["raw"]] + list(t["specials"]):
+            if not c:
+                continue
+            k = by_name.get(c.lower())
+            if not k:
+                n = c if c in look else by_en.get(c.lower(), c)
+                if by_name.get((look.get(n, {}).get("en") or "").lower()):
+                    k = by_name[look[n]["en"].lower()]      # особый вариант общей Чары (Касание порчи Нихилаха — Blighted Touch)
+                else:
+                    k = f"~{t['key']}:{n}"
+                    sp[n] = look.get(n, {}).get("text", "")
+            if k not in keys:
+                keys.append(k)
+        t["charms"], t["specials"] = keys, sp
+        del t["raw"], t["foot"]
+
+    def table(part, kind_hint, source, foot):
+        cols, kind = [], kind_hint
+        lines = part.splitlines()
+        for i, line in enumerate(lines):
+            h = re.match(r"^#+\s+(.+)$", line)
+            if h:
+                kind = next((k for w, k in SPIRIT_KINDS if w in h.group(1)), kind_hint); continue
+            if not line.startswith("|") or set(line) <= set("|-: "):
+                continue
+            c = [x.strip() for x in line.strip().strip("|").split("|")]
+            if i + 1 < len(lines) and set(lines[i + 1].strip()) <= set("|-: ") and lines[i + 1].strip():
+                cols = c if c[0] == "Дух" else []      # шапка таблицы: не «Дух» — таблица не про духов (успехи Чары и т. п.)
+                continue
+            if not cols:
+                continue
+            row = dict(zip(cols, c))
+            name, en = name_en(row.get("Дух", ""))
+            stats = {}
+            for col, v in row.items():
+                k = {"Яр.": "rage", "Ярость": "rage", "Гн.": "gnosis", "Гнозис": "gnosis", "Воля": "willpower", "Эсс.": "essence", "Эссенция": "essence"}.get(col)
+                if k and re.match(r"\d", v):
+                    stats[k] = first_int(v)
+            kd = "bane" if row.get("Ранг") == "Бейн" else kind
+            add(name, en, kd, stats, SPIRIT_RANK.get(row.get("Ранг", "")), re.split(r",|;|\s\+\s", row.get("Чары", "")),
+                md_inline(" · ".join(x for x in (row.get("Суть", ""), f"Чары: {row.get('Чары', '')}") if x)), dict(foot), source)
+
+    def footnotes(part):
+        out_f = {}
+        for m in re.finditer(r"^(?:- )?(?:\\?\*)+\s*\*\*(.+?)(?:\s*\(([^()]+)\))?:\*\*\s*(.+)$", part, re.M):
+            out_f[m.group(1).strip()] = {"en": (m.group(2) or "").strip(), "text": md_inline(m.group(3))}
+        return out_f
+
+    # Умбра, гл. 3: таблицы по видам, особые Чары — сносками «\* **Название (English):** …»
+    p = os.path.join(base, "W20_Umbra")
+    fn = next((f for f in sorted(os.listdir(p)) if f.startswith("03")), None) if os.path.isdir(p) else None
+    if fn:
+        part = open(os.path.join(p, fn), encoding="utf-8").read().split("## Бестиарий", 1)[1]
+        table(part, "bane", "W20 Umbra", footnotes(part))
+    # Родня, гл. 3: кин-фетчи
+    p = os.path.join(base, "W20_Kinfolk")
+    fn = next((f for f in sorted(os.listdir(p)) if f.startswith("03")), None) if os.path.isdir(p) else None
+    if fn:
+        part = open(os.path.join(p, fn), encoding="utf-8").read().split("## Кин-фетчи", 1)[1].split("\n## ", 1)[0]
+        part = part.split("### Чары и статистика", 1)[1]
+        foot = {}
+        for m in re.finditer(r"^- \*\*(.+?) \(([^()]+)\):\*\*\s*(.+)$", part, re.M):
+            foot[m.group(1).strip()] = {"en": m.group(2).strip(), "text": md_inline(m.group(3))}
+        foot.update(footnotes(part))
+        table(part, "fetch", "W20 Kinfolk", foot)
+    # списки: «- **Название (English)** — Яр 8, Гн 6, Вол 8, Эсс 22–60; Чары…» (основная) и «— Ярость 9, … Чары: Airt Sense, …» (Книга Червя)
+    for text, source, heads in ((read("13_Враги.md").split("## 3. Духи", 1)[1].split("\n## ", 1)[0], "W20", True),
+                                (open(os.path.join(base, "W20_Book_of_the_Wyrm", next(f for f in sorted(os.listdir(os.path.join(base, "W20_Book_of_the_Wyrm"))) if f.startswith("03"))),
+                                      encoding="utf-8").read().split("## Бейны", 1)[1].split("\n## ", 1)[0], "W20 Book of the Wyrm", False)):
+        kind, cur = "bane", None
+        for line in text.splitlines():
+            h = re.match(r"^###\s+(.+)$", line)
+            if h:
+                kind = next((k for w, k in SPIRIT_KINDS if w in h.group(1)), kind); continue
+            m = re.match(r"^\s*- \*\*(.+?)\*\*\s*—\s*(.+)$", line)
+            if not m:
+                continue
+            indent = len(line) - len(line.lstrip())
+            stats = {}
+            for s in SPIRIT_STAT.finditer(m.group(2)[:90]):
+                stats.setdefault(STAT_KEY[s.group(1)[0]], int(s.group(2)))
+            al = re.match(r"^все (\d+)", m.group(2))          # «Создатели Мечты — все 10, Эсс 50–300»
+            if al:
+                stats.update({k: int(al.group(1)) for k in ("rage", "gnosis", "willpower") if k not in stats})
+            if indent and cur and not ("rage" in stats and "gnosis" in stats):
+                n, e = name_en(m.group(1))   # особая Чара образца строкой ниже
+                cur["specials"][n] = {"en": e, "text": md_inline(m.group(2))}
+                continue
+            if not ("rage" in stats and "gnosis" in stats and "willpower" in stats):
+                continue
+            name, en = name_en(m.group(1))
+            body = m.group(2)
+            if "Чары:" in body:
+                raw = body.split("Чары:", 1)[1].split(".")[0].split(",")
+            else:
+                tail = body.split(";", 1)[1] if ";" in body else ""
+                raw = re.split(r",", re.split(r"\*\*", tail)[0]) + [b.rstrip(":") for b in re.findall(r"\*\*([^*]+?)\*\*", tail)]
+                raw = [re.sub(r"\s*\([^)]*\).*$", "", x) for x in raw]
+            add(name, en, kind, stats, None, raw, md_inline(body), {}, source)
+            cur = out[-1] if out and out[-1]["name"] == name else None
+    for t in out:
+        resolve(t)
     return out
 
 
@@ -1097,6 +1256,94 @@ def parse_numina():
     return out
 
 
+# Ками (W20 Umbra, гл. 4): разрешённые им силы фоморов — по названию в списке Ками → название в таблице гл. 13 основной книги
+KAMI_FOMORI = {"Управление животными": ["Контроль животных"], "Бронированная шкура и кожа": ["Бронированная шкура", "Бронированная кожа"],
+               "Берсерк": ["Берсерк"], "Хамелеон": ["Окраска хамелеона"], "Когти и клыки": ["Когти и клыки"], "Сумеречное зрение": ["Ночное зрение"],
+               "Скорость": ["Лишняя скорость"], "Газообразная форма": ["Газообразная форма"], "Однородность": ["Однородность"],
+               "Иммунитет к Бреду": ["Иммунитет к Бреду"], "Невидимость": ["Невидимость"], "Хвост-хлыст": ["Хлещущий хвост"],
+               "Мега-атрибут": ["Мега-Атрибут"], "Регенерация": ["Регенерация"], "Чувство неестественного": ["Чуять неестественное"],
+               "Смена размера": ["Смена размера"], "Связь с духами": ["Духовные связи"], "Проход в Умбру": ["Прохождение Умбры"],
+               "Дыхание под водой": ["Дыхание под водой"], "Крылья": ["Крылья"]}
+PLAIN_POOL = re.compile(r"(?<![А-Яа-яЁё])([А-ЯЁ][а-яё]+(?: [а-яё]+)?)\s*\+\s*([А-ЯЁ][а-яё]+(?: [а-яё]+(?: [а-яё]+)?)?)(?:\s*\(сложность\s*(\d+)\))?")
+
+
+def plain_roll(text):
+    """Пул без выделения: «Восприятие + Оккультизм против Воли цели», «Харизма + Первобытный инстинкт (сложность 7)»."""
+    pos = 0
+    while (m := PLAIN_POOL.search(text, pos)):
+        pos = m.start(2)          # «Гнозис + Манипуляция + Выражение»: следующую пару ищем со второй черты
+        t1, t2 = TRAITS.get(m.group(1)), TRAITS.get(m.group(2)) or TRAITS.get(" ".join(m.group(2).split()[:2])) or TRAITS.get(m.group(2).split()[0])
+        # «1 Гнозис + Манипуляция + Выражение» — трата, а не пул: Гнозис и Ярость в пул не берём
+        if t1 and t2 and not t1.startswith("werewolf."):
+            return {"trait1": t1, "trait2": t2, "difficulty": int(m.group(3)) if m.group(3) else 6, "byTarget": not m.group(3)}
+    return None
+
+
+def parse_fetch_rites(tribes):
+    """Огненное крещение кин-фетча по племенам (W20 Kinfolk, гл. 3): «| Племя | Особенность |» → ключ племени по русскому названию."""
+    p = os.path.join(os.path.dirname(REF), "W20_Kinfolk")
+    fn = next((f for f in sorted(os.listdir(p)) if f.startswith("03")), None) if os.path.isdir(p) else None
+    if not fn:
+        return []
+    part = open(os.path.join(p, fn), encoding="utf-8").read().split("### Варианты Огненного крещения", 1)[1].split("\n### ", 1)[0]
+    by = {t["name"]: t["key"] for t in tribes}
+    out = []
+    for line in part.splitlines():
+        c = [x.strip() for x in line.strip().strip("|").split("|")] if line.startswith("| ") else []
+        if len(c) >= 2 and c[0] in by:
+            out.append({"tribe": by[c[0]], "name": c[0], "text": md_inline(c[1])})
+    return out
+
+
+def parse_kami():
+    """Ками: силы (обычные, неподвижных — растений и земли, разрешённые силы фоморов), таблица создания и примеры."""
+    p = os.path.join(os.path.dirname(REF), "W20_Umbra")
+    fn = next((f for f in sorted(os.listdir(p)) if f.startswith("04")), None) if os.path.isdir(p) else None
+    if not fn:
+        return {}
+    text = open(os.path.join(p, fn), encoding="utf-8").read()
+    powers = []
+
+    def rows(part, kind):
+        for line in part.splitlines():
+            if not line.startswith("| **"):
+                continue
+            c = [x.strip() for x in line.strip().strip("|").split("|")]
+            name, en = name_en(c[0])
+            body = c[1]
+            repeat = bool(re.search(r"(Каждая покупка|До \d+ покупок|покупк)", body))
+            mx = re.search(r"До (\d+) покупок", body)
+            if not mx and re.search(r"Всего до \+(\d+)", body):      # Стойкость к стихии: по +2 за покупку, всего до +6
+                mx = re.match(r"(\d+)", str(int(re.search(r"Всего до \+(\d+)", body).group(1)) // 2))
+            powers.append({"key": slug(en) or name, "name": name, "en": en, "kind": kind, "text": md_inline(body), "repeat": repeat,
+                           "max": int(mx.group(1)) if mx else (5 if repeat else 1), "roll": plain_roll(body), "source": "W20 Umbra"})
+
+    rows(text.split("## Силы Ками", 1)[1].split("### Силы неподвижных", 1)[0], "kami")
+    rows(text.split("### Силы неподвижных", 1)[1].split("\n## ", 1)[0], "immobile")
+    core = read("13_Враги.md").split("### Силы фомори", 1)[1].split("\n## ", 1)[0]
+    fom = {}
+    for line in core.splitlines():
+        if line.startswith("| **"):
+            c = [x.strip() for x in line.strip().strip("|").split("|")]
+            n, e = name_en(c[0])
+            fom[n] = (e, c[1])
+    for kname, fnames in KAMI_FOMORI.items():
+        for fname in fnames:
+            if fname not in fom:
+                continue
+            en, body = fom[fname]
+            name = fname if len(fnames) > 1 else kname
+            powers.append({"key": slug(en) or name, "name": name, "en": en, "kind": "borrowed", "text": md_inline(body), "repeat": "до 3 раз" in body,
+                           "max": 3 if "до 3 раз" in body else 1, "roll": plain_roll(body) or roll_of(body), "source": "W20 (силы фоморов)"})
+    create = text.split("## Создание Ками", 1)[1].split("## Силы Ками", 1)[0]
+    examples = text.split("## Примеры Ками", 1)[1] if "## Примеры Ками" in text else ""
+    geas = text.split("## Гейс", 1)[1].split("\n", 1)[1].split("\n## ", 1)[0]
+    return {"powers": powers, "create": md_html(create.strip().splitlines()), "geas": md_inline(geas.strip()),
+            "examples": md_html(examples.strip().splitlines()),
+            "start": {"human": {"willpower": 3, "gnosis": 1, "rage": 0, "gnosisMax": 6}, "animal": {"willpower": 2, "gnosis": 3, "rage": 0, "gnosisMax": 8},
+                      "plant": {"willpower": 3, "gnosis": 5, "rage": 0, "gnosisMax": 10}}}
+
+
 def build():
     gifts = parse_gifts()
     rites = parse_rites()
@@ -1113,10 +1360,11 @@ def build():
     core_merits, core_fetishes = parse_merits(), parse_fetishes()
     s_rites, s_fetishes, s_merits = parse_supp_mech(rites, core_fetishes, core_merits)
     rites = rites + s_rites
+    charms = parse_charms()
     data = {"source": "Werewolf: The Apocalypse 20th Anniversary Edition", "breeds": breeds, "auspices": auspices, "tribes": tribes,
             "forms": FORMS, "gifts": gifts, "rites": rites, "rankNames": RANK_NAMES, "rank": RANK, "xp": XP,
-            "merits": core_merits + s_merits, "backgrounds": parse_backgrounds(), "fetishes": core_fetishes + s_fetishes, "charms": parse_charms(), "kinGifts": parse_kin_gifts(tribes), "totems": parse_totems() + cw_totems, "renownAwards": parse_renown_awards(), "scars": parse_scars(), "sept": parse_sept(), "umbra": parse_umbra(), "fera": fera,
-            "deformities": parse_deformities(), "numina": parse_numina()}
+            "merits": core_merits + s_merits, "backgrounds": parse_backgrounds(), "fetishes": core_fetishes + s_fetishes, "charms": charms, "kinGifts": parse_kin_gifts(tribes), "totems": parse_totems() + cw_totems, "renownAwards": parse_renown_awards(), "scars": parse_scars(), "sept": parse_sept(), "umbra": parse_umbra(), "fera": fera,
+            "deformities": parse_deformities(), "numina": parse_numina(), "kami": parse_kami(), "spirits": parse_spirit_templates(charms), "fetchRites": parse_fetch_rites(tribes)}
     with open(OUT, "w", encoding="utf-8", newline="\n") as f:
         json.dump(data, f, ensure_ascii=False, indent=1)
     rules = parse_rules()
@@ -1128,10 +1376,12 @@ def build():
     starts = sum(len(x["startGifts"]) for x in breeds + auspices + tribes)
     return {"breeds": len(breeds), "auspices": len(auspices), "tribes": len(tribes), "gifts": len(gifts), "rites": len(rites),
             "startGifts": starts, "rolls": sum(1 for g in gifts if g["roll"]),
-            "rulePages": sum(len(b["pages"]) for b in rules), "merits": len(data["merits"]), "backgrounds": len(data["backgrounds"]), "fetishes": len(data["fetishes"]), "charms": len(data["charms"]), "kinGifts": len(data["kinGifts"]), "totems": len(data["totems"]), "awards": len(data["renownAwards"]), "scars": len(data["scars"]), "positions": len(data["sept"]["positions"]), "caernTypes": len(data["sept"]["caerns"]), "realms": len(data["umbra"]["realms"]), "fera": len(fera), "feraGifts": len(fera_gifts_list), "deformities": len(data["deformities"]), "numina": len(data["numina"]), "cwGifts": len(cw_gifts), "cwTotems": len(cw_totems), "books": len(books), "bookPages": sum(len(b["pages"]) for b in books)}
+            "rulePages": sum(len(b["pages"]) for b in rules), "merits": len(data["merits"]), "backgrounds": len(data["backgrounds"]), "fetishes": len(data["fetishes"]), "charms": len(data["charms"]), "kinGifts": len(data["kinGifts"]), "totems": len(data["totems"]), "awards": len(data["renownAwards"]), "scars": len(data["scars"]), "positions": len(data["sept"]["positions"]), "caernTypes": len(data["sept"]["caerns"]), "realms": len(data["umbra"]["realms"]), "fera": len(fera), "feraGifts": len(fera_gifts_list), "deformities": len(data["deformities"]), "numina": len(data["numina"]), "kamiPowers": len(data["kami"].get("powers", [])), "spirits": len(data["spirits"]), "cwGifts": len(cw_gifts), "cwTotems": len(cw_totems), "books": len(books), "bookPages": sum(len(b["pages"]) for b in books)}
 
 
 if __name__ == "__main__":
     import sys
+    sys.path.insert(0, HERE)
+    import fsretry; fsretry.install()   # Windows: занятый на миг файл — повтор, а не обрыв сборки
     sys.stdout.reconfigure(encoding="utf-8")
     print(build())

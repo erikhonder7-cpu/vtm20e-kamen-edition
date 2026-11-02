@@ -1050,7 +1050,9 @@ try {
       const d = WW.deliriumOf(7); out.delirium = `${d.key}:${d.forgets}`;
       await s.update({ "system.spirit": { on: true, rage: 4, gnosis: 6, willpower: 5 } });
       await WW.spiritEssenceReset(s); out.essence = s.system.spirit.essence.max; out.spiritRoll = s.traitValue("spirit.gnosis");
-      await s.sheet.render(true); await wait(900); out.card = !!s.sheet.element.querySelector(".r-vc-spirit"); await s.sheet.close();
+      await s.sheet.render(true); await wait(900); out.card = !!s.sheet.element.querySelector(".r-vc-spirit") && !!s.sheet.element.querySelector(".r-sp-tpl option[value='bane-halassh']"); await s.sheet.close();
+      await WW.applySpiritTpl(s, "bane-halassh");
+      out.spTpl = `${s.system.spirit.rage}:${s.system.spirit.charms.join() === WW.spiritTplOf("bane-halassh").charms.join()}`;
       // Родня Гару: Дар за опыт (свой — 15), блок на листе
       const k = await Actor.create({ name: "E2E — Родня", type: "mortal", flags: { world: { e2e: true }, [SYS]: { created: true } },
         system: { experience: { total: 20 }, kinfolk: { on: true, tribe: "boneGnawers", breed: "homid" } } });
@@ -1061,6 +1063,17 @@ try {
       await WW.kinAddNumen(k, "divination"); await WW.kinNumenDots(k, "divination", 3);
       await k.sheet.render(true); await wait(900); out.kinBlock = !!k.sheet.element.querySelector(".r-kin");
       out.numen = `${k.system.kinfolk.numina[0]?.dots}:${k.sheet.element.querySelectorAll(".r-kin-numina li li:not(.is-locked)").length}:${WW.numenOf("divination")?.roll?.trait2}`;
+      await k.sheet.close();
+      // Ками: «Берсерк» даёт 5 Ярости, «Размер» покупается повторно, сила за опыт — (число сил × 3); животное-Ками не видит Бреда
+      await k.update({ "system.kami": { on: true, kind: "animal" }, "system.experience.total": 40 });
+      await WW.kamiAdd(k, "berserker"); await WW.kamiAdd(k, "Размер"); await WW.kamiAdd(k, "Размер");
+      const xp0 = k.system.experience.spent; await WW.kamiAdd(k, "Мягкие лапы", true);
+      await k.sheet.render(true); await wait(900);
+      // кин-фетч: Огненное крещение создаёт существо-духа по образцу (особая Чара «Клеймо фетча» с текстом), Перемена сжигает клеймо
+      await WW.bindFetch(k, "fetch-Кин-фетч"); const fa = await fromUuid(k.system.kinfolk.fetch);
+      out.fetch = `${!!fa?.system.spirit.on}:${fa?.system.spirit.willpower}:${!!WW.charmOf(fa?.system.spirit.charms.find(c => c.startsWith("~")))?.text}`;
+      await WW.burnFetch(k); out.fetch += `:${k.system.kinfolk.fetch === ""}`; await fa?.delete();
+      out.kami = `${k.system.kami.rage}:${k.system.kami.powers.find(p => p.key === "Размер")?.n}:${k.system.experience.spent - xp0}:${WW.kamiDeliriumImmune(k)}:${k.sheet.element.querySelectorAll(".r-kami-powers .r-edge").length}`;
       await k.sheet.close();
       // стая: котерия с Гару и тотемом — тотем на карточке
       const cots = foundry.utils.deepClone(game.settings.get(SYS, "coteries") ?? []);
@@ -1077,6 +1090,9 @@ try {
     if (r.delirium !== "controlled:false") throw new Error(`Бред: ${r.delirium}`);
     if (r.essence !== 15 || r.spiritRoll !== 6 || !r.card) throw new Error(`дух: Эссенция ${r.essence}, Гнозис ${r.spiritRoll}, карточка ${r.card}`);
     if (r.kin !== "1:15:true" || !r.kinBlock) throw new Error(`Родня: ${r.kin}, блок ${r.kinBlock}`);
+    if (r.fetch !== "true:5:true:true") throw new Error(`кин-фетч (дух:Воля:особая Чара:клеймо сгорело): ${r.fetch}`);
+    if (r.spTpl !== "8:true") throw new Error(`образец духа (Ярость Халасша:Чары по образцу): ${r.spTpl}`);
+    if (r.kami !== "5:2:9:true:3") throw new Error(`Ками (Ярость:Размер:опыт за силу:без Бреда:на листе): ${r.kami}`);
     if (r.numen !== "3:3:abilities.occult") throw new Error(`нумины Родни (точки:открытых уровней:вторая черта): ${r.numen}`);
     if (r.totem !== "Сокол" || !r.totemHint) throw new Error(`тотем стаи: ${r.totem}, на карточке ${r.totemHint}`);
   });

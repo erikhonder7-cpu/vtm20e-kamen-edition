@@ -435,3 +435,7 @@ body.r-theme-light .vtm20.r-type-werewolf .r-form-badge.is-down { color: #7a2a18
 .vtm20.r-type-werewolf .r-ww-fera-text table { width: 100%; border-collapse: collapse; font-size: .9em; }
 .vtm20.r-type-werewolf .r-ww-fera-text td, .vtm20.r-type-werewolf .r-ww-fera-text th { border-bottom: 1px solid color-mix(in srgb, currentColor 15%, transparent); padding: 2px 4px; }
 .vtm20.r-type-werewolf .r-ww-fera.is-fera ~ .r-ww-forms { grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); }
+
+/* Ками: Гейс во всю ширину под строкой облика */
+.vtm20 .r-kami-geas { display: flex; flex-direction: column; gap: 2px; margin: 8px 0 4px; }
+.vtm20 .r-kami-geas > span { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; opacity: .7; }

@@ -4014,6 +4014,10 @@
         "none": "No reaction — suspicious"
       },
       "Spirit": {
+        "tpl": "Spirit template…",
+        "tplHint": "Take the template's traits, Essence and Charms; the description goes to the Storyteller in chat",
+        "specialOf": "A special Charm of “{name}” — see its description.",
+        "kind": { "gaia": "Gaia spirits", "wyld": "Wyld spirits", "weaver": "Weaver spirits", "fetch": "Kin-fetches", "bane": "Banes" },
         "title": "Spirit",
         "rage": "Rage",
         "gnosis": "Gnosis",
@@ -4050,6 +4054,34 @@
       "GauntletAsk": "Where are you? The difficulty is the local Gauntlet rating.",
       "StepGo": "Step",
       "GauntletTimes": "Successes: 1 — 5 minutes, 2 — 30 seconds, 3+ — at once. Failure — wait an hour; botch — caught in the Gauntlet.",
+      "Fetch": {
+        "title": "Kin-fetch",
+        "bind": "Bind",
+        "bindHint": "Baptism of Fire: create a guardian spirit and bind it to this Kinfolk",
+        "burn": "Change",
+        "burnHint": "First Change: the brand burns, the fetch flies to the tribe",
+        "rite": "Tribal custom ({tribe}):",
+        "bound": "{name}: kin-fetch “{fetch}” bound, the brand is set.",
+        "burned": "{name}: the fetch brand burned — “{fetch}” carries word of the First Change to the tribe."
+      },
+      "Kami": {
+        "title": "Kami — Gaia's chosen",
+        "toggle": "Kami",
+        "kindLabel": "Form",
+        "form": { "human": "human", "animal": "animal", "plant": "plant or land" },
+        "kind": { "kami": "Kami power", "immobile": "immobile power", "borrowed": "fomori power open to Kami" },
+        "geas": "Geas",
+        "geasPh": "a taboo drawn from the Kami's purpose",
+        "gnosisHint": "Gnosis limit with Spirit Ties — {n}",
+        "start": "Starting: Willpower {wp}, Gnosis {gnosis}.",
+        "hint": "Attributes 6/4/3, Abilities 11/7/3, 1–3 powers; humans get 21 freebies (a new power costs 7). Breaking the Geas strips powers.",
+        "none": "No powers.",
+        "add": "+ Kami power…",
+        "addXp": "Buy with experience: {n}",
+        "more": "One more purchase",
+        "learned": "Kami power: {name}",
+        "rules": "Creating Kami and examples"
+      },
       "Numen": {
         "title": "Numina",
         "hint": "Hedge magic and psychic phenomena (W20 Kinfolk). At creation — freebies: first numen 7 per dot, second 14; later — experience at the Storyteller's discretion. Hedge magic works only through rituals: one ritual of each level gained in a Way. True Faith is a separate mortal trait.",
@@ -4069,7 +4101,7 @@
         "addXp": "Learn for XP"
       },
       "KinLearned": "Kinfolk Gift: {name}",
-      "DeliriumKin": "Kinfolk — immune to the Delirium",
+      "DeliriumKin": "Kinfolk or Kami — immune to the Delirium",
       "RenownShort": {
         "glory": "Gl",
         "honor": "Ho",

@@ -244,6 +244,13 @@
     {{#if editable}}<div class="r-toolbar"><select class="r-kin-add"><option value="">{{localize "VTM20.Werewolf.Kin.addGift"}}</option>{{#each kinInfo.avail}}<option value="{{key}}">{{label}}</option>{{/each}}</select>
       <a class="r-vc-btn" data-action="kinAdd" data-tooltip="{{localize 'VTM20.Werewolf.Kin.addFree'}}"><i class="fa-solid fa-plus"></i></a>
       <a class="r-vc-btn" data-action="kinBuy" data-tooltip="{{localize 'VTM20.Werewolf.Kin.addXp'}}"><i class="fa-solid fa-star"></i></a></div>{{/if}}
+    {{!-- Кин-фетч (W20 Kinfolk, гл. 3): дух-хранитель с клеймом племени; Огненное крещение — по обычаю племени --}}
+    <h2 class="r-h2"><span><i class="fa-solid fa-feather"></i> {{localize "VTM20.Werewolf.Fetch.title"}}</span></h2>
+    {{#if kinInfo.fetch.actor}}<p class="r-kin-fetch"><a class="content-link" data-link data-uuid="{{kinInfo.fetch.actor.uuid}}" data-type="Actor"><i class="fa-solid fa-ghost"></i> {{kinInfo.fetch.actor.name}}</a>
+      {{#if editable}}<a class="r-vc-btn" data-action="kinFetchBurn" data-tooltip="{{localize 'VTM20.Werewolf.Fetch.burnHint'}}"><i class="fa-solid fa-fire"></i> {{localize "VTM20.Werewolf.Fetch.burn"}}</a>{{/if}}</p>
+    {{else}}{{#if editable}}<div class="r-toolbar"><select class="r-kin-fetch-tpl">{{#each kinInfo.fetch.tpls}}<option value="{{key}}">{{label}}</option>{{/each}}</select>
+      <a class="r-vc-btn" data-action="kinFetchBind" data-tooltip="{{localize 'VTM20.Werewolf.Fetch.bindHint'}}"><i class="fa-solid fa-feather"></i> {{localize "VTM20.Werewolf.Fetch.bind"}}</a></div>{{/if}}{{/if}}
+    {{#if kinInfo.fetch.rite}}<p class="r-hint"><b>{{localize "VTM20.Werewolf.Fetch.rite" tribe=kinInfo.fetch.tribe}}</b> {{{kinInfo.fetch.rite}}}</p>{{/if}}
     {{!-- Нумины (W20 Kinfolk, гл. 3): точки — щелчком, у Пути открыты уровни до своих точек; бросок — пул из книги --}}
     <h2 class="r-h2"><span><i class="fa-solid fa-hand-sparkles"></i> {{localize "VTM20.Werewolf.Numen.title"}}</span></h2>
     <p class="r-hint">{{localize "VTM20.Werewolf.Numen.hint"}}</p>
@@ -256,6 +263,34 @@
       {{else}}<li class="r-note">{{localize "VTM20.Werewolf.Numen.none"}}</li>{{/each}}</ul>
     {{#if editable}}<div class="r-toolbar"><select class="r-kin-num-add"><option value="">{{localize "VTM20.Werewolf.Numen.add"}}</option>{{#each kinInfo.numAvail}}<option value="{{key}}">{{label}}</option>{{/each}}</select>
       <a class="r-vc-btn" data-action="kinNumAdd"><i class="fa-solid fa-plus"></i></a></div>{{/if}}
+  </div>
+  {{/if}}
+  {{/if}}
+  {{#if kamiInfo}}
+  {{!-- Ками (W20 Umbra, гл. 4): избранник Геи — облик, Гейс, Гнозис и Ярость, силы (повторяемые — счётчиком); к Бреду: см. kamiDeliriumImmune --}}
+  <h2 class="r-h2"><span><i class="fa-solid fa-seedling"></i> {{localize "VTM20.Werewolf.Kami.title"}}</span>
+    {{#if editable}}<label class="r-h2-tools r-kin-toggle"><input type="checkbox" name="system.kami.on" {{checked kamiInfo.on}}> {{localize "VTM20.Werewolf.Kami.toggle"}}</label>{{/if}}</h2>
+  {{#if kamiInfo.on}}
+  <div class="r-kin r-kami">
+    <div class="r-kin-row">
+      <label><span>{{localize "VTM20.Werewolf.Kami.kindLabel"}}</span><select name="system.kami.kind">{{#each kamiInfo.kinds}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+      <label data-tooltip="{{localize 'VTM20.Werewolf.Kami.gnosisHint' n=kamiInfo.gnosisMax}}"><span>{{localize "VTM20.Werewolf.Gnosis"}}</span><input type="number" name="system.kami.gnosis" value="{{kamiInfo.gnosis}}" min="0" max="10"></label>
+      <label><span>{{localize "VTM20.Werewolf.Rage"}}</span><input type="number" name="system.kami.rage" value="{{kamiInfo.rage}}" min="0" max="10"></label>
+    </div>
+    <label class="r-kami-geas" data-tooltip="{{kamiInfo.geasHint}}"><span>{{localize "VTM20.Werewolf.Kami.geas"}}</span>
+      <input type="text" name="system.kami.geas" value="{{kamiInfo.geas}}" placeholder="{{localize 'VTM20.Werewolf.Kami.geasPh'}}"></label>
+    <p class="r-hint">{{kamiInfo.start}} {{localize "VTM20.Werewolf.Kami.hint"}}</p>
+    <ul class="r-edge-list r-kami-powers">{{#each kamiInfo.powers}}<li class="r-edge">
+      <span class="r-edge-lvl">{{#if (gt n 1)}}×{{n}}{{else}}<i class="fa-solid fa-seedling"></i>{{/if}}</span>
+      <span class="r-edge-main"><b>{{rName this}}</b> <small>{{rAlt this}} · {{kind}}</small><div class="r-edge-text">{{{text}}}</div></span>
+      {{#if @root.editable}}{{#if more}}<a class="r-vc-btn" data-action="kamiMore" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Werewolf.Kami.more'}}"><i class="fa-solid fa-plus"></i></a>{{/if}}
+      <a class="r-vc-btn" data-action="kamiUse" data-key="{{key}}"><i class="fa-solid {{#if roll}}fa-dice-d10{{else}}fa-hand-sparkles{{/if}}"></i></a>
+      <a class="r-icon-btn is-danger" data-action="kamiDel" data-key="{{key}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}</li>
+      {{else}}<li class="r-note">{{localize "VTM20.Werewolf.Kami.none"}}</li>{{/each}}</ul>
+    {{#if editable}}<div class="r-toolbar"><select class="r-kami-add"><option value="">{{localize "VTM20.Werewolf.Kami.add"}}</option>{{#each kamiInfo.avail}}<option value="{{key}}">{{label}}</option>{{/each}}</select>
+      <a class="r-vc-btn" data-action="kamiAdd" data-tooltip="{{localize 'VTM20.Werewolf.Kin.addFree'}}"><i class="fa-solid fa-plus"></i></a>
+      <a class="r-vc-btn" data-action="kamiBuy" data-tooltip="{{localize 'VTM20.Werewolf.Kami.addXp' n=kamiInfo.xp}}"><i class="fa-solid fa-star"></i></a></div>{{/if}}
+    <details class="r-ww-fera-more"><summary>{{localize "VTM20.Werewolf.Kami.rules"}}</summary><div class="r-ww-fera-text">{{{kamiInfo.create}}}{{{kamiInfo.examples}}}</div></details>
   </div>
   {{/if}}
   {{/if}}
