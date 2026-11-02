@@ -9,6 +9,7 @@ import { RollDialog } from "../dice/dialog.mjs";
 import { VTM20 } from "../config.mjs";
 import { totemOf } from "./coterie.mjs";
 import { septOf } from "./sept.mjs";
+import { umbraOf } from "./umbra.mjs";
 
 const t = (k, d) => d ? game.i18n.format(`VTM20.Werewolf.${k}`, d) : game.i18n.localize(`VTM20.Werewolf.${k}`);
 const esc = s => foundry.utils.escapeHTML(String(s ?? ""));
@@ -27,7 +28,7 @@ export function werewolfInfo(actor, dots) {
     tempDots: dots(w.renown[k].temporary, 10, { path: `system.werewolf.renown.${k}.temporary`, cls: "is-temp" }) }));
   const next = rankNeed(w.auspice, w.rank + 1);
   return {
-    breed, auspice, tribe, rank: w.rank, rankName: D.rankNames?.[w.rank - 1] ?? "", packTotem: totemOf(actor), sept: septOf(actor),
+    breed, auspice, tribe, rank: w.rank, rankName: D.rankNames?.[w.rank - 1] ?? "", packTotem: totemOf(actor), sept: septOf(actor), umbra: umbraOf(actor),
     rage: w.rage.value, ragePerm: w.rage.permanent, gnosis: w.gnosis.value, gnosisPerm: w.gnosis.permanent,
     rageDots: dots(w.rage.permanent, 10, { path: "system.werewolf.rage.permanent" }),
     gnosisDots: dots(w.gnosis.permanent, 10, { path: "system.werewolf.gnosis.permanent" }),
@@ -504,7 +505,8 @@ export async function stepSideways(actor, trait = "werewolf.gnosis") {
     ok: { label: t("StepGo"), icon: "fa-solid fa-moon", callback: (ev, btn) => Number(btn.form.elements.g.value) }
   });
   if (!diff) return;
-  return RollDialog.prompt(actor, { title: t("StepSideways"), trait1: trait, difficulty: diff, diffNote: t("GauntletNote") });
+  return RollDialog.prompt(actor, { title: t("StepSideways"), trait1: trait, difficulty: diff, diffNote: t("GauntletNote"),
+    onRolled: async r => { if ((r?.successes ?? 0) > 0) { const { setUmbra } = await import("./umbra.mjs"); await setUmbra(actor, "penumbra"); } } });
 }
 
 /* ── Духи Умбры (тип «Существо» с отметкой «Дух»; W20, гл. 7) ─────────── */

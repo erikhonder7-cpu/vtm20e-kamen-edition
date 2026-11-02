@@ -4435,6 +4435,28 @@
       "Need": "Need",
       "Bonus": "Bonus",
       "Holder": "Held by"
+    },
+    "Umbra": {
+      "Title": "Umbra",
+      "Search": "Find a place…",
+      "Here": "Now: {name}",
+      "InWorld": "In the material world",
+      "Return": "Return to the world",
+      "Go": "Travel",
+      "Find": "Find the way",
+      "FindHint": "Intelligence + Enigmas, diff. 7 — find the way (in the Pattern Web without Web Walker)",
+      "Pick": "Pick a place on the left.",
+      "Went": "{name} travels: {realm}.",
+      "Returned": "{name} returns to the material world.",
+      "Group": {
+        "penumbra": "Penumbra",
+        "near": "Near Umbra realms",
+        "homeland": "Tribal homelands",
+        "membrane": "Membrane",
+        "astral": "Astral Umbra",
+        "dark": "Dark Umbra",
+        "deep": "Deep Umbra"
+      }
     }
   }
 }

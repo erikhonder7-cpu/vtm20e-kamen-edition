@@ -17,6 +17,7 @@ import { WEAPON_PRESETS, ARMOR_PRESETS, GEAR_PRESETS } from "../data/equipment.m
 import { openCreator } from "../apps/creator.mjs";
 import { openWerewolfCreator } from "../apps/werewolf-creator.mjs";
 import { openSept } from "../apps/sept.mjs";
+import { openUmbra } from "../apps/umbra.mjs";
 import { openHunt } from "../apps/night.mjs";
 import { openDowntime } from "../apps/downtime.mjs";
 import { openXp } from "../apps/xp.mjs";
@@ -174,7 +175,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       wwForm: VtMActorSheet.#onWwForm, wwGift: VtMActorSheet.#onWwGift, wwGiftAdd: VtMActorSheet.#onWwGiftAdd, wwGiftDel: VtMActorSheet.#onWwGiftDel,
       wwRite: VtMActorSheet.#onWwRite, wwRiteAdd: VtMActorSheet.#onWwRiteAdd, wwRiteDel: VtMActorSheet.#onWwRiteDel,
       wwStanding: VtMActorSheet.#onWwStanding, wwFrenzy: VtMActorSheet.#onWwFrenzy, wwStep: VtMActorSheet.#onWwStep, wwSpend: VtMActorSheet.#onWwSpend,
-      wwRegen: VtMActorSheet.#onWwRegen, wwActions: VtMActorSheet.#onWwActions, wwDelirium: VtMActorSheet.#onWwDelirium, wwRenown: VtMActorSheet.#onWwRenown, wwSept: VtMActorSheet.#onWwSept, wwScarAdd: VtMActorSheet.#onWwScarAdd, wwScarDel: VtMActorSheet.#onWwScarDel,
+      wwRegen: VtMActorSheet.#onWwRegen, wwActions: VtMActorSheet.#onWwActions, wwDelirium: VtMActorSheet.#onWwDelirium, wwRenown: VtMActorSheet.#onWwRenown, wwSept: VtMActorSheet.#onWwSept, wwUmbra: VtMActorSheet.#onWwUmbra, wwScarAdd: VtMActorSheet.#onWwScarAdd, wwScarDel: VtMActorSheet.#onWwScarDel,
       kinAdd: VtMActorSheet.#onKinAdd, kinBuy: VtMActorSheet.#onKinBuy, kinDel: VtMActorSheet.#onKinDel, kinUse: VtMActorSheet.#onKinUse,
       spCharmAdd: VtMActorSheet.#onSpCharmAdd, spCharmDel: VtMActorSheet.#onSpCharmDel, spEssence: VtMActorSheet.#onSpEssence, spStep: VtMActorSheet.#onSpStep,
       wwFetishAdd: VtMActorSheet.#onWwFetishAdd, wwFetishAttune: VtMActorSheet.#onWwFetishAttune, wwFetishUse: VtMActorSheet.#onWwFetishUse, wwFetishDel: VtMActorSheet.#onWwFetishDel, openStrategy: () => openStrategy(),
@@ -763,6 +764,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static #onWwDelirium() { return delirium(this.actor); }
   static #onWwRenown() { return renownAward(this.actor); }
   static #onWwSept() { return openSept(this.actor); }
+  static #onWwUmbra() { return openUmbra(this.actor); }
   static #onWwScarAdd() { const k = this.element.querySelector(".r-ww-scar-add")?.value; if (k) return addScar(this.actor, k); }
   static #onWwScarDel(event, target) { return removeScar(this.actor, Number(target.dataset.i)); }
   static #onKinAdd() { return kinAddGift(this.actor, this.element.querySelector(".r-kin-add")?.value, false); }

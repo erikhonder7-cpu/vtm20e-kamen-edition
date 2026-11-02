@@ -738,6 +738,61 @@ def parse_sept():
     return {"standing": standing, "positions": positions, "caerns": caerns}
 
 
+def parse_umbra():
+    """Места Умбры (W20 Umbra): Царства Ближней Умбры, родины племён, Мембрана, Астральная, Тёмная и Глубокая Умбра; лунные тропы по фазам."""
+    base = os.path.join(os.path.dirname(REF), "W20_Umbra")
+    if not os.path.isdir(base):
+        return {"realms": [], "paths": {}}
+    files = sorted(f for f in os.listdir(base) if f.endswith(".md"))
+    def load(prefix):
+        fn = next((f for f in files if f.startswith(prefix)), None)
+        return open(os.path.join(base, fn), encoding="utf-8").read() if fn else ""
+    t1, t2 = load("01"), load("02")
+    realms = []
+    def sub_entries(text, group, head="### "):
+        cur = None
+        for line in text.splitlines():
+            if line.startswith(head):
+                if cur: realms.append(cur)
+                name, en = name_en(line[len(head):].strip())
+                cur = {"key": re.sub(r"[^a-z0-9]+", "-", (en or name).lower()).strip("-") or f"r{len(realms)}", "name": name, "en": en, "group": group, "lines": []}
+            elif cur is not None:
+                cur["lines"].append(line)
+        if cur: realms.append(cur)
+    if "## Царства Ближней Умбры" in t1:
+        sub_entries(t1.split("## Царства Ближней Умбры", 1)[1].split("\n## ", 1)[0], "near")
+    for sec, group in (("## Родины племён", "homeland"),):
+        if sec in t2:
+            part = t2.split(sec, 1)[1].split("\n## ", 1)[0]
+            rows = [[c.strip() for c in l.strip().strip("|").split("|")] for l in part.splitlines() if l.startswith("| ") and not l.startswith("| Родина") and not set(l) <= set("|-: ")]
+            intro = part.split("Краткая справка", 1)[0].splitlines()
+            for c in rows:
+                if len(c) >= 2:
+                    name, en = name_en(c[0])
+                    realms.append({"key": "home-" + (re.sub(r"[^a-z0-9]+", "-", (en or name).lower()).strip("-") or str(len(realms))), "name": name, "en": en, "group": group,
+                                   "lines": [c[1], ""] + intro})
+            if "### " in part: sub_entries(part, group)
+            elif not rows:
+                for line in part.splitlines():
+                    m = re.match(r"^- \*\*(.+?)\*\*\s*[—:-]\s*(.*)$", line)
+                    if m:
+                        name, en = name_en(m.group(1))
+                        realms.append({"key": "home-" + (re.sub(r"[^a-z0-9]+", "-", en.lower()).strip("-") or str(len(realms))), "name": name, "en": en, "group": group, "lines": [m.group(2)]})
+    for sec, group in (("## Мембрана и Якорные головы", "membrane"), ("## Астральная Умбра", "astral"), ("## Тёмная Умбра", "dark"), ("## Глубокая Умбра", "deep")):
+        if sec in t2:
+            body = t2.split(sec, 1)[1].split("\n## ", 1)[0]
+            realms.append({"key": group, "name": sec[3:].strip(), "en": "", "group": group, "lines": body.splitlines()})
+    if "## Пенумбра" in t1:
+        realms.insert(0, {"key": "penumbra", "name": "Пенумбра", "en": "Penumbra", "group": "penumbra", "lines": t1.split("## Пенумбра", 1)[1].split("\n## ", 1)[0].splitlines()[1:]})
+    out = [{k: v for k, v in r.items() if k != "lines"} | {"html": md_html(r["lines"])} for r in realms if any(x.strip() for x in r["lines"])]
+    paths = {}
+    trav = t1.split("## Ближняя Умбра — путешествие", 1)[1].split("\n## ", 1)[0] if "## Ближняя Умбра — путешествие" in t1 else ""
+    for key, word in (("new", "Новолуние"), ("crescent", "Серп"), ("half", "Половина"), ("gibbous", "Растущая"), ("full", "Полнолуние")):
+        m = re.search(r"\*\*" + word + r"[^*]*\*\*\s*—\s*(.+)", trav)
+        if m: paths[key] = md_inline(m.group(1).strip())
+    return {"realms": out, "paths": paths, "travel": md_html(trav.splitlines())}
+
+
 def build():
     gifts = parse_gifts()
     rites = parse_rites()
@@ -749,7 +804,7 @@ def build():
             x["icon"] = ICONS[kind].get(x["key"], "fa-moon")
     data = {"source": "Werewolf: The Apocalypse 20th Anniversary Edition", "breeds": breeds, "auspices": auspices, "tribes": tribes,
             "forms": FORMS, "gifts": gifts, "rites": rites, "rankNames": RANK_NAMES, "rank": RANK, "xp": XP,
-            "merits": parse_merits(), "backgrounds": parse_backgrounds(), "fetishes": parse_fetishes(), "charms": parse_charms(), "kinGifts": parse_kin_gifts(tribes), "totems": parse_totems(), "renownAwards": parse_renown_awards(), "scars": parse_scars(), "sept": parse_sept()}
+            "merits": parse_merits(), "backgrounds": parse_backgrounds(), "fetishes": parse_fetishes(), "charms": parse_charms(), "kinGifts": parse_kin_gifts(tribes), "totems": parse_totems(), "renownAwards": parse_renown_awards(), "scars": parse_scars(), "sept": parse_sept(), "umbra": parse_umbra()}
     with open(OUT, "w", encoding="utf-8", newline="\n") as f:
         json.dump(data, f, ensure_ascii=False, indent=1)
     rules = parse_rules()
@@ -761,7 +816,7 @@ def build():
     starts = sum(len(x["startGifts"]) for x in breeds + auspices + tribes)
     return {"breeds": len(breeds), "auspices": len(auspices), "tribes": len(tribes), "gifts": len(gifts), "rites": len(rites),
             "startGifts": starts, "rolls": sum(1 for g in gifts if g["roll"]),
-            "rulePages": sum(len(b["pages"]) for b in rules), "merits": len(data["merits"]), "backgrounds": len(data["backgrounds"]), "fetishes": len(data["fetishes"]), "charms": len(data["charms"]), "kinGifts": len(data["kinGifts"]), "totems": len(data["totems"]), "awards": len(data["renownAwards"]), "scars": len(data["scars"]), "positions": len(data["sept"]["positions"]), "caernTypes": len(data["sept"]["caerns"]), "books": len(books), "bookPages": sum(len(b["pages"]) for b in books)}
+            "rulePages": sum(len(b["pages"]) for b in rules), "merits": len(data["merits"]), "backgrounds": len(data["backgrounds"]), "fetishes": len(data["fetishes"]), "charms": len(data["charms"]), "kinGifts": len(data["kinGifts"]), "totems": len(data["totems"]), "awards": len(data["renownAwards"]), "scars": len(data["scars"]), "positions": len(data["sept"]["positions"]), "caernTypes": len(data["sept"]["caerns"]), "realms": len(data["umbra"]["realms"]), "books": len(books), "bookPages": sum(len(b["pages"]) for b in books)}
 
 
 if __name__ == "__main__":
