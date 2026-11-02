@@ -3206,7 +3206,24 @@
       "CelerityOption": "Actions: {n}",
       "CelerityAsk": "How many extra actions to take this turn? Each costs 1 blood (the per-turn spending limit doesn't apply) and removes 1 die of the Celerity bonus to Dexterity.",
       "CelerityBuy": "Spend blood",
-      "BloodTipTurn": "Spend 1 blood ({spent} of {n} spent this turn)"
+      "BloodTipTurn": "Spend 1 blood ({spent} of {n} spent this turn)",
+      "Kind": {
+        "dhampir": "Dhampir",
+        "kinfolk": "Garou Kinfolk",
+        "kami": "Kami",
+        "fomor": "Fomor",
+        "spirit": "Spirit"
+      },
+      "Rank": "Rank {n}",
+      "RageTip": "Rage: current / permanent",
+      "GnosisTip": "Gnosis: current / permanent",
+      "FormNow": "Current form",
+      "TormentTip": "Permanent Torment; temporary — {n}",
+      "EssenceTip": "Spirit Essence",
+      "ApocOn": "Apocalyptic form assumed — drop it",
+      "ApocOff": "Assume the apocalyptic form",
+      "SightTip": "Second Sight",
+      "Form": "Form"
     },
     "Contest": {
       "ModeLabel": "Kind of action",

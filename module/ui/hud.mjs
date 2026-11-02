@@ -1,8 +1,10 @@
 // module/ui/hud.mjs
 // HUD вместо панели макросов (по образцу vtm5e-kamen-edition, под правила V20):
-// персонаж игрока или выделенный токен — портрет, семь уровней здоровья, воля, запас
-// крови и мораль; оружие и манёвры одним щелчком; защиты (уклонение, блок, парирование);
-// трата крови и лечение, опасности среды; инициатива, броня, прочность и штраф за раны.
+// персонаж игрока или выделенный токен — табличка с именем, портрет, семь уровней здоровья, воля и запасы
+// своего вида (кровь и мораль; Ярость, Гнозис и форма Гару; Вера и Мука падшего; Убеждённость охотника;
+// Эссенция духа); оружие, естественное оружие формы и манёвры; защиты; свои действия вида (Мощь,
+// Стремительность, охота; формы и действия Гару; облик падшего; второе зрение); инициатива, броня, прочность.
+// Цвет — по виду персонажа (класс rh-t-*, styles/r-hud.css).
 
 import { SYSTEM_ID, VTM20 } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
@@ -12,6 +14,9 @@ import { openHazard } from "../apps/hazard.mjs";
 import { openHunt } from "../apps/night.mjs";
 import { rollPowerRef, powerByRef } from "../sheets/actor-sheet.mjs";
 import { effectTimer } from "../apps/timers.mjs";
+import { W as werewolfData, feraOf, changeForm, rageActions, regenerate, stepSideways, frenzyCheck } from "../apps/werewolf.mjs";
+import { H as hunterData, secondSight } from "../apps/hunter.mjs";
+import { assumeForm } from "../apps/torment.mjs";
 
 const ID = "r-hud";
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -73,38 +78,117 @@ function willTrack(s) {
   return `<span class="rh-track rh-will">${out.join("")}</span>`;
 }
 
+/** Вид персонажа для HUD: свой набор запасов, действий и цвета (styles/r-hud.css, rh-t-*). */
+function kindOf(a) {
+  if (a.type === "ghoul" && a.system.ghoulType === "dhampir") return "dhampir";
+  if (a.type === "creature" && a.system.spirit?.on) return "spirit";
+  return a.type;
+}
+
+/** Вторая строка таблички: клан и поколение, племя и аугурия с Рангом, Дом и Облик, кредо… */
+function subtitleOf(a, kind) {
+  const s = a.system, typeName = game.i18n.localize(`TYPES.Actor.${a.type}`), lbl = x => x ? VTM20.label(x) : "";
+  switch (kind) {
+    case "vampire": return [Codex.clan(s.clan)?.name ?? typeName, game.i18n.format("VTM20.GenerationN", { n: s.generation })].filter(Boolean).join(" · ");
+    case "dhampir": return [t("Hud.Kind.dhampir"), Codex.clan(Codex.traitClan(s.dhampir?.antecedentClan))?.name ?? ""].filter(Boolean).join(" · ");
+    case "werewolf": {
+      const D = werewolfData(), w = s.werewolf, fera = feraOf(a);
+      const who = fera ? lbl(fera) : lbl(D.tribes.find(x => x.key === w.tribe));
+      return [who, fera ? "" : lbl(D.auspices.find(x => x.key === w.auspice)), t("Hud.Rank", { n: w.rank })].filter(Boolean).join(" · ");
+    }
+    case "demon": { const h = Codex.house(s.house); return [h?.name ?? typeName, h?.visages?.[s.visage] ?? ""].filter(Boolean).join(" · "); }
+    case "hunter": { const c = hunterData().creeds.find(x => x.key === s.hunter?.creed); return c ? `${c.name} · ${c.who}` : typeName; }
+    case "mortal": return s.kinfolk?.on ? t("Hud.Kind.kinfolk") : s.kami?.on ? t("Hud.Kind.kami") : s.fomor?.on ? t("Hud.Kind.fomor") : typeName;
+    case "spirit": return [t("Hud.Kind.spirit"), s.kind].filter(Boolean).join(" · ");
+    default: return s.kind || typeName;
+  }
+}
+
+/** Запас крупной цифрой: значок, значение, предел. */
+const stat = (cls, icon, value, max, tip, act = "") => `<${act ? `a data-act="${act}"` : "span"} class="rh-stat ${cls}" data-tooltip="${esc(tip)}">
+  <i class="fa-solid ${icon}"></i><b>${value}</b>${max != null ? `<small>/${max}</small>` : ""}</${act ? "a" : "span"}>`;
+
+/** Запасы по виду: кровь и мораль, Ярость и Гнозис с формой, Вера и Мука, Убеждённость, Эссенция духа… */
+function statsOf(a, kind) {
+  const s = a.system, out = [];
+  if (a.hasBlood) {
+    const perTurn = s.blood?.perTurn ?? 1, spent = a.bloodSpentThisTurn ?? 0;
+    const pips = perTurn <= 10 ? `<span class="rh-turn">${Array.from({ length: perTurn }, (_, i) => `<i class="${i < spent ? "on" : ""}"></i>`).join("")}</span>` : "";
+    out.push(`<a class="rh-stat rh-blood" data-act="spend" data-tooltip="${esc(game.combat?.started ? t("Hud.BloodTipTurn", { n: perTurn, spent }) : t("Hud.BloodTip", { n: perTurn }))}">
+      <i class="fa-solid fa-droplet"></i><b>${s.blood.value}</b><small>/${s.blood.max}</small>${pips}</a>`);
+  }
+  if (kind === "werewolf") {
+    const w = s.werewolf, fera = feraOf(a), form = (fera?.forms ?? VTM20.garouForms).find(f => f.key === w.form);
+    out.push(stat("rh-rage", "fa-fire", w.rage.value, w.rage.permanent, t("Hud.RageTip")));
+    out.push(stat("rh-gnosis", "fa-moon", w.gnosis.value, w.gnosis.permanent, t("Hud.GnosisTip")));
+    // форма — подписью у запасов только без группы форм (узкий HUD прячет её подпись, кнопка формы остаётся)
+    if (form) out.push(`<span class="rh-stat rh-form" data-tooltip="${esc(t("Hud.FormNow"))}"><b>${esc(VTM20.label(form))}</b></span>`);
+  } else if (kind === "demon") {
+    out.push(stat("rh-faith", "fa-hand-sparkles", s.faith?.temporary ?? 0, s.faith?.permanent ?? 0, t("Demon.Faith")));
+    out.push(stat("rh-torment", "fa-skull", s.torment?.permanent ?? 0, null, t("Hud.TormentTip", { n: s.torment?.temporary ?? 0 })));
+  } else if (kind === "hunter") {
+    out.push(stat("rh-conviction", "fa-sun", s.hunter?.conviction ?? 0, null, t("Hunter.Conviction")));
+  } else if (kind === "spirit") {
+    const sp = s.spirit;
+    out.push(stat("rh-essence", "fa-wind", sp.essence.value, sp.essence.max, t("Hud.EssenceTip")));
+    out.push(stat("rh-rage", "fa-fire", sp.rage, null, t("Werewolf.Rage")), stat("rh-gnosis", "fa-moon", sp.gnosis, null, t("Werewolf.Gnosis")));
+  } else {
+    if (s.morality) out.push(stat("rh-moral", "fa-scale-balanced", s.morality.value, null, Codex.path(s.morality.path)?.name ?? t("Humanity")));
+    if (s.kinfolk?.on && s.kinfolk.gnosis) out.push(stat("rh-gnosis", "fa-moon", s.kinfolk.gnosis, null, t("Werewolf.Gnosis")));
+    if (s.kami?.on) out.push(stat("rh-gnosis", "fa-seedling", s.kami.gnosis, null, t("Werewolf.Gnosis")));
+    if ((s.kami?.on && s.kami.rage) || (s.fomor?.on && s.fomor.rage)) out.push(stat("rh-rage", "fa-fire", s.kami?.on ? s.kami.rage : s.fomor.rage, null, t("Werewolf.Rage")));
+  }
+  return out.join("");
+}
+
+/** Свои действия вида: Мощь и Стремительность, лечение и охота; действия Гару; облик падшего; второе зрение. */
+function actionsOf(a, kind) {
+  const s = a.system, btn = (k, icon, tip, on = false, extra = "") => `<a class="rh-btn ${on ? "is-on" : ""}" data-act="${k}" data-tooltip="${esc(tip)}" aria-label="${esc(tip)}"><i class="fa-solid ${icon}"></i>${extra}</a>`;
+  let out = btn("roll", "fa-dice-d10", t("Hud.RollTip"));
+  if (a.hasBlood) {
+    // Мощь за кровь и дополнительные действия Стремительности — на этот ход (Дисциплины/06, 14)
+    const pot = a.discipline("potence"), cel = a.discipline("celerity");
+    if (pot) out += btn("potence", "fa-hand-fist", t(a.potenceActive ? "Hud.PotenceOnTip" : "Hud.PotenceTip", { n: pot }), a.potenceActive);
+    if (cel) out += btn("celerity", "fa-forward", t("Hud.CelerityTip", { n: cel, used: a.celerityActions }), !!a.celerityActions, a.celerityActions ? `<small>${a.celerityActions}</small>` : "");
+    out += btn("heal", "fa-hand-holding-droplet", t("Sheet.HealHint")) + btn("hunt", "fa-moon", t("Hunt.Button"));
+  }
+  if (kind === "werewolf") out += btn("wwActions", "fa-forward-fast", t("Werewolf.ActionsHint")) + btn("wwRegen", "fa-heart-pulse", t("Werewolf.RegenHint"))
+    + btn("wwStep", "fa-circle-half-stroke", t("Werewolf.StepHint")) + btn("wwFrenzy", "fa-face-angry", t("Werewolf.FrenzyHint"));
+  if (kind === "demon") out += btn("apocalyptic", "fa-dragon", t(s.apocalyptic ? "Hud.ApocOn" : "Hud.ApocOff"), !!s.apocalyptic);
+  if (kind === "hunter") out += btn("sight", "fa-eye", t("Hud.SightTip"));
+  return out + btn("hazard", "fa-fire-flame-curved", t("Hazard.Title"));
+}
+
+/** Формы Гару и Фера — мини-кнопками; текущая подсвечена, смена — бросок или трата Ярости (werewolf.mjs, changeForm). */
+function formsOf(a) {
+  const w = a.system.werewolf, fera = feraOf(a), list = fera ? fera.forms.map(f => ({ ...f, icon: "fa-paw" })) : VTM20.garouForms;
+  return list.map(f => `<a class="rh-btn rh-formbtn ${f.key === w.form ? "is-on" : ""}" ${f.key === w.form ? "" : `data-act="form" data-form="${f.key}"`} data-tooltip="${esc(VTM20.label(f))}" aria-label="${esc(VTM20.label(f))}"><i class="fa-solid ${f.icon ?? "fa-paw"}"></i></a>`).join("");
+}
+
 export function renderHud() {
   if (!enabled()) return;
   const el = mount();
   document.body.classList.add("r-hud-on");
   const a = hudActor();
+  el.className = "vtm20 r-hud";
   if (!a) {
-    el.classList.remove("is-turn");
     el.innerHTML = `<p class="rh-empty"><i class="fa-solid fa-user-slash"></i> ${esc(t(game.user.isGM ? "Hud.PickToken" : "Hud.NoCharacter"))}</p>`;
     fitHud(); return;
   }
-  const s = a.system, vamp = a.isVampire;
-  const clan = vamp ? (Codex.clan(s.clan)?.name ?? "") : game.i18n.localize(`TYPES.Actor.${a.type}`);
-  const sub = [clan, vamp ? game.i18n.format("VTM20.GenerationN", { n: s.generation }) : ""].filter(Boolean).join(" · ");
-  const path = Codex.path(s.morality.path);
-  const perTurn = s.blood?.perTurn ?? 1, spentTurn = a.hasBlood ? a.bloodSpentThisTurn : 0;
-  const turnPips = a.hasBlood && perTurn <= 10 ? `<span class="rh-turn">${Array.from({ length: perTurn }, (_, i) => `<i class="${i < spentTurn ? "on" : ""}"></i>`).join("")}</span>` : "";
-  const blood = a.hasBlood ? `<a class="rh-stat rh-blood" data-act="spend" data-tooltip="${esc((game.combat?.started ? t("Hud.BloodTipTurn", { n: perTurn, spent: spentTurn }) : t("Hud.BloodTip", { n: perTurn })))}">
-      <i class="fa-solid fa-droplet"></i><b>${s.blood.value}</b><small>/${s.blood.max}</small>${turnPips}</a>` : "";
-  const morality = `<span class="rh-stat rh-moral" data-tooltip="${esc(path?.name ?? t("Humanity"))}"><i class="fa-solid fa-scale-balanced"></i><b>${s.morality.value}</b></span>`;
+  const s = a.system, kind = kindOf(a), vamp = a.isVampire;
+  el.classList.add(`rh-t-${kind}`);
 
-  // оружие — только значок, подобранный по названию (лук, коса, кинжал…); название и урон — в подсказке; лишнее с конца прячет fitWeapons
+  // оружие — значок по названию (лук, коса, кинжал…); естественное оружие формы (когти, клыки Криноса, облик падшего) — следом
   const weapons = weaponsOf(a).slice(0, 4).map(w => `<a class="rh-btn rh-weapon" data-act="attack" data-weapon="${w.id}" data-tooltip="${esc(`${w.name} · ${w.label} · ${game.i18n.localize(VTM20.damageTypes[w.damageType]?.label ?? "")}`)}" aria-label="${esc(w.name)}">
       <i class="fa-solid ${weaponGlyph(w)}"></i></a>`).join("");
+  const natural = (s.formFx?.weapons ?? []).map((w, i) => `<a class="rh-btn rh-weapon rh-natural" data-act="natural" data-n="${i}" data-tooltip="${esc(`${w.name} · ${game.i18n.localize(VTM20.damageTypes[w.type]?.label ?? "")}`)}" aria-label="${esc(w.name)}">
+      <i class="fa-solid ${w.icon ?? (/укус|клык|bite/i.test(w.name) ? "fa-tooth" : "fa-paw")}"></i></a>`).join("");
   const man = (k, icon) => {
     const tip = [t(`Combat.M.${k}`), t(`Combat.MNote.${k}`)].filter(Boolean).join(" — ");
     return `<a class="rh-btn rh-man ${k === "bite" ? "rh-bite" : ""}" data-act="maneuver" data-man="${k}" data-tooltip="${esc(tip)}" aria-label="${esc(t(`Combat.M.${k}`))}"><i class="fa-solid ${icon}"></i></a>`;
   };
-  const maneuvers = man("punch", "fa-hand-fist") + (s.fx?.claws ? man("claws", "fa-paw") : "") + (vamp ? man("bite", "fa-tooth") : man("clinch", "fa-people-pulling"));
-  // Мощь за кровь и дополнительные действия Стремительности — на этот ход (Дисциплины/06, 14)
-  const pot = a.discipline("potence"), cel = a.discipline("celerity");
-  const physBtns = (a.hasBlood && pot ? `<a class="rh-btn ${a.potenceActive ? "is-on" : ""}" data-act="potence" data-tooltip="${esc(t(a.potenceActive ? "Hud.PotenceOnTip" : "Hud.PotenceTip", { n: pot }))}"><i class="fa-solid fa-hand-fist"></i></a>` : "")
-    + (a.hasBlood && cel ? `<a class="rh-btn ${a.celerityActions ? "is-on" : ""}" data-act="celerity" data-tooltip="${esc(t("Hud.CelerityTip", { n: cel, used: a.celerityActions }))}"><i class="fa-solid fa-forward"></i>${a.celerityActions ? `<small>${a.celerityActions}</small>` : ""}</a>` : "");
+  // с естественным оружием формы (Кринос, облик падшего) приёмы — под «…», чтобы когти и клыки были видны и в узком HUD
+  const maneuvers = natural ? "" : man("punch", "fa-hand-fist") + (s.fx?.claws ? man("claws", "fa-paw") : "") + (vamp ? man("bite", "fa-tooth") : man("clinch", "fa-people-pulling"));
   // силы, вынесенные булавкой с листа (флаг hudPowers): знак Дисциплины и уровень, щелчок — бросок
   const powers = (a.getFlag(SYSTEM_ID, "hudPowers") ?? []).map(ref => {
     const x = powerByRef(ref);
@@ -138,22 +222,24 @@ export function renderHud() {
   const btn = (k, icon, tip) => `<a class="rh-btn" data-act="${k}" data-tooltip="${esc(tip)}" aria-label="${esc(tip)}"><i class="fa-solid ${icon}"></i></a>`;
   const group = (label, body, cls = "") => `<div class="rh-group ${cls}"><label>${esc(label)}</label><div class="rh-group-body">${body}</div></div>`;
   const healthNote = s.health.damage ? `${game.i18n.localize(`VTM20.Health.${s.health.status}`)}${s.health.penalty ? ` ${s.health.penalty}` : ""}` : t("Health.healthy");
+  // состояния (торпор, бешенство, Харано…) — значками у портрета
+  const states = ["r-torpor", "r-staked", "r-frenzy", "r-rotschreck", "r-harano", "r-rapture"].filter(id => a.statuses?.has(id))
+    .map(id => CONFIG.statusEffects.find(e => e.id === id)).filter(Boolean)
+    .map(e => `<img src="${esc(e.img)}" data-tooltip="${esc(game.i18n.localize(e.name))}" alt="">`).join("");
   el.innerHTML = `
+    <a class="rh-plate" data-act="sheet" data-tooltip="${esc(t("Hud.SheetTip"))}"><img class="rh-sigil" src="${esc(VTM20.typeSigil(a.type))}" alt=""><b>${esc(a.name)}</b><small>${esc(subtitleOf(a, kind))}</small></a>
     <div class="rh-face" data-act="sheet" data-tooltip="${esc(t("Hud.SheetTip"))}">
-      <img src="${esc(a.img)}" alt="">
-      <div><b>${esc(a.name)}</b><small>${esc(sub)}</small></div>
+      <span class="rh-ring"><img src="${esc(a.img)}" alt=""></span>${states ? `<span class="rh-states">${states}</span>` : ""}
     </div>
     <div class="rh-tracks">
       <div data-tooltip="${esc(healthNote)}"><label>${esc(t("Sheet.Health"))}</label>${healthTrack(s)}<em class="${s.health.damage ? "is-hurt" : ""}">${esc(healthNote)}</em></div>
       <div><label>${esc(t("Willpower"))}</label>${willTrack(s)}<em>${s.willpower.temporary}/${s.willpower.permanent}</em></div>
-      <div class="rh-stats">${blood}${morality}</div>
+      <div class="rh-stats">${statsOf(a, kind)}</div>
     </div>
-    ${group(t("Combat.Attack"), `${alarm}${weapons}${maneuvers}<a class="rh-btn rh-man" data-act="attack" data-tooltip="${esc(t("Hud.AttackTip"))}"><i class="fa-solid fa-ellipsis"></i></a>`, "rh-attacks")}
+    ${group(t("Combat.Attack"), `${alarm}${weapons}${natural}${maneuvers}<a class="rh-btn rh-man" data-act="attack" data-tooltip="${esc(t("Hud.AttackTip"))}"><i class="fa-solid fa-ellipsis"></i></a>`, "rh-attacks")}
     ${group(t("Hud.Defense"), btn("dodge", "fa-person-running", t("Combat.Defense.dodge")) + btn("block", "fa-shield-halved", t("Combat.Defense.block")) + btn("parry", "fa-khanda", t("Combat.Defense.parry")))}
-    ${group(t("Hud.Actions"), btn("roll", "fa-dice-d10", t("Hud.RollTip"))
-      + physBtns
-      + (a.hasBlood ? btn("heal", "fa-hand-holding-droplet", t("Sheet.HealHint")) + btn("hunt", "fa-moon", t("Hunt.Button")) : "")
-      + btn("hazard", "fa-fire", t("Hazard.Title")))}
+    ${kind === "werewolf" ? group(t("Hud.Form"), formsOf(a), "rh-forms") : ""}
+    ${group(t("Hud.Actions"), actionsOf(a, kind))}
     ${powers || fxChips ? group(t("Hud.Powers"), powers + fxChips, "rh-powers") : ""}
     <div class="rh-side">${init}
       <div class="rh-side-row">
@@ -175,6 +261,16 @@ async function onClick(ev) {
     case "sheet": return a.sheet.render(true);
     case "attack": return openAttack(a, { weapon: el.dataset.weapon ?? null });
     case "maneuver": return openAttack(a, { maneuver: el.dataset.man });
+    case "natural": return openAttack(a, { natural: Number(el.dataset.n) });
+    // Гару: форма, действия за Ярость, регенерация, шаг в сторону, бешенство (W20, гл. 6–7)
+    case "form": return changeForm(a, el.dataset.form);
+    case "wwActions": return rageActions(a);
+    case "wwRegen": return regenerate(a);
+    case "wwStep": return stepSideways(a);
+    case "wwFrenzy": return frenzyCheck(a);
+    // падший: апокалиптическая форма; охотник: второе зрение
+    case "apocalyptic": return assumeForm(a);
+    case "sight": return secondSight(a);
     case "roll": return RollDialog.prompt(a, {});
     case "dodge": case "block": case "parry": return openDefense(a, el.dataset.act);
     case "spend": return a.spendBlood(1, { reason: t("Notify.ReasonManual") });

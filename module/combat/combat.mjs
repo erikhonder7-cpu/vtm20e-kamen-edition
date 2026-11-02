@@ -81,8 +81,9 @@ export function openDefense(actor, kind = "dodge", { onRolled = null, subtitle =
 
 /* ── Окно атаки ───────────────────────────────────────────────────────── */
 
-export function openAttack(actor, { weapon = null, maneuver = null } = {}) {
-  return new AttackDialog(actor, { weapon, maneuver }).render({ force: true });
+/** natural — номер естественного оружия формы (formFx.weapons: когти и клыки Гару, атаки апокалиптической формы). */
+export function openAttack(actor, { weapon = null, maneuver = null, natural = null } = {}) {
+  return new AttackDialog(actor, { weapon, maneuver, natural }).render({ force: true });
 }
 
 export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
@@ -97,14 +98,14 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
 
   static PARTS = { form: { template: `${SYSTEM_PATH}/templates/dice/attack-dialog.hbs` } };
 
-  constructor(actor, { weapon, maneuver }) {
+  constructor(actor, { weapon, maneuver, natural = null }) {
     super({ window: { title: `${t("Combat.Attack")}: ${actor.name}` } });
     this.actor = actor;
     const first = weaponsOf(actor)[0];
     const marked = [...(game.user.targets ?? [])].map(tk => tk.actor).filter(x => x && x !== actor);
     this.v = {
       foe: marked[0]?.uuid ?? "",
-      pick: weapon ? `w:${weapon}` : maneuver ? `m:${maneuver}` : first ? `w:${first.id}` : "m:punch",
+      pick: natural != null ? `f:${natural}` : weapon ? `w:${weapon}` : maneuver ? `m:${maneuver}` : first ? `w:${first.id}` : "m:punch",
       position: "front", aim: "none", foes: 0, blind: false, target: "normal",
       range: "normal", cover: 0, actions: 1, bonus: 0, diffAdj: 0,
       specialty: false, willpower: false, physical: true, wounds: true,

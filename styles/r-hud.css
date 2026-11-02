@@ -1,7 +1,8 @@
 /* ══════════════════════════════════════════════════════════════════════════
    VTM20 «Liberté» — HUD персонажа вместо панели макросов.
-   Одна строка высотой ~66px: портрет · шкалы · кровь и мораль · атака · защита ·
-   действия · сводка. Группы подписаны капителью, кнопки — значки с подсказками.
+   Табличка с именем над строкой; строка ~70px: медальон · шкалы и запасы вида · атака · защита ·
+   (формы Гару) · действия вида · силы · сводка. Цвет — по виду персонажа: класс rh-t-* задаёт
+   --h-acc (светлый), --h-acc-d (тёмный) и --h-acc-rgb (для прозрачности); кровь и раны — всегда кровью.
    ══════════════════════════════════════════════════════════════════════════ */
 
 body.r-hud-on #hotbar { display: none !important; }
@@ -10,26 +11,50 @@ body.r-hud-on #hotbar { display: none !important; }
   --h-bone: #d8cfbf; --h-bone-b: #ece4d4; --h-bone-2: #b3aa98; --h-muted: #7d766a; --h-dim: #5a554d;
   --h-line: rgba(216, 207, 191, .1); --h-line-2: rgba(216, 207, 191, .2);
   --h-blood: #8c1c22; --h-blood-l: #c4474c; --h-blood-d: #4a0d11;
+  --h-acc: #c4474c; --h-acc-d: #8c1c22; --h-acc-rgb: 196, 71, 76;
   --h-caps: "IM Fell SC", "Forum", Georgia, serif;
-  position: relative; display: flex; align-items: stretch; margin: 0 auto 6px; max-width: min(1240px, 100%); height: 68px; pointer-events: all;
+  position: relative; display: flex; align-items: stretch; margin: 26px auto 6px; max-width: min(1280px, 100%); height: 70px; pointer-events: all;
   font-family: "Old Standard", Georgia, serif; color: var(--h-bone);
-  background: linear-gradient(180deg, #151517, #0c0c0e); border: 1px solid #000; box-shadow: 0 0 0 1px #232327, 0 10px 28px rgba(0, 0, 0, .75);
+  background: radial-gradient(ellipse at 0% 0%, rgba(var(--h-acc-rgb), .10), transparent 45%), linear-gradient(180deg, #151517, #0c0c0e);
+  border: 1px solid #000; box-shadow: 0 0 0 1px #232327, 0 10px 28px rgba(0, 0, 0, .75);
 }
+/* цвет по виду персонажа */
+#r-hud.rh-t-vampire  { --h-acc: #c4474c; --h-acc-d: #8c1c22; --h-acc-rgb: 196, 71, 76; }
+#r-hud.rh-t-ghoul    { --h-acc: #c99a5b; --h-acc-d: #7a5426; --h-acc-rgb: 201, 154, 91; }
+#r-hud.rh-t-dhampir  { --h-acc: #c45f92; --h-acc-d: #6e2350; --h-acc-rgb: 196, 95, 146; }
+#r-hud.rh-t-werewolf { --h-acc: #b9c8c3; --h-acc-d: #4f6b5a; --h-acc-rgb: 185, 200, 195; }
+#r-hud.rh-t-demon    { --h-acc: #e4793e; --h-acc-d: #8a3412; --h-acc-rgb: 228, 121, 62; }
+#r-hud.rh-t-hunter   { --h-acc: #e3a24c; --h-acc-d: #7a5418; --h-acc-rgb: 227, 162, 76; }
+#r-hud.rh-t-mortal   { --h-acc: #cdbf9f; --h-acc-d: #6e6556; --h-acc-rgb: 205, 191, 159; }
+#r-hud.rh-t-creature, #r-hud.rh-t-spirit { --h-acc: #6cb8ad; --h-acc-d: #22605a; --h-acc-rgb: 108, 184, 173; }
+
 #r-hud, #r-hud * { box-sizing: border-box; }
-#r-hud::before { content: ""; position: absolute; left: -1px; top: -1px; width: 48px; height: 2px; background: var(--h-blood-l); z-index: 1; }
-#r-hud > * { display: flex; align-items: center; min-width: 0; padding: 0 10px; border-right: 1px solid #1d1d21; flex: 0 0 auto; }
+#r-hud::before { content: ""; position: absolute; left: -1px; top: -1px; width: 64px; height: 2px; background: var(--h-acc); z-index: 1; }
+#r-hud > *:not(.rh-plate) { display: flex; align-items: center; min-width: 0; padding: 0 10px; border-right: 1px solid #1d1d21; flex: 0 0 auto; }
 #r-hud > *:last-child { border-right: 0; }
 #r-hud:has(.rh-face) { container-type: inline-size; width: 100%; }
 #r-hud a { cursor: pointer; color: inherit; text-decoration: none; }
 #r-hud .rh-empty { flex: 1; justify-content: center; gap: 8px; margin: 0; font-size: 13px; font-style: italic; color: var(--h-muted); }
 
-/* Портрет */
-#r-hud .rh-face { gap: 10px; padding-left: 8px; width: 196px; background: #0a0a0c; }
-#r-hud .rh-face img { width: 44px; height: 54px; flex: 0 0 auto; object-fit: cover; object-position: 50% 20%; border: 1px solid var(--h-line-2); filter: grayscale(.3) contrast(1.05); }
-#r-hud .rh-face:hover img { filter: none; }
-#r-hud .rh-face div { display: flex; flex-direction: column; min-width: 0; }
-#r-hud .rh-face b { font-family: "Prata", Georgia, serif; font-weight: 400; font-size: 14.5px; line-height: 1.15; color: var(--h-bone-b); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-#r-hud .rh-face small { font-family: var(--h-caps); font-size: 10.5px; letter-spacing: 1px; text-transform: uppercase; color: var(--h-blood-l); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* Табличка с именем — над строкой, как ярлык папки: знак вида, имя, клан/племя/Дом/кредо */
+#r-hud .rh-plate {
+  position: absolute; left: -1px; bottom: 100%; display: flex; align-items: baseline; gap: 8px; max-width: 70%; height: 25px; padding: 4px 14px 0 8px;
+  background: linear-gradient(180deg, #19191c, #111113); border: 1px solid #000; border-bottom: 0;
+  box-shadow: 0 0 0 1px #232327, inset 0 2px 0 var(--h-acc); white-space: nowrap; overflow: hidden;
+}
+#r-hud .rh-plate .rh-sigil { align-self: center; width: 15px; height: 15px; flex: 0 0 auto; filter: drop-shadow(0 0 3px rgba(var(--h-acc-rgb), .5)); }
+#r-hud .rh-plate b { font-family: "Prata", Georgia, serif; font-weight: 400; font-size: 14.5px; color: var(--h-bone-b); overflow: hidden; text-overflow: ellipsis; }
+#r-hud .rh-plate small { font-family: var(--h-caps); font-size: 10.5px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--h-acc); overflow: hidden; text-overflow: ellipsis; }
+#r-hud .rh-plate:hover b { color: #fff; }
+
+/* Медальон: портрет в кольце цвета вида, состояния значками у кромки */
+#r-hud .rh-face { position: relative; justify-content: center; width: 78px; padding: 0 8px; background: radial-gradient(circle at 50% 50%, rgba(var(--h-acc-rgb), .14), #0a0a0c 70%); cursor: pointer; }
+#r-hud .rh-ring { display: block; width: 56px; height: 56px; padding: 2px; border-radius: 50%;
+  background: conic-gradient(from 210deg, var(--h-acc), var(--h-acc-d), var(--h-acc)); box-shadow: 0 0 10px rgba(var(--h-acc-rgb), .35); }
+#r-hud .rh-ring img { width: 100%; height: 100%; display: block; border-radius: 50%; object-fit: cover; object-position: 50% 20%; border: 2px solid #0a0a0c; filter: grayscale(.25) contrast(1.05); }
+#r-hud .rh-face:hover .rh-ring img { filter: none; }
+#r-hud .rh-states { position: absolute; right: 2px; bottom: 3px; display: flex; flex-direction: column; gap: 1px; }
+#r-hud .rh-states img { width: 17px; height: 17px; padding: 1px; border: 1px solid #c4474c; border-radius: 50%; background: #1a0b0c; filter: invert(.9) sepia(.4) saturate(3) hue-rotate(-30deg); }
 
 /* Шкалы: подпись · клетки · состояние */
 #r-hud .rh-tracks { flex-direction: column; align-items: stretch; justify-content: center; gap: 4px; }
@@ -49,35 +74,26 @@ body.r-hud-on #hotbar { display: none !important; }
 #r-hud .rh-will i { width: 10px; height: 10px; margin: 2px 2px 2px 0; }
 #r-hud .rh-will i.on { background: linear-gradient(180deg, #e8e0cf, #b8ae99); border-color: var(--h-bone); }
 
-/* Кровь и мораль — третьей строкой под шкалами */
-#r-hud .rh-tracks > .rh-stats { display: flex; align-items: baseline; gap: 14px; padding-left: 66px; }
+/* Запасы вида — третьей строкой под шкалами */
+#r-hud .rh-tracks > .rh-stats { display: flex; align-items: baseline; gap: 14px; padding-left: 66px; white-space: nowrap; }
 #r-hud .rh-stat { display: inline-flex; align-items: baseline; gap: 4px; line-height: 1; }
-#r-hud .rh-stat i { font-size: 10.5px; color: var(--h-muted); }
+#r-hud .rh-stat i { font-size: 10.5px; color: var(--h-acc); }
 #r-hud .rh-stat b { font-family: "Prata", Georgia, serif; font-weight: 400; font-size: 15px; color: var(--h-bone-b); }
 #r-hud .rh-stat small { font-family: "Prata", Georgia, serif; font-size: 11px; color: var(--h-muted); }
 #r-hud .rh-blood i { color: var(--h-blood-l); }
 #r-hud .rh-blood:hover b { color: #ff9ea1; }
+#r-hud .rh-rage i { color: #d06a4a; }
+#r-hud .rh-moral i { color: var(--h-muted); }
+#r-hud .rh-form b { font-family: var(--h-caps); font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--h-acc); }
+#r-hud .rh-torment i { color: #d0565b; }
 
 /* Группы: подпись сверху, содержимое в строку */
 #r-hud .rh-group { flex-direction: column; align-items: flex-start; justify-content: center; gap: 5px; }
 #r-hud .rh-group > label { font-family: var(--h-caps); font-size: 9.5px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--h-dim); line-height: 1; }
+#r-hud .rh-group > label::before { content: ""; display: inline-block; width: 8px; height: 1px; margin: 0 5px 3px 0; background: var(--h-acc); opacity: .7; }
 #r-hud .rh-group-body { display: flex; align-items: center; gap: 3px; }
 #r-hud .rh-attacks { flex: 1 1 auto; }
 #r-hud .rh-attacks .rh-group-body { flex-wrap: nowrap; overflow: hidden; width: 100%; }
-#r-hud .rh-weapon {
-  display: inline-flex; align-items: center; gap: 6px; flex: 0 1 auto; min-width: 32px; height: 30px; padding: 0 10px; max-width: 170px;
-  font-size: 12.5px; color: var(--h-bone-2); border: 1px solid var(--h-line-2); background: rgba(0, 0, 0, .3); transition: color .12s, border-color .12s, background .12s;
-}
-#r-hud .rh-weapon i { color: var(--h-blood-l); font-size: 12px; }
-#r-hud .rh-weapon i { flex: 0 0 auto; }
-#r-hud .rh-weapon span { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-#r-hud .rh-weapon:hover { color: var(--h-bone-b); border-color: var(--h-blood-l); background: rgba(140, 28, 34, .2); }
-#r-hud .rh-weapon.rh-mini { border-style: dashed; }
-#r-hud .rh-weapon.rh-mini i { color: var(--h-muted); }
-#r-hud .rh-weapon.rh-mini:hover i { color: var(--h-bone); }
-#r-hud .rh-weapon.rh-bite i { color: var(--h-blood-l); }
-#r-hud .rh-weapon.rh-more { padding: 0 9px; border-style: dashed; }
-#r-hud .rh-weapon.rh-more i { color: var(--h-muted); }
 #r-hud .rh-alarm {
   display: inline-flex; align-items: center; gap: 6px; flex: 0 0 auto; height: 30px; padding: 0 10px; max-width: 220px;
   font-size: 12.5px; color: #fff; background: linear-gradient(180deg, #a3242a, #5e0f14); border: 1px solid #c4474c;
@@ -87,93 +103,95 @@ body.r-hud-on #hotbar { display: none !important; }
 #r-hud .rh-alarm b { font-family: "Prata", serif; font-weight: 400; }
 @keyframes rh-alarm { 50% { filter: brightness(1.35); box-shadow: 0 0 12px rgba(196, 71, 76, .6); } }
 #r-hud .rh-btn {
-  display: grid; place-items: center; width: 32px; height: 30px; flex: 0 0 auto;
+  position: relative; display: grid; place-items: center; width: 32px; height: 30px; flex: 0 0 auto;
   border: 1px solid var(--h-line); background: rgba(0, 0, 0, .3); transition: color .12s, border-color .12s, background .12s;
 }
 #r-hud .rh-btn i { font-size: 14px; color: var(--h-bone-2); }
-#r-hud .rh-btn:hover { border-color: var(--h-blood-l); background: rgba(140, 28, 34, .2); }
+#r-hud .rh-btn:hover { border-color: var(--h-acc); background: rgba(var(--h-acc-rgb), .16); }
 #r-hud .rh-btn:hover i { color: var(--h-bone-b); }
 #r-hud .rh-btn.rh-man { border-style: dashed; border-color: var(--h-line-2); }
-#r-hud .rh-btn.is-on { border-color: var(--h-blood-l); background: rgba(140, 28, 34, .35); }
+#r-hud .rh-btn.is-on { border-color: var(--h-acc); background: rgba(var(--h-acc-rgb), .28); box-shadow: inset 0 0 6px rgba(var(--h-acc-rgb), .35); }
 #r-hud .rh-btn.is-on i { color: var(--h-bone-b); }
 #r-hud .rh-btn small { font-size: 10px; margin-left: 2px; color: var(--h-bone-b); }
 #r-hud .rh-btn.rh-man i { font-size: 13px; color: var(--h-muted); }
 #r-hud .rh-btn.rh-bite i { color: var(--h-blood-l); }
 #r-hud .rh-attacks .rh-group-body .rh-btn.rh-man:first-of-type { margin-left: 3px; }
+/* оружие — значок по названию; естественное оружие формы — цветом вида */
+#r-hud .rh-btn.rh-weapon i { color: var(--h-acc); font-size: 15px; }
+#r-hud .rh-btn.rh-weapon:hover i { color: #f1e9da; }
+#r-hud .rh-btn.rh-natural { border-color: rgba(var(--h-acc-rgb), .45); }
+#r-hud .rh-weapon[hidden] { display: none; }
+/* формы Гару: текущая — подсвечена и без щелчка */
+#r-hud .rh-formbtn { width: 28px; }
+#r-hud .rh-formbtn.is-on { cursor: default; }
+#r-hud .rh-formbtn.is-on i { color: var(--h-acc); filter: drop-shadow(0 0 4px rgba(var(--h-acc-rgb), .6)); }
 
-/* Сводка справа */
-#r-hud .rh-side { flex-direction: column; align-items: stretch; justify-content: center; gap: 3px; width: 118px; }
+/* Сводка справа: инициатива крупно, броня и прочность */
+#r-hud .rh-side { flex-direction: column; align-items: stretch; justify-content: center; gap: 4px; width: 150px; }
 #r-hud .rh-chip { display: flex; align-items: center; gap: 6px; height: 19px; padding: 0 8px; font-size: 12px; color: var(--h-bone-2); border: 1px solid var(--h-line); background: rgba(0, 0, 0, .3); white-space: nowrap; overflow: hidden; }
-#r-hud a.rh-chip:hover { border-color: var(--h-blood-l); color: var(--h-bone-b); }
+#r-hud a.rh-chip:hover { border-color: var(--h-acc); color: var(--h-bone-b); }
 #r-hud .rh-chip i { width: 12px; text-align: center; font-size: 11px; color: var(--h-muted); }
 #r-hud .rh-chip small { color: var(--h-blood-l); }
 #r-hud .rh-chip.is-off { opacity: .45; }
-#r-hud .rh-chip.is-turn { border-color: var(--h-blood-l); color: var(--h-bone-b); box-shadow: inset 2px 0 0 var(--h-blood-l); }
-
-/* Кровь: лимит за ход точками под запасом */
-#r-hud .rh-turn { display: inline-flex; gap: 2px; margin-left: 6px; align-self: center; }
-#r-hud .rh-turn i { width: 6px; height: 6px; border-radius: 50%; border: 1px solid var(--h-blood-l); }
-#r-hud .rh-turn i.on { background: var(--h-blood-l); box-shadow: 0 0 4px rgba(196, 71, 76, .7); }
-
-/* Оружие: значок предмета маской, название, урон */
-#r-hud .rh-wico { flex: 0 0 auto; width: 17px; height: 17px; background: var(--h-blood-l); -webkit-mask: var(--ico) center / contain no-repeat; mask: var(--ico) center / contain no-repeat; }
-#r-hud .rh-weapon:hover .rh-wico { background: #f1e9da; }
-#r-hud .rh-btn.rh-weapon { flex: 0 0 auto; }
-#r-hud .rh-btn.rh-weapon i { color: var(--h-blood-l); font-size: 15px; }
-#r-hud .rh-btn.rh-weapon:hover i { color: #f1e9da; }
-#r-hud .rh-weapon[hidden] { display: none; }
-#r-hud .rh-wdmg { flex: 0 0 auto; font-family: "Prata", Georgia, serif; font-weight: 400; font-size: 12.5px; color: var(--h-bone-b); }
-#r-hud .rh-wdmg em { margin-left: 2px; font-style: normal; color: var(--h-blood-l); }
-
-/* Избранные силы: знак Дисциплины и уровень */
-#r-hud .rh-power { position: relative; }
-#r-hud .rh-pico { width: 24px; height: 24px; border: 0; filter: grayscale(.25) brightness(.92); }
-#r-hud .rh-power:hover .rh-pico { filter: none; }
-#r-hud .rh-power small { position: absolute; right: 2px; bottom: 0; font-family: "Prata", serif; font-size: 9.5px; color: var(--h-blood-l); }
-
-/* Инициатива крупно; в свой ход светится весь HUD */
-#r-hud .rh-side { width: 150px; gap: 4px; }
 #r-hud .rh-init { display: flex; align-items: baseline; gap: 7px; height: 28px; padding: 0 8px; border: 1px solid var(--h-line-2); background: rgba(0, 0, 0, .35); color: var(--h-bone-2); }
 #r-hud .rh-init b { font-family: "Prata", Georgia, serif; font-weight: 400; font-size: 21px; line-height: 26px; color: var(--h-bone-b); }
 #r-hud .rh-init b i { font-size: 14px; color: var(--h-muted); }
 #r-hud .rh-init span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--h-caps); font-size: 10px; letter-spacing: 1px; text-transform: uppercase; }
-#r-hud a.rh-init:hover { border-color: var(--h-blood-l); color: var(--h-bone-b); }
-#r-hud .rh-init.is-turn { border-color: var(--h-blood-l); background: linear-gradient(90deg, rgba(140, 28, 34, .55), rgba(140, 28, 34, .15)); color: #f1e9da; }
+#r-hud .rh-init span i { color: var(--h-acc); }
+#r-hud a.rh-init:hover { border-color: var(--h-acc); color: var(--h-bone-b); }
+#r-hud .rh-init.is-turn { border-color: var(--h-acc); background: linear-gradient(90deg, rgba(var(--h-acc-rgb), .45), rgba(var(--h-acc-rgb), .12)); color: #f1e9da; }
 #r-hud .rh-side-row { display: flex; gap: 3px; }
 #r-hud .rh-side-row .rh-chip { flex: 1 1 0; min-width: 0; padding: 0 5px; justify-content: center; }
-#r-hud.is-turn { border-color: #6e1218; animation: rh-turn 2.2s ease-in-out infinite; }
+
+/* Свой ход: светится весь HUD цветом вида */
+#r-hud.is-turn { border-color: var(--h-acc-d); animation: rh-turn 2.2s ease-in-out infinite; }
 #r-hud.is-turn::before { width: 100%; }
-@keyframes rh-turn { 50% { box-shadow: 0 0 0 1px #8c1c22, 0 0 22px rgba(196, 71, 76, .55), 0 10px 28px rgba(0, 0, 0, .75); } }
-@media (prefers-reduced-motion: reduce) { #r-hud.is-turn { animation: none; box-shadow: 0 0 0 1px #8c1c22, 0 10px 28px rgba(0, 0, 0, .75); } }
+@keyframes rh-turn { 50% { box-shadow: 0 0 0 1px var(--h-acc-d), 0 0 22px rgba(var(--h-acc-rgb), .55), 0 10px 28px rgba(0, 0, 0, .75); } }
+@media (prefers-reduced-motion: reduce) { #r-hud.is-turn { animation: none; box-shadow: 0 0 0 1px var(--h-acc-d), 0 10px 28px rgba(0, 0, 0, .75); } }
+
+/* Кровь: лимит за ход точками у запаса */
+#r-hud .rh-turn { display: inline-flex; gap: 2px; margin-left: 6px; align-self: center; }
+#r-hud .rh-turn i { width: 6px; height: 6px; border-radius: 50%; border: 1px solid var(--h-blood-l); }
+#r-hud .rh-turn i.on { background: var(--h-blood-l); box-shadow: 0 0 4px rgba(196, 71, 76, .7); }
+
+/* Избранные силы: знак Дисциплины и уровень */
+#r-hud .rh-pico { width: 24px; height: 24px; border: 0; filter: grayscale(.25) brightness(.92); }
+#r-hud .rh-power:hover .rh-pico { filter: none; }
+#r-hud .rh-power small { position: absolute; right: 2px; bottom: 0; font-family: "Prata", serif; font-size: 9.5px; color: var(--h-acc); }
+/* действующие силы — значки; остаток «на час» / «до рассвета» — полоска по нижней кромке */
+#r-hud .rh-chip.rh-fx { position: relative; overflow: hidden; padding: 0 2px; }
+#r-hud .rh-chip.rh-fx img { width: 18px; height: 18px; border: 0; display: block; }
+#r-hud .rh-powers .rh-chip.rh-fx { width: 30px; height: 30px; padding: 0; justify-content: center; border-color: rgba(var(--h-acc-rgb), .6); box-shadow: inset 0 0 6px rgba(var(--h-acc-rgb), .35); }
+#r-hud .rh-powers .rh-chip.rh-fx img { width: 24px; height: 24px; }
+#r-hud .rh-fx-bar { position: absolute; left: 0; bottom: 0; height: 2px; background: var(--h-acc); transition: width .6s ease; }
 
 /* Поле чата при свёрнутой панели не налезает на HUD */
 body.r-hud-on #chat-notifications > #chat-message { display: none !important; }
 
-/* Широкий экран: подписи состояния у шкал; узкий — короче имя и оружие */
+/* Широкий экран: подписи состояния у шкал; узкий — без подписей шкал, табличка короче */
 @container (min-width: 1280px) {
   #r-hud .rh-tracks em { display: block; }
   #r-hud .rh-tracks > div:not(.rh-stats) { grid-template-columns: 58px auto 1fr; }
 }
 @container (max-width: 1260px) {
-  /* тесно (избранные силы, четыре оружия) — название оружия короче, урон остаётся */
-  #r-hud .rh-weapon span { display: none; }
-  #r-hud .rh-weapon { padding: 0 7px; gap: 4px; }
   #r-hud .rh-tracks label { display: none; }
   #r-hud .rh-tracks > div:not(.rh-stats) { grid-template-columns: auto; }
   #r-hud .rh-tracks > .rh-stats { padding-left: 0; }
 }
 @container (max-width: 1100px) {
-  #r-hud .rh-face { width: auto; }
-  #r-hud .rh-face div { display: none; }
+  /* тесно: кнопки уже, подпись формы — только у кнопки */
+  #r-hud .rh-btn { width: 28px; }
+  #r-hud .rh-formbtn { width: 25px; }
+  #r-hud .rh-stat.rh-form { display: none; }
+  #r-hud > *:not(.rh-plate) { padding: 0 7px; }
+  #r-hud .rh-side { width: 124px; }
 }
-@container (max-width: 900px) {
-  #r-hud .rh-face { width: auto; }
-  #r-hud .rh-face div { display: none; }
-  #r-hud .rh-tracks label { display: none; }
-  #r-hud .rh-tracks > div:not(.rh-stats) { grid-template-columns: auto; }
-  #r-hud .rh-tracks > .rh-stats { padding-left: 0; }
-  #r-hud .rh-weapon span { max-width: 30px; }
+@container (max-width: 980px) {
+  #r-hud .rh-face { width: 66px; }
+  #r-hud .rh-ring { width: 48px; height: 48px; }
+  #r-hud .rh-formbtn { width: 24px; }
   #r-hud .rh-side { width: 120px; }
+  #r-hud .rh-plate { max-width: 92%; }
 }
 
 /* ── Окна атаки, опасностей и диаблери ────────────────────────────────── */
@@ -207,9 +225,6 @@ body.r-hud-on #chat-notifications > #chat-message { display: none !important; }
 .vtm20 .r-diab-track b { font-family: var(--r-display); font-weight: 400; font-size: 17px; color: var(--r-ink); }
 .vtm20 .r-diab-bar { flex: 1 1 auto; height: 6px; border: 1px solid var(--r-line-2); }
 .vtm20 .r-diab-bar i { display: block; height: 100%; background: linear-gradient(90deg, #4a0d11, #c4474c); }
-/* действующие силы — значки Дисциплин */
-#r-hud .rh-chip.rh-fx { padding: 0 2px; }
-#r-hud .rh-chip.rh-fx img { width: 18px; height: 18px; border: 0; display: block; }
 
 /* ── Окно атаки: условия плитками-чипами, редкое под «Ещё» ── */
 .vtm20 .r-atk-target { display: grid; grid-template-columns: 132px minmax(0, 1fr); align-items: center; gap: 10px; }
@@ -231,10 +246,3 @@ body.r-hud-on #chat-notifications > #chat-message { display: none !important; }
 .vtm20 .r-atk-more[open] > summary { border-bottom: 1px solid var(--r-line); color: var(--r-ink-2); }
 .vtm20 .r-atk-more .r-atk-grid { padding: 8px 10px 10px; }
 .vtm20 .r-atk-blind { align-self: end; }
-
-/* Действующие эффекты сил — рядом с избранными силами, того же размера; рамка-свечение: «сейчас действует» */
-#r-hud .rh-powers .rh-chip.rh-fx { width: 30px; height: 30px; padding: 0; justify-content: center; border-color: rgba(196, 71, 76, .6); box-shadow: inset 0 0 6px rgba(196, 71, 76, .35); }
-#r-hud .rh-powers .rh-chip.rh-fx img { width: 24px; height: 24px; }
-/* остаток силы «на час» / «до рассвета» — полоска по нижней кромке знака */
-#r-hud .rh-chip.rh-fx { position: relative; overflow: hidden; }
-#r-hud .rh-fx-bar { position: absolute; left: 0; bottom: 0; height: 2px; background: #c4474c; transition: width .6s ease; }
