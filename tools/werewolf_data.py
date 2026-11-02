@@ -451,6 +451,8 @@ def parse_backgrounds():
         html_ = f"<p>{md_inline(cells[1])}</p>" + (f"<table><tbody>{rows}</tbody></table>" if rows else "")
         if en == "Totem":
             html_ += md_html(totem)
+        # ссылки справочника на его же файлы — на компендии системы
+        html_ = html_.replace("файл «Фетиши и талены»", "компендий фетишей и тален").replace("файл «Тотемы стаи»", "компендий тотемов")
         out.append({"name": name, "en": en, "sabbat": False, "source": SRC_W20, "line": "werewolf", "html": html_})
     return out
 

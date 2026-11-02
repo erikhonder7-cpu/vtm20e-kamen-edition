@@ -420,13 +420,15 @@
       {{/each}}
     </div>
     <h3 class="r-h3">{{localize "VTM20.Creator.GarouExtra" n=giftCost}}</h3>
+    {{#if giftExtraReady}}
     <div class="r-cr-edges r-cr-giftextra">
       {{#each giftExtra}}
       <a class="r-cr-edge {{#if on}}is-on{{/if}}" data-action="garouExtra" data-key="{{key}}" data-tooltip="{{text}}">
-        <span class="r-cr-edge-lvl">I</span><b>{{label}}</b>{{#if on}}<i class="fa-solid fa-check"></i>{{/if}}
+        <span class="r-cr-edge-lvl">I</span><b>{{label}}</b>{{#if from}}<em class="r-cr-gift-from">{{from}}</em>{{/if}}{{#if cost}}<small>{{cost}}</small>{{/if}}{{#if on}}<i class="fa-solid fa-check"></i>{{/if}}
       </a>
       {{/each}}
     </div>
+    {{else}}<p class="r-note">{{localize "VTM20.Creator.GarouExtraAfter"}}</p>{{/if}}
     {{/if}}
 
     {{!-- VI. Факты биографии и Добродетели --}}

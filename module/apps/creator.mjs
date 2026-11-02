@@ -495,6 +495,8 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       case "advantages": return rem.bg === 0 && rem.virt === 0 && (!this.isWerewolf || !this.renownIssues.length);
       case "freebies": return rem.free === 0;
       case "xp": return rem.xp >= 0;
+      // итог отмечен, только когда записывать уже можно — нечего распределять и нет ошибок
+      case "summary": return !this.problems(rem).length;
       case "pact": return !!this.st.pact.master && this.giftUsed <= this.giftPoints;
       case "edges": return this.st.edges.every(k => !this.edgeIssues(k).length);
       default: return true;
@@ -736,8 +738,11 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       const card = (g, on) => ({ key: g.key, label: lbl(g), en: g.en, on, text: VtMCreator.#preview(g.text, 160), cost: g.cost ? Object.entries(g.cost).map(([k, n]) => `${n} ${loc(`VTM20.GarouCr.T.${k === "willpower" ? "will" : k}`)}`).join(", ") : "" });
       ctx.giftSlots = this.giftSlots.map(s => ({ key: s.key, label: s.label, need: s.need ? t("GarouCr.GiftNeedPick", { what: s.need }) : "",
         list: this.slotGifts(s).map(k => D.gifts.find(g => g.key === k)).filter(g => g && (g.key === w.gifts[s.key] || !taken.has(g.key))).map(g => card(g, g.key === w.gifts[s.key])) }));
-      ctx.giftExtra = D.gifts.filter(g => g.level === 1 && ownGift(this.garouSelf, g) && !Object.values(w.gifts).includes(g.key))
-        .map(g => card(g, w.extra.includes(g.key))).sort((a, b) => b.on - a.on || a.label.localeCompare(b.label, "ru"));
+      // сверх трёх — только когда три ячейки заполнены, иначе список повторял бы их целиком; у карточки — откуда Дар и цена
+      const from = g => g.groups.filter(x => x.kind !== "fera" || x.key === w.fera).map(x => x.label ?? "").filter(Boolean).slice(0, 2).join(" · ");
+      ctx.giftExtraReady = this.giftSlots.every(s => !!w.gifts[s.key]);
+      ctx.giftExtra = ctx.giftExtraReady ? D.gifts.filter(g => g.level === 1 && ownGift(this.garouSelf, g) && !Object.values(w.gifts).includes(g.key))
+        .map(g => ({ ...card(g, w.extra.includes(g.key)), from: from(g) })).sort((a, b) => b.on - a.on || a.label.localeCompare(b.label, "ru")) : [];
       ctx.giftCost = this.rules.cost.gift;
       // Слава на шаге фактов биографии: по аугурии или 3 точки на выбор
       const r = this.garouRenown;
@@ -933,7 +938,8 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     return t.length > n ? t.slice(0, n).replace(/[\s.,;:—-]+$/, "") + "…" : t;
   }
 
-  static #plain(html) { return String(html ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim(); }
+  // теги — пробелом (абзацы не слипаются), но перед знаком препинания пробел не нужен («к <b>Бреду</b>, знают» → «к Бреду, знают»)
+  static #plain(html) { return String(html ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").replace(/ ([,.;:!?»)])/g, "$1").trim(); }
 
   /* ── Поля ──────────────────────────────────────────────────────────── */
 
