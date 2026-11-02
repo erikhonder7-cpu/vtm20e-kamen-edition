@@ -26,7 +26,7 @@
       <a class="r-ww-rankmedal {{#if werewolfInfo.canRank}}is-ready{{/if}}" {{#if editable}}data-action="wwStanding"{{/if}}
          data-tooltip="{{localize 'VTM20.Werewolf.RenownRank'}}{{#if werewolfInfo.nextRank}}<br>{{localize 'VTM20.Werewolf.NextRank'}}: {{werewolfInfo.nextRank}}{{/if}}">
         <span class="r-ww-rm-disc"><b>{{#if werewolfInfo.rank}}{{rRoman werewolfInfo.rank}}{{else}}0{{/if}}</b></span>
-        <span class="r-ww-rm-text"><small>{{localize "VTM20.Werewolf.Rank"}}</small><em>{{#if werewolfInfo.rankName}}{{werewolfInfo.rankName}}{{else}}—{{/if}}</em></span>
+        <span class="r-ww-rm-text"><small>{{localize "VTM20.Werewolf.Rank"}}</small>{{#if werewolfInfo.rankName}}<em>{{werewolfInfo.rankName}}</em>{{/if}}</span>
       </a>
       <div class="r-ww-where">
         <a class="r-vc-btn {{#if werewolfInfo.umbra}}is-umbra{{/if}}" data-action="wwUmbra" data-tooltip="{{localize 'VTM20.Umbra.Title'}}{{#if werewolfInfo.umbra}}: {{werewolfInfo.umbra.name}}{{/if}}"><i class="fa-solid fa-moon"></i> {{#if werewolfInfo.umbra}}{{werewolfInfo.umbra.name}}{{else}}{{localize "VTM20.Werewolf.UmbraShort"}}{{/if}}</a>

@@ -84,7 +84,8 @@ export function werewolfInfo(actor, dots) {
     dots: dots(w.renown[k].permanent, 10, { path: `system.werewolf.renown.${k}.permanent` }),
     tempDots: dots(w.renown[k].temporary, 10, { path: `system.werewolf.renown.${k}.temporary`, cls: "is-temp" }) }));
   return {
-    breed, auspice, tribe, rank: w.rank, rankName: D.rankNames?.[w.rank - 1] ?? "", fera, feraOptions: [{ key: "", label: t("Garou"), selected: !w.fera },
+    breed, auspice, tribe, rank: w.rank, rankName: fera ? "" : D.rankNames?.[w.rank - 1] ?? "", fera,   // звания Рангов — только Гару: у родов Фера в книге своих нет
+    feraOptions: [{ key: "", label: t("Garou"), selected: !w.fera },
       ...(D.fera ?? []).map(b => ({ key: b.key, label: VTM20.label(b), selected: b.key === w.fera }))],
     feraDims: (fera?.dims ?? []).filter(d => d.options.length).map(d => ({ key: d.key, label: d.label, value: w.feraSub?.[d.key] ?? "",
       text: d.options.find(o => o.key === w.feraSub?.[d.key])?.text ?? "", picked: VTM20.label(d.options.find(o => o.key === w.feraSub?.[d.key]) ?? {}),
@@ -216,7 +217,7 @@ export async function renownAward(actor) {
         ${edit ? `<a class="r-ws-step" data-step="-1"><i class="fa-solid fa-chevron-left"></i></a>` : ""}
         <div class="r-ws-medal"><span class="r-ws-roman">${ROMAN_RANK[w.rank] ?? w.rank}</span></div>
         ${edit ? `<a class="r-ws-step" data-step="1"><i class="fa-solid fa-chevron-right"></i></a>` : ""}
-        <div class="r-ws-title"><b>${esc(D.rankNames?.[w.rank - 1] ?? t("Rank"))}</b><span>${aus ? `<span class="r-ws-aus">${wwGlyph(`auspice-${aus.key}`)}</span>` : ""}${esc(aus?.name ?? "")}</span><em>${next}</em></div>
+        <div class="r-ws-title"><b>${esc((!w.fera && D.rankNames?.[w.rank - 1]) || `${t("Rank")} ${ROMAN_RANK[w.rank] ?? w.rank}`)}</b><span>${aus ? `<span class="r-ws-aus">${wwGlyph(`auspice-${aus.key}`)}</span>` : ""}${esc(aus?.name ?? "")}</span><em>${next}</em></div>
       </div>
       <div class="r-ws-cards">${KEYS.map(card).join("")}</div>`;
   };

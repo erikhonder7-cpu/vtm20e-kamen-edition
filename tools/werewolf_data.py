@@ -1284,6 +1284,10 @@ def fera_sub(dims, label):
     return ""
 
 
+# Changing Breeds называет некоторые Дары Гару иначе, чем основная книга W20
+GIFT_ALIAS = {"вдохновение": "воодушевление", "роковая слабость": "роковой изъян"}
+
+
 def fera_gifts(text, fkey, fname, taken, dims, by_ru):
     """Дары рода: новые (**Название (English)** — текст или **Название** — текст) и заимствованные у Гару по названию
     («Глаз охотника (как у …)», «Танец с рассветом — «Танец пламени» Фианна») — им добавляется группа рода."""
@@ -1295,7 +1299,8 @@ def fera_gifts(text, fkey, fname, taken, dims, by_ru):
 
     def link(name, gr, lvl):
         nonlocal linked
-        g = by_ru.get(name.lower().strip(" .«»"))
+        n = name.lower().strip(" .«»")
+        g = by_ru.get(GIFT_ALIAS.get(n, n))
         if not g or (lvl and abs(g["level"] - lvl) > 1):
             return False
         if not any(x.get("kind") == "fera" and x["key"] == fkey and x.get("sub") == gr["sub"] for x in g["groups"]):
@@ -1350,7 +1355,13 @@ def fera_gifts(text, fkey, fname, taken, dims, by_ru):
                     continue
                 q = re.search(r"«([^»]+)»", seg)
                 head = re.split(r"\s*[—(]", seg, maxsplit=1)[0].strip()
-                if not link(head, gr, level) and q:
+                if link(head, gr, level):
+                    continue
+                # «Падающее касание, Вдохновение (Ахрун)» — несколько Даров Гару через запятую с общим источником в скобках
+                parts = [p.strip() for p in head.split(",") if p.strip()]
+                if len(parts) > 1 and any([link(p, gr, level) for p in parts]):
+                    continue
+                if q:
                     link(q.group(1), gr, level)
     return out, linked
 

@@ -614,6 +614,12 @@
     },
     {
      "kind": "fera",
+     "key": "kitsune",
+     "sub": "aspect:eji",
+     "label": "Китсунэ: Путей — Эдзи"
+    },
+    {
+     "kind": "fera",
      "key": "mokole",
      "sub": "",
      "label": "Мокол: Общие Дары"
@@ -741,6 +747,18 @@
     {
      "kind": "tribe",
      "key": "silverFangs"
+    },
+    {
+     "kind": "fera",
+     "key": "ananasi",
+     "sub": "aspect:kumoti",
+     "label": "Ананаси: Кумоти"
+    },
+    {
+     "kind": "fera",
+     "key": "mokole",
+     "sub": "",
+     "label": "Мокол: Общие Дары"
     }
    ],
    "teacher": "дух льва или волка",
@@ -918,12 +936,6 @@
     {
      "kind": "tribe",
      "key": "blackFuries"
-    },
-    {
-     "kind": "fera",
-     "key": "ananasi",
-     "sub": "aspect:kumoti",
-     "label": "Ананаси: Кумоти"
     }
    ],
    "teacher": "слуга Пегаса",
@@ -1845,6 +1857,18 @@
     {
      "kind": "tribe",
      "key": "stargazers"
+    },
+    {
+     "kind": "fera",
+     "key": "kitsune",
+     "sub": "aspect:eji",
+     "label": "Китсунэ: Путей — Эдзи"
+    },
+    {
+     "kind": "fera",
+     "key": "mokole",
+     "sub": "",
+     "label": "Мокол: Общие Дары"
     }
    ],
    "teacher": "любой воздушный дух",
@@ -2263,6 +2287,30 @@
     {
      "kind": "tribe",
      "key": "shadowLords"
+    },
+    {
+     "kind": "fera",
+     "key": "ajaba",
+     "sub": "aspect:dusk",
+     "label": "Аджаба: Закат"
+    },
+    {
+     "kind": "fera",
+     "key": "mokole",
+     "sub": "",
+     "label": "Мокол: Общие Дары"
+    },
+    {
+     "kind": "fera",
+     "key": "nagah",
+     "sub": "",
+     "label": "Нагах: Общие Дары"
+    },
+    {
+     "kind": "fera",
+     "key": "ratkin",
+     "sub": "aspect:blade-slave",
+     "label": "Раткин: Рабов клинка"
     }
    ],
    "teacher": "Буревестник (Stormcrow)",

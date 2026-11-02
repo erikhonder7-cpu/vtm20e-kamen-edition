@@ -745,3 +745,16 @@ body.r-theme-light img[src$="assets/werewolf/glyph-garou.png"] { filter: none; }
 .vtm20 .r-cr-garou-tiles + .r-h3, .vtm20 .r-cr-garou-note + .r-h3, .vtm20 .r-cr-clancard + .r-h3 { margin-top: 18px; }
 /* длинное описание варианта — четыре строки, целиком — в подсказке */
 .vtm20 .r-cr-tile .r-cr-tile-text { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* Узкая ширина: на листе — кружки и квадратики Славы мельче, чтобы десять влезали в карточку; в окне Умбры — список уже,
+   «Где сейчас» и Луна — друг под другом, а не обрезаются */
+@container rsheet (max-width: 820px) {
+  .vtm20 .r-vc-renown .r-dots { gap: 2px; }
+  .vtm20 .r-vc-renown :is(.r-dot, .r-box) { width: 14px; height: 14px; }
+  .vtm20 .r-vc-renown .r-boxes { gap: 2px; }
+}
+.vtm20.r-umbra-app .window-content { container: umbra / inline-size; }
+@container umbra (max-width: 820px) {
+  .vtm20.r-umbra-app .r-um { grid-template-columns: 200px minmax(0, 1fr); }
+  .vtm20.r-umbra-app .r-um-where { grid-template-columns: minmax(0, 1fr); }
+}

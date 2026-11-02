@@ -83,6 +83,8 @@ const STEP_HINTS = {
   concept: "ConceptHint", clan: "ClanHint", house: "HouseHint", garou: "GarouHint", gifts: "GiftsHint", attributes: "AttrHintShort", abilities: "AbilHintShort",
   disciplines: "DiscHint", advantages: "AdvHint", edges: "EdgesHint", bloodrights: "BloodrightsHint", merits: "MeritHint", freebies: "FreeHint", xp: "XpHint", pact: "PactHint", summary: "FinishHint"
 };
+/** Сколько Даров у рода Фера на старте, если не три (W20 Changing Breeds: Мокол — аспект и общий, Рокеа — общий и аугурии). */
+const FERA_START_GIFTS = { mokole: 2, rokea: 2 };
 /** Шаги, где у гуля свой текст подсказки (ключ + «Ghoul»). */
 const GHOUL_HINTS = new Set(["concept", "disciplines", "summary"]);
 /** Шаги, где у демона свой текст подсказки (ключ + «Demon»). */
@@ -255,7 +257,9 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     const has = (d, o) => D.gifts.some(g => g.level === 1 && g.groups.some(x => x.kind === "fera" && x.key === f && (o ? x.sub === `${d.key}:${o}` : x.sub?.startsWith(`${d.key}:`))));
     const lists = this.feraDims.filter(d => sub[d.key] ? has(d, sub[d.key]) : has(d))
       .map(d => ({ key: d.key, label: t("GarouCr.GiftOf", { what: d.label }), sub: sub[d.key] ? `${d.key}:${sub[d.key]}` : null, need: sub[d.key] ? "" : d.label }));
-    const general = Array.from({ length: Math.max(1, 3 - lists.length) }, (_, i) => ({ key: `general${i}`, label: loc("VTM20.GarouCr.GiftGeneral"), sub: "" }));
+    // стартовых Даров у Фера обычно три; у Мокол — Дар аспекта и общий, у Рокеа — общий и Дар аугурии (W20 Changing Breeds)
+    const total = FERA_START_GIFTS[f] ?? 3;
+    const general = Array.from({ length: Math.max(1, total - lists.length) }, (_, i) => ({ key: `general${i}`, label: loc("VTM20.GarouCr.GiftGeneral"), sub: "" }));
     return [...general, ...lists];
   }
   /** Дары 1-го уровня для ячейки. */

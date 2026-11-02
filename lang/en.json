@@ -2589,7 +2589,7 @@
         "fomorPick": "Breed powers are marked; pick up to two more."
       },
       "GarouHint": "Kind: Garou or one of the Changing Breeds. Garou pick a breed (Gnosis), an auspice (Rage and Renown) and a tribe (Willpower, totem, Background limits); Fera choose within their breed. A metis needs a deformity.",
-      "GiftsHint": "Three level-1 Gifts: one each from the breed, auspice and tribe lists (Fera — from the general and chosen lists). More of your own level-1 Gifts cost freebies.",
+      "GiftsHint": "Three level-1 Gifts: one each from the breed, auspice and tribe lists. Fera — one per slot of their breed (Mokolé and Rokea have two). More of your own level-1 Gifts cost freebies.",
       "ConceptHintGarou": "Who the character was before the First Change and who they became. Nature restores Willpower.",
       "AbilHintShortGarou": "13 / 9 / 5 by group; no higher than 3 at start — above that only with freebies. Lupus cannot take Crafts, Drive, Etiquette, Firearms, Larceny and some Knowledges with starting points.",
       "AdvHintGarou": "5 Background dots (the tribe sets limits). On the right — Renown: by auspice; Ragabash and Fera split 3 dots freely.",
@@ -2599,11 +2599,11 @@
       "GarouGnosis": "Gnosis {n}",
       "GarouAuspiceTip": "Rage {rage} · Renown: {renown}",
       "GarouTribeSub": "Willpower {will} · {totem}",
-      "GarouExtra": "Gifts beyond three — {n} freebies each",
+      "GarouExtra": "Gifts beyond the starting ones — {n} freebies each",
       "GarouBaseHint": "Rage comes from the auspice, Gnosis from the breed, Willpower from the tribe (Fera — from the choice within the breed). Raise them with freebies.",
       "FreeCostsGarou": "W20 costs: Attribute 5, Ability 2, Background 1 (raises Backgrounds taken on the Backgrounds step), Gift 7, Rage 1, Gnosis 2, Willpower 1. Right-click to remove.",
       "XpCostsGarou": "W20 costs: Attribute — current × 4, Ability — new 3, then current × 2, Rage — current, Gnosis — current × 2, Willpower — current.",
-      "GarouExtraAfter": "Pick the three Gifts above first — then the rest of your own Level One Gifts appear here."
+      "GarouExtraAfter": "Pick the starting Gifts above first — then the rest of your own Level One Gifts appear here."
     },
     "Settings": {
       "MonthlyIncome": {
@@ -4880,7 +4880,7 @@
       "Create": "Create Garou",
       "Done": "{name}: the Garou is created. Welcome to the Nation.",
       "NeedFera": "Pick everything for the breed: breed form, aspect and the rest.",
-      "NeedFeraGifts": "Three starting Gifts of the breed are needed.",
+      "NeedFeraGifts": "Starting Gifts of the breed are needed — one in each slot.",
       "Fera": "Breed",
       "GiftGeneral": "General Gift of the breed",
       "GiftNeedPick": "First pick the {what} on the Breed & Tribe step.",
