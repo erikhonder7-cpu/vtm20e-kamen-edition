@@ -4090,7 +4090,8 @@
       "Scars": "Battle scars",
       "NoScars": "No scars.",
       "AddScar": "+ Scar…",
-      "ScarAdded": "{name}: scar “{scar}” — +{n} temporary Glory."
+      "ScarAdded": "{name}: scar “{scar}” — +{n} temporary Glory.",
+      "GauntletSept": "Sept caern “{name}”"
     },
     "Strategy": {
       "Tab": "Strategy",
@@ -4405,6 +4406,35 @@
       "OverFree": "Not enough freebies: {n}.",
       "Create": "Create Garou",
       "Done": "{name}: the Garou is created. Welcome to the Nation."
+    },
+    "Sept": {
+      "Title": "Sept",
+      "List": "Septs",
+      "None": "No septs.",
+      "New": "New sept",
+      "NewName": "Sept",
+      "Rule": "A sept is the Garou and Kinfolk of one caern. Positions require Sept Standing; each dot above it — +1 die to social rolls with sept members.",
+      "EmptyGM": "Create a sept on the left.",
+      "EmptyPlayer": "Your character belongs to no sept.",
+      "Remove": "Delete sept",
+      "RemoveAsk": "Delete this sept?",
+      "Caern": "Caern",
+      "CaernName": "Name",
+      "Rating": "Rating",
+      "CaernType": "Type",
+      "Gauntlet": "Gauntlet {n}",
+      "Bridge": "moon bridge up to {n} km",
+      "Totem": "Sept totem",
+      "TotemRule": "A sept totem costs no Background; it can be called once per lunar month; its ban is a principle for the whole sept.",
+      "Members": "Members and Sept Standing",
+      "NoMembers": "No one.",
+      "AddMember": "Join sept",
+      "StandingRule": "Standing: • Known, •• Respected, ••• Valued, •••• Honored, ••••• Lauded.",
+      "Positions": "Positions",
+      "Position": "Position",
+      "Need": "Need",
+      "Bonus": "Bonus",
+      "Holder": "Held by"
     }
   }
 }

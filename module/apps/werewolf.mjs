@@ -8,6 +8,7 @@ import { Codex } from "../data/codex.mjs";
 import { RollDialog } from "../dice/dialog.mjs";
 import { VTM20 } from "../config.mjs";
 import { totemOf } from "./coterie.mjs";
+import { septOf } from "./sept.mjs";
 
 const t = (k, d) => d ? game.i18n.format(`VTM20.Werewolf.${k}`, d) : game.i18n.localize(`VTM20.Werewolf.${k}`);
 const esc = s => foundry.utils.escapeHTML(String(s ?? ""));
@@ -26,7 +27,7 @@ export function werewolfInfo(actor, dots) {
     tempDots: dots(w.renown[k].temporary, 10, { path: `system.werewolf.renown.${k}.temporary`, cls: "is-temp" }) }));
   const next = rankNeed(w.auspice, w.rank + 1);
   return {
-    breed, auspice, tribe, rank: w.rank, rankName: D.rankNames?.[w.rank - 1] ?? "", packTotem: totemOf(actor),
+    breed, auspice, tribe, rank: w.rank, rankName: D.rankNames?.[w.rank - 1] ?? "", packTotem: totemOf(actor), sept: septOf(actor),
     rage: w.rage.value, ragePerm: w.rage.permanent, gnosis: w.gnosis.value, gnosisPerm: w.gnosis.permanent,
     rageDots: dots(w.rage.permanent, 10, { path: "system.werewolf.rage.permanent" }),
     gnosisDots: dots(w.gnosis.permanent, 10, { path: "system.werewolf.gnosis.permanent" }),
@@ -494,7 +495,9 @@ export const GAUNTLET = [["lab", 9], ["downtown", 8], ["street", 7], ["rural", 6
 
 /** Шаг в Умбру (W20, гл. 7): Гнозис против Преграды места; успехи — время перехода, провал с единицами — застрял в Преграде. */
 export async function stepSideways(actor, trait = "werewolf.gnosis") {
-  const opts = GAUNTLET.map(([k, n]) => `<option value="${n}" ${k === "street" ? "selected" : ""}>${t(`Gauntlet.${k}`)} — ${n}</option>`).join("");
+  const sp = septOf(actor);
+  const opts = (sp ? `<option value="${sp.gauntlet}">${t("GauntletSept", { name: esc(sp.name) })} — ${sp.gauntlet}</option>` : "")
+    + GAUNTLET.map(([k, n]) => `<option value="${n}" ${k === "street" && !sp ? "selected" : ""}>${t(`Gauntlet.${k}`)} — ${n}</option>`).join("");
   const diff = await foundry.applications.api.DialogV2.prompt({
     window: { title: t("StepSideways"), icon: "fa-solid fa-moon-over-sun" }, classes: ["vtm20", "r-dialog", "r-type-werewolf"], rejectClose: false,
     content: `<p>${t("GauntletAsk")}</p><select name="g">${opts}</select><p class="r-hint">${t("GauntletTimes")}</p>`,

@@ -704,6 +704,40 @@ def parse_scars():
     return out
 
 
+def parse_sept():
+    """Септ (W20 Rage Across the World, гл. 1): ступени Положения, должности; типы каэрнов — основная книга, гл. 11."""
+    p = os.path.join(os.path.dirname(REF), "W20_Rage_Across_the_World")
+    fn = next((f for f in sorted(os.listdir(p)) if f.startswith("01")), None) if os.path.isdir(p) else None
+    standing, positions = [], []
+    if fn:
+        with open(os.path.join(p, fn), encoding="utf-8") as f:
+            text = f.read()
+        st = text.split("## Положение в септе", 1)[1].split("\n## ", 1)[0]
+        for line in st.splitlines():
+            c = [x.strip() for x in line.strip().strip("|").split("|")]
+            if line.startswith("| ") and len(c) == 3 and "•" in c[0]:
+                name, en = name_en(c[1])
+                standing.append({"n": c[0].count("•"), "name": name, "en": en, "text": md_inline(c[2])})
+        ps = text.split("## Должности септа", 1)[1].split("\n## ", 1)[0]
+        for line in ps.splitlines():
+            c = [x.strip() for x in line.strip().strip("|").split("|")]
+            if not line.startswith("| ") or len(c) < 3 or "•" not in c[1]:
+                continue
+            head, duty = (c[0].split(" — ", 1) + [""])[:2]
+            name, en = name_en(head)
+            positions.append({"key": re.sub(r"[^a-z0-9]+", "-", en.lower()).strip("-") or f"pos-{len(positions)}", "name": name, "en": en,
+                              "duty": md_inline(duty), "need": c[1].count("•"), "bonus": md_inline(c[2])})
+    caerns = []
+    part = read("11_Умбра_и_духи.md").split("## 2. Каэрны", 1)[1].split("\n## ", 1)[0]
+    for line in part.splitlines():
+        c = [x.strip() for x in line.strip().strip("|").split("|")]
+        if not line.startswith("| ") or len(c) != 3 or c[0].startswith("Тип") or set(line) <= set("|-: "):
+            continue
+        name, en = name_en(c[0])
+        caerns.append({"key": re.sub(r"[^a-z0-9]+", "-", (en or name).lower()).strip("-") or f"c{len(caerns)}", "name": name, "en": en, "gives": md_inline(c[1]), "spirits": md_inline(c[2])})
+    return {"standing": standing, "positions": positions, "caerns": caerns}
+
+
 def build():
     gifts = parse_gifts()
     rites = parse_rites()
@@ -715,7 +749,7 @@ def build():
             x["icon"] = ICONS[kind].get(x["key"], "fa-moon")
     data = {"source": "Werewolf: The Apocalypse 20th Anniversary Edition", "breeds": breeds, "auspices": auspices, "tribes": tribes,
             "forms": FORMS, "gifts": gifts, "rites": rites, "rankNames": RANK_NAMES, "rank": RANK, "xp": XP,
-            "merits": parse_merits(), "backgrounds": parse_backgrounds(), "fetishes": parse_fetishes(), "charms": parse_charms(), "kinGifts": parse_kin_gifts(tribes), "totems": parse_totems(), "renownAwards": parse_renown_awards(), "scars": parse_scars()}
+            "merits": parse_merits(), "backgrounds": parse_backgrounds(), "fetishes": parse_fetishes(), "charms": parse_charms(), "kinGifts": parse_kin_gifts(tribes), "totems": parse_totems(), "renownAwards": parse_renown_awards(), "scars": parse_scars(), "sept": parse_sept()}
     with open(OUT, "w", encoding="utf-8", newline="\n") as f:
         json.dump(data, f, ensure_ascii=False, indent=1)
     rules = parse_rules()
@@ -727,7 +761,7 @@ def build():
     starts = sum(len(x["startGifts"]) for x in breeds + auspices + tribes)
     return {"breeds": len(breeds), "auspices": len(auspices), "tribes": len(tribes), "gifts": len(gifts), "rites": len(rites),
             "startGifts": starts, "rolls": sum(1 for g in gifts if g["roll"]),
-            "rulePages": sum(len(b["pages"]) for b in rules), "merits": len(data["merits"]), "backgrounds": len(data["backgrounds"]), "fetishes": len(data["fetishes"]), "charms": len(data["charms"]), "kinGifts": len(data["kinGifts"]), "totems": len(data["totems"]), "awards": len(data["renownAwards"]), "scars": len(data["scars"]), "books": len(books), "bookPages": sum(len(b["pages"]) for b in books)}
+            "rulePages": sum(len(b["pages"]) for b in rules), "merits": len(data["merits"]), "backgrounds": len(data["backgrounds"]), "fetishes": len(data["fetishes"]), "charms": len(data["charms"]), "kinGifts": len(data["kinGifts"]), "totems": len(data["totems"]), "awards": len(data["renownAwards"]), "scars": len(data["scars"]), "positions": len(data["sept"]["positions"]), "caernTypes": len(data["sept"]["caerns"]), "books": len(books), "bookPages": sum(len(b["pages"]) for b in books)}
 
 
 if __name__ == "__main__":
