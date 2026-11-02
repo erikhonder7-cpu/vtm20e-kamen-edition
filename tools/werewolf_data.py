@@ -1769,6 +1769,7 @@ def fill_en(node):
 
 
 def build():
+    import merits_dedupe   # tools/merits_dedupe.py: одна черта — одна запись (папка tools — в путях импорта у вызывающего)
     gifts = parse_gifts()
     rites = parse_rites()
     breeds, auspices, tribes = parse_core(gifts)
@@ -1790,7 +1791,8 @@ def build():
     charms = parse_charms()
     data = {"source": "Werewolf: The Apocalypse 20th Anniversary Edition", "breeds": breeds, "auspices": auspices, "tribes": tribes,
             "forms": FORMS, "gifts": gifts, "rites": rites, "rankNames": RANK_NAMES, "rank": RANK, "xp": XP,
-            "merits": core_merits + s_merits, "backgrounds": parse_backgrounds(), "fetishes": core_fetishes + s_fetishes, "charms": charms, "kinGifts": parse_kin_gifts(tribes), "totems": parse_totems() + cw_totems, "renownAwards": parse_renown_awards(), "scars": parse_scars(), "sept": parse_sept(), "umbra": parse_umbra(), "fera": fera,
+            "merits": merits_dedupe.dedupe(core_merits + s_merits)[0],   # повторы черты из разных книг — один вариант (tools/merits_dedupe.py)
+            "backgrounds": parse_backgrounds(), "fetishes": core_fetishes + s_fetishes, "charms": charms, "kinGifts": parse_kin_gifts(tribes), "totems": parse_totems() + cw_totems, "renownAwards": parse_renown_awards(), "scars": parse_scars(), "sept": parse_sept(), "umbra": parse_umbra(), "fera": fera,
             "deformities": parse_deformities(), "numina": parse_numina(), "kami": parse_kami(), "spirits": parse_spirit_templates(charms), "fetchRites": parse_fetch_rites(tribes), "primalUses": parse_primal_uses(), "fomori": parse_fomori()}
     fill_en(data)
     with open(OUT, "w", encoding="utf-8", newline="\n") as f:

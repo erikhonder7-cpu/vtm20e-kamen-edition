@@ -1037,6 +1037,9 @@ def main():
     dump("derangements.json", derangements)
     dump_split("rituals", rituals)
     dump("combos.json", combos)
+    import merits_dedupe   # повторы одной черты из разных книг — остаётся вариант 20-й редакции
+    merits, _gone = merits_dedupe.dedupe(merits)
+    print("  повторов черт убрано:", len(_gone))
     dump("merits.json", merits)
     dump("backgrounds.json", backgrounds)
     dump("abilities.json", abilities)
