@@ -486,6 +486,42 @@
       "flags": {}
     },
     {
+      "name": "werewolf-gifts",
+      "label": "Оборотень: Апокалипсис — Дары",
+      "path": "packs/werewolf-gifts",
+      "type": "Item",
+      "system": "vtm20e-kamen-edition",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
+    },
+    {
+      "name": "werewolf-rites",
+      "label": "Оборотень: Апокалипсис — ритуалы",
+      "path": "packs/werewolf-rites",
+      "type": "Item",
+      "system": "vtm20e-kamen-edition",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
+    },
+    {
+      "name": "werewolf-fetishes",
+      "label": "Оборотень: Апокалипсис — фетиши и талены",
+      "path": "packs/werewolf-fetishes",
+      "type": "Item",
+      "system": "vtm20e-kamen-edition",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
+    },
+    {
       "name": "hunter-backgrounds",
       "label": "Факты биографии охотников",
       "path": "packs/hunter-backgrounds",
@@ -612,6 +648,9 @@
       "packs": [
         "werewolf-rules",
         "werewolf-merits",
+        "werewolf-gifts",
+        "werewolf-rites",
+        "werewolf-fetishes",
         "werewolf-books"
       ]
     }

@@ -1199,7 +1199,7 @@ try {
       const out = { str: a.system.attributes.strength.total, app: a.system.attributes.appearance.total, img: a.img };
       a.prepareData(); out.strAgain = a.system.attributes.strength.total;
       const p = WW.changeForm(a, "lupus"); await wait(600);
-      [...foundry.applications.instances.values()].find(x => x.constructor.name === "DialogV2" && x.rendered)?.element.querySelector("button[data-action=rage]")?.click();
+      [...foundry.applications.instances.values()].find(x => x.constructor.name === "DialogV2" && x.rendered)?.element.querySelector("[data-pick=rage]")?.click();
       await p; await wait(300);
       Object.assign(out, { form: a.system.werewolf.form, rage: a.system.werewolf.rage.value, strLupus: a.system.attributes.strength.total });
       WW.rollGift(a, "razor-claws"); await wait(800);

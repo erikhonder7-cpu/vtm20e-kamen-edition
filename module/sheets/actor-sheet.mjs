@@ -1142,6 +1142,18 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     m?.openWeb?.(this.actor);
   }
 
+  /** Дар, ритуал или фетиш из компендиев оборотня (flags.ww) — в списки оборотня, а не отдельным предметом. */
+  async _onDropItem(event, item) {
+    const ww = item?.flags?.[SYSTEM_ID]?.ww;
+    if (ww && this.actor.type === "werewolf") {
+      if (!this.actor.isOwner) return null;
+      if (ww.kind === "gift") return addGift(this.actor, ww.key);
+      if (ww.kind === "rite") return addRite(this.actor, ww.key);
+      if (ww.kind === "fetish") return addFetish(this.actor, ww.key);
+    }
+    return super._onDropItem(event, item);
+  }
+
   /** Перетащили персонажа на «потомки» — он становится потомком этого Сородича. */
   async _onDropActor(event, actor) {
     if (event.target?.closest?.("[data-lin-drop]") && actor && actor.id !== this.actor.id) {

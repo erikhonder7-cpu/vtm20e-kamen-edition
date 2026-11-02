@@ -78,14 +78,14 @@ class Pack {
     }
     return parent;
   }
-  add({ name, type, system, folder = null, key = null, img = null }) {
+  add({ name, type, system, folder = null, key = null, img = null, flags = {} }) {
     // одинаковый id молча перезаписал бы запись в базе компендия: повтор ключа — с номером (первая запись хранит прежний id)
     const base = `${type}:${key ?? `${folder}:${name}`}`;
     let _id = this.id(base);
     for (let n = 2; this.items.some(x => x._id === _id); n++) _id = this.id(`${base}#${n}`);
     if (_id !== this.id(base)) this.repeats = (this.repeats ?? 0) + 1;
     this.items.push({ _id, name, type, img: img ?? ICON(type), system,
-      effects: [], folder: this.folder(folder), sort: (this.items.length + 1) * 1000, ownership: { default: 0 }, flags: {}, _stats: stats() });
+      effects: [], folder: this.folder(folder), sort: (this.items.length + 1) * 1000, ownership: { default: 0 }, flags, _stats: stats() });
   }
   /** Журнал из одной текстовой страницы (компендиум JournalEntry). */
   addEntry({ name, html, folder = null, key }) {
@@ -497,6 +497,56 @@ BUILDERS["hunter-merits"] = function () {
 BUILDERS["werewolf-books"] = function () {
   const p = new Pack("werewolf-books", "JournalEntry");
   for (const b of readJson("werewolf-books")) p.addBook({ name: b.name, pages: b.pages, folder: b.book, key: `werewolf-books:${b.key}` });
+  return p;
+};
+
+/**
+ * Оборотни (W20): Дары, ритуалы, фетиши и талены — предметами-силами с пометкой flags.<система>.ww = { kind, key }.
+ * На лист оборотня такой предмет не ложится сам: лист добавляет ключ в свой список (actor-sheet.mjs, _onDropItem).
+ */
+const WW_GLYPH = name => `systems/${SYSTEM_ID}/assets/werewolf/${name}.png`;
+const wwItem = (kind, key) => ({ [SYSTEM_ID]: { ww: { kind, key } } });
+const wwRoll = r => r ? { trait1: r.trait1 ?? "", trait2: r.trait2 ?? "", difficulty: r.difficulty ?? 6 } : undefined;
+BUILDERS["werewolf-gifts"] = function () {
+  const p = new Pack("werewolf-gifts"), w = data("werewolf"), roman = ["", "I", "II", "III", "IV", "V", "VI"];
+  const byKey = (list, k) => (list ?? []).find(x => x.key === k);
+  // папка — первый список Дара: порода, аугурия, племя, изгои или род Фера; внутри — по уровню
+  const where = g => {
+    const x = g.groups[0] ?? {};
+    if (x.kind === "breed") return ["Породы", byKey(w.breeds, x.key)?.name ?? x.key];
+    if (x.kind === "auspice") return ["Аугурии", byKey(w.auspices, x.key)?.name ?? x.key];
+    if (x.kind === "tribe") return ["Племена", byKey(w.tribes, x.key)?.name ?? x.key];
+    if (x.kind === "fera") return ["Фера", byKey(w.fera, x.key)?.name ?? x.key];
+    return ["Прочие"];
+  };
+  const glyphOf = g => { const x = g.groups[0] ?? {};
+    return x.kind === "breed" ? `breed-${x.key}` : x.kind === "auspice" ? `auspice-${x.key}` : x.kind === "tribe" ? `tribe-${x.key}` : x.kind === "fera" ? (x.key === "bastet" ? "glyph-feline" : "glyph-fera") : "glyph-garou"; };
+  const from = g => g.groups.map(x => x.label ?? "").filter(Boolean).join(" · ");
+  for (const g of w.gifts) {
+    const cost = Object.entries(g.cost ?? {}).map(([k, n]) => `${n} ${{ rage: "Ярости", gnosis: "Гнозиса", willpower: "Воли" }[k] ?? k}`).join(", ");
+    p.add({ name: g.name, type: "power", folder: [...where(g), `Уровень ${roman[g.level] ?? g.level}`], key: `werewolf-gift:${g.key}`, img: WW_GLYPH(glyphOf(g)),
+      flags: wwItem("gift", g.key),
+      system: { level: g.level, roll: wwRoll(g.roll), description: `<p><em>${[g.en, from(g), cost && `Цена: ${cost}`, g.teacher && `Учит: ${g.teacher}`].filter(Boolean).join(" · ")}</em></p>${g.text ?? ""}<p><small>${g.source ?? "W20"}</small></p>` } });
+  }
+  return p;
+};
+BUILDERS["werewolf-rites"] = function () {
+  const p = new Pack("werewolf-rites"), w = data("werewolf");
+  for (const r of w.rites)
+    p.add({ name: r.name, type: "power", folder: r.kindName || "Прочие", key: `werewolf-rite:${r.key}`, img: WW_GLYPH("glyph-rite"), flags: wwItem("rite", r.key),
+      system: { level: r.level ?? 0, roll: wwRoll(r.roll ?? { trait1: "attributes.wits", trait2: "abilities.rituals", difficulty: 7 }),
+        description: `<p><em>${[r.en, r.kindName, r.level ? `Уровень ${r.level}` : "Малый ритуал"].filter(Boolean).join(" · ")}</em></p>${r.text ?? ""}` } });
+  return p;
+};
+BUILDERS["werewolf-fetishes"] = function () {
+  const p = new Pack("werewolf-fetishes"), w = data("werewolf");
+  for (const f of w.fetishes ?? []) {
+    const talen = f.kind === "talen";
+    p.add({ name: f.name, type: "power", folder: talen ? "Талены" : `Фетиши: уровень ${f.level}`, key: `werewolf-fetish:${f.key}`, img: WW_GLYPH("glyph-fetish"),
+      flags: wwItem("fetish", f.key),
+      system: { level: f.level ?? 1, roll: { trait1: "werewolf.gnosis", trait2: "", difficulty: f.gnosis ?? 6 },
+        description: `<p><em>${[f.en, talen ? "Талена" : `Фетиш, уровень ${f.level}`, `Гнозис ${f.gnosis}`].filter(Boolean).join(" · ")}</em></p>${f.text ?? ""}` } });
+  }
   return p;
 };
 
