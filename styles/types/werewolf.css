@@ -348,6 +348,12 @@ body.r-theme-light .vtm20.r-type-werewolf .r-form-badge.is-down { color: #7a2a18
 .vtm20 .r-kin-row label { display: flex; flex-direction: column; gap: 2px; }
 .vtm20 .r-kin-row label > span { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; opacity: .7; }
 .vtm20 .r-kin-toggle { display: inline-flex; gap: 5px; align-items: center; font-size: 12px; }
+/* Нумины Родни: точки рядом с названием, недоступные уровни Пути приглушены */
+.vtm20 .r-kin-numina .r-dots { display: inline-flex; gap: 3px; margin-left: 8px; vertical-align: middle; }
+.vtm20 .r-kin-numina .r-edge-text ul { margin: 4px 0 0; padding-left: 18px; }
+.vtm20 .r-kin-numina .r-edge-text li.is-locked { opacity: .45; }
+/* уродство метиса обязательно — напоминание, пока его нет */
+.vtm20 .r-ww-deforms .r-note.is-warn { color: #c9744f; }
 
 /* Тотем стаи в окне котерии */
 .vtm20 .r-cot-totem p { margin: 4px 0; font-size: 13px; line-height: 1.4; }

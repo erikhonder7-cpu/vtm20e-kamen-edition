@@ -472,10 +472,42 @@ export function kinfolkInfo(actor) {
   const other = (D.kinGifts ?? []).filter(g => g.tribe !== k.tribe);
   const avail = [...own, ...other].filter(g => !k.gifts.includes(g.key))
     .map(g => ({ key: g.key, label: `${VTM20.label(g)}${g.tribe != null && g.tribe !== k.tribe && !g.groups ? ` (${D.tribes.find(t => t.key === g.tribe)?.name ?? "?"})` : ""} — ${kinCost(k, g)}`, xp: kinCost(k, g) }));
+  const numina = (k.numina ?? []).map(x => ({ ...x, data: numenOf(x.key) })).filter(x => x.data).map(x => ({ key: x.key, name: x.data.name, en: x.data.en,
+    kind: t(`Numen.${x.data.kind}`), pool: x.data.pool, cost: x.data.cost, text: x.data.text,
+    dots: Array.from({ length: 5 }, (_, i) => ({ n: i + 1, filled: i < x.dots })),
+    levels: x.data.levels.map(l => ({ ...l, reached: l.n <= x.dots })) }));
+  const numAvail = (D.numina ?? []).filter(n => !(k.numina ?? []).some(x => x.key === n.key)).map(n => ({ key: n.key, label: `${VTM20.label(n)} — ${t(`Numen.${n.kind}`)}` }));
   return { on: k.on, tribe: k.tribe, breed: k.breed, gnosis: k.gnosis,
     tribes: D.tribes.map(t => ({ key: t.key, label: VTM20.label(t), selected: t.key === k.tribe })),
     breeds: ["homid", "lupus"].map(b => ({ key: b, label: VTM20.label(D.breeds.find(x => x.key === b) ?? { name: b }), selected: b === k.breed })),
-    gifts, avail };
+    gifts, avail, numina, numAvail };
+}
+
+/* ── Нумины Родни (W20 Kinfolk, гл. 3): ворожба — только через ритуалы своего уровня, психические феномены ── */
+
+export const numenOf = key => (W().numina ?? []).find(n => n.key === key) ?? null;
+export function kinAddNumen(actor, key) {
+  const list = actor.system.kinfolk.numina ?? [];
+  if (!numenOf(key) || list.some(x => x.key === key)) return;
+  return actor.update({ "system.kinfolk.numina": [...list, { key, dots: 1 }] });
+}
+export const kinRemoveNumen = (actor, key) => actor.update({ "system.kinfolk.numina": actor.system.kinfolk.numina.filter(x => x.key !== key) });
+/** Точки нумины; щелчок по последней закрашенной — на точку меньше (как у прочих черт). */
+export function kinNumenDots(actor, key, n) {
+  const list = actor.system.kinfolk.numina.map(x => ({ ...x }));
+  const x = list.find(y => y.key === key);
+  if (!x) return;
+  x.dots = Math.clamp(x.dots === n ? n - 1 : n, 0, 5);
+  return actor.update({ "system.kinfolk.numina": list });
+}
+/** Бросок нумины: пул из книги (чего нет у смертного — выбрать в окне); сложность Эмпатического исцеления — по уровню. */
+export function kinUseNumen(actor, key) {
+  const n = numenOf(key), have = actor.system.kinfolk.numina.find(x => x.key === key)?.dots ?? 0;
+  if (!n) return;
+  const lvl = n.levels.filter(l => l.n <= have).at(-1);
+  if (!n.roll) return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<div class="r-notice r-type-werewolf"><b>${esc(n.name)}</b>${n.text}</div>` });
+  return RollDialog.prompt(actor, { title: `${n.name}${have ? ` ${"•".repeat(have)}` : ""}`, trait1: n.roll.trait1 ?? "", trait2: n.roll.trait2 ?? "",
+    difficulty: lvl?.difficulty || n.roll.difficulty || 6 });
 }
 export async function kinAddGift(actor, key, buy = false) {
   const k = actor.system.kinfolk, g = kinGiftOf(key);

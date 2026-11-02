@@ -1057,7 +1057,11 @@ try {
       const ki = WW.kinfolkInfo(k), own = ki.avail.find(x => x.xp === 15);
       await WW.kinAddGift(k, own.key, true);
       out.kin = `${k.system.kinfolk.gifts.length}:${k.system.experience.spent}:${ki.avail.length > 5}`;
-      await k.sheet.render(true); await wait(900); out.kinBlock = !!k.sheet.element.querySelector(".r-kin"); await k.sheet.close();
+      // нумины Родни: Прорицание до 3 точек, на листе — 3 открытых уровня; бросок — Восприятие + Оккультизм
+      await WW.kinAddNumen(k, "divination"); await WW.kinNumenDots(k, "divination", 3);
+      await k.sheet.render(true); await wait(900); out.kinBlock = !!k.sheet.element.querySelector(".r-kin");
+      out.numen = `${k.system.kinfolk.numina[0]?.dots}:${k.sheet.element.querySelectorAll(".r-kin-numina li li:not(.is-locked)").length}:${WW.numenOf("divination")?.roll?.trait2}`;
+      await k.sheet.close();
       // стая: котерия с Гару и тотемом — тотем на карточке
       const cots = foundry.utils.deepClone(game.settings.get(SYS, "coteries") ?? []);
       try {
@@ -1073,6 +1077,7 @@ try {
     if (r.delirium !== "controlled:false") throw new Error(`Бред: ${r.delirium}`);
     if (r.essence !== 15 || r.spiritRoll !== 6 || !r.card) throw new Error(`дух: Эссенция ${r.essence}, Гнозис ${r.spiritRoll}, карточка ${r.card}`);
     if (r.kin !== "1:15:true" || !r.kinBlock) throw new Error(`Родня: ${r.kin}, блок ${r.kinBlock}`);
+    if (r.numen !== "3:3:abilities.occult") throw new Error(`нумины Родни (точки:открытых уровней:вторая черта): ${r.numen}`);
     if (r.totem !== "Сокол" || !r.totemHint) throw new Error(`тотем стаи: ${r.totem}, на карточке ${r.totemHint}`);
   });
 

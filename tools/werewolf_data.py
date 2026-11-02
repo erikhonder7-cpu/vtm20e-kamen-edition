@@ -73,7 +73,7 @@ XP = {"attribute": "текущее × 4", "ability": "текущее × 2", "new
 # Атрибуты и Способности в тексте справочника → ключи системы
 TRAITS = {
     "Сила": "attributes.strength", "Ловкость": "attributes.dexterity", "Выносливость": "attributes.stamina", "Стойкость": "attributes.stamina",
-    "Обаяние": "attributes.charisma", "Манипуляция": "attributes.manipulation", "Манипулирование": "attributes.manipulation",
+    "Обаяние": "attributes.charisma", "Харизма": "attributes.charisma", "Манипуляция": "attributes.manipulation", "Манипулирование": "attributes.manipulation",
     "Внешность": "attributes.appearance", "Восприятие": "attributes.perception", "Интеллект": "attributes.intelligence",
     "Сообразительность": "attributes.wits", "Смекалка": "attributes.wits",
     "Бдительность": "abilities.alertness", "Атлетика": "abilities.athletics", "Драка": "abilities.brawl", "Эмпатия": "abilities.empathy",
@@ -1061,6 +1061,42 @@ def parse_changing_ways_extras(taken_gifts):
     return gifts, totems
 
 
+def parse_numina():
+    """Нумины Родни (W20 Kinfolk, гл. 3): Пути ворожбы и психические феномены — по 5 уровней; Истинная вера — trueFaith смертного."""
+    p = os.path.join(os.path.dirname(REF), "W20_Kinfolk")
+    fn = next((f for f in sorted(os.listdir(p)) if f.startswith("02")), None) if os.path.isdir(p) else None
+    if not fn:
+        return []
+    text = open(os.path.join(p, fn), encoding="utf-8").read()
+    out = []
+    for kind, head in (("hedge", "## Ворожба"), ("psychic", "## Психические феномены")):
+        part = text.split(head, 1)[1].split("\n## ", 1)[0]
+        for m in re.finditer(r"\n### (.+?) \(([^()]+)\)\n(.*?)(?=\n### |\Z)", part, re.S):
+            name, en, body = m.groups()
+            lines = body.strip().splitlines()
+            intro = [l for l in lines if not l.startswith("|")]
+            levels = []
+            for l in lines:
+                if not l.startswith("| •"):
+                    continue
+                c = [x.strip() for x in l.strip().strip("|").split("|")]
+                dots = c[0].count("•")
+                title = c[0].replace("•", "").strip()
+                diff = first_int(c[3]) if len(c) > 3 else 0
+                levels.append({"n": dots, "name": title, "text": md_inline(c[1] + (f" Восстановление целителя: {c[2]}." if len(c) > 3 else "")), "difficulty": diff})
+            pool = re.search(r"\*\*Бросок:\*\*\s*(.+?)(?:\.\s|\.$|;)", body)
+            pool_s = pool.group(1).strip() if pool else ""
+            parts = [x.strip() for x in re.split(r"\s*\+\s*", re.split(r",", pool_s)[0])] if pool_s else []
+            traits = [("willpower.permanent" if x == "Воля" else TRAITS.get(x)) for x in parts]
+            dm = re.search(r"сложность\s*(\d+)", pool_s)
+            cost = re.search(r"\*\*Цена:\*\*\s*([^.]+)\.", body)
+            out.append({"key": slug(en), "kind": kind, "name": name.strip(), "en": en.strip(), "pool": pool_s, "cost": cost.group(1).strip() if cost else "",
+                        "roll": {"trait1": traits[0] if traits else None, "trait2": traits[1] if len(traits) > 1 else None,
+                                 "difficulty": int(dm.group(1)) if dm else 6, "byTarget": "Воля жертвы" in pool_s} if traits else None,
+                        "text": md_html(intro), "levels": levels, "source": "W20 Kinfolk"})
+    return out
+
+
 def build():
     gifts = parse_gifts()
     rites = parse_rites()
@@ -1080,7 +1116,7 @@ def build():
     data = {"source": "Werewolf: The Apocalypse 20th Anniversary Edition", "breeds": breeds, "auspices": auspices, "tribes": tribes,
             "forms": FORMS, "gifts": gifts, "rites": rites, "rankNames": RANK_NAMES, "rank": RANK, "xp": XP,
             "merits": core_merits + s_merits, "backgrounds": parse_backgrounds(), "fetishes": core_fetishes + s_fetishes, "charms": parse_charms(), "kinGifts": parse_kin_gifts(tribes), "totems": parse_totems() + cw_totems, "renownAwards": parse_renown_awards(), "scars": parse_scars(), "sept": parse_sept(), "umbra": parse_umbra(), "fera": fera,
-            "deformities": parse_deformities()}
+            "deformities": parse_deformities(), "numina": parse_numina()}
     with open(OUT, "w", encoding="utf-8", newline="\n") as f:
         json.dump(data, f, ensure_ascii=False, indent=1)
     rules = parse_rules()
@@ -1092,7 +1128,7 @@ def build():
     starts = sum(len(x["startGifts"]) for x in breeds + auspices + tribes)
     return {"breeds": len(breeds), "auspices": len(auspices), "tribes": len(tribes), "gifts": len(gifts), "rites": len(rites),
             "startGifts": starts, "rolls": sum(1 for g in gifts if g["roll"]),
-            "rulePages": sum(len(b["pages"]) for b in rules), "merits": len(data["merits"]), "backgrounds": len(data["backgrounds"]), "fetishes": len(data["fetishes"]), "charms": len(data["charms"]), "kinGifts": len(data["kinGifts"]), "totems": len(data["totems"]), "awards": len(data["renownAwards"]), "scars": len(data["scars"]), "positions": len(data["sept"]["positions"]), "caernTypes": len(data["sept"]["caerns"]), "realms": len(data["umbra"]["realms"]), "fera": len(fera), "feraGifts": len(fera_gifts_list), "deformities": len(data["deformities"]), "cwGifts": len(cw_gifts), "cwTotems": len(cw_totems), "books": len(books), "bookPages": sum(len(b["pages"]) for b in books)}
+            "rulePages": sum(len(b["pages"]) for b in rules), "merits": len(data["merits"]), "backgrounds": len(data["backgrounds"]), "fetishes": len(data["fetishes"]), "charms": len(data["charms"]), "kinGifts": len(data["kinGifts"]), "totems": len(data["totems"]), "awards": len(data["renownAwards"]), "scars": len(data["scars"]), "positions": len(data["sept"]["positions"]), "caernTypes": len(data["sept"]["caerns"]), "realms": len(data["umbra"]["realms"]), "fera": len(fera), "feraGifts": len(fera_gifts_list), "deformities": len(data["deformities"]), "numina": len(data["numina"]), "cwGifts": len(cw_gifts), "cwTotems": len(cw_totems), "books": len(books), "bookPages": sum(len(b["pages"]) for b in books)}
 
 
 if __name__ == "__main__":

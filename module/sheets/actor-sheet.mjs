@@ -37,7 +37,7 @@ import { openThrallGifts } from "../apps/thrall-gifts.mjs";
 import { loseHost, holdOn, newHost, summonedBack } from "../apps/host.mjs";
 import { openCult } from "../apps/cult.mjs";
 import { openExorcist } from "../apps/exorcist.mjs";
-import { werewolfInfo, giftsView, editStanding, changeForm, rollGift, rollRite, frenzyCheck, stepSideways, scarView, addScar, removeScar, deformityView, addDeformity, removeDeformity, renownAward, kinfolkInfo, kinAddGift, kinRemoveGift, kinUseGift, spiritInfo, addCharm, removeCharm, spiritEssenceReset, fetishView, addFetish, removeFetish, attuneFetish, useFetish, delirium, W as werewolfDataSheet, regenerate, rageActions, spend as wwSpend, addGift, removeGift, addRite, removeRite } from "../apps/werewolf.mjs";
+import { werewolfInfo, giftsView, editStanding, changeForm, rollGift, rollRite, frenzyCheck, stepSideways, scarView, addScar, removeScar, deformityView, addDeformity, removeDeformity, renownAward, kinfolkInfo, kinAddGift, kinRemoveGift, kinUseGift, kinAddNumen, kinRemoveNumen, kinNumenDots, kinUseNumen, spiritInfo, addCharm, removeCharm, spiritEssenceReset, fetishView, addFetish, removeFetish, attuneFetish, useFetish, delirium, W as werewolfDataSheet, regenerate, rageActions, spend as wwSpend, addGift, removeGift, addRite, removeRite } from "../apps/werewolf.mjs";
 import { hunterInfo, edgesView, useEdge, secondSight, virtueTest, tradeConviction, restoreConviction, awardDeed, shiftDeed, cashDeed, sacrifice, advanceVirtue, callEdge, swapCalled, unblockCall, callView, isLost, lostVirtue, lostTrade, lostHardened, lostOrdeal } from "../apps/hunter.mjs";
 import { addBloodright, removeBloodright, rollBloodright, toggleRitual as toggleDririRitual, rollRitual as rollDririRitual } from "../apps/dhampir.mjs";
 import { openEbServant, empower as empowerServant } from "../apps/eb-servant.mjs";
@@ -177,6 +177,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       wwStanding: VtMActorSheet.#onWwStanding, wwFrenzy: VtMActorSheet.#onWwFrenzy, wwStep: VtMActorSheet.#onWwStep, wwSpend: VtMActorSheet.#onWwSpend,
       wwRegen: VtMActorSheet.#onWwRegen, wwActions: VtMActorSheet.#onWwActions, wwDelirium: VtMActorSheet.#onWwDelirium, wwRenown: VtMActorSheet.#onWwRenown, wwSept: VtMActorSheet.#onWwSept, wwUmbra: VtMActorSheet.#onWwUmbra, wwScarAdd: VtMActorSheet.#onWwScarAdd, wwScarDel: VtMActorSheet.#onWwScarDel, wwDeformAdd: VtMActorSheet.#onWwDeformAdd, wwDeformDel: VtMActorSheet.#onWwDeformDel,
       kinAdd: VtMActorSheet.#onKinAdd, kinBuy: VtMActorSheet.#onKinBuy, kinDel: VtMActorSheet.#onKinDel, kinUse: VtMActorSheet.#onKinUse,
+      kinNumAdd: VtMActorSheet.#onKinNumAdd, kinNumDel: VtMActorSheet.#onKinNumDel, kinNumDots: VtMActorSheet.#onKinNumDots, kinNumUse: VtMActorSheet.#onKinNumUse,
       spCharmAdd: VtMActorSheet.#onSpCharmAdd, spCharmDel: VtMActorSheet.#onSpCharmDel, spEssence: VtMActorSheet.#onSpEssence, spStep: VtMActorSheet.#onSpStep,
       wwFetishAdd: VtMActorSheet.#onWwFetishAdd, wwFetishAttune: VtMActorSheet.#onWwFetishAttune, wwFetishUse: VtMActorSheet.#onWwFetishUse, wwFetishDel: VtMActorSheet.#onWwFetishDel, openStrategy: () => openStrategy(),
       drinkVitae: VtMActorSheet.#onDrinkVitae, setVitae: VtMActorSheet.#onSetVitae, bloodrightAdd: VtMActorSheet.#onBloodrightAdd, bloodrightRemove: VtMActorSheet.#onBloodrightRemove,
@@ -778,6 +779,10 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static #onKinBuy() { return kinAddGift(this.actor, this.element.querySelector(".r-kin-add")?.value, true); }
   static #onKinDel(event, target) { return kinRemoveGift(this.actor, target.dataset.key); }
   static #onKinUse(event, target) { return kinUseGift(this.actor, target.dataset.key); }
+  static #onKinNumAdd() { const k = this.element.querySelector(".r-kin-num-add")?.value; if (k) return kinAddNumen(this.actor, k); }
+  static #onKinNumDel(event, target) { return kinRemoveNumen(this.actor, target.dataset.key); }
+  static #onKinNumDots(event, target) { return kinNumenDots(this.actor, target.dataset.key, Number(target.dataset.n)); }
+  static #onKinNumUse(event, target) { return kinUseNumen(this.actor, target.dataset.key); }
   static #onSpCharmAdd() { return addCharm(this.actor, this.element.querySelector(".r-sp-charm-add")?.value); }
   static #onSpCharmDel(event, target) { return removeCharm(this.actor, target.dataset.key); }
   static #onSpEssence() { return spiritEssenceReset(this.actor); }

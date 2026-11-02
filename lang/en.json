@@ -4050,6 +4050,14 @@
       "GauntletAsk": "Where are you? The difficulty is the local Gauntlet rating.",
       "StepGo": "Step",
       "GauntletTimes": "Successes: 1 — 5 minutes, 2 — 30 seconds, 3+ — at once. Failure — wait an hour; botch — caught in the Gauntlet.",
+      "Numen": {
+        "title": "Numina",
+        "hint": "Hedge magic and psychic phenomena (W20 Kinfolk). At creation — freebies: first numen 7 per dot, second 14; later — experience at the Storyteller's discretion. Hedge magic works only through rituals: one ritual of each level gained in a Way. True Faith is a separate mortal trait.",
+        "none": "No numina.",
+        "add": "+ Numen…",
+        "hedge": "hedge magic",
+        "psychic": "psychic phenomenon"
+      },
       "Kin": {
         "title": "Garou Kinfolk",
         "toggle": "Kinfolk",

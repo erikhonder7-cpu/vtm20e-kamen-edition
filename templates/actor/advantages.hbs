@@ -244,6 +244,18 @@
     {{#if editable}}<div class="r-toolbar"><select class="r-kin-add"><option value="">{{localize "VTM20.Werewolf.Kin.addGift"}}</option>{{#each kinInfo.avail}}<option value="{{key}}">{{label}}</option>{{/each}}</select>
       <a class="r-vc-btn" data-action="kinAdd" data-tooltip="{{localize 'VTM20.Werewolf.Kin.addFree'}}"><i class="fa-solid fa-plus"></i></a>
       <a class="r-vc-btn" data-action="kinBuy" data-tooltip="{{localize 'VTM20.Werewolf.Kin.addXp'}}"><i class="fa-solid fa-star"></i></a></div>{{/if}}
+    {{!-- Нумины (W20 Kinfolk, гл. 3): точки — щелчком, у Пути открыты уровни до своих точек; бросок — пул из книги --}}
+    <h2 class="r-h2"><span><i class="fa-solid fa-hand-sparkles"></i> {{localize "VTM20.Werewolf.Numen.title"}}</span></h2>
+    <p class="r-hint">{{localize "VTM20.Werewolf.Numen.hint"}}</p>
+    <ul class="r-edge-list r-kin-numina">{{#each kinInfo.numina}}<li class="r-edge">
+      <span class="r-edge-lvl"><i class="fa-solid fa-hand-sparkles"></i></span>
+      <span class="r-edge-main"><b>{{rName this}}</b> <small>{{rAlt this}} · {{kind}}{{#if pool}} · {{pool}}{{/if}}{{#if cost}} · {{cost}}{{/if}}</small>
+        <span class="r-dots">{{#each dots}}<a class="r-dot {{#if filled}}is-filled{{/if}}" {{#if @root.editable}}data-action="kinNumDots" data-key="{{../key}}" data-n="{{n}}"{{/if}}></a>{{/each}}</span>
+        <div class="r-edge-text">{{{text}}}<ul>{{#each levels}}<li class="{{#unless reached}}is-locked{{/unless}}"><b>{{rRoman n}}{{#if name}}. {{name}}{{/if}}</b>{{#if difficulty}} ({{localize "VTM20.Roll.Vs"}} {{difficulty}}){{/if}} — {{{text}}}</li>{{/each}}</ul></div></span>
+      {{#if @root.editable}}<a class="r-vc-btn" data-action="kinNumUse" data-key="{{key}}"><i class="fa-solid fa-dice-d10"></i></a><a class="r-icon-btn is-danger" data-action="kinNumDel" data-key="{{key}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}</li>
+      {{else}}<li class="r-note">{{localize "VTM20.Werewolf.Numen.none"}}</li>{{/each}}</ul>
+    {{#if editable}}<div class="r-toolbar"><select class="r-kin-num-add"><option value="">{{localize "VTM20.Werewolf.Numen.add"}}</option>{{#each kinInfo.numAvail}}<option value="{{key}}">{{label}}</option>{{/each}}</select>
+      <a class="r-vc-btn" data-action="kinNumAdd"><i class="fa-solid fa-plus"></i></a></div>{{/if}}
   </div>
   {{/if}}
   {{/if}}
