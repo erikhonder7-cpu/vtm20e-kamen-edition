@@ -242,11 +242,18 @@ try {
       window._e2e.domains = foundry.utils.deepClone(game.user.getFlag(game.system.id, "cityDomains") ?? null);
       await game.user.setFlag(game.system.id, "cityDomains", { [cityId]: [{ id: "e2e-domain", owner: id, points: square, text: "" }] });
       const place = C.huntPlace({ name: "E2E — угодья", grounds: "slums", points: square }, [lat, lng]);
+      // домен-актёр из обведённого домена одной кнопкой (план 1): привязка, хозяин, в списке мест листа, охота видит размер
+      await C.makeDomainFor("domain", { id: "e2e-domain", owner: id, points: square });
+      const da = C.domainActorOn("e2e-domain");
+      const linked = `${!!da}:${da?.system.owner === id}:${C.citySpots().domains.some(x => x.id === "e2e-domain")}:${C.huntPlace({ grounds: "slums", points: square }, [lat, lng]).domain?.id === da?.id}`;
+      for (const w of [...foundry.applications.instances.values()].filter(x => x.document === da)) await w.close();
+      await da?.delete();
       game.vtm20.closeCity();
-      return { cityId, place };
+      return { cityId, place, linked };
     }, id);
     if (!r.cityId) throw new Error("в мире нет города");
     if (r.place?.ground !== "slums" || r.place.owner?.id !== id) throw new Error(`место охоты: ${JSON.stringify(r.place)}`);
+    if (r.linked !== "true:true:true:true") throw new Error(`домен-актёр с карты (создан:хозяин:в листе:в охоте): ${r.linked}`);
     await page.evaluate(([id, place]) => game.vtm20.openHunt(game.actors.get(id), place), [id, r.place]);
     await page.waitForSelector(".r-hunt-dialog .r-hunt-place", { timeout: 10000 });
     const own = await page.evaluate(() => !document.querySelector(".r-hunt-dialog .r-hunt-place").classList.contains("is-foreign"));

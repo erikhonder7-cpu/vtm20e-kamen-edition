@@ -15,7 +15,7 @@
           <label class="r-df is-wide"><span>{{localize "VTM20.Group.Ground"}}</span>
             <select name="system.ground" {{#unless editable}}disabled{{/unless}}>{{#each grounds}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
           <label class="r-df is-wide"><span>{{localize "VTM20.Group.Zone"}}</span>
-            <select name="system.zone" {{#unless editable}}disabled{{/unless}}><option value="">—</option>{{#each zones}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select>
+            <select name="system.zone" {{#unless editable}}disabled{{/unless}}><option value="">—</option>{{#each zones}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{#if (eq kind "domain")}}♜ {{/if}}{{name}}</option>{{/each}}</select>
             {{#if system.zone}}<a class="r-gs-mapbtn" data-action="showMap" data-tooltip="{{localize 'VTM20.Group.ShowMap'}}"><i class="fa-solid fa-map-location-dot"></i></a>{{/if}}</label>
           <label class="r-df is-wide"><span>{{localize "VTM20.Group.Population"}}</span><input type="text" name="system.population" value="{{system.population}}" placeholder="{{localize 'VTM20.Group.PopulationHint'}}" {{#unless editable}}disabled{{/unless}}></label>
         </div>

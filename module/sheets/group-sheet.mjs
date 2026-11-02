@@ -128,8 +128,9 @@ export class DomainSheet extends GroupSheet {
   async _prepareContext() {
     const a = this.actor, s = a.system, owner = domainOwner(a);
     const row = (key, max = 5) => Array.from({ length: max }, (_, i) => ({ n: i + 1, on: i < (s[key] ?? 0), key }));
+    // место на карте: зоны рассказчика и обведённые игроками домены (план 1)
     let zones = [];
-    try { zones = citySpots().zones; } catch { zones = []; }
+    try { const sp = citySpots(); zones = [...sp.zones, ...(sp.domains ?? [])]; } catch { zones = []; }
     const diff = HUNTING_GROUNDS[s.ground] ?? 6;
     const list = ids => (ids ?? []).map(id => game.actors.get(id)).filter(Boolean).map(card);
     const stat = (k, icon, max = 5) => ({ key: k, icon, label: t(`Group.Stat.${k}`), hint: t(`Group.StatHint.${k}`), value: s[k] ?? 0, dots: row(k, max) });
@@ -157,7 +158,7 @@ export class DomainSheet extends GroupSheet {
       owner: owner ? card(owner) : null,
       grounds: Object.entries(HUNTING_GROUNDS).map(([k, d]) => ({ key: k, label: `${t(`Hunt.Ground.${k}`)} — ${d}`, selected: k === s.ground })),
 
-      zones: zones.map(z => ({ id: z.id, name: z.name, selected: z.id === s.zone })),
+      zones: zones.map(z => ({ id: z.id, name: z.name, kind: z.kind, selected: z.id === s.zone })),
       zoneName: zones.find(z => z.id === s.zone)?.name ?? "",
       huntLine: t("Group.HuntLine", { diff, cut: s.rating, res: Math.max(3, diff - s.rating) }),
       guests: list(s.guests), people: list(s.people)
@@ -185,7 +186,13 @@ export class DomainSheet extends GroupSheet {
     if (list === "owner") return this.actor.update({ "system.owner": "" });
     return this.actor.update({ [`system.${list}`]: (this.actor.system[list] ?? []).filter(x => x !== id) });
   }
-  static #onShowMap() { if (this.actor.system.zone) return showSpotOnMap("zone", this.actor.system.zone); }
+  static #onShowMap() {
+    const id = this.actor.system.zone;
+    if (!id) return;
+    let kind = "zone";
+    try { if ((citySpots().domains ?? []).some(d => d.id === id)) kind = "domain"; } catch { /* карта не настроена — как зона */ }
+    return showSpotOnMap(kind, id);
+  }
   /** Событие домена — в журнал (механика события — в подписи; точки рассказчик правит по ней). */
   static #onAddEvent() {
     const key = this.element.querySelector("[data-ev=kind]")?.value, note = this.element.querySelector("[data-ev=note]")?.value?.trim() ?? "";

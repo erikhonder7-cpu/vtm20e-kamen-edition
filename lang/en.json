@@ -4090,7 +4090,12 @@
       },
       "MetroToggle": "Metro map on the map",
       "FxToggle": "Candle and blood: flickering light at the cursor and stains where blood was shed",
-      "ModeMap": "Map"
+      "ModeMap": "Map",
+      "DomainActorLine": "Owner: {owner} · size {n}",
+      "DomainSheet": "Domain sheet",
+      "MakeDomain": "Create domain",
+      "MakeDomainHint": "A Domain actor for this area: map link, hunting grounds and owner are filled in",
+      "DomainMade": "{name}: domain created and linked to the map."
     },
     "Magic": {
       "BaseAttr": "unboosted",

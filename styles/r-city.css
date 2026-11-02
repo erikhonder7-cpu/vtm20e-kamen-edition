@@ -112,6 +112,12 @@
 #r-citymap .rc-edit-acts { display: flex; flex-wrap: wrap; gap: 6px; }
 #r-citymap .rc-edit-acts .r-btn { height: 28px; padding: 0 10px; font-size: 12px; }
 #r-citymap .rc-edit-acts .rc-danger { margin-left: auto; }
+/* Домен-актёр на зоне: ладья цвета хозяина, имя и размер, кнопка листа (план 1) */
+#r-citymap .rc-domain-link { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; padding: 6px 8px; border: 1px solid var(--c-line-2); border-left: 3px solid var(--dc); }
+#r-citymap .rc-domain-link > i { color: var(--dc); font-size: 16px; }
+#r-citymap .rc-domain-link > span { flex: 1 1 150px; min-width: 0; display: flex; flex-direction: column; }
+#r-citymap .rc-domain-link small { font-size: 11.5px; color: var(--c-bone-2); opacity: .8; }
+#r-citymap .rc-domain-link .r-btn { height: 26px; padding: 0 8px; font-size: 12px; }
 #r-citymap .rc-foot .r-btn { width: 100%; justify-content: center; height: 30px; }
 #r-citymap .rc-src { margin: 0; font-size: 10.5px; color: var(--c-dim-2); }
 

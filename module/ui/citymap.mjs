@@ -151,11 +151,61 @@ export function citySpots() {
   const raw = game.settings.get(SYSTEM_ID, "cityMap") ?? {};
   const c = raw.cities?.[raw.current] ?? Object.values(raw.cities ?? {})[0] ?? raw;
   const vis = x => game.user.isGM || !x.gmOnly;
+  const cityId = raw.current ?? Object.keys(raw.cities ?? {})[0];
   return {
     city: c.name || L("DefaultCity"),
     zones: (c.zones ?? []).filter(vis).map(z => ({ kind: "zone", id: z.id, name: z.name || L("Zone"), color: z.color || "#b0404c" })),
-    markers: (c.markers ?? []).filter(vis).map(m => ({ kind: "marker", id: m.id, name: m.name || "—" }))
+    markers: (c.markers ?? []).filter(vis).map(m => ({ kind: "marker", id: m.id, name: m.name || "—" })),
+    // обведённые игроками домены (флаг пользователя cityDomains) — к ним тоже можно привязать актёра «Домен»
+    domains: game.users.contents.flatMap(u => ((u.getFlag(SYSTEM_ID, DOMAIN_FLAG) ?? {})[cityId] ?? []).map(d => ({ kind: "domain", id: d.id,
+      name: L("DomainLabel", { name: game.actors.get(d.owner)?.name ?? L("DomainNobody") }) })))
   };
+}
+
+/* ── Актёр «Домен» на зоне или обведённом домене (план 1): цвет хозяина, лист по щелчку, создание одной кнопкой ── */
+
+/** Домен-актёр, привязанный к зоне или обведённому домену (system.zone — id зоны или домена). */
+export const domainActorOn = id => id ? game.actors.find(a => a.type === "domain" && a.system.zone === id) ?? null : null;
+/** Цвет домена на карте — цвет игрока, владеющего хозяином (у котерии — её игрока); без хозяина — нет. */
+function domainActorColor(da) {
+  const o = da ? game.actors.get(da.system.owner) : null;
+  return o ? ownerColor(o) : null;
+}
+/** Строка о домене-актёре для карточки зоны: хозяин, размер, кнопка листа; без актёра — «Создать домен» (кто может создавать актёров). */
+function domainLinkHtml(id) {
+  const da = domainActorOn(id);
+  if (da) {
+    const o = game.actors.get(da.system.owner), seen = da.testUserPermission(game.user, "LIMITED");
+    return `<div class="rc-domain-link" style="--dc:${esc(domainActorColor(da) ?? "#b0404c")}"><i class="fa-solid fa-chess-rook"></i>
+      <span><b>${esc(da.name)}</b><small>${esc(L("DomainActorLine", { owner: o?.name ?? L("DomainNobody"), n: da.system.rating ?? 0 }))}</small></span>
+      ${seen ? `<a class="r-btn" data-act="openDomain" data-id="${da.id}"><i class="fa-solid fa-book-open"></i> ${esc(L("DomainSheet"))}</a>` : ""}</div>`;
+  }
+  return game.user.can("ACTOR_CREATE") ? `<div class="rc-edit-acts"><a class="r-btn" data-act="makeDomain" data-tooltip="${esc(L("MakeDomainHint"))}"><i class="fa-solid fa-chess-rook"></i> ${esc(L("MakeDomain"))}</a></div>` : "";
+}
+/** Создать актёра «Домен» по зоне или обведённому домену: имя, привязка, угодья и хозяин — сразу. Экспорт — для автотестов. */
+export async function makeDomainFor(kind, it) {
+  if (domainActorOn(it.id)) return;
+  let owner = null, ground = "", name = "";
+  if (kind === "zone") {
+    const nm = String(it.owner ?? "").trim().toLowerCase();
+    owner = nm ? game.actors.find(a => a.name.trim().toLowerCase() === nm) ?? null : null;
+    ground = it.grounds || "";
+    name = it.name || (owner ? L("DomainOf", { name: owner.name }) : L("Zone"));
+  } else {
+    owner = game.actors.get(it.owner) ?? null;
+    // угодья — у зоны рассказчика, в которую попадает середина обведённого домена (карта может быть закрыта — зоны из настроек мира)
+    const [la, ln] = centroid(it.points);
+    const raw = game.settings.get(SYSTEM_ID, "cityMap") ?? {}, zones = state ? city().zones : (raw.cities?.[raw.current] ?? Object.values(raw.cities ?? {})[0] ?? {}).zones ?? [];
+    ground = zones.find(z => z.grounds && inZone(z, la, ln))?.grounds ?? "";
+    name = L("DomainOf", { name: owner?.name ?? L("DomainNobody") });
+  }
+  const da = await Actor.create({ name, type: "domain", img: owner?.img,
+    system: { zone: it.id, owner: owner?.id ?? "", ...(ground ? { ground } : {}) },
+    ownership: owner ? Object.fromEntries(Object.entries(owner.ownership ?? {}).filter(([k]) => k !== "default")) : {} });
+  if (!da) return;
+  ui.notifications.info(L("DomainMade", { name: da.name }));
+  if (map) { drawBody(); drawOverlay(); }
+  da.sheet.render(true);
 }
 
 /** Открыть город на зоне или метке и выбрать её (домен из «Двора»). */
@@ -164,10 +214,11 @@ export async function showSpotOnMap(kind, id) {
   for (let i = 0; i < 60 && !(state && map?.loaded?.()); i++) await new Promise(r => setTimeout(r, 100));
   if (!state || !map) return;
   const c = city();
-  const it = kind === "zone" ? c.zones.find(z => z.id === id) : c.markers.find(m => m.id === id);
+  const it = kind === "zone" ? c.zones.find(z => z.id === id) : kind === "domain" ? domainById(id) : c.markers.find(m => m.id === id);
   if (!it) return ui.notifications.info(L("NoSpotFound"));
-  const [lat, lng] = kind === "zone" ? centroid(it.points) : [it.lat, it.lng];
-  fly(lat, lng, kind === "zone" ? 15 : 17);
+  const area = kind === "zone" || kind === "domain";
+  const [lat, lng] = area ? centroid(it.points) : [it.lat, it.lng];
+  fly(lat, lng, area ? 15 : 17);
   pick(kind, id);
 }
 
@@ -233,8 +284,8 @@ const huntZoneOf = a => { const w = whereIs(a); return w ? city().zones.find(z =
 export function huntPlace(z, at = centroid(z.points)) {
   // жар Маскарада в этой точке (ui/masquerade.mjs) — надбавка к сложности охоты
   const masq = masqueradeAt(city(), at[0], at[1]).diff;
-  // домен-актёр на этой зоне (V20, факт «Домен»): хозяин, гости, размер и защищённость
-  const da = game.actors.find(a => a.type === "domain" && a.system.zone === z.id);
+  // домен-актёр на этой зоне или на обведённом домене в этой точке (V20, факт «Домен»): хозяин, гости, размер и защищённость
+  const da = domainActorOn(z.id) ?? domainActorOn(domainAt(at[0], at[1])?.id);
   if (da) {
     const own = game.actors.get(da.system.owner);
     return { name: da.name, ground: da.system.ground || z.grounds, masq, owner: { id: own?.id ?? null, name: own?.name ?? da.name },
@@ -278,6 +329,7 @@ EXT.kinds.domain = {
       <label>${esc(L("DomainOwner"))}<select data-field="owner" ${edit ? "" : "disabled"}>${opts || `<option>${esc(d.name)}</option>`}</select></label>
       ${edit ? `<textarea data-field="text" rows="3" placeholder="${esc(L("DomainTextHint"))}">${esc(d.text ?? "")}</textarea>` : d.text ? `<p class="rc-text">${esc(d.text)}</p>` : ""}
       <p class="rc-facts">${esc(L("DomainHint"))}</p>
+      ${domainLinkHtml(d.id)}
       ${edit ? `<div class="rc-edit-acts"><a class="r-btn rc-danger" data-act="remove" data-tooltip="${esc(L("Delete"))}"><i class="fa-solid fa-trash"></i></a></div>` : ""}
     </section>`;
   },
@@ -1047,9 +1099,10 @@ function drawOverlay() {
     return { type: "Feature", properties: { name: L("DomainLabel", { name: d.name }), color: d.color }, geometry: { type: "Point", coordinates: [ln, la] } };
   }) });
   const hunt = !!view().hunt;
-  map.getSource("rc-zone-labels").setData({ type: "FeatureCollection", features: zones.filter(z => z.name || (hunt && z.grounds)).map(z => {
+  map.getSource("rc-zone-labels").setData({ type: "FeatureCollection", features: zones.filter(z => z.name || (hunt && z.grounds) || domainActorOn(z.id)).map(z => {
     const [la, ln] = centroid(z.points);
-    const name = hunt && z.grounds ? `${z.name || groundLabel(z.grounds)} · ${HUNTING_GROUNDS[z.grounds]}` : z.name;
+    // зона-домен без своего имени — подписью имя домена
+    const name = hunt && z.grounds ? `${z.name || groundLabel(z.grounds)} · ${HUNTING_GROUNDS[z.grounds]}` : z.name || domainActorOn(z.id)?.name;
     return { type: "Feature", properties: { name, color: zoneColor(z) }, geometry: { type: "Point", coordinates: [ln, la] } };
   }) });
   for (const o of EXT.overlays) o.draw?.(api);
@@ -1057,8 +1110,8 @@ function drawOverlay() {
   drawChars();
 }
 
-/** Цвет зоны: на слое «Угодья» — по угодьям, иначе свой. */
-const zoneColor = z => (view().hunt && z.grounds && GROUND_COLORS[z.grounds]) || z.color || "#b0404c";
+/** Цвет зоны: на слое «Угодья» — по угодьям; зона-домен — цвет игрока хозяина (план 1); иначе свой. */
+const zoneColor = z => (view().hunt && z.grounds && GROUND_COLORS[z.grounds]) || domainActorColor(domainActorOn(z.id)) || z.color || "#b0404c";
 
 const centroid = pts => pts.reduce(([a, b], [x, y]) => [a + x / pts.length, b + y / pts.length], [0, 0]);
 
@@ -1509,7 +1562,8 @@ function editor(it) {
       <a data-act="unpick" data-tooltip="${esc(L("Close"))}"><i class="fa-solid fa-xmark"></i></a></div>
     ${facts || wiki ? `<p class="rc-facts">${facts}${wiki ? `${facts ? " · " : ""}<a href="${esc(wiki)}" target="_blank" rel="noopener">${esc(L(it.wiki ? "Wiki" : "Wikidata"))}</a>` : ""}</p>` : ""}
     ${isZone ? `<label>${esc(L("Owner"))}<input data-field="owner" value="${esc(it.owner)}" placeholder="${esc(L("OwnerHint"))}" ${ro}></label>
-      <label>${esc(L("Grounds"))}<select data-field="grounds" ${ro}><option value="">${esc(L("GroundsNone"))}</option>${Object.entries(HUNTING_GROUNDS).map(([k, d]) => opt(k, it.grounds, `${groundLabel(k)} · ${d}`)).join("")}</select></label>`
+      <label>${esc(L("Grounds"))}<select data-field="grounds" ${ro}><option value="">${esc(L("GroundsNone"))}</option>${Object.entries(HUNTING_GROUNDS).map(([k, d]) => opt(k, it.grounds, `${groundLabel(k)} · ${d}`)).join("")}</select></label>
+      ${domainLinkHtml(it.id)}`
       : `<label>${esc(L("Category"))}<select data-field="cat" ${ro}>${cats}</select></label>
       ${!isPoi && game.user.isGM && !it.mine ? `<label>${esc(L("Folder"))}<select data-field="folder">${ownFolders}</select></label>` : ""}`}
     ${isPoi ? "" : `<label class="rc-row">${esc(L("Color"))}<input type="color" data-field="color" value="${esc(color)}" ${ro}></label>`}
@@ -1773,6 +1827,8 @@ async function act(name, el) {
     }
     case "openScene": { const s = game.scenes.get(findPicked()?.sceneId); if (s) { closeCity(); s.view(); } break; }
     case "openJournal": game.journal.get(findPicked()?.journalId)?.sheet.render(true); break;
+    case "openDomain": game.actors.get(el.dataset.id)?.sheet.render(true); break;
+    case "makeDomain": { const it = findPicked(); if (it && (picked.kind === "zone" || picked.kind === "domain")) await makeDomainFor(picked.kind, it); break; }
     default: if (EXT.acts[name]) await EXT.acts[name](el, api); break;
     case "ping": {
       const it = findPicked(); if (!it) break;
@@ -1837,4 +1893,13 @@ export function registerCityMap() {
     drawChars();
     if (!document.activeElement?.closest?.(`#${ID} .rc-body`)) drawBody();
   });
+  // Домен-актёр появился, сменил хозяина или зону, удалён — цвет зоны и карточка (план 1)
+  const domainChanged = actor => {
+    if (!map || actor.type !== "domain") return;
+    drawOverlay();
+    if (!document.activeElement?.closest?.(`#${ID} .rc-body`)) drawBody();
+  };
+  Hooks.on("createActor", domainChanged);
+  Hooks.on("updateActor", domainChanged);
+  Hooks.on("deleteActor", domainChanged);
 }
