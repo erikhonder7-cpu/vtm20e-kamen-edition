@@ -504,8 +504,8 @@ export function prepareAdvantages(sheet, ctx) {
     { key: "flaw", label: "VTM20.Sheet.Flaws", list: ctx.flaws, total: ctx.flawTotal }
   ];
   ctx.derangements = byType("derangement").map(i => ({ id: i.id, name: i.name, en: Codex.enOf(i), html: i.system.description, permanent: i.system.permanent, open: sheet._open.has(i.id) }));
-  // Инфернализм (apps/infernal.mjs): Вложения и договоры с демонами — у всех, кроме падших
-  if (a.type !== "demon") {
+  // Инфернализм (apps/infernal.mjs): Вложения и договоры с демонами — у всех, кроме падших; у Гару (W20 их не знает) — только если уже есть
+  if (a.type !== "demon" && (a.type !== "werewolf" || byType("investment").length || (a.system.pacts ?? []).length)) {
     const f = (k, n) => game.i18n.format(`VTM20.Infernal.${k}`, { n });
     const costLine = c => [c.blood ? f("CostBlood", c.blood) : "", c.willpower ? f("CostWill", c.willpower) : "",
       c.willpowerPerm ? f("CostWillPerm", c.willpowerPerm) : ""].filter(Boolean).join(" · ");
@@ -520,6 +520,8 @@ export function prepareAdvantages(sheet, ctx) {
   ctx.bonds = (a.system.bonds ?? []).map((b, i) => ({ ...b, index: i, dots: dots(b.rating, 3, { path: `system.bonds.${i}.rating` }),
     isRegnant: b.role === "regnant", tip: t("BondX.Tip", { n: b.drinks ?? 0, last: b.last || "—" })
       + (bondFade(a, b) != null ? ` · ${game.i18n.format("VTM20.Web.Fade", { n: bondFade(a, b) })}` : "") }));
+  // узы крови: у смертных и охотников раздела нет; у Гару — только если уже записаны
+  ctx.showBonds = !["mortal", "hunter"].includes(a.type) && (a.type !== "werewolf" || ctx.bonds.length > 0);
   // Винкулум — у вампиров Шабаша и у всех, у кого он уже записан
   // котерии персонажа: общие факты и свой вклад (apps/coterie.mjs)
   ctx.coteries = coteriesOf(a).map(c => ({ name: c.name, pools: Object.keys(c.pools ?? {}).map(bg => ({ bg, value: poolValue(c, bg),

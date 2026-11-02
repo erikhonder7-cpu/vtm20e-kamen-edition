@@ -4492,7 +4492,7 @@
       "UseSpendSub": "The power just works · Gnosis now {n}",
       "CraftDiff": "Difficulty",
       "RollShort": "Roll",
-      "RenownStatusTip": "Permanent / temporary",
+      "RenownStatusTip": "Permanent / needed for the next Rank",
       "RenownAwardTitle": "Renown: {name}",
       "RenownSearch": "Find a deed…",
       "RenownCustom": "Custom award:",
@@ -4530,7 +4530,7 @@
       "CraftHint": "Bind a spirit into the chosen fetish (Rite of the Fetish) or talen (Rite of Binding)",
       "CraftPick": "Pick a fetish or talen in the list.",
       "CraftTitle": "Creating: {name}",
-      "CraftFetishHow": "Rite of the Fetish: the object was cleansed three nights in a row, the spirit persuaded or defeated. Wits + Rituals, difficulty 10; each permanent Gnosis spent is −2. Fetish Gnosis {g}.",
+      "CraftFetishHow": "Rite of the Fetish: the object was cleansed three nights in a row, the spirit persuaded or defeated. Wits + Rituals, difficulty 10; each permanent Gnosis spent lowers it by 2.",
       "CraftTalenHow": "Rite of Binding: the spirit is present and not hostile to the totem. Willpower roll against the spirit's Gnosis ({g}); each Gnosis spent lowers it by 1.",
       "CraftNoRite": "The sheet lacks {rite} — only with the Storyteller's leave.",
       "CraftSpendPerm": "Spend permanent Gnosis:",
@@ -4547,7 +4547,12 @@
         "totem": "“{name}” is a pack totem: drop it on a coterie (Garou pack) sheet.",
         "caern": "“{name}” is a caern reference entry and cannot be added to a sheet.",
         "other": "“{name}” does not fit this sheet: Gifts, rites, fetishes, scars and deformities go to a werewolf; Charms and spirit templates to a spirit; Kinfolk Gifts and numina to Kinfolk; Kami powers to a Kami; fomori powers and breeds to a fomor."
-      }
+      },
+      "ActionsFree": "no penalty",
+      "UmbraShort": "Umbra",
+      "RenownAwardHead": "Award Renown",
+      "NeedOf": "{have} of {need}",
+      "NeedTip": "Rank {n} needs {need} permanent"
     },
     "Strategy": {
       "Tab": "Strategy",

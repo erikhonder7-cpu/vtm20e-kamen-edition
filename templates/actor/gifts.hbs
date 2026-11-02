@@ -1,4 +1,4 @@
-{{!-- II. Гару (W20): пять форм (поправки Атрибутов — в итоге черт), Дары по уровням, ритуалы. --}}
+{{!-- II. Гару (W20): Ранг и Слава, пять форм (поправки Атрибутов — в итоге черт), Дары по уровням, ритуалы. --}}
 <section class="tab r-pane r-disciplines r-edges r-gifts {{tab.cssClass}}" data-tab="{{tab.id}}" data-group="{{tab.group}}">
 
   {{!-- Фера (W20 Changing Breeds): род — Гару или один из 11 Изменяющихся; у Фера свои формы, Дары рода и справка --}}
@@ -17,6 +17,36 @@
       <div class="r-ww-fera-text">{{{werewolfInfo.fera.traits}}}{{{werewolfInfo.fera.formsHtml}}}</div></details>
   </div>
   {{/if}}
+
+  <h2 class="r-h2"><span>{{localize "VTM20.Werewolf.RenownRank"}}</span></h2>
+  {{!-- Ранг и Слава (W20, гл. 3–4): медальон Ранга (щелчок — окно «Слава и Ранг» с наградой Славой), под ним — где Гару:
+       Умбра, септ и тотем стаи; три Славы — кружки постоянной, квадратики временной, число — постоянная / нужно до Ранга --}}
+  <div class="r-ww-renown is-tab">
+    <div class="r-ww-rankcell">
+      <a class="r-ww-rankmedal {{#if werewolfInfo.canRank}}is-ready{{/if}}" {{#if editable}}data-action="wwStanding"{{/if}}
+         data-tooltip="{{localize 'VTM20.Werewolf.RenownRank'}}{{#if werewolfInfo.nextRank}}<br>{{localize 'VTM20.Werewolf.NextRank'}}: {{werewolfInfo.nextRank}}{{/if}}">
+        <span class="r-ww-rm-disc"><b>{{#if werewolfInfo.rank}}{{rRoman werewolfInfo.rank}}{{else}}0{{/if}}</b></span>
+        <span class="r-ww-rm-text"><small>{{localize "VTM20.Werewolf.Rank"}}</small><em>{{#if werewolfInfo.rankName}}{{werewolfInfo.rankName}}{{else}}—{{/if}}</em></span>
+      </a>
+      <div class="r-ww-where">
+        <a class="r-vc-btn {{#if werewolfInfo.umbra}}is-umbra{{/if}}" data-action="wwUmbra" data-tooltip="{{localize 'VTM20.Umbra.Title'}}{{#if werewolfInfo.umbra}}: {{werewolfInfo.umbra.name}}{{/if}}"><i class="fa-solid fa-moon"></i> {{#if werewolfInfo.umbra}}{{werewolfInfo.umbra.name}}{{else}}{{localize "VTM20.Werewolf.UmbraShort"}}{{/if}}</a>
+        <a class="r-vc-btn" data-action="wwSept" data-tooltip="{{#if werewolfInfo.sept}}{{werewolfInfo.sept.name}}{{#each werewolfInfo.sept.posts}} · {{name}}{{/each}}{{else}}{{localize 'VTM20.Sept.Title'}}{{/if}}"><i class="fa-solid fa-campground"></i> {{#if werewolfInfo.sept}}{{werewolfInfo.sept.name}}{{else}}{{localize "VTM20.Sept.Title"}}{{/if}}</a>
+        {{#if werewolfInfo.packTotem.totem}}<span class="r-vc-hint" data-tooltip="{{werewolfInfo.packTotem.pack}}: {{werewolfInfo.packTotem.totem.individual}}"><i class="fa-solid fa-feather-pointed"></i> {{werewolfInfo.packTotem.totem.name}}</span>{{/if}}
+      </div>
+    </div>
+    {{#each werewolfInfo.renown}}
+    <div class="r-vcard r-vc-renown is-{{key}}">
+      <div class="r-vc-head">
+        <h4 class="r-banner">{{label}}</h4>
+        <div class="r-vc-status {{#if met}}is-met{{/if}}" data-tooltip="{{#if need}}{{localize 'VTM20.Werewolf.RenownStatusTip'}}{{else}}{{localize 'VTM20.Werewolf.Permanent'}}{{/if}}">{{#if ready}}<i class="fa-solid fa-medal r-ww-ready" data-tooltip="{{localize 'VTM20.Werewolf.RenownTempTip' n=temp}}"></i> {{/if}}<b>{{perm}}</b>{{#if need}} / {{need}}{{/if}}</div>
+      </div>
+      {{> rDots dots=dots cls="is-ten is-renown"}}
+      <div class="r-boxes is-renown">
+        {{#each tempDots}}<a class="r-box {{#if filled}}is-filled{{/if}}" data-action="setDots" data-path="{{path}}" data-n="{{n}}"></a>{{/each}}
+      </div>
+    </div>
+    {{/each}}
+  </div>
 
   <h2 class="r-h2"><span>{{localize "VTM20.Werewolf.Forms"}}</span></h2>
   <div class="r-ww-forms">

@@ -1170,7 +1170,7 @@ try {
         await game.settings.set(SYS, "coteries", [...cots, { id: "e2e-pack", name: "E2E — стая", members: [id], pools: {}, lost: {}, totem: "falcon" }]);
         const Co = await import(`/systems/${SYS}/module/apps/coterie.mjs`);
         out.totem = Co.totemOf(a)?.totem?.name ?? "";
-        await a.sheet.render(true); await wait(900); out.totemHint = /Сокол/.test(a.sheet.element.querySelector(".r-vc-garou")?.textContent ?? ""); await a.sheet.close();
+        await a.sheet.render(true); await wait(900); out.totemHint = /Сокол/.test(a.sheet.element.querySelector(".r-ww-where")?.textContent ?? ""); await a.sheet.close();
       } finally { await game.settings.set(SYS, "coteries", cots); }
       return out;
     }, [id, sp]);

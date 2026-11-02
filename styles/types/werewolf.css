@@ -282,7 +282,7 @@ body.r-theme-light .vtm20.r-type-werewolf .r-form-badge.is-down { color: #7a2a18
 .r-ws-pip:hover { border-color: var(--w-moon-l); }
 .r-ws-track.is-permanent .r-ws-pip.is-on { background: radial-gradient(circle at 38% 32%, #eef3f0, #7f9a8a 55%, #15211a); border-color: #b9c8c3; }
 .r-ws-track.is-temporary .r-ws-pip.is-on { background: linear-gradient(180deg, #c6d6cf, #5f706b); border-color: #b9c8c3; }
-.r-ws-card footer { margin-top: 8px; font-size: 11.5px; color: #d9785a; min-height: 14px; }
+.r-ws-card footer { margin-top: 8px; font-size: 11.5px; color: #d9785a; min-height: 22px; }
 .r-ws-card footer.is-met { color: var(--w-moon-l); }
 .application.vtm20.r-dialog.r-ww-standing-dlg .form-footer button[data-action=ok] { flex: 0 0 auto; min-width: 160px; margin: 0 auto; }
 .application.vtm20.r-dialog.r-type-werewolf .form-footer button[data-action=ok], .application.vtm20.r-dialog.r-type-werewolf button.default { color: #0b120e; border: 1px solid #eef3f0;
@@ -439,7 +439,8 @@ body.r-theme-light .vtm20.r-type-werewolf .r-wg { background: linear-gradient(17
 .vtm20 button.r-wc-card.is-sept { grid-column: 1 / -1; }
 .vtm20.r-wc-grid button.r-wc-card { min-height: 52px; padding: 8px 10px; gap: 8px; }
 .vtm20.r-wc-grid .r-wc-mark { width: 28px; height: 28px; font-size: 13px; padding: 4px; }
-.vtm20.r-wc-grid .r-wc-body b { font-size: 11.5px; letter-spacing: 1.2px; overflow-wrap: anywhere; hyphens: auto; }
+/* название места не рвём посреди слова («Могущественны/й»): переносы только между словами, разрядка поменьше */
+.vtm20.r-wc-grid .r-wc-body b { font-size: 11.5px; letter-spacing: .8px; overflow-wrap: normal; word-break: normal; hyphens: manual; }
 .vtm20.r-wc-grid .r-wc-badge { font-size: 20px; min-width: 20px; }
 /* счётчик (создание фетиша) */
 .vtm20 .r-wc-stepper { display: flex; align-items: center; gap: 6px; padding: 10px 12px; border: 1px solid var(--r-line-2); border-radius: 0; background: var(--r-card-bg); }
@@ -501,12 +502,25 @@ body.r-theme-light .vtm20 .is-wisdom { --ren: #2f6170; --ren-d: #1c3f49; }
 .vtm20 .r-ww-rm-text { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .vtm20 .r-ww-rm-text small { font-family: var(--r-caps); font-size: 12px; letter-spacing: 2.4px; text-transform: uppercase; color: var(--r-ink); }
 .vtm20 .r-ww-rm-text em { font-size: 12.5px; color: var(--r-ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-@container rsheet (max-width: 760px) { .vtm20 .r-ww-renown { grid-template-columns: repeat(3, minmax(0, 1fr)); } .vtm20 .r-ww-rankmedal { grid-column: 1 / -1; } }
+/* ячейка Ранга: медальон и под ним — где Гару (Умбра, септ, тотем стаи) кнопками в одну-две строки */
+.vtm20 .r-ww-renown.is-tab { margin: 2px 0 8px; }
+.vtm20 .r-ww-rankcell { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.vtm20 .r-ww-rankcell .r-ww-rankmedal { flex: 1; }
+.vtm20 .r-ww-where { display: flex; flex-wrap: wrap; gap: 4px; }
+.vtm20 .r-ww-where .r-vc-btn { flex: 1 1 auto; min-width: 0; justify-content: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vtm20 .r-ww-where .r-vc-hint { flex: 1 1 100%; font-size: 12px; }
+.vtm20.r-type-werewolf .r-vc-garou .r-vc-head .r-ww-beast { margin-left: auto; margin-right: 8px; }
+@container rsheet (max-width: 760px) { .vtm20 .r-ww-renown { grid-template-columns: repeat(3, minmax(0, 1fr)); } .vtm20 .r-ww-rankcell { grid-column: 1 / -1; } }
 
 /* Награда Славой: три Славы сверху, поиск и раздел, таблица поступков, своя награда внизу */
 .r-ra-dlg .window-content { display: flex; flex-direction: column; }
 .r-ra-dlg .r-ra { display: flex; flex-direction: column; gap: 10px; flex: 1; min-height: 0; }
-.r-ra-dlg .r-ra-top { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+/* окно «Слава и Ранг»: сверху медальон Ранга и три Славы (как было в окне Ранга), ниже — награда рассказчика */
+.r-ra-dlg .r-ra-top { flex: none; }
+.r-ra-dlg .r-ra-top .r-ws-cards { margin-top: 10px; }
+.r-ra-dlg .r-ra-cap-head { margin: 6px 0 0; }
+.r-ws-card footer { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.r-ws-card footer .r-ra-recog { margin: 0; padding: 2px 8px; }
 .r-ra-dlg .r-ra-recog { display: block; margin-top: 7px; text-align: center; font-family: var(--r-caps); letter-spacing: 1.5px; text-transform: uppercase; padding: 3px 6px; border: 1px solid var(--ren); border-radius: 0; font-size: 12px; color: var(--ren); cursor: pointer;
   background: color-mix(in srgb, var(--ren) 12%, transparent); animation: r-ra-pulse 2.4s ease-in-out infinite; }
 .r-ra-dlg .r-ra-recog:hover { background: color-mix(in srgb, var(--ren) 24%, transparent); }
@@ -544,20 +558,27 @@ body.r-theme-light .r-ra-dlg .r-ra-sec h4 { background: linear-gradient(180deg, 
 .vtm20 button.r-ra-give, .vtm20 button.r-pu-roll { flex: none; width: auto; margin: 0; border: 1px solid #eef3f0; color: #0b120e; background: linear-gradient(180deg, #eef3f0, #9fb3aa); }
 .vtm20 button.r-ra-give:hover, .vtm20 button.r-pu-roll:hover { background: linear-gradient(180deg, #fff, #b9c8c3); box-shadow: 0 0 10px rgba(185, 200, 195, .25); }
 
-/* Первобытный инстинкт: приём — карточка; пул с числами и бросок в шапке карточки, описание в три строки (щелчок — целиком) */
+/* Первобытный инстинкт: приём — карточка; под названием — строка на каждый пул (числа, сложность, бросок),
+   описание в три строки — щелчок раскрывает целиком, стрелка внизу показывает, что текст свёрнут */
 .r-pu-dlg .window-content { display: flex; flex-direction: column; }
 .r-pu-dlg .r-wc { flex: 1; min-height: 0; }
 .r-pu-dlg .r-pu-list { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-right: 4px; }
 .vtm20 .r-pu { position: relative; border: 1px solid var(--r-line-2); border-radius: 0; background: var(--r-card-bg); }
-.vtm20 .r-pu header { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 10px; padding: 9px 12px 7px; border-bottom: 1px dotted var(--r-line-2); }
-.vtm20 .r-pu header > b { flex: 1 1 100%; font-family: var(--r-display); font-size: 16px; font-weight: 400; color: var(--r-ink); }
+.vtm20 .r-pu header { padding: 9px 12px 4px; }
+.vtm20 .r-pu header > b { font-family: var(--r-display); font-size: 16px; font-weight: 400; color: var(--r-ink); }
+.vtm20 .r-pu-line { display: flex; align-items: center; gap: 4px 10px; padding: 3px 12px; }
+.vtm20 .r-pu-line + .r-pu-line { border-top: 1px dotted var(--r-line-2); padding-top: 5px; }
 .vtm20 .r-pu-pool { font-size: 12.5px; color: var(--r-ink-2); }
 .vtm20 .r-pu-pool b { color: var(--w-moon-l); }
 .vtm20 .r-pu-diff { padding: 0 7px; border: 1px solid var(--r-line-2); border-radius: 9px; font-size: 11.5px; color: var(--r-muted); }
-.vtm20 .r-pu header .r-pu-roll { margin-left: auto; }
-.vtm20 .r-pu-text { margin: 8px 12px 10px; font-size: 13px; line-height: 1.5; color: var(--r-ink-2); cursor: pointer;
+.vtm20 .r-pu-line .r-pu-roll { margin-left: auto; }
+.vtm20 .r-pu-dots { letter-spacing: 2px; color: var(--w-moon-l); }
+.vtm20 .r-pu-text { position: relative; margin: 6px 12px 10px; padding: 7px 0 0; border-top: 1px dotted var(--r-line-2); font-size: 13px; line-height: 1.5; color: var(--r-ink-2);
   display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.vtm20 .r-pu-text.is-long::after { content: "\f078"; position: absolute; right: 0; bottom: 3px; font: var(--fa-font-solid); font-size: 10px; color: var(--w-moon-l); }
+.vtm20 .r-pu-text.is-long { padding-right: 18px; cursor: pointer; }
 .vtm20 .r-pu-text.is-open { display: block; }
+.vtm20 .r-pu-text.is-open::after { content: "\f077"; }
 .vtm20 .r-pu-text p { margin: 0 0 5px; }
 .r-ra-dlg .r-ra-custom input[type=text] { flex: 1; min-width: 120px; }
 .r-ra-dlg .r-ra-recog { display: flex; gap: 6px; flex-wrap: wrap; }
@@ -624,6 +645,8 @@ body.r-theme-light .r-ra-dlg .r-ra-sec h4 { background: linear-gradient(180deg, 
 .vtm20.r-umbra-app .r-um { display: grid; grid-template-columns: 270px minmax(0, 1fr); height: 100%; }
 .vtm20.r-umbra-app aside { display: flex; flex-direction: column; gap: 8px; min-height: 0; padding: 12px 10px 12px 14px; border-right: 1px solid var(--r-line-2); background: rgba(0, 0, 0, .22); }
 .vtm20.r-umbra-app .r-um-list { flex: 1; overflow-y: auto; padding-right: 4px; }
+/* светлая тема: боковые колонки Умбры и септа — светлее листа, а не серой полосой */
+body.r-theme-light .vtm20.r-umbra-app aside, body.r-theme-light .vtm20.r-sept-app .r-sept-side { background: rgba(255, 255, 255, .32); }
 .vtm20.r-umbra-app .r-um-group { display: flex; align-items: center; gap: 8px; margin: 14px 0 4px; padding: 0 0 4px; border: 0; border-bottom: 1px dotted var(--r-line-2);
   font-family: var(--r-caps); font-weight: 400; font-size: 11.5px; letter-spacing: 1.8px; text-transform: uppercase; color: var(--w-moon); }
 .vtm20.r-umbra-app .r-um-group:first-child { margin-top: 2px; }
@@ -672,6 +695,7 @@ body.r-theme-light .vtm20.r-umbra-app .r-um-ring { background: #eef3ee; }
 .vtm20.r-umbra-app .r-um-text th { font-family: var(--r-caps); font-weight: 400; letter-spacing: 1px; color: var(--r-muted); background: none; }
 .vtm20.r-umbra-app .r-um-empty { margin: 30px 0; text-align: center; font-style: italic; color: var(--r-muted); }
 .vtm20 .r-vc-btn.is-umbra { color: #d9e4e0; box-shadow: inset 0 -2px 0 #8fa39c; }
+body.r-theme-light .vtm20 .r-vc-btn.is-umbra { color: var(--w-moon-l); box-shadow: inset 0 -2px 0 var(--w-moon); }
 
 /* Фера: род и справка рода на вкладке Даров */
 .vtm20.r-type-werewolf .r-ww-fera { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; margin: 2px 0 10px; padding: 6px 10px;

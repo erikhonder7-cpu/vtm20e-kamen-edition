@@ -929,8 +929,11 @@ def parse_umbra():
             for c in rows:
                 if len(c) >= 2:
                     name, en = name_en(c[0])
+                    # ячейка таблицы — обрывок со строчной и без точки («вечная зима, ложи…»): делаем из неё предложение
+                    desc = c[1][:1].upper() + c[1][1:]
+                    if desc and desc[-1] not in ".!?…»)": desc += "."
                     realms.append({"key": "home-" + (re.sub(r"[^a-z0-9]+", "-", (en or name).lower()).strip("-") or str(len(realms))), "name": name, "en": en, "group": group,
-                                   "lines": [c[1], ""] + intro})
+                                   "lines": [desc, ""] + intro})
             if "### " in part: sub_entries(part, group)
             elif not rows:
                 for line in part.splitlines():

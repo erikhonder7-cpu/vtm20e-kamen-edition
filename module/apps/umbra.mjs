@@ -66,7 +66,7 @@ class UmbraWindow extends ApplicationV2 {
         ${node(wwGlyph(deep ? realmGlyph(here) : "glyph-middleUmbra"), deep ? esc(here.name) : t("Realms"), deep, deep ? "" : "is-far")}
       </div>`;
     const where = `<section class="r-um-where">
-        <div class="r-um-loc"><small>${t("WhereNow")}</small><b>${esc(here ? here.name : t("InWorld"))}</b>${track}
+        <div class="r-um-loc"><small>${t("WhereNow")}</small>${here ? "" : `<b>${esc(t("InWorld"))}</b>`}${track}
           <div class="r-um-loc-act">${here
             ? `<a class="r-btn" data-action="home"><i class="fa-solid fa-door-open"></i> ${t("Return")}</a>`
             : `<a class="r-btn is-primary" data-action="step" data-tooltip="${esc(game.i18n.localize("VTM20.Werewolf.StepHint"))}"><i class="fa-solid fa-moon"></i> ${game.i18n.localize("VTM20.Werewolf.StepSideways")}</a>`}</div></div>

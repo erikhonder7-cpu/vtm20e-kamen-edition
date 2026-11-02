@@ -156,7 +156,8 @@
       {{/each}}
     </div>
 
-    {{#unless isMortal}}
+    {{!-- узы крови: у смертных и охотников их нет; у Гару — только если уже записаны --}}
+    {{#if showBonds}}
     <div class="r-col">
       <h2 class="r-h2"><span>{{localize "VTM20.Sheet.Bonds"}}</span>{{#if editable}}<span class="r-h2-tools"><a class="r-h2-btn" data-action="feedFrom" data-tooltip="{{localize 'VTM20.BondX.FeedTip'}}"><i class="fa-solid fa-hand-holding-droplet"></i> <span class="r-h2-lbl">{{localize "VTM20.BondX.Feed"}}</span></a><a class="r-h2-btn" data-action="addBond" data-tooltip="{{localize 'VTM20.Sheet.Add'}}"><i class="fa-solid fa-plus"></i> <span class="r-h2-lbl">{{localize "VTM20.Sheet.Add"}}</span></a></span>{{/if}}</h2>
       {{#each bonds}}
@@ -195,7 +196,7 @@
       <p class="r-hint">{{localize "VTM20.Vinc.Hint"}}</p>
       {{/if}}
     </div>
-    {{/unless}}
+    {{/if}}
   </div>
 
   {{#unless isMortal}}

@@ -82,7 +82,7 @@ class SeptWindow extends ApplicationV2 {
         || `<p class="r-sept-none">${t("None")}</p>`}</div>
       ${gm ? `<a class="r-btn" data-action="create"><i class="fa-solid fa-plus"></i> ${t("New")}</a>` : ""}<p class="r-sept-rule">${t("Rule")}</p></aside>`;
     if (!s) return `<div class="r-sept">${side}<main><div class="r-sept-empty"><span class="r-wh-sigil">${wwGlyph("glyph-caern")}</span>
-      <b>${t("Title")}</b><p>${t(gm ? "EmptyGM" : "EmptyPlayer")}</p>${gm ? `<a class="r-btn is-primary" data-action="create"><i class="fa-solid fa-plus"></i> ${t("New")}</a>` : ""}</div></main></div>`;
+      <b>${t("Title")}</b><p>${t(gm ? "EmptyGM" : "EmptyPlayer")}</p></div></main></div>`;
     const members = (s.members ?? []).map(id => game.actors.get(id)).filter(Boolean);
     const rating = s.caern?.rating ?? 1, ct = d.caerns.find(c => c.key === s.caern?.type);
     const dis = gm ? "" : "disabled";

@@ -76,11 +76,13 @@ export const feraOf = actor => actor?.system.werewolf?.fera ? (W().fera ?? []).f
 export function werewolfInfo(actor, dots) {
   const w = actor.system.werewolf, D = W(), fera = feraOf(actor);
   const breed = byKey(D.breeds, w.breed), auspice = byKey(D.auspices, w.auspice), tribe = byKey(D.tribes, w.tribe);
-  const renown = ["glory", "honor", "wisdom"].map(k => ({ key: k, label: t(`Renown.${k}`), perm: w.renown[k].permanent, temp: w.renown[k].temporary,
+  // need — сколько постоянной этой Славы нужно до следующего Ранга (у Рагабаша — сумма, по отдельности не считается)
+  const next = rankNeed(w.auspice, w.rank + 1);
+  const renown = ["glory", "honor", "wisdom"].map((k, i) => ({ key: k, label: t(`Renown.${k}`), perm: w.renown[k].permanent, temp: w.renown[k].temporary,
+    need: Array.isArray(next) ? next[i] : null, met: Array.isArray(next) && w.renown[k].permanent >= next[i],
     glyph: { src: wwGlyphSrc(RENOWN_GLYPH[k]) }, ready: w.renown[k].temporary >= 10,
     dots: dots(w.renown[k].permanent, 10, { path: `system.werewolf.renown.${k}.permanent` }),
     tempDots: dots(w.renown[k].temporary, 10, { path: `system.werewolf.renown.${k}.temporary`, cls: "is-temp" }) }));
-  const next = rankNeed(w.auspice, w.rank + 1);
   return {
     breed, auspice, tribe, rank: w.rank, rankName: D.rankNames?.[w.rank - 1] ?? "", fera, feraOptions: [{ key: "", label: t("Garou"), selected: !w.fera },
       ...(D.fera ?? []).map(b => ({ key: b.key, label: VTM20.label(b), selected: b.key === w.fera }))],
@@ -163,80 +165,17 @@ function costText(c = {}) {
   return [c.rage && t("CostRage", { n: c.rage }), c.gnosis && t("CostGnosis", { n: c.gnosis }), c.willpower && t("CostWill", { n: c.willpower })].filter(Boolean).join(", ");
 }
 
-/** Слава и Ранг (W20, гл. 4): окно — медальон Ранга со званием и аугурией, три карточки Славы (постоянная — кружками,
- *  временная — квадратиками, щелчок ставит значение) и что нужно до следующего Ранга. */
-const ROMAN_RANK = ["0", "I", "II", "III", "IV", "V", "VI"];
-export async function editStanding(actor) {
-  const w = actor.system.werewolf, D = W(), aus = byKey(D.auspices, w.auspice);
-  const state = { rank: w.rank, glory: { ...w.renown.glory }, honor: { ...w.renown.honor }, wisdom: { ...w.renown.wisdom } };
-  const track = (k, kind, n) => `<div class="r-ws-track is-${kind}">${Array.from({ length: 10 }, (_, i) =>
-    `<a class="r-ws-pip ${i < n ? "is-on" : ""}" data-key="${k}" data-kind="${kind}" data-n="${i + 1}"></a>`).join("")}</div>`;
-  const card = k => `<section class="r-ws-card" data-card="${k}">
-      <header><span class="r-ws-glyph is-${k}">${wwGlyph(RENOWN_GLYPH[k])}</span><b>${esc(t(`Renown.${k}`))}</b><span class="r-ws-num" data-num="${k}">${state[k].permanent}</span></header>
-      <small>${esc(t("Permanent"))}</small>${track(k, "permanent", state[k].permanent)}
-      <small>${esc(t("Temporary"))}</small>${track(k, "temporary", state[k].temporary)}
-      <footer data-need="${k}"></footer>
-    </section>`;
-  const content = `<div class="r-ws">
-      <div class="r-ws-rank">
-        <a class="r-ws-step" data-step="-1"><i class="fa-solid fa-chevron-left"></i></a>
-        <div class="r-ws-medal"><span class="r-ws-roman" data-roman></span></div>
-        <a class="r-ws-step" data-step="1"><i class="fa-solid fa-chevron-right"></i></a>
-        <div class="r-ws-title"><b data-title></b><span>${aus ? `<span class="r-ws-aus">${wwGlyph(`auspice-${aus.key}`)}</span>` : ""}${esc(aus?.name ?? "")}</span><em data-next></em></div>
-      </div>
-      <div class="r-ws-cards">${["glory", "honor", "wisdom"].map(card).join("")}</div>
-    </div>`;
-  // что нужно до следующего Ранга: у Рагабаша — сумма, у остальных — по каждой Славе
-  const refresh = root => {
-    root.querySelector("[data-roman]").textContent = ROMAN_RANK[state.rank] ?? state.rank;
-    root.querySelector("[data-title]").textContent = D.rankNames?.[state.rank - 1] ?? t("Rank");
-    const need = rankNeed(w.auspice, state.rank + 1), p = k => state[k].permanent;
-    const next = root.querySelector("[data-next]");
-    if (!need) next.textContent = "";
-    else if (typeof need === "number") {
-      const have = p("glory") + p("honor") + p("wisdom");
-      next.innerHTML = `${esc(t("ToRank", { n: ROMAN_RANK[state.rank + 1] }))}: ${t("RankSum", { n: need })} <b class="${have >= need ? "is-met" : ""}">${have}/${need}</b>`;
-    } else next.textContent = t("ToRank", { n: ROMAN_RANK[state.rank + 1] });
-    ["glory", "honor", "wisdom"].forEach((k, i) => {
-      root.querySelector(`[data-num="${k}"]`).textContent = p(k);
-      const f = root.querySelector(`[data-need="${k}"]`);
-      if (!need || typeof need === "number") { f.innerHTML = ""; return; }
-      const met = p(k) >= need[i];
-      f.innerHTML = `<i class="fa-solid ${met ? "fa-check" : "fa-arrow-up"}"></i> ${p(k)} / ${need[i]}`;
-      f.classList.toggle("is-met", met);
-    });
-  };
-  const data = await foundry.applications.api.DialogV2.wait({
-    window: { title: t("StandingTitle", { name: actor.name }), icon: "fa-solid fa-medal" },
-    classes: ["vtm20", "r-dialog", "r-ww-standing-dlg", "r-type-werewolf"], position: { width: 560 }, content,
-    buttons: [{ action: "ok", label: t("Save"), icon: "fa-solid fa-check", default: true, callback: () => state }],
-    render: (ev, dlg) => {
-      const root = dlg.element;
-      refresh(root);
-      root.querySelectorAll(".r-ws-pip").forEach(el => el.addEventListener("click", () => {
-        const { key, kind } = el.dataset, n = Number(el.dataset.n);
-        state[key][kind] = state[key][kind] === n ? n - 1 : n;           // щелчок по последней — снять
-        el.parentElement.querySelectorAll(".r-ws-pip").forEach((x, i) => x.classList.toggle("is-on", i < state[key][kind]));
-        refresh(root);
-      }));
-      root.querySelectorAll("[data-step]").forEach(el => el.addEventListener("click", () => {
-        state.rank = Math.max(0, Math.min(6, state.rank + Number(el.dataset.step)));
-        refresh(root);
-      }));
-    }
-  }).catch(() => null);
-  if (!data || typeof data !== "object") return null;
-  const upd = { "system.werewolf.rank": data.rank };
-  for (const k of ["glory", "honor", "wisdom"]) for (const p of ["permanent", "temporary"]) upd[`system.werewolf.renown.${k}.${p}`] = data[k][p];
-  return actor.update(upd);
-}
-
 /**
- * Награда Славой (W20, гл. 3): поступок из таблицы или своя награда — временная Слава; ниже нуля — сгорает
- * постоянная точка (и превращается в 10 временных); 10 временных — можно просить Признания (+1 постоянная).
+ * Слава и Ранг (W20, гл. 3–4) — одно окно. Сверху — медальон Ранга со званием и аугурией и три карточки Славы:
+ * постоянная кружками, временная квадратиками (щелчок сразу ставит значение), под карточкой — сколько нужно до следующего Ранга;
+ * 10 временных — Признание (+1 постоянная). Ниже, у рассказчика, — награда: поступок из таблицы или своя; ниже нуля сгорает
+ * постоянная точка (и превращается в 10 временных).
  */
+const ROMAN_RANK = ["0", "I", "II", "III", "IV", "V", "VI"];
+export const editStanding = actor => renownAward(actor);
 export async function renownAward(actor) {
-  const rows = W().renownAwards ?? [], secs = [...new Set(rows.map(r => r.sec))], KEYS = ["glory", "honor", "wisdom"];
+  const D = W(), gm = game.user.isGM, edit = actor.isOwner, KEYS = ["glory", "honor", "wisdom"];
+  const rows = gm ? D.renownAwards ?? [] : [], secs = [...new Set(rows.map(r => r.sec))];
   const sign = n => `${n > 0 ? "+" : "−"}${Math.abs(n)}`;
   // награда чипом: знак Славы и число; полные названия — во всплывающей подсказке
   const chip = v => {
@@ -252,21 +191,38 @@ export async function renownAward(actor) {
         <span class="r-ra-text">${r.text}${r.yearly ? ` <small class="r-ra-yearly">${t("RenownYearly")}</small>` : ""}</span>
         <span class="r-ra-chips">${r.v.map(chip).join("")}</span></div>`).join("")}</section>`;
   }).join("");
-  // три Славы сверху: постоянная числом, временная — десятью делениями, Признание — когда набралось 10
-  const top = () => KEYS.map(k => {
-    const r = actor.system.werewolf.renown[k];
-    return `<div class="r-vcard r-vc-renown is-${k}">
-      <div class="r-vc-head"><h4 class="r-banner">${t(`Renown.${k}`)}</h4>
-        <div class="r-vc-status" data-tooltip="${esc(t("RenownStatusTip"))}"><b>${r.permanent}</b> / ${r.temporary}</div></div>
-      <span class="r-dots is-ten is-renown">${Array.from({ length: 10 }, (_, i) => `<span class="r-dot${i < r.permanent ? " is-filled" : ""}${i >= 5 ? " is-over" : ""}"></span>`).join("")}</span>
-      <div class="r-boxes is-renown" data-tooltip="${esc(t("RenownTempTip", { n: r.temporary }))}">${Array.from({ length: 10 }, (_, i) => `<span class="r-box${i < r.temporary ? " is-filled" : ""}"></span>`).join("")}</div>
-      ${r.temporary >= 10 ? `<a class="r-ra-recog" data-recog="${k}"><i class="fa-solid fa-medal"></i> ${t("RecognitionShort")}</a>` : ""}
-    </div>`;
-  }).join("");
+  // Ранг и три Славы — перерисовываются после каждой правки
+  const top = () => {
+    const w = actor.system.werewolf, aus = byKey(D.auspices, w.auspice), need = rankNeed(w.auspice, w.rank + 1), p = k => w.renown[k].permanent;
+    const nextRoman = ROMAN_RANK[w.rank + 1] ?? w.rank + 1;
+    const track = (k, kind, n) => `<div class="r-ws-track is-${kind}">${Array.from({ length: 10 }, (_, i) =>
+      `<a class="r-ws-pip ${i < n ? "is-on" : ""}" ${edit ? `data-key="${k}" data-kind="${kind}" data-n="${i + 1}"` : ""}></a>`).join("")}</div>`;
+    const card = (k, i) => {
+      const r = w.renown[k], each = Array.isArray(need), met = each && p(k) >= need[i];
+      return `<section class="r-ws-card">
+        <header><span class="r-ws-glyph is-${k}">${wwGlyph(RENOWN_GLYPH[k])}</span><b>${esc(t(`Renown.${k}`))}</b><span class="r-ws-num">${r.permanent}</span></header>
+        <small>${esc(t("Permanent"))}</small>${track(k, "permanent", r.permanent)}
+        <small>${esc(t("Temporary"))}</small>${track(k, "temporary", r.temporary)}
+        <footer class="${met ? "is-met" : ""}">${each ? `<span data-tooltip="${esc(t("NeedTip", { n: nextRoman, need: need[i] }))}"><i class="fa-solid ${met ? "fa-check" : "fa-arrow-up"}"></i> ${t("NeedOf", { have: p(k), need: need[i] })}</span>` : ""}
+          ${gm && r.temporary >= 10 ? `<a class="r-ra-recog" data-recog="${k}" data-tooltip="${esc(t("Recognition", { r: t(`Renown.${k}`) }))}"><i class="fa-solid fa-medal"></i> ${t("RecognitionShort")}</a>` : ""}</footer>
+      </section>`;
+    };
+    let next = "";
+    if (typeof need === "number") {
+      const have = p("glory") + p("honor") + p("wisdom");
+      next = `${esc(t("ToRank", { n: nextRoman }))}: ${t("RankSum", { n: need })} <b class="${have >= need ? "is-met" : ""}">${t("NeedOf", { have, need })}</b>`;
+    } else if (need) next = `${esc(t("ToRank", { n: nextRoman }))}: ${t("RankEach", { g: need[0], h: need[1], w: need[2] })}`;
+    return `<div class="r-ws-rank">
+        ${edit ? `<a class="r-ws-step" data-step="-1"><i class="fa-solid fa-chevron-left"></i></a>` : ""}
+        <div class="r-ws-medal"><span class="r-ws-roman">${ROMAN_RANK[w.rank] ?? w.rank}</span></div>
+        ${edit ? `<a class="r-ws-step" data-step="1"><i class="fa-solid fa-chevron-right"></i></a>` : ""}
+        <div class="r-ws-title"><b>${esc(D.rankNames?.[w.rank - 1] ?? t("Rank"))}</b><span>${aus ? `<span class="r-ws-aus">${wwGlyph(`auspice-${aus.key}`)}</span>` : ""}${esc(aus?.name ?? "")}</span><em>${next}</em></div>
+      </div>
+      <div class="r-ws-cards">${KEYS.map(card).join("")}</div>`;
+  };
   const stepper = k => `<span class="r-ra-step is-${k}" data-tooltip="${esc(t(`Renown.${k}`))}">${wwGlyph(RENOWN_GLYPH[k])}
       <a data-bump="${k}" data-d="-1">−</a><input type="number" name="${k}" value="0" min="-10" max="10"><a data-bump="${k}" data-d="1">+</a></span>`;
-  const content = `<div class="r-ra">
-    <div class="r-ra-top">${top()}</div>
+  const award = gm ? `<h4 class="r-banner r-ra-cap-head">${t("RenownAwardHead")}</h4>
     <div class="r-ra-tools">
       <input type="search" class="r-ra-search" placeholder="${esc(t("RenownSearch"))}">
       <select class="r-ra-filter"><option value="">${t("RenownAllSecs")}</option>${secs.map(x => `<option value="${esc(x)}">${esc(x)}</option>`).join("")}</select>
@@ -277,7 +233,8 @@ export async function renownAward(actor) {
       ${KEYS.map(stepper).join("")}
       <input type="text" name="note" placeholder="${esc(t("RenownWhy"))}">
       <button type="button" class="r-ra-give" data-custom><i class="fa-solid fa-award"></i> ${t("RenownGive")}</button>
-    </div></div>`;
+    </div>` : "";
+  const content = `<div class="r-ra${gm ? "" : " is-view"}"><div class="r-ws r-ra-top">${top()}</div>${award}</div>`;
   const apply = async (v, why) => {
     const ren = foundry.utils.deepClone(actor.system.werewolf.renown), lines = [];
     KEYS.forEach((k, j) => {
@@ -291,8 +248,8 @@ export async function renownAward(actor) {
     await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), flags: { [game.system.id]: { garou: "renown" } }, content: `<div class="r-notice r-type-werewolf"><i class="fa-solid fa-award"></i> <b>${esc(actor.name)}</b>: ${esc(what)}${why ? ` — ${why}` : ""}${lines.map(l => `<br><em>${esc(l)}</em>`).join("")}</div>` });
   };
   return foundry.applications.api.DialogV2.wait({
-    window: { title: t("RenownAwardTitle", { name: actor.name }), icon: "fa-solid fa-award" }, classes: ["vtm20", "r-dialog", "r-type-werewolf", "r-ra-dlg", "r-wc-dlg"],
-    position: { width: 760, height: 760 }, content, rejectClose: false,
+    window: { title: t("StandingTitle", { name: actor.name }), icon: "fa-solid fa-award" }, classes: ["vtm20", "r-dialog", "r-type-werewolf", "r-ra-dlg", "r-wc-dlg", "r-ww-standing-dlg"],
+    position: gm ? { width: 780, height: 820 } : { width: 600 }, content, rejectClose: false,
     buttons: [{ action: "close", label: t("Close") }],
     render: (ev, dlg) => {
       const root = dlg.element, redraw = () => { root.querySelector(".r-ra-top").innerHTML = top(); };
@@ -304,9 +261,17 @@ export async function renownAward(actor) {
           box.hidden = !any || (!!sec && box.dataset.sec !== sec);
         }
       };
-      root.querySelector(".r-ra-search").addEventListener("input", filter);
-      root.querySelector(".r-ra-filter").addEventListener("change", filter);
+      root.querySelector(".r-ra-search")?.addEventListener("input", filter);
+      root.querySelector(".r-ra-filter")?.addEventListener("change", filter);
       root.addEventListener("click", async e => {
+        // кружок или квадратик Славы: щелчок по последнему закрашенному — снять его
+        const pip = e.target.closest(".r-ws-pip[data-key]");
+        if (pip) {
+          const { key, kind } = pip.dataset, n = Number(pip.dataset.n), cur = actor.system.werewolf.renown[key][kind];
+          await actor.update({ [`system.werewolf.renown.${key}.${kind}`]: cur === n ? n - 1 : n }); redraw(); return;
+        }
+        const step = e.target.closest("[data-step]");
+        if (step) { await actor.update({ "system.werewolf.rank": Math.clamp(actor.system.werewolf.rank + Number(step.dataset.step), 0, 6) }); redraw(); return; }
         const c = e.target.closest(".r-ra-chip");
         if (c) { const row = rows[Number(c.closest("[data-row]").dataset.row)]; await apply(c.dataset.v.split(",").map(Number), row.text); c.classList.add("is-done"); redraw(); return; }
         const b = e.target.closest("[data-bump]");
@@ -501,13 +466,12 @@ export async function rageActions(actor) {
   const w = actor.system.werewolf, at = actor.system.attributes;
   const cap = Math.min(Math.ceil(w.rage.permanent / 2), w.rage.value), free = Math.min(at.dexterity.total, at.wits.total);
   if (cap < 1) return ui.notifications.warn(t("ActionsNone"));
-  const pr = new Intl.PluralRules(game.i18n.lang);
+  // карточка — число действий крупно и его цена; сверх меньшего из Ловкости и Смекалки — с пометкой о сложностях
   const n = Number(await wwPick({ title: t("Actions"), icon: "fa-bolt", width: 540,
-    head: wwHead({ glyph: "glyph-rage", kicker: t("Actions"), title: t("ActionsCap", { cap }), sub: t("ActionsFreeSub", { free }) }),
+    head: wwHead({ glyph: "glyph-rage", kicker: esc(actor.name), title: t("ActionsCap", { cap }), sub: t("ActionsFreeSub", { free }) }),
     lead: t("ActionsLead"),
     cards: Array.from({ length: cap }, (_, i) => ({ key: String(i + 1), cls: i + 1 > free ? "is-warn" : "", badge: `${i + 1}`,
-      icon: "fa-bolt", title: t(`ActionsN.${pr.select(i + 1)}`, { n: i + 1 }), sub: t("ActionsCost", { n: i + 1 }),
-      note: i + 1 > free ? t("ActionsFast") : "" })) })) || 0;
+      icon: "fa-bolt", title: t("ActionsCost", { n: i + 1 }), sub: i + 1 > free ? t("ActionsFast") : t("ActionsFree") })) })) || 0;
   if (!n) return;
   await actor.update({ "system.werewolf.rage.value": w.rage.value - n });
   return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<div class="r-notice r-type-werewolf"><i class="fa-solid fa-bolt"></i> ${
@@ -788,10 +752,10 @@ export const GAUNTLET = [["lab", 9], ["downtown", 8], ["street", 7], ["rural", 6
 export async function stepSideways(actor, trait = "werewolf.gnosis") {
   const sp = septOf(actor);
   const places = [...(sp ? [{ key: String(sp.gauntlet), icon: "fa-campground", title: t("GauntletSept", { name: esc(sp.name) }), badge: sp.gauntlet, cls: "is-sept" }] : []),
-    ...GAUNTLET.map(([k, n]) => ({ key: String(n), icon: /aern/i.test(k) ? "fa-tree" : k === "lab" ? "fa-flask" : k === "downtown" ? "fa-city" : k === "street" ? "fa-road" : k === "rural" ? "fa-wheat-awn" : "fa-mountain-sun",
+    ...GAUNTLET.map(([k, n]) => ({ key: String(n), ...(/aern/i.test(k) ? { glyph: "glyph-caern" } : { icon: k === "lab" ? "fa-flask" : k === "downtown" ? "fa-city" : k === "street" ? "fa-road" : k === "rural" ? "fa-wheat-awn" : "fa-mountain-sun" }),
       title: t(`Gauntlet.${k}`), badge: n }))];
-  const diff = Number(await wwPick({ title: t("StepSideways"), icon: "fa-moon", width: 700, cls: "r-wc-grid",
-    head: wwHead({ glyph: "glyph-umbra", kicker: t("StepSideways"), title: t("GauntletPick"), sub: t("GauntletSub", { n: `<b>${actor.traitValue(trait) ?? 0}</b>` }) }),
+  const diff = Number(await wwPick({ title: t("StepSideways"), icon: "fa-moon", width: 760, cls: "r-wc-grid",
+    head: wwHead({ glyph: "glyph-umbra", kicker: esc(actor.name), title: t("GauntletPick"), sub: t("GauntletSub", { n: `<b>${actor.traitValue(trait) ?? 0}</b>` }) }),
     lead: t("GauntletTimes"),
     cards: places })) || 0;
   if (!diff) return;
@@ -912,22 +876,32 @@ export async function removeRite(actor, key) {
 export async function primalUses(actor) {
   const list = W().primalUses ?? [];
   let picked = null;
-  const item = u => `<article class="r-pu">
-      <header><b>${esc(u.name)}</b>
-        ${u.roll ? `<span class="r-pu-pool">${poolNums(actor, u.roll.trait1, u.roll.trait2)}</span><span class="r-pu-diff">${u.roll.byTarget ? t("DiffByTarget") : t("Diff", { n: u.roll.difficulty })}</span>
-        <button type="button" class="r-pu-roll" data-roll="${esc(u.key)}"><i class="fa-solid fa-dice-d10"></i> ${t("RollShort")}</button>` : ""}</header>
-      <div class="r-pu-text">${u.text}</div></article>`;
+  // приём с несколькими бросками («… (1)», «… (2)») — одной карточкой: текст один, у каждого пула своя кнопка
+  const groups = [];
+  for (const u of list) {
+    const name = u.name.replace(/\s*\(\d+\)$/, ""), g = groups.find(x => x.name === name);
+    if (g) g.uses.push(u); else groups.push({ name, text: u.text, uses: [u] });
+  }
+  const roll = u => u.roll ? `<div class="r-pu-line"><span class="r-pu-pool">${poolNums(actor, u.roll.trait1, u.roll.trait2)}</span><span class="r-pu-diff">${u.roll.byTarget ? t("DiffByTarget") : t("Diff", { n: u.roll.difficulty })}</span>
+        <button type="button" class="r-pu-roll" data-roll="${esc(u.key)}"><i class="fa-solid fa-dice-d10"></i> ${t("RollShort")}</button></div>` : "";
+  const item = g => `<article class="r-pu">
+      <header><b>${esc(g.name)}</b></header>${g.uses.map(roll).join("")}
+      <div class="r-pu-text" >${g.text}</div></article>`;
   const pu = actor.system.abilities.primalUrge?.value ?? 0;
   await foundry.applications.api.DialogV2.wait({
     window: { title: t("Primal.title"), icon: "fa-solid fa-paw" }, classes: ["vtm20", "r-dialog", "r-type-werewolf", "r-wc-dlg", "r-pu-dlg"],
     position: { width: 680, height: 700 }, rejectClose: false,
-    content: `<div class="r-wc">${wwHead({ glyph: "glyph-wyld", kicker: t("Primal.title"), title: `${"●".repeat(pu)}${"○".repeat(Math.max(0, 5 - pu))}`, sub: t("Primal.hint") })}
-      <div class="r-pu-list">${list.map(item).join("")}</div></div>`,
+    content: `<div class="r-wc">${wwHead({ glyph: "glyph-wyld", kicker: esc(actor.name), title: t("Primal.title"),
+        sub: `<span class="r-pu-dots">${"●".repeat(pu)}${"○".repeat(Math.max(0, 5 - pu))}</span> ${t("Primal.hint")}` })}
+      <div class="r-pu-list">${groups.map(item).join("")}</div></div>`,
     buttons: [{ action: "cancel", label: game.i18n.localize("Cancel") }],
     render: (ev, dlg) => {
       dlg.element.querySelectorAll("[data-roll]").forEach(b => b.addEventListener("click", () => { picked = b.dataset.roll; dlg.close(); }));
       // длинное описание свёрнуто в три строки — щелчок раскрывает
-      dlg.element.querySelectorAll(".r-pu-text").forEach(el => el.addEventListener("click", () => el.classList.toggle("is-open")));
+      dlg.element.querySelectorAll(".r-pu-text").forEach(el => {
+        el.classList.toggle("is-long", el.scrollHeight > el.clientHeight + 2);       // стрелка — только у свёрнутого длинного текста
+        el.addEventListener("click", () => el.classList.toggle("is-open"));
+      });
     }
   });
   const u = list.find(x => x.key === picked);
