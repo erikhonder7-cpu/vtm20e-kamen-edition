@@ -450,6 +450,18 @@
       "flags": {}
     },
     {
+      "name": "werewolf-books",
+      "label": "Оборотень: Апокалипсис — книги-дополнения",
+      "path": "packs/werewolf-books",
+      "type": "JournalEntry",
+      "system": "vtm20e-kamen-edition",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
+    },
+    {
       "name": "werewolf-merits",
       "label": "Оборотень: Апокалипсис — Достоинства, недостатки, Факты",
       "path": "packs/werewolf-merits",
@@ -587,7 +599,8 @@
       "color": "#3d5247",
       "packs": [
         "werewolf-rules",
-        "werewolf-merits"
+        "werewolf-merits",
+        "werewolf-books"
       ]
     }
   ]

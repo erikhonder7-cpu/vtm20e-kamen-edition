@@ -469,6 +469,55 @@ def parse_fetishes():
     return out
 
 
+# Книги-дополнения W20 (справочник: _справочник/W20_*) → компендий «Оборотень — книги» (data/werewolf-books.json):
+# книга — папка компендия, файл — запись журнала, «## » — страница.
+BOOKS = [("W20_Book_of_the_Wyrm", "Книга Червя"), ("W20_Changing_Breeds", "Меняющие облик (Фера)"), ("W20_Changing_Ways", "Пути перемен"),
+         ("W20_Kinfolk", "Родня"), ("W20_Umbra", "Умбра: Бархатная тень"), ("W20_Rage_Across_the_World", "Ярость по всему миру"),
+         ("W20_White_Howlers", "Белые Выли"), ("W20_Shattered_Dreams", "Разбитые сны"), ("W20_Skinner", "Скиннер")]
+BOOKS_OUT = os.path.join(os.path.dirname(OUT), "werewolf-books.json")
+
+
+def split_md(text):
+    """Заголовок «# …» и страницы по «## …» (вступление до первой — в первую страницу)."""
+    if text.startswith("---"):
+        text = text.split("---", 2)[2]
+    title, pages, cur, lead = "", [], None, []
+    for line in text.splitlines():
+        if line.startswith("# ") and not title:
+            title = line[2:].strip()
+        elif line.startswith("## "):
+            if cur:
+                pages.append(cur)
+            cur = {"name": re.sub(r"^\d+\.\s*", "", line[3:].strip()), "lines": (lead + [""]) if not pages and lead else []}
+            lead = []
+        elif cur is None:
+            lead.append(line)
+        else:
+            cur["lines"].append(line)
+    if cur:
+        pages.append(cur)
+    if not pages and any(x.strip() for x in lead):
+        pages = [{"name": title or "—", "lines": lead}]
+    return title, [{"name": p["name"][:120], "html": md_html(p["lines"])} for p in pages if any(x.strip() for x in p["lines"])]
+
+
+def parse_books():
+    base = os.path.dirname(REF)
+    out = []
+    for folder, label in BOOKS:
+        d = os.path.join(base, folder)
+        if not os.path.isdir(d):
+            continue
+        for fn in sorted(f for f in os.listdir(d) if f.endswith(".md")):
+            with open(os.path.join(d, fn), encoding="utf-8") as f:
+                title, pages = split_md(f.read())
+            if not pages:
+                continue
+            title = re.sub(r"\s+—\s+W20\b.*$", "", title) or fn[:-3].replace("_", " ")
+            out.append({"key": f"{folder}:{fn[:2]}", "book": label, "name": title, "pages": pages})
+    return out
+
+
 def build():
     gifts = parse_gifts()
     rites = parse_rites()
@@ -482,12 +531,15 @@ def build():
     with open(OUT, "w", encoding="utf-8", newline="\n") as f:
         json.dump(data, f, ensure_ascii=False, indent=1)
     rules = parse_rules()
+    books = parse_books()
+    with open(BOOKS_OUT, "w", encoding="utf-8", newline="\n") as f:
+        json.dump(books, f, ensure_ascii=False, indent=1)
     with open(RULES_OUT, "w", encoding="utf-8", newline="\n") as f:
         json.dump(rules, f, ensure_ascii=False, indent=1)
     starts = sum(len(x["startGifts"]) for x in breeds + auspices + tribes)
     return {"breeds": len(breeds), "auspices": len(auspices), "tribes": len(tribes), "gifts": len(gifts), "rites": len(rites),
             "startGifts": starts, "rolls": sum(1 for g in gifts if g["roll"]),
-            "rulePages": sum(len(b["pages"]) for b in rules), "merits": len(data["merits"]), "backgrounds": len(data["backgrounds"]), "fetishes": len(data["fetishes"])}
+            "rulePages": sum(len(b["pages"]) for b in rules), "merits": len(data["merits"]), "backgrounds": len(data["backgrounds"]), "fetishes": len(data["fetishes"]), "books": len(books), "bookPages": sum(len(b["pages"]) for b in books)}
 
 
 if __name__ == "__main__":

@@ -493,6 +493,13 @@ BUILDERS["hunter-merits"] = function () {
   return p;
 };
 
+/** Оборотни (W20): книги-дополнения — папка на книгу, запись на главу (data/werewolf-books.json — пересказ справочника). */
+BUILDERS["werewolf-books"] = function () {
+  const p = new Pack("werewolf-books", "JournalEntry");
+  for (const b of readJson("werewolf-books")) p.addBook({ name: b.name, pages: b.pages, folder: b.book, key: `werewolf-books:${b.key}` });
+  return p;
+};
+
 /** Оборотни (W20): Достоинства и недостатки, Факты биографии (data/werewolf.json — пересказ). */
 BUILDERS["werewolf-merits"] = function () {
   const p = new Pack("werewolf-merits");
