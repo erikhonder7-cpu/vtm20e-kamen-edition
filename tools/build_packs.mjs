@@ -549,6 +549,84 @@ BUILDERS["werewolf-fetishes"] = function () {
   }
   return p;
 };
+// Тотем — знак своего зверя, если он есть в assets/werewolf, иначе общий знак тотема; на лист котерии ложится тотемом стаи
+const wwTotemGlyph = key => WW_GLYPH(fs.existsSync(path.join(ROOT, "assets/werewolf", `totem-${key}.png`)) ? `totem-${key}` : "glyph-totem");
+const wwLead = parts => `<p><em>${parts.filter(Boolean).map(esc).join(" · ")}</em></p>`;
+const wwDl = rows => `<dl>${rows.filter(([, v]) => v).map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl>`;
+const wwL = ru.VTM20.Werewolf ?? {};
+BUILDERS["werewolf-totems"] = function () {
+  const p = new Pack("werewolf-totems");
+  for (const x of data("werewolf").totems ?? [])
+    p.add({ name: x.name, type: "power", folder: `Тотемы ${x.cat}`, key: `werewolf-totem:${x.key}`, img: wwTotemGlyph(x.key), flags: wwItem("totem", x.key),
+      system: { level: x.cost ?? 0, description: wwLead([x.en, `Тотем ${x.cat}`, x.cost && `Цена ${x.cost}`])
+        + wwDl([["Каждому в стае", x.individual], ["Стае", x.pack], ["Запрет", x.ban]]) + sourceLine(x.source) } });
+  return p;
+};
+BUILDERS["werewolf-spirits"] = function () {
+  const p = new Pack("werewolf-spirits"), w = data("werewolf"), rank = wwL.SpiritRank ?? {}, kind = wwL.Spirit?.kind ?? {};
+  const charmName = k => (w.charms ?? []).find(c => c.key === k)?.name ?? k.replace(/^~[^:]*:/, "");
+  for (const c of w.charms ?? [])
+    p.add({ name: c.name, type: "power", folder: c.general ? ["Чары", "Общие — есть у всех духов"] : "Чары", key: `werewolf-charm:${c.key}`, img: WW_GLYPH("glyph-spirit"),
+      flags: wwItem("charm", c.key), system: { level: 0, description: wwLead([c.en, c.general ? "Общие Чары" : "Чары"]) + (c.text ?? "") } });
+  for (const s of w.spirits ?? []) {
+    const charms = (s.charms ?? []).map(charmName), specials = Object.entries(s.specials ?? {});
+    p.add({ name: s.name, type: "power", folder: ["Образцы духов", kind[s.kind] ?? s.kind], key: `werewolf-spirit:${s.key}`,
+      img: WW_GLYPH({ bane: "glyph-bane", weaver: "glyph-weaver", wyld: "glyph-wyld", gaia: "glyph-gaia" }[s.kind] ?? "glyph-spirit"), flags: wwItem("spirit", s.key),
+      system: { level: 0, description: wwLead([s.en, kind[s.kind], rank[s.rank]])
+        + wwDl([["Ярость · Гнозис · Воля", `${s.rage} · ${s.gnosis} · ${s.willpower}`], ["Эссенция", s.essence], ["Чары", esc(charms.join(", "))],
+          ...specials.map(([k, v]) => [esc(k), v])]) + `<p>${s.text ?? ""}</p>` + sourceLine(s.source) } });
+  }
+  return p;
+};
+BUILDERS["werewolf-scars"] = function () {
+  const p = new Pack("werewolf-scars"), w = data("werewolf");
+  for (const s of w.scars ?? [])
+    p.add({ name: s.name, type: "power", folder: "Боевые шрамы", key: `werewolf-scar:${s.key}`, img: WW_GLYPH("glyph-glory"), flags: wwItem("scar", s.key),
+      system: { level: s.glory ?? 0, description: wwLead([s.en, `+${s.glory} временной Славы`]) + `<p>${s.effect ?? ""}</p>` } });
+  for (const d of w.deformities ?? [])
+    p.add({ name: d.name, type: "power", folder: "Уродства метисов", key: `werewolf-deformity:${d.key}`, img: WW_GLYPH("breed-metis"), flags: wwItem("deformity", d.key),
+      system: { level: 0, description: wwLead([d.en, "Уродство метиса"]) + `<p>${d.text ?? ""}</p>` + sourceLine(d.source) } });
+  return p;
+};
+// Каэрны — справочник видов (W20, гл. 7): что даёт каэрн и какие духи в нём живут; на лист не ложатся
+BUILDERS["werewolf-caerns"] = function () {
+  const p = new Pack("werewolf-caerns");
+  for (const c of data("werewolf").sept?.caerns ?? [])
+    p.add({ name: c.name, type: "power", key: `werewolf-caern:${c.key}`, img: WW_GLYPH("glyph-caern"), flags: wwItem("caern", c.key),
+      system: { level: 0, description: wwLead([c.en, "Вид каэрна"]) + wwDl([["Даёт", c.gives], ["Духи каэрна", c.spirits]]) } });
+  return p;
+};
+BUILDERS["werewolf-kinfolk"] = function () {
+  const p = new Pack("werewolf-kinfolk"), w = data("werewolf"), numen = wwL.Numen ?? {};
+  const tribe = k => (w.tribes ?? []).find(x => x.key === k)?.name ?? k;
+  for (const g of w.kinGifts ?? [])
+    p.add({ name: g.name, type: "power", folder: ["Дары Родни", tribe(g.tribe)], key: `werewolf-kingift:${g.key}`, img: WW_GLYPH(`tribe-${g.tribe}`), flags: wwItem("kinGift", g.key),
+      system: { level: g.level ?? 1, roll: wwRoll(g.roll), description: wwLead([g.en, `Дар Родни · ${tribe(g.tribe)}`]) + (g.text ?? "") } });
+  for (const n of w.numina ?? [])
+    p.add({ name: n.name, type: "power", folder: ["Нумины", n.kind === "hedge" ? "Пути ворожбы" : "Психические феномены"], key: `werewolf-numen:${n.key}`, img: WW_GLYPH("glyph-kinfolk"),
+      flags: wwItem("numen", n.key), system: { level: 1, roll: wwRoll(n.roll), description: wwLead([n.en, numen[n.kind], n.pool, n.cost && `Цена: ${n.cost}`]) + (n.text ?? "") } });
+  return p;
+};
+BUILDERS["werewolf-kami"] = function () {
+  const p = new Pack("werewolf-kami"), kind = wwL.Kami?.kind ?? {};
+  const folder = { kami: "Силы Ками", immobile: "Силы неподвижных Ками", borrowed: "Силы фоморов, доступные Ками" };
+  for (const x of data("werewolf").kami?.powers ?? [])
+    p.add({ name: x.name, type: "power", folder: folder[x.kind] ?? "Силы Ками", key: `werewolf-kami:${x.key}`, img: WW_GLYPH("glyph-gaia"), flags: wwItem("kami", x.key),
+      system: { level: 0, roll: wwRoll(x.roll), description: wwLead([x.en, kind[x.kind], x.repeat && `можно брать до ${x.max} раз`]) + `<p>${x.text ?? ""}</p>` + sourceLine(x.source) } });
+  return p;
+};
+BUILDERS["werewolf-fomori"] = function () {
+  const p = new Pack("werewolf-fomori"), f = data("werewolf").fomori ?? {};
+  const power = k => (f.powers ?? []).find(x => x.key === k)?.name ?? k;
+  for (const x of f.powers ?? [])
+    p.add({ name: x.name, type: "power", folder: "Силы фомори", key: `werewolf-fomor:${x.key}`, img: WW_GLYPH("glyph-fomori"), flags: wwItem("fomorPower", x.key),
+      system: { level: 0, roll: wwRoll(x.roll), description: wwLead([x.en, "Сила фомори", x.repeat && `можно брать до ${x.max} раз`]) + `<p>${x.text ?? ""}</p>` + sourceLine(x.source) } });
+  for (const b of f.breeds ?? [])
+    p.add({ name: b.name, type: "power", folder: "Породы фомори", key: `werewolf-fomorbreed:${b.key}`, img: WW_GLYPH("glyph-wyrm"), flags: wwItem("fomorBreed", b.key),
+      system: { level: 0, description: wwLead([b.en, "Порода фомори", `Воля ${b.willpower}`])
+        + wwDl([["Силы породы", esc((b.powers ?? []).map(power).join(", "))], ...Object.entries(b.specials ?? {}).map(([k, v]) => [esc(k), v])]) + (b.text ? `<p>${b.text}</p>` : "") + sourceLine(b.source) } });
+  return p;
+};
 
 /** Оборотни (W20): Достоинства и недостатки, Факты биографии (data/werewolf.json — пересказ). */
 BUILDERS["werewolf-merits"] = function () {

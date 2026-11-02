@@ -77,6 +77,15 @@ export class CoterieSheet extends GroupSheet {
   };
   static PARTS = { body: { template: `${SYSTEM_PATH}/templates/actor/coterie-sheet.hbs`, scrollable: [".r-gs-body"] } };
 
+  /** Тотем из компендия оборотней (flags.ww, kind totem) — тотемом стаи, а не предметом на листе. */
+  async _onDropItem(event, item) {
+    const ww = item?.flags?.[game.system.id]?.ww;
+    if (!ww) return super._onDropItem(event, item);
+    if (ww.kind === "totem" && this.actor.isOwner) return this.actor.update({ "system.totem": ww.key });
+    ui.notifications.warn(game.i18n.format("VTM20.Werewolf.DropNo.other", { name: item.name }));
+    return null;
+  }
+
   async _prepareContext() {
     await Codex.load();
     const a = this.actor, s = a.system, c = coterieFromActor(a);

@@ -1336,6 +1336,48 @@ try {
     if (!(r.fade >= 1 && r.fade <= 12)) throw new Error(`таймер уз: ${r.fade}`);
   });
 
+  await check("Компендии оборотней: перетаскивание на листы Гару, духа, Родни, Ками, фомора и стаи", async () => {
+    const r = await page.evaluate(async () => {
+      const SYS = game.system.id, out = { empty: [] }, made = [];
+      const mk = async (data) => { const a = await Actor.create({ ...data, flags: { world: { e2e: true }, [SYS]: { created: true } } }); made.push(a); return a; };
+      const P = n => game.packs.get(`${SYS}.werewolf-${n}`);
+      for (const n of ["gifts", "rites", "fetishes", "totems", "spirits", "scars", "caerns", "kinfolk", "kami", "fomori"]) if (!(P(n)?.index.size)) out.empty.push(n);
+      // первая запись компендия нужного вида (flags.<система>.ww.kind)
+      const one = async (n, kind) => { const idx = await P(n).getIndex({ fields: [`flags.${SYS}.ww`] }); const e = idx.find(x => x.flags?.[SYS]?.ww?.kind === kind); return e ? P(n).getDocument(e._id) : null; };
+      const drop = async (a, n, kind) => { const it = await one(n, kind); if (it) await a.sheet._onDropItem(new Event("drop"), it); return it; };
+      try {
+        const g = await mk({ name: "E2E — Гару компендиев", type: "werewolf" });
+        for (const [n, k] of [["gifts", "gift"], ["rites", "rite"], ["fetishes", "fetish"], ["scars", "scar"], ["scars", "deformity"], ["caerns", "caern"]]) await drop(g, n, k);
+        const w = g.system.werewolf;
+        out.garou = [w.gifts.length, w.rites.length, w.fetishes.length, w.scars.length, w.deformities.length, g.items.size].join(",");
+        const sp = await mk({ name: "E2E — дух", type: "creature" });
+        const tpl = await drop(sp, "spirits", "spirit");
+        out.spirit = !!sp.system.spirit.on && sp.system.kind.includes(tpl?.name ?? "—");
+        const before = sp.system.spirit.charms.length, charm = (await P("spirits").getIndex({ fields: [`flags.${SYS}.ww`] }))
+          .find(x => x.flags?.[SYS]?.ww?.kind === "charm" && !sp.system.spirit.charms.includes(x.flags[SYS].ww.key));
+        if (charm) await sp.sheet._onDropItem(new Event("drop"), await P("spirits").getDocument(charm._id));
+        out.charm = sp.system.spirit.charms.length - before;
+        const kin = await mk({ name: "E2E — Родня", type: "mortal", system: { kinfolk: { on: true, tribe: "fianna" } } });
+        await drop(kin, "kinfolk", "kinGift"); await drop(kin, "kinfolk", "numen");
+        out.kin = `${kin.system.kinfolk.gifts.length},${kin.system.kinfolk.numina.length}`;
+        const kami = await mk({ name: "E2E — Ками", type: "mortal", system: { kami: { on: true } } });
+        await drop(kami, "kami", "kami"); out.kami = kami.system.kami.powers.length;
+        const fo = await mk({ name: "E2E — фомор", type: "mortal", system: { fomor: { on: true } } });
+        await drop(fo, "fomori", "fomorPower"); out.fomor = fo.system.fomor.powers.length;
+        const pack = await mk({ name: "E2E — стая компендиев", type: "coterie", system: { kind: "pack" } });
+        const totem = await one("totems", "totem"); await pack.sheet._onDropItem(new Event("drop"), totem);
+        out.totem = pack.system.totem === totem?.flags?.[SYS]?.ww?.key && !!pack.system.totem;
+      } finally {
+        await Actor.deleteDocuments(made.map(a => a.id).filter(id => game.actors.get(id)));
+      }
+      return out;
+    });
+    if (r.empty.length) throw new Error(`пустые компендии: ${r.empty.join(", ")}`);
+    if (r.garou !== "1,1,1,1,1,0") throw new Error(`Гару (Дары, ритуалы, фетиши, шрамы, уродства, предметы): ${r.garou}`);
+    if (!r.spirit || r.charm !== 1) throw new Error(`дух: образец ${r.spirit}, Чары +${r.charm}`);
+    if (r.kin !== "1,1" || r.kami !== 1 || r.fomor !== 1 || !r.totem) throw new Error(`Родня ${r.kin}, Ками ${r.kami}, фомор ${r.fomor}, тотем ${r.totem}`);
+  });
+
   await check("Дампир: витэ гуля, траты, видимость черт", async () => {
     const r = await page.evaluate(async () => {
       const { Codex } = await import(`/systems/${game.system.id}/module/data/codex.mjs`);

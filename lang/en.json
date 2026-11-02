@@ -4542,7 +4542,12 @@
       "CraftDone": "{name}: created {item}.",
       "TotemTrait": "Pack totem ({totem})",
       "HaranoOn": "{name}: Harano — despair for the dying world, −1 die to every roll.",
-      "HaranoOff": "{name}: Harano has lifted."
+      "HaranoOff": "{name}: Harano has lifted.",
+      "DropNo": {
+        "totem": "“{name}” is a pack totem: drop it on a coterie (Garou pack) sheet.",
+        "caern": "“{name}” is a caern reference entry and cannot be added to a sheet.",
+        "other": "“{name}” does not fit this sheet: Gifts, rites, fetishes, scars and deformities go to a werewolf; Charms and spirit templates to a spirit; Kinfolk Gifts and numina to Kinfolk; Kami powers to a Kami; fomori powers and breeds to a fomor."
+      }
     },
     "Strategy": {
       "Tab": "Strategy",

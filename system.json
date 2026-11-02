@@ -522,6 +522,90 @@
       "flags": {}
     },
     {
+      "name": "werewolf-totems",
+      "label": "Оборотень: Апокалипсис — тотемы",
+      "path": "packs/werewolf-totems",
+      "type": "Item",
+      "system": "vtm20e-kamen-edition",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
+    },
+    {
+      "name": "werewolf-spirits",
+      "label": "Оборотень: Апокалипсис — Чары и образцы духов",
+      "path": "packs/werewolf-spirits",
+      "type": "Item",
+      "system": "vtm20e-kamen-edition",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
+    },
+    {
+      "name": "werewolf-scars",
+      "label": "Оборотень: Апокалипсис — боевые шрамы и уродства",
+      "path": "packs/werewolf-scars",
+      "type": "Item",
+      "system": "vtm20e-kamen-edition",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
+    },
+    {
+      "name": "werewolf-caerns",
+      "label": "Оборотень: Апокалипсис — каэрны",
+      "path": "packs/werewolf-caerns",
+      "type": "Item",
+      "system": "vtm20e-kamen-edition",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
+    },
+    {
+      "name": "werewolf-kinfolk",
+      "label": "Оборотень: Апокалипсис — Дары и нумины Родни",
+      "path": "packs/werewolf-kinfolk",
+      "type": "Item",
+      "system": "vtm20e-kamen-edition",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
+    },
+    {
+      "name": "werewolf-kami",
+      "label": "Оборотень: Апокалипсис — силы Ками",
+      "path": "packs/werewolf-kami",
+      "type": "Item",
+      "system": "vtm20e-kamen-edition",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
+    },
+    {
+      "name": "werewolf-fomori",
+      "label": "Оборотень: Апокалипсис — силы и породы фомори",
+      "path": "packs/werewolf-fomori",
+      "type": "Item",
+      "system": "vtm20e-kamen-edition",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
+    },
+    {
       "name": "hunter-backgrounds",
       "label": "Факты биографии охотников",
       "path": "packs/hunter-backgrounds",
@@ -651,6 +735,13 @@
         "werewolf-gifts",
         "werewolf-rites",
         "werewolf-fetishes",
+        "werewolf-totems",
+        "werewolf-spirits",
+        "werewolf-scars",
+        "werewolf-caerns",
+        "werewolf-kinfolk",
+        "werewolf-kami",
+        "werewolf-fomori",
         "werewolf-books"
       ]
     }

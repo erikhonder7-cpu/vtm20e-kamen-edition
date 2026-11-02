@@ -1142,16 +1142,27 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     m?.openWeb?.(this.actor);
   }
 
-  /** Дар, ритуал или фетиш из компендиев оборотня (flags.ww) — в списки оборотня, а не отдельным предметом. */
+  /**
+   * Запись из компендиев оборотня (flags.ww) — не отдельным предметом, а ключом в списки листа: Дары, ритуалы, фетиши,
+   * шрамы и уродства — оборотню; Чары и образец — духу; Дары и нумины — Родне; силы — Ками и фомору.
+   * Тотем ложится на лист котерии (group-sheet.mjs), каэрн — справочная запись.
+   */
   async _onDropItem(event, item) {
     const ww = item?.flags?.[SYSTEM_ID]?.ww;
-    if (ww && this.actor.type === "werewolf") {
-      if (!this.actor.isOwner) return null;
-      if (ww.kind === "gift") return addGift(this.actor, ww.key);
-      if (ww.kind === "rite") return addRite(this.actor, ww.key);
-      if (ww.kind === "fetish") return addFetish(this.actor, ww.key);
+    if (!ww) return super._onDropItem(event, item);
+    if (!this.actor.isOwner) return null;
+    const a = this.actor, s = a.system, garou = a.type === "werewolf";
+    const add = {
+      gift: garou && addGift, rite: garou && addRite, fetish: garou && addFetish, scar: garou && addScar, deformity: garou && addDeformity,
+      charm: s.spirit?.on && addCharm, spirit: s.spirit && applySpiritTpl,
+      kinGift: s.kinfolk?.on && kinAddGift, numen: s.kinfolk?.on && kinAddNumen,
+      kami: s.kami?.on && kamiAdd, fomorPower: s.fomor?.on && fomorAdd, fomorBreed: s.fomor?.on && fomorBreed
+    }[ww.kind];
+    if (!add) {
+      ui.notifications.warn(game.i18n.format(`VTM20.Werewolf.DropNo.${ww.kind === "totem" || ww.kind === "caern" ? ww.kind : "other"}`, { name: item.name }));
+      return null;
     }
-    return super._onDropItem(event, item);
+    return add(a, ww.key);
   }
 
   /** Перетащили персонажа на «потомки» — он становится потомком этого Сородича. */
