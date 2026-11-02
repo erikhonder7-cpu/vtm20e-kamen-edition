@@ -31,6 +31,7 @@ import { openClans } from "./module/apps/clans.mjs";
 import { openBoons } from "./module/apps/boons.mjs";
 import { openDowntime } from "./module/apps/downtime.mjs";
 import { openSessionXp, registerSessionXp } from "./module/apps/session-xp.mjs";
+import { openSessionPanel, registerSessionPanel } from "./module/apps/session-panel.mjs";
 import { openCourt, registerCourt } from "./module/apps/court.mjs";
 import { openWeb, registerWeb } from "./module/apps/web.mjs";
 import { registerTimers, tickTimers } from "./module/apps/timers.mjs";
@@ -68,7 +69,7 @@ Hooks.once("init", () => {
     config: VTM20, codex: Codex,
     rollPool, evaluate, rollDamage, soakAndApply, openDamageDialog, RollDialog, openCreator, VtMCreator,
     openHunt, nightfall, endScene, endStory, openAttack, openDefense, openHazard, openDiablerie, renderHud,
-    openLibrary, openNpcGenerator, openClans, openBoons, openDowntime, openSessionXp, openCourt, openWeb, openCoterie, openChronicle, giveHandout, money: Money, openCity, closeCity, toggleCity, cityMap,
+    openLibrary, openNpcGenerator, openClans, openBoons, openDowntime, openSessionXp, openSessionPanel, openCourt, openWeb, openCoterie, openChronicle, giveHandout, money: Money, openCity, closeCity, toggleCity, cityMap,
     openSceneNexus, openCalendar, announceTime, getClock, getDate, stamp, clockBarData, nightPhase, moonPhase, republicanDate,
     apps: { SceneNexus, NightCalendar }
   };
@@ -150,6 +151,7 @@ Hooks.once("init", () => {
   registerChronicle();
   registerHandouts();
   registerSessionXp();
+  registerSessionPanel();
   registerCourt();
   registerWeb();
   registerHelpers();
@@ -254,7 +256,8 @@ Hooks.on("getSceneControlButtons", controls => {
     "r-court": { name: "r-court", title: "VTM20.Court.Title", icon: "fa-solid fa-crown", order: 4, visible: true, button: true, onChange: () => openCourt() },
     "r-web": { name: "r-web", title: "VTM20.Web.Title", icon: "fa-solid fa-circle-nodes", order: 5, visible: true, button: true, onChange: () => openWeb() },
     "r-chronicle": { name: "r-chronicle", title: "VTM20.Chronicle.Tool", icon: "fa-solid fa-book-open", order: 7, visible: isGM, button: true, onChange: () => openChronicle() },
-    "r-xp": { name: "r-xp", title: "VTM20.SessionXp.Title", icon: "fa-solid fa-star", order: 6, visible: isGM, button: true, onChange: () => openSessionXp() }
+    "r-xp": { name: "r-xp", title: "VTM20.SessionXp.Title", icon: "fa-solid fa-star", order: 6, visible: isGM, button: true, onChange: () => openSessionXp() },
+    "r-session": { name: "r-session", title: "VTM20.Session.Title", icon: "fa-solid fa-table-list", order: 0, visible: isGM, button: true, onChange: () => openSessionPanel() }
   };
   const group = { name: "vtm20", title: "VTM20.Controls.Title", icon: "fa-solid fa-landmark-flag", order: 99, visible: true, tools, onChange: () => {} };
   if (Array.isArray(controls)) controls.push({ ...group, tools: Object.values(tools).map(t => ({ ...t, onClick: t.onChange, onChange: undefined })) });

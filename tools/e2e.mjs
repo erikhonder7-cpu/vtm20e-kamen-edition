@@ -1081,6 +1081,26 @@ try {
     if (r.trend !== "e2e-s:1" || r.journal !== "trend") throw new Error(`событие → тренд: ${r.trend}; тренд → журнал: ${r.journal}`);
   });
 
+  // План 17: панель сессии рассказчика — персонаж игрока с 1 кровью и в бешенстве попадает в тревоги
+  await check("Панель сессии: запасы, состояния, тревоги", async () => {
+    const id = await temp("E2E — в бешенстве");
+    const r = await page.evaluate(async id => {
+      const SYS = game.system.id, a = game.actors.get(id), wait = ms => new Promise(res => setTimeout(res, ms));
+      const pl = game.users.find(u => !u.isGM);
+      if (pl) await a.update({ [`ownership.${pl.id}`]: 3 });
+      await a.update({ "system.blood.value": 1 }); await a.toggleStatusEffect("r-frenzy", { active: true });
+      const P = await import(`/systems/${SYS}/module/apps/session-panel.mjs`);
+      const app = P.openSessionPanel(); await wait(800);
+      app.filter = "alert"; await app.render(); await wait(400);
+      const row = [...app.element.querySelectorAll(".r-sp-row.is-alert")].find(x => x.textContent.includes("E2E — в бешенстве"));
+      const out = { player: !!pl, row: !!row, low: !!row?.querySelector(".r-sp-pool.is-low"), state: !!row?.querySelector(".r-sp-state") };
+      await app.close();
+      return out;
+    }, id);
+    if (!r.player) throw new Error("в песочнице нет пользователя-игрока");
+    if (!r.row || !r.low || !r.state) throw new Error(`панель сессии: строка ${r.row}, мало крови ${r.low}, бешенство ${r.state}`);
+  });
+
   // Оборотни, часть 2: мастер создания Гару (W20, гл. 3), фетиши и талены, Бред по Силе воли, дух Умбры (существо с Чарами)
   await check("Оборотень: мастер создания, фетиши, Бред, дух Умбры, Родня, тотем стаи", async () => {
     const id = await temp("E2E — новый Гару", "werewolf"), sp = await temp("E2E — дух", "creature");
@@ -1514,6 +1534,11 @@ try {
   }
   if (own) await page.evaluate(ids => Actor.deleteDocuments([ids.mine, ids.other, ids.dh, ids.hu].filter(id => game.actors.has(id))), own);
   if (player) await page.evaluate(id => game.users.get(id)?.delete(), player.id);
+  // вторая уборка: временные персонажи проверок после первой (стратегия, оборотни, панель сессии…)
+  await page.evaluate(async () => {
+    const temp = game.actors.filter(x => x.getFlag("world", "e2e")).map(x => x.id);
+    if (temp.length) await Actor.deleteDocuments(temp);
+  });
 
   await check("Новый мир: «Город» без Парижа", async () => {
     await setWorld(false, "", await page.evaluate(() => game.system.version));

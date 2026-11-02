@@ -1,0 +1,31 @@
+{{!-- Панель сессии рассказчика (apps/session-panel.mjs, план 17): по сценам — персонажи, раны, запасы, состояния. --}}
+<div class="r-sp">
+  <header class="r-sp-head">
+    <div class="r-cr-gtabs">{{#each filters}}<a class="{{#if active}}is-active{{/if}}" data-action="filter" data-filter="{{key}}">{{label}}</a>{{/each}}</div>
+    <span class="r-sp-sum">{{localize "VTM20.Session.Sum" n=total a=alerts}}</span>
+  </header>
+  <div class="r-sp-scroll">
+    {{#each scenes}}
+    <section class="r-sp-scene {{#if active}}is-active{{/if}}">
+      <h3 class="r-h3"><i class="fa-solid {{#if key}}fa-map{{else}}fa-cloud-moon{{/if}}"></i> {{name}}{{#if active}} <small>{{localize "VTM20.Session.Active"}}</small>{{/if}}</h3>
+      {{#each rows}}
+      <div class="r-sp-row {{#if alert}}is-alert{{/if}}" {{#if color}}style="--pc:{{color}}"{{/if}}>
+        <a class="r-sp-who" data-action="sheet" data-id="{{id}}">
+          <img src="{{img}}" alt="">
+          <span><b>{{name}}</b><small>{{type}}{{#if player}} · {{player}}{{/if}}</small></span>
+        </a>
+        <span class="r-sp-health {{#if hurtLow}}is-low{{/if}}" data-tooltip="{{localize 'VTM20.Session.Health' n=hurt m=levels}}">
+          <i class="fa-solid fa-heart-crack"></i><span class="r-sp-bar"><i style="width:{{hurtPct}}%"></i></span><b>{{hurt}}/{{levels}}</b>
+        </span>
+        <span class="r-sp-pools">
+          {{#each pools}}<span class="r-sp-pool {{#if low}}is-low{{/if}}" data-tooltip="{{label}}"><i class="fa-solid {{icon}}"></i><b>{{value}}</b><small>/{{max}}</small></span>{{/each}}
+        </span>
+        <span class="r-sp-states">{{#each states}}<span class="r-sp-state" data-tooltip="{{label}}"><img src="{{img}}" alt="">{{label}}</span>{{/each}}</span>
+        <span class="r-sp-places">{{#each places}}<a class="r-sp-place {{#if viewed}}is-viewed{{/if}}" data-action="token" data-scene="{{scene}}" data-token="{{token}}" data-tooltip="{{localize 'VTM20.Session.ToToken'}}"><i class="fa-solid fa-location-crosshairs"></i></a>{{/each}}</span>
+      </div>
+      {{/each}}
+    </section>
+    {{else}}<p class="r-note">{{localize "VTM20.Session.Empty"}}</p>
+    {{/each}}
+  </div>
+</div>
