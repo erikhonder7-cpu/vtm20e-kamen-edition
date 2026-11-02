@@ -123,6 +123,7 @@ export class VtMActor extends Actor {
     if (group === "willpower") return s.willpower.permanent;
     if (group === "hunter") return s.hunter?.[key] ?? 0;            // Добродетели охотника
     if (group === "werewolf") return key === "rage" || key === "gnosis" ? s.werewolf?.[key]?.value ?? 0 : 0;   // текущие Ярость и Гнозис
+    if (group === "spirit") return s.spirit?.[key] ?? 0;          // дух Умбры: Ярость, Гнозис, Воля
     if (group === "morality") return s.morality.value;
     if (group === "blood") return s.blood?.value ?? 0;
     return 0;
@@ -139,6 +140,7 @@ export class VtMActor extends Actor {
     if (group === "willpower") return t("Willpower");
     if (group === "hunter") return Codex.hunter?.virtues?.[key] ?? key;
     if (group === "werewolf") return t(`Werewolf.${key === "rage" ? "Rage" : "Gnosis"}`);
+    if (group === "spirit") return t(`Werewolf.Spirit.${key}`);
     if (group === "morality") return this.path?.name ?? t("Humanity");
     return path;
   }

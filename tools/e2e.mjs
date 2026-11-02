@@ -1029,6 +1029,36 @@ try {
     if (r.shift !== 3 || r.back !== 0) throw new Error(`часы: сдвиг ${r.shift} дн., после отмены ${r.back}`);
   });
 
+  // Оборотни, часть 2: мастер создания Гару (W20, гл. 3), фетиши и талены, Бред по Силе воли, дух Умбры (существо с Чарами)
+  await check("Оборотень: мастер создания, фетиши, Бред, дух Умбры", async () => {
+    const id = await temp("E2E — новый Гару", "werewolf"), sp = await temp("E2E — дух", "creature");
+    const r = await page.evaluate(async ([id, sp]) => {
+      const SYS = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {};
+      const a = game.actors.get(id), s = game.actors.get(sp);
+      const C = await import(`/systems/${SYS}/module/apps/werewolf-creator.mjs`), WW = await import(`/systems/${SYS}/module/apps/werewolf.mjs`);
+      await C.openWerewolfCreator(a); await wait(900);
+      const app = [...foundry.applications.instances.values()].find(x => x.constructor.name === "GarouCreator");
+      const D = WW.W(), br = D.breeds.find(x => x.key === "lupus"), au = D.auspices.find(x => x.key === "theurge"), tr = D.tribes[0];
+      Object.assign(app.st, { breed: "lupus", auspice: "theurge", tribe: tr.key, gifts: { breed: br.startGifts[0], auspice: au.startGifts[0], tribe: tr.startGifts[0] } });
+      app.st.attr.strength = 3; app.st.abil.brawl = 3;
+      await app.render(); await wait(400);
+      app.element.querySelector("[data-action=create]").click(); await wait(1500);
+      Object.assign(out, { created: !!a.getFlag(SYS, "created"), rage: a.system.werewolf.rage.permanent, gnosis: a.system.werewolf.gnosis.permanent,
+        wisdom: a.system.werewolf.renown.wisdom.permanent, gifts: a.system.werewolf.gifts.length, form: a.system.werewolf.form });
+      await WW.addFetish(a, "baneskin"); await WW.addFetish(a, "gaia-s-breath"); await WW.addFetish(a, "gaia-s-breath");
+      out.fetishes = a.system.werewolf.fetishes.map(f => `${f.key}:${f.n}`).join(",");
+      const d = WW.deliriumOf(7); out.delirium = `${d.key}:${d.forgets}`;
+      await s.update({ "system.spirit": { on: true, rage: 4, gnosis: 6, willpower: 5 } });
+      await WW.spiritEssenceReset(s); out.essence = s.system.spirit.essence.max; out.spiritRoll = s.traitValue("spirit.gnosis");
+      await s.sheet.render(true); await wait(900); out.card = !!s.sheet.element.querySelector(".r-vc-spirit"); await s.sheet.close();
+      return out;
+    }, [id, sp]);
+    if (!r.created || r.rage !== 2 || r.gnosis !== 5 || r.wisdom !== 3 || r.gifts !== 3 || r.form !== "lupus") throw new Error(`мастер создания: ${JSON.stringify(r)}`);
+    if (r.fetishes !== "baneskin:1,gaia-s-breath:2") throw new Error(`фетиши: ${r.fetishes}`);
+    if (r.delirium !== "controlled:false") throw new Error(`Бред: ${r.delirium}`);
+    if (r.essence !== 15 || r.spiritRoll !== 6 || !r.card) throw new Error(`дух: Эссенция ${r.essence}, Гнозис ${r.spiritRoll}, карточка ${r.card}`);
+  });
+
   await check("Оборотень: формы, Ярость, Дары, лист", async () => {
     const id = await temp("E2E — Гару", "werewolf");
     const r = await page.evaluate(async id => {

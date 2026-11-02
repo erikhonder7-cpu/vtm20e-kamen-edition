@@ -4000,7 +4000,44 @@
         "curious": "Curiosity: may start investigating",
         "bloodlust": "Bloodlust: enraged, will hunt it down",
         "none": "No reaction — suspicious"
-      }
+      },
+      "Spirit": {
+        "title": "Spirit",
+        "rage": "Rage",
+        "gnosis": "Gnosis",
+        "willpower": "Willpower",
+        "essence": "Essence",
+        "charms": "Charms",
+        "general": "general",
+        "addCharm": "+ Charm…",
+        "essenceHint": "Essence = Willpower + Rage + Gnosis (W20) — recalculate and fill",
+        "step": "Step",
+        "stepHint": "Materialize and cross: Gnosis against the local Gauntlet",
+        "toggleHint": "The creature is an Umbral spirit: Rage, Gnosis, Willpower, Essence and Charms instead of Morality",
+        "willpowerHint": "Willpower — attack and defense, instead of Dexterity and Stamina",
+        "rageHint": "Rage — damage, instead of Strength",
+        "gnosisHint": "Gnosis — instead of Social and Mental Attributes, for Charms"
+      },
+      "SpiritRank": {
+        "gaffling": "Gaffling",
+        "jaggling": "Jaggling",
+        "incarna": "Incarna",
+        "celestine": "Celestine"
+      },
+      "Gauntlet": {
+        "lab": "Science lab",
+        "downtown": "Downtown",
+        "street": "City street",
+        "rural": "Countryside",
+        "wild": "Deep wilderness",
+        "urbanCaern": "Urban caern",
+        "caern": "Active caern",
+        "mightyCaern": "Powerful caern",
+        "greatCaern": "Greatest caern"
+      },
+      "GauntletAsk": "Where are you? The difficulty is the local Gauntlet rating.",
+      "StepGo": "Step",
+      "GauntletTimes": "Successes: 1 — 5 minutes, 2 — 30 seconds, 3+ — at once. Failure — wait an hour; botch — caught in the Gauntlet."
     },
     "Strategy": {
       "Tab": "Strategy",

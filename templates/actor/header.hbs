@@ -76,6 +76,7 @@
 
         {{#if isCreature}}
         <label class="r-df is-wide"><span>{{localize "VTM20.Sheet.Kind"}}</span><input type="text" name="system.kind" value="{{system.kind}}"></label>
+        <label class="r-df is-narrow r-sp-toggle" data-tooltip="{{localize 'VTM20.Werewolf.Spirit.toggleHint'}}"><span>{{localize "VTM20.Werewolf.Spirit.title"}}</span><input type="checkbox" name="system.spirit.on" {{checked system.spirit.on}}></label>
         <label class="r-df is-narrow"><span>{{localize "VTM20.Sheet.BloodPool"}}</span><input type="number" name="system.blood.max" value="{{system.blood.max}}" min="0" max="100"></label>
         <label class="r-df is-check"><input type="checkbox" name="system.supernatural" {{checked system.supernatural}}><span>{{localize "VTM20.Sheet.Supernatural"}}</span></label>
         {{/if}}

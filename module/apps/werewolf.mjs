@@ -346,9 +346,49 @@ export async function delirium(actor) {
       <p>${t(targets.length ? "DeliriumHint" : "DeliriumNoTargets")}</p><table><thead><tr><th></th><th>${t("DeliriumWp")}</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>` });
 }
 
-/** Шаг в Умбру (W20, гл. 7): бросок Гнозиса против Преграды; зеркало или отражение — сложность −? по решению рассказчика. */
-export function stepSideways(actor) {
-  return RollDialog.prompt(actor, { title: t("StepSideways"), trait1: "werewolf.gnosis", difficulty: 7, diffNote: t("GauntletNote") });
+/** Преграда по месту (W20, гл. 7): от лаборатории 9 до величайших каэрнов 2. */
+export const GAUNTLET = [["lab", 9], ["downtown", 8], ["street", 7], ["rural", 6], ["wild", 5], ["urbanCaern", 5], ["caern", 4], ["mightyCaern", 3], ["greatCaern", 2]];
+
+/** Шаг в Умбру (W20, гл. 7): Гнозис против Преграды места; успехи — время перехода, провал с единицами — застрял в Преграде. */
+export async function stepSideways(actor, trait = "werewolf.gnosis") {
+  const opts = GAUNTLET.map(([k, n]) => `<option value="${n}" ${k === "street" ? "selected" : ""}>${t(`Gauntlet.${k}`)} — ${n}</option>`).join("");
+  const diff = await foundry.applications.api.DialogV2.prompt({
+    window: { title: t("StepSideways"), icon: "fa-solid fa-moon-over-sun" }, classes: ["vtm20", "r-dialog", "r-type-werewolf"], rejectClose: false,
+    content: `<p>${t("GauntletAsk")}</p><select name="g">${opts}</select><p class="r-hint">${t("GauntletTimes")}</p>`,
+    ok: { label: t("StepGo"), icon: "fa-solid fa-moon", callback: (ev, btn) => Number(btn.form.elements.g.value) }
+  });
+  if (!diff) return;
+  return RollDialog.prompt(actor, { title: t("StepSideways"), trait1: trait, difficulty: diff, diffNote: t("GauntletNote") });
+}
+
+/* ── Духи Умбры (тип «Существо» с отметкой «Дух»; W20, гл. 7) ─────────── */
+
+export const SPIRIT_RANKS = ["gaffling", "jaggling", "incarna", "celestine"];
+export const charmOf = key => (W().charms ?? []).find(c => c.key === key) ?? null;
+
+/** Карточка духа: черты точками, Эссенция квадратиками, Чары (общие — у всех). */
+export function spiritInfo(actor, dots) {
+  const sp = actor.system.spirit, all = W().charms ?? [];
+  const charms = [...all.filter(c => c.general), ...sp.charms.map(charmOf).filter(c => c && !c.general)];
+  return {
+    rank: sp.rank, ranks: SPIRIT_RANKS.map(k => ({ key: k, label: t(`SpiritRank.${k}`), selected: k === sp.rank })),
+    traits: ["willpower", "rage", "gnosis"].map(k => ({ k, v: sp[k], label: t(`Spirit.${k}`), hint: t(`Spirit.${k}Hint`), dots: dots(sp[k], 10, { path: `system.spirit.${k}` }) })),
+    essence: sp.essence.value, essenceMax: sp.essence.max, suggested: sp.rage + sp.gnosis + sp.willpower,
+    essenceBoxes: Array.from({ length: Math.min(40, sp.essence.max) }, (_, i) => ({ n: i + 1, filled: i < sp.essence.value, path: "system.spirit.essence.value" })),
+    charms: charms.map(c => ({ ...c, general: c.general })), avail: all.filter(c => !c.general && !sp.charms.includes(c.key))
+  };
+}
+export async function addCharm(actor, key) {
+  if (!key || actor.system.spirit.charms.includes(key)) return;
+  return actor.update({ "system.spirit.charms": [...actor.system.spirit.charms, key] });
+}
+export async function removeCharm(actor, key) {
+  return actor.update({ "system.spirit.charms": actor.system.spirit.charms.filter(k => k !== key) });
+}
+/** Эссенция по правилу W20: Воля + Ярость + Гнозис, и заполнить. */
+export async function spiritEssenceReset(actor) {
+  const sp = actor.system.spirit, n = sp.rage + sp.gnosis + sp.willpower;
+  return actor.update({ "system.spirit.essence": { value: n, max: n } });
 }
 
 /** Добавить Дар или ритуал; рассказчик может добавить любой. */

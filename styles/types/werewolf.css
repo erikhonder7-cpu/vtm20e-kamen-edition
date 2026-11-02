@@ -334,3 +334,11 @@ body.r-theme-light .vtm20.r-type-werewolf .r-form-badge.is-down { color: #7a2a18
 .r-notice.r-delirium table { width: 100%; border-collapse: collapse; font-size: 12px; }
 .r-notice.r-delirium td, .r-notice.r-delirium th { padding: 3px 4px; border-bottom: 1px dotted rgba(140, 160, 150, .35); vertical-align: top; text-align: left; }
 .r-notice.r-delirium h4 { margin: 0 0 4px; }
+
+/* Дух Умбры на листе существа */
+.vtm20 .r-vc-spirit .r-sp-h { margin: 8px 0 4px; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; opacity: .75; }
+.vtm20 .r-vc-spirit .r-sp-charms { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px 10px; }
+.vtm20 .r-vc-spirit .r-sp-charms li { display: inline-flex; gap: 4px; align-items: baseline; font-size: 12.5px; }
+.vtm20 .r-vc-spirit .r-sp-charms small { opacity: .55; font-size: 10.5px; }
+.vtm20 .r-vc-spirit .r-boxes.is-essence { flex-wrap: wrap; }
+.vtm20 .r-vc-spirit .r-mini-num { width: 44px; }

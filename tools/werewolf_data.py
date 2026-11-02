@@ -518,6 +518,22 @@ def parse_books():
     return out
 
 
+def parse_charms():
+    """Чары духов: общие (у всех духов) и особые — «- **Русское (English)** — текст»."""
+    text = read("11_Умбра_и_духи.md")
+    part = text.split("## 8.", 1)[1].split("\n## ", 1)[0]
+    out, general = [], True
+    for line in part.splitlines():
+        if line.startswith("**Специальные"):
+            general = False
+        m = re.match(r"^- \*\*(.+?)\s*\(([^()]+)\)\*\*\s*—\s*(.*)$", line)
+        if m:
+            name, en, body = m.groups()
+            out.append({"key": re.sub(r"[^a-z0-9]+", "-", en.lower()).strip("-"), "name": name.strip(), "en": en.strip(), "general": general,
+                        "text": f"<p>{md_inline(body)}</p>"})
+    return out
+
+
 def build():
     gifts = parse_gifts()
     rites = parse_rites()
@@ -527,7 +543,7 @@ def build():
             x["icon"] = ICONS[kind].get(x["key"], "fa-moon")
     data = {"source": "Werewolf: The Apocalypse 20th Anniversary Edition", "breeds": breeds, "auspices": auspices, "tribes": tribes,
             "forms": FORMS, "gifts": gifts, "rites": rites, "rankNames": RANK_NAMES, "rank": RANK, "xp": XP,
-            "merits": parse_merits(), "backgrounds": parse_backgrounds(), "fetishes": parse_fetishes()}
+            "merits": parse_merits(), "backgrounds": parse_backgrounds(), "fetishes": parse_fetishes(), "charms": parse_charms()}
     with open(OUT, "w", encoding="utf-8", newline="\n") as f:
         json.dump(data, f, ensure_ascii=False, indent=1)
     rules = parse_rules()
@@ -539,7 +555,7 @@ def build():
     starts = sum(len(x["startGifts"]) for x in breeds + auspices + tribes)
     return {"breeds": len(breeds), "auspices": len(auspices), "tribes": len(tribes), "gifts": len(gifts), "rites": len(rites),
             "startGifts": starts, "rolls": sum(1 for g in gifts if g["roll"]),
-            "rulePages": sum(len(b["pages"]) for b in rules), "merits": len(data["merits"]), "backgrounds": len(data["backgrounds"]), "fetishes": len(data["fetishes"]), "books": len(books), "bookPages": sum(len(b["pages"]) for b in books)}
+            "rulePages": sum(len(b["pages"]) for b in rules), "merits": len(data["merits"]), "backgrounds": len(data["backgrounds"]), "fetishes": len(data["fetishes"]), "charms": len(data["charms"]), "books": len(books), "bookPages": sum(len(b["pages"]) for b in books)}
 
 
 if __name__ == "__main__":

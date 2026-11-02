@@ -234,7 +234,10 @@ export class CreatureData extends BaseActorData {
       blood: new SchemaField({ value: int(0, 0, 100), max: int(10, 0, 100) }),
       boosts: new SchemaField({ strength: int(0, 0, 10), dexterity: int(0, 0, 10), stamina: int(0, 0, 10) }),
       // Может ли существо поглощать тяжёлые повреждения (как вампир) — решение рассказчика.
-      supernatural: new BooleanField({ initial: true })
+      supernatural: new BooleanField({ initial: true }),
+      // Дух Умбры (W20, гл. 7): Ярость, Гнозис, Воля, Эссенция (запас «здоровья» и сил) и Чары (ключи data/werewolf.json → charms)
+      spirit: new SchemaField({ on: new BooleanField({ initial: false }), rank: str("gaffling"), rage: int(3, 0, 10), gnosis: int(3, 0, 10),
+        willpower: int(3, 0, 10), essence: new SchemaField({ value: int(9, 0, 100), max: int(9, 0, 100) }), charms: new ArrayField(str()) })
     };
   }
 
