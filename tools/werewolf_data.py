@@ -13,6 +13,7 @@
 
 import html
 import json
+import sys
 import os
 import re
 
@@ -1050,9 +1051,69 @@ def parse_supp_mech(core_rites, core_fetishes, core_merits):
 
 
 # Фера (W20 Changing Breeds): род, формы (таблица поправок Атрибутов), черты рода, справка (бешенство, регенерация, уязвимость,
-# шаг в сторону, Бред), Дары рода — в общий список Даров с группой {kind: "fera", key: род, label: «Род: раздел»}
+# шаг в сторону, Бред), Дары рода — в общий список Даров с группой {kind: "fera", key: род, sub: "измерение:вариант", label: «Род: раздел»}.
+# Измерения рода (порода, аспект/аугурия/путь, племя, фракция, варна) — свои у каждого рода; Дар без sub — общий список рода.
 FERA_ATTR = {"Сил": "strength", "Лов": "dexterity", "Сто": "stamina", "Ман": "manipulation", "Внеш": "appearance", "Воспр": "perception",
              "Хар": "charisma", "Сооб": "wits", "Инт": "intelligence"}
+FERA_ORDER5 = ["strength", "dexterity", "stamina", "manipulation", "appearance"]
+# (ключ, подпись, [(ключ варианта, название, основа для поиска в заголовке раздела Даров)])
+_BR = lambda *xs: ("breed", "Порода", list(xs))
+HOMID, METIS = ("homid", "Хомид", "хомид"), ("metis", "Метис", "метис")
+FERA_DIMS = {
+    "ajaba": [_BR(HOMID, METIS, ("hyaenid", "Гиенид", "гиенид")),
+              ("aspect", "Аспект", [("dawn", "Рассвет", "рассвет"), ("midnight", "Полночь", "полу?ноч"), ("dusk", "Закат", "закат")])],
+    "ananasi": [_BR(HOMID, ("arachnid", "Арахнид", "арахнид")),
+                ("aspect", "Аспект", [("tenere", "Тенере", "тенере"), ("hatar", "Хатар", "хатар"), ("kumoti", "Кумоти", "кумоти")]),
+                ("faction", "Фракция", [("myrmidon", "Мирмидон", "мирмидон"), ("viskr", "Вискр", "вискр"), ("wyrsta", "Вирст", "вирст")])],
+    "bastet": [_BR(HOMID, METIS, ("feline", "Фелайн", "кош")),
+               ("tribe", "Племя", [("bagheera", "Багира", "багира"), ("balam", "Балам", "балам"), ("bubasti", "Бубасти", "бубасти"),
+                                   ("ceilican", "Кейликан", "кейликан"), ("khan", "Хан", "хан"), ("pumonca", "Пумонка", "пумонка"),
+                                   ("qualmi", "Куалми", "куалми"), ("simba", "Симба", "симба"), ("swara", "Свара", "свара")]),
+               ("pryio", "Прио", [("daylight", "Дневное", "дневн"), ("twilight", "Сумеречное", "сумереч"), ("night", "Ночное", "ночн")])],
+    "corax": [_BR(HOMID, ("corvid", "Корвид", "корвид"))],
+    "gurahl": [_BR(HOMID, ("ursine", "Урсин", "урсин")),
+               ("aspect", "Аугурия", [("arcas", "Арка", "арка"), ("uzmati", "Узмати", "узмати"), ("kojubat", "Кожубат", "кожубат"),
+                                      ("kieh", "Киех", "киех"), ("rishi", "Риши", "риши")])],
+    "kitsune": [_BR(("kojin", "Кодзин", "кодзин"), ("shinju", "Синдзю", "синдзю"), ("roko", "Роко", "роко")),
+                ("aspect", "Путь", [("doshi", "Досю", "досю"), ("eji", "Эдзи", "эдзи"), ("gukutsushi", "Гукуцусси", "гукуцусси"),
+                                    ("kataribe", "Кататибэ", "кататибэ")])],
+    "mokole": [_BR(HOMID, ("suchid", "Сухид", "сухид")),
+               ("aspect", "Аспект", [("rising", "Восходящее Солнце", "восход"), ("noonday", "Полуденное Солнце", "полуден"),
+                                     ("setting", "Заходящее Солнце", "заход"), ("midnight", "Полуночное Солнце", "полуноч"),
+                                     ("shrouded", "Затенённое Солнце", "затенён"), ("decorated", "Украшенное Солнце", "украшен"),
+                                     ("eclipsed", "Затменное Солнце", "затмен")]),
+               ("varna", "Варна", [])],   # варны — из таблицы Сухида
+    "nagah": [_BR(("balaram", "Баларам", "баларам"), ("ahi", "Ахи", "ахи"), ("vasuki", "Васуки", "васуки")),
+              ("aspect", "Аспект", [("kamakshi", "Камакши", "камакши"), ("kartikeya", "Картикея", "картикея"), ("kamsa", "Камса", "камса"),
+                                    ("kali", "Кали", "кали")])],
+    "nuwisha": [_BR(HOMID, ("latrani", "Латрани", "латрани"))],
+    "ratkin": [_BR(HOMID, METIS, ("rodens", "Родэнс", "родэнс")),
+               ("aspect", "Аспект", [("tunnel-runner", "Бегун", "бегун"), ("shadow-seer", "Теневой провидец", "тенев"),
+                                     ("knife-skulker", "Ножевой крадущийся", "ножев"), ("blade-slave", "Раб клинка", "раб"),
+                                     ("engineer", "Инженер", "инженер"), ("plague-lord", "Лорд чумы", "лорд"),
+                                     ("munchmausen", "Мюнхгаузен", "мюнхгаузен"), ("twitcher", "Дёрганый", "дёрган")])],
+    "rokea": [_BR(("squamus", "Сквамус", "сквамус"), HOMID),
+              ("aspect", "Аугурия", [("bright", "Яркие воды", "ярк"), ("dim", "Тусклые воды", "тускл"), ("dark", "Тёмные воды", "тёмн")])],
+}
+TRANSLIT = dict(zip("абвгдеёжзийклмнопрстуфхцчшщъыьэюя", ["a", "b", "v", "g", "d", "e", "e", "zh", "z", "i", "i", "k", "l", "m", "n", "o", "p", "r", "s", "t",
+                                                         "u", "f", "kh", "ts", "ch", "sh", "sch", "", "y", "", "e", "yu", "ya"]))
+
+
+def translit(s):
+    return re.sub(r"[^a-z0-9]+", "-", "".join(TRANSLIT.get(ch, ch) for ch in s.lower())).strip("-")
+
+
+def fera_mods(cells, order=FERA_ORDER5):
+    """«+1/+2/0/−1/0» или список ячеек → поправки и «Внешность = 0»."""
+    mods, setv = {}, {}
+    for k, v in zip(order, cells):
+        v = v.replace("−", "-").replace("—", "").strip()
+        if re.fullmatch(r"[+-]?\d+", v):
+            if k == "appearance" and v == "0":
+                setv[k] = 0
+            elif int(v):
+                mods[k] = int(v)
+    return mods, setv
 
 
 def fera_forms(text):
@@ -1061,7 +1122,8 @@ def fera_forms(text):
     if m:
         part = m.group(1)
     forms, cols = [], []
-    for line in part.splitlines():
+    # таблица «| Форма | Сил | …» — в разделе форм или в «Чертах» (Аджаба)
+    for line in (part or text).splitlines():
         if not line.startswith("|") or set(line) <= set("|-: "):
             continue
         c = [x.strip() for x in line.strip().strip("|").split("|")]
@@ -1070,12 +1132,7 @@ def fera_forms(text):
         if not any(cols):          # таблица не про поправки (у Мокол — виды-варны) — пропустить
             continue
         name, en = name_en(c[0])
-        mods, setv = {}, {}
-        for k, v in zip(cols, c[1:]):
-            if not k: continue
-            v = v.replace("−", "-").strip()
-            if re.fullmatch(r"[+-]\d+", v): mods[k] = int(v)
-            elif v == "0" and k == "appearance": setv[k] = 0
+        mods, setv = fera_mods([re.sub(r"\s*\(.*", "", x) for x in c[1:]], cols)
         forms.append({"key": re.sub(r"[^a-z0-9]+", "-", (en or name).lower()).strip("-") or f"f{len(forms)}", "name": name, "en": en, "mods": mods, "set": setv})
     if not forms:   # формы строкой в «Чертах»: «- Формы: Хомид, Анфрос, Кринос (…), …»
         m = re.search(r"^- Формы:\s*(.+)$", text, re.M)
@@ -1085,50 +1142,189 @@ def fera_forms(text):
                 name = raw.strip().rstrip(".").strip()
                 if name:
                     forms.append({"key": f"f{i}", "name": name, "en": "", "mods": {}, "set": {}})
-    if not forms and part:          # формы только словами (Мокол: Хомид, Архид, Сухид)
-        names = []
-        for n in re.findall(r"(Хомид|[А-ЯЁ][а-яё]+ид)\b", part):
-            if n not in names:
-                names.append(n)
-        forms = [{"key": f"f{i}", "name": n, "en": "", "mods": {}, "set": {}} for i, n in enumerate(names)]
+    if not forms and part:          # формы списком (Мокол: «- **Архид (Archid)** — …: Сил +4, Лов −1, …»)
+        for line in part.splitlines():
+            b = re.match(r"^- \*\*([^*(]+?)(?:\s*\(([^()]+)\))?\*\*", line)
+            if not b:
+                continue
+            mods, setv = {}, {}
+            for ab, v in re.findall(r"(Сил|Лов|Сто|Ман|Внеш|Воспр)\s*([+−-]?\d+)", line):
+                mm, ss = fera_mods([v], [FERA_ATTR[ab]])
+                mods.update(mm); setv.update(ss)
+            forms.append({"key": f"f{len(forms)}", "name": b.group(1).strip(), "en": "", "mods": mods, "set": setv})
     return forms, md_html(part.splitlines()) if part else ""
 
 
-def fera_gifts(text, fkey, fname, taken):
-    out = []
+def fera_dims(fkey, text, forms):
+    """Измерения рода; у Бастет поправки форм — по племени, у Мокол Сухид — по варне (modsBy["tribe:khan"])."""
+    dims = [{"key": k, "label": lbl, "options": [{"key": o, "name": n, "stem": s} for o, n, s in opts]} for k, lbl, opts in FERA_DIMS.get(fkey, [])]
+    by_name = {f["name"].split()[0]: f for f in forms}
+    for line in text.splitlines():
+        if not line.startswith("| ") or set(line) <= set("|-: "):
+            continue
+        c = [x.strip() for x in line.strip().strip("|").split("|")]
+        if fkey == "bastet" and c[0].startswith("**"):           # «| **Багира (Bagheera)**, леопарды | +1/+1/+2/−1/−1 | …»
+            tk = next((o["key"] for d in dims if d["key"] == "tribe" for o in d["options"] if o["stem"] in c[0].lower()), None)
+            if not tk:
+                continue
+            for fname, cell in zip(["Сокто", "Кринос", "Чатро", "Фелайн"], c[1:5]):
+                f = by_name.get(fname)
+                if f and "/" in cell:
+                    mods, setv = fera_mods(cell.split("/"))
+                    f.setdefault("modsBy", {})[f"tribe:{tk}"] = {"mods": mods, "set": setv}
+        if fkey == "mokole" and len(c) >= 6 and re.fullmatch(r"[+−-]?\d+", c[1].replace("−", "-")):   # варна: Сил Лов Сто Ман Ярость
+            name = re.sub(r"\s*\(.*", "", c[0]).strip()
+            vk = translit(name)
+            d = next(d for d in dims if d["key"] == "varna")
+            d["options"].append({"key": vk, "name": name, "stem": name.lower(), "rage": int(c[5]) if c[5].isdigit() else None})
+            f = by_name.get("Сухид")
+            if f:
+                mods, setv = fera_mods(c[1:5], FERA_ORDER5[:4])
+                f.setdefault("modsBy", {})[f"varna:{vk}"] = {"mods": mods, "set": setv}
+    return dims
+
+
+STAT_WORDS = (("ярост", "rage"), ("гнозис", "gnosis"), ("вол", "will"))
+
+
+def fera_stats(text, dims):
+    """Ярость, Гнозис и Воля при создании: у рода («**Воля 3.**», «начинают: Ярость 1, Гнозис 6, Воля 3»), у вариантов —
+    строкой («**Рассвет (Dawn)** — Ярость 5, Гнозис 1») или столбцом таблицы («| Аспект | Воля | …»)."""
+    head = text.split("\n## Дары")[0].split("\n## Общие Дары")[0]
+    base = {}
+    m = re.search(r"начинают:\s*\*\*Ярость (\d+), Гнозис (\d+), Воля (\d+)", head)
+    if m:
+        base = {"rage": int(m.group(1)), "gnosis": int(m.group(2)), "will": int(m.group(3))}
+    m = re.search(r"\*\*Воля (\d+)", head)
+    if m and "will" not in base:
+        base["will"] = int(m.group(1))
+    opts = [(d, o) for d in dims for o in d["options"] if o.get("stem")]
+    cols = {}
+    for line in head.splitlines():
+        if line.startswith("|"):
+            if set(line) <= set("|-: "):
+                continue
+            c = [x.strip() for x in line.strip().strip("|").split("|")]
+            hdr = {i: k for i, x in enumerate(c) for w, k in STAT_WORDS if x.lower().startswith(w)}
+            if hdr:
+                cols = hdr; continue
+            low = c[0].lower()
+            hits = [(mm.start(), o) for d, o in opts for mm in [re.search(r"(?<![а-яё])" + o["stem"], low)] if mm]
+            if hits:      # ранний вариант в ячейке: «Кейликан …, феи-кошки» — племя, а не порода «кошка»
+                o = min(hits, key=lambda x: x[0])[1]
+                for i, k in cols.items():
+                    if i < len(c) and re.fullmatch(r"\d+", c[i]):
+                        o.setdefault("stats", {})[k] = int(c[i])
+            continue
+        cols = {}
+        low = line.lower()
+        for d, o in opts:
+            for mm in re.finditer(r"(?<![а-яё])" + o["stem"], low):
+                w = line[mm.end():mm.end() + 160]
+                w = re.sub(r"^[^*;]{0,30}?\*\*", "", w)
+                w = re.split(r";|\*\*", w)[0]
+                for word, k in STAT_WORDS:
+                    st = re.search(r"(?<![а-яё])" + word + r"[а-яё]*\s+(\d+)", w.lower())
+                    if st and not re.search(r"сл\.\s*$", w.lower()[:st.start()]):
+                        o.setdefault("stats", {}).setdefault(k, int(st.group(1)))
+    for word, k in STAT_WORDS:
+        m = re.search(r"(?<![а-яё])" + word + r"[а-яё]*\s*—\s*по пород[а-яё]*\**\s*:\s*([^.;\n]+)", head.lower())
+        if m:
+            for nm, n in re.findall(r"([а-яё]+)\s+(\d+)", m.group(1)):
+                for d, o in opts:
+                    if d["key"] == "breed" and re.match(o["stem"], nm):
+                        o.setdefault("stats", {})[k] = int(n)
+    return base
+
+
+def fera_sub(dims, label):
+    low = label.lower()
+    for d in dims:
+        for o in d["options"]:
+            if o["stem"] and re.search(r"(?<![а-яё])" + o["stem"], low):
+                return f"{d['key']}:{o['key']}"
+    return ""
+
+
+def fera_gifts(text, fkey, fname, taken, dims, by_ru):
+    """Дары рода: новые (**Название (English)** — текст или **Название** — текст) и заимствованные у Гару по названию
+    («Глаз охотника (как у …)», «Танец с рассветом — «Танец пламени» Фианна») — им добавляется группа рода."""
+    out, linked = [], 0
+
+    def group(label):
+        short = re.sub(r"^Дары\s*", "", label) or label
+        return {"kind": "fera", "key": fkey, "sub": fera_sub(dims, label), "label": f"{fname}: {short[:1].upper() + short[1:]}"}
+
+    def link(name, gr, lvl):
+        nonlocal linked
+        g = by_ru.get(name.lower().strip(" .«»"))
+        if not g or (lvl and abs(g["level"] - lvl) > 1):
+            return False
+        if not any(x.get("kind") == "fera" and x["key"] == fkey and x.get("sub") == gr["sub"] for x in g["groups"]):
+            g["groups"].append(gr); linked += 1
+        return True
+
     for m in re.finditer(r"\n## ([^\n]*Дар[^\n]*)\n(.*?)(?=\n## |\Z)", text, re.S):
         sec, body = m.group(1).strip(), m.group(2)
         label, level = sec, 0
+        start = "стартов" in sec.lower()
         for line in body.splitlines():
             h = re.match(r"^###\s+(.+)$", line)
             if h:
-                label = f"{sec} — {h.group(1).strip()}"; level = 0; continue
-            lv = re.match(r"^\*\*Ур\.\s*(\d+):\*\*", line) or re.match(r"^#+\s*Уровень\s*(\d+)", line)
-            if lv:
-                level = int(lv.group(1))
-            for g in re.finditer(r"\*\*([^*()]+?)\s*\(([^()]+)\)\*\*\s*—\s*(.*?)(?=;\s*\*\*|$)", line):
-                name, en, rest = g.group(1).strip(), g.group(2).strip(), g.group(3).strip()
-                lvl = level
-                il = re.search(r"ур\.\s*(\d+)", rest[:40])
-                if not lvl and il: lvl = int(il.group(1))
-                if not lvl: continue
-                key = f"{fkey}-" + re.sub(r"[^a-z0-9]+", "-", en.lower()).strip("-")
-                if key in taken: continue
+                label = f"{sec} — {re.sub(r'\s*\(.*', '', h.group(1).strip())}"; level = 0; continue
+            if start:      # «- Хомид: Благословения …, Бег по городу, …» — стартовые Дары породы/аспекта
+                s = re.match(r"^- ([^:]+):\s*(.+)$", line)
+                if s:
+                    gr = group(s.group(1))
+                    if gr["sub"]:
+                        for nm in re.split(r",\s*", re.sub(r"\([^)]*\)", "", s.group(2))):
+                            link(nm.strip().rstrip("."), gr, 1)
+                continue
+            lv = re.match(r"^(?:\*\*)?Ур\.\s*(\d+)\s*:(?:\*\*(?=\s))?", line) or re.match(r"^#+\s*Уровень\s*(\d+)", line)
+            if not lv:
+                continue
+            level = int(lv.group(1))
+            gr = group(label)
+            rest_line = line[lv.end():]
+            # новые Дары: **Название (English)** — текст  /  **Название** — текст
+            spans = []
+            for g in re.finditer(r"\*\*([^*()]+?)(?:\s*\(([^()]+)\))?\*\*\s*—\s*(.*?)(?=;\s*\*\*|;\s*[А-ЯЁ][^;—]{2,40}\((?:как|[А-ЯЁ])|$)", rest_line):
+                spans.append(g.span())
+                name, en, rest = g.group(1).strip(), (g.group(2) or "").strip(), g.group(3).strip()
+                if link(name, gr, level):
+                    continue
+                key = f"{fkey}-" + (re.sub(r"[^a-z0-9]+", "-", en.lower()).strip("-") if en else translit(name))
+                if key in taken:
+                    continue
                 taken.add(key)
-                out.append({"key": key, "name": name, "en": en, "level": lvl, "groups": [{"kind": "fera", "key": fkey, "label": f"{fname}: {re.sub(r'^Дары\\s*', '', label) or label}"}],
-                            "teacher": "", "roll": roll_of(rest), "cost": cost_of(rest), "text": f"<p>{md_inline(rest)}</p>", "source": "W20 Changing Breeds"})
-    return out
+                out.append({"key": key, "name": name, "en": en, "level": level, "groups": [gr], "teacher": "", "roll": roll_of(rest),
+                            "cost": cost_of(rest), "text": f"<p>{md_inline(rest)}</p>", "source": "W20 Changing Breeds"})
+            # заимствованные: куски вне новых Даров, разделённые «;»
+            plain = rest_line
+            for a, b in reversed(spans):
+                plain = plain[:a] + ";" + plain[b:]
+            for seg in plain.split(";"):
+                seg = seg.strip().rstrip(".")
+                if not seg or seg.startswith("**"):
+                    continue
+                q = re.search(r"«([^»]+)»", seg)
+                head = re.split(r"\s*[—(]", seg, maxsplit=1)[0].strip()
+                if not link(head, gr, level) and q:
+                    link(q.group(1), gr, level)
+    return out, linked
 
 
-def parse_fera(core_keys):
+def parse_fera(gifts_core):
     base = os.path.join(os.path.dirname(REF), "W20_Changing_Breeds")
     if not os.path.isdir(base):
         return [], []
     files = sorted(f for f in os.listdir(base) if f.endswith(".md"))
     common = open(os.path.join(base, next(f for f in files if f.startswith("12"))), encoding="utf-8").read() if any(f.startswith("12") for f in files) else ""
-    quick = {}
     qp = re.search(r"\n## Быстрая справка\n(.*?)(?=\n## )", common, re.S)
-    breeds, gifts, taken = [], [], set(core_keys)
+    by_ru = {}
+    for g in gifts_core:
+        by_ru.setdefault(g["name"].lower(), g)
+    breeds, gifts, taken, linked = [], [], {g["key"] for g in gifts_core}, 0
     for fn in files:
         if fn.startswith("12"):
             continue
@@ -1139,6 +1335,8 @@ def parse_fera(core_keys):
         name, en = h1.group(1).strip(), h1.group(2).strip()
         key = re.sub(r"[^a-z0-9]+", "", en.lower().replace("é", "e"))
         forms, forms_html = fera_forms(text)
+        dims = fera_dims(key, text, forms)
+        fbase = fera_stats(text, dims)
         tm = re.search(r"\n## Черты\n(.*?)(?=\n## )", text, re.S)
         facts = {}
         if qp:
@@ -1152,11 +1350,18 @@ def parse_fera(core_keys):
                         facts[topic] = md_inline(parts[1].strip())
                     elif len(parts) == 2 and "остальн" in parts[0] and topic not in facts:
                         facts.setdefault(topic, md_inline(parts[1].strip()))
-        breeds.append({"key": key, "name": name, "en": en, "forms": forms, "formsHtml": forms_html,
+        own, n = fera_gifts(text, key, name, taken, dims, by_ru)
+        for g in own:
+            by_ru.setdefault(g["name"].lower(), g)
+        linked += n
+        for d in dims:
+            for o in d["options"]:
+                o.pop("stem", None)
+        breeds.append({"key": key, "name": name, "en": en, "forms": forms, "formsHtml": forms_html, "dims": dims, "base": fbase,
                        "traits": md_html(tm.group(1).splitlines()) if tm else "", "facts": facts})
-        gifts += fera_gifts(text, key, name, taken)
+        gifts += own
+    print(f"Фера: своих Даров {len(gifts)}, заимствованных у Гару {linked}", file=sys.stderr)
     return breeds, gifts
-
 
 # Уродства метисов: примеры основной книги (гл. 1) и новые из W20 Changing Ways; у части — механика (fx):
 # soak — кубики поглощения (forms — только в этих формах), appearance — Внешность во всех формах, appearanceMax — потолок, bite — тип урона укуса
@@ -1493,7 +1698,7 @@ def build():
     breeds, auspices, tribes = parse_core(gifts)
     supp = parse_supp_gifts(gifts, breeds, auspices, tribes)
     gifts = gifts + supp
-    fera, fera_gifts_list = parse_fera({g["key"] for g in gifts})
+    fera, fera_gifts_list = parse_fera(gifts)
     gifts = gifts + fera_gifts_list
     cw_gifts, cw_totems = parse_changing_ways_extras({g["key"] for g in gifts})
     gifts = gifts + cw_gifts

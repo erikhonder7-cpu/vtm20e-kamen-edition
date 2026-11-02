@@ -355,7 +355,9 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
     const head = { breed: "Breed", auspice: "Auspice", tribe: "Tribe", outsider: "Outsiders", fera: "Fera" };
     const own = g => ownGift(w, g);
     return D.gifts.map((g, i) => {
-      const gr = (w && g.groups.find(x => [w.breed, w.auspice, w.tribe].includes(x.key))) ?? g.groups[0];
+      const mineFera = x => x.kind === "fera" && x.key === w?.fera && (!x.sub || w.feraSub?.[x.sub.split(":")[0]] === x.sub.split(":")[1]);
+      const gr = (w?.fera && (g.groups.find(mineFera) ?? g.groups.find(x => x.kind === "fera" && x.key === w.fera)))
+        ?? (w && !w.fera && g.groups.find(x => x.kind !== "fera" && [w.breed, w.auspice, w.tribe].includes(x.key))) ?? g.groups[0];
       const label = gr.label ?? (names[gr.kind] ?? []).find(x => x.key === gr.key)?.name ?? game.i18n.localize(`VTM20.Werewolf.Outsider.${gr.key}`);
       const pool = g.roll ? [g.roll.trait1, g.roll.trait2].map(t => a?.traitLabel?.(t) ?? t.split(".").pop()).join(" + ") : "";
       return this.#entry({

@@ -1,106 +1,197 @@
-{{!-- Генератор НПС (module/apps/npc-gen.mjs). Корень — <form>. --}}
-<div class="r-ng">
-  <aside class="r-ng-list">
-    <a class="r-btn r-ng-random" data-action="random"><i class="fa-solid fa-dice"></i> {{localize "VTM20.NpcGen.Random"}}</a>
-    <label class="r-ng-search"><i class="fa-solid fa-magnifying-glass"></i><input type="search" data-ng-search value="{{s.search}}" placeholder="{{localize 'VTM20.NpcGen.Search' n=total}}"></label>
-    <div class="r-ng-group is-rules">
-      <div class="r-ng-glabel">{{localize "VTM20.NpcGen.ByRules"}}</div>
-      {{#each rules}}<a class="r-ng-item {{#if active}}is-active{{/if}}" data-action="pick" data-key="{{key}}" data-s="{{label}}"><i class="fa-solid {{icon}}"></i> {{label}}</a>{{/each}}
-    </div>
-    {{#each groups}}
-    <div class="r-ng-group">
-      <div class="r-ng-glabel">{{label}}</div>
-      {{#each items}}<a class="r-ng-item {{#if active}}is-active{{/if}}" data-action="pick" data-key="{{key}}" data-s="{{s}}">{{name}}</a>{{/each}}
+{{!-- Генератор НПС (module/apps/npc-gen.mjs). Корень — <form>. Слева — кто, в середине — какой, справа — досье черновика. --}}
+<div class="r-ng2">
+
+  <nav class="r-ng-rail">
+    {{#each kinds}}
+    <div class="r-ng-kgroup">
+      <div class="r-ng-klabel">{{label}}</div>
+      {{#each items}}
+      <a class="r-ng-kind {{#if active}}is-active{{/if}}" data-action="kind" data-kind="{{key}}"><i class="fa-solid {{icon}}"></i><span>{{label}}</span></a>
+      {{/each}}
     </div>
     {{/each}}
-  </aside>
+  </nav>
 
-  <section class="r-ng-main">
-    <div class="r-ng-opts">
-      <label class="r-ng-field r-ng-name"><span>{{localize "VTM20.NpcGen.Name"}}</span>
-        <span class="r-ng-row"><input type="text" name="name" value="{{s.name}}" placeholder="{{localize 'VTM20.NpcGen.NameHint'}}">
-        <a class="r-icon-btn" data-action="rollName" data-tooltip="{{localize 'VTM20.NpcGen.RollName'}}"><i class="fa-solid fa-dice-d10"></i></a></span></label>
-      <label class="r-ng-field"><span>{{localize "VTM20.NpcGen.Names"}}</span><select name="names">{{selectOptions nameSets valueAttr="value" labelAttr="label"}}</select></label>
-      <label class="r-ng-field"><span>{{localize "VTM20.NpcGen.Gender"}}</span><select name="gender">{{selectOptions genders valueAttr="value" labelAttr="label"}}</select></label>
-      <label class="r-ng-field r-ng-count"><span>{{localize "VTM20.NpcGen.Count"}}</span><input type="number" name="count" value="{{s.count}}" min="1" max="10"></label>
-      <label class="r-ng-field r-ng-as" data-tooltip="{{localize 'VTM20.Extra.AsHint'}}"><span>{{localize "VTM20.Extra.As"}}</span><select name="as">
-        <option value="sheet" {{#if (rEq s.as "sheet")}}selected{{/if}}>{{localize "VTM20.Extra.AsSheet"}}</option>
-        <option value="extra" {{#if (rEq s.as "extra")}}selected{{/if}}>{{localize "VTM20.Extra.AsExtra"}}</option>
-        <option value="mob" {{#if (rEq s.as "mob")}}selected{{/if}}>{{localize "VTM20.Extra.AsMob"}}</option></select></label>
+  <section class="r-ng-build">
+    <header class="r-ng-bhead">
+      <i class="fa-solid {{kind.icon}}"></i>
+      <h2>{{kind.label}}</h2>
+      <a class="r-btn r-ng-surprise" data-action="surprise" data-tooltip="{{localize 'VTM20.NpcGen.SurpriseHint'}}"><i class="fa-solid fa-shuffle"></i> {{localize "VTM20.NpcGen.Surprise"}}</a>
+    </header>
+
+    {{#if isBook}}
+    <label class="r-ng-search"><i class="fa-solid fa-magnifying-glass"></i><input type="search" data-ng-search value="{{s.search}}" placeholder="{{localize 'VTM20.NpcGen.Search' n=book.total}}"></label>
+    <div class="r-ng-blist">
+      {{#each book.groups}}
+      <div class="r-ng-bgroup">
+        <div class="r-ng-sub">{{label}}</div>
+        <div class="r-ng-chips">{{#each items}}<a class="r-ng-chip r-ng-bitem {{#if active}}is-active{{/if}}" data-action="pick" data-key="{{key}}" data-s="{{s}}">{{name}}</a>{{/each}}</div>
+      </div>
+      {{/each}}
+    </div>
+    {{#if book.preview.trainedText}}
+    <label class="r-check" data-tooltip="{{localize 'VTM20.NpcGen.TrainedHint'}}"><input type="checkbox" name="trained" {{checked s.trained}}><span><i class="fa-solid fa-bone"></i> {{localize "VTM20.NpcGen.Trained"}} <em>[{{book.preview.trainedText}}]</em></span></label>
+    {{/if}}
+    {{#if book.preview.isAnimal}}
+    <label class="r-check" data-tooltip="{{localize 'VTM20.NpcGen.AnimalGhoulHint'}}"><input type="checkbox" name="ghoul" {{checked s.ghoul}}><span><i class="fa-solid fa-hand-holding-droplet"></i> {{localize "VTM20.NpcGen.AnimalGhoul"}}</span></label>
+    {{/if}}
+    {{else}}
+
+    {{#if fields.length}}
+    <div class="r-ng-sec">
+      <div class="r-ng-sub">{{localize "VTM20.NpcGen.Who"}}</div>
+      <div class="r-ng-fields">
+        {{#each fields}}
+        <label class="r-ng-field"><span>{{label}}</span>
+          <select name="p.{{name}}">
+            {{#each lead}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
+            {{#each options}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
+            {{#each groups}}<optgroup label="{{label}}">{{#each options}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</optgroup>{{/each}}
+          </select></label>
+        {{/each}}
+      </div>
+    </div>
+    {{/if}}
+
+    {{#unless isSpirit}}
+    <div class="r-ng-sec">
+      <div class="r-ng-sub">{{localize "VTM20.NpcGen.RoleTitle"}} <a class="r-ng-anyrole {{#unless s.role}}is-active{{/unless}}" data-action="role" data-role=""><i class="fa-solid fa-dice"></i> {{localize "VTM20.NpcGen.AnyRole"}}</a></div>
+      <div class="r-ng-roles">
+        {{#each roleGroups}}
+        <div class="r-ng-rgroup">
+          <span class="r-ng-rlabel"><i class="fa-solid {{icon}}"></i> {{label}}</span>
+          <div class="r-ng-chips">{{#each roles}}<a class="r-ng-chip {{#if active}}is-active{{/if}}" data-action="role" data-role="{{key}}"><i class="fa-solid {{icon}}"></i> {{label}}</a>{{/each}}</div>
+        </div>
+        {{/each}}
+      </div>
+      {{#if subs.length}}
+      <div class="r-ng-subs">
+        <span class="r-ng-rlabel">{{role.label}}:</span>
+        <div class="r-ng-chips">
+          <a class="r-ng-chip is-soft {{#unless s.sub}}is-active{{/unless}}" data-action="sub" data-sub=""><i class="fa-solid fa-dice"></i> {{localize "VTM20.NpcGen.AnySub"}}</a>
+          {{#each subs}}<a class="r-ng-chip is-soft {{#if active}}is-active{{/if}}" data-action="sub" data-sub="{{key}}">{{label}}</a>{{/each}}
+        </div>
+      </div>
+      {{/if}}
     </div>
 
-    <div class="r-ng-preview">
-      {{#if preview}}
-      <header class="r-ng-head">
-        <span class="r-ng-kicker">{{preview.groupLabel}} · {{preview.typeLabel}}</span>
-        <h2>{{preview.name}}</h2>
-        {{#if preview.page}}<span class="r-ng-page">{{source}}, {{localize "VTM20.NpcGen.Page" n=preview.page}}</span>{{/if}}
-      </header>
-
-      {{#if preview.rule}}
-      <p class="r-ng-text">{{preview.ruleText}}</p>
-      <div class="r-ng-opts is-inline">
-        <label class="r-ng-field"><span>{{#if (eq preview.rule "ghoul")}}{{localize "VTM20.NpcGen.DomitorClan"}}{{else}}{{localize "VTM20.NpcGen.Clan"}}{{/if}}</span>
-          <select name="clan">{{#each clanGroups}}<optgroup label="{{label}}">{{#each clans}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</optgroup>{{/each}}</select></label>
-        {{#if (eq preview.rule "vampire")}}
-        <label class="r-ng-field"><span>{{localize "VTM20.NpcGen.Generation"}}</span><select name="generation">{{#each generations}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
-        {{/if}}
+    <div class="r-ng-sec">
+      <div class="r-ng-sub">{{localize "VTM20.NpcGen.PowerTitle"}}</div>
+      <div class="r-ng-power">
+        {{#each powers}}<a class="{{#if active}}is-active{{/if}}" data-action="power" data-power="{{key}}"><i class="fa-solid {{icon}}"></i><span>{{label}}</span></a>{{/each}}
       </div>
-      <dl class="r-ng-stats"><dt>{{localize "VTM20.NpcGen.ClanDiscs"}}</dt><dd>{{preview.clanDiscs}}</dd></dl>
-      {{else}}
-      <dl class="r-ng-stats">
-        {{#each preview.attrs}}<dt>{{label}}</dt><dd>{{list}}</dd>{{/each}}
-        {{#if preview.abilText}}<dt>{{localize "VTM20.NpcGen.Abilities"}}</dt><dd>{{preview.abilText}}</dd>{{/if}}
-        {{#if preview.discText}}<dt>{{localize "VTM20.NpcGen.DiscAnalogs"}}</dt><dd>{{preview.discText}}</dd>{{/if}}
-        <dt>{{localize "VTM20.Willpower"}}{{#if preview.humanity}} · {{localize "VTM20.Humanity"}}{{/if}}</dt>
-        <dd>{{preview.willpower}}{{#if preview.humanity}} · {{preview.humanity}}{{/if}}{{#if preview.poolText}} · {{preview.poolText}}{{/if}}</dd>
-        {{#if preview.health}}<dt>{{localize "VTM20.NpcGen.HealthLevels"}}</dt><dd>{{preview.health}}</dd>{{/if}}
-        {{#if preview.attackText}}<dt>{{localize "VTM20.NpcGen.Attack"}}</dt><dd>{{preview.attackText}}</dd>{{/if}}
-        {{#if preview.bloodText}}<dt>{{localize "VTM20.NpcGen.BloodPool"}}</dt><dd>{{preview.bloodText}}</dd>{{/if}}
-        {{#if preview.swarm}}<dt>{{localize "VTM20.NpcGen.SwarmDamage"}} · {{localize "VTM20.NpcGen.SwarmHealth"}} · {{localize "VTM20.NpcGen.SwarmInit"}}</dt>
-          <dd>{{preview.swarm.damage}} · {{preview.swarm.health}} · {{preview.swarm.initiative}}</dd>{{/if}}
-        {{#if preview.equipment}}<dt>{{localize "VTM20.NpcGen.Equipment"}}</dt><dd>{{preview.equipment}}</dd>{{/if}}
-        {{#each preview.notes}}<dt></dt><dd class="r-muted">{{this}}</dd>{{/each}}
-        {{#if preview.note}}<dt>{{localize "VTM20.NpcGen.Note"}}</dt><dd>{{preview.note}}</dd>{{/if}}
-      </dl>
-      {{#if preview.trainedText}}
-      <label class="r-check" data-tooltip="{{localize 'VTM20.NpcGen.TrainedHint'}}"><input type="checkbox" name="trained" {{checked s.trained}}><span><i class="fa-solid fa-bone"></i> {{localize "VTM20.NpcGen.Trained"}} <em>[{{preview.trainedText}}]</em></span></label>
-      {{/if}}
-      {{#if preview.isAnimal}}
-      <label class="r-check" data-tooltip="{{localize 'VTM20.NpcGen.AnimalGhoulHint'}}"><input type="checkbox" name="ghoul" {{checked s.ghoul}}><span><i class="fa-solid fa-hand-holding-droplet"></i> {{localize "VTM20.NpcGen.AnimalGhoul"}}</span></label>
-      {{/if}}
-      {{/if}}
+    </div>
+    {{/unless}}
+    {{/if}}
 
+    <div class="r-ng-sec">
+      <div class="r-ng-sub">{{localize "VTM20.NpcGen.Batch"}}</div>
+      <div class="r-ng-fields">
+        <label class="r-ng-field is-wide"><span>{{localize "VTM20.NpcGen.Name"}}</span>
+          <span class="r-ng-row"><input type="text" name="name" value="{{s.name}}" placeholder="{{#if draft}}{{draft.name}}{{else}}{{localize 'VTM20.NpcGen.NameHint'}}{{/if}}">
+          <a class="r-icon-btn" data-action="rollName" data-tooltip="{{localize 'VTM20.NpcGen.RollName'}}"><i class="fa-solid fa-dice-d10"></i></a></span></label>
+        <label class="r-ng-field"><span>{{localize "VTM20.NpcGen.Names"}}</span><select name="names">{{selectOptions nameSets valueAttr="value" labelAttr="label"}}</select></label>
+        <label class="r-ng-field"><span>{{localize "VTM20.NpcGen.Gender"}}</span><select name="gender">{{selectOptions genders valueAttr="value" labelAttr="label"}}</select></label>
+        <label class="r-ng-field is-narrow"><span>{{localize "VTM20.NpcGen.Count"}}</span><input type="number" name="count" value="{{s.count}}" min="1" max="20"></label>
+        <label class="r-ng-field" data-tooltip="{{localize 'VTM20.Extra.AsHint'}}"><span>{{localize "VTM20.Extra.As"}}</span><select name="as">
+          <option value="sheet" {{#if (rEq s.as "sheet")}}selected{{/if}}>{{localize "VTM20.Extra.AsSheet"}}</option>
+          <option value="extra" {{#if (rEq s.as "extra")}}selected{{/if}}>{{localize "VTM20.Extra.AsExtra"}}</option>
+          <option value="mob" {{#if (rEq s.as "mob")}}selected{{/if}}>{{localize "VTM20.Extra.AsMob"}}</option></select></label>
+      </div>
+      {{#unless isSpirit}}
       <div class="r-ng-gear">
-        <div class="r-ng-glabel">{{localize "VTM20.NpcGen.Gear"}}</div>
         <div class="r-ng-chips">
+          <span class="r-ng-rlabel"><i class="fa-solid fa-gun"></i> {{localize "VTM20.NpcGen.Gear"}}:</span>
           {{#each extra}}<span class="r-chip">{{label}} <a data-action="gearDrop" data-i="{{i}}"><i class="fa-solid fa-xmark"></i></a></span>
           {{else}}<em class="r-note">{{localize "VTM20.NpcGen.NoGear"}}</em>{{/each}}
         </div>
         <div class="r-ng-addgear">
           <select data-gear="w">{{#each weaponGroups}}<optgroup label="{{label}}">{{#each options}}<option value="{{value}}">{{label}}</option>{{/each}}</optgroup>{{/each}}</select>
-          <a class="r-btn" data-action="gearAdd" data-cat="w"><i class="fa-solid fa-plus"></i> {{localize "VTM20.NpcGen.AddWeapon"}}</a>
+          <a class="r-icon-btn" data-action="gearAdd" data-cat="w" data-tooltip="{{localize 'VTM20.NpcGen.AddWeapon'}}"><i class="fa-solid fa-plus"></i></a>
           <select data-gear="a">{{#each armorGroups}}<optgroup label="{{label}}">{{#each options}}<option value="{{value}}">{{label}}</option>{{/each}}</optgroup>{{/each}}</select>
-          <a class="r-btn" data-action="gearAdd" data-cat="a"><i class="fa-solid fa-plus"></i> {{localize "VTM20.NpcGen.AddArmor"}}</a>
+          <a class="r-icon-btn" data-action="gearAdd" data-cat="a" data-tooltip="{{localize 'VTM20.NpcGen.AddArmor'}}"><i class="fa-solid fa-plus"></i></a>
         </div>
       </div>
+      {{/unless}}
+    </div>
+  </section>
+
+  <aside class="r-ng-dossier">
+    {{#if isBook}}
+      {{#with book.preview}}
+      <article class="r-ng-card">
+        <header class="r-ng-chead">
+          <span class="r-ng-kicker">{{groupLabel}} · {{typeLabel}}</span>
+          <h3>{{name}}</h3>
+          {{#if page}}<span class="r-ng-src">{{../book.source}}, {{localize "VTM20.NpcGen.Page" n=page}}</span>{{/if}}
+        </header>
+        <dl class="r-ng-stats">
+          {{#each attrs}}<dt>{{label}}</dt><dd>{{list}}</dd>{{/each}}
+          {{#if abilText}}<dt>{{localize "VTM20.NpcGen.Abilities"}}</dt><dd>{{abilText}}</dd>{{/if}}
+          {{#if discText}}<dt>{{localize "VTM20.NpcGen.DiscAnalogs"}}</dt><dd>{{discText}}</dd>{{/if}}
+          <dt>{{localize "VTM20.Willpower"}}{{#if humanity}} · {{localize "VTM20.Humanity"}}{{/if}}</dt>
+          <dd>{{willpower}}{{#if humanity}} · {{humanity}}{{/if}}{{#if poolText}} · {{poolText}}{{/if}}</dd>
+          {{#if health}}<dt>{{localize "VTM20.NpcGen.HealthLevels"}}</dt><dd>{{health}}</dd>{{/if}}
+          {{#if attackText}}<dt>{{localize "VTM20.NpcGen.Attack"}}</dt><dd>{{attackText}}</dd>{{/if}}
+          {{#if bloodText}}<dt>{{localize "VTM20.NpcGen.BloodPool"}}</dt><dd>{{bloodText}}</dd>{{/if}}
+          {{#if swarm}}<dt>{{localize "VTM20.NpcGen.SwarmDamage"}} · {{localize "VTM20.NpcGen.SwarmHealth"}} · {{localize "VTM20.NpcGen.SwarmInit"}}</dt>
+            <dd>{{swarm.damage}} · {{swarm.health}} · {{swarm.initiative}}</dd>{{/if}}
+          {{#if equipment}}<dt>{{localize "VTM20.NpcGen.Equipment"}}</dt><dd>{{equipment}}</dd>{{/if}}
+          {{#each notes}}<dt></dt><dd class="r-muted">{{this}}</dd>{{/each}}
+          {{#if note}}<dt>{{localize "VTM20.NpcGen.Note"}}</dt><dd>{{note}}</dd>{{/if}}
+        </dl>
+      </article>
       {{else}}
-      {{!-- Пусто: подсказка и быстрые варианты вместо голой надписи --}}
-      <div class="r-ng-welcome">
-        <i class="fa-solid fa-users-viewfinder r-ng-welcome-ico"></i>
-        <h3>{{localize "VTM20.NpcGen.WelcomeTitle"}}</h3>
-        <p>{{localize "VTM20.NpcGen.WelcomeText"}}</p>
-        <div class="r-ng-welcome-acts">
-          <a class="r-btn is-accent" data-action="random"><i class="fa-solid fa-dice"></i> {{localize "VTM20.NpcGen.Random"}}</a>
-          {{#each rules}}<a class="r-btn" data-action="pick" data-key="{{key}}"><i class="fa-solid {{icon}}"></i> {{label}}</a>{{/each}}
+      <div class="r-ng-empty"><i class="fa-solid fa-book"></i><p>{{localize "VTM20.NpcGen.PickBook"}}</p></div>
+      {{/with}}
+    {{else if draft}}
+    <article class="r-ng-card">
+      <span class="r-ng-seal" aria-hidden="true"><i class="fa-solid {{draft.kindIcon}}"></i></span>
+      <header class="r-ng-chead">
+        <span class="r-ng-kicker">{{draft.kindLabel}}{{#if draft.roleLabel}} · <i class="fa-solid {{draft.roleIcon}}"></i> {{draft.roleLabel}}{{/if}} · {{draft.powerLabel}}</span>
+        <h3>{{draft.name}}</h3>
+        <span class="r-ng-concept">{{draft.concept}}</span>
+        {{#if draft.tags.length}}<div class="r-ng-tags">{{#each draft.tags}}<span>{{this}}</span>{{/each}}</div>{{/if}}
+        {{#if draft.nature}}<span class="r-ng-src">{{localize "VTM20.NpcGen.Nature"}}: {{draft.nature}} · {{localize "VTM20.NpcGen.Demeanor"}}: {{draft.demeanor}}</span>{{/if}}
+      </header>
+
+      {{#if draft.traits.length}}
+      <div class="r-ng-traits">{{#each draft.traits}}<div><b>{{value}}</b><span>{{label}}</span></div>{{/each}}</div>
+      {{/if}}
+
+      {{#if draft.attrs.length}}
+      <div class="r-ng-attrs">
+        {{#each draft.attrs}}
+        <div class="r-ng-col"><h5>{{label}}</h5>
+          {{#each rows}}<div class="r-ng-dl"><span>{{label}}</span><i class="r-ng-dots">{{#each dots}}<b class="{{#if this}}on{{/if}}"></b>{{/each}}</i></div>{{/each}}
         </div>
+        {{/each}}
       </div>
       {{/if}}
-    </div>
+
+      {{#if draft.abils.length}}
+      <h5 class="r-ng-h5">{{localize "VTM20.NpcGen.Abilities"}}</h5>
+      <div class="r-ng-abils">{{#each draft.abils}}<div class="r-ng-dl"><span>{{label}}</span><i class="r-ng-dots">{{#each dots}}<b class="{{#if this}}on{{/if}}"></b>{{/each}}</i></div>{{/each}}</div>
+      {{/if}}
+
+      {{#if draft.powers.length}}
+      <h5 class="r-ng-h5">{{draft.powersLabel}}</h5>
+      <div class="r-ng-abils is-powers">{{#each draft.powers}}<div class="r-ng-dl"><span>{{label}}{{#if hint}} <small>{{hint}}</small>{{/if}}</span>{{#if dots}}<i class="r-ng-dots">{{#each dots}}<b class="{{#if this}}on{{/if}}"></b>{{/each}}</i>{{/if}}</div>{{/each}}</div>
+      {{/if}}
+
+      {{#if draft.bgs.length}}
+      <h5 class="r-ng-h5">{{localize "VTM20.NpcGen.Backgrounds"}}</h5>
+      <div class="r-ng-abils">{{#each draft.bgs}}<div class="r-ng-dl"><span>{{label}}</span><i class="r-ng-dots">{{#each dots}}<b class="{{#if this}}on{{/if}}"></b>{{/each}}</i></div>{{/each}}</div>
+      {{/if}}
+
+      {{#if draft.text}}<p class="r-ng-text">{{draft.text}}</p><span class="r-ng-src">{{draft.source}}</span>{{/if}}
+    </article>
+    {{/if}}
 
     <footer class="r-ng-foot">
       <label class="r-check"><input type="checkbox" name="open" {{checked s.open}}><span>{{localize "VTM20.NpcGen.Open"}}</span></label>
-      <a class="r-btn is-accent {{#unless preview}}is-off{{/unless}}" data-action="create"><i class="fa-solid fa-user-plus"></i> {{localize "VTM20.NpcGen.Create"}}</a>
+      {{#unless isBook}}<a class="r-btn" data-action="reroll" data-tooltip="{{localize 'VTM20.NpcGen.RerollHint'}}"><i class="fa-solid fa-rotate"></i> {{localize "VTM20.NpcGen.Reroll"}}</a>{{/unless}}
+      <a class="r-btn is-accent {{#unless canCreate}}is-off{{/unless}}" data-action="create"><i class="fa-solid fa-user-plus"></i> {{localize "VTM20.NpcGen.Create"}}{{#if multi}} ×{{s.count}}{{/if}}</a>
     </footer>
-  </section>
+  </aside>
 </div>

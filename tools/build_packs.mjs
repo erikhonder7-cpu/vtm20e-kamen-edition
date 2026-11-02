@@ -593,10 +593,12 @@ BUILDERS["werewolf-rules"] = function () {
     return `<h4>${roman[g.level - 1]}. ${g.name} <small>(${g.en})</small></h4>${line ? `<p><em>${line}</em></p>` : ""}${g.text}`;
   };
   if (w.fera?.length) p.addBook({ name: "Фера — Изменяющиеся", key: "werewolf-rules:fera", pages: w.fera.map(b => {
-    const own = w.gifts.filter(g => g.groups.some(x => x.kind === "fera" && x.key === b.key));
-    const secs = [...new Set(own.map(g => g.groups[0].label))];
+    // свои Дары рода и заимствованные у Гару — по разделу рода (у заимствованных первая группа — гаруская)
+    const lbl = g => g.groups.find(x => x.kind === "fera" && x.key === b.key)?.label ?? "";
+    const own = w.gifts.filter(g => lbl(g));
+    const secs = [...new Set(own.map(lbl))];
     return { name: `${b.name} (${b.en})`, html: `${b.traits}<h2>Формы</h2>${b.formsHtml || `<p>${b.forms.map(f => f.name).join(", ")}</p>`}`
-      + secs.map(s => `<h3>${s.split(": ").slice(1).join(": ") || s}</h3>${own.filter(g => g.groups[0].label === s).sort((x, y) => x.level - y.level).map(giftHtml).join("")}`).join("") };
+      + secs.map(s => `<h3>${s.split(": ").slice(1).join(": ") || s}</h3>${own.filter(g => lbl(g) === s).sort((x, y) => x.level - y.level).map(giftHtml).join("")}`).join("") };
   }) });
   const kinds = [...new Map(w.rites.map(r => [r.kind, r.kindName])).entries()];
   p.addBook({ name: "Ритуалы Гару", key: "werewolf-rules:rites", pages: kinds.map(([k, name]) => ({ name, html: w.rites.filter(r => r.kind === k)

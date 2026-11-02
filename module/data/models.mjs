@@ -603,6 +603,8 @@ export class WerewolfData extends MortalData {
         breed: str("homid"), auspice: str("ragabash"), tribe: str("boneGnawers"), rank: int(1, 0, 6),
         // Фера (W20 Changing Breeds): род («» — Гару); формы рода — data/werewolf.json → fera
         fera: str(""),
+        // выбор внутри рода: порода, аспект/аугурия/путь, племя (Бастет), фракция (Ананаси), Прио (Бастет), варна (Мокол)
+        feraSub: new SchemaField({ breed: str(""), aspect: str(""), tribe: str(""), faction: str(""), pryio: str(""), varna: str("") }),
         renown: new SchemaField({ glory: renown(), honor: renown(), wisdom: renown() }),
         rage: new SchemaField({ permanent: int(1, 0, 10), value: int(1, 0, 20) }),
         gnosis: new SchemaField({ permanent: int(1, 0, 10), value: int(1, 0, 10) }),
@@ -619,18 +621,28 @@ export class WerewolfData extends MortalData {
     };
   }
 
-  /** Данные формы (VTM20.garouForms — доступны при загрузке мира, до справочника). */
   /** Смена рода (Гару ↔ Фера) — в первую, человеческую форму нового рода: старый ключ формы у него не значит ничего. */
   async _preUpdate(changes, options, user) {
     if ((await super._preUpdate(changes, options, user)) === false) return false;
     const fera = foundry.utils.getProperty(changes, "system.werewolf.fera");
-    if (fera === undefined || fera === this.werewolf.fera || foundry.utils.hasProperty(changes, "system.werewolf.form")) return;
+    if (fera === undefined || fera === this.werewolf.fera) return;
+    // выбор внутри рода у нового рода свой
+    if (!foundry.utils.hasProperty(changes, "system.werewolf.feraSub"))
+      foundry.utils.setProperty(changes, "system.werewolf.feraSub", { breed: "", aspect: "", tribe: "", faction: "", pryio: "", varna: "" });
+    if (foundry.utils.hasProperty(changes, "system.werewolf.form")) return;
     const first = fera ? globalThis.game?.vtm20Codex?.werewolf?.fera?.find(b => b.key === fera)?.forms[0]?.key : "homid";
     if (first) foundry.utils.setProperty(changes, "system.werewolf.form", first);
   }
 
+  /** Данные формы (VTM20.garouForms — доступны при загрузке мира, до справочника; формы Фера — из справочника). */
   get formData() {
-    if (this.werewolf.fera) return globalThis.game?.vtm20Codex?.werewolf?.fera?.find(b => b.key === this.werewolf.fera)?.forms.find(f => f.key === this.werewolf.form) ?? null;
+    if (this.werewolf.fera) {
+      const f = globalThis.game?.vtm20Codex?.werewolf?.fera?.find(b => b.key === this.werewolf.fera)?.forms.find(f => f.key === this.werewolf.form);
+      if (!f?.modsBy) return f ?? null;
+      // у Бастет поправки форм — по племени, у Мокол Сухид — по варне
+      const sub = this.werewolf.feraSub ?? {}, k = Object.keys(f.modsBy).find(k => { const [d, o] = k.split(":"); return sub[d] === o; });
+      return k ? { ...f, ...f.modsBy[k] } : f;
+    }
     return VTM20.garouForms.find(f => f.key === this.werewolf.form) ?? null;
   }
 

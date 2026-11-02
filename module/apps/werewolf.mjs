@@ -31,7 +31,9 @@ export function werewolfInfo(actor, dots) {
   const next = rankNeed(w.auspice, w.rank + 1);
   return {
     breed, auspice, tribe, rank: w.rank, rankName: D.rankNames?.[w.rank - 1] ?? "", fera, feraOptions: [{ key: "", label: t("Garou"), selected: !w.fera },
-      ...(D.fera ?? []).map(b => ({ key: b.key, label: b.name, selected: b.key === w.fera }))], packTotem: totemOf(actor), sept: septOf(actor), umbra: umbraOf(actor),
+      ...(D.fera ?? []).map(b => ({ key: b.key, label: b.name, selected: b.key === w.fera }))],
+    feraDims: (fera?.dims ?? []).filter(d => d.options.length).map(d => ({ key: d.key, label: d.label, value: w.feraSub?.[d.key] ?? "",
+      options: d.options.map(o => ({ key: o.key, name: o.name, selected: o.key === w.feraSub?.[d.key] })) })), packTotem: totemOf(actor), sept: septOf(actor), umbra: umbraOf(actor),
     rage: w.rage.value, ragePerm: w.rage.permanent, gnosis: w.gnosis.value, gnosisPerm: w.gnosis.permanent,
     rageDots: dots(w.rage.permanent, 10, { path: "system.werewolf.rage.permanent" }),
     gnosisDots: dots(w.gnosis.permanent, 10, { path: "system.werewolf.gnosis.permanent" }),
@@ -72,7 +74,8 @@ function meetsRank(w, need) {
 /** Свой ли Дар: у Гару — списки породы, аугурии и племени; у Фера — только Дары своего рода. */
 export function ownGift(w, g) {
   if (!w) return false;
-  if (w.fera) return g.groups.some(x => x.kind === "fera" && x.key === w.fera);
+  if (w.fera) return g.groups.some(x => { if (x.kind !== "fera" || x.key !== w.fera || !x.sub) return x.kind === "fera" && x.key === w.fera;
+    const [d, o] = x.sub.split(":"); return w.feraSub?.[d] === o; });
   // у Танцоров Чёрной Спирали племенные Дары — список изгоев blackSpiralDancers
   return g.groups.some(x => (x.kind === "breed" && x.key === w.breed) || (x.kind === "auspice" && x.key === w.auspice)
     || ((x.kind === "tribe" || x.kind === "outsider") && x.key === w.tribe));
@@ -82,7 +85,7 @@ export function ownGift(w, g) {
 export function giftsView(actor) {
   const w = actor.system.werewolf, own = (w.gifts ?? []).map(giftOf).filter(Boolean);
   const mine = g => ownGift(w, g);
-  const label = g => g.groups.map(x => x.kind === "fera" ? x.label : x.kind === "breed" ? byKey(W().breeds, x.key)?.name : x.kind === "auspice" ? byKey(W().auspices, x.key)?.name
+  const label = g => g.groups.filter(x => x.kind !== "fera" || x.key === w.fera).map(x => x.kind === "fera" ? x.label : x.kind === "breed" ? byKey(W().breeds, x.key)?.name : x.kind === "auspice" ? byKey(W().auspices, x.key)?.name
     : x.kind === "tribe" ? byKey(W().tribes, x.key)?.name : t(`Outsider.${x.key}`)).filter(Boolean).join(" · ");
   const rows = own.sort((a, b) => a.level - b.level || a.name.localeCompare(b.name, "ru")).map(g => ({ ...g, own: mine(g), from: label(g),
     pool: g.roll ? poolLabel(actor, g.roll) : "", cost: costText(g.cost) }));

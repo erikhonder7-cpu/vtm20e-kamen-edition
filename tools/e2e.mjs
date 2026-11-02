@@ -1185,6 +1185,31 @@ try {
     if (!/wolf-howl-moon-forest-blue\.webp$/.test(r.img)) throw new Error(`значок: ${r.img}`);
   });
 
+  await check("Генератор НПС: все подвиды, роли, сила; Фера с племенем", async () => {
+    const r = await page.evaluate(async () => {
+      const SYS = game.system.id, B = await import(`/systems/${SYS}/module/apps/npc-build.mjs`), R = await import(`/systems/${SYS}/module/apps/npc-roles.mjs`);
+      const out = { built: 0, errs: [] };
+      for (const k of B.KINDS.filter(k => k.key !== "book")) for (const p of R.POWERS) for (const role of ["", R.ROLES[0].key, R.ROLES.at(-1).key]) {
+        try { const d = B.buildNpc({ kind: k.key, role, power: p.key, params: {} }); B.npcView(d); out.built++; } catch (e) { out.errs.push(`${k.key}/${p.key}: ${e.message}`); }
+      }
+      // выбранное — соблюдается: клан и поколение, племя Бастет и поправки форм по племени
+      const v = B.buildNpc({ kind: "vampire", role: "schemer", power: "veteran", params: { clan: "toreador", generation: "9" } });
+      out.vamp = `${v.system.clan}:${v.system.generation}:${v.roleLabel ? 1 : 0}`;
+      const f = B.buildNpc({ kind: "fera", role: "assassin", power: "normal", params: { fera: "bastet", sub: { tribe: "khan", breed: "feline" } } });
+      const a = await B.createNpc(f, { name: "E2E — Фера НПС" });
+      await a.update({ "flags.world.e2e": true });
+      out.fera = `${a.system.werewolf.fera}:${a.system.werewolf.feraSub.tribe}:${a.system.werewolf.feraSub.breed}`;
+      await a.update({ "system.werewolf.form": "f2" });           // Кринос Хана: Сил +3
+      out.khanCrinos = a.system.formData?.mods?.strength ?? 0;
+      await a.delete();
+      return out;
+    });
+    if (r.errs.length || r.built < 200) throw new Error(`собрано ${r.built}; ошибки: ${r.errs.slice(0, 3).join(" | ")}`);
+    if (r.vamp !== "toreador:9:1") throw new Error(`выбор вампира: ${r.vamp}`);
+    if (r.fera !== "bastet:khan:feline" || r.khanCrinos !== 3) throw new Error(`Фера: ${r.fera}, Кринос Хана Сила +${r.khanCrinos}`);
+    return `${r.built} черновиков`;
+  });
+
   await check("Дампир: витэ гуля, траты, видимость черт", async () => {
     const r = await page.evaluate(async () => {
       const { Codex } = await import(`/systems/${game.system.id}/module/data/codex.mjs`);

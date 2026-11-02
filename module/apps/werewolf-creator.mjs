@@ -6,7 +6,7 @@
 
 import { SYSTEM_ID, VTM20 } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
-import { W } from "./werewolf.mjs";
+import { W, ownGift } from "./werewolf.mjs";
 import { LibraryItems } from "./library.mjs";
 
 const { ApplicationV2 } = foundry.applications.api;
@@ -33,18 +33,46 @@ class GarouCreator extends ApplicationV2 {
     const D = W();
     this.st = { breed: D.breeds[0]?.key ?? "", auspice: D.auspices[0]?.key ?? "", tribe: D.tribes[0]?.key ?? "",
       attr: Object.fromEntries(Object.keys(VTM20.attributes).map(k => [k, 1])), abil: {}, bg: {}, gifts: { breed: "", auspice: "", tribe: "" }, extra: [],
-      rage: 0, gnosis: 0, will: 0, renown: { glory: 0, honor: 0, wisdom: 0 }, traits: [], deform: "" };
+      rage: 0, gnosis: 0, will: 0, renown: { glory: 0, honor: 0, wisdom: 0 }, traits: [], deform: "",
+      // Фера (W20 Changing Breeds): род и выбор внутри рода (порода, аспект, племя…)
+      fera: "", sub: {} };
   }
 
   get D() { return W(); }
   get breed() { return this.D.breeds.find(x => x.key === this.st.breed); }
   get auspice() { return this.D.auspices.find(x => x.key === this.st.auspice); }
   get tribe() { return this.D.tribes.find(x => x.key === this.st.tribe); }
+  get fera() { return this.st.fera ? (this.D.fera ?? []).find(b => b.key === this.st.fera) ?? null : null; }
+  /** Измерения рода, в которых есть выбор. */
+  get dims() { return (this.fera?.dims ?? []).filter(d => d.options.length); }
+  /** Начальные Ярость, Гнозис и Воля: у Фера — по выбранным породе, аспекту, племени, варне, иначе по роду. */
+  get base() {
+    if (!this.fera) return { rage: this.auspice?.rage ?? 1, gnosis: this.breed?.gnosis ?? 1, will: this.tribe?.willpower ?? 3 };
+    const picked = this.dims.map(d => d.options.find(o => o.key === this.st.sub[d.key])).filter(Boolean);
+    const stat = k => picked.find(o => o.stats?.[k] != null)?.stats[k] ?? this.fera.base?.[k];
+    return { rage: stat("rage") ?? 1, gnosis: stat("gnosis") ?? 1, will: stat("will") ?? 3 };
+  }
+  /** Ячейки стартовых Даров: у Гару — порода, аугурия, племя; у Фера — общий список рода и списки выбранного (всего три). */
+  get giftSlots() {
+    if (!this.fera) return ["breed", "auspice", "tribe"].map(k => ({ key: k, label: t(`GiftFrom.${k}`), sub: null }));
+    const D = this.D, f = this.fera.key;
+    const lists = this.dims.filter(d => this.st.sub[d.key] && D.gifts.some(g => g.level === 1 && g.groups.some(x => x.kind === "fera" && x.key === f && x.sub === `${d.key}:${this.st.sub[d.key]}`)))
+      .map(d => ({ key: d.key, label: t("GiftOf", { what: d.label }), sub: `${d.key}:${this.st.sub[d.key]}` }));
+    const general = Array.from({ length: Math.max(1, 3 - lists.length) }, (_, i) => ({ key: `general${i}`, label: t("GiftGeneral"), sub: "" }));
+    return [...general, ...lists];
+  }
+  /** Варианты для ячейки Дара (уровень 1). */
+  slotGifts(slot) {
+    if (slot.sub === null) return ({ breed: this.breed, auspice: this.auspice, tribe: this.tribe }[slot.key]?.startGifts ?? []);
+    const f = this.fera.key;
+    return this.D.gifts.filter(g => g.level === 1 && g.groups.some(x => x.kind === "fera" && x.key === f && (x.sub ?? "") === slot.sub)).map(g => g.key);
+  }
+
   get abilGroups() { return VTM20.abilitiesForEra(game.settings.get(SYSTEM_ID, "era"), "werewolf"); }
 
   /** Слава аугурии: [Слава, Честь, Мудрость]; у Рагабаша — 3 в любом сочетании (выбирает игрок). */
   get renown() {
-    const r = this.auspice?.renown;
+    const r = this.fera ? null : this.auspice?.renown;
     return r ? Object.fromEntries(RENOWN.map((k, i) => [k, r[i] ?? 0])) : { ...this.st.renown };
   }
 
@@ -78,13 +106,17 @@ class GarouCreator extends ApplicationV2 {
   /** Что мешает создать. */
   problems(l = this.ledger()) {
     const p = [];
-    if (!this.breed || !this.auspice || !this.tribe) p.push(t("NeedConcept"));
-    if (!this.st.gifts.breed || !this.st.gifts.auspice || !this.st.gifts.tribe) p.push(t("NeedGifts"));
-    if (this.st.breed === "metis" && !this.st.deform) p.push(t("NeedDeformity"));
-    if (!this.auspice?.renown && RENOWN.reduce((n, k) => n + this.st.renown[k], 0) !== 3) p.push(t("NeedRenown"));
+    if (this.fera) { if (this.dims.some(d => d.key !== "pryio" && !this.st.sub[d.key])) p.push(t("NeedFera")); }
+    else if (!this.breed || !this.auspice || !this.tribe) p.push(t("NeedConcept"));
+    if (this.giftSlots.some(s => !this.st.gifts[s.key])) p.push(this.fera ? t("NeedFeraGifts") : t("NeedGifts"));
+    if (this.isMetis && !this.st.deform) p.push(t("NeedDeformity"));
+    if (!this.renownFixed && RENOWN.reduce((n, k) => n + this.st.renown[k], 0) !== 3) p.push(t("NeedRenown"));
     if (l.remaining < 0) p.push(t("OverFree", { n: -l.remaining }));
     return p;
   }
+
+  get isMetis() { return this.fera ? this.st.sub.breed === "metis" : this.st.breed === "metis"; }
+  get renownFixed() { return !this.fera && !!this.auspice?.renown; }
 
   async _renderHTML() { return this.#html(); }
   _replaceHTML(html, content) {
@@ -97,7 +129,14 @@ class GarouCreator extends ApplicationV2 {
     this.element.addEventListener("change", ev => {
       const el = ev.target, f = el.dataset.f;
       if (!f) return;
-      if (["breed", "auspice", "tribe"].includes(f)) { this.st[f] = el.value; this.st.gifts[f] = ""; }
+      if (f === "fera") { this.st.fera = el.value; this.st.sub = {}; this.st.gifts = {}; this.st.extra = []; this.st.deform = ""; }
+      else if (f.startsWith("sub.")) {
+        this.st.sub[f.slice(4)] = el.value;
+        const slots = this.giftSlots;
+        for (const s of Object.keys(this.st.gifts)) if (!slots.some(x => x.key === s)) delete this.st.gifts[s];
+        for (const s of slots) if (this.st.gifts[s.key] && !this.slotGifts(s).includes(this.st.gifts[s.key])) this.st.gifts[s.key] = "";
+      }
+      else if (["breed", "auspice", "tribe"].includes(f)) { this.st[f] = el.value; this.st.gifts[f] = ""; }
       else if (f.startsWith("gift.")) this.st.gifts[f.slice(5)] = el.value;
       else if (f === "deform") this.st.deform = el.value;
       else if (f === "extraGift" && el.value) this.st.extra = [...new Set([...this.st.extra, el.value])];
@@ -124,15 +163,23 @@ class GarouCreator extends ApplicationV2 {
     const bgs = Codex.backgrounds.filter(b => b.line === "werewolf");
     const bgRows = Object.entries(st.bg).map(([n, v]) => `<div class="r-gcr-row"><span>${esc(VTM20.label(bgs.find(b => b.name === n) ?? { name: n }))}</span>${this.#dots("bg", n, v, 5)}</div>`).join("");
     const traitsAll = Codex.merits.filter(m => m.line === "werewolf");
-    const r = this.renown, base = { rage: this.auspice?.rage ?? 1, gnosis: this.breed?.gnosis ?? 1, will: this.tribe?.willpower ?? 3 };
-    const myLists = [st.breed, st.auspice, st.tribe];
-    const ownLvl1 = D.gifts.filter(g => g.level === 1 && g.groups.some(x => myLists.includes(x.key)) && !Object.values(st.gifts).includes(g.key) && !st.extra.includes(g.key));
+    const r = this.renown, base = this.base, fera = this.fera;
+    const me = fera ? { fera: fera.key, feraSub: st.sub } : { breed: st.breed, auspice: st.auspice, tribe: st.tribe };
+    const ownLvl1 = D.gifts.filter(g => g.level === 1 && ownGift(me, g) && !Object.values(st.gifts).includes(g.key) && !st.extra.includes(g.key));
+    const feraSel = `<label><span>${t("Fera")}</span><select data-f="fera"><option value="">${game.i18n.localize("VTM20.Werewolf.Garou")}</option>${(D.fera ?? []).map(b => `<option value="${b.key}" ${b.key === st.fera ? "selected" : ""}>${esc(b.name)}</option>`).join("")}</select><small>${esc(fera?.en ?? "")}</small></label>`;
+    const deformSel = this.isMetis ? `<label><span>${t("Deformity")}</span><select data-f="deform"><option value=""></option>${opt(D.deformities ?? [], st.deform)}</select><small>${(D.deformities ?? []).find(x => x.key === st.deform)?.text ?? ""}</small></label>` : "";
+    const statLine = o => Object.entries(o?.stats ?? {}).map(([k, n]) => `${t(`T.${k}`)} ${n}`).join(", ");
+    const concept = fera
+      ? feraSel + this.dims.map(d => `<label><span>${esc(d.label)}</span><select data-f="sub.${d.key}"><option value="">—</option>${d.options.map(o => `<option value="${o.key}" ${o.key === st.sub[d.key] ? "selected" : ""}>${esc(o.name)}</option>`).join("")}</select>
+          <small>${esc(statLine(d.options.find(o => o.key === st.sub[d.key])))}</small></label>`).join("") + deformSel
+      : null;
     return `<div class="r-gcr-wrap"><div class="r-gcr-body">
       <section class="r-gcr-concept">
+        ${concept ?? `${feraSel}
         <label><span>${t("Breed")}</span><select data-f="breed">${opt(D.breeds, st.breed)}</select><small>${this.breed?.notes ?? ""}</small></label>
-        ${st.breed === "metis" ? `<label><span>${t("Deformity")}</span><select data-f="deform"><option value=""></option>${opt(D.deformities ?? [], st.deform)}</select><small>${(D.deformities ?? []).find(x => x.key === st.deform)?.text ?? ""}</small></label>` : ""}
+        ${deformSel}
         <label><span>${t("Auspice")}</span><select data-f="auspice">${opt(D.auspices, st.auspice)}</select><small>${esc(this.auspice?.role ?? "")}</small></label>
-        <label><span>${t("Tribe")}</span><select data-f="tribe">${opt(D.tribes, st.tribe)}</select><small>${esc(t("TribeLine", { totem: this.tribe?.totem ?? "", bg: this.tribe?.backgrounds ?? "" }))}</small></label>
+        <label><span>${t("Tribe")}</span><select data-f="tribe">${opt(D.tribes, st.tribe)}</select><small>${esc(t("TribeLine", { totem: this.tribe?.totem ?? "", bg: this.tribe?.backgrounds ?? "" }))}</small></label>`}
       </section>
       <h3>${t("Attributes")} <small>${t("AttrHint")}</small></h3><div class="r-gcr-cols">${attrs}</div>
       <h3>${t("Abilities")} <small>${t("AbilHint")}</small></h3><div class="r-gcr-cols">${abils}</div>
@@ -140,7 +187,7 @@ class GarouCreator extends ApplicationV2 {
         <div><h3>${t("Backgrounds")} ${left("bg")}</h3>${bgRows}
           <select data-f="addBg"><option value="">${t("AddBg")}</option>${bgs.filter(b => !(b.name in st.bg)).map(b => `<option value="${esc(b.name)}">${esc(VTM20.label(b))}</option>`).join("")}</select></div>
         <div><h3>${t("Gifts")}</h3>
-          ${["breed", "auspice", "tribe"].map(k => `<label class="r-gcr-gift"><span>${t(`GiftFrom.${k}`)}</span><select data-f="gift.${k}">${giftOpts({ breed: this.breed, auspice: this.auspice, tribe: this.tribe }[k]?.startGifts ?? [], st.gifts[k])}</select></label>`).join("")}
+          ${this.giftSlots.map(s => `<label class="r-gcr-gift"><span>${esc(s.label)}</span><select data-f="gift.${s.key}">${giftOpts(this.slotGifts(s).filter(k => k === st.gifts[s.key] || !Object.values(st.gifts).includes(k)), st.gifts[s.key])}</select></label>`).join("")}
           ${st.extra.map(k => `<div class="r-gcr-row"><span><i class="fa-solid fa-star"></i> ${esc(VTM20.label(D.gifts.find(g => g.key === k) ?? { name: k }))}</span><a data-action="untrait" data-gift="${k}"><i class="fa-solid fa-xmark"></i></a></div>`).join("")}
           <select data-f="extraGift"><option value="">${t("ExtraGift")}</option>${ownLvl1.map(g => `<option value="${g.key}">${esc(VTM20.label(g))}</option>`).join("")}</select></div>
       </div>
@@ -148,8 +195,8 @@ class GarouCreator extends ApplicationV2 {
         <div><h3>${t("Traits")}</h3>
           ${[["rage", base.rage, 10], ["gnosis", base.gnosis, 10], ["will", base.will, 10]].map(([k, b, m]) => `<div class="r-gcr-row"><span>${t(`T.${k}`)} <small>${t("Base", { n: b })}</small></span>
             <a class="r-gcr-step" data-action="step" data-k="${k}" data-d="-1">−</a><b>${b + st[k]}</b><a class="r-gcr-step" data-action="step" data-k="${k}" data-d="1">+</a></div>`).join("")}
-          <h4>${t("Renown")} <small>${esc(this.auspice?.renownText ?? "")}</small></h4>
-          ${RENOWN.map(k => `<div class="r-gcr-row"><span>${game.i18n.localize(`VTM20.Werewolf.Renown.${k}`)}</span>${this.auspice?.renown ? `<b>${r[k]}</b>` : this.#dots("renown", k, st.renown[k], 3)}</div>`).join("")}
+          <h4>${t("Renown")} <small>${esc(fera ? t("FeraRenown") : this.auspice?.renownText ?? "")}</small></h4>
+          ${RENOWN.map(k => `<div class="r-gcr-row"><span>${game.i18n.localize(`VTM20.Werewolf.Renown.${k}`)}</span>${this.renownFixed ? `<b>${r[k]}</b>` : this.#dots("renown", k, st.renown[k], 3)}</div>`).join("")}
         </div>
         <div><h3>${t("MeritsFlaws")}</h3>
           ${st.traits.map((x, i) => `<div class="r-gcr-row"><span class="${x.kind === "flaw" ? "is-flaw" : ""}">${esc(x.name)}</span><b>${x.kind === "flaw" ? "+" : "−"}${x.cost}</b><a data-action="untrait" data-i="${i}"><i class="fa-solid fa-xmark"></i></a></div>`).join("")}
@@ -177,7 +224,7 @@ class GarouCreator extends ApplicationV2 {
     this.render();
   }
   static #onStep(ev, el) {
-    const k = el.dataset.k, base = { rage: this.auspice?.rage ?? 1, gnosis: this.breed?.gnosis ?? 1, will: this.tribe?.willpower ?? 3 }[k];
+    const k = el.dataset.k, base = this.base[k];
     this.st[k] = Math.clamp(this.st[k] + Number(el.dataset.d), 0, 10 - base);
     this.render();
   }
@@ -192,13 +239,14 @@ class GarouCreator extends ApplicationV2 {
     const probs = this.problems();
     if (probs.length) return ui.notifications.warn(probs[0]);
     const st = this.st, a = this.actor, r = this.renown;
-    const rage = (this.auspice?.rage ?? 1) + st.rage, gnosis = (this.breed?.gnosis ?? 1) + st.gnosis, will = (this.tribe?.willpower ?? 3) + st.will;
+    const b = this.base, rage = b.rage + st.rage, gnosis = b.gnosis + st.gnosis, will = b.will + st.will, fera = this.fera;
     const upd = {
       "system.werewolf.breed": st.breed, "system.werewolf.auspice": st.auspice, "system.werewolf.tribe": st.tribe, "system.werewolf.rank": 1,
-      "system.werewolf.form": st.breed === "lupus" ? "lupus" : st.breed === "metis" ? "crinos" : "homid",
+      "system.werewolf.form": fera ? fera.forms[0]?.key ?? "homid" : st.breed === "lupus" ? "lupus" : st.breed === "metis" ? "crinos" : "homid",
+      "system.werewolf.fera": st.fera, "system.werewolf.feraSub": { breed: "", aspect: "", tribe: "", faction: "", pryio: "", varna: "", ...st.sub },
       "system.werewolf.rage": { permanent: rage, value: rage }, "system.werewolf.gnosis": { permanent: gnosis, value: gnosis },
       "system.werewolf.gifts": [...Object.values(st.gifts), ...st.extra].filter(Boolean),
-      "system.werewolf.deformities": st.breed === "metis" && st.deform ? [st.deform] : [],
+      "system.werewolf.deformities": this.isMetis && st.deform ? [st.deform] : [],
       "system.werewolf.renown": Object.fromEntries(RENOWN.map(k => [k, { permanent: r[k], temporary: 0 }])),
       "system.willpower.permanent": will, "system.willpower.temporary": will
     };

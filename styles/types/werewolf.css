@@ -488,7 +488,7 @@ body.r-theme-light .vtm20 .r-sn-btn, body.r-theme-light .vtm20 .r-sn-text { back
 .vtm20.r-type-werewolf .r-ww-fera { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; margin: 2px 0 10px; padding: 6px 10px;
   border: 1px solid color-mix(in srgb, var(--r-gold, #b08d57) 35%, transparent); border-radius: 4px; background: color-mix(in srgb, var(--r-gold, #b08d57) 6%, transparent); }
 .vtm20.r-type-werewolf .r-ww-fera-pick { display: flex; align-items: center; gap: 8px; font-variant: small-caps; letter-spacing: .04em; }
-.vtm20.r-type-werewolf .r-ww-fera-pick select { min-width: 160px; }
+.vtm20.r-type-werewolf .r-ww-fera-pick select { min-width: 130px; }
 .vtm20.r-type-werewolf .r-ww-fera-facts { flex: 1 1 100%; display: grid; grid-template-columns: max-content 1fr; gap: 2px 10px; margin: 0; font-size: .92em; }
 .vtm20.r-type-werewolf .r-ww-fera-facts dt { font-weight: 700; opacity: .85; }
 .vtm20.r-type-werewolf .r-ww-fera-facts dd { margin: 0; }

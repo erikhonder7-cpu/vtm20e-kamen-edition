@@ -1,24 +1,24 @@
 // module/apps/npc-gen.mjs
 // Генератор НПС для рассказчика.
 //
-//   · Статблоки V20, гл. 9 «Иные» (data/npc.json, tools/build_npc.py): охотники, преступники,
-//     оборотни, маги, феи, призраки, демоны, звери и рои. Люди — лист смертного, прочие —
-//     лист существа: «аналоги Дисциплин» ложатся Дисциплинами, атаки зверей — оружием,
-//     а всё, чего на листе нет (уровни здоровья зверя, гнозис, чары, пафос), — в заметки.
-//     Навыки в [скобках] книги — только у дрессированных: отдельная галочка.
-//     Зверя можно сделать гулем: воля, Мощь 1 и 2 пункта крови (гл. 9).
-//   · Сородич и гуль «по правилам создания» (гл. 01 и 07): характеристики 7/5/3 (у гуля 6/4/3),
-//     способности 13/9/5 (11/7/4) не выше 3, три точки клановых Дисциплин (у гуля Мощь 1 и
-//     точка Дисциплины домитора), 5 точек фактов биографии, 7 точек Добродетелей; Человечность =
-//     Совесть + Самоконтроль, воля = Смелость. Свободные пункты не тратятся — их добавит рассказчик.
-//
-// Снаряжение — оружие и броня из заготовок (data/equipment.mjs); список из книги — в заметках.
-// Имена — наборы data/npc.json → names. Все созданные — в папку «НПС».
+//   · Слева — кто: Сородич, гуль, ревенант, дампир; смертный, праведник, охотник; Гару, Фера, Родня, Ками, фомор, дух;
+//     падший, Привязанный, слуга; статблоки книги (охотники, преступники, звери, рои — V20, гл. 9).
+//   · В середине — какой: выбор подвида (клан, поколение, секта; порода, аугурия, племя; кредо; Дом…; «случайно» — сам),
+//     роль и её специализация (во что вложены точки и какие силы предпочтены — module/apps/npc-roles.mjs), уровень силы.
+//   · Справа — досье черновика: ровно этот НПС и будет создан; «Перебросить» — другой с теми же условиями.
+// Сборка по правилам создания линеек — module/apps/npc-build.mjs. Имена — наборы data/npc.json → names. Всё — в папку «НПС».
 
 import { VTM20, SYSTEM_PATH, SYSTEM_ID } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
 import { WEAPON_PRESETS, ARMOR_PRESETS } from "../data/equipment.mjs";
 import { LibraryItems } from "./library.mjs";
+import { weaponIcon, armorIcon } from "../data/icons.mjs";
+import { makeExtra } from "./extras.mjs";
+import { REVENANT_FAMILIES } from "../data/revenants.mjs";
+import { W as WW } from "./werewolf.mjs";
+import { H as HH } from "./hunter.mjs";
+import { ROLES, ROLE_GROUPS, POWERS, roleOf, lab } from "./npc-roles.mjs";
+import { KINDS, KIND_GROUPS, kindOf, buildNpc, npcView, createNpc } from "./npc-build.mjs";
 
 const { HandlebarsApplicationMixin, ApplicationV2 } = foundry.applications.api;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -26,17 +26,16 @@ const L = (k, d) => t(`NpcGen.${k}`, d);
 const loc = k => game.i18n.localize(k);
 const pick = list => list[Math.floor(Math.random() * list.length)];
 const esc = s => foundry.utils.escapeHTML(String(s ?? ""));
-const shuffle = list => { const a = [...list]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const ICON = type => `systems/${SYSTEM_ID}/assets/icons/${type}.svg`;
-import { weaponIcon, armorIcon, traitIcon, backgroundIcon } from "../data/icons.mjs";
-import { makeExtra } from "./extras.mjs";
-const COMMON_DISCIPLINES = ["animalism", "auspex", "celerity", "dominate", "fortitude", "obfuscate", "potence", "presence"];
+const norm = x => String(x ?? "").toLowerCase().replace(/ё/g, "е");
 
 let DATA = null;
 async function data() {
   DATA ??= await fetch(`${SYSTEM_PATH}/data/npc.json`).then(r => r.json());
   return DATA;
 }
+/** Статблоки книги, которые остаются в генераторе: люди и звери; оборотни и падшие — полноценными листами, магов, фей и призраков пока нет. */
+const BOOK_GROUPS = ["hunters", "criminals", "animals", "swarms"];
 
 /** Случайное имя из набора: «Имя Фамилия»; у русских женская фамилия согласуется. */
 export function randomName(set, gender = "") {
@@ -44,90 +43,6 @@ export function randomName(set, gender = "") {
   let last = pick(set.last);
   if (set.femLast && g === "f") last = last.endsWith("ий") ? last.replace(/ий$/, "ая") : `${last}а`;
   return `${pick(set[g])} ${last}`;
-}
-
-/** Разложить n точек по ключам: к базе base, не выше cap. */
-function spread(keys, n, base, cap) {
-  const out = Object.fromEntries(keys.map(k => [k, base]));
-  let left = n, guard = 500;
-  while (left > 0 && guard--) {
-    const k = pick(keys);
-    if (out[k] < cap) { out[k]++; left--; }
-  }
-  return out;
-}
-
-/* ── Генерация по правилам создания ───────────────────────────────────── */
-
-/** Характеристики, способности, Добродетели, факты биографии по приоритетам книги. */
-function rollTraits({ attrs, abils, ugly = false, type = "vampire" }) {
-  const era = game.settings.get(SYSTEM_ID, "era");
-  const attributes = {};
-  shuffle(Object.keys(VTM20.attributeGroups)).forEach((g, i) => {
-    const keys = VTM20.attributeGroups[g].attributes.filter(k => !(ugly && k === "appearance"));
-    Object.assign(attributes, spread(keys, attrs[i], 1, 5));
-  });
-  if (ugly) attributes.appearance = 0;
-  const groups = VTM20.abilitiesForEra(era);
-  const abilities = {};
-  shuffle(Object.keys(groups)).forEach((g, i) => Object.assign(abilities, spread(groups[g], abils[i], 0, 3)));
-  // Добродетели: у каждой изначально 1, ещё 7 точек (01)
-  const virtues = spread(["conscience", "selfControl", "courage"], 7, 1, 5);
-  // Факты биографии: 5 точек на 2–3 факта
-  // «Поколение» не разыгрываем: его задаёт рассказчик в окне
-  const pool = shuffle(Codex.backgrounds.filter(b => !b.sabbat && b.en !== "Generation" && Codex.visible(b) && VTM20.backgroundAllowed(b, type))).slice(0, 2 + Math.floor(Math.random() * 2));
-  const backgrounds = spread(pool.map(b => b.name), 5 - pool.length, 1, 5);
-  return { attributes, abilities, virtues, backgrounds };
-}
-
-function systemFromTraits(tr) {
-  return {
-    attributes: Object.fromEntries(Object.entries(tr.attributes).map(([k, v]) => [k, { value: v }])),
-    abilities: Object.fromEntries(Object.entries(tr.abilities).map(([k, v]) => [k, { value: v }])),
-    virtues: Object.fromEntries(Object.entries(tr.virtues).map(([k, v]) => [k, { value: v }])),
-    morality: { path: "humanity", value: tr.virtues.conscience + tr.virtues.selfControl },
-    willpower: { permanent: tr.virtues.courage, temporary: tr.virtues.courage },
-    details: { nature: pick(Codex.archetypes).name, demeanor: pick(Codex.archetypes).name }
-  };
-}
-
-function backgroundItems(tr) {
-  return Object.entries(tr.backgrounds).map(([name, v]) => LibraryItems.background(Codex.backgrounds.find(b => b.name === name), v));
-}
-
-/** Дисциплины клана; у каитифов и без списка — восемь общих (02). */
-function clanDisciplines(clanKey, choice = "") {
-  const c = Codex.clan(clanKey);
-  const list = [...(c?.disciplines ?? [])];
-  if (c?.choice?.length) list.push(choice || pick(c.choice));
-  return list.length ? list : COMMON_DISCIPLINES;
-}
-
-async function createRuleVampire({ name, folder, clan, generation }) {
-  const tr = rollTraits({ attrs: [7, 5, 3], abils: [13, 9, 5], ugly: VTM20.uglyClans.includes(clan) });
-  const disc = spread(clanDisciplines(clan), 3, 0, 3);
-  const pool = VTM20.generationOf(generation).pool;
-  const system = { ...systemFromTraits(tr), clan, generation, blood: { value: Math.min(pool, Math.ceil(Math.random() * 10)) } };
-  system.details.concept = L("RuleVampireConcept", { clan: Codex.clan(clan)?.name ?? clan });
-  const a = await Actor.create({ name, type: "vampire", folder, img: ICON("vampire"), system, flags: { [SYSTEM_ID]: { created: true } } });
-  await a.createEmbeddedDocuments("Item", [
-    ...Object.entries(disc).filter(([, v]) => v > 0).map(([k, v]) => LibraryItems.discipline(k, v)),
-    ...backgroundItems(tr)
-  ]);
-  return a;
-}
-
-async function createRuleGhoul({ name, folder, clan }) {
-  const tr = rollTraits({ attrs: [6, 4, 3], abils: [11, 7, 4], type: "ghoul" });
-  // Мощь 1 бесплатно + точка Дисциплины домитора (вассал, гл. 07)
-  const second = pick(clanDisciplines(clan));
-  const disc = { potence: 1 };
-  disc[second] = (disc[second] ?? 0) + 1;
-  const system = { ...systemFromTraits(tr), ghoulType: "vassal", domitorClan: Codex.clan(clan)?.name ?? "", blood: { value: 1, max: 2 } };
-  system.details.concept = L("RuleGhoulConcept", { clan: Codex.clan(clan)?.name ?? clan });
-  const a = await Actor.create({ name, type: "ghoul", folder, img: ICON("ghoul"), system, flags: { [SYSTEM_ID]: { created: true } } });
-  await a.createEmbeddedDocuments("Item", [...Object.entries(disc).map(([k, v]) => LibraryItems.discipline(k, v)), ...backgroundItems(tr)]);
-  return a;
 }
 
 /* ── Статблоки книги ───────────────────────────────────────────────────── */
@@ -175,7 +90,6 @@ async function createFromTemplate(tpl, { name, folder, trained = false, ghoul = 
   if (tpl.swarm) items.push({ name: L("SwarmAttack"), type: "weapon", img: ICON("weapon"),
     system: { kind: "brawl", damage: tpl.swarm.damage, strength: false, damageType: "lethal", difficulty: 6 } });
   items.push(...gear);
-
   let type = tpl.kind;
   if (ghoul) {
     // Зверь-гуль: воля, Мощь 1, 2 пункта крови (гл. 9)
@@ -192,18 +106,82 @@ async function createFromTemplate(tpl, { name, folder, trained = false, ghoul = 
   return a;
 }
 
-/* ── Окно ──────────────────────────────────────────────────────────────── */
+/* ── Выбор подвида: поля «случайно / …» ─────────────────────────────────── */
 
-const RULE_TEMPLATES = [
-  { key: "rule:vampire", name: "RuleVampire", icon: "fa-droplet" },
-  { key: "rule:ghoul", name: "RuleGhoul", icon: "fa-hand-holding-droplet" }
-];
+const opt = (value, label, cur) => ({ value, label, selected: String(value) === String(cur ?? "") });
+const any = cur => opt("", L("AnyPick"), cur);
+
+/** Поля выбора для подвида: [{ name, label, options | groups }]. */
+function paramFields(kind, p) {
+  const F = [];
+  const D = WW(), Dh = Codex.dhampir ?? { clans: {}, concepts: [] };
+  const clanField = label => ({ name: "clan", label, groups: Codex.clanGroups().map(g => ({ label: g.label,
+    options: g.clans.filter(c => Codex.visible(c)).map(c => opt(c.key, c.name, p.clan)) })).filter(g => g.options.length), lead: [any(p.clan)] });
+  switch (kind) {
+    case "vampire":
+      F.push(clanField(L("Clan")));
+      F.push({ name: "generation", label: L("Generation"), options: [opt("", L("GenByPower"), p.generation),
+        ...Object.keys(VTM20.generations).map(Number).filter(g => g >= 4).sort((a, b) => a - b).map(g => opt(g, t("GenerationN", { n: g }), p.generation))] });
+      F.push({ name: "sect", label: L("Sect"), options: [any(p.sect), ...["camarilla", "sabbat", "anarchs", "independent", "autarkis"].map(s => opt(s, loc(`VTM20.Sect.${s}`), p.sect))] });
+      break;
+    case "ghoul":
+      F.push({ name: "ghoulType", label: L("GhoulKind"), options: [any(p.ghoulType), ...["vassal", "independent"].map(k => opt(k, loc(`VTM20.GhoulType.${k}`), p.ghoulType))] });
+      F.push(clanField(L("DomitorClan")));
+      break;
+    case "revenant":
+      F.push({ name: "family", label: L("Family"), options: [any(p.family), ...Object.entries(REVENANT_FAMILIES).map(([k, f]) => opt(k, `${f.name} — ${f.nick}`, p.family))] });
+      break;
+    case "dhampir":
+      F.push({ name: "clan", label: L("Antecedent"), options: [any(p.clan), ...Object.keys(Dh.clans ?? {}).map(k => opt(k, Codex.clanName(k), p.clan))] });
+      F.push({ name: "concept", label: L("DhConcept"), options: [any(p.concept), ...(Dh.concepts ?? []).map(c => opt(c.key, c.name, p.concept))] });
+      break;
+    case "hunter":
+      F.push({ name: "creed", label: L("Creed"), options: [any(p.creed), ...HH().creeds.filter(c => c.key !== "bystander").map(c => opt(c.key, c.name, p.creed))] });
+      break;
+    case "garou":
+      F.push({ name: "breed", label: L("Breed"), options: [any(p.breed), ...D.breeds.map(x => opt(x.key, x.name, p.breed))] });
+      F.push({ name: "auspice", label: L("Auspice"), options: [any(p.auspice), ...D.auspices.map(x => opt(x.key, x.name, p.auspice))] });
+      F.push({ name: "tribe", label: L("Tribe"), options: [any(p.tribe), ...D.tribes.map(x => opt(x.key, x.name, p.tribe))] });
+      break;
+    case "fera": {
+      F.push({ name: "fera", label: L("FeraKind"), options: [any(p.fera), ...(D.fera ?? []).map(b => opt(b.key, b.name, p.fera))] });
+      const fera = (D.fera ?? []).find(b => b.key === p.fera);
+      for (const d of (fera?.dims ?? []).filter(d => d.options.length))
+        F.push({ name: `sub.${d.key}`, label: d.label, options: [any(p.sub?.[d.key]), ...d.options.map(o => opt(o.key, o.name, p.sub?.[d.key]))] });
+      break;
+    }
+    case "kinfolk":
+      F.push({ name: "tribe", label: L("Tribe"), options: [any(p.tribe), ...D.tribes.map(x => opt(x.key, x.name, p.tribe))] });
+      break;
+    case "kami":
+      F.push({ name: "kami", label: L("KamiForm"), options: [any(p.kami), ...["human", "animal", "plant"].map(k => opt(k, loc(`VTM20.Werewolf.Kami.form.${k}`), p.kami))] });
+      break;
+    case "fomor":
+      F.push({ name: "fomor", label: L("FomorBreed"), options: [any(p.fomor), ...(D.fomori?.breeds ?? []).map(b => opt(b.key, b.name, p.fomor))] });
+      break;
+    case "spirit": {
+      const kinds = [...new Set((D.spirits ?? []).map(s => s.kind))];
+      F.push({ name: "spiritKind", label: L("SpiritKind"), options: [any(p.spiritKind), ...kinds.map(k => opt(k, loc(`VTM20.Werewolf.Spirit.kind.${k}`), p.spiritKind))] });
+      F.push({ name: "spirit", label: L("SpiritTpl"), options: [any(p.spirit), ...(D.spirits ?? []).filter(s => !p.spiritKind || s.kind === p.spiritKind).map(s => opt(s.key, s.name, p.spirit))] });
+      break;
+    }
+    case "demon": case "earthbound":
+      F.push({ name: "house", label: L("House"), options: [any(p.house), ...Codex.houses.map(h => opt(h.key, h.name, p.house))] });
+      F.push({ name: "faction", label: L("Faction"), options: [any(p.faction), ...Codex.factions.map(f => opt(f.key, f.name, p.faction))] });
+      break;
+  }
+  return F;
+}
+
+/* ── Окно ──────────────────────────────────────────────────────────────── */
 
 export class NpcGenerator extends HandlebarsApplicationMixin(ApplicationV2) {
   constructor(options = {}) {
     super(options);
-    this.ng = { template: "", count: 1, as: "sheet", names: "fr", gender: "", name: "", open: true, trained: false, ghoul: false,
-      clan: "brujah", generation: 13, extra: [], search: "" };
+    this.ng = { kind: "vampire", role: "", sub: "", power: "normal", params: {}, count: 1, as: "sheet", names: "fr", gender: "", name: "", open: true,
+      template: "", trained: false, ghoul: false, search: "", extra: [] };
+    this.draft = null;
+    this.draftName = "";
   }
 
   static DEFAULT_OPTIONS = {
@@ -211,30 +189,46 @@ export class NpcGenerator extends HandlebarsApplicationMixin(ApplicationV2) {
     classes: ["vtm20", "r-npc-gen"],
     tag: "form",
     window: { title: "VTM20.NpcGen.Title", icon: "fa-solid fa-users-viewfinder", resizable: true },
-    position: { width: 940, height: 760 },
+    position: { width: 1180, height: 820 },
     form: { handler: NpcGenerator.#onForm, submitOnChange: true, closeOnSubmit: false },
     actions: {
-      pick: NpcGenerator.#onPick, random: NpcGenerator.#onRandom, rollName: NpcGenerator.#onRollName,
+      kind: NpcGenerator.#onKind, role: NpcGenerator.#onRole, sub: NpcGenerator.#onSub, power: NpcGenerator.#onPower,
+      reroll: NpcGenerator.#onReroll, surprise: NpcGenerator.#onSurprise, pick: NpcGenerator.#onPick, rollName: NpcGenerator.#onRollName,
       create: NpcGenerator.#onCreate, gearAdd: NpcGenerator.#onGearAdd, gearDrop: NpcGenerator.#onGearDrop
     }
   };
 
-  static PARTS = { body: { template: `${SYSTEM_PATH}/templates/apps/npc-gen.hbs`, scrollable: [".r-ng-list", ".r-ng-preview"] } };
+  static PARTS = { body: { template: `${SYSTEM_PATH}/templates/apps/npc-gen.hbs`, scrollable: [".r-ng-rail", ".r-ng-build", ".r-ng-dossier"] } };
 
-  get template() { return DATA?.templates.find(x => x.key === this.ng.template) ?? null; }
-  get rule() { return this.ng.template.startsWith("rule:") ? this.ng.template.slice(5) : null; }
+  get isBook() { return this.ng.kind === "book"; }
+  get template() { return this.isBook ? DATA?.templates.find(x => x.key === this.ng.template) ?? null : null; }
+
+  /** Черновик по текущим условиям (пересобирается, когда условия меняются). */
+  #ensureDraft() {
+    if (this.isBook || this.draft) return;
+    const s = this.ng;
+    try {
+      this.draft = buildNpc({ kind: s.kind, role: s.role, sub: s.sub, power: s.power, params: s.params });
+    } catch (err) {
+      console.error(err);
+      this.draft = null;
+      ui.notifications.error(L("BuildFailed"));
+      return;
+    }
+    this.draftName = this.draft.spirit ? this.draft.name : randomName(DATA.names[s.names], s.gender);
+  }
+  #reset() { this.draft = null; }
 
   _onRender(context, options) {
     super._onRender?.(context, options);
-    // Поиск по шаблонам — без перерисовки
     const input = this.element.querySelector("[data-ng-search]");
     if (!input) return;
     const apply = () => {
-      const q = input.value.trim().toLowerCase().replace(/ё/g, "е");
+      const q = norm(input.value.trim());
       this.ng.search = input.value;
-      for (const g of this.element.querySelectorAll(".r-ng-group")) {
+      for (const g of this.element.querySelectorAll(".r-ng-bgroup")) {
         let any = false;
-        for (const a of g.querySelectorAll(".r-ng-item")) { const hit = !q || a.dataset.s.includes(q); a.hidden = !hit; any ||= hit; }
+        for (const a of g.querySelectorAll(".r-ng-bitem")) { const hit = !q || a.dataset.s.includes(q); a.hidden = !hit; any ||= hit; }
         g.hidden = !any;
       }
     };
@@ -246,54 +240,54 @@ export class NpcGenerator extends HandlebarsApplicationMixin(ApplicationV2) {
   async _prepareContext() {
     const D = await data();
     await Codex.load();
-    const s = this.ng, tpl = this.template, rule = this.rule;
-    const attrLabel = k => loc(VTM20.attributes[k].label);
-    const abilLabel = k => loc(VTM20.abilities[k]?.label ?? k);
-    let preview = null;
-    if (tpl) {
-      const abil = { ...(tpl.abilities ?? {}) };
-      if (s.trained) for (const [k, v] of Object.entries(tpl.trained ?? {})) if ((abil[k]?.value ?? 0) < v.value) abil[k] = v;
-      preview = {
-        ...tpl, groupLabel: D.groups.find(g => g.key === tpl.group)?.label ?? "",
-        attrs: tpl.attributes ? Object.entries(VTM20.attributeGroups).map(([g, grp]) => ({
-          label: loc(grp.label),
-          list: grp.attributes.filter(k => k in tpl.attributes).map(k => `${attrLabel(k)} ${tpl.attributes[k]}`).join(", ")
-        })).filter(x => x.list) : null,
-        abilText: Object.entries(abil).map(([k, v]) => `${abilLabel(k)}${v.specialty ? ` (${v.specialty})` : ""} ${v.value}`).join(", "),
-        trainedText: Object.entries(tpl.trained ?? {}).map(([k, v]) => `${abilLabel(k)} ${v.value}`).join(", "),
-        discText: Object.entries(tpl.disciplines ?? {}).map(([k, v]) => `${Codex.disciplineLabel(k)} ${v}`).join(", "),
-        poolText: tpl.pool ? `${tpl.pool.name} ${tpl.pool.value ?? "—"}` : "",
-        isAnimal: tpl.group === "animals",
-        typeLabel: loc(`TYPES.Actor.${tpl.kind}`)
-      };
-    } else if (rule) {
-      const vamp = rule === "vampire";
-      preview = {
-        rule, name: L(vamp ? "RuleVampire" : "RuleGhoul"), groupLabel: L("ByRules"),
-        ruleText: L(vamp ? "RuleVampireText" : "RuleGhoulText"),
-        clanDiscs: clanDisciplines(s.clan).map(k => Codex.disciplineLabel(k)).join(", "),
-        typeLabel: loc(`TYPES.Actor.${vamp ? "vampire" : "ghoul"}`)
-      };
+    this.#ensureDraft();
+    const s = this.ng, kind = kindOf(s.kind), role = roleOf(s.role);
+    const kinds = KIND_GROUPS.map(g => ({ ...g, label: lab(`KindGroup.${g.key}`, g.label),
+      items: KINDS.filter(k => k.group === g.key).map(k => ({ ...k, label: lab(`Kind.${k.key}`, k.label), active: k.key === s.kind })) }));
+    const roleGroups = ROLE_GROUPS.map(g => ({ ...g, label: lab(`RoleGroup.${g.key}`, g.label),
+      roles: ROLES.filter(r => r.group === g.key).map(r => ({ key: r.key, icon: r.icon, label: lab(`Role.${r.key}`, r.label), active: r.key === s.role })) }));
+    const subs = role ? role.subs.map(x => ({ key: x.key, label: lab(`Sub.${x.key}`, x.label), active: x.key === s.sub })) : [];
+    const powers = POWERS.map(p => ({ key: p.key, icon: p.icon, label: lab(`Power.${p.key}`, p.label), active: p.key === s.power }));
+
+    // статблоки книги
+    let book = null;
+    if (this.isBook) {
+      const tpl = this.template;
+      const attrLabel = k => loc(VTM20.attributes[k].label), abilLabel = k => loc(VTM20.abilities[k]?.label ?? k);
+      let preview = null;
+      if (tpl) {
+        const abil = { ...(tpl.abilities ?? {}) };
+        if (s.trained) for (const [k, v] of Object.entries(tpl.trained ?? {})) if ((abil[k]?.value ?? 0) < v.value) abil[k] = v;
+        preview = {
+          ...tpl, groupLabel: D.groups.find(g => g.key === tpl.group)?.label ?? "",
+          attrs: tpl.attributes ? Object.entries(VTM20.attributeGroups).map(([g, grp]) => ({ label: loc(grp.label),
+            list: grp.attributes.filter(k => k in tpl.attributes).map(k => `${attrLabel(k)} ${tpl.attributes[k]}`).join(", ") })).filter(x => x.list) : null,
+          abilText: Object.entries(abil).map(([k, v]) => `${abilLabel(k)}${v.specialty ? ` (${v.specialty})` : ""} ${v.value}`).join(", "),
+          trainedText: Object.entries(tpl.trained ?? {}).map(([k, v]) => `${abilLabel(k)} ${v.value}`).join(", "),
+          discText: Object.entries(tpl.disciplines ?? {}).map(([k, v]) => `${Codex.disciplineLabel(k)} ${v}`).join(", "),
+          poolText: tpl.pool ? `${tpl.pool.name} ${tpl.pool.value ?? "—"}` : "",
+          isAnimal: tpl.group === "animals", typeLabel: loc(`TYPES.Actor.${tpl.kind}`)
+        };
+      }
+      book = { preview, total: D.templates.filter(x => BOOK_GROUPS.includes(x.group)).length, source: D.source,
+        groups: D.groups.filter(g => BOOK_GROUPS.includes(g.key)).map(g => ({ ...g, items: D.templates.filter(x => x.group === g.key).map(x => ({
+          key: x.key, name: x.name, active: x.key === s.template, s: norm(`${g.label} ${x.name}`) })) })) };
     }
-    // value — номер в полном списке; снаряжение Тёмных веков — только с настройкой «Контент из Dark Ages»
+
+    const d = this.draft;
     const presetOpts = (list, cat) => [...new Set(list.filter(p => Codex.visible(p)).map(p => p.group))].map(g => ({
       label: g, options: list.map((p, i) => ({ value: `${cat}:${i}`, label: p.name, group: p.group, show: Codex.visible(p) })).filter(p => p.group === g && p.show)
     }));
-    const norm = x => x.toLowerCase().replace(/ё/g, "е");
     return {
-      s, preview,
-      rules: RULE_TEMPLATES.map(r => ({ ...r, label: L(r.name), active: r.key === s.template })),
-      groups: D.groups.map(g => ({ ...g, items: D.templates.filter(x => x.group === g.key).map(x => ({
-        key: x.key, name: x.name, active: x.key === s.template, s: norm(`${g.label} ${x.name}`) })) })),
+      s, kinds, kind: { ...kind, label: lab(`Kind.${kind.key}`, kind.label) }, roleGroups, subs, role: role ? { key: role.key, label: lab(`Role.${role.key}`, role.label) } : null,
+      powers, isBook: this.isBook, isSpirit: s.kind === "spirit", book, fields: this.isBook ? [] : paramFields(s.kind, s.params),
+      draft: d ? { ...npcView(d), name: s.name.trim() || this.draftName, kindLabel: d.kindLabel, kindIcon: d.kindIcon, roleLabel: d.roleLabel, roleIcon: d.roleIcon,
+        subLabel: d.subLabel, powerLabel: d.powerLabel, concept: d.concept } : null,
       nameSets: Object.entries(D.names).map(([k, n]) => ({ value: k, label: n.label, selected: k === s.names })),
-      genders: [{ value: "", label: L("GenderAny") }, { value: "m", label: L("GenderM") }, { value: "f", label: L("GenderF") }]
-        .map(o => ({ ...o, selected: o.value === s.gender })),
-      clanGroups: Codex.clanGroups().map(g => ({ ...g, clans: g.clans.map(c => ({ key: c.key, name: c.name, selected: c.key === s.clan })) })),
-      generations: Object.keys(VTM20.generations).map(Number).filter(g => g >= 8).sort((a, b) => a - b)
-        .map(g => ({ value: g, label: t("GenerationN", { n: g }), selected: g === s.generation })),
+      genders: [{ value: "", label: L("GenderAny") }, { value: "m", label: L("GenderM") }, { value: "f", label: L("GenderF") }].map(o => ({ ...o, selected: o.value === s.gender })),
       weaponGroups: presetOpts(WEAPON_PRESETS, "w"), armorGroups: presetOpts(ARMOR_PRESETS, "a"),
       extra: s.extra.map((k, i) => ({ i, label: this.#preset(k)?.name ?? "" })),
-      total: D.templates.length, source: D.source
+      canCreate: this.isBook ? !!this.template : !!d, multi: s.count > 1
     };
   }
 
@@ -303,35 +297,69 @@ export class NpcGenerator extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   static #onForm(event, form, formData) {
-    const o = formData.object;
-    for (const k of ["names", "gender", "name", "clan", "as"]) if (o[k] !== undefined) this.ng[k] = String(o[k]);
-    if (o.generation !== undefined) this.ng.generation = Number(o.generation) || 13;
-    if (o.count !== undefined) this.ng.count = Math.clamp(Number(o.count) || 1, 1, 10);
-    if (o.open !== undefined) this.ng.open = !!o.open;
-    let rerender = o.clan !== undefined;
-    for (const k of ["trained", "ghoul"]) if (o[k] !== undefined && !!o[k] !== this.ng[k]) { this.ng[k] = !!o[k]; rerender = true; }
-    if (rerender) this.render();
+    const o = formData.object, s = this.ng;
+    let rebuild = false, rerender = false;
+    for (const [k, v] of Object.entries(o)) {
+      if (!k.startsWith("p.")) continue;
+      const key = k.slice(2), val = String(v ?? "");
+      if (key.startsWith("sub.")) { s.params.sub ??= {}; if ((s.params.sub[key.slice(4)] ?? "") !== val) { s.params.sub[key.slice(4)] = val; rebuild = true; } }
+      else if ((s.params[key] ?? "") !== val) {
+        s.params[key] = val; rebuild = true;
+        if (key === "fera") s.params.sub = {};
+        if (key === "spiritKind") s.params.spirit = "";
+      }
+    }
+    if (o.names !== undefined && o.names !== s.names) { s.names = String(o.names); rerender = true; if (this.draft && !this.draft.spirit) this.draftName = randomName(DATA.names[s.names], s.gender); }
+    if (o.gender !== undefined && o.gender !== s.gender) { s.gender = String(o.gender); rerender = true; if (this.draft && !this.draft.spirit) this.draftName = randomName(DATA.names[s.names], s.gender); }
+    if (o.name !== undefined) s.name = String(o.name);
+    if (o.as !== undefined) s.as = String(o.as);
+    if (o.count !== undefined) s.count = Math.clamp(Number(o.count) || 1, 1, 20);
+    if (o.open !== undefined) s.open = !!o.open;
+    for (const k of ["trained", "ghoul"]) if (o[k] !== undefined && !!o[k] !== s[k]) { s[k] = !!o[k]; rerender = true; }
+    if (rebuild) this.#reset();
+    if (rebuild || rerender) this.render();
+  }
+  static #onKind(event, target) {
+    const k = target.dataset.kind;
+    if (k === this.ng.kind) return;
+    Object.assign(this.ng, { kind: k, params: {}, template: "", trained: false, ghoul: false });
+    this.#reset(); this.render();
+  }
+  static #onRole(event, target) { const r = target.dataset.role ?? ""; this.ng.role = this.ng.role === r ? "" : r; this.ng.sub = ""; this.#reset(); this.render(); }
+  static #onSub(event, target) { const x = target.dataset.sub ?? ""; this.ng.sub = this.ng.sub === x ? "" : x; this.#reset(); this.render(); }
+  static #onPower(event, target) { this.ng.power = target.dataset.power; this.#reset(); this.render(); }
+  static #onReroll() { this.#reset(); this.render(); }
+  /** «Удиви меня»: случайный подвид, роль и сила (статблоки — случайный). */
+  static #onSurprise() {
+    const s = this.ng;
+    if (this.isBook) { s.template = pick(DATA.templates.filter(x => BOOK_GROUPS.includes(x.group))).key; this.render(); return; }
+    s.role = pick(ROLES).key; s.sub = ""; s.power = pick(POWERS.slice(1, 4)).key;
+    this.#reset(); this.render();
   }
   static #onPick(event, target) {
     if (this.ng.template !== target.dataset.key) { this.ng.trained = false; this.ng.ghoul = false; }
     this.ng.template = target.dataset.key;
     this.render();
   }
-  static #onRandom() { this.ng.template = pick(DATA.templates).key; this.ng.trained = false; this.ng.ghoul = false; this.render(); }
-  static #onRollName() { this.ng.name = randomName(DATA.names[this.ng.names], this.ng.gender); this.render(); }
+  static #onRollName() {
+    if (this.isBook) { this.ng.name = randomName(DATA.names[this.ng.names], this.ng.gender); this.render(); return; }
+    this.ng.name = "";
+    this.draftName = randomName(DATA.names[this.ng.names], this.ng.gender);
+    this.render();
+  }
   static #onGearAdd(event, target) {
     const sel = this.element.querySelector(`select[data-gear="${target.dataset.cat}"]`);
     if (sel?.value) { this.ng.extra.push(sel.value); this.render(); }
   }
   static #onGearDrop(event, target) { this.ng.extra.splice(Number(target.dataset.i), 1); this.render(); }
 
-  /** Создать столько НПС, сколько просили; имя — введённое (для первого) или случайное. */
+  /** Создать: первый — ровно показанный черновик, остальные — новые с теми же условиями. */
   static async #onCreate() {
-    const tpl = this.template, rule = this.rule;
-    if (!tpl && !rule) return ui.notifications.warn(L("PickFirst"));
+    const s = this.ng, tpl = this.template;
+    if (this.isBook ? !tpl : !this.draft) return ui.notifications.warn(L("PickFirst"));
     const folder = game.folders.find(f => f.type === "Actor" && f.name === L("Folder"))
       ?? await Folder.create({ name: L("Folder"), type: "Actor", color: "#4a0d11" });
-    const gear = this.ng.extra.map(ref => {
+    const gear = s.extra.map(ref => {
       const p = this.#preset(ref);
       if (!p) return null;
       const { name, group, ...system } = p;
@@ -340,25 +368,30 @@ export class NpcGenerator extends HandlebarsApplicationMixin(ApplicationV2) {
     }).filter(Boolean);
     const beast = tpl && ["animals", "swarms"].includes(tpl.group);
     const made = [];
-    // толпа (план 4): один актёр на всех, численность — «Сколько»; статист — короткий лист у каждого
-    const mob = this.ng.as === "mob" && this.ng.count > 1, times = mob ? 1 : this.ng.count;
+    // толпа: один актёр на всех, численность — «Сколько»; статист — короткий лист у каждого
+    const mob = s.as === "mob" && s.count > 1, times = mob ? 1 : s.count;
     for (let i = 0; i < times; i++) {
-      const typed = i === 0 && this.ng.name.trim();
-      const name = typed || (beast ? (this.ng.count > 1 ? `${tpl.name} ${i + 1}` : tpl.name) : randomName(DATA.names[this.ng.names], this.ng.gender));
-      const o = { name, folder: folder.id };
+      const typed = i === 0 && s.name.trim();
       let actor;
-      if (rule === "vampire") actor = await createRuleVampire({ ...o, clan: this.ng.clan, generation: this.ng.generation });
-      else if (rule === "ghoul") actor = await createRuleGhoul({ ...o, clan: this.ng.clan });
-      else actor = await createFromTemplate(tpl, { ...o, trained: this.ng.trained, ghoul: this.ng.ghoul && tpl.group === "animals", gear });
-      if (rule && gear.length) await actor.createEmbeddedDocuments("Item", gear);
-      if (mob) await actor.update({ name: typed || tpl?.name || actor.name });
-      if (mob || this.ng.as === "extra") await makeExtra(actor, { mob: mob ? this.ng.count : 0 });
+      if (this.isBook) {
+        const name = typed || (beast ? (s.count > 1 ? `${tpl.name} ${i + 1}` : tpl.name) : randomName(DATA.names[s.names], s.gender));
+        actor = await createFromTemplate(tpl, { name, folder: folder.id, trained: s.trained, ghoul: s.ghoul && tpl.group === "animals", gear });
+      } else {
+        const d = i === 0 ? this.draft : buildNpc({ kind: s.kind, role: s.role, sub: s.sub, power: s.power, params: s.params });
+        const name = typed || (i === 0 ? this.draftName : d.spirit ? `${d.name} ${i + 1}` : randomName(DATA.names[s.names], s.gender));
+        actor = await createNpc(d, { name, folder: folder.id });
+        if (gear.length) await actor.createEmbeddedDocuments("Item", gear);
+      }
+      if (!actor) continue;
+      if (mob) await actor.update({ name: typed || tpl?.name || this.draft?.concept || actor.name });
+      if (mob || s.as === "extra") await makeExtra(actor, { mob: mob ? s.count : 0 });
       made.push(actor);
     }
-    ui.notifications.info(L("Done", { n: made.length, name: tpl?.name ?? L(rule === "vampire" ? "RuleVampire" : "RuleGhoul") }));
-    this.ng.name = "";
+    ui.notifications.info(L("Done", { n: made.length, name: tpl?.name ?? this.draft?.concept ?? "" }));
+    s.name = "";
+    this.#reset();
     this.render();
-    if (this.ng.open && made.length === 1) made[0].sheet.render({ force: true });
+    if (s.open && made.length === 1) made[0].sheet.render({ force: true });
   }
 }
 

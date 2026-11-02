@@ -5,6 +5,10 @@
   <div class="r-ww-fera {{#if werewolfInfo.fera}}is-fera{{/if}}">
     <label class="r-ww-fera-pick"><span>{{localize "VTM20.Werewolf.FeraKind"}}</span>
       <select {{#unless editable}}disabled{{/unless}} name="system.werewolf.fera">{{#each werewolfInfo.feraOptions}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+    {{#each werewolfInfo.feraDims}}
+    <label class="r-ww-fera-pick"><span>{{label}}</span>
+      <select {{#unless @root.editable}}disabled{{/unless}} name="system.werewolf.feraSub.{{key}}"><option value="">—</option>{{#each options}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
+    {{/each}}
     {{#if werewolfInfo.fera}}
     <dl class="r-ww-fera-facts">{{#each werewolfInfo.fera.facts}}<dt>{{@key}}</dt><dd>{{{this}}}</dd>{{/each}}</dl>
     <details class="r-ww-fera-more"><summary>{{localize "VTM20.Werewolf.FeraTraits"}}</summary>
