@@ -1121,10 +1121,18 @@ try {
       await a.update({ "system.werewolf.form": "homid" });
       out.soakHomid = ["bashing", "lethal"].map(k => a.soakPool(k)).join("/");
       out.xp = [a.xpCost("rage", 5), a.xpCost("gnosis", 3), a.xpCost("gift", 0, { level: 2, own: true }), a.xpCost("gift", 0, { level: 2, own: false })].join(",");
+      // Фера (Changing Breeds): род Корвы — первая форма, Кринос рода (+3 Восприятие), свои Дары — только рода
+      const per0 = a.system.attributes.perception.total;
+      await a.update({ "system.werewolf.fera": "corax" }); const feraForm = a.system.werewolf.form;
+      await a.update({ "system.werewolf.form": "f1" });
+      const feraOwn = WW.giftsView(a).avail.every(g => WW.W().gifts.find(x => x.key === g.key)?.groups.some(x => x.kind === "fera" && x.key === "corax"));
+      out.fera = `${feraForm}:${a.system.formData?.name}:${a.system.attributes.perception.total - per0}:${feraOwn}`;
+      await a.update({ "system.werewolf.fera": "" }); out.feraBack = a.system.werewolf.form;
       return out;
     }, id);
     if (r.giftEntries < 300 || r.riteEntries < 50 || r.gifts !== 2 || r.rites !== 1) throw new Error(`библиотека: Даров ${r.giftEntries}, ритуалов ${r.riteEntries}, взято ${r.gifts}/${r.rites}`);
     if (r.wwTraits < 119 || r.wwBackgrounds !== 12) throw new Error(`черты Гару: ${r.wwTraits}, Факты: ${r.wwBackgrounds}`);
+    if (r.fera !== "f0:Кринос:3:true" || r.feraBack !== "homid") throw new Error(`Фера: ${r.fera}, назад в Гару — ${r.feraBack}`);
     if (r.xp !== "5,6,6,10") throw new Error(`цены опыта Гару (Ярость, Гнозис, Дар свой/чужой): ${r.xp}`);
     if (r.soak !== "5/5/5 0" || r.soakHomid !== "2/0") throw new Error(`прочность Гару: Кринос ${r.soak}, Хомид ${r.soakHomid}`);
     if (r.natural !== "bite:aggravated,claw:aggravated") throw new Error(`когти и укус Криноса: ${r.natural}`);

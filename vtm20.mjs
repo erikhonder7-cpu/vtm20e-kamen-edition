@@ -194,6 +194,8 @@ Hooks.once("ready", async () => {
   Codex.loadTexts();
   // черты апокалиптической формы считаются по справочнику — пересчитать падших в форме, загруженных до него
   for (const a of game.actors.filter(x => x.type === "demon" && x.system.apocalyptic)) a.reset();
+  // и Фера: поправки их форм тоже из справочника
+  for (const a of game.actors.filter(x => x.type === "werewolf" && x.system.werewolf?.fera)) a.reset();
   // до миграции: она запишет новую версию, а старый мир узнаём по старой
   if (await keepParis()) return;
   await migrateWorld();

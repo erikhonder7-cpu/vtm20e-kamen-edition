@@ -130,10 +130,6 @@
       {{#each werewolfInfo.gnosisTemp}}<a class="r-box {{#if filled}}is-filled{{/if}} {{#if locked}}is-locked{{/if}}" data-action="setDots" data-path="{{path}}" data-n="{{n}}"></a>{{/each}}
     </div>
     <div class="r-vc-tools">
-      <a class="r-vc-btn" data-action="wwFrenzy" data-tooltip="{{localize 'VTM20.Werewolf.FrenzyHint'}}"><i class="fa-solid fa-fire"></i> {{localize "VTM20.Werewolf.Frenzy"}}</a>
-      <a class="r-vc-btn" data-action="wwStep" data-tooltip="{{localize 'VTM20.Werewolf.StepHint'}}"><i class="fa-solid fa-moon-over-sun"></i> {{localize "VTM20.Werewolf.StepSideways"}}</a>
-      <a class="r-vc-btn" data-action="wwActions" data-tooltip="{{localize 'VTM20.Werewolf.ActionsHint'}}"><i class="fa-solid fa-bolt"></i> {{localize "VTM20.Werewolf.Actions"}}</a>
-      <a class="r-vc-btn" data-action="wwRegen" data-tooltip="{{localize 'VTM20.Werewolf.RegenHint'}}"><i class="fa-solid fa-heart-pulse"></i> {{localize "VTM20.Werewolf.Regen"}}</a>
       <a class="r-vc-btn {{#if werewolfInfo.umbra}}is-umbra{{/if}}" data-action="wwUmbra" data-tooltip="{{#if werewolfInfo.umbra}}{{werewolfInfo.umbra.name}}{{else}}{{localize 'VTM20.Umbra.Title'}}{{/if}}"><i class="fa-solid fa-moon"></i>{{#if werewolfInfo.umbra}} {{werewolfInfo.umbra.name}}{{/if}}</a>
       <a class="r-vc-btn" data-action="wwSept" data-tooltip="{{#if werewolfInfo.sept}}{{werewolfInfo.sept.name}}{{#each werewolfInfo.sept.posts}} · {{name}}{{/each}}{{else}}{{localize 'VTM20.Sept.Title'}}{{/if}}"><i class="fa-solid fa-campground"></i>{{#if werewolfInfo.sept.posts.length}} {{werewolfInfo.sept.posts.0.name}}{{/if}}</a>
       {{#if werewolfInfo.packTotem.totem}}<span class="r-vc-hint" data-tooltip="{{werewolfInfo.packTotem.pack}}: {{werewolfInfo.packTotem.totem.individual}}"><i class="fa-solid fa-feather-pointed"></i> {{werewolfInfo.packTotem.totem.name}}</span>{{/if}}

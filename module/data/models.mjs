@@ -589,6 +589,8 @@ export class WerewolfData extends MortalData {
       ...super.defineSchema(),
       werewolf: new SchemaField({
         breed: str("homid"), auspice: str("ragabash"), tribe: str("boneGnawers"), rank: int(1, 0, 6),
+        // Фера (W20 Changing Breeds): род («» — Гару); формы рода — data/werewolf.json → fera
+        fera: str(""),
         renown: new SchemaField({ glory: renown(), honor: renown(), wisdom: renown() }),
         rage: new SchemaField({ permanent: int(1, 0, 10), value: int(1, 0, 20) }),
         gnosis: new SchemaField({ permanent: int(1, 0, 10), value: int(1, 0, 10) }),
@@ -604,7 +606,19 @@ export class WerewolfData extends MortalData {
   }
 
   /** Данные формы (VTM20.garouForms — доступны при загрузке мира, до справочника). */
-  get formData() { return VTM20.garouForms.find(f => f.key === this.werewolf.form) ?? null; }
+  /** Смена рода (Гару ↔ Фера) — в первую, человеческую форму нового рода: старый ключ формы у него не значит ничего. */
+  async _preUpdate(changes, options, user) {
+    if ((await super._preUpdate(changes, options, user)) === false) return false;
+    const fera = foundry.utils.getProperty(changes, "system.werewolf.fera");
+    if (fera === undefined || fera === this.werewolf.fera || foundry.utils.hasProperty(changes, "system.werewolf.form")) return;
+    const first = fera ? globalThis.game?.vtm20Codex?.werewolf?.fera?.find(b => b.key === fera)?.forms[0]?.key : "homid";
+    if (first) foundry.utils.setProperty(changes, "system.werewolf.form", first);
+  }
+
+  get formData() {
+    if (this.werewolf.fera) return globalThis.game?.vtm20Codex?.werewolf?.fera?.find(b => b.key === this.werewolf.fera)?.forms.find(f => f.key === this.werewolf.form) ?? null;
+    return VTM20.garouForms.find(f => f.key === this.werewolf.form) ?? null;
+  }
 
   prepareDerivedData() {
     super.prepareDerivedData();

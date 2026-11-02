@@ -587,6 +587,17 @@ BUILDERS["werewolf-rules"] = function () {
       return `<h3>${roman[g.level - 1]}. ${g.name} <small>(${g.en})</small></h3>${line ? `<p><em>${line}</em></p>` : ""}${g.text}`;
     }).join("") }));
   p.addBook({ name: "Дары Гару", pages, key: "werewolf-rules:gifts" });
+  // Фера (W20 Changing Breeds): по странице на род — черты, формы, Дары по разделам рода
+  const giftHtml = g => {
+    const line = [roll(g.roll), cost(g.cost) && `цена: ${cost(g.cost)}`].filter(Boolean).join(" · ");
+    return `<h4>${roman[g.level - 1]}. ${g.name} <small>(${g.en})</small></h4>${line ? `<p><em>${line}</em></p>` : ""}${g.text}`;
+  };
+  if (w.fera?.length) p.addBook({ name: "Фера — Изменяющиеся", key: "werewolf-rules:fera", pages: w.fera.map(b => {
+    const own = w.gifts.filter(g => g.groups.some(x => x.kind === "fera" && x.key === b.key));
+    const secs = [...new Set(own.map(g => g.groups[0].label))];
+    return { name: `${b.name} (${b.en})`, html: `${b.traits}<h2>Формы</h2>${b.formsHtml || `<p>${b.forms.map(f => f.name).join(", ")}</p>`}`
+      + secs.map(s => `<h3>${s.split(": ").slice(1).join(": ") || s}</h3>${own.filter(g => g.groups[0].label === s).sort((x, y) => x.level - y.level).map(giftHtml).join("")}`).join("") };
+  }) });
   const kinds = [...new Map(w.rites.map(r => [r.kind, r.kindName])).entries()];
   p.addBook({ name: "Ритуалы Гару", key: "werewolf-rules:rites", pages: kinds.map(([k, name]) => ({ name, html: w.rites.filter(r => r.kind === k)
     .sort((a, b) => a.level - b.level).map(r => {

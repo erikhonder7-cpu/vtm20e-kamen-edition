@@ -83,6 +83,8 @@ export const Codex = {
   },
 
   _index() {
+    // формы Фера нужны модели актёра (formData) — даём справочник без импорта, чтобы не завязывать модели на него
+    if (globalThis.game) game.vtm20Codex = this;
     // черты гулей и ревенантов (Ghouls & Revenants) — в конце общего списка: номера прежних черт не сдвигаются
     this.merits = [...this.merits, ...(this["merits-ghouls"] ?? []).map(m => ({ ...m, ghoul: true }))];
     // черты и Дополнения демонов — своей линией (VTM20.traitLine) в самом конце, по той же причине

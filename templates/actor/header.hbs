@@ -97,8 +97,14 @@
           <select name="system.werewolf.breed">{{#each werewolfInfo.breeds}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
         <label class="r-df" data-tooltip="{{werewolfInfo.auspice.role}}"><span>{{localize "VTM20.Werewolf.Auspice"}}</span>
           <select name="system.werewolf.auspice">{{#each werewolfInfo.auspices}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+        {{#if werewolfInfo.fera}}
+        {{!-- Фера (W20 Changing Breeds): вместо племени Гару — род; вернуть Гару — в этом же списке --}}
+        <label class="r-df is-wide" data-tooltip="{{werewolfInfo.fera.en}}"><span>{{localize "VTM20.Werewolf.FeraKind"}}</span>
+          <select name="system.werewolf.fera">{{#each werewolfInfo.feraOptions}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+        {{else}}
         <label class="r-df is-wide" data-tooltip="{{localize 'VTM20.Werewolf.Totem'}}: {{werewolfInfo.tribe.totem}}"><span>{{localize "VTM20.Werewolf.Tribe"}}</span>
           <select name="system.werewolf.tribe">{{#each werewolfInfo.tribes}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+        {{/if}}
         {{!-- Ранг — узким полем; Слава — в подсказке; щелчок — окно правки Славы и Ранга (apps/werewolf.mjs, editStanding) --}}
         <a class="r-df is-narrow r-ww-standing {{#if werewolfInfo.canRank}}is-ready{{/if}}" {{#if editable}}data-action="wwStanding"{{/if}}
            data-tooltip="{{#each werewolfInfo.standing}}{{label}} {{perm}}{{#if temp}} (+{{temp}}){{/if}}{{#unless @last}} · {{/unless}}{{/each}}{{#if werewolfInfo.nextRank}}<br>{{localize 'VTM20.Werewolf.NextRank'}}: {{werewolfInfo.nextRank}}{{/if}}">
@@ -186,13 +192,20 @@
       <a class="r-act" data-action="rollInitiative" data-tooltip="{{localize 'VTM20.Sheet.Initiative'}}"><i class="fa-solid fa-bolt"></i><span>{{localize "VTM20.Sheet.Initiative"}}</span><b>{{system.initiative}}</b></a>
       <a class="r-act is-minor" data-action="takeDamage" data-tooltip="{{localize 'VTM20.Sheet.TakeDamageShort'}}"><i class="fa-solid fa-heart-crack"></i><span>{{localize "VTM20.Sheet.TakeDamageShort"}}</span></a>
       <a class="r-act is-minor" data-action="hazard" data-tooltip="{{localize 'VTM20.Hazard.Title'}}"><i class="fa-solid fa-triangle-exclamation"></i><span>{{localize "VTM20.Hud.Hazard"}}</span></a>
+      {{#if isWerewolf}}
+      {{!-- Гару: действия боя и превращения — наверху; Умбра, септ, Слава и Бред — на вкладке шкал у Ярости и Гнозиса --}}
+      <a class="r-act" data-action="wwActions" data-tooltip="{{localize 'VTM20.Werewolf.ActionsHint'}}"><i class="fa-solid fa-forward-fast"></i><span>{{localize "VTM20.Werewolf.Actions"}}</span></a>
+      <a class="r-act is-minor" data-action="wwRegen" data-tooltip="{{localize 'VTM20.Werewolf.RegenHint'}}"><i class="fa-solid fa-heart-pulse"></i><span>{{localize "VTM20.Werewolf.Regen"}}</span></a>
+      <a class="r-act is-minor" data-action="wwStep" data-tooltip="{{localize 'VTM20.Werewolf.StepHint'}}"><i class="fa-solid fa-circle-half-stroke"></i><span>{{localize "VTM20.Werewolf.StepSideways"}}</span></a>
+      {{/if}}
       {{#if weaknessCheck}}<a class="r-act" data-action="rollVirtue" data-kind="weakness" data-tooltip="{{weaknessCheck}}"><i class="fa-solid fa-dice-d10"></i><span>{{weaknessCheck}}</span></a>{{/if}}
       <span class="r-acts-spacer"></span>
       {{#if isDemon}}<a class="r-act is-hot" data-action="tormentSin" data-tooltip="{{localize 'VTM20.Demon.SinHint'}}"><i class="fa-solid fa-skull"></i><span>{{localize "VTM20.Demon.Sin"}}</span></a>{{/if}}
-      {{#unless isDemon}}<a class="r-act is-hot" data-action="rollVirtue" data-kind="frenzy" data-tooltip="{{localize 'VTM20.Roll.frenzy.title'}}"><i class="fa-solid fa-face-angry"></i><span>{{localize "VTM20.Roll.frenzy.title"}}</span></a>{{/unless}}
+      {{#if isWerewolf}}<a class="r-act is-hot" data-action="wwFrenzy" data-tooltip="{{localize 'VTM20.Werewolf.FrenzyHint'}}"><i class="fa-solid fa-fire"></i><span>{{localize "VTM20.Werewolf.Frenzy"}}</span></a>{{/if}}
+      {{#unless (or isDemon isWerewolf)}}<a class="r-act is-hot" data-action="rollVirtue" data-kind="frenzy" data-tooltip="{{localize 'VTM20.Roll.frenzy.title'}}"><i class="fa-solid fa-face-angry"></i><span>{{localize "VTM20.Roll.frenzy.title"}}</span></a>{{/unless}}
       {{#if isVampire}}<a class="r-act is-hot" data-action="diablerie" data-tooltip="{{localize 'VTM20.Diablerie.Title'}}"><i class="fa-solid fa-skull"></i><span>{{localize "VTM20.Diablerie.Short"}}</span></a>{{/if}}
       {{#if isGhoul}}<a class="r-act is-hot" data-action="rollVirtue" data-kind="rapture" data-tooltip="{{localize 'VTM20.Roll.rapture.hint'}}"><i class="fa-solid fa-heart-pulse"></i><span>{{localize "VTM20.Roll.rapture.title"}}</span></a>{{/if}}
-      {{#unless (or isMortal isDemon isDhampir)}}<a class="r-act is-hot" data-action="rollVirtue" data-kind="rotschreck" data-tooltip="{{localize 'VTM20.Roll.rotschreck.title'}}"><i class="fa-solid fa-fire"></i><span>{{localize "VTM20.Roll.rotschreck.title"}}</span></a>{{/unless}}
+      {{#unless (or isMortal isDemon isDhampir isWerewolf)}}<a class="r-act is-hot" data-action="rollVirtue" data-kind="rotschreck" data-tooltip="{{localize 'VTM20.Roll.rotschreck.title'}}"><i class="fa-solid fa-fire"></i><span>{{localize "VTM20.Roll.rotschreck.title"}}</span></a>{{/unless}}
     </nav>
     {{/unless}}
   </div>

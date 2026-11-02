@@ -889,12 +889,123 @@ def parse_supp_mech(core_rites, core_fetishes, core_merits):
     return rites, fetishes, merits
 
 
+# Фера (W20 Changing Breeds): род, формы (таблица поправок Атрибутов), черты рода, справка (бешенство, регенерация, уязвимость,
+# шаг в сторону, Бред), Дары рода — в общий список Даров с группой {kind: "fera", key: род, label: «Род: раздел»}
+FERA_ATTR = {"Сил": "strength", "Лов": "dexterity", "Сто": "stamina", "Ман": "manipulation", "Внеш": "appearance", "Воспр": "perception",
+             "Хар": "charisma", "Сооб": "wits", "Инт": "intelligence"}
+
+
+def fera_forms(text):
+    part = ""
+    m = re.search(r"\n## Формы[^\n]*\n(.*?)(?=\n## )", text, re.S)
+    if m:
+        part = m.group(1)
+    forms, cols = [], []
+    for line in part.splitlines():
+        if not line.startswith("|") or set(line) <= set("|-: "):
+            continue
+        c = [x.strip() for x in line.strip().strip("|").split("|")]
+        if c[0] == "Форма":
+            cols = [FERA_ATTR.get(x.split()[0] if x else x) for x in c[1:]]; continue
+        if not any(cols):          # таблица не про поправки (у Мокол — виды-варны) — пропустить
+            continue
+        name, en = name_en(c[0])
+        mods, setv = {}, {}
+        for k, v in zip(cols, c[1:]):
+            if not k: continue
+            v = v.replace("−", "-").strip()
+            if re.fullmatch(r"[+-]\d+", v): mods[k] = int(v)
+            elif v == "0" and k == "appearance": setv[k] = 0
+        forms.append({"key": re.sub(r"[^a-z0-9]+", "-", (en or name).lower()).strip("-") or f"f{len(forms)}", "name": name, "en": en, "mods": mods, "set": setv})
+    if not forms:   # формы строкой в «Чертах»: «- Формы: Хомид, Анфрос, Кринос (…), …»
+        m = re.search(r"^- Формы:\s*(.+)$", text, re.M)
+        if m:
+            line = re.sub(r"\([^)]*\)", "", m.group(1)).split(";")[0]
+            for i, raw in enumerate(line.split(",")):
+                name = raw.strip().rstrip(".").strip()
+                if name:
+                    forms.append({"key": f"f{i}", "name": name, "en": "", "mods": {}, "set": {}})
+    if not forms and part:          # формы только словами (Мокол: Хомид, Архид, Сухид)
+        names = []
+        for n in re.findall(r"(Хомид|[А-ЯЁ][а-яё]+ид)\b", part):
+            if n not in names:
+                names.append(n)
+        forms = [{"key": f"f{i}", "name": n, "en": "", "mods": {}, "set": {}} for i, n in enumerate(names)]
+    return forms, md_html(part.splitlines()) if part else ""
+
+
+def fera_gifts(text, fkey, fname, taken):
+    out = []
+    for m in re.finditer(r"\n## ([^\n]*Дар[^\n]*)\n(.*?)(?=\n## |\Z)", text, re.S):
+        sec, body = m.group(1).strip(), m.group(2)
+        label, level = sec, 0
+        for line in body.splitlines():
+            h = re.match(r"^###\s+(.+)$", line)
+            if h:
+                label = f"{sec} — {h.group(1).strip()}"; level = 0; continue
+            lv = re.match(r"^\*\*Ур\.\s*(\d+):\*\*", line) or re.match(r"^#+\s*Уровень\s*(\d+)", line)
+            if lv:
+                level = int(lv.group(1))
+            for g in re.finditer(r"\*\*([^*()]+?)\s*\(([^()]+)\)\*\*\s*—\s*(.*?)(?=;\s*\*\*|$)", line):
+                name, en, rest = g.group(1).strip(), g.group(2).strip(), g.group(3).strip()
+                lvl = level
+                il = re.search(r"ур\.\s*(\d+)", rest[:40])
+                if not lvl and il: lvl = int(il.group(1))
+                if not lvl: continue
+                key = f"{fkey}-" + re.sub(r"[^a-z0-9]+", "-", en.lower()).strip("-")
+                if key in taken: continue
+                taken.add(key)
+                out.append({"key": key, "name": name, "en": en, "level": lvl, "groups": [{"kind": "fera", "key": fkey, "label": f"{fname}: {re.sub(r'^Дары\\s*', '', label) or label}"}],
+                            "teacher": "", "roll": roll_of(rest), "cost": cost_of(rest), "text": f"<p>{md_inline(rest)}</p>", "source": "W20 Changing Breeds"})
+    return out
+
+
+def parse_fera(core_keys):
+    base = os.path.join(os.path.dirname(REF), "W20_Changing_Breeds")
+    if not os.path.isdir(base):
+        return [], []
+    files = sorted(f for f in os.listdir(base) if f.endswith(".md"))
+    common = open(os.path.join(base, next(f for f in files if f.startswith("12"))), encoding="utf-8").read() if any(f.startswith("12") for f in files) else ""
+    quick = {}
+    qp = re.search(r"\n## Быстрая справка\n(.*?)(?=\n## )", common, re.S)
+    breeds, gifts, taken = [], [], set(core_keys)
+    for fn in files:
+        if fn.startswith("12"):
+            continue
+        text = open(os.path.join(base, fn), encoding="utf-8").read()
+        h1 = re.search(r"^# (.+?) \(([^,)]+)", text, re.M)
+        if not h1:
+            continue
+        name, en = h1.group(1).strip(), h1.group(2).strip()
+        key = re.sub(r"[^a-z0-9]+", "", en.lower().replace("é", "e"))
+        forms, forms_html = fera_forms(text)
+        tm = re.search(r"\n## Черты\n(.*?)(?=\n## )", text, re.S)
+        facts = {}
+        if qp:
+            for line in qp.group(1).splitlines():
+                b = re.match(r"^- \*\*(.+?):\*\*\s*(.*)$", line)
+                if not b: continue
+                topic, rest = b.group(1), b.group(2)
+                for seg in rest.split(";"):
+                    parts = seg.split(" — ", 1)
+                    if len(parts) == 2 and any(n.strip().startswith(name[:4]) for n in parts[0].split(",")):
+                        facts[topic] = md_inline(parts[1].strip())
+                    elif len(parts) == 2 and "остальн" in parts[0] and topic not in facts:
+                        facts.setdefault(topic, md_inline(parts[1].strip()))
+        breeds.append({"key": key, "name": name, "en": en, "forms": forms, "formsHtml": forms_html,
+                       "traits": md_html(tm.group(1).splitlines()) if tm else "", "facts": facts})
+        gifts += fera_gifts(text, key, name, taken)
+    return breeds, gifts
+
+
 def build():
     gifts = parse_gifts()
     rites = parse_rites()
     breeds, auspices, tribes = parse_core(gifts)
     supp = parse_supp_gifts(gifts, breeds, auspices, tribes)
     gifts = gifts + supp
+    fera, fera_gifts_list = parse_fera({g["key"] for g in gifts})
+    gifts = gifts + fera_gifts_list
     for kind, items in (("breed", breeds), ("auspice", auspices), ("tribe", tribes), ("form", FORMS)):
         for x in items:
             x["icon"] = ICONS[kind].get(x["key"], "fa-moon")
@@ -903,7 +1014,7 @@ def build():
     rites = rites + s_rites
     data = {"source": "Werewolf: The Apocalypse 20th Anniversary Edition", "breeds": breeds, "auspices": auspices, "tribes": tribes,
             "forms": FORMS, "gifts": gifts, "rites": rites, "rankNames": RANK_NAMES, "rank": RANK, "xp": XP,
-            "merits": core_merits + s_merits, "backgrounds": parse_backgrounds(), "fetishes": core_fetishes + s_fetishes, "charms": parse_charms(), "kinGifts": parse_kin_gifts(tribes), "totems": parse_totems(), "renownAwards": parse_renown_awards(), "scars": parse_scars(), "sept": parse_sept(), "umbra": parse_umbra()}
+            "merits": core_merits + s_merits, "backgrounds": parse_backgrounds(), "fetishes": core_fetishes + s_fetishes, "charms": parse_charms(), "kinGifts": parse_kin_gifts(tribes), "totems": parse_totems(), "renownAwards": parse_renown_awards(), "scars": parse_scars(), "sept": parse_sept(), "umbra": parse_umbra(), "fera": fera}
     with open(OUT, "w", encoding="utf-8", newline="\n") as f:
         json.dump(data, f, ensure_ascii=False, indent=1)
     rules = parse_rules()
@@ -915,7 +1026,7 @@ def build():
     starts = sum(len(x["startGifts"]) for x in breeds + auspices + tribes)
     return {"breeds": len(breeds), "auspices": len(auspices), "tribes": len(tribes), "gifts": len(gifts), "rites": len(rites),
             "startGifts": starts, "rolls": sum(1 for g in gifts if g["roll"]),
-            "rulePages": sum(len(b["pages"]) for b in rules), "merits": len(data["merits"]), "backgrounds": len(data["backgrounds"]), "fetishes": len(data["fetishes"]), "charms": len(data["charms"]), "kinGifts": len(data["kinGifts"]), "totems": len(data["totems"]), "awards": len(data["renownAwards"]), "scars": len(data["scars"]), "positions": len(data["sept"]["positions"]), "caernTypes": len(data["sept"]["caerns"]), "realms": len(data["umbra"]["realms"]), "books": len(books), "bookPages": sum(len(b["pages"]) for b in books)}
+            "rulePages": sum(len(b["pages"]) for b in rules), "merits": len(data["merits"]), "backgrounds": len(data["backgrounds"]), "fetishes": len(data["fetishes"]), "charms": len(data["charms"]), "kinGifts": len(data["kinGifts"]), "totems": len(data["totems"]), "awards": len(data["renownAwards"]), "scars": len(data["scars"]), "positions": len(data["sept"]["positions"]), "caernTypes": len(data["sept"]["caerns"]), "realms": len(data["umbra"]["realms"]), "fera": len(fera), "feraGifts": len(fera_gifts_list), "books": len(books), "bookPages": sum(len(b["pages"]) for b in books)}
 
 
 if __name__ == "__main__":

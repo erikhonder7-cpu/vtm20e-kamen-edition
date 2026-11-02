@@ -20,15 +20,18 @@ const byKey = (list, key) => list.find(x => x.key === key) ?? null;
 const ORDER = ["homid", "glabro", "crinos", "hispo", "lupus"];
 
 /** Карточка Гару для шапки и вкладки шкал: порода, аугурия, племя, Ранг, Слава, Ярость, Гнозис, формы. */
+export const feraOf = actor => actor?.system.werewolf?.fera ? (W().fera ?? []).find(b => b.key === actor.system.werewolf.fera) ?? null : null;
+
 export function werewolfInfo(actor, dots) {
-  const w = actor.system.werewolf, D = W();
+  const w = actor.system.werewolf, D = W(), fera = feraOf(actor);
   const breed = byKey(D.breeds, w.breed), auspice = byKey(D.auspices, w.auspice), tribe = byKey(D.tribes, w.tribe);
   const renown = ["glory", "honor", "wisdom"].map(k => ({ key: k, label: t(`Renown.${k}`), perm: w.renown[k].permanent, temp: w.renown[k].temporary,
     dots: dots(w.renown[k].permanent, 10, { path: `system.werewolf.renown.${k}.permanent` }),
     tempDots: dots(w.renown[k].temporary, 10, { path: `system.werewolf.renown.${k}.temporary`, cls: "is-temp" }) }));
   const next = rankNeed(w.auspice, w.rank + 1);
   return {
-    breed, auspice, tribe, rank: w.rank, rankName: D.rankNames?.[w.rank - 1] ?? "", packTotem: totemOf(actor), sept: septOf(actor), umbra: umbraOf(actor),
+    breed, auspice, tribe, rank: w.rank, rankName: D.rankNames?.[w.rank - 1] ?? "", fera, feraOptions: [{ key: "", label: t("Garou"), selected: !w.fera },
+      ...(D.fera ?? []).map(b => ({ key: b.key, label: b.name, selected: b.key === w.fera }))], packTotem: totemOf(actor), sept: septOf(actor), umbra: umbraOf(actor),
     rage: w.rage.value, ragePerm: w.rage.permanent, gnosis: w.gnosis.value, gnosisPerm: w.gnosis.permanent,
     rageDots: dots(w.rage.permanent, 10, { path: "system.werewolf.rage.permanent" }),
     gnosisDots: dots(w.gnosis.permanent, 10, { path: "system.werewolf.gnosis.permanent" }),
@@ -38,8 +41,8 @@ export function werewolfInfo(actor, dots) {
     standing: ["glory", "honor", "wisdom"].map(k => ({ key: k, label: t(`Renown.${k}`), perm: w.renown[k].permanent, temp: w.renown[k].temporary })),
     renown, nextRank: next ? renownText(next) : "", canRank: next ? meetsRank(w, next) : false,
     beast: Math.max(0, w.rage.value - actor.system.willpower.permanent),   // Зверь внутри: −1 к соц. броскам за Ярость сверх Воли
-    formName: VTM20.label(byKey(VTM20.garouForms, w.form) ?? {}), formIcon: byKey(VTM20.garouForms, w.form)?.icon ?? "fa-person",
-    form: w.form, forms: VTM20.garouForms.map(f => ({ ...f, active: f.key === w.form, mods: modsText(f) })),
+    formName: VTM20.label(byKey(fera ? fera.forms : VTM20.garouForms, w.form) ?? {}), formIcon: fera ? "fa-paw" : byKey(VTM20.garouForms, w.form)?.icon ?? "fa-person",
+    form: w.form, forms: (fera ? fera.forms.map(f => ({ ...f, icon: "fa-paw", diff: 6 })) : VTM20.garouForms).map(f => ({ ...f, active: f.key === w.form, mods: modsText(f) })),
     breeds: D.breeds.map(b => ({ value: b.key, label: b.name, selected: b.key === w.breed })),
     auspices: D.auspices.map(b => ({ value: b.key, label: b.name, selected: b.key === w.auspice })),
     tribes: D.tribes.map(b => ({ value: b.key, label: b.name, selected: b.key === w.tribe }))
@@ -66,11 +69,18 @@ function meetsRank(w, need) {
   return typeof need === "number" ? p("glory") + p("honor") + p("wisdom") >= need : p("glory") >= need[0] && p("honor") >= need[1] && p("wisdom") >= need[2];
 }
 
+/** Свой ли Дар: у Гару — списки породы, аугурии и племени; у Фера — только Дары своего рода. */
+export function ownGift(w, g) {
+  if (!w) return false;
+  if (w.fera) return g.groups.some(x => x.kind === "fera" && x.key === w.fera);
+  return g.groups.some(x => (x.kind === "breed" && x.key === w.breed) || (x.kind === "auspice" && x.key === w.auspice) || (x.kind === "tribe" && x.key === w.tribe));
+}
+
 /** Дары персонажа и доступные к добавлению (свои списки, уровень ≤ Ранга). */
 export function giftsView(actor) {
   const w = actor.system.werewolf, own = (w.gifts ?? []).map(giftOf).filter(Boolean);
-  const mine = g => g.groups.some(x => (x.kind === "breed" && x.key === w.breed) || (x.kind === "auspice" && x.key === w.auspice) || (x.kind === "tribe" && x.key === w.tribe));
-  const label = g => g.groups.map(x => x.kind === "breed" ? byKey(W().breeds, x.key)?.name : x.kind === "auspice" ? byKey(W().auspices, x.key)?.name
+  const mine = g => ownGift(w, g);
+  const label = g => g.groups.map(x => x.kind === "fera" ? x.label : x.kind === "breed" ? byKey(W().breeds, x.key)?.name : x.kind === "auspice" ? byKey(W().auspices, x.key)?.name
     : x.kind === "tribe" ? byKey(W().tribes, x.key)?.name : t(`Outsider.${x.key}`)).filter(Boolean).join(" · ");
   const rows = own.sort((a, b) => a.level - b.level || a.name.localeCompare(b.name, "ru")).map(g => ({ ...g, own: mine(g), from: label(g),
     pool: g.roll ? poolLabel(actor, g.roll) : "", cost: costText(g.cost) }));
@@ -231,9 +241,12 @@ export async function spend(actor, what, n = 1) {
 
 /** Смена формы: за Ярость мгновенно или бросок по сложности целевой формы (успехов — по числу шагов). */
 export async function changeForm(actor, key) {
-  const w = actor.system.werewolf, f = byKey(VTM20.garouForms, key);
+  const w = actor.system.werewolf, fera = feraOf(actor), list = fera ? fera.forms.map(x => ({ ...x, icon: "fa-paw", diff: 6 })) : VTM20.garouForms;
+  const f = byKey(list, key);
   if (!f || key === w.form) return null;
-  const steps = Math.abs(ORDER.indexOf(key) - ORDER.indexOf(w.form));
+  // Фера: шаги — по порядку своих форм; у Гару — Хомид — Глабро — Кринос — Хиспо — Лупус
+  const order = fera ? list.map(x => x.key) : ORDER, cur = order.includes(w.form) ? w.form : order[0];
+  const steps = Math.max(1, Math.abs(order.indexOf(key) - order.indexOf(cur)));
   const how = await foundry.applications.api.DialogV2.wait({
     window: { title: t("FormTitle", { form: f.name }), icon: `fa-solid ${f.icon}` }, classes: ["vtm20", "r-dialog", "r-type-werewolf"],
     content: `<p>${t("FormHow", { steps, diff: f.diff })}</p>${f.mods ? `<p class="r-note">${esc(modsText(f))}</p>` : ""}`,

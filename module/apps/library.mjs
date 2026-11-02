@@ -15,7 +15,7 @@ import { blockerFor } from "../data/trait-rules.mjs";
 import { weaponIcon, armorIcon, traitIcon, backgroundIcon } from "../data/icons.mjs";
 import { ritualFields } from "../data/ritual-text.mjs";
 import { investmentLimit, sealInvestment, pactDialog } from "./infernal.mjs";
-import { W as werewolfData, addGift, addRite } from "./werewolf.mjs";
+import { W as werewolfData, addGift, addRite, ownGift } from "./werewolf.mjs";
 import { edgeReasons, poolLabel, takeEdge, growth as hunterGrowth, edgeXp, isLost, H as hunterData } from "./hunter.mjs";
 
 const { HandlebarsApplicationMixin, ApplicationV2 } = foundry.applications.api;
@@ -349,11 +349,11 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
   #gifts() {
     const a = this.actor, w = a?.type === "werewolf" ? a.system.werewolf : null, mine = new Set(w?.gifts ?? []), D = werewolfData();
     const names = { breed: D.breeds, auspice: D.auspices, tribe: D.tribes };
-    const kindOrder = ["breed", "auspice", "tribe", "outsider"];
+    const kindOrder = ["breed", "auspice", "tribe", "outsider", "fera"];
     const idx = new Map(), seen = gr => { const k = `${gr.kind}:${gr.key}`; if (!idx.has(k)) idx.set(k, idx.size); return idx.get(k); };
     D.gifts.forEach(g => g.groups.forEach(seen));
-    const head = { breed: "Breed", auspice: "Auspice", tribe: "Tribe", outsider: "Outsiders" };
-    const own = g => w && g.groups.some(x => (x.kind === "breed" && x.key === w.breed) || (x.kind === "auspice" && x.key === w.auspice) || (x.kind === "tribe" && x.key === w.tribe));
+    const head = { breed: "Breed", auspice: "Auspice", tribe: "Tribe", outsider: "Outsiders", fera: "Fera" };
+    const own = g => ownGift(w, g);
     return D.gifts.map((g, i) => {
       const gr = (w && g.groups.find(x => [w.breed, w.auspice, w.tribe].includes(x.key))) ?? g.groups[0];
       const label = gr.label ?? (names[gr.kind] ?? []).find(x => x.key === gr.key)?.name ?? game.i18n.localize(`VTM20.Werewolf.Outsider.${gr.key}`);
