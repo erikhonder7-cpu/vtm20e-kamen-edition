@@ -1165,6 +1165,22 @@ body.r-theme-light .vtm20 .r-ng-concept { color: #7a4f1d; }
 .vtm20 .r-cr-edge i { margin-left: auto; }
 .vtm20 .r-cr-edge-lvl { flex: 0 0 26px; font-family: var(--r-display); color: var(--r-accent); text-align: center; }
 
+/* Мастер: Гару и Фера — род вкладками, порода и аугурия плитками, племена как кланы, Дары по ячейкам */
+.vtm20 .r-cr-garou-kinds a i { margin-right: 4px; opacity: .75; }
+.vtm20 .r-cr-garou-tiles { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
+.vtm20 .r-cr-garou-tiles.is-three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.vtm20 .r-cr-garou-tiles.is-five { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.vtm20 .r-cr-garou-tiles .r-cr-tile b i { margin-right: 4px; opacity: .8; }
+.vtm20 .r-cr-garou-note { margin: 6px 0 0; }
+.vtm20 .r-cr-tribes .r-cr-clan.is-wyrm .r-cr-clan-sym { color: #9a6fbf; }
+.vtm20 .r-cr-garou-facts { display: grid; grid-template-columns: max-content 1fr; gap: 3px 12px; margin: 6px 0 0; font-size: 13px; }
+.vtm20 .r-cr-garou-facts dt { font-family: var(--r-caps); font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--r-muted); }
+.vtm20 .r-cr-garou-facts dd { margin: 0; color: var(--r-ink-2); }
+.vtm20 .r-cr-gifts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.vtm20 .r-cr-giftslot .r-cr-edge small { color: var(--r-muted); font-size: 11.5px; }
+.vtm20 .r-cr-giftextra { max-height: 280px; overflow-y: auto; }
+.vtm20 .r-cr-garou-base { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-top: 10px; }
+
 /* Вера против падших (apps/exorcist.mjs) */
 .vtm20.r-exorcist .window-content { padding: 12px 14px 14px; }
 .vtm20.r-exorcist .r-exo-body { display: flex; flex-direction: column; gap: 10px; }

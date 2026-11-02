@@ -37,6 +37,7 @@
     <div class="r-cr-patent-stats">
       <div><b>{{patent.morality}}</b><span>{{patent.pathName}}</span></div>
       <div><b>{{patent.willpower}}</b><span>{{localize "VTM20.Willpower"}}</span></div>
+      {{#if patent.garou}}<div><b>{{patent.gnosis}}</b><span>{{localize "VTM20.Werewolf.Gnosis"}}</span></div>{{/if}}
       {{#if patent.demon}}<div><b>{{patent.torment}}</b><span>{{localize "VTM20.Demon.Torment"}}</span></div>{{/if}}
       {{#if patent.blood}}<div><b>{{patent.blood}}</b><span>{{localize "VTM20.Sheet.BloodPool"}}</span></div>{{/if}}
     </div>
@@ -71,7 +72,7 @@
         {{#if dhWeakness}}<div class="r-cr-note"><i class="fa-solid fa-droplet"></i> <b>{{localize "VTM20.Dhampir.WeaknessOf"}}:</b> {{dhWeakness}}</div>{{/if}}
       </div>
       <div>
-        {{#unless (or isDemon isMortal isHunter)}}
+        {{#unless (or isDemon isMortal isHunter isWerewolf)}}
         <h3 class="r-h3">{{tierTitle}}</h3>
         <div class="r-cr-tiles">
           {{#each tiers}}
@@ -80,7 +81,7 @@
           </a>
           {{/each}}
         </div>
-        {{else}}<h3 class="r-h3">{{localize "VTM20.Sheet.Experience"}}</h3><p class="r-note">{{#if (or isMortal isHunter)}}{{localize "VTM20.Creator.XpMortal"}}{{else}}{{localize "VTM20.Creator.XpDemon"}}{{/if}}</p>{{/unless}}
+        {{else}}<h3 class="r-h3">{{localize "VTM20.Sheet.Experience"}}</h3><p class="r-note">{{#if (or isMortal isHunter isWerewolf)}}{{localize "VTM20.Creator.XpMortal"}}{{else}}{{localize "VTM20.Creator.XpDemon"}}{{/if}}</p>{{/unless}}
         <label class="r-cr-xpinput">{{localize "VTM20.Creator.XpCustom"}} <input type="number" data-field="xpTotal" value="{{st.xpTotal}}" min="0" step="5"></label>
         {{#if isHunter}}<label class="r-cr-xpinput">{{localize "VTM20.Creator.HunterExtra"}} <input type="number" data-field="hunterExtra" value="{{st.hunterExtra}}" min="0" max="6"></label>
         <p class="r-note">{{localize "VTM20.Creator.HunterExtraHint"}}</p>{{/if}}
@@ -282,6 +283,64 @@
     </div>
     {{/if}}
 
+    {{!-- II. Гару (W20, гл. 3): род — Гару или один из Фера; порода, аугурия, племя плитками; у Фера — выбор внутри рода --}}
+    {{#if is_garou}}
+    <div class="r-cr-gtabs r-cr-garou-kinds">{{#each garou.kinds}}<a class="{{#if active}}is-active{{/if}}" data-action="garouPick" data-what="fera" data-key="{{key}}" {{#if en}}data-tooltip="{{en}}"{{/if}}><i class="fa-solid {{icon}}"></i> {{label}}</a>{{/each}}</div>
+    {{#if garou.fera}}
+    <div class="r-cr-clancard">
+      <h4 class="r-banner"><span>{{garou.fera.label}}</span></h4>
+      <span class="r-cr-clancard-sym r-cr-medal"><img src="systems/vtm20e-kamen-edition/assets/ui/werewolf-sigil.svg" alt=""></span>
+      <div class="r-cr-clancard-body">
+        <div class="r-cr-clancard-title">{{garou.fera.label}} <em>{{garou.fera.en}}</em> · <small>{{localize "VTM20.GarouCr.T.rage"}} {{garou.base.rage}} · {{localize "VTM20.GarouCr.T.gnosis"}} {{garou.base.gnosis}} · {{localize "VTM20.GarouCr.T.will"}} {{garou.base.will}}</small></div>
+        {{#if garou.fera.facts.length}}<dl class="r-cr-garou-facts">{{#each garou.fera.facts}}<dt>{{k}}</dt><dd>{{{v}}}</dd>{{/each}}</dl>{{/if}}
+      </div>
+    </div>
+    {{#each garou.fera.dims}}
+    <h3 class="r-h3">{{label}}</h3>
+    <div class="r-cr-tiles r-cr-garou-tiles">
+      {{#each options}}<a class="r-cr-tile {{#if active}}is-active{{/if}}" data-action="garouPick" data-what="sub.{{../key}}" data-key="{{key}}"><b>{{label}}</b>{{#if stats}}<em>{{stats}}</em>{{/if}}</a>{{/each}}
+    </div>
+    {{/each}}
+    {{else}}
+    <h3 class="r-h3">{{localize "VTM20.GarouCr.Breed"}}</h3>
+    <div class="r-cr-tiles r-cr-garou-tiles is-three">
+      {{#each garou.breeds}}<a class="r-cr-tile {{#if active}}is-active{{/if}}" data-action="garouPick" data-what="breed" data-key="{{key}}" data-tooltip="{{tip}}"><b><i class="fa-solid {{icon}}"></i> {{label}}</b><em>{{sub}}</em></a>{{/each}}
+    </div>
+    {{#if garou.breedNotes}}<p class="r-note r-cr-garou-note">{{{garou.breedNotes}}}</p>{{/if}}
+    <h3 class="r-h3">{{localize "VTM20.GarouCr.Auspice"}}</h3>
+    <div class="r-cr-tiles r-cr-garou-tiles is-five">
+      {{#each garou.auspices}}<a class="r-cr-tile {{#if active}}is-active{{/if}}" data-action="garouPick" data-what="auspice" data-key="{{key}}" data-tooltip="{{tip}}"><b><i class="fa-solid {{icon}}"></i> {{label}}</b><span>{{sub}}</span></a>{{/each}}
+    </div>
+    <h3 class="r-h3">{{localize "VTM20.GarouCr.Tribe"}}</h3>
+    <div class="r-cr-clans r-cr-tribes">
+      {{#each garou.tribes}}
+      <a class="r-cr-clan {{#if active}}is-active{{/if}} {{#if wyrm}}is-wyrm{{/if}}" data-action="garouPick" data-what="tribe" data-key="{{key}}">
+        <span class="r-cr-clan-sym r-cr-medal"><i class="fa-solid {{icon}}"></i></span>
+        <b>{{label}}</b><span class="r-cr-clan-disc">{{sub}}</span>
+      </a>
+      {{/each}}
+    </div>
+    {{#if garou.tribe}}
+    <div class="r-cr-clancard">
+      <h4 class="r-banner"><span>{{garou.tribe.label}}</span></h4>
+      <span class="r-cr-clancard-sym r-cr-medal"><i class="fa-solid {{garou.tribe.icon}}"></i></span>
+      <div class="r-cr-clancard-body">
+        <div class="r-cr-clancard-title">{{garou.tribe.label}} <em>{{garou.tribe.en}}</em> · <small>{{localize "VTM20.GarouCr.T.rage"}} {{garou.base.rage}} · {{localize "VTM20.GarouCr.T.gnosis"}} {{garou.base.gnosis}} · {{localize "VTM20.GarouCr.T.will"}} {{garou.base.will}}</small></div>
+        <p class="r-note">{{localize "VTM20.Werewolf.Totem"}}: <b>{{garou.tribe.totem}}</b></p>
+        {{#if garou.tribe.bg}}<div class="r-weakness-text"><b>{{localize "VTM20.Sheet.Backgrounds"}}:</b> {{{garou.tribe.bg}}}</div>{{/if}}
+      </div>
+    </div>
+    {{/if}}
+    {{/if}}
+    {{#if garou.deformities}}
+    <div class="r-cols2 r-cr-genrow">
+      <label class="r-f"><span>{{localize "VTM20.GarouCr.Deformity"}}</span>
+        <select data-field="ww.deform"><option value="">—</option>{{#each garou.deformities}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+      <p class="r-note">{{{garou.deformText}}}</p>
+    </div>
+    {{/if}}
+    {{/if}}
+
     {{!-- III. Характеристики / IV. Способности --}}
     {{#if is_attributes}}
     <div class="r-cols3">
@@ -346,6 +405,30 @@
     {{/if}}
     {{/if}}
 
+    {{!-- V. Дары Гару (W20, гл. 3): три Дара 1-го уровня по ячейкам; сверх — свои Дары 1-го уровня за бонусные очки --}}
+    {{#if is_gifts}}
+    <div class="r-cr-gifts">
+      {{#each giftSlots}}
+      <div class="r-cr-panel r-tcol r-cr-giftslot">
+        <h3 class="r-colhead"><span>{{label}}</span></h3>
+        {{#each list}}
+        <a class="r-cr-edge {{#if on}}is-on{{/if}}" data-action="garouGift" data-slot="{{../key}}" data-key="{{key}}" data-tooltip="{{text}}">
+          <span class="r-cr-edge-lvl">I</span><b>{{label}}</b>{{#if cost}} <small>{{cost}}</small>{{/if}}{{#if on}}<i class="fa-solid fa-check"></i>{{/if}}
+        </a>
+        {{else}}<div class="r-note">—</div>{{/each}}
+      </div>
+      {{/each}}
+    </div>
+    <h3 class="r-h3">{{localize "VTM20.Creator.GarouExtra" n=giftCost}}</h3>
+    <div class="r-cr-edges r-cr-giftextra">
+      {{#each giftExtra}}
+      <a class="r-cr-edge {{#if on}}is-on{{/if}}" data-action="garouExtra" data-key="{{key}}" data-tooltip="{{text}}">
+        <span class="r-cr-edge-lvl">I</span><b>{{label}}</b>{{#if on}}<i class="fa-solid fa-check"></i>{{/if}}
+      </a>
+      {{/each}}
+    </div>
+    {{/if}}
+
     {{!-- VI. Факты биографии и Добродетели --}}
     {{#if is_advantages}}
     <div class="r-cr-advgrid">
@@ -366,6 +449,24 @@
           {{/each}}
         </div>
       </div>
+      {{#if isWerewolf}}
+      <div class="r-cr-panel r-tcol">
+        <h3 class="r-colhead"><span>{{localize "VTM20.GarouCr.Renown"}}</span></h3>
+        {{#unless garou.renownFixed}}<div class="r-cr-left {{#if (lt renownLeft 0)}}is-over{{else if (eq renownLeft 0)}}is-done{{/if}}">{{localize "VTM20.Creator.LeftShort"}}: <b>{{renownLeft}}</b></div>{{/unless}}
+        {{#each renown}}
+        <div class="r-trait-main"><span class="r-trait-label">{{label}}</span><span class="r-leader"></span>
+          <span class="r-dots">{{#each dots}}<a class="r-dot r-cr-dot is-{{state}}" data-action="dot" data-kind="{{kind}}" data-key="{{key}}" data-n="{{n}}"></a>{{/each}}</span>
+        </div>
+        {{/each}}
+        <p class="r-note">{{renownText}}</p>
+        <div class="r-cr-garou-base">
+          <div class="r-cr-sum-item"><span>{{localize "VTM20.GarouCr.T.rage"}}</span><b>{{garou.base.rage}}</b></div>
+          <div class="r-cr-sum-item"><span>{{localize "VTM20.GarouCr.T.gnosis"}}</span><b>{{garou.base.gnosis}}</b></div>
+          <div class="r-cr-sum-item"><span>{{localize "VTM20.GarouCr.T.will"}}</span><b>{{garou.base.will}}</b></div>
+        </div>
+        <p class="r-note">{{localize "VTM20.Creator.GarouBaseHint"}}</p>
+      </div>
+      {{else}}
       <div class="r-cr-panel r-tcol">
         <h3 class="r-colhead"><span>{{#if isLost}}{{localize "VTM20.Sheet.Virtues"}}{{else if isHunter}}{{localize "VTM20.Creator.HunterVirtues"}}{{else}}{{localize "VTM20.Sheet.Virtues"}}{{/if}}</span></h3>
         <div class="r-cr-left {{#if (lt rem.virt 0)}}is-over{{else if (eq rem.virt 0)}}is-done{{/if}}">{{localize "VTM20.Creator.LeftShort"}}: <b>{{rem.virt}}</b></div>
@@ -376,6 +477,7 @@
         {{/each}}
         <p class="r-note">{{#if isLost}}{{localize "VTM20.Creator.VirtueHintLost"}}{{else if isHunter}}{{localize "VTM20.Creator.VirtueHintHunter"}}{{else}}{{localize "VTM20.Creator.VirtueHint"}}{{/if}}</p>
       </div>
+      {{/if}}
     </div>
     {{/if}}
 
@@ -447,7 +549,7 @@
       <span>{{localize "VTM20.Creator.FreeTotal"}}: <b>{{freeTotal}}</b></span>
       <span>{{localize "VTM20.Creator.FreeSpent"}}: <b>{{freeSpent}}</b></span>
       <span class="{{#if (lt freeLeft 0)}}is-over{{else if (eq freeLeft 0)}}is-done{{/if}}">{{localize "VTM20.Creator.LeftShort"}}: <b>{{freeLeft}}</b></span>
-      <span class="r-note">{{#if isDemon}}{{localize "VTM20.Creator.FreeCostsDemon" attr=cost.attr abil=cost.abil disc=cost.disc bg=cost.bg virt=cost.virt mor=cost.morality will=cost.will}}{{else}}{{localize "VTM20.Creator.FreeCosts" attr=cost.attr abil=cost.abil disc=cost.disc bg=cost.bg virt=cost.virt mor=cost.morality will=cost.will}}{{/if}}</span>
+      <span class="r-note">{{#if isWerewolf}}{{localize "VTM20.Creator.FreeCostsGarou"}}{{else if isDemon}}{{localize "VTM20.Creator.FreeCostsDemon" attr=cost.attr abil=cost.abil disc=cost.disc bg=cost.bg virt=cost.virt mor=cost.morality will=cost.will}}{{else}}{{localize "VTM20.Creator.FreeCosts" attr=cost.attr abil=cost.abil disc=cost.disc bg=cost.bg virt=cost.virt mor=cost.morality will=cost.will}}{{/if}}</span>
     </div>
     <div class="r-cr-free">
       {{#each freeGroups}}
@@ -470,7 +572,7 @@
       <span>{{localize "VTM20.Xp.total"}}: <b>{{xpTotal}}</b></span>
       <span>{{localize "VTM20.Xp.spent"}}: <b>{{xpSpent}}</b></span>
       <span class="{{#if (lt xpLeft 0)}}is-over{{else if (eq xpLeft 0)}}is-done{{/if}}">{{localize "VTM20.Creator.LeftShort"}}: <b>{{xpLeft}}</b></span>
-      <span class="r-note">{{#if isDemon}}{{localize "VTM20.Creator.XpCostsDemon"}}{{else}}{{localize "VTM20.Creator.XpCosts"}}{{/if}}</span>
+      <span class="r-note">{{#if isWerewolf}}{{localize "VTM20.Creator.XpCostsGarou"}}{{else if isDemon}}{{localize "VTM20.Creator.XpCostsDemon"}}{{else}}{{localize "VTM20.Creator.XpCosts"}}{{/if}}</span>
     </div>
     <div class="r-cr-free">
       {{#each xpGroups}}
@@ -528,11 +630,13 @@
       {{#if clanSym}}<span class="r-cr-sumsym">{{rSym clanSym}}</span>{{/if}}
       {{#if isDemon}}<span class="r-cr-sumsym"><img src="systems/vtm20e-kamen-edition/assets/ui/fallen-sigil.svg" alt=""></span>{{/if}}
       {{#if isHunter}}<span class="r-cr-sumsym"><img src="systems/vtm20e-kamen-edition/assets/ui/hunter-sigil.svg" alt=""></span>{{/if}}
-      <div><div class="r-cr-sumname">{{st.name}}</div><div class="r-kicker">{{typeLabel}}{{#if isEarthbound}} · {{localize "VTM20.Creator.Earthbound"}}{{/if}}{{#if isHunter}}{{#if creed}} · {{creed.name}} · {{creed.who}}{{/if}}{{/if}}{{#if isDemon}} · {{houseName}}{{#if visageName}} · {{visageName}}{{/if}}{{#if factionName}} · {{factionName}}{{/if}}{{/if}}{{#if st.concept}} · {{st.concept}}{{/if}}{{#unless isDemon}}{{#if st.sect}} · {{st.sect}}{{/if}}{{/unless}}</div></div>
+      {{#if isWerewolf}}<span class="r-cr-sumsym"><img src="systems/vtm20e-kamen-edition/assets/ui/werewolf-sigil.svg" alt=""></span>{{/if}}
+      <div><div class="r-cr-sumname">{{st.name}}</div><div class="r-kicker">{{typeLabel}}{{#if isEarthbound}} · {{localize "VTM20.Creator.Earthbound"}}{{/if}}{{#if isHunter}}{{#if creed}} · {{creed.name}} · {{creed.who}}{{/if}}{{/if}}{{#if garouLine}} · {{garouLine}}{{/if}}{{#if isDemon}} · {{houseName}}{{#if visageName}} · {{visageName}}{{/if}}{{#if factionName}} · {{factionName}}{{/if}}{{/if}}{{#if st.concept}} · {{st.concept}}{{/if}}{{#unless isDemon}}{{#if st.sect}} · {{st.sect}}{{/if}}{{/unless}}</div></div>
     </div>
     <div class="r-cr-summary">
       <div class="r-cr-sum-item"><span>{{pathName}}</span><b>{{morality}}</b></div>
       <div class="r-cr-sum-item"><span>{{localize "VTM20.Willpower"}}</span><b>{{willpower}}</b></div>
+      {{#if isWerewolf}}<div class="r-cr-sum-item"><span>{{localize "VTM20.Werewolf.Gnosis"}}</span><b>{{gnosis}}</b></div>{{/if}}
       {{#if isDemon}}<div class="r-cr-sum-item"><span>{{localize "VTM20.Demon.Torment"}}</span><b>{{torment}}</b></div>{{/if}}
       {{#if reliquaryName}}<div class="r-cr-sum-item"><span>{{localize "VTM20.Demon.Reliquary"}}</span><b>{{reliquaryName}}</b></div>{{/if}}
       {{#if isVampire}}
@@ -545,7 +649,8 @@
       {{#each summary.attrs}}<div><h4 class="r-h4">{{label}}</h4>{{#each list}}<div class="r-cr-sumrow"><span>{{label}}</span><b>{{value}}</b></div>{{/each}}</div>{{/each}}
       {{#each summary.abils}}<div><h4 class="r-h4">{{label}}</h4>{{#each list}}<div class="r-cr-sumrow"><span>{{label}}</span><b>{{value}}</b></div>{{else}}<div class="r-note">—</div>{{/each}}</div>{{/each}}
       {{#if isHunter}}{{#unless isLost}}<div><h4 class="r-h4">{{localize "VTM20.Hunter.Edges"}}</h4>{{#each summary.edges}}<div class="r-cr-sumrow"><span>{{name}}</span><b>{{rRoman level}}</b></div>{{else}}<div class="r-note">—</div>{{/each}}</div>{{/unless}}{{/if}}
-      <div><h4 class="r-h4">{{discLabel}}</h4>{{#each summary.discs}}<div class="r-cr-sumrow"><span>{{rName this}}</span><b>{{value}}</b></div>{{else}}<div class="r-note">—</div>{{/each}}</div>
+      {{#if isWerewolf}}<div><h4 class="r-h4">{{localize "VTM20.GarouCr.Gifts"}}</h4>{{#each summary.gifts}}<div class="r-cr-sumrow"><span>{{rName this}}</span><b>{{rRoman level}}</b></div>{{else}}<div class="r-note">—</div>{{/each}}</div>{{else}}
+      <div><h4 class="r-h4">{{discLabel}}</h4>{{#each summary.discs}}<div class="r-cr-sumrow"><span>{{rName this}}</span><b>{{value}}</b></div>{{else}}<div class="r-note">—</div>{{/each}}</div>{{/if}}
       <div><h4 class="r-h4">{{bgLabel}}</h4>{{#each summary.bgs}}<div class="r-cr-sumrow"><span>{{rName this}}</span><b>{{value}}</b></div>{{else}}<div class="r-note">—</div>{{/each}}</div>
       <div><h4 class="r-h4">{{virtLabel}}</h4>{{#each summary.virtues}}<div class="r-cr-sumrow"><span>{{label}}</span><b>{{value}}</b></div>{{/each}}</div>
       <div><h4 class="r-h4">{{localize "VTM20.Sheet.Merits"}} / {{localize "VTM20.Sheet.Flaws"}}</h4>

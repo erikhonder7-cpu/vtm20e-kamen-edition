@@ -1037,14 +1037,26 @@ try {
     const r = await page.evaluate(async ([id, sp]) => {
       const SYS = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {};
       const a = game.actors.get(id), s = game.actors.get(sp);
-      const C = await import(`/systems/${SYS}/module/apps/werewolf-creator.mjs`), WW = await import(`/systems/${SYS}/module/apps/werewolf.mjs`);
-      await C.openWerewolfCreator(a); await wait(900);
-      const app = [...foundry.applications.instances.values()].find(x => x.constructor.name === "GarouCreator");
+      // общий мастер создания (creator.mjs): у Гару шаги «Порода и племя» и «Дары», Слава вместо Добродетелей
+      const C = await import(`/systems/${SYS}/module/apps/creator.mjs`), WW = await import(`/systems/${SYS}/module/apps/werewolf.mjs`);
+      await C.openCreator(a);
+      let app; for (let i = 0; i < 30 && !(app = [...foundry.applications.instances.values()].find(x => x instanceof C.VtMCreator && x.actor === a)); i++) await wait(150);
       const D = WW.W(), br = D.breeds.find(x => x.key === "lupus"), au = D.auspices.find(x => x.key === "theurge"), tr = D.tribes[0];
-      Object.assign(app.st, { breed: "lupus", auspice: "theurge", tribe: tr.key, gifts: { breed: br.startGifts[0], auspice: au.startGifts[0], tribe: tr.startGifts[0] } });
-      app.st.attr.strength = 3; app.st.abil.brawl = 3;
-      await app.render(); await wait(400);
-      app.element.querySelector("[data-action=create]").click(); await wait(1500);
+      Object.assign(app.st.ww, { breed: "lupus", auspice: "theurge", tribe: tr.key, gifts: { breed: br.startGifts[0], auspice: au.startGifts[0], tribe: tr.startGifts[0] } });
+      // разложить точки по правилам: 7/5/3, 13/9/5 (не выше 3), 5 Фактов
+      Object.assign(app.st.attr, { strength: 3, dexterity: 3, stamina: 1, charisma: 2, manipulation: 2, appearance: 1, perception: 1, intelligence: 1, wits: 1 });
+      const abil = CONFIG.VTM20.abilitiesForEra(game.settings.get(SYS, "era"), "werewolf");
+      for (const g of app.st.abilPrio) { let left = app.abilLimit(g); for (const k of abil[g]) { const n = Math.min(3, left); if (n > 0) { app.st.abil[k] = n; left -= n; } } }
+      app.st.bg[(await import(`/systems/${SYS}/module/data/codex.mjs`)).Codex.backgrounds.find(b => CONFIG.VTM20.backgroundAllowed(b, "werewolf")).name] = 5;
+      // 15 бонусных: Воля +5 (по 1) и Восприятие +2 (по 5) — Ярость и Гнозис остаются по аугурии и породе
+      app.st.free.will = 5; app.st.free.attr.perception = 2;
+      out.steps = app.steps.join(",");
+      // каждый шаг рисуется без ошибок
+      for (let i = 0; i < app.steps.length; i++) { app.step = i; await app.render({ force: true }); await wait(120); }
+      out.tiles = (app.step = app.steps.indexOf("garou"), await app.render(), await wait(200), app.element.querySelectorAll("[data-action=garouPick][data-what=tribe]").length);
+      out.problems = app.problems(app.remaining()).join(" | ");
+      app.step = app.steps.length - 1; await app.render(); await wait(200);
+      app.element.querySelector("[data-action=finish]").click(); await wait(1800);
       Object.assign(out, { created: !!a.getFlag(SYS, "created"), rage: a.system.werewolf.rage.permanent, gnosis: a.system.werewolf.gnosis.permanent,
         wisdom: a.system.werewolf.renown.wisdom.permanent, gifts: a.system.werewolf.gifts.length, form: a.system.werewolf.form });
       await WW.addFetish(a, "baneskin"); await WW.addFetish(a, "gaia-s-breath"); await WW.addFetish(a, "gaia-s-breath");
@@ -1093,6 +1105,7 @@ try {
       return out;
     }, [id, sp]);
     if (!r.created || r.rage !== 2 || r.gnosis !== 5 || r.wisdom !== 3 || r.gifts !== 3 || r.form !== "lupus") throw new Error(`мастер создания: ${JSON.stringify(r)}`);
+    if (!/concept,garou,attributes,abilities,gifts,advantages/.test(r.steps) || r.tiles < 13 || r.problems) throw new Error(`шаги мастера Гару: ${r.steps}; племён ${r.tiles}; замечания: ${r.problems}`);
     if (r.fetishes !== "baneskin:1,gaia-s-breath:2") throw new Error(`фетиши: ${r.fetishes}`);
     if (r.delirium !== "controlled:false") throw new Error(`Бред: ${r.delirium}`);
     if (r.essence !== 15 || r.spiritRoll !== 6 || !r.card) throw new Error(`дух: Эссенция ${r.essence}, Гнозис ${r.spiritRoll}, карточка ${r.card}`);

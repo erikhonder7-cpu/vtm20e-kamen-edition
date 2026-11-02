@@ -254,7 +254,6 @@ Hooks.on("getSceneControlButtons", controls => {
     "r-court": { name: "r-court", title: "VTM20.Court.Title", icon: "fa-solid fa-crown", order: 4, visible: true, button: true, onChange: () => openCourt() },
     "r-web": { name: "r-web", title: "VTM20.Web.Title", icon: "fa-solid fa-circle-nodes", order: 5, visible: true, button: true, onChange: () => openWeb() },
     "r-chronicle": { name: "r-chronicle", title: "VTM20.Chronicle.Tool", icon: "fa-solid fa-book-open", order: 7, visible: isGM, button: true, onChange: () => openChronicle() },
-    "r-coterie": { name: "r-coterie", title: "VTM20.Coterie.Title", icon: "fa-solid fa-people-roof", order: 5, visible: true, button: true, onChange: () => openCoterie() },
     "r-xp": { name: "r-xp", title: "VTM20.SessionXp.Title", icon: "fa-solid fa-star", order: 6, visible: isGM, button: true, onChange: () => openSessionXp() }
   };
   const group = { name: "vtm20", title: "VTM20.Controls.Title", icon: "fa-solid fa-landmark-flag", order: 99, visible: true, tools, onChange: () => {} };

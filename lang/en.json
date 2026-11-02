@@ -2406,7 +2406,10 @@
         "freebies": "Freebie points",
         "xp": "Experience",
         "pact": "Dance with the Devil",
-        "summary": "Summary"
+        "summary": "Summary",
+        "garou": "Breed and tribe",
+        "gifts": "Gifts",
+        "advantagesGarou": "Backgrounds and Renown"
       },
       "Primary": "Primary",
       "Secondary": "Secondary",
@@ -2584,7 +2587,22 @@
         "kamiPick": "Kami powers — one to three.",
         "fomorBreed": "Breed",
         "fomorPick": "Breed powers are marked; pick up to two more."
-      }
+      },
+      "GarouHint": "Kind: Garou or one of the Changing Breeds. Garou pick a breed (Gnosis), an auspice (Rage and Renown) and a tribe (Willpower, totem, Background limits); Fera choose within their breed. A metis needs a deformity.",
+      "GiftsHint": "Three level-1 Gifts: one each from the breed, auspice and tribe lists (Fera — from the general and chosen lists). More of your own level-1 Gifts cost freebies.",
+      "ConceptHintGarou": "Who the character was before the First Change and who they became. Nature restores Willpower. Extra experience from the Storyteller — enter a number.",
+      "AbilHintShortGarou": "13 / 9 / 5 by group; no higher than 3 at start — above that only with freebies. Lupus cannot take Crafts, Drive, Etiquette, Firearms, Larceny and some Knowledges with starting points.",
+      "AdvHintGarou": "5 Background dots (the tribe sets limits). On the right — Renown: by auspice; Ragabash and Fera split 3 dots freely.",
+      "FreeHintGarou": "15 freebies; Flaws add up to 7. Gifts beyond three are already counted (7 each).",
+      "XpHintGarou": "Experience beyond creation: Attribute — current × 4, Ability — 3 for the first, then current × 2, Rage — current, Gnosis — current × 2, Willpower — current.",
+      "FinishHintGarou": "Review the Garou. Rank 1, breed form; Gifts, Renown, Rage and Gnosis are written to the sheet.",
+      "GarouGnosis": "Gnosis {n}",
+      "GarouAuspiceTip": "Rage {rage} · Renown: {renown}",
+      "GarouTribeSub": "Willpower {will} · {totem}",
+      "GarouExtra": "Gifts beyond three — {n} freebies each",
+      "GarouBaseHint": "Rage comes from the auspice, Gnosis from the breed, Willpower from the tribe (Fera — from the choice within the breed). Raise them with freebies.",
+      "FreeCostsGarou": "W20 costs: Attribute 5, Ability 2, Background 1, Gift 7, Rage 1, Gnosis 2, Willpower 1. Right-click removes.",
+      "XpCostsGarou": "W20 costs: Attribute — current × 4, Ability — new 3, then current × 2, Rage — current, Gnosis — current × 2, Willpower — current."
     },
     "Settings": {
       "MonthlyIncome": {

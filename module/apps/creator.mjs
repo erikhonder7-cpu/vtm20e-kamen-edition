@@ -18,6 +18,7 @@ import { openHouses } from "./houses.mjs";
 import { blockerFor, checkTraits } from "../data/trait-rules.mjs";
 import { attachCombos } from "../ui/combo.mjs";
 import { weaponIcon, armorIcon, traitIcon, backgroundIcon } from "../data/icons.mjs";
+import { W as werewolfData, ownGift } from "./werewolf.mjs";
 import { H as hunterData, edgeCost, growth as hunterGrowth, sacrificeOn as hunterSacrificeOn, hasOwnPath, creedCapped, edgeBarred, HERMIT_PATH, hermitEdgeMadness, hasPrevEdge } from "./hunter.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -44,8 +45,14 @@ const RULES = {
     cost: { attr: 5, abil: 2, disc: 0, bg: 1, virt: 0, morality: 1, will: 1 } },
   // Слуга падшего (Damned and Deceived, гл. 4): Добродетели падших по точке и ещё 3, Вера слуги 1 (слот morality, 7 за точку), 15 свободных
   thrall: { attr: [6, 4, 3], abil: [11, 7, 4], disc: 0, bg: 5, virt: 3, free: 15,
-    cost: { attr: 5, abil: 2, disc: 0, bg: 1, virt: 2, morality: 7, will: 1 } }
+    cost: { attr: 5, abil: 2, disc: 0, bg: 1, virt: 2, morality: 7, will: 1 } },
+  // Гару и Фера (W20, гл. 3): Факты 5, три Дара 1-го уровня (свой шаг), Добродетелей и морали нет; Ярость по аугурии,
+  // Гнозис по породе, Воля по племени; 15 бонусных: Атрибут 5, Способность 2, Факт 1, Дар 7, Ярость 1, Гнозис 2, Воля 1
+  werewolf: { attr: [7, 5, 3], abil: [13, 9, 5], disc: 0, bg: 5, virt: 0, free: 15,
+    cost: { attr: 5, abil: 2, disc: 0, bg: 1, virt: 0, morality: 0, will: 1, rage: 1, gnosis: 2, gift: 7 } }
 };
+/** Слава Гару: Слава, Честь, Мудрость. */
+const RENOWN = ["glory", "honor", "wisdom"];
 /** Слуге нельзя: Высокое положение, Наследие, Договоры, Совершенство; знание ритуалов — удел падших. */
 const THRALL_BANNED = ["Eminence", "Legacy", "Pacts", "Paragon", "Ritual Knowledge"];
 /** Начальная Вера падшего. */
@@ -73,7 +80,7 @@ const CAMARILLA_BANNED = ["chimerstry", "melpominee", "mytherceria", "necromancy
   "serpentis", "thanatosis", "visceratika", "vicissitude"];
 
 const STEP_HINTS = {
-  concept: "ConceptHint", clan: "ClanHint", house: "HouseHint", attributes: "AttrHintShort", abilities: "AbilHintShort",
+  concept: "ConceptHint", clan: "ClanHint", house: "HouseHint", garou: "GarouHint", gifts: "GiftsHint", attributes: "AttrHintShort", abilities: "AbilHintShort",
   disciplines: "DiscHint", advantages: "AdvHint", edges: "EdgesHint", bloodrights: "BloodrightsHint", merits: "MeritHint", freebies: "FreeHint", xp: "XpHint", pact: "PactHint", summary: "FinishHint"
 };
 /** Шаги, где у гуля свой текст подсказки (ключ + «Ghoul»). */
@@ -84,6 +91,7 @@ const DEMON_HINTS = new Set(["concept", "disciplines", "advantages", "freebies",
 const EB_HINTS = new Set(["disciplines", "advantages", "freebies", "summary"]);
 const THRALL_HINTS = new Set(["concept", "advantages", "freebies", "summary"]);
 const HUNTER_HINTS = new Set(["concept", "advantages", "freebies", "summary"]);
+const GAROU_HINTS = new Set(["concept", "abilities", "advantages", "freebies", "xp", "summary"]);
 /** Слоты Добродетелей мастера → Добродетели охоты. */
 const HUNTER_SLOTS = { conscience: "mercy", selfControl: "vision", courage: "zeal" };
 /** Свидетель (Players Guide, гл. 1): свои Добродетели в тех же слотах — Рассудок, Самоконтроль, Смелость. */
@@ -104,6 +112,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       goto: VtMCreator.#onGoto, next: VtMCreator.#onNext, prev: VtMCreator.#onPrev,
       tier: VtMCreator.#onTier, sect: VtMCreator.#onSect, clan: VtMCreator.#onClan, clanGroup: VtMCreator.#onClanGroup,
       creed: VtMCreator.#onCreed, edgeToggle: VtMCreator.#onEdgeToggle, brSet: VtMCreator.#onBrSet, dhSwap: VtMCreator.#onDhSwap,
+      garouPick: VtMCreator.#onGarouPick, garouGift: VtMCreator.#onGarouGift, garouExtra: VtMCreator.#onGarouExtra,
       house: VtMCreator.#onHouse, earthbound: VtMCreator.#onEarthbound, thrall: VtMCreator.#onThrall, mark: VtMCreator.#onMark, markPower: VtMCreator.#onMarkPower, pactShare: VtMCreator.#onPactShare, pactGift: VtMCreator.#onPactGift, reliquary: VtMCreator.#onReliquary, visage: VtMCreator.#onVisage, faction: VtMCreator.#onFaction, houseAtlas: VtMCreator.#onHouseAtlas,
       gen: VtMCreator.#onGen, choice: VtMCreator.#onChoice, clanAtlas: VtMCreator.#onClanAtlas,
       dot: VtMCreator.#onDot, prio: VtMCreator.#onPrio,
@@ -137,8 +146,8 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       attr: {}, abil: {}, disc: {}, bg: {},
       virt: { conscience: 0, selfControl: 0, courage: 0 },
       merits: [], flaws: [],
-      free: { attr: {}, abil: {}, disc: {}, bg: {}, virt: {}, morality: 0, will: 0 },
-      xp: { attr: {}, abil: {}, disc: {}, virt: {}, morality: 0, will: 0 },
+      free: { attr: {}, abil: {}, disc: {}, bg: {}, virt: {}, morality: 0, will: 0, rage: 0, gnosis: 0 },
+      xp: { attr: {}, abil: {}, disc: {}, virt: {}, morality: 0, will: 0, rage: 0, gnosis: 0 },
       blood: null,
       // слуга: «Танец с Дьяволом» — хозяин (uuid демона), доля Веры хозяину (−1 — наибольшая), условия, дары словами и прибавками
       pact: { master: "", share: -1, terms: "", gifts: "", attr: {}, abil: {} },
@@ -150,7 +159,11 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       // особый смертный (W20 Kinfolk, W20 Umbra, Book of the Wyrm): Родня Гару, Ками, фомор — отметки на листе смертного
       mark: s.kinfolk?.on ? "kinfolk" : s.kami?.on ? "kami" : s.fomor?.on ? "fomor" : "",
       markTribe: s.kinfolk?.tribe || "", kamiKind: s.kami?.kind || "human", kamiGeas: s.kami?.geas || "",
-      kamiPowers: (s.kami?.powers ?? []).map(x => x.key), fomorBreed: s.fomor?.breed || "", fomorPowers: []
+      kamiPowers: (s.kami?.powers ?? []).map(x => x.key), fomorBreed: s.fomor?.breed || "", fomorPowers: [],
+      // Гару (W20, гл. 3) и Фера (W20 Changing Breeds): порода, аугурия, племя или род с выбором внутри рода, Дары по ячейкам,
+      // Дары сверх трёх (7 бонусных), уродство метиса, Слава (у Рагабаша и Фера — 3 точки на выбор)
+      ww: { breed: s.werewolf?.breed || "homid", auspice: s.werewolf?.auspice || "ragabash", tribe: s.werewolf?.tribe || "boneGnawers",
+        fera: s.werewolf?.fera || "", sub: {}, gifts: {}, extra: [], deform: "", renown: { glory: 0, honor: 0, wisdom: 0 } }
     };
     this.ui = { clanGroup: "clan", mfTab: "merit", mfCat: "all", mfSearch: "", open: new Set() };
   }
@@ -161,8 +174,10 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     const s = ["concept"];
     if (this.type === "vampire") s.push("clan");
     if (this.type === "demon") s.push("house");
+    if (this.isWerewolf) s.push("garou");                   // порода, аугурия, племя — или род Фера
     s.push("attributes", "abilities");
     if (this.rules.disc > 0) s.push("disciplines");
+    if (this.isWerewolf) s.push("gifts");                   // три Дара 1-го уровня
     s.push("advantages");
     if (this.isHunter && !this.isLost) s.push("edges");     // Грани — на очки Добродетелей охоты; у Свидетеля Граней нет
     if (this.isDhampir) s.push("bloodrights");              // Кровные права дампира (Accursed Heirs, гл. 4)
@@ -216,6 +231,68 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
   get isHunter() { return this.type === "hunter"; }
   /** Дампир (Accursed Heirs: Dhampirs) — гуль с типом «dhampir» (выбирается в шапке листа). */
   get isDhampir() { return this.type === "ghoul" && this.actor.system.ghoulType === "dhampir"; }
+  /* ── Гару и Фера (W20, гл. 3; W20 Changing Breeds) ── */
+  get isWerewolf() { return this.type === "werewolf"; }
+  get garouBreed() { return werewolfData().breeds.find(x => x.key === this.st.ww.breed) ?? null; }
+  get garouAuspice() { return werewolfData().auspices.find(x => x.key === this.st.ww.auspice) ?? null; }
+  get garouTribe() { return werewolfData().tribes.find(x => x.key === this.st.ww.tribe) ?? null; }
+  get feraData() { return this.st.ww.fera ? (werewolfData().fera ?? []).find(b => b.key === this.st.ww.fera) ?? null : null; }
+  /** Измерения рода Фера, в которых есть выбор (порода, аспект, племя, варна…). */
+  get feraDims() { return (this.feraData?.dims ?? []).filter(d => d.options.length); }
+  /** Начальные Ярость, Гнозис и Воля: у Гару — по аугурии, породе и племени; у Фера — по выбранному внутри рода, иначе по роду. */
+  get garouBase() {
+    const f = this.feraData;
+    if (!f) return { rage: this.garouAuspice?.rage ?? 1, gnosis: this.garouBreed?.gnosis ?? 1, will: this.garouTribe?.willpower ?? 3 };
+    const picked = this.feraDims.map(d => d.options.find(o => o.key === this.st.ww.sub[d.key])).filter(Boolean);
+    const stat = k => picked.find(o => o.stats?.[k] != null)?.stats[k] ?? f.base?.[k];
+    return { rage: stat("rage") ?? 1, gnosis: stat("gnosis") ?? 1, will: stat("will") ?? 3 };
+  }
+  /** Ячейки стартовых Даров: у Гару — порода, аугурия, племя; у Фера — общий список рода и списки выбранного (всего три). */
+  get giftSlots() {
+    if (!this.feraData) return ["breed", "auspice", "tribe"].map(k => ({ key: k, label: loc(`VTM20.GarouCr.GiftFrom.${k}`), sub: null }));
+    const D = werewolfData(), f = this.feraData.key, sub = this.st.ww.sub;
+    const lists = this.feraDims.filter(d => sub[d.key] && D.gifts.some(g => g.level === 1 && g.groups.some(x => x.kind === "fera" && x.key === f && x.sub === `${d.key}:${sub[d.key]}`)))
+      .map(d => ({ key: d.key, label: t("GarouCr.GiftOf", { what: d.label }), sub: `${d.key}:${sub[d.key]}` }));
+    const general = Array.from({ length: Math.max(1, 3 - lists.length) }, (_, i) => ({ key: `general${i}`, label: loc("VTM20.GarouCr.GiftGeneral"), sub: "" }));
+    return [...general, ...lists];
+  }
+  /** Дары 1-го уровня для ячейки. */
+  slotGifts(slot) {
+    if (slot.sub === null) return ({ breed: this.garouBreed, auspice: this.garouAuspice, tribe: this.garouTribe }[slot.key]?.startGifts ?? []);
+    const f = this.feraData.key;
+    return werewolfData().gifts.filter(g => g.level === 1 && g.groups.some(x => x.kind === "fera" && x.key === f && (x.sub ?? "") === slot.sub)).map(g => g.key);
+  }
+  /** Кто такой персонаж для «своих» Даров (ownGift). */
+  get garouSelf() { const w = this.st.ww; return this.feraData ? { fera: w.fera, feraSub: w.sub } : { breed: w.breed, auspice: w.auspice, tribe: w.tribe }; }
+  /** Слава: по аугурии; у Рагабаша и у Фера — 3 точки в любом сочетании. */
+  get renownFixed() { return !this.feraData && !!this.garouAuspice?.renown; }
+  get garouRenown() {
+    const r = this.renownFixed ? this.garouAuspice.renown : null;
+    return r ? Object.fromEntries(RENOWN.map((k, i) => [k, r[i] ?? 0])) : { ...this.st.ww.renown };
+  }
+  get isMetis() { return this.feraData ? this.st.ww.sub.breed === "metis" : this.st.ww.breed === "metis"; }
+  get garouRage() { return Math.min(10, this.garouBase.rage + this.st.free.rage + this.st.xp.rage); }
+  get garouGnosis() { return Math.min(10, this.garouBase.gnosis + this.st.free.gnosis + this.st.xp.gnosis); }
+  /** Что не выбрано на шаге «Порода и племя» и «Дары». */
+  get garouIssues() {
+    const w = this.st.ww, out = [];
+    if (this.feraData) { if (this.feraDims.some(d => d.key !== "pryio" && !w.sub[d.key])) out.push(loc("VTM20.GarouCr.NeedFera")); }
+    else if (!this.garouBreed || !this.garouAuspice || !this.garouTribe) out.push(loc("VTM20.GarouCr.NeedConcept"));
+    if (this.isMetis && !w.deform) out.push(loc("VTM20.GarouCr.NeedDeformity"));
+    return out;
+  }
+  get giftIssues() {
+    return this.giftSlots.some(s => !this.st.ww.gifts[s.key]) ? [loc(this.feraData ? "VTM20.GarouCr.NeedFeraGifts" : "VTM20.GarouCr.NeedGifts")] : [];
+  }
+  get renownIssues() { return !this.renownFixed && RENOWN.reduce((n, k) => n + this.st.ww.renown[k], 0) !== 3 ? [loc("VTM20.GarouCr.NeedRenown")] : []; }
+  /** Сбросить Дары, которых нет в новых ячейках (после смены породы, аугурии, племени или выбора у Фера). */
+  fixGiftSlots() {
+    const w = this.st.ww, slots = this.giftSlots;
+    for (const s of Object.keys(w.gifts)) if (!slots.some(x => x.key === s)) delete w.gifts[s];
+    for (const s of slots) if (w.gifts[s.key] && !this.slotGifts(s).includes(w.gifts[s.key])) w.gifts[s.key] = "";
+    w.extra = w.extra.filter(k => !Object.values(w.gifts).includes(k));
+  }
+
   /** Бесплатных точек Кровных прав: 1, Древность 3–4 — ещё 1, 5 — ещё 2. */
   get bloodrightBase() { const a = this.value("bg", Codex.backgrounds.find(b => b.en === "Antiquity")?.name ?? ""); return 1 + (a >= 5 ? 2 : a >= 3 ? 1 : 0); }
   get bloodrightDots() { return this.sum(this.st.bloodrights); }
@@ -301,6 +378,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
   value(kind, k) { return this.valueBeforeXp(kind, k) + (this.st.xp[kind]?.[k] ?? 0); }
 
   get moralityBase() {
+    if (this.isWerewolf) return 0;                     // у Гару морали нет — на её месте Ярость и Гнозис
     if (this.isDemon) return Math.min(10, (this.isEarthbound ? 4 : DEMON_FAITH) + this.st.free.morality);   // у падшего — Вера
     if (this.isThrall) return Math.min(5, 1 + this.st.free.morality);                                        // у слуги — Вера слуги
     if (this.isLost) return 10;                                                                              // у Свидетеля — 10, рассудок
@@ -312,6 +390,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
   get willpowerBase() {
     // у падшего Воля — сумма двух высших Добродетелей (гл. 6), у охотника — 3, у прочих — Смелость
     if (this.isHunter) return Math.min(10, 3 + this.st.free.will);
+    if (this.isWerewolf) return Math.min(10, this.garouBase.will + this.st.free.will);   // Воля Гару — по племени (у Фера — по роду)
     const base = this.isDemon || this.isThrall ? ["conscience", "selfControl", "courage"].map(k => this.value("virt", k)).sort((x, y) => y - x).slice(0, 2).reduce((x, y) => x + y, 0)
       : this.value("virt", "courage");
     return Math.min(10, base + this.st.free.will);
@@ -330,7 +409,8 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
   get freeSpent() {
     const c = this.rules.cost, f = this.st.free;
     return this.sum(f.attr) * c.attr + this.sum(f.abil) * c.abil + this.sum(f.disc) * c.disc + this.sum(f.bg) * c.bg
-      + this.sum(f.virt) * c.virt + f.morality * c.morality + f.will * c.will + this.bloodrightExtra * 5;
+      + this.sum(f.virt) * c.virt + f.morality * c.morality + f.will * c.will + this.bloodrightExtra * 5
+      + (this.isWerewolf ? f.rage * c.rage + f.gnosis * c.gnosis + this.st.ww.extra.length * c.gift : 0);
   }
   get freeTotal() { return this.rules.free + this.flawPoints; }
   get freeLeft() { return this.freeTotal - this.meritPoints - this.freeSpent; }
@@ -350,6 +430,10 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
         const L = Codex.lore(k), near = kind === "disc" && (this.inClan(k) && !L?.dark);
         total += kind === "attr" ? c * 5 : kind === "abil" ? (c === 0 ? 4 : c * 3) : kind === "disc" ? (c === 0 ? (near ? 6 : 8) : c * 4)
           : kind === "bg" ? Math.max(1, c) * 4 : kind === "virt" ? c * 2 : kind === "morality" ? c * 6 : kind === "will" ? c : 0;
+        continue;
+      }
+      if (this.isWerewolf) {                           // опыт Гару (W20, гл. 4): Ярость — текущее, Гнозис — текущее × 2
+        total += kind === "attr" ? c * 4 : kind === "abil" ? (c === 0 ? 3 : c * 2) : kind === "rage" ? c : kind === "gnosis" ? c * 2 : kind === "will" ? c : 0;
         continue;
       }
       if (this.isThrall) {                             // опыт слуги (Damned and Deceived): Вера слуги × 10
@@ -376,6 +460,10 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     for (const kind of ["attr", "abil", "disc", "virt"]) for (const [k, n] of Object.entries(x[kind])) if (n) s += this.xpCostOf(kind, k, this.valueBeforeXp(kind, k), n);
     s += this.xpCostOf("morality", "", this.moralityBase, x.morality);
     s += this.xpCostOf("will", "", this.willpowerBase, x.will);
+    if (this.isWerewolf) {
+      s += this.xpCostOf("rage", "", this.garouBase.rage + this.st.free.rage, x.rage);
+      s += this.xpCostOf("gnosis", "", this.garouBase.gnosis + this.st.free.gnosis, x.gnosis);
+    }
     return s;
   }
   get xpLeft() { return this.st.xpTotal - this.xpSpent; }
@@ -395,11 +483,13 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       case "concept": return !!this.st.name;
       case "clan": return !!this.clanData && !(this.clanData.choice?.length && !this.st.clanChoice);
       case "house": return !!this.houseData && !!this.st.visage;
+      case "garou": return !this.garouIssues.length;
+      case "gifts": return !this.giftIssues.length;
       case "attributes": return Object.values(rem.attr).every(v => v === 0);
       case "abilities": return Object.values(rem.abil).every(v => v === 0);
       case "disciplines": return rem.disc === 0;
       case "bloodrights": return this.bloodrightDots >= this.bloodrightBase;
-      case "advantages": return rem.bg === 0 && rem.virt === 0;
+      case "advantages": return rem.bg === 0 && rem.virt === 0 && (!this.isWerewolf || !this.renownIssues.length);
       case "freebies": return rem.free === 0;
       case "xp": return rem.xp >= 0;
       case "pact": return !!this.st.pact.master && this.giftUsed <= this.giftPoints;
@@ -435,6 +525,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       for (const k of this.st.edges) for (const why of this.edgeIssues(k)) out.push(`${H.edges.find(x => x.key === k)?.name ?? k}: ${why}`);
     }
     if (this.isThrall && this.giftUsed > this.giftPoints) out.push(t("Creator.PactOver", { n: this.giftUsed - this.giftPoints }));
+    if (this.isWerewolf) out.push(...this.garouIssues, ...this.giftIssues, ...this.renownIssues);
     if (this.isDhampir) {
       if (this.st.dhSwap && !this.dhampirClanDiscs.slice(1).some(k => this.value("disc", k) > 0))
         out.push(t("Creator.DhSwapNeedsClan"));
@@ -450,7 +541,10 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   /** Подпись шага: у падшего Знания вместо Дисциплин и Дополнения вместо фактов биографии. */
-  stepName(k) { return this.isDemon ? ({ disciplines: "lores", advantages: "advantagesDemon" }[k] ?? k) : k; }
+  stepName(k) {
+    if (this.isWerewolf && k === "advantages") return "advantagesGarou";      // у Гару справа Слава, а не Добродетели
+    return this.isDemon ? ({ disciplines: "lores", advantages: "advantagesDemon" }[k] ?? k) : k;
+  }
   /** «Факты биографии» или «Дополнения» (у падшего). */
   get bgLabel() { return this.isDemon ? t("Demon.Backgrounds") : t("Sheet.Backgrounds"); }
   /** «Дисциплины» или «Знания» (у падшего). */
@@ -480,13 +574,13 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     const ctx = {
       st, ui: this.ui, rem, rules: this.rules, type: this.type,
       marks: this.type === "mortal" ? this.markView() : null,
-      isVampire: this.type === "vampire", isGhoul: this.type === "ghoul", isDemon: this.isDemon, isEarthbound: this.isEarthbound, isThrall: this.isThrall, isMortal: this.type === "mortal", isHunter: this.isHunter, isLost: this.isLost, discLabel: this.discLabel, bgLabel: this.bgLabel,
+      isVampire: this.type === "vampire", isGhoul: this.type === "ghoul", isDemon: this.isDemon, isEarthbound: this.isEarthbound, isThrall: this.isThrall, isMortal: this.type === "mortal", isHunter: this.isHunter, isLost: this.isLost, isWerewolf: this.isWerewolf, discLabel: this.discLabel, bgLabel: this.bgLabel,
       typeLabel: loc(`TYPES.Actor.${this.type}`), typeSigil: VTM20.typeSigil(this.type),
       steps: this.steps.map((k, i) => ({ i, key: k, n: i + 1, label: t(`Creator.Step.${this.stepName(k)}`), active: i === this.step, done: this.stepOk(k, rem) && i !== this.step })),
       stepKey: key, stepNumber: this.step + 1, stepCount: this.steps.length,
       // у гуля свои подсказки там, где правила другие (нет Становления, Дисциплины — от домитора)
       title: t(`Creator.Step.${this.stepName(key)}`),
-      hint: t(`Creator.${STEP_HINTS[key]}${this.type === "ghoul" && GHOUL_HINTS.has(key) ? "Ghoul" : this.isEarthbound && EB_HINTS.has(key) ? "Earthbound" : this.isThrall && THRALL_HINTS.has(key) ? "Thrall" : this.isLost && HUNTER_HINTS.has(key) ? "Lost" : this.isHunter && HUNTER_HINTS.has(key) ? "Hunter" : this.isDemon && DEMON_HINTS.has(key) ? "Demon" : key === "advantages" && !this.rules.bg ? "NoBg" : ""}`, { n: this.rules.disc, bg: this.rules.bg, virt: this.rules.virt }),
+      hint: t(`Creator.${STEP_HINTS[key]}${this.type === "ghoul" && GHOUL_HINTS.has(key) ? "Ghoul" : this.isEarthbound && EB_HINTS.has(key) ? "Earthbound" : this.isThrall && THRALL_HINTS.has(key) ? "Thrall" : this.isLost && HUNTER_HINTS.has(key) ? "Lost" : this.isHunter && HUNTER_HINTS.has(key) ? "Hunter" : this.isWerewolf && GAROU_HINTS.has(key) ? "Garou" : this.isDemon && DEMON_HINTS.has(key) ? "Demon" : key === "advantages" && !this.rules.bg ? "NoBg" : ""}`, { n: this.rules.disc, bg: this.rules.bg, virt: this.rules.virt }),
       sectRule: ["concept", "disciplines", "advantages", "freebies"].includes(key) ? this.sectRule : "",
       isFirst: this.step === 0, isLast: this.step === this.steps.length - 1,
       [`is_${key}`]: true
@@ -503,7 +597,8 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     add(t("Sheet.Abilities"), total(Object.values(rem.abil)), total(this.rules.abil));
     if (this.rules.disc) add(this.discLabel, rem.disc, this.rules.disc);
     add(this.bgLabel, rem.bg, this.rules.bg);
-    add(t("Sheet.Virtues"), rem.virt, this.rules.virt);
+    if (this.rules.virt) add(t("Sheet.Virtues"), rem.virt, this.rules.virt);
+    if (this.isWerewolf) { const slots = this.giftSlots; add(loc("VTM20.GarouCr.Gifts"), slots.filter(s => !st.ww.gifts[s.key]).length, slots.length); }
     add(t("Creator.Freebies"), rem.free, this.freeTotal);
     if (st.xpTotal) add(t("Sheet.Experience"), rem.xp, st.xpTotal);
     const gen = this.type === "vampire" ? 13 - Math.min(5, this.value("bg", "Поколение")) : null;
@@ -516,6 +611,13 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       torment: this.houseData?.torment ?? null, demon: this.isDemon
     };
     if (this.isDemon) Object.assign(ctx.patent, { clan: this.houseData?.name ?? "", sect: Codex.faction(st.faction)?.name ?? "", sectSym: null });
+    // Гару: племя (у Фера — род), аугурия и порода, Ярость и Гнозис вместо морали
+    if (this.isWerewolf) {
+      const f = this.feraData, lbl = x => x ? VTM20.label(x) : "";
+      const sub = f ? this.feraDims.map(d => lbl(d.options.find(o => o.key === st.ww.sub[d.key]))).filter(Boolean).join(" · ") : "";
+      Object.assign(ctx.patent, { clan: f ? lbl(f) : lbl(this.garouTribe), sect: f ? sub : [lbl(this.garouAuspice), lbl(this.garouBreed)].filter(Boolean).join(" · "),
+        sectSym: null, sym: null, morality: this.garouRage, pathName: loc("VTM20.Werewolf.Rage"), garou: true, gnosis: this.garouGnosis });
+    }
     const by = hunterData().bystander;
     if (this.isHunter) Object.assign(ctx.patent, { clan: this.isLost ? `${by?.name} · ${by?.who}` : this.creedData ? `${this.creedData.name} · ${this.creedData.who}` : "", sectSym: null });
     // Охотник: кредо (концепция) и Грани (свой шаг)
@@ -601,6 +703,42 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       ctx.house = h ? { ...h, visages: Object.entries(h.visages).map(([k, name]) => ({ key: k, name, lore: Codex.lore(k)?.name ?? k, active: k === st.visage,
         low: Codex.lore(k)?.form?.low ?? [] })) } : null;
       ctx.factions = Codex.factions.map(f => ({ ...f, active: f.key === st.faction }));
+    }
+
+    // II. Гару: род (Гару или Фера), порода, аугурия, племя — плитками, как кланы; у Фера — выбор внутри рода; уродство метиса
+    if (this.isWerewolf) {
+      const D = werewolfData(), w = st.ww, f = this.feraData, lbl = x => VTM20.label(x), plain = h => VtMCreator.#plain(h);
+      const base = this.garouBase;
+      ctx.garou = {
+        base, renownFixed: this.renownFixed, isFera: !!f, isMetis: this.isMetis,
+        kinds: [{ key: "", label: loc("VTM20.Werewolf.Garou"), icon: "fa-paw", active: !f },
+          ...(D.fera ?? []).map(b => ({ key: b.key, label: lbl(b), en: b.en, icon: "fa-shield-cat", active: b.key === w.fera }))],
+        breeds: D.breeds.map(b => ({ key: b.key, label: lbl(b), icon: b.icon, active: b.key === w.breed, sub: t("Creator.GarouGnosis", { n: b.gnosis }), tip: plain(b.notes) })),
+        auspices: D.auspices.map(b => ({ key: b.key, label: lbl(b), icon: b.icon, active: b.key === w.auspice, sub: b.role, tip: t("Creator.GarouAuspiceTip", { rage: b.rage, renown: b.renownText ?? "" }) })),
+        tribes: D.tribes.map(b => ({ key: b.key, label: lbl(b), icon: b.icon, active: b.key === w.tribe, sub: t("Creator.GarouTribeSub", { will: b.willpower, totem: b.totem ?? "" }), wyrm: !!b.wyrm })),
+        tribe: !f && this.garouTribe ? { ...this.garouTribe, label: lbl(this.garouTribe), bg: this.garouTribe.backgrounds } : null,
+        breedNotes: !f ? this.garouBreed?.notes ?? "" : "",
+        fera: f ? { label: lbl(f), en: f.en, facts: Object.entries(f.facts ?? {}).map(([k, v]) => ({ k, v })),
+          dims: this.feraDims.map(d => ({ key: d.key, label: d.label, options: d.options.map(o => ({ key: o.key, label: lbl(o), active: o.key === w.sub[d.key],
+            stats: Object.entries(o.stats ?? {}).map(([k, n]) => `${loc(`VTM20.GarouCr.T.${k}`)} ${n}`).join(", ") })) })) } : null,
+        deformities: this.isMetis ? (D.deformities ?? []).map(x => ({ key: x.key, label: lbl(x), selected: x.key === w.deform })) : null,
+        deformText: (D.deformities ?? []).find(x => x.key === w.deform)?.text ?? "",
+        issues: this.garouIssues
+      };
+      // Дары: ячейки и Дары сверх трёх (свои 1-го уровня, 7 бонусных за каждый)
+      const taken = new Set([...Object.values(w.gifts), ...w.extra]);
+      const card = (g, on) => ({ key: g.key, label: lbl(g), en: g.en, on, text: VtMCreator.#preview(g.text, 160), cost: g.cost ? Object.entries(g.cost).map(([k, n]) => `${n} ${loc(`VTM20.GarouCr.T.${k === "willpower" ? "will" : k}`)}`).join(", ") : "" });
+      ctx.giftSlots = this.giftSlots.map(s => ({ key: s.key, label: s.label,
+        list: this.slotGifts(s).map(k => D.gifts.find(g => g.key === k)).filter(g => g && (g.key === w.gifts[s.key] || !taken.has(g.key))).map(g => card(g, g.key === w.gifts[s.key])) }));
+      ctx.giftExtra = D.gifts.filter(g => g.level === 1 && ownGift(this.garouSelf, g) && !Object.values(w.gifts).includes(g.key))
+        .map(g => card(g, w.extra.includes(g.key))).sort((a, b) => b.on - a.on || a.label.localeCompare(b.label, "ru"));
+      ctx.giftCost = this.rules.cost.gift;
+      // Слава на шаге фактов биографии: по аугурии или 3 точки на выбор
+      const r = this.garouRenown;
+      ctx.renown = RENOWN.map(k => ({ key: k, label: loc(`VTM20.Werewolf.Renown.${k}`), value: r[k],
+        dots: [1, 2, 3].map(n => ({ n, kind: "renown", key: k, state: n <= r[k] ? (this.renownFixed ? "base" : "alloc") : "empty", locked: this.renownFixed })) }));
+      ctx.renownLeft = this.renownFixed ? 0 : 3 - RENOWN.reduce((n, k) => n + w.renown[k], 0);
+      ctx.renownText = f ? loc("VTM20.GarouCr.FeraRenown") : this.garouAuspice?.renownText ?? "";
     }
 
     // III–IV. Характеристики и способности
@@ -700,10 +838,11 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     // VIII. Свободные пункты и IX. Опыт — общий список строк
     const rows = (mode) => {
       const cost = this.rules.cost;
+      const scalar = kind => ["morality", "will", "rage", "gnosis"].includes(kind);
       const row = (kind, k, label, group, value) => ({
         kind, key: k, label, group, value,
-        added: mode === "free" ? (kind === "morality" || kind === "will" ? st.free[kind] : st.free[kind]?.[k] ?? 0)
-          : (kind === "morality" || kind === "will" ? st.xp[kind] : st.xp[kind]?.[k] ?? 0),
+        added: mode === "free" ? (scalar(kind) ? st.free[kind] : st.free[kind]?.[k] ?? 0)
+          : (scalar(kind) ? st.xp[kind] : st.xp[kind]?.[k] ?? 0),
         price: mode === "free" ? cost[kind] : this.xpCostOf(kind, k, value, 1)
       });
       const list = [
@@ -711,10 +850,12 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
         ...ctx.abilGroups.flatMap(g => g.list.map(x => row("abil", x.key, x.label, g.label, x.value))),
         ...(this.rules.disc ? ctx.discCards.map(x => row("disc", x.key, x.name, this.discLabel, x.value)) : []),
         ...(mode === "free" ? ctx.bgCards.filter(b => b.on).map(b => row("bg", b.name, b.name, this.bgLabel, b.value)) : []),
+        // у Гару вместо Добродетелей и морали — Ярость и Гнозис (W20, гл. 3)
+        ...(this.isWerewolf ? [row("rage", "", loc("VTM20.Werewolf.Rage"), t("Sheet.Other"), this.garouRage), row("gnosis", "", loc("VTM20.Werewolf.Gnosis"), t("Sheet.Other"), this.garouGnosis)] : [
         // Добродетели охоты — только охотой; при росте за опыт — и опытом
         ...(!this.isHunter || this.isLost ? ctx.virtues.map(x => row("virt", x.key, x.label, t("Sheet.Virtues"), x.value))
           : mode === "xp" && hunterGrowth() === "xp" ? ctx.virtues.map(x => row("virt", x.key, x.label, t("Creator.HunterVirtues"), x.value)) : []),
-        ...(this.isLost || (this.isHunter && mode === "xp" && hunterGrowth() !== "xp") ? [] : [row("morality", "", this.isDemon ? t("Demon.Faith") : this.isThrall ? t("Creator.ThrallFaith") : this.isHunter ? t("Hunter.Conviction") : this.pathData?.name ?? t("Humanity"), t("Sheet.Other"), this.morality)]),
+        ...(this.isLost || (this.isHunter && mode === "xp" && hunterGrowth() !== "xp") ? [] : [row("morality", "", this.isDemon ? t("Demon.Faith") : this.isThrall ? t("Creator.ThrallFaith") : this.isHunter ? t("Hunter.Conviction") : this.pathData?.name ?? t("Humanity"), t("Sheet.Other"), this.morality)])]),
         row("will", "", t("Willpower"), t("Sheet.Other"), this.willpower)
       ];
       return [...new Set(list.map(r => r.group))].map(g => ({ label: g, rows: list.filter(r => r.group === g) }));
@@ -767,6 +908,14 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       // Привязанный: Потребности вместо Добродетелей, реликварий
       ctx.virtLabel = this.isEarthbound ? t("Demon.Urges") : this.isHunter && !this.isLost ? t("Creator.HunterVirtues") : loc("VTM20.Sheet.Virtues");
       if (this.isEarthbound) ctx.reliquaryName = t(`Demon.ReliquaryKind.${st.reliquary || "ideal"}`);
+      // Гару: Ярость и Гнозис вместо морали, Дары и Слава вместо Дисциплин и Добродетелей
+      if (this.isWerewolf) {
+        const D = werewolfData(), w = st.ww;
+        Object.assign(ctx, { morality: this.garouRage, pathName: loc("VTM20.Werewolf.Rage"), gnosis: this.garouGnosis, virtLabel: loc("VTM20.GarouCr.Renown") });
+        ctx.summary.virtues = RENOWN.map(k => ({ label: loc(`VTM20.Werewolf.Renown.${k}`), value: this.garouRenown[k] }));
+        ctx.summary.gifts = [...Object.values(w.gifts), ...w.extra].map(k => D.gifts.find(g => g.key === k)).filter(Boolean).map(g => ({ name: g.name, en: g.en, level: g.level }));
+        ctx.garouLine = [ctx.patent.clan, ctx.patent.sect].filter(Boolean).join(" · ");
+      }
     }
     ctx.footFree = rem.free; ctx.footXp = st.xpTotal ? rem.xp : null;
     return ctx;
@@ -839,6 +988,29 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     this.render();
   }
   static #onVisage(event, target) { this.st.visage = target.dataset.visage; this.render(); }
+  /** Гару: выбор рода, породы, аугурии, племени или варианта внутри рода Фера; Дары, которых больше нет в ячейках, — сбрасываются. */
+  static #onGarouPick(event, target) {
+    const { what, key } = target.dataset, w = this.st.ww;
+    if (what === "fera") { w.fera = key; w.sub = {}; w.gifts = {}; w.extra = []; w.deform = ""; w.renown = { glory: 0, honor: 0, wisdom: 0 }; }
+    else if (what.startsWith("sub.")) w.sub[what.slice(4)] = w.sub[what.slice(4)] === key ? "" : key;
+    else w[what] = key;
+    if (!this.isMetis) w.deform = "";
+    this.fixGiftSlots();
+    this.render();
+  }
+  /** Дар в ячейку (повторный щелчок — снять). */
+  static #onGarouGift(event, target) {
+    const { slot, key } = target.dataset, w = this.st.ww;
+    w.gifts[slot] = w.gifts[slot] === key ? "" : key;
+    w.extra = w.extra.filter(k => k !== key);
+    this.render();
+  }
+  /** Дар сверх трёх — за бонусные очки (W20, гл. 3: 7 за Дар 1-го уровня). */
+  static #onGarouExtra(event, target) {
+    const k = target.dataset.key, w = this.st.ww;
+    w.extra = w.extra.includes(k) ? w.extra.filter(x => x !== k) : [...w.extra, k];
+    this.render();
+  }
   static #onEarthbound() { this.st.earthbound = !this.st.earthbound; this.render(); }
   static #onThrall() { this.st.thrall = !this.st.thrall; if (this.st.thrall) this.st.mark = ""; this.render(); }
   /** Особый смертный: Родня, Ками или фомор (повторный щелчок — обычный смертный). */
@@ -925,6 +1097,12 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     const { kind, key } = target.dataset;
     const n = Number(target.dataset.n);
     const st = this.st;
+    // Слава Рагабаша и Фера: 3 точки в любом сочетании (у прочих аугурий — по книге, без выбора)
+    if (kind === "renown") {
+      if (this.renownFixed) return;
+      st.ww.renown[key] = st.ww.renown[key] === n ? n - 1 : n;
+      return this.render();
+    }
     if (kind === "disc" && this.isEarthbound && Codex.lore(key)?.dark) { ui.notifications.warn(t("Creator.DarkFreeOnly")); return; }
     const store = kind === "attr" ? st.attr : kind === "abil" ? st.abil : kind === "disc" ? st.disc : kind === "bg" ? st.bg : st.virt;
     const base = this.base(kind, key);
@@ -998,7 +1176,10 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     if (this.isHunter && !this.isLost && !hxp && (kind === "virt" || (kind === "morality" && mode === "xp"))) return ui.notifications.warn(t("Creator.HunterNoBuy"));
     // начальная Убеждённость за опыт — не выше Силы воли
     if (hxp && kind === "morality" && d > 0 && this.morality >= this.willpower) return ui.notifications.warn(t("Creator.HunterConvWill"));
-    if (kind === "morality" || kind === "will") {
+    if (kind === "rage" || kind === "gnosis") {            // Гару: Ярость и Гнозис — до 10
+      if (d > 0 && (kind === "rage" ? this.garouRage : this.garouGnosis) >= 10) return;
+      bag[kind] = Math.max(0, bag[kind] + d);
+    } else if (kind === "morality" || kind === "will") {
       const cap = this.isHunter ? (mode === "xp" ? 10 : 8) : this.st.path === "humanity" || mode === "xp" ? 10 : 5;
       if (d > 0 && (kind === "will" ? this.willpower >= 10 : this.morality >= cap)) return;
       bag[kind] = Math.max(0, bag[kind] + d);
@@ -1092,6 +1273,19 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
             bystander: Object.fromEntries(Object.entries(LOST_SLOTS).map(([slot, k]) => [k, this.value("virt", slot)])) }
         : { creed: st.creed, mercy: this.hunterVirtue("mercy"), vision: this.hunterVirtue("vision"), zeal: this.hunterVirtue("zeal"),
             conviction: this.morality, edges: [...st.edges], start: st.xp.morality ? (this.creedData?.conviction ?? 3) + st.xp.morality : 0 };
+    }
+    // Гару и Фера: порода, аугурия, племя (или род с выбором внутри), Ранг 1, форма рождения, Ярость, Гнозис, Дары, Слава, уродство
+    if (this.isWerewolf) {
+      delete sys.morality; delete sys.virtues;
+      const w = st.ww, f = this.feraData, r = this.garouRenown;
+      sys.werewolf = { ...(a.system.toObject?.().werewolf ?? {}),
+        breed: w.breed, auspice: w.auspice, tribe: w.tribe, rank: 1, fera: w.fera,
+        feraSub: { breed: "", aspect: "", tribe: "", faction: "", pryio: "", varna: "", ...w.sub },
+        form: f ? f.forms[0]?.key ?? "homid" : w.breed === "lupus" ? "lupus" : w.breed === "metis" ? "crinos" : "homid",
+        rage: { permanent: this.garouRage, value: this.garouRage }, gnosis: { permanent: this.garouGnosis, value: this.garouGnosis },
+        gifts: [...Object.values(w.gifts), ...w.extra].filter(Boolean),
+        deformities: this.isMetis && w.deform ? [w.deform] : [],
+        renown: Object.fromEntries(RENOWN.map(k => [k, { permanent: r[k], temporary: 0 }])) };
     }
     if (this.isDemon) {
       delete sys.morality;

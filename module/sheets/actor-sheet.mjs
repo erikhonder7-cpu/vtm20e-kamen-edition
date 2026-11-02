@@ -15,7 +15,6 @@ import { rollVirtueCheck } from "../dice/virtue-checks.mjs";
 import { openDamageDialog } from "../apps/damage.mjs";
 import { WEAPON_PRESETS, ARMOR_PRESETS, GEAR_PRESETS } from "../data/equipment.mjs";
 import { openCreator } from "../apps/creator.mjs";
-import { openWerewolfCreator } from "../apps/werewolf-creator.mjs";
 import { openSept } from "../apps/sept.mjs";
 import { openUmbra } from "../apps/umbra.mjs";
 import { openHunt } from "../apps/night.mjs";
@@ -530,7 +529,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static #onClanAtlas() { return openClans(this.actor.system.clan); }
 
   static #onTakeDamage() { return openDamageDialog(this.actor); }
-  static #onOpenCreator() { return this.actor.type === "werewolf" ? openWerewolfCreator(this.actor) : openCreator(this.actor); }
+  static #onOpenCreator() { return openCreator(this.actor); }
 
   /** Заполнить лист вручную, без мастера. */
   static async #onSkipCreation() {
