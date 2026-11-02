@@ -1069,12 +1069,12 @@ try {
       await WW.kamiAdd(k, "berserker"); await WW.kamiAdd(k, "Размер"); await WW.kamiAdd(k, "Размер");
       const xp0 = k.system.experience.spent; await WW.kamiAdd(k, "Мягкие лапы", true);
       await k.sheet.render({ force: true }); await wait(300);
-      out.kami = `${k.system.kami.rage}:${k.system.kami.powers.find(p => p.key === "Размер")?.n}:${k.system.experience.spent - xp0}:${WW.kamiDeliriumImmune(k)}:${k.sheet.element.querySelectorAll(".r-kami-powers .r-edge").length}`;
+      out.kami = `${k.system.kami.rage}:${k.system.kami.powers.find(p => p.key === "Размер")?.n}:${k.system.experience.spent - xp0}:${WW.kamiDeliriumImmune(k)}:${k.sheet.element.querySelectorAll(".r-kami-powers .r-sn-item").length}`;
       await k.sheet.close();
       // фомор: порода Нормалитов — Воля 3 и 4 силы (с Иммунитетом к Бреду), блок на листе
       await k.update({ "system.fomor.on": true }); await WW.fomorBreed(k, "normalites");
       await k.sheet.render({ force: true }); await wait(300);
-      out.fomor = `${k.system.willpower.permanent}:${k.system.fomor.powers.length}:${k.sheet.element.querySelectorAll(".r-fomor-powers .r-edge").length}`;
+      out.fomor = `${k.system.willpower.permanent}:${k.system.fomor.powers.length}:${k.sheet.element.querySelectorAll(".r-fomor-powers .r-sn-item").length}`;
       await k.sheet.close();
       // кин-фетч: Огненное крещение создаёт существо-духа по образцу (особая Чара «Клеймо фетча» с текстом), Перемена сжигает клеймо
       await WW.bindFetch(k, "fetch-Кин-фетч"); const fa = await fromUuid(k.system.kinfolk.fetch);

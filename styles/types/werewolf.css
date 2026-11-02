@@ -343,15 +343,78 @@ body.r-theme-light .vtm20.r-type-werewolf .r-form-badge.is-down { color: #7a2a18
 .vtm20 .r-vc-spirit .r-boxes.is-essence { flex-wrap: wrap; }
 .vtm20 .r-vc-spirit .r-mini-num { width: 44px; }
 
-/* Родня Гару на листе смертного */
-.vtm20 .r-kin-row { display: grid; grid-template-columns: 1fr 1fr 80px; gap: 10px; }
-.vtm20 .r-kin-row label { display: flex; flex-direction: column; gap: 2px; }
-.vtm20 .r-kin-row label > span { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; opacity: .7; }
-.vtm20 .r-kin-toggle { display: inline-flex; gap: 5px; align-items: center; font-size: 12px; }
-/* Нумины Родни: точки рядом с названием, недоступные уровни Пути приглушены */
-.vtm20 .r-kin-numina .r-dots { display: inline-flex; gap: 3px; margin-left: 8px; vertical-align: middle; }
-.vtm20 .r-kin-numina .r-edge-text ul { margin: 4px 0 0; padding-left: 18px; }
-.vtm20 .r-kin-numina .r-edge-text li.is-locked { opacity: .45; }
+/* ── Сверхъестественное у смертного: Родня, Ками, фомор — карточки (advantages.hbs, .r-sn) ──
+   у каждой своя метка: Родня — лунное серебро, Ками — молодая листва, фомор — бейнов фиолет */
+.vtm20 .r-sn { --sn: #b9c8c3; --sn-glow: rgba(185, 200, 195, .2); margin: 14px 0 10px; border: 1px solid var(--r-line); border-radius: 3px;
+  background: var(--r-card-bg); box-shadow: inset 3px 0 0 var(--sn); }
+.vtm20 .r-sn.is-kami { --sn: #9cc47a; --sn-glow: rgba(156, 196, 122, .2); }
+.vtm20 .r-sn.is-fomor { --sn: #b48ad6; --sn-glow: rgba(180, 138, 214, .2); }
+.vtm20 .r-sn.is-off { box-shadow: inset 3px 0 0 var(--r-line); }
+.vtm20 .r-sn-head { display: flex; align-items: center; gap: 10px; padding: 8px 12px; }
+.vtm20 .r-sn:not(.is-off) .r-sn-head { border-bottom: 1px solid var(--r-line); background: linear-gradient(90deg, var(--sn-glow), transparent 65%); }
+.vtm20 .r-sn-sigil { flex: none; width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; font-size: 13px; color: var(--sn);
+  border: 1px solid color-mix(in srgb, var(--sn) 60%, transparent); background: radial-gradient(circle at 50% 30%, rgba(255, 255, 255, .06), rgba(0, 0, 0, .35) 72%);
+  box-shadow: 0 0 10px var(--sn-glow); }
+.vtm20 .r-sn.is-off .r-sn-sigil { color: var(--r-muted); border-color: var(--r-line); box-shadow: none; }
+.vtm20 .r-sn-title { flex: 1; min-width: 0; display: flex; align-items: baseline; flex-wrap: wrap; gap: 2px 10px; }
+.vtm20 .r-sn-title b { font-family: var(--r-display); font-size: 17px; font-weight: 400; color: var(--r-ink); }
+.vtm20 .r-sn.is-off .r-sn-title b { color: var(--r-ink-2); }
+.vtm20 .r-sn-title small { font-family: var(--r-caps); font-size: 10px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--r-muted); }
+.vtm20 .r-sn-toggle { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--r-ink-2); white-space: nowrap; cursor: pointer; }
+.vtm20 .r-sn-body { display: flex; flex-direction: column; gap: 8px; padding: 10px 12px 12px; }
+.vtm20 .r-sn-fields { display: flex; flex-wrap: wrap; gap: 8px 12px; }
+.vtm20 .r-sn-fields label { flex: 1 1 160px; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.vtm20 .r-sn-fields label.is-wide { flex: 2 1 240px; }
+.vtm20 .r-sn-fields label.is-num { flex: 0 0 78px; }
+.vtm20 .r-sn-fields label.is-num input { text-align: center; }
+.vtm20 .r-sn-fields label.is-full { flex-basis: 100%; }
+.vtm20 .r-sn-fields label > span:first-child { font-family: var(--r-caps); font-size: 10.5px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--r-muted); }
+.vtm20 .r-sn-pick { display: flex; gap: 6px; }
+.vtm20 .r-sn-pick select { flex: 1; min-width: 0; }
+.vtm20 .r-sn-hint { margin: 0; font-size: 12px; line-height: 1.45; font-style: italic; color: var(--r-muted); }
+.vtm20 .r-sn-hint b { font-style: normal; color: var(--r-ink-2); }
+.vtm20 .r-sn-sub { margin: 6px 0 0; padding-bottom: 3px; border-bottom: 1px dotted var(--r-line); font-family: var(--r-caps); font-size: 11px; font-weight: 400;
+  letter-spacing: 1.6px; text-transform: uppercase; color: var(--sn); }
+.vtm20 .r-sn-sub i { margin-right: 4px; opacity: .8; }
+/* строка силы: слева — метка и название (щелчок раскрывает описание), справа — точки и кнопки в одну линию */
+.vtm20 .r-sn-list { list-style: none; margin: 0; padding: 0; }
+.vtm20 .r-sn-item { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: start; padding: 3px 0; border-bottom: 1px dotted var(--r-line); }
+.vtm20 .r-sn-item:last-child { border-bottom: 0; }
+.vtm20 .r-sn-item summary { display: flex; align-items: baseline; gap: 8px; padding: 3px 0; cursor: pointer; list-style: none; }
+.vtm20 .r-sn-item summary::-webkit-details-marker { display: none; }
+.vtm20 .r-sn-mark { flex: none; width: 22px; text-align: center; font-family: var(--r-display); font-size: 13px; color: var(--sn); }
+.vtm20 .r-sn-item summary b { flex: none; font-family: var(--r-display); font-size: 15px; font-weight: 400; color: var(--r-ink); }
+.vtm20 .r-sn-item summary small { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; font-style: italic; color: var(--r-muted); }
+.vtm20 .r-sn-item summary:hover b, .vtm20 .r-sn-item details[open] summary b { color: var(--sn); }
+.vtm20 .r-sn-item details[open] summary small { white-space: normal; }
+.vtm20 .r-sn-text { margin: 2px 0 6px 30px; padding: 6px 10px; border-left: 2px solid color-mix(in srgb, var(--sn) 45%, transparent);
+  background: rgba(0, 0, 0, .12); font-size: 13px; line-height: 1.45; color: var(--r-ink-2); }
+.vtm20 .r-sn-text p { margin: 0 0 4px; }
+.vtm20 .r-sn-text p:last-child { margin-bottom: 0; }
+.vtm20 .r-sn-levels { display: flex; flex-direction: column; gap: 3px; margin: 6px 0 0; padding: 0; list-style: none; }
+.vtm20 .r-sn-levels li.is-locked { opacity: .45; }
+.vtm20 .r-sn-levels b { color: var(--r-ink); font-weight: 400; font-family: var(--r-display); }
+.vtm20 .r-sn-levels em { font-style: normal; font-size: 12px; color: var(--r-muted); }
+.vtm20 .r-sn-acts { display: flex; align-items: center; gap: 4px; padding-top: 2px; }
+.vtm20 .r-sn-acts .r-dots { display: inline-flex; gap: 3px; margin-right: 6px; }
+.vtm20 .r-sn-btn { display: inline-grid; place-items: center; min-width: 26px; height: 26px; padding: 0 6px; border: 1px solid var(--r-line-2); border-radius: 3px;
+  background: rgba(0, 0, 0, .18); color: var(--r-ink-2); font-size: 12px; cursor: pointer; }
+.vtm20 .r-sn-btn.is-wide { display: inline-flex; align-items: center; gap: 6px; padding: 0 10px; white-space: nowrap; }
+.vtm20 .r-sn-btn:hover { color: var(--sn); border-color: var(--sn); }
+.vtm20 .r-sn-btn.is-del:hover { color: #e06a5a; border-color: #e06a5a; }
+.vtm20 .r-sn-empty { padding: 4px 0 4px 30px; font-size: 12.5px; font-style: italic; color: var(--r-muted); }
+.vtm20 .r-sn-add { display: flex; align-items: center; gap: 6px; }
+.vtm20 .r-sn-add select { flex: 1; min-width: 0; }
+.vtm20 .r-sn-fetch { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.vtm20 .r-sn-more summary { cursor: pointer; font-family: var(--r-caps); font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--r-muted); }
+.vtm20 .r-sn-more summary:hover { color: var(--sn); }
+.vtm20 .r-sn-more .r-sn-text { margin-left: 0; max-height: 360px; overflow: auto; }
+.vtm20 .r-sn-more table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.vtm20 .r-sn-more td, .vtm20 .r-sn-more th { padding: 2px 4px; border-bottom: 1px solid var(--r-line); text-align: left; }
+body.r-theme-light .vtm20 .r-sn { --sn: #3f5d50; }
+body.r-theme-light .vtm20 .r-sn.is-kami { --sn: #4c7a2c; }
+body.r-theme-light .vtm20 .r-sn.is-fomor { --sn: #6d3f94; }
+body.r-theme-light .vtm20 .r-sn-btn, body.r-theme-light .vtm20 .r-sn-text { background: rgba(255, 255, 255, .35); }
 /* уродство метиса обязательно — напоминание, пока его нет */
 .vtm20 .r-ww-deforms .r-note.is-warn { color: #c9744f; }
 
@@ -436,13 +499,7 @@ body.r-theme-light .vtm20.r-type-werewolf .r-form-badge.is-down { color: #7a2a18
 .vtm20.r-type-werewolf .r-ww-fera-text td, .vtm20.r-type-werewolf .r-ww-fera-text th { border-bottom: 1px solid color-mix(in srgb, currentColor 15%, transparent); padding: 2px 4px; }
 .vtm20.r-type-werewolf .r-ww-fera.is-fera ~ .r-ww-forms { grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); }
 
-/* Ками: Гейс во всю ширину под строкой облика */
-.vtm20 .r-kami-geas { display: flex; flex-direction: column; gap: 2px; margin: 8px 0 4px; }
-.vtm20 .r-kami-geas > span { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; opacity: .7; }
-
 /* Окно Первобытного инстинкта: приёмы раскрываются по щелчку */
 .vtm20.r-dialog .r-primal details { margin: 4px 0; }
 .vtm20.r-dialog .r-primal summary { cursor: pointer; }
 .vtm20.r-dialog .r-primal summary small { opacity: .75; margin-left: 6px; }
-/* Фомор: порода — список и кнопка «взять» рядом, Ярость справа */
-.vtm20 .r-fomor .r-kin-row { grid-template-columns: 1fr auto 80px; align-items: end; }
