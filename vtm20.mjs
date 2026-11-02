@@ -516,6 +516,6 @@ function registerHelpers() {
     if (!sym?.src) return "";
     const extra = typeof cls === "string" ? ` ${cls}` : "";
     const src = Handlebars.escapeExpression(sym.src);
-    return new Handlebars.SafeString(`<span class="r-sym${sym.lum ? " is-lum" : ""}${extra}" style="--sym: url('${src}')" aria-hidden="true"></span>`);
+    return new Handlebars.SafeString(`<span class="r-sym${sym.lum ? " is-lum" : ""}${sym.wide ? " is-wide" : ""}${extra}" style="--sym: url('${src}')" aria-hidden="true"></span>`);
   });
 }

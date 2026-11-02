@@ -720,6 +720,7 @@ body.r-theme-light .vtm20 .r-vc-btn.is-umbra { color: var(--w-moon-l); box-shado
 /* Печать под портретом: знак аугурии (у Фера — рода) вместо значка */
 .vtm20.r-type-werewolf .r-seal-glyph { display: inline-grid; place-items: center; }
 .vtm20.r-type-werewolf .r-seal-glyph .r-sym { width: 15px; height: 15px; }
+.vtm20.r-type-werewolf .r-seal-glyph .r-sym.is-wide { width: 24px; }
 
 /* Мастер: что даёт вариант рода (аспект, племя, варна…) — под названием на плитке */
 .vtm20 .r-cr-tile .r-cr-tile-text { display: block; margin-top: 4px; font-family: var(--r-body); font-size: 11.5px; line-height: 1.35; letter-spacing: 0; text-transform: none;
@@ -734,6 +735,7 @@ img[src$="assets/werewolf/glyph-garou.png"] { filter: invert(.93) sepia(.15) hue
 body.r-theme-light img[src$="assets/werewolf/glyph-garou.png"] { filter: none; }
 /* Мастер: знаки на вкладках рода, плитках породы и аугурии, медалях племён */
 .vtm20 .r-cr-garou-kinds .r-cr-kind-sym { width: 15px; height: 15px; vertical-align: -3px; margin-right: 3px; }
+.vtm20 .r-cr-garou-kinds .r-cr-kind-sym.is-wide { width: 26px; }
 .vtm20 .r-cr-garou-kinds a.is-active .r-wg { background: linear-gradient(170deg, #ffffff, #c6d6cf); }
 /* плитка со знаком: знак — колонкой слева, название и подпись — ровно справа от него, без переносов под знак */
 .vtm20 .r-cr-tile.has-sym { display: grid; grid-template-columns: 22px minmax(0, 1fr); column-gap: 10px; row-gap: 2px; align-content: start; }

@@ -24,6 +24,9 @@ const ORDER = ["homid", "glabro", "crinos", "hispo", "lupus"];
 // путь от корня: относительный url() в CSS-переменной считался бы от файла стилей
 export const wwGlyphSrc = name => foundry.utils.getRoute(`${SYSTEM_PATH}/assets/werewolf/${name}.png`);
 /** Знак маской, залитой лунным серебром (цвет задаёт CSS: .r-wg). */
+/** Знак рода Фера; у Аджаба, Моколе и Рокеа он длинный и плоский — в узкой ячейке ему дают ширину (is-wide). */
+const FERA_WIDE = new Set(["ajaba", "mokole", "rokea"]);
+export const feraSym = key => ({ src: wwGlyphSrc(`fera-${key}`), wide: FERA_WIDE.has(key) });
 export const wwGlyph = (name, cls = "") => `<span class="r-sym r-wg${cls ? ` ${cls}` : ""}" style="--sym: url('${wwGlyphSrc(name)}')" aria-hidden="true"></span>`;
 export const RENOWN_GLYPH = { glory: "glyph-glory", honor: "glyph-honor", wisdom: "glyph-wisdom" };
 
@@ -31,10 +34,9 @@ export const RENOWN_GLYPH = { glory: "glyph-glory", honor: "glyph-honor", wisdom
 export function werewolfSigil(actor) {
   const w = actor.system.werewolf, D = W(), fera = feraOf(actor);
   const tribe = byKey(D.tribes, w.tribe), aus = byKey(D.auspices, w.auspice);
-  const kin = fera ? `fera-${fera.key}` : null;
   return {
-    sym: { src: wwGlyphSrc(kin ?? (tribe ? `tribe-${tribe.key}` : "glyph-garou")) }, label: fera ? VTM20.label(fera) : tribe?.name ?? "",
-    seal: fera ? { sym: { src: wwGlyphSrc(kin) }, label: VTM20.label(fera) } : { sym: { src: wwGlyphSrc(aus ? `auspice-${aus.key}` : "glyph-luna") }, label: aus?.name ?? t("Garou") }
+    sym: fera ? feraSym(fera.key) : { src: wwGlyphSrc(tribe ? `tribe-${tribe.key}` : "glyph-garou") }, label: fera ? VTM20.label(fera) : tribe?.name ?? "",
+    seal: fera ? { sym: feraSym(fera.key), label: VTM20.label(fera) } : { sym: { src: wwGlyphSrc(aus ? `auspice-${aus.key}` : "glyph-luna") }, label: aus?.name ?? t("Garou") }
   };
 }
 

@@ -18,7 +18,7 @@ import { openHouses } from "./houses.mjs";
 import { blockerFor, checkTraits } from "../data/trait-rules.mjs";
 import { attachCombos } from "../ui/combo.mjs";
 import { weaponIcon, armorIcon, traitIcon, backgroundIcon } from "../data/icons.mjs";
-import { W as werewolfData, ownGift, wwGlyphSrc } from "./werewolf.mjs";
+import { W as werewolfData, ownGift, wwGlyphSrc, feraSym } from "./werewolf.mjs";
 import { H as hunterData, edgeCost, growth as hunterGrowth, sacrificeOn as hunterSacrificeOn, hasOwnPath, creedCapped, edgeBarred, HERMIT_PATH, hermitEdgeMadness, hasPrevEdge } from "./hunter.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -584,7 +584,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       st, ui: this.ui, rem, rules: this.rules, type: this.type,
       marks: this.type === "mortal" ? this.markView() : null,
       isVampire: this.type === "vampire", isGhoul: this.type === "ghoul", isDemon: this.isDemon, isEarthbound: this.isEarthbound, isThrall: this.isThrall, isMortal: this.type === "mortal", isHunter: this.isHunter, isLost: this.isLost, isWerewolf: this.isWerewolf, discLabel: this.discLabel, bgLabel: this.bgLabel,
-      typeLabel: loc(`TYPES.Actor.${this.type}`), typeSigil: VTM20.typeSigil(this.type),
+      typeLabel: loc(`TYPES.Actor.${this.type}`), typeSigil: VTM20.typeSigil(this.type), typeSym: this.type === "werewolf" ? { src: foundry.utils.getRoute(VTM20.typeSigil(this.type)) } : null,
       steps: this.steps.map((k, i) => ({ i, key: k, n: i + 1, label: t(`Creator.Step.${this.stepName(k)}`), active: i === this.step, done: this.stepOk(k, rem) && i !== this.step })),
       stepKey: key, stepNumber: this.step + 1, stepCount: this.steps.length,
       // у гуля свои подсказки там, где правила другие (нет Становления, Дисциплины — от домитора)
@@ -717,7 +717,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     // II. Гару: род (Гару или Фера), порода, аугурия, племя — плитками, как кланы; у Фера — выбор внутри рода; уродство метиса
     if (this.isWerewolf) {
       const D = werewolfData(), w = st.ww, f = this.feraData, lbl = x => VTM20.label(x), plain = h => VtMCreator.#plain(h);
-      const g = name => ({ src: wwGlyphSrc(name) }), feraGlyph = k => g(`fera-${k}`);
+      const g = name => ({ src: wwGlyphSrc(name) }), feraGlyph = feraSym;
       const base = this.garouBase;
       ctx.garou = {
         base, renownFixed: this.renownFixed, isFera: !!f, isMetis: this.isMetis,
