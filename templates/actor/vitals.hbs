@@ -112,7 +112,9 @@
   {{else if werewolfInfo}}
   {{!-- Гару (W20, гл. 4): Ярость и Гнозис — как Воля: постоянное кружками, текущий пул квадратиками (щелчок — поставить).
        Текущая Ярость может быть выше постоянной; Гнозис — нет. Слава и Ранг — строкой в шапке. --}}
-  <div class="r-vcard r-vc-morality r-vc-garou">
+  <div class="r-vcard r-vc-morality r-vc-garou is-pair">
+    {{!-- Ярость и Гнозис — двумя колонками: карточка ниже и вровень со Здоровьем и Волей --}}
+    <div class="r-ww-pool">
     <div class="r-vc-head">
       <h4 class="r-banner"><a data-action="rollTrait" data-trait="werewolf.rage" data-tooltip="{{localize 'VTM20.Werewolf.RageHint'}}">{{localize "VTM20.Werewolf.Rage"}}</a></h4>
       {{#if werewolfInfo.beast}}<span class="r-vc-hint is-warn r-ww-beast" data-tooltip="{{localize 'VTM20.Werewolf.BeastHint' n=werewolfInfo.beast}}"><i class="fa-solid fa-paw-claws"></i> −{{werewolfInfo.beast}}</span>{{/if}}
@@ -122,6 +124,8 @@
     <div class="r-boxes is-rage">
       {{#each werewolfInfo.rageTemp}}<a class="r-box {{#if filled}}is-filled{{/if}}" data-action="setDots" data-path="{{path}}" data-n="{{n}}"></a>{{/each}}
     </div>
+    </div>
+    <div class="r-ww-pool">
     <div class="r-vc-head is-second">
       <h4 class="r-banner"><a data-action="rollTrait" data-trait="werewolf.gnosis" data-tooltip="{{localize 'VTM20.Werewolf.GnosisHint'}}">{{localize "VTM20.Werewolf.Gnosis"}}</a></h4>
       <div class="r-vc-status"><b>{{werewolfInfo.gnosis}}</b> / {{werewolfInfo.gnosisPerm}}</div>
@@ -129,6 +133,7 @@
     {{> rDots dots=werewolfInfo.gnosisDots cls="is-ten is-gnosis"}}
     <div class="r-boxes is-gnosis">
       {{#each werewolfInfo.gnosisTemp}}<a class="r-box {{#if filled}}is-filled{{/if}} {{#if locked}}is-locked{{/if}}" data-action="setDots" data-path="{{path}}" data-n="{{n}}"></a>{{/each}}
+    </div>
     </div>
   </div>
   {{else if spiritInfo}}

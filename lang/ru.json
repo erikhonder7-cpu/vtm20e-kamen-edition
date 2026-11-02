@@ -3619,7 +3619,9 @@
       "DropIs": "капля = {n}",
       "Blood": "Кровь",
       "Essence": "Эссенция",
-      "ArmorCap": "броня"
+      "ArmorCap": "броня",
+      "PowersOf": "Силы: {name} — список с бросками",
+      "Close": "Закрыть"
     },
     "Contest": {
       "ModeLabel": "Вид действия",

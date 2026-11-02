@@ -13,7 +13,7 @@ import { openHazard } from "../apps/hazard.mjs";
 import { openHunt } from "../apps/night.mjs";
 import { rollPowerRef, powerByRef } from "../sheets/actor-sheet.mjs";
 import { effectTimer } from "../apps/timers.mjs";
-import { W as werewolfData, feraOf, changeForm, rageActions, regenerate, stepSideways, frenzyCheck } from "../apps/werewolf.mjs";
+import { W as werewolfData, feraOf, changeForm, rageActions, regenerate, stepSideways, frenzyCheck, giftOf, rollGift, rollRite } from "../apps/werewolf.mjs";
 import { H as hunterData, secondSight } from "../apps/hunter.mjs";
 import { assumeForm } from "../apps/torment.mjs";
 
@@ -92,7 +92,40 @@ function subtitleOf(a, kind) {
 /* ── «Герб»: квадратный портрет в центре, крылья-знамёна по бокам (слева Жизнь и Воля, справа запасы вида),
    над ним — вкладки и дуга печатей-действий; броня и инициатива — монетами на плечах портрета, только в бою ── */
 
-let tab = "fight";   // открытая вкладка печатей (для всех персонажей одна — переключение не сбрасывается при смене токена)
+const tabOf = new Map();   // открытая вкладка печатей — своя у каждого персонажа (id актёра → ключ)
+let pop = null;           // открытый над HUD список сил одной группы (ключ группы) или null
+const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
+
+/**
+ * Освоенные силы группами: Дисциплины и пути магии крови (силы до своего уровня), Знания падшего, Дары и ритуалы Гару.
+ * Группа — печать во вкладке «Силы»; щелчок открывает над HUD список её сил, щелчок по силе — бросок.
+ */
+function powerGroups(a, kind) {
+  const out = [], by = type => a.items.filter(i => i.type === type && (i.system.value ?? 0) > 0);
+  for (const i of by("discipline")) {
+    const k = i.system.key, d = Codex.discipline(k), rows = (d?.powers ?? []).map((p, n) => ({ p, n })).filter(x => x.p.level <= i.system.value);
+    if (rows.length) out.push({ id: `d:${k}`, label: Codex.disciplineLabel(k), img: foundry.utils.getRoute(Codex.disciplineIcon(k)), lvl: i.system.value,
+      rows: rows.map(x => ({ name: x.p.name, level: x.p.level, act: "power", attrs: `data-ref="${esc(`${k}|${x.n}`)}"` })) });
+  }
+  for (const i of by("thaumPath")) {
+    const k = i.system.discipline, pd = Codex.bloodPath(k, i.name), pi = (Codex.discipline(k)?.paths ?? []).indexOf(pd);
+    const rows = (pd?.powers ?? []).map((p, n) => ({ p, n })).filter(x => x.p.level <= i.system.value);
+    if (pi >= 0 && rows.length) out.push({ id: `p:${k}:${pi}`, label: i.name, img: foundry.utils.getRoute(Codex.disciplineIcon(k)), lvl: i.system.value,
+      rows: rows.map(x => ({ name: x.p.name, level: x.p.level, act: "power", attrs: `data-ref="${esc(`${k}|path|${pi}|${x.n}`)}"` })) });
+  }
+  for (const i of by("lore")) {
+    const L = Codex.lore(i.system.key), rows = (L?.powers ?? []).map((p, n) => ({ p, n })).filter(x => x.p.level <= i.system.value);
+    if (rows.length) out.push({ id: `l:${i.system.key}`, label: L.name ?? i.name, icon: "fa-book-skull", lvl: i.system.value,
+      rows: rows.map(x => ({ name: x.p.name, level: x.p.level, act: "power", attrs: `data-ref="${esc(`lore:${i.system.key}|${x.n}`)}"` })) });
+  }
+  if (kind === "werewolf") {
+    const w = a.system.werewolf, gifts = (w.gifts ?? []).map(giftOf).filter(Boolean).sort((x, y) => x.level - y.level || x.name.localeCompare(y.name, "ru"));
+    if (gifts.length) out.push({ id: "gifts", label: t("Werewolf.Gifts"), icon: "fa-paw", rows: gifts.map(g => ({ name: g.name, level: g.level, act: "gift", attrs: `data-key="${esc(g.key)}"` })) });
+    const rites = (w.rites ?? []).map(k => werewolfData().rites.find(r => r.key === k)).filter(Boolean);
+    if (rites.length) out.push({ id: "rites", label: t("Werewolf.Rites"), icon: "fa-hands-praying", rows: rites.map(r => ({ name: r.name, level: r.level || 0, act: "rite", attrs: `data-key="${esc(r.key)}"` })) });
+  }
+  return out;
+}
 
 /** Точки и клетки — как на листе: n из max, вид заливки классом. */
 const dots = (n, max, fill = "") => Array.from({ length: max }, (_, i) => `<i class="d${i < n ? ` on ${fill}` : ""}"></i>`).join("");
@@ -211,7 +244,9 @@ function tabsOf(a, kind) {
     const tm = effectTimer(x.effect), tip = tm ? `${x.effect.name} · ${t(x.def.mode === "night" ? "Timer.ToDawn" : "Timer.Left")} ${tm.left}` : x.effect.name;
     return `<span class="rh-seal is-fx" data-tooltip="${esc(tip)}" ${tm ? `data-fx-start="${tm.start}" data-fx-until="${tm.until}"` : ""}><span class="rh-knob"><img src="${esc(x.effect.img)}" alt="">${tm ? `<i class="rh-fx-bar" style="width:${tm.pctW}%"></i>` : ""}</span><span class="rh-seal-l">${esc(x.effect.name)}</span></span>`;
   });
-  tabs.push({ key: "powers", label: t("Hud.Powers"), seals: [...own, ...powers, ...fx, seal("allPowers", "fa-book-open", t("Hud.AllPowers"), { man: true, tip: t("Hud.AllPowersTip") })] });
+  const groups = powerGroups(a, kind).map(g => seal("pop", g.icon ?? "", g.label, { attrs: `data-pop="${esc(g.id)}"`, img: g.img ?? "", lvl: g.lvl ?? 0,
+    on: pop === g.id, tip: t("Hud.PowersOf", { name: g.label }) }));
+  tabs.push({ key: "powers", label: t("Hud.Powers"), seals: [...own, ...groups, ...powers, ...fx, seal("allPowers", "fa-book-open", t("Hud.AllPowers"), { man: true, tip: t("Hud.AllPowersTip") })] });
   tabs.push({ key: "other", label: t("Hud.Tab.other"), seals: [seal("roll", "fa-dice-d10", t("Hud.Roll"), { tip: t("Hud.RollTip") }),
     seal("initRoll", "fa-bolt", t("Hud.InitShortCap"), { tip: t("Hud.InitTip") }), seal("hazard", "fa-fire-flame-curved", t("Hud.Hazard"), { tip: t("Hazard.Title") }),
     seal("sheet", "fa-book", t("Hud.Sheet"), { tip: t("Hud.SheetTip") })] });
@@ -234,7 +269,11 @@ export function renderHud() {
   }
   const s = a.system, kind = kindOf(a);
   el.classList.add(`rh-t-${kind}`);
-  const tabs = tabsOf(a, kind), cur = tabs.find(x => x.key === tab) ?? tabs[0];
+  const tabs = tabsOf(a, kind), cur = tabs.find(x => x.key === tabOf.get(a.id)) ?? tabs[0];
+  const group = cur.key === "powers" && pop ? powerGroups(a, kind).find(g => g.id === pop) : null;
+  const popup = group ? `<div class="rh-pop"><header>${group.img ? `<img src="${esc(group.img)}" alt="">` : `<i class="fa-solid ${group.icon}"></i>`}<b>${esc(group.label)}</b>
+      ${group.lvl ? `<span class="rh-lvl">${dots(group.lvl, 5)}</span>` : ""}<a data-act="popClose" aria-label="${esc(t("Hud.Close"))}"><i class="fa-solid fa-xmark"></i></a></header>
+      <div class="rh-pop-list">${group.rows.map(r => `<a class="rh-pop-row" data-act="${r.act}" ${r.attrs}><i>${r.level ? ROMAN[r.level - 1] ?? r.level : "—"}</i><span>${esc(r.name)}</span><em class="fa-solid fa-dice-d10"></em></a>`).join("")}</div></div>` : "";
 
   // бой: броня и инициатива — монетами на плечах портрета; вне боя их нет (инициатива — печатью во вкладке «Прочее»)
   const combatant = game.combat?.combatants?.find(c => c.actor?.id === a.id);
@@ -258,7 +297,7 @@ export function renderHud() {
   const wing = side => `<svg class="rh-banner" viewBox="0 0 340 76" preserveAspectRatio="none" aria-hidden="true"${side === "right" ? ` style="transform:scaleX(-1)"` : ""}>
       <polygon points="0,0 340,0 340,76 0,76 22,38"/><polyline points="340,5 9,5 28,38 9,71 340,71"/></svg>`;
   el.innerHTML = `
-    ${alarm}
+    ${popup}${alarm}
     <nav class="rh-tabs">${tabs.map((x, i) => `${i ? `<i class="rh-sep">◆</i>` : ""}<a class="${x === cur ? "on" : ""}" data-act="tab" data-tab="${x.key}">${esc(x.label)}</a>`).join("")}</nav>
     <div class="rh-seals">${arc(cur.seals)}</div>
     <div class="rh-crest${myTurn ? " is-turn" : ""}">
@@ -280,7 +319,12 @@ async function onClick(ev) {
   if (!a) return;
   switch (el.dataset.act) {
     case "sheet": return a.sheet.render(true);
-    case "tab": tab = el.dataset.tab; return renderHud();
+    case "tab": tabOf.set(a.id, el.dataset.tab); pop = null; return renderHud();
+    case "pop": pop = pop === el.dataset.pop ? null : el.dataset.pop; return renderHud();
+    case "popClose": pop = null; return renderHud();
+    // силы из списка над HUD: Дисциплины и Знания — броском силы, Дары и ритуалы Гару — своими бросками
+    case "gift": pop = null; renderHud(); return rollGift(a, el.dataset.key);
+    case "rite": pop = null; renderHud(); return rollRite(a, el.dataset.key);
     case "noop": return;
     // все силы — вкладка сил на листе (Дисциплины, Дары, Знания, Грани)
     case "allPowers": await a.sheet.render(true); return a.sheet.changeTab?.("disciplines", "primary");
@@ -313,7 +357,7 @@ async function onClick(ev) {
       });
       return n ? a.buyCelerityActions(n) : null;
     }
-    case "power": return rollPowerRef(a, el.dataset.ref);
+    case "power": if (pop) { pop = null; renderHud(); } return rollPowerRef(a, el.dataset.ref);
     case "hunt": return openHunt(a);
     case "hazard": return openHazard(a);
     case "defendPending": return defendFromHud(a);

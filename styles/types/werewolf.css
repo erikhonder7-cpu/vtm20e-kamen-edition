@@ -758,3 +758,15 @@ body.r-theme-light img[src$="assets/werewolf/glyph-garou.png"] { filter: none; }
   .vtm20.r-umbra-app .r-um { grid-template-columns: 200px minmax(0, 1fr); }
   .vtm20.r-umbra-app .r-um-where { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* Ярость и Гнозис — двумя колонками в одной карточке: точки и квадратики мельче, карточка вровень со Здоровьем и Волей;
+   на узкой ширине — снова друг под другом */
+.vtm20.r-type-werewolf .r-vc-garou.is-pair { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0 14px; align-content: start; }
+.vtm20.r-type-werewolf .r-vc-garou.is-pair .r-ww-pool { min-width: 0; }
+.vtm20.r-type-werewolf .r-vc-garou.is-pair .r-vc-head.is-second { margin-top: 0; }
+.vtm20.r-type-werewolf .r-vc-garou.is-pair :is(.r-dot, .r-box) { width: 13px; height: 13px; }
+.vtm20.r-type-werewolf .r-vc-garou.is-pair :is(.r-dots, .r-boxes) { gap: 2px; justify-content: flex-start; flex-wrap: nowrap; }
+@container rsheet (max-width: 900px) {
+  .vtm20.r-type-werewolf .r-vc-garou.is-pair { grid-template-columns: minmax(0, 1fr); }
+  .vtm20.r-type-werewolf .r-vc-garou.is-pair .r-vc-head.is-second { margin-top: 10px; }
+}

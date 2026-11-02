@@ -3249,7 +3249,9 @@
       "DropIs": "drop = {n}",
       "Blood": "Blood",
       "Essence": "Essence",
-      "ArmorCap": "armor"
+      "ArmorCap": "armor",
+      "PowersOf": "Powers: {name} — list with rolls",
+      "Close": "Close"
     },
     "Contest": {
       "ModeLabel": "Kind of action",

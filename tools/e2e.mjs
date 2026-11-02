@@ -204,8 +204,11 @@ try {
       const n = game.messages.size;
       await T.expireTimers(now + 2 * 3600000);
       const card = game.messages.contents.slice(n).find(m => m.flags?.[game.system.id]?.timers);
-      return { hour: Math.round((until - now) / 60000), reading, left: a.effects.size, button: !!card?.content.includes("data-r-ritual") };
+      return { hour: Math.round((until - now) / 60000), reading, left: a.effects.size, button: !!card?.content.includes("data-r-ritual"),
+        otherGm: !game.users.activeGM?.isSelf ? game.users.activeGM?.name ?? "?" : "" };
     }, id);
+    // сроки гасит только активный рассказчик — если в мире сидит другой ГМ, проверка ничего не скажет о сроках
+    if (r.otherGm) throw new Error(`активный рассказчик — «${r.otherGm}», не тест: выйдите из мира под ним и повторите`);
     if (r.hour !== 60) throw new Error(`срок силы на час: ${r.hour} мин.`);
     if (r.reading !== 1) throw new Error("ритуал не начал читаться");
     if (r.left !== 0) throw new Error(`после срока осталось эффектов: ${r.left}`);
@@ -305,8 +308,12 @@ try {
       for (const k of ["camarilla", "sabbat", "anarchs"]) { app.st.sectKey = k; out[k] = nums(); }
       app.st.sectKey = "camarilla"; app.st.clan = "brujah";
       out.banned = app.bannedDisc("obtenebration") && !app.bannedDisc("potence");
+      // взятые «Союзники» — одной карточкой (одноимённые Факты охотников и оборотней не подмешиваются)
+      app.st.bg["Союзники"] = 1; app.step = app.steps.indexOf("advantages");
+      out.allies = ((await app._prepareContext({})).bgCards ?? []).filter(b => b.name === "Союзники").length;
       return out;
     }, id);
+    if (r.allies !== 1) throw new Error(`карточек «Союзники» после выбора: ${r.allies}`);
     if (r.camarilla !== "3/5/7" || r.anarchs !== "3/5/7") throw new Error(`числа Камарильи и анархов: ${r.camarilla}, ${r.anarchs}`);
     if (r.sabbat !== "4/0/5") throw new Error(`числа Шабаша: ${r.sabbat}`);
     if (!r.banned) throw new Error("Камарилье доступно внеклановое Затмение");
@@ -1628,4 +1635,12 @@ if (errors.length) {
 }
 const failed = results.filter(r => !r.ok).length;
 console.log(failed ? `\nНе прошло: ${failed} из ${results.length}.` : `\nВсё в порядке: ${results.length} проверок.`);
+// отметка для релиза (tools/release.mjs): полный прогон на этом коммите, без незакоммиченных правок кода (компендии и новые файлы не в счёт)
+if (!ONLY.length) {
+  const { execFileSync } = await import("node:child_process");
+  const git = args => { try { return execFileSync("git", args, { cwd: ROOT, encoding: "utf8" }).trim(); } catch { return ""; } };
+  const dirty = git(["status", "--porcelain", "--", ".", ":!packs"]).split("\n").filter(l => l && !l.startsWith("??")).length > 0;
+  fs.mkdirSync(path.join(ROOT, "tools/.cache"), { recursive: true });
+  fs.writeFileSync(path.join(ROOT, "tools/.cache/e2e-ok.json"), JSON.stringify({ head: git(["rev-parse", "HEAD"]), dirty, ok: !failed, n: results.length, at: new Date().toISOString() }));
+}
 process.exit(failed ? 1 : 0);

@@ -234,7 +234,7 @@
 
 /* Полоса ночных действий — под сведениями, по нижнему краю портрета; тревожные броски справа значками */
 .vtm20 .r-head-acts {
-  grid-area: acts; align-self: end; display: flex; align-items: stretch; flex-wrap: nowrap; min-width: 0; overflow-x: auto; scrollbar-width: none; padding: 0 4px;
+  grid-area: acts; align-self: end; display: flex; align-items: stretch; flex-wrap: wrap; min-width: 0; padding: 0 4px;
   background: rgba(0, 0, 0, .35); border: 1px solid var(--r-line);
 }
 .vtm20 .r-act {
@@ -833,11 +833,7 @@ body.r-theme-light .vtm20 .r-motto { color: rgba(140, 28, 34, .75); }
 @container rsheet (max-width: 760px) {
   .vtm20 .r-cols3 { grid-template-columns: minmax(0, 1fr); }
 }
-/* полоса действий не влезает — сначала значками становятся редкие (пробуждение, простой, урон, опасность), потом все */
-@container rsheet (max-width: 1240px) {
-  .vtm20 .r-act.is-minor span { display: none; }
-  .vtm20 .r-act.is-minor { padding: 0 10px; }
-}
+/* полоса действий не влезает — переносится на вторую строку с подписями; на совсем узком листе все — значками */
 @container rsheet (max-width: 1000px) {
   .vtm20 .r-act span { display: none; }
   .vtm20 .r-virtue .r-trait-label { font-size: 10px; letter-spacing: 0; }

@@ -798,7 +798,10 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     // слуга: факты биографии падших без запретных и без фактов Привязанных, плюс свои (Заботливый хозяин, Приобщение)
     const bgOk = b => this.isThrall ? b.line === "demon" && b.source !== "Earthbound" && !THRALL_BANNED.includes(b.en)
       : VTM20.backgroundAllowed(b, this.type) && ebOk(b) && !(this.isLost && b.noBystander) && (!b.dhampir || this.isDhampir);
-    ctx.bgCards = Codex.backgrounds.filter(b => (Codex.visible(b) && bgOk(b)) || b.name in st.bg).map(b => {
+    // выбранный Факт держим в списке, даже если он из другой линейки или скрыт, — но одной карточкой: «Союзники» есть
+    // у Сородичей, охотников и оборотней с одним именем, и выбор одного не должен показывать все три
+    const bgList = Codex.backgrounds.filter(b => Codex.visible(b) && bgOk(b)), bgNames = new Set(bgList.map(b => b.name)), bgKept = new Set();
+    ctx.bgCards = Codex.backgrounds.filter(b => bgList.includes(b) || (b.name in st.bg && !bgNames.has(b.name) && !bgKept.has(b.name) && bgKept.add(b.name))).map(b => {
       const on = b.name in st.bg || (st.free.bg[b.name] ?? 0) > 0;
       const bonus = this.isHunter && !this.isLost && b.en === "Patron" ? this.creedData?.patron ?? 0 : 0;   // Отшельник — Покровители 3 даром
       return { name: b.name, en: b.en, sectLabel: b.sabbat ? t("Sect.sabbat") : b.sect ? t(`Sect.${b.sect}`) : "", bonus, on, value: this.value("bg", b.name), dots: dotRow("bg", b.name),

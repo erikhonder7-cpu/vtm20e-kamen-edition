@@ -1,4 +1,5 @@
-// tools/release.mjs — релиз одной командой:  node tools/release.mjs 0.7.0 ["заголовок"]
+// tools/release.mjs — релиз одной командой:  node tools/release.mjs 0.7.0 ["заголовок"] [--no-e2e]
+// 0) полный e2e без провалов на этом коммите (отметка tools/.cache/e2e-ok.json от tools/e2e.mjs); --no-e2e — пропустить
 // 1) Foundry не запущен (иначе компендии не пересобрать); 2) рабочая копия чистая (кроме компендиев);
 // 3) версия и ссылка на архив в system.json; 4) сборка всех компендиев; 5) node tools/check.mjs;
 // 6) коммит, тег, push; 7) архив системы (git archive) и релиз на GitHub через gh.
@@ -12,7 +13,7 @@ import net from "node:net";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const [version, title] = process.argv.slice(2);
+const [version, title] = process.argv.slice(2).filter(x => !x.startsWith("--"));
 if (!/^\d+\.\d+\.\d+$/.test(version ?? "")) { console.error("Укажите версию: node tools/release.mjs 0.7.0 [\"заголовок\"]"); process.exit(1); }
 
 const run = (cmd, args, opts = {}) => execFileSync(cmd, args, { cwd: ROOT, stdio: opts.quiet ? "pipe" : "inherit", encoding: "utf8", ...opts });
@@ -64,6 +65,14 @@ retry("сброс компендиев", () => { run("git", ["checkout", "--", "
 const dirty = out("git", ["status", "--porcelain"]).split("\n").filter(Boolean);
 if (dirty.length) { console.error("Есть незакоммиченные правки:\n" + dirty.join("\n")); process.exit(1); }
 if (out("git", ["tag", "-l", `v${version}`])) { console.error(`Тег v${version} уже есть.`); process.exit(1); }
+if (!process.argv.includes("--no-e2e")) {
+  const f = path.join(ROOT, "tools/.cache/e2e-ok.json"), m = fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, "utf8")) : null;
+  const head = out("git", ["rev-parse", "HEAD"]);
+  if (!m) { console.error("Нет полного прогона e2e: запустите Foundry, node tools/e2e.mjs, закройте Foundry и повторите (или --no-e2e)."); process.exit(1); }
+  if (m.head !== head || m.dirty) { console.error(`Последний полный e2e был на другом коде (${m.head.slice(0, 7)}${m.dirty ? ", с незакоммиченными правками" : ""}) — прогоните e2e на ${head.slice(0, 7)}.`); process.exit(1); }
+  if (!m.ok) { console.error("Последний полный e2e не прошёл — сначала исправьте."); process.exit(1); }
+  console.log(`  e2e: ${m.n} проверок прошли на ${head.slice(0, 7)}`);
+}
 
 // 3. Версия и ссылка на архив
 step(`Версия ${manifest.version} → ${version}`);
