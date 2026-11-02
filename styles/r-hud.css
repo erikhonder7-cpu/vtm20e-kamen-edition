@@ -1,25 +1,28 @@
 /* ══════════════════════════════════════════════════════════════════════════
-   VTM20 «Liberté» — HUD персонажа вместо панели макросов.
-   Табличка с именем над строкой; строка ~70px: медальон · шкалы и запасы вида · атака · защита ·
-   (формы Гару) · действия вида · силы · сводка. Цвет — по виду персонажа: класс rh-t-* задаёт
-   --h-acc (светлый), --h-acc-d (тёмный) и --h-acc-rgb (для прозрачности); кровь и раны — всегда кровью.
+   VTM20 «Liberté» — HUD «Герб» вместо панели макросов.
+   Сверху вниз: тревога атаки, вкладки, дуга печатей-действий; герб — квадратный портрет в центре,
+   крылья-знамёна (слева Жизнь и Воля, справа запасы вида), лента имени поперёк низа портрета,
+   в бою — монеты брони и инициативы на плечах портрета. Точки и клетки — как на листе.
+   Цвет — по виду персонажа: класс rh-t-* задаёт --h-acc, --h-acc-d и --h-acc-rgb; кровь и раны — всегда кровью.
+   Нехватка места — масштаб целиком (--rh-scale из hud.mjs, fitHud).
    ══════════════════════════════════════════════════════════════════════════ */
 
 body.r-hud-on #hotbar { display: none !important; }
 
 #r-hud {
   --h-bone: #d8cfbf; --h-bone-b: #ece4d4; --h-bone-2: #b3aa98; --h-muted: #7d766a; --h-dim: #5a554d;
-  --h-line: rgba(216, 207, 191, .1); --h-line-2: rgba(216, 207, 191, .2);
+  --h-line: rgba(216, 207, 191, .3);
   --h-blood: #8c1c22; --h-blood-l: #c4474c; --h-blood-d: #4a0d11;
   --h-acc: #c4474c; --h-acc-d: #8c1c22; --h-acc-rgb: 196, 71, 76;
   --h-caps: "IM Fell SC", "Forum", Georgia, serif;
-  position: relative; display: flex; align-items: stretch; margin: 26px auto 6px; max-width: min(1280px, 100%); height: 70px; pointer-events: all;
+  position: relative; width: 800px; margin: 0 auto 4px; display: flex; flex-direction: column; align-items: center;
+  transform: scale(var(--rh-scale, 1)); transform-origin: 50% 100%;
   font-family: "Old Standard", Georgia, serif; color: var(--h-bone);
-  background: radial-gradient(ellipse at 0% 0%, rgba(var(--h-acc-rgb), .10), transparent 45%), linear-gradient(180deg, #151517, #0c0c0e);
-  border: 1px solid #000; box-shadow: 0 0 0 1px #232327, 0 10px 28px rgba(0, 0, 0, .75);
+  pointer-events: none;                                  /* пустые места герба не загораживают сцену */
 }
+#r-hud :is(a, .rh-wing, .rh-frame, .rh-ribbon, .rh-coin, .rh-tabs, .rh-seal, .rh-alarm, .rh-empty) { pointer-events: auto; }
 /* цвет по виду персонажа */
-#r-hud.rh-t-vampire  { --h-acc: #c4474c; --h-acc-d: #8c1c22; --h-acc-rgb: 196, 71, 76; }
+#r-hud.rh-t-vampire  { --h-acc: #c94b51; --h-acc-d: #7d1a20; --h-acc-rgb: 201, 75, 81; }
 #r-hud.rh-t-ghoul    { --h-acc: #c99a5b; --h-acc-d: #7a5426; --h-acc-rgb: 201, 154, 91; }
 #r-hud.rh-t-dhampir  { --h-acc: #c45f92; --h-acc-d: #6e2350; --h-acc-rgb: 196, 95, 146; }
 #r-hud.rh-t-werewolf { --h-acc: #b9c8c3; --h-acc-d: #4f6b5a; --h-acc-rgb: 185, 200, 195; }
@@ -29,170 +32,118 @@ body.r-hud-on #hotbar { display: none !important; }
 #r-hud.rh-t-creature, #r-hud.rh-t-spirit { --h-acc: #6cb8ad; --h-acc-d: #22605a; --h-acc-rgb: 108, 184, 173; }
 
 #r-hud, #r-hud * { box-sizing: border-box; }
-#r-hud::before { content: ""; position: absolute; left: -1px; top: -1px; width: 64px; height: 2px; background: var(--h-acc); z-index: 1; }
-#r-hud > *:not(.rh-plate) { display: flex; align-items: center; min-width: 0; padding: 0 10px; border-right: 1px solid #1d1d21; flex: 0 0 auto; }
-#r-hud > *:last-child { border-right: 0; }
-#r-hud:has(.rh-face) { container-type: inline-size; width: 100%; }
 #r-hud a { cursor: pointer; color: inherit; text-decoration: none; }
-#r-hud .rh-empty { flex: 1; justify-content: center; gap: 8px; margin: 0; font-size: 13px; font-style: italic; color: var(--h-muted); }
+#r-hud .rh-empty { margin: 0 0 8px; padding: 8px 16px; font-size: 13px; font-style: italic; color: var(--h-muted);
+  background: rgba(12, 12, 14, .9); border: 1px solid #000; }
 
-/* Табличка с именем — над строкой, как ярлык папки: знак вида, имя, клан/племя/Дом/кредо */
-#r-hud .rh-plate {
-  position: absolute; left: -1px; bottom: 100%; display: flex; align-items: baseline; gap: 8px; max-width: 70%; height: 25px; padding: 4px 14px 0 8px;
-  background: linear-gradient(180deg, #19191c, #111113); border: 1px solid #000; border-bottom: 0;
-  box-shadow: 0 0 0 1px #232327, inset 0 2px 0 var(--h-acc); white-space: nowrap; overflow: hidden;
-}
-#r-hud .rh-plate .rh-sigil { align-self: center; width: 15px; height: 15px; flex: 0 0 auto; filter: drop-shadow(0 0 3px rgba(var(--h-acc-rgb), .5)); }
-#r-hud .rh-plate b { font-family: "Prata", Georgia, serif; font-weight: 400; font-size: 14.5px; color: var(--h-bone-b); overflow: hidden; text-overflow: ellipsis; }
-#r-hud .rh-plate small { font-family: var(--h-caps); font-size: 10.5px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--h-acc); overflow: hidden; text-overflow: ellipsis; }
-#r-hud .rh-plate:hover b { color: #fff; }
+/* Тревога: атака ждёт защиты */
+#r-hud .rh-alarm { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; padding: 4px 14px; color: #fff; font-family: var(--h-caps); font-size: 13px; letter-spacing: 1px;
+  background: linear-gradient(180deg, #8c1c22, #4a0d11); border: 1px solid #c4474c; box-shadow: 0 0 14px rgba(196, 71, 76, .55); animation: rh-alarm 1.4s ease-in-out infinite; }
+@keyframes rh-alarm { 50% { box-shadow: 0 0 22px rgba(196, 71, 76, .9); } }
 
-/* Медальон: портрет в кольце цвета вида, состояния значками у кромки */
-#r-hud .rh-face { position: relative; justify-content: center; width: 78px; padding: 0 8px; background: radial-gradient(circle at 50% 50%, rgba(var(--h-acc-rgb), .14), #0a0a0c 70%); cursor: pointer; }
-#r-hud .rh-ring { display: block; width: 56px; height: 56px; padding: 2px; border-radius: 50%;
-  background: conic-gradient(from 210deg, var(--h-acc), var(--h-acc-d), var(--h-acc)); box-shadow: 0 0 10px rgba(var(--h-acc-rgb), .35); }
-#r-hud .rh-ring img { width: 100%; height: 100%; display: block; border-radius: 50%; object-fit: cover; object-position: 50% 20%; border: 2px solid #0a0a0c; filter: grayscale(.25) contrast(1.05); }
-#r-hud .rh-face:hover .rh-ring img { filter: none; }
-#r-hud .rh-states { position: absolute; right: 2px; bottom: 3px; display: flex; flex-direction: column; gap: 1px; }
-#r-hud .rh-states img { width: 17px; height: 17px; padding: 1px; border: 1px solid #c4474c; border-radius: 50%; background: #1a0b0c; filter: invert(.9) sepia(.4) saturate(3) hue-rotate(-30deg); }
+/* Вкладки — строкой текста, текущая — цветом вида с чертой */
+#r-hud .rh-tabs { display: flex; align-items: baseline; gap: 10px; padding: 0 12px 2px; background: radial-gradient(ellipse, rgba(8, 8, 10, .75), transparent 75%); }
+#r-hud .rh-tabs a { padding: 0 2px 3px; color: #8a8274; font-family: var(--h-caps); font-size: 12.5px; letter-spacing: 1.6px; text-shadow: 0 1px 2px #000; }
+#r-hud .rh-tabs a:hover { color: var(--h-bone-b); }
+#r-hud .rh-tabs a.on { color: var(--h-acc); box-shadow: inset 0 -1px 0 var(--h-acc); }
+#r-hud .rh-sep { font-style: normal; font-size: 8px; color: #3a3934; }
 
-/* Шкалы: подпись · клетки · состояние */
-#r-hud .rh-tracks { flex-direction: column; align-items: stretch; justify-content: center; gap: 4px; }
-#r-hud .rh-tracks > div { display: grid; grid-template-columns: 58px auto; align-items: center; gap: 8px; }
-#r-hud .rh-tracks label { font-family: var(--h-caps); font-size: 10px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--h-muted); }
-#r-hud .rh-tracks em { display: none; min-width: 70px; font-size: 11.5px; color: var(--h-muted); white-space: nowrap; }
-#r-hud .rh-tracks em.is-hurt { color: var(--h-blood-l); }
-#r-hud .rh-track { display: flex; gap: 2px; }
-#r-hud .rh-track i { width: 14px; height: 14px; display: grid; place-items: center; font-style: normal; font-size: 10px; line-height: 1; border: 1px solid rgba(216, 207, 191, .28); }
-/* здоровье и воля — как на листе: ударный серым, летальный густо-красным, губительный ярким с отсветом */
-#r-hud .rh-health i { width: 16px; height: 15px; }
-#r-hud .rh-health i.is-bashing { background: linear-gradient(180deg, #3a3935, #262522); border-color: rgba(216, 207, 191, .45); color: var(--h-bone); }
-#r-hud .rh-health i.is-lethal { background: linear-gradient(180deg, #6a141a, #3e0b0e); border-color: var(--h-blood); color: #f1e9da; }
-#r-hud .rh-health i.is-aggravated { background: linear-gradient(180deg, #b0282f, #741419); border-color: #d0565b; color: #fff; box-shadow: 0 0 5px rgba(196, 71, 76, .45); }
-#r-hud .rh-health i.is-current { box-shadow: 0 0 0 1px #0a0a0c, 0 0 0 2px rgba(232, 163, 165, .65); }
-#r-hud .rh-health i:last-child { border-style: dashed; }
-#r-hud .rh-will i { width: 10px; height: 10px; margin: 2px 2px 2px 0; }
-#r-hud .rh-will i.on { background: linear-gradient(180deg, #e8e0cf, #b8ae99); border-color: var(--h-bone); }
+/* Печати: круглая кнопка со знаком, подпись под ней; дугой — средние выше */
+#r-hud .rh-seals { display: flex; justify-content: center; align-items: flex-start; gap: 6px; min-height: 62px; padding-top: 4px; }
+#r-hud .rh-seal { display: flex; flex-direction: column; align-items: center; gap: 3px; width: 58px; transform: translateY(var(--arc, 0)); color: #cfc6b4; }
+#r-hud .rh-knob { position: relative; width: 34px; height: 34px; flex: none; border-radius: 50%; display: grid; place-items: center; overflow: hidden; color: var(--h-acc); font-size: 14px;
+  background: radial-gradient(circle at 50% 30%, #26252a, #0c0c0e 75%); border: 1px solid rgba(var(--h-acc-rgb), .55); box-shadow: 0 0 0 1px #000, 0 4px 10px rgba(0, 0, 0, .75); }
+#r-hud .rh-knob img { width: 24px; height: 24px; border: 0; filter: grayscale(.2) brightness(.95); }
+#r-hud .rh-knob > b { position: absolute; right: 1px; bottom: 0; font-family: "Prata", serif; font-weight: 400; font-size: 10px; color: var(--h-bone-b); }
+#r-hud a.rh-seal:hover .rh-knob { border-color: var(--h-acc); box-shadow: 0 0 0 1px #000, 0 0 12px rgba(var(--h-acc-rgb), .5); }
+#r-hud .rh-seal.is-on .rh-knob { color: #0b0b0d; border-color: var(--h-acc); background: radial-gradient(circle at 50% 30%, var(--h-acc), var(--h-acc-d) 85%);
+  box-shadow: 0 0 0 1px #000, 0 0 14px rgba(var(--h-acc-rgb), .6); }
+#r-hud .rh-seal.is-man .rh-knob { border-style: dashed; color: var(--h-bone-2); }
+#r-hud .rh-seal.is-fx .rh-knob { border-color: rgba(var(--h-acc-rgb), .8); }
+#r-hud .rh-fx-bar { position: absolute; left: 0; bottom: 0; height: 3px; background: var(--h-acc); transition: width .6s ease; }
+#r-hud .rh-seal-l { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; line-height: 1.05; text-shadow: 0 1px 2px #000, 0 0 4px #000; }
+#r-hud .rh-seal.is-on .rh-seal-l { color: var(--h-acc); }
+#r-hud .rh-lvl { display: flex; gap: 2px; }
+#r-hud .rh-lvl .d { width: 5px; height: 5px; }
 
-/* Запасы вида — третьей строкой под шкалами */
-#r-hud .rh-tracks > .rh-stats { display: flex; align-items: baseline; gap: 14px; padding-left: 66px; white-space: nowrap; }
-#r-hud .rh-stat { display: inline-flex; align-items: baseline; gap: 4px; line-height: 1; }
-#r-hud .rh-stat i { font-size: 10.5px; color: var(--h-acc); }
-#r-hud .rh-stat b { font-family: "Prata", Georgia, serif; font-weight: 400; font-size: 15px; color: var(--h-bone-b); }
-#r-hud .rh-stat small { font-family: "Prata", Georgia, serif; font-size: 11px; color: var(--h-muted); }
-#r-hud .rh-blood i { color: var(--h-blood-l); }
-#r-hud .rh-blood:hover b { color: #ff9ea1; }
-#r-hud .rh-rage i { color: #d06a4a; }
-#r-hud .rh-moral i { color: var(--h-muted); }
-#r-hud .rh-form b { font-family: var(--h-caps); font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--h-acc); }
-#r-hud .rh-torment i { color: #d0565b; }
+/* Герб: портрет, крылья, лента, монеты */
+#r-hud .rh-crest { position: relative; width: 800px; height: 128px; }
+#r-hud .rh-wing { position: absolute; top: 20px; width: 340px; height: 76px; }
+#r-hud .rh-wing.is-left { left: 30px; }
+#r-hud .rh-wing.is-right { right: 30px; }
+#r-hud .rh-banner { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+#r-hud .rh-banner polygon { fill: rgba(17, 16, 19, .96); stroke: #000; stroke-width: 2; }
+#r-hud .rh-banner polyline { fill: none; stroke: var(--h-acc); stroke-opacity: .4; stroke-width: 1; }
+#r-hud .rh-grid { position: absolute; top: 0; bottom: 0; display: grid; align-content: center; align-items: center; column-gap: 9px; row-gap: 6px; }
+#r-hud .is-left .rh-grid { right: 24px; grid-template-columns: 62px auto 66px; }
+#r-hud .is-right .rh-grid { left: 34px; grid-template-columns: 84px auto 38px; }
+#r-hud .rh-lbl { display: flex; flex-direction: column; gap: 1px; font-family: var(--h-caps); font-size: 11px; letter-spacing: 1px; color: #a8a090; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#r-hud .rh-lbl small { font-size: 9.5px; letter-spacing: .6px; color: var(--h-muted); }
+#r-hud .rh-scales { display: flex; flex-direction: column; gap: 3px; }
+#r-hud .rh-row { display: flex; align-items: center; gap: 3px; }
+#r-hud .rh-row > :nth-child(5n):not(:last-child) { margin-right: 4px; }
+#r-hud .rh-row.is-health > :nth-child(5n):not(:last-child) { margin-right: 0; }
+#r-hud .rh-num { font-family: "Prata", Georgia, serif; font-weight: 400; font-size: 13px; color: #f1e9da; white-space: nowrap; }
+#r-hud .rh-num small { font-size: 10px; color: #8a8274; }
+#r-hud .rh-wound { font-family: "Old Standard", Georgia, serif; font-size: 11.5px; color: var(--h-muted); overflow: hidden; text-overflow: ellipsis; }
+#r-hud .rh-wound.is-hurt { color: #e8a3a5; }
 
-/* Группы: подпись сверху, содержимое в строку */
-#r-hud .rh-group { flex-direction: column; align-items: flex-start; justify-content: center; gap: 5px; }
-#r-hud .rh-group > label { font-family: var(--h-caps); font-size: 9.5px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--h-dim); line-height: 1; }
-#r-hud .rh-group > label::before { content: ""; display: inline-block; width: 8px; height: 1px; margin: 0 5px 3px 0; background: var(--h-acc); opacity: .7; }
-#r-hud .rh-group-body { display: flex; align-items: center; gap: 3px; }
-#r-hud .rh-attacks { flex: 1 1 auto; }
-#r-hud .rh-attacks .rh-group-body { flex-wrap: nowrap; overflow: hidden; width: 100%; }
-#r-hud .rh-alarm {
-  display: inline-flex; align-items: center; gap: 6px; flex: 0 0 auto; height: 30px; padding: 0 10px; max-width: 220px;
-  font-size: 12.5px; color: #fff; background: linear-gradient(180deg, #a3242a, #5e0f14); border: 1px solid #c4474c;
-  animation: rh-alarm 1.2s ease-in-out infinite;
-}
-#r-hud .rh-alarm span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-#r-hud .rh-alarm b { font-family: "Prata", serif; font-weight: 400; }
-@keyframes rh-alarm { 50% { filter: brightness(1.35); box-shadow: 0 0 12px rgba(196, 71, 76, .6); } }
-#r-hud .rh-btn {
-  position: relative; display: grid; place-items: center; width: 32px; height: 30px; flex: 0 0 auto;
-  border: 1px solid var(--h-line); background: rgba(0, 0, 0, .3); transition: color .12s, border-color .12s, background .12s;
-}
-#r-hud .rh-btn i { font-size: 14px; color: var(--h-bone-2); }
-#r-hud .rh-btn:hover { border-color: var(--h-acc); background: rgba(var(--h-acc-rgb), .16); }
-#r-hud .rh-btn:hover i { color: var(--h-bone-b); }
-#r-hud .rh-btn.rh-man { border-style: dashed; border-color: var(--h-line-2); }
-#r-hud .rh-btn.is-on { border-color: var(--h-acc); background: rgba(var(--h-acc-rgb), .28); box-shadow: inset 0 0 6px rgba(var(--h-acc-rgb), .35); }
-#r-hud .rh-btn.is-on i { color: var(--h-bone-b); }
-#r-hud .rh-btn small { font-size: 10px; margin-left: 2px; color: var(--h-bone-b); }
-#r-hud .rh-btn.rh-man i { font-size: 13px; color: var(--h-muted); }
-#r-hud .rh-btn.rh-bite i { color: var(--h-blood-l); }
-#r-hud .rh-attacks .rh-group-body .rh-btn.rh-man:first-of-type { margin-left: 3px; }
-/* оружие — значок по названию; естественное оружие формы — цветом вида */
-#r-hud .rh-btn.rh-weapon i { color: var(--h-acc); font-size: 15px; }
-#r-hud .rh-btn.rh-weapon:hover i { color: #f1e9da; }
-#r-hud .rh-btn.rh-natural { border-color: rgba(var(--h-acc-rgb), .45); }
-#r-hud .rh-weapon[hidden] { display: none; }
-/* формы Гару: текущая — подсвечена и без щелчка */
-#r-hud .rh-formbtn { width: 28px; }
-#r-hud .rh-formbtn.is-on { cursor: default; }
-#r-hud .rh-formbtn.is-on i { color: var(--h-acc); filter: drop-shadow(0 0 4px rgba(var(--h-acc-rgb), .6)); }
+/* Точки, клетки, капли — как на листе */
+#r-hud .d { width: 10px; height: 10px; flex: none; border-radius: 50%; border: 1px solid rgba(216, 207, 191, .3); }
+#r-hud .d.on { border-color: #c4474c; background: radial-gradient(circle at 38% 32%, #c4474c, #8c1c22 55%, #4a0d11); }
+#r-hud .d.on.rage { border-color: #d06a4a; background: radial-gradient(circle at 38% 32%, #f0a58c, #a3442c 55%, #2a0f08); }
+#r-hud .d.on.gnosis { border-color: #b9c8c3; background: radial-gradient(circle at 38% 32%, #eef3f0, #7f9a8a 55%, #15211a); }
+#r-hud .d.on.gold { border-color: #e2b35c; background: radial-gradient(circle at 38% 32%, #f6d58a, #c0822e 55%, #4e2a0e); }
+#r-hud .d.on.amber { border-color: #e3a24c; background: radial-gradient(circle at 38% 32%, #f6d08a, #b8741f 55%, #3e2306); }
+#r-hud .d.on.bone { border-color: #e3dbcc; background: radial-gradient(circle at 40% 35%, #efe6d4, #b3aa98 60%, #7d766a); }
+#r-hud .b { width: 10px; height: 10px; flex: none; border: 1px solid rgba(216, 207, 191, .3); }
+#r-hud .b.on { border-color: #e3dbcc; background: radial-gradient(circle at 40% 35%, #efe6d4, #b3aa98 60%, #7d766a); }
+#r-hud .b.on.rage { border-color: #d06a4a; background: linear-gradient(180deg, #d06a4a, #6b2c1c); }
+#r-hud .b.on.gnosis { border-color: #b9c8c3; background: linear-gradient(180deg, #eef3f0, #7f9a8a); }
+#r-hud .b.on.gold { border-color: #e2b35c; background: linear-gradient(180deg, #f6d58a, #a8641f); }
+#r-hud .b.on.torment { border-color: #b0282f; background: linear-gradient(180deg, #b0282f, #3e0b0e); }
+#r-hud .dr { width: 10px; height: 12px; flex: none; display: block; filter: drop-shadow(0 0 2px rgba(184, 58, 63, .3)); }
+#r-hud .rh-scales[data-act] { cursor: pointer; }
+#r-hud .hb { width: 15px; height: 15px; flex: none; display: grid; place-items: center; font-style: normal; font-size: 10px; line-height: 1; color: #ece4d4; border: 1px solid rgba(216, 207, 191, .3); }
+#r-hud .hb.is-bashing { background: linear-gradient(180deg, #3a3935, #262522); border-color: rgba(216, 207, 191, .45); }
+#r-hud .hb.is-lethal { background: linear-gradient(180deg, #6a141a, #3e0b0e); border-color: #8c1c22; }
+#r-hud .hb.is-aggravated { background: linear-gradient(180deg, #b0282f, #741419); border-color: #d0565b; color: #fff; box-shadow: 0 0 5px rgba(196, 71, 76, .45); }
+#r-hud .hb.is-current { box-shadow: 0 0 0 1px #0a0a0c, 0 0 0 2px rgba(232, 163, 165, .65); }
+#r-hud .hb.is-last { border-style: dashed; }
 
-/* Сводка справа: инициатива крупно, броня и прочность */
-#r-hud .rh-side { flex-direction: column; align-items: stretch; justify-content: center; gap: 4px; width: 150px; }
-#r-hud .rh-chip { display: flex; align-items: center; gap: 6px; height: 19px; padding: 0 8px; font-size: 12px; color: var(--h-bone-2); border: 1px solid var(--h-line); background: rgba(0, 0, 0, .3); white-space: nowrap; overflow: hidden; }
-#r-hud a.rh-chip:hover { border-color: var(--h-acc); color: var(--h-bone-b); }
-#r-hud .rh-chip i { width: 12px; text-align: center; font-size: 11px; color: var(--h-muted); }
-#r-hud .rh-chip small { color: var(--h-blood-l); }
-#r-hud .rh-chip.is-off { opacity: .45; }
-#r-hud .rh-init { display: flex; align-items: baseline; gap: 7px; height: 28px; padding: 0 8px; border: 1px solid var(--h-line-2); background: rgba(0, 0, 0, .35); color: var(--h-bone-2); }
-#r-hud .rh-init b { font-family: "Prata", Georgia, serif; font-weight: 400; font-size: 21px; line-height: 26px; color: var(--h-bone-b); }
-#r-hud .rh-init b i { font-size: 14px; color: var(--h-muted); }
-#r-hud .rh-init span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--h-caps); font-size: 10px; letter-spacing: 1px; text-transform: uppercase; }
-#r-hud .rh-init span i { color: var(--h-acc); }
-#r-hud a.rh-init:hover { border-color: var(--h-acc); color: var(--h-bone-b); }
-#r-hud .rh-init.is-turn { border-color: var(--h-acc); background: linear-gradient(90deg, rgba(var(--h-acc-rgb), .45), rgba(var(--h-acc-rgb), .12)); color: #f1e9da; }
-#r-hud .rh-side-row { display: flex; gap: 3px; }
-#r-hud .rh-side-row .rh-chip { flex: 1 1 0; min-width: 0; padding: 0 5px; justify-content: center; }
+/* Портрет: квадрат в двойной рамке цвета вида; состояния — значками по нижнему краю */
+#r-hud .rh-frame { position: absolute; left: 346px; top: 0; width: 108px; height: 108px; padding: 4px; background: #0a0a0c; border: 2px solid var(--h-acc);
+  box-shadow: 0 0 0 2px #000, 0 0 0 3px rgba(var(--h-acc-rgb), .3), 0 8px 18px rgba(0, 0, 0, .75); }
+#r-hud .rh-frame > img { width: 100%; height: 100%; object-fit: cover; border: 1px solid var(--h-acc-d); display: block; }
+#r-hud .rh-states { position: absolute; left: 6px; right: 6px; top: 6px; display: flex; flex-wrap: wrap; gap: 2px; }
+#r-hud .rh-states img { width: 18px; height: 18px; border: 0; border-radius: 50%; background: rgba(0, 0, 0, .7); filter: drop-shadow(0 0 3px #000); }
 
-/* Свой ход: светится весь HUD цветом вида */
-#r-hud.is-turn { border-color: var(--h-acc-d); animation: rh-turn 2.2s ease-in-out infinite; }
-#r-hud.is-turn::before { width: 100%; }
-@keyframes rh-turn { 50% { box-shadow: 0 0 0 1px var(--h-acc-d), 0 0 22px rgba(var(--h-acc-rgb), .55), 0 10px 28px rgba(0, 0, 0, .75); } }
-@media (prefers-reduced-motion: reduce) { #r-hud.is-turn { animation: none; box-shadow: 0 0 0 1px var(--h-acc-d), 0 10px 28px rgba(0, 0, 0, .75); } }
+/* Лента имени поперёк низа портрета, с ласточкиным хвостом */
+#r-hud .rh-ribbon { position: absolute; left: 50%; top: 90px; transform: translateX(-50%); width: 240px; height: 36px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+  background: linear-gradient(180deg, #232227, #121214); box-shadow: inset 0 1px 0 var(--h-acc), inset 0 -1px 0 #000;
+  clip-path: polygon(0 0, 100% 0, calc(100% - 14px) 50%, 100% 100%, 0 100%, 14px 50%); }
+#r-hud .rh-ribbon b { max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: "Prata", Georgia, serif; font-weight: 400; font-size: 14px; line-height: 1.1; color: #f1e9da; }
+#r-hud .rh-ribbon small { max-width: 210px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--h-caps); font-size: 10px; line-height: 1.1; letter-spacing: 1.1px; color: var(--h-acc); }
 
-/* Кровь: лимит за ход точками у запаса */
-#r-hud .rh-turn { display: inline-flex; gap: 2px; margin-left: 6px; align-self: center; }
-#r-hud .rh-turn i { width: 6px; height: 6px; border-radius: 50%; border: 1px solid var(--h-blood-l); }
-#r-hud .rh-turn i.on { background: var(--h-blood-l); box-shadow: 0 0 4px rgba(196, 71, 76, .7); }
+/* Монеты брони и инициативы — в бою, на плечах портрета */
+#r-hud .rh-coin { position: absolute; top: -6px; width: 30px; height: 30px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; line-height: 1;
+  background: radial-gradient(circle at 50% 30%, #2a292e, #0e0e10 80%); border: 1px solid rgba(216, 207, 191, .35);
+  box-shadow: 0 0 0 2px #0a0a0c, 0 0 0 3px rgba(var(--h-acc-rgb), .35), 0 4px 10px rgba(0, 0, 0, .7); }
+#r-hud .rh-coin.is-armor { left: 331px; }
+#r-hud .rh-coin.is-init { left: 439px; }
+#r-hud .rh-coin b { font-family: "Prata", serif; font-weight: 400; font-size: 12px; color: #f1e9da; }
+#r-hud .rh-coin b i { font-size: 10px; }
+#r-hud .rh-coin span { font-family: var(--h-caps); font-size: 6px; letter-spacing: .4px; color: #a8a090; }
+#r-hud .rh-coin.is-turn { border-color: var(--h-acc); background: radial-gradient(circle at 50% 30%, var(--h-acc), var(--h-acc-d) 85%); box-shadow: 0 0 0 2px #0a0a0c, 0 0 0 3px var(--h-acc), 0 0 16px rgba(var(--h-acc-rgb), .7); }
+#r-hud .rh-coin.is-turn :is(b, span) { color: #0b0b0d; }
 
-/* Избранные силы: знак Дисциплины и уровень */
-#r-hud .rh-pico { width: 24px; height: 24px; border: 0; filter: grayscale(.25) brightness(.92); }
-#r-hud .rh-power:hover .rh-pico { filter: none; }
-#r-hud .rh-power small { position: absolute; right: 2px; bottom: 0; font-family: "Prata", serif; font-size: 9.5px; color: var(--h-acc); }
-/* действующие силы — значки; остаток «на час» / «до рассвета» — полоска по нижней кромке */
-#r-hud .rh-chip.rh-fx { position: relative; overflow: hidden; padding: 0 2px; }
-#r-hud .rh-chip.rh-fx img { width: 18px; height: 18px; border: 0; display: block; }
-#r-hud .rh-powers .rh-chip.rh-fx { width: 30px; height: 30px; padding: 0; justify-content: center; border-color: rgba(var(--h-acc-rgb), .6); box-shadow: inset 0 0 6px rgba(var(--h-acc-rgb), .35); }
-#r-hud .rh-powers .rh-chip.rh-fx img { width: 24px; height: 24px; }
-#r-hud .rh-fx-bar { position: absolute; left: 0; bottom: 0; height: 2px; background: var(--h-acc); transition: width .6s ease; }
+/* Свой ход: портрет мерцает цветом вида */
+#r-hud .rh-crest.is-turn .rh-frame { animation: rh-turn 2.4s ease-in-out infinite; }
+@keyframes rh-turn { 50% { box-shadow: 0 0 0 2px #000, 0 0 0 3px var(--h-acc), 0 0 22px rgba(var(--h-acc-rgb), .75); } }
+@media (prefers-reduced-motion: reduce) { #r-hud .rh-crest.is-turn .rh-frame, #r-hud .rh-alarm { animation: none; } }
 
 /* Поле чата при свёрнутой панели не налезает на HUD */
 body.r-hud-on #chat-notifications > #chat-message { display: none !important; }
-
-/* Широкий экран: подписи состояния у шкал; узкий — без подписей шкал, табличка короче */
-@container (min-width: 1280px) {
-  #r-hud .rh-tracks em { display: block; }
-  #r-hud .rh-tracks > div:not(.rh-stats) { grid-template-columns: 58px auto 1fr; }
-}
-@container (max-width: 1260px) {
-  #r-hud .rh-tracks label { display: none; }
-  #r-hud .rh-tracks > div:not(.rh-stats) { grid-template-columns: auto; }
-  #r-hud .rh-tracks > .rh-stats { padding-left: 0; }
-}
-@container (max-width: 1100px) {
-  /* тесно: кнопки уже, подпись формы — только у кнопки */
-  #r-hud .rh-btn { width: 28px; }
-  #r-hud .rh-formbtn { width: 25px; }
-  #r-hud .rh-stat.rh-form { display: none; }
-  #r-hud > *:not(.rh-plate) { padding: 0 7px; }
-  #r-hud .rh-side { width: 124px; }
-}
-@container (max-width: 980px) {
-  #r-hud .rh-face { width: 66px; }
-  #r-hud .rh-ring { width: 48px; height: 48px; }
-  #r-hud .rh-formbtn { width: 24px; }
-  #r-hud .rh-side { width: 120px; }
-  #r-hud .rh-plate { max-width: 92%; }
-}
 
 /* ── Окна атаки, опасностей и диаблери ────────────────────────────────── */
 

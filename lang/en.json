@@ -3185,7 +3185,7 @@
       "PinsFull": "The HUD already has six powers — remove one.",
       "StrShort": "S",
       "Setting": "Character HUD",
-      "SettingHint": "A character panel instead of the macro bar: tracks, weapons, maneuvers, defenses and blood.",
+      "SettingHint": "“Crest” HUD instead of the macro bar: portrait, Health and Willpower, your kind's pools, action tabs (combat, blood, forms, powers).",
       "PickToken": "Select a token to show the character.",
       "NoCharacter": "No character assigned — choose one in the player settings.",
       "SheetTip": "Open sheet",
@@ -3229,7 +3229,27 @@
       "ApocOn": "Apocalyptic form assumed — drop it",
       "ApocOff": "Assume the apocalyptic form",
       "SightTip": "Second Sight",
-      "Form": "Form"
+      "Form": "Form",
+      "Tab": {
+        "fight": "Combat",
+        "blood": "Blood",
+        "other": "Other"
+      },
+      "Spend": "Spend",
+      "Dodge": "Dodge",
+      "Block": "Block",
+      "Parry": "Parry",
+      "Visage": "Visage",
+      "Sight": "Second Sight",
+      "AllPowers": "All",
+      "AllPowersTip": "All powers — the powers tab of the sheet",
+      "InitShortCap": "Initiative",
+      "Sheet": "Sheet",
+      "PerTurn": "per turn {n}",
+      "DropIs": "drop = {n}",
+      "Blood": "Blood",
+      "Essence": "Essence",
+      "ArmorCap": "armor"
     },
     "Contest": {
       "ModeLabel": "Kind of action",
