@@ -534,10 +534,93 @@ def parse_charms():
     return out
 
 
+# Дары из книг-дополнений: (папка, файл-префикс, источник, группа по умолчанию — «чужие» списки, чтобы не стать своими у Гару племён)
+SUPP_GIFTS = [("W20_Changing_Ways", "03", "W20 Changing Ways", None), ("W20_Rage_Across_the_World", "02", "W20 Rage Across the World", None),
+              ("W20_White_Howlers", "01", "W20 White Howlers", {"kind": "outsider", "key": "whiteHowlers"}),
+              ("W20_Book_of_the_Wyrm", "01", "W20 Book of the Wyrm", {"kind": "outsider", "key": "blackSpiralDancers"})]
+RU_GROUPS = {}
+
+
+def supp_group(name, data_lists):
+    """Порода, аугурия или племя по русскому/английскому названию; иначе — чужой список с подписью."""
+    n = name.strip().strip("*").strip()
+    for kind, lst in data_lists:
+        for x in lst:
+            if n.lower().startswith(x["name"].lower()) or n.lower().startswith(x["en"].lower()):
+                return {"kind": kind, "key": x["key"]}
+    if n.lower().startswith("философ"):
+        return {"kind": "auspice", "key": "philodox"}
+    return None
+
+
+def parse_supp_gifts(core, breeds, auspices, tribes):
+    base = os.path.dirname(REF)
+    lists = (("breed", breeds), ("auspice", auspices), ("tribe", tribes))
+    taken = {g["key"] for g in core}
+    out = []
+    for folder, prefix, source, default in SUPP_GIFTS:
+        d = os.path.join(base, folder)
+        fn = next((f for f in sorted(os.listdir(d)) if f.startswith(prefix)), None) if os.path.isdir(d) else None
+        if not fn:
+            continue
+        with open(os.path.join(d, fn), encoding="utf-8") as f:
+            lines = f.read().splitlines()
+        on, group, level = False, None, 0
+        for line in lines:
+            h = re.match(r"^(#{2,4})\s+(.*)$", line)
+            if h:
+                depth, title = len(h.group(1)), h.group(2)
+                if depth == 2:
+                    on = "Дар" in title
+                    group, level = None, 0
+                    continue
+                if not on:
+                    continue
+                lv = re.match(r"Уровень\s+(\d+)", title)
+                if lv:
+                    level = int(lv.group(1)); continue
+                g = supp_group(title, lists)
+                if g: group, level = g, 0
+                continue
+            if not on:
+                continue
+            b = re.match(r"^\*\*([^*]+)\*\*\s*$", line)
+            if b:
+                g = supp_group(b.group(1), lists)
+                if g: group = g
+                continue
+            m = NAME.match(line)
+            if not m:
+                continue
+            name, en, rest = m.group(1).strip(), m.group(2).strip(), m.group(3).strip()
+            lvl, grp = level, group
+            inl = re.match(r"^([^,;.]+?),\s*ур\.\s*(\d+)[;,.]?\s*(.*)$", rest)
+            inl2 = re.match(r"^ур\.\s*(\d+)[;,.]?\s*(.*)$", rest)
+            if inl:
+                g = supp_group(inl.group(1), lists)
+                grp = g or {"kind": "outsider", "key": re.sub(r"[^a-z0-9]+", "", inl.group(1).lower()) or "other", "label": inl.group(1).strip()}
+                lvl, rest = int(inl.group(2)), inl.group(3)
+            elif inl2:
+                lvl, rest = int(inl2.group(1)), inl2.group(2)
+            if not lvl:
+                continue
+            grp = default or grp or {"kind": "outsider", "key": "other", "label": source}
+            key = re.sub(r"[^a-z0-9]+", "-", en.lower()).strip("-")
+            if key in taken:
+                key = f"{folder.split('_', 1)[1].lower().replace('_', '-')}-{key}"
+            taken.add(key)
+            text = md_inline(rest)
+            out.append({"key": key, "name": name, "en": en, "level": lvl, "groups": [grp], "teacher": "", "roll": roll_of(rest),
+                        "cost": cost_of(rest), "text": f"<p>{text}</p>", "source": source})
+    return out
+
+
 def build():
     gifts = parse_gifts()
     rites = parse_rites()
     breeds, auspices, tribes = parse_core(gifts)
+    supp = parse_supp_gifts(gifts, breeds, auspices, tribes)
+    gifts = gifts + supp
     for kind, items in (("breed", breeds), ("auspice", auspices), ("tribe", tribes), ("form", FORMS)):
         for x in items:
             x["icon"] = ICONS[kind].get(x["key"], "fa-moon")

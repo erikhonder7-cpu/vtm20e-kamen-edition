@@ -356,7 +356,7 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
     const own = g => w && g.groups.some(x => (x.kind === "breed" && x.key === w.breed) || (x.kind === "auspice" && x.key === w.auspice) || (x.kind === "tribe" && x.key === w.tribe));
     return D.gifts.map((g, i) => {
       const gr = (w && g.groups.find(x => [w.breed, w.auspice, w.tribe].includes(x.key))) ?? g.groups[0];
-      const label = (names[gr.kind] ?? []).find(x => x.key === gr.key)?.name ?? game.i18n.localize(`VTM20.Werewolf.Outsider.${gr.key}`);
+      const label = gr.label ?? (names[gr.kind] ?? []).find(x => x.key === gr.key)?.name ?? game.i18n.localize(`VTM20.Werewolf.Outsider.${gr.key}`);
       const pool = g.roll ? [g.roll.trait1, g.roll.trait2].map(t => a?.traitLabel?.(t) ?? t.split(".").pop()).join(" + ") : "";
       return this.#entry({
         id: String(i), name: g.name, en: g.en, has: mine.has(g.key), long: true,
@@ -364,7 +364,7 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
         group: `${gr.kind}:${gr.key}`, groupName: `${game.i18n.localize(`VTM20.Werewolf.${head[gr.kind] ?? "Outsiders"}`)}: ${label}`,
         groupOrder: (own(g) ? 0 : 1000) + kindOrder.indexOf(gr.kind) * 100 + seen(gr) % 100,
         level: g.level, levels: String(g.level), order: g.level, roman: ROMAN[g.level - 1],
-        tags: own(g) || !w ? [] : [{ label: game.i18n.localize("VTM20.Werewolf.OtherList") }],
+        tags: [...(own(g) || !w ? [] : [{ label: game.i18n.localize("VTM20.Werewolf.OtherList") }]), ...(g.source && g.source !== "W20" ? [{ label: g.source }] : [])],
         xp: w ? a.xpCost("gift", 0, { level: g.level, own: own(g) }) : 0,
         reasons: w && !mine.has(g.key) && g.level > Math.max(1, w.rank) ? [game.i18n.format("VTM20.Werewolf.NeedRank", { n: g.level })] : []
       });

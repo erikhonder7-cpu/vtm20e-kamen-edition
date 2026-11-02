@@ -3923,7 +3923,10 @@
       "CostWill": "Willpower {n}",
       "Outsider": {
         "ronin": "Ronin",
-        "skinDancers": "Skin Dancers"
+        "skinDancers": "Skin Dancers",
+        "whiteHowlers": "White Howlers",
+        "blackSpiralDancers": "Black Spiral Dancers",
+        "other": "Other"
       },
       "FormMod": "Form modifier: total for rolls",
       "RenownRank": "Renown and Rank",

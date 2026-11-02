@@ -269,7 +269,10 @@
       "CostWill": "Воля {n}",
       "Outsider": {
         "ronin": "Ронины",
-        "skinDancers": "Танцоры Кожи"
+        "skinDancers": "Танцоры Кожи",
+        "whiteHowlers": "Белые Выли",
+        "blackSpiralDancers": "Танцоры Чёрной Спирали",
+        "other": "Прочие"
       }
     },
     "Hunter": {
