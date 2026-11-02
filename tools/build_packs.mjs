@@ -520,7 +520,7 @@ BUILDERS["werewolf-gifts"] = function () {
     return ["Прочие"];
   };
   const glyphOf = g => { const x = g.groups[0] ?? {};
-    return x.kind === "breed" ? `breed-${x.key}` : x.kind === "auspice" ? `auspice-${x.key}` : x.kind === "tribe" ? `tribe-${x.key}` : x.kind === "fera" ? (x.key === "bastet" ? "glyph-feline" : "glyph-fera") : "glyph-garou"; };
+    return x.kind === "breed" ? `breed-${x.key}` : x.kind === "auspice" ? `auspice-${x.key}` : x.kind === "tribe" ? `tribe-${x.key}` : x.kind === "fera" ? `fera-${x.key}` : "glyph-garou"; };
   const from = g => g.groups.map(x => x.label ?? "").filter(Boolean).join(" · ");
   for (const g of w.gifts) {
     const cost = Object.entries(g.cost ?? {}).map(([k, n]) => `${n} ${{ rage: "Ярости", gnosis: "Гнозиса", willpower: "Воли" }[k] ?? k}`).join(", ");

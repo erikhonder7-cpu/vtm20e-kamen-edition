@@ -717,7 +717,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     // II. Гару: род (Гару или Фера), порода, аугурия, племя — плитками, как кланы; у Фера — выбор внутри рода; уродство метиса
     if (this.isWerewolf) {
       const D = werewolfData(), w = st.ww, f = this.feraData, lbl = x => VTM20.label(x), plain = h => VtMCreator.#plain(h);
-      const g = name => ({ src: wwGlyphSrc(name) }), feraGlyph = k => g(k === "bastet" ? "glyph-feline" : "glyph-fera");
+      const g = name => ({ src: wwGlyphSrc(name) }), feraGlyph = k => g(`fera-${k}`);
       const base = this.garouBase;
       ctx.garou = {
         base, renownFixed: this.renownFixed, isFera: !!f, isMetis: this.isMetis,

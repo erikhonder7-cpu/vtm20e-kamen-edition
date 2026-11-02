@@ -12,13 +12,13 @@ const t = (k, d) => d ? game.i18n.format(`VTM20.Umbra.${k}`, d) : game.i18n.loca
 const esc = s => foundry.utils.escapeHTML(String(s ?? ""));
 const U = () => Codex.werewolf?.umbra ?? { realms: [], paths: {} };
 const GROUPS = ["penumbra", "near", "homeland", "membrane", "astral", "dark", "deep"];
-/** Знак группы мест; родины племён — знак племени (у Фера — знак Фера, у пропавших племён — стаи). */
+/** Знак группы мест; родины племён — знак племени (у Фера — знак рода, у пропавших племён — стаи). */
 const GROUP_GLYPH = { penumbra: "glyph-umbra", near: "glyph-middleUmbra", homeland: "glyph-pack", membrane: "glyph-moonBridge", astral: "glyph-luna", dark: "glyph-darkUmbra", deep: "glyph-deepUmbra" };
-const FERA_HOMES = ["Коракс", "Нувиша"];
+const FERA_HOMES = { "Коракс": "corax", "Нувиша": "nuwisha" };
 function realmGlyph(r) {
   if (r?.group !== "homeland") return GROUP_GLYPH[r?.group] ?? "glyph-umbra";
   const tribe = (Codex.werewolf?.tribes ?? []).find(x => r.name.startsWith(x.name));
-  return tribe ? `tribe-${tribe.key}` : FERA_HOMES.includes(r.name) ? "glyph-fera" : "glyph-pack";
+  return tribe ? `tribe-${tribe.key}` : FERA_HOMES[r.name] ? `fera-${FERA_HOMES[r.name]}` : "glyph-pack";
 }
 /** Луна хроники — знаком аугурии, рождённой под этой фазой. */
 const MOON_AUSPICE = { new: "ragabash", crescent: "theurge", half: "philodox", gibbous: "galliard", full: "ahroun" };

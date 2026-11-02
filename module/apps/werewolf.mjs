@@ -27,11 +27,11 @@ export const wwGlyphSrc = name => foundry.utils.getRoute(`${SYSTEM_PATH}/assets/
 export const wwGlyph = (name, cls = "") => `<span class="r-sym r-wg${cls ? ` ${cls}` : ""}" style="--sym: url('${wwGlyphSrc(name)}')" aria-hidden="true"></span>`;
 export const RENOWN_GLYPH = { glory: "glyph-glory", honor: "glyph-honor", wisdom: "glyph-wisdom" };
 
-/** Знаки листа: на рейке и водяным знаком — племя (у Фера — знак Фера, у Бастет — кошачий), на печати под портретом — аугурия (у Фера — род). */
+/** Знаки листа: на рейке и водяным знаком — племя (у Фера — знак рода), на печати под портретом — аугурия (у Фера — тоже знак рода). */
 export function werewolfSigil(actor) {
   const w = actor.system.werewolf, D = W(), fera = feraOf(actor);
   const tribe = byKey(D.tribes, w.tribe), aus = byKey(D.auspices, w.auspice);
-  const kin = fera ? (fera.key === "bastet" ? "glyph-feline" : "glyph-fera") : null;
+  const kin = fera ? `fera-${fera.key}` : null;
   return {
     sym: { src: wwGlyphSrc(kin ?? (tribe ? `tribe-${tribe.key}` : "glyph-garou")) }, label: fera ? VTM20.label(fera) : tribe?.name ?? "",
     seal: fera ? { sym: { src: wwGlyphSrc(kin) }, label: VTM20.label(fera) } : { sym: { src: wwGlyphSrc(aus ? `auspice-${aus.key}` : "glyph-luna") }, label: aus?.name ?? t("Garou") }
