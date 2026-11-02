@@ -793,6 +793,102 @@ def parse_umbra():
     return {"realms": out, "paths": paths, "travel": md_html(trav.splitlines())}
 
 
+# Механика книг-дополнений: ритуалы, фетиши и талены, достоинства и недостатки (с меткой книги)
+SUPP_BOOKS = {"W20_White_Howlers": "W20 White Howlers", "W20_Rage_Across_the_World": "W20 Rage Across the World", "W20_Book_of_the_Wyrm": "W20 Book of the Wyrm",
+              "W20_Changing_Ways": "W20 Changing Ways", "W20_Shattered_Dreams": "W20 Shattered Dreams", "W20_Umbra": "W20 Umbra", "W20_Kinfolk": "W20 Kinfolk",
+              "W20_Skinner": "W20 Skinner"}
+RITE_WORDS = [("согласи", "accord"), ("accord", "accord"), ("смерт", "death"), ("мистич", "mystic"), ("каэрн", "caern"), ("слав", "renown"),
+              ("наказан", "punishment"), ("сезон", "seasonal"), ("мал", "minor")]
+CAT_WORDS = [("физ", "physical"), ("мент", "mental"), ("умств", "mental"), ("соц", "social"), ("сверх", "supernatural")]
+
+
+def supp_files():
+    base = os.path.dirname(REF)
+    for folder, source in SUPP_BOOKS.items():
+        d = os.path.join(base, folder)
+        if not os.path.isdir(d):
+            continue
+        for fn in sorted(f for f in os.listdir(d) if f.endswith(".md")):
+            with open(os.path.join(d, fn), encoding="utf-8") as f:
+                yield folder, source, f.read().splitlines()
+
+
+def slug(s, prefix=""):
+    return prefix + re.sub(r"[^a-z0-9]+", "-", s.lower()).strip("-")
+
+
+def parse_supp_mech(core_rites, core_fetishes, core_merits):
+    rites, fetishes, merits = [], [], []
+    rk = {r["key"] for r in core_rites}; fk = {f["key"] for f in core_fetishes}; mk = {(m["kind"], m["name"]) for m in core_merits}
+    kind_names = {}
+    for r in core_rites:
+        kind_names.setdefault(r["kind"], r["kindName"])
+    for folder, source, lines in supp_files():
+        sec, sub = "", ""
+        for line in lines:
+            if line.startswith("## "):
+                sec, sub = line[3:].lower(), ""; continue
+            if line.startswith("### "):
+                sub = line[4:].lower()
+                # ритуал заголовком: «### Обряд сновидения (Rite of Dreamtime) — мистический, ур. 2»
+                m = re.match(r"^### (.+?)\s*\(([^()]+)\)\s*—\s*(.+)$", line)
+                if m and re.search(r"(ритуал|обряд|rite)", (m.group(1) + m.group(2)).lower()):
+                    name, en, rest = m.groups()
+                    lv = re.search(r"ур\.\s*(\d+)", rest)
+                    kind = next((k for w, k in RITE_WORDS if w in rest.lower()), "mystic")
+                    key = slug(en)
+                    if key not in rk:
+                        rk.add(key)
+                        rites.append({"key": key, "name": name.strip(), "en": en.strip(), "kind": kind, "kindName": kind_names.get(kind, kind), "level": int(lv.group(1)) if lv else 0,
+                                      "gnosis": 0, "roll": None, "text": f"<p>{md_inline(rest)}</p>", "source": source})
+                continue
+            # ритуалы списком
+            if re.search(r"(ритуал|обряд)", sec) and not re.search(r"(дар|тотем|фетиш)", sec):
+                m = NAME.match(line)
+                if m:
+                    name, en, rest = m.group(1).strip(), m.group(2).strip(), m.group(3).strip()
+                    lv = re.match(r"^ур\.\s*(\d+)", rest)
+                    if not lv and "мал" not in sub + sec:
+                        continue
+                    kind = "minor" if "мал" in sub else next((k for w, k in RITE_WORDS if w in rest[:60].lower()), "mystic")
+                    key = slug(en)
+                    if key in rk:
+                        key = slug(en, folder.split("_", 1)[1].lower().replace("_", "-") + "-")
+                    rk.add(key)
+                    rites.append({"key": key, "name": name, "en": en, "kind": kind, "kindName": kind_names.get(kind, kind), "level": int(lv.group(1)) if lv else 0,
+                                  "gnosis": 0, "roll": roll_of(rest), "text": f"<p>{md_inline(rest)}</p>", "source": source})
+                continue
+            # фетиши и талены
+            if "фетиш" in sec or "талены" in sec or "снаряжение" in sec:
+                m = re.match(r"^- \*\*(.+?)\s*\(([^()]+)\)\*\*\s*—\s*(?:(талена)[,.]?\s*)?(?:ур\.\s*(\d+),\s*)?Гнозис\s*(\d+)\.?\s*(.*)$", line)
+                if m:
+                    name, en, tal, lvl, gn, body = m.groups()
+                    kind = "talen" if tal or (not lvl and "тален" in sub) else "fetish"
+                    key = slug(en)
+                    if key in fk:
+                        key = slug(en, folder.split("_", 1)[1].lower().replace("_", "-") + "-")
+                    fk.add(key)
+                    fetishes.append({"key": key, "kind": kind, "name": name.strip(), "en": en.strip(), "level": int(lvl or 0), "gnosis": int(gn),
+                                     "text": f"<p>{md_inline(body)}</p>", "source": source})
+                continue
+            # достоинства и недостатки таблицей: «Название (English) — физ. | 1 (Дост.) | эффект»
+            if "достоинств" in sec and line.startswith("| ") and not line.startswith("| Название") and not set(line) <= set("|-: "):
+                c = [x.strip() for x in line.strip().strip("|").split("|")]
+                if len(c) < 3:
+                    continue
+                head, cat_s = (c[0].split(" — ", 1) + [""])[:2]
+                name, en = name_en(head)
+                nums = [int(x) for x in re.findall(r"\d+", c[1])] or [1]
+                kind = "flaw" if re.search(r"недост|flaw", c[1].lower()) else "merit"
+                cat = next((k for w, k in CAT_WORDS if w in (cat_s + c[1]).lower()), "supernatural")
+                if (kind, name) in mk:
+                    continue
+                mk.add((kind, name))
+                merits.append({"kind": kind, "category": cat, "name": name, "en": en, "cost": c[1].split("(")[0].strip() or str(nums[0]), "min": min(nums), "max": max(nums),
+                               "clan": "", "sect": "", "era": "", "source": source, "line": "werewolf", "html": f"<p>{md_inline(c[2])}</p>"})
+    return rites, fetishes, merits
+
+
 def build():
     gifts = parse_gifts()
     rites = parse_rites()
@@ -802,9 +898,12 @@ def build():
     for kind, items in (("breed", breeds), ("auspice", auspices), ("tribe", tribes), ("form", FORMS)):
         for x in items:
             x["icon"] = ICONS[kind].get(x["key"], "fa-moon")
+    core_merits, core_fetishes = parse_merits(), parse_fetishes()
+    s_rites, s_fetishes, s_merits = parse_supp_mech(rites, core_fetishes, core_merits)
+    rites = rites + s_rites
     data = {"source": "Werewolf: The Apocalypse 20th Anniversary Edition", "breeds": breeds, "auspices": auspices, "tribes": tribes,
             "forms": FORMS, "gifts": gifts, "rites": rites, "rankNames": RANK_NAMES, "rank": RANK, "xp": XP,
-            "merits": parse_merits(), "backgrounds": parse_backgrounds(), "fetishes": parse_fetishes(), "charms": parse_charms(), "kinGifts": parse_kin_gifts(tribes), "totems": parse_totems(), "renownAwards": parse_renown_awards(), "scars": parse_scars(), "sept": parse_sept(), "umbra": parse_umbra()}
+            "merits": core_merits + s_merits, "backgrounds": parse_backgrounds(), "fetishes": core_fetishes + s_fetishes, "charms": parse_charms(), "kinGifts": parse_kin_gifts(tribes), "totems": parse_totems(), "renownAwards": parse_renown_awards(), "scars": parse_scars(), "sept": parse_sept(), "umbra": parse_umbra()}
     with open(OUT, "w", encoding="utf-8", newline="\n") as f:
         json.dump(data, f, ensure_ascii=False, indent=1)
     rules = parse_rules()

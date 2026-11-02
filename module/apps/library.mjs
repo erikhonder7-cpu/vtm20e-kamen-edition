@@ -379,6 +379,7 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
     return D.rites.map((r, i) => this.#entry({
       id: String(i), name: r.name, en: r.en, has: mine.has(r.key), text: r.text, long: true,
       group: r.kind, groupName: r.kindName, groupOrder: kinds.indexOf(r.kind),
+      tags: r.source && !r.source.startsWith("Werewolf") && r.source !== "W20" ? [{ label: r.source }] : [],
       level: r.level, levels: String(r.level), order: r.level, roman: r.level ? ROMAN[r.level - 1] : "—",
       reasons: w && !mine.has(r.key) && r.level > Math.max(1, skill) ? [game.i18n.format("VTM20.Werewolf.NeedRituals", { n: r.level })] : []
     }));
