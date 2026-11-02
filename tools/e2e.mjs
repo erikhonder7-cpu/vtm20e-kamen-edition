@@ -1010,6 +1010,12 @@ try {
         await C.openCity(); await wait(1500);
         const root = document.getElementById("r-citymap"), click = sel => root.querySelector(sel)?.click();
         click('.rc-modes [data-mode=strategy]'); await wait(300);
+        // масштаб соты: «+» сужает видимую область, «вся сота» возвращает исходную; без выбранного гекса — обзор города
+        const vb = () => root.querySelector(".rs-map svg")?.getAttribute("viewBox")?.split(" ").map(Number) ?? [0, 0, 0, 0];
+        const w0 = vb()[2]; click('[data-rs=zoom][data-d=in]'); await wait(100); const w1 = vb()[2];
+        click('[data-rs=zoom][data-d=fit]'); await wait(100);
+        out.zoom = w0 > 0 && w1 < w0 && Math.abs(vb()[2] - w0) < 1;
+        out.overview = !!root.querySelector(".rs-overview .rs-ovsph li");
         click('[data-rs=view][data-v=turn]'); await wait(300);
         click('[data-rs=resolve]'); await wait(2000);
         out.draft = !!root.querySelector(".rs-draft");
@@ -1037,6 +1043,7 @@ try {
     }, [a, b]);
     if (r.perk !== 2 || !r.sheet || r.caern !== 2) throw new Error(`польза сектора ${r.perk}, каэрн ${r.caern}, лист ${r.sheet}`);
     if (!r.draft || r.turn !== 2 || r.pages !== 2) throw new Error(`ход: черновик ${r.draft}, ход ${r.turn}, страниц отчёта ${r.pages}`);
+    if (!r.zoom || !r.overview) throw new Error(`сота: масштаб ${r.zoom}, обзор города ${r.overview}`);
     if (r.pacts !== 0 || !r.boon) throw new Error(`договор: осталось ${r.pacts}, услуги ${r.boon}`);
     if (r.trend !== 3) throw new Error(`тренд не вырос: ${r.trend}`);
     if (r.shift !== 3 || r.back !== 0) throw new Error(`часы: сдвиг ${r.shift} дн., после отмены ${r.back}`);

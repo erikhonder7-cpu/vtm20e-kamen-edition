@@ -4825,7 +4825,20 @@
       "PerkCaern": "Caern",
       "PerkCaernLine": "A caern lies here: stepping sideways is easier — Gauntlet −1 per 2 tokens (at most −2).",
       "DomainHeld": "Turn {n}: the quarter's tokens favour the owner — Security {sec}.",
-      "DomainLost": "Turn {n}: {who} is stronger in the quarter — Security {sec}."
+      "DomainLost": "Turn {n}: {who} is stronger in the quarter — Security {sec}.",
+      "ZoomIn": "Zoom in",
+      "ZoomOut": "Zoom out",
+      "ZoomFit": "Whole board",
+      "ZoomHint": "Mouse wheel zooms toward the cursor; drag the board to pan",
+      "OvTitle": "City overview",
+      "OvLead": "Hexes on the table: {n}. Click a sphere to highlight its hexes.",
+      "OvSpheres": "Spheres",
+      "OvSectors": "hexes: {n}",
+      "OvSeals": "seals: {n}",
+      "OvTie": "balanced",
+      "OvNobody": "unclaimed — no seals seen",
+      "OvTokens": "My tokens",
+      "OvBack": "City overview"
     },
     "GarouCr": {
       "Title": "Garou creation",

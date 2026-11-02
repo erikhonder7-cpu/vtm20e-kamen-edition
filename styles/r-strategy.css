@@ -46,7 +46,27 @@
 
 /* ── Сота гексов ── */
 #r-citymap .rs-hexes { position: relative; min-height: 0; display: flex; flex-direction: column; }
-#r-citymap .rs-hexes svg { flex: 1; width: 100%; min-height: 0; overflow: visible; }
+/* поле стола: латунная рамка, колесо — масштаб, перетаскивание — сдвиг; кнопки масштаба справа, легенда сфер внизу */
+#r-citymap .rs-map { position: relative; flex: 1; min-height: 0; overflow: hidden; cursor: grab; touch-action: none;
+  border: 1px solid #000; box-shadow: inset 0 0 0 1px rgba(176, 137, 74, .22), inset 0 0 60px rgba(0, 0, 0, .55);
+  background: radial-gradient(ellipse at 50% 45%, rgba(176, 137, 74, .06), transparent 65%),
+    repeating-linear-gradient(0deg, transparent 0 39px, rgba(176, 137, 74, .04) 39px 40px),
+    repeating-linear-gradient(90deg, transparent 0 39px, rgba(176, 137, 74, .04) 39px 40px); }
+#r-citymap .rs-map.is-drag { cursor: grabbing; }
+#r-citymap .rs-map.is-drag .rs-hex { pointer-events: none; }
+#r-citymap .rs-map svg { display: block; width: 100%; height: 100%; overflow: hidden; }
+#r-citymap .rs-map::before, #r-citymap .rs-map::after { content: ""; position: absolute; z-index: 1; width: 18px; height: 18px; pointer-events: none;
+  border: 2px solid var(--rs-brass-d); }
+#r-citymap .rs-map::before { left: 6px; top: 6px; border-right: 0; border-bottom: 0; }
+#r-citymap .rs-map::after { right: 6px; bottom: 6px; border-left: 0; border-top: 0; }
+#r-citymap .rs-zoom { position: absolute; z-index: 2; top: 12px; right: 12px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+#r-citymap .rs-zoom a { width: 30px; height: 30px; display: grid; place-items: center; cursor: pointer; border-radius: 50%; color: var(--rs-brass-b);
+  background: radial-gradient(circle at 40% 30%, #2c2318, #120e0b 75%); border: 1px solid var(--rs-brass-d); box-shadow: 0 2px 6px rgba(0, 0, 0, .6); }
+#r-citymap .rs-zoom a:hover { color: var(--rs-bone); border-color: var(--rs-brass); }
+#r-citymap .rs-zoom b { font-family: var(--c-font-display); font-weight: 400; font-size: 11px; letter-spacing: .04em; color: var(--rs-bone-2);
+  font-variant-numeric: oldstyle-nums; text-shadow: 0 1px 2px #000; }
+#r-citymap .rs-hex.is-dim { opacity: .28; }
+#r-citymap .rs-hex.is-dim:hover { opacity: .6; }
 #r-citymap .rs-hex { cursor: pointer; }
 #r-citymap .rs-hex .rs-plate { fill: color-mix(in srgb, var(--h) 26%, var(--rs-plate)); stroke: var(--rs-brass-d); stroke-width: 1.4;
   transition: fill .18s, stroke .18s, filter .18s; }
@@ -62,8 +82,13 @@
 #r-citymap .rs-fog text { fill: var(--rs-bone-2); font-family: var(--c-font-display); font-size: 9px; text-anchor: middle; }
 #r-citymap .rs-bidmark circle { fill: var(--rs-blood); stroke: var(--rs-brass-b); stroke-width: 1; }
 #r-citymap .rs-bidmark text { fill: var(--rs-bone); font-size: 10px; font-weight: 700; text-anchor: middle; pointer-events: none; }
-#r-citymap .rs-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; justify-content: center; padding: 6px 0 0; font-family: var(--c-font-display);
-  font-size: 12px; letter-spacing: .06em; color: var(--rs-bone-2); }
+#r-citymap .rs-legend { position: absolute; z-index: 2; left: 12px; right: 56px; bottom: 10px; display: flex; flex-wrap: wrap; gap: 5px;
+  font-family: var(--c-font-display); font-size: 12.5px; letter-spacing: .05em; color: var(--rs-bone-2); }
+#r-citymap .rs-legend a { display: inline-flex; align-items: center; gap: 0; padding: 3px 9px; cursor: pointer; color: var(--rs-bone-2);
+  background: rgba(12, 10, 9, .85); border: 1px solid #000; box-shadow: inset 0 0 0 1px rgba(176, 137, 74, .18); }
+#r-citymap .rs-legend a:hover { color: var(--rs-bone); }
+#r-citymap .rs-legend a.on { color: var(--rs-bone); box-shadow: inset 0 0 0 1px var(--h), 0 0 8px color-mix(in srgb, var(--h) 45%, transparent); }
+#r-citymap .rs-legend small { margin-left: 6px; color: var(--rs-dim); font-variant-numeric: oldstyle-nums; }
 #r-citymap .rs-legend i { display: inline-block; width: 11px; height: 11px; margin-right: 6px; vertical-align: -1px; transform: rotate(30deg);
   clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0 50%); background: var(--h); }
 
@@ -223,3 +248,21 @@
 .vtm20 .r-strat-sheet .r-strat-bar { flex: 0 0 70px; height: 6px; background: rgba(0, 0, 0, .25); }
 .vtm20 .r-strat-sheet .r-strat-bar i { display: block; height: 100%; background: var(--r-blood, #a3242a); }
 .vtm20 .r-strat-sheet h4 { margin: 8px 0 4px; }
+
+/* ── Обзор города (пока гекс не выбран) ── */
+#r-citymap .rs-overview h3 > i { width: auto; height: auto; background: none; clip-path: none; transform: none; color: var(--rs-brass); font-size: 18px; }
+#r-citymap .rs-ovsph { list-style: none; margin: 0; padding: 0; }
+#r-citymap .rs-ovsph li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 1px 10px; padding: 6px 4px; border-bottom: 1px dotted rgba(176, 137, 74, .25); }
+#r-citymap .rs-ovsph li.on { background: linear-gradient(90deg, color-mix(in srgb, var(--h) 18%, transparent), transparent); }
+#r-citymap .rs-ovsph a { display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--rs-bone); font-family: var(--c-font-display); font-size: 15px; }
+#r-citymap .rs-ovsph a > i { width: 12px; height: 12px; flex: none; background: var(--h); transform: rotate(30deg);
+  clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0 50%); }
+#r-citymap .rs-ovsph small { align-self: center; color: var(--rs-dim); font-size: 12px; }
+#r-citymap .rs-ovsph em { grid-column: 1 / -1; padding-left: 20px; font-style: normal; font-size: 12.5px; color: var(--rs-bone-2); }
+#r-citymap .rs-ovsph em b { font-weight: 400; color: var(--rs-bone); box-shadow: inset 0 -2px 0 var(--c, var(--rs-brass)); }
+#r-citymap .rs-overview .rs-trendrow a { cursor: pointer; color: var(--rs-bone); display: flex; flex-direction: column; flex: 1; min-width: 0; }
+#r-citymap .rs-overview .rs-trendrow a small { color: var(--rs-dim); font-size: 11.5px; }
+#r-citymap .rs-overview .rs-trendrow.is-storm > i { color: var(--rs-blood-b); }
+#r-citymap .rs-back { display: inline-flex; align-items: center; gap: 6px; margin: 0 0 8px; cursor: pointer; color: var(--rs-dim);
+  font-family: var(--c-font-display); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
+#r-citymap .rs-back:hover { color: var(--rs-brass-b); }

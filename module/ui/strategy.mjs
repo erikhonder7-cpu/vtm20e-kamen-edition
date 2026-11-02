@@ -227,6 +227,10 @@ function resistPools(s, bids) {
 /* ── Доска ─────────────────────────────────────────────────────────────── */
 
 let host = null, mode = "map", view = "map", sel = null, editBid = null, hist = null;
+// масштаб соты: k — во сколько раз крупнее «вписанного» вида, cx/cy — центр в координатах сот (null — по центру);
+// base — рамка всех гексов; focus — подсвеченная сфера из легенды
+const ZOOM_MIN = 0.6, ZOOM_MAX = 4;
+let zoom = { k: 1, cx: null, cy: null }, base = null, focus = null, dragged = false;
 
 export function registerStrategy() {
   game.settings.register(SYSTEM_ID, "strategy", { scope: "world", config: false, type: Object, default: {}, onChange: () => { renderBoard(); host?.drawOverlay?.(); } });
@@ -354,7 +358,56 @@ function attach(root, api) {
     renderBoard();
   });
   api.modesEl.addEventListener("click", ev => { if (ev.target.closest("[data-mode]")) setMode(ev.target.closest("[data-mode]").dataset.mode); });
+  // масштаб: колесо — к курсору; перетаскивание поля — сдвиг (после сдвига щелчок по гексу не считается выбором)
+  b.addEventListener("wheel", ev => {
+    const svg = ev.target.closest?.(".rs-map")?.querySelector("svg");
+    if (!svg || !base) return;
+    ev.preventDefault();
+    zoomAt(svg, zoom.k * (ev.deltaY < 0 ? 1.15 : 1 / 1.15), ev.clientX, ev.clientY);
+  }, { passive: false });
+  b.addEventListener("pointerdown", ev => {
+    const map = ev.target.closest?.(".rs-map");
+    if (!map || ev.button !== 0 || ev.target.closest(".rs-zoom, .rs-legend")) return;
+    const svg = map.querySelector("svg"), start = { x: ev.clientX, y: ev.clientY, cx: zoom.cx, cy: zoom.cy };
+    dragged = false;
+    const move = e => {
+      const dx = e.clientX - start.x, dy = e.clientY - start.y;
+      if (!dragged && Math.hypot(dx, dy) < 5) return;
+      dragged = true; map.classList.add("is-drag");
+      const v = viewOf(), u = 1 / Math.min(svg.clientWidth / v.w, svg.clientHeight / v.h);   // единиц соты в пикселе (preserveAspectRatio meet)
+      zoom.cx = start.cx - dx * u; zoom.cy = start.cy - dy * u; applyView(svg);
+    };
+    const up = () => { map.classList.remove("is-drag"); window.removeEventListener("pointermove", move); window.removeEventListener("pointerup", up); };
+    window.addEventListener("pointermove", move); window.addEventListener("pointerup", up);
+  });
+  b.addEventListener("click", ev => { if (dragged && ev.target.closest?.(".rs-map")) { ev.stopImmediatePropagation(); ev.preventDefault(); dragged = false; } }, true);
   drawModes();
+}
+
+/* ── Масштаб соты ── */
+
+/** Видимая часть соты при текущем масштабе: ширина и высота — доля «вписанного» вида, центр — zoom.cx/cy. */
+function viewOf() {
+  const w = base.w / zoom.k, h = base.h / zoom.k;
+  zoom.cx ??= base.minX + base.w / 2; zoom.cy ??= base.minY + base.h / 2;
+  return { x: zoom.cx - w / 2, y: zoom.cy - h / 2, w, h };
+}
+function applyView(svg) {
+  const v = viewOf();
+  svg.setAttribute("viewBox", `${v.x.toFixed(1)} ${v.y.toFixed(1)} ${v.w.toFixed(1)} ${v.h.toFixed(1)}`);
+  const out = svg.closest(".rs-map")?.querySelector("[data-rs-zoomval]");
+  if (out) out.textContent = `${Math.round(zoom.k * 100)}%`;
+}
+/** Масштаб k с неподвижной точкой под курсором (без курсора — к центру). */
+function zoomAt(svg, k, clientX, clientY) {
+  k = Math.clamp(k, ZOOM_MIN, ZOOM_MAX);
+  const v = viewOf(), r = svg.getBoundingClientRect();
+  // доля экрана под курсором; при preserveAspectRatio meet поле может быть уже окна — считаем по реальному масштабу
+  const scale = Math.min(r.width / v.w, r.height / v.h), ox = (r.width - v.w * scale) / 2, oy = (r.height - v.h * scale) / 2;
+  const px = clientX == null ? v.x + v.w / 2 : v.x + (clientX - r.left - ox) / scale, py = clientY == null ? v.y + v.h / 2 : v.y + (clientY - r.top - oy) / scale;
+  const f = zoom.k / k;
+  zoom.cx = px + (zoom.cx - px) * f; zoom.cy = py + (zoom.cy - py) * f; zoom.k = k;
+  applyView(svg);
 }
 function setMode(m) {
   if (!host) return;
@@ -435,7 +488,7 @@ function hexes(s) {
       const ls = lines.slice(0, 3), top = c.y - 4 - (ls.length - 1) * 11.5;
       return `<text class="rs-name" x="${c.x.toFixed(1)}" y="${top.toFixed(1)}">${ls.map((l, k) => `<tspan x="${c.x.toFixed(1)}" dy="${k ? 11.5 : 0}">${esc(l)}</tspan>`).join("")}</text>`;
     };
-    return `<g class="rs-hex ${sel === x.key ? "is-sel" : ""} ${x.hidden ? "is-hidden" : ""}" data-rs="sector" data-key="${x.key}">
+    return `<g class="rs-hex ${sel === x.key ? "is-sel" : ""} ${x.hidden ? "is-hidden" : ""} ${focus && x.sphere !== focus ? "is-dim" : ""}" data-rs="sector" data-key="${x.key}">
       <polygon class="rs-plate" points="${ring(c, HEX - 2)}" style="--h:${color}"/><polygon class="rs-inlay" points="${ring(c, HEX - 7)}" style="--h:${color}"/>
       ${label(c, sectorName(x))}${seals}
       ${hiddenToks ? `<g class="rs-fog"><circle cx="${c.x.toFixed(1)}" cy="${(c.y + 36).toFixed(1)}" r="6.5"/><text x="${c.x.toFixed(1)}" y="${(c.y + 39.2).toFixed(1)}">?</text></g>` : ""}
@@ -443,15 +496,29 @@ function hexes(s) {
         return tr.length ? `<g class="rs-trendmark ${lv >= 3 ? "is-storm" : ""}"><circle cx="${(c.x - 30).toFixed(1)}" cy="${(c.y - 30).toFixed(1)}" r="9"/><text x="${(c.x - 30).toFixed(1)}" y="${(c.y - 26.5).toFixed(1)}">${lv}</text></g>` : ""; })()}
       ${nb ? `<g class="rs-bidmark"><circle cx="${(c.x + 30).toFixed(1)}" cy="${(c.y - 30).toFixed(1)}" r="9"/><text x="${(c.x + 30).toFixed(1)}" y="${(c.y - 26.5).toFixed(1)}">${nb}</text></g>` : ""}</g>`;
   }).join("");
-  const legend = s.spheres.map(x => `<span style="--h:${x.color}"><i></i>${esc(sphereName(x))}</span>`).join("");
-  return `<svg viewBox="${minX.toFixed(0)} ${minY.toFixed(0)} ${w.toFixed(0)} ${h.toFixed(0)}" preserveAspectRatio="xMidYMid meet">${cells}</svg><div class="rs-legend">${legend}</div>`;
+  // рамка всех гексов; если сота поменялась (гекс добавили или сдвинули) — масштаб и центр с нуля
+  const nb = { minX, minY, w, h };
+  if (!base || ["minX", "minY", "w", "h"].some(k => Math.abs(base[k] - nb[k]) > 0.5)) zoom = { k: 1, cx: null, cy: null };
+  base = nb;
+  const v = viewOf();
+  // легенда сфер — на поле; щелчок подсвечивает гексы сферы
+  const legend = s.spheres.map(x => `<a class="${focus === x.key ? "on" : ""}" data-rs="focus" data-key="${x.key}" style="--h:${x.color}"><i></i>${esc(sphereName(x))}
+    <small>${list.filter(y => y.sphere === x.key).length}</small></a>`).join("");
+  const tools = `<div class="rs-zoom" data-tooltip="${esc(S("ZoomHint"))}" data-tooltip-direction="LEFT">
+    <a data-rs="zoom" data-d="in" data-tooltip="${esc(S("ZoomIn"))}"><i class="fa-solid fa-plus"></i></a>
+    <b data-rs-zoomval>${Math.round(zoom.k * 100)}%</b>
+    <a data-rs="zoom" data-d="out" data-tooltip="${esc(S("ZoomOut"))}"><i class="fa-solid fa-minus"></i></a>
+    <a data-rs="zoom" data-d="fit" data-tooltip="${esc(S("ZoomFit"))}"><i class="fa-solid fa-expand"></i></a></div>`;
+  return `<div class="rs-map ${focus ? "has-focus" : ""}">
+    <svg viewBox="${v.x.toFixed(1)} ${v.y.toFixed(1)} ${v.w.toFixed(1)} ${v.h.toFixed(1)}" preserveAspectRatio="xMidYMid meet">${cells}</svg>
+    ${tools}<div class="rs-legend">${legend}</div></div>`;
 }
 
 /* ── Сектор ── */
 
 function sectorView(s) {
   const x = s.sectors.find(y => y.key === sel);
-  if (!x) return `<p class="rs-note">${esc(S("PickSector"))}</p>${myCounters(s)}`;
+  if (!x) return overviewView(s);
   const gm = game.user.isGM, sph = s.spheres.find(y => y.key === x.sphere);
   const toks = Object.entries(s.tokens[x.key] ?? {}).filter(([, n]) => n > 0);
   const vis = toks.filter(([k]) => sees(x.key, k, s)), total = toks.reduce((n, [, v]) => n + v, 0);
@@ -464,6 +531,7 @@ function sectorView(s) {
       ${ownerOptions(s).map(o => `<option value="${o.key}">${esc(o.name)}</option>`).join("")}</select></div>` : "";
   const a = meActor(), mineHere = (gm ? allBids(s) : bidsOf(a, s).map(b => ({ actor: a, bid: b }))).filter(y => y.bid.sector === x.key);
   return `<section class="rs-sector">
+    <a class="rs-back" data-rs="overview"><i class="fa-solid fa-arrow-left"></i> ${esc(S("OvBack"))}</a>
     <h3 style="--h:${sph?.color ?? "#555"}"><i></i>${esc(sectorName(x))}${gm ? ` <a class="rs-eye ${s.reveal[x.key] ? "is-open" : ""}" data-rs="reveal" data-tooltip="${esc(S(s.reveal[x.key] ? "RevealOff" : "RevealOn"))}"><i class="fa-solid ${s.reveal[x.key] ? "fa-eye" : "fa-eye-slash"}"></i></a>` : ""}</h3>
     <p class="rs-sph">${esc(sph ? sphereName(sph) : "")}${district ? ` · <a data-rs="fly" data-key="${x.district}"><i class="fa-solid fa-map-location-dot"></i> ${esc(district.name)}</a>` : ""}</p>
     ${x.about ? `<p class="rs-about">${esc(x.about)}</p>` : ""}
@@ -479,6 +547,34 @@ function sectorView(s) {
     ${!gm && a && s.turn.open ? bidForm(a, s, x.key) : ""}
   </section>`;
 }
+/**
+ * Обзор города, пока гекс не выбран: по каждой сфере — сколько гексов, сколько видимых печатей и кто впереди
+ * (только то, что этот пользователь видит); тренды всего города по силе; у игрока — его жетоны.
+ */
+function overviewView(s) {
+  const list = visibleSectors(s);
+  const spheres = s.spheres.map(sp => {
+    const secs = list.filter(x => x.sphere === sp.key), by = {};
+    for (const x of secs) for (const [k, n] of Object.entries(s.tokens[x.key] ?? {})) if (n > 0 && sees(x.key, k, s)) by[k] = (by[k] ?? 0) + n;
+    const top = Object.entries(by).sort((a, b) => b[1] - a[1]), total = top.reduce((n, [, v]) => n + v, 0);
+    const lead = top[0] && (!top[1] || top[0][1] > top[1][1]) ? owner(top[0][0], s) : null;
+    return `<li style="--h:${sp.color}" class="${focus === sp.key ? "on" : ""}"><a data-rs="focus" data-key="${sp.key}"><i></i><span>${esc(sphereName(sp))}</span></a>
+      <small>${esc(S("OvSectors", { n: secs.length }))}</small>
+      <em>${total ? `${lead ? `<b style="--c:${lead.color}">${esc(lead.name)}</b>` : esc(S("OvTie"))} · ${esc(S("OvSeals", { n: total }))}` : esc(S("OvNobody"))}</em></li>`;
+  }).join("");
+  const trends = (s.trends ?? []).filter(t => list.some(x => x.key === t.sector)).sort((a, b) => b.level - a.level).slice(0, 8)
+    .map(t => `<li class="rs-trendrow ${t.level >= 3 ? "is-storm" : ""}"><i class="fa-solid fa-fire"></i><a data-rs="sector" data-key="${t.sector}">${esc(t.name)}
+      <small>${esc(sectorName(s.sectors.find(x => x.key === t.sector) ?? {}))}</small></a><b class="rs-lvl">${"▲".repeat(t.level)}<small>${"△".repeat(Math.max(0, 5 - t.level))}</small></b></li>`).join("");
+  return `<section class="rs-overview">
+    <h3><i class="fa-solid fa-chess-board"></i>${esc(S("OvTitle"))}</h3>
+    <p class="rs-sph">${esc(S("OvLead", { n: list.length }))}</p>
+    <h4>${esc(S("OvSpheres"))}</h4><ul class="rs-ovsph">${spheres}</ul>
+    ${trends ? `<h4>${esc(S("Trends"))}</h4><ul class="rs-trends">${trends}</ul>` : ""}
+    ${myCounters(s) ? `<h4>${esc(S("OvTokens"))}</h4>${myCounters(s)}` : ""}
+    <p class="rs-note"><i class="fa-solid fa-hand-pointer"></i> ${esc(S("PickSector"))}</p>
+  </section>`;
+}
+
 /** Тренды гекса: процессы, которые сами растут, пока их не обуздают. */
 function trendsBlock(s, x, gm) {
   const list = (s.trends ?? []).filter(t => t.sector === x.key);
@@ -730,7 +826,9 @@ async function onClick(ev) {
   const s = strat(), gm = game.user.isGM, act = el.dataset.rs;
   switch (act) {
     case "view": view = el.dataset.v; editBid = null; return renderBoard();
-    case "sector": sel = el.dataset.key; editBid = null; if (view !== "setup") view = "map"; return renderBoard();
+    // повторный щелчок по выбранному гексу — снять выбор и вернуться к обзору города
+    case "sector": sel = sel === el.dataset.key && view === "map" ? null : el.dataset.key; editBid = null; if (view !== "setup") view = "map"; return renderBoard();
+    case "overview": sel = null; editBid = null; view = "map"; return renderBoard();
     case "preset": return loadPreset(el.dataset.id);
     case "fly": { const d = EXT.strategy.districts.flatMap(f => f()).find(x => x.key === el.dataset.key); if (d) { setMode("map"); host.fly?.(d.lat, d.lng, 15); } return; }
     case "tok": {
@@ -749,6 +847,13 @@ async function onClick(ev) {
     case "hist": hist = hist === Number(el.dataset.n) ? null : Number(el.dataset.n); return renderBoard();
     case "histOff": hist = null; return renderBoard();
     case "guide": return openGuide();
+    case "zoom": {
+      const svg = el.closest(".rs-map")?.querySelector("svg");
+      if (!svg || !base) return;
+      if (el.dataset.d === "fit") { zoom = { k: 1, cx: null, cy: null }; return applyView(svg); }
+      return zoomAt(svg, zoom.k * (el.dataset.d === "in" ? 1.3 : 1 / 1.3));
+    }
+    case "focus": focus = focus === el.dataset.key ? null : el.dataset.key; return renderBoard();
     case "projAdd": {
       const a = meActor(), name = el.closest(".rs-row")?.querySelector("[data-rs-newproj]")?.value.trim();
       if (!a || !name) return;
