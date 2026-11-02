@@ -4610,7 +4610,9 @@
         "trendDown": "Trend “{name}” ({sector}) weakens: level {n}.",
         "trendSame": "Trend “{name}” ({sector}) holds: level {n}.",
         "trendErode": "“{name}” erodes influence: {who} −1.",
-        "heat": "{sector}: crude work left traces — the Masquerade is at risk."
+        "heat": "{sector}: crude work left traces — the Masquerade is at risk.",
+        "domainUp": "{name}: Security rose to {n} — the quarter backs its owner.",
+        "domainDown": "{name}: Security fell to {n} — rivals hold the quarter."
       },
       "Trouble": "Retainer of {who} got into trouble — a story for the session.",
       "Debt": "Owed: {who}.",
@@ -4762,7 +4764,9 @@
       "SheetDone": "turn done",
       "SheetNotDone": "turn not done",
       "PerkCaern": "Caern",
-      "PerkCaernLine": "A caern lies here: stepping sideways is easier — Gauntlet −1 per 2 tokens (at most −2)."
+      "PerkCaernLine": "A caern lies here: stepping sideways is easier — Gauntlet −1 per 2 tokens (at most −2).",
+      "DomainHeld": "Turn {n}: the quarter's tokens favour the owner — Security {sec}.",
+      "DomainLost": "Turn {n}: {who} is stronger in the quarter — Security {sec}."
     },
     "GarouCr": {
       "Title": "Garou creation",
@@ -5040,7 +5044,44 @@
         "pilgrims": {
           "name": "Pilgrims",
           "text": "One domain Resource +1 while they stay; with hospitality — permanently."
+        },
+        "strategy": {
+          "name": "City strategy",
+          "text": "A strategy turn shifted the domain's Security: whoever has more tokens in the quarter's sectors (system rule)."
+        },
+        "trend": {
+          "name": "Trend in the quarter",
+          "text": "A trend rose on the strategy board in the domain's quarter."
         }
+      },
+      "SwayLine": "Quarter «{district}»: the owner has {mine} tokens, the rival {best}{who} — at turn end {sway}.",
+      "Sway": {
+        "up": "+1 Security",
+        "down": "−1 Security",
+        "same": "no change"
+      },
+      "EventTrend": "The event became a trend on the strategy board: {name}"
+    },
+    "Session": {
+      "Title": "Session panel",
+      "Active": "active",
+      "NoScene": "Off scene",
+      "Empty": "No characters.",
+      "Sum": "Characters: {n} · alerts: {a}",
+      "Health": "Wounds: {n} of {m}",
+      "ToToken": "To the token on its scene",
+      "Filter": {
+        "players": "Player characters",
+        "scene": "Everyone on scenes",
+        "alert": "Alerts only"
+      },
+      "Pool": {
+        "blood": "Blood",
+        "will": "Willpower",
+        "rage": "Rage",
+        "gnosis": "Gnosis",
+        "conviction": "Conviction",
+        "faith": "Faith"
       }
     }
   }

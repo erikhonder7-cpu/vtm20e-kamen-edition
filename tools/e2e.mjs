@@ -1,5 +1,5 @@
 // tools/e2e.mjs — автотесты в браузере против песочницы Foundry:
-//   node tools/e2e.mjs [--url http://localhost:30002] [--user Gamemaster] [--headed] [--sync <папка системы в песочнице>]
+//   node tools/e2e.mjs [--url http://localhost:30002] [--user Gamemaster] [--headed] [--sync <папка системы в песочнице>] [--only "часть названия|другая"]
 // Входит рассказчиком, открывает лист, бросает черту, открывает окна системы (опыт, библиотеку, охоту,
 // опасности, урон, диаблери, справочник кланов, ночь простоя, реестр услуг), ставит и снимает паузу; проверяет
 // толпу статистов, сроки сил и чтение ритуала, торпор и Окончательную смерть, охоту с карты (угодья и домен),
@@ -19,6 +19,9 @@ const URL = arg("--url", "http://localhost:30002").replace(/\/$/, "");
 const USER = arg("--user", "Gamemaster");
 const HEADED = process.argv.includes("--headed");
 const SYNC = arg("--sync", "");
+// --only «часть названия»: только эти проверки (вход, загрузка системы и уборка — всегда); несколько — через «|»
+const ONLY = arg("--only", "").toLowerCase().split("|").map(x => x.trim()).filter(Boolean);
+const ALWAYS = ["Вход рассказчиком", "Система загружена"];
 
 // Шум, который к системе не относится
 const IGNORE = [/Cannot set language/i, /hardware acceleration/i, /favicon\.ico/i, /WebGL/i];
@@ -30,6 +33,7 @@ const errors = [];
 let page, step = "запуск";
 
 async function check(name, fn) {
+  if (ONLY.length && !ALWAYS.includes(name) && !ONLY.some(x => name.toLowerCase().includes(x))) return;
   step = name;
   const before = errors.length;
   try {
@@ -1038,6 +1042,45 @@ try {
     if (r.shift !== 3 || r.back !== 0) throw new Error(`часы: сдвиг ${r.shift} дн., после отмены ${r.back}`);
   });
 
+  // План 2: стратегия ↔ домен (правило системы) — квартал домена, Защищённость по фишкам, события ↔ тренды
+  await check("Стратегия и домен: квартал, Защищённость, события и тренды", async () => {
+    const a = await temp("E2E — хозяин домена"), b = await temp("E2E — соперник в квартале");
+    const r = await page.evaluate(async ([a, b]) => {
+      const SYS = game.system.id, sys = p => import(`/systems/${SYS}/${p}`), out = {};
+      const St = await sys("module/ui/strategy.mjs"), { EXT } = await sys("module/ui/city-ext.mjs");
+      const saved = foundry.utils.deepClone(game.settings.get(SYS, "strategy") ?? {}), flags = foundry.utils.deepClone(game.user.getFlag(SYS, "cityDomains") ?? null);
+      const cm = game.settings.get(SYS, "cityMap"), cityId = cm?.current ?? Object.keys(cm?.cities ?? {})[0];
+      const [lat, lng] = cm?.cities?.[cityId]?.center ?? [48.8566, 2.3522], d = .002;
+      const fake = () => [{ key: "e2e-q", name: "E2E — квартал", lat, lng }];
+      EXT.strategy.districts.push(fake);
+      let da;
+      try {
+        await game.user.setFlag(SYS, "cityDomains", { [cityId]: [{ id: "e2e-dom", owner: a, points: [[lat - d, lng - d], [lat - d, lng + d], [lat + d, lng + d], [lat + d, lng - d]] }] });
+        await game.settings.set(SYS, "strategy", { ...saved, trends: [], sectors: [{ key: "e2e-s", sphere: "power", q: 0, r: 0, name: "E2E — сектор", about: "", perk: "", district: "e2e-q" }],
+          tokens: { "e2e-s": { [a]: 2, [b]: 1 } } });
+        da = await Actor.create({ name: "E2E — домен в квартале", type: "domain", flags: { world: { e2e: true } }, system: { owner: a, zone: "e2e-dom", security: 2 } });
+        const w = St.domainSway(da);
+        out.sway = `${w?.district}:${w?.mine}:${w?.best}:${w?.d}`;
+        await da.sheet.render({ force: true }); out.sheet = da.sheet.element.textContent.includes("E2E — квартал"); await da.sheet.close();
+        out.lines = (await St.domainSecurity(St.strat())).length;
+        out.sec = `${da.system.security}:${da.system.events.at(-1)?.key}`;
+        const tr = await St.domainEventTrend(da, "brigands", "");
+        out.trend = `${tr?.sector}:${St.strat().trends.length}`;
+        await St.trendToDomains({ id: "t2", sector: "e2e-s", name: "E2E — тренд", level: 1 }, St.strat());
+        out.journal = da.system.events.at(-1)?.key;
+      } finally {
+        EXT.strategy.districts.splice(EXT.strategy.districts.indexOf(fake), 1);
+        await da?.delete();
+        await game.settings.set(SYS, "strategy", saved);
+        if (flags) await game.user.setFlag(SYS, "cityDomains", flags); else await game.user.unsetFlag(SYS, "cityDomains");
+      }
+      return out;
+    }, [a, b]);
+    if (r.sway !== "E2E — квартал:2:1:1" || !r.sheet) throw new Error(`расклад квартала (квартал:хозяин:соперник:сдвиг): ${r.sway}; на листе домена: ${r.sheet}`);
+    if (r.lines !== 1 || r.sec !== "3:strategy") throw new Error(`Защищённость по ходу: строк ${r.lines}, ${r.sec}`);
+    if (r.trend !== "e2e-s:1" || r.journal !== "trend") throw new Error(`событие → тренд: ${r.trend}; тренд → журнал: ${r.journal}`);
+  });
+
   // Оборотни, часть 2: мастер создания Гару (W20, гл. 3), фетиши и талены, Бред по Силе воли, дух Умбры (существо с Чарами)
   await check("Оборотень: мастер создания, фетиши, Бред, дух Умбры, Родня, тотем стаи", async () => {
     const id = await temp("E2E — новый Гару", "werewolf"), sp = await temp("E2E — дух", "creature");
@@ -1489,7 +1532,7 @@ try {
     await setWorld(false, "", "0.7.0");
     await reloadUntil(id => game.ready === true && !!game.modules.get(id)?.active && game.settings.get(game.system.id, "cityParis") === "on", CITY_MODULE);
   });
-  else results.push({ name: "Старый мир: модуль Парижа включается сам", ok: true, note: "пропущено — модуль не установлен в песочнице" });
+  else if (!ONLY.length) results.push({ name: "Старый мир: модуль Парижа включается сам", ok: true, note: "пропущено — модуль не установлен в песочнице" });
 
   await check("Песочница возвращена как была", async () => {
     await setWorld(saved.mod, saved.paris, saved.migrated);

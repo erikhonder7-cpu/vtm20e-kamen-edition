@@ -10,6 +10,7 @@ import { coterieFromActor, poolValue, openCoterie } from "../apps/coterie.mjs";
 import { HUNTING_GROUNDS } from "../apps/night.mjs";
 import { citySpots, showSpotOnMap } from "../ui/citymap.mjs";
 import { domainOwner } from "../apps/domain.mjs";
+import { domainSway, domainEventTrend } from "../ui/strategy.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -161,6 +162,9 @@ export class DomainSheet extends GroupSheet {
       zones: zones.map(z => ({ id: z.id, name: z.name, kind: z.kind, selected: z.id === s.zone })),
       zoneName: zones.find(z => z.id === s.zone)?.name ?? "",
       huntLine: t("Group.HuntLine", { diff, cut: s.rating, res: Math.max(3, diff - s.rating) }),
+      // квартал стратегии и расклад фишек: к концу хода Защищённость +1 / −1 (план 2)
+      swayLine: (() => { try { const w = domainSway(a); return w ? t("Group.SwayLine", { district: w.district, mine: w.mine, best: w.best,
+        who: w.rival ? ` (${w.rival})` : "", sway: t(`Group.Sway.${w.d > 0 ? "up" : w.d < 0 ? "down" : "same"}`) }) : ""; } catch { return ""; } })(),
       guests: list(s.guests), people: list(s.people)
     };
   }
@@ -194,12 +198,15 @@ export class DomainSheet extends GroupSheet {
     return showSpotOnMap(kind, id);
   }
   /** Событие домена — в журнал (механика события — в подписи; точки рассказчик правит по ней). */
-  static #onAddEvent() {
+  static async #onAddEvent() {
     const key = this.element.querySelector("[data-ev=kind]")?.value, note = this.element.querySelector("[data-ev=note]")?.value?.trim() ?? "";
     if (!key) return;
     const { getClock } = game.vtm20 ?? {};
     const date = typeof getClock === "function" ? new Date(getClock()).toLocaleDateString(game.i18n.lang, { day: "numeric", month: "long", year: "numeric" }) : "";
-    return this.actor.update({ "system.events": [...(this.actor.system.events ?? []), { key, note, date }] });
+    await this.actor.update({ "system.events": [...(this.actor.system.events ?? []), { key, note, date }] });
+    // событие — трендом на доске стратегии в квартале домена (план 2; ставит ведущий)
+    const tr = await domainEventTrend(this.actor, key, note);
+    if (tr) ui.notifications.info(t("Group.EventTrend", { name: tr.name }));
   }
   static #onDelEvent(event, target) { const list = [...(this.actor.system.events ?? [])]; list.splice(Number(target.dataset.i), 1); return this.actor.update({ "system.events": list }); }
   /** Размер домена — по общему факту «Домен» котерии-хозяина. */

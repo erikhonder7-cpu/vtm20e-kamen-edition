@@ -20,6 +20,7 @@
           <label class="r-df is-wide"><span>{{localize "VTM20.Group.Population"}}</span><input type="text" name="system.population" value="{{system.population}}" placeholder="{{localize 'VTM20.Group.PopulationHint'}}" {{#unless editable}}disabled{{/unless}}></label>
         </div>
         <p class="r-gs-hunt"><i class="fa-solid fa-droplet"></i> {{huntLine}}</p>
+        {{#if swayLine}}<p class="r-gs-hunt"><i class="fa-solid fa-chess-knight"></i> {{swayLine}}</p>{{/if}}
       </div>
       {{!-- владелец — печатью справа, как запас крови у персонажа; лист можно бросить прямо сюда --}}
       <div class="r-gs-owner {{#unless owner}}is-empty{{/unless}}" data-drop="owner">
