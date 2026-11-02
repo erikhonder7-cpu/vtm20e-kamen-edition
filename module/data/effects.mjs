@@ -182,6 +182,13 @@ function num(v, actor) {
  */
 export function effectMods(actor) {
   const m = { attr: {}, set: {}, diff: {}, claws: false, brawlDamage: 0, biteDamage: 0, soakDiff: 0, staminaVsFangs: false, venom: 0, list: [] };
+  // тотем стаи (apps/coterie.mjs → acceptTotem): прибавки к Атрибутам каждому члену стаи
+  for (const e of actor?.effects ?? []) {
+    const ta = !e.disabled && e.flags?.[SYSTEM_ID]?.totemAttr;
+    if (!ta) continue;
+    for (const [k, v] of Object.entries(ta)) m.attr[k] = (m.attr[k] ?? 0) + v;
+    m.list.push(e);
+  }
   for (const { effect, def } of activePowerEffects(actor)) {
     for (const [k, v] of Object.entries(def.attr ?? {})) m.attr[k] = (m.attr[k] ?? 0) + v;
     Object.assign(m.set, def.set ?? {});

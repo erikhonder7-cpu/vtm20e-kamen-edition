@@ -427,6 +427,107 @@ export async function removeScar(actor, i) {
   list.splice(i, 1);
   return actor.update({ "system.werewolf.scars": list });
 }
+/** Выбор боевого шрама карточками (W20, гл. 6: таблица шрамов; какой — решает рассказчик). */
+export async function pickScar(actor, lead = "") {
+  const key = await wwPick({ title: t("ScarPick"), icon: "fa-bandage", width: 620,
+    head: wwHead({ icon: "fa-bandage", kicker: esc(actor.name), title: t("ScarPick"), sub: t("ScarPickSub") }), lead,
+    cards: (W().scars ?? []).map(s => ({ key: s.key, icon: "fa-bandage", title: esc(s.name), sub: esc(s.effect), badge: `+${s.glory}` })) });
+  return key ? addScar(actor, key) : null;
+}
+
+/** Нужно успехов на броске Ярости для бешенства: 4, у Ранга 5 — 5, у Ранга 6 — 6 (W20, гл. 6). */
+const frenzyNeed = rank => rank >= 6 ? 6 : rank >= 5 ? 5 : 4;
+const sceneKey = () => game.combat?.id ?? canvas?.scene?.id ?? "";
+
+/**
+ * Остаться в строю (W20, гл. 6, «Ярость»): ниже Обездвиженного — бросок Ярости сл. 8, каждый успех лечит уровень любого урона
+ * (сначала губительный, затем летальный, ударный); раз в сцену. Бросок Ярости грозит бешенством, а рана остаётся боевым шрамом.
+ */
+export async function stayUp(actor) {
+  const h = actor.system.health, w = actor.system.werewolf, scene = sceneKey();
+  if (h.bashing + h.lethal + h.aggravated < 7) return ui.notifications.warn(t("StayUpNotDown"));
+  if (scene && actor.getFlag(game.system.id, "stayUp") === scene) return ui.notifications.warn(t("StayUpUsed"));
+  if (w.rage.value < 1) return ui.notifications.warn(t("NoRage", { n: 1 }));
+  const say = html => ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), flags: { [game.system.id]: { garou: "stayUp" } },
+    content: `<div class="r-notice r-type-werewolf">${html}</div>` });
+  return RollDialog.prompt(actor, { title: t("StayUp"), trait1: "werewolf.rage", difficulty: 8, diffNote: t("StayUpNote"), onRolled: async r => {
+    if (scene) await actor.setFlag(game.system.id, "stayUp", scene);
+    const s = r?.successes ?? 0;
+    if (s < 1) return say(`<i class="fa-solid fa-heart-crack"></i> ${t("StayUpFail", { name: esc(actor.name) })}`);
+    let left = s;
+    for (const type of ["aggravated", "lethal", "bashing"]) {
+      const n = Math.min(left, actor._source.system.health[type]);
+      if (n > 0) { await actor.healDamage(type, n); left -= n; }
+    }
+    const frenzy = s >= frenzyNeed(w.rank);
+    if (frenzy) await actor.toggleStatusEffect?.("r-frenzy", { active: true });
+    await say(`<i class="fa-solid fa-person-rays"></i> ${t("StayUpDone", { name: esc(actor.name), n: s - left })}${frenzy ? `<br><b><i class="fa-solid fa-fire"></i> ${t("FrenzyOn", { name: esc(actor.name) })}</b>` : ""}`);
+    pickScar(actor, t("StayUpScar"));   // отдельным окном — окно броска закрывается сразу
+  } });
+}
+
+/**
+ * Восстановление Ярости (W20, гл. 6): при первом взгляде на Луну за ночь — новолуние 1, убывающая 2, половина или растущая 3,
+ * полная 4, Луна своей аугурии — вся Ярость; катастрофа, унижение, начало стычки — по 1; в начале истории — бросить кубик:
+ * столько Ярости сейчас (может быть больше постоянной). Луна и «по 1» — не выше постоянной (правило системы: книга о потолке молчит).
+ */
+const MOON_RAGE = { new: 1, waningCrescent: 2, waningGibbous: 2, waxingCrescent: 3, firstQuarter: 3, lastQuarter: 3, waxingGibbous: 3, full: 4 };
+export async function regainRage(actor) {
+  const w = actor.system.werewolf, perm = w.rage.permanent, cur = w.rage.value;
+  const { moonPhase, nightNumber } = await import("./calendar.mjs");
+  const m = moonPhase(), night = nightNumber(), seen = actor.getFlag(game.system.id, "moonNight") === night;
+  const own = !!w.auspice && AUSPICE_MOON[w.auspice] === MOON_CLASS[m.key];
+  const moonGain = own ? Math.max(0, perm - cur) : Math.max(0, Math.min(MOON_RAGE[m.key] ?? 0, perm - cur));
+  const pick = await wwPick({ title: t("RageRegain"), icon: "fa-moon", width: 560,
+    head: wwHead({ glyph: "glyph-rage", kicker: esc(actor.name), title: t("RageRegain"), sub: t("RageNow", { n: cur, p: perm }) }),
+    cards: [
+      { key: "moon", glyph: "glyph-luna", title: `${m.glyph} ${t("RageMoon", { moon: m.label })}`, disabled: seen || !moonGain,
+        sub: seen ? t("RageMoonSeen") : own ? t("RageMoonOwn") : t("RageMoonGain", { n: MOON_RAGE[m.key] ?? 0 }), badge: !seen && moonGain ? `+${moonGain}` : "" },
+      { key: "story", icon: "fa-dice-d10", title: t("RageStory"), sub: t("RageStorySub") },
+      { key: "one", icon: "fa-plus", title: t("RageOne"), sub: t("RageOneSub"), disabled: cur >= perm, badge: cur < perm ? "+1" : "" }
+    ] });
+  if (!pick) return null;
+  let to = cur;
+  if (pick === "moon") { to = cur + moonGain; await actor.setFlag(game.system.id, "moonNight", night); }
+  else if (pick === "one") to = Math.min(perm, cur + 1);
+  else {
+    const roll = await new Roll("1d10").evaluate();
+    await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor }), flavor: t("RageStory") });
+    to = roll.total;
+  }
+  await actor.update({ "system.werewolf.rage.value": to });
+  return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), flags: { [game.system.id]: { garou: "rage" } },
+    content: `<div class="r-notice r-type-werewolf"><i class="fa-solid fa-moon"></i> ${t("RageRegainDone", { name: esc(actor.name), from: cur, to })}</div>` });
+}
+
+/**
+ * Склонность к Харано (недостаток, W20, гл. 9): бросок Воли в сцене с неудачей; провал — временное Харано (−1 кубик к каждому пулу),
+ * провал с единицами — ещё и временное расстройство; трата Воли откладывает проверку на сцену.
+ * Сложности в книге нет — 6 по умолчанию, рассказчик меняет в окне броска (правило системы).
+ */
+export const HARANO_FLAW = "Склонность к Харано";
+export const haranoProne = actor => actor.items.some(i => i.type === "flaw" && i.name === HARANO_FLAW);
+export async function haranoCheck(actor) {
+  const say = html => ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), flags: { [game.system.id]: { garou: "harano" } },
+    content: `<div class="r-notice r-type-werewolf">${html}</div>` });
+  const how = await wwPick({ title: t("HaranoCheck"), icon: "fa-cloud-rain", width: 520,
+    head: wwHead({ icon: "fa-cloud-rain", kicker: esc(actor.name), title: t("HaranoCheck"), sub: t("HaranoCheckSub") }),
+    cards: [
+      { key: "roll", icon: "fa-dice-d10", title: t("HaranoRoll"), sub: t("HaranoRollSub") },
+      { key: "delay", icon: "fa-shield-heart", title: t("HaranoDelay"), sub: t("HaranoDelaySub"), disabled: actor.system.willpower.temporary < 1 }
+    ] });
+  if (how === "delay") {
+    if (!(await actor.spendWillpower(1))) return null;
+    return say(`<i class="fa-solid fa-shield-heart"></i> ${t("HaranoDelayed", { name: esc(actor.name) })}`);
+  }
+  if (how !== "roll") return null;
+  return RollDialog.prompt(actor, { title: t("HaranoCheck"), trait1: "willpower.permanent", difficulty: 6, diffNote: t("HaranoDiffNote"), noWillpower: true,
+    onRolled: async r => {
+      if ((r?.successes ?? 0) > 0) return say(`<i class="fa-solid fa-sun"></i> ${t("HaranoHeld", { name: esc(actor.name) })}`);
+      await actor.toggleStatusEffect?.("r-harano", { active: true });
+      if (r?.outcome === "botch") return say(`<i class="fa-solid fa-cloud-rain"></i> <b>${t("HaranoBotch", { name: esc(actor.name) })}</b>`);
+    } });
+}
 
 /* ── Уродства метисов (W20, гл. 1; Changing Ways): хотя бы одно врождённое, скрывать — бесчестье ── */
 
@@ -491,7 +592,7 @@ export const scarView = actor => (actor.system.werewolf.scars ?? []).map((k, i) 
 /** Список фетишей и тален персонажа для вкладки Даров. */
 export function fetishView(actor) {
   return (actor.system.werewolf.fetishes ?? []).map((x, i) => ({ ...x, i, data: fetishOf(x.key) })).filter(x => x.data)
-    .map(x => ({ i: x.i, key: x.key, attuned: x.attuned, n: x.n, talen: x.data.kind === "talen", name: x.data.name, en: x.data.en, level: x.data.level,
+    .map(x => ({ i: x.i, key: x.key, attuned: x.attuned, rejected: !!x.rejected, n: x.n, talen: x.data.kind === "talen", name: x.data.name, en: x.data.en, level: x.data.level,
       gnosis: x.data.gnosis, text: x.data.text }));
 }
 export async function addFetish(actor, key) {
@@ -507,17 +608,31 @@ export async function removeFetish(actor, i) {
   list.splice(i, 1);
   return actor.update({ "system.werewolf.fetishes": list });
 }
-/** Настройка фетиша: Гнозис против Гнозиса фетиша, нужен 1 успех (провал — фетиш отверг владельца). */
+/**
+ * Настройка фетиша (W20, гл. 4): Гнозис против Гнозиса фетиша, нужен 1 успех; провал с единицами — фетиш отверг владельца:
+ * новая попытка только после примирения с духом (отметку снимает рассказчик).
+ */
 export function attuneFetish(actor, i) {
   const x = actor.system.werewolf.fetishes[i], f = fetishOf(x?.key);
   if (!f) return;
+  if (x.rejected) return ui.notifications.warn(t("FetishRejectedNote", { name: f.name }));
   return RollDialog.prompt(actor, { title: t("Attune", { name: f.name }), trait1: "werewolf.gnosis", difficulty: f.gnosis, diffNote: t("AttuneNote"),
     onRolled: async r => {
-      if (!((r?.successes ?? 0) > 0)) return;
+      const ok = (r?.successes ?? 0) > 0, botch = r?.outcome === "botch";
+      if (!ok && !botch) return;
       const list = foundry.utils.deepClone(actor.system.werewolf.fetishes);
-      list[i].attuned = true;
+      if (ok) list[i].attuned = true; else list[i].rejected = true;
       await actor.update({ "system.werewolf.fetishes": list });
+      if (botch) await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), flags: { [game.system.id]: { garou: "fetish" } },
+        content: `<div class="r-notice r-type-werewolf is-warn"><i class="fa-solid fa-link-slash"></i> ${t("FetishRejected", { name: esc(actor.name), fetish: esc(f.name) })}</div>` });
     } });
+}
+/** Примирение с духом фетиша (рассказчик): снять отметку «отверг» — можно снова настраивать. */
+export async function reconcileFetish(actor, i) {
+  const list = foundry.utils.deepClone(actor.system.werewolf.fetishes ?? []);
+  if (!list[i]) return;
+  list[i].rejected = false;
+  return actor.update({ "system.werewolf.fetishes": list });
 }
 /** Пробудить фетиш или использовать талену: бросок Гнозиса против Гнозиса предмета или трата 1 Гнозиса (талена — и тратится). */
 export async function useFetish(actor, i) {

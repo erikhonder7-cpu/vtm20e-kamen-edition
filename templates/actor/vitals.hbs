@@ -118,6 +118,7 @@
     <div class="r-vc-head">
       <h4 class="r-banner"><a data-action="rollTrait" data-trait="werewolf.rage" data-tooltip="{{localize 'VTM20.Werewolf.RageHint'}}">{{localize "VTM20.Werewolf.Rage"}}</a></h4>
       {{#if werewolfInfo.beast}}<span class="r-vc-hint is-warn r-ww-beast" data-tooltip="{{localize 'VTM20.Werewolf.BeastHint' n=werewolfInfo.beast}}"><i class="fa-solid fa-paw-claws"></i> −{{werewolfInfo.beast}}</span>{{/if}}
+      {{#if editable}}<a class="r-vc-btn" data-action="wwRageRegain" data-tooltip="{{localize 'VTM20.Werewolf.RageRegainHint'}}"><i class="fa-solid fa-moon"></i></a>{{/if}}
       <div class="r-vc-status"><b>{{werewolfInfo.rage}}</b> / {{werewolfInfo.ragePerm}}</div>
     </div>
     {{> rDots dots=werewolfInfo.rageDots cls="is-ten is-rage"}}

@@ -609,8 +609,8 @@ export class WerewolfData extends MortalData {
         rage: new SchemaField({ permanent: int(1, 0, 10), value: int(1, 0, 20) }),
         gnosis: new SchemaField({ permanent: int(1, 0, 10), value: int(1, 0, 10) }),
         form: str("homid"), gifts: new ArrayField(str()), rites: new ArrayField(str()),
-        // фетиши (привязан ли) и талены (сколько штук) — ключи data/werewolf.json → fetishes
-        fetishes: new ArrayField(new SchemaField({ key: str(), attuned: new BooleanField({ initial: false }), n: int(1, 0, 20) })),
+        // фетиши (привязан ли, отверг ли владельца) и талены (сколько штук) — ключи data/werewolf.json → fetishes
+        fetishes: new ArrayField(new SchemaField({ key: str(), attuned: new BooleanField({ initial: false }), rejected: new BooleanField({ initial: false }), n: int(1, 0, 20) })),
         // боевые шрамы (W20, гл. 6) — ключи data/werewolf.json → scars
         scars: new ArrayField(str()),
         // уродства метиса (W20, гл. 1; Changing Ways) — ключи data/werewolf.json → deformities

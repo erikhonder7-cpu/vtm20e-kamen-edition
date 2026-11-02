@@ -80,6 +80,26 @@
       <dt>{{localize "VTM20.Group.TotemPack"}}</dt><dd>{{{totem.pack}}}</dd>
       <dt>{{localize "VTM20.Group.TotemBan"}}</dt><dd>{{{totem.ban}}}</dd>
     </dl>
+    {{!-- запасы тотема на историю (тратит любой член стаи вместо своих очков), запрет и принятие тотема --}}
+    {{#if totem.banned}}<p class="r-hint is-warn"><i class="fa-solid fa-ban"></i> {{localize "VTM20.Group.TotemBannedNote"}}</p>{{/if}}
+    {{#if totem.pools.length}}
+    <div class="r-gs-totem-pools">
+      {{#each totem.pools}}
+      <div class="r-vcard">
+        <div class="r-vc-head"><h4 class="r-banner">{{label}}</h4><div class="r-vc-status"><b>{{left}}</b> / {{max}}</div></div>
+        <div class="r-boxes">{{#each boxes}}<a class="r-box {{#if filled}}is-filled{{/if}}" {{#if (and filled ../../editable)}}data-action="totemSpend" data-key="{{../key}}" data-tooltip="{{localize 'VTM20.Group.TotemSpendHint'}}"{{/if}}></a>{{/each}}</div>
+      </div>
+      {{/each}}
+    </div>
+    {{/if}}
+    <div class="r-gs-totem-acts">
+      {{#if totem.pools.length}}{{#if editable}}<a class="r-btn" data-action="totemRefill" data-tooltip="{{localize 'VTM20.Group.TotemRefillHint'}}"><i class="fa-solid fa-rotate"></i> {{localize "VTM20.Group.TotemRefill"}}</a>{{/if}}{{/if}}
+      {{#if gm}}
+      <a class="r-btn is-accent" data-action="totemAccept" data-tooltip="{{localize 'VTM20.Group.TotemAcceptHint'}}"><i class="fa-solid fa-feather-pointed"></i> {{localize "VTM20.Group.TotemAccept"}}</a>
+      {{#if totem.banned}}<a class="r-btn" data-action="totemBan" data-on="0"><i class="fa-solid fa-hands-praying"></i> {{localize "VTM20.Group.TotemContrition"}}</a>
+      {{else}}<a class="r-btn" data-action="totemBan" data-on="1"><i class="fa-solid fa-ban"></i> {{localize "VTM20.Group.TotemBanBroken"}}</a>{{/if}}
+      {{/if}}
+    </div>
     {{/if}}
 
     {{#if cell}}

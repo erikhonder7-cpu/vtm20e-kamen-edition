@@ -71,8 +71,9 @@
   <div class="r-roll-checks">
     {{#unless (and locked (not specialtyName))}}<label class="r-check r-check-spec {{#unless canUseSpecialty}}is-dim{{/unless}}"><input type="checkbox" name="specialty" {{checked v.specialty}} {{#unless canUseSpecialty}}disabled{{/unless}}> <span class="r-spec-main"><span class="r-spec-head">{{localize "VTM20.Roll.Specialty"}} <small>{{localize "VTM20.Roll.SpecialtyRule"}}</small></span>{{#if specialtyName}}<em class="r-spec-name">{{specialtyName}}</em>{{/if}}</span></label>{{/unless}}
     {{#unless noWillpower}}
-    <label class="r-check"><input type="checkbox" name="willpower" {{checked v.willpower}} {{#unless willpowerLeft}}disabled{{/unless}}>
+    <label class="r-check"><input type="checkbox" name="willpower" {{checked v.willpower}} {{#unless (or willpowerLeft totemWill)}}disabled{{/unless}}>
       {{localize "VTM20.Roll.SpendWillpower"}} <em>({{willpowerLeft}})</em></label>
+    {{#if totemWill}}<label class="r-check"><input type="checkbox" name="totemWill" {{checked v.totemWill}}> {{localize "VTM20.Roll.TotemWill"}} <em>({{totemWill}})</em></label>{{/if}}
     {{else}}
     <span class="r-check is-dim"><i class="fa-solid fa-ban"></i> {{localize "VTM20.Roll.NoWillpower"}}</span>
     {{/unless}}

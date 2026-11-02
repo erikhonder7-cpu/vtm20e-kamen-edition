@@ -798,6 +798,19 @@ def parse_kin_gifts(tribes):
     return out
 
 
+TOTEM_EN = {"Вендиго": "Wendigo", "Уктена": "Uktena"}   # в таблице основной книги без английского названия
+
+
+def totem_parts(body):
+    """Региональный тотем одним абзацем: «… Индивид.: … Стая: … Запрет: …» — по частям (без меток — всё в text)."""
+    parts = re.split(r"\s*(Индивид\.?:|Стая:|Запрет:)\s*", body)
+    got = {"Индивид.:": "individual", "Индивид:": "individual", "Стая:": "pack", "Запрет:": "ban"}
+    out = {"individual": "", "pack": "", "ban": "", "text": parts[0].strip()}
+    for mark, val in zip(parts[1::2], parts[2::2]):
+        out[got[mark]] = val.strip().rstrip(".")
+    return out
+
+
 def parse_totems():
     """Тотемы стай: таблицы основной книги (гл. 12) и региональные тотемы W20 Rage Across the World."""
     out = []
@@ -812,6 +825,7 @@ def parse_totems():
         if len(cells) < 5:
             continue
         name, en = name_en(cells[0])
+        en = en or TOTEM_EN.get(name, "")
         out.append({"key": re.sub(r"[^a-z0-9]+", "-", en.lower()).strip("-"), "name": name, "en": en, "cat": cat, "cost": first_int(cells[1]),
                     "individual": md_inline(cells[2]), "pack": md_inline(cells[3]), "ban": md_inline(cells[4]), "source": "W20"})
     p = os.path.join(os.path.dirname(REF), "W20_Rage_Across_the_World")
@@ -824,8 +838,9 @@ def parse_totems():
             if not m:
                 continue
             name, en, cost, body = m.groups()
+            pt = {k: md_inline(v) for k, v in totem_parts(body).items()}
             out.append({"key": re.sub(r"[^a-z0-9]+", "-", en.lower()).strip("-"), "name": name.strip(), "en": en.strip(), "cat": "Регион", "cost": int(cost),
-                        "individual": "", "pack": "", "ban": "", "text": md_inline(body), "source": "W20 Rage Across the World"})
+                        **pt, "source": "W20 Rage Across the World"})
     return out
 
 

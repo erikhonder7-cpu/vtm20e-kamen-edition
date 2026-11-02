@@ -224,6 +224,62 @@ try {
     if (!r.instinct || !r.calm) throw new Error(`Инстинкты: окно ${r.instinct}, без ярости ${r.calm}`);
   });
 
+  await check("Гару: остаться в строю и шрам, Ярость по Луне, отказ фетиша, Харано, тотем стаи", async () => {
+    const id = await temp("E2E — Гару в строю", "werewolf"), packId = await temp("E2E — стая", "coterie");
+    const r = await page.evaluate(async ([id, packId]) => {
+      const SYS = game.system.id, a = game.actors.get(id), pack = game.actors.get(packId), out = {};
+      const wait = ms => new Promise(res => setTimeout(res, ms));
+      const W = await import(`/systems/${SYS}/module/apps/werewolf.mjs`), C = await import(`/systems/${SYS}/module/apps/coterie.mjs`);
+      const until = async f => { for (let i = 0; i < 40; i++) { const x = f(); if (x) return x; await wait(100); } return null; };
+      // бросок без кубиков: окно броска открыто — его onRolled вызывается с нужным итогом
+      const rolled = async res => { const d = await until(() => [...foundry.applications.instances.values()].find(x => x.constructor.name === "RollDialog"));
+        await d?.cfg.onRolled?.(res); await d?.close(); return !!d; };
+      const pick = async key => { const b = await until(() => document.querySelector(`.r-wc-dlg [data-pick="${key}"]:not([disabled])`)); b?.click(); await wait(400); return !!b; };
+      await a.update({ "system.werewolf": { breed: "homid", auspice: "ahroun", tribe: "fianna", rage: { permanent: 5, value: 1 } },
+        "system.health": { lethal: 7, bashing: 0, aggravated: 0 } });
+      // остаться в строю: 2 успеха — два уровня вылечено, раз в сцену, шрам — карточкой (+1 Слава у глубокого)
+      W.stayUp(a); out.stay = await rolled({ successes: 2, outcome: "success" });
+      out.scarPick = await pick("scar-2");
+      out.health = a.system.health.lethal; out.scars = a.system.werewolf.scars.join(); out.glory = a.system.werewolf.renown.glory.temporary;
+      // Ярость по Луне: первый взгляд за ночь — прибавка, второй раз карточка закрыта
+      W.regainRage(a); out.moon = await pick("moon"); out.rage = a.system.werewolf.rage.value;
+      W.regainRage(a); await until(() => document.querySelector(".r-wc-dlg [data-pick=moon]"));
+      out.moonAgain = !!document.querySelector(".r-wc-dlg [data-pick=moon][disabled]");
+      document.querySelector(".r-wc-dlg [data-action=cancel]")?.click(); await wait(300);
+      // фетиш: провал настройки — «отверг», повторной настройки нет до примирения
+      const f = W.W().fetishes.find(x => x.kind !== "talen");
+      await a.update({ "system.werewolf.fetishes": [{ key: f.key, attuned: false, n: 1 }] });
+      W.attuneFetish(a, 0); await rolled({ successes: 0, outcome: "botch" });
+      out.rejected = a.system.werewolf.fetishes[0].rejected;
+      await W.reconcileFetish(a, 0); out.reconciled = !a.system.werewolf.fetishes[0].rejected;
+      // Харано: кнопка только с недостатком; неудача броска Воли — отметка Харано
+      out.proneBefore = W.haranoProne(a);
+      await a.createEmbeddedDocuments("Item", [{ name: W.HARANO_FLAW, type: "flaw" }]);
+      out.prone = W.haranoProne(a);
+      W.haranoCheck(a); await pick("roll"); await rolled({ successes: 0, outcome: "failure" }); await wait(300);
+      out.harano = a.statuses.has("r-harano");
+      // тотем стаи: Сокол — +2 Чести при принятии и 4 Воли на историю; потом Паук-ловушка — +1 Ловкость, Честь второй раз не даётся
+      await pack.update({ "system.kind": "pack", "system.members": [a.id], "system.totem": "falcon" });
+      const honor = a.system.werewolf.renown.honor.temporary;
+      await C.acceptTotem(pack); out.honor = a.system.werewolf.renown.honor.temporary - honor;
+      out.pool = C.totemPools(pack).willpower?.max;
+      const dex = a.system.attributes.dexterity.total;
+      await pack.update({ "system.totem": "trapdoor-spider" }); await C.acceptTotem(pack); await C.acceptTotem(pack);
+      out.dex = a.system.attributes.dexterity.total - dex; out.effects = a.effects.filter(e => e.flags?.[SYS]?.totem).length;
+      await C.spendTotemPool(pack, "willpower", a); out.left = C.totemPools(pack).willpower.left;
+      await C.setTotemBan(pack, true); out.banDex = a.system.attributes.dexterity.total - dex; out.banTraits = C.totemTraits(a);
+      await C.setTotemBan(pack, false); await C.refillTotemPools(pack); out.refilled = C.totemPools(pack).willpower.left;
+      return out;
+    }, [id, packId]);
+    if (!r.stay || !r.scarPick || r.health !== 5 || r.scars !== "scar-2" || r.glory !== 1) throw new Error(`остаться в строю: ${JSON.stringify(r)}`);
+    if (!r.moon || r.rage <= 1 || !r.moonAgain) throw new Error(`Ярость по Луне: ${r.rage}, второй раз закрыта ${r.moonAgain}`);
+    if (!r.rejected || !r.reconciled) throw new Error(`фетиш: отверг ${r.rejected}, примирение ${r.reconciled}`);
+    if (r.proneBefore || !r.prone || !r.harano) throw new Error(`Харано: недостаток ${r.proneBefore}/${r.prone}, отметка ${r.harano}`);
+    if (r.honor !== 2 || r.pool !== 4) throw new Error(`Сокол: Честь +${r.honor}, Воля тотема ${r.pool}`);
+    if (r.dex !== 1 || r.effects !== 1 || r.left !== 3) throw new Error(`Паук-ловушка: Ловкость +${r.dex}, эффектов ${r.effects}, запас ${r.left}`);
+    if (r.banDex !== 0 || r.banTraits !== null || r.refilled !== 4) throw new Error(`запрет: Ловкость +${r.banDex}, черты ${JSON.stringify(r.banTraits)}, после истории ${r.refilled}`);
+  });
+
   await check("Сроки: сила на час и чтение ритуала", async () => {
     const id = await temp("E2E — сроки");
     const r = await page.evaluate(async id => {

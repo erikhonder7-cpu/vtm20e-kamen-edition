@@ -92,10 +92,113 @@ function packTotem(c, members) {
   return { pack: true, totem: tot, totemPool: pool, totemShort: tot ? Math.max(0, tot.cost - pool) : 0,
     totems: all.map(x => ({ key: x.key, label: `${x.name} (${x.cat}, ${x.cost})`, selected: x.key === c.totem })) };
 }
-/** Тотем стаи персонажа — для карточки Гару. */
+/** Тотем стаи персонажа — для карточки Гару (packId — актёр стаи: запасы тотема и запрет — на нём). */
 export function totemOf(actor) {
   const c = coteriesOf(actor).find(x => x.totem);
-  return c ? { pack: c.name, totem: (Codex.werewolf?.totems ?? []).find(x => x.key === c.totem) ?? null } : null;
+  return c ? { pack: c.name, packId: c.actorId ?? null, totem: (Codex.werewolf?.totems ?? []).find(x => x.key === c.totem) ?? null } : null;
+}
+
+/* ── Что даёт тотем (W20, гл. 12, «Тотемы стай») ──────────────────────────
+   Индивидуальные черты — каждому члену стаи: Атрибуты и Способности (+N), временная Слава при принятии тотема;
+   оговорки («только для…», «раз в день») и всё прочее — текстом. Запасы стаи (Воля, Ярость, Гнозис) тратятся
+   вместо своих очков и восстанавливаются в конце каждой истории. Нарушенный запрет лишает стаю всех бонусов
+   до Ритуала Раскаяния. */
+const ATTR_ALIAS = { "харизма": "charisma", "манипулирование": "manipulation", "стойкость": "stamina", "внешность": "appearance" };
+const RENOWN_STEM = [["слав", "glory"], ["чест", "honor"], ["мудрост", "wisdom"]];
+const POOL_STEM = [["вол", "willpower"], ["ярост", "rage"], ["гнозис", "gnosis"]];
+export const TOTEM_POOLS = POOL_STEM.map(([, k]) => k);
+const plain = s => String(s ?? "").replace(/<[^>]+>/g, "");
+const stem = (list, w) => list.find(([p]) => w.startsWith(p))?.[1] ?? null;
+
+export function totemPerks(tt) {
+  const out = { attr: {}, traits: {}, renown: {}, pools: {} };
+  if (!tt) return out;
+  const attrs = { ...ATTR_ALIAS }, abil = {};
+  for (const [k, x] of Object.entries(VTM20.attributes)) attrs[game.i18n.localize(x.label).toLowerCase()] = k;
+  for (const [k, x] of Object.entries(VTM20.abilities)) abil[game.i18n.localize(x.label).toLowerCase()] = k;
+  // «+2 Чести», «+1 Сила», «+2 Лидерство» — отдельной частью перечня, без оговорок после названия
+  for (const [, sign, n, word] of plain(tt.individual).matchAll(/(?:^|[;,]\s*)([+−-])(\d+)\s+([А-ЯЁ][а-яё]+)(?=\s*(?:[;,.]|$))/g)) {
+    const v = (sign === "+" ? 1 : -1) * Number(n), w = word.toLowerCase(), rk = stem(RENOWN_STEM, w);
+    if (rk) out.renown[rk] = (out.renown[rk] ?? 0) + v;
+    else if (attrs[w]) out.attr[attrs[w]] = (out.attr[attrs[w]] ?? 0) + v;
+    else if (abil[w]) out.traits[`abilities.${abil[w]}`] = v;
+  }
+  for (const [, n, word] of plain(tt.pack).matchAll(/(\d+)\s+(Вол\S*|Ярост\S*|Гнозис\S*)/g)) {
+    const k = stem(POOL_STEM, word.toLowerCase());
+    if (k) out.pools[k] = Number(n);
+  }
+  return out;
+}
+
+/** Запасы тотема на стае: { willpower: { max, left } … }; потраченное — флаг актёра стаи. */
+export function totemPools(pack) {
+  const tt = (Codex.werewolf?.totems ?? []).find(x => x.key === pack?.system?.totem);
+  const spent = pack?.getFlag(SYSTEM_ID, "totemSpent") ?? {};
+  return Object.fromEntries(Object.entries(totemPerks(tt).pools).map(([k, max]) => [k, { max, left: Math.max(0, max - (spent[k] ?? 0)) }]));
+}
+export const totemBanned = pack => !!pack?.getFlag(SYSTEM_ID, "totemBan");
+
+/** Потратить очко из запаса тотема вместо своего (член стаи или рассказчик; лист стаи должен быть доступен на запись). */
+export async function spendTotemPool(pack, key, by = null) {
+  if (!pack?.isOwner) { ui.notifications.warn(t("Group.TotemPoolNoAccess")); return false; }
+  if (totemBanned(pack)) { ui.notifications.warn(t("Group.TotemBanned")); return false; }
+  const p = totemPools(pack)[key];
+  if (!p?.left) { ui.notifications.warn(t("Group.TotemPoolEmpty")); return false; }
+  const spent = { ...(pack.getFlag(SYSTEM_ID, "totemSpent") ?? {}) };
+  spent[key] = (spent[key] ?? 0) + 1;
+  await pack.setFlag(SYSTEM_ID, "totemSpent", spent);
+  await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: by ?? pack }),
+    content: `<div class="r-notice r-type-werewolf"><i class="fa-solid fa-feather-pointed"></i> ${t("Group.TotemPoolSpent", { name: foundry.utils.escapeHTML(by?.name ?? pack.name), pool: t(`Group.TotemPool.${key}`), n: p.left - 1, max: p.max })}</div>` });
+  return true;
+}
+/** Конец истории: запасы тотема снова полные. */
+export const refillTotemPools = pack => pack.unsetFlag(SYSTEM_ID, "totemSpent");
+
+/** Эффекты тотема на членах стаи: «Тотем стаи: …» с прибавками к Атрибутам (data/effects.mjs → totemAttr). */
+const totemEffects = a => a.effects.filter(e => e.flags?.[SYSTEM_ID]?.totem);
+
+/**
+ * Принять тотем (рассказчик): каждому Гару стаи — временная Слава из индивидуальных черт (один раз на тотем)
+ * и эффект с прибавками к Атрибутам; прежние эффекты тотема снимаются.
+ */
+export async function acceptTotem(pack) {
+  if (!game.user.isGM) return ui.notifications.warn(t("Group.TotemGMOnly"));
+  const tt = (Codex.werewolf?.totems ?? []).find(x => x.key === pack.system.totem);
+  if (!tt) return;
+  const perks = totemPerks(tt), mark = `${pack.id}:${tt.key}`, lines = [];
+  for (const a of (pack.system.members ?? []).map(id => game.actors.get(id)).filter(x => x?.type === "werewolf")) {
+    const old = totemEffects(a);
+    if (old.length) await a.deleteEmbeddedDocuments("ActiveEffect", old.map(e => e.id));
+    if (Object.keys(perks.attr).length) await a.createEmbeddedDocuments("ActiveEffect", [{ name: t("Group.TotemEffect", { totem: tt.name }), img: "icons/svg/aura.svg",
+      disabled: totemBanned(pack), flags: { [SYSTEM_ID]: { totem: tt.key, pack: pack.id, totemAttr: perks.attr } } }]);
+    const got = [];
+    if (a.getFlag(SYSTEM_ID, "totemAccepted") !== mark) {
+      const upd = { [`flags.${SYSTEM_ID}.totemAccepted`]: mark };
+      for (const [k, v] of Object.entries(perks.renown)) {
+        const r = a.system.werewolf.renown[k];
+        upd[`system.werewolf.renown.${k}.temporary`] = Math.clamp(r.temporary + v, 0, 10);
+        got.push(`${v > 0 ? "+" : "−"}${Math.abs(v)} ${game.i18n.localize(`VTM20.Werewolf.Renown.${k}`)}`);
+      }
+      await a.update(upd);
+    }
+    lines.push(`<li><b>${foundry.utils.escapeHTML(a.name)}</b>${got.length ? ` — ${got.join(", ")}` : ""}</li>`);
+  }
+  const attr = Object.entries(perks.attr).map(([k, v]) => `${game.i18n.localize(VTM20.attributes[k].label)} ${v > 0 ? "+" : "−"}${Math.abs(v)}`).join(", ");
+  return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: pack }), content: `<div class="r-notice r-type-werewolf">
+    <p><i class="fa-solid fa-feather-pointed"></i> ${t("Group.TotemAccepted", { pack: foundry.utils.escapeHTML(pack.name), totem: tt.name })}</p>
+    ${attr ? `<p>${t("Group.TotemAttrNote", { attr })}</p>` : ""}<ul>${lines.join("")}</ul></div>` });
+}
+
+/** Запрет тотема нарушен — стая без бонусов (эффекты выключены, запасы недоступны); Ритуал Раскаяния — снова с бонусами. */
+export async function setTotemBan(pack, on) {
+  if (!game.user.isGM) return ui.notifications.warn(t("Group.TotemGMOnly"));
+  await pack.setFlag(SYSTEM_ID, "totemBan", !!on);
+  for (const a of (pack.system.members ?? []).map(id => game.actors.get(id)).filter(Boolean)) {
+    const list = totemEffects(a).filter(e => e.disabled !== !!on);
+    if (list.length) await a.updateEmbeddedDocuments("ActiveEffect", list.map(e => ({ _id: e.id, disabled: !!on })));
+  }
+  return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: pack }),
+    content: `<div class="r-notice r-type-werewolf${on ? " is-warn" : ""}"><i class="fa-solid ${on ? "fa-ban" : "fa-hands-praying"}"></i> ${t(on ? "Group.TotemBanOn" : "Group.TotemBanOff", { pack: foundry.utils.escapeHTML(pack.name) })}</div>` });
 }
 
 /** Синонимы названий черт в описаниях тотемов (W20) — к ключам листа. */
@@ -104,11 +207,12 @@ const TOTEM_ALIAS = { "знание улиц": "abilities.streetwise", "зага
 
 /**
  * Черты тотема стаи (W20, гл. 7: «Лидерство 3», «Скрытность 3, Знание улиц 3»): точки, которые тотем даёт каждому члену стаи,
- * — прибавка к черте в броске. Возвращает { [путь черты]: точки } и имя тотема.
+ * — прибавка к черте в броске (и личные «+2 Лидерство» из индивидуальных черт). Возвращает { [путь черты]: точки } и имя тотема;
+ * при нарушенном запрете — ничего.
  */
 export function totemTraits(actor) {
-  const tt = totemOf(actor)?.totem;
-  if (!tt?.pack) return null;
+  const own = totemOf(actor), tt = own?.totem;
+  if (!tt?.pack || totemBanned(game.actors.get(own.packId))) return null;
   const names = {};
   for (const [k, x] of Object.entries(VTM20.attributes)) names[game.i18n.localize(x.label).toLowerCase()] = `attributes.${k}`;
   for (const [k, x] of Object.entries(VTM20.abilities)) names[game.i18n.localize(x.label).toLowerCase()] = `abilities.${k}`;
@@ -118,6 +222,7 @@ export function totemTraits(actor) {
     const path = names[name.trim().toLowerCase()];
     if (path) traits[path] = Math.max(traits[path] ?? 0, Number(n));
   }
+  for (const [path, n] of Object.entries(totemPerks(tt).traits)) traits[path] = (traits[path] ?? 0) + n;
   return Object.keys(traits).length ? { name: tt.name, traits } : null;
 }
 

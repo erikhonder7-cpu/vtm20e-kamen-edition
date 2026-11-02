@@ -203,11 +203,13 @@
       <a class="r-act is-minor" data-action="wwRegen" data-tooltip="{{localize 'VTM20.Werewolf.RegenHint'}}"><i class="fa-solid fa-heart-pulse"></i><span>{{localize "VTM20.Werewolf.Regen"}}</span></a>
       <a class="r-act is-minor" data-action="wwStep" data-tooltip="{{localize 'VTM20.Werewolf.StepHint'}}"><i class="fa-solid fa-circle-half-stroke"></i><span>{{localize "VTM20.Werewolf.StepSideways"}}</span></a>
       <a class="r-act is-minor" data-action="wwDelirium" data-tooltip="{{localize 'VTM20.Werewolf.DeliriumBtnHint'}}"><i class="fa-solid fa-eye-low-vision"></i><span>{{localize "VTM20.Werewolf.DeliriumBtn"}}</span></a>
-      <a class="r-act is-minor" data-action="wwPrimal"data-tooltip="{{localize 'VTM20.Werewolf.Primal.hint'}}"><i class="fa-solid fa-paw"></i><span>{{localize "VTM20.Werewolf.Primal.short"}}</span></a>
+      {{#if haranoProne}}<a class="r-act is-minor" data-action="wwHarano" data-tooltip="{{localize 'VTM20.Werewolf.HaranoCheckHint'}}"><i class="fa-solid fa-cloud-rain"></i><span>{{localize "VTM20.Werewolf.HaranoShort"}}</span></a>{{/if}}
+      <a class="r-act is-minor" data-action="wwPrimal" data-tooltip="{{localize 'VTM20.Werewolf.Primal.hint'}}"><i class="fa-solid fa-paw"></i><span>{{localize "VTM20.Werewolf.Primal.short"}}</span></a>
       {{/if}}
       {{#if weaknessCheck}}<a class="r-act" data-action="rollVirtue" data-kind="weakness" data-tooltip="{{weaknessCheck}}"><i class="fa-solid fa-dice-d10"></i><span>{{weaknessCheck}}</span></a>{{/if}}
       <span class="r-acts-spacer"></span>
       {{#if isDemon}}<a class="r-act is-hot" data-action="tormentSin" data-tooltip="{{localize 'VTM20.Demon.SinHint'}}"><i class="fa-solid fa-skull"></i><span>{{localize "VTM20.Demon.Sin"}}</span></a>{{/if}}
+      {{#if wwDown}}<a class="r-act is-hot" data-action="wwStayUp" data-tooltip="{{localize 'VTM20.Werewolf.StayUpHint'}}"><i class="fa-solid fa-person-rays"></i><span>{{localize "VTM20.Werewolf.StayUp"}}</span></a>{{/if}}
       {{#if isWerewolf}}<a class="r-act is-hot" data-action="wwFrenzy" data-tooltip="{{localize 'VTM20.Werewolf.FrenzyHint'}}"><i class="fa-solid fa-fire"></i><span>{{localize "VTM20.Werewolf.Frenzy"}}</span></a>{{/if}}
       {{#unless (or isDemon isWerewolf)}}<a class="r-act is-hot" data-action="rollVirtue" data-kind="frenzy" data-tooltip="{{localize 'VTM20.Roll.frenzy.title'}}"><i class="fa-solid fa-face-angry"></i><span>{{localize "VTM20.Roll.frenzy.title"}}</span></a>{{/unless}}
       {{#if isVampire}}<a class="r-act is-hot" data-action="diablerie" data-tooltip="{{localize 'VTM20.Diablerie.Title'}}"><i class="fa-solid fa-skull"></i><span>{{localize "VTM20.Diablerie.Short"}}</span></a>{{/if}}

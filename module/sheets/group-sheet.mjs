@@ -6,7 +6,7 @@
 
 import { VTM20, SYSTEM_PATH } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
-import { coterieFromActor, poolValue, openCoterie } from "../apps/coterie.mjs";
+import { coterieFromActor, poolValue, openCoterie, totemPools, totemBanned, spendTotemPool, refillTotemPools, acceptTotem, setTotemBan } from "../apps/coterie.mjs";
 import { HUNTING_GROUNDS } from "../apps/night.mjs";
 import { citySpots, showSpotOnMap } from "../ui/citymap.mjs";
 import { domainOwner } from "../apps/domain.mjs";
@@ -73,7 +73,8 @@ class GroupSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 export class CoterieSheet extends GroupSheet {
   static DEFAULT_OPTIONS = {
     classes: ["r-coterie-sheet"],
-    actions: { openActor: CoterieSheet.#onOpen, dropMember: CoterieSheet.#onDropMember, pools: CoterieSheet.#onPools, haven: CoterieSheet.#onHaven, vaulderie: CoterieSheet.#onVaulderie }
+    actions: { openActor: CoterieSheet.#onOpen, dropMember: CoterieSheet.#onDropMember, pools: CoterieSheet.#onPools, haven: CoterieSheet.#onHaven, vaulderie: CoterieSheet.#onVaulderie,
+      totemSpend: CoterieSheet.#onTotemSpend, totemRefill: CoterieSheet.#onTotemRefill, totemAccept: CoterieSheet.#onTotemAccept, totemBan: CoterieSheet.#onTotemBan }
   };
   static PARTS = { body: { template: `${SYSTEM_PATH}/templates/actor/coterie-sheet.hbs`, scrollable: [".r-gs-body"] } };
 
@@ -107,7 +108,9 @@ export class CoterieSheet extends GroupSheet {
       sabbat: s.kind === "sabbat", gm: game.user.isGM,
       members: members.map(card),
       pools: Object.keys(c.pools ?? {}).map(bg => { const v = poolValue(c, bg); return { bg, value: v, primary: bg === c.primary, dots: dots(v, 5) }; }),
-      totem: totem ? { name: totem.name, individual: totem.individual, pack: totem.pack, ban: totem.ban } : null,
+      totem: totem ? { name: totem.name, individual: totem.individual, pack: totem.pack, ban: totem.ban, banned: totemBanned(a),
+        pools: Object.entries(totemPools(a)).map(([key, p]) => ({ key, label: t(`Group.TotemPool.${key}`), max: p.max, left: p.left,
+          boxes: Array.from({ length: p.max }, (_, i) => ({ filled: i < p.left })) })) } : null,
       cell: s.kind === "cell" ? ["mercy", "vision", "zeal"].map(v => ({ label: t(`NpcGen.HV.${v}`), n: H[v] ?? 0 })) : null,
       domain: dom ? { ...card(dom), rating: dom.system.rating, dots: dots(dom.system.rating, 5) } : null,
       domains: game.actors.filter(x => x.type === "domain").map(d => ({ id: d.id, name: d.name, selected: d.id === s.domain }))
@@ -124,6 +127,10 @@ export class CoterieSheet extends GroupSheet {
   static #onPools() { return openCoterie(null, this.actor.id); }
   static #onHaven(event, target) { const k = target.dataset.key, n = Number(target.dataset.n), v = this.actor.system.haven?.[k] ?? 0;
     return this.actor.update({ [`system.haven.${k}`]: v === n ? n - 1 : n }); }
+  static #onTotemSpend(event, target) { return spendTotemPool(this.actor, target.dataset.key); }
+  static #onTotemRefill() { return refillTotemPools(this.actor); }
+  static #onTotemAccept() { return acceptTotem(this.actor); }
+  static #onTotemBan(event, target) { return setTotemBan(this.actor, target.dataset.on === "1"); }
   static async #onVaulderie() { const { openVaulderie } = await import("../apps/vaulderie.mjs"); return openVaulderie(game.actors.get(this.actor.system.members?.[0]) ?? null); }
 }
 

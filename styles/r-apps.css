@@ -1384,6 +1384,12 @@ body.r-theme-light .vtm20 .r-ng-concept { color: #7a4f1d; }
 .vtm20 .r-gs-dl { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 5px 14px; margin: 0; font-size: 13.5px; line-height: 1.4; }
 .vtm20 .r-gs-dl dt { font-family: var(--r-caps); font-size: 10.5px; letter-spacing: 1.4px; text-transform: uppercase; color: var(--r-muted); padding-top: 2px; }
 .vtm20 .r-gs-dl dd { margin: 0; color: var(--r-ink); }
+/* тотем стаи: запасы на историю — карточками листа (r-vcard, r-boxes), под ними — действия */
+.vtm20 .r-gs-totem-pools { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; margin: 12px 0 0; }
+.vtm20 .r-gs-totem-pools .r-vcard { margin: 0; }
+.vtm20 .r-gs-totem-pools .r-box[data-action] { cursor: pointer; }
+.vtm20 .r-gs-totem-acts { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 0; }
+.vtm20 .r-gs-totem-acts:empty { display: none; }
 .vtm20 .r-gs-tallies, .vtm20 .r-gs-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid var(--r-line); background: var(--r-card-bg); }
 .vtm20 .r-gs-tallies > div, .vtm20 .r-gs-stat { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 6px; }
 .vtm20 .r-gs-tallies > div + div, .vtm20 .r-gs-stat + .r-gs-stat { border-left: 1px solid var(--r-line); }

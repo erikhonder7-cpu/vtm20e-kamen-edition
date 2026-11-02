@@ -135,7 +135,7 @@ function dieView(v, diff, specialty) {
  * @param {number} o.pool          костей (уже со всеми модификаторами)
  * @param {number} [o.difficulty]
  * @param {boolean} [o.specialty]
- * @param {boolean} [o.willpower]  потратить волю (списывается здесь)
+ * @param {boolean} [o.willpower]  потратить волю (списывается здесь, если не o.willpowerPaid)
  * @param {Array<{label:string,value:number}>} [o.breakdown]
  * @param {string} [o.kind]        check | attack | damage | soak | frenzy | rotschreck | virtue | initiative
  * @param {object} [o.extra]       данные для кнопок карточки (оружие, урон…)
@@ -149,7 +149,7 @@ export async function rollPool(o) {
   diff = Math.clamp(diff, 2, 10);
   const pool = Math.max(0, Math.floor(o.pool ?? 0));
 
-  if (o.willpower && o.actor) {
+  if (o.willpower && o.actor && !o.willpowerPaid) {   // willpowerPaid — уже заплачено (Воля тотема стаи)
     if (!(await o.actor.spendWillpower(1))) o.willpower = false;
   }
 

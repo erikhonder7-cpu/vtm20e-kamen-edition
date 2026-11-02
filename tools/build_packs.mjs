@@ -558,7 +558,7 @@ BUILDERS["werewolf-totems"] = function () {
   const p = new Pack("werewolf-totems");
   for (const x of data("werewolf").totems ?? [])
     p.add({ name: x.name, type: "power", folder: `Тотемы ${x.cat}`, key: `werewolf-totem:${x.key}`, img: wwTotemGlyph(x.key), flags: wwItem("totem", x.key),
-      system: { level: x.cost ?? 0, description: wwLead([x.en, `Тотем ${x.cat}`, x.cost && `Цена ${x.cost}`])
+      system: { level: x.cost ?? 0, description: wwLead([x.en, `Тотем ${x.cat}`, x.cost && `Цена ${x.cost}`]) + (x.text ? `<p>${x.text}</p>` : "")   // у региональных — описание духа
         + wwDl([["Каждому в стае", x.individual], ["Стае", x.pack], ["Запрет", x.ban]]) + sourceLine(x.source) } });
   return p;
 };

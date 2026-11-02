@@ -3,7 +3,7 @@
 // штраф за раны. Пул пересчитывается на лету.
 
 import { swayOf } from "../ui/strategy.mjs";
-import { totemTraits } from "../apps/coterie.mjs";
+import { totemTraits, totemOf, totemPools, totemBanned, spendTotemPool } from "../apps/coterie.mjs";
 import { VTM20, SYSTEM_PATH } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
 import { rollPool, odds, chancesView, tormentRule, tormentOdds } from "./roll.mjs";
@@ -221,7 +221,7 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       contests: this.cfg.onRolled ? [] : ["simple", "extended", "resisted", "teamwork"].map(k => ({ value: k, label: t(`Contest.Mode.${k}`), selected: k === v.contest })),
       isExtended: v.contest === "extended",
       willpowerLeft: this.actor.system.willpower.temporary,
-      noWillpower: !!this.cfg.noWillpower,
+      noWillpower: !!this.cfg.noWillpower, totemWill: this.#totemWill()?.left ?? 0,
       bloodCost: this.cfg.bloodCost ?? 0, hasBlood: this.actor.hasBlood, bloodLeft: this.actor.system.blood?.value ?? 0,
       willpowerCost: !!this.cfg.willpowerCost, diffNote: this.cfg.diffNote ?? "",
       // призыв демона: высокая Мука по отдельной кости или по большинству успехов (настройка мира)
@@ -240,6 +240,15 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     this.element.addEventListener("input", ev => { if (ev.target.type === "number") this.#read(ev); });
   }
 
+  /** Воля из запаса тотема стаи (W20, гл. 12): тратится вместо своей, если лист стаи доступен и запрет не нарушен. */
+  #totemWill() {
+    if (this.actor.type !== "werewolf") return null;
+    const pack = game.actors.get(totemOf(this.actor)?.packId);
+    if (!pack?.isOwner || totemBanned(pack)) return null;
+    const p = totemPools(pack).willpower;
+    return p?.left ? { pack, left: p.left } : null;
+  }
+
   #read(ev) {
     const f = new foundry.applications.ux.FormDataExtended(this.element).object;
     Object.assign(this.values, {
@@ -247,7 +256,7 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       bonus: Number(f.bonus) || 0, actions: Math.clamp(Number(f.actions) || 1, 1, 6), sway: f.sway ?? this.values.sway,
       contest: f.contest ?? this.values.contest, need: Math.clamp(Number(f.need) || 1, 1, 50),
       difficulty: Math.clamp(Number(f.difficulty) || 6, 2, 12),
-      specialty: !!f.specialty, willpower: !!f.willpower, wounds: !!f.wounds, physical: !!f.physical,
+      specialty: !!f.specialty, willpower: !!f.willpower, totemWill: !!f.totemWill, wounds: !!f.wounds, physical: !!f.physical,
       payBlood: !!f.payBlood, payWill: !!f.payWill, light: !!f.light, overdraw: Math.max(0, Number(f.overdraw) || 0),
       messageMode: f.messageMode ?? this.values.messageMode
     });
@@ -287,12 +296,18 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       if (!(await this.actor.spendWillpower(1))) return;
       notes.push(`<i class="fa-solid fa-star"></i> ${t("Roll.WillPaid")}`);
     }
+    // Воля тотема стаи — вместо своей (списывается здесь, бросок свою не трогает)
+    let willpowerPaid = false;
+    if (v.willpower && v.totemWill && !cfg.noWillpower) {
+      const tw = this.#totemWill();
+      if (tw && await spendTotemPool(tw.pack, "willpower", this.actor)) willpowerPaid = true;
+    }
     if (cfg.diffNote) notes.push(cfg.diffNote);
     if (od) notes.push(`<i class="fa-solid fa-hand-holding-droplet"></i> ${t("Demon.OverdrawNote", { n: od })}`);
     const res = await rollPool({
       actor: this.actor, title, subtitle: cfg.subtitle ?? "",
       pool, difficulty: c.effDifficulty, specialty: v.specialty && c.specialtyEligible, specialtyName: c.specialtyName,
-      willpower: v.willpower && !cfg.noWillpower, breakdown: cfg.pool != null ? (cfg.breakdown ?? []) : c.breakdown,
+      willpower: v.willpower && !cfg.noWillpower, willpowerPaid, breakdown: cfg.pool != null ? (cfg.breakdown ?? []) : c.breakdown,
       kind: cfg.kind ?? "check", messageMode: v.messageMode, auto: cfg.pool != null ? 0 : c.auto,
       extra: { ...(cfg.extra ?? {}), contest: v.contest, ...(v.contest === "extended" ? { extended: { need: v.need, prev: 0, step: 0 } } : {}) },
       notes, effect: cfg.effect ?? ""
