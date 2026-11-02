@@ -415,7 +415,8 @@
         <a class="r-cr-edge {{#if on}}is-on{{/if}}" data-action="garouGift" data-slot="{{../key}}" data-key="{{key}}" data-tooltip="{{text}}">
           <span class="r-cr-edge-lvl">I</span><b>{{label}}</b>{{#if cost}} <small>{{cost}}</small>{{/if}}{{#if on}}<i class="fa-solid fa-check"></i>{{/if}}
         </a>
-        {{else}}<div class="r-note">{{#if ../need}}{{../need}}{{else}}—{{/if}}</div>{{/each}}
+        {{!-- в {{else}} у each контекст — сама ячейка, поэтому need, а не ../need --}}
+        {{else}}<div class="r-note">{{#if need}}{{need}}{{else}}—{{/if}}</div>{{/each}}
       </div>
       {{/each}}
     </div>
