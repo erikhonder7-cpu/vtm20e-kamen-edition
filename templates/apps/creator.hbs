@@ -285,11 +285,11 @@
 
     {{!-- II. Гару (W20, гл. 3): род — Гару или один из Фера; порода, аугурия, племя плитками; у Фера — выбор внутри рода --}}
     {{#if is_garou}}
-    <div class="r-cr-gtabs r-cr-garou-kinds">{{#each garou.kinds}}<a class="{{#if active}}is-active{{/if}}" data-action="garouPick" data-what="fera" data-key="{{key}}" {{#if en}}data-tooltip="{{en}}"{{/if}}><i class="fa-solid {{icon}}"></i> {{label}}</a>{{/each}}</div>
+    <div class="r-cr-gtabs r-cr-garou-kinds">{{#each garou.kinds}}<a class="{{#if active}}is-active{{/if}}" data-action="garouPick" data-what="fera" data-key="{{key}}" {{#if en}}data-tooltip="{{en}}"{{/if}}>{{rSym sym "r-wg r-cr-kind-sym"}} {{label}}</a>{{/each}}</div>
     {{#if garou.fera}}
     <div class="r-cr-clancard">
       <h4 class="r-banner"><span>{{garou.fera.label}}</span></h4>
-      <span class="r-cr-clancard-sym r-cr-medal"><img src="systems/vtm20e-kamen-edition/assets/ui/werewolf-sigil.svg" alt=""></span>
+      <span class="r-cr-clancard-sym r-cr-medal">{{rSym garou.fera.sym "r-wg"}}</span>
       <div class="r-cr-clancard-body">
         <div class="r-cr-clancard-title">{{garou.fera.label}} <em>{{garou.fera.en}}</em> · <small>{{localize "VTM20.GarouCr.T.rage"}} {{garou.base.rage}} · {{localize "VTM20.GarouCr.T.gnosis"}} {{garou.base.gnosis}} · {{localize "VTM20.GarouCr.T.will"}} {{garou.base.will}}</small></div>
         {{#if garou.fera.facts.length}}<dl class="r-cr-garou-facts">{{#each garou.fera.facts}}<dt>{{k}}</dt><dd>{{{v}}}</dd>{{/each}}</dl>{{/if}}
@@ -298,24 +298,24 @@
     {{#each garou.fera.dims}}
     <h3 class="r-h3">{{label}}</h3>
     <div class="r-cr-tiles r-cr-garou-tiles">
-      {{#each options}}<a class="r-cr-tile {{#if active}}is-active{{/if}}" data-action="garouPick" data-what="sub.{{../key}}" data-key="{{key}}"><b>{{label}}</b>{{#if stats}}<em>{{stats}}</em>{{/if}}</a>{{/each}}
+      {{#each options}}<a class="r-cr-tile {{#if active}}is-active{{/if}}" data-action="garouPick" data-what="sub.{{../key}}" data-key="{{key}}" {{#if tip}}data-tooltip="{{tip}}"{{/if}}><b>{{label}}</b>{{#if stats}}<em>{{stats}}</em>{{/if}}{{#if text}}<span class="r-cr-tile-text">{{{text}}}</span>{{/if}}</a>{{/each}}
     </div>
     {{/each}}
     {{else}}
     <h3 class="r-h3">{{localize "VTM20.GarouCr.Breed"}}</h3>
     <div class="r-cr-tiles r-cr-garou-tiles is-three">
-      {{#each garou.breeds}}<a class="r-cr-tile {{#if active}}is-active{{/if}}" data-action="garouPick" data-what="breed" data-key="{{key}}" data-tooltip="{{tip}}"><b><i class="fa-solid {{icon}}"></i> {{label}}</b><em>{{sub}}</em></a>{{/each}}
+      {{#each garou.breeds}}<a class="r-cr-tile has-sym {{#if active}}is-active{{/if}}" data-action="garouPick" data-what="breed" data-key="{{key}}" data-tooltip="{{tip}}">{{rSym sym "r-wg r-cr-tile-sym"}}<b>{{label}}</b><em>{{sub}}</em></a>{{/each}}
     </div>
     {{#if garou.breedNotes}}<p class="r-note r-cr-garou-note">{{{garou.breedNotes}}}</p>{{/if}}
     <h3 class="r-h3">{{localize "VTM20.GarouCr.Auspice"}}</h3>
     <div class="r-cr-tiles r-cr-garou-tiles is-five">
-      {{#each garou.auspices}}<a class="r-cr-tile {{#if active}}is-active{{/if}}" data-action="garouPick" data-what="auspice" data-key="{{key}}" data-tooltip="{{tip}}"><b><i class="fa-solid {{icon}}"></i> {{label}}</b><span>{{sub}}</span></a>{{/each}}
+      {{#each garou.auspices}}<a class="r-cr-tile has-sym {{#if active}}is-active{{/if}}" data-action="garouPick" data-what="auspice" data-key="{{key}}" data-tooltip="{{tip}}">{{rSym sym "r-wg r-cr-tile-sym"}}<b>{{label}}</b><span>{{sub}}</span></a>{{/each}}
     </div>
     <h3 class="r-h3">{{localize "VTM20.GarouCr.Tribe"}}</h3>
     <div class="r-cr-clans r-cr-tribes">
       {{#each garou.tribes}}
       <a class="r-cr-clan {{#if active}}is-active{{/if}} {{#if wyrm}}is-wyrm{{/if}}" data-action="garouPick" data-what="tribe" data-key="{{key}}">
-        <span class="r-cr-clan-sym r-cr-medal"><i class="fa-solid {{icon}}"></i></span>
+        <span class="r-cr-clan-sym r-cr-medal">{{rSym sym "r-wg"}}</span>
         <b>{{label}}</b><span class="r-cr-clan-disc">{{sub}}</span>
       </a>
       {{/each}}
@@ -323,7 +323,7 @@
     {{#if garou.tribe}}
     <div class="r-cr-clancard">
       <h4 class="r-banner"><span>{{garou.tribe.label}}</span></h4>
-      <span class="r-cr-clancard-sym r-cr-medal"><i class="fa-solid {{garou.tribe.icon}}"></i></span>
+      <span class="r-cr-clancard-sym r-cr-medal">{{rSym garou.tribe.sym "r-wg"}}</span>
       <div class="r-cr-clancard-body">
         <div class="r-cr-clancard-title">{{garou.tribe.label}} <em>{{garou.tribe.en}}</em> · <small>{{localize "VTM20.GarouCr.T.rage"}} {{garou.base.rage}} · {{localize "VTM20.GarouCr.T.gnosis"}} {{garou.base.gnosis}} · {{localize "VTM20.GarouCr.T.will"}} {{garou.base.will}}</small></div>
         <p class="r-note">{{localize "VTM20.Werewolf.Totem"}}: <b>{{garou.tribe.totem}}</b></p>
@@ -415,7 +415,7 @@
         <a class="r-cr-edge {{#if on}}is-on{{/if}}" data-action="garouGift" data-slot="{{../key}}" data-key="{{key}}" data-tooltip="{{text}}">
           <span class="r-cr-edge-lvl">I</span><b>{{label}}</b>{{#if cost}} <small>{{cost}}</small>{{/if}}{{#if on}}<i class="fa-solid fa-check"></i>{{/if}}
         </a>
-        {{else}}<div class="r-note">—</div>{{/each}}
+        {{else}}<div class="r-note">{{#if ../need}}{{../need}}{{else}}—{{/if}}</div>{{/each}}
       </div>
       {{/each}}
     </div>

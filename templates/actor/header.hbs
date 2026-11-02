@@ -17,6 +17,7 @@
         {{#if isVampire}}<span class="r-seal-num">{{rRoman system.generation}}</span><span class="r-seal-cap">{{localize "VTM20.Sheet.Gen"}}</span>
         {{#if editable}}<i class="fa-solid fa-chevron-down r-seal-caret"></i><select name="system.generation" data-dtype="Number" class="r-seal-select" aria-label="{{localize 'VTM20.Details.generation'}}">{{#each generations}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{rRoman value}} — {{value}}</option>{{/each}}</select>{{/if}}
         {{else if isDemon}}<span class="r-seal-num r-seal-icon"><i class="fa-solid fa-fire-flame-curved"></i></span><span class="r-seal-cap">{{#if house}}{{house.name}}{{else}}{{typeLabel}}{{/if}}</span>
+        {{else if werewolfSeal}}<span class="r-seal-num r-seal-icon r-seal-glyph">{{rSym werewolfSeal.sym "r-wg"}}</span><span class="r-seal-cap">{{werewolfSeal.label}}</span>
         {{else if isCreature}}<span class="r-seal-num r-seal-icon"><i class="fa-solid fa-paw"></i></span><span class="r-seal-cap">{{typeLabel}}</span>
         {{else if isGhoul}}<span class="r-seal-num r-seal-icon"><i class="fa-solid {{#if isRevenant}}fa-dna{{else}}fa-hand-holding-droplet{{/if}}"></i></span><span class="r-seal-cap">{{typeLabel}}</span>
         {{else}}<span class="r-seal-num r-seal-icon"><i class="fa-solid fa-heart-pulse"></i></span><span class="r-seal-cap">{{typeLabel}}</span>{{/if}}
@@ -93,24 +94,27 @@
         {{/if}}
 
         {{#if isWerewolf}}
-        {{!-- Гару (W20): порода, аугурия (фаза луны), племя (тотем), Ранг; Слава, Ярость и Гнозис — на вкладке шкал --}}
+        {{!-- Гару (W20): порода, аугурия (фаза луны), племя (тотем); Ранг, Слава, Ярость и Гнозис — в шкалах --}}
+        {{#if werewolfInfo.fera}}
+        {{!-- Фера (W20 Changing Breeds): вместо породы и аугурии Гару — выбор внутри рода (порода, аспект, племя…) --}}
+        {{#each werewolfInfo.headDims}}
+        <label class="r-df {{#if @last}}is-wide{{/if}}"><span>{{label}}</span>
+          <select name="system.werewolf.feraSub.{{key}}"><option value="">—</option>{{#each options}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
+        {{/each}}
+        {{!-- род; «Гару» в этом же списке возвращает к Гару --}}
+        <label class="r-df" data-tooltip="{{werewolfInfo.fera.en}}"><span>{{localize "VTM20.Werewolf.FeraKind"}}</span>
+          <select name="system.werewolf.fera">{{#each werewolfInfo.feraOptions}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+        {{else}}
         <label class="r-df" data-tooltip="{{werewolfInfo.breed.notes}}"><span>{{localize "VTM20.Werewolf.Breed"}}</span>
           <select name="system.werewolf.breed">{{#each werewolfInfo.breeds}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
         <label class="r-df" data-tooltip="{{werewolfInfo.auspice.role}}"><span>{{localize "VTM20.Werewolf.Auspice"}}</span>
           <select name="system.werewolf.auspice">{{#each werewolfInfo.auspices}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
-        {{#if werewolfInfo.fera}}
-        {{!-- Фера (W20 Changing Breeds): вместо племени Гару — род; вернуть Гару — в этом же списке --}}
-        <label class="r-df is-wide" data-tooltip="{{werewolfInfo.fera.en}}"><span>{{localize "VTM20.Werewolf.FeraKind"}}</span>
-          <select name="system.werewolf.fera">{{#each werewolfInfo.feraOptions}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
-        {{else}}
+        {{!-- племя; ниже в том же списке — роды Фера (значение «~род» переключает в Фера: models.mjs, _preUpdate) --}}
         <label class="r-df is-wide" data-tooltip="{{localize 'VTM20.Werewolf.Totem'}}: {{werewolfInfo.tribe.totem}}"><span>{{localize "VTM20.Werewolf.Tribe"}}</span>
-          <select name="system.werewolf.tribe">{{#each werewolfInfo.tribes}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+          <select name="system.werewolf.tribe">{{#each werewolfInfo.tribes}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
+            <optgroup label="{{localize 'VTM20.Werewolf.FeraGroup'}}">{{#each werewolfInfo.feraOptions}}{{#if key}}<option value="~{{key}}">{{label}}</option>{{/if}}{{/each}}</optgroup></select></label>
         {{/if}}
-        {{!-- Ранг — узким полем; Слава — в подсказке; щелчок — окно правки Славы и Ранга (apps/werewolf.mjs, editStanding) --}}
-        <a class="r-df is-narrow r-ww-standing {{#if werewolfInfo.canRank}}is-ready{{/if}}" {{#if editable}}data-action="wwStanding"{{/if}}
-           data-tooltip="{{#each werewolfInfo.standing}}{{label}} {{perm}}{{#if temp}} (+{{temp}}){{/if}}{{#unless @last}} · {{/unless}}{{/each}}{{#if werewolfInfo.nextRank}}<br>{{localize 'VTM20.Werewolf.NextRank'}}: {{werewolfInfo.nextRank}}{{/if}}">
-          <span>{{localize "VTM20.Werewolf.Rank"}}</span><b class="r-ww-rank-num">{{werewolfInfo.rank}}{{#if werewolfInfo.canRank}} <i class="fa-solid fa-arrow-up r-ww-up"></i>{{/if}}</b>
-        </a>
+        <span class="r-df-break"></span>
         {{/if}}
         {{#if isHunter}}
         <label class="r-df is-wide r-df-creed" {{#if creedTip}}data-tooltip="{{creedTip}}"{{/if}}><span>{{localize "VTM20.Hunter.Creed"}}</span>

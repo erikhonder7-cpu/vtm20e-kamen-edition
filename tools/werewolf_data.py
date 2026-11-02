@@ -1187,6 +1187,39 @@ def fera_dims(fkey, text, forms):
 STAT_WORDS = (("ярост", "rage"), ("гнозис", "gnosis"), ("вол", "will"))
 
 
+def fera_texts(text, dims):
+    """Описание варианта рода (порода, аспект, племя, варна…) до раздела Даров: из таблицы — роль в скобках после названия и
+    нечисловые ячейки («| **Восходящее Солнце …** (солдаты) | 3 | один перебросок … |»), из списка — текст после тире
+    («**Сухид (Suchid)** — Гнозис 4; вылупляется из яйца»). Берётся первое найденное."""
+    head = text.split("\n## Дары")[0].split("\n## Общие Дары")[0]
+    opts = [o for d in dims for o in d["options"] if o.get("stem")]
+    def hit(cell):
+        low = cell.lower()
+        found = [(mm.start(), o) for o in opts for mm in [re.search(r"(?<![а-яё])" + re.escape(o["stem"]), low)] if mm and mm.start() < 6]
+        return min(found, key=lambda x: x[0])[1] if found else None
+    def put(o, txt):
+        txt = re.sub(r"\s+", " ", txt).strip(" .;—–-")
+        if o and re.search(r"[А-Яа-яЁё]{3}", txt) and not o.get("text"):
+            o["text"] = md_inline(txt[:320] + ("…" if len(txt) > 320 else ""))
+    for line in head.splitlines():
+        if line.startswith("|"):
+            if set(line) <= set("|-: "):
+                continue
+            c = [x.strip() for x in line.strip().strip("|").split("|")]
+            o = hit(re.sub(r"\*", "", c[0]))
+            if not o:
+                continue
+            role = re.findall(r"\)\**\s*\(([^)]+)\)|^[^(*]+\(([^)]+)\)", c[0])
+            role = next((a or b for a, b in role), "")
+            rest = [x for x in c[1:] if x and not re.fullmatch(r"[+−-]?\d+", x.replace("−", "-"))]
+            put(o, " — ".join(x for x in [role, " · ".join(rest)] if x))
+            continue
+        for m in re.finditer(r"\*\*([^*]+)\*\*\s*(?:\([^)]*\))?\s*—\s*(.*?)(?=\s\*\*[^*]+\*\*\s*(?:\([^)]*\))?\s*—|$)", line):
+            o = hit(m.group(1))
+            if o:
+                put(o, m.group(2))
+
+
 def fera_stats(text, dims):
     """Ярость, Гнозис и Воля при создании: у рода («**Воля 3.**», «начинают: Ярость 1, Гнозис 6, Воля 3»), у вариантов —
     строкой («**Рассвет (Dawn)** — Ярость 5, Гнозис 1») или столбцом таблицы («| Аспект | Воля | …»)."""
@@ -1252,7 +1285,7 @@ def fera_gifts(text, fkey, fname, taken, dims, by_ru):
     out, linked = [], 0
 
     def group(label):
-        short = re.sub(r"^Дары\s*", "", label) or label
+        short = re.sub(r"^Дары\s*", "", re.sub(r"\s*\([^)]*\)", "", label)).strip() or "Дары"
         return {"kind": "fera", "key": fkey, "sub": fera_sub(dims, label), "label": f"{fname}: {short[:1].upper() + short[1:]}"}
 
     def link(name, gr, lvl):
@@ -1280,15 +1313,18 @@ def fera_gifts(text, fkey, fname, taken, dims, by_ru):
                         for nm in re.split(r",\s*", re.sub(r"\([^)]*\)", "", s.group(2))):
                             link(nm.strip().rstrip("."), gr, 1)
                 continue
-            lv = re.match(r"^(?:\*\*)?Ур\.\s*(\d+)\s*:(?:\*\*(?=\s))?", line) or re.match(r"^#+\s*Уровень\s*(\d+)", line)
-            if not lv:
+            lv = re.match(r"^(?:\*\*)?Ур\.\s*(\d+)\s*:(?:\*\*)?", line) or re.match(r"^#+\s*Уровень\s*(\d+)", line)
+            if lv:
+                level = int(lv.group(1))
+                gr = group(label)
+                rest_line = line[lv.end():]
+            elif level and line.startswith("- "):      # «**Ур. 1:**», а Дары — списком ниже (Корвы, Нувиша)
+                rest_line = line[2:]
+            else:
                 continue
-            level = int(lv.group(1))
-            gr = group(label)
-            rest_line = line[lv.end():]
             # новые Дары: **Название (English)** — текст  /  **Название** — текст
             spans = []
-            for g in re.finditer(r"\*\*([^*()]+?)(?:\s*\(([^()]+)\))?\*\*\s*—\s*(.*?)(?=;\s*\*\*|;\s*[А-ЯЁ][^;—]{2,40}\((?:как|[А-ЯЁ])|$)", rest_line):
+            for g in re.finditer(r"\*\*([^*()]+?)(?:\s*\(([^()]+)\))?\*\*\s*—\s*(.*?)(?=;\s*\*\*|;\s*[А-ЯЁ][^;—]{2,40}\((?:как|[А-ЯЁ]|хомид|лупус|метис|корвид|латрани|сухид|звер)|$)", rest_line):
                 spans.append(g.span())
                 name, en, rest = g.group(1).strip(), (g.group(2) or "").strip(), g.group(3).strip()
                 if link(name, gr, level):
@@ -1344,6 +1380,7 @@ def parse_fera(gifts_core):
             war["delirium"] = True
         dims = fera_dims(key, text, forms)
         fbase = fera_stats(text, dims)
+        fera_texts(text, dims)
         tm = re.search(r"\n## Черты\n(.*?)(?=\n## )", text, re.S)
         facts = {}
         if qp:

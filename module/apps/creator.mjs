@@ -18,7 +18,7 @@ import { openHouses } from "./houses.mjs";
 import { blockerFor, checkTraits } from "../data/trait-rules.mjs";
 import { attachCombos } from "../ui/combo.mjs";
 import { weaponIcon, armorIcon, traitIcon, backgroundIcon } from "../data/icons.mjs";
-import { W as werewolfData, ownGift } from "./werewolf.mjs";
+import { W as werewolfData, ownGift, wwGlyphSrc } from "./werewolf.mjs";
 import { H as hunterData, edgeCost, growth as hunterGrowth, sacrificeOn as hunterSacrificeOn, hasOwnPath, creedCapped, edgeBarred, HERMIT_PATH, hermitEdgeMadness, hasPrevEdge } from "./hunter.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -251,13 +251,16 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
   get giftSlots() {
     if (!this.feraData) return ["breed", "auspice", "tribe"].map(k => ({ key: k, label: loc(`VTM20.GarouCr.GiftFrom.${k}`), sub: null }));
     const D = werewolfData(), f = this.feraData.key, sub = this.st.ww.sub;
-    const lists = this.feraDims.filter(d => sub[d.key] && D.gifts.some(g => g.level === 1 && g.groups.some(x => x.kind === "fera" && x.key === f && x.sub === `${d.key}:${sub[d.key]}`)))
-      .map(d => ({ key: d.key, label: t("GarouCr.GiftOf", { what: d.label }), sub: `${d.key}:${sub[d.key]}` }));
+    // ячейка выбора рода — если у него вообще есть Дары 1-го уровня; пока вариант не выбран, ячейка просит его выбрать
+    const has = (d, o) => D.gifts.some(g => g.level === 1 && g.groups.some(x => x.kind === "fera" && x.key === f && (o ? x.sub === `${d.key}:${o}` : x.sub?.startsWith(`${d.key}:`))));
+    const lists = this.feraDims.filter(d => sub[d.key] ? has(d, sub[d.key]) : has(d))
+      .map(d => ({ key: d.key, label: t("GarouCr.GiftOf", { what: d.label }), sub: sub[d.key] ? `${d.key}:${sub[d.key]}` : null, need: sub[d.key] ? "" : d.label }));
     const general = Array.from({ length: Math.max(1, 3 - lists.length) }, (_, i) => ({ key: `general${i}`, label: loc("VTM20.GarouCr.GiftGeneral"), sub: "" }));
     return [...general, ...lists];
   }
   /** Дары 1-го уровня для ячейки. */
   slotGifts(slot) {
+    if (slot.need) return [];
     if (slot.sub === null) return ({ breed: this.garouBreed, auspice: this.garouAuspice, tribe: this.garouTribe }[slot.key]?.startGifts ?? []);
     const f = this.feraData.key;
     return werewolfData().gifts.filter(g => g.level === 1 && g.groups.some(x => x.kind === "fera" && x.key === f && (x.sub ?? "") === slot.sub)).map(g => g.key);
@@ -708,19 +711,22 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     // II. Гару: род (Гару или Фера), порода, аугурия, племя — плитками, как кланы; у Фера — выбор внутри рода; уродство метиса
     if (this.isWerewolf) {
       const D = werewolfData(), w = st.ww, f = this.feraData, lbl = x => VTM20.label(x), plain = h => VtMCreator.#plain(h);
+      const g = name => ({ src: wwGlyphSrc(name) }), feraGlyph = k => g(k === "bastet" ? "glyph-feline" : "glyph-fera");
       const base = this.garouBase;
       ctx.garou = {
         base, renownFixed: this.renownFixed, isFera: !!f, isMetis: this.isMetis,
-        kinds: [{ key: "", label: loc("VTM20.Werewolf.Garou"), icon: "fa-paw", active: !f },
-          ...(D.fera ?? []).map(b => ({ key: b.key, label: lbl(b), en: b.en, icon: "fa-shield-cat", active: b.key === w.fera }))],
-        breeds: D.breeds.map(b => ({ key: b.key, label: lbl(b), icon: b.icon, active: b.key === w.breed, sub: t("Creator.GarouGnosis", { n: b.gnosis }), tip: plain(b.notes) })),
-        auspices: D.auspices.map(b => ({ key: b.key, label: lbl(b), icon: b.icon, active: b.key === w.auspice, sub: b.role, tip: t("Creator.GarouAuspiceTip", { rage: b.rage, renown: b.renownText ?? "" }) })),
-        tribes: D.tribes.map(b => ({ key: b.key, label: lbl(b), icon: b.icon, active: b.key === w.tribe, sub: t("Creator.GarouTribeSub", { will: b.willpower, totem: b.totem ?? "" }), wyrm: !!b.wyrm })),
-        tribe: !f && this.garouTribe ? { ...this.garouTribe, label: lbl(this.garouTribe), bg: this.garouTribe.backgrounds } : null,
+        kinds: [{ key: "", label: loc("VTM20.Werewolf.Garou"), sym: g("glyph-garou"), active: !f },
+          ...(D.fera ?? []).map(b => ({ key: b.key, label: lbl(b), en: b.en, sym: feraGlyph(b.key), active: b.key === w.fera }))],
+        breeds: D.breeds.map(b => ({ key: b.key, label: lbl(b), sym: g(`breed-${b.key}`), active: b.key === w.breed, sub: t("Creator.GarouGnosis", { n: b.gnosis }), tip: plain(b.notes) })),
+        auspices: D.auspices.map(b => ({ key: b.key, label: lbl(b), sym: g(`auspice-${b.key}`), active: b.key === w.auspice, sub: b.role, tip: t("Creator.GarouAuspiceTip", { rage: b.rage, renown: b.renownText ?? "" }) })),
+        tribes: D.tribes.map(b => ({ key: b.key, label: lbl(b), sym: g(`tribe-${b.key}`), active: b.key === w.tribe, sub: t("Creator.GarouTribeSub", { will: b.willpower, totem: b.totem ?? "" }), wyrm: !!b.wyrm })),
+        tribe: !f && this.garouTribe ? { ...this.garouTribe, label: lbl(this.garouTribe), bg: this.garouTribe.backgrounds, sym: g(`tribe-${this.garouTribe.key}`) } : null,
         breedNotes: !f ? this.garouBreed?.notes ?? "" : "",
-        fera: f ? { label: lbl(f), en: f.en, facts: Object.entries(f.facts ?? {}).map(([k, v]) => ({ k, v })),
+        fera: f ? { label: lbl(f), en: f.en, sym: feraGlyph(f.key), facts: Object.entries(f.facts ?? {}).map(([k, v]) => ({ k, v })),
           dims: this.feraDims.map(d => ({ key: d.key, label: d.label, options: d.options.map(o => ({ key: o.key, label: lbl(o), active: o.key === w.sub[d.key],
-            stats: Object.entries(o.stats ?? {}).map(([k, n]) => `${loc(`VTM20.GarouCr.T.${k}`)} ${n}`).join(", ") })) })) } : null,
+            ...(() => { const stats = Object.entries(o.stats ?? {}).map(([k, n]) => `${loc(`VTM20.GarouCr.T.${k}`)} ${n}`).join(", ");
+              const text = (o.text ?? "").replace(/^(?:Гнозис|Ярость|Воля)\s*\d+[,;.]?\s*/i, "");
+              return { stats, text, tip: plain(o.text ?? "") }; })() })) })) } : null,
         deformities: this.isMetis ? (D.deformities ?? []).map(x => ({ key: x.key, label: lbl(x), selected: x.key === w.deform })) : null,
         deformText: (D.deformities ?? []).find(x => x.key === w.deform)?.text ?? "",
         issues: this.garouIssues
@@ -728,7 +734,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       // Дары: ячейки и Дары сверх трёх (свои 1-го уровня, 7 бонусных за каждый)
       const taken = new Set([...Object.values(w.gifts), ...w.extra]);
       const card = (g, on) => ({ key: g.key, label: lbl(g), en: g.en, on, text: VtMCreator.#preview(g.text, 160), cost: g.cost ? Object.entries(g.cost).map(([k, n]) => `${n} ${loc(`VTM20.GarouCr.T.${k === "willpower" ? "will" : k}`)}`).join(", ") : "" });
-      ctx.giftSlots = this.giftSlots.map(s => ({ key: s.key, label: s.label,
+      ctx.giftSlots = this.giftSlots.map(s => ({ key: s.key, label: s.label, need: s.need ? t("GarouCr.GiftNeedPick", { what: s.need }) : "",
         list: this.slotGifts(s).map(k => D.gifts.find(g => g.key === k)).filter(g => g && (g.key === w.gifts[s.key] || !taken.has(g.key))).map(g => card(g, g.key === w.gifts[s.key])) }));
       ctx.giftExtra = D.gifts.filter(g => g.level === 1 && ownGift(this.garouSelf, g) && !Object.values(w.gifts).includes(g.key))
         .map(g => card(g, w.extra.includes(g.key))).sort((a, b) => b.on - a.on || a.label.localeCompare(b.label, "ru"));

@@ -222,7 +222,8 @@ VTM20.traitFor = (m, who = {}) => {
 };
 
 /** Знак типа персонажа (корешок листа, ворота создания, мастер), когда нет герба клана или секты. */
-VTM20.typeSigil = type => `systems/vtm20e-kamen-edition/assets/ui/${({ demon: "fallen-sigil", ghoul: "ghoul-sigil", mortal: "mortal-sigil", hunter: "hunter-sigil", werewolf: "werewolf-sigil" })[type] ?? "vampire-sigil"}.svg`;
+VTM20.typeSigil = type => type === "werewolf" ? "systems/vtm20e-kamen-edition/assets/werewolf/glyph-garou.png"
+  : `systems/vtm20e-kamen-edition/assets/ui/${({ demon: "fallen-sigil", ghoul: "ghoul-sigil", mortal: "mortal-sigil", hunter: "hunter-sigil" })[type] ?? "vampire-sigil"}.svg`;
 
 /** Чем атакуют: пул «Ловкость + …» и подпись. */
 VTM20.weaponKinds = {

@@ -624,6 +624,12 @@ export class WerewolfData extends MortalData {
   /** Смена рода (Гару ↔ Фера) — в первую, человеческую форму нового рода: старый ключ формы у него не значит ничего. */
   async _preUpdate(changes, options, user) {
     if ((await super._preUpdate(changes, options, user)) === false) return false;
+    // «~род» в списке племён на листе — переход в Фера (племя Гару остаётся прежним)
+    const tribe = foundry.utils.getProperty(changes, "system.werewolf.tribe");
+    if (typeof tribe === "string" && tribe.startsWith("~")) {
+      foundry.utils.setProperty(changes, "system.werewolf.tribe", this.werewolf.tribe);
+      foundry.utils.setProperty(changes, "system.werewolf.fera", tribe.slice(1));
+    }
     const fera = foundry.utils.getProperty(changes, "system.werewolf.fera");
     if (fera === undefined || fera === this.werewolf.fera) return;
     // выбор внутри рода у нового рода свой

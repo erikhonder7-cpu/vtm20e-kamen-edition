@@ -2,19 +2,21 @@
 <section class="tab r-pane r-disciplines r-edges r-gifts {{tab.cssClass}}" data-tab="{{tab.id}}" data-group="{{tab.group}}">
 
   {{!-- Фера (W20 Changing Breeds): род — Гару или один из 11 Изменяющихся; у Фера свои формы, Дары рода и справка --}}
-  <div class="r-ww-fera {{#if werewolfInfo.fera}}is-fera{{/if}}">
-    <label class="r-ww-fera-pick"><span>{{localize "VTM20.Werewolf.FeraKind"}}</span>
-      <select {{#unless editable}}disabled{{/unless}} name="system.werewolf.fera">{{#each werewolfInfo.feraOptions}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
-    {{#each werewolfInfo.feraDims}}
+  {{#if werewolfInfo.fera}}
+  {{!-- Фера (W20 Changing Breeds): род и два главных выбора — в шапке листа; здесь остальные выборы, что дают выбранные и справка рода --}}
+  <div class="r-ww-fera is-fera">
+    {{#each werewolfInfo.restDims}}
     <label class="r-ww-fera-pick"><span>{{label}}</span>
       <select {{#unless @root.editable}}disabled{{/unless}} name="system.werewolf.feraSub.{{key}}"><option value="">—</option>{{#each options}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
     {{/each}}
-    {{#if werewolfInfo.fera}}
-    <dl class="r-ww-fera-facts">{{#each werewolfInfo.fera.facts}}<dt>{{@key}}</dt><dd>{{{this}}}</dd>{{/each}}</dl>
+    <dl class="r-ww-fera-facts">
+      {{#each werewolfInfo.feraDims}}{{#if text}}<dt>{{label}}: {{picked}}</dt><dd>{{{text}}}</dd>{{/if}}{{/each}}
+      {{#each werewolfInfo.fera.facts}}<dt>{{@key}}</dt><dd>{{{this}}}</dd>{{/each}}
+    </dl>
     <details class="r-ww-fera-more"><summary>{{localize "VTM20.Werewolf.FeraTraits"}}</summary>
       <div class="r-ww-fera-text">{{{werewolfInfo.fera.traits}}}{{{werewolfInfo.fera.formsHtml}}}</div></details>
-    {{else}}<small class="r-note">{{localize "VTM20.Werewolf.FeraHint"}}</small>{{/if}}
   </div>
+  {{/if}}
 
   <h2 class="r-h2"><span>{{localize "VTM20.Werewolf.Forms"}}</span></h2>
   <div class="r-ww-forms">

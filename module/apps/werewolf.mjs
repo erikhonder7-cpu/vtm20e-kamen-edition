@@ -6,7 +6,7 @@
 
 import { Codex } from "../data/codex.mjs";
 import { RollDialog } from "../dice/dialog.mjs";
-import { VTM20 } from "../config.mjs";
+import { VTM20, SYSTEM_PATH } from "../config.mjs";
 import { totemOf } from "./coterie.mjs";
 import { septOf } from "./sept.mjs";
 import { umbraOf } from "./umbra.mjs";
@@ -19,6 +19,57 @@ export const riteOf = key => W().rites.find(r => r.key === key) ?? null;
 const byKey = (list, key) => list.find(x => x.key === key) ?? null;
 const ORDER = ["homid", "glabro", "crinos", "hispo", "lupus"];
 
+/* ── Окна оборотня: настоящие знаки W:tA (assets/werewolf) и общий вид — шапка со знаком и карточки-действия ── */
+
+// путь от корня: относительный url() в CSS-переменной считался бы от файла стилей
+export const wwGlyphSrc = name => foundry.utils.getRoute(`${SYSTEM_PATH}/assets/werewolf/${name}.png`);
+/** Знак маской, залитой лунным серебром (цвет задаёт CSS: .r-wg). */
+export const wwGlyph = (name, cls = "") => `<span class="r-sym r-wg${cls ? ` ${cls}` : ""}" style="--sym: url('${wwGlyphSrc(name)}')" aria-hidden="true"></span>`;
+export const RENOWN_GLYPH = { glory: "glyph-glory", honor: "glyph-honor", wisdom: "glyph-wisdom" };
+
+/** Знаки листа: на рейке и водяным знаком — племя (у Фера — знак Фера, у Бастет — кошачий), на печати под портретом — аугурия (у Фера — род). */
+export function werewolfSigil(actor) {
+  const w = actor.system.werewolf, D = W(), fera = feraOf(actor);
+  const tribe = byKey(D.tribes, w.tribe), aus = byKey(D.auspices, w.auspice);
+  const kin = fera ? (fera.key === "bastet" ? "glyph-feline" : "glyph-fera") : null;
+  return {
+    sym: { src: wwGlyphSrc(kin ?? (tribe ? `tribe-${tribe.key}` : "glyph-garou")) }, label: fera ? VTM20.label(fera) : tribe?.name ?? "",
+    seal: fera ? { sym: { src: wwGlyphSrc(kin) }, label: VTM20.label(fera) } : { sym: { src: wwGlyphSrc(aus ? `auspice-${aus.key}` : "glyph-luna") }, label: aus?.name ?? t("Garou") }
+  };
+}
+
+/** Шапка окна: знак в лунном кольце, надзаголовок, заголовок и строка под ним. */
+export const wwHead = ({ glyph, icon, kicker = "", title = "", sub = "" }) => `<header class="r-wh">
+    <span class="r-wh-sigil">${glyph ? wwGlyph(glyph) : `<i class="fa-solid ${icon ?? "fa-paw"}"></i>`}</span>
+    <span class="r-wh-text">${kicker ? `<small>${kicker}</small>` : ""}<b>${title}</b>${sub ? `<span>${sub}</span>` : ""}</span>
+  </header>`;
+
+/** Пул строкой с числами: «Выносливость 3 + Первобытный инстинкт 2 = 5». */
+function poolNums(actor, a, b) {
+  const parts = [a, b].filter(Boolean).map(k => ({ label: actor.traitLabel(k), n: Number(actor.traitValue(k)) || 0 }));
+  return `${parts.map(x => `${esc(x.label)} <b>${x.n}</b>`).join(" + ")} = <b>${parts.reduce((n, x) => n + x.n, 0)}</b>`;
+}
+
+/**
+ * Окно выбора: шапка, пояснение и карточки — щелчок по карточке и есть выбор (без ряда кнопок внизу, закрыть — крестиком).
+ * cards: [{ key, glyph | icon, title, sub, note, badge, disabled, cls }]; возвращает key выбранной карточки или null.
+ */
+async function wwPick({ title, icon = "fa-paw", head = "", lead = "", cards, width = 520, cls = "", after = "" }) {
+  let picked = null;
+  const card = c => `<button type="button" class="r-wc-card${c.cls ? ` ${c.cls}` : ""}" data-pick="${esc(c.key)}"${c.disabled ? " disabled" : ""}>
+      <span class="r-wc-mark">${c.glyph ? wwGlyph(c.glyph) : `<i class="fa-solid ${c.icon ?? "fa-circle"}"></i>`}</span>
+      <span class="r-wc-body"><b>${c.title}</b>${c.sub ? `<small>${c.sub}</small>` : ""}${c.note ? `<em>${c.note}</em>` : ""}</span>
+      ${c.badge ? `<span class="r-wc-badge">${c.badge}</span>` : ""}</button>`;
+  await foundry.applications.api.DialogV2.wait({
+    window: { title, icon: `fa-solid ${icon}` }, classes: ["vtm20", "r-dialog", "r-type-werewolf", "r-wc-dlg", ...(cls ? [cls] : [])],
+    position: { width }, rejectClose: false,
+    content: `<div class="r-wc">${head}${lead ? `<p class="r-wc-lead">${lead}</p>` : ""}<div class="r-wc-cards">${cards.map(card).join("")}</div>${after}</div>`,
+    buttons: [{ action: "cancel", label: game.i18n.localize("Cancel") }],
+    render: (ev, dlg) => dlg.element.querySelectorAll("[data-pick]").forEach(b => b.addEventListener("click", () => { picked = b.dataset.pick; dlg.close(); }))
+  });
+  return picked;
+}
+
 /** Карточка Гару для шапки и вкладки шкал: порода, аугурия, племя, Ранг, Слава, Ярость, Гнозис, формы. */
 export const feraOf = actor => actor?.system.werewolf?.fera ? (W().fera ?? []).find(b => b.key === actor.system.werewolf.fera) ?? null : null;
 
@@ -26,6 +77,7 @@ export function werewolfInfo(actor, dots) {
   const w = actor.system.werewolf, D = W(), fera = feraOf(actor);
   const breed = byKey(D.breeds, w.breed), auspice = byKey(D.auspices, w.auspice), tribe = byKey(D.tribes, w.tribe);
   const renown = ["glory", "honor", "wisdom"].map(k => ({ key: k, label: t(`Renown.${k}`), perm: w.renown[k].permanent, temp: w.renown[k].temporary,
+    glyph: { src: wwGlyphSrc(RENOWN_GLYPH[k]) }, ready: w.renown[k].temporary >= 10,
     dots: dots(w.renown[k].permanent, 10, { path: `system.werewolf.renown.${k}.permanent` }),
     tempDots: dots(w.renown[k].temporary, 10, { path: `system.werewolf.renown.${k}.temporary`, cls: "is-temp" }) }));
   const next = rankNeed(w.auspice, w.rank + 1);
@@ -33,7 +85,10 @@ export function werewolfInfo(actor, dots) {
     breed, auspice, tribe, rank: w.rank, rankName: D.rankNames?.[w.rank - 1] ?? "", fera, feraOptions: [{ key: "", label: t("Garou"), selected: !w.fera },
       ...(D.fera ?? []).map(b => ({ key: b.key, label: VTM20.label(b), selected: b.key === w.fera }))],
     feraDims: (fera?.dims ?? []).filter(d => d.options.length).map(d => ({ key: d.key, label: d.label, value: w.feraSub?.[d.key] ?? "",
-      options: d.options.map(o => ({ key: o.key, name: VTM20.label(o), selected: o.key === w.feraSub?.[d.key] })) })), packTotem: totemOf(actor), sept: septOf(actor), umbra: umbraOf(actor),
+      text: d.options.find(o => o.key === w.feraSub?.[d.key])?.text ?? "", picked: VTM20.label(d.options.find(o => o.key === w.feraSub?.[d.key]) ?? {}),
+      options: d.options.map(o => ({ key: o.key, name: VTM20.label(o), selected: o.key === w.feraSub?.[d.key] })) })),
+    // в шапке — не больше двух выборов рода (остальные — на вкладке Даров)
+    get headDims() { return this.feraDims.slice(0, 2); }, get restDims() { return this.feraDims.slice(2); }, packTotem: totemOf(actor), sept: septOf(actor), umbra: umbraOf(actor),
     rage: w.rage.value, ragePerm: w.rage.permanent, gnosis: w.gnosis.value, gnosisPerm: w.gnosis.permanent,
     rageDots: dots(w.rage.permanent, 10, { path: "system.werewolf.rage.permanent" }),
     gnosisDots: dots(w.gnosis.permanent, 10, { path: "system.werewolf.gnosis.permanent" }),
@@ -85,7 +140,8 @@ export function ownGift(w, g) {
 export function giftsView(actor) {
   const w = actor.system.werewolf, own = (w.gifts ?? []).map(giftOf).filter(Boolean);
   const mine = g => ownGift(w, g);
-  const label = g => g.groups.filter(x => x.kind !== "fera" || x.key === w.fera).map(x => x.kind === "fera" ? x.label : x.kind === "breed" ? byKey(W().breeds, x.key)?.name : x.kind === "auspice" ? byKey(W().auspices, x.key)?.name
+  // откуда Дар: у Фера — только группы своего рода, у Гару — без групп Фера
+  const label = g => g.groups.filter(x => w.fera ? x.kind === "fera" && x.key === w.fera : x.kind !== "fera").map(x => x.kind === "fera" ? x.label : x.kind === "breed" ? byKey(W().breeds, x.key)?.name : x.kind === "auspice" ? byKey(W().auspices, x.key)?.name
     : x.kind === "tribe" ? byKey(W().tribes, x.key)?.name : t(`Outsider.${x.key}`)).filter(Boolean).join(" · ");
   const rows = own.sort((a, b) => a.level - b.level || a.name.localeCompare(b.name, "ru")).map(g => ({ ...g, own: mine(g), from: label(g),
     pool: g.roll ? poolLabel(actor, g.roll) : "", cost: costText(g.cost) }));
@@ -109,7 +165,6 @@ function costText(c = {}) {
 
 /** Слава и Ранг (W20, гл. 4): окно — медальон Ранга со званием и аугурией, три карточки Славы (постоянная — кружками,
  *  временная — квадратиками, щелчок ставит значение) и что нужно до следующего Ранга. */
-const RENOWN_ICON = { glory: "fa-sun", honor: "fa-scale-balanced", wisdom: "fa-eye" };
 const ROMAN_RANK = ["0", "I", "II", "III", "IV", "V", "VI"];
 export async function editStanding(actor) {
   const w = actor.system.werewolf, D = W(), aus = byKey(D.auspices, w.auspice);
@@ -117,7 +172,7 @@ export async function editStanding(actor) {
   const track = (k, kind, n) => `<div class="r-ws-track is-${kind}">${Array.from({ length: 10 }, (_, i) =>
     `<a class="r-ws-pip ${i < n ? "is-on" : ""}" data-key="${k}" data-kind="${kind}" data-n="${i + 1}"></a>`).join("")}</div>`;
   const card = k => `<section class="r-ws-card" data-card="${k}">
-      <header><i class="fa-solid ${RENOWN_ICON[k]}"></i><b>${esc(t(`Renown.${k}`))}</b><span class="r-ws-num" data-num="${k}">${state[k].permanent}</span></header>
+      <header><span class="r-ws-glyph is-${k}">${wwGlyph(RENOWN_GLYPH[k])}</span><b>${esc(t(`Renown.${k}`))}</b><span class="r-ws-num" data-num="${k}">${state[k].permanent}</span></header>
       <small>${esc(t("Permanent"))}</small>${track(k, "permanent", state[k].permanent)}
       <small>${esc(t("Temporary"))}</small>${track(k, "temporary", state[k].temporary)}
       <footer data-need="${k}"></footer>
@@ -127,7 +182,7 @@ export async function editStanding(actor) {
         <a class="r-ws-step" data-step="-1"><i class="fa-solid fa-chevron-left"></i></a>
         <div class="r-ws-medal"><span class="r-ws-roman" data-roman></span></div>
         <a class="r-ws-step" data-step="1"><i class="fa-solid fa-chevron-right"></i></a>
-        <div class="r-ws-title"><b data-title></b><span><i class="fa-solid ${aus?.icon ?? "fa-moon"}"></i> ${esc(aus?.name ?? "")}</span><em data-next></em></div>
+        <div class="r-ws-title"><b data-title></b><span>${aus ? `<span class="r-ws-aus">${wwGlyph(`auspice-${aus.key}`)}</span>` : ""}${esc(aus?.name ?? "")}</span><em data-next></em></div>
       </div>
       <div class="r-ws-cards">${["glory", "honor", "wisdom"].map(card).join("")}</div>
     </div>`;
@@ -181,55 +236,95 @@ export async function editStanding(actor) {
  * постоянная точка (и превращается в 10 временных); 10 временных — можно просить Признания (+1 постоянная).
  */
 export async function renownAward(actor) {
-  const rows = W().renownAwards ?? [], secs = [...new Set(rows.map(r => r.sec))];
-  const sign = (n, k) => n ? `${n > 0 ? "+" : "−"}${Math.abs(n)} ${t(`RenownShort.${k}`)}` : "";
-  const chip = (v, i) => { const lab = ["glory", "honor", "wisdom"].map((k, j) => sign(v[j], k)).filter(Boolean).join(" ") || "0";
-    return `<a class="r-ra-chip ${v.some(x => x < 0) ? "is-neg" : ""}" data-v="${v.join(",")}" data-i="${i}">${lab}</a>`; };
-  const list = secs.map(sec => `<h4>${esc(sec)}</h4>${rows.map((r, ri) => ({ r, ri })).filter(x => x.r.sec === sec).map(({ r, ri }) =>
-    `<div class="r-ra-row" data-row="${ri}" data-search="${esc((sec + " " + r.text).toLowerCase().replace(/<[^>]+>/g, ""))}"><span>${r.text}${r.yearly ? ` <small>${t("RenownYearly")}</small>` : ""}</span>${r.v.map(chip).join("")}</div>`).join("")}`).join("");
-  const recog = () => ["glory", "honor", "wisdom"].filter(k => actor.system.werewolf.renown[k].temporary >= 10)
-    .map(k => `<a class="r-btn" data-recog="${k}"><i class="fa-solid fa-medal"></i> ${t("Recognition", { r: t(`Renown.${k}`) })}</a>`).join("");
-  const content = `<div class="r-ra"><input type="search" class="r-ra-search" placeholder="${esc(t("RenownSearch"))}">
+  const rows = W().renownAwards ?? [], secs = [...new Set(rows.map(r => r.sec))], KEYS = ["glory", "honor", "wisdom"];
+  const sign = n => `${n > 0 ? "+" : "−"}${Math.abs(n)}`;
+  // награда чипом: знак Славы и число; полные названия — во всплывающей подсказке
+  const chip = v => {
+    const parts = KEYS.map((k, j) => [k, v[j]]).filter(([, n]) => n);
+    const tip = parts.map(([k, n]) => `${t(`Renown.${k}`)} ${sign(n)}`).join(", ") || "0";
+    return `<a class="r-ra-chip ${v.some(x => x < 0) ? "is-neg" : ""}" data-v="${v.join(",")}" data-tooltip="${esc(tip)}">${parts.map(([k, n]) =>
+      `<span class="is-${k}${n < 0 ? " is-minus" : ""}">${wwGlyph(RENOWN_GLYPH[k])}${sign(n)}</span>`).join("") || "0"}</a>`;
+  };
+  const list = secs.map(sec => {
+    const own = rows.map((r, ri) => ({ r, ri })).filter(x => x.r.sec === sec);
+    return `<section class="r-ra-sec" data-sec="${esc(sec)}"><h4>${esc(sec)} <small>${own.length}</small></h4>${own.map(({ r, ri }) =>
+      `<div class="r-ra-row" data-row="${ri}" data-search="${esc((sec + " " + r.text).toLowerCase().replace(/<[^>]+>/g, ""))}">
+        <span class="r-ra-text">${r.text}${r.yearly ? ` <small class="r-ra-yearly">${t("RenownYearly")}</small>` : ""}</span>
+        <span class="r-ra-chips">${r.v.map(chip).join("")}</span></div>`).join("")}</section>`;
+  }).join("");
+  // три Славы сверху: постоянная числом, временная — десятью делениями, Признание — когда набралось 10
+  const top = () => KEYS.map(k => {
+    const r = actor.system.werewolf.renown[k];
+    return `<div class="r-vcard r-vc-renown is-${k}">
+      <div class="r-vc-head"><h4 class="r-banner">${t(`Renown.${k}`)}</h4>
+        <div class="r-vc-status" data-tooltip="${esc(t("RenownStatusTip"))}"><b>${r.permanent}</b> / ${r.temporary}</div></div>
+      <span class="r-dots is-ten is-renown">${Array.from({ length: 10 }, (_, i) => `<span class="r-dot${i < r.permanent ? " is-filled" : ""}${i >= 5 ? " is-over" : ""}"></span>`).join("")}</span>
+      <div class="r-boxes is-renown" data-tooltip="${esc(t("RenownTempTip", { n: r.temporary }))}">${Array.from({ length: 10 }, (_, i) => `<span class="r-box${i < r.temporary ? " is-filled" : ""}"></span>`).join("")}</div>
+      ${r.temporary >= 10 ? `<a class="r-ra-recog" data-recog="${k}"><i class="fa-solid fa-medal"></i> ${t("RecognitionShort")}</a>` : ""}
+    </div>`;
+  }).join("");
+  const stepper = k => `<span class="r-ra-step is-${k}" data-tooltip="${esc(t(`Renown.${k}`))}">${wwGlyph(RENOWN_GLYPH[k])}
+      <a data-bump="${k}" data-d="-1">−</a><input type="number" name="${k}" value="0" min="-10" max="10"><a data-bump="${k}" data-d="1">+</a></span>`;
+  const content = `<div class="r-ra">
+    <div class="r-ra-top">${top()}</div>
+    <div class="r-ra-tools">
+      <input type="search" class="r-ra-search" placeholder="${esc(t("RenownSearch"))}">
+      <select class="r-ra-filter"><option value="">${t("RenownAllSecs")}</option>${secs.map(x => `<option value="${esc(x)}">${esc(x)}</option>`).join("")}</select>
+    </div>
     <div class="r-ra-list">${list}</div>
-    <div class="r-ra-custom"><span>${t("RenownCustom")}</span>${["glory", "honor", "wisdom"].map(k => `<label>${t(`RenownShort.${k}`)}<input type="number" name="${k}" value="0"></label>`).join("")}
-      <input type="text" name="note" placeholder="${esc(t("RenownWhy"))}"><a class="r-btn" data-custom><i class="fa-solid fa-plus"></i></a></div>
-    <div class="r-ra-recog">${recog()}</div></div>`;
+    <div class="r-ra-custom">
+      <span class="r-ra-cap">${t("RenownCustom")}</span>
+      ${KEYS.map(stepper).join("")}
+      <input type="text" name="note" placeholder="${esc(t("RenownWhy"))}">
+      <button type="button" class="r-ra-give" data-custom><i class="fa-solid fa-award"></i> ${t("RenownGive")}</button>
+    </div></div>`;
   const apply = async (v, why) => {
     const ren = foundry.utils.deepClone(actor.system.werewolf.renown), lines = [];
-    ["glory", "honor", "wisdom"].forEach((k, j) => {
+    KEYS.forEach((k, j) => {
       if (!v[j]) return;
       let tmp = ren[k].temporary + v[j], perm = ren[k].permanent;
       while (tmp < 0 && perm > 0) { perm -= 1; tmp += 10; lines.push(t("RenownBurn", { r: t(`Renown.${k}`) })); }
-      ren[k] = { permanent: perm, temporary: Math.max(0, tmp) };
+      ren[k] = { permanent: perm, temporary: Math.clamp(tmp, 0, 10) };
     });
     await actor.update({ "system.werewolf.renown": ren });
-    const what = ["glory", "honor", "wisdom"].map((k, j) => sign(v[j], k)).filter(Boolean).join(", ");
+    const what = KEYS.map((k, j) => v[j] ? `${t(`Renown.${k}`)} ${sign(v[j])}` : "").filter(Boolean).join(", ");
     await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), flags: { [game.system.id]: { garou: "renown" } }, content: `<div class="r-notice r-type-werewolf"><i class="fa-solid fa-award"></i> <b>${esc(actor.name)}</b>: ${esc(what)}${why ? ` — ${why}` : ""}${lines.map(l => `<br><em>${esc(l)}</em>`).join("")}</div>` });
   };
   return foundry.applications.api.DialogV2.wait({
-    window: { title: t("RenownAwardTitle", { name: actor.name }), icon: "fa-solid fa-award" }, classes: ["vtm20", "r-dialog", "r-type-werewolf", "r-ra-dlg"],
-    position: { width: 640, height: 640 }, content, rejectClose: false,
-    buttons: [{ action: "close", label: t("Close"), icon: "fa-solid fa-check", default: true }],
+    window: { title: t("RenownAwardTitle", { name: actor.name }), icon: "fa-solid fa-award" }, classes: ["vtm20", "r-dialog", "r-type-werewolf", "r-ra-dlg", "r-wc-dlg"],
+    position: { width: 760, height: 760 }, content, rejectClose: false,
+    buttons: [{ action: "close", label: t("Close") }],
     render: (ev, dlg) => {
-      const root = dlg.element, redrawRecog = () => { root.querySelector(".r-ra-recog").innerHTML = recog(); };
-      root.querySelector(".r-ra-search").addEventListener("input", e => {
-        const q = e.target.value.trim().toLowerCase();
-        for (const r of root.querySelectorAll(".r-ra-row")) r.hidden = !!q && !r.dataset.search.includes(q);
-      });
+      const root = dlg.element, redraw = () => { root.querySelector(".r-ra-top").innerHTML = top(); };
+      const filter = () => {
+        const q = root.querySelector(".r-ra-search").value.trim().toLowerCase(), sec = root.querySelector(".r-ra-filter").value;
+        for (const box of root.querySelectorAll(".r-ra-sec")) {
+          let any = false;
+          for (const r of box.querySelectorAll(".r-ra-row")) { r.hidden = !!q && !r.dataset.search.includes(q); any ||= !r.hidden; }
+          box.hidden = !any || (!!sec && box.dataset.sec !== sec);
+        }
+      };
+      root.querySelector(".r-ra-search").addEventListener("input", filter);
+      root.querySelector(".r-ra-filter").addEventListener("change", filter);
       root.addEventListener("click", async e => {
         const c = e.target.closest(".r-ra-chip");
-        if (c) { const row = rows[Number(c.closest("[data-row]").dataset.row)]; await apply(c.dataset.v.split(",").map(Number), row.text); c.classList.add("is-done"); redrawRecog(); return; }
+        if (c) { const row = rows[Number(c.closest("[data-row]").dataset.row)]; await apply(c.dataset.v.split(",").map(Number), row.text); c.classList.add("is-done"); redraw(); return; }
+        const b = e.target.closest("[data-bump]");
+        if (b) { const inp = root.querySelector(`input[name=${b.dataset.bump}]`); inp.value = Math.clamp((Number(inp.value) || 0) + Number(b.dataset.d), -10, 10); return; }
         if (e.target.closest("[data-custom]")) {
-          const v = ["glory", "honor", "wisdom"].map(k => Number(root.querySelector(`input[name=${k}]`).value) || 0);
-          if (v.some(Boolean)) await apply(v, esc(root.querySelector("input[name=note]").value.trim()));
-          redrawRecog(); return;
+          const v = KEYS.map(k => Number(root.querySelector(`input[name=${k}]`).value) || 0);
+          if (!v.some(Boolean)) return ui.notifications.info(t("RenownNothing"));
+          await apply(v, esc(root.querySelector("input[name=note]").value.trim()));
+          KEYS.forEach(k => { root.querySelector(`input[name=${k}]`).value = 0; });
+          root.querySelector("input[name=note]").value = "";
+          redraw(); return;
         }
         const rk = e.target.closest("[data-recog]")?.dataset.recog;
         if (rk) {
           const r = actor.system.werewolf.renown[rk];
           await actor.update({ [`system.werewolf.renown.${rk}`]: { permanent: Math.min(10, r.permanent + 1), temporary: r.temporary - 10 } });
           await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<div class="r-notice r-type-werewolf"><i class="fa-solid fa-medal"></i> ${esc(t("RecognitionDone", { name: actor.name, r: t(`Renown.${rk}`) }))}</div>` });
-          redrawRecog();
+          redraw();
         }
       });
     }
@@ -252,12 +347,21 @@ export async function changeForm(actor, key) {
   // Фера: шаги — по порядку своих форм; у Гару — Хомид — Глабро — Кринос — Хиспо — Лупус
   const order = fera ? list.map(x => x.key) : ORDER, cur = order.includes(w.form) ? w.form : order[0];
   const steps = Math.max(1, Math.abs(order.indexOf(key) - order.indexOf(cur)));
-  const how = await foundry.applications.api.DialogV2.wait({
-    window: { title: t("FormTitle", { form: f.name }), icon: `fa-solid ${f.icon}` }, classes: ["vtm20", "r-dialog", "r-type-werewolf"],
-    content: `<p>${t("FormHow", { steps, diff: f.diff })}</p>${f.mods ? `<p class="r-note">${esc(modsText(f))}</p>` : ""}`,
-    buttons: [{ action: "rage", label: t("FormRage"), icon: "fa-solid fa-fire", default: w.rage.value > 0 },
-      { action: "roll", label: t("FormRoll"), icon: "fa-solid fa-dice-d10" }]
-  }).catch(() => null);
+  // дорожка форм: откуда, куда и формы на пути; поправки целевой формы — чипами
+  const from = order.indexOf(cur), to = order.indexOf(key), lo = Math.min(from, to), hi = Math.max(from, to);
+  const L = k => game.i18n.localize(VTM20.attributes[k]?.label ?? k);
+  const track = `<div class="r-wf-track">${order.map((k, i) => { const x = byKey(list, k);
+    return `<span class="r-wf-node${i === from ? " is-from" : ""}${i === to ? " is-to" : ""}${i > lo && i < hi ? " is-path" : ""}"><i class="fa-solid ${x?.icon ?? "fa-paw"}"></i><small>${esc(x?.name ?? k)}</small></span>`; }).join("")}</div>`;
+  const mods = [...Object.entries(f.mods ?? {}).map(([k, v]) => `<span class="r-wf-mod ${v > 0 ? "is-up" : "is-down"}">${esc(L(k))} ${v > 0 ? "+" : "−"}${Math.abs(v)}</span>`),
+    ...Object.entries(f.set ?? {}).map(([k, v]) => `<span class="r-wf-mod">${esc(L(k))} = ${v}</span>`)].join("");
+  const how = await wwPick({ title: t("FormTitle", { form: f.name }), icon: f.icon, width: 540,
+    head: `${track}${mods ? `<div class="r-wf-mods">${mods}</div>` : ""}`,
+    lead: f.delirium ? `<i class="fa-solid fa-eye-low-vision"></i> ${t("FormDeliriumNote")}` : "",
+    cards: [
+      { key: "rage", glyph: "glyph-rage", title: t("FormInstant"), sub: t("FormInstantSub", { n: w.rage.value }), disabled: w.rage.value < 1, cls: "is-rage" },
+      { key: "roll", icon: "fa-dice-d10", title: t("FormRoll"), sub: `${poolNums(actor, "attributes.stamina", "abilities.primalUrge")} · ${t("Diff", { n: f.diff })}`,
+        note: t("FormNeedSteps", { n: steps }) }
+    ] });
   if (how === "rage") {
     if (!(await spend(actor, "rage"))) return null;
     await actor.update({ "system.werewolf.form": key });
@@ -397,12 +501,13 @@ export async function rageActions(actor) {
   const w = actor.system.werewolf, at = actor.system.attributes;
   const cap = Math.min(Math.ceil(w.rage.permanent / 2), w.rage.value), free = Math.min(at.dexterity.total, at.wits.total);
   if (cap < 1) return ui.notifications.warn(t("ActionsNone"));
-  const opts = Array.from({ length: cap }, (_, i) => `<option value="${i + 1}">${i + 1}${i + 1 > free ? ` — ${t("ActionsFast")}` : ""}</option>`).join("");
-  const n = await foundry.applications.api.DialogV2.prompt({
-    window: { title: t("Actions"), icon: "fa-solid fa-bolt" }, classes: ["vtm20", "r-dialog", "r-type-werewolf"],
-    content: `<p>${t("ActionsText", { cap, free })}</p><label class="r-f"><span>${t("ActionsHow")}</span><select name="n">${opts}</select></label>`,
-    ok: { label: t("ActionsSpend"), icon: "fa-solid fa-fire", callback: (ev, btn) => Number(btn.form.elements.n.value) }, rejectClose: false
-  });
+  const pr = new Intl.PluralRules(game.i18n.lang);
+  const n = Number(await wwPick({ title: t("Actions"), icon: "fa-bolt", width: 540,
+    head: wwHead({ glyph: "glyph-rage", kicker: t("Actions"), title: t("ActionsCap", { cap }), sub: t("ActionsFreeSub", { free }) }),
+    lead: t("ActionsLead"),
+    cards: Array.from({ length: cap }, (_, i) => ({ key: String(i + 1), cls: i + 1 > free ? "is-warn" : "", badge: `${i + 1}`,
+      icon: "fa-bolt", title: t(`ActionsN.${pr.select(i + 1)}`, { n: i + 1 }), sub: t("ActionsCost", { n: i + 1 }),
+      note: i + 1 > free ? t("ActionsFast") : "" })) })) || 0;
   if (!n) return;
   await actor.update({ "system.werewolf.rage.value": w.rage.value - n });
   return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<div class="r-notice r-type-werewolf"><i class="fa-solid fa-bolt"></i> ${
@@ -452,11 +557,14 @@ export async function useFetish(actor, i) {
   const x = actor.system.werewolf.fetishes[i], f = fetishOf(x?.key);
   if (!f) return;
   if (f.kind === "fetish" && !x.attuned) return ui.notifications.warn(t("NotAttuned"));
-  const how = await foundry.applications.api.DialogV2.wait({
-    window: { title: f.name, icon: "fa-solid fa-gem" }, classes: ["vtm20", "r-dialog", "r-type-werewolf"], rejectClose: false,
-    content: `<p>${t(f.kind === "talen" ? "UseTalen" : "UseFetish", { g: f.gnosis })}</p>${f.text}`,
-    buttons: [{ action: "roll", label: t("UseRoll"), icon: "fa-solid fa-dice-d10", default: true }, { action: "spend", label: t("UseSpend"), icon: "fa-solid fa-moon" }]
-  });
+  const talen = f.kind === "talen";
+  const how = await wwPick({ title: f.name, icon: "fa-gem", width: 560,
+    head: wwHead({ glyph: "glyph-fetish", kicker: t(talen ? "TalenKicker" : "FetishKicker", { n: f.level ?? "—" }), title: esc(f.name), sub: t("FetishGnosis", { g: f.gnosis }) }),
+    after: `<div class="r-wc-text">${f.text}</div>`,
+    cards: [
+      { key: "roll", icon: "fa-dice-d10", title: t("UseRoll"), sub: `${t("Gnosis")} <b>${actor.system.werewolf.gnosis.value}</b> · ${t("Diff", { n: f.gnosis })}`, note: talen ? t("TalenGone") : "" },
+      { key: "spend", glyph: "glyph-gnosis", title: t("UseSpend"), sub: t("UseSpendSub", { n: actor.system.werewolf.gnosis.value }), disabled: actor.system.werewolf.gnosis.value < 1 }
+    ] });
   if (!how) return;
   const spendTalen = async () => {
     if (f.kind !== "talen") return;
@@ -487,10 +595,22 @@ export async function craftFetish(actor, key) {
   const talen = f.kind === "talen", rite = talen ? "rite-of-binding" : "rite-of-the-fetish", w = actor.system.werewolf;
   const knows = (w.rites ?? []).includes(rite), gn = w.gnosis;
   const max = talen ? gn.value : gn.permanent;
+  const diffOf = k => talen ? Math.max(2, f.gnosis - k) : Math.max(3, 10 - 2 * k);
   const n = await foundry.applications.api.DialogV2.prompt({
-    window: { title: t("CraftTitle", { name: f.name }), icon: "fa-solid fa-gem" }, classes: ["vtm20", "r-dialog", "r-type-werewolf"], rejectClose: false,
-    content: `<p>${t(talen ? "CraftTalenHow" : "CraftFetishHow", { g: f.gnosis })}</p>${knows ? "" : `<p class="r-warn"><i class="fa-solid fa-triangle-exclamation"></i> ${t("CraftNoRite", { rite: riteOf(rite)?.name ?? rite })}</p>`}
-      <label>${t(talen ? "CraftSpendTemp" : "CraftSpendPerm")} <input type="number" name="n" value="0" min="0" max="${max}"></label>`,
+    window: { title: t("CraftTitle", { name: f.name }), icon: "fa-solid fa-gem" }, classes: ["vtm20", "r-dialog", "r-type-werewolf", "r-wc-dlg", "has-foot"], rejectClose: false,
+    position: { width: 540 },
+    content: `<div class="r-wc">${wwHead({ glyph: talen ? "glyph-spirit" : "glyph-fetish", kicker: riteOf(rite)?.name ?? rite, title: esc(f.name), sub: t("FetishGnosis", { g: f.gnosis }) })}
+      <p class="r-wc-lead">${t(talen ? "CraftTalenHow" : "CraftFetishHow", { g: f.gnosis })}</p>
+      ${knows ? "" : `<p class="r-wc-warn"><i class="fa-solid fa-triangle-exclamation"></i> ${t("CraftNoRite", { rite: riteOf(rite)?.name ?? rite })}</p>`}
+      <div class="r-wc-stepper"><span>${wwGlyph("glyph-gnosis")} ${t(talen ? "CraftSpendTemp" : "CraftSpendPerm")}</span>
+        <a data-d="-1">−</a><input type="number" name="n" value="0" min="0" max="${max}"><a data-d="1">+</a>
+        <em>${t("CraftDiff")} <b data-diff>${diffOf(0)}</b></em></div></div>`,
+    render: (ev, dlg) => {
+      const root = dlg.element, inp = root.querySelector("input[name=n]"), out = root.querySelector("[data-diff]");
+      const upd = () => { inp.value = Math.clamp(Number(inp.value) || 0, 0, max); out.textContent = diffOf(Number(inp.value)); };
+      root.querySelectorAll(".r-wc-stepper [data-d]").forEach(a => a.addEventListener("click", () => { inp.value = (Number(inp.value) || 0) + Number(a.dataset.d); upd(); }));
+      inp.addEventListener("input", upd);
+    },
     ok: { label: t("CraftGo"), icon: "fa-solid fa-hand-sparkles", callback: (ev, btn) => Math.clamp(Number(btn.form.elements.n.value) || 0, 0, max) }
   });
   if (n == null) return;
@@ -667,13 +787,13 @@ export const GAUNTLET = [["lab", 9], ["downtown", 8], ["street", 7], ["rural", 6
 /** Шаг в Умбру (W20, гл. 7): Гнозис против Преграды места; успехи — время перехода, провал с единицами — застрял в Преграде. */
 export async function stepSideways(actor, trait = "werewolf.gnosis") {
   const sp = septOf(actor);
-  const opts = (sp ? `<option value="${sp.gauntlet}">${t("GauntletSept", { name: esc(sp.name) })} — ${sp.gauntlet}</option>` : "")
-    + GAUNTLET.map(([k, n]) => `<option value="${n}" ${k === "street" && !sp ? "selected" : ""}>${t(`Gauntlet.${k}`)} — ${n}</option>`).join("");
-  const diff = await foundry.applications.api.DialogV2.prompt({
-    window: { title: t("StepSideways"), icon: "fa-solid fa-moon-over-sun" }, classes: ["vtm20", "r-dialog", "r-type-werewolf"], rejectClose: false,
-    content: `<p>${t("GauntletAsk")}</p><select name="g">${opts}</select><p class="r-hint">${t("GauntletTimes")}</p>`,
-    ok: { label: t("StepGo"), icon: "fa-solid fa-moon", callback: (ev, btn) => Number(btn.form.elements.g.value) }
-  });
+  const places = [...(sp ? [{ key: String(sp.gauntlet), icon: "fa-campground", title: t("GauntletSept", { name: esc(sp.name) }), badge: sp.gauntlet, cls: "is-sept" }] : []),
+    ...GAUNTLET.map(([k, n]) => ({ key: String(n), icon: /aern/i.test(k) ? "fa-tree" : k === "lab" ? "fa-flask" : k === "downtown" ? "fa-city" : k === "street" ? "fa-road" : k === "rural" ? "fa-wheat-awn" : "fa-mountain-sun",
+      title: t(`Gauntlet.${k}`), badge: n }))];
+  const diff = Number(await wwPick({ title: t("StepSideways"), icon: "fa-moon", width: 700, cls: "r-wc-grid",
+    head: wwHead({ glyph: "glyph-umbra", kicker: t("StepSideways"), title: t("GauntletPick"), sub: t("GauntletSub", { n: `<b>${actor.traitValue(trait) ?? 0}</b>` }) }),
+    lead: t("GauntletTimes"),
+    cards: places })) || 0;
   if (!diff) return;
   // Стратегия города: фишки в секторе с каэрном — Преграда −1 за каждые 2 (не больше −2, не ниже 2)
   const { perkBonus } = await import("../ui/strategy.mjs");
@@ -791,12 +911,28 @@ export async function removeRite(actor, key) {
 /** Окно приёмов: описание каждого и бросок по пулу из книги (у частичного превращения сложность — на усмотрение Рассказчика). */
 export async function primalUses(actor) {
   const list = W().primalUses ?? [];
-  const key = await foundry.applications.api.DialogV2.wait({
-    window: { title: t("Primal.title"), icon: "fa-solid fa-paw" }, classes: ["vtm20", "r-dialog", "r-type-werewolf"],
-    content: `<div class="r-primal">${list.map(u => `<details><summary><b>${esc(u.name)}</b>${u.roll ? ` <small>${esc(poolLabel(actor, u.roll))}${u.roll.byTarget ? "" : ` · ${t("Primal.diff", { n: u.roll.difficulty })}`}</small>` : ""}</summary>${u.text}</details>`).join("")}</div>`,
-    buttons: list.filter(u => u.roll).map(u => ({ action: u.key, label: u.name })), rejectClose: false });
-  const u = list.find(x => x.key === key);
-  if (u?.roll) return RollDialog.prompt(actor, { title: u.name, trait1: u.roll.trait1, trait2: u.roll.trait2, difficulty: u.roll.difficulty });
+  let picked = null;
+  const item = u => `<article class="r-pu">
+      <header><b>${esc(u.name)}</b>
+        ${u.roll ? `<span class="r-pu-pool">${poolNums(actor, u.roll.trait1, u.roll.trait2)}</span><span class="r-pu-diff">${u.roll.byTarget ? t("DiffByTarget") : t("Diff", { n: u.roll.difficulty })}</span>
+        <button type="button" class="r-pu-roll" data-roll="${esc(u.key)}"><i class="fa-solid fa-dice-d10"></i> ${t("RollShort")}</button>` : ""}</header>
+      <div class="r-pu-text">${u.text}</div></article>`;
+  const pu = actor.system.abilities.primalUrge?.value ?? 0;
+  await foundry.applications.api.DialogV2.wait({
+    window: { title: t("Primal.title"), icon: "fa-solid fa-paw" }, classes: ["vtm20", "r-dialog", "r-type-werewolf", "r-wc-dlg", "r-pu-dlg"],
+    position: { width: 680, height: 700 }, rejectClose: false,
+    content: `<div class="r-wc">${wwHead({ glyph: "glyph-wyld", kicker: t("Primal.title"), title: `${"●".repeat(pu)}${"○".repeat(Math.max(0, 5 - pu))}`, sub: t("Primal.hint") })}
+      <div class="r-pu-list">${list.map(item).join("")}</div></div>`,
+    buttons: [{ action: "cancel", label: game.i18n.localize("Cancel") }],
+    render: (ev, dlg) => {
+      dlg.element.querySelectorAll("[data-roll]").forEach(b => b.addEventListener("click", () => { picked = b.dataset.roll; dlg.close(); }));
+      // длинное описание свёрнуто в три строки — щелчок раскрывает
+      dlg.element.querySelectorAll(".r-pu-text").forEach(el => el.addEventListener("click", () => el.classList.toggle("is-open")));
+    }
+  });
+  const u = list.find(x => x.key === picked);
+  if (u?.roll) return RollDialog.prompt(actor, { title: u.name, trait1: u.roll.trait1, trait2: u.roll.trait2, difficulty: u.roll.difficulty,
+    diffNote: u.roll.byTarget ? t("DiffByTargetNote") : "" });
 }
 
 /* ── Фоморы (W20, гл. 13; Book of the Wyrm, гл. 2): люди и звери, одержимые Бейнами ── */

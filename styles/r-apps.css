@@ -1180,6 +1180,9 @@ body.r-theme-light .vtm20 .r-ng-concept { color: #7a4f1d; }
 .vtm20 .r-cr-giftslot .r-cr-edge small { color: var(--r-muted); font-size: 11.5px; }
 .vtm20 .r-cr-giftextra { max-height: 280px; overflow-y: auto; }
 .vtm20 .r-cr-garou-base { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-top: 10px; }
+/* в узкой колонке Славы: три числа без минимальной ширины и с короткой разрядкой — не вылезают за карточку */
+.vtm20 .r-cr-garou-base .r-cr-sum-item { min-width: 0; padding: 8px 4px; }
+.vtm20 .r-cr-garou-base .r-cr-sum-item span { letter-spacing: 1px; font-size: 10.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
 
 /* Вера против падших (apps/exorcist.mjs) */
 .vtm20.r-exorcist .window-content { padding: 12px 14px 14px; }

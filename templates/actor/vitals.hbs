@@ -138,6 +138,26 @@
       {{#if werewolfInfo.beast}}<span class="r-vc-hint is-right is-warn" data-tooltip="{{localize 'VTM20.Werewolf.BeastHint' n=werewolfInfo.beast}}"><i class="fa-solid fa-paw-claws"></i> −{{werewolfInfo.beast}}</span>{{/if}}
     </div>
   </div>
+  {{!-- Ранг и Слава (W20, гл. 4): медальон Ранга (щелчок — окно «Слава и Ранг») и три Славы — кружки постоянной, квадратики временной --}}
+  <div class="r-ww-renown">
+    <a class="r-ww-rankmedal {{#if werewolfInfo.canRank}}is-ready{{/if}}" {{#if editable}}data-action="wwStanding"{{/if}}
+       data-tooltip="{{localize 'VTM20.Werewolf.RenownRank'}}{{#if werewolfInfo.nextRank}}<br>{{localize 'VTM20.Werewolf.NextRank'}}: {{werewolfInfo.nextRank}}{{/if}}">
+      <span class="r-ww-rm-disc"><b>{{#if werewolfInfo.rank}}{{rRoman werewolfInfo.rank}}{{else}}0{{/if}}</b></span>
+      <span class="r-ww-rm-text"><small>{{localize "VTM20.Werewolf.Rank"}}</small><em>{{#if werewolfInfo.rankName}}{{werewolfInfo.rankName}}{{else}}—{{/if}}</em></span>
+    </a>
+    {{#each werewolfInfo.renown}}
+    <div class="r-vcard r-vc-renown is-{{key}}">
+      <div class="r-vc-head">
+        <h4 class="r-banner">{{label}}</h4>
+        <div class="r-vc-status" data-tooltip="{{localize 'VTM20.Werewolf.RenownStatusTip'}}">{{#if ready}}<i class="fa-solid fa-medal r-ww-ready"></i> {{/if}}<b>{{perm}}</b> / {{temp}}</div>
+      </div>
+      {{> rDots dots=dots cls="is-ten is-renown"}}
+      <div class="r-boxes is-renown">
+        {{#each tempDots}}<a class="r-box {{#if filled}}is-filled{{/if}}" data-action="setDots" data-path="{{path}}" data-n="{{n}}"></a>{{/each}}
+      </div>
+    </div>
+    {{/each}}
+  </div>
   {{else if spiritInfo}}
   {{!-- Дух Умбры (W20, гл. 7): Воля — вместо Ловкости и Стойкости, Ярость — вместо Силы, Гнозис — вместо Социальных и Умственных;
        Эссенция — «здоровье» и топливо Чар. Общие Чары есть у всех духов. --}}

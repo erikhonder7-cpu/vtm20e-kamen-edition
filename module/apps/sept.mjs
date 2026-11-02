@@ -5,12 +5,16 @@
 
 import { SYSTEM_ID } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
+import { wwGlyph, wwHead } from "./werewolf.mjs";
 
 const { ApplicationV2 } = foundry.applications.api;
 const t = (k, d) => d ? game.i18n.format(`VTM20.Sept.${k}`, d) : game.i18n.localize(`VTM20.Sept.${k}`);
 const esc = s => foundry.utils.escapeHTML(String(s ?? ""));
 const ROMAN = ["", "I", "II", "III", "IV", "V"];
 const D = () => Codex.werewolf?.sept ?? { standing: [], positions: [], caerns: [] };
+/** Тотемы, для которых есть глиф (assets/werewolf/totem-*.png); ключ справочника «grandfather-thunder» → grandfatherThunder. */
+const TOTEM_GLYPHS = new Set(["chimera", "cockroach", "falcon", "fenris", "grandfatherThunder", "griffin", "owl", "pegasus", "rat", "stag", "uktena", "unicorn", "wendigo"]);
+const totemGlyph = key => { const k = String(key ?? "").replace(/-(\w)/g, (m, c) => c.toUpperCase()); return TOTEM_GLYPHS.has(k) ? `totem-${k}` : "glyph-totem"; };
 
 export function registerSepts() {
   game.settings.register(SYSTEM_ID, "septs", { scope: "world", config: false, type: Array, default: [],
@@ -73,36 +77,46 @@ class SeptWindow extends ApplicationV2 {
     const list = this.#visible(), gm = game.user.isGM;
     if (!list.some(s => s.id === this.current)) this.current = list[0]?.id ?? null;
     const s = list.find(x => x.id === this.current), d = D();
-    const side = `<aside class="r-sept-side"><h3>${t("List")}</h3>${list.map(x => `<a class="${x.id === this.current ? "on" : ""}" data-action="pick" data-id="${x.id}"><i class="fa-solid fa-campground"></i> ${esc(x.name)}</a>`).join("") || `<p class="r-hint">${t("None")}</p>`}
-      ${gm ? `<a class="r-btn" data-action="create"><i class="fa-solid fa-plus"></i> ${t("New")}</a>` : ""}<p class="r-hint">${t("Rule")}</p></aside>`;
-    if (!s) return `<div class="r-sept">${side}<main><p class="r-hint">${t(gm ? "EmptyGM" : "EmptyPlayer")}</p></main></div>`;
+    const side = `<aside class="r-sept-side"><h4 class="r-um-group">${wwGlyph("glyph-moot")}<span>${t("List")}</span></h4>
+      <div class="r-sept-list">${list.map(x => `<a class="${x.id === this.current ? "is-on" : ""}" data-action="pick" data-id="${x.id}"><span>${esc(x.name)}<small>${esc(x.caern?.name || "")}</small></span></a>`).join("")
+        || `<p class="r-sept-none">${t("None")}</p>`}</div>
+      ${gm ? `<a class="r-btn" data-action="create"><i class="fa-solid fa-plus"></i> ${t("New")}</a>` : ""}<p class="r-sept-rule">${t("Rule")}</p></aside>`;
+    if (!s) return `<div class="r-sept">${side}<main><div class="r-sept-empty"><span class="r-wh-sigil">${wwGlyph("glyph-caern")}</span>
+      <b>${t("Title")}</b><p>${t(gm ? "EmptyGM" : "EmptyPlayer")}</p>${gm ? `<a class="r-btn is-primary" data-action="create"><i class="fa-solid fa-plus"></i> ${t("New")}</a>` : ""}</div></main></div>`;
     const members = (s.members ?? []).map(id => game.actors.get(id)).filter(Boolean);
     const rating = s.caern?.rating ?? 1, ct = d.caerns.find(c => c.key === s.caern?.type);
     const dis = gm ? "" : "disabled";
     const totems = Codex.werewolf?.totems ?? [], tot = totems.find(x => x.key === s.totem);
-    const dots = (id, n) => `<span class="r-sept-dots">${[1, 2, 3, 4, 5].map(i => `<a class="${i <= n ? "on" : ""}" ${gm ? `data-action="stand" data-actor="${id}" data-n="${i}"` : ""}></a>`).join("")}</span>`;
+    // Положение в септе — точками, как черты на листе (щелчок по последней — на точку меньше)
+    const dots = (id, n) => `<span class="r-dots is-sept">${[1, 2, 3, 4, 5].map(i => `<a class="r-dot ${i <= n ? "is-filled" : ""}" ${gm ? `data-action="stand" data-actor="${id}" data-n="${i}"` : ""}></a>`).join("")}</span>`;
     const stName = n => d.standing.find(x => x.n === n)?.name ?? "";
     const holder = k => game.actors.get(s.positions?.[k] ?? "");
-    const pos = d.positions.map(p => `<tr><td><b>${esc(p.name)}</b><br><small>${p.duty}</small></td><td>${"•".repeat(p.need)}</td><td><small>${p.bonus}</small></td>
+    const pos = d.positions.map(p => `<tr><td><b>${esc(p.name)}</b><small>${p.duty}</small></td><td class="r-sept-need">${"●".repeat(p.need)}</td><td><small>${p.bonus}</small></td>
       <td>${gm ? `<select data-f="pos.${p.key}"><option value="">—</option>${members.map(a => `<option value="${a.id}" ${s.positions?.[p.key] === a.id ? "selected" : ""}>${esc(a.name)}${(s.standing?.[a.id] ?? 0) < p.need ? " ⚠" : ""}</option>`).join("")}</select>` : esc(holder(p.key)?.name ?? "—")}</td></tr>`).join("");
     const cands = game.actors.filter(a => (a.type === "werewolf" || a.system.kinfolk?.on) && !(s.members ?? []).includes(a.id));
+    const card = (title, status, body) => `<section class="r-vcard r-sept-card"><div class="r-vc-head"><h4 class="r-banner">${title}</h4>${status ? `<div class="r-vc-status">${status}</div>` : ""}</div>${body}</section>`;
+    const head = wwHead({ glyph: "glyph-moot", kicker: t("Kicker"), title: gm ? `<input type="text" class="r-sept-name" data-f="name" value="${esc(s.name)}">` : esc(s.name),
+      sub: esc([s.caern?.name, ct?.name].filter(Boolean).join(" · ")) });
     return `<div class="r-sept">${side}<main>
-      <header class="r-sept-head">${gm ? `<input type="text" data-f="name" value="${esc(s.name)}">` : `<h2>${esc(s.name)}</h2>`}${gm ? `<a class="r-icon-btn is-danger" data-action="remove"><i class="fa-solid fa-trash"></i></a>` : ""}</header>
-      <section class="r-sept-caern"><h3><i class="fa-solid fa-mountain-sun"></i> ${t("Caern")}</h3>
-        <div class="r-sept-row"><label>${t("CaernName")}<input type="text" data-f="caern.name" value="${esc(s.caern?.name ?? "")}" ${dis}></label>
-          <label>${t("Rating")}<select data-f="caern.rating" ${dis}>${[1, 2, 3, 4, 5].map(n => `<option value="${n}" ${n === rating ? "selected" : ""}>${ROMAN[n]}</option>`).join("")}</select></label>
-          <label>${t("CaernType")}<select data-f="caern.type" ${dis}><option value="">—</option>${d.caerns.map(c => `<option value="${c.key}" ${c.key === s.caern?.type ? "selected" : ""}>${esc(c.name)}</option>`).join("")}</select></label></div>
-        <p class="r-sept-facts"><span><i class="fa-solid fa-door-open"></i> ${t("Gauntlet", { n: caernGauntlet(rating) })}</span><span><i class="fa-solid fa-bridge"></i> ${t("Bridge", { n: bridgeKm(rating).toLocaleString(game.i18n.lang) })}</span>
-          ${ct ? `<span><i class="fa-solid fa-gift"></i> ${ct.gives}</span><span><i class="fa-solid fa-ghost"></i> ${ct.spirits}</span>` : ""}</p></section>
-      <section><h3><i class="fa-solid fa-feather-pointed"></i> ${t("Totem")}</h3>
-        <select data-f="totem" ${dis}><option value="">—</option>${totems.map(x => `<option value="${x.key}" ${x.key === s.totem ? "selected" : ""}>${esc(x.name)} (${esc(x.cat)})</option>`).join("")}</select>
-        ${tot ? `<p class="r-hint">${[tot.individual, tot.pack, tot.text].filter(Boolean).join(" · ")}${tot.ban ? ` <span class="r-sept-ban">${tot.ban}</span>` : ""}</p><p class="r-hint">${t("TotemRule")}</p>` : ""}</section>
-      <section><h3><i class="fa-solid fa-users"></i> ${t("Members")}</h3>
-        <ul class="r-sept-members">${members.map(a => `<li><a data-action="sheet" data-actor="${a.id}"><img src="${esc(a.img)}"> ${esc(a.name)}</a>${dots(a.id, s.standing?.[a.id] ?? 0)}<small>${esc(stName(s.standing?.[a.id] ?? 0))}</small>
-          ${gm ? `<a class="r-icon-btn is-danger" data-action="dropMember" data-actor="${a.id}"><i class="fa-solid fa-xmark"></i></a>` : ""}</li>`).join("") || `<li class="r-hint">${t("NoMembers")}</li>`}</ul>
-        ${gm && cands.length ? `<div class="r-sept-row"><select class="r-sept-cand">${cands.map(a => `<option value="${a.id}">${esc(a.name)}</option>`).join("")}</select><a class="r-btn" data-action="addMember"><i class="fa-solid fa-plus"></i> ${t("AddMember")}</a></div>` : ""}
-        <p class="r-hint">${t("StandingRule")}</p></section>
-      <section><h3><i class="fa-solid fa-crown"></i> ${t("Positions")}</h3><table class="r-sept-pos"><thead><tr><th>${t("Position")}</th><th>${t("Need")}</th><th>${t("Bonus")}</th><th>${t("Holder")}</th></tr></thead><tbody>${pos}</tbody></table></section>
+      <div class="r-sept-top">${head}${gm ? `<a class="r-sept-del" data-action="remove" data-tooltip="${esc(t("Remove"))}"><i class="fa-solid fa-trash"></i></a>` : ""}</div>
+      <div class="r-sept-grid">
+        ${card(t("Caern"), `<b>${ROMAN[rating]}</b>`, `
+          <div class="r-sept-row"><label class="r-f"><span>${t("CaernName")}</span><input type="text" data-f="caern.name" value="${esc(s.caern?.name ?? "")}" ${dis}></label>
+            <label class="r-f is-narrow"><span>${t("Rating")}</span><select data-f="caern.rating" ${dis}>${[1, 2, 3, 4, 5].map(n => `<option value="${n}" ${n === rating ? "selected" : ""}>${ROMAN[n]}</option>`).join("")}</select></label>
+            <label class="r-f"><span>${t("CaernType")}</span><select data-f="caern.type" ${dis}><option value="">—</option>${d.caerns.map(c => `<option value="${c.key}" ${c.key === s.caern?.type ? "selected" : ""}>${esc(c.name)}</option>`).join("")}</select></label></div>
+          <ul class="r-sept-facts"><li>${wwGlyph("glyph-umbra")} ${t("Gauntlet", { n: caernGauntlet(rating) })}</li><li>${wwGlyph("glyph-moonBridge")} ${t("Bridge", { n: bridgeKm(rating).toLocaleString(game.i18n.lang) })}</li>
+            ${ct ? `<li>${wwGlyph("glyph-gaia")} ${ct.gives}</li><li>${wwGlyph("glyph-spirit")} ${ct.spirits}</li>` : ""}</ul>`)}
+        ${card(t("Totem"), "", `
+          <div class="r-sept-totem"><span class="r-sept-totem-sym">${wwGlyph(totemGlyph(s.totem))}</span>
+            <select data-f="totem" ${dis}><option value="">—</option>${totems.map(x => `<option value="${x.key}" ${x.key === s.totem ? "selected" : ""}>${esc(x.name)} (${esc(x.cat)})</option>`).join("")}</select></div>
+          ${tot ? `<p class="r-sept-text">${[tot.individual, tot.pack, tot.text].filter(Boolean).join(" · ")}${tot.ban ? ` <span class="r-sept-ban">${tot.ban}</span>` : ""}</p><p class="r-sept-rule">${t("TotemRule")}</p>` : ""}`)}
+      </div>
+      ${card(t("Members"), `<b>${members.length}</b>`, `
+        <ul class="r-sept-members">${members.map(a => `<li><a class="r-sept-who" data-action="sheet" data-actor="${a.id}"><img src="${esc(a.img)}" alt=""> ${esc(a.name)}</a>${dots(a.id, s.standing?.[a.id] ?? 0)}<small>${esc(stName(s.standing?.[a.id] ?? 0))}</small>
+          ${gm ? `<a class="r-sept-drop" data-action="dropMember" data-actor="${a.id}" data-tooltip="${esc(t("DropMember"))}"><i class="fa-solid fa-xmark"></i></a>` : ""}</li>`).join("") || `<li class="r-sept-none">${t("NoMembers")}</li>`}</ul>
+        ${gm && cands.length ? `<div class="r-sept-add"><select class="r-sept-cand">${cands.map(a => `<option value="${a.id}">${esc(a.name)}</option>`).join("")}</select><a class="r-btn" data-action="addMember"><i class="fa-solid fa-plus"></i> ${t("AddMember")}</a></div>` : ""}
+        <p class="r-sept-rule">${t("StandingRule")}</p>`)}
+      ${card(t("Positions"), "", `<table class="r-sept-pos"><thead><tr><th>${t("Position")}</th><th>${t("Need")}</th><th>${t("Bonus")}</th><th>${t("Holder")}</th></tr></thead><tbody>${pos}</tbody></table>`)}
     </main></div>`;
   }
 

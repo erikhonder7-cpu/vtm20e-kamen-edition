@@ -468,7 +468,7 @@
      "kind": "fera",
      "key": "ajaba",
      "sub": "breed:hyaenid",
-     "label": "Аджаба: Гиенид (как у лупусов)"
+     "label": "Аджаба: Гиенид"
     }
    ],
    "teacher": "дух волка",
@@ -599,6 +599,12 @@
      "key": "ajaba",
      "sub": "aspect:dawn",
      "label": "Аджаба: Рассвет"
+    },
+    {
+     "kind": "fera",
+     "key": "bastet",
+     "sub": "",
+     "label": "Бастет: Общие Дары"
     },
     {
      "kind": "fera",
@@ -824,6 +830,12 @@
     {
      "kind": "tribe",
      "key": "fianna"
+    },
+    {
+     "kind": "fera",
+     "key": "nuwisha",
+     "sub": "",
+     "label": "Нувиша: Дары"
     }
    ],
    "teacher": "дух предков",
@@ -911,7 +923,7 @@
      "kind": "fera",
      "key": "ananasi",
      "sub": "aspect:kumoti",
-     "label": "Ананаси: Кумоти (Wyld)"
+     "label": "Ананаси: Кумоти"
     }
    ],
    "teacher": "слуга Пегаса",
@@ -973,6 +985,12 @@
     },
     {
      "kind": "fera",
+     "key": "corax",
+     "sub": "",
+     "label": "Корвы: Дары"
+    },
+    {
+     "kind": "fera",
      "key": "gurahl",
      "sub": "aspect:kojubat",
      "label": "Гурахл: Аугурий — Кожубат"
@@ -1011,6 +1029,12 @@
      "key": "bastet",
      "sub": "tribe:balam",
      "label": "Бастет: Племён — Балам"
+    },
+    {
+     "kind": "fera",
+     "key": "nuwisha",
+     "sub": "",
+     "label": "Нувиша: Дары"
     }
    ],
    "teacher": "духи насекомых",
@@ -1182,6 +1206,12 @@
      "key": "bastet",
      "sub": "tribe:qualmi",
      "label": "Бастет: Племён — Куалми"
+    },
+    {
+     "kind": "fera",
+     "key": "nuwisha",
+     "sub": "",
+     "label": "Нувиша: Дары"
     }
    ],
    "teacher": "дух оленя",
@@ -1215,7 +1245,13 @@
      "kind": "fera",
      "key": "ananasi",
      "sub": "aspect:kumoti",
-     "label": "Ананаси: Кумоти (Wyld)"
+     "label": "Ананаси: Кумоти"
+    },
+    {
+     "kind": "fera",
+     "key": "bastet",
+     "sub": "",
+     "label": "Бастет: Общие Дары"
     },
     {
      "kind": "fera",
@@ -1317,6 +1353,12 @@
     {
      "kind": "tribe",
      "key": "blackFuries"
+    },
+    {
+     "kind": "fera",
+     "key": "ajaba",
+     "sub": "",
+     "label": "Аджаба: Общего списка"
     }
    ],
    "teacher": "дух предков или морского конька",
@@ -1688,13 +1730,13 @@
      "kind": "fera",
      "key": "ajaba",
      "sub": "breed:hyaenid",
-     "label": "Аджаба: Гиенид (как у лупусов)"
+     "label": "Аджаба: Гиенид"
     },
     {
      "kind": "fera",
      "key": "bastet",
      "sub": "breed:feline",
-     "label": "Бастет: Кошек (фелайн)"
+     "label": "Бастет: Кошек"
     },
     {
      "kind": "fera",
@@ -2130,6 +2172,12 @@
     },
     {
      "kind": "fera",
+     "key": "corax",
+     "sub": "",
+     "label": "Корвы: Дары"
+    },
+    {
+     "kind": "fera",
      "key": "gurahl",
      "sub": "aspect:kieh",
      "label": "Гурахл: Аугурий — Киех"
@@ -2145,6 +2193,12 @@
      "key": "mokole",
      "sub": "aspect:shrouded",
      "label": "Мокол: Затенённого Солнца"
+    },
+    {
+     "kind": "fera",
+     "key": "nuwisha",
+     "sub": "",
+     "label": "Нувиша: Дары"
     },
     {
      "kind": "fera",
@@ -2495,6 +2549,12 @@
      "key": "ajaba",
      "sub": "aspect:midnight",
      "label": "Аджаба: Полуночи"
+    },
+    {
+     "kind": "fera",
+     "key": "corax",
+     "sub": "",
+     "label": "Корвы: Дары"
     },
     {
      "kind": "fera",
@@ -3160,7 +3220,7 @@
      "kind": "fera",
      "key": "ananasi",
      "sub": "aspect:hatar",
-     "label": "Ананаси: Хатар (Wyrm)"
+     "label": "Ананаси: Хатар"
     }
    ],
    "teacher": "любой дух‑слуга Геи",
@@ -3241,7 +3301,7 @@
      "kind": "fera",
      "key": "ananasi",
      "sub": "faction:myrmidon",
-     "label": "Ананаси: Мирмидонов (Warriors)"
+     "label": "Ананаси: Мирмидонов"
     },
     {
      "kind": "fera",
@@ -3738,6 +3798,12 @@
     {
      "kind": "auspice",
      "key": "ragabash"
+    },
+    {
+     "kind": "fera",
+     "key": "corax",
+     "sub": "",
+     "label": "Корвы: Дары"
     }
    ],
    "teacher": "духи паука и ворона",
@@ -3923,6 +3989,12 @@
     {
      "kind": "breed",
      "key": "metis"
+    },
+    {
+     "kind": "fera",
+     "key": "ajaba",
+     "sub": "",
+     "label": "Аджаба: Общего списка"
     }
    ],
    "teacher": "дух ненависти",
@@ -4028,6 +4100,12 @@
     {
      "kind": "tribe",
      "key": "silentStriders"
+    },
+    {
+     "kind": "fera",
+     "key": "corax",
+     "sub": "",
+     "label": "Корвы: Дары"
     }
    ],
    "teacher": "дух предков",
@@ -4752,7 +4830,7 @@
      "kind": "fera",
      "key": "ananasi",
      "sub": "aspect:tenere",
-     "label": "Ананаси: Тенере (Weaver)"
+     "label": "Ананаси: Тенере"
     },
     {
      "kind": "fera",
@@ -4872,6 +4950,12 @@
     {
      "kind": "tribe",
      "key": "boneGnawers"
+    },
+    {
+     "kind": "fera",
+     "key": "nuwisha",
+     "sub": "",
+     "label": "Нувиша: Дары"
     }
    ],
    "teacher": "дух термита",
@@ -5102,7 +5186,7 @@
      "kind": "fera",
      "key": "bastet",
      "sub": "breed:feline",
-     "label": "Бастет: Кошек (фелайн)"
+     "label": "Бастет: Кошек"
     },
     {
      "kind": "fera",
@@ -6176,7 +6260,7 @@
      "kind": "fera",
      "key": "ananasi",
      "sub": "faction:myrmidon",
-     "label": "Ананаси: Мирмидонов (Warriors)"
+     "label": "Ананаси: Мирмидонов"
     },
     {
      "kind": "fera",
@@ -6896,7 +6980,7 @@
      "kind": "fera",
      "key": "bastet",
      "sub": "breed:feline",
-     "label": "Бастет: Кошек (фелайн)"
+     "label": "Бастет: Кошек"
     }
    ],
    "teacher": "любой дух животного (лупусы предпочитают льва и волка)",
@@ -7105,6 +7189,12 @@
     },
     {
      "kind": "fera",
+     "key": "ananasi",
+     "sub": "faction:viskr",
+     "label": "Ананаси: Вискров"
+    },
+    {
+     "kind": "fera",
      "key": "gurahl",
      "sub": "breed:homid",
      "label": "Гурахл: Хомидов"
@@ -7247,7 +7337,13 @@
      "kind": "fera",
      "key": "ananasi",
      "sub": "faction:viskr",
-     "label": "Ананаси: Вискров (Wizards)"
+     "label": "Ананаси: Вискров"
+    },
+    {
+     "kind": "fera",
+     "key": "corax",
+     "sub": "",
+     "label": "Корвы: Дары"
     },
     {
      "kind": "fera",
@@ -7795,7 +7891,7 @@
      "kind": "fera",
      "key": "ananasi",
      "sub": "faction:myrmidon",
-     "label": "Ананаси: Мирмидонов (Warriors)"
+     "label": "Ананаси: Мирмидонов"
     },
     {
      "kind": "fera",
@@ -8113,13 +8209,19 @@
      "kind": "fera",
      "key": "ananasi",
      "sub": "aspect:kumoti",
-     "label": "Ананаси: Кумоти (Wyld)"
+     "label": "Ананаси: Кумоти"
     },
     {
      "kind": "fera",
      "key": "kitsune",
      "sub": "aspect:kataribe",
      "label": "Китсунэ: Путей — Кататибэ"
+    },
+    {
+     "kind": "fera",
+     "key": "nuwisha",
+     "sub": "",
+     "label": "Нувиша: Дары"
     }
    ],
    "teacher": "духи предков",
@@ -8294,7 +8396,13 @@
      "kind": "fera",
      "key": "ananasi",
      "sub": "aspect:tenere",
-     "label": "Ананаси: Тенере (Weaver)"
+     "label": "Ананаси: Тенере"
+    },
+    {
+     "kind": "fera",
+     "key": "corax",
+     "sub": "",
+     "label": "Корвы: Дары"
     }
    ],
    "teacher": "дух сороки",
@@ -9125,6 +9233,12 @@
     {
      "kind": "auspice",
      "key": "ahroun"
+    },
+    {
+     "kind": "fera",
+     "key": "corax",
+     "sub": "",
+     "label": "Корвы: Дары"
     },
     {
      "kind": "fera",
@@ -11593,7 +11707,7 @@
    "teacher": "",
    "roll": null,
    "cost": {},
-   "text": "<p>Воля после попадания укусом, кусающий замок: каждый ход автоматически 1 неотражаемый губительный, не может делать ничего иного; атаки на неё вблизи −2 к сложности; освободить может только смерть; Проклятие ненависти (метисы); Смена пола — «Кожа мужчины» Чёрных Фурий</p>",
+   "text": "<p>Воля после попадания укусом, кусающий замок: каждый ход автоматически 1 неотражаемый губительный, не может делать ничего иного; атаки на неё вблизи −2 к сложности; освободить может только смерть</p>",
    "source": "W20 Changing Breeds"
   },
   {
@@ -11631,7 +11745,7 @@
    "teacher": "",
    "roll": null,
    "cost": {},
-   "text": "<p>учит дух стервятника; если противник, ещё не раненый Аджаба за сцену, атакует её и не наносит ни одного уровня урона — теряет 1 Волю и 1 Ярость; Глодание (лупусы)</p>",
+   "text": "<p>учит дух стервятника; если противник, ещё не раненый Аджаба за сцену, атакует её и не наносит ни одного уровня урона — теряет 1 Волю и 1 Ярость</p>",
    "source": "W20 Changing Breeds"
   },
   {
@@ -12125,7 +12239,7 @@
      "kind": "fera",
      "key": "ananasi",
      "sub": "aspect:tenere",
-     "label": "Ананаси: Тенере (Weaver)"
+     "label": "Ананаси: Тенере"
     }
    ],
    "teacher": "",
@@ -12144,7 +12258,7 @@
      "kind": "fera",
      "key": "ananasi",
      "sub": "aspect:tenere",
-     "label": "Ананаси: Тенере (Weaver)"
+     "label": "Ананаси: Тенере"
     }
    ],
    "teacher": "",
@@ -12163,7 +12277,7 @@
      "kind": "fera",
      "key": "ananasi",
      "sub": "aspect:tenere",
-     "label": "Ананаси: Тенере (Weaver)"
+     "label": "Ананаси: Тенере"
     }
    ],
    "teacher": "",
@@ -12182,7 +12296,7 @@
      "kind": "fera",
      "key": "ananasi",
      "sub": "aspect:tenere",
-     "label": "Ананаси: Тенере (Weaver)"
+     "label": "Ананаси: Тенере"
     }
    ],
    "teacher": "",
@@ -12201,7 +12315,7 @@
      "kind": "fera",
      "key": "ananasi",
      "sub": "aspect:tenere",
-     "label": "Ананаси: Тенере (Weaver)"
+     "label": "Ананаси: Тенере"
     }
    ],
    "teacher": "",
@@ -12220,7 +12334,7 @@
      "kind": "fera",
      "key": "ananasi",
      "sub": "aspect:hatar",
-     "label": "Ананаси: Хатар (Wyrm)"
+     "label": "Ананаси: Хатар"
     }
    ],
    "teacher": "",
@@ -12239,7 +12353,7 @@
      "kind": "fera",
      "key": "ananasi",
      "sub": "aspect:hatar",
-     "label": "Ананаси: Хатар (Wyrm)"
+     "label": "Ананаси: Хатар"
     }
    ],
    "teacher": "",
@@ -12258,7 +12372,7 @@
      "kind": "fera",
      "key": "ananasi",
      "sub": "aspect:hatar",
-     "label": "Ананаси: Хатар (Wyrm)"
+     "label": "Ананаси: Хатар"
     }
    ],
    "teacher": "",
@@ -12277,7 +12391,7 @@
      "kind": "fera",
      "key": "ananasi",
      "sub": "aspect:hatar",
-     "label": "Ананаси: Хатар (Wyrm)"
+     "label": "Ананаси: Хатар"
     }
    ],
    "teacher": "",
@@ -12296,7 +12410,7 @@
      "kind": "fera",
      "key": "ananasi",
      "sub": "aspect:hatar",
-     "label": "Ананаси: Хатар (Wyrm)"
+     "label": "Ананаси: Хатар"
     }
    ],
    "teacher": "",
@@ -12315,7 +12429,7 @@
      "kind": "fera",
      "key": "ananasi",
      "sub": "aspect:hatar",
-     "label": "Ананаси: Хатар (Wyrm)"
+     "label": "Ананаси: Хатар"
     }
    ],
    "teacher": "",
@@ -12334,7 +12448,7 @@
      "kind": "fera",
      "key": "ananasi",
      "sub": "aspect:hatar",
-     "label": "Ананаси: Хатар (Wyrm)"
+     "label": "Ананаси: Хатар"
     }
    ],
    "teacher": "",
@@ -12353,7 +12467,7 @@
      "kind": "fera",
      "key": "ananasi",
      "sub": "aspect:kumoti",
-     "label": "Ананаси: Кумоти (Wyld)"
+     "label": "Ананаси: Кумоти"
     }
    ],
    "teacher": "",
@@ -12372,7 +12486,7 @@
      "kind": "fera",
      "key": "ananasi",
      "sub": "aspect:kumoti",
-     "label": "Ананаси: Кумоти (Wyld)"
+     "label": "Ананаси: Кумоти"
     }
    ],
    "teacher": "",
@@ -12391,7 +12505,7 @@
      "kind": "fera",
      "key": "ananasi",
      "sub": "faction:myrmidon",
-     "label": "Ананаси: Мирмидонов (Warriors)"
+     "label": "Ананаси: Мирмидонов"
     }
    ],
    "teacher": "",
@@ -12410,7 +12524,7 @@
      "kind": "fera",
      "key": "ananasi",
      "sub": "faction:myrmidon",
-     "label": "Ананаси: Мирмидонов (Warriors)"
+     "label": "Ананаси: Мирмидонов"
     }
    ],
    "teacher": "",
@@ -12429,7 +12543,7 @@
      "kind": "fera",
      "key": "ananasi",
      "sub": "faction:viskr",
-     "label": "Ананаси: Вискров (Wizards)"
+     "label": "Ананаси: Вискров"
     }
    ],
    "teacher": "",
@@ -12448,7 +12562,7 @@
      "kind": "fera",
      "key": "ananasi",
      "sub": "faction:viskr",
-     "label": "Ананаси: Вискров (Wizards)"
+     "label": "Ананаси: Вискров"
     }
    ],
    "teacher": "",
@@ -12467,13 +12581,13 @@
      "kind": "fera",
      "key": "ananasi",
      "sub": "faction:viskr",
-     "label": "Ананаси: Вискров (Wizards)"
+     "label": "Ананаси: Вискров"
     }
    ],
    "teacher": "",
    "roll": null,
    "cost": {},
-   "text": "<p>Гнозис сл. 7: +3 кубика поглощения на успех объекту/участку до 1 акра на (Послушание) дней; Кокон (хомиды).</p>",
+   "text": "<p>Гнозис сл. 7: +3 кубика поглощения на успех объекту/участку до 1 акра на (Послушание) дней</p>",
    "source": "W20 Changing Breeds"
   },
   {
@@ -12486,7 +12600,7 @@
      "kind": "fera",
      "key": "ananasi",
      "sub": "faction:viskr",
-     "label": "Ананаси: Вискров (Wizards)"
+     "label": "Ананаси: Вискров"
     }
    ],
    "teacher": "",
@@ -12505,7 +12619,7 @@
      "kind": "fera",
      "key": "ananasi",
      "sub": "faction:viskr",
-     "label": "Ананаси: Вискров (Wizards)"
+     "label": "Ананаси: Вискров"
     }
    ],
    "teacher": "",
@@ -12524,7 +12638,7 @@
      "kind": "fera",
      "key": "ananasi",
      "sub": "faction:wyrsta",
-     "label": "Ананаси: Вирст (Questioners)"
+     "label": "Ананаси: Вирст"
     }
    ],
    "teacher": "",
@@ -12543,7 +12657,7 @@
      "kind": "fera",
      "key": "ananasi",
      "sub": "faction:wyrsta",
-     "label": "Ананаси: Вирст (Questioners)"
+     "label": "Ананаси: Вирст"
     }
    ],
    "teacher": "",
@@ -12562,7 +12676,7 @@
      "kind": "fera",
      "key": "ananasi",
      "sub": "faction:wyrsta",
-     "label": "Ананаси: Вирст (Questioners)"
+     "label": "Ананаси: Вирст"
     }
    ],
    "teacher": "",
@@ -12581,7 +12695,7 @@
      "kind": "fera",
      "key": "ananasi",
      "sub": "faction:wyrsta",
-     "label": "Ананаси: Вирст (Questioners)"
+     "label": "Ананаси: Вирст"
     }
    ],
    "teacher": "",
@@ -12600,7 +12714,7 @@
      "kind": "fera",
      "key": "ananasi",
      "sub": "faction:wyrsta",
-     "label": "Ананаси: Вирст (Questioners)"
+     "label": "Ананаси: Вирст"
     }
    ],
    "teacher": "",
@@ -12625,7 +12739,7 @@
    "teacher": "",
    "roll": null,
    "cost": {},
-   "text": "<p>1 Гнозис, Манипулирование + Медицина (сл. по тяжести; неизлечимое — нет); Кошачьи лапы (лупусы); Алмазные когти — «Бритвенные когти» Ахрун; Лизать раны — «Касание Матери» Теурга</p>",
+   "text": "<p>1 Гнозис, Манипулирование + Медицина (сл. по тяжести; неизлечимое — нет)</p>",
    "source": "W20 Changing Breeds"
   },
   {
@@ -12893,7 +13007,7 @@
      "kind": "fera",
      "key": "bastet",
      "sub": "breed:feline",
-     "label": "Бастет: Кошек (фелайн)"
+     "label": "Бастет: Кошек"
     }
    ],
    "teacher": "",
@@ -13400,6 +13514,398 @@
    "roll": null,
    "cost": {},
    "text": "<p>1 Ярость, Манипулирование + Первобытный инстинкт сл. 7 (5 на месте кровопролития); 3 хода собирается; любые формы; Сила и здоровье = 2 × успехи; сцену.</p>",
+   "source": "W20 Changing Breeds"
+  },
+  {
+   "key": "corax-enemy-ways",
+   "name": "Пути врага",
+   "en": "Enemy Ways",
+   "level": 1,
+   "groups": [
+    {
+     "kind": "fera",
+     "key": "corax",
+     "sub": "",
+     "label": "Корвы: Дары"
+    }
+   ],
+   "teacher": "",
+   "roll": null,
+   "cost": {},
+   "text": "<p>учат Грозовые вороны Деда Грома; Восприятие + Первобытный инстинкт сл. 7: число и природа враждебных в радиусе (Мудрость × 20) ярдов.</p>",
+   "source": "W20 Changing Breeds"
+  },
+  {
+   "key": "corax-morze",
+   "name": "Морзе",
+   "en": "",
+   "level": 1,
+   "groups": [
+    {
+     "kind": "fera",
+     "key": "corax",
+     "sub": "",
+     "label": "Корвы: Дары"
+    }
+   ],
+   "teacher": "",
+   "roll": null,
+   "cost": {},
+   "text": "<p>учит дух машины; 1 Гнозис: сообщение услышит ближайший Корв; Смекалка + Выразительность сл. 8 — ближайший гайский оборотень любой Породы.</p>",
+   "source": "W20 Changing Breeds"
+  },
+  {
+   "key": "corax-raven-s-gleaning",
+   "name": "Сбор ворона",
+   "en": "Raven's Gleaning",
+   "level": 1,
+   "groups": [
+    {
+     "kind": "fera",
+     "key": "corax",
+     "sub": "",
+     "label": "Корвы: Дары"
+    }
+   ],
+   "teacher": "",
+   "roll": null,
+   "cost": {},
+   "text": "<p>1 Гнозис: с одного взгляда понимает, ценен ли видимый блестящий предмет. Ценность может быть денежной, практической или пригодиться в будущем — какая именно, Корва не знает.</p>",
+   "source": "W20 Changing Breeds"
+  },
+  {
+   "key": "corax-voice-of-the-mimic",
+   "name": "Голос подражателя",
+   "en": "Voice of the Mimic",
+   "level": 1,
+   "groups": [
+    {
+     "kind": "fera",
+     "key": "corax",
+     "sub": "",
+     "label": "Корвы: Дары"
+    },
+    {
+     "kind": "fera",
+     "key": "nagah",
+     "sub": "aspect:kartikeya",
+     "label": "Нагах: Аспектов — Картикея"
+    }
+   ],
+   "teacher": "",
+   "roll": null,
+   "cost": {},
+   "text": "<p>постоянно имитирует любой слышанный звук (учит дух майны).</p>",
+   "source": "W20 Changing Breeds"
+  },
+  {
+   "key": "corax-word-beyond",
+   "name": "Слово за пределом",
+   "en": "Word Beyond",
+   "level": 1,
+   "groups": [
+    {
+     "kind": "fera",
+     "key": "corax",
+     "sub": "",
+     "label": "Корвы: Дары"
+    },
+    {
+     "kind": "fera",
+     "key": "ratkin",
+     "sub": "aspect:tunnel-runner",
+     "label": "Раткин: Бегунов"
+    }
+   ],
+   "teacher": "",
+   "roll": null,
+   "cost": {},
+   "text": "<p>Смекалка + Выразительность сл. 6: метка в Умбре из подручных материалов; успех = сложность сообщения (1 — «опасно», 5 — короткое эссе); читают только Корвы.</p>",
+   "source": "W20 Changing Breeds"
+  },
+  {
+   "key": "corax-carrion-s-call",
+   "name": "Зов падали",
+   "en": "Carrion's Call",
+   "level": 2,
+   "groups": [
+    {
+     "kind": "fera",
+     "key": "corax",
+     "sub": "",
+     "label": "Корвы: Дары"
+    }
+   ],
+   "teacher": "",
+   "roll": null,
+   "cost": {},
+   "text": "<p>Восприятие + Эмпатия сл. 6: чует трупы в радиусе (успехи) миль.</p>",
+   "source": "W20 Changing Breeds"
+  },
+  {
+   "key": "corax-razor-feathers",
+   "name": "Бритвенные перья",
+   "en": "Razor Feathers",
+   "level": 2,
+   "groups": [
+    {
+     "kind": "fera",
+     "key": "corax",
+     "sub": "",
+     "label": "Корвы: Дары"
+    }
+   ],
+   "teacher": "",
+   "roll": null,
+   "cost": {},
+   "text": "<p>только Кринос; 1 Гнозис: сцену доступен манёвр «Взмах крыла» (глава 3, стр. 214).</p>",
+   "source": "W20 Changing Breeds"
+  },
+  {
+   "key": "corax-sky-s-beneficence",
+   "name": "Милость неба",
+   "en": "Sky's Beneficence",
+   "level": 2,
+   "groups": [
+    {
+     "kind": "fera",
+     "key": "corax",
+     "sub": "",
+     "label": "Корвы: Дары"
+    }
+   ],
+   "teacher": "",
+   "roll": null,
+   "cost": {},
+   "text": "<p>сбрасывает предмет на цель точно: Восприятие + Рукопашная сл. 7.</p>",
+   "source": "W20 Changing Breeds"
+  },
+  {
+   "key": "corax-swallow-s-return",
+   "name": "Возвращение ласточки",
+   "en": "Swallow's Return",
+   "level": 2,
+   "groups": [
+    {
+     "kind": "fera",
+     "key": "corax",
+     "sub": "",
+     "label": "Корвы: Дары"
+    }
+   ],
+   "teacher": "",
+   "roll": null,
+   "cost": {},
+   "text": "<p>1 Гнозис: автопилотом летит «домой» (даже во сне/лечении).</p>",
+   "source": "W20 Changing Breeds"
+  },
+  {
+   "key": "corax-dead-talk",
+   "name": "Мёртвая речь",
+   "en": "Dead Talk",
+   "level": 3,
+   "groups": [
+    {
+     "kind": "fera",
+     "key": "corax",
+     "sub": "",
+     "label": "Корвы: Дары"
+    }
+   ],
+   "teacher": "",
+   "roll": null,
+   "cost": {},
+   "text": "<p>1 Гнозис, Восприятие + Оккультизм сл. 8: допрос трупа (&lt;24 ч).</p>",
+   "source": "W20 Changing Breeds"
+  },
+  {
+   "key": "corax-glaza-orla",
+   "name": "Глаза орла",
+   "en": "",
+   "level": 3,
+   "groups": [
+    {
+     "kind": "fera",
+     "key": "corax",
+     "sub": "",
+     "label": "Корвы: Дары"
+    }
+   ],
+   "teacher": "",
+   "roll": null,
+   "cost": {},
+   "text": "<p>1 Гнозис на сцену (+Воля — до следующего восхода): видит сквозь туман, дым, тьму.</p>",
+   "source": "W20 Changing Breeds"
+  },
+  {
+   "key": "corax-kolibri-drotik",
+   "name": "Колибри-дротик",
+   "en": "",
+   "level": 3,
+   "groups": [
+    {
+     "kind": "fera",
+     "key": "corax",
+     "sub": "",
+     "label": "Корвы: Дары"
+    }
+   ],
+   "teacher": "",
+   "roll": null,
+   "cost": {},
+   "text": "<p>1 Ярость, на сцену: бросает перья на 50 футов (Ловкость + Рукопашная сл. 5, урон Ловкость + 3 летальный; с «Бритвенными перьями» — губительный); только Корвид/Кринос.</p>",
+   "source": "W20 Changing Breeds"
+  },
+  {
+   "key": "corax-mynah-s-touch",
+   "name": "Касание майны",
+   "en": "Mynah's Touch",
+   "level": 3,
+   "groups": [
+    {
+     "kind": "fera",
+     "key": "corax",
+     "sub": "",
+     "label": "Корвы: Дары"
+    }
+   ],
+   "teacher": "",
+   "roll": null,
+   "cost": {},
+   "text": "<p>2 Гнозиса: знание одного Дара Гару более низкого Ранга, чем у Корвы; применить его можно один раз в любой момент позже. Хранится только один такой Дар. Постоянный Дар действует одну сцену и исчезает.</p>",
+   "source": "W20 Changing Breeds"
+  },
+  {
+   "key": "corax-sun-s-guard",
+   "name": "Охрана солнца",
+   "en": "Sun's Guard",
+   "level": 3,
+   "groups": [
+    {
+     "kind": "fera",
+     "key": "corax",
+     "sub": "",
+     "label": "Корвы: Дары"
+    }
+   ],
+   "teacher": "",
+   "roll": null,
+   "cost": {},
+   "text": "<p>учит аватар Ворона; 2 Ярости, Стойкость + Первобытный инстинкт сл. 6: полная неуязвимость к жару и огню на ход за успех (кроме скверного огня).</p>",
+   "source": "W20 Changing Breeds"
+  },
+  {
+   "key": "corax-krovavyi-perevoi-shtorm",
+   "name": "Кровавый перьевой шторм",
+   "en": "",
+   "level": 4,
+   "groups": [
+    {
+     "kind": "fera",
+     "key": "corax",
+     "sub": "",
+     "label": "Корвы: Дары"
+    }
+   ],
+   "teacher": "",
+   "roll": null,
+   "cost": {},
+   "text": "<p>в воздухе; 3 Гнозиса и 2 Ярости: Ловкость + 4 кубика летального всем под ним в радиусе 15 футов (уклонение Ловкость + Атлетика сл. 8, 3 успеха); с «Бритвенными перьями» — губительный.</p>",
+   "source": "W20 Changing Breeds"
+  },
+  {
+   "key": "corax-flight-of-separation",
+   "name": "Полёт разделения",
+   "en": "Flight of Separation",
+   "level": 4,
+   "groups": [
+    {
+     "kind": "fera",
+     "key": "corax",
+     "sub": "",
+     "label": "Корвы: Дары"
+    }
+   ],
+   "teacher": "",
+   "roll": null,
+   "cost": {},
+   "text": "<p>2 Гнозиса: превращается в стаю ворон; враги Восприятие + Загадки сл. 3 + Честь (макс. 9), чтобы найти настоящего; до восхода.</p>",
+   "source": "W20 Changing Breeds"
+  },
+  {
+   "key": "corax-gauntlet-runner",
+   "name": "Бегун Преграды",
+   "en": "Gauntlet Runner",
+   "level": 4,
+   "groups": [
+    {
+     "kind": "fera",
+     "key": "corax",
+     "sub": "",
+     "label": "Корвы: Дары"
+    }
+   ],
+   "teacher": "",
+   "roll": null,
+   "cost": {},
+   "text": "<p>Смекалка + Загадки сл. 8: Преграда в 20 ярдах −1 за 2 успеха на сцену.</p>",
+   "source": "W20 Changing Breeds"
+  },
+  {
+   "key": "corax-deceptive-demise",
+   "name": "Притворная смерть",
+   "en": "Deceptive Demise",
+   "level": 5,
+   "groups": [
+    {
+     "kind": "fera",
+     "key": "corax",
+     "sub": "",
+     "label": "Корвы: Дары"
+    }
+   ],
+   "teacher": "",
+   "roll": null,
+   "cost": {},
+   "text": "<p>1 Гнозис и 1 летальный уровень: исчезает в облаке перьев, шагает в сторону.</p>",
+   "source": "W20 Changing Breeds"
+  },
+  {
+   "key": "corax-portents",
+   "name": "Знамения",
+   "en": "Portents",
+   "level": 5,
+   "groups": [
+    {
+     "kind": "fera",
+     "key": "corax",
+     "sub": "",
+     "label": "Корвы: Дары"
+    }
+   ],
+   "teacher": "",
+   "roll": null,
+   "cost": {},
+   "text": "<p>2 Гнозиса, Интеллект + Загадки сл. 8: видение будущего.</p>",
+   "source": "W20 Changing Breeds"
+  },
+  {
+   "key": "corax-theft-of-stars",
+   "name": "Кража звёзд",
+   "en": "Theft of Stars",
+   "level": 5,
+   "groups": [
+    {
+     "kind": "fera",
+     "key": "corax",
+     "sub": "",
+     "label": "Корвы: Дары"
+    }
+   ],
+   "teacher": "",
+   "roll": null,
+   "cost": {},
+   "text": "<p>Воля и Ярость, оспариваемая Воля: жертва не видит естественного света на (Слава) часов.</p>",
    "source": "W20 Changing Breeds"
   },
   {
@@ -13988,7 +14494,7 @@
    "teacher": "",
    "roll": null,
    "cost": {},
-   "text": "<p>касание, 1 Гнозис: цель без штрафов от ран до конца боя; Чутьё неестественного (лупусы).</p>",
+   "text": "<p>касание, 1 Гнозис: цель без штрафов от ран до конца боя</p>",
    "source": "W20 Changing Breeds"
   },
   {
@@ -14330,7 +14836,7 @@
    "teacher": "",
    "roll": null,
    "cost": {},
-   "text": "<p>1 Гнозис: всегда знает, где он (мир, стороны света, дом); территория признаётся животными. <strong>Ур. 4:</strong> <strong>Одежда падали</strong> — 1 Гнозис, Стойкость + Воровство сл. 7: на любой осмотр мёртв (микродвижения допустимы); Лорд леса — «Жизнь зверя». <strong>Ур. 5:</strong> Дар стихии (лупусы); Песнь Великого зверя (лупусы).</p>",
+   "text": "<p>1 Гнозис: всегда знает, где он (мир, стороны света, дом); территория признаётся животными. <strong>Ур. 4:</strong> <strong>Одежда падали</strong> — 1 Гнозис, Стойкость + Воровство сл. 7: на любой осмотр мёртв (микродвижения допустимы); Лорд леса — «Жизнь зверя». <strong>Ур. 5:</strong> Дар стихии (лупусы)</p>",
    "source": "W20 Changing Breeds"
   },
   {
@@ -15772,6 +16278,576 @@
    "roll": null,
    "cost": {},
    "text": "<p>только в боевой форме; 1 Гнозис и 1 Ярость, Стойкость + Первобытный инстинкт сл. 7: тратя Ярость/Волю 1 за 1, повышает Силу, Стойкость и Ловкость до +4 каждый на сцену.</p>",
+   "source": "W20 Changing Breeds"
+  },
+  {
+   "key": "nuwisha-intuitsiya-koiota",
+   "name": "Интуиция койота",
+   "en": "",
+   "level": 1,
+   "groups": [
+    {
+     "kind": "fera",
+     "key": "nuwisha",
+     "sub": "",
+     "label": "Нувиша: Дары"
+    }
+   ],
+   "teacher": "",
+   "roll": null,
+   "cost": {},
+   "text": "<p>Восприятие + Хитрость против Воли цели: о чём тема она меньше всего хочет говорить</p>",
+   "source": "W20 Changing Breeds"
+  },
+  {
+   "key": "nuwisha-earworm",
+   "name": "Червь в ухе",
+   "en": "Earworm",
+   "level": 1,
+   "groups": [
+    {
+     "kind": "fera",
+     "key": "nuwisha",
+     "sub": "",
+     "label": "Нувиша: Дары"
+    }
+   ],
+   "teacher": "",
+   "roll": null,
+   "cost": {},
+   "text": "<p>Смекалка + Выразительность против Воли: назойливая мелодия на день за успех, +2 к сложности бросков, требующих концентрации</p>",
+   "source": "W20 Changing Breeds"
+  },
+  {
+   "key": "nuwisha-emperor-s-clothes",
+   "name": "Новая одежда императора",
+   "en": "Emperor's Clothes",
+   "level": 1,
+   "groups": [
+    {
+     "kind": "fera",
+     "key": "nuwisha",
+     "sub": "",
+     "label": "Нувиша: Дары"
+    }
+   ],
+   "teacher": "",
+   "roll": null,
+   "cost": {},
+   "text": "<p>Ловкость + Воровство против (Ловкость + Атлетика цели): срывает предмет одежды; раз за ночь на цель</p>",
+   "source": "W20 Changing Breeds"
+  },
+  {
+   "key": "nuwisha-finders-keepers",
+   "name": "Находка — моё",
+   "en": "Finders Keepers",
+   "level": 1,
+   "groups": [
+    {
+     "kind": "fera",
+     "key": "nuwisha",
+     "sub": "",
+     "label": "Нувиша: Дары"
+    }
+   ],
+   "teacher": "",
+   "roll": null,
+   "cost": {},
+   "text": "<p>1 Гнозис, касание: метка, видимая Нувиша и духам; духи избегают цели, пока не бросят Гнозис против Воли Нувиша; смех бродяги — «Смех гиены» Костегрызов; Кроличий бег — «Скорость мысли» Странников</p>",
+   "source": "W20 Changing Breeds"
+  },
+  {
+   "key": "nuwisha-salaryman",
+   "name": "Служащий",
+   "en": "Salaryman",
+   "level": 1,
+   "groups": [
+    {
+     "kind": "fera",
+     "key": "nuwisha",
+     "sub": "",
+     "label": "Нувиша: Дары"
+    }
+   ],
+   "teacher": "",
+   "roll": null,
+   "cost": {},
+   "text": "<p>постоянно: заметить в группе ≥3 людей/подобных +3 к сложности (макс. 9)</p>",
+   "source": "W20 Changing Breeds"
+  },
+  {
+   "key": "nuwisha-sekretnyi-vopros",
+   "name": "Секретный вопрос",
+   "en": "",
+   "level": 1,
+   "groups": [
+    {
+     "kind": "fera",
+     "key": "nuwisha",
+     "sub": "",
+     "label": "Нувиша: Дары"
+    }
+   ],
+   "teacher": "",
+   "roll": null,
+   "cost": {},
+   "text": "<p>1 Гнозис, Манипулирование + Хитрость сл. 7: правильный ответ на проверку личности (пароль), даже на сайте (каждое поле — отдельное использование)</p>",
+   "source": "W20 Changing Breeds"
+  },
+  {
+   "key": "nuwisha-sleep-of-the-ages",
+   "name": "Сон веков",
+   "en": "Sleep of the Ages",
+   "level": 1,
+   "groups": [
+    {
+     "kind": "fera",
+     "key": "nuwisha",
+     "sub": "",
+     "label": "Нувиша: Дары"
+    }
+   ],
+   "teacher": "",
+   "roll": null,
+   "cost": {},
+   "text": "<p>касание спящего, Гнозис против Воли: час за успех не проснётся без прямого касания</p>",
+   "source": "W20 Changing Breeds"
+  },
+  {
+   "key": "nuwisha-razdutyi-yazyk",
+   "name": "Раздутый язык",
+   "en": "",
+   "level": 1,
+   "groups": [
+    {
+     "kind": "fera",
+     "key": "nuwisha",
+     "sub": "",
+     "label": "Нувиша: Дары"
+    }
+   ],
+   "teacher": "",
+   "roll": null,
+   "cost": {},
+   "text": "<p>касание, Гнозис против Воли: нет речи до конца сцены; 3+ успеха — неловкие руки; Двуликий трикстер — «Кожа мужчины» Фурий</p>",
+   "source": "W20 Changing Breeds"
+  },
+  {
+   "key": "nuwisha-pod-elektronnym-mostom",
+   "name": "Под электронным мостом",
+   "en": "",
+   "level": 2,
+   "groups": [
+    {
+     "kind": "fera",
+     "key": "nuwisha",
+     "sub": "",
+     "label": "Нувиша: Дары"
+    }
+   ],
+   "teacher": "",
+   "roll": null,
+   "cost": {},
+   "text": "<p>1 Гнозис, Смекалка + Эмпатия сл. 8: «худшая фраза» доводит до ярости (бросок на бешенство у способных); работает по сообщениям</p>",
+   "source": "W20 Changing Breeds"
+  },
+  {
+   "key": "nuwisha-proklyatie-tiresiya",
+   "name": "Проклятие Тиресия",
+   "en": "",
+   "level": 2,
+   "groups": [
+    {
+     "kind": "fera",
+     "key": "nuwisha",
+     "sub": "",
+     "label": "Нувиша: Дары"
+    }
+   ],
+   "teacher": "",
+   "roll": null,
+   "cost": {},
+   "text": "<p>1 Гнозис, Ловкость + Драка/Рукопашная сл. 6 для сопротивляющегося: меняет пол на (Юмор) дней</p>",
+   "source": "W20 Changing Breeds"
+  },
+  {
+   "key": "nuwisha-novoe-litso",
+   "name": "Новое лицо",
+   "en": "",
+   "level": 2,
+   "groups": [
+    {
+     "kind": "fera",
+     "key": "nuwisha",
+     "sub": "",
+     "label": "Нувиша: Дары"
+    }
+   ],
+   "teacher": "",
+   "roll": null,
+   "cost": {},
+   "text": "<p>1 Гнозис, Манипулирование + Выразительность сл. 6: любая раса, пол, вид канид (только Хомид и Латрани) на (Хитрость) дней; Зловонный аромат; Дыхание выдры — «Дух рыбы» Уктена</p>",
+   "source": "W20 Changing Breeds"
+  },
+  {
+   "key": "nuwisha-ovechya-shkura",
+   "name": "Овечья шкура",
+   "en": "",
+   "level": 2,
+   "groups": [
+    {
+     "kind": "fera",
+     "key": "nuwisha",
+     "sub": "",
+     "label": "Нувиша: Дары"
+    }
+   ],
+   "teacher": "",
+   "roll": null,
+   "cost": {},
+   "text": "<p>1 Гнозис: облик, запах и метки другой Породы без её способностей на (Юмор) дней</p>",
+   "source": "W20 Changing Breeds"
+  },
+  {
+   "key": "nuwisha-podozritelnyi-vzglyad",
+   "name": "Подозрительный взгляд",
+   "en": "",
+   "level": 2,
+   "groups": [
+    {
+     "kind": "fera",
+     "key": "nuwisha",
+     "sub": "",
+     "label": "Нувиша: Дары"
+    }
+   ],
+   "teacher": "",
+   "roll": null,
+   "cost": {},
+   "text": "<p>Манипулирование + Хитрость сл. 6: в течение суток жертва заподозрит предательство союзника (с 1 Гнозисом — двоих, один подозревает другого)</p>",
+   "source": "W20 Changing Breeds"
+  },
+  {
+   "key": "nuwisha-kroshechnyi-koiot",
+   "name": "Крошечный койот",
+   "en": "",
+   "level": 2,
+   "groups": [
+    {
+     "kind": "fera",
+     "key": "nuwisha",
+     "sub": "",
+     "label": "Нувиша: Дары"
+    }
+   ],
+   "teacher": "",
+   "roll": null,
+   "cost": {},
+   "text": "<p>1 Гнозис: сжимается до размера мыши, проходит в щели</p>",
+   "source": "W20 Changing Breeds"
+  },
+  {
+   "key": "nuwisha-voice-bank",
+   "name": "Банк голосов",
+   "en": "Voice Bank",
+   "level": 2,
+   "groups": [
+    {
+     "kind": "fera",
+     "key": "nuwisha",
+     "sub": "",
+     "label": "Нувиша: Дары"
+    }
+   ],
+   "teacher": "",
+   "roll": null,
+   "cost": {},
+   "text": "<p>Восприятие + Выразительность сл. 8/7/6 (слова/минута/полчаса): запоминает голос; 1 Гнозис — имитировать на сцену; число голосов = точки Выразительности.</p>",
+   "source": "W20 Changing Breeds"
+  },
+  {
+   "key": "nuwisha-voldyri",
+   "name": "Волдыри",
+   "en": "",
+   "level": 3,
+   "groups": [
+    {
+     "kind": "fera",
+     "key": "nuwisha",
+     "sub": "",
+     "label": "Нувиша: Дары"
+    }
+   ],
+   "teacher": "",
+   "roll": null,
+   "cost": {},
+   "text": "<p>касание, Манипулирование + Первобытный инстинкт: −3 кубика социальных пулов на (успехи × Юмор) дней</p>",
+   "source": "W20 Changing Breeds"
+  },
+  {
+   "key": "nuwisha-lozhnyi-sled",
+   "name": "Ложный след",
+   "en": "",
+   "level": 3,
+   "groups": [
+    {
+     "kind": "fera",
+     "key": "nuwisha",
+     "sub": "",
+     "label": "Нувиша: Дары"
+    }
+   ],
+   "teacher": "",
+   "roll": null,
+   "cost": {},
+   "text": "<p>1 Гнозис, Восприятие + Первобытный инстинкт сл. 6 (8, если не нюхал цель): запах другого на (Юмор) дней</p>",
+   "source": "W20 Changing Breeds"
+  },
+  {
+   "key": "nuwisha-fool-s-fortune",
+   "name": "Дурацкая удача",
+   "en": "Fool's Fortune",
+   "level": 3,
+   "groups": [
+    {
+     "kind": "fera",
+     "key": "nuwisha",
+     "sub": "",
+     "label": "Нувиша: Дары"
+    }
+   ],
+   "teacher": "",
+   "roll": null,
+   "cost": {},
+   "text": "<p>1 Гнозис, Смекалка + Загадки сл. 7 в ответ на бросок цели: если успехов не меньше — действие провалено, а следующий бросок цели берёт значения кубиков прерванного броска; на себя нельзя</p>",
+   "source": "W20 Changing Breeds"
+  },
+  {
+   "key": "nuwisha-zapretnye-slova",
+   "name": "Запретные слова",
+   "en": "",
+   "level": 3,
+   "groups": [
+    {
+     "kind": "fera",
+     "key": "nuwisha",
+     "sub": "",
+     "label": "Нувиша: Дары"
+    }
+   ],
+   "teacher": "",
+   "roll": null,
+   "cost": {},
+   "text": "<p>стоя в чужом следе, 1 Гнозис, Юмор сл. 6: сутки за успех цель не может говорить о теме (рвёт паразитами)</p>",
+   "source": "W20 Changing Breeds"
+  },
+  {
+   "key": "nuwisha-dar-yarosti",
+   "name": "Дар Ярости",
+   "en": "",
+   "level": 3,
+   "groups": [
+    {
+     "kind": "fera",
+     "key": "nuwisha",
+     "sub": "",
+     "label": "Нувиша: Дары"
+    }
+   ],
+   "teacher": "",
+   "roll": null,
+   "cost": {},
+   "text": "<p>1 Воля: 5 временных Ярости на сцену (максимум 5; уязвим к серебру и бешенству)</p>",
+   "source": "W20 Changing Breeds"
+  },
+  {
+   "key": "nuwisha-schastlivye-mysli",
+   "name": "Счастливые мысли",
+   "en": "",
+   "level": 3,
+   "groups": [
+    {
+     "kind": "fera",
+     "key": "nuwisha",
+     "sub": "",
+     "label": "Нувиша: Дары"
+    }
+   ],
+   "teacher": "",
+   "roll": null,
+   "cost": {},
+   "text": "<p>касание, 1 Гнозис: цель не может впадать в бешенство и тратить Ярость на сцену</p>",
+   "source": "W20 Changing Breeds"
+  },
+  {
+   "key": "nuwisha-teper-ne-vidish",
+   "name": "Теперь не видишь",
+   "en": "",
+   "level": 3,
+   "groups": [
+    {
+     "kind": "fera",
+     "key": "nuwisha",
+     "sub": "",
+     "label": "Нувиша: Дары"
+    }
+   ],
+   "teacher": "",
+   "roll": null,
+   "cost": {},
+   "text": "<p>1 Гнозис, Смекалка + Воровство против Воли: скрывает категорию предметов на (Юмор) часов</p>",
+   "source": "W20 Changing Breeds"
+  },
+  {
+   "key": "nuwisha-bol-ostaetsya",
+   "name": "Боль остаётся",
+   "en": "",
+   "level": 3,
+   "groups": [
+    {
+     "kind": "fera",
+     "key": "nuwisha",
+     "sub": "",
+     "label": "Нувиша: Дары"
+    }
+   ],
+   "teacher": "",
+   "roll": null,
+   "cost": {},
+   "text": "<p>1 Гнозис, Восприятие + Медицина против (Стойкость + Выживание): штраф ран остаётся до заката</p>",
+   "source": "W20 Changing Breeds"
+  },
+  {
+   "key": "nuwisha-khozhdenie-po-tenyam",
+   "name": "Хождение по теням",
+   "en": "",
+   "level": 3,
+   "groups": [
+    {
+     "kind": "fera",
+     "key": "nuwisha",
+     "sub": "",
+     "label": "Нувиша: Дары"
+    }
+   ],
+   "teacher": "",
+   "roll": null,
+   "cost": {},
+   "text": "<p>постоянный: проход в любую часть Умбры, даже в Тёмную; Умбральный камуфляж и Умбральное зрение (Umbral Danse) — как у Теургов.</p>",
+   "source": "W20 Changing Breeds"
+  },
+  {
+   "key": "nuwisha-cartoon-physics",
+   "name": "Законы мультфильма",
+   "en": "Cartoon Physics",
+   "level": 4,
+   "groups": [
+    {
+     "kind": "fera",
+     "key": "nuwisha",
+     "sub": "",
+     "label": "Нувиша: Дары"
+    }
+   ],
+   "teacher": "",
+   "roll": null,
+   "cost": {},
+   "text": "<p>1 Гнозис, Смекалка + Наука сл. 5: «стоит» в воздухе ход за успех, пока не смотрит вниз</p>",
+   "source": "W20 Changing Breeds"
+  },
+  {
+   "key": "nuwisha-ischeznovenie",
+   "name": "Исчезновение",
+   "en": "",
+   "level": 4,
+   "groups": [
+    {
+     "kind": "fera",
+     "key": "nuwisha",
+     "sub": "",
+     "label": "Нувиша: Дары"
+    }
+   ],
+   "teacher": "",
+   "roll": null,
+   "cost": {},
+   "text": "<p>1 Воля и 1 Гнозис: неподвижным невидим для всех чувств; Хватка Запредельного и Запертая дверь («Размытие зеркала») (Umbral Danse)</p>",
+   "source": "W20 Changing Breeds"
+  },
+  {
+   "key": "nuwisha-igra-na-strunakh-serdtsa",
+   "name": "Игра на струнах сердца",
+   "en": "",
+   "level": 4,
+   "groups": [
+    {
+     "kind": "fera",
+     "key": "nuwisha",
+     "sub": "",
+     "label": "Нувиша: Дары"
+    }
+   ],
+   "teacher": "",
+   "roll": null,
+   "cost": {},
+   "text": "<p>1 Гнозис и 1 Воля, Смекалка + Хитрость против Воли: цель встретит подходящего человека в следующей сцене и будет сталкиваться с ним в диких совпадениях (12 − успехи) месяцев</p>",
+   "source": "W20 Changing Breeds"
+  },
+  {
+   "key": "nuwisha-kozha-trikstera",
+   "name": "Кожа трикстера",
+   "en": "",
+   "level": 4,
+   "groups": [
+    {
+     "kind": "fera",
+     "key": "nuwisha",
+     "sub": "",
+     "label": "Нувиша: Дары"
+    }
+   ],
+   "teacher": "",
+   "roll": null,
+   "cost": {},
+   "text": "<p>1 Гнозис, Смекалка + Хитрость против (Первобытный инстинкт + 3): меняются обликом на сцену.</p>",
+   "source": "W20 Changing Breeds"
+  },
+  {
+   "key": "nuwisha-drug-i-vrag",
+   "name": "Друг и враг",
+   "en": "",
+   "level": 5,
+   "groups": [
+    {
+     "kind": "fera",
+     "key": "nuwisha",
+     "sub": "",
+     "label": "Нувиша: Дары"
+    }
+   ],
+   "teacher": "",
+   "roll": null,
+   "cost": {},
+   "text": "<p>1 Воля и 1 Гнозис, Манипулирование + Хитрость против наибольшей Воли в группе: за успех 5 человек считают его своим на (Юмор) дней (навсегда за точки Воли и Гнозиса)</p>",
+   "source": "W20 Changing Breeds"
+  },
+  {
+   "key": "nuwisha-khvatit-bit-sebya",
+   "name": "Хватит бить себя",
+   "en": "",
+   "level": 5,
+   "groups": [
+    {
+     "kind": "fera",
+     "key": "nuwisha",
+     "sub": "",
+     "label": "Нувиша: Дары"
+    }
+   ],
+   "teacher": "",
+   "roll": null,
+   "cost": {},
+   "text": "<p>1 Воля, Гнозис сл. = Ярость нападающего (4 при отсутствии Ярости): непоглощённый урон переходит к атакующему (броню и поглощение игнорирует)</p>",
    "source": "W20 Changing Breeds"
   },
   {
@@ -24197,6 +25273,7 @@
         "rage": 5,
         "gnosis": 1
        },
+       "text": "Ярость 5, Гнозис 1",
        "en": "Dawn"
       },
       {
@@ -24215,6 +25292,7 @@
         "rage": 1,
         "gnosis": 5
        },
+       "text": "Ярость 1, Гнозис 5. (Полночь чаще самцы, остальные — самки.)",
        "en": "Dusk"
       }
      ]
@@ -24817,6 +25895,7 @@
         "rage": 2,
         "will": 4
        },
+       "text": "+1/+1/+2/−1/−1 · +3/+2/+3/−3/0 · +2/+3/+3/−3/−2 · +1/+3/+2/−3 · Побег Хумбабы, Лазание по деревьям",
        "en": "Bagheera"
       },
       {
@@ -24826,6 +25905,7 @@
         "rage": 4,
         "will": 3
        },
+       "text": "+1/+1/+2/−1/−1 · +3/+2/+3/−4/0 · +3/+2/+3/−4 · +2/+2/+2/−3 · Туманы охотника, Буря вредителей",
        "en": "Balam"
       },
       {
@@ -24835,6 +25915,7 @@
         "rage": 1,
         "will": 5
        },
+       "text": "0/+1/0/−1/−1 · +1/+3/+1/−3/0 · +2/+3/+1/−2 · −1/+4/+1/−2 · Подаяние бедным, Друг учёного",
        "en": "Bubasti"
       },
       {
@@ -24844,6 +25925,7 @@
         "rage": 3,
         "will": 3
        },
+       "text": "0/+2/+1/0/−1 · +1/+3/+1/−2/0 · 0/+4/+1/−2/−2 · −1/+4/—/−2 · Феи-свет, Мудрость сатира",
        "en": "Ceilican"
       },
       {
@@ -24853,6 +25935,7 @@
         "rage": 5,
         "will": 2
        },
+       "text": "+2/+1/+2/−1/−1 · +3/+2/+3/−3/0 · +4/+2/+3/−3 · +3/+2/+2/−3 · Бритвенные когти, Нефритовая кожа",
        "en": "Khan"
       },
       {
@@ -24862,6 +25945,7 @@
         "rage": 4,
         "will": 4
        },
+       "text": "+1/+2/+1/−1/−1 · +2/+3/+3/−3/0 · +3/+3/+2/−3 · +2/+2/+2/−3 · Зеркало пересмешника, Дар странника",
        "en": "Pumonca"
       },
       {
@@ -24871,6 +25955,7 @@
         "rage": 2,
         "will": 5
        },
+       "text": "0/+2/+1/−1/−1 · +1/+2/+2/−2/0 · +2/+3/+2/−2 · Лов +3 (остальное в книге не указано) · Завтрак из камней, Вывернутый мех",
        "en": "Qualmi"
       },
       {
@@ -24880,6 +25965,7 @@
         "rage": 5,
         "will": 2
        },
+       "text": "+2/+1/+2/−1/−1 · +3/+2/+3/−2/0 · +4/+2/+3/−2 · +2/+3/+2/−1 · Величие, Покорись",
        "en": "Simba"
       },
       {
@@ -24889,6 +25975,7 @@
         "rage": 2,
         "will": 4
        },
+       "text": "+1/+2/+1/−1/−1 · +2/+3/+2/−3/0 · +2/+4/+2/−3 · +1/+4/+1/−3 · Блаженное неведение, Полёт импалы",
        "en": "Swara"
       }
      ]
@@ -24900,16 +25987,19 @@
       {
        "key": "daylight",
        "name": "Дневное",
+       "text": "прямота, дипломаты/воины/законодатели; Воля восстанавливается, когда лицом к лицу побеждает серьёзное испытание отвагой или добродушием",
        "en": "Daylight"
       },
       {
        "key": "twilight",
        "name": "Сумеречное",
+       "text": "загадки и магия; Воля — при разгадывании тайны, продумывании вместо реакции, создании загадок",
        "en": "Twilight"
       },
       {
        "key": "night",
        "name": "Ночное",
+       "text": "скрытность, одиночество; Воля — при действиях, причиняющих другим неудобство, укрепляющих личное пространство или защищающих секрет",
        "en": "Night"
       }
      ]
@@ -25112,26 +26202,31 @@
       {
        "key": "arcas",
        "name": "Арка",
+       "text": "новая луна (юность),",
        "en": "Arcas"
       },
       {
        "key": "uzmati",
        "name": "Узмати",
+       "text": "полная луна (воин),",
        "en": "Uzmati"
       },
       {
        "key": "kojubat",
        "name": "Кожубат",
+       "text": "убывающая выпуклая (знание),",
        "en": "Kojubat"
       },
       {
        "key": "kieh",
        "name": "Киех",
+       "text": "серп (мистика, ритуалы),",
        "en": "Kieh"
       },
       {
        "key": "rishi",
        "name": "Риши",
+       "text": "половинная (старейшины, судьи). Старт: Дары аугурии Арка ур. 1 — Открытие печати или «Пройти как человек»; один Дар породы, один Дар аугурии, один общий. Излишнее обучение чужим аугуриям может стоить Мудрости",
        "en": "Rishi"
       }
      ]
@@ -25236,6 +26331,7 @@
        "stats": {
         "gnosis": 3
        },
+       "text": "человек: Гнозис 3; Дары: Убеждение, Соблазнение, Запах человека",
        "en": "Kojin"
       },
       {
@@ -25244,6 +26340,7 @@
        "stats": {
         "gnosis": 4
        },
+       "text": "метис (уродств нет): Гнозис 4; Дары: Запах истинной формы, Чутьё Червя, Истина Геи. Только 10% союзов двух Китсунэ дают синдзю",
        "en": "Shinju"
       },
       {
@@ -25252,6 +26349,7 @@
        "stats": {
         "gnosis": 5
        },
+       "text": "лиса: Гнозис 5; Дары: Норение, Прыжок сверчка, Обострённые чувства",
        "en": "Roko"
       }
      ]
@@ -25266,6 +26364,7 @@
        "stats": {
         "rage": 3
        },
+       "text": "Инадзума — молния (воздух + огонь) · чародеи; слегка осквернены (Чутьё Червя сл. 9) · Освящение клинка, Чутьё магии, Речь духов",
        "en": "Doshi"
       },
       {
@@ -25274,6 +26373,7 @@
        "stats": {
         "rage": 4
        },
+       "text": "Ёган — лава (огонь + земля) · воины · Бритвенные когти, Сопротивление боли, Чутьё враждебности",
        "en": "Eji"
       },
       {
@@ -25282,6 +26382,7 @@
        "stats": {
         "rage": 2
        },
+       "text": "Кири — туман (вода + воздух) · ткачи снов, иллюзии, целители · Очищение разума, Касание Матери, Открытие печати",
        "en": "Gukutsushi"
       },
       {
@@ -25290,6 +26391,7 @@
        "stats": {
         "rage": 2
        },
+       "text": "Нэндо — глина (земля + вода) · строители, поэты, знание · Речь зверей, Басня, Истина Геи",
        "en": "Kataribe"
       }
      ]
@@ -25439,6 +26541,7 @@
        "stats": {
         "gnosis": 2
        },
+       "text": "Гнозис 2",
        "en": "Homid"
       },
       {
@@ -25447,6 +26550,7 @@
        "stats": {
         "gnosis": 4
        },
+       "text": "Гнозис 4; вылупляется из яйца",
        "en": "Suchid"
       }
      ]
@@ -25461,6 +26565,7 @@
        "stats": {
         "will": 3
        },
+       "text": "солдаты, охотники — один перебросок инициативы за сцену (берётся второй результат)",
        "en": "Rising Sun"
       },
       {
@@ -25469,6 +26574,7 @@
        "stats": {
         "will": 5
        },
+       "text": "судьи, стража — −1 кубик к пулу существа тьмы (вампиры, фомори, демоны, Танцоры, Спектры, Нефанди, Бейны)",
        "en": "Noonday Sun"
       },
       {
@@ -25477,6 +26583,7 @@
        "stats": {
         "will": 3
        },
+       "text": "целители, стража — +1 кубик при защите других, отступлении, выполнении приказа",
        "en": "Setting Sun"
       },
       {
@@ -25485,6 +26592,7 @@
        "stats": {
         "will": 4
        },
+       "text": "поэты, шуты, проводники мёртвых — при юморе/отваге в безнадёжной ситуации Рассказчик даёт +1 кубик (≤ раз в сцену). Под-аспекты: <strong>Ночное Солнце</strong> (родился при Луне; можно Дары Лун), <strong>Многие Солнца</strong> (под звёздами), <strong>Бессолнечные</strong> (в бурю)",
        "en": "Midnight Sun"
       },
       {
@@ -25493,6 +26601,7 @@
        "stats": {
         "will": 4
        },
+       "text": "мистики — +1 кубик к Скрытности для себя/других/предметов",
        "en": "Shrouded Sun"
       },
       {
@@ -25501,6 +26610,7 @@
        "stats": {
         "will": 5
        },
+       "text": "организаторы, сваты — +1 кубик к пулу при коллективных усилиях",
        "en": "Decorated Sun"
       },
       {
@@ -25509,6 +26619,7 @@
        "stats": {
         "will": 5
        },
+       "text": "правители-жрецы — зависит от затмения: <strong>Нефритово-венчанное</strong> (полное, при Солнце) +1 кубик к любому броску раз за сцену; <strong>Серпо-венчанное</strong> (частное) +1 кубик в сцене с боем; <strong>Единство-венчанное</strong> (кольцевое) +1 социальному пулу; <strong>Луно-венчанное</strong> (лунное) +1 кубик на «вдохновенное безумие» по усмотрению",
        "en": "Eclipsed Sun"
       }
      ]
@@ -25524,6 +26635,7 @@
        "stats": {
         "rage": 3
        },
+       "text": "нильский крокодил",
        "en": "Champsa"
       },
       {
@@ -25533,6 +26645,7 @@
        "stats": {
         "rage": 4
        },
+       "text": "гавиал",
        "en": "Gharial"
       },
       {
@@ -25542,6 +26655,7 @@
        "stats": {
         "rage": 4
        },
+       "text": "американский аллигатор — бег вдвое медленнее; плавание = скорость по суше Хомида",
        "en": "Halpatee"
       },
       {
@@ -25551,6 +26665,7 @@
        "stats": {
         "rage": 3
        },
+       "text": "гребнистый крокодил",
        "en": "Karna"
       },
       {
@@ -25560,6 +26675,7 @@
        "stats": {
         "rage": 3
        },
+       "text": "мугер, китайский аллигатор",
        "en": "Makara"
       },
       {
@@ -25569,6 +26685,7 @@
        "stats": {
         "rage": 5
        },
+       "text": "вараны — бег как у Хомида; рывки; ограниченное плавание; Ядовитые железы",
        "en": "Ora"
       },
       {
@@ -25578,6 +26695,7 @@
        "stats": {
         "rage": 4
        },
+       "text": "американский крокодил — как у аллигатора",
        "en": "Piasa"
       },
       {
@@ -25587,6 +26705,7 @@
        "stats": {
         "rage": 4
        },
+       "text": "кайманы",
        "en": "Syrta"
       },
       {
@@ -25596,6 +26715,7 @@
        "stats": {
         "rage": 5
        },
+       "text": "ядозуб — бег вдвое медленнее; без плавания; укус Сила −1; Ядовитые железы",
        "en": "Unktehi"
       }
      ]
@@ -25702,11 +26822,13 @@
        "stats": {
         "gnosis": 1
        },
+       "text": "от человека: Гнозис 1; Дары: Убеждение, Хватательное тело",
        "en": "Balaram"
       },
       {
        "key": "ahi",
        "name": "Ахи",
+       "text": "«метис» Нагах (не гонимы; 1 из 10 потомков двух Нагах; рождаются в Ананте/Змеиных водах; первое время в Ажи Дахака, не меняют форму; раз в три месяца должны бывать в физическом мире, иначе станут духами): Гнозис 3; Дары: Чутьё Ткачихи, Чутьё Дикости, Чутьё Червя",
        "en": "Ahi"
       },
       {
@@ -25715,6 +26837,7 @@
        "stats": {
         "gnosis": 5
        },
+       "text": "змея, из кладки (один из ≥12 яиц): Гнозис 5; Дары: Дар реки, Благословение древесной змеи",
        "en": "Vasuki"
       }
      ]
@@ -25729,6 +26852,7 @@
        "stats": {
         "rage": 3
        },
+       "text": "Земля · Ласка Ганги, Сопротивление боли",
        "en": "Kamakshi"
       },
       {
@@ -25737,6 +26861,7 @@
        "stats": {
         "rage": 4
        },
+       "text": "Огонь · Глаза бога войны, Запах истинной формы",
        "en": "Kartikeya"
       },
       {
@@ -25745,6 +26870,7 @@
        "stats": {
         "rage": 3
        },
+       "text": "Воздух · Преимущество палача, Глаз убийцы",
        "en": "Kamsa"
       },
       {
@@ -25753,6 +26879,7 @@
        "stats": {
         "rage": 4
        },
+       "text": "жабры. Зрение и цветоощущение хорошие; вкус/обоняние: за каждую форму от Балараме Восприятия по вкусу/запаху −1 к сложности (минимум 3); в Кали Дахака — Дар «Запах зрения» (лупусов). <strong>Слух:</strong> Кали Дахака — +3 к сложности слуховых Восприятий; Васуки — глухи к звукам в воздухе",
        "en": "Kali"
       }
      ]
@@ -25860,6 +26987,7 @@
        "stats": {
         "gnosis": 1
        },
+       "text": "Гнозис 1, Дары: Убеждение, Мастер огня, Запах человека",
        "en": "Homid"
       },
       {
@@ -25868,6 +26996,7 @@
        "stats": {
         "gnosis": 5
        },
+       "text": "Гнозис 5, Дары: Прыжок зайца, Обострённые чувства, Ум добычи",
        "en": "Latrani"
       }
      ]
@@ -25970,6 +27099,7 @@
        "stats": {
         "rage": 1
        },
+       "text": "Чувство опасности, Бесшумный бег · <strong>Культурный дар:</strong> за несколько часов создаёт личину, −2 к сложности Манипулирования/Хитрости для неё; видения странствия; <strong>налегке:</strong> ниже Ранга 3 нельзя «Ресурсы», на Ранге 3 — не более 2",
        "en": "Tunnel Runner"
       },
       {
@@ -25978,6 +27108,7 @@
        "stats": {
         "rage": 2
        },
+       "text": "Касание Крысиной Матери, Чутьё Ткачихи · Речь духов бесплатно; <strong>Духовное зрение:</strong> 1 Гнозис — видит Пенумбру на сцену (слепнет в физическом мире); <strong>Отрыв:</strong> при фиаско Ярости/Гнозиса/Воли духи важнее мира на сцену",
        "en": "Shadow Seer"
       },
       {
@@ -25986,6 +27117,7 @@
        "stats": {
         "rage": 3
        },
+       "text": "Липкие лапы, Истина Геи · 3 бесплатные точки Контактов (нелегальные); верность им; <strong>чувство справедливости:</strong> +1 Ярость при виде несправедливости; <strong>Кодекс убийцы:</strong> нельзя быть замеченным при убийстве цели и бить из «Покрова теней»; иначе теряет Хитрость",
        "en": "Knife Skulker"
       },
       {
@@ -26002,6 +27134,7 @@
        "stats": {
         "rage": 2
        },
+       "text": "Freak — Управление простой машиной, Мусор — сокровище · <strong>Починить кое-как (Jury Rig):</strong> 1 Гнозис, Интеллект + Ремонт: устройство размером с крупную собаку на сцену; <strong>Ловкие руки:</strong> тонкая моторика −2; <strong>Гений и безумие:</strong> одна из причуд (Любопытный, Рассеянный, Мания величия, Клептомания)",
        "en": "Engineer"
       },
       {
@@ -26010,6 +27143,7 @@
        "stats": {
         "rage": 3
        },
+       "text": "Freak — Отравить еду, Сопение · 3 бесплатные точки Медицины; Дух-союзник боли/болезни, который требует услуг (иначе заболеют друзья)",
        "en": "Plague Lord"
       },
       {
@@ -26018,6 +27152,7 @@
        "stats": {
         "rage": 4
        },
+       "text": "Freak — Убеждение, Сказительство · <strong>Красивая ложь:</strong> раз в день, Манипулирование + Выразительность: все верят час + час за успех; 3 бесплатные точки Выразительности; обязательное бредовое убеждение",
        "en": "Munchmausen"
       },
       {
@@ -26026,6 +27161,7 @@
        "stats": {
         "rage": 5
        },
+       "text": "Freak — Огненный жук, Ядовитая ненависть · <strong>Безымянность:</strong> люди Воля сл. 8, чтобы запомнить; Раткин вне стаи — Гнозис сл. 8; <strong>Проблемы с импульсом:</strong> при получении Ярости бросок d10 сл. (10 − Ранг): успех — ещё 1 Ярость и новый бросок; <strong>Параноидальный бред</strong>",
        "en": "Twitcher"
       }
      ]
@@ -26127,6 +27263,7 @@
        "stats": {
         "gnosis": 5
        },
+       "text": "Гнозис 5 (от акул-крупных видов: мако, белая, тигровая, молот, голубая, лисья акула)",
        "en": "Squamus"
       },
       {
@@ -26135,6 +27272,7 @@
        "stats": {
         "gnosis": 1
        },
+       "text": "Гнозис 1 (почти не бывают)",
        "en": "Homid"
       }
      ]
@@ -26149,6 +27287,7 @@
        "stats": {
         "rage": 5
        },
+       "text": "солнечный день или полнолуние · Глаза Раны, Сдержанность",
        "en": "Brightwater"
       },
       {
@@ -26157,6 +27296,7 @@
        "stats": {
         "rage": 4
        },
+       "text": "пасмурный день или ночь (не новая/полная Луна) · Король-рыба, Голос Моря",
        "en": "Dimwater"
       },
       {
@@ -26165,6 +27305,7 @@
        "stats": {
         "rage": 3
        },
+       "text": "затмение или новая луна · Кровь глубин, Тихая отправка",
        "en": "Darkwater"
       }
      ]

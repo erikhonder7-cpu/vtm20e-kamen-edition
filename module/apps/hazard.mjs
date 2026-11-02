@@ -10,6 +10,9 @@
 // летальные раны по Вере места или предмета (1–5) каждый ход, на земле — ещё бросок Воли, чтобы остаться; при Муке 3-
 // не действуют (кроме недостатка «Невозможность ступить на освящённую землю»). Летальный урон он поглощает
 // Выносливостью только в апокалиптической форме; Облик с «Устойчивостью»/«Невосприимчивостью к огню» в форме не горит.
+// Гару и Фера (W20, гл. 5): солнца нет — вместо него серебро: касание — 1 губительный за ход, не поглощается
+// (в породной форме хомида и лупуса — только жжение; метис уязвим всегда). Огонь всегда губительный, броню
+// игнорирует; летальный и губительный урон оборотень поглощает Выносливостью в любой форме, кроме породной.
 
 import { VTM20, SYSTEM_PATH } from "../config.mjs";
 import { rollPool, odds, chancesView } from "../dice/roll.mjs";
@@ -28,6 +31,8 @@ const KIND_ICONS = { fire: "fa-fire", sun: "fa-sun", fall: "fa-person-falling", 
 const DEMON_KINDS = { fire: "fa-fire", holyGround: "fa-church", holyRelic: "fa-cross", fall: "fa-person-falling", shock: "fa-bolt" };
 const HOLY_GROUND = { chapel: 1, church: 2, shrine: 3, ancient: 4, great: 5 };
 const HOLY_RELIC = { water: 1, blessed: 2, relic: 3, venerated: 4, unique: 5 };
+/** Оборотням: серебро вместо солнца. */
+const GAROU_KINDS = { fire: "fa-fire", silver: "fa-ring", fall: "fa-person-falling", shock: "fa-bolt" };
 
 export function openHazard(actor) {
   return new HazardDialog(actor).render({ force: true });
@@ -73,6 +78,7 @@ class HazardDialog extends HandlebarsApplicationMixin(ApplicationV2) {
 
   get tough() { const a = this.actor; return a.isVampire || (a.type === "creature" && a.system.supernatural) || (a.type === "demon" && a.system.apocalyptic); }
   get isDemon() { return this.actor.type === "demon"; }
+  get isGarou() { return this.actor.type === "werewolf"; }
   /** Облик в принятой форме не горит: черта «Устойчивость к огню» или «Невосприимчивость к огню». */
   get fireproof() {
     const s = this.actor.system;
@@ -87,6 +93,7 @@ class HazardDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const STA = { label: a.traitLabel("attributes.stamina"), value: stamina };
     const FORT = { label: a.traitLabel("disciplines.fortitude"), value: fort };
     let p;
+    if (this.isGarou) return this.#garou();
     if (v.kind === "fire" && this.fireproof) return { harmless: true, harmlessText: t("Hazard.Fireproof"), bd: [], pool: 0 };
     if (v.kind === "holyGround" || v.kind === "holyRelic") {
       if (!this.holyHurts) return { harmless: true, harmlessText: t("Hazard.HolyLowTorment"), bd: [], pool: 0 };
@@ -111,11 +118,39 @@ class HazardDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       p = { amount: SHOCK[v.shock], type: "lethal", difficulty: 6, parts: this.tough ? [STA, FORT] : [FORT], perTurn: true,
         botchToAggravated: true, breakFree: a.isVampire ? 5 : 9 };
     }
+    return this.#finish(p);
+  }
+
+  /** Разбор пула, модификаторы прочности и сложности. */
+  #finish(p) {
+    const v = this.v;
     p.bd = p.parts.filter(x => x.value);
     if (v.modDice) p.bd.push({ label: t("Hunt.ModShort"), value: v.modDice });
     p.pool = Math.max(0, p.bd.reduce((n, x) => n + x.value, 0));
     p.difficulty = Math.clamp(p.difficulty + v.modDiff, 2, 10);
     return p;
+  }
+
+  /** Гару и Фера (W20, гл. 5): Выносливость против летального и губительного — вне породной формы; серебро не поглощается. */
+  #garou() {
+    const a = this.actor, v = this.v, weak = a.system.werewolf.breedForm, fx = a.system.formFx?.soak ?? 0;
+    const STA = { label: a.traitLabel("attributes.stamina"), value: a.system.attributes.stamina.total };
+    const FX = { label: t("Hazard.FormFx"), value: fx };
+    const hard = weak ? [FX] : [STA, FX];
+    let p;
+    if (v.kind === "silver") {
+      if (weak) return { harmless: true, harmlessText: t("Hazard.SilverBreed"), bd: [], pool: 0 };
+      p = { amount: 1, type: "aggravated", difficulty: 6, parts: [], perTurn: true };
+    } else if (v.kind === "fire") {
+      p = { amount: AREA[v.area], type: "aggravated", difficulty: FIRE_HEAT[v.heat], parts: hard, perTurn: true };
+    } else if (v.kind === "fall") {
+      const terminal = v.meters >= 30, type = terminal || v.sharp ? "lethal" : "bashing";
+      const arm = Math.floor(a.armor.rating / (terminal ? 2 : 1));
+      p = { dice: terminal ? 10 : Math.floor(v.meters / 3), type, difficulty: 6, parts: [...(type === "bashing" ? [STA, FX] : hard), { label: t("Sheet.Armor"), value: arm }] };
+    } else {
+      p = { amount: SHOCK[v.shock], type: "lethal", difficulty: 6, parts: hard, perTurn: true, botchToAggravated: true, breakFree: 9 };
+    }
+    return this.#finish(p);
   }
 
   async _prepareContext() {
@@ -130,11 +165,11 @@ class HazardDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     return {
       v, p, levels,
       areas: ["fire", "sun"].includes(v.kind) ? tiles(AREA, v.area, "Hazard.Area", "area") : null,
-      kinds: Object.entries(this.isDemon ? DEMON_KINDS : KIND_ICONS).map(([k, icon]) => ({ key: k, icon, label: t(`Hazard.Kind.${k}`), active: v.kind === k })),
+      kinds: Object.entries(this.isDemon ? DEMON_KINDS : this.isGarou ? GAROU_KINDS : KIND_ICONS).map(([k, icon]) => ({ key: k, icon, label: t(`Hazard.Kind.${k}`), active: v.kind === k })),
       kindCols: this.isDemon ? 5 : 4,
       typeLabel: p.type ? game.i18n.localize(VTM20.damageTypes[p.type].label) : "",
       chances: p.harmless || !p.pool ? null : chancesView(odds({ pool: p.pool, difficulty: p.difficulty, noBotch: !p.botchToAggravated })),
-      note: { fire: t(this.isDemon ? "Hazard.FireNoteDemon" : "Hazard.FireNote"), sun: t("Hazard.SunNote"), fall: t("Hazard.FallNote"), shock: t("Hazard.ShockNote", { n: p.breakFree }),
+      note: { fire: t(this.isDemon ? "Hazard.FireNoteDemon" : this.isGarou ? "Hazard.FireNoteGarou" : "Hazard.FireNote"), silver: t("Hazard.SilverNote"), sun: t("Hazard.SunNote"), fall: t("Hazard.FallNote"), shock: t("Hazard.ShockNote", { n: p.breakFree }),
         holyGround: t("Hazard.HolyGroundNote"), holyRelic: t("Hazard.HolyRelicNote") }[v.kind],
       isFall: v.kind === "fall",
       messageModes: Object.entries(modes).map(([k, m]) => ({ value: k, label: game.i18n.localize(m.label ?? k), selected: k === v.messageMode }))
@@ -175,7 +210,7 @@ class HazardDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     if (p.holy === "holyGround") await rollPool({ actor: a, title: t("Hazard.HolyStay"), pool: a.system.willpower.permanent, difficulty: 6, kind: "holyStay", messageMode,
       breakdown: [{ label: t("Willpower"), value: a.system.willpower.permanent }] });
     // Огонь и солнце — Ротшрек (05): обжёгшись — 7, прямой солнечный свет — 8
-    if (["fire", "sun"].includes(this.v.kind)) suggestCheck(a, "rotschreck", { reason: title, difficulty: left > 0 ? (this.v.kind === "sun" ? 8 : 7) : 6 });
+    if (a.isVampire && ["fire", "sun"].includes(this.v.kind)) suggestCheck(a, "rotschreck", { reason: title, difficulty: left > 0 ? (this.v.kind === "sun" ? 8 : 7) : 6 });
     return left;
   }
 }
