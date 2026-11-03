@@ -1,0 +1,53 @@
+{{!-- Шапка листа духа (spirit-sheet.mjs) — в разметке шапки персонажа: портрет с печатью Ранга, имя, сведения строками,
+     справа — Эссенция на месте запаса крови; под сведениями — полоса действий боя (W20, гл. 11). --}}
+<header class="r-head">
+  {{{spiritGlyphMark}}}
+  <div class="r-head-main">
+    <figure class="r-portrait-frame">
+      <img class="r-portrait" src="{{actor.img}}" data-edit="img" data-action="editImage" alt="{{actor.name}}" title="{{actor.name}}">
+      <span class="r-portrait-veil" aria-hidden="true"></span>
+      <figcaption class="r-seal">
+        <span class="r-seal-num r-seal-icon r-seal-glyph">{{{spiritGlyph}}}</span><span class="r-seal-cap">{{spiritRank}}</span>
+        {{#if editable}}<i class="fa-solid fa-chevron-down r-seal-caret"></i><select name="system.spirit.rank" class="r-seal-select" aria-label="{{localize 'VTM20.Werewolf.Spirit.rank'}}">{{#each spiritInfo.ranks}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>{{/if}}
+      </figcaption>
+    </figure>
+
+    <div class="r-head-info">
+      <div class="r-kicker">
+        <span class="r-kicker-type">{{localize "VTM20.Werewolf.Spirit.title"}}</span>
+        {{#if system.kind}}<i class="r-kicker-dia"></i><em class="r-kicker-nick">{{system.kind}}</em>{{/if}}
+        <span class="r-motto" aria-hidden="true">Umbra</span>
+      </div>
+      <div class="r-name-row">
+        <input class="r-name {{nameSize}}" type="text" name="name" value="{{actor.name}}" placeholder="{{localize 'VTM20.Sheet.Name'}}" spellcheck="false">
+      </div>
+      <div class="r-dossier">
+        <label class="r-df is-wide"><span>{{localize "VTM20.Sheet.Kind"}}</span><input type="text" name="system.kind" value="{{system.kind}}"></label>
+        <label class="r-df is-wide"><span>{{localize "VTM20.Werewolf.Spirit.brood"}}</span><input type="text" name="system.spirit.brood" value="{{system.spirit.brood}}"></label>
+        <label class="r-df is-wide r-sp-ban"><span>{{localize "VTM20.Werewolf.Spirit.ban"}}</span><input type="text" name="system.spirit.ban" value="{{system.spirit.ban}}"></label>
+        <label class="r-df is-narrow r-sp-toggle" data-tooltip="{{localize 'VTM20.Werewolf.Spirit.toggleHint'}}"><span>{{localize "VTM20.Werewolf.Spirit.title"}}</span><input type="checkbox" name="system.spirit.on" {{checked system.spirit.on}}></label>
+      </div>
+    </div>
+
+    {{!-- Эссенция — и «здоровье», и запас для Чар: клетками, как кровь каплями --}}
+    <aside class="r-assignat is-essence {{#if essenceLow}}is-low{{/if}}">
+      <div class="r-assignat-head">
+        <span class="r-assignat-title">{{localize "VTM20.Werewolf.Spirit.essence"}}</span>
+        <span class="r-assignat-num"><b>{{spiritInfo.essence}}</b><small>/{{spiritInfo.essenceMax}}</small></span>
+      </div>
+      <div class="r-boxes is-essence">{{#each spiritInfo.essenceBoxes}}<a class="r-box {{#if filled}}is-filled{{/if}}" data-action="setDots" data-path="{{path}}" data-n="{{n}}"></a>{{/each}}</div>
+      <div class="r-assignat-meta">
+        <span>{{localize "VTM20.Werewolf.Spirit.max"}} {{#if editable}}<input type="number" name="system.spirit.essence.max" value="{{spiritInfo.essenceMax}}" min="0" max="100" class="r-mini-num">{{else}}<b>{{spiritInfo.essenceMax}}</b>{{/if}}</span>
+        <a data-action="spEssenceStep" data-d="-1" data-tooltip="{{localize 'VTM20.Werewolf.Spirit.spendHint'}}"><i class="fa-solid fa-minus"></i></a>
+        <a data-action="spEssenceStep" data-d="1" data-tooltip="{{localize 'VTM20.Werewolf.Spirit.regainHint'}}"><i class="fa-solid fa-plus"></i></a>
+        <a data-action="spEssence" data-tooltip="{{localize 'VTM20.Werewolf.Spirit.essenceHint'}}"><i class="fa-solid fa-arrows-rotate"></i></a>
+      </div>
+    </aside>
+
+    <nav class="r-head-acts">
+      {{#each spiritFight}}<a class="r-act" data-action="spRoll" data-key="{{key}}" data-tooltip="{{label}}: {{trait}}"><i class="fa-solid {{icon}}"></i><span>{{label}}</span><b>{{n}}</b></a>{{/each}}
+      <a class="r-act is-minor" data-action="spStep" data-tooltip="{{localize 'VTM20.Werewolf.Spirit.stepHint'}}"><i class="fa-solid fa-circle-half-stroke"></i><span>{{localize "VTM20.Werewolf.Spirit.step"}}</span></a>
+      <span class="r-acts-spacer"></span>
+    </nav>
+  </div>
+</header>

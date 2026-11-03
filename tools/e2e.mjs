@@ -268,6 +268,32 @@ try {
     if (r.noticed !== 2 || !r.clean || !r.carrier) throw new Error(`болезнь крови: заметил ${r.noticed}, чист ${r.clean}, разносчик ${r.carrier}`);
   });
 
+  await check("Дух Умбры: свой лист, тема «Пенумбра», урон по Эссенции, переключение на лист существа", async () => {
+    const id = await page.evaluate(async () => {
+      const W = await import(`/systems/${game.system.id}/module/apps/werewolf.mjs`);
+      const key = W.W().spirits[0].key, a = await W.createSpirit(key, "E2E — дух");
+      await a.setFlag("world", "e2e", true);
+      return a.id;
+    });
+    const r = await page.evaluate(async id => {
+      const a = game.actors.get(id), wait = ms => new Promise(res => setTimeout(res, ms)), out = {};
+      await a.sheet.render(true); await wait(900);
+      out.sheet = a.sheet.constructor.name; out.theme = a.sheet.element.classList.contains("r-type-spirit");
+      out.traits = a.sheet.element.querySelectorAll(".r-sp-trait").length; out.rail = !!a.sheet.element.querySelector(".r-rail .r-rtab");
+      // любой урон снимает Эссенцию, здоровье не трогается (W20, гл. 11)
+      const e0 = a.system.spirit.essence.value;
+      await a.applyDamage(3, "aggravated");
+      out.essence = e0 - a.system.spirit.essence.value; out.health = a.system.health.aggravated;
+      await a.sheet.close();
+      await a.update({ "system.spirit.on": false }); await wait(400); out.off = a.sheet.constructor.name;
+      await a.update({ "system.spirit.on": true }); await wait(400); out.on = a.sheet.constructor.name;
+      return out;
+    }, id);
+    if (r.sheet !== "SpiritSheet" || !r.theme || r.traits !== 3) throw new Error(`лист духа: ${JSON.stringify(r)}`);
+    if (r.essence !== 3 || r.health !== 0) throw new Error(`урон духу: Эссенция −${r.essence}, губительных ${r.health}`);
+    if (r.off !== "VtMActorSheet" || r.on !== "SpiritSheet") throw new Error(`переключение: ${r.off} / ${r.on}`);
+  });
+
   await check("Маскарад: охотники при огласке — карточка, «Не нужно», настройка", async () => {
     const r = await page.evaluate(async () => {
       const SYS = game.system.id, raw0 = foundry.utils.deepClone(game.settings.get(SYS, "cityMap") ?? {}), on0 = game.settings.get(SYS, "huntersAlert");
@@ -1316,7 +1342,7 @@ try {
       const d = WW.deliriumOf(7); out.delirium = `${d.key}:${d.forgets}`;
       await s.update({ "system.spirit": { on: true, rage: 4, gnosis: 6, willpower: 5 } });
       await WW.spiritEssenceReset(s); out.essence = s.system.spirit.essence.max; out.spiritRoll = s.traitValue("spirit.gnosis");
-      await s.sheet.render(true); await wait(900); out.card = !!s.sheet.element.querySelector(".r-vc-spirit") && !!s.sheet.element.querySelector(".r-sp-tpl option[value='bane-halassh']"); await s.sheet.close();
+      await s.sheet.render(true); await wait(900); out.card = s.sheet.constructor.name === "SpiritSheet" && !!s.sheet.element.querySelector(".r-sp-trait") && !!s.sheet.element.querySelector(".r-sp-tpl option[value='bane-halassh']"); await s.sheet.close();
       await WW.applySpiritTpl(s, "bane-halassh");
       out.spTpl = `${s.system.spirit.rage}:${s.system.spirit.charms.join() === WW.spiritTplOf("bane-halassh").charms.join()}`;
       // Родня Гару: Дар за опыт (свой — 15), блок на листе

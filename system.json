@@ -41,6 +41,9 @@
       "src": "styles/types/werewolf.css"
     },
     {
+      "src": "styles/types/spirit.css"
+    },
+    {
       "src": "styles/types/dhampir.css"
     },
     {

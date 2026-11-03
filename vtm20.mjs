@@ -52,6 +52,7 @@ import { registerSepts } from "./module/apps/sept.mjs";
 import { registerGarouLog } from "./module/apps/werewolf.mjs";
 import { registerGeneration } from "./module/apps/diablerie.mjs";
 import { CoterieSheet, DomainSheet } from "./module/sheets/group-sheet.mjs";
+import { registerSpiritSheet } from "./module/sheets/spirit-sheet.mjs";
 import { registerCityMap, openCity, closeCity, toggleCity, cityMap } from "./module/ui/citymap.mjs";
 import { registerPause } from "./module/ui/pause.mjs";
 import { registerThemes } from "./module/ui/themes.mjs";
@@ -134,6 +135,7 @@ Hooks.once("init", () => {
   // котерия и домен — свои листы (module/sheets/group-sheet.mjs)
   Actors.registerSheet(SYSTEM_ID, CoterieSheet, { makeDefault: true, label: "VTM20.Sheets.Coterie", types: ["coterie"] });
   Actors.registerSheet(SYSTEM_ID, DomainSheet, { makeDefault: true, label: "VTM20.Sheets.Domain", types: ["domain"] });
+  registerSpiritSheet();
   Items.unregisterSheet("core", foundry.appv1.sheets.ItemSheet);
   Items.registerSheet(SYSTEM_ID, VtMItemSheet, { makeDefault: true, label: "VTM20.Sheets.Item" });
   registerExtras();

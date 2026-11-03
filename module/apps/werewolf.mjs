@@ -153,7 +153,7 @@ export function giftsView(actor) {
   const have = new Set(w.gifts ?? []);
   const avail = W().gifts.filter(g => !have.has(g.key) && mine(g) && g.level <= Math.max(1, w.rank))
     .sort((a, b) => a.level - b.level || a.name.localeCompare(b.name, "ru")).map(g => ({ key: g.key, label: `${g.level} · ${VTM20.label(g)}` }));
-  const rites = (w.rites ?? []).map(riteOf).filter(Boolean).sort((a, b) => a.level - b.level).map(r => ({ ...r, pool: poolLabel(actor, r.roll ?? { trait1: "attributes.wits", trait2: "abilities.rituals" }) }));
+  const rites = (w.rites ?? []).map(riteOf).filter(Boolean).sort((a, b) => a.level - b.level).map(r => ({ ...r, pool: poolLabel(actor, r.roll ?? { trait1: "attributes.wits", trait2: "abilities.rituals", byTarget: true }) }));
   const ritesAvail = W().rites.filter(r => !(w.rites ?? []).includes(r.key) && r.level <= Math.max(1, actor.system.abilities.rituals?.value ?? 0))
     .sort((a, b) => a.level - b.level || a.name.localeCompare(b.name, "ru")).map(r => ({ key: r.key, label: `${r.level || "—"} · ${VTM20.label(r)} · ${r.kindName}` }));
   return { gifts: rows, avail, rites, ritesAvail };
@@ -162,7 +162,7 @@ export function giftsView(actor) {
 function poolLabel(actor, r) {
   if (!r) return "";
   return [r.trait1 && actor.traitLabel(r.trait1), r.trait2 && actor.traitLabel(r.trait2)].filter(Boolean).join(" + ")
-    + (r.byTarget ? ` · ${t("DiffByTarget")}` : ` · ${t("Diff", { n: r.difficulty })}`);
+    + (r.byTarget ? ` · ${t("DiffByTarget")}` : r.difficulty ? ` · ${t("Diff", { n: r.difficulty })}` : "");
 }
 function costText(c = {}) {
   return [c.rage && t("CostRage", { n: c.rage }), c.gnosis && t("CostGnosis", { n: c.gnosis }), c.willpower && t("CostWill", { n: c.willpower })].filter(Boolean).join(", ");

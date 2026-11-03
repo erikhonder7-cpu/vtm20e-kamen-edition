@@ -329,6 +329,12 @@ export class VtMActor extends Actor {
     if (!amount) return;
     // толпа (apps/extras.mjs): общая шкала, по 3 уровня на человека
     if (mobState(this)) return applyMobDamage(this, amount, type);
+    // дух Умбры (W20, гл. 11): уровней здоровья нет — любой урон снимает Эссенцию; без Эссенции дух растворяется в Умбре
+    if (this.type === "creature" && this.system.spirit?.on) {
+      const e = { ...this._source.system.spirit.essence }, left = Math.max(0, e.value - amount);
+      await this.update({ "system.spirit.essence.value": left });
+      return this.#notice(`<i class="fa-solid fa-wind"></i> ${t("Notify.SpiritHit", { n: e.value - left, left, max: e.max })}${left ? "" : ` <b class="r-fate">${t("Fate.spiritGone")}</b>`}`);
+    }
     const src = this._source.system.health;
     const h = { bashing: src.bashing, lethal: src.lethal, aggravated: src.aggravated };
     const wasFull = h.bashing + h.lethal + h.aggravated >= 7;

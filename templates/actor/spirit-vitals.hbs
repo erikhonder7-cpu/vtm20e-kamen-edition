@@ -1,0 +1,22 @@
+{{!-- Шкалы духа (W20, гл. 11): Воля — вместо Ловкости и Стойкости, Ярость — вместо Силы, Гнозис — вместо Социальных
+     и Умственных; только точками 1–10, без трат. Карточки — те же, что Воля и мораль у персонажа. --}}
+<section class="r-vitals-wrap {{#if vitalsClosed}}is-closed{{/if}}">
+<div class="r-vitals-fold"><div class="r-vitals r-sp-vitals">
+  {{#each spiritInfo.traits}}
+  <div class="r-vcard r-sp-trait is-{{k}}">
+    <div class="r-vc-head">
+      <h4 class="r-banner"><a data-action="rollTrait" data-trait="spirit.{{k}}" data-tooltip="{{hint}}">{{label}}</a></h4>
+      <div class="r-vc-status"><b>{{v}}</b></div>
+    </div>
+    {{> rDots dots=dots cls="is-ten"}}
+  </div>
+  {{/each}}
+</div></div>
+  <a class="r-vitals-strip" data-action="toggleVitals" data-tooltip="{{#if vitalsClosed}}{{localize 'VTM20.Sheet.VitalsOpen'}}{{else}}{{localize 'VTM20.Sheet.VitalsClose'}}{{/if}}">
+    <span class="r-vs-sum">
+      <span class="r-vs-item"><i class="fa-solid fa-wind"></i> {{localize "VTM20.Werewolf.Spirit.essence"}} <b>{{spiritInfo.essence}}</b>/{{spiritInfo.essenceMax}}</span>
+      {{#each spiritInfo.traits}}<span class="r-vs-item">{{label}} <b>{{v}}</b></span>{{/each}}
+    </span>
+    <i class="fa-solid fa-chevron-up r-vs-caret"></i>
+  </a>
+</section>

@@ -1,0 +1,26 @@
+{{!-- I. Чары духа строками, как Дары у Гару: общие — у всех духов; щелчок по имени — текст. Ниже — добавить Чары
+     и разом взять образец духа (бестиарии W20, Умбры, Книги Червя, кин-фетчи). --}}
+<section class="tab r-pane r-disciplines r-edges r-sp-pane {{tab.cssClass}}" data-tab="{{tab.id}}" data-group="{{tab.group}}">
+  <h2 class="r-h2"><span>{{localize "VTM20.Werewolf.Spirit.charms"}}</span></h2>
+  <ul class="r-edge-list r-sp-charmlist">
+    {{#each spiritCharms}}
+    <li class="r-edge {{#if open}}is-open{{/if}}">
+      <span class="r-edge-lvl"><i class="fa-solid {{#if general}}fa-circle-nodes{{else}}fa-star-of-life{{/if}}"></i></span>
+      <span class="r-edge-main"><a data-action="spCharmOpen" data-key="{{key}}"><b>{{rName this}}</b></a> <small>{{rAlt this}}{{#if general}} · {{localize "VTM20.Werewolf.Spirit.general"}}{{/if}}</small>
+        {{#if open}}<div class="r-edge-text">{{{text}}}</div>{{/if}}</span>
+      {{#unless general}}{{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="spCharmDel" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}{{/unless}}
+    </li>
+    {{/each}}
+  </ul>
+  {{#if editable}}
+  <div class="r-toolbar r-sp-tools">
+    <select class="r-sp-charm-add"><option value="">{{localize "VTM20.Werewolf.Spirit.addCharm"}}</option>{{#each spiritInfo.avail}}<option value="{{key}}">{{rName this}}</option>{{/each}}</select>
+    <a class="r-btn" data-action="spCharmAdd"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Werewolf.Spirit.add"}}</a>
+  </div>
+  <h2 class="r-h2"><span>{{localize "VTM20.Werewolf.Spirit.tpl"}}</span></h2>
+  <div class="r-toolbar r-sp-tools">
+    <select class="r-sp-tpl"><option value="">—</option>{{#each spiritTpls}}<optgroup label="{{label}}">{{#each list}}<option value="{{key}}">{{label}}</option>{{/each}}</optgroup>{{/each}}</select>
+    <a class="r-btn" data-action="spTpl" data-tooltip="{{localize 'VTM20.Werewolf.Spirit.tplHint'}}"><i class="fa-solid fa-wand-magic-sparkles"></i> {{localize "VTM20.Werewolf.Spirit.apply"}}</a>
+  </div>
+  {{/if}}
+</section>

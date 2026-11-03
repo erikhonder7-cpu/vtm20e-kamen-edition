@@ -20,15 +20,18 @@ function actorOf(app) {
   return null;
 }
 
+/** Тема персонажа: тип актёра, у духа Умбры (существо с отметкой «Дух») — своя палитра «Пенумбра» (styles/types/spirit.css). */
+export const themeOf = actor => !actor?.type ? null : actor.type === "creature" && actor.system?.spirit?.on ? "spirit" : actor.type;
+
 /** Класс темы для своих HTML-кусков (карточки, уведомления). */
-export const themeClass = actor => actor?.type ? `r-type-${actor.type}` : "";
+export const themeClass = actor => actor?.type ? `r-type-${themeOf(actor)}` : "";
 
 export function registerThemes() {
   Hooks.on("renderApplicationV2", (app, element) => {
     // окна системы и стандартные подтверждения Foundry (их цвета — переменные Foundry, переопределены в теме типа)
     const isDialog = app instanceof foundry.applications.api.DialogV2;
     if (!element?.classList?.contains("vtm20") && !isDialog) return;
-    const type = actorOf(app)?.type ?? ITEM_THEMES[app.document?.type] ?? (Date.now() - recent.at < FRESH_MS && isDialog ? recent.type : null);
+    const type = themeOf(actorOf(app)) ?? ITEM_THEMES[app.document?.type] ?? (Date.now() - recent.at < FRESH_MS && isDialog ? recent.type : null);
     if (!type) return;                                   // окно без персонажа — его тема задана им самим (справочник Домов)
     for (const c of [...element.classList]) if (c.startsWith("r-type-") && c !== `r-type-${type}`) element.classList.remove(c);
     element.classList.add(`r-type-${type}`);
@@ -38,7 +41,7 @@ export function registerThemes() {
     // щелчок в окне персонажа — его тему получит и подтверждение, которое откроется следом
     if (!element.dataset.rTheme) {
       element.dataset.rTheme = "1";
-      element.addEventListener("pointerdown", () => { const a = actorOf(app); if (a) recent = { type: a.type, at: Date.now() }; }, true);
+      element.addEventListener("pointerdown", () => { const a = actorOf(app); if (a) recent = { type: themeOf(a), at: Date.now() }; }, true);
     }
   });
 }

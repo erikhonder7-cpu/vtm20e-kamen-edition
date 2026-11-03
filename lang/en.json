@@ -863,7 +863,8 @@
       "Extra": "Extra and crowd",
       "Item": "V20 item",
       "Coterie": "Coterie sheet",
-      "Domain": "Domain sheet"
+      "Domain": "Domain sheet",
+      "Spirit": "Umbral Spirit Sheet"
     },
     "Tabs": {
       "traits": "Traits",
@@ -1036,7 +1037,8 @@
       "incapacitated": "Incapacitated!",
       "torpor": "Torpor!",
       "finalDeath": "Final Death!",
-      "death": "Death!"
+      "death": "Death!",
+      "spiritGone": "The spirit discorporates — dissolving into the Umbra"
     },
     "MeritCat": {
       "physical": "Physical",
@@ -2154,7 +2156,8 @@
       "SceneEnded": "The scene is over: blood boosts cleared.",
       "NoBloodState": "{name}: staked or in torpor — blood can't be spent.",
       "BloodDoubled": "Thin blood: spending is doubled — blood spent: {n}.",
-      "BloodPerTurn": "{name}: no more than {max} blood can be spent per turn ({spent} already spent)."
+      "BloodPerTurn": "{name}: no more than {max} blood can be spent per turn ({spent} already spent).",
+      "SpiritHit": "Essence −{n}: {left} of {max}"
     },
     "Hunt": {
       "Masq": "Masquerade: +{n} to difficulty",
@@ -4404,7 +4407,22 @@
         "toggleHint": "The creature is an Umbral spirit: Rage, Gnosis, Willpower, Essence and Charms instead of Morality",
         "willpowerHint": "Willpower — attack and defense, instead of Dexterity and Stamina",
         "rageHint": "Rage — damage, instead of Strength",
-        "gnosisHint": "Gnosis — instead of Social and Mental Attributes, for Charms"
+        "gnosisHint": "Gnosis — instead of Social and Mental Attributes, for Charms",
+        "rank": "Rank",
+        "brood": "Brood",
+        "ban": "Ban",
+        "spendHint": "Spend Essence (Charms)",
+        "add": "Add",
+        "apply": "Apply",
+        "fight": {
+          "title": "Combat",
+          "attack": "Attack",
+          "damage": "Damage",
+          "dodge": "Dodge",
+          "soak": "Soak"
+        },
+        "max": "Max",
+        "regainHint": "Regain Essence (Slumber)"
       },
       "SpiritRank": {
         "gaffling": "Gaffling",
