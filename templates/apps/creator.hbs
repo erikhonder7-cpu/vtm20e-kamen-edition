@@ -81,10 +81,10 @@
           </a>
           {{/each}}
         </div>
-        {{else}}<h3 class="r-h3">{{localize "VTM20.Sheet.Experience"}}</h3><p class="r-note">{{#if (or isMortal isHunter isWerewolf)}}{{localize "VTM20.Creator.XpMortal"}}{{else}}{{localize "VTM20.Creator.XpDemon"}}{{/if}}</p>{{/unless}}
+        {{else}}<h3 class="r-h3">{{localize "VTM20.Sheet.Experience"}}</h3><p class="r-note r-explain">{{#if (or isMortal isHunter isWerewolf)}}{{localize "VTM20.Creator.XpMortal"}}{{else}}{{localize "VTM20.Creator.XpDemon"}}{{/if}}</p>{{/unless}}
         <label class="r-cr-xpinput">{{localize "VTM20.Creator.XpCustom"}} <input type="number" data-field="xpTotal" value="{{st.xpTotal}}" min="0" step="5"></label>
         {{#if isHunter}}<label class="r-cr-xpinput">{{localize "VTM20.Creator.HunterExtra"}} <input type="number" data-field="hunterExtra" value="{{st.hunterExtra}}" min="0" max="6"></label>
-        <p class="r-note">{{localize "VTM20.Creator.HunterExtraHint"}}</p>{{/if}}
+        <p class="r-note r-explain">{{localize "VTM20.Creator.HunterExtraHint"}}</p>{{/if}}
       </div>
     </div>
         {{#if isMortal}}
@@ -116,7 +116,7 @@
         <div class="r-cr-eb is-mark {{#if marks.mark}}is-on{{/if}}">
           <div class="r-cr-eb-head">
             <span class="r-cr-eb-sym"><i class="fa-solid fa-paw"></i></span>
-            <div class="r-cr-eb-titles"><b>{{localize "VTM20.Creator.Mark.title"}}</b><span class="r-note">{{marks.hint}}</span></div>
+            <div class="r-cr-eb-titles"><b>{{localize "VTM20.Creator.Mark.title"}}</b><span class="r-note r-explain">{{marks.hint}}</span></div>
             <span class="r-cr-mark-opts">{{#each marks.opts}}<a class="r-btn {{#if active}}is-primary{{else}}is-ghost{{/if}}" data-action="mark" data-mark="{{key}}">{{label}}</a>{{/each}}</span>
           </div>
           {{#if (rEq marks.mark "kinfolk")}}
@@ -129,14 +129,14 @@
               <select data-field="kamiKind">{{#each marks.kamiKinds}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
             <label class="r-cr-mark-field is-wide"><span>{{localize "VTM20.Werewolf.Kami.geas"}}</span><input type="text" data-field="kamiGeas" value="{{st.kamiGeas}}"></label>
           </div>
-          <p class="r-note">{{localize "VTM20.Creator.Mark.kamiPick"}}</p>
+          <p class="r-note r-explain">{{localize "VTM20.Creator.Mark.kamiPick"}}</p>
           <div class="r-cr-mark-powers">{{#each marks.kamiPowers}}<a class="r-cr-mark-pw {{#if on}}is-on{{/if}}" data-action="markPower" data-key="{{key}}" data-tooltip="{{text}}">{{label}}</a>{{/each}}</div>
           {{/if}}
           {{#if (rEq marks.mark "fomor")}}
           <label class="r-cr-mark-field"><span>{{localize "VTM20.Creator.Mark.fomorBreed"}}</span>
             <select data-field="fomorBreed"><option value="">—</option>{{#each marks.fomorBreeds}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
           {{#if marks.fomorText}}<p class="r-note">{{marks.fomorText}}</p>{{/if}}
-          <p class="r-note">{{localize "VTM20.Creator.Mark.fomorPick"}}</p>
+          <p class="r-note r-explain">{{localize "VTM20.Creator.Mark.fomorPick"}}</p>
           <div class="r-cr-mark-powers">{{#each marks.fomorPowers}}<a class="r-cr-mark-pw {{#if on}}is-on{{/if}} {{#if own}}is-own{{/if}}" {{#unless own}}data-action="markPower" data-key="{{key}}"{{/unless}} data-tooltip="{{text}}">{{label}}</a>{{/each}}</div>
           {{/if}}
         </div>
@@ -202,7 +202,7 @@
         <div class="r-cr-gens">
           {{#each gens}}<a class="r-cr-gen {{#if active}}is-active{{/if}}" data-action="gen" data-gen="{{g}}" data-tooltip="{{localize 'VTM20.Creator.GenTip' pool=pool turn=perTurn cost=cost}}"><b>{{rRoman g}}</b><small>{{#if cost}}{{cost}} {{localize "VTM20.Creator.BgPts"}}{{else}}—{{/if}}</small></a>{{/each}}
         </div>
-        <p class="r-note">{{localize "VTM20.Creator.GenerationHint"}}</p>
+        <p class="r-note r-explain">{{localize "VTM20.Creator.GenerationHint"}}</p>
       </div>
       <div>
         <h3 class="r-h3">{{localize "VTM20.Sheet.Path"}}</h3>
@@ -274,7 +274,7 @@
       <div>
         <h3 class="r-h3">{{localize "VTM20.Demon.Faction"}}</h3>
         <div class="r-cr-discrow">{{#each factions}}<a class="r-cr-disc-chip is-choice {{#if active}}is-active{{/if}}" data-action="faction" data-faction="{{key}}" data-tooltip="{{text}}">{{name}}</a>{{/each}}</div>
-        <p class="r-note">{{localize "VTM20.Creator.FactionHint"}}</p>
+        <p class="r-note r-explain">{{localize "VTM20.Creator.FactionHint"}}</p>
       </div>
       <div class="r-fields is-two r-cr-names">
         <label class="r-f"><span>{{localize "VTM20.Demon.Celestial"}}</span><input type="text" data-field="names.celestial" value="{{st.names.celestial}}"></label>
@@ -392,7 +392,7 @@
         </div>
         <ol class="r-cr-powers">
           {{#each powers}}<li class="{{#if owned}}is-owned{{/if}}"><span>{{rRoman level}}</span> {{rName this}}</li>{{/each}}
-          {{#if pathed}}<li class="r-note">{{localize "VTM20.Creator.PathedNote"}}</li>{{/if}}
+          {{#if pathed}}<li class="r-note r-explain">{{localize "VTM20.Creator.PathedNote"}}</li>{{/if}}
         </ol>
       </div>
       {{/each}}
@@ -429,7 +429,7 @@
       </a>
       {{/each}}
     </div>
-    {{else}}<p class="r-note">{{localize "VTM20.Creator.GarouExtraAfter"}}</p>{{/if}}
+    {{else}}<p class="r-note r-explain">{{localize "VTM20.Creator.GarouExtraAfter"}}</p>{{/if}}
     {{/if}}
 
     {{!-- VI. Факты биографии и Добродетели --}}
@@ -467,7 +467,7 @@
           <div class="r-cr-sum-item"><span>{{localize "VTM20.GarouCr.T.gnosis"}}</span><b>{{garou.base.gnosis}}</b></div>
           <div class="r-cr-sum-item"><span>{{localize "VTM20.GarouCr.T.will"}}</span><b>{{garou.base.will}}</b></div>
         </div>
-        <p class="r-note">{{localize "VTM20.Creator.GarouBaseHint"}}</p>
+        <p class="r-note r-explain">{{localize "VTM20.Creator.GarouBaseHint"}}</p>
       </div>
       {{else}}
       <div class="r-cr-panel r-tcol">
@@ -478,7 +478,7 @@
           <span class="r-dots">{{#each dots}}<a class="r-dot r-cr-dot is-{{state}}" data-action="dot" data-kind="{{kind}}" data-key="{{key}}" data-n="{{n}}"></a>{{/each}}</span>
         </div>
         {{/each}}
-        <p class="r-note">{{#if isLost}}{{localize "VTM20.Creator.VirtueHintLost"}}{{else if isHunter}}{{localize "VTM20.Creator.VirtueHintHunter"}}{{else}}{{localize "VTM20.Creator.VirtueHint"}}{{/if}}</p>
+        <p class="r-note r-explain">{{#if isLost}}{{localize "VTM20.Creator.VirtueHintLost"}}{{else if isHunter}}{{localize "VTM20.Creator.VirtueHintHunter"}}{{else}}{{localize "VTM20.Creator.VirtueHint"}}{{/if}}</p>
       </div>
       {{/if}}
     </div>
@@ -552,7 +552,7 @@
       <span>{{localize "VTM20.Creator.FreeTotal"}}: <b>{{freeTotal}}</b></span>
       <span>{{localize "VTM20.Creator.FreeSpent"}}: <b>{{freeSpent}}</b></span>
       <span class="{{#if (lt freeLeft 0)}}is-over{{else if (eq freeLeft 0)}}is-done{{/if}}">{{localize "VTM20.Creator.LeftShort"}}: <b>{{freeLeft}}</b></span>
-      <span class="r-note">{{#if isWerewolf}}{{localize "VTM20.Creator.FreeCostsGarou"}}{{else if isDemon}}{{localize "VTM20.Creator.FreeCostsDemon" attr=cost.attr abil=cost.abil disc=cost.disc bg=cost.bg virt=cost.virt mor=cost.morality will=cost.will}}{{else}}{{localize "VTM20.Creator.FreeCosts" attr=cost.attr abil=cost.abil disc=cost.disc bg=cost.bg virt=cost.virt mor=cost.morality will=cost.will}}{{/if}}</span>
+      <span class="r-note r-explain">{{#if isWerewolf}}{{localize "VTM20.Creator.FreeCostsGarou"}}{{else if isDemon}}{{localize "VTM20.Creator.FreeCostsDemon" attr=cost.attr abil=cost.abil disc=cost.disc bg=cost.bg virt=cost.virt mor=cost.morality will=cost.will}}{{else}}{{localize "VTM20.Creator.FreeCosts" attr=cost.attr abil=cost.abil disc=cost.disc bg=cost.bg virt=cost.virt mor=cost.morality will=cost.will}}{{/if}}</span>
     </div>
     <div class="r-cr-free">
       {{#each freeGroups}}
@@ -575,7 +575,7 @@
       <span>{{localize "VTM20.Xp.total"}}: <b>{{xpTotal}}</b></span>
       <span>{{localize "VTM20.Xp.spent"}}: <b>{{xpSpent}}</b></span>
       <span class="{{#if (lt xpLeft 0)}}is-over{{else if (eq xpLeft 0)}}is-done{{/if}}">{{localize "VTM20.Creator.LeftShort"}}: <b>{{xpLeft}}</b></span>
-      <span class="r-note">{{#if isWerewolf}}{{localize "VTM20.Creator.XpCostsGarou"}}{{else if isDemon}}{{localize "VTM20.Creator.XpCostsDemon"}}{{else}}{{localize "VTM20.Creator.XpCosts"}}{{/if}}</span>
+      <span class="r-note r-explain">{{#if isWerewolf}}{{localize "VTM20.Creator.XpCostsGarou"}}{{else if isDemon}}{{localize "VTM20.Creator.XpCostsDemon"}}{{else}}{{localize "VTM20.Creator.XpCosts"}}{{/if}}</span>
     </div>
     <div class="r-cr-free">
       {{#each xpGroups}}
@@ -611,7 +611,7 @@
         </div>
       </div>
       <h3 class="r-h3">{{localize "VTM20.Creator.PactBoosts"}}</h3>
-      <p class="r-note">{{localize "VTM20.Creator.PactBoostsHint"}}</p>
+      <p class="r-note r-explain">{{localize "VTM20.Creator.PactBoostsHint"}}</p>
       <div class="r-cr-pact-grid">
         {{#each pact.attrs}}<div><h4 class="r-h4">{{label}}</h4>{{#each list}}
           <div class="r-cr-pact-row {{#if gift}}is-gift{{/if}}"><span>{{label}}</span>

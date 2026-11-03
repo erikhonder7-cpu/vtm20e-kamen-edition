@@ -4,7 +4,7 @@
   <div class="r-item-body">
     <div class="r-item-acts">
       <a class="r-chip {{#if system.permanent}}is-accent{{/if}}" data-action="toggleField" data-field="system.permanent"><i class="fa-solid fa-brain"></i> {{#if system.permanent}}{{localize "VTM20.Sheet.Permanent"}}{{else}}{{localize "VTM20.ItemSheet.Curable"}}{{/if}}</a>
-      <span class="r-note">{{localize "VTM20.ItemSheet.DerangementRule"}}</span>
+      <span class="r-note r-explain">{{localize "VTM20.ItemSheet.DerangementRule"}}</span>
     </div>
     {{#if book}}<p class="r-item-src">{{localize "VTM20.Item.source"}}: {{book}}</p>{{/if}}
     <h2 class="r-h2"><span>{{localize "VTM20.Item.description"}}</span></h2>

@@ -4,7 +4,7 @@
     {{#if master}}{{localize "VTM20.EbServant.Master"}}: <a data-action="open" data-uuid="{{masterUuid}}"><b>{{master}}</b></a>{{else}}<em>{{localize "VTM20.EbServant.NoMaster"}}</em>{{/if}}
     <span class="r-gifts-budget">{{localize "VTM20.EbServant.Empowerments"}} <b>{{n}}</b>{{#if budget.slave}} · <em class="r-gift-high">{{localize "VTM20.EbServant.Slave"}}</em>{{/if}}</span>
   </p>
-  {{#if budget.slave}}<p class="r-note">{{localize "VTM20.EbServant.SlaveText"}}</p>{{/if}}
+  {{#if budget.slave}}<p class="r-note r-explain">{{localize "VTM20.EbServant.SlaveText"}}</p>{{/if}}
   <div class="r-ebs-budget">
     <span class="{{#if over}}is-over{{/if}}">{{localize "VTM20.EbServant.Points"}} <b>{{budget.used}} / {{budget.total}}</b></span>
     <span class="{{#if stigmaShort}}is-over{{/if}}" data-tooltip="{{localize 'VTM20.EbServant.StigmaHint'}}">{{localize "VTM20.EbServant.StigmaPoints"}} <b>{{budget.stigmaUsed}} / {{budget.stigmaNeed}}</b></span>

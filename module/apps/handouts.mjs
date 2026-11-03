@@ -40,7 +40,7 @@ export async function giveHandout(page) {
     content: `<label class="r-field"><span>${t("Handout.Style")}</span><select name="style">${HANDOUT_STYLES.map(s => `<option value="${s}">${t(`Handout.S.${s}`)}</option>`).join("")}</select></label>
       <label class="r-field"><span>${t("Handout.Sign")}</span><input type="text" name="sign" placeholder="${t("Handout.SignHint")}"></label>
       <label class="r-field r-field-check"><input type="checkbox" name="seal" checked> ${t("Handout.Seal")}</label>
-      <p class="r-hint">${t("Handout.To")}</p>
+      <p class="r-hint" data-keep>${t("Handout.To")}</p>
       ${players.map(u => `<label class="r-field r-field-check"><input type="checkbox" name="to" value="${u.id}" checked> ${esc(u.name)}${u.character ? ` <em>(${esc(u.character.name)})</em>` : ""}</label>`).join("") || `<p class="r-empty">${t("Handout.NoPlayers")}</p>`}`,
     ok: { label: t("Handout.Send"), callback: (e, b) => ({ style: b.form.elements.style.value, sign: b.form.elements.sign.value.trim(), seal: b.form.elements.seal.checked,
       to: [...b.form.querySelectorAll("input[name=to]:checked")].map(x => x.value) }) },

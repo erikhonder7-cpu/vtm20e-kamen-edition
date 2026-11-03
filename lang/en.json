@@ -5323,7 +5323,7 @@
       "Substance": "In the vessel's blood",
       "Clean": "nothing",
       "Dose": "How much (100 g of spirits / strength)",
-      "Ill": "The vessel is sick (blood disease — the Storyteller knows)",
+      "Ill": "The vessel is sick",
       "LookTitle": "Notice the Disease",
       "LookSub": "Intelligence + Medicine, diff 7",
       "Noticed": "{name} notices the disease in the vessel's blood — and does not drink.",

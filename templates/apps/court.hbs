@@ -85,7 +85,7 @@
       {{#if zones.length}}<optgroup label="{{localize 'VTM20.Court.Zones'}}">{{#each zones}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</optgroup>{{/if}}
       {{#if markers.length}}<optgroup label="{{localize 'VTM20.Court.Places'}}">{{#each markers}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</optgroup>{{/if}}
     </select>
-    {{#unless hasSpots}}<small class="r-court-hint">{{localize "VTM20.Court.NoSpots"}}</small>{{/unless}}
+    {{#unless hasSpots}}<small class="r-court-hint" data-keep>{{localize "VTM20.Court.NoSpots"}}</small>{{/unless}}
     {{else}}<p>{{#if picked.domain}}{{picked.domain}}{{else}}{{localize "VTM20.Court.WholeCity"}}{{/if}}</p>{{/if}}
 
     {{#if gm}}

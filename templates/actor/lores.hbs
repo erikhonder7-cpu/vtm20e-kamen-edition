@@ -155,7 +155,7 @@
       {{#if editable}}{{#unless system.hostless}}<a class="r-h2-btn" data-action="hostLose" data-tooltip="{{localize 'VTM20.Host.BtnHint'}}"><i class="fa-solid fa-ghost"></i> <span class="r-h2-lbl">{{localize "VTM20.Host.Btn"}}</span></a>{{/unless}}{{/if}}
     </span>
   </h2>
-  <p class="r-note r-innate-note">{{localize "VTM20.Demon.InnateText"}}</p>
+  <p class="r-note r-explain r-innate-note">{{localize "VTM20.Demon.InnateText"}}</p>
   {{!-- Без тела-носителя (гл. 9): каждый ход — удержаться, поиск нового тела; в Бездне — только ритуал вызова --}}
   {{#if system.hostless}}
   <div class="r-host-card {{#if system.abyss}}is-abyss{{/if}}">
@@ -204,7 +204,7 @@
         {{/each}}
       </div>
     </div>
-    <p class="r-note">{{localize "VTM20.Demon.FormNote"}}</p>
+    <p class="r-note r-explain">{{localize "VTM20.Demon.FormNote"}}</p>
   </div>
   {{else}}
   <div class="r-empty">{{localize "VTM20.Demon.NoVisage"}}</div>

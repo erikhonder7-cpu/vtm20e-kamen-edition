@@ -47,7 +47,7 @@
     {{#if woundPenalty}}<label class="r-check"><input type="checkbox" name="wounds" {{checked v.wounds}}> {{localize "VTM20.Roll.Wounds"}} <em>({{woundPenalty}})</em></label>{{/if}}
     {{#if phys}}<label class="r-check"><input type="checkbox" name="physical" {{checked v.physical}}> {{physicalLabel}} <em>(+{{phys}})</em></label>{{/if}}
   </div>
-  {{#each notes}}<div class="r-roll-note is-wide"><i class="fa-solid fa-circle-info"></i> {{this}}</div>{{/each}}
+  {{#each notes}}<div class="r-roll-note is-wide" data-keep><i class="fa-solid fa-circle-info"></i> {{this}}</div>{{/each}}
 
   <div class="r-roll-total">
     <div class="r-roll-breakdown">{{#each breakdown}}<span>{{label}} <b>{{rSigned value}}</b></span>{{/each}}</div>

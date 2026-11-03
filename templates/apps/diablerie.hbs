@@ -35,7 +35,7 @@
     <div class="r-soul-track">{{#each soul}}<i class="{{this}}">✱</i>{{/each}}</div>
     <div class="r-soul-cap">{{#if complete}}{{localize "VTM20.Diablerie.SoulDone"}}{{else}}<b>{{progress}}</b> / {{needed}} {{localize "VTM20.Diablerie.Levels"}}{{#if tries}} · {{localize "VTM20.Diablerie.Tries" n=tries}}{{/if}}{{/if}}</div>
   </div>
-  {{#if victim}}{{#unless canHurt}}<p class="r-hint-note">{{localize "VTM20.Diablerie.NoOwner"}}</p>{{/unless}}{{/if}}
+  {{#if victim}}{{#unless canHurt}}<p class="r-hint-note" data-keep>{{localize "VTM20.Diablerie.NoOwner"}}</p>{{/unless}}{{/if}}
 
   {{#unless complete}}
   <div class="r-roll-total">

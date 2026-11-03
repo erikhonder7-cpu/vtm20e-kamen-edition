@@ -57,6 +57,7 @@ import { registerPause } from "./module/ui/pause.mjs";
 import { registerThemes } from "./module/ui/themes.mjs";
 import { registerDemonHooks } from "./module/apps/torment.mjs";
 import { registerSounds } from "./module/ui/sounds.mjs";
+import { registerHintFold } from "./module/ui/hint-fold.mjs";
 import * as Money from "./module/data/money.mjs";
 
 /* ── init ──────────────────────────────────────────────────────────────── */
@@ -169,6 +170,7 @@ Hooks.once("init", () => {
   registerThemes();
   registerDemonHooks();
   registerSounds();
+  registerHintFold();
   foundry.applications.handlebars.loadTemplates({
     rDots: `${SYSTEM_PATH}/templates/actor/parts/dots.hbs`,
     rPower: `${SYSTEM_PATH}/templates/actor/parts/power.hbs`,

@@ -258,7 +258,7 @@
         {{#if editable}}<a class="r-sn-btn is-wide" data-action="kinFetchBurn" data-tooltip="{{localize 'VTM20.Werewolf.Fetch.burnHint'}}"><i class="fa-solid fa-fire"></i> {{localize "VTM20.Werewolf.Fetch.burn"}}</a>{{/if}}</div>
       {{else}}{{#if editable}}<div class="r-sn-add"><select class="r-kin-fetch-tpl">{{#each kinInfo.fetch.tpls}}<option value="{{key}}">{{label}}</option>{{/each}}</select>
         <a class="r-sn-btn is-wide" data-action="kinFetchBind" data-tooltip="{{localize 'VTM20.Werewolf.Fetch.bindHint'}}"><i class="fa-solid fa-feather"></i> {{localize "VTM20.Werewolf.Fetch.bind"}}</a></div>{{/if}}{{/if}}
-      {{#if kinInfo.fetch.rite}}<p class="r-sn-hint"><b>{{localize "VTM20.Werewolf.Fetch.rite" tribe=kinInfo.fetch.tribe}}</b> {{{kinInfo.fetch.rite}}}</p>{{/if}}
+      {{#if kinInfo.fetch.rite}}<p class="r-sn-hint" data-keep><b>{{localize "VTM20.Werewolf.Fetch.rite" tribe=kinInfo.fetch.tribe}}</b> {{{kinInfo.fetch.rite}}}</p>{{/if}}
 
       {{!-- Нумины (W20 Kinfolk, гл. 3): точки — щелчком, у Пути открыты уровни до своих точек; бросок — пул из книги --}}
       <h4 class="r-sn-sub"><i class="fa-solid fa-hand-sparkles"></i> {{localize "VTM20.Werewolf.Numen.title"}}</h4>
@@ -319,7 +319,7 @@
           {{#if editable}}<a class="r-sn-btn" data-action="fomorBreed" data-tooltip="{{localize 'VTM20.Werewolf.Fomor.breedHint'}}"><i class="fa-solid fa-check"></i></a>{{/if}}</span></label>
         <label class="is-num"><span>{{localize "VTM20.Werewolf.Rage"}}</span><input type="number" name="system.fomor.rage" value="{{fomorInfo.rage}}" min="0" max="10"></label>
       </div>
-      {{#if fomorInfo.breed}}<p class="r-sn-hint">{{{fomorInfo.breed.text}}}</p>{{/if}}
+      {{#if fomorInfo.breed}}<p class="r-sn-hint" data-keep>{{{fomorInfo.breed.text}}}</p>{{/if}}
       <h4 class="r-sn-sub"><i class="fa-solid fa-biohazard"></i> {{localize "VTM20.Werewolf.Fomor.powers"}}</h4>
       <ul class="r-sn-list r-fomor-powers">{{#each fomorInfo.powers}}<li class="r-sn-item">
         <details><summary><span class="r-sn-mark">{{#if (gt n 1)}}×{{n}}{{else}}<i class="fa-solid fa-biohazard"></i>{{/if}}</span><b>{{rName this}}</b><small>{{rAlt this}}</small></summary><div class="r-sn-text">{{{text}}}</div></details>
@@ -337,7 +337,7 @@
   <h2 class="r-h2"><span><i class="fa-solid fa-chess-knight"></i> {{localize "VTM20.Strategy.SheetTitle"}}</span>
     <span class="r-h2-tools"><a class="r-h2-btn" data-action="openStrategy"><i class="fa-solid fa-hexagon-nodes"></i> <span class="r-h2-lbl">{{localize "VTM20.Strategy.Tab"}}</span></a></span></h2>
   <div class="r-strat-sheet">
-    <p class="r-hint">{{stratInfo.turn}}</p>
+    <p class="r-hint" data-keep>{{stratInfo.turn}}</p>
     {{#if stratInfo.sectors.length}}<ul class="r-strat-list">{{#each stratInfo.sectors}}<li><b>{{name}}</b><span class="r-strat-pips">{{pips}}</span>{{#if perk}}<small><i class="fa-solid fa-gift"></i> {{perk}}</small>{{/if}}</li>{{/each}}</ul>{{/if}}
     {{#if stratInfo.projects.length}}<h4>{{localize "VTM20.Strategy.Projects"}}</h4><ul class="r-strat-list">{{#each stratInfo.projects}}<li class="{{#if done}}is-done{{/if}}"><b>{{name}}</b><small>{{sector}}</small><span class="r-strat-bar"><i style="width:{{pct}}%"></i></span><small>{{now}}/{{need}}</small></li>{{/each}}</ul>{{/if}}
     {{#if stratInfo.pacts.length}}<h4>{{localize "VTM20.Strategy.Pacts"}}</h4><ul class="r-strat-list">{{#each stratInfo.pacts}}<li><i class="fa-solid fa-handshake-simple"></i> <b>{{with}}</b><small>{{kind}} · {{where}}</small></li>{{/each}}</ul>{{/if}}

@@ -602,7 +602,7 @@ export async function lostVirtue(actor, key) {
     window: { title: t("LostRoll", { v: V[key] }) }, classes: ["vtm20", "r-dialog"], position: { width: 440 },
     content: `<p class="r-choice-hint">${t(`LostWhen.${key}`)}</p><div class="r-fields">
       <label class="r-f"><span>${t("Difficulty")}</span><input type="number" name="diff" value="7" min="3" max="10"></label></div>
-      <p class="r-note">${t("LostRollNote")}</p>`,
+      <p class="r-note r-explain">${t("LostRollNote")}</p>`,
     ok: { label: t("Roll"), callback: (ev, btn) => Number(btn.form.elements.diff.value) || 7 }
   }).catch(() => null);
   if (!v) return null;
