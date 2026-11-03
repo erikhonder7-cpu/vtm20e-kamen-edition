@@ -37,7 +37,7 @@ import { loseHost, holdOn, newHost, summonedBack } from "../apps/host.mjs";
 import { openCult } from "../apps/cult.mjs";
 import { openExorcist } from "../apps/exorcist.mjs";
 import { diablerieMark } from "../apps/diablerie.mjs";
-import { craftFetish, werewolfInfo, werewolfSigil, giftsView, editStanding, changeForm, rollGift, rollRite, frenzyCheck, stepSideways, scarView, addScar, removeScar, deformityView, addDeformity, removeDeformity, renownAward, kinfolkInfo, kinAddGift, kinRemoveGift, kinUseGift, kinAddNumen, kinRemoveNumen, kinNumenDots, kinUseNumen, kamiInfo, kamiAdd, kamiRemove, kamiUse, fetchInfo, bindFetch, burnFetch, primalUses, fomorInfo, fomorBreed, fomorAdd, fomorRemove, fomorUse, spiritTplGroups, applySpiritTpl, spiritInfo, addCharm, removeCharm, spiritEssenceReset, fetishView, addFetish, removeFetish, attuneFetish, reconcileFetish, useFetish, delirium, stayUp, regainRage, haranoCheck, haranoProne, W as werewolfDataSheet, regenerate, rageActions, spend as wwSpend, addGift, removeGift, addRite, removeRite } from "../apps/werewolf.mjs";
+import { craftFetish, werewolfInfo, werewolfSigil, giftsView, editStanding, changeForm, rollGift, rollRite, frenzyCheck, stepSideways, scarView, addScar, removeScar, deformityView, addDeformity, removeDeformity, renownAward, kinfolkInfo, kinAddGift, kinRemoveGift, kinUseGift, kinAddNumen, kinRemoveNumen, kinNumenDots, kinUseNumen, kamiInfo, kamiAdd, kamiRemove, kamiUse, fetchInfo, bindFetch, burnFetch, primalUses, fomorInfo, fomorBreed, fomorAdd, fomorRemove, fomorUse, spiritTplGroups, applySpiritTpl, spiritInfo, addCharm, removeCharm, spiritEssenceReset, fetishView, addFetish, removeFetish, attuneFetish, reconcileFetish, useFetish, delirium, stayUp, regainRage, regainGnosis, haranoCheck, haranoProne, W as werewolfDataSheet, regenerate, rageActions, spend as wwSpend, addGift, removeGift, addRite, removeRite } from "../apps/werewolf.mjs";
 import { hunterInfo, edgesView, useEdge, secondSight, virtueTest, tradeConviction, restoreConviction, awardDeed, shiftDeed, cashDeed, sacrifice, advanceVirtue, callEdge, swapCalled, unblockCall, callView, isLost, lostVirtue, lostTrade, lostHardened, lostOrdeal } from "../apps/hunter.mjs";
 import { addBloodright, removeBloodright, rollBloodright, toggleRitual as toggleDririRitual, rollRitual as rollDririRitual } from "../apps/dhampir.mjs";
 import { openEbServant, empower as empowerServant } from "../apps/eb-servant.mjs";
@@ -184,7 +184,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       fomorAdd: VtMActorSheet.#onFomorAdd, fomorMore: VtMActorSheet.#onFomorMore, fomorDel: VtMActorSheet.#onFomorDel, fomorUse: VtMActorSheet.#onFomorUse, fomorBreed: VtMActorSheet.#onFomorBreed,
       spCharmAdd: VtMActorSheet.#onSpCharmAdd, spCharmDel: VtMActorSheet.#onSpCharmDel, spEssence: VtMActorSheet.#onSpEssence, spStep: VtMActorSheet.#onSpStep,
       wwFetishAdd: VtMActorSheet.#onWwFetishAdd, wwFetishCraft: VtMActorSheet.#onWwFetishCraft, wwFetishAttune: VtMActorSheet.#onWwFetishAttune, wwFetishReconcile: VtMActorSheet.#onWwFetishReconcile,
-      wwStayUp: VtMActorSheet.#onWwStayUp, wwRageRegain: VtMActorSheet.#onWwRageRegain, wwHarano: VtMActorSheet.#onWwHarano, wwFetishUse: VtMActorSheet.#onWwFetishUse, wwFetishDel: VtMActorSheet.#onWwFetishDel, openStrategy: () => openStrategy(),
+      wwStayUp: VtMActorSheet.#onWwStayUp, wwRageRegain: VtMActorSheet.#onWwRageRegain, wwGnosisRegain: VtMActorSheet.#onWwGnosisRegain, wwHarano: VtMActorSheet.#onWwHarano, wwFetishUse: VtMActorSheet.#onWwFetishUse, wwFetishDel: VtMActorSheet.#onWwFetishDel, openStrategy: () => openStrategy(),
       drinkVitae: VtMActorSheet.#onDrinkVitae, setVitae: VtMActorSheet.#onSetVitae, bloodrightAdd: VtMActorSheet.#onBloodrightAdd, bloodrightRemove: VtMActorSheet.#onBloodrightRemove,
       bloodrightRoll: VtMActorSheet.#onBloodrightRoll, dririToggle: VtMActorSheet.#onDririToggle, dririRoll: VtMActorSheet.#onDririRoll,
       hunterTest: VtMActorSheet.#onHunterTest, hunterTrade: VtMActorSheet.#onHunterTrade, hunterRestore: VtMActorSheet.#onHunterRestore,
@@ -351,6 +351,24 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   _onRender(context, options) {
     super._onRender(context, options);
     attachCombos(this.element);                         // Натура, Маска, Секта — свой список вместо <datalist>
+    // имя не влезает рядом с амплуа — шрифт на ступень меньше, ещё не влезает — ещё на одну (по ширине, а не по числу букв)
+    const nameEl = this.element.querySelector("input.r-name");
+    if (nameEl) for (const cls of ["is-long", "is-xlong"]) { if (nameEl.scrollWidth <= nameEl.clientWidth + 1) break; nameEl.classList.remove("is-long"); nameEl.classList.add(cls); }
+    // строки-списки (Дары, ритуалы, фетиши, шрамы, Грани, Кровные права): текст свёрнут, щелчок по имени раскрывает;
+    // раскрытые переживают перерисовку, как Дисциплины (ключ — имя в списке)
+    for (const row of this.element.querySelectorAll(".r-edge")) {
+      const name = row.querySelector(":scope > .r-edge-main > b"), text = row.querySelector(".r-edge-text");
+      if (!name || !text?.textContent.trim()) continue;
+      const key = `edge:${row.parentElement?.className ?? ""}:${name.textContent.trim()}`;
+      row.classList.add("has-text");
+      row.classList.toggle("is-open", this._open.has(key));
+      if (name.dataset.rEdge) continue;
+      name.dataset.rEdge = "1";
+      name.addEventListener("click", () => {
+        if (this._open.has(key)) this._open.delete(key); else this._open.add(key);
+        row.classList.toggle("is-open", this._open.has(key));
+      });
+    }
     this.element.classList.toggle("is-mortal", this.actor.type === "mortal");
     this.element.classList.toggle("is-ghoul", this.actor.type === "ghoul");
     this.element.classList.toggle("is-dhampir", !!this.actor.isDhampir);     // styles/types/dhampir.css
@@ -822,6 +840,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static #onWwFetishReconcile(event, target) { return reconcileFetish(this.actor, Number(target.dataset.i)); }
   static #onWwStayUp() { return stayUp(this.actor); }
   static #onWwRageRegain() { return regainRage(this.actor); }
+  static #onWwGnosisRegain() { return regainGnosis(this.actor); }
   static #onWwHarano() { return haranoCheck(this.actor); }
   static #onWwFetishUse(event, target) { return useFetish(this.actor, Number(target.dataset.i)); }
   static #onWwFetishDel(event, target) { return removeFetish(this.actor, Number(target.dataset.i)); }

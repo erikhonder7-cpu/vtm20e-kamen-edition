@@ -1245,7 +1245,7 @@
       "Search": "Name or note",
       "OpenSheet": "Open sheet",
       "Nothing": "Nothing found.",
-      "LedgerEmpty": "No debts yet: boons are recorded on the character sheet, “Advantages” tab."
+      "LedgerEmpty": "No boons yet."
     },
     "Details": {
       "player": "Player",
@@ -4647,7 +4647,22 @@
       "FetishRejectedNote": "“{name}” rejected its owner: attune again after reconciling with the spirit",
       "FetishRejected": "The spirit of “{fetish}” rejected {name}: try again only after reconciling",
       "RejectedShort": "rejected owner",
-      "ReconcileHint": "Reconciled with the spirit — can attune again"
+      "ReconcileHint": "Reconciled with the spirit — can attune again",
+      "GnosisRegain": "Regain Gnosis",
+      "GnosisRegainHint": "Meditation, sacred hunt, spirit deal, between stories",
+      "GnosisMeditate": "Meditation",
+      "GnosisMeditateSub": "Wits + Enigmas, diff {d}; once a day",
+      "GnosisMeditatedToday": "Already meditated today",
+      "GnosisMeditateNote": "1 Gnosis per success, no more than 1 per hour; another day this week — diff +1",
+      "GnosisHours": "Meditation — {n} h",
+      "GnosisHunt": "Sacred Hunt",
+      "GnosisHuntSub": "An Engling “slain” at a moot — all Gnosis",
+      "GnosisDeal": "Spirit Deal",
+      "GnosisDealSub": "+1 per Essence point the spirit gives",
+      "GnosisStory": "Between Stories",
+      "GnosisStorySub": "Charisma + Enigmas, 1 per success",
+      "GnosisStoryNote": "The book gives no difficulty — 6, the Storyteller may change it",
+      "GnosisRegainDone": "{name}: Gnosis {from} → {to}"
     },
     "Strategy": {
       "Tab": "Strategy",

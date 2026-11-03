@@ -347,7 +347,7 @@
       {{#each attrGroups}}
       <div class="r-cr-panel r-tcol">
         <h3 class="r-colhead"><span>{{label}}</span></h3>
-        <div class="r-cr-prios">{{#each prios}}<a class="r-cr-prio {{#if active}}is-active{{/if}}" data-action="prio" data-kind="attr" data-group="{{../key}}" data-i="{{i}}"><b>{{n}}</b> {{label}}</a>{{/each}}</div>
+        <div class="r-cr-prios">{{#each prios}}<a class="r-cr-prio {{#if active}}is-active{{/if}}" data-action="prio" data-kind="attr" data-group="{{../key}}" data-i="{{i}}" data-tooltip="{{label}} — {{n}}"><b>{{n}}</b> <span>{{label}}</span></a>{{/each}}</div>
         <div class="r-cr-left {{#if (lt left 0)}}is-over{{else if (eq left 0)}}is-done{{/if}}">{{localize "VTM20.Creator.LeftShort"}}: <b>{{left}}</b></div>
         {{#each list}}
         <div class="r-trait-main"><span class="r-trait-label">{{label}}</span><span class="r-leader"></span>
@@ -366,7 +366,7 @@
       {{#each abilGroups}}
       <div class="r-cr-panel r-tcol">
         <h3 class="r-colhead"><span>{{label}}</span></h3>
-        <div class="r-cr-prios">{{#each prios}}<a class="r-cr-prio {{#if active}}is-active{{/if}}" data-action="prio" data-kind="abil" data-group="{{../key}}" data-i="{{i}}"><b>{{n}}</b> {{label}}</a>{{/each}}</div>
+        <div class="r-cr-prios">{{#each prios}}<a class="r-cr-prio {{#if active}}is-active{{/if}}" data-action="prio" data-kind="abil" data-group="{{../key}}" data-i="{{i}}" data-tooltip="{{label}} — {{n}}"><b>{{n}}</b> <span>{{label}}</span></a>{{/each}}</div>
         <div class="r-cr-left {{#if (lt left 0)}}is-over{{else if (eq left 0)}}is-done{{/if}}">{{localize "VTM20.Creator.LeftShort"}}: <b>{{left}}</b></div>
         {{#each list}}
         <div class="r-trait-main"><span class="r-trait-label">{{label}}</span><span class="r-leader"></span>

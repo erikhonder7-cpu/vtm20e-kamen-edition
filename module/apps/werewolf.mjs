@@ -501,6 +501,43 @@ export async function regainRage(actor) {
 }
 
 /**
+ * Восстановление Гнозиса (W20, гл. 9; не выше постоянного): медитация — Сообразительность + Загадки, сл. 8, 1 Гнозис за успех
+ * (не больше 1 за час), раз в день, каждый следующий день той же недели — сложность +1 (до 10); священная охота — весь Гнозис;
+ * сделка с духом — по Гнозису за его Эссенцию; между историями — Обаяние + Загадки, 1 за успех (сложности в книге нет —
+ * 6, правило системы).
+ */
+export async function regainGnosis(actor) {
+  const w = actor.system.werewolf, perm = w.gnosis.permanent, cur = w.gnosis.value;
+  const { nightNumber } = await import("./calendar.mjs");
+  const night = nightNumber(), week = Math.floor((night - 1) / 7);
+  const med = actor.getFlag(game.system.id, "meditation") ?? {}, sameWeek = med.week === week;
+  const today = sameWeek && med.night === night, diff = Math.min(10, 8 + (sameWeek ? med.days ?? 0 : 0));
+  const pick = await wwPick({ title: t("GnosisRegain"), icon: "fa-spiral", width: 560,
+    head: wwHead({ glyph: "glyph-gnosis", kicker: esc(actor.name), title: t("GnosisRegain"), sub: t("RageNow", { n: cur, p: perm }) }),
+    cards: [
+      { key: "meditate", icon: "fa-om", title: t("GnosisMeditate"), disabled: today || cur >= perm,
+        sub: today ? t("GnosisMeditatedToday") : t("GnosisMeditateSub", { d: diff }) },
+      { key: "hunt", glyph: "glyph-spirit", title: t("GnosisHunt"), sub: t("GnosisHuntSub"), disabled: cur >= perm, badge: cur < perm ? `+${perm - cur}` : "" },
+      { key: "deal", icon: "fa-handshake", title: t("GnosisDeal"), sub: t("GnosisDealSub"), disabled: cur >= perm, badge: cur < perm ? "+1" : "" },
+      { key: "story", icon: "fa-book-open", title: t("GnosisStory"), sub: t("GnosisStorySub"), disabled: cur >= perm }
+    ] });
+  if (!pick) return null;
+  const done = async (to, note = "") => {
+    to = Math.clamp(to, 0, perm);
+    await actor.update({ "system.werewolf.gnosis.value": to });
+    return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), flags: { [game.system.id]: { garou: "gnosis" } },
+      content: `<div class="r-notice r-type-werewolf"><i class="fa-solid fa-spiral"></i> ${t("GnosisRegainDone", { name: esc(actor.name), from: cur, to })}${note ? `<br><small>${note}</small>` : ""}</div>` });
+  };
+  if (pick === "hunt") return done(perm);
+  if (pick === "deal") return done(cur + 1);
+  const meditate = pick === "meditate";
+  if (meditate) await actor.setFlag(game.system.id, "meditation", { week, night, days: (sameWeek ? med.days ?? 0 : 0) + 1 });
+  return RollDialog.prompt(actor, { title: t(meditate ? "GnosisMeditate" : "GnosisStory"), trait1: meditate ? "attributes.wits" : "attributes.charisma",
+    trait2: "abilities.enigmas", difficulty: meditate ? diff : 6, diffNote: t(meditate ? "GnosisMeditateNote" : "GnosisStoryNote"),
+    onRolled: async r => { const s = r?.successes ?? 0; if (s > 0) await done(cur + s, meditate ? t("GnosisHours", { n: Math.min(s, perm - cur) }) : ""); } });
+}
+
+/**
  * Склонность к Харано (недостаток, W20, гл. 9): бросок Воли в сцене с неудачей; провал — временное Харано (−1 кубик к каждому пулу),
  * провал с единицами — ещё и временное расстройство; трата Воли откладывает проверку на сцену.
  * Сложности в книге нет — 6 по умолчанию, рассказчик меняет в окне броска (правило системы).

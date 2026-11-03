@@ -268,6 +268,29 @@ try {
     if (r.noticed !== 2 || !r.clean || !r.carrier) throw new Error(`болезнь крови: заметил ${r.noticed}, чист ${r.clean}, разносчик ${r.carrier}`);
   });
 
+  await check("Гару: восстановление Гнозиса — охота, медитация раз в день", async () => {
+    const id = await temp("E2E — Гару Гнозис", "werewolf");
+    const r = await page.evaluate(async id => {
+      const SYS = game.system.id, a = game.actors.get(id), out = {}, wait = ms => new Promise(res => setTimeout(res, ms));
+      const W = await import(`/systems/${SYS}/module/apps/werewolf.mjs`);
+      const until = async f => { for (let i = 0; i < 40; i++) { const x = f(); if (x) return x; await wait(100); } return null; };
+      const pick = async key => { const b = await until(() => document.querySelector(`.r-wc-dlg [data-pick="${key}"]:not([disabled])`)); b?.click(); await wait(400); return !!b; };
+      await a.update({ "system.werewolf.gnosis": { permanent: 5, value: 1 } });
+      W.regainGnosis(a); out.hunt = await pick("hunt"); out.full = a.system.werewolf.gnosis.value;
+      await a.update({ "system.werewolf.gnosis.value": 1 });
+      W.regainGnosis(a); out.med = await pick("meditate");
+      const d = await until(() => [...foundry.applications.instances.values()].find(x => x.constructor.name === "RollDialog"));
+      out.diff = d?.values?.difficulty; await d?.cfg.onRolled?.({ successes: 2, outcome: "success" }); await d?.close();
+      out.after = a.system.werewolf.gnosis.value;
+      W.regainGnosis(a); await until(() => document.querySelector(".r-wc-dlg [data-pick=meditate]"));
+      out.again = !!document.querySelector(".r-wc-dlg [data-pick=meditate][disabled]");
+      document.querySelector(".r-wc-dlg [data-action=cancel]")?.click(); await wait(300);
+      return out;
+    }, id);
+    if (!r.hunt || r.full !== 5) throw new Error(`священная охота: ${r.full}`);
+    if (!r.med || r.diff !== 8 || r.after !== 3 || !r.again) throw new Error(`медитация: сл. ${r.diff}, Гнозис ${r.after}, второй раз закрыта ${r.again}`);
+  });
+
   await check("Дух Умбры: свой лист, тема «Пенумбра», урон по Эссенции, переключение на лист существа", async () => {
     const id = await page.evaluate(async () => {
       const W = await import(`/systems/${game.system.id}/module/apps/werewolf.mjs`);

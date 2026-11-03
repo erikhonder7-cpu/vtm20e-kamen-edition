@@ -6,6 +6,15 @@
 
 const W = s => Object.fromEntries(String(s ?? "").split(/\s+/).filter(Boolean).map(x => { const [k, v] = x.split(":"); return [k, Number(v ?? 1)]; }));
 
+/**
+ * Подвиды роли для эпохи: в 1789-м не выпадают явно современные занятия и те, чьи способности все современные
+ * (Вождение, Информатика, Технологии) — правило системы, как и подмена способностей эпохой.
+ */
+const MODERN_SUBS = new Set(["hacker", "biker", "forensic", "commando"]);
+const MODERN_ABIL = ["drive", "computer", "technology"];
+export const subsForEra = (role, era) => (role?.subs ?? []).filter(s => era !== "revolution"
+  || !(MODERN_SUBS.has(s.key) || Object.keys(s.abil).every(k => MODERN_ABIL.includes(k))));
+
 export const ROLE_GROUPS = [
   { key: "combat", label: "Бой", icon: "fa-hand-fist" },
   { key: "society", label: "Общество", icon: "fa-champagne-glasses" },

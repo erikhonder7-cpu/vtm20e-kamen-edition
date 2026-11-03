@@ -10,7 +10,7 @@ import { LibraryItems } from "./library.mjs";
 import { REVENANT_FAMILIES } from "../data/revenants.mjs";
 import { W as WW, ownGift, createSpirit } from "./werewolf.mjs";
 import { H as HH, hasOwnPath } from "./hunter.mjs";
-import { roleOf, powerOf, ROLES, lab } from "./npc-roles.mjs";
+import { roleOf, powerOf, ROLES, lab, subsForEra } from "./npc-roles.mjs";
 
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
 const loc = k => game.i18n.localize(k);
@@ -151,7 +151,7 @@ function core(ctx, rules) {
   if (rules.virt != null) spread(Object.keys(virt), Math.max(0, rules.virt + power.add.virt), 5, k => 1 + (role?.virt[k] ?? 0), virt);
   // факты биографии своей линии: 1–3 разных (у бывалых — больше), любимые роли — чаще
   const seen = new Set();
-  const pool = Codex.backgrounds.filter(b => !b.sabbat && b.en !== "Generation" && Codex.visible(b) && VTM20.backgroundAllowed(b, rules.bgType ?? "mortal")
+  const pool = Codex.backgrounds.filter(b => !b.sabbat && (!b.sect || b.sect === rules.sect) && b.en !== "Generation" && Codex.visible(b) && VTM20.backgroundAllowed(b, rules.bgType ?? "mortal")
     && (!b.dhampir || rules.dhampir) && !seen.has(b.name) && seen.add(b.name));
   const total = Math.max(0, (rules.bg ?? 5) + power.add.bg);
   const chosen = pickN(pool, Math.min(total, (total >= 4 ? 2 : 1) + Math.floor(Math.random() * 2) + (power.tier >= 3 ? 1 : 0)), b => 1 + (role?.bg[b.en] ?? 0) * 3);
@@ -216,20 +216,25 @@ const BUILD = {
     const clan = p.clan || randomClan(ctx.role), ugly = VTM20.uglyClans.includes(clan);
     const gen = Number(p.generation) || Math.clamp(ctx.power.gen + (Math.random() < .5 ? 1 : 0), 4, 13);
     const trait = VTM20.generationOf(gen).trait;
-    const c = core(ctx, { attr: [7, 5, 3], abil: [13, 9, 5], virt: 7, bg: 5, ugly, attrCap: trait, bgType: "vampire" });
+    // секта — до фактов биографии: сектантские факты (Статус анархов…) — только своей секты
+    const sect = p.sect || (SECT_OF.sabbat.test(clan) ? "sabbat" : SECT_OF.independent.test(clan) ? wpick([["independent", 4], ["camarilla", 1], ["anarchs", 1]])
+      : wpick([["camarilla", 5], ["anarchs", 2], ["sabbat", 1], ["independent", .5]]));
+    const c = core(ctx, { attr: [7, 5, 3], abil: [13, 9, 5], virt: 7, bg: 5, ugly, attrCap: trait, bgType: "vampire", sect });
     const list = clanDisciplines(clan);
     // у бывалых — и Дисциплина вне клана, из любимых роли
     if (ctx.power.tier >= 3) { const extra = Object.keys(ctx.role?.disc ?? {}).filter(k => !list.includes(k) && Codex.discipline(k)); if (extra.length) list.push(pick(extra)); }
     const d = discs(list, ctx.role, 3, 3, Math.max(0, ctx.power.add.power), Math.min(5, trait));
-    const sect = p.sect || (SECT_OF.sabbat.test(clan) ? "sabbat" : SECT_OF.independent.test(clan) ? wpick([["independent", 4], ["camarilla", 1], ["anarchs", 1]])
-      : wpick([["camarilla", 5], ["anarchs", 2], ["sabbat", 1], ["independent", .5]]));
     const pool = VTM20.generationOf(gen).pool, clanName = Codex.clanName(clan);
     const sys = { ...baseSystem(ctx, c, { concept: `${ctx.concept} · ${clanName}` }), clan, generation: gen, blood: { value: Math.max(1, Math.ceil(pool * (.4 + Math.random() * .6))) } };
     sys.details.sect = loc(`VTM20.Sect.${sect}`);
     const items = [...discItems(d), ...bgItems(c)];
     const genDots = Math.min(5, Math.max(0, 13 - gen)), genBg = Codex.backgrounds.find(b => b.en === "Generation");
     if (genDots && genBg) items.push(LibraryItems.background(genBg, genDots));
-    if (/^malkavian/.test(clan)) items.push({ name: t("Creator.MalkDerangement"), type: "derangement", img: ICON("derangement"), system: { permanent: true, description: `<p>${t("Creator.MalkDerangementHint")}</p>` } });
+    if (/^malkavian/.test(clan)) {   // клановый изъян — неизлечимое расстройство: настоящее из справочника, при пустом справочнике — заглушка
+      const dr = (Codex.derangements ?? []).length ? pick(Codex.derangements) : null;
+      items.push(dr ? { ...LibraryItems.derangement(dr), system: { ...LibraryItems.derangement(dr).system, permanent: true } }
+        : { name: t("Creator.MalkDerangement"), type: "derangement", img: ICON("derangement"), system: { permanent: true, description: `<p>${t("Creator.MalkDerangementHint")}</p>` } });
+    }
     return { actor: "vampire", img: "vampire", system: sys, items, c, powers: discView(d), powersLabel: t("NpcGen.Disciplines"),
       traits: [[t("NpcGen.Generation"), t("GenerationN", { n: gen })], [t("Humanity"), sys.morality.value], [t("Willpower"), sys.willpower.permanent], [t("NpcGen.BloodPool"), `${sys.blood.value}/${pool}`]],
       tags: [clanName, loc(`VTM20.Sect.${sect}`)] };
@@ -481,7 +486,8 @@ export function buildNpc(o) {
     const pref = KIND_ROLES[kind.key];
     role = roleOf(pref?.length ? pick(pref) : pick(ROLES).key);
   }
-  const sub = role?.subs.find(s => s.key === o.sub) ?? (role ? pick(role.subs) : null);
+  const subs = subsForEra(role, game.settings.get(SYSTEM_ID, "era"));
+  const sub = role?.subs.find(s => s.key === o.sub) ?? (subs.length ? pick(subs) : null);
   const concept = sub ? lab(`Sub.${sub.key}`, sub.concept) : role ? lab(`Role.${role.key}`, role.label) : lab(`Kind.${kind.key}`, kind.label);
   const ctx = { kind: kind.key, role, sub, power, concept };
   const d = BUILD[kind.key](ctx, o.params ?? {});

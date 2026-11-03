@@ -186,9 +186,9 @@
 /* досье падшего: Дом, Облик, фракция; Натура, Маска, игрок; Небесное и Истинное имя — по половине строки */
 .vtm20 .r-dossier.is-demon { gap: 0 12px; }
 .vtm20 .r-dossier.is-demon .r-df > span { letter-spacing: .5px; }
-.vtm20 .r-dossier.is-demon .r-df.is-house { flex: 1 1 112px; }
-.vtm20 .r-dossier.is-demon .r-df.is-visage { flex: 1 1 100px; }
-.vtm20 .r-dossier.is-demon .r-df.is-faction { flex: 1.6 1 175px; }
+.vtm20 .r-dossier.is-demon .r-df.is-house { flex: 1 1 150px; }
+.vtm20 .r-dossier.is-demon .r-df.is-visage { flex: 1 1 170px; }   /* имя Облика длинное (Антуисахар, Нинурта) — не обрезать */
+.vtm20 .r-dossier.is-demon .r-df.is-faction { flex: 1 1 160px; }
 .vtm20 .r-dossier.is-demon .r-df.is-player { flex: 1 1 110px; }
 .vtm20 .r-dossier.is-demon .r-df.is-arch { flex: 1 1 150px; }
 .vtm20 .r-dossier.is-demon .r-df.is-names { flex: 1 1 250px; }   /* «Поколение донора» у гуля — по ширине подписи */
@@ -1192,3 +1192,10 @@ body.r-theme-light .vtm20 .r-motto { color: rgba(140, 28, 34, .75); }
 .vtm20 .r-seal { position: relative; }
 .vtm20 .r-seal-veins { position: absolute; top: -6px; right: -6px; font-size: 10px; color: #d8cfbf; background: #0d0d0f; border: 1px solid #8c1c22; border-radius: 50%; padding: 3px; }
 .vtm20 .r-seal.has-veins { box-shadow: 0 0 0 1px rgba(0, 0, 0, .8), 0 0 8px rgba(0, 0, 0, .9) inset; }
+
+/* строки-списки (Дары, ритуалы, Грани…): текст свёрнут, щелчок по имени — раскрыть (actor-sheet.mjs → _onRender) */
+.vtm20 .r-edge.has-text:not(.is-open) .r-edge-text { display: none; }
+.vtm20 .r-edge.has-text > .r-edge-main > b { cursor: pointer; }
+.vtm20 .r-edge.has-text > .r-edge-main > b::after { content: "▾"; margin-left: 6px; font-size: 11px; color: var(--r-muted); opacity: .8; }
+.vtm20 .r-edge.has-text.is-open > .r-edge-main > b::after { content: "▴"; }
+.vtm20 .r-edge.has-text > .r-edge-main > b:hover { color: var(--r-accent); }

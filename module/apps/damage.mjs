@@ -51,6 +51,7 @@ class DamageDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       : [FORT, ...(v.fangs ? [ARM] : [])];
     let bd = parts.filter(x => x.value);
     const pool = a.soakPool(type, { armor: v.armor, fangs: v.fangs, silver });
+    if (a.type === "creature" && a.system.spirit?.on) bd = [{ label: a.traitLabel("spirit.willpower"), value: pool }];   // дух — Волей
     // особые силы (Шкура гадюки и т. п.) — разбор не сходится, показываем итог одной строкой
     if (bd.reduce((n, x) => n + x.value, 0) !== pool) bd = [{ label: t("Roll.Soak"), value: pool }];
     const difficulty = Math.clamp(6 + v.modDiff + (a.system.fx?.soakDiff ?? 0), 2, 10);

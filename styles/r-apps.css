@@ -168,6 +168,11 @@
   color: var(--r-muted); border-left: 1px solid var(--r-line); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .vtm20 .r-cr-prio:first-child { border-left: 0; }
+/* узкий столбец мастера (окно уже ~1240): точки уходят под название, у приоритета — только число */
+.vtm20 .r-cr .r-tcol { container: rcol / inline-size; }
+.vtm20 .r-cr .r-tcol .r-trait-main { flex-wrap: wrap; row-gap: 2px; }
+.vtm20 .r-cr .r-tcol .r-trait-main .r-dots { margin-left: auto; }
+@container rcol (max-width: 230px) { .vtm20 .r-cr-prio > span { display: none; } }
 .vtm20 .r-cr-prio b { font-family: var(--r-display); font-weight: 400; font-size: 13px; color: var(--r-ink-2); }
 .vtm20 .r-cr-prio:hover { color: var(--r-ink); }
 .vtm20 .r-cr-prio.is-active { color: #f1e9da; background: #8c1c22; }
@@ -539,6 +544,13 @@ body.r-theme-light .vtm20 .r-lib-card.is-long .r-lib-text::after { background: l
 .vtm20 .r-ng-dots b { width: 8px; height: 8px; border-radius: 50%; border: 1px solid var(--r-dot-border); }
 .vtm20 .r-ng-dots b.on { border-color: transparent; background: var(--r-dot-fill); }
 .vtm20 .r-ng-abils { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 14px; }
+/* узкое досье (≈300 px): характеристики группами одна под другой, иначе «Привлекательность» обрезается до «Прив…»;
+   способности — в один столбец по той же причине */
+.vtm20 .r-ng-dossier { container: rngdos / inline-size; }
+@container rngdos (max-width: 440px) {
+  .vtm20 .r-ng-attrs { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+  .vtm20 .r-ng-abils { grid-template-columns: minmax(0, 1fr); }
+}
 .vtm20 .r-ng-abils.is-powers { grid-template-columns: minmax(0, 1fr); }
 .vtm20 .r-ng-text { margin: 10px 0 2px; font-size: 13px; line-height: 1.45; color: var(--r-ink-2); }
 .vtm20 .r-ng-stats { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 5px 12px; margin: 10px 0 0; font-size: 13px; line-height: 1.4; }
@@ -1461,7 +1473,7 @@ body.r-theme-light .vtm20 .r-gs-tally, body.r-theme-light .vtm20 .r-gs-owner { b
 .vtm20 .r-sp-scroll { flex: 1; min-height: 0; overflow-y: auto; }
 .vtm20 .r-sp-scene { margin-bottom: 10px; }
 .vtm20 .r-sp-scene .r-h3 small { font-family: var(--r-body); text-transform: none; letter-spacing: 0; color: var(--r-accent); margin-left: 6px; }
-.vtm20 .r-sp-row { display: grid; grid-template-columns: minmax(170px, 1.4fr) 120px minmax(0, 1.6fr) auto auto; gap: 10px; align-items: center;
+.vtm20 .r-sp-row { display: grid; grid-template-columns: minmax(170px, 1.4fr) 120px minmax(0, 1.6fr) minmax(110px, auto) minmax(60px, auto); gap: 10px; align-items: center;
   padding: 5px 8px; border-bottom: 1px dotted var(--r-line); box-shadow: inset 3px 0 0 var(--pc, transparent); }
 .vtm20 .r-sp-row.is-alert { background: rgba(176, 64, 76, .08); }
 .vtm20 .r-sp-who { display: flex; align-items: center; gap: 8px; min-width: 0; cursor: pointer; }

@@ -398,6 +398,8 @@ export class VtMActor extends Actor {
   /** Пул прочности против типа урона (04). */
   soakPool(type, { armor = true, fangs = false, pierce = 0, silver = false } = {}) {
     const s = this.system;
+    // дух Умбры (W20, гл. 11): поглощает Волей любой урон (Доспех — Чарами, рассказчик добавит кубики)
+    if (this.type === "creature" && s.spirit?.on) return s.spirit.willpower;
     if (this.type === "werewolf") {
       const sta = s.attributes.stamina.total, arm = armor ? Math.max(0, this.armor.rating - pierce) : 0, weak = s.werewolf.breedForm;
       // кубики поглощения от уродств метиса (Грубая шкура, Косматость — models.mjs, formFx.soak)

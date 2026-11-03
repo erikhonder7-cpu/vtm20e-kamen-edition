@@ -17,7 +17,7 @@ import { makeExtra } from "./extras.mjs";
 import { REVENANT_FAMILIES } from "../data/revenants.mjs";
 import { W as WW } from "./werewolf.mjs";
 import { H as HH } from "./hunter.mjs";
-import { ROLES, ROLE_GROUPS, POWERS, roleOf, lab } from "./npc-roles.mjs";
+import { ROLES, ROLE_GROUPS, POWERS, roleOf, lab, subsForEra } from "./npc-roles.mjs";
 import { KINDS, KIND_GROUPS, kindOf, buildNpc, npcView, createNpc, GROUPS, groupOf, buildGroup } from "./npc-build.mjs";
 
 /** Заготовки рассказчика (настройка мира): имя и всё, что выбрано в окне. */
@@ -265,7 +265,7 @@ export class NpcGenerator extends HandlebarsApplicationMixin(ApplicationV2) {
       items: KINDS.filter(k => k.group === g.key).map(k => ({ ...k, label: lab(`Kind.${k.key}`, k.label), active: k.key === s.kind })) }));
     const roleGroups = ROLE_GROUPS.map(g => ({ ...g, label: lab(`RoleGroup.${g.key}`, g.label),
       roles: ROLES.filter(r => r.group === g.key).map(r => ({ key: r.key, icon: r.icon, label: lab(`Role.${r.key}`, r.label), active: r.key === s.role })) }));
-    const subs = role ? role.subs.map(x => ({ key: x.key, label: lab(`Sub.${x.key}`, x.label), active: x.key === s.sub })) : [];
+    const subs = role ? subsForEra(role, game.settings.get(SYSTEM_ID, "era")).map(x => ({ key: x.key, label: lab(`Sub.${x.key}`, x.label), active: x.key === s.sub })) : [];
     const powers = POWERS.map(p => ({ key: p.key, icon: p.icon, label: lab(`Power.${p.key}`, p.label), active: p.key === s.power }));
 
     // статблоки книги

@@ -129,6 +129,7 @@
     <div class="r-ww-pool">
     <div class="r-vc-head is-second">
       <h4 class="r-banner"><a data-action="rollTrait" data-trait="werewolf.gnosis" data-tooltip="{{localize 'VTM20.Werewolf.GnosisHint'}}">{{localize "VTM20.Werewolf.Gnosis"}}</a></h4>
+      {{#if editable}}<a class="r-vc-btn" data-action="wwGnosisRegain" data-tooltip="{{localize 'VTM20.Werewolf.GnosisRegainHint'}}"><i class="fa-solid fa-spiral"></i></a>{{/if}}
       <div class="r-vc-status"><b>{{werewolfInfo.gnosis}}</b> / {{werewolfInfo.gnosisPerm}}</div>
     </div>
     {{> rDots dots=werewolfInfo.gnosisDots cls="is-ten is-gnosis"}}
