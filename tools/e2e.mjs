@@ -224,6 +224,50 @@ try {
     if (!r.instinct || !r.calm) throw new Error(`Инстинкты: окно ${r.instinct}, без ярости ${r.calm}`);
   });
 
+  await check("Становление Сородича и особые сосуды: кровь оборотня, алкоголь, болезнь крови", async () => {
+    const sireId = await temp("E2E — сир"), mortalId = await temp("E2E — смертный", "mortal");
+    const r = await page.evaluate(async ([sireId, mortalId]) => {
+      const SYS = game.system.id, sire = game.actors.get(sireId), m = game.actors.get(mortalId), out = {};
+      const wait = ms => new Promise(res => setTimeout(res, ms));
+      const until = async f => { for (let i = 0; i < 40; i++) { const x = f(); if (x) return x; await wait(100); } return null; };
+      const E = await import(`/systems/${SYS}/module/apps/embrace.mjs`), N = await import(`/systems/${SYS}/module/apps/night.mjs`);
+      const { RollDialog } = await import(`/systems/${SYS}/module/dice/dialog.mjs`), { getClock } = await import(`/systems/${SYS}/module/apps/calendar.mjs`);
+      const T = await import(`/systems/${SYS}/module/apps/timers.mjs`);
+      await sire.update({ "system.clan": "toreador", "system.generation": 9 });
+      // Становление: сир из мира — клан и поколение от него; Ангра-Майнью — предупреждение
+      E.embrace(m);
+      const dlg = await until(() => document.querySelector(".r-embrace"));
+      const sel = dlg.querySelector("[name=sire]"); sel.value = sire.id; sel.dispatchEvent(new Event("change"));
+      const clan = dlg.querySelector("[name=clan]"); out.gen = dlg.querySelector("[name=gen]").value;
+      clan.value = "angraMaynyu"; clan.dispatchEvent(new Event("change")); out.warn = !dlg.querySelector("[data-warn]").hidden;
+      clan.value = "toreador"; clan.dispatchEvent(new Event("change"));
+      dlg.querySelector("button[data-action=ok]").click();
+      await until(() => game.actors.get(mortalId)?.type === "vampire" && game.actors.get(mortalId).items.some(i => i.type === "discipline"));
+      const v = game.actors.get(mortalId);
+      out.embraced = `${v.type}/${v.system.clan}/${v.system.generation}/${v.system.details.sire}`;
+      out.bond = v.system.bonds.find(b => b.role === "regnant")?.rating; out.childe = sire.system.bonds.find(b => b.role === "thrall")?.name === v.name;
+      out.discs = v.items.filter(i => i.type === "discipline").length; out.pool = v.system.blood.value;
+      // оборотень: 20 пунктов, алкоголь ×3 — −3 к Ловкости, через 3 часа хроники снимается
+      await v.update({ "system.blood.value": 0 });
+      out.drank = await N.drinkVessel(v, { n: 20, vessel: "werewolf", substance: "alcohol", dose: 3, noStop: true });
+      out.dex = new RollDialog(v, { trait1: "attributes.dexterity", difficulty: 6 }).compute().breakdown.find(b => b.label.startsWith("Алкоголь"))?.value ?? 0;
+      await T.expireTimers(getClock() + 3 * 3600000 + 1000); out.sober = !v.effects.some(e => e.flags?.[SYS]?.substance);
+      // болезнь крови: заметил — не пьёт; не заметил и провалил Выносливость — «Разносчик заразы»
+      await v.update({ "system.blood.value": 2 });
+      await N.drinkVessel(v, { n: 2, vessel: "human", ill: true, look: { outcome: "success" } }); out.noticed = v.system.blood.value;
+      await N.drinkVessel(v, { n: 2, vessel: "human", ill: true, look: { outcome: "failure" }, resist: { outcome: "success" }, noStop: true });
+      out.clean = !v.items.some(i => i.name === "Разносчик заразы");
+      await N.drinkVessel(v, { n: 1, vessel: "bag", ill: true, look: { outcome: "failure" }, resist: { outcome: "failure" }, noStop: true });
+      out.carrier = v.items.some(i => i.type === "flaw" && i.name === "Разносчик заразы");
+      return out;
+    }, [sireId, mortalId]);
+    if (r.gen !== "10" || !r.warn) throw new Error(`окно Становления: поколение ${r.gen}, предупреждение Ангра-Майнью ${r.warn}`);
+    if (r.embraced !== "vampire/toreador/10/E2E — сир" || r.bond !== 1 || !r.childe || r.discs !== 3 || !(r.pool >= 1 && r.pool <= 10))
+      throw new Error(`Становление: ${JSON.stringify(r)}`);
+    if (r.drank !== 13 || r.dex !== -3 || !r.sober) throw new Error(`кровь оборотня: выпито ${r.drank} (предел 13), алкоголь ${r.dex}, снят ${r.sober}`);
+    if (r.noticed !== 2 || !r.clean || !r.carrier) throw new Error(`болезнь крови: заметил ${r.noticed}, чист ${r.clean}, разносчик ${r.carrier}`);
+  });
+
   await check("Гару: остаться в строю и шрам, Ярость по Луне, отказ фетиша, Харано, тотем стаи", async () => {
     const id = await temp("E2E — Гару в строю", "werewolf"), packId = await temp("E2E — стая", "coterie");
     const r = await page.evaluate(async ([id, packId]) => {

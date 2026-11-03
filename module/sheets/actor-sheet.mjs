@@ -52,6 +52,7 @@ import { themeClass } from "../ui/themes.mjs";
 import { openHouses } from "../apps/houses.mjs";
 import { signed } from "../data/form.mjs";
 import { ghoulify } from "../apps/embrace-ghoul.mjs";
+import { embrace } from "../apps/embrace.mjs";
 import { openTormentLog, virtuePrompt, thrallSin, thrallPact, thrallBreak, formUpkeep, atoneWithXp, assumeForm, sceneHighFeature, harvestFaith, pactFaith, innateRoll, ritualTurn, ritualEffect, suggestSin, revelation, gainTorment, thrallState, thrallCap, worshipRitual, reliquaryDraw } from "../apps/torment.mjs";
 import { TextEditor, t, ROMAN, dots, prepareHeader, prepareTraits, prepareRegistry, prepareDisciplines, prepareLores, prepareAdvantages, prepareLineage, prepareEffects, prepareGear } from "./actor-context.mjs";
 
@@ -112,7 +113,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       worship: VtMActorSheet.#onWorship,
       reliquaryDraw: VtMActorSheet.#onReliquaryDraw,
       houseAtlas: VtMActorSheet.#onHouseAtlas,
-      tormentSin: VtMActorSheet.#onTormentSin, thrallSin: VtMActorSheet.#onThrallSin, thrallPact: VtMActorSheet.#onThrallPact, ghoulify: VtMActorSheet.#onGhoulify, formUpkeep: VtMActorSheet.#onFormUpkeep, thrallGifts: VtMActorSheet.#onThrallGifts,
+      tormentSin: VtMActorSheet.#onTormentSin, thrallSin: VtMActorSheet.#onThrallSin, thrallPact: VtMActorSheet.#onThrallPact, ghoulify: VtMActorSheet.#onGhoulify, embrace: VtMActorSheet.#onEmbrace, formUpkeep: VtMActorSheet.#onFormUpkeep, thrallGifts: VtMActorSheet.#onThrallGifts,
       tormentLog: VtMActorSheet.#onTormentLog, hostLose: VtMActorSheet.#onHostLose,
       investmentUse: VtMActorSheet.#onInvestmentUse, pactAdd: VtMActorSheet.#onPactAdd, pactEdit: VtMActorSheet.#onPactEdit, pactDel: VtMActorSheet.#onPactDel,
       ebServant: VtMActorSheet.#onEbServant, exorcist: VtMActorSheet.#onExorcist, cult: VtMActorSheet.#onCult, possess: VtMActorSheet.#onPossess, possessExtend: VtMActorSheet.#onPossessExtend, possessLeave: VtMActorSheet.#onPossessLeave, possessBattle: VtMActorSheet.#onPossessBattle, hostHold: VtMActorSheet.#onHostHold, hostNew: VtMActorSheet.#onHostNew, hostSummoned: VtMActorSheet.#onHostSummoned, formLookImg: VtMActorSheet.#onFormLookImg, formLookClear: VtMActorSheet.#onFormLookClear, thrallBreak: VtMActorSheet.#onThrallBreak, openUuid: VtMActorSheet.#onOpenUuid,
@@ -739,6 +740,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static #onThrallSin() { return thrallSin(this.actor); }
   static #onThrallPact() { return thrallPact(this.actor); }
   static #onGhoulify() { return ghoulify(this.actor); }
+  static #onEmbrace() { return embrace(this.actor); }
   static #onFormUpkeep() { return formUpkeep(this.actor); }
   static #onThrallGifts() { return openThrallGifts(this.actor); }
   /** Тело-носитель (apps/host.mjs): гибель тела, ход без тела, новое тело, призван из Бездны. */

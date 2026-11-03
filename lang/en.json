@@ -5288,6 +5288,67 @@
       "Done": "{name} renounces Humanity: {path} {n}, new Virtues at 1.",
       "Fail": "{name} commits a senseless atrocity, but the Path doesn't open: Humanity {n}. May try again in a month.",
       "Botch": "{name}: botch — the Path is closed, may try again only in a year."
+    },
+    "Embrace": {
+      "Btn": "Embrace: a mortal or ghoul becomes Kindred — clan and generation from the sire, first step of the bond",
+      "Title": "Embrace: {name}",
+      "Hint": "A Kindred drains and feeds their blood (V20, ch. 6): clan from the sire, generation is sire's + 1, the childe is bound to the sire at the first step. Attributes, Abilities, Virtues, Humanity, Willpower, Backgrounds and items stay; clan Disciplines are added at 0 dots.",
+      "Sire": "Sire",
+      "SireFree": "— type a name —",
+      "SireName": "Sire's name (if not in the world)",
+      "SireNamePh": "who gave the Embrace",
+      "SireUnknown": "unknown",
+      "Clan": "Clan",
+      "Generation": "Generation",
+      "Night": "Night of the Embrace",
+      "NoInert": "Angra Mainyu cannot Embrace: their blood is inert.",
+      "NoDies": "Blood Brothers cannot Embrace: the mortal dies.",
+      "Ok": "Embrace",
+      "Done": "{name} rises as Kindred: {clan}, {gen}th generation, sire — {sire}.",
+      "DoneBlood": "The neonate's blood pool is {n} (1d10).",
+      "DoneBond": "First step of the blood bond to the sire ({sire}).",
+      "ThinNote": "Thin blood: generation beyond the 13th."
+    },
+    "Vessel": {
+      "Label": "Vessel",
+      "human": "Adult human",
+      "child": "Child",
+      "werewolf": "Werewolf",
+      "bag": "Blood bag",
+      "cow": "Cow",
+      "dog": "Dog",
+      "cat": "Cat",
+      "Rich": "Werewolf blood is potent: more than 3 points may be drunk per turn.",
+      "Wounds": "{n} lethal to the victim",
+      "Substance": "In the vessel's blood",
+      "Clean": "nothing",
+      "Dose": "How much (100 g of spirits / strength)",
+      "Ill": "The vessel is sick (blood disease — the Storyteller knows)",
+      "LookTitle": "Notice the Disease",
+      "LookSub": "Intelligence + Medicine, diff 7",
+      "Noticed": "{name} notices the disease in the vessel's blood — and does not drink.",
+      "CarrierTitle": "Avoid Becoming a Carrier",
+      "CarrierSub": "Stamina, diff 6",
+      "Carrier": "{name} now carries a blood disease: the Disease Carrier flaw is on the sheet.",
+      "Tainted": "{name}: the blood carried {what}",
+      "Sub": {
+        "alcohol": "Alcohol",
+        "stimulant": "Cocaine, amphetamines",
+        "hallucinogen": "Hallucinogens",
+        "opiate": "Heroin, morphine, barbiturates",
+        "marijuana": "Marijuana",
+        "poison": "Poison",
+        "food": "Food poisoning"
+      },
+      "SubFx": {
+        "alcohol": "−1 die to Dexterity and Intelligence per 100 g, fading by a die per hour.",
+        "stimulant": "Celerity +1 for those who have it for (10 − Stamina) minutes; frenzy checks +1 difficulty.",
+        "hallucinogen": "−1 to −3 dice to all pools; Alertness or Auspex may rise; like Hallucinations for (8 − Stamina) minutes.",
+        "opiate": "−2 dice to Dexterity and all Abilities for (10 − Stamina) minutes; dozing for (12 − Stamina) hours; −1 difficulty against frenzy.",
+        "marijuana": "Time distortion, −1 die to Perception for about 30 minutes.",
+        "poison": "−1 die to all pools; 1–3 lethal per scene or turn by toxicity — the Storyteller; remove the effect once the tainted blood is spent.",
+        "food": "Nausea: cannot drink blood (Stamina diff 6 to override for a while), 1 bashing; about a day."
+      }
     }
   }
 }

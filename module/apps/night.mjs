@@ -143,51 +143,130 @@ class HuntDialog extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 }
 
-/** Кровь после удачной охоты. */
 /**
  * Кормление после удачной охоты: сколько выпить, решает сам игрок (вампир обычно контролирует Поцелуй),
- * в пределах свободного места в запасе. Сосуд-смертный — 10 пунктов крови: осушить его — убить.
+ * в пределах свободного места в запасе и крови сосуда (data/vessels.mjs: человек 10, ребёнок 5, оборотень 20,
+ * корова 5…). В крови сосуда может быть вещество — оно ложится на пьющего эффектом со сроком по часам хроники;
+ * больной сосуд — проверка Интеллект + Медицина (сл. 7) до глотка и Выносливость (сл. 6) после (V20, гл. 4).
  */
 export async function feedAfterHunt(actor, { animal = false } = {}) {
   if (!actor?.hasBlood) return;
   const s = actor.system.blood, room = Math.max(0, s.max - s.value);
   if (!room) return ui.notifications.info(t("Hunt.Full", { name: actor.name }));
-  const top = Math.min(room, 10);
-  const marks = [1, 2, 5, top].filter((v, i, a) => v <= top && a.indexOf(v) === i);
-  const n = await foundry.applications.api.DialogV2.prompt({
+  const { VESSELS, SUBSTANCES, vesselOf } = await import("../data/vessels.mjs");
+  const list = VESSELS.filter(v => !!v.animal === animal || v.key === "bag");
+  const topOf = key => Math.min(room, vesselOf(key).size), top = topOf(list[0].key);
+  const res = await foundry.applications.api.DialogV2.prompt({
     window: { title: t("Hunt.FeedTitle", { name: actor.name }), icon: "fa-solid fa-droplet" }, classes: ["vtm20", "r-dialog", "r-feed"],
     content: `<div class="r-form r-feed-form">
       <p class="r-feed-pool">${t("Hunt.FeedPool", { cur: s.value, max: s.max })}</p>
-      <div class="r-feed-pick">${marks.map(v => `<button type="button" data-feed="${v}">${v === top && top === room ? t("Hunt.FeedFull", { n: v }) : v}</button>`).join("")}</div>
+      <label class="r-field"><span>${t("Vessel.Label")}</span><select name="vessel">${list.map(v =>
+        `<option value="${v.key}">${t(`Vessel.${v.key}`)} · ${v.size}</option>`).join("")}</select></label>
+      <div class="r-feed-pick"></div>
       <label class="r-feed-range"><input type="range" name="n" min="1" max="${top}" value="${top}" step="1"><output>${top}</output></label>
+      ${animal ? "" : `<label class="r-field"><span>${t("Vessel.Substance")}</span><select name="substance"><option value="">${t("Vessel.Clean")}</option>${Object.keys(SUBSTANCES).map(k =>
+        `<option value="${k}">${t(`Vessel.Sub.${k}`)}</option>`).join("")}</select></label>
+      <label class="r-field r-feed-dose" hidden><span>${t("Vessel.Dose")}</span><input type="number" name="dose" min="1" max="5" value="1"></label>
+      <label class="r-check"><input type="checkbox" name="ill"> ${t("Vessel.Ill")}</label>`}
       <p class="r-feed-hint">${t(s.value < 5 ? "Hunt.FeedHintHungry" : "Hunt.FeedHint")}</p>
+      <p class="r-feed-hint" data-note></p>
     </div>`,
     render: (ev, dlg) => {
-      const el = dlg.element, range = el.querySelector("[name=n]"), out = el.querySelector("output");
+      const el = dlg.element, range = el.querySelector("[name=n]"), out = el.querySelector("output"), pick = el.querySelector(".r-feed-pick");
+      const note = el.querySelector("[data-note]"), sub = el.querySelector("[name=substance]"), dose = el.querySelector(".r-feed-dose");
+      // сосуд меняет предел: человек 10, оборотень 20 (не больше места в запасе)
+      const marks = () => {
+        const v = vesselOf(el.querySelector("[name=vessel]").value), mx = topOf(v.key);
+        range.max = mx; range.value = mx; out.value = mx;
+        pick.innerHTML = [1, 2, 5, mx].filter((x, i, a) => x <= mx && a.indexOf(x) === i)
+          .map(x => `<button type="button" data-feed="${x}">${x === mx && mx === room ? t("Hunt.FeedFull", { n: x }) : x}</button>`).join("");
+        pick.querySelectorAll("[data-feed]").forEach(b => b.addEventListener("click", () => { range.value = b.dataset.feed; out.value = b.dataset.feed; }));
+        note.textContent = v.rich ? t("Vessel.Rich") : "";
+      };
       range.addEventListener("input", () => { out.value = range.value; });
-      el.querySelectorAll("[data-feed]").forEach(b => b.addEventListener("click", () => { range.value = b.dataset.feed; out.value = b.dataset.feed; }));
+      el.querySelector("[name=vessel]").addEventListener("change", marks);
+      // дозы — у алкоголя (по 100 г крепкого), галлюциногенов и яда (сила)
+      sub?.addEventListener("change", () => { const d = SUBSTANCES[sub.value]?.doses; dose.hidden = !d; if (d) dose.querySelector("input").max = d; });
+      marks();
     },
-    ok: { label: t("Hunt.Feed"), icon: "fa-solid fa-droplet", callback: (e, b) => Number(b.form.elements.n.value) || 0 }, rejectClose: false
+    ok: { label: t("Hunt.Feed"), icon: "fa-solid fa-droplet", callback: (e, b) => { const f = b.form.elements;
+      return { n: Number(f.n.value) || 0, vessel: f.vessel.value, substance: f.substance?.value ?? "", dose: Math.max(1, Number(f.dose?.value) || 1), ill: !!f.ill?.checked }; } },
+    rejectClose: false
   });
-  if (!n) return;
+  if (!res?.n) return;
+  return drinkVessel(actor, res);
+}
+
+/**
+ * Глоток из сосуда (окно выше или бросок без окна): { n, vessel, substance, dose, ill }.
+ * Голод, деградация на грани убийства, раны сосуда, вещество и болезнь крови.
+ */
+export async function drinkVessel(actor, res) {
+  const { vesselOf } = await import("../data/vessels.mjs");
+  const s = actor.system.blood, room = Math.max(0, s.max - s.value);
+  const say = (html, warn = false) => ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<div class="r-notice${warn ? " is-warn" : ""}">${html}</div>` });
+  const v = vesselOf(res.vessel), limit = Math.min(room, v.size), n = Math.min(res.n, limit), person = !v.animal && v.key !== "bag";
+  // больной сосуд: заметить до глотка — Интеллект + Медицина (сл. 7); провал с единицами — разносчик без проверки
+  let carrier = false, checkAfter = false;
+  if (res.ill) {
+    const med = actor.system.abilities.medicine?.value ?? 0, int = actor.system.attributes.intelligence.total;
+    const look = res.look ?? await rollPool({ actor, title: t("Vessel.LookTitle"), subtitle: t("Vessel.LookSub"), difficulty: 7, kind: "check", pool: int + med,
+      breakdown: [{ label: actor.traitLabel("attributes.intelligence"), value: int }, { label: actor.traitLabel("abilities.medicine"), value: med }] });
+    if (look?.outcome === "success") return say(`<i class="fa-solid fa-virus"></i> ${t("Vessel.Noticed", { name: actor.name })}`);
+    if (look?.outcome === "botch") carrier = true; else checkAfter = true;
+  }
   let drink = n;
   // Сильный голод (крови меньше 5): чтобы оторваться раньше, чем насытится, — бросок Силы воли (сл. 6), иначе пьёт досыта
-  if (s.value < 5 && n < top) {
+  if (s.value < 5 && n < limit && !res.noStop) {
     const r = await rollPool({ actor, title: t("Hunt.StopTitle"), subtitle: t("Hunt.StopSub", { n }), pool: actor.system.willpower.permanent, difficulty: 6, kind: "check" });
-    if (r.outcome !== "success") drink = top;
+    if (r.outcome !== "success") drink = limit;
   }
   const before = actor.system.blood.value;
   await actor.gainBlood(drink);
-  if (drink > n) ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<div class="r-notice is-warn"><i class="fa-solid fa-face-angry"></i> ${t("Hunt.CouldNotStop", { n: drink })}</div>` });
-  // Больше 8 пунктов из человека — на грани убийства: проверка деградации (только на Человечности, не на Путях)
-  if (!animal && drink > 8 && (actor.system.morality?.path ?? "humanity") === "humanity") {
+  if (drink > n) say(`<i class="fa-solid fa-face-angry"></i> ${t("Hunt.CouldNotStop", { n: drink })}`, true);
+  // на грани убийства (осушил сосуд почти до дна; у человека — 9+) — проверка деградации, только на Человечности (правило системы)
+  if (person && drink >= v.size - 1 && (actor.system.morality?.path ?? "humanity") === "humanity") {
     const { suggestCheck } = await import("../dice/virtue-checks.mjs");
     suggestCheck(actor, "degeneration", { reason: t("Hunt.Drained", { n: drink }), difficulty: 8 });
   }
-  ChatMessage.create({
-    speaker: ChatMessage.getSpeaker({ actor }),
-    content: `<div class="r-notice"><i class="fa-solid fa-droplet"></i> ${t("Hunt.Fed", { n: actor.system.blood.value - before, cur: actor.system.blood.value, max: s.max })}</div>`
-  });
+  // V20, гл. 6: каждый пункт сверх двух — тяжёлое повреждение жертве
+  const extra = [v.key !== "human" ? t(`Vessel.${v.key}`) : "", person && drink > 2 ? t("Vessel.Wounds", { n: drink - 2 }) : ""].filter(Boolean).join(" · ");
+  await say(`<i class="fa-solid fa-droplet"></i> ${t("Hunt.Fed", { n: actor.system.blood.value - before, cur: actor.system.blood.value, max: s.max })}${extra ? ` <span class="r-muted">${extra}</span>` : ""}`);
+  if (res.substance && drink > 0) await taintBlood(actor, res.substance, res.dose);
+  if (checkAfter) {
+    const st = res.resist ?? await rollPool({ actor, title: t("Vessel.CarrierTitle"), subtitle: t("Vessel.CarrierSub"), difficulty: 6, kind: "check",
+      pool: actor.system.attributes.stamina.total, breakdown: [{ label: actor.traitLabel("attributes.stamina"), value: actor.system.attributes.stamina.total }] });
+    carrier = st?.outcome !== "success";
+  }
+  if (carrier) await makeCarrier(actor);
+  return drink;
+}
+
+/** Вещество из выпитой крови — эффектом на листе со сроком (V20, гл. 4: алкоголь — час на каждые 100 г, наркотики — по Выносливости). */
+export async function taintBlood(actor, key, dose = 1) {
+  const { SUBSTANCES } = await import("../data/vessels.mjs");
+  const { getClock } = await import("./calendar.mjs");
+  const def = SUBSTANCES[key];
+  if (!def) return;
+  const d = def.doses ? Math.clamp(dose, 1, def.doses) : 1, ms = def.ms(actor.system.attributes.stamina.total, d);
+  const now = getClock(), name = `${t(`Vessel.Sub.${key}`)}${def.doses ? ` ×${d}` : ""}`;
+  await actor.createEmbeddedDocuments("ActiveEffect", [{ name, img: def.icon,
+    flags: { [SYSTEM_ID]: { substance: key, dose: d, start: now, ...(ms ? { until: now + ms } : {}) } } }]);
+  return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }),
+    content: `<div class="r-notice"><i class="fa-solid fa-flask"></i> ${t("Vessel.Tainted", { name: actor.name, what: name })}<br><small>${t(`Vessel.SubFx.${key}`)}</small></div>` });
+}
+
+/** Стал разносчиком болезни крови: недостаток «Разносчик заразы» на лист (V20, Достоинства и недостатки). */
+async function makeCarrier(actor) {
+  const NAME = "Разносчик заразы";
+  if (!actor.items.some(i => i.type === "flaw" && i.name === NAME)) {
+    const { Codex } = await import("../data/codex.mjs");
+    const { LibraryItems } = await import("./library.mjs");
+    await Codex.load();
+    const m = (Codex.merits ?? []).find(x => x.kind === "flaw" && x.name === NAME);
+    await actor.createEmbeddedDocuments("Item", [m ? LibraryItems.trait(m, 4) : { name: NAME, type: "flaw", system: { cost: 4 } }]);
+  }
+  return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<div class="r-notice is-warn"><i class="fa-solid fa-virus"></i> ${t("Vessel.Carrier", { name: actor.name })}</div>` });
 }
 
 /* ── Ночь, сцена, история ─────────────────────────────────────────────── */
