@@ -304,6 +304,9 @@ export async function nightfall() {
   const { decayBonds } = await import("./bonds.mjs");
   for (const a of game.actors.filter(x => (x.system.bonds ?? []).length)) for (const l of await decayBonds(a)) lines.push(`<li>${l}</li>`);
   ChatMessage.create({ content: `<div class="r-notice"><i class="fa-solid fa-moon"></i> <b>${t("Night.Title")}</b><ul>${lines.join("") || `<li>${t("Night.Nobody")}</li>`}</ul></div>` });
+  // Маскарад: огласка в городе — карточка рассказчику об охотниках (ui/masquerade.mjs)
+  const { huntersAlert } = await import("../ui/masquerade.mjs");
+  await huntersAlert();
 }
 
 /** Состояния, которые проходят с концом сцены: ошеломление, падение, захват, ярость, Ротшрек. */

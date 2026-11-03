@@ -7,6 +7,7 @@
 
 import { registerCityExtension } from "./citymap.mjs";
 import { getClock, longDate, MS_DAY } from "../apps/calendar.mjs";
+import { SYSTEM_ID } from "../config.mjs";
 
 const L = (k, d) => d ? game.i18n.format(`VTM20.Masq.${k}`, d) : game.i18n.localize(`VTM20.Masq.${k}`);
 const esc = s => foundry.utils.escapeHTML(String(s ?? ""));
@@ -100,6 +101,7 @@ function editor(b, api) {
 }
 
 export function registerMasquerade() {
+  Hooks.on("renderChatMessageHTML", (msg, html) => html.querySelectorAll("[data-r-hunters]").forEach(b => b.addEventListener("click", () => onHunters(b))));
   registerCityExtension({
     overlays: [{
       add: api => {
@@ -181,4 +183,58 @@ export function registerMasquerade() {
       box.appendChild(el);
     }]
   });
+}
+
+/* ── Охотники при огласке (правило системы, согласовано 03.11): жар города дошёл до верхней ступени — в начале ночи
+   рассказчику карточка «В городе охотники» — только предложение: собрать ячейку генератором НПС, поставить метку у самого
+   горячего нарушения или отказаться («Не нужно»). Одна карточка на волну: следующая — когда жар упадёт ниже и снова
+   поднимется. Настройка мира «huntersAlert» выключает карточки совсем. ── */
+
+/** Город карты из настройки мира (без открытой карты). */
+function worldCity() {
+  const raw = foundry.utils.deepClone(game.settings.get(SYSTEM_ID, "cityMap") ?? {});
+  return raw.v === 2 && raw.cities?.[raw.current] ? { raw, city: raw.cities[raw.current] } : null;
+}
+
+/** Начало ночи (apps/night.mjs → nightfall): проверить огласку. */
+export async function huntersAlert(now = getClock()) {
+  if (!game.users.activeGM?.isSelf || !game.settings.get(SYSTEM_ID, "huntersAlert")) return;
+  const w = worldCity();
+  if (!w) return;
+  const { raw, city } = w, h = cityHeat(city, now);
+  if (h.step < 4) {
+    if (city.huntersWave) { delete city.huntersWave; await game.settings.set(SYSTEM_ID, "cityMap", raw); }
+    return;
+  }
+  if (city.huntersWave) return;
+  city.huntersWave = true;
+  await game.settings.set(SYSTEM_ID, "cityMap", raw);
+  const hot = (city.breaches ?? []).map(b => ({ b, heat: heatOf(b, now) })).sort((x, y) => y.heat - x.heat)[0]?.b;
+  return ChatMessage.create({ speaker: { alias: L("Title") }, whisper: ChatMessage.getWhisperRecipients("GM"), flags: { [SYSTEM_ID]: { hunters: true } },
+    content: `<div class="r-notice is-warn"><p><i class="fa-solid fa-crosshairs"></i> <b>${L("Hunters.Title")}</b></p>
+      <p>${L("Hunters.Text", { heat: Math.round(h.heat) })}${hot?.text ? `<br><small>${esc(hot.text)}</small>` : ""}</p>
+      <div class="r-card-buttons"><button type="button" data-r-hunters="cell"><i class="fa-solid fa-users-viewfinder"></i> ${L("Hunters.Cell")}</button>
+      ${hot ? `<button type="button" data-r-hunters="mark" data-lat="${hot.lat}" data-lng="${hot.lng}"><i class="fa-solid fa-location-crosshairs"></i> ${L("Hunters.Mark")}</button>` : ""}
+      <button type="button" data-r-hunters="skip"><i class="fa-solid fa-xmark"></i> ${L("Hunters.Skip")}</button></div></div>` });
+}
+
+/** Кнопки карточки: ячейка — генератор НПС на группе «Ячейка охотников»; метка — у нарушения, видна только рассказчику. */
+async function onHunters(btn) {
+  if (!game.user.isGM) return;
+  // не нужно — карточка уходит из чата; следующая — только с новой волной огласки
+  if (btn.dataset.rHunters === "skip") return game.messages.get(btn.closest("[data-message-id]")?.dataset.messageId)?.delete();
+  if (btn.dataset.rHunters === "cell") {
+    const { openNpcGenerator } = await import("../apps/npc-gen.mjs");
+    const app = openNpcGenerator();
+    if (app?.ng) { Object.assign(app.ng, { kind: "group", params: { group: "cell" }, template: "", trained: false, ghoul: false }); app.draft = null; app.render(); }
+    return;
+  }
+  const w = worldCity();
+  if (!w) return;
+  const lat = Number(btn.dataset.lat) + (Math.random() - .5) * .002, lng = Number(btn.dataset.lng) + (Math.random() - .5) * .003;
+  (w.city.markers ??= []).push({ id: foundry.utils.randomID(), lat, lng, name: L("Hunters.MarkName"), cat: "other", color: "#c0392b", text: L("Hunters.MarkText"),
+    gmOnly: true, sceneId: "", journalId: "", folder: "chronicle" });
+  await game.settings.set(SYSTEM_ID, "cityMap", w.raw);
+  btn.disabled = true;
+  ui.notifications.info(L("Hunters.Marked"));
 }

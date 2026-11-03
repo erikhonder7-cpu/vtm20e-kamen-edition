@@ -2720,6 +2720,10 @@
       "AssignatRate": {
         "Name": "Assignat rate",
         "Hint": "What percent of face value paper assignats fetch in coin right now. The books give no rate — the Storyteller changes it as the chronicle goes."
+      },
+      "HuntersAlert": {
+        "Name": "Hunters on Masquerade Exposure",
+        "Hint": "When the city's Masquerade heat reaches exposure, the Storyteller gets a card at nightfall: assemble a hunter cell, place a mark or dismiss it."
       }
     },
     "Nexus": {
@@ -3794,7 +3798,17 @@
       "Cooled": "{n} nights ago · cooled",
       "TextHint": "What happened: who saw, what remained, who covered it up…",
       "HuntHint": "A breach's heat makes hunting nearby harder: +1 to difficulty, with strong heat +2. Cools over severity × 3 nights.",
-      "PlateHint": "The city's overall Masquerade heat: {n}. Each breach cools over chronicle nights."
+      "PlateHint": "The city's overall Masquerade heat: {n}. Each breach cools over chronicle nights.",
+      "Hunters": {
+        "Title": "Hunters in the City",
+        "Text": "Masquerade heat {heat} — exposure. Word has reached those who hunt monsters.",
+        "Cell": "Assemble a Cell",
+        "Mark": "Mark on the Map",
+        "MarkName": "Hunters",
+        "MarkText": "Hunters follow the trail of the breach.",
+        "Marked": "The hunters' mark is on the map by the breach (visible to the Storyteller only).",
+        "Skip": "Not Now"
+      }
     },
     "Torpor": {
       "Title": "Torpor",

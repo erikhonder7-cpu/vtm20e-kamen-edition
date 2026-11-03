@@ -268,6 +268,37 @@ try {
     if (r.noticed !== 2 || !r.clean || !r.carrier) throw new Error(`болезнь крови: заметил ${r.noticed}, чист ${r.clean}, разносчик ${r.carrier}`);
   });
 
+  await check("Маскарад: охотники при огласке — карточка, «Не нужно», настройка", async () => {
+    const r = await page.evaluate(async () => {
+      const SYS = game.system.id, raw0 = foundry.utils.deepClone(game.settings.get(SYS, "cityMap") ?? {}), on0 = game.settings.get(SYS, "huntersAlert");
+      if (raw0.v !== 2 || !raw0.cities?.[raw0.current]) return { skip: true };
+      const wait = ms => new Promise(res => setTimeout(res, ms)), out = {};
+      const M = await import(`/systems/${SYS}/module/ui/masquerade.mjs`), { getClock } = await import(`/systems/${SYS}/module/apps/calendar.mjs`);
+      try {
+        // огласка: три свежих нарушения — жар 14, верхняя ступень
+        const raw = foundry.utils.deepClone(raw0), c = raw.cities[raw.current];
+        c.breaches = [5, 5, 4].map((level, i) => ({ id: `e2e${i}`, lat: 48.85 + i * .003, lng: 2.34 + i * .003, level, at: getClock(), text: "", gmOnly: true }));
+        delete c.huntersWave;
+        await game.settings.set(SYS, "cityMap", raw);
+        await game.settings.set(SYS, "huntersAlert", false);
+        let n = game.messages.size; await M.huntersAlert(); out.off = game.messages.size - n;
+        await game.settings.set(SYS, "huntersAlert", true);
+        n = game.messages.size; await M.huntersAlert(); await M.huntersAlert(); out.on = game.messages.size - n;   // вторая — та же волна, карточки нет
+        const msg = game.messages.contents.at(-1); await wait(400);
+        const el = document.querySelector(`[data-message-id="${msg.id}"]`);
+        out.buttons = el ? el.querySelectorAll("[data-r-hunters]").length : 0;
+        el?.querySelector("[data-r-hunters=skip]")?.click(); await wait(600);
+        out.skipped = !game.messages.get(msg.id);
+      } finally {
+        await game.settings.set(SYS, "cityMap", raw0);
+        await game.settings.set(SYS, "huntersAlert", on0);
+      }
+      return out;
+    });
+    if (r.skip) return;
+    if (r.off !== 0 || r.on !== 1 || r.buttons !== 3 || !r.skipped) throw new Error(`охотники: выкл ${r.off}, вкл ${r.on}, кнопок ${r.buttons}, «Не нужно» ${r.skipped}`);
+  });
+
   await check("Гару: остаться в строю и шрам, Ярость по Луне, отказ фетиша, Харано, тотем стаи", async () => {
     const id = await temp("E2E — Гару в строю", "werewolf"), packId = await temp("E2E — стая", "coterie");
     const r = await page.evaluate(async ([id, packId]) => {

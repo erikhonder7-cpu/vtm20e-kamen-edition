@@ -454,6 +454,11 @@ function registerSettings() {
   game.settings.register(SYSTEM_ID, "clock", { scope: "world", config: false, type: Object, default: {}, onChange: () => { refreshCalendar(); paintClockBar(); } });
   game.settings.register(SYSTEM_ID, "chronicleStart", { scope: "world", config: false, type: Number, default: 0, onChange: () => { refreshCalendar(); refreshTopBar(); } });
   game.settings.register(SYSTEM_ID, "sceneStart", { scope: "world", config: false, type: Number, default: 0, onChange: () => { refreshCalendar(); refreshTopBar(); } });
+  // огласка Маскарада — карточка рассказчику об охотниках (ui/masquerade.mjs); выключить — рассказчик решает сам
+  game.settings.register(SYSTEM_ID, "huntersAlert", {
+    name: "VTM20.Settings.HuntersAlert.Name", hint: "VTM20.Settings.HuntersAlert.Hint",
+    scope: "world", config: true, type: Boolean, default: true
+  });
   game.settings.register(SYSTEM_ID, "nightlyWillpower", {
     name: "VTM20.Settings.NightlyWillpower.Name", hint: "VTM20.Settings.NightlyWillpower.Hint",
     scope: "world", config: true, type: Boolean, default: false
