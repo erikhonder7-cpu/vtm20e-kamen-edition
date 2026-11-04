@@ -252,6 +252,8 @@ try {
       dlg.querySelector("button[data-action=ok]").click();
       await until(() => game.actors.get(mortalId)?.type === "vampire" && game.actors.get(mortalId).items.some(i => i.type === "discipline"));
       const v = game.actors.get(mortalId);
+      // запись дитяти у сира идёт последней — дождаться и её, иначе на медленной машине гонка
+      await until(() => sire.system.bonds.some(b => b.role === "thrall" && b.name === v.name));
       out.embraced = `${v.type}/${v.system.clan}/${v.system.generation}/${v.system.details.sire}`;
       out.bond = v.system.bonds.find(b => b.role === "regnant")?.rating; out.childe = sire.system.bonds.find(b => b.role === "thrall")?.name === v.name;
       out.discs = v.items.filter(i => i.type === "discipline").length; out.pool = v.system.blood.value;
