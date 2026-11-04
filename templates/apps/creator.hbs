@@ -387,8 +387,9 @@
       <div class="r-cr-disc {{#if inClan}}is-clan{{/if}}">
         <div class="r-cr-disc-head">
           <span class="r-disc-sigil">{{#if sym}}{{rSym sym}}{{else}}<i class="fa-solid {{icon}}"></i>{{/if}}</span>
-          <div class="r-cr-disc-title"><b>{{rName this}}</b><em>{{rAlt this}}{{#if inClan}} · {{@root.inClanLabel}}{{/if}}</em></div>
+          <div class="r-cr-disc-title"><b>{{rName this}}</b><em>{{rAlt this}}{{#if inClan}} · {{@root.inClanLabel}}{{/if}}{{#if extra}} · {{localize "VTM20.Creator.ExtraDiscMark"}}{{/if}}{{#if outOfClan}} · {{localize "VTM20.Creator.OutOfClan"}}{{/if}}</em></div>
           <span class="r-dots">{{#each dots}}<a class="r-dot r-cr-dot is-{{state}}" data-action="dot" data-kind="{{kind}}" data-key="{{key}}" data-n="{{n}}"></a>{{/each}}</span>
+          {{#if removable}}<a class="r-cr-disc-drop" data-action="dropDisc" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Creator.DropDisc'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
         </div>
         <ol class="r-cr-powers">
           {{#each powers}}<li class="{{#if owned}}is-owned{{/if}}"><span>{{rRoman level}}</span> {{rName this}}</li>{{/each}}
@@ -397,12 +398,8 @@
       </div>
       {{/each}}
     </div>
-    {{#if anyDiscipline}}
-    <div class="r-toolbar">
-      <select name="cr-disc" class="r-select"><option value="">{{localize "VTM20.Sheet.ChooseDiscipline"}}</option>{{#each discChoices}}<option value="{{value}}">{{label}}</option>{{/each}}</select>
-      <a class="r-btn" data-action="addDisc"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Sheet.Add"}}</a>
-    </div>
-    {{/if}}
+    {{> crExtraDisc}}
+    {{> crAddDisc}}
     {{/if}}
 
     {{!-- V. Дары Гару (W20, гл. 3): три Дара 1-го уровня по ячейкам; сверх — свои Дары 1-го уровня за бонусные очки --}}
@@ -527,6 +524,7 @@
       <span>{{localize "VTM20.Sheet.Merits"}}: <b>{{meritPoints}}</b></span>
       <span>{{localize "VTM20.Sheet.Flaws"}}: <b>{{flawRaw}}</b>{{#if (gt flawRaw 7)}} ({{localize "VTM20.Creator.FlawCap"}}){{/if}}</span>
       {{#each merits}}<span class="r-cr-picked is-merit">{{rName this}} {{#if ranged}}<input type="number" class="r-qty" data-field="merits.{{index}}.cost" value="{{cost}}" min="{{min}}" max="{{max}}">{{else}}({{cost}}){{/if}} <a data-action="mfToggle" data-kind="merit" data-name="{{name}}"><i class="fa-solid fa-xmark"></i></a></span>{{/each}}
+      {{#if extraDisc}}{{> crExtraDisc}}{{/if}}
       {{#each flaws}}<span class="r-cr-picked is-flaw">{{rName this}} {{#if ranged}}<input type="number" class="r-qty" data-field="flaws.{{index}}.cost" value="{{cost}}" min="{{min}}" max="{{max}}">{{else}}({{cost}}){{/if}} <a data-action="mfToggle" data-kind="flaw" data-name="{{name}}"><i class="fa-solid fa-xmark"></i></a></span>{{/each}}
     </div>
     <div class="r-cr-mfgrid">
@@ -554,6 +552,7 @@
       <span class="{{#if (lt freeLeft 0)}}is-over{{else if (eq freeLeft 0)}}is-done{{/if}}">{{localize "VTM20.Creator.LeftShort"}}: <b>{{freeLeft}}</b></span>
       <span class="r-note r-explain">{{#if isWerewolf}}{{localize "VTM20.Creator.FreeCostsGarou"}}{{else if isDemon}}{{localize "VTM20.Creator.FreeCostsDemon" attr=cost.attr abil=cost.abil disc=cost.disc bg=cost.bg virt=cost.virt mor=cost.morality will=cost.will}}{{else}}{{localize "VTM20.Creator.FreeCosts" attr=cost.attr abil=cost.abil disc=cost.disc bg=cost.bg virt=cost.virt mor=cost.morality will=cost.will}}{{/if}}</span>
     </div>
+    {{> crAddDisc}}
     <div class="r-cr-free">
       {{#each freeGroups}}
       <div class="r-cr-free-group"><h3 class="r-h3">{{label}}</h3>
@@ -577,6 +576,7 @@
       <span class="{{#if (lt xpLeft 0)}}is-over{{else if (eq xpLeft 0)}}is-done{{/if}}">{{localize "VTM20.Creator.LeftShort"}}: <b>{{xpLeft}}</b></span>
       <span class="r-note r-explain">{{#if isWerewolf}}{{localize "VTM20.Creator.XpCostsGarou"}}{{else if isDemon}}{{localize "VTM20.Creator.XpCostsDemon"}}{{else}}{{localize "VTM20.Creator.XpCosts"}}{{/if}}</span>
     </div>
+    {{> crAddDisc}}
     <div class="r-cr-free">
       {{#each xpGroups}}
       <div class="r-cr-free-group"><h3 class="r-h3">{{label}}</h3>

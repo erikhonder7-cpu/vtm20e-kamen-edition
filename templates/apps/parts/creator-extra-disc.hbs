@@ -1,0 +1,10 @@
+{{!-- Мастер создания: какая Дисциплина стала клановой по достоинству «Дополнительная Дисциплина» (V20, Appendix). --}}
+{{#if extraDisc}}
+<label class="r-cr-extradisc {{#unless extraDisc.value}}is-warn{{/unless}}" data-tooltip="{{localize 'VTM20.Creator.ExtraDiscHint'}}">
+  <i class="fa-solid fa-droplet"></i> <span>{{localize "VTM20.Creator.ExtraDiscLabel"}}</span>
+  <select data-field="extraDisc" class="r-select">
+    <option value="">{{localize "VTM20.Sheet.ChooseDiscipline"}}</option>
+    {{#each extraDisc.options}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
+  </select>
+</label>
+{{/if}}

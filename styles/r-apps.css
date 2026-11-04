@@ -195,6 +195,12 @@
 .vtm20 .r-cr-disc { padding: 10px 12px; }
 .vtm20 .r-cr-disc.is-clan { box-shadow: inset 2px 0 0 #8c1c22; }
 .vtm20 .r-cr-disc-head { display: flex; align-items: center; gap: 10px; }
+.vtm20 .r-cr-disc-drop { flex: 0 0 auto; color: var(--r-muted); cursor: pointer; font-size: 12px; }
+.vtm20 .r-cr-disc-drop:hover { color: var(--r-blood, #a3242a); }
+.vtm20 .r-cr-adddisc { flex-wrap: wrap; align-items: center; gap: 6px; margin: 6px 0 10px; }
+.vtm20 .r-cr-extradisc { display: inline-flex; align-items: center; gap: 6px; padding: 2px 6px 2px 10px; font-size: 12.5px; color: var(--r-ink); border: 1px solid var(--r-line-2); }
+.vtm20 .r-cr-extradisc.is-warn { border-color: var(--r-blood, #a3242a); }
+.vtm20 .r-cr-extradisc .r-select { min-width: 180px; height: 22px; }
 .vtm20 .r-cr-disc .r-disc-sigil { width: 36px; height: 36px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 50%; color: var(--r-ink-2); background: rgba(0, 0, 0, .35); border: 1px solid var(--r-line-2); }
 .vtm20 .r-cr-disc.is-clan .r-disc-sigil { background: #3a0b0f; border-color: #8c1c22; }
 .vtm20 .r-cr-disc .r-disc-sigil .r-sym { width: 22px; height: 22px; }

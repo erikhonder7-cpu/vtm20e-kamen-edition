@@ -177,7 +177,9 @@ Hooks.once("init", () => {
     rDots: `${SYSTEM_PATH}/templates/actor/parts/dots.hbs`,
     rPower: `${SYSTEM_PATH}/templates/actor/parts/power.hbs`,
     rItemHead: `${SYSTEM_PATH}/templates/item/parts/head.hbs`,
-    rItemRoll: `${SYSTEM_PATH}/templates/item/parts/roll.hbs`
+    rItemRoll: `${SYSTEM_PATH}/templates/item/parts/roll.hbs`,
+    crAddDisc: `${SYSTEM_PATH}/templates/apps/parts/creator-add-disc.hbs`,
+    crExtraDisc: `${SYSTEM_PATH}/templates/apps/parts/creator-extra-disc.hbs`
   });
   foundry.applications.handlebars.loadTemplates([
     `${SYSTEM_PATH}/templates/apps/nexus.hbs`, `${SYSTEM_PATH}/templates/apps/nexus-card.hbs`,

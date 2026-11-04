@@ -99,6 +99,9 @@ const HUNTER_SLOTS = { conscience: "mercy", selfControl: "vision", courage: "zea
 /** Свидетель (Players Guide, гл. 1): свои Добродетели в тех же слотах — Рассудок, Самоконтроль, Смелость. */
 const LOST_SLOTS = { conscience: "reason", selfControl: "selfControl", courage: "courage" };
 
+/** Достоинство, делающее одну Дисциплину клановой (V20, Appendix: Merits and Flaws), — по английскому имени. */
+const EXTRA_DISC_MERIT = "Additional Discipline";
+
 export function openCreator(actor) {
   const existing = [...foundry.applications.instances.values()].find(a => a instanceof VtMCreator && a.actor === actor);
   if (existing) return existing.render({ force: true });
@@ -119,7 +122,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       gen: VtMCreator.#onGen, choice: VtMCreator.#onChoice, clanAtlas: VtMCreator.#onClanAtlas,
       dot: VtMCreator.#onDot, prio: VtMCreator.#onPrio,
       bgToggle: VtMCreator.#onBgToggle, mfToggle: VtMCreator.#onMfToggle, mfTab: VtMCreator.#onMfTab, mfCat: VtMCreator.#onMfCat,
-      addDisc: VtMCreator.#onAddDisc, read: VtMCreator.#onRead,
+      addDisc: VtMCreator.#onAddDisc, dropDisc: VtMCreator.#onDropDisc, read: VtMCreator.#onRead,
       free: { handler: VtMCreator.#onFree, buttons: [0, 2] },
       xp: { handler: VtMCreator.#onXp, buttons: [0, 2] },
       rollBlood: VtMCreator.#onRollBlood, finish: VtMCreator.#onFinish
@@ -148,6 +151,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       attr: {}, abil: {}, disc: {}, bg: {},
       virt: { conscience: 0, selfControl: 0, courage: 0 },
       merits: [], flaws: [],
+      extraDisc: "",                    // Дисциплина, ставшая клановой по достоинству «Дополнительная Дисциплина» (V20, Appendix)
       free: { attr: {}, abil: {}, disc: {}, bg: {}, virt: {}, morality: 0, will: 0, rage: 0, gnosis: 0 },
       xp: { attr: {}, abil: {}, disc: {}, virt: {}, morality: 0, will: 0, rage: 0, gnosis: 0 },
       blood: null,
@@ -353,14 +357,32 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
   }
   get ugly() { return this.type === "vampire" && VTM20.uglyClans.includes(this.st.clan); }
 
+  /** Взято ли достоинство «Дополнительная Дисциплина» (только Сородичу; каитифам и пандерам — нельзя, V20, Appendix). */
+  get extraDiscMerit() { return this.type === "vampire" && this.st.merits.some(m => m.en === EXTRA_DISC_MERIT); }
+  /** Дисциплина, выбранная по этому достоинству («» — ещё не выбрана). */
+  get extraDisc() { return this.extraDiscMerit && this.baseClanDisciplines ? this.st.extraDisc || "" : ""; }
+  /** Клановые Дисциплины по крови, без достоинства; null — любые. */
+  get baseClanDisciplines() {
+    const c = this.clanData;
+    if (!c || !c.disciplines.length) return null;
+    return [...c.disciplines, ...(c.choice?.includes(this.st.clanChoice) ? [this.st.clanChoice] : [])];
+  }
+  /** Что можно выбрать по «Дополнительной Дисциплине»: любая видимая не из клана и не закрытая сектой. */
+  get extraDiscOptions() {
+    const base = this.baseClanDisciplines ?? [];
+    const banned = k => this.st.sectKey === "camarilla" && CAMARILLA_BANNED.includes(k);
+    return Object.values(Codex.disciplines).filter(d => !base.includes(d.key) && Codex.visible(d) && !banned(d.key))
+      .map(d => ({ value: d.key, label: d.name, selected: d.key === this.st.extraDisc })).sort((a, b) => a.label.localeCompare(b.label, "ru"));
+  }
+
   /** Клановые Дисциплины; null — любые (каитиф, пандеры, гуль). */
   get clanDisciplines() {
     if (this.type === "ghoul") return null;
     if (this.isDemon) return [...(this.houseData?.lores ?? []), ...(Codex.demon?.common ?? []),        // Знания Дома и общие
       ...(this.isEarthbound ? Codex.lores.filter(l => l.dark).map(l => l.key) : [])];                     // Привязанному — и Тёмные
-    const c = this.clanData;
-    if (!c || !c.disciplines.length) return null;
-    return [...c.disciplines, ...(c.choice?.includes(this.st.clanChoice) ? [this.st.clanChoice] : [])];
+    const base = this.baseClanDisciplines;
+    if (!base) return null;
+    return this.extraDisc && !base.includes(this.extraDisc) ? [...base, this.extraDisc] : base;
   }
   inClan(k) { const c = this.clanDisciplines; return c ? c.includes(k) : false; }
 
@@ -521,6 +543,12 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     for (const k of Object.keys({ ...this.st.disc, ...this.st.free.disc, ...this.st.xp.disc }))
       if (this.bannedDisc(k) && this.value("disc", k) > this.base("disc", k)) out.push(t("Creator.SectBanned", { name: Codex.disciplineLabel(k) }));
     if (this.type === "vampire" && this.clanData?.choice?.length && !this.st.clanChoice) out.push(t("Creator.NeedChoice"));
+    // «Дополнительная Дисциплина»: нужен выбор; каитифам и пандерам черта недоступна (V20, Appendix)
+    if (this.extraDiscMerit && !this.baseClanDisciplines) out.push(t("Creator.ExtraDiscCaitiff"));
+    else if (this.extraDiscMerit && !this.st.extraDisc) out.push(t("Creator.ExtraDiscNeed"));
+    // начальные точки — только в клановые (01); внеклановые — свободными пунктами и опытом
+    if (this.type === "vampire" && this.clanDisciplines)
+      for (const [k, n] of Object.entries(this.st.disc)) if (n > 0 && !this.inClan(k)) out.push(t("Creator.InitialOutOfClan", { name: Codex.disciplineLabel(k) }));
     if (this.isDemon && !this.st.visage) out.push(t("Creator.NeedVisage"));
     if (this.isEarthbound && this.value("bg", "Поклонение") > 0 && this.value("bg", "Культ") < 1) out.push(t("Creator.WorshipNeedsCult"));
     if (this.isThrall && !this.st.pact.master) out.push(t("Creator.PactNoMaster"));
@@ -787,6 +815,16 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       };
     }).sort((a, b) => (b.inClan - a.inClan) || a.name.localeCompare(b.name, "ru"));
     ctx.anyDiscipline = allowed == null;
+    // внеклановые Дисциплины: Сородич добавляет любую (точки — свободными пунктами и опытом), каитиф и гуль — как раньше
+    ctx.canAddDisc = !this.isDemon && (allowed == null || this.type === "vampire");
+    for (const c of ctx.discCards) {
+      c.outOfClan = this.type === "vampire" && allowed != null && !c.inClan;
+      c.extra = c.key === this.extraDisc;
+      c.removable = !c.inClan && this.value("disc", c.key) <= this.base("disc", c.key);
+    }
+    // выбор по «Дополнительной Дисциплине» — на шаге Дисциплин и у взятого достоинства
+    ctx.extraDisc = this.extraDiscMerit && this.baseClanDisciplines
+      ? { value: this.st.extraDisc, name: this.st.extraDisc ? Codex.disciplineLabel(this.st.extraDisc) : "", options: this.extraDiscOptions } : null;
     ctx.inClanLabel = this.isDemon ? t("Demon.OwnHouse") : t("Sheet.InClan");
     ctx.discChoices = Object.values(Codex.disciplines).filter(d => !discKeys.has(d.key) && Codex.visible(d) && !this.bannedDisc(d.key)).map(d => ({ value: d.key, label: d.name }))
       .sort((a, b) => a.label.localeCompare(b.label, "ru"));
@@ -878,6 +916,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       ];
       return [...new Set(list.map(r => r.group))].map(g => ({ label: g, rows: list.filter(r => r.group === g) }));
     };
+    if (key === "freebies" || key === "xp") ctx.canAddDisc = !!this.rules.disc && !this.isDemon && (this.clanDisciplines == null || this.type === "vampire");
     if (key === "freebies") {
       ctx.cost = this.rules.cost;
       ctx.freeTotal = this.freeTotal; ctx.freeSpent = this.freeSpent + this.meritPoints; ctx.freeLeft = this.freeLeft;
@@ -960,6 +999,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       const v = el.dataset.combo && "key" in el.dataset ? el.dataset.key : el.type === "number" ? Number(el.value) : el.value;
       if (f === "xpTotal") { this.st.xpTotal = Math.max(0, v); this.st.tier = "custom"; return this.render(); }
       if (f === "hunterExtra") { this.st.hunterExtra = Math.clamp(Number(v) || 0, 0, 6); return this.render(); }
+      if (f === "extraDisc") { VtMCreator.#setExtraDisc.call(this, v); return this.render(); }
       foundry.utils.setProperty(this.st, f, v);
       if (f === "path") this.st.virt = { conscience: 0, selfControl: 0, courage: 0 };
       this.render();
@@ -1147,9 +1187,24 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     this.render();
   }
 
-  static #onAddDisc() {
-    const k = this.element.querySelector("select[name=cr-disc]")?.value;
+  static #onAddDisc(event, target) {
+    const sel = target.closest(".r-toolbar")?.querySelector("select[name=cr-disc]") ?? this.element.querySelector("select[name=cr-disc]");
+    const k = sel?.value;
     if (k) { this.st.disc[k] ??= 0; this.render(); }
+  }
+  /** Убрать добавленную внеклановую Дисциплину без точек. */
+  static #onDropDisc(event, target) {
+    const k = target.dataset.key;
+    if (!k || this.inClan(k) || this.value("disc", k) > this.base("disc", k)) return;
+    for (const bag of [this.st.disc, this.st.free.disc, this.st.xp.disc]) delete bag[k];
+    this.render();
+  }
+  /** Выбор по «Дополнительной Дисциплине»; прежняя Дисциплина снова внеклановая — её начальные точки снимаются. */
+  static #setExtraDisc(k) {
+    const old = this.st.extraDisc;
+    if (old && old !== k && this.st.disc[old]) delete this.st.disc[old];
+    this.st.extraDisc = k || "";
+    if (k) this.st.disc[k] ??= 0;
   }
 
   /** Раскрыть или свернуть полное описание факта биографии, достоинства или недостатка. */
@@ -1172,8 +1227,10 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     const name = target.dataset.name, kind = target.dataset.kind ?? this.ui.mfTab;
     const list = kind === "merit" ? this.st.merits : this.st.flaws;
     const i = list.findIndex(x => x.name === name);
-    if (i >= 0) list.splice(i, 1);
-    else {
+    if (i >= 0) {
+      if (list[i].en === EXTRA_DISC_MERIT) VtMCreator.#setExtraDisc.call(this, "");
+      list.splice(i, 1);
+    } else {
       // Прямой запрет в тексте черты — не даём взять (trait-rules.mjs)
       const blocker = blockerFor(name, [...this.st.merits, ...this.st.flaws].map(x => x.name));
       if (blocker) return ui.notifications.warn(t("Creator.TraitBlocked", { a: name, b: blocker }));
@@ -1336,7 +1393,8 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       }
       const v = this.value("disc", k), d = Codex.discipline(k);
       if (!d || (v <= 0 && !this.inClan(k))) continue;
-      items.push({ name: d.name, type: "discipline", img: Codex.disciplineIcon(k), system: { key: k, value: v, inClan: false } });
+      // Дисциплина по «Дополнительной Дисциплине» — с ручной отметкой «клановая» (цена опыта ×5 и на листе)
+      items.push({ name: d.name, type: "discipline", img: Codex.disciplineIcon(k), system: { key: k, value: v, inClan: k === this.extraDisc } });
       const firstPath = { thaumaturgy: "Путь Крови", necromancy: "Путь Склепа" }[k];
       if (firstPath && v > 0) items.push({ name: firstPath, type: "thaumPath", img: Codex.disciplineIcon(k),
         system: { discipline: k, value: Math.min(5, v), primary: true, description: Codex.bloodPath(k, firstPath)?.html ?? "" } });
@@ -1353,7 +1411,11 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       const v = Math.min(5, this.value("bg", b.name) + free);
       if (v > 0) items.push({ name: b.name, type: "background", img: backgroundIcon(b.en) ?? icon("background"), system: { value: v, description: b.html, source: b.en } });
     }
-    for (const m of st.merits) items.push({ name: m.name, type: "merit", img: traitIcon(m.category), system: { cost: m.cost, category: m.category, clan: m.clan ?? "", sect: m.sect ?? "", description: m.html, source: m.en } });
+    for (const m of st.merits) {
+      // у «Дополнительной Дисциплины» в описании — какая Дисциплина выбрана
+      const chosen = m.en === EXTRA_DISC_MERIT && this.extraDisc ? `<p><b>${t("Creator.ExtraDiscChosen", { name: Codex.disciplineLabel(this.extraDisc) })}</b></p>` : "";
+      items.push({ name: m.name, type: "merit", img: traitIcon(m.category), system: { cost: m.cost, category: m.category, clan: m.clan ?? "", sect: m.sect ?? "", description: chosen + m.html, source: m.en } });
+    }
     for (const m of st.flaws) items.push({ name: m.name, type: "flaw", img: traitIcon(m.category, true), system: { cost: m.cost, category: m.category, clan: m.clan ?? "", sect: m.sect ?? "", description: m.html, source: m.en } });
     // опытный охотник: по психозу за каждую точку Добродетели от 7 (при Жертве — от 9); какие — игрок выбирает в библиотеке
     if (this.isHunter && !this.isLost) {

@@ -2607,7 +2607,17 @@
       "GarouBaseHint": "Rage comes from the auspice, Gnosis from the breed, Willpower from the tribe (Fera — from the choice within the breed). Raise them with freebies.",
       "FreeCostsGarou": "W20 costs: Attribute 5, Ability 2, Background 1 (raises Backgrounds taken on the Backgrounds step), Gift 7, Rage 1, Gnosis 2, Willpower 1. Right-click to remove.",
       "XpCostsGarou": "W20 costs: Attribute — current × 4, Ability — new 3, then current × 2, Rage — current, Gnosis — current × 2, Willpower — current.",
-      "GarouExtraAfter": "Pick the starting Gifts above first — then the rest of your own Level One Gifts appear here."
+      "GarouExtraAfter": "Pick the starting Gifts above first — then the rest of your own Level One Gifts appear here.",
+      "OutOfClan": "out-of-clan",
+      "ExtraDiscMark": "clan by Merit",
+      "DropDisc": "Remove Discipline",
+      "AddDiscHint": "Out-of-clan Discipline: starting dots go only to clan Disciplines; this one is raised with freebie points (7 per dot) or experience (new — 10, then current × 7).",
+      "ExtraDiscLabel": "Additional Discipline:",
+      "ExtraDiscHint": "Additional Discipline Merit: the chosen Discipline counts as a clan Discipline — for starting dots and experience cost (current × 5). Choice requires the Storyteller's approval.",
+      "ExtraDiscNeed": "Additional Discipline Merit: choose which Discipline becomes a clan Discipline.",
+      "ExtraDiscCaitiff": "Caitiff and panders cannot take the Additional Discipline Merit.",
+      "ExtraDiscChosen": "Chosen Discipline: {name}.",
+      "InitialOutOfClan": "{name}: starting Discipline dots go only to clan Disciplines; raise an out-of-clan one with freebie points or experience."
     },
     "Settings": {
       "MonthlyIncome": {
@@ -4540,7 +4550,12 @@
       "ActionsCap": "Up to {cap} per turn",
       "ActionsFreeSub": "No penalty up to {free}: the lower of Dexterity and Wits",
       "ActionsLead": "Extra actions come after normal ones, in initiative order; the pool isn't split.",
-      "ActionsN": {"one": "extra action", "few": "extra actions", "many": "extra actions", "other": "extra actions"},
+      "ActionsN": {
+        "one": "extra action",
+        "few": "extra actions",
+        "many": "extra actions",
+        "other": "extra actions"
+      },
       "ActionsCost": "Rage −{n}",
       "TalenKicker": "Talen",
       "FetishKicker": "Fetish · level {n}",

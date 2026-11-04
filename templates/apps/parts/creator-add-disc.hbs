@@ -1,0 +1,8 @@
+{{!-- Мастер создания: добавить Дисциплину (Сородичу — и внеклановую: точки за свободные пункты и опыт). --}}
+{{#if canAddDisc}}
+<div class="r-toolbar r-cr-adddisc">
+  <select name="cr-disc" class="r-select"><option value="">{{localize "VTM20.Sheet.ChooseDiscipline"}}</option>{{#each discChoices}}<option value="{{value}}">{{label}}</option>{{/each}}</select>
+  <a class="r-btn" data-action="addDisc"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Sheet.Add"}}</a>
+  {{#unless anyDiscipline}}<span class="r-note r-explain">{{localize "VTM20.Creator.AddDiscHint"}}</span>{{/unless}}
+</div>
+{{/if}}
