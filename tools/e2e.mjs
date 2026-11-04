@@ -73,7 +73,9 @@ async function reloadUntil(predicate, arg, timeout = 120000) {
 }
 const CITY_MODULE = "vtm20e-kamen-city";
 
-const browser = await chromium.launch({ channel: "msedge", headless: !HEADED });
+// Edge из Windows; если его нет — Chromium Playwright (один раз: npx playwright install chromium)
+const browser = await chromium.launch({ channel: "msedge", headless: !HEADED })
+  .catch(e => { console.warn(`Edge не найден (${String(e.message).split("\n")[0]}) — Chromium Playwright`); return chromium.launch({ headless: !HEADED }); });
 try {
   page = await browser.newPage({ viewport: { width: 1600, height: 1000 } });
   // со стеком: по одному сообщению не понять, чей это код
