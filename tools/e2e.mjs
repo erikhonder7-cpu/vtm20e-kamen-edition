@@ -73,6 +73,13 @@ async function reloadUntil(predicate, arg, timeout = 120000) {
 }
 const CITY_MODULE = "vtm20e-kamen-city";
 
+/** Вход на /join: список пользователей (обычно) или поле имени (если список скрыт настройкой сервера). */
+async function joinAs(p, { name, id }) {
+  if (await p.$("select[name=userid]")) await p.selectOption("select[name=userid]", id ?? { label: name });
+  else await p.fill("input[name=username]", name);
+  await p.click("button[name=join]");
+}
+
 // Edge из Windows; если его нет — Chromium Playwright (один раз: npx playwright install chromium)
 const browser = await chromium.launch({ channel: "msedge", headless: !HEADED })
   .catch(e => { console.warn(`Edge не найден (${String(e.message).split("\n")[0]}) — Chromium Playwright`); return chromium.launch({ headless: !HEADED }); });
@@ -94,8 +101,7 @@ try {
   await check("Вход рассказчиком", async () => {
     await page.goto(`${URL}/join`, { waitUntil: "networkidle", timeout: 60000 });
     if (page.url().includes("/join")) {
-      await page.selectOption("select[name=userid]", { label: USER });
-      await page.click("button[name=join]");
+      await joinAs(page, { name: USER });
     }
     await page.waitForFunction(() => window.game?.ready === true, null, { timeout: 120000 });
   });
@@ -1699,8 +1705,7 @@ try {
     pp.on("pageerror", e => errors.push({ step, text: `[игрок] ${String(e.message ?? e)}` }));
     pp.on("console", m => { if (m.type() === "error" && !IGNORE.some(re => re.test(m.text()))) errors.push({ step, text: `[игрок] ${m.text()}` }); });
     await pp.goto(`${URL}/join`, { waitUntil: "networkidle", timeout: 60000 });
-    await pp.selectOption("select[name=userid]", player.id);
-    await pp.click("button[name=join]");
+    await joinAs(pp, { name: player.name, id: player.id });
     await pp.waitForFunction(() => window.game?.ready === true, null, { timeout: 120000 }).catch(() => {
       throw new Error("не вошёл — у игрока пароль? проверки игрока пропущены");
     });
