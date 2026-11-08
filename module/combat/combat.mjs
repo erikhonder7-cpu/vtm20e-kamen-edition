@@ -23,8 +23,8 @@ const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`
 export const MANEUVERS = {
   punch:  { attr: "dexterity", ability: "brawl", dice: 0, diff: 0, dmg: 0,    type: "bashing",    icon: "fa-hand-fist" },
   kick:   { attr: "dexterity", ability: "brawl", dice: 0, diff: 1, dmg: 1,    type: "bashing",    icon: "fa-shoe-prints" },
-  claws:  { attr: "dexterity", ability: "brawl", dice: 0, diff: 0, dmg: 1,    type: "aggravated", icon: "fa-paw", vampire: true, fangs: true },
-  bite:   { attr: "dexterity", ability: "brawl", dice: 1, diff: 0, dmg: 1,    type: "aggravated", icon: "fa-tooth", vampire: true, fangs: true },
+  claws:  { attr: "dexterity", ability: "brawl", dice: 0, diff: 0, dmg: 1,    type: "aggravated", icon: "fa-paw", vampire: true, fangs: true, supernatural: true },
+  bite:   { attr: "dexterity", ability: "brawl", dice: 1, diff: 0, dmg: 1,    type: "aggravated", icon: "fa-tooth", vampire: true, fangs: true, supernatural: true },
   clinch: { attr: "strength",  ability: "brawl", dice: 0, diff: 0, dmg: 0,    type: "bashing",    icon: "fa-people-pulling" },
   hold:   { attr: "strength",  ability: "brawl", dice: 0, diff: 0, dmg: null, type: "bashing",    icon: "fa-hands" },
   tackle: { attr: "strength",  ability: "brawl", dice: 0, diff: 1, dmg: 1,    type: "bashing",    icon: "fa-person-falling-burst" },
@@ -49,6 +49,9 @@ export function weaponsOf(actor) {
     const kind = VTM20.weaponKinds[w.kind] ? w.kind : "melee";
     return { id: i.id, name: i.name, img: i.img, kind, ranged: kind === "firearms" || kind === "thrown",
       damage: w.damage, strength: w.strength, damageType: w.damageType, difficulty: w.difficulty, pierce: w.pierce ?? 0, silver: !!w.silver,
+      supernatural: !!(w.supernatural || i.getFlag?.(SYSTEM_ID, "supernatural")),
+      naturalFormWeapon: !!i.getFlag?.(SYSTEM_ID, "naturalFormWeapon"), fortitudeOnly: !!i.getFlag?.(SYSTEM_ID, "fortitudeOnly"),
+      fangs: !!i.getFlag?.(SYSTEM_ID, "fangs"),
       label: `${w.strength ? `${t("Attr.strength")} + ` : ""}${w.damage}` };
   });
 }
@@ -67,14 +70,14 @@ function nextDefense(actor) {
 }
 
 /** Защита: уклонение, блок или парирование. Каждая следующая за ход — −1 куб (04). */
-export function openDefense(actor, kind = "dodge", { onRolled = null, subtitle = null } = {}) {
+export function openDefense(actor, kind = "dodge", { onRolled = null, subtitle = null, celerityAction = false } = {}) {
   const d = DEFENSES[kind] ?? DEFENSES.dodge;
   const n = nextDefense(actor);
   return RollDialog.prompt(actor, {
     onRolled,
     title: t(`Combat.Defense.${kind}`), subtitle: subtitle ?? t("Combat.DefenseSub"),
     trait1: `attributes.${d.attr}`, trait2: `abilities.${d.ability}`,
-    bonus: n > 1 ? -(n - 1) : 0, kind: "defense", lockTraits: true,
+    bonus: n > 1 ? -(n - 1) : 0, kind: "defense", lockTraits: true, celerityAction,
     diffNote: [n > 1 ? t("Combat.DefenseNth", { n }) : "", kind === "block" ? t("Combat.BlockNote") : "", t("Combat.DefenseNote")].filter(Boolean).join(" ")
   });
 }
@@ -82,8 +85,10 @@ export function openDefense(actor, kind = "dodge", { onRolled = null, subtitle =
 /* ── Окно атаки ───────────────────────────────────────────────────────── */
 
 /** natural — номер естественного оружия формы (formFx.weapons: когти и клыки Гару, атаки апокалиптической формы). */
-export function openAttack(actor, { weapon = null, maneuver = null, natural = null } = {}) {
-  return new AttackDialog(actor, { weapon, maneuver, natural }).render({ force: true });
+export function openAttack(actor, { weapon = null, maneuver = null, natural = null, celerityAction = false } = {}) {
+  if (actor.system.fx?.earthMeld) { ui.notifications.info(t("Fx.EarthNoAction")); return null; }
+  if (actor.system.fx?.mistForm) { ui.notifications.info(t("Fx.MistNoPhysicalAttack")); return null; }
+  return new AttackDialog(actor, { weapon, maneuver, natural, celerityAction }).render({ force: true });
 }
 
 export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
@@ -98,14 +103,17 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
 
   static PARTS = { form: { template: `${SYSTEM_PATH}/templates/dice/attack-dialog.hbs` } };
 
-  constructor(actor, { weapon, maneuver, natural = null }) {
+  constructor(actor, { weapon, maneuver, natural = null, celerityAction = false }) {
     super({ window: { title: `${t("Combat.Attack")}: ${actor.name}` } });
     this.actor = actor;
-    const first = weaponsOf(actor)[0];
+    this.celerityAction = !!celerityAction;
+    const beastForm = actor.system.fx?.beastForm;
+    const formWeapons = beastForm === "modified" ? weaponsOf(actor).filter(w => w.naturalFormWeapon) : [];
+    const first = beastForm === "modified" ? formWeapons[0] : beastForm ? null : weaponsOf(actor)[0];
     const marked = [...(game.user.targets ?? [])].map(tk => tk.actor).filter(x => x && x !== actor);
     this.v = {
       foe: marked[0]?.uuid ?? "",
-      pick: natural != null ? `f:${natural}` : weapon ? `w:${weapon}` : maneuver ? `m:${maneuver}` : first ? `w:${first.id}` : "m:punch",
+      pick: natural != null ? `f:${natural}` : beastForm === "wolf" ? `m:claws` : beastForm === "bat" ? `m:bite` : weapon ? `w:${weapon}` : maneuver ? `m:${maneuver}` : first ? `w:${first.id}` : "m:punch",
       position: "front", aim: "none", foes: 0, blind: false, target: "normal",
       range: "normal", cover: 0, actions: 1, bonus: 0, diffAdj: 0,
       specialty: false, willpower: false, physical: true, wounds: true,
@@ -116,8 +124,9 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
   /** Что выбрано: оружие или манёвр, с готовыми чертами, сложностью и уроном. */
   get choice() {
     const a = this.actor, s = a.system, [kind, id] = this.v.pick.split(":");
-    const str = s.attributes.strength.total + a.physicalDisciplineBonus("strength");
-    const auto = a.physicalAuto("strength");
+    // Галочка физических Дисциплин влияет и на пул атаки, и на пул урона.
+    const str = s.attributes.strength.total + (this.v.physical ? a.physicalDisciplineBonus("strength") : 0);
+    const auto = this.v.physical ? a.physicalAuto("strength") : 0;
     const fx = s.fx ?? {};
     // Ласка Ваала (Упокоение 4): ихор на клинке или ногтях — урон губительный, стрельба не в счёт
     const venom = (type, ranged) => fx.venom > 0 && !ranged && type !== "aggravated";
@@ -127,22 +136,26 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
         const k = VTM20.weaponKinds[w.kind];
         const v = venom(w.damageType, w.ranged);
         return { name: w.name, attr: k.attribute, ability: k.ability, dice: 0, diff: w.difficulty - 6, ranged: w.ranged, silver: !!w.silver,
-          dmg: (w.strength ? str : 0) + w.damage, auto: w.strength && !w.ranged ? auto : 0, type: v ? "aggravated" : w.damageType, venom: v,
-          fangs: false, note: v ? t("Combat.VenomNote", { n: fx.venom }) : "", pierce: w.pierce ?? 0, bullet: w.kind === "firearms" };
+          dmg: (w.strength ? str : 0) + w.damage, auto: w.strength ? auto : 0, strengthDamage: !!w.strength,
+          type: v ? "aggravated" : w.damageType, venom: v, supernatural: !!w.supernatural,
+          // Fortitude-only aggravated claws must not be treated as ordinary fang attacks for armour/stamina soak.
+          fangs: !!w.fangs && !w.fortitudeOnly, note: v ? t("Combat.VenomNote", { n: fx.venom }) : "", pierce: w.pierce ?? 0, bullet: w.kind === "firearms" };
       }
     }
     // естественное оружие апокалиптической формы (когти, рога, хвост, чрево — data/form.mjs): Ловкость + Драка
     if (kind === "f") {
       const w = s.formFx?.weapons?.[Number(id)];
       if (w) return { name: w.name, attr: "dexterity", ability: "brawl", dice: 0, diff: w.diff ?? 0, ranged: false,
-        dmg: str + w.dmg, auto, type: w.type ?? (w.agg ? "aggravated" : "lethal"), venom: false, fangs: true, note: a.type === "werewolf" ? "" : t("Combat.FormWeaponNote"), pierce: 0, bullet: false };
+        dmg: str + w.dmg, auto, strengthDamage: true, type: w.type ?? (w.agg ? "aggravated" : "lethal"), venom: false, fangs: true, supernatural: true, note: a.type === "werewolf" ? "" : t("Combat.FormWeaponNote"), pierce: 0, bullet: false };
     }
     const m = MANEUVERS[id] ?? MANEUVERS.punch;
     // Чудовищный облик: +1 куб к урону в драке; Шкура гадюки: +1 куб к укусу (data/effects.mjs)
     const extra = m.dmg == null ? 0 : (m.ability === "brawl" ? fx.brawlDamage ?? 0 : 0) + (id === "bite" ? fx.biteDamage ?? 0 : 0);
     const v = m.dmg != null && ["punch", "claws"].includes(id) && venom(m.type, false);
     return { name: t(`Combat.M.${id}`), attr: m.attr, ability: m.ability, dice: m.dice, diff: m.diff, ranged: false,
-      dmg: m.dmg == null ? null : str + m.dmg + extra, auto: m.dmg == null ? 0 : auto, type: v ? "aggravated" : m.type, venom: v, fangs: !!m.fangs,
+      dmg: m.dmg == null ? null : str + m.dmg + extra, auto: m.dmg == null ? 0 : auto, strengthDamage: m.dmg != null, type: v ? "aggravated" : m.type, venom: v,
+      // Когти Метаморфоз и Облика Зверя поглощаются только Стойкостью: без Выносливости и брони.
+      fangs: !!m.fangs && !fx.clawsFortitudeOnly, supernatural: !!m.supernatural,
       note: [t(`Combat.MNote.${id}`), v ? t("Combat.VenomNote", { n: fx.venom }) : ""].filter(Boolean).join(" "), pierce: 0, bullet: false };
   }
 
@@ -158,6 +171,7 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     if (phys && v.physical) add(Codex.disciplineLabel(c.attr === "strength" ? "potence" : "celerity"), phys);
     // Мощь за кровь: автоуспехи атаки Силой (захват, подсечка…)
     const attackAuto = v.physical ? a.physicalAuto(c.attr) : 0;
+    if (attackAuto) bd.push({ label: t("Roll.AutoSuccess"), value: attackAuto });
     add(t("Combat.Accuracy"), c.dice);
     add(t(`Combat.Pos.${v.position}`), { front: 0, flank: 1, rear: 2 }[v.position]);
     add(t("Extra.MobBonus"), mobBonus(a));                 // толпа: +1 за каждого на ногах сверх первого (apps/extras.mjs)
@@ -173,6 +187,9 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     let diff = 6 + c.diff;
     if (c.ranged) diff = { point: 4, normal: 6 + c.diff, long: 8 }[v.range];
     const notes = [];
+    const targetActor = v.foe ? foundry.utils.fromUuidSync(v.foe) : null;
+    const targetHitDiff = (targetActor?.system?.fx?.diff?.hit ?? []).reduce((sum, x) => sum + (Number(x.value) || 0), 0);
+    if (targetHitDiff) { diff += targetHitDiff; notes.push(t("Fx.HitHint")); }
     const [aimDiff, aimDmg] = AIM[v.aim];
     diff += aimDiff;
     diff += Math.min(4, v.foes);
@@ -193,9 +210,13 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
 
   async _prepareContext() {
     const a = this.actor, v = this.v, r = this.compute();
-    const weapons = weaponsOf(a).map(w => ({ ...w, key: `w:${w.id}`, active: v.pick === `w:${w.id}`,
+    const beastForm = a.system.fx?.beastForm;
+    const weaponList = beastForm === "modified" ? weaponsOf(a).filter(w => w.naturalFormWeapon) : (beastForm ? [] : weaponsOf(a));
+    const weapons = weaponList.map(w => ({ ...w, key: `w:${w.id}`, active: v.pick === `w:${w.id}`,
       icon: { brawl: "fa-hand-back-fist", melee: "fa-khanda", firearms: "fa-gun", thrown: "fa-bullseye" }[w.kind] }));
-    const maneuvers = Object.entries(MANEUVERS).filter(([k, m]) => k === "claws" ? !!a.system.fx?.claws : (!m.vampire || a.isVampire))
+    const allowedFormManeuvers = beastForm === "wolf" ? new Set(["claws", "bite"]) : beastForm === "bat" ? new Set(["bite"]) : beastForm === "modified" ? new Set() : null;
+    const hasProteanClawItem = a.items.some(i => i.type === "weapon" && i.getFlag?.(SYSTEM_ID, "power") === "protean:2");
+    const maneuvers = Object.entries(MANEUVERS).filter(([k, m]) => allowedFormManeuvers ? allowedFormManeuvers.has(k) : (k === "claws" ? (!!a.system.fx?.claws && !hasProteanClawItem) : (!m.vampire || a.isVampire)))
       .map(([k, m]) => ({ key: `m:${k}`, name: t(`Combat.M.${k}`), icon: m.icon, active: v.pick === `m:${k}` }))
       .concat((a.system.formFx?.weapons ?? []).map((w, i) => ({ key: `f:${i}`, name: w.name, icon: w.icon ?? "fa-dragon", active: v.pick === `f:${i}` })));
     const split = label => { const m = label.match(/^(.*?)\s*\(([^)]*)\)\s*$/); return m ? { name: m[1], mod: m[2] } : { name: label, mod: "" }; };
@@ -210,6 +231,10 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     for (const tk of game.user.targets ?? []) push(tk.actor, true);
     for (const tk of canvas?.tokens?.placeables ?? []) push(tk.actor, false);
     const specialty = v.specialty && r.specialtyEligible;
+    const strengthDamage = !!r.choice.strengthDamage;
+    const potentialAuto = Math.max(a.physicalAuto(r.choice.attr), strengthDamage ? a.physicalAuto("strength") : 0);
+    const potentialDice = Math.max(a.physicalDisciplineBonus(r.choice.attr), strengthDamage ? a.physicalDisciplineBonus("strength") : 0);
+    const physicalDisplay = Math.max(potentialDice, potentialAuto);
     const chances = chancesView(odds({ pool: r.pool, difficulty: r.difficulty, specialty, willpower: v.willpower, auto: r.attackAuto ?? 0 }));
     return {
       v: { ...v, specialty }, ...r, canUseSpecialty: r.specialtyEligible, weapons, maneuvers, ranged: r.choice.ranged, foes, chances,
@@ -221,8 +246,11 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       covers: [0, 1, 2, 3].map(n => ({ value: n, label: t(`Combat.Cover.c${n}`), ...split(t(`Combat.Cover.c${n}`)), selected: n === v.cover })),
       // «Ещё» раскрыто, если там что-то задано (или его раскрыли сами)
       more: this.moreOpen || v.foes > 0 || v.actions > 1 || v.diffAdj !== 0 || v.blind,
+      celerityAction: this.celerityAction,
       willpowerLeft: a.system.willpower.temporary, woundPenalty: a.system.health.penalty,
-      physicalLabel: r.phys ? Codex.disciplineLabel(r.choice.attr === "strength" ? "potence" : "celerity") : "",
+      physicalDisplay,
+      physicalLabel: potentialAuto ? t("Roll.AutoSuccess") : strengthDamage && a.discipline("potence") ? Codex.disciplineLabel("potence")
+        : potentialDice ? Codex.disciplineLabel(r.choice.attr === "strength" ? "potence" : "celerity") : "",
       messageModes: Object.entries(CONFIG.ChatMessage.modes ?? {}).map(([k, m]) => ({ value: k, label: game.i18n.localize(m.label ?? k), selected: k === v.messageMode }))
     };
   }
@@ -241,7 +269,7 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       foe: f.foe ?? this.v.foe,
       position: f.position ?? this.v.position, aim: f.aim ?? this.v.aim, target: f.target ?? this.v.target,
       range: f.range ?? this.v.range, cover: num(f.cover, this.v.cover),
-      foes: Math.clamp(num(f.foes), 0, 4), blind: !!f.blind, actions: Math.clamp(num(f.actions, 1), 1, 6),
+      foes: Math.clamp(num(f.foes), 0, 4), blind: !!f.blind, actions: this.celerityAction ? 1 : Math.clamp(num(f.actions, 1), 1, 6),
       bonus: num(f.bonus), diffAdj: num(f.diffAdj),
       specialty: !!f.specialty, willpower: !!f.willpower, physical: !!f.physical, wounds: !!f.wounds,
       messageMode: f.messageMode ?? this.v.messageMode
@@ -259,13 +287,27 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
 
   static async #onSubmit() {
     const r = this.compute(), v = this.v, c = r.choice;
+    const [pickKind, pickId] = v.pick.split(":");
+    const beastForm = this.actor.system.fx?.beastForm;
+    if (beastForm === "modified") {
+      const chosen = pickKind === "w" ? weaponsOf(this.actor).find(w => w.id === pickId) : null;
+      if (!chosen?.naturalFormWeapon) { ui.notifications.warn(t("Fx.BeastNoHumanWeapons")); return; }
+    } else if (beastForm && (pickKind === "w" || pickKind === "f" || !((beastForm === "wolf" && ["claws", "bite"].includes(pickId)) || (beastForm === "bat" && pickId === "bite")))) {
+      ui.notifications.warn(t("Fx.BeastNoHumanWeapons")); return;
+    }
     const foe = v.foe ? await foundry.utils.fromUuid(v.foe) : null;
     const notes = [...r.notes];
+    if (foe?.system?.fx?.earthMeld) {
+      const { wakeEarthMeld } = await import("../apps/power-effects.mjs");
+      await wakeEarthMeld(foe, t("Fx.EarthWakeAttack"));
+      return;
+    }
+    if (foe?.system?.fx?.mistForm && !c.supernatural) return ui.notifications.info(t("Fx.MistPhysicalImmune", { name: foe.name }));
     if (v.target === "helpless") notes.unshift(t("Combat.AutoHit"));
     if (c.pierce) notes.push(t("Combat.PierceNote", { n: c.pierce }));
     const head = ["small", "tiny"].includes(v.aim);
     const link = { weaponName: c.name, target: foe?.uuid ?? null, targetName: foe?.name ?? "", pierce: c.pierce, bullet: c.bullet, head, ranged: c.ranged,
-      damageAuto: c.auto ?? 0, venom: !!c.venom, silver: !!c.silver };
+      damageAuto: c.auto ?? 0, venom: !!c.venom, silver: !!c.silver, supernatural: !!c.supernatural };
     const res = await rollPool({
       actor: this.actor, title: c.name, subtitle: foe ? `${t("Combat.Attack")} → ${foe.name}` : t("Combat.Attack"),
       pool: r.pool, difficulty: r.difficulty, specialty: v.specialty && r.specialtyEligible, specialtyName: r.specialtyName,
@@ -273,6 +315,7 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       extra: r.damage == null ? link : { ...link, damagePool: r.damage, damageType: c.type, fangs: c.fangs },
       notes
     });
+    if (this.celerityAction && res) await this.actor.consumeCelerityAction();
     // Есть цель и попадание — карточка ждёт её защиты (обездвиженную цель бьют без защиты)
     // Ласка Ваала: попадание без цели на карточке тоже тратит пункт ихора
     if (!foe && c.venom && res?.outcome === "success") await this.actor.spendVenom();
@@ -326,7 +369,7 @@ export function pendingAttacks(actor) {
 }
 
 /** Защититься по кнопке карточки. */
-export async function defendCard(card, method) {
+export async function defendCard(card, method, { celerityAction = false } = {}) {
   const d = card.getFlag(SYSTEM_ID, "combat");
   if (!d) return;
   const target = await foundry.utils.fromUuid(d.target);
@@ -337,22 +380,23 @@ export async function defendCard(card, method) {
   if (method === "none") return resolveAttack(card, 0, "none");
   return openDefense(target, method, {
     subtitle: `← ${d.attackerName}: ${d.weaponName}`,
+    celerityAction,
     onRolled: res => resolveAttack(card, res?.successes ?? 0, method)
   });
 }
 
 /** Защита из HUD: выбрать способ против последней атаки. */
-export async function defendFromHud(actor) {
+export async function defendFromHud(actor, { celerityAction = false } = {}) {
   const card = pendingAttacks(actor).at(-1);
   if (!card) return;
   const d = card.getFlag(SYSTEM_ID, "combat");
   const method = await foundry.applications.api.DialogV2.wait({
     window: { title: t("Combat.DefendTitle"), icon: "fa-solid fa-shield-halved" }, classes: ["vtm20", "r-dialog"],
     content: `<p>${esc(t("Combat.DefendAsk", { a: d.attackerName, w: d.weaponName, n: d.successes }))}</p>`,
-    buttons: methodsFor(d).map(m => ({ action: m, label: methodLabel(m), icon: `fa-solid ${METHOD_ICON[m]}` })),
+    buttons: methodsFor(d).filter(m => !celerityAction || m !== "none").map(m => ({ action: m, label: methodLabel(m), icon: `fa-solid ${METHOD_ICON[m]}` })),
     rejectClose: false
   });
-  if (method) return defendCard(card, method);
+  if (method) return defendCard(card, method, { celerityAction });
 }
 
 /** Итог: успехи атаки минус успехи защиты; остаток работает как обычные успехи (04). */
@@ -395,6 +439,7 @@ export async function rollLinkedDamage(message) {
   return rollDamage({
     actor: attacker, pool: r.damage, damageType: r.damageType, title: r.weaponName, aggravatedFangs: r.fangs, auto: r.damageAuto ?? 0,
     target: r.target, pierce: r.pierce ?? 0, bullet: !!r.bullet, head: !!r.head, silver: !!r.silver,
-    notes: r.targetName ? [`<i class="fa-solid fa-crosshairs"></i> ${esc(t("Combat.DamageTo", { name: r.targetName }))}`] : []
+    notes: r.targetName ? [`<i class="fa-solid fa-crosshairs"></i> ${esc(t("Combat.DamageTo", { name: r.targetName }))}`] : [],
+    supernatural: !!r.supernatural
   });
 }

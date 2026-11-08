@@ -3,7 +3,11 @@
 // видит лист: владельцу и рассказчику), значки ярости/торпора и т. п.; строка подсвечивается по состоянию.
 // Инициатива V20 — d10, поэтому значок броска инициативы — d10, а не d20 (стили — r-foundry.css).
 
-const t = k => game.i18n.localize(`VTM20.${k}`);
+import { advanceCelerityQueue } from "../combat/celerity.mjs";
+import { SYSTEM_ID } from "../config.mjs";
+
+const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
+const esc = value => foundry.utils.escapeHTML(String(value ?? ""));
 
 /** Состояния, которые видно всем за столом (как значки на жетоне). */
 const STATES = [
@@ -18,6 +22,21 @@ export function registerCombatTracker() {
     const root = html instanceof HTMLElement ? html : html?.[0];
     const combat = app.viewed ?? game.combat;
     if (!root || !combat) return;
+    root.querySelector(".r-ct-celerity-phase")?.remove();
+    const phase = combat.getFlag?.(SYSTEM_ID, "celerityPhase");
+    if (phase?.active) {
+      const entry = phase.queue?.[phase.index];
+      const actor = entry ? combat.combatants.get(entry.combatantId)?.actor : null;
+      const banner = document.createElement("section");
+      banner.className = "r-ct-celerity-phase";
+      banner.innerHTML = `<span><i class="fa-solid fa-forward-fast"></i> <b>${esc(t("Combat.CelerityPhaseTitle"))}</b> · ${esc(t("Combat.CelerityPhaseCurrent", { name: actor?.name ?? "—", n: entry?.remaining ?? 0 }))}</span>${game.user.isGM ? `<button type="button" data-celerity-skip>${esc(t("Combat.CelerityPhaseSkip"))}</button>` : ""}`;
+      const button = banner.querySelector("[data-celerity-skip]");
+      button?.addEventListener("click", async ev => {
+        ev.preventDefault(); ev.stopPropagation();
+        await advanceCelerityQueue(combat, { skipCurrent: true });
+      });
+      root.prepend(banner);
+    }
     for (const li of root.querySelectorAll(".combatant[data-combatant-id]")) {
       const c = combat.combatants.get(li.dataset.combatantId);
       const a = c?.actor;

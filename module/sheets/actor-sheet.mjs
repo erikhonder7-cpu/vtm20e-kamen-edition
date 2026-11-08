@@ -1329,6 +1329,10 @@ export function rollPowerRef(actor, ref) {
   const x = powerByRef(ref);
   if (!x) return;
   const { disc, d, p, pathName } = x, magic = VTM20.pathDisciplines.includes(disc);
+  if (actor.system.fx?.earthMeld) return ui.notifications.warn(t("Fx.EarthNoAction"));
+  // В Облике Зверя нельзя использовать названные в V20 дисциплины, требующие человеческой формы.
+  const animalFormBanned = new Set(["necromancy", "serpentis", "thaumaturgy", "vicissitude"]);
+  if (actor.system.fx?.beastForm && animalFormBanned.has(disc)) return ui.notifications.warn(t("Fx.BeastDisciplineBan", { name: d.name }));
   // Тёмные Знания (Earthbound): эффекта низкой Муки нет; падший платит 1 временной Мукой за каждое применение
   if (disc.startsWith("lore:") && actor.system.hostless) return ui.notifications.warn(game.i18n.localize("VTM20.Host.NoLore"));
   if (disc.startsWith("lore:")) return rollFromSpec(actor, p.roll ?? {}, { title: p.name, subtitle: `${d.name} · ${ROMAN[p.level - 1]}`, effect: p.html,

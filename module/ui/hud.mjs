@@ -9,6 +9,7 @@ import { SYSTEM_ID, VTM20 } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
 import { RollDialog } from "../dice/dialog.mjs";
 import { openAttack, openDefense, weaponsOf, pendingAttacks, defendFromHud } from "../combat/combat.mjs";
+import { celerityPhaseFor, useCelerityAction } from "../combat/celerity.mjs";
 import { openHazard } from "../apps/hazard.mjs";
 import { openHunt } from "../apps/night.mjs";
 import { rollPowerRef, powerByRef } from "../sheets/actor-sheet.mjs";
@@ -16,6 +17,7 @@ import { effectTimer } from "../apps/timers.mjs";
 import { W as werewolfData, feraOf, changeForm, rageActions, regenerate, stepSideways, frenzyCheck, giftOf, rollGift, rollRite } from "../apps/werewolf.mjs";
 import { H as hunterData, secondSight } from "../apps/hunter.mjs";
 import { assumeForm } from "../apps/torment.mjs";
+import { togglePowerEffect } from "../apps/power-effects.mjs";
 
 const ID = "r-hud";
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -52,7 +54,7 @@ function mount() {
 
 /** Значок оружия по названию (у предметов один общий значок); иначе — по виду оружия. */
 const WEAPON_GLYPHS = [
-  [/лук|арбалет/i, "fa-bow-arrow"], [/коса/i, "fa-scythe"], [/серп/i, "fa-sickle"],
+  [/когти|claws?/i, "fa-paw"], [/лук|арбалет/i, "fa-bow-arrow"], [/коса/i, "fa-scythe"], [/серп/i, "fa-sickle"],
   [/нож|кинжал|стилет|бритв|скальпел/i, "fa-dagger"], [/меч|сабл|шпаг|рапир|клинок|палаш|катан/i, "fa-sword"],
   [/топор|секир|алебард|тесак/i, "fa-axe"], [/молот|кувалд/i, "fa-hammer-war"], [/бит[аы]/i, "fa-baseball-bat"],
   [/булав|дубин|палиц|кистен|моргенштерн/i, "fa-mace"], [/посох|шест|копь|пика|трост/i, "fa-staff"],
@@ -94,7 +96,6 @@ function subtitleOf(a, kind) {
 
 const tabOf = new Map();   // открытая вкладка печатей — своя у каждого персонажа (id актёра → ключ)
 let pop = null;           // открытый над HUD список сил одной группы (ключ группы) или null
-const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
 
 /**
  * Освоенные силы группами: Дисциплины и пути магии крови (силы до своего уровня), Знания падшего, Дары и ритуалы Гару.
@@ -105,7 +106,9 @@ function powerGroups(a, kind) {
   for (const i of by("discipline")) {
     const k = i.system.key, d = Codex.discipline(k), rows = (d?.powers ?? []).map((p, n) => ({ p, n })).filter(x => x.p.level <= i.system.value);
     if (rows.length) out.push({ id: `d:${k}`, label: Codex.disciplineLabel(k), img: foundry.utils.getRoute(Codex.disciplineIcon(k)), lvl: i.system.value,
-      rows: rows.map(x => ({ name: x.p.name, level: x.p.level, act: "power", attrs: `data-ref="${esc(`${k}|${x.n}`)}"` })) });
+      rows: rows.map(x => ({ name: x.p.name, level: x.p.level, act: "power",
+        icon: k === "protean" ? ({ 1: "fa-eye-low-vision", 2: "fa-paw", 3: "fa-mound", 4: "fa-paw", 5: "fa-smog" }[x.p.level] ?? "fa-wand-sparkles") : "",
+        attrs: `data-ref="${esc(`${k}|${x.n}`)}"` })) });
   }
   for (const i of by("thaumPath")) {
     const k = i.system.discipline, pd = Codex.bloodPath(k, i.name), pi = (Codex.discipline(k)?.paths ?? []).indexOf(pd);
@@ -197,30 +200,42 @@ function rightWing(a, kind) {
 }
 
 /** Печать действия: круглая кнопка со значком (или картинкой), подпись, точки уровня; on — включено, man — приём. */
-function seal(act, icon, label, { tip = "", on = false, man = false, img = "", lvl = 0, attrs = "", badge = "" } = {}) {
-  return `<a class="rh-seal${on ? " is-on" : ""}${man ? " is-man" : ""}" data-act="${act}" ${attrs} data-tooltip="${esc(tip || label)}" aria-label="${esc(tip || label)}">
-    <span class="rh-knob">${img ? `<img src="${esc(img)}" alt="">` : `<i class="fa-solid ${icon}"></i>`}${badge ? `<b>${badge}</b>` : ""}</span>
-    <span class="rh-seal-l">${esc(label)}</span>${lvl ? `<span class="rh-lvl">${dots(lvl, 5)}</span>` : ""}</a>`;
+function seal(act, icon, label, { tip = "", on = false, man = false, img = "", lvl = 0, attrs = "", badge = "", compact = false } = {}) {
+  // Печать дисциплины всегда сохраняет свой символ; уровень показывается малым бейджем.
+  const face = img ? `<img src="${esc(img)}" alt="">` : `<i class="fa-solid ${icon}"></i>`;
+  return `<a class="rh-seal${on ? " is-on" : ""}${man ? " is-man" : ""}${compact ? " is-compact" : ""}" data-act="${act}" ${attrs} data-tooltip="${esc(tip || label)}" aria-label="${esc(tip || label)}">
+    <span class="rh-knob">${face}${badge ? `<b class="rh-knob-badge">${badge}</b>` : ""}</span>
+    ${compact ? "" : `<span class="rh-seal-l">${esc(label)}</span>${lvl ? `<span class="rh-lvl">${dots(lvl, 5)}</span>` : ""}`}</a>`;
 }
 
 /** Вкладки и их печати по виду персонажа. */
 function tabsOf(a, kind) {
   const s = a.system, vamp = a.isVampire, tabs = [];
   // Бой: оружие, естественное оружие формы, приёмы (с естественным оружием — под «…»), защиты
-  const weapons = weaponsOf(a).slice(0, 3).map(w => seal("attack", weaponGlyph(w), w.name, { attrs: `data-weapon="${w.id}"`,
+  const beastForm = s.fx?.beastForm;
+  const noPhysicalAction = !!(s.fx?.earthMeld || s.fx?.mistForm);
+  const formWeapons = beastForm === "modified" ? weaponsOf(a).filter(w => w.naturalFormWeapon) : [];
+  const weaponChoices = beastForm === "modified" ? formWeapons : (beastForm || noPhysicalAction ? [] : weaponsOf(a));
+  const weapons = weaponChoices.slice(0, 3).map(w => seal("attack", weaponGlyph(w), w.name, { attrs: `data-weapon="${w.id}"`,
     tip: `${w.name} · ${w.label} · ${game.i18n.localize(VTM20.damageTypes[w.damageType]?.label ?? "")}` }));
   const natural = (s.formFx?.weapons ?? []).map((w, i) => seal("natural", w.icon ?? (/укус|клык|bite/i.test(w.name) ? "fa-tooth" : "fa-paw"), w.name,
     { attrs: `data-n="${i}"`, tip: `${w.name} · ${game.i18n.localize(VTM20.damageTypes[w.type]?.label ?? "")}` }));
   const man = (k, icon) => seal("maneuver", icon, t(`Combat.M.${k}`), { man: true, attrs: `data-man="${k}"`, tip: [t(`Combat.M.${k}`), t(`Combat.MNote.${k}`)].filter(Boolean).join(" — ") });
-  const maneuvers = natural.length ? [] : [man("punch", "fa-hand-fist"), ...(s.fx?.claws ? [man("claws", "fa-paw")] : []), vamp ? man("bite", "fa-tooth") : man("clinch", "fa-people-pulling")];
-  tabs.push({ key: "fight", label: t("Hud.Tab.fight"), seals: [...weapons, ...natural, ...maneuvers, seal("attack", "fa-ellipsis", t("Hud.More"), { man: true, tip: t("Hud.AttackTip") }),
-    seal("dodge", "fa-person-running", t("Hud.Dodge"), { tip: t("Combat.Defense.dodge") }), seal("block", "fa-shield-halved", t("Hud.Block"), { tip: t("Combat.Defense.block") }),
-    seal("parry", "fa-khanda", t("Hud.Parry"), { tip: t("Combat.Defense.parry") })] });
+  const hasProteanClawItem = a.items.some(i => i.type === "weapon" && i.getFlag?.(SYSTEM_ID, "power") === "protean:2");
+  const maneuvers = noPhysicalAction || beastForm === "modified" ? [] : beastForm === "wolf" ? [man("claws", "fa-paw"), man("bite", "fa-tooth")]
+    : beastForm === "bat" ? [man("bite", "fa-tooth")]
+    : natural.length ? [] : [man("punch", "fa-hand-fist"), ...(s.fx?.claws && !hasProteanClawItem ? [man("claws", "fa-paw")] : []), vamp ? man("bite", "fa-tooth") : man("clinch", "fa-people-pulling")];
+  tabs.push({ key: "fight", label: t("Hud.Tab.fight"), seals: [...weapons, ...natural, ...maneuvers,
+    ...(noPhysicalAction ? [] : [seal("attack", "fa-ellipsis", t("Hud.More"), { man: true, tip: t("Hud.AttackTip") })]),
+    ...(s.fx?.earthMeld ? [] : [seal("dodge", "fa-person-running", t("Hud.Dodge"), { tip: t("Combat.Defense.dodge") }),
+      seal("block", "fa-shield-halved", t("Hud.Block"), { tip: t("Combat.Defense.block") }), seal("parry", "fa-khanda", t("Hud.Parry"), { tip: t("Combat.Defense.parry") })])] });
   if (a.hasBlood) {
     // Мощь за кровь и дополнительные действия Стремительности — на этот ход (Дисциплины/06, 14)
     const pot = a.discipline("potence"), cel = a.discipline("celerity"), b = [seal("spend", "fa-droplet", t("Hud.Spend"), { tip: t("Hud.BloodTip", { n: s.blood.perTurn ?? 1 }) })];
     if (pot) b.push(seal("potence", "fa-hand-fist", Codex.disciplineLabel("potence"), { on: a.potenceActive, tip: t(a.potenceActive ? "Hud.PotenceOnTip" : "Hud.PotenceTip", { n: pot }) }));
     if (cel) b.push(seal("celerity", "fa-forward", Codex.disciplineLabel("celerity"), { on: !!a.celerityActions, badge: a.celerityActions || "", tip: t("Hud.CelerityTip", { n: cel, used: a.celerityActions }) }));
+    const celerityTurn = celerityPhaseFor(a);
+    if (celerityTurn) b.push(seal("celerityUse", "fa-forward-fast", t("Hud.CelerityUse"), { on: true, badge: celerityTurn.remaining, tip: t("Hud.CelerityUseTip", { n: celerityTurn.remaining }) }));
     b.push(seal("heal", "fa-hand-holding-droplet", t("Hud.Heal"), { tip: t("Sheet.HealHint") }), seal("hunt", "fa-moon", t("Hunt.Button")));
     tabs.push({ key: "blood", label: t("Hud.Tab.blood"), seals: b });
   }
@@ -235,18 +250,25 @@ function tabsOf(a, kind) {
   // Силы: вынесенные булавкой с листа (знак Дисциплины и уровень точками), силы на время, свои силы вида и «Все» — вкладка сил на листе
   const powers = (a.getFlag(SYSTEM_ID, "hudPowers") ?? []).map(ref => {
     const x = powerByRef(ref);
-    return x ? seal("power", "", x.p.name, { attrs: `data-ref="${esc(ref)}"`, img: foundry.utils.getRoute(Codex.disciplineIcon(x.disc)), lvl: x.p.level,
+    return x ? seal("power", x.disc.startsWith("lore:") ? "fa-book-skull" : "", x.p.name, { img: x.disc.startsWith("lore:") ? "" : foundry.utils.getRoute(Codex.disciplineIcon(x.disc)),
+      badge: String(x.p.level), attrs: `data-ref="${esc(ref)}"`, compact: true,
       tip: `${x.p.name} · ${x.pathName || x.d.name} ${x.p.level}` }) : "";
   }).filter(Boolean);
   const own = kind === "demon" ? [seal("apocalyptic", "fa-dragon", t("Hud.Visage"), { on: !!s.apocalyptic, tip: t(s.apocalyptic ? "Hud.ApocOn" : "Hud.ApocOff") })]
     : kind === "hunter" ? [seal("sight", "fa-eye", t("Hud.Sight"), { tip: t("Hud.SightTip") })] : [];
   const fx = (a.powerEffects ?? []).map(x => {
     const tm = effectTimer(x.effect), tip = tm ? `${x.effect.name} · ${t(x.def.mode === "night" ? "Timer.ToDawn" : "Timer.Left")} ${tm.left}` : x.effect.name;
-    return `<span class="rh-seal is-fx" data-tooltip="${esc(tip)}" ${tm ? `data-fx-start="${tm.start}" data-fx-until="${tm.until}"` : ""}><span class="rh-knob"><img src="${esc(x.effect.img)}" alt="">${tm ? `<i class="rh-fx-bar" style="width:${tm.pctW}%"></i>` : ""}</span><span class="rh-seal-l">${esc(x.effect.name)}</span></span>`;
+    // У активного эффекта — знак самой силы (глаз, когти, холм, туман),
+    // а не общий знак дисциплины. Значок дисциплины остаётся на кнопке группы.
+    const icon = String(x.def.icon || "fa-wand-sparkles").replace(/^fa-solid\s+/, "");
+    const suffix = String(x.power).split(":").slice(1).join(":");
+    const level = /^\d+$/.test(suffix) ? suffix : /Модифицированный Облик Зверя|Shape of the Beast Revisited/i.test(suffix) ? "4" : "";
+    return `<span class="rh-seal is-fx" data-tooltip="${esc(tip)}" aria-label="${esc(tip)}" ${tm ? `data-fx-start="${tm.start}" data-fx-until="${tm.until}"` : ""}><span class="rh-knob"><i class="fa-solid ${esc(icon)}"></i>${level ? `<b class="rh-knob-badge">${level}</b>` : ""}${tm ? `<i class="rh-fx-bar" style="width:${tm.pctW}%"></i>` : ""}</span><span class="rh-seal-l">${esc(x.effect.name)}</span></span>`;
   });
   const groups = powerGroups(a, kind).map(g => seal("pop", g.icon ?? "", g.label, { attrs: `data-pop="${esc(g.id)}"`, img: g.img ?? "", lvl: g.lvl ?? 0,
+    badge: g.lvl != null ? String(g.lvl) : "", compact: g.lvl != null,
     on: pop === g.id, tip: t("Hud.PowersOf", { name: g.label }) }));
-  tabs.push({ key: "powers", label: t("Hud.Powers"), seals: [...own, ...groups, ...powers, ...fx, seal("allPowers", "fa-book-open", t("Hud.AllPowers"), { man: true, tip: t("Hud.AllPowersTip") })] });
+  tabs.push({ key: "powers", label: t("Hud.Powers"), seals: [...own, ...groups, ...powers, ...fx, seal("allPowers", "fa-book-open", t("Hud.AllPowers"), { man: true, compact: true, tip: t("Hud.AllPowersTip") })] });
   tabs.push({ key: "other", label: t("Hud.Tab.other"), seals: [seal("roll", "fa-dice-d10", t("Hud.Roll"), { tip: t("Hud.RollTip") }),
     seal("initRoll", "fa-bolt", t("Hud.InitShortCap"), { tip: t("Hud.InitTip") }), seal("hazard", "fa-fire-flame-curved", t("Hud.Hazard"), { tip: t("Hazard.Title") }),
     seal("sheet", "fa-book", t("Hud.Sheet"), { tip: t("Hud.SheetTip") })] });
@@ -273,7 +295,7 @@ export function renderHud() {
   const group = cur.key === "powers" && pop ? powerGroups(a, kind).find(g => g.id === pop) : null;
   const popup = group ? `<div class="rh-pop"><header>${group.img ? `<img src="${esc(group.img)}" alt="">` : `<i class="fa-solid ${group.icon}"></i>`}<b>${esc(group.label)}</b>
       ${group.lvl ? `<span class="rh-lvl">${dots(group.lvl, 5)}</span>` : ""}<a data-act="popClose" aria-label="${esc(t("Hud.Close"))}"><i class="fa-solid fa-xmark"></i></a></header>
-      <div class="rh-pop-list">${group.rows.map(r => `<a class="rh-pop-row" data-act="${r.act}" ${r.attrs}><i>${r.level ? ROMAN[r.level - 1] ?? r.level : "—"}</i><span>${esc(r.name)}</span><em class="fa-solid fa-dice-d10"></em></a>`).join("")}</div></div>` : "";
+      <div class="rh-pop-list">${group.rows.map(r => `<a class="rh-pop-row" data-act="${r.act}" ${r.attrs}><i>${r.level || "—"}</i><span>${esc(r.name)}</span><em class="fa-solid ${esc(r.icon || "fa-dice-d10")}"></em></a>`).join("")}</div></div>` : "";
 
   // бой: броня и инициатива — монетами на плечах портрета; вне боя их нет (инициатива — печатью во вкладке «Прочее»)
   const combatant = game.combat?.combatants?.find(c => c.actor?.id === a.id);
@@ -344,20 +366,78 @@ async function onClick(ev) {
     case "dodge": case "block": case "parry": return openDefense(a, el.dataset.act);
     case "spend": return a.spendBlood(1, { reason: t("Notify.ReasonManual") });
     case "heal": return a.bloodHeal(null);
-    case "potence": return a.potenceActive ? null : a.activatePotence();
+    case "potence": {
+      const active = await a.togglePotence();
+      refreshHud();
+      return active;
+    }
+    case "celerityUse": return useCelerityAction(a);
     case "celerity": {
-      const max = Math.min(a.discipline("celerity"), a.celerityActions + (a.system.blood?.value ?? 0));
+      if (game.combat?.getFlag?.(SYSTEM_ID, "celerityPhase")?.active) return ui.notifications.warn(t("Combat.CelerityPhaseFirst"));
+      const max = a.celerityMaxBuyable;
       if (max <= a.celerityActions) return ui.notifications.warn(t("Notify.NoBlood", { name: a.name }));
-      const opts = Array.from({ length: max - a.celerityActions }, (_, i) => a.celerityActions + i + 1)
-        .map(n => `<option value="${n}">${esc(t("Hud.CelerityOption", { n }))}</option>`).join("");
+      const minimum = Math.max(1, a.celerityActions + 1);
+      const initial = Math.min(max, minimum);
+      const bloodCost = a.celerityActions > 0 ? 0 : (a.doubleBloodCost ? 2 : 1);
+      const content = `<div class="r-cel-dialog">
+        <header class="r-cel-hero"><span class="r-cel-sigil"><i class="fa-solid fa-forward-fast"></i></span><div>
+          <small>${esc(t("Hud.CelerityKicker"))}</small><h2>${esc(Codex.disciplineLabel("celerity"))}</h2>
+          <p>${esc(t("Hud.CelerityAsk"))}</p></div></header>
+        <section class="r-cel-card">
+          <div class="r-cel-count-label">${esc(t("Hud.CelerityCountLabel"))}</div>
+          <div class="r-cel-stepper">
+            <button type="button" data-cel-step="-1" aria-label="−">−</button>
+            <div class="r-cel-count"><b data-cel-count>${initial}</b><span>${esc(t("Hud.CelerityActionWord"))}</span></div>
+            <button type="button" data-cel-step="1" aria-label="+">+</button>
+          </div>
+          <input type="hidden" name="n" value="${initial}" data-cel-value>
+          <div class="r-cel-summary">
+            <div><span>${esc(t("Hud.CelerityNewActions"))}</span><b data-cel-new>${initial - a.celerityActions}</b></div>
+            <div><span>${esc(t("Hud.CelerityBloodCost"))}</span><b><i class="fa-solid fa-droplet"></i> <span data-cel-cost>${bloodCost}</span></b></div>
+            <div><span>${esc(t("Hud.CelerityDexPenalty"))}</span><b data-cel-dex>${initial}</b></div>
+          </div>
+        </section>
+        <p class="r-cel-footnote"><i class="fa-solid fa-circle-info"></i> ${esc(t("Hud.CelerityRuleNote", { max }))}</p>
+      </div>`;
       const n = await foundry.applications.api.DialogV2.prompt({
-        window: { title: Codex.disciplineLabel("celerity"), icon: "fa-solid fa-forward" }, classes: ["vtm20", "r-dialog"],
-        content: `<div class="r-form"><p>${esc(t("Hud.CelerityAsk"))}</p><label class="r-field"><select name="n">${opts}</select></label></div>`,
-        ok: { label: t("Hud.CelerityBuy"), callback: (e, b) => Number(b.form.elements.n.value) || 0 }, rejectClose: false
+        window: { title: Codex.disciplineLabel("celerity"), icon: "fa-solid fa-forward-fast" },
+        classes: ["vtm20", "r-dialog", "r-celerity-dialog", "has-foot"], position: { width: 520 },
+        content, rejectClose: false,
+        render: (event, dialog) => {
+          const root = dialog.element, value = root.querySelector("[data-cel-value]"), count = root.querySelector("[data-cel-count]");
+          const added = root.querySelector("[data-cel-new]"), cost = root.querySelector("[data-cel-cost]"), dex = root.querySelector("[data-cel-dex]");
+          const minus = root.querySelector('[data-cel-step="-1"]'), plus = root.querySelector('[data-cel-step="1"]');
+          const update = () => {
+            const chosen = Math.max(minimum, Math.min(max, Math.floor(Number(value.value) || minimum)));
+            value.value = String(chosen); count.textContent = String(chosen);
+            added.textContent = String(chosen - a.celerityActions);
+            cost.textContent = String(a.celerityActions > 0 ? 0 : (a.doubleBloodCost ? 2 : 1));
+            dex.textContent = String(chosen);
+            minus.disabled = chosen <= minimum; plus.disabled = chosen >= max;
+          };
+          minus.addEventListener("click", () => { value.value = Number(value.value) - 1; update(); });
+          plus.addEventListener("click", () => { value.value = Number(value.value) + 1; update(); });
+          update();
+        },
+        ok: { label: t("Hud.CelerityBuy"), icon: "fa-solid fa-droplet", callback: (e, b) => Number(b.form.elements.n.value) || 0 }
       });
       return n ? a.buyCelerityActions(n) : null;
     }
-    case "power": if (pop) { pop = null; renderHud(); } return rollPowerRef(a, el.dataset.ref);
+    case "power": {
+      if (pop) { pop = null; renderHud(); }
+      const x = powerByRef(el.dataset.ref);
+      // Первые пять точек Метаморфоз — механические эффекты, а не бросок карточки.
+      // Для альтернативной 4-й точки используем английский ключ справочника,
+      // чтобы маршрутизация не зависела от языка интерфейса.
+      if (String(x?.disc ?? "").toLowerCase() === "protean") {
+        const revisited = x.p?.en === "Shape of the Beast Revisited"
+          || x.p?.name === "Модифицированный Облик Зверя";
+        const key = revisited ? "protean:Модифицированный Облик Зверя"
+          : (x.p?.level >= 1 && x.p.level <= 5 ? `protean:${x.p.level}` : null);
+        if (key) return togglePowerEffect(a, key);
+      }
+      return rollPowerRef(a, el.dataset.ref);
+    }
     case "hunt": return openHunt(a);
     case "hazard": return openHazard(a);
     case "defendPending": return defendFromHud(a);
@@ -387,7 +467,8 @@ function fitHud() {
   const input = chat?.querySelector("#chat-message");
   const busy = r && r.width > 0 && r.left < b.right && input && getComputedStyle(input).display !== "none";
   const room = busy ? Math.max(420, r.left - b.left - 12) : b.width;
-  el.style.setProperty("--rh-scale", Math.min(1, room / 840).toFixed(3));
+  // Герб на 15% крупнее базового, но сжимается до доступной ширины, когда открыта боковая панель.
+  el.style.setProperty("--rh-scale", Math.min(1.15, room / 840).toFixed(3));
 }
 
 /** Перерисовать не чаще раза в кадр. */

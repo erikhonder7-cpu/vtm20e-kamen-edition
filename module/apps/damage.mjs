@@ -42,18 +42,14 @@ class DamageDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const silver = v.silver && a.type === "werewolf";
     if (silver && !a.system.werewolf.breedForm) { type = "aggravated"; notes.push(t("Werewolf.SilverHit")); }
     if (type === "aggravated" && !this.tough) { type = "lethal"; notes.push(t("Combat.MortalAggravated")); }
-    const sta = a.system.attributes.stamina.total, fort = a.discipline("fortitude"), arm = v.armor ? a.armor.rating : 0;
-    const STA = { label: a.traitLabel("attributes.stamina"), value: sta };
-    const FORT = { label: a.traitLabel("disciplines.fortitude"), value: fort };
-    const ARM = { label: t("Sheet.Armor"), value: arm };
-    const parts = type === "bashing" ? [STA, FORT, ARM]
-      : type === "lethal" ? [...(this.tough ? [STA] : []), FORT, ARM]
-      : [FORT, ...(v.fangs ? [ARM] : [])];
-    let bd = parts.filter(x => x.value);
-    const pool = a.soakPool(type, { armor: v.armor, fangs: v.fangs, silver });
-    if (a.type === "creature" && a.system.spirit?.on) bd = [{ label: a.traitLabel("spirit.willpower"), value: pool }];   // дух — Волей
-    // особые силы (Шкура гадюки и т. п.) — разбор не сходится, показываем итог одной строкой
-    if (bd.reduce((n, x) => n + x.value, 0) !== pool) bd = [{ label: t("Roll.Soak"), value: pool }];
+    const options = { armor: v.armor, fangs: v.fangs, silver };
+    // Предпросмотр и реальный бросок используют один расчёт актёра: вклад
+    // Стойкости не теряется и не подменяется вручную собранным пулом.
+    let bd = a.soakBreakdown?.(type, options) ?? [];
+    const pool = a.soakPool(type, options);
+    if (bd.reduce((n, x) => n + x.value, 0) !== pool) {
+      bd = pool > 0 ? [{ label: t("Roll.Soak"), value: pool }] : [];
+    }
     const difficulty = Math.clamp(6 + v.modDiff + (a.system.fx?.soakDiff ?? 0), 2, 10);
     if (type === "bashing" && a.isVampire) notes.push(t("DamageDlg.Halved"));
     return { type, bd, pool: v.soak ? pool : 0, difficulty, notes };

@@ -35,7 +35,7 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     this.cfg = cfg;
     this.values = {
       trait1: cfg.trait1 ?? "", trait2: cfg.trait2 ?? "",
-      bonus: cfg.bonus ?? 0, difficulty: cfg.difficulty ?? VTM20.defaultDifficulty, actions: cfg.actions ?? 1,
+      bonus: cfg.bonus ?? 0, difficulty: cfg.difficulty ?? VTM20.defaultDifficulty, actions: cfg.celerityAction ? 1 : (cfg.actions ?? 1),
       contest: "simple", need: 5,
       specialty: !!cfg.specialty, willpower: !!cfg.willpower,
       wounds: !cfg.reflexive, physical: true,
@@ -61,7 +61,7 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
         opt("morality.value", a.traitLabel("morality.value"), s.morality.value)
       ] }
     ];
-    const groups2 = [
+    let groups2 = [
       ...Object.entries(abil).map(([g, keys]) => ({
         label: loc(VTM20.abilityGroups[g].label),
         options: keys.map(k => opt(`abilities.${k}`, loc(VTM20.abilities[k].label), s.abilities[k].value))
@@ -69,6 +69,14 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       { label: loc("VTM20.Sheet.Secondary"), options: s.secondary.map((x, i) => opt(`secondary.${i}`, x.name || "—", x.value)) },
       { label: loc("VTM20.Sheet.Disciplines"), options: a.items.filter(i => i.type === "discipline").map(i => opt(`disciplines.${i.system.key}`, i.name, i.system.value)) }
     ].filter(g => g.options.length);
+    if (this.cfg.physicalOnly) {
+      const physical = new Set(VTM20.attributeGroups.physical.attributes);
+      const physicalAbilities = new Set(["athletics", "brawl", "drive", "firearms", "melee", "ride", "stealth", "survival"]);
+      groups1.splice(0, groups1.length, ...groups1.filter(g => g.options.some(o => physical.has(o.value.split(".").at(-1))))
+        .map(g => ({ ...g, options: g.options.filter(o => o.value.startsWith("attributes.") && physical.has(o.value.split(".").at(-1))) })));
+      groups2 = groups2.map(g => ({ ...g, options: g.options.filter(o => o.value.startsWith("abilities.") && physicalAbilities.has(o.value.split(".").at(-1))) }))
+        .filter(g => g.options.length);
+    }
     return { groups1, groups2 };
   }
 
@@ -85,12 +93,20 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       const n = pure ? a.system.attributes[p.split(".")[1]]?.value ?? 0 : a.traitValue(p);
       pool += n; bd.push({ label: pure ? `${a.traitLabel(p)} · ${t("Magic.BaseAttr")}` : a.traitLabel(p), value: n });
     }
-    // Мощь к Силе, Стремительность к Ловкости (Дисциплины/06, 14)
-    const attr = [v.trait1, v.trait2].find(p => p?.startsWith("attributes."))?.split(".")[1];
-    const phys = attr && !base ? a.physicalDisciplineBonus(attr) : 0;
-    if (phys && v.physical) { pool += phys; bd.push({ label: Codex.disciplineLabel(attr === "strength" ? "potence" : "celerity"), value: phys }); }
-    // Мощь, включённая кровью: точки — автоуспехи проверки Силы (Дисциплины/06)
-    const auto = attr && !base && v.physical ? a.physicalAuto(attr) : 0;
+    // Мощь к Силе, Стремительность к Ловкости (Дисциплины/06, 14).
+    // Фиксированный пул — это базовое число костей силы; модификаторы физических
+    // Дисциплин всё равно применяются к выбранной физической характеристике.
+    const selectedAttrs = [v.trait1, v.trait2].filter(p => p?.startsWith("attributes.")).map(p => p.split(".")[1]);
+    const attr = selectedAttrs[0] ?? null;
+    // Если в составной проверке Сила стоит второй характеристикой, Мощь всё равно должна сработать.
+    const physAttr = selectedAttrs.find(k => k === "strength" || k === "dexterity") ?? null;
+    const phys = physAttr && !base ? a.physicalDisciplineBonus(physAttr) : 0;
+    if (phys && v.physical) { pool += phys; bd.push({ label: Codex.disciplineLabel(physAttr === "strength" ? "potence" : "celerity"), value: phys }); }
+    // Мощь, включённая кровью: автоуспехи ко всем проверкам, в которых участвует Сила,
+    // независимо от того, первая она или вторая характеристика; фиксированный пул тоже поддерживается.
+    const potentialAuto = !base && selectedAttrs.includes("strength") ? a.physicalAuto("strength") : 0;
+    const auto = v.physical ? potentialAuto : 0;
+    if (auto) bd.push({ label: t("Roll.AutoSuccess"), value: auto });
     if (v.bonus) { pool += v.bonus; bd.push({ label: t("Roll.Modifier"), value: v.bonus }); }
     // тотем стаи (W20, гл. 7): «дети Химеры получают три точки Загадок» — точки тотема прибавляются к черте в броске
     const tt = totemTraits(a);
@@ -140,10 +156,16 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const formDiff = [v.trait1, v.trait2].flatMap(p => a.system.formFx?.diff?.[p?.split(".")[1]] ?? []);
     const diffAuto = [...(attrs.includes("perception") ? (fx.perception ?? []) : []), ...formDiff, ...sm.diff,
       ...mm.auto.filter(m => m.diff).map(m => ({ label: m.label, value: m.diff }))];
+    const selectedTargets = [...(game.user.targets ?? [])];
+    const earthTarget = selectedTargets.length === 1 ? selectedTargets[0]?.actor : null;
+    const earthDetect = Number(earthTarget?.system?.fx?.detectDifficulty) || 0;
     const diffSit = [
       ...(social ? fx.social ?? [] : []).map(d => ({ ...d, kind: "social" })),
       ...(fx.climb ?? []).map(d => ({ ...d, kind: "climb" })),
       ...(attrs.includes("perception") ? fx.hearing ?? [] : []).map(d => ({ ...d, kind: "hearing" })),
+      ...(attrs.includes("perception") ? fx.vision ?? [] : []).map(d => ({ ...d, kind: "vision" })),
+      ...(attrs.includes("perception") ? fx.smell ?? [] : []).map(d => ({ ...d, kind: "smell" })),
+      ...(earthDetect ? [{ label: t("Fx.EarthDetection"), value: earthDetect, kind: "earth" }] : []),
       // Отшельник (Hunter Players Guide, с. 19): рядом с чудовищами или наделёнными — все сложности +1
       ...(a.type === "hunter" && (Codex.hunter?.creeds ?? []).find(c => c.key === a.system.hunter?.creed)?.near
         ? [{ label: t("Hunter.NearNoise"), value: (Codex.hunter.creeds.find(c => c.key === a.system.hunter.creed).near), kind: "hermit" }] : []),
@@ -153,7 +175,17 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const diffShift = diffAuto.filter(d => !d.dice).reduce((s, d) => s + d.value, 0) + diffSit.filter(d => d.on && !d.dice).reduce((s, d) => s + d.value, 0);
     const effDifficulty = Math.clamp(v.difficulty + diffShift, 2, 10);
     return { pool: Math.max(0, pool), breakdown: bd, specialtyName: specs.join(", "), specialtyEligible: specs.length > 0,
-      physicalBonus: phys || auto, attr, diffAuto, diffSit, effDifficulty, auto };
+      physicalBonus: phys || auto, physicalDisplay: Math.max(Number(phys) || 0, Number(potentialAuto) || 0),
+      physicalPotentialAuto: Number(potentialAuto) || 0, attr, phys: Number(phys) || 0, diffAuto, diffSit, effDifficulty, auto: Number(auto) || 0 };
+  }
+
+  /** Итоговый пул. Фиксированный пул остаётся базовым, но принимает явные модификаторы окна и пассивные физические кости. */
+  #rollPool(c) {
+    const v = this.values, cfg = this.cfg;
+    if (cfg.pool == null) return c.pool;
+    return Math.max(0, cfg.pool + v.bonus + this.#overdraw()
+      + (v.wounds ? this.actor.system.health.penalty : 0)
+      + (v.physical ? c.phys : 0));
   }
 
   /**
@@ -206,14 +238,15 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const { groups1, groups2 } = this.#traitOptions();
     const mark = (groups, cur) => groups.map(g => ({ ...g, options: g.options.map(o => ({ ...o, selected: o.value === cur })) }));
     // Шансы: тот же пул, что уйдёт в бросок (фиксированный пул сил — со своими модификаторами)
-    const pool = this.cfg.pool != null ? Math.max(0, this.cfg.pool + v.bonus + this.#overdraw() + (v.wounds ? this.actor.system.health.penalty : 0)) : c.pool;
+    const pool = this.#rollPool(c);
     const specialty = v.specialty && c.specialtyEligible;
     const o = odds({ pool, difficulty: c.effDifficulty, specialty, willpower: v.willpower && !this.cfg.noWillpower,
-      auto: this.cfg.pool != null ? 0 : c.auto });
+      auto: c.auto });
     const chances = chancesView(o);
     return {
       v: { ...v, specialty }, ...c, canUseSpecialty: c.specialtyEligible, chances, shownPool: pool,
       groups1: mark(groups1, v.trait1), groups2: mark(groups2, v.trait2),
+      celerityAction: !!this.cfg.celerityAction,
       lockTraits: !!this.cfg.lockTraits, fixedPool: this.cfg.pool != null, locked: this.#locked(v),
       // одна шкала (В2): пунктир — выбранная сложность, заливка — итог с поправками от сил и черт
       difficulties: [...new Set([3, 4, 5, 6, 7, 8, 9, 10, v.difficulty, c.effDifficulty])].sort((x, y) => x - y)
@@ -232,7 +265,8 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       torment: this.#torment(pool, c.effDifficulty),
       overdraw: this.#overdrawMax() ? { max: this.#overdrawMax(), value: this.#overdraw(), thralls: this.actor.system.thralls?.length ?? 0 } : null,
       lightBane: VTM20.lightBane.includes(this.actor.system.clan),
-      physicalLabel: c.physicalBonus ? Codex.disciplineLabel(c.attr === "strength" ? "potence" : "celerity") : "",
+      physicalLabel: c.physicalPotentialAuto > 0 ? t("Roll.AutoSuccess") : c.physicalBonus ? Codex.disciplineLabel(c.attr === "strength" ? "potence" : "celerity") : "",
+      physicalAuto: c.auto > 0,
       messageModes: Object.entries(CONFIG.ChatMessage.modes ?? {}).map(([k, m]) => ({ value: k, label: game.i18n.localize(m.label ?? k), selected: k === v.messageMode }))
     };
   }
@@ -277,7 +311,7 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
   static #onBump(event, target) {
     const k = target.dataset.field, d = Number(target.dataset.d);
     if (k === "difficulty") this.values.difficulty = Math.clamp(this.values.difficulty + d, 2, 12);
-    else if (k === "actions") this.values.actions = Math.clamp(this.values.actions + d, 1, 6);
+    else if (k === "actions") this.values.actions = this.cfg.celerityAction ? 1 : Math.clamp(this.values.actions + d, 1, 6);
     else this.values.bonus += d;
     this.render();
   }
@@ -288,7 +322,7 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const c = this.compute();
     const v = this.values, cfg = this.cfg;
     const od = this.#overdraw();
-    const pool = cfg.pool != null ? Math.max(0, cfg.pool + v.bonus + od + (v.wounds ? this.actor.system.health.penalty : 0)) : c.pool;
+    const pool = this.#rollPool(c);
     const title = cfg.title || c.breakdown.slice(0, 2).map(x => x.label).join(" + ") || t("Roll.Title");
     // Цена силы: кровь и воля списываются до броска (V20, гл. 4)
     const notes = [];
@@ -311,11 +345,17 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const res = await rollPool({
       actor: this.actor, title, subtitle: cfg.subtitle ?? "",
       pool, difficulty: c.effDifficulty, specialty: v.specialty && c.specialtyEligible, specialtyName: c.specialtyName,
-      willpower: v.willpower && !cfg.noWillpower, willpowerPaid, breakdown: cfg.pool != null ? (cfg.breakdown ?? []) : c.breakdown,
-      kind: cfg.kind ?? "check", messageMode: v.messageMode, auto: cfg.pool != null ? 0 : c.auto,
+      willpower: v.willpower && !cfg.noWillpower, willpowerPaid,
+      breakdown: cfg.pool != null
+        ? [...(cfg.breakdown ?? []), ...(v.physical && c.phys ? [{ label: Codex.disciplineLabel(c.attr === "strength" ? "potence" : "celerity"), value: c.phys }] : []), ...(v.physical && c.auto ? [{ label: t("Roll.AutoSuccess"), value: c.auto }] : [])]
+        : c.breakdown,
+      kind: cfg.kind ?? "check", messageMode: v.messageMode, auto: c.auto,
       extra: { ...(cfg.extra ?? {}), contest: v.contest, ...(v.contest === "extended" ? { extended: { need: v.need, prev: 0, step: 0 } } : {}) },
       notes, effect: cfg.effect ?? ""
     });
+    // Использованное доп. действие списывается сразу после успешного броска,
+    // до связанных обработчиков результата: ошибка карточки не должна возвращать действие.
+    if (cfg.celerityAction && res) await this.actor.consumeCelerityAction();
     // Перебор: слуги платят Волей, провал — минус Вера (apps/torment.mjs)
     if (od) await (await import("../apps/torment.mjs")).overdrawPay(this.actor, od, res);
     // кубики почитания израсходованы

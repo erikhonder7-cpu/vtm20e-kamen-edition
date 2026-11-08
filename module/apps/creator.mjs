@@ -98,7 +98,6 @@ const GAROU_HINTS = new Set(["concept", "abilities", "advantages", "freebies", "
 const HUNTER_SLOTS = { conscience: "mercy", selfControl: "vision", courage: "zeal" };
 /** Свидетель (Players Guide, гл. 1): свои Добродетели в тех же слотах — Рассудок, Самоконтроль, Смелость. */
 const LOST_SLOTS = { conscience: "reason", selfControl: "selfControl", courage: "courage" };
-
 /** Достоинство, делающее одну Дисциплину клановой (V20, Appendix: Merits and Flaws), — по английскому имени. */
 const EXTRA_DISC_MERIT = "Additional Discipline";
 
@@ -546,7 +545,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     // «Дополнительная Дисциплина»: нужен выбор; каитифам и пандерам черта недоступна (V20, Appendix)
     if (this.extraDiscMerit && !this.baseClanDisciplines) out.push(t("Creator.ExtraDiscCaitiff"));
     else if (this.extraDiscMerit && !this.st.extraDisc) out.push(t("Creator.ExtraDiscNeed"));
-    // начальные точки — только в клановые (01); внеклановые — свободными пунктами и опытом
+    // начальные точки — только в клановые (V20, гл. 1); внеклановые — свободными пунктами и опытом
     if (this.type === "vampire" && this.clanDisciplines)
       for (const [k, n] of Object.entries(this.st.disc)) if (n > 0 && !this.inClan(k)) out.push(t("Creator.InitialOutOfClan", { name: Codex.disciplineLabel(k) }));
     if (this.isDemon && !this.st.visage) out.push(t("Creator.NeedVisage"));
@@ -1230,7 +1229,8 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     if (i >= 0) {
       if (list[i].en === EXTRA_DISC_MERIT) VtMCreator.#setExtraDisc.call(this, "");
       list.splice(i, 1);
-    } else {
+    }
+    else {
       // Прямой запрет в тексте черты — не даём взять (trait-rules.mjs)
       const blocker = blockerFor(name, [...this.st.merits, ...this.st.flaws].map(x => x.name));
       if (blocker) return ui.notifications.warn(t("Creator.TraitBlocked", { a: name, b: blocker }));

@@ -94,6 +94,7 @@ class HazardDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const FORT = { label: a.traitLabel("disciplines.fortitude"), value: fort };
     let p;
     if (this.isGarou) return this.#garou();
+    if (v.kind === "sun" && a.system.fx?.earthMeld) return { harmless: true, harmlessText: t("Fx.EarthMeldSun"), bd: [], pool: 0 };
     if (v.kind === "fire" && this.fireproof) return { harmless: true, harmlessText: t("Hazard.Fireproof"), bd: [], pool: 0 };
     if (v.kind === "holyGround" || v.kind === "holyRelic") {
       if (!this.holyHurts) return { harmless: true, harmlessText: t("Hazard.HolyLowTorment"), bd: [], pool: 0 };
@@ -169,8 +170,8 @@ class HazardDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       kindCols: this.isDemon ? 5 : 4,
       typeLabel: p.type ? game.i18n.localize(VTM20.damageTypes[p.type].label) : "",
       chances: p.harmless || !p.pool ? null : chancesView(odds({ pool: p.pool, difficulty: p.difficulty, noBotch: !p.botchToAggravated })),
-      note: { fire: t(this.isDemon ? "Hazard.FireNoteDemon" : this.isGarou ? "Hazard.FireNoteGarou" : "Hazard.FireNote"), silver: t("Hazard.SilverNote"), sun: t("Hazard.SunNote"), fall: t("Hazard.FallNote"), shock: t("Hazard.ShockNote", { n: p.breakFree }),
-        holyGround: t("Hazard.HolyGroundNote"), holyRelic: t("Hazard.HolyRelicNote") }[v.kind],
+      note: [({ fire: t(this.isDemon ? "Hazard.FireNoteDemon" : this.isGarou ? "Hazard.FireNoteGarou" : "Hazard.FireNote"), silver: t("Hazard.SilverNote"), sun: t("Hazard.SunNote"), fall: t("Hazard.FallNote"), shock: t("Hazard.ShockNote", { n: p.breakFree }),
+        holyGround: t("Hazard.HolyGroundNote"), holyRelic: t("Hazard.HolyRelicNote") }[v.kind]), a.system.fx?.mistForm && ["fire", "sun"].includes(v.kind) ? t("Fx.MistHazardNote") : ""].filter(Boolean).join(" "),
       isFall: v.kind === "fall",
       messageModes: Object.entries(modes).map(([k, m]) => ({ value: k, label: game.i18n.localize(m.label ?? k), selected: k === v.messageMode }))
     };
@@ -200,6 +201,10 @@ class HazardDialog extends HandlebarsApplicationMixin(ApplicationV2) {
   static async #onSubmit() {
     const a = this.actor, p = this.preview(), title = t(`Hazard.Kind.${this.v.kind}`), messageMode = this.v.messageMode;
     if (p.harmless) return ui.notifications.info(p.harmlessText ? `${a.name}: ${p.harmlessText}` : t("Hazard.SunHarmless", { name: a.name }));
+    if (a.system.fx?.earthMeld) {
+      const { wakeEarthMeld } = await import("./power-effects.mjs");
+      await wakeEarthMeld(a, t("Fx.EarthWakeThreatShort"));
+    }
     if (this.v.kind === "fall") {
       if (p.dice <= 0) return ui.notifications.info(t("Hazard.NoFall"));
       const dmg = await rollPool({ actor: a, title, subtitle: game.i18n.localize(VTM20.damageTypes[p.type].label), pool: p.dice, difficulty: 6, kind: "damage", noBotch: true, messageMode });

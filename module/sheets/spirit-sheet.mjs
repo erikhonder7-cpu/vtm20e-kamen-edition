@@ -83,7 +83,8 @@ export class SpiritSheet extends VtMActorSheet {
  * Старые духи (до этого листа) переводятся на него при запуске мира.
  */
 export function registerSpiritSheet() {
-  Actors.registerSheet(SYSTEM_ID, SpiritSheet, { makeDefault: false, label: "VTM20.Sheets.Spirit", types: ["creature"] });
+  // Foundry V13+: коллекция Actors доступна только через namespaced API.
+  foundry.documents.collections.Actors.registerSheet(SYSTEM_ID, SpiritSheet, { makeDefault: false, label: "VTM20.Sheets.Spirit", types: ["creature"] });
   const want = a => a.type === "creature" && a.system.spirit?.on;
   Hooks.on("preCreateActor", a => { if (want(a) && !a.getFlag("core", "sheetClass")) a.updateSource({ "flags.core.sheetClass": SPIRIT_SHEET }); });
   Hooks.on("updateActor", (a, diff, opts, userId) => {

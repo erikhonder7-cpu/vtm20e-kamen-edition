@@ -592,16 +592,40 @@ export function prepareEffects(sheet, ctx) {
   // Включённые силы — с расшифровкой того, что они меняют
   ctx.fxPowers = a.powerEffects.map(({ effect, def }) => {
     const lines = [];
-    for (const [k, v] of Object.entries(def.attr ?? {})) lines.push(`${attrL(k)} ${signed(v)}`);
-    for (const [k, v] of Object.entries(def.set ?? {})) lines.push(`${attrL(k)} = ${v}`);
-    for (const [k, v] of Object.entries(def.diff ?? {})) lines.push(t("FxTab.Diff", { what: t(`FxTab.DiffKind.${k}`), n: signed(numOf(v)) }));
-    if (def.claws) lines.push(t("FxTab.Claws"));
-    if (def.brawlDamage) lines.push(t("FxTab.BrawlDamage", { n: def.brawlDamage }));
-    if (def.biteDamage) lines.push(t("FxTab.BiteDamage", { n: def.biteDamage }));
-    if (def.soakDiff) lines.push(t("FxTab.SoakDiff", { n: signed(def.soakDiff) }));
-    if (def.staminaVsFangs) lines.push(t("FxTab.StaminaVsFangs"));
-    if (def.venom) lines.push(t("FxTab.Venom", { n: effect.flags?.[SYSTEM_ID]?.charges ?? 1 }));
-    if (def.weapon) lines.push(t("FxTab.Weapon", { name: def.weapon.name }));
+    const flags = effect.flags?.[SYSTEM_ID] ?? {};
+    const transforming = flags.ready === false;
+    if (transforming) lines.push(t("FxTab.Transforming", { n: flags.transformTurnsLeft ?? 1 }));
+    else {
+      if (def.darkvision) lines.push(t("FxTab.Darkvision"));
+      if (flags.power === "protean:1") lines.push(t("FxTab.EyesSocial"));
+      if (def.clawsFortitudeOnly) lines.push(t("FxTab.ProteanClaws"));
+      if (def.earthMeld) lines.push(t("FxTab.EarthMeld"), t("FxTab.EarthWakeBurst"));
+      if (def.beastForm === "wolf") lines.push(t("FxTab.WolfForm"), t("FxTab.BeastLimits"));
+      if (def.beastForm === "bat") lines.push(t("FxTab.BatForm"), t("FxTab.BeastLimits"));
+      if (def.modifiedShape) {
+        const m = def.modifiedShape;
+        lines.push(t(m.role === "battle" ? "FxTab.ModifiedBattle" : "FxTab.ModifiedEscape", { animal: m.animal }));
+        lines.push(t(`FxTab.Sense.${m.sense}`));
+        if (m.role === "escape") lines.push(t(m.flying ? "FxTab.ModifiedFlight" : (m.large ? "FxTab.ModifiedLarge" : "FxTab.ModifiedGround")));
+        lines.push(t("FxTab.BeastLimits"));
+      }
+      if (def.mistForm) lines.push(t("FxTab.MistForm"));
+      for (const [k, v] of Object.entries(def.attr ?? {})) lines.push(`${attrL(k)} ${signed(v)}`);
+      for (const [k, v] of Object.entries(def.set ?? {})) lines.push(`${attrL(k)} = ${v}`);
+      for (const [k, v] of Object.entries(def.diff ?? {})) {
+        // Отдельные пояснения Метаморфоз уже включают эти модификаторы — не дублируем их ниже.
+        if (flags.power === "protean:1" && k === "social") continue;
+        if (flags.power === "protean:4" && ((flags.variant === "wolf" && k === "perception") || (flags.variant === "bat" && ["hearing", "hit"].includes(k)))) continue;
+        lines.push(t("FxTab.Diff", { what: t(`FxTab.DiffKind.${k}`), n: signed(numOf(v)) }));
+      }
+      if (def.claws && !def.clawsFortitudeOnly) lines.push(t("FxTab.Claws"));
+      if (def.brawlDamage) lines.push(t("FxTab.BrawlDamage", { n: def.brawlDamage }));
+      if (def.biteDamage) lines.push(t("FxTab.BiteDamage", { n: def.biteDamage }));
+      if (def.soakDiff) lines.push(t("FxTab.SoakDiff", { n: signed(def.soakDiff) }));
+      if (def.staminaVsFangs) lines.push(t("FxTab.StaminaVsFangs"));
+      if (def.venom) lines.push(t("FxTab.Venom", { n: effect.flags?.[SYSTEM_ID]?.charges ?? 1 }));
+      if (def.weapon) lines.push(t("FxTab.Weapon", { name: def.weapon.name }));
+    }
     return { id: effect.id, name: effect.name, img: effect.img, kind: def.mode,
       mode: t(MODE_LABEL[def.mode] ?? "Fx.Toggleable"), lines, timer: effectTimer(effect), toDawn: def.mode === "night" };
   });

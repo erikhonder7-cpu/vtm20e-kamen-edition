@@ -22,6 +22,8 @@ import {
 import { initTopBar, removeTopBar, refreshTopBar, paintClockBar } from "./module/ui/topbar.mjs";
 import { registerHud, renderHud } from "./module/ui/hud.mjs";
 import { registerCombatTracker } from "./module/ui/combat-tracker.mjs";
+import { registerCelerity } from "./module/combat/celerity.mjs";
+import { registerPowerEffectHooks } from "./module/apps/power-effects.mjs";
 import { openAttack, openDefense, AttackDialog } from "./module/combat/combat.mjs";
 import { openHazard } from "./module/apps/hazard.mjs";
 import { openDiablerie } from "./module/apps/diablerie.mjs";
@@ -161,6 +163,8 @@ Hooks.once("init", () => {
   registerNightTools();
   registerHud();
   registerCombatTracker();
+  registerCelerity();
+  registerPowerEffectHooks();
   registerCityMap();
   registerMasquerade();
   registerStrategy();

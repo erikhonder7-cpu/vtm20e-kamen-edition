@@ -895,7 +895,9 @@
         "social": "social (with mortals)",
         "climb": "climbing",
         "hearing": "hearing",
-        "hit": "to hit you"
+        "hit": "to hit you",
+        "vision": "vision",
+        "smell": "smell/taste"
       },
       "Claws": "claws: Strength +1, aggravated",
       "BrawlDamage": "+{n} damage dice in a brawl",
@@ -923,7 +925,7 @@
       "PotenceAuto": "this turn: {n} automatic successes to Strength rolls (activated with blood)",
       "Celerity": "+{n} dice to Dexterity rolls; for blood — extra actions",
       "CelerityActions": "this turn {n} dots went to extra actions",
-      "Fortitude": "+{n} to soak against all damage, including aggravated",
+      "Fortitude": "+{n} soak dice vs bashing/lethal; enables aggravated soak (does not raise Stamina)",
       "Soak": "Soak",
       "SoakText": "bashing / lethal / aggravated",
       "PerTurn": "Blood per turn",
@@ -938,7 +940,27 @@
         "rotschreck": "Rötschreck checks"
       },
       "WillOrVirtue": "Willpower and Virtue rolls",
-      "AnyRoll": "any rolls"
+      "AnyRoll": "any rolls",
+      "Transforming": "Transformation: {n} turn(s) remaining; its effects are not active yet.",
+      "Darkvision": "Eyes of the Beast: sees in total darkness within line of sight; does not see through walls or detect invisible things.",
+      "ProteanClaws": "Feral Claws: Strength +1 aggravated damage; only Fortitude can soak it, not Stamina or armor.",
+      "EarthMeld": "Melded with natural earth: sunlight cannot harm the character; detection difficulty +2; the character cannot move.",
+      "WolfForm": "Wolf form: running speed ×2; Perception difficulty −2; claws and bite deal Strength +1 aggravated damage.",
+      "BatForm": "Bat form: Strength = 1; flight up to 30 km/h; hearing difficulty −3; attacks against the character difficulty +2.",
+      "MistForm": "Mist Form: ordinary physical attacks cannot harm the vampire; the vampire cannot make physical attacks; supernatural attacks work. Fire and sunlight: −1 die from the damage pool.",
+      "BeastLimits": "Animal form: armor does not work; the vampire cannot use human weapons or speak. Necromancy, Serpentis, Thaumaturgy, and Vicissitude are unavailable (other powers at Storyteller discretion).",
+      "EarthWakeBurst": "When threat wakes the vampire: nearby characters have +2 Perception difficulty this turn; the vampire has −2 initiative on the first turn.",
+      "EyesSocial": "Against mortals, +1 difficulty on Social rolls if the animal gleam in the eyes is not concealed.",
+      "ModifiedBattle": "Combat animal form: {animal}; running speed doubled.",
+      "ModifiedEscape": "Escape animal form: {animal}.",
+      "ModifiedFlight": "Flight at running speed.",
+      "ModifiedGround": "Ground form: +2 Dexterity.",
+      "ModifiedLarge": "Large form: retains Strength; no +2 difficulty to hit.",
+      "Sense": {
+        "vision": "−2 difficulty to vision-based checks (when applicable).",
+        "hearing": "−2 difficulty to hearing-based checks (when applicable).",
+        "smell": "−2 difficulty to smell/taste-based checks (when applicable)."
+      }
     },
     "AttrGroup": {
       "physical": "Physical",
@@ -3045,6 +3067,8 @@
       "FlameNote": "Fire: soak with Fortitude only, difficulty {d}; armor doesn't protect. The flame burns every turn while the target is on fire.",
       "FixedNote": "Damage without a roll; soak — difficulty {d}.",
       "PotenceOn": "Potence with blood: until the end of the turn Potence dots ({n}) are automatic successes on all Strength rolls, including melee damage.",
+      "PotenceOff": "Potence deactivated: bonus Strength dice are restored.",
+      "PotenceTurn": "Potence can only be activated during your own turn.",
       "CelerityOn": "Celerity: extra physical actions this turn — {n}, they come after all participants. Blood spent: {cost}. Dexterity bonus this turn: {left}.",
       "VenomLeft": "Baali caress: ichor left — {n}.",
       "FormWeaponNote": "Apocalyptic form weapon: Dexterity + Brawl.",
@@ -3052,7 +3076,23 @@
       "PotenceDamage": "Potence with blood: automatic successes to damage — {n}.",
       "CelerityNote": "Extra Celerity actions this turn: {n} — they come after all participants, with a full pool.",
       "MortalAggravated": "To a mortal, fire, fangs and claws deal lethal damage, not aggravated.",
-      "AutoShort": "automatic successes: {n}"
+      "AutoShort": "automatic successes: {n}",
+      "CelerityPhaseStarted": "Celerity phase started: extra actions — {n}.",
+      "CelerityPhaseTitle": "Celerity Phase",
+      "CelerityPhaseCurrent": "{name} acts now; actions remaining: {n}",
+      "CelerityPhaseSkip": "Skip",
+      "CelerityNotYourTurn": "It is another participant’s turn in the Celerity phase.",
+      "CelerityNotOwner": "You do not have permission to control this character.",
+      "CelerityActionTitle": "Extra actions: {n}",
+      "CelerityActionHint": "Choose one physical action. It is spent after you complete it.",
+      "CelerityAttack": "Attack",
+      "CelerityPhysical": "Physical check",
+      "CelerityPhaseNote": "A Celerity extra action uses its full pool and is not split with other actions.",
+      "CelerityCannotAct": "This character cannot take extra actions in their current state.",
+      "CelerityDefend": "Defend against an attack",
+      "CelerityPhaseError": "Could not start the Celerity phase. Check combat-control permissions.",
+      "CelerityMove": "Full movement",
+      "CelerityMoveNow": "The extra movement action has been spent. Move the token using its normal full movement distance."
     },
     "Hazard": {
       "Title": "Hazard",
@@ -3228,7 +3268,7 @@
       "PotenceOnTip": "Potence active this turn: {n} automatic successes",
       "CelerityTip": "Celerity {n}: extra actions for blood (bought this turn: {used})",
       "CelerityOption": "Actions: {n}",
-      "CelerityAsk": "How many extra actions to take this turn? Each costs 1 blood (the per-turn spending limit doesn't apply) and removes 1 die of the Celerity bonus to Dexterity.",
+      "CelerityAsk": "How many extra actions to take this turn? One blood point (two for Weak Blood) grants the chosen number of actions, up to the Celerity rating. Each chosen action removes one die from the Celerity bonus to Dexterity.",
       "CelerityBuy": "Spend blood",
       "BloodTipTurn": "Spend 1 blood ({spent} of {n} spent this turn)",
       "Kind": {
@@ -3269,7 +3309,16 @@
       "Essence": "Essence",
       "ArmorCap": "armor",
       "PowersOf": "Powers: {name} — list with rolls",
-      "Close": "Close"
+      "Close": "Close",
+      "CelerityUse": "Extra action",
+      "CelerityUseTip": "Use one extra physical Celerity action ({n} remaining).",
+      "CelerityKicker": "DISCIPLINE ACTIVATION",
+      "CelerityCountLabel": "How many extra actions to prepare",
+      "CelerityActionWord": "actions",
+      "CelerityNewActions": "New actions",
+      "CelerityBloodCost": "Blood cost",
+      "CelerityDexPenalty": "Dexterity dice removed",
+      "CelerityRuleNote": "Maximum is your Celerity rating ({max}). Extra actions take place after everyone’s normal turn."
     },
     "Contest": {
       "ModeLabel": "Kind of action",
@@ -3919,7 +3968,9 @@
       "ChooseTitle": "Form and cost",
       "Variant": {
         "wolf": "wolf",
-        "bat": "bat"
+        "bat": "bat",
+        "battle": "combat form",
+        "escape": "escape form"
       },
       "Form": "Form",
       "Blood": "Blood",
@@ -3929,10 +3980,65 @@
         "climb": "climbing",
         "hermit": "within about 30 m of monsters or other imbued",
         "hearing": "by hearing only",
-        "bearing": "the morality's aura bears directly on the roll (Humanity — passing as human, winning mortals' sympathy)"
+        "bearing": "the morality's aura bears directly on the roll (Humanity — passing as human, winning mortals' sympathy)",
+        "earth": "only when trying to detect a target melded with the earth",
+        "vision": "vision only",
+        "smell": "smell or taste only"
       },
       "HitHint": "+2 to the difficulty to hit the vampire",
-      "BloodCharges": "Blood: {n} — the same number of ichor points"
+      "BloodCharges": "Blood: {n} — the same number of ichor points",
+      "SoilTitle": "Earth Meld",
+      "SoilConfirm": "This power requires direct contact with natural soil: earth, sand, or dirt. Boards, stone, asphalt, and artificial surfaces do not qualify. The character remains motionless beneath the ground.",
+      "EarthWakeTitle": "Wake from the Earth",
+      "EarthWakeDiff": "Humanity / Path check, difficulty 6. At least one success allows voluntary waking.",
+      "EarthWakeFail": "The character fails to wake and remains melded with the earth.",
+      "EarthWakeThreat": "{name} bursts out of the ground: Earth Meld is broken by a threat.",
+      "EarthWakeThreatShort": "The character is forced out of the ground; a threat breaks Earth Meld.",
+      "EarthWakeAttack": "The target was melded with the earth. The attack breaks Earth Meld but does not hit; the attacker may try again.",
+      "EarthMeldSun": "Earth Meld provides complete protection from sunlight.",
+      "TransformReady": "Transformation complete: “{name}” is now active.",
+      "MistNoPhysicalAttack": "Physical attacks cannot be made while in Mist Form.",
+      "MistPhysicalImmune": "An ordinary physical attack cannot harm {name} in Mist Form.",
+      "MistHazardNote": "Mist Form reduces fire and sunlight damage by 1 die. This hazard dialog uses fixed health levels rather than a damage dice pool, so the dice adjustment must be adjudicated manually.",
+      "EarthDetection": "Detecting Earth Meld",
+      "BeastNoHumanWeapons": "In animal form, the character cannot use human weapons or ordinary human maneuvers.",
+      "BeastDisciplineBan": "In animal form, “{name}” cannot be used; other exceptions are Storyteller discretion.",
+      "EarthWakeBurst": "When threat wakes the vampire: everyone nearby has +2 difficulty to Perception this turn; the vampire has −2 initiative on the first turn.",
+      "EarthNoAction": "While melded with the earth, the character is motionless and cannot act; an external threat wakes them.",
+      "ProteanStaked": "Protean cannot be activated in torpor; a staked vampire cannot change form.",
+      "ProteanFormConflict": "Two bodily Protean forms cannot be active at once. End “{name}” first.",
+      "EarthMoveBlock": "{name} cannot move while merged with the earth. Wake the character first.",
+      "RevisitedGangrelOnly": "Shape of the Beast Revisited is available to Gangrel only.",
+      "RevisitedSetupTitle": "Set your animal forms",
+      "RevisitedSetupHint": "On first activation, the Gangrel permanently sets a combat form and an escape form. The choice is saved on the character.",
+      "RevisitedBattle": "Combat form",
+      "RevisitedEscape": "Escape form",
+      "RevisitedAnimal": "Animal / form name",
+      "RevisitedSense": "Enhanced sense",
+      "RevisitedFiveDots": "Allocate exactly 5 bonus dots among Strength, Dexterity, and Stamina. You may place them in one or several Attributes.",
+      "RevisitedFiveDotsError": "The combat form must allocate exactly 5 bonus dots among Physical Attributes. The setup was not saved.",
+      "RevisitedMovement": "Movement",
+      "RevisitedFlying": "Flight at running speed",
+      "RevisitedGround": "Ground movement",
+      "RevisitedSize": "Escape form size",
+      "RevisitedSmall": "Ordinary / small form: −1 Strength, +2 difficulty to hit you",
+      "RevisitedLarge": "Large form: no Strength penalty and no increased difficulty to hit",
+      "RevisitedSave": "Save forms",
+      "RevisitedActivateTitle": "Shape of the Beast Revisited",
+      "Sense": {
+        "vision": "Vision",
+        "hearing": "Hearing",
+        "smell": "Smell and taste"
+      },
+      "RevisitedKicker": "PROTEAN · FOURTH DOT",
+      "RevisitedBattleHint": "Combat form: distribute five bonus dots among Physical Attributes and choose one enhanced sense.",
+      "RevisitedEscapeHint": "Escape form: set the animal, movement, size, and enhanced sense.",
+      "RevisitedAllocationTitle": "Distribute five bonus dots",
+      "RevisitedPointsLeft": "Available",
+      "RevisitedPermanentHint": "This setup is saved on the character and used for every later transformation.",
+      "RevisitedActivateHint": "Choose one of your saved forms and decide how much blood to spend on the transformation.",
+      "RevisitedPickFormHint": "Combat form is built for a fight; escape form is built to break away.",
+      "RevisitedBloodIntro": "Spending more blood shortens the transformation."
     },
     "City": {
       "ToolDomain": "Domain: outline your character's domain",
@@ -5412,5 +5518,25 @@
         "food": "Nausea: cannot drink blood (Stamina diff 6 to override for a while), 1 bashing; about a day."
       }
     }
+  },
+  "Fx": {
+    "RevisitedKicker": "PROTEAN · FOURTH DOT",
+    "RevisitedBattleHint": "Combat form: distribute five bonus dots among Physical Attributes and choose one enhanced sense.",
+    "RevisitedEscapeHint": "Escape form: set the animal, movement, size, and enhanced sense.",
+    "RevisitedAllocationTitle": "Distribute five bonus dots",
+    "RevisitedPointsLeft": "Available",
+    "RevisitedPermanentHint": "This setup is saved on the character and used for every later transformation.",
+    "RevisitedActivateHint": "Choose one of your saved forms and decide how much blood to spend on the transformation.",
+    "RevisitedPickFormHint": "Combat form is built for a fight; escape form is built to break away.",
+    "RevisitedBloodIntro": "Spending more blood shortens the transformation."
+  },
+  "Hud": {
+    "CelerityKicker": "DISCIPLINE ACTIVATION",
+    "CelerityCountLabel": "How many extra actions to prepare",
+    "CelerityActionWord": "actions",
+    "CelerityNewActions": "New actions",
+    "CelerityBloodCost": "Blood cost",
+    "CelerityDexPenalty": "Dexterity dice removed",
+    "CelerityRuleNote": "Maximum is your Celerity rating ({max}). Extra actions take place after everyone’s normal turn."
   }
 }

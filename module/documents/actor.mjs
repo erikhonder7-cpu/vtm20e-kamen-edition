@@ -5,6 +5,7 @@ import { VTM20, SYSTEM_ID } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
 import { revenantFamily } from "../data/revenants.mjs";
 import { effectDef, activePowerEffects, powerOfKey } from "../data/effects.mjs";
+import { potenceModifiers, celerityDexterityDice, celerityBloodCost, celerityMaxBuyable, soakComponents } from "../data/physical-disciplines.mjs";
 import { untilFor } from "../apps/timers.mjs";
 import { proposeFate } from "../apps/torpor.mjs";
 import { mobState, applyMobDamage } from "../apps/extras.mjs";
@@ -104,6 +105,8 @@ export class VtMActor extends Actor {
 
   /** Броня на персонаже: защита и штраф (04). */
   get armor() {
+    // По V20 броня не действует в зверином облике Метаморфоз; штраф к Ловкости тоже снимается.
+    if (this.system.fx?.beastForm || this.system.fx?.mistForm) return { rating: 0, penalty: 0 };
     const list = this.items.filter(i => i.type === "armor" && i.system.equipped);
     return {
       rating: list.reduce((s, i) => s + i.system.rating, 0),
@@ -171,19 +174,19 @@ export class VtMActor extends Actor {
    * точки Стремительности, обменянные на дополнительные действия, в этот ход кубов не дают.
    */
   physicalDisciplineBonus(attribute) {
-    if (attribute === "strength") return this.potenceActive ? 0 : this.discipline("potence");
-    if (attribute === "dexterity") return Math.max(0, this.discipline("celerity") - this.celerityActions);
+    if (attribute === "strength") return potenceModifiers(this.discipline("potence"), this.potenceActive).dice;
+    if (attribute === "dexterity") return celerityDexterityDice(this.discipline("celerity"), this.celerityActions);
     return 0;
   }
 
   /** Автоматические успехи к проверке характеристики: Мощь за кровь (Дисциплины/06). */
   physicalAuto(attribute) {
-    return attribute === "strength" && this.potenceActive ? this.discipline("potence") : 0;
+    return attribute === "strength" ? potenceModifiers(this.discipline("potence"), this.potenceActive).automatic : 0;
   }
 
   /* ── Траты на один ход боя: Мощь и Стремительность ─────────────────────── */
 
-  /** Метка текущего хода: в бою — номер раунда, вне боя трата держится минуту. */
+  /** Метка хода для общих счётчиков крови/действий: в бою — номер раунда, вне боя — короткое окно. */
   static roundKey() {
     const c = game.combat;
     return c?.started ? `${c.id}:${c.round}` : null;
@@ -201,34 +204,109 @@ export class VtMActor extends Actor {
   /** Сколько крови потрачено в этот ход боя (вне боя лимит за ход не действует). */
   get bloodSpentThisTurn() { return VtMActor.roundKey() ? (this._roundFlag("bloodTurn")?.n ?? 0) : 0; }
 
-  /** Мощь включена кровью на этот ход. */
-  get potenceActive() { return !!this._roundFlag("potence"); }
-  /** Сколько дополнительных действий Стремительности куплено на этот ход. */
-  get celerityActions() { return this._roundFlag("celerity")?.n ?? 0; }
+  /** Ключ именно хода активного бойца; Мощь не должна оставаться на всех участников раунда. */
+  static potenceTurnKey() {
+    const c = game.combat;
+    return c?.started ? `${c.id}:${c.round}:${c.turn}:${c.combatant?.id ?? "none"}` : null;
+  }
 
-  /** Мощь: 1 кровь — до конца хода точки Мощи становятся автоуспехами всех проверок Силы, включая урон в ближнем бою. */
+  /** Мощь включена на текущий ход; вне боя действует до ручного выключения. */
+  get potenceActive() {
+    const flag = this.getFlag(SYSTEM_ID, "potence");
+    if (!flag) return false;
+    const key = VtMActor.potenceTurnKey();
+    return key ? flag.key === key : !flag.key;
+  }
+  /** Сколько дополнительных действий Стремительности куплено на этот ход. */
+  get celerityActions() {
+    const flag = this.getFlag(SYSTEM_ID, "celerity");
+    const phase = game.combat?.getFlag?.(SYSTEM_ID, "celerityPhase");
+    if (phase?.active && flag?.key === phase.key) return flag.n ?? 0;
+    return this._roundFlag("celerity")?.n ?? 0;
+  }
+  /** Неиспользованные дополнительные действия (в фазе Стремительности). */
+  get celerityActionsRemaining() {
+    const flag = this.getFlag(SYSTEM_ID, "celerity");
+    const phase = game.combat?.getFlag?.(SYSTEM_ID, "celerityPhase");
+    if (!phase?.active || flag?.key !== phase.key) return 0;
+    return Math.max(0, (flag.n ?? 0) - (flag.used ?? 0));
+  }
+  /** Максимум действий, который можно оплатить сейчас с учётом Слабой крови. */
+  get celerityMaxBuyable() {
+    return celerityMaxBuyable(this.discipline("celerity"), this.celerityActions,
+      this.system.blood?.value ?? 0, this.doubleBloodCost);
+  }
+
+  /** Могущество: 1 кровь — до конца хода точки становятся автоуспехами проверок Силы и соответствующего урона. */
   async activatePotence() {
     const n = this.discipline("potence");
-    if (!n || this.potenceActive) return;
-    if (!(await this.spendBlood(1))) return;
-    await this.setFlag(SYSTEM_ID, "potence", { key: VtMActor.roundKey(), at: Date.now() });
+    if (!n || this.potenceActive) return false;
+    const combat = game.combat;
+    if (combat?.started && combat.combatant?.actor !== this) {
+      ui.notifications.warn(t("Combat.PotenceTurn"));
+      return false;
+    }
+    if (!(await this.spendBlood(1))) return false;
+    await this.setFlag(SYSTEM_ID, "potence", { key: VtMActor.potenceTurnKey(), at: Date.now() });
     this.#notice(`<i class="fa-solid fa-hand-fist"></i> ${t("Combat.PotenceOn", { n })}`);
+    return true;
+  }
+
+  /** Переключатель Могущества в HUD: повторное нажатие снимает усиление без возврата потраченной крови. */
+  async togglePotence() {
+    if (!this.discipline("potence")) return false;
+    if (!this.potenceActive) return this.activatePotence();
+    await this.unsetFlag(SYSTEM_ID, "potence");
+    this.#notice(`<i class="fa-solid fa-hand-fist"></i> ${t("Combat.PotenceOff")}`);
+    return false;
   }
 
   /**
-   * Стремительность: в начале хода N крови (не больше точек, лимит трат за ход не действует) —
-   * N дополнительных физических действий после всех участников; каждое снимает 1 куб бонуса к Ловкости.
+   * Стремительность: один пункт крови (вдвое при Слабой крови) открывает до рейтинга
+   * Дисциплины дополнительных физических действий после обычных ходов; каждое выбранное
+   * действие снимает одну точку с бонуса Ловкости на этот ход. Лимит крови за ход не действует.
    */
   async buyCelerityActions(n) {
-    const max = this.discipline("celerity");
-    n = Math.clamp(Math.floor(n), 0, max);
+    const combat = game.combat, max = this.discipline("celerity");
+    if (!combat?.started || combat.combatant?.actor !== this) {
+      ui.notifications.warn(t("Combat.CelerityBuyOnTurn")); return false;
+    }
+    if (combat.getFlag?.(SYSTEM_ID, "celerityPhase")?.active) {
+      ui.notifications.warn(t("Combat.CelerityPhaseFirst")); return false;
+    }
+    if (!this.hasBlood) return ui.notifications.warn(t("Notify.NoBlood", { name: this.name }));
+    if (this.statuses?.has("r-staked") || this.statuses?.has("r-torpor")) {
+      ui.notifications.warn(t("Notify.NoBloodState", { name: this.name })); return false;
+    }
+    if (this.system.health?.incapacitated || this.statuses?.has("r-stunned")) {
+      ui.notifications.warn(t("Combat.CelerityCannotAct")); return false;
+    }
+    n = Math.clamp(Math.floor(Number(n) || 0), 0, max);
     const had = this.celerityActions;
-    if (n <= had) return;
-    const cost = (n - had) * (this.doubleBloodCost ? 2 : 1);
+    if (n <= had) return false;
+    const cost = celerityBloodCost(had, n, this.doubleBloodCost);
     const cur = this.system.blood?.value ?? 0;
     if (cur < cost) return ui.notifications.warn(t("Notify.NoBlood", { name: this.name }));
-    await this.update({ "system.blood.value": cur - cost, [`flags.${SYSTEM_ID}.celerity`]: { key: VtMActor.roundKey(), at: Date.now(), n } });
+    // Стремительность не входит в лимит крови за ход (V20); цена Слабой крови
+    // при этом удваивается. Флаг хранит число купленных и потраченных действий.
+    await this.update({ "system.blood.value": cur - cost,
+      [`flags.${SYSTEM_ID}.celerity`]: { key: VtMActor.roundKey(), at: Date.now(), n, used: 0 } });
     this.#notice(`<i class="fa-solid fa-forward"></i> ${t("Combat.CelerityOn", { n, cost, left: Math.max(0, max - n) })}`);
+    return true;
+  }
+
+  /** Потратить одно купленное действие в отдельной фазе Стремительности. */
+  async consumeCelerityAction() {
+    const combat = game.combat;
+    const phase = combat?.getFlag?.(SYSTEM_ID, "celerityPhase");
+    if (!phase?.active || phase.queue?.[phase.index]?.actorUuid !== this.uuid) return false;
+    const flag = this.getFlag(SYSTEM_ID, "celerity");
+    if (!flag || flag.key !== phase.key || (flag.used ?? 0) >= (flag.n ?? 0)) return false;
+    const used = (flag.used ?? 0) + 1;
+    // Игрок обновляет только собственный лист. Флаг боя принадлежит Рассказчику;
+    // его клиент продвинет общую очередь через updateActor.
+    await this.setFlag(SYSTEM_ID, "celerity", { ...flag, used });
+    return true;
   }
 
   /** Ласка Ваала: попадание тратит один пункт ихора; ихор кончился — сила гаснет. */
@@ -395,33 +473,52 @@ export class VtMActor extends Actor {
     this.#notice(`<i class="fa-solid fa-fire-flame-curved"></i> ${t(type === "bashing" ? "Demon.HealedBashing" : "Demon.HealedLethal")}`);
   }
 
-  /** Пул прочности против типа урона (04). */
-  soakPool(type, { armor = true, fangs = false, pierce = 0, silver = false } = {}) {
+  /** Состав пула прочности; используется также для прозрачного отображения Стойкости. */
+  soakBreakdown(type, { armor = true, fangs = false, pierce = 0, silver = false } = {}) {
     const s = this.system;
-    // дух Умбры (W20, гл. 11): поглощает Волей любой урон (Доспех — Чарами, рассказчик добавит кубики)
-    if (this.type === "creature" && s.spirit?.on) return s.spirit.willpower;
-    if (this.type === "werewolf") {
-      const sta = s.attributes.stamina.total, arm = armor ? Math.max(0, this.armor.rating - pierce) : 0, weak = s.werewolf.breedForm;
-      // кубики поглощения от уродств метиса (Грубая шкура, Косматость — models.mjs, formFx.soak)
-      const fx = s.formFx?.soak ?? 0;
-      if (silver && !weak) return 0;
-      if (type === "bashing") return sta + arm + fx;
-      if (type === "lethal") return (weak ? 0 : sta) + arm + fx;
-      return (weak ? 0 : sta) + (fangs ? arm : 0) + fx;
-    }
-    const fort = this.discipline("fortitude");
+    if (this.type === "creature" && s.spirit?.on) return [{ label: t("Willpower"), value: s.spirit.willpower }];
     const stamina = s.attributes.stamina.total;
-    // пробитие брони: столько точек брони не учитывается (V20 Dark Ages, M20 Victorian Age)
-    const arm = armor ? Math.max(0, this.armor.rating - pierce) : 0;
-    // броня апокалиптической формы (Броня, Чешуя, Толстая шкура…) — от любого урона (data/form.mjs)
+    // Одежда и мелкие вещи превращаются вместе с телом; броня не действует в звериной и туманной формах (V20, Метаморфозы).
+    const arm = armor && !this.system.fx?.beastForm && !this.system.fx?.mistForm ? Math.max(0, this.armor.rating - pierce) : 0;
     const form = s.formFx?.soak ?? 0;
-    if (type === "bashing") return stamina + fort + arm + form;
-    // демон в апокалиптической форме поглощает и летальный урон Выносливостью (Demon: The Fallen, гл. 7)
-    const tough = this.isVampire || (this.type === "creature" && s.supernatural) || (this.type === "demon" && s.apocalyptic);
-    if (type === "lethal") return (tough ? stamina : 0) + fort + arm + form;
-    // губительный: только Стойкость; броня — лишь против клыков и когтей;
-    // Шкура гадюки — и Выносливость против когтей и клыков (Серпентис 3)
-    return fort + (fangs ? arm : 0) + (fangs && s.fx?.staminaVsFangs ? stamina : 0) + form;
+    let parts;
+    if (this.type === "werewolf") {
+      const weak = s.werewolf.breedForm;
+      if (silver && !weak) return [];
+      // Сохраняем отдельные правила Гару: порода ограничивает прочность в форме,
+      // но не меняет формулу губительного урона (W20, гл. 6).
+      const parts = { stamina: 0, fortitude: 0, armor: 0, form };
+      if (type === "bashing") {
+        parts.stamina = stamina;
+        parts.armor = arm;
+      } else if (type === "lethal") {
+        parts.stamina = weak ? 0 : stamina;
+        parts.armor = arm;
+      } else {
+        parts.stamina = weak ? 0 : stamina;
+        parts.armor = fangs ? arm : 0;
+      }
+      const labels = { stamina: this.traitLabel("attributes.stamina"), armor: t("Sheet.Armor"), form: t("Combat.FormSoak") };
+      return Object.entries(parts).filter(([, value]) => value > 0).map(([key, value]) => ({ label: labels[key], value }));
+    } else {
+      // Стойкость добавляет кости против всех видов урона, включая губительный.
+      const tough = this.isVampire || (this.type === "creature" && s.supernatural) || (this.type === "demon" && s.apocalyptic);
+      parts = soakComponents({ damageType: type, stamina, fortitude: this.discipline("fortitude"), armor: arm, form,
+        tough, fangs, staminaVsFangs: !!s.fx?.staminaVsFangs });
+    }
+    const labels = { stamina: this.traitLabel("attributes.stamina"), fortitude: Codex.disciplineLabel("fortitude"),
+      armor: t("Sheet.Armor"), form: t("Combat.FormSoak") };
+    return Object.entries(parts).filter(([, value]) => value > 0).map(([key, value]) => ({ label: labels[key], value }));
+  }
+
+  /** Пул прочности против типа урона (04). */
+  soakPool(type, options = {}) {
+    if (this.type === "creature" && this.system.spirit?.on) return this.system.spirit.willpower;
+    if (this.type === "werewolf") {
+      const s = this.system, weak = s.werewolf.breedForm;
+      if (options.silver && !weak) return 0;
+    }
+    return this.soakBreakdown(type, options).reduce((sum, part) => sum + part.value, 0);
   }
 
   /* ── Силы Дисциплин, действующие во времени (data/effects.mjs) ─────────── */
@@ -429,31 +526,54 @@ export class VtMActor extends Actor {
   /** Включённые силы: [{ effect, power, variant, def }]. */
   get powerEffects() { return activePowerEffects(this); }
 
+  /** Создать предметы естественного оружия силы только после завершения превращения. */
+  async createPowerWeapons(effect) {
+    const flags = effect?.flags?.[SYSTEM_ID];
+    if (!flags?.power || flags.ready === false) return [];
+    const def = effectDef(flags.power, flags.variant ?? "", flags.shapeConfig ?? null);
+    const specs = [...(def?.weapons ?? []), ...(def?.weapon ? [def.weapon] : [])];
+    if (!specs.length) return [];
+    const existing = this.items.filter(i => i.type === "weapon" && i.getFlag?.(SYSTEM_ID, "power") === flags.power).length;
+    const missing = specs.slice(existing);
+    if (!missing.length) return [];
+    return this.createEmbeddedDocuments("Item", missing.map(w => ({
+      name: w.name, type: "weapon", img: `systems/${SYSTEM_ID}/assets/icons/weapon.svg`,
+      system: { ...w, equipped: true }, flags: { [SYSTEM_ID]: { power: flags.power, supernatural: !!w.supernatural,
+        naturalFormWeapon: !!w.naturalFormWeapon, fortitudeOnly: !!w.fortitudeOnly, fangs: !!w.fangs } }
+    })));
+  }
+
   /**
    * Включить силу: цена кровью и волей, эффект на актёре, естественное оружие.
    * @param {string} power  «дисциплина:уровень»
    * @param {object} o      variant (волк / летучая мышь), blood (сколько крови, где цена «1–3»),
    *                         hours (сколько часов, где срок по успехам)
    */
-  async startPower(power, { variant = "", blood = null, hours = null } = {}) {
+  async startPower(power, { variant = "", blood = null, hours = null, shapeConfig = null } = {}) {
     await Codex.loadTexts();   // описание силы для эффекта — из текстов справочника (догружаются после старта)
-    const def = effectDef(power, variant);
+    const def = effectDef(power, variant, shapeConfig);
     if (!def || this.powerEffects.some(x => x.power === power)) return null;
     const { disc, power: p, level: lvl } = powerOfKey(Codex, power);
     const name = `${p?.name ?? power}${variant ? ` · ${t(`Fx.Variant.${variant}`)}` : ""}`;
     const cost = blood ?? (Array.isArray(def.cost?.blood) ? def.cost.blood[0] : (def.cost?.blood ?? 0));
     if (cost && !(await this.spendBlood(cost))) return null;
     if (def.cost?.willpower && !(await this.spendWillpower(def.cost.willpower))) return null;
-    // «на час» и «до рассвета» — срок по часам хроники (apps/timers.mjs)
+    // «на час» и «до рассвета» — срок по часам хроники (apps/timers.mjs).
+    // Превращения занимают 1–3 собственных хода в бою; вне боя становятся готовыми сразу.
     const now = getClock(), until = untilFor(def.mode, { hours: hours ?? (Number(def.hours) || 1), now });
+    const requiredTurns = def.transformTurns === "blood" ? Math.max(1, 4 - (Number(cost) || 1)) : Number(def.transformTurns) || 0;
+    const inCombat = !!(requiredTurns && game.combat?.started && game.combat.combatants.some(c => c.actor?.id === this.id));
+    const ready = !inCombat || requiredTurns <= 0;
     const [effect] = await this.createEmbeddedDocuments("ActiveEffect", [{
       name, img: Codex.disciplineIcon(disc), statuses: [`r-fx-${disc}-${lvl}`], description: p?.html ?? "",
-      flags: { [SYSTEM_ID]: { power, variant, mode: def.mode, ...(def.charges ? { charges: cost } : {}), ...(until ? { start: now, until } : {}) } }
+      changes: ready ? (def.changes ?? []) : [],
+      flags: { [SYSTEM_ID]: { power, variant, mode: def.mode, ready, ...(requiredTurns ? { transformTurnsLeft: ready ? 0 : requiredTurns } : {}),
+        ...(shapeConfig ? { shapeConfig } : {}),
+        ...(def.charges ? { charges: cost } : {}), ...(until ? { start: now, until } : {}) } }
     }]);
-    if (def.weapon) await this.createEmbeddedDocuments("Item", [{
-      name: def.weapon.name, type: "weapon", img: `systems/${SYSTEM_ID}/assets/icons/weapon.svg`,
-      system: { ...def.weapon, equipped: true }, flags: { [SYSTEM_ID]: { power } }
-    }]);
+    // Пока персонаж превращается, оружие ещё недоступно. Оно появится в инвентаре
+    // только когда обработчик ходов переведёт ActiveEffect в ready=true.
+    if (ready) await this.createPowerWeapons(effect);
     const price = [cost && `<i class="fa-solid fa-droplet"></i>${cost}`, def.cost?.willpower && `<i class="fa-solid fa-star"></i>${def.cost.willpower}`].filter(Boolean).join(" ");
     this.#notice(`<i class="fa-solid fa-wand-sparkles"></i> ${t("Fx.On", { name })}${price ? ` <span class="r-muted">${price}</span>` : ""}`);
     return effect;

@@ -74,11 +74,11 @@ export async function powerHit(message, state, evaluated) {
     case "perSuccess":
       return postFixedDamage(actor, target, { amount: evaluated.successes, type: cp.type, soakDiff: cp.soakDiff ?? 6, title });
     case "pool":
-      return rollDamage({ actor, pool: cp.pool, damageType: cp.type, title, target: target.uuid, soakDiff: cp.soakDiff ?? 6, notes });
+      return rollDamage({ actor, pool: cp.pool, damageType: cp.type, title, target: target.uuid, soakDiff: cp.soakDiff ?? 6, notes, supernatural: true });
     case "strike": {
       const pot = actor.discipline("potence"), auto = actor.physicalAuto("strength");
       const pool = actor.system.attributes.strength.total + (auto ? 0 : pot) + Math.max(0, evaluated.successes - 1);
-      return rollDamage({ actor, pool, auto, damageType: "bashing", title, target: target.uuid, notes });
+      return rollDamage({ actor, pool, auto, damageType: "bashing", title, target: target.uuid, notes, supernatural: true });
     }
     case "spit": {
       const max = Math.min(actor.system.blood?.value ?? 0, (actor.system.blood?.perTurn ?? 1) - actor.bloodSpentThisTurn);
@@ -90,7 +90,7 @@ export async function powerHit(message, state, evaluated) {
         ok: { label: t("Roll.RollDamage"), callback: (e, b) => Number(b.form.elements.n.value) || 1 }, rejectClose: false
       });
       if (!n || !(await actor.spendBlood(n, { reason: title }))) return;
-      return rollDamage({ actor, pool: 2 * n, damageType: "aggravated", title, target: target.uuid, notes });
+      return rollDamage({ actor, pool: 2 * n, damageType: "aggravated", title, target: target.uuid, notes, supernatural: true });
     }
   }
 }
@@ -106,7 +106,7 @@ async function postFixedDamage(actor, target, { amount, type, soakDiff, fire = f
     <div class="r-card-buttons"><button type="button" data-r-action="fixedDamage"><i class="fa-solid fa-shield-halved"></i> ${esc(t("Roll.ApplySoak"))}</button></div>
   </div>`;
   return ChatMessage.create({ content, speaker: ChatMessage.getSpeaker({ actor }),
-    flags: { [SYSTEM_ID]: { fixedDamage: { target: target.uuid, amount, type, soakDiff, fire } } } });
+    flags: { [SYSTEM_ID]: { fixedDamage: { target: target.uuid, amount, type, soakDiff, fire, supernatural: true } } } });
 }
 
 /** Принять урон по карточке: прочность (у огня — только Стойкость) и запись. */
@@ -118,5 +118,5 @@ export async function applyFixedDamage(message) {
   if (!target.isOwner) return ui.notifications.warn(t("Notify.NotOwner", { name: target.name }));
   const { soakAndApply } = await import("../dice/roll.mjs");
   if (message.isOwner) await message.setFlag(SYSTEM_ID, "fixedDamage", { ...d, done: true });
-  return soakAndApply(target, d.amount, d.type, { difficulty: d.soakDiff, armor: !d.fire });
+  return soakAndApply(target, d.amount, d.type, { difficulty: d.soakDiff, armor: !d.fire, supernatural: !!d.supernatural, fire: !!d.fire });
 }

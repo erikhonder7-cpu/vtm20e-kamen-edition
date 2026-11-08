@@ -33,8 +33,8 @@
     <div class="r-atk-grid">
       <label data-tooltip="{{localize 'VTM20.Combat.FoesHint'}}"><span>{{localize "VTM20.Combat.Foes"}}</span>
         <span class="r-atk-num"><a class="r-step" data-action="bump" data-field="foes" data-d="-1">−</a><input type="number" name="foes" value="{{v.foes}}" min="0" max="4"><a class="r-step" data-action="bump" data-field="foes" data-d="1">+</a></span></label>
-      <label data-tooltip="{{localize 'VTM20.Roll.MultiActionsHint'}}"><span>{{localize "VTM20.Roll.Actions"}}</span>
-        <span class="r-atk-num"><a class="r-step" data-action="bump" data-field="actions" data-d="-1">−</a><input type="number" name="actions" value="{{v.actions}}" min="1" max="6"><a class="r-step" data-action="bump" data-field="actions" data-d="1">+</a></span></label>
+      {{#unless celerityAction}}<label data-tooltip="{{localize 'VTM20.Roll.MultiActionsHint'}}"><span>{{localize "VTM20.Roll.Actions"}}</span>
+        <span class="r-atk-num"><a class="r-step" data-action="bump" data-field="actions" data-d="-1">−</a><input type="number" name="actions" value="{{v.actions}}" min="1" max="6"><a class="r-step" data-action="bump" data-field="actions" data-d="1">+</a></span></label>{{/unless}}
       <label><span>{{localize "VTM20.Combat.DiffAdj"}}</span>
         <span class="r-atk-num"><a class="r-step" data-action="bump" data-field="diffAdj" data-d="-1">−</a><input type="number" name="diffAdj" value="{{v.diffAdj}}"><a class="r-step" data-action="bump" data-field="diffAdj" data-d="1">+</a></span></label>
       <label class="r-check r-atk-blind"><input type="checkbox" name="blind" {{checked v.blind}}> {{localize "VTM20.Combat.Blind"}} <em>(+2)</em></label>
@@ -45,7 +45,7 @@
     <label class="r-check r-check-spec {{#unless canUseSpecialty}}is-dim{{/unless}}"><input type="checkbox" name="specialty" {{checked v.specialty}} {{#unless canUseSpecialty}}disabled{{/unless}}> <span class="r-spec-main"><span class="r-spec-head">{{localize "VTM20.Roll.Specialty"}} <small>{{localize "VTM20.Roll.SpecialtyRule"}}</small></span>{{#if specialtyName}}<em class="r-spec-name">{{specialtyName}}</em>{{/if}}</span></label>
     <label class="r-check"><input type="checkbox" name="willpower" {{checked v.willpower}} {{#unless willpowerLeft}}disabled{{/unless}}> {{localize "VTM20.Roll.SpendWillpower"}} <em>({{willpowerLeft}})</em></label>
     {{#if woundPenalty}}<label class="r-check"><input type="checkbox" name="wounds" {{checked v.wounds}}> {{localize "VTM20.Roll.Wounds"}} <em>({{woundPenalty}})</em></label>{{/if}}
-    {{#if phys}}<label class="r-check"><input type="checkbox" name="physical" {{checked v.physical}}> {{physicalLabel}} <em>(+{{phys}})</em></label>{{/if}}
+    {{#if physicalDisplay}}<label class="r-check"><input type="checkbox" name="physical" {{checked v.physical}}> {{physicalLabel}} <em>(+{{physicalDisplay}})</em></label>{{/if}}
   </div>
   {{#each notes}}<div class="r-roll-note is-wide" data-keep><i class="fa-solid fa-circle-info"></i> {{this}}</div>{{/each}}
 

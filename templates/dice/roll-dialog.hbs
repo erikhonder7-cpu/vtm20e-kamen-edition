@@ -43,13 +43,13 @@
   </div>
   {{/if}}
 
-  {{#unless locked}}
+  {{#unless locked}}{{#unless celerityAction}}
   <div class="r-roll-row" data-tooltip="{{localize 'VTM20.Roll.MultiActionsHint'}}">
     <span class="r-roll-label">{{localize "VTM20.Roll.Actions"}}</span>
     <a class="r-step" data-action="bump" data-field="actions" data-d="-1">−</a>
     <input type="number" name="actions" value="{{v.actions}}" min="1" max="6" class="r-roll-num">
     <a class="r-step" data-action="bump" data-field="actions" data-d="1">+</a>
-  </div>
+  </div>{{/unless}}
   {{/unless}}
 
   <div class="r-roll-row">

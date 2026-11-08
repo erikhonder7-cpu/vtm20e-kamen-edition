@@ -25,19 +25,24 @@ import { SYSTEM_ID } from "../config.mjs";
 export const POWER_EFFECTS = {
   // Ясновидение 1: сложность заметить что-либо органами чувств −Ясновидение; без затрат, по желанию
   "auspex:1": { mode: "toggle", icon: "fa-eye", diff: { perception: "-auspex" } },
-  // Метаморфозы 1: +1 к сложности социальных проверок со смертными, если глаза не скрыты
-  "protean:1": { mode: "toggle", icon: "fa-eye-low-vision", diff: { social: 1 } },
-  // Метаморфозы 2: 1 кровь, до конца сцены; когти Сила +1 губительные, −2 к сложности лазания
-  "protean:2": { mode: "scene", icon: "fa-paw", cost: { blood: 1 }, claws: true, diff: { climb: -2 } },
-  // Метаморфозы 3: 1 кровь; полная защита от солнца, +2 к сложности обнаружить
-  "protean:3": { mode: "toggle", icon: "fa-mound", cost: { blood: 1 } },
-  // Метаморфозы 4: 1–3 крови (3/2/1 хода), до рассвета или обратного превращения
-  "protean:4": { mode: "night", icon: "fa-paw", cost: { blood: [1, 3] }, variants: {
-    wolf: { claws: true, diff: { perception: -2 } },
-    bat: { set: { strength: 1 }, diff: { hearing: -3, hit: 2 } }
+  // Метаморфозы 1 — Глаза Зверя: тёмное зрение; включение занимает ход.
+  "protean:1": { mode: "toggle", icon: "fa-eye-low-vision", transformTurns: 1, darkvision: true, diff: { social: 1 } },
+  // Метаморфозы 2 — Когти Зверя: 1 кровь, превращение за ход; естественное оружие Сила +1, губительный урон, поглощается только Стойкостью.
+  "protean:2": { mode: "scene", icon: "fa-paw", cost: { blood: 1 }, transformTurns: 1, claws: true, clawsFortitudeOnly: true,
+    diff: { climb: -2 }, weapon: { name: "Когти Зверя", kind: "brawl", damage: 1, strength: true,
+      damageType: "aggravated", difficulty: 6, supernatural: true, naturalFormWeapon: true, fortitudeOnly: true } },
+  // Метаморфозы 3 — Слияние с землёй: 1 кровь, 1 ход; требуется натуральная почва, солнце не причиняет вреда.
+  "protean:3": { mode: "toggle", icon: "fa-mound", cost: { blood: 1 }, transformTurns: 1, requiresSoil: true, earthMeld: true, detectDifficulty: 2 },
+  // Метаморфозы 4 — Облик Зверя: 1–3 крови (3/2/1 хода), до рассвета или обратного превращения.
+  "protean:4": { mode: "night", icon: "fa-paw", cost: { blood: [1, 3] }, transformTurns: "blood", variants: {
+    wolf: { beastForm: "wolf", claws: true, clawsFortitudeOnly: true, runMultiplier: 2, diff: { perception: -2 } },
+    bat: { beastForm: "bat", set: { strength: 1 }, flightKmh: 30, diff: { hearing: -3, hit: 2 } }
   } },
-  // Метаморфозы 5: 1–3 крови; неуязвим для физических атак, −1 куб урона от огня и солнца
-  "protean:5": { mode: "toggle", icon: "fa-smog", cost: { blood: [1, 3] } },
+  // Метаморфозы 5 — Туманная форма: 1–3 крови (3/2/1 хода), до рассвета; физические атаки не действуют.
+  "protean:5": { mode: "night", icon: "fa-smog", cost: { blood: [1, 3] }, transformTurns: "blood", mistForm: true },
+  // Альтернатива Метаморфоз 4 — Модифицированный Облик Зверя (Clanbook: Gangrel Revised).
+  // Постоянные две формы хранятся на актёре; при активации выбирается боевая или отступательная.
+  "protean:Модифицированный Облик Зверя": { mode: "night", icon: "fa-paw", cost: { blood: [1, 3] }, transformTurns: "blood", modifiedShape: true },
   // Преображение 4: 2 крови; +3 к физическим, социальные 0, +1 куб урона в драке
   "vicissitude:4": { mode: "toggle", icon: "fa-dragon", cost: { blood: 2 },
     attr: { strength: 3, dexterity: 3, stamina: 3 }, set: { charisma: 0, manipulation: 0, appearance: 0 }, brawlDamage: 1 },
@@ -149,10 +154,33 @@ export function powerOfKey(Codex, power) {
 /** Подпись вида длительности: сцена, до выключения, час, до рассвета. */
 export const MODE_LABEL = { scene: "Fx.Scene", toggle: "Fx.Toggleable", hour: "Fx.Hour", night: "Fx.Night" };
 
-/** Определение эффекта силы с учётом варианта (волк / летучая мышь). */
-export function effectDef(power, variant = "") {
+/** Определение эффекта силы с учётом варианта и сохранённых форм персонажа. */
+export function effectDef(power, variant = "", shapeConfig = null) {
   const base = POWER_EFFECTS[power];
   if (!base) return null;
+  if (power === "protean:Модифицированный Облик Зверя" && shapeConfig) {
+    const role = variant === "escape" ? "escape" : "battle";
+    const form = shapeConfig[role] ?? {};
+    const sense = ["vision", "hearing", "smell"].includes(form.sense) ? form.sense : "vision";
+    const diff = { [sense]: -2 };
+    if (role === "battle") {
+      const attr = {};
+      for (const key of ["strength", "dexterity", "stamina"]) attr[key] = Math.max(0, Math.min(5, Number(form.attr?.[key]) || 0));
+      return { ...base, beastForm: "modified", attr, diff, runMultiplier: 2,
+        modifiedShape: { role, animal: String(form.animal || "зверь"), sense },
+        weapons: [
+          { name: `Когти (${String(form.animal || "зверь")})`, kind: "brawl", damage: 1, strength: true, damageType: "aggravated", difficulty: 6, naturalFormWeapon: true, supernatural: true },
+          { name: `Укус (${String(form.animal || "зверь")})`, kind: "brawl", damage: 0, strength: true, damageType: "aggravated", difficulty: 6, naturalFormWeapon: true, supernatural: true }
+        ] };
+    }
+    const attr = {};
+    if (!form.large) attr.strength = -1;
+    if (!form.flying) attr.dexterity = 2;
+    if (!form.large) diff.hit = 2;
+    return { ...base, beastForm: "modified", attr, diff,
+      moveEqualRun: !!form.flying,
+      modifiedShape: { role, animal: String(form.animal || "зверь"), sense, flying: !!form.flying, large: !!form.large } };
+  }
   return variant && base.variants?.[variant] ? { ...base, ...base.variants[variant] } : base;
 }
 
@@ -162,7 +190,7 @@ export function activePowerEffects(actor) {
   for (const e of actor?.effects ?? []) {
     const f = e.flags?.[SYSTEM_ID];
     if (!f?.power || e.disabled) continue;
-    const def = effectDef(f.power, f.variant);
+    const def = effectDef(f.power, f.variant, f.shapeConfig ?? null);
     if (def) out.push({ effect: e, power: f.power, variant: f.variant ?? "", def });
   }
   return out;
@@ -181,7 +209,9 @@ function num(v, actor) {
  * { attr, set, diff: { perception, social, climb, hearing, hit }, claws, brawlDamage, biteDamage, soakDiff, staminaVsFangs, list }
  */
 export function effectMods(actor) {
-  const m = { attr: {}, set: {}, diff: {}, claws: false, brawlDamage: 0, biteDamage: 0, soakDiff: 0, staminaVsFangs: false, venom: 0, list: [] };
+  const m = { attr: {}, set: {}, diff: {}, claws: false, clawsFortitudeOnly: false, earthMeld: false, mistForm: false, darkvision: false,
+    detectDifficulty: 0, runMultiplier: 1, flightKmh: 0, moveEqualRun: false, beastForm: null, modifiedShape: null,
+    brawlDamage: 0, biteDamage: 0, soakDiff: 0, staminaVsFangs: false, venom: 0, list: [] };
   // тотем стаи (apps/coterie.mjs → acceptTotem): прибавки к Атрибутам каждому члену стаи
   for (const e of actor?.effects ?? []) {
     const ta = !e.disabled && e.flags?.[SYSTEM_ID]?.totemAttr;
@@ -190,6 +220,8 @@ export function effectMods(actor) {
     m.list.push(e);
   }
   for (const { effect, def } of activePowerEffects(actor)) {
+    // Превращения, которые ещё идут в бою, видны на листе, но пока не дают механических бонусов.
+    if (effect.flags?.[SYSTEM_ID]?.ready === false) { m.list.push(effect); continue; }
     for (const [k, v] of Object.entries(def.attr ?? {})) m.attr[k] = (m.attr[k] ?? 0) + v;
     Object.assign(m.set, def.set ?? {});
     for (const [k, v] of Object.entries(def.diff ?? {})) {
@@ -197,6 +229,16 @@ export function effectMods(actor) {
       m.diff[k].push({ label: effect.name, value: num(v, actor) });
     }
     m.claws ||= !!def.claws;
+    m.clawsFortitudeOnly ||= !!def.clawsFortitudeOnly;
+    m.earthMeld ||= !!def.earthMeld;
+    m.mistForm ||= !!def.mistForm;
+    m.darkvision ||= !!def.darkvision;
+    m.detectDifficulty = Math.max(m.detectDifficulty ?? 0, def.detectDifficulty ?? 0);
+    m.runMultiplier = Math.max(m.runMultiplier ?? 1, def.runMultiplier ?? 1);
+    m.flightKmh = Math.max(m.flightKmh ?? 0, def.flightKmh ?? 0);
+    m.moveEqualRun ||= !!def.moveEqualRun;
+    m.beastForm = def.beastForm ?? m.beastForm ?? null;
+    m.modifiedShape = def.modifiedShape ?? m.modifiedShape ?? null;
     m.brawlDamage += def.brawlDamage ?? 0;
     m.biteDamage += def.biteDamage ?? 0;
     m.soakDiff += def.soakDiff ?? 0;

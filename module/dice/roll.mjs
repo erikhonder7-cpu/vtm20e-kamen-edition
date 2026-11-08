@@ -313,12 +313,16 @@ function effectByTorment(html, extra) {
 /* ── Специальные броски ──────────────────────────────────────────────── */
 
 /** Урон по оружию (04): пул = урон + лишние успехи атаки, сложность 6, не проваливается. */
-export function rollDamage({ actor, pool, damageType = "bashing", title, aggravatedFangs = false, target = null, pierce = 0, bullet = false, head = false, silver = false, notes = [], auto = 0, soakDiff = null }) {
+export async function rollDamage({ actor, pool, damageType = "bashing", title, aggravatedFangs = false, target = null, pierce = 0, bullet = false, head = false, silver = false, notes = [], auto = 0, soakDiff = null, supernatural = false, fire = false, sun = false }) {
+  const targetActor = typeof target === "string" ? await foundry.utils.fromUuid(target) : target;
+  // Туманная форма ослабляет именно пул огня/солнца на одну кость; при исходном пуле 1 остаётся 0.
+  const mistReduction = !!(targetActor?.system?.fx?.mistForm && (fire || sun));
+  if (mistReduction) pool = Math.max(0, pool - 1);
   const bd = auto ? [{ label: t("Roll.PotenceAuto"), value: auto }] : [];
   return rollPool({
     actor, title: title ?? t("Roll.Damage"), subtitle: game.i18n.localize(VTM20.damageTypes[damageType].label),
-    pool: Math.max(auto ? 0 : 1, pool), difficulty: 6, kind: "damage", noBotch: true, notes, auto, breakdown: bd,
-    extra: { damageType, fangs: aggravatedFangs, damage: true, target, pierce, bullet, head, silver, soakDiff }
+    pool: mistReduction ? Math.max(0, pool) : Math.max(auto ? 0 : 1, pool), difficulty: 6, kind: "damage", noBotch: true, notes, auto, breakdown: bd,
+    extra: { damageType, fangs: aggravatedFangs, damage: true, target, pierce, bullet, head, silver, soakDiff, supernatural, fire, sun }
   });
 }
 
@@ -326,8 +330,24 @@ export function rollDamage({ actor, pool, damageType = "bashing", title, aggrava
  * Прочность и применение урона к актёру: бросок прочности, вычет, у вампира
  * лёгкие после прочности делятся пополам с округлением вниз (04).
  */
-export async function soakAndApply(target, amount, damageType, { soak = true, fangs = false, pierce = 0, bullet = false, head = false, difficulty = null, armor = true, silver = false, messageMode } = {}) {
+export async function soakAndApply(target, amount, damageType, { soak = true, fangs = false, pierce = 0, bullet = false, head = false, difficulty = null, armor = true, silver = false, messageMode, supernatural = false, fire = false, sun = false } = {}) {
   let left = amount, soaked = 0;
+  // Слияние с землёй защищает от солнца; любая иная прямая угроза пробуждает вампира.
+  if (target.system.fx?.earthMeld) {
+    if (sun) {
+      ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: target }), content: `<div class="r-notice">${t("Fx.EarthMeldSun")}</div>` });
+      return 0;
+    }
+    const { wakeEarthMeld } = await import("../apps/power-effects.mjs");
+    await wakeEarthMeld(target, t("Fx.EarthWakeThreatShort"));
+    return 0;
+  }
+  // Туманная форма неуязвима для обычного физического урона; силы и сверхъестественные эффекты проходят.
+  if (target.system.fx?.mistForm && !supernatural && !fire && !sun) {
+    ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: target }), content: `<div class="r-notice">${t("Fx.MistPhysicalImmune", { name: target.name })}</div>` });
+    return 0;
+  }
+  // Огненные/солнечные пулы уменьшаются на одну кость в rollDamage; фиксированные уровни опасностей отмечаются в окне как ручная поправка.
   // Серебро по Гару вне породной формы (метису — всегда): губительный, без поглощения (W20, гл. 6)
   silver = silver && target.type === "werewolf";
   if (silver && !target.system.werewolf.breedForm) {
@@ -346,12 +366,16 @@ export async function soakAndApply(target, amount, damageType, { soak = true, fa
     ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: target }), content: `<div class="r-notice"><i class="fa-solid fa-person"></i> ${t("Combat.MortalAggravated")}</div>` });
   }
   if (soak) {
-    const pool = target.soakPool(damageType, { fangs, pierce, armor, silver });
+    // Показываем состав прочности отдельно: в том числе вклад Стойкости,
+    // чтобы Рассказчик видел, откуда берутся кости поглощения.
+    const options = { fangs, pierce, armor, silver };
+    const breakdown = target.soakBreakdown?.(damageType, options) ?? [];
+    const pool = breakdown.length ? breakdown.reduce((sum, part) => sum + part.value, 0) : target.soakPool(damageType, options);
     if (pool > 0) {
       const res = await rollPool({
         actor: target, title: t("Roll.Soak"), subtitle: game.i18n.localize(VTM20.damageTypes[damageType].label),
         pool, difficulty: (difficulty ?? 6) + (target.system.fx?.soakDiff ?? 0), kind: "soak", noBotch: true, messageMode,
-        breakdown: [{ label: t("Roll.Incoming"), value: amount }]
+        breakdown: breakdown.length ? breakdown : [{ label: t("Roll.Soak"), value: pool }]
       });
       soaked = res.successes;
     }
@@ -419,7 +443,8 @@ async function onDamage(message, state) {
   const pool = (state.extra.damagePool ?? 0) + Math.max(0, ev.successes - 1);
   const x = state.extra;
   return rollDamage({ actor, pool, damageType: x.damageType ?? "bashing", title: x.weaponName || t("Roll.Damage"), aggravatedFangs: x.fangs,
-    pierce: x.pierce ?? 0, bullet: !!x.bullet, head: !!x.head, silver: !!x.silver, auto: x.damageAuto ?? 0 });
+    pierce: x.pierce ?? 0, bullet: !!x.bullet, head: !!x.head, silver: !!x.silver, auto: x.damageAuto ?? 0,
+    supernatural: !!x.supernatural, fire: !!x.fire, sun: !!x.sun });
 }
 
 async function onApply(state, { soak }) {
@@ -432,6 +457,7 @@ async function onApply(state, { soak }) {
   if (!list.length) { ui.notifications.warn(t("Notify.NoTarget")); return; }
   for (const a of list) {
     if (!a.isOwner) { ui.notifications.warn(t("Notify.NotOwner", { name: a.name })); continue; }
-    await soakAndApply(a, ev.successes, x.damageType ?? "bashing", { soak, fangs: x.fangs, pierce: x.pierce ?? 0, bullet: !!x.bullet, head: !!x.head, silver: !!x.silver, difficulty: x.soakDiff ?? null });
+    await soakAndApply(a, ev.successes, x.damageType ?? "bashing", { soak, fangs: x.fangs, pierce: x.pierce ?? 0, bullet: !!x.bullet, head: !!x.head, silver: !!x.silver,
+      difficulty: x.soakDiff ?? null, supernatural: !!x.supernatural, fire: !!x.fire, sun: !!x.sun });
   }
 }
