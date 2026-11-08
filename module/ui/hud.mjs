@@ -213,7 +213,7 @@ function tabsOf(a, kind) {
   const s = a.system, vamp = a.isVampire, tabs = [];
   // Бой: оружие, естественное оружие формы, приёмы (с естественным оружием — под «…»), защиты
   const beastForm = s.fx?.beastForm;
-  const noPhysicalAction = !!(s.fx?.earthMeld || s.fx?.mistForm);
+  const noPhysicalAction = !!(s.fx?.earthMeld || s.fx?.mistForm || s.fx?.shadowForm);
   const formWeapons = beastForm === "modified" ? weaponsOf(a).filter(w => w.naturalFormWeapon) : [];
   const weaponChoices = beastForm === "modified" ? formWeapons : (beastForm || noPhysicalAction ? [] : weaponsOf(a));
   const weapons = weaponChoices.slice(0, 3).map(w => seal("attack", weaponGlyph(w), w.name, { attrs: `data-weapon="${w.id}"`,

@@ -89,6 +89,7 @@ export function openDefense(actor, kind = "dodge", { onRolled = null, subtitle =
 export function openAttack(actor, { weapon = null, maneuver = null, natural = null, celerityAction = false } = {}) {
   if (actor.system.fx?.earthMeld) { ui.notifications.info(t("Fx.EarthNoAction")); return null; }
   if (actor.system.fx?.mistForm) { ui.notifications.info(t("Fx.MistNoPhysicalAttack")); return null; }
+  if (actor.system.fx?.shadowForm) { ui.notifications.info(t("Fx.ShadowNoPhysicalAttack")); return null; }
   return new AttackDialog(actor, { weapon, maneuver, natural, celerityAction }).render({ force: true });
 }
 
@@ -190,7 +191,8 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     if (c.ranged) diff = { point: 4, normal: 6 + c.diff, long: 8 }[v.range];
     const notes = [];
     const targetActor = v.foe ? foundry.utils.fromUuidSync(v.foe) : null;
-    const targetHitDiff = (targetActor?.system?.fx?.diff?.hit ?? []).reduce((sum, x) => sum + (Number(x.value) || 0), 0);
+    const targetHitDiff = [...(targetActor?.system?.fx?.diff?.hit ?? []), ...(c.ranged ? targetActor?.system?.fx?.diff?.rangedHit ?? [] : [])]
+      .reduce((sum, x) => sum + (Number(x.value) || 0), 0);
     if (targetHitDiff) { diff += targetHitDiff; notes.push(t("Fx.HitHint")); }
     const [aimDiff, aimDmg] = AIM[v.aim];
     diff += aimDiff;
@@ -305,6 +307,7 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       return;
     }
     if (foe?.system?.fx?.mistForm && !c.supernatural) return ui.notifications.info(t("Fx.MistPhysicalImmune", { name: foe.name }));
+    if (foe?.system?.fx?.shadowForm && !c.supernatural) return ui.notifications.info(t("Fx.ShadowPhysicalImmune", { name: foe.name }));
     if (v.target === "helpless") notes.unshift(t("Combat.AutoHit"));
     if (c.pierce) notes.push(t("Combat.PierceNote", { n: c.pierce }));
     const head = ["small", "tiny"].includes(v.aim);

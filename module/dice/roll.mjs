@@ -344,7 +344,7 @@ export async function soakAndApply(target, amount, damageType, { soak = true, fa
     return 0;
   }
   // Туманная форма неуязвима для обычного физического урона; силы и сверхъестественные эффекты проходят.
-  if (target.system.fx?.mistForm && !supernatural && !fire && !sun) {
+  if ((target.system.fx?.mistForm || target.system.fx?.shadowForm) && !supernatural && !fire && !sun) {
     ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: target }), content: `<div class="r-notice">${t("Fx.MistPhysicalImmune", { name: target.name })}</div>` });
     return 0;
   }

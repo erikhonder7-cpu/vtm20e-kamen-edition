@@ -78,7 +78,19 @@ export const POWER_EFFECTS = {
   // Величие 5, Преклонение: 1 Воля, до конца сцены
   "presence:5": { mode: "scene", icon: "fa-crown", cost: { willpower: 1 } },
   // Затмение 1, Театр теней: 1 кровь, до конца сцены, концентрации не требует
-  "obtenebration:1": { mode: "scene", icon: "fa-cloud-moon", cost: { blood: 1 } },
+  // Затмение 1, Театр теней: 1 кровь, до конца сцены — укрыться (+1 куб к Скрытности, стрелкам +1 к сложности)
+  // или пугать (+1 куб к Запугиванию); опутать цель — по описанию силы
+  "obtenebration:1": { mode: "scene", icon: "fa-cloud-moon", cost: { blood: 1 }, variants: {
+    shroud: { dice: { stealth: 1 }, diff: { rangedHit: 1 } },
+    intimidate: { dice: { intimidation: 1 } }
+  } },
+  // Затмение 4, Чёрный метаморфоз: 2 крови (бросок Манипуляция + Смелость, сл. 7 — отдельно), до конца сцены:
+  // 4 щупальца (Сила + 1, тяжёлые), видит во тьме, +3 куба к Запугиванию
+  "obtenebration:4": { mode: "scene", icon: "fa-hand-back-fist", cost: { blood: 2 }, darkvision: true, dice: { intimidation: 3 },
+    weapon: { name: "Щупальца тьмы", kind: "brawl", damage: 1, strength: true, damageType: "lethal", difficulty: 6 } },
+  // Затмение 5, Сумеречный облик: 3 крови; неуязвим для физических атак и сам не атакует физически, видит в любой тьме;
+  // огонь и солнце — как обычно (в отличие от тумана)
+  "obtenebration:5": { mode: "toggle", icon: "fa-ghost", cost: { blood: 3 }, shadowForm: true, darkvision: true },
   // Фантасмагория 5, Кошмар наяву: 2 Воли, до конца сцены
   "chimerstry:5": { mode: "scene", icon: "fa-skull", cost: { willpower: 2 } },
   // Висцератика 1, Шкура хамелеона: 1 кровь, до конца сцены +5 кубов к маскировке, пока движется не быстрее шага
@@ -211,7 +223,7 @@ function num(v, actor) {
 export function effectMods(actor) {
   const m = { attr: {}, set: {}, diff: {}, claws: false, clawsFortitudeOnly: false, earthMeld: false, mistForm: false, darkvision: false,
     detectDifficulty: 0, runMultiplier: 1, flightKmh: 0, moveEqualRun: false, beastForm: null, modifiedShape: null,
-    brawlDamage: 0, biteDamage: 0, soakDiff: 0, staminaVsFangs: false, venom: 0, list: [] };
+    brawlDamage: 0, biteDamage: 0, soakDiff: 0, staminaVsFangs: false, venom: 0, shadowForm: false, dice: {}, list: [] };
   // тотем стаи (apps/coterie.mjs → acceptTotem): прибавки к Атрибутам каждому члену стаи
   for (const e of actor?.effects ?? []) {
     // тотем стаи и яд Касания скорпиона (apps/target-powers.mjs, attrMod) — прибавки и вычеты к Атрибутам
@@ -233,6 +245,9 @@ export function effectMods(actor) {
     m.clawsFortitudeOnly ||= !!def.clawsFortitudeOnly;
     m.earthMeld ||= !!def.earthMeld;
     m.mistForm ||= !!def.mistForm;
+    m.shadowForm ||= !!def.shadowForm;
+    // кубы к броскам со Способностью (Театр теней, Чёрный метаморфоз): { stealth: 1 } → fx.dice.stealth
+    for (const [k, v] of Object.entries(def.dice ?? {})) (m.dice[k] ??= []).push({ label: effect.name, value: v });
     m.darkvision ||= !!def.darkvision;
     m.detectDifficulty = Math.max(m.detectDifficulty ?? 0, def.detectDifficulty ?? 0);
     m.runMultiplier = Math.max(m.runMultiplier ?? 1, def.runMultiplier ?? 1);

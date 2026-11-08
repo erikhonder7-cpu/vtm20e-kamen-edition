@@ -319,6 +319,7 @@ export async function endScene() {
   // силы против цели «на ход» и Устрашающий взор — до конца сцены (apps/target-powers.mjs)
   const { endSceneMind } = await import("./target-powers.mjs");
   for (const a of owned) await endSceneMind(a);
+  await (await import("./target-powers.mjs")).endSceneAbyss();
   // Мощь, включённая кровью вне боя, держится до конца сцены
   for (const a of owned) if (a.getFlag(SYSTEM_ID, "potence")) await a.unsetFlag(SYSTEM_ID, "potence");
   // Силы «до конца сцены» (Когти Зверя…) гаснут

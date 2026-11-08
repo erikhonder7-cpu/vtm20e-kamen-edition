@@ -1299,6 +1299,71 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  // Затмение 1–5 и Сокрытие 4–5: режимы Театра теней, Чёрный метаморфоз, Сумеречный облик, Покрывало ночи,
+  // Руки Бездны, Исчезновение из виду, Тайное собрание
+  await check("Тела и тьма: Затмение 1–5, Исчезновение, Тайное собрание", async () => {
+    const r = await page.evaluate(async () => {
+      const sys = p => import(`/systems/${game.system.id}/${p}`);
+      const TP = await sys("module/apps/target-powers.mjs"), { rollPowerRef } = await sys("module/sheets/actor-sheet.mjs");
+      const { soakAndApply } = await sys("module/dice/roll.mjs"), { openAttack } = await sys("module/combat/combat.mjs"), { endScene } = await sys("module/apps/night.mjs");
+      const sid = game.system.id, mk = (name, type, system = {}) => Actor.create({ name, type, flags: { world: { e2e: true } }, system });
+      const a = await mk("E2E — ласомбра", "vampire", { generation: 8, blood: { value: 15 }, abilities: { stealth: { value: 2 }, brawl: { value: 3 } } });
+      const ally = await mk("E2E — спутник", "mortal");
+      await a.createEmbeddedDocuments("Item", [["obtenebration", 5], ["obfuscate", 5], ["potence", 1], ["celerity", 2]].map(([key, value]) => ({ name: `E2E — ${key}`, type: "discipline", system: { key, value } })));
+      const scene = game.scenes.viewed ?? game.scenes.contents[0];
+      const [ta, tl] = await scene.createEmbeddedDocuments("Token", [await a.getTokenDocument({ x: 500, y: 500 }), await ally.getTokenDocument({ x: 700, y: 500 })]);
+      for (let i = 0; i < 30 && !canvas.tokens.get(tl.id); i++) await new Promise(res => setTimeout(res, 100));
+      const out = {}, hp = x => [x.system.health.bashing, x.system.health.lethal, x.system.health.aggravated].join("/");
+      // Театр теней (укрыться): +1 куб к Скрытности, стрелкам +1; Чёрный метаморфоз: +3 к Запугиванию, щупальца, тёмное зрение
+      await a.startPower("obtenebration:1", { variant: "shroud" });
+      await a.startPower("obtenebration:4");
+      out.fx = [a.system.fx.dice?.stealth?.[0]?.value, a.system.fx.diff?.rangedHit?.[0]?.value, a.system.fx.dice?.intimidation?.[0]?.value,
+        a.items.some(i => i.name === "Щупальца тьмы"), !!a.system.fx.darkvision];
+      // Сумеречный облик: физический урон не проходит, атаковать нельзя, огонь — полностью
+      await a.startPower("obtenebration:5");
+      await soakAndApply(a, 2, "lethal", { soak: false });
+      out.shadow = [!!a.system.fx.shadowForm, openAttack(a) === null, hp(a)];
+      await soakAndApply(a, 1, "aggravated", { soak: false, fire: true });
+      out.shadowFire = hp(a);
+      const link = key => ({ key, target: a.uuid, targetName: a.name, powerName: key, actorName: a.name });
+      const apply = (key, n) => TP.applyTargetPower({ isOwner: false }, { actorUuid: a.uuid, extra: { targetPower: link(key) } }, { successes: n, outcome: "success" });
+      // Покрывало ночи: 2 успеха — облако 6 м (радиус 3); Руки Бездны: 2 щупальца, Сила 5+1, Ловкость 5+2
+      await apply("obtenebration|Shroud of Night", 2);
+      const light = scene.lights.find(l => l.getFlag(sid, "abyss"));
+      out.shroud = [!!light, light?.config.negative, light?.config.dim];
+      await apply("obtenebration|Arms of the Abyss", 2);
+      const arms = () => game.actors.filter(x => x.getFlag(sid, "abyssArm") === a.uuid);
+      out.arms = [arms().length, arms()[0]?.system.attributes.strength.value, arms()[0]?.system.attributes.dexterity.value, scene.tokens.filter(tk => arms().some(x => x.id === tk.actorId)).length];
+      await arms()[0].update({ "system.health.lethal": 4 });
+      for (let i = 0; i < 30 && arms().length > 1; i++) await new Promise(res => setTimeout(res, 100));
+      out.armGone = arms().length;
+      // Исчезновение из виду: 2 успеха — силуэт, 4 — Незримое присутствие
+      await apply("obfuscate|Vanish from the Mind's Eye", 2);
+      out.vanish2 = a.effects.some(e => e.flags?.[sid]?.mind === "obfuscate|Vanish from the Mind's Eye");
+      await apply("obfuscate|Vanish from the Mind's Eye", 4);
+      out.vanish4 = a.powerEffects.some(e => e.power === "obfuscate:2");
+      // Тайное собрание: Сокрытие ложится на отмеченного спутника
+      canvas.tokens.get(tl.id)?.setTarget(true, { releaseOthers: true });
+      await new Promise(res => setTimeout(res, 300));
+      const gi = game.vtm20Codex.discipline("obfuscate").powers.findIndex(p => p.en === "Cloak the Gathering");
+      await rollPowerRef(a, `obfuscate|${gi}`);
+      const allyActor = canvas.tokens.get(tl.id)?.actor;
+      out.gather = !!allyActor?.effects.some(e => e.flags?.[sid]?.mind === "obfuscate|Cloak the Gathering");
+      [...game.user.targets].forEach(tk => tk.setTarget(false, { releaseOthers: false }));
+      await new Promise(res => setTimeout(res, 800));
+      // Конец сцены: тьма и щупальца исчезают
+      await endScene();
+      out.afterScene = [!!scene.lights.find(l => l.getFlag(sid, "abyss")), arms().length];
+      await scene.deleteEmbeddedDocuments("Token", [ta.id, tl.id].filter(id => scene.tokens.get(id)));
+      await Actor.deleteDocuments([a.id, ally.id]);
+      return out;
+    });
+    const want = { fx: [1, 1, 3, true, true], shadow: [true, true, "0/0/0"], shadowFire: "0/0/1", shroud: [true, true, 3], arms: [2, 6, 7, 2], armGone: 1,
+      vanish2: true, vanish4: true, gather: true, afterScene: [false, 0] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   // Метаморфозы 3, 5 и Модифицированный Облик Зверя (2.7.0): Слияние с землёй (солнце не вредит, угроза будит),
   // Туманная форма (обычный урон не проходит, огонь — да; атаковать нельзя), две формы Гангрела из Clanbook
   await check("Метаморфозы: туман, Слияние с землёй, Модифицированный Облик", async () => {

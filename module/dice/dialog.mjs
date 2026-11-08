@@ -140,6 +140,9 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     for (const d of sm.dice) { pool += d.value; bd.push(d); }
     // Устрашающий взор: −1 куб за успех до конца следующего хода (apps/target-powers.mjs)
     for (const d of dreadDice(a)) { pool += d.value; bd.push(d); }
+    // кубы от действующих сил к Способности (Театр теней, Чёрный метаморфоз — data/effects.mjs, dice)
+    for (const k of [v.trait1, v.trait2].filter(p => p?.startsWith("abilities.")).map(p => p.split(".")[1]))
+      for (const d of a.system.fx?.dice?.[k] ?? []) { pool += d.value; bd.push(d); }
     // Апокалиптическая форма: кубики к выбранной Способности («Увеличенная способность», data/form.mjs)
     for (const p of [v.trait1, v.trait2]) for (const d of a.system.formFx?.dice?.[p?.split(".")[1]] ?? []) { pool += d.value; bd.push({ label: d.label, value: d.value }); }
     // Перебор падшего (гл. 9): кубики, выжатые из слуг

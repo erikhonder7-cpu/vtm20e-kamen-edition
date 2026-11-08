@@ -106,7 +106,7 @@ export class VtMActor extends Actor {
   /** Броня на персонаже: защита и штраф (04). */
   get armor() {
     // По V20 броня не действует в зверином облике Метаморфоз; штраф к Ловкости тоже снимается.
-    if (this.system.fx?.beastForm || this.system.fx?.mistForm) return { rating: 0, penalty: 0 };
+    if (this.system.fx?.beastForm || this.system.fx?.mistForm || this.system.fx?.shadowForm) return { rating: 0, penalty: 0 };
     const list = this.items.filter(i => i.type === "armor" && i.system.equipped);
     return {
       rating: list.reduce((s, i) => s + i.system.rating, 0),
@@ -479,7 +479,7 @@ export class VtMActor extends Actor {
     if (this.type === "creature" && s.spirit?.on) return [{ label: t("Willpower"), value: s.spirit.willpower }];
     const stamina = s.attributes.stamina.total;
     // Одежда и мелкие вещи превращаются вместе с телом; броня не действует в звериной и туманной формах (V20, Метаморфозы).
-    const arm = armor && !this.system.fx?.beastForm && !this.system.fx?.mistForm ? Math.max(0, this.armor.rating - pierce) : 0;
+    const arm = armor && !this.system.fx?.beastForm && !this.system.fx?.mistForm && !this.system.fx?.shadowForm ? Math.max(0, this.armor.rating - pierce) : 0;
     const form = s.formFx?.soak ?? 0;
     let parts;
     if (this.type === "werewolf") {

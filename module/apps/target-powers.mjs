@@ -10,7 +10,12 @@
 //   · Касание скорпиона: яд — выбранная кровь (до Выносливости), сопротивление Выносливость + Стойкость (сл. 6),
 //     оставшиеся успехи — срок; Выносливость цели снижается на число пунктов яда;
 //   · Усмирение Зверя: продолжительный бросок до постоянной Воли цели; на Сородичей не действует;
-//   · Отчуждение Зверя: успех — бешенство переходит на цель, неудача — вампир сам впадает в бешенство.
+//   · Отчуждение Зверя: успех — бешенство переходит на цель, неудача — вампир сам впадает в бешенство;
+//   · Покрывало ночи: облако тьмы на сцене у вампира, 3 м в диаметре, каждый лишний успех — вдвое шире;
+//   · Руки Бездны: щупальце за успех — статист со Силой = Затмение + Мощь, Ловкостью = Затмение + Стремительность,
+//     Драка и прочность (Выносливость + Стойкость) — создателя (правило системы), 4 уровня здоровья — потом рассеивается;
+//   · Исчезновение из виду: сложность — Смекалка + Шестое чувство наблюдателя; 4+ — Незримое присутствие, 1–3 — силуэт;
+//   · Тайное собрание: действующее Сокрытие — на отмеченных спутников, по одному за точку Скрытности.
 // Наложить эффект может владелец цели или рассказчик — кнопкой на карточке броска (как «принять урон»).
 
 import { SYSTEM_ID } from "../config.mjs";
@@ -36,7 +41,11 @@ export const TARGET_POWERS = {
   "serpentis|Eyes of the Serpent": { kind: "eyes", needTarget: true },
   "quietus|Scorpion's Touch": { kind: "poison", needTarget: true, timed: ["scene", "hour", "day", "month", "forever"] },
   "animalism|Quell the Beast": { kind: "quell", needTarget: true, mortalOnly: true },
-  "animalism|Drawing Out the Beast": { kind: "beast", needTarget: true }
+  "animalism|Drawing Out the Beast": { kind: "beast", needTarget: true },
+  "obtenebration|Shroud of Night": { kind: "shroud", self: true },
+  "obtenebration|Arms of the Abyss": { kind: "arms", self: true },
+  "obfuscate|Vanish from the Mind's Eye": { kind: "vanish", self: true, diff: ["wits", "awareness"] },
+  "obfuscate|Cloak the Gathering": { kind: "gather" }
 };
 
 /** Сверхъестественное существо (Глаза змеи): вампир, Гару, падший, сверхъестественная тварь; гуль и охотник — смертные. */
@@ -51,6 +60,7 @@ function traitOf(a, k) {
     case "willpower": return s.willpower?.temporary ?? null;
     case "morality": return s.morality?.value ?? null;
     case "courage": case "selfControl": return s.virtues?.[k]?.value ?? null;
+    case "awareness": return s.abilities?.[k]?.value ?? 0;
     default: return s.attributes?.[k]?.total ?? s.attributes?.[k]?.value ?? null;
   }
 }
@@ -118,7 +128,8 @@ export function targetPowerLabel(extra, ev) {
   if (!tp || ev.outcome !== "success" || extra.targetPower.done || !(tp.timed || tp.dread || tp.kind)) return "";
   // Усмирение — только когда накоплены все успехи продолжительного броска
   if (tp.kind === "quell" && !((extra.extended?.prev ?? 0) + ev.successes >= (extra.extended?.need ?? Infinity))) return "";
-  return t(tp.kind === "beast" ? "BeastApply" : tp.kind === "poison" ? "PoisonApply" : "Apply", { name: extra.targetPower.targetName });
+  const lbl = { beast: "BeastApply", poison: "PoisonApply", shroud: "ShroudApply", arms: "ArmsApply", vanish: "VanishApply" }[tp.kind] ?? "Apply";
+  return t(lbl, { name: extra.targetPower.targetName, n: ev.successes });
 }
 
 /** Кнопка на карточке: эффект силы на цели (владелец цели или рассказчик). */
@@ -127,6 +138,11 @@ export async function applyTargetPower(message, state, ev) {
   if (!tp || x.done) return;
   const target = await foundry.utils.fromUuid(x.target);
   if (!target) return ui.notifications.warn(t("Gone"));
+  if (["shroud", "arms"].includes(tp.kind)) {
+    if (!game.user.isGM) return ui.notifications.warn(t("GMOnly"));
+    await done(message, state, x);
+    return tp.kind === "shroud" ? placeShroud(target, ev.successes) : summonArms(target, ev.successes);
+  }
   if (!target.isOwner) return ui.notifications.warn(game.i18n.format("VTM20.Notify.NotOwner", { name: target.name }));
   const api = await clockApi(), n = ev.successes, now = api.getClock();
   const [disc] = x.key.split("|");
@@ -141,6 +157,14 @@ export async function applyTargetPower(message, state, ev) {
     desc = t(n >= 3 ? "Beast3" : n === 2 ? "Beast2" : "Beast1");
     await done(message, state, x);
     return notice(target, x.powerName, desc);
+  }
+  if (tp.kind === "vanish") {
+    // 4+ успеха — исчезает полностью (Незримое присутствие); 1–3 — полупрозрачный силуэт (V20, Сокрытие 4)
+    await done(message, state, x);
+    if (n >= 4) { if (!target.powerEffects.some(e => e.power === "obfuscate:2")) await target.startPower("obfuscate:2"); return notice(target, x.powerName, t("Vanish4")); }
+    await target.createEmbeddedDocuments("ActiveEffect", [{ name: t("VanishName"), img: Codex.disciplineIcon("obfuscate"), description: `<p>${esc(t("Vanish1"))}</p>`,
+      flags: { [SYSTEM_ID]: { ...flags, mode: "scene" } } }]);
+    return notice(target, x.powerName, t("Vanish1"));
   }
   if (tp.kind === "poison") {
     // Касание скорпиона: сопротивление Выносливость + Стойкость (сл. 6), каждый успех снимает успех ассамита
@@ -205,7 +229,11 @@ export async function rollTargetPower(actor, disc, d, p, tp, { rollFromSpec, sub
   if (!prep) return null;
   const target = prep.target;
   const key = `${disc}|${p.en}`;
-  const link = target ? { key, target: target.uuid, targetName: target.name, powerName: p.name, actorName: actor.name } : null;
+  // силы на себя (Покрывало ночи, Руки Бездны, Исчезновение) — «цель» карточки сам вампир, отмеченный — наблюдатель
+  const holder = tp.self ? actor : target;
+  const link = holder ? { key, target: holder.uuid, targetName: holder.name, powerName: p.name, actorName: actor.name } : null;
+  // Тайное собрание: без броска — действующее Сокрытие ложится на отмеченных спутников
+  if (tp.kind === "gather") return cloakGathering(actor, p);
   // Глаза змеи: смертный замирает без броска — карточка «наложить»; сверхъестественный — Воля змея (сл. 9)
   if (tp.kind === "eyes") {
     if (!supernatural(target)) return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), flags: { [SYSTEM_ID]: { targetApply: { ...link, actorUuid: actor.uuid } } },
@@ -245,6 +273,71 @@ export async function rollTargetPower(actor, disc, d, p, tp, { rollFromSpec, sub
   return rollFromSpec(actor, roll, opts);
 }
 
+/** Покрывало ночи: облако тьмы (источник тьмы Foundry) у жетона вампира. */
+async function placeShroud(actor, n) {
+  const tok = actor.getActiveTokens?.()[0];
+  if (!tok || !canvas?.scene) return ui.notifications.warn(t("NoToken", { name: actor.name }));
+  const meters = 1.5 * 2 ** Math.max(0, n - 1);                         // радиус: 3 м в диаметре, ×2 за лишний успех
+  const feet = /ft|фут/i.test(canvas.scene.grid.units ?? "");
+  const radius = Math.round((feet ? meters * 3.28 : meters) * 10) / 10;
+  await canvas.scene.createEmbeddedDocuments("AmbientLight", [{ x: tok.center.x, y: tok.center.y,
+    config: { negative: true, bright: radius, dim: radius }, flags: { [SYSTEM_ID]: { abyss: actor.uuid } } }]);
+  return notice(actor, t("ShroudTitle"), t("ShroudDone", { d: meters * 2 }));
+}
+
+/** Руки Бездны: щупальце за успех — статист рядом с вампиром. */
+async function summonArms(actor, n) {
+  const tok = actor.getActiveTokens?.()[0];
+  const ob = actor.discipline("obtenebration"), pot = actor.discipline("potence"), cel = actor.discipline("celerity");
+  const s = actor.system, sta = (s.attributes.stamina.total ?? 1) + actor.discipline("fortitude");
+  const made = [];
+  for (let i = 0; i < n; i++) {
+    const a = await Actor.create({ name: t("ArmName", { i: i + 1, name: actor.name }), type: "creature", img: `systems/${SYSTEM_ID}/assets/icons/creature.svg`,
+      flags: { [SYSTEM_ID]: { abyssArm: actor.uuid } },
+      system: { kind: t("ArmKind"), supernatural: true, blood: { max: 0, value: 0 },
+        attributes: { strength: { value: Math.min(10, ob + pot) }, dexterity: { value: Math.min(10, ob + cel) }, stamina: { value: Math.min(10, sta) } },
+        abilities: { brawl: { value: s.abilities?.brawl?.value ?? 0 } } } });
+    await a.createEmbeddedDocuments("Item", [{ name: t("ArmGrip"), type: "weapon", system: { kind: "brawl", damage: 1, strength: true, damageType: "lethal", difficulty: 6, equipped: true } }]);
+    made.push(a);
+  }
+  if (tok && canvas?.scene) await canvas.scene.createEmbeddedDocuments("Token", await Promise.all(made.map((a, i) =>
+    a.getTokenDocument({ x: tok.document.x + (i + 1) * canvas.grid.size, y: tok.document.y + canvas.grid.size }))));
+  return notice(actor, t("ArmsTitle"), t("ArmsDone", { n, s: Math.min(10, ob + pot), d: Math.min(10, ob + cel) }));
+}
+
+/** Тайное собрание: действующее Сокрытие — на отмеченных спутников (по одному за точку Скрытности). */
+async function cloakGathering(actor, p) {
+  const own = actor.powerEffects.find(e => /^obfuscate:[123]$/.test(e.power));
+  if (!own) return ui.notifications.warn(t("GatherNoCloak"));
+  const max = actor.system.abilities?.stealth?.value ?? 0;
+  const allies = [...(game.user.targets ?? [])].map(tk => tk.actor).filter(x => x && x !== actor);
+  if (!allies.length) return ui.notifications.warn(t("GatherMark"));
+  const taken = allies.slice(0, max), skipped = allies.length - taken.length;
+  for (const ally of taken) {
+    if (!ally.isOwner) { ui.notifications.warn(game.i18n.format("VTM20.Notify.NotOwner", { name: ally.name })); continue; }
+    await ally.createEmbeddedDocuments("ActiveEffect", [{ name: t("GatherName", { power: own.effect.name, name: actor.name }), img: Codex.disciplineIcon("obfuscate"),
+      description: `<p>${esc(t("GatherDesc"))}</p>`, flags: { [SYSTEM_ID]: { mind: "obfuscate|Cloak the Gathering", by: actor.uuid, mode: "scene" } } }]);
+  }
+  return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<div class="r-notice"><i class="fa-solid fa-user-secret"></i> <b>${esc(p.name)}</b>: ${esc(t("GatherDone",
+    { names: taken.map(a => a.name).join(", "), power: own.effect.name }))}${skipped ? ` ${esc(t("GatherSkipped", { n: skipped, max }))}` : ""}</div>` });
+}
+
+/** Конец сцены (рассказчик): тьма Покрывала ночи и щупальца Рук Бездны исчезают. */
+export async function endSceneAbyss() {
+  if (!game.user.isGM) return;
+  for (const s of game.scenes) {
+    const lights = s.lights.filter(l => l.getFlag(SYSTEM_ID, "abyss")).map(l => l.id);
+    if (lights.length) await s.deleteEmbeddedDocuments("AmbientLight", lights);
+  }
+  await dismissArms(game.actors.filter(a => a.getFlag(SYSTEM_ID, "abyssArm")));
+}
+async function dismissArms(arms) {
+  for (const a of arms) {
+    for (const s of game.scenes) { const ids = s.tokens.filter(tk => tk.actorId === a.id).map(tk => tk.id); if (ids.length) await s.deleteEmbeddedDocuments("Token", ids); }
+    await a.delete();
+  }
+}
+
 /** Кнопка карточки «наложить» без броска (Глаза змеи против смертного). */
 export async function applyFromCard(message) {
   const x = message.getFlag(SYSTEM_ID, "targetApply");
@@ -282,5 +375,11 @@ export function registerTargetPowers() {
     if (!actor) return;
     const ids = actor.effects.filter(e => e.flags?.[SYSTEM_ID]?.dread).map(e => e.id);
     if (ids.length) await actor.deleteEmbeddedDocuments("ActiveEffect", ids);
+  });
+  // Руки Бездны: у щупальца 4 уровня здоровья — после четвёртого оно рассеивается (рассказчик)
+  Hooks.on("updateActor", async actor => {
+    if (!game.users.activeGM?.isSelf || !actor.getFlag(SYSTEM_ID, "abyssArm") || (actor.system.health?.damage ?? 0) < 4) return;
+    await ChatMessage.create({ content: `<div class="r-notice"><i class="fa-solid fa-wind"></i> ${esc(t("ArmGone", { name: actor.name }))}</div>` });
+    await dismissArms([game.actors.get(actor.id) ?? actor]);
   });
 }

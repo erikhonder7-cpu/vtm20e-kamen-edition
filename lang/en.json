@@ -889,7 +889,7 @@
       "SituHint": "A checkbox will appear in the roll dialog — check it if the circumstances fit",
       "Diff": "{what} difficulty {n}",
       "DiffShort": "{n} to difficulty",
-      "Dice": "{n} dice",
+      "Dice": "+{n} dice to rolls with “{what}”",
       "DiffKind": {
         "perception": "Perception",
         "social": "social (with mortals)",
@@ -897,7 +897,8 @@
         "hearing": "hearing",
         "hit": "to hit you",
         "vision": "vision",
-        "smell": "smell/taste"
+        "smell": "smell/taste",
+        "rangedHit": "shooting at them"
       },
       "Claws": "claws: Strength +1, aggravated",
       "BrawlDamage": "+{n} damage dice in a brawl",
@@ -960,7 +961,8 @@
         "vision": "−2 difficulty to vision-based checks (when applicable).",
         "hearing": "−2 difficulty to hearing-based checks (when applicable).",
         "smell": "−2 difficulty to smell/taste-based checks (when applicable)."
-      }
+      },
+      "ShadowForm": "Tenebrous Form: immune to physical attacks and cannot attack physically; fire and sunlight hurt as usual"
     },
     "AttrGroup": {
       "physical": "Physical",
@@ -3979,7 +3981,9 @@
         "wolf": "wolf",
         "bat": "bat",
         "battle": "combat form",
-        "escape": "escape form"
+        "escape": "escape form",
+        "shroud": "shroud",
+        "intimidate": "intimidate"
       },
       "Form": "Form",
       "Blood": "Blood",
@@ -4047,7 +4051,9 @@
       "RevisitedPermanentHint": "This setup is saved on the character and used for every later transformation.",
       "RevisitedActivateHint": "Choose one of your saved forms and decide how much blood to spend on the transformation.",
       "RevisitedPickFormHint": "Combat form is built for a fight; escape form is built to break away.",
-      "RevisitedBloodIntro": "Spending more blood shortens the transformation."
+      "RevisitedBloodIntro": "Spending more blood shortens the transformation.",
+      "ShadowNoPhysicalAttack": "In Tenebrous Form you cannot make physical attacks.",
+      "ShadowPhysicalImmune": "An ordinary physical attack cannot harm {name} in Tenebrous Form."
     },
     "City": {
       "ToolDomain": "Domain: outline your character's domain",
@@ -5529,7 +5535,8 @@
         "wits": "Wits",
         "courage": "Courage",
         "perception": "Perception",
-        "selfControl": "Self-Control/Instincts"
+        "selfControl": "Self-Control/Instincts",
+        "awareness": "Awareness"
       },
       "MarkTarget": "Target someone (T) — difficulty is taken from them",
       "NoTarget": "No target: difficulty is the victim's {what}, set it manually.",
@@ -5594,7 +5601,29 @@
       "Beast2": "the Beast passes to the chosen target; the vampire loses the next turn or acts at once for 1 Willpower",
       "Beast3": "the Beast passes to the chosen target",
       "BeastFail": "{name}: the Beast didn't leave — frenzy for twice as long and twice as hard to stop",
-      "BeastBotch": "{name}: botch — uncontrollable frenzy that Willpower cannot stop"
+      "BeastBotch": "{name}: botch — uncontrollable frenzy that Willpower cannot stop",
+      "GMOnly": "The Storyteller places darkness and tentacles on the scene",
+      "NoToken": "“{name}” has no token on the scene",
+      "ShroudApply": "Darkness on the scene",
+      "ShroudTitle": "Shroud of Night",
+      "ShroudDone": "a cloud of darkness {d} m across: everyone inside is blind (+2 difficulty), all light but fire dies, −2 dice to Stamina; mortals — Courage or flee",
+      "ArmsApply": "Summon tentacles: {n}",
+      "ArmsTitle": "Arms of the Abyss",
+      "ArmsDone": "tentacles: {n} (Strength {s}, Dexterity {d}); they grab and crush — Strength + 1 lethal; 4 health levels, fire and sunlight hurt them as a vampire",
+      "ArmName": "Tentacle {i} ({name})",
+      "ArmKind": "Tentacle of the Abyss",
+      "ArmGrip": "Tentacle grip",
+      "ArmGone": "{name} dissolves into darkness",
+      "VanishApply": "Vanish",
+      "VanishName": "Translucent silhouette",
+      "Vanish1": "a translucent silhouette: the observer rolls Perception + Awareness (diff. 8), on a failure +2 difficulty to all actions against the vampire",
+      "Vanish4": "vanished completely — Unseen Presence; with more successes than the observer's Willpower, they forget the vampire was there",
+      "GatherNoCloak": "Turn on Obfuscate first (Cloak of Shadows, Unseen Presence or Mask of a Thousand Faces)",
+      "GatherMark": "Target the companions (T) — one per dot of Stealth",
+      "GatherName": "Cloak the Gathering: {power} ({name})",
+      "GatherDesc": "under the vampire's Obfuscate; whoever breaks its conditions is revealed, if the vampire does — everyone is",
+      "GatherDone": "under “{power}” — {names}",
+      "GatherSkipped": "{n} more — beyond Stealth ({max})."
     }
   },
   "Fx": {
