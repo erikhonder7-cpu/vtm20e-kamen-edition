@@ -5623,7 +5623,32 @@
       "GatherName": "Cloak the Gathering: {power} ({name})",
       "GatherDesc": "under the vampire's Obfuscate; whoever breaks its conditions is revealed, if the vampire does — everyone is",
       "GatherDone": "under “{power}” — {names}",
-      "GatherSkipped": "{n} more — beyond Stealth ({max})."
+      "GatherSkipped": "{n} more — beyond Stealth ({max}).",
+      "TasteBlood": "blood in the body: {v} of {max}",
+      "TasteKind": {
+        "vampire": "Kindred blood",
+        "ghoul": "a ghoul's blood — mortal, laced with vitae",
+        "dhampir": "a dhampir's blood — half dead",
+        "werewolf": "a werewolf's blood — hot and bestial",
+        "demon": "a mortal host's blood — with something alien inside",
+        "mortal": "mortal blood"
+      },
+      "TasteGen": "generation: {g}th",
+      "TasteDiab": "the blood bears a trace of diablerie",
+      "TasteNoDiab": "no trace of diablerie",
+      "RageApply": "Force “{name}” to spend blood: {n}",
+      "RageEmpty": "the target has no blood to spend",
+      "RageName": "Blood Rage: +{n} to frenzy",
+      "RageDesc": "spent {n} blood at the thaumaturge's will; +{n} difficulty to resist frenzy until the end of the scene",
+      "TheftApply": "Steal “{name}”'s blood: {n}",
+      "TheftDone": "{n} blood flows to “{name}”; no blood bond forms; in public — a Masquerade breach",
+      "PotencyApply": "Distribute successes",
+      "PotencyAsk": "Successes: {n}. The first — 1 step for 1 hour; each extra — another hour or another step.",
+      "PotencySteps": "Generation steps",
+      "PotencyOpt": "{s} step(s) for {h} h",
+      "PotencyName": "Blood of Potency: generation −{s}",
+      "PotencyDesc": "generation lowered by {s} for {h} h; afterwards excess blood spills out",
+      "PotencyOnce": "Blood of Potency — no more than once a night"
     }
   },
   "Fx": {

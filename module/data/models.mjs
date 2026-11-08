@@ -5,7 +5,7 @@
 //
 // Правила — books/Мир Тьмы/Вампиры/_справочник/V20_Основные_правила/ (01–07).
 
-import { VTM20 } from "../config.mjs";
+import { VTM20, SYSTEM_ID } from "../config.mjs";
 import { effectMods } from "./effects.mjs";
 import { formMods } from "./form.mjs";
 
@@ -161,7 +161,10 @@ export class VampireData extends BaseActorData {
 
   prepareDerivedData() {
     super.prepareDerivedData();
-    const gen = VTM20.generationOf(this.generation);
+    // Могущество крови (Тауматургия, Путь Крови 3): поколение ниже на время эффекта (apps/target-powers.mjs, genDrop)
+    const drop = [...(this.parent?.effects ?? [])].reduce((s, e) => s + (!e.disabled && Number(e.flags?.[SYSTEM_ID]?.genDrop) || 0), 0);
+    this.effectiveGeneration = Math.max(4, this.generation - drop);
+    const gen = VTM20.generationOf(this.effectiveGeneration);
     this.blood.max = gen.pool;
     this.blood.perTurn = gen.perTurn;
     this.blood.value = Math.min(this.blood.value, gen.pool);

@@ -1364,6 +1364,67 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  // Путь Крови (Тауматургия 1–5): Вкус крови, Неистовство, Могущество, Хищение, Котёл крови
+  await check("Путь Крови: Вкус, Неистовство, Могущество, Хищение, Котёл", async () => {
+    const r = await page.evaluate(async () => {
+      const sys = p => import(`/systems/${game.system.id}/${p}`);
+      const TP = await sys("module/apps/target-powers.mjs"), { rollPowerRef } = await sys("module/sheets/actor-sheet.mjs");
+      const CP = await sys("module/data/combat-powers.mjs"), { getClock } = await sys("module/apps/calendar.mjs"), T = await sys("module/apps/timers.mjs");
+      const sid = game.system.id, mk = (name, type, system = {}) => Actor.create({ name, type, flags: { world: { e2e: true } }, system });
+      const a = await mk("E2E — тремер", "vampire", { generation: 10, blood: { value: 5 } });
+      const v = await mk("E2E — жертва крови", "vampire", { generation: 12, blood: { value: 5 } });
+      await a.createEmbeddedDocuments("Item", [{ name: "E2E — thaumaturgy", type: "discipline", system: { key: "thaumaturgy", value: 5 } }]);
+      const scene = game.scenes.viewed ?? game.scenes.contents[0];
+      const [tv] = await scene.createEmbeddedDocuments("Token", [await v.getTokenDocument({ x: 900, y: 300 })]);
+      for (let i = 0; i < 30 && !canvas.tokens.get(tv.id); i++) await new Promise(res => setTimeout(res, 100));
+      await new Promise(res => setTimeout(res, 300));
+      canvas.tokens.get(tv.id)?.setTarget(true, { releaseOthers: true });
+      await new Promise(res => setTimeout(res, 300));
+      const vt = () => canvas.tokens.get(tv.id)?.actor;          // жетон не связан: кровь и эффекты — у актёра жетона
+      const out = {}, path = game.vtm20Codex.discipline("thaumaturgy").paths.findIndex(p => p.en === "Path of Blood");
+      const dialog = async () => { let d = null; for (let i = 0; i < 30 && !d; i++) { await new Promise(res => setTimeout(res, 100)); d = [...foundry.applications.instances.values()].find(x => x.constructor.name === "RollDialog" && x.actor === a); } return d; };
+      // Вкус крови: бросок чародейства с целью (Воля, сл. 4)
+      await rollPowerRef(a, `thaumaturgy|path|${path}|0`);
+      let dlg = await dialog();
+      out.taste = [dlg?.values.difficulty, dlg?.cfg.kind, dlg?.cfg.extra?.targetPower?.key];
+      await dlg?.close();
+      const link = key => ({ key, target: vt().uuid, targetName: vt().name, powerName: key, actorName: a.name });
+      const apply = (key, n, self = false) => TP.applyTargetPower({ isOwner: false }, { actorUuid: a.uuid, extra: { targetPower: self ? { ...link(key), target: a.uuid } : link(key) } }, { successes: n, outcome: "success" });
+      // Неистовство крови: 3 успеха — цель тратит 3 крови, +3 к сложности ярости
+      await apply("thaumaturgy|Blood Rage", 3);
+      out.rage = [vt().system.blood.value, TP.frenzyDiff(vt(), "frenzy").map(d => d.value)];
+      // Хищение крови: 4 успеха, у цели 2 — переходит 2
+      await apply("thaumaturgy|Theft of Vitae", 4);
+      out.theft = [vt().system.blood.value, a.system.blood.value];
+      // Могущество крови: 1 успех — поколение 10 → 9 на час, запас 13 → 14; второй раз за ночь — нельзя
+      await apply("thaumaturgy|Blood of Potency", 1, true);
+      out.potency = [a.system.effectiveGeneration, a.system.blood.max];
+      const before = [...foundry.applications.instances.values()].length;
+      await rollPowerRef(a, `thaumaturgy|path|${path}|2`);
+      await new Promise(res => setTimeout(res, 400));
+      out.once = [...foundry.applications.instances.values()].filter(x => x.constructor.name === "RollDialog" && x.actor === a).length;
+      await a.update({ "system.blood.value": 14 });
+      await T.expireTimers(getClock() + 2 * 3600000);
+      for (let i = 0; i < 30 && a.system.blood.value > 13; i++) await new Promise(res => setTimeout(res, 100));
+      out.spill = [a.system.effectiveGeneration, a.system.blood.value];
+      // Котёл крови: 2 успеха — 2 губительных (Стойкости нет) и 2 крови вскипают
+      await vt().update({ "system.blood.value": 4 });
+      const n0 = game.messages.size;
+      await CP.powerHit(null, { actorUuid: a.uuid, extra: { power: { disc: "thaumaturgy", path: "Путь Крови", level: 5, name: "Котёл крови" } } }, { successes: 2, outcome: "success" });
+      const card = game.messages.contents.slice(n0).find(m => m.getFlag(sid, "fixedDamage"));
+      await CP.applyFixedDamage(card);
+      out.cauldron = [vt().system.health.aggravated, vt().system.blood.value];
+      [...game.user.targets].forEach(tk => tk.setTarget(false, { releaseOthers: false }));
+      await new Promise(res => setTimeout(res, 800));
+      await scene.deleteEmbeddedDocuments("Token", [tv.id]);
+      await Actor.deleteDocuments([a.id, v.id]);
+      return out;
+    });
+    const want = { taste: [4, "magic", "thaumaturgy|A Taste for Blood"], rage: [2, [3]], theft: [0, 7], potency: [9, 14], once: 0, spill: [10, 13], cauldron: [2, 2] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   // Метаморфозы 3, 5 и Модифицированный Облик Зверя (2.7.0): Слияние с землёй (солнце не вредит, угроза будит),
   // Туманная форма (обычный урон не проходит, огонь — да; атаковать нельзя), две формы Гангрела из Clanbook
   await check("Метаморфозы: туман, Слияние с землёй, Модифицированный Облик", async () => {

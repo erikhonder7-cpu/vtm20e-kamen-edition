@@ -15,7 +15,11 @@
 //   · Руки Бездны: щупальце за успех — статист со Силой = Затмение + Мощь, Ловкостью = Затмение + Стремительность,
 //     Драка и прочность (Выносливость + Стойкость) — создателя (правило системы), 4 уровня здоровья — потом рассеивается;
 //   · Исчезновение из виду: сложность — Смекалка + Шестое чувство наблюдателя; 4+ — Незримое присутствие, 1–3 — силуэт;
-//   · Тайное собрание: действующее Сокрытие — на отмеченных спутников, по одному за точку Скрытности.
+//   · Тайное собрание: действующее Сокрытие — на отмеченных спутников, по одному за точку Скрытности;
+//   · Путь Крови (Тауматургия): Вкус крови — сведения о цели по успехам (только себе и рассказчику, правило системы);
+//     Неистовство крови — цель тратит кровь за каждый успех, +1 к сложности сопротивления ярости за кровь;
+//     Могущество крови — раз за ночь: поколение ниже на 1 на час, лишние успехи — часы или ступени;
+//     Хищение крови — кровь от цели тауматургу. Котёл крови — data/combat-powers.mjs (урон и выкипание крови).
 // Наложить эффект может владелец цели или рассказчик — кнопкой на карточке броска (как «принять урон»).
 
 import { SYSTEM_ID } from "../config.mjs";
@@ -45,7 +49,11 @@ export const TARGET_POWERS = {
   "obtenebration|Shroud of Night": { kind: "shroud", self: true },
   "obtenebration|Arms of the Abyss": { kind: "arms", self: true },
   "obfuscate|Vanish from the Mind's Eye": { kind: "vanish", self: true, diff: ["wits", "awareness"] },
-  "obfuscate|Cloak the Gathering": { kind: "gather" }
+  "obfuscate|Cloak the Gathering": { kind: "gather" },
+  "thaumaturgy|A Taste for Blood": { kind: "taste", needTarget: true },
+  "thaumaturgy|Blood Rage": { kind: "rage", needTarget: true },
+  "thaumaturgy|Blood of Potency": { kind: "potency", self: true },
+  "thaumaturgy|Theft of Vitae": { kind: "theft", needTarget: true }
 };
 
 /** Сверхъестественное существо (Глаза змеи): вампир, Гару, падший, сверхъестественная тварь; гуль и охотник — смертные. */
@@ -125,10 +133,11 @@ export function tierText(tp, successes) {
 /** Подпись кнопки «наложить» на карточке (только у сил с эффектом на цели). */
 export function targetPowerLabel(extra, ev) {
   const tp = extra?.targetPower && TARGET_POWERS[extra.targetPower.key];
-  if (!tp || ev.outcome !== "success" || extra.targetPower.done || !(tp.timed || tp.dread || tp.kind)) return "";
+  if (!tp || ev.outcome !== "success" || extra.targetPower.done || !(tp.timed || tp.dread || tp.kind) || ["taste", "gather"].includes(tp.kind)) return "";
   // Усмирение — только когда накоплены все успехи продолжительного броска
   if (tp.kind === "quell" && !((extra.extended?.prev ?? 0) + ev.successes >= (extra.extended?.need ?? Infinity))) return "";
-  const lbl = { beast: "BeastApply", poison: "PoisonApply", shroud: "ShroudApply", arms: "ArmsApply", vanish: "VanishApply" }[tp.kind] ?? "Apply";
+  const lbl = { beast: "BeastApply", poison: "PoisonApply", shroud: "ShroudApply", arms: "ArmsApply", vanish: "VanishApply",
+    rage: "RageApply", potency: "PotencyApply", theft: "TheftApply" }[tp.kind] ?? "Apply";
   return t(lbl, { name: extra.targetPower.targetName, n: ev.successes });
 }
 
@@ -157,6 +166,43 @@ export async function applyTargetPower(message, state, ev) {
     desc = t(n >= 3 ? "Beast3" : n === 2 ? "Beast2" : "Beast1");
     await done(message, state, x);
     return notice(target, x.powerName, desc);
+  }
+  if (tp.kind === "rage") {
+    // Неистовство крови: каждый успех — жертва тратит 1 кровь (лимит за ход не действует), +1 к сложности ярости за каждую
+    const k = Math.min(n, target.system.blood?.value ?? 0);
+    await done(message, state, x);
+    if (!k) return notice(target, x.powerName, t("RageEmpty"));
+    await target.update({ "system.blood.value": target.system.blood.value - k });
+    await target.createEmbeddedDocuments("ActiveEffect", [{ name: t("RageName", { n: k }), img: Codex.disciplineIcon("thaumaturgy"),
+      description: `<p>${esc(t("RageDesc", { n: k }))}</p>`, flags: { [SYSTEM_ID]: { ...flags, frenzyDiff: k, mode: "scene" } } }]);
+    return notice(target, x.powerName, t("RageDesc", { n: k }));
+  }
+  if (tp.kind === "theft") {
+    // Хищение крови: каждый успех — 1 кровь от цели тауматургу; узы так не возникают
+    const self = state.actorUuid ? await foundry.utils.fromUuid(state.actorUuid) : null;
+    if (!self?.isOwner) return ui.notifications.warn(game.i18n.format("VTM20.Notify.NotOwner", { name: self?.name ?? "" }));
+    const room = Math.max(0, (self.system.blood?.max ?? 0) - (self.system.blood?.value ?? 0));
+    const k = Math.min(n, target.system.blood?.value ?? 0, room);
+    await done(message, state, x);
+    if (k) {
+      await target.update({ "system.blood.value": target.system.blood.value - k });
+      await self.update({ "system.blood.value": self.system.blood.value + k });
+    }
+    return notice(target, x.powerName, t("TheftDone", { n: k, name: self.name }));
+  }
+  if (tp.kind === "potency") {
+    // Могущество крови: успех — поколение ниже на 1 на час; каждый лишний — +1 час или ещё ступень (распределить сразу)
+    const steps = n === 1 ? 1 : await foundry.applications.api.DialogV2.prompt({ window: { title: x.powerName, icon: "fa-solid fa-droplet" }, classes: ["vtm20", "r-dialog"], rejectClose: false,
+      content: `<div class="r-form"><p>${esc(t("PotencyAsk", { n }))}</p><label class="r-field"><span>${esc(t("PotencySteps"))}</span><select name="s">${Array.from({ length: n }, (_, i) =>
+        `<option value="${i + 1}">${esc(t("PotencyOpt", { s: i + 1, h: n - i }))}</option>`).join("")}</select></label></div>`,
+      ok: { label: t("PotencyApply"), callback: (e, b) => Number(b.form.elements.s.value) || 1 } });
+    if (!steps) return;
+    const hours = 1 + n - steps;
+    await done(message, state, x);
+    await target.createEmbeddedDocuments("ActiveEffect", [{ name: t("PotencyName", { s: steps }), img: Codex.disciplineIcon("thaumaturgy"),
+      description: `<p>${esc(t("PotencyDesc", { s: steps, h: hours }))}</p>`, flags: { [SYSTEM_ID]: { ...flags, genDrop: steps, mode: "timed", until: now + hours * api.MS_HOUR } } }]);
+    await target.setFlag(SYSTEM_ID, "potencyNight", api.nextSunrise(now));
+    return notice(target, x.powerName, t("PotencyDesc", { s: steps, h: hours }));
   }
   if (tp.kind === "vanish") {
     // 4+ успеха — исчезает полностью (Незримое присутствие); 1–3 — полупрозрачный силуэт (V20, Сокрытие 4)
@@ -224,7 +270,12 @@ const notice = (target, power, what) => ChatMessage.create({ speaker: ChatMessag
  * Бросок силы против цели (лист и HUD — sheets/actor-sheet.mjs → rollPowerRef).
  * @param {Function} rollFromSpec  окно броска силы из листа
  */
-export async function rollTargetPower(actor, disc, d, p, tp, { rollFromSpec, subtitle }) {
+export async function rollTargetPower(actor, disc, d, p, tp, { rollFromSpec, subtitle, kind = "check", magic = null }) {
+  // Могущество крови — не чаще раза за ночь
+  if (tp.kind === "potency") {
+    const api = await clockApi();
+    if ((actor.getFlag(SYSTEM_ID, "potencyNight") ?? 0) > api.getClock()) return ui.notifications.warn(t("PotencyOnce"));
+  }
   const prep = prepareTargetPower(actor, disc, p, tp);
   if (!prep) return null;
   const target = prep.target;
@@ -244,7 +295,15 @@ export async function rollTargetPower(actor, disc, d, p, tp, { rollFromSpec, sub
   }
   let roll = { ...(p.roll ?? {}), ...(prep.difficulty ? { difficulty: prep.difficulty } : {}), ...(prep.note ? { note: prep.note } : {}) };
   const opts = { title: p.name, subtitle: `${target ? `→ ${target.name} · ` : ""}${subtitle}`, effect: p.html, power: { disc, level: p.level, name: p.name },
-    more: link ? { targetPower: link } : null };
+    more: link ? { targetPower: link } : null, kind, magic };
+  // Вкус крови: сведения — только тауматургу и рассказчику
+  if (tp.kind === "taste") opts.onRolled = res => {
+    const n = res?.successes ?? 0;
+    if (n < 1) return;
+    const lines = tasteLines(target, n);
+    ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), whisper: [game.user.id, ...game.users.filter(u => u.isGM).map(u => u.id)],
+      content: `<div class="r-notice"><i class="fa-solid fa-droplet"></i> <b>${esc(p.name)}</b> → ${esc(target.name)}<ul>${lines.map(l => `<li>${esc(l)}</li>`).join("")}</ul></div>` });
+  };
   // Касание скорпиона: сколько крови в яд (1 … Выносливость, сколько есть)
   if (tp.kind === "poison") {
     const max = Math.min(actor.system.attributes.stamina.total, actor.system.blood?.value ?? 0);
@@ -271,6 +330,17 @@ export async function rollTargetPower(actor, disc, d, p, tp, { rollFromSpec, sub
   if (tp.tiers) opts.onRolled = res => { const line = tierText(tp, res?.successes ?? 0); if (line && (res?.successes ?? 0) > 0) ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }),
     content: `<div class="r-notice"><i class="fa-solid fa-brain"></i> <b>${esc(p.name)}</b>: ${esc(line)}</div>` }); };
   return rollFromSpec(actor, roll, opts);
+}
+
+/** Вкус крови: чем больше успехов, тем больше сведений (правило системы: кровь → природа → поколение → диаблери). */
+function tasteLines(target, n) {
+  const s = target.system, out = [t("TasteBlood", { v: s.blood?.value ?? 0, max: s.blood?.max ?? 0 })];
+  const kindKey = target.isVampire ? "vampire" : target.type === "ghoul" ? (target.isDhampir ? "dhampir" : "ghoul") : target.type === "werewolf" ? "werewolf"
+    : target.type === "demon" ? "demon" : "mortal";
+  if (n >= 2) out.push(t(`TasteKind.${kindKey}`));
+  if (n >= 3 && target.isVampire) out.push(t("TasteGen", { g: s.generation }));
+  if (n >= 4 && target.isVampire) out.push(t((target.getFlag(SYSTEM_ID, "diablerie") ?? []).length ? "TasteDiab" : "TasteNoDiab"));
+  return out;
 }
 
 /** Покрывало ночи: облако тьмы (источник тьмы Foundry) у жетона вампира. */
@@ -345,6 +415,13 @@ export async function applyFromCard(message) {
   return applyTargetPower(message, { actorUuid: x.actorUuid, extra: { targetPower: x } }, { successes: 1, outcome: "success" });
 }
 
+/** Сложность сопротивления ярости от Неистовства крови — для проверки бешенства. */
+export function frenzyDiff(actor, kind) {
+  if (kind !== "frenzy") return [];
+  return [...(actor?.effects ?? [])].filter(e => !e.disabled && e.flags?.[SYSTEM_ID]?.frenzyDiff)
+    .map(e => ({ label: e.name, value: Number(e.flags[SYSTEM_ID].frenzyDiff) }));
+}
+
 /** Штраф к пулам от Устрашающего взора — для окон бросков. */
 export function dreadDice(actor) {
   return [...(actor?.effects ?? [])].filter(e => !e.disabled && e.flags?.[SYSTEM_ID]?.dread)
@@ -375,6 +452,13 @@ export function registerTargetPowers() {
     if (!actor) return;
     const ids = actor.effects.filter(e => e.flags?.[SYSTEM_ID]?.dread).map(e => e.id);
     if (ids.length) await actor.deleteEmbeddedDocuments("ActiveEffect", ids);
+  });
+  // Могущество крови кончилось: излишек крови сверх прежнего запаса выплёскивается (V20, Путь Крови 3)
+  Hooks.on("deleteActiveEffect", async effect => {
+    const actor = effect.parent;
+    if (!effect.flags?.[SYSTEM_ID]?.genDrop || actor?.documentName !== "Actor" || !game.users.activeGM?.isSelf) return;
+    const max = actor.system.blood?.max ?? 0, stored = actor._source.system?.blood?.value ?? 0;
+    if (stored > max) await actor.update({ "system.blood.value": max });
   });
   // Руки Бездны: у щупальца 4 уровня здоровья — после четвёртого оно рассеивается (рассказчик)
   Hooks.on("updateActor", async actor => {

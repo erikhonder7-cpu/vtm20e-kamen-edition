@@ -1333,8 +1333,9 @@ export function rollPowerRef(actor, ref) {
     torment: d.dark ? 10 : actor.system.torment?.permanent ?? 0, power: { disc, level: p.level, name: p.name },
     onRolled: d.dark && actor.type === "demon" && !actor.system.earthbound ? () => gainTorment(actor, 1, t("Demon.DarkReason")) : null });
   // Силы против цели (apps/target-powers.mjs): сложность — черта отмеченной цели, итог — на цели
-  const tp = !pathName && targetPowerOf(disc, p);
-  if (tp) return rollTargetPower(actor, disc, d, p, tp, { rollFromSpec, subtitle: `${d.name} · ${ROMAN[p.level - 1] ?? p.level}` });
+  const tp = targetPowerOf(disc, p);
+  if (tp) return rollTargetPower(actor, disc, d, p, tp, { rollFromSpec, subtitle: `${pathName || d.name} · ${ROMAN[p.level - 1] ?? p.level}`,
+    kind: magic ? "magic" : "check", magic: magic ? { disc, level: p.level, path: pathName } : null });
   return rollFromSpec(actor, p.roll ?? {}, { title: p.name, subtitle: `${pathName || d.name} · ${ROMAN[p.level - 1] ?? p.level}`, effect: p.html,
     kind: magic ? "magic" : "check", magic: magic ? { disc, level: p.level, path: pathName } : null,
     power: { disc, level: p.level, path: pathName, name: p.name } });

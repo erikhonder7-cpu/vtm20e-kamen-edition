@@ -23,6 +23,8 @@ export const COMBAT_POWERS = {
   "thaumaturgy|Путь Молнии|3": { kind: "pool", pool: 8, type: "lethal", soakDiff: 8 },
   "thaumaturgy|Путь Молнии|4": { kind: "perSuccess", type: "lethal", soakDiff: 8 },
   "quietus|Вкус смерти": { kind: "spit" },
+  // Путь Крови 5, Котёл крови: каждый успех — 1 кровь вскипает и 1 губительное (только Стойкостью)
+  "thaumaturgy|Путь Крови|5": { kind: "perSuccess", type: "aggravated", boil: true },
   "vicissitude|Искусство костей": { kind: "perSuccess", type: "lethal" },
   "potence|Землетрясение": { kind: "strike" },
   "potence|Щелчок": { kind: "strike" }
@@ -72,7 +74,7 @@ export async function powerHit(message, state, evaluated) {
     case "flame":
       return postFixedDamage(actor, target, { amount: cp.dmg[lvl - 1], type: "aggravated", soakDiff: cp.soak[lvl - 1], fire: true, title });
     case "perSuccess":
-      return postFixedDamage(actor, target, { amount: evaluated.successes, type: cp.type, soakDiff: cp.soakDiff ?? 6, title });
+      return postFixedDamage(actor, target, { amount: evaluated.successes, type: cp.type, soakDiff: cp.soakDiff ?? 6, title, boil: !!cp.boil });
     case "pool":
       return rollDamage({ actor, pool: cp.pool, damageType: cp.type, title, target: target.uuid, soakDiff: cp.soakDiff ?? 6, notes, supernatural: true });
     case "strike": {
@@ -96,7 +98,7 @@ export async function powerHit(message, state, evaluated) {
 }
 
 /** Урон без броска (пламя, успехи силы): карточка, по которой владелец цели кидает прочность. */
-async function postFixedDamage(actor, target, { amount, type, soakDiff, fire = false, title }) {
+async function postFixedDamage(actor, target, { amount, type, soakDiff, fire = false, title, boil = false }) {
   if (amount < 1) return;
   const typeLabel = game.i18n.localize(VTM20.damageTypes[type]?.label ?? type);
   const content = `<div class="r-roll-card r-combat-card is-hit">
@@ -106,7 +108,7 @@ async function postFixedDamage(actor, target, { amount, type, soakDiff, fire = f
     <div class="r-card-buttons"><button type="button" data-r-action="fixedDamage"><i class="fa-solid fa-shield-halved"></i> ${esc(t("Roll.ApplySoak"))}</button></div>
   </div>`;
   return ChatMessage.create({ content, speaker: ChatMessage.getSpeaker({ actor }),
-    flags: { [SYSTEM_ID]: { fixedDamage: { target: target.uuid, amount, type, soakDiff, fire, supernatural: true } } } });
+    flags: { [SYSTEM_ID]: { fixedDamage: { target: target.uuid, amount, type, soakDiff, fire, supernatural: true, boil } } } });
 }
 
 /** Принять урон по карточке: прочность (у огня — только Стойкость) и запись. */
@@ -118,5 +120,7 @@ export async function applyFixedDamage(message) {
   if (!target.isOwner) return ui.notifications.warn(t("Notify.NotOwner", { name: target.name }));
   const { soakAndApply } = await import("../dice/roll.mjs");
   if (message.isOwner) await message.setFlag(SYSTEM_ID, "fixedDamage", { ...d, done: true });
+  // Котёл крови: столько же крови вскипает и пропадает
+  if (d.boil && target.system.blood?.value) await target.update({ "system.blood.value": Math.max(0, target.system.blood.value - d.amount) });
   return soakAndApply(target, d.amount, d.type, { difficulty: d.soakDiff, armor: !d.fire, supernatural: !!d.supernatural, fire: !!d.fire });
 }

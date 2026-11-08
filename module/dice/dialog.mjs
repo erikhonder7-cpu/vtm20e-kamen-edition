@@ -9,7 +9,7 @@ import { Codex } from "../data/codex.mjs";
 import { rollPool, odds, chancesView, tormentRule, tormentOdds } from "./roll.mjs";
 import { meritModsFor } from "../data/merit-mods.mjs";
 import { substanceMods } from "../data/vessels.mjs";
-import { dreadDice } from "../apps/target-powers.mjs";
+import { dreadDice, frenzyDiff } from "../apps/target-powers.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -160,7 +160,7 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const attrs = [v.trait1, v.trait2].filter(p => p?.startsWith("attributes.")).map(p => p.split(".")[1]);
     const social = attrs.some(k => VTM20.attributeGroups.social.attributes.includes(k));
     const formDiff = [v.trait1, v.trait2].flatMap(p => a.system.formFx?.diff?.[p?.split(".")[1]] ?? []);
-    const diffAuto = [...(attrs.includes("perception") ? (fx.perception ?? []) : []), ...formDiff, ...sm.diff,
+    const diffAuto = [...(attrs.includes("perception") ? (fx.perception ?? []) : []), ...formDiff, ...sm.diff, ...frenzyDiff(a, this.cfg.kind),
       ...mm.auto.filter(m => m.diff).map(m => ({ label: m.label, value: m.diff }))];
     const selectedTargets = [...(game.user.targets ?? [])];
     const earthTarget = selectedTargets.length === 1 ? selectedTargets[0]?.actor : null;
