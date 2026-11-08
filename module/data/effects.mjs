@@ -232,6 +232,8 @@ export function effectMods(actor) {
   for (const e of actor?.effects ?? []) {
     // тотем стаи и яд Касания скорпиона (apps/target-powers.mjs, attrMod) — прибавки и вычеты к Атрибутам
     const ta = !e.disabled && (e.flags?.[SYSTEM_ID]?.totemAttr ?? e.flags?.[SYSTEM_ID]?.attrMod);
+    const as = !e.disabled && e.flags?.[SYSTEM_ID]?.attrSet;
+    if (as) { Object.assign(m.set, as); m.list.push(e); }
     if (!ta) continue;
     for (const [k, v] of Object.entries(ta)) m.attr[k] = (m.attr[k] ?? 0) + v;
     m.list.push(e);

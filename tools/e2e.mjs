@@ -1496,6 +1496,87 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  // Пути Тауматургии (data/path-powers.mjs): бросок Воли (уровень + 3), эффекты на цели и на себе, урон за ход, призыв
+  await check("Пути Тауматургии: смертная оболочка, проклятия, Нептун, Марс, разум, Флора, погода", async () => {
+    const r = await page.evaluate(async () => {
+      const sys = p => import(`/systems/${game.system.id}/${p}`);
+      const TP = await sys("module/apps/target-powers.mjs"), { rollPowerRef } = await sys("module/sheets/actor-sheet.mjs");
+      const { AttackDialog } = await sys("module/combat/combat.mjs"), CP = await sys("module/data/combat-powers.mjs"), { endScene } = await sys("module/apps/night.mjs");
+      const sid = game.system.id, mk = (name, type, system = {}) => Actor.create({ name, type, flags: { world: { e2e: true } }, system });
+      const a = await mk("E2E — маг", "vampire", { generation: 9, willpower: { permanent: 6, temporary: 6 }, abilities: { brawl: { value: 3 } } });
+      const m = await mk("E2E — подопытный", "mortal", { attributes: { strength: { value: 3 }, dexterity: { value: 3 }, stamina: { value: 3 } } });
+      const v = await mk("E2E — сородич-жертва", "vampire", { generation: 11, blood: { value: 6 } });
+      await a.createEmbeddedDocuments("Item", [{ name: "E2E — thaumaturgy", type: "discipline", system: { key: "thaumaturgy", value: 5 } }]);
+      const out = {};
+      const link = (key, x) => ({ key, target: x.uuid, targetName: x.name, powerName: key, actorName: a.name });
+      const apply = (key, x, n) => TP.applyTargetPower({ isOwner: false }, { actorUuid: a.uuid, extra: { targetPower: link(key, x) } }, { successes: n, outcome: "success" });
+      // бросок пути: Воля, сложность уровень + 3 (Головокружение — 1 → 4)
+      const scene = game.scenes.viewed ?? game.scenes.contents[0];
+      const [tm] = await scene.createEmbeddedDocuments("Token", [await m.getTokenDocument({ x: 1300, y: 300 })]);
+      for (let i = 0; i < 30 && !canvas.tokens.get(tm.id); i++) await new Promise(res => setTimeout(res, 100));
+      await new Promise(res => setTimeout(res, 300));
+      canvas.tokens.get(tm.id)?.setTarget(true, { releaseOthers: true });
+      await new Promise(res => setTimeout(res, 300));
+      const th = game.vtm20Codex.discipline("thaumaturgy"), shell = th.paths.findIndex(p => p.en === "Mastery of the Mortal Shell");
+      await rollPowerRef(a, `thaumaturgy|path|${shell}|0`);
+      let dlg = null;
+      for (let i = 0; i < 30 && !dlg; i++) { await new Promise(res => setTimeout(res, 100)); dlg = [...foundry.applications.instances.values()].find(x => x.constructor.name === "RollDialog" && x.actor === a); }
+      out.roll = [dlg?.values.trait1, dlg?.values.difficulty, dlg?.cfg.kind];
+      await dlg?.close();
+      [...game.user.targets].forEach(tk => tk.setTarget(false, { releaseOthers: false }));
+      await new Promise(res => setTimeout(res, 800));
+      await scene.deleteEmbeddedDocuments("Token", [tm.id]);
+      // Головокружение: +1 к сложности физических; Недуг: −2 к Силе/Ловкости/Выносливости
+      await apply("thaumaturgy|Vertigo", m, 1);
+      await apply("thaumaturgy|Malady", m, 2);
+      out.shell = [TP.mindDiff(m, { physical: true }).reduce((s, d) => s + d.value, 0), m.system.attributes.strength.total];
+      // Отказ тела: в конце хода цели — 1 тяжёлое (смертный не поглощает)
+      await apply("thaumaturgy|Body Failure", m, 3);
+      const combat = await Combat.create({ scene: scene?.id ?? null, active: true });
+      await combat.createEmbeddedDocuments("Combatant", [{ actorId: m.id, name: m.name, initiative: 20 }, { actorId: a.id, name: a.name, initiative: 1 }]);
+      await combat.startCombat();
+      await combat.nextTurn();
+      for (let i = 0; i < 30 && !m.system.health.lethal; i++) await new Promise(res => setTimeout(res, 100));
+      out.dot = m.system.health.lethal;
+      await combat.delete();
+      // Разбавление крови: у сородича 2 крови стали водой — штраф ран 2 уровней
+      await apply("thaumaturgy|Blood to Water", v, 2);
+      out.water = [v.system.blood.value, TP.dreadDice(v).map(d => d.value)];
+      // Сосредоточение на сородиче: штрафы к пулам снимаются
+      await apply("thaumaturgy|Centering", v, 2);
+      out.centered = TP.dreadDice(v).length;
+      // Совершенная ясность: −2 ко всем; Храброе сердце: +1 к Силе; Боевой товарищ — передать союзнику
+      await apply("thaumaturgy|Perfect Clarity", a, 1);
+      await apply("thaumaturgy|Fearless Heart", a, 1);
+      out.self = [TP.mindDiff(a, {}).reduce((s, d) => s + d.value, 0), a.system.attributes.strength.total];
+      await apply("thaumaturgy|Comrades at Arms", v, 1);
+      out.comrade = v.effects.some(e => e.flags?.[sid]?.mars);
+      // Разъедающее касание: безоружный удар — губительный
+      await apply("thaumaturgy|Acidic Touch", a, 1);
+      out.acid = new AttackDialog(a, { maneuver: "punch" }).choice.type;
+      // Танец лозы: существо у мага; с концом сцены уходит. Молния — урон пулом 10, броня не защищает
+      await apply("thaumaturgy|Dance of Vines", a, 2);
+      const vines = () => game.actors.filter(x => x.getFlag(sid, "summoned") === a.uuid);
+      out.vines = [vines().length, vines()[0]?.system.attributes.strength.value];
+      out.bolt = [CP.combatPowerOf({ disc: "thaumaturgy", path: "Управление Погодой", level: 5 })?.kind, CP.combatPowerOf({ disc: "thaumaturgy", path: "Управление Погодой", level: 5 })?.pool];
+      // Тауматургическая защита 3: готовый пул 6 кубиков
+      const cm = th.paths.findIndex(p => p.en === "Thaumaturgical Countermagic");
+      await rollPowerRef(a, `thaumaturgy|path|${cm}|2`);
+      dlg = null;
+      for (let i = 0; i < 30 && !dlg; i++) { await new Promise(res => setTimeout(res, 100)); dlg = [...foundry.applications.instances.values()].find(x => x.constructor.name === "RollDialog" && x.actor === a); }
+      out.counter = dlg?.cfg.pool;
+      await dlg?.close();
+      await endScene();
+      out.afterScene = vines().length;
+      await Actor.deleteDocuments([a.id, m.id, v.id]);
+      return out;
+    });
+    const want = { roll: ["willpower.permanent", 4, "magic"], shell: [1, 1], dot: 1, water: [4, [-1]], centered: 0, self: [-2, 2], comrade: true,
+      acid: "aggravated", vines: [1, 3], bolt: ["pool", 10], counter: 6, afterScene: 0 };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   // Метаморфозы 3, 5 и Модифицированный Облик Зверя (2.7.0): Слияние с землёй (солнце не вредит, угроза будит),
   // Туманная форма (обычный урон не проходит, огонь — да; атаковать нельзя), две формы Гангрела из Clanbook
   await check("Метаморфозы: туман, Слияние с землёй, Модифицированный Облик", async () => {

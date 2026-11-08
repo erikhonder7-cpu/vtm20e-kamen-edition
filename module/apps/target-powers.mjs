@@ -30,8 +30,9 @@
 //   · Поглощение духа: вампир в теле зверя, доступные Дисциплины — по успехам.
 // Наложить эффект может владелец цели или рассказчик — кнопкой на карточке броска (как «принять урон»).
 
-import { SYSTEM_ID } from "../config.mjs";
+import { SYSTEM_ID, VTM20 } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
+import { PATH_POWERS } from "../data/path-powers.mjs";
 // календарь и сроки — лениво (apps/calendar.mjs тянет ApplicationV2, а roll.mjs проверяется и вне Foundry)
 const clockApi = async () => ({ ...(await import("./calendar.mjs")), ...(await import("./timers.mjs")) });
 
@@ -89,6 +90,9 @@ function animalDiff(a) {
   return 7;
 }
 
+// пути Тауматургии (data/path-powers.mjs) — тем же движком
+Object.assign(TARGET_POWERS, PATH_POWERS);
+
 /** Сверхъестественное существо (Глаза змеи): вампир, Гару, падший, сверхъестественная тварь; гуль и охотник — смертные. */
 const supernatural = a => ["vampire", "werewolf", "demon"].includes(a.type) || (a.type === "creature" && !!a.system.supernatural);
 
@@ -116,7 +120,7 @@ export function markedTarget(actor) {
  * Возвращает { difficulty, note, target } — target может быть null (сложность вручную).
  */
 export function prepareTargetPower(actor, disc, p, tp) {
-  const target = markedTarget(actor);
+  const target = markedTarget(actor) ?? (tp.allowSelf ? actor : null);
   if (!target && tp.needTarget) { ui.notifications.warn(t("NeedTarget")); return null; }
   if (tp.mortalOnly && target?.isVampire) { ui.notifications.warn(t("NotKindred", { name: target.name })); return null; }
   if (tp.mortalTarget && supernatural(target)) { ui.notifications.warn(t("MortalsOnly", { name: target.name })); return null; }
@@ -168,12 +172,12 @@ export function tierText(tp, successes) {
 /** Подпись кнопки «наложить» на карточке (только у сил с эффектом на цели). */
 export function targetPowerLabel(extra, ev) {
   const tp = extra?.targetPower && TARGET_POWERS[extra.targetPower.key];
-  if (!tp || ev.outcome !== "success" || extra.targetPower.done || !(tp.timed || tp.dread || tp.kind) || ["taste", "gather", "aura", "visage", "whisper"].includes(tp.kind)) return "";
+  if (!tp || ev.outcome !== "success" || extra.targetPower.done || !(tp.timed || tp.dread || tp.kind) || ["taste", "gather", "aura", "visage", "whisper", "info", "tiers", "counter"].includes(tp.kind)) return "";
   // Усмирение — только когда накоплены все успехи продолжительного броска
   if (tp.kind === "quell" && !((extra.extended?.prev ?? 0) + ev.successes >= (extra.extended?.need ?? Infinity))) return "";
   const lbl = { beast: "BeastApply", poison: "PoisonApply", shroud: "ShroudApply", arms: "ArmsApply", vanish: "VanishApply",
     rage: "RageApply", potency: "PotencyApply", theft: "TheftApply", possess: "PossessApply", project: "ProjectApply",
-    flesh: "FleshApply", beckon: "BeckonApply", subsume: "SubsumeApply" }[tp.kind] ?? "Apply";
+    flesh: "FleshApply", beckon: "BeckonApply", subsume: "SubsumeApply", self: "SelfApply", summon: "SummonApply", comrades: "ComradesApply", conjure: "ConjureApply" }[tp.kind] ?? "Apply";
   return t(lbl, { name: extra.targetPower.targetName, n: ev.successes });
 }
 
@@ -183,6 +187,11 @@ export async function applyTargetPower(message, state, ev) {
   if (!tp || x.done) return;
   const target = await foundry.utils.fromUuid(x.target);
   if (!target) return ui.notifications.warn(t("Gone"));
+  if (tp.kind === "summon") {
+    if (!game.user.isGM) return ui.notifications.warn(t("GMOnly"));
+    await done(message, state, x);
+    return summonPathCreature(target, tp.summon, ev.successes);
+  }
   if (["shroud", "arms", "beckon"].includes(tp.kind) && tp.kind === "beckon") {
     if (!game.user.isGM) return ui.notifications.warn(t("GMOnly"));
     return beckon(message, state, x, target, ev.successes);
@@ -207,6 +216,8 @@ export async function applyTargetPower(message, state, ev) {
     await done(message, state, x);
     return notice(target, x.powerName, desc);
   }
+  if (tp.kind === "conjure") return conjure(message, state, x, tp, target);
+  if (["cond", "self", "dehydrate", "dust", "comrades"].includes(tp.kind)) return applyPath(message, state, x, tp, target, n, flags, api);
   if (tp.kind === "possess") {
     // Вселение: цель бросает текущую Волю (сл. 7); успехи вампира сверх её — минус временная Воля цели
     const { rollPool } = await import("../dice/roll.mjs");
@@ -394,6 +405,15 @@ export async function rollTargetPower(actor, disc, d, p, tp, { rollFromSpec, sub
     ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), whisper: [game.user.id, ...game.users.filter(u => u.isGM).map(u => u.id)],
       content: `<div class="r-notice"><i class="fa-solid fa-droplet"></i> <b>${esc(p.name)}</b> → ${esc(target.name)}<ul>${lines.map(l => `<li>${esc(l)}</li>`).join("")}</ul></div>` });
   };
+  if (PATH_POWERS[key]) {
+    if (tp.ownRoll) {
+      const tw = target?.system.willpower?.permanent ?? 0;
+      roll = { ...tp.ownRoll, blood: p.roll?.blood ?? 1, difficulty: target ? Math.min(10, tw + (tp.targetDiff?.plus ?? 0)) : 6,
+        ...(target?.isVampire ? { willpower: true } : {}), note: t("PathOwnNote", { name: target?.name ?? "—", n: tw + (tp.targetDiff?.plus ?? 0) }) };
+    } else roll = { trait1: "willpower.permanent", difficulty: Math.min(10, (Number(p.level) || 1) + 3), blood: p.roll?.blood ?? 1, note: t("PathRoll", { n: (Number(p.level) || 1) + 3 }) };
+    if (tp.kind === "info") opts.onRolled = async res => { if ((res?.successes ?? 0) > 0) await contradict(actor, target, p.name, res.successes); };
+    if (tp.kind === "counter") roll = { dice: 2 * (Number(p.level) || 1), difficulty: 6, note: t("CounterNote", { n: 2 * (Number(p.level) || 1) }) };
+  }
   if (tp.kind === "possess") roll = { ...roll, willpower: true, note: t("PossessNote", { name: target.name }) };
   if (tp.kind === "whisper") roll = { ...roll, difficulty: animalDiff(target), note: t("WhisperNote", { n: animalDiff(target), name: target.name }) };
   if (tp.kind === "aura") opts.onRolled = res => {
@@ -458,6 +478,197 @@ export async function rollTargetPower(actor, disc, d, p, tp, { rollFromSpec, sub
   if (tp.tiers) opts.onRolled = res => { const line = tierText(tp, res?.successes ?? 0); if (line && (res?.successes ?? 0) > 0) ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }),
     content: `<div class="r-notice"><i class="fa-solid fa-brain"></i> <b>${esc(p.name)}</b>: ${esc(line)}</div>` }); };
   return rollFromSpec(actor, roll, opts);
+}
+
+/** Сумма черт персонажа: Атрибуты, Способности, Добродетели, Воля, Дисциплины. */
+function poolOf(a, keys) {
+  const s = a.system;
+  return keys.reduce((sum, k) => sum + Number(
+    k === "willpower" ? s.willpower?.permanent ?? 0
+    : ["conscience", "selfControl", "courage"].includes(k) ? s.virtues?.[k]?.value ?? 0
+    : s.attributes?.[k] ? s.attributes[k].total ?? s.attributes[k].value ?? 0
+    : s.abilities?.[k] ? s.abilities[k].value ?? 0
+    : a.discipline?.(k) ?? 0) || 0, 0);
+}
+
+/** Сопротивление цели (путь Тауматургии): бросок за цель, итог — сколько успехов тауматурга осталось. */
+async function resistOf(spec, target, caster, n) {
+  if (!spec) return { net: n, res: 0 };
+  if (spec.needFortitude && !target.discipline?.("fortitude")) return { net: n, res: 0, note: t("NoFortitude") };
+  const diff = typeof spec.diff === "number" ? spec.diff : spec.diff === "casterWP" ? (caster?.system.willpower?.temporary ?? 6)
+    : spec.diff?.sum ? poolOf(caster, spec.diff.sum) : (spec.diff?.base ?? 6) + (spec.diff?.plus === "succ" ? n : 0);
+  const pool = poolOf(target, spec.pool);
+  const { rollPool } = await import("../dice/roll.mjs");
+  const r = pool > 0 ? await rollPool({ actor: target, title: t("Resist"), pool, difficulty: Math.clamp(diff, 2, 10), kind: "check" }) : { successes: 0 };
+  const res = Math.max(0, r?.successes ?? 0);
+  if (spec.mode === "net") return { net: n - res, res };
+  if (spec.mode === "beat") return { net: res > n ? 0 : n, res };
+  return { net: n, res };                                 // shorten, atrophy, contradict — итог по таблице
+}
+
+/** Искушение: цель бросает Восприятие + Хитрость (сл. 2 + успехи) — что она поняла. */
+async function contradict(caster, target, power, n) {
+  const { res } = await resistOf(TARGET_POWERS["thaumaturgy|Contradict"].resist, target, caster, n);
+  const line = t(res >= 5 ? "Contra5" : res >= 4 ? "Contra4" : res >= 3 ? "Contra3" : res >= 2 ? "Contra2" : "Contra0");
+  return notice(target, power, line);
+}
+
+/** Путь Тауматургии: эффект на цели или на себе по таблице data/path-powers.mjs. */
+async function applyPath(message, state, x, tp, target, n, flags, api) {
+  const caster = state.actorUuid ? await foundry.utils.fromUuid(state.actorUuid) : null;
+  const [disc] = x.key.split("|");
+  // Боевой товарищ: младшую силу Пути Марса — на союзника
+  if (tp.kind === "comrades") {
+    const mars = (caster?.effects ?? []).filter(e => e.flags?.[SYSTEM_ID]?.mars);
+    if (!mars.length) return ui.notifications.warn(t("ComradesNone"));
+    const pick = mars.length === 1 ? mars[0].id : await foundry.applications.api.DialogV2.prompt({ window: { title: x.powerName }, classes: ["vtm20", "r-dialog"], rejectClose: false,
+      content: `<div class="r-form"><select name="e">${mars.map(e => `<option value="${e.id}">${esc(e.name)}</option>`).join("")}</select></div>`,
+      ok: { label: t("SelfApply"), callback: (e, b) => b.form.elements.e.value } });
+    const src = caster.effects.get(pick);
+    if (!src) return;
+    await done(message, state, x);
+    await target.createEmbeddedDocuments("ActiveEffect", [{ ...src.toObject(), _id: undefined, name: `${src.name} (${caster.name})` }]);
+    return notice(target, x.powerName, src.name);
+  }
+  const r = await resistOf(tp.resist, target, caster, n);
+  await done(message, state, x);
+  // Превращение в прах: сопротивление — нужно больше успехов, чем у тауматурга
+  if (tp.kind === "dust") {
+    if (r.net <= 0) return notice(target, x.powerName, t("Resisted"));
+    if (!target.isVampire) return notice(target, x.powerName, t("DustMortal", { y: 10 * n }));
+    await target.createEmbeddedDocuments("ActiveEffect", [{ name: t("DustName"), img: Codex.disciplineIcon(disc), description: `<p>${esc(t("DustVamp"))}</p>`,
+      flags: { [SYSTEM_ID]: { ...flags, attrMod: { appearance: -1 }, mode: "timed", until: api.nextSunrise(api.nextSunrise(api.getClock()) + MS_H) } } }]);
+    return notice(target, x.powerName, t("DustVamp"));
+  }
+  // Обезвоживание: каждый лишний успех — вампир теряет кровь, потом тяжёлые; смертный — тяжёлые без поглощения
+  if (tp.kind === "dehydrate") {
+    if (r.net <= 0) return notice(target, x.powerName, t("Resisted"));
+    let left = r.net;
+    if (target.hasBlood) {
+      const b = Math.min(left, target.system.blood?.value ?? 0);
+      if (b) await target.update({ "system.blood.value": target.system.blood.value - b });
+      left -= b;
+    }
+    if (left) await target.applyDamage(left, "lethal");
+    return notice(target, x.powerName, t("DehydrateDone", { n: r.net }));
+  }
+  if (r.net <= 0) return notice(target, x.powerName, t("Resisted"));
+  const fx = { ...(tp.fx ?? {}) }, f = { ...flags, mind: x.key, ...(tp.mars ? { mars: true } : {}) };
+  let name = x.powerName, desc = tp.fx?.note ? t(`PathNote.${tp.fx.note}`) : "";
+  // Атрофия: таблица успехов сопротивления
+  if (tp.resist?.mode === "atrophy") {
+    if (r.res >= 3) return notice(target, x.powerName, t("Resisted"));
+    desc = t(r.res === 2 ? "Atrophy2" : r.res === 1 ? "Atrophy1" : "Atrophy0");
+  }
+  if (tp.resist?.mode === "shorten" && r.res) desc = `${desc} ${t("Shorten", { n: r.res })}`.trim();
+  if (r.note) desc = `${desc} ${r.note}`.trim();
+  // что спросить: конечность (Судорога), Атрибут (Порча тела), распределение (Сила стихий)
+  if (tp.ask === "limb") {
+    const limb = await ask(x.powerName, [["leg", t("LimbLeg")], ["arm", t("LimbArm")], ["head", t("LimbHead")]]);
+    if (!limb) return;
+    if (limb === "leg") fx.diffDex = 2;
+    if (limb === "head") fx.diffSocial = 2;
+    desc = t(`Limb.${limb}`);
+  }
+  if (tp.ask === "attr") {
+    const k = await ask(x.powerName, ["strength", "dexterity", "stamina", "appearance"].map(k => [k, game.i18n.localize(`VTM20.Attr.${k}`)]));
+    if (!k) return;
+    fx.attrSet = { [k]: 1 };
+    desc = t("CorruptDesc", { what: game.i18n.localize(`VTM20.Attr.${k}`) });
+  }
+  if (tp.ask === "split") {
+    const pts = await splitPoints(x.powerName, 3);
+    if (!pts) return;
+    fx.attr = pts;
+    desc = t("SplitDesc", { s: pts.strength, d: pts.dexterity, st: pts.stamina, n: n });
+  }
+  if (fx.maladySucc) { const k = Math.min(3, n); fx.attr = { strength: -k, dexterity: -k, stamina: -k }; }
+  if (fx.bloodToWater) {
+    const k = Math.min(n, target.system.blood?.value ?? 0);
+    if (k) await target.update({ "system.blood.value": target.system.blood.value - k });
+    if (!target.hasBlood || !target.isVampire) return notice(target, x.powerName, t("WaterMortal"));
+    fx.diceAll = Number(VTM20.healthLevels?.[k - 1]?.penalty ?? -Math.min(k, 5));
+    desc = t("WaterVamp", { n: k });
+  }
+  if (fx.sleep) {
+    if (n < 3) { Object.assign(f, { dread: n, mode: "scene" }); name = t("SleepyName", { n }); desc = t("SleepyDesc", { n }); }
+    else { desc = t("SleepDesc"); }
+  }
+  // флаги эффекта
+  for (const k of ["diceAll", "diceSocial", "diffPhys", "diffAll", "diffSocial", "diffDex", "centered", "windDance", "brawlAgg", "strikeTrue", "clarity"]) if (fx[k] != null) f[k] = fx[k];
+  if (fx.attr) f.attrMod = fx.attr;
+  if (fx.attrSet) f.attrSet = fx.attrSet;
+  if (fx.dot) f.dot = fx.dot;
+  // срок
+  const code = Array.isArray(tp.dur) ? tp.dur[Math.min(r.net, tp.dur.length) - 1] : tp.dur;
+  const now = api.getClock(), nights = k => { let u = now; for (let i = 0; i < k; i++) u = api.nextSunrise(u + MS_H); return u; };
+  const until = code === "succNights" ? nights(r.net) : code === "casterWPNights" ? nights(caster?.system.willpower?.permanent ?? 1)
+    : code === "succHours" ? now + r.net * api.MS_HOUR : code === "3nights" ? nights(3) : code === "season" ? now + 90 * api.MS_DAY
+    : ["scene", "manual"].includes(code) ? null : untilOf(code, now, api);
+  if (!f.mode) f.mode = until ? "timed" : code === "manual" ? "manual" : "scene";
+  if (until) f.until = until;
+  const durText = until ? t("DurUntil", { at: new Date(until).toLocaleDateString(game.i18n.lang, { day: "numeric", month: "long" }) }) : t(`Dur.${code === "manual" ? "forever" : "scene"}`);
+  await target.createEmbeddedDocuments("ActiveEffect", [{ name, img: Codex.disciplineIcon(disc), description: `<p>${esc(desc)}</p>`,
+    ...(fx.statuses ? { statuses: fx.statuses } : {}), flags: { [SYSTEM_ID]: f } }]);
+  // Марионетка: и самому тауматургу +2 к сложности своих действий
+  if (tp.casterFx && caster?.isOwner) await caster.createEmbeddedDocuments("ActiveEffect", [{ name: t("CasterBusy", { power: x.powerName }), img: Codex.disciplineIcon(disc),
+    flags: { [SYSTEM_ID]: { mind: x.key, mode: "scene", ...tp.casterFx } } }]);
+  return notice(target, x.powerName, `${desc ? `${desc} — ` : ""}${durText}`);
+}
+const MS_H = 3600000;
+
+/** Путь Воплощения: предмет в инвентаре тауматурга; Постоянство — закрепить уже созданный. */
+async function conjure(message, state, x, tp, caster) {
+  if (tp.conjure === "fix") {
+    const list = caster.items.filter(i => i.getFlag(SYSTEM_ID, "conjured") === "scene");
+    if (!list.length) return ui.notifications.warn(t("ConjureNone"));
+    const id = list.length === 1 ? list[0].id : await ask(x.powerName, list.map(i => [i.id, i.name]));
+    const item = caster.items.get(id);
+    if (!item) return;
+    await done(message, state, x);
+    await item.setFlag(SYSTEM_ID, "conjured", "forever");
+    return notice(caster, x.powerName, t("ConjureFixed", { name: item.name }));
+  }
+  const name = await foundry.applications.api.DialogV2.prompt({ window: { title: x.powerName, icon: "fa-solid fa-wand-magic-sparkles" }, classes: ["vtm20", "r-dialog"], rejectClose: false,
+    content: `<div class="r-form"><label class="r-field"><span>${esc(t("ConjureWhat"))}</span><input type="text" name="n" autofocus placeholder="${esc(t("ConjureHint"))}"></label></div>`,
+    ok: { label: t("ConjureApply"), callback: (e, b) => b.form.elements.n.value.trim() } });
+  if (!name) return;
+  await done(message, state, x);
+  await caster.createEmbeddedDocuments("Item", [{ name, type: "gear", flags: { [SYSTEM_ID]: { conjured: tp.conjure } } }]);
+  return notice(caster, x.powerName, t(tp.conjure === "scene" ? "ConjureScene" : "ConjureForever", { name }));
+}
+
+/** Выбор из списка перед наложением. */
+const ask = (title, options) => foundry.applications.api.DialogV2.prompt({ window: { title }, classes: ["vtm20", "r-dialog"], rejectClose: false,
+  content: `<div class="r-form"><select name="v">${options.map(([v, l]) => `<option value="${v}">${esc(l)}</option>`).join("")}</select></div>`,
+  ok: { label: t("SelfApply"), callback: (e, b) => b.form.elements.v.value } });
+
+/** Распределить точки по Физическим Атрибутам (Сила стихий: 3 временные точки). */
+async function splitPoints(title, total) {
+  const res = await foundry.applications.api.DialogV2.prompt({ window: { title }, classes: ["vtm20", "r-dialog"], rejectClose: false,
+    content: `<div class="r-form"><p>${esc(t("SplitAsk", { n: total }))}</p>${["strength", "dexterity", "stamina"].map((k, i) =>
+      `<label class="r-field"><span>${esc(game.i18n.localize(`VTM20.Attr.${k}`))}</span><input type="number" name="${k}" value="${i === 0 ? total : 0}" min="0" max="${total}"></label>`).join("")}</div>`,
+    ok: { label: t("SelfApply"), callback: (e, b) => Object.fromEntries(["strength", "dexterity", "stamina"].map(k => [k, Math.max(0, Number(b.form.elements[k].value) || 0)])) } });
+  if (!res) return null;
+  if (Object.values(res).reduce((s, v) => s + v, 0) !== total) { ui.notifications.warn(t("SplitBad", { n: total })); return null; }
+  return res;
+}
+
+/** Существа путей: Танец лозы, Лесные великаны, Элементаль — статистами у жетона тауматурга. */
+async function summonPathCreature(caster, what, n) {
+  const s = caster.system, wp = s.willpower?.permanent ?? 1, th = caster.discipline("thaumaturgy"), brawl = s.abilities?.brawl?.value ?? 0;
+  const spec = {
+    vines: { name: t("VinesName"), attrs: { strength: Math.floor(wp / 2), dexterity: Math.floor(wp / 2), stamina: Math.floor(wp / 2) }, brawl: Math.max(0, brawl - 1), note: t("VinesDone", { n }) },
+    giant: { name: t("GiantName"), attrs: { strength: th, dexterity: 2, stamina: th }, brawl, note: t("GiantDone", { n }) },
+    elemental: { name: t("ElementalName"), attrs: Object.fromEntries(["strength", "dexterity", "stamina", "perception", "intelligence", "wits"].map(k => [k, 3])), brawl: 3, note: t("ElementalDone", { n: Math.max(0, n - 1) }) }
+  }[what];
+  const a = await Actor.create({ name: `${spec.name} (${caster.name})`, type: "creature", img: `systems/${SYSTEM_ID}/assets/icons/creature.svg`,
+    flags: { [SYSTEM_ID]: { summoned: caster.uuid } },
+    system: { kind: spec.name, supernatural: true, blood: { max: 0, value: 0 },
+      attributes: Object.fromEntries(Object.entries(spec.attrs).map(([k, v]) => [k, { value: Math.clamp(v, 0, 10) }])), abilities: { brawl: { value: spec.brawl } } } });
+  const tok = caster.getActiveTokens?.()[0];
+  if (tok && canvas?.scene) await canvas.scene.createEmbeddedDocuments("Token", [await a.getTokenDocument({ x: tok.document.x + canvas.grid.size, y: tok.document.y - canvas.grid.size })]);
+  return notice(caster, spec.name, spec.note);
 }
 
 /** Чтение ауры: по успехам — яркость, цвет, узоры (природа существа), смена эмоций, следы (правило системы). */
@@ -564,7 +775,7 @@ export async function endSceneAbyss() {
     const lights = s.lights.filter(l => l.getFlag(SYSTEM_ID, "abyss")).map(l => l.id);
     if (lights.length) await s.deleteEmbeddedDocuments("AmbientLight", lights);
   }
-  await dismissArms(game.actors.filter(a => a.getFlag(SYSTEM_ID, "abyssArm")));
+  await dismissArms(game.actors.filter(a => a.getFlag(SYSTEM_ID, "abyssArm") || a.getFlag(SYSTEM_ID, "summoned")));
 }
 async function dismissArms(arms) {
   for (const a of arms) {
@@ -595,14 +806,42 @@ export function soakDice(actor) {
   return [...(actor?.effects ?? [])].reduce((s, e) => s + (!e.disabled && Number(e.flags?.[SYSTEM_ID]?.soakDice) || 0), 0);
 }
 
-/** Штраф к пулам от Устрашающего взора — для окон бросков. */
-export function dreadDice(actor) {
-  return [...(actor?.effects ?? [])].filter(e => !e.disabled && e.flags?.[SYSTEM_ID]?.dread)
-    .map(e => ({ label: e.name, value: -Number(e.flags[SYSTEM_ID].dread) }));
+/** Штраф к пулам от Устрашающего взора и проклятий путей (diceAll) — для окон бросков. Сосредоточение отменяет. */
+export function dreadDice(actor, { social = false } = {}) {
+  if (centered(actor)) return [];
+  const out = [];
+  for (const e of actor?.effects ?? []) {
+    const f = !e.disabled && e.flags?.[SYSTEM_ID];
+    if (!f) continue;
+    if (f.dread) out.push({ label: e.name, value: -Number(f.dread) });
+    if (f.diceAll) out.push({ label: e.name, value: Number(f.diceAll) });
+    if (social && f.diceSocial) out.push({ label: e.name, value: Number(f.diceSocial) });
+  }
+  return out;
+}
+
+/** Сосредоточение (Путь Сосредоточенного разума 2): пулы не уменьшаются. */
+export const centered = actor => [...(actor?.effects ?? [])].some(e => !e.disabled && e.flags?.[SYSTEM_ID]?.centered);
+/** Флаг эффекта путей у персонажа (Танец ветра, Разъедающее касание, Верный удар). */
+export const pathFlag = (actor, k) => [...(actor?.effects ?? [])].some(e => !e.disabled && e.flags?.[SYSTEM_ID]?.[k]);
+
+/** Сложность от эффектов путей: к физическим, ко всем, к социальным, к Ловкости. */
+export function mindDiff(actor, { physical = false, social = false, dex = false } = {}) {
+  const out = [];
+  for (const e of actor?.effects ?? []) {
+    const f = !e.disabled && e.flags?.[SYSTEM_ID];
+    if (!f) continue;
+    const v = Number(f.diffAll || 0) + (physical ? Number(f.diffPhys || 0) : 0) + (social ? Number(f.diffSocial || 0) : 0) + (dex ? Number(f.diffDex || 0) : 0);
+    if (v) out.push({ label: e.name, value: v });
+  }
+  return out;
 }
 
 /** Снять с цели эффекты «до конца сцены» (Конец сцены). */
 export async function endSceneMind(actor) {
+  // Простое воплощение без Постоянства исчезает с концом сцены
+  const conj = actor.items.filter(i => i.getFlag(SYSTEM_ID, "conjured") === "scene").map(i => i.id);
+  if (conj.length) await actor.deleteEmbeddedDocuments("Item", conj);
   // «manual» (Усмирение, яд навсегда) снимаются вручную
   const ids = actor.effects.filter(e => e.flags?.[SYSTEM_ID]?.mind && e.flags[SYSTEM_ID].mode === "scene").map(e => e.id);
   if (ids.length) await actor.deleteEmbeddedDocuments("ActiveEffect", ids);
@@ -625,6 +864,12 @@ export function registerTargetPowers() {
     if (!actor) return;
     const ids = actor.effects.filter(e => e.flags?.[SYSTEM_ID]?.dread).map(e => e.id);
     if (ids.length) await actor.deleteEmbeddedDocuments("ActiveEffect", ids);
+    // Припадок, Отказ тела: уровень урона в конце каждого хода цели (броня не помогает)
+    const { soakAndApply } = await import("../dice/roll.mjs");
+    for (const e of actor.effects.filter(e => !e.disabled && e.flags?.[SYSTEM_ID]?.dot)) {
+      const d = e.flags[SYSTEM_ID].dot;
+      await soakAndApply(actor, 1, d.type, { soak: d.soak === true || (d.soak === "kindred" && actor.isVampire), armor: false });
+    }
   });
   // Сердце тьмы: без сердца кол не парализует (V20, Серпентис 5)
   Hooks.on("preCreateActiveEffect", (effect, data, options, userId) => {

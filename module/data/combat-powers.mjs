@@ -19,6 +19,7 @@ const esc = x => foundry.utils.escapeHTML(String(x ?? ""));
 export const COMBAT_POWERS = {
   "thaumaturgy|Игра с Огнём": { kind: "flame", soak: [3, 4, 5, 7, 9], dmg: [1, 1, 2, 2, 3] },
   "darkThaumaturgy|Огни Преисподней": { kind: "flame", soak: [3, 4, 5, 7, 9], dmg: [1, 2, 3, 4, 5] },
+  "thaumaturgy|Управление Погодой|5": { kind: "pool", pool: 10, type: "lethal", pierce: 99 },
   "thaumaturgy|Путь Молнии|2": { kind: "pool", pool: 4, type: "lethal", soakDiff: 7 },
   "thaumaturgy|Путь Молнии|3": { kind: "pool", pool: 8, type: "lethal", soakDiff: 8 },
   "thaumaturgy|Путь Молнии|4": { kind: "perSuccess", type: "lethal", soakDiff: 8 },
@@ -76,7 +77,7 @@ export async function powerHit(message, state, evaluated) {
     case "perSuccess":
       return postFixedDamage(actor, target, { amount: evaluated.successes, type: cp.type, soakDiff: cp.soakDiff ?? 6, title, boil: !!cp.boil });
     case "pool":
-      return rollDamage({ actor, pool: cp.pool, damageType: cp.type, title, target: target.uuid, soakDiff: cp.soakDiff ?? 6, notes, supernatural: true });
+      return rollDamage({ actor, pool: cp.pool, damageType: cp.type, title, target: target.uuid, soakDiff: cp.soakDiff ?? 6, notes, supernatural: true, pierce: cp.pierce ?? 0 });
     case "strike": {
       const pot = actor.discipline("potence"), auto = actor.physicalAuto("strength");
       const pool = actor.system.attributes.strength.total + (auto ? 0 : pot) + Math.max(0, evaluated.successes - 1);

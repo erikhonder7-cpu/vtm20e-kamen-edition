@@ -9,7 +9,7 @@ import { Codex } from "../data/codex.mjs";
 import { rollPool, odds, chancesView, tormentRule, tormentOdds } from "./roll.mjs";
 import { meritModsFor } from "../data/merit-mods.mjs";
 import { substanceMods } from "../data/vessels.mjs";
-import { dreadDice, frenzyDiff } from "../apps/target-powers.mjs";
+import { dreadDice, frenzyDiff, mindDiff, centered } from "../apps/target-powers.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -121,7 +121,7 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const sway = v.sway && swayOf(a).find(x => x.key === v.sway);
     if (sway) { pool += sway.dice; bd.push({ label: game.i18n.format("VTM20.Strategy.SwayLine", { name: sway.name }), value: sway.dice }); }
     const wp = a.system.health.penalty;
-    if (wp && v.wounds) { pool += wp; bd.push({ label: t("Roll.Wounds"), value: wp }); }
+    if (wp && v.wounds && !centered(a)) { pool += wp; bd.push({ label: t("Roll.Wounds"), value: wp }); }
     const arm = a.armor.penalty;
     if (arm && attr === "dexterity") { pool -= arm; bd.push({ label: t("Roll.ArmorPenalty"), value: -arm }); }
     // Изъяны: яркий свет у Сетитов −1 кубик; Цимисхи без родной земли — пул вдвое за каждый день (02)
@@ -139,7 +139,8 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const sm = substanceMods(a, { traits: [v.trait1, v.trait2], kind: this.cfg.kind ?? "check" });
     for (const d of sm.dice) { pool += d.value; bd.push(d); }
     // Устрашающий взор: −1 куб за успех до конца следующего хода (apps/target-powers.mjs)
-    for (const d of dreadDice(a)) { pool += d.value; bd.push(d); }
+    const socialRoll = [v.trait1, v.trait2].some(p => p?.startsWith("attributes.") && VTM20.attributeGroups.social.attributes.includes(p.split(".")[1]));
+    for (const d of dreadDice(a, { social: socialRoll })) { pool += d.value; bd.push(d); }
     // кубы от действующих сил к Способности (Театр теней, Чёрный метаморфоз — data/effects.mjs, dice)
     for (const k of [v.trait1, v.trait2].filter(p => p?.startsWith("abilities.")).map(p => p.split(".")[1]))
       for (const d of a.system.fx?.dice?.[k] ?? []) { pool += d.value; bd.push(d); }
@@ -160,7 +161,9 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const attrs = [v.trait1, v.trait2].filter(p => p?.startsWith("attributes.")).map(p => p.split(".")[1]);
     const social = attrs.some(k => VTM20.attributeGroups.social.attributes.includes(k));
     const formDiff = [v.trait1, v.trait2].flatMap(p => a.system.formFx?.diff?.[p?.split(".")[1]] ?? []);
+    const physical = attrs.some(k => VTM20.attributeGroups.physical.attributes.includes(k));
     const diffAuto = [...(attrs.includes("perception") ? (fx.perception ?? []) : []), ...formDiff, ...sm.diff, ...frenzyDiff(a, this.cfg.kind),
+      ...mindDiff(a, { physical, social, dex: attrs.includes("dexterity") }),
       ...mm.auto.filter(m => m.diff).map(m => ({ label: m.label, value: m.diff }))];
     const selectedTargets = [...(game.user.targets ?? [])];
     const earthTarget = selectedTargets.length === 1 ? selectedTargets[0]?.actor : null;

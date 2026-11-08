@@ -12,7 +12,7 @@ import { Codex } from "../data/codex.mjs";
 import { rollPool, odds, chancesView } from "../dice/roll.mjs";
 import { RollDialog } from "../dice/dialog.mjs";
 import { mobBonus } from "../apps/extras.mjs";
-import { dreadDice } from "../apps/target-powers.mjs";
+import { dreadDice, mindDiff, centered, pathFlag } from "../apps/target-powers.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -78,7 +78,8 @@ export function openDefense(actor, kind = "dodge", { onRolled = null, subtitle =
     onRolled,
     title: t(`Combat.Defense.${kind}`), subtitle: subtitle ?? t("Combat.DefenseSub"),
     trait1: `attributes.${d.attr}`, trait2: `abilities.${d.ability}`,
-    bonus: n > 1 ? -(n - 1) : 0, kind: "defense", lockTraits: true, celerityAction,
+    // Танец ветра (Путь Марса 3): уклоняться от любого числа атак без штрафа
+    bonus: n > 1 && !(kind === "dodge" && pathFlag(actor, "windDance")) ? -(n - 1) : 0, kind: "defense", lockTraits: true, celerityAction,
     diffNote: [n > 1 ? t("Combat.DefenseNth", { n }) : "", kind === "block" ? t("Combat.BlockNote") : "", t("Combat.DefenseNote")].filter(Boolean).join(" ")
   });
 }
@@ -154,8 +155,10 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     // Чудовищный облик: +1 куб к урону в драке; Шкура гадюки: +1 куб к укусу (data/effects.mjs)
     const extra = m.dmg == null ? 0 : (m.ability === "brawl" ? fx.brawlDamage ?? 0 : 0) + (id === "bite" ? fx.biteDamage ?? 0 : 0);
     const v = m.dmg != null && ["punch", "claws"].includes(id) && venom(m.type, false);
+    // Разъедающее касание (Длань Разрушения 3): безоружные атаки — губительный урон
+    const acid = m.dmg != null && m.ability === "brawl" && pathFlag(a, "brawlAgg");
     return { name: t(`Combat.M.${id}`), attr: m.attr, ability: m.ability, dice: m.dice, diff: m.diff, ranged: false,
-      dmg: m.dmg == null ? null : str + m.dmg + extra, auto: m.dmg == null ? 0 : auto, strengthDamage: m.dmg != null, type: v ? "aggravated" : m.type, venom: v,
+      dmg: m.dmg == null ? null : str + m.dmg + extra, auto: m.dmg == null ? 0 : auto, strengthDamage: m.dmg != null, type: v || acid ? "aggravated" : m.type, venom: v,
       // Когти Метаморфоз и Облика Зверя поглощаются только Стойкостью: без Выносливости и брони.
       fangs: !!m.fangs && !fx.clawsFortitudeOnly, supernatural: !!m.supernatural,
       note: [t(`Combat.MNote.${id}`), v ? t("Combat.VenomNote", { n: fx.venom }) : ""].filter(Boolean).join(" "), pierce: 0, bullet: false };
@@ -180,7 +183,7 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     add(t("Extra.MobBonus"), mobBonus(a));                 // толпа: +1 за каждого на ногах сверх первого (apps/extras.mjs)
     if (v.target === "held") add(t("Combat.Target.held"), 2);
     add(t("Roll.Modifier"), v.bonus);
-    if (v.wounds) add(t("Roll.Wounds"), a.system.health.penalty);
+    if (v.wounds && !centered(a)) add(t("Roll.Wounds"), a.system.health.penalty);
     if (c.attr === "dexterity" && a.armor.penalty) add(t("Roll.ArmorPenalty"), -a.armor.penalty);
     if (v.actions > 1) {
       const part = Math.floor(Math.max(0, pool) / v.actions);
@@ -194,6 +197,10 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const targetHitDiff = [...(targetActor?.system?.fx?.diff?.hit ?? []), ...(c.ranged ? targetActor?.system?.fx?.diff?.rangedHit ?? [] : [])]
       .reduce((sum, x) => sum + (Number(x.value) || 0), 0);
     if (targetHitDiff) { diff += targetHitDiff; notes.push(t("Fx.HitHint")); }
+    // пути Тауматургии: +сложность к физическим (Головокружение, Припадок, Отказ тела…)
+    for (const d of mindDiff(a, { physical: true, dex: c.attr === "dexterity" })) { diff += d.value; notes.push(`${d.label}: ${d.value > 0 ? "+" : ""}${d.value}`); }
+    // Верный удар (Путь Марса 2): ближний бой попадает с 1 успехом без броска — если пул не делят
+    if (pathFlag(a, "strikeTrue") && !c.ranged && v.actions === 1) notes.push(t("TP.PathNote.StrikeTrue"));
     const [aimDiff, aimDmg] = AIM[v.aim];
     diff += aimDiff;
     diff += Math.min(4, v.foes);
