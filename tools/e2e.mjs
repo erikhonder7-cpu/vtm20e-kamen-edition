@@ -1577,6 +1577,82 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  // Анимализм через интерфейс: кнопки сил на листе и в HUD → нужное окно; Усмирение — выбор способа, Сородич в бешенстве;
+  // гибель зверя с вампиром внутри — торпор
+  await check("Анимализм через лист и HUD", async () => {
+    const r = await page.evaluate(async () => {
+      const sys = p => import(`/systems/${game.system.id}/${p}`);
+      const TP = await sys("module/apps/target-powers.mjs");
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms));
+      const mk = (name, type, system = {}) => Actor.create({ name, type, flags: { world: { e2e: true } }, system });
+      const a = await mk("E2E — гангрел", "vampire", { generation: 9, clan: "gangrel" });
+      await a.setFlag(sid, "created", true);   // иначе лист — «ворота» мастера создания
+      const m = await mk("E2E — смертный под зверем", "mortal", { willpower: { permanent: 4, temporary: 4 } });
+      const v = await mk("E2E — сородич в ярости", "vampire", { generation: 12 });
+      const wolf = await mk("E2E — Волк", "creature", { supernatural: false });
+      await a.createEmbeddedDocuments("Item", [{ name: "E2E — animalism", type: "discipline", system: { key: "animalism", value: 5 } }]);
+      await v.toggleStatusEffect("r-frenzy", { active: true });
+      const scene = game.scenes.viewed ?? game.scenes.contents[0];
+      const made = await scene.createEmbeddedDocuments("Token", await Promise.all([[a, 100], [m, 300], [v, 500], [wolf, 700]].map(([x, px]) => x.getTokenDocument({ x: px, y: 900 }))));
+      const toks = [a, m, v, wolf].map(x => made.find(tk => tk.actorId === x.id));   // порядок созданных жетонов не гарантирован
+      for (let i = 0; i < 30 && !canvas.tokens.get(toks[3].id); i++) await wait(100);
+      await wait(400);
+      const mark = async td => { canvas.tokens.get(td.id)?.setTarget(true, { releaseOthers: true }); await wait(300); };
+      const rollDlg = async () => { let d = null; for (let i = 0; i < 30 && !d; i++) { await wait(100); d = [...foundry.applications.instances.values()].find(x => x.constructor.name === "RollDialog" && (x.actor === a || x.actor?.id === a.id)); } return d; };
+      const dialogV2 = async () => { let d = null; for (let i = 0; i < 30 && !d; i++) { await wait(100); d = [...foundry.applications.instances.values()].find(x => x instanceof foundry.applications.api.DialogV2); } return d; };
+      const out = {};
+      // лист: вкладка Дисциплин, кнопка силы «Язык животных» на волка — сложность 6
+      await a.sheet.render({ force: true }); await wait(800);
+      a.sheet.changeTab?.("disciplines", "primary"); await wait(500);
+      const btn = lvl => [...a.sheet.element.querySelectorAll('[data-action="rollPower"]')].find(b => b.dataset.ref?.startsWith("animalism|") && game.vtm20Codex.discipline("animalism").powers[Number(b.dataset.ref.split("|")[1])]?.level === lvl);
+      out.sheetButtons = [1, 2, 3, 4, 5].filter(l => btn(l)).length;
+      await mark(toks[3]);
+      btn(1)?.click();
+      let d = await rollDlg();
+      out.whisper = d?.values.difficulty;
+      await d?.close();
+      // HUD: печать Анимализма → список сил → «Усмирение Зверя» на смертного — выбор способа, продолжительный до 4
+      canvas.tokens.get(toks[0].id)?.control({ releaseOthers: true }); await wait(600);
+      const hud = document.getElementById("r-hud");
+      hud?.querySelector('[data-act="tab"][data-tab="powers"]')?.click(); await wait(400);
+      document.getElementById("r-hud")?.querySelector('[data-act="pop"][data-pop*="animalism"]')?.click(); await wait(400);
+      const rows = [...document.querySelectorAll('#r-hud .rh-pop-row[data-act="power"]')];
+      out.hudRows = rows.length;
+      await mark(toks[1]);
+      rows.find(x => /Усмирение/.test(x.textContent))?.click();
+      const way = await dialogV2();
+      const sel = way?.element.querySelector('select[name="w"]'); if (sel) sel.value = "calm";
+      way?.element.querySelector('button[data-action="ok"]')?.click();
+      d = await rollDlg();
+      out.quell = [d?.values.trait2, d?.values.contest, d?.values.need, d?.values.difficulty];
+      await d?.close();
+      // Сородич в бешенстве: Усмирение не блокируется, способ — только успокоить, бросок простой
+      await mark(toks[2]);
+      document.getElementById("r-hud")?.querySelector('[data-act="pop"][data-pop*="animalism"]')?.click(); await wait(400);   // список сил закрылся после выбора — открыть снова
+      document.querySelectorAll('#r-hud .rh-pop-row[data-act="power"]').forEach(x => { if (/Усмирение/.test(x.textContent)) x.click(); });
+      d = await rollDlg();
+      out.quellKindred = [d?.values.trait2, d?.values.contest];
+      await d?.close();
+      // Поглощение духа: зверь погибает — вампир возвращается в тело и в торпор
+      const link = { key: "animalism|Subsume the Spirit", target: wolf.uuid, targetName: wolf.name, powerName: "Поглощение духа", actorName: a.name };
+      await TP.applyTargetPower({ isOwner: false }, { actorUuid: a.uuid, extra: { targetPower: link } }, { successes: 3, outcome: "success" });
+      out.subsume = a.effects.some(e => e.flags?.[sid]?.subsume);
+      await wolf.update({ "system.health.lethal": 7 });
+      for (let i = 0; i < 30 && !a.statuses.has("r-torpor"); i++) await wait(100);
+      out.death = [a.statuses.has("r-torpor"), a.effects.some(e => e.flags?.[sid]?.subsume)];
+      await a.sheet.close();
+      [...game.user.targets].forEach(tk => tk.setTarget(false, { releaseOthers: false }));
+      canvas.tokens.releaseAll();
+      await wait(800);
+      await scene.deleteEmbeddedDocuments("Token", toks.map(x => x.id));
+      await Actor.deleteDocuments([a.id, m.id, v.id, wolf.id]);
+      return out;
+    });
+    const want = { sheetButtons: 5, whisper: 6, hudRows: 5, quell: ["abilities.empathy", "extended", 4, 7], quellKindred: ["abilities.empathy", "simple"], subsume: true, death: [true, false] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   // Метаморфозы 3, 5 и Модифицированный Облик Зверя (2.7.0): Слияние с землёй (солнце не вредит, угроза будит),
   // Туманная форма (обычный урон не проходит, огонь — да; атаковать нельзя), две формы Гангрела из Clanbook
   await check("Метаморфозы: туман, Слияние с землёй, Модифицированный Облик", async () => {

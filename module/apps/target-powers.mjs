@@ -122,7 +122,9 @@ export function markedTarget(actor) {
 export function prepareTargetPower(actor, disc, p, tp) {
   const target = markedTarget(actor) ?? (tp.allowSelf ? actor : null);
   if (!target && tp.needTarget) { ui.notifications.warn(t("NeedTarget")); return null; }
-  if (tp.mortalOnly && target?.isVampire) { ui.notifications.warn(t("NotKindred", { name: target.name })); return null; }
+  // Усмирение Зверя: на Сородича не действует — кроме успокоения уже впавшего в бешенство (V20, Анимализм 3)
+  if (tp.mortalOnly && target?.isVampire && !(tp.kind === "quell" && target.statuses?.has("r-frenzy"))) { ui.notifications.warn(t("NotKindred", { name: target.name })); return null; }
+  if (tp.kind === "quell" && target?.effects.some(e => !e.disabled && e.flags?.[SYSTEM_ID]?.quellImmune === actor.uuid)) { ui.notifications.warn(t("QuellImmune", { name: target.name })); return null; }
   if (tp.mortalTarget && supernatural(target)) { ui.notifications.warn(t("MortalsOnly", { name: target.name })); return null; }
   if (tp.animal && !(target.type === "creature" && !target.system.spirit?.on)) { ui.notifications.warn(t("NotAnimal", { name: target.name })); return null; }
   if (!tp.diff) return { difficulty: null, note: "", target };
@@ -212,6 +214,8 @@ export async function applyTargetPower(message, state, ev) {
     if (self && !self.isOwner) return ui.notifications.warn(game.i18n.format("VTM20.Notify.NotOwner", { name: self.name }));
     if (self?.statuses?.has("r-frenzy")) await self.toggleStatusEffect("r-frenzy", { active: false });
     if (!target.statuses?.has("r-frenzy")) await target.toggleStatusEffect("r-frenzy", { active: true });
+    if (self) await self.createEmbeddedDocuments("ActiveEffect", [{ name: t("BeastOutName", { name: target.name }), img: Codex.disciplineIcon("animalism"),
+      description: `<p>${esc(t("BeastOutDesc"))}</p>`, flags: { [SYSTEM_ID]: { ...flags, beastOut: target.uuid, mode: "scene" } } }]);
     desc = t(n >= 3 ? "Beast3" : n === 2 ? "Beast2" : "Beast1");
     await done(message, state, x);
     return notice(target, x.powerName, desc);
@@ -263,9 +267,9 @@ export async function applyTargetPower(message, state, ev) {
     await done(message, state, x);
     const tier = Math.min(5, n), list = SUBSUME[tier].map(k => Codex.disciplineLabel(k)).join(", ") || t("SubsumeNone");
     await self.createEmbeddedDocuments("ActiveEffect", [{ name: t("SubsumeName", { name: target.name }), img: Codex.disciplineIcon("animalism"),
-      description: `<p>${esc(t("SubsumeDesc", { list }))}</p>`, flags: { [SYSTEM_ID]: { ...flags, subsume: tier, mode: "manual" } } }]);
+      description: `<p>${esc(t("SubsumeDesc", { list }))}</p>`, flags: { [SYSTEM_ID]: { ...flags, subsume: tier, host: target.uuid, mode: "manual" } } }]);
     await target.createEmbeddedDocuments("ActiveEffect", [{ name: t("PossessedName", { name: x.actorName }), img: Codex.disciplineIcon("animalism"),
-      flags: { [SYSTEM_ID]: { ...flags, mode: "manual" } } }]);
+      flags: { [SYSTEM_ID]: { ...flags, subsumedBy: self.uuid, mode: "manual" } } }]);
     return notice(target, x.powerName, t("SubsumeDesc", { list }));
   }
   if (tp.kind === "rage") {
@@ -331,9 +335,10 @@ export async function applyTargetPower(message, state, ev) {
     name = t("EyesName", { name: x.actorName });
     desc = t(supernatural(target) ? "EyesSuper" : "EyesMortal");
   } else if (tp.kind === "quell") {
+    const self = state.actorUuid ? await foundry.utils.fromUuid(state.actorUuid) : null;
     Object.assign(flags, { mode: "manual" });
     name = t("QuellName", { name: x.actorName });
-    desc = t("QuellDesc");
+    desc = t("QuellDesc", { n: self?.system.willpower?.permanent ?? "?" });
   } else if (tp.dread) {
     // −1 куб за успех на следующий ход цели; 3+ — бежит в ужасе (V20, Величие 2)
     Object.assign(flags, { dread: n, mode: "scene" });
@@ -463,11 +468,35 @@ export async function rollTargetPower(actor, disc, d, p, tp, { rollFromSpec, sub
     roll = { ...roll, blood: n, note: t("PoisonNote", { n }) };
     opts.more = { targetPower: { ...link, poison: n } };
   }
-  // Усмирение Зверя: продолжительный бросок до постоянной Воли цели (сл. 7)
+  // Усмирение Зверя: вселить страх (Манипуляция + Запугивание) или успокоить (Манипуляция + Эмпатия), сл. 7;
+  // продолжительный бросок до постоянной Воли цели; Сородича в бешенстве — только успокоить, 3+ успеха — переброс ярости
   if (tp.kind === "quell") {
-    const need = Math.max(1, target.system.willpower?.permanent ?? 1);
-    Object.assign(opts, { contest: "extended", need });
-    roll.note = t("QuellNote", { n: need, name: target.name });
+    const kindred = target.isVampire;
+    const way = kindred ? "calm" : await foundry.applications.api.DialogV2.prompt({ window: { title: p.name, icon: "fa-solid fa-paw" }, classes: ["vtm20", "r-dialog"], rejectClose: false,
+      content: `<div class="r-form"><label class="r-field"><span>${esc(t("QuellHow"))}</span><select name="w"><option value="fear">${esc(t("QuellFear"))}</option><option value="calm">${esc(t("QuellCalm"))}</option></select></label></div>`,
+      ok: { label: t("VisageGo"), callback: (e, b) => b.form.elements.w.value } });
+    if (!way) return null;
+    roll = { ...roll, trait2: way === "calm" ? "abilities.empathy" : "abilities.intimidation", difficulty: 7 };
+    if (kindred) {
+      roll.note = t("QuellKindredNote", { name: target.name });
+      opts.more = null;
+      opts.onRolled = res => (res?.successes ?? 0) >= 3 ? ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: target }),
+        whisper: game.users.filter(u => u.isGM || target.testUserPermission(u, "OWNER")).map(u => u.id),
+        flags: { [SYSTEM_ID]: { checkPrompt: { kind: "frenzy", difficulty: 6, actorUuid: target.uuid } } },
+        content: `<div class="r-notice r-check-prompt is-frenzy"><i class="fa-solid fa-face-angry"></i> <span>${esc(t("QuellKindredOk", { name: target.name, by: actor.name }))}</span>
+          <div class="r-card-buttons"><button type="button" data-r-action="virtueCheck"><i class="fa-solid fa-dice-d10"></i> ${esc(game.i18n.localize("VTM20.CheckPrompt.Roll"))}</button></div></div>` }) : null;
+    } else {
+      const need = Math.max(1, target.system.willpower?.permanent ?? 1);
+      Object.assign(opts, { contest: "extended", need });
+      roll.note = t("QuellNote", { n: need, name: target.name });
+      // провал — цель невосприимчива к этому вампиру до конца сцены
+      opts.onRolled = async res => {
+        if (res?.outcome !== "botch") return;
+        if (target.isOwner) await target.createEmbeddedDocuments("ActiveEffect", [{ name: t("QuellImmuneName", { name: actor.name }), img: Codex.disciplineIcon("animalism"),
+          flags: { [SYSTEM_ID]: { mind: key, quellImmune: actor.uuid, mode: "scene" } } }]);
+        notice(target, p.name, t("QuellImmune", { name: target.name }));
+      };
+    }
   }
   // Отчуждение Зверя: неудача — бешенство самому (вдвое дольше), провал — неуправляемое
   if (tp.kind === "beast") opts.onRolled = async res => {
@@ -877,6 +906,27 @@ export function registerTargetPowers() {
     if (actor?.documentName !== "Actor" || !actor.system?.fx?.heartless || !(effect.statuses ?? new Set()).has?.("r-staked")) return;
     if (userId === game.user.id) ui.notifications.info(t("HeartlessStake", { name: actor.name }));
     return false;
+  });
+  // Поглощение духа: вампир вышел (эффект снят) — зверь свободен
+  Hooks.on("deleteActiveEffect", async effect => {
+    const host = effect.flags?.[SYSTEM_ID]?.host;
+    if (!host || !effect.flags[SYSTEM_ID].subsume || !game.users.activeGM?.isSelf) return;
+    const animal = await foundry.utils.fromUuid(host);
+    const ids = animal?.effects.filter(e => e.flags?.[SYSTEM_ID]?.subsumedBy).map(e => e.id) ?? [];
+    if (ids.length) await animal.deleteEmbeddedDocuments("ActiveEffect", ids);
+  });
+  // Поглощение духа: зверь погиб с вампиром внутри — сознание возвращается в тело, вампир в торпоре (V20, Анимализм 4)
+  Hooks.on("updateActor", async actor => {
+    if (!game.users.activeGM?.isSelf || !actor.system.health?.incapacitated) return;
+    const fx = actor.effects.find(e => e.flags?.[SYSTEM_ID]?.subsumedBy);
+    if (!fx) return;
+    const vamp = await foundry.utils.fromUuid(fx.flags[SYSTEM_ID].subsumedBy);
+    await fx.delete();
+    if (!vamp) return;
+    const ids = vamp.effects.filter(e => e.flags?.[SYSTEM_ID]?.subsume).map(e => e.id);
+    if (ids.length) await vamp.deleteEmbeddedDocuments("ActiveEffect", ids);
+    if (!vamp.statuses?.has("r-torpor")) await vamp.toggleStatusEffect("r-torpor", { active: true });
+    ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: vamp }), content: `<div class="r-notice is-warn"><i class="fa-solid fa-skull"></i> ${esc(t("SubsumeDeath", { name: vamp.name, beast: actor.name }))}</div>` });
   });
   // Могущество крови кончилось: излишек крови сверх прежнего запаса выплёскивается (V20, Путь Крови 3)
   Hooks.on("deleteActiveEffect", async effect => {

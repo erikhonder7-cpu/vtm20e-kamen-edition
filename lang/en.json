@@ -5605,7 +5605,7 @@
       "PoisonDesc": "Stamina −{n} {dur}. At Stamina 0 a mortal is terminally ill, a vampire falls into torpor.",
       "QuellNote": "Extended roll: {n} successes needed (“{name}”'s permanent Willpower); a failure resets the total.",
       "QuellName": "Quelled ({name})",
-      "QuellDesc": "cannot spend or regain Willpower, does not resist mental or physical influence; remove manually",
+      "QuellDesc": "cannot spend or regain Willpower, does not resist mental or physical influence; in mortal danger may break free — extended Willpower (diff. 6) to {n} successes, once a day; remove manually",
       "BeastApply": "Pass the Beast to “{name}”",
       "Beast1": "the Beast passes to a random suitable target — the Storyteller chooses who",
       "Beast2": "the Beast passes to the chosen target; the vampire loses the next turn or acts at once for 1 Willpower",
@@ -5690,7 +5690,7 @@
       "FleshLooks": "Appearance {from} → {to}",
       "SubsumeApply": "Subsume “{name}”",
       "SubsumeName": "Spirit in the body: {name}",
-      "SubsumeDesc": "the vampire inhabits the animal; available: {list}. Acting against its instincts costs Willpower (under 3 successes)",
+      "SubsumeDesc": "the vampire inhabits the animal, their own body unconscious as in torpor; available: {list}. Acting against its instincts costs Willpower (under 3 successes). Leave — remove this effect",
       "SubsumeNone": "no Disciplines",
       "SubsumeBlocked": "“{name}” isn't available in the animal body — too few successes on Subsume the Spirit",
       "WhisperNote": "Difficulty for “{name}”: {n} (6 — predators, 7 — other mammals and raptors, 8 — birds and reptiles). Natural sounds and poses — −1.",
@@ -5806,7 +5806,17 @@
       "ConjureScene": "“{name}” in hand — lasts while 1 Willpower is paid each turn (vanishes at the end of the scene)",
       "ConjureForever": "“{name}” created permanently",
       "ConjureNone": "Nothing to make permanent — use Summon the Simple Form first",
-      "ConjureFixed": "“{name}” is now permanent"
+      "ConjureFixed": "“{name}” is now permanent",
+      "QuellHow": "How to quell the Beast",
+      "QuellFear": "instil fear (Manipulation + Intimidation)",
+      "QuellCalm": "soothe (Manipulation + Empathy)",
+      "QuellKindredNote": "“{name}” is in frenzy: soothing form, difficulty 7; 3+ successes — the Storyteller may allow a new Self-Control roll.",
+      "QuellKindredOk": "{by} soothes “{name}”'s Beast: the failed frenzy roll may be retried",
+      "QuellImmune": "“{name}” is immune to this vampire's Quell the Beast until the end of the scene",
+      "QuellImmuneName": "Immune to Quell the Beast ({name})",
+      "BeastOutName": "Beast outside (in “{name}”)",
+      "BeastOutDesc": "leave the scene before the target's frenzy ends and the Beast may stay in it; without the Beast the vampire is apathetic, cannot frenzy, spend or regain Willpower",
+      "SubsumeDeath": "{beast} dies — {name}'s mind returns to the body and falls into torpor"
     }
   },
   "Fx": {
