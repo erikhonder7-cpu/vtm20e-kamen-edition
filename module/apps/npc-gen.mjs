@@ -40,6 +40,10 @@ async function data() {
   DATA ??= await fetch(`${SYSTEM_PATH}/data/npc.json`).then(r => r.json());
   return DATA;
 }
+/** Звери справочника (Анимализм, Зов) и создание по статблоку (apps/target-powers.mjs). */
+export async function animalTemplates() { return (await data()).templates.filter(x => x.group === "animals"); }
+export const spawnFromTemplate = (tpl, o) => createFromTemplate(tpl, o);
+
 /** Статблоки книги, которые остаются в генераторе: люди и звери; оборотни и падшие — полноценными листами, магов, фей и призраков пока нет. */
 const BOOK_GROUPS = ["hunters", "criminals", "animals", "swarms"];
 

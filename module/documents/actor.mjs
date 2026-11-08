@@ -508,6 +508,9 @@ export class VtMActor extends Actor {
     }
     const labels = { stamina: this.traitLabel("attributes.stamina"), fortitude: Codex.disciplineLabel("fortitude"),
       armor: t("Sheet.Armor"), form: t("Combat.FormSoak") };
+    // Укрепление тела (Искусство тканей): +1 куб к поглощению за успех (apps/target-powers.mjs, soakDice)
+    const fleshDice = [...this.effects].reduce((s, e) => s + (!e.disabled && Number(e.flags?.[SYSTEM_ID]?.soakDice) || 0), 0);
+    if (fleshDice) { parts.flesh = fleshDice; labels.flesh = t("TP.FleshSoak"); }
     return Object.entries(parts).filter(([, value]) => value > 0).map(([key, value]) => ({ label: labels[key], value }));
   }
 

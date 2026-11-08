@@ -19,7 +19,15 @@
 //   · Путь Крови (Тауматургия): Вкус крови — сведения о цели по успехам (только себе и рассказчику, правило системы);
 //     Неистовство крови — цель тратит кровь за каждый успех, +1 к сложности сопротивления ярости за кровь;
 //     Могущество крови — раз за ночь: поколение ниже на 1 на час, лишние успехи — часы или ступени;
-//     Хищение крови — кровь от цели тауматургу. Котёл крови — data/combat-powers.mjs (урон и выкипание крови).
+//     Хищение крови — кровь от цели тауматургу. Котёл крови — data/combat-powers.mjs (урон и выкипание крови);
+//   · Вселение: встречная — цель бросает текущую Волю (сл. 7), разница успехов снимает её Волю; на нуле — тело занято;
+//   · Чтение ауры: сведения по успехам шёпотом (природа, бешенство, следы диаблери — правило системы);
+//   · Психическая проекция: тело в оцепенении до конца сцены;
+//   · Изменчивый облик: Привлекательность выше (сл. 9, +1 кровь за точку), провал — навсегда −1;
+//   · Искусство тканей: Привлекательность цели ± за успех, Укрепление тела — +1 куб к поглощению за успех ценой Силы;
+//   · Язык животных: сложность по виду зверя (6 хищники, 7 прочие звери и хищные птицы, 8 птицы и рептилии);
+//   · Зов: звери из справочника приходят жетонами — доля услышавших по успехам;
+//   · Поглощение духа: вампир в теле зверя, доступные Дисциплины — по успехам.
 // Наложить эффект может владелец цели или рассказчик — кнопкой на карточке броска (как «принять урон»).
 
 import { SYSTEM_ID } from "../config.mjs";
@@ -53,8 +61,33 @@ export const TARGET_POWERS = {
   "thaumaturgy|A Taste for Blood": { kind: "taste", needTarget: true },
   "thaumaturgy|Blood Rage": { kind: "rage", needTarget: true },
   "thaumaturgy|Blood of Potency": { kind: "potency", self: true },
-  "thaumaturgy|Theft of Vitae": { kind: "theft", needTarget: true }
+  "thaumaturgy|Theft of Vitae": { kind: "theft", needTarget: true },
+  "dominate|Possession": { kind: "possess", needTarget: true, dominate: true, mortalTarget: true },
+  "auspex|Aura Perception": { kind: "aura", needTarget: true },
+  "auspex|Psychic Projection": { kind: "project", self: true },
+  "vicissitude|Malleable Visage": { kind: "visage", self: true },
+  "vicissitude|Fleshcraft": { kind: "flesh", needTarget: true },
+  "animalism|Feral Whispers": { kind: "whisper", needTarget: true, animal: true, tiers: [[1, "Whis1"], [3, "Whis3"], [5, "Whis5"]] },
+  "animalism|The Beckoning": { kind: "beckon", self: true },
+  "animalism|Subsume the Spirit": { kind: "subsume", needTarget: true, animal: true }
 };
+
+/** Поглощение духа: какие Дисциплины доступны в теле зверя по числу успехов (V20, Анимализм 4). */
+const SUBSUME = [[], [], ["auspex"], ["auspex", "presence"], ["auspex", "presence", "dementation", "dominate"],
+  ["auspex", "presence", "dementation", "dominate", "chimerstry", "necromancy", "thaumaturgy"]];
+export function subsumeBlocks(actor, disc) {
+  const e = [...(actor?.effects ?? [])].find(x => !x.disabled && x.flags?.[SYSTEM_ID]?.subsume);
+  if (!e) return false;
+  return !SUBSUME[Math.min(5, Number(e.flags[SYSTEM_ID].subsume))].includes(disc);
+}
+
+/** Сложность Языка животных по виду (по имени и «виду» существа). */
+function animalDiff(a) {
+  const s = `${a.name} ${a.system.kind ?? ""}`.toLowerCase();
+  if (/волк|кош|кот|рыс|лев|тигр|пантер|летуч|медвед|лис|пёс|пес|собак|wolf|cat|bat|bear|dog|fox/.test(s)) return 6;
+  if (/голуб|ворон|воробь|птиц|змея|змей|ящер|черепах|pigeon|crow|raven|bird|snake|lizard|reptil/.test(s)) return 8;
+  return 7;
+}
 
 /** Сверхъестественное существо (Глаза змеи): вампир, Гару, падший, сверхъестественная тварь; гуль и охотник — смертные. */
 const supernatural = a => ["vampire", "werewolf", "demon"].includes(a.type) || (a.type === "creature" && !!a.system.supernatural);
@@ -86,6 +119,8 @@ export function prepareTargetPower(actor, disc, p, tp) {
   const target = markedTarget(actor);
   if (!target && tp.needTarget) { ui.notifications.warn(t("NeedTarget")); return null; }
   if (tp.mortalOnly && target?.isVampire) { ui.notifications.warn(t("NotKindred", { name: target.name })); return null; }
+  if (tp.mortalTarget && supernatural(target)) { ui.notifications.warn(t("MortalsOnly", { name: target.name })); return null; }
+  if (tp.animal && !(target.type === "creature" && !target.system.spirit?.on)) { ui.notifications.warn(t("NotAnimal", { name: target.name })); return null; }
   if (!tp.diff) return { difficulty: null, note: "", target };
   const label = tp.diff.map(k => t(`Diff.${k}`)).join(" + ");
   if (!target) {
@@ -133,11 +168,12 @@ export function tierText(tp, successes) {
 /** Подпись кнопки «наложить» на карточке (только у сил с эффектом на цели). */
 export function targetPowerLabel(extra, ev) {
   const tp = extra?.targetPower && TARGET_POWERS[extra.targetPower.key];
-  if (!tp || ev.outcome !== "success" || extra.targetPower.done || !(tp.timed || tp.dread || tp.kind) || ["taste", "gather"].includes(tp.kind)) return "";
+  if (!tp || ev.outcome !== "success" || extra.targetPower.done || !(tp.timed || tp.dread || tp.kind) || ["taste", "gather", "aura", "visage", "whisper"].includes(tp.kind)) return "";
   // Усмирение — только когда накоплены все успехи продолжительного броска
   if (tp.kind === "quell" && !((extra.extended?.prev ?? 0) + ev.successes >= (extra.extended?.need ?? Infinity))) return "";
   const lbl = { beast: "BeastApply", poison: "PoisonApply", shroud: "ShroudApply", arms: "ArmsApply", vanish: "VanishApply",
-    rage: "RageApply", potency: "PotencyApply", theft: "TheftApply" }[tp.kind] ?? "Apply";
+    rage: "RageApply", potency: "PotencyApply", theft: "TheftApply", possess: "PossessApply", project: "ProjectApply",
+    flesh: "FleshApply", beckon: "BeckonApply", subsume: "SubsumeApply" }[tp.kind] ?? "Apply";
   return t(lbl, { name: extra.targetPower.targetName, n: ev.successes });
 }
 
@@ -147,6 +183,10 @@ export async function applyTargetPower(message, state, ev) {
   if (!tp || x.done) return;
   const target = await foundry.utils.fromUuid(x.target);
   if (!target) return ui.notifications.warn(t("Gone"));
+  if (["shroud", "arms", "beckon"].includes(tp.kind) && tp.kind === "beckon") {
+    if (!game.user.isGM) return ui.notifications.warn(t("GMOnly"));
+    return beckon(message, state, x, target, ev.successes);
+  }
   if (["shroud", "arms"].includes(tp.kind)) {
     if (!game.user.isGM) return ui.notifications.warn(t("GMOnly"));
     await done(message, state, x);
@@ -166,6 +206,56 @@ export async function applyTargetPower(message, state, ev) {
     desc = t(n >= 3 ? "Beast3" : n === 2 ? "Beast2" : "Beast1");
     await done(message, state, x);
     return notice(target, x.powerName, desc);
+  }
+  if (tp.kind === "possess") {
+    // Вселение: цель бросает текущую Волю (сл. 7); успехи вампира сверх её — минус временная Воля цели
+    const { rollPool } = await import("../dice/roll.mjs");
+    const wp = target.system.willpower?.temporary ?? 0;
+    const res = wp > 0 ? await rollPool({ actor: target, title: t("PossessResist"), pool: wp, difficulty: 7, kind: "check" }) : { successes: 0 };
+    const net = Math.max(0, n - (res?.successes ?? 0)), left = Math.max(0, wp - net);
+    await done(message, state, x);
+    if (net) await target.update({ "system.willpower.temporary": left });
+    if (left > 0) return notice(target, x.powerName, t("PossessStruggle", { n: net, left }));
+    const self = state.actorUuid ? await foundry.utils.fromUuid(state.actorUuid) : null;
+    await target.createEmbeddedDocuments("ActiveEffect", [{ name: t("PossessedName", { name: x.actorName }), img: Codex.disciplineIcon("dominate"),
+      description: `<p>${esc(t("PossessedDesc"))}</p>`, flags: { [SYSTEM_ID]: { ...flags, mode: "manual" } } }]);
+    if (self?.isOwner) await self.createEmbeddedDocuments("ActiveEffect", [{ name: t("EmptyBody"), img: Codex.disciplineIcon("dominate"),
+      description: `<p>${esc(t("EmptyBodyDesc"))}</p>`, flags: { [SYSTEM_ID]: { ...flags, mode: "manual" } } }]);
+    return notice(target, x.powerName, t("PossessDone"));
+  }
+  if (tp.kind === "project") {
+    await done(message, state, x);
+    await target.createEmbeddedDocuments("ActiveEffect", [{ name: t("ProjectName"), img: Codex.disciplineIcon("auspex"),
+      description: `<p>${esc(t("ProjectDesc"))}</p>`, flags: { [SYSTEM_ID]: { ...flags, mode: "scene" } } }]);
+    return notice(target, x.powerName, t("ProjectDesc"));
+  }
+  if (tp.kind === "flesh") {
+    // Искусство тканей: Привлекательность ±1 за успех; Укрепление — +1 куб к поглощению за успех ценой 1 точки Силы
+    await done(message, state, x);
+    const ap = target.system.attributes.appearance?.value ?? 0, mode = x.flesh ?? "lower";
+    if (mode === "armor") {
+      const k = Math.min(n, (target.system.attributes.strength?.value ?? 1) - 1);
+      if (k < 1) return notice(target, x.powerName, t("FleshNoStrength"));
+      await target.update({ "system.attributes.strength.value": target.system.attributes.strength.value - k });
+      await target.createEmbeddedDocuments("ActiveEffect", [{ name: t("FleshArmorName", { n: k }), img: Codex.disciplineIcon("vicissitude"),
+        description: `<p>${esc(t("FleshArmorDesc", { n: k }))}</p>`, flags: { [SYSTEM_ID]: { ...flags, soakDice: k, mode: "manual" } } }]);
+      return notice(target, x.powerName, t("FleshArmorDesc", { n: k }));
+    }
+    const next = Math.clamp(ap + (mode === "raise" ? n : -n), 0, 5);
+    await target.update({ "system.attributes.appearance.value": next });
+    return notice(target, x.powerName, t("FleshLooks", { from: ap, to: next }));
+  }
+  if (tp.kind === "subsume") {
+    // Поглощение духа: тело вампира пустует, в звере — его дух; Дисциплины — по успехам
+    const self = state.actorUuid ? await foundry.utils.fromUuid(state.actorUuid) : null;
+    if (!self?.isOwner) return ui.notifications.warn(game.i18n.format("VTM20.Notify.NotOwner", { name: self?.name ?? "" }));
+    await done(message, state, x);
+    const tier = Math.min(5, n), list = SUBSUME[tier].map(k => Codex.disciplineLabel(k)).join(", ") || t("SubsumeNone");
+    await self.createEmbeddedDocuments("ActiveEffect", [{ name: t("SubsumeName", { name: target.name }), img: Codex.disciplineIcon("animalism"),
+      description: `<p>${esc(t("SubsumeDesc", { list }))}</p>`, flags: { [SYSTEM_ID]: { ...flags, subsume: tier, mode: "manual" } } }]);
+    await target.createEmbeddedDocuments("ActiveEffect", [{ name: t("PossessedName", { name: x.actorName }), img: Codex.disciplineIcon("animalism"),
+      flags: { [SYSTEM_ID]: { ...flags, mode: "manual" } } }]);
+    return notice(target, x.powerName, t("SubsumeDesc", { list }));
   }
   if (tp.kind === "rage") {
     // Неистовство крови: каждый успех — жертва тратит 1 кровь (лимит за ход не действует), +1 к сложности ярости за каждую
@@ -304,6 +394,44 @@ export async function rollTargetPower(actor, disc, d, p, tp, { rollFromSpec, sub
     ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), whisper: [game.user.id, ...game.users.filter(u => u.isGM).map(u => u.id)],
       content: `<div class="r-notice"><i class="fa-solid fa-droplet"></i> <b>${esc(p.name)}</b> → ${esc(target.name)}<ul>${lines.map(l => `<li>${esc(l)}</li>`).join("")}</ul></div>` });
   };
+  if (tp.kind === "possess") roll = { ...roll, willpower: true, note: t("PossessNote", { name: target.name }) };
+  if (tp.kind === "whisper") roll = { ...roll, difficulty: animalDiff(target), note: t("WhisperNote", { n: animalDiff(target), name: target.name }) };
+  if (tp.kind === "aura") opts.onRolled = res => {
+    const n = res?.successes ?? 0;
+    if (n < 1) return;
+    ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), whisper: [game.user.id, ...game.users.filter(u => u.isGM).map(u => u.id)],
+      content: `<div class="r-notice"><i class="fa-solid fa-eye"></i> <b>${esc(p.name)}</b> → ${esc(target.name)}<ul>${auraLines(target, n).map(l => `<li>${esc(l)}</li>`).join("")}</ul></div>` });
+  };
+  // Изменчивый облик: что меняем — облик (сл. 6, кровь за часть), копия (Восприятие + Медицина, сл. 8), красота (сл. 9)
+  if (tp.kind === "visage") {
+    const ap = actor.system.attributes.appearance?.value ?? 0;
+    const choice = await foundry.applications.api.DialogV2.prompt({ window: { title: p.name, icon: "fa-solid fa-face-smile" }, classes: ["vtm20", "r-dialog"], rejectClose: false,
+      content: `<div class="r-form"><label class="r-field"><span>${esc(t("VisageWhat"))}</span><select name="m">
+        <option value="change">${esc(t("VisageChange"))}</option><option value="copy">${esc(t("VisageCopy"))}</option>
+        ${Array.from({ length: Math.max(0, 5 - ap) }, (_, i) => `<option value="b${ap + i + 1}">${esc(t("VisageBeauty", { v: ap + i + 1, b: 1 + i + 1 }))}</option>`).join("")}</select></label>
+        <label class="r-field"><span>${esc(t("VisageParts"))}</span><input type="number" name="parts" value="1" min="1" max="5"></label></div>`,
+      ok: { label: t("VisageGo"), callback: (e, b) => ({ m: b.form.elements.m.value, parts: Number(b.form.elements.parts.value) || 1 }) } });
+    if (!choice) return null;
+    if (choice.m === "copy") roll = { ...roll, trait1: "attributes.perception", trait2: "abilities.medicine", difficulty: 8, blood: choice.parts, note: t("VisageCopyNote") };
+    else if (choice.m.startsWith("b")) {
+      const v = Number(choice.m.slice(1));
+      roll = { ...roll, difficulty: 9, blood: 1 + (v - ap), note: t("VisageBeautyNote", { v }) };
+      opts.onRolled = async res => {
+        if (res?.outcome === "botch") { await actor.update({ "system.attributes.appearance.value": Math.max(0, ap - 1) }); return notice(actor, p.name, t("VisageBotch")); }
+        if ((res?.successes ?? 0) > 0) { await actor.update({ "system.attributes.appearance.value": v }); return notice(actor, p.name, t("FleshLooks", { from: ap, to: v })); }
+      };
+    } else roll = { ...roll, blood: choice.parts, note: t("VisageChangeNote", { n: choice.parts }) };
+  }
+  // Искусство тканей: понизить (сл. 5), повысить (сл. 9) Привлекательность или укрепить тело (сл. 8)
+  if (tp.kind === "flesh") {
+    const mode = await foundry.applications.api.DialogV2.prompt({ window: { title: p.name, icon: "fa-solid fa-hand-sparkles" }, classes: ["vtm20", "r-dialog"], rejectClose: false,
+      content: `<div class="r-form"><label class="r-field"><span>${esc(t("FleshWhat"))}</span><select name="m">
+        <option value="lower">${esc(t("FleshLower"))}</option><option value="raise">${esc(t("FleshRaise"))}</option><option value="armor">${esc(t("FleshArmor"))}</option></select></label></div>`,
+      ok: { label: t("VisageGo"), callback: (e, b) => b.form.elements.m.value } });
+    if (!mode) return null;
+    roll = { ...roll, difficulty: { lower: 5, raise: 9, armor: 8 }[mode], note: t(`FleshNote.${mode}`) };
+    opts.more = { targetPower: { ...link, flesh: mode } };
+  }
   // Касание скорпиона: сколько крови в яд (1 … Выносливость, сколько есть)
   if (tp.kind === "poison") {
     const max = Math.min(actor.system.attributes.stamina.total, actor.system.blood?.value ?? 0);
@@ -330,6 +458,43 @@ export async function rollTargetPower(actor, disc, d, p, tp, { rollFromSpec, sub
   if (tp.tiers) opts.onRolled = res => { const line = tierText(tp, res?.successes ?? 0); if (line && (res?.successes ?? 0) > 0) ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }),
     content: `<div class="r-notice"><i class="fa-solid fa-brain"></i> <b>${esc(p.name)}</b>: ${esc(line)}</div>` }); };
   return rollFromSpec(actor, roll, opts);
+}
+
+/** Чтение ауры: по успехам — яркость, цвет, узоры (природа существа), смена эмоций, следы (правило системы). */
+function auraLines(target, n) {
+  const out = [t("Aura1")];
+  if (n >= 2) out.push(t(target.statuses?.has("r-frenzy") ? "Aura2Frenzy" : "Aura2"));
+  if (n >= 3) {
+    const k = target.isVampire ? "vampire" : target.type === "ghoul" ? "ghoul" : target.type === "werewolf" ? "werewolf" : target.type === "demon" ? "demon"
+      : target.type === "creature" ? (target.system.spirit?.on ? "spirit" : target.system.supernatural ? "creature" : "animal") : "mortal";
+    out.push(t(`AuraKind.${k}`));
+  }
+  if (n >= 4) out.push(t("Aura4"));
+  if (n >= 5) {
+    const list = target.getFlag(SYSTEM_ID, "diablerie") ?? [];
+    out.push(t(list.length ? "AuraDiab" : "AuraClean"));
+  }
+  return out;
+}
+
+/** Зов: рассказчик выбирает зверя из справочника и сколько их услышало; приходит доля по успехам. */
+async function beckon(message, state, x, vampire, n) {
+  const { animalTemplates, spawnFromTemplate } = await import("./npc-gen.mjs");
+  const list = await animalTemplates();
+  const res = await foundry.applications.api.DialogV2.prompt({ window: { title: x.powerName, icon: "fa-solid fa-paw" }, classes: ["vtm20", "r-dialog"], rejectClose: false,
+    content: `<div class="r-form"><label class="r-field"><span>${esc(t("BeckonWho"))}</span><select name="k">${list.map(a => `<option value="${esc(a.key)}">${esc(a.name)}</option>`).join("")}</select></label>
+      <label class="r-field"><span>${esc(t("BeckonHeard"))}</span><input type="number" name="heard" value="8" min="1" max="40"></label></div>`,
+    ok: { label: t("BeckonGo"), callback: (e, b) => ({ k: b.form.elements.k.value, heard: Number(b.form.elements.heard.value) || 1 }) } });
+  if (!res) return;
+  const tpl = list.find(a => a.key === res.k);
+  const count = n <= 1 ? 1 : n >= 5 ? res.heard : Math.max(1, Math.ceil(res.heard * [0, 0, 0.25, 0.5, 0.75][n]));
+  await done(message, state, x);
+  const tok = vampire.getActiveTokens?.()[0];
+  const made = [];
+  for (let i = 0; i < count; i++) made.push(await spawnFromTemplate(tpl, { name: `${tpl.name} ${i + 1}` }));
+  if (tok && canvas?.scene) await canvas.scene.createEmbeddedDocuments("Token", await Promise.all(made.filter(Boolean).map((a, i) =>
+    a.getTokenDocument({ x: tok.document.x + ((i % 5) - 2) * canvas.grid.size, y: tok.document.y + (2 + Math.floor(i / 5)) * canvas.grid.size }))));
+  return notice(vampire, x.powerName, t("BeckonDone", { n: count, name: tpl.name }));
 }
 
 /** Вкус крови: чем больше успехов, тем больше сведений (правило системы: кровь → природа → поколение → диаблери). */
@@ -418,8 +583,16 @@ export async function applyFromCard(message) {
 /** Сложность сопротивления ярости от Неистовства крови — для проверки бешенства. */
 export function frenzyDiff(actor, kind) {
   if (kind !== "frenzy") return [];
-  return [...(actor?.effects ?? [])].filter(e => !e.disabled && e.flags?.[SYSTEM_ID]?.frenzyDiff)
+  const out = [...(actor?.effects ?? [])].filter(e => !e.disabled && e.flags?.[SYSTEM_ID]?.frenzyDiff)
     .map(e => ({ label: e.name, value: Number(e.flags[SYSTEM_ID].frenzyDiff) }));
+  // Сердце тьмы (Серпентис 5): без сердца — −2 к сложности сопротивления ярости
+  if (actor?.system?.fx?.heartless) out.push({ label: t("Heartless"), value: -2 });
+  return out;
+}
+
+/** Укрепление тела (Искусство тканей): кубы к поглощению — для documents/actor.mjs. */
+export function soakDice(actor) {
+  return [...(actor?.effects ?? [])].reduce((s, e) => s + (!e.disabled && Number(e.flags?.[SYSTEM_ID]?.soakDice) || 0), 0);
 }
 
 /** Штраф к пулам от Устрашающего взора — для окон бросков. */
@@ -452,6 +625,13 @@ export function registerTargetPowers() {
     if (!actor) return;
     const ids = actor.effects.filter(e => e.flags?.[SYSTEM_ID]?.dread).map(e => e.id);
     if (ids.length) await actor.deleteEmbeddedDocuments("ActiveEffect", ids);
+  });
+  // Сердце тьмы: без сердца кол не парализует (V20, Серпентис 5)
+  Hooks.on("preCreateActiveEffect", (effect, data, options, userId) => {
+    const actor = effect.parent;
+    if (actor?.documentName !== "Actor" || !actor.system?.fx?.heartless || !(effect.statuses ?? new Set()).has?.("r-staked")) return;
+    if (userId === game.user.id) ui.notifications.info(t("HeartlessStake", { name: actor.name }));
+    return false;
   });
   // Могущество крови кончилось: излишек крови сверх прежнего запаса выплёскивается (V20, Путь Крови 3)
   Hooks.on("deleteActiveEffect", async effect => {

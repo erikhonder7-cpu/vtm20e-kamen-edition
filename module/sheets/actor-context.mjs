@@ -621,7 +621,8 @@ export function prepareEffects(sheet, ctx) {
       if (def.claws && !def.clawsFortitudeOnly) lines.push(t("FxTab.Claws"));
       if (def.brawlDamage) lines.push(t("FxTab.BrawlDamage", { n: def.brawlDamage }));
       for (const [k, v] of Object.entries(def.dice ?? {})) lines.push(t("FxTab.Dice", { what: game.i18n.localize(VTM20.abilities[k]?.label ?? k), n: v }));
-      if (def.shadowForm) lines.push(t("FxTab.ShadowForm"));
+      if (def.shadowForm) lines.push(t(def.bloodForm ? "FxTab.BloodForm" : "FxTab.ShadowForm"));
+      if (def.heartless) lines.push(t("FxTab.Heartless"));
       if (def.biteDamage) lines.push(t("FxTab.BiteDamage", { n: def.biteDamage }));
       if (def.soakDiff) lines.push(t("FxTab.SoakDiff", { n: signed(def.soakDiff) }));
       if (def.staminaVsFangs) lines.push(t("FxTab.StaminaVsFangs"));

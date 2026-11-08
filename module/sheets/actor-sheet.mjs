@@ -20,7 +20,7 @@ import { openUmbra } from "../apps/umbra.mjs";
 import { openHunt } from "../apps/night.mjs";
 import { openDowntime } from "../apps/downtime.mjs";
 import { openXp } from "../apps/xp.mjs";
-import { targetPowerOf, rollTargetPower } from "../apps/target-powers.mjs";
+import { targetPowerOf, rollTargetPower, subsumeBlocks } from "../apps/target-powers.mjs";
 import { openAttack } from "../combat/combat.mjs";
 import { openHazard } from "../apps/hazard.mjs";
 import { openDiablerie } from "../apps/diablerie.mjs";
@@ -1324,6 +1324,7 @@ export function rollPowerRef(actor, ref) {
   if (!x) return;
   const { disc, d, p, pathName } = x, magic = VTM20.pathDisciplines.includes(disc);
   if (actor.system.fx?.earthMeld) return ui.notifications.warn(t("Fx.EarthNoAction"));
+  if (subsumeBlocks(actor, disc)) return ui.notifications.warn(t("TP.SubsumeBlocked", { name: d.name }));
   // В Облике Зверя нельзя использовать названные в V20 дисциплины, требующие человеческой формы.
   const animalFormBanned = new Set(["necromancy", "serpentis", "thaumaturgy", "vicissitude"]);
   if (actor.system.fx?.beastForm && animalFormBanned.has(disc)) return ui.notifications.warn(t("Fx.BeastDisciplineBan", { name: d.name }));

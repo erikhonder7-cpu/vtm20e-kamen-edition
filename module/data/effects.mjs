@@ -91,6 +91,10 @@ export const POWER_EFFECTS = {
   // Затмение 5, Сумеречный облик: 3 крови; неуязвим для физических атак и сам не атакует физически, видит в любой тьме;
   // огонь и солнце — как обычно (в отличие от тумана)
   "obtenebration:5": { mode: "toggle", icon: "fa-ghost", cost: { blood: 3 }, shadowForm: true, darkvision: true },
+  // Серпентис 5, Сердце тьмы: сердце вынуто — кол не парализует, −2 к сложности сопротивления ярости
+  "serpentis:5": { mode: "toggle", icon: "fa-heart-crack", heartless: true },
+  // Преображение 5, Облик крови (целиком): неуязвим для физического урона, огонь и солнце — как обычно; течёт сквозь щели
+  "vicissitude:5": { mode: "toggle", icon: "fa-droplet", shadowForm: true, bloodForm: true },
   // Фантасмагория 5, Кошмар наяву: 2 Воли, до конца сцены
   "chimerstry:5": { mode: "scene", icon: "fa-skull", cost: { willpower: 2 } },
   // Висцератика 1, Шкура хамелеона: 1 кровь, до конца сцены +5 кубов к маскировке, пока движется не быстрее шага
@@ -246,6 +250,8 @@ export function effectMods(actor) {
     m.earthMeld ||= !!def.earthMeld;
     m.mistForm ||= !!def.mistForm;
     m.shadowForm ||= !!def.shadowForm;
+    m.bloodForm ||= !!def.bloodForm;
+    m.heartless ||= !!def.heartless;
     // кубы к броскам со Способностью (Театр теней, Чёрный метаморфоз): { stealth: 1 } → fx.dice.stealth
     for (const [k, v] of Object.entries(def.dice ?? {})) (m.dice[k] ??= []).push({ label: effect.name, value: v });
     m.darkvision ||= !!def.darkvision;

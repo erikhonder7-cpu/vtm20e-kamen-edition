@@ -1425,6 +1425,77 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  // Тело и душа, Преображение, Анимализм: Вселение, Проекция, Сердце тьмы, Облик крови, Искусство тканей,
+  // Язык животных, Зов (звери справочника), Поглощение духа
+  await check("Вселение, Проекция, Сердце тьмы, Преображение, Анимализм", async () => {
+    const r = await page.evaluate(async () => {
+      const sys = p => import(`/systems/${game.system.id}/${p}`);
+      const TP = await sys("module/apps/target-powers.mjs"), { rollPowerRef } = await sys("module/sheets/actor-sheet.mjs");
+      const { openAttack } = await sys("module/combat/combat.mjs"), { endScene } = await sys("module/apps/night.mjs"), NG = await sys("module/apps/npc-gen.mjs");
+      const sid = game.system.id, mk = (name, type, system = {}) => Actor.create({ name, type, flags: { world: { e2e: true } }, system });
+      const a = await mk("E2E — цимисх", "vampire", { generation: 9 });
+      const m = await mk("E2E — сосуд", "mortal", { willpower: { permanent: 4, temporary: 0 }, attributes: { appearance: { value: 3 }, strength: { value: 3 } } });
+      const wolf = await mk("E2E — Волк", "creature", { supernatural: false, blood: { max: 5, value: 5 } });
+      await a.createEmbeddedDocuments("Item", [["dominate", 5], ["auspex", 5], ["serpentis", 5], ["vicissitude", 5], ["animalism", 5]].map(([key, value]) => ({ name: `E2E — ${key}`, type: "discipline", system: { key, value } })));
+      const out = {};
+      const link = (key, x, extra = {}) => ({ key, target: x.uuid, targetName: x.name, powerName: key, actorName: a.name, ...extra });
+      const apply = (key, x, n, extra) => TP.applyTargetPower({ isOwner: false }, { actorUuid: a.uuid, extra: { targetPower: link(key, x, extra) } }, { successes: n, outcome: "success" });
+      // Вселение: у сосуда Воли 0 — разум открыт, оба получают эффект
+      await apply("dominate|Possession", m, 2);
+      out.possess = [m.effects.some(e => e.flags?.[sid]?.mind === "dominate|Possession"), a.effects.some(e => e.flags?.[sid]?.mind === "dominate|Possession")];
+      // Психическая проекция: тело в оцепенении до конца сцены
+      await apply("auspex|Psychic Projection", a, 1);
+      out.project = a.effects.some(e => e.flags?.[sid]?.mind === "auspex|Psychic Projection");
+      // Сердце тьмы: кол не парализует, −2 к ярости; Облик крови — физическая атака невозможна
+      await a.startPower("serpentis:5");
+      await a.toggleStatusEffect("r-staked", { active: true });
+      out.heart = [a.statuses.has("r-staked"), TP.frenzyDiff(a, "frenzy").map(d => d.value)];
+      await a.startPower("vicissitude:5");
+      out.bloodform = [!!a.system.fx.shadowForm, openAttack(a) === null];
+      // Искусство тканей: −2 Привлекательности; укрепление — Сила 3 → 1, +2 к поглощению
+      await apply("vicissitude|Fleshcraft", m, 2, { flesh: "lower" });
+      const soak0 = m.soakPool("bashing");
+      await apply("vicissitude|Fleshcraft", m, 2, { flesh: "armor" });
+      out.flesh = [m.system.attributes.appearance.value, m.system.attributes.strength.value, m.soakPool("bashing") - soak0];
+      // Поглощение духа: 2 успеха — только Ясновидение; Доминирование заблокировано
+      await apply("animalism|Subsume the Spirit", wolf, 2);
+      out.subsume = [TP.subsumeBlocks(a, "dominate"), TP.subsumeBlocks(a, "auspex")];
+      const dIdx = game.vtm20Codex.discipline("dominate").powers.findIndex(p => p.en === "Command");
+      await rollPowerRef(a, `dominate|${dIdx}`);
+      await new Promise(res => setTimeout(res, 400));
+      out.subsumeBlocked = ![...foundry.applications.instances.values()].some(x => x.constructor.name === "RollDialog" && x.actor === a);
+      // Язык животных: волк — хищник, сложность 6 (нужна отмеченная цель)
+      for (const e of a.effects.filter(e => e.flags?.[sid]?.subsume)) await e.delete();
+      const scene = game.scenes.viewed ?? game.scenes.contents[0];
+      const [tw] = await scene.createEmbeddedDocuments("Token", [await wolf.getTokenDocument({ x: 1100, y: 300 })]);
+      for (let i = 0; i < 30 && !canvas.tokens.get(tw.id); i++) await new Promise(res => setTimeout(res, 100));
+      await new Promise(res => setTimeout(res, 300));
+      canvas.tokens.get(tw.id)?.setTarget(true, { releaseOthers: true });
+      await new Promise(res => setTimeout(res, 300));
+      const wIdx = game.vtm20Codex.discipline("animalism").powers.findIndex(p => p.en === "Feral Whispers");
+      await rollPowerRef(a, `animalism|${wIdx}`);
+      let dlg = null;
+      for (let i = 0; i < 30 && !dlg; i++) { await new Promise(res => setTimeout(res, 100)); dlg = [...foundry.applications.instances.values()].find(x => x.constructor.name === "RollDialog" && x.actor === a); }
+      out.whisper = dlg?.values.difficulty;
+      await dlg?.close();
+      [...game.user.targets].forEach(tk => tk.setTarget(false, { releaseOthers: false }));
+      await new Promise(res => setTimeout(res, 800));
+      await scene.deleteEmbeddedDocuments("Token", [tw.id]);
+      // Зов: звери справочника есть и создаются по статблоку
+      const animals = await NG.animalTemplates();
+      const beast = await NG.spawnFromTemplate(animals[0], { name: "E2E — зверь Зова" });
+      out.beckon = [animals.length > 0, beast?.type];
+      await endScene();
+      out.afterScene = a.effects.some(e => e.flags?.[sid]?.mind === "auspex|Psychic Projection");
+      await Actor.deleteDocuments([a.id, m.id, wolf.id, beast?.id].filter(Boolean));
+      return out;
+    });
+    const want = { possess: [true, true], project: true, heart: [false, [-2]], bloodform: [true, true], flesh: [1, 1, 2],
+      subsume: [true, false], subsumeBlocked: true, whisper: 6, beckon: [true, "creature"], afterScene: false };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   // Метаморфозы 3, 5 и Модифицированный Облик Зверя (2.7.0): Слияние с землёй (солнце не вредит, угроза будит),
   // Туманная форма (обычный урон не проходит, огонь — да; атаковать нельзя), две формы Гангрела из Clanbook
   await check("Метаморфозы: туман, Слияние с землёй, Модифицированный Облик", async () => {
