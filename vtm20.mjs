@@ -24,6 +24,7 @@ import { registerHud, renderHud } from "./module/ui/hud.mjs";
 import { registerCombatTracker } from "./module/ui/combat-tracker.mjs";
 import { registerCelerity } from "./module/combat/celerity.mjs";
 import { registerPowerEffectHooks } from "./module/apps/power-effects.mjs";
+import { registerTargetPowers } from "./module/apps/target-powers.mjs";
 import { openAttack, openDefense, AttackDialog } from "./module/combat/combat.mjs";
 import { openHazard } from "./module/apps/hazard.mjs";
 import { openDiablerie } from "./module/apps/diablerie.mjs";
@@ -165,6 +166,7 @@ Hooks.once("init", () => {
   registerCombatTracker();
   registerCelerity();
   registerPowerEffectHooks();
+  registerTargetPowers();
   registerCityMap();
   registerMasquerade();
   registerStrategy();

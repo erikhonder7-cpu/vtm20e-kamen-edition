@@ -5521,6 +5521,56 @@
         "poison": "−1 die to all pools; 1–3 lethal per scene or turn by toxicity — the Storyteller; remove the effect once the tainted blood is spent.",
         "food": "Nausea: cannot drink blood (Stamina diff 6 to override for a while), 1 bashing; about a day."
       }
+    },
+    "TP": {
+      "Diff": {
+        "willpower": "current Willpower",
+        "morality": "Humanity/Path",
+        "wits": "Wits",
+        "courage": "Courage",
+        "perception": "Perception",
+        "selfControl": "Self-Control/Instincts"
+      },
+      "MarkTarget": "Target someone (T) — difficulty is taken from them",
+      "NoTarget": "No target: difficulty is the victim's {what}, set it manually.",
+      "NoTrait": "“{name}” has no {what} — set difficulty manually.",
+      "DiffFrom": "Difficulty — {what} of “{name}”: {n}.",
+      "Over10": "Above 10 — Storyteller's call.",
+      "Eyes": "Eye contact required.",
+      "DomGeneration": "“{name}” is of lower generation: Dominate cannot affect stronger blood",
+      "Note": {
+        "Dom1": "A one-word command; cannot order self-harm.",
+        "Cond": "Extended: one roll per scene, the Storyteller knows the required successes.",
+        "Insane": "A botch turns the madness on the vampire.",
+        "Tele": "Reading a vampire's or other supernatural mind costs 1 Willpower."
+      },
+      "Tier": {
+        "Mes1": "1–2 successes: only what doesn't seem strange to them.",
+        "Mes3": "3–4 successes: obeys unless it obviously threatens their life.",
+        "Mes5": "5+ successes: nearly any command short of self-harm or against Nature.",
+        "Forg1": "1 success: one memory removed for a day.",
+        "Forg2": "2 successes: one memory removed permanently, not replaced.",
+        "Forg3": "3 successes: small changes to memory.",
+        "Forg4": "4 successes: one scene rewritten or erased.",
+        "Forg5": "5 successes: significant periods of life reconstructed."
+      },
+      "Apply": "Apply to “{name}”",
+      "Gone": "The target no longer exists",
+      "Applied": "{name}: “{power}” — {what}",
+      "DreadName": "Dread Gaze: −{n} dice",
+      "DreadDice": "−{n} dice to pools until the end of their next turn",
+      "DreadFlee": "flees in terror; −{n} dice to pools until the end of their next turn",
+      "Dur": {
+        "scene": "until the end of the scene",
+        "hour": "for an hour",
+        "night": "until dawn",
+        "2nights": "for two nights",
+        "day": "for a day",
+        "week": "for a week",
+        "month": "for a month",
+        "3months": "for three months",
+        "year": "for a year"
+      }
     }
   },
   "Fx": {

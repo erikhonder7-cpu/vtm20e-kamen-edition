@@ -10,6 +10,7 @@
 
 import { VTM20, SYSTEM_ID, SYSTEM_PATH } from "../config.mjs";
 import { combatPowerOf, combatPowerLabel } from "../data/combat-powers.mjs";
+import { targetPowerLabel } from "../apps/target-powers.mjs";
 import { themeClass } from "../ui/themes.mjs";
 
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -285,7 +286,7 @@ export async function renderCard(state, actor = null) {
     canFeed: state.kind === "hunt" && ev.outcome === "success",
     canFrenzy: state.kind === "hunt" && !!extra.hungry,
     canLoseWill: ["magic", "ritual"].includes(state.kind) && ev.outcome === "botch" && !extra.willLost,
-    powerHit: ev.outcome === "success" ? combatPowerLabel(combatPowerOf(extra.power), extra.power, ev.successes) : "",
+    powerHit: ev.outcome === "success" ? combatPowerLabel(combatPowerOf(extra.power), extra.power, ev.successes) || targetPowerLabel(extra, ev) : "",
     atavism: state.kind === "frenzy" && ev.successes < 5 && state.extra?.atavism,
     canSoak: state.kind === "damage" && ev.successes > 0,
     extended: extra.extended ? { ...extra.extended, pct: Math.min(100, Math.round((extra.extended.total / Math.max(1, extra.extended.need)) * 100)) } : null,
@@ -422,7 +423,10 @@ export function onChatCardClick(event) {
   if (action === "feed") return foundry.utils.fromUuid(state.actorUuid).then(a => import("../apps/night.mjs").then(m => m.feedAfterHunt(a, { animal: state.extra?.method === "animals" })));
   if (action === "loseWill") return onLoseWill(message, state, btn.dataset.permanent === "1");
   if (action === "chooseHigh") return import("../apps/torment.mjs").then(m => m.chooseHighTorment(message, state));
-  if (action === "powerHit") return import("../data/combat-powers.mjs").then(m => m.powerHit(message, state, evaluate(state.values, state)));
+  if (action === "powerHit") {
+    if (state.extra?.targetPower && !combatPowerOf(state.extra?.power)) return import("../apps/target-powers.mjs").then(m => m.applyTargetPower(message, state, evaluate(state.values, state)));
+    return import("../data/combat-powers.mjs").then(m => m.powerHit(message, state, evaluate(state.values, state)));
+  }
 }
 
 /** Провал чародейства (V20, гл. 4: «потеря Воли или даже точки Воли»): списать временную или постоянную Волю по решению рассказчика. */

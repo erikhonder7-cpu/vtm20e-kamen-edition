@@ -1184,6 +1184,62 @@ try {
     if (r.b1 !== 7 || r.b2 !== 5 || r.lvl !== 2 || r.left !== 8) throw new Error(`Кровное право: ${JSON.stringify(r)}`);
   });
 
+  // Силы против цели (Доминирование, Величие 2–3, Помешательство, Телепатия): сложность с отмеченной цели,
+  // запрет Доминирования против более низкого поколения, Устрашающий взор и Очарование — эффекты на цели
+  await check("Силы против цели: сложность с цели, поколение, взор и Очарование", async () => {
+    const r = await page.evaluate(async () => {
+      const sys = p => import(`/systems/${game.system.id}/${p}`);
+      const TP = await sys("module/apps/target-powers.mjs"), { rollPowerRef } = await sys("module/sheets/actor-sheet.mjs");
+      const { getClock } = await sys("module/apps/calendar.mjs"), T = await sys("module/apps/timers.mjs"), { endScene } = await sys("module/apps/night.mjs");
+      const mk = (name, type, system) => Actor.create({ name, type, flags: { world: { e2e: true } }, system });
+      const a = await mk("E2E — доминатор", "vampire", { generation: 10 });
+      const elder = await mk("E2E — старейшина", "vampire", { generation: 8 });
+      const m = await mk("E2E — смертный", "mortal", { willpower: { permanent: 6, temporary: 4 }, attributes: { wits: { value: 3 } }, virtues: { courage: { value: 2 } } });
+      await a.createEmbeddedDocuments("Item", [["dominate", 4], ["presence", 3]].map(([key, value]) => ({ name: `E2E — ${key}`, type: "discipline", system: { key, value } })));
+      const scene = game.scenes.viewed ?? game.scenes.contents[0];
+      const [te, tm] = await scene.createEmbeddedDocuments("Token", [await elder.getTokenDocument({ x: 100, y: 100 }), await m.getTokenDocument({ x: 300, y: 100 })]);
+      const target = async td => { for (let i = 0; i < 30 && !canvas.tokens.get(td.id); i++) await new Promise(res => setTimeout(res, 100));
+        await new Promise(res => setTimeout(res, 300)); canvas.tokens.get(td.id)?.setTarget(true, { releaseOthers: true }); await new Promise(res => setTimeout(res, 300)); };
+      const D = game.vtm20Codex.discipline("dominate"), P = game.vtm20Codex.discipline("presence");
+      const idx = (d, en) => d.powers.findIndex(p => p.en === en);
+      const out = {};
+      // Приказ против старейшины — запрет; против смертного — сложность = текущая Воля (4)
+      await target(te);
+      out.elder = TP.prepareTargetPower(a, "dominate", D.powers[idx(D, "Command")], TP.TARGET_POWERS["dominate|Command"]) === null;
+      await target(tm);
+      await rollPowerRef(a, `dominate|${idx(D, "Command")}`);
+      let dlg = null;
+      for (let i = 0; i < 30 && !dlg; i++) { await new Promise(res => setTimeout(res, 100)); dlg = [...foundry.applications.instances.values()].find(x => x.constructor.name === "RollDialog" && x.actor === a); }
+      out.cmd = [dlg?.values.difficulty, dlg?.cfg.extra?.targetPower?.key];
+      await dlg?.close();
+      // Устрашающий взор: Смекалка + Смелость = 5; 2 успеха — −2 куб. до конца сцены (вне боя)
+      const dg = TP.prepareTargetPower(a, "presence", P.powers[idx(P, "Dread Gaze")], TP.TARGET_POWERS["presence|Dread Gaze"]);
+      out.dreadDiff = dg?.difficulty;
+      const state = key => ({ actorUuid: a.uuid, extra: { targetPower: { key, target: m.uuid, targetName: m.name, powerName: key, actorName: a.name } } });
+      const msg = { isOwner: false };
+      await TP.applyTargetPower(msg, state("presence|Dread Gaze"), { successes: 2, outcome: "success" });
+      out.dread = TP.dreadDice(m).map(d => d.value);
+      // Очарование: 2 успеха — на сутки; срок гасит таймер хроники
+      await TP.applyTargetPower(msg, state("presence|Entrancement"), { successes: 2, outcome: "success" });
+      const ent = m.effects.find(e => e.flags?.[game.system.id]?.mind === "presence|Entrancement");
+      out.entHours = ent ? Math.round((ent.flags[game.system.id].until - getClock()) / 3600000) : null;
+      await endScene();
+      out.afterScene = [TP.dreadDice(m).length, !!m.effects.find(e => e.flags?.[game.system.id]?.mind === "presence|Entrancement")];
+      await T.expireTimers(getClock() + 2 * 86400000);
+      out.expired = !m.effects.some(e => e.flags?.[game.system.id]?.mind);
+      out.label = TP.targetPowerLabel(state("presence|Entrancement").extra, { outcome: "success" }).length > 0;
+      // снять цель и дождаться конца анимации стрелок, иначе удалённый жетон ломает отрисовку Foundry
+      [...game.user.targets].forEach(tk => tk.setTarget(false, { releaseOthers: false }));
+      await new Promise(res => setTimeout(res, 800));
+      await scene.deleteEmbeddedDocuments("Token", [te.id, tm.id]);
+      await Actor.deleteDocuments([a.id, elder.id, m.id]);
+      return out;
+    });
+    const want = { elder: true, cmd: [4, "dominate|Command"], dreadDiff: 5, dread: [-2], entHours: 24, afterScene: [0, true], expired: true, label: true };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   // Метаморфозы 3, 5 и Модифицированный Облик Зверя (2.7.0): Слияние с землёй (солнце не вредит, угроза будит),
   // Туманная форма (обычный урон не проходит, огонь — да; атаковать нельзя), две формы Гангрела из Clanbook
   await check("Метаморфозы: туман, Слияние с землёй, Модифицированный Облик", async () => {

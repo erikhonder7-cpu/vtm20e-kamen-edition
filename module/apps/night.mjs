@@ -316,6 +316,9 @@ export async function endScene() {
   const owned = game.user.isGM ? game.actors.contents : game.actors.filter(a => a.isOwner);
   for (const a of owned.filter(x => x.hasBlood)) if (Object.values(a.system.boosts ?? {}).some(v => v > 0)) await a.clearBoosts();
   for (const a of owned) for (const id of SCENE_STATUSES) if (a.statuses?.has(id)) await a.toggleStatusEffect(id, { active: false });
+  // силы против цели «на ход» и Устрашающий взор — до конца сцены (apps/target-powers.mjs)
+  const { endSceneMind } = await import("./target-powers.mjs");
+  for (const a of owned) await endSceneMind(a);
   // Мощь, включённая кровью вне боя, держится до конца сцены
   for (const a of owned) if (a.getFlag(SYSTEM_ID, "potence")) await a.unsetFlag(SYSTEM_ID, "potence");
   // Силы «до конца сцены» (Когти Зверя…) гаснут

@@ -9,6 +9,7 @@ import { Codex } from "../data/codex.mjs";
 import { rollPool, odds, chancesView, tormentRule, tormentOdds } from "./roll.mjs";
 import { meritModsFor } from "../data/merit-mods.mjs";
 import { substanceMods } from "../data/vessels.mjs";
+import { dreadDice } from "../apps/target-powers.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -137,6 +138,8 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     // вещества в выпитой крови (data/vessels.mjs): алкоголь, опиаты, галлюциногены, яд — кубики; стимуляторы и опиаты — к ярости
     const sm = substanceMods(a, { traits: [v.trait1, v.trait2], kind: this.cfg.kind ?? "check" });
     for (const d of sm.dice) { pool += d.value; bd.push(d); }
+    // Устрашающий взор: −1 куб за успех до конца следующего хода (apps/target-powers.mjs)
+    for (const d of dreadDice(a)) { pool += d.value; bd.push(d); }
     // Апокалиптическая форма: кубики к выбранной Способности («Увеличенная способность», data/form.mjs)
     for (const p of [v.trait1, v.trait2]) for (const d of a.system.formFx?.dice?.[p?.split(".")[1]] ?? []) { pool += d.value; bd.push({ label: d.label, value: d.value }); }
     // Перебор падшего (гл. 9): кубики, выжатые из слуг

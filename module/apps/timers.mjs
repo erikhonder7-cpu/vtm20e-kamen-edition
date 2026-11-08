@@ -122,7 +122,8 @@ export async function expireTimers(now = getClock()) {
         if (f.ritual) { read.push({ actor: a, item: a.items.get(f.ritual), name: e.name, at: hhmm(new Date(f.until)) }); await e.delete(); }
         else if (f.ritualOn) { names.push(e.name); await e.delete(); }
         else if (f.power) { names.push(e.name); await a.endPower(e, { quiet: true }); }
-        else if (f.substance) { names.push(e.name); await e.delete(); }      // вещество из выпитой крови (data/vessels.mjs)
+        else if (f.substance) { names.push(e.name); await e.delete(); }
+        else if (f.mind) { names.push(e.name); await e.delete(); }          // сила против цели со сроком (apps/target-powers.mjs)      // вещество из выпитой крови (data/vessels.mjs)
       }
       if (names.length) off.push({ actor: a, names });
     }
