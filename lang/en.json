@@ -1965,7 +1965,9 @@
       "Unit": "XP",
       "History": "History",
       "Short": "{n} short",
-      "Grant": "Award"
+      "Grant": "Award",
+      "Level": "Advance",
+      "OpenTip": "Experience window: buy dots, spending history"
     },
     "Lineage": {
       "Title": "Lineage",

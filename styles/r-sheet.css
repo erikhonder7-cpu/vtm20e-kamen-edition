@@ -765,6 +765,11 @@
 .vtm20 .r-foot-item.is-xp { padding: 2px 10px; border: 1px solid rgba(196, 71, 76, .45); background: rgba(140, 28, 34, .14); color: #a49d8e; }
 .vtm20 .r-foot-item.is-xp i { color: #c4474c; }
 .vtm20 .r-foot-item.is-xp b { font-size: 15px; color: #f4ecdd; }
+/* кнопка «Прокачка»: открывает окно опыта; свободный опыт — мягкое свечение в цвет вида */
+.vtm20 .r-foot-item.is-xp.is-btn { cursor: pointer; transition: border-color .12s, box-shadow .12s, color .12s; }
+.vtm20 .r-foot-item.is-xp.is-btn:hover { color: #f1e9da; border-color: currentColor; }
+.vtm20 .r-foot-item.is-xp.is-ready { box-shadow: 0 0 10px rgba(196, 71, 76, .35); }
+.vtm20 .r-foot-xp-lbl { font-family: var(--r-caps); font-size: 11px; letter-spacing: 1.4px; text-transform: uppercase; color: #cfc6b4; }
 
 /* ── Ворота: персонаж ещё не создан ───────────────────────────────────── */
 

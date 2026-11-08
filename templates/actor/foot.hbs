@@ -6,5 +6,7 @@
   <span class="r-foot-spacer"></span>
   {{#if isVampire}}{{#if canSleep}}<a class="r-foot-item" data-action="torporEnter" data-tooltip="{{localize 'VTM20.Sheet.Torpor'}} · {{localize 'VTM20.Torpor.EnterHint'}}"><i class="fa-solid fa-bed"></i> {{torpor}}</a>
   {{else}}<span class="r-foot-item" data-tooltip="{{localize 'VTM20.Sheet.Torpor'}}"><i class="fa-solid fa-bed"></i> {{torpor}}</span>{{/if}}{{/if}}
-  <span class="r-foot-item is-xp"><i class="fa-solid fa-star"></i> {{localize "VTM20.Xp.available"}} <b>{{xp.available}}</b> / {{xp.total}}</span>
+  {{!-- Прокачка — только через окно опыта: кнопка в подвале видна на любой вкладке, светится, когда есть свободный опыт --}}
+  {{#if editable}}<a class="r-foot-item is-xp is-btn {{#if xp.available}}is-ready{{/if}}" data-action="openXp" data-tooltip="{{localize 'VTM20.Xp.OpenTip'}}"><i class="fa-solid fa-star"></i> <span class="r-foot-xp-lbl">{{localize "VTM20.Xp.Level"}}</span> <b>{{xp.available}}</b> / {{xp.total}}</a>
+  {{else}}<span class="r-foot-item is-xp"><i class="fa-solid fa-star"></i> {{localize "VTM20.Xp.available"}} <b>{{xp.available}}</b> / {{xp.total}}</span>{{/if}}
 </footer>

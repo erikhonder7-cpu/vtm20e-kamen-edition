@@ -1184,6 +1184,60 @@ try {
     if (r.b1 !== 7 || r.b2 !== 5 || r.lvl !== 2 || r.left !== 8) throw new Error(`Кровное право: ${JSON.stringify(r)}`);
   });
 
+  // Метаморфозы 3, 5 и Модифицированный Облик Зверя (2.7.0): Слияние с землёй (солнце не вредит, угроза будит),
+  // Туманная форма (обычный урон не проходит, огонь — да; атаковать нельзя), две формы Гангрела из Clanbook
+  await check("Метаморфозы: туман, Слияние с землёй, Модифицированный Облик", async () => {
+    const r = await page.evaluate(async () => {
+      const sys = p => import(`/systems/${game.system.id}/${p}`);
+      const { soakAndApply } = await sys("module/dice/roll.mjs");
+      const { openAttack } = await sys("module/combat/combat.mjs");
+      const { togglePowerEffect } = await sys("module/apps/power-effects.mjs");
+      const mk = (name, clan) => Actor.create({ name, type: "vampire", flags: { world: { e2e: true } },
+        system: { generation: 8, clan, attributes: { strength: { value: 2 }, dexterity: { value: 2 }, stamina: { value: 2 } }, blood: { value: 10 } } });
+      const a = await mk("E2E — туман и земля", "nosferatu");
+      await a.createEmbeddedDocuments("Item", [{ name: "E2E — protean", type: "discipline", system: { key: "protean", value: 5 } },
+        { name: "E2E — броня", type: "armor", system: { rating: 2, penalty: 0, equipped: true } }]);
+      const out = {}, hp = () => [a.system.health.bashing, a.system.health.lethal, a.system.health.aggravated].join("/");
+      // Слияние с землёй: другие силы недоступны, солнце не вредит, иной урон будит
+      await a.startPower("protean:3");
+      out.earth = [!!a.system.fx?.earthMeld, (await togglePowerEffect(a, "protean:1")) === undefined || !a.powerEffects.some(x => x.power === "protean:1")];
+      await soakAndApply(a, 3, "aggravated", { soak: false, sun: true });
+      out.earthSun = [hp(), a.powerEffects.some(x => x.power === "protean:3")];
+      await soakAndApply(a, 1, "lethal", { soak: false });
+      out.earthWake = [hp(), a.powerEffects.some(x => x.power === "protean:3")];
+      // Туманная форма: броня не в счёт, атаковать нельзя, обычный урон не проходит, огонь — проходит
+      await a.startPower("protean:5", { blood: 3 });
+      out.mist = [!!a.system.fx?.mistForm, a.armor.rating, openAttack(a) === null];
+      await soakAndApply(a, 2, "lethal", { soak: false });
+      out.mistHit = hp();
+      await soakAndApply(a, 1, "aggravated", { soak: false, fire: true });
+      out.mistFire = hp();
+      // Модифицированный Облик: только Гангрелам (ветви тоже); боевая форма — точки к Силе и т.д., когти и укус
+      const v = await mk("E2E — вентру", "ventrue");
+      const warned = await togglePowerEffect(v, "protean:Модифицированный Облик Зверя");
+      out.ventrueBlocked = !v.powerEffects.length && !v.getFlag(game.system.id, "proteanModifiedForms") && warned !== null;
+      const g = await mk("E2E — городской гангрел", "gorodskieGangrely");
+      const cfg = { battle: { animal: "волк", attr: { strength: 2, dexterity: 1, stamina: 2 }, sense: "smell" },
+        escape: { animal: "ворон", flying: true, large: false, sense: "vision" } };
+      await g.setFlag(game.system.id, "proteanModifiedForms", cfg);
+      const pending = togglePowerEffect(g, "protean:Модифицированный Облик Зверя");   // ветвь Гангрелов — открывается выбор формы
+      let dlg = null;
+      for (let i = 0; i < 40 && !dlg; i++) { await new Promise(res => setTimeout(res, 100)); dlg = [...foundry.applications.instances.values()].find(x => x.element?.classList.contains("r-protean-dialog")); }
+      out.branchDialog = !!dlg;
+      await dlg?.close(); await pending;
+      const str0 = g.system.attributes.strength.total;
+      await g.startPower("protean:Модифицированный Облик Зверя", { variant: "battle", blood: 2, shapeConfig: cfg });
+      out.battle = [g.system.fx?.beastForm, g.system.attributes.strength.total - str0,
+        g.items.filter(i => i.type === "weapon" && /\(волк\)/.test(i.name)).length];
+      await Actor.deleteDocuments([a.id, v.id, g.id]);
+      return out;
+    });
+    const want = { earth: [true, true], earthSun: ["0/0/0", true], earthWake: ["0/0/0", false], mist: [true, 0, true],
+      mistHit: "0/0/0", mistFire: "0/0/1", ventrueBlocked: true, branchDialog: true, battle: ["modified", 2, 2] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   // Физические Дисциплины и Метаморфозы (2.7.0): Стойкость в прочности, Мощь до конца сцены, Когти Зверя,
   // Облик Зверя превращается за ходы в бою, Стремительность — своя фаза доп. действий после раунда
   await check("Мощь, Стойкость, Метаморфозы и фаза Стремительности", async () => {
