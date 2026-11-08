@@ -316,6 +316,8 @@ export async function endScene() {
   const owned = game.user.isGM ? game.actors.contents : game.actors.filter(a => a.isOwner);
   for (const a of owned.filter(x => x.hasBlood)) if (Object.values(a.system.boosts ?? {}).some(v => v > 0)) await a.clearBoosts();
   for (const a of owned) for (const id of SCENE_STATUSES) if (a.statuses?.has(id)) await a.toggleStatusEffect(id, { active: false });
+  // Мощь, включённая кровью вне боя, держится до конца сцены
+  for (const a of owned) if (a.getFlag(SYSTEM_ID, "potence")) await a.unsetFlag(SYSTEM_ID, "potence");
   // Силы «до конца сцены» (Когти Зверя…) гаснут
   for (const a of owned) for (const x of a.powerEffects ?? []) if (x.def.mode === "scene") await a.endPower(x.effect);
   // падшие: Вера за сцену (сложность Проявления) и черты высокой Муки «на эпизод» — с концом сцены обнуляются

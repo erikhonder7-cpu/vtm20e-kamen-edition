@@ -1184,6 +1184,61 @@ try {
     if (r.b1 !== 7 || r.b2 !== 5 || r.lvl !== 2 || r.left !== 8) throw new Error(`Кровное право: ${JSON.stringify(r)}`);
   });
 
+  // Физические Дисциплины и Метаморфозы (2.7.0): Стойкость в прочности, Мощь до конца сцены, Когти Зверя,
+  // Облик Зверя превращается за ходы в бою, Стремительность — своя фаза доп. действий после раунда
+  await check("Мощь, Стойкость, Метаморфозы и фаза Стремительности", async () => {
+    const r = await page.evaluate(async () => {
+      const sys = p => import(`/systems/${game.system.id}/${p}`);
+      const wait = async (fn, ms = 6000) => { for (let i = 0; i < ms / 100 && !fn(); i++) await new Promise(res => setTimeout(res, 100)); return fn(); };
+      const a = await Actor.create({ name: "E2E — Метаморфозы", type: "vampire", flags: { world: { e2e: true } },
+        system: { generation: 8, attributes: { strength: { value: 2 }, dexterity: { value: 2 }, stamina: { value: 3 } }, blood: { value: 10 } } });   // 8-е: 3 крови за ход
+      const dummy = await Actor.create({ name: "E2E — статист боя", type: "mortal", flags: { world: { e2e: true } } });
+      await a.createEmbeddedDocuments("Item", [["potence", 3], ["fortitude", 2], ["celerity", 2], ["protean", 5]]
+        .map(([key, value]) => ({ name: `E2E — ${key}`, type: "discipline", system: { key, value } })));
+      const out = {};
+      // Стойкость: губительный — только Стойкость, летальный — Выносливость + Стойкость
+      out.soak = [a.soakPool("aggravated"), a.soakPool("lethal")];
+      // Мощь вне боя: автоуспехи Силы, «Конец сцены» снимает
+      const { endScene } = await sys("module/apps/night.mjs");
+      await a.togglePotence();
+      out.potence = [a.potenceActive, a.physicalAuto("strength"), a.physicalDisciplineBonus("strength")];
+      // Когти Зверя вне боя — готовы сразу, оружие в инвентаре; с концом сцены исчезают
+      await a.startPower("protean:2");
+      out.claws = [a.items.some(i => i.type === "weapon" && i.name === "Когти Зверя"), !!a.system.fx?.clawsFortitudeOnly];
+      await endScene();
+      out.afterScene = [a.potenceActive, a.items.some(i => i.name === "Когти Зверя")];
+      // Бой: свой ход — Облик волка за 3 крови (1 ход) и 2 действия Стремительности за 1 кровь
+      const scene = game.scenes.viewed ?? game.scenes.contents[0];
+      const combat = await Combat.create({ scene: scene?.id ?? null, active: true });
+      await combat.createEmbeddedDocuments("Combatant", [{ actorId: a.id, name: a.name, initiative: 20 }, { actorId: dummy.id, name: dummy.name, initiative: 1 }]);
+      await combat.startCombat();
+      out.myTurn = combat.combatant?.actor?.id === a.id;
+      await a.startPower("protean:4", { variant: "wolf", blood: 3 });
+      out.wolfBefore = [a.powerEffects.find(x => x.power === "protean:4")?.effect.getFlag(game.system.id, "ready"), a.system.fx?.beastForm ?? null];
+      out.celerity = [await a.buyCelerityActions(2), a.celerityActions, a.physicalDisciplineBonus("dexterity"), a.system.blood.value];
+      await combat.nextTurn();
+      await wait(() => a.system.fx?.beastForm === "wolf");
+      out.wolfAfter = [a.system.fx?.beastForm, a.armor.rating];
+      // конец раунда: вместо 2-го раунда — фаза Стремительности; два действия — и раунд идёт дальше
+      await combat.nextTurn();
+      const phase = () => combat.getFlag(game.system.id, "celerityPhase");
+      await wait(() => phase()?.active);
+      out.phase = [!!phase()?.active, combat.round];
+      await a.consumeCelerityAction();
+      await wait(() => (phase()?.queue?.[0]?.remaining ?? 0) === 1);
+      await a.consumeCelerityAction();
+      await wait(() => combat.round === 2);
+      out.after = [combat.round, !!phase()?.active];
+      await combat.delete();
+      await Actor.deleteDocuments([a.id, dummy.id]);
+      return out;
+    });
+    const want = { soak: [2, 5], potence: [true, 3, 0], claws: [true, true], afterScene: [false, false], myTurn: true,
+      wolfBefore: [false, null], celerity: [true, 2, 0, 4], wolfAfter: ["wolf", 0], phase: [true, 1], after: [2, false] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   // Бой нескольких участников: инициатива у всех, порядок по убыванию, ход переходит
   await check("Бой: инициатива и ходы трёх участников", async () => {
     const r = await page.evaluate(async () => {

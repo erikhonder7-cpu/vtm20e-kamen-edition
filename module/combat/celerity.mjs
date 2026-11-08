@@ -154,7 +154,4 @@ export function registerCelerity() {
     }
     ui.combat?.render();
   });
-  Hooks.on("deleteCombat", async combat => {
-    if (phaseOf(combat)) await combat.unsetFlag(SYSTEM_ID, "celerityPhase");
-  });
 }

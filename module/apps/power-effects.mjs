@@ -6,6 +6,7 @@
 import { POWER_EFFECTS } from "../data/effects.mjs";
 import { RollDialog } from "../dice/dialog.mjs";
 import { SYSTEM_ID } from "../config.mjs";
+import { Codex } from "../data/codex.mjs";
 
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
 
@@ -179,7 +180,8 @@ export async function togglePowerEffect(actor, power) {
     return actor.endPower(on.effect);
   }
   if (power === REVISITED_SHAPE) {
-    if (actor.system.clan !== "gangrel") return ui.notifications.warn(t("Fx.RevisitedGangrelOnly"));
+    // Гангрелы и их ветви (Городские, Дикие, антитрибу) — Clanbook: Gangrel (Revised)
+    if (Codex.traitClan(actor.system.clan) !== "gangrel") return ui.notifications.warn(t("Fx.RevisitedGangrelOnly"));
     let config = actor.getFlag(SYSTEM_ID, SHAPE_FLAG);
     if (!config) {
       config = await configureRevisitedForms(actor);
@@ -264,8 +266,12 @@ export function registerPowerEffectHooks() {
   });
 
   // Глаза Зверя меняют зрение самих токенов, а не только карточку персонажа.
+  // Пишет один клиент: активный рассказчик (может править любой жетон), без него — владелец персонажа;
+  // иначе рассказчик и игрок одновременно меняют зрение и флаг одного жетона.
   const syncEyes = async actor => {
-    if (!actor?.getActiveTokens || (!actor.isOwner && !game.user.isGM)) return;
+    if (!actor?.getActiveTokens) return;
+    const writer = game.users.activeGM ? game.users.activeGM.isSelf : actor.isOwner;
+    if (!writer) return;
     const active = !!actor.system?.fx?.darkvision;
     for (const token of actor.getActiveTokens(true, true)) {
       const doc = token.document ?? token;
