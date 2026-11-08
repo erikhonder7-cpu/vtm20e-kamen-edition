@@ -6,6 +6,11 @@
 //   · Очарование, Страсть, Наваждение, Помрачение рассудка: эффект на цели со сроком по успехам
 //     (гаснет по часам хроники — apps/timers.mjs; «1 ход» — до конца сцены);
 //   · Устрашающий взор: −1 куб к пулам цели за успех до конца её следующего хода, 3+ — бежит.
+//   · Глаза змеи: смертный замирает сразу; вампир и иной сверхъестественный — если змей пройдёт Волю (сл. 9);
+//   · Касание скорпиона: яд — выбранная кровь (до Выносливости), сопротивление Выносливость + Стойкость (сл. 6),
+//     оставшиеся успехи — срок; Выносливость цели снижается на число пунктов яда;
+//   · Усмирение Зверя: продолжительный бросок до постоянной Воли цели; на Сородичей не действует;
+//   · Отчуждение Зверя: успех — бешенство переходит на цель, неудача — вампир сам впадает в бешенство.
 // Наложить эффект может владелец цели или рассказчик — кнопкой на карточке броска (как «принять урон»).
 
 import { SYSTEM_ID } from "../config.mjs";
@@ -27,8 +32,15 @@ export const TARGET_POWERS = {
   "dementation|Passion": { diff: ["morality"], timed: ["scene", "hour", "night", "week", "month", "3months"] },
   "dementation|The Haunting": { diff: ["perception", "selfControl"], timed: ["night", "2nights", "week", "month", "3months", "year"] },
   "dementation|Total Insanity": { diff: ["willpower"], timed: ["scene", "night", "week", "month", "year"], note: "Insane" },
-  "auspex|Telepathy": { diff: ["willpower"], note: "Tele" }
+  "auspex|Telepathy": { diff: ["willpower"], note: "Tele" },
+  "serpentis|Eyes of the Serpent": { kind: "eyes", needTarget: true },
+  "quietus|Scorpion's Touch": { kind: "poison", needTarget: true, timed: ["scene", "hour", "day", "month", "forever"] },
+  "animalism|Quell the Beast": { kind: "quell", needTarget: true, mortalOnly: true },
+  "animalism|Drawing Out the Beast": { kind: "beast", needTarget: true }
 };
+
+/** Сверхъестественное существо (Глаза змеи): вампир, Гару, падший, сверхъестественная тварь; гуль и охотник — смертные. */
+const supernatural = a => ["vampire", "werewolf", "demon"].includes(a.type) || (a.type === "creature" && !!a.system.supernatural);
 
 export const targetPowerOf = (disc, p) => TARGET_POWERS[`${disc}|${p?.en ?? ""}`] ?? null;
 
@@ -54,6 +66,9 @@ export function markedTarget(actor) {
  */
 export function prepareTargetPower(actor, disc, p, tp) {
   const target = markedTarget(actor);
+  if (!target && tp.needTarget) { ui.notifications.warn(t("NeedTarget")); return null; }
+  if (tp.mortalOnly && target?.isVampire) { ui.notifications.warn(t("NotKindred", { name: target.name })); return null; }
+  if (!tp.diff) return { difficulty: null, note: "", target };
   const label = tp.diff.map(k => t(`Diff.${k}`)).join(" + ");
   if (!target) {
     ui.notifications.info(t("MarkTarget"));
@@ -100,8 +115,10 @@ export function tierText(tp, successes) {
 /** Подпись кнопки «наложить» на карточке (только у сил с эффектом на цели). */
 export function targetPowerLabel(extra, ev) {
   const tp = extra?.targetPower && TARGET_POWERS[extra.targetPower.key];
-  if (!tp || ev.outcome !== "success" || extra.targetPower.done || !(tp.timed || tp.dread)) return "";
-  return t("Apply", { name: extra.targetPower.targetName });
+  if (!tp || ev.outcome !== "success" || extra.targetPower.done || !(tp.timed || tp.dread || tp.kind)) return "";
+  // Усмирение — только когда накоплены все успехи продолжительного броска
+  if (tp.kind === "quell" && !((extra.extended?.prev ?? 0) + ev.successes >= (extra.extended?.need ?? Infinity))) return "";
+  return t(tp.kind === "beast" ? "BeastApply" : tp.kind === "poison" ? "PoisonApply" : "Apply", { name: extra.targetPower.targetName });
 }
 
 /** Кнопка на карточке: эффект силы на цели (владелец цели или рассказчик). */
@@ -115,7 +132,38 @@ export async function applyTargetPower(message, state, ev) {
   const [disc] = x.key.split("|");
   const flags = { mind: x.key, by: state.actorUuid ?? "", start: now };
   let name = `${x.powerName} · ${x.actorName}`, desc = "";
-  if (tp.dread) {
+  if (tp.kind === "beast") {
+    // Отчуждение Зверя: бешенство вампира переходит на цель (V20, Анимализм 5)
+    const self = state.actorUuid ? await foundry.utils.fromUuid(state.actorUuid) : null;
+    if (self && !self.isOwner) return ui.notifications.warn(game.i18n.format("VTM20.Notify.NotOwner", { name: self.name }));
+    if (self?.statuses?.has("r-frenzy")) await self.toggleStatusEffect("r-frenzy", { active: false });
+    if (!target.statuses?.has("r-frenzy")) await target.toggleStatusEffect("r-frenzy", { active: true });
+    desc = t(n >= 3 ? "Beast3" : n === 2 ? "Beast2" : "Beast1");
+    await done(message, state, x);
+    return notice(target, x.powerName, desc);
+  }
+  if (tp.kind === "poison") {
+    // Касание скорпиона: сопротивление Выносливость + Стойкость (сл. 6), каждый успех снимает успех ассамита
+    const { rollPool } = await import("../dice/roll.mjs");
+    const pool = (target.system.attributes?.stamina?.total ?? 0) + (target.discipline?.("fortitude") ?? 0);
+    const res = pool > 0 ? await rollPool({ actor: target, title: t("PoisonResist"), pool, difficulty: 6, kind: "check", noBotch: true }) : { successes: 0 };
+    const left = n - (res?.successes ?? 0);
+    await done(message, state, x);
+    if (left <= 0) return notice(target, x.powerName, t("PoisonResisted"));
+    const code = tp.timed[Math.min(left, tp.timed.length) - 1];
+    const until = untilOf(code, now, api);
+    Object.assign(flags, { attrMod: { stamina: -(x.poison ?? 1) }, mode: code === "forever" ? "manual" : until ? "timed" : "scene", ...(until ? { until } : {}) });
+    name = t("PoisonName", { n: x.poison ?? 1 });
+    desc = t("PoisonDesc", { n: x.poison ?? 1, dur: t(`Dur.${code}`) });
+  } else if (tp.kind === "eyes") {
+    Object.assign(flags, { mode: "scene" });
+    name = t("EyesName", { name: x.actorName });
+    desc = t(supernatural(target) ? "EyesSuper" : "EyesMortal");
+  } else if (tp.kind === "quell") {
+    Object.assign(flags, { mode: "manual" });
+    name = t("QuellName", { name: x.actorName });
+    desc = t("QuellDesc");
+  } else if (tp.dread) {
     // −1 куб за успех на следующий ход цели; 3+ — бежит в ужасе (V20, Величие 2)
     Object.assign(flags, { dread: n, mode: "scene" });
     name = t("DreadName", { n });
@@ -127,15 +175,81 @@ export async function applyTargetPower(message, state, ev) {
     desc = t(`Dur.${code}`);
   }
   await target.createEmbeddedDocuments("ActiveEffect", [{ name, img: Codex.disciplineIcon(disc), description: `<p>${esc(desc)}</p>`,
-    flags: { [SYSTEM_ID]: flags } }]);
-  if (message.isOwner) {
-    const { renderCard } = await import("../dice/roll.mjs");
-    const next = { ...state, extra: { ...state.extra, targetPower: { ...x, done: true } } };
-    await message.setFlag(SYSTEM_ID, "roll", next);
-    await message.update({ content: await renderCard(next) });
+    ...(tp.kind === "eyes" ? { statuses: ["r-held"] } : {}), flags: { [SYSTEM_ID]: flags } }]);
+  if (tp.kind !== "poison") await done(message, state, x);
+  return notice(target, x.powerName, desc);
+}
+
+/** Кнопка отработала: на карточке броска — пометка, на карточке «наложить» — убрать кнопку. */
+async function done(message, state, x) {
+  if (!message?.isOwner) return;
+  if (message.getFlag?.(SYSTEM_ID, "targetApply")) {
+    await message.setFlag(SYSTEM_ID, "targetApply", { ...x, done: true });
+    return message.update({ content: String(message.content).replace(/<div class="r-card-buttons">[\s\S]*?<\/div>/, "") });
   }
-  ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: target }),
-    content: `<div class="r-notice"><i class="fa-solid fa-brain"></i> ${t("Applied", { name: esc(target.name), power: esc(x.powerName), what: esc(desc) })}</div>` });
+  const { renderCard } = await import("../dice/roll.mjs");
+  const next = { ...state, extra: { ...state.extra, targetPower: { ...x, done: true } } };
+  await message.setFlag(SYSTEM_ID, "roll", next);
+  await message.update({ content: await renderCard(next) });
+}
+
+const notice = (target, power, what) => ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: target }),
+  content: `<div class="r-notice"><i class="fa-solid fa-brain"></i> ${t("Applied", { name: esc(target.name), power: esc(power), what: esc(what) })}</div>` });
+
+/**
+ * Бросок силы против цели (лист и HUD — sheets/actor-sheet.mjs → rollPowerRef).
+ * @param {Function} rollFromSpec  окно броска силы из листа
+ */
+export async function rollTargetPower(actor, disc, d, p, tp, { rollFromSpec, subtitle }) {
+  const prep = prepareTargetPower(actor, disc, p, tp);
+  if (!prep) return null;
+  const target = prep.target;
+  const key = `${disc}|${p.en}`;
+  const link = target ? { key, target: target.uuid, targetName: target.name, powerName: p.name, actorName: actor.name } : null;
+  // Глаза змеи: смертный замирает без броска — карточка «наложить»; сверхъестественный — Воля змея (сл. 9)
+  if (tp.kind === "eyes") {
+    if (!supernatural(target)) return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), flags: { [SYSTEM_ID]: { targetApply: { ...link, actorUuid: actor.uuid } } },
+      content: `<div class="r-notice"><i class="fa-solid fa-eye"></i> <b>${esc(p.name)}</b> → ${esc(target.name)}: ${esc(t("EyesMortal"))}
+        <div class="r-card-buttons"><button type="button" data-r-action="targetApply"><i class="fa-solid fa-hand"></i> ${esc(t("Apply", { name: target.name }))}</button></div></div>` });
+    return rollFromSpec(actor, { trait1: "willpower.permanent", difficulty: 9, note: t("EyesRoll", { name: target.name }) },
+      { title: p.name, subtitle: `→ ${target.name} · ${subtitle}`, effect: p.html, power: { disc, level: p.level, name: p.name }, more: { targetPower: link } });
+  }
+  let roll = { ...(p.roll ?? {}), ...(prep.difficulty ? { difficulty: prep.difficulty } : {}), ...(prep.note ? { note: prep.note } : {}) };
+  const opts = { title: p.name, subtitle: `${target ? `→ ${target.name} · ` : ""}${subtitle}`, effect: p.html, power: { disc, level: p.level, name: p.name },
+    more: link ? { targetPower: link } : null };
+  // Касание скорпиона: сколько крови в яд (1 … Выносливость, сколько есть)
+  if (tp.kind === "poison") {
+    const max = Math.min(actor.system.attributes.stamina.total, actor.system.blood?.value ?? 0);
+    if (max < 1) return ui.notifications.warn(game.i18n.format("VTM20.Notify.NoBlood", { name: actor.name }));
+    const n = await foundry.applications.api.DialogV2.prompt({ window: { title: p.name, icon: "fa-solid fa-skull-crossbones" }, classes: ["vtm20", "r-dialog"], rejectClose: false,
+      content: `<div class="r-form"><label class="r-field"><span>${esc(t("PoisonBlood"))}</span><select name="n">${Array.from({ length: max }, (_, i) => `<option value="${i + 1}">${i + 1}</option>`).join("")}</select></label></div>`,
+      ok: { label: t("PoisonGo"), callback: (e, b) => Number(b.form.elements.n.value) || 1 } });
+    if (!n) return null;
+    roll = { ...roll, blood: n, note: t("PoisonNote", { n }) };
+    opts.more = { targetPower: { ...link, poison: n } };
+  }
+  // Усмирение Зверя: продолжительный бросок до постоянной Воли цели (сл. 7)
+  if (tp.kind === "quell") {
+    const need = Math.max(1, target.system.willpower?.permanent ?? 1);
+    Object.assign(opts, { contest: "extended", need });
+    roll.note = t("QuellNote", { n: need, name: target.name });
+  }
+  // Отчуждение Зверя: неудача — бешенство самому (вдвое дольше), провал — неуправляемое
+  if (tp.kind === "beast") opts.onRolled = async res => {
+    if ((res?.successes ?? 0) > 0) return;
+    if (!actor.statuses?.has("r-frenzy")) await actor.toggleStatusEffect("r-frenzy", { active: true });
+    ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<div class="r-notice is-warn"><i class="fa-solid fa-face-angry"></i> ${esc(t(res?.outcome === "botch" ? "BeastBotch" : "BeastFail", { name: actor.name }))}</div>` });
+  };
+  if (tp.tiers) opts.onRolled = res => { const line = tierText(tp, res?.successes ?? 0); if (line && (res?.successes ?? 0) > 0) ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }),
+    content: `<div class="r-notice"><i class="fa-solid fa-brain"></i> <b>${esc(p.name)}</b>: ${esc(line)}</div>` }); };
+  return rollFromSpec(actor, roll, opts);
+}
+
+/** Кнопка карточки «наложить» без броска (Глаза змеи против смертного). */
+export async function applyFromCard(message) {
+  const x = message.getFlag(SYSTEM_ID, "targetApply");
+  if (!x || x.done) return;
+  return applyTargetPower(message, { actorUuid: x.actorUuid, extra: { targetPower: x } }, { successes: 1, outcome: "success" });
 }
 
 /** Штраф к пулам от Устрашающего взора — для окон бросков. */
@@ -146,6 +260,7 @@ export function dreadDice(actor) {
 
 /** Снять с цели эффекты «до конца сцены» (Конец сцены). */
 export async function endSceneMind(actor) {
+  // «manual» (Усмирение, яд навсегда) снимаются вручную
   const ids = actor.effects.filter(e => e.flags?.[SYSTEM_ID]?.mind && e.flags[SYSTEM_ID].mode === "scene").map(e => e.id);
   if (ids.length) await actor.deleteEmbeddedDocuments("ActiveEffect", ids);
 }

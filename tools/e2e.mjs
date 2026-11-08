@@ -1240,6 +1240,65 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  // Глаза змеи, Касание скорпиона, Усмирение и Отчуждение Зверя (apps/target-powers.mjs)
+  await check("Взгляд и яд: Глаза змеи, Касание скорпиона, Усмирение и Отчуждение Зверя", async () => {
+    const r = await page.evaluate(async () => {
+      const sys = p => import(`/systems/${game.system.id}/${p}`);
+      const TP = await sys("module/apps/target-powers.mjs"), { rollPowerRef } = await sys("module/sheets/actor-sheet.mjs");
+      const mk = (name, type, system = {}) => Actor.create({ name, type, flags: { world: { e2e: true } }, system });
+      const a = await mk("E2E — змей", "vampire", { generation: 9 });
+      const v = await mk("E2E — сородич-цель", "vampire", { generation: 11 });
+      const m = await mk("E2E — смертный-цель", "mortal", { attributes: { stamina: { value: 3 } }, willpower: { permanent: 5, temporary: 5 } });
+      await a.createEmbeddedDocuments("Item", [["serpentis", 1], ["animalism", 5], ["quietus", 2]].map(([key, value]) => ({ name: `E2E — ${key}`, type: "discipline", system: { key, value } })));
+      const scene = game.scenes.viewed ?? game.scenes.contents[0];
+      const [tv, tm] = await scene.createEmbeddedDocuments("Token", [await v.getTokenDocument({ x: 100, y: 300 }), await m.getTokenDocument({ x: 300, y: 300 })]);
+      const target = async td => { for (let i = 0; i < 30 && !canvas.tokens.get(td.id); i++) await new Promise(res => setTimeout(res, 100));
+        await new Promise(res => setTimeout(res, 300)); canvas.tokens.get(td.id)?.setTarget(true, { releaseOthers: true }); await new Promise(res => setTimeout(res, 300)); };
+      const C = game.vtm20Codex, idx = (k, en) => C.discipline(k).powers.findIndex(p => p.en === en);
+      const dialog = async () => { let d = null; for (let i = 0; i < 30 && !d; i++) { await new Promise(res => setTimeout(res, 100)); d = [...foundry.applications.instances.values()].find(x => x.constructor.name === "RollDialog" && x.actor === a); } return d; };
+      const out = {}, sid = game.system.id;
+      // Глаза змеи: смертный — карточка без броска, «наложить» — недвижим; сородич — Воля змея, сл. 9
+      await target(tm);
+      const n0 = game.messages.size;
+      await rollPowerRef(a, `serpentis|${idx("serpentis", "Eyes of the Serpent")}`);
+      const card = game.messages.contents.slice(n0).find(x => x.getFlag(sid, "targetApply"));
+      await TP.applyFromCard(card);
+      out.eyesMortal = [!!card, !!canvas.tokens.get(tm.id)?.actor?.statuses.has("r-held")];   // жетон не связан с актёром — эффект на актёре жетона
+      await target(tv);
+      await rollPowerRef(a, `serpentis|${idx("serpentis", "Eyes of the Serpent")}`);
+      let dlg = await dialog();
+      out.eyesKindred = [dlg?.values.difficulty, dlg?.values.trait1];
+      await dlg?.close();
+      // Усмирение Зверя: на Сородича нельзя; против смертного — продолжительный до постоянной Воли (5)
+      out.quellKindred = TP.prepareTargetPower(a, "animalism", C.discipline("animalism").powers[idx("animalism", "Quell the Beast")], TP.TARGET_POWERS["animalism|Quell the Beast"]) === null;
+      await target(tm);
+      await rollPowerRef(a, `animalism|${idx("animalism", "Quell the Beast")}`);
+      dlg = await dialog();
+      out.quell = [dlg?.values.contest, dlg?.values.need, dlg?.values.difficulty];
+      await dlg?.close();
+      const link = key => ({ key, target: m.uuid, targetName: m.name, powerName: key, actorName: a.name });
+      out.quellLabel = [!!TP.targetPowerLabel({ targetPower: link("animalism|Quell the Beast"), extended: { need: 5, prev: 3 } }, { outcome: "success", successes: 2 }),
+        !!TP.targetPowerLabel({ targetPower: link("animalism|Quell the Beast"), extended: { need: 5, prev: 0 } }, { outcome: "success", successes: 2 })];
+      // Касание скорпиона: 2 крови в яд, 10 успехов (сопротивление их не снимет) — Выносливость 3 → 1 навсегда
+      const sta0 = m.system.attributes.stamina.total;
+      await TP.applyTargetPower({ isOwner: false }, { actorUuid: a.uuid, extra: { targetPower: { ...link("quietus|Scorpion's Touch"), poison: 2 } } }, { successes: 10, outcome: "success" });
+      out.poison = [sta0, m.system.attributes.stamina.total, m.effects.find(e => e.flags?.[sid]?.attrMod)?.flags[sid].mode];
+      // Отчуждение Зверя: бешенство вампира переходит на цель
+      await a.toggleStatusEffect("r-frenzy", { active: true });
+      await TP.applyTargetPower({ isOwner: false }, { actorUuid: a.uuid, extra: { targetPower: link("animalism|Drawing Out the Beast") } }, { successes: 3, outcome: "success" });
+      out.beast = [a.statuses.has("r-frenzy"), m.statuses.has("r-frenzy")];
+      [...game.user.targets].forEach(tk => tk.setTarget(false, { releaseOthers: false }));
+      await new Promise(res => setTimeout(res, 800));
+      await scene.deleteEmbeddedDocuments("Token", [tv.id, tm.id]);
+      await Actor.deleteDocuments([a.id, v.id, m.id]);
+      return out;
+    });
+    const want = { eyesMortal: [true, true], eyesKindred: [9, "willpower.permanent"], quellKindred: true, quell: ["extended", 5, 7],
+      quellLabel: [true, false], poison: [3, 1, "manual"], beast: [false, true] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   // Метаморфозы 3, 5 и Модифицированный Облик Зверя (2.7.0): Слияние с землёй (солнце не вредит, угроза будит),
   // Туманная форма (обычный урон не проходит, огонь — да; атаковать нельзя), две формы Гангрела из Clanbook
   await check("Метаморфозы: туман, Слияние с землёй, Модифицированный Облик", async () => {

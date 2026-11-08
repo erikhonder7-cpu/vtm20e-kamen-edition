@@ -5569,8 +5569,32 @@
         "week": "for a week",
         "month": "for a month",
         "3months": "for three months",
-        "year": "for a year"
-      }
+        "year": "for a year",
+        "forever": "permanently (restored only with experience)"
+      },
+      "NeedTarget": "Target someone (T): this power needs a target",
+      "NotKindred": "“{name}” is Kindred: this power does not affect vampires",
+      "EyesRoll": "“{name}” is supernatural: the Setite needs a Willpower roll, difficulty 9.",
+      "EyesName": "Eyes of the Serpent ({name})",
+      "EyesMortal": "meets the gaze — frozen in place",
+      "EyesSuper": "frozen by the gaze; if attacked or harmed — 1 Willpower to break free",
+      "PoisonBlood": "Blood into venom (up to Stamina)",
+      "PoisonGo": "Roll Willpower",
+      "PoisonNote": "{n} blood into venom. Willpower, difficulty 6; successes set the duration. Delivery: skin touch or a melee weapon.",
+      "PoisonApply": "Venom into “{name}”",
+      "PoisonResist": "Resisting venom: Stamina + Fortitude",
+      "PoisonResisted": "the venom had no effect — resistance cancelled every success",
+      "PoisonName": "Scorpion venom: Stamina −{n}",
+      "PoisonDesc": "Stamina −{n} {dur}. At Stamina 0 a mortal is terminally ill, a vampire falls into torpor.",
+      "QuellNote": "Extended roll: {n} successes needed (“{name}”'s permanent Willpower); a failure resets the total.",
+      "QuellName": "Quelled ({name})",
+      "QuellDesc": "cannot spend or regain Willpower, does not resist mental or physical influence; remove manually",
+      "BeastApply": "Pass the Beast to “{name}”",
+      "Beast1": "the Beast passes to a random suitable target — the Storyteller chooses who",
+      "Beast2": "the Beast passes to the chosen target; the vampire loses the next turn or acts at once for 1 Willpower",
+      "Beast3": "the Beast passes to the chosen target",
+      "BeastFail": "{name}: the Beast didn't leave — frenzy for twice as long and twice as hard to stop",
+      "BeastBotch": "{name}: botch — uncontrollable frenzy that Willpower cannot stop"
     }
   },
   "Fx": {

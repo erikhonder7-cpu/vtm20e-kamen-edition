@@ -20,7 +20,7 @@ import { openUmbra } from "../apps/umbra.mjs";
 import { openHunt } from "../apps/night.mjs";
 import { openDowntime } from "../apps/downtime.mjs";
 import { openXp } from "../apps/xp.mjs";
-import { targetPowerOf, prepareTargetPower, tierText } from "../apps/target-powers.mjs";
+import { targetPowerOf, rollTargetPower } from "../apps/target-powers.mjs";
 import { openAttack } from "../combat/combat.mjs";
 import { openHazard } from "../apps/hazard.mjs";
 import { openDiablerie } from "../apps/diablerie.mjs";
@@ -1298,14 +1298,14 @@ export function rollRitual(actor, item) {
 }
 
 /** Бросок по записи силы или ритуала: пул из книги, сложность, цена кровью или волей. */
-function rollFromSpec(actor, r, { title, subtitle, effect, kind = "check", magic = null, power = null, torment = null, onRolled = null, more = null }) {
+function rollFromSpec(actor, r, { title, subtitle, effect, kind = "check", magic = null, power = null, torment = null, onRolled = null, more = null, contest = null, need = null }) {
   return RollDialog.prompt(actor, {
     title, subtitle, trait1: r.trait1 ?? "", trait2: r.trait2 ?? "",
     difficulty: r.difficulty || VTM20.defaultDifficulty, bloodCost: r.blood ?? 0, willpowerCost: !!r.willpower,
     diffNote: r.note ?? "", effect, kind, baseAttr: !!r.base,
     ...(r.dice ? { pool: r.dice, lockTraits: true, breakdown: [{ label: t("Magic.FixedPool"), value: r.dice }] } : {}),
     extra: { ...(magic ? { magic } : {}), ...(power ? { power } : {}), ...(torment != null ? { torment } : {}), ...(more ?? {}) },
-    ...(onRolled ? { onRolled } : {})
+    ...(onRolled ? { onRolled } : {}), ...(contest ? { contest, need } : {})
   });
 }
 
@@ -1334,17 +1334,7 @@ export function rollPowerRef(actor, ref) {
     onRolled: d.dark && actor.type === "demon" && !actor.system.earthbound ? () => gainTorment(actor, 1, t("Demon.DarkReason")) : null });
   // Силы против цели (apps/target-powers.mjs): сложность — черта отмеченной цели, итог — на цели
   const tp = !pathName && targetPowerOf(disc, p);
-  if (tp) {
-    const prep = prepareTargetPower(actor, disc, p, tp);
-    if (!prep) return;
-    const roll = { ...(p.roll ?? {}), ...(prep.difficulty ? { difficulty: prep.difficulty } : {}), note: prep.note };
-    const key = `${disc}|${p.en}`;
-    return rollFromSpec(actor, roll, { title: p.name, subtitle: `${prep.target ? `→ ${prep.target.name} · ` : ""}${d.name} · ${ROMAN[p.level - 1] ?? p.level}`, effect: p.html,
-      power: { disc, level: p.level, name: p.name },
-      more: prep.target ? { targetPower: { key, target: prep.target.uuid, targetName: prep.target.name, powerName: p.name, actorName: actor.name } } : null,
-      onRolled: tp.tiers ? res => { const line = tierText(tp, res?.successes ?? 0); if (line && (res?.successes ?? 0) > 0) ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }),
-        content: `<div class="r-notice"><i class="fa-solid fa-brain"></i> <b>${foundry.utils.escapeHTML(p.name)}</b>: ${foundry.utils.escapeHTML(line)}</div>` }); } : null });
-  }
+  if (tp) return rollTargetPower(actor, disc, d, p, tp, { rollFromSpec, subtitle: `${d.name} · ${ROMAN[p.level - 1] ?? p.level}` });
   return rollFromSpec(actor, p.roll ?? {}, { title: p.name, subtitle: `${pathName || d.name} · ${ROMAN[p.level - 1] ?? p.level}`, effect: p.html,
     kind: magic ? "magic" : "check", magic: magic ? { disc, level: p.level, path: pathName } : null,
     power: { disc, level: p.level, path: pathName, name: p.name } });

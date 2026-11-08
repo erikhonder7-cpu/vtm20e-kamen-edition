@@ -37,7 +37,7 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     this.values = {
       trait1: cfg.trait1 ?? "", trait2: cfg.trait2 ?? "",
       bonus: cfg.bonus ?? 0, difficulty: cfg.difficulty ?? VTM20.defaultDifficulty, actions: cfg.celerityAction ? 1 : (cfg.actions ?? 1),
-      contest: "simple", need: 5,
+      contest: cfg.contest ?? "simple", need: cfg.need ?? 5,
       specialty: !!cfg.specialty, willpower: !!cfg.willpower,
       wounds: !cfg.reflexive, physical: true,
       payBlood: (cfg.bloodCost ?? 0) > 0, payWill: !!cfg.willpowerCost, light: false, fxOn: [], overdraw: 0, sway: "",

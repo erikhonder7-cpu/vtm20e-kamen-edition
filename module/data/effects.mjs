@@ -214,7 +214,8 @@ export function effectMods(actor) {
     brawlDamage: 0, biteDamage: 0, soakDiff: 0, staminaVsFangs: false, venom: 0, list: [] };
   // тотем стаи (apps/coterie.mjs → acceptTotem): прибавки к Атрибутам каждому члену стаи
   for (const e of actor?.effects ?? []) {
-    const ta = !e.disabled && e.flags?.[SYSTEM_ID]?.totemAttr;
+    // тотем стаи и яд Касания скорпиона (apps/target-powers.mjs, attrMod) — прибавки и вычеты к Атрибутам
+    const ta = !e.disabled && (e.flags?.[SYSTEM_ID]?.totemAttr ?? e.flags?.[SYSTEM_ID]?.attrMod);
     if (!ta) continue;
     for (const [k, v] of Object.entries(ta)) m.attr[k] = (m.attr[k] ?? 0) + v;
     m.list.push(e);
