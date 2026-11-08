@@ -46,6 +46,7 @@ import { useInvestment, pactDialog, pactDelete } from "../apps/infernal.mjs";
 import { possess, extend as possessExtend, leave as possessLeave, battleExpiry } from "../apps/possession.mjs";
 import { weaponIcon as weaponImg, armorIcon as armorImg } from "../data/icons.mjs";
 import { togglePowerEffect } from "../apps/power-effects.mjs";
+import { POWER_EFFECTS, fxKey } from "../data/effects.mjs";
 import { rollPackVinculi, openVaulderie, loyaltyConflict } from "../apps/vaulderie.mjs";
 import { openCoterie } from "../apps/coterie.mjs";
 import { itemCardHTML } from "../chat/item-card.mjs";
@@ -1333,6 +1334,19 @@ export function rollPowerRef(actor, ref) {
   if (disc.startsWith("lore:")) return rollFromSpec(actor, p.roll ?? {}, { title: p.name, subtitle: `${d.name} · ${ROMAN[p.level - 1]}`, effect: p.html,
     torment: d.dark ? 10 : actor.system.torment?.permanent ?? 0, power: { disc, level: p.level, name: p.name },
     onRolled: d.dark && actor.type === "demon" && !actor.system.earthbound ? () => gainTorment(actor, 1, t("Demon.DarkReason")) : null });
+  // Сила-эффект (data/effects.mjs): без броска — включить/выключить (HUD вёл в пустое окно броска);
+  // rollStart — бросок запускает эффект: успех — эффект без второй оплаты, провал — botchDamage губительных
+  const fk = fxKey(disc, p), fxDef = !pathName && POWER_EFFECTS[fk];
+  if (fxDef && (fxDef.noRoll || !(p.roll?.trait1 || p.roll?.dice))) return togglePowerEffect(actor, fk);
+  if (fxDef?.rollStart) {
+    if (actor.powerEffects.some(x => x.power === fk)) return togglePowerEffect(actor, fk);
+    return rollFromSpec(actor, p.roll ?? {}, { title: p.name, subtitle: `${d.name} · ${ROMAN[p.level - 1] ?? p.level}`, effect: p.html,
+      power: { disc, level: p.level, name: p.name },
+      onRolled: async res => {
+        if ((res?.successes ?? 0) > 0) return actor.startPower(fk, { blood: 0 });
+        if (res?.outcome === "botch" && fxDef.botchDamage) return actor.applyDamage(fxDef.botchDamage, "aggravated");
+      } });
+  }
   // Силы против цели (apps/target-powers.mjs): сложность — черта отмеченной цели, итог — на цели
   const tp = targetPowerOf(disc, p);
   if (tp) return rollTargetPower(actor, disc, d, p, tp, { rollFromSpec, subtitle: `${pathName || d.name} · ${ROMAN[p.level - 1] ?? p.level}`,

@@ -206,7 +206,7 @@ export async function togglePowerEffect(actor, power) {
     .map(n => `<option value="${n}">${t(base.charges ? "Fx.BloodCharges" : "Fx.BloodTurns", { n, turns: 4 - n })}</option>`).join("") : "";
   const res = await foundry.applications.api.DialogV2.prompt({
     window: ask && !forms && !bloods ? { title: t(base.hours === "ask" ? "Fx.HoursTitleAsk" : "Fx.HoursTitle"), icon: "fa-solid fa-hourglass-half" } : { title: t("Fx.ChooseTitle"), icon: "fa-solid fa-paw" },
-    classes: ["vtm20", "r-dialog", ...(power.startsWith("protean:") ? ["r-protean-dialog"] : [])], position: power.startsWith("protean:") ? { width: 480 } : undefined,
+    classes: ["vtm20", "r-dialog", ...(power.startsWith("protean:") ? ["r-protean-dialog"] : [])], ...(power.startsWith("protean:") ? { position: { width: 480 } } : {}),   // position: undefined ломает окно (Object.entries)
     content: `<div class="r-form">
       ${forms ? `<label class="r-field"><span>${t("Fx.Form")}</span><select name="variant">${forms}</select></label>` : ""}
       ${bloods ? `<label class="r-field"><span>${t("Fx.Blood")}</span><select name="blood">${bloods}</select></label>` : ""}
@@ -217,9 +217,22 @@ export async function togglePowerEffect(actor, power) {
     rejectClose: false
   });
   if (!res) return null;
-  return actor.startPower(power, res);
+  const started = await actor.startPower(power, res);
+  // Театр теней, «опутать»: тень на отмеченной цели — −1 к Выносливости (и к поглощению); при 0 — удушье
+  if (started && res.variant === "smother") await smotherTarget(actor);
+  return started;
 }
 
+
+/** Театр теней: опутать тенью отмеченную цель. */
+async function smotherTarget(actor) {
+  const target = [...(game.user.targets ?? [])].map(tk => tk.actor).find(x => x && x !== actor);
+  if (!target) return ui.notifications.warn(t("Fx.SmotherNoTarget"));
+  if (!target.isOwner) return ui.notifications.warn(game.i18n.format("VTM20.Notify.NotOwner", { name: target.name }));
+  await target.createEmbeddedDocuments("ActiveEffect", [{ name: t("Fx.SmotherName", { name: actor.name }), img: "icons/svg/net.svg",
+    description: `<p>${t("Fx.SmotherDesc")}</p>`, flags: { [SYSTEM_ID]: { mind: "obtenebration|Shadow Play", by: actor.uuid, attrMod: { stamina: -1 }, mode: "scene" } } }]);
+  ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: target }), content: `<div class="r-notice"><i class="fa-solid fa-cloud-moon"></i> ${t("Fx.SmotherDone", { name: target.name })}</div>` });
+}
 
 /** Внешняя угроза немедленно выбрасывает вампира из Слияния с землёй. */
 export async function wakeEarthMeld(actor, reason = "") {

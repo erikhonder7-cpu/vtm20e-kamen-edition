@@ -76,17 +76,18 @@ export const POWER_EFFECTS = {
   // Величие 4, Приглашение: 1 кровь, действует до рассвета
   "presence:4": { mode: "night", icon: "fa-envelope-open-text", cost: { blood: 1 } },
   // Величие 5, Преклонение: 1 Воля, до конца сцены
-  "presence:5": { mode: "scene", icon: "fa-crown", cost: { willpower: 1 } },
+  "presence:5": { mode: "scene", icon: "fa-crown", cost: { willpower: 1 }, noRoll: true },   // по тексту бросок не нужен
   // Затмение 1, Театр теней: 1 кровь, до конца сцены, концентрации не требует
   // Затмение 1, Театр теней: 1 кровь, до конца сцены — укрыться (+1 куб к Скрытности, стрелкам +1 к сложности)
   // или пугать (+1 куб к Запугиванию); опутать цель — по описанию силы
   "obtenebration:1": { mode: "scene", icon: "fa-cloud-moon", cost: { blood: 1 }, variants: {
     shroud: { dice: { stealth: 1 }, diff: { rangedHit: 1 } },
-    intimidate: { dice: { intimidation: 1 } }
+    intimidate: { dice: { intimidation: 1 } },
+    smother: { smother: true }
   } },
   // Затмение 4, Чёрный метаморфоз: 2 крови (бросок Манипуляция + Смелость, сл. 7 — отдельно), до конца сцены:
   // 4 щупальца (Сила + 1, тяжёлые), видит во тьме, +3 куба к Запугиванию
-  "obtenebration:4": { mode: "scene", icon: "fa-hand-back-fist", cost: { blood: 2 }, darkvision: true, dice: { intimidation: 3 },
+  "obtenebration:4": { mode: "scene", icon: "fa-hand-back-fist", cost: { blood: 2 }, rollStart: true, botchDamage: 2, darkvision: true, dice: { intimidation: 3 },
     weapon: { name: "Щупальца тьмы", kind: "brawl", damage: 1, strength: true, damageType: "lethal", difficulty: 6 } },
   // Затмение 5, Сумеречный облик: 3 крови; неуязвим для физических атак и сам не атакует физически, видит в любой тьме;
   // огонь и солнце — как обычно (в отличие от тумана)

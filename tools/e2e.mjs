@@ -1808,6 +1808,61 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  // Затмение через HUD: силы-эффекты без броска включаются кликом, Чёрный метаморфоз — бросок запускает эффект,
+  // Театр теней «опутать» — на цели Выносливость −1
+  await check("Затмение через HUD", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms));
+      const mk = (name, type, system = {}) => Actor.create({ name, type, flags: { world: { e2e: true } }, system });
+      const a = await mk("E2E — ласомбра HUD", "vampire", { generation: 8, blood: { value: 15 } });
+      const m = await mk("E2E — жертва тени", "mortal", { attributes: { stamina: { value: 3 } } });
+      await a.createEmbeddedDocuments("Item", [{ name: "E2E — obtenebration", type: "discipline", system: { key: "obtenebration", value: 5 } }]);
+      const scene = game.scenes.viewed ?? game.scenes.contents[0];
+      const made = await scene.createEmbeddedDocuments("Token", await Promise.all([a, m].map((x, i) => x.getTokenDocument({ x: 100 + i * 200, y: 1500 }))));
+      const tok = x => made.find(tk => tk.actorId === x.id);
+      for (let i = 0; i < 30 && !canvas.tokens.get(tok(m).id); i++) await wait(100);
+      await wait(400);
+      const inst = () => [...foundry.applications.instances.values()];
+      const closeAll = async () => { for (const x of inst()) if (x.constructor.name === "RollDialog" || x instanceof foundry.applications.api.DialogV2) await x.close(); };
+      const hudPower = async re => { await closeAll(); document.querySelector('#r-hud [data-act="tab"][data-tab="powers"]')?.click(); await wait(300);
+        document.querySelector('#r-hud [data-act="pop"][data-pop*="obtenebration"]')?.click(); await wait(400);
+        [...document.querySelectorAll('#r-hud .rh-pop-row[data-act="power"]')].find(x => re.test(x.textContent))?.click(); await wait(600); };
+      const at = () => canvas.tokens.get(tok(a).id).actor, mt = () => canvas.tokens.get(tok(m).id).actor;
+      const out = {};
+      canvas.tokens.get(tok(a).id)?.control({ releaseOthers: true }); await wait(600);
+      canvas.tokens.get(tok(m).id)?.setTarget(true, { releaseOthers: true }); await wait(300);
+      // Театр теней: окно режима, «опутать» — на цели Выносливость 3 → 2
+      await hudPower(/Театр теней/);
+      const dlg = inst().find(x => x instanceof foundry.applications.api.DialogV2);
+      const sel = dlg?.element.querySelector('select[name="variant"]'); if (sel) sel.value = "smother";
+      dlg?.element.querySelector('button[data-action="ok"]')?.click(); await wait(800);
+      out.smother = [!!dlg, !inst().some(x => x.constructor.name === "RollDialog"), mt().system.attributes.stamina.total];
+      // Сумеречный облик: клик — облик включён, окна броска нет
+      await hudPower(/Сумеречный/);
+      out.tenebrous = [!!at().system.fx?.shadowForm, !inst().some(x => x.constructor.name === "RollDialog")];
+      // Чёрный метаморфоз: окно броска; успех — эффект без второй оплаты
+      await hudPower(/Чёрный метаморфоз/);
+      const rd = inst().find(x => x.constructor.name === "RollDialog");
+      const blood = at().system.blood.value;
+      await rd?.cfg.onRolled?.({ successes: 2, outcome: "success" });
+      out.black = [rd?.values.difficulty, at().powerEffects.some(x => x.power === "obtenebration:4"), at().system.blood.value === blood];
+      await closeAll();
+      // Покрывало ночи: бросок Манипуляция + Оккультизм (сл. 7)
+      await hudPower(/Покрывало ночи/);
+      out.shroud = inst().find(x => x.constructor.name === "RollDialog")?.values.difficulty;
+      await closeAll();
+      [...game.user.targets].forEach(x => x.setTarget(false, { releaseOthers: false }));
+      canvas.tokens.releaseAll();
+      await wait(800);
+      await scene.deleteEmbeddedDocuments("Token", made.map(x => x.id));
+      await Actor.deleteDocuments([a.id, m.id]);
+      return out;
+    });
+    const want = { smother: [true, true, 2], tenebrous: [true, true], black: [7, true, true], shroud: 7 };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   // Метаморфозы 3, 5 и Модифицированный Облик Зверя (2.7.0): Слияние с землёй (солнце не вредит, угроза будит),
   // Туманная форма (обычный урон не проходит, огонь — да; атаковать нельзя), две формы Гангрела из Clanbook
   await check("Метаморфозы: туман, Слияние с землёй, Модифицированный Облик", async () => {

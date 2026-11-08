@@ -3985,7 +3985,8 @@
         "battle": "combat form",
         "escape": "escape form",
         "shroud": "shroud",
-        "intimidate": "intimidate"
+        "intimidate": "intimidate",
+        "smother": "smother a target"
       },
       "Form": "Form",
       "Blood": "Blood",
@@ -4055,7 +4056,11 @@
       "RevisitedPickFormHint": "Combat form is built for a fight; escape form is built to break away.",
       "RevisitedBloodIntro": "Spending more blood shortens the transformation.",
       "ShadowNoPhysicalAttack": "In Tenebrous Form you cannot make physical attacks.",
-      "ShadowPhysicalImmune": "An ordinary physical attack cannot harm {name} in Tenebrous Form."
+      "ShadowPhysicalImmune": "An ordinary physical attack cannot harm {name} in Tenebrous Form.",
+      "SmotherNoTarget": "Target (T) someone to smother in shadow",
+      "SmotherName": "Smothered by shadow ({name})",
+      "SmotherDesc": "Stamina −1 (soak too); at Stamina 0 — suffocation",
+      "SmotherDone": "shadow coils around “{name}”: Stamina −1"
     },
     "City": {
       "ToolDomain": "Domain: outline your character's domain",
