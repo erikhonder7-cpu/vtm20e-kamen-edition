@@ -24,6 +24,21 @@ for (const f of files) {
 }
 console.log(`Синтаксис: ${files.length} модулей`);
 
+// ── 1б. Импорты ведут к файлам в git ─────────────────────────────────────
+// Правки из чужой копии (2.7.0) принесли импорт двух новых файлов, которых не было в репозитории: локально всё
+// работало, а релиз 2.7.1 не загружался. Каждый относительный импорт системы — к файлу из индекса git.
+const tracked = new Set(execFileSync("git", ["ls-files"], { cwd: ROOT, encoding: "utf8" }).split("\n").map(x => x.trim()).filter(Boolean));
+let imports = 0;
+for (const f of files.filter(f => !path.relative(ROOT, f).startsWith("tools"))) {
+  const src = fs.readFileSync(f, "utf8");
+  for (const m of src.matchAll(/(?:import|export)\s[^"'`]*?from\s*["'](\.{1,2}\/[^"']+)["']|import\(\s*["'](\.{1,2}\/[^"']+)["']\s*\)/g)) {
+    const rel = path.relative(ROOT, path.resolve(path.dirname(f), m[1] ?? m[2])).split(path.sep).join("/");
+    imports++;
+    ok(tracked.has(rel), `импорт ${path.relative(ROOT, f).split(path.sep).join("/")} → ${rel}: файла нет в git`);
+  }
+}
+console.log(`Импорты: ${imports}`);
+
 // ── 2. Броски ─────────────────────────────────────────────────────────────
 // roll.mjs импортирует config.mjs — ему хватает заглушек глобалов Foundry
 globalThis.game = { i18n: { lang: "ru", localize: k => k, format: k => k }, settings: { get: () => "" } };
