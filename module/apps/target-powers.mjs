@@ -53,6 +53,8 @@ export const TARGET_POWERS = {
   "dementation|The Haunting": { diff: ["perception", "selfControl"], timed: ["night", "2nights", "week", "month", "3months", "year"] },
   "dementation|Total Insanity": { diff: ["willpower"], timed: ["scene", "night", "week", "month", "year"], note: "Insane" },
   "auspex|Telepathy": { diff: ["willpower"], note: "Tele" },
+  "dementation|Eyes of Chaos": { kind: "chaos" },
+  "dementation|Voice of Madness": { kind: "voice", self: true },
   "serpentis|Eyes of the Serpent": { kind: "eyes", needTarget: true },
   "quietus|Scorpion's Touch": { kind: "poison", needTarget: true, timed: ["scene", "hour", "day", "month", "forever"] },
   "animalism|Quell the Beast": { kind: "quell", needTarget: true, mortalOnly: true },
@@ -125,6 +127,8 @@ export function markedTarget(actor) {
  * Возвращает { difficulty, note, target } — target может быть null (сложность вручную).
  */
 export function prepareTargetPower(actor, disc, p, tp) {
+  // Превращение в туман: силы, требующие зрительного контакта, недоступны (V20, Метаморфозы 5)
+  if (actor.system.fx?.mistForm && (tp.dominate || tp.kind === "eyes")) { ui.notifications.warn(t("MistNoEyes")); return null; }
   const target = markedTarget(actor) ?? (tp.allowSelf ? actor : null);
   if (!target && tp.needTarget) { ui.notifications.warn(t("NeedTarget")); return null; }
   // Усмирение Зверя: на Сородича не действует — кроме успокоения уже впавшего в бешенство (V20, Анимализм 3)
@@ -195,12 +199,12 @@ export function tierText(tp, successes) {
 /** Подпись кнопки «наложить» на карточке (только у сил с эффектом на цели). */
 export function targetPowerLabel(extra, ev) {
   const tp = extra?.targetPower && TARGET_POWERS[extra.targetPower.key];
-  if (!tp || ev.outcome !== "success" || extra.targetPower.done || !(tp.timed || tp.dread || tp.kind) || ["taste", "gather", "aura", "visage", "whisper", "info", "tiers", "counter"].includes(tp.kind)) return "";
+  if (!tp || ev.outcome !== "success" || extra.targetPower.done || !(tp.timed || tp.dread || tp.kind) || ["taste", "gather", "aura", "visage", "whisper", "info", "tiers", "counter", "chaos"].includes(tp.kind)) return "";
   // Усмирение — только когда накоплены все успехи продолжительного броска
   if (tp.kind === "quell" && !((extra.extended?.prev ?? 0) + ev.successes >= (extra.extended?.need ?? Infinity))) return "";
   const lbl = { beast: "BeastApply", poison: "PoisonApply", shroud: "ShroudApply", arms: "ArmsApply", vanish: "VanishApply",
     rage: "RageApply", potency: "PotencyApply", theft: "TheftApply", possess: "PossessApply", project: "ProjectApply", awe: "AweApply", call: "CallApply",
-    mesmerize: "MesApply", forget: "ForgApply", condition: "CondApply",
+    mesmerize: "MesApply", forget: "ForgApply", condition: "CondApply", voice: "VoiceApply",
     flesh: "FleshApply", beckon: "BeckonApply", subsume: "SubsumeApply", self: "SelfApply", summon: "SummonApply", comrades: "ComradesApply", conjure: "ConjureApply" }[tp.kind] ?? "Apply";
   return t(lbl, { name: extra.targetPower.targetName, n: ev.successes });
 }
@@ -244,6 +248,19 @@ export async function applyTargetPower(message, state, ev) {
   }
   if (tp.kind === "conjure") return conjure(message, state, x, tp, target);
   if (["cond", "self", "dehydrate", "dust", "comrades"].includes(tp.kind)) return applyPath(message, state, x, tp, target, n, flags, api);
+  if (tp.kind === "voice") {
+    // Голос безумия: по слушателю за успех; смертные поддаются сразу (и не помнят), вампиры — проверка, сложность +2
+    const crowd = (await Promise.all((x.crowd ?? []).map(u => foundry.utils.fromUuid(u)))).filter(Boolean).slice(0, n);
+    await done(message, state, x);
+    const hit = [];
+    for (const who of crowd) {
+      if (who.isVampire) { selfCheck(who, x.mode, 8, t("VoiceKindred", { name: who.name })); hit.push(`${who.name} (${t("VoiceResist")})`); continue; }
+      if (!who.isOwner) { ui.notifications.warn(game.i18n.format("VTM20.Notify.NotOwner", { name: who.name })); continue; }
+      if (!who.statuses?.has(`r-${x.mode}`)) await who.toggleStatusEffect(`r-${x.mode}`, { active: true });
+      hit.push(who.name);
+    }
+    return notice(target, x.powerName, hit.length ? t("VoiceDone", { names: hit.join(", ") }) : t("AweNobody", { n }));
+  }
   if (tp.kind === "mesmerize" || tp.kind === "forget") {
     // Внушение: одна программа в разуме — новая заменяет старую при большем или равном числе успехов
     const text = await foundry.applications.api.DialogV2.prompt({ window: { title: x.powerName }, classes: ["vtm20", "r-dialog"], rejectClose: false,
@@ -542,6 +559,25 @@ export async function rollTargetPower(actor, disc, d, p, tp, { rollFromSpec, sub
     roll = { ...roll, difficulty: Number(how), note: t("CallNote", { name: target?.name ?? "—", n: how }) };
     if (!target) return ui.notifications.warn(t("NeedTarget"));
   }
+  if (tp.kind === "chaos") {
+    const d = await ask(p.name, [["9", t("ChaosStranger")], ["8", t("ChaosKnown")], ["6", t("ChaosFriend")], ["7", t("ChaosCode")], ["6p", t("ChaosPattern")]]);
+    if (!d) return null;
+    roll = { ...roll, difficulty: parseInt(d), note: t("ChaosNote") };
+  }
+  if (tp.kind === "voice") {
+    const mode = await ask(p.name, [["frenzy", t("VoiceFrenzy")], ["rotschreck", t("VoiceTerror")]]);
+    if (!mode) return null;
+    const marked = [...(game.user.targets ?? [])].map(tk => tk.actor).filter(x => x && x !== actor);
+    opts.more = { targetPower: { ...link, crowd: marked.map(x => x.uuid), mode } };
+    roll.note = t("VoiceNote", { n: marked.length });
+    // сам вампир — проверка против того же состояния: сл. −1; неудачная активация — +1; провал — сразу
+    opts.onRolled = async res => {
+      const botch = res?.outcome === "botch", fail = !botch && (res?.successes ?? 0) < 1;
+      if (botch) { if (!actor.statuses?.has(`r-${mode}`)) await actor.toggleStatusEffect(`r-${mode}`, { active: true }); return notice(actor, p.name, t("VoiceSelfBotch")); }
+      const diff = 6 - 1 + (fail ? 2 : 0);
+      selfCheck(actor, mode, diff, t("VoiceSelf", { n: diff }));
+    };
+  }
   if (tp.kind === "possess") roll = { ...roll, willpower: true, note: t("PossessNote", { name: target.name }) };
   if (tp.kind === "whisper") roll = { ...roll, difficulty: animalDiff(target), note: t("WhisperNote", { n: animalDiff(target), name: target.name }) };
   if (tp.kind === "aura") opts.onRolled = res => {
@@ -661,6 +697,15 @@ export async function majestyCheck(attacker, foe) {
   }
   notice(attacker, game.i18n.localize("VTM20.TP.MajestyTitle"), t("MajestyFail", { name: foe.name }));
   return false;
+}
+
+/** Карточка «проверить ярость/Ротшрек» со своей сложностью (Голос безумия) — кнопкой броска для владельца. */
+function selfCheck(actor, kind, difficulty, text) {
+  return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }),
+    whisper: game.users.filter(u => u.isGM || actor.testUserPermission(u, "OWNER")).map(u => u.id),
+    flags: { [SYSTEM_ID]: { checkPrompt: { kind, difficulty, actorUuid: actor.uuid } } },
+    content: `<div class="r-notice r-check-prompt is-${kind}"><i class="fa-solid ${kind === "frenzy" ? "fa-face-angry" : "fa-fire"}"></i> <span>${esc(text)}</span>
+      <div class="r-card-buttons"><button type="button" data-r-action="virtueCheck"><i class="fa-solid fa-dice-d10"></i> ${esc(game.i18n.localize("VTM20.CheckPrompt.Roll"))}</button></div></div>` });
 }
 
 /** Сумма черт персонажа: Атрибуты, Способности, Добродетели, Воля, Дисциплины. */

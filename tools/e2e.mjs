@@ -1863,6 +1863,65 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  // Помешательство через HUD: Око хаоса — сложность по задаче, Голос безумия — смертный сразу, вампир — проверка +2;
+  // Метаморфозы: в облике тумана силы со взглядом недоступны
+  await check("Помешательство через HUD и туман без взгляда", async () => {
+    const r = await page.evaluate(async () => {
+      const sys = p => import(`/systems/${game.system.id}/${p}`);
+      const TP = await sys("module/apps/target-powers.mjs"), { rollPowerRef } = await sys("module/sheets/actor-sheet.mjs");
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms));
+      const mk = (name, type, system = {}) => Actor.create({ name, type, flags: { world: { e2e: true } }, system });
+      const a = await mk("E2E — малкавианин", "vampire", { generation: 8, blood: { value: 15 } });
+      const m = await mk("E2E — слушатель", "mortal");
+      const v = await mk("E2E — слушатель-сородич", "vampire", { generation: 12 });
+      await a.createEmbeddedDocuments("Item", [["dementation", 5], ["protean", 5], ["dominate", 1]].map(([key, value]) => ({ name: `E2E — ${key}`, type: "discipline", system: { key, value } })));
+      const scene = game.scenes.viewed ?? game.scenes.contents[0];
+      const made = await scene.createEmbeddedDocuments("Token", await Promise.all([a, m, v].map((x, i) => x.getTokenDocument({ x: 100 + i * 200, y: 1700 }))));
+      const tok = x => made.find(tk => tk.actorId === x.id);
+      for (let i = 0; i < 30 && !canvas.tokens.get(tok(v).id); i++) await wait(100);
+      await wait(400);
+      const inst = () => [...foundry.applications.instances.values()];
+      const closeAll = async () => { for (const x of inst()) if (x.constructor.name === "RollDialog" || x instanceof foundry.applications.api.DialogV2) await x.close(); };
+      const answer = async val => { let d = null; for (let i = 0; i < 30 && !d; i++) { await wait(100); d = inst().find(x => x instanceof foundry.applications.api.DialogV2); }
+        const s = d?.element.querySelector("select"); if (s) s.value = val; d?.element.querySelector('button[data-action="ok"]')?.click(); await wait(500); };
+      const hudPower = async re => { await closeAll(); document.querySelector('#r-hud [data-act="tab"][data-tab="powers"]')?.click(); await wait(300);
+        document.querySelector('#r-hud [data-act="pop"][data-pop*="dementation"]')?.click(); await wait(400);
+        [...document.querySelectorAll('#r-hud .rh-pop-row[data-act="power"]')].find(x => re.test(x.textContent))?.click(); };
+      const out = {};
+      canvas.tokens.get(tok(a).id)?.control({ releaseOthers: true }); await wait(600);
+      // Око хаоса: «близкий друг» — сложность 6
+      await hudPower(/Око хаоса/); await answer("6");
+      out.chaos = inst().find(x => x.constructor.name === "RollDialog")?.values.difficulty;
+      // Голос безумия: оба отмечены, ярость; 2 успеха — смертный в ярости, сородичу — проверка сл. 8
+      canvas.tokens.get(tok(m).id)?.setTarget(true, { releaseOthers: true });
+      canvas.tokens.get(tok(v).id)?.setTarget(true, { releaseOthers: false }); await wait(300);
+      await hudPower(/Голос безумия/); await answer("frenzy");
+      const rd = inst().find(x => x.constructor.name === "RollDialog");
+      const link = rd?.cfg.extra?.targetPower;
+      out.voice = [rd?.values.difficulty, link?.crowd?.length, link?.mode];
+      await closeAll();
+      const n0 = game.messages.size;
+      await TP.applyTargetPower({ isOwner: false }, { actorUuid: a.uuid, extra: { targetPower: link } }, { successes: 2, outcome: "success" });
+      const prompt = game.messages.contents.slice(n0).find(x => x.getFlag(sid, "checkPrompt"));
+      out.voiceHit = [canvas.tokens.get(tok(m).id).actor.statuses.has("r-frenzy"), prompt?.getFlag(sid, "checkPrompt")?.difficulty];
+      // туман: Доминирование (взгляд) — окна нет
+      await a.startPower("protean:5", { blood: 3 });
+      canvas.tokens.get(tok(m).id)?.setTarget(true, { releaseOthers: true }); await wait(300);
+      await rollPowerRef(a, `dominate|${game.vtm20Codex.discipline("dominate").powers.findIndex(p => p.en === "Command")}`); await wait(500);
+      out.mistEyes = !inst().some(x => x.constructor.name === "RollDialog");
+      await closeAll();
+      [...game.user.targets].forEach(x => x.setTarget(false, { releaseOthers: false }));
+      canvas.tokens.releaseAll();
+      await wait(800);
+      await scene.deleteEmbeddedDocuments("Token", made.map(x => x.id));
+      await Actor.deleteDocuments([a.id, m.id, v.id]);
+      return out;
+    });
+    const want = { chaos: 6, voice: [7, 2, "frenzy"], voiceHit: [true, 8], mistEyes: true };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   // Метаморфозы 3, 5 и Модифицированный Облик Зверя (2.7.0): Слияние с землёй (солнце не вредит, угроза будит),
   // Туманная форма (обычный урон не проходит, огонь — да; атаковать нельзя), две формы Гангрела из Clanbook
   await check("Метаморфозы: туман, Слияние с землёй, Модифицированный Облик", async () => {

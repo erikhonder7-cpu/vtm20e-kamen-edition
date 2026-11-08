@@ -5870,7 +5870,23 @@
       "CondDesc": "follows the master's orders literally, even to their own harm; other vampires' Dominate +2 difficulty (max 10); in full isolation it fades — about 6 months minus a week per Willpower dot ({w})",
       "CondDone": "conditioning complete",
       "PossessAccess": "“{name}”'s body is taken — which Disciplines work through it?",
-      "PossessAccessRoll": "Possession: Manipulation + Intimidation (diff. 7)"
+      "PossessAccessRoll": "Possession: Manipulation + Intimidation (diff. 7)",
+      "MistNoEyes": "In Mist Form powers requiring eye contact are unavailable",
+      "ChaosStranger": "a stranger's Nature (diff. 9)",
+      "ChaosKnown": "an acquaintance's Nature (diff. 8)",
+      "ChaosFriend": "a close friend's Nature (diff. 6)",
+      "ChaosCode": "a coded message (diff. 7)",
+      "ChaosPattern": "a hidden pattern in randomness (diff. 6)",
+      "ChaosNote": "1 turn of concentration; the answer is the Storyteller's hint, not necessarily a literal fact.",
+      "VoiceFrenzy": "frenzy",
+      "VoiceTerror": "blind terror (like Rötschreck)",
+      "VoiceNote": "Listeners marked: {n}; one per success. Mortals succumb at once and don't remember; vampires roll, difficulty +2. The user rolls too (diff. −1).",
+      "VoiceApply": "Voice — to the marked",
+      "VoiceResist": "rolls",
+      "VoiceDone": "until the end of the scene: {names}",
+      "VoiceKindred": "{name} hears the Voice of Madness: roll, difficulty 8 (+2)",
+      "VoiceSelf": "the Voice of Madness touches its user too: roll, difficulty {n}",
+      "VoiceSelfBotch": "botch — the madness falls on the vampire"
     }
   },
   "Fx": {
