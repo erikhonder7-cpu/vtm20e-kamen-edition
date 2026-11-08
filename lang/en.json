@@ -2367,7 +2367,8 @@
       "DhampirHurt": "the dhampir is wounded (below “Bruised”) — the blood didn't replenish in a day.",
       "Starving": "hunger: damage instead of blood",
       "Nobody": "No player Kindred.",
-      "StoryEnd": "The story is over: characters' Willpower fully restored."
+      "StoryEnd": "The story is over: characters' Willpower fully restored.",
+      "SceneTip": "End of scene: clear blood boosts, stun, prone, frenzy and scene-long powers"
     },
     "Weakness": {
       "rapture": "Rapture (Toreador)",
@@ -3318,7 +3319,11 @@
       "CelerityNewActions": "New actions",
       "CelerityBloodCost": "Blood cost",
       "CelerityDexPenalty": "Dexterity dice removed",
-      "CelerityRuleNote": "Maximum is your Celerity rating ({max}). Extra actions take place after everyone’s normal turn."
+      "CelerityRuleNote": "Maximum is your Celerity rating ({max}). Extra actions take place after everyone’s normal turn.",
+      "Hide": "Collapse panel (H)",
+      "Show": "Show panel (H)",
+      "ShowShort": "Panel",
+      "ToggleKey": "Collapse or show the character panel"
     },
     "Contest": {
       "ModeLabel": "Kind of action",
@@ -3755,7 +3760,8 @@
         "pentex": "Pentex fomori",
         "kin": "Kinfolk family",
         "police": "Police patrol"
-      }
+      },
+      "AutoGear": "Picked by skills: Firearms and Melee at 2+. Remove anything extra with the cross"
     },
     "Money": {
       "Title": "Purse",
@@ -4656,12 +4662,7 @@
       "ActionsCap": "Up to {cap} per turn",
       "ActionsFreeSub": "No penalty up to {free}: the lower of Dexterity and Wits",
       "ActionsLead": "Extra actions come after normal ones, in initiative order; the pool isn't split.",
-      "ActionsN": {
-        "one": "extra action",
-        "few": "extra actions",
-        "many": "extra actions",
-        "other": "extra actions"
-      },
+      "ActionsN": {"one": "extra action", "few": "extra actions", "many": "extra actions", "other": "extra actions"},
       "ActionsCost": "Rage −{n}",
       "TalenKicker": "Talen",
       "FetishKicker": "Fetish · level {n}",

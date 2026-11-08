@@ -174,6 +174,7 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
       const has = new Set(entries.map(e => e.cat));
       chips = [chip("cat", "", L("Filter.All")), ...Object.entries(VTM20.meritCategories)
         .filter(([k]) => k !== "clan" && has.has(k)).map(([k, c]) => chip("cat", k, game.i18n.localize(c.label))),   // «Клановые» — кнопкой ниже
+        ...(has.has("ghoul") ? [chip("cat", "ghoul", L("Filter.GhoulTraits"))] : []),
         ...(has.has("sect") ? [chip("cat", "sect", L("Filter.SectTraits"))] : []),
         ...(has.has("clan") ? [chip("cat", "clan", L("Filter.Clan"))] : [])];
     } else if (kind === "discipline" && this.actor?.type === "vampire") {
@@ -290,7 +291,7 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
     const clanOrder = [...new Set(Codex.merits.filter(m => m.clan).map(m => m.clan))];
     const sectOrder = ["camarilla", "sabbat", "anarchs"];
     const place = m => {
-      if (m.ghoul) return { group: "ghoul", cat: m.category, groupName: L("Filter.GhoulTraits"), groupOrder: -1 };
+      if (m.ghoul) return { group: "ghoul", cat: "ghoul", groupName: L("Filter.GhoulTraits"), groupOrder: -1 };
       if (m.clan) return { group: `clan:${m.clan}`, cat: "clan", groupName: `${L("Filter.Clan")}: ${Codex.clanName(m.clan)}`,
         // свой клан — сразу наверху (во «Всех» иначе теряется за сотнями общих черт), чужие — в конце
         groupOrder: m.clan === myClan ? -0.5 : 201 + clanOrder.indexOf(m.clan) };

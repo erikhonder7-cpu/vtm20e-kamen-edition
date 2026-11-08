@@ -182,13 +182,31 @@ function paramFields(kind, p) {
   return F;
 }
 
+/**
+ * Оружие по боевым навыкам (2+ точки): стрелковое — по Огнестрельному оружию, холодное — по Фехтованию; эпоха — из настроек.
+ * Духам, оборотням и зверям — ничего (у них свои атаки). Ссылки — как у ручного выбора («w:индекс»).
+ */
+const KIT = {
+  revolution: { gun: [["Кремнёвый пистолет", 2], ["Мушкет «Шарлевиль»", 4]], blade: [["Кинжал", 2], ["Шпага", 3]] },
+  modern: { gun: [["Лёгкий пистолет", 2], ["Тяжёлый пистолет", 4]], blade: [["Нож", 2], ["Бита", 3]] }
+};
+const ARMED = new Set(["vampire", "ghoul", "mortal", "hunter", "demon"]);
+function autoKit(d) {
+  if (!d || d.spirit || !ARMED.has(d.actor)) return [];
+  const ab = k => Number(d.system?.abilities?.[k]?.value ?? 0);
+  const kit = KIT[game.settings.get(SYSTEM_ID, "era")] ?? KIT.revolution;
+  const ref = name => { const i = WEAPON_PRESETS.findIndex(w => w.name === name && !w.era); return i < 0 ? null : `w:${i}`; };
+  const best = (list, n) => list.filter(([, min]) => n >= min).at(-1)?.[0];
+  return [best(kit.gun, ab("firearms")), best(kit.blade, ab("melee"))].filter(Boolean).map(ref).filter(Boolean);
+}
+
 /* ── Окно ──────────────────────────────────────────────────────────────── */
 
 export class NpcGenerator extends HandlebarsApplicationMixin(ApplicationV2) {
   constructor(options = {}) {
     super(options);
     this.ng = { kind: "vampire", role: "", sub: "", power: "normal", params: {}, count: 1, as: "sheet", names: "fr", gender: "", name: "", open: true,
-      template: "", trained: false, ghoul: false, search: "", extra: [] };
+      template: "", trained: false, ghoul: false, search: "", extra: [], auto: [] };
     this.draft = null;
     this.draftName = "";
   }
@@ -235,6 +253,7 @@ export class NpcGenerator extends HandlebarsApplicationMixin(ApplicationV2) {
       return;
     }
     this.draftName = this.draft.spirit ? this.draft.name : randomName(DATA.names[s.names], s.gender);
+    s.auto = autoKit(this.draft);
   }
   #reset() { this.draft = null; }
 
@@ -310,7 +329,8 @@ export class NpcGenerator extends HandlebarsApplicationMixin(ApplicationV2) {
       nameSets: Object.entries(D.names).map(([k, n]) => ({ value: k, label: n.label, selected: k === s.names })),
       genders: [{ value: "", label: L("GenderAny") }, { value: "m", label: L("GenderM") }, { value: "f", label: L("GenderF") }].map(o => ({ ...o, selected: o.value === s.gender })),
       weaponGroups: presetOpts(WEAPON_PRESETS, "w"), armorGroups: presetOpts(ARMOR_PRESETS, "a"),
-      extra: s.extra.map((k, i) => ({ i, label: this.#preset(k)?.name ?? "" })),
+      extra: [...(this.draft && !this.isGroup && !this.isBook ? s.auto : []).map((k, i) => ({ i, auto: true, label: this.#preset(k)?.name ?? "" })),
+        ...s.extra.map((k, i) => ({ i, label: this.#preset(k)?.name ?? "" }))],
       canCreate: this.isBook ? !!this.template : !!this.draft, multi: s.count > 1 && !this.isGroup
     };
   }
@@ -375,7 +395,7 @@ export class NpcGenerator extends HandlebarsApplicationMixin(ApplicationV2) {
     const sel = this.element.querySelector(`select[data-gear="${target.dataset.cat}"]`);
     if (sel?.value) { this.ng.extra.push(sel.value); this.render(); }
   }
-  static #onGearDrop(event, target) { this.ng.extra.splice(Number(target.dataset.i), 1); this.render(); }
+  static #onGearDrop(event, target) { this.ng[target.dataset.auto ? "auto" : "extra"].splice(Number(target.dataset.i), 1); this.render(); }
 
   /** Заготовка: сохранить всё, что выбрано (имя спросить). */
   static async #onPresetSave() {
@@ -409,7 +429,8 @@ export class NpcGenerator extends HandlebarsApplicationMixin(ApplicationV2) {
     for (const [i, d] of this.draft.list.entries()) {
       const a = await createNpc(d, { name: this.draft.names[i], folder: sub.id });
       if (!a) continue;
-      if (gear.length && !d.spirit) await a.createEmbeddedDocuments("Item", gear);
+      const kit = d.spirit ? [] : [...this.gearOf(autoKit(d)), ...gear];
+      if (kit.length) await a.createEmbeddedDocuments("Item", kit);
       made.push(a);
     }
     if (g.coterie) {
@@ -425,13 +446,15 @@ export class NpcGenerator extends HandlebarsApplicationMixin(ApplicationV2) {
     if (this.isBook ? !tpl : !this.draft) return ui.notifications.warn(L("PickFirst"));
     const folder = game.folders.find(f => f.type === "Actor" && f.name === L("Folder"))
       ?? await Folder.create({ name: L("Folder"), type: "Actor", color: "#4a0d11" });
-    const gear = s.extra.map(ref => {
+    const gearOf = refs => refs.map(ref => {
       const p = this.#preset(ref);
       if (!p) return null;
       const { name, group, ...system } = p;
       const type = ref.startsWith("w:") ? "weapon" : "armor";
       return { name, type, img: type === "weapon" ? weaponIcon(name, system.kind) : armorIcon(system.rating), system };
     }).filter(Boolean);
+    const gear = gearOf(s.extra);
+    this.gearOf = gearOf;
     if (this.isGroup) {
       const made = await this.#createGroup(folder, gear);
       ui.notifications.info(L("GroupDone", { n: made.length }));
@@ -453,7 +476,9 @@ export class NpcGenerator extends HandlebarsApplicationMixin(ApplicationV2) {
         const d = i === 0 ? this.draft : buildNpc({ kind: s.kind, role: s.role, sub: s.sub, power: s.power, params: s.params });
         const name = typed || (i === 0 ? this.draftName : d.spirit ? `${d.name} ${i + 1}` : randomName(DATA.names[s.names], s.gender));
         actor = await createNpc(d, { name, folder: folder.id });
-        if (gear.length) await actor.createEmbeddedDocuments("Item", gear);
+        // первый — с показанным (и поправленным) комплектом, следующие — со своим по их навыкам
+        const kit = [...gearOf(i === 0 ? s.auto : autoKit(d)), ...gear];
+        if (actor && kit.length) await actor.createEmbeddedDocuments("Item", kit);
       }
       if (!actor) continue;
       if (mob) await actor.update({ name: typed || tpl?.name || this.draft?.concept || actor.name });

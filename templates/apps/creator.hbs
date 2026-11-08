@@ -523,9 +523,9 @@
     <div class="r-cr-mfsum">
       <span>{{localize "VTM20.Sheet.Merits"}}: <b>{{meritPoints}}</b></span>
       <span>{{localize "VTM20.Sheet.Flaws"}}: <b>{{flawRaw}}</b>{{#if (gt flawRaw 7)}} ({{localize "VTM20.Creator.FlawCap"}}){{/if}}</span>
-      {{#each merits}}<span class="r-cr-picked is-merit">{{rName this}} {{#if ranged}}<input type="number" class="r-qty" data-field="merits.{{index}}.cost" value="{{cost}}" min="{{min}}" max="{{max}}">{{else}}({{cost}}){{/if}} <a data-action="mfToggle" data-kind="merit" data-name="{{name}}"><i class="fa-solid fa-xmark"></i></a></span>{{/each}}
+      {{#each merits}}<span class="r-cr-picked is-merit">{{rName this}}{{#if da}} <em class="r-da-mark" data-tooltip="{{localize 'VTM20.Library.Filter.DarkAges'}}">ТВ</em>{{/if}} {{#if ranged}}<input type="number" class="r-qty" data-field="merits.{{index}}.cost" value="{{cost}}" min="{{min}}" max="{{max}}">{{else}}({{cost}}){{/if}} <a data-action="mfToggle" data-kind="merit" data-name="{{name}}"><i class="fa-solid fa-xmark"></i></a></span>{{/each}}
       {{#if extraDisc}}{{> crExtraDisc}}{{/if}}
-      {{#each flaws}}<span class="r-cr-picked is-flaw">{{rName this}} {{#if ranged}}<input type="number" class="r-qty" data-field="flaws.{{index}}.cost" value="{{cost}}" min="{{min}}" max="{{max}}">{{else}}({{cost}}){{/if}} <a data-action="mfToggle" data-kind="flaw" data-name="{{name}}"><i class="fa-solid fa-xmark"></i></a></span>{{/each}}
+      {{#each flaws}}<span class="r-cr-picked is-flaw">{{rName this}}{{#if da}} <em class="r-da-mark" data-tooltip="{{localize 'VTM20.Library.Filter.DarkAges'}}">ТВ</em>{{/if}} {{#if ranged}}<input type="number" class="r-qty" data-field="flaws.{{index}}.cost" value="{{cost}}" min="{{min}}" max="{{max}}">{{else}}({{cost}}){{/if}} <a data-action="mfToggle" data-kind="flaw" data-name="{{name}}"><i class="fa-solid fa-xmark"></i></a></span>{{/each}}
     </div>
     <div class="r-cr-mfgrid">
       {{#each mfCards}}
@@ -533,7 +533,7 @@
         <span class="r-cr-mf-cost" data-tooltip="{{#if (eq @root.ui.mfTab 'flaw')}}{{localize 'VTM20.Creator.FlawGives'}}{{else}}{{localize 'VTM20.Creator.MeritCosts'}}{{/if}}">{{cost}}</span>
         <div class="r-cr-mf-main">
           <a class="r-cr-mf-title" data-action="read" data-key="{{key}}"><b>{{rName this}}</b>{{#if (rAlt this)}}<em>{{rAlt this}}</em>{{/if}}</a>
-          <span class="r-tag">{{cat}}</span>
+          <span class="r-cr-mf-tags"><span class="r-tag">{{cat}}</span>{{#if srcShort}}<span class="r-tag r-tag-src{{#if da}} is-da{{/if}}" data-tooltip="{{src}}">{{srcShort}}</span>{{/if}}</span>
           {{#if open}}<div class="r-cr-fulltext">{{{html}}}</div>
           {{else}}<p class="r-cr-preview" data-action="read" data-key="{{key}}">{{text}} <span>{{localize "VTM20.Creator.Read"}}</span></p>{{/if}}
         </div>

@@ -112,7 +112,7 @@
       <div class="r-ng-gear">
         <div class="r-ng-chips">
           <span class="r-ng-rlabel"><i class="fa-solid fa-gun"></i> {{localize "VTM20.NpcGen.Gear"}}:</span>
-          {{#each extra}}<span class="r-chip">{{label}} <a data-action="gearDrop" data-i="{{i}}"><i class="fa-solid fa-xmark"></i></a></span>
+          {{#each extra}}<span class="r-chip{{#if auto}} is-auto{{/if}}"{{#if auto}} data-tooltip="{{localize 'VTM20.NpcGen.AutoGear'}}"{{/if}}>{{#if auto}}<i class="fa-solid fa-wand-magic-sparkles"></i> {{/if}}{{label}} <a data-action="gearDrop" data-i="{{i}}"{{#if auto}} data-auto="1"{{/if}}><i class="fa-solid fa-xmark"></i></a></span>
           {{else}}<em class="r-note">{{localize "VTM20.NpcGen.NoGear"}}</em>{{/each}}
         </div>
         <div class="r-ng-addgear">

@@ -432,8 +432,8 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
   get giftPoints() { return Math.max(0, this.morality - this.pactShare); }
   get giftUsed() { const p = this.st.pact; return Math.ceil(this.sum(p.attr) / 2) + Math.ceil(this.sum(p.abil) / 5); }
 
-  get flawPoints() { return Math.min(VTM20.creation.flawCap, this.st.flaws.reduce((s, f) => s + f.cost, 0)); }
-  get meritPoints() { return this.st.merits.reduce((s, m) => s + m.cost, 0); }
+  get flawPoints() { return Math.min(VTM20.creation.flawCap, this.st.flaws.reduce((s, f) => s + (Number(f.cost) || 0), 0)); }
+  get meritPoints() { return this.st.merits.reduce((s, m) => s + (Number(m.cost) || 0), 0); }
   get freeSpent() {
     const c = this.rules.cost, f = this.st.free;
     return this.sum(f.attr) * c.attr + this.sum(f.abil) * c.abil + this.sum(f.disc) * c.disc + this.sum(f.bg) * c.bg
@@ -866,13 +866,15 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     const mySect = st.sectKey || Codex.sectKey(st.sect);
     // кому видна черта — VTM20.traitFor (то же правило, что в библиотеке); слуга берёт черты падших, кроме инфернальных
     const who = { type: this.type, dhampir: this.isDhampir, lost: this.isLost, thrall: this.isThrall };
+    // черты гулей (Ghouls & Revenants) — своей вкладкой «Гулевые», как клановые у вампира
     const inCat = (m, cat) => !Codex.visible(m) || !VTM20.traitFor(m, who) ? false : cat === "clan" ? !!myClan && m.clan === myClan
       : cat === "sect" ? !m.clan && !!mySect && m.sect === mySect
+      : cat === "ghoul" ? !!m.ghoul
       : cat === "all" ? (!m.clan || (!!myClan && m.clan === myClan)) && (!m.sect || (!!mySect && m.sect === mySect))
-      : !m.clan && !m.sect && m.category === cat;
-    const extra = ["sect", "clan"].filter(k => Codex.merits.some(m => m.kind === this.ui.mfTab && inCat(m, k)));
+      : !m.clan && !m.sect && !m.ghoul && m.category === cat;
+    const extra = ["ghoul", "sect", "clan"].filter(k => Codex.merits.some(m => m.kind === this.ui.mfTab && inCat(m, k)));
     if (!["all", ...Object.keys(VTM20.meritCategories), ...extra].includes(this.ui.mfCat)) this.ui.mfCat = "all";
-    const catLabel = k => k === "all" ? t("Creator.All") : k === "clan" ? t("Library.Filter.Clan")
+    const catLabel = k => k === "all" ? t("Creator.All") : k === "clan" ? t("Library.Filter.Clan") : k === "ghoul" ? t("Library.Filter.GhoulTraits")
       : k === "sect" ? t("Library.Filter.SectTraits") : loc(VTM20.meritCategories[k].label);
     // только разделы, где у этой линии есть черты (у вампиров нет инфернальных, у демонов — сверхъестественных)
     // категория «clan» — та же вкладка «Клановые» (extra), второй раз не показываем
@@ -881,14 +883,17 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     ctx.mfCards = Codex.merits.filter(m => m.kind === this.ui.mfTab && inCat(m, this.ui.mfCat)
       && (!q || m.name.toLowerCase().includes(q) || (m.en ?? "").toLowerCase().includes(q)))
       .map(m => ({ name: m.name, en: m.en, cost: m.cost,
-        cat: m.clan ? Codex.clanName(m.clan) : m.sect ? t(`Sect.${m.sect}`) : loc(VTM20.meritCategories[m.category]?.label ?? ""),
+        cat: m.clan ? Codex.clanName(m.clan) : m.sect ? t(`Sect.${m.sect}`) : m.ghoul ? t("Library.Filter.GhoulTraits") : loc(VTM20.meritCategories[m.category]?.label ?? ""),
+        // откуда черта: Тёмные века — отдельной пометкой, иначе — книга
+        da: m.era === "darkAges", src: m.source ?? "", srcShort: m.era === "darkAges" ? t("Library.Filter.DarkAges") : String(m.source ?? "").replace(/\s*[,(].*$/, ""),
         on: chosen.some(x => x.name === m.name), text: VtMCreator.#preview(m.html, 200),
         html: m.html, open: this.ui.open.has(`mf:${m.kind}:${m.name}`), key: `mf:${m.kind}:${m.name}` }));
-    ctx.merits = st.merits.map((m, i) => ({ ...m, index: i, ranged: m.max > m.min }));
-    ctx.flaws = st.flaws.map((m, i) => ({ ...m, index: i, ranged: m.max > m.min }));
+    const daOf = m => Codex.merits.find(x => x.name === m.name && x.kind === m.kind)?.era === "darkAges";
+    ctx.merits = st.merits.map((m, i) => ({ ...m, kind: "merit", index: i, ranged: m.max > m.min })).map(m => ({ ...m, da: daOf(m) }));
+    ctx.flaws = st.flaws.map((m, i) => ({ ...m, kind: "flaw", index: i, ranged: m.max > m.min })).map(m => ({ ...m, da: daOf(m) }));
     ctx.meritPoints = this.meritPoints; ctx.flawPoints = this.flawPoints;
     ctx.traitIssues = this.traitIssues.map(c => ({ ...c, text: t(`Creator.Trait${c.key}`, c.data) }));
-    ctx.flawRaw = st.flaws.reduce((s, f) => s + f.cost, 0);
+    ctx.flawRaw = st.flaws.reduce((s, f) => s + (Number(f.cost) || 0), 0);
 
     // VIII. Свободные пункты и IX. Опыт — общий список строк
     const rows = (mode) => {
@@ -1235,7 +1240,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       const blocker = blockerFor(name, [...this.st.merits, ...this.st.flaws].map(x => x.name));
       if (blocker) return ui.notifications.warn(t("Creator.TraitBlocked", { a: name, b: blocker }));
       const m = Codex.merits.find(x => x.kind === kind && x.name === name);
-      if (m) list.push({ name, cost: m.min || 1, min: m.min, max: m.max, html: m.html, category: m.category, en: m.en, clan: m.clan ?? "", sect: m.sect ?? "" });
+      if (m) list.push({ name, cost: Number(m.min) || 1, min: Number(m.min) || 1, max: Number(m.max) || Number(m.min) || 1, html: m.html, category: m.category, en: m.en, clan: m.clan ?? "", sect: m.sect ?? "" });
     }
     this.render();
   }

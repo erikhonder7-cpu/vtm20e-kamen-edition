@@ -1,0 +1,1175 @@
+{
+ "_": "Общие черты только для вампиров (правило системы, согласовано 08.11.2026): гулю, смертному, охотнику и дампиру не показываются. Ключ — name + kind.",
+ "traits": [
+  {
+   "name": "Железное нутро",
+   "en": "Eat Food",
+   "kind": "merit",
+   "source": "V20"
+  },
+  {
+   "name": "Ранняя пташка",
+   "en": "Early Riser",
+   "kind": "merit",
+   "source": "V20"
+  },
+  {
+   "name": "Здоровый вид",
+   "en": "Blush of Health",
+   "kind": "merit",
+   "source": "V20"
+  },
+  {
+   "name": "Эффективное пищеварение",
+   "en": "Efficient Digestion",
+   "kind": "merit",
+   "source": "V20"
+  },
+  {
+   "name": "Могильный запах",
+   "en": "Smell of the Grave",
+   "kind": "flaw",
+   "source": "V20"
+  },
+  {
+   "name": "Четырнадцатое поколение",
+   "en": "Fourteenth Generation",
+   "kind": "flaw",
+   "source": "V20"
+  },
+  {
+   "name": "Тупые клыки",
+   "en": "Dulled Bite",
+   "kind": "flaw",
+   "source": "V20"
+  },
+  {
+   "name": "Заразный укус",
+   "en": "Infectious Bite",
+   "kind": "flaw",
+   "source": "V20"
+  },
+  {
+   "name": "Уязвимость к серебру",
+   "en": "Vulnerability to Silver",
+   "kind": "flaw",
+   "source": "V20"
+  },
+  {
+   "name": "Кровоточащая рана",
+   "en": "Open Wound",
+   "kind": "flaw",
+   "source": "V20"
+  },
+  {
+   "name": "Медленное заживление",
+   "en": "Slow Healing",
+   "kind": "flaw",
+   "source": "V20"
+  },
+  {
+   "name": "Незаживающая рана",
+   "en": "Permanent Wound",
+   "kind": "flaw",
+   "source": "V20"
+  },
+  {
+   "name": "Светящиеся глаза",
+   "en": "Glowing Eyes",
+   "kind": "flaw",
+   "source": "V20"
+  },
+  {
+   "name": "Торчащие клыки",
+   "en": "Permanent Fangs",
+   "kind": "flaw",
+   "source": "V20"
+  },
+  {
+   "name": "Чудовищная внешность",
+   "en": "Monstrous",
+   "kind": "flaw",
+   "source": "V20"
+  },
+  {
+   "name": "Пятнадцатое поколение",
+   "en": "Fifteenth Generation",
+   "kind": "flaw",
+   "source": "V20"
+  },
+  {
+   "name": "Разносчик заразы",
+   "en": "Disease Carrier",
+   "kind": "flaw",
+   "source": "V20"
+  },
+  {
+   "name": "Слабая кровь",
+   "en": "Thin Blood",
+   "kind": "flaw",
+   "source": "V20"
+  },
+  {
+   "name": "Бесплодная витэ",
+   "en": "Infertile Vitae",
+   "kind": "flaw",
+   "source": "V20"
+  },
+  {
+   "name": "Мёртвая плоть",
+   "en": "Flesh of the Corpse",
+   "kind": "flaw",
+   "source": "V20"
+  },
+  {
+   "name": "Чуткий сон",
+   "en": "Light Sleeper",
+   "kind": "merit",
+   "source": "V20"
+  },
+  {
+   "name": "Спокойный",
+   "en": "Calm Heart",
+   "kind": "merit",
+   "source": "V20"
+  },
+  {
+   "name": "Глубокий сон",
+   "en": "Deep Sleeper",
+   "kind": "flaw",
+   "source": "V20"
+  },
+  {
+   "name": "Неблагонадёжность",
+   "en": "Unconvinced",
+   "kind": "flaw",
+   "source": "V20"
+  },
+  {
+   "name": "Разборчивость",
+   "en": "Prey Exclusion",
+   "kind": "flaw",
+   "source": "V20"
+  },
+  {
+   "name": "Вспыльчивость",
+   "en": "Short Fuse",
+   "kind": "flaw",
+   "source": "V20"
+  },
+  {
+   "name": "Жажда невинности",
+   "en": "Thirst for Innocence",
+   "kind": "flaw",
+   "source": "V20"
+  },
+  {
+   "name": "Лунный психоз",
+   "en": "Lunacy",
+   "kind": "flaw",
+   "source": "V20"
+  },
+  {
+   "name": "Территориальность",
+   "en": "Territorial",
+   "kind": "flaw",
+   "source": "V20"
+  },
+  {
+   "name": "Людоед",
+   "en": "Conspicuous Consumption",
+   "kind": "flaw",
+   "source": "V20"
+  },
+  {
+   "name": "Бывший гуль",
+   "en": "Former Ghoul",
+   "kind": "merit",
+   "source": "V20"
+  },
+  {
+   "name": "Влиятельный сир",
+   "en": "Prestigious Sire",
+   "kind": "merit",
+   "source": "V20"
+  },
+  {
+   "name": "Протеже",
+   "en": "Protégé",
+   "kind": "merit",
+   "source": "V20"
+  },
+  {
+   "name": "Боевик",
+   "en": "Bullyboy",
+   "kind": "merit",
+   "source": "V20"
+  },
+  {
+   "name": "Восходящая звезда",
+   "en": "Rising Star",
+   "kind": "merit",
+   "source": "V20"
+  },
+  {
+   "name": "Друг клана",
+   "en": "Clan Friendship",
+   "kind": "merit",
+   "source": "V20"
+  },
+  {
+   "name": "Друг Примогена / Епископа",
+   "en": "Primogen/Bishop Friendship",
+   "kind": "merit",
+   "source": "V20"
+  },
+  {
+   "name": "Разорванные узы",
+   "en": "Broken Bond",
+   "kind": "merit",
+   "source": "V20"
+  },
+  {
+   "name": "Диссидент",
+   "en": "Sympathizer",
+   "kind": "flaw",
+   "source": "V20"
+  },
+  {
+   "name": "Недопонимание",
+   "en": "Incomplete Understanding",
+   "kind": "flaw",
+   "source": "V20"
+  },
+  {
+   "name": "Отверженное дитя",
+   "en": "Sire's Resentment",
+   "kind": "flaw",
+   "source": "V20"
+  },
+  {
+   "name": "Пащенок",
+   "en": "New Kid",
+   "kind": "flaw",
+   "source": "V20"
+  },
+  {
+   "name": "Презренный сир",
+   "en": "Infamous Sire",
+   "kind": "flaw",
+   "source": "V20"
+  },
+  {
+   "name": "Потенциальный рекрут",
+   "en": "Recruitment Target",
+   "kind": "flaw",
+   "source": "V20"
+  },
+  {
+   "name": "Спесь",
+   "en": "Uppity",
+   "kind": "flaw",
+   "source": "V20"
+  },
+  {
+   "name": "Ссора сиров",
+   "en": "Rival Sires",
+   "kind": "flaw",
+   "source": "V20"
+  },
+  {
+   "name": "Украденное дитя",
+   "en": "Escaped Target",
+   "kind": "flaw",
+   "source": "V20"
+  },
+  {
+   "name": "Паршивая овца",
+   "en": "Disgrace to the Blood",
+   "kind": "flaw",
+   "source": "V20"
+  },
+  {
+   "name": "Враг клана",
+   "en": "Clan Enmity",
+   "kind": "flaw",
+   "source": "V20"
+  },
+  {
+   "name": "Испытательный срок",
+   "en": "Probationary Sect Member",
+   "kind": "flaw",
+   "source": "V20"
+  },
+  {
+   "name": "Ненавистный сюзерен",
+   "en": "Loathsome Regnant",
+   "kind": "flaw",
+   "source": "V20"
+  },
+  {
+   "name": "Затворяющее касание",
+   "en": "Healing Touch",
+   "kind": "merit",
+   "source": "V20"
+  },
+  {
+   "name": "Обманчивая аура",
+   "en": "Deceptive Aura",
+   "kind": "merit",
+   "source": "V20"
+  },
+  {
+   "name": "Таинство диаблери",
+   "en": "Hidden Diablerie",
+   "kind": "merit",
+   "source": "V20"
+  },
+  {
+   "name": "Дополнительная Дисциплина",
+   "en": "Additional Discipline",
+   "kind": "merit",
+   "source": "V20"
+  },
+  {
+   "name": "Леденящее касание",
+   "en": "Touch of Frost",
+   "kind": "flaw",
+   "source": "V20"
+  },
+  {
+   "name": "Отвращение к чесноку",
+   "en": "Repulsed by Garlic",
+   "kind": "flaw",
+   "source": "V20"
+  },
+  {
+   "name": "Отсутствие отражения",
+   "en": "Cast No Reflection",
+   "kind": "flaw",
+   "source": "V20"
+  },
+  {
+   "name": "Холодный ветер",
+   "en": "Cold Breeze",
+   "kind": "flaw",
+   "source": "V20"
+  },
+  {
+   "name": "Повелитель мух",
+   "en": "Lord of the Flies",
+   "kind": "flaw",
+   "source": "V20"
+  },
+  {
+   "name": "Светоч тьмы",
+   "en": "Beacon of the Unholy",
+   "kind": "flaw",
+   "source": "V20"
+  },
+  {
+   "name": "Боязнь крестов",
+   "en": "Repelled by Crosses",
+   "kind": "flaw",
+   "source": "V20"
+  },
+  {
+   "name": "Водная преграда",
+   "en": "Can't Cross Running Water",
+   "kind": "flaw",
+   "source": "V20"
+  },
+  {
+   "name": "Поцелуй Проклятого",
+   "en": "Grip of the Damned",
+   "kind": "flaw",
+   "source": "V20"
+  },
+  {
+   "name": "Светобоязнь",
+   "en": "Light‑Sensitive",
+   "kind": "flaw",
+   "source": "V20"
+  },
+  {
+   "name": "Разборчивый вкус",
+   "en": "Discerning Palate",
+   "kind": "merit",
+   "source": "V20 The Black Hand"
+  },
+  {
+   "name": "Жажда Мафусаила",
+   "en": "Methuselah's Thirst",
+   "kind": "flaw",
+   "source": "V20 The Black Hand"
+  },
+  {
+   "name": "Берсерк",
+   "en": "Berserker",
+   "kind": "merit",
+   "source": "V20 The Black Hand"
+  },
+  {
+   "name": "Поцелуй смерти",
+   "en": "Kiss of Death",
+   "kind": "flaw",
+   "source": "V20 The Black Hand"
+  },
+  {
+   "name": "Владыка ночи",
+   "en": "Lord of the Night",
+   "kind": "flaw",
+   "source": "V20 The Black Hand"
+  },
+  {
+   "name": "Вассал клана",
+   "en": "Vassal of the Clan",
+   "kind": "flaw",
+   "source": "V20 The Black Hand"
+  },
+  {
+   "name": "Преданность клана Трофея",
+   "en": "Trophy Allegiance",
+   "kind": "merit",
+   "source": "V20 Dread Names, Red List"
+  },
+  {
+   "name": "Высокомерие Трофея",
+   "en": "Trophy Arrogance",
+   "kind": "flaw",
+   "source": "V20 Dread Names, Red List"
+  },
+  {
+   "name": "16‑е поколение",
+   "en": "16th Generation",
+   "kind": "flaw",
+   "source": "V20 Beckett's Jyhad Diary"
+  },
+  {
+   "name": "Безумный сир",
+   "en": "Insane Sire",
+   "kind": "flaw",
+   "source": "Player's Guide (2nd Ed.)"
+  },
+  {
+   "name": "Дурное воспитание",
+   "en": "Twisted Upbringing",
+   "kind": "flaw",
+   "source": "Player's Guide (2nd Ed.)"
+  },
+  {
+   "name": "Сир‑злодей",
+   "en": "Diabolic Sire",
+   "kind": "flaw",
+   "source": "Player's Guide (2nd Ed.)"
+  },
+  {
+   "name": "Анахронизм",
+   "en": "Anachronism",
+   "kind": "flaw",
+   "source": "Player's Guide (2nd Ed.)"
+  },
+  {
+   "name": "Смещённое сердце",
+   "en": "Misplaced Heart",
+   "kind": "merit",
+   "source": "Player's Guide (2nd Ed.)"
+  },
+  {
+   "name": "Аллергия",
+   "en": "Allergic",
+   "kind": "flaw",
+   "source": "Player's Guide (2nd Ed.)"
+  },
+  {
+   "name": "Избирательное пищеварение",
+   "en": "Selective Digestion",
+   "kind": "flaw",
+   "source": "Player's Guide (2nd Ed.)"
+  },
+  {
+   "name": "Потомок, верный",
+   "en": "Childe, Loyal",
+   "kind": "merit",
+   "source": "Elysium (2nd Ed.)"
+  },
+  {
+   "name": "Просвещённый",
+   "en": "Enlightened",
+   "kind": "merit",
+   "source": "Elysium (2nd Ed.)"
+  },
+  {
+   "name": "Могущественный потомок",
+   "en": "Powerful Childe",
+   "kind": "merit",
+   "source": "Elysium (2nd Ed.)"
+  },
+  {
+   "name": "Дары Обязанности",
+   "en": "Prestation Gifts",
+   "kind": "merit",
+   "source": "Elysium (2nd Ed.)"
+  },
+  {
+   "name": "Незаконный потомок",
+   "en": "Bastard Childer",
+   "kind": "flaw",
+   "source": "Elysium (2nd Ed.)"
+  },
+  {
+   "name": "Потомок, мстительный",
+   "en": "Childe, Vengeful",
+   "kind": "flaw",
+   "source": "Elysium (2nd Ed.)"
+  },
+  {
+   "name": "Диаблерист, известный",
+   "en": "Diabolist, Known",
+   "kind": "flaw",
+   "source": "Elysium (2nd Ed.)"
+  },
+  {
+   "name": "Диаблерист, тайный",
+   "en": "Diabolist, Secret",
+   "kind": "flaw",
+   "source": "Elysium (2nd Ed.)"
+  },
+  {
+   "name": "Матереубийство/отцеубийство",
+   "en": "Matricide/Patricide",
+   "kind": "flaw",
+   "source": "Elysium (2nd Ed.)"
+  },
+  {
+   "name": "Долг Обязанности",
+   "en": "Prestation Debt",
+   "kind": "flaw",
+   "source": "Elysium (2nd Ed.)"
+  },
+  {
+   "name": "Недавно восставший",
+   "en": "Recently Arisen",
+   "kind": "flaw",
+   "source": "Elysium (2nd Ed.)"
+  },
+  {
+   "name": "Притворная трапеза",
+   "en": "Deceptive Eating",
+   "kind": "merit",
+   "source": "V20 Dark Ages"
+  },
+  {
+   "name": "Рваный укус",
+   "en": "Ragged Bite",
+   "kind": "flaw",
+   "source": "V20 Dark Ages"
+  },
+  {
+   "name": "Пожиратель плоти",
+   "en": "Flesh Eater",
+   "kind": "flaw",
+   "source": "V20 Dark Ages"
+  },
+  {
+   "name": "Посвящённый Дороги",
+   "en": "Initiate of the Road",
+   "kind": "flaw",
+   "source": "V20 Dark Ages"
+  },
+  {
+   "name": "Тринадцатое поколение",
+   "en": "Thirteenth Generation",
+   "kind": "flaw",
+   "source": "V20 Dark Ages"
+  },
+  {
+   "name": "Не может Обращать",
+   "en": "Cannot Embrace",
+   "kind": "flaw",
+   "source": "V20 Dark Ages"
+  },
+  {
+   "name": "Живая тень",
+   "en": "Animate Shadow",
+   "kind": "flaw",
+   "source": "V20 Dark Ages"
+  },
+  {
+   "name": "Окутан тенью",
+   "en": "Cloaked in Shadow",
+   "kind": "flaw",
+   "source": "V20 Dark Ages"
+  },
+  {
+   "name": "Вестник Бездны",
+   "en": "Harbinger of the Abyss",
+   "kind": "flaw",
+   "source": "V20 Dark Ages"
+  },
+  {
+   "name": "Лик ангела",
+   "en": "Angel Face",
+   "kind": "merit",
+   "source": "Dark Ages: Road of Heaven"
+  },
+  {
+   "name": "Двойник Иакова",
+   "en": "Jacob's Twin",
+   "kind": "merit",
+   "source": "Dark Ages: Road of Heaven"
+  },
+  {
+   "name": "Уважаемый исповедник",
+   "en": "Noted Confessor",
+   "kind": "merit",
+   "source": "Dark Ages: Road of Heaven"
+  },
+  {
+   "name": "Спаси Твоего слугу",
+   "en": "Save Thy Servant",
+   "kind": "merit",
+   "source": "Dark Ages: Road of Heaven"
+  },
+  {
+   "name": "Благословенный мироточец",
+   "en": "Blessed Myroblite",
+   "kind": "merit",
+   "source": "Dark Ages: Road of Heaven"
+  },
+  {
+   "name": "Предреченное Становление",
+   "en": "Of Embrace Foretold",
+   "kind": "merit",
+   "source": "Dark Ages: Road of Heaven"
+  },
+  {
+   "name": "Искупленный",
+   "en": "Redeemed",
+   "kind": "merit",
+   "source": "Dark Ages: Road of Heaven"
+  },
+  {
+   "name": "Криптофаг",
+   "en": "Cryptophage",
+   "kind": "flaw",
+   "source": "Dark Ages: Road of Heaven"
+  },
+  {
+   "name": "Душа Тьмы",
+   "en": "Soul of Darkness",
+   "kind": "flaw",
+   "source": "Dark Ages: Road of Heaven"
+  },
+  {
+   "name": "Вздутие",
+   "en": "Bloat",
+   "kind": "merit",
+   "source": "Dark Ages: Player's Guide to Low Clans"
+  },
+  {
+   "name": "Питающий язык",
+   "en": "Feeding Tongue",
+   "kind": "merit",
+   "source": "Dark Ages: Player's Guide to Low Clans"
+  },
+  {
+   "name": "Костяное сердце",
+   "en": "Heart of Bone",
+   "kind": "merit",
+   "source": "Dark Ages: Player's Guide to Low Clans"
+  },
+  {
+   "name": "Невосприимчивость к болезням",
+   "en": "Immune to Disease",
+   "kind": "merit",
+   "source": "Dark Ages: Player's Guide to Low Clans"
+  },
+  {
+   "name": "Пасть",
+   "en": "Maw",
+   "kind": "merit",
+   "source": "Dark Ages: Player's Guide to Low Clans"
+  },
+  {
+   "name": "Выдвижные крылья",
+   "en": "Retractable Wings",
+   "kind": "merit",
+   "source": "Dark Ages: Player's Guide to Low Clans"
+  },
+  {
+   "name": "Носитель чумы",
+   "en": "Plague Bearer",
+   "kind": "flaw",
+   "source": "Dark Ages: Player's Guide to Low Clans"
+  },
+  {
+   "name": "Заражённый",
+   "en": "Infested",
+   "kind": "flaw",
+   "source": "Dark Ages: Player's Guide to Low Clans"
+  },
+  {
+   "name": "Сангвиническая лучистость",
+   "en": "Sanguine Lucidity",
+   "kind": "merit",
+   "source": "Dark Ages: Player's Guide to Low Clans"
+  },
+  {
+   "name": "Пылающая гибель",
+   "en": "Blazing Demise",
+   "kind": "merit",
+   "source": "Dark Ages: Player's Guide to Low Clans"
+  },
+  {
+   "name": "Скрытый амарант",
+   "en": "Hidden Amaranth",
+   "kind": "merit",
+   "source": "Dark Ages: Player's Guide to Low Clans"
+  },
+  {
+   "name": "Мерзость",
+   "en": "Abomination",
+   "kind": "merit",
+   "source": "Dark Ages: Player's Guide to Low Clans"
+  },
+  {
+   "name": "Вундеркинд Дисциплины",
+   "en": "Discipline Prodigy",
+   "kind": "merit",
+   "source": "Dark Ages: Player's Guide to Low Clans"
+  },
+  {
+   "name": "Убит колом",
+   "en": "Killed by Staking",
+   "kind": "flaw",
+   "source": "Dark Ages: Player's Guide to Low Clans"
+  },
+  {
+   "name": "Ограниченная диета",
+   "en": "Restricted Diet",
+   "kind": "flaw",
+   "source": "Dark Ages: Player's Guide to Low Clans"
+  },
+  {
+   "name": "Отступник",
+   "en": "Apostate",
+   "kind": "flaw",
+   "source": "V20 Dark Ages"
+  },
+  {
+   "name": "Румянец здоровья",
+   "en": "Blush of Health",
+   "kind": "merit",
+   "source": "V20 Dark Ages"
+  },
+  {
+   "name": "Нельзя пересекать текущую воду",
+   "en": "Can't Cross Running Water",
+   "kind": "flaw",
+   "source": "V20 Dark Ages"
+  },
+  {
+   "name": "Нет отражения",
+   "en": "Cast No Reflection",
+   "kind": "flaw",
+   "source": "V20 Dark Ages"
+  },
+  {
+   "name": "Глубокий сон",
+   "en": "Deep Sleeper",
+   "kind": "flaw",
+   "source": "V20 Dark Ages"
+  },
+  {
+   "name": "Эффективное пищеварение",
+   "en": "Efficient Digestion",
+   "kind": "merit",
+   "source": "V20 Dark Ages"
+  },
+  {
+   "name": "Плоть трупа",
+   "en": "Flesh of the Corpse",
+   "kind": "flaw",
+   "source": "V20 Dark Ages"
+  },
+  {
+   "name": "Хватка проклятого",
+   "en": "Grip of the Damned",
+   "kind": "flaw",
+   "source": "V20 Dark Ages"
+  },
+  {
+   "name": "Позорный сир",
+   "en": "Infamous Sire",
+   "kind": "flaw",
+   "source": "V20 Dark Ages"
+  },
+  {
+   "name": "Чуткий сон",
+   "en": "Light Sleeper",
+   "kind": "merit",
+   "source": "V20 Dark Ages"
+  },
+  {
+   "name": "Чувствительный к свету",
+   "en": "Light-Sensitive",
+   "kind": "flaw",
+   "source": "V20 Dark Ages"
+  },
+  {
+   "name": "Чудовищный",
+   "en": "Monstrous",
+   "kind": "flaw",
+   "source": "V20 Dark Ages"
+  },
+  {
+   "name": "Постоянная рана",
+   "en": "Permanent Wound",
+   "kind": "flaw",
+   "source": "V20 Dark Ages"
+  },
+  {
+   "name": "Знатный сир",
+   "en": "Prestigious Sire",
+   "kind": "merit",
+   "source": "V20 Dark Ages"
+  },
+  {
+   "name": "Исключение добычи",
+   "en": "Prey Exclusion",
+   "kind": "flaw",
+   "source": "V20 Dark Ages"
+  },
+  {
+   "name": "Отвращение к чесноку",
+   "en": "Repulsed by Garlic",
+   "kind": "flaw",
+   "source": "V20 Dark Ages"
+  },
+  {
+   "name": "Обида сира",
+   "en": "Sire's Resentment",
+   "kind": "flaw",
+   "source": "V20 Dark Ages"
+  },
+  {
+   "name": "Медленное исцеление",
+   "en": "Slow Healing",
+   "kind": "flaw",
+   "source": "V20 Dark Ages"
+  },
+  {
+   "name": "Запах могилы",
+   "en": "Smell of the Grave",
+   "kind": "flaw",
+   "source": "V20 Dark Ages"
+  },
+  {
+   "name": "Территориальный",
+   "en": "Territorial",
+   "kind": "flaw",
+   "source": "V20 Dark Ages"
+  },
+  {
+   "name": "Прикосновение мороза",
+   "en": "Touch of Frost",
+   "kind": "flaw",
+   "source": "V20 Dark Ages"
+  },
+  {
+   "name": "Слабая кровь",
+   "en": "Weak Blood",
+   "kind": "flaw",
+   "source": "V20 Dark Ages"
+  },
+  {
+   "name": "Рыбоподобный",
+   "en": "Piscine",
+   "kind": "merit",
+   "source": "Dark Ages: Player's Guide to Low Clans"
+  },
+  {
+   "name": "Нетронутое лицо",
+   "en": "Unmarred Face",
+   "kind": "merit",
+   "source": "Dark Ages: Player's Guide to Low Clans"
+  },
+  {
+   "name": "Знаток крови",
+   "en": "Blood Connoisseur",
+   "kind": "merit",
+   "source": "Dark Ages: Player's Guide to Low Clans"
+  },
+  {
+   "name": "Скверные гуморы",
+   "en": "Foul Humors",
+   "kind": "merit",
+   "source": "Dark Ages: Player's Guide to Low Clans"
+  },
+  {
+   "name": "Патагия",
+   "en": "Patagia",
+   "kind": "merit",
+   "source": "Dark Ages: Player's Guide to Low Clans"
+  },
+  {
+   "name": "Лицо Зверя",
+   "en": "Face of the Beast",
+   "kind": "flaw",
+   "source": "Dark Ages: Player's Guide to Low Clans"
+  },
+  {
+   "name": "Просветлённый",
+   "en": "Enlightened",
+   "kind": "merit",
+   "source": "Dark Ages: Player's Guide to Low Clans"
+  },
+  {
+   "name": "Суицидальный Зверь",
+   "en": "Suicidal Beast",
+   "kind": "flaw",
+   "source": "Dark Ages: Player's Guide to Low Clans"
+  },
+  {
+   "name": "Принятый среди Высоких кланов",
+   "en": "Adopted Into Grace",
+   "kind": "merit",
+   "source": "Dark Ages: Player's Guide to Low Clans"
+  },
+  {
+   "name": "Претендент на кровь",
+   "en": "Pretender to the Blood",
+   "kind": "merit",
+   "source": "Dark Ages: Player's Guide to Low Clans"
+  },
+  {
+   "name": "Кровавая охота",
+   "en": "Blood Hunted",
+   "kind": "flaw",
+   "source": "Dark Ages: Player's Guide to Low Clans"
+  },
+  {
+   "name": "Неудачное представление",
+   "en": "Botched Presentation",
+   "kind": "flaw",
+   "source": "Dark Ages: Player's Guide to Low Clans"
+  },
+  {
+   "name": "Незримый сон",
+   "en": "Sleep Unseen",
+   "kind": "merit",
+   "source": "Dark Ages: Player's Guide to Low Clans"
+  },
+  {
+   "name": "Зверь в зеркале",
+   "en": "Beast in the Mirror",
+   "kind": "flaw",
+   "source": "Dark Ages: Player's Guide to Low Clans"
+  },
+  {
+   "name": "Ложный амарант",
+   "en": "False Amaranth",
+   "kind": "flaw",
+   "source": "Dark Ages: Player's Guide to Low Clans"
+  },
+  {
+   "name": "Пожиратель душ",
+   "en": "Soul Eater",
+   "kind": "flaw",
+   "source": "Dark Ages: Player's Guide to Low Clans"
+  },
+  {
+   "name": "Стигматы (Дорога Небес)",
+   "en": "Stigmata",
+   "kind": "flaw",
+   "source": "Dark Ages: Road of Heaven"
+  },
+  {
+   "name": "Пища",
+   "en": "Eat Food",
+   "kind": "merit",
+   "source": "Dark Ages: Vampire (2002)"
+  },
+  {
+   "name": "13-е поколение",
+   "en": "13th Generation",
+   "kind": "flaw",
+   "source": "Dark Ages: Vampire (2002)"
+  },
+  {
+   "name": "Годы разрушения",
+   "en": "Ravaging Years",
+   "kind": "flaw",
+   "source": "Time of Thin Blood (1999)"
+  },
+  {
+   "name": "Отвращение к крови",
+   "en": "Hemetic",
+   "kind": "flaw",
+   "source": "Time of Thin Blood (1999)"
+  },
+  {
+   "name": "Дряхлость",
+   "en": "Decrepitude",
+   "kind": "flaw",
+   "source": "Time of Thin Blood (1999)"
+  },
+  {
+   "name": "Отвращение к шиповнику",
+   "en": "Repulsed by Wild Rose",
+   "kind": "flaw",
+   "source": "Time of Thin Blood (1999)"
+  },
+  {
+   "name": "Фетиш кормления",
+   "en": "Feeding Fetish",
+   "kind": "flaw",
+   "source": "Time of Thin Blood (1999)"
+  },
+  {
+   "name": "Фетиш силы",
+   "en": "Power Fetish",
+   "kind": "flaw",
+   "source": "Time of Thin Blood (1999)"
+  },
+  {
+   "name": "Взглянуть в лицо огню",
+   "en": "Face the Flames",
+   "kind": "merit",
+   "source": "Time of Thin Blood (1999)"
+  },
+  {
+   "name": "Сильная кровь",
+   "en": "Strong Blood",
+   "kind": "merit",
+   "source": "Dirty Secrets of the Black Hand (1994)"
+  },
+  {
+   "name": "Непрячущиеся клыки",
+   "en": "Irretractable Fangs",
+   "kind": "flaw",
+   "source": "Dirty Secrets of the Black Hand (1994)"
+  },
+  {
+   "name": "Жажда Мафусаила (версия 1994)",
+   "en": "Methuselah’s Thirst",
+   "kind": "flaw",
+   "source": "Dirty Secrets of the Black Hand (1994)"
+  },
+  {
+   "name": "Контролируемая жажда",
+   "en": "Controlled Thirst",
+   "kind": "merit",
+   "source": "Players Guide to High Clans"
+  },
+  {
+   "name": "Метка чистой крови",
+   "en": "Mark of Pure Blood",
+   "kind": "merit",
+   "source": "Players Guide to High Clans"
+  },
+  {
+   "name": "Обученное обоняние",
+   "en": "Trained Scent",
+   "kind": "merit",
+   "source": "Players Guide to High Clans"
+  },
+  {
+   "name": "Немигающий дозор",
+   "en": "Unblinking Vigil",
+   "kind": "flaw",
+   "source": "Players Guide to High Clans"
+  },
+  {
+   "name": "Лик смерти",
+   "en": "Visage of Death",
+   "kind": "flaw",
+   "source": "Players Guide to High Clans"
+  },
+  {
+   "name": "Плохое пищеварение",
+   "en": "Poor Digestion",
+   "kind": "flaw",
+   "source": "Players Guide to High Clans"
+  },
+  {
+   "name": "Сосредоточенная ярость",
+   "en": "Focused Rage",
+   "kind": "merit",
+   "source": "Players Guide to High Clans"
+  },
+  {
+   "name": "Атрофированное сердце",
+   "en": "Atrophied Heart",
+   "kind": "flaw",
+   "source": "Players Guide to High Clans"
+  },
+  {
+   "name": "Избирательная жажда",
+   "en": "Selective Thirst",
+   "kind": "flaw",
+   "source": "Players Guide to High Clans"
+  },
+  {
+   "name": "Непрерывная родословная",
+   "en": "Unbroken Lineage",
+   "kind": "merit",
+   "source": "Players Guide to High Clans"
+  },
+  {
+   "name": "Бывший гуль (High Clans)",
+   "en": "Former Ghoul",
+   "kind": "merit",
+   "source": "Players Guide to High Clans"
+  },
+  {
+   "name": "Позор крови (High Clans)",
+   "en": "Disgrace to the Blood",
+   "kind": "flaw",
+   "source": "Players Guide to High Clans"
+  },
+  {
+   "name": "Сладкая кровь",
+   "en": "Sweet Blood",
+   "kind": "merit",
+   "source": "Players Guide to High Clans"
+  },
+  {
+   "name": "Освящающий поцелуй",
+   "en": "Sanctifying Kiss",
+   "kind": "merit",
+   "source": "Players Guide to High Clans"
+  },
+  {
+   "name": "Чистая кровь",
+   "en": "Pure Blood",
+   "kind": "merit",
+   "source": "Players Guide to High Clans"
+  },
+  {
+   "name": "Дары Зверя",
+   "en": "Gifts of the Beast",
+   "kind": "merit",
+   "source": "Players Guide to High Clans"
+  },
+  {
+   "name": "Привязанный к земле",
+   "en": "Bound to the Earth",
+   "kind": "flaw",
+   "source": "Players Guide to High Clans"
+  },
+  {
+   "name": "Жажда Каина",
+   "en": "Thirst of Caine",
+   "kind": "flaw",
+   "source": "Players Guide to High Clans"
+  },
+  {
+   "name": "Гниение",
+   "en": "Bloodrot",
+   "kind": "flaw",
+   "source": "Players Guide to High Clans"
+  }
+ ]
+}

@@ -171,7 +171,7 @@ class HazardDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       typeLabel: p.type ? game.i18n.localize(VTM20.damageTypes[p.type].label) : "",
       chances: p.harmless || !p.pool ? null : chancesView(odds({ pool: p.pool, difficulty: p.difficulty, noBotch: !p.botchToAggravated })),
       note: [({ fire: t(this.isDemon ? "Hazard.FireNoteDemon" : this.isGarou ? "Hazard.FireNoteGarou" : "Hazard.FireNote"), silver: t("Hazard.SilverNote"), sun: t("Hazard.SunNote"), fall: t("Hazard.FallNote"), shock: t("Hazard.ShockNote", { n: p.breakFree }),
-        holyGround: t("Hazard.HolyGroundNote"), holyRelic: t("Hazard.HolyRelicNote") }[v.kind]), a.system.fx?.mistForm && ["fire", "sun"].includes(v.kind) ? t("Fx.MistHazardNote") : ""].filter(Boolean).join(" "),
+        holyGround: t("Hazard.HolyGroundNote"), holyRelic: t("Hazard.HolyRelicNote") }[v.kind]), this.actor.system.fx?.mistForm && ["fire", "sun"].includes(v.kind) ? t("Fx.MistHazardNote") : ""].filter(Boolean).join(" "),
       isFall: v.kind === "fall",
       messageModes: Object.entries(modes).map(([k, m]) => ({ value: k, label: game.i18n.localize(m.label ?? k), selected: k === v.messageMode }))
     };

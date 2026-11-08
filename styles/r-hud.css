@@ -42,16 +42,28 @@ body.r-hud-on #hotbar { display: none !important; }
 @keyframes rh-alarm { 50% { box-shadow: 0 0 22px rgba(196, 71, 76, .9); } }
 
 /* Вкладки — строкой текста, текущая — цветом вида с чертой */
-/* Поднимаем только верхний блок управления над гербом; сам герб остаётся на исходной высоте. */
-#r-hud .rh-tabs, #r-hud .rh-seals { position: relative; top: -24px; z-index: 1; }
+#r-hud .rh-tabs, #r-hud .rh-seals { position: relative; z-index: 1; }
 #r-hud .rh-tabs { display: flex; align-items: baseline; gap: 10px; padding: 0 12px 2px; background: radial-gradient(ellipse, rgba(8, 8, 10, .75), transparent 75%); }
 #r-hud .rh-tabs a { padding: 0 2px 3px; color: #8a8274; font-family: var(--h-caps); font-size: 12.5px; letter-spacing: 1.6px; text-shadow: 0 1px 2px #000; }
 #r-hud .rh-tabs a:hover { color: var(--h-bone-b); }
 #r-hud .rh-tabs a.on { color: var(--h-bone-b); box-shadow: inset 0 -1px 0 var(--h-acc); }
 #r-hud .rh-sep { font-style: normal; font-size: 8px; color: #3a3934; }
+/* Свернуть HUD: круглая кнопка с глазом над концом правого крыла; свёрнутый — язычок с именем по центру снизу */
+#r-hud .rh-hide { position: absolute; right: 8px; top: -8px; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; pointer-events: auto;
+  color: var(--h-bone-2); font-size: 11px; background: radial-gradient(circle at 50% 30%, #26252a, #0c0c0e 75%);
+  border: 1px solid rgba(var(--h-acc-rgb), .45); box-shadow: 0 0 0 1px #000, 0 3px 8px rgba(0, 0, 0, .7); }
+#r-hud .rh-hide:hover { color: var(--h-bone-b); border-color: var(--h-acc); box-shadow: 0 0 0 1px #000, 0 0 10px rgba(var(--h-acc-rgb), .5); }
+#r-hud .rh-empty { display: flex; align-items: center; gap: 10px; }
+#r-hud .rh-empty .rh-hide { position: static; width: 22px; height: 22px; font-size: 10px; }
+#r-hud.is-hidden { width: auto; transform: none; }
+#r-hud .rh-show { display: flex; align-items: center; gap: 8px; margin-bottom: 2px; padding: 3px 14px 4px; pointer-events: auto;
+  font-family: var(--h-caps); font-size: 12px; letter-spacing: 1.4px; color: var(--h-bone-2);
+  background: rgba(12, 12, 14, .92); border: 1px solid #000; border-top: 1px solid rgba(var(--h-acc-rgb), .5); box-shadow: 0 -2px 10px rgba(0, 0, 0, .6); }
+#r-hud .rh-show:hover { color: var(--h-bone-b); border-top-color: var(--h-acc); }
+#r-hud .rh-show i { font-size: 10px; color: var(--h-acc); }
 
 /* Печати: круглая кнопка со знаком, подпись под ней; дугой — средние выше */
-#r-hud .rh-seals { display: flex; justify-content: center; align-items: flex-start; gap: 6px; min-height: 62px; padding-top: 4px; }
+#r-hud .rh-seals { display: flex; justify-content: center; align-items: flex-start; gap: 6px; min-height: 62px; padding-top: 4px; margin-bottom: 8px; }
 #r-hud .rh-seal { display: flex; flex-direction: column; align-items: center; gap: 3px; width: 58px; transform: translateY(var(--arc, 0)); color: #cfc6b4; }
 #r-hud .rh-knob { position: relative; width: 34px; height: 34px; flex: none; border-radius: 50%; display: grid; place-items: center; overflow: hidden; color: var(--h-acc); font-size: 14px;
   background: radial-gradient(circle at 50% 30%, #26252a, #0c0c0e 75%); border: 1px solid rgba(var(--h-acc-rgb), .55); box-shadow: 0 0 0 1px #000, 0 4px 10px rgba(0, 0, 0, .75); }
@@ -70,7 +82,7 @@ body.r-hud-on #hotbar { display: none !important; }
 #r-hud .rh-lvl .d { width: 5px; height: 5px; }
 
 /* Герб: портрет, крылья, лента, монеты */
-#r-hud .rh-crest { position: relative; width: 800px; height: 128px; }
+#r-hud .rh-crest { position: relative; width: 800px; height: 132px; }
 #r-hud .rh-wing { position: absolute; top: 20px; width: 340px; height: 76px; }
 #r-hud .rh-wing.is-left { left: 30px; }
 #r-hud .rh-wing.is-right { right: 30px; }
@@ -115,21 +127,21 @@ body.r-hud-on #hotbar { display: none !important; }
 #r-hud .hb.is-last { border-style: dashed; }
 
 /* Портрет: квадрат в двойной рамке цвета вида; состояния — значками по нижнему краю */
-#r-hud .rh-frame { position: absolute; left: 346px; top: 0; width: 108px; height: 108px; padding: 4px; background: #0a0a0c; border: 2px solid var(--h-acc);
+#r-hud .rh-frame { position: absolute; left: 346px; top: -6px; width: 108px; height: 108px; padding: 4px; background: #0a0a0c; border: 2px solid var(--h-acc);
   box-shadow: 0 0 0 2px #000, 0 0 0 3px rgba(var(--h-acc-rgb), .3), 0 8px 18px rgba(0, 0, 0, .75); }
 #r-hud .rh-frame > img { width: 100%; height: 100%; object-fit: cover; border: 1px solid var(--h-acc-d); display: block; }
 #r-hud .rh-states { position: absolute; left: 6px; right: 6px; top: 6px; display: flex; flex-wrap: wrap; gap: 2px; }
 #r-hud .rh-states img { width: 18px; height: 18px; border: 0; border-radius: 50%; background: rgba(0, 0, 0, .7); filter: drop-shadow(0 0 3px #000); }
 
 /* Лента имени поперёк низа портрета, с ласточкиным хвостом */
-#r-hud .rh-ribbon { position: absolute; left: 50%; top: 90px; transform: translateX(-50%); width: 240px; height: 36px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+#r-hud .rh-ribbon { position: absolute; left: 50%; top: 96px; transform: translateX(-50%); width: 240px; height: 36px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
   background: linear-gradient(180deg, #232227, #121214); box-shadow: inset 0 1px 0 var(--h-acc), inset 0 -1px 0 #000;
   clip-path: polygon(0 0, 100% 0, calc(100% - 14px) 50%, 100% 100%, 0 100%, 14px 50%); }
 #r-hud .rh-ribbon b { max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: "Prata", Georgia, serif; font-weight: 400; font-size: 14px; line-height: 1.1; color: #f1e9da; }
 #r-hud .rh-ribbon small { max-width: 210px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--h-caps); font-size: 10px; line-height: 1.1; letter-spacing: 1.1px; color: var(--h-acc); }
 
 /* Монеты брони и инициативы — в бою, на плечах портрета */
-#r-hud .rh-coin { position: absolute; top: -6px; width: 30px; height: 30px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; line-height: 1;
+#r-hud .rh-coin { position: absolute; top: -12px; width: 30px; height: 30px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; line-height: 1;
   background: radial-gradient(circle at 50% 30%, #2a292e, #0e0e10 80%); border: 1px solid rgba(216, 207, 191, .35);
   box-shadow: 0 0 0 2px #0a0a0c, 0 0 0 3px rgba(var(--h-acc-rgb), .35), 0 4px 10px rgba(0, 0, 0, .7); }
 #r-hud .rh-coin.is-armor { left: 331px; }

@@ -28,10 +28,11 @@ export function refreshTopBar() {
   const el = document.getElementById(EL_ID);
   if (!el) return;
   const isGM = !!game.user?.isGM;
-  el.innerHTML = plateHTML({ nexus: true, scene: sceneName(), xp: isGM });
+  el.innerHTML = plateHTML({ nexus: true, scene: sceneName(), xp: isGM, end: isGM });
   el.querySelector("[data-nexus]")?.addEventListener("click", () => openSceneNexus());
   const clock = el.querySelector("[data-np-clock]");
   if (isGM) clock?.addEventListener("click", () => openCalendar());
+  el.querySelector("[data-np-end]")?.addEventListener("click", () => import("../apps/night.mjs").then(m => m.endScene()));
   el.querySelector("[data-np-xp]")?.addEventListener("click", () => import("../apps/session-xp.mjs").then(m => m.openSessionXp()));
   clock?.classList.toggle("is-link", isGM);
   paintPlate(el);

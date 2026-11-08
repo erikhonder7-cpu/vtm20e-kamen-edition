@@ -275,9 +275,25 @@ function tabsOf(a, kind) {
   return tabs;
 }
 
-/** Печати встают дугой над портретом: средние выше, крайние ниже. */
-const arc = list => { const mid = (list.length - 1) / 2;
-  return list.map((h, i) => h.replace(/^<(a|span) class="rh-seal/, `<$1 style="--arc:${Math.round(mid ? ((i - mid) / mid) ** 2 * 12 : 0)}px" class="rh-seal`)).join(""); };
+/** Печати встают дугой: над портретом — выше него, над крыльями — опускаются к ним (без пустоты между рядом и гербом). */
+const arc = list => {
+  const w = list.map(h => (/^<(a|span) class="rh-seal[^"]*is-compact/.test(h) ? 42 : 58) + 6);
+  const total = w.reduce((s, x) => s + x, 0);
+  let x = -total / 2;
+  return list.map((h, i) => {
+    const off = Math.abs(x + w[i] / 2); x += w[i];
+    const drop = Math.round(Math.min(1, Math.max(0, (off - 70) / 90)) * 24);
+    return h.replace(/^<(a|span) class="rh-seal/, `<$1 style="--arc:${drop}px" class="rh-seal`);
+  }).join("");
+};
+
+/** HUD свёрнут (клавиша H или кнопка на панели) — остаётся язычок «показать». */
+const hidden = () => game.settings.get(SYSTEM_ID, "hudHidden");
+export function toggleHud(force) {
+  const v = typeof force === "boolean" ? force : !hidden();
+  return game.settings.set(SYSTEM_ID, "hudHidden", v).then(() => renderHud());
+}
+const hideBtn = () => `<a class="rh-hide" data-act="hide" data-tooltip="${esc(t("Hud.Hide"))}" aria-label="${esc(t("Hud.Hide"))}"><i class="fa-solid fa-eye-slash"></i></a>`;
 
 export function renderHud() {
   if (!enabled()) return;
@@ -285,8 +301,13 @@ export function renderHud() {
   document.body.classList.add("r-hud-on");
   const a = hudActor();
   el.className = "vtm20 r-hud";
+  if (hidden()) {
+    el.classList.add("is-hidden");
+    el.innerHTML = `<a class="rh-show" data-act="show" data-tooltip="${esc(t("Hud.Show"))}"><i class="fa-solid fa-eye"></i><span>${esc(a?.name ?? t("Hud.ShowShort"))}</span></a>`;
+    fitHud(); return;
+  }
   if (!a) {
-    el.innerHTML = `<p class="rh-empty"><i class="fa-solid fa-user-slash"></i> ${esc(t(game.user.isGM ? "Hud.PickToken" : "Hud.NoCharacter"))}</p>`;
+    el.innerHTML = `<p class="rh-empty"><i class="fa-solid fa-user-slash"></i> ${esc(t(game.user.isGM ? "Hud.PickToken" : "Hud.NoCharacter"))}${hideBtn()}</p>`;
     fitHud(); return;
   }
   const s = a.system, kind = kindOf(a);
@@ -326,7 +347,7 @@ export function renderHud() {
       <div class="rh-wing is-left">${wing("left")}<div class="rh-grid">${leftWing(s)}</div></div>
       <div class="rh-wing is-right">${wing("right")}<div class="rh-grid">${rightWing(a, kind)}</div></div>
       <a class="rh-frame" data-act="sheet" data-tooltip="${esc(t("Hud.SheetTip"))}"><img src="${esc(a.img)}" alt="">${states ? `<span class="rh-states">${states}</span>` : ""}</a>
-      ${coins}
+      ${coins}${hideBtn()}
       <a class="rh-ribbon" data-act="sheet" data-tooltip="${esc(t("Hud.SheetTip"))}"><b>${esc(a.name)}</b><small>${esc(subtitleOf(a, kind))}</small></a>
     </div>`;
   el.classList.toggle("is-turn", myTurn);
@@ -337,6 +358,8 @@ async function onClick(ev) {
   const el = ev.target.closest("[data-act]");
   if (!el) return;
   ev.preventDefault();
+  if (el.dataset.act === "hide") return toggleHud(true);
+  if (el.dataset.act === "show") return toggleHud(false);
   const a = hudActor();
   if (!a) return;
   switch (el.dataset.act) {
@@ -481,6 +504,11 @@ export function registerHud() {
   game.settings.register(SYSTEM_ID, "hud", {
     name: "VTM20.Hud.Setting", hint: "VTM20.Hud.SettingHint",
     scope: "client", config: true, type: Boolean, default: true, requiresReload: true
+  });
+  game.settings.register(SYSTEM_ID, "hudHidden", { scope: "client", config: false, type: Boolean, default: false });
+  game.keybindings.register(SYSTEM_ID, "toggleHud", {
+    name: "VTM20.Hud.ToggleKey", editable: [{ key: "KeyH" }],
+    onDown: () => { if (!enabled()) return false; toggleHud(); return true; }
   });
   Hooks.once("ready", () => {
     if (!enabled()) return;
