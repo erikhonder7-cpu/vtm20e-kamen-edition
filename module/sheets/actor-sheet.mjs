@@ -1235,6 +1235,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const log = foundry.utils.deepClone(s.log);
     log.unshift({ amount: 1, reason: "", date: new Date().toLocaleDateString("ru-RU") });
     await this.actor.update({ "system.experience.log": log, "system.experience.total": s.total + 1 });
+    await this.actor.shareXpWithRetainers(1);
   }
   static async #onRemoveXp(event, target) {
     const s = this.actor._source.system.experience;

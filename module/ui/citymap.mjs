@@ -490,7 +490,7 @@ function mapActors() {
 
 /** Кого можно поставить на карту: свои; ведущему — все персонажи игроков. */
 function placeableActors() {
-  return game.actors.filter(a => CHAR_TYPES.includes(a.type) && (game.user.isGM ? a.hasPlayerOwner : a.isOwner));
+  return game.actors.filter(a => CHAR_TYPES.includes(a.type) && (game.user.isGM ? a.isPlayerCharacter : a.isOwner));
 }
 /** Подпись под именем в списке: клан Сородича, иначе тип персонажа. */
 function kindOf(a) {
@@ -498,7 +498,7 @@ function kindOf(a) {
 }
 /** НПС для ведущего: персонажи без игрока — ставятся на карту скрытыми. */
 function npcActors() {
-  return game.user.isGM ? game.actors.filter(a => CHAR_TYPES.includes(a.type) && !a.hasPlayerOwner) : [];
+  return game.user.isGM ? game.actors.filter(a => CHAR_TYPES.includes(a.type) && !a.isPlayerCharacter) : [];
 }
 
 /**

@@ -5887,6 +5887,11 @@
       "VoiceKindred": "{name} hears the Voice of Madness: roll, difficulty 8 (+2)",
       "VoiceSelf": "the Voice of Madness touches its user too: roll, difficulty {n}",
       "VoiceSelfBotch": "botch — the madness falls on the vampire"
+    },
+    "Ghoul": {
+      "Retainer": "Retainer, not a PC",
+      "RetainerTip": "The character's ghoul retainer: not counted as a player character (session XP, player lists) and receives half the XP granted to the domitor — the character named in “Domitor”",
+      "RetainerXp": "half of {name}'s XP{reason}"
     }
   },
   "Fx": {

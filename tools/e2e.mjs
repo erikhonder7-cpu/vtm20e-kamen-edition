@@ -1922,6 +1922,44 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  // Гуль-слуга: галочка на листе, не игровой персонаж, половина опыта домитора (остаток копится)
+  await check("Гуль-слуга: не игровой, половина опыта домитора", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms));
+      const player = game.users.find(u => !u.isGM);
+      const own = player ? { default: 0, [player.id]: 3 } : { default: 0 };
+      const mk = (name, type, system = {}) => Actor.create({ name, type, ownership: own, flags: { world: { e2e: true }, [sid]: { created: true } }, system });
+      const v = await mk("E2E — хозяин", "vampire");
+      const g = await mk("E2E — слуга", "ghoul", { domitor: "E2E — хозяин", retainer: true });
+      const free = await mk("E2E — вольный гуль", "ghoul", { domitor: "E2E — хозяин" });
+      const out = { player: !!player };
+      await g.sheet.render({ force: true }); await wait(800);
+      out.checkbox = !!g.sheet.element.querySelector('input[name="system.retainer"]')?.checked;
+      await g.sheet.close();
+      out.pc = [v.isPlayerCharacter, g.isPlayerCharacter, free.isPlayerCharacter];
+      out.retainers = v.retainers.map(x => x.name);
+      const xp = () => g.system.experience.total;
+      const x0 = xp();
+      await v.shareXpWithRetainers(3);
+      const x1 = xp();
+      await v.shareXpWithRetainers(3);
+      out.share = [x1 - x0, xp() - x0, free.system.experience.total];
+      // окно опыта: начисление домитору — слуге половина
+      const { openXp } = await import(`/systems/${sid}/module/apps/xp.mjs`);
+      const app = await openXp(v); await wait(800);
+      const f = app?.element?.querySelector(".r-xw-grant");
+      if (f) { f.querySelector("[name=amount]").value = "4"; f.querySelector("[name=reason]").value = "E2E"; f.querySelector('[data-action="grant"]')?.click(); }
+      for (let i = 0; i < 30 && xp() - x0 < 5; i++) await wait(100);
+      out.window = xp() - x0;
+      await app?.close();
+      await Actor.deleteDocuments([v.id, g.id, free.id]);
+      return out;
+    });
+    const want = { player: true, checkbox: true, pc: [true, false, true], retainers: ["E2E — слуга"], share: [1, 3, 0], window: 5 };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   // Метаморфозы 3, 5 и Модифицированный Облик Зверя (2.7.0): Слияние с землёй (солнце не вредит, угроза будит),
   // Туманная форма (обычный урон не проходит, огонь — да; атаковать нельзя), две формы Гангрела из Clanbook
   await check("Метаморфозы: туман, Слияние с землёй, Модифицированный Облик", async () => {

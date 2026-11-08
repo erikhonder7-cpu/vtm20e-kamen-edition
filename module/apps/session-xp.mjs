@@ -17,7 +17,7 @@ const STORY = ["success", "danger", "wisdom"];
 
 /** Персонажи игроков: Сородичи, гули и смертные, у которых есть владелец-игрок. */
 function players() {
-  return game.actors.filter(a => a.hasPlayerOwner && ["vampire", "ghoul", "mortal", "demon", "hunter"].includes(a.type))
+  return game.actors.filter(a => a.isPlayerCharacter && ["vampire", "ghoul", "mortal", "demon", "hunter"].includes(a.type))
     .sort((x, y) => x.name.localeCompare(y.name, "ru"));
 }
 
@@ -170,6 +170,8 @@ class SessionXp extends HandlebarsApplicationMixin(ApplicationV2) {
       log.unshift({ amount, reason: `${label}${why.length ? ` (${why.join(", ")})` : ""}`, date });
       await a.update({ "system.experience.log": log, "system.experience.total": Math.max(0, x.total + amount) });
       awards.push({ id: a.id, name: a.name, amount });
+      // гули-слуги — половина опыта своего домитора
+      for (const r of await a.shareXpWithRetainers(amount, label)) awards.push({ id: null, name: r.name, amount: r.amount, retainer: true });
     }
     if (!awards.length) { ui.notifications.warn(t("SessionXp.NothingToGrant")); return; }
     const list = game.settings.get(SYSTEM_ID, "xpSessions") ?? [];

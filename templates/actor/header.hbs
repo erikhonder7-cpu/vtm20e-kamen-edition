@@ -69,6 +69,7 @@
           <select name="system.family"><option value="">—</option>{{#each families}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
         {{else}}
         <label class="r-df is-wide"><span>{{localize "VTM20.Details.domitor"}}</span><input type="text" name="system.domitor" value="{{system.domitor}}"></label>
+        <label class="r-df is-check" data-tooltip="{{localize 'VTM20.Ghoul.RetainerTip'}}"><input type="checkbox" name="system.retainer" {{checked system.retainer}}><span>{{localize "VTM20.Ghoul.Retainer"}}</span></label>
         <label class="r-df"><span>{{localize "VTM20.Revenant.DomitorClan"}}</span>
           <select name="system.domitorClan"><option value="">—</option>{{#each domitorClans}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
         <label class="r-df is-narrow"><span>{{localize "VTM20.Details.donorGeneration"}}</span>

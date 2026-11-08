@@ -167,7 +167,7 @@ class XpWindow extends HandlebarsApplicationMixin(ApplicationV2) {
   static #onCat(event, target) { this.cat = target.dataset.cat; this.render(); }
 
   static async #onGrant() {
-    const f = this.element.querySelector(".r-xp-grant");
+    const f = this.element.querySelector(".r-xw-grant");   // класс блока в шаблоне — r-xw-grant (с r-xp-grant кнопка не работала)
     const amount = Math.trunc(Number(f.querySelector("[name=amount]").value) || 0);
     if (!amount) return;
     const reason = f.querySelector("[name=reason]").value.trim();
@@ -175,5 +175,6 @@ class XpWindow extends HandlebarsApplicationMixin(ApplicationV2) {
     const log = foundry.utils.deepClone(s.log);
     log.unshift({ amount, reason, date: new Date().toLocaleDateString("ru-RU") });
     await this.actor.update({ "system.experience.log": log, "system.experience.total": Math.max(0, s.total + amount) });
+    await this.actor.shareXpWithRetainers(amount, reason);
   }
 }

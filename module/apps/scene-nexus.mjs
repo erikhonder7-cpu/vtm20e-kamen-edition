@@ -160,7 +160,7 @@ export class SceneNexus extends HandlebarsApplicationMixin(ApplicationV2) {
       const out = [], seen = new Set();
       for (const t of sc.tokens ?? []) {
         const a = t.actor;
-        if (!a?.hasPlayerOwner || seen.has(a.id) || (t.hidden && !isGM)) continue;
+        if (!a?.isPlayerCharacter || seen.has(a.id) || (t.hidden && !isGM)) continue;
         seen.add(a.id);
         out.push({ name: a.name, img: a.img || t.texture?.src || "", initials: initials(a.name), color: String(ownerOf(a)?.color || "#8d9bb8") });
       }

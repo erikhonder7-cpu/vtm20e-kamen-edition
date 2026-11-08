@@ -185,6 +185,9 @@ export class GhoulData extends BaseActorData {
       domitor: str(),
       domitorClan: str(),
       domitorGeneration: int(13, 3, 15),
+      // Слуга персонажа: не считается игровым персонажем (опыт за сессию, списки игроков), получает половину
+      // опыта, начисленного своему домитору (правило системы)
+      retainer: new BooleanField({ initial: false }),
       ghoulType: str("vassal"),        // vassal | independent | revenant | dhampir
       family: str(),
       // Дампир (Accursed Heirs: Dhampirs): концепция, Предок-вампир и его клан, Кровные права (ключ → 1–3), ритуалы Дриримантии

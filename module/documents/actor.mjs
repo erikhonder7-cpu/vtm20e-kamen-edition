@@ -43,6 +43,31 @@ export class VtMActor extends Actor {
   get isHunter() { return this.type === "hunter"; }
   get hasBlood() { return !!this.system.hasBlood; }
 
+  /** Игровой персонаж: есть владелец-игрок, и это не гуль-слуга (галочка «Слуга, не игровой»). */
+  get isPlayerCharacter() { return this.hasPlayerOwner && !(this.type === "ghoul" && this.system.retainer); }
+
+  /** Гули-слуги этого персонажа: галочка «слуга» и домитор — его имя (или id). */
+  get retainers() {
+    return game.actors.filter(a => a.type === "ghoul" && a.system.retainer && a.id !== this.id && [this.name, this.id].includes((a.system.domitor ?? "").trim()));
+  }
+
+  /**
+   * Половина начисленного опыта — слугам-гулям (правило системы). Остаток от деления копится у слуги
+   * (флаг xpCarry), так что два раза по 1 дают 1. Возвращает [{ name, amount }].
+   */
+  async shareXpWithRetainers(amount, reason = "") {
+    if (!(amount > 0)) return [];
+    const out = [];
+    for (const g of this.retainers) {
+      const carry = Number(g.getFlag(SYSTEM_ID, "xpCarry")) || 0, sum = amount + carry, give = Math.floor(sum / 2);
+      const x = g._source.system.experience, log = foundry.utils.deepClone(x.log);
+      if (give) log.unshift({ amount: give, reason: t("Ghoul.RetainerXp", { name: this.name, reason: reason ? ` — ${reason}` : "" }), date: new Date().toLocaleDateString("ru-RU") });
+      await g.update({ "system.experience.log": log, "system.experience.total": x.total + give, [`flags.${SYSTEM_ID}.xpCarry`]: sum % 2 });
+      if (give) out.push({ name: g.name, amount: give });
+    }
+    return out;
+  }
+
   /** Ключ Пути и его данные из справочника. */
   get path() { return Codex.path(this.system.morality.path); }
 
