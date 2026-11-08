@@ -1657,6 +1657,82 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  // Величие через HUD: Благоговение по охвату и Воле, невосприимчивость, Очарование не повторяется, Приглашение, Преклонение
+  await check("Величие через HUD", async () => {
+    const r = await page.evaluate(async () => {
+      const sys = p => import(`/systems/${game.system.id}/${p}`);
+      const TP = await sys("module/apps/target-powers.mjs");
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms));
+      const mk = (name, type, system = {}) => Actor.create({ name, type, flags: { world: { e2e: true } }, system });
+      const a = await mk("E2E — тореадор", "vampire", { generation: 9 });
+      const crowd = [await mk("E2E — слабый", "mortal", { willpower: { permanent: 2, temporary: 2 } }),
+        await mk("E2E — средний", "mortal", { willpower: { permanent: 5, temporary: 5 } }),
+        await mk("E2E — стойкий", "mortal", { willpower: { permanent: 8, temporary: 8 } })];
+      await a.createEmbeddedDocuments("Item", [{ name: "E2E — presence", type: "discipline", system: { key: "presence", value: 5 } }]);
+      const scene = game.scenes.viewed ?? game.scenes.contents[0];
+      const made = await scene.createEmbeddedDocuments("Token", await Promise.all([a, ...crowd].map((x, i) => x.getTokenDocument({ x: 100 + i * 200, y: 1100 }))));
+      const tok = x => made.find(tk => tk.actorId === x.id);
+      for (let i = 0; i < 30 && !canvas.tokens.get(tok(crowd[2]).id); i++) await wait(100);
+      await wait(400);
+      const rollDlg = async () => { let d = null; for (let i = 0; i < 30 && !d; i++) { await wait(100); d = [...foundry.applications.instances.values()].find(x => x.constructor.name === "RollDialog" && (x.actor === a || x.actor?.id === a.id)); } return d; };
+      const closeAll = async () => { for (const x of [...foundry.applications.instances.values()]) if (x.constructor.name === "RollDialog" || x instanceof foundry.applications.api.DialogV2) await x.close(); };
+      const openPop = async () => { await closeAll(); document.querySelector('#r-hud [data-act="tab"][data-tab="powers"]')?.click(); await wait(300);
+        document.querySelector('#r-hud [data-act="pop"][data-pop*="presence"]')?.click(); await wait(400); };
+      const row = re => [...document.querySelectorAll('#r-hud .rh-pop-row[data-act="power"]')].find(x => re.test(x.textContent));
+      const out = {};
+      canvas.tokens.get(tok(a).id)?.control({ releaseOthers: true }); await wait(600);
+      // Благоговение: отмечены все трое, 2 успеха — поддаются двое с меньшей Волей
+      crowd.forEach((x, i) => canvas.tokens.get(tok(x).id)?.setTarget(true, { releaseOthers: i === 0 }));
+      await wait(400);
+      await openPop(); row(/Благоговение/)?.click();
+      let d = await rollDlg();
+      const link = d?.cfg.extra?.targetPower;
+      out.awe = [d?.values.difficulty, link?.crowd?.length];
+      await d?.close();
+      await TP.applyTargetPower({ isOwner: false }, { actorUuid: a.uuid, extra: { targetPower: link } }, { successes: 2, outcome: "success" });
+      out.aweHit = crowd.map(x => canvas.tokens.get(tok(x).id)?.actor.effects.some(e => e.flags?.[sid]?.awe) ?? false);
+      // Устрашающий взор: цель с невосприимчивостью ко всему Величию — окно не открывается
+      const weak = canvas.tokens.get(tok(crowd[0]).id).actor;
+      await weak.createEmbeddedDocuments("ActiveEffect", [{ name: "E2E — иммунитет", flags: { [sid]: { presImmune: { by: a.uuid, power: "all" } } } }]);
+      canvas.tokens.get(tok(crowd[0]).id)?.setTarget(true, { releaseOthers: true }); await wait(300);
+      await openPop(); row(/Устрашающий/)?.click(); await wait(600);
+      out.dreadBlocked = ![...foundry.applications.instances.values()].some(x => x.constructor.name === "RollDialog");
+      // Очарование: уже очарован этим вампиром — повторно нельзя
+      const mid = canvas.tokens.get(tok(crowd[1]).id).actor;
+      await mid.createEmbeddedDocuments("ActiveEffect", [{ name: "E2E — очарован", flags: { [sid]: { mind: "presence|Entrancement", by: a.uuid, mode: "scene" } } }]);
+      canvas.tokens.get(tok(crowd[1]).id)?.setTarget(true, { releaseOthers: true }); await wait(300);
+      await openPop(); row(/Очарование/)?.click(); await wait(600);
+      out.entranceBlocked = ![...foundry.applications.instances.values()].some(x => x.constructor.name === "RollDialog");
+      // Приглашение: знакомство поверхностное — сложность 7; 4 успеха — до рассвета, «быстро преодолевает»
+      canvas.tokens.get(tok(crowd[2]).id)?.setTarget(true, { releaseOthers: true }); await wait(300);
+      await openPop(); row(/Приглашение/)?.click();
+      let ask = null; for (let i = 0; i < 30 && !ask; i++) { await wait(100); ask = [...foundry.applications.instances.values()].find(x => x instanceof foundry.applications.api.DialogV2); }
+      const sel = ask?.element.querySelector("select"); if (sel) sel.value = "7";
+      ask?.element.querySelector('button[data-action="ok"]')?.click();
+      d = await rollDlg();
+      out.call = d?.values.difficulty;
+      const callLink = d?.cfg.extra?.targetPower;
+      await d?.close();
+      await TP.applyTargetPower({ isOwner: false }, { actorUuid: a.uuid, extra: { targetPower: callLink } }, { successes: 4, outcome: "success" });
+      const strong = canvas.tokens.get(tok(crowd[2]).id).actor;
+      out.callFx = !!strong.effects.find(e => e.flags?.[sid]?.mind === "presence|Summon")?.flags[sid].until;
+      // Преклонение: без силы — нападать можно; кто уже преодолел — без новой проверки
+      out.majesty = [await TP.majestyCheck(strong, a)];
+      await a.startPower("presence:5");
+      await strong.createEmbeddedDocuments("ActiveEffect", [{ name: "E2E — преодолел", flags: { [sid]: { majestyPassed: a.uuid } } }]);
+      out.majesty.push(await TP.majestyCheck(strong, a));
+      [...game.user.targets].forEach(x => x.setTarget(false, { releaseOthers: false }));
+      canvas.tokens.releaseAll();
+      await wait(800);
+      await scene.deleteEmbeddedDocuments("Token", made.map(x => x.id));
+      await Actor.deleteDocuments([a.id, ...crowd.map(x => x.id)]);
+      return out;
+    });
+    const want = { awe: [7, 3], aweHit: [true, true, false], dreadBlocked: true, entranceBlocked: true, call: 7, callFx: true, majesty: [true, true] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   // Метаморфозы 3, 5 и Модифицированный Облик Зверя (2.7.0): Слияние с землёй (солнце не вредит, угроза будит),
   // Туманная форма (обычный урон не проходит, огонь — да; атаковать нельзя), две формы Гангрела из Clanbook
   await check("Метаморфозы: туман, Слияние с землёй, Модифицированный Облик", async () => {

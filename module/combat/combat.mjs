@@ -12,7 +12,7 @@ import { Codex } from "../data/codex.mjs";
 import { rollPool, odds, chancesView } from "../dice/roll.mjs";
 import { RollDialog } from "../dice/dialog.mjs";
 import { mobBonus } from "../apps/extras.mjs";
-import { dreadDice, mindDiff, centered, pathFlag } from "../apps/target-powers.mjs";
+import { dreadDice, mindDiff, centered, pathFlag, majestyCheck } from "../apps/target-powers.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -307,6 +307,8 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       ui.notifications.warn(t("Fx.BeastNoHumanWeapons")); return;
     }
     const foe = v.foe ? await foundry.utils.fromUuid(v.foe) : null;
+    // Преклонение (Величие 5): напасть на вампира — сперва Смелость
+    if (foe && !(await majestyCheck(this.actor, foe))) return;
     const notes = [...r.notes];
     if (foe?.system?.fx?.earthMeld) {
       const { wakeEarthMeld } = await import("../apps/power-effects.mjs");

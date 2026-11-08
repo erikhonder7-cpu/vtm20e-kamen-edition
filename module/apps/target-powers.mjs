@@ -45,8 +45,10 @@ export const TARGET_POWERS = {
   "dominate|Mesmerize": { diff: ["willpower"], dominate: true, tiers: [[1, "Mes1"], [3, "Mes3"], [5, "Mes5"]] },
   "dominate|The Forgetful Mind": { diff: ["willpower"], dominate: true, tiers: [[1, "Forg1"], [2, "Forg2"], [3, "Forg3"], [4, "Forg4"], [5, "Forg5"]] },
   "dominate|Conditioning": { diff: ["willpower"], dominate: true, note: "Cond" },
-  "presence|Dread Gaze": { diff: ["wits", "courage"], dread: true },
-  "presence|Entrancement": { diff: ["willpower"], timed: ["hour", "day", "week", "month", "year"] },
+  "presence|Awe": { kind: "awe", self: true },
+  "presence|Dread Gaze": { diff: ["wits", "courage"], dread: true, presence: true },
+  "presence|Entrancement": { diff: ["willpower"], timed: ["hour", "day", "week", "month", "year"], presence: true, once: true },
+  "presence|Summon": { kind: "call", presence: true, needTarget: true },
   "dementation|Passion": { diff: ["morality"], timed: ["scene", "hour", "night", "week", "month", "3months"] },
   "dementation|The Haunting": { diff: ["perception", "selfControl"], timed: ["night", "2nights", "week", "month", "3months", "year"] },
   "dementation|Total Insanity": { diff: ["willpower"], timed: ["scene", "night", "week", "month", "year"], note: "Insane" },
@@ -93,6 +95,9 @@ function animalDiff(a) {
 // пути Тауматургии (data/path-powers.mjs) — тем же движком
 Object.assign(TARGET_POWERS, PATH_POWERS);
 
+/** Тот же персонаж: лист (Actor.id) и жетон без связи (Scene.….Token.….Actor.id) — один и тот же вампир. */
+const sameActor = (uuid, actor) => !!uuid && !!actor && (uuid === actor.uuid || String(uuid).endsWith(`Actor.${actor.id}`));
+
 /** Сверхъестественное существо (Глаза змеи): вампир, Гару, падший, сверхъестественная тварь; гуль и охотник — смертные. */
 const supernatural = a => ["vampire", "werewolf", "demon"].includes(a.type) || (a.type === "creature" && !!a.system.supernatural);
 
@@ -124,7 +129,15 @@ export function prepareTargetPower(actor, disc, p, tp) {
   if (!target && tp.needTarget) { ui.notifications.warn(t("NeedTarget")); return null; }
   // Усмирение Зверя: на Сородича не действует — кроме успокоения уже впавшего в бешенство (V20, Анимализм 3)
   if (tp.mortalOnly && target?.isVampire && !(tp.kind === "quell" && target.statuses?.has("r-frenzy"))) { ui.notifications.warn(t("NotKindred", { name: target.name })); return null; }
-  if (tp.kind === "quell" && target?.effects.some(e => !e.disabled && e.flags?.[SYSTEM_ID]?.quellImmune === actor.uuid)) { ui.notifications.warn(t("QuellImmune", { name: target.name })); return null; }
+  if (tp.kind === "quell" && target?.effects.some(e => !e.disabled && sameActor(e.flags?.[SYSTEM_ID]?.quellImmune, actor))) { ui.notifications.warn(t("QuellImmune", { name: target.name })); return null; }
+  // Величие: после неудачи или провала цель невосприимчива к этой силе (или ко всему Величию) этого вампира
+  const key0 = `${disc}|${p?.en ?? ""}`;
+  if (tp.presence && target?.effects.some(e => { const f = !e.disabled && e.flags?.[SYSTEM_ID]?.presImmune; return f && sameActor(f.by, actor) && (f.power === "all" || f.power === key0); })) {
+    ui.notifications.warn(t("PresImmune", { name: target.name })); return null;
+  }
+  if (tp.once && target?.effects.some(e => !e.disabled && e.flags?.[SYSTEM_ID]?.mind === key0 && sameActor(e.flags[SYSTEM_ID].by, actor))) {
+    ui.notifications.warn(t("StillActive", { name: target.name })); return null;
+  }
   if (tp.mortalTarget && supernatural(target)) { ui.notifications.warn(t("MortalsOnly", { name: target.name })); return null; }
   if (tp.animal && !(target.type === "creature" && !target.system.spirit?.on)) { ui.notifications.warn(t("NotAnimal", { name: target.name })); return null; }
   if (!tp.diff) return { difficulty: null, note: "", target };
@@ -178,7 +191,7 @@ export function targetPowerLabel(extra, ev) {
   // Усмирение — только когда накоплены все успехи продолжительного броска
   if (tp.kind === "quell" && !((extra.extended?.prev ?? 0) + ev.successes >= (extra.extended?.need ?? Infinity))) return "";
   const lbl = { beast: "BeastApply", poison: "PoisonApply", shroud: "ShroudApply", arms: "ArmsApply", vanish: "VanishApply",
-    rage: "RageApply", potency: "PotencyApply", theft: "TheftApply", possess: "PossessApply", project: "ProjectApply",
+    rage: "RageApply", potency: "PotencyApply", theft: "TheftApply", possess: "PossessApply", project: "ProjectApply", awe: "AweApply", call: "CallApply",
     flesh: "FleshApply", beckon: "BeckonApply", subsume: "SubsumeApply", self: "SelfApply", summon: "SummonApply", comrades: "ComradesApply", conjure: "ConjureApply" }[tp.kind] ?? "Apply";
   return t(lbl, { name: extra.targetPower.targetName, n: ev.successes });
 }
@@ -222,6 +235,29 @@ export async function applyTargetPower(message, state, ev) {
   }
   if (tp.kind === "conjure") return conjure(message, state, x, tp, target);
   if (["cond", "self", "dehydrate", "dust", "comrades"].includes(tp.kind)) return applyPath(message, state, x, tp, target, n, flags, api);
+  if (tp.kind === "awe") {
+    // Благоговение: охват — 1 / 2 / 6 / 20 / все; поддаются те, у кого Воля ниже
+    const reach = n >= 5 ? Infinity : [0, 1, 2, 6, 20][n];
+    const crowd = (await Promise.all((x.crowd ?? []).map(u => foundry.utils.fromUuid(u)))).filter(Boolean)
+      .sort((p1, p2) => (p1.system.willpower?.permanent ?? 0) - (p2.system.willpower?.permanent ?? 0)).slice(0, reach);
+    await done(message, state, x);
+    const hit = [];
+    for (const who of crowd) {
+      if (!who.isOwner) { ui.notifications.warn(game.i18n.format("VTM20.Notify.NotOwner", { name: who.name })); continue; }
+      await who.createEmbeddedDocuments("ActiveEffect", [{ name: t("AweName", { name: x.actorName }), img: Codex.disciplineIcon("presence"),
+        description: `<p>${esc(t("AweDesc", { n }))}</p>`, flags: { [SYSTEM_ID]: { ...flags, awe: n, mode: "scene" } } }]);
+      hit.push(who.name);
+    }
+    return notice(target, x.powerName, hit.length ? t("AweDone", { names: hit.join(", "), n: reach === Infinity ? "∞" : reach }) : t("AweNobody", { n: reach === Infinity ? "∞" : reach }));
+  }
+  if (tp.kind === "call") {
+    // Приглашение: тянется к вампиру до рассвета; как — по успехам
+    await done(message, state, x);
+    const how = t(`Call${Math.min(5, n)}`);
+    await target.createEmbeddedDocuments("ActiveEffect", [{ name: t("CallName", { name: x.actorName }), img: Codex.disciplineIcon("presence"),
+      description: `<p>${esc(how)}</p>`, flags: { [SYSTEM_ID]: { ...flags, mode: "timed", until: api.nextSunrise(now) } } }]);
+    return notice(target, x.powerName, how);
+  }
   if (tp.kind === "possess") {
     // Вселение: цель бросает текущую Волю (сл. 7); успехи вампира сверх её — минус временная Воля цели
     const { rollPool } = await import("../dice/roll.mjs");
@@ -419,6 +455,32 @@ export async function rollTargetPower(actor, disc, d, p, tp, { rollFromSpec, sub
     if (tp.kind === "info") opts.onRolled = async res => { if ((res?.successes ?? 0) > 0) await contradict(actor, target, p.name, res.successes); };
     if (tp.kind === "counter") roll = { dice: 2 * (Number(p.level) || 1), difficulty: 6, note: t("CounterNote", { n: 2 * (Number(p.level) || 1) }) };
   }
+  // Величие: неудача и провал — невосприимчивость (Взор: провал — ко всему Величию до конца истории; Очарование,
+  // Приглашение: неудача — до рассвета, провал — до конца истории)
+  if (tp.presence && target) {
+    const prev = opts.onRolled;
+    opts.onRolled = async res => {
+      await prev?.(res);
+      const botch = res?.outcome === "botch", fail = !botch && (res?.successes ?? 0) < 1;
+      if (!botch && !fail) return;
+      if (tp.dread && !botch) return;                   // Взор: только провал — ко всему Величию до конца истории
+      const scope = tp.dread ? "all" : key;
+      await presImmune(target, actor, scope, botch, p.name);
+    };
+  }
+  // Благоговение: охват по успехам, первыми поддаются те, у кого меньше Воли
+  if (tp.kind === "awe") {
+    const marked = [...(game.user.targets ?? [])].map(tk => tk.actor).filter(x => x && x !== actor);
+    opts.more = { targetPower: { ...link, crowd: marked.map(x => x.uuid) } };
+    roll.note = t("AweNote", { n: marked.length });
+  }
+  // Приглашение: сложность по знакомству (5 / 7 / 4 / 8), до рассвета
+  if (tp.kind === "call") {
+    const how = await ask(p.name, [["5", t("CallKnown")], ["7", t("CallSlight")], ["4", t("CallPres")], ["8", t("CallFailed")]]);
+    if (!how) return null;
+    roll = { ...roll, difficulty: Number(how), note: t("CallNote", { name: target?.name ?? "—", n: how }) };
+    if (!target) return ui.notifications.warn(t("NeedTarget"));
+  }
   if (tp.kind === "possess") roll = { ...roll, willpower: true, note: t("PossessNote", { name: target.name }) };
   if (tp.kind === "whisper") roll = { ...roll, difficulty: animalDiff(target), note: t("WhisperNote", { n: animalDiff(target), name: target.name }) };
   if (tp.kind === "aura") opts.onRolled = res => {
@@ -507,6 +569,36 @@ export async function rollTargetPower(actor, disc, d, p, tp, { rollFromSpec, sub
   if (tp.tiers) opts.onRolled = res => { const line = tierText(tp, res?.successes ?? 0); if (line && (res?.successes ?? 0) > 0) ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }),
     content: `<div class="r-notice"><i class="fa-solid fa-brain"></i> <b>${esc(p.name)}</b>: ${esc(line)}</div>` }); };
   return rollFromSpec(actor, roll, opts);
+}
+
+/** Невосприимчивость к Величию этого вампира: неудача — до рассвета, провал — до конца истории (снимается вручную). */
+async function presImmune(target, vampire, power, botch, powerName) {
+  const what = t(botch ? "PresImmuneStory" : "PresImmuneNight", { name: target.name, power: power === "all" ? t("AllPresence") : powerName });
+  if (!target.isOwner) return notice(target, powerName, what);
+  const api = await clockApi();
+  await target.createEmbeddedDocuments("ActiveEffect", [{ name: t("PresImmuneName", { name: vampire.name }), img: Codex.disciplineIcon("presence"),
+    description: `<p>${esc(what)}</p>`, flags: { [SYSTEM_ID]: { mind: "presence|immune", presImmune: { by: vampire.uuid, power }, mode: botch ? "manual" : "timed",
+      ...(botch ? {} : { until: api.nextSunrise(api.getClock()) }) } } }]);
+  return notice(target, powerName, what);
+}
+
+/** Преклонение (Величие 5): кто нападает на вампира — сперва Смелость, сл. Обаяние + Запугивание вампира (макс. 10). false — атака отменена. */
+export async function majestyCheck(attacker, foe) {
+  if (!foe || attacker === foe || !foe.powerEffects?.some(e => e.power === "presence:5")) return true;
+  if (attacker.effects.some(e => !e.disabled && sameActor(e.flags?.[SYSTEM_ID]?.majestyPassed, foe))) return true;
+  const diff = Math.min(10, (foe.system.attributes.charisma?.total ?? 0) + (foe.system.abilities?.intimidation?.value ?? 0));
+  const courage = attacker.system.virtues?.courage?.value;
+  const pool = courage ?? attacker.system.willpower?.permanent ?? 1;
+  const { rollPool } = await import("../dice/roll.mjs");
+  const res = await rollPool({ actor: attacker, title: t("MajestyRoll", { name: foe.name }), pool, difficulty: Math.max(2, diff), kind: "check" });
+  if ((res?.successes ?? 0) > 0) {
+    if (attacker.isOwner) await attacker.createEmbeddedDocuments("ActiveEffect", [{ name: t("MajestyPassed", { name: foe.name }), img: Codex.disciplineIcon("presence"),
+      flags: { [SYSTEM_ID]: { mind: "presence|majesty", majestyPassed: foe.uuid, mode: "scene" } } }]);
+    notice(attacker, game.i18n.localize("VTM20.TP.MajestyTitle"), t("MajestyOk"));
+    return true;
+  }
+  notice(attacker, game.i18n.localize("VTM20.TP.MajestyTitle"), t("MajestyFail", { name: foe.name }));
+  return false;
 }
 
 /** Сумма черт персонажа: Атрибуты, Способности, Добродетели, Воля, Дисциплины. */
