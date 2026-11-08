@@ -1272,7 +1272,11 @@ try {
       // Усмирение Зверя: на Сородича нельзя; против смертного — продолжительный до постоянной Воли (5)
       out.quellKindred = TP.prepareTargetPower(a, "animalism", C.discipline("animalism").powers[idx("animalism", "Quell the Beast")], TP.TARGET_POWERS["animalism|Quell the Beast"]) === null;
       await target(tm);
-      await rollPowerRef(a, `animalism|${idx("animalism", "Quell the Beast")}`);
+      // сначала окно «как подавить Зверя» (страх или успокоение) — выбрать и подтвердить, бросок не ждём
+      rollPowerRef(a, `animalism|${idx("animalism", "Quell the Beast")}`);
+      let way = null;
+      for (let i = 0; i < 30 && !way; i++) { await new Promise(res => setTimeout(res, 100)); way = [...foundry.applications.instances.values()].find(x => x instanceof foundry.applications.api.DialogV2); }
+      way?.element.querySelector('button[data-action="ok"]')?.click();
       dlg = await dialog();
       out.quell = [dlg?.values.contest, dlg?.values.need, dlg?.values.difficulty];
       await dlg?.close();
