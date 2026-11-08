@@ -5845,7 +5845,27 @@
       "MajestyRoll": "Courage against “{name}”'s Majesty",
       "MajestyOk": "found the nerve — acts, with a heavy heart (no new roll for the rest of the scene)",
       "MajestyFail": "dares not stand against “{name}” — backs down and may grovel for forgiveness",
-      "MajestyPassed": "Overcame Majesty ({name})"
+      "MajestyPassed": "Overcame Majesty ({name})",
+      "DomImmune": "“{name}” is immune to this vampire's Dominate until the end of the story",
+      "AllDominate": "Dominate",
+      "GhoulNotOwn": "“{name}” is another vampire's ghoul: Possession works only on a ghoul who drank your blood",
+      "CondOther": "Conditioned by another vampire: +2 difficulty.",
+      "MesApply": "Implant a program in “{name}”",
+      "MesWhat": "Program (what to do and on what trigger)",
+      "MesName": "Mesmerize ({name}, {n} succ.)",
+      "MesKept": "a stronger program is already in place ({n} succ.) — the new one didn't take",
+      "ForgApply": "Alter “{name}”'s memory",
+      "ForgWhat": "What was changed in memory",
+      "ForgName": "Memory altered ({name}, {n} succ.)",
+      "ForgRestore": "To restore: Dominate at least {d}, Wits + Empathy (diff. {w}), more than {n} successes.",
+      "CondApply": "Conditioning “{name}”: +{n}",
+      "CondNeed": "×{m} Self-Control — {n} successes",
+      "CondProgress": "Conditioning “{name}”: {total} of {need} (Storyteller only)",
+      "CondName": "Conditioned ({name})",
+      "CondDesc": "follows the master's orders literally, even to their own harm; other vampires' Dominate +2 difficulty (max 10); in full isolation it fades — about 6 months minus a week per Willpower dot ({w})",
+      "CondDone": "conditioning complete",
+      "PossessAccess": "“{name}”'s body is taken — which Disciplines work through it?",
+      "PossessAccessRoll": "Possession: Manipulation + Intimidation (diff. 7)"
     }
   },
   "Fx": {

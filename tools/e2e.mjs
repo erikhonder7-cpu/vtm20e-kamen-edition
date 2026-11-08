@@ -1197,7 +1197,8 @@ try {
       const m = await mk("E2E — смертный", "mortal", { willpower: { permanent: 6, temporary: 4 }, attributes: { wits: { value: 3 } }, virtues: { courage: { value: 2 } } });
       await a.createEmbeddedDocuments("Item", [["dominate", 4], ["presence", 3]].map(([key, value]) => ({ name: `E2E — ${key}`, type: "discipline", system: { key, value } })));
       const scene = game.scenes.viewed ?? game.scenes.contents[0];
-      const [te, tm] = await scene.createEmbeddedDocuments("Token", [await elder.getTokenDocument({ x: 100, y: 100 }), await m.getTokenDocument({ x: 300, y: 100 })]);
+      const made0 = await scene.createEmbeddedDocuments("Token", [await elder.getTokenDocument({ x: 100, y: 100 }), await m.getTokenDocument({ x: 300, y: 100 })]);
+      const te = made0.find(tk => tk.actorId === elder.id), tm = made0.find(tk => tk.actorId === m.id);   // порядок созданных жетонов не гарантирован
       const target = async td => { for (let i = 0; i < 30 && !canvas.tokens.get(td.id); i++) await new Promise(res => setTimeout(res, 100));
         await new Promise(res => setTimeout(res, 300)); canvas.tokens.get(td.id)?.setTarget(true, { releaseOthers: true }); await new Promise(res => setTimeout(res, 300)); };
       const D = game.vtm20Codex.discipline("dominate"), P = game.vtm20Codex.discipline("presence");
@@ -1251,7 +1252,8 @@ try {
       const m = await mk("E2E — смертный-цель", "mortal", { attributes: { stamina: { value: 3 } }, willpower: { permanent: 5, temporary: 5 } });
       await a.createEmbeddedDocuments("Item", [["serpentis", 1], ["animalism", 5], ["quietus", 2]].map(([key, value]) => ({ name: `E2E — ${key}`, type: "discipline", system: { key, value } })));
       const scene = game.scenes.viewed ?? game.scenes.contents[0];
-      const [tv, tm] = await scene.createEmbeddedDocuments("Token", [await v.getTokenDocument({ x: 100, y: 300 }), await m.getTokenDocument({ x: 300, y: 300 })]);
+      const made1 = await scene.createEmbeddedDocuments("Token", [await v.getTokenDocument({ x: 100, y: 300 }), await m.getTokenDocument({ x: 300, y: 300 })]);
+      const tv = made1.find(tk => tk.actorId === v.id), tm = made1.find(tk => tk.actorId === m.id);
       const target = async td => { for (let i = 0; i < 30 && !canvas.tokens.get(td.id); i++) await new Promise(res => setTimeout(res, 100));
         await new Promise(res => setTimeout(res, 300)); canvas.tokens.get(td.id)?.setTarget(true, { releaseOthers: true }); await new Promise(res => setTimeout(res, 300)); };
       const C = game.vtm20Codex, idx = (k, en) => C.discipline(k).powers.findIndex(p => p.en === en);
@@ -1315,7 +1317,8 @@ try {
       const ally = await mk("E2E — спутник", "mortal");
       await a.createEmbeddedDocuments("Item", [["obtenebration", 5], ["obfuscate", 5], ["potence", 1], ["celerity", 2]].map(([key, value]) => ({ name: `E2E — ${key}`, type: "discipline", system: { key, value } })));
       const scene = game.scenes.viewed ?? game.scenes.contents[0];
-      const [ta, tl] = await scene.createEmbeddedDocuments("Token", [await a.getTokenDocument({ x: 500, y: 500 }), await ally.getTokenDocument({ x: 700, y: 500 })]);
+      const made2 = await scene.createEmbeddedDocuments("Token", [await a.getTokenDocument({ x: 500, y: 500 }), await ally.getTokenDocument({ x: 700, y: 500 })]);
+      const ta = made2.find(tk => tk.actorId === a.id), tl = made2.find(tk => tk.actorId === ally.id);
       for (let i = 0; i < 30 && !canvas.tokens.get(tl.id); i++) await new Promise(res => setTimeout(res, 100));
       const out = {}, hp = x => [x.system.health.bashing, x.system.health.lethal, x.system.health.aggravated].join("/");
       // Театр теней (укрыться): +1 куб к Скрытности, стрелкам +1; Чёрный метаморфоз: +3 к Запугиванию, щупальца, тёмное зрение
@@ -1729,6 +1732,78 @@ try {
       return out;
     });
     const want = { awe: [7, 3], aweHit: [true, true, false], dreadBlocked: true, entranceBlocked: true, call: 7, callFx: true, majesty: [true, true] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
+  // Доминирование через HUD: сложность и невосприимчивость, чужое порабощение +2, программа Внушения, Порабощение, Вселение
+  await check("Доминирование через HUD", async () => {
+    const r = await page.evaluate(async () => {
+      const sys = p => import(`/systems/${game.system.id}/${p}`);
+      const TP = await sys("module/apps/target-powers.mjs");
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms));
+      const mk = (name, type, system = {}) => Actor.create({ name, type, flags: { world: { e2e: true } }, system });
+      const a = await mk("E2E — вентру", "vampire", { generation: 9, willpower: { permanent: 7, temporary: 7 } });
+      const m = await mk("E2E — слуга", "mortal", { willpower: { permanent: 4, temporary: 4 }, virtues: { selfControl: { value: 1 } } });
+      const g1 = await mk("E2E — чужой гуль", "ghoul", { domitor: "Кто-то другой" });
+      const g2 = await mk("E2E — свой гуль", "ghoul", { domitor: "E2E — вентру" });
+      await a.createEmbeddedDocuments("Item", [{ name: "E2E — dominate", type: "discipline", system: { key: "dominate", value: 5 } }]);
+      const scene = game.scenes.viewed ?? game.scenes.contents[0];
+      const made = await scene.createEmbeddedDocuments("Token", await Promise.all([a, m, g1, g2].map((x, i) => x.getTokenDocument({ x: 100 + i * 200, y: 1300 }))));
+      const tok = x => made.find(tk => tk.actorId === x.id);
+      for (let i = 0; i < 30 && !canvas.tokens.get(tok(g2).id); i++) await wait(100);
+      await wait(400);
+      const inst = () => [...foundry.applications.instances.values()];
+      const closeAll = async () => { for (const x of inst()) if (x.constructor.name === "RollDialog" || x instanceof foundry.applications.api.DialogV2) await x.close(); };
+      const rollDlg = async () => { let d = null; for (let i = 0; i < 30 && !d; i++) { await wait(100); d = inst().find(x => x.constructor.name === "RollDialog"); } return d; };
+      const answer = async fill => { let d = null; for (let i = 0; i < 30 && !d; i++) { await wait(100); d = inst().find(x => x instanceof foundry.applications.api.DialogV2); }
+        fill?.(d?.element); d?.element.querySelector('button[data-action="ok"]')?.click(); await wait(400); return !!d; };
+      const mark = async x => { canvas.tokens.get(tok(x).id)?.setTarget(true, { releaseOthers: true }); await wait(300); };
+      const hudPower = async re => { await closeAll(); document.querySelector('#r-hud [data-act="tab"][data-tab="powers"]')?.click(); await wait(300);
+        document.querySelector('#r-hud [data-act="pop"][data-pop*="dominate"]')?.click(); await wait(400);
+        [...document.querySelectorAll('#r-hud .rh-pop-row[data-act="power"]')].find(x => re.test(x.textContent))?.click(); };
+      const out = {};
+      canvas.tokens.get(tok(a).id)?.control({ releaseOthers: true }); await wait(600);
+      const mt = () => canvas.tokens.get(tok(m).id).actor;
+      // Приказ: сложность — текущая Воля (4); чужое порабощение — +2; невосприимчивость — окна нет
+      await mark(m); await hudPower(/Приказ/);
+      let d = await rollDlg(); out.cmd = d?.values.difficulty;
+      await mt().createEmbeddedDocuments("ActiveEffect", [{ name: "E2E — чужой хозяин", flags: { [sid]: { conditioned: "Actor.someoneElse" } } }]);
+      await hudPower(/Приказ/); d = await rollDlg(); out.cmdSlave = d?.values.difficulty;
+      const imm = await mt().createEmbeddedDocuments("ActiveEffect", [{ name: "E2E — иммунитет", flags: { [sid]: { presImmune: { by: a.uuid, power: "all", disc: "dominate" } } } }]);
+      await hudPower(/Приказ/); await wait(600); out.immune = !inst().some(x => x.constructor.name === "RollDialog");
+      await mt().deleteEmbeddedDocuments("ActiveEffect", [imm[0].id, ...mt().effects.filter(e => e.flags?.[sid]?.conditioned).map(e => e.id)]);
+      await closeAll();
+      // Внушение: 3 успеха — программа; 2 — прежняя остаётся; 4 — заменяет
+      const link = key => ({ key, target: mt().uuid, targetName: m.name, powerName: key, actorName: a.name });
+      const apply = (key, n) => TP.applyTargetPower({ isOwner: false }, { actorUuid: a.uuid, extra: { targetPower: link(key) } }, { successes: n, outcome: "success" });
+      const prog = () => mt().effects.filter(e => e.flags?.[sid]?.program).map(e => e.flags[sid].program);
+      for (const n of [3, 2, 4]) { const pr = apply("dominate|Mesmerize", n); await answer(el => { if (el) el.querySelector("textarea").value = `E2E — приказ ${n}`; }); await pr; }
+      out.program = prog();
+      // Порабощение: Самоконтроль 1, ×5 — нужно 5; 3 + 3 — порабощён
+      let pr = apply("dominate|Conditioning", 3); await answer(el => { const s = el?.querySelector("select"); if (s) s.value = "5"; }); await pr;
+      out.condMid = mt().getFlag(sid, "conditioning")?.total;
+      await apply("dominate|Conditioning", 3);
+      out.condDone = mt().effects.some(e => e.flags?.[sid]?.conditioned);
+      // Вселение: чужой гуль — нельзя, свой — можно; после захвата — проверка доступа
+      const P = game.vtm20Codex.discipline("dominate").powers.find(x => x.en === "Possession"), PT = TP.TARGET_POWERS["dominate|Possession"];
+      await mark(g1); out.ghoulOther = TP.prepareTargetPower(a, "dominate", P, PT) === null;
+      await mark(g2); out.ghoulOwn = TP.prepareTargetPower(a, "dominate", P, PT) !== null;
+      await mt().update({ "system.willpower.temporary": 0 });
+      const n0 = game.messages.size;
+      await apply("dominate|Possession", 2);
+      const card = game.messages.contents.slice(n0).find(x => x.getFlag(sid, "possessRoll"));
+      await TP.possessAccess(card);
+      d = await rollDlg(); out.access = [d?.values.trait1, d?.values.difficulty];
+      await closeAll();
+      [...game.user.targets].forEach(x => x.setTarget(false, { releaseOthers: false }));
+      canvas.tokens.releaseAll();
+      await wait(800);
+      await scene.deleteEmbeddedDocuments("Token", made.map(x => x.id));
+      await Actor.deleteDocuments([a.id, m.id, g1.id, g2.id]);
+      return out;
+    });
+    const want = { cmd: 4, cmdSlave: 6, immune: true, program: [4], condMid: 3, condDone: true, ghoulOther: true, ghoulOwn: true, access: ["attributes.manipulation", 7] };
     const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });

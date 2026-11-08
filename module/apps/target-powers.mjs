@@ -42,9 +42,9 @@ const esc = s => foundry.utils.escapeHTML(String(s ?? ""));
 /** Силы по Дисциплине и английскому имени (имя на русском у сил разных книг может совпадать). */
 export const TARGET_POWERS = {
   "dominate|Command": { diff: ["willpower"], dominate: true, note: "Dom1" },
-  "dominate|Mesmerize": { diff: ["willpower"], dominate: true, tiers: [[1, "Mes1"], [3, "Mes3"], [5, "Mes5"]] },
-  "dominate|The Forgetful Mind": { diff: ["willpower"], dominate: true, tiers: [[1, "Forg1"], [2, "Forg2"], [3, "Forg3"], [4, "Forg4"], [5, "Forg5"]] },
-  "dominate|Conditioning": { diff: ["willpower"], dominate: true, note: "Cond" },
+  "dominate|Mesmerize": { kind: "mesmerize", diff: ["willpower"], dominate: true, needTarget: true, tiers: [[1, "Mes1"], [3, "Mes3"], [5, "Mes5"]] },
+  "dominate|The Forgetful Mind": { kind: "forget", diff: ["willpower"], dominate: true, needTarget: true, tiers: [[1, "Forg1"], [2, "Forg2"], [3, "Forg3"], [4, "Forg4"], [5, "Forg5"]] },
+  "dominate|Conditioning": { kind: "condition", diff: ["willpower"], dominate: true, needTarget: true, note: "Cond" },
   "presence|Awe": { kind: "awe", self: true },
   "presence|Dread Gaze": { diff: ["wits", "courage"], dread: true, presence: true },
   "presence|Entrancement": { diff: ["willpower"], timed: ["hour", "day", "week", "month", "year"], presence: true, once: true },
@@ -65,7 +65,7 @@ export const TARGET_POWERS = {
   "thaumaturgy|Blood Rage": { kind: "rage", needTarget: true },
   "thaumaturgy|Blood of Potency": { kind: "potency", self: true },
   "thaumaturgy|Theft of Vitae": { kind: "theft", needTarget: true },
-  "dominate|Possession": { kind: "possess", needTarget: true, dominate: true, mortalTarget: true },
+  "dominate|Possession": { kind: "possess", needTarget: true, dominate: true, mortalTarget: true, ghoulOwn: true },
   "auspex|Aura Perception": { kind: "aura", needTarget: true },
   "auspex|Psychic Projection": { kind: "project", self: true },
   "vicissitude|Malleable Visage": { kind: "visage", self: true },
@@ -140,6 +140,12 @@ export function prepareTargetPower(actor, disc, p, tp) {
   }
   if (tp.mortalTarget && supernatural(target)) { ui.notifications.warn(t("MortalsOnly", { name: target.name })); return null; }
   if (tp.animal && !(target.type === "creature" && !target.system.spirit?.on)) { ui.notifications.warn(t("NotAnimal", { name: target.name })); return null; }
+  // Доминирование: после провала цель невосприимчива ко всему Доминированию этого вампира до конца истории
+  if (tp.dominate && target?.effects.some(e => { const f = !e.disabled && e.flags?.[SYSTEM_ID]?.presImmune; return f && f.disc === "dominate" && sameActor(f.by, actor); })) {
+    ui.notifications.warn(t("DomImmune", { name: target.name })); return null;
+  }
+  // Вселение в гуля — только если он пил кровь этого вампира (V20, Доминирование 5)
+  if (tp.ghoulOwn && target?.type === "ghoul" && ![actor.name, actor.id].includes(target.system.domitor)) { ui.notifications.warn(t("GhoulNotOwn", { name: target.name })); return null; }
   if (!tp.diff) return { difficulty: null, note: "", target };
   const label = tp.diff.map(k => t(`Diff.${k}`)).join(" + ");
   if (!target) {
@@ -153,9 +159,11 @@ export function prepareTargetPower(actor, disc, p, tp) {
   }
   const parts = tp.diff.map(k => traitOf(target, k));
   if (parts.some(v => v == null)) return { difficulty: null, note: t("NoTrait", { name: target.name, what: label }), target };
-  const raw = parts.reduce((s, v) => s + Number(v), 0);
-  const difficulty = Math.clamp(raw, 2, 10);
+  let raw = parts.reduce((s, v) => s + Number(v), 0);
   const notes = [t("DiffFrom", { name: target.name, what: label, n: raw })];
+  const slave = tp.dominate && target.effects.find(e => !e.disabled && e.flags?.[SYSTEM_ID]?.conditioned && !sameActor(e.flags[SYSTEM_ID].conditioned, actor));
+  if (slave) { raw += 2; notes.push(t("CondOther")); }
+  const difficulty = Math.clamp(raw, 2, 10);
   if (raw > 10) notes.push(t("Over10"));
   if (tp.dominate) notes.push(t("Eyes"));
   if (tp.note) notes.push(t(`Note.${tp.note}`));
@@ -192,6 +200,7 @@ export function targetPowerLabel(extra, ev) {
   if (tp.kind === "quell" && !((extra.extended?.prev ?? 0) + ev.successes >= (extra.extended?.need ?? Infinity))) return "";
   const lbl = { beast: "BeastApply", poison: "PoisonApply", shroud: "ShroudApply", arms: "ArmsApply", vanish: "VanishApply",
     rage: "RageApply", potency: "PotencyApply", theft: "TheftApply", possess: "PossessApply", project: "ProjectApply", awe: "AweApply", call: "CallApply",
+    mesmerize: "MesApply", forget: "ForgApply", condition: "CondApply",
     flesh: "FleshApply", beckon: "BeckonApply", subsume: "SubsumeApply", self: "SelfApply", summon: "SummonApply", comrades: "ComradesApply", conjure: "ConjureApply" }[tp.kind] ?? "Apply";
   return t(lbl, { name: extra.targetPower.targetName, n: ev.successes });
 }
@@ -235,6 +244,49 @@ export async function applyTargetPower(message, state, ev) {
   }
   if (tp.kind === "conjure") return conjure(message, state, x, tp, target);
   if (["cond", "self", "dehydrate", "dust", "comrades"].includes(tp.kind)) return applyPath(message, state, x, tp, target, n, flags, api);
+  if (tp.kind === "mesmerize" || tp.kind === "forget") {
+    // Внушение: одна программа в разуме — новая заменяет старую при большем или равном числе успехов
+    const text = await foundry.applications.api.DialogV2.prompt({ window: { title: x.powerName }, classes: ["vtm20", "r-dialog"], rejectClose: false,
+      content: `<div class="r-form"><label class="r-field"><span>${esc(t(tp.kind === "mesmerize" ? "MesWhat" : "ForgWhat"))}</span><textarea name="t" rows="3"></textarea></label></div>`,
+      ok: { label: t("SelfApply"), callback: (e, b) => b.form.elements.t.value.trim() } });
+    if (text == null) return;
+    const self = state.actorUuid ? await foundry.utils.fromUuid(state.actorUuid) : null;
+    if (tp.kind === "mesmerize") {
+      const old = target.effects.find(e => e.flags?.[SYSTEM_ID]?.program);
+      if (old && Number(old.flags[SYSTEM_ID].program) > n) { await done(message, state, x); return notice(target, x.powerName, t("MesKept", { n: old.flags[SYSTEM_ID].program })); }
+      if (old) await old.delete();
+    }
+    await done(message, state, x);
+    const desc = tp.kind === "mesmerize" ? `${tierText(tp, n)} ${text}`.trim()
+      : `${tierText(tp, n)} ${text} ${t("ForgRestore", { d: self?.discipline?.("dominate") ?? "?", w: self?.system.willpower?.permanent ?? "?", n })}`.trim();
+    await target.createEmbeddedDocuments("ActiveEffect", [{ name: t(tp.kind === "mesmerize" ? "MesName" : "ForgName", { name: x.actorName, n }), img: Codex.disciplineIcon("dominate"),
+      description: `<p>${esc(desc)}</p>`, flags: { [SYSTEM_ID]: { ...flags, mode: "manual", ...(tp.kind === "mesmerize" ? { program: n } : { memory: n }) } } }]);
+    return notice(target, x.powerName, desc);
+  }
+  if (tp.kind === "condition") {
+    // Порабощение: успехи копятся по сцене; сколько нужно — тайно решает рассказчик (5–10 × Самоконтроль цели)
+    if (!game.user.isGM) return ui.notifications.warn(t("GMOnly"));
+    const self = state.actorUuid ? await foundry.utils.fromUuid(state.actorUuid) : null;
+    const prog = target.getFlag(SYSTEM_ID, "conditioning");
+    const mine = prog && sameActor(prog.by, self);
+    let need = mine ? prog.need : null;
+    if (!need) {
+      const sc = target.system.virtues?.selfControl?.value ?? 3;
+      const k = await ask(x.powerName, [5, 6, 7, 8, 9, 10].map(m => [String(m), t("CondNeed", { m, n: m * sc })]));
+      if (!k) return;
+      need = Number(k) * sc;
+    }
+    const total = (mine ? prog.total : 0) + n;
+    await done(message, state, x);
+    if (total < need) {
+      await target.setFlag(SYSTEM_ID, "conditioning", { by: self?.uuid ?? state.actorUuid, total, need });
+      return ChatMessage.create({ whisper: game.users.filter(u => u.isGM).map(u => u.id), content: `<div class="r-notice"><i class="fa-solid fa-link"></i> ${esc(t("CondProgress", { name: target.name, total, need }))}</div>` });
+    }
+    await target.unsetFlag(SYSTEM_ID, "conditioning");
+    await target.createEmbeddedDocuments("ActiveEffect", [{ name: t("CondName", { name: x.actorName }), img: Codex.disciplineIcon("dominate"),
+      description: `<p>${esc(t("CondDesc", { w: target.system.willpower?.permanent ?? 0 }))}</p>`, flags: { [SYSTEM_ID]: { ...flags, conditioned: self?.uuid ?? state.actorUuid, mode: "manual" } } }]);
+    return notice(target, x.powerName, t("CondDone"));
+  }
   if (tp.kind === "awe") {
     // Благоговение: охват — 1 / 2 / 6 / 20 / все; поддаются те, у кого Воля ниже
     const reach = n >= 5 ? Infinity : [0, 1, 2, 6, 20][n];
@@ -271,7 +323,11 @@ export async function applyTargetPower(message, state, ev) {
     await target.createEmbeddedDocuments("ActiveEffect", [{ name: t("PossessedName", { name: x.actorName }), img: Codex.disciplineIcon("dominate"),
       description: `<p>${esc(t("PossessedDesc"))}</p>`, flags: { [SYSTEM_ID]: { ...flags, mode: "manual" } } }]);
     if (self?.isOwner) await self.createEmbeddedDocuments("ActiveEffect", [{ name: t("EmptyBody"), img: Codex.disciplineIcon("dominate"),
-      description: `<p>${esc(t("EmptyBodyDesc"))}</p>`, flags: { [SYSTEM_ID]: { ...flags, mode: "manual" } } }]);
+      description: `<p>${esc(t("EmptyBodyDesc"))}</p>`, flags: { [SYSTEM_ID]: { ...flags, mode: "manual", host: target.uuid } } }]);
+    // доступ к Дисциплинам через тело — Манипуляция + Запугивание (сл. 7), по успехам (та же таблица, что у Поглощения духа)
+    if (self) ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: self }), flags: { [SYSTEM_ID]: { possessRoll: { actorUuid: self.uuid, host: target.uuid, hostName: target.name } } },
+      content: `<div class="r-notice"><i class="fa-solid fa-user-astronaut"></i> ${esc(t("PossessAccess", { name: target.name }))}
+        <div class="r-card-buttons"><button type="button" data-r-action="possessRoll"><i class="fa-solid fa-dice-d10"></i> ${esc(t("PossessAccessRoll"))}</button></div></div>` });
     return notice(target, x.powerName, t("PossessDone"));
   }
   if (tp.kind === "project") {
@@ -455,6 +511,11 @@ export async function rollTargetPower(actor, disc, d, p, tp, { rollFromSpec, sub
     if (tp.kind === "info") opts.onRolled = async res => { if ((res?.successes ?? 0) > 0) await contradict(actor, target, p.name, res.successes); };
     if (tp.kind === "counter") roll = { dice: 2 * (Number(p.level) || 1), difficulty: 6, note: t("CounterNote", { n: 2 * (Number(p.level) || 1) }) };
   }
+  // Доминирование: провал — цель невосприимчива ко всему Доминированию этого вампира до конца истории
+  if (tp.dominate && target) {
+    const prev = opts.onRolled;
+    opts.onRolled = async res => { await prev?.(res); if (res?.outcome === "botch") await presImmune(target, actor, "all", true, p.name, "dominate"); };
+  }
   // Величие: неудача и провал — невосприимчивость (Взор: провал — ко всему Величию до конца истории; Очарование,
   // Приглашение: неудача — до рассвета, провал — до конца истории)
   if (tp.presence && target) {
@@ -465,7 +526,7 @@ export async function rollTargetPower(actor, disc, d, p, tp, { rollFromSpec, sub
       if (!botch && !fail) return;
       if (tp.dread && !botch) return;                   // Взор: только провал — ко всему Величию до конца истории
       const scope = tp.dread ? "all" : key;
-      await presImmune(target, actor, scope, botch, p.name);
+      await presImmune(target, actor, scope, botch, p.name, "presence");
     };
   }
   // Благоговение: охват по успехам, первыми поддаются те, у кого меньше Воли
@@ -566,18 +627,19 @@ export async function rollTargetPower(actor, disc, d, p, tp, { rollFromSpec, sub
     if (!actor.statuses?.has("r-frenzy")) await actor.toggleStatusEffect("r-frenzy", { active: true });
     ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<div class="r-notice is-warn"><i class="fa-solid fa-face-angry"></i> ${esc(t(res?.outcome === "botch" ? "BeastBotch" : "BeastFail", { name: actor.name }))}</div>` });
   };
-  if (tp.tiers) opts.onRolled = res => { const line = tierText(tp, res?.successes ?? 0); if (line && (res?.successes ?? 0) > 0) ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }),
-    content: `<div class="r-notice"><i class="fa-solid fa-brain"></i> <b>${esc(p.name)}</b>: ${esc(line)}</div>` }); };
+  // строка итога по успехам — вместе с прежней обработкой (провал Доминирования и т. п.), а не вместо неё
+  if (tp.tiers) { const prevT = opts.onRolled; opts.onRolled = async res => { await prevT?.(res); const line = tierText(tp, res?.successes ?? 0); if (line && (res?.successes ?? 0) > 0) ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }),
+    content: `<div class="r-notice"><i class="fa-solid fa-brain"></i> <b>${esc(p.name)}</b>: ${esc(line)}</div>` }); }; }
   return rollFromSpec(actor, roll, opts);
 }
 
 /** Невосприимчивость к Величию этого вампира: неудача — до рассвета, провал — до конца истории (снимается вручную). */
-async function presImmune(target, vampire, power, botch, powerName) {
-  const what = t(botch ? "PresImmuneStory" : "PresImmuneNight", { name: target.name, power: power === "all" ? t("AllPresence") : powerName });
+async function presImmune(target, vampire, power, botch, powerName, disc = "presence") {
+  const what = t(botch ? "PresImmuneStory" : "PresImmuneNight", { name: target.name, power: power === "all" ? t(disc === "dominate" ? "AllDominate" : "AllPresence") : powerName });
   if (!target.isOwner) return notice(target, powerName, what);
   const api = await clockApi();
   await target.createEmbeddedDocuments("ActiveEffect", [{ name: t("PresImmuneName", { name: vampire.name }), img: Codex.disciplineIcon("presence"),
-    description: `<p>${esc(what)}</p>`, flags: { [SYSTEM_ID]: { mind: "presence|immune", presImmune: { by: vampire.uuid, power }, mode: botch ? "manual" : "timed",
+    description: `<p>${esc(what)}</p>`, flags: { [SYSTEM_ID]: { mind: `${disc}|immune`, presImmune: { by: vampire.uuid, power, disc }, mode: botch ? "manual" : "timed",
       ...(botch ? {} : { until: api.nextSunrise(api.getClock()) }) } } }]);
   return notice(target, powerName, what);
 }
@@ -903,6 +965,21 @@ async function dismissArms(arms) {
     for (const s of game.scenes) { const ids = s.tokens.filter(tk => tk.actorId === a.id).map(tk => tk.id); if (ids.length) await s.deleteEmbeddedDocuments("Token", ids); }
     await a.delete();
   }
+}
+
+/** Вселение: проверка доступа к Дисциплинам через тело носителя. */
+export async function possessAccess(message) {
+  const p = message.getFlag(SYSTEM_ID, "possessRoll");
+  const self = p && await foundry.utils.fromUuid(p.actorUuid);
+  if (!self?.isOwner) return ui.notifications.warn(game.i18n.format("VTM20.Notify.NotOwner", { name: self?.name ?? "" }));
+  const { RollDialog } = await import("../dice/dialog.mjs");
+  return RollDialog.prompt(self, { title: t("PossessAccessRoll"), subtitle: p.hostName, trait1: "attributes.manipulation", trait2: "abilities.intimidation", difficulty: 7,
+    onRolled: async res => {
+      const tier = Math.min(5, res?.successes ?? 0);
+      const fx = self.effects.find(e => e.flags?.[SYSTEM_ID]?.mind === "dominate|Possession" && e.flags[SYSTEM_ID].host);
+      if (fx) await fx.update({ [`flags.${SYSTEM_ID}.subsume`]: tier, description: `<p>${esc(t("SubsumeDesc", { list: SUBSUME[tier].map(k => Codex.disciplineLabel(k)).join(", ") || t("SubsumeNone") }))}</p>` });
+      notice(self, t("PossessAccessRoll"), SUBSUME[tier].map(k => Codex.disciplineLabel(k)).join(", ") || t("SubsumeNone"));
+    } });
 }
 
 /** Кнопка карточки «наложить» без броска (Глаза змеи против смертного). */
