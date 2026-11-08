@@ -867,7 +867,9 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     // кому видна черта — VTM20.traitFor (то же правило, что в библиотеке); слуга берёт черты падших, кроме инфернальных
     const who = { type: this.type, dhampir: this.isDhampir, lost: this.isLost, thrall: this.isThrall };
     // черты гулей (Ghouls & Revenants) — своей вкладкой «Гулевые», как клановые у вампира
-    const inCat = (m, cat) => !Codex.visible(m) || !VTM20.traitFor(m, who) ? false : cat === "clan" ? !!myClan && m.clan === myClan
+    // запрет клану или линии (notClan: «Тореадорам недоступно», DA High/Low Clans) — черту не показываем
+    const banned = m => !!st.clan && (m.notClan ?? []).includes(st.clan);
+    const inCat = (m, cat) => !Codex.visible(m) || !VTM20.traitFor(m, who) || banned(m) ? false : cat === "clan" ? !!myClan && m.clan === myClan
       : cat === "sect" ? !m.clan && !!mySect && m.sect === mySect
       : cat === "ghoul" ? !!m.ghoul
       : cat === "all" ? (!m.clan || (!!myClan && m.clan === myClan)) && (!m.sect || (!!mySect && m.sect === mySect))

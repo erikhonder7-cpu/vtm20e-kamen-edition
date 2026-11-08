@@ -18,7 +18,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 SNAP = os.path.join(HERE, "sources", "structure", "merits_final.json")
 KEEP = ["kind", "category", "name", "en", "cost", "min", "max", "clan", "sect", "era", "source", "line", "bystander", "page", "mortal",
-        "source_ref", "description_text", "system_text"]
+        "source_ref", "description_text", "system_text", "notClan"]
 CLAN_ALIAS = {"salubri": "salyubri", "cappadocian": "kappadokiytsy"}
 # Эпоха в системе — только «darkAges» (и «elder-only» у Elysium): Codex.visible скрывает всё с неизвестной эпохой.
 # Партия 31 пометила книги Revised как era «revised» — это редакция, а не эпоха хроники.

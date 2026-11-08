@@ -559,7 +559,7 @@ def _mkey(x):
 
 
 # Поля, в которых редакция главнее сборки: категория (клановые черты — «clan»), английское имя, книга, цена…
-MERIT_FIELDS = ("category", "en", "source", "clan", "sect", "cost", "min", "max", "era", "line", "bystander", "ghoul", "page", "mortal")
+MERIT_FIELDS = ("category", "en", "source", "clan", "sect", "cost", "min", "max", "era", "line", "bystander", "ghoul", "page", "mortal", "notClan")
 CLAN_ALIAS = {"salubri": "salyubri", "cappadocian": "kappadokiytsy"}
 
 

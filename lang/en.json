@@ -3454,7 +3454,8 @@
         "pact": "A ready-made pact is a preset: “Take” opens a pact with the gift, price and Devil’s Due rating filled in; enter the demon and the atrocity yourself. The numbers are a guide, the Storyteller adjusts them to the chronicle (reference, sections 9 and 15).",
         "gift": "A Gift no higher than Rank. Your Gifts — from your breed, auspice and tribe lists; others are taught by a spirit through the story (W20, ch. 4). XP: own — level × 3, other — level × 5.",
         "rite": "A rite no higher than the Rituals Ability. Taught by elder Garou and spirits (W20, ch. 4)."
-      }
+      },
+      "ClanBanned": "Not available to clan: {clan}"
     },
     "NpcGen": {
       "Title": "NPC generator",

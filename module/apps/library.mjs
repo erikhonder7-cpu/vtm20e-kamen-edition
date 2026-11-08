@@ -305,6 +305,8 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
     return Codex.merits.filter(m => m.kind === kind && Codex.visible(m) && VTM20.traitFor(m, who)).map(m => {
       const costs = costsOf(m);
       const blocker = blockerFor(m.name, mine);
+      const clanKey = this.actor?.type === "vampire" ? this.actor.system.clan : "";
+      const banned = !!clanKey && (m.notClan ?? []).includes(clanKey);
       return this.#entry({
         id: String(Codex.merits.indexOf(m)), name: m.name, en: m.en, has: mine.includes(m.name), text: m.html ?? "", long: true,
         flaw: kind === "flaw", cost: m.cost, order: costs[0], src: srcKind(m),
@@ -312,7 +314,7 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
         levels: costs.join(","),
         tags: sourceTags(m),
         variants: costs.map(c => ({ value: c, label: String(c) })),
-        reasons: blocker ? [L("Blocked", { name: blocker })] : []
+        reasons: [...(blocker ? [L("Blocked", { name: blocker })] : []), ...(banned ? [L("ClanBanned", { clan: Codex.clanName(clanKey) })] : [])]
       });
     });
   }
