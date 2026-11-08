@@ -10,7 +10,7 @@
 // штатная навигация, поэтому раскладка и масштаб интерфейса остаются целыми.
 
 import { openSceneNexus } from "../apps/scene-nexus.mjs";
-import { openCalendar } from "../apps/calendar.mjs";
+import { openCalendar, sceneStart, setSceneStart, getClock } from "../apps/calendar.mjs";
 import { plateHTML, paintPlate } from "./night-plate.mjs";
 
 const EL_ID = "r-topbar";
@@ -28,11 +28,16 @@ export function refreshTopBar() {
   const el = document.getElementById(EL_ID);
   if (!el) return;
   const isGM = !!game.user?.isGM;
-  el.innerHTML = plateHTML({ nexus: true, scene: sceneName(), xp: isGM, end: isGM });
+  el.innerHTML = plateHTML({ nexus: true, scene: sceneName(), xp: isGM, end: isGM, sceneOn: !!sceneStart() });
   el.querySelector("[data-nexus]")?.addEventListener("click", () => openSceneNexus());
   const clock = el.querySelector("[data-np-clock]");
   if (isGM) clock?.addEventListener("click", () => openCalendar());
-  el.querySelector("[data-np-end]")?.addEventListener("click", () => import("../apps/night.mjs").then(m => m.endScene()));
+  // одна кнопка: сцены нет — начать (таймер сцены), идёт — закончить (Конец сцены и сброс таймера)
+  el.querySelector("[data-np-end]")?.addEventListener("click", async () => {
+    if (sceneStart()) { await (await import("../apps/night.mjs")).endScene(); await setSceneStart(0); }
+    else { await setSceneStart(getClock()); ui.notifications.info(game.i18n.localize("VTM20.Night.SceneStarted")); }
+    refreshTopBar();
+  });
   el.querySelector("[data-np-xp]")?.addEventListener("click", () => import("../apps/session-xp.mjs").then(m => m.openSessionXp()));
   clock?.classList.toggle("is-link", isGM);
   paintPlate(el);

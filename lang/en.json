@@ -2374,7 +2374,10 @@
       "Starving": "hunger: damage instead of blood",
       "Nobody": "No player Kindred.",
       "StoryEnd": "The story is over: characters' Willpower fully restored.",
-      "SceneTip": "End of scene: clear blood boosts, stun, prone, frenzy and scene-long powers"
+      "SceneTip": "End of scene: clear blood boosts, stun, prone, frenzy and scene-long powers",
+      "SceneStart": "Start of scene",
+      "SceneStartTip": "Start the scene: the scene timer runs; the same button ends it",
+      "SceneStarted": "The scene has begun"
     },
     "Weakness": {
       "rapture": "Rapture (Toreador)",
