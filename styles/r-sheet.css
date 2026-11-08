@@ -378,8 +378,6 @@
 .vtm20 .r-virtue-dots { display: flex; align-items: center; gap: 4px; }
 .vtm20 .r-virtue-dots .r-dot { width: 10px; height: 10px; }
 .vtm20 .r-virtue-dots .r-dots { gap: 3px; }
-.vtm20 .r-virtue:hover .r-buy { opacity: .9; }
-.vtm20 .r-virtue .r-buy { width: 14px; height: 14px; font-size: 8px; }
 
 /* ── Главы ─────────────────────────────────────────────────────────────── */
 
@@ -429,12 +427,6 @@
 .vtm20 .r-boost { font-family: var(--r-display); font-size: 11.5px; color: #f1e9da; background: #8c1c22; padding: 0 5px; line-height: 16px; }
 .vtm20 .r-trait.is-boosted .r-trait-label { color: var(--r-accent); }
 .vtm20 .r-trait-label.is-ugly { text-decoration: line-through; text-decoration-color: var(--r-accent); }
-.vtm20 .r-buy {
-  display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; flex: 0 0 auto;
-  font-size: 9px; color: var(--r-muted); border: 1px solid var(--r-line-2); opacity: 0; transition: opacity .12s;
-}
-.vtm20 .r-trait-main:hover .r-buy, .vtm20 .r-disc-head:hover .r-buy, .vtm20 .r-path-head:hover .r-buy { opacity: 1; }
-.vtm20 .r-buy:hover { color: #f1e9da; background: #8c1c22; border-color: #b83a3f; }
 .vtm20 .r-add-line {
   display: block; margin: 4px 0 0; padding: 3px 0; font-family: var(--r-caps); font-size: 11.5px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--r-muted);
   border-top: 1px dashed var(--r-line);

@@ -91,7 +91,6 @@ body.r-theme-light .vtm20.r-type-demon {
 .vtm20.r-type-demon .r-vitals-wrap.is-closed .r-vitals-strip { border-top-color: var(--d-gold); }
 .vtm20.r-type-demon .r-vitals-wrap.is-closed .r-vitals-strip:hover { background: rgba(212, 160, 76, .1); }
 .vtm20.r-type-demon .r-trait:hover { background: linear-gradient(90deg, rgba(212, 160, 76, .1), rgba(125, 146, 191, .03) 60%, transparent); }
-.vtm20.r-type-demon .r-buy:hover { color: #1a1206; background: var(--d-gold); border-color: var(--d-gold-l); }
 
 /* ── Знания: свой Дом — золотая кромка, лестница призывов — огненная ── */
 .vtm20.r-type-demon .r-disc.is-clan { box-shadow: inset 2px 0 0 var(--d-gold); }

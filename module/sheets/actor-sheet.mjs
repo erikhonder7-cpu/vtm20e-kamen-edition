@@ -162,7 +162,6 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       addEvent: VtMActorSheet.#onAddEvent,
       removeEvent: VtMActorSheet.#onRemoveEvent,
       removeXp: VtMActorSheet.#onRemoveXp,
-      buy: { handler: VtMActorSheet.#onBuy, buttons: [0] },
       openCreator: VtMActorSheet.#onOpenCreator,
       skipCreation: VtMActorSheet.#onSkipCreation,
       hunt: VtMActorSheet.#onHunt,
@@ -1244,12 +1243,6 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     await this.actor.update(upd);
   }
 
-  /** Купить следующую точку за опыт (01). */
-  static async #onBuy(event, target) {
-    const { path, kind, itemId } = target.dataset;
-    const doc = itemId ? this.actor.items.get(itemId) : this.actor;
-    return this.actor.buyWithXp({ doc, path, kind, label: itemId ? doc.name : target.dataset.label });
-  }
 }
 
 // Повтор той же Дисциплины, факта биографии, достоинства или недостатка у персонажа — не добавлять, а предупредить

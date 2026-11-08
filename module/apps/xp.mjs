@@ -1,6 +1,6 @@
 // module/apps/xp.mjs
 // Окно опыта (01): все черты персонажа с ценой следующей точки, что по карману, покупка в один клик
-// (через VtMActor.buyWithXp — так же, как кнопки «+» в листе), начисление и история трат.
+// (через VtMActor.buyWithXp — единственный путь прокачки, кнопок «+» на листе нет), начисление и история трат.
 
 import { VTM20, SYSTEM_PATH } from "../config.mjs";
 import { growth, startConviction, VIRTUE_KEYS, LOST_KEYS, isLost, H as hunterData } from "./hunter.mjs";

@@ -170,7 +170,7 @@
       <div class="r-drops">
         {{#each faithBoxes}}<a class="r-drop {{#if filled}}is-filled{{/if}}" data-action="setDots" data-path="{{path}}" data-n="{{n}}"><svg viewBox="0 0 24 30" aria-hidden="true"><path d="M12 1c1 5 7 8 7 16a7 7 0 0 1-14 0c0-4 2-6 3-8 0 3 1 5 3 5-1-5 1-9 1-13z"/></svg></a>{{/each}}
       </div>
-      <div class="r-faith-perm">{{> rDots dots=faithPerm cls="is-ten"}}{{#if editable}}<a class="r-buy" data-action="buy" data-path="system.faith.permanent" data-kind="faith" data-label="{{localize 'VTM20.Demon.Faith'}}" data-tooltip="{{localize 'VTM20.Xp.Buy'}}: {{faithXp}}"><i class="fa-solid fa-plus"></i></a>{{/if}}</div>
+      <div class="r-faith-perm">{{> rDots dots=faithPerm cls="is-ten"}}</div>
       <div class="r-assignat-meta">
         <span>{{#if system.apocalyptic}}<em>{{localize "VTM20.Demon.FormActive"}}</em>{{/if}}</span>
         <a data-action="spendFaith" data-tooltip="{{localize 'VTM20.Demon.SpendFaith'}}"><i class="fa-solid fa-minus"></i></a>

@@ -86,7 +86,7 @@
       {{#each urges}}
       <div class="r-virtue">
         <span class="r-trait-label" data-tooltip="{{tip}}">{{label}}</span>
-        <span class="r-virtue-dots">{{> rDots dots=dots}}{{#if @root.editable}}<a class="r-buy" data-action="buy" data-path="system.urges.{{key}}" data-kind="urge" data-label="{{label}}" data-tooltip="{{localize 'VTM20.Xp.Buy'}}: {{xp}}"><i class="fa-solid fa-plus"></i></a>{{/if}}</span>
+        <span class="r-virtue-dots">{{> rDots dots=dots}}</span>
       </div>
       {{/each}}
     </div>
@@ -96,7 +96,7 @@
       {{#each virtues}}
       <div class="r-virtue">
         <a class="r-trait-label" data-action="rollTrait" data-trait="virtues.{{slot}}">{{label}}</a>
-        <span class="r-virtue-dots">{{> rDots dots=dots}}{{#if @root.editable}}<a class="r-buy" data-action="buy" data-path="system.virtues.{{slot}}.value" data-kind="virtue" data-label="{{label}}" data-tooltip="{{localize 'VTM20.Xp.Buy'}}: {{xp}}"><i class="fa-solid fa-plus"></i></a>{{/if}}</span>
+        <span class="r-virtue-dots">{{> rDots dots=dots}}</span>
       </div>
       {{/each}}
     </div>
@@ -236,7 +236,7 @@
       {{#each virtues}}
       <div class="r-virtue">
         <a class="r-trait-label" data-action="rollTrait" data-trait="virtues.{{slot}}">{{label}}</a>
-        <span class="r-virtue-dots">{{> rDots dots=dots}}{{#if @root.editable}}<a class="r-buy" data-action="buy" data-path="system.virtues.{{slot}}.value" data-kind="virtue" data-label="{{label}}" data-tooltip="{{localize 'VTM20.Xp.Buy'}}: {{xp}}"><i class="fa-solid fa-plus"></i></a>{{/if}}</span>
+        <span class="r-virtue-dots">{{> rDots dots=dots}}</span>
       </div>
       {{/each}}
     </div>
@@ -267,7 +267,7 @@
       {{#each virtues}}
       <div class="r-virtue">
         <a class="r-trait-label" data-action="rollTrait" data-trait="virtues.{{slot}}">{{label}}</a>
-        <span class="r-virtue-dots">{{> rDots dots=dots}}{{#if @root.editable}}<a class="r-buy" data-action="buy" data-path="system.virtues.{{slot}}.value" data-kind="virtue" data-label="{{label}}" data-tooltip="{{localize 'VTM20.Xp.Buy'}}: {{xp}}"><i class="fa-solid fa-plus"></i></a>{{/if}}</span>
+        <span class="r-virtue-dots">{{> rDots dots=dots}}</span>
       </div>
       {{/each}}
     </div>

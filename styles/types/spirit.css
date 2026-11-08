@@ -107,7 +107,6 @@ body.r-theme-light .vtm20.r-type-spirit {
 .vtm20.r-type-spirit .r-vitals-wrap.is-closed .r-vitals-strip { border-top-color: var(--w-amber); }
 .vtm20.r-type-spirit .r-vitals-wrap.is-closed .r-vitals-strip:hover { background: rgba(183, 211, 208, .1); }
 .vtm20.r-type-spirit .r-trait:hover { background: linear-gradient(90deg, rgba(183, 211, 208, .1), rgba(60, 110, 110, .03) 60%, transparent); }
-.vtm20.r-type-spirit .r-buy:hover { color: #0a1213; background: var(--w-amber); border-color: var(--w-amber-l); }
 .vtm20.r-type-spirit .r-foot {
   background:
     linear-gradient(90deg, transparent 0 18px, rgba(183, 211, 208, .3) 18px 19px, transparent 19px),

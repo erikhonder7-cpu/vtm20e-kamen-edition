@@ -76,7 +76,6 @@ body.r-theme-light .vtm20.r-type-mortal {
 .vtm20.r-type-mortal .r-vitals-wrap.is-closed .r-vitals-strip { border-top-color: var(--m-silver); }
 .vtm20.r-type-mortal .r-vitals-wrap.is-closed .r-vitals-strip:hover { background: rgba(210, 211, 215, .1); }
 .vtm20.r-type-mortal .r-trait:hover { background: linear-gradient(90deg, rgba(210, 211, 215, .1), rgba(152, 153, 157, .03) 60%, transparent); }
-.vtm20.r-type-mortal .r-buy:hover { color: #121317; background: var(--m-silver); border-color: var(--m-silver-l); }
 .vtm20.r-type-mortal .r-foot {
   background:
     linear-gradient(90deg, transparent 0 18px, rgba(210, 211, 215, .3) 18px 19px, transparent 19px),
