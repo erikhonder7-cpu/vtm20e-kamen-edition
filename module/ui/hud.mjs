@@ -223,7 +223,7 @@ function tabsOf(a, kind) {
   const man = (k, icon) => seal("maneuver", icon, t(`Combat.M.${k}`), { man: true, attrs: `data-man="${k}"`, tip: [t(`Combat.M.${k}`), t(`Combat.MNote.${k}`)].filter(Boolean).join(" — ") });
   const hasProteanClawItem = a.items.some(i => i.type === "weapon" && i.getFlag?.(SYSTEM_ID, "power") === "protean:2");
   const maneuvers = noPhysicalAction || beastForm === "modified" ? [] : beastForm === "wolf" ? [man("claws", "fa-paw"), man("bite", "fa-tooth")]
-    : beastForm === "bat" ? [man("bite", "fa-tooth")]
+    : ["bat", "cobra"].includes(beastForm) ? [man("bite", "fa-tooth")]
     : natural.length ? [] : [man("punch", "fa-hand-fist"), ...(s.fx?.claws && !hasProteanClawItem ? [man("claws", "fa-paw")] : []), vamp ? man("bite", "fa-tooth") : man("clinch", "fa-people-pulling")];
   tabs.push({ key: "fight", label: t("Hud.Tab.fight"), seals: [...weapons, ...natural, ...maneuvers,
     ...(noPhysicalAction ? [] : [seal("attack", "fa-ellipsis", t("Hud.More"), { man: true, tip: t("Hud.AttackTip") })]),

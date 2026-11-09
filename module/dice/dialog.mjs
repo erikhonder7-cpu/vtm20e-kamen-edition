@@ -187,6 +187,7 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       ...this.#bearing(social)
     ].map((d, i) => ({ ...d, i, on: v.fxOn.includes(`${d.kind}:${d.label}`), hint: t(`Fx.Situ.${d.kind}`) }))
       .concat(meritSit.map(m => ({ label: m.label, value: m.value, dice: !!m.dice, kind: "merit", on: m.on, hint: m.hint })));
+    for (const d of diffSit) if (d.on && d.dice && d.kind !== "merit") { pool += d.value; bd.push({ label: d.label, value: d.value }); }
     const diffShift = diffAuto.filter(d => !d.dice).reduce((s, d) => s + d.value, 0) + diffSit.filter(d => d.on && !d.dice).reduce((s, d) => s + d.value, 0);
     const effDifficulty = Math.clamp(v.difficulty + diffShift, 2, 10);
     return { pool: Math.max(0, pool), breakdown: bd, specialtyName: specs.join(", "), specialtyEligible: specs.length > 0,

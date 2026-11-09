@@ -964,7 +964,8 @@
       },
       "ShadowForm": "Tenebrous Form: immune to physical attacks and cannot attack physically; fire and sunlight hurt as usual",
       "BloodForm": "Bloodform: physical damage doesn't harm and cannot attack physically; fire and sunlight hurt as usual; flows through cracks",
-      "Heartless": "Heartless: a stake does not paralyze, −2 difficulty to resist frenzy; fire or sunlight destroying the heart means Final Death"
+      "Heartless": "Heartless: a stake does not paralyze, −2 difficulty to resist frenzy; fire or sunlight destroying the heart means Final Death",
+      "CobraForm": "Form of the Cobra: bite without a prior grapple, damage as a vampire's bite; the venom is deadly to mortals; hearing −2 dice (checkbox in the roll window); armor does not work, no weapons; any Disciplines except those requiring hands."
     },
     "AttrGroup": {
       "physical": "Physical",
@@ -3107,7 +3108,9 @@
       "SpikesBack": "Bone spikes",
       "SpikesBackNote": "{name} struck bare-handed with only {n} successes — the spikes tear their hands (damage equal to their Strength).",
       "BoneHeart": "5+ successes: ribs pierce the heart — a mortal dies, a vampire loses half their blood.",
-      "BoneHeartDead": "{name}'s ribs pierced the heart — death."
+      "BoneHeartDead": "{name}'s ribs pierced the heart — death.",
+      "CobraBite": "Form of the Cobra: bite without a prior grapple.",
+      "CobraVenom": "The cobra's venom is deadly to the mortal “{name}” — the Storyteller decides the outcome."
     },
     "Hazard": {
       "Title": "Hazard",
@@ -4070,7 +4073,18 @@
       "SmotherNoTarget": "Target (T) someone to smother in shadow",
       "SmotherName": "Smothered by shadow ({name})",
       "SmotherDesc": "Stamina −1 (soak too); at Stamina 0 — suffocation",
-      "SmotherDone": "shadow coils around “{name}”: Stamina −1"
+      "SmotherDone": "shadow coils around “{name}”: Stamina −1",
+      "CobraNoHands": "A cobra has no hands — this power is unavailable.",
+      "CloakBroken": "{name}'s Obfuscate falls: {reason}.",
+      "CloakBrokenAll": "Companions revealed too: {names}.",
+      "CloakAttack": "an attack",
+      "MaskTier": {
+        "1": "1 success: same height and build, features slightly changed.",
+        "2": "2 successes: no resemblance to oneself; witnesses can't agree on what they looked like.",
+        "3": "3 successes: looks however they wish.",
+        "4": "4 successes: complete impersonation — gestures, speech, voice, gait.",
+        "5": "5+ successes: radical change — different sex, age, build."
+      }
     },
     "City": {
       "ToolDomain": "Domain: outline your character's domain",

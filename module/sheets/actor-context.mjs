@@ -602,6 +602,7 @@ export function prepareEffects(sheet, ctx) {
       if (def.earthMeld) lines.push(t("FxTab.EarthMeld"), t("FxTab.EarthWakeBurst"));
       if (def.beastForm === "wolf") lines.push(t("FxTab.WolfForm"), t("FxTab.BeastLimits"));
       if (def.beastForm === "bat") lines.push(t("FxTab.BatForm"), t("FxTab.BeastLimits"));
+      if (def.beastForm === "cobra") lines.push(t("FxTab.CobraForm"));
       if (def.modifiedShape) {
         const m = def.modifiedShape;
         lines.push(t(m.role === "battle" ? "FxTab.ModifiedBattle" : "FxTab.ModifiedEscape", { animal: m.animal }));

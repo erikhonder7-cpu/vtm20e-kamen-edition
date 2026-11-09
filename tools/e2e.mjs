@@ -1911,7 +1911,7 @@ try {
       out.clinch = new CB.AttackDialog(actorOf(a), { maneuver: "clinch" }).compute().damage;
       // Безоружный попал по шипастому 2 успехами — урон его Силой по нему самому
       const n0 = game.messages.size;
-      await CB.resolveAttack({ id: "e2e-spikes", getFlag: () => ({ attacker: actorOf(m).uuid, attackerName: m.name, target: actorOf(a).uuid, targetName: a.name,
+      await CB.resolveAttack({ id: `e2e-spikes-${Date.now()}`, getFlag: () => ({ attacker: actorOf(m).uuid, attackerName: m.name, target: actorOf(a).uuid, targetName: a.name,
         weaponName: "кулак", successes: 2, damagePool: 2, damageType: "bashing", unarmed: true }) }, 0, "none");
       const back = game.messages.contents.slice(n0).find(x => x.getFlag(sid, "roll")?.extra?.target === actorOf(m).uuid || x.flags?.[sid]?.roll?.extra?.target === actorOf(m).uuid);
       out.back = !!back || game.messages.contents.slice(n0).some(x => /Костяные шипы/.test(x.content ?? "") || /Костяные шипы/.test(x.flavor ?? ""));
@@ -1942,6 +1942,78 @@ try {
       return out;
     });
     const want = { claws: [6, true, 1, 1, "lethal"], spikes: [7, 3, true], clinch: 4, back: true, heart: [7, true, 5], botch: 7, horrid: [0, 7, 0] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
+  // Серпентис: Облик кобры — 3 хода превращения, только укус без захвата, слух −2 куба, Дисциплины кроме требующих рук
+  await check("Серпентис: Облик кобры", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, sys = p => import(`/systems/${sid}/${p}`);
+      const CB = await sys("module/combat/combat.mjs"), RD = await sys("module/dice/dialog.mjs"), PE = await sys("module/apps/power-effects.mjs");
+      const EF = await sys("module/data/effects.mjs");
+      const a = await Actor.create({ name: "E2E — сетит-кобра", type: "vampire", flags: { world: { e2e: true } },
+        system: { generation: 9, blood: { value: 12 }, attributes: { perception: { value: 3 } }, abilities: { alertness: { value: 2 } } } });
+      await a.createEmbeddedDocuments("Item", [{ name: "E2E — serpentis", type: "discipline", system: { key: "serpentis", value: 4 } },
+        { name: "E2E — protean", type: "discipline", system: { key: "protean", value: 2 } }]);
+      await a.startPower("serpentis:4");
+      const out = { form: [a.system.fx?.beastForm, EF.POWER_EFFECTS["serpentis:4"].transformTurns, a.system.blood.value] };
+      const atk = new CB.AttackDialog(a, {});
+      const c = atk.compute().choice;
+      out.bite = [atk.v.pick, /без предварительного захвата/.test(c.note)];
+      await PE.togglePowerEffect(a, "protean:2");
+      await PE.togglePowerEffect(a, "serpentis:2");
+      out.powers = [a.powerEffects.some(x => x.power === "protean:2"), a.powerEffects.some(x => x.power === "serpentis:2")];
+      const dlg = new RD.RollDialog(a, { trait1: "attributes.perception", trait2: "abilities.alertness" });
+      const before = dlg.compute().pool;
+      const sit = dlg.compute().diffSit.find(d => d.kind === "hearing");
+      dlg.values.fxOn = [`hearing:${sit?.label}`];
+      out.hearing = [before, dlg.compute().pool, dlg.compute().effDifficulty];
+      await Actor.deleteDocuments([a.id]);
+      return out;
+    });
+    const want = { form: ["cobra", 3, 11], bite: ["m:bite", true], powers: [false, true], hearing: [5, 3, 6] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
+  // Сокрытие через HUD: Маска тысячи лиц — бросок включает маску с качеством по успехам; атака срывает Плащ и Тайное собрание
+  await check("Сокрытие через HUD: маска и срыв атакой", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms));
+      const PE = await import(`/systems/${sid}/module/apps/power-effects.mjs`);
+      const mk = (name, type, system = {}) => Actor.create({ name, type, flags: { world: { e2e: true } }, system });
+      const a = await mk("E2E — малкавиан в тени", "vampire", { generation: 9, blood: { value: 12 }, abilities: { stealth: { value: 2 } } });
+      const b = await mk("E2E — спутник в тени", "mortal");
+      await a.createEmbeddedDocuments("Item", [{ name: "E2E — obfuscate", type: "discipline", system: { key: "obfuscate", value: 5 } }]);
+      const scene = game.scenes.viewed ?? game.scenes.contents[0];
+      const [ta] = await scene.createEmbeddedDocuments("Token", [await a.getTokenDocument({ x: 100, y: 1900 })]);
+      for (let i = 0; i < 30 && !canvas.tokens.get(ta.id); i++) await wait(100);
+      await wait(400);
+      const inst = () => [...foundry.applications.instances.values()];
+      const closeAll = async () => { for (const x of inst()) if (x.constructor.name === "RollDialog" || x instanceof foundry.applications.api.DialogV2) await x.close(); };
+      const at = () => canvas.tokens.get(ta.id).actor;
+      canvas.tokens.get(ta.id)?.control({ releaseOthers: true }); await wait(600);
+      await closeAll(); document.querySelector('#r-hud [data-act="tab"][data-tab="powers"]')?.click(); await wait(300);
+      document.querySelector('#r-hud [data-act="pop"][data-pop*="obfuscate"]')?.click(); await wait(400);
+      [...document.querySelectorAll('#r-hud .rh-pop-row[data-act="power"]')].find(x => /Маска тысячи лиц/.test(x.textContent))?.click(); await wait(600);
+      const rd = inst().find(x => x.constructor.name === "RollDialog");
+      await rd?.cfg.onRolled?.({ successes: 3, outcome: "success" });
+      const mask = at().powerEffects.find(x => x.power === "obfuscate:3");
+      const out = { mask: [rd?.values.difficulty, !!mask, /3 успеха/.test(mask?.effect.description ?? "")] };
+      await closeAll();
+      // Плащ теней и спутник в Тайном собрании; атака — всё спадает, маска остаётся
+      await at().startPower("obfuscate:1");
+      await b.createEmbeddedDocuments("ActiveEffect", [{ name: "E2E собрание", flags: { [sid]: { mind: "obfuscate|Cloak the Gathering", by: at().uuid, mode: "scene" } } }]);
+      const broke = await PE.breakObfuscate(at(), "атака");
+      out.broken = [broke, at().powerEffects.some(x => x.power === "obfuscate:1"), b.effects.size, at().powerEffects.some(x => x.power === "obfuscate:3")];
+      canvas.tokens.releaseAll();
+      await wait(600);
+      await scene.deleteEmbeddedDocuments("Token", [ta.id]);
+      await Actor.deleteDocuments([a.id, b.id]);
+      return out;
+    });
+    const want = { mask: [7, true, true], broken: [true, false, 0, true] };
     const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });

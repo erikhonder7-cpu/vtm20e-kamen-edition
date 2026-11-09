@@ -116,7 +116,7 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const marked = [...(game.user.targets ?? [])].map(tk => tk.actor).filter(x => x && x !== actor);
     this.v = {
       foe: marked[0]?.uuid ?? "",
-      pick: natural != null ? `f:${natural}` : beastForm === "wolf" ? `m:claws` : beastForm === "bat" ? `m:bite` : weapon ? `w:${weapon}` : maneuver ? `m:${maneuver}` : first ? `w:${first.id}` : "m:punch",
+      pick: natural != null ? `f:${natural}` : beastForm === "wolf" ? `m:claws` : ["bat", "cobra"].includes(beastForm) ? `m:bite` : weapon ? `w:${weapon}` : maneuver ? `m:${maneuver}` : first ? `w:${first.id}` : "m:punch",
       position: "front", aim: "none", foes: 0, blind: false, target: "normal",
       range: "normal", cover: 0, actions: 1, bonus: 0, diffAdj: 0,
       specialty: false, willpower: false, physical: true, wounds: true,
@@ -163,7 +163,8 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       dmg: m.dmg == null ? null : str + m.dmg + extra, auto: m.dmg == null ? 0 : auto, strengthDamage: m.dmg != null, type: v || acid ? "aggravated" : m.type, venom: v,
       // Когти Метаморфоз и Облика Зверя поглощаются только Стойкостью: без Выносливости и брони.
       fangs: !!m.fangs && !fx.clawsFortitudeOnly, supernatural: !!m.supernatural,
-      note: [t(`Combat.MNote.${id}`), v ? t("Combat.VenomNote", { n: fx.venom }) : ""].filter(Boolean).join(" "), pierce: 0, bullet: false };
+      note: [fx.beastForm === "cobra" && id === "bite" ? t("Combat.CobraBite") : t(`Combat.MNote.${id}`), v ? t("Combat.VenomNote", { n: fx.venom }) : ""].filter(Boolean).join(" "), pierce: 0, bullet: false,
+      cobra: fx.beastForm === "cobra" && id === "bite" };
   }
 
   compute() {
@@ -227,7 +228,7 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const weaponList = beastForm === "modified" ? weaponsOf(a).filter(w => w.naturalFormWeapon) : (beastForm ? [] : weaponsOf(a));
     const weapons = weaponList.map(w => ({ ...w, key: `w:${w.id}`, active: v.pick === `w:${w.id}`,
       icon: { brawl: "fa-hand-back-fist", melee: "fa-khanda", firearms: "fa-gun", thrown: "fa-bullseye" }[w.kind] }));
-    const allowedFormManeuvers = beastForm === "wolf" ? new Set(["claws", "bite"]) : beastForm === "bat" ? new Set(["bite"]) : beastForm === "modified" ? new Set() : null;
+    const allowedFormManeuvers = beastForm === "wolf" ? new Set(["claws", "bite"]) : ["bat", "cobra"].includes(beastForm) ? new Set(["bite"]) : beastForm === "modified" ? new Set() : null;
     const hasProteanClawItem = a.items.some(i => i.type === "weapon" && i.getFlag?.(SYSTEM_ID, "power") === "protean:2");
     const maneuvers = Object.entries(MANEUVERS).filter(([k, m]) => allowedFormManeuvers ? allowedFormManeuvers.has(k) : (k === "claws" ? (!!a.system.fx?.claws && !hasProteanClawItem) : (!m.vampire || a.isVampire)))
       .map(([k, m]) => ({ key: `m:${k}`, name: t(`Combat.M.${k}`), icon: m.icon, active: v.pick === `m:${k}` }))
@@ -305,7 +306,7 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     if (beastForm === "modified") {
       const chosen = pickKind === "w" ? weaponsOf(this.actor).find(w => w.id === pickId) : null;
       if (!chosen?.naturalFormWeapon) { ui.notifications.warn(t("Fx.BeastNoHumanWeapons")); return; }
-    } else if (beastForm && (pickKind === "w" || pickKind === "f" || !((beastForm === "wolf" && ["claws", "bite"].includes(pickId)) || (beastForm === "bat" && pickId === "bite")))) {
+    } else if (beastForm && (pickKind === "w" || pickKind === "f" || !((beastForm === "wolf" && ["claws", "bite"].includes(pickId)) || (["bat", "cobra"].includes(beastForm) && pickId === "bite")))) {
       ui.notifications.warn(t("Fx.BeastNoHumanWeapons")); return;
     }
     const foe = v.foe ? await foundry.utils.fromUuid(v.foe) : null;
@@ -320,6 +321,8 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     if (foe?.system?.fx?.mistForm && !c.supernatural) return ui.notifications.info(t("Fx.MistPhysicalImmune", { name: foe.name }));
     if (foe?.system?.fx?.shadowForm && !c.supernatural) return ui.notifications.info(t("Fx.ShadowPhysicalImmune", { name: foe.name }));
     if (v.target === "helpless") notes.unshift(t("Combat.AutoHit"));
+    // яд кобры смертелен для смертных (V20, Серпентис 4) — исход решает рассказчик
+    if (c.cobra && foe && ["mortal", "ghoul", "hunter"].includes(foe.type)) notes.push(t("Combat.CobraVenom", { name: foe.name }));
     if (c.pierce) notes.push(t("Combat.PierceNote", { n: c.pierce }));
     const head = ["small", "tiny"].includes(v.aim);
     const link = { weaponName: c.name, target: foe?.uuid ?? null, targetName: foe?.name ?? "", pierce: c.pierce, bullet: c.bullet, head, ranged: c.ranged,
@@ -333,6 +336,8 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       notes
     });
     if (this.celerityAction && res) await this.actor.consumeCelerityAction();
+    // атака срывает Сокрытие
+    if (res) await (await import("../apps/power-effects.mjs")).breakObfuscate(this.actor, t("Fx.CloakAttack"));
     // Есть цель и попадание — карточка ждёт её защиты (обездвиженную цель бьют без защиты)
     // Ласка Ваала: попадание без цели на карточке тоже тратит пункт ихора
     if (!foe && c.venom && res?.outcome === "success") await this.actor.spendVenom();

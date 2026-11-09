@@ -59,7 +59,8 @@ export const POWER_EFFECTS = {
   "serpentis:3": { mode: "toggle", icon: "fa-staff-snake", cost: { blood: 1, willpower: 1 },
     soakDiff: -1, staminaVsFangs: true, biteDamage: 1, set: { appearance: 1 } },
   // Серпентис 4, Облик кобры: 1 кровь, превращение 3 хода, до рассвета (или по желанию)
-  "serpentis:4": { mode: "night", icon: "fa-worm", cost: { blood: 1 } },
+  // Облик кобры: превращение 3 хода; укус без захвата, слух −2 куба; Дисциплины — кроме требующих рук
+  "serpentis:4": { mode: "night", icon: "fa-worm", cost: { blood: 1 }, transformTurns: 3, beastForm: "cobra", senseDice: { hearing: -2 } },
   // Упокоение 1, Безмолвие смерти: 1 кровь — на час сфера тишины вокруг вампира
   "quietus:1": { mode: "hour", hours: 1, icon: "fa-volume-xmark", cost: { blood: 1 } },
   // Упокоение 3, Зов Дагона: в течение часа после касания — 1 Воля и встречная Выносливость
@@ -70,7 +71,7 @@ export const POWER_EFFECTS = {
   "obfuscate:1": { mode: "toggle", icon: "fa-user-secret" },
   "obfuscate:2": { mode: "toggle", icon: "fa-ghost" },
   // Сокрытие 3: Манипуляция + Исполнение (сл. 7) — маска держится, пока вампир её не снимет
-  "obfuscate:3": { mode: "toggle", icon: "fa-masks-theater" },
+  "obfuscate:3": { mode: "toggle", icon: "fa-masks-theater", rollStart: true, tierKey: "Fx.MaskTier" },
   // Танатосис 1, Ведьмины морщины: длится столько часов, сколько успехов
   "thanatosis:1": { mode: "hour", hours: "successes", icon: "fa-face-grimace" },
   // Висцератика 2, Страж очага: 1 Воля; пока касается здания или внутри — до рассвета
@@ -254,6 +255,8 @@ export function effectMods(actor) {
       m.diff[k] ??= [];
       m.diff[k].push({ label: effect.name, value: num(v, actor) });
     }
+    // кубы к проверкам чувств по обстоятельствам (Облик кобры: слух −2 куба) — галочка в окне броска
+    for (const [k, v] of Object.entries(def.senseDice ?? {})) (m.diff[k] ??= []).push({ label: effect.name, value: v, dice: true });
     m.claws ||= !!def.claws;
     m.clawsFortitudeOnly ||= !!def.clawsFortitudeOnly;
     m.earthMeld ||= !!def.earthMeld;

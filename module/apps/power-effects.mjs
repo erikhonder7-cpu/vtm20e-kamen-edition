@@ -147,6 +147,27 @@ async function activateRevisitedShape(actor, config) {
   return actor.startPower(REVISITED_SHAPE, { ...res, shapeConfig: config });
 }
 
+const CLOAK_MINDS = ["obfuscate|Vanish from the Mind's Eye", "obfuscate|Cloak the Gathering"];
+const byActor = (uuid, actor) => !!uuid && (uuid === actor.uuid || uuid.endsWith(`Actor.${actor.id}`));
+
+/** Сокрытие спадает (атака): свои силы 1–2, силуэт Исчезновения, место в Тайном собрании; раскрылся лидер — раскрыты все спутники. */
+export async function breakObfuscate(actor, reason) {
+  if (!actor?.isOwner) return false;
+  const own = actor.powerEffects.filter(x => ["obfuscate:1", "obfuscate:2"].includes(x.power));
+  const minds = actor.effects.filter(e => CLOAK_MINDS.includes(e.flags?.[SYSTEM_ID]?.mind));
+  if (!own.length && !minds.length) return false;
+  for (const x of own) await actor.endPower(x.effect, { quiet: true });
+  if (minds.length) await actor.deleteEmbeddedDocuments("ActiveEffect", minds.map(e => e.id));
+  const names = [];
+  if (own.length) for (const a of game.actors) {
+    const ids = a.effects.filter(e => e.flags?.[SYSTEM_ID]?.mind === "obfuscate|Cloak the Gathering" && byActor(e.flags[SYSTEM_ID].by, actor)).map(e => e.id);
+    if (ids.length && a.isOwner) { await a.deleteEmbeddedDocuments("ActiveEffect", ids); names.push(a.name); }
+  }
+  const esc = x => foundry.utils.escapeHTML(String(x ?? ""));
+  await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<div class="r-notice"><i class="fa-solid fa-eye"></i> ${esc(t("Fx.CloakBroken", { name: actor.name, reason }))}${names.length ? ` ${esc(t("Fx.CloakBrokenAll", { names: names.join(", ") }))}` : ""}</div>` });
+  return true;
+}
+
 /** Включить силу (или выключить, если уже действует). */
 export async function togglePowerEffect(actor, power) {
   const discipline = String(power).split(":", 1)[0];
@@ -154,7 +175,9 @@ export async function togglePowerEffect(actor, power) {
   const on = actor.powerEffects.find(x => x.power === power);
   // Выключение уже действующей силы всегда доступно, даже если персонаж позже получил состояние.
   if (!on && actor.system.fx?.earthMeld) return ui.notifications.warn(t("Fx.EarthNoAction"));
-  if (!on && actor.system.fx?.beastForm && animalFormBanned.has(discipline)) {
+  const bf = actor.system.fx?.beastForm;
+  if (!on && bf === "cobra" && power === "protean:2") return ui.notifications.warn(t("Fx.CobraNoHands"));
+  if (!on && bf && bf !== "cobra" && animalFormBanned.has(discipline)) {
     const label = actor.items.find(i => i.type === "discipline" && i.system.key === discipline)?.name ?? discipline;
     return ui.notifications.warn(t("Fx.BeastDisciplineBan", { name: label }));
   }

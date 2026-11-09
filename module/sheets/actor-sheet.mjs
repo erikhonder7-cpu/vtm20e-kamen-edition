@@ -1329,7 +1329,7 @@ export function rollPowerRef(actor, ref) {
   if (subsumeBlocks(actor, disc)) return ui.notifications.warn(t("TP.SubsumeBlocked", { name: d.name }));
   // В Облике Зверя нельзя использовать названные в V20 дисциплины, требующие человеческой формы.
   const animalFormBanned = new Set(["necromancy", "serpentis", "thaumaturgy", "vicissitude"]);
-  if (actor.system.fx?.beastForm && animalFormBanned.has(disc)) return ui.notifications.warn(t("Fx.BeastDisciplineBan", { name: d.name }));
+  if (actor.system.fx?.beastForm && actor.system.fx.beastForm !== "cobra" && animalFormBanned.has(disc)) return ui.notifications.warn(t("Fx.BeastDisciplineBan", { name: d.name }));
   // Тёмные Знания (Earthbound): эффекта низкой Муки нет; падший платит 1 временной Мукой за каждое применение
   if (disc.startsWith("lore:") && actor.system.hostless) return ui.notifications.warn(game.i18n.localize("VTM20.Host.NoLore"));
   if (disc.startsWith("lore:")) return rollFromSpec(actor, p.roll ?? {}, { title: p.name, subtitle: `${d.name} · ${ROMAN[p.level - 1]}`, effect: p.html,
@@ -1344,7 +1344,16 @@ export function rollPowerRef(actor, ref) {
     return rollFromSpec(actor, p.roll ?? {}, { title: p.name, subtitle: `${d.name} · ${ROMAN[p.level - 1] ?? p.level}`, effect: p.html,
       power: { disc, level: p.level, name: p.name },
       onRolled: async res => {
-        if ((res?.successes ?? 0) > 0) return actor.startPower(fk, { blood: 0 });
+        if ((res?.successes ?? 0) > 0) {
+          const eff = await actor.startPower(fk, { blood: 0 });
+          // качество по успехам (Маска тысячи лиц) — в описание эффекта и в чат
+          if (eff && fxDef.tierKey) {
+            const line = foundry.utils.escapeHTML(t(`${fxDef.tierKey}.${Math.min(5, res.successes)}`));
+            await eff.update({ description: `<p><b>${line}</b></p>${eff.description ?? ""}` });
+            await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<div class="r-notice"><i class="fa-solid ${fxDef.icon}"></i> <b>${foundry.utils.escapeHTML(p.name)}</b>: ${line}</div>` });
+          }
+          return eff;
+        }
         if (res?.outcome === "botch" && fxDef.botchDamage) return actor.applyDamage(fxDef.botchDamage, "aggravated");
       } });
   }
