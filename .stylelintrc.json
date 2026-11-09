@@ -1,0 +1,12 @@
+{
+  "extends": ["stylelint-config-recommended"],
+  "ignoreFiles": ["node_modules/**", "packs/**", "codex-1785/**"],
+  "rules": {
+    "no-descending-specificity": null,
+    "selector-type-no-unknown": [true, { "ignore": ["custom-elements"] }],
+    "font-family-no-missing-generic-family-keyword": null,
+    "no-duplicate-selectors": [true, { "severity": "warning" }],
+    "declaration-block-no-duplicate-properties": [true, { "ignore": ["consecutive-duplicates-with-different-values"], "severity": "warning" }],
+    "declaration-block-no-shorthand-property-overrides": [true, { "severity": "warning" }]
+  }
+}
