@@ -2222,10 +2222,10 @@ try {
       const { rollPowerRef } = await sys("module/sheets/actor-sheet.mjs");
       const a = await Actor.create({ name: "E2E — сангвинарий", type: "vampire", flags: { world: { e2e: true } },
         system: { generation: 10, blood: { value: 10 }, willpower: { permanent: 5, temporary: 5 } } });
-      await a.createEmbeddedDocuments("Item", [{ name: "E2E — bardo", type: "discipline", system: { key: "bardo", value: 3 } }]);
+      await a.createEmbeddedDocuments("Item", [{ name: "E2E — bardo", type: "discipline", system: { key: "bardo", value: 10 } }]);
       const inst = () => [...foundry.applications.instances.values()];
       const use = () => inst().find(x => x.element?.classList.contains("r-use-dialog"));
-      const idx = game.vtm20Codex.discipline("bardo").powers.findIndex(p => p.en === "Gift of Apis");
+      const idx = game.vtm20Codex.discipline("bardo").powers.findIndex(p => p.en === "Boon of Anubis");
       const n0 = game.messages.size;
       rollPowerRef(a, `bardo|${idx}`); await wait(700);
       const dlg = use()?.element;
@@ -2436,6 +2436,55 @@ try {
       return out;
     });
     const want = { vit: [true, true, true], burn: -4, anestDiff: 6, pain: [true, true, true], caine: 3, samiel: [3, true, true] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
+  // Висцератика через HUD: Шкура хамелеона (+5 к маскировке), Доспех Терры (прочность, раны), Слияние с камнем (×3, выброс),
+  // Перемещение сквозь камень (сквозь стену — Сила + Мощь, сл. 8)
+  await check("Висцератика через HUD", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), sys = p => import(`/systems/${sid}/${p}`);
+      const R = await sys("module/dice/roll.mjs");
+      const a = await Actor.create({ name: "E2E — горгулья", type: "vampire", flags: { world: { e2e: true } },
+        system: { generation: 10, blood: { value: 15 }, attributes: { stamina: { value: 3 } }, health: { bashing: 2 } } });
+      await a.createEmbeddedDocuments("Item", [{ name: "E2E — visceratika", type: "discipline", system: { key: "visceratika", value: 5 } }]);
+      const scene = game.scenes.viewed ?? game.scenes.contents[0];
+      const [ta] = await scene.createEmbeddedDocuments("Token", [await a.getTokenDocument({ x: 100, y: 3300 })]);
+      for (let i = 0; i < 30 && !canvas.tokens.get(ta.id); i++) await wait(100);
+      await wait(400);
+      const inst = () => [...foundry.applications.instances.values()];
+      const dialogs = () => inst().filter(x => x instanceof foundry.applications.api.DialogV2);
+      const closeAll = async () => { for (const x of inst()) if (x.constructor.name === "RollDialog" || x instanceof foundry.applications.api.DialogV2) await x.close(); };
+      const pick = async val => { const d = dialogs().at(-1); const s = d?.element.querySelector("select"); if (s) s.value = val;
+        d?.element.querySelector('button[data-action="ok"]')?.click(); await wait(500); };
+      const hud = async re => { await closeAll(); document.querySelector('#r-hud [data-act="tab"][data-tab="powers"]')?.click(); await wait(300);
+        document.querySelector('#r-hud [data-act="pop"][data-pop*="visceratika"]')?.click(); await wait(400);
+        [...document.querySelectorAll('#r-hud .rh-pop-row[data-act="power"]')].find(x => re.test(x.textContent))?.click(); await wait(700); };
+      const at = () => canvas.tokens.get(ta.id).actor;
+      canvas.tokens.get(ta.id)?.control({ releaseOthers: true }); await wait(600);
+      const out = {};
+      await hud(/Шкура хамелеона/);
+      out.skin = (at().system.fx?.dice?.stealth ?? []).reduce((s, d) => s + d.value, 0);
+      const pen0 = at().system.health.penalty, bash0 = at().soakPool("bashing"), leth0 = at().soakPool("lethal");
+      await hud(/Доспех Терры/);
+      out.terra = [at().soakPool("bashing") - bash0, at().soakPool("lethal") - leth0, at().system.health.penalty - pen0];
+      const pool1 = at().soakPool("lethal");
+      await hud(/Слияние с камнем/);
+      out.stone = at().soakPool("lethal") / pool1;
+      // одна атака на 3 тяжёлых без прочности — выбрасывает из камня
+      await R.soakAndApply(at(), 3, "lethal", { soak: false });
+      out.eject = !at().system.fx?.stoneMeld;
+      await hud(/Перемещение сквозь камень/); await pick("wall");
+      const rd = inst().find(x => x.constructor.name === "RollDialog");
+      out.wall = [rd?.values.difficulty, rd?.cfg.bloodCost, rd?.values.trait1];
+      await closeAll();
+      canvas.tokens.releaseAll(); await wait(500);
+      await scene.deleteEmbeddedDocuments("Token", [ta.id]);
+      await a.delete();
+      return out;
+    });
+    const want = { skin: 5, terra: [2, 1, 1], stone: 3, eject: true, wall: [8, 1, "attributes.strength"] };
     const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });

@@ -106,9 +106,14 @@ export const POWER_EFFECTS = {
   // Преображение 5, Облик крови (целиком): неуязвим для физического урона, огонь и солнце — как обычно; течёт сквозь щели
   "vicissitude:5": { mode: "toggle", icon: "fa-droplet", shadowForm: true, bloodForm: true },
   // Висцератика 1, Шкура хамелеона: 1 кровь, до конца сцены +5 кубов к маскировке, пока движется не быстрее шага
-  "visceratika:1": { mode: "scene", icon: "fa-mountain", cost: { blood: 1 } },
-  // Висцератика 5, Перемещение сквозь камень: после Слияния с камнем 2 крови, до конца сцены
-  "visceratika:5": { mode: "scene", icon: "fa-dungeon", cost: { blood: 2 } },
+  "visceratika:1": { mode: "scene", icon: "fa-mountain", cost: { blood: 1 }, dice: { stealth: 5 } },
+  // Висцератика 3, Слияние с камнем: 2 крови, 4 хода; прочность ×3; одна атака на 3+ тяжёлых выбрасывает из камня
+  "visceratika:3": { mode: "toggle", icon: "fa-cubes-stacked", cost: { blood: 2 }, transformTurns: 4, stoneMeld: true },
+  // Висцератика 4, Доспех Терры: постоянно — прочность +1 против тяжёлых и губительных, +2 против лёгких;
+  // штрафы ран −1; урон от огня — пул вдвое; осязание — +2 к сложности Восприятия
+  "visceratika:4": { mode: "toggle", icon: "fa-shield-halved", noRoll: true, soakBonus: { bashing: 2, lethal: 1, aggravated: 1 }, woundEase: 1, fireHalf: true },
+  // Висцератика 5, Перемещение сквозь камень: после Слияния с камнем 2 крови, до конца сцены (сквозь стену — бросок, apps/target-powers.mjs)
+  "visceratika:5": { mode: "scene", icon: "fa-dungeon", cost: { blood: 2 }, viaRoll: true },
   // Огам 1, Освящение рощи: 1–3 крови (ход ритуала за каждую) — кровь тратится вручную; до конца сцены
   "ogham:1": { mode: "scene", icon: "fa-tree" },
   // Огам 2, Алые узоры: 1 кровь, узоры держатся всю сцену
@@ -271,6 +276,10 @@ export function effectMods(actor) {
     m.shadowForm ||= !!def.shadowForm;
     m.bloodForm ||= !!def.bloodForm;
     m.heartless ||= !!def.heartless;
+    m.stoneMeld ||= !!def.stoneMeld;
+    m.fireHalf ||= !!def.fireHalf;
+    m.woundEase = (m.woundEase ?? 0) + (def.woundEase ?? 0);
+    for (const [k, v] of Object.entries(def.soakBonus ?? {})) (m.soakBonus ??= {})[k] = (m.soakBonus[k] ?? 0) + v;
     if (def.mysticDiff) (m.mystic ??= []).push({ label: effect.name, value: def.mysticDiff });
     m.intimStrength ||= !!def.intimStrength;
     m.spikes ||= !!def.spikes;

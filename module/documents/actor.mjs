@@ -538,6 +538,13 @@ export class VtMActor extends Actor {
     // Укрепление тела (Искусство тканей): +1 куб к поглощению за успех (apps/target-powers.mjs, soakDice)
     const fleshDice = [...this.effects].reduce((s, e) => s + (!e.disabled && Number(e.flags?.[SYSTEM_ID]?.soakDice) || 0), 0);
     if (fleshDice) { parts.flesh = fleshDice; labels.flesh = t("TP.FleshSoak"); }
+    // Доспех Терры: +прочность по виду урона; Слияние с камнем: прочность втрое
+    const terra = s.fx?.soakBonus?.[type] ?? 0;
+    if (terra) { parts.terra = terra; labels.terra = t("TP.TerraSoak"); }
+    if (s.fx?.stoneMeld) {
+      const base = Object.values(parts).reduce((sum, v) => sum + (Number(v) || 0), 0);
+      if (base > 0) { parts.stone = base * 2; labels.stone = t("TP.StoneSoak"); }
+    }
     return Object.entries(parts).filter(([, value]) => value > 0).map(([key, value]) => ({ label: labels[key], value }));
   }
 

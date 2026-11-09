@@ -112,6 +112,8 @@ class BaseActorData extends foundry.abstract.TypeDataModel {
     const worst = h.damage > 0 ? VTM20.healthLevels[h.damage - 1] : null;
     h.incapacitated = h.damage >= 7;
     h.penalty = h.incapacitated ? 0 : (worst?.penalty ?? 0);
+    // Доспех Терры: штрафы ран мягче на 1
+    if (this.fx?.woundEase && h.penalty < 0) h.penalty = Math.min(0, h.penalty + this.fx.woundEase);
     h.status = worst?.key ?? "healthy";
 
     // Воля

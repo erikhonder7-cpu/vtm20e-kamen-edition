@@ -66,6 +66,8 @@ export const TARGET_POWERS = {
   // Валерен: Биение жизни (сведения по успехам), Обезболивающее касание (боль — на ходы; сопротивление и сон — Воля против Воли, сл. 8),
   // Обжигающее касание (без броска: −2 куба к пулам за кровь), Броня гнева Каинова (+броня по успехам), Месть Самиэля (следующая атака)
   "valeren|Sense Vitality": { kind: "vitality", allowSelf: true },
+  // Висцератика 5: после Слияния — 2 крови до конца сцены; сквозь стену — Сила + Мощь (сл. 8), 1 кровь, 30 см за успех
+  "visceratika|Flow Within the Mountain": { kind: "flow" },
   "valeren|Anesthetic Touch": { kind: "anest", allowSelf: true },
   "valeren|Burning Touch": { kind: "burn", needTarget: true },
   "valeren|Armor of Caine's Fury": { kind: "caine" },
@@ -230,7 +232,7 @@ export function tierText(tp, successes) {
 /** Подпись кнопки «наложить» на карточке (только у сил с эффектом на цели). */
 export function targetPowerLabel(extra, ev) {
   const tp = extra?.targetPower && TARGET_POWERS[extra.targetPower.key];
-  if (!tp || ev.outcome !== "success" || extra.targetPower.done || !(tp.timed || tp.dread || tp.kind) || ["taste", "gather", "aura", "visage", "whisper", "info", "tiers", "counter", "chaos", "tele", "psycho", "illusion", "absorb", "humanitas", "pillar", "vitality", "caine"].includes(tp.kind)) return "";
+  if (!tp || ev.outcome !== "success" || extra.targetPower.done || !(tp.timed || tp.dread || tp.kind) || ["taste", "gather", "aura", "visage", "whisper", "info", "tiers", "counter", "chaos", "tele", "psycho", "illusion", "absorb", "humanitas", "pillar", "vitality", "caine", "flow"].includes(tp.kind)) return "";
   // Усмирение — только когда накоплены все успехи продолжительного броска
   if (tp.kind === "quell" && !((extra.extended?.prev ?? 0) + ev.successes >= (extra.extended?.need ?? Infinity))) return "";
   const lbl = { beast: "BeastApply", poison: "PoisonApply", shroud: "ShroudApply", arms: "ArmsApply", vanish: "VanishApply",
@@ -761,6 +763,17 @@ export async function rollTargetPower(actor, disc, d, p, tp, { rollFromSpec, sub
     if (how === "read" && target && supernatural(target) && !(await actor.spendWillpower(1))) return null;
     opts.more = null;
     roll.note = [roll.note, t(how === "read" ? (target && supernatural(target) ? "TeleReadSuper" : "TeleReadNote") : "TeleSendNote")].filter(Boolean).join(" ");
+  }
+  if (tp.kind === "flow") {
+    const how = await ask(p.name, [["stone", t("FlowStone")], ["wall", t("FlowWall")]]);
+    if (!how) return null;
+    if (how === "stone") {
+      if (!actor.system.fx?.stoneMeld && !(await allowAnyway(actor, t("FlowNeedMeld")))) return null;
+      return actor.startPower("visceratika:5");
+    }
+    roll = { ...roll, blood: 1, difficulty: 8, note: t("FlowWallNote") };
+    opts.more = null;
+    opts.onRolled = res => notice(actor, p.name, (res?.successes ?? 0) > 0 ? t("FlowWallDone", { cm: 30 * res.successes }) : t("FlowWallFail"));
   }
   if (tp.kind === "vitality") opts.onRolled = res => {
     const n = res?.successes ?? 0;

@@ -319,6 +319,8 @@ export async function rollDamage({ actor, pool, damageType = "bashing", title, a
   // Туманная форма ослабляет именно пул огня/солнца на одну кость; при исходном пуле 1 остаётся 0.
   const mistReduction = !!(targetActor?.system?.fx?.mistForm && (fire || sun));
   if (mistReduction) pool = Math.max(0, pool - 1);
+  // Доспех Терры: пул урона от огня — вдвое (с округлением вверх — правило системы)
+  if (fire && targetActor?.system?.fx?.fireHalf) { pool = Math.ceil(pool / 2); notes = [...notes, `<i class="fa-solid fa-fire"></i> ${t("TP.TerraFire")}`]; }
   const bd = auto ? [{ label: t("Roll.PotenceAuto"), value: auto }] : [];
   return rollPool({
     actor, title: title ?? t("Roll.Damage"), subtitle: game.i18n.localize(VTM20.damageTypes[damageType].label),
@@ -387,6 +389,12 @@ export async function soakAndApply(target, amount, damageType, { soak = true, fa
   const stunAt = target.system.attributes.stamina.total + (target.hasBlood ? 2 : 0);
   if (left > 0) await target.applyDamage(left, damageType);
   else ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: target }), content: `<div class="r-notice"><i class="fa-solid fa-shield"></i> ${t("Notify.NoDamage")}</div>` });
+  // Слияние с камнем: одна атака на 3+ тяжёлых (и тяжелее) выбрасывает Горгулью из камня
+  if (target.system.fx?.stoneMeld && left >= 3 && damageType !== "bashing") {
+    const fx = target.powerEffects?.find(e => e.def?.stoneMeld);
+    if (fx) await target.endPower(fx.effect, { quiet: true });
+    ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: target }), content: `<div class="r-notice is-warn"><i class="fa-solid fa-cubes-stacked"></i> ${t("TP.StoneEject", { name: target.name })}</div>` });
+  }
   if (left > stunAt) {
     ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: target }), content: `<div class="r-notice is-warn"><i class="fa-solid fa-star"></i> ${t("Notify.Stunned")}</div>` });
     await target.toggleStatusEffect?.("r-stunned", { active: true });
