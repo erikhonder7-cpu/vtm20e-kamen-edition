@@ -1863,6 +1863,89 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  // Преображение через HUD: Искусство костей — когти и шипы ценой ран, удар в сердце, шипы против голых рук;
+  // Чудовищный облик — Запугивание Силой
+  await check("Преображение через HUD: кости и Чудовищный облик", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms));
+      const sys = p => import(`/systems/${sid}/${p}`);
+      const TP = await sys("module/apps/target-powers.mjs"), CP = await sys("module/data/combat-powers.mjs");
+      const CB = await sys("module/combat/combat.mjs"), RD = await sys("module/dice/dialog.mjs");
+      const mk = (name, type, system = {}) => Actor.create({ name, type, flags: { world: { e2e: true } }, system });
+      const a = await mk("E2E — цимисх HUD", "vampire", { generation: 8, blood: { value: 15 },
+        attributes: { strength: { value: 2 }, charisma: { value: 3 } }, abilities: { intimidation: { value: 2 } } });
+      const m = await mk("E2E — смертный для костей", "mortal", { attributes: { strength: { value: 2 } } });
+      const v = await mk("E2E — вампир для костей", "vampire", { generation: 10, blood: { value: 10 } });
+      await a.createEmbeddedDocuments("Item", [{ name: "E2E — vicissitude", type: "discipline", system: { key: "vicissitude", value: 4 } }]);
+      const scene = game.scenes.viewed ?? game.scenes.contents[0];
+      const made = await scene.createEmbeddedDocuments("Token", await Promise.all([a, m, v].map((x, i) => x.getTokenDocument({ x: 100 + i * 200, y: 1700 }))));
+      const tok = x => made.find(tk => tk.actorId === x.id);
+      for (let i = 0; i < 30 && !canvas.tokens.get(tok(v).id); i++) await wait(100);
+      await wait(400);
+      const inst = () => [...foundry.applications.instances.values()];
+      const dialogs = () => inst().filter(x => x instanceof foundry.applications.api.DialogV2);
+      const closeAll = async () => { for (const x of inst()) if (x.constructor.name === "RollDialog" || x instanceof foundry.applications.api.DialogV2) await x.close(); };
+      const pick = async val => { const d = dialogs().at(-1); const s = d?.element.querySelector("select"); if (s) s.value = val;
+        d?.element.querySelector('button[data-action="ok"]')?.click(); await wait(500); return !!d; };
+      const bone = async (mode, diff) => { await closeAll(); document.querySelector('#r-hud [data-act="tab"][data-tab="powers"]')?.click(); await wait(300);
+        document.querySelector('#r-hud [data-act="pop"][data-pop*="vicissitude"]')?.click(); await wait(400);
+        [...document.querySelectorAll('#r-hud .rh-pop-row[data-act="power"]')].find(x => /Искусство костей/.test(x.textContent))?.click(); await wait(600);
+        await pick(mode); if (diff) await pick(diff);
+        return inst().find(x => x.constructor.name === "RollDialog"); };
+      const actorOf = x => canvas.tokens.get(tok(x).id).actor;
+      const target = x => { if (x) canvas.tokens.get(tok(x).id)?.setTarget(true, { releaseOthers: true }); else [...game.user.targets].forEach(t => t.setTarget(false, { releaseOthers: false })); };
+      const out = {};
+      canvas.tokens.get(tok(a).id)?.control({ releaseOthers: true }); await wait(600);
+      // Когти смертному: сл. по выбору (6), без кнопки урона; наложение — 1 губительное и оружие Сила +1
+      target(m); await wait(300);
+      let rd = await bone("claws", "6");
+      await TP.applyTargetPower({ isOwner: false }, { actorUuid: a.uuid, extra: rd?.cfg.extra }, { successes: 2, outcome: "success" });
+      const claw = actorOf(m).items.find(i => i.type === "weapon" && /Костяные когти/.test(i.name));
+      out.claws = [rd?.values.difficulty, !!rd?.cfg.extra?.power?.noHit, actorOf(m).system.health.lethal, claw?.system.damage, claw?.system.damageType];
+      // Шипы себе (цель снята): 2 успеха — цена 3 губительных, шипы на листе
+      target(null); await wait(300);
+      rd = await bone("spikes", "7");
+      await TP.applyTargetPower({ isOwner: false }, { actorUuid: a.uuid, extra: rd?.cfg.extra }, { successes: 2, outcome: "success" });
+      out.spikes = [rd?.values.difficulty, actorOf(a).system.health.lethal, !!actorOf(a).system.fx?.spikes];
+      // Клинч шипастого: +2 куба урона (Сила 2 + 2)
+      out.clinch = new CB.AttackDialog(actorOf(a), { maneuver: "clinch" }).compute().damage;
+      // Безоружный попал по шипастому 2 успехами — урон его Силой по нему самому
+      const n0 = game.messages.size;
+      await CB.resolveAttack({ id: "e2e-spikes", getFlag: () => ({ attacker: actorOf(m).uuid, attackerName: m.name, target: actorOf(a).uuid, targetName: a.name,
+        weaponName: "кулак", successes: 2, damagePool: 2, damageType: "bashing", unarmed: true }) }, 0, "none");
+      const back = game.messages.contents.slice(n0).find(x => x.getFlag(sid, "roll")?.extra?.target === actorOf(m).uuid || x.flags?.[sid]?.roll?.extra?.target === actorOf(m).uuid);
+      out.back = !!back || game.messages.contents.slice(n0).some(x => /Костяные шипы/.test(x.content ?? "") || /Костяные шипы/.test(x.flavor ?? ""));
+      // Удар костями по вампиру: сл. 7; 5 успехов — рёбра в сердце, половина крови
+      target(v); await wait(300);
+      rd = await bone("weapon");
+      const n1 = game.messages.size;
+      await CP.powerHit(null, { actorUuid: a.uuid, extra: rd?.cfg.extra }, { successes: 5, outcome: "success" });
+      const card = game.messages.contents.slice(n1).find(x => x.getFlag(sid, "fixedDamage"));
+      if (card) await CP.applyFixedDamage(card);
+      out.heart = [rd?.values.difficulty, !!card?.getFlag(sid, "fixedDamage")?.heart, actorOf(v).system.blood.value];
+      // Шипы смертному, провал: смерть
+      target(m); await wait(300);
+      rd = await bone("spikes", "5");
+      await rd?.cfg.onRolled?.({ successes: 0, outcome: "botch" });
+      out.botch = actorOf(m).system.health.lethal;
+      await closeAll();
+      // Чудовищный облик: Харизма 0, Запугивание — Силой (2 + 3)
+      target(null); await actorOf(a).update({ "system.health.lethal": 0 });
+      await actorOf(a).startPower("vicissitude:4");
+      const dlg = new RD.RollDialog(actorOf(a), { trait1: "attributes.charisma", trait2: "abilities.intimidation" });
+      const dlg2 = new RD.RollDialog(actorOf(a), { trait1: "attributes.charisma", trait2: "abilities.empathy" });
+      out.horrid = [actorOf(a).system.attributes.charisma.total, dlg.compute().pool, dlg2.compute().pool];
+      canvas.tokens.releaseAll();
+      await wait(800);
+      await scene.deleteEmbeddedDocuments("Token", made.map(x => x.id));
+      await Actor.deleteDocuments([a.id, m.id, v.id]);
+      return out;
+    });
+    const want = { claws: [6, true, 1, 1, "lethal"], spikes: [7, 3, true], clinch: 4, back: true, heart: [7, true, 5], botch: 7, horrid: [0, 7, 0] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   // Помешательство через HUD: Око хаоса — сложность по задаче, Голос безумия — смертный сразу, вампир — проверка +2;
   // Метаморфозы: в облике тумана силы со взглядом недоступны
   await check("Помешательство через HUD и туман без взгляда", async () => {

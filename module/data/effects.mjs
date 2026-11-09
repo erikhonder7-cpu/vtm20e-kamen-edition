@@ -44,8 +44,14 @@ export const POWER_EFFECTS = {
   // Постоянные две формы хранятся на актёре; при активации выбирается боевая или отступательная.
   "protean:Модифицированный Облик Зверя": { mode: "night", icon: "fa-paw", cost: { blood: [1, 3] }, transformTurns: "blood", modifiedShape: true },
   // Преображение 4: 2 крови; +3 к физическим, социальные 0, +1 куб урона в драке
+  // Запугивание — Силой вместо социальной характеристики (intimStrength)
   "vicissitude:4": { mode: "toggle", icon: "fa-dragon", cost: { blood: 2 },
-    attr: { strength: 3, dexterity: 3, stamina: 3 }, set: { charisma: 0, manipulation: 0, appearance: 0 }, brawlDamage: 1 },
+    attr: { strength: 3, dexterity: 3, stamina: 3 }, set: { charisma: 0, manipulation: 0, appearance: 0 }, brawlDamage: 1, intimStrength: true },
+  // Преображение 3, Искусство костей: когти и шипы ложатся только после броска силы (viaRoll — без кнопки включения на листе).
+  // Когти: Сила +1, губительные. Шипы: +2 куба урона в клинче и броске; безоружный, попавший меньше чем 3 успехами, — урон своей Силой.
+  "vicissitude:3": { mode: "toggle", icon: "fa-bone", viaRoll: true, variants: {
+    claws: { weapon: { name: "Костяные когти", kind: "brawl", damage: 1, strength: true, damageType: "lethal", difficulty: 6 } },
+    spikes: { spikes: true } } },
   // Серпентис 2: язык — оружие, сл. 6, Сила +0, губительные
   "serpentis:2": { mode: "toggle", icon: "fa-staff-snake",
     weapon: { name: "Язык аспида", kind: "brawl", damage: 0, strength: true, damageType: "lethal", difficulty: 6 } },
@@ -255,6 +261,8 @@ export function effectMods(actor) {
     m.shadowForm ||= !!def.shadowForm;
     m.bloodForm ||= !!def.bloodForm;
     m.heartless ||= !!def.heartless;
+    m.intimStrength ||= !!def.intimStrength;
+    m.spikes ||= !!def.spikes;
     // кубы к броскам со Способностью (Театр теней, Чёрный метаморфоз): { stealth: 1 } → fx.dice.stealth
     for (const [k, v] of Object.entries(def.dice ?? {})) (m.dice[k] ??= []).push({ label: effect.name, value: v });
     m.darkvision ||= !!def.darkvision;

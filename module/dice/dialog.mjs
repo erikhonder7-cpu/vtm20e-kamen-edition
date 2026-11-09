@@ -88,10 +88,16 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     let pool = 0;
     // Колдовство (V20, гл. 10): характеристика «без усиления кровью и Дисциплинами» — берём природное значение
     const base = !!this.cfg.baseAttr;
+    // Чудовищный облик (Преображение 4): для Запугивания — Сила вместо социальной характеристики
+    const horrid = a.system.fx?.intimStrength && [v.trait1, v.trait2].includes("abilities.intimidation");
     for (const p of [v.trait1, v.trait2]) {
       if (!p) continue;
       const pure = base && p.startsWith("attributes.");
-      const n = pure ? a.system.attributes[p.split(".")[1]]?.value ?? 0 : a.traitValue(p);
+      let n = pure ? a.system.attributes[p.split(".")[1]]?.value ?? 0 : a.traitValue(p);
+      if (horrid && !pure && p.startsWith("attributes.") && VTM20.attributeGroups.social.attributes.includes(p.split(".")[1])) {
+        const str = a.system.attributes.strength?.total ?? 0;
+        if (str > n) { pool += str; bd.push({ label: t("Roll.HorridStrength"), value: str }); continue; }
+      }
       pool += n; bd.push({ label: pure ? `${a.traitLabel(p)} · ${t("Magic.BaseAttr")}` : a.traitLabel(p), value: n });
     }
     // Мощь к Силе, Стремительность к Ловкости (Дисциплины/06, 14).

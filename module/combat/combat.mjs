@@ -153,7 +153,9 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     }
     const m = MANEUVERS[id] ?? MANEUVERS.punch;
     // Чудовищный облик: +1 куб к урону в драке; Шкура гадюки: +1 куб к укусу (data/effects.mjs)
-    const extra = m.dmg == null ? 0 : (m.ability === "brawl" ? fx.brawlDamage ?? 0 : 0) + (id === "bite" ? fx.biteDamage ?? 0 : 0);
+    // Костяные шипы (Искусство костей): +2 куба урона в клинче и броске
+    const extra = m.dmg == null ? 0 : (m.ability === "brawl" ? fx.brawlDamage ?? 0 : 0) + (id === "bite" ? fx.biteDamage ?? 0 : 0)
+      + (fx.spikes && ["clinch", "tackle"].includes(id) ? 2 : 0);
     const v = m.dmg != null && ["punch", "claws"].includes(id) && venom(m.type, false);
     // Разъедающее касание (Длань Разрушения 3): безоружные атаки — губительный урон
     const acid = m.dmg != null && m.ability === "brawl" && pathFlag(a, "brawlAgg");
@@ -321,7 +323,8 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     if (c.pierce) notes.push(t("Combat.PierceNote", { n: c.pierce }));
     const head = ["small", "tiny"].includes(v.aim);
     const link = { weaponName: c.name, target: foe?.uuid ?? null, targetName: foe?.name ?? "", pierce: c.pierce, bullet: c.bullet, head, ranged: c.ranged,
-      damageAuto: c.auto ?? 0, venom: !!c.venom, silver: !!c.silver, supernatural: !!c.supernatural };
+      damageAuto: c.auto ?? 0, venom: !!c.venom, silver: !!c.silver, supernatural: !!c.supernatural,
+      unarmed: pickKind === "m" && c.ability === "brawl" };
     const res = await rollPool({
       actor: this.actor, title: c.name, subtitle: foe ? `${t("Combat.Attack")} → ${foe.name}` : t("Combat.Attack"),
       pool: r.pool, difficulty: r.difficulty, specialty: v.specialty && r.specialtyEligible, specialtyName: r.specialtyName,
@@ -433,6 +436,15 @@ export async function resolveAttack(card, defSuccesses, method) {
     <div class="r-card-hint">${esc(line)}</div>${btn}
   </div>`;
   const target = await foundry.utils.fromUuid(d.target);
+  // Костяные шипы: безоружный, попавший меньше чем 3 успехами, ранит себя — урон его Силой, губительный
+  if (hit && d.unarmed && net < 3 && target?.system?.fx?.spikes) {
+    const attacker = await foundry.utils.fromUuid(d.attacker);
+    if (attacker) {
+      const { rollDamage } = await import("../dice/roll.mjs");
+      await rollDamage({ actor: target, pool: attacker.system.attributes.strength?.total ?? 1, damageType: "lethal", title: t("Combat.SpikesBack"),
+        target: attacker.uuid, notes: [`<i class="fa-solid fa-bone"></i> ${esc(t("Combat.SpikesBackNote", { name: attacker.name, n: net }))}`] });
+    }
+  }
   // Ласка Ваала: попадание (даже без урона) тратит пункт ихора; промах — нет
   if (hit && d.venom) {
     const attacker = await foundry.utils.fromUuid(d.attacker);

@@ -331,7 +331,7 @@ export function prepareDisciplines(sheet, ctx) {
   const fxOn = new Set(a.powerEffects.map(x => x.power));
   const fxOf = (k, p) => {
     const key = fxKey(k, p), def = POWER_EFFECTS[key];
-    return def ? { key, on: fxOn.has(key), icon: def.icon ?? "fa-wand-sparkles",
+    return def && !(def.viaRoll && !fxOn.has(key)) ? { key, on: fxOn.has(key), icon: def.icon ?? "fa-wand-sparkles",
       tip: `${t("Fx.Toggle")} · ${t(MODE_LABEL[def.mode] ?? "Fx.Toggleable")}` } : null;
   };
   ctx.activeFx = a.powerEffects.map(x => ({ id: x.effect.id, name: x.effect.name, img: x.effect.img,

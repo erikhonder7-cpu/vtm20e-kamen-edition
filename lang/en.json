@@ -1516,7 +1516,8 @@
       "AutoSuccess": "Automatic successes (Potence)",
       "DiceShort": "d.",
       "DiffShort": "to diff.",
-      "TotemWill": "from the totem's pool"
+      "TotemWill": "from the totem's pool",
+      "HorridStrength": "Strength (Horrid Form)"
     },
     "Outcome": {
       "botch": "Botch",
@@ -3102,7 +3103,11 @@
       "CelerityDefend": "Defend against an attack",
       "CelerityPhaseError": "Could not start the Celerity phase. Check combat-control permissions.",
       "CelerityMove": "Full movement",
-      "CelerityMoveNow": "The extra movement action has been spent. Move the token using its normal full movement distance."
+      "CelerityMoveNow": "The extra movement action has been spent. Move the token using its normal full movement distance.",
+      "SpikesBack": "Bone spikes",
+      "SpikesBackNote": "{name} struck bare-handed with only {n} successes — the spikes tear their hands (damage equal to their Strength).",
+      "BoneHeart": "5+ successes: ribs pierce the heart — a mortal dies, a vampire loses half their blood.",
+      "BoneHeartDead": "{name}'s ribs pierced the heart — death."
     },
     "Hazard": {
       "Title": "Hazard",
@@ -3989,7 +3994,9 @@
         "escape": "escape form",
         "shroud": "shroud",
         "intimidate": "intimidate",
-        "smother": "smother a target"
+        "smother": "smother a target",
+        "claws": "claws",
+        "spikes": "spikes"
       },
       "Form": "Form",
       "Blood": "Blood",
@@ -5889,7 +5896,29 @@
       "VoiceDone": "until the end of the scene: {names}",
       "VoiceKindred": "{name} hears the Voice of Madness: roll, difficulty 8 (+2)",
       "VoiceSelf": "the Voice of Madness touches its user too: roll, difficulty {n}",
-      "VoiceSelfBotch": "botch — the madness falls on the vampire"
+      "VoiceSelfBotch": "botch — the madness falls on the vampire",
+      "BoneApply": "Grow bone: {name}",
+      "BoneShape": "Reshape bone (sculpting)",
+      "BoneWeapon": "Bone attack on target (diff. 7)",
+      "BoneClaws": "Bone claws (cost — 1 lethal)",
+      "BoneSpikes": "Bone spikes (cost — 5 lethal minus successes)",
+      "BoneFine": "How fine the work is",
+      "BoneDiff": {
+        "5": "5 — crude",
+        "6": "6",
+        "7": "7",
+        "8": "8",
+        "9": "9 — precise"
+      },
+      "BoneWeaponNote": "Each success — 1 lethal; 5+ successes — ribs pierce the heart: a mortal dies, a vampire loses half their blood.",
+      "BoneNote": {
+        "shape": "Reshaping {name}'s skeleton: the Storyteller describes the result.",
+        "claws": "Bone claws for {name}: Strength +1, lethal; cost — 1 lethal.",
+        "spikes": "Bone spikes for {name}: cost — 5 lethal minus 1 per success. Botch — a mortal dies, a vampire falls into torpor."
+      },
+      "BoneClawsDone": "Bone claws have grown (Strength +1, lethal); cost — {n} lethal.",
+      "BoneSpikesDone": "Body covered in bone spikes: +2 damage dice in clinches and tackles; a bare-handed attacker hitting with fewer than 3 successes takes their own Strength in damage. Cost — {n} lethal.",
+      "BoneSpikesBotch": "Botch: the bones tear the body from within — a mortal dies, a vampire falls into torpor."
     },
     "Ghoul": {
       "Retainer": "Retainer, not a PC",

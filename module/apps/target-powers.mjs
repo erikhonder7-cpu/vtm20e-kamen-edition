@@ -72,6 +72,8 @@ export const TARGET_POWERS = {
   "auspex|Psychic Projection": { kind: "project", self: true },
   "vicissitude|Malleable Visage": { kind: "visage", self: true },
   "vicissitude|Fleshcraft": { kind: "flesh", needTarget: true },
+  // Искусство костей: лепка (сл. 5–9), оружие (сл. 7, урон по успехам), когти и шипы — себе или отмеченной цели
+  "vicissitude|Bonecraft": { kind: "bone" },
   "animalism|Feral Whispers": { kind: "whisper", needTarget: true, animal: true, tiers: [[1, "Whis1"], [3, "Whis3"], [5, "Whis5"]] },
   "animalism|The Beckoning": { kind: "beckon", self: true },
   "animalism|Subsume the Spirit": { kind: "subsume", needTarget: true, animal: true }
@@ -205,7 +207,7 @@ export function targetPowerLabel(extra, ev) {
   const lbl = { beast: "BeastApply", poison: "PoisonApply", shroud: "ShroudApply", arms: "ArmsApply", vanish: "VanishApply",
     rage: "RageApply", potency: "PotencyApply", theft: "TheftApply", possess: "PossessApply", project: "ProjectApply", awe: "AweApply", call: "CallApply",
     mesmerize: "MesApply", forget: "ForgApply", condition: "CondApply", voice: "VoiceApply",
-    flesh: "FleshApply", beckon: "BeckonApply", subsume: "SubsumeApply", self: "SelfApply", summon: "SummonApply", comrades: "ComradesApply", conjure: "ConjureApply" }[tp.kind] ?? "Apply";
+    flesh: "FleshApply", bone: "BoneApply", beckon: "BeckonApply", subsume: "SubsumeApply", self: "SelfApply", summon: "SummonApply", comrades: "ComradesApply", conjure: "ConjureApply" }[tp.kind] ?? "Apply";
   return t(lbl, { name: extra.targetPower.targetName, n: ev.successes });
 }
 
@@ -368,6 +370,16 @@ export async function applyTargetPower(message, state, ev) {
     const next = Math.clamp(ap + (mode === "raise" ? n : -n), 0, 5);
     await target.update({ "system.attributes.appearance.value": next });
     return notice(target, x.powerName, t("FleshLooks", { from: ap, to: next }));
+  }
+  if (tp.kind === "bone") {
+    // Когти — цена 1 губительное; шипы — 5 губительных минус 1 за каждый успех. Прежняя костяная работа уходит.
+    await done(message, state, x);
+    const old = target.powerEffects.find(e => e.power === "vicissitude:3");
+    if (old) await target.endPower(old.effect, { quiet: true });
+    const cost = x.bone === "claws" ? 1 : Math.max(0, 5 - n);
+    if (cost) await target.applyDamage(cost, "lethal");
+    await target.startPower("vicissitude:3", { variant: x.bone, blood: 0 });
+    return notice(target, x.powerName, t(x.bone === "claws" ? "BoneClawsDone" : "BoneSpikesDone", { n: cost }));
   }
   if (tp.kind === "subsume") {
     // Поглощение духа: тело вампира пустует, в звере — его дух; Дисциплины — по успехам
@@ -615,6 +627,32 @@ export async function rollTargetPower(actor, disc, d, p, tp, { rollFromSpec, sub
     if (!mode) return null;
     roll = { ...roll, difficulty: { lower: 5, raise: 9, armor: 8 }[mode], note: t(`FleshNote.${mode}`) };
     opts.more = { targetPower: { ...link, flesh: mode } };
+  }
+  // Искусство костей: что делаем; сложность работы — как у Искусства тканей (5 грубо … 9 тонко), удар костями — 7
+  if (tp.kind === "bone") {
+    const mode = await ask(p.name, [["shape", t("BoneShape")], ["weapon", t("BoneWeapon")], ["claws", t("BoneClaws")], ["spikes", t("BoneSpikes")]]);
+    if (!mode) return null;
+    if (mode === "weapon") {
+      if (!target) { ui.notifications.warn(t("NeedTarget")); return null; }
+      roll = { ...roll, difficulty: 7, note: t("BoneWeaponNote") };
+      opts.more = null;
+    } else {
+      const d = await ask(t("BoneFine"), [5, 6, 7, 8, 9].map(n => [String(n), t(`BoneDiff.${n}`)]));
+      if (!d) return null;
+      const who = target ?? actor;
+      roll = { ...roll, difficulty: parseInt(d), note: t(`BoneNote.${mode}`, { name: who.name }) };
+      opts.power = { ...opts.power, noHit: true };
+      opts.subtitle = `→ ${who.name} · ${subtitle}`;
+      opts.more = mode === "shape" ? null : { targetPower: { key, target: who.uuid, targetName: who.name, powerName: p.name, actorName: actor.name, bone: mode } };
+      // шипы, провал: смертный умирает, вампир уходит в торпор
+      if (mode === "spikes") opts.onRolled = async res => {
+        if (res?.outcome !== "botch") return;
+        if (!who.isOwner) return notice(who, p.name, t("BoneSpikesBotch"));
+        if (who.isVampire) { if (!who.statuses?.has("r-torpor")) await who.toggleStatusEffect("r-torpor", { active: true }); }
+        else await who.applyDamage(8, "lethal");
+        return notice(who, p.name, t("BoneSpikesBotch"));
+      };
+    }
   }
   // Касание скорпиона: сколько крови в яд (1 … Выносливость, сколько есть)
   if (tp.kind === "poison") {
