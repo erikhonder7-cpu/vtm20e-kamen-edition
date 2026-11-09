@@ -59,12 +59,19 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const opt = (value, label, n) => ({ value, label: `${label} (${n})` });
     const era = game.settings.get("vtm20e-kamen-edition", "era");
     const abil = VTM20.abilitiesForEra(era, a.type);
+    // Добродетели и мораль — по линейке: Человечность и Добродетели V20 есть у Сородичей, гулей и смертных;
+    // у Гару — Ярость и Гнозис, у охотника — свои Добродетели, у падшего — Добродетели без Человечности (мораль — Мука)
+    const trio = (path, keys) => keys.map(k => opt(`${path}.${k}`, a.traitLabel(`${path}.${k}`), a.traitValue(`${path}.${k}`)));
+    const inner = a.type === "werewolf" ? { label: loc("VTM20.Werewolf.RageGnosis"), options: trio("werewolf", ["rage", "gnosis"]) }
+      : a.type === "hunter" ? { label: loc("VTM20.Sheet.Virtues"), options: trio("hunter", ["mercy", "vision", "zeal"]) }
+      : { label: loc("VTM20.Sheet.Virtues"), options: trio("virtues", ["conscience", "selfControl", "courage"]) };
+    const humane = !["werewolf", "demon", "hunter"].includes(a.type);
     const groups1 = [
       { label: loc("VTM20.Sheet.Attributes"), options: Object.keys(VTM20.attributes).map(k => opt(`attributes.${k}`, loc(VTM20.attributes[k].label), s.attributes[k].total)) },
-      { label: loc("VTM20.Sheet.Virtues"), options: ["conscience", "selfControl", "courage"].map(k => opt(`virtues.${k}`, a.traitLabel(`virtues.${k}`), a.traitValue(`virtues.${k}`))) },
+      inner,
       { label: loc("VTM20.Sheet.Other"), options: [
         opt("willpower.permanent", t("Willpower"), s.willpower.permanent),
-        opt("morality.value", a.traitLabel("morality.value"), s.morality.value)
+        ...(humane ? [opt("morality.value", a.traitLabel("morality.value"), s.morality.value)] : [])
       ] }
     ];
     let groups2 = [

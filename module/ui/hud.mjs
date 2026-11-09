@@ -188,7 +188,12 @@ function rightWing(a, kind) {
     out.push(line(t("Demon.Faith"), [dots(s.faith?.permanent ?? 0, 10, "gold"), boxes(s.faith?.temporary ?? 0, 10, "gold")], `${s.faith?.temporary ?? 0}<small>/${s.faith?.permanent ?? 0}</small>`));
     out.push(line(t("Demon.Torment"), [dots(s.torment?.permanent ?? 0, 10), boxes(s.torment?.temporary ?? 0, 10, "torment")], s.torment?.permanent ?? 0, { tip: t("Hud.TormentTip", { n: s.torment?.temporary ?? 0 }) }));
   } else if (kind === "hunter") {
-    out.push(line(t("Hunter.Conviction"), [dots(s.hunter?.conviction ?? 0, 10, "amber")], s.hunter?.conviction ?? 0)); moral();
+    // у охотника нет Человечности — его мораль в Добродетелях: Милосердие, Прозрение, Рвение
+    out.push(line(t("Hunter.Conviction"), [dots(s.hunter?.conviction ?? 0, 10, "amber")], s.hunter?.conviction ?? 0));
+    const V = hunterData().virtues ?? {};
+    const vk = ["mercy", "vision", "zeal"];
+    out.push(line(t("Sheet.Virtues"), vk.map(k => dots(s.hunter?.[k] ?? 0, 5, "amber")), vk.map(k => s.hunter?.[k] ?? 0).join("·"),
+      { tip: vk.map(k => `${V[k] ?? k}: ${s.hunter?.[k] ?? 0}`).join(", ") }));
   } else if (kind === "spirit") {
     const sp = s.spirit, e = sp.essence;
     out.push(line(t("Hud.Essence"), [boxes(Math.round(e.value / Math.max(1, e.max) * 10), 10, "gnosis")], `${e.value}<small>/${e.max}</small>`, { tip: t("Hud.EssenceTip") }));
