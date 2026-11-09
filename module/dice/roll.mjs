@@ -398,6 +398,12 @@ export async function soakAndApply(target, amount, damageType, { soak = true, fa
     if (fx) await target.endPower(fx.effect, { quiet: true });
     ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: target }), content: `<div class="r-notice is-warn"><i class="fa-solid fa-cubes-stacked"></i> ${t("TP.StoneEject", { name: target.name })}</div>` });
   }
+  // огонь и солнце по вампиру — предложить проверку Ротшрека (V20, таблица раздражителей: жжёт огонь 8, прямое солнце 9)
+  if ((fire || sun) && target.isVampire && left > 0 && !target.statuses?.has("r-rotschreck")) {
+    const { selfCheck } = await import("../apps/target-powers.mjs");
+    const n = sun ? 9 : 8;
+    await selfCheck(target, "rotschreck", n, t(sun ? "Combat.FearSun" : "Combat.FearFire", { name: target.name, n }));
+  }
   if (left > stunAt) {
     ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: target }), content: `<div class="r-notice is-warn"><i class="fa-solid fa-star"></i> ${t("Notify.Stunned")}</div>` });
     await target.toggleStatusEffect?.("r-stunned", { active: true });

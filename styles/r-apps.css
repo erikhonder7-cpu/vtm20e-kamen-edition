@@ -1638,3 +1638,8 @@ body.r-theme-light .vtm20 .r-sp-state img { filter: none; }
 .vtm20 .r-decl-multi { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--r-ink); transition: opacity .15s; }
 .vtm20 .r-decl-multi em { font-size: 11.5px; font-style: italic; color: var(--r-muted); }
 .vtm20 .r-decl-multi.is-off { display: none; }
+
+/* Заявки статистов (combat/turn.mjs) */
+.vtm20 .r-npc-decl { display: flex; flex-direction: column; gap: 6px; max-height: 60vh; overflow-y: auto; }
+.vtm20 .r-npc-row { display: grid; grid-template-columns: 1.2fr 1fr 1.4fr; gap: 8px; align-items: center; padding: 5px 8px; border: 1px solid #3a3833; border-left: 2px solid #5a2328; border-radius: 3px; background: rgba(0, 0, 0, .25); }
+.vtm20 .r-npc-row b { font-family: "Forum", serif; font-size: 15px; font-weight: normal; color: var(--r-ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

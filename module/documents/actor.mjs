@@ -480,6 +480,33 @@ export class VtMActor extends Actor {
     type ??= h.bashing > 0 ? "bashing" : h.lethal > 0 ? "lethal" : h.aggravated > 0 ? "aggravated" : null;
     if (!type) { ui.notifications.info(t("Notify.NothingToHeal")); return; }
     const cost = type === "aggravated" ? 5 : 1;
+    // в бою: весь ход лечиться — или действовать и рискнуть: Выносливость + Выживание (сл. 8);
+    // неудача — кровь впустую, провал — ещё 1 кровь и 1 повреждение (правила системы, «Тривиальные задачи»)
+    const fighting = game.combat?.started && game.combat.combatants.some(c => c.actor === this);
+    if (fighting) {
+      const how = await foundry.applications.api.DialogV2.wait({
+        window: { title: t("Heal.Title"), icon: "fa-solid fa-hand-holding-droplet" }, classes: ["vtm20", "r-dialog"], position: { width: 460 },
+        content: `<div class="r-gate-body"><i class="fa-solid fa-hand-holding-droplet r-gate-ico"></i><div class="r-gate-text">
+          <p class="r-gate-why">${t("Heal.Why", { n: cost })}</p><p class="r-gate-hint">${t("Heal.Hint")}</p></div></div>`,
+        buttons: [{ action: "focus", icon: "fa-solid fa-bed", label: t("Heal.Focus"), default: true },
+          { action: "act", icon: "fa-solid fa-dice-d10", label: t("Heal.Act") }],
+        rejectClose: false
+      });
+      if (!how) return;
+      if (how === "act") {
+        if (!(await this.spendBlood(cost))) return;
+        const { rollPool } = await import("../dice/roll.mjs");
+        const res = await rollPool({ actor: this, title: t("Heal.Roll"), pool: (this.system.attributes.stamina?.total ?? 0) + (this.system.abilities?.survival?.value ?? 0), difficulty: 8, kind: "check" });
+        if (res?.outcome === "botch") {
+          await this.spendBlood(1, { limit: false });
+          await this.applyDamage(1, type === "aggravated" ? "lethal" : type);
+          return this.#notice(`<i class="fa-solid fa-hand-holding-droplet"></i> ${t("Heal.Botch")}`);
+        }
+        if ((res?.successes ?? 0) < 1) return this.#notice(`<i class="fa-solid fa-hand-holding-droplet"></i> ${t("Heal.Wasted", { n: cost })}`);
+        await this.healDamage(type, 1);
+        return this.#notice(`<i class="fa-solid fa-hand-holding-droplet"></i> ${t("Notify.Healed", { type: game.i18n.localize(VTM20.damageTypes[type].label), n: cost })}`);
+      }
+    }
     if (!(await this.spendBlood(cost))) return;
     await this.healDamage(type, 1);
     this.#notice(`<i class="fa-solid fa-hand-holding-droplet"></i> ${t("Notify.Healed", { type: game.i18n.localize(VTM20.damageTypes[type].label), n: cost })}`);

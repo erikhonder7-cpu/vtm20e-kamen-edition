@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <!-- Маркер хода: кольцо цвета запёкшейся крови с шипами-терниями, ромбами по сторонам света
+       и костяными ромбиками на диагоналях; ровные цвета, тонкие костяные линии, тихое свечение у кольца -->
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="70%" stop-color="#8c1c22" stop-opacity="0"/>
+      <stop offset="77%" stop-color="#8c1c22" stop-opacity=".22"/>
+      <stop offset="84%" stop-color="#8c1c22" stop-opacity="0"/>
+    </radialGradient>
+    <!-- терний: тонкий, с изгибом, как у розы -->
+    <path id="thorn" d="M256 28 Q258 44 263 57 L249 57 Q254 44 256 28 Z" fill="#9e1a24"/>
+    <!-- ромб стороны света: плоский, с тонкой костяной гранью -->
+    <g id="gem">
+      <path d="M256 12 L271 40 L256 68 L241 40 Z" fill="#b83a3f" stroke="#e9dccb" stroke-opacity=".45" stroke-width="1.5" stroke-linejoin="round"/>
+      <path d="M256 23 L264 40 L256 57 L248 40 Z" fill="none" stroke="#5a0e14" stroke-width="1.5" stroke-linejoin="round"/>
+    </g>
+    <path id="pip" d="M256 45 L261.5 53 L256 61 L250.5 53 Z" fill="#e9dccb" fill-opacity=".7"/>
+  </defs>
+
+  <circle cx="256" cy="256" r="246" fill="url(#glow)"/>
+
+  <!-- кольцо: костяная волосная линия снаружи, кровь, костяной пунктир внутри -->
+  <circle cx="256" cy="256" r="206" fill="none" stroke="#e9dccb" stroke-opacity=".38" stroke-width="1.2"/>
+  <circle cx="256" cy="256" r="197" fill="none" stroke="#8c1c22" stroke-width="6"/>
+  <circle cx="256" cy="256" r="197" fill="none" stroke="#c4474c" stroke-opacity=".45" stroke-width="1"/>
+  <circle cx="256" cy="256" r="186" fill="none" stroke="#e9dccb" stroke-opacity=".3" stroke-width="1.2" stroke-dasharray="1.5 10" stroke-linecap="round"/>
+
+  <!-- тернии: по два между сторонами света -->
+  <g>
+    <use href="#thorn" transform="rotate(22.5 256 256)"/>
+    <use href="#thorn" transform="rotate(67.5 256 256)"/>
+    <use href="#thorn" transform="rotate(112.5 256 256)"/>
+    <use href="#thorn" transform="rotate(157.5 256 256)"/>
+    <use href="#thorn" transform="rotate(202.5 256 256)"/>
+    <use href="#thorn" transform="rotate(247.5 256 256)"/>
+    <use href="#thorn" transform="rotate(292.5 256 256)"/>
+    <use href="#thorn" transform="rotate(337.5 256 256)"/>
+  </g>
+
+  <!-- костяные ромбики на диагоналях -->
+  <use href="#pip" transform="rotate(45 256 256)"/>
+  <use href="#pip" transform="rotate(135 256 256)"/>
+  <use href="#pip" transform="rotate(225 256 256)"/>
+  <use href="#pip" transform="rotate(315 256 256)"/>
+
+  <!-- ромбы по сторонам света -->
+  <use href="#gem"/>
+  <use href="#gem" transform="rotate(90 256 256)"/>
+  <use href="#gem" transform="rotate(180 256 256)"/>
+  <use href="#gem" transform="rotate(270 256 256)"/>
+</svg>

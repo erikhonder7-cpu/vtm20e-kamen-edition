@@ -2603,6 +2603,80 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  // Удобство боя: противники рядом, дальность по жетонам, клинч между ходами, лечение кровью в бою, Ротшрек от огня,
+  // сводка хода, «выбыл» сам, заявки статистов разом
+  await check("Бой: толпа, дальность, клинч, лечение, Ротшрек, сводка, статисты", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), sys = p => import(`/systems/${sid}/${p}`);
+      const CB = await sys("module/combat/combat.mjs"), R = await sys("module/dice/roll.mjs"), T = await sys("module/combat/turn.mjs");
+      const mk = (name, extra = {}) => Actor.create({ name, type: "vampire", flags: { world: { e2e: true } },
+        system: { generation: 10, blood: { value: 10 }, willpower: { permanent: 4, temporary: 4 }, attributes: { strength: { value: 2 }, stamina: { value: 2 } }, ...extra } });
+      const hero = await mk("E2E — герой"), f1 = await mk("E2E — громила 1"), f2 = await mk("E2E — громила 2"), f3 = await mk("E2E — громила 3");
+      await hero.createEmbeddedDocuments("Item", [{ name: "E2E — револьвер", type: "weapon", system: { kind: "firearms", damage: 4, damageType: "lethal", difficulty: 6, range: "12", equipped: true } }]);
+      const scene = game.scenes.viewed ?? game.scenes.contents[0], g = canvas.grid.size, X = 300, Y = 3900;
+      const at = (a, dx, dy, disp) => a.getTokenDocument({ x: X + dx * g, y: Y + dy * g, disposition: disp });
+      const H = CONST.TOKEN_DISPOSITIONS;
+      const toks = await scene.createEmbeddedDocuments("Token", [await at(hero, 0, 0, H.FRIENDLY), await at(f1, 1, 0, H.HOSTILE), await at(f2, 0, 1, H.HOSTILE), await at(f3, 20, 0, H.HOSTILE)]);
+      await wait(800);
+      const tk = a => canvas.tokens.placeables.find(t => t.document.actorId === a.id);
+      const A = a => tk(a).actor;
+      const out = {};
+      // двое рядом — +1 к сложности в ближнем бою
+      const atk = new CB.AttackDialog(A(hero), {});
+      out.crowd = [CB.crowdAround(A(hero)), atk.v.foes];
+      // револьвер по дальнему (~20 клеток): дальность по расстоянию
+      const gun = A(hero).items.find(i => i.type === "weapon");
+      const far = new CB.AttackDialog(A(hero), { weapon: gun.id }); far.v.foe = A(f3).uuid;
+      far.compute();
+      out.range = far.v.range;
+      // клинч: эффекты на обоих, «Вырваться»
+      await CB.setGrapple(A(hero), A(f1), "clinch");
+      out.clinch = [CB.grapplesOf(A(hero))[0]?.role, CB.grapplesOf(A(f1))[0]?.role];
+      // бой: начало — инициатива; следующий ход — клинч бьёт, сводка
+      const combat = await getDocumentClass("Combat").create({ scene: scene.id, active: true });
+      await combat.createEmbeddedDocuments("Combatant", toks.map(t => ({ tokenId: t.id, sceneId: scene.id, actorId: t.actorId })));
+      await combat.startCombat(); await wait(1500);
+      // статисты разом: все не-игровые — атака
+      const pd = T.declareNpcs(combat); await wait(700);
+      const dlg = [...foundry.applications.instances.values()].find(x => x.element?.classList.contains("r-declare-dialog"));
+      dlg?.element.querySelector('button[data-action="ok"]')?.click(); await pd; await wait(1500);
+      out.npcs = combat.combatants.filter(c => T.declarationOf(c.actor, combat)?.kind === "attack").length;
+      out.phase = T.phaseOf(combat)?.phase;
+      await A(f2).applyDamage(2, "lethal");
+      const n0 = game.messages.size;
+      await combat.nextRound(); await wait(2500);
+      const msgs = game.messages.contents.slice(n0);
+      out.tick = msgs.filter(m => /Клинч/.test(m.content ?? "") || /Клинч/.test(m.flavor ?? "")).length >= 2 || msgs.filter(m => m.flags?.[sid]?.roll?.extra?.damage).length >= 2;
+      out.summary = msgs.some(m => /Итог хода 1/.test(m.content));
+      // лечение в бою: окно выбора, «весь ход лечусь»
+      await A(hero).update({ "system.health.lethal": 1 });
+      const ph = A(hero).bloodHeal("lethal"); await wait(700);
+      const hd = [...foundry.applications.instances.values()].find(x => x instanceof foundry.applications.api.DialogV2 && /Лечение кровью/.test(x.title));
+      hd?.element.querySelector('button[data-action="focus"]')?.click(); await ph;
+      out.heal = [!!hd, A(hero).system.health.lethal];
+      // огонь по вампиру — предложение Ротшрека (сл. 8)
+      const n1 = game.messages.size;
+      await R.soakAndApply(A(f1), 1, "aggravated", { soak: false, fire: true });
+      out.fear = game.messages.contents.slice(n1).find(m => m.flags?.[sid]?.checkPrompt)?.flags[sid].checkPrompt.difficulty;
+      // торпор — выбыл сам
+      await A(f2).toggleStatusEffect("r-torpor", { active: true }); await wait(800);
+      out.defeated = combat.combatants.find(c => c.actorId === f2.id)?.defeated;
+      // вырваться из клинча (исход случаен — проверяем, что бросок прошёл)
+      const n2 = game.messages.size;
+      await CB.breakGrapple(A(f1));
+      out.broke = game.messages.contents.slice(n2).some(m => /вырыва|не вырвался/.test(m.content));
+      await combat.delete(); await wait(600);
+      out.cleared = !CB.grapplesOf(A(hero)).length;
+      await scene.deleteEmbeddedDocuments("Token", toks.map(t => t.id));
+      await Actor.deleteDocuments([hero.id, f1.id, f2.id, f3.id]);
+      return out;
+    });
+    const want = { crowd: [1, 1], range: "long", clinch: ["holder", "held"], npcs: 4, phase: "act", tick: true, summary: true,
+      heal: [true, 0], fear: 8, defeated: true, broke: true, cleared: true };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   // Помешательство через HUD: Око хаоса — сложность по задаче, Голос безумия — смертный сразу, вампир — проверка +2;
   // Метаморфозы: в облике тумана силы со взглядом недоступны
   await check("Помешательство через HUD и туман без взгляда", async () => {

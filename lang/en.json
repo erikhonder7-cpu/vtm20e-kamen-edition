@@ -3131,7 +3131,32 @@
       "CelerityDefendSub": "answer an attack waiting for defense",
       "CelerityLater": "Later",
       "CelerityWindow": "Celerity",
-      "CelerityKicker": "extra action"
+      "CelerityKicker": "extra action",
+      "CrowdNote": "Foes nearby: {n} — +{d} difficulty (multiple opponents).",
+      "RangeAuto": "Target ~{m} m away (weapon range {r} m) — range set by distance.",
+      "RangeBeyond": "Target ~{m} m away — beyond twice the weapon's range ({r} m): out of reach by the rules.",
+      "Grapple": {
+        "clinch": {
+          "held": "In a clinch with {name}",
+          "holder": "Clinching {name}",
+          "desc": "Each turn both automatically deal Strength damage. To break — contested Strength + Brawl.",
+          "start": "{a} and {b} lock in a clinch: Strength damage to both each turn."
+        },
+        "hold": {
+          "held": "Held by {name}",
+          "holder": "Holding {name}",
+          "desc": "The target is held until its action. To escape — contested Strength + Brawl; failing that, the held one loses the action.",
+          "start": "{a} holds {b}."
+        },
+        "break": "Break free",
+        "holdOn": "Hold on",
+        "freed": "{name} breaks free ({n} vs {m}).",
+        "stuck": "{name} fails to break free ({n} vs {m}).",
+        "stuckHold": "{name} fails to break free ({n} vs {m}) and loses the action.",
+        "tick": "Clinch: Strength damage to {name}"
+      },
+      "FearFire": "{name}: the fire burns — Rötschreck check (diff. {n}).",
+      "FearSun": "{name}: direct sunlight — Rötschreck check (diff. {n})."
     },
     "Hazard": {
       "Title": "Hazard",
@@ -6249,7 +6274,34 @@
       "AbortRoll": "Roll Willpower",
       "AbortSpend": "Spend 1 Willpower",
       "AbortFailed": "Could not abort the action — no defense.",
-      "Aborted": "aborted to defend"
+      "Aborted": "aborted to defend",
+      "YourDeclare": "{name}: your declaration — what do you do this turn?",
+      "YourTurn": "{name}: your turn to act.",
+      "DeclareTip": "Declare this turn's action",
+      "DeclareChange": "Declared — change it",
+      "SumTitle": "Turn {n} summary",
+      "SumB": "bashing {n}",
+      "SumL": "lethal {n}",
+      "SumA": "aggravated {n}",
+      "SumHealed": "healed",
+      "SumOut": "out",
+      "NpcDeclare": "Extras",
+      "NoNpcs": "There are no Storyteller extras in this combat.",
+      "TextHintShort": "what exactly",
+      "NpcAttack": "Extra's attack"
+    },
+    "Heal": {
+      "Title": "Blood healing in combat",
+      "Why": "Healing a wound with blood ({n}) requires concentration and doing nothing else this turn.",
+      "Hint": "Acting the same turn — Stamina + Survival (diff. 8): failure wastes the blood, a botch costs 1 more blood and 1 level of damage.",
+      "Focus": "Only heal this turn",
+      "Act": "Heal and act",
+      "Roll": "Healing on the move: Stamina + Survival",
+      "Wasted": "Healing fails: {n} blood wasted.",
+      "Botch": "Botch: the blood is wasted, 1 more point spent and 1 level of damage taken."
+    },
+    "TurnMarker": {
+      "Blood": "Blood ring (system)"
     }
   },
   "Fx": {

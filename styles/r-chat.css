@@ -259,3 +259,5 @@
 .r-turn-card .r-turn-calc i { margin-right: 2px; font-size: 9px; }
 .r-turn-card .r-turn-total { flex: 0 0 24px; text-align: right; font-family: "Forum", serif; font-size: 18px; font-weight: normal; color: #d4545a; }
 .r-turn-card .r-turn-foot { margin: 4px 0 0; font-size: 11.5px; font-style: italic; color: #8f8778; }
+.r-turn-card .r-turn-list.is-plain li::before { content: none; }
+.r-turn-card .r-turn-state { flex: 0 0 auto; font-family: "Forum", serif; font-size: 13px; font-weight: normal; color: #d4545a; }

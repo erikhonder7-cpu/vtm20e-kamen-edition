@@ -8,8 +8,9 @@
 import { SYSTEM_ID, VTM20 } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
 import { RollDialog } from "../dice/dialog.mjs";
-import { openAttack, openDefense, weaponsOf, pendingAttacks, defendFromHud } from "../combat/combat.mjs";
+import { openAttack, openDefense, weaponsOf, pendingAttacks, defendFromHud, grapplesOf, breakGrapple } from "../combat/combat.mjs";
 import { celerityPhaseFor, useCelerityAction } from "../combat/celerity.mjs";
+import { phaseOf, declarationOf, openDeclare } from "../combat/turn.mjs";
 import { openHazard } from "../apps/hazard.mjs";
 import { openHunt } from "../apps/night.mjs";
 import { rollPowerRef, powerByRef } from "../sheets/actor-sheet.mjs";
@@ -225,7 +226,15 @@ function tabsOf(a, kind) {
   const maneuvers = noPhysicalAction || beastForm === "modified" ? [] : beastForm === "wolf" ? [man("claws", "fa-paw"), man("bite", "fa-tooth")]
     : ["bat", "cobra"].includes(beastForm) ? [man("bite", "fa-tooth")]
     : natural.length ? [] : [man("punch", "fa-hand-fist"), ...(s.fx?.claws && !hasProteanClawItem ? [man("claws", "fa-paw")] : []), vamp ? man("bite", "fa-tooth") : man("clinch", "fa-people-pulling")];
-  tabs.push({ key: "fight", label: t("Hud.Tab.fight"), seals: [...weapons, ...natural, ...maneuvers,
+  // фаза заявок: «Заявить» — первой печатью боя (у своего бойца)
+  const combat = game.combat, ph = phaseOf(combat);
+  const inFight = combat?.started && combat.combatants.some(c => c.actor === a);
+  const declareSeal = inFight && ph?.phase === "declare" && ph.round === combat.round && a.isOwner
+    ? [seal("declare", "fa-bullhorn", t("Turn.Declare"), { tip: declarationOf(a, combat) ? t("Turn.DeclareChange") : t("Turn.DeclareTip"), on: !declarationOf(a, combat) })] : [];
+  // в клинче или захвате — «Вырваться» (встречная Сила + Драка)
+  const grip = grapplesOf(a)[0];
+  const gripSeal = grip ? [seal("breakFree", "fa-people-pulling", t("Combat.Grapple.break"), { on: true, tip: grip.effect.name })] : [];
+  tabs.push({ key: "fight", label: t("Hud.Tab.fight"), seals: [...declareSeal, ...gripSeal, ...weapons, ...natural, ...maneuvers,
     ...(noPhysicalAction ? [] : [seal("attack", "fa-ellipsis", t("Hud.More"), { man: true, tip: t("Hud.AttackTip") })]),
     ...(s.fx?.earthMeld ? [] : [seal("dodge", "fa-person-running", t("Hud.Dodge"), { tip: t("Combat.Defense.dodge") }),
       seal("block", "fa-shield-halved", t("Hud.Block"), { tip: t("Combat.Defense.block") }), seal("parry", "fa-khanda", t("Hud.Parry"), { tip: t("Combat.Defense.parry") })])] });
@@ -373,6 +382,8 @@ async function onClick(ev) {
     case "noop": return;
     // все силы — вкладка сил на листе (Дисциплины, Дары, Знания, Грани)
     case "allPowers": await a.sheet.render(true); return a.sheet.changeTab?.("disciplines", "primary");
+    case "declare": return openDeclare(a);
+    case "breakFree": return breakGrapple(a);
     case "attack": return openAttack(a, { weapon: el.dataset.weapon ?? null });
     case "maneuver": return openAttack(a, { maneuver: el.dataset.man });
     case "natural": return openAttack(a, { natural: Number(el.dataset.n) });

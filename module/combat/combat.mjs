@@ -54,7 +54,7 @@ export function weaponsOf(actor) {
       damage: w.damage, strength: w.strength, damageType: w.damageType, difficulty: w.difficulty, pierce: w.pierce ?? 0, silver: !!w.silver,
       supernatural: !!(w.supernatural || i.getFlag?.(SYSTEM_ID, "supernatural")),
       naturalFormWeapon: !!i.getFlag?.(SYSTEM_ID, "naturalFormWeapon"), fortitudeOnly: !!i.getFlag?.(SYSTEM_ID, "fortitudeOnly"),
-      fangs: !!i.getFlag?.(SYSTEM_ID, "fangs"),
+      fangs: !!i.getFlag?.(SYSTEM_ID, "fangs"), rangeM: Number.parseFloat(String(w.range ?? "").replace(",", ".")) || 0,
       label: `${w.strength ? `${t("Attr.strength")} + ` : ""}${w.damage}` };
   });
 }
@@ -72,17 +72,42 @@ function nextDefense(actor) {
   return n;
 }
 
+/** Жетон персонажа на сцене (первый активный). */
+const tokenOf = actor => actor?.getActiveTokens?.(true)?.[0] ?? null;
+
+/** Расстояние между жетонами в единицах сцены (метры). */
+export function tokenDistance(a, b) {
+  const ta = tokenOf(a), tb = tokenOf(b);
+  if (!ta || !tb || !canvas?.grid) return null;
+  try { return canvas.grid.measurePath([ta.center, tb.center]).distance; } catch { return null; }
+}
+
+/**
+ * Численное превосходство (04): противники рядом (в пределах клетки, другая сторона) — каждый после первого
+ * +1 к сложности атаки и защиты, не больше +4.
+ */
+export function crowdAround(actor) {
+  const tk = tokenOf(actor);
+  if (!tk || !canvas?.grid) return 0;
+  const disp = tk.document.disposition, reach = canvas.grid.size * 1.5;
+  const near = canvas.tokens.placeables.filter(o => o !== tk && o.actor && !o.document.hidden && o.document.disposition !== disp
+    && o.document.disposition !== CONST.TOKEN_DISPOSITIONS.NEUTRAL && !o.actor.statuses?.has("dead")
+    && Math.hypot(o.center.x - tk.center.x, o.center.y - tk.center.y) <= reach);
+  return Math.clamp(near.length - 1, 0, 4);
+}
+
 /** Защита: уклонение, блок или парирование. Каждая следующая за ход — −1 куб (04). */
 export function openDefense(actor, kind = "dodge", { onRolled = null, subtitle = null, celerityAction = false } = {}) {
   const d = DEFENSES[kind] ?? DEFENSES.dodge;
   const n = nextDefense(actor);
+  const crowd = crowdAround(actor);
   return RollDialog.prompt(actor, {
-    onRolled,
+    onRolled, ...(crowd ? { difficulty: 6 + crowd } : {}),
     title: t(`Combat.Defense.${kind}`), subtitle: subtitle ?? t("Combat.DefenseSub"),
     trait1: `attributes.${d.attr}`, trait2: `abilities.${d.ability}`,
     // Танец ветра (Путь Марса 3): уклоняться от любого числа атак без штрафа
     bonus: n > 1 && !(kind === "dodge" && pathFlag(actor, "windDance")) ? -(n - 1) : 0, kind: "defense", lockTraits: true, celerityAction,
-    diffNote: [n > 1 ? t("Combat.DefenseNth", { n }) : "", kind === "block" ? t("Combat.BlockNote") : "", t("Combat.DefenseNote")].filter(Boolean).join(" ")
+    diffNote: [n > 1 ? t("Combat.DefenseNth", { n }) : "", crowd ? t("Combat.CrowdNote", { n: crowd + 1, d: crowd }) : "", kind === "block" ? t("Combat.BlockNote") : "", t("Combat.DefenseNote")].filter(Boolean).join(" ")
   });
 }
 
@@ -122,7 +147,7 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     this.v = {
       foe: marked[0]?.uuid ?? "",
       pick: natural != null ? `f:${natural}` : beastForm === "wolf" ? `m:claws` : ["bat", "cobra"].includes(beastForm) ? `m:bite` : weapon ? `w:${weapon}` : maneuver ? `m:${maneuver}` : first ? `w:${first.id}` : "m:punch",
-      position: "front", aim: "none", foes: 0, blind: false, target: "normal",
+      position: "front", aim: "none", foes: crowdAround(actor), blind: false, target: "normal",
       range: "normal", cover: 0, actions: celerityAction ? 1 : declaredActions(actor), bonus: 0, diffAdj: 0,
       specialty: false, willpower: false, physical: true, wounds: true,
       messageMode: game.settings.get("core", "messageMode")
@@ -147,7 +172,7 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
           dmg: (w.strength ? str : 0) + w.damage, auto: w.strength ? auto : 0, strengthDamage: !!w.strength,
           type: v ? "aggravated" : w.damageType, venom: v, supernatural: !!w.supernatural,
           // Fortitude-only aggravated claws must not be treated as ordinary fang attacks for armour/stamina soak.
-          fangs: !!w.fangs && !w.fortitudeOnly, note: v ? t("Combat.VenomNote", { n: fx.venom }) : "", pierce: w.pierce ?? 0, bullet: w.kind === "firearms" };
+          fangs: !!w.fangs && !w.fortitudeOnly, note: v ? t("Combat.VenomNote", { n: fx.venom }) : "", pierce: w.pierce ?? 0, bullet: w.kind === "firearms", rangeM: w.rangeM };
       }
     }
     // естественное оружие апокалиптической формы (когти, рога, хвост, чрево — data/form.mjs): Ловкость + Драка
@@ -198,10 +223,19 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       bd.push({ label: t("Roll.MultiActions", { n: v.actions }), value: part - pool }); pool = part;
     }
     // Сложность: база 6 (стрельба: в упор 4, до двойной дальности 8)
-    let diff = 6 + c.diff;
-    if (c.ranged) diff = { point: 4, normal: 6 + c.diff, long: 8 }[v.range];
     const notes = [];
     const targetActor = v.foe ? foundry.utils.fromUuidSync(v.foe) : null;
+    // дальность — по расстоянию между жетонами (в упор до 2 м, обычная — до дальности оружия, дальняя — до двойной), пока не выбрана руками
+    if (c.ranged && targetActor && !this.rangeManual) {
+      const dist = tokenDistance(a, targetActor);
+      if (dist != null) {
+        const far = c.rangeM > 0 ? c.rangeM : Infinity;
+        v.range = dist <= 2 ? "point" : dist <= far ? "normal" : "long";
+        notes.push(t(dist > 2 * far ? "Combat.RangeBeyond" : "Combat.RangeAuto", { m: Math.round(dist), r: c.rangeM || "—" }));
+      }
+    }
+    let diff = 6 + c.diff;
+    if (c.ranged) diff = { point: 4, normal: 6 + c.diff, long: 8 }[v.range];
     const targetHitDiff = [...(targetActor?.system?.fx?.diff?.hit ?? []), ...(c.ranged ? targetActor?.system?.fx?.diff?.rangedHit ?? [] : [])]
       .reduce((sum, x) => sum + (Number(x.value) || 0), 0);
     if (targetHitDiff) { diff += targetHitDiff; notes.push(t("Fx.HitHint")); }
@@ -215,7 +249,10 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     if (pathFlag(a, "strikeTrue") && !c.ranged && v.actions === 1) notes.push(t("TP.PathNote.StrikeTrue"));
     const [aimDiff, aimDmg] = AIM[v.aim];
     diff += aimDiff;
-    diff += Math.min(4, v.foes);
+    // численное превосходство — только в ближнем бою (по умолчанию — противники рядом с атакующим)
+    const foesN = c.ranged ? 0 : Math.min(4, v.foes);
+    diff += foesN;
+    if (foesN) notes.push(t("Combat.CrowdNote", { n: foesN + 1, d: foesN }));
     if (v.blind) diff += 2;
     if (c.ranged) diff += v.cover;
     diff += v.diffAdj;
@@ -288,6 +325,8 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
 
   #read() {
     const f = new foundry.applications.ux.FormDataExtended(this.element).object;
+    // дальность выбрана руками — больше не подставляем по расстоянию
+    if (f.range != null && f.range !== this.v.range) this.rangeManual = true;
     const num = (x, d = 0) => Number.isFinite(Number(x)) ? Number(x) : d;
     Object.assign(this.v, {
       foe: f.foe ?? this.v.foe,
@@ -340,7 +379,7 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const head = ["small", "tiny"].includes(v.aim);
     const link = { weaponName: c.name, target: foe?.uuid ?? null, targetName: foe?.name ?? "", pierce: c.pierce, bullet: c.bullet, head, ranged: c.ranged,
       damageAuto: c.auto ?? 0, venom: !!c.venom, silver: !!c.silver, supernatural: !!c.supernatural,
-      unarmed: pickKind === "m" && c.ability === "brawl" };
+      unarmed: pickKind === "m" && c.ability === "brawl", maneuver: pickKind === "m" ? pickId : null };
     const samiel = !c.ranged ? this.actor.effects.find(e => !e.disabled && e.flags?.[SYSTEM_ID]?.samiel) : null;
     if (samiel) { link.samiel = true; notes.push(t("TP.SamielHit")); }
     const res = await rollPool({
@@ -459,6 +498,11 @@ export async function resolveAttack(card, defSuccesses, method) {
     <div class="r-card-hint">${esc(line)}</div>${btn}
   </div>`;
   const target = await foundry.utils.fromUuid(d.target);
+  // Клинч и захват держатся между ходами (combat/grapple в этом файле)
+  if (hit && ["clinch", "hold"].includes(d.maneuver)) {
+    const attacker = await foundry.utils.fromUuid(d.attacker);
+    await setGrapple(attacker, target, d.maneuver);
+  }
   // Костяные шипы: безоружный, попавший меньше чем 3 успехами, ранит себя — урон его Силой, губительный
   if (hit && d.unarmed && net < 3 && target?.system?.fx?.spikes) {
     const attacker = await foundry.utils.fromUuid(d.attacker);
@@ -490,5 +534,83 @@ export async function rollLinkedDamage(message) {
     target: r.target, pierce: r.pierce ?? 0, bullet: !!r.bullet, head: !!r.head, silver: !!r.silver,
     notes: r.targetName ? [`<i class="fa-solid fa-crosshairs"></i> ${esc(t("Combat.DamageTo", { name: r.targetName }))}`] : [],
     supernatural: !!r.supernatural
+  });
+}
+
+
+/* ── Клинч и захват: состояние между ходами ───────────────────────────── */
+// Клинч: каждый ход оба автоматически наносят урон, равный Силе. Захват: цель держится; вырваться —
+// встречная Сила + Драка, при поражении удерживаемый теряет действие (04, «Манёвры ближнего боя»).
+
+/** Эффекты сцепки на обоих: held — кого держат, holder — кто держит. */
+export async function setGrapple(attacker, target, kind) {
+  if (!attacker || !target) return;
+  const make = (other, role) => ({ name: t(`Combat.Grapple.${kind}.${role}`, { name: other.name }), img: "icons/svg/net.svg",
+    ...(kind === "hold" && role === "held" ? { statuses: ["r-held"] } : {}),
+    description: `<p>${esc(t(`Combat.Grapple.${kind}.desc`))}</p>`, flags: { [SYSTEM_ID]: { grapple: { kind, role, other: other.uuid } } } });
+  for (const [who, other, role] of [[target, attacker, "held"], [attacker, target, "holder"]]) {
+    if (!who.isOwner) continue;
+    const old = who.effects.filter(e => e.flags?.[SYSTEM_ID]?.grapple?.other === other.uuid).map(e => e.id);
+    if (old.length) await who.deleteEmbeddedDocuments("ActiveEffect", old);
+    await who.createEmbeddedDocuments("ActiveEffect", [make(other, role)]);
+  }
+  ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: attacker }), content: `<div class="r-notice"><i class="fa-solid fa-people-pulling"></i> ${esc(t(`Combat.Grapple.${kind}.start`, { a: attacker.name, b: target.name }))}</div>` });
+}
+
+/** Сцепки персонажа: [{ effect, kind, role, other }]. */
+export const grapplesOf = actor => [...(actor?.effects ?? [])].filter(e => !e.disabled && e.flags?.[SYSTEM_ID]?.grapple)
+  .map(e => ({ effect: e, ...e.flags[SYSTEM_ID].grapple }));
+
+/** Разорвать сцепку с обеих сторон. */
+async function dropGrapple(a, b) {
+  for (const [who, other] of [[a, b], [b, a]]) {
+    if (!who?.isOwner) continue;
+    const ids = who.effects.filter(e => e.flags?.[SYSTEM_ID]?.grapple?.other === other?.uuid).map(e => e.id);
+    if (ids.length) await who.deleteEmbeddedDocuments("ActiveEffect", ids);
+  }
+}
+
+/** Вырваться: встречная Сила + Драка (сл. 6); победа — сцепка разорвана, поражение в захвате — теряет действие. */
+export async function breakGrapple(actor) {
+  const g = grapplesOf(actor)[0];
+  if (!g) return;
+  const other = await foundry.utils.fromUuid(g.other);
+  const pool = x => (x?.system.attributes.strength?.total ?? 0) + (x?.system.abilities?.brawl?.value ?? 0);
+  const { rollPool } = await import("../dice/roll.mjs");
+  const mine = await rollPool({ actor, title: t("Combat.Grapple.break"), pool: pool(actor), difficulty: 6, kind: "check" });
+  const theirs = other ? await rollPool({ actor: other, title: t("Combat.Grapple.holdOn"), pool: pool(other), difficulty: 6, kind: "check", noBotch: true }) : { successes: 0 };
+  const win = (mine?.successes ?? 0) > (theirs?.successes ?? 0);
+  if (win) await dropGrapple(actor, other);
+  return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<div class="r-notice"><i class="fa-solid fa-people-pulling"></i> ${esc(t(win ? "Combat.Grapple.freed"
+    : g.kind === "hold" && g.role === "held" ? "Combat.Grapple.stuckHold" : "Combat.Grapple.stuck", { name: actor.name, n: mine?.successes ?? 0, m: theirs?.successes ?? 0 }))}</div>` });
+}
+
+/** Начало хода (рассказчик): клинч — каждый держащий и удерживаемый получают карточку урона Силой противника. */
+export async function grappleTick(combat) {
+  if (!game.users.activeGM?.isSelf) return;
+  const { rollDamage } = await import("../dice/roll.mjs");
+  const done = new Set();
+  for (const c of combat.combatants) {
+    for (const g of grapplesOf(c.actor)) {
+      if (g.kind !== "clinch" || g.role !== "holder") continue;
+      const other = await foundry.utils.fromUuid(g.other);
+      const key = [c.actor.uuid, g.other].sort().join("|");
+      if (!other || done.has(key)) continue;
+      done.add(key);
+      for (const [from, to] of [[c.actor, other], [other, c.actor]])
+        await rollDamage({ actor: from, pool: from.system.attributes.strength?.total ?? 1, damageType: "bashing", title: t("Combat.M.clinch"), target: to.uuid,
+          notes: [`<i class="fa-solid fa-people-pulling"></i> ${esc(t("Combat.Grapple.tick", { name: to.name }))}`] });
+    }
+  }
+}
+
+/** Конец боя — сцепки распадаются. */
+export function registerGrapple() {
+  Hooks.on("deleteCombat", async combat => {
+    if (!game.users.activeGM?.isSelf) return;
+    for (const c of combat.combatants) {
+      const ids = (c.actor?.effects ?? []).filter(e => e.flags?.[SYSTEM_ID]?.grapple).map(e => e.id);
+      if (ids.length) await c.actor.deleteEmbeddedDocuments("ActiveEffect", ids);
+    }
   });
 }

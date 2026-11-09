@@ -26,7 +26,7 @@ import { registerCelerity } from "./module/combat/celerity.mjs";
 import { registerTurn, VtmCombat } from "./module/combat/turn.mjs";
 import { registerPowerEffectHooks } from "./module/apps/power-effects.mjs";
 import { registerTargetPowers } from "./module/apps/target-powers.mjs";
-import { openAttack, openDefense, AttackDialog } from "./module/combat/combat.mjs";
+import { openAttack, openDefense, AttackDialog, registerGrapple } from "./module/combat/combat.mjs";
 import { openHazard } from "./module/apps/hazard.mjs";
 import { openDiablerie } from "./module/apps/diablerie.mjs";
 import { openLibrary } from "./module/apps/library.mjs";
@@ -104,6 +104,9 @@ Hooks.once("init", () => {
   CONFIG.Combat.initiative = { formula: "1d10 + @initiative", decimals: 0 };
   // Ход боя V20: ничья по инициативе — выше показатель (combat/turn.mjs)
   CONFIG.Combat.documentClass = VtmCombat;
+  // Свой маркер хода вокруг жетона: готическое кольцо цвета крови; медленное вращение с «дыханием»
+  CONFIG.Combat.fallbackTurnMarker = `systems/${SYSTEM_ID}/assets/icons/turn-marker.svg`;
+  CONFIG.Combat.settings?.addTurnMarkerAnimation?.("vtm20-blood", { label: "VTM20.TurnMarker.Blood", config: { spin: 3, pulse: { speed: 16, min: 0.96, max: 1.04 } } });
 
   // Состояния V20 на токенах (04, 05) — впереди стандартных
   const S = id => `VTM20.Status.${id}`;
@@ -169,6 +172,7 @@ Hooks.once("init", () => {
   registerCombatTracker();
   registerCelerity();
   registerTurn();
+  registerGrapple();
   registerPowerEffectHooks();
   registerTargetPowers();
   registerCityMap();
@@ -218,6 +222,17 @@ Hooks.on("renderPlayers", (app, html) => {
 });
 
 Hooks.once("ready", async () => {
+  // маркер хода системы — по умолчанию один раз (рассказчик может сменить в настройках трекера боя)
+  if (game.user.isGM && !game.settings.get(SYSTEM_ID, "turnMarkerSet")) {
+    try {
+      const cfg = foundry.utils.deepClone(game.settings.get("core", "combatTrackerConfig"));
+      if (!cfg.turnMarker?.src && (cfg.turnMarker?.animation ?? "spin") === "spin") {
+        cfg.turnMarker = { ...(cfg.turnMarker ?? {}), enabled: true, animation: "vtm20-blood" };
+        await game.settings.set("core", "combatTrackerConfig", cfg);
+      }
+      await game.settings.set(SYSTEM_ID, "turnMarkerSet", true);
+    } catch (e) { console.warn("VTM20 | маркер хода", e); }
+  }
   // старт ждёт только оглавление справочника; тексты сил и ритуалов (~2,5 млн знаков) догружаются фоном
   await Codex.load({ texts: false });
   Codex.loadTexts();
@@ -418,6 +433,7 @@ Hooks.on("renderChatMessageHTML", (message, html) => {
 
 function registerSettings() {
   game.settings.register(SYSTEM_ID, "refreshChecked", { scope: "world", config: false, type: String, default: "" });
+  game.settings.register(SYSTEM_ID, "turnMarkerSet", { scope: "world", config: false, type: Boolean, default: false });
   game.settings.register(SYSTEM_ID, "era", {
     name: "VTM20.Settings.Era.Name", hint: "VTM20.Settings.Era.Hint",
     scope: "world", config: true, type: String, default: "revolution",

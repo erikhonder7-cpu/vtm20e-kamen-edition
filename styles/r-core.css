@@ -404,3 +404,29 @@ body.r-theme-light .vtm20 .r-sym { background: linear-gradient(170deg, #3a3029, 
 .r-hint-i:hover { opacity: 1; color: var(--r-ink, #e6ddcc); }
 .window-header > .r-hint-i.is-window { margin: 0 6px 0 0; font-size: 12px; }
 #tooltip.r-hint-tip { max-width: 340px; text-align: left; font-size: 12.5px; line-height: 1.45; }
+
+/* ── Микроанимации: всё открывается и подсвечивается плавно (выключаются «уменьшить движение» системы) ── */
+@media (prefers-reduced-motion: no-preference) {
+  /* окна и диалоги системы — лёгкое проявление с подъёмом */
+  .application.vtm20 { animation: r-win-in .2s cubic-bezier(.2, .7, .3, 1); }
+  .application.vtm20.r-dialog { animation-duration: .16s; }
+  @keyframes r-win-in { from { opacity: 0; transform: translateY(6px) scale(.985); } to { opacity: 1; transform: none; } }
+  /* раскрытие сил, черт, слабости клана, граней */
+  .vtm20 .r-row-wrap.is-open > .r-power-body,
+  .vtm20 .r-weakness-card.is-open > .r-weakness-text,
+  .vtm20 .r-edge.has-text.is-open .r-edge-text,
+  .vtm20 details[open] > :not(summary) { animation: r-reveal .2s ease-out; }
+  @keyframes r-reveal { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: none; } }
+  /* точки и клетки — заливка и отклик плавно */
+  .vtm20 .r-dot { transition: transform .12s, border-color .15s, background-color .18s, box-shadow .2s; }
+  .vtm20 .r-box { transition: transform .12s, background-color .18s, border-color .15s; }
+  /* кнопки, плитки, вкладки — подсветка при наведении */
+  .vtm20 .r-btn, .vtm20 button, .vtm20 .r-tile, .vtm20 .r-rail a, .vtm20 .r-rail button { transition: color .14s, background-color .14s, border-color .14s, box-shadow .18s, opacity .14s; }
+  .vtm20 .r-chevron i { transition: transform .2s ease; }
+  /* худ: всплывающий список сил; трекер: заявки */
+  #r-hud .rh-pop { animation: r-pop-in .16s ease-out; }
+  @keyframes r-pop-in { from { opacity: 0; transform: translateX(-50%) translateY(6px); } to { opacity: 1; transform: translateX(-50%); } }
+  .r-ct-decl, .r-ct-turn-phase { animation: r-reveal .2s ease-out; }
+  /* карточки в чате появляются мягко */
+  #chat-log .chat-message, .chat-log .chat-message { animation: r-reveal .22s ease-out; }
+}

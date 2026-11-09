@@ -1129,7 +1129,7 @@ export async function majestyCheck(attacker, foe) {
 }
 
 /** Карточка «проверить ярость/Ротшрек» со своей сложностью (Голос безумия) — кнопкой броска для владельца. */
-function selfCheck(actor, kind, difficulty, text) {
+export function selfCheck(actor, kind, difficulty, text) {
   return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }),
     whisper: game.users.filter(u => u.isGM || actor.testUserPermission(u, "OWNER")).map(u => u.id),
     flags: { [SYSTEM_ID]: { checkPrompt: { kind, difficulty, actorUuid: actor.uuid } } },
