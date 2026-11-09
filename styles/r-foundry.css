@@ -417,3 +417,6 @@ body.r-skin #combat .r-ct-celerity-phase button:hover { background: rgba(196, 71
 .r-ct-act:empty { display: none; }
 .r-ct-act .r-ct-decl { flex: 0 1 auto; margin-top: 0; }
 .r-ct-act .r-ct-npc-atk { flex: 0 0 20px; margin-left: 0; }
+
+/* Свёрнутая правая панель: лента чата уезжает за край, но торчала на 1 px — со своей полосой прокрутки у значков */
+#sidebar-content:not(.expanded) { visibility: hidden; }

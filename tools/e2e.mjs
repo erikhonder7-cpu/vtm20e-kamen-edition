@@ -2677,6 +2677,27 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  // Подсказки: «?» на плашке открывает окно; разделы, переход по разделу, поиск по всем
+  await check("Подсказки: окно, разделы, поиск", async () => {
+    const r = await page.evaluate(async () => {
+      const wait = ms => new Promise(res => setTimeout(res, ms));
+      document.querySelector("[data-np-help]")?.click(); await wait(800);
+      const el = () => document.querySelector("#r-help");
+      const out = { open: !!el(), tabs: el()?.querySelectorAll("[data-sec]").length, items: el()?.querySelectorAll(".r-help-list li").length };
+      el()?.querySelector('[data-sec="turn"]')?.click(); await wait(500);
+      out.turn = /Ход боя/.test(el()?.querySelector(".r-help-head b")?.textContent ?? "");
+      const q = el()?.querySelector('[name="q"]'); if (q) { q.value = "клинч"; q.dispatchEvent(new Event("input", { bubbles: true })); }
+      await wait(700);
+      out.found = el()?.querySelectorAll(".r-help-list li").length > 0 && /клинч/i.test(el()?.querySelector(".r-help-list")?.textContent ?? "");
+      out.keys = !/VTM20\.Help\./.test(el()?.textContent ?? "");
+      await [...foundry.applications.instances.values()].find(x => x.id === "r-help")?.close();
+      return out;
+    });
+    const want = { open: true, tabs: 8, items: 6, turn: true, found: true, keys: true };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   // Помешательство через HUD: Око хаоса — сложность по задаче, Голос безумия — смертный сразу, вампир — проверка +2;
   // Метаморфозы: в облике тумана силы со взглядом недоступны
   await check("Помешательство через HUD и туман без взгляда", async () => {

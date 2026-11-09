@@ -261,3 +261,34 @@
 .r-turn-card .r-turn-foot { margin: 4px 0 0; font-size: 11.5px; font-style: italic; color: #8f8778; }
 .r-turn-card .r-turn-list.is-plain li::before { content: none; }
 .r-turn-card .r-turn-state { flex: 0 0 auto; font-family: "Forum", serif; font-size: 13px; font-weight: normal; color: #d4545a; }
+
+/* ── Единый вид карточек (2.9): уведомления и карточки боя — тем же языком, что броски ───────────── */
+/* уведомление — маленькая карточка: тот же фон, кромка слева по смыслу, текст прямой */
+.r-notice { position: relative; margin: 2px 0; padding: 7px 10px; font-size: 13px; font-style: normal; line-height: 1.4;
+  background: linear-gradient(180deg, #1a1a1d, #141416); border: 1px solid #2c2c31; border-left: 3px solid #3a3833; color: #d8cfbf; }
+.r-notice::before { content: ""; position: absolute; left: -3px; top: -1px; width: 26px; height: 2px; background: #8c1c22; }
+.r-notice > i:first-child { color: #c4474c; margin-right: 6px; }
+.r-notice b { font-family: "Prata", Georgia, serif; font-weight: 400; color: #e9dfcf; }
+.r-notice .r-muted { font-size: 12px; font-style: italic; color: #7d766a; }
+.r-notice em { color: #b3aa98; }
+.r-notice ul { margin: 5px 0 0; padding-left: 18px; }
+.r-notice li { margin: 2px 0; }
+.r-notice.is-warn, .r-notice.r-check-prompt { border-left-color: #b83a3f; }
+.r-notice .r-card-buttons { margin-top: 7px; }
+/* карточка боя: шапка как у бросков — квадратные портреты, имена шрифтом заголовков */
+.r-combat-card .r-cc-head, .r-contest-card .r-cc-head { gap: 8px; margin: 2px 0 7px; font-family: "Prata", Georgia, serif; font-size: 14.5px; }
+.r-combat-card .r-cc-head img { width: 30px; height: 30px; border-radius: 2px; }
+.r-combat-card .r-cc-head i, .r-contest-card .r-cc-head i { flex: 0 0 auto; color: #c4474c; font-size: 12px; }
+.r-combat-card .r-cc-line { padding-bottom: 6px; border-bottom: 1px solid rgba(216, 207, 191, .12); }
+/* главное действие карточки — красным, как кнопка урона */
+.r-card-buttons button[data-r-action=fixedDamage], .r-card-buttons button[data-r-action=combatDamage],
+.r-card-buttons button[data-r-action=targetApply], .r-card-buttons button[data-r-action=riddleRoll],
+.r-card-buttons button[data-r-action=virtueCheck], .r-card-buttons button[data-r-action=powerHit] { color: #f1e9da; background: #8c1c22; border-color: #b83a3f; }
+.r-card-buttons button[data-r-action=fixedDamage]:hover, .r-card-buttons button[data-r-action=combatDamage]:hover,
+.r-card-buttons button[data-r-action=targetApply]:hover, .r-card-buttons button[data-r-action=riddleRoll]:hover,
+.r-card-buttons button[data-r-action=virtueCheck]:hover, .r-card-buttons button[data-r-action=powerHit]:hover { background: #a3242b; border-color: #d4545a; }
+/* узкий чат: имена в шапке карточки боя переносятся по словам, а не обрезаются */
+.r-combat-card .r-cc-head { align-items: center; }
+.r-combat-card .r-cc-head img { width: 24px; height: 24px; }
+.r-combat-card .r-cc-head b { flex: 1 1 0; min-width: 0; white-space: normal; overflow: visible; text-overflow: clip; line-height: 1.15; overflow-wrap: normal; word-break: normal; }
+.r-combat-card .r-cc-head b:last-of-type { text-align: right; }

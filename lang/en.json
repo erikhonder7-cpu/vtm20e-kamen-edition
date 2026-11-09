@@ -6302,6 +6302,222 @@
     },
     "TurnMarker": {
       "Blood": "Blood ring (system)"
+    },
+    "Help": {
+      "Title": "Help",
+      "Search": "Search help",
+      "Kicker": "how it works",
+      "Found": "results for",
+      "Nothing": "Nothing found — try another word.",
+      "Open": "Help",
+      "sheet": {
+        "title": "Character sheet",
+        "lead": "Everything about the character on one page; tabs on the left.",
+        "1": {
+          "t": "Rolling a trait",
+          "d": "Click an Attribute or Ability name to open the roll window: second trait, difficulty, Willpower, specialty are there."
+        },
+        "2": {
+          "t": "Dots",
+          "d": "Dots are clicked only during creation; afterwards growth goes through the Experience window (button at the bottom)."
+        },
+        "3": {
+          "t": "Blood, Willpower, health",
+          "d": "At the top: spend blood by clicking a drop, Willpower with “Spend”, damage and healing by the health track. Wound penalties apply to rolls automatically."
+        },
+        "4": {
+          "t": "Disciplines",
+          "d": "Disciplines tab: expand a Discipline and click the die by a power. The icon next to it toggles effect powers."
+        },
+        "5": {
+          "t": "Effects",
+          "d": "Effects tab — everything active now: powers, conditions, poisons, curses. An effect can be removed there too."
+        },
+        "6": {
+          "t": "Hints in windows",
+          "d": "The (i) button in a window header shows and hides short explanations inside that window."
+        }
+      },
+      "hud": {
+        "title": "HUD",
+        "lead": "The panel at the bottom for the selected token — the essentials without opening the sheet.",
+        "1": {
+          "t": "Tabs",
+          "d": "Fight, Blood, Powers, Other — above the portrait. Select your token and the HUD shows it."
+        },
+        "2": {
+          "t": "Powers",
+          "d": "Powers tab: a Discipline icon opens its powers, click a power to roll or toggle it."
+        },
+        "3": {
+          "t": "Fight",
+          "d": "Weapons, maneuvers, “…” — the full attack window; dodge, block, parry — answering an attack. During declarations “Declare” comes first."
+        },
+        "4": {
+          "t": "Blood",
+          "d": "Spending blood, healing, Potence and Celerity extra actions for this turn."
+        },
+        "5": {
+          "t": "Target",
+          "d": "Powers against a target take difficulty from the marked token: hover it and press T."
+        }
+      },
+      "turn": {
+        "title": "Combat turn",
+        "lead": "Three phases per V20: initiative, declarations, actions.",
+        "1": {
+          "t": "Initiative",
+          "d": "Rolled every turn: 1d10 + Dexterity + Wits − wounds. The order card goes to chat. Ties — higher initiative rating."
+        },
+        "2": {
+          "t": "Declarations",
+          "d": "From lowest initiative to highest. On your turn — a bell and a notice; “Declare” in the tracker or the HUD."
+        },
+        "3": {
+          "t": "Multiple actions",
+          "d": "Declare “Multiple actions” — roll and attack windows split the pool themselves."
+        },
+        "4": {
+          "t": "Delay",
+          "d": "Declaring “Delay” — the character acts at the end of the turn."
+        },
+        "5": {
+          "t": "Defending without a declaration",
+          "d": "If something else was declared, defending aborts it: a Willpower roll (diff. 6) or 1 Willpower. The system asks."
+        },
+        "6": {
+          "t": "Celerity",
+          "d": "Extra actions come in a phase after everyone: the window shows how many are left and offers attack, a roll or movement."
+        }
+      },
+      "fight": {
+        "title": "Attack and defense",
+        "lead": "Attack — defense — damage — soak: all through chat cards.",
+        "1": {
+          "t": "Attack",
+          "d": "Mark a target (T) and open the attack: weapon or maneuver, aim, position. Nearby foes and firearm range fill in themselves."
+        },
+        "2": {
+          "t": "Defense",
+          "d": "The attack card has defense buttons for the target. Each further defense in a turn — one die less."
+        },
+        "3": {
+          "t": "Damage and soak",
+          "d": "After a hit — the damage button, then the target soaks. Wounds go to the track automatically."
+        },
+        "4": {
+          "t": "Clinch and hold",
+          "d": "They last between turns: in a clinch both take Strength damage each turn. Break free — the HUD button (contested Strength + Brawl)."
+        },
+        "5": {
+          "t": "Fire and sun",
+          "d": "Fire or sunlight damage to a vampire — the system offers a Rötschreck check."
+        },
+        "6": {
+          "t": "Out",
+          "d": "A mortal with a full track, a vampire in torpor or staked — marked defeated in the tracker automatically."
+        }
+      },
+      "powers": {
+        "title": "Powers",
+        "lead": "Discipline powers 1–5 work per V20 text; choices are buttons.",
+        "1": {
+          "t": "Choosing a mode",
+          "d": "Where a power has several modes, the window shows them as buttons with explanations — one click."
+        },
+        "2": {
+          "t": "Powers against a target",
+          "d": "Difficulty comes from the target (Willpower, Courage…), the result is applied with a card button; the target's owner or the Storyteller clicks it."
+        },
+        "3": {
+          "t": "“Anyway”",
+          "d": "If a rule forbids it, the system asks; bending a rule shows up for the Storyteller in chat. Without a target a power can be rolled plainly."
+        },
+        "4": {
+          "t": "Powers without a roll",
+          "d": "The “Use” window: blood and Willpower cost from the book (adjustable), a line to chat; a normal roll if needed."
+        },
+        "5": {
+          "t": "Bonecraft",
+          "d": "“Custom work” — weapon, cost, body changes, soak, spikes; save templates under your own name."
+        },
+        "6": {
+          "t": "Power effects",
+          "d": "Active powers and those laid on you are on the Effects tab; durations follow the chronicle clock."
+        }
+      },
+      "blood": {
+        "title": "Blood and healing",
+        "lead": "Blood is fuel: Disciplines, physical traits, healing.",
+        "1": {
+          "t": "Limit per turn",
+          "d": "How much blood can be spent per turn depends on generation; the system tracks it."
+        },
+        "2": {
+          "t": "Healing",
+          "d": "1 blood — bashing or lethal, 5 — aggravated. In combat — a choice: only heal this turn, or heal on the move (Stamina + Survival, diff. 8)."
+        },
+        "3": {
+          "t": "Potence and Celerity",
+          "d": "With blood for this turn: Potence — automatic Strength successes, Celerity — extra actions."
+        },
+        "4": {
+          "t": "Frenzy and Rötschreck",
+          "d": "A “Check” card in chat: a Self-Control or Courage roll against the stimulus difficulty."
+        },
+        "5": {
+          "t": "Awakening",
+          "d": "In the evening — minus a blood point, boosts reset; the “Awaken” button on the sheet."
+        }
+      },
+      "chat": {
+        "title": "Chat cards",
+        "lead": "Every roll is a card: dice, result and what's next.",
+        "1": {
+          "t": "Left edge",
+          "d": "The edge color is the outcome: bone — success, brighter — exceptional, grey — failure, blood — botch."
+        },
+        "2": {
+          "t": "Red button",
+          "d": "The card's main action: damage, apply a power, take damage, roll a check."
+        },
+        "3": {
+          "t": "Who clicks",
+          "d": "Buttons on a target are clicked by its owner or the Storyteller; on your own card — by you."
+        },
+        "4": {
+          "t": "Turn results",
+          "d": "At the start of a turn — the initiative card and the previous turn's summary: who took what and who is out."
+        }
+      },
+      "gm": {
+        "title": "For the Storyteller",
+        "lead": "Time, scenes, experience and extras — from the top plate and the tracker.",
+        "1": {
+          "t": "Time and scene",
+          "d": "Click the clock — calendar; the hourglass starts a scene (timer) and ends it (“until end of scene” effects are removed)."
+        },
+        "2": {
+          "t": "Experience",
+          "d": "The star on the plate — session experience; ghoul retainers get half their domitor's experience automatically."
+        },
+        "3": {
+          "t": "Extras in combat",
+          "d": "“Extras” during declarations — all NPC declarations in one window; the sword on an NPC row — its attack."
+        },
+        "4": {
+          "t": "To actions",
+          "d": "The tracker button ends declarations early; those delaying go to the end of the turn."
+        },
+        "5": {
+          "t": "Combat settings",
+          "d": "In the system settings: initiative every turn, quick initiative (6 + traits), the declaration phase — can be turned off."
+        },
+        "6": {
+          "t": "Turn marker",
+          "d": "A blood ring around the token whose turn it is; change it in the combat tracker settings."
+        }
+      }
     }
   },
   "Fx": {

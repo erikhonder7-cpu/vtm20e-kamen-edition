@@ -28,7 +28,7 @@ export function refreshTopBar() {
   const el = document.getElementById(EL_ID);
   if (!el) return;
   const isGM = !!game.user?.isGM;
-  el.innerHTML = plateHTML({ nexus: true, scene: sceneName(), xp: isGM, end: isGM, sceneOn: !!sceneStart() });
+  el.innerHTML = plateHTML({ nexus: true, scene: sceneName(), xp: isGM, end: isGM, sceneOn: !!sceneStart(), help: true });
   el.querySelector("[data-nexus]")?.addEventListener("click", () => openSceneNexus());
   const clock = el.querySelector("[data-np-clock]");
   if (isGM) clock?.addEventListener("click", () => openCalendar());
@@ -38,6 +38,8 @@ export function refreshTopBar() {
     else { await setSceneStart(getClock()); ui.notifications.info(game.i18n.localize("VTM20.Night.SceneStarted")); }
     refreshTopBar();
   });
+  // подсказки — всем, всегда под рукой
+  el.querySelector("[data-np-help]")?.addEventListener("click", () => import("../apps/help.mjs").then(m => m.openHelp()));
   el.querySelector("[data-np-xp]")?.addEventListener("click", () => import("../apps/session-xp.mjs").then(m => m.openSessionXp()));
   clock?.classList.toggle("is-link", isGM);
   paintPlate(el);
