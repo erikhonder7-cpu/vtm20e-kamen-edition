@@ -94,7 +94,7 @@
 
 /* ── Книга записей справа ── */
 #r-citymap .rs-side { overflow-y: auto; padding: 14px 16px 18px; background: linear-gradient(#16120f, #110e0c); border: 1px solid #000;
-  box-shadow: inset 0 0 0 1px rgba(176, 137, 74, .25), 0 10px 30px rgba(0, 0, 0, .55); scrollbar-width: thin; }
+  box-shadow: inset 0 0 0 1px rgba(176, 137, 74, .25), 0 10px 30px rgba(0, 0, 0, .55); }
 #r-citymap .rs-side h3 { display: flex; align-items: center; gap: 10px; margin: 0 0 2px; padding: 0; border: 0;
   font-family: var(--c-font-display); font-weight: 400; font-size: 22px; letter-spacing: .05em; color: var(--rs-bone); }
 #r-citymap .rs-side h3 > i { width: 14px; height: 14px; flex: none; background: var(--h); transform: rotate(30deg);

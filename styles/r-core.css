@@ -431,8 +431,13 @@ body.r-theme-light .vtm20 .r-sym { background: linear-gradient(170deg, #3a3029, 
   #chat-log .chat-message, .chat-log .chat-message { animation: r-reveal .22s ease-out; }
 }
 
-/* Полосы прокрутки в окнах системы — тонкие, в цвет (ползунок — запёкшаяся кровь) */
+/* Полосы прокрутки в окнах системы — тонкие, в цвет (ползунок — запёкшаяся кровь).
+   Chrome при заданных scrollbar-width/scrollbar-color рисует свою полосу со стрелками и не смотрит на ::-webkit-scrollbar —
+   поэтому там, где ::-webkit-scrollbar есть (Chrome, Electron), стандартные свойства сбрасываются; Firefox берёт тонкую в цвет. */
 .vtm20, .vtm20 * { scrollbar-width: thin; scrollbar-color: #5a2328 transparent; }
+@supports selector(::-webkit-scrollbar) {
+  .vtm20, .vtm20 *, body.r-skin * { scrollbar-width: auto; scrollbar-color: auto; }
+}
 .vtm20 ::-webkit-scrollbar { width: 6px; height: 6px; }
 .vtm20 ::-webkit-scrollbar-track { background: transparent; }
 .vtm20 ::-webkit-scrollbar-thumb { background: #5a2328; border-radius: 3px; }

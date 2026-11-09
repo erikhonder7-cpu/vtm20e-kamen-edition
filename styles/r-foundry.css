@@ -333,10 +333,11 @@ body.r-skin #context-menu, body.r-skin #context-menu-root { border: 1px solid va
 body.r-skin #context-menu .context-item { font-family: var(--rk-body); }
 body.r-skin #context-menu .context-item:hover { background: rgba(140, 28, 34, .25); color: var(--rk-bone-b); }
 body.r-skin [class*="fa-"] { text-shadow: none; }
-body.r-skin ::-webkit-scrollbar { width: 8px; height: 8px; }
+body.r-skin ::-webkit-scrollbar { width: 6px; height: 6px; }
 body.r-skin ::-webkit-scrollbar-track { background: transparent; }
-body.r-skin ::-webkit-scrollbar-thumb { background: #2c2c31; border: 0; }
-body.r-skin ::-webkit-scrollbar-thumb:hover { background: var(--rk-blood-d); }
+body.r-skin ::-webkit-scrollbar-thumb { background: #5a2328; border: 0; border-radius: 3px; }
+body.r-skin ::-webkit-scrollbar-thumb:hover { background: #8c1c22; }
+body.r-skin ::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
 
 /* HUD токена */
 body.r-skin .placeable-hud { font-family: var(--rk-caps); }
