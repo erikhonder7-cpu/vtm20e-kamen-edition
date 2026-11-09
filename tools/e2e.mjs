@@ -2555,6 +2555,54 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  // Ход боя V20: инициатива каждый ход (карточка), заявки от низшей к высшей, выжидание — в конец хода,
+  // множественные действия делят пул в окнах, защита без заявки — отмена действия (Воля)
+  await check("Ход боя: инициатива, заявки, выжидание, отмена ради защиты", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), sys = p => import(`/systems/${sid}/${p}`);
+      const T = await sys("module/combat/turn.mjs"), RD = await sys("module/dice/dialog.mjs"), CB = await sys("module/combat/combat.mjs");
+      const mk = (name, dex, wits) => Actor.create({ name, type: "vampire", flags: { world: { e2e: true } },
+        system: { generation: 10, blood: { value: 10 }, willpower: { permanent: 4, temporary: 4 }, attributes: { dexterity: { value: dex }, wits: { value: wits } } } });
+      const actors = [await mk("E2E — боец A", 4, 3), await mk("E2E — боец B", 2, 2), await mk("E2E — боец C", 1, 1)];
+      const scene = game.scenes.viewed ?? game.scenes.contents[0];
+      const toks = await scene.createEmbeddedDocuments("Token", await Promise.all(actors.map((a, i) => a.getTokenDocument({ x: 100 + i * 200, y: 3700 }))));
+      await wait(600);
+      for (const c of game.combats.filter(c => c.scene?.id === scene.id && !c.started)) await c.delete();
+      const combat = await getDocumentClass("Combat").create({ scene: scene.id, active: true });
+      await combat.createEmbeddedDocuments("Combatant", toks.map(t => ({ tokenId: t.id, sceneId: scene.id, actorId: t.actorId })));
+      const n0 = game.messages.size;
+      await combat.startCombat(); await wait(1500);
+      const act = name => combat.combatants.find(c => c.name === name).actor;
+      const out = { cls: combat.constructor.name, init: combat.turns.every(c => Number.isFinite(c.initiative)),
+        card: game.messages.contents.slice(n0).some(m => /r-turn-card/.test(m.content)), phase: T.phaseOf(combat)?.phase };
+      // заявляет низшая инициатива (боец C почти наверняка: 1+1)
+      const lowFirst = [...combat.turns].reverse()[0].name;
+      out.first = T.currentDeclarer(combat)?.name === lowFirst;
+      const declare = (n, d) => act(n).setFlag(sid, "declared", { combat: combat.id, round: combat.round, ...d });
+      await declare("E2E — боец C", { kind: "delay" }); await wait(300);
+      await declare("E2E — боец B", { kind: "multi", actions: 3 }); await wait(300);
+      out.multi = [new RD.RollDialog(act("E2E — боец B"), { trait1: "attributes.dexterity" }).values.actions, new CB.AttackDialog(act("E2E — боец B"), {}).v.actions];
+      await declare("E2E — боец A", { kind: "attack" }); await wait(1500);
+      out.act = T.phaseOf(combat)?.phase;
+      out.delayLast = combat.turns.at(-1).name;
+      // боец A заявил атаку — защита только через отмену: 1 Воля
+      const pr = T.abortForDefense(act("E2E — боец A")); await wait(600);
+      [...foundry.applications.instances.values()].find(x => x instanceof foundry.applications.api.DialogV2)?.element.querySelector('button[data-action="spend"]')?.click();
+      out.abort = [await pr, act("E2E — боец A").system.willpower.temporary, T.declarationOf(act("E2E — боец A"))?.kind];
+      // следующий ход: инициатива заново, снова заявки
+      await combat.nextRound(); await wait(1500);
+      out.next = [combat.round, T.phaseOf(combat)?.phase, T.phaseOf(combat)?.round];
+      await combat.delete();
+      await scene.deleteEmbeddedDocuments("Token", toks.map(t => t.id));
+      await Actor.deleteDocuments(actors.map(a => a.id));
+      return out;
+    });
+    const want = { cls: "VtmCombat", init: true, card: true, phase: "declare", first: true, multi: [3, 3], act: "act", delayLast: "E2E — боец C",
+      abort: [true, 3, "defense"], next: [2, "declare", 2] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   // Помешательство через HUD: Око хаоса — сложность по задаче, Голос безумия — смертный сразу, вампир — проверка +2;
   // Метаморфозы: в облике тумана силы со взглядом недоступны
   await check("Помешательство через HUD и туман без взгляда", async () => {

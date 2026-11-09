@@ -23,6 +23,7 @@ import { initTopBar, removeTopBar, refreshTopBar, paintClockBar } from "./module
 import { registerHud, renderHud } from "./module/ui/hud.mjs";
 import { registerCombatTracker } from "./module/ui/combat-tracker.mjs";
 import { registerCelerity } from "./module/combat/celerity.mjs";
+import { registerTurn, VtmCombat } from "./module/combat/turn.mjs";
 import { registerPowerEffectHooks } from "./module/apps/power-effects.mjs";
 import { registerTargetPowers } from "./module/apps/target-powers.mjs";
 import { openAttack, openDefense, AttackDialog } from "./module/combat/combat.mjs";
@@ -101,6 +102,8 @@ Hooks.once("init", () => {
 
   // Инициатива V20: 1d10 + Ловкость + Смекалка − штраф за раны (04)
   CONFIG.Combat.initiative = { formula: "1d10 + @initiative", decimals: 0 };
+  // Ход боя V20: ничья по инициативе — выше показатель (combat/turn.mjs)
+  CONFIG.Combat.documentClass = VtmCombat;
 
   // Состояния V20 на токенах (04, 05) — впереди стандартных
   const S = id => `VTM20.Status.${id}`;
@@ -165,6 +168,7 @@ Hooks.once("init", () => {
   registerHud();
   registerCombatTracker();
   registerCelerity();
+  registerTurn();
   registerPowerEffectHooks();
   registerTargetPowers();
   registerCityMap();

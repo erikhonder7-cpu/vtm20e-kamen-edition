@@ -55,12 +55,10 @@ function meta() {
   return `${t("Night")} ${ROMAN(Math.max(1, nightNumber(ms)))}<s>✦</s>${hhmm(getDate())}<s>✦</s><span class="rp-moon"></span>${until}`;
 }
 
-/** Композиция — по центру экрана, а при раскрытой боковой панели — по центру поля слева от неё;
+/** Композиция — всегда по центру экрана: боковая панель её не сдвигает и не сжимает;
  *  на низких экранах — уменьшенная. */
 function fit(el) {
-  const sb = document.getElementById("sidebar");
-  const r = ui.sidebar?.expanded && sb ? Math.max(0, window.innerWidth - sb.getBoundingClientRect().left) : 0;
-  el.style.setProperty("--rp-right", `${r}px`);
+  el.style.setProperty("--rp-right", "0px");
   el.style.setProperty("--rp-s", Math.min(1, window.innerHeight / 860).toFixed(3));
 }
 

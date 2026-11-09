@@ -2,6 +2,7 @@
 // Окно проверки: две черты пула, модификаторы, сложность, специализация, воля,
 // штраф за раны. Пул пересчитывается на лету.
 
+import { declaredActions } from "../combat/turn.mjs";
 import { swayOf } from "../ui/strategy.mjs";
 import { totemTraits, totemOf, totemPools, totemBanned, spendTotemPool } from "../apps/coterie.mjs";
 import { VTM20, SYSTEM_PATH } from "../config.mjs";
@@ -36,7 +37,7 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     this.cfg = cfg;
     this.values = {
       trait1: cfg.trait1 ?? "", trait2: cfg.trait2 ?? "",
-      bonus: cfg.bonus ?? 0, difficulty: cfg.difficulty ?? VTM20.defaultDifficulty, actions: cfg.celerityAction ? 1 : (cfg.actions ?? 1),
+      bonus: cfg.bonus ?? 0, difficulty: cfg.difficulty ?? VTM20.defaultDifficulty, actions: cfg.celerityAction ? 1 : (cfg.actions ?? declaredActions(actor)),
       contest: cfg.contest ?? "simple", need: cfg.need ?? 5,
       specialty: !!cfg.specialty, willpower: !!cfg.willpower,
       wounds: !cfg.reflexive, physical: true,

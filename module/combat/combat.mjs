@@ -7,6 +7,7 @@
 // Атака кидается обычной карточкой «attack»: успехи сверх первого прибавляются
 // к урону, кнопка «Бросить урон» на карточке — как у оружия с листа.
 
+import { declaredActions, abortForDefense } from "./turn.mjs";
 import { allowAnyway } from "../apps/rule-gate.mjs";
 import { VTM20, SYSTEM_PATH, SYSTEM_ID } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
@@ -122,7 +123,7 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       foe: marked[0]?.uuid ?? "",
       pick: natural != null ? `f:${natural}` : beastForm === "wolf" ? `m:claws` : ["bat", "cobra"].includes(beastForm) ? `m:bite` : weapon ? `w:${weapon}` : maneuver ? `m:${maneuver}` : first ? `w:${first.id}` : "m:punch",
       position: "front", aim: "none", foes: 0, blind: false, target: "normal",
-      range: "normal", cover: 0, actions: 1, bonus: 0, diffAdj: 0,
+      range: "normal", cover: 0, actions: celerityAction ? 1 : declaredActions(actor), bonus: 0, diffAdj: 0,
       specialty: false, willpower: false, physical: true, wounds: true,
       messageMode: game.settings.get("core", "messageMode")
     };
@@ -415,6 +416,8 @@ export async function defendCard(card, method, { celerityAction = false } = {}) 
   if (resolvedIds().has(card.id)) return ui.notifications.info(t("Combat.AlreadyResolved"));
   if (!methodsFor(d).includes(method)) return ui.notifications.warn(t("Combat.RangedDodgeOnly"));
   if (method === "none") return resolveAttack(card, 0, "none");
+  // защиты не заявлял — сперва отмена действия (Воля, сл. 6, или 1 Воля)
+  if (!celerityAction && !(await abortForDefense(target))) return;
   return openDefense(target, method, {
     subtitle: `← ${d.attackerName}: ${d.weaponName}`,
     celerityAction,

@@ -2772,6 +2772,18 @@
       "HuntersAlert": {
         "Name": "Hunters on Masquerade Exposure",
         "Hint": "When the city's Masquerade heat reaches exposure, the Storyteller gets a card at nightfall: assemble a hunter cell, place a mark or dismiss it."
+      },
+      "InitEachTurn": {
+        "Name": "Initiative every turn",
+        "Hint": "At the start of each combat turn everyone rolls initiative again (1d10 + Dexterity + Wits − wounds), as in V20; one card with the order."
+      },
+      "InitFixed": {
+        "Name": "Quick initiative without a roll",
+        "Hint": "6 instead of the die: initiative = 6 + Dexterity + Wits (quick variant of the rules)."
+      },
+      "Declare": {
+        "Name": "Declaration phase",
+        "Hint": "After initiative, fighters declare actions from lowest initiative to highest; those delaying act at the end of the turn; defending without a declaration means aborting an action (Willpower)."
       }
     },
     "Nexus": {
@@ -6192,6 +6204,52 @@
       "Go": "Use",
       "Roll": "Roll",
       "Have": "have {n}"
+    },
+    "Turn": {
+      "InitTitle": "Combat turn",
+      "InitRound": "Turn {n}: initiative",
+      "InitFoot": "Act from highest initiative to lowest.",
+      "InitFootDeclare": "Declare from lowest initiative to highest, act from highest to lowest.",
+      "DeclarePhase": "Declarations",
+      "DeclareNow": "{name} declares",
+      "DeclareDone": "everyone has declared",
+      "Declare": "Declare",
+      "SkipDeclare": "To actions",
+      "NotDeclared": "not declared",
+      "ActNow": "Declarations done — act from highest initiative to lowest. Those delaying act at the end of the turn.",
+      "DeclareTitle": "Declaration",
+      "DeclareKicker": "turn {n} · declaration",
+      "DeclareHint": "what they will do this turn",
+      "Kind": {
+        "attack": "Attack",
+        "defense": "Defense",
+        "multi": "Multiple actions",
+        "power": "Discipline",
+        "move": "Movement",
+        "other": "Other",
+        "delay": "Delay"
+      },
+      "KindSub": {
+        "attack": "a single attack",
+        "defense": "dodge, block, parry",
+        "multi": "the pool is split between actions",
+        "power": "a power or spending blood",
+        "move": "walk, run, take cover",
+        "other": "any other action",
+        "delay": "act at the end of the turn"
+      },
+      "MultiN": "{n} actions",
+      "Actions": "How many actions",
+      "ActionsHint": "roll windows will split the pool",
+      "TextHint": "What exactly — visible to everyone in the tracker",
+      "Will": "Spending Willpower for a success",
+      "AbortTitle": "Abort to defend",
+      "AbortWhy": "Declared: {what}. Defending instead means aborting that action.",
+      "AbortHint": "By the rules: a Willpower roll (diff. 6) or spending 1 Willpower point. The action is lost.",
+      "AbortRoll": "Roll Willpower",
+      "AbortSpend": "Spend 1 Willpower",
+      "AbortFailed": "Could not abort the action — no defense.",
+      "Aborted": "aborted to defend"
     }
   },
   "Fx": {
