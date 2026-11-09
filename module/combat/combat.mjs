@@ -201,6 +201,10 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const targetHitDiff = [...(targetActor?.system?.fx?.diff?.hit ?? []), ...(c.ranged ? targetActor?.system?.fx?.diff?.rangedHit ?? [] : [])]
       .reduce((sum, x) => sum + (Number(x.value) || 0), 0);
     if (targetHitDiff) { diff += targetHitDiff; notes.push(t("Fx.HitHint")); }
+    // Парадокс (Бардо 5): вредить тому, чьё откровение слышал, — навсегда +1 к сложности
+    const harm = targetActor ? a.effects.filter(e => !e.disabled && e.flags?.[SYSTEM_ID]?.harmDiff
+      && (e.flags[SYSTEM_ID].harmDiff.by === targetActor.uuid || e.flags[SYSTEM_ID].harmDiff.by?.endsWith(`Actor.${targetActor.id}`))).reduce((s, e) => s + (Number(e.flags[SYSTEM_ID].harmDiff.n) || 0), 0) : 0;
+    if (harm) { diff += harm; notes.push(t("TP.ParadoxHarm", { n: harm })); }
     // пути Тауматургии: +сложность к физическим (Головокружение, Припадок, Отказ тела…)
     for (const d of mindDiff(a, { physical: true, dex: c.attr === "dexterity" })) { diff += d.value; notes.push(`${d.label}: ${d.value > 0 ? "+" : ""}${d.value}`); }
     // Верный удар (Путь Марса 2): ближний бой попадает с 1 успехом без броска — если пул не делят
@@ -323,6 +327,9 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     if (foe?.system?.fx?.mistForm && !c.supernatural && !(await allowAnyway(this.actor, t("Fx.MistPhysicalImmune", { name: foe.name })))) return;
     if (foe?.system?.fx?.shadowForm && !c.supernatural && !(await allowAnyway(this.actor, t("Fx.ShadowPhysicalImmune", { name: foe.name })))) return;
     if (v.target === "helpless") notes.unshift(t("Combat.AutoHit"));
+    // Парадокс: атакованный слушатель выходит из оцепенения
+    const dazed = foe?.effects?.filter(e => e.flags?.[SYSTEM_ID]?.mind === "bardo|Paradox").map(e => e.id) ?? [];
+    if (dazed.length && foe.isOwner) await foe.deleteEmbeddedDocuments("ActiveEffect", dazed);
     // яд кобры смертелен для смертных (V20, Серпентис 4) — исход решает рассказчик
     if (c.cobra && foe && ["mortal", "ghoul", "hunter"].includes(foe.type)) notes.push(t("Combat.CobraVenom", { name: foe.name }));
     if (c.pierce) notes.push(t("Combat.PierceNote", { n: c.pierce }));

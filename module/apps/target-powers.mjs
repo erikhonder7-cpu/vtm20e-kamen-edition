@@ -60,6 +60,11 @@ export const TARGET_POWERS = {
   // Мистификация 3–5 (киасиды): Поглощение ауры — сложность по следу; Печать фей — 2 + Воля цели (предмет — 7), срок по успехам,
   // −2 к Интеллекту; Волшебная загадка — сложность Воля жертвы, жертва замирает и решает (Смекалка + Оккультизм, сл. 8)
   "mytherceria|Aura Absorption": { kind: "absorb" },
+  // Бардо: Возрождение Человечности (вся кровь, Совесть против возвращаемой Человечности), Обелиск Осириса (место — сложность,
+  // успех — сень Обелиска), Парадокс (сложность — самая сильная Воля среди слушателей; оцепенение на сцену, потом +1 вредить)
+  "bardo|Restore Humanitas": { kind: "humanitas" },
+  "bardo|Pillar of Osiris": { kind: "pillar" },
+  "bardo|Paradox": { kind: "paradox" },
   "mytherceria|Chanjelin Ward": { kind: "ward", timed: ["hour", "night", "week", "month", "year"] },
   "mytherceria|Riddle Phantastique": { kind: "riddle", needTarget: true, diff: ["willpower"] },
   // Фантасмагория 1–4: без броска — иллюзии эффектами на листе (их может быть несколько); 3–4 — к выбранной иллюзии
@@ -218,13 +223,13 @@ export function tierText(tp, successes) {
 /** Подпись кнопки «наложить» на карточке (только у сил с эффектом на цели). */
 export function targetPowerLabel(extra, ev) {
   const tp = extra?.targetPower && TARGET_POWERS[extra.targetPower.key];
-  if (!tp || ev.outcome !== "success" || extra.targetPower.done || !(tp.timed || tp.dread || tp.kind) || ["taste", "gather", "aura", "visage", "whisper", "info", "tiers", "counter", "chaos", "tele", "psycho", "illusion", "absorb"].includes(tp.kind)) return "";
+  if (!tp || ev.outcome !== "success" || extra.targetPower.done || !(tp.timed || tp.dread || tp.kind) || ["taste", "gather", "aura", "visage", "whisper", "info", "tiers", "counter", "chaos", "tele", "psycho", "illusion", "absorb", "humanitas", "pillar"].includes(tp.kind)) return "";
   // Усмирение — только когда накоплены все успехи продолжительного броска
   if (tp.kind === "quell" && !((extra.extended?.prev ?? 0) + ev.successes >= (extra.extended?.need ?? Infinity))) return "";
   const lbl = { beast: "BeastApply", poison: "PoisonApply", shroud: "ShroudApply", arms: "ArmsApply", vanish: "VanishApply",
     rage: "RageApply", potency: "PotencyApply", theft: "TheftApply", possess: "PossessApply", project: "ProjectApply", awe: "AweApply", call: "CallApply",
     mesmerize: "MesApply", forget: "ForgApply", condition: "CondApply", voice: "VoiceApply",
-    flesh: "FleshApply", bone: "BoneApply", dagon: "DagonApply", nightmare: "NightApply", ward: "WardApply", riddle: "RiddleApply", beckon: "BeckonApply", subsume: "SubsumeApply", self: "SelfApply", summon: "SummonApply", comrades: "ComradesApply", conjure: "ConjureApply" }[tp.kind] ?? "Apply";
+    flesh: "FleshApply", bone: "BoneApply", dagon: "DagonApply", nightmare: "NightApply", ward: "WardApply", riddle: "RiddleApply", paradox: "ParadoxApply", beckon: "BeckonApply", subsume: "SubsumeApply", self: "SelfApply", summon: "SummonApply", comrades: "ComradesApply", conjure: "ConjureApply" }[tp.kind] ?? "Apply";
   return t(lbl, { name: extra.targetPower.targetName, n: ev.successes });
 }
 
@@ -427,6 +432,20 @@ export async function applyTargetPower(message, state, ev) {
     if (cost) await target.applyDamage(cost, "lethal");
     await target.startPower("vicissitude:3", { variant: x.bone, blood: 0 });
     return notice(target, x.powerName, t(x.bone === "claws" ? "BoneClawsDone" : "BoneSpikesDone", { n: cost }));
+  }
+  if (tp.kind === "paradox") {
+    // Парадокс: слушатели оцепеневают до конца сцены (атака — снимает); навсегда +1 к сложности вредить этому вампиру
+    await done(message, state, x);
+    for (const uuid of x.crowd ?? [x.target]) {
+      const who = await foundry.utils.fromUuid(uuid);
+      if (!who?.isOwner) continue;
+      await who.createEmbeddedDocuments("ActiveEffect", [
+        { name: t("ParadoxName", { name: x.actorName }), img: Codex.disciplineIcon("bardo"), statuses: ["r-held"], description: `<p>${esc(t("ParadoxDesc"))}</p>`,
+          flags: { [SYSTEM_ID]: { ...flags, mode: "scene" } } },
+        { name: t("ParadoxMark", { name: x.actorName }), img: Codex.disciplineIcon("bardo"), description: `<p>${esc(t("ParadoxMarkDesc", { name: x.actorName }))}</p>`,
+          flags: { [SYSTEM_ID]: { mode: "manual", harmDiff: { by: state.actorUuid ?? "", n: 1 } } } }]);
+    }
+    return notice(target, x.powerName, t("ParadoxDone", { names: x.targetName }));
   }
   if (tp.kind === "riddle") {
     // Волшебная загадка: жертва замирает; нужно втрое больше успехов, чем у киасида; решает кнопкой на карточке
@@ -708,6 +727,40 @@ export async function rollTargetPower(actor, disc, d, p, tp, { rollFromSpec, sub
     if (how === "read" && target && supernatural(target) && !(await actor.spendWillpower(1))) return null;
     opts.more = null;
     roll.note = [roll.note, t(how === "read" ? (target && supernatural(target) ? "TeleReadSuper" : "TeleReadNote") : "TeleSendNote")].filter(Boolean).join(" ");
+  }
+  if (tp.kind === "humanitas") {
+    // вся кровь — до броска; успех — +1 Человечность
+    const hum = actor.system.morality?.value ?? 0, blood = actor.system.blood?.value ?? 0;
+    if (hum >= 10) return ui.notifications.info(t("HumMax"));
+    if (blood && !(await actor.spendBlood(blood, { reason: p.name, limit: false }))) return null;
+    roll = { ...roll, trait1: "virtues.conscience", trait2: "", difficulty: Math.clamp(hum + 1, 2, 10), note: t("HumNote", { n: hum + 1, b: blood }) };
+    opts.more = null;
+    opts.onRolled = async res => {
+      if ((res?.successes ?? 0) < 1) return;
+      await actor.update({ "system.morality.value": Math.min(10, (actor.system.morality?.value ?? 0) + 1) });
+      return notice(actor, p.name, t("HumDone", { n: (actor.system.morality?.value ?? 0) }));
+    };
+  }
+  if (tp.kind === "pillar") {
+    // место: 5 — уединённое, не знавшее насилия … 9 — пропитанное убийствами; 1 Воля — сразу
+    const d = await ask(p.name, [["5", t("PillarD5")], ["6", "6"], ["7", t("PillarD7")], ["8", "8"], ["9", t("PillarD9")]]);
+    if (!d) return null;
+    if (!(await actor.spendWillpower(1))) return null;
+    roll = { ...roll, trait1: "willpower.permanent", trait2: "", difficulty: parseInt(d), note: t("PillarNote") };
+    opts.more = null;
+    opts.onRolled = async res => {
+      if ((res?.successes ?? 0) < 1) return;
+      if (!actor.powerEffects.some(e => e.power === "bardo:4")) await actor.startPower("bardo:4", { blood: 0 });
+    };
+  }
+  if (tp.kind === "paradox") {
+    // все отмеченные — слушатели; сложность — самая сильная текущая Воля среди них
+    const crowd = [...(game.user.targets ?? [])].map(tk => tk.actor).filter(x => x && x !== actor);
+    if (crowd.length) {
+      const top = Math.max(...crowd.map(x => x.system.willpower?.temporary ?? 0));
+      roll = { ...roll, difficulty: Math.clamp(top, 2, 10), note: t("ParadoxNote", { n: top, k: crowd.length }) };
+      opts.more = { targetPower: { key, target: crowd[0].uuid, targetName: crowd.map(x => x.name).join(", "), powerName: p.name, actorName: actor.name, crowd: crowd.map(x => x.uuid) } };
+    } else roll.note = [roll.note, t("MarkTarget")].filter(Boolean).join(" ");
   }
   if (tp.kind === "absorb") {
     const d = await ask(p.name, [["4", t("PsychoD4")], ["5", "5"], ["6", t("PsychoD6")], ["7", "7"], ["8", "8"], ["9", t("AbsorbD9")]]);

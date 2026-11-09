@@ -2307,6 +2307,73 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  // Бардо через HUD: Возрождение Человечности, Обелиск Осириса (−3 к мистическим), Парадокс (самая сильная Воля, +1 вредить)
+  await check("Бардо через HUD", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), sys = p => import(`/systems/${sid}/${p}`);
+      const TP = await sys("module/apps/target-powers.mjs"), RD = await sys("module/dice/dialog.mjs"), CB = await sys("module/combat/combat.mjs");
+      const mk = (name, type, system = {}) => Actor.create({ name, type, flags: { world: { e2e: true } }, system });
+      const a = await mk("E2E — дитя Осириса", "vampire", { generation: 9, blood: { value: 5 }, morality: { value: 6 }, willpower: { permanent: 6, temporary: 6 },
+        virtues: { conscience: { value: 3 } } });
+      const m1 = await mk("E2E — слушатель 1", "mortal", { willpower: { permanent: 3, temporary: 3 } });
+      const m2 = await mk("E2E — слушатель 2", "mortal", { willpower: { permanent: 5, temporary: 5 } });
+      await a.createEmbeddedDocuments("Item", [{ name: "E2E — bardo", type: "discipline", system: { key: "bardo", value: 5 } }]);
+      const scene = game.scenes.viewed ?? game.scenes.contents[0];
+      const made = await scene.createEmbeddedDocuments("Token", await Promise.all([a, m1, m2].map((x, i) => x.getTokenDocument({ x: 100 + i * 200, y: 2900 }))));
+      const tok = x => made.find(tk => tk.actorId === x.id);
+      for (let i = 0; i < 30 && !canvas.tokens.get(tok(m2).id); i++) await wait(100);
+      await wait(400);
+      const inst = () => [...foundry.applications.instances.values()];
+      const dialogs = () => inst().filter(x => x instanceof foundry.applications.api.DialogV2);
+      const closeAll = async () => { for (const x of inst()) if (x.constructor.name === "RollDialog" || x instanceof foundry.applications.api.DialogV2) await x.close(); };
+      const pick = async val => { const d = dialogs().at(-1); const s = d?.element.querySelector("select"); if (s) s.value = val;
+        d?.element.querySelector('button[data-action="ok"]')?.click(); await wait(500); };
+      const hud = async re => { await closeAll(); document.querySelector('#r-hud [data-act="tab"][data-tab="powers"]')?.click(); await wait(300);
+        document.querySelector('#r-hud [data-act="pop"][data-pop*="bardo"]')?.click(); await wait(400);
+        [...document.querySelectorAll('#r-hud .rh-pop-row[data-act="power"]')].find(x => re.test(x.textContent))?.click(); await wait(700); };
+      const rollDlg = () => inst().find(x => x.constructor.name === "RollDialog");
+      const at = () => canvas.tokens.get(tok(a).id).actor;
+      canvas.tokens.get(tok(a).id)?.control({ releaseOthers: true }); await wait(600);
+      // Возрождение Человечности: вся кровь, Совесть, сложность 7
+      await hud(/Возрождение Человечности/);
+      let rd = rollDlg();
+      const out = { hum: [rd?.values.trait1, rd?.values.difficulty, at().system.blood.value] };
+      await rd?.cfg.onRolled?.({ successes: 1, outcome: "success" }); await closeAll();
+      out.hum.push(at().system.morality.value);
+      // Обелиск Осириса: место 5, 1 Воля, постоянная Воля; успех — сень Обелиска, −3 к мистическим
+      const w0 = at().system.willpower.temporary;
+      await hud(/Обелиск Осириса/); await pick("5");
+      rd = rollDlg();
+      out.pillar = [rd?.values.trait1, rd?.values.difficulty, w0 - at().system.willpower.temporary];
+      await rd?.cfg.onRolled?.({ successes: 1, outcome: "success" }); await closeAll();
+      const mystic = new RD.RollDialog(at(), { trait1: "attributes.dexterity", trait2: "abilities.occult", extra: { power: { disc: "bardo", level: 2 } } }).compute().diffAuto;
+      const plain = new RD.RollDialog(at(), { trait1: "attributes.dexterity", trait2: "abilities.occult" }).compute().diffAuto;
+      out.pillar.push(mystic.some(d => d.value === -3), !plain.some(d => d.value === -3));
+      // Парадокс: двое слушателей, сложность — Воля 5
+      canvas.tokens.get(tok(m1).id)?.setTarget(true, { releaseOthers: true });
+      canvas.tokens.get(tok(m2).id)?.setTarget(true, { releaseOthers: false }); await wait(300);
+      await hud(/Парадокс/);
+      rd = rollDlg();
+      out.paradox = rd?.values.difficulty;
+      await TP.applyTargetPower({ isOwner: false }, { actorUuid: a.uuid, extra: rd?.cfg.extra }, { successes: 1, outcome: "success" });
+      const t1 = canvas.tokens.get(tok(m1).id).actor, t2 = canvas.tokens.get(tok(m2).id).actor;
+      out.held = [t1.statuses.has("r-held"), t2.statuses.has("r-held")];
+      await closeAll();
+      // слушатель бьёт вампира — +1 к сложности
+      const atk = new CB.AttackDialog(t1, {}); atk.v.foe = at().uuid;
+      const base = new CB.AttackDialog(canvas.tokens.get(tok(a).id).actor, {}); base.v.foe = t1.uuid;
+      out.harm = atk.compute().difficulty - base.compute().difficulty;
+      [...game.user.targets].forEach(x => x.setTarget(false, { releaseOthers: false }));
+      canvas.tokens.releaseAll(); await wait(600);
+      await scene.deleteEmbeddedDocuments("Token", made.map(x => x.id));
+      await Actor.deleteDocuments([a.id, m1.id, m2.id]);
+      return out;
+    });
+    const want = { hum: ["virtues.conscience", 7, 0, 7], pillar: ["willpower.permanent", 5, 1, true, true], paradox: 5, held: [true, true], harm: 1 };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   // Помешательство через HUD: Око хаоса — сложность по задаче, Голос безумия — смертный сразу, вампир — проверка +2;
   // Метаморфозы: в облике тумана силы со взглядом недоступны
   await check("Помешательство через HUD и туман без взгляда", async () => {

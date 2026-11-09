@@ -6058,7 +6058,22 @@
       "RiddleGone": "The riddle is already solved or lifted.",
       "RiddleBotch": "Botch: 1 lethal, accumulated successes lost — start over.",
       "RiddleSolved": "The riddle is solved — the victim is free.",
-      "RiddleProgress": "Solving: {got} of {need} successes."
+      "RiddleProgress": "Solving: {got} of {need} successes.",
+      "HumMax": "Humanity is already at its maximum.",
+      "HumNote": "Several hours of meditation; all blood ({b}) spent. Conscience vs. the Humanity being restored ({n}). Restores only the most recent lost point — no later than a week after the loss.",
+      "HumDone": "Humanity restored: {n}.",
+      "PillarD5": "5 — secluded, untouched by violence",
+      "PillarD7": "7 — ordinary",
+      "PillarD9": "9 — steeped in murder",
+      "PillarNote": "An all-night ritual, 1 Willpower spent. Success — a Pillar: while the character is in its shade, mystic rolls −3 (effect on the sheet — remove it when leaving). Visit the Pillar at least monthly; each week away from any Pillar — +1 to frenzy resistance difficulty.",
+      "ParadoxApply": "Paradox — {name}",
+      "ParadoxNote": "Listeners: {k}; difficulty — the strongest Willpower among them ({n}).",
+      "ParadoxName": "Paradox ({name})",
+      "ParadoxDesc": "Frozen in contemplation until the end of the scene; an attack breaks it at once.",
+      "ParadoxMark": "{name}'s revelation",
+      "ParadoxMarkDesc": "The revelation itself is forgotten, but permanently +1 to the difficulty of rolls to harm {name}.",
+      "ParadoxDone": "The listeners are frozen until the end of the scene: {names}.",
+      "ParadoxHarm": "Paradox revelation: +{n} to the difficulty to harm this target"
     },
     "Ghoul": {
       "Retainer": "Retainer, not a PC",

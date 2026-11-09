@@ -117,8 +117,11 @@ export const POWER_EFFECTS = {
   "sanguinus:3": { mode: "scene", icon: "fa-people-arrows", cost: { blood: 1 } },
   // Сангвинус 5, Кровное единство: 3 крови с каждого, до конца сцены
   "sanguinus:5": { mode: "scene", icon: "fa-circle-nodes", cost: { blood: 3 } },
-  // Бардо 4, Обелиск Осириса: ритуал на всю ночь, 1 Воля
-  "bardo:4": { mode: "night", icon: "fa-monument", cost: { willpower: 1 } },
+  // Бардо 3, Дар Аписа: постоянно — кровь зверя по числу его уровней здоровья
+  "bardo:3": { mode: "toggle", icon: "fa-cow", noRoll: true },
+  // Бардо 4, Обелиск Осириса: под его сенью мистические проверки (Дисциплины, магия крови) −3 к сложности;
+  // ложится броском (apps/target-powers.mjs, pillar), снимается, когда персонаж уходит
+  "bardo:4": { mode: "toggle", icon: "fa-monument", viaRoll: true, mysticDiff: -3 },
   // Спиритус 5, Дикий зверь: 2 крови; в облике — не больше Воли часов за ночь
   "spiritus:5": { mode: "hour", hours: "ask", icon: "fa-paw", cost: { blood: 2 } },
 
@@ -151,7 +154,6 @@ export const POWER_EFFECTS = {
   "obfuscate:Мысленный лабиринт": { mode: "scene", icon: "fa-brain" },
   "chimerstry:Ложный отклик": { mode: "night", icon: "fa-shoe-prints" },
   "chimerstry:Майяпарисатья": { mode: "scene", icon: "fa-wand-magic-sparkles" },
-  "bardo:Парадокс": { mode: "scene", icon: "fa-infinity", cost: { willpower: 1 } },
   "bardo:Зов рассвета": { mode: "hour", hours: "ask", icon: "fa-bed" },
   "valeren:Броня гнева Каинова": { mode: "scene", icon: "fa-shield", cost: { blood: 1 } },
   "valeren:Блаженная агония": { mode: "scene", icon: "fa-hand-holding-medical", cost: { blood: 1 } },
@@ -268,6 +270,7 @@ export function effectMods(actor) {
     m.shadowForm ||= !!def.shadowForm;
     m.bloodForm ||= !!def.bloodForm;
     m.heartless ||= !!def.heartless;
+    if (def.mysticDiff) (m.mystic ??= []).push({ label: effect.name, value: def.mysticDiff });
     m.intimStrength ||= !!def.intimStrength;
     m.spikes ||= !!def.spikes;
     m.grappleDice += def.grappleDice ?? 0;

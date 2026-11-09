@@ -177,6 +177,8 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const physical = attrs.some(k => VTM20.attributeGroups.physical.attributes.includes(k));
     const diffAuto = [...(attrs.includes("perception") ? (fx.perception ?? []) : []), ...formDiff, ...sm.diff, ...frenzyDiff(a, this.cfg.kind),
       ...mindDiff(a, { physical, social, dex: attrs.includes("dexterity") }),
+      // Обелиск Осириса: мистические проверки (силы Дисциплин, магия крови) −3
+      ...((this.cfg.extra?.power || this.cfg.extra?.magic || ["magic", "ritual"].includes(this.cfg.kind)) ? a.system.fx?.mystic ?? [] : []),
       ...mm.auto.filter(m => m.diff).map(m => ({ label: m.label, value: m.diff }))];
     const selectedTargets = [...(game.user.targets ?? [])];
     const earthTarget = selectedTargets.length === 1 ? selectedTargets[0]?.actor : null;
