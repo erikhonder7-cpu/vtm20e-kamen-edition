@@ -445,6 +445,13 @@
 .vtm20 .r-toolbar.is-inner { margin: 6px 0 4px; }
 .vtm20 .r-toolbar .r-select { flex: 1 1 200px; min-width: 0; height: 28px; background: var(--r-s2); border: 1px solid var(--r-line-2); }
 .vtm20 .r-toolbar .r-btn { height: 28px; }
+/* поиск Дара, ритуала, фетиша, шрама (оборотень): набрал — выбрал — добавлено */
+.vtm20 .r-toolbar input.r-ww-find {
+  flex: 1 1 260px; min-width: 0; height: 28px; margin: 0; padding: 0 8px; font-family: var(--r-body); font-size: 13.5px; color: var(--r-ink);
+  background: var(--r-s2); border: 1px solid var(--r-line-2); border-radius: 0; box-shadow: none;
+}
+.vtm20 .r-toolbar input.r-ww-find::placeholder { color: var(--r-muted); font-style: italic; }
+.vtm20 .r-toolbar input.r-ww-find:focus { border-color: var(--r-accent); }
 
 /* ── Дисциплины ───────────────────────────────────────────────────────── */
 
@@ -819,6 +826,8 @@ body.r-theme-light .vtm20 .r-motto { color: rgba(140, 28, 34, .75); }
 }
 @container rsheet (max-width: 1040px) {
   .vtm20 .r-cols2 .r-h2-lbl { display: none; }
+  /* много кнопок в заголовке (Врождённые способности демона) — на средней ширине только значки с подсказками */
+  .vtm20 .r-h2.is-crowded .r-h2-lbl { display: none; }
 }
 @container rsheet (max-width: 860px) {
   .vtm20 .r-h2-lbl { display: none; }

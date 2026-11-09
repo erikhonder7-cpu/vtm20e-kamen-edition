@@ -16,7 +16,7 @@ import { openHunt } from "../apps/night.mjs";
 import { rollPowerRef, powerByRef } from "../sheets/actor-sheet.mjs";
 import { effectTimer } from "../apps/timers.mjs";
 import { W as werewolfData, feraOf, changeForm, rageActions, regenerate, stepSideways, frenzyCheck, giftOf, rollGift, rollRite } from "../apps/werewolf.mjs";
-import { H as hunterData, secondSight } from "../apps/hunter.mjs";
+import { H as hunterData, secondSight, edgesView, useEdge } from "../apps/hunter.mjs";
 import { assumeForm } from "../apps/torment.mjs";
 import { togglePowerEffect } from "../apps/power-effects.mjs";
 
@@ -128,6 +128,9 @@ function powerGroups(a, kind) {
     const rites = (w.rites ?? []).map(k => werewolfData().rites.find(r => r.key === k)).filter(Boolean);
     if (rites.length) out.push({ id: "rites", label: t("Werewolf.Rites"), icon: "fa-hands-praying", rows: rites.map(r => ({ name: r.name, level: r.level || 0, act: "rite", attrs: `data-key="${esc(r.key)}"` })) });
   }
+  // Грани охотника — по путям вероучений, как на листе
+  if (kind === "hunter") for (const g of edgesView(a)) if (g.edges.length)
+    out.push({ id: `e:${g.path}`, label: g.name, icon: "fa-eye", rows: g.edges.map(e => ({ name: e.name, level: e.level, act: "edge", attrs: `data-key="${esc(e.key)}"` })) });
   return out;
 }
 
@@ -379,6 +382,7 @@ async function onClick(ev) {
     // силы из списка над HUD: Дисциплины и Знания — броском силы, Дары и ритуалы Гару — своими бросками
     case "gift": pop = null; renderHud(); return rollGift(a, el.dataset.key);
     case "rite": pop = null; renderHud(); return rollRite(a, el.dataset.key);
+    case "edge": pop = null; renderHud(); return useEdge(a, el.dataset.key);
     case "noop": return;
     // все силы — вкладка сил на листе (Дисциплины, Дары, Знания, Грани)
     case "allPowers": await a.sheet.render(true); return a.sheet.changeTab?.("disciplines", "primary");

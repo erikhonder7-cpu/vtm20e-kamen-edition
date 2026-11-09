@@ -540,6 +540,8 @@ export function prepareAdvantages(sheet, ctx) {
     levels: BOON_LEVELS.map(k => ({ key: k, label: boonLevelLabel(k), selected: k === b.level })) }));
   ctx.boonCols = ["owed", "owe"].map(dir => ({ dir, label: `VTM20.Boon.Dir.${dir}`, list: boons.filter(b => (b.dir === "owe" ? "owe" : "owed") === dir),
     open: boons.filter(b => b.dir === dir && !b.done).length }));
+  // престация — обычай Сородичей: у вампиров и гулей всегда, у прочих — только если долги уже записаны
+  ctx.showBoons = ["vampire", "ghoul"].includes(a.type) || boons.length > 0;
 }
 
 /** Родословная (план 6): линия сиров вверх по полям «Сир», потомки, проверка крови, братья и сёстры по сиру. */

@@ -73,7 +73,7 @@
 
   {{!-- Ритуалы падших (Players Guide, гл. 6): ход — длительный бросок Веры Анкиды, затем бросок эффекта --}}
   <h2 class="r-h2"><span>{{localize "VTM20.Demon.Rituals"}}</span>
-    <span class="r-h2-tools"><a class="r-h2-btn is-plain" data-action="openRules" data-tooltip="{{localize 'VTM20.Demon.RitualsRules'}}"><i class="fa-solid fa-book-open-reader"></i></a></span>
+    <span class="r-h2-tools"><a class="r-h2-btn is-plain" data-action="openRules" data-tooltip="{{localize 'VTM20.Demon.RitualsRules'}}"><i class="fa-solid fa-book-open-reader"></i></a>{{#if @root.editable}}<a class="r-h2-btn" data-action="openPack" data-pack="demon-rituals" data-tooltip="{{localize 'VTM20.Sheet.PackHint'}}"><i class="fa-solid fa-book-skull"></i> <span class="r-h2-lbl">{{localize "VTM20.Library.Open"}}</span></a><a class="r-h2-btn is-ghost" data-action="itemCreate" data-type="demonRitual" data-tooltip="{{localize 'VTM20.Sheet.Own'}}"><i class="fa-solid fa-feather"></i> <span class="r-h2-lbl">{{localize "VTM20.Sheet.Own"}}</span></a>{{/if}}</span>
   </h2>
   {{#each demonRituals}}
   <article class="r-row-wrap r-rite {{#if open}}is-open{{/if}} {{#if run}}is-live{{/if}}" data-item-id="{{id}}">
@@ -118,7 +118,7 @@
   {{/each}}
 
   {{!-- Реликвии падших --}}
-  <h2 class="r-h2"><span>{{localize "VTM20.Demon.Relics"}}</span></h2>
+  <h2 class="r-h2"><span>{{localize "VTM20.Demon.Relics"}}</span><span class="r-h2-tools">{{#if @root.editable}}<a class="r-h2-btn" data-action="openPack" data-pack="demon-relics" data-tooltip="{{localize 'VTM20.Sheet.PackHint'}}"><i class="fa-solid fa-book-skull"></i> <span class="r-h2-lbl">{{localize "VTM20.Library.Open"}}</span></a><a class="r-h2-btn is-ghost" data-action="itemCreate" data-type="relic" data-tooltip="{{localize 'VTM20.Sheet.Own'}}"><i class="fa-solid fa-feather"></i> <span class="r-h2-lbl">{{localize "VTM20.Sheet.Own"}}</span></a>{{/if}}</span></h2>
   {{#each relics}}
   <article class="r-row-wrap r-rite r-relic-row is-{{kindKey}} {{#if open}}is-open{{/if}}" data-item-id="{{id}}">
     <header class="r-rite-head">
@@ -147,7 +147,7 @@
   {{/each}}
 
   {{!-- Врождённые способности (гл. 7): без броска — иммунитеты, с броском — мороки, имена, изгнание --}}
-  <h2 class="r-h2"><span>{{localize "VTM20.Demon.Innate"}}</span>
+  <h2 class="r-h2 is-crowded"><span>{{localize "VTM20.Demon.Innate"}}</span>
     <span class="r-h2-tools">
       <a class="r-h2-btn" data-action="innate" data-kind="illusion" data-tooltip="{{localize 'VTM20.Demon.InnateIllusionNote'}}"><i class="fa-solid fa-eye"></i> <span class="r-h2-lbl">{{localize "VTM20.Demon.InnateIllusionShort"}}</span></a>
       <a class="r-h2-btn" data-action="innate" data-kind="names" data-tooltip="{{localize 'VTM20.Demon.InnateNameHow'}}"><i class="fa-solid fa-signature"></i> <span class="r-h2-lbl">{{localize "VTM20.Demon.InnateNameShort"}}</span></a>

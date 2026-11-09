@@ -158,7 +158,7 @@
     <h4 class="r-sp-h">{{localize "VTM20.Werewolf.Spirit.charms"}}</h4>
     <ul class="r-sp-charms">{{#each spiritInfo.charms}}<li><b data-tooltip="{{text}}">{{rName this}}</b>{{#if general}}<small>{{localize "VTM20.Werewolf.Spirit.general"}}</small>{{else}}{{#if @root.editable}}<a data-action="spCharmDel" data-key="{{key}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}{{/if}}</li>{{/each}}</ul>
     {{#if editable}}<div class="r-toolbar"><select class="r-sp-charm-add"><option value="">{{localize "VTM20.Werewolf.Spirit.addCharm"}}</option>{{#each spiritInfo.avail}}<option value="{{key}}">{{rName this}}</option>{{/each}}</select>
-      <a class="r-vc-btn" data-action="spCharmAdd"><i class="fa-solid fa-plus"></i></a></div>
+      <a class="r-vc-btn" data-action="spCharmAdd" data-tooltip="{{localize 'VTM20.Sheet.AddTip'}}"><i class="fa-solid fa-plus"></i></a></div>
     {{!-- образец духа (бестиарии W20, Умбры, Книги Червя, кин-фетчи): черты, Эссенция и Чары — разом, описание — рассказчику в чат --}}
     <div class="r-toolbar"><select class="r-sp-tpl"><option value="">{{localize "VTM20.Werewolf.Spirit.tpl"}}</option>{{#each spiritInfo.tpls}}<optgroup label="{{label}}">{{#each list}}<option value="{{key}}">{{label}}</option>{{/each}}</optgroup>{{/each}}</select>
       <a class="r-vc-btn" data-action="spTpl" data-tooltip="{{localize 'VTM20.Werewolf.Spirit.tplHint'}}"><i class="fa-solid fa-wand-magic-sparkles"></i></a></div>{{/if}}

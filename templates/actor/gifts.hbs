@@ -64,9 +64,8 @@
   </h2>
   {{#if editable}}{{#if ww.avail.length}}
   <div class="r-toolbar r-ww-add">
-    <select class="r-ww-gift-add" data-tooltip="{{localize 'VTM20.Werewolf.AddGiftHint'}}"><option value="">{{localize "VTM20.Werewolf.AddGift"}}</option>
-      {{#each ww.avail}}<option value="{{key}}">{{label}}</option>{{/each}}</select>
-    <a class="r-vc-btn" data-action="wwGiftAdd"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Common.Add"}}</a>
+    <input type="text" class="r-ww-find" data-ww-add="gift" data-combo="r-wwg-{{actor.id}}" placeholder="{{localize 'VTM20.Werewolf.FindGift'}}" data-tooltip="{{localize 'VTM20.Werewolf.AddGiftHint'}}">
+    <datalist id="r-wwg-{{actor.id}}">{{#each ww.avail}}<option value="{{label}}" data-key="{{key}}"></option>{{/each}}</datalist>
   </div>
   {{/if}}{{/if}}
   <ul class="r-edge-list r-ww-gifts">
@@ -87,9 +86,8 @@
   </h2>
   {{#if editable}}{{#if ww.ritesAvail.length}}
   <div class="r-toolbar r-ww-add">
-    <select class="r-ww-rite-add" data-tooltip="{{localize 'VTM20.Werewolf.AddRiteHint'}}"><option value="">{{localize "VTM20.Werewolf.AddRite"}}</option>
-      {{#each ww.ritesAvail}}<option value="{{key}}">{{label}}</option>{{/each}}</select>
-    <a class="r-vc-btn" data-action="wwRiteAdd"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Common.Add"}}</a>
+    <input type="text" class="r-ww-find" data-ww-add="rite" data-combo="r-wwr-{{actor.id}}" placeholder="{{localize 'VTM20.Werewolf.FindRite'}}" data-tooltip="{{localize 'VTM20.Werewolf.AddRiteHint'}}">
+    <datalist id="r-wwr-{{actor.id}}">{{#each ww.ritesAvail}}<option value="{{label}}" data-key="{{key}}"></option>{{/each}}</datalist>
   </div>
   {{/if}}{{/if}}
   <ul class="r-edge-list r-ww-rites">
@@ -107,9 +105,8 @@
 
   <h2 class="r-h2"><span>{{localize "VTM20.Werewolf.Fetishes"}}</span></h2>
   {{#if editable}}<div class="r-toolbar r-ww-add">
-    <select class="r-ww-fetish-add"><option value="">{{localize "VTM20.Werewolf.AddFetish"}}</option>
-      <optgroup label="{{localize 'VTM20.Werewolf.FetishGroup'}}">{{#each ww.fetishAvail}}{{#unless talen}}<option value="{{key}}">{{label}}</option>{{/unless}}{{/each}}</optgroup>
-      <optgroup label="{{localize 'VTM20.Werewolf.TalenGroup'}}">{{#each ww.fetishAvail}}{{#if talen}}<option value="{{key}}">{{label}}</option>{{/if}}{{/each}}</optgroup></select>
+    <input type="text" class="r-ww-find r-ww-fetish-find" data-ww-add="fetish" data-combo="r-wwf-{{actor.id}}" placeholder="{{localize 'VTM20.Werewolf.FindFetish'}}">
+    <datalist id="r-wwf-{{actor.id}}">{{#each ww.fetishAvail}}{{#unless talen}}<option value="{{label}}" data-key="{{key}}" data-group="{{localize 'VTM20.Werewolf.FetishGroup'}}"></option>{{/unless}}{{/each}}{{#each ww.fetishAvail}}{{#if talen}}<option value="{{label}}" data-key="{{key}}" data-group="{{localize 'VTM20.Werewolf.TalenGroup'}}"></option>{{/if}}{{/each}}</datalist>
     <a class="r-vc-btn" data-action="wwFetishAdd"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Common.Add"}}</a>
     <a class="r-vc-btn" data-action="wwFetishCraft" data-tooltip="{{localize 'VTM20.Werewolf.CraftHint'}}"><i class="fa-solid fa-hand-sparkles"></i> {{localize "VTM20.Werewolf.Craft"}}</a>
   </div>{{/if}}
@@ -137,17 +134,17 @@
       {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="wwDeformDel" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}</li>
     {{else}}<li class="r-note {{#if ww.needDeform}}is-warn{{/if}}">{{localize "VTM20.Werewolf.NoDeformities"}}</li>{{/each}}
   </ul>
-  {{#if editable}}<div class="r-toolbar r-ww-add"><select class="r-ww-deform-add"><option value="">{{localize "VTM20.Werewolf.AddDeformity"}}</option>{{#each ww.deformAvail}}<option value="{{key}}">{{label}}</option>{{/each}}</select>
-    <a class="r-vc-btn" data-action="wwDeformAdd"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Common.Add"}}</a></div>{{/if}}
+  {{#if editable}}<div class="r-toolbar r-ww-add"><input type="text" class="r-ww-find" data-ww-add="deform" data-combo="r-wwd-{{actor.id}}" placeholder="{{localize 'VTM20.Werewolf.FindDeformity'}}">
+    <datalist id="r-wwd-{{actor.id}}">{{#each ww.deformAvail}}<option value="{{label}}" data-key="{{key}}"></option>{{/each}}</datalist></div>{{/if}}
   {{/if}}
 
   <h2 class="r-h2"><span>{{localize "VTM20.Werewolf.Scars"}}</span></h2>
+  {{#if editable}}<div class="r-toolbar r-ww-add"><input type="text" class="r-ww-find" data-ww-add="scar" data-combo="r-wws-{{actor.id}}" placeholder="{{localize 'VTM20.Werewolf.FindScar'}}">
+    <datalist id="r-wws-{{actor.id}}">{{#each ww.scarAvail}}<option value="{{label}}" data-key="{{key}}"></option>{{/each}}</datalist></div>{{/if}}
   <ul class="r-edge-list r-ww-scars">
     {{#each ww.scars}}<li class="r-edge"><span class="r-edge-lvl"><i class="fa-solid fa-bandage"></i></span>
       <span class="r-edge-main"><b>{{name}}</b> <small>+{{glory}} {{localize "VTM20.Werewolf.RenownShort.glory"}}</small><div class="r-edge-text">{{{effect}}}</div></span>
       {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="wwScarDel" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}</li>
     {{else}}<li class="r-note">{{localize "VTM20.Werewolf.NoScars"}}</li>{{/each}}
   </ul>
-  {{#if editable}}<div class="r-toolbar r-ww-add"><select class="r-ww-scar-add"><option value="">{{localize "VTM20.Werewolf.AddScar"}}</option>{{#each ww.scarAvail}}<option value="{{key}}">{{label}}</option>{{/each}}</select>
-    <a class="r-vc-btn" data-action="wwScarAdd"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Common.Add"}}</a></div>{{/if}}
 </section>

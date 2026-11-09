@@ -1429,7 +1429,13 @@
       "ChoiceOf": "choice of {n} powers",
       "PageShort": "p. {n}",
       "AbyssMysticism": "Abyss Mysticism",
-      "Details": "Details"
+      "Details": "Details",
+      "UseTip": "Use",
+      "AddTip": "Add",
+      "MoreTip": "One more",
+      "PackHint": "Open the compendium — drag entries onto the sheet",
+      "PackMissing": "Compendium not found.",
+      "PackDrag": "Drag an entry from the compendium onto the sheet."
     },
     "Roll": {
       "DiffChosen": "{n} chosen",
@@ -4874,7 +4880,12 @@
       "GnosisStory": "Between Stories",
       "GnosisStorySub": "Charisma + Enigmas, 1 per success",
       "GnosisStoryNote": "The book gives no difficulty — 6, the Storyteller may change it",
-      "GnosisRegainDone": "{name}: Gnosis {from} → {to}"
+      "GnosisRegainDone": "{name}: Gnosis {from} → {to}",
+      "FindGift": "New Gift — start typing…",
+      "FindRite": "New rite — start typing…",
+      "FindFetish": "Fetish or talen — start typing…",
+      "FindDeformity": "Deformity — start typing…",
+      "FindScar": "Battle scar — start typing…"
     },
     "Strategy": {
       "Tab": "Strategy",

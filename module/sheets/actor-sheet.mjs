@@ -138,7 +138,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       spendFaith: VtMActorSheet.#onSpendFaith,
       pinPower: VtMActorSheet.#onPinPower,
       rollItemPower: VtMActorSheet.#onRollItemPower,
-      itemCreate: VtMActorSheet.#onItemCreate,
+      itemCreate: VtMActorSheet.#onItemCreate, openPack: VtMActorSheet.#onOpenPack,
       itemEdit: VtMActorSheet.#onItemEdit,
       itemDelete: VtMActorSheet.#onItemDelete,
       itemToggle: VtMActorSheet.#onItemToggle,
@@ -402,6 +402,19 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
         el.value = "";
         this.#addPreset(el.dataset.preset, Number(key));
       });
+    }
+    // Оборотень: поиск Дара, ритуала, шрама, уродства — выбор сразу добавляет; фетиш — запоминается для «Добавить» и «Создать обрядом»
+    for (const el of this.element.querySelectorAll("input[data-ww-add]")) {
+      el.addEventListener("change", ev => {
+        ev.stopPropagation();
+        const key = el.dataset.key, kind = el.dataset.wwAdd;
+        if (!key || kind === "fetish") return;
+        delete el.dataset.key;
+        el.value = "";
+        const add = { gift: addGift, rite: addRite, scar: addScar, deform: addDeformity }[kind];
+        return add?.(this.actor, key);
+      });
+      if (el.dataset.wwAdd === "fetish") el.addEventListener("input", () => { delete el.dataset.key; });
     }
     // Щелчок по пустому месту строки Дисциплины раскрывает её (кнопки, точки и поля работают как прежде)
     for (const head of this.element.querySelectorAll(".r-disc-head")) {
@@ -837,8 +850,8 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static #onSpCharmDel(event, target) { return removeCharm(this.actor, target.dataset.key); }
   static #onSpEssence() { return spiritEssenceReset(this.actor); }
   static #onSpStep() { return stepSideways(this.actor, "spirit.gnosis"); }
-  static #onWwFetishAdd() { const k = this.element.querySelector(".r-ww-fetish-add")?.value; if (k) return addFetish(this.actor, k); }
-  static #onWwFetishCraft() { return craftFetish(this.actor, this.element.querySelector(".r-ww-fetish-add")?.value); }
+  static #onWwFetishAdd() { const k = this.element.querySelector(".r-ww-fetish-find")?.dataset.key; if (k) return addFetish(this.actor, k); ui.notifications.info(t("Werewolf.FindFetish")); }
+  static #onWwFetishCraft() { return craftFetish(this.actor, this.element.querySelector(".r-ww-fetish-find")?.dataset.key); }
   static #onWwFetishAttune(event, target) { return attuneFetish(this.actor, Number(target.dataset.i)); }
   static #onWwFetishReconcile(event, target) { return reconcileFetish(this.actor, Number(target.dataset.i)); }
   static #onWwStayUp() { return stayUp(this.actor); }
@@ -988,6 +1001,14 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   }
 
   /* ── Действия: предметы ─────────────────────────────────────────────── */
+
+  /** Компендий системы (ритуалы и реликвии падших): перетащить нужное на лист. */
+  static #onOpenPack(event, target) {
+    const pack = game.packs.get(`${SYSTEM_ID}.${target.dataset.pack}`);
+    if (!pack) return ui.notifications.warn(t("Sheet.PackMissing"));
+    pack.render(true);
+    ui.notifications.info(t("Sheet.PackDrag"));
+  }
 
   static async #onItemCreate(event, target) {
     const type = target.dataset.type;

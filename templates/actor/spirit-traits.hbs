@@ -15,7 +15,7 @@
   {{#if editable}}
   <div class="r-toolbar r-sp-tools">
     <select class="r-sp-charm-add"><option value="">{{localize "VTM20.Werewolf.Spirit.addCharm"}}</option>{{#each spiritInfo.avail}}<option value="{{key}}">{{rName this}}</option>{{/each}}</select>
-    <a class="r-btn" data-action="spCharmAdd"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Werewolf.Spirit.add"}}</a>
+    <a class="r-btn" data-action="spCharmAdd" data-tooltip="{{localize 'VTM20.Sheet.AddTip'}}"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Werewolf.Spirit.add"}}</a>
   </div>
   <h2 class="r-h2"><span>{{localize "VTM20.Werewolf.Spirit.tpl"}}</span></h2>
   <div class="r-toolbar r-sp-tools">
