@@ -33,6 +33,9 @@ export class VtMActor extends Actor {
       "prototypeToken.displayName": CONST.TOKEN_DISPLAY_MODES.OWNER_HOVER
     };
     if (this.type === "vampire" || this.type === "ghoul") Object.assign(proto, { "prototypeToken.sight.enabled": true });
+    // жетон связан с актёром (урон, кровь, эффекты — общие с листом); статисты-существа — копиями, как и прежде.
+    // Явно заданное значение (импорт из компендия, призыв статистов) не трогаем.
+    if (this.type !== "creature" && data.prototypeToken?.actorLink === undefined) proto["prototypeToken.actorLink"] = true;
     this.updateSource({ ...upd, ...proto });
   }
 

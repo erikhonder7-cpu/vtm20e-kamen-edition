@@ -233,6 +233,20 @@ Hooks.once("ready", async () => {
       await game.settings.set(SYSTEM_ID, "turnMarkerSet", true);
     } catch (e) { console.warn("VTM20 | маркер хода", e); }
   }
+  // один раз в мире: жетоны персонажей связаны с актёрами (новые актёры — сразу, documents/actor.mjs);
+  // и у уже поставленных на сцену; существа-статисты остаются копиями
+  if (game.users.activeGM?.isSelf && !game.settings.get(SYSTEM_ID, "tokenLinkAll")) {
+    try {
+      const pcs = game.actors.filter(a => !["creature", "coterie", "domain"].includes(a.type));
+      const proto = pcs.filter(a => !a.prototypeToken.actorLink).map(a => ({ _id: a.id, "prototypeToken.actorLink": true }));
+      if (proto.length) await Actor.updateDocuments(proto);
+      for (const sc of game.scenes) {
+        const tk = sc.tokens.filter(t => !t.actorLink && pcs.some(a => a.id === t.actorId)).map(t => ({ _id: t.id, actorLink: true }));
+        if (tk.length) await sc.updateEmbeddedDocuments("Token", tk);
+      }
+      await game.settings.set(SYSTEM_ID, "tokenLinkAll", true);
+    } catch (e) { console.warn("VTM20 | связь жетонов", e); }
+  }
   // старт ждёт только оглавление справочника; тексты сил и ритуалов (~2,5 млн знаков) догружаются фоном
   await Codex.load({ texts: false });
   Codex.loadTexts();
@@ -434,6 +448,7 @@ Hooks.on("renderChatMessageHTML", (message, html) => {
 function registerSettings() {
   game.settings.register(SYSTEM_ID, "refreshChecked", { scope: "world", config: false, type: String, default: "" });
   game.settings.register(SYSTEM_ID, "turnMarkerSet", { scope: "world", config: false, type: Boolean, default: false });
+  game.settings.register(SYSTEM_ID, "tokenLinkAll", { scope: "world", config: false, type: Boolean, default: false });
   game.settings.register(SYSTEM_ID, "era", {
     name: "VTM20.Settings.Era.Name", hint: "VTM20.Settings.Era.Hint",
     scope: "world", config: true, type: String, default: "revolution",
