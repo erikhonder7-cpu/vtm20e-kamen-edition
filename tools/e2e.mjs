@@ -2374,6 +2374,72 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  // Валерен через HUD: Биение жизни, Обезболивающее касание (ходы без штрафа ран), Обжигающее касание, Броня гнева Каинова, Месть Самиэля
+  await check("Валерен через HUD", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), sys = p => import(`/systems/${sid}/${p}`);
+      const TP = await sys("module/apps/target-powers.mjs"), RD = await sys("module/dice/dialog.mjs");
+      const mk = (name, type, system = {}) => Actor.create({ name, type, flags: { world: { e2e: true } }, system });
+      const a = await mk("E2E — салюбри", "vampire", { generation: 9, blood: { value: 15 }, health: { lethal: 3 } });
+      const m = await mk("E2E — пациент", "mortal", { health: { bashing: 2 } });
+      await a.createEmbeddedDocuments("Item", [{ name: "E2E — valeren", type: "discipline", system: { key: "valeren", value: 5 } }]);
+      const scene = game.scenes.viewed ?? game.scenes.contents[0];
+      const made = await scene.createEmbeddedDocuments("Token", await Promise.all([a, m].map((x, i) => x.getTokenDocument({ x: 100 + i * 200, y: 3100 }))));
+      const tok = x => made.find(tk => tk.actorId === x.id);
+      for (let i = 0; i < 30 && !canvas.tokens.get(tok(m).id); i++) await wait(100);
+      await wait(400);
+      const inst = () => [...foundry.applications.instances.values()];
+      const dialogs = () => inst().filter(x => x instanceof foundry.applications.api.DialogV2);
+      const closeAll = async () => { for (const x of inst()) if (x.constructor.name === "RollDialog" || x instanceof foundry.applications.api.DialogV2) await x.close(); };
+      const pick = async val => { const d = dialogs().at(-1); const s = d?.element.querySelector("select"); if (s) s.value = val;
+        d?.element.querySelector('button[data-action="ok"]')?.click(); await wait(500); };
+      const hud = async re => { await closeAll(); document.querySelector('#r-hud [data-act="tab"][data-tab="powers"]')?.click(); await wait(300);
+        document.querySelector('#r-hud [data-act="pop"][data-pop*="valeren"]')?.click(); await wait(400);
+        [...document.querySelectorAll('#r-hud .rh-pop-row[data-act="power"]')].find(x => re.test(x.textContent))?.click(); await wait(700); };
+      const rollDlg = () => inst().find(x => x.constructor.name === "RollDialog");
+      const at = () => canvas.tokens.get(tok(a).id).actor, mt = () => canvas.tokens.get(tok(m).id).actor;
+      canvas.tokens.get(tok(a).id)?.control({ releaseOthers: true }); await wait(600);
+      const out = {};
+      // Биение жизни по пациенту: 3 успеха — природа, раны, кровь (шёпотом)
+      canvas.tokens.get(tok(m).id)?.setTarget(true, { releaseOthers: true }); await wait(300);
+      await hud(/Биение жизни/);
+      const n0 = game.messages.size;
+      await rollDlg()?.cfg.onRolled?.({ successes: 3, outcome: "success" });
+      const vit = game.messages.contents.slice(n0).find(x => /Раны:/.test(x.content));
+      out.vit = [!!vit, /Крови/.test(vit?.content ?? ""), !/Болезни/.test(vit?.content ?? "")];
+      // Обжигающее касание: 2 крови — −4 куба к пулам цели
+      await hud(/Обжигающее касание/); await pick("2");
+      out.burn = TP.dreadDice(mt()).reduce((s, d) => s + d.value, 0);
+      // Обезболивающее касание себе: 2 успеха — 2 хода без штрафа ран
+      [...game.user.targets].forEach(x => x.setTarget(false, { releaseOthers: false })); await wait(300);
+      const pen = at().system.health.penalty;
+      await hud(/Обезболивающее касание/); await pick("pain");
+      let rd = rollDlg();
+      out.anestDiff = rd?.values.difficulty;
+      await TP.applyTargetPower({ isOwner: false }, { actorUuid: a.uuid, extra: rd?.cfg.extra }, { successes: 2, outcome: "success" });
+      const dlg = new RD.RollDialog(at(), { trait1: "attributes.dexterity", trait2: "abilities.athletics" });
+      out.pain = [pen < 0, !dlg.compute().breakdown.some(b => b.value === pen && /ран/i.test(b.label)), TP.painless(at())];
+      await closeAll();
+      // Броня гнева Каинова: 3 успеха — броня +3
+      const arm0 = at().armor.rating;
+      await hud(/Броня гнева Каинова/);
+      await rollDlg()?.cfg.onRolled?.({ successes: 3, outcome: "success" });
+      out.caine = at().armor.rating - arm0;
+      await closeAll();
+      // Месть Самиэля: 3 крови, эффект на следующую атаку
+      const b0 = at().system.blood.value;
+      await hud(/Месть Самиэля/);
+      out.samiel = [b0 - at().system.blood.value, at().effects.some(e => e.flags?.[sid]?.samiel), !rollDlg()];
+      canvas.tokens.releaseAll(); await wait(600);
+      await scene.deleteEmbeddedDocuments("Token", made.map(x => x.id));
+      await Actor.deleteDocuments([a.id, m.id]);
+      return out;
+    });
+    const want = { vit: [true, true, true], burn: -4, anestDiff: 6, pain: [true, true, true], caine: 3, samiel: [3, true, true] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   // Помешательство через HUD: Око хаоса — сложность по задаче, Голос безумия — смертный сразу, вампир — проверка +2;
   // Метаморфозы: в облике тумана силы со взглядом недоступны
   await check("Помешательство через HUD и туман без взгляда", async () => {

@@ -13,7 +13,7 @@ import { Codex } from "../data/codex.mjs";
 import { rollPool, odds, chancesView } from "../dice/roll.mjs";
 import { RollDialog } from "../dice/dialog.mjs";
 import { mobBonus } from "../apps/extras.mjs";
-import { dreadDice, mindDiff, centered, pathFlag, majestyCheck } from "../apps/target-powers.mjs";
+import { dreadDice, mindDiff, centered, painless, pathFlag, majestyCheck } from "../apps/target-powers.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -187,7 +187,7 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     add(t("Extra.MobBonus"), mobBonus(a));                 // толпа: +1 за каждого на ногах сверх первого (apps/extras.mjs)
     if (v.target === "held") add(t("Combat.Target.held"), 2);
     add(t("Roll.Modifier"), v.bonus);
-    if (v.wounds && !centered(a)) add(t("Roll.Wounds"), a.system.health.penalty);
+    if (v.wounds && !centered(a) && !painless(a)) add(t("Roll.Wounds"), a.system.health.penalty);
     if (c.attr === "dexterity" && a.armor.penalty) add(t("Roll.ArmorPenalty"), -a.armor.penalty);
     if (v.actions > 1) {
       const part = Math.floor(Math.max(0, pool) / v.actions);
@@ -337,14 +337,17 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const link = { weaponName: c.name, target: foe?.uuid ?? null, targetName: foe?.name ?? "", pierce: c.pierce, bullet: c.bullet, head, ranged: c.ranged,
       damageAuto: c.auto ?? 0, venom: !!c.venom, silver: !!c.silver, supernatural: !!c.supernatural,
       unarmed: pickKind === "m" && c.ability === "brawl" };
+    const samiel = !c.ranged ? this.actor.effects.find(e => !e.disabled && e.flags?.[SYSTEM_ID]?.samiel) : null;
+    if (samiel) { link.samiel = true; notes.push(t("TP.SamielHit")); }
     const res = await rollPool({
       actor: this.actor, title: c.name, subtitle: foe ? `${t("Combat.Attack")} → ${foe.name}` : t("Combat.Attack"),
-      pool: r.pool, difficulty: r.difficulty, specialty: v.specialty && r.specialtyEligible, specialtyName: r.specialtyName,
-      willpower: v.willpower, breakdown: r.breakdown, kind: "attack", messageMode: v.messageMode, auto: r.attackAuto,
+      pool: samiel ? 0 : r.pool, difficulty: r.difficulty, specialty: v.specialty && r.specialtyEligible, specialtyName: r.specialtyName,
+      willpower: v.willpower, breakdown: r.breakdown, kind: "attack", messageMode: v.messageMode, auto: samiel ? r.pool + (r.attackAuto ?? 0) : r.attackAuto,
       extra: r.damage == null ? link : { ...link, damagePool: r.damage, damageType: c.type, fangs: c.fangs },
       notes
     });
     if (this.celerityAction && res) await this.actor.consumeCelerityAction();
+    if (samiel && res) await samiel.delete();
     // атака срывает Сокрытие
     if (res) await (await import("../apps/power-effects.mjs")).breakObfuscate(this.actor, t("Fx.CloakAttack"));
     // Есть цель и попадание — карточка ждёт её защиты (обездвиженную цель бьют без защиты)
@@ -364,7 +367,7 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
 const esc = x => foundry.utils.escapeHTML(String(x ?? ""));
 
 /** Способы защиты от этой атаки: от стрельбы и метания — только уклонение (04). */
-function methodsFor(d) { return d.ranged ? ["dodge", "none"] : ["dodge", "block", "parry", "none"]; }
+function methodsFor(d) { return d.ranged ? ["dodge", "none"] : d.samiel ? ["block", "parry", "none"] : ["dodge", "block", "parry", "none"]; }
 const METHOD_ICON = { dodge: "fa-person-running", block: "fa-shield-halved", parry: "fa-khanda", none: "fa-person" };
 const methodLabel = m => t(m === "none" ? "Combat.NoDefense" : `Combat.Defense.${m}`);
 

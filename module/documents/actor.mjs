@@ -133,8 +133,10 @@ export class VtMActor extends Actor {
     // По V20 броня не действует в зверином облике Метаморфоз; штраф к Ловкости тоже снимается.
     if (this.system.fx?.beastForm || this.system.fx?.mistForm || this.system.fx?.shadowForm) return { rating: 0, penalty: 0 };
     const list = this.items.filter(i => i.type === "armor" && i.system.equipped);
+    // Броня гнева Каинова (Валерен 4): +броня от эффекта
+    const fxArmor = [...this.effects].reduce((s, e) => s + (!e.disabled && Number(e.flags?.[SYSTEM_ID]?.armorBonus) || 0), 0);
     return {
-      rating: list.reduce((s, i) => s + i.system.rating, 0),
+      rating: list.reduce((s, i) => s + i.system.rating, 0) + fxArmor,
       penalty: list.reduce((s, i) => s + i.system.penalty, 0)
     };
   }

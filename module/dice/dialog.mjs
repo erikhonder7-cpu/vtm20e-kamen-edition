@@ -9,7 +9,7 @@ import { Codex } from "../data/codex.mjs";
 import { rollPool, odds, chancesView, tormentRule, tormentOdds } from "./roll.mjs";
 import { meritModsFor } from "../data/merit-mods.mjs";
 import { substanceMods } from "../data/vessels.mjs";
-import { dreadDice, frenzyDiff, mindDiff, centered } from "../apps/target-powers.mjs";
+import { dreadDice, frenzyDiff, mindDiff, centered, painless } from "../apps/target-powers.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -134,7 +134,7 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const sway = v.sway && swayOf(a).find(x => x.key === v.sway);
     if (sway) { pool += sway.dice; bd.push({ label: game.i18n.format("VTM20.Strategy.SwayLine", { name: sway.name }), value: sway.dice }); }
     const wp = a.system.health.penalty;
-    if (wp && v.wounds && !centered(a)) { pool += wp; bd.push({ label: t("Roll.Wounds"), value: wp }); }
+    if (wp && v.wounds && !centered(a) && !painless(a)) { pool += wp; bd.push({ label: t("Roll.Wounds"), value: wp }); }
     const arm = a.armor.penalty;
     if (arm && attr === "dexterity") { pool -= arm; bd.push({ label: t("Roll.ArmorPenalty"), value: -arm }); }
     // Изъяны: яркий свет у Сетитов −1 кубик; Цимисхи без родной земли — пул вдвое за каждый день (02)

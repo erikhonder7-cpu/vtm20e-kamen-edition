@@ -63,6 +63,13 @@ export const TARGET_POWERS = {
   // Бардо: Возрождение Человечности (вся кровь, Совесть против возвращаемой Человечности), Обелиск Осириса (место — сложность,
   // успех — сень Обелиска), Парадокс (сложность — самая сильная Воля среди слушателей; оцепенение на сцену, потом +1 вредить)
   "bardo|Restore Humanitas": { kind: "humanitas" },
+  // Валерен: Биение жизни (сведения по успехам), Обезболивающее касание (боль — на ходы; сопротивление и сон — Воля против Воли, сл. 8),
+  // Обжигающее касание (без броска: −2 куба к пулам за кровь), Броня гнева Каинова (+броня по успехам), Месть Самиэля (следующая атака)
+  "valeren|Sense Vitality": { kind: "vitality", allowSelf: true },
+  "valeren|Anesthetic Touch": { kind: "anest", allowSelf: true },
+  "valeren|Burning Touch": { kind: "burn", needTarget: true },
+  "valeren|Armor of Caine's Fury": { kind: "caine" },
+  "valeren|Vengeance of Samiel": { kind: "samiel" },
   "bardo|Pillar of Osiris": { kind: "pillar" },
   "bardo|Paradox": { kind: "paradox" },
   "mytherceria|Chanjelin Ward": { kind: "ward", timed: ["hour", "night", "week", "month", "year"] },
@@ -223,13 +230,13 @@ export function tierText(tp, successes) {
 /** Подпись кнопки «наложить» на карточке (только у сил с эффектом на цели). */
 export function targetPowerLabel(extra, ev) {
   const tp = extra?.targetPower && TARGET_POWERS[extra.targetPower.key];
-  if (!tp || ev.outcome !== "success" || extra.targetPower.done || !(tp.timed || tp.dread || tp.kind) || ["taste", "gather", "aura", "visage", "whisper", "info", "tiers", "counter", "chaos", "tele", "psycho", "illusion", "absorb", "humanitas", "pillar"].includes(tp.kind)) return "";
+  if (!tp || ev.outcome !== "success" || extra.targetPower.done || !(tp.timed || tp.dread || tp.kind) || ["taste", "gather", "aura", "visage", "whisper", "info", "tiers", "counter", "chaos", "tele", "psycho", "illusion", "absorb", "humanitas", "pillar", "vitality", "caine"].includes(tp.kind)) return "";
   // Усмирение — только когда накоплены все успехи продолжительного броска
   if (tp.kind === "quell" && !((extra.extended?.prev ?? 0) + ev.successes >= (extra.extended?.need ?? Infinity))) return "";
   const lbl = { beast: "BeastApply", poison: "PoisonApply", shroud: "ShroudApply", arms: "ArmsApply", vanish: "VanishApply",
     rage: "RageApply", potency: "PotencyApply", theft: "TheftApply", possess: "PossessApply", project: "ProjectApply", awe: "AweApply", call: "CallApply",
     mesmerize: "MesApply", forget: "ForgApply", condition: "CondApply", voice: "VoiceApply",
-    flesh: "FleshApply", bone: "BoneApply", dagon: "DagonApply", nightmare: "NightApply", ward: "WardApply", riddle: "RiddleApply", paradox: "ParadoxApply", beckon: "BeckonApply", subsume: "SubsumeApply", self: "SelfApply", summon: "SummonApply", comrades: "ComradesApply", conjure: "ConjureApply" }[tp.kind] ?? "Apply";
+    flesh: "FleshApply", bone: "BoneApply", dagon: "DagonApply", nightmare: "NightApply", ward: "WardApply", riddle: "RiddleApply", paradox: "ParadoxApply", anest: "AnestApply", beckon: "BeckonApply", subsume: "SubsumeApply", self: "SelfApply", summon: "SummonApply", comrades: "ComradesApply", conjure: "ConjureApply" }[tp.kind] ?? "Apply";
   return t(lbl, { name: extra.targetPower.targetName, n: ev.successes });
 }
 
@@ -433,6 +440,25 @@ export async function applyTargetPower(message, state, ev) {
     await target.startPower("vicissitude:3", { variant: x.bone, blood: 0 });
     return notice(target, x.powerName, t(x.bone === "claws" ? "BoneClawsDone" : "BoneSpikesDone", { n: cost }));
   }
+  if (tp.kind === "anest") {
+    // боль: столько ходов без штрафов за раны, сколько успехов; против воли и сон — цель сопротивляется Волей (сл. 8)
+    await done(message, state, x);
+    let net = n;
+    if (x.anest !== "pain") {
+      const { rollPool } = await import("../dice/roll.mjs");
+      const res = await rollPool({ actor: target, title: t("AnestResist"), pool: target.system.willpower?.permanent ?? 0, difficulty: 8, kind: "check", noBotch: true });
+      net = n - (res?.successes ?? 0);
+      if (net <= 0) return notice(target, x.powerName, t("AnestResisted"));
+    }
+    if (x.anest === "sleep") {
+      await target.createEmbeddedDocuments("ActiveEffect", [{ name: t("SleepName"), img: Codex.disciplineIcon("valeren"), statuses: ["r-held"],
+        description: `<p>${esc(t("SleepDesc"))}</p>`, flags: { [SYSTEM_ID]: { ...flags, mode: "timed", until: now + 8 * api.MS_HOUR } } }]);
+      return notice(target, x.powerName, t("SleepDesc"));
+    }
+    await target.createEmbeddedDocuments("ActiveEffect", [{ name: t("PainName", { n: net }), img: Codex.disciplineIcon("valeren"),
+      description: `<p>${esc(t("PainDesc"))}</p>`, flags: { [SYSTEM_ID]: { ...flags, mode: "scene", painless: net } } }]);
+    return notice(target, x.powerName, t("PainName", { n: net }));
+  }
   if (tp.kind === "paradox") {
     // Парадокс: слушатели оцепеневают до конца сцены (атака — снимает); навсегда +1 к сложности вредить этому вампиру
     await done(message, state, x);
@@ -633,6 +659,14 @@ export async function rollTargetPower(actor, disc, d, p, tp, { rollFromSpec, sub
   const link = holder ? { key, target: holder.uuid, targetName: holder.name, powerName: p.name, actorName: actor.name } : null;
   // Тайное собрание: без броска — действующее Сокрытие ложится на отмеченных спутников
   if (tp.kind === "gather") return cloakGathering(actor, p);
+  if (tp.kind === "burn") return burningTouch(actor, p, target);
+  if (tp.kind === "samiel") {
+    // 3 крови — следующая атака ближнего боя: все кубы — успехи, уклониться нельзя
+    if (!(await actor.spendBlood(3, { reason: p.name }))) return null;
+    await actor.createEmbeddedDocuments("ActiveEffect", [{ name: p.name, img: Codex.disciplineIcon("valeren"), description: `<p>${esc(t("SamielDesc"))}</p>`,
+      flags: { [SYSTEM_ID]: { samiel: true, mode: "scene" } } }]);
+    return notice(actor, p.name, t("SamielDesc"));
+  }
   if (tp.kind === "illusion") return illusion(actor, p, tp);
   // Глаза змеи: смертный замирает без броска — карточка «наложить»; сверхъестественный — Воля змея (сл. 9)
   if (tp.kind === "eyes") {
@@ -727,6 +761,38 @@ export async function rollTargetPower(actor, disc, d, p, tp, { rollFromSpec, sub
     if (how === "read" && target && supernatural(target) && !(await actor.spendWillpower(1))) return null;
     opts.more = null;
     roll.note = [roll.note, t(how === "read" ? (target && supernatural(target) ? "TeleReadSuper" : "TeleReadNote") : "TeleSendNote")].filter(Boolean).join(" ");
+  }
+  if (tp.kind === "vitality") opts.onRolled = res => {
+    const n = res?.successes ?? 0;
+    if (n < 1 || !target) return;
+    const h = target.system.health ?? {};
+    const lines = [t("VitType", { v: game.i18n.localize(`TYPES.Actor.${target.type}`) }),
+      n >= 2 && t("VitHurt", { b: h.bashing ?? 0, l: h.lethal ?? 0, a: h.aggravated ?? 0 }),
+      n >= 3 && t("VitBlood", { v: target.system.blood?.value ?? "—" }), n >= 4 && t("VitTaint")].filter(Boolean);
+    return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), whisper: [game.user.id, ...game.users.filter(u => u.isGM).map(u => u.id)],
+      content: `<div class="r-notice"><i class="fa-solid fa-heart-pulse"></i> <b>${esc(p.name)}</b> → ${esc(target.name)}<ul>${lines.map(l => `<li>${esc(l)}</li>`).join("")}</ul></div>` });
+  };
+  if (tp.kind === "anest") {
+    // добровольно — Воля, сл. 6; против воли или усыпить смертного — Воля против Воли, сл. 8
+    const how = await ask(p.name, [["pain", t("AnestPain")], ["force", t("AnestForce")], ["sleep", t("AnestSleep")]]);
+    if (!how) return null;
+    if (how === "sleep" && target && supernatural(target) && !(await allowAnyway(actor, t("MortalsOnly", { name: target.name })))) return null;
+    roll = { ...roll, difficulty: how === "pain" ? 6 : 8, note: t(`AnestNote.${how}`) };
+    if (target) opts.more = { targetPower: { key, target: target.uuid, targetName: target.name, powerName: p.name, actorName: actor.name, anest: how } };
+  }
+  if (tp.kind === "caine") {
+    opts.more = null;
+    opts.onRolled = async res => {
+      const n = res?.successes ?? 0;
+      if (n < 1) return;
+      const fk = "valeren:Броня гнева Каинова", old = actor.powerEffects.find(e => e.power === fk);
+      if (old) await actor.endPower(old.effect, { quiet: true });
+      const eff = await actor.startPower(fk, { blood: 0 });
+      const armor = Math.min(5, n), rot = Math.floor(n / 2);
+      if (eff) await eff.update({ name: `${p.name} · +${armor}`, [`flags.${SYSTEM_ID}.armorBonus`]: armor,
+        description: `<p>${esc(t("CaineDesc", { a: armor, r: rot }))}</p>${eff.description ?? ""}` });
+      return notice(actor, p.name, t("CaineDesc", { a: armor, r: rot }));
+    };
   }
   if (tp.kind === "humanitas") {
     // вся кровь — до броска; успех — +1 Человечность
@@ -1134,6 +1200,21 @@ async function conjure(message, state, x, tp, caster) {
   return notice(caster, x.powerName, t(tp.conjure === "scene" ? "ConjureScene" : "ConjureForever", { name }));
 }
 
+/** Обжигающее касание: без броска — кровь (не меньше 1), каждая — −2 куба ко всем пулам цели, пока держится касание. */
+async function burningTouch(actor, p, target) {
+  const max = Math.min(actor.system.blood?.value ?? 0, Math.max(1, (actor.system.blood?.perTurn ?? 1) - (actor.bloodSpentThisTurn ?? 0)));
+  if (max < 1) return ui.notifications.warn(game.i18n.format("VTM20.Notify.NoBlood", { name: actor.name }));
+  const n = Number(await ask(p.name, Array.from({ length: max }, (_, i) => [String(i + 1), t("BurnPick", { n: i + 1, d: 2 * (i + 1) })])));
+  if (!n || !(await actor.spendBlood(n, { reason: p.name }))) return null;
+  if (!target.isOwner) return notice(target, p.name, t("BurnDesc", { d: 2 * n }));
+  await target.createEmbeddedDocuments("ActiveEffect", [{ name: t("BurnName", { d: 2 * n }), img: Codex.disciplineIcon("valeren"),
+    description: `<p>${esc(t("BurnDesc", { d: 2 * n }))}</p>`, flags: { [SYSTEM_ID]: { mind: "valeren|Burning Touch", by: actor.uuid, mode: "manual", diceAll: -2 * n } } }]);
+  return notice(target, p.name, t("BurnDesc", { d: 2 * n }));
+}
+
+/** Обезболивающее касание: боль не мешает (штрафы ран не считаются). */
+export const painless = actor => [...(actor?.effects ?? [])].some(e => !e.disabled && e.flags?.[SYSTEM_ID]?.painless);
+
 /** Фантасмагория 1–4: иллюзия на листе вампира (Морок, Фата‑моргана) или шаг к выбранной иллюзии (Анимация, Постоянство). */
 async function illusion(actor, p, tp) {
   const mine = actor.effects.filter(e => e.flags?.[SYSTEM_ID]?.illusion);
@@ -1431,6 +1512,11 @@ export function registerTargetPowers() {
     if (!actor) return;
     const ids = actor.effects.filter(e => e.flags?.[SYSTEM_ID]?.dread).map(e => e.id);
     if (ids.length) await actor.deleteEmbeddedDocuments("ActiveEffect", ids);
+    // Обезболивающее касание: ход прошёл — на один меньше
+    for (const e of actor.effects.filter(e => e.flags?.[SYSTEM_ID]?.painless)) {
+      const left = Number(e.flags[SYSTEM_ID].painless) - 1;
+      if (left <= 0) await e.delete(); else await e.update({ name: t("PainName", { n: left }), [`flags.${SYSTEM_ID}.painless`]: left });
+    }
     // Припадок, Отказ тела: уровень урона в конце каждого хода цели (броня не помогает)
     const { soakAndApply } = await import("../dice/roll.mjs");
     for (const e of actor.effects.filter(e => !e.disabled && e.flags?.[SYSTEM_ID]?.dot)) {
