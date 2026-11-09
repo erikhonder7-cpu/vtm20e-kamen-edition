@@ -423,7 +423,7 @@ try {
       const a = game.actors.get(id), sys = p => import(`/systems/${game.system.id}/${p}`);
       const { getClock } = await sys("module/apps/calendar.mjs"), T = await sys("module/apps/timers.mjs");
       const now = getClock();
-      const fx = await a.startPower("quietus:3");                    // Зов Дагона — на час, без цены
+      const fx = await a.startPower("quietus:1", { blood: 0 });      // Безмолвие смерти — на час
       const until = fx?.getFlag(game.system.id, "until") ?? 0;
       // порядок созданных предметов не обязан совпадать с порядком в запросе — ритуал ищем по типу
       const ritual = (await a.createEmbeddedDocuments("Item", [
@@ -2071,6 +2071,92 @@ try {
       return out;
     });
     const want = { mask: [7, true, true], broken: [true, false, 0, true] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
+  // Упокоение: Зов Дагона — Выносливость против текущей Воли жертвы, сопротивление и урон изнутри; яд до Выносливости 0 — торпор
+  await check("Упокоение: Зов Дагона и яд до нуля", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), sys = p => import(`/systems/${sid}/${p}`);
+      const TP = await sys("module/apps/target-powers.mjs"), { rollPowerRef } = await sys("module/sheets/actor-sheet.mjs");
+      const mk = (name, type, system = {}) => Actor.create({ name, type, flags: { world: { e2e: true } }, system });
+      const a = await mk("E2E — ассамит", "vampire", { generation: 9, blood: { value: 12 }, willpower: { permanent: 6, temporary: 5 }, attributes: { stamina: { value: 3 } } });
+      const m = await mk("E2E — жертва Дагона", "mortal", { attributes: { stamina: { value: 1 } }, willpower: { permanent: 4, temporary: 4 } });
+      const v = await mk("E2E — жертва яда", "vampire", { generation: 10, blood: { value: 8 }, attributes: { stamina: { value: 2 } } });
+      await a.createEmbeddedDocuments("Item", [{ name: "E2E — quietus", type: "discipline", system: { key: "quietus", value: 3 } }]);
+      const scene = game.scenes.viewed ?? game.scenes.contents[0];
+      const [tm] = await scene.createEmbeddedDocuments("Token", [await m.getTokenDocument({ x: 300, y: 2100 })]);
+      for (let i = 0; i < 30 && !canvas.tokens.get(tm.id); i++) await wait(100);
+      canvas.tokens.get(tm.id)?.setTarget(true, { releaseOthers: true }); await wait(300);
+      const inst = () => [...foundry.applications.instances.values()];
+      const idx = game.vtm20Codex.discipline("quietus").powers.findIndex(p => p.en === "Dagon's Call");
+      await rollPowerRef(a, `quietus|${idx}`);
+      let rd = null;
+      for (let i = 0; i < 30 && !rd; i++) { await wait(100); rd = inst().find(x => x.constructor.name === "RollDialog" && x.actor === a); }
+      const out = { roll: [rd?.values.trait1, rd?.values.difficulty, !!rd?.cfg.willpowerCost, rd?.cfg.extra?.targetPower?.key] };
+      await rd?.close();
+      const n0 = game.messages.size;
+      await TP.applyTargetPower({ isOwner: false }, { actorUuid: a.uuid, extra: { targetPower: rd?.cfg.extra?.targetPower } }, { successes: 4, outcome: "success" });
+      const card = game.messages.contents.slice(n0).find(x => x.getFlag(sid, "fixedDamage"));
+      const fd = card?.getFlag(sid, "fixedDamage");
+      out.dagon = [!!card, fd?.type, !!fd?.internal, (fd?.amount ?? 0) >= 3];
+      // Касание скорпиона: 3 пункта яда навсегда у вампира с Выносливостью 2 — торпор
+      const link = { key: "quietus|Scorpion's Touch", target: v.uuid, targetName: v.name, powerName: "Касание скорпиона", actorName: a.name, poison: 3 };
+      await TP.applyTargetPower({ isOwner: false }, { actorUuid: a.uuid, extra: { targetPower: link } }, { successes: 10, outcome: "success" });
+      out.zero = [v.system.attributes.stamina.total <= 0, v.statuses.has("r-torpor")];
+      [...game.user.targets].forEach(x => x.setTarget(false, { releaseOthers: false }));
+      await wait(500);
+      await scene.deleteEmbeddedDocuments("Token", [tm.id]);
+      await Actor.deleteDocuments([a.id, m.id, v.id]);
+      return out;
+    });
+    const want = { roll: ["attributes.stamina", 4, true, "quietus|Dagon's Call"], dagon: [true, "lethal", true, true], zero: [true, true] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
+  // Ясновидение через HUD: Психометрия — сложность по следу; Телепатия — чтение вампира стоит Волю; Проекция — сложность по месту
+  await check("Ясновидение через HUD", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms));
+      const mk = (name, type, system = {}) => Actor.create({ name, type, flags: { world: { e2e: true } }, system });
+      const a = await mk("E2E — тореадор-провидец", "vampire", { generation: 9, blood: { value: 12 }, willpower: { permanent: 6, temporary: 6 } });
+      const v = await mk("E2E — читаемый вампир", "vampire", { generation: 10, willpower: { permanent: 5, temporary: 4 } });
+      await a.createEmbeddedDocuments("Item", [{ name: "E2E — auspex", type: "discipline", system: { key: "auspex", value: 5 } }]);
+      const scene = game.scenes.viewed ?? game.scenes.contents[0];
+      const made = await scene.createEmbeddedDocuments("Token", await Promise.all([a, v].map((x, i) => x.getTokenDocument({ x: 100 + i * 200, y: 2300 }))));
+      const tok = x => made.find(tk => tk.actorId === x.id);
+      for (let i = 0; i < 30 && !canvas.tokens.get(tok(v).id); i++) await wait(100);
+      await wait(400);
+      const inst = () => [...foundry.applications.instances.values()];
+      const dialogs = () => inst().filter(x => x instanceof foundry.applications.api.DialogV2);
+      const closeAll = async () => { for (const x of inst()) if (x.constructor.name === "RollDialog" || x instanceof foundry.applications.api.DialogV2) await x.close(); };
+      const pick = async val => { const d = dialogs().at(-1); const s = d?.element.querySelector("select"); if (s) s.value = val;
+        d?.element.querySelector('button[data-action="ok"]')?.click(); await wait(500); };
+      const hud = async re => { await closeAll(); document.querySelector('#r-hud [data-act="tab"][data-tab="powers"]')?.click(); await wait(300);
+        document.querySelector('#r-hud [data-act="pop"][data-pop*="auspex"]')?.click(); await wait(400);
+        [...document.querySelectorAll('#r-hud .rh-pop-row[data-act="power"]')].find(x => re.test(x.textContent))?.click(); await wait(600); };
+      const rollDlg = () => inst().find(x => x.constructor.name === "RollDialog");
+      const at = () => canvas.tokens.get(tok(a).id).actor;
+      canvas.tokens.get(tok(a).id)?.control({ releaseOthers: true }); await wait(600);
+      const out = {};
+      await hud(/Психометрия|Прикосновение духа/); await pick("4");
+      out.psycho = rollDlg()?.values.difficulty;
+      canvas.tokens.get(tok(v).id)?.setTarget(true, { releaseOthers: true }); await wait(300);
+      const w0 = at().system.willpower.temporary;
+      await hud(/Телепатия/); await pick("read");
+      out.tele = [rollDlg()?.values.difficulty, w0 - at().system.willpower.temporary];
+      [...game.user.targets].forEach(x => x.setTarget(false, { releaseOthers: false })); await wait(300);
+      await hud(/Психическая проекция/); await pick("9");
+      out.project = rollDlg()?.values.difficulty;
+      await closeAll();
+      canvas.tokens.releaseAll(); await wait(600);
+      await scene.deleteEmbeddedDocuments("Token", made.map(x => x.id));
+      await Actor.deleteDocuments([a.id, v.id]);
+      return out;
+    });
+    const want = { psycho: 4, tele: [4, 1], project: 9 };
     const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });

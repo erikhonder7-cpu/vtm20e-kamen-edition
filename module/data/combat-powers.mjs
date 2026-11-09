@@ -101,7 +101,7 @@ export async function powerHit(message, state, evaluated) {
 }
 
 /** Урон без броска (пламя, успехи силы): карточка, по которой владелец цели кидает прочность. */
-async function postFixedDamage(actor, target, { amount, type, soakDiff, fire = false, title, boil = false, heart = false }) {
+export async function postFixedDamage(actor, target, { amount, type, soakDiff, fire = false, title, boil = false, heart = false, internal = false }) {
   if (amount < 1) return;
   const typeLabel = game.i18n.localize(VTM20.damageTypes[type]?.label ?? type);
   const content = `<div class="r-roll-card r-combat-card is-hit">
@@ -111,7 +111,7 @@ async function postFixedDamage(actor, target, { amount, type, soakDiff, fire = f
     <div class="r-card-buttons"><button type="button" data-r-action="fixedDamage"><i class="fa-solid fa-shield-halved"></i> ${esc(t("Roll.ApplySoak"))}</button></div>
   </div>`;
   return ChatMessage.create({ content, speaker: ChatMessage.getSpeaker({ actor }),
-    flags: { [SYSTEM_ID]: { fixedDamage: { target: target.uuid, amount, type, soakDiff, fire, supernatural: true, boil, heart } } } });
+    flags: { [SYSTEM_ID]: { fixedDamage: { target: target.uuid, amount, type, soakDiff, fire, supernatural: true, boil, heart, internal } } } });
 }
 
 /** Принять урон по карточке: прочность (у огня — только Стойкость) и запись. */
@@ -135,5 +135,5 @@ export async function applyFixedDamage(message) {
       return target.applyDamage(8, "lethal");
     }
   }
-  return soakAndApply(target, d.amount, d.type, { difficulty: d.soakDiff, armor: !d.fire, supernatural: !!d.supernatural, fire: !!d.fire });
+  return soakAndApply(target, d.amount, d.type, { difficulty: d.soakDiff, armor: !d.fire && !d.internal, supernatural: !!d.supernatural, fire: !!d.fire });
 }

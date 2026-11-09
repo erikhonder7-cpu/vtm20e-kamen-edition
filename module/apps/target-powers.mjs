@@ -53,11 +53,16 @@ export const TARGET_POWERS = {
   "dementation|Passion": { diff: ["morality"], timed: ["scene", "hour", "night", "week", "month", "3months"] },
   "dementation|The Haunting": { diff: ["perception", "selfControl"], timed: ["night", "2nights", "week", "month", "3months", "year"] },
   "dementation|Total Insanity": { diff: ["willpower"], timed: ["scene", "night", "week", "month", "year"], note: "Insane" },
-  "auspex|Telepathy": { diff: ["willpower"], note: "Tele" },
+  // Телепатия: передать мысль или читать мысли; чтение Сородича и иного сверхъестественного — 1 Воля до броска
+  "auspex|Telepathy": { diff: ["willpower"], note: "Tele", kind: "tele" },
+  // Психометрия: сложность по давности и силе следа (4 … 9)
+  "auspex|The Spirit's Touch": { kind: "psycho" },
   "dementation|Eyes of Chaos": { kind: "chaos" },
   "dementation|Voice of Madness": { kind: "voice", self: true },
   "serpentis|Eyes of the Serpent": { kind: "eyes", needTarget: true },
   "quietus|Scorpion's Touch": { kind: "poison", needTarget: true, timed: ["scene", "hour", "day", "month", "forever"] },
+  // Зов Дагона: после касания, в течение часа — 1 Воля за ход, Выносливость против Выносливости (сложность — Воля противника)
+  "quietus|Dagon's Call": { kind: "dagon", needTarget: true },
   "animalism|Quell the Beast": { kind: "quell", needTarget: true, mortalOnly: true },
   "animalism|Drawing Out the Beast": { kind: "beast", needTarget: true },
   "obtenebration|Shroud of Night": { kind: "shroud", self: true },
@@ -201,13 +206,13 @@ export function tierText(tp, successes) {
 /** Подпись кнопки «наложить» на карточке (только у сил с эффектом на цели). */
 export function targetPowerLabel(extra, ev) {
   const tp = extra?.targetPower && TARGET_POWERS[extra.targetPower.key];
-  if (!tp || ev.outcome !== "success" || extra.targetPower.done || !(tp.timed || tp.dread || tp.kind) || ["taste", "gather", "aura", "visage", "whisper", "info", "tiers", "counter", "chaos"].includes(tp.kind)) return "";
+  if (!tp || ev.outcome !== "success" || extra.targetPower.done || !(tp.timed || tp.dread || tp.kind) || ["taste", "gather", "aura", "visage", "whisper", "info", "tiers", "counter", "chaos", "tele", "psycho"].includes(tp.kind)) return "";
   // Усмирение — только когда накоплены все успехи продолжительного броска
   if (tp.kind === "quell" && !((extra.extended?.prev ?? 0) + ev.successes >= (extra.extended?.need ?? Infinity))) return "";
   const lbl = { beast: "BeastApply", poison: "PoisonApply", shroud: "ShroudApply", arms: "ArmsApply", vanish: "VanishApply",
     rage: "RageApply", potency: "PotencyApply", theft: "TheftApply", possess: "PossessApply", project: "ProjectApply", awe: "AweApply", call: "CallApply",
     mesmerize: "MesApply", forget: "ForgApply", condition: "CondApply", voice: "VoiceApply",
-    flesh: "FleshApply", bone: "BoneApply", beckon: "BeckonApply", subsume: "SubsumeApply", self: "SelfApply", summon: "SummonApply", comrades: "ComradesApply", conjure: "ConjureApply" }[tp.kind] ?? "Apply";
+    flesh: "FleshApply", bone: "BoneApply", dagon: "DagonApply", beckon: "BeckonApply", subsume: "SubsumeApply", self: "SelfApply", summon: "SummonApply", comrades: "ComradesApply", conjure: "ConjureApply" }[tp.kind] ?? "Apply";
   return t(lbl, { name: extra.targetPower.targetName, n: ev.successes });
 }
 
@@ -411,6 +416,19 @@ export async function applyTargetPower(message, state, ev) {
     await target.startPower("vicissitude:3", { variant: x.bone, blood: 0 });
     return notice(target, x.powerName, t(x.bone === "claws" ? "BoneClawsDone" : "BoneSpikesDone", { n: cost }));
   }
+  if (tp.kind === "dagon") {
+    // сопротивление цели: Выносливость, сложность — текущая Воля ассамита; лишние успехи — тяжёлые изнутри (броня не помогает)
+    const self = state.actorUuid ? await foundry.utils.fromUuid(state.actorUuid) : null;
+    const sw = self?.system.willpower?.temporary ?? self?.system.willpower?.permanent ?? 6;
+    const { rollPool } = await import("../dice/roll.mjs");
+    const pool = target.system.attributes?.stamina?.total ?? 0;
+    const res = pool > 0 ? await rollPool({ actor: target, title: t("DagonResist"), pool, difficulty: Math.clamp(sw, 2, 10), kind: "check", noBotch: true }) : { successes: 0 };
+    const net = n - (res?.successes ?? 0);
+    await done(message, state, x);
+    if (net <= 0) return notice(target, x.powerName, t("DagonResisted"));
+    const { postFixedDamage } = await import("../data/combat-powers.mjs");
+    return postFixedDamage(self, target, { amount: net, type: "lethal", soakDiff: 6, title: x.powerName, internal: true });
+  }
   if (tp.kind === "subsume") {
     // Поглощение духа: тело вампира пустует, в звере — его дух; Дисциплины — по успехам
     const self = state.actorUuid ? await foundry.utils.fromUuid(state.actorUuid) : null;
@@ -504,6 +522,10 @@ export async function applyTargetPower(message, state, ev) {
   await target.createEmbeddedDocuments("ActiveEffect", [{ name, img: Codex.disciplineIcon(disc), description: `<p>${esc(desc)}</p>`,
     ...(tp.kind === "eyes" ? { statuses: ["r-held"] } : {}), flags: { [SYSTEM_ID]: flags } }]);
   if (tp.kind !== "poison") await done(message, state, x);
+  if (tp.kind === "poison" && (target.system.attributes?.stamina?.total ?? 1) <= 0) {
+    if (target.isVampire) { if (!target.statuses?.has("r-torpor")) await target.toggleStatusEffect("r-torpor", { active: true }); }
+    await notice(target, x.powerName, t(target.isVampire ? "PoisonZeroVampire" : "PoisonZeroMortal"));
+  }
   return notice(target, x.powerName, desc);
 }
 
@@ -629,6 +651,28 @@ export async function rollTargetPower(actor, disc, d, p, tp, { rollFromSpec, sub
     };
   }
   if (tp.kind === "possess") roll = { ...roll, willpower: true, note: t("PossessNote", { name: target.name }) };
+  if (tp.kind === "tele") {
+    const how = await ask(p.name, [["send", t("TeleSend")], ["read", t("TeleRead")]]);
+    if (!how) return null;
+    if (how === "read" && target && supernatural(target) && !(await actor.spendWillpower(1))) return null;
+    opts.more = null;
+    roll.note = [roll.note, t(how === "read" ? (target && supernatural(target) ? "TeleReadSuper" : "TeleReadNote") : "TeleSendNote")].filter(Boolean).join(" ");
+  }
+  if (tp.kind === "psycho") {
+    const d = await ask(p.name, [["4", t("PsychoD4")], ["5", "5"], ["6", t("PsychoD6")], ["7", "7"], ["8", "8"], ["9", t("PsychoD9")]]);
+    if (!d) return null;
+    roll = { ...roll, difficulty: parseInt(d), note: t("PsychoNote") };
+    opts.more = null;
+  }
+  if (tp.kind === "project") {
+    const d = await ask(p.name, [["5", t("ProjD5")], ["7", t("ProjD7")], ["9", t("ProjD9")]]);
+    if (!d) return null;
+    roll = { ...roll, difficulty: parseInt(d) };
+  }
+  if (tp.kind === "dagon") {
+    const tw = target.system.willpower?.temporary ?? target.system.willpower?.permanent ?? 6;
+    roll = { ...roll, trait1: "attributes.stamina", trait2: "", difficulty: Math.clamp(tw, 2, 10), willpower: true, note: t("DagonNote", { name: target.name, n: tw }) };
+  }
   if (tp.kind === "whisper") roll = { ...roll, difficulty: animalDiff(target), note: t("WhisperNote", { n: animalDiff(target), name: target.name }) };
   if (tp.kind === "aura") opts.onRolled = res => {
     const n = res?.successes ?? 0;
