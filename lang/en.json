@@ -3097,7 +3097,7 @@
       "CelerityNotYourTurn": "It is another participant’s turn in the Celerity phase.",
       "CelerityNotOwner": "You do not have permission to control this character.",
       "CelerityActionTitle": "Extra actions: {n}",
-      "CelerityActionHint": "Choose one physical action. It is spent after you complete it.",
+      "CelerityActionHint": "One physical action with the full pool — it is spent from the reserve.",
       "CelerityAttack": "Attack",
       "CelerityPhysical": "Physical check",
       "CelerityPhaseNote": "A Celerity extra action uses its full pool and is not split with other actions.",
@@ -3111,7 +3111,15 @@
       "BoneHeart": "5+ successes: ribs pierce the heart — a mortal dies, a vampire loses half their blood.",
       "BoneHeartDead": "{name}'s ribs pierced the heart — death.",
       "CobraBite": "Form of the Cobra: bite without a prior grapple.",
-      "CobraVenom": "The cobra's venom is deadly to the mortal “{name}” — the Storyteller decides the outcome."
+      "CobraVenom": "The cobra's venom is deadly to the mortal “{name}” — the Storyteller decides the outcome.",
+      "CelerityLeft": "actions left: {n}",
+      "CelerityAttackSub": "attack window: weapon, maneuver, target",
+      "CelerityPhysicalSub": "any Strength, Dexterity or Stamina roll",
+      "CelerityMoveSub": "move the token its full distance",
+      "CelerityDefendSub": "answer an attack waiting for defense",
+      "CelerityLater": "Later",
+      "CelerityWindow": "Celerity",
+      "CelerityKicker": "extra action"
     },
     "Hazard": {
       "Title": "Hazard",

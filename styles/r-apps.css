@@ -1609,3 +1609,16 @@ body.r-theme-light .vtm20 .r-sp-state img { filter: none; }
 .vtm20 .r-gate-text { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .vtm20 .r-gate-why { margin: 0; font-family: "Forum", serif; font-size: 16.5px; line-height: 1.3; color: var(--r-ink); }
 .vtm20 .r-gate-hint { margin: 0; font-size: 12px; font-style: italic; line-height: 1.35; color: var(--r-muted); }
+
+/* Фаза Стремительности: выбор дополнительного действия (combat/celerity.mjs) */
+.vtm20 .r-cel { display: flex; flex-direction: column; gap: 10px; }
+.vtm20 .r-cel-head { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 11px 12px 10px; border: 1px solid var(--r-line-2); border-top: 2px solid #8c1c22;
+  background: radial-gradient(ellipse at 50% 0%, rgba(184, 58, 63, .2), rgba(0, 0, 0, .32) 70%); }
+.vtm20 .r-cel-kicker { font-family: var(--r-caps); font-size: 10.5px; letter-spacing: 2px; text-transform: uppercase; color: var(--r-muted); }
+.vtm20 .r-cel-name { font-family: var(--r-display); font-size: 22px; font-weight: normal; color: var(--r-ink); text-align: center; }
+.vtm20 .r-cel-left { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--r-muted); }
+.vtm20 .r-cel-pips { display: inline-flex; gap: 4px; color: var(--r-blood-l); font-size: 13px; filter: drop-shadow(0 0 4px rgba(184, 58, 63, .55)); }
+.vtm20 .r-cel-hint { margin: 0; padding: 0 2px; font-size: 12.5px; font-style: italic; line-height: 1.4; color: var(--r-muted); text-align: center; }
+.vtm20 .r-cel-ico { flex: 0 0 26px; width: 26px; text-align: center; font-size: 17px; color: var(--r-bone-d); transition: color .12s; }
+.vtm20 button.r-cel-opt { min-height: 48px; }
+.vtm20 button.r-cel-opt:hover .r-cel-ico, .vtm20 button.r-cel-opt:focus-visible .r-cel-ico { color: var(--r-blood-l); }

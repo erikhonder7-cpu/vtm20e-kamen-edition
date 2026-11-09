@@ -85,17 +85,33 @@ export async function useCelerityAction(actor) {
   const entry = celerityPhaseFor(actor);
   if (!entry) return ui.notifications.warn(t("Combat.CelerityNotYourTurn"));
   if (!actor.isOwner) return ui.notifications.warn(t("Combat.CelerityNotOwner"));
+  // действия — карточками: значок, название, что будет; один клик — выбор
   const choices = [
-    { action: "attack", label: t("Combat.CelerityAttack"), icon: "fa-solid fa-khanda" },
-    { action: "physical", label: t("Combat.CelerityPhysical"), icon: "fa-solid fa-person-running" },
-    { action: "move", label: t("Combat.CelerityMove"), icon: "fa-solid fa-person-walking" }
+    ["attack", "fa-khanda", t("Combat.CelerityAttack"), t("Combat.CelerityAttackSub")],
+    ["physical", "fa-person-running", t("Combat.CelerityPhysical"), t("Combat.CelerityPhysicalSub")],
+    ["move", "fa-person-walking", t("Combat.CelerityMove"), t("Combat.CelerityMoveSub")]
   ];
-  if (pendingAttacks(actor).length) choices.push({ action: "defend", label: t("Combat.CelerityDefend"), icon: "fa-solid fa-shield-halved" });
-  const action = await foundry.applications.api.DialogV2.wait({
-    window: { title: t("Combat.CelerityActionTitle", { n: entry.remaining }), icon: "fa-solid fa-forward" },
-    classes: ["vtm20", "r-dialog"],
-    content: `<p>${t("Combat.CelerityActionHint", { n: entry.remaining })}</p>`,
-    buttons: choices,
+  if (pendingAttacks(actor).length) choices.unshift(["defend", "fa-shield-halved", t("Combat.CelerityDefend"), t("Combat.CelerityDefendSub")]);
+  const esc = x => foundry.utils.escapeHTML(String(x ?? ""));
+  const pips = Array.from({ length: Math.min(10, entry.remaining) }, () => `<i class="fa-solid fa-bolt"></i>`).join("");
+  let action = null;
+  await foundry.applications.api.DialogV2.wait({
+    window: { title: t("Combat.CelerityWindow"), icon: "fa-solid fa-forward" },
+    classes: ["vtm20", "r-dialog", "r-celerity-dialog"], position: { width: 420 },
+    content: `<div class="r-cel">
+      <div class="r-cel-head">
+        <span class="r-cel-kicker">${esc(t("Combat.CelerityKicker"))}</span>
+        <b class="r-cel-name">${esc(actor.name)}</b>
+        <span class="r-cel-left"><span class="r-cel-pips">${pips}</span>${esc(t("Combat.CelerityLeft", { n: entry.remaining }))}</span>
+      </div>
+      <p class="r-cel-hint">${esc(t("Combat.CelerityActionHint", { n: entry.remaining }))}</p>
+      <div class="r-ask-list">${choices.map(([v, icon, label, sub]) => `<button type="button" class="r-ask-opt r-cel-opt" data-v="${v}">
+        <i class="fa-solid ${icon} r-cel-ico"></i><span class="r-ask-txt"><b>${esc(label)}</b><em>${esc(sub)}</em></span><i class="fa-solid fa-chevron-right r-ask-go"></i></button>`).join("")}</div>
+    </div>`,
+    buttons: [{ action: "cancel", icon: "fa-solid fa-xmark", label: t("Combat.CelerityLater") }],
+    render: (ev, dlg) => {
+      for (const b of dlg.element.querySelectorAll(".r-cel-opt")) b.addEventListener("click", () => { action = b.dataset.v; dlg.close(); });
+    },
     rejectClose: false
   });
   if (action === "attack") return openAttack(actor, { celerityAction: true });
