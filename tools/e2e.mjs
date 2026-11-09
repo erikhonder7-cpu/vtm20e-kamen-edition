@@ -1332,7 +1332,7 @@ try {
       // Сумеречный облик: физический урон не проходит, атаковать нельзя, огонь — полностью
       await a.startPower("obtenebration:5");
       await soakAndApply(a, 2, "lethal", { soak: false });
-      out.shadow = [!!a.system.fx.shadowForm, openAttack(a) === null, hp(a)];
+      out.shadow = [!!a.system.fx.shadowForm, (await openAttack(a)) === null, hp(a)];
       await soakAndApply(a, 1, "aggravated", { soak: false, fire: true });
       out.shadowFire = hp(a);
       const link = key => ({ key, target: a.uuid, targetName: a.name, powerName: key, actorName: a.name });
@@ -1461,7 +1461,7 @@ try {
       await a.toggleStatusEffect("r-staked", { active: true });
       out.heart = [a.statuses.has("r-staked"), TP.frenzyDiff(a, "frenzy").map(d => d.value)];
       await a.startPower("vicissitude:5");
-      out.bloodform = [!!a.system.fx.shadowForm, openAttack(a) === null];
+      out.bloodform = [!!a.system.fx.shadowForm, (await openAttack(a)) === null];
       // Искусство тканей: −2 Привлекательности; укрепление — Сила 3 → 1, +2 к поглощению
       await apply("vicissitude|Fleshcraft", m, 2, { flesh: "lower" });
       const soak0 = m.soakPool("bashing");
@@ -1716,7 +1716,7 @@ try {
       canvas.tokens.get(tok(crowd[2]).id)?.setTarget(true, { releaseOthers: true }); await wait(300);
       await openPop(); row(/Приглашение/)?.click();
       let ask = null; for (let i = 0; i < 30 && !ask; i++) { await wait(100); ask = [...foundry.applications.instances.values()].find(x => x instanceof foundry.applications.api.DialogV2); }
-      const sel = ask?.element.querySelector("select"); if (sel) sel.value = "7";
+      const opt7 = ask?.element.querySelector('.r-ask-opt[data-v="7"]'); if (opt7) opt7.click(); const sel = ask?.element.querySelector("select"); if (sel) sel.value = "7";
       ask?.element.querySelector('button[data-action="ok"]')?.click();
       d = await rollDlg();
       out.call = d?.values.difficulty;
@@ -1787,7 +1787,7 @@ try {
       for (const n of [3, 2, 4]) { const pr = apply("dominate|Mesmerize", n); await answer(el => { if (el) el.querySelector("textarea").value = `E2E — приказ ${n}`; }); await pr; }
       out.program = prog();
       // Порабощение: Самоконтроль 1, ×5 — нужно 5; 3 + 3 — порабощён
-      let pr = apply("dominate|Conditioning", 3); await answer(el => { const s = el?.querySelector("select"); if (s) s.value = "5"; }); await pr;
+      let pr = apply("dominate|Conditioning", 3); await answer(el => { const o = el?.querySelector('.r-ask-opt[data-v="5"]'); if (o) o.click(); const s = el?.querySelector("select"); if (s) s.value = "5"; }); await pr;
       out.condMid = mt().getFlag(sid, "conditioning")?.total;
       await apply("dominate|Conditioning", 3);
       out.condDone = mt().effects.some(e => e.flags?.[sid]?.conditioned);
@@ -1891,7 +1891,7 @@ try {
       const inst = () => [...foundry.applications.instances.values()];
       const dialogs = () => inst().filter(x => x instanceof foundry.applications.api.DialogV2);
       const closeAll = async () => { for (const x of inst()) if (x.constructor.name === "RollDialog" || x instanceof foundry.applications.api.DialogV2) await x.close(); };
-      const pick = async val => { const d = dialogs().at(-1); const s = d?.element.querySelector("select"); if (s) s.value = val;
+      const pick = async val => { const d = dialogs().at(-1); const opt = d?.element.querySelector(`.r-ask-opt[data-v="${val}"]`); if (opt) { opt.click(); await wait(500); return; } const s = d?.element.querySelector("select"); if (s) s.value = val;
         d?.element.querySelector('button[data-action="ok"]')?.click(); await wait(500); return !!d; };
       const bone = async (mode, diff) => { await closeAll(); document.querySelector('#r-hud [data-act="tab"][data-tab="powers"]')?.click(); await wait(300);
         document.querySelector('#r-hud [data-act="pop"][data-pop*="vicissitude"]')?.click(); await wait(400);
@@ -1973,7 +1973,7 @@ try {
       document.querySelector('#r-hud [data-act="tab"][data-tab="powers"]')?.click(); await wait(300);
       document.querySelector('#r-hud [data-act="pop"][data-pop*="vicissitude"]')?.click(); await wait(400);
       [...document.querySelectorAll('#r-hud .rh-pop-row[data-act="power"]')].find(x => /Искусство костей/.test(x.textContent))?.click(); await wait(600);
-      const hasTpl = !![...(dialogs().at(-1)?.element.querySelectorAll("option") ?? [])].find(o => o.value === "tpl:0" && /Костяной клинок/.test(o.textContent));
+      const hasTpl = !![...(dialogs().at(-1)?.element.querySelectorAll(".r-ask-opt") ?? [])].find(o => o.dataset.v === "tpl:0" && /Костяной клинок/.test(o.textContent));
       await pick("tpl:0");
       const tf = dialogs().at(-1)?.element;
       const filled = [tf?.querySelector('[name="name"]')?.value, tf?.querySelector('[name="diff"]:checked')?.value, tf?.querySelector('[name="cost"]')?.value];
@@ -2132,7 +2132,7 @@ try {
       const inst = () => [...foundry.applications.instances.values()];
       const dialogs = () => inst().filter(x => x instanceof foundry.applications.api.DialogV2);
       const closeAll = async () => { for (const x of inst()) if (x.constructor.name === "RollDialog" || x instanceof foundry.applications.api.DialogV2) await x.close(); };
-      const pick = async val => { const d = dialogs().at(-1); const s = d?.element.querySelector("select"); if (s) s.value = val;
+      const pick = async val => { const d = dialogs().at(-1); const opt = d?.element.querySelector(`.r-ask-opt[data-v="${val}"]`); if (opt) { opt.click(); await wait(500); return; } const s = d?.element.querySelector("select"); if (s) s.value = val;
         d?.element.querySelector('button[data-action="ok"]')?.click(); await wait(500); };
       const hud = async re => { await closeAll(); document.querySelector('#r-hud [data-act="tab"][data-tab="powers"]')?.click(); await wait(300);
         document.querySelector('#r-hud [data-act="pop"][data-pop*="auspex"]')?.click(); await wait(400);
@@ -2182,7 +2182,7 @@ try {
       const hud = async re => { await closeAll(); document.querySelector('#r-hud [data-act="tab"][data-tab="powers"]')?.click(); await wait(300);
         document.querySelector('#r-hud [data-act="pop"][data-pop*="chimerstry"]')?.click(); await wait(400);
         [...document.querySelectorAll('#r-hud .rh-pop-row[data-act="power"]')].find(x => re.test(x.textContent))?.click(); await wait(600); };
-      const answer = async val => { const d = dialogs().at(-1); const f = d?.element.querySelector("select, input[type=text]"); if (f) f.value = val;
+      const answer = async val => { const d = dialogs().at(-1); const opt = d?.element.querySelector(`.r-ask-opt[data-v="${val}"]`); if (opt) { opt.click(); await wait(600); return; } const f = d?.element.querySelector("select, input[type=text]"); if (f) f.value = val;
         d?.element.querySelector('button[data-action="ok"]')?.click(); await wait(600); };
       const at = () => canvas.tokens.get(tok(a).id).actor, mt = () => canvas.tokens.get(tok(m).id).actor;
       canvas.tokens.get(tok(a).id)?.control({ releaseOthers: true }); await wait(600);
@@ -2326,7 +2326,7 @@ try {
       const inst = () => [...foundry.applications.instances.values()];
       const dialogs = () => inst().filter(x => x instanceof foundry.applications.api.DialogV2);
       const closeAll = async () => { for (const x of inst()) if (x.constructor.name === "RollDialog" || x instanceof foundry.applications.api.DialogV2) await x.close(); };
-      const pick = async val => { const d = dialogs().at(-1); const s = d?.element.querySelector("select"); if (s) s.value = val;
+      const pick = async val => { const d = dialogs().at(-1); const opt = d?.element.querySelector(`.r-ask-opt[data-v="${val}"]`); if (opt) { opt.click(); await wait(500); return; } const s = d?.element.querySelector("select"); if (s) s.value = val;
         d?.element.querySelector('button[data-action="ok"]')?.click(); await wait(500); };
       const hud = async re => { await closeAll(); document.querySelector('#r-hud [data-act="tab"][data-tab="powers"]')?.click(); await wait(300);
         document.querySelector('#r-hud [data-act="pop"][data-pop*="bardo"]')?.click(); await wait(400);
@@ -2391,7 +2391,7 @@ try {
       const inst = () => [...foundry.applications.instances.values()];
       const dialogs = () => inst().filter(x => x instanceof foundry.applications.api.DialogV2);
       const closeAll = async () => { for (const x of inst()) if (x.constructor.name === "RollDialog" || x instanceof foundry.applications.api.DialogV2) await x.close(); };
-      const pick = async val => { const d = dialogs().at(-1); const s = d?.element.querySelector("select"); if (s) s.value = val;
+      const pick = async val => { const d = dialogs().at(-1); const opt = d?.element.querySelector(`.r-ask-opt[data-v="${val}"]`); if (opt) { opt.click(); await wait(500); return; } const s = d?.element.querySelector("select"); if (s) s.value = val;
         d?.element.querySelector('button[data-action="ok"]')?.click(); await wait(500); };
       const hud = async re => { await closeAll(); document.querySelector('#r-hud [data-act="tab"][data-tab="powers"]')?.click(); await wait(300);
         document.querySelector('#r-hud [data-act="pop"][data-pop*="valeren"]')?.click(); await wait(400);
@@ -2456,7 +2456,7 @@ try {
       const inst = () => [...foundry.applications.instances.values()];
       const dialogs = () => inst().filter(x => x instanceof foundry.applications.api.DialogV2);
       const closeAll = async () => { for (const x of inst()) if (x.constructor.name === "RollDialog" || x instanceof foundry.applications.api.DialogV2) await x.close(); };
-      const pick = async val => { const d = dialogs().at(-1); const s = d?.element.querySelector("select"); if (s) s.value = val;
+      const pick = async val => { const d = dialogs().at(-1); const opt = d?.element.querySelector(`.r-ask-opt[data-v="${val}"]`); if (opt) { opt.click(); await wait(500); return; } const s = d?.element.querySelector("select"); if (s) s.value = val;
         d?.element.querySelector('button[data-action="ok"]')?.click(); await wait(500); };
       const hud = async re => { await closeAll(); document.querySelector('#r-hud [data-act="tab"][data-tab="powers"]')?.click(); await wait(300);
         document.querySelector('#r-hud [data-act="pop"][data-pop*="visceratika"]')?.click(); await wait(400);
@@ -2507,7 +2507,7 @@ try {
       const inst = () => [...foundry.applications.instances.values()];
       const dialogs = () => inst().filter(x => x instanceof foundry.applications.api.DialogV2);
       const closeAll = async () => { for (const x of inst()) if (x.constructor.name === "RollDialog" || x instanceof foundry.applications.api.DialogV2) await x.close(); };
-      const pick = async val => { const d = dialogs().at(-1); const s = d?.element.querySelector("select"); if (s) s.value = val;
+      const pick = async val => { const d = dialogs().at(-1); const opt = d?.element.querySelector(`.r-ask-opt[data-v="${val}"]`); if (opt) { opt.click(); await wait(500); return; } const s = d?.element.querySelector("select"); if (s) s.value = val;
         d?.element.querySelector('button[data-action="ok"]')?.click(); await wait(500); };
       const hud = async re => { await closeAll(); document.querySelector('#r-hud [data-act="tab"][data-tab="powers"]')?.click(); await wait(300);
         document.querySelector('#r-hud [data-act="pop"][data-pop*="daimoinon"]')?.click(); await wait(400);
@@ -2575,7 +2575,7 @@ try {
       const inst = () => [...foundry.applications.instances.values()];
       const closeAll = async () => { for (const x of inst()) if (x.constructor.name === "RollDialog" || x instanceof foundry.applications.api.DialogV2) await x.close(); };
       const answer = async val => { let d = null; for (let i = 0; i < 30 && !d; i++) { await wait(100); d = inst().find(x => x instanceof foundry.applications.api.DialogV2); }
-        const s = d?.element.querySelector("select"); if (s) s.value = val; d?.element.querySelector('button[data-action="ok"]')?.click(); await wait(500); };
+        const opt = d?.element.querySelector(`.r-ask-opt[data-v="${val}"]`); if (opt) { opt.click(); await wait(500); return; } const s = d?.element.querySelector("select"); if (s) s.value = val; d?.element.querySelector('button[data-action="ok"]')?.click(); await wait(500); };
       const hudPower = async re => { await closeAll(); document.querySelector('#r-hud [data-act="tab"][data-tab="powers"]')?.click(); await wait(300);
         document.querySelector('#r-hud [data-act="pop"][data-pop*="dementation"]')?.click(); await wait(400);
         [...document.querySelectorAll('#r-hud .rh-pop-row[data-act="power"]')].find(x => re.test(x.textContent))?.click(); };
@@ -2727,7 +2727,7 @@ try {
       out.earthWake = [hp(), a.powerEffects.some(x => x.power === "protean:3")];
       // Туманная форма: броня не в счёт, атаковать нельзя, обычный урон не проходит, огонь — проходит
       await a.startPower("protean:5", { blood: 3 });
-      out.mist = [!!a.system.fx?.mistForm, a.armor.rating, openAttack(a) === null];
+      out.mist = [!!a.system.fx?.mistForm, a.armor.rating, (await openAttack(a)) === null];
       await soakAndApply(a, 2, "lethal", { soak: false });
       out.mistHit = hp();
       await soakAndApply(a, 1, "aggravated", { soak: false, fire: true });

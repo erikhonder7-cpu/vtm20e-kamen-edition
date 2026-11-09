@@ -707,7 +707,7 @@ export async function rollTargetPower(actor, disc, d, p, tp, { rollFromSpec, sub
   const skip = new Set();
   let prep = prepareTargetPower(actor, disc, p, tp, skip);
   while (prep?.blocked) {
-    if (!(await allowAnyway(actor, prep.blocked.text, prep.blocked.code === "needTarget" ? { yes: t("NoTargetRoll") } : {}))) return null;
+    if (!(await allowAnyway(actor, prep.blocked.text, prep.blocked.code === "needTarget" ? { yes: t("NoTargetRoll"), soft: true } : {}))) return null;
     skip.add(prep.blocked.code);
     prep = prepareTargetPower(actor, disc, p, tp, skip);
   }
@@ -1341,9 +1341,24 @@ async function illusion(actor, p, tp) {
 }
 
 /** Выбор из списка перед наложением. */
-const ask = (title, options) => foundry.applications.api.DialogV2.prompt({ window: { title }, classes: ["vtm20", "r-dialog"], rejectClose: false,
-  content: `<div class="r-form"><select name="v">${options.map(([v, l]) => `<option value="${v}">${esc(l)}</option>`).join("")}</select></div>`,
-  ok: { label: t("SelfApply"), callback: (e, b) => b.form.elements.v.value } });
+// Варианты — кнопками в столбик: один клик — выбор (раньше: раскрыть список, выбрать, нажать «Применить»)
+function ask(title, options) {
+  let picked = null;
+  return foundry.applications.api.DialogV2.wait({
+    window: { title, icon: "fa-solid fa-list-check" }, classes: ["vtm20", "r-dialog", "r-ask"], position: { width: 400 },
+    content: `<div class="r-ask-list">${options.map(([v, l]) => {
+      // «Название (пояснение)» — пояснение второй строкой
+      const m = String(l).match(/^(.*?)\s*\(([^)]*)\)\s*$/), main = m ? m[1] : l, sub = m ? m[2] : "";
+      return `<button type="button" class="r-ask-opt" data-v="${esc(v)}"><i class="r-ask-mark"></i><span class="r-ask-txt"><b>${esc(main)}</b>${sub ? `<em>${esc(sub)}</em>` : ""}</span><i class="fa-solid fa-chevron-right r-ask-go"></i></button>`;
+    }).join("")}</div>`,
+    buttons: [{ action: "cancel", icon: "fa-solid fa-xmark", label: game.i18n.localize("VTM20.Gate.Cancel") }],
+    render: (ev, dlg) => {
+      for (const b of dlg.element.querySelectorAll(".r-ask-opt")) b.addEventListener("click", () => { picked = b.dataset.v; dlg.close(); });
+      dlg.element.querySelector(".r-ask-opt")?.focus();
+    },
+    rejectClose: false
+  }).then(() => picked);
+}
 
 /** Распределить точки по Физическим Атрибутам (Сила стихий: 3 временные точки). */
 async function splitPoints(title, total) {

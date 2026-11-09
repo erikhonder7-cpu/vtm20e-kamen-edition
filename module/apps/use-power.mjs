@@ -6,6 +6,13 @@
 const t = (k, d) => d ? game.i18n.format(`VTM20.Use.${k}`, d) : game.i18n.localize(`VTM20.Use.${k}`);
 const esc = x => foundry.utils.escapeHTML(String(x ?? ""));
 
+/** Карточка цены: значок, подпись, − n + (скрытое поле name). */
+const costCard = (name, icon, label, value, max, have) => `<div class="r-use-card" data-max="${max}">
+  <i class="fa-solid ${icon} r-use-ico"></i>
+  <span class="r-use-lbl">${esc(label)}<em>${esc(t("Have", { n: have }))}</em></span>
+  <span class="r-bw-step"><button type="button" data-d="-1" aria-label="−"><i class="fa-solid fa-minus"></i></button><b>${value}</b><button type="button" data-d="1" aria-label="+"><i class="fa-solid fa-plus"></i></button>
+  <input type="hidden" name="${name}" value="${value}"></span></div>`;
+
 /**
  * @param {Actor} actor
  * @param {object} p        сила из справочника (name, roll, html)
@@ -17,19 +24,26 @@ export async function usePower(actor, p, subtitle, roll) {
   const blood0 = Number(r.blood) || 0, will0 = r.willpower ? (Number(r.willpower) > 1 ? Number(r.willpower) : 1) : 0;
   const choice = await foundry.applications.api.DialogV2.wait({
     window: { title: p.name, icon: "fa-solid fa-hand-sparkles" }, classes: ["vtm20", "r-dialog", "r-use-dialog"],
-    position: { width: 420 },
-    content: `<div class="r-form">
-      <p class="r-use-sub">${esc(subtitle)}</p>
-      ${r.note ? `<p class="r-hint">${esc(r.note)}</p>` : `<p class="r-hint">${esc(t("NoRoll"))}</p>`}
+    position: { width: 440 },
+    content: `<div class="r-use">
+      <div class="r-use-head"><span class="r-use-kicker">${esc(subtitle)}</span><b class="r-use-name">${esc(p.name)}</b></div>
+      <p class="r-use-note">${esc(r.note || t("NoRoll"))}</p>
       <div class="r-use-cost">
-        <label class="r-field"><span><i class="fa-solid fa-droplet"></i> ${esc(t("Blood"))}</span><input type="number" name="b" value="${blood0}" min="0" max="30"></label>
-        <label class="r-field"><span><i class="fa-solid fa-star"></i> ${esc(t("Will"))}</span><input type="number" name="w" value="${will0}" min="0" max="10"></label>
+        ${costCard("b", "fa-droplet", t("Blood"), blood0, 30, actor.system.blood?.value ?? 0)}
+        ${costCard("w", "fa-star", t("Will"), will0, 10, actor.system.willpower?.temporary ?? 0)}
       </div>
-      <label class="r-field"><span>${esc(t("Note"))}</span><input type="text" name="n" placeholder="${esc(t("NoteHint"))}"></label>
+      <input class="r-use-say" type="text" name="n" placeholder="${esc(t("NoteHint"))}">
     </div>`,
+    render: (ev, dlg) => {
+      for (const b of dlg.element.querySelectorAll(".r-bw-step button")) b.addEventListener("click", () => {
+        const card = b.closest(".r-use-card"), inp = card.querySelector("input");
+        const v = Math.clamp((Number(inp.value) || 0) + Number(b.dataset.d), 0, Number(card.dataset.max));
+        inp.value = v; card.querySelector(".r-bw-step b").textContent = v;
+      });
+    },
     buttons: [
       { action: "use", icon: "fa-solid fa-hand-sparkles", label: t("Go"), default: true,
-        callback: (e, b) => ({ use: true, b: Math.max(0, Math.round(Number(b.form.elements.b.value) || 0)), w: Math.max(0, Math.round(Number(b.form.elements.w.value) || 0)), n: b.form.elements.n.value.trim() }) },
+        callback: (e, b) => ({ use: true, b: Math.max(0, Number(b.form.elements.b.value) || 0), w: Math.max(0, Number(b.form.elements.w.value) || 0), n: b.form.elements.n.value.trim() }) },
       { action: "roll", icon: "fa-solid fa-dice-d10", label: t("Roll"), callback: () => ({ roll: true }) }
     ],
     rejectClose: false

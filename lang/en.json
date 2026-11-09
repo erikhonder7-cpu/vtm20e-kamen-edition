@@ -5936,7 +5936,7 @@
       "BoneClawsDone": "Bone claws have grown (Strength +1, lethal); cost — {n} lethal.",
       "BoneSpikesDone": "Body covered in bone spikes: +2 damage dice in clinches and tackles; a bare-handed attacker hitting with fewer than 3 successes takes their own Strength in damage. Cost — {n} lethal.",
       "BoneSpikesBotch": "Botch: the bones tear the body from within — a mortal dies, a vampire falls into torpor.",
-      "NeedTargetGate": "No target marked (T). Without one the power is rolled without automation: set the difficulty yourself; the result won't be applied to a target.",
+      "NeedTargetGate": "No target marked (T). You can roll without one — then set the difficulty yourself, and the result won't be applied to a target.",
       "NoTargetRoll": "Roll without a target",
       "BoneBotchApply": "Apply the botch: {name}",
       "BoneCustom": "Custom work (configure)",
@@ -6172,16 +6172,18 @@
       "Hint": "V20 rules forbid this, but the Storyteller decides. If you go ahead, the Storyteller will see it in chat.",
       "Anyway": "Anyway",
       "Cancel": "Cancel",
-      "Done": "{name} bends a rule: {reason}"
+      "Done": "{name} bends a rule: {reason}",
+      "SoftTitle": "No target"
     },
     "Use": {
       "NoRoll": "This power has no activation roll — it works as described. The cost can be adjusted.",
       "Blood": "Blood",
       "Will": "Willpower",
       "Note": "What it does (to chat)",
-      "NoteHint": "target, duration, details…",
+      "NoteHint": "What it does — goes to chat: target, duration, details…",
       "Go": "Use",
-      "Roll": "Roll"
+      "Roll": "Roll",
+      "Have": "have {n}"
     }
   },
   "Fx": {

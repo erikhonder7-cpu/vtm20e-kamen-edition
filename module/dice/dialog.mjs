@@ -45,7 +45,11 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     };
   }
 
-  static prompt(actor, cfg = {}) { return new RollDialog(actor, cfg).render({ force: true }); }
+  static prompt(actor, cfg = {}) {
+    // та же проверка того же персонажа уже открыта — заменить, а не плодить копии
+    for (const x of foundry.applications.instances.values()) if (x instanceof RollDialog && x.actor === actor && cfg.title && x.cfg?.title === cfg.title && x.cfg?.subtitle === cfg.subtitle) x.close();
+    return new RollDialog(actor, cfg).render({ force: true });
+  }
 
   /** Варианты черт для выпадающих списков. */
   #traitOptions() {
