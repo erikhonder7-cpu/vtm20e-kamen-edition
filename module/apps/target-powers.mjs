@@ -57,6 +57,13 @@ export const TARGET_POWERS = {
   "auspex|Telepathy": { diff: ["willpower"], note: "Tele", kind: "tele" },
   // Психометрия: сложность по давности и силе следа (4 … 9)
   "auspex|The Spirit's Touch": { kind: "psycho" },
+  // Фантасмагория 1–4: без броска — иллюзии эффектами на листе (их может быть несколько); 3–4 — к выбранной иллюзии
+  "chimerstry|Ignis Fatuus": { kind: "illusion", will: 1 },
+  "chimerstry|Fata Morgana": { kind: "illusion", will: 1, blood: 1, all: true },
+  "chimerstry|Apparition": { kind: "illusion", step: "animate" },
+  "chimerstry|Permanency": { kind: "illusion", step: "permanent" },
+  // Кошмар наяву: 2 Воли; сложность — Восприятие + Самоконтроль жертвы; успех — неотвратимое тяжёлое, но не убивает
+  "chimerstry|Horrid Reality": { kind: "nightmare", needTarget: true, diff: ["perception", "selfControl"] },
   "dementation|Eyes of Chaos": { kind: "chaos" },
   "dementation|Voice of Madness": { kind: "voice", self: true },
   "serpentis|Eyes of the Serpent": { kind: "eyes", needTarget: true },
@@ -206,13 +213,13 @@ export function tierText(tp, successes) {
 /** Подпись кнопки «наложить» на карточке (только у сил с эффектом на цели). */
 export function targetPowerLabel(extra, ev) {
   const tp = extra?.targetPower && TARGET_POWERS[extra.targetPower.key];
-  if (!tp || ev.outcome !== "success" || extra.targetPower.done || !(tp.timed || tp.dread || tp.kind) || ["taste", "gather", "aura", "visage", "whisper", "info", "tiers", "counter", "chaos", "tele", "psycho"].includes(tp.kind)) return "";
+  if (!tp || ev.outcome !== "success" || extra.targetPower.done || !(tp.timed || tp.dread || tp.kind) || ["taste", "gather", "aura", "visage", "whisper", "info", "tiers", "counter", "chaos", "tele", "psycho", "illusion"].includes(tp.kind)) return "";
   // Усмирение — только когда накоплены все успехи продолжительного броска
   if (tp.kind === "quell" && !((extra.extended?.prev ?? 0) + ev.successes >= (extra.extended?.need ?? Infinity))) return "";
   const lbl = { beast: "BeastApply", poison: "PoisonApply", shroud: "ShroudApply", arms: "ArmsApply", vanish: "VanishApply",
     rage: "RageApply", potency: "PotencyApply", theft: "TheftApply", possess: "PossessApply", project: "ProjectApply", awe: "AweApply", call: "CallApply",
     mesmerize: "MesApply", forget: "ForgApply", condition: "CondApply", voice: "VoiceApply",
-    flesh: "FleshApply", bone: "BoneApply", dagon: "DagonApply", beckon: "BeckonApply", subsume: "SubsumeApply", self: "SelfApply", summon: "SummonApply", comrades: "ComradesApply", conjure: "ConjureApply" }[tp.kind] ?? "Apply";
+    flesh: "FleshApply", bone: "BoneApply", dagon: "DagonApply", nightmare: "NightApply", beckon: "BeckonApply", subsume: "SubsumeApply", self: "SelfApply", summon: "SummonApply", comrades: "ComradesApply", conjure: "ConjureApply" }[tp.kind] ?? "Apply";
   return t(lbl, { name: extra.targetPower.targetName, n: ev.successes });
 }
 
@@ -416,6 +423,19 @@ export async function applyTargetPower(message, state, ev) {
     await target.startPower("vicissitude:3", { variant: x.bone, blood: 0 });
     return notice(target, x.powerName, t(x.bone === "claws" ? "BoneClawsDone" : "BoneSpikesDone", { n: cost }));
   }
+  if (tp.kind === "nightmare") {
+    // Кошмар наяву: урон по разуму — без поглощения; не убивает (смертный теряет сознание, вампир — торпор)
+    await done(message, state, x);
+    const cap = x.night?.startsWith("cap") ? Number(x.night.slice(3)) : Infinity;
+    const type = x.night === "bashing" ? "bashing" : "lethal";
+    const h = target._source.system.health ?? {}, room = Math.max(0, 7 - (h.bashing ?? 0) - (h.lethal ?? 0) - (h.aggravated ?? 0));
+    const amount = Math.min(n, cap, room);
+    if (amount) await target.applyDamage(amount, type);
+    await target.createEmbeddedDocuments("ActiveEffect", [{ name: t("NightName", { n: amount }), img: Codex.disciplineIcon("chimerstry"),
+      description: `<p>${esc(t("NightDesc", { n: amount }))}</p>`, flags: { [SYSTEM_ID]: { ...flags, mode: "timed", until: now + api.MS_DAY, nightmare: amount, nightType: type } } }]);
+    if (room <= amount && target.isVampire && !target.statuses?.has("r-torpor")) await target.toggleStatusEffect("r-torpor", { active: true });
+    return notice(target, x.powerName, t(room <= amount ? (target.isVampire ? "NightTorpor" : "NightFaint") : "NightDone", { n: amount }));
+  }
   if (tp.kind === "dagon") {
     // сопротивление цели: Выносливость, сложность — текущая Воля ассамита; лишние успехи — тяжёлые изнутри (броня не помогает)
     const self = state.actorUuid ? await foundry.utils.fromUuid(state.actorUuid) : null;
@@ -572,6 +592,7 @@ export async function rollTargetPower(actor, disc, d, p, tp, { rollFromSpec, sub
   const link = holder ? { key, target: holder.uuid, targetName: holder.name, powerName: p.name, actorName: actor.name } : null;
   // Тайное собрание: без броска — действующее Сокрытие ложится на отмеченных спутников
   if (tp.kind === "gather") return cloakGathering(actor, p);
+  if (tp.kind === "illusion") return illusion(actor, p, tp);
   // Глаза змеи: смертный замирает без броска — карточка «наложить»; сверхъестественный — Воля змея (сл. 9)
   if (tp.kind === "eyes") {
     if (!supernatural(target)) return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), flags: { [SYSTEM_ID]: { targetApply: { ...link, actorUuid: actor.uuid } } },
@@ -651,6 +672,14 @@ export async function rollTargetPower(actor, disc, d, p, tp, { rollFromSpec, sub
     };
   }
   if (tp.kind === "possess") roll = { ...roll, willpower: true, note: t("PossessNote", { name: target.name }) };
+  if (tp.kind === "nightmare") {
+    // урон объявляется заранее: тяжёлые, лёгкие или не больше N
+    const how = await ask(p.name, [["lethal", t("NightLethal")], ["bashing", t("NightBashing")], ["cap1", t("NightCap", { n: 1 })], ["cap2", t("NightCap", { n: 2 })], ["cap3", t("NightCap", { n: 3 })]]);
+    if (!how) return null;
+    if (!(await actor.spendWillpower(2))) return null;
+    opts.more = { targetPower: { ...link, night: how } };
+    roll.note = [roll.note, t("NightNote")].filter(Boolean).join(" ");
+  }
   if (tp.kind === "tele") {
     const how = await ask(p.name, [["send", t("TeleSend")], ["read", t("TeleRead")]]);
     if (!how) return null;
@@ -1015,6 +1044,36 @@ async function conjure(message, state, x, tp, caster) {
   await done(message, state, x);
   await caster.createEmbeddedDocuments("Item", [{ name, type: "gear", flags: { [SYSTEM_ID]: { conjured: tp.conjure } } }]);
   return notice(caster, x.powerName, t(tp.conjure === "scene" ? "ConjureScene" : "ConjureForever", { name }));
+}
+
+/** Фантасмагория 1–4: иллюзия на листе вампира (Морок, Фата‑моргана) или шаг к выбранной иллюзии (Анимация, Постоянство). */
+async function illusion(actor, p, tp) {
+  const mine = actor.effects.filter(e => e.flags?.[SYSTEM_ID]?.illusion);
+  if (tp.step) {
+    const can = mine.filter(e => !e.flags[SYSTEM_ID][tp.step]);
+    if (!can.length) return ui.notifications.warn(t("IllNone"));
+    const id = await ask(p.name, can.map(e => [e.id, e.name]));
+    if (!id) return null;
+    if (!(await actor.spendBlood(1, { reason: p.name }))) return null;
+    const e = actor.effects.get(id);
+    await e.update({ name: `${e.name} · ${t(tp.step === "animate" ? "IllAnimated" : "IllPermanent")}`, [`flags.${SYSTEM_ID}.${tp.step}`]: true,
+      description: `${e.description ?? ""}<p>${esc(t(tp.step === "animate" ? "IllAnimateDesc" : "IllPermDesc"))}</p>` });
+    return notice(actor, p.name, t(tp.step === "animate" ? "IllAnimateDesc" : "IllPermDesc"));
+  }
+  const what = await foundry.applications.api.DialogV2.prompt({ window: { title: p.name, icon: "fa-solid fa-wand-magic-sparkles" }, classes: ["vtm20", "r-dialog"], rejectClose: false,
+    content: `<div class="r-form"><label class="r-field"><span>${esc(t("IllWhat"))}</span><input type="text" name="w" autofocus placeholder="${esc(t(tp.all ? "IllHintAll" : "IllHintOne"))}"></label></div>`,
+    ok: { label: t("IllGo"), callback: (e, b) => b.form.elements.w.value.trim() } });
+  if (!what) return null;
+  // цена: Воля и кровь — сначала проверить, что хватит того и другого
+  if ((actor.system.willpower?.temporary ?? 0) < (tp.will ?? 0)) return ui.notifications.warn(game.i18n.format("VTM20.Notify.NoWillpower", { name: actor.name }));
+  if (tp.blood && (actor.system.blood?.value ?? 0) < tp.blood) return ui.notifications.warn(game.i18n.format("VTM20.Notify.NoBlood", { name: actor.name }));
+  if (tp.will && !(await actor.spendWillpower(tp.will))) return null;
+  if (tp.blood && !(await actor.spendBlood(tp.blood, { reason: p.name }))) return null;
+  const vol = 0.5 * (actor.discipline?.("chimerstry") ?? 1);
+  const desc = t(tp.all ? "IllAllDesc" : "IllOneDesc", { v: vol });
+  await actor.createEmbeddedDocuments("ActiveEffect", [{ name: t("IllName", { what }), img: Codex.disciplineIcon("chimerstry"),
+    description: `<p>${esc(desc)}</p>`, flags: { [SYSTEM_ID]: { illusion: true, mode: "manual", by: actor.uuid } } }]);
+  return notice(actor, p.name, `${what}: ${desc}`);
 }
 
 /** Выбор из списка перед наложением. */

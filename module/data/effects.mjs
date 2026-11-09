@@ -101,8 +101,6 @@ export const POWER_EFFECTS = {
   "serpentis:5": { mode: "toggle", icon: "fa-heart-crack", heartless: true },
   // Преображение 5, Облик крови (целиком): неуязвим для физического урона, огонь и солнце — как обычно; течёт сквозь щели
   "vicissitude:5": { mode: "toggle", icon: "fa-droplet", shadowForm: true, bloodForm: true },
-  // Фантасмагория 5, Кошмар наяву: 2 Воли, до конца сцены
-  "chimerstry:5": { mode: "scene", icon: "fa-skull", cost: { willpower: 2 } },
   // Висцератика 1, Шкура хамелеона: 1 кровь, до конца сцены +5 кубов к маскировке, пока движется не быстрее шага
   "visceratika:1": { mode: "scene", icon: "fa-mountain", cost: { blood: 1 } },
   // Висцератика 5, Перемещение сквозь камень: после Слияния с камнем 2 крови, до конца сцены

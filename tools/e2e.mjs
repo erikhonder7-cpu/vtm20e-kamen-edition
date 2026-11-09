@@ -2161,6 +2161,60 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  // Фантасмагория через HUD: иллюзии без броска (цена списана, на листе), Анимация и Постоянство к выбранной;
+  // Кошмар наяву — 2 Воли, урон без поглощения и не до смерти
+  await check("Фантасмагория через HUD", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), sys = p => import(`/systems/${sid}/${p}`);
+      const TP = await sys("module/apps/target-powers.mjs");
+      const mk = (name, type, system = {}) => Actor.create({ name, type, flags: { world: { e2e: true } }, system });
+      const a = await mk("E2E — равнос", "vampire", { generation: 9, blood: { value: 12 }, willpower: { permanent: 7, temporary: 7 } });
+      const m = await mk("E2E — жертва кошмара", "mortal", { attributes: { perception: { value: 2 } } });
+      await a.createEmbeddedDocuments("Item", [{ name: "E2E — chimerstry", type: "discipline", system: { key: "chimerstry", value: 5 } }]);
+      const scene = game.scenes.viewed ?? game.scenes.contents[0];
+      const made = await scene.createEmbeddedDocuments("Token", await Promise.all([a, m].map((x, i) => x.getTokenDocument({ x: 100 + i * 200, y: 2500 }))));
+      const tok = x => made.find(tk => tk.actorId === x.id);
+      for (let i = 0; i < 30 && !canvas.tokens.get(tok(m).id); i++) await wait(100);
+      await wait(400);
+      const inst = () => [...foundry.applications.instances.values()];
+      const dialogs = () => inst().filter(x => x instanceof foundry.applications.api.DialogV2);
+      const closeAll = async () => { for (const x of inst()) if (x.constructor.name === "RollDialog" || x instanceof foundry.applications.api.DialogV2) await x.close(); };
+      const hud = async re => { await closeAll(); document.querySelector('#r-hud [data-act="tab"][data-tab="powers"]')?.click(); await wait(300);
+        document.querySelector('#r-hud [data-act="pop"][data-pop*="chimerstry"]')?.click(); await wait(400);
+        [...document.querySelectorAll('#r-hud .rh-pop-row[data-act="power"]')].find(x => re.test(x.textContent))?.click(); await wait(600); };
+      const answer = async val => { const d = dialogs().at(-1); const f = d?.element.querySelector("select, input[type=text]"); if (f) f.value = val;
+        d?.element.querySelector('button[data-action="ok"]')?.click(); await wait(600); };
+      const at = () => canvas.tokens.get(tok(a).id).actor, mt = () => canvas.tokens.get(tok(m).id).actor;
+      canvas.tokens.get(tok(a).id)?.control({ releaseOthers: true }); await wait(600);
+      const w0 = at().system.willpower.temporary, b0 = at().system.blood.value;
+      await hud(/Фата/); await answer("Кирпичная стена");
+      const ill = () => at().effects.filter(e => e.flags?.[sid]?.illusion);
+      const out = { fata: [ill().length, w0 - at().system.willpower.temporary, b0 - at().system.blood.value, !inst().some(x => x.constructor.name === "RollDialog")] };
+      await hud(/Анимация/); await answer(ill()[0]?.id);
+      await hud(/Постоянство/); await answer(ill()[0]?.id);
+      out.steps = [!!ill()[0]?.flags[sid].animate, !!ill()[0]?.flags[sid].permanent, b0 - at().system.blood.value];
+      // Кошмар наяву: 2 Воли, сложность — Восприятие + Самоконтроль
+      canvas.tokens.get(tok(m).id)?.setTarget(true, { releaseOthers: true }); await wait(300);
+      const w1 = at().system.willpower.temporary;
+      await hud(/Кошмар наяву/); await answer("lethal");
+      const rd = inst().find(x => x.constructor.name === "RollDialog");
+      const sc = mt().system.virtues?.selfControl?.value ?? 0;
+      out.night = [rd?.values.difficulty === Math.min(10, 2 + sc), w1 - at().system.willpower.temporary];
+      await TP.applyTargetPower({ isOwner: false }, { actorUuid: a.uuid, extra: rd?.cfg.extra }, { successes: 9, outcome: "success" });
+      const h = mt().system.health;
+      out.nightHit = [h.lethal, mt().effects.some(e => e.flags?.[sid]?.nightmare)];
+      await closeAll();
+      [...game.user.targets].forEach(x => x.setTarget(false, { releaseOthers: false }));
+      canvas.tokens.releaseAll(); await wait(600);
+      await scene.deleteEmbeddedDocuments("Token", made.map(x => x.id));
+      await Actor.deleteDocuments([a.id, m.id]);
+      return out;
+    });
+    const want = { fata: [1, 1, 1, true], steps: [true, true, 3], night: [true, 2], nightHit: [7, true] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   // Помешательство через HUD: Око хаоса — сложность по задаче, Голос безумия — смертный сразу, вампир — проверка +2;
   // Метаморфозы: в облике тумана силы со взглядом недоступны
   await check("Помешательство через HUD и туман без взгляда", async () => {
