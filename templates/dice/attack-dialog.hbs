@@ -1,8 +1,8 @@
 {{!-- Окно атаки (V20, гл. 4): оружие или манёвр, модификаторы, пул, сложность и урон. --}}
 <div class="r-roll-form r-attack-form">
   <div class="r-atk-picks">
-    {{#each weapons}}<a class="r-atk-pick {{#if active}}is-active{{/if}}" data-action="pick" data-key="{{key}}" data-tooltip="{{label}}"><i class="fa-solid {{icon}}"></i><span>{{name}}</span></a>{{/each}}
-    {{#each maneuvers}}<a class="r-atk-pick is-man {{#if active}}is-active{{/if}}" data-action="pick" data-key="{{key}}"><i class="fa-solid {{icon}}"></i><span>{{name}}</span></a>{{/each}}
+    {{#each weapons}}<a class="r-atk-pick {{#if active}}is-active{{/if}} {{#if dim}}is-dim{{/if}}" data-action="pick" data-key="{{key}}" data-tooltip="{{label}}"><i class="fa-solid {{icon}}"></i><span>{{name}}</span></a>{{/each}}
+    {{#each maneuvers}}<a class="r-atk-pick is-man {{#if active}}is-active{{/if}} {{#if dim}}is-dim{{/if}}" data-action="pick" data-key="{{key}}"><i class="fa-solid {{icon}}"></i><span>{{name}}</span></a>{{/each}}
   </div>
 
   <label class="r-atk-target" data-tooltip="{{localize 'VTM20.Combat.TargetHint'}}"><span class="r-roll-label">{{localize "VTM20.Combat.Target.label"}}</span>

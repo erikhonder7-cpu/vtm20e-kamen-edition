@@ -40,7 +40,7 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       contest: cfg.contest ?? "simple", need: cfg.need ?? 5,
       specialty: !!cfg.specialty, willpower: !!cfg.willpower,
       wounds: !cfg.reflexive, physical: true,
-      payBlood: (cfg.bloodCost ?? 0) > 0, payWill: !!cfg.willpowerCost, light: false, fxOn: [], overdraw: 0, sway: "",
+      payBlood: (cfg.bloodCost ?? 0) > 0, payWill: !!cfg.willpowerCost, light: false, fxOn: [], overdraw: 0, sway: "", horrid: true,
       messageMode: game.settings.get("core", "messageMode")
     };
   }
@@ -82,6 +82,13 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   /** Подсчёт пула и состава. */
+  /** Чудовищный облик и Запугивание с социальной характеристикой — можно бросать Силой (галочка). */
+  get horridAvailable() {
+    const v = this.values, a = this.actor;
+    return !!a.system.fx?.intimStrength && [v.trait1, v.trait2].includes("abilities.intimidation")
+      && [v.trait1, v.trait2].some(p => p?.startsWith("attributes.") && VTM20.attributeGroups.social.attributes.includes(p.split(".")[1]));
+  }
+
   compute() {
     const v = this.values, a = this.actor;
     const bd = [];
@@ -89,7 +96,7 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     // Колдовство (V20, гл. 10): характеристика «без усиления кровью и Дисциплинами» — берём природное значение
     const base = !!this.cfg.baseAttr;
     // Чудовищный облик (Преображение 4): для Запугивания — Сила вместо социальной характеристики
-    const horrid = a.system.fx?.intimStrength && [v.trait1, v.trait2].includes("abilities.intimidation");
+    const horrid = v.horrid && this.horridAvailable;
     for (const p of [v.trait1, v.trait2]) {
       if (!p) continue;
       const pure = base && p.startsWith("attributes.");
@@ -281,6 +288,7 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       torment: this.#torment(pool, c.effDifficulty),
       overdraw: this.#overdrawMax() ? { max: this.#overdrawMax(), value: this.#overdraw(), thralls: this.actor.system.thralls?.length ?? 0 } : null,
       lightBane: VTM20.lightBane.includes(this.actor.system.clan),
+      horridAvail: this.horridAvailable,
       physicalLabel: c.physicalPotentialAuto > 0 ? t("Roll.AutoSuccess") : c.physicalBonus ? Codex.disciplineLabel(c.attr === "strength" ? "potence" : "celerity") : "",
       physicalAuto: c.auto > 0,
       messageModes: Object.entries(CONFIG.ChatMessage.modes ?? {}).map(([k, m]) => ({ value: k, label: game.i18n.localize(m.label ?? k), selected: k === v.messageMode }))
@@ -311,7 +319,7 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       contest: f.contest ?? this.values.contest, need: Math.clamp(Number(f.need) || 1, 1, 50),
       difficulty: Math.clamp(Number(f.difficulty) || 6, 2, 12),
       specialty: !!f.specialty, willpower: !!f.willpower, totemWill: !!f.totemWill, wounds: !!f.wounds, physical: !!f.physical,
-      payBlood: !!f.payBlood, payWill: !!f.payWill, light: !!f.light, overdraw: Math.max(0, Number(f.overdraw) || 0),
+      payBlood: !!f.payBlood, payWill: !!f.payWill, light: !!f.light, horrid: this.horridAvailable ? !!f.horrid : this.values.horrid, overdraw: Math.max(0, Number(f.overdraw) || 0),
       messageMode: f.messageMode ?? this.values.messageMode
     });
     // отмеченные обстоятельства сил: name="fx.<kind>:<сила>"

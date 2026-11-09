@@ -367,3 +367,4 @@ body.r-hud-on #chat-notifications > #chat-message { display: none !important; }
 }
 #r-hud .rh-pop-row > em { display: grid; place-items: center; flex: 0 0 18px; width: 18px; height: 18px; color: var(--h-muted); }
 #r-hud .rh-pop-row:hover > em { color: var(--h-acc); }
+.vtm20 .r-atk-pick.is-dim:not(.is-active) { opacity: .4; }

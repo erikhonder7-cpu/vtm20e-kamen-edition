@@ -80,6 +80,7 @@
     {{#if bloodCost}}{{#if hasBlood}}<label class="r-check"><input type="checkbox" name="payBlood" {{checked v.payBlood}}> {{localize "VTM20.Roll.PayBlood" n=bloodCost}} <em>({{bloodLeft}})</em></label>{{/if}}{{/if}}
     {{#if willpowerCost}}<label class="r-check"><input type="checkbox" name="payWill" {{checked v.payWill}}> {{localize "VTM20.Roll.PayWill"}}</label>{{/if}}
     {{#if lightBane}}<label class="r-check"><input type="checkbox" name="light" {{checked v.light}}> {{localize "VTM20.Roll.BrightLight"}} <em>(−1)</em></label>{{/if}}
+    {{#if horridAvail}}<label class="r-check"><input type="checkbox" name="horrid" {{checked v.horrid}}> {{localize "VTM20.Roll.HorridToggle"}}</label>{{/if}}
     {{#if woundPenalty}}<label class="r-check"><input type="checkbox" name="wounds" {{checked v.wounds}}> {{localize "VTM20.Roll.Wounds"}} <em>({{woundPenalty}})</em></label>{{/if}}
     {{#if physicalBonus}}<label class="r-check"><input type="checkbox" name="physical" {{checked v.physical}}> {{physicalLabel}} <em>(+{{physicalBonus}})</em></label>{{/if}}
   </div>

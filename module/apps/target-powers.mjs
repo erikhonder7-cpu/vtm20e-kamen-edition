@@ -360,9 +360,10 @@ export async function applyTargetPower(message, state, ev) {
     await done(message, state, x);
     const ap = target.system.attributes.appearance?.value ?? 0, mode = x.flesh ?? "lower";
     if (mode === "armor") {
-      const k = Math.min(n, (target.system.attributes.strength?.value ?? 1) - 1);
+      // по книге каждый куб стоит точку Силы; без цены — решение рассказчика (галочка в окне силы)
+      const k = x.fleshFree ? n : Math.min(n, (target.system.attributes.strength?.value ?? 1) - 1);
       if (k < 1) return notice(target, x.powerName, t("FleshNoStrength"));
-      await target.update({ "system.attributes.strength.value": target.system.attributes.strength.value - k });
+      if (!x.fleshFree) await target.update({ "system.attributes.strength.value": target.system.attributes.strength.value - k });
       await target.createEmbeddedDocuments("ActiveEffect", [{ name: t("FleshArmorName", { n: k }), img: Codex.disciplineIcon("vicissitude"),
         description: `<p>${esc(t("FleshArmorDesc", { n: k }))}</p>`, flags: { [SYSTEM_ID]: { ...flags, soakDice: k, mode: "manual" } } }]);
       return notice(target, x.powerName, t("FleshArmorDesc", { n: k }));
@@ -378,22 +379,33 @@ export async function applyTargetPower(message, state, ev) {
     else await target.applyDamage(8, "lethal");
     return notice(target, x.powerName, t("BoneSpikesBotch"));
   }
+  if (tp.kind === "bone" && x.bone === "custom") {
+    // своя работа — отдельный эффект (работ сколько угодно): цена ранами, правки характеристик, прочность, шипы; оружие — предмет при эффекте
+    await done(message, state, x);
+    const { normBone, boneSummary } = await import("./bone-work.mjs");
+    const c = normBone(x.custom), wounds = Math.max(0, c.cost.wounds - (c.cost.minus ? n : 0));
+    if (wounds) await target.applyDamage(wounds, c.cost.type);
+    // прочность ценой Силы (как Укрепление в Искусстве тканей): точка Силы за куб, не ниже 1
+    let soak = c.soak;
+    if (soak && c.soakStr) {
+      const str = target.system.attributes.strength?.value ?? 1;
+      soak = Math.min(soak, str - 1);
+      if (soak > 0) await target.update({ "system.attributes.strength.value": str - soak });
+    }
+    const lines = [c.note, ...boneSummary({ ...c, cost: { ...c.cost, wounds }, soak, diff: c.diff }).slice(1)].filter(Boolean);
+    const [eff] = await target.createEmbeddedDocuments("ActiveEffect", [{ name: `${x.powerName} · ${c.name}`, img: Codex.disciplineIcon("vicissitude"),
+      description: lines.map(l => `<p>${esc(l)}</p>`).join(""),
+      flags: { [SYSTEM_ID]: { ...flags, mode: "manual", boneWork: c.name, ...(Object.keys(c.attr).length ? { attrMod: c.attr } : {}),
+        ...(soak > 0 ? { soakDice: soak } : {}), ...(c.spikes ? { spikes: true } : {}), ...(c.grapple ? { grappleDice: c.grapple } : {}) } } }]);
+    if (c.weapon && eff) await target.createEmbeddedDocuments("Item", [{ name: c.name, type: "weapon", img: `systems/${SYSTEM_ID}/assets/icons/weapon.svg`,
+      system: { ...c.weapon, equipped: true }, flags: { [SYSTEM_ID]: { boneWork: eff.id } } }]);
+    return notice(target, x.powerName, `${c.name}: ${lines.join(" · ")}`);
+  }
   if (tp.kind === "bone") {
-    // Когти — цена 1 губительное; шипы — 5 губительных минус 1 за каждый успех. Прежняя костяная работа уходит.
+    // Когти — цена 1 тяжёлое; шипы — 5 тяжёлых минус 1 за каждый успех. Прежние когти или шипы уходят.
     await done(message, state, x);
     const old = target.powerEffects.find(e => e.power === "vicissitude:3");
     if (old) await target.endPower(old.effect, { quiet: true });
-    if (x.bone === "custom") {
-      // своя работа: цена ранами (по желанию минус успехи), оружие, кубы прочности, описание
-      const c = x.custom ?? {}, cost = Math.max(0, (c.cost ?? 0) - (c.minus ? n : 0));
-      if (cost) await target.applyDamage(cost, "lethal");
-      const eff = await target.startPower("vicissitude:3", { variant: "custom", blood: 0, shapeConfig: { weapon: c.weapon ?? null } });
-      const lines = [c.note, c.weapon && t("BoneC.WeaponLine", { n: c.weapon.damage >= 0 ? `+${c.weapon.damage}` : c.weapon.damage, type: game.i18n.localize(VTM20.damageTypes[c.weapon.damageType]?.label ?? "") }),
-        c.soak && t("BoneC.SoakLine", { n: c.soak }), cost && t("BoneC.CostLine", { n: cost })].filter(Boolean);
-      if (eff) await eff.update({ name: `${x.powerName} · ${c.name}`, description: `${lines.map(l => `<p>${esc(l)}</p>`).join("")}${eff.description ?? ""}`,
-        ...(c.soak ? { [`flags.${SYSTEM_ID}.soakDice`]: c.soak } : {}) });
-      return notice(target, x.powerName, `${c.name}: ${lines.join(" ") || t("BoneC.Done")}`);
-    }
     const cost = x.bone === "claws" ? 1 : Math.max(0, 5 - n);
     if (cost) await target.applyDamage(cost, "lethal");
     await target.startPower("vicissitude:3", { variant: x.bone, blood: 0 });
@@ -646,13 +658,18 @@ export async function rollTargetPower(actor, disc, d, p, tp, { rollFromSpec, sub
   }
   // Искусство тканей: понизить (сл. 5), повысить (сл. 9) Привлекательность или укрепить тело (сл. 8)
   if (tp.kind === "flesh") {
-    const mode = await foundry.applications.api.DialogV2.prompt({ window: { title: p.name, icon: "fa-solid fa-hand-sparkles" }, classes: ["vtm20", "r-dialog"], rejectClose: false,
+    // сложность — от 5 (грубо) до 9 (тонко); по умолчанию — обычная для выбранной работы
+    const DEF = { lower: 5, raise: 9, armor: 8 };
+    const pickF = await foundry.applications.api.DialogV2.prompt({ window: { title: p.name, icon: "fa-solid fa-hand-sparkles" }, classes: ["vtm20", "r-dialog"], rejectClose: false,
       content: `<div class="r-form"><label class="r-field"><span>${esc(t("FleshWhat"))}</span><select name="m">
-        <option value="lower">${esc(t("FleshLower"))}</option><option value="raise">${esc(t("FleshRaise"))}</option><option value="armor">${esc(t("FleshArmor"))}</option></select></label></div>`,
-      ok: { label: t("VisageGo"), callback: (e, b) => b.form.elements.m.value } });
-    if (!mode) return null;
-    roll = { ...roll, difficulty: { lower: 5, raise: 9, armor: 8 }[mode], note: t(`FleshNote.${mode}`) };
-    opts.more = { targetPower: { ...link, flesh: mode } };
+        <option value="lower">${esc(t("FleshLower"))}</option><option value="raise">${esc(t("FleshRaise"))}</option><option value="armor">${esc(t("FleshArmor"))}</option></select></label>
+        <label class="r-field"><span>${esc(t("FleshDiff"))}</span><select name="d"><option value="">${esc(t("FleshDiffAuto"))}</option>${[5, 6, 7, 8, 9].map(n => `<option value="${n}">${n}</option>`).join("")}</select></label>
+        <label class="r-check"><input type="checkbox" name="str" checked><span>${esc(t("FleshArmorStr"))}</span></label></div>`,
+      ok: { label: t("VisageGo"), callback: (e, b) => ({ m: b.form.elements.m.value, d: Number(b.form.elements.d.value) || null, str: !!b.form.elements.str.checked }) } });
+    if (!pickF) return null;
+    const mode = pickF.m;
+    roll = { ...roll, difficulty: pickF.d ?? DEF[mode], note: t(`FleshNote.${mode}`) };
+    opts.more = { targetPower: { ...link, flesh: mode, fleshFree: mode === "armor" && !pickF.str } };
   }
   // Искусство костей: что делаем; сложность работы — как у Искусства тканей (5 грубо … 9 тонко), удар костями — 7
   if (tp.kind === "bone") {
@@ -678,7 +695,9 @@ export async function rollTargetPower(actor, disc, d, p, tp, { rollFromSpec, sub
         await actor.setFlag(SYSTEM_ID, "boneTemplates", [...tpls.filter(x => x.name !== c.name && x.name !== preset?.name), keep]);
         ui.notifications.info(t("BoneTplSaved", { name: c.name }));
       }
-      roll = { ...roll, difficulty: c.diff, note: t("BoneC.RollNote", { name: who.name, what: c.name }) };
+      // цена Волей — сразу, кровью — вместе с кровью силы в окне броска
+      if (c.cost.will && !(await actor.spendWillpower(c.cost.will))) return null;
+      roll = { ...roll, difficulty: c.diff, blood: (roll.blood ?? 1) + c.cost.blood, note: t("BoneC.RollNote", { name: who.name, what: c.name }) };
       opts.power = { ...opts.power, noHit: true };
       opts.subtitle = `→ ${who.name} · ${subtitle}`;
       opts.more = { targetPower: { key, target: who.uuid, targetName: who.name, powerName: p.name, actorName: actor.name, bone: "custom", custom: c } };
@@ -1231,6 +1250,13 @@ export function registerTargetPowers() {
     ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: vamp }), content: `<div class="r-notice is-warn"><i class="fa-solid fa-skull"></i> ${esc(t("SubsumeDeath", { name: vamp.name, beast: actor.name }))}</div>` });
   });
   // Могущество крови кончилось: излишек крови сверх прежнего запаса выплёскивается (V20, Путь Крови 3)
+  // Искусство костей, своя работа: эффект снят — его оружие уходит
+  Hooks.on("deleteActiveEffect", async (effect, options, userId) => {
+    const actor = effect.parent;
+    if (!effect.flags?.[SYSTEM_ID]?.boneWork || actor?.documentName !== "Actor" || userId !== game.user.id) return;
+    const ids = actor.items.filter(i => i.getFlag(SYSTEM_ID, "boneWork") === effect.id).map(i => i.id);
+    if (ids.length) await actor.deleteEmbeddedDocuments("Item", ids);
+  });
   Hooks.on("deleteActiveEffect", async effect => {
     const actor = effect.parent;
     if (!effect.flags?.[SYSTEM_ID]?.genDrop || actor?.documentName !== "Actor" || !game.users.activeGM?.isSelf) return;

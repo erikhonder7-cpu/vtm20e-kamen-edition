@@ -156,7 +156,7 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     // Чудовищный облик: +1 куб к урону в драке; Шкура гадюки: +1 куб к укусу (data/effects.mjs)
     // Костяные шипы (Искусство костей): +2 куба урона в клинче и броске
     const extra = m.dmg == null ? 0 : (m.ability === "brawl" ? fx.brawlDamage ?? 0 : 0) + (id === "bite" ? fx.biteDamage ?? 0 : 0)
-      + (fx.spikes && ["clinch", "tackle"].includes(id) ? 2 : 0);
+      + (["clinch", "tackle"].includes(id) ? fx.grappleDice ?? 0 : 0);
     const v = m.dmg != null && ["punch", "claws"].includes(id) && venom(m.type, false);
     // Разъедающее касание (Длань Разрушения 3): безоружные атаки — губительный урон
     const acid = m.dmg != null && m.ability === "brawl" && pathFlag(a, "brawlAgg");
@@ -226,13 +226,14 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
   async _prepareContext() {
     const a = this.actor, v = this.v, r = this.compute();
     const beastForm = a.system.fx?.beastForm;
-    const weaponList = beastForm === "modified" ? weaponsOf(a).filter(w => w.naturalFormWeapon) : (beastForm ? [] : weaponsOf(a));
-    const weapons = weaponList.map(w => ({ ...w, key: `w:${w.id}`, active: v.pick === `w:${w.id}`,
+    // облик зверя: недоступное облику не прячется, а приглушено — выбрать можно через «Всё равно» (решает рассказчик)
+    const weaponList = weaponsOf(a);
+    const weapons = weaponList.map(w => ({ ...w, key: `w:${w.id}`, active: v.pick === `w:${w.id}`, dim: !!beastForm && !(beastForm === "modified" && w.naturalFormWeapon),
       icon: { brawl: "fa-hand-back-fist", melee: "fa-khanda", firearms: "fa-gun", thrown: "fa-bullseye" }[w.kind] }));
     const allowedFormManeuvers = beastForm === "wolf" ? new Set(["claws", "bite"]) : ["bat", "cobra"].includes(beastForm) ? new Set(["bite"]) : beastForm === "modified" ? new Set() : null;
     const hasProteanClawItem = a.items.some(i => i.type === "weapon" && i.getFlag?.(SYSTEM_ID, "power") === "protean:2");
-    const maneuvers = Object.entries(MANEUVERS).filter(([k, m]) => allowedFormManeuvers ? allowedFormManeuvers.has(k) : (k === "claws" ? (!!a.system.fx?.claws && !hasProteanClawItem) : (!m.vampire || a.isVampire)))
-      .map(([k, m]) => ({ key: `m:${k}`, name: t(`Combat.M.${k}`), icon: m.icon, active: v.pick === `m:${k}` }))
+    const maneuvers = Object.entries(MANEUVERS).filter(([k, m]) => (allowedFormManeuvers?.has(k)) || (k === "claws" ? (!!a.system.fx?.claws && !hasProteanClawItem) : (!m.vampire || a.isVampire)))
+      .map(([k, m]) => ({ key: `m:${k}`, name: t(`Combat.M.${k}`), icon: m.icon, active: v.pick === `m:${k}`, dim: !!allowedFormManeuvers && !allowedFormManeuvers.has(k) }))
       .concat((a.system.formFx?.weapons ?? []).map((w, i) => ({ key: `f:${i}`, name: w.name, icon: w.icon ?? "fa-dragon", active: v.pick === `f:${i}` })));
     const split = label => { const m = label.match(/^(.*?)\s*\(([^)]*)\)\s*$/); return m ? { name: m[1], mod: m[2] } : { name: label, mod: "" }; };
     const opt = (list, cur, prefix) => list.map(k => ({ value: k, label: t(`${prefix}.${k}`), ...split(t(`${prefix}.${k}`)), selected: k === cur }));

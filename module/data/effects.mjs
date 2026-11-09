@@ -51,7 +51,7 @@ export const POWER_EFFECTS = {
   // Когти: Сила +1, губительные. Шипы: +2 куба урона в клинче и броске; безоружный, попавший меньше чем 3 успехами, — урон своей Силой.
   "vicissitude:3": { mode: "toggle", icon: "fa-bone", viaRoll: true, variants: {
     claws: { weapon: { name: "Костяные когти", kind: "brawl", damage: 1, strength: true, damageType: "lethal", difficulty: 6 } },
-    spikes: { spikes: true } } },
+    spikes: { spikes: true, grappleDice: 2 } } },
   // Серпентис 2: язык — оружие, сл. 6, Сила +0, губительные
   "serpentis:2": { mode: "toggle", icon: "fa-staff-snake",
     weapon: { name: "Язык аспида", kind: "brawl", damage: 0, strength: true, damageType: "lethal", difficulty: 6 } },
@@ -182,8 +182,6 @@ export const MODE_LABEL = { scene: "Fx.Scene", toggle: "Fx.Toggleable", hour: "F
 export function effectDef(power, variant = "", shapeConfig = null) {
   const base = POWER_EFFECTS[power];
   if (!base) return null;
-  // Искусство костей, своя работа: оружие (если задано) — из настроек на эффекте
-  if (power === "vicissitude:3" && variant === "custom") return { ...base, weapon: shapeConfig?.weapon ?? null };
   if (power === "protean:Модифицированный Облик Зверя" && shapeConfig) {
     const role = variant === "escape" ? "escape" : "battle";
     const form = shapeConfig[role] ?? {};
@@ -237,12 +235,16 @@ function num(v, actor) {
 export function effectMods(actor) {
   const m = { attr: {}, set: {}, diff: {}, claws: false, clawsFortitudeOnly: false, earthMeld: false, mistForm: false, darkvision: false,
     detectDifficulty: 0, runMultiplier: 1, flightKmh: 0, moveEqualRun: false, beastForm: null, modifiedShape: null,
-    brawlDamage: 0, biteDamage: 0, soakDiff: 0, staminaVsFangs: false, venom: 0, shadowForm: false, dice: {}, list: [] };
+    brawlDamage: 0, biteDamage: 0, soakDiff: 0, staminaVsFangs: false, venom: 0, shadowForm: false, dice: {}, list: [], grappleDice: 0 };
   // тотем стаи (apps/coterie.mjs → acceptTotem): прибавки к Атрибутам каждому члену стаи
   for (const e of actor?.effects ?? []) {
     // тотем стаи и яд Касания скорпиона (apps/target-powers.mjs, attrMod) — прибавки и вычеты к Атрибутам
     const ta = !e.disabled && (e.flags?.[SYSTEM_ID]?.totemAttr ?? e.flags?.[SYSTEM_ID]?.attrMod);
     const as = !e.disabled && e.flags?.[SYSTEM_ID]?.attrSet;
+    // своя работа Искусства костей: шипы и кубы урона в клинче и броске
+    const fl = !e.disabled ? e.flags?.[SYSTEM_ID] : null;
+    if (fl?.spikes) m.spikes = true;
+    if (fl?.grappleDice) m.grappleDice += Number(fl.grappleDice) || 0;
     if (as) { Object.assign(m.set, as); m.list.push(e); }
     if (!ta) continue;
     for (const [k, v] of Object.entries(ta)) m.attr[k] = (m.attr[k] ?? 0) + v;
@@ -268,6 +270,7 @@ export function effectMods(actor) {
     m.heartless ||= !!def.heartless;
     m.intimStrength ||= !!def.intimStrength;
     m.spikes ||= !!def.spikes;
+    m.grappleDice += def.grappleDice ?? 0;
     // кубы к броскам со Способностью (Театр теней, Чёрный метаморфоз): { stealth: 1 } → fx.dice.stealth
     for (const [k, v] of Object.entries(def.dice ?? {})) (m.dice[k] ??= []).push({ label: effect.name, value: v });
     m.darkvision ||= !!def.darkvision;

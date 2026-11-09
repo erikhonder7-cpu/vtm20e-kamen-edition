@@ -1467,6 +1467,9 @@ try {
       const soak0 = m.soakPool("bashing");
       await apply("vicissitude|Fleshcraft", m, 2, { flesh: "armor" });
       out.flesh = [m.system.attributes.appearance.value, m.system.attributes.strength.value, m.soakPool("bashing") - soak0];
+      // укрепление без цены Силы (решение рассказчика): Сила та же, +1 к поглощению
+      await apply("vicissitude|Fleshcraft", m, 1, { flesh: "armor", fleshFree: true });
+      out.fleshFree = [m.system.attributes.strength.value, m.soakPool("bashing") - soak0];
       // Поглощение духа: 2 успеха — только Ясновидение; Доминирование заблокировано
       await apply("animalism|Subsume the Spirit", wolf, 2);
       out.subsume = [TP.subsumeBlocks(a, "dominate"), TP.subsumeBlocks(a, "auspex")];
@@ -1500,7 +1503,7 @@ try {
       await Actor.deleteDocuments([a.id, m.id, wolf.id, beast?.id].filter(Boolean));
       return out;
     });
-    const want = { possess: [true, true], project: true, heart: [false, [-2]], bloodform: [true, true], flesh: [1, 1, 2],
+    const want = { possess: [true, true], project: true, heart: [false, [-2]], bloodform: [true, true], flesh: [1, 1, 2], fleshFree: [1, 3],
       subsume: [true, false], subsumeBlocked: true, whisper: 6, beckon: [true, "creature"], afterScene: false };
     const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
@@ -1945,15 +1948,25 @@ try {
       const cf = dialogs().at(-1)?.element;
       const radio = (n, v) => cf?.querySelector(`[name="${n}"][value="${v}"]`)?.click();
       if (cf) { cf.querySelector('[name="name"]').value = "Костяной клинок"; radio("diff", 8); cf.querySelector('.r-bw-dot[data-n="3"]')?.click();
-        cf.querySelector('[name="minus"]').click(); radio("wtype", "lethal"); radio("wdmg", 2); radio("soak", 1); cf.querySelector('[name="save"]').click(); }
+        cf.querySelector('[name="minus"]').click(); radio("wtype", "lethal"); radio("wkind", "melee"); radio("wdmg", 2); radio("soak", 1);
+        cf.querySelector('[name="blood"]')?.closest(".r-bw-step")?.querySelector('[data-d="1"]')?.click();
+        cf.querySelector('[name="attr.strength"]')?.closest(".r-bw-step")?.querySelector('[data-d="1"]')?.click();
+        cf.querySelector('[name="spikes"]').click(); radio("grapple", 1); cf.querySelector('[name="save"]').click(); }
       out.sum = cf?.querySelector(".r-bw-sum")?.textContent ?? "";
       cf?.querySelector('button[data-action="ok"]')?.click();
       await wait(600);
       rd = inst().find(x => x.constructor.name === "RollDialog");
       await actorOf(a).update({ "system.health.lethal": 0 });
+      const str0 = actorOf(a).system.attributes.strength.total;
       await TP.applyTargetPower({ isOwner: false }, { actorUuid: a.uuid, extra: rd?.cfg.extra }, { successes: 1, outcome: "success" });
       const blade = actorOf(a).items.find(i => i.type === "weapon" && i.name === "Костяной клинок");
-      out.custom = [rd?.values.difficulty, actorOf(a).system.health.lethal, blade?.system.damage, blade?.system.damageType, TP.soakDice(actorOf(a)), !actorOf(a).system.fx?.spikes];
+      const work = actorOf(a).effects.find(e => e.flags?.[sid]?.boneWork === "Костяной клинок");
+      // работа — отдельно: шипы остались; Сила +1, кубы в клинче: шипы 2 + работа 1
+      out.custom = [rd?.values.difficulty, rd?.cfg.bloodCost, actorOf(a).system.health.lethal, blade?.system.damage, blade?.system.damageType, blade?.system.kind,
+        TP.soakDice(actorOf(a)), actorOf(a).powerEffects.some(x => x.power === "vicissitude:3"), actorOf(a).system.attributes.strength.total - str0, actorOf(a).system.fx?.grappleDice];
+      // снять работу — оружие уходит
+      await work?.delete(); await wait(500);
+      out.customOff = [actorOf(a).items.some(i => i.name === "Костяной клинок"), actorOf(a).system.attributes.strength.total - str0];
       await closeAll();
       // шаблон сохранён у персонажа: в списке режимов; открывается заполненным; удаляется кнопкой
       const tpl = actorOf(a).getFlag(sid, "boneTemplates") ?? [];
@@ -1972,7 +1985,8 @@ try {
       await actorOf(a).startPower("vicissitude:4");
       const dlg = new RD.RollDialog(actorOf(a), { trait1: "attributes.charisma", trait2: "abilities.intimidation" });
       const dlg2 = new RD.RollDialog(actorOf(a), { trait1: "attributes.charisma", trait2: "abilities.empathy" });
-      out.horrid = [actorOf(a).system.attributes.charisma.total, dlg.compute().pool, dlg2.compute().pool];
+      const withStr = dlg.compute().pool; dlg.values.horrid = false;
+      out.horrid = [actorOf(a).system.attributes.charisma.total, withStr, dlg2.compute().pool, dlg.compute().pool];
       canvas.tokens.releaseAll();
       await wait(800);
       await scene.deleteEmbeddedDocuments("Token", made.map(x => x.id));
@@ -1980,8 +1994,8 @@ try {
       return out;
     });
     const want = { claws: [6, true, 1, 1, "lethal"], spikes: [7, 3, true], clinch: 4, back: true, heart: [7, true, 5], botch: [1, 7],
-      custom: [8, 2, 2, "lethal", 1, true], tpl: [1, 2, true, "Костяной клинок", "8", "3", 0], horrid: [0, 7, 0] };
-    if (!/Костяной клинок.*сл\. 8.*3 тяж\. минус успехи.*Сила \+2.*\+1 к прочности/.test(r.sum)) throw new Error(`итог окна: ${r.sum}`);
+      custom: [8, 2, 2, 2, "lethal", "melee", 1, true, 1, 3], customOff: [false, 0], tpl: [1, 2, true, "Костяной клинок", "8", "3", 0], horrid: [0, 7, 0, 2] };
+    if (!/Костяной клинок.*сл\. 8.*3 тяжёлые минус успехи.*\+1 крови.*Сила \+2.*Сила \+1.*\+1 к прочности.*колется.*\+1 к урону в захвате/i.test(r.sum)) throw new Error(`итог окна: ${r.sum}`);
     const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
@@ -2001,6 +2015,9 @@ try {
       const atk = new CB.AttackDialog(a, {});
       const c = atk.compute().choice;
       out.bite = [atk.v.pick, /без предварительного захвата/.test(c.note)];
+      // прочие приёмы не спрятаны, а приглушены
+      const actx = await atk._prepareContext({});
+      out.dim = [actx.maneuvers.find(x => x.key === "m:punch")?.dim, actx.maneuvers.find(x => x.key === "m:bite")?.dim];
       await PE.togglePowerEffect(a, "protean:2");
       await PE.togglePowerEffect(a, "serpentis:2");
       out.powers = [a.powerEffects.some(x => x.power === "protean:2"), a.powerEffects.some(x => x.power === "serpentis:2")];
@@ -2012,7 +2029,7 @@ try {
       await Actor.deleteDocuments([a.id]);
       return out;
     });
-    const want = { form: ["cobra", 3, 11], bite: ["m:bite", true], powers: [false, true], hearing: [5, 3, 6] };
+    const want = { form: ["cobra", 3, 11], bite: ["m:bite", true], dim: [true, false], powers: [false, true], hearing: [5, 3, 6] };
     const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
