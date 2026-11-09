@@ -1551,6 +1551,7 @@ try {
       await combat.nextTurn();
       for (let i = 0; i < 30 && !m.system.health.lethal; i++) await new Promise(res => setTimeout(res, 100));
       out.dot = m.system.health.lethal;
+      await new Promise(res => setTimeout(res, 1500));
       await combat.delete();
       // Разбавление крови: у сородича 2 крови стали водой — штраф ран 2 уровней
       await apply("thaumaturgy|Blood to Water", v, 2);
@@ -2946,6 +2947,7 @@ try {
       await a.consumeCelerityAction();
       await wait(() => combat.round === 2);
       out.after = [combat.round, !!phase()?.active];
+      await new Promise(res => setTimeout(res, 1500));   // новый ход (инициатива, заявки) успевает записаться до удаления боя
       await combat.delete();
       await Actor.deleteDocuments([a.id, dummy.id]);
       return out;
