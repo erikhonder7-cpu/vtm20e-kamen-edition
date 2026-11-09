@@ -79,9 +79,31 @@ export async function sunMark(target, damageType, { fire, sun }) {
 /**
  * @returns {{stop: any}|{roll: object}|undefined}  stop — вернуть из rollTargetPower (null — отмена); roll — новый бросок.
  */
-export async function bloodRoll({ actor, p, tp, target, key, link, roll: base, opts }) {
+export async function bloodRoll({ actor, p, tp, target, key, link, roll: base, opts, virt = null, again = null }) {
   const k = tp.kind;
   let r = { ...base };
+
+  if (k === "virtuosa") {
+    // Мельпомения 5: Незримый собеседник или Зов Сирен — на Выносливость + Исполнение слушателей;
+    // 1 кровь за каждую дополнительную пятёрку после первой цели; броски и цена самой силы — как обычно
+    const list = Codex.discipline("melpominee")?.powers ?? [];
+    const EN = { phantom: "Phantom Speaker", siren: "Siren's Beckoning" };
+    const pw = c => list.find(x => x.en === EN[c] && x.level <= 5);
+    const which = await ask(p.name, [["phantom", pw("phantom")?.name ?? EN.phantom], ["siren", pw("siren")?.name ?? EN.siren]]);
+    if (!which) return { stop: null };
+    const crowd = marked(actor), max = (actor.system.attributes?.stamina?.total ?? 0) + (actor.system.abilities?.performance?.value ?? 0);
+    let n = crowd.length;
+    if (which === "siren" && !n) { ui.notifications.info(t("VirtMark")); return { stop: null }; }
+    if (!n) {
+      n = Number(await ask(p.name, Array.from({ length: Math.clamp(max, 1, 12) }, (_, i) => [String(i + 1), t("VirtCount", { n: i + 1, b: Math.ceil(i / 5) })])));
+      if (!n) return { stop: null };
+    }
+    if (n > max && !(await allowAnyway(actor, t("VirtMax", { n, max })))) return { stop: null };
+    const extra = Math.ceil(Math.max(0, n - 1) / 5);
+    if (extra && !(await actor.spendBlood(extra, { reason: p.name }))) return { stop: null };
+    const { TARGET_POWERS } = await import("./target-powers.mjs");
+    return { stop: await again?.(pw(which), TARGET_POWERS[`melpominee|${EN[which]}`], { n, crowd }) };
+  }
 
   // ── Мельпомения ──
   if (k === "phantom") {
@@ -95,7 +117,7 @@ export async function bloodRoll({ actor, p, tp, target, key, link, roll: base, o
       const eff = await actor.startPower("melpominee:2", { blood: 0 });
       const d = n >= 3 ? t("TillScene") : t("Turns", { n });
       if (eff) await eff.update({ name: `${p.name} · ${d}` });
-      return say(actor, "fa-comment-dots", p.name, t("PhantomDone", { d }));
+      return say(actor, "fa-comment-dots", p.name, `${t("PhantomDone", { d })}${virt?.n > 1 ? ` ${t("VirtN", { n: virt.n })}` : ""}`);
     };
     return { roll: r };
   }
@@ -122,6 +144,13 @@ export async function bloodRoll({ actor, p, tp, target, key, link, roll: base, o
     const resist = (actor.system.attributes?.appearance?.total ?? 0) + (actor.system.abilities?.performance?.value ?? 0);
     r = { ...r, difficulty: Math.max(3, (r.difficulty ?? 7) - ens) };
     if (link) opts.more = { targetPower: { ...link, sirenResist: Math.clamp(resist, 2, 10) } };
+    // Виртуозность: один бросок сирены на всех; сложность — самая сильная Воля среди слушателей (правило системы),
+    // сопротивляется и копит успехи каждый отдельно
+    if (virt?.crowd?.length > 1 && link) {
+      const top = Math.max(...virt.crowd.map(x => x.system.willpower?.temporary ?? 0));
+      r = { ...r, difficulty: Math.max(3, Math.clamp(top, 2, 10) - ens), note: t("SirenCrowd", { n: virt.crowd.length, w: top }) };
+      opts.more = { targetPower: { ...link, targetName: virt.crowd.map(x => x.name).join(", "), crowd: virt.crowd.map(x => x.uuid), sirenResist: Math.clamp(resist, 2, 10) } };
+    }
     return { roll: r };
   }
 
@@ -301,6 +330,51 @@ export async function bloodRoll({ actor, p, tp, target, key, link, roll: base, o
     return { stop: await onTarget(actor, target, link, {}, t("WalkText", { g: tg - 1 }), t("WalkApply"), "fa-shoe-prints") };
   }
 
+  if (k === "octopod") {
+    // 2: донор тратит 1 кровь за каждую одолженную конечность или наружный орган; у получателя они появляются в конце хода
+    const PARTS = ["arm", "leg", "eye", "mouth", "other"];
+    const got = await foundry.applications.api.DialogV2.prompt({ window: { title: p.name, icon: "fa-solid fa-hand" }, classes: ["vtm20", "r-dialog"], rejectClose: false,
+      content: `<div class="r-form"><p>${esc(t("OctoAsk", { name: target.name }))}</p>${PARTS.map(c =>
+        `<label class="r-field"><span>${esc(t(`OctoPart.${c}`))}</span><input type="number" name="${c}" value="0" min="0" max="8"></label>`).join("")}</div>`,
+      ok: { label: t("OctoApply"), callback: (e, b) => Object.fromEntries(PARTS.map(c => [c, Math.max(0, Number(b.form.elements[c].value) || 0)])) } });
+    if (!got) return { stop: null };
+    const total = PARTS.reduce((s, c) => s + got[c], 0);
+    if (!total) { ui.notifications.info(t("OctoNone")); return { stop: null }; }
+    if (!(await actor.spendBlood(total, { reason: p.name }))) return { stop: null };
+    const list = PARTS.filter(c => got[c]).map(c => `${t(`OctoPart.${c}`).toLowerCase()} — ${got[c]}`).join(", ");
+    await addFx(actor, fxData("sanguinus", t("OctoGave", { name: target.name }), t("OctoGaveDesc", { list }), { mode: "manual", octoTo: target.uuid }));
+    return { stop: await onTarget(actor, target, link, { octo: list }, t("OctoText", { list }), t("OctoApply"), "fa-hand") };
+  }
+  if (k === "entity") {
+    // 5: каждый участник — 3 крови; слияние 3 хода; правит старший по крови; поколение — от младшего минус ступень за каждого другого
+    const mergedIn = actor.effects.find(e => e.flags?.[SYSTEM_ID]?.entityOf);
+    const leadNow = actor.powerEffects.some(e => e.power === "sanguinus:5") ? actor : mergedIn ? await foundry.utils.fromUuid(mergedIn.flags[SYSTEM_ID].entityOf) : null;
+    if (leadNow) {
+      const on = leadNow.powerEffects.find(e => e.power === "sanguinus:5");
+      if (on && leadNow.isOwner) await leadNow.endPower(on.effect);
+      // участников освобождает рассказчик (хук на снятие эффекта); без рассказчика в сети — сам игрок
+      if (!on || !game.users.activeGM) await endEntity(leadNow.uuid);
+      return { stop: null };
+    }
+    const all = [actor, ...marked(actor).filter(x => x.isVampire)];
+    if (all.length < 2) { ui.notifications.info(t("EntityMark")); return { stop: null }; }
+    const notMine = all.find(x => !x.isOwner);
+    if (notMine) { ui.notifications.warn(game.i18n.format("VTM20.Notify.NotOwner", { name: notMine.name })); return { stop: null }; }
+    const poor = all.find(x => (x.system.blood?.value ?? 0) < 3);
+    if (poor) { ui.notifications.warn(game.i18n.format("VTM20.Notify.NoBlood", { name: poor.name })); return { stop: null }; }
+    for (const x of all) if (!(await x.spendBlood(3, { reason: p.name, limit: false }))) return { stop: null };
+    const gen = x => Number(x.system.generation) || 13;
+    const lead = [...all].sort((a, b) => gen(a) - gen(b))[0];
+    const more = all.length - 1, mg = Math.max(4, Math.max(...all.map(gen)) - more);
+    const desc = t("EntityDesc", { n: all.length, k: more, g: mg, hp: 2 * more });
+    const eff = await lead.startPower("sanguinus:5", { blood: 0 });
+    if (eff) await eff.update({ name: `${p.name} · ${all.length}`, description: `<p>${esc(desc)}</p>`,
+      [`flags.${SYSTEM_ID}.attrMod`]: { strength: more, stamina: more, perception: more }, [`flags.${SYSTEM_ID}.genDrop`]: gen(lead) - mg, [`flags.${SYSTEM_ID}.dicePhys`]: more });
+    for (const x of all) if (x !== lead) await addFx(x, fxData("sanguinus", t("EntityIn", { name: lead.name }), t("EntityInDesc", { name: lead.name }),
+      { mode: "scene", mind: key, by: actor.uuid, entityOf: lead.uuid }, { statuses: ["r-held"] }));
+    return { stop: say(lead, "fa-circle-nodes", p.name, desc) };
+  }
+
   // ── Спиритус ──
   if (k === "aidspirit") {
     // 1: каждый успех — куб в запас для проверок с этим предметом до конца сцены; новый запас заменяет прежний
@@ -320,8 +394,8 @@ export async function bloodRoll({ actor, p, tp, target, key, link, roll: base, o
     return { roll: r };
   }
   if (k === "spiritbeast") {
-    // 2: срок по успехам — ход, 5 ходов, час, ночь, неделя
-    opts.more = null;
+    // 2: срок по успехам — ход, 5 ходов, час, ночь, неделя; жетон зверя ставит рассказчик кнопкой на карточке
+    opts.more = { targetPower: { key, target: actor.uuid, targetName: actor.name, powerName: p.name, actorName: actor.name } };
     opts.onRolled = async res => {
       const n = res?.successes ?? 0;
       if (n < 1) return;
@@ -455,9 +529,9 @@ async function consumeSoul(actor, power, i) {
 
 /* ── Кнопка на карточке ───────────────────────────────────────────────── */
 
-export const BLOOD_APPLY = new Set(["madrigal", "siren", "sano", "menssana", "curse", "moonsun", "brother", "walkcaine", "putrefy", "wither", "necrosis", "recur", "leaden"]);
+export const BLOOD_APPLY = new Set(["madrigal", "siren", "sano", "menssana", "curse", "moonsun", "brother", "walkcaine", "putrefy", "wither", "necrosis", "recur", "leaden", "octopod", "spiritbeast"]);
 /** Без кнопки «наложить» на карточке броска: итог — сразу на самом персонаже. */
-export const BLOOD_SELF = ["phantom", "endwatch", "grove", "woad", "drain", "aidspirit", "spiritbeast", "aspect", "engling", "norns", "clotho", "shepherd"];
+export const BLOOD_SELF = ["phantom", "endwatch", "grove", "woad", "drain", "aidspirit", "aspect", "engling", "norns", "clotho", "shepherd"];
 
 export async function bloodApply({ message, state, x, tp, target, n, flags, now, api }) {
   const k = tp.kind, disc = x.key.split("|")[0];
@@ -478,23 +552,52 @@ export async function bloodApply({ message, state, x, tp, target, n, flags, now,
     return notice(target, x.powerName, hit.length ? t("MadrigalHit", { names: hit.join(", ") }) : t("MadrigalNone"));
   }
   if (k === "siren") {
-    // сопротивление цели — Воля против Привлекательности + Исполнения сирены; чистые успехи копятся до 5
-    const res = await roll({ actor: target, title: t("SirenResist"), pool: target.system.willpower?.permanent ?? 0, difficulty: x.sirenResist ?? 6, kind: "check", noBotch: true });
-    const net = Math.max(0, n - (res?.successes ?? 0));
+    // сопротивление — Воля против Привлекательности + Исполнения сирены; чистые успехи копятся до 5.
+    // Виртуозность: каждый слушатель сопротивляется и копит успехи отдельно
+    const listeners = x.crowd?.length ? (await Promise.all(x.crowd.map(u => foundry.utils.fromUuid(u)))).filter(Boolean) : [target];
     await done(message, state, x);
-    const prog = target.effects.find(e => e.flags?.[SYSTEM_ID]?.siren?.by === state.actorUuid);
-    const got = (prog?.flags[SYSTEM_ID].siren.got ?? 0) + net;
-    if (got < 5) {
-      if (prog) await prog.update({ name: t("SirenProg", { name: x.actorName, n: got }), [`flags.${SYSTEM_ID}.siren.got`]: got });
-      else await put(t("SirenProg", { name: x.actorName, n: got }), t("SirenProgDesc"), { mode: "manual", siren: { by: state.actorUuid, got } });
-      return notice(target, x.powerName, t("SirenStep", { n: net, got }));
+    for (const who of listeners) {
+      if (!who.isOwner) { ui.notifications.warn(game.i18n.format("VTM20.Notify.NotOwner", { name: who.name })); continue; }
+      const res = await roll({ actor: who, title: t("SirenResist"), pool: who.system.willpower?.permanent ?? 0, difficulty: x.sirenResist ?? 6, kind: "check", noBotch: true });
+      const net = Math.max(0, n - (res?.successes ?? 0));
+      const prog = who.effects.find(e => e.flags?.[SYSTEM_ID]?.siren?.by === state.actorUuid);
+      const got = (prog?.flags[SYSTEM_ID].siren.got ?? 0) + net;
+      if (got < 5) {
+        if (prog) await prog.update({ name: t("SirenProg", { name: x.actorName, n: got }), [`flags.${SYSTEM_ID}.siren.got`]: got });
+        else await addFx(who, fxData(disc, t("SirenProg", { name: x.actorName, n: got }), t("SirenProgDesc"), { ...flags, mode: "manual", siren: { by: state.actorUuid, got } }));
+        await notice(who, x.powerName, t("SirenStep", { n: net, got }));
+        continue;
+      }
+      if (prog) await prog.delete();
+      // ночь за каждый чистый успех сверх 5 (ровно 5 — одна ночь, правило системы); 20 — навсегда
+      const forever = got >= 20, nights = Math.max(1, got - 5);
+      const until = forever ? null : now + nights * api.MS_DAY;
+      await addFx(who, fxData(disc, t("SirenName", { name: x.actorName }), forever ? t("SirenForever") : t("SirenNights", { n: nights }),
+        { ...flags, mode: forever ? "manual" : "timed", ...(until ? { until } : {}) }));
+      await notice(who, x.powerName, forever ? t("SirenForever") : t("SirenNights", { n: nights }));
     }
-    if (prog) await prog.delete();
-    // ночь за каждый чистый успех сверх 5 (ровно 5 — одна ночь, правило системы); 20 — навсегда
-    const forever = got >= 20, nights = Math.max(1, got - 5);
-    const until = forever ? null : now + nights * api.MS_DAY;
-    await put(t("SirenName", { name: x.actorName }), forever ? t("SirenForever") : t("SirenNights", { n: nights }), { mode: forever ? "manual" : "timed", ...(until ? { until } : {}) });
-    return notice(target, x.powerName, forever ? t("SirenForever") : t("SirenNights", { n: nights }));
+    return null;
+  }
+  if (k === "octopod") {
+    await done(message, state, x);
+    await put(t("OctoGot", { name: x.actorName }), t("OctoGotDesc", { list: x.octo }), { mode: "manual" });
+    return notice(target, x.powerName, t("OctoGotDesc", { list: x.octo }));
+  }
+  if (k === "spiritbeast") {
+    // жетон зверя местного вида — рядом с вампиром (справочник зверей, как у Зова)
+    if (!game.user.isGM) return ui.notifications.warn(game.i18n.localize("VTM20.TP.GMOnly"));
+    const { animalTemplates, spawnFromTemplate } = await import("./npc-gen.mjs");
+    const list = await animalTemplates();
+    const pick = await foundry.applications.api.DialogV2.prompt({ window: { title: x.powerName, icon: "fa-solid fa-paw" }, classes: ["vtm20", "r-dialog"], rejectClose: false,
+      content: `<div class="r-form"><label class="r-field"><span>${esc(t("BeastWho"))}</span><select name="k">${list.map(a => `<option value="${esc(a.key)}">${esc(a.name)}</option>`).join("")}</select></label></div>`,
+      ok: { label: t("BeastGo"), callback: (e, b) => b.form.elements.k.value } });
+    if (!pick) return null;
+    const tpl = list.find(a => a.key === pick);
+    await done(message, state, x);
+    const made = await spawnFromTemplate(tpl, { name: t("BeastToken", { name: tpl.name, who: target.name }) });
+    const tok = target.getActiveTokens?.()[0];
+    if (made && tok && canvas?.scene) await canvas.scene.createEmbeddedDocuments("Token", [await made.getTokenDocument({ x: tok.document.x + canvas.grid.size, y: tok.document.y + canvas.grid.size })]);
+    return notice(target, x.powerName, t("BeastCame", { name: tpl.name }));
   }
   if (k === "sano") {
     await target.healDamage(x.sano, 1);
@@ -618,6 +721,11 @@ const MOON = {
   full: [["attributes.strength", 1], ["abilities.brawl", 1]]
 };
 
+/** Кровное единство распалось: участники свободны. */
+async function endEntity(leadUuid) {
+  for (const a of game.actors) for (const e of [...a.effects]) if (e.flags?.[SYSTEM_ID]?.entityOf === leadUuid && a.isOwner) await e.delete();
+}
+
 /* ── Слежение ─────────────────────────────────────────────────────────── */
 
 let hooked = false;
@@ -625,6 +733,11 @@ let hooked = false;
 export function registerBloodlines() {
   if (hooked) return;
   hooked = true;
+  // эффект Кровного единства снят с правящего (вручную или концом сцены) — освободить остальных
+  Hooks.on("deleteActiveEffect", async effect => {
+    if (!game.users.activeGM?.isSelf || effect.flags?.[SYSTEM_ID]?.power !== "sanguinus:5" || effect.parent?.documentName !== "Actor") return;
+    await endEntity(effect.parent.uuid);
+  });
   Hooks.on("updateActor", async actor => {
     if (!game.users.activeGM?.isSelf || actor.documentName !== "Actor") return;
     const hurt = dmgTotal(actor);

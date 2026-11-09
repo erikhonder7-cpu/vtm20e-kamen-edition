@@ -165,7 +165,8 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     for (const d of sm.dice) { pool += d.value; bd.push(d); }
     // Устрашающий взор: −1 куб за успех до конца следующего хода (apps/target-powers.mjs)
     const socialRoll = [v.trait1, v.trait2].some(p => p?.startsWith("attributes.") && VTM20.attributeGroups.social.attributes.includes(p.split(".")[1]));
-    for (const d of dreadDice(a, { social: socialRoll })) { pool += d.value; bd.push(d); }
+    const physRoll = [v.trait1, v.trait2].some(p => p?.startsWith("attributes.") && VTM20.attributeGroups.physical.attributes.includes(p.split(".")[1]));
+    for (const d of dreadDice(a, { social: socialRoll, physical: physRoll })) { pool += d.value; bd.push(d); }
     // кубы от действующих сил к Способности (Театр теней, Чёрный метаморфоз — data/effects.mjs, dice)
     for (const k of [v.trait1, v.trait2].filter(p => p?.startsWith("abilities.")).map(p => p.split(".")[1]))
       for (const d of a.system.fx?.dice?.[k] ?? []) { pool += d.value; bd.push(d); }

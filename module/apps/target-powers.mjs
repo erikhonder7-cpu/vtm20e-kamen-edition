@@ -128,6 +128,9 @@ export const TARGET_POWERS = {
   "melpominee|Phantom Speaker": { kind: "phantom" },
   "melpominee|Madrigal": { kind: "madrigal" },
   "melpominee|Siren's Beckoning": { kind: "siren", needTarget: true, diff: ["willpower"] },
+  "melpominee|Virtuosa": { kind: "virtuosa" },
+  "sanguinus|Octopod": { kind: "octopod", needTarget: true },
+  "sanguinus|Coagulated Entity": { kind: "entity" },
   "ogham|Consecrate the Grove": { kind: "grove" },
   "ogham|Crimson Woad": { kind: "woad" },
   "ogham|Inscribe the Curse": { kind: "curse", needTarget: true },
@@ -136,7 +139,7 @@ export const TARGET_POWERS = {
   "sanguinus|Brother's Blood": { kind: "brother", needTarget: true },
   "sanguinus|Walk of Caine": { kind: "walkcaine", needTarget: true },
   "spiritus|Aid from Spirits": { kind: "aidspirit" },
-  "spiritus|Summon Spirit Beasts": { kind: "spiritbeast" },
+  "spiritus|Summon Spirit Beasts": { kind: "spiritbeast", self: true },
   "spiritus|Aspect of the Beast": { kind: "aspect" },
   "spiritus|Engling Fury": { kind: "engling" },
   "thanatosis|Putrefaction": { kind: "putrefy", needTarget: true, diff: ["stamina", "fortitude"] },
@@ -277,7 +280,7 @@ export function targetPowerLabel(extra, ev) {
   const lbl = { beast: "BeastApply", poison: "PoisonApply", shroud: "ShroudApply", arms: "ArmsApply", vanish: "VanishApply",
     rage: "RageApply", potency: "PotencyApply", theft: "TheftApply", possess: "PossessApply", project: "ProjectApply", awe: "AweApply", call: "CallApply",
     mesmerize: "MesApply", forget: "ForgApply", condition: "CondApply", voice: "VoiceApply",
-    flesh: "FleshApply", bone: "BoneApply", dagon: "DagonApply", nightmare: "NightApply", ward: "WardApply", riddle: "RiddleApply", paradox: "ParadoxApply", anest: "AnestApply", void: "VoidApply", conflag: "ConflagApply", condemn: "CondemnApply", beckon: "BeckonApply", subsume: "SubsumeApply", self: "SelfApply", summon: "SummonApply", comrades: "ComradesApply", conjure: "ConjureApply" }[tp.kind] ?? "Apply";
+    flesh: "FleshApply", bone: "BoneApply", dagon: "DagonApply", nightmare: "NightApply", ward: "WardApply", riddle: "RiddleApply", paradox: "ParadoxApply", anest: "AnestApply", void: "VoidApply", conflag: "ConflagApply", condemn: "CondemnApply", beckon: "BeckonApply", spiritbeast: "SpiritBeastApply", subsume: "SubsumeApply", self: "SelfApply", summon: "SummonApply", comrades: "ComradesApply", conjure: "ConjureApply" }[tp.kind] ?? "Apply";
   return t(lbl, { name: extra.targetPower.targetName, n: ev.successes });
 }
 
@@ -728,7 +731,7 @@ export const notice = (target, power, what) => ChatMessage.create({ speaker: Cha
  * Бросок силы против цели (лист и HUD — sheets/actor-sheet.mjs → rollPowerRef).
  * @param {Function} rollFromSpec  окно броска силы из листа
  */
-export async function rollTargetPower(actor, disc, d, p, tp, { rollFromSpec, subtitle, kind = "check", magic = null }) {
+export async function rollTargetPower(actor, disc, d, p, tp, { rollFromSpec, subtitle, kind = "check", magic = null, virt = null }) {
   // Могущество крови — не чаще раза за ночь
   if (tp.kind === "potency") {
     const api = await clockApi();
@@ -778,7 +781,8 @@ export async function rollTargetPower(actor, disc, d, p, tp, { rollFromSpec, sub
   const opts = { title: p.name, subtitle: `${target ? `→ ${target.name} · ` : ""}${subtitle}`, effect: p.html, power: { disc, level: p.level, name: p.name },
     more: link ? { targetPower: link } : null, kind, magic };
   // кровные линии (apps/bloodlines.mjs): вопросы и цена до броска, итог на себе — сразу
-  const bl = await bloodRoll({ actor, p, tp, target, key, link, roll, opts });
+  const bl = await bloodRoll({ actor, p, tp, target, key, link, roll, opts, virt,
+    again: (p2, tp2, v) => p2 && tp2 ? rollTargetPower(actor, disc, d, p2, tp2, { rollFromSpec, subtitle, kind, magic, virt: v }) : null });
   if (bl && "stop" in bl) return bl.stop;
   if (bl?.roll) roll = bl.roll;
   // Вкус крови: сведения — только тауматургу и рассказчику
@@ -1603,9 +1607,12 @@ export function soakDice(actor) {
 }
 
 /** Штраф к пулам от Устрашающего взора и проклятий путей (diceAll) — для окон бросков. Сосредоточение отменяет. */
-export function dreadDice(actor, { social = false } = {}) {
-  if (centered(actor)) return [];
-  const out = [];
+export function dreadDice(actor, { social = false, physical = false } = {}) {
+  // Кровное единство (Сангвинус 5): +1 куб к физическим броскам за каждого участника сверх первого
+  const bonus = physical ? [...(actor?.effects ?? [])].filter(e => !e.disabled && e.flags?.[SYSTEM_ID]?.dicePhys)
+    .map(e => ({ label: e.name, value: Number(e.flags[SYSTEM_ID].dicePhys) })) : [];
+  if (centered(actor)) return bonus;
+  const out = [...bonus];
   for (const e of actor?.effects ?? []) {
     const f = !e.disabled && e.flags?.[SYSTEM_ID];
     if (!f) continue;

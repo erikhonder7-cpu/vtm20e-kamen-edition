@@ -2632,6 +2632,71 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  // Хвосты кровных линий: Виртуозность (кровь за пятёрки слушателей → Незримый собеседник), Октопод (кровь за части, эффекты у обоих),
+  // Кровное единство (3 крови с каждого, правит старший по крови, поколение от младшего, +кубы; повтор — распад), жетон Тотемного зверя
+  await check("Кровные линии: Виртуозность, Октопод, Кровное единство, жетон зверя", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), sys = p => import(`/systems/${sid}/${p}`);
+      const TP = await sys("module/apps/target-powers.mjs"), RD = await sys("module/dice/dialog.mjs");
+      const mk = (name, gen, system = {}) => Actor.create({ name, type: "vampire", flags: { world: { e2e: true } }, system: { generation: gen, blood: { value: 10 }, ...system } });
+      const a = await mk("E2E — сирена круга", 9, { attributes: { stamina: { value: 3 } }, abilities: { performance: { value: 3 } } });
+      const b = await mk("E2E — брат круга", 11);
+      await a.createEmbeddedDocuments("Item", ["melpominee", "sanguinus", "spiritus"].map(k => ({ name: `E2E — ${k}`, type: "discipline", system: { key: k, value: 5 } })));
+      const scene = game.scenes.viewed ?? game.scenes.contents[0];
+      const made = await scene.createEmbeddedDocuments("Token", await Promise.all([a, b].map((x, i) => x.getTokenDocument({ x: 100 + i * 200, y: 4100 }))));
+      const tok = x => made.find(tk => tk.actorId === x.id);
+      for (let i = 0; i < 30 && !canvas.tokens.get(tok(b).id); i++) await wait(100);
+      await wait(400);
+      const inst = () => [...foundry.applications.instances.values()];
+      const dialogs = () => inst().filter(x => x instanceof foundry.applications.api.DialogV2);
+      const closeAll = async () => { for (const x of inst()) if (x.constructor.name === "RollDialog" || x instanceof foundry.applications.api.DialogV2) await x.close(); };
+      const pick = async val => { dialogs().at(-1)?.element.querySelector(`.r-ask-opt[data-v="${val}"]`)?.click(); await wait(500); };
+      const ok = async fill => { const d = dialogs().at(-1); if (d && fill) fill(d.element); d?.element.querySelector('button[data-action="ok"]')?.click(); await wait(700); };
+      const hud = async (disc, re) => { await closeAll(); document.querySelector('#r-hud [data-act="tab"][data-tab="powers"]')?.click(); await wait(300);
+        document.querySelector(`#r-hud [data-act="pop"][data-pop*="${disc}"]`)?.click(); await wait(400);
+        [...document.querySelectorAll('#r-hud .rh-pop-row[data-act="power"]')].find(x => re.test(x.textContent))?.click(); await wait(700); };
+      const rollDlg = () => inst().find(x => x.constructor.name === "RollDialog");
+      const at = () => canvas.tokens.get(tok(a).id).actor, bt = () => canvas.tokens.get(tok(b).id).actor;
+      canvas.tokens.get(tok(a).id)?.control({ releaseOthers: true }); await wait(600);
+      const out = {};
+      // Виртуозность без отмеченных: 6 слушателей — 1 кровь сверху, дальше окно Незримого собеседника (своя 1 кровь)
+      let b0 = at().system.blood.value;
+      await hud("melpominee", /Виртуозность/); await pick("phantom"); await pick("6");
+      out.virt = [b0 - at().system.blood.value, rollDlg()?.cfg.bloodCost, rollDlg()?.cfg.title];
+      // Октопод: две руки брату
+      canvas.tokens.get(tok(b).id)?.setTarget(true, { releaseOthers: true }); await wait(300);
+      b0 = at().system.blood.value;
+      await hud("sanguinus", /Октопод/);
+      await ok(el => { el.querySelector('input[name="arm"]').value = 2; }); await wait(600);
+      out.octo = [b0 - at().system.blood.value, !!at().effects.find(e => e.flags?.[sid]?.octoTo), bt().effects.some(e => /Октопод/.test(e.name))];
+      // Кровное единство: по 3 крови, правит 9-е поколение, чудовище — 11 − 1 = 10-е
+      b0 = [at().system.blood.value, bt().system.blood.value];
+      const base = new RD.RollDialog(at(), { trait1: "attributes.strength" }).compute().pool;
+      await hud("sanguinus", /Кровное единство/); await wait(800);
+      out.entity = [b0[0] - at().system.blood.value, b0[1] - bt().system.blood.value, at().system.effectiveGeneration, bt().statuses.has("r-held"),
+        new RD.RollDialog(at(), { trait1: "attributes.strength" }).compute().pool - base];
+      await hud("sanguinus", /Кровное единство/); await wait(1200);
+      out.entityEnd = [at().powerEffects.some(e => e.power === "sanguinus:5"), bt().statuses.has("r-held")];
+      // Тотемный зверь: кнопка на карточке ставит жетон
+      [...game.user.targets].forEach(x => x.setTarget(false, { releaseOthers: false }));
+      await hud("spiritus", /Призыв тотемного зверя/);
+      const rd = rollDlg(), n0 = scene.tokens.size;
+      const ap = TP.applyTargetPower({ isOwner: false }, { actorUuid: a.uuid, extra: rd?.cfg.extra }, { successes: 3, outcome: "success" });
+      await wait(900); await ok(); await ap; await wait(600);
+      out.beast = scene.tokens.size - n0;
+      const spirits = game.actors.filter(x => x.name.includes("E2E — сирена круга)"));
+      await closeAll();
+      canvas.tokens.releaseAll(); await wait(600);
+      await scene.deleteEmbeddedDocuments("Token", scene.tokens.filter(tk => made.some(m => m.id === tk.id) || spirits.some(sp => sp.id === tk.actorId)).map(tk => tk.id));
+      await Actor.deleteDocuments([a.id, b.id, ...spirits.map(x => x.id)]);
+      return out;
+    });
+    const want = { octo: [2, true, true], entity: [3, 3, 10, true, 2], entityEnd: [false, false], beast: 1 };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (r.virt?.[0] !== 1 || r.virt?.[1] !== 1) bad.push("virt");
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k] ?? [1, 1])}`).join("; "));
+  });
+
   // Ход боя V20: инициатива каждый ход (карточка), заявки от низшей к высшей, выжидание — в конец хода,
   // множественные действия делят пул в окнах, защита без заявки — отмена действия (Воля)
   await check("Ход боя: инициатива, заявки, выжидание, отмена ради защиты", async () => {

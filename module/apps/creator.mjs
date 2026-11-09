@@ -220,10 +220,10 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       tribes: (W.tribes ?? []).map(x => ({ key: x.key, label: lbl(x), selected: x.key === st.markTribe })),
       kamiKinds: ["human", "animal", "plant"].map(k => ({ key: k, label: loc(`VTM20.Werewolf.Kami.form.${k}`), selected: k === st.kamiKind })),
       kamiPowers: (W.kami?.powers ?? []).filter(x => x.kind === "kami" || (st.kamiKind === "plant" && x.kind === "immobile"))
-        .map(x => ({ key: x.key, label: lbl(x), text: String(x.text ?? "").replace(/<[^>]+>/g, "").slice(0, 220), on: st.kamiPowers.includes(x.key) })),
+        .map(x => ({ key: x.key, label: lbl(x), text: VtMCreator.#preview(x.text, 700), on: st.kamiPowers.includes(x.key) })),
       fomorBreeds: (W.fomori?.breeds ?? []).map(b => ({ key: b.key, label: lbl(b), selected: b.key === st.fomorBreed })),
       fomorText: fb ? String(fb.text ?? "").replace(/<[^>]+>/g, "").slice(0, 400) : "",
-      fomorPowers: (W.fomori?.powers ?? []).map(x => ({ key: x.key, label: lbl(x), text: String(x.text ?? "").replace(/<[^>]+>/g, "").slice(0, 200),
+      fomorPowers: (W.fomori?.powers ?? []).map(x => ({ key: x.key, label: lbl(x), text: VtMCreator.#preview(x.text, 700),
         own: own.has(x.key), on: own.has(x.key) || st.fomorPowers.includes(x.key) }))
     };
   }
@@ -766,7 +766,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       };
       // Дары: ячейки и Дары сверх трёх (свои 1-го уровня, 7 бонусных за каждый)
       const taken = new Set([...Object.values(w.gifts), ...w.extra]);
-      const card = (g, on) => ({ key: g.key, label: lbl(g), en: g.en, on, text: VtMCreator.#preview(g.text, 160), cost: g.cost ? Object.entries(g.cost).map(([k, n]) => `${n} ${loc(`VTM20.GarouCr.T.${k === "willpower" ? "will" : k}`)}`).join(", ") : "" });
+      const card = (g, on) => ({ key: g.key, label: lbl(g), en: g.en, on, text: VtMCreator.#preview(g.text, 700), cost: g.cost ? Object.entries(g.cost).map(([k, n]) => `${n} ${loc(`VTM20.GarouCr.T.${k === "willpower" ? "will" : k}`)}`).join(", ") : "" });
       ctx.giftSlots = this.giftSlots.map(s => ({ key: s.key, label: s.label, need: s.need ? t("GarouCr.GiftNeedPick", { what: s.need }) : "",
         list: this.slotGifts(s).map(k => D.gifts.find(g => g.key === k)).filter(g => g && (g.key === w.gifts[s.key] || !taken.has(g.key))).map(g => card(g, g.key === w.gifts[s.key])) }));
       // сверх трёх — только когда три ячейки заполнены, иначе список повторял бы их целиком; у карточки — откуда Дар и цена
@@ -809,7 +809,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       return {
         key: k, name: d.name, en: d.en, value: v, inClan: this.inClan(k), sym: this.isDemon ? null : Codex.disciplineSymbol(k),
         icon: this.isDemon ? (d.house ? "fa-fire-flame-curved" : "fa-book") : VTM20.disciplineIcons[k] ?? "fa-droplet", dots: dotRow("disc", k),
-        powers: d.powers.filter(p => p.level <= Math.max(1, v) && p.level <= 5).map(p => ({ level: p.level, name: p.name, en: p.en, owned: p.level <= v })),
+        powers: d.powers.filter(p => p.level <= Math.max(1, v) && p.level <= 5).map(p => ({ level: p.level, name: p.name, en: p.en, owned: p.level <= v, tip: VtMCreator.#preview(p.html, 600) })),
         pathed: VTM20.pathDisciplines.includes(k)
       };
     }).sort((a, b) => (b.inClan - a.inClan) || a.name.localeCompare(b.name, "ru"));

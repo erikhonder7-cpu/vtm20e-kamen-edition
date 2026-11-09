@@ -6220,7 +6220,8 @@
         "3": "Friends stop trusting: social difficulty, quarrels, others' frenzy — at the Storyteller's call.",
         "4": "Barrenness: the vampire cannot Embrace or make ghouls.",
         "5": "Every failure counts as a botch."
-      }
+      },
+      "SpiritBeastApply": "Place the beast's token"
     },
     "Ghoul": {
       "Retainer": "Retainer, not a PC",
@@ -6700,7 +6701,7 @@
         "week": "a week"
       },
       "BeastName": "Spirit beast · {d}",
-      "BeastDesc": "A spirit of a local species in the flesh: health and attacks as an ordinary animal; follows simple mental commands. Discorporates at death. Take the token from the creature compendium.",
+      "BeastDesc": "A spirit of a local species in the flesh: health and attacks as an ordinary animal; follows simple mental commands. Discorporates at death. The Storyteller places the token with the button on the roll card.",
       "Aspect": {
         "beaver": "Beaver's teeth (bite through almost anything)",
         "chameleon": "Chameleon's skin (hiding −2)",
@@ -6790,7 +6791,35 @@
       "NornsWeeks": "weeks: {n}",
       "NornsDone": "the object is in stasis — {d}. Touch by anything absent at casting breaks it.",
       "ClothoDesc": "+{n} full actions every turn, turns: {turns}. A Discipline used as an extra action — 1 unsoakable aggravated level. Celerity or any other source of extra actions — Final Death.",
-      "ClothoCelerity": "Clotho's Gift is active: any other source of extra actions means immediate Final Death (V20)."
+      "ClothoCelerity": "Clotho's Gift is active: any other source of extra actions means immediate Final Death (V20).",
+      "VirtMark": "Target the listeners (T): Siren's Beckoning in chorus affects everyone targeted.",
+      "VirtCount": "Listeners: {n} (extra blood: {b})",
+      "VirtMax": "{n} listeners — more than Stamina + Performance ({max}).",
+      "VirtN": "Virtuosa: {n} listeners, all hear the same.",
+      "SirenCrowd": "Virtuosa: {n} listeners; difficulty — the highest Willpower among them ({w}). Each resists separately.",
+      "OctoAsk": "What to lend to {name}? 1 blood per limb or external organ. Internal organs cannot be lent.",
+      "OctoPart": {
+        "arm": "Arms",
+        "leg": "Legs",
+        "eye": "Eyes",
+        "mouth": "Mouths",
+        "other": "Other (ears, nose…)"
+      },
+      "OctoApply": "Lend",
+      "OctoNone": "Nothing chosen.",
+      "OctoGave": "Octopod → {name}",
+      "OctoGaveDesc": "Lent: {list}. While the parts are away, the donor lacks them: no hands — cannot hold, no eyes — cannot see, no mouth — cannot speak or feed. Remove the effect when the parts return.",
+      "OctoText": "will receive at the end of the turn: {list}",
+      "OctoGot": "Octopod ← {name}",
+      "OctoGotDesc": "Borrowed: {list}. The recipient chooses where they grow. No extra actions or attacks: more hands hold and grapple more, more eyes see wider, a second mouth drinks twice as fast.",
+      "EntityMark": "Target (T) the Kindred of the circle who join the Coagulated Entity.",
+      "EntityDesc": "Coagulated Entity: {n} participants. Merging takes 3 turns. Strength, Stamina and Perception +{k}; +{k} dice to physical rolls; generation — {g}th. Health: {hp} more Bruised levels (tracked by the Storyteller). A stake through the heart does not paralyze. Lasts the scene.",
+      "EntityIn": "In the Coagulated Entity ({name})",
+      "EntityInDesc": "The body is merged into the Coagulated Entity; {name} is in control. Cannot act alone until the entity dissolves.",
+      "BeastWho": "Which beast appears (the species must live in the area)",
+      "BeastGo": "Summon",
+      "BeastToken": "{name} — spirit ({who})",
+      "BeastCame": "a spirit beast takes flesh: {name}"
     }
   },
   "Fx": {

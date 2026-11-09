@@ -1364,7 +1364,8 @@ export async function rollPowerRef(actor, ref) {
   // Сила-эффект (data/effects.mjs): без броска — включить/выключить (HUD вёл в пустое окно броска);
   // rollStart — бросок запускает эффект: успех — эффект без второй оплаты, провал — botchDamage губительных
   const fk = fxKey(disc, p), fxDef = !pathName && POWER_EFFECTS[fk];
-  if (fxDef && (fxDef.noRoll || !(p.roll?.trait1 || p.roll?.dice))) return togglePowerEffect(actor, fk, { gated: true });
+  // viaRoll — эффект кладёт сама сила (apps/target-powers.mjs), даже если броска у неё нет (Кровное единство)
+  if (fxDef && !(fxDef.viaRoll && targetPowerOf(disc, p)) && (fxDef.noRoll || !(p.roll?.trait1 || p.roll?.dice))) return togglePowerEffect(actor, fk, { gated: true });
   if (fxDef?.rollStart) {
     if (actor.powerEffects.some(x => x.power === fk)) return togglePowerEffect(actor, fk, { gated: true });
     return rollFromSpec(actor, p.roll ?? {}, { title: p.name, subtitle: `${d.name} · ${ROMAN[p.level - 1] ?? p.level}`, effect: p.html,

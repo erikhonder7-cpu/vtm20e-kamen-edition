@@ -123,7 +123,8 @@ export const POWER_EFFECTS = {
   // общие чувства: Восприятие каждого −3 к сложности
   "sanguinus:3": { mode: "scene", icon: "fa-people-arrows", cost: { blood: 1 }, diff: { perception: -3 } },
   // Сангвинус 5, Кровное единство: 3 крови с каждого, до конца сцены
-  "sanguinus:5": { mode: "scene", icon: "fa-circle-nodes", cost: { blood: 3 } },
+  // ложится силой (apps/bloodlines.mjs, entity): слияние 3 хода, правки — флагами эффекта
+  "sanguinus:5": { mode: "scene", icon: "fa-circle-nodes", cost: { blood: 3 }, viaRoll: true, transformTurns: 3 },
   // Бардо 3, Дар Аписа: постоянно — кровь зверя по числу его уровней здоровья
   "bardo:3": { mode: "toggle", icon: "fa-cow", noRoll: true },
   // Бардо 4, Обелиск Осириса: под его сенью мистические проверки (Дисциплины, магия крови) −3 к сложности;

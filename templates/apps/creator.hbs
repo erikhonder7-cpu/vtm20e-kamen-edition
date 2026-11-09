@@ -392,7 +392,7 @@
           {{#if removable}}<a class="r-cr-disc-drop" data-action="dropDisc" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Creator.DropDisc'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
         </div>
         <ol class="r-cr-powers">
-          {{#each powers}}<li class="{{#if owned}}is-owned{{/if}}"><span>{{rRoman level}}</span> {{rName this}}</li>{{/each}}
+          {{#each powers}}<li class="{{#if owned}}is-owned{{/if}}"{{#if tip}} data-tooltip="{{tip}}"{{/if}}><span>{{rRoman level}}</span> {{rName this}}</li>{{/each}}
           {{#if pathed}}<li class="r-note r-explain">{{localize "VTM20.Creator.PathedNote"}}</li>{{/if}}
         </ol>
       </div>

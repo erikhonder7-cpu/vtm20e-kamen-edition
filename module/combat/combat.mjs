@@ -212,7 +212,7 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     if (attackAuto) bd.push({ label: t("Roll.AutoSuccess"), value: attackAuto });
     add(t("Combat.Accuracy"), c.dice);
     add(t(`Combat.Pos.${v.position}`), { front: 0, flank: 1, rear: 2 }[v.position]);
-    for (const d of dreadDice(a)) add(d.label, d.value);   // Устрашающий взор (apps/target-powers.mjs)
+    for (const d of dreadDice(a, { physical: true })) add(d.label, d.value);   // Устрашающий взор (apps/target-powers.mjs)
     add(t("Extra.MobBonus"), mobBonus(a));                 // толпа: +1 за каждого на ногах сверх первого (apps/extras.mjs)
     if (v.target === "held") add(t("Combat.Target.held"), 2);
     add(t("Roll.Modifier"), v.bonus);
