@@ -182,6 +182,8 @@ export const MODE_LABEL = { scene: "Fx.Scene", toggle: "Fx.Toggleable", hour: "F
 export function effectDef(power, variant = "", shapeConfig = null) {
   const base = POWER_EFFECTS[power];
   if (!base) return null;
+  // Искусство костей, своя работа: оружие (если задано) — из настроек на эффекте
+  if (power === "vicissitude:3" && variant === "custom") return { ...base, weapon: shapeConfig?.weapon ?? null };
   if (power === "protean:Модифицированный Облик Зверя" && shapeConfig) {
     const role = variant === "escape" ? "escape" : "battle";
     const form = shapeConfig[role] ?? {};

@@ -3999,7 +3999,8 @@
         "intimidate": "intimidate",
         "smother": "smother a target",
         "claws": "claws",
-        "spikes": "spikes"
+        "spikes": "spikes",
+        "custom": "custom work"
       },
       "Form": "Form",
       "Blood": "Blood",
@@ -5932,12 +5933,62 @@
       },
       "BoneClawsDone": "Bone claws have grown (Strength +1, lethal); cost — {n} lethal.",
       "BoneSpikesDone": "Body covered in bone spikes: +2 damage dice in clinches and tackles; a bare-handed attacker hitting with fewer than 3 successes takes their own Strength in damage. Cost — {n} lethal.",
-      "BoneSpikesBotch": "Botch: the bones tear the body from within — a mortal dies, a vampire falls into torpor."
+      "BoneSpikesBotch": "Botch: the bones tear the body from within — a mortal dies, a vampire falls into torpor.",
+      "NeedTargetGate": "No target marked (T). Without one the power is rolled without automation: set the difficulty yourself; the result won't be applied to a target.",
+      "NoTargetRoll": "Roll without a target",
+      "BoneBotchApply": "Apply the botch: {name}",
+      "BoneCustom": "Custom work (configure)",
+      "BoneC": {
+        "Kicker": "custom work",
+        "NameHint": "What to sculpt: bone blade, crest, carapace…",
+        "Default": "Bone work",
+        "Diff": "Difficulty",
+        "DiffHint": "as for Fleshcraft",
+        "Crude": "crude",
+        "Fine": "precise",
+        "Cost": "Cost in wounds",
+        "CostNone": "no wounds",
+        "CostN": "{n} lethal",
+        "Minus": "minus 1 wound per success (like spikes)",
+        "Weapon": "Weapon",
+        "NoWeapon": "none",
+        "WDmg": "Damage: Strength",
+        "Soak": "Soak",
+        "SoakHint": "extra soak dice",
+        "Note": "What else it does",
+        "NoteHint": "Goes into the effect description and chat",
+        "Go": "Sculpt",
+        "SumDiff": "diff. {n}",
+        "SumCost": "cost {n} lethal",
+        "SumCostMinus": "cost {n} lethal minus successes",
+        "SumFree": "no wounds",
+        "SumWeapon": "weapon Strength {n}, {type}",
+        "SumSoak": "+{n} soak",
+        "RollNote": "{what} for {name}: Storyteller's settings.",
+        "WeaponLine": "Weapon: Strength {n}, {type}.",
+        "SoakLine": "+{n} soak dice.",
+        "CostLine": "Cost — {n} lethal.",
+        "Done": "done.",
+        "KickerTpl": "template",
+        "SaveTpl": "Save as a template (under this name)",
+        "SaveTplUpdate": "Update the template",
+        "DeleteTpl": "Delete template"
+      },
+      "BoneTpl": "Template: {name}",
+      "BoneTplSaved": "Template “{name}” saved — it's in the Bonecraft list.",
+      "BoneTplDeleted": "Template “{name}” deleted."
     },
     "Ghoul": {
       "Retainer": "Retainer, not a PC",
       "RetainerTip": "The character's ghoul retainer: not counted as a player character (session XP, player lists) and receives half the XP granted to the domitor — the character named in “Domitor”",
       "RetainerXp": "half of {name}'s XP{reason}"
+    },
+    "Gate": {
+      "Title": "Against the rules",
+      "Hint": "V20 rules forbid this, but the Storyteller decides. If you go ahead, the Storyteller will see it in chat.",
+      "Anyway": "Anyway",
+      "Cancel": "Cancel",
+      "Done": "{name} bends a rule: {reason}"
     }
   },
   "Fx": {

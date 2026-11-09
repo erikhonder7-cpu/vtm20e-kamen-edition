@@ -3,6 +3,7 @@
 // выбор облика, у Облика Зверя и Тумана — сколько крови потратить (1–3: превращение за 3/2/1 хода),
 // у сил «час за успех» — сколько часов.
 
+import { allowAnyway } from "./rule-gate.mjs";
 import { POWER_EFFECTS } from "../data/effects.mjs";
 import { RollDialog } from "../dice/dialog.mjs";
 import { SYSTEM_ID } from "../config.mjs";
@@ -169,17 +170,18 @@ export async function breakObfuscate(actor, reason) {
 }
 
 /** Включить силу (или выключить, если уже действует). */
-export async function togglePowerEffect(actor, power) {
+export async function togglePowerEffect(actor, power, { gated = false } = {}) {
   const discipline = String(power).split(":", 1)[0];
   const animalFormBanned = new Set(["necromancy", "serpentis", "thaumaturgy", "vicissitude"]);
   const on = actor.powerEffects.find(x => x.power === power);
   // Выключение уже действующей силы всегда доступно, даже если персонаж позже получил состояние.
-  if (!on && actor.system.fx?.earthMeld) return ui.notifications.warn(t("Fx.EarthNoAction"));
+  // gated — эти запреты уже спрошены (rollPowerRef)
+  if (!on && !gated && actor.system.fx?.earthMeld && !(await allowAnyway(actor, t("Fx.EarthNoAction")))) return;
   const bf = actor.system.fx?.beastForm;
-  if (!on && bf === "cobra" && power === "protean:2") return ui.notifications.warn(t("Fx.CobraNoHands"));
-  if (!on && bf && bf !== "cobra" && animalFormBanned.has(discipline)) {
+  if (!on && bf === "cobra" && power === "protean:2" && !(await allowAnyway(actor, t("Fx.CobraNoHands")))) return;
+  if (!on && !gated && bf && bf !== "cobra" && animalFormBanned.has(discipline)) {
     const label = actor.items.find(i => i.type === "discipline" && i.system.key === discipline)?.name ?? discipline;
-    return ui.notifications.warn(t("Fx.BeastDisciplineBan", { name: label }));
+    if (!(await allowAnyway(actor, t("Fx.BeastDisciplineBan", { name: label })))) return;
   }
   // В торпоре силы нельзя активировать вообще; пронзённый колом вампир не может менять тело.
   if (!on && power.startsWith("protean:") && (actor.statuses?.has("r-torpor") || ((/^protean:[2-5]$/.test(power) || power === REVISITED_SHAPE) && actor.statuses?.has("r-staked"))))

@@ -5,6 +5,7 @@
 // Раскладка: шапка-«патент» с медальоном, вкладки слева от «реестра»
 // (правая колонка: мораль, воля, кровь, здоровье, быстрые действия).
 
+import { allowAnyway } from "../apps/rule-gate.mjs";
 import { sheetStrategy, openStrategy } from "../ui/strategy.mjs";
 import { VTM20, SYSTEM_PATH, SYSTEM_ID } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
@@ -1321,15 +1322,15 @@ function rollLorePower(actor, item) {
 }
 
 /** Бросок силы справочника по ссылке (лист и HUD). */
-export function rollPowerRef(actor, ref) {
+export async function rollPowerRef(actor, ref) {
   const x = powerByRef(ref);
   if (!x) return;
   const { disc, d, p, pathName } = x, magic = VTM20.pathDisciplines.includes(disc);
-  if (actor.system.fx?.earthMeld) return ui.notifications.warn(t("Fx.EarthNoAction"));
-  if (subsumeBlocks(actor, disc)) return ui.notifications.warn(t("TP.SubsumeBlocked", { name: d.name }));
+  if (actor.system.fx?.earthMeld && !(await allowAnyway(actor, t("Fx.EarthNoAction")))) return;
+  if (subsumeBlocks(actor, disc) && !(await allowAnyway(actor, t("TP.SubsumeBlocked", { name: d.name })))) return;
   // В Облике Зверя нельзя использовать названные в V20 дисциплины, требующие человеческой формы.
   const animalFormBanned = new Set(["necromancy", "serpentis", "thaumaturgy", "vicissitude"]);
-  if (actor.system.fx?.beastForm && actor.system.fx.beastForm !== "cobra" && animalFormBanned.has(disc)) return ui.notifications.warn(t("Fx.BeastDisciplineBan", { name: d.name }));
+  if (actor.system.fx?.beastForm && actor.system.fx.beastForm !== "cobra" && animalFormBanned.has(disc) && !(await allowAnyway(actor, t("Fx.BeastDisciplineBan", { name: d.name })))) return;
   // Тёмные Знания (Earthbound): эффекта низкой Муки нет; падший платит 1 временной Мукой за каждое применение
   if (disc.startsWith("lore:") && actor.system.hostless) return ui.notifications.warn(game.i18n.localize("VTM20.Host.NoLore"));
   if (disc.startsWith("lore:")) return rollFromSpec(actor, p.roll ?? {}, { title: p.name, subtitle: `${d.name} · ${ROMAN[p.level - 1]}`, effect: p.html,
@@ -1338,9 +1339,9 @@ export function rollPowerRef(actor, ref) {
   // Сила-эффект (data/effects.mjs): без броска — включить/выключить (HUD вёл в пустое окно броска);
   // rollStart — бросок запускает эффект: успех — эффект без второй оплаты, провал — botchDamage губительных
   const fk = fxKey(disc, p), fxDef = !pathName && POWER_EFFECTS[fk];
-  if (fxDef && (fxDef.noRoll || !(p.roll?.trait1 || p.roll?.dice))) return togglePowerEffect(actor, fk);
+  if (fxDef && (fxDef.noRoll || !(p.roll?.trait1 || p.roll?.dice))) return togglePowerEffect(actor, fk, { gated: true });
   if (fxDef?.rollStart) {
-    if (actor.powerEffects.some(x => x.power === fk)) return togglePowerEffect(actor, fk);
+    if (actor.powerEffects.some(x => x.power === fk)) return togglePowerEffect(actor, fk, { gated: true });
     return rollFromSpec(actor, p.roll ?? {}, { title: p.name, subtitle: `${d.name} · ${ROMAN[p.level - 1] ?? p.level}`, effect: p.html,
       power: { disc, level: p.level, name: p.name },
       onRolled: async res => {

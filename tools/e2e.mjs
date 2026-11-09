@@ -115,6 +115,9 @@ try {
     await page.evaluate(async () => {
       for (const app of [...foundry.applications.instances.values()]) if (app.element?.classList.contains("r-refresh")) await app.close();
       await game.settings.set(game.system.id, "refreshChecked", game.system.version);
+      // окна «Против правил» (apps/rule-gate.mjs): по умолчанию «Отмена», globalThis.__e2eGate = "yes" — «Всё равно»
+      Hooks.on("renderDialogV2", app => { if (app.element?.classList.contains("r-gate")) setTimeout(() =>
+        app.element?.querySelector(`button[data-action="${globalThis.__e2eGate === "yes" ? "yes" : "no"}"]`)?.click(), 50); });
     });
   });
 
@@ -1206,7 +1209,7 @@ try {
       const out = {};
       // Приказ против старейшины — запрет; против смертного — сложность = текущая Воля (4)
       await target(te);
-      out.elder = TP.prepareTargetPower(a, "dominate", D.powers[idx(D, "Command")], TP.TARGET_POWERS["dominate|Command"]) === null;
+      out.elder = TP.prepareTargetPower(a, "dominate", D.powers[idx(D, "Command")], TP.TARGET_POWERS["dominate|Command"])?.blocked?.code === "domGeneration";
       await target(tm);
       await rollPowerRef(a, `dominate|${idx(D, "Command")}`);
       let dlg = null;
@@ -1272,7 +1275,7 @@ try {
       out.eyesKindred = [dlg?.values.difficulty, dlg?.values.trait1];
       await dlg?.close();
       // Усмирение Зверя: на Сородича нельзя; против смертного — продолжительный до постоянной Воли (5)
-      out.quellKindred = TP.prepareTargetPower(a, "animalism", C.discipline("animalism").powers[idx("animalism", "Quell the Beast")], TP.TARGET_POWERS["animalism|Quell the Beast"]) === null;
+      out.quellKindred = !!TP.prepareTargetPower(a, "animalism", C.discipline("animalism").powers[idx("animalism", "Quell the Beast")], TP.TARGET_POWERS["animalism|Quell the Beast"])?.blocked;
       await target(tm);
       // сначала окно «как подавить Зверя» (страх или успокоение) — выбрать и подтвердить, бросок не ждём
       rollPowerRef(a, `animalism|${idx("animalism", "Quell the Beast")}`);
@@ -1787,8 +1790,8 @@ try {
       out.condDone = mt().effects.some(e => e.flags?.[sid]?.conditioned);
       // Вселение: чужой гуль — нельзя, свой — можно; после захвата — проверка доступа
       const P = game.vtm20Codex.discipline("dominate").powers.find(x => x.en === "Possession"), PT = TP.TARGET_POWERS["dominate|Possession"];
-      await mark(g1); out.ghoulOther = TP.prepareTargetPower(a, "dominate", P, PT) === null;
-      await mark(g2); out.ghoulOwn = TP.prepareTargetPower(a, "dominate", P, PT) !== null;
+      await mark(g1); out.ghoulOther = TP.prepareTargetPower(a, "dominate", P, PT)?.blocked?.code === "ghoulOwn";
+      await mark(g2); out.ghoulOwn = !TP.prepareTargetPower(a, "dominate", P, PT)?.blocked;
       await mt().update({ "system.willpower.temporary": 0 });
       const n0 = game.messages.size;
       await apply("dominate|Possession", 2);
@@ -1926,8 +1929,43 @@ try {
       // Шипы смертному, провал: смерть
       target(m); await wait(300);
       rd = await bone("spikes", "5");
+      const n2 = game.messages.size;
       await rd?.cfg.onRolled?.({ successes: 0, outcome: "botch" });
-      out.botch = actorOf(m).system.health.lethal;
+      const before = actorOf(m).system.health.lethal;
+      const bcard = game.messages.contents.slice(n2).find(x => x.getFlag(sid, "targetApply"));
+      if (bcard) await TP.applyFromCard(bcard);
+      out.botch = [before, actorOf(m).system.health.lethal];
+      await closeAll();
+      // Своя работа себе: клинок Сила +2 тяжёлые, сл. 8, цена 3 минус успехи, +1 к прочности
+      target(null); await wait(300);
+      await closeAll(); document.querySelector('#r-hud [data-act="tab"][data-tab="powers"]')?.click(); await wait(300);
+      document.querySelector('#r-hud [data-act="pop"][data-pop*="vicissitude"]')?.click(); await wait(400);
+      [...document.querySelectorAll('#r-hud .rh-pop-row[data-act="power"]')].find(x => /Искусство костей/.test(x.textContent))?.click(); await wait(600);
+      await pick("custom");
+      const cf = dialogs().at(-1)?.element;
+      const radio = (n, v) => cf?.querySelector(`[name="${n}"][value="${v}"]`)?.click();
+      if (cf) { cf.querySelector('[name="name"]').value = "Костяной клинок"; radio("diff", 8); cf.querySelector('.r-bw-dot[data-n="3"]')?.click();
+        cf.querySelector('[name="minus"]').click(); radio("wtype", "lethal"); radio("wdmg", 2); radio("soak", 1); cf.querySelector('[name="save"]').click(); }
+      out.sum = cf?.querySelector(".r-bw-sum")?.textContent ?? "";
+      cf?.querySelector('button[data-action="ok"]')?.click();
+      await wait(600);
+      rd = inst().find(x => x.constructor.name === "RollDialog");
+      await actorOf(a).update({ "system.health.lethal": 0 });
+      await TP.applyTargetPower({ isOwner: false }, { actorUuid: a.uuid, extra: rd?.cfg.extra }, { successes: 1, outcome: "success" });
+      const blade = actorOf(a).items.find(i => i.type === "weapon" && i.name === "Костяной клинок");
+      out.custom = [rd?.values.difficulty, actorOf(a).system.health.lethal, blade?.system.damage, blade?.system.damageType, TP.soakDice(actorOf(a)), !actorOf(a).system.fx?.spikes];
+      await closeAll();
+      // шаблон сохранён у персонажа: в списке режимов; открывается заполненным; удаляется кнопкой
+      const tpl = actorOf(a).getFlag(sid, "boneTemplates") ?? [];
+      document.querySelector('#r-hud [data-act="tab"][data-tab="powers"]')?.click(); await wait(300);
+      document.querySelector('#r-hud [data-act="pop"][data-pop*="vicissitude"]')?.click(); await wait(400);
+      [...document.querySelectorAll('#r-hud .rh-pop-row[data-act="power"]')].find(x => /Искусство костей/.test(x.textContent))?.click(); await wait(600);
+      const hasTpl = !![...(dialogs().at(-1)?.element.querySelectorAll("option") ?? [])].find(o => o.value === "tpl:0" && /Костяной клинок/.test(o.textContent));
+      await pick("tpl:0");
+      const tf = dialogs().at(-1)?.element;
+      const filled = [tf?.querySelector('[name="name"]')?.value, tf?.querySelector('[name="diff"]:checked')?.value, tf?.querySelector('[name="cost"]')?.value];
+      tf?.querySelector('button[data-action="forget"]')?.click(); await wait(600);
+      out.tpl = [tpl.length, tpl[0]?.weapon?.damage, hasTpl, ...filled, (actorOf(a).getFlag(sid, "boneTemplates") ?? []).length];
       await closeAll();
       // Чудовищный облик: Харизма 0, Запугивание — Силой (2 + 3)
       target(null); await actorOf(a).update({ "system.health.lethal": 0 });
@@ -1941,7 +1979,9 @@ try {
       await Actor.deleteDocuments([a.id, m.id, v.id]);
       return out;
     });
-    const want = { claws: [6, true, 1, 1, "lethal"], spikes: [7, 3, true], clinch: 4, back: true, heart: [7, true, 5], botch: 7, horrid: [0, 7, 0] };
+    const want = { claws: [6, true, 1, 1, "lethal"], spikes: [7, 3, true], clinch: 4, back: true, heart: [7, true, 5], botch: [1, 7],
+      custom: [8, 2, 2, "lethal", 1, true], tpl: [1, 2, true, "Костяной клинок", "8", "3", 0], horrid: [0, 7, 0] };
+    if (!/Костяной клинок.*сл\. 8.*3 тяж\. минус успехи.*Сила \+2.*\+1 к прочности/.test(r.sum)) throw new Error(`итог окна: ${r.sum}`);
     const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
@@ -2065,6 +2105,19 @@ try {
       await rollPowerRef(a, `dominate|${game.vtm20Codex.discipline("dominate").powers.findIndex(p => p.en === "Command")}`); await wait(500);
       out.mistEyes = !inst().some(x => x.constructor.name === "RollDialog");
       await closeAll();
+      // «Всё равно»: рассказчик разрешил — окно броска есть, в чате пометка об обходе
+      globalThis.__e2eGate = "yes";
+      const ng = game.messages.size;
+      await rollPowerRef(a, `dominate|${game.vtm20Codex.discipline("dominate").powers.findIndex(p => p.en === "Command")}`); await wait(500);
+      out.mistAnyway = [inst().some(x => x.constructor.name === "RollDialog"), game.messages.contents.slice(ng).some(x => /обходит правило/.test(x.content))];
+      await closeAll();
+      // без цели: простой бросок без автоматики
+      [...game.user.targets].forEach(x => x.setTarget(false, { releaseOthers: false })); await wait(300);
+      await rollPowerRef(a, `dominate|${game.vtm20Codex.discipline("dominate").powers.findIndex(p => p.en === "Command")}`); await wait(500);
+      const plain = inst().find(x => x.constructor.name === "RollDialog");
+      out.plain = [!!plain, !plain?.cfg.extra?.targetPower];
+      globalThis.__e2eGate = "no";
+      await closeAll();
       [...game.user.targets].forEach(x => x.setTarget(false, { releaseOthers: false }));
       canvas.tokens.releaseAll();
       await wait(800);
@@ -2072,7 +2125,7 @@ try {
       await Actor.deleteDocuments([a.id, m.id, v.id]);
       return out;
     });
-    const want = { chaos: 6, voice: [7, 2, "frenzy"], voiceHit: [true, 8], mistEyes: true };
+    const want = { chaos: 6, voice: [7, 2, "frenzy"], voiceHit: [true, 8], mistEyes: true, mistAnyway: [true, true], plain: [true, true] };
     const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });

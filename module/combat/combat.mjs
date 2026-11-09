@@ -7,6 +7,7 @@
 // Атака кидается обычной карточкой «attack»: успехи сверх первого прибавляются
 // к урону, кнопка «Бросить урон» на карточке — как у оружия с листа.
 
+import { allowAnyway } from "../apps/rule-gate.mjs";
 import { VTM20, SYSTEM_PATH, SYSTEM_ID } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
 import { rollPool, odds, chancesView } from "../dice/roll.mjs";
@@ -305,9 +306,9 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const beastForm = this.actor.system.fx?.beastForm;
     if (beastForm === "modified") {
       const chosen = pickKind === "w" ? weaponsOf(this.actor).find(w => w.id === pickId) : null;
-      if (!chosen?.naturalFormWeapon) { ui.notifications.warn(t("Fx.BeastNoHumanWeapons")); return; }
+      if (!chosen?.naturalFormWeapon && !(await allowAnyway(this.actor, t("Fx.BeastNoHumanWeapons")))) return;
     } else if (beastForm && (pickKind === "w" || pickKind === "f" || !((beastForm === "wolf" && ["claws", "bite"].includes(pickId)) || (["bat", "cobra"].includes(beastForm) && pickId === "bite")))) {
-      ui.notifications.warn(t("Fx.BeastNoHumanWeapons")); return;
+      if (!(await allowAnyway(this.actor, t("Fx.BeastNoHumanWeapons")))) return;
     }
     const foe = v.foe ? await foundry.utils.fromUuid(v.foe) : null;
     // Преклонение (Величие 5): напасть на вампира — сперва Смелость
@@ -318,8 +319,8 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       await wakeEarthMeld(foe, t("Fx.EarthWakeAttack"));
       return;
     }
-    if (foe?.system?.fx?.mistForm && !c.supernatural) return ui.notifications.info(t("Fx.MistPhysicalImmune", { name: foe.name }));
-    if (foe?.system?.fx?.shadowForm && !c.supernatural) return ui.notifications.info(t("Fx.ShadowPhysicalImmune", { name: foe.name }));
+    if (foe?.system?.fx?.mistForm && !c.supernatural && !(await allowAnyway(this.actor, t("Fx.MistPhysicalImmune", { name: foe.name })))) return;
+    if (foe?.system?.fx?.shadowForm && !c.supernatural && !(await allowAnyway(this.actor, t("Fx.ShadowPhysicalImmune", { name: foe.name })))) return;
     if (v.target === "helpless") notes.unshift(t("Combat.AutoHit"));
     // яд кобры смертелен для смертных (V20, Серпентис 4) — исход решает рассказчик
     if (c.cobra && foe && ["mortal", "ghoul", "hunter"].includes(foe.type)) notes.push(t("Combat.CobraVenom", { name: foe.name }));

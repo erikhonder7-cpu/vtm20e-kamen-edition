@@ -30,6 +30,7 @@
 //   · Поглощение духа: вампир в теле зверя, доступные Дисциплины — по успехам.
 // Наложить эффект может владелец цели или рассказчик — кнопкой на карточке броска (как «принять урон»).
 
+import { allowAnyway } from "./rule-gate.mjs";
 import { SYSTEM_ID, VTM20 } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
 import { PATH_POWERS } from "../data/path-powers.mjs";
@@ -128,30 +129,31 @@ export function markedTarget(actor) {
  * Подготовка броска: сложность от цели, запреты. null — бросок не нужен (сообщение уже показано).
  * Возвращает { difficulty, note, target } — target может быть null (сложность вручную).
  */
-export function prepareTargetPower(actor, disc, p, tp) {
+export function prepareTargetPower(actor, disc, p, tp, skip = new Set()) {
+  // запрет правила — не отказ, а вопрос «Всё равно?» (apps/rule-gate.mjs); skip — уже обойдённые запреты
+  const block = (code, text) => skip.has(code) ? null : { blocked: { code, text } };
+  let b;
   // Превращение в туман: силы, требующие зрительного контакта, недоступны (V20, Метаморфозы 5)
-  if (actor.system.fx?.mistForm && (tp.dominate || tp.kind === "eyes")) { ui.notifications.warn(t("MistNoEyes")); return null; }
+  if (actor.system.fx?.mistForm && (tp.dominate || tp.kind === "eyes") && (b = block("mist", t("MistNoEyes")))) return b;
   const target = markedTarget(actor) ?? (tp.allowSelf ? actor : null);
-  if (!target && tp.needTarget) { ui.notifications.warn(t("NeedTarget")); return null; }
+  // без цели — по желанию простой бросок без автоматики
+  if (!target && tp.needTarget) return skip.has("needTarget") ? { plain: true } : block("needTarget", t("NeedTargetGate"));
   // Усмирение Зверя: на Сородича не действует — кроме успокоения уже впавшего в бешенство (V20, Анимализм 3)
-  if (tp.mortalOnly && target?.isVampire && !(tp.kind === "quell" && target.statuses?.has("r-frenzy"))) { ui.notifications.warn(t("NotKindred", { name: target.name })); return null; }
-  if (tp.kind === "quell" && target?.effects.some(e => !e.disabled && sameActor(e.flags?.[SYSTEM_ID]?.quellImmune, actor))) { ui.notifications.warn(t("QuellImmune", { name: target.name })); return null; }
+  if (tp.mortalOnly && target?.isVampire && !(tp.kind === "quell" && target.statuses?.has("r-frenzy")) && (b = block("mortalOnly", t("NotKindred", { name: target.name })))) return b;
+  if (tp.kind === "quell" && target?.effects.some(e => !e.disabled && sameActor(e.flags?.[SYSTEM_ID]?.quellImmune, actor)) && (b = block("quellImmune", t("QuellImmune", { name: target.name })))) return b;
   // Величие: после неудачи или провала цель невосприимчива к этой силе (или ко всему Величию) этого вампира
   const key0 = `${disc}|${p?.en ?? ""}`;
-  if (tp.presence && target?.effects.some(e => { const f = !e.disabled && e.flags?.[SYSTEM_ID]?.presImmune; return f && sameActor(f.by, actor) && (f.power === "all" || f.power === key0); })) {
-    ui.notifications.warn(t("PresImmune", { name: target.name })); return null;
-  }
-  if (tp.once && target?.effects.some(e => !e.disabled && e.flags?.[SYSTEM_ID]?.mind === key0 && sameActor(e.flags[SYSTEM_ID].by, actor))) {
-    ui.notifications.warn(t("StillActive", { name: target.name })); return null;
-  }
-  if (tp.mortalTarget && supernatural(target)) { ui.notifications.warn(t("MortalsOnly", { name: target.name })); return null; }
-  if (tp.animal && !(target.type === "creature" && !target.system.spirit?.on)) { ui.notifications.warn(t("NotAnimal", { name: target.name })); return null; }
+  if (tp.presence && target?.effects.some(e => { const f = !e.disabled && e.flags?.[SYSTEM_ID]?.presImmune; return f && sameActor(f.by, actor) && (f.power === "all" || f.power === key0); })
+    && (b = block("presImmune", t("PresImmune", { name: target.name })))) return b;
+  if (tp.once && target?.effects.some(e => !e.disabled && e.flags?.[SYSTEM_ID]?.mind === key0 && sameActor(e.flags[SYSTEM_ID].by, actor))
+    && (b = block("once", t("StillActive", { name: target.name })))) return b;
+  if (tp.mortalTarget && supernatural(target) && (b = block("mortalTarget", t("MortalsOnly", { name: target.name })))) return b;
+  if (tp.animal && !(target.type === "creature" && !target.system.spirit?.on) && (b = block("animal", t("NotAnimal", { name: target.name })))) return b;
   // Доминирование: после провала цель невосприимчива ко всему Доминированию этого вампира до конца истории
-  if (tp.dominate && target?.effects.some(e => { const f = !e.disabled && e.flags?.[SYSTEM_ID]?.presImmune; return f && f.disc === "dominate" && sameActor(f.by, actor); })) {
-    ui.notifications.warn(t("DomImmune", { name: target.name })); return null;
-  }
+  if (tp.dominate && target?.effects.some(e => { const f = !e.disabled && e.flags?.[SYSTEM_ID]?.presImmune; return f && f.disc === "dominate" && sameActor(f.by, actor); })
+    && (b = block("domImmune", t("DomImmune", { name: target.name })))) return b;
   // Вселение в гуля — только если он пил кровь этого вампира (V20, Доминирование 5)
-  if (tp.ghoulOwn && target?.type === "ghoul" && ![actor.name, actor.id].includes(target.system.domitor)) { ui.notifications.warn(t("GhoulNotOwn", { name: target.name })); return null; }
+  if (tp.ghoulOwn && target?.type === "ghoul" && ![actor.name, actor.id].includes(target.system.domitor) && (b = block("ghoulOwn", t("GhoulNotOwn", { name: target.name })))) return b;
   if (!tp.diff) return { difficulty: null, note: "", target };
   const label = tp.diff.map(k => t(`Diff.${k}`)).join(" + ");
   if (!target) {
@@ -159,10 +161,8 @@ export function prepareTargetPower(actor, disc, p, tp) {
     return { difficulty: null, note: t("NoTarget", { what: label }), target: null };
   }
   // Доминирование: кровь сильнее (поколение ниже) — неподвластна (V20, гл. 4)
-  if (tp.dominate && actor.isVampire && target.isVampire && Number(target.system.generation) < Number(actor.system.generation)) {
-    ui.notifications.warn(t("DomGeneration", { name: target.name }));
-    return null;
-  }
+  if (tp.dominate && actor.isVampire && target.isVampire && Number(target.system.generation) < Number(actor.system.generation)
+    && (b = block("domGeneration", t("DomGeneration", { name: target.name })))) return b;
   const parts = tp.diff.map(k => traitOf(target, k));
   if (parts.some(v => v == null)) return { difficulty: null, note: t("NoTrait", { name: target.name, what: label }), target };
   let raw = parts.reduce((s, v) => s + Number(v), 0);
@@ -371,11 +371,29 @@ export async function applyTargetPower(message, state, ev) {
     await target.update({ "system.attributes.appearance.value": next });
     return notice(target, x.powerName, t("FleshLooks", { from: ap, to: next }));
   }
+  if (tp.kind === "bone" && x.bone === "botch") {
+    // провал шипов (по кнопке): смертный умирает, вампир уходит в торпор
+    await done(message, state, x);
+    if (target.isVampire) { if (!target.statuses?.has("r-torpor")) await target.toggleStatusEffect("r-torpor", { active: true }); }
+    else await target.applyDamage(8, "lethal");
+    return notice(target, x.powerName, t("BoneSpikesBotch"));
+  }
   if (tp.kind === "bone") {
     // Когти — цена 1 губительное; шипы — 5 губительных минус 1 за каждый успех. Прежняя костяная работа уходит.
     await done(message, state, x);
     const old = target.powerEffects.find(e => e.power === "vicissitude:3");
     if (old) await target.endPower(old.effect, { quiet: true });
+    if (x.bone === "custom") {
+      // своя работа: цена ранами (по желанию минус успехи), оружие, кубы прочности, описание
+      const c = x.custom ?? {}, cost = Math.max(0, (c.cost ?? 0) - (c.minus ? n : 0));
+      if (cost) await target.applyDamage(cost, "lethal");
+      const eff = await target.startPower("vicissitude:3", { variant: "custom", blood: 0, shapeConfig: { weapon: c.weapon ?? null } });
+      const lines = [c.note, c.weapon && t("BoneC.WeaponLine", { n: c.weapon.damage >= 0 ? `+${c.weapon.damage}` : c.weapon.damage, type: game.i18n.localize(VTM20.damageTypes[c.weapon.damageType]?.label ?? "") }),
+        c.soak && t("BoneC.SoakLine", { n: c.soak }), cost && t("BoneC.CostLine", { n: cost })].filter(Boolean);
+      if (eff) await eff.update({ name: `${x.powerName} · ${c.name}`, description: `${lines.map(l => `<p>${esc(l)}</p>`).join("")}${eff.description ?? ""}`,
+        ...(c.soak ? { [`flags.${SYSTEM_ID}.soakDice`]: c.soak } : {}) });
+      return notice(target, x.powerName, `${c.name}: ${lines.join(" ") || t("BoneC.Done")}`);
+    }
     const cost = x.bone === "claws" ? 1 : Math.max(0, 5 - n);
     if (cost) await target.applyDamage(cost, "lethal");
     await target.startPower("vicissitude:3", { variant: x.bone, blood: 0 });
@@ -501,10 +519,18 @@ export async function rollTargetPower(actor, disc, d, p, tp, { rollFromSpec, sub
   // Могущество крови — не чаще раза за ночь
   if (tp.kind === "potency") {
     const api = await clockApi();
-    if ((actor.getFlag(SYSTEM_ID, "potencyNight") ?? 0) > api.getClock()) return ui.notifications.warn(t("PotencyOnce"));
+    if ((actor.getFlag(SYSTEM_ID, "potencyNight") ?? 0) > api.getClock() && !(await allowAnyway(actor, t("PotencyOnce")))) return null;
   }
-  const prep = prepareTargetPower(actor, disc, p, tp);
+  // запреты правил: каждый — вопрос «Всё равно?»; без цели — простой бросок без автоматики
+  const skip = new Set();
+  let prep = prepareTargetPower(actor, disc, p, tp, skip);
+  while (prep?.blocked) {
+    if (!(await allowAnyway(actor, prep.blocked.text, prep.blocked.code === "needTarget" ? { yes: t("NoTargetRoll") } : {}))) return null;
+    skip.add(prep.blocked.code);
+    prep = prepareTargetPower(actor, disc, p, tp, skip);
+  }
   if (!prep) return null;
+  if (prep.plain) return rollFromSpec(actor, p.roll ?? {}, { title: p.name, subtitle, effect: p.html, kind, magic, power: { disc, level: p.level, name: p.name } });
   const target = prep.target;
   const key = `${disc}|${p.en}`;
   // силы на себя (Покрывало ночи, Руки Бездны, Исчезновение) — «цель» карточки сам вампир, отмеченный — наблюдатель
@@ -630,9 +656,33 @@ export async function rollTargetPower(actor, disc, d, p, tp, { rollFromSpec, sub
   }
   // Искусство костей: что делаем; сложность работы — как у Искусства тканей (5 грубо … 9 тонко), удар костями — 7
   if (tp.kind === "bone") {
-    const mode = await ask(p.name, [["shape", t("BoneShape")], ["weapon", t("BoneWeapon")], ["claws", t("BoneClaws")], ["spikes", t("BoneSpikes")]]);
-    if (!mode) return null;
-    if (mode === "weapon") {
+    // шаблоны своей работы — у персонажа (флаг boneTemplates), в том же списке
+    const tpls = actor.getFlag(SYSTEM_ID, "boneTemplates") ?? [];
+    const pick = await ask(p.name, [["shape", t("BoneShape")], ["weapon", t("BoneWeapon")], ["claws", t("BoneClaws")], ["spikes", t("BoneSpikes")],
+      ...tpls.map((c, i) => [`tpl:${i}`, t("BoneTpl", { name: c.name })]), ["custom", t("BoneCustom")]]);
+    if (!pick) return null;
+    const preset = pick.startsWith("tpl:") ? tpls[Number(pick.slice(4))] ?? null : null;
+    const mode = preset ? "custom" : pick;
+    if (mode === "custom") {
+      // своя работа: что вылепить, сложность, цена ранами, оружие, прочность — по решению рассказчика
+      const who = target ?? actor;
+      const c = await (await import("./bone-work.mjs")).boneWorkDialog(p.name, who, { preset });
+      if (!c) return null;
+      if (c.deleteTemplate) {
+        await actor.setFlag(SYSTEM_ID, "boneTemplates", tpls.filter(x => x.name !== c.deleteTemplate));
+        ui.notifications.info(t("BoneTplDeleted", { name: c.deleteTemplate }));
+        return null;
+      }
+      if (c.save) {
+        const { save, ...keep } = c;
+        await actor.setFlag(SYSTEM_ID, "boneTemplates", [...tpls.filter(x => x.name !== c.name && x.name !== preset?.name), keep]);
+        ui.notifications.info(t("BoneTplSaved", { name: c.name }));
+      }
+      roll = { ...roll, difficulty: c.diff, note: t("BoneC.RollNote", { name: who.name, what: c.name }) };
+      opts.power = { ...opts.power, noHit: true };
+      opts.subtitle = `→ ${who.name} · ${subtitle}`;
+      opts.more = { targetPower: { key, target: who.uuid, targetName: who.name, powerName: p.name, actorName: actor.name, bone: "custom", custom: c } };
+    } else if (mode === "weapon") {
       if (!target) { ui.notifications.warn(t("NeedTarget")); return null; }
       roll = { ...roll, difficulty: 7, note: t("BoneWeaponNote") };
       opts.more = null;
@@ -647,10 +697,10 @@ export async function rollTargetPower(actor, disc, d, p, tp, { rollFromSpec, sub
       // шипы, провал: смертный умирает, вампир уходит в торпор
       if (mode === "spikes") opts.onRolled = async res => {
         if (res?.outcome !== "botch") return;
-        if (!who.isOwner) return notice(who, p.name, t("BoneSpikesBotch"));
-        if (who.isVampire) { if (!who.statuses?.has("r-torpor")) await who.toggleStatusEffect("r-torpor", { active: true }); }
-        else await who.applyDamage(8, "lethal");
-        return notice(who, p.name, t("BoneSpikesBotch"));
+        return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }),
+          flags: { [SYSTEM_ID]: { targetApply: { key, target: who.uuid, targetName: who.name, powerName: p.name, actorName: actor.name, bone: "botch", actorUuid: actor.uuid } } },
+          content: `<div class="r-notice"><i class="fa-solid fa-bone"></i> <b>${esc(p.name)}</b> → ${esc(who.name)}: ${esc(t("BoneSpikesBotch"))}
+            <div class="r-card-buttons"><button type="button" data-r-action="targetApply"><i class="fa-solid fa-skull"></i> ${esc(t("BoneBotchApply", { name: who.name }))}</button></div></div>` });
       };
     }
   }
