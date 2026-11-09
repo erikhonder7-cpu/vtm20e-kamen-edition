@@ -163,7 +163,6 @@ export const POWER_EFFECTS = {
   // Валерен 4, Броня гнева Каинова: ложится броском (+броня по успехам, до 5) — apps/target-powers.mjs, caine
   "valeren:Броня гнева Каинова": { mode: "scene", icon: "fa-shield", viaRoll: true },
   "valeren:Блаженная агония": { mode: "scene", icon: "fa-hand-holding-medical", cost: { blood: 1 } },
-  "daimoinon:Низменный страх": { mode: "scene", icon: "fa-ghost" },
   "melpominee:Незримый собеседник": { mode: "scene", icon: "fa-comment-dots", cost: { blood: 1 } },
   "ogham:Иссушение Земли": { mode: "scene", icon: "fa-seedling", cost: { blood: 1 } },
   "ogham:Начертание забытых имён": { mode: "scene", icon: "fa-scroll" },

@@ -53,7 +53,7 @@ export function tormentOdds(pool, difficulty, torment, n = 4000) {
   return hit / n;
 }
 
-export function evaluate(values, { difficulty = 6, specialty = false, willpower = false, extraNeeded = 0, noBotch = false, auto = 0 } = {}) {
+export function evaluate(values, { difficulty = 6, specialty = false, willpower = false, extraNeeded = 0, noBotch = false, auto = 0, cursed = false } = {}) {
   const diff = Math.clamp(difficulty, 2, 10);
   const hits = values.filter(v => v >= diff).length;
   const tens = values.filter(v => v === 10).length;
@@ -65,6 +65,8 @@ export function evaluate(values, { difficulty = 6, specialty = false, willpower 
   let outcome;
   if (net > 0) outcome = "success";
   else if (!noBotch && hits === 0 && ones > 0 && !willpower && !auto) outcome = "botch";
+  // Проклятие (Демонион 5, тяжесть 5): любая неудача — провал
+  else if (cursed && !noBotch) outcome = "botch";
   else outcome = "failure";
   const degree = outcome === "success" ? VTM20.successDegrees[Math.min(net, 5)] : null;
   return { successes: net, raw, ones, hits, tens, outcome, degree, difficulty: diff };
@@ -168,6 +170,7 @@ export async function rollPool(o) {
     difficulty: diff, extraNeeded, specialty: !!o.specialty, specialtyName: o.specialtyName ?? "",
     willpower: !!o.willpower, breakdown: o.breakdown ?? [], kind: o.kind ?? "check",
     noBotch: !!o.noBotch, auto: Math.max(0, o.auto ?? 0), actorUuid: o.actor?.uuid ?? null, extra: o.extra ?? {}, notes: o.notes ?? [],
+    cursed: !!o.actor?.effects?.some(e => !e.disabled && e.flags?.[SYSTEM_ID]?.curseBotch),
     effect: o.effect ?? ""
   };
   // Призыв демона: эффект высокой Муки — по отдельной кости (рус. основная книга, гл. 7) или по большинству успехов (errata Demon Players Guide)

@@ -5618,7 +5618,8 @@
         "month": "for a month",
         "3months": "for three months",
         "year": "for a year",
-        "forever": "permanently (restored only with experience)"
+        "forever": "permanently (restored only with experience)",
+        "10years": "for ten years"
       },
       "NeedTarget": "Target someone (T): this power needs a target",
       "NotKindred": "“{name}” is Kindred: this power does not affect vampires",
@@ -6107,7 +6108,59 @@
       "FlowNeedMeld": "Moving within stone is only possible after Bond with the Mountain.",
       "FlowWallNote": "Each success — 30 cm of stone or concrete. Not enough — stuck in the wall until carved out or the power is used again.",
       "FlowWallDone": "Passes through stone: up to {cm} cm.",
-      "FlowWallFail": "The stone does not yield."
+      "FlowWallFail": "The stone does not yield.",
+      "SinT1": "1 success: weak Willpower, low Virtue or another exploitable weakness",
+      "SinT2": "2 successes: a carefully hidden secret or a secret vice",
+      "SinT3": "3 successes: a central derangement or a deep past trauma",
+      "VoidApply": "Fear on {name}",
+      "VoidNote": "You must know the victim's dark secrets and talk to them. 1 success — fear, 2 — blind panic (like Rötschreck), 3+ — unconsciousness; until the end of the scene. Kindred resist with Courage vs. the Baali's Willpower.",
+      "VoidResist": "Resisting Fear of the Void Below: Courage",
+      "VoidResisted": "The fear does not take hold: Courage is stronger.",
+      "VoidName": {
+        "1": "Fear of the Void Below",
+        "2": "Fear of the Void Below: panic",
+        "3": "Fear of the Void Below: unconscious"
+      },
+      "VoidDesc": {
+        "1": "Gripped by fear until the end of the scene.",
+        "2": "Blind panic, like Rötschreck, until the end of the scene.",
+        "3": "Loses consciousness until the end of the scene."
+      },
+      "ConflagApply": "Flame at {name}",
+      "ConflagPick": "{n} blood — {n} aggravated on a hit",
+      "ConflagNote": "A to-hit roll with black flame; the target may dodge as from a normal attack. On a hit — {n} aggravated (as fire). Not sustained with blood — it goes out next turn.",
+      "PsychoNoteV": "You must know the victim's dark secrets. The Baali does not roll: the victim checks their lowest Virtue (diff. 6).",
+      "PsychoRoll": "Virtue check: {name}",
+      "PsychoVirtue": "Psychomachia: {v}",
+      "PsychoOk": "Stood firm: the nightmare did not appear.",
+      "PsychoFoe": "Psychomachia: nightmare foe",
+      "PsychoFail": "A nightmare foe confronts the victim (stats — the Storyteller's); damage is illusory. It vanishes when the victim wins or the Baali is distracted.",
+      "PsychoBotch": "Botch: the victim succumbs to fear — bloodthirsty or panicked frenzy, or submission to inner demons.",
+      "CondemnApply": "Curse on {name}",
+      "CondemnSplit": "{s} · {d}",
+      "CondemnSev": {
+        "1": "Subterfuge +3 difficulty",
+        "2": "Strength +2 difficulty",
+        "3": "friends distrust",
+        "4": "barrenness",
+        "5": "every failure is a botch"
+      },
+      "CondemnDur": {
+        "0": "until the end of the night",
+        "1": "for a week",
+        "2": "for a month",
+        "3": "for a year",
+        "4": "for ten years",
+        "5": "forever"
+      },
+      "CondemnName": "Condemnation: {s}",
+      "CondemnDesc": {
+        "1": "All Subterfuge rolls — +3 difficulty.",
+        "2": "All Strength rolls — +2 difficulty; a vampire cannot raise Strength with blood.",
+        "3": "Friends stop trusting: social difficulty, quarrels, others' frenzy — at the Storyteller's call.",
+        "4": "Barrenness: the vampire cannot Embrace or make ghouls.",
+        "5": "Every failure counts as a botch."
+      }
     },
     "Ghoul": {
       "Retainer": "Retainer, not a PC",

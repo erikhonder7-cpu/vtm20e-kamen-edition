@@ -2489,6 +2489,72 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  // Демонион через HUD: Запах греха (4 + Самоконтроль), Низменный страх (сопротивление Сородича), Всесожжение (губительные огнём),
+  // Психомахия (бросок жертвы), Проклятие (тяжесть и срок; Хитрость +3; любая неудача — провал)
+  await check("Демонион через HUD", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), sys = p => import(`/systems/${sid}/${p}`);
+      const TP = await sys("module/apps/target-powers.mjs"), RD = await sys("module/dice/dialog.mjs"), R = await sys("module/dice/roll.mjs");
+      const mk = (name, type, system = {}) => Actor.create({ name, type, flags: { world: { e2e: true } }, system });
+      const a = await mk("E2E — баали", "vampire", { generation: 9, blood: { value: 15 }, willpower: { permanent: 7, temporary: 7 } });
+      const m = await mk("E2E — грешник", "mortal", { willpower: { permanent: 4, temporary: 4 }, virtues: { selfControl: { value: 2 }, courage: { value: 3 } } });
+      await a.createEmbeddedDocuments("Item", [{ name: "E2E — daimoinon", type: "discipline", system: { key: "daimoinon", value: 5 } }]);
+      const scene = game.scenes.viewed ?? game.scenes.contents[0];
+      const made = await scene.createEmbeddedDocuments("Token", await Promise.all([a, m].map((x, i) => x.getTokenDocument({ x: 100 + i * 200, y: 3500 }))));
+      const tok = x => made.find(tk => tk.actorId === x.id);
+      for (let i = 0; i < 30 && !canvas.tokens.get(tok(m).id); i++) await wait(100);
+      await wait(400);
+      const inst = () => [...foundry.applications.instances.values()];
+      const dialogs = () => inst().filter(x => x instanceof foundry.applications.api.DialogV2);
+      const closeAll = async () => { for (const x of inst()) if (x.constructor.name === "RollDialog" || x instanceof foundry.applications.api.DialogV2) await x.close(); };
+      const pick = async val => { const d = dialogs().at(-1); const s = d?.element.querySelector("select"); if (s) s.value = val;
+        d?.element.querySelector('button[data-action="ok"]')?.click(); await wait(500); };
+      const hud = async re => { await closeAll(); document.querySelector('#r-hud [data-act="tab"][data-tab="powers"]')?.click(); await wait(300);
+        document.querySelector('#r-hud [data-act="pop"][data-pop*="daimoinon"]')?.click(); await wait(400);
+        [...document.querySelectorAll('#r-hud .rh-pop-row[data-act="power"]')].find(x => re.test(x.textContent))?.click(); await wait(700); };
+      const rollDlg = () => inst().find(x => x.constructor.name === "RollDialog");
+      const mt = () => canvas.tokens.get(tok(m).id).actor;
+      canvas.tokens.get(tok(a).id)?.control({ releaseOthers: true }); await wait(600);
+      canvas.tokens.get(tok(m).id)?.setTarget(true, { releaseOthers: true }); await wait(300);
+      const out = {};
+      await hud(/Запах греха/);
+      out.sin = rollDlg()?.values.difficulty;
+      await hud(/Низменный страх/);
+      let rd = rollDlg();
+      out.voidDiff = rd?.values.difficulty;
+      await TP.applyTargetPower({ isOwner: false }, { actorUuid: a.uuid, extra: rd?.cfg.extra }, { successes: 2, outcome: "success" });
+      out.void = mt().statuses.has("r-rotschreck");
+      await hud(/Всесожжение/); await pick("2");
+      rd = rollDlg();
+      out.conflag = [rd?.cfg.bloodCost, rd?.values.difficulty];
+      const n0 = game.messages.size;
+      await TP.applyTargetPower({ isOwner: false }, { actorUuid: a.uuid, extra: rd?.cfg.extra }, { successes: 1, outcome: "success" });
+      const fd = game.messages.contents.slice(n0).find(x => x.getFlag(sid, "fixedDamage"))?.getFlag(sid, "fixedDamage");
+      out.conflag.push(fd?.amount, fd?.type, !!fd?.fire);
+      const n1 = game.messages.size;
+      await hud(/Психомахия/);
+      const pcard = game.messages.contents.slice(n1).find(x => x.getFlag(sid, "targetApply"));
+      out.psycho = [!!pcard, !rollDlg()];
+      await hud(/Проклятие/);
+      rd = rollDlg();
+      out.condemnDiff = rd?.values.difficulty;
+      const ap = TP.applyTargetPower({ isOwner: false }, { actorUuid: a.uuid, extra: rd?.cfg.extra }, { successes: 2, outcome: "success" });
+      await wait(500); await pick("1"); await ap;
+      const sub = new RD.RollDialog(mt(), { trait1: "attributes.manipulation", trait2: "abilities.subterfuge" }).compute().diffAuto;
+      out.condemn = [sub.some(d => d.value === 3), !!mt().effects.find(e => e.flags?.[sid]?.diffTraits)?.flags[sid].until];
+      out.cursed = R.evaluate([2, 3, 4], { difficulty: 6, cursed: true }).outcome;
+      await closeAll();
+      [...game.user.targets].forEach(x => x.setTarget(false, { releaseOthers: false }));
+      canvas.tokens.releaseAll(); await wait(600);
+      await scene.deleteEmbeddedDocuments("Token", made.map(x => x.id));
+      await Actor.deleteDocuments([a.id, m.id]);
+      return out;
+    });
+    const want = { sin: 6, voidDiff: 7, void: true, conflag: [2, 6, 2, "aggravated", true], psycho: [true, true], condemnDiff: 4, condemn: [true, true], cursed: "botch" };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   // Помешательство через HUD: Око хаоса — сложность по задаче, Голос безумия — смертный сразу, вампир — проверка +2;
   // Метаморфозы: в облике тумана силы со взглядом недоступны
   await check("Помешательство через HUD и туман без взгляда", async () => {

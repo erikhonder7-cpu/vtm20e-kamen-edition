@@ -68,6 +68,14 @@ export const TARGET_POWERS = {
   "valeren|Sense Vitality": { kind: "vitality", allowSelf: true },
   // Висцератика 5: после Слияния — 2 крови до конца сцены; сквозь стену — Сила + Мощь (сл. 8), 1 кровь, 30 см за успех
   "visceratika|Flow Within the Mountain": { kind: "flow" },
+  // Демонион: Запах греха (4 + Самоконтроль; тайны по успехам), Низменный страх (4 + Смелость; страх, паника, обморок;
+  // Сородич — Смелость против Воли баали), Всесожжение (кровь — губительные огнём), Психомахия (бросок жертвы: низшая
+  // Добродетель, сл. 6), Проклятие (Воля цели; успехи — тяжесть и срок)
+  "daimoinon|Sense the Sin": { kind: "sin", needTarget: true, diff: ["selfControl"], diffPlus: 4 },
+  "daimoinon|Fear of the Void Below": { kind: "void", needTarget: true, diff: ["courage"], diffPlus: 4 },
+  "daimoinon|Conflagration": { kind: "conflag", needTarget: true },
+  "daimoinon|Psychomachia": { kind: "psychomachia", needTarget: true },
+  "daimoinon|Condemnation": { kind: "condemn", needTarget: true, diff: ["willpower"] },
   "valeren|Anesthetic Touch": { kind: "anest", allowSelf: true },
   "valeren|Burning Touch": { kind: "burn", needTarget: true },
   "valeren|Armor of Caine's Fury": { kind: "caine" },
@@ -196,7 +204,7 @@ export function prepareTargetPower(actor, disc, p, tp, skip = new Set()) {
     && (b = block("domGeneration", t("DomGeneration", { name: target.name })))) return b;
   const parts = tp.diff.map(k => traitOf(target, k));
   if (parts.some(v => v == null)) return { difficulty: null, note: t("NoTrait", { name: target.name, what: label }), target };
-  let raw = parts.reduce((s, v) => s + Number(v), 0);
+  let raw = parts.reduce((s, v) => s + Number(v), 0) + (tp.diffPlus ?? 0);
   const notes = [t("DiffFrom", { name: target.name, what: label, n: raw })];
   const slave = tp.dominate && target.effects.find(e => !e.disabled && e.flags?.[SYSTEM_ID]?.conditioned && !sameActor(e.flags[SYSTEM_ID].conditioned, actor));
   if (slave) { raw += 2; notes.push(t("CondOther")); }
@@ -219,6 +227,7 @@ function untilOf(code, now, { MS_HOUR, MS_DAY, nextSunrise }) {
     case "month": return now + 30 * MS_DAY;
     case "3months": return now + 90 * MS_DAY;
     case "year": return now + 365 * MS_DAY;
+    case "10years": return now + 3650 * MS_DAY;
   }
   return null;
 }
@@ -232,13 +241,13 @@ export function tierText(tp, successes) {
 /** Подпись кнопки «наложить» на карточке (только у сил с эффектом на цели). */
 export function targetPowerLabel(extra, ev) {
   const tp = extra?.targetPower && TARGET_POWERS[extra.targetPower.key];
-  if (!tp || ev.outcome !== "success" || extra.targetPower.done || !(tp.timed || tp.dread || tp.kind) || ["taste", "gather", "aura", "visage", "whisper", "info", "tiers", "counter", "chaos", "tele", "psycho", "illusion", "absorb", "humanitas", "pillar", "vitality", "caine", "flow"].includes(tp.kind)) return "";
+  if (!tp || ev.outcome !== "success" || extra.targetPower.done || !(tp.timed || tp.dread || tp.kind) || ["taste", "gather", "aura", "visage", "whisper", "info", "tiers", "counter", "chaos", "tele", "psycho", "illusion", "absorb", "humanitas", "pillar", "vitality", "caine", "flow", "sin"].includes(tp.kind)) return "";
   // Усмирение — только когда накоплены все успехи продолжительного броска
   if (tp.kind === "quell" && !((extra.extended?.prev ?? 0) + ev.successes >= (extra.extended?.need ?? Infinity))) return "";
   const lbl = { beast: "BeastApply", poison: "PoisonApply", shroud: "ShroudApply", arms: "ArmsApply", vanish: "VanishApply",
     rage: "RageApply", potency: "PotencyApply", theft: "TheftApply", possess: "PossessApply", project: "ProjectApply", awe: "AweApply", call: "CallApply",
     mesmerize: "MesApply", forget: "ForgApply", condition: "CondApply", voice: "VoiceApply",
-    flesh: "FleshApply", bone: "BoneApply", dagon: "DagonApply", nightmare: "NightApply", ward: "WardApply", riddle: "RiddleApply", paradox: "ParadoxApply", anest: "AnestApply", beckon: "BeckonApply", subsume: "SubsumeApply", self: "SelfApply", summon: "SummonApply", comrades: "ComradesApply", conjure: "ConjureApply" }[tp.kind] ?? "Apply";
+    flesh: "FleshApply", bone: "BoneApply", dagon: "DagonApply", nightmare: "NightApply", ward: "WardApply", riddle: "RiddleApply", paradox: "ParadoxApply", anest: "AnestApply", void: "VoidApply", conflag: "ConflagApply", condemn: "CondemnApply", beckon: "BeckonApply", subsume: "SubsumeApply", self: "SelfApply", summon: "SummonApply", comrades: "ComradesApply", conjure: "ConjureApply" }[tp.kind] ?? "Apply";
   return t(lbl, { name: extra.targetPower.targetName, n: ev.successes });
 }
 
@@ -461,6 +470,56 @@ export async function applyTargetPower(message, state, ev) {
       description: `<p>${esc(t("PainDesc"))}</p>`, flags: { [SYSTEM_ID]: { ...flags, mode: "scene", painless: net } } }]);
     return notice(target, x.powerName, t("PainName", { n: net }));
   }
+  if (tp.kind === "void") {
+    // Сородич сопротивляется Смелостью (сл. — Воля баали): больше успехов — не действует
+    const self = state.actorUuid ? await foundry.utils.fromUuid(state.actorUuid) : null;
+    await done(message, state, x);
+    if (target.isVampire) {
+      const { rollPool } = await import("../dice/roll.mjs");
+      const res = await rollPool({ actor: target, title: t("VoidResist"), pool: target.system.virtues?.courage?.value ?? 0,
+        difficulty: Math.clamp(self?.system.willpower?.temporary ?? 6, 2, 10), kind: "check", noBotch: true });
+      if ((res?.successes ?? 0) > n) return notice(target, x.powerName, t("VoidResisted"));
+    }
+    const tier = Math.min(3, n);
+    await target.createEmbeddedDocuments("ActiveEffect", [{ name: t(`VoidName.${tier}`), img: Codex.disciplineIcon("daimoinon"),
+      ...(tier >= 2 ? { statuses: [tier === 2 ? "r-rotschreck" : "r-held"] } : {}), description: `<p>${esc(t(`VoidDesc.${tier}`))}</p>`,
+      flags: { [SYSTEM_ID]: { ...flags, mode: "scene" } } }]);
+    return notice(target, x.powerName, t(`VoidDesc.${tier}`));
+  }
+  if (tp.kind === "conflag") {
+    // чёрное пламя: губительные по крови, как огонь (Ротшрек — как от огня того же размера); цель может уклониться
+    await done(message, state, x);
+    const self = state.actorUuid ? await foundry.utils.fromUuid(state.actorUuid) : null;
+    const { postFixedDamage } = await import("../data/combat-powers.mjs");
+    return postFixedDamage(self, target, { amount: x.conflag ?? 1, type: "aggravated", soakDiff: 6, fire: true, title: x.powerName });
+  }
+  if (tp.kind === "psychomachia") {
+    // жертва: низшая Добродетель, сл. 6; неудача — кошмарный противник, провал — поддаётся страху
+    const v = target.system.virtues ?? {};
+    const low = Object.entries(v).filter(([, x]) => Number.isFinite(x?.value)).sort((a, b) => a[1].value - b[1].value)[0];
+    const { rollPool } = await import("../dice/roll.mjs");
+    const res = await rollPool({ actor: target, title: t("PsychoVirtue", { v: low ? game.i18n.localize(`VTM20.Virtue.${low[0]}`) : "—" }), pool: low?.[1].value ?? 1, difficulty: 6, kind: "check" });
+    await done(message, state, x);
+    const out = res?.outcome === "botch" ? "botch" : (res?.successes ?? 0) > 0 ? "ok" : "fail";
+    if (out === "ok") return notice(target, x.powerName, t("PsychoOk"));
+    await target.createEmbeddedDocuments("ActiveEffect", [{ name: t("PsychoFoe"), img: Codex.disciplineIcon("daimoinon"),
+      description: `<p>${esc(t(out === "botch" ? "PsychoBotch" : "PsychoFail"))}</p>`, flags: { [SYSTEM_ID]: { ...flags, mode: "scene" } } }]);
+    return notice(target, x.powerName, t(out === "botch" ? "PsychoBotch" : "PsychoFail"));
+  }
+  if (tp.kind === "condemn") {
+    // успехи — тяжесть (1–5) и срок (0 — ночь … 5 — навсегда)
+    const sev = Number(await ask(x.powerName, Array.from({ length: Math.min(5, n) }, (_, i) => [String(i + 1),
+      t("CondemnSplit", { s: t(`CondemnSev.${i + 1}`), d: t(`CondemnDur.${Math.min(5, n - i - 1)}`) })])));
+    if (!sev) return;
+    const dur = Math.min(5, n - sev), code = ["night", "week", "month", "year", "10years", "forever"][dur];
+    const until = code === "forever" ? null : untilOf(code, now, api);
+    await done(message, state, x);
+    const extra = sev === 1 ? { diffTraits: [["abilities.subterfuge", 3]] } : sev === 2 ? { diffTraits: [["attributes.strength", 2]] } : sev === 5 ? { curseBotch: true } : {};
+    await target.createEmbeddedDocuments("ActiveEffect", [{ name: t("CondemnName", { s: t(`CondemnSev.${sev}`) }), img: Codex.disciplineIcon("daimoinon"),
+      description: `<p>${esc(t(`CondemnDesc.${sev}`))} ${esc(t(`CondemnDur.${dur}`))}</p>`,
+      flags: { [SYSTEM_ID]: { ...flags, ...extra, mode: until ? "timed" : "manual", ...(until ? { until } : {}) } } }]);
+    return notice(target, x.powerName, `${t(`CondemnDesc.${sev}`)} ${t(`CondemnDur.${dur}`)}`);
+  }
   if (tp.kind === "paradox") {
     // Парадокс: слушатели оцепеневают до конца сцены (атака — снимает); навсегда +1 к сложности вредить этому вампиру
     await done(message, state, x);
@@ -662,6 +721,12 @@ export async function rollTargetPower(actor, disc, d, p, tp, { rollFromSpec, sub
   // Тайное собрание: без броска — действующее Сокрытие ложится на отмеченных спутников
   if (tp.kind === "gather") return cloakGathering(actor, p);
   if (tp.kind === "burn") return burningTouch(actor, p, target);
+  if (tp.kind === "psychomachia") {
+    // броска баали нет: жертва проверяет низшую Добродетель (сл. 6) — кнопка на карточке
+    return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), flags: { [SYSTEM_ID]: { targetApply: { ...link, actorUuid: actor.uuid } } },
+      content: `<div class="r-notice"><i class="fa-solid fa-masks-theater"></i> <b>${esc(p.name)}</b> → ${esc(target.name)}: ${esc(t("PsychoNoteV"))}
+        <div class="r-card-buttons"><button type="button" data-r-action="targetApply"><i class="fa-solid fa-dice-d10"></i> ${esc(t("PsychoRoll", { name: target.name }))}</button></div></div>` });
+  }
   if (tp.kind === "samiel") {
     // 3 крови — следующая атака ближнего боя: все кубы — успехи, уклониться нельзя
     if (!(await actor.spendBlood(3, { reason: p.name }))) return null;
@@ -763,6 +828,23 @@ export async function rollTargetPower(actor, disc, d, p, tp, { rollFromSpec, sub
     if (how === "read" && target && supernatural(target) && !(await actor.spendWillpower(1))) return null;
     opts.more = null;
     roll.note = [roll.note, t(how === "read" ? (target && supernatural(target) ? "TeleReadSuper" : "TeleReadNote") : "TeleSendNote")].filter(Boolean).join(" ");
+  }
+  if (tp.kind === "sin") opts.onRolled = res => {
+    const n = res?.successes ?? 0;
+    if (n < 1) return;
+    const lines = [t("SinT1"), n >= 2 && t("SinT2"), n >= 3 && t("SinT3")].filter(Boolean);
+    return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), whisper: [game.user.id, ...game.users.filter(u => u.isGM).map(u => u.id)],
+      content: `<div class="r-notice"><i class="fa-solid fa-eye"></i> <b>${esc(p.name)}</b> → ${esc(target.name)}<ul>${lines.map(l => `<li>${esc(l)}</li>`).join("")}</ul></div>` });
+  };
+  if (tp.kind === "void") roll.note = [roll.note, t("VoidNote")].filter(Boolean).join(" ");
+  if (tp.kind === "conflag") {
+    // сколько крови в пламя: столько губительных при попадании
+    const max = Math.min(actor.system.blood?.value ?? 0, Math.max(1, (actor.system.blood?.perTurn ?? 1) - (actor.bloodSpentThisTurn ?? 0)));
+    if (max < 1) return ui.notifications.warn(game.i18n.format("VTM20.Notify.NoBlood", { name: actor.name }));
+    const b = Number(await ask(p.name, Array.from({ length: max }, (_, i) => [String(i + 1), t("ConflagPick", { n: i + 1 })])));
+    if (!b) return null;
+    roll = { ...roll, blood: b, difficulty: 6, note: t("ConflagNote", { n: b }) };
+    opts.more = { targetPower: { ...link, conflag: b } };
   }
   if (tp.kind === "flow") {
     const how = await ask(p.name, [["stone", t("FlowStone")], ["wall", t("FlowWall")]]);
@@ -1487,12 +1569,14 @@ export const centered = actor => [...(actor?.effects ?? [])].some(e => !e.disabl
 export const pathFlag = (actor, k) => [...(actor?.effects ?? [])].some(e => !e.disabled && e.flags?.[SYSTEM_ID]?.[k]);
 
 /** Сложность от эффектов путей: к физическим, ко всем, к социальным, к Ловкости. */
-export function mindDiff(actor, { physical = false, social = false, dex = false } = {}) {
+export function mindDiff(actor, { physical = false, social = false, dex = false, traits = [] } = {}) {
   const out = [];
   for (const e of actor?.effects ?? []) {
     const f = !e.disabled && e.flags?.[SYSTEM_ID];
     if (!f) continue;
-    const v = Number(f.diffAll || 0) + (physical ? Number(f.diffPhys || 0) : 0) + (social ? Number(f.diffSocial || 0) : 0) + (dex ? Number(f.diffDex || 0) : 0);
+    // diffTraits: [["abilities.subterfuge", 3]] — к броскам с этой чертой (Проклятие Демониона); списком — ключи с точкой флаги разворачивают
+    const byTrait = (Array.isArray(f.diffTraits) ? f.diffTraits : []).reduce((s, [k, n]) => s + (traits.includes(k) ? Number(n) || 0 : 0), 0);
+    const v = byTrait + Number(f.diffAll || 0) + (physical ? Number(f.diffPhys || 0) : 0) + (social ? Number(f.diffSocial || 0) : 0) + (dex ? Number(f.diffDex || 0) : 0);
     if (v) out.push({ label: e.name, value: v });
   }
   return out;

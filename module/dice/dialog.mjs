@@ -176,7 +176,7 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const formDiff = [v.trait1, v.trait2].flatMap(p => a.system.formFx?.diff?.[p?.split(".")[1]] ?? []);
     const physical = attrs.some(k => VTM20.attributeGroups.physical.attributes.includes(k));
     const diffAuto = [...(attrs.includes("perception") ? (fx.perception ?? []) : []), ...formDiff, ...sm.diff, ...frenzyDiff(a, this.cfg.kind),
-      ...mindDiff(a, { physical, social, dex: attrs.includes("dexterity") }),
+      ...mindDiff(a, { physical, social, dex: attrs.includes("dexterity"), traits: [v.trait1, v.trait2] }),
       // Обелиск Осириса: мистические проверки (силы Дисциплин, магия крови) −3
       ...((this.cfg.extra?.power || this.cfg.extra?.magic || ["magic", "ritual"].includes(this.cfg.kind)) ? a.system.fx?.mystic ?? [] : []),
       ...mm.auto.filter(m => m.diff).map(m => ({ label: m.label, value: m.diff }))];
