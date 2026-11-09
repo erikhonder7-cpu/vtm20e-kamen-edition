@@ -50,7 +50,7 @@
     <article class="r-fx-card {{#if disabled}}is-off{{/if}}">
       <header><img src="{{img}}" alt=""><b>{{name}}</b>
         {{#if @root.editable}}<a class="r-icon-btn" data-action="effectToggle" data-effect-id="{{id}}" data-tooltip="{{localize 'VTM20.FxTab.Toggle'}}"><i class="fa-solid {{#if disabled}}fa-toggle-off{{else}}fa-toggle-on{{/if}}"></i></a>
-        <a class="r-icon-btn is-danger" data-action="effectDelete" data-effect-id="{{id}}"><i class="fa-solid fa-trash"></i></a>{{/if}}</header>
+        <a class="r-icon-btn is-danger" data-action="effectDelete" data-effect-id="{{id}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-trash"></i></a>{{/if}}</header>
     </article>
     {{/each}}
   </div>

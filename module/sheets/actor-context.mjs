@@ -497,7 +497,8 @@ export function prepareAdvantages(sheet, ctx) {
   }));
   const mf = type => byType(type).map(i => ({
     id: i.id, name: i.name, en: Codex.enOf(i), cost: i.system.cost, html: i.system.description, open: sheet._open.has(i.id),
-    category: game.i18n.localize(VTM20.meritCategories[i.system.category]?.label ?? "")
+    category: game.i18n.localize(VTM20.meritCategories[i.system.category]?.label ?? ""),
+    catShort: VTM20.meritCategories[i.system.category] ? game.i18n.localize(`VTM20.MeritCatShort.${i.system.category}`) : ""
   }));
   ctx.merits = mf("merit");
   ctx.flaws = mf("flaw");

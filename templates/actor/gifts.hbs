@@ -134,7 +134,7 @@
   <ul class="r-edge-list r-ww-deforms">
     {{#each ww.deformities}}<li class="r-edge"><span class="r-edge-lvl"><i class="fa-solid fa-bone-break"></i></span>
       <span class="r-edge-main"><b>{{rName this}}</b> <small>{{rAlt this}}{{#if fx}} · {{localize "VTM20.Werewolf.DeformFx"}}{{/if}} · {{source}}</small><div class="r-edge-text">{{{text}}}</div></span>
-      {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="wwDeformDel" data-key="{{key}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}</li>
+      {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="wwDeformDel" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}</li>
     {{else}}<li class="r-note {{#if ww.needDeform}}is-warn{{/if}}">{{localize "VTM20.Werewolf.NoDeformities"}}</li>{{/each}}
   </ul>
   {{#if editable}}<div class="r-toolbar r-ww-add"><select class="r-ww-deform-add"><option value="">{{localize "VTM20.Werewolf.AddDeformity"}}</option>{{#each ww.deformAvail}}<option value="{{key}}">{{label}}</option>{{/each}}</select>
@@ -145,7 +145,7 @@
   <ul class="r-edge-list r-ww-scars">
     {{#each ww.scars}}<li class="r-edge"><span class="r-edge-lvl"><i class="fa-solid fa-bandage"></i></span>
       <span class="r-edge-main"><b>{{name}}</b> <small>+{{glory}} {{localize "VTM20.Werewolf.RenownShort.glory"}}</small><div class="r-edge-text">{{{effect}}}</div></span>
-      {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="wwScarDel" data-i="{{i}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}</li>
+      {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="wwScarDel" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}</li>
     {{else}}<li class="r-note">{{localize "VTM20.Werewolf.NoScars"}}</li>{{/each}}
   </ul>
   {{#if editable}}<div class="r-toolbar r-ww-add"><select class="r-ww-scar-add"><option value="">{{localize "VTM20.Werewolf.AddScar"}}</option>{{#each ww.scarAvail}}<option value="{{key}}">{{label}}</option>{{/each}}</select>

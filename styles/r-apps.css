@@ -170,9 +170,15 @@
 .vtm20 .r-cr-prio:first-child { border-left: 0; }
 /* узкий столбец мастера (окно уже ~1240): точки уходят под название, у приоритета — только число */
 .vtm20 .r-cr .r-tcol { container: rcol / inline-size; }
-.vtm20 .r-cr .r-tcol .r-trait-main { flex-wrap: wrap; row-gap: 2px; }
+/* длинное название переносится само, точки остаются справа в той же строке; совсем узко — точки под названием */
+.vtm20 .r-cr .r-tcol .r-trait-main { flex-wrap: nowrap; row-gap: 2px; }
+.vtm20 .r-cr .r-tcol .r-trait-main > .r-trait-label,
+.vtm20 .r-cr-free .r-trait-main > .r-trait-label { min-width: 0; line-height: 1.15; white-space: normal; overflow: visible; text-overflow: clip; }
+@container rcol (max-width: 200px) { .vtm20 .r-cr .r-tcol .r-trait-main { flex-wrap: wrap; } }
 .vtm20 .r-cr .r-tcol .r-trait-main .r-dots { margin-left: auto; }
 @container rcol (max-width: 230px) { .vtm20 .r-cr-prio > span { display: none; } }
+/* средний столбец: «Привлекательность» и точки помещаются в одну строку */
+@container rcol (max-width: 280px) { .vtm20 .r-cr .r-tcol .r-trait-label { font-size: 14px; } .vtm20 .r-cr .r-tcol .r-trait-main .r-leader { min-width: 0; } }
 .vtm20 .r-cr-prio b { font-family: var(--r-display); font-weight: 400; font-size: 13px; color: var(--r-ink-2); }
 .vtm20 .r-cr-prio:hover { color: var(--r-ink); }
 .vtm20 .r-cr-prio.is-active { color: #f1e9da; background: #8c1c22; }

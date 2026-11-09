@@ -13,7 +13,7 @@ const foundryGlobals = Object.fromEntries([
 ].map(k => [k, "readonly"]));
 
 export default [
-  { ignores: ["node_modules/**", "packs/**", "codex-1785/**", "books/**", "tools/sources/**", "tools/.cache/**", "**/*.min.js"] },
+  { ignores: ["node_modules/**", "packs/**", "codex-1785/**", "books/**", "tools/sources/**", "tools/.cache/**", "lib/**", "**/*.min.js"] },
   js.configs.recommended,
   {
     files: ["**/*.mjs", "**/*.js"],

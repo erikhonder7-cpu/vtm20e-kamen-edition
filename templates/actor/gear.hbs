@@ -29,8 +29,8 @@
         <span class="r-wpn-meta">{{localize "VTM20.Weapon.pool"}} <b>{{pool}}</b> · {{localize "VTM20.Weapon.diff"}} <b>{{difficulty}}</b>{{#if range}} · <b>{{range}}</b> {{localize "VTM20.Weapon.meters"}}{{#if rate}} · {{localize "VTM20.Weapon.rate"}} <b>{{rate}}</b>{{/if}}{{#if clip}} · {{localize "VTM20.Weapon.clip"}} <b>{{clip}}</b>{{/if}}{{/if}}</span>
         <span class="r-dmg-chip is-{{damageTypeKey}}" data-tooltip="{{localize 'VTM20.Weapon.damage'}}: {{damage}}">{{damageDice}} · {{damageType}}</span>
         <span class="r-td-tools">
-          <a class="r-icon-btn" data-action="itemChat"><i class="fa-solid fa-comment-dots"></i></a>
-          {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="itemDelete"><i class="fa-solid fa-trash"></i></a>{{/if}}
+          <a class="r-icon-btn" data-action="itemChat" data-tooltip="{{localize 'VTM20.Sheet.ToChat'}}"><i class="fa-solid fa-comment-dots"></i></a>
+          {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="itemDelete" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-trash"></i></a>{{/if}}
         </span>
       </div>
     </div>
@@ -46,7 +46,7 @@
   <div class="r-cols2">
     <div class="r-col">
       <h2 class="r-h2"><span>{{localize "VTM20.Sheet.Armor"}}</span>
-        {{#if editable}}<span class="r-h2-tools"><input type="text" class="r-h2-find is-short" data-preset="armor" data-combo="r-arm-{{actor.id}}" placeholder="{{localize 'VTM20.Sheet.PresetArmor'}}"></span>{{/if}}
+        {{#if editable}}<span class="r-h2-tools"><input type="text" class="r-h2-find is-short" data-preset="armor" data-combo="r-arm-{{actor.id}}" placeholder="{{localize 'VTM20.Sheet.PresetArmor'}}"><a class="r-h2-btn is-ghost" data-action="itemCreate" data-type="armor" data-tooltip="{{localize 'VTM20.Sheet.Own'}}"><i class="fa-solid fa-feather"></i></a></span>{{/if}}
       </h2>
       {{#each armors}}
       <div class="r-trait-main r-armor {{#unless equipped}}is-off{{/unless}}" data-item-id="{{id}}">
@@ -55,7 +55,7 @@
         <span class="r-leader"></span>
         <span class="r-tag">{{localize "VTM20.Armor.rating"}} {{rating}}</span>
         {{#if penalty}}<span class="r-tag is-red">−{{penalty}}</span>{{/if}}
-        {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="itemDelete"><i class="fa-solid fa-xmark"></i></a>{{/if}}
+        {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="itemDelete" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
       </div>
       {{else}}<div class="r-empty">{{localize "VTM20.Sheet.NoArmor"}}</div>
       {{/each}}
@@ -71,8 +71,8 @@
         <a class="r-trait-label" data-action="itemEdit">{{name}}</a>
         <span class="r-leader"></span>
         <input class="r-qty" type="number" value="{{quantity}}" min="0" data-item-id="{{id}}" data-item-field="system.quantity">
-        <a class="r-icon-btn" data-action="itemChat"><i class="fa-solid fa-comment-dots"></i></a>
-        {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="itemDelete"><i class="fa-solid fa-xmark"></i></a>{{/if}}
+        <a class="r-icon-btn" data-action="itemChat" data-tooltip="{{localize 'VTM20.Sheet.ToChat'}}"><i class="fa-solid fa-comment-dots"></i></a>
+        {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="itemDelete" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
       </div>
       {{else}}<div class="r-empty">{{localize "VTM20.Sheet.NoGear"}}</div>
       {{/each}}

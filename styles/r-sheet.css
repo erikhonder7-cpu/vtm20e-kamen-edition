@@ -533,6 +533,10 @@
 .vtm20 .r-bg .r-power-body, .vtm20 .r-mf-row .r-power-body { padding: 2px 4px 8px 6px; font-size: 13px; }
 /* достоинства, недостатки, Вложения: место — названию, ярлык категории сжимается первым */
 .vtm20 .r-mf-row .r-trait-main > .r-tag { display: inline-block; line-height: 15px; flex: 0 1000 auto; min-width: 34px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* категория достоинства: в узкой колонке — сокращение, полное название во всплывающей подсказке */
+.vtm20 .r-mf > .r-col { container-type: inline-size; }
+.vtm20 .r-mf-cat .is-short { display: none; }
+@container (max-width: 440px) { .vtm20 .r-mf-cat .is-full { display: none; } .vtm20 .r-mf-cat .is-short { display: inline; } }
 /* Цена достоинства / недостатка — квадратная печать: достоинства тёмным воском, недостатки — кровавым */
 .vtm20 .r-cost {
   flex: 0 0 auto; width: 22px; height: 20px; display: grid; place-items: center; border-radius: 2px;

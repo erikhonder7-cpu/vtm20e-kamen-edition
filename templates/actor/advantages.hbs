@@ -9,7 +9,7 @@
       <a class="r-weakness-title" data-action="toggleRow" data-row-id="weakness">{{#if weaknessLabel}}{{weaknessLabel}}{{else}}{{localize "VTM20.Sheet.Weakness"}}{{/if}} · {{weaknessTitle}}</a>
       {{#if system.weaknessNote}}<em class="r-weakness-note">{{system.weaknessNote}}</em>{{/if}}
       {{#if weaknessCheck}}<a class="r-chip" data-action="rollVirtue" data-kind="weakness"><i class="fa-solid fa-dice-d10"></i> {{weaknessCheck}}</a>{{/if}}
-      <a class="r-icon-btn r-chevron" data-action="toggleRow" data-row-id="weakness"><i class="fa-solid fa-chevron-down"></i></a>
+      <a class="r-icon-btn r-chevron" data-action="toggleRow" data-row-id="weakness" data-tooltip="{{localize 'VTM20.Sheet.Details'}}"><i class="fa-solid fa-chevron-down"></i></a>
     </div>
     <div class="r-weakness-text">{{{weakness}}}</div>
     <div class="r-weakness-foot">
@@ -28,8 +28,8 @@
         <a class="r-trait-label" data-action="toggleRow" data-row-id="{{id}}">{{rName this}}</a>
         <span class="r-leader"></span>
         {{> rDots dots=dots}}
-        <a class="r-icon-btn" data-action="itemEdit"><i class="fa-solid fa-pen-nib"></i></a>
-        {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="itemDelete"><i class="fa-solid fa-xmark"></i></a>{{/if}}
+        <a class="r-icon-btn" data-action="itemEdit" data-tooltip="{{localize 'VTM20.Sheet.Edit'}}"><i class="fa-solid fa-pen-nib"></i></a>
+        {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="itemDelete" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
       </div>
       <div class="r-power-body">{{{html}}}</div>
     </div>
@@ -55,8 +55,8 @@
         {{#if linked}}<a class="r-icon-btn" data-action="thrallOpen" data-tooltip="{{localize 'VTM20.Demon.ThrallOpen'}}"><i class="fa-solid fa-id-card"></i></a>{{/if}}
         <span class="r-leader"></span>
         <span class="r-thrall-stats"><span data-tooltip="{{localize 'VTM20.Demon.ThrallFaith'}}"><i class="fa-solid fa-fire-flame-curved"></i> {{faith}}<em>→{{share}}</em></span><span data-tooltip="{{localize 'VTM20.Demon.ThrallWill'}}"><i class="fa-solid fa-star"></i> {{will}}</span>{{#if wounds}}<span class="is-hurt" data-tooltip="{{localize 'VTM20.Demon.ThrallWounds'}}"><i class="fa-solid fa-droplet"></i> {{wounds}}</span>{{/if}}</span>
-        {{#if @root.editable}}<a class="r-icon-btn" data-action="thrallEdit"><i class="fa-solid fa-pen-nib"></i></a>
-        <a class="r-icon-btn is-danger" data-action="thrallDelete"><i class="fa-solid fa-xmark"></i></a>{{/if}}
+        {{#if @root.editable}}<a class="r-icon-btn" data-action="thrallEdit" data-tooltip="{{localize 'VTM20.Sheet.Edit'}}"><i class="fa-solid fa-pen-nib"></i></a>
+        <a class="r-icon-btn is-danger" data-action="thrallDelete" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
       </div>
       <div class="r-power-body">
         {{#if terms}}<p><b>{{localize "VTM20.Demon.ThrallTerms"}}:</b> {{terms}}</p>{{/if}}
@@ -79,9 +79,9 @@
           <span class="r-cost">{{cost}}</span>
           <a class="r-trait-label" data-action="toggleRow" data-row-id="{{id}}">{{rName this}}</a>
           <span class="r-leader"></span>
-          <span class="r-tag">{{category}}</span>
-          <a class="r-icon-btn" data-action="itemEdit"><i class="fa-solid fa-pen-nib"></i></a>
-          {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="itemDelete"><i class="fa-solid fa-xmark"></i></a>{{/if}}
+          {{#if category}}<span class="r-tag r-mf-cat" data-tooltip="{{category}}"><span class="is-full">{{category}}</span><span class="is-short">{{catShort}}</span></span>{{/if}}
+          <a class="r-icon-btn" data-action="itemEdit" data-tooltip="{{localize 'VTM20.Sheet.Edit'}}"><i class="fa-solid fa-pen-nib"></i></a>
+          {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="itemDelete" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
         </div>
         <div class="r-power-body">{{{html}}}</div>
       </div>
@@ -106,8 +106,8 @@
           {{#if rating}}<span class="r-tag">{{rating}}</span>{{/if}}
           {{#if cost}}<small class="r-muted">{{cost}}</small>{{/if}}
           {{#if @root.editable}}<a class="r-icon-btn" data-action="investmentUse" data-tooltip="{{localize 'VTM20.Infernal.Use'}}"><i class="fa-solid fa-hand-sparkles"></i></a>{{/if}}
-          <a class="r-icon-btn" data-action="itemEdit"><i class="fa-solid fa-pen-nib"></i></a>
-          {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="itemDelete"><i class="fa-solid fa-xmark"></i></a>{{/if}}
+          <a class="r-icon-btn" data-action="itemEdit" data-tooltip="{{localize 'VTM20.Sheet.Edit'}}"><i class="fa-solid fa-pen-nib"></i></a>
+          {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="itemDelete" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
         </div>
         <div class="r-power-body">{{#if pact}}<p class="r-note">{{localize "VTM20.Infernal.Demon"}}: {{pact}}{{#if deed}} · {{localize "VTM20.Infernal.Deed"}}: {{deed}}{{/if}}</p>{{/if}}{{{html}}}</div>
       </div>
@@ -124,8 +124,8 @@
           <b>{{demon}}</b> <small class="r-muted">{{formLabel}}</small>
           <span class="r-leader"></span>
           {{#if value}}<span class="r-tag {{#unless valueOk}}is-red{{/unless}}" data-tooltip="{{localize 'VTM20.Infernal.ValueHint'}}">{{value}}</span>{{/if}}
-          {{#if @root.editable}}<a class="r-icon-btn" data-action="pactEdit" data-index="{{i}}"><i class="fa-solid fa-pen-nib"></i></a>
-          <a class="r-icon-btn is-danger" data-action="pactDel" data-index="{{i}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
+          {{#if @root.editable}}<a class="r-icon-btn" data-action="pactEdit" data-index="{{i}}" data-tooltip="{{localize 'VTM20.Sheet.Edit'}}"><i class="fa-solid fa-pen-nib"></i></a>
+          <a class="r-icon-btn is-danger" data-action="pactDel" data-index="{{i}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
         </div>
         {{#if terms}}<p class="r-pact-line">{{localize "VTM20.Infernal.Terms"}}: {{terms}}</p>{{/if}}
         {{#if price}}<p class="r-pact-line">{{localize "VTM20.Infernal.Price"}}: {{price}}</p>{{/if}}
@@ -147,8 +147,8 @@
           <a class="r-trait-label" data-action="toggleRow" data-row-id="{{id}}">{{rName this}}</a>
           <span class="r-leader"></span>
           {{#if permanent}}<span class="r-tag is-red">{{localize "VTM20.Sheet.Permanent"}}</span>{{/if}}
-          <a class="r-icon-btn" data-action="itemEdit"><i class="fa-solid fa-pen-nib"></i></a>
-          {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="itemDelete"><i class="fa-solid fa-xmark"></i></a>{{/if}}
+          <a class="r-icon-btn" data-action="itemEdit" data-tooltip="{{localize 'VTM20.Sheet.Edit'}}"><i class="fa-solid fa-pen-nib"></i></a>
+          {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="itemDelete" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
         </div>
         <div class="r-power-body">{{{html}}}</div>
       </div>
@@ -172,7 +172,7 @@
         <a class="r-icon-btn" data-action="drinkBond" data-index="{{index}}" data-tooltip="{{localize 'VTM20.BondX.Drink'}} · {{tip}}"><i class="fa-solid fa-droplet"></i></a>
         <a class="r-icon-btn" data-action="resistBond" data-index="{{index}}" data-tooltip="{{localize 'VTM20.BondX.Resist'}}"><i class="fa-solid fa-hand-fist"></i></a>
         {{/if}}{{/if}}
-        <a class="r-icon-btn is-danger" data-action="removeBond" data-index="{{index}}"><i class="fa-solid fa-xmark"></i></a>
+        <a class="r-icon-btn is-danger" data-action="removeBond" data-index="{{index}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>
       </div>
       {{else}}<div class="r-empty">{{localize "VTM20.Bond.none"}}</div>
       {{/each}}
@@ -189,7 +189,7 @@
         {{> rDots dots=dots}}
         <b class="r-vinc-n">{{rating}}</b>
         <a class="r-icon-btn" data-action="vincConflict" data-index="{{index}}" data-tooltip="{{localize 'VTM20.Vinc.ConflictTip'}}"><i class="fa-solid fa-scale-unbalanced"></i></a>
-        {{#if ../editable}}<a class="r-icon-btn is-danger" data-action="removeVinc" data-index="{{index}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
+        {{#if ../editable}}<a class="r-icon-btn is-danger" data-action="removeVinc" data-index="{{index}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
       </div>
       {{else}}<div class="r-empty">{{localize "VTM20.Vinc.None"}}</div>
       {{/each}}
@@ -212,7 +212,7 @@
           <select name="system.boons.{{index}}.level" class="r-mini-select">{{#each levels}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
           {{#if @root.editable}}
           <a class="r-icon-btn {{#if done}}is-on{{/if}}" data-action="toggleBoon" data-index="{{index}}" data-tooltip="{{#if done}}{{localize 'VTM20.Boon.Reopen'}}{{else}}{{localize 'VTM20.Boon.Repay'}}{{/if}}"><i class="fa-solid {{#if done}}fa-rotate-left{{else}}fa-check{{/if}}"></i></a>
-          <a class="r-icon-btn is-danger" data-action="removeBoon" data-index="{{index}}"><i class="fa-solid fa-xmark"></i></a>
+          <a class="r-icon-btn is-danger" data-action="removeBoon" data-index="{{index}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>
           {{/if}}
         </div>
         <div class="r-boon-sub">

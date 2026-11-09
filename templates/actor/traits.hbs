@@ -50,7 +50,7 @@
           {{#if tip}}<i class="fa-solid fa-book-open r-abil-info" data-tooltip="{{tip}}"></i>{{/if}}
           {{#if (gte value 4)}}<i class="r-spec-mark" aria-hidden="true"></i><input class="r-spec" type="text" name="system.secondary.{{index}}.specialty" value="{{specialty}}" placeholder="{{localize 'VTM20.Sheet.Specialty'}}" spellcheck="false" data-tooltip="{{specialty}}">{{/if}}
           {{> rDots dots=dots}}
-          <a class="r-icon-btn is-danger" data-action="removeSecondary" data-index="{{index}}"><i class="fa-solid fa-xmark"></i></a>
+          <a class="r-icon-btn is-danger" data-action="removeSecondary" data-index="{{index}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>
         </div>
       </div>
       {{/each}}

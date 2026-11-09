@@ -1416,7 +1416,7 @@
       "NoDerangements": "No Derangements.",
       "NoArmor": "No armor.",
       "NoGear": "No items.",
-      "PresetWeapon": "Preset weapon — start typing a name…",
+      "PresetWeapon": "Preset weapon…",
       "PresetArmor": "Preset armor…",
       "PresetGear": "Preset gear…",
       "DuplicateItem": "The character already has “{name}”.",
@@ -1428,7 +1428,8 @@
       "ChooseDerangement": "— Derangement from the book —",
       "ChoiceOf": "choice of {n} powers",
       "PageShort": "p. {n}",
-      "AbyssMysticism": "Abyss Mysticism"
+      "AbyssMysticism": "Abyss Mysticism",
+      "Details": "Details"
     },
     "Roll": {
       "DiffChosen": "{n} chosen",
@@ -6518,6 +6519,16 @@
           "d": "A blood ring around the token whose turn it is; change it in the combat tracker settings."
         }
       }
+    },
+    "MeritCatShort": {
+      "physical": "Phys.",
+      "mental": "Ment.",
+      "social": "Soc.",
+      "supernatural": "Super.",
+      "clan": "Clan",
+      "infernal": "Infern.",
+      "legal": "Legal",
+      "economic": "Econ."
     }
   },
   "Fx": {

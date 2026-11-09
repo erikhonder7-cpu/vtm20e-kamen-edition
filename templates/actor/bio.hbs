@@ -67,7 +67,7 @@
         <span class="r-lin-name">{{k.name}}</span>
         <span class="r-lin-meta">{{k.clan}}{{#if k.embraced}} · {{localize "VTM20.Lineage.Embraced" when=k.embraced}}{{/if}} · {{localize "VTM20.Lineage.InSheet"}}</span>
         <span class="r-lin-act">{{#if @root.editable}}<a class="r-icon-btn" data-action="linEdit" data-list="childer" data-index="{{k.index}}" data-tooltip="{{localize 'VTM20.Lineage.Edit'}}"><i class="fa-solid fa-pen-nib"></i></a>
-          <a class="r-icon-btn is-danger" data-action="linDel" data-list="childer" data-index="{{k.index}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}</span>
+          <a class="r-icon-btn is-danger" data-action="linDel" data-list="childer" data-index="{{k.index}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}</span>
       </li>
       {{/each}}
       <li class="r-lin-row is-drop" data-lin-drop>
@@ -98,7 +98,7 @@
     <li class="r-tl-row">
       <input class="r-tl-date" type="text" name="system.timeline.{{@index}}.date" value="{{date}}" placeholder="{{localize 'VTM20.Sheet.EventDate'}}">
       <input class="r-tl-text" type="text" name="system.timeline.{{@index}}.text" value="{{text}}" placeholder="{{localize 'VTM20.Sheet.EventText'}}">
-      {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="removeEvent" data-index="{{@index}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
+      {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="removeEvent" data-index="{{@index}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
     </li>
     {{else}}<li class="r-empty">{{localize "VTM20.Sheet.NoEvents"}}</li>
     {{/each}}
@@ -126,7 +126,7 @@
       <input type="number" name="system.experience.log.{{@index}}.amount" value="{{amount}}" class="r-xp-amt">
       <input type="text" name="system.experience.log.{{@index}}.reason" value="{{reason}}" placeholder="{{localize 'VTM20.Xp.reason'}}">
       <input type="text" name="system.experience.log.{{@index}}.date" value="{{date}}" class="r-xp-date">
-      <a class="r-icon-btn is-danger" data-action="removeXp" data-index="{{@index}}"><i class="fa-solid fa-xmark"></i></a>
+      <a class="r-icon-btn is-danger" data-action="removeXp" data-index="{{@index}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>
     </div>
     {{/each}}
   </div>

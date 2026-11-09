@@ -1849,7 +1849,7 @@
       "NoDerangements": "Расстройств нет.",
       "NoArmor": "Брони нет.",
       "NoGear": "Вещей нет.",
-      "PresetWeapon": "Готовое оружие — начните вводить название…",
+      "PresetWeapon": "Готовое оружие…",
       "PresetArmor": "Готовая броня…",
       "PresetGear": "Готовое снаряжение…",
       "DuplicateItem": "«{name}» уже есть у персонажа.",
@@ -1858,7 +1858,8 @@
       "Supernatural": "Поглощает тяжёлые повреждения",
       "DamageMarks": "Урон",
       "HealAggShort": "Лечить ✱",
-      "ChooseDerangement": "— Расстройство из книги —"
+      "ChooseDerangement": "— Расстройство из книги —",
+      "Details": "Подробнее"
     },
     "Roll": {
       "DiffChosen": "выбрано {n}",
@@ -6518,6 +6519,16 @@
           "d": "Кровавое кольцо вокруг жетона того, чей черёд; сменить — в настройках трекера боя."
         }
       }
+    },
+    "MeritCatShort": {
+      "physical": "Физ.",
+      "mental": "Мент.",
+      "social": "Соц.",
+      "supernatural": "Сверхъест.",
+      "clan": "Клан",
+      "infernal": "Инферн.",
+      "legal": "Юрид.",
+      "economic": "Экон."
     }
   },
   "Fx": {

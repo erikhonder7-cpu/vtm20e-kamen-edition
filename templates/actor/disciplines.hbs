@@ -38,7 +38,7 @@
         <a class="r-icon-btn" data-action="rollTrait" data-trait="disciplines.{{key}}" data-tooltip="{{localize 'VTM20.Sheet.Roll'}}"><i class="fa-solid fa-dice-d10"></i></a>
         <a class="r-icon-btn" data-action="itemEdit" data-tooltip="{{localize 'VTM20.Sheet.Edit'}}"><i class="fa-solid fa-pen-nib"></i></a>
         {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="itemDelete" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-trash"></i></a>{{/if}}
-        <a class="r-icon-btn r-chevron" data-action="toggleRow" data-row-id="{{id}}"><i class="fa-solid fa-chevron-down"></i></a>
+        <a class="r-icon-btn r-chevron" data-action="toggleRow" data-row-id="{{id}}" data-tooltip="{{localize 'VTM20.Sheet.Details'}}"><i class="fa-solid fa-chevron-down"></i></a>
       </div>
     </header>
 
@@ -57,7 +57,7 @@
           <a class="r-icon-btn r-star" data-action="itemToggle" data-field="system.primary" data-tooltip="{{localize 'VTM20.Sheet.PrimaryPath'}}"><i class="fa-{{#if primary}}solid{{else}}regular{{/if}} fa-star"></i></a>
           <span class="r-path-name">{{rName this}}</span>
           {{> rDots dots=dots}}
-          {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="itemDelete"><i class="fa-solid fa-trash"></i></a>{{/if}}
+          {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="itemDelete" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-trash"></i></a>{{/if}}
         </div>
         {{#each powers}}{{> rPower pathId=../id disc=../../key}}{{/each}}
         {{#each ownPowers}}{{> rPower cls="is-own"}}{{/each}}
@@ -109,7 +109,7 @@
       <div class="r-path-head">
         <span class="r-path-name">{{rName this}}</span>
         {{> rDots dots=dots}}
-        {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="itemDelete"><i class="fa-solid fa-trash"></i></a>{{/if}}
+        {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="itemDelete" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-trash"></i></a>{{/if}}
       </div>
       {{#each powers}}{{> rPower pathId=../id disc=../../key}}{{/each}}
       {{#each ownPowers}}{{> rPower cls="is-own"}}{{/each}}
