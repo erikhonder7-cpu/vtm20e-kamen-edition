@@ -34,6 +34,7 @@ import { allowAnyway } from "./rule-gate.mjs";
 import { SYSTEM_ID, VTM20 } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
 import { PATH_POWERS } from "../data/path-powers.mjs";
+import { bloodRoll, bloodApply, BLOOD_APPLY, BLOOD_SELF } from "./bloodlines.mjs";
 // календарь и сроки — лениво (apps/calendar.mjs тянет ApplicationV2, а roll.mjs проверяется и вне Foundry)
 const clockApi = async () => ({ ...(await import("./calendar.mjs")), ...(await import("./timers.mjs")) });
 
@@ -116,7 +117,35 @@ export const TARGET_POWERS = {
   "vicissitude|Bonecraft": { kind: "bone" },
   "animalism|Feral Whispers": { kind: "whisper", needTarget: true, animal: true, tiers: [[1, "Whis1"], [3, "Whis3"], [5, "Whis5"]] },
   "animalism|The Beckoning": { kind: "beckon", self: true },
-  "animalism|Subsume the Spirit": { kind: "subsume", needTarget: true, animal: true }
+  "animalism|Subsume the Spirit": { kind: "subsume", needTarget: true, animal: true },
+  // Кровные линии 1–5 (apps/bloodlines.mjs). Обеа 1–2 — те же силы, что у Валерена.
+  "obeah|Sense Vitality": { kind: "vitality", allowSelf: true },
+  "obeah|Anesthetic Touch": { kind: "anest", allowSelf: true },
+  "obeah|Corpore Sano": { kind: "sano", allowSelf: true },
+  "obeah|Shepherd's Watch": { kind: "shepherd" },
+  "obeah|Ending the Watch": { kind: "endwatch" },
+  "obeah|Mens Sana": { kind: "menssana", needTarget: true },
+  "melpominee|Phantom Speaker": { kind: "phantom" },
+  "melpominee|Madrigal": { kind: "madrigal" },
+  "melpominee|Siren's Beckoning": { kind: "siren", needTarget: true, diff: ["willpower"] },
+  "ogham|Consecrate the Grove": { kind: "grove" },
+  "ogham|Crimson Woad": { kind: "woad" },
+  "ogham|Inscribe the Curse": { kind: "curse", needTarget: true },
+  "ogham|Moon and Sun": { kind: "moonsun", allowSelf: true },
+  "ogham|Drain the Earth": { kind: "drain" },
+  "sanguinus|Brother's Blood": { kind: "brother", needTarget: true },
+  "sanguinus|Walk of Caine": { kind: "walkcaine", needTarget: true },
+  "spiritus|Aid from Spirits": { kind: "aidspirit" },
+  "spiritus|Summon Spirit Beasts": { kind: "spiritbeast" },
+  "spiritus|Aspect of the Beast": { kind: "aspect" },
+  "spiritus|Engling Fury": { kind: "engling" },
+  "thanatosis|Putrefaction": { kind: "putrefy", needTarget: true, diff: ["stamina", "fortitude"] },
+  "thanatosis|Withering": { kind: "wither", needTarget: true, diff: ["stamina", "fortitude"] },
+  "thanatosis|Necrosis": { kind: "necrosis", needTarget: true, diff: ["stamina", "fortitude"] },
+  "temporis|Recurring Contemplation": { kind: "recur", needTarget: true, diff: ["willpower"] },
+  "temporis|Leaden Moment": { kind: "leaden" },
+  "temporis|Patience of the Norns": { kind: "norns" },
+  "temporis|Clotho's Gift": { kind: "clotho" }
 };
 
 /** Поглощение духа: какие Дисциплины доступны в теле зверя по числу успехов (V20, Анимализм 4). */
@@ -143,7 +172,7 @@ Object.assign(TARGET_POWERS, PATH_POWERS);
 const sameActor = (uuid, actor) => !!uuid && !!actor && (uuid === actor.uuid || String(uuid).endsWith(`Actor.${actor.id}`));
 
 /** Сверхъестественное существо (Глаза змеи): вампир, Гару, падший, сверхъестественная тварь; гуль и охотник — смертные. */
-const supernatural = a => ["vampire", "werewolf", "demon"].includes(a.type) || (a.type === "creature" && !!a.system.supernatural);
+export const supernatural = a => ["vampire", "werewolf", "demon"].includes(a.type) || (a.type === "creature" && !!a.system.supernatural);
 
 export const targetPowerOf = (disc, p) => TARGET_POWERS[`${disc}|${p?.en ?? ""}`] ?? null;
 
@@ -155,6 +184,7 @@ function traitOf(a, k) {
     case "morality": return s.morality?.value ?? null;
     case "courage": case "selfControl": return s.virtues?.[k]?.value ?? null;
     case "awareness": return s.abilities?.[k]?.value ?? 0;
+    case "fortitude": return a.discipline?.("fortitude") ?? 0;
     default: return s.attributes?.[k]?.total ?? s.attributes?.[k]?.value ?? null;
   }
 }
@@ -216,7 +246,7 @@ export function prepareTargetPower(actor, disc, p, tp, skip = new Set()) {
 }
 
 /** Срок по числу успехов. */
-function untilOf(code, now, { MS_HOUR, MS_DAY, nextSunrise }) {
+export function untilOf(code, now, { MS_HOUR, MS_DAY, nextSunrise }) {
   switch (code) {
     case "scene": return null;
     case "hour": return now + MS_HOUR;
@@ -241,7 +271,7 @@ export function tierText(tp, successes) {
 /** Подпись кнопки «наложить» на карточке (только у сил с эффектом на цели). */
 export function targetPowerLabel(extra, ev) {
   const tp = extra?.targetPower && TARGET_POWERS[extra.targetPower.key];
-  if (!tp || ev.outcome !== "success" || extra.targetPower.done || !(tp.timed || tp.dread || tp.kind) || ["taste", "gather", "aura", "visage", "whisper", "info", "tiers", "counter", "chaos", "tele", "psycho", "illusion", "absorb", "humanitas", "pillar", "vitality", "caine", "flow", "sin"].includes(tp.kind)) return "";
+  if (!tp || ev.outcome !== "success" || extra.targetPower.done || !(tp.timed || tp.dread || tp.kind) || [...BLOOD_SELF, "taste", "gather", "aura", "visage", "whisper", "info", "tiers", "counter", "chaos", "tele", "psycho", "illusion", "absorb", "humanitas", "pillar", "vitality", "caine", "flow", "sin"].includes(tp.kind)) return "";
   // Усмирение — только когда накоплены все успехи продолжительного броска
   if (tp.kind === "quell" && !((extra.extended?.prev ?? 0) + ev.successes >= (extra.extended?.need ?? Infinity))) return "";
   const lbl = { beast: "BeastApply", poison: "PoisonApply", shroud: "ShroudApply", arms: "ArmsApply", vanish: "VanishApply",
@@ -276,6 +306,7 @@ export async function applyTargetPower(message, state, ev) {
   const [disc] = x.key.split("|");
   const flags = { mind: x.key, by: state.actorUuid ?? "", start: now };
   let name = `${x.powerName} · ${x.actorName}`, desc = "";
+  if (BLOOD_APPLY.has(tp.kind)) return bloodApply({ message, state, x, tp, target, n, flags, now, api });
   if (tp.kind === "beast") {
     // Отчуждение Зверя: бешенство вампира переходит на цель (V20, Анимализм 5)
     const self = state.actorUuid ? await foundry.utils.fromUuid(state.actorUuid) : null;
@@ -462,11 +493,11 @@ export async function applyTargetPower(message, state, ev) {
       if (net <= 0) return notice(target, x.powerName, t("AnestResisted"));
     }
     if (x.anest === "sleep") {
-      await target.createEmbeddedDocuments("ActiveEffect", [{ name: t("SleepName"), img: Codex.disciplineIcon("valeren"), statuses: ["r-held"],
+      await target.createEmbeddedDocuments("ActiveEffect", [{ name: t("SleepName"), img: Codex.disciplineIcon(disc), statuses: ["r-held"],
         description: `<p>${esc(t("SleepDesc"))}</p>`, flags: { [SYSTEM_ID]: { ...flags, mode: "timed", until: now + 8 * api.MS_HOUR } } }]);
       return notice(target, x.powerName, t("SleepDesc"));
     }
-    await target.createEmbeddedDocuments("ActiveEffect", [{ name: t("PainName", { n: net }), img: Codex.disciplineIcon("valeren"),
+    await target.createEmbeddedDocuments("ActiveEffect", [{ name: t("PainName", { n: net }), img: Codex.disciplineIcon(disc),
       description: `<p>${esc(t("PainDesc"))}</p>`, flags: { [SYSTEM_ID]: { ...flags, mode: "scene", painless: net } } }]);
     return notice(target, x.powerName, t("PainName", { n: net }));
   }
@@ -678,7 +709,7 @@ export async function applyTargetPower(message, state, ev) {
 }
 
 /** Кнопка отработала: на карточке броска — пометка, на карточке «наложить» — убрать кнопку. */
-async function done(message, state, x) {
+export async function done(message, state, x) {
   if (!message?.isOwner) return;
   if (message.getFlag?.(SYSTEM_ID, "targetApply")) {
     await message.setFlag(SYSTEM_ID, "targetApply", { ...x, done: true });
@@ -690,7 +721,7 @@ async function done(message, state, x) {
   await message.update({ content: await renderCard(next) });
 }
 
-const notice = (target, power, what) => ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: target }),
+export const notice = (target, power, what) => ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: target }),
   content: `<div class="r-notice"><i class="fa-solid fa-brain"></i> ${t("Applied", { name: esc(target.name), power: esc(power), what: esc(what) })}</div>` });
 
 /**
@@ -746,6 +777,10 @@ export async function rollTargetPower(actor, disc, d, p, tp, { rollFromSpec, sub
   let roll = { ...(p.roll ?? {}), ...(prep.difficulty ? { difficulty: prep.difficulty } : {}), ...(prep.note ? { note: prep.note } : {}) };
   const opts = { title: p.name, subtitle: `${target ? `→ ${target.name} · ` : ""}${subtitle}`, effect: p.html, power: { disc, level: p.level, name: p.name },
     more: link ? { targetPower: link } : null, kind, magic };
+  // кровные линии (apps/bloodlines.mjs): вопросы и цена до броска, итог на себе — сразу
+  const bl = await bloodRoll({ actor, p, tp, target, key, link, roll, opts });
+  if (bl && "stop" in bl) return bl.stop;
+  if (bl?.roll) roll = bl.roll;
   // Вкус крови: сведения — только тауматургу и рассказчику
   if (tp.kind === "taste") opts.onRolled = res => {
     const n = res?.successes ?? 0;
@@ -1342,7 +1377,7 @@ async function illusion(actor, p, tp) {
 
 /** Выбор из списка перед наложением. */
 // Варианты — кнопками в столбик: один клик — выбор (раньше: раскрыть список, выбрать, нажать «Применить»)
-function ask(title, options) {
+export function ask(title, options) {
   let picked = null;
   return foundry.applications.api.DialogV2.wait({
     window: { title, icon: "fa-solid fa-list-check" }, classes: ["vtm20", "r-dialog", "r-ask"], position: { width: 400 },
@@ -1551,6 +1586,9 @@ export async function applyFromCard(message) {
 
 /** Сложность сопротивления ярости от Неистовства крови — для проверки бешенства. */
 export function frenzyDiff(actor, kind) {
+  // Алые узоры (Огам 2): легче устоять перед Ротшреком — флаг rotDiff
+  if (kind === "rotschreck") return [...(actor?.effects ?? [])].filter(e => !e.disabled && e.flags?.[SYSTEM_ID]?.rotDiff)
+    .map(e => ({ label: e.name, value: Number(e.flags[SYSTEM_ID].rotDiff) }));
   if (kind !== "frenzy") return [];
   const out = [...(actor?.effects ?? [])].filter(e => !e.disabled && e.flags?.[SYSTEM_ID]?.frenzyDiff)
     .map(e => ({ label: e.name, value: Number(e.flags[SYSTEM_ID].frenzyDiff) }));

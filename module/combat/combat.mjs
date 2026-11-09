@@ -529,8 +529,9 @@ export async function rollLinkedDamage(message) {
   if (!r?.hit || r.damage == null) return;
   const attacker = await foundry.utils.fromUuid(r.attacker);
   const { rollDamage } = await import("../dice/roll.mjs");
+  const woad = await (await import("../apps/bloodlines.mjs")).woadBonus(attacker, !!r.ranged);
   return rollDamage({
-    actor: attacker, pool: r.damage, damageType: r.damageType, title: r.weaponName, aggravatedFangs: r.fangs, auto: r.damageAuto ?? 0,
+    actor: attacker, pool: r.damage + woad, damageType: r.damageType, title: r.weaponName, aggravatedFangs: r.fangs, auto: r.damageAuto ?? 0,
     target: r.target, pierce: r.pierce ?? 0, bullet: !!r.bullet, head: !!r.head, silver: !!r.silver,
     notes: r.targetName ? [`<i class="fa-solid fa-crosshairs"></i> ${esc(t("Combat.DamageTo", { name: r.targetName }))}`] : [],
     supernatural: !!r.supernatural

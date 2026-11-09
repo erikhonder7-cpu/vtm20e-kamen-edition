@@ -2556,6 +2556,82 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  // Кровные линии через HUD: Корпоре сано (кровь — рана), Алые узоры (раны, Ротшрек, кубы урона), Иссушение Земли (источник → запас
+  // кубов в окне броска), Гниение (сл. Выносливость + Стойкость, Привлекательность −1), Ретроспектива (сл. Воля, транс),
+  // Дар Клото (действия), Духовный голод (Воля), Мадригал (ансамбль снижает сложность)
+  await check("Кровные линии через HUD", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), sys = p => import(`/systems/${sid}/${p}`);
+      const TP = await sys("module/apps/target-powers.mjs"), RD = await sys("module/dice/dialog.mjs");
+      const mk = (name, type, system = {}) => Actor.create({ name, type, flags: { world: { e2e: true } }, system });
+      const a = await mk("E2E — кровная линия", "vampire", { generation: 9, blood: { value: 14 }, willpower: { permanent: 7, temporary: 3 }, health: { lethal: 2 } });
+      const m = await mk("E2E — жертва линии", "mortal", { willpower: { permanent: 4, temporary: 4 }, attributes: { stamina: { value: 3 } } });
+      await a.createEmbeddedDocuments("Item", ["obeah", "ogham", "thanatosis", "temporis", "spiritus", "melpominee"]
+        .map(k => ({ name: `E2E — ${k}`, type: "discipline", system: { key: k, value: 5 } })));
+      const scene = game.scenes.viewed ?? game.scenes.contents[0];
+      const made = await scene.createEmbeddedDocuments("Token", await Promise.all([a, m].map((x, i) => x.getTokenDocument({ x: 100 + i * 200, y: 3900 }))));
+      const tok = x => made.find(tk => tk.actorId === x.id);
+      for (let i = 0; i < 30 && !canvas.tokens.get(tok(m).id); i++) await wait(100);
+      await wait(400);
+      const inst = () => [...foundry.applications.instances.values()];
+      const dialogs = () => inst().filter(x => x instanceof foundry.applications.api.DialogV2);
+      const closeAll = async () => { for (const x of inst()) if (x.constructor.name === "RollDialog" || x instanceof foundry.applications.api.DialogV2) await x.close(); };
+      const pick = async val => { const d = dialogs().at(-1); d?.element.querySelector(`.r-ask-opt[data-v="${val}"]`)?.click(); await wait(500); };
+      const hud = async (disc, re) => { await closeAll(); document.querySelector('#r-hud [data-act="tab"][data-tab="powers"]')?.click(); await wait(300);
+        document.querySelector(`#r-hud [data-act="pop"][data-pop*="${disc}"]`)?.click(); await wait(400);
+        [...document.querySelectorAll('#r-hud .rh-pop-row[data-act="power"]')].find(x => re.test(x.textContent))?.click(); await wait(700); };
+      const rollDlg = () => inst().find(x => x.constructor.name === "RollDialog");
+      const at = () => canvas.tokens.get(tok(a).id).actor, mt = () => canvas.tokens.get(tok(m).id).actor;
+      canvas.tokens.get(tok(a).id)?.control({ releaseOthers: true }); await wait(600);
+      const out = {};
+      // без цели — на себя: одно тяжёлое за 1 кровь
+      await hud("obeah", /Корпоре сано/); await wait(800);
+      out.sano = [at().system.health.lethal, at().system.blood.value];
+      await hud("ogham", /Алые узоры/);
+      await rollDlg()?.cfg.onRolled?.({ successes: 2 }); await wait(600);
+      const woad = at().effects.find(e => e.flags?.[sid]?.woadDice);
+      out.woad = [woad?.flags[sid].woadDice, TP.frenzyDiff(at(), "rotschreck")[0]?.value, at().system.fx?.woundEase];
+      await hud("ogham", /Иссушение Земли/); await pick("link"); await pick("3"); await wait(500);
+      await hud("ogham", /Иссушение Земли/); await pick("draw");
+      out.drainDiff = rollDlg()?.values.difficulty;
+      await rollDlg()?.cfg.onRolled?.({ successes: 2 }); await wait(600);
+      const pool = at().effects.find(e => e.flags?.[sid]?.drainPool);
+      const rd0 = new RD.RollDialog(at(), { trait1: "attributes.strength" }), base = rd0.compute().pool;
+      rd0.values.pools = { [pool?.id]: 3 };
+      out.drain = [pool?.flags[sid].bonusPool, at().effects.find(e => e.flags?.[sid]?.drainSrc)?.flags[sid].drainSrc.left, rd0.compute().pool - base];
+      await hud("temporis", /Дар Клото/);
+      await rollDlg()?.cfg.onRolled?.({ successes: 2 }); await wait(600);
+      out.clotho = at().powerEffects.find(e => e.power === "temporis:5")?.effect.flags[sid].clotho;
+      await hud("spiritus", /Духовный голод/);
+      await rollDlg()?.cfg.onRolled?.({ successes: 2 }); await wait(600);
+      out.engling = at().system.willpower.temporary;
+      await hud("melpominee", /Мадригал/); await pick("2"); await pick("joy");
+      out.madrigal = rollDlg()?.values.difficulty;
+      // на отмеченную цель
+      canvas.tokens.get(tok(m).id)?.setTarget(true, { releaseOthers: true }); await wait(300);
+      await hud("thanatosis", /Гниение/);
+      let rd = rollDlg();
+      out.putrefyDiff = rd?.values.difficulty;
+      const n0 = game.messages.size;
+      await TP.applyTargetPower({ isOwner: false }, { actorUuid: a.uuid, extra: rd?.cfg.extra }, { successes: 1, outcome: "success" });
+      out.putrefy = [mt().effects.find(e => e.flags?.[sid]?.attrMod)?.flags[sid].attrMod.appearance, game.messages.contents.slice(n0).some(x => x.getFlag(sid, "fixedDamage")?.type === "lethal")];
+      await hud("temporis", /Ретроспектива/); await pick("plain");
+      rd = rollDlg();
+      out.recurDiff = rd?.values.difficulty;
+      await TP.applyTargetPower({ isOwner: false }, { actorUuid: a.uuid, extra: rd?.cfg.extra }, { successes: 2, outcome: "success" });
+      out.recur = mt().statuses.has("r-held");
+      await closeAll();
+      [...game.user.targets].forEach(x => x.setTarget(false, { releaseOthers: false }));
+      canvas.tokens.releaseAll(); await wait(600);
+      await scene.deleteEmbeddedDocuments("Token", made.map(x => x.id));
+      await Actor.deleteDocuments([a.id, m.id]);
+      return out;
+    });
+    const want = { sano: [1, 13], woad: [2, -2, 2], drainDiff: 7, drain: [4, 26, 3], clotho: 2, engling: 5, madrigal: 5, putrefyDiff: 3, putrefy: [-1, true], recurDiff: 4, recur: true };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   // Ход боя V20: инициатива каждый ход (карточка), заявки от низшей к высшей, выжидание — в конец хода,
   // множественные действия делят пул в окнах, защита без заявки — отмена действия (Воля)
   await check("Ход боя: инициатива, заявки, выжидание, отмена ради защиты", async () => {

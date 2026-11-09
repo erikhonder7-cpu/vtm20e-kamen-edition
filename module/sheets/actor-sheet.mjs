@@ -1337,6 +1337,9 @@ export async function rollPowerRef(actor, ref) {
   if (disc.startsWith("lore:")) return rollFromSpec(actor, p.roll ?? {}, { title: p.name, subtitle: `${d.name} · ${ROMAN[p.level - 1]}`, effect: p.html,
     torment: d.dark ? 10 : actor.system.torment?.permanent ?? 0, power: { disc, level: p.level, name: p.name },
     onRolled: d.dark && actor.type === "demon" && !actor.system.earthbound ? () => gainTorment(actor, 1, t("Demon.DarkReason")) : null });
+  // Проклятие разума (Огам 3): каждая сила, кроме Мощи, Стойкости и Стремительности, — 1 Воля
+  if (!["potence", "fortitude", "celerity"].includes(disc) && actor.effects.some(e => !e.disabled && e.flags?.[SYSTEM_ID]?.curseMind)
+    && !(await actor.spendWillpower(1)) && !(await allowAnyway(actor, t("BL.CurseMindWill")))) return;
   // Сила-эффект (data/effects.mjs): без броска — включить/выключить (HUD вёл в пустое окно броска);
   // rollStart — бросок запускает эффект: успех — эффект без второй оплаты, провал — botchDamage губительных
   const fk = fxKey(disc, p), fxDef = !pathName && POWER_EFFECTS[fk];

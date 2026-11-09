@@ -115,11 +115,13 @@ export const POWER_EFFECTS = {
   // Висцератика 5, Перемещение сквозь камень: после Слияния с камнем 2 крови, до конца сцены (сквозь стену — бросок, apps/target-powers.mjs)
   "visceratika:5": { mode: "scene", icon: "fa-dungeon", cost: { blood: 2 }, viaRoll: true },
   // Огам 1, Освящение рощи: 1–3 крови (ход ритуала за каждую) — кровь тратится вручную; до конца сцены
-  "ogham:1": { mode: "scene", icon: "fa-tree" },
+  "ogham:1": { mode: "scene", icon: "fa-tree", viaRoll: true },
   // Огам 2, Алые узоры: 1 кровь, узоры держатся всю сцену
-  "ogham:2": { mode: "scene", icon: "fa-paintbrush", cost: { blood: 1 } },
+  // успехи — флагами эффекта (apps/bloodlines.mjs, woad): штрафы ран, Ротшрек, кубы урона
+  "ogham:2": { mode: "scene", icon: "fa-paintbrush", cost: { blood: 1 }, viaRoll: true },
   // Сангвинус 3, Гештальт: каждый в круге тратит 1 кровь; коллективный разум до конца сцены
-  "sanguinus:3": { mode: "scene", icon: "fa-people-arrows", cost: { blood: 1 } },
+  // общие чувства: Восприятие каждого −3 к сложности
+  "sanguinus:3": { mode: "scene", icon: "fa-people-arrows", cost: { blood: 1 }, diff: { perception: -3 } },
   // Сангвинус 5, Кровное единство: 3 крови с каждого, до конца сцены
   "sanguinus:5": { mode: "scene", icon: "fa-circle-nodes", cost: { blood: 3 } },
   // Бардо 3, Дар Аписа: постоянно — кровь зверя по числу его уровней здоровья
@@ -128,7 +130,19 @@ export const POWER_EFFECTS = {
   // ложится броском (apps/target-powers.mjs, pillar), снимается, когда персонаж уходит
   "bardo:4": { mode: "toggle", icon: "fa-monument", viaRoll: true, mysticDiff: -3 },
   // Спиритус 5, Дикий зверь: 2 крови; в облике — не больше Воли часов за ночь
-  "spiritus:5": { mode: "hour", hours: "ask", icon: "fa-paw", cost: { blood: 2 } },
+  // Сила +3, Ловкость +2, Выносливость +2, Привлекательность 0, Манипуляция −3; укус +1 куб, когти губительные,
+  // видит в темноте, чувства −2 к сложности
+  "spiritus:5": { mode: "hour", hours: "ask", icon: "fa-paw", cost: { blood: 2 }, attr: { strength: 3, dexterity: 2, stamina: 2, manipulation: -3 },
+    set: { appearance: 0 }, biteDamage: 1, darkvision: true, diff: { perception: -2 },
+    weapon: { name: "Когти дикого зверя", kind: "brawl", damage: 0, strength: true, damageType: "aggravated", difficulty: 6, supernatural: true } },
+  // Мельпомения 1, Блуждающий голос: без броска, пока угодно; другое действие, кроме речи и пения, — +2 к сложности
+  "melpominee:1": { mode: "toggle", icon: "fa-volume-high", noRoll: true },
+  // Мельпомения 2, Незримый собеседник: ложится броском (apps/bloodlines.mjs, phantom) — ходы по успехам, 3+ до конца сцены
+  "melpominee:2": { mode: "scene", icon: "fa-comment-dots", viaRoll: true },
+  // Танатозис 3, Пепел к пеплу: 2 крови, ход; возвращение — ещё ход
+  "thanatosis:3": { mode: "toggle", icon: "fa-wind", cost: { blood: 2 }, transformTurns: 1 },
+  // Темпорис 5, Дар Клото: ложится броском (apps/bloodlines.mjs, clotho)
+  "temporis:5": { mode: "scene", icon: "fa-hourglass-start", viaRoll: true },
 
   // Старшие уровни и силы дополнений — по названию (сроки и цена из текстов data/disciplines.json)
   "protean:Мраморная плоть": { mode: "scene", icon: "fa-gem", cost: { blood: 3 } },
@@ -252,6 +266,11 @@ export function effectMods(actor) {
     const fl = !e.disabled ? e.flags?.[SYSTEM_ID] : null;
     if (fl?.spikes) m.spikes = true;
     if (fl?.grappleDice) m.grappleDice += Number(fl.grappleDice) || 0;
+    // Алые узоры, Начертание проклятья (apps/bloodlines.mjs): штрафы ран меньше или больше
+    if (fl?.woundEase) m.woundEase = (m.woundEase ?? 0) + (Number(fl.woundEase) || 0);
+    if (fl?.woundWorse) m.woundEase = (m.woundEase ?? 0) - (Number(fl.woundWorse) || 0);
+    // Дар зверя: сложность чувств и лазания по обстоятельствам — { hearing: -2 }
+    for (const [k, v] of Object.entries(fl?.fxDiff ?? {})) (m.diff[k] ??= []).push({ label: e.name, value: Number(v) || 0 });
     if (as) { Object.assign(m.set, as); m.list.push(e); }
     if (!ta) continue;
     for (const [k, v] of Object.entries(ta)) m.attr[k] = (m.attr[k] ?? 0) + v;

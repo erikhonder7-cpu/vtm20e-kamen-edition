@@ -26,6 +26,7 @@ import { registerCelerity } from "./module/combat/celerity.mjs";
 import { registerTurn, VtmCombat } from "./module/combat/turn.mjs";
 import { registerPowerEffectHooks } from "./module/apps/power-effects.mjs";
 import { registerTargetPowers } from "./module/apps/target-powers.mjs";
+import { registerBloodlines } from "./module/apps/bloodlines.mjs";
 import { openAttack, openDefense, AttackDialog, registerGrapple } from "./module/combat/combat.mjs";
 import { openHazard } from "./module/apps/hazard.mjs";
 import { openDiablerie } from "./module/apps/diablerie.mjs";
@@ -175,6 +176,7 @@ Hooks.once("init", () => {
   registerGrapple();
   registerPowerEffectHooks();
   registerTargetPowers();
+  registerBloodlines();
   registerCityMap();
   registerMasquerade();
   registerStrategy();

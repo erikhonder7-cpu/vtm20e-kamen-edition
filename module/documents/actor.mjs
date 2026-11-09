@@ -304,6 +304,12 @@ export class VtMActor extends Actor {
     if (combat.getFlag?.(SYSTEM_ID, "celerityPhase")?.active) {
       ui.notifications.warn(t("Combat.CelerityPhaseFirst")); return false;
     }
+    // Дар Клото (Темпорис 5): иной источник лишних действий — окончательная смерть (V20)
+    const clotho = this.powerEffects.find(e => e.power === "temporis:5");
+    if (clotho) {
+      const { allowAnyway } = await import("../apps/rule-gate.mjs");
+      if (!(await allowAnyway(this, t("BL.ClothoCelerity")))) return false;
+    }
     if (!this.hasBlood) return ui.notifications.warn(t("Notify.NoBlood", { name: this.name }));
     if (this.statuses?.has("r-staked") || this.statuses?.has("r-torpor")) {
       ui.notifications.warn(t("Notify.NoBloodState", { name: this.name })); return false;
@@ -363,6 +369,12 @@ export class VtMActor extends Actor {
     // Кол в сердце и торпор: кровь не тратится (04)
     if (this.statuses?.has("r-staked") || this.statuses?.has("r-torpor")) {
       ui.notifications.warn(t("Notify.NoBloodState", { name: this.name })); return false;
+    }
+    // Проклятие тела (Огам 3): вампир не тратит кровь — кроме ежевечерней на пробуждение
+    const cursed = this.effects.find(e => !e.disabled && e.flags?.[SYSTEM_ID]?.noBloodSpend);
+    if (cursed) {
+      const { allowAnyway } = await import("../apps/rule-gate.mjs");
+      if (!(await allowAnyway(this, t("BL.CurseNoBlood", { name: cursed.name })))) return false;
     }
     const cur = this.system.blood.value;
     // Лимит поколения за ход — только в бою (ход = раунд текущего боя); удвоенная трата Слабой крови считается как одна

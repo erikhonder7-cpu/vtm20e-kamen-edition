@@ -95,6 +95,13 @@
     </div>
   </div>
   {{/if}}
+  {{#each pools}}
+  <label class="r-overdraw r-bonus-pool" data-tooltip="{{localize 'VTM20.Roll.PoolHint'}}">
+    <i class="fa-solid fa-hand-sparkles"></i>
+    <span class="r-od-text"><b>{{label}}</b> <em>{{localize "VTM20.Roll.PoolLeft" n=max}}</em></span>
+    <input type="number" name="pool_{{id}}" value="{{value}}" min="0" max="{{max}}">
+  </label>
+  {{/each}}
   {{#if overdraw}}
   <label class="r-overdraw" data-tooltip="{{localize 'VTM20.Demon.OverdrawHint'}}">
     <i class="fa-solid fa-hand-holding-droplet"></i>

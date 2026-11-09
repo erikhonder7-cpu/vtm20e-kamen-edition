@@ -39,7 +39,7 @@ export async function openPathShift(actor) {
   let key = paths[0].key;
   const ok = await foundry.applications.api.DialogV2.wait({
     window: { title: t("Title", { name: actor.name }), icon: "fa-solid fa-route" }, classes: ["vtm20", "r-dialog"], position: { width: 520 }, rejectClose: false, content,
-    buttons: [{ action: "roll", label: t("Roll", { d: diff }), icon: "fa-solid fa-dice-d10", default: true }, { action: "cancel", label: game.i18n.localize("Cancel") }],
+    buttons: [{ action: "roll", label: t("Roll", { d: diff }), icon: "fa-solid fa-dice-d10", default: true }, { action: "cancel", label: game.i18n.localize("VTM20.Common.Cancel") }],
     render: (ev, dlg) => {
       const root = dlg.element, sel = root.querySelector("select[name=path]"), why = root.querySelector("[data-why]"), btn = root.querySelector("button[data-action=roll]");
       const upd = () => {

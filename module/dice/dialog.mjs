@@ -5,7 +5,7 @@
 import { declaredActions } from "../combat/turn.mjs";
 import { swayOf } from "../ui/strategy.mjs";
 import { totemTraits, totemOf, totemPools, totemBanned, spendTotemPool } from "../apps/coterie.mjs";
-import { VTM20, SYSTEM_PATH } from "../config.mjs";
+import { VTM20, SYSTEM_PATH, SYSTEM_ID } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
 import { rollPool, odds, chancesView, tormentRule, tormentOdds } from "./roll.mjs";
 import { meritModsFor } from "../data/merit-mods.mjs";
@@ -41,7 +41,7 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       contest: cfg.contest ?? "simple", need: cfg.need ?? 5,
       specialty: !!cfg.specialty, willpower: !!cfg.willpower,
       wounds: !cfg.reflexive, physical: true,
-      payBlood: (cfg.bloodCost ?? 0) > 0, payWill: !!cfg.willpowerCost, light: false, fxOn: [], overdraw: 0, sway: "", horrid: true,
+      payBlood: (cfg.bloodCost ?? 0) > 0, payWill: !!cfg.willpowerCost, light: false, fxOn: [], overdraw: 0, sway: "", horrid: true, pools: {},
       messageMode: game.settings.get("core", "messageMode")
     };
   }
@@ -168,6 +168,11 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     if (this.#overdraw()) { pool += this.#overdraw(); bd.push({ label: t("Demon.Overdraw"), value: this.#overdraw() }); }
     // Ритуал почитания культа Привязанного (apps/cult.mjs): кубики к ближайшему призыву
     if (this.#veneration()) { pool += this.#veneration(); bd.push({ label: t("Cult.VenerationDice"), value: this.#veneration() }); }
+    // Знак Луны (Огам 4): +1 куб к проверкам с чертами фазы — флаг traitDice [[путь, n]]
+    for (const e of a.effects ?? []) for (const [p, n] of (!e.disabled && e.flags?.[SYSTEM_ID]?.traitDice) || [])
+      if ([v.trait1, v.trait2].includes(p)) { pool += Number(n) || 0; bd.push({ label: e.name, value: Number(n) || 0 }); }
+    // запасы кубиков (Помощь духов, Иссушение Земли): сколько взять — решает игрок
+    for (const p of this.#pools()) if (p.value) { pool += p.value; bd.push({ label: p.label, value: p.value }); }
     // Множественные действия (03): наименьший пул делится между действиями
     if (v.actions > 1) {
       const part = Math.floor(Math.max(0, pool) / v.actions);
@@ -213,7 +218,7 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
   #rollPool(c) {
     const v = this.values, cfg = this.cfg;
     if (cfg.pool == null) return c.pool;
-    return Math.max(0, cfg.pool + v.bonus + this.#overdraw()
+    return Math.max(0, cfg.pool + v.bonus + this.#overdraw() + this.#pools().reduce((s, p) => s + p.value, 0)
       + (v.wounds ? this.actor.system.health.penalty : 0)
       + (v.physical ? c.phys : 0));
   }
@@ -239,6 +244,13 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     return pacts ? a.system.faith.permanent : 0;
   }
   #overdraw() { return Math.clamp(this.values.overdraw ?? 0, 0, this.#overdrawMax()); }
+  /** Запасы кубиков на эффектах (флаг bonusPool — сколько осталось): Помощь духов, Иссушение Земли. */
+  #pools() {
+    // кубы земли (Иссушение Земли) — не к сопротивлению ярости и Ротшреку
+    const rage = ["frenzy", "rotschreck"].includes(this.cfg.kind);
+    return [...(this.actor.effects ?? [])].filter(e => !e.disabled && Number(e.flags?.[SYSTEM_ID]?.bonusPool) > 0 && !(rage && e.flags[SYSTEM_ID].poolNoFrenzy))
+      .map(e => { const max = Number(e.flags[SYSTEM_ID].bonusPool); return { id: e.id, label: e.name, max, value: Math.clamp(Number(this.values.pools[e.id]) || 0, 0, max) }; });
+  }
   /** Кубики ритуала почитания: только в призыве Привязанного. */
   #veneration() { const a = this.actor; return this.cfg.extra?.torment != null && a.type === "demon" && a.system.earthbound ? a.system.cult?.veneration ?? 0 : 0; }
 
@@ -293,6 +305,7 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       willpowerCost: !!this.cfg.willpowerCost, diffNote: this.cfg.diffNote ?? "",
       // призыв демона: высокая Мука по отдельной кости или по большинству успехов (настройка мира)
       torment: this.#torment(pool, c.effDifficulty),
+      pools: this.#pools(),
       overdraw: this.#overdrawMax() ? { max: this.#overdrawMax(), value: this.#overdraw(), thralls: this.actor.system.thralls?.length ?? 0 } : null,
       lightBane: VTM20.lightBane.includes(this.actor.system.clan),
       horridAvail: this.horridAvailable,
@@ -329,6 +342,7 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       payBlood: !!f.payBlood, payWill: !!f.payWill, light: !!f.light, horrid: this.horridAvailable ? !!f.horrid : this.values.horrid, overdraw: Math.max(0, Number(f.overdraw) || 0),
       messageMode: f.messageMode ?? this.values.messageMode
     });
+    this.values.pools = Object.fromEntries(Object.entries(f).filter(([k]) => k.startsWith("pool_")).map(([k, n]) => [k.slice(5), Math.max(0, Number(n) || 0)]));
     // отмеченные обстоятельства сил: name="fx.<kind>:<сила>"
     this.values.fxOn = Object.entries(f).filter(([k, on]) => k.startsWith("fxs_") && on).map(([k]) => k.slice(4));
     this.render();
@@ -389,6 +403,11 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     if (cfg.celerityAction && res) await this.actor.consumeCelerityAction();
     // Перебор: слуги платят Волей, провал — минус Вера (apps/torment.mjs)
     if (od) await (await import("../apps/torment.mjs")).overdrawPay(this.actor, od, res);
+    // взятые из запасов кубики израсходованы; пустой запас гаснет
+    for (const p of this.#pools()) if (p.value) {
+      const e = this.actor.effects.get(p.id), left = p.max - p.value;
+      if (left > 0) await e?.setFlag(SYSTEM_ID, "bonusPool", left); else await e?.delete();
+    }
     // кубики почитания израсходованы
     if (this.#veneration()) await this.actor.update({ "system.cult.veneration": 0 });
     // Связанные броски (защита от атаки и т. п.) подводят итог сами

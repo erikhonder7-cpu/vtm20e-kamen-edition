@@ -66,7 +66,7 @@ async function wwPick({ title, icon = "fa-paw", head = "", lead = "", cards, wid
     window: { title, icon: `fa-solid ${icon}` }, classes: ["vtm20", "r-dialog", "r-type-werewolf", "r-wc-dlg", ...(cls ? [cls] : [])],
     position: { width }, rejectClose: false,
     content: `<div class="r-wc">${head}${lead ? `<p class="r-wc-lead">${lead}</p>` : ""}<div class="r-wc-cards">${cards.map(card).join("")}</div>${after}</div>`,
-    buttons: [{ action: "cancel", label: game.i18n.localize("Cancel") }],
+    buttons: [{ action: "cancel", label: game.i18n.localize("VTM20.Common.Cancel") }],
     render: (ev, dlg) => dlg.element.querySelectorAll("[data-pick]").forEach(b => b.addEventListener("click", () => { picked = b.dataset.pick; dlg.close(); }))
   });
   return picked;
@@ -1049,7 +1049,7 @@ export async function primalUses(actor) {
     content: `<div class="r-wc">${wwHead({ glyph: "glyph-wyld", kicker: esc(actor.name), title: t("Primal.title"),
         sub: `<span class="r-pu-dots">${"●".repeat(pu)}${"○".repeat(Math.max(0, 5 - pu))}</span> ${t("Primal.hint")}` })}
       <div class="r-pu-list">${groups.map(item).join("")}</div></div>`,
-    buttons: [{ action: "cancel", label: game.i18n.localize("Cancel") }],
+    buttons: [{ action: "cancel", label: game.i18n.localize("VTM20.Common.Cancel") }],
     render: (ev, dlg) => {
       dlg.element.querySelectorAll("[data-roll]").forEach(b => b.addEventListener("click", () => { picked = b.dataset.roll; dlg.close(); }));
       // длинное описание свёрнуто в три строки — щелчок раскрывает

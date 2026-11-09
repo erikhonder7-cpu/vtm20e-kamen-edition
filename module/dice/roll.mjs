@@ -371,6 +371,8 @@ export async function soakAndApply(target, amount, damageType, { soak = true, fa
     damageType = "lethal";
     ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: target }), content: `<div class="r-notice"><i class="fa-solid fa-person"></i> ${t("Combat.MortalAggravated")}</div>` });
   }
+  // Знак Солнца (Огам 4): огонь и солнце — Выносливость (сл. 8), успех — тяжёлые вместо губительных
+  if ((fire || sun) && damageType === "aggravated") damageType = await (await import("../apps/bloodlines.mjs")).sunMark(target, damageType, { fire, sun });
   if (soak) {
     // Показываем состав прочности отдельно: в том числе вклад Стойкости,
     // чтобы Рассказчик видел, откуда берутся кости поглощения.
@@ -464,8 +466,10 @@ async function onLoseWill(message, state, permanent) {
 async function onDamage(message, state) {
   const actor = state.actorUuid ? await foundry.utils.fromUuid(state.actorUuid) : null;
   const ev = evaluate(state.values, state);
-  const pool = (state.extra.damagePool ?? 0) + Math.max(0, ev.successes - 1);
   const x = state.extra;
+  // Алые узоры (Огам 2): раз за время действия — кубы к урону одной атаки ближнего боя
+  const woad = await (await import("../apps/bloodlines.mjs")).woadBonus(actor, !!x.ranged);
+  const pool = (state.extra.damagePool ?? 0) + Math.max(0, ev.successes - 1) + woad;
   return rollDamage({ actor, pool, damageType: x.damageType ?? "bashing", title: x.weaponName || t("Roll.Damage"), aggravatedFangs: x.fangs,
     pierce: x.pierce ?? 0, bullet: !!x.bullet, head: !!x.head, silver: !!x.silver, auto: x.damageAuto ?? 0,
     supernatural: !!x.supernatural, fire: !!x.fire, sun: !!x.sun });
