@@ -47,6 +47,7 @@ import { useInvestment, pactDialog, pactDelete } from "../apps/infernal.mjs";
 import { possess, extend as possessExtend, leave as possessLeave, battleExpiry } from "../apps/possession.mjs";
 import { weaponIcon as weaponImg, armorIcon as armorImg } from "../data/icons.mjs";
 import { togglePowerEffect } from "../apps/power-effects.mjs";
+import { usePower } from "../apps/use-power.mjs";
 import { POWER_EFFECTS, fxKey } from "../data/effects.mjs";
 import { rollPackVinculi, openVaulderie, loyaltyConflict } from "../apps/vaulderie.mjs";
 import { openCoterie } from "../apps/coterie.mjs";
@@ -1362,7 +1363,10 @@ export async function rollPowerRef(actor, ref) {
   const tp = targetPowerOf(disc, p);
   if (tp) return rollTargetPower(actor, disc, d, p, tp, { rollFromSpec, subtitle: `${pathName || d.name} · ${ROMAN[p.level - 1] ?? p.level}`,
     kind: magic ? "magic" : "check", magic: magic ? { disc, level: p.level, path: pathName } : null });
-  return rollFromSpec(actor, p.roll ?? {}, { title: p.name, subtitle: `${pathName || d.name} · ${ROMAN[p.level - 1] ?? p.level}`, effect: p.html,
+  const plain = () => rollFromSpec(actor, p.roll ?? {}, { title: p.name, subtitle: `${pathName || d.name} · ${ROMAN[p.level - 1] ?? p.level}`, effect: p.html,
     kind: magic ? "magic" : "check", magic: magic ? { disc, level: p.level, path: pathName } : null,
     power: { disc, level: p.level, path: pathName, name: p.name } });
+  // сила без броска и без своей автоматики (кровные линии): «Применить» — цена кровью и Волей, карточка в чат; по желанию — бросок
+  if (!magic && !(p.roll?.trait1 || p.roll?.dice)) return usePower(actor, p, `${d.name} · ${ROMAN[p.level - 1] ?? p.level}`, plain);
+  return plain();
 }

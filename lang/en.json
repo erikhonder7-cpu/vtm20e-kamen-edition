@@ -6041,7 +6041,24 @@
       "NightDesc": "Illusory damage: {n}. Within a day the victim can be convinced — Charisma + Empathy vs. the creator's Manipulation + Subterfuge, 2 successes: the damage vanishes. After that it sets and heals normally. Side effects (fire → Rötschreck) at the Storyteller's call.",
       "NightDone": "Horrid Reality: {n} levels of unsoakable damage.",
       "NightFaint": "Horrid Reality: {n} levels — the mortal falls unconscious (does not die).",
-      "NightTorpor": "Horrid Reality: {n} levels — the vampire falls into torpor."
+      "NightTorpor": "Horrid Reality: {n} levels — the vampire falls into torpor.",
+      "AbsorbD9": "9 — old trace or a mighty being",
+      "AbsorbNote": "Each success — an image of the setting or one aspect of whoever left it (Nature, Demeanor, aura, name, sex, age). The trace is absorbed: each Kiasyd success cancels one of the next reader's.",
+      "WardApply": "Ward on {name}",
+      "WardNote": "Ward on {name}: difficulty 2 + Willpower ({n}). Duration: 1 success — an hour, 2 — a night, 3 — a week, 4 — a month, 5 — a year.",
+      "WardObject": "Ward on a place or object: difficulty 7. Duration: 1 success — an hour, 2 — a night, 3 — a week, 4 — a month, 5 — a year. Those entering or touching it — −2 to Intelligence rolls; seeing the mark disorients (Wits + Investigation, diff. 8).",
+      "WardName": "Chanjelin Ward ({name})",
+      "WardDesc": "−2 dice to Intelligence rolls; seeing the mark disorients (Wits + Investigation, diff. 8). Duration: {dur}.",
+      "RiddleApply": "Riddle for {name}",
+      "RiddleNote": "Success — the victim freezes and works on the riddle.",
+      "RiddleName": "Riddle Phantastique ({name})",
+      "RiddleDesc": "Lost in the riddle and doing nothing else. To solve: once an hour Wits + Occult (diff. 8 ± derangements), {need} successes needed. Botch — 1 lethal and start over; wounds from the riddle heal only once it is solved.",
+      "RiddleRoll": "Work on the riddle",
+      "RiddleRollNote": "The Storyteller may shift the difficulty by the victim's number of derangements.",
+      "RiddleGone": "The riddle is already solved or lifted.",
+      "RiddleBotch": "Botch: 1 lethal, accumulated successes lost — start over.",
+      "RiddleSolved": "The riddle is solved — the victim is free.",
+      "RiddleProgress": "Solving: {got} of {need} successes."
     },
     "Ghoul": {
       "Retainer": "Retainer, not a PC",
@@ -6054,6 +6071,15 @@
       "Anyway": "Anyway",
       "Cancel": "Cancel",
       "Done": "{name} bends a rule: {reason}"
+    },
+    "Use": {
+      "NoRoll": "This power has no activation roll — it works as described. The cost can be adjusted.",
+      "Blood": "Blood",
+      "Will": "Willpower",
+      "Note": "What it does (to chat)",
+      "NoteHint": "target, duration, details…",
+      "Go": "Use",
+      "Roll": "Roll"
     }
   },
   "Fx": {

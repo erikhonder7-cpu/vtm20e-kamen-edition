@@ -2215,6 +2215,98 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  // Сила без броска (кровные линии): окно «Применить» — цена правится, списывается, карточка в чат; «Бросок» — обычное окно
+  await check("Сила без броска: «Применить»", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), sys = p => import(`/systems/${sid}/${p}`);
+      const { rollPowerRef } = await sys("module/sheets/actor-sheet.mjs");
+      const a = await Actor.create({ name: "E2E — сангвинарий", type: "vampire", flags: { world: { e2e: true } },
+        system: { generation: 10, blood: { value: 10 }, willpower: { permanent: 5, temporary: 5 } } });
+      await a.createEmbeddedDocuments("Item", [{ name: "E2E — bardo", type: "discipline", system: { key: "bardo", value: 3 } }]);
+      const inst = () => [...foundry.applications.instances.values()];
+      const use = () => inst().find(x => x.element?.classList.contains("r-use-dialog"));
+      const idx = game.vtm20Codex.discipline("bardo").powers.findIndex(p => p.en === "Gift of Apis");
+      const n0 = game.messages.size;
+      rollPowerRef(a, `bardo|${idx}`); await wait(700);
+      const dlg = use()?.element;
+      const out = { open: !!dlg, noRoll: !inst().some(x => x.constructor.name === "RollDialog") };
+      if (dlg) { dlg.querySelector('[name="b"]').value = "2"; dlg.querySelector('[name="w"]').value = "1"; dlg.querySelector('[name="n"]').value = "на быка";
+        dlg.querySelector('button[data-action="use"]').click(); }
+      await wait(800);
+      out.paid = [10 - a.system.blood.value, 5 - a.system.willpower.temporary, game.messages.contents.slice(n0).some(x => /на быка/.test(x.content))];
+      // «Бросок» — обычное окно
+      rollPowerRef(a, `bardo|${idx}`); await wait(700);
+      use()?.element.querySelector('button[data-action="roll"]')?.click(); await wait(700);
+      const rd = inst().find(x => x.constructor.name === "RollDialog");
+      out.roll = !!rd; await rd?.close();
+      await a.delete();
+      return out;
+    });
+    const want = { open: true, noRoll: true, paid: [2, 1, true], roll: true };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
+  // Мистификация через HUD: Чепуха без броска; Печать фей — 2 + Воля, −2 к Интеллекту на срок; Волшебная загадка — жертва замирает и решает
+  await check("Мистификация через HUD", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), sys = p => import(`/systems/${sid}/${p}`);
+      const TP = await sys("module/apps/target-powers.mjs");
+      const mk = (name, type, system = {}) => Actor.create({ name, type, flags: { world: { e2e: true } }, system });
+      const a = await mk("E2E — киасид", "vampire", { generation: 9, blood: { value: 12 } });
+      const m = await mk("E2E — гость киасида", "mortal", { willpower: { permanent: 3, temporary: 3 }, attributes: { intelligence: { value: 3 } } });
+      await a.createEmbeddedDocuments("Item", [{ name: "E2E — mytherceria", type: "discipline", system: { key: "mytherceria", value: 5 } }]);
+      const scene = game.scenes.viewed ?? game.scenes.contents[0];
+      const made = await scene.createEmbeddedDocuments("Token", await Promise.all([a, m].map((x, i) => x.getTokenDocument({ x: 100 + i * 200, y: 2700 }))));
+      const tok = x => made.find(tk => tk.actorId === x.id);
+      for (let i = 0; i < 30 && !canvas.tokens.get(tok(m).id); i++) await wait(100);
+      await wait(400);
+      const inst = () => [...foundry.applications.instances.values()];
+      const closeAll = async () => { for (const x of inst()) if (x.constructor.name === "RollDialog" || x instanceof foundry.applications.api.DialogV2) await x.close(); };
+      const hud = async re => { await closeAll(); document.querySelector('#r-hud [data-act="tab"][data-tab="powers"]')?.click(); await wait(300);
+        document.querySelector('#r-hud [data-act="pop"][data-pop*="mytherceria"]')?.click(); await wait(400);
+        [...document.querySelectorAll('#r-hud .rh-pop-row[data-act="power"]')].find(x => re.test(x.textContent))?.click(); await wait(600); };
+      const rollDlg = () => inst().find(x => x.constructor.name === "RollDialog");
+      const at = () => canvas.tokens.get(tok(a).id).actor, mt = () => canvas.tokens.get(tok(m).id).actor;
+      canvas.tokens.get(tok(a).id)?.control({ releaseOthers: true }); await wait(600);
+      await hud(/Чепуха/);
+      const out = { folderol: [at().powerEffects.some(x => x.power === "mytherceria:1"), !rollDlg()] };
+      canvas.tokens.get(tok(m).id)?.setTarget(true, { releaseOthers: true }); await wait(300);
+      const int0 = mt().system.attributes.intelligence.total;
+      await hud(/Печать фей/);
+      let rd = rollDlg();
+      out.wardDiff = rd?.values.difficulty;
+      await TP.applyTargetPower({ isOwner: false }, { actorUuid: a.uuid, extra: rd?.cfg.extra }, { successes: 2, outcome: "success" });
+      out.ward = [int0 - mt().system.attributes.intelligence.total, mt().effects.some(e => e.flags?.[sid]?.mind === "mytherceria|Chanjelin Ward" && e.flags[sid].until)];
+      await hud(/Волшебная загадка/);
+      rd = rollDlg();
+      out.riddleDiff = rd?.values.difficulty;
+      const n0 = game.messages.size;
+      await TP.applyTargetPower({ isOwner: false }, { actorUuid: a.uuid, extra: rd?.cfg.extra }, { successes: 2, outcome: "success" });
+      const card = game.messages.contents.slice(n0).find(x => x.getFlag(sid, "riddleRoll"));
+      out.held = [mt().statuses.has("r-held"), mt().effects.find(e => e.flags?.[sid]?.riddle)?.flags[sid].riddle.need];
+      await closeAll();
+      await TP.riddleRoll(card); await wait(500);
+      let solve = rollDlg();
+      out.solveRoll = [solve?.values.trait1, solve?.values.trait2, solve?.values.difficulty];
+      await solve?.cfg.onRolled?.({ successes: 4, outcome: "success" }); await solve?.close();
+      out.progress = mt().effects.find(e => e.flags?.[sid]?.riddle)?.flags[sid].riddle.got;
+      await TP.riddleRoll(card); await wait(500);
+      solve = rollDlg();
+      await solve?.cfg.onRolled?.({ successes: 2, outcome: "success" }); await solve?.close();
+      out.solved = [!mt().effects.some(e => e.flags?.[sid]?.riddle), !mt().statuses.has("r-held")];
+      [...game.user.targets].forEach(x => x.setTarget(false, { releaseOthers: false }));
+      canvas.tokens.releaseAll(); await wait(600);
+      await scene.deleteEmbeddedDocuments("Token", made.map(x => x.id));
+      await Actor.deleteDocuments([a.id, m.id]);
+      return out;
+    });
+    const want = { folderol: [true, true], wardDiff: 5, ward: [2, true], riddleDiff: 3, held: [true, 6],
+      solveRoll: ["attributes.wits", "abilities.occult", 8], progress: 4, solved: [true, true] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   // Помешательство через HUD: Око хаоса — сложность по задаче, Голос безумия — смертный сразу, вампир — проверка +2;
   // Метаморфозы: в облике тумана силы со взглядом недоступны
   await check("Помешательство через HUD и туман без взгляда", async () => {

@@ -67,6 +67,10 @@ export const POWER_EFFECTS = {
   "quietus:4": { mode: "toggle", icon: "fa-skull-crossbones", cost: { blood: [1, 5] }, charges: true, venom: true },
   // Сокрытие 1–2: держится, пока не выдаст себя
   "obfuscate:1": { mode: "toggle", icon: "fa-user-secret" },
+  // Мистификация 1, Чепуха: по желанию, без броска — знает, когда собеседник сознательно лжёт (не что именно)
+  "mytherceria:1": { mode: "toggle", icon: "fa-face-meh-blank", noRoll: true },
+  // Мистификация 2, Зачарованное зрение: без броска — истинный облик фей и зачарованных, следы чужой магии (не нежити)
+  "mytherceria:2": { mode: "toggle", icon: "fa-eye", noRoll: true },
   "obfuscate:2": { mode: "toggle", icon: "fa-ghost" },
   // Сокрытие 3: Манипуляция + Исполнение (сл. 7) — маска держится, пока вампир её не снимет
   "obfuscate:3": { mode: "toggle", icon: "fa-masks-theater", rollStart: true, tierKey: "Fx.MaskTier" },

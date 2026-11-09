@@ -409,6 +409,7 @@ export function onChatCardClick(event) {
     return import("../combat/combat.mjs").then(m => combatAction === "defend" ? m.defendCard(message, btn.dataset.method) : m.rollLinkedDamage(message));
   }
   if (combatAction === "possessRoll") return import("../apps/target-powers.mjs").then(m => m.possessAccess(message));
+  if (combatAction === "riddleRoll") return import("../apps/target-powers.mjs").then(m => m.riddleRoll(message));
   if (combatAction === "targetApply") return import("../apps/target-powers.mjs").then(m => m.applyFromCard(message));
   if (combatAction === "sinPrompt") return import("../apps/torment.mjs").then(m => m.sinFromPrompt(message));
   if (combatAction === "virtueCheck") return import("./virtue-checks.mjs").then(m => m.rollFromPrompt(message));

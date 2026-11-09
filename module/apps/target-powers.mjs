@@ -57,6 +57,11 @@ export const TARGET_POWERS = {
   "auspex|Telepathy": { diff: ["willpower"], note: "Tele", kind: "tele" },
   // Психометрия: сложность по давности и силе следа (4 … 9)
   "auspex|The Spirit's Touch": { kind: "psycho" },
+  // Мистификация 3–5 (киасиды): Поглощение ауры — сложность по следу; Печать фей — 2 + Воля цели (предмет — 7), срок по успехам,
+  // −2 к Интеллекту; Волшебная загадка — сложность Воля жертвы, жертва замирает и решает (Смекалка + Оккультизм, сл. 8)
+  "mytherceria|Aura Absorption": { kind: "absorb" },
+  "mytherceria|Chanjelin Ward": { kind: "ward", timed: ["hour", "night", "week", "month", "year"] },
+  "mytherceria|Riddle Phantastique": { kind: "riddle", needTarget: true, diff: ["willpower"] },
   // Фантасмагория 1–4: без броска — иллюзии эффектами на листе (их может быть несколько); 3–4 — к выбранной иллюзии
   "chimerstry|Ignis Fatuus": { kind: "illusion", will: 1 },
   "chimerstry|Fata Morgana": { kind: "illusion", will: 1, blood: 1, all: true },
@@ -213,13 +218,13 @@ export function tierText(tp, successes) {
 /** Подпись кнопки «наложить» на карточке (только у сил с эффектом на цели). */
 export function targetPowerLabel(extra, ev) {
   const tp = extra?.targetPower && TARGET_POWERS[extra.targetPower.key];
-  if (!tp || ev.outcome !== "success" || extra.targetPower.done || !(tp.timed || tp.dread || tp.kind) || ["taste", "gather", "aura", "visage", "whisper", "info", "tiers", "counter", "chaos", "tele", "psycho", "illusion"].includes(tp.kind)) return "";
+  if (!tp || ev.outcome !== "success" || extra.targetPower.done || !(tp.timed || tp.dread || tp.kind) || ["taste", "gather", "aura", "visage", "whisper", "info", "tiers", "counter", "chaos", "tele", "psycho", "illusion", "absorb"].includes(tp.kind)) return "";
   // Усмирение — только когда накоплены все успехи продолжительного броска
   if (tp.kind === "quell" && !((extra.extended?.prev ?? 0) + ev.successes >= (extra.extended?.need ?? Infinity))) return "";
   const lbl = { beast: "BeastApply", poison: "PoisonApply", shroud: "ShroudApply", arms: "ArmsApply", vanish: "VanishApply",
     rage: "RageApply", potency: "PotencyApply", theft: "TheftApply", possess: "PossessApply", project: "ProjectApply", awe: "AweApply", call: "CallApply",
     mesmerize: "MesApply", forget: "ForgApply", condition: "CondApply", voice: "VoiceApply",
-    flesh: "FleshApply", bone: "BoneApply", dagon: "DagonApply", nightmare: "NightApply", beckon: "BeckonApply", subsume: "SubsumeApply", self: "SelfApply", summon: "SummonApply", comrades: "ComradesApply", conjure: "ConjureApply" }[tp.kind] ?? "Apply";
+    flesh: "FleshApply", bone: "BoneApply", dagon: "DagonApply", nightmare: "NightApply", ward: "WardApply", riddle: "RiddleApply", beckon: "BeckonApply", subsume: "SubsumeApply", self: "SelfApply", summon: "SummonApply", comrades: "ComradesApply", conjure: "ConjureApply" }[tp.kind] ?? "Apply";
   return t(lbl, { name: extra.targetPower.targetName, n: ev.successes });
 }
 
@@ -423,6 +428,16 @@ export async function applyTargetPower(message, state, ev) {
     await target.startPower("vicissitude:3", { variant: x.bone, blood: 0 });
     return notice(target, x.powerName, t(x.bone === "claws" ? "BoneClawsDone" : "BoneSpikesDone", { n: cost }));
   }
+  if (tp.kind === "riddle") {
+    // Волшебная загадка: жертва замирает; нужно втрое больше успехов, чем у киасида; решает кнопкой на карточке
+    await done(message, state, x);
+    const need = 3 * n;
+    await target.createEmbeddedDocuments("ActiveEffect", [{ name: t("RiddleName", { name: x.actorName }), img: Codex.disciplineIcon("mytherceria"),
+      description: `<p>${esc(t("RiddleDesc", { need }))}</p>`, statuses: ["r-held"], flags: { [SYSTEM_ID]: { ...flags, mode: "manual", riddle: { need, got: 0 } } } }]);
+    return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: target }), flags: { [SYSTEM_ID]: { riddleRoll: { target: target.uuid } } },
+      content: `<div class="r-notice"><i class="fa-solid fa-puzzle-piece"></i> <b>${esc(x.powerName)}</b> → ${esc(target.name)}: ${esc(t("RiddleDesc", { need }))}
+        <div class="r-card-buttons"><button type="button" data-r-action="riddleRoll"><i class="fa-solid fa-dice-d10"></i> ${esc(t("RiddleRoll"))}</button></div></div>` });
+  }
   if (tp.kind === "nightmare") {
     // Кошмар наяву: урон по разуму — без поглощения; не убивает (смертный теряет сознание, вампир — торпор)
     await done(message, state, x);
@@ -528,6 +543,13 @@ export async function applyTargetPower(message, state, ev) {
     Object.assign(flags, { mode: "manual" });
     name = t("QuellName", { name: x.actorName });
     desc = t("QuellDesc", { n: self?.system.willpower?.permanent ?? "?" });
+  } else if (tp.kind === "ward") {
+    // Печать фей: −2 куба к проверкам Интеллекта, срок по успехам
+    const code = tp.timed[Math.min(n, tp.timed.length) - 1];
+    const until = untilOf(code, now, api);
+    Object.assign(flags, { attrMod: { intelligence: -2 }, mode: until ? "timed" : "scene", ...(until ? { until } : {}) });
+    name = t("WardName", { name: x.actorName });
+    desc = t("WardDesc", { dur: t(`Dur.${code}`) });
   } else if (tp.dread) {
     // −1 куб за успех на следующий ход цели; 3+ — бежит в ужасе (V20, Величие 2)
     Object.assign(flags, { dread: n, mode: "scene" });
@@ -687,6 +709,19 @@ export async function rollTargetPower(actor, disc, d, p, tp, { rollFromSpec, sub
     opts.more = null;
     roll.note = [roll.note, t(how === "read" ? (target && supernatural(target) ? "TeleReadSuper" : "TeleReadNote") : "TeleSendNote")].filter(Boolean).join(" ");
   }
+  if (tp.kind === "absorb") {
+    const d = await ask(p.name, [["4", t("PsychoD4")], ["5", "5"], ["6", t("PsychoD6")], ["7", "7"], ["8", "8"], ["9", t("AbsorbD9")]]);
+    if (!d) return null;
+    roll = { ...roll, difficulty: parseInt(d), note: t("AbsorbNote") };
+    opts.more = null;
+  }
+  if (tp.kind === "ward") {
+    if (target) {
+      const tw = target.system.willpower?.temporary ?? 0;
+      roll = { ...roll, difficulty: Math.clamp(2 + tw, 2, 10), note: t("WardNote", { name: target.name, n: 2 + tw }) };
+    } else { roll = { ...roll, difficulty: 7, note: t("WardObject") }; opts.more = null; }
+  }
+  if (tp.kind === "riddle") roll.note = [roll.note, t("RiddleNote")].filter(Boolean).join(" ");
   if (tp.kind === "psycho") {
     const d = await ask(p.name, [["4", t("PsychoD4")], ["5", "5"], ["6", t("PsychoD6")], ["7", "7"], ["8", "8"], ["9", t("PsychoD9")]]);
     if (!d) return null;
@@ -1234,6 +1269,32 @@ export async function possessAccess(message) {
       const fx = self.effects.find(e => e.flags?.[SYSTEM_ID]?.mind === "dominate|Possession" && e.flags[SYSTEM_ID].host);
       if (fx) await fx.update({ [`flags.${SYSTEM_ID}.subsume`]: tier, description: `<p>${esc(t("SubsumeDesc", { list: SUBSUME[tier].map(k => Codex.disciplineLabel(k)).join(", ") || t("SubsumeNone") }))}</p>` });
       notice(self, t("PossessAccessRoll"), SUBSUME[tier].map(k => Codex.disciplineLabel(k)).join(", ") || t("SubsumeNone"));
+    } });
+}
+
+/** Волшебная загадка: ежечасная проверка решения — Смекалка + Оккультизм (сл. 8, ± расстройства — в окне броска). */
+export async function riddleRoll(message) {
+  const x = message.getFlag(SYSTEM_ID, "riddleRoll");
+  const victim = x && await foundry.utils.fromUuid(x.target);
+  if (!victim) return ui.notifications.warn(t("Gone"));
+  if (!victim.isOwner) return ui.notifications.warn(game.i18n.format("VTM20.Notify.NotOwner", { name: victim.name }));
+  const fx = victim.effects.find(e => e.flags?.[SYSTEM_ID]?.riddle);
+  if (!fx) return ui.notifications.info(t("RiddleGone"));
+  const { RollDialog } = await import("../dice/dialog.mjs");
+  return RollDialog.prompt(victim, { title: t("RiddleRoll"), subtitle: fx.name, trait1: "attributes.wits", trait2: "abilities.occult", difficulty: 8,
+    diffNote: t("RiddleRollNote"),
+    onRolled: async res => {
+      const cur = victim.effects.get(fx.id); if (!cur) return;
+      const r = cur.flags[SYSTEM_ID].riddle;
+      if (res?.outcome === "botch") {
+        await victim.applyDamage(1, "lethal");
+        await cur.update({ [`flags.${SYSTEM_ID}.riddle.got`]: 0 });
+        return notice(victim, t("RiddleRoll"), t("RiddleBotch"));
+      }
+      const got = r.got + (res?.successes ?? 0);
+      if (got >= r.need) { await cur.delete(); return notice(victim, t("RiddleRoll"), t("RiddleSolved")); }
+      await cur.update({ [`flags.${SYSTEM_ID}.riddle.got`]: got });
+      return notice(victim, t("RiddleRoll"), t("RiddleProgress", { got, need: r.need }));
     } });
 }
 

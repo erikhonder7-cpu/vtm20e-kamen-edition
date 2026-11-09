@@ -1569,3 +1569,8 @@ body.r-theme-light .vtm20 .r-sp-state img { filter: none; }
 .vtm20.r-bw-dialog .window-content { max-height: calc(100vh - 60px); overflow-y: auto; }
 .vtm20 .r-bw-more > summary > i { margin-right: 4px; transition: transform .15s; }
 .vtm20 .r-bw-more[open] > summary > i { transform: rotate(90deg); }
+
+/* Сила без броска: окно «Применить» (apps/use-power.mjs) */
+.vtm20 .r-use-sub { margin: 0; font-family: var(--r-caps); font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--r-muted); }
+.vtm20 .r-use-cost { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.vtm20 .r-use-cost .r-field i { color: var(--r-bone-d); margin-right: 3px; }
