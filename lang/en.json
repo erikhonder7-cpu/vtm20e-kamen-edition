@@ -3800,7 +3800,7 @@
       "Set": "Set",
       "NotEnough": "Not that much.",
       "Hint": "Empty fields don't change.",
-      "HintLsd": "1 livre = 20 sous = 240 deniers; a louis d'or — 24 livres, an écu — 6 livres. Empty fields don't change; the Storyteller sets the assignat rate in the world settings.",
+      "HintLsd": "1 livre = 20 sous = 240 deniers; a louis d'or is 24 livres, an écu 6 livres. Coins stay as entered and are never changed on their own; paying spends small coins first and makes change only when short. Empty fields stay as they are; the assignat rate is set by the Storyteller in world settings.",
       "Cur": {
         "livre": "Livres, sous, deniers (1789)",
         "dollar": "Dollars",

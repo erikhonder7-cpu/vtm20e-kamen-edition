@@ -61,6 +61,8 @@ class BaseActorData extends foundry.abstract.TypeDataModel {
       money: new SchemaField({
         amount: new NumberField({ required: true, min: 0, initial: 0 }),
         paper: new NumberField({ required: true, min: 0, initial: 0 }),
+        // ливры, су, денье — как лежат в кошельке, без самовольного размена (amount — их общая цена)
+        coins: new SchemaField({ l: int(0, 0, 999999999), s: int(0, 0, 999999), d: int(0, 0, 999999) }),
         currency: str()
       }),
       experience: new SchemaField({

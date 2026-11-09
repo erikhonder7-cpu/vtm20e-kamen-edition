@@ -1960,6 +1960,45 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  // Кошелёк (ливры): монеты лежат как внесены — без самовольного размена; трата — сперва мелочь, сдача — по нужде
+  await check("Кошелёк: ливры, су и денье без авторазмена", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms));
+      const M = await import(`/systems/${sid}/module/data/money.mjs`);
+      const a = await Actor.create({ name: "E2E — кошелёк", type: "vampire", flags: { world: { e2e: true } }, system: { money: { currency: "livre" } } });
+      const coins = () => { const c = a.system.money.coins; return [c.l, c.s, c.d]; };
+      // окно: прибавить 30 су — так и лежат 30 су, не «1 ливр 10 су»
+      const use = async (op, l, s, d) => {
+        const p = M.openMoney(a);
+        let dlg = null; for (let i = 0; i < 30 && !dlg; i++) { await wait(100); dlg = [...foundry.applications.instances.values()].find(x => x.element?.classList.contains("r-money-dialog")); }
+        const f = dlg?.element.querySelector("form") ?? dlg?.element;
+        f.querySelector(`input[name="op"][value="${op}"]`).checked = true;
+        for (const [k, v] of [["l", l], ["s", s], ["d", d]]) if (v != null) f.querySelector(`input[name="${k}"]`).value = String(v);
+        dlg.element.querySelector('button[data-action="apply"]').click();
+        await p; await wait(300);
+      };
+      const out = {};
+      await use("1", null, 30, null);
+      out.add = [coins(), a.system.money.amount];
+      // отнять 5 денье: денье нет — разменяет один су: 29 су 7 денье
+      await use("-1", null, null, 5);
+      out.pay = coins();
+      // доход 2,5 ливра (как от Ресурсов) — ложится монетами: +2 л. +10 с.
+      await M.changeMoney(a, 2.5);
+      out.income = coins();
+      // задать ровно: 1 л. 0 с. 0 д.
+      await use("0", 1, 0, 0);
+      out.set = [coins(), a.system.money.amount];
+      // не хватает — отказ
+      out.short = await M.changeMoney(a, -5);
+      await a.delete();
+      return out;
+    });
+    const want = { add: [[0, 30, 0], 1.5], pay: [0, 29, 7], income: [2, 39, 7], set: [[1, 0, 0], 1], short: false };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   // Метаморфозы 3, 5 и Модифицированный Облик Зверя (2.7.0): Слияние с землёй (солнце не вредит, угроза будит),
   // Туманная форма (обычный урон не проходит, огонь — да; атаковать нельзя), две формы Гангрела из Clanbook
   await check("Метаморфозы: туман, Слияние с землёй, Модифицированный Облик", async () => {

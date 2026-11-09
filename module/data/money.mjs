@@ -55,6 +55,32 @@ export function fmtMoney(amount, cur = worldCurrency()) {
 /** Хватает ли монеты (в валюте персонажа). */
 export const canPay = (actor, amount) => (actor?.system?.money?.amount ?? 0) >= amount;
 
+/** Монеты кошелька (ливры, су, денье); старый кошелёк без монет — по сумме. */
+export function coinsOf(m) {
+  const c = m?.coins ?? {};
+  const has = (c.l || 0) + (c.s || 0) + (c.d || 0) > 0;
+  return has || !(m?.amount > 0) ? { l: c.l || 0, s: c.s || 0, d: c.d || 0 } : toLsd(m.amount);
+}
+const value = c => c.l + c.s / 20 + c.d / 240;
+const add = (a, b) => ({ l: a.l + b.l, s: a.s + b.s, d: a.d + b.d });
+
+/**
+ * Заплатить столько-то денье: сперва денье, потом су, потом ливры; размен — только когда без него не обойтись
+ * (сдача — су и денье). null — не хватает.
+ */
+export function payCoins(c, deniers) {
+  let { l, s, d } = c, v = Math.round(deniers);
+  if (v > l * 240 + s * 12 + d) return null;
+  const useD = Math.min(d, v); d -= useD; v -= useD;
+  if (v > 0) { const useS = Math.min(s, Math.ceil(v / 12)); s -= useS; v -= useS * 12; }
+  if (v > 0) { const useL = Math.ceil(v / 240); l -= useL; v -= useL * 240; }
+  if (v < 0) { const back = -v; s += Math.floor(back / 12); d += back % 12; }
+  return { l, s, d };
+}
+
+/** Записать монеты кошелька (и их общую цену). */
+const coinUpdate = c => ({ "system.money.coins": c, "system.money.amount": roundMoney(value(c), "livre") });
+
 /**
  * Списать или начислить монету (delta < 0 — списание).
  * @returns {Promise<boolean>} false — не хватило
@@ -62,7 +88,17 @@ export const canPay = (actor, amount) => (actor?.system?.money?.amount ?? 0) >= 
 export async function changeMoney(actor, delta, { force = false } = {}) {
   const m = actor?.system?.money;
   if (!m) return false;
-  const next = roundMoney(m.amount + delta, currencyOf(actor));
+  const cur = currencyOf(actor);
+  // ливры: монеты отдельно — доход ложится монетами, трата — с разменом лишь по необходимости
+  if (VTM20.currencies[cur]?.lsd) {
+    const c = coinsOf(m);
+    if (delta >= 0) { await actor.update(coinUpdate(add(c, toLsd(delta)))); return true; }
+    const paid = payCoins(c, -delta * 240);
+    if (!paid) { if (!force) return false; await actor.update(coinUpdate({ l: 0, s: 0, d: 0 })); return true; }
+    await actor.update(coinUpdate(paid));
+    return true;
+  }
+  const next = roundMoney(m.amount + delta, cur);
   if (next < 0 && !force) return false;
   await actor.update({ "system.money.amount": Math.max(0, next) });
   return true;
@@ -79,7 +115,7 @@ export function moneyView(actor) {
       { n: l.toLocaleString(game.i18n.lang), unit: L("L"), metal: "gold" },
       { n: s, unit: L("S"), metal: "silver" },
       { n: d, unit: L("D"), metal: "copper" }
-    ])(toLsd(m.amount)) : null,
+    ])(coinsOf(m)) : null,
     paper: lsd && m.paper > 0 ? fmtMoney(m.paper, cur) : "",
     paperCoin: lsd && m.paper > 0 ? fmtMoney(roundMoney(m.paper * rate, cur), cur) : "",
     rate: Math.round(rate * 100)
@@ -95,6 +131,7 @@ export async function openMoney(actor) {
   const opts = Object.entries(VTM20.currencies)
     .map(([k, c]) => `<option value="${k}" ${k === cur ? "selected" : ""}>${game.i18n.localize(c.label)}</option>`).join("");
   const view = moneyView(actor);
+  const have = coinsOf(m);
   // Сейчас в кошельке — монетами, как на листе (ливры, су, денье) или одной суммой
   const now = lsd
     ? `<div class="r-coins r-money-coins">${view.coins.map(c => `<span class="r-coin is-${c.metal}"><i></i><b>${c.n}</b> ${c.unit}</span>`).join("")}</div>`
@@ -138,13 +175,29 @@ export async function openMoney(actor) {
     },
     buttons: [
       { action: "apply", icon: "fa-solid fa-check", label: L("Apply"), default: true,
-        callback: (e, b) => ({ op: Number(b.form.elements.op.value), ...read(b.form, lsd) }) }
+        callback: (e, b) => ({ op: Number(b.form.elements.op.value), ...read(b.form, lsd), lsdIn: lsd ? readLsd(b.form) : null }) }
     ],
     rejectClose: false
   });
   if (!res) return;
   const update = {};
   if (res.currency !== m.currency) update["system.money.currency"] = res.currency;
+  // ливры: монеты как внесены — прибавить, отнять (размен только при нехватке мелочи), задать ровно
+  if (res.lsdIn && !res.exchange) {
+    let c = have;
+    if (res.lsdIn.any) {
+      if (res.op === 0) c = res.lsdIn.c;
+      else if (res.op > 0) c = add(c, res.lsdIn.c);
+      else { c = payCoins(c, res.lsdIn.c.l * 240 + res.lsdIn.c.s * 12 + res.lsdIn.c.d); if (!c) return ui.notifications.warn(L("NotEnough")); }
+      Object.assign(update, coinUpdate(c));
+    }
+    let paper = m.paper ?? 0;
+    if (Number.isFinite(res.paper)) paper = res.op === 0 ? res.paper : paper + res.op * res.paper;
+    if (paper < 0) return ui.notifications.warn(L("NotEnough"));
+    if (paper !== (m.paper ?? 0)) update["system.money.paper"] = Math.round(paper);
+    if (Object.keys(update).length) await actor.update(update);
+    return;
+  }
   let coin = m.amount, paper = m.paper ?? 0;
   if (Number.isFinite(res.amount)) coin = res.op === 0 ? res.amount : coin + res.op * res.amount;
   if (Number.isFinite(res.paper)) {
@@ -155,9 +208,19 @@ export async function openMoney(actor) {
     } else paper = res.op === 0 ? res.paper : paper + res.op * res.paper;
   }
   if (coin < 0 || paper < 0) return ui.notifications.warn(L("NotEnough"));
-  if (coin !== m.amount) update["system.money.amount"] = roundMoney(coin, res.currency);
+  if (coin !== m.amount) {
+    if (lsd) Object.assign(update, coinUpdate(add(have, toLsd(coin - m.amount))));
+    else update["system.money.amount"] = roundMoney(coin, res.currency);
+  }
   if (paper !== (m.paper ?? 0)) update["system.money.paper"] = Math.round(paper);
   if (Object.keys(update).length) await actor.update(update);
+}
+
+/** Ливры, су, денье из окна — как вписаны, без размена. */
+function readLsd(form) {
+  const n = k => Math.max(0, Math.floor(Number(form.elements[k]?.value) || 0));
+  const any = ["l", "s", "d"].some(k => form.elements[k]?.value !== "" && form.elements[k]?.value != null);
+  return { any, c: { l: n("l"), s: n("s"), d: n("d") } };
 }
 
 function read(form, lsd) {
