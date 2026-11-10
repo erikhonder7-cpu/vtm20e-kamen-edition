@@ -17,6 +17,7 @@
         {{#if isVampire}}<span class="r-seal-num">{{rRoman system.generation}}</span><span class="r-seal-cap">{{localize "VTM20.Sheet.Gen"}}</span>
         {{#if editable}}<i class="fa-solid fa-chevron-down r-seal-caret"></i><select name="system.generation" data-dtype="Number" class="r-seal-select" aria-label="{{localize 'VTM20.Details.generation'}}">{{#each generations}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{rRoman value}} — {{value}}</option>{{/each}}</select>{{/if}}
         {{else if isDemon}}<span class="r-seal-num r-seal-icon"><i class="fa-solid fa-fire-flame-curved"></i></span><span class="r-seal-cap">{{#if house}}{{house.name}}{{else}}{{typeLabel}}{{/if}}</span>
+        {{else if mageSeal}}<span class="r-seal-num r-seal-icon r-seal-glyph">{{rSym mageSeal.sym "r-mg"}}</span><span class="r-seal-cap">{{mageSeal.label}}</span>
         {{else if werewolfSeal}}<span class="r-seal-num r-seal-icon r-seal-glyph">{{rSym werewolfSeal.sym "r-wg"}}</span><span class="r-seal-cap">{{werewolfSeal.label}}</span>
         {{else if isCreature}}<span class="r-seal-num r-seal-icon"><i class="fa-solid fa-paw"></i></span><span class="r-seal-cap">{{typeLabel}}</span>
         {{else if isGhoul}}<span class="r-seal-num r-seal-icon"><i class="fa-solid {{#if isRevenant}}fa-dna{{else}}fa-hand-holding-droplet{{/if}}"></i></span><span class="r-seal-cap">{{typeLabel}}</span>

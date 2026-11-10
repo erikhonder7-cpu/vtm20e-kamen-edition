@@ -14,7 +14,7 @@
     {{#each mageView.spheres}}
     <article class="r-edge-path r-sphere {{#if affinity}}is-primary{{/if}} {{#unless value}}is-zero{{/unless}} {{#if over}}is-over{{/if}}">
       <header class="r-edge-head">
-        <span class="r-edge-sigil"><i class="fa-solid {{icon}}"></i></span>
+        <span class="r-edge-sigil r-sphere-sigil">{{rSym sym "r-mg"}}</span>
         <span class="r-edge-title" {{#if altTip}}data-tooltip="{{altTip}}"{{/if}}><b>{{name}}</b> <small>{{en}}{{#if affinity}} · {{localize "VTM20.Mage.AffinityShort"}}{{/if}}</small></span>
         <span class="r-dots">{{#each dots}}<a class="r-dot {{#if filled}}is-filled{{/if}}" {{#if @root.editable}}data-action="setDots" data-path="{{path}}" data-n="{{n}}"{{/if}}></a>{{/each}}</span>
         {{#if @root.editable}}{{#if value}}<a class="r-vc-btn" data-action="mageCast" data-sphere="{{key}}" data-tooltip="{{localize 'VTM20.Mage.CastWith'}}"><i class="fa-solid fa-hat-wizard"></i></a>{{/if}}{{/if}}

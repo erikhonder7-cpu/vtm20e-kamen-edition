@@ -48,7 +48,7 @@ import { possess, extend as possessExtend, leave as possessLeave, battleExpiry }
 import { weaponIcon as weaponImg, armorIcon as armorImg } from "../data/icons.mjs";
 import { togglePowerEffect } from "../apps/power-effects.mjs";
 import { usePower } from "../apps/use-power.mjs";
-import { mageInfo, spheresView, castEffect, changeQuintessence, changeParadox, paradoxBacklash, addRote, removeRote, castRote, addTool, removeTool } from "../apps/mage.mjs";
+import { mageInfo, mageSigil, spheresView, castEffect, changeQuintessence, changeParadox, paradoxBacklash, addRote, removeRote, castRote, addTool, removeTool } from "../apps/mage.mjs";
 import { POWER_EFFECTS, fxKey } from "../data/effects.mjs";
 import { rollPackVinculi, openVaulderie, loyaltyConflict } from "../apps/vaulderie.mjs";
 import { openCoterie } from "../apps/coterie.mjs";
@@ -309,7 +309,10 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     prepareRegistry(this, ctx);
     if (actor.type === "demon") prepareLores(this, ctx);
     else if (actor.type === "hunter") { ctx.hunterInfo = hunterInfo(actor, dots); ctx.edgePaths = edgesView(actor); ctx.hunterCall = callView(actor); }
-    else if (actor.type === "mage") { ctx.mageInfo = mageInfo(actor, dots); ctx.mageView = spheresView(actor, dots); }
+    else if (actor.type === "mage") { ctx.mageInfo = mageInfo(actor, dots); ctx.mageView = spheresView(actor, dots);
+      const sg = mageSigil(actor);
+      ctx.sigil = { ...ctx.sigil, sym: sg.sym, label: sg.label };
+      ctx.mageSeal = sg.seal; }
     else if (actor.type === "werewolf") { ctx.werewolfInfo = werewolfInfo(actor, dots); ctx.ww = giftsView(actor);
       const sg = werewolfSigil(actor);
       ctx.sigil = { ...ctx.sigil, sym: sg.sym, label: sg.label };
@@ -479,6 +482,15 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   _processFormData(event, form, formData) {
     const data = super._processFormData(event, form, formData);
     const src = this.actor._source.system;
+    // Одно поле в двух местах листа (Убежище и Возраст — в шапке и в биографии): форма отдаёт массив, и он записался бы
+    // строкой «,,,». Берём то поле, которое правили, иначе первое; накопленные запятые прежних сохранений — чистим.
+    const seen = new Map();
+    for (const el of form.elements) if (el.name && el.type !== "radio" && el.type !== "checkbox") seen.set(el.name, [...(seen.get(el.name) ?? []), el]);
+    for (const [name, els] of seen) {
+      if (els.length < 2 || !Array.isArray(foundry.utils.getProperty(data, name))) continue;
+      const pick = els.includes(event?.target) ? event.target : els[0];
+      foundry.utils.setProperty(data, name, /^,+$/.test(pick.value) ? "" : pick.value);
+    }
     for (const key of ["secondary", "bonds", "vinculi", "boons", "timeline"]) {
       const v = data.system?.[key];
       if (v && !Array.isArray(v)) {

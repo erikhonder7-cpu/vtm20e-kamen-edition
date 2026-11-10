@@ -97,12 +97,92 @@ body.r-theme-light .vtm20.r-type-mage {
   background: var(--r-s2); border: 1px solid var(--r-line-2); border-radius: 0; box-shadow: none; }
 .vtm20.r-type-mage .r-tools input.r-tool-find::placeholder { color: var(--r-muted); font-style: italic; }
 
-/* окно чародейства */
-.vtm20.r-cast-dialog .r-cast-spheres { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px; }
-.vtm20.r-cast-dialog .r-cast-sphere > span:first-child i { width: 16px; text-align: center; color: #c9bcf5; }
-.vtm20.r-cast-dialog .r-cast-total { padding: 8px 10px; text-align: center; border: 1px solid rgba(154, 130, 230, .3); background: rgba(154, 130, 230, .07);
-  font-family: var(--r-display); font-size: 17px; color: var(--r-ink); }
-.vtm20.r-cast-dialog .r-decl-kinds { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+/* Официальные знаки M20: маска, залитая бледным золотом в аметист */
+.vtm20 .r-mg, .r-mg { background: linear-gradient(170deg, #fff3d0, #b9a6ee); }
+body.r-theme-light .vtm20 .r-mg { background: linear-gradient(170deg, #3a2a78, #1b1436); }
+.vtm20.r-type-mage .r-seal-glyph { display: inline-grid; place-items: center; }
+.vtm20.r-type-mage .r-seal-glyph .r-sym { width: 15px; height: 15px; }
+.vtm20.r-type-mage .r-sphere-sigil { padding: 4px; }
+.vtm20.r-type-mage .r-sphere.is-zero .r-sphere-sigil .r-mg { opacity: .45; }
+img[src$="assets/mage/sphere-prime.png"] { filter: invert(.93) sepia(.25) hue-rotate(200deg); }
+body.r-theme-light img[src$="assets/mage/sphere-prime.png"] { filter: none; }
+
+/* Окно чародейства: шапка со знаком фракции, Сферы плитками (ранг — точками), вид магии карточками, поправки, счёт сложности */
+.application.vtm20.r-cast-dialog .window-content { padding: 14px 16px 12px; }
+.vtm20 .r-cast { display: flex; flex-direction: column; gap: 9px; }
+.vtm20 .r-cast-head { display: flex; align-items: center; gap: 13px; padding-bottom: 10px; border-bottom: 1px solid var(--r-line-2); }
+.vtm20 .r-cast-sigil { flex: none; width: 52px; height: 52px; padding: 9px; border-radius: 50%; display: grid;
+  background: radial-gradient(circle at 50% 35%, rgba(154, 130, 230, .2), rgba(0, 0, 0, .5) 72%); box-shadow: inset 0 0 0 1px rgba(217, 181, 106, .45), 0 0 16px rgba(154, 130, 230, .18); }
+.vtm20 .r-cast-who { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.vtm20 .r-cast-who small { font-family: var(--r-caps); font-size: 11px; letter-spacing: 1.8px; text-transform: uppercase; color: var(--r-muted); }
+.vtm20 .r-cast-who b { font-family: var(--r-display); font-weight: 400; font-size: 21px; line-height: 1.15; color: var(--r-ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vtm20 .r-cast-pool { flex: none; display: flex; flex-direction: column; align-items: center; padding: 2px 12px; border-left: 1px solid var(--r-line-2); }
+.vtm20 .r-cast-pool b { font-family: var(--r-display); font-weight: 400; font-size: 26px; line-height: 1; color: var(--m-gold-l); }
+.vtm20 .r-cast-pool small { font-family: var(--r-caps); font-size: 10px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--r-muted); }
+.vtm20 input.r-cast-name { width: 100%; height: 30px; padding: 0 2px; border: 0; border-bottom: 1px dashed var(--r-line-2); border-radius: 0; background: none; box-shadow: none;
+  font-family: var(--r-display); font-size: 16px; color: var(--r-ink); }
+.vtm20 input.r-cast-name::placeholder { font-family: var(--r-body); font-style: italic; font-size: 13.5px; color: var(--r-muted); }
+.vtm20 .r-cast-cap { display: flex; align-items: baseline; gap: 10px; margin: 5px 0 0; font-size: 11.5px; letter-spacing: 2.2px; color: var(--m-violet-l); }
+.vtm20 .r-cast-cap em { font-family: var(--r-body); font-size: 12px; font-style: italic; letter-spacing: 0; text-transform: none; color: var(--r-muted); }
+.vtm20 .r-cast-spheres { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.vtm20 .r-cast-sphere { position: relative; display: grid; grid-template-columns: 26px minmax(0, 1fr); column-gap: 9px; row-gap: 3px; align-items: center; padding: 7px 10px; cursor: pointer;
+  border: 1px solid var(--r-line); background: var(--r-card-bg); transition: border-color .12s, background .12s; }
+.vtm20 .r-cast-sphere:hover { border-color: var(--r-line-2); }
+.vtm20 .r-cast-sphere.is-on { border-color: var(--m-gold); background: linear-gradient(90deg, rgba(217, 181, 106, .12), rgba(154, 130, 230, .05)); }
+.vtm20 .r-cast-sphere.is-on::before { content: ""; position: absolute; left: -1px; top: -1px; width: 44px; height: 2px; background: linear-gradient(90deg, var(--m-gold), transparent); }
+.vtm20 .r-cast-sym { grid-row: 1 / span 2; width: 26px; height: 26px; opacity: .55; }
+.vtm20 .r-cast-sphere.is-on .r-cast-sym { opacity: 1; }
+.vtm20 .r-cast-sphere b { font-family: var(--r-caps); font-weight: 400; font-size: 12px; letter-spacing: 1.4px; text-transform: uppercase; color: var(--r-ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vtm20 .r-cast-sphere.is-on b { color: var(--r-ink); }
+.vtm20 .r-cast-sphere .r-dots { display: flex; gap: 4px; }
+.vtm20 .r-cast-sphere .r-dot { width: 13px; height: 13px; cursor: pointer; }
+.vtm20 .r-cast-sphere .r-dot.is-locked { opacity: .3; cursor: not-allowed; border-style: dashed; }
+.vtm20 .r-cast-kinds { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.vtm20 .r-cast-kind { position: relative; display: grid; grid-template-columns: 18px minmax(0, 1fr) auto; column-gap: 8px; row-gap: 2px; align-items: center; padding: 7px 10px; cursor: pointer;
+  border: 1px solid var(--r-line); background: var(--r-card-bg); color: var(--r-ink-2); }
+.vtm20 .r-cast-kind:hover { border-color: var(--r-line-2); }
+.vtm20 .r-cast-kind > i { font-size: 13px; text-align: center; color: var(--m-violet-l); }
+.vtm20 .r-cast-kind b { font-family: var(--r-caps); font-weight: 400; font-size: 12px; letter-spacing: 1.4px; text-transform: uppercase; }
+.vtm20 .r-cast-kn { font-family: var(--r-display); font-size: 17px; color: var(--r-ink); }
+.vtm20 .r-cast-kind em { grid-column: 1 / -1; font-size: 11.5px; font-style: italic; line-height: 1.3; color: var(--r-muted); }
+.vtm20 .r-cast-kind.is-on { border-color: var(--m-violet); background: linear-gradient(90deg, rgba(154, 130, 230, .18), rgba(154, 130, 230, .04)); color: var(--r-ink); }
+.vtm20 .r-cast-kind[data-kind="vulgar"].is-on, .vtm20 .r-cast-kind[data-kind="witnessed"].is-on { border-color: var(--m-paradox); background: linear-gradient(90deg, rgba(224, 86, 122, .16), rgba(224, 86, 122, .03)); }
+.vtm20 .r-cast-kind[data-kind="vulgar"].is-on > i, .vtm20 .r-cast-kind[data-kind="witnessed"].is-on > i { color: var(--m-paradox); }
+.vtm20 .r-cast-row { display: flex; align-items: center; gap: 10px; min-height: 22px; }
+.vtm20 .r-cast-lbl { font-family: var(--r-caps); font-size: 12px; letter-spacing: 1.4px; text-transform: uppercase; color: var(--r-ink-2); }
+.vtm20 .r-cast-lbl i { color: var(--m-gold); margin-right: 3px; }
+.vtm20 .r-cast-row em { font-size: 12px; font-style: italic; color: var(--r-muted); }
+.vtm20 .r-cast-quint { display: inline-flex; gap: 4px; margin: 0; }
+.vtm20 .r-cast-quint .r-box { width: 15px; height: 15px; cursor: pointer; border-color: rgba(217, 181, 106, .5); }
+.vtm20 .r-cast-quint .r-box.is-filled { background: linear-gradient(180deg, var(--m-gold-l), var(--m-gold)); border-color: var(--m-gold); }
+.vtm20 .r-cast-mods { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; }
+.vtm20 .r-cast-mod { padding: 2px 9px; border: 1px solid var(--r-line-2); border-radius: 10px; font-size: 12px; color: var(--r-ink-2); cursor: pointer; white-space: nowrap; }
+.vtm20 .r-cast-mod b { font-weight: 600; color: #9fd6b5; }
+.vtm20 .r-cast-mod.is-bad b { color: #f09aae; }
+.vtm20 .r-cast-mod:hover { border-color: var(--m-violet); }
+.vtm20 .r-cast-mod.is-on { color: var(--r-ink); border-color: #9fd6b5; background: rgba(120, 200, 160, .12); }
+.vtm20 .r-cast-mod.is-bad.is-on { border-color: var(--m-paradox); background: rgba(224, 86, 122, .12); }
+.vtm20 .r-cast-step { display: inline-flex; align-items: center; gap: 4px; margin-left: auto; }
+.vtm20 .r-cast-step a { width: 20px; height: 20px; display: grid; place-items: center; border: 1px solid var(--r-line-2); cursor: pointer; color: var(--r-ink-2); }
+.vtm20 .r-cast-step a:hover { color: var(--r-ink); border-color: var(--m-violet); }
+.vtm20 .r-cast-step b { min-width: 22px; text-align: center; font-family: var(--r-display); font-weight: 400; font-size: 15px; color: var(--r-ink); }
+.vtm20 .r-cast-step small { font-size: 11.5px; font-style: italic; color: var(--r-muted); }
+.vtm20 .r-cast-will { margin-top: 1px; }
+.vtm20 .r-cast-total { display: flex; flex-direction: column; gap: 7px; margin-top: 3px; padding: 10px 14px; border: 1px solid var(--r-line-2); background: rgba(154, 130, 230, .06); }
+.vtm20 .r-cast-sum { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 14px; font-size: 12.5px; color: var(--r-ink-2); }
+.vtm20 .r-cast-sum b { font-family: var(--r-display); font-weight: 400; font-size: 15px; color: var(--r-ink); }
+.vtm20 .r-cast-sum .is-good b { color: #9fd6b5; }
+.vtm20 .r-cast-sum .is-bad b { color: #f09aae; }
+.vtm20 .r-cast-sum em { color: var(--r-muted); }
+.vtm20 .r-cast-big { display: flex; align-items: center; justify-content: center; gap: 18px; }
+.vtm20 .r-cast-big span { display: flex; flex-direction: column; align-items: center; }
+.vtm20 .r-cast-big b { font-family: var(--r-display); font-weight: 400; font-size: 30px; line-height: 1; color: var(--m-gold-l); }
+.vtm20 .r-cast-big small { font-family: var(--r-caps); font-size: 10px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--r-muted); }
+.vtm20 .r-cast-big > i { font-style: italic; font-size: 13px; color: var(--r-muted); }
+.vtm20 .r-cast-risk { margin: 0; text-align: center; font-size: 12.5px; color: #f0a8b8; }
+.vtm20 .r-cast-risk:empty { display: none; }
+.application.vtm20.r-dialog.r-cast-dialog .form-footer button[data-action=ok] { color: #14102a; border: 1px solid var(--m-gold-l); background: linear-gradient(180deg, #fff3d0, #d9b56a); font-weight: 600; }
+.application.vtm20.r-dialog.r-cast-dialog .form-footer button[data-action=ok]:disabled { opacity: .45; filter: grayscale(.6); cursor: not-allowed; }
 
 /* корешок, вкладки, печати, окно, карточки чата и мастер создания — в аметисте (каркас темы охотника, перекрашен) */
 .vtm20.r-type-mage .r-rail {

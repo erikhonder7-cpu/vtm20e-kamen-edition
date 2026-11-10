@@ -8,7 +8,7 @@
 //   · колесо: Квинтэссенция и Парадокс вместе не больше 20, Парадокс вытесняет Квинтэссенцию;
 //   · откат Парадокса — бросок пула Парадокса (сл. 6): каждый успех разряжает очко, итог — по таблице (рассказчик).
 
-import { SYSTEM_ID, VTM20 } from "../config.mjs";
+import { SYSTEM_ID, SYSTEM_PATH, VTM20 } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
 
 export const M = () => Codex.mage ?? {};
@@ -21,6 +21,18 @@ export const factionOf = actor => (M().factions ?? []).find(f => f.key === actor
 /** Технократ называет Сферы по-своему (Данные, Пространственная наука, Первичная Полезность). */
 const isTech = actor => factionOf(actor)?.group === "technocracy";
 export const sphereName = (actor, key) => { const s = sphereOf(key); return (isTech(actor) && s?.tech?.name) || s?.name || key; };
+
+/* ── Официальные знаки M20 (assets/mage): фракции, группы, Сферы — маски, цвет задаёт CSS (.r-mg) ── */
+// путь от корня: относительный url() в CSS-переменной считался бы от файла стилей
+export const mageGlyphSrc = name => foundry.utils.getRoute(`${SYSTEM_PATH}/assets/mage/${name}.png`);
+export const mageGlyph = (name, cls = "") => `<span class="r-sym r-mg${cls ? ` ${cls}` : ""}" style="--sym: url('${mageGlyphSrc(name)}')" aria-hidden="true"></span>`;
+const factionGlyph = f => f ? `faction-${f.key}` : "sphere-prime";
+/** Знаки листа: на корешке и водяным знаком — фракция; на печати под портретом — родовая Сфера. */
+export function mageSigil(actor) {
+  const f = factionOf(actor), aff = actor.system.mage?.affinity;
+  return { sym: { src: mageGlyphSrc(factionGlyph(f)) }, label: f?.name ?? "",
+    seal: { sym: { src: mageGlyphSrc(aff ? `sphere-${aff}` : factionGlyph(f)) }, label: aff ? sphereName(actor, aff) : f?.name ?? game.i18n.localize("TYPES.Actor.mage") } };
+}
 
 /** Кубики магии и предел Сфер: Арете, но не выше постоянной Воли. */
 export const aretePool = actor => Math.min(actor.system.mage?.arete ?? 0, actor.system.willpower?.permanent ?? 0);
@@ -58,7 +70,7 @@ export function spheresView(actor, dots) {
   const m = actor.system.mage, cap = aretePool(actor), D = M(), tech = isTech(actor);
   const spheres = (D.spheres ?? []).map(s => {
     const v = m.spheres?.[s.key] ?? 0, alt = tech && s.tech ? s.tech : null;
-    return { key: s.key, name: alt?.name ?? s.name, en: alt?.en ?? s.en, icon: s.icon, value: v, over: v > cap, affinity: s.key === m.affinity,
+    return { key: s.key, name: alt?.name ?? s.name, en: alt?.en ?? s.en, icon: s.icon, sym: { src: mageGlyphSrc(`sphere-${s.key}`) }, value: v, over: v > cap, affinity: s.key === m.affinity,
       altTip: !alt && s.tech ? t("TechName", { name: s.tech.name }) : alt ? t("MysticName", { name: s.name }) : "",
       specialties: s.specialties, dots: dots(v, 5, { path: `system.mage.spheres.${s.key}` }),
       // на листе — свои ранги и следующий (к чему расти); полный список — в компендии
@@ -92,6 +104,8 @@ export async function changeParadox(actor, d) {
 /* ── Чародейство ──────────────────────────────────────────────────────── */
 
 const KINDS = [["coincidental", "fa-leaf"], ["vulgar", "fa-bolt"], ["witnessed", "fa-eye"]];
+/** Частые поправки сложности (M20, гл. 10): щелчок включает, сумма — в общий счёт (все вместе — от −3 до +3). */
+const MODS = [["tool", -1], ["resonance", -1], ["prep", -1], ["node", -1], ["fast", 1], ["far", 1], ["distracted", 1], ["noTools", 3]];
 
 /** Строка итога по числу успехов: урон и длительность (M20, базовая таблица). */
 function effectLine(n) {
@@ -99,9 +113,12 @@ function effectLine(n) {
   const damage = n >= 6 ? n * 2 : row?.damage ?? 0, duration = n >= 6 ? t("DurationST") : row?.duration ?? "";
   return t("EffectLine", { n, damage, duration });
 }
+/** Парадокс за чародейство: при провале с единицами — по высшей Сфере и вульгарности; успешная вульгарная магия — 1. */
+const botchParadox = (kind, high) => kind === "coincidental" ? high : kind === "vulgar" ? 1 + high : 2 + 2 * high;
 
 /**
- * Окно чародейства: какие Сферы и на каком ранге, совпадение или вульгарно, Квинтэссенция, поправки, Воля.
+ * Окно чародейства: Сферы эффекта плитками (ранг — точками), совпадение или вульгарно, Квинтэссенция и поправки,
+ * внизу — счёт сложности по слагаемым, шансы и чем грозит Парадокс.
  * @param {object} [preset]  { sphere, name, spheres: { key: rank } } — с листа (карточка Сферы, ротэ)
  */
 export async function castEffect(actor, preset = {}) {
@@ -110,60 +127,99 @@ export async function castEffect(actor, preset = {}) {
   const mine = VTM20.mageSpheres.filter(k => (m.spheres[k] ?? 0) > 0);
   if (pool < 1) return ui.notifications.warn(t("NoArete"));
   if (!mine.length) return ui.notifications.warn(t("NoSpheres"));
-  const start = preset.spheres ?? (preset.sphere && m.spheres[preset.sphere] ? { [preset.sphere]: m.spheres[preset.sphere] } : {});
-  const quintMax = Math.min(3, avatarOf(actor), m.quintessence);
-  let res = null, readNow = null;
+  const { odds, chancesView, rollPool } = await import("../dice/roll.mjs");
+  // ранг в эффекте — не выше своей Сферы и предела (Арете и Воля)
+  const maxOf = k => Math.min(m.spheres[k], pool);
+  const start = preset.spheres ?? (preset.sphere && m.spheres[preset.sphere] ? { [preset.sphere]: maxOf(preset.sphere) } : {});
+  const st = { ranks: Object.fromEntries(mine.map(k => [k, Math.min(start[k] ?? 0, maxOf(k))])), kind: "coincidental", quint: 0, mod: 0, mods: new Set(), will: false };
+  const quintMax = Math.min(3, avatarOf(actor), m.quintessence), f = factionOf(actor);
+  const calc = () => {
+    const ranks = Object.fromEntries(Object.entries(st.ranks).filter(([, v]) => v > 0)), high = Math.max(0, ...Object.values(ranks));
+    const quick = [...st.mods].reduce((n, k) => n + (MODS.find(x => x[0] === k)?.[1] ?? 0), 0);
+    const raw = st.mod + quick - st.quint, mod = Math.clamp(raw, -C.modCap, C.modCap);
+    return { ranks, high, kind: st.kind, quint: st.quint, raw, mod, capped: raw !== mod, base: high + C[st.kind], difficulty: Math.clamp(high + C[st.kind] + mod, C.min, C.max), will: st.will };
+  };
+  const pips = (k, own, max, cur) => Array.from({ length: own }, (_, i) =>
+    `<a class="r-dot${i < cur ? " is-filled" : ""}${i >= max ? " is-locked" : ""}" data-rank="${k}" data-n="${i + 1}"></a>`).join("");
+  let res = null, nameNow = () => "";
   await foundry.applications.api.DialogV2.wait({
-    window: { title: t("CastTitle"), icon: "fa-solid fa-hat-wizard" }, classes: ["vtm20", "r-dialog", "r-declare-dialog", "r-cast-dialog", "r-type-mage"], position: { width: 520 },
-    content: `<div class="r-cel">
-      <div class="r-cel-head"><span class="r-cel-kicker">${esc(t("CastKicker", { n: pool }))}</span><b class="r-cel-name">${esc(actor.name)}</b>
-        <span class="r-cel-left">${esc(t("CastHint"))}</span></div>
-      <input class="r-use-say" type="text" name="name" value="${esc(preset.name ?? "")}" placeholder="${esc(t("CastName"))}">
-      <div class="r-cast-spheres">${mine.map(k => `<div class="r-decl-multi r-cast-sphere"><span><i class="fa-solid ${sphereOf(k)?.icon ?? "fa-circle"}"></i> ${esc(sphereName(actor, k))}</span>
-        <span class="r-bw-step" data-min="0" data-max="${m.spheres[k]}"><button type="button" data-d="-1"><i class="fa-solid fa-minus"></i></button><b>${start[k] ?? 0}</b><button type="button" data-d="1"><i class="fa-solid fa-plus"></i></button><input type="hidden" name="s_${k}" value="${start[k] ?? 0}"></span>
-        <em>${esc(t("RankOf", { n: m.spheres[k] }))}</em></div>`).join("")}</div>
-      <div class="r-decl-kinds">${KINDS.map(([k, icon], i) => `<label class="r-decl-kind${i === 0 ? " is-active" : ""}"><input type="radio" name="kind" value="${k}"${i === 0 ? " checked" : ""}>
-        <i class="fa-solid ${icon}"></i><span><b>${esc(t(`Kind.${k}`))}</b><em>${esc(t(`KindSub.${k}`, { n: C[k] }))}</em></span></label>`).join("")}</div>
-      <div class="r-decl-multi"><span>${esc(t("Quint"))}</span>
-        <span class="r-bw-step" data-min="0" data-max="${quintMax}"><button type="button" data-d="-1"><i class="fa-solid fa-minus"></i></button><b>0</b><button type="button" data-d="1"><i class="fa-solid fa-plus"></i></button><input type="hidden" name="quint" value="0"></span>
+    window: { title: `${t("CastTitle")}: ${actor.name}`, icon: "fa-solid fa-hat-wizard" }, classes: ["vtm20", "r-dialog", "r-cast-dialog", "r-type-mage"], position: { width: 600 },
+    content: `<div class="r-cast">
+      <header class="r-cast-head"><span class="r-cast-sigil">${mageGlyph(factionGlyph(f))}</span>
+        <span class="r-cast-who"><small>${esc(f?.name ?? t("CastTitle"))}</small><b>${esc(actor.name)}</b></span>
+        <span class="r-cast-pool" data-tooltip="${esc(t(pool < m.arete ? "CappedHint" : "CapHint"))}"><b>${pool}</b><small>${esc(t("Pool"))}</small></span></header>
+      <input class="r-cast-name" type="text" name="name" value="${esc(preset.name ?? "")}" placeholder="${esc(t("CastName"))}">
+
+      <h4 class="r-banner r-cast-cap"><span>${esc(t("Spheres"))}</span><em>${esc(t("CastHint"))}</em></h4>
+      <div class="r-cast-spheres">${mine.map(k => `<div class="r-cast-sphere${st.ranks[k] ? " is-on" : ""}" data-sphere="${k}" data-tooltip="${esc(t("SphereTip", { n: m.spheres[k] }))}">
+          <span class="r-cast-sym">${mageGlyph(`sphere-${k}`)}</span><b>${esc(sphereName(actor, k))}</b>
+          <span class="r-dots">${pips(k, m.spheres[k], maxOf(k), st.ranks[k])}</span></div>`).join("")}</div>
+
+      <h4 class="r-banner r-cast-cap"><span>${esc(t("KindCap"))}</span></h4>
+      <div class="r-cast-kinds">${KINDS.map(([k, icon]) => `<a class="r-cast-kind${k === st.kind ? " is-on" : ""}" data-kind="${k}">
+          <i class="fa-solid ${icon}"></i><b>${esc(t(`Kind.${k}`))}</b><span class="r-cast-kn">+${C[k]}</span><em>${esc(t(`KindRisk.${k}`))}</em></a>`).join("")}</div>
+
+      <h4 class="r-banner r-cast-cap" data-tooltip="${esc(t("ModTip"))}"><span>${esc(t("ModCap"))}</span><em>${esc(t("ModHint"))}</em></h4>
+      <div class="r-cast-row"><span class="r-cast-lbl"><i class="fa-solid fa-sun"></i> ${esc(t("Quint"))}</span>
+        <span class="r-boxes r-cast-quint">${quintMax ? Array.from({ length: quintMax }, (_, i) => `<a class="r-box" data-quint="${i + 1}"></a>`).join("") : ""}</span>
         <em>${esc(quintMax ? t("QuintHint", { n: m.quintessence, max: quintMax }) : t("QuintNone"))}</em></div>
-      <div class="r-decl-multi" data-tooltip="${esc(t("ModTip"))}"><span>${esc(t("Mod"))}</span>
-        <span class="r-bw-step" data-min="-3" data-max="3"><button type="button" data-d="-1"><i class="fa-solid fa-minus"></i></button><b>0</b><button type="button" data-d="1"><i class="fa-solid fa-plus"></i></button><input type="hidden" name="mod" value="0"></span>
-        <em>${esc(t("ModHint"))}</em></div>
-      <label class="r-check"><input type="checkbox" name="will"><span>${esc(t("CastWill"))}</span></label>
-      <div class="r-cast-total"><span data-cast-line></span></div>
+      <div class="r-cast-mods">${MODS.map(([k, n]) => `<a class="r-cast-mod${n > 0 ? " is-bad" : ""}" data-mod="${k}"><b>${n > 0 ? "+" : "−"}${Math.abs(n)}</b> ${esc(t(`ModQuick.${k}`))}</a>`).join("")}
+        <span class="r-cast-step" data-tooltip="${esc(t("ModTip"))}"><a data-step="-1">−</a><b data-mod-own>0</b><a data-step="1">+</a><small>${esc(t("ModOwn"))}</small></span></div>
+      <label class="r-check r-cast-will"><input type="checkbox" name="will"><span>${esc(t("CastWill"))}</span></label>
+
+      <div class="r-cast-total">
+        <div class="r-cast-sum" data-sum></div>
+        <div class="r-cast-big"><span><b data-pool>${pool}</b><small>${esc(t("DiceShort"))}</small></span><i>${esc(game.i18n.localize("VTM20.Roll.Vs"))}</i><span><b data-diff>—</b><small>${esc(t("DiffShort"))}</small></span></div>
+        <div class="r-odds" data-odds hidden><div class="r-odds-bar"><i class="is-success"></i><i class="is-failure"></i><i class="is-botch"></i></div>
+          <div class="r-odds-legend"><span class="is-success">${esc(t("Odds.success"))} <b data-o="success"></b></span><span class="is-failure">${esc(t("Odds.failure"))} <b data-o="failure"></b></span><span class="is-botch">${esc(t("Odds.botch"))} <b data-o="botch"></b></span></div></div>
+        <p class="r-cast-risk" data-risk></p>
+      </div>
     </div>`,
     render: (ev, dlg) => {
-      const el = dlg.element;
-      const read = () => {
-        const f = el.querySelector("form").elements;
-        const ranks = Object.fromEntries(mine.map(k => [k, Number(f[`s_${k}`].value) || 0]).filter(([, v]) => v > 0));
-        const high = Math.max(0, ...Object.values(ranks)), kind = el.querySelector('[name="kind"]:checked')?.value ?? "coincidental";
-        const quint = Number(f.quint.value) || 0, mod = Math.clamp((Number(f.mod.value) || 0) - quint, -C.modCap, C.modCap);
-        return { ranks, high, kind, quint, mod, difficulty: Math.clamp(high + C[kind] + mod, C.min, C.max), will: !!f.will.checked, name: f.name.value.trim() };
-      };
+      const el = dlg.element, q = s => el.querySelector(s), ok = el.querySelector('button[data-action="ok"]');
+      nameNow = () => q('[name="name"]').value.trim();
       const sync = () => {
-        for (const l of el.querySelectorAll(".r-decl-kind")) l.classList.toggle("is-active", l.querySelector("input").checked);
-        const v = read();
-        el.querySelector("[data-cast-line]").textContent = v.high ? t("CastLine", { pool, d: v.difficulty, n: v.high }) : t("CastPick");
+        const v = calc();
+        for (const box of el.querySelectorAll(".r-cast-sphere")) {
+          const k = box.dataset.sphere, cur = st.ranks[k];
+          box.classList.toggle("is-on", cur > 0);
+          box.querySelectorAll(".r-dot").forEach((d, i) => d.classList.toggle("is-filled", i < cur));
+        }
+        for (const a of el.querySelectorAll(".r-cast-kind")) a.classList.toggle("is-on", a.dataset.kind === st.kind);
+        el.querySelectorAll("[data-quint]").forEach((b, i) => b.classList.toggle("is-filled", i < st.quint));
+        for (const a of el.querySelectorAll("[data-mod]")) a.classList.toggle("is-on", st.mods.has(a.dataset.mod));
+        q("[data-mod-own]").textContent = `${st.mod > 0 ? "+" : st.mod < 0 ? "−" : ""}${Math.abs(st.mod)}`;
+        // счёт сложности по слагаемым: высшая Сфера + вид магии ± поправки
+        const part = (n, label, cls = "") => `<span class="${cls}"><b>${n}</b> ${esc(label)}</span>`;
+        q("[data-sum]").innerHTML = v.high ? [part(v.high, t("SumHigh")), part(`+${C[v.kind]}`, t(`Kind.${v.kind}`)),
+          v.raw ? part(`${v.mod > 0 ? "+" : "−"}${Math.abs(v.mod)}`, t(v.capped ? "SumModCapped" : "SumMod"), v.mod > 0 ? "is-bad" : "is-good") : ""].join("") : `<em>${esc(t("CastPick"))}</em>`;
+        q("[data-diff]").textContent = v.high ? v.difficulty : "—";
+        const o = v.high ? chancesView(odds({ pool, difficulty: v.difficulty, willpower: v.will })) : null;
+        q("[data-odds]").hidden = !o;
+        if (o) { for (const k of ["success", "failure", "botch"]) { q(`.r-odds-bar .is-${k}`).style.width = `${o[k]}%`; q(`[data-o="${k}"]`).textContent = `${o[k]}%`; } }
+        q("[data-risk]").innerHTML = v.high ? `<i class="fa-solid fa-burst"></i> ${esc(t(v.kind === "coincidental" ? "RiskCoinc" : "RiskVulgar", { n: botchParadox(v.kind, v.high), now: m.paradox }))}` : "";
+        if (ok) ok.disabled = !v.high;
       };
-      el.addEventListener("change", sync);
-      for (const b of el.querySelectorAll(".r-bw-step button")) b.addEventListener("click", () => {
-        const s = b.closest(".r-bw-step"), inp = s.querySelector("input");
-        inp.value = Math.clamp((Number(inp.value) || 0) + Number(b.dataset.d), Number(s.dataset.min), Number(s.dataset.max)); s.querySelector("b").textContent = inp.value;
-        sync();
+      el.addEventListener("click", e => {
+        const d = e.target.closest("[data-rank]"), box = e.target.closest(".r-cast-sphere");
+        if (d && !d.classList.contains("is-locked")) { const k = d.dataset.rank, n = Number(d.dataset.n); st.ranks[k] = st.ranks[k] === n ? n - 1 : n; return sync(); }
+        // щелчок по плитке мимо точек: включить на полном ранге или выключить
+        if (box && !d) { const k = box.dataset.sphere; st.ranks[k] = st.ranks[k] ? 0 : maxOf(k); return sync(); }
+        const kd = e.target.closest("[data-kind]"); if (kd) { st.kind = kd.dataset.kind; return sync(); }
+        const qb = e.target.closest("[data-quint]"); if (qb) { const n = Number(qb.dataset.quint); st.quint = st.quint === n ? n - 1 : n; return sync(); }
+        const md = e.target.closest("[data-mod]"); if (md) { st.mods.has(md.dataset.mod) ? st.mods.delete(md.dataset.mod) : st.mods.add(md.dataset.mod); return sync(); }
+        const sp = e.target.closest("[data-step]"); if (sp) { st.mod = Math.clamp(st.mod + Number(sp.dataset.step), -3, 3); return sync(); }
       });
-      readNow = read;
+      q('[name="will"]').addEventListener("change", e => { st.will = e.target.checked; sync(); });
       sync();
     },
-    buttons: [{ action: "ok", icon: "fa-solid fa-hat-wizard", label: t("Cast"), default: true, callback: () => { res = readNow?.() ?? null; } }],
+    buttons: [{ action: "ok", icon: "fa-solid fa-hat-wizard", label: t("Cast"), default: true, callback: () => { res = { ...calc(), name: nameNow() }; } }],
     rejectClose: false
   });
   if (!res) return null;
   if (!res.high) { ui.notifications.info(t("CastPick")); return null; }
   if (res.quint) await changeQuintessence(actor, -res.quint);
   const used = Object.entries(res.ranks).map(([k, v]) => `${sphereName(actor, k)} ${v}`).join(", ");
-  const { rollPool } = await import("../dice/roll.mjs");
   const roll = await rollPool({ actor, title: res.name || t("CastTitle"), subtitle: `${used} · ${t(`Kind.${res.kind}`)}`, pool, difficulty: res.difficulty,
     willpower: res.will, kind: "check", breakdown: [{ label: t("Arete"), value: pool }],
     notes: [res.quint ? `<i class="fa-solid fa-sun"></i> ${esc(t("QuintSpent", { n: res.quint }))}` : ""].filter(Boolean),
@@ -171,7 +227,7 @@ export async function castEffect(actor, preset = {}) {
   if (!roll) return null;
   // итог: успехи — по таблице; Парадокс — за вульгарность и за провал
   const botch = roll.outcome === "botch", n = roll.successes ?? 0, vulgar = res.kind !== "coincidental";
-  const paradox = botch ? (res.kind === "coincidental" ? res.high : res.kind === "vulgar" ? 1 + res.high : 2 + 2 * res.high) : n > 0 && vulgar ? 1 : 0;
+  const paradox = botch ? botchParadox(res.kind, res.high) : n > 0 && vulgar ? 1 : 0;
   const now = paradox ? await changeParadox(actor, paradox) : m.paradox;
   const lines = [botch ? t("ResBotch") : n > 0 ? effectLine(n) : t("ResFail"),
     paradox ? t("ParadoxGain", { n: paradox, now }) : "", now >= 5 && paradox ? t("BacklashDue") : ""].filter(Boolean);

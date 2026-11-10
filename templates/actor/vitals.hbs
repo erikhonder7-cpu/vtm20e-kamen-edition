@@ -315,6 +315,9 @@
       {{else if werewolfInfo}}<span class="r-vs-item"><i class="fa-solid fa-fire"></i> {{localize "VTM20.Werewolf.Rage"}} <b>{{werewolfInfo.rage}}</b>/{{werewolfInfo.ragePerm}}</span>
       <span class="r-vs-item"><i class="fa-solid fa-spiral"></i> {{localize "VTM20.Werewolf.Gnosis"}} <b>{{werewolfInfo.gnosis}}</b>/{{werewolfInfo.gnosisPerm}}</span>
       <span class="r-vs-item"><i class="fa-solid {{werewolfInfo.formIcon}}"></i> {{werewolfInfo.formName}}</span>
+      {{else if mageInfo}}<span class="r-vs-item"><i class="fa-solid fa-hat-wizard"></i> {{localize "VTM20.Mage.Arete"}} <b>{{mageInfo.arete}}</b></span>
+      <span class="r-vs-item"><i class="fa-solid fa-sun"></i> {{localize "VTM20.Mage.Quintessence"}} <b>{{mageInfo.quintessence}}</b></span>
+      <span class="r-vs-item {{#if mageInfo.backlash}}is-hurt{{/if}}"><i class="fa-solid fa-burst"></i> {{localize "VTM20.Mage.Paradox"}} <b>{{mageInfo.paradox}}</b></span>
       {{else if thrallInfo}}<span class="r-vs-item"><i class="fa-solid fa-handshake-angle"></i> {{localize "VTM20.Creator.ThrallFaith"}} <b>{{thrallInfo.faith}}</b></span>
       {{else}}<span class="r-vs-item"><i class="fa-solid fa-scale-balanced"></i> {{#each paths}}{{#if selected}}{{name}}{{/if}}{{/each}} <b>{{system.morality.value}}</b></span>{{/if}}
     </span>
