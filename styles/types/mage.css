@@ -1,0 +1,105 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   Лист мага (Mage: The Ascension): каркас — общий, материал свой — ночной индиго, аметист и бледное золото
+   звёздной карты; рамки — двойной тонкой линией, как поля гримуара. Класс r-type-mage ставит module/ui/themes.mjs.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.vtm20.r-type-mage {
+  --m-violet: #9a82e6; --m-violet-l: #c9bcf5; --m-violet-d: #2a2050; --m-gold: #d9b56a; --m-gold-l: #fff3d0; --m-paradox: #e0567a;
+  --r-ink: #ece8f6;
+  --r-ink-2: #c3bcd8;
+  --r-muted: #8f88a8;
+  --r-line: rgba(154, 130, 230, .12);
+  --r-line-2: rgba(154, 130, 230, .24);
+  --r-accent: #b9a6ee;
+  --r-red-t: var(--r-accent);
+  --r-blood: #5b45a8; --r-blood-l: #9a82e6; --r-blood-d: #1b1436;
+  --r-dot-border: rgba(217, 181, 106, .38);
+  --r-dot-fill: radial-gradient(circle at 38% 32%, #fff3d0, #d9b56a 50%, #5a4520);
+  --r-gap-ring: #0b0916;
+  --r-card-bg: rgba(154, 130, 230, .035);
+  --r-option-bg: #151129;
+  --r-bg:
+    radial-gradient(ellipse 90% 45% at 50% -8%, rgba(120, 96, 210, .18), transparent 60%),
+    radial-gradient(ellipse 70% 35% at 85% 105%, rgba(217, 181, 106, .07), transparent 65%),
+    radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(3, 2, 10, .6) 100%),
+    url("../assets/ui/paper-dark.svg"),
+    linear-gradient(180deg, #14102a, #090714);
+}
+body.r-theme-light .vtm20.r-type-mage {
+  --r-ink: #1c1633; --r-ink-2: #3f3660; --r-muted: #6d6490;
+  --r-line: rgba(40, 28, 90, .15); --r-line-2: rgba(40, 28, 90, .3);
+  --r-accent: #4a3596; --r-red-t: var(--r-accent);
+  --r-dot-fill: radial-gradient(circle at 38% 32%, #f0d9a0, #a8812f 55%, #4a3a18);
+  --r-option-bg: #efeaf8; --r-gap-ring: #e9e3f5;
+  --r-bg:
+    radial-gradient(ellipse 90% 45% at 50% -8%, rgba(90, 70, 170, .12), transparent 60%),
+    radial-gradient(ellipse at 50% 50%, transparent 50%, rgba(40, 28, 90, .18) 100%),
+    url("../assets/ui/paper.svg"),
+    linear-gradient(180deg, #efeaf8, #ddd4ee);
+}
+
+/* поля гримуара: двойная тонкая рамка карточек, звёздная засечка в углу, золотая нить под заголовками */
+.vtm20.r-type-mage .r-vcard, .vtm20.r-type-mage .r-tcol, .vtm20.r-type-mage .r-edge-path { border-color: rgba(154, 130, 230, .22); outline: 1px solid rgba(154, 130, 230, .08); outline-offset: 2px; }
+.vtm20.r-type-mage .r-h2 > span:first-child { background: linear-gradient(90deg, var(--m-gold), transparent) left bottom / 100% 1px no-repeat; padding-bottom: 3px; }
+.vtm20.r-type-mage .r-rail::after { background: linear-gradient(180deg, transparent, rgba(154, 130, 230, .35), transparent); }
+.r-notice.r-type-mage i { color: #c9bcf5; }
+
+/* карточка Арете и колесо Квинтэссенции и Парадокса */
+.vtm20.r-type-mage .r-wheel { display: grid; grid-template-columns: repeat(20, 1fr); gap: 2px; margin: 8px 0 4px; }
+.vtm20.r-type-mage .r-wheel-cell { height: 12px; border: 1px solid var(--r-line-2); background: rgba(0, 0, 0, .3); transition: background-color .2s ease, box-shadow .2s ease; }
+.vtm20.r-type-mage .r-wheel-cell:nth-child(5n):not(:last-child) { margin-right: 3px; }
+.vtm20.r-type-mage .r-wheel-cell.is-quint { background: linear-gradient(180deg, var(--m-gold-l), var(--m-gold)); border-color: rgba(217, 181, 106, .8); box-shadow: 0 0 6px rgba(217, 181, 106, .35); }
+.vtm20.r-type-mage .r-wheel-cell.is-paradox { background: linear-gradient(180deg, #f08aa4, var(--m-paradox)); border-color: rgba(224, 86, 122, .85); box-shadow: 0 0 6px rgba(224, 86, 122, .35); }
+.vtm20.r-type-mage .r-wheel-cell.is-perm { background: repeating-linear-gradient(135deg, #7a1f3a 0 3px, var(--m-paradox) 3px 6px); }
+.vtm20.r-type-mage .r-wheel-nums { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; color: var(--r-muted); }
+.vtm20.r-type-mage .r-wheel-nums b { font-family: var(--r-display); font-size: 15px; font-weight: normal; color: var(--r-ink); }
+.vtm20.r-type-mage .r-wheel-nums span:first-child i { color: var(--m-gold); }
+.vtm20.r-type-mage .r-wheel-nums span:last-child i { color: var(--m-paradox); }
+.vtm20.r-type-mage .r-vc-mage .r-vc-status small { font-family: var(--r-caps); font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--r-muted); }
+
+/* вкладка Сфер: девять карточек в три столбца, ранги списком (текст раскрывается щелчком по названию ранга) */
+.vtm20.r-type-mage .r-edge-budget { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: baseline; }
+.vtm20.r-type-mage .r-edge-budget .is-over b { color: var(--m-paradox); }
+.vtm20.r-type-mage .r-edge-budget em { flex-basis: 100%; }
+.vtm20.r-type-mage .r-sphere-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 12px; margin-bottom: 6px; }
+.vtm20.r-type-mage .r-edge-path { position: relative; margin: 0; border: 1px solid var(--r-line); background: var(--r-card-bg); transition: border-color .2s ease, opacity .2s ease; }
+.vtm20.r-type-mage .r-edge-path.is-zero { opacity: .72; }
+.vtm20.r-type-mage .r-edge-path.is-zero:hover { opacity: 1; }
+.vtm20.r-type-mage .r-edge-path.is-primary { border-color: rgba(217, 181, 106, .45); box-shadow: inset 3px 0 0 var(--m-gold); }
+.vtm20.r-type-mage .r-edge-path.is-over { border-color: rgba(224, 86, 122, .5); }
+.vtm20.r-type-mage .r-edge-head { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-bottom: 1px solid var(--r-line); }
+.vtm20.r-type-mage .r-edge-head .r-dots { margin-left: auto; flex: 0 0 auto; }
+.vtm20.r-type-mage .r-edge-sigil { flex: 0 0 26px; width: 26px; height: 26px; display: grid; place-items: center; border-radius: 50%; color: var(--m-gold-l); font-size: 12px;
+  border: 1px solid rgba(154, 130, 230, .6); background: radial-gradient(circle at 50% 30%, #2f2560, #0c0919 72%); box-shadow: 0 0 10px rgba(154, 130, 230, .28); }
+.vtm20.r-type-mage .r-edge-title { min-width: 0; display: flex; flex-direction: column; }
+.vtm20.r-type-mage .r-edge-title b { font-family: var(--r-display); font-size: 16px; font-weight: normal; color: var(--r-ink); line-height: 1.1; }
+.vtm20.r-type-mage .r-edge-title small { font-family: var(--r-caps); font-size: 9.5px; letter-spacing: 1px; text-transform: uppercase; color: var(--r-muted); }
+.vtm20.r-type-mage .r-edge-list { list-style: none; margin: 0; padding: 4px 10px 6px; }
+.vtm20.r-type-mage .r-edge { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto auto; gap: 8px; align-items: start; padding: 4px 0; border-bottom: 1px dotted var(--r-line); }
+.vtm20.r-type-mage .r-edge:last-child { border-bottom: 0; }
+.vtm20.r-type-mage .r-edge.is-foreign { opacity: .5; }
+.vtm20.r-type-mage .r-edge-lvl { font-family: var(--r-display); font-size: 14px; color: var(--m-violet); text-align: center; padding-top: 1px; }
+.vtm20.r-type-mage .r-edge-main b { font-family: var(--r-display); font-size: 14.5px; font-weight: normal; }
+.vtm20.r-type-mage .r-edge-main small { margin-left: 4px; font-style: italic; color: var(--r-muted); }
+.vtm20.r-type-mage .r-edge-text { display: block; margin-top: 2px; font-size: 13px; line-height: 1.35; color: var(--r-ink-2); }
+.vtm20.r-type-mage .r-edge-fifth { margin: 6px 10px 0; border: 1px dashed rgba(224, 86, 122, .45); padding: 4px 8px; font-size: 12px; color: #f0b9c8; }
+.vtm20.r-type-mage .r-sphere-spec { margin: 0; padding: 0 10px 8px; font-size: 12px; color: var(--r-muted); }
+
+/* фокус и инструменты */
+.vtm20.r-type-mage .r-focus { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 6px 16px; margin-bottom: 8px; }
+.vtm20.r-type-mage .r-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 12px; }
+.vtm20.r-type-mage .r-tools-lbl { flex-basis: 100%; font-family: var(--r-caps); font-size: 10.5px; letter-spacing: 1px; text-transform: uppercase; color: var(--r-muted); }
+.vtm20.r-type-mage .r-tools-lbl .is-warn { font-family: var(--r-body); font-size: 12px; letter-spacing: 0; text-transform: none; color: var(--m-paradox); }
+.vtm20.r-type-mage .r-tool { display: inline-flex; align-items: center; gap: 5px; }
+.vtm20.r-type-mage .r-tool a { color: var(--r-muted); }
+.vtm20.r-type-mage .r-tool a:hover { color: var(--m-paradox); }
+.vtm20.r-type-mage .r-tools input.r-tool-find { flex: 0 1 240px; height: 26px; margin: 0; padding: 0 8px; font-family: var(--r-body); font-size: 13px; color: var(--r-ink);
+  background: var(--r-s2); border: 1px solid var(--r-line-2); border-radius: 0; box-shadow: none; }
+.vtm20.r-type-mage .r-tools input.r-tool-find::placeholder { color: var(--r-muted); font-style: italic; }
+
+/* окно чародейства */
+.vtm20.r-cast-dialog .r-cast-spheres { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px; }
+.vtm20.r-cast-dialog .r-cast-sphere > span:first-child i { width: 16px; text-align: center; color: #c9bcf5; }
+.vtm20.r-cast-dialog .r-cast-total { padding: 8px 10px; text-align: center; border: 1px solid rgba(154, 130, 230, .3); background: rgba(154, 130, 230, .07);
+  font-family: var(--r-display); font-size: 17px; color: var(--r-ink); }
+.vtm20.r-cast-dialog .r-decl-kinds { grid-template-columns: repeat(3, minmax(0, 1fr)); }

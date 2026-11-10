@@ -574,6 +574,23 @@ export class GearData extends BaseItemData {
   }
 }
 
+/* ── Маг (Mage: The Ascension 20th Anniversary) ──────────────────────────── */
+
+// Пробуждённый: смертное тело и сверх того — фракция, Сущность Аватара, Арете, девять Сфер (0–5, не выше Арете),
+// колесо Квинтэссенции и Парадокса (вместе не больше 20), фокус (парадигма, практика, инструменты), ротэ (apps/mage.mjs).
+export class MageData extends MortalData {
+  static defineSchema() {
+    return {
+      ...super.defineSchema(),
+      mage: new SchemaField({ faction: str(""), essence: str(""), affinity: str(""), arete: int(1, 0, 10),
+        spheres: new SchemaField(Object.fromEntries(VTM20.mageSpheres.map(k => [k, int(0, 0, 5)]))),
+        quintessence: int(0, 0, 20), paradox: int(0, 0, 20), paradoxPerm: int(0, 0, 20),
+        paradigm: str(""), practice: str(""), instruments: new ArrayField(str()), resonance: str(""),
+        rotes: new ArrayField(new SchemaField({ name: str(), spheres: str(), text: str() })) })
+    };
+  }
+}
+
 /* ── Регистрация ────────────────────────────────────────────────────────── */
 
 /* ── Охотник (Hunter: The Reckoning) ─────────────────────────────────────── */
@@ -737,7 +754,7 @@ export class DomainData extends foundry.abstract.TypeDataModel {
 }
 
 export function registerDataModels() {
-  Object.assign(CONFIG.Actor.dataModels, { vampire: VampireData, ghoul: GhoulData, mortal: MortalData, creature: CreatureData, demon: DemonData, hunter: HunterData, werewolf: WerewolfData,
+  Object.assign(CONFIG.Actor.dataModels, { vampire: VampireData, ghoul: GhoulData, mortal: MortalData, creature: CreatureData, demon: DemonData, hunter: HunterData, mage: MageData, werewolf: WerewolfData,
     coterie: CoterieData, domain: DomainData });
   Object.assign(CONFIG.Item.dataModels, {
     discipline: DisciplineData, lore: LoreData, lorePower: LorePowerData, thaumPath: BloodPathData, ritual: RitualData, power: PowerData,

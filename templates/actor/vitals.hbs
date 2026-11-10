@@ -222,6 +222,27 @@
       {{#if hunterInfo.madness}}<span class="r-vc-hint {{#unless hunterInfo.creedRules}}is-right{{/unless}} is-warn" data-tooltip="{{localize 'VTM20.Hunter.MadnessHint' n=hunterInfo.madness from=hunterInfo.madFrom}}"><i class="fa-solid fa-brain"></i> {{hunterInfo.madness}}</span>{{/if}}
     </div>
   </div>
+  {{else if mageInfo}}
+  {{!-- Маг (M20): Арете — кубики магии; колесо — Квинтэссенция слева, Парадокс справа (вместе не больше 20) --}}
+  <div class="r-vcard r-vc-morality r-vc-mage">
+    <div class="r-vc-head">
+      <h4 class="r-banner"><a data-action="openRules" data-tooltip="{{localize 'VTM20.Mage.RulesHint'}}">{{localize "VTM20.Mage.Arete"}}</a></h4>
+      <div class="r-vc-status" data-tooltip="{{#if mageInfo.capped}}{{localize 'VTM20.Mage.CappedHint'}}{{else}}{{localize 'VTM20.Mage.CapHint'}}{{/if}}"><b>{{mageInfo.arete}}</b>{{#if mageInfo.areteName}} <small>{{mageInfo.areteName}}</small>{{/if}}</div>
+    </div>
+    {{> rDots dots=mageInfo.areteDots cls="is-ten"}}
+    <div class="r-wheel" data-tooltip="{{localize 'VTM20.Mage.WheelHint'}}">
+      {{#each mageInfo.wheel}}<i class="r-wheel-cell {{#if quint}}is-quint{{/if}} {{#if paradox}}is-paradox{{/if}} {{#if perm}}is-perm{{/if}}"></i>{{/each}}
+    </div>
+    <div class="r-wheel-nums"><span><i class="fa-solid fa-sun"></i> {{localize "VTM20.Mage.Quintessence"}} <b>{{mageInfo.quintessence}}</b></span><span>{{localize "VTM20.Mage.Paradox"}} <b>{{mageInfo.paradox}}</b>{{#if mageInfo.paradoxPerm}} <small>({{localize "VTM20.Mage.Perm" n=mageInfo.paradoxPerm}})</small>{{/if}} <i class="fa-solid fa-burst"></i></span></div>
+    <div class="r-vc-tools">
+      {{#if editable}}<a class="r-vc-btn is-sq" data-action="mageQuint" data-d="-1" data-tooltip="{{localize 'VTM20.Mage.QuintMinus'}}"><i class="fa-solid fa-minus"></i></a>
+      <a class="r-vc-btn is-sq" data-action="mageQuint" data-d="1" data-tooltip="{{localize 'VTM20.Mage.QuintPlus'}}"><i class="fa-solid fa-sun"></i></a>
+      <a class="r-vc-btn" data-action="mageCast" data-tooltip="{{localize 'VTM20.Mage.CastHintBtn'}}"><i class="fa-solid fa-hat-wizard"></i> {{localize "VTM20.Mage.Cast"}}</a>
+      <a class="r-vc-btn is-sq is-right" data-action="mageParadox" data-d="1" data-tooltip="{{localize 'VTM20.Mage.ParadoxPlus'}}"><i class="fa-solid fa-burst"></i></a>
+      <a class="r-vc-btn is-sq" data-action="mageParadox" data-d="-1" data-tooltip="{{localize 'VTM20.Mage.ParadoxMinus'}}"><i class="fa-solid fa-minus"></i></a>
+      {{#if mageInfo.isGM}}<a class="r-vc-btn is-sq {{#if mageInfo.backlash}}is-on{{/if}}" data-action="mageBacklash" data-tooltip="{{localize 'VTM20.Mage.BacklashHint'}}"><i class="fa-solid fa-dice-d10"></i></a>{{/if}}{{/if}}
+    </div>
+  </div>
   {{else if thrallInfo}}
   {{!-- Слуга падшего (Damned and Deceived): Вера слуги, хозяин, Добродетели падших, грех по порогу постоянной Воли --}}
   <div class="r-vcard r-vc-morality is-thrall">

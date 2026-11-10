@@ -1,0 +1,68 @@
+{{!-- II. Сферы мага (M20, гл. 10): девять Сфер с рангами, фокус (парадигма, практика, инструменты) и ротэ. --}}
+<section class="tab r-pane r-disciplines r-edges r-spheres {{tab.cssClass}}" data-tab="{{tab.id}}" data-group="{{tab.group}}">
+
+  <h2 class="r-h2"><span>{{localize "VTM20.Mage.Spheres"}}</span>
+    <span class="r-h2-tools">
+      {{#if editable}}<a class="r-h2-btn" data-action="mageCast" data-tooltip="{{localize 'VTM20.Mage.CastHintBtn'}}"><i class="fa-solid fa-hat-wizard"></i> <span class="r-h2-lbl">{{localize "VTM20.Mage.Cast"}}</span></a>{{/if}}
+      <a class="r-h2-btn is-plain" data-action="openRules" data-tooltip="{{localize 'VTM20.Mage.RulesHint'}}"><i class="fa-solid fa-book-open-reader"></i></a>
+    </span>
+  </h2>
+  <p class="r-note r-edge-budget"><span>{{localize "VTM20.Mage.Arete"}} <b>{{mageView.arete}}</b></span><span class="{{#if mageView.capped}}is-over{{/if}}">{{localize "VTM20.Mage.Pool"}} <b>{{mageView.cap}}</b></span><span>{{localize "VTM20.Mage.SphereDots"}} <b>{{mageView.total}}</b></span>
+    <em class="r-explain">{{#if mageView.capped}}{{localize "VTM20.Mage.CappedHint"}}{{else}}{{localize "VTM20.Mage.CapHint"}}{{/if}}</em></p>
+
+  <div class="r-sphere-grid">
+    {{#each mageView.spheres}}
+    <article class="r-edge-path r-sphere {{#if affinity}}is-primary{{/if}} {{#unless value}}is-zero{{/unless}} {{#if over}}is-over{{/if}}">
+      <header class="r-edge-head">
+        <span class="r-edge-sigil"><i class="fa-solid {{icon}}"></i></span>
+        <span class="r-edge-title" {{#if altTip}}data-tooltip="{{altTip}}"{{/if}}><b>{{name}}</b> <small>{{en}}{{#if affinity}} · {{localize "VTM20.Mage.AffinityShort"}}{{/if}}</small></span>
+        <span class="r-dots">{{#each dots}}<a class="r-dot {{#if filled}}is-filled{{/if}}" {{#if @root.editable}}data-action="setDots" data-path="{{path}}" data-n="{{n}}"{{/if}}></a>{{/each}}</span>
+        {{#if @root.editable}}{{#if value}}<a class="r-vc-btn" data-action="mageCast" data-sphere="{{key}}" data-tooltip="{{localize 'VTM20.Mage.CastWith'}}"><i class="fa-solid fa-hat-wizard"></i></a>{{/if}}{{/if}}
+      </header>
+      {{#if over}}<p class="r-note r-edge-fifth"><i class="fa-solid fa-triangle-exclamation"></i> {{localize "VTM20.Mage.OverCap"}}</p>{{/if}}
+      <ul class="r-edge-list">
+        {{#each ranks}}
+        <li class="r-edge {{#unless owned}}is-foreign{{/unless}}">
+          <span class="r-edge-lvl">{{rRoman n}}</span>
+          <span class="r-edge-main"><b>{{name}}</b><div class="r-edge-text">{{{text}}}</div></span>
+        </li>
+        {{/each}}
+      </ul>
+      {{#if specialties}}<p class="r-sphere-spec"><em>{{localize "VTM20.Mage.Specialties"}}:</em> {{specialties}}</p>{{/if}}
+    </article>
+    {{/each}}
+  </div>
+
+  <h2 class="r-h2"><span>{{localize "VTM20.Mage.Focus"}}</span></h2>
+  <div class="r-focus">
+    <label class="r-df is-wide"><span>{{localize "VTM20.Mage.Paradigm"}}</span>
+      <input type="text" name="system.mage.paradigm" value="{{system.mage.paradigm}}" data-combo="r-mpar-{{actor.id}}" placeholder="{{localize 'VTM20.Mage.ParadigmHint'}}" {{#unless editable}}disabled{{/unless}}></label>
+    <datalist id="r-mpar-{{actor.id}}">{{#each mageView.paradigms}}<option value="{{this}}"></option>{{/each}}</datalist>
+    <label class="r-df is-wide" {{#if mageView.practiceTip}}data-tooltip="{{localize 'VTM20.Mage.PracticeTools'}}: {{mageView.practiceTip}}"{{/if}}><span>{{localize "VTM20.Mage.Practice"}}</span>
+      <input type="text" name="system.mage.practice" value="{{system.mage.practice}}" data-combo="r-mpra-{{actor.id}}" placeholder="{{localize 'VTM20.Mage.PracticeHint'}}" {{#unless editable}}disabled{{/unless}}></label>
+    <datalist id="r-mpra-{{actor.id}}">{{#each mageView.practices}}<option value="{{this}}"></option>{{/each}}</datalist>
+    <label class="r-df is-wide"><span>{{localize "VTM20.Mage.Resonance"}}</span>
+      <input type="text" name="system.mage.resonance" value="{{system.mage.resonance}}" placeholder="{{localize 'VTM20.Mage.ResonanceHint'}}" {{#unless editable}}disabled{{/unless}}></label>
+  </div>
+  <div class="r-tools">
+    <span class="r-tools-lbl">{{localize "VTM20.Mage.Instruments"}}{{#if mageView.toolsNeed}} <em class="is-warn">{{localize "VTM20.Mage.ToolsNeed" n=mageView.toolsNeed}}</em>{{/if}}</span>
+    {{#each mageView.tools}}<span class="r-tag r-tool">{{name}}{{#if @root.editable}} <a data-action="mageToolDel" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}</span>{{/each}}
+    {{#if editable}}<input type="text" class="r-ww-find r-tool-find" data-mage-tool data-combo="r-mtool-{{actor.id}}" placeholder="{{localize 'VTM20.Mage.ToolAdd'}}">
+    <datalist id="r-mtool-{{actor.id}}">{{#each mageView.toolList}}<option value="{{this}}"></option>{{/each}}</datalist>{{/if}}
+  </div>
+
+  <h2 class="r-h2"><span>{{localize "VTM20.Mage.Rotes"}}</span>
+    <span class="r-h2-tools">{{#if editable}}<a class="r-h2-btn is-ghost" data-action="mageRoteAdd" data-tooltip="{{localize 'VTM20.Mage.RoteAdd'}}"><i class="fa-solid fa-feather"></i> <span class="r-h2-lbl">{{localize "VTM20.Mage.RoteAdd"}}</span></a>{{/if}}</span>
+  </h2>
+  <ul class="r-edge-list r-rotes">
+    {{#each mageView.rotes}}
+    <li class="r-edge">
+      <span class="r-edge-lvl"><i class="fa-solid fa-scroll"></i></span>
+      <span class="r-edge-main"><b>{{name}}</b> <small>{{spheres}}</small><div class="r-edge-text">{{text}}</div></span>
+      {{#if @root.editable}}<a class="r-vc-btn" data-action="mageRoteCast" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Mage.Cast'}}"><i class="fa-solid fa-hat-wizard"></i></a>
+      <a class="r-icon-btn is-danger" data-action="mageRoteDel" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
+    </li>
+    {{else}}<li class="r-note">{{localize "VTM20.Mage.NoRotes"}}</li>
+    {{/each}}
+  </ul>
+</section>

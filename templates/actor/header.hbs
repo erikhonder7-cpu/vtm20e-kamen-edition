@@ -30,7 +30,7 @@
         {{#if clan.nickname}}<i class="r-kicker-dia"></i><em class="r-kicker-nick is-link" data-action="clanAtlas" data-tooltip="{{localize 'VTM20.Clans.Open'}}">«{{clan.nickname}}»</em>{{/if}}
         {{#if house}}<i class="r-kicker-dia"></i><em class="r-kicker-nick is-link" data-action="houseAtlas" data-tooltip="{{localize 'VTM20.Demon.AtlasOpen'}}">«{{house.akkadian}}»</em>{{/if}}
         {{#if sectSym}}<i class="r-kicker-dia"></i>{{rSym sectSym "r-sym-inline"}}{{/if}}
-        <span class="r-motto" aria-hidden="true">{{#if earthbound}}Adorate me{{else if isDemon}}Non serviam{{else if isWerewolf}}Pro Gaia{{else if isHunter}}Vigilate{{else}}La Liberté ou la Mort{{/if}}</span>
+        <span class="r-motto" aria-hidden="true">{{#if earthbound}}Adorate me{{else if isDemon}}Non serviam{{else if isWerewolf}}Pro Gaia{{else if isHunter}}Vigilate{{else if isMage}}Ascensio{{else}}La Liberté ou la Mort{{/if}}</span>
       </div>
       <div class="r-name-row">
         <input class="r-name {{nameSize}}" type="text" name="name" value="{{actor.name}}" placeholder="{{localize 'VTM20.Sheet.Name'}}" spellcheck="false">
@@ -120,6 +120,16 @@
         {{#if isHunter}}
         <label class="r-df is-wide r-df-creed" {{#if creedTip}}data-tooltip="{{creedTip}}"{{/if}}><span>{{localize "VTM20.Hunter.Creed"}}</span>
           <select name="system.hunter.creed">{{#each creeds}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}} · {{who}}</option>{{/each}}</select></label>
+        {{/if}}
+        {{#if isMage}}
+        {{!-- Маг (M20): фракция (Традиция, Конвенция, Ремесло), Сущность Аватара, родовая Сфера --}}
+        <label class="r-df is-wide" {{#if mageInfo.factionTip}}data-tooltip="{{mageInfo.factionTip}}"{{/if}}><span>{{localize "VTM20.Mage.Faction"}}</span>
+          <select name="system.mage.faction"><option value="">—</option>{{#each mageInfo.groups}}<optgroup label="{{name}}">{{#each list}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</optgroup>{{/each}}</select></label>
+        <label class="r-df" {{#if mageInfo.essence}}data-tooltip="{{mageInfo.essence.text}}"{{/if}}><span>{{localize "VTM20.Mage.Essence"}}</span>
+          <select name="system.mage.essence"><option value="">—</option>{{#each mageInfo.essences}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
+        <label class="r-df" data-tooltip="{{localize 'VTM20.Mage.AffinityHint'}}"><span>{{localize "VTM20.Mage.Affinity"}}</span>
+          <select name="system.mage.affinity"><option value="">—</option>{{#each mageInfo.affinities}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}{{#if off}} ·{{/if}}</option>{{/each}}</select></label>
+        <span class="r-df-break"></span>
         {{/if}}
         {{#if isMortal}}
         <label class="r-df"><span>{{localize "VTM20.Details.age"}}</span><input type="text" name="system.details.age" value="{{system.details.age}}"></label>

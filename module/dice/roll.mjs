@@ -430,6 +430,7 @@ export function onChatCardClick(event) {
   if (combatAction === "possessRoll") return import("../apps/target-powers.mjs").then(m => m.possessAccess(message));
   if (combatAction === "riddleRoll") return import("../apps/target-powers.mjs").then(m => m.riddleRoll(message));
   if (combatAction === "targetApply") return import("../apps/target-powers.mjs").then(m => m.applyFromCard(message));
+  if (combatAction === "mageBacklash" || combatAction === "mageBurn") return import("../apps/mage.mjs").then(m => m.mageCardAction(message, combatAction));
   if (combatAction === "sinPrompt") return import("../apps/torment.mjs").then(m => m.sinFromPrompt(message));
   if (combatAction === "virtueCheck") return import("./virtue-checks.mjs").then(m => m.rollFromPrompt(message));
   if (["extend", "resist", "assist"].includes(combatAction)) {

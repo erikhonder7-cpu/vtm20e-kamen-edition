@@ -21,14 +21,14 @@ export class VtMActor extends Actor {
   async _preCreate(data, options, user) {
     if ((await super._preCreate(data, options, user)) === false) return false;
     // оборотню — картина из библиотеки Foundry (волк воет на луну над лесом): в тон палитре «лунный лес»
-    const icons = { vampire: "vampire.svg", ghoul: "ghoul.svg", mortal: "mortal.svg", demon: "demon.svg", creature: "creature.svg", hunter: "hunter.svg",
+    const icons = { vampire: "vampire.svg", ghoul: "ghoul.svg", mortal: "mortal.svg", demon: "demon.svg", creature: "creature.svg", hunter: "hunter.svg", mage: "mage.svg",
       werewolf: "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp", coterie: "icons/environment/people/group.webp", domain: "icons/environment/settlement/city-night.webp" };
     const upd = {};
     if (!data.img || data.img === CONST.DEFAULT_TOKEN) upd.img = icons[this.type].startsWith("icons/") ? icons[this.type] : `systems/${SYSTEM_ID}/assets/icons/${icons[this.type]}`;
     if (this.type === "coterie" || this.type === "domain") { this.updateSource(upd); return; }
     const proto = {
       "prototypeToken.bar1.attribute": "health",
-      "prototypeToken.bar2.attribute": this.type === "werewolf" ? "werewolf.rage" : ["mortal", "demon", "hunter"].includes(this.type) ? "willpower" : "blood",
+      "prototypeToken.bar2.attribute": this.type === "werewolf" ? "werewolf.rage" : ["mortal", "demon", "hunter", "mage"].includes(this.type) ? "willpower" : "blood",
       "prototypeToken.displayBars": CONST.TOKEN_DISPLAY_MODES.OWNER_HOVER,
       "prototypeToken.displayName": CONST.TOKEN_DISPLAY_MODES.OWNER_HOVER
     };
@@ -44,6 +44,8 @@ export class VtMActor extends Actor {
   get isVampire() { return this.type === "vampire"; }
   /** Охотник (Hunter: The Reckoning) — отдельный тип на модели смертного: всё смертное плюс кредо, Убеждённость, Грани. */
   get isHunter() { return this.type === "hunter"; }
+  /** Маг (Mage: The Ascension) — пробуждённый смертный: Арете, Сферы, Квинтэссенция и Парадокс. */
+  get isMage() { return this.type === "mage"; }
   get hasBlood() { return !!this.system.hasBlood; }
 
   /** Игровой персонаж: есть владелец-игрок, и это не гуль-слуга (галочка «Слуга, не игровой»). */
@@ -156,6 +158,7 @@ export class VtMActor extends Actor {
     if (group === "disciplines") return this.discipline(key);
     if (group === "willpower") return s.willpower.permanent;
     if (group === "hunter") return s.hunter?.[key] ?? 0;            // Добродетели охотника
+    if (group === "mage") return key === "arete" ? s.mage?.arete ?? 0 : s.mage?.spheres?.[key] ?? 0;   // Арете и Сферы мага
     if (group === "werewolf") return key === "rage" || key === "gnosis" ? s.werewolf?.[key]?.value ?? 0 : 0;   // текущие Ярость и Гнозис
     if (group === "spirit") return s.spirit?.[key] ?? 0;          // дух Умбры: Ярость, Гнозис, Воля
     if (group === "morality") return s.morality.value;
@@ -173,6 +176,7 @@ export class VtMActor extends Actor {
     if (group === "disciplines") return Codex.discipline(key)?.name ?? this.items.find(i => i.type === "discipline" && i.system.key === key)?.name ?? key;
     if (group === "willpower") return t("Willpower");
     if (group === "hunter") return Codex.hunter?.virtues?.[key] ?? key;
+    if (group === "mage") return key === "arete" ? t("Mage.Arete") : Codex.mage?.spheres?.find(x => x.key === key)?.name ?? key;
     if (group === "werewolf") return t(`Werewolf.${key === "rage" ? "Rage" : "Gnosis"}`);
     if (group === "spirit") return t(`Werewolf.Spirit.${key}`);
     if (group === "morality") return this.path?.name ?? t("Humanity");

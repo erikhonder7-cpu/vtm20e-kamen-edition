@@ -48,6 +48,7 @@ import { possess, extend as possessExtend, leave as possessLeave, battleExpiry }
 import { weaponIcon as weaponImg, armorIcon as armorImg } from "../data/icons.mjs";
 import { togglePowerEffect } from "../apps/power-effects.mjs";
 import { usePower } from "../apps/use-power.mjs";
+import { mageInfo, spheresView, castEffect, changeQuintessence, changeParadox, paradoxBacklash, addRote, removeRote, castRote, addTool, removeTool } from "../apps/mage.mjs";
 import { POWER_EFFECTS, fxKey } from "../data/effects.mjs";
 import { rollPackVinculi, openVaulderie, loyaltyConflict } from "../apps/vaulderie.mjs";
 import { openCoterie } from "../apps/coterie.mjs";
@@ -175,6 +176,8 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       diablerie: VtMActorSheet.#onDiablerie,
       clanAtlas: VtMActorSheet.#onClanAtlas,
       linSire: VtMActorSheet.#onLinSire,
+      mageCast: VtMActorSheet.#onMageCast, mageQuint: VtMActorSheet.#onMageQuint, mageParadox: VtMActorSheet.#onMageParadox, mageBacklash: VtMActorSheet.#onMageBacklash,
+      mageRoteAdd: VtMActorSheet.#onMageRoteAdd, mageRoteDel: VtMActorSheet.#onMageRoteDel, mageRoteCast: VtMActorSheet.#onMageRoteCast, mageToolDel: VtMActorSheet.#onMageToolDel,
       edgeUse: VtMActorSheet.#onEdgeUse, edgeDel: VtMActorSheet.#onEdgeDel, hunterSight: VtMActorSheet.#onHunterSight,
       wwForm: VtMActorSheet.#onWwForm, wwGift: VtMActorSheet.#onWwGift, wwGiftAdd: VtMActorSheet.#onWwGiftAdd, wwGiftDel: VtMActorSheet.#onWwGiftDel,
       wwRite: VtMActorSheet.#onWwRite, wwRiteAdd: VtMActorSheet.#onWwRiteAdd, wwRiteDel: VtMActorSheet.#onWwRiteDel,
@@ -260,6 +263,8 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     if (this.actor.type === "mortal" || isLost(this.actor)) delete parts.disciplines;    // у Свидетеля Граней нет
     // у охотника на месте Дисциплин — Грани
     if (this.actor.type === "hunter" && parts.disciplines) parts.disciplines = { ...parts.disciplines, template: `${SYSTEM_PATH}/templates/actor/edges.hbs` };
+    // маг — вкладка «Сферы»: Сферы с рангами, фокус, ротэ
+    if (this.actor.type === "mage" && parts.disciplines) parts.disciplines = { ...parts.disciplines, template: `${SYSTEM_PATH}/templates/actor/spheres.hbs` };
     // у оборотня — формы, Дары и ритуалы
     if (this.actor.type === "werewolf" && parts.disciplines) parts.disciplines = { ...parts.disciplines, template: `${SYSTEM_PATH}/templates/actor/gifts.hbs` };
     // у демона на месте Дисциплин — Знания и апокалиптическая форма
@@ -271,6 +276,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const tabs = super._prepareTabs(group);
     if (this.actor.type === "mortal" || isLost(this.actor)) delete tabs.disciplines;
     if (this.actor.type === "hunter" && tabs.disciplines) Object.assign(tabs.disciplines, { label: "VTM20.Hunter.Edges", icon: "fa-solid fa-eye" });
+    if (this.actor.type === "mage" && tabs.disciplines) Object.assign(tabs.disciplines, { label: "VTM20.Mage.Spheres", icon: "fa-solid fa-hat-wizard" });
     if (this.actor.type === "werewolf" && tabs.disciplines) Object.assign(tabs.disciplines, { label: "VTM20.Werewolf.Gifts", icon: "fa-solid fa-paw" });
     if (this.actor.type === "demon" && tabs.disciplines) Object.assign(tabs.disciplines, { label: "VTM20.Demon.Lores", icon: "fa-solid fa-fire-flame-curved" });
     let i = 0;
@@ -291,7 +297,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       nameSize: actor.name.length > 26 ? "is-xlong" : actor.name.length > 18 ? "is-long" : "",
       // охотник — смертный с Гранями: где лист смертного и охотника совпадают, работает isMortal
       diablerie: actor.type === "vampire" ? diablerieMark(actor) : null,
-      isVampire: actor.type === "vampire", isGhoul: actor.type === "ghoul", isDhampir: actor.isDhampir, isMortal: ["mortal", "hunter"].includes(actor.type), isHunter: actor.type === "hunter", isWerewolf: actor.type === "werewolf", stratInfo: sheetStrategy(actor),
+      isVampire: actor.type === "vampire", isGhoul: actor.type === "ghoul", isDhampir: actor.isDhampir, isMortal: ["mortal", "hunter", "mage"].includes(actor.type), isHunter: actor.type === "hunter", isMage: actor.type === "mage", isWerewolf: actor.type === "werewolf", stratInfo: sheetStrategy(actor),
       isCreature: actor.type === "creature", isDemon: actor.type === "demon",
       hasBlood: actor.hasBlood,
       typeLabel: actor.type === "ghoul" && ["revenant", "dhampir"].includes(actor.system.ghoulType) ? t(`GhoulType.${actor.system.ghoulType}`) : game.i18n.localize(`TYPES.Actor.${actor.type}`),
@@ -303,6 +309,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     prepareRegistry(this, ctx);
     if (actor.type === "demon") prepareLores(this, ctx);
     else if (actor.type === "hunter") { ctx.hunterInfo = hunterInfo(actor, dots); ctx.edgePaths = edgesView(actor); ctx.hunterCall = callView(actor); }
+    else if (actor.type === "mage") { ctx.mageInfo = mageInfo(actor, dots); ctx.mageView = spheresView(actor, dots); }
     else if (actor.type === "werewolf") { ctx.werewolfInfo = werewolfInfo(actor, dots); ctx.ww = giftsView(actor);
       const sg = werewolfSigil(actor);
       ctx.sigil = { ...ctx.sigil, sym: sg.sym, label: sg.label };
@@ -402,6 +409,10 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
         el.value = "";
         this.#addPreset(el.dataset.preset, Number(key));
       });
+    }
+    // Маг: инструмент фокуса — выбрать из списка или вписать свой (Enter)
+    for (const el of this.element.querySelectorAll("input[data-mage-tool]")) {
+      el.addEventListener("change", ev => { ev.stopPropagation(); const v = el.value.trim(); el.value = ""; if (v) return addTool(this.actor, v); });
     }
     // Оборотень: поиск Дара, ритуала, шрама, уродства — выбор сразу добавляет; фетиш — запоминается для «Добавить» и «Создать обрядом»
     for (const el of this.element.querySelectorAll("input[data-ww-add]")) {
@@ -651,7 +662,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
   /** Справочник правил V20 (компендий-журнал). */
   static #onOpenRules(event, target) {
-    const name = target?.dataset?.rules === "dhampir" ? "dhampir-rules" : this.actor.type === "hunter" ? "hunter-rules" : this.actor.type === "werewolf" ? "werewolf-rules" : "rules";
+    const name = target?.dataset?.rules === "dhampir" ? "dhampir-rules" : this.actor.type === "hunter" ? "hunter-rules" : this.actor.type === "mage" ? "mage-books" : this.actor.type === "werewolf" ? "werewolf-rules" : "rules";
     const pack = game.packs.get(`${SYSTEM_ID}.${name}`);
     if (pack) pack.render(true);
     else ui.notifications.warn(t("Sheet.RulesMissing"));
@@ -790,6 +801,15 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   /** Слуга Привязанного: нет наделений — сразу ритуал, есть — окно сил (apps/eb-servant.mjs). */
   /** Охотник (apps/hunter.mjs): Грань — бросок с риском Убеждённостью; второе зрение; испытание Добродетели; 10 Убеждённости — в Добродетель. */
   static #onEdgeUse(event, target) { return useEdge(this.actor, target.dataset.key); }
+  // Маг (apps/mage.mjs): чародейство, колесо Квинтэссенции и Парадокса, ротэ, инструменты
+  static #onMageCast(event, target) { return castEffect(this.actor, target.dataset.sphere ? { sphere: target.dataset.sphere } : {}); }
+  static #onMageQuint(event, target) { return changeQuintessence(this.actor, Number(target.dataset.d) || 0); }
+  static #onMageParadox(event, target) { return changeParadox(this.actor, Number(target.dataset.d) || 0); }
+  static #onMageBacklash() { return paradoxBacklash(this.actor); }
+  static #onMageRoteAdd() { return addRote(this.actor); }
+  static #onMageRoteDel(event, target) { return removeRote(this.actor, Number(target.dataset.i)); }
+  static #onMageRoteCast(event, target) { return castRote(this.actor, Number(target.dataset.i)); }
+  static #onMageToolDel(event, target) { return removeTool(this.actor, Number(target.dataset.i)); }
   static async #onEdgeDel(event, target) {
     const k = target.dataset.key, list = this.actor.system.hunter?.edges ?? [];
     await this.actor.update({ "system.hunter.edges": list.filter(x => x !== k) });
