@@ -450,6 +450,8 @@ Hooks.on("renderChatMessageHTML", (message, html) => {
 function registerSettings() {
   game.settings.register(SYSTEM_ID, "refreshChecked", { scope: "world", config: false, type: String, default: "" });
   game.settings.register(SYSTEM_ID, "turnMarkerSet", { scope: "world", config: false, type: Boolean, default: false });
+  // снимок персонажей на начало ночи — для «Итогов ночи» (apps/night.mjs)
+  game.settings.register(SYSTEM_ID, "nightSnapshot", { scope: "world", config: false, type: Object, default: {} });
   game.settings.register(SYSTEM_ID, "tokenLinkAll", { scope: "world", config: false, type: Boolean, default: false });
   game.settings.register(SYSTEM_ID, "era", {
     name: "VTM20.Settings.Era.Name", hint: "VTM20.Settings.Era.Hint",

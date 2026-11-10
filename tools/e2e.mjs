@@ -2748,6 +2748,33 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  // Итоги ночи: «Ночь» делает снимок; сводка показывает, что изменилось (кровь, Воля, раны) и действующие эффекты
+  await check("Итоги ночи: снимок и сводка", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms));
+      const N = await import(`/systems/${sid}/module/apps/night.mjs`);
+      const player = game.users.find(u => !u.isGM);
+      const a = await Actor.create({ name: "E2E — итоги ночи", type: "vampire", flags: { world: { e2e: true } }, ownership: player ? { [player.id]: 3 } : {},
+        system: { generation: 10, blood: { value: 10 }, willpower: { permanent: 5, temporary: 5 } } });
+      const before = game.settings.get(sid, "nightSnapshot");
+      await game.settings.set(sid, "nightSnapshot", { at: Date.now(), actors: { [a.id]: { blood: 10, will: 5, rage: null, gnosis: null, faith: null, torment: null, conviction: null, b: 0, l: 0, a: 0 } } });
+      await a.update({ "system.blood.value": 6, "system.willpower.temporary": 4, "system.health.lethal": 2 });
+      await a.createEmbeddedDocuments("ActiveEffect", [{ name: "E2E — эффект ночи" }]);
+      const n0 = game.messages.size;
+      await N.nightSummary(); await wait(500);
+      const card = game.messages.contents.slice(n0).find(m => /r-night-sum/.test(m.content));
+      const html = card?.content ?? "", li = (html.match(/<li>[\s\S]*?<\/li>/g) ?? []).find(x => x.includes("E2E — итоги ночи")) ?? "";
+      const out = { has: player ? !!li : true, blood: !player || /10 → <b>6<\/b>/.test(li), will: !player || /5 → <b>4<\/b>/.test(li),
+        hurt: !player || /\+2/.test(li), fx: !player || li.includes("E2E — эффект ночи") };
+      await card?.delete();
+      await game.settings.set(sid, "nightSnapshot", before ?? {});
+      await a.delete();
+      return out;
+    });
+    const bad = Object.entries(r).filter(([, v]) => v !== true).map(([k]) => k);
+    if (bad.length) throw new Error(`нет в сводке: ${bad.join(", ")}`);
+  });
+
   // Ход боя V20: инициатива каждый ход (карточка), заявки от низшей к высшей, выжидание — в конец хода,
   // множественные действия делят пул в окнах, защита без заявки — отмена действия (Воля)
   await check("Ход боя: инициатива, заявки, выжидание, отмена ради защиты", async () => {

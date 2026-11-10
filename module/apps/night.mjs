@@ -307,6 +307,47 @@ export async function nightfall() {
   // Маскарад: огласка в городе — карточка рассказчику об охотниках (ui/masquerade.mjs)
   const { huntersAlert } = await import("../ui/masquerade.mjs");
   await huntersAlert();
+  // снимок на начало ночи — для «Итогов ночи»
+  await game.settings.set(SYSTEM_ID, "nightSnapshot", { at: Date.now(), actors: Object.fromEntries(summaryActors().map(a => [a.id, stateOf(a)])) });
+}
+
+/* ── Итоги ночи ───────────────────────────────────────────────────────── */
+// Кнопка «Итоги ночи» (рассказчик): по каждому персонажу игроков — что изменилось с начала ночи (кнопка «Ночь»):
+// кровь, Воля, ресурс линейки (Ярость и Гнозис, Вера и Мука, Убеждённость), раны и что из эффектов ещё действует.
+
+const summaryActors = () => game.actors.filter(a => a.hasPlayerOwner && !["coterie", "domain"].includes(a.type));
+
+/** Состояние персонажа для сводки: ресурсы по линейке и раны. */
+function stateOf(a) {
+  const s = a.system, h = s.health ?? {}, ww = a.type === "werewolf" ? s.werewolf : null, dm = a.type === "demon";
+  return { blood: a.hasBlood ? s.blood?.value ?? 0 : null, will: s.willpower?.temporary ?? null,
+    rage: ww ? ww.rage?.value ?? 0 : null, gnosis: ww ? ww.gnosis?.value ?? 0 : null,
+    faith: dm ? s.faith?.temporary ?? 0 : null, torment: dm ? s.torment?.temporary ?? 0 : null,
+    conviction: a.type === "hunter" ? s.hunter?.conviction ?? 0 : null,
+    b: h.bashing ?? 0, l: h.lethal ?? 0, a: h.aggravated ?? 0 };
+}
+
+export async function nightSummary() {
+  if (!game.user.isGM) return ui.notifications.warn(t("Notify.GMOnly"));
+  const esc = x => foundry.utils.escapeHTML(String(x ?? ""));
+  const snap = game.settings.get(SYSTEM_ID, "nightSnapshot") ?? {};
+  const rows = summaryActors().sort((x, y) => x.name.localeCompare(y.name, "ru")).map(a => {
+    const now = stateOf(a), was = snap.actors?.[a.id] ?? null;
+    const pair = k => now[k] == null ? "" : was && was[k] != null && was[k] !== now[k]
+      ? `<span class="r-ns-stat is-${now[k] < was[k] ? "down" : "up"}">${esc(t(`NightSum.${k}`))} ${was[k]} → <b>${now[k]}</b></span>`
+      : `<span class="r-ns-stat">${esc(t(`NightSum.${k}`))} <b>${now[k]}</b></span>`;
+    const stats = ["blood", "rage", "gnosis", "faith", "torment", "conviction", "will"].map(pair).filter(Boolean).join("");
+    const hurtNow = now.b + now.l + now.a, delta = was ? hurtNow - (was.b + was.l + was.a) : 0;
+    const hurt = hurtNow || delta ? `<span class="r-ns-hurt"><i class="fa-solid fa-heart-crack"></i> ${hurtNow ? esc(t("NightSum.Hurt", { b: now.b, l: now.l, a: now.a })) : esc(t("NightSum.Healthy"))}${
+      delta > 0 ? ` <em>${esc(t("NightSum.HurtMore", { n: delta }))}</em>` : delta < 0 ? ` <em>${esc(t("NightSum.HurtLess", { n: -delta }))}</em>` : ""}</span>` : "";
+    const fx = a.effects.filter(e => !e.disabled).map(e => e.name);
+    const effects = fx.length ? `<span class="r-ns-fx"><i class="fa-solid fa-wand-sparkles"></i> ${esc(fx.slice(0, 6).join(", "))}${fx.length > 6 ? ` ${esc(t("NightSum.More", { n: fx.length - 6 }))}` : ""}</span>` : "";
+    return `<li><b class="r-ns-name">${esc(a.name)}</b><span class="r-ns-stats">${stats}</span>${hurt}${effects}</li>`;
+  });
+  return ChatMessage.create({ speaker: { alias: t("NightSum.Title") },
+    content: `<div class="r-roll-card r-turn-card r-night-sum"><header class="r-turn-head"><i class="fa-solid fa-scroll"></i> <b>${esc(t("NightSum.Title"))}</b></header>
+      <ul class="r-ns-list">${rows.join("") || `<li>${esc(t("NightSum.Nobody"))}</li>`}</ul>
+      <p class="r-turn-foot">${esc(t(snap.actors ? "NightSum.Foot" : "NightSum.FootNoSnap"))}</p></div>` });
 }
 
 /** Состояния, которые проходят с концом сцены: ошеломление, падение, захват, ярость, Ротшрек. */
@@ -361,6 +402,7 @@ export function registerNightTools() {
       b.addEventListener("click", fn); box.append(b);
     };
     mk("fa-moon", t("Night.Button"), nightfall);
+    mk("fa-scroll", t("NightSum.Button"), nightSummary);
     mk("fa-hourglass-end", t("Night.SceneButton"), endScene);
     mk("fa-book", t("Night.StoryButton"), endStory);
     bar.after(box);

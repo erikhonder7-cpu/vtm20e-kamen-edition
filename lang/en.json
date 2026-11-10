@@ -6834,6 +6834,25 @@
       "BeastGo": "Summon",
       "BeastToken": "{name} — spirit ({who})",
       "BeastCame": "a spirit beast takes flesh: {name}"
+    },
+    "NightSum": {
+      "Title": "Night summary",
+      "Button": "Night summary",
+      "blood": "Blood",
+      "will": "Willpower",
+      "rage": "Rage",
+      "gnosis": "Gnosis",
+      "faith": "Faith",
+      "torment": "Torment (temp.)",
+      "conviction": "Conviction",
+      "Hurt": "wounds: bashing {b}, lethal {l}, aggravated {a}",
+      "Healthy": "no wounds",
+      "HurtMore": "+{n} this night",
+      "HurtLess": "{n} healed this night",
+      "More": "and {n} more",
+      "Nobody": "No player characters.",
+      "Foot": "Arrows show what changed since nightfall (the “Night” button).",
+      "FootNoSnap": "Nightfall was not marked with the “Night” button — only the current state is shown."
     }
   },
   "Fx": {
