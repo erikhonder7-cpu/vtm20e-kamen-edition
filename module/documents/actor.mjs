@@ -254,6 +254,8 @@ export class VtMActor extends Actor {
     if (phase?.active && flag?.key === phase.key) return flag.n ?? 0;
     return this._roundFlag("celerity")?.n ?? 0;
   }
+  /** Гару: действий за Ярость в этот ход больше меньшего из Ловкости и Смекалки — все сложности +3 (apps/werewolf.mjs). */
+  get rageFast() { const f = this.getFlag(SYSTEM_ID, "celerity"); return !!(f?.rage && f.fast && f.key === VtMActor.roundKey()); }
   /** Неиспользованные дополнительные действия (в фазе Стремительности). */
   get celerityActionsRemaining() {
     const flag = this.getFlag(SYSTEM_ID, "celerity");

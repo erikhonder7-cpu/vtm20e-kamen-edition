@@ -2697,6 +2697,57 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k] ?? [1, 1])}`).join("; "));
   });
 
+  // Ход боя других линеек: заявка «сила» называется по линейке (Дар, Знание, Грань); Гару объявляет Ярость на действия в заявке —
+  // они встают в фазу дополнительных действий после обычных; перебор сверх Ловкости и Смекалки — +3 к сложностям
+  await check("Ход боя: Гару, падший и охотник — заявки и действия за Ярость", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), sys = p => import(`/systems/${sid}/${p}`);
+      const T = await sys("module/combat/turn.mjs"), RD = await sys("module/dice/dialog.mjs"), WW = await sys("module/apps/werewolf.mjs");
+      const mk = (name, type, system = {}) => Actor.create({ name, type, flags: { world: { e2e: true } }, system });
+      const w = await mk("E2E — Гару боя", "werewolf", { attributes: { dexterity: { value: 2 }, wits: { value: 2 } }, werewolf: { rage: { permanent: 6, value: 5 } } });
+      const d = await mk("E2E — падший боя", "demon"), h = await mk("E2E — охотник боя", "hunter");
+      const actors = [w, d, h];
+      const scene = game.scenes.viewed ?? game.scenes.contents[0];
+      const toks = await scene.createEmbeddedDocuments("Token", await Promise.all(actors.map((a, i) => a.getTokenDocument({ x: 100 + i * 200, y: 4300 }))));
+      await wait(600);
+      for (const c of game.combats.filter(c => c.scene?.id === scene.id && !c.started)) await c.delete();
+      const combat = await getDocumentClass("Combat").create({ scene: scene.id, active: true });
+      await combat.createEmbeddedDocuments("Combatant", toks.map(t => ({ tokenId: t.id, sceneId: scene.id, actorId: t.actorId })));
+      await combat.startCombat(); await wait(1500);
+      const act = a => combat.combatants.find(c => c.actorId === a.id).actor;
+      const dlg = () => [...foundry.applications.instances.values()].filter(x => x instanceof foundry.applications.api.DialogV2).at(-1);
+      const out = { init: combat.turns.every(c => Number.isFinite(c.initiative)), phase: T.phaseOf(combat)?.phase };
+      const label = async a => { const pr = T.openDeclare(act(a), combat); await wait(600);
+        const txt = dlg()?.element.querySelector('.r-decl-kind input[value="power"]')?.closest("label").querySelector("b")?.textContent; await dlg()?.close(); await pr; return txt; };
+      out.labels = [await label(d), await label(h)];
+      // Гару: заявка с двумя действиями за Ярость
+      const pr = T.openDeclare(act(w), combat); await wait(600);
+      const el = dlg().element;
+      out.labels.push(el.querySelector('.r-decl-kind input[value="power"]')?.closest("label").querySelector("b")?.textContent);
+      for (let i = 0; i < 2; i++) el.querySelector('.r-decl-rage button[data-d="1"]').click();
+      el.querySelector('button[data-action="ok"]').click(); await pr; await wait(600);
+      const flag = () => act(w).getFlag(sid, "celerity");
+      out.rage = [act(w).system.werewolf.rage.value, flag()?.n, !!flag()?.rage, !!flag()?.fast, T.declarationOf(act(w))?.kind];
+      // третье действие — сверх меньшего из Ловкости и Смекалки (2): +3 к сложностям; больше взять нельзя (половина постоянной Ярости)
+      await WW.spendRageActions(act(w), 1); await wait(500);
+      out.fast = [flag()?.n, new RD.RollDialog(act(w), { trait1: "attributes.strength" }).compute().diffAuto.some(x => x.value === 3), WW.rageActionsCap(act(w))];
+      // конец хода: вместо следующего — фаза дополнительных действий с Гару в очереди
+      await combat.nextRound(); await wait(1500);
+      const ph = () => combat.getFlag(sid, "celerityPhase");
+      out.queue = [!!ph()?.active, ph()?.queue?.[0]?.actorUuid === act(w).uuid, ph()?.queue?.[0]?.remaining, combat.round];
+      for (let i = 0; i < 3; i++) { await act(w).consumeCelerityAction(); await wait(700); }
+      await wait(1200);
+      out.after = [combat.round, !!ph()?.active];
+      await combat.delete();
+      await scene.deleteEmbeddedDocuments("Token", toks.map(t => t.id));
+      await Actor.deleteDocuments(actors.map(a => a.id));
+      return out;
+    });
+    const want = { init: true, phase: "declare", labels: ["Знание", "Грань", "Дар"], rage: [3, 2, true, false, "attack"], fast: [3, true, 0], queue: [true, true, 3, 1], after: [2, false] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   // Ход боя V20: инициатива каждый ход (карточка), заявки от низшей к высшей, выжидание — в конец хода,
   // множественные действия делят пул в окнах, защита без заявки — отмена действия (Воля)
   await check("Ход боя: инициатива, заявки, выжидание, отмена ради защиты", async () => {

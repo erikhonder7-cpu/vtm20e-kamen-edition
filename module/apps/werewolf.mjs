@@ -6,7 +6,7 @@
 
 import { Codex } from "../data/codex.mjs";
 import { RollDialog } from "../dice/dialog.mjs";
-import { VTM20, SYSTEM_PATH } from "../config.mjs";
+import { VTM20, SYSTEM_PATH, SYSTEM_ID } from "../config.mjs";
 import { totemOf } from "./coterie.mjs";
 import { septOf } from "./sept.mjs";
 import { umbraOf } from "./umbra.mjs";
@@ -605,7 +605,7 @@ export async function regenerate(actor) {
  */
 export async function rageActions(actor) {
   const w = actor.system.werewolf, at = actor.system.attributes;
-  const cap = Math.min(Math.ceil(w.rage.permanent / 2), w.rage.value), free = Math.min(at.dexterity.total, at.wits.total);
+  const cap = rageActionsCap(actor), free = Math.min(at.dexterity.total, at.wits.total);
   if (cap < 1) return ui.notifications.warn(t("ActionsNone"));
   // карточка — число действий крупно и его цена; сверх меньшего из Ловкости и Смекалки — с пометкой о сложностях
   const n = Number(await wwPick({ title: t("Actions"), icon: "fa-bolt", width: 540,
@@ -614,10 +614,40 @@ export async function rageActions(actor) {
     cards: Array.from({ length: cap }, (_, i) => ({ key: String(i + 1), cls: i + 1 > free ? "is-warn" : "", badge: `${i + 1}`,
       icon: "fa-bolt", title: t("ActionsCost", { n: i + 1 }), sub: i + 1 > free ? t("ActionsFast") : t("ActionsFree") })) })) || 0;
   if (!n) return;
-  await actor.update({ "system.werewolf.rage.value": w.rage.value - n });
-  return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<div class="r-notice r-type-werewolf"><i class="fa-solid fa-bolt"></i> ${
-    t("ActionsDone", { name: esc(actor.name), n })}${n > free ? ` ${t("ActionsFastNote")}` : ""}</div>` });
+  return spendRageActions(actor, n);
 }
+
+/** Сколько действий за Ярость можно взять в этот ход: половина постоянной Ярости (вверх), не больше текущей, минус уже взятые. */
+export function rageActionsCap(actor) {
+  const w = actor.system.werewolf, had = rageFlag(actor)?.n ?? 0;
+  return Math.max(0, Math.min(Math.ceil(w.rage.permanent / 2) - had, w.rage.value));
+}
+/** Флаг действий за Ярость этого хода боя (общий с фазой дополнительных действий — combat/celerity.mjs). */
+function rageFlag(actor) {
+  const f = actor.getFlag(SYSTEM_ID, "celerity"), key = actor.constructor.roundKey?.();
+  return f?.rage && key && f.key === key ? f : null;
+}
+
+/**
+ * Потратить Ярость на дополнительные действия. В бою они встают в фазу после обычных действий всех, по инициативе,
+ * с полным пулом (W20: «выполняются после обычных действий всех, в порядке инициативы»; пул не делят).
+ * Сверх меньшего из Ловкости и Смекалки — все сложности +3 в этот ход.
+ */
+export async function spendRageActions(actor, n) {
+  const w = actor.system.werewolf, at = actor.system.attributes, free = Math.min(at.dexterity.total, at.wits.total);
+  n = Math.floor(Number(n) || 0);
+  if (n < 1) return null;
+  if (n > rageActionsCap(actor)) { ui.notifications.warn(t("ActionsNone")); return null; }
+  const combat = game.combat, key = actor.constructor.roundKey?.();
+  const fighting = !!key && combat.combatants.some(c => c.actor === actor);
+  if (fighting && combat.getFlag?.(SYSTEM_ID, "celerityPhase")?.active) { ui.notifications.warn(game.i18n.localize("VTM20.Combat.CelerityPhaseFirst")); return null; }
+  const had = rageFlag(actor), total = (had?.n ?? 0) + n;
+  await actor.update({ "system.werewolf.rage.value": w.rage.value - n,
+    ...(fighting ? { [`flags.${SYSTEM_ID}.celerity`]: { key, at: Date.now(), n: total, used: had?.used ?? 0, rage: true, fast: total > free } } : {}) });
+  return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<div class="r-notice r-type-werewolf"><i class="fa-solid fa-bolt"></i> ${
+    t("ActionsDone", { name: esc(actor.name), n })}${fighting ? ` ${t("ActionsQueued")}` : ""}${total > free ? ` ${t("ActionsFastNote")}` : ""}</div>` });
+}
+
 
 /* ── Фетиши и талены (W20, гл. 4) ────────────────────────────────────── */
 

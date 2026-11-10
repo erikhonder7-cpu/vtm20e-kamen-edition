@@ -3111,11 +3111,11 @@
       "CelerityNote": "Extra Celerity actions this turn: {n} — they come after all participants, with a full pool.",
       "MortalAggravated": "To a mortal, fire, fangs and claws deal lethal damage, not aggravated.",
       "AutoShort": "automatic successes: {n}",
-      "CelerityPhaseStarted": "Celerity phase started: extra actions — {n}.",
-      "CelerityPhaseTitle": "Celerity Phase",
+      "CelerityPhaseStarted": "The extra action phase begins: {n} actions.",
+      "CelerityPhaseTitle": "Extra actions",
       "CelerityPhaseCurrent": "{name} acts now; actions remaining: {n}",
       "CelerityPhaseSkip": "Skip",
-      "CelerityNotYourTurn": "It is another participant’s turn in the Celerity phase.",
+      "CelerityNotYourTurn": "It is another participant's turn in the extra action phase.",
       "CelerityNotOwner": "You do not have permission to control this character.",
       "CelerityActionTitle": "Extra actions: {n}",
       "CelerityActionHint": "One physical action with the full pool — it is spent from the reserve.",
@@ -3165,7 +3165,11 @@
         "tick": "Clinch: Strength damage to {name}"
       },
       "FearFire": "{name}: the fire burns — Rötschreck check (diff. {n}).",
-      "FearSun": "{name}: direct sunlight — Rötschreck check (diff. {n})."
+      "FearSun": "{name}: direct sunlight — Rötschreck check (diff. {n}).",
+      "ExtraCheck": "Roll",
+      "ExtraCheckSub": "any roll with a full pool",
+      "ExtraActionHint": "One action with a full pool — it is spent from the reserve.",
+      "ExtraPhaseNote": "A Rage extra action uses a full pool and cannot be split into multiple actions."
     },
     "Hazard": {
       "Title": "Hazard",
@@ -4886,7 +4890,9 @@
       "FindFetish": "Fetish or talen — start typing…",
       "FindDeformity": "Deformity — start typing…",
       "FindScar": "Battle scar — start typing…",
-      "RageGnosis": "Rage and Gnosis"
+      "RageGnosis": "Rage and Gnosis",
+      "ActionsQueued": "They are taken after everyone's normal actions, in initiative order.",
+      "ActionsFastLabel": "Too many Rage actions"
     },
     "Strategy": {
       "Tab": "Strategy",
@@ -6268,7 +6274,10 @@
         "power": "Discipline",
         "move": "Movement",
         "other": "Other",
-        "delay": "Delay"
+        "delay": "Delay",
+        "power-werewolf": "Gift",
+        "power-demon": "Lore",
+        "power-hunter": "Edge"
       },
       "KindSub": {
         "attack": "a single attack",
@@ -6277,7 +6286,10 @@
         "power": "a power or spending blood",
         "move": "walk, run, take cover",
         "other": "any other action",
-        "delay": "act at the end of the turn"
+        "delay": "act at the end of the turn",
+        "power-werewolf": "a Gift, fetish, Rage or Gnosis",
+        "power-demon": "an evocation or Faith",
+        "power-hunter": "an Edge or Conviction"
       },
       "MultiN": "{n} actions",
       "Actions": "How many actions",
@@ -6304,7 +6316,9 @@
       "NpcDeclare": "Extras",
       "NoNpcs": "There are no Storyteller extras in this combat.",
       "TextHintShort": "what exactly",
-      "NpcAttack": "Extra's attack"
+      "NpcAttack": "Extra's attack",
+      "RageActions": "Rage for actions",
+      "RageActionsHint": "up to {cap}; taken after everyone's normal actions, full pool"
     },
     "Heal": {
       "Title": "Blood healing in combat",

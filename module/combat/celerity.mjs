@@ -86,9 +86,11 @@ export async function useCelerityAction(actor) {
   if (!entry) return ui.notifications.warn(t("Combat.CelerityNotYourTurn"));
   if (!actor.isOwner) return ui.notifications.warn(t("Combat.CelerityNotOwner"));
   // действия — карточками: значок, название, что будет; один клик — выбор
+  // действия за Ярость (Гару) — в той же фазе; они не обязаны быть физическими
+  const rage = !!actor.getFlag(SYSTEM_ID, "celerity")?.rage;
   const choices = [
     ["attack", "fa-khanda", t("Combat.CelerityAttack"), t("Combat.CelerityAttackSub")],
-    ["physical", "fa-person-running", t("Combat.CelerityPhysical"), t("Combat.CelerityPhysicalSub")],
+    ["physical", "fa-person-running", t(rage ? "Combat.ExtraCheck" : "Combat.CelerityPhysical"), t(rage ? "Combat.ExtraCheckSub" : "Combat.CelerityPhysicalSub")],
     ["move", "fa-person-walking", t("Combat.CelerityMove"), t("Combat.CelerityMoveSub")]
   ];
   if (pendingAttacks(actor).length) choices.unshift(["defend", "fa-shield-halved", t("Combat.CelerityDefend"), t("Combat.CelerityDefendSub")]);
@@ -96,7 +98,7 @@ export async function useCelerityAction(actor) {
   const pips = Array.from({ length: Math.min(10, entry.remaining) }, () => `<i class="fa-solid fa-bolt"></i>`).join("");
   let action = null;
   await foundry.applications.api.DialogV2.wait({
-    window: { title: t("Combat.CelerityWindow"), icon: "fa-solid fa-forward" },
+    window: { title: rage ? t("Werewolf.Rage") : t("Combat.CelerityWindow"), icon: "fa-solid fa-forward" },
     classes: ["vtm20", "r-dialog", "r-celerity-dialog"], position: { width: 420 },
     content: `<div class="r-cel">
       <div class="r-cel-head">
@@ -104,7 +106,7 @@ export async function useCelerityAction(actor) {
         <b class="r-cel-name">${esc(actor.name)}</b>
         <span class="r-cel-left"><span class="r-cel-pips">${pips}</span>${esc(t("Combat.CelerityLeft", { n: entry.remaining }))}</span>
       </div>
-      <p class="r-cel-hint">${esc(t("Combat.CelerityActionHint", { n: entry.remaining }))}</p>
+      <p class="r-cel-hint">${esc(t(rage ? "Combat.ExtraActionHint" : "Combat.CelerityActionHint", { n: entry.remaining }))}</p>
       <div class="r-ask-list">${choices.map(([v, icon, label, sub]) => `<button type="button" class="r-ask-opt r-cel-opt" data-v="${v}">
         <i class="fa-solid ${icon} r-cel-ico"></i><span class="r-ask-txt"><b>${esc(label)}</b><em>${esc(sub)}</em></span><i class="fa-solid fa-chevron-right r-ask-go"></i></button>`).join("")}</div>
     </div>`,
@@ -119,8 +121,8 @@ export async function useCelerityAction(actor) {
     // Дополнительное действие может быть любой физической проверкой, а не только
     // заранее заданной проверкой Ловкость + Атлетика. Список черт ограничивает
     // RollDialog физическими характеристиками и способностями.
-    title: t("Combat.CelerityPhysical"), physicalOnly: true, celerityAction: true,
-    diffNote: t("Combat.CelerityPhaseNote")
+    title: t(rage ? "Combat.ExtraCheck" : "Combat.CelerityPhysical"), physicalOnly: !rage, celerityAction: true,
+    diffNote: t(rage ? "Combat.ExtraPhaseNote" : "Combat.CelerityPhaseNote")
   });
   if (action === "defend") return defendFromHud(actor, { celerityAction: true });
   if (action === "move") {

@@ -244,6 +244,8 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       && (e.flags[SYSTEM_ID].harmDiff.by === targetActor.uuid || e.flags[SYSTEM_ID].harmDiff.by?.endsWith(`Actor.${targetActor.id}`))).reduce((s, e) => s + (Number(e.flags[SYSTEM_ID].harmDiff.n) || 0), 0) : 0;
     if (harm) { diff += harm; notes.push(t("TP.ParadoxHarm", { n: harm })); }
     // пути Тауматургии: +сложность к физическим (Головокружение, Припадок, Отказ тела…)
+    // Гару: действий за Ярость больше меньшего из Ловкости и Смекалки — все сложности +3 в этот ход
+    if (a.rageFast) { diff += 3; notes.push(`${t("Werewolf.ActionsFastLabel")}: +3`); }
     for (const d of mindDiff(a, { physical: true, dex: c.attr === "dexterity", traits: [`attributes.${c.attr}`, `abilities.${c.ability}`] })) { diff += d.value; notes.push(`${d.label}: ${d.value > 0 ? "+" : ""}${d.value}`); }
     // Верный удар (Путь Марса 2): ближний бой попадает с 1 успехом без броска — если пул не делят
     if (pathFlag(a, "strikeTrue") && !c.ranged && v.actions === 1) notes.push(t("TP.PathNote.StrikeTrue"));

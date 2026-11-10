@@ -260,7 +260,10 @@ function tabsOf(a, kind) {
     const w = s.werewolf, fera = feraOf(a), list = fera ? fera.forms.map(f => ({ ...f, icon: "fa-paw" })) : VTM20.garouForms;
     tabs.push({ key: "form", label: t("Hud.Form"), seals: list.map(f => seal(f.key === w.form ? "noop" : "form", f.icon ?? "fa-paw", VTM20.label(f),
       { on: f.key === w.form, attrs: `data-form="${f.key}"`, tip: f.key === w.form ? t("Hud.FormNow") : VTM20.label(f) })) });
-    tabs.push({ key: "rage", label: t("Werewolf.Rage"), seals: [seal("wwActions", "fa-forward-fast", t("Werewolf.Actions"), { tip: t("Werewolf.ActionsHint") }),
+    const rageTurn = celerityPhaseFor(a);
+    tabs.push({ key: "rage", label: t("Werewolf.Rage"), seals: [
+      ...(rageTurn ? [seal("celerityUse", "fa-bolt", t("Hud.CelerityUse"), { on: true, badge: rageTurn.remaining, tip: t("Hud.CelerityUseTip", { n: rageTurn.remaining }) })] : []),
+      seal("wwActions", "fa-forward-fast", t("Werewolf.Actions"), { tip: t("Werewolf.ActionsHint"), badge: a.celerityActions || "" }),
       seal("wwRegen", "fa-heart-pulse", t("Werewolf.Regen"), { tip: t("Werewolf.RegenHint") }), seal("wwStep", "fa-circle-half-stroke", t("Werewolf.StepSideways"), { tip: t("Werewolf.StepHint") }),
       seal("wwFrenzy", "fa-face-angry", t("Werewolf.Frenzy"), { tip: t("Werewolf.FrenzyHint") })] });
   }

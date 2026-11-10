@@ -26,6 +26,13 @@ export const DECLARE = {
   delay: { icon: "fa-hourglass-half" }
 };
 
+/** Подписи заявки «сила» по линейке: Дисциплина, Дар, Знание, Грань. */
+const lineOf = actor => ["werewolf", "demon", "hunter"].includes(actor?.type) ? actor.type : "";
+const kindLabel = (k, actor, sub = false) => {
+  const line = k === "power" ? lineOf(actor) : "";
+  return t(`${sub ? "KindSub" : "Kind"}.${k}${line ? `-${line}` : ""}`);
+};
+
 /** Бой с порядком V20: ничья по инициативе — выше показатель инициативы. */
 export class VtmCombat extends Combat {
   _sortCombatants(a, b) {
@@ -123,6 +130,9 @@ export async function openDeclare(actor, combat = game.combat) {
   if (!actor?.isOwner) return ui.notifications.warn(game.i18n.format("VTM20.Notify.NotOwner", { name: actor?.name ?? "" }));
   const prev = declarationOf(actor, combat);
   const kinds = Object.keys(DECLARE);
+  // Гару: Ярость на дополнительные действия объявляется вместе с заявкой (W20) — идут после обычных действий всех
+  const ww = actor.type === "werewolf" ? await import("../apps/werewolf.mjs") : null;
+  const rageCap = ww ? ww.rageActionsCap(actor) : 0;
   let res = null;
   await foundry.applications.api.DialogV2.wait({
     window: { title: t("DeclareTitle"), icon: "fa-solid fa-bullhorn" }, classes: ["vtm20", "r-dialog", "r-declare-dialog"], position: { width: 460 },
@@ -130,10 +140,13 @@ export async function openDeclare(actor, combat = game.combat) {
       <div class="r-cel-head"><span class="r-cel-kicker">${esc(t("DeclareKicker", { n: combat.round }))}</span><b class="r-cel-name">${esc(actor.name)}</b>
         <span class="r-cel-left">${esc(t("DeclareHint"))}</span></div>
       <div class="r-decl-kinds">${kinds.map(k => `<label class="r-decl-kind${(prev?.kind ?? "attack") === k ? " is-active" : ""}"><input type="radio" name="kind" value="${k}"${(prev?.kind ?? "attack") === k ? " checked" : ""}>
-        <i class="fa-solid ${DECLARE[k].icon}"></i><span><b>${esc(t(`Kind.${k}`))}</b><em>${esc(t(`KindSub.${k}`))}</em></span></label>`).join("")}</div>
+        <i class="fa-solid ${DECLARE[k].icon}"></i><span><b>${esc(kindLabel(k, actor))}</b><em>${esc(kindLabel(k, actor, true))}</em></span></label>`).join("")}</div>
       <div class="r-decl-multi${prev?.kind === "multi" ? "" : " is-off"}"><span>${esc(t("Actions"))}</span>
         <span class="r-bw-step" data-min="2" data-max="6"><button type="button" data-d="-1"><i class="fa-solid fa-minus"></i></button><b>${prev?.actions ?? 2}</b><button type="button" data-d="1"><i class="fa-solid fa-plus"></i></button><input type="hidden" name="actions" value="${prev?.actions ?? 2}"></span>
         <em>${esc(t("ActionsHint"))}</em></div>
+      ${rageCap ? `<div class="r-decl-multi r-decl-rage"><span>${esc(t("RageActions"))}</span>
+        <span class="r-bw-step" data-min="0" data-max="${rageCap}"><button type="button" data-d="-1"><i class="fa-solid fa-minus"></i></button><b>0</b><button type="button" data-d="1"><i class="fa-solid fa-plus"></i></button><input type="hidden" name="rage" value="0"></span>
+        <em>${esc(t("RageActionsHint", { cap: rageCap }))}</em></div>` : ""}
       <input class="r-use-say" type="text" name="text" value="${esc(prev?.text ?? "")}" placeholder="${esc(t("TextHint"))}">
       <label class="r-check"><input type="checkbox" name="will"${prev?.will ? " checked" : ""}><span>${esc(t("Will"))}</span></label>
     </div>`,
@@ -145,18 +158,20 @@ export async function openDeclare(actor, combat = game.combat) {
       };
       el.addEventListener("change", sync);
       for (const b of el.querySelectorAll(".r-bw-step button")) b.addEventListener("click", () => {
-        const s = b.closest(".r-bw-step"), inp = s.querySelector("input");
-        inp.value = Math.clamp((Number(inp.value) || 2) + Number(b.dataset.d), 2, 6); s.querySelector("b").textContent = inp.value;
+        const s = b.closest(".r-bw-step"), inp = s.querySelector("input"), lo = Number(s.dataset.min), hi = Number(s.dataset.max);
+        inp.value = Math.clamp((Number(inp.value) || 0) + Number(b.dataset.d), lo, hi); s.querySelector("b").textContent = inp.value;
       });
       el.querySelector('[name="text"]')?.focus();
     },
     buttons: [{ action: "ok", icon: "fa-solid fa-bullhorn", label: t("Declare"), default: true,
       callback: (e, b) => { const f = b.form.elements; res = { kind: b.form.querySelector('[name="kind"]:checked')?.value ?? "attack",
-        actions: Math.clamp(Number(f.actions.value) || 2, 2, 6), text: f.text.value.trim(), will: !!f.will.checked }; } }],
+        actions: Math.clamp(Number(f.actions.value) || 2, 2, 6), text: f.text.value.trim(), will: !!f.will.checked, rage: Math.max(0, Number(f.rage?.value) || 0) }; } }],
     rejectClose: false
   });
   if (!res) return null;
-  await actor.setFlag(SYSTEM_ID, "declared", { combat: combat.id, round: combat.round, ...res, aborted: false });
+  const { rage, ...decl } = res;
+  await actor.setFlag(SYSTEM_ID, "declared", { combat: combat.id, round: combat.round, ...decl, aborted: false });
+  if (rage && ww) await ww.spendRageActions(actor, rage);
   return res;
 }
 
@@ -170,7 +185,7 @@ export async function declareNpcs(combat) {
     window: { title: t("NpcDeclare"), icon: "fa-solid fa-users" }, classes: ["vtm20", "r-dialog", "r-declare-dialog"], position: { width: 560 },
     content: `<div class="r-npc-decl">${npcs.map(c => { const d = declarationOf(c.actor, combat);
       return `<div class="r-npc-row" data-id="${c.id}"><b>${esc(c.token?.name ?? c.name)}</b>
-        <select name="k-${c.id}">${kinds.map(k => `<option value="${k}"${(d?.kind ?? "attack") === k ? " selected" : ""}>${esc(t(`Kind.${k}`))}</option>`).join("")}</select>
+        <select name="k-${c.id}">${kinds.map(k => `<option value="${k}"${(d?.kind ?? "attack") === k ? " selected" : ""}>${esc(kindLabel(k, c.actor))}</option>`).join("")}</select>
         <input type="text" name="t-${c.id}" value="${esc(d?.text ?? "")}" placeholder="${esc(t("TextHintShort"))}"></div>`; }).join("")}</div>`,
     buttons: [{ action: "ok", icon: "fa-solid fa-bullhorn", label: t("Declare"), default: true,
       callback: (e, b) => { const f = b.form.elements; res = npcs.map(c => ({ c, kind: f[`k-${c.id}`].value, text: f[`t-${c.id}`].value.trim() })); } }],
@@ -205,7 +220,7 @@ export async function abortForDefense(actor) {
   const how = await foundry.applications.api.DialogV2.wait({
     window: { title: t("AbortTitle"), icon: "fa-solid fa-shield-halved" }, classes: ["vtm20", "r-dialog"], position: { width: 500 },
     content: `<div class="r-gate-body"><i class="fa-solid fa-shield-halved r-gate-ico"></i><div class="r-gate-text">
-      <p class="r-gate-why">${esc(t("AbortWhy", { what: t(`Kind.${d.kind}`) }))}</p><p class="r-gate-hint">${esc(t("AbortHint"))}</p></div></div>`,
+      <p class="r-gate-why">${esc(t("AbortWhy", { what: kindLabel(d.kind, actor) }))}</p><p class="r-gate-hint">${esc(t("AbortHint"))}</p></div></div>`,
     buttons: [{ action: "roll", icon: "fa-solid fa-dice-d10", label: t("AbortRoll"), default: true },
       { action: "spend", icon: "fa-solid fa-star", label: t("AbortSpend") },
       { action: "cancel", icon: "fa-solid fa-xmark", label: game.i18n.localize("VTM20.Gate.Cancel") }],
@@ -227,7 +242,7 @@ function chip(combat, c) {
   const d = declarationOf(c.actor, combat);
   if (!d) return "";
   const k = DECLARE[d.kind] ?? DECLARE.other;
-  const label = d.kind === "multi" ? t("MultiN", { n: d.actions }) : t(`Kind.${d.kind}`);
+  const label = d.kind === "multi" ? t("MultiN", { n: d.actions }) : kindLabel(d.kind, c.actor);
   return `<span class="r-ct-decl is-${d.kind}" data-tooltip="${esc([label, d.text, d.will ? t("Will") : ""].filter(Boolean).join(" · "))}"><i class="fa-solid ${k.icon}"></i> ${esc(label)}${d.text ? ` · <em>${esc(d.text)}</em>` : ""}${d.will ? ` <i class="fa-solid fa-star"></i>` : ""}</span>`;
 }
 
