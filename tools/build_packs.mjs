@@ -762,6 +762,35 @@ BUILDERS["demon-backgrounds"] = function () {
   return p;
 };
 
+/** Маг: Восхождение (M20) — книги справочника: папка на книгу, запись на главу (data/mage-books.json, tools/mage_data.py). */
+BUILDERS["mage-books"] = function () {
+  const p = new Pack("mage-books", "JournalEntry");
+  for (const b of readJson("mage-books")) p.addBook({ name: b.name, pages: b.pages, folder: b.book, key: `mage-books:${b.key}` });
+  return p;
+};
+
+/** Достоинства и недостатки магов (data/mage.json): основная книга и Book of Secrets, по категориям. */
+BUILDERS["mage-merits"] = function () {
+  const p = new Pack("mage-merits");
+  const cat = ru.VTM20.MeritCat ?? {};
+  for (const m of data("mage").merits) {
+    const range = m.max > m.min ? `<p><em>Цена: ${m.min}–${m.max}</em></p>` : "";
+    p.add({ name: m.name, type: m.kind, folder: [m.source === "M20" ? "Основная книга" : "Книга Тайн", `${m.kind === "merit" ? "Достоинства" : "Недостатки"} — ${cat[m.category] ?? m.category}`],
+      key: `mage:${m.kind}:${m.name}`, img: traitIcon(m.category, m.kind === "flaw"),
+      system: { cost: m.min || 1, category: m.category, clan: "", sect: "", source: m.en ?? "", description: `${m.html ?? ""}${range}` } });
+  }
+  return p;
+};
+
+/** Факты биографии магов (data/mage.json): Аватар, Узел, Чантри, Чудо… */
+BUILDERS["mage-backgrounds"] = function () {
+  const p = new Pack("mage-backgrounds");
+  for (const b of data("mage").backgrounds)
+    p.add({ name: b.name, type: "background", folder: b.technocracy ? "Технократия" : "Маг: Восхождение", key: `mage:${b.name}`, img: backgroundIcon(b.en) ?? undefined,
+      system: { value: 1, source: b.en ?? "", description: b.html ?? "" } });
+  return p;
+};
+
 const only = process.argv.slice(2);
 for (const [name, build] of Object.entries(BUILDERS)) {
   if (only.length && !only.includes(name)) continue;

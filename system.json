@@ -664,6 +664,42 @@
         "ASSISTANT": "OWNER"
       },
       "flags": {}
+    },
+    {
+      "name": "mage-books",
+      "label": "Маг: Восхождение — книги",
+      "path": "packs/mage-books",
+      "type": "JournalEntry",
+      "system": "vtm20e-kamen-edition",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
+    },
+    {
+      "name": "mage-merits",
+      "label": "Достоинства и недостатки магов",
+      "path": "packs/mage-merits",
+      "type": "Item",
+      "system": "vtm20e-kamen-edition",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
+    },
+    {
+      "name": "mage-backgrounds",
+      "label": "Факты биографии магов",
+      "path": "packs/mage-backgrounds",
+      "type": "Item",
+      "system": "vtm20e-kamen-edition",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
     }
   ],
   "grid": {
@@ -755,6 +791,16 @@
         "werewolf-kami",
         "werewolf-fomori",
         "werewolf-books"
+      ]
+    },
+    {
+      "name": "Mage: The Ascension",
+      "sorting": "m",
+      "color": "#3a2d6b",
+      "packs": [
+        "mage-books",
+        "mage-merits",
+        "mage-backgrounds"
       ]
     }
   ]

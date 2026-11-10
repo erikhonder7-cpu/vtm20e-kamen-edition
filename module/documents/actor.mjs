@@ -11,6 +11,7 @@ import { proposeFate } from "../apps/torpor.mjs";
 import { mobState, applyMobDamage } from "../apps/extras.mjs";
 import { getClock } from "../apps/calendar.mjs";
 import { hunterXpCost, startConviction } from "../apps/hunter.mjs";
+import { mageXpCost } from "../apps/mage.mjs";
 
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
 
@@ -733,6 +734,8 @@ export class VtMActor extends Actor {
       case "gift": return extra.level * (extra.own ? 3 : 5);
       // Охотник при росте за опыт (Players Guide, гл. 2): начальная Убеждённость и Добродетели охоты
       case "hunterConviction": case "hunterVirtue": case "lostVirtue": return hunterXpCost(this, kind, current, extra.key);
+      // M20: новая Сфера 10, родовая × 7, прочая × 8; Арете × 8 (и Поиск — на совести рассказчика)
+      case "mageArete": case "mageSphere": return mageXpCost(this, kind, current, extra.key);
       default: return null;
     }
   }
@@ -743,7 +746,7 @@ export class VtMActor extends Actor {
    */
   async buyWithXp({ doc = this, path, kind, label, confirm = true }) {
     const cur = kind === "hunterConviction" ? startConviction(this) : Number(foundry.utils.getProperty(doc._source, path) ?? 0);
-    const extra = kind === "hunterVirtue" ? { key: path.split(".").pop() }
+    const extra = kind === "hunterVirtue" || kind === "mageSphere" ? { key: path.split(".").pop() }
       : doc !== this && doc.type === "discipline" ? { key: doc.system.key, inClan: doc.system.inClan || this.clanDisciplines.includes(doc.system.key) }
       : doc !== this && doc.type === "thaumPath" ? { primary: doc.system.primary }
       : doc !== this && doc.type === "lore" ? { key: doc.system.key } : {};

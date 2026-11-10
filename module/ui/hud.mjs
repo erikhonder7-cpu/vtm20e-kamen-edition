@@ -17,6 +17,7 @@ import { rollPowerRef, powerByRef } from "../sheets/actor-sheet.mjs";
 import { effectTimer } from "../apps/timers.mjs";
 import { W as werewolfData, feraOf, changeForm, rageActions, regenerate, stepSideways, frenzyCheck, giftOf, rollGift, rollRite } from "../apps/werewolf.mjs";
 import { H as hunterData, secondSight, edgesView, useEdge } from "../apps/hunter.mjs";
+import { castEffect, sphereName, aretePool, factionOf } from "../apps/mage.mjs";
 import { assumeForm } from "../apps/torment.mjs";
 import { togglePowerEffect } from "../apps/power-effects.mjs";
 
@@ -86,6 +87,7 @@ function subtitleOf(a, kind) {
     }
     case "demon": { const h = Codex.house(s.house); return [h?.name ?? typeName, h?.visages?.[s.visage] ?? ""].filter(Boolean).join(" · "); }
     case "hunter": { const c = hunterData().creeds.find(x => x.key === s.hunter?.creed); return c ? `${c.name} · ${c.who}` : typeName; }
+    case "mage": return factionOf(a)?.name ?? typeName;
     case "mortal": return s.kinfolk?.on ? t("Hud.Kind.kinfolk") : s.kami?.on ? t("Hud.Kind.kami") : s.fomor?.on ? t("Hud.Kind.fomor") : typeName;
     case "spirit": return [t("Hud.Kind.spirit"), s.kind].filter(Boolean).join(" · ");
     default: return s.kind || typeName;
@@ -131,6 +133,12 @@ function powerGroups(a, kind) {
   // Грани охотника — по путям вероучений, как на листе
   if (kind === "hunter") for (const g of edgesView(a)) if (g.edges.length)
     out.push({ id: `e:${g.path}`, label: g.name, icon: "fa-eye", rows: g.edges.map(e => ({ name: e.name, level: e.level, act: "edge", attrs: `data-key="${esc(e.key)}"` })) });
+  // Сферы мага — одной группой: щелчок открывает окно чародейства с этой Сферой
+  if (kind === "mage") {
+    const sp = VTM20.mageSpheres.filter(k => (a.system.mage?.spheres?.[k] ?? 0) > 0);
+    if (sp.length) out.push({ id: "spheres", label: t("Mage.Spheres"), icon: "fa-hat-wizard", lvl: aretePool(a),
+      rows: sp.map(k => ({ name: sphereName(a, k), level: a.system.mage.spheres[k], act: "sphere", attrs: `data-key="${k}"` })) });
+  }
   return out;
 }
 
@@ -194,6 +202,11 @@ function rightWing(a, kind) {
     const vk = ["mercy", "vision", "zeal"];
     out.push(line(t("Sheet.Virtues"), vk.map(k => dots(s.hunter?.[k] ?? 0, 5, "amber")), vk.map(k => s.hunter?.[k] ?? 0).join("·"),
       { tip: vk.map(k => `${V[k] ?? k}: ${s.hunter?.[k] ?? 0}`).join(", ") }));
+  } else if (kind === "mage") {
+    // маг: Арете — кубики магии; Квинтэссенция и Парадокс — две стороны одного колеса
+    const m = s.mage;
+    out.push(line(t("Mage.Arete"), [dots(m.arete, 10, "gold")], m.arete));
+    out.push(line(t("Mage.Quintessence"), [boxes(m.quintessence, 20, "gold")], `${m.quintessence}<small> · ${t("Mage.Paradox")} ${m.paradox}</small>`, { tip: t("Mage.WheelHint") }));
   } else if (kind === "spirit") {
     const sp = s.spirit, e = sp.essence;
     out.push(line(t("Hud.Essence"), [boxes(Math.round(e.value / Math.max(1, e.max) * 10), 10, "gnosis")], `${e.value}<small>/${e.max}</small>`, { tip: t("Hud.EssenceTip") }));
@@ -391,6 +404,7 @@ async function onClick(ev) {
     case "gift": pop = null; renderHud(); return rollGift(a, el.dataset.key);
     case "rite": pop = null; renderHud(); return rollRite(a, el.dataset.key);
     case "edge": pop = null; renderHud(); return useEdge(a, el.dataset.key);
+    case "sphere": pop = null; renderHud(); return castEffect(a, { sphere: el.dataset.key });
     case "noop": return;
     // все силы — вкладка сил на листе (Дисциплины, Дары, Знания, Грани)
     case "allPowers": await a.sheet.render(true); return a.sheet.changeTab?.("disciplines", "primary");

@@ -90,10 +90,11 @@ Hooks.once("init", () => {
     ghoul:   { bar: ["health", "blood", "willpower"], value: ["morality.value"] },
     mortal:  { bar: ["health", "willpower"], value: ["morality.value"] },
     hunter:  { bar: ["health", "willpower"], value: ["hunter.conviction"] },
+    mage:    { bar: ["health", "willpower"], value: ["mage.arete", "mage.quintessence", "mage.paradox"] },
     werewolf: { bar: ["health", "willpower", "werewolf.rage", "werewolf.gnosis"], value: ["werewolf.rank"] },
     creature: { bar: ["health", "blood", "willpower"], value: [] }
   };
-  CONFIG.Actor.typeIcons = { vampire: "fa-solid fa-droplet", ghoul: "fa-solid fa-hand-holding-droplet", mortal: "fa-solid fa-user", creature: "fa-solid fa-paw", hunter: "fa-solid fa-crosshairs", werewolf: "fa-solid fa-moon",
+  CONFIG.Actor.typeIcons = { vampire: "fa-solid fa-droplet", ghoul: "fa-solid fa-hand-holding-droplet", mortal: "fa-solid fa-user", creature: "fa-solid fa-paw", hunter: "fa-solid fa-crosshairs", mage: "fa-solid fa-hat-wizard", werewolf: "fa-solid fa-moon",
     coterie: "fa-solid fa-people-roof", domain: "fa-solid fa-city" };
   CONFIG.Item.typeIcons = {
     discipline: "fa-solid fa-eye", thaumPath: "fa-solid fa-book-skull", ritual: "fa-solid fa-pentagram", power: "fa-solid fa-hand-sparkles",
@@ -141,7 +142,7 @@ Hooks.once("init", () => {
   const { Actors, Items } = foundry.documents.collections;
   Actors.unregisterSheet("core", foundry.appv1.sheets.ActorSheet);
   Actors.registerSheet(SYSTEM_ID, VtMActorSheet, { makeDefault: true, label: "VTM20.Sheets.Actor",
-    types: ["vampire", "ghoul", "mortal", "creature", "demon", "hunter", "werewolf"] });
+    types: ["vampire", "ghoul", "mortal", "creature", "demon", "hunter", "werewolf", "mage"] });
   // котерия и домен — свои листы (module/sheets/group-sheet.mjs)
   Actors.registerSheet(SYSTEM_ID, CoterieSheet, { makeDefault: true, label: "VTM20.Sheets.Coterie", types: ["coterie"] });
   Actors.registerSheet(SYSTEM_ID, DomainSheet, { makeDefault: true, label: "VTM20.Sheets.Domain", types: ["domain"] });

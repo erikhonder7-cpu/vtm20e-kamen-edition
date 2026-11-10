@@ -1052,6 +1052,8 @@ def main():
     print("  дампиры:", dhampir_data.build())
     import werewolf_data   # Оборотень: Апокалипсис (W20) — породы, аугурии, племена, формы, Дары, ритуалы (data/werewolf.json)
     print("  оборотни:", werewolf_data.build())
+    import mage_data   # Маг: Восхождение (M20) — Сферы, фракции, фокус, черты, книги (data/mage.json, data/mage-books.json)
+    print("  маги:", mage_data.build())
     import rules_extra   # справочник правил V20 для компендия «Правила V20»
     dump("rules.json", rules_extra.collect(REF, md_to_html))
     core = os.path.join(REF, "V20_Основные_правила")
