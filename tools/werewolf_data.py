@@ -1213,31 +1213,46 @@ def fera_texts(text, dims):
     («**Сухид (Suchid)** — Гнозис 4; вылупляется из яйца»). Берётся первое найденное."""
     head = text.split("\n## Дары")[0].split("\n## Общие Дары")[0]
     opts = [o for d in dims for o in d["options"] if o.get("stem")]
-    def hit(cell):
+    def hit(cell, far=False):
         low = cell.lower()
-        found = [(mm.start(), o) for o in opts for mm in [re.search(r"(?<![а-яё])" + re.escape(o["stem"]), low)] if mm and mm.start() < 6]
+        found = [(mm.start(), o) for o in opts for mm in [re.search(r"(?<![а-яё])" + re.escape(o["stem"]), low)] if mm and (far or mm.start() < 6)]
         return min(found, key=lambda x: x[0])[1] if found else None
     def put(o, txt):
-        txt = re.sub(r"\s+", " ", txt).strip(" .;—–-")
+        txt = re.sub(r"\s+", " ", txt).strip(" .;,—–-")
+        if txt.startswith("(") and txt.endswith(")") and txt.count("(") == 1:
+            txt = txt[1:-1]
         if o and re.search(r"[А-Яа-яЁё]{3}", txt) and not o.get("text"):
+
             o["text"] = md_inline(txt[:320] + ("…" if len(txt) > 320 else ""))
     for line in head.splitlines():
         if line.startswith("|"):
             if set(line) <= set("|-: "):
                 continue
             c = [x.strip() for x in line.strip().strip("|").split("|")]
-            o = hit(re.sub(r"\*", "", c[0]))
+            o = hit(re.sub(r"\*", "", c[0]), far=True)       # «| **Воин / Раб клинка (Blade Slave)** |» — имя не в начале ячейки
             if not o:
                 continue
             role = re.findall(r"\)\**\s*\(([^)]+)\)|^[^(*]+\(([^)]+)\)", c[0])
             role = next((a or b for a, b in role), "")
-            rest = [x for x in c[1:] if x and not re.fullmatch(r"[+−-]?\d+", x.replace("−", "-"))]
+            # числа и поправки форм («+1/+1/+2/−1/−1») — не описание
+            rest = [x for x in c[1:] if x and not re.fullmatch(r"[\d+−\-/—\s.,()]+", x)]
             put(o, " — ".join(x for x in [role, " · ".join(rest)] if x))
             continue
         for m in re.finditer(r"\*\*([^*]+)\*\*\s*(?:\([^)]*\))?\s*—\s*(.*?)(?=\s\*\*[^*]+\*\*\s*(?:\([^)]*\))?\s*—|$)", line):
             o = hit(m.group(1))
             if o:
                 put(o, m.group(2))
+        # «**Тенере** (Ткачиха; стартовые Дары: …)» — пояснение в скобках сразу за именем
+        for m in re.finditer(r"\*\*([^*(]+?)(?:\s*\([^)]*\))?\*\*\s*\(([^)]{8,})\)", line):
+            if re.search(r"[;,]", m.group(2)):          # «кроме **Хатар** (нет штрафа)» — оговорка, не описание
+                put(hit(m.group(1)), m.group(2))
+        # «**Метис:** Гнозис 3; Дары: …»
+        for m in re.finditer(r"\*\*([^*:]+):\*\*\s*(.*?)(?=\s\*\*[^*:]+:\*\*|$)", line):
+            put(hit(m.group(1)), m.group(2))
+        # «- Хомид: Бег по городу, Мастер огня…» — стартовые Дары породы или аспекта
+        m = re.match(r"^- ([А-ЯЁ][а-яё ]{2,20}):\s*(.{12,})$", line)
+        if m and "," in m.group(2):
+            put(hit(m.group(1)), ("" if ";" in m.group(2) else "Дары на выбор: ") + m.group(2))
 
 
 def fera_stats(text, dims):

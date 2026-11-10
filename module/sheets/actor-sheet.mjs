@@ -176,7 +176,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       diablerie: VtMActorSheet.#onDiablerie,
       clanAtlas: VtMActorSheet.#onClanAtlas,
       linSire: VtMActorSheet.#onLinSire,
-      mageCast: VtMActorSheet.#onMageCast, mageQuint: VtMActorSheet.#onMageQuint, mageParadox: VtMActorSheet.#onMageParadox, mageBacklash: VtMActorSheet.#onMageBacklash,
+      mageFold: VtMActorSheet.#onMageFold, mageCast: VtMActorSheet.#onMageCast, mageQuint: VtMActorSheet.#onMageQuint, mageParadox: VtMActorSheet.#onMageParadox, mageBacklash: VtMActorSheet.#onMageBacklash,
       mageRoteAdd: VtMActorSheet.#onMageRoteAdd, mageRoteDel: VtMActorSheet.#onMageRoteDel, mageRoteCast: VtMActorSheet.#onMageRoteCast, mageToolDel: VtMActorSheet.#onMageToolDel,
       edgeUse: VtMActorSheet.#onEdgeUse, edgeDel: VtMActorSheet.#onEdgeDel, hunterSight: VtMActorSheet.#onHunterSight,
       wwForm: VtMActorSheet.#onWwForm, wwGift: VtMActorSheet.#onWwGift, wwGiftAdd: VtMActorSheet.#onWwGiftAdd, wwGiftDel: VtMActorSheet.#onWwGiftDel,
@@ -312,7 +312,11 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     else if (actor.type === "mage") { ctx.mageInfo = mageInfo(actor, dots); ctx.mageView = spheresView(actor, dots);
       const sg = mageSigil(actor);
       ctx.sigil = { ...ctx.sigil, sym: sg.sym, label: sg.label };
-      ctx.mageSeal = sg.seal; }
+      ctx.mageSeal = sg.seal;
+      // свёрнутые карточки Сфер — у каждого игрока свои (память браузера); по умолчанию свёрнуты Сферы без точек
+      const fold = this.#sphereFold();
+      for (const sp of ctx.mageView.spheres) sp.folded = fold[sp.key] ?? !sp.value;
+      ctx.mageView.allFolded = ctx.mageView.spheres.every(sp => sp.folded); }
     else if (actor.type === "werewolf") { ctx.werewolfInfo = werewolfInfo(actor, dots); ctx.ww = giftsView(actor);
       const sg = werewolfSigil(actor);
       ctx.sigil = { ...ctx.sigil, sym: sg.sym, label: sg.label };
@@ -818,6 +822,16 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static #onMageQuint(event, target) { return changeQuintessence(this.actor, Number(target.dataset.d) || 0); }
   static #onMageParadox(event, target) { return changeParadox(this.actor, Number(target.dataset.d) || 0); }
   static #onMageBacklash() { return paradoxBacklash(this.actor); }
+  #sphereFold() { try { return JSON.parse(localStorage.getItem(`vtm20.spheres.${this.actor.id}`) ?? "{}"); } catch { return {}; } }
+  #sphereFoldSave(v) { try { localStorage.setItem(`vtm20.spheres.${this.actor.id}`, JSON.stringify(v)); } catch { /* память браузера недоступна — просто не запомним */ } }
+  /** Свернуть или развернуть карточку Сферы (ранги и специализации); «все» — разом. */
+  static #onMageFold(event, target) {
+    const fold = this.#sphereFold(), k = target.dataset.key, sp = this.actor.system.mage.spheres;
+    if (k) fold[k] = !(fold[k] ?? !(sp[k] ?? 0));
+    else { const to = target.dataset.to === "1"; for (const x of VTM20.mageSpheres) fold[x] = to; }
+    this.#sphereFoldSave(fold);
+    return this.render();
+  }
   static #onMageRoteAdd() { return addRote(this.actor); }
   static #onMageRoteDel(event, target) { return removeRote(this.actor, Number(target.dataset.i)); }
   static #onMageRoteCast(event, target) { return castRote(this.actor, Number(target.dataset.i)); }

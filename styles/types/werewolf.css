@@ -780,3 +780,9 @@ body.r-theme-light img[src$="assets/werewolf/glyph-garou.png"] { filter: none; }
   .vtm20.r-type-werewolf .r-vc-garou.is-pair { grid-template-columns: minmax(0, 1fr); }
   .vtm20.r-type-werewolf .r-vc-garou.is-pair .r-vc-head.is-second { margin-top: 10px; }
 }
+
+/* Мастер: заголовок «Дары сверх стартовых» не липнет к ячейкам Даров */
+.vtm20 .r-cr-gifts + .r-h3 { margin-top: 18px; }
+/* общая колонка Даров рода — на всю ширину, Дары в три столбца */
+.vtm20 .r-cr-giftslot.is-wide { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: 14px; }
+.vtm20 .r-cr-giftslot.is-wide > .r-colhead { grid-column: 1 / -1; }

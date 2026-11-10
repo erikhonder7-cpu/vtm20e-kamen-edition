@@ -297,7 +297,9 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     // ячейка выбора рода — если у него вообще есть Дары 1-го уровня; пока вариант не выбран, ячейка просит его выбрать
     const has = (d, o) => D.gifts.some(g => g.level === 1 && g.groups.some(x => x.kind === "fera" && x.key === f && (o ? x.sub === `${d.key}:${o}` : x.sub?.startsWith(`${d.key}:`))));
     const lists = this.feraDims.filter(d => sub[d.key] ? has(d, sub[d.key]) : has(d))
-      .map(d => ({ key: d.key, label: t("GarouCr.GiftOf", { what: d.label }), sub: sub[d.key] ? `${d.key}:${sub[d.key]}` : null, need: sub[d.key] ? "" : d.label }));
+      .map(d => ({ key: d.key, sub: sub[d.key] ? `${d.key}:${sub[d.key]}` : null, need: sub[d.key] ? "" : d.label,
+        // «Дар: Аспект — Восходящее Солнце»: видно, из чьего списка ячейка
+        label: t("GarouCr.GiftOf", { what: sub[d.key] ? `${d.label} — ${VTM20.label(d.options.find(o => o.key === sub[d.key]) ?? {})}` : d.label }) }));
     // стартовых Даров у Фера обычно три; у Мокол — Дар аспекта и общий, у Рокеа — общий и Дар аугурии (W20 Changing Breeds)
     const total = FERA_START_GIFTS[f] ?? 3;
     const general = Array.from({ length: Math.max(1, total - lists.length) }, (_, i) => ({ key: `general${i}`, label: loc("VTM20.GarouCr.GiftGeneral"), sub: "" }));
@@ -754,9 +756,9 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     ctx.natureRegain = Codex.archetypes.find(a => a.name === st.nature)?.regain ?? "";
     ctx.demeanorRegain = Codex.archetypes.find(a => a.name === st.demeanor)?.regain ?? "";
     // у гуля «срок службы» вместо возраста в Крови — опыт тот же
-    const tierKey = this.type === "ghoul" ? "TierGhoul" : "Tier";
+    const tierKey = this.type === "ghoul" ? "TierGhoul" : this.isMage ? "TierMage" : "Tier";
     ctx.tiers = Object.entries(TIERS).map(([k, v]) => ({ key: k, xp: v.xp, label: t(`Creator.${tierKey}.${k}`), hint: t(`Creator.${tierKey}.${k}Hint`), active: st.tier === k }));
-    ctx.tierTitle = t(this.type === "ghoul" ? "Creator.TierTitleGhoul" : "Creator.TierTitle");
+    ctx.tierTitle = t(this.type === "ghoul" ? "Creator.TierTitleGhoul" : this.isMage ? "Creator.TierTitleMage" : "Creator.TierTitle");
     ctx.sects = SECTS.map(s => ({ ...s, label: t(s.label), sym: Codex.sectSymbol(t(s.label)), active: st.sectKey === s.key }));
 
     // II. Клан
@@ -825,7 +827,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
         fera: f ? { label: lbl(f), en: f.en, sym: feraGlyph(f.key), facts: Object.entries(f.facts ?? {}).map(([k, v]) => ({ k, v })),
           dims: this.feraDims.map(d => ({ key: d.key, label: d.label, options: d.options.map(o => ({ key: o.key, label: lbl(o), active: o.key === w.sub[d.key],
             ...(() => { const stats = Object.entries(o.stats ?? {}).map(([k, n]) => `${loc(`VTM20.GarouCr.T.${k}`)} ${n}`).join(", ");
-              const text = (o.text ?? "").replace(/^(?:Гнозис|Ярость|Воля)\s*\d+[,;.]?\s*/i, "");
+              const text = (o.text ?? "").replace(/^(?:(?:Гнозис|Ярость|Воля)\s*\d+[,;.]?\s*)+/i, "");
               return { stats, text, tip: plain(o.text ?? "") }; })() })) })) } : null,
         deformities: this.isMetis ? (D.deformities ?? []).map(x => ({ key: x.key, label: lbl(x), selected: x.key === w.deform })) : null,
         deformText: (D.deformities ?? []).find(x => x.key === w.deform)?.text ?? "",
@@ -836,6 +838,13 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       const card = (g, on) => ({ key: g.key, label: lbl(g), en: g.en, on, text: VtMCreator.#preview(g.text, 700), cost: g.cost ? Object.entries(g.cost).map(([k, n]) => `${n} ${loc(`VTM20.GarouCr.T.${k === "willpower" ? "will" : k}`)}`).join(", ") : "" });
       ctx.giftSlots = this.giftSlots.map(s => ({ key: s.key, label: s.label, need: s.need ? t("GarouCr.GiftNeedPick", { what: s.need }) : "",
         list: this.slotGifts(s).map(k => D.gifts.find(g => g.key === k)).filter(g => g && (g.key === w.gifts[s.key] || !taken.has(g.key))).map(g => card(g, g.key === w.gifts[s.key])) }));
+      // несколько ячеек «Общий Дар рода» (у Корвов и Нувиша — все три) — одной колонкой «выберите N», а не тремя одинаковыми списками
+      const gen = this.giftSlots.filter(s => s.key.startsWith("general"));
+      if (gen.length > 1) {
+        const mine = new Set(gen.map(s => w.gifts[s.key]).filter(Boolean));
+        const list = this.slotGifts(gen[0]).map(k => D.gifts.find(g => g.key === k)).filter(g => g && (mine.has(g.key) || !taken.has(g.key))).map(g => card(g, mine.has(g.key)));
+        ctx.giftSlots = [{ key: "general", label: t("GarouCr.GiftGeneralN", { have: mine.size, n: gen.length }), need: "", wide: true, list }, ...ctx.giftSlots.filter(s => !s.key.startsWith("general"))];
+      }
       // сверх трёх — только когда три ячейки заполнены, иначе список повторял бы их целиком; у карточки — откуда Дар и цена
       const from = g => g.groups.filter(x => x.kind !== "fera" || x.key === w.fera).map(x => x.label ?? "").filter(Boolean).slice(0, 2).join(" · ");
       ctx.giftExtraReady = this.giftSlots.every(s => !!w.gifts[s.key]);
@@ -1152,7 +1161,11 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
   /** Дар в ячейку (повторный щелчок — снять). */
   static #onGarouGift(event, target) {
     const { slot, key } = target.dataset, w = this.st.ww;
-    w.gifts[slot] = w.gifts[slot] === key ? "" : key;
+    if (slot === "general") {                          // общая колонка: снять выбранный или занять первую свободную ячейку
+      const gen = this.giftSlots.filter(s => s.key.startsWith("general")).map(s => s.key), had = gen.find(k => w.gifts[k] === key);
+      if (had) w.gifts[had] = "";
+      else { const free = gen.find(k => !w.gifts[k]); if (!free) return ui.notifications.info(t("GarouCr.GiftGeneralFull", { n: gen.length })); w.gifts[free] = key; }
+    } else w.gifts[slot] = w.gifts[slot] === key ? "" : key;
     w.extra = w.extra.filter(k => k !== key);
     this.render();
   }

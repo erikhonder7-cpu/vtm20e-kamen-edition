@@ -2674,7 +2674,18 @@
       "MageHint": "Faction — a Tradition, a Technocratic Convention or a Craft; the Avatar's Essence; one affinity Sphere (from the faction's list). Below is the focus: what the mage believes and how they work magick.",
       "DiscHintMage": "Spheres: {n} dots. One must go to the affinity Sphere. No Sphere may exceed Arete (1 at creation, up to 3 with freebies).",
       "AdvHintMage": "Backgrounds: {bg} dots. Avatar sets starting Quintessence. Mages have no Virtues — on the right is what they start with.",
-      "FreeHintMage": "15 freebie points: Attribute 5, Ability 2, Background 1, Sphere 7, Arete 4 (up to 3), Willpower 1. Raise Arete if the Spheres need room."
+      "FreeHintMage": "15 freebie points: Attribute 5, Ability 2, Background 1, Sphere 7, Arete 4 (up to 3), Willpower 1. Raise Arete if the Spheres need room.",
+      "TierTitleMage": "The Awakened path",
+      "TierMage": {
+        "fledgling": "Awakened",
+        "fledglingHint": "Newly Awakened: by-the-book creation, no experience.",
+        "neonate": "Apprentice",
+        "neonateHint": "A few years of study under a mentor: +35 experience.",
+        "ancilla": "Adept",
+        "ancillaHint": "Decades of the Art, enemies and debts of one's own: +120 experience.",
+        "elder": "Master",
+        "elderHint": "A century on the Path, a name in the Tradition's chronicles: +300 experience."
+      }
     },
     "Settings": {
       "MonthlyIncome": {
@@ -5255,7 +5266,9 @@
       "GiftGeneral": "General Gift of the breed",
       "GiftNeedPick": "First pick the {what} on the Breed & Tribe step.",
       "GiftOf": "Gift: {what}",
-      "FeraRenown": "Fera: 3 dots in any mix (each breed names its Renown its own way)"
+      "FeraRenown": "Fera: 3 dots in any mix (each breed names its Renown its own way)",
+      "GiftGeneralN": "General Gifts — {have} of {n} chosen",
+      "GiftGeneralFull": "You already have {n} general Gifts: drop one to take another."
     },
     "Sept": {
       "Kicker": "Sept",
@@ -6989,7 +7002,11 @@
       "RoteSpheres": "Spheres",
       "RoteSpheresHint": "Forces 3, Prime 2",
       "RoteText": "What it does",
-      "NoRotes": "No rotes yet: they are simply learned effects — record the ones that work."
+      "NoRotes": "No rotes yet: they are simply learned effects — record the ones that work.",
+      "Fold": "Collapse",
+      "Unfold": "Expand",
+      "FoldAll": "Collapse all Spheres",
+      "UnfoldAll": "Expand all Spheres"
     },
     "MageCr": {
       "NeedFaction": "Pick a faction.",

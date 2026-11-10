@@ -451,7 +451,7 @@
     {{#if is_gifts}}
     <div class="r-cr-gifts">
       {{#each giftSlots}}
-      <div class="r-cr-panel r-tcol r-cr-giftslot">
+      <div class="r-cr-panel r-tcol r-cr-giftslot {{#if wide}}is-wide{{/if}}">
         <h3 class="r-colhead"><span>{{label}}</span></h3>
         {{#each list}}
         <a class="r-cr-edge {{#if on}}is-on{{/if}}" data-action="garouGift" data-slot="{{../key}}" data-key="{{key}}" data-tooltip="{{text}}">

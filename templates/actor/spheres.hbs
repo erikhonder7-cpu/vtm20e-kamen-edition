@@ -4,6 +4,7 @@
   <h2 class="r-h2"><span>{{localize "VTM20.Mage.Spheres"}}</span>
     <span class="r-h2-tools">
       {{#if editable}}<a class="r-h2-btn" data-action="mageCast" data-tooltip="{{localize 'VTM20.Mage.CastHintBtn'}}"><i class="fa-solid fa-hat-wizard"></i> <span class="r-h2-lbl">{{localize "VTM20.Mage.Cast"}}</span></a>{{/if}}
+      <a class="r-h2-btn is-plain" data-action="mageFold" data-to="{{#if mageView.allFolded}}0{{else}}1{{/if}}" data-tooltip="{{#if mageView.allFolded}}{{localize 'VTM20.Mage.UnfoldAll'}}{{else}}{{localize 'VTM20.Mage.FoldAll'}}{{/if}}"><i class="fa-solid {{#if mageView.allFolded}}fa-angles-down{{else}}fa-angles-up{{/if}}"></i></a>
       <a class="r-h2-btn is-plain" data-action="openRules" data-tooltip="{{localize 'VTM20.Mage.RulesHint'}}"><i class="fa-solid fa-book-open-reader"></i></a>
     </span>
   </h2>
@@ -12,14 +13,16 @@
 
   <div class="r-sphere-grid">
     {{#each mageView.spheres}}
-    <article class="r-edge-path r-sphere {{#if affinity}}is-primary{{/if}} {{#unless value}}is-zero{{/unless}} {{#if over}}is-over{{/if}}">
+    <article class="r-edge-path r-sphere {{#if affinity}}is-primary{{/if}} {{#unless value}}is-zero{{/unless}} {{#if over}}is-over{{/if}} {{#if folded}}is-folded{{/if}}">
       <header class="r-edge-head">
         <span class="r-edge-sigil r-sphere-sigil">{{rSym sym "r-mg"}}</span>
+        <a class="r-sphere-fold" data-action="mageFold" data-key="{{key}}" data-tooltip="{{#if folded}}{{localize 'VTM20.Mage.Unfold'}}{{else}}{{localize 'VTM20.Mage.Fold'}}{{/if}}"><i class="fa-solid fa-chevron-{{#if folded}}right{{else}}down{{/if}}"></i></a>
         <span class="r-edge-title" {{#if altTip}}data-tooltip="{{altTip}}"{{/if}}><b>{{name}}</b> <small>{{en}}{{#if affinity}} · {{localize "VTM20.Mage.AffinityShort"}}{{/if}}</small></span>
         <span class="r-dots">{{#each dots}}<a class="r-dot {{#if filled}}is-filled{{/if}}" {{#if @root.editable}}data-action="setDots" data-path="{{path}}" data-n="{{n}}"{{/if}}></a>{{/each}}</span>
         {{#if @root.editable}}{{#if value}}<a class="r-vc-btn" data-action="mageCast" data-sphere="{{key}}" data-tooltip="{{localize 'VTM20.Mage.CastWith'}}"><i class="fa-solid fa-hat-wizard"></i></a>{{/if}}{{/if}}
       </header>
       {{#if over}}<p class="r-note r-edge-fifth"><i class="fa-solid fa-triangle-exclamation"></i> {{localize "VTM20.Mage.OverCap"}}</p>{{/if}}
+      {{#unless folded}}
       <ul class="r-edge-list">
         {{#each ranks}}
         <li class="r-edge {{#unless owned}}is-foreign{{/unless}}">
@@ -29,6 +32,7 @@
         {{/each}}
       </ul>
       {{#if specialties}}<p class="r-sphere-spec"><em>{{localize "VTM20.Mage.Specialties"}}:</em> {{specialties}}</p>{{/if}}
+      {{/unless}}
     </article>
     {{/each}}
   </div>

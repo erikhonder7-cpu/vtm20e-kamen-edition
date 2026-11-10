@@ -317,3 +317,8 @@ body.r-theme-light img[src$="assets/mage/sphere-prime.png"] { filter: none; }
 .vtm20 .r-cr-arete > b { min-width: 22px; text-align: center; font-family: var(--r-display); font-weight: 400; font-size: 20px; color: #fff3d0; }
 .vtm20 .r-cr-arete > em { margin-left: 6px; font-size: 12.5px; color: var(--r-muted); }
 .vtm20.r-type-mage .r-cr-clan.is-active .r-sym, .vtm20.r-type-mage .r-cr-disc.is-clan .r-disc-sigil .r-sym { background: linear-gradient(170deg, #ffffff, #d9b56a); }
+
+/* Карточка Сферы сворачивается до строки: знак, название, точки */
+.vtm20.r-type-mage .r-sphere-fold { flex: none; width: 16px; text-align: center; font-size: 10px; color: var(--r-muted); cursor: pointer; }
+.vtm20.r-type-mage .r-sphere-fold:hover { color: var(--m-gold-l); }
+.vtm20.r-type-mage .r-sphere.is-folded .r-edge-head { margin-bottom: 0; padding-bottom: 0; border-bottom: 0; }
