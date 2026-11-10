@@ -310,3 +310,16 @@
 .r-roll-card { position: relative; overflow: hidden; }
 .r-roll-card > .r-card-emblem { position: absolute; right: -10px; bottom: -12px; width: 92px; height: 92px; opacity: .07; pointer-events: none; }
 .r-roll-card > :not(.r-card-emblem) { position: relative; }
+
+/* Блок линейки в карточке броска: чипы «что это и чем заплачено» и строка итога */
+.r-line-chips { display: flex; flex-wrap: wrap; gap: 4px; margin: 2px 0 6px; }
+.r-line-chip { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px 2px 6px; border: 1px solid var(--r-line-2, #3a3833); background: rgba(255, 255, 255, .03);
+  font-family: "IM Fell SC", Georgia, serif; font-size: 11.5px; letter-spacing: .8px; text-transform: uppercase; color: var(--r-ink-2, #cfc6b4); }
+.r-line-chip .r-sym { width: 14px; height: 14px; }
+.r-line-chip i { font-size: 10px; opacity: .8; }
+.r-line-chip b { font-family: "Prata", Georgia, serif; font-weight: 400; font-size: 13px; color: var(--r-ink, #efe6d4); }
+.r-line-result { margin: 6px 0 2px; padding: 6px 9px; border-left: 2px solid var(--r-line-2, #5a5448); background: rgba(255, 255, 255, .03); font-size: 12.5px; line-height: 1.4; }
+.r-line-result p { margin: 0; }
+.r-line-result .r-line-sub { margin-top: 3px; font-size: 11.5px; font-style: italic; opacity: .75; }
+.r-line-result.is-bad { border-left-color: #c4474c; }
+.r-line-result.is-ok { border-left-color: #8fb39c; }

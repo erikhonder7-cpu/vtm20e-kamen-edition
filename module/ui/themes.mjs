@@ -20,7 +20,10 @@ export function lineEmblem(actor) {
     if (EMBLEMS[actor.type]) return EMBLEMS[actor.type](actor) ?? null;
     // Сородич — герб клана, гуль — клана домитора
     const C = globalThis.game?.vtm20Codex, clan = actor.type === "vampire" ? actor.system.clan : actor.type === "ghoul" ? actor.system.domitorClan : "";
-    return clan ? C?.clanSymbol?.(clan) ?? null : null;
+    if (clan && C?.clanSymbol?.(clan)) return C.clanSymbol(clan);
+    // прочим — печать вида (падший, охотник, смертный, гуль)
+    const V = globalThis.CONFIG?.VTM20 ?? globalThis.game?.vtm20?.config;
+    return V?.typeSigil ? { src: foundry.utils.getRoute(V.typeSigil(actor.type)) } : null;
   } catch { return null; }
 }
 /** Маг Технократического Союза: свои термины и холодная гамма (styles/types/mage.css, .r-mage-tech). */
@@ -29,6 +32,8 @@ export const isTechnocrat = actor => actor?.type === "mage"
 export function cardBlocks(state, ev, actor) {
   const out = {};
   for (const [k, fn] of Object.entries(CARD_BLOCKS)) if (state.extra?.[k]) { try { out[k] = fn(state, ev, actor); } catch (e) { console.error(e); } }
+  // общий вид блока (чипы и строка итога) — у оборотня, охотника…; у мага свой шаблон (mage, backlash)
+  out.any = Object.entries(out).find(([k, b]) => !["mage", "backlash"].includes(k) && (b?.chips?.length || b?.text))?.[1] ?? null;
   return out;
 }
 const FRESH_MS = 3000;

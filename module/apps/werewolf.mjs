@@ -10,7 +10,7 @@ import { VTM20, SYSTEM_PATH, SYSTEM_ID } from "../config.mjs";
 import { totemOf } from "./coterie.mjs";
 import { septOf } from "./sept.mjs";
 import { umbraOf } from "./umbra.mjs";
-import { registerEmblem } from "../ui/themes.mjs";
+import { registerEmblem, registerCardBlock } from "../ui/themes.mjs";
 
 const t = (k, d) => d ? game.i18n.format(`VTM20.Werewolf.${k}`, d) : game.i18n.localize(`VTM20.Werewolf.${k}`);
 const esc = s => foundry.utils.escapeHTML(String(s ?? ""));
@@ -340,7 +340,7 @@ export async function changeForm(actor, key) {
   }
   if (how === "roll") {
     return RollDialog.prompt(actor, { title: t("FormTitle", { form: f.name }), trait1: "attributes.stamina", trait2: "abilities.primalUrge",
-      difficulty: f.diff, diffNote: t("FormNeed", { n: steps }), onRolled: async r => {
+      difficulty: f.diff, extra: { ww: { kind: "form", from: byKey(list, cur)?.name ?? cur, to: f.name, steps } }, onRolled: async r => {
         if ((r?.successes ?? 0) >= steps) {
           await actor.update({ "system.werewolf.form": key });
           if (f.delirium && sceneWitnesses(actor).length) await delirium(actor);
@@ -360,7 +360,8 @@ export async function rollGift(actor, key) {
   }
   const r = g.roll ?? {};
   return RollDialog.prompt(actor, { title: g.name, trait1: r.trait1 || "attributes.wits", trait2: r.trait2 || undefined,
-    difficulty: r.difficulty || 6, diffNote: r.byTarget || !g.roll ? t("DiffByTargetNote") : "" });
+    difficulty: r.difficulty || 6, diffNote: r.byTarget || !g.roll ? t("DiffByTargetNote") : "", effect: g.text ?? "",
+    extra: { ww: { kind: "gift", key: g.key, level: g.level, cost: g.cost ?? {} } } });
 }
 
 /** Ритуал: Смекалка + Ритуалы (или пул из текста), сложность по цели. */
@@ -368,7 +369,8 @@ export function rollRite(actor, key) {
   const r = riteOf(key);
   if (!r) return null;
   const p = r.roll ?? { trait1: "attributes.wits", trait2: "abilities.rituals", difficulty: 7 };
-  return RollDialog.prompt(actor, { title: r.name, trait1: p.trait1, trait2: p.trait2, difficulty: p.difficulty || 7, diffNote: t("DiffByTargetNote") });
+  return RollDialog.prompt(actor, { title: r.name, trait1: p.trait1, trait2: p.trait2, difficulty: p.difficulty || 7, diffNote: t("DiffByTargetNote"), effect: r.text ?? "",
+    extra: { ww: { kind: "rite", level: r.level ?? 0, kindName: r.kindName ?? "" } } });
 }
 
 /** Проверка бешенства (W20, гл. 6): бросок текущей Ярости; 4+ успеха — бешенство (Ранг 5 — 5+); Ранг 3–4 — сложность +1/+2. */
@@ -390,7 +392,7 @@ export async function frenzyCheck(actor) {
   const add = rank >= 4 ? 2 : rank === 3 ? 1 : 0, need = rank >= 6 ? 6 : rank >= 5 ? 5 : 4;
   const diff = MOON_DIFF[cls] - minus + add;
   return RollDialog.prompt(actor, { title: t("Frenzy"), trait1: "werewolf.rage", difficulty: diff,
-    diffNote: t("FrenzyMoon", { moon: `${m.glyph} ${m.label}`, n: need }),
+    extra: { ww: { kind: "frenzy", need, moon: m.label, auspice: w.auspice, breed: w.breed, rage: w.rage.value } },
     onRolled: async r => {
       const s = r?.successes ?? 0;
       if (s < need) return;
@@ -1149,3 +1151,31 @@ export function fomorUse(actor, key) {
 
 /* Знак на карточках чата — племя Гару или род Фера */
 registerEmblem("werewolf", actor => werewolfSigil(actor).sym);
+
+/* Карточка броска оборотня (templates/chat/roll-card.hbs, блок «ww»): что это — чипами со знаками, итог — строкой в карточке */
+const ROMAN_LVL = ["", "I", "II", "III", "IV", "V", "VI"];
+registerCardBlock("ww", (state, ev, actor) => {
+  const x = state.extra.ww, n = ev.successes ?? 0, botch = ev.outcome === "botch";
+  const g = name => ({ src: wwGlyphSrc(name) });
+  if (x.kind === "gift") {
+    const gift = giftOf(x.key), from = gift?.groups?.[0];
+    const sym = from?.kind === "breed" ? g(`breed-${from.key}`) : from?.kind === "auspice" ? g(`auspice-${from.key}`) : from?.kind === "tribe" ? g(`tribe-${from.key}`) : g("glyph-garou");
+    return { chips: [{ sym, label: t("Gift"), value: ROMAN_LVL[x.level] ?? x.level },
+      ...(x.cost?.rage ? [{ sym: g("glyph-rage"), label: t("Rage"), value: `−${x.cost.rage}`, cls: "is-rage" }] : []),
+      ...(x.cost?.gnosis ? [{ sym: g("glyph-gnosis"), label: t("Gnosis"), value: `−${x.cost.gnosis}` }] : [])] };
+  }
+  if (x.kind === "rite") return { chips: [{ sym: g("glyph-rite"), label: x.kindName || t("Rite"), value: x.level ? ROMAN_LVL[x.level] ?? x.level : "" }] };
+  if (x.kind === "form") {
+    const ok = n >= x.steps;
+    return { chips: [{ icon: "fa-person", label: x.from }, { icon: "fa-arrow-right", label: x.to, cls: "is-to" }, { icon: "fa-shoe-prints", label: t("FormSteps"), value: x.steps }],
+      cls: ok ? "is-ok" : "is-bad", text: ok ? t("FormOk", { form: esc(x.to) }) : t("FormShort", { n, need: x.steps }) };
+  }
+  if (x.kind === "frenzy") {
+    const on = n >= x.need, thrall = n >= 6;
+    return { chips: [{ sym: g("glyph-rage"), label: t("Rage"), value: x.rage, cls: "is-rage" }, { sym: g(`auspice-${x.auspice}`), label: x.moon }, { icon: "fa-bullseye", label: t("FrenzyNeedShort"), value: `${x.need}+` }],
+      cls: on ? "is-bad" : "is-ok",
+      text: thrall ? `<b>${t("ThrallTitle")}</b> ${t(`Thrall.${x.breed}`)}` : on ? t("FrenzyOn", { name: esc(actor?.name ?? "") }) : botch || n < 1 ? t("FrenzyCalm") : t("FrenzyHeld", { n, need: x.need }),
+      sub: on ? t("FrenzyExit", { n: x.rage }) : "" };
+  }
+  return {};
+});

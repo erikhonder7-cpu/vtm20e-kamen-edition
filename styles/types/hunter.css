@@ -207,3 +207,7 @@ body.r-theme-light .vtm20.r-type-hunter {
 .vtm20.r-type-hunter .r-edge-call { border: 1px dashed rgba(239, 229, 214, .2); padding: 8px 10px; margin: 6px 0 10px; display: grid; gap: 6px; }
 .vtm20.r-type-hunter .r-edge-call > .r-vc-btn { justify-self: start; }
 .vtm20.r-type-hunter .r-edge.is-called { display: flex; gap: 8px; align-items: flex-start; }
+
+/* Карточка броска Грани: чипы в янтаре, цена — ярче */
+.r-roll-card.r-type-hunter .r-line-chip { border-color: rgba(224, 137, 58, .4); background: rgba(224, 137, 58, .07); color: #f0d9bb; }
+.r-roll-card.r-type-hunter .r-line-chip.is-cost { border-color: #e0893a; color: #ffcd8c; }

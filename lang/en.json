@@ -4921,7 +4921,15 @@
       "FindScar": "Battle scar — start typing…",
       "RageGnosis": "Rage and Gnosis",
       "ActionsQueued": "They are taken after everyone's normal actions, in initiative order.",
-      "ActionsFastLabel": "Too many Rage actions"
+      "ActionsFastLabel": "Too many Rage actions",
+      "Gift": "Gift",
+      "Rite": "Rite",
+      "FormSteps": "steps",
+      "FormOk": "Takes the {form} form.",
+      "FormShort": "{n} of {need} successes: the form holds.",
+      "FrenzyNeedShort": "frenzy at",
+      "FrenzyCalm": "The Rage stays quiet: no frenzy.",
+      "FrenzyHeld": "{n} of {need} successes: held back."
     },
     "Strategy": {
       "Tab": "Strategy",

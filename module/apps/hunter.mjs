@@ -11,6 +11,7 @@
 // Грани «свыше» (своих нет — воззвание на сцену), Грани V уровня.
 
 import { rollPool } from "../dice/roll.mjs";
+import { registerCardBlock } from "../ui/themes.mjs";
 import { Codex } from "../data/codex.mjs";
 import { SYSTEM_ID } from "../config.mjs";
 
@@ -308,7 +309,8 @@ export async function useEdge(actor, key) {
     v.risk && { label: t("Risk"), value: v.risk }].filter(Boolean);
   if (e.conviction || v.risk) await actor.update({ "system.hunter.conviction": conv - e.conviction, ...(v.risk ? { "system.hunter.sceneRisk": true } : {}) });
   const res = await rollPool({ actor, title: e.name, subtitle: t("EdgeKicker", { path: creedOf(e.path)?.name ?? e.path, n: e.level }),
-    pool: val(t1) + val(t2) + v.risk, difficulty: v.diff, kind: "check", breakdown, effect: `<p>${esc(e.text)}</p>` });
+    pool: val(t1) + val(t2) + v.risk, difficulty: v.diff, kind: "check", breakdown, effect: `<p>${esc(e.text)}</p>`,
+    extra: { edge: { path: e.path, level: e.level, virtue: e.virtue, conviction: e.conviction ?? 0, risk: v.risk } } });
   if ((res?.successes ?? 0) > 0) await markEdge(actor, e);
   if (!v.risk) return res;
   // риск Убеждённостью: успех — вложенное остаётся и +1; неудача — вложенное сгорает; провал — вся Убеждённость
@@ -648,3 +650,12 @@ export async function lostOrdeal(actor) {
   return rollPool({ actor, title: t("LostOrdeal"), subtitle: t("LostKicker"), pool: p, difficulty: 6, kind: "check",
     breakdown: [{ label: actor.traitLabel("attributes.perception"), value: p }], notes: [t("LostOrdealNote")] });
 }
+
+/* Карточка броска Грани: путь и уровень, Добродетель охоты, цена Убеждённостью и риск — чипами */
+registerCardBlock("edge", state => {
+  const x = state.extra.edge;
+  return { chips: [{ icon: "fa-eye", label: creedOf(x.path)?.name ?? x.path, value: x.level },
+    ...(x.virtue ? [{ icon: "fa-fire-flame-simple", label: H().virtues?.[x.virtue] ?? x.virtue }] : []),
+    ...(x.conviction ? [{ icon: "fa-bolt", label: t("Conviction"), value: `−${x.conviction}`, cls: "is-cost" }] : []),
+    ...(x.risk ? [{ icon: "fa-dice", label: t("Risk"), value: `+${x.risk}`, cls: "is-cost" }] : [])] };
+});

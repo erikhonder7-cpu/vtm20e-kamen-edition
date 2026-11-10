@@ -18,6 +18,10 @@
     {{#if line.mage.quint}}<span class="r-cast-chip is-quint"><i class="fa-solid fa-sun"></i> −{{line.mage.quint}}</span>{{/if}}
   </div>
   {{/if}}
+  {{!-- Свой блок линейки (оборотень: Дар, ритуал, форма, бешенство…): чипы с тем, что это и чем заплачено --}}
+  {{#if line.any.chips.length}}
+  <div class="r-line-chips">{{#each line.any.chips}}<span class="r-line-chip {{cls}}">{{#if sym}}{{rSym sym "r-wg"}}{{else if icon}}<i class="fa-solid {{icon}}"></i>{{/if}}{{label}}{{#if value}} <b>{{value}}</b>{{/if}}</span>{{/each}}</div>
+  {{/if}}
   {{#if breakdown.length}}
   <div class="r-card-breakdown">{{#each breakdown}}<span>{{label}} <b>{{rSigned value}}</b></span>{{/each}}</div>
   {{/if}}
@@ -61,6 +65,7 @@
   </div>
   {{#if line.mage.backlash}}<div class="r-card-buttons"><button type="button" data-r-action="mageBacklash"><i class="fa-solid fa-burst"></i> {{line.mage.backlashLabel}}</button></div>{{/if}}
   {{/if}}
+  {{#if line.any.text}}<div class="r-line-result {{line.any.cls}}"><p>{{{line.any.text}}}</p>{{#if line.any.sub}}<p class="r-line-sub">{{line.any.sub}}</p>{{/if}}</div>{{/if}}
   {{#if line.backlash}}
   <div class="r-cast-result">
     <p>{{line.backlash.text}}</p>

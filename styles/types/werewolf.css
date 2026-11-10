@@ -786,3 +786,11 @@ body.r-theme-light img[src$="assets/werewolf/glyph-garou.png"] { filter: none; }
 /* общая колонка Даров рода — на всю ширину, Дары в три столбца */
 .vtm20 .r-cr-giftslot.is-wide { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: 14px; }
 .vtm20 .r-cr-giftslot.is-wide > .r-colhead { grid-column: 1 / -1; }
+
+/* Карточка броска оборотня: чипы в лунном серебре, Ярость — ржавым */
+.r-roll-card.r-type-werewolf .r-line-chip { border-color: rgba(185, 200, 195, .35); background: rgba(185, 200, 195, .06); color: #cfdad5; }
+.r-roll-card.r-type-werewolf .r-line-chip .r-wg { background: linear-gradient(170deg, #f4f8f6, #9fb3aa); }
+.r-roll-card.r-type-werewolf .r-line-chip.is-rage { border-color: rgba(208, 106, 74, .55); color: #f0a58c; }
+.r-roll-card.r-type-werewolf .r-line-chip.is-rage .r-wg { background: linear-gradient(170deg, #f0a58c, #a3442c); }
+.r-roll-card.r-type-werewolf .r-line-chip.is-to { border-color: #dfe8e3; color: #f4f8f6; }
+.r-roll-card.r-type-werewolf > .r-card-emblem { background: linear-gradient(170deg, #f4f8f6, #9fb3aa); opacity: .09; }
