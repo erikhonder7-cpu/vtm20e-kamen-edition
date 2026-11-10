@@ -226,18 +226,18 @@
   {{!-- Маг (M20): Арете — кубики магии; колесо — Квинтэссенция слева, Парадокс справа (вместе не больше 20) --}}
   <div class="r-vcard r-vc-morality r-vc-mage">
     <div class="r-vc-head">
-      <h4 class="r-banner"><a data-action="openRules" data-tooltip="{{localize 'VTM20.Mage.RulesHint'}}">{{localize "VTM20.Mage.Arete"}}</a></h4>
+      <h4 class="r-banner"><a data-action="openRules" data-tooltip="{{localize 'VTM20.Mage.RulesHint'}}">{{@root.mageInfo.L.Arete}}</a></h4>
       <div class="r-vc-status" data-tooltip="{{#if mageInfo.capped}}{{localize 'VTM20.Mage.CappedHint'}}{{else}}{{localize 'VTM20.Mage.CapHint'}}{{/if}}"><b>{{mageInfo.arete}}</b>{{#if mageInfo.areteName}} <small>{{mageInfo.areteName}}</small>{{/if}}</div>
     </div>
     {{> rDots dots=mageInfo.areteDots cls="is-ten"}}
     <div class="r-wheel" data-tooltip="{{localize 'VTM20.Mage.WheelHint'}}">
       {{#each mageInfo.wheel}}<i class="r-wheel-cell {{#if quint}}is-quint{{/if}} {{#if paradox}}is-paradox{{/if}} {{#if perm}}is-perm{{/if}}"></i>{{/each}}
     </div>
-    <div class="r-wheel-nums"><span><i class="fa-solid fa-sun"></i> {{localize "VTM20.Mage.Quintessence"}} <b>{{mageInfo.quintessence}}</b></span><span>{{localize "VTM20.Mage.Paradox"}} <b>{{mageInfo.paradox}}</b>{{#if mageInfo.paradoxPerm}} <small>({{localize "VTM20.Mage.Perm" n=mageInfo.paradoxPerm}})</small>{{/if}} <i class="fa-solid fa-burst"></i></span></div>
+    <div class="r-wheel-nums"><span><i class="fa-solid fa-sun"></i> {{@root.mageInfo.L.Quintessence}} <b>{{mageInfo.quintessence}}</b></span><span>{{localize "VTM20.Mage.Paradox"}} <b>{{mageInfo.paradox}}</b>{{#if mageInfo.paradoxPerm}} <small>({{localize "VTM20.Mage.Perm" n=mageInfo.paradoxPerm}})</small>{{/if}} <i class="fa-solid fa-burst"></i></span></div>
     <div class="r-vc-tools">
       {{#if editable}}<a class="r-vc-btn is-sq" data-action="mageQuint" data-d="-1" data-tooltip="{{localize 'VTM20.Mage.QuintMinus'}}"><i class="fa-solid fa-minus"></i></a>
       <a class="r-vc-btn is-sq" data-action="mageQuint" data-d="1" data-tooltip="{{localize 'VTM20.Mage.QuintPlus'}}"><i class="fa-solid fa-sun"></i></a>
-      <a class="r-vc-btn" data-action="mageCast" data-tooltip="{{localize 'VTM20.Mage.CastHintBtn'}}"><i class="fa-solid fa-hat-wizard"></i> {{localize "VTM20.Mage.Cast"}}</a>
+      <a class="r-vc-btn" data-action="mageCast" data-tooltip="{{localize 'VTM20.Mage.CastHintBtn'}}"><i class="fa-solid fa-hat-wizard"></i> {{@root.mageInfo.L.Cast}}</a>
       <a class="r-vc-btn is-sq is-right" data-action="mageParadox" data-d="1" data-tooltip="{{localize 'VTM20.Mage.ParadoxPlus'}}"><i class="fa-solid fa-burst"></i></a>
       <a class="r-vc-btn is-sq" data-action="mageParadox" data-d="-1" data-tooltip="{{localize 'VTM20.Mage.ParadoxMinus'}}"><i class="fa-solid fa-minus"></i></a>
       {{#if mageInfo.isGM}}<a class="r-vc-btn is-sq {{#if mageInfo.backlash}}is-on{{/if}}" data-action="mageBacklash" data-tooltip="{{localize 'VTM20.Mage.BacklashHint'}}"><i class="fa-solid fa-dice-d10"></i></a>{{/if}}{{/if}}
@@ -315,8 +315,8 @@
       {{else if werewolfInfo}}<span class="r-vs-item"><i class="fa-solid fa-fire"></i> {{localize "VTM20.Werewolf.Rage"}} <b>{{werewolfInfo.rage}}</b>/{{werewolfInfo.ragePerm}}</span>
       <span class="r-vs-item"><i class="fa-solid fa-spiral"></i> {{localize "VTM20.Werewolf.Gnosis"}} <b>{{werewolfInfo.gnosis}}</b>/{{werewolfInfo.gnosisPerm}}</span>
       <span class="r-vs-item"><i class="fa-solid {{werewolfInfo.formIcon}}"></i> {{werewolfInfo.formName}}</span>
-      {{else if mageInfo}}<span class="r-vs-item"><i class="fa-solid fa-hat-wizard"></i> {{localize "VTM20.Mage.Arete"}} <b>{{mageInfo.arete}}</b></span>
-      <span class="r-vs-item"><i class="fa-solid fa-sun"></i> {{localize "VTM20.Mage.Quintessence"}} <b>{{mageInfo.quintessence}}</b></span>
+      {{else if mageInfo}}<span class="r-vs-item"><i class="fa-solid fa-hat-wizard"></i> {{@root.mageInfo.L.Arete}} <b>{{mageInfo.arete}}</b></span>
+      <span class="r-vs-item"><i class="fa-solid fa-sun"></i> {{@root.mageInfo.L.Quintessence}} <b>{{mageInfo.quintessence}}</b></span>
       <span class="r-vs-item {{#if mageInfo.backlash}}is-hurt{{/if}}"><i class="fa-solid fa-burst"></i> {{localize "VTM20.Mage.Paradox"}} <b>{{mageInfo.paradox}}</b></span>
       {{else if thrallInfo}}<span class="r-vs-item"><i class="fa-solid fa-handshake-angle"></i> {{localize "VTM20.Creator.ThrallFaith"}} <b>{{thrallInfo.faith}}</b></span>
       {{else}}<span class="r-vs-item"><i class="fa-solid fa-scale-balanced"></i> {{#each paths}}{{#if selected}}{{name}}{{/if}}{{/each}} <b>{{system.morality.value}}</b></span>{{/if}}

@@ -10,6 +10,7 @@
 
 import { SYSTEM_ID, SYSTEM_PATH, VTM20 } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
+import { registerEmblem, registerCardBlock } from "../ui/themes.mjs";
 
 export const M = () => Codex.mage ?? {};
 const t = (k, d) => d ? game.i18n.format(`VTM20.Mage.${k}`, d) : game.i18n.localize(`VTM20.Mage.${k}`);
@@ -21,6 +22,12 @@ export const factionOf = actor => (M().factions ?? []).find(f => f.key === actor
 /** Технократ называет Сферы по-своему (Данные, Пространственная наука, Первичная Полезность). */
 const isTech = actor => factionOf(actor)?.group === "technocracy";
 export const sphereName = (actor, key) => { const s = sphereOf(key); return (isTech(actor) && s?.tech?.name) || s?.name || key; };
+
+/** Термины Технократии: Арете — Просвещение, Квинтэссенция — Первичная энергия, чародейство — Процедура, Аватар — Гений… */
+const TECH_KEYS = ["Arete", "Quintessence", "Cast", "CastTitle", "Rotes", "RoteAdd", "NoRotes", "Instruments", "Pool", "Spheres", "Focus", "Avatar"];
+export const mt = (actor, key, data) => t(isTech(actor) && TECH_KEYS.includes(key) ? `Tech.${key}` : key, data);
+/** Все подписи разом — для шаблонов листа ({{@root.mageInfo.L.Arete}}). */
+const labelsOf = actor => Object.fromEntries(TECH_KEYS.map(k => [k, mt(actor, k)]));
 
 /* ── Официальные знаки M20 (assets/mage): фракции, группы, Сферы — маски, цвет задаёт CSS (.r-mg) ── */
 // путь от корня: относительный url() в CSS-переменной считался бы от файла стилей
@@ -54,7 +61,7 @@ export function mageInfo(actor, dots) {
   const groups = (D.groups ?? []).map(g => ({ name: g.name, list: (D.factions ?? []).filter(x => x.group === g.key).map(x => ({ key: x.key, name: x.name, selected: x.key === m.faction })) }));
   const allowed = f?.affinity?.length ? f.affinity : VTM20.mageSpheres;
   return {
-    groups, faction: f, factionTip: f ? [f.en, f.affinityText && `${t("Affinity")}: ${f.affinityText}`, f.practices].filter(Boolean).join(" · ") : "",
+    L: labelsOf(actor), tech: isTech(actor), groups, faction: f, factionTip: f ? [f.en, f.affinityText && `${t("Affinity")}: ${f.affinityText}`, f.practices].filter(Boolean).join(" · ") : "",
     essences: (D.essences ?? []).map(e => ({ key: e.key, name: e.name, tip: e.text, selected: e.key === m.essence })),
     essence: (D.essences ?? []).find(e => e.key === m.essence) ?? null,
     affinities: VTM20.mageSpheres.map(k => ({ key: k, name: sphereName(actor, k), selected: k === m.affinity, off: !allowed.includes(k) })),
@@ -77,7 +84,7 @@ export function spheresView(actor, dots) {
       ranks: (alt?.ranks ?? s.ranks).map((text, i) => ({ n: i + 1, name: D.ranks?.[i] ?? "", text, owned: i < v })).filter(r => r.n <= v + 1) };
   });
   const F = D.focus ?? {};
-  return { spheres, cap, arete: m.arete, capped: cap < m.arete, total: spheres.reduce((s, x) => s + x.value, 0),
+  return { L: labelsOf(actor), tech, spheres, cap, arete: m.arete, capped: cap < m.arete, total: spheres.reduce((s, x) => s + x.value, 0),
     paradigms: (F.paradigms ?? []).map(p => p.name), practices: (F.practices ?? []).map(p => p.name),
     practiceTip: (F.practices ?? []).find(p => p.name === m.practice)?.instruments ?? "",
     tools: m.instruments.map((name, i) => ({ i, name })), toolList: (F.instruments ?? []).filter(x => !m.instruments.includes(x)),
@@ -143,14 +150,14 @@ export async function castEffect(actor, preset = {}) {
     `<a class="r-dot${i < cur ? " is-filled" : ""}${i >= max ? " is-locked" : ""}" data-rank="${k}" data-n="${i + 1}"></a>`).join("");
   let res = null, nameNow = () => "";
   await foundry.applications.api.DialogV2.wait({
-    window: { title: `${t("CastTitle")}: ${actor.name}`, icon: "fa-solid fa-hat-wizard" }, classes: ["vtm20", "r-dialog", "r-cast-dialog", "r-type-mage"], position: { width: 600 },
+    window: { title: `${mt(actor, "CastTitle")}: ${actor.name}`, icon: "fa-solid fa-hat-wizard" }, classes: ["vtm20", "r-dialog", "r-cast-dialog", "r-type-mage", ...(isTech(actor) ? ["r-mage-tech"] : [])], position: { width: 600 },
     content: `<div class="r-cast">
       <header class="r-cast-head"><span class="r-cast-sigil">${mageGlyph(factionGlyph(f))}</span>
-        <span class="r-cast-who"><small>${esc(f?.name ?? t("CastTitle"))}</small><b>${esc(actor.name)}</b></span>
-        <span class="r-cast-pool" data-tooltip="${esc(t(pool < m.arete ? "CappedHint" : "CapHint"))}"><b>${pool}</b><small>${esc(t("Pool"))}</small></span></header>
+        <span class="r-cast-who"><small>${esc(f?.name ?? mt(actor, "CastTitle"))}</small><b>${esc(actor.name)}</b></span>
+        <span class="r-cast-pool" data-tooltip="${esc(t(pool < m.arete ? "CappedHint" : "CapHint"))}"><b>${pool}</b><small>${esc(mt(actor, "Pool"))}</small></span></header>
       <input class="r-cast-name" type="text" name="name" value="${esc(preset.name ?? "")}" placeholder="${esc(t("CastName"))}">
 
-      <h4 class="r-banner r-cast-cap"><span>${esc(t("Spheres"))}</span><em>${esc(t("CastHint"))}</em></h4>
+      <h4 class="r-banner r-cast-cap"><span>${esc(mt(actor, "Spheres"))}</span><em>${esc(t("CastHint"))}</em></h4>
       <div class="r-cast-spheres">${mine.map(k => `<div class="r-cast-sphere${st.ranks[k] ? " is-on" : ""}" data-sphere="${k}" data-tooltip="${esc(t("SphereTip", { n: m.spheres[k] }))}">
           <span class="r-cast-sym">${mageGlyph(`sphere-${k}`)}</span><b>${esc(sphereName(actor, k))}</b>
           <span class="r-dots">${pips(k, m.spheres[k], maxOf(k), st.ranks[k])}</span></div>`).join("")}</div>
@@ -160,7 +167,7 @@ export async function castEffect(actor, preset = {}) {
           <i class="fa-solid ${icon}"></i><b>${esc(t(`Kind.${k}`))}</b><span class="r-cast-kn">+${C[k]}</span><em>${esc(t(`KindRisk.${k}`))}</em></a>`).join("")}</div>
 
       <h4 class="r-banner r-cast-cap" data-tooltip="${esc(t("ModTip"))}"><span>${esc(t("ModCap"))}</span><em>${esc(t("ModHint"))}</em></h4>
-      <div class="r-cast-row"><span class="r-cast-lbl"><i class="fa-solid fa-sun"></i> ${esc(t("Quint"))}</span>
+      <div class="r-cast-row"><span class="r-cast-lbl"><i class="fa-solid fa-sun"></i> ${esc(mt(actor, "Quintessence"))}</span>
         <span class="r-boxes r-cast-quint">${quintMax ? Array.from({ length: quintMax }, (_, i) => `<a class="r-box" data-quint="${i + 1}"></a>`).join("") : ""}</span>
         <em>${esc(quintMax ? t("QuintHint", { n: m.quintessence, max: quintMax }) : t("QuintNone"))}</em></div>
       <div class="r-cast-mods">${MODS.map(([k, n]) => `<a class="r-cast-mod${n > 0 ? " is-bad" : ""}" data-mod="${k}"><b>${n > 0 ? "+" : "−"}${Math.abs(n)}</b> ${esc(t(`ModQuick.${k}`))}</a>`).join("")}
@@ -213,66 +220,92 @@ export async function castEffect(actor, preset = {}) {
       q('[name="will"]').addEventListener("change", e => { st.will = e.target.checked; sync(); });
       sync();
     },
-    buttons: [{ action: "ok", icon: "fa-solid fa-hat-wizard", label: t("Cast"), default: true, callback: () => { res = { ...calc(), name: nameNow() }; } }],
+    buttons: [{ action: "ok", icon: "fa-solid fa-hat-wizard", label: mt(actor, "Cast"), default: true, callback: () => { res = { ...calc(), name: nameNow() }; } }],
     rejectClose: false
   });
   if (!res) return null;
   if (!res.high) { ui.notifications.info(t("CastPick")); return null; }
   if (res.quint) await changeQuintessence(actor, -res.quint);
   const used = Object.entries(res.ranks).map(([k, v]) => `${sphereName(actor, k)} ${v}`).join(", ");
-  const roll = await rollPool({ actor, title: res.name || t("CastTitle"), subtitle: `${used} · ${t(`Kind.${res.kind}`)}`, pool, difficulty: res.difficulty,
-    willpower: res.will, kind: "check", breakdown: [{ label: t("Arete"), value: pool }],
-    notes: [res.quint ? `<i class="fa-solid fa-sun"></i> ${esc(t("QuintSpent", { n: res.quint }))}` : ""].filter(Boolean),
-    extra: { mage: { kind: res.kind, high: res.high } } });
+  const roll = await rollPool({ actor, title: res.name || mt(actor, "CastTitle"), subtitle: t("CastSub", { n: res.high }), pool, difficulty: res.difficulty,
+    willpower: res.will, kind: "check", breakdown: [{ label: mt(actor, "Arete"), value: pool }],
+    extra: { mage: { kind: res.kind, high: res.high, ranks: res.ranks, quint: res.quint, used } } });
   if (!roll) return null;
-  // итог: успехи — по таблице; Парадокс — за вульгарность и за провал
-  const botch = roll.outcome === "botch", n = roll.successes ?? 0, vulgar = res.kind !== "coincidental";
-  const paradox = botch ? botchParadox(res.kind, res.high) : n > 0 && vulgar ? 1 : 0;
-  const now = paradox ? await changeParadox(actor, paradox) : m.paradox;
-  const lines = [botch ? t("ResBotch") : n > 0 ? effectLine(n) : t("ResFail"),
-    paradox ? t("ParadoxGain", { n: paradox, now }) : "", now >= 5 && paradox ? t("BacklashDue") : ""].filter(Boolean);
-  await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), flags: { [SYSTEM_ID]: { mageCast: { actor: actor.uuid } } },
-    content: `<div class="r-notice r-type-mage${botch ? " is-warn" : ""}"><i class="fa-solid fa-hat-wizard"></i> <b>${esc(res.name || t("CastTitle"))}</b> (${esc(used)}): ${lines.map(esc).join(" ")}
-      ${now >= 5 && paradox ? `<div class="r-card-buttons"><button type="button" data-r-action="mageBacklash"><i class="fa-solid fa-burst"></i> ${esc(t("Backlash"))}</button></div>` : ""}</div>` });
+  // Парадокс — за вульгарность и за провал; итог и кнопка отката — в самой карточке броска (блок «mage»)
+  const paradox = castParadox(res.kind, res.high, roll);
+  if (paradox) {
+    const now = await changeParadox(actor, paradox);
+    await refreshCard(roll.message, "mage", { now });
+  }
   return roll;
 }
 
-/** Откат Парадокса (рассказчик): пул Парадокса, сл. 6; успех разряжает очко; итог — по таблице. */
+/** Сколько Парадокса приносит бросок чародейства: провал с единицами — по Сфере и вульгарности, успешная вульгарная магия — 1. */
+const castParadox = (kind, high, ev) => ev.outcome === "botch" ? botchParadox(kind, high) : (ev.successes ?? 0) > 0 && kind !== "coincidental" ? 1 : 0;
+
+/** Дописать данные в блок карточки броска и перерисовать её (после того, как Парадокс или Ожог уже применены). */
+async function refreshCard(message, key, patch) {
+  const state = foundry.utils.deepClone(message?.getFlag(SYSTEM_ID, "roll"));
+  if (!state?.extra?.[key] || !message.isOwner) return;
+  Object.assign(state.extra[key], patch);
+  const { renderCard } = await import("../dice/roll.mjs");
+  await message.update({ content: await renderCard(state), [`flags.${SYSTEM_ID}.roll`]: state });
+}
+
+/** Блок карточки чародейства: Сферы со знаками, вид магии, итог по таблице успехов, Парадокс и кнопка отката. */
+registerCardBlock("mage", (state, ev, actor) => {
+  const x = state.extra.mage, n = ev.successes ?? 0, botch = ev.outcome === "botch", gain = castParadox(x.kind, x.high, ev);
+  return {
+    spheres: Object.entries(x.ranks ?? {}).map(([k, rank]) => ({ name: actor ? sphereName(actor, k) : sphereOf(k)?.name ?? k, rank, sym: { src: mageGlyphSrc(`sphere-${k}`) } })),
+    kind: x.kind, kindLabel: t(`Kind.${x.kind}`), kindIcon: KINDS.find(k => k[0] === x.kind)?.[1] ?? "fa-leaf", quint: x.quint ?? 0,
+    text: botch ? t("ResBotch") : n > 0 ? effectLine(n) : t("ResFail"),
+    paradox: gain, paradoxText: gain ? (x.now != null ? t("ParadoxGain", { n: gain, now: x.now }) : t("ParadoxGainShort", { n: gain })) : "",
+    backlash: gain > 0 && (x.now ?? 0) >= 5, backlashLabel: t("Backlash")
+  };
+});
+/** Блок карточки отката: сколько разряжено, что случилось по таблице, сколько осталось и кнопка Ожога. */
+registerCardBlock("backlash", (state, ev) => {
+  const x = state.extra.backlash, n = ev.successes ?? 0, botch = ev.outcome === "botch";
+  const gone = botch ? x.free : Math.min(n, x.free), row = (M().backlash ?? []).find(r => n >= r.min && n <= r.max);
+  const burn = botch ? null : burnOf(n);
+  return { text: botch ? t("BackBotch", { n: gone }) : n < 1 ? t("BackNone") : `${t("BackGone", { n: gone })} ${row?.text ?? ""}`,
+    left: x.left != null ? t("ParadoxLeft", { n: x.left }) : "",
+    burn: burn && !x.burned ? t("Burn", { n: burn[0], type: game.i18n.localize(VTM20.damageTypes[burn[1]]?.label ?? burn[1]) }) : "" };
+});
+/** Ожог: 1–10 успехов — лёгкие, 11–20 — тяжёлые, 21+ — губительные (уровень за 2 успеха); броня не спасает. */
+const burnOf = n => n >= 21 ? [Math.floor(n / 2), "aggravated"] : n >= 11 ? [n, "lethal"] : n >= 1 ? [n, "bashing"] : null;
+
+/** Откат Парадокса (рассказчик): пул Парадокса, сл. 6; успех разряжает очко; итог — по таблице, в карточке броска. */
 export async function paradoxBacklash(actor) {
   if (!game.user.isGM) return ui.notifications.warn(game.i18n.localize("VTM20.Notify.GMOnly"));
   const m = actor.system.mage, pool = m.paradox;
   if (pool < 1) return ui.notifications.info(t("NoParadox"));
   const { rollPool } = await import("../dice/roll.mjs");
-  const roll = await rollPool({ actor, title: t("Backlash"), subtitle: t("BacklashSub", { n: pool }), pool, difficulty: 6, kind: "check", breakdown: [{ label: t("Paradox"), value: pool }] });
+  const free = m.paradox - m.paradoxPerm;
+  const roll = await rollPool({ actor, title: t("Backlash"), subtitle: t("BacklashSub", { n: pool }), pool, difficulty: 6, kind: "check",
+    breakdown: [{ label: t("Paradox"), value: pool }], extra: { backlash: { free } } });
   if (!roll) return null;
-  const botch = roll.outcome === "botch", n = roll.successes ?? 0, free = m.paradox - m.paradoxPerm;
   // провал — весь непостоянный Парадокс уходит безвредно; успехи — столько очков разряжается
-  const gone = botch ? free : Math.min(n, free);
+  const gone = roll.outcome === "botch" ? free : Math.min(roll.successes ?? 0, free);
   if (gone) await actor.update({ "system.mage.paradox": m.paradox - gone });
-  const row = (M().backlash ?? []).find(r => n >= r.min && n <= r.max);
-  // Ожог: 1–10 — лёгкие, 11–20 — тяжёлые, 21+ — губительные (уровень за 2 успеха); броня не спасает
-  const burn = n >= 21 ? [Math.floor(n / 2), "aggravated"] : n >= 11 ? [n, "lethal"] : n >= 1 ? [n, "bashing"] : null;
-  const text = botch ? t("BackBotch", { n: gone }) : n < 1 ? t("BackNone") : `${t("BackGone", { n: gone })} ${row?.text ?? ""}`;
-  return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), flags: burn && !botch ? { [SYSTEM_ID]: { mageBurn: { actor: actor.uuid, n: burn[0], type: burn[1] } } } : {},
-    content: `<div class="r-notice r-type-mage is-warn"><i class="fa-solid fa-burst"></i> <b>${esc(t("Backlash"))}</b>: ${esc(text)}
-      ${burn && !botch ? `<div class="r-card-buttons"><button type="button" data-r-action="mageBurn"><i class="fa-solid fa-fire"></i> ${esc(t("Burn", { n: burn[0], type: game.i18n.localize(VTM20.damageTypes[burn[1]]?.label ?? burn[1]) }))}</button></div>` : ""}</div>` });
+  await refreshCard(roll.message, "backlash", { left: m.paradox - gone });
+  return roll;
 }
 
 /** Кнопки карточек чародейства: откат и Ожог. */
 export async function mageCardAction(message, action) {
-  if (action === "mageBacklash") {
-    const a = await foundry.utils.fromUuid(message.getFlag(SYSTEM_ID, "mageCast")?.actor ?? "");
-    return a ? paradoxBacklash(a) : null;
-  }
-  const b = message.getFlag(SYSTEM_ID, "mageBurn");
-  if (!b || b.done) return null;
-  const a = await foundry.utils.fromUuid(b.actor);
-  if (!a?.isOwner) return ui.notifications.warn(game.i18n.format("VTM20.Notify.NotOwner", { name: a?.name ?? "" }));
-  await a.applyDamage(b.n, b.type);
-  if (message.isOwner) {
-    await message.setFlag(SYSTEM_ID, "mageBurn", { ...b, done: true });
-    await message.update({ content: String(message.content).replace(/<div class="r-card-buttons">[\s\S]*?<\/div>/, "") });
-  }
+  const state = message.getFlag(SYSTEM_ID, "roll");
+  const a = await foundry.utils.fromUuid(state?.actorUuid ?? message.getFlag(SYSTEM_ID, "mageCast")?.actor ?? "");
+  if (!a) return null;
+  if (action === "mageBacklash") return paradoxBacklash(a);
+  const x = state?.extra?.backlash;
+  if (!x || x.burned) return null;
+  if (!a.isOwner) return ui.notifications.warn(game.i18n.format("VTM20.Notify.NotOwner", { name: a.name }));
+  const { evaluate } = await import("../dice/roll.mjs");
+  const burn = burnOf(evaluate(state.values, state).successes ?? 0);
+  if (!burn) return null;
+  await a.applyDamage(burn[0], burn[1]);
+  await refreshCard(message, "backlash", { burned: true });
   return true;
 }
 
@@ -323,3 +356,6 @@ export function mageXpCost(actor, kind, current, key = "") {
   if (kind === "mageSphere") return current < 1 ? X.newSphere ?? 10 : current * (key === actor.system.mage?.affinity ? X.affinitySphere ?? 7 : X.sphere ?? 8);
   return 0;
 }
+
+/* Знак на карточках чата — фракция мага */
+registerEmblem("mage", actor => mageSigil(actor).sym);

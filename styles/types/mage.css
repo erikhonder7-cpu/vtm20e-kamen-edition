@@ -322,3 +322,46 @@ body.r-theme-light img[src$="assets/mage/sphere-prime.png"] { filter: none; }
 .vtm20.r-type-mage .r-sphere-fold { flex: none; width: 16px; text-align: center; font-size: 10px; color: var(--r-muted); cursor: pointer; }
 .vtm20.r-type-mage .r-sphere-fold:hover { color: var(--m-gold-l); }
 .vtm20.r-type-mage .r-sphere.is-folded .r-edge-head { margin-bottom: 0; padding-bottom: 0; border-bottom: 0; }
+
+/* Карточка чародейства и отката: Сферы со знаками, вид магии, итог и Парадокс — одной карточкой */
+.r-roll-card.r-type-mage > .r-card-emblem { opacity: .1; }
+.r-cast-chips { display: flex; flex-wrap: wrap; gap: 4px; margin: 2px 0 6px; }
+.r-cast-chip { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px 2px 6px; border: 1px solid rgba(154, 130, 230, .35); background: rgba(154, 130, 230, .08);
+  font-family: "IM Fell SC", Georgia, serif; font-size: 11.5px; letter-spacing: .8px; text-transform: uppercase; color: #dcd4f3; }
+.r-cast-chip .r-sym { width: 14px; height: 14px; }
+.r-cast-chip b { font-family: "Prata", Georgia, serif; font-weight: 400; font-size: 13px; color: #fff3d0; }
+.r-cast-chip.is-kind { border-color: rgba(217, 181, 106, .45); background: rgba(217, 181, 106, .08); color: #f1e2bd; }
+.r-cast-chip.is-vulgar, .r-cast-chip.is-witnessed { border-color: rgba(224, 86, 122, .55); background: rgba(224, 86, 122, .1); color: #f6b6c6; }
+.r-cast-chip.is-quint { border-color: rgba(217, 181, 106, .45); color: #f1e2bd; }
+.r-cast-result { margin: 6px 0 2px; padding: 6px 9px; border-left: 2px solid rgba(217, 181, 106, .55); background: rgba(154, 130, 230, .07); font-size: 12.5px; line-height: 1.4; }
+.r-cast-result p { margin: 0; }
+.r-cast-result .r-cast-paradox { margin-top: 3px; color: #f0a8b8; }
+.r-roll-card.is-backlash { border-left-color: #e0567a; }
+
+/* ══ Технократ (маг Технократического Союза): та же вёрстка, холодная гамма — сталь, циан, белый свет ламп ══ */
+.vtm20.r-type-mage.r-mage-tech {
+  --m-violet: #57b6d9; --m-violet-l: #bfe9f7; --m-violet-d: #10303d; --m-gold: #c9d6de; --m-gold-l: #ffffff; --m-paradox: #ff6b5e;
+  --r-ink: #e8f1f5; --r-ink-2: #b4c6cf; --r-muted: #7d929c;
+  --r-line: rgba(120, 190, 220, .13); --r-line-2: rgba(120, 190, 220, .27);
+  --r-accent: #8fd3ee; --r-red-t: var(--r-accent);
+  --r-blood: #1f6f8d; --r-blood-l: #57b6d9; --r-blood-d: #0a1c24;
+  --r-dot-border: rgba(190, 220, 235, .4);
+  --r-dot-fill: radial-gradient(circle at 38% 32%, #ffffff, #8fd3ee 50%, #14485c);
+  --r-gap-ring: #070d11; --r-card-bg: rgba(120, 190, 220, .035); --r-option-bg: #0d171d;
+  --r-bg:
+    linear-gradient(rgba(120, 190, 220, .035) 1px, transparent 1px) 0 0 / 100% 28px,
+    linear-gradient(90deg, rgba(120, 190, 220, .035) 1px, transparent 1px) 0 0 / 28px 100%,
+    radial-gradient(ellipse 90% 45% at 50% -8%, rgba(60, 150, 190, .16), transparent 60%),
+    radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(2, 6, 9, .6) 100%),
+    linear-gradient(180deg, #0e171d, #070b0e);
+}
+body.r-theme-light .vtm20.r-type-mage.r-mage-tech { --r-ink: #10222b; --r-ink-2: #2f4651; --r-muted: #5b727d; --r-accent: #1f6f8d; --r-line: rgba(20, 60, 80, .15); --r-line-2: rgba(20, 60, 80, .3);
+  --r-bg: linear-gradient(180deg, #eaf1f4, #d6e2e8); --r-option-bg: #eef4f6; --r-gap-ring: #e3ecf0; }
+.vtm20.r-mage-tech .r-mg, .r-mage-tech .r-mg { background: linear-gradient(170deg, #ffffff, #7fcbe6); }
+/* жёстко заданный аметист корешка, окна и карточек — поворотом тона в циан */
+.vtm20.r-type-mage.r-mage-tech .r-rail, .vtm20.r-type-mage.r-mage-tech .r-wheel, .vtm20.r-type-mage.r-mage-tech .r-cr-rail { filter: hue-rotate(-58deg) saturate(.9); }
+.r-roll-card.r-type-mage.r-mage-tech, .r-notice.r-type-mage.r-mage-tech, .r-item-card.r-type-mage.r-mage-tech { filter: hue-rotate(-58deg) saturate(.9); }
+.vtm20.r-mage-tech .r-cast-sigil { background: radial-gradient(circle at 50% 35%, rgba(87, 182, 217, .22), rgba(0, 0, 0, .5) 72%); box-shadow: inset 0 0 0 1px rgba(200, 225, 235, .5), 0 0 16px rgba(87, 182, 217, .2); }
+.application.vtm20.r-dialog.r-cast-dialog.r-mage-tech .form-footer button[data-action=ok] { color: #071318; border-color: #ffffff; background: linear-gradient(180deg, #ffffff, #8fd3ee); }
+.vtm20.r-mage-tech .r-cast-sphere.is-on { border-color: #8fd3ee; background: linear-gradient(90deg, rgba(87, 182, 217, .16), rgba(87, 182, 217, .04)); }
+.vtm20.r-mage-tech .r-cast-sphere.is-on::before { background: linear-gradient(90deg, #8fd3ee, transparent); }

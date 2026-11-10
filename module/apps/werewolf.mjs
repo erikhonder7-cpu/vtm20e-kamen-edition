@@ -10,6 +10,7 @@ import { VTM20, SYSTEM_PATH, SYSTEM_ID } from "../config.mjs";
 import { totemOf } from "./coterie.mjs";
 import { septOf } from "./sept.mjs";
 import { umbraOf } from "./umbra.mjs";
+import { registerEmblem } from "../ui/themes.mjs";
 
 const t = (k, d) => d ? game.i18n.format(`VTM20.Werewolf.${k}`, d) : game.i18n.localize(`VTM20.Werewolf.${k}`);
 const esc = s => foundry.utils.escapeHTML(String(s ?? ""));
@@ -1145,3 +1146,6 @@ export function fomorUse(actor, key) {
   if (p.roll) return RollDialog.prompt(actor, { title: p.name, trait1: p.roll.trait1, trait2: p.roll.trait2, difficulty: p.roll.difficulty ?? 6 });
   return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<div class="r-notice r-type-werewolf"><b>${esc(p.name)}</b><p>${p.text}</p></div>` });
 }
+
+/* Знак на карточках чата — племя Гару или род Фера */
+registerEmblem("werewolf", actor => werewolfSigil(actor).sym);

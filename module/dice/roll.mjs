@@ -11,7 +11,7 @@
 import { VTM20, SYSTEM_ID, SYSTEM_PATH } from "../config.mjs";
 import { combatPowerOf, combatPowerLabel } from "../data/combat-powers.mjs";
 import { targetPowerLabel } from "../apps/target-powers.mjs";
-import { themeClass } from "../ui/themes.mjs";
+import { themeClass, lineEmblem, cardBlocks } from "../ui/themes.mjs";
 
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
 
@@ -294,7 +294,7 @@ export async function renderCard(state, actor = null) {
     canSoak: state.kind === "damage" && ev.successes > 0,
     extended: extra.extended ? { ...extra.extended, pct: Math.min(100, Math.round((extra.extended.total / Math.max(1, extra.extended.need)) * 100)) } : null,
     contest: ["resisted", "teamwork"].includes(extra.contest) ? extra.contest : null,
-    typeClass: themeClass(actor),
+    typeClass: themeClass(actor), emblem: lineEmblem(actor), line: cardBlocks(state, ev, actor),
     torment: extra.tormentDie || extra.tormentLow != null
       ? { die: extra.tormentDie ?? null, low: extra.tormentLow ?? null, hi: extra.tormentHi ?? null, n: extra.torment, high: !!extra.tormentHigh, chosen: !!extra.tormentChosen } : null,
     opposed: extra.opposed ? { label: extra.opposed.label, successes: extra.opposed.successes, dice: extra.opposed.values.map(v => dieView(v, extra.opposed.difficulty ?? 6, false)) } : null,

@@ -48,6 +48,7 @@ import { possess, extend as possessExtend, leave as possessLeave, battleExpiry }
 import { weaponIcon as weaponImg, armorIcon as armorImg } from "../data/icons.mjs";
 import { togglePowerEffect } from "../apps/power-effects.mjs";
 import { usePower } from "../apps/use-power.mjs";
+import { isTechnocrat } from "../ui/themes.mjs";
 import { mageInfo, mageSigil, spheresView, castEffect, changeQuintessence, changeParadox, paradoxBacklash, addRote, removeRote, castRote, addTool, removeTool } from "../apps/mage.mjs";
 import { POWER_EFFECTS, fxKey } from "../data/effects.mjs";
 import { rollPackVinculi, openVaulderie, loyaltyConflict } from "../apps/vaulderie.mjs";
@@ -276,7 +277,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const tabs = super._prepareTabs(group);
     if (this.actor.type === "mortal" || isLost(this.actor)) delete tabs.disciplines;
     if (this.actor.type === "hunter" && tabs.disciplines) Object.assign(tabs.disciplines, { label: "VTM20.Hunter.Edges", icon: "fa-solid fa-eye" });
-    if (this.actor.type === "mage" && tabs.disciplines) Object.assign(tabs.disciplines, { label: "VTM20.Mage.Spheres", icon: "fa-solid fa-hat-wizard" });
+    if (this.actor.type === "mage" && tabs.disciplines) Object.assign(tabs.disciplines, { label: "VTM20.Mage.Spheres", icon: isTechnocrat(this.actor) ? "fa-solid fa-atom" : "fa-solid fa-hat-wizard" });
     if (this.actor.type === "werewolf" && tabs.disciplines) Object.assign(tabs.disciplines, { label: "VTM20.Werewolf.Gifts", icon: "fa-solid fa-paw" });
     if (this.actor.type === "demon" && tabs.disciplines) Object.assign(tabs.disciplines, { label: "VTM20.Demon.Lores", icon: "fa-solid fa-fire-flame-curved" });
     let i = 0;

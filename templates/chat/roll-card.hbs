@@ -1,5 +1,6 @@
 {{!-- Карточка проверки V20 — «бюллетень»: шапка, кости, исход-лента, кнопки. --}}
-<div class="r-roll-card kind-{{kind}} {{outcome.css}} {{typeClass}}">
+<div class="r-roll-card kind-{{kind}} {{outcome.css}} {{typeClass}} {{#if line.mage}}is-cast{{/if}} {{#if line.backlash}}is-backlash{{/if}}">
+  {{#if emblem}}{{rSym emblem "r-card-emblem"}}{{/if}}
   <header class="r-card-head">
     {{#if actorImg}}<img class="r-card-img" src="{{actorImg}}" alt="">{{/if}}
     <div class="r-card-titles">
@@ -9,6 +10,14 @@
     <span class="r-card-pool" data-tooltip="{{localize 'VTM20.Roll.Pool'}}"><b>{{pool}}</b><i class="fa-solid fa-dice-d10"></i>{{#if showDifficulty}}<em>{{localize "VTM20.Roll.Vs"}} {{difficulty}}</em>{{/if}}</span>
   </header>
 
+  {{!-- Чародейство мага: Сферы эффекта со знаками и вид магии --}}
+  {{#if line.mage}}
+  <div class="r-cast-chips">
+    {{#each line.mage.spheres}}<span class="r-cast-chip">{{rSym sym "r-mg"}}{{name}} <b>{{rank}}</b></span>{{/each}}
+    <span class="r-cast-chip is-kind is-{{line.mage.kind}}"><i class="fa-solid {{line.mage.kindIcon}}"></i> {{line.mage.kindLabel}}</span>
+    {{#if line.mage.quint}}<span class="r-cast-chip is-quint"><i class="fa-solid fa-sun"></i> −{{line.mage.quint}}</span>{{/if}}
+  </div>
+  {{/if}}
   {{#if breakdown.length}}
   <div class="r-card-breakdown">{{#each breakdown}}<span>{{label}} <b>{{rSigned value}}</b></span>{{/each}}</div>
   {{/if}}
@@ -44,6 +53,21 @@
     {{#unless (or (eq kind "damage") (eq kind "soak"))}}<span class="r-outcome-num"><b>{{successes}}</b> {{localize "VTM20.Roll.Successes"}}</span>{{/unless}}
   </div>
 
+  {{!-- итог чародейства: что вышло по таблице успехов и чем заплачено Парадоксом --}}
+  {{#if line.mage}}
+  <div class="r-cast-result">
+    <p>{{line.mage.text}}</p>
+    {{#if line.mage.paradox}}<p class="r-cast-paradox"><i class="fa-solid fa-burst"></i> {{line.mage.paradoxText}}</p>{{/if}}
+  </div>
+  {{#if line.mage.backlash}}<div class="r-card-buttons"><button type="button" data-r-action="mageBacklash"><i class="fa-solid fa-burst"></i> {{line.mage.backlashLabel}}</button></div>{{/if}}
+  {{/if}}
+  {{#if line.backlash}}
+  <div class="r-cast-result">
+    <p>{{line.backlash.text}}</p>
+    {{#if line.backlash.left}}<p class="r-cast-paradox"><i class="fa-solid fa-burst"></i> {{line.backlash.left}}</p>{{/if}}
+  </div>
+  {{#if line.backlash.burn}}<div class="r-card-buttons"><button type="button" data-r-action="mageBurn"><i class="fa-solid fa-fire"></i> {{line.backlash.burn}}</button></div>{{/if}}
+  {{/if}}
   {{#if specialty}}<div class="r-card-note"><i class="fa-solid fa-feather"></i> {{localize "VTM20.Roll.SpecialtyUsed"}}{{#if specialtyName}}: {{specialtyName}}{{/if}}</div>{{/if}}
   {{#if extraNeeded}}<div class="r-card-note is-warn">{{localize "VTM20.Roll.ExtraNeeded" n=extraNeeded}}</div>{{/if}}
   {{#if hint}}<div class="r-card-hint">{{hint}}</div>{{/if}}

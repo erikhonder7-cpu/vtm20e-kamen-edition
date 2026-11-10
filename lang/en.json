@@ -7006,7 +7006,25 @@
       "Fold": "Collapse",
       "Unfold": "Expand",
       "FoldAll": "Collapse all Spheres",
-      "UnfoldAll": "Expand all Spheres"
+      "UnfoldAll": "Expand all Spheres",
+      "CastSub": "magick — highest Sphere {n}",
+      "ParadoxGainShort": "Paradox +{n}.",
+      "ParadoxLeft": "Paradox left: {n}.",
+      "Tech": {
+        "Arete": "Enlightenment",
+        "Quintessence": "Primal Energy",
+        "Cast": "Execute",
+        "CastTitle": "Procedure",
+        "Rotes": "Procedures",
+        "RoteAdd": "Record a procedure",
+        "NoRotes": "No procedures yet: these are rehearsed Effects, write down the ones that work.",
+        "Instruments": "Apparatus",
+        "Pool": "Enlightenment dice",
+        "Spheres": "Spheres",
+        "Focus": "Focus",
+        "Avatar": "Genius"
+      },
+      "Avatar": "Avatar"
     },
     "MageCr": {
       "NeedFaction": "Pick a faction.",

@@ -6,6 +6,31 @@
 // Карточки чата берут тип из своего шаблона (r-type-{{actorType}}), см. dice/roll.mjs и chat/item-card.mjs.
 
 let recent = { type: null, at: 0 };
+
+/* Знак линейки на карточке чата (клан, племя, фракция) и свой блок карточки броска — регистрируют модули линеек:
+   themes.mjs их не импортирует, чтобы не завязывать броски на окна линеек. */
+const EMBLEMS = {}, CARD_BLOCKS = {};
+/** fn(actor) → { src, lum? } | null */
+export const registerEmblem = (type, fn) => { EMBLEMS[type] = fn; };
+/** fn(state, ev, actor) → данные блока для templates/chat/roll-card.hbs (ключ — имя в state.extra) */
+export const registerCardBlock = (key, fn) => { CARD_BLOCKS[key] = fn; };
+export function lineEmblem(actor) {
+  try {
+    if (!actor) return null;
+    if (EMBLEMS[actor.type]) return EMBLEMS[actor.type](actor) ?? null;
+    // Сородич — герб клана, гуль — клана домитора
+    const C = globalThis.game?.vtm20Codex, clan = actor.type === "vampire" ? actor.system.clan : actor.type === "ghoul" ? actor.system.domitorClan : "";
+    return clan ? C?.clanSymbol?.(clan) ?? null : null;
+  } catch { return null; }
+}
+/** Маг Технократического Союза: свои термины и холодная гамма (styles/types/mage.css, .r-mage-tech). */
+export const isTechnocrat = actor => actor?.type === "mage"
+  && (globalThis.game?.vtm20Codex?.mage?.factions ?? []).find(f => f.key === actor.system?.mage?.faction)?.group === "technocracy";
+export function cardBlocks(state, ev, actor) {
+  const out = {};
+  for (const [k, fn] of Object.entries(CARD_BLOCKS)) if (state.extra?.[k]) { try { out[k] = fn(state, ev, actor); } catch (e) { console.error(e); } }
+  return out;
+}
 const FRESH_MS = 3000;
 
 /** Предметы линии без владельца (лист из компендиума) — тема их линии. */
@@ -24,7 +49,7 @@ function actorOf(app) {
 export const themeOf = actor => !actor?.type ? null : actor.type === "creature" && actor.system?.spirit?.on ? "spirit" : actor.type;
 
 /** Класс темы для своих HTML-кусков (карточки, уведомления). */
-export const themeClass = actor => actor?.type ? `r-type-${themeOf(actor)}` : "";
+export const themeClass = actor => actor?.type ? `r-type-${themeOf(actor)}${isTechnocrat(actor) ? " r-mage-tech" : ""}` : "";
 
 export function registerThemes() {
   Hooks.on("renderApplicationV2", (app, element) => {
@@ -37,6 +62,7 @@ export function registerThemes() {
     element.classList.add(`r-type-${type}`);
     // Привязанный к Земле — своя, огненная палитра поверх темы падшего
     const owner = actorOf(app);
+    element.classList.toggle("r-mage-tech", "mageTech" in app ? !!app.mageTech : isTechnocrat(owner));   // мастер создания решает сам
     if (owner) element.classList.toggle("r-earthbound", "isEarthbound" in app ? !!app.isEarthbound : !!owner.system?.earthbound);   // мастер решает сам
     // щелчок в окне персонажа — его тему получит и подтверждение, которое откроется следом
     if (!element.dataset.rTheme) {

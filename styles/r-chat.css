@@ -305,3 +305,8 @@
 .r-night-sum .r-ns-hurt i { color: #d4545a; font-size: 10px; margin-right: 2px; }
 .r-night-sum .r-ns-fx i { font-size: 10px; margin-right: 2px; }
 .r-night-sum .r-ns-hurt em { color: #b9b0a0; }
+
+/* Знак линейки на карточке броска (клан, племя, фракция) — водяным знаком в правом нижнем углу */
+.r-roll-card { position: relative; overflow: hidden; }
+.r-roll-card > .r-card-emblem { position: absolute; right: -10px; bottom: -12px; width: 92px; height: 92px; opacity: .07; pointer-events: none; }
+.r-roll-card > :not(.r-card-emblem) { position: relative; }
