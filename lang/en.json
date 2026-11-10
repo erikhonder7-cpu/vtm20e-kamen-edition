@@ -2463,7 +2463,10 @@
         "summary": "Summary",
         "garou": "Breed and tribe",
         "gifts": "Gifts",
-        "advantagesGarou": "Backgrounds and Renown"
+        "advantagesGarou": "Backgrounds and Renown",
+        "mage": "Faction & Essence",
+        "spheres": "Spheres",
+        "advantagesMage": "Backgrounds"
       },
       "Primary": "Primary",
       "Secondary": "Secondary",
@@ -2667,7 +2670,11 @@
       "ExtraDiscNeed": "Additional Discipline Merit: choose which Discipline becomes a clan Discipline.",
       "ExtraDiscCaitiff": "Caitiff and panders cannot take the Additional Discipline Merit.",
       "ExtraDiscChosen": "Chosen Discipline: {name}.",
-      "InitialOutOfClan": "{name}: starting Discipline dots go only to clan Disciplines; raise an out-of-clan one with freebie points or experience."
+      "InitialOutOfClan": "{name}: starting Discipline dots go only to clan Disciplines; raise an out-of-clan one with freebie points or experience.",
+      "MageHint": "Faction — a Tradition, a Technocratic Convention or a Craft; the Avatar's Essence; one affinity Sphere (from the faction's list). Below is the focus: what the mage believes and how they work magick.",
+      "DiscHintMage": "Spheres: {n} dots. One must go to the affinity Sphere. No Sphere may exceed Arete (1 at creation, up to 3 with freebies).",
+      "AdvHintMage": "Backgrounds: {bg} dots. Avatar sets starting Quintessence. Mages have no Virtues — on the right is what they start with.",
+      "FreeHintMage": "15 freebie points: Attribute 5, Ability 2, Background 1, Sphere 7, Arete 4 (up to 3), Willpower 1. Raise Arete if the Spheres need room."
     },
     "Settings": {
       "MonthlyIncome": {
@@ -4768,7 +4775,12 @@
       "ActionsCap": "Up to {cap} per turn",
       "ActionsFreeSub": "No penalty up to {free}: the lower of Dexterity and Wits",
       "ActionsLead": "Extra actions come after normal ones, in initiative order; the pool isn't split.",
-      "ActionsN": {"one": "extra action", "few": "extra actions", "many": "extra actions", "other": "extra actions"},
+      "ActionsN": {
+        "one": "extra action",
+        "few": "extra actions",
+        "many": "extra actions",
+        "other": "extra actions"
+      },
       "ActionsCost": "Rage −{n}",
       "TalenKicker": "Talen",
       "FetishKicker": "Fetish · level {n}",
@@ -6863,10 +6875,23 @@
     "Mage": {
       "SphereTip": "Own Sphere: {n}. Click a dot to set the rank used, the tile to add it in full or drop it.",
       "KindCap": "How it looks",
-      "KindRisk": {"coincidental": "Paradox only on a botch", "vulgar": "success earns 1 Paradox", "witnessed": "vulgar in front of Sleepers"},
+      "KindRisk": {
+        "coincidental": "Paradox only on a botch",
+        "vulgar": "success earns 1 Paradox",
+        "witnessed": "vulgar in front of Sleepers"
+      },
       "ModCap": "Difficulty modifiers",
       "ModOwn": "custom",
-      "ModQuick": {"tool": "personal instrument", "resonance": "own Resonance", "prep": "a turn of preparation", "node": "near a Node", "fast": "fast-casting", "far": "distant target", "distracted": "distracted", "noTools": "no instruments"},
+      "ModQuick": {
+        "tool": "personal instrument",
+        "resonance": "own Resonance",
+        "prep": "a turn of preparation",
+        "node": "near a Node",
+        "fast": "fast-casting",
+        "far": "distant target",
+        "distracted": "distracted",
+        "noTools": "no instruments"
+      },
       "DiceShort": "Arete dice",
       "DiffShort": "difficulty",
       "SumHigh": "highest Sphere",
@@ -6874,7 +6899,11 @@
       "SumModCapped": "modifiers (capped at ±3)",
       "RiskCoinc": "A botch earns Paradox +{n} (now {now}).",
       "RiskVulgar": "Success earns Paradox +1; a botch earns +{n} (now {now}).",
-      "Odds": {"success": "Success", "failure": "Failure", "botch": "Botch"},
+      "Odds": {
+        "success": "Success",
+        "failure": "Failure",
+        "botch": "Botch"
+      },
       "Spheres": "Spheres",
       "Arete": "Arete",
       "Pool": "Magick dice",
@@ -6961,6 +6990,18 @@
       "RoteSpheresHint": "Forces 3, Prime 2",
       "RoteText": "What it does",
       "NoRotes": "No rotes yet: they are simply learned effects — record the ones that work."
+    },
+    "MageCr": {
+      "NeedFaction": "Pick a faction.",
+      "NeedEssence": "Pick an Essence.",
+      "NeedAffinity": "Pick an affinity Sphere.",
+      "NeedAffinityDot": "The affinity Sphere needs at least one dot.",
+      "OverArete": "A Sphere can't exceed Arete.",
+      "NotFaction": "Not on the faction's affinity list",
+      "FocusHint": "Add instruments and Resonance on the sheet, on the Spheres tab.",
+      "Start": "Starting traits",
+      "StartHint": "Arete 1 (raised with freebies, up to 3), Willpower 5, Quintessence equal to the Avatar rating.",
+      "AreteHere": "caps the Spheres; a dot costs 4 freebies (up to 3). Freebies left: {n}"
     }
   },
   "Fx": {

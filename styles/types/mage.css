@@ -304,3 +304,16 @@ body.r-theme-light img[src$="assets/mage/sphere-prime.png"] { filter: none; }
 .vtm20.r-type-mage .r-seal-num.r-seal-icon { color: #8365e5; }
 .vtm20.r-type-mage .r-tile.is-active, .vtm20.r-type-mage .r-extra-pool.is-hot {
   background: radial-gradient(ellipse at 50% 120%, rgba(147, 120, 235, .2), rgba(0, 0, 0, .25) 70%); }
+
+/* Мастер создания мага: знаки фракций и Сфер, плитки Сущностей и родовых Сфер */
+.vtm20 .r-cr-garou-kinds .r-mg.r-cr-kind-sym { width: 15px; height: 15px; vertical-align: -3px; margin-right: 3px; }
+.vtm20 .r-cr-garou-tiles.is-four { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.vtm20 .r-cr-affinities .r-cr-tile.is-off { opacity: .5; }
+.vtm20 .r-cr-affinities .r-cr-tile.has-sym > .r-cr-tile-sym { grid-row: 1; }
+.vtm20.r-type-mage .r-cr-disc .r-disc-sigil .r-sym, .vtm20.r-type-mage .r-cr-clan-sym .r-sym, .vtm20.r-type-mage .r-cr-clancard-sym .r-sym { background: linear-gradient(170deg, #fff3d0, #b9a6ee); }
+.vtm20.r-type-mage .r-cr-patent-wm { background: linear-gradient(170deg, #fff3d0, #b9a6ee); }
+.vtm20 .r-cr-arete { display: flex; align-items: center; gap: 8px; margin: 2px 0 10px; padding: 7px 12px; border: 1px solid var(--r-line-2); background: var(--r-card-bg); }
+.vtm20 .r-cr-arete > span { font-family: var(--r-caps); font-size: 12px; letter-spacing: 2.2px; text-transform: uppercase; color: var(--r-ink); }
+.vtm20 .r-cr-arete > b { min-width: 22px; text-align: center; font-family: var(--r-display); font-weight: 400; font-size: 20px; color: #fff3d0; }
+.vtm20 .r-cr-arete > em { margin-left: 6px; font-size: 12.5px; color: var(--r-muted); }
+.vtm20.r-type-mage .r-cr-clan.is-active .r-sym, .vtm20.r-type-mage .r-cr-disc.is-clan .r-disc-sigil .r-sym { background: linear-gradient(170deg, #ffffff, #d9b56a); }

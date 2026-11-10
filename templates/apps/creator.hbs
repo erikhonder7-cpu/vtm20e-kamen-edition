@@ -284,6 +284,47 @@
     {{/if}}
 
     {{!-- II. Гару (W20, гл. 3): род — Гару или один из Фера; порода, аугурия, племя плитками; у Фера — выбор внутри рода --}}
+    {{!-- II. Маг (M20, гл. 6): фракция со знаком, Сущность, родовая Сфера, фокус --}}
+    {{#if is_mage}}
+    <div class="r-cr-gtabs r-cr-garou-kinds">{{#each mage.groups}}<a class="{{#if active}}is-active{{/if}}" data-action="magePick" data-what="group" data-key="{{key}}">{{rSym sym "r-mg r-cr-kind-sym"}} {{label}}</a>{{/each}}</div>
+    <div class="r-cr-clans r-cr-tribes">
+      {{#each mage.factions}}
+      <a class="r-cr-clan {{#if active}}is-active{{/if}}" data-action="magePick" data-what="faction" data-key="{{key}}">
+        <span class="r-cr-clan-sym r-cr-medal">{{rSym sym "r-mg"}}</span>
+        <b>{{label}}</b><span class="r-cr-clan-disc">{{sub}}</span>
+      </a>
+      {{/each}}
+    </div>
+    {{#if mage.faction}}
+    <div class="r-cr-clancard">
+      <h4 class="r-banner"><span>{{mage.faction.name}}</span></h4>
+      <span class="r-cr-clancard-sym r-cr-medal">{{rSym mage.faction.sym "r-mg"}}</span>
+      <div class="r-cr-clancard-body">
+        <div class="r-cr-clancard-title">{{mage.faction.name}} <em>{{mage.faction.en}}</em></div>
+        {{#if mage.faction.affinityText}}<p class="r-note">{{localize "VTM20.Mage.Affinity"}}: <b>{{mage.faction.affinityText}}</b></p>{{/if}}
+        {{#if mage.faction.practices}}<div class="r-weakness-text"><b>{{localize "VTM20.Mage.Practice"}}:</b> {{mage.faction.practices}}</div>{{/if}}
+      </div>
+    </div>
+    {{/if}}
+    <h3 class="r-h3">{{localize "VTM20.Mage.Essence"}}</h3>
+    <div class="r-cr-tiles r-cr-garou-tiles is-four">
+      {{#each mage.essences}}<a class="r-cr-tile {{#if active}}is-active{{/if}}" data-action="magePick" data-what="essence" data-key="{{key}}" data-tooltip="{{text}}"><b>{{label}}</b><span class="r-cr-tile-text">{{text}}</span></a>{{/each}}
+    </div>
+    <h3 class="r-h3">{{localize "VTM20.Mage.Affinity"}}</h3>
+    <div class="r-cr-tiles r-cr-garou-tiles is-three r-cr-affinities">
+      {{#each mage.affinities}}<a class="r-cr-tile has-sym {{#if active}}is-active{{/if}} {{#if off}}is-off{{/if}}" data-action="magePick" data-what="affinity" data-key="{{key}}" {{#if off}}data-tooltip="{{localize 'VTM20.MageCr.NotFaction'}}"{{/if}}>{{rSym sym "r-mg r-cr-tile-sym"}}<b>{{label}}</b></a>{{/each}}
+    </div>
+    <p class="r-note r-explain">{{localize "VTM20.Mage.AffinityHint"}}</p>
+    <h3 class="r-h3">{{localize "VTM20.Mage.Focus"}}</h3>
+    <div class="r-cols2 r-cr-genrow">
+      <label class="r-f"><span>{{localize "VTM20.Mage.Paradigm"}}</span><input type="text" data-field="mg.paradigm" value="{{st.mg.paradigm}}" list="r-cr-mpar" placeholder="{{localize 'VTM20.Mage.ParadigmHint'}}"></label>
+      <label class="r-f"><span>{{localize "VTM20.Mage.Practice"}}</span><input type="text" data-field="mg.practice" value="{{st.mg.practice}}" list="r-cr-mpra" placeholder="{{localize 'VTM20.Mage.PracticeHint'}}"></label>
+      <datalist id="r-cr-mpar">{{#each mage.paradigms}}<option value="{{this}}"></option>{{/each}}</datalist>
+      <datalist id="r-cr-mpra">{{#each mage.practices}}<option value="{{this}}"></option>{{/each}}</datalist>
+    </div>
+    <p class="r-note r-explain">{{localize "VTM20.MageCr.FocusHint"}}</p>
+    {{/if}}
+
     {{#if is_garou}}
     <div class="r-cr-gtabs r-cr-garou-kinds">{{#each garou.kinds}}<a class="{{#if active}}is-active{{/if}}" data-action="garouPick" data-what="fera" data-key="{{key}}" {{#if en}}data-tooltip="{{en}}"{{/if}}>{{rSym sym "r-wg r-cr-kind-sym"}} {{label}}</a>{{/each}}</div>
     {{#if garou.fera}}
@@ -381,6 +422,10 @@
     {{!-- V. Дисциплины --}}
     {{#if is_disciplines}}
     <div class="r-cr-left {{#if (lt rem.disc 0)}}is-over{{else if (eq rem.disc 0)}}is-done{{/if}}">{{localize "VTM20.Creator.LeftShort"}}: <b>{{rem.disc}}</b>{{#if isGhoul}} · {{localize "VTM20.Creator.GhoulDisc"}}{{/if}}</div>
+    {{#if isMage}}<div class="r-cr-arete"><span>{{localize "VTM20.Mage.Arete"}}</span>
+      <a class="r-step" data-action="free" data-kind="morality" data-key="" data-d="-1">−</a><b>{{mage.arete}}</b><a class="r-step" data-action="free" data-kind="morality" data-key="" data-d="1">+</a>
+      <em>{{localize "VTM20.MageCr.AreteHere" n=rem.free}}</em></div>{{/if}}
+    {{#each sphereIssues}}<p class="r-note is-warn"><i class="fa-solid fa-triangle-exclamation"></i> {{this}}</p>{{/each}}
     {{#if isDhampir}}<label class="r-check r-cr-dhswap" data-tooltip="{{localize 'VTM20.Creator.DhSwapHint'}}"><input type="checkbox" data-action="dhSwap" {{#if st.dhSwap}}checked{{/if}}> {{localize "VTM20.Creator.DhSwap"}}</label>{{/if}}
     <div class="r-cr-discs">
       {{#each discCards}}
@@ -449,7 +494,17 @@
           {{/each}}
         </div>
       </div>
-      {{#if isWerewolf}}
+      {{#if isMage}}
+      <div class="r-cr-panel r-tcol">
+        <h3 class="r-colhead"><span>{{localize "VTM20.MageCr.Start"}}</span></h3>
+        <div class="r-cr-garou-base">
+          <div class="r-cr-sum-item"><span>{{localize "VTM20.Mage.Arete"}}</span><b>{{mage.arete}}</b></div>
+          <div class="r-cr-sum-item"><span>{{localize "VTM20.Willpower"}}</span><b>{{mage.will}}</b></div>
+          <div class="r-cr-sum-item"><span>{{localize "VTM20.Mage.Quintessence"}}</span><b>{{mage.quint}}</b></div>
+        </div>
+        <p class="r-note r-explain">{{localize "VTM20.MageCr.StartHint"}}</p>
+      </div>
+      {{else if isWerewolf}}
       <div class="r-cr-panel r-tcol">
         <h3 class="r-colhead"><span>{{localize "VTM20.GarouCr.Renown"}}</span></h3>
         {{#unless garou.renownFixed}}<div class="r-cr-left {{#if (lt renownLeft 0)}}is-over{{else if (eq renownLeft 0)}}is-done{{/if}}">{{localize "VTM20.Creator.LeftShort"}}: <b>{{renownLeft}}</b></div>{{/unless}}
