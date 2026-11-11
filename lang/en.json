@@ -857,7 +857,8 @@
       "FormPick": "Choose this high-Torment trait (ch. 7: one for each point of Torment above six)",
       "FormUnpick": "Clear the choice (traits chosen after it are cleared too)",
       "FormNote": "High-Torment traits come with permanent Torment 7 and above — one for each point above six, and the player chooses them; when Torment falls, the last chosen goes first. Details — in the book, ch. 7.",
-      "NoVisage": "Choose a House and Visage in the sheet header — form traits will appear here."
+      "NoVisage": "Choose a House and Visage in the sheet header — form traits will appear here.",
+      "DarkShort": "Dark Lore"
     },
     "Sheets": {
       "Actor": "V20 “Masquerade” sheet",

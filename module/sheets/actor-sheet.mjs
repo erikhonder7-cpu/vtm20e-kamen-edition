@@ -56,7 +56,7 @@ import { openCoterie } from "../apps/coterie.mjs";
 import { itemCardHTML } from "../chat/item-card.mjs";
 import { themeClass } from "../ui/themes.mjs";
 import { openHouses } from "../apps/houses.mjs";
-import { signed } from "../data/form.mjs";
+
 import { ghoulify } from "../apps/embrace-ghoul.mjs";
 import { embrace } from "../apps/embrace.mjs";
 import { openTormentLog, virtuePrompt, thrallSin, thrallPact, thrallBreak, formUpkeep, atoneWithXp, assumeForm, sceneHighFeature, harvestFaith, pactFaith, innateRoll, ritualTurn, ritualEffect, suggestSin, revelation, gainTorment, thrallState, thrallCap, worshipRitual, reliquaryDraw } from "../apps/torment.mjs";
@@ -253,10 +253,25 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       && Object.values(s.attributes).every(x => x.value === 1) && Object.values(s.abilities).every(x => x.value === 0);
   }
 
-  /** До создания рисуем только шапку и ворота. */
+  /** Вкладки, которые устарели: правка персонажа перерисовывает только открытую, остальные — при переходе на них. */
+  _staleTabs = new Set();
+  _full = false;
+
+  /**
+   * До создания рисуем только шапку и ворота. Дальше: первый показ — весь лист; правка персонажа — шапка, шкалы, подвал
+   * и открытая вкладка (скрытые пять вкладок — это две трети разметки листа, а их никто не видит).
+   */
   _configureRenderOptions(options) {
+    const asked = !!options.parts;                       // части названы явно — рисуем их как просили
     super._configureRenderOptions(options);
-    options.parts = this.needsCreation ? ["header", "gate"] : options.parts.filter(p => p !== "gate");
+    if (this.needsCreation) { options.parts = ["header", "gate"]; this._full = false; return; }
+    options.parts = options.parts.filter(p => p !== "gate");
+    if (asked) { for (const p of options.parts) this._staleTabs.delete(p); return; }
+    if (!this.rendered || !this._full || options.force) { this._full = true; this._staleTabs.clear(); return; }   // render(true) — весь лист
+    const tabs = this.constructor.TABS.primary.tabs.map(x => x.id), active = this.tabGroups.primary;
+    if (!tabs.includes(active)) return;
+    options.parts = options.parts.filter(p => !tabs.includes(p) || p === active);
+    for (const p of tabs) if (p !== active) this._staleTabs.add(p);
   }
 
   _configureRenderParts(options) {
@@ -368,6 +383,9 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
   _onRender(context, options) {
     super._onRender(context, options);
+    // перерисованы не все части: слушатели вешаем только на свежие, иначе на нетронутых вкладках они удвоятся
+    const fresh = (options.parts ?? []).map(p => this.element.querySelector(`[data-application-part="${p}"]`)).filter(Boolean);
+    const all = sel => fresh.flatMap(root => [...root.querySelectorAll(sel)]);
     attachCombos(this.element);                         // Натура, Маска, Секта — свой список вместо <datalist>
     // имя не влезает рядом с амплуа — шрифт на ступень меньше, ещё не влезает — ещё на одну (по ширине, а не по числу букв)
     const nameEl = this.element.querySelector("input.r-name");
@@ -408,7 +426,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       set("[data-foot-rep]", c.republic); set("[data-foot-until]", c.phase.untilLabel);
     }, 20000);
     // Готовое оружие и броня: выбор в списке сразу добавляет предмет (поле без name — в форму листа не попадает)
-    for (const el of this.element.querySelectorAll("input[data-preset]")) {
+    for (const el of all("input[data-preset]")) {
       el.addEventListener("change", ev => {
         ev.stopPropagation();
         const key = el.dataset.key;
@@ -419,11 +437,11 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       });
     }
     // Маг: инструмент фокуса — выбрать из списка или вписать свой (Enter)
-    for (const el of this.element.querySelectorAll("input[data-mage-tool]")) {
+    for (const el of all("input[data-mage-tool]")) {
       el.addEventListener("change", ev => { ev.stopPropagation(); const v = el.value.trim(); el.value = ""; if (v) return addTool(this.actor, v); });
     }
     // Оборотень: поиск Дара, ритуала, шрама, уродства — выбор сразу добавляет; фетиш — запоминается для «Добавить» и «Создать обрядом»
-    for (const el of this.element.querySelectorAll("input[data-ww-add]")) {
+    for (const el of all("input[data-ww-add]")) {
       el.addEventListener("change", ev => {
         ev.stopPropagation();
         const key = el.dataset.key, kind = el.dataset.wwAdd;
@@ -436,20 +454,20 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       if (el.dataset.wwAdd === "fetish") el.addEventListener("input", () => { delete el.dataset.key; });
     }
     // Щелчок по пустому месту строки Дисциплины раскрывает её (кнопки, точки и поля работают как прежде)
-    for (const head of this.element.querySelectorAll(".r-disc-head")) {
+    for (const head of all(".r-disc-head")) {
       head.addEventListener("click", ev => {
         if (ev.target.closest("a, button, input, select, .r-dots")) return;
         head.querySelector("[data-action=toggleRow]")?.click();
       });
     }
     // «Потомки» в родословной подсвечиваются, когда над ними несут персонажа
-    const drop = this.element.querySelector("[data-lin-drop]");
+    const drop = all("[data-lin-drop]")[0];
     if (drop) {
       drop.addEventListener("dragover", () => drop.classList.add("is-over"));
       for (const ev of ["dragleave", "drop"]) drop.addEventListener(ev, () => drop.classList.remove("is-over"));
     }
     // Поля предметов прямо на листе (имя пути, уровень ритуала…)
-    for (const el of this.element.querySelectorAll("[data-item-field]")) {
+    for (const el of all("[data-item-field]")) {
       el.addEventListener("change", ev => {
         ev.stopPropagation();
         const item = this.actor.items.get(el.dataset.itemId);
@@ -458,18 +476,22 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
         item.update({ [el.dataset.itemField]: val });
       });
     }
-    requestAnimationFrame(() => this.#markTruncated());
-  }
-
-  /** Название, обрезанное многоточием, — целиком в подсказке (видимая вкладка; на скрытых ширины нет). */
-  #markTruncated() {
-    for (const el of this.element?.querySelectorAll(".r-trait-label:not([data-tooltip])") ?? [])
-      if (el.clientWidth && el.scrollWidth > el.clientWidth + 1) el.dataset.tooltip = el.textContent.trim();
+    // Название, обрезанное многоточием, — целиком в подсказке: меряем одну строку под курсором
+    if (!this.element.dataset.rTrunc) {
+      this.element.dataset.rTrunc = "1";
+      this.element.addEventListener("pointerenter", ev => {
+        const el = ev.target?.closest?.(".r-trait-label");
+        if (!el || el.dataset.tooltip || el.scrollWidth <= el.clientWidth + 1) return;
+        el.dataset.tooltip = el.textContent.trim();
+        game.tooltip.activate(el);
+      }, true);
+    }
   }
 
   changeTab(tab, group, options) {
     super.changeTab(tab, group, options);
-    requestAnimationFrame(() => this.#markTruncated());
+    // вкладка устарела, пока была скрыта, — рисуем её сейчас
+    if (group === "primary" && this._staleTabs.has(tab)) this.render({ parts: [tab] });
     const pane = this.element?.querySelector(`.r-pane[data-tab="${tab}"]`);
     if (!pane) return;
     pane.classList.remove("is-entering");
@@ -1338,7 +1360,6 @@ function createLore(actor, keys) {
     system: { key: l.key, value: 1, description: `<p><em>${l.en}</em> · ${Codex.house(l.house)?.name ?? t("Demon.Common")}</p>` } }));
   return data.length ? actor.createEmbeddedDocuments("Item", data) : null;
 }
-
 
 /** Сила справочника по ссылке «дисциплина|номер» или «дисциплина|path|путь|номер» (лист и HUD). */
 export function powerByRef(ref) {

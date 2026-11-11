@@ -27,7 +27,7 @@ import { registerTurn, VtmCombat } from "./module/combat/turn.mjs";
 import { registerPowerEffectHooks } from "./module/apps/power-effects.mjs";
 import { registerTargetPowers } from "./module/apps/target-powers.mjs";
 import { registerBloodlines } from "./module/apps/bloodlines.mjs";
-import { openAttack, openDefense, AttackDialog, registerGrapple } from "./module/combat/combat.mjs";
+import { openAttack, openDefense, registerGrapple } from "./module/combat/combat.mjs";
 import { openHazard } from "./module/apps/hazard.mjs";
 import { openDiablerie } from "./module/apps/diablerie.mjs";
 import { openLibrary } from "./module/apps/library.mjs";
@@ -268,7 +268,30 @@ Hooks.once("ready", async () => {
   Hooks.on("canvasReady", mountPanels);
   startNightClock(() => { foundry.applications.instances.get("r-calendar")?._paintClock?.(); paintClockBar(); checkDawn(); tickTimers(); checkTorpor(); checkIncome(); });
   checkIncome();   // запомнить месяц сразу (иначе при стоящих часах первая смена месяца не платила)
+  warmTemplates();
 });
+
+/**
+ * Прогрев шаблонов. Handlebars компилирует шаблон при первом показе, и первое за сессию открытие листа подвисало на
+ * четверть секунды. Делаем это заранее, по одному шаблону в простое браузера: загрузить, один раз прогнать вхолостую.
+ */
+function warmTemplates() {
+  const idle = window.requestIdleCallback ? fn => window.requestIdleCallback(fn, { timeout: 3000 }) : fn => setTimeout(fn, 250);
+  const files = [
+    ...["tabs", "header", "vitals", "traits", "disciplines", "effects", "advantages", "gear", "bio", "foot", "gate",
+      { vampire: [], ghoul: [], mortal: [], hunter: ["edges"], mage: ["spheres"], werewolf: ["gifts"], demon: ["lores"] }]
+      .flatMap(x => typeof x === "string" ? [x] : [...new Set(game.actors.map(a => a.type))].flatMap(type => x[type] ?? [])).map(f => `templates/actor/${f}.hbs`),
+    "templates/dice/roll-dialog.hbs", "templates/chat/roll-card.hbs", "templates/apps/creator.hbs", "templates/apps/library.hbs"
+  ];
+  const dry = fn => { try { fn({}, { allowProtoMethodsByDefault: true, allowProtoPropertiesByDefault: true }); } catch (e) { /* пустой контекст — шаблону нечего рисовать */ } };
+  const step = async () => {
+    const f = files.shift();
+    if (!f) { for (const p of ["rDots", "rPower"]) { const fn = Handlebars.partials[p]; if (typeof fn === "function") dry(fn); } return; }
+    try { dry(await foundry.applications.handlebars.getTemplate(`${SYSTEM_PATH}/${f}`)); } catch (e) { /* шаблона нет — откроется как обычно */ }
+    idle(step);
+  };
+  setTimeout(() => idle(step), 2500);
+}
 
 /* ── Нексус: перенос токенов через флаги User ──────────────────────────── */
 

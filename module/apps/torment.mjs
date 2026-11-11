@@ -9,6 +9,7 @@ import { SYSTEM_ID } from "../config.mjs";
 import { rollPool, evaluate, renderCard } from "../dice/roll.mjs";
 import { Codex } from "../data/codex.mjs";
 import { RollDialog } from "../dice/dialog.mjs";
+import { registerCardBlock } from "../ui/themes.mjs";
 
 const t = (k, d) => d ? game.i18n.format(`VTM20.Demon.${k}`, d) : game.i18n.localize(`VTM20.Demon.${k}`);
 const esc = s => foundry.utils.escapeHTML(String(s ?? ""));
@@ -615,3 +616,13 @@ export async function chooseHighTorment(message, state) {
   await message.update({ content: await renderCard(next, actor) });
   await gainTorment(actor, 1, t("ChoseHigh"));
 }
+
+/* Карточка броска призыва (templates/chat/roll-card.hbs, общий блок чипов): Знание и уровень, Мука, Тёмное Знание */
+const ROMAN_LVL = ["", "I", "II", "III", "IV", "V"];
+registerCardBlock("torment", state => {
+  const x = state.extra, lore = String(x.power?.disc ?? "").startsWith("lore:") ? Codex.lore(x.power.disc.slice(5)) : null;
+  return { chips: [
+    ...(lore ? [{ icon: "fa-book-skull", label: lore.name, value: ROMAN_LVL[x.power.level] ?? x.power.level }] : []),
+    { icon: "fa-fire", label: game.i18n.localize("VTM20.Demon.Torment"), value: x.torment, cls: x.torment >= 7 ? "is-cost" : "" },
+    ...(lore?.dark ? [{ icon: "fa-mountain", label: t("DarkShort"), cls: "is-cost" }] : [])] };
+});

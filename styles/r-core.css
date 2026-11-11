@@ -417,6 +417,9 @@ body.r-theme-light .vtm20 .r-sym { background: linear-gradient(170deg, #3a3029, 
   .vtm20 .r-edge.has-text.is-open .r-edge-text,
   .vtm20 details[open] > :not(summary) { animation: r-reveal .2s ease-out; }
   @keyframes r-reveal { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: none; } }
+  /* окно перерисовалось (правка персонажа): уже открытое не «раскрывается» заново — module/ui/themes.mjs */
+  .vtm20.r-quiet .r-row-wrap.is-open > .r-power-body, .vtm20.r-quiet .r-weakness-card.is-open > .r-weakness-text,
+  .vtm20.r-quiet .r-edge.has-text.is-open .r-edge-text, .vtm20.r-quiet details[open] > :not(summary) { animation: none; }
   /* точки и клетки — заливка и отклик плавно */
   .vtm20 .r-dot { transition: transform .12s, border-color .15s, background-color .18s, box-shadow .2s; }
   .vtm20 .r-box { transition: transform .12s, background-color .18s, border-color .15s; }

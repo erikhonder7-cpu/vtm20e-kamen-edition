@@ -16,7 +16,6 @@ import { SYSTEM_ID, SYSTEM_PATH, VTM20 } from "../config.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
-const uid = () => foundry.utils.randomID(8);
 
 /** Какие факты биографии можно складывать (имена — как в data/backgrounds.json). */
 export const POOLABLE = ["Домен", "Стадо", "Богатство", "Влияние", "Союзники", "Информаторы", "Подручные", "Общее убежище",
@@ -106,7 +105,6 @@ export function totemOf(actor) {
 const ATTR_ALIAS = { "харизма": "charisma", "манипулирование": "manipulation", "стойкость": "stamina", "внешность": "appearance" };
 const RENOWN_STEM = [["слав", "glory"], ["чест", "honor"], ["мудрост", "wisdom"]];
 const POOL_STEM = [["вол", "willpower"], ["ярост", "rage"], ["гнозис", "gnosis"]];
-export const TOTEM_POOLS = POOL_STEM.map(([, k]) => k);
 const plain = s => String(s ?? "").replace(/<[^>]+>/g, "");
 const stem = (list, w) => list.find(([p]) => w.startsWith(p))?.[1] ?? null;
 

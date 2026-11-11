@@ -52,8 +52,6 @@ export function fmtMoney(amount, cur = worldCurrency()) {
   return `${c.symbol} ${n.toLocaleString(lang, { maximumFractionDigits: Number.isInteger(n) ? 0 : 2 })}`;
 }
 
-/** Хватает ли монеты (в валюте персонажа). */
-export const canPay = (actor, amount) => (actor?.system?.money?.amount ?? 0) >= amount;
 
 /** Монеты кошелька (ливры, су, денье); старый кошелёк без монет — по сумме. */
 export function coinsOf(m) {

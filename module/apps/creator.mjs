@@ -17,7 +17,7 @@ import { openClans } from "./clans.mjs";
 import { openHouses } from "./houses.mjs";
 import { blockerFor, checkTraits } from "../data/trait-rules.mjs";
 import { attachCombos } from "../ui/combo.mjs";
-import { weaponIcon, armorIcon, traitIcon, backgroundIcon } from "../data/icons.mjs";
+import { traitIcon, backgroundIcon } from "../data/icons.mjs";
 import { W as werewolfData, ownGift, wwGlyphSrc, feraSym } from "./werewolf.mjs";
 import { M as mageData, mageGlyphSrc } from "./mage.mjs";
 import { H as hunterData, edgeCost, growth as hunterGrowth, sacrificeOn as hunterSacrificeOn, hasOwnPath, creedCapped, edgeBarred, HERMIT_PATH, hermitEdgeMadness, hasPrevEdge } from "./hunter.mjs";

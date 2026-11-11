@@ -30,9 +30,6 @@ async function saveGroups(list) {
 function cloneGroups() { return foundry.utils.deepClone(sceneGroups()); }
 
 export function getGroup(id) { return sceneGroups().find(g => g.id === id) || null; }
-export function groupsForScene(sceneId) {
-  return sceneGroups().filter(g => (g.sceneIds || []).includes(sceneId));
-}
 
 /* ── Группы (ГМ) ──────────────────────────────────────────────────────── */
 

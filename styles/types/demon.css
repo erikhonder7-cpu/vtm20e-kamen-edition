@@ -387,3 +387,7 @@ body.r-theme-light .vtm20.r-type-demon {
 .r-reliquary .r-rq-urges { display: flex; align-items: center; gap: 10px; flex-basis: 100%; }
 .r-reliquary .r-rq-urges b { font-family: "IM Fell SC", "Forum", serif; font-weight: 400; text-transform: uppercase; letter-spacing: .5px; font-size: 12px; color: var(--r-muted); }
 .r-reliquary .r-rq-urges input { width: 40px; text-align: center; }
+
+/* Карточка броска призыва: чипы Знания и Муки в тлеющем золоте */
+.r-roll-card.r-type-demon .r-line-chip { border-color: rgba(219, 166, 83, .4); background: rgba(219, 166, 83, .07); color: #ecdcae; }
+.r-roll-card.r-type-demon .r-line-chip.is-cost { border-color: #c4474c; color: #f0a9a2; }

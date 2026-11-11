@@ -738,8 +738,9 @@ export function registerBloodlines() {
     if (!game.users.activeGM?.isSelf || effect.flags?.[SYSTEM_ID]?.power !== "sanguinus:5" || effect.parent?.documentName !== "Actor") return;
     await endEntity(effect.parent.uuid);
   });
-  Hooks.on("updateActor", async actor => {
-    if (!game.users.activeGM?.isSelf || actor.documentName !== "Actor") return;
+  Hooks.on("updateActor", async (actor, change) => {
+    // вайда и проклятия Огама слетают от ран: прочие правки персонажа (а их большинство) сюда не заходят
+    if (!game.users.activeGM?.isSelf || actor.documentName !== "Actor" || !foundry.utils.hasProperty(change, "system.health")) return;
     const hurt = dmgTotal(actor);
     const woad = actor.effects.find(e => !e.disabled && e.flags?.[SYSTEM_ID]?.woadFrom != null);
     if (woad && hurt - Number(woad.flags[SYSTEM_ID].woadFrom) > 4) {

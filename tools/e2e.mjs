@@ -115,6 +115,12 @@ try {
     await page.evaluate(async () => {
       for (const app of [...foundry.applications.instances.values()]) if (app.element?.classList.contains("r-refresh")) await app.close();
       await game.settings.set(game.system.id, "refreshChecked", game.system.version);
+      // хвосты прерванного прогона: начатый бой держит лимит крови за ход и ломает проверки сил, жетоны без персонажа мешают целям
+      const stale = n => /^(E2E|QA) — /.test(n ?? "");
+      for (const c of [...game.combats]) if (!c.combatants.size || c.combatants.every(x => stale(x.name) || !x.actor)) await c.delete();
+      for (const s of game.scenes) { const ids = s.tokens.filter(tk => stale(tk.name) || !tk.actor).map(tk => tk.id); if (ids.length) await s.deleteEmbeddedDocuments("Token", ids); }
+      const old = game.actors.filter(x => x.getFlag("world", "e2e")).map(x => x.id);
+      if (old.length) await Actor.deleteDocuments(old);
       // окна «Против правил» (apps/rule-gate.mjs): по умолчанию «Отмена», globalThis.__e2eGate = "yes" — «Всё равно»
       Hooks.on("renderDialogV2", app => { if (app.element?.classList.contains("r-gate")) setTimeout(() =>
         app.element?.querySelector(`button[data-action="${globalThis.__e2eGate === "yes" ? "yes" : "no"}"]`)?.click(), 50); });

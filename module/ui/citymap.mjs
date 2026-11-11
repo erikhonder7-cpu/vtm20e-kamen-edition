@@ -22,10 +22,7 @@
 // передвигают перетаскиванием (владелец и ведущий), собирают в группы, прячут от игроков.
 
 import { SYSTEM_ID, SYSTEM_PATH } from "../config.mjs";
-import {
-  getClock, clockRunning, clockRate, setClockRunning, setClockRate, glideTo, advanceClock,
-  longDate, ymd, sunTimes, realNow, nightSpan, MS_MIN, MS_HOUR, MS_DAY
-} from "../apps/calendar.mjs";
+import { getClock, clockRunning, clockRate, setClockRunning, setClockRate, glideTo, advanceClock, sunTimes, realNow, nightSpan, MS_MIN, MS_HOUR, MS_DAY } from "../apps/calendar.mjs";
 import {
   whereIs, cityFlag, placeActor, leaderOf, followersOf, groupOf, joinGroup, leaveGroup, mapVisible, isHiddenOnMap, meters
 } from "./citychars.mjs";
@@ -35,9 +32,8 @@ import { masqueradeAt } from "./masquerade.mjs";
 
 import { EXT, registerCityExtension } from "./city-ext.mjs";
 import { CITY_CATEGORIES, catOf, CITY_KINDS, SEAL_SVG, WAX } from "./city-kinds.mjs";
-import { GLYPHS, OMT, SAT, OMT_ATTR, MODERN_STYLES, revolution, extStyles, styleExt, CITY_STYLES, eraStyles, defaultStyle, CITY_LANGS, PAL, nameExpr, isPoly, isLine, isPoint, cls, zoomed, roadWidth, baseLayers, labelLayers, buildStyle } from "./city-style.mjs";
+import { revolution, styleExt, CITY_STYLES, eraStyles, defaultStyle, CITY_LANGS, cls, zoomed, buildStyle } from "./city-style.mjs";
 export { registerCityExtension, CITY_CATEGORIES, CITY_KINDS, CITY_STYLES, CITY_LANGS };
-
 
 /** Что карта даёт расширениям: состояние и перерисовки (обёртки — объявленное ниже доступно при вызове). */
 const api = {
@@ -950,6 +946,8 @@ function drawSeal(ctx, S, key, wax, img) {
 
 /** Значки мест: в эпоху Революции — эмблемы на сургуче, иначе — глиф Font Awesome в тёмном круге цвета категории. */
 async function buildIcons() {
+  // пиксели каждого значка читаются обратно (карте нужны сырые данные): холст в памяти, а не на видеокарте, — чтение без задержки
+  const READ = { willReadFrequently: true };
   const probe = document.createElement("i");
   probe.style.cssText = "position:absolute;left:-9999px;top:-9999px";
   document.body.appendChild(probe);
@@ -965,7 +963,7 @@ async function buildIcons() {
     if (fac) {
       const S = 76, cv = document.createElement("canvas");
       cv.width = cv.height = S;
-      const ctx = cv.getContext("2d");
+      const ctx = cv.getContext("2d", READ);
       ctx.save(); ctx.shadowColor = "rgba(0,0,0,.6)"; ctx.shadowBlur = 4; ctx.shadowOffsetY = 2;
       ctx.beginPath(); ctx.arc(S / 2, S / 2, S / 2 - 5, 0, Math.PI * 2); ctx.fillStyle = "#000"; ctx.fill(); ctx.restore();
       ctx.save(); ctx.beginPath(); ctx.arc(S / 2, S / 2, S / 2 - 5, 0, Math.PI * 2); ctx.clip();
@@ -978,8 +976,9 @@ async function buildIcons() {
       const S = 76;
       const cv = document.createElement("canvas");
       cv.width = cv.height = S;
-      drawSeal(cv.getContext("2d"), S, k, WAX[cat] ?? WAX.other, await emblem(svg));
-      out[k] = { width: S, height: S, data: new Uint8Array(cv.getContext("2d").getImageData(0, 0, S, S).data.buffer) };
+      const ctx = cv.getContext("2d", READ);
+      drawSeal(ctx, S, k, WAX[cat] ?? WAX.other, await emblem(svg));
+      out[k] = { width: S, height: S, data: new Uint8Array(ctx.getImageData(0, 0, S, S).data.buffer) };
       sealURL[k] = cv.toDataURL();
       continue;
     }
@@ -1000,7 +999,7 @@ async function buildIcons() {
     try { await document.fonts.load(font, glyph); } catch (e) {}
     const cv = document.createElement("canvas");
     cv.width = cv.height = S;
-    const ctx = cv.getContext("2d");
+    const ctx = cv.getContext("2d", READ);
     ctx.beginPath(); ctx.arc(S / 2, S / 2, S / 2 - 4, 0, Math.PI * 2);
     ctx.fillStyle = "rgba(12,10,12,.92)"; ctx.fill();
     ctx.lineWidth = 3; ctx.strokeStyle = color; ctx.stroke();

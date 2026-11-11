@@ -57,4 +57,3 @@ export function soakComponents({ damageType, stamina = 0, fortitude = 0, armor =
   return out;
 }
 
-export const sumSoakComponents = parts => Object.values(parts).reduce((sum, value) => sum + n(value), 0);

@@ -12,7 +12,7 @@
 import { VTM20, SYSTEM_PATH, SYSTEM_ID } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
 import { blockerFor } from "../data/trait-rules.mjs";
-import { weaponIcon, armorIcon, traitIcon, backgroundIcon } from "../data/icons.mjs";
+import { traitIcon, backgroundIcon } from "../data/icons.mjs";
 import { ritualFields } from "../data/ritual-text.mjs";
 import { investmentLimit, sealInvestment, pactDialog } from "./infernal.mjs";
 import { W as werewolfData, addGift, addRite, ownGift } from "./werewolf.mjs";

@@ -56,8 +56,15 @@ export const themeOf = actor => !actor?.type ? null : actor.type === "creature" 
 /** Класс темы для своих HTML-кусков (карточки, уведомления). */
 export const themeClass = actor => actor?.type ? `r-type-${themeOf(actor)}${isTechnocrat(actor) ? " r-mage-tech" : ""}` : "";
 
+const quiet = new WeakMap();
 export function registerThemes() {
-  Hooks.on("renderApplicationV2", (app, element) => {
+  Hooks.on("renderApplicationV2", (app, element, context, options) => {
+    // перерисовка открытого окна: анимации раскрытия строк не проигрываются заново (styles/r-core.css, .r-quiet)
+    if (element?.classList?.contains("vtm20") && options && !options.isFirstRender) {
+      element.classList.add("r-quiet");
+      clearTimeout(quiet.get(element));
+      quiet.set(element, setTimeout(() => element.classList.remove("r-quiet"), 260));
+    }
     // окна системы и стандартные подтверждения Foundry (их цвета — переменные Foundry, переопределены в теме типа)
     const isDialog = app instanceof foundry.applications.api.DialogV2;
     if (!element?.classList?.contains("vtm20") && !isDialog) return;

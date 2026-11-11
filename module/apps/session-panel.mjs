@@ -3,7 +3,7 @@
 // Убеждённости, Веры, сколько ран; кто в торпоре, бешенстве, Харано, Ротшреке, пронзён колом. Щелчок по имени — лист,
 // по сцене — сцена и жетон. Порог «мало» — четверть запаса или 1 (правило системы, только подсветка).
 
-import { SYSTEM_ID, SYSTEM_PATH } from "../config.mjs";
+import { SYSTEM_PATH } from "../config.mjs";
 import { torporOf } from "./torpor.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
