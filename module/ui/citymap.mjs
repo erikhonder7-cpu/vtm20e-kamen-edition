@@ -36,16 +36,17 @@ import { revolution, styleExt, CITY_STYLES, eraStyles, defaultStyle, CITY_LANGS,
 import { ID, L, esc, uid, showTip, domainActorOn, domainActorColor, T, GROUND_COLORS, groundLabel, inZone, canEditDomain, domainOwners, hunter, canEdit, CHAR_TYPES, placeableActors, kindOf, canManage, crewOf, ownerColor, statusText, NEAR_M, centroid, PIN_INK, RATES, placeInspector } from "././city-util.mjs";
 export { domainActorOn } from "././city-util.mjs";
 import { sealURL, extSeal, drawSeal } from "././city-seals.mjs";
+import { S } from "./city-state.mjs";
 export { registerCityExtension, CITY_CATEGORIES, CITY_KINDS, CITY_STYLES, CITY_LANGS };
 
 /** Что карта даёт расширениям: состояние и перерисовки (обёртки — объявленное ниже доступно при вызове). */
 const api = {
-  get map() { return map; }, get gl() { return gl; },
-  get picked() { return picked; }, set picked(v) { picked = v; },
-  get tool() { return tool; }, set tool(v) { tool = v; },
+  get map() { return S.map; }, get gl() { return S.gl; },
+  get picked() { return S.picked; }, set picked(v) { S.picked = v; },
+  get tool() { return S.tool; }, set tool(v) { S.tool = v; },
   view: () => view(), setView: p => setView(p), city: () => city(), save: o => save(o), uid: () => uid(),
   L: (k, d) => L(k, d), esc: x => esc(x), zoomed: (...a) => zoomed(...a), revolution: () => revolution(),
-  showTip: (...a) => showTip(...a), fly: (...a) => map && fly(...a), pick: (k, id) => pick(k, id),
+  showTip: (...a) => showTip(...a), fly: (...a) => S.map && fly(...a), pick: (k, id) => pick(k, id),
   drawTools: () => drawTools(), drawBody: () => drawBody(), drawInspector: () => drawInspector(), drawOverlay: () => drawOverlay(),
   root: () => document.getElementById(ID), styleExt: id => styleExt(id), isOpen: () => !!document.getElementById(ID)?.classList.contains("open")
 };
@@ -70,7 +71,7 @@ function poiTip(ev) {
 
 /** Подсказка над меткой хроники (DOM-булавка). */
 function pinTip(ev, m) {
-  const r = map.getContainer().getBoundingClientRect();
+  const r = S.map.getContainer().getBoundingClientRect();
   showTip(ev.clientX - r.left, ev.clientY - r.top, L(`Cat.${m.cat in CITY_CATEGORIES ? m.cat : "other"}`), m.name || L("Unnamed"), m.text, spotLines(m));
 }
 
@@ -117,8 +118,8 @@ export function sceneHasSpot(sceneId) {
 export async function showSceneOnMap(sceneId) {
   await openCity();
   // штора могла уже открываться (busy) или карта ещё грузит стиль — ждём готовности, а не бросаем
-  for (let i = 0; i < 60 && !(state && map?.loaded?.()); i++) await new Promise(r => setTimeout(r, 100));
-  const spot = state && map ? sceneSpot(sceneId) : null;
+  for (let i = 0; i < 60 && !(S.state && S.map?.loaded?.()); i++) await new Promise(r => setTimeout(r, 100));
+  const spot = S.state && S.map ? sceneSpot(sceneId) : null;
   if (!spot) return ui.notifications.info(L("NoSpot"));
   fly(spot.lat, spot.lng, 17);
   pick(spot.kind, spot.id);
@@ -166,7 +167,7 @@ export async function makeDomainFor(kind, it) {
     owner = game.actors.get(it.owner) ?? null;
     // угодья — у зоны рассказчика, в которую попадает середина обведённого домена (карта может быть закрыта — зоны из настроек мира)
     const [la, ln] = centroid(it.points);
-    const raw = game.settings.get(SYSTEM_ID, "cityMap") ?? {}, zones = state ? city().zones : (raw.cities?.[raw.current] ?? Object.values(raw.cities ?? {})[0] ?? {}).zones ?? [];
+    const raw = game.settings.get(SYSTEM_ID, "cityMap") ?? {}, zones = S.state ? city().zones : (raw.cities?.[raw.current] ?? Object.values(raw.cities ?? {})[0] ?? {}).zones ?? [];
     ground = zones.find(z => z.grounds && inZone(z, la, ln))?.grounds ?? "";
     name = L("DomainOf", { name: owner?.name ?? L("DomainNobody") });
   }
@@ -175,15 +176,15 @@ export async function makeDomainFor(kind, it) {
     ownership: owner ? Object.fromEntries(Object.entries(owner.ownership ?? {}).filter(([k]) => k !== "default")) : {} });
   if (!da) return;
   ui.notifications.info(L("DomainMade", { name: da.name }));
-  if (map) { drawBody(); drawOverlay(); }
+  if (S.map) { drawBody(); drawOverlay(); }
   da.sheet.render(true);
 }
 
 /** Открыть город на зоне или метке и выбрать её (домен из «Двора»). */
 export async function showSpotOnMap(kind, id) {
   await openCity();
-  for (let i = 0; i < 60 && !(state && map?.loaded?.()); i++) await new Promise(r => setTimeout(r, 100));
-  if (!state || !map) return;
+  for (let i = 0; i < 60 && !(S.state && S.map?.loaded?.()); i++) await new Promise(r => setTimeout(r, 100));
+  if (!S.state || !S.map) return;
   const c = city();
   const it = kind === "zone" ? c.zones.find(z => z.id === id) : kind === "domain" ? domainById(id) : c.markers.find(m => m.id === id);
   if (!it) return ui.notifications.info(L("NoSpotFound"));
@@ -212,26 +213,6 @@ const homeBearing = () => styleExt(view().style)?.bearing ?? 0;
 
 /* ── Состояние ────────────────────────────────────────────────────────── */
 
-let gl = null;              // maplibregl
-let map = null;
-const pins = new Map();     // id → { marker, sig }
-let tool = "select";        // select | marker | zone
-let picked = null;          // { kind: "marker"|"poi"|"zone"|"found", id }
-let draft = [];             // вершины новой зоны [lat, lng]
-let drawGround = "slums";   // какие угодья чертит инструмент «Угодья»
-let search = "", found = [];
-let busy = false, saveTimer = null, echo = null;
-let state = null;           // данные мира (все города)
-let privates = {};          // личные метки: { cityId: [...] }
-const presets = {};         // готовые данные городов: { presetId: {...} }
-const metros = {};          // сети метро: { presetId: {...} }
-let presetIndex = null;     // data/cities/index.json
-let icons = null;           // картинки значков для слоя мест
-let shownCity = null;       // город, который сейчас на карте
-const charPins = new Map(); // actorId → { marker, sig }
-let placing = null;         // актёр, которого ставят на карту следующим щелчком
-let raf = null, lastLabels = 0;
-let menuFolder = null;      // папка, у которой раскрыто меню «⋯»
 
 /* ── Охота от карты (план 8): угодья у зоны, слой «Угодья», «Охотиться здесь» ─────────── */
 
@@ -297,7 +278,7 @@ EXT.kinds.domain = {
     if (!canEditDomain(d)) return;
     const u = game.users.get(d.user);
     await saveDomains(u, domainsOf(u).filter(y => y.id !== d.id));
-    picked = null; drawBody(); drawOverlay();
+    S.picked = null; drawBody(); drawOverlay();
   }
 };
 
@@ -330,29 +311,29 @@ function readPrivates() {
   return Array.isArray(f) ? { [DEFAULT_CITY]: f } : f;
 }
 
-const city = () => state.cities[state.current] ?? Object.values(state.cities)[0];
-const mine = () => (privates[city().id] ??= []);
-const preset = () => presets[city().preset];
+const city = () => S.state.cities[S.state.current] ?? Object.values(S.state.cities)[0];
+const mine = () => (S.privates[city().id] ??= []);
+const preset = () => S.presets[city().preset];
 function save({ world = game.user.isGM, own = true } = {}) {
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(async () => {
-    if (world && game.user.isGM) { echo = JSON.stringify(state); await game.settings.set(SYSTEM_ID, "cityMap", state); }
-    if (own) await game.user.setFlag(SYSTEM_ID, "cityMarks", privates);
+  clearTimeout(S.saveTimer);
+  S.saveTimer = setTimeout(async () => {
+    if (world && game.user.isGM) { S.echo = JSON.stringify(S.state); await game.settings.set(SYSTEM_ID, "cityMap", S.state); }
+    if (own) await game.user.setFlag(SYSTEM_ID, "cityMarks", S.privates);
   }, 250);
 }
 
 async function loadIndex() {
-  presetIndex ??= EXT.presets;
-  return presetIndex;
+  S.presetIndex ??= EXT.presets;
+  return S.presetIndex;
 }
 
 async function loadPresets() {
   await loadIndex();
   const id = city().preset;
-  if (id && !(id in presets)) {
-    const entry = presetIndex.find(c => c.id === id);
-    presets[id] = entry?.url ? await fetch(entry.url).then(r => r.json()).catch(() => null) : null;
-    metros[id] = entry?.metroUrl ? await fetch(entry.metroUrl).then(r => r.json()).catch(() => null) : null;
+  if (id && !(id in S.presets)) {
+    const entry = S.presetIndex.find(c => c.id === id);
+    S.presets[id] = entry?.url ? await fetch(entry.url).then(r => r.json()).catch(() => null) : null;
+    S.metros[id] = entry?.metroUrl ? await fetch(entry.metroUrl).then(r => r.json()).catch(() => null) : null;
   }
 }
 
@@ -407,17 +388,17 @@ function folderMarkers(f, { all = false } = {}) {
 }
 
 function findPicked() {
-  if (!picked) return null;
-  if (EXT.kinds[picked.kind]) return EXT.kinds[picked.kind].find(picked.id, api) ?? null;
+  if (!S.picked) return null;
+  if (EXT.kinds[S.picked.kind]) return EXT.kinds[S.picked.kind].find(S.picked.id, api) ?? null;
   const c = city();
-  switch (picked.kind) {
-    case "zone": return c.zones.find(z => z.id === picked.id) ?? null;
-    case "found": return found.find(r => r.id === picked.id) ?? null;
-    case "poi": { const x = poiIndex().get(picked.id); return x ? poiView(x.base, x.folder) : null; }
+  switch (S.picked.kind) {
+    case "zone": return c.zones.find(z => z.id === S.picked.id) ?? null;
+    case "found": return S.found.find(r => r.id === S.picked.id) ?? null;
+    case "poi": { const x = poiIndex().get(S.picked.id); return x ? poiView(x.base, x.folder) : null; }
     default: {
-      const own = c.markers.find(m => m.id === picked.id);
+      const own = c.markers.find(m => m.id === S.picked.id);
       if (own) return own;
-      const p = mine().find(m => m.id === picked.id);
+      const p = mine().find(m => m.id === S.picked.id);
       return p ? { ...p, mine: true } : null;
     }
   }
@@ -455,7 +436,7 @@ function actorTree(list, row, v) {
   const level = parent => folders.filter(f => (f.folder?.id ?? null) === parent)
     .sort((x, y) => (x.sort - y.sort) || byName(x, y))
     .map(f => {
-      const open = !!search || !!v.open[`actors:${f.id}`];
+      const open = !!S.search || !!v.open[`actors:${f.id}`];
       const color = f.color?.css ?? "";
       return `<details class="rc-afold" data-afold="${f.id}" ${open ? "open" : ""}${color ? ` style="--fc:${esc(color)}"` : ""}>
         <summary><i class="fa-solid fa-folder${open ? "-open" : ""}"></i><span>${esc(f.name)}</span><b>${count.get(f.id)}</b></summary>
@@ -468,19 +449,19 @@ function actorTree(list, row, v) {
 
 /** Фишки персонажей: портрет в кольце цвета игрока. */
 function drawChars() {
-  if (!map) return;
+  if (!S.map) return;
   // Попутчики своих фишек не имеют — их лица на фишке ведущего группы.
   const want = new Map(mapActors().filter(a => !leaderOf(a)).map(a => [a.id, a]));
-  for (const [id, p] of charPins) if (!want.has(id)) { p.marker.remove(); charPins.delete(id); }
+  for (const [id, p] of S.charPins) if (!want.has(id)) { p.marker.remove(); S.charPins.delete(id); }
   for (const [id, a] of want) {
     const w = whereIs(a);
-    const sel = picked?.kind === "char" && picked.id === id;
+    const sel = S.picked?.kind === "char" && S.picked.id === id;
     // переставить фишку — перетаскиванием: свою — владелец, любую — ведущий
     const drag = canManage(a);
     const crew = crewOf(a);
     const hid = game.user.isGM && isHiddenOnMap(a);
     const sig = JSON.stringify([a.img, a.name, sel, ownerColor(a), drag, hid, crew.map(c => [c.id, c.img])]);
-    let p = charPins.get(id);
+    let p = S.charPins.get(id);
     if (p?.sig !== sig) {
       p?.marker.remove();
       const el = document.createElement("div");
@@ -491,10 +472,10 @@ function drawChars() {
         + `<b>${esc(a.name)}</b>`
         + (crew.length ? `<span class="rc-crew">${crew.map(c => `<img src="${esc(c.img)}" alt="" data-crew="${c.id}" data-tooltip="${esc(c.name)}" style="--c:${ownerColor(c)}">`).join("")}</span>` : "");
       el.addEventListener("click", ev => { ev.stopPropagation(); pick("char", ev.target.closest("[data-crew]")?.dataset.crew ?? id); });
-      const marker = new gl.Marker({ element: el, anchor: "top", offset: [0, -24], draggable: drag }).setLngLat([w.lng, w.lat]).addTo(map);
+      const marker = new S.gl.Marker({ element: el, anchor: "top", offset: [0, -24], draggable: drag }).setLngLat([w.lng, w.lat]).addTo(S.map);
       marker.on("dragend", () => { const ll = marker.getLngLat(); placeActor(a, city().id, ll.lat, ll.lng); });
       p = { marker, sig };
-      charPins.set(id, p);
+      S.charPins.set(id, p);
     }
     p.marker.setLngLat([w.lng, w.lat]);
   }
@@ -507,11 +488,11 @@ function drawChars() {
  * не меняются, только сдвиг на экране; пересчитывается при каждом масштабе.
  */
 function spreadChars(want = null) {
-  if (!map) return;
+  if (!S.map) return;
   want ??= new Map(mapActors().filter(a => !leaderOf(a)).map(a => [a.id, a]));
   const items = [...want.values()].map(a => {
-    const w = whereIs(a), p = charPins.get(a.id);
-    return w && p ? { id: a.id, p, xy: map.project([w.lng, w.lat]) } : null;
+    const w = whereIs(a), p = S.charPins.get(a.id);
+    return w && p ? { id: a.id, p, xy: S.map.project([w.lng, w.lat]) } : null;
   }).filter(Boolean);
   const done = new Set(), R = 36, NEAR = 54;
   for (const x of items) {
@@ -532,15 +513,15 @@ function spreadChars(want = null) {
 }
 
 function clearChars() {
-  for (const p of charPins.values()) p.marker.remove();
-  charPins.clear();
+  for (const p of S.charPins.values()) p.marker.remove();
+  S.charPins.clear();
 }
 
 /** Кадр анимации: часы на карте идут вместе с ночными часами. */
 function frame(ts) {
-  raf = requestAnimationFrame(frame);
-  if (!map || ts - lastLabels < 500) return;
-  lastLabels = ts;
+  S.raf = requestAnimationFrame(frame);
+  if (!S.map || ts - S.lastLabels < 500) return;
+  S.lastLabels = ts;
   paintClock(getClock());
 }
 
@@ -627,7 +608,7 @@ function mount() {
     const d = ev.target?.closest?.("[data-afold]");
     if (!d || ev.target !== d) return;
     d.querySelector(":scope > summary > i")?.classList.replace(d.open ? "fa-folder" : "fa-folder-open", d.open ? "fa-folder-open" : "fa-folder");
-    if (!search) setView({ open: { ...view().open, [`actors:${d.dataset.afold}`]: d.open } });
+    if (!S.search) setView({ open: { ...view().open, [`actors:${d.dataset.afold}`]: d.open } });
   }, true);
   root.addEventListener("change", ev => {
     const f = ev.target.dataset.field;
@@ -665,7 +646,7 @@ function mount() {
   box.addEventListener("dragover", ev => ev.preventDefault());
   box.addEventListener("drop", ev => onDrop(ev));
   const input = root.querySelector("[data-search]");
-  input.addEventListener("input", () => { search = input.value.trim().toLowerCase(); drawBody(); });
+  input.addEventListener("input", () => { S.search = input.value.trim().toLowerCase(); drawBody(); });
   input.addEventListener("keydown", ev => { if (ev.key === "Enter") { ev.preventDefault(); geocode(input.value.trim()); } });
   window.addEventListener("keydown", ev => {
     if (!root.classList.contains("open")) return;
@@ -674,14 +655,14 @@ function mount() {
       ev.preventDefault(); ev.stopPropagation();
       const b = boards().find(x => x.mode() !== "map");
       if (b) b.setMode("map");
-      else if (draft.length) { draft = []; drawDraft(); }
-      else if (placing) { placing = null; drawTools(); }
-      else if (tool !== "select") { tool = "select"; drawTools(); drawPins(); }
-      else if (picked) { picked = null; drawBody(); drawOverlay(); drawTools(); }
+      else if (S.draft.length) { S.draft = []; drawDraft(); }
+      else if (S.placing) { S.placing = null; drawTools(); }
+      else if (S.tool !== "select") { S.tool = "select"; drawTools(); drawPins(); }
+      else if (S.picked) { S.picked = null; drawBody(); drawOverlay(); drawTools(); }
       else closeCity();
     }
-    if (ev.key === "Enter" && draft.length > 2) { ev.preventDefault(); finishZone(); }
-    if (ev.key === "Delete" && picked) { ev.preventDefault(); remove(); }
+    if (ev.key === "Enter" && S.draft.length > 2) { ev.preventDefault(); finishZone(); }
+    if (ev.key === "Delete" && S.picked) { ev.preventDefault(); remove(); }
   }, true);
   const slats = root.querySelector(".rc-slats");
   for (let i = 0; i < SLATS; i++) {
@@ -708,58 +689,58 @@ function syncModes() {
 }
 
 /** Сам объект карты MapLibre — для макросов (null, пока штору не открывали). */
-export const cityMap = () => map;
+export const cityMap = () => S.map;
 
 export async function toggleCity() {
-  if (busy) return;
+  if (S.busy) return;
   return document.getElementById(ID)?.classList.contains("open") ? closeCity() : openCity();
 }
 
 export async function openCity() {
   const root = mount();
-  if (busy) return;
-  busy = true;
+  if (S.busy) return;
+  S.busy = true;
   try {
-    state = readWorld();
-    privates = readPrivates();
+    S.state = readWorld();
+    S.privates = readPrivates();
     await loadPresets();
     await ensureMap(root);
-    if (shownCity !== city().id) jumpToCity();
+    if (S.shownCity !== city().id) jumpToCity();
     drawAll();
     for (const b of boards()) { b.drawModes(); b.renderBoard(); }
     syncModes();
     root.classList.add("open");
     root.querySelector(".rc-slats").classList.remove("shut");
-    raf ??= requestAnimationFrame(frame);
+    S.raf ??= requestAnimationFrame(frame);
   } catch (e) {
     console.error("VTM20 | карта города:", e);
     ui.notifications.error(L("LoadError"));
   }
-  setTimeout(() => { busy = false; map?.resize(); }, SLIDE);
+  setTimeout(() => { S.busy = false; S.map?.resize(); }, SLIDE);
 }
 
 export function closeCity() {
   const root = document.getElementById(ID);
-  if (!root || busy) return;
-  busy = true;
+  if (!root || S.busy) return;
+  S.busy = true;
   root.querySelector(".rc-slats").classList.add("shut");
   root.classList.remove("open");
-  draft = []; drawDraft();
-  placing = null;
-  if (raf) { cancelAnimationFrame(raf); raf = null; }
-  setTimeout(() => { busy = false; }, SLIDE);
+  S.draft = []; drawDraft();
+  S.placing = null;
+  if (S.raf) { cancelAnimationFrame(S.raf); S.raf = null; }
+  setTimeout(() => { S.busy = false; }, SLIDE);
 }
 
 function jumpToCity() {
   const c = city();
-  shownCity = c.id;
-  map.jumpTo({ center: [c.center[1], c.center[0]], zoom: c.zoom, pitch: 0, bearing: homeBearing() });
+  S.shownCity = c.id;
+  S.map.jumpTo({ center: [c.center[1], c.center[0]], zoom: c.zoom, pitch: 0, bearing: homeBearing() });
 }
 
 /* ── Карта ────────────────────────────────────────────────────────────── */
 
 async function loadLib() {
-  if (gl) return gl;
+  if (S.gl) return S.gl;
   // Стили Foundry и системы живут в каскадных слоях; CSS MapLibre без слоя перебил бы их все.
   // Кладём его в слой compatibility — ниже системного, чтобы наша шкура побеждала.
   if (!document.getElementById("r-maplibre-css")) {
@@ -774,17 +755,17 @@ async function loadLib() {
     s.onload = ok; s.onerror = fail;
     document.head.appendChild(s);
   });
-  return (gl = window.maplibregl);
+  return (S.gl = window.maplibregl);
 }
 
 async function ensureMap(root) {
-  if (map) return;
+  if (S.map) return;
   await loadLib();
-  icons ??= await buildIcons();
+  S.icons ??= await buildIcons();
   const c = city(), v = view();
-  shownCity = c.id;
+  S.shownCity = c.id;
   root.setAttribute("data-style", v.style);
-  map = new gl.Map({
+  S.map = new S.gl.Map({
     container: root.querySelector(".rc-gl"),
     style: buildStyle(v.style, v.lang),
     center: [c.center[1], c.center[0]], zoom: c.zoom, maxZoom: 19, maxPitch: 70,
@@ -792,26 +773,26 @@ async function ensureMap(root) {
     attributionControl: { compact: true }, doubleClickZoom: false
   });
   for (const o of EXT.overlays) o.init?.(api);
-  map.addControl(new gl.NavigationControl({ visualizePitch: true }), "bottom-left");
+  S.map.addControl(new S.gl.NavigationControl({ visualizePitch: true }), "bottom-left");
   // Стили шторы приходят через @import позже карты — следим за размером контейнера сами.
-  new ResizeObserver(() => map.resize()).observe(root.querySelector(".rc-gl"));
-  map.on("style.load", addOverlay);
-  map.on("click", onMapClick);
-  map.on("zoomend", () => spreadChars());
-  map.on("dblclick", ev => { if (isDrawing() && draft.length > 2) { ev.preventDefault(); finishZone(); } });
-  map.on("mousemove", ev => { if (isDrawing() && draft.length) drawDraft(ev.lngLat); });
-  map.on("mouseenter", "rc-poi", () => { map.getCanvas().style.cursor = "pointer"; });
-  map.on("mouseleave", "rc-poi", () => { map.getCanvas().style.cursor = ""; });
-  map.on("mousemove", "rc-poi", poiTip);
-  map.on("mouseleave", "rc-poi", () => showTip(null));
+  new ResizeObserver(() => S.map.resize()).observe(root.querySelector(".rc-gl"));
+  S.map.on("style.load", addOverlay);
+  S.map.on("click", onMapClick);
+  S.map.on("zoomend", () => spreadChars());
+  S.map.on("dblclick", ev => { if (isDrawing() && S.draft.length > 2) { ev.preventDefault(); finishZone(); } });
+  S.map.on("mousemove", ev => { if (isDrawing() && S.draft.length) drawDraft(ev.lngLat); });
+  S.map.on("mouseenter", "rc-poi", () => { S.map.getCanvas().style.cursor = "pointer"; });
+  S.map.on("mouseleave", "rc-poi", () => { S.map.getCanvas().style.cursor = ""; });
+  S.map.on("mousemove", "rc-poi", poiTip);
+  S.map.on("mouseleave", "rc-poi", () => showTip(null));
 }
 
 function setStyle() {
   const v = view(), st = styleExt(v.style);
   document.getElementById(ID)?.setAttribute("data-style", v.style);
-  map?.setMaxBounds(st?.bounds ?? null);
-  map?.setMinZoom(st?.minZoom ?? 0);
-  map?.setStyle(buildStyle(v.style, v.lang), { diff: false });
+  S.map?.setMaxBounds(st?.bounds ?? null);
+  S.map?.setMinZoom(st?.minZoom ?? 0);
+  S.map?.setStyle(buildStyle(v.style, v.lang), { diff: false });
 }
 
 /** Эмблема (SVG одним путём) цветом кости — картинка для холста. */
@@ -895,14 +876,14 @@ const EMPTY = { type: "FeatureCollection", features: [] };
 
 /** Слои хроники поверх стиля: места, зоны, черновик. Смена стиля их сбрасывает — добавляем заново. */
 function addOverlay() {
-  for (const [k, img] of Object.entries(icons ?? {})) if (!map.hasImage(`rc-${k}`)) map.addImage(`rc-${k}`, img, { pixelRatio: 2 });
-  const md = metros[city().preset];
+  for (const [k, img] of Object.entries(S.icons ?? {})) if (!S.map.hasImage(`rc-${k}`)) S.map.addImage(`rc-${k}`, img, { pixelRatio: 2 });
+  const md = S.metros[city().preset];
   const mf = [];
   for (const l of md?.lines ?? []) for (const s of l.segs) mf.push({ type: "Feature", properties: { color: l.color }, geometry: { type: "LineString", coordinates: s } });
   for (const s of Object.values(md?.stations ?? {})) mf.push({ type: "Feature", properties: { name: view().lang === "ru" ? s.ru : s.en, hub: s.lines.length > 1 }, geometry: { type: "Point", coordinates: [s.lng, s.lat] } });
-  if (map.getSource("rc-metro")) map.getSource("rc-metro").setData({ type: "FeatureCollection", features: mf });
-  else map.addSource("rc-metro", { type: "geojson", data: { type: "FeatureCollection", features: mf } });
-  for (const s of ["rc-poi", "rc-zones", "rc-zone-labels", "rc-domains", "rc-domain-labels", "rc-draft"]) if (!map.getSource(s)) map.addSource(s, { type: "geojson", data: EMPTY });
+  if (S.map.getSource("rc-metro")) S.map.getSource("rc-metro").setData({ type: "FeatureCollection", features: mf });
+  else S.map.addSource("rc-metro", { type: "geojson", data: { type: "FeatureCollection", features: mf } });
+  for (const s of ["rc-poi", "rc-zones", "rc-zone-labels", "rc-domains", "rc-domain-labels", "rc-draft"]) if (!S.map.getSource(s)) S.map.addSource(s, { type: "geojson", data: EMPTY });
   const halo = view().style === "sat" ? "rgba(0,0,0,.9)" : "#0a0808";
   // подписи мест: на гравюре — чернила с бумажным ореолом, ночью — кость на угле
   const ink = view().style === "plan"
@@ -910,7 +891,7 @@ function addOverlay() {
     : view().style === "plannight"
       ? { "text-color": "#f1e3c3", "text-halo-color": "rgba(14,8,5,.95)", "text-halo-width": 2.2, "text-halo-blur": .4 }
       : { "text-color": "#d6ccc4", "text-halo-color": halo, "text-halo-width": 1.6 };
-  const add = l => { if (!map.getLayer(l.id)) map.addLayer(l); };
+  const add = l => { if (!S.map.getLayer(l.id)) S.map.addLayer(l); };
   const vis = view().metro ? "visible" : "none";
   add({ id: "rc-metro-line", type: "line", source: "rc-metro", filter: ["==", ["geometry-type"], "LineString"], layout: { ...{ "line-cap": "round", "line-join": "round" }, visibility: vis },
     paint: { "line-color": ["get", "color"], "line-width": zoomed(10, 1.5, 15, 4), "line-opacity": .75 } });
@@ -950,7 +931,7 @@ function addOverlay() {
 
 /** Обновить данные слоёв: места видимых папок, зоны, выделение, булавки. */
 function drawOverlay() {
-  if (!map?.getSource("rc-poi")) return drawPins();
+  if (!S.map?.getSource("rc-poi")) return drawPins();
   const feats = [];
   for (const f of folders().filter(f => f.preset && folderVisible(f))) {
     folderMarkers(f).forEach((m, i) => {
@@ -959,24 +940,24 @@ function drawOverlay() {
         properties: { id: m.id, icon: looks(m).image, label: m.name, rank: (m.wiki || m.wd ? 0 : 1000) + i } });
     });
   }
-  map.getSource("rc-poi").setData({ type: "FeatureCollection", features: feats });
-  map.setFilter("rc-poi-sel", ["==", ["get", "id"], picked?.kind === "poi" ? picked.id : ""]);
+  S.map.getSource("rc-poi").setData({ type: "FeatureCollection", features: feats });
+  S.map.setFilter("rc-poi-sel", ["==", ["get", "id"], S.picked?.kind === "poi" ? S.picked.id : ""]);
 
   const zones = city().zones.filter(z => game.user.isGM || !z.gmOnly);
-  const sel = picked?.kind === "zone" ? picked.id : null;
-  map.getSource("rc-zones").setData({ type: "FeatureCollection", features: zones.map(z => ({
+  const sel = S.picked?.kind === "zone" ? S.picked.id : null;
+  S.map.getSource("rc-zones").setData({ type: "FeatureCollection", features: zones.map(z => ({
     type: "Feature", properties: { id: z.id, color: zoneColor(z), sel: z.id === sel, gm: !!z.gmOnly },
     geometry: { type: "Polygon", coordinates: [[...z.points, z.points[0]].map(([la, ln]) => [ln, la])] } })) });
-  const doms = allDomains().filter(d => d.points?.length > 2), dsel = picked?.kind === "domain" ? picked.id : null;
-  map.getSource("rc-domains")?.setData({ type: "FeatureCollection", features: doms.map(d => ({
+  const doms = allDomains().filter(d => d.points?.length > 2), dsel = S.picked?.kind === "domain" ? S.picked.id : null;
+  S.map.getSource("rc-domains")?.setData({ type: "FeatureCollection", features: doms.map(d => ({
     type: "Feature", properties: { id: d.id, color: d.color, sel: d.id === dsel, mine: d.user === game.user.id },
     geometry: { type: "Polygon", coordinates: [[...d.points, d.points[0]].map(([la, ln]) => [ln, la])] } })) });
-  map.getSource("rc-domain-labels")?.setData({ type: "FeatureCollection", features: doms.map(d => {
+  S.map.getSource("rc-domain-labels")?.setData({ type: "FeatureCollection", features: doms.map(d => {
     const [la, ln] = centroid(d.points);
     return { type: "Feature", properties: { name: L("DomainLabel", { name: d.name }), color: d.color }, geometry: { type: "Point", coordinates: [ln, la] } };
   }) });
   const hunt = !!view().hunt;
-  map.getSource("rc-zone-labels").setData({ type: "FeatureCollection", features: zones.filter(z => z.name || (hunt && z.grounds) || domainActorOn(z.id)).map(z => {
+  S.map.getSource("rc-zone-labels").setData({ type: "FeatureCollection", features: zones.filter(z => z.name || (hunt && z.grounds) || domainActorOn(z.id)).map(z => {
     const [la, ln] = centroid(z.points);
     // зона-домен без своего имени — подписью имя домена
     const name = hunt && z.grounds ? `${z.name || groundLabel(z.grounds)} · ${HUNTING_GROUNDS[z.grounds]}` : z.name || domainActorOn(z.id)?.name;
@@ -992,19 +973,19 @@ const zoneColor = z => (view().hunt && z.grounds && GROUND_COLORS[z.grounds]) ||
 
 /** Булавки хроники и личные — HTML-маркеры: их можно перетаскивать. */
 function drawPins() {
-  if (!map) return;
+  if (!S.map) return;
   const want = new Map();
   for (const f of folders()) {
     if (!folderVisible(f)) continue;
     for (const m of folderMarkers(f)) if (!m.preset) want.set(m.id, m);
   }
-  if (picked?.kind === "found") { const r = findPicked(); if (r) want.set(r.id, { ...r, cat: "other", search: true }); }
-  for (const [id, p] of pins) if (!want.has(id)) { p.marker.remove(); pins.delete(id); }
+  if (S.picked?.kind === "found") { const r = findPicked(); if (r) want.set(r.id, { ...r, cat: "other", search: true }); }
+  for (const [id, p] of S.pins) if (!want.has(id)) { p.marker.remove(); S.pins.delete(id); }
   for (const [id, m] of want) {
-    const sel = picked?.id === id;
-    const drag = !m.search && canEdit(m) && tool === "select";
+    const sel = S.picked?.id === id;
+    const drag = !m.search && canEdit(m) && S.tool === "select";
     const sig = JSON.stringify([m.lat, m.lng, m.cat, m.color, m.name, m.gmOnly, sel, drag, view().style]);
-    const old = pins.get(id);
+    const old = S.pins.get(id);
     if (old?.sig === sig) continue;
     old?.marker.remove();
     const c = catOf(m.cat);
@@ -1024,29 +1005,29 @@ function drawPins() {
       ev.stopPropagation();
       pick(m.search ? "found" : "marker", id);
     });
-    const marker = new gl.Marker({ element: el, anchor: "bottom", draggable: drag }).setLngLat([m.lng, m.lat]).addTo(map);
+    const marker = new S.gl.Marker({ element: el, anchor: "bottom", draggable: drag }).setLngLat([m.lng, m.lat]).addTo(S.map);
     marker.on("dragend", () => {
       const { lat, lng } = marker.getLngLat();
       const it = m.mine ? mine().find(x => x.id === id) : city().markers.find(x => x.id === id);
       if (it) { it.lat = lat; it.lng = lng; save({ world: !m.mine, own: !!m.mine }); }
     });
-    pins.set(id, { marker, sig });
+    S.pins.set(id, { marker, sig });
   }
 }
 
 function clearPins() {
-  for (const p of pins.values()) p.marker.remove();
-  pins.clear();
+  for (const p of S.pins.values()) p.marker.remove();
+  S.pins.clear();
 }
 
 function drawDraft(hover = null) {
-  const src = map?.getSource("rc-draft");
+  const src = S.map?.getSource("rc-draft");
   if (!src) return;
-  const pts = draft.map(([la, ln]) => [ln, la]);
+  const pts = S.draft.map(([la, ln]) => [ln, la]);
   if (hover) pts.push([hover.lng, hover.lat]);
   src.setData({ type: "FeatureCollection", features: [
     ...(pts.length > 1 ? [{ type: "Feature", geometry: { type: "LineString", coordinates: pts }, properties: {} }] : []),
-    ...draft.map(([la, ln]) => ({ type: "Feature", geometry: { type: "Point", coordinates: [ln, la] }, properties: {} }))
+    ...S.draft.map(([la, ln]) => ({ type: "Feature", geometry: { type: "Point", coordinates: [ln, la] }, properties: {} }))
   ] });
 }
 
@@ -1054,24 +1035,24 @@ function onMapClick(ev) {
   if (ev.originalEvent?.target?.closest?.(".rc-pin, .rc-char")) return;
   for (const c of EXT.clicks) if (c.place?.(ev, api)) return;
   const ll = ev.lngLat;
-  if (placing) {
-    const a = game.actors.get(placing);
-    placing = null; drawTools();
+  if (S.placing) {
+    const a = game.actors.get(S.placing);
+    S.placing = null; drawTools();
     if (a) placeActor(a, city().id, ll.lat, ll.lng, "", npcHidden(a)).then(() => pick("char", a.id));
     return;
   }
-  if (tool === "marker") return addMarker(ll.lat, ll.lng);
-  const tm = EXT.toolModes.find(t => t.id === tool);
+  if (S.tool === "marker") return addMarker(ll.lat, ll.lng);
+  const tm = EXT.toolModes.find(t => t.id === S.tool);
   if (tm) return tm.click(ll, api);
   if (isDrawing()) {
-    if (!game.user.isGM && tool !== "domain") return;
-    const last = draft.at(-1);
-    if (!last || Math.abs(last[0] - ll.lat) + Math.abs(last[1] - ll.lng) > 1e-7) draft.push([ll.lat, ll.lng]);
+    if (!game.user.isGM && S.tool !== "domain") return;
+    const last = S.draft.at(-1);
+    if (!last || Math.abs(last[0] - ll.lat) + Math.abs(last[1] - ll.lng) > 1e-7) S.draft.push([ll.lat, ll.lng]);
     drawDraft();
     return;
   }
   for (const c of EXT.clicks) if (c.hit?.(ev, api)) return;     // объекты модулей поверх зон (пятна…)
-  const hit = map.queryRenderedFeatures(ev.point, { layers: ["rc-poi", "rc-zone-fill", "rc-domain-fill"].filter(l => map.getLayer(l)) });
+  const hit = S.map.queryRenderedFeatures(ev.point, { layers: ["rc-poi", "rc-zone-fill", "rc-domain-fill"].filter(l => S.map.getLayer(l)) });
   const poi = hit.find(f => f.layer.id === "rc-poi");
   if (poi) return pick("poi", poi.properties.id);
   // зона или домен под курсором: из перекрытых — меньшая по площади (домен внутри квартала и наоборот)
@@ -1082,28 +1063,28 @@ function onMapClick(ev) {
   }).filter(Boolean).sort((a, b) => a.area - b.area);
   if (areas.length) return pick(areas[0].kind, areas[0].id);
   for (const c of EXT.clicks) if (c.pick?.(ev, api)) return;
-  if (picked) { picked = null; drawBody(); drawOverlay(); }
+  if (S.picked) { S.picked = null; drawBody(); drawOverlay(); }
 }
 
 function addMarker(lat, lng, name = "") {
   const m = { id: uid(), lat, lng, name, cat: "other", color: "", text: "", gmOnly: false, sceneId: "", journalId: "" };
   if (game.user.isGM) { m.folder = CHRONICLE; city().markers.push(m); save({ own: false }); }
   else { mine().push(m); save({ world: false }); }
-  tool = "select"; drawTools();
+  S.tool = "select"; drawTools();
   pick("marker", m.id);
 }
 
 /** Чертим многоугольник: обычная зона или угодья (инструмент «Угодья» сразу ставит вид угодий и их цвет). */
-const isDrawing = () => tool === "zone" || tool === "grounds" || tool === "domain";
+const isDrawing = () => S.tool === "zone" || S.tool === "grounds" || S.tool === "domain";
 
 function finishZone() {
-  if (tool === "domain") return finishDomain();
-  const g = tool === "grounds" ? drawGround : "";
-  const z = { id: uid(), name: g ? groundLabel(g) : "", color: g ? GROUND_COLORS[g] : "#b0404c", owner: "", text: "", gmOnly: false, points: draft, ...(g ? { grounds: g } : {}) };
+  if (S.tool === "domain") return finishDomain();
+  const g = S.tool === "grounds" ? S.drawGround : "";
+  const z = { id: uid(), name: g ? groundLabel(g) : "", color: g ? GROUND_COLORS[g] : "#b0404c", owner: "", text: "", gmOnly: false, points: S.draft, ...(g ? { grounds: g } : {}) };
   city().zones.push(z);
-  draft = []; drawDraft();
+  S.draft = []; drawDraft();
   // угодья чертят подряд: инструмент остаётся, зона выбрана — справа можно вписать хозяина домена
-  if (!g) { tool = "select"; drawTools(); }
+  if (!g) { S.tool = "select"; drawTools(); }
   save({ own: false });
   pick("zone", z.id);
 }
@@ -1112,40 +1093,40 @@ function finishZone() {
 async function finishDomain() {
   const owners = domainOwners();
   const owner = [game.user.character, canvas?.tokens?.controlled?.[0]?.actor].find(a => a && owners.includes(a)) ?? owners[0];
-  if (!owner) { ui.notifications.warn(L("DomainNoOwner")); draft = []; drawDraft(); return; }
-  const d = { id: uid(), owner: owner.id, text: "", points: draft };
-  draft = []; drawDraft();
-  tool = "select"; drawTools();
+  if (!owner) { ui.notifications.warn(L("DomainNoOwner")); S.draft = []; drawDraft(); return; }
+  const d = { id: uid(), owner: owner.id, text: "", points: S.draft };
+  S.draft = []; drawDraft();
+  S.tool = "select"; drawTools();
   await saveDomains(game.user, [...domainsOf(game.user), d]);
   pick("domain", d.id);
 }
 
 function pick(kind, id) {
-  picked = { kind, id };
-  menuFolder = null;
+  S.picked = { kind, id };
+  S.menuFolder = null;
   drawBody(); drawOverlay(); drawTools();
 }
 
 function fly(lat, lng, zoom = 16) {
-  map.flyTo({ center: [lng, lat], zoom: Math.max(map.getZoom(), zoom), duration: 900 });
+  S.map.flyTo({ center: [lng, lat], zoom: Math.max(S.map.getZoom(), zoom), duration: 900 });
 }
 
 /* ── Поиск адресов (Photon, OpenStreetMap) ───────────────────────────── */
 
 async function geocode(q) {
-  if (!q) { found = []; return drawBody(); }
-  const c = map.getCenter();
+  if (!q) { S.found = []; return drawBody(); }
+  const c = S.map.getCenter();
   try {
     const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&limit=8&lang=en&lat=${c.lat.toFixed(4)}&lon=${c.lng.toFixed(4)}`;
     const data = await fetch(url).then(r => r.json());
-    found = (data.features ?? []).map((f, i) => {
+    S.found = (data.features ?? []).map((f, i) => {
       const p = f.properties;
       return { id: `found-${i}`, lat: f.geometry.coordinates[1], lng: f.geometry.coordinates[0],
         name: p.name || [p.housenumber, p.street].filter(Boolean).join(" ") || q,
         sub: [p.name && p.street ? [p.housenumber, p.street].filter(Boolean).join(" ") : "", p.district, p.city].filter(Boolean).join(", ") };
     });
-    if (!found.length) ui.notifications.info(L("NothingFound"));
-  } catch (e) { found = []; ui.notifications.warn(L("SearchFailed")); }
+    if (!S.found.length) ui.notifications.info(L("NothingFound"));
+  } catch (e) { S.found = []; ui.notifications.warn(L("SearchFailed")); }
   drawBody();
 }
 
@@ -1160,7 +1141,7 @@ function drawHead() {
   const head = document.querySelector(`#${ID} .rc-head`);
   if (!head) return;
   const c = city();
-  const cities = Object.values(state.cities);
+  const cities = Object.values(S.state.cities);
   head.innerHTML = (game.user.isGM ? `
       <div class="rc-cityrow">
         <input class="rc-city" data-field="cityName" value="${esc(c.name)}">
@@ -1175,12 +1156,12 @@ function drawHead() {
 async function onDrop(ev) {
   let data;
   try { data = foundry.applications.ux.TextEditor.implementation.getDragEventData(ev); } catch (e) { return; }
-  if (data?.type !== "Actor" || !map) return;
+  if (data?.type !== "Actor" || !S.map) return;
   ev.preventDefault();
   const a = await fromUuid(data.uuid);
   if (!a?.isOwner) return ui.notifications.warn(T("NotYours"));
-  const r = map.getCanvas().getBoundingClientRect();
-  const ll = map.unproject([ev.clientX - r.left, ev.clientY - r.top]);
+  const r = S.map.getCanvas().getBoundingClientRect();
+  const ll = S.map.unproject([ev.clientX - r.left, ev.clientY - r.top]);
   await placeActor(a, city().id, ll.lat, ll.lng, "", npcHidden(a));
   pick("char", a.id);
 }
@@ -1197,7 +1178,7 @@ function drawTools() {
   if (!box) return;
   const v = view();
   const btn = (t, icon, tip, gm = false) => gm && !game.user.isGM ? "" :
-    `<a class="${tool === t ? "on" : ""}" data-act="tool" data-tool="${t}" data-tooltip="${esc(L(tip))}"><i class="fa-solid ${icon}"></i></a>`;
+    `<a class="${S.tool === t ? "on" : ""}" data-act="tool" data-tool="${t}" data-tooltip="${esc(L(tip))}"><i class="fa-solid ${icon}"></i></a>`;
   // Группы кнопок с подписями (Г3); пустая группа не показывается
   const group = (cap, inner, cls = "", attrs = "") => inner.trim() ? `<div class="rc-tgroup">
       <div class="rc-toolset ${cls}" ${attrs}>${inner}</div><small>${esc(L(`Group.${cap}`))}</small></div>` : "";
@@ -1205,7 +1186,7 @@ function drawTools() {
     ${group("Tools", `${btn("select", "fa-arrow-pointer", "ToolSelect")}${btn("marker", "fa-location-dot", "ToolMarker")}${btn("zone", "fa-draw-polygon", "ToolZone", true)}${btn("grounds", "fa-paw", "ToolGrounds", true)}${domainOwners().length ? btn("domain", "fa-crown", "ToolDomain") : ""}${EXT.toolModes.filter(t => !t.when || t.when()).map(t => btn(t.id, t.icon, t.tip, t.gm)).join("")}`)}
     ${group("Era", eraStyles().map(k => `<a class="${v.style === k ? "on" : ""}" data-act="style" data-style="${k}">${esc(styleExt(k)?.label ?? L(`Style.${k}`))}</a>`).join(""), "rc-textset")}
     ${group("Lang", eraLangs().map(k => `<a class="${v.lang === k ? "on" : ""}" data-act="lang" data-lang="${k}">${esc(L(`Lang.${k}`))}</a>`).join(""), "rc-textset", `data-tooltip="${esc(L("LangHint"))}"`)}
-    ${group("Layers", `<a class="${v.hunt ? "on" : ""}" data-act="huntLayer" data-tooltip="${esc(L("HuntLayer"))}"><i class="fa-solid fa-layer-group"></i></a>${metros[city().preset] ? `<a class="${v.metro ? "on" : ""}" data-act="metro" data-tooltip="${esc(L("MetroToggle"))}"><i class="fa-solid fa-train-subway"></i></a>` : ""}${EXT.tools.map(t => t(api)).join("")}`)}
+    ${group("Layers", `<a class="${v.hunt ? "on" : ""}" data-act="huntLayer" data-tooltip="${esc(L("HuntLayer"))}"><i class="fa-solid fa-layer-group"></i></a>${S.metros[city().preset] ? `<a class="${v.metro ? "on" : ""}" data-act="metro" data-tooltip="${esc(L("MetroToggle"))}"><i class="fa-solid fa-train-subway"></i></a>` : ""}${EXT.tools.map(t => t(api)).join("")}`)}
     ${group("View", `${styleExt(v.style) ? "" : `<a data-act="tilt" data-tooltip="${esc(L("Tilt"))}"><i class="fa-solid fa-cube"></i></a>`}<a data-act="goHome" data-tooltip="${esc(L("GoHome"))}"><i class="fa-solid fa-house"></i></a>`)}
     ${hint()}`;
   syncAim();
@@ -1214,15 +1195,15 @@ function drawTools() {
 /** Подсказка над картой: что сейчас сделает щелчок. */
 function hint() {
   const bar = (icon, text) => `<div class="rc-hintbar"><i class="fa-solid ${icon}"></i> ${esc(text)} <kbd>Esc</kbd></div>`;
-  if (placing) return bar("fa-location-crosshairs", T("PlaceHint", { name: game.actors.get(placing)?.name ?? "" }));
-  if (tool === "zone") return bar("fa-draw-polygon", L("ZoneHint"));
-  if (tool === "domain") return bar("fa-crown", L("DomainDrawHint"));
+  if (S.placing) return bar("fa-location-crosshairs", T("PlaceHint", { name: game.actors.get(S.placing)?.name ?? "" }));
+  if (S.tool === "zone") return bar("fa-draw-polygon", L("ZoneHint"));
+  if (S.tool === "domain") return bar("fa-crown", L("DomainDrawHint"));
   // угодья: какие чертим — выбором прямо в подсказке
-  if (tool === "grounds") return `<div class="rc-hintbar rc-groundbar"><i class="fa-solid fa-paw"></i> ${esc(L("GroundsHint"))}
-    <span class="rc-groundpick">${Object.entries(HUNTING_GROUNDS).map(([k, d]) => `<a class="${k === drawGround ? "on" : ""}" data-act="drawGround" data-ground="${k}" style="--g:${GROUND_COLORS[k]}"><i></i>${esc(groundLabel(k))} <b>${d}</b></a>`).join("")}</span>
+  if (S.tool === "grounds") return `<div class="rc-hintbar rc-groundbar"><i class="fa-solid fa-paw"></i> ${esc(L("GroundsHint"))}
+    <span class="rc-groundpick">${Object.entries(HUNTING_GROUNDS).map(([k, d]) => `<a class="${k === S.drawGround ? "on" : ""}" data-act="drawGround" data-ground="${k}" style="--g:${GROUND_COLORS[k]}"><i></i>${esc(groundLabel(k))} <b>${d}</b></a>`).join("")}</span>
     <kbd>Esc</kbd></div>`;
-  if (tool === "marker") return bar("fa-location-dot", L("MarkerHint"));
-  const tm = EXT.toolModes.find(t => t.id === tool);
+  if (S.tool === "marker") return bar("fa-location-dot", L("MarkerHint"));
+  const tm = EXT.toolModes.find(t => t.id === S.tool);
   if (tm?.hint) return bar(tm.icon, tm.hint());
   return "";
 }
@@ -1231,7 +1212,7 @@ function hint() {
 function syncAim() {
   const root = document.getElementById(ID);
   if (!root) return;
-  if (tool !== "select" || placing) root.setAttribute("data-aim", "");
+  if (S.tool !== "select" || S.placing) root.setAttribute("data-aim", "");
   else root.removeAttribute("data-aim");
 }
 
@@ -1240,7 +1221,7 @@ function syncAim() {
 /** Часы ночи в углу карты; ведущему — пуск, скорость и плавная промотка. */
 function drawClock() {
   const box = document.querySelector(`#${ID} .rc-clock`);
-  if (!box || !state) return;
+  if (!box || !S.state) return;
   const run = clockRunning(), rate = clockRate();
   const C = k => L(`Clock.${k}`);
   // Та же плашка ночи, что в полосе нексуса (Г1); под ней — кнопки хода времени для ведущего
@@ -1270,7 +1251,7 @@ function paintDawn() {
   if (!box) return;
   const s = nightSpan();
   const k = !s.night ? 1 : s.left < MS_HOUR ? 1 - s.left / MS_HOUR : 0;
-  const a = `${Math.round(90 - (map?.getBearing() ?? 0))}deg`;
+  const a = `${Math.round(90 - (S.map?.getBearing() ?? 0))}deg`;
   if (box.style.getPropertyValue("--dawn") !== k.toFixed(2)) box.style.setProperty("--dawn", k.toFixed(2));
   if (box.style.getPropertyValue("--dawn-a") !== a) box.style.setProperty("--dawn-a", a);
 }
@@ -1281,21 +1262,21 @@ function drawBody() {
   const side = body.closest(".rc-side");
   const top = side.scrollTop;
   const v = view();
-  const q = m => !search || [m.name, m.text, m.en, m.ru, m.owner, districtName(m.d)].some(s => String(s ?? "").toLowerCase().includes(search));
-  const row = (kind, m, icon, color) => `<li class="${picked?.id === m.id ? "on" : ""} ${m.deleted ? "is-deleted" : ""}" data-act="fly" data-kind="${kind}" data-id="${m.id}">
+  const q = m => !S.search || [m.name, m.text, m.en, m.ru, m.owner, districtName(m.d)].some(s => String(s ?? "").toLowerCase().includes(S.search));
+  const row = (kind, m, icon, color) => `<li class="${S.picked?.id === m.id ? "on" : ""} ${m.deleted ? "is-deleted" : ""}" data-act="fly" data-kind="${kind}" data-id="${m.id}">
       <i class="fa-solid ${icon}" style="color:${esc(color)}"></i><span>${esc(m.name || L("Unnamed"))}</span>
       ${m.gmOnly ? `<i class="fa-solid fa-lock rc-mini" data-tooltip="${esc(L("GmOnly"))}"></i>` : ""}${m.text ? `<i class="fa-solid fa-feather rc-mini" data-tooltip="${esc(L("HasNote"))}"></i>` : ""}</li>`;
 
   let html = "";
-  if (found.length) html += `<section class="rc-found"><h3 class="rc-sect">${esc(L("Found"))}<a data-act="clearFound" data-tooltip="${esc(L("Close"))}"><i class="fa-solid fa-xmark"></i></a></h3><ul>${found.map(r =>
-    `<li class="${picked?.id === r.id ? "on" : ""}" data-act="fly" data-kind="found" data-id="${r.id}"><i class="fa-solid fa-magnifying-glass"></i><span>${esc(r.name)}${r.sub ? `<small>${esc(r.sub)}</small>` : ""}</span></li>`).join("")}</ul></section>`;
+  if (S.found.length) html += `<section class="rc-found"><h3 class="rc-sect">${esc(L("Found"))}<a data-act="clearFound" data-tooltip="${esc(L("Close"))}"><i class="fa-solid fa-xmark"></i></a></h3><ul>${S.found.map(r =>
+    `<li class="${S.picked?.id === r.id ? "on" : ""}" data-act="fly" data-kind="found" data-id="${r.id}"><i class="fa-solid fa-magnifying-glass"></i><span>${esc(r.name)}${r.sub ? `<small>${esc(r.sub)}</small>` : ""}</span></li>`).join("")}</ul></section>`;
 
   // Персонажи: на карте — выбрать; ещё нет — поставить.
   const onMap = mapActors();
   const ids = new Set(onMap.map(a => a.id));
   const off = placeableActors().filter(a => !ids.has(a.id));
-  const cq = a => !search || a.name.toLowerCase().includes(search);
-  const onRows = onMap.filter(cq).map(a => `<li class="${picked?.kind === "char" && picked.id === a.id ? "on" : ""} ${leaderOf(a) ? "is-crew" : ""}" draggable="true" data-drag-actor="${a.id}" data-act="pickChar" data-actor="${a.id}" style="--c:${ownerColor(a)}">
+  const cq = a => !S.search || a.name.toLowerCase().includes(S.search);
+  const onRows = onMap.filter(cq).map(a => `<li class="${S.picked?.kind === "char" && S.picked.id === a.id ? "on" : ""} ${leaderOf(a) ? "is-crew" : ""}" draggable="true" data-drag-actor="${a.id}" data-act="pickChar" data-actor="${a.id}" style="--c:${ownerColor(a)}">
       <img src="${esc(a.img)}" alt=""><span>${esc(a.name)}<small data-eta="${a.id}">${esc(statusText(a))}</small></span>${game.user.isGM && isHiddenOnMap(a) ? `<i class="fa-solid fa-eye-slash rc-mini" data-tooltip="${esc(T("HiddenTip"))}"></i>` : ""}</li>`);
   // Не на карте: персонажи игроков и (ведущему) НПС — деревом папок каталога актёров Foundry.
   const npcIds = new Set(npcActors().map(a => a.id));
@@ -1315,10 +1296,10 @@ function drawBody() {
   html += `<div class="rc-lists"><h3 class="rc-sect">${esc(L("Folders"))}${game.user.isGM ? `<a data-act="addFolder" data-tooltip="${esc(L("AddFolder"))}"><i class="fa-solid fa-folder-plus"></i></a>` : ""}</h3>`;
   for (const f of folders()) {
     const marks = folderMarkers(f, { all: game.user.isGM }).filter(q);
-    if (search && !marks.length) continue;
+    if (S.search && !marks.length) continue;
     if (f.mine && !marks.length) continue;
     const vis = folderVisible(f);
-    const open = search ? true : !!v.open[vKey(f)];
+    const open = S.search ? true : !!v.open[vKey(f)];
     const icon = f.mine ? "fa-user-pen" : f.preset ? catOf(f.cat).icon : "fa-folder";
     const color = f.preset ? catOf(f.cat).color : "#b9b1a9";
     const live = marks.filter(m => !m.deleted).length;
@@ -1330,7 +1311,7 @@ function drawBody() {
       rows += row(m.preset ? "poi" : "marker", m, lk.icon, lk.color);
     }
     const gmMenu = game.user.isGM && !f.mine;
-    const menu = menuFolder === f.id ? `<div class="rc-fmenu">
+    const menu = S.menuFolder === f.id ? `<div class="rc-fmenu">
         <a data-act="frename" data-folder="${f.id}"><i class="fa-solid fa-pen"></i> ${esc(L("Rename"))}</a>
         <a data-act="fgm" data-folder="${f.id}"><i class="fa-solid ${f.gmOnly ? "fa-lock-open" : "fa-lock"}"></i> ${esc(L(f.gmOnly ? "FolderShow" : "FolderHide"))}</a>
         ${hiddenCount ? `<a data-act="frestore" data-folder="${f.id}"><i class="fa-solid fa-rotate-left"></i> ${esc(L("Restore", { n: hiddenCount }))}</a>` : ""}
@@ -1342,7 +1323,7 @@ function drawBody() {
         <i class="fa-solid ${icon}" style="color:${color}"></i>
         <span class="rc-fname" data-tooltip="${esc(f.name)}">${esc(f.name)}</span>
         ${f.gmOnly ? `<i class="fa-solid fa-lock rc-mini" data-tooltip="${esc(L("GmOnly"))}"></i>` : ""}<b>${live}</b>
-        ${gmMenu ? `<a class="rc-fmore ${menuFolder === f.id ? "on" : ""}" data-act="fmenu" data-folder="${f.id}" data-tooltip="${esc(L("FolderMenu"))}"><i class="fa-solid fa-ellipsis"></i></a>` : ""}
+        ${gmMenu ? `<a class="rc-fmore ${S.menuFolder === f.id ? "on" : ""}" data-act="fmenu" data-folder="${f.id}" data-tooltip="${esc(L("FolderMenu"))}"><i class="fa-solid fa-ellipsis"></i></a>` : ""}
         <a data-act="feye" data-folder="${f.id}" data-tooltip="${esc(L("FolderEye"))}"><i class="fa-solid ${vis ? "fa-eye" : "fa-eye-slash"}"></i></a>
       </header>${menu}
       ${open ? `<ul>${rows || `<li class="empty">${esc(L("NoMarkers"))}</li>`}
@@ -1371,7 +1352,7 @@ function drawInspector() {
   // Не перерисовывать под пальцами: в инспекторе сейчас печатают.
   if (box.contains(ae) && ae.matches("textarea, input:not([type=checkbox]):not([type=color])") && !ae.matches("[data-field=planMin]")) return;
   let html = "";
-  if (picked?.kind === "char") { const a = game.actors.get(picked.id); if (a && cityFlag(a)) html = charCard(a); }
+  if (S.picked?.kind === "char") { const a = game.actors.get(S.picked.id); if (a && cityFlag(a)) html = charCard(a); }
   else { const it = findPicked(); if (it) html = editor(it); }
   box.hidden = !html;
   if (box.innerHTML !== html) { const top = box.scrollTop; box.innerHTML = html; box.scrollTop = top; }
@@ -1380,7 +1361,7 @@ function drawInspector() {
 
 /** Редактор выбранной метки, места, зоны или найденного адреса. */
 function editor(it) {
-  const kind = picked.kind;
+  const kind = S.picked.kind;
   if (kind === "found") return `<section class="rc-edit">
     <div class="rc-edit-head"><i class="fa-solid fa-magnifying-glass"></i><b>${esc(it.name)}</b><a data-act="unpick"><i class="fa-solid fa-xmark"></i></a></div>
     ${it.sub ? `<p class="rc-facts">${esc(it.sub)}</p>` : ""}
@@ -1441,13 +1422,13 @@ async function edit(field, value) {
   if (field === "current") return switchCity(value);
   const it = findPicked();
   if (!it) return;
-  if (EXT.kinds[picked.kind]) return EXT.kinds[picked.kind].edit(it, field, value, api);
-  if (picked.kind === "poi") {
+  if (EXT.kinds[S.picked.kind]) return EXT.kinds[S.picked.kind].edit(it, field, value, api);
+  if (S.picked.kind === "poi") {
     if (!game.user.isGM) return;
     const ov = (c.overrides[it.id] ??= {});
     if (value === "" || value === false) delete ov[field]; else ov[field] = value;
     save({ own: false });
-  } else if (picked.kind === "zone") {
+  } else if (S.picked.kind === "zone") {
     if (!game.user.isGM) return;
     c.zones.find(z => z.id === it.id)[field] = value;
     save({ own: false });
@@ -1465,8 +1446,8 @@ async function edit(field, value) {
 }
 
 async function switchCity(id) {
-  state.current = id;
-  picked = null; found = []; draft = [];
+  S.state.current = id;
+  S.picked = null; S.found = []; S.draft = [];
   clearPins(); clearChars();
   save({ own: false });
   await loadPresets();
@@ -1478,14 +1459,14 @@ function remove() {
   const it = findPicked();
   if (!it) return;
   const c = city();
-  if (picked.kind === "zone") { if (!game.user.isGM) return; c.zones = c.zones.filter(z => z.id !== it.id); save({ own: false }); }
-  else if (EXT.kinds[picked.kind]) return EXT.kinds[picked.kind].remove(it, api);
-  else if (picked.kind === "poi") { if (!game.user.isGM) return; (c.overrides[it.id] ??= {}).deleted = true; save({ own: false }); }
-  else if (picked.kind === "found") { found = found.filter(r => r.id !== it.id); }
-  else if (it.mine) { privates[c.id] = mine().filter(m => m.id !== it.id); save({ world: false }); }
+  if (S.picked.kind === "zone") { if (!game.user.isGM) return; c.zones = c.zones.filter(z => z.id !== it.id); save({ own: false }); }
+  else if (EXT.kinds[S.picked.kind]) return EXT.kinds[S.picked.kind].remove(it, api);
+  else if (S.picked.kind === "poi") { if (!game.user.isGM) return; (c.overrides[it.id] ??= {}).deleted = true; save({ own: false }); }
+  else if (S.picked.kind === "found") { S.found = S.found.filter(r => r.id !== it.id); }
+  else if (it.mine) { S.privates[c.id] = mine().filter(m => m.id !== it.id); save({ world: false }); }
   else if (game.user.isGM) { c.markers = c.markers.filter(m => m.id !== it.id); save({ own: false }); }
   else return;
-  picked = null;
+  S.picked = null;
   drawBody(); drawOverlay();
 }
 
@@ -1498,7 +1479,7 @@ async function prompt(title, value = "") {
 }
 
 async function addCity() {
-  const free = (await loadIndex()).filter(p => !state.cities[p.id]);
+  const free = (await loadIndex()).filter(p => !S.state.cities[p.id]);
   const res = await foundry.applications.api.DialogV2.prompt({
     window: { title: L("AddCity") }, rejectClose: false,
     content: `${free.length ? `<div class="form-group"><label>${esc(L("PresetCity"))}</label><select name="preset"><option value="">—</option>${free.map(p => `<option value="${p.id}">${esc(p.name)} · ${p.count}</option>`).join("")}</select></div>` : ""}
@@ -1509,7 +1490,7 @@ async function addCity() {
   if (!res) return;
   let c;
   if (res.preset) {
-    const p = presetIndex.find(x => x.id === res.preset);
+    const p = S.presetIndex.find(x => x.id === res.preset);
     c = newCity(p.id, p.name, p.center, p.zoom, p.id);
   } else if (res.q) {
     const data = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(res.q)}&limit=1&osm_tag=place`).then(r => r.json()).catch(() => null);
@@ -1517,7 +1498,7 @@ async function addCity() {
     if (!f) return ui.notifications.warn(L("CityNotFound"));
     c = newCity(`c-${uid()}`, res.q, [f.geometry.coordinates[1], f.geometry.coordinates[0]], 12);
   } else return;
-  state.cities[c.id] = c;
+  S.state.cities[c.id] = c;
   switchCity(c.id);
 }
 
@@ -1527,25 +1508,25 @@ async function act(name, el) {
   const folder = fid ? folders().find(f => f.id === fid) : null;
   switch (name) {
     case "tool":
-      tool = el.dataset.tool; draft = []; drawDraft();
-      if (tool === "grounds" && !view().hunt) { await setView({ hunt: true }); drawOverlay(); }   // угодья видны в своих цветах
+      S.tool = el.dataset.tool; S.draft = []; drawDraft();
+      if (S.tool === "grounds" && !view().hunt) { await setView({ hunt: true }); drawOverlay(); }   // угодья видны в своих цветах
       drawTools(); drawPins(); break;
-    case "drawGround": drawGround = el.dataset.ground; drawTools(); break;
+    case "drawGround": S.drawGround = el.dataset.ground; drawTools(); break;
     case "style": await setView({ style: el.dataset.style }); drawTools(); setStyle(); break;
     case "lang": await setView({ lang: el.dataset.lang }); drawTools(); setStyle(); drawBody(); break;
     case "metro": {
       await setView({ metro: !view().metro });
       const vis = view().metro ? "visible" : "none";
-      for (const id of ["rc-metro-line", "rc-metro-st", "rc-metro-name"]) if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", vis);
+      for (const id of ["rc-metro-line", "rc-metro-st", "rc-metro-name"]) if (S.map.getLayer(id)) S.map.setLayoutProperty(id, "visibility", vis);
       drawTools(); break;
     }
     case "tilt": {
-      const flat = map.getPitch() < 5;
-      map.easeTo({ pitch: flat ? 60 : 0, bearing: flat ? -20 : 0, zoom: flat ? Math.max(map.getZoom(), 15.5) : map.getZoom(), duration: 900 });
+      const flat = S.map.getPitch() < 5;
+      S.map.easeTo({ pitch: flat ? 60 : 0, bearing: flat ? -20 : 0, zoom: flat ? Math.max(S.map.getZoom(), 15.5) : S.map.getZoom(), duration: 900 });
       break;
     }
-    case "goHome": map.flyTo({ center: [c.center[1], c.center[0]], zoom: c.zoom, pitch: 0, bearing: homeBearing(), duration: 900 }); break;
-    case "fmenu": menuFolder = menuFolder === fid ? null : fid; drawBody(); break;
+    case "goHome": S.map.flyTo({ center: [c.center[1], c.center[0]], zoom: c.zoom, pitch: 0, bearing: homeBearing(), duration: 900 }); break;
+    case "fmenu": S.menuFolder = S.menuFolder === fid ? null : fid; drawBody(); break;
     case "clockRun": await setClockRunning(!clockRunning()); break;
     case "clockRate": await setClockRate(Number(el.dataset.rate) || 1); break;
     case "clockAdd": await glideTo(getClock() + (Number(el.dataset.min) || 10) * MS_MIN); break;
@@ -1560,7 +1541,7 @@ async function act(name, el) {
     case "fopen": { const k = vKey(folder); await setView({ open: { ...view().open, [k]: !view().open[k] } }); drawBody(); break; }
     case "feye": await setView({ hidden: { ...view().hidden, [vKey(folder)]: folderVisible(folder) } }); drawBody(); drawOverlay(); break;
     case "fgm":
-      menuFolder = null;
+      S.menuFolder = null;
       if (folder.preset) (c.folderMeta[fid] ??= {}).gmOnly = !folder.gmOnly;
       else { const f = c.folders.find(x => x.id === fid); f.gmOnly = !f.gmOnly; }
       save({ own: false }); drawBody(); drawOverlay(); break;
@@ -1576,10 +1557,10 @@ async function act(name, el) {
       if (!ok) break;
       if (folder.preset) (c.folderMeta[fid] ??= {}).deleted = true;
       else { c.folders = c.folders.filter(f => f.id !== fid); c.markers = c.markers.filter(m => m.folder !== fid); }
-      save({ own: false }); picked = null; drawBody(); drawOverlay(); break;
+      save({ own: false }); S.picked = null; drawBody(); drawOverlay(); break;
     }
     case "frestore":
-      menuFolder = null;
+      S.menuFolder = null;
       for (const m of folderMarkers(folder, { all: true })) if (m.deleted) delete c.overrides[m.id].deleted;
       save({ own: false }); drawBody(); drawOverlay(); break;
     case "addFolder": {
@@ -1594,42 +1575,42 @@ async function act(name, el) {
     case "delCity": {
       const ok = await foundry.applications.api.DialogV2.confirm({ window: { title: L("DelCity") }, content: `<p>${esc(L("DelCityConfirm", { name: c.name }))}</p>` });
       if (!ok) break;
-      delete state.cities[c.id];
-      switchCity(Object.keys(state.cities)[0]);
+      delete S.state.cities[c.id];
+      switchCity(Object.keys(S.state.cities)[0]);
       break;
     }
     case "fly": {
-      picked = { kind: el.dataset.kind, id: el.dataset.id };
+      S.picked = { kind: el.dataset.kind, id: el.dataset.id };
       const it = findPicked();
-      if (it && (picked.kind === "zone" || picked.kind === "domain")) {
+      if (it && (S.picked.kind === "zone" || S.picked.kind === "domain")) {
         const lats = it.points.map(p => p[0]), lngs = it.points.map(p => p[1]);
-        map.fitBounds([[Math.min(...lngs), Math.min(...lats)], [Math.max(...lngs), Math.max(...lats)]], { padding: 80, maxZoom: 16, duration: 900 });
+        S.map.fitBounds([[Math.min(...lngs), Math.min(...lats)], [Math.max(...lngs), Math.max(...lats)]], { padding: 80, maxZoom: 16, duration: 900 });
       } else if (it) fly(it.lat, it.lng);
       drawBody(); drawOverlay(); break;
     }
-    case "clearFound": found = []; if (picked?.kind === "found") picked = null; drawBody(); drawPins(); break;
-    case "pinFound": { const r = findPicked(); if (r) { found = found.filter(x => x.id !== r.id); addMarker(r.lat, r.lng, r.name); } break; }
-    case "unpick": picked = null; drawBody(); drawOverlay(); break;
-    case "placeChar": placing = el.dataset.actor; tool = "select"; drawTools(); break;
+    case "clearFound": S.found = []; if (S.picked?.kind === "found") S.picked = null; drawBody(); drawPins(); break;
+    case "pinFound": { const r = findPicked(); if (r) { S.found = S.found.filter(x => x.id !== r.id); addMarker(r.lat, r.lng, r.name); } break; }
+    case "unpick": S.picked = null; drawBody(); drawOverlay(); break;
+    case "placeChar": S.placing = el.dataset.actor; S.tool = "select"; drawTools(); break;
     case "pickChar": {
       const a = game.actors.get(el.dataset.actor);
       const w = a && whereIs(a);
       if (!w) break;
       pick("char", a.id);
-      fly(w.lat, w.lng, Math.min(map.getZoom(), 15));
+      fly(w.lat, w.lng, Math.min(S.map.getZoom(), 15));
       break;
     }
     case "huntLayer": await setView({ hunt: !view().hunt }); drawTools(); drawOverlay(); break;
     case "huntZone": {
-      const z = picked?.kind === "zone" ? findPicked() : null, a = hunter();
+      const z = S.picked?.kind === "zone" ? findPicked() : null, a = hunter();
       if (!z?.grounds) break;
       if (!a) { ui.notifications.warn(L("HuntWho")); break; }
       openHunt(a, huntPlace(z)); break;
     }
-    case "huntHere": { const a = game.actors.get(picked?.id), z = a && huntZoneOf(a), w = a && whereIs(a); if (z) openHunt(a, huntPlace(z, [w.lat, w.lng])); break; }
-    case "flyChar": { const w = whereIs(game.actors.get(picked?.id)); if (w) fly(w.lat, w.lng, 15); break; }
+    case "huntHere": { const a = game.actors.get(S.picked?.id), z = a && huntZoneOf(a), w = a && whereIs(a); if (z) openHunt(a, huntPlace(z, [w.lat, w.lng])); break; }
+    case "flyChar": { const w = whereIs(game.actors.get(S.picked?.id)); if (w) fly(w.lat, w.lng, 15); break; }
     case "toggleHidden": {
-      const a = game.actors.get(picked?.id);
+      const a = game.actors.get(S.picked?.id);
       if (!a || !game.user.isGM) break;
       const hide = !isHiddenOnMap(a);
       // скрыть или показать — вместе с попутчиками-НПС
@@ -1638,14 +1619,14 @@ async function act(name, el) {
       break;
     }
     case "joinGroup": {
-      const to = game.actors.get(picked?.id);
+      const to = game.actors.get(S.picked?.id);
       const who = game.actors.get(el.closest(".rc-gadd")?.querySelector("[data-gpick]")?.value);
       if (!to || !who || !canManage(who)) break;
       if (followersOf(who).some(f => !f.isOwner)) { ui.notifications.warn(T("HasOwnGroup", { name: who.name })); break; }
       await joinGroup(who, to); drawChars(); drawBody(); break;
     }
     case "groupNear": {
-      const to = game.actors.get(picked?.id);
+      const to = game.actors.get(S.picked?.id);
       if (!to) break;
       const root = leaderOf(to) ?? to, here = whereIs(root), inGroup = new Set(groupOf(root).map(x => x.id));
       for (const x of mapActors()) {
@@ -1660,32 +1641,32 @@ async function act(name, el) {
       if (a && canManage(a)) { await leaveGroup(a); drawChars(); drawBody(); }
       break;
     }
-    case "placeNpc": placing = el.dataset.actor; tool = "select"; drawTools(); break;
-    case "sheet": game.actors.get(picked?.id)?.sheet.render(true); break;
+    case "placeNpc": S.placing = el.dataset.actor; S.tool = "select"; drawTools(); break;
+    case "sheet": game.actors.get(S.picked?.id)?.sheet.render(true); break;
     case "unplace": {
-      const a = game.actors.get(picked?.id);
+      const a = game.actors.get(S.picked?.id);
       // Убирают ведущего — группа остаётся на месте (если ей можно распоряжаться), иначе — отказ.
       const crew = a ? followersOf(a) : [];
       if (crew.some(f => !f.isOwner)) { ui.notifications.warn(T("GroupFirst")); break; }
       for (const f of crew) await leaveGroup(f);
       if (a) await a.unsetFlag(SYSTEM_ID, "city");
-      picked = null; drawBody(); drawChars(); break;
+      S.picked = null; drawBody(); drawChars(); break;
     }
     case "remove": remove(); break;
     case "unhide": { const it = findPicked(); if (it) { delete c.overrides[it.id].deleted; save({ own: false }); drawBody(); drawOverlay(); } break; }
     case "home": {
-      const ctr = map.getCenter();
-      c.center = [ctr.lat, ctr.lng]; c.zoom = map.getZoom();
+      const ctr = S.map.getCenter();
+      c.center = [ctr.lat, ctr.lng]; c.zoom = S.map.getZoom();
       save({ own: false }); ui.notifications.info(L("HomeSaved")); break;
     }
     case "openScene": { const s = game.scenes.get(findPicked()?.sceneId); if (s) { closeCity(); s.view(); } break; }
     case "openJournal": game.journal.get(findPicked()?.journalId)?.sheet.render(true); break;
     case "openDomain": game.actors.get(el.dataset.id)?.sheet.render(true); break;
-    case "makeDomain": { const it = findPicked(); if (it && (picked.kind === "zone" || picked.kind === "domain")) await makeDomainFor(picked.kind, it); break; }
+    case "makeDomain": { const it = findPicked(); if (it && (S.picked.kind === "zone" || S.picked.kind === "domain")) await makeDomainFor(S.picked.kind, it); break; }
     default: if (EXT.acts[name]) await EXT.acts[name](el, api); break;
     case "ping": {
       const it = findPicked(); if (!it) break;
-      const [lat, lng] = picked.kind === "zone" ? centroid(it.points) : [it.lat, it.lng];
+      const [lat, lng] = S.picked.kind === "zone" ? centroid(it.points) : [it.lat, it.lng];
       await game.settings.set(SYSTEM_ID, "cityPing", { city: c.id, lat, lng, name: it.name, t: realNow() });
       break;
     }
@@ -1696,23 +1677,23 @@ async function act(name, el) {
 async function onPing(p) {
   if (!p?.t || realNow() - p.t > 15000) return;
   if (!document.getElementById(ID)?.classList.contains("open")) await openCity();
-  if (!map) return;
+  if (!S.map) return;
   fly(p.lat, p.lng);
   const el = document.createElement("div");
   el.className = "rc-pulse";
-  const mk = new gl.Marker({ element: el }).setLngLat([p.lng, p.lat]).addTo(map);
+  const mk = new S.gl.Marker({ element: el }).setLngLat([p.lng, p.lat]).addTo(S.map);
   setTimeout(() => mk.remove(), 4500);
   if (p.name) ui.notifications.info(L("Pinged", { name: p.name }));
 }
 
 /** Данные мира сменил другой клиент. */
 async function onWorldChange(value) {
-  if (!map || JSON.stringify(value) === echo) return;
-  const was = state?.current;
-  state = readWorld();
+  if (!S.map || JSON.stringify(value) === S.echo) return;
+  const was = S.state?.current;
+  S.state = readWorld();
   await loadPresets();
-  if (state.current !== was) { picked = null; clearPins(); jumpToCity(); }
-  if (picked && !findPicked()) picked = null;
+  if (S.state.current !== was) { S.picked = null; clearPins(); jumpToCity(); }
+  if (S.picked && !findPicked()) S.picked = null;
   drawAll();
   for (const o of EXT.overlays) o.world?.(api);
 }
@@ -1730,25 +1711,25 @@ export function registerCityMap() {
   Hooks.once("ready", () => { if (game.settings.get(SYSTEM_ID, "cityMapEnabled")) mount(); });
   // Часы сменили ход — перерисовать панель часов, планировщик (время прибытия) и фишки.
   Hooks.on("updateSetting", s => {
-    if (!map || s.key !== `${SYSTEM_ID}.clock`) return;
+    if (!S.map || s.key !== `${SYSTEM_ID}.clock`) return;
     drawClock(); drawInspector(); drawChars();
     for (const o of EXT.overlays) o.clock?.(api);
   });
   // Кто-то обвёл, поправил или стёр свой домен — перерисовать области
   Hooks.on("updateUser", (user, changes) => {
-    if (!map || !foundry.utils.hasProperty(changes, `flags.${SYSTEM_ID}.${DOMAIN_FLAG}`)) return;
+    if (!S.map || !foundry.utils.hasProperty(changes, `flags.${SYSTEM_ID}.${DOMAIN_FLAG}`)) return;
     drawOverlay(); drawInspector();
     if (!document.activeElement?.closest?.(`#${ID} .rc-body`)) drawBody();
   });
   // Персонаж поехал, приехал, сменил портрет — перерисовать фишки и список (не мешая печатать).
   Hooks.on("updateActor", (actor, changes) => {
-    if (!map || !(changes.flags?.[SYSTEM_ID] || "img" in changes || "name" in changes)) return;
+    if (!S.map || !(changes.flags?.[SYSTEM_ID] || "img" in changes || "name" in changes)) return;
     drawChars();
     if (!document.activeElement?.closest?.(`#${ID} .rc-body`)) drawBody();
   });
   // Домен-актёр появился, сменил хозяина или зону, удалён — цвет зоны и карточка (план 1)
   const domainChanged = actor => {
-    if (!map || actor.type !== "domain") return;
+    if (!S.map || actor.type !== "domain") return;
     drawOverlay();
     if (!document.activeElement?.closest?.(`#${ID} .rc-body`)) drawBody();
   };
