@@ -22,21 +22,24 @@
 // передвигают перетаскиванием (владелец и ведущий), собирают в группы, прячут от игроков.
 
 import { SYSTEM_ID, SYSTEM_PATH } from "../config.mjs";
-import { getClock, clockRunning, clockRate, setClockRunning, setClockRate, glideTo, advanceClock, sunTimes, realNow, nightSpan, MS_MIN, MS_HOUR, MS_DAY } from "../apps/calendar.mjs";
+import { getClock, clockRunning, setClockRunning, setClockRate, glideTo, advanceClock, sunTimes, realNow, MS_MIN, MS_DAY } from "../apps/calendar.mjs";
 import {
   whereIs, cityFlag, placeActor, leaderOf, followersOf, groupOf, joinGroup, leaveGroup, mapVisible, isHiddenOnMap, meters
 } from "./citychars.mjs";
-import { plateHTML, paintPlate } from "./night-plate.mjs";
 import { HUNTING_GROUNDS, openHunt } from "../apps/night.mjs";
-import { masqueradeAt } from "./masquerade.mjs";
 
 import { EXT, registerCityExtension } from "./city-ext.mjs";
-import { CITY_CATEGORIES, catOf, CITY_KINDS, SEAL_SVG, WAX } from "./city-kinds.mjs";
+import { CITY_CATEGORIES, catOf, CITY_KINDS } from "./city-kinds.mjs";
 import { revolution, styleExt, CITY_STYLES, eraStyles, defaultStyle, CITY_LANGS, zoomed, buildStyle } from "./city-style.mjs";
-import { ID, L, esc, uid, showTip, domainActorOn, domainActorColor, T, GROUND_COLORS, groundLabel, inZone, canEditDomain, domainOwners, hunter, canEdit, CHAR_TYPES, placeableActors, kindOf, canManage, crewOf, ownerColor, statusText, NEAR_M, centroid, PIN_INK, RATES, placeInspector } from "././city-util.mjs";
-export { domainActorOn } from "././city-util.mjs";
-import { sealURL, extSeal, drawSeal } from "././city-seals.mjs";
+import { ID, L, esc, uid, showTip, domainActorOn, domainActorColor, T, GROUND_COLORS, groundLabel, domainOwners, hunter, canEdit, placeableActors, kindOf, canManage, ownerColor, statusText, NEAR_M, centroid, PIN_INK, placeInspector } from "./city-util.mjs";
+export { domainActorOn } from "./city-util.mjs";
+import { sealURL } from "./city-seals.mjs";
 import { S } from "./city-state.mjs";
+import { domainLinkHtml, makeDomainFor, huntZoneOf, huntPlace, DOMAIN_FLAG, allDomains, domainById, saveDomains, areaOf, domainsOf } from "./city-domains.mjs";
+export { sceneHasSpot, showSceneOnMap, citySpots, makeDomainFor, showSpotOnMap, huntPlace } from "./city-domains.mjs";
+import { mapActors, npcActors, actorTree, drawChars, spreadChars, clearChars, charCard, onDrop, npcHidden } from "./city-people.mjs";
+import { frame, drawClock } from "./city-clock.mjs";
+import { iconOk, buildIcons } from "./city-icons.mjs";
 export { registerCityExtension, CITY_CATEGORIES, CITY_KINDS, CITY_STYLES, CITY_LANGS };
 
 /** Что карта даёт расширениям: состояние и перерисовки (обёртки — объявленное ниже доступно при вызове). */
@@ -93,106 +96,7 @@ function spotLines(m) {
 
 /* ── Сцена ↔ место на карте (Н4) ───────────────────────────────────────── */
 
-/** Метка хроники или готовое место текущего города, связанное со сценой. */
-function sceneSpot(sceneId) {
-  const c = city();
-  const m = c.markers.find(x => x.sceneId === sceneId && (game.user.isGM || !x.gmOnly));
-  if (m) return { kind: "marker", id: m.id, lat: m.lat, lng: m.lng };
-  for (const [id, x] of poiIndex()) {
-    const p = poiView(x.base, x.folder);
-    if (p.sceneId === sceneId && !p.deleted && (game.user.isGM || !p.gmOnly)) return { kind: "poi", id, lat: p.lat, lng: p.lng };
-  }
-  return null;
-}
-
-/** Есть ли у сцены место на карте — по данным мира, не открывая карту (для кнопки в нексусе). */
-export function sceneHasSpot(sceneId) {
-  if (!game.settings.get(SYSTEM_ID, "cityMapEnabled")) return false;
-  const raw = game.settings.get(SYSTEM_ID, "cityMap") ?? {};
-  const c = raw.cities?.[raw.current] ?? Object.values(raw.cities ?? {})[0] ?? raw;
-  return (c.markers ?? []).some(m => m.sceneId === sceneId && (game.user.isGM || !m.gmOnly))
-    || Object.values(c.overrides ?? {}).some(o => o?.sceneId === sceneId && !o.deleted);
-}
-
-/** Открыть город на месте сцены и выбрать его. */
-export async function showSceneOnMap(sceneId) {
-  await openCity();
-  // штора могла уже открываться (busy) или карта ещё грузит стиль — ждём готовности, а не бросаем
-  for (let i = 0; i < 60 && !(S.state && S.map?.loaded?.()); i++) await new Promise(r => setTimeout(r, 100));
-  const spot = S.state && S.map ? sceneSpot(sceneId) : null;
-  if (!spot) return ui.notifications.info(L("NoSpot"));
-  fly(spot.lat, spot.lng, 17);
-  pick(spot.kind, spot.id);
-}
-
-/** Зоны и метки хроники текущего города — по данным мира, не открывая карту (домены «Двора»). */
-export function citySpots() {
-  const raw = game.settings.get(SYSTEM_ID, "cityMap") ?? {};
-  const c = raw.cities?.[raw.current] ?? Object.values(raw.cities ?? {})[0] ?? raw;
-  const vis = x => game.user.isGM || !x.gmOnly;
-  const cityId = raw.current ?? Object.keys(raw.cities ?? {})[0];
-  return {
-    city: c.name || L("DefaultCity"),
-    zones: (c.zones ?? []).filter(vis).map(z => ({ kind: "zone", id: z.id, name: z.name || L("Zone"), color: z.color || "#b0404c" })),
-    markers: (c.markers ?? []).filter(vis).map(m => ({ kind: "marker", id: m.id, name: m.name || "—" })),
-    // обведённые игроками домены (флаг пользователя cityDomains) — к ним тоже можно привязать актёра «Домен»
-    domains: game.users.contents.flatMap(u => ((u.getFlag(SYSTEM_ID, DOMAIN_FLAG) ?? {})[cityId] ?? []).map(d => ({ kind: "domain", id: d.id,
-      name: L("DomainLabel", { name: game.actors.get(d.owner)?.name ?? L("DomainNobody") }) })))
-  };
-}
-
 /* ── Актёр «Домен» на зоне или обведённом домене (план 1): цвет хозяина, лист по щелчку, создание одной кнопкой ── */
-
-/** Строка о домене-актёре для карточки зоны: хозяин, размер, кнопка листа; без актёра — «Создать домен» (кто может создавать актёров). */
-function domainLinkHtml(id) {
-  const da = domainActorOn(id);
-  if (da) {
-    const o = game.actors.get(da.system.owner), seen = da.testUserPermission(game.user, "LIMITED");
-    return `<div class="rc-domain-link" style="--dc:${esc(domainActorColor(da) ?? "#b0404c")}"><i class="fa-solid fa-chess-rook"></i>
-      <span><b>${esc(da.name)}</b><small>${esc(L("DomainActorLine", { owner: o?.name ?? L("DomainNobody"), n: da.system.rating ?? 0 }))}</small></span>
-      ${seen ? `<a class="r-btn" data-act="openDomain" data-id="${da.id}"><i class="fa-solid fa-book-open"></i> ${esc(L("DomainSheet"))}</a>` : ""}</div>`;
-  }
-  return game.user.can("ACTOR_CREATE") ? `<div class="rc-edit-acts"><a class="r-btn" data-act="makeDomain" data-tooltip="${esc(L("MakeDomainHint"))}"><i class="fa-solid fa-chess-rook"></i> ${esc(L("MakeDomain"))}</a></div>` : "";
-}
-/** Создать актёра «Домен» по зоне или обведённому домену: имя, привязка, угодья и хозяин — сразу. Экспорт — для автотестов. */
-export async function makeDomainFor(kind, it) {
-  if (domainActorOn(it.id)) return;
-  let owner = null, ground = "", name = "";
-  if (kind === "zone") {
-    const nm = String(it.owner ?? "").trim().toLowerCase();
-    owner = nm ? game.actors.find(a => a.name.trim().toLowerCase() === nm) ?? null : null;
-    ground = it.grounds || "";
-    name = it.name || (owner ? L("DomainOf", { name: owner.name }) : L("Zone"));
-  } else {
-    owner = game.actors.get(it.owner) ?? null;
-    // угодья — у зоны рассказчика, в которую попадает середина обведённого домена (карта может быть закрыта — зоны из настроек мира)
-    const [la, ln] = centroid(it.points);
-    const raw = game.settings.get(SYSTEM_ID, "cityMap") ?? {}, zones = S.state ? city().zones : (raw.cities?.[raw.current] ?? Object.values(raw.cities ?? {})[0] ?? {}).zones ?? [];
-    ground = zones.find(z => z.grounds && inZone(z, la, ln))?.grounds ?? "";
-    name = L("DomainOf", { name: owner?.name ?? L("DomainNobody") });
-  }
-  const da = await Actor.create({ name, type: "domain", img: owner?.img,
-    system: { zone: it.id, owner: owner?.id ?? "", ...(ground ? { ground } : {}) },
-    ownership: owner ? Object.fromEntries(Object.entries(owner.ownership ?? {}).filter(([k]) => k !== "default")) : {} });
-  if (!da) return;
-  ui.notifications.info(L("DomainMade", { name: da.name }));
-  if (S.map) { drawBody(); drawOverlay(); }
-  da.sheet.render(true);
-}
-
-/** Открыть город на зоне или метке и выбрать её (домен из «Двора»). */
-export async function showSpotOnMap(kind, id) {
-  await openCity();
-  for (let i = 0; i < 60 && !(S.state && S.map?.loaded?.()); i++) await new Promise(r => setTimeout(r, 100));
-  if (!S.state || !S.map) return;
-  const c = city();
-  const it = kind === "zone" ? c.zones.find(z => z.id === id) : kind === "domain" ? domainById(id) : c.markers.find(m => m.id === id);
-  if (!it) return ui.notifications.info(L("NoSpotFound"));
-  const area = kind === "zone" || kind === "domain";
-  const [lat, lng] = area ? centroid(it.points) : [it.lat, it.lng];
-  fly(lat, lng, area ? 15 : 17);
-  pick(kind, id);
-}
 
 /** Значок и цвет места: смена категории ведущим перебивает вид объекта. */
 function looks(m) {
@@ -203,7 +107,6 @@ function looks(m) {
   const c = catOf(m.cat);
   return { icon: c.icon, color: m.color || c.color, image: `rc-${m.cat in CITY_CATEGORIES ? m.cat : "other"}` };
 }
-const iconOk = {};
 
 /* ── Стиль карты — city-style.mjs; языки и поворот зависят от вида карты ── */
 
@@ -213,76 +116,11 @@ const homeBearing = () => styleExt(view().style)?.bearing ?? 0;
 
 /* ── Состояние ────────────────────────────────────────────────────────── */
 
-
 /* ── Охота от карты (план 8): угодья у зоны, слой «Угодья», «Охотиться здесь» ─────────── */
 
-/** Зона с угодьями, в которой стоит персонаж (самая маленькая из подходящих не нужна — первая по списку). */
-const huntZoneOf = a => { const w = whereIs(a); return w ? city().zones.find(z => z.grounds && (game.user.isGM || !z.gmOnly) && inZone(z, w.lat, w.lng)) : null; };
-/** Место для окна охоты: название, угодья и хозяин домена (поле «Владелец» зоны — имя персонажа). Экспорт — для автотестов. */
-export function huntPlace(z, at = centroid(z.points)) {
-  // жар Маскарада в этой точке (ui/masquerade.mjs) — надбавка к сложности охоты
-  const masq = masqueradeAt(city(), at[0], at[1]).diff;
-  // домен-актёр на этой зоне или на обведённом домене в этой точке (V20, факт «Домен»): хозяин, гости, размер и защищённость
-  const da = domainActorOn(z.id) ?? domainActorOn(domainAt(at[0], at[1])?.id);
-  if (da) {
-    const own = game.actors.get(da.system.owner);
-    return { name: da.name, ground: da.system.ground || z.grounds, masq, owner: { id: own?.id ?? null, name: own?.name ?? da.name },
-      domain: { id: da.id, size: da.system.rating ?? 0, security: da.system.security ?? 0, guests: [...(da.system.guests ?? [])] } };
-  }
-  // хозяин: обведённый домен в этой точке, иначе поле «Владелец» зоны (имя персонажа)
-  const dom = domainAt(at[0], at[1]);
-  if (dom) return { name: z.name || L("Zone"), ground: z.grounds, masq, owner: { id: dom.owner ?? null, name: dom.name } };
-  const owner = String(z.owner ?? "").trim(), who = owner ? game.actors.find(x => x.name.trim().toLowerCase() === owner.toLowerCase()) : null;
-  return { name: z.name || L("Zone"), ground: z.grounds, masq, owner: owner ? { id: who?.id ?? null, name: who?.name ?? owner } : null };
-}
 /* ── Домены: каждый обводит домен своего персонажа (флаг пользователя cityDomains, по городам) ───── */
 
-const DOMAIN_FLAG = "cityDomains";
-const domainsOf = u => (u.getFlag(SYSTEM_ID, DOMAIN_FLAG) ?? {})[city().id] ?? [];
-/** Все домены города от всех пользователей: цвет — цвет игрока, имя — хозяин. */
-function allDomains() {
-  return game.users.contents.flatMap(u => domainsOf(u).map(d => ({ ...d, user: u.id, color: u.color?.css ?? "#c4474c",
-    name: game.actors.get(d.owner)?.name ?? L("DomainNobody") })));
-}
-const domainById = id => allDomains().find(d => d.id === id);
-const domainAt = (lat, lng) => allDomains().find(d => inZone(d, lat, lng));
-async function saveDomains(user, list) {
-  const all = foundry.utils.deepClone(user.getFlag(SYSTEM_ID, DOMAIN_FLAG) ?? {});
-  all[city().id] = list;
-  await user.setFlag(SYSTEM_ID, DOMAIN_FLAG, all);
-}
-/** Площадь многоугольника — при щелчке выбирается меньшая из перекрытых областей (домен внутри зоны и наоборот). */
-const areaOf = pts => Math.abs(pts.reduce((s, [a, b], i) => { const [c, d] = pts[(i + 1) % pts.length]; return s + a * d - c * b; }, 0)) / 2;
-
-EXT.kinds.domain = {
-  find: id => domainById(id),
-  editor: d => {
-    const edit = canEditDomain(d), opts = domainOwners().map(a => `<option value="${a.id}" ${a.id === d.owner ? "selected" : ""}>${esc(a.name)}</option>`).join("");
-    return `<section class="rc-edit">
-      <div class="rc-edit-head"><i class="fa-solid fa-crown" style="color:${esc(d.color)}"></i><b>${esc(L("DomainOf", { name: d.name }))}</b>
-        <a data-act="unpick" data-tooltip="${esc(L("Close"))}"><i class="fa-solid fa-xmark"></i></a></div>
-      <label>${esc(L("DomainOwner"))}<select data-field="owner" ${edit ? "" : "disabled"}>${opts || `<option>${esc(d.name)}</option>`}</select></label>
-      ${edit ? `<textarea data-field="text" rows="3" placeholder="${esc(L("DomainTextHint"))}">${esc(d.text ?? "")}</textarea>` : d.text ? `<p class="rc-text">${esc(d.text)}</p>` : ""}
-      <p class="rc-facts">${esc(L("DomainHint"))}</p>
-      ${domainLinkHtml(d.id)}
-      ${edit ? `<div class="rc-edit-acts"><a class="r-btn rc-danger" data-act="remove" data-tooltip="${esc(L("Delete"))}"><i class="fa-solid fa-trash"></i></a></div>` : ""}
-    </section>`;
-  },
-  edit: async (d, field, value) => {
-    if (!canEditDomain(d)) return;
-    const u = game.users.get(d.user), list = foundry.utils.deepClone(domainsOf(u));
-    const x = list.find(y => y.id === d.id);
-    if (x) { x[field] = value; await saveDomains(u, list); }
-  },
-  remove: async d => {
-    if (!canEditDomain(d)) return;
-    const u = game.users.get(d.user);
-    await saveDomains(u, domainsOf(u).filter(y => y.id !== d.id));
-    S.picked = null; drawBody(); drawOverlay();
-  }
-};
-
-const view = () => {
+export const view = () => {
   const v = foundry.utils.mergeObject({ style: defaultStyle(), lang: "ru", hidden: {}, open: {} }, game.settings.get(SYSTEM_ID, "cityView") ?? {}, { inplace: false });
   if (!eraStyles().includes(v.style)) v.style = defaultStyle();
   if (!(styleExt(v.style)?.langs ?? CITY_LANGS).includes(v.lang) || !v.v2) v.lang = "ru";   // v2: до русских подписей по умолчанию был французский
@@ -311,7 +149,7 @@ function readPrivates() {
   return Array.isArray(f) ? { [DEFAULT_CITY]: f } : f;
 }
 
-const city = () => S.state.cities[S.state.current] ?? Object.values(S.state.cities)[0];
+export const city = () => S.state.cities[S.state.current] ?? Object.values(S.state.cities)[0];
 const mine = () => (S.privates[city().id] ??= []);
 const preset = () => S.presets[city().preset];
 function save({ world = game.user.isGM, own = true } = {}) {
@@ -352,7 +190,7 @@ function folderVisible(f) {
 }
 
 /** Все папки текущего города: свои, личная, готовые. */
-function folders() {
+export function folders() {
   const c = city();
   const meta = id => c.folderMeta?.[id] ?? {};
   const own = c.folders.map(f => ({ ...f, custom: true }));
@@ -363,14 +201,14 @@ function folders() {
 }
 
 /** Место из готовых данных с правками ведущего. */
-function poiView(base, folder) {
+export function poiView(base, folder) {
   const ov = city().overrides?.[base.id] ?? {};
   const lang = view().lang;
   const auto = (lang === "ru" && base.ru) || (lang === "fr" && base.fr) || base.en || base.fr || base.ru;
   return { ...base, folder: folder.id, cat: folder.cat, preset: true, auto, ...ov, catSet: !!ov.cat, name: ov.name || auto };
 }
 
-function poiIndex() {
+export function poiIndex() {
   const out = new Map();
   for (const f of preset()?.folders ?? []) for (const m of f.markers) out.set(m.id, { base: m, folder: f });
   return out;
@@ -405,171 +243,6 @@ function findPicked() {
 }
 
 /* ── Персонажи ────────────────────────────────────────────────────────── */
-
-/** Персонажи на карте текущего города, которых видит этот пользователь. */
-function mapActors() {
-  const id = city().id;
-  return game.actors.filter(a => cityFlag(a)?.city === id && mapVisible(a));
-}
-
-/** НПС для ведущего: персонажи без игрока — ставятся на карту скрытыми. */
-function npcActors() {
-  return game.user.isGM ? game.actors.filter(a => CHAR_TYPES.includes(a.type) && !a.isPlayerCharacter) : [];
-}
-
-/**
- * Персонажи деревом папок каталога актёров Foundry (вложенные папки, их цвет и порядок).
- * Раскрытые папки запоминаются у пользователя (view().open, ключ «actors:<id папки>»); при поиске всё раскрыто.
- */
-function actorTree(list, row, v) {
-  const byName = (x, y) => x.name.localeCompare(y.name, "ru");
-  const inFolder = new Map();
-  for (const a of list) {
-    const k = a.folder?.id ?? "";
-    if (!inFolder.has(k)) inFolder.set(k, []);
-    inFolder.get(k).push(a);
-  }
-  // папки, в которых (глубже тоже) есть кто-то из списка, и сколько их там
-  const count = new Map();
-  for (const [k, arr] of inFolder) for (let f = game.folders.get(k); f; f = f.folder) count.set(f.id, (count.get(f.id) ?? 0) + arr.length);
-  const folders = game.folders.filter(f => f.type === "Actor" && count.has(f.id));
-  const level = parent => folders.filter(f => (f.folder?.id ?? null) === parent)
-    .sort((x, y) => (x.sort - y.sort) || byName(x, y))
-    .map(f => {
-      const open = !!S.search || !!v.open[`actors:${f.id}`];
-      const color = f.color?.css ?? "";
-      return `<details class="rc-afold" data-afold="${f.id}" ${open ? "open" : ""}${color ? ` style="--fc:${esc(color)}"` : ""}>
-        <summary><i class="fa-solid fa-folder${open ? "-open" : ""}"></i><span>${esc(f.name)}</span><b>${count.get(f.id)}</b></summary>
-        <div class="rc-afold-body">${level(f.id)}${(inFolder.get(f.id) ?? []).length ? `<ul class="rc-chars">${inFolder.get(f.id).sort(byName).map(row).join("")}</ul>` : ""}</div>
-      </details>`;
-    }).join("");
-  const loose = (inFolder.get("") ?? []).sort(byName);
-  return level(null) + (loose.length ? `<ul class="rc-chars">${loose.map(row).join("")}</ul>` : "");
-}
-
-/** Фишки персонажей: портрет в кольце цвета игрока. */
-function drawChars() {
-  if (!S.map) return;
-  // Попутчики своих фишек не имеют — их лица на фишке ведущего группы.
-  const want = new Map(mapActors().filter(a => !leaderOf(a)).map(a => [a.id, a]));
-  for (const [id, p] of S.charPins) if (!want.has(id)) { p.marker.remove(); S.charPins.delete(id); }
-  for (const [id, a] of want) {
-    const w = whereIs(a);
-    const sel = S.picked?.kind === "char" && S.picked.id === id;
-    // переставить фишку — перетаскиванием: свою — владелец, любую — ведущий
-    const drag = canManage(a);
-    const crew = crewOf(a);
-    const hid = game.user.isGM && isHiddenOnMap(a);
-    const sig = JSON.stringify([a.img, a.name, sel, ownerColor(a), drag, hid, crew.map(c => [c.id, c.img])]);
-    let p = S.charPins.get(id);
-    if (p?.sig !== sig) {
-      p?.marker.remove();
-      const el = document.createElement("div");
-      el.className = `rc-char${sel ? " is-picked" : ""}${hid ? " is-hidden" : ""}`;
-      el.style.setProperty("--c", ownerColor(a));
-      el.innerHTML = `<span class="rc-char-face"><img src="${esc(a.img)}" alt=""></span>`
-        + (hid ? `<i class="fa-solid fa-eye-slash rc-char-hid" data-tooltip="${esc(T("HiddenTip"))}"></i>` : "")
-        + `<b>${esc(a.name)}</b>`
-        + (crew.length ? `<span class="rc-crew">${crew.map(c => `<img src="${esc(c.img)}" alt="" data-crew="${c.id}" data-tooltip="${esc(c.name)}" style="--c:${ownerColor(c)}">`).join("")}</span>` : "");
-      el.addEventListener("click", ev => { ev.stopPropagation(); pick("char", ev.target.closest("[data-crew]")?.dataset.crew ?? id); });
-      const marker = new S.gl.Marker({ element: el, anchor: "top", offset: [0, -24], draggable: drag }).setLngLat([w.lng, w.lat]).addTo(S.map);
-      marker.on("dragend", () => { const ll = marker.getLngLat(); placeActor(a, city().id, ll.lat, ll.lng); });
-      p = { marker, sig };
-      S.charPins.set(id, p);
-    }
-    p.marker.setLngLat([w.lng, w.lat]);
-  }
-  spreadChars(want);
-}
-
-/**
- * Фишки, что на экране легли друг на друга (вышли из группы, стоят у одного места), — веером вокруг
- * общей середины, чтобы каждую можно было выделить; подписи в стопке — по наведению. Координаты
- * не меняются, только сдвиг на экране; пересчитывается при каждом масштабе.
- */
-function spreadChars(want = null) {
-  if (!S.map) return;
-  want ??= new Map(mapActors().filter(a => !leaderOf(a)).map(a => [a.id, a]));
-  const items = [...want.values()].map(a => {
-    const w = whereIs(a), p = S.charPins.get(a.id);
-    return w && p ? { id: a.id, p, xy: S.map.project([w.lng, w.lat]) } : null;
-  }).filter(Boolean);
-  const done = new Set(), R = 36, NEAR = 54;
-  for (const x of items) {
-    if (done.has(x.id)) continue;
-    // все, кто ближе NEAR пикселей к кому-то из стопки
-    const stack = [x]; done.add(x.id);
-    for (let i = 0; i < stack.length; i++) for (const y of items) {
-      if (!done.has(y.id) && Math.hypot(stack[i].xy.x - y.xy.x, stack[i].xy.y - y.xy.y) < NEAR) { stack.push(y); done.add(y.id); }
-    }
-    const cx = stack.reduce((s, y) => s + y.xy.x, 0) / stack.length, cy = stack.reduce((s, y) => s + y.xy.y, 0) / stack.length;
-    stack.forEach((y, i) => {
-      const r = stack.length > 1 ? R + (stack.length > 4 ? 8 : 0) : 0, ang = -Math.PI / 2 + (2 * Math.PI * i) / stack.length;
-      const dx = stack.length > 1 ? cx + Math.cos(ang) * r - y.xy.x : 0, dy = stack.length > 1 ? cy + Math.sin(ang) * r - y.xy.y : 0;
-      y.p.marker.setOffset([Math.round(dx), -24 + Math.round(dy)]);
-      y.p.marker.getElement().classList.toggle("is-stacked", stack.length > 1);
-    });
-  }
-}
-
-function clearChars() {
-  for (const p of S.charPins.values()) p.marker.remove();
-  S.charPins.clear();
-}
-
-/** Кадр анимации: часы на карте идут вместе с ночными часами. */
-function frame(ts) {
-  S.raf = requestAnimationFrame(frame);
-  if (!S.map || ts - S.lastLabels < 500) return;
-  S.lastLabels = ts;
-  paintClock(getClock());
-}
-
-function charCard(a) {
-  const btn = (act, icon, label, tip = "", cls = "") => `<a class="rc-ibtn ${cls}" data-act="${act}" data-tooltip="${esc(tip || label)}"><i class="fa-solid ${icon}"></i><span>${esc(label)}</span></a>`;
-  const lead = leaderOf(a);
-  return `<section class="rc-card rc-charcard" style="--c:${ownerColor(a)}">
-    <header class="rc-card-head">
-      <img src="${esc(a.img)}" alt="">
-      <div><b>${esc(a.name)}</b><small data-eta="${a.id}">${esc(statusText(a))}</small></div>
-      <a class="rc-x" data-act="unpick" data-tooltip="${esc(L("Close"))}"><i class="fa-solid fa-xmark"></i></a>
-    </header>
-    <div class="rc-ibtns">
-      ${btn("flyChar", "fa-crosshairs", T("Find"))}
-      ${a.hasBlood && a.isOwner && huntZoneOf(a) ? btn("huntHere", "fa-moon", T("HuntHere"), T("HuntHereHint", { zone: huntZoneOf(a).name || groundLabel(huntZoneOf(a).grounds) })) : ""}
-      ${a.testUserPermission(game.user, "OBSERVER") ? btn("sheet", "fa-id-card", T("Sheet")) : ""}
-      ${game.user.isGM ? (isHiddenOnMap(a) ? btn("toggleHidden", "fa-eye", T("Show"), T("ShowHint"), "is-warn") : btn("toggleHidden", "fa-eye-slash", T("Hide"), T("HideHint"))) : ""}
-      ${canManage(a) ? btn("unplace", "fa-trash", T("Unplace"), "", "rc-danger") : ""}
-    </div>
-    ${groupBlock(a, lead)}
-    ${canManage(a) ? `<p class="rc-callout"><i class="fa-solid fa-hand-pointer"></i> ${esc(T("DragHint"))}</p>` : ""}
-  </section>`;
-}
-
-/**
- * Группа в карточке: кто едет вместе, «отделиться», «взять с собой тех, кто рядом» и
- * «присоединить» — своего персонажа (ведущему игры — любого на карте) к этой группе.
- */
-function groupBlock(a, lead) {
-  const root = lead ?? a;
-  const crew = [root, ...crewOf(root)].filter(x => mapVisible(x));
-  const inGroup = new Set(groupOf(root).map(x => x.id));
-  const here = whereIs(root);
-  const cands = mapActors().filter(x => !inGroup.has(x.id) && canManage(x));
-  const near = here ? cands.filter(x => { const w = whereIs(x); return w && meters([w.lng, w.lat], [here.lng, here.lat]) <= NEAR_M; }) : [];
-  const chip = x => `<span class="rc-gchip ${x === root ? "is-lead" : ""}" style="--c:${ownerColor(x)}"><img src="${esc(x.img)}" alt=""><span>${esc(x.name)}</span>`
-    + (x !== root && canManage(x) ? `<a data-act="leaveGroup" data-actor="${x.id}" data-tooltip="${esc(T("LeaveGroup"))}"><i class="fa-solid fa-person-walking-arrow-right"></i></a>` : "")
-    + (x === root ? `<i class="fa-solid fa-crown" data-tooltip="${esc(T("GroupLead"))}"></i>` : "") + `</span>`;
-  const add = cands.length ? `<div class="rc-row rc-gadd"><select data-gpick>${cands.map(x => `<option value="${x.id}">${esc(x.name)}</option>`).join("")}</select>
-      <a class="r-btn" data-act="joinGroup" data-tooltip="${esc(T("JoinHint", { name: root.name }))}"><i class="fa-solid fa-user-plus"></i> ${esc(T("Join"))}</a></div>` : "";
-  if (crew.length < 2 && !cands.length) return "";
-  return `<div class="rc-group">
-    <h4><i class="fa-solid fa-people-group"></i> ${esc(crew.length > 1 ? T("GroupTitle", { n: crew.length }) : T("GroupNone"))}</h4>
-    ${crew.length > 1 ? `<div class="rc-gchips">${crew.map(chip).join("")}</div>` : `<p class="rc-note">${esc(T("GroupHint"))}</p>`}
-    ${near.length ? `<a class="r-btn rc-gnear" data-act="groupNear"><i class="fa-solid fa-people-arrows"></i> ${esc(T("GroupNear", { n: near.length }))}</a>` : ""}
-    ${add}
-  </div>`;
-}
 
 /* ── Каркас шторы ─────────────────────────────────────────────────────── */
 
@@ -795,83 +468,6 @@ function setStyle() {
   S.map?.setStyle(buildStyle(v.style, v.lang), { diff: false });
 }
 
-/** Эмблема (SVG одним путём) цветом кости — картинка для холста. */
-async function emblem(key) {
-  const txt = await fetch(`${SYSTEM_PATH}/assets/icons/city/${key}.svg`).then(r => r.ok ? r.text() : "").catch(() => "");
-  if (!txt) return null;
-  const img = new Image();
-  img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(txt.replace(/<path /g, '<path fill="#f3e7cd" '))}`;
-  try { await img.decode(); } catch (e) { return null; }
-  return img;
-}
-
-/** Значки мест: в эпоху Революции — эмблемы на сургуче, иначе — глиф Font Awesome в тёмном круге цвета категории. */
-async function buildIcons() {
-  // пиксели каждого значка читаются обратно (карте нужны сырые данные): холст в памяти, а не на видеокарте, — чтение без задержки
-  const READ = { willReadFrequently: true };
-  const probe = document.createElement("i");
-  probe.style.cssText = "position:absolute;left:-9999px;top:-9999px";
-  document.body.appendChild(probe);
-  const out = {};
-  const all = [
-    ...Object.entries(CITY_CATEGORIES).map(([k, c]) => [k, k, c.icon, c.color, null, k]),
-    ...Object.entries(CITY_KINDS).map(([k, [icon, cat]]) => [`k-${k}`, k, icon, catOf(cat).color, catOf(cat).icon, cat])
-  ];
-  const sealed = revolution();
-  for (let [k, svg, icon, color, fallback, cat] of all) {
-    // штабы фракций — печати мастера (assets/factions/seal-*.webp, tools/build_faction_seals.py)
-    const fac = sealed && /^f-/.test(svg) ? await extSeal(svg.slice(2)) : null;
-    if (fac) {
-      const S = 76, cv = document.createElement("canvas");
-      cv.width = cv.height = S;
-      const ctx = cv.getContext("2d", READ);
-      ctx.save(); ctx.shadowColor = "rgba(0,0,0,.6)"; ctx.shadowBlur = 4; ctx.shadowOffsetY = 2;
-      ctx.beginPath(); ctx.arc(S / 2, S / 2, S / 2 - 5, 0, Math.PI * 2); ctx.fillStyle = "#000"; ctx.fill(); ctx.restore();
-      ctx.save(); ctx.beginPath(); ctx.arc(S / 2, S / 2, S / 2 - 5, 0, Math.PI * 2); ctx.clip();
-      ctx.drawImage(fac, 5, 5, S - 10, S - 10); ctx.restore();
-      out[k] = { width: S, height: S, data: new Uint8Array(ctx.getImageData(0, 0, S, S).data.buffer) };
-      sealURL[k] = cv.toDataURL();
-      continue;
-    }
-    if (sealed && SEAL_SVG.has(svg)) {
-      const S = 76;
-      const cv = document.createElement("canvas");
-      cv.width = cv.height = S;
-      const ctx = cv.getContext("2d", READ);
-      drawSeal(ctx, S, k, WAX[cat] ?? WAX.other, await emblem(svg));
-      out[k] = { width: S, height: S, data: new Uint8Array(ctx.getImageData(0, 0, S, S).data.buffer) };
-      sealURL[k] = cv.toDataURL();
-      continue;
-    }
-    const S = 52;
-    probe.className = `fa-solid ${icon}`;
-    // Font Awesome 7 пишет content как `"<глиф>" / ""` (с альтернативным текстом) — берём первую строку.
-    const raw = getComputedStyle(probe, "::before").content;
-    let glyph = raw.match(/^(["'])(.*?)\1/)?.[2] ?? raw;
-    // Значка нет в этой сборке Font Awesome — берём значок категории.
-    if ((!glyph || raw === "none") && fallback) {
-      iconOk[k] = false;
-      probe.className = `fa-solid ${fallback}`;
-      const r2 = getComputedStyle(probe, "::before").content;
-      glyph = r2.match(/^(["'])(.*?)\1/)?.[2] ?? r2;
-    }
-    const cs = getComputedStyle(probe);
-    const font = `${cs.fontWeight} 22px ${cs.fontFamily}`;
-    try { await document.fonts.load(font, glyph); } catch (e) {}
-    const cv = document.createElement("canvas");
-    cv.width = cv.height = S;
-    const ctx = cv.getContext("2d", READ);
-    ctx.beginPath(); ctx.arc(S / 2, S / 2, S / 2 - 4, 0, Math.PI * 2);
-    ctx.fillStyle = "rgba(12,10,12,.92)"; ctx.fill();
-    ctx.lineWidth = 3; ctx.strokeStyle = color; ctx.stroke();
-    ctx.font = font; ctx.fillStyle = color; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-    ctx.fillText(glyph, S / 2, S / 2 + 1);
-    out[k] = { width: S, height: S, data: new Uint8Array(ctx.getImageData(0, 0, S, S).data.buffer) };
-  }
-  probe.remove();
-  return out;
-}
-
 const EMPTY = { type: "FeatureCollection", features: [] };
 
 /** Слои хроники поверх стиля: места, зоны, черновик. Смена стиля их сбрасывает — добавляем заново. */
@@ -930,7 +526,7 @@ function addOverlay() {
 }
 
 /** Обновить данные слоёв: места видимых папок, зоны, выделение, булавки. */
-function drawOverlay() {
+export function drawOverlay() {
   if (!S.map?.getSource("rc-poi")) return drawPins();
   const feats = [];
   for (const f of folders().filter(f => f.preset && folderVisible(f))) {
@@ -1101,13 +697,13 @@ async function finishDomain() {
   pick("domain", d.id);
 }
 
-function pick(kind, id) {
+export function pick(kind, id) {
   S.picked = { kind, id };
   S.menuFolder = null;
   drawBody(); drawOverlay(); drawTools();
 }
 
-function fly(lat, lng, zoom = 16) {
+export function fly(lat, lng, zoom = 16) {
   S.map.flyTo({ center: [lng, lat], zoom: Math.max(S.map.getZoom(), zoom), duration: 900 });
 }
 
@@ -1150,27 +746,6 @@ function drawHead() {
       </div>
       ${cities.length > 1 ? `<select class="rc-citysel" data-field="current">${cities.map(x => `<option value="${x.id}" ${x.id === c.id ? "selected" : ""}>${esc(x.name)}</option>`).join("")}</select>` : ""}`
     : `<h2>${esc(c.name)}</h2>`) + `<span class="rc-sub">${esc(L("Subtitle"))}</span>`;
-}
-
-/** Бросили актёра из списка Foundry на карту — поставить туда. */
-async function onDrop(ev) {
-  let data;
-  try { data = foundry.applications.ux.TextEditor.implementation.getDragEventData(ev); } catch (e) { return; }
-  if (data?.type !== "Actor" || !S.map) return;
-  ev.preventDefault();
-  const a = await fromUuid(data.uuid);
-  if (!a?.isOwner) return ui.notifications.warn(T("NotYours"));
-  const r = S.map.getCanvas().getBoundingClientRect();
-  const ll = S.map.unproject([ev.clientX - r.left, ev.clientY - r.top]);
-  await placeActor(a, city().id, ll.lat, ll.lng, "", npcHidden(a));
-  pick("char", a.id);
-}
-
-/** НПС, впервые поставленный на карту, — скрыт от игроков (ведущий покажет кнопкой «Показать»). */
-function npcHidden(a) {
-  if (a.hasPlayerOwner || cityFlag(a)?.hidden !== undefined) return {};
-  ui.notifications.info(T("NpcPlacedHidden", { name: a.name }));
-  return { hidden: true };
 }
 
 function drawTools() {
@@ -1218,45 +793,7 @@ function syncAim() {
 
 /* ── Часы на карте ────────────────────────────────────────────────────── */
 
-/** Часы ночи в углу карты; ведущему — пуск, скорость и плавная промотка. */
-function drawClock() {
-  const box = document.querySelector(`#${ID} .rc-clock`);
-  if (!box || !S.state) return;
-  const run = clockRunning(), rate = clockRate();
-  const C = k => L(`Clock.${k}`);
-  // Та же плашка ночи, что в полосе нексуса (Г1); под ней — кнопки хода времени для ведущего
-  box.innerHTML = `${plateHTML()}
-    ${game.user.isGM ? `<div class="rc-clock-ctl">
-      <a class="rc-clock-run ${run ? "on" : ""}" data-act="clockRun" data-tooltip="${esc(C(run ? "Pause" : "Run"))}"><i class="fa-solid ${run ? "fa-pause" : "fa-play"}"></i></a>
-      <span class="rc-seg rc-clock-rates">${RATES.map(r => `<a class="${Math.abs(rate - r) < .01 ? "on" : ""}" data-act="clockRate" data-rate="${r}" data-tooltip="${esc(C("RateHint"))}">×${r}</a>`).join("")}</span>
-      <span class="rc-seg">${[10, 30, 60].map(m => `<a data-act="clockAdd" data-min="${m}" data-tooltip="${esc(C("AddHint"))}">+${m < 60 ? `${m}${T("Min")}` : `1${T("H")}`}</a>`).join("")}</span>
-      <a data-act="clockDawn" data-tooltip="${esc(C("ToDawn"))}"><i class="fa-solid fa-sun"></i></a>
-    </div>` : ""}`;
-  paintClock();
-}
-
-/** Раз в полсекунды — только текст: кнопки не перерисовываются, пока по ним жмут. */
-function paintClock() {
-  paintPlate(document.querySelector(`#${ID} .rc-clock`));
-  paintDawn();
-  placeInspector();
-}
-
-/**
- * Рассвет на карте (Г2): в последний час ночи восточный край плана теплеет, к восходу — сильнее;
- * днём тепло держится. Восток — с учётом поворота карты.
- */
-function paintDawn() {
-  const box = document.querySelector(`#${ID} .rc-map`);
-  if (!box) return;
-  const s = nightSpan();
-  const k = !s.night ? 1 : s.left < MS_HOUR ? 1 - s.left / MS_HOUR : 0;
-  const a = `${Math.round(90 - (S.map?.getBearing() ?? 0))}deg`;
-  if (box.style.getPropertyValue("--dawn") !== k.toFixed(2)) box.style.setProperty("--dawn", k.toFixed(2));
-  if (box.style.getPropertyValue("--dawn-a") !== a) box.style.setProperty("--dawn-a", a);
-}
-
-function drawBody() {
+export function drawBody() {
   const body = document.querySelector(`#${ID} .rc-body`);
   if (!body) return;
   const side = body.closest(".rc-side");
@@ -1416,7 +953,7 @@ function editor(it) {
   </section>`;
 }
 
-async function edit(field, value) {
+export async function edit(field, value) {
   const c = city();
   if (field === "cityName") { c.name = value; save({ own: false }); return; }
   if (field === "current") return switchCity(value);
@@ -1455,7 +992,7 @@ async function switchCity(id) {
   drawAll();
 }
 
-function remove() {
+export function remove() {
   const it = findPicked();
   if (!it) return;
   const c = city();
@@ -1502,7 +1039,7 @@ async function addCity() {
   switchCity(c.id);
 }
 
-async function act(name, el) {
+export async function act(name, el) {
   const c = city();
   const fid = el.dataset.folder;
   const folder = fid ? folders().find(f => f.id === fid) : null;
