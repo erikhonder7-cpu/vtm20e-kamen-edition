@@ -479,6 +479,34 @@ def parse_sorcerer():
             "consor": {"roles": roles, "creation": CONSOR_CREATION}}
 
 
+# ── Ротэ из книг: «- **Название (English)** (Сфера N, Сфера N) — описание. **Система:** …» по всему справочнику ──
+ROTE_SPH = r"(?:Соответстви[ея]|Связи|Энтропи[яи]|Сил[ыа]?|Жизн[ьи]|Матери[яи]|Разум[а]?|Первоначал[оа]|Основ[ыа]?|Дух[а]?|Врем[яени]+|Данные|Пространственная наука|Первичная полезность)"
+ROTE_RX = re.compile(r"^- \*\*(.+?)\*\*\s*\(((?:[^()]|\([^()]*\))*?" + ROTE_SPH + r"\s*\d(?:[^()]|\([^()]*\))*)\)\s*[—–:.-]?\s*(.*)$")
+
+
+def parse_rotes():
+    labels, out, seen = {**dict(BOOKS), "Mage_Dead_Magic": "Мёртвая магия (Dead Magic)"}, [], set()
+    for folder in sorted(os.listdir(REF)):
+        d = os.path.join(REF, folder)
+        if not os.path.isdir(d):
+            continue
+        for fn in sorted(os.listdir(d)):
+            for line in read(os.path.join(d, fn)).splitlines():
+                m = ROTE_RX.match(line.rstrip())
+                if not m:
+                    continue
+                name, en = m.group(1).strip(), ""
+                e = re.match(r"^(.+?)\s*\(([A-Za-z][^()]*)\)$", name)
+                if e:
+                    name, en = e.group(1).strip(), e.group(2).strip()
+                if name in seen:
+                    continue
+                seen.add(name)
+                out.append({"name": name, "en": en, "spheres": plain(m.group(2)), "text": plain(m.group(3)), "source": labels.get(folder, folder.replace("_", " ")),
+                            **({"nephandi": True} if "Fallen" in folder else {})})
+    return sorted(out, key=lambda r: r["name"])
+
+
 def parse_essences():
     out = []
     for line in section(core("01"), "## Сущность Аватара"):
@@ -673,7 +701,7 @@ def build():
         "source": "Mage: The Ascension 20th Anniversary Edition — справочник проекта (пересказ механики)",
         "spheres": spheres, "ranks": RANKS, "arete": ARETE,
         "groups": [{"key": k, "name": n} for k, n, _ in GROUPS] + [{"key": "nephandi", "name": "Нефанди"}, {"key": "marauders", "name": "Мародёры"}], "factions": factions,
-        "qliphoth": neph["qliphoth"], "fallenTools": neph["tools"], "sorcerer": parse_sorcerer(),
+        "qliphoth": neph["qliphoth"], "fallenTools": neph["tools"], "sorcerer": parse_sorcerer(), "rotes": parse_rotes(),
         "essences": parse_essences(), "archetypes": parse_archetypes(),
         "backgrounds": parse_backgrounds(), "merits": parse_merits() + neph["merits"] + invest, "wonders": wonders,
         "quiet": QUIET, "pflaws": PFLAWS, "resonance": RESONANCE, "paradoxSpirits": parse_paradox_spirits(), "realms": REALMS, "focus": (lambda f: {**f, "paradigms": f["paradigms"] + neph["paradigms"],

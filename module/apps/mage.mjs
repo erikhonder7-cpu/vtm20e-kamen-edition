@@ -379,7 +379,18 @@ export async function mageCardAction(message, action) {
 export async function addRote(actor, i = null) {
   const old = i != null ? actor.system.mage.rotes[i] : null;
   const res = await foundry.applications.api.DialogV2.prompt({ window: { title: mt(actor, "RoteAdd"), icon: "fa-solid fa-scroll" }, classes: ["vtm20", "r-dialog", "r-type-mage"], rejectClose: false, position: { width: 460 },
-    content: `<div class="r-form"><label class="r-field"><span>${esc(t("RoteName"))}</span><input type="text" name="name" value="${esc(old?.name ?? "")}" autofocus></label>
+    // ротэ из книг (data/mage.json → rotes): выбор в списке заполняет поля; ротэ Падших — только Нефанду
+    render: (ev, dlg) => {
+      const f = dlg.element.querySelector("form"), pick = f?.elements.book;
+      pick?.addEventListener("change", () => {
+        const r = (M().rotes ?? []).find(x => x.name === pick.value);
+        if (!r) return;
+        f.elements.name.value = r.name; f.elements.spheres.value = r.spheres; f.elements.text.value = `${r.text}${r.source ? ` (${r.source})` : ""}`;
+      });
+    },
+    content: `<div class="r-form">${old ? "" : `<label class="r-field"><span>${esc(t("RoteBook"))}</span><input type="text" name="book" list="r-rote-book" placeholder="${esc(t("RoteBookHint", { n: (M().rotes ?? []).length }))}"></label>
+      <datalist id="r-rote-book">${(M().rotes ?? []).filter(r => !r.nephandi || isFallen(actor)).map(r => `<option value="${esc(r.name)}">${esc(r.spheres)}</option>`).join("")}</datalist>`}
+      <label class="r-field"><span>${esc(t("RoteName"))}</span><input type="text" name="name" value="${esc(old?.name ?? "")}" autofocus></label>
       <label class="r-field"><span>${esc(t("RoteSpheres"))}</span><input type="text" name="spheres" value="${esc(old?.spheres ?? "")}" placeholder="${esc(t("RoteSpheresHint"))}"></label>
       <label class="r-field"><span>${esc(t("KindCap"))}</span><select name="kind">${KINDS.map(([k]) => `<option value="${k}"${(old?.kind || "coincidental") === k ? " selected" : ""}>${esc(t(`Kind.${k}`))}</option>`).join("")}</select></label>
       <label class="r-field"><span>${esc(t("RoteText"))}</span><textarea name="text" rows="3">${esc(old?.text ?? "")}</textarea></label></div>`,

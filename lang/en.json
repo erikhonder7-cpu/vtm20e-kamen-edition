@@ -7271,7 +7271,9 @@
         "Finish": "Finish",
         "NoQuint": "Not enough Quintessence: {n} needed.",
         "Done": "<b>{name}</b> completes the Wonder “{item}”: {n} Quintessence invested."
-      }
+      },
+      "RoteBook": "From a book",
+      "RoteBookHint": "start typing a name — {n} rotes in the reference"
     },
     "MageCr": {
       "NeedFaction": "Pick a faction.",
