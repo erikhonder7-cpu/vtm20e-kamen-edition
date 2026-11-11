@@ -37,7 +37,7 @@ export const SUBSTANCES = {
 };
 
 /** Вещества в крови персонажа: [{ effect, key, dose, until }]. */
-export const substancesOf = actor => (actor?.effects ?? []).filter(e => !e.disabled && e.flags?.[SYSTEM_ID]?.substance)
+const substancesOf = actor => (actor?.effects ?? []).filter(e => !e.disabled && e.flags?.[SYSTEM_ID]?.substance)
   .map(e => ({ effect: e, key: e.flags[SYSTEM_ID].substance, dose: e.flags[SYSTEM_ID].dose ?? 1, until: e.flags[SYSTEM_ID].until ?? null }));
 
 /**

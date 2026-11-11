@@ -15,7 +15,7 @@ import { nameKey } from "../data/lineage.mjs";
 const t = (k, d) => d ? game.i18n.format(`VTM20.Embrace.${k}`, d) : game.i18n.localize(`VTM20.Embrace.${k}`);
 const esc = s => foundry.utils.escapeHTML(String(s ?? ""));
 /** Кланы, которые не могут дать Становление (V20, гл. 2): Ангра-Майнью — инертная кровь, у Кровных Братьев смертный гибнет. */
-export const NO_EMBRACE = { angraMaynyu: "Inert", krovnyeBratya: "Dies" };
+const NO_EMBRACE = { angraMaynyu: "Inert", krovnyeBratya: "Dies" };
 /** Поля смертного и гуля, которых у Сородича нет. */
 const DROP = ["vessel", "trueFaith", "thrall", "kinfolk", "exorcist", "ebServant", "domitor", "domitorClan", "domitorGeneration", "ghoulType", "family", "dhampir"];
 

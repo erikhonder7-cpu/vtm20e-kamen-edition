@@ -29,7 +29,7 @@ const POPULACE = [[0, 0, ""], [3, 15, "1"], [7, 35, "1–2"], [15, 75, "1–3"],
 /** Челядь (там же): сколько слуг можно взять в поездку или на дело. */
 const SERVANTS = [0, 3, 7, 15, 30, 60];
 /** События домена (там же): ключи — тексты механики в языке. */
-export const DOMAIN_EVENTS = ["curse", "disaster", "saint", "famine", "invasion", "court", "heresy", "miracle", "brigands", "pilgrims"];
+const DOMAIN_EVENTS = ["curse", "disaster", "saint", "famine", "invasion", "court", "heresy", "miracle", "brigands", "pilgrims"];
 const dots = (v, max = 5) => Array.from({ length: Math.max(max, v) }, (_, i) => i < v);
 
 /** Строка о персонаже: клан и поколение, племя и аугурия, кредо, Дом… */

@@ -29,10 +29,10 @@ import { ritualNeed, thrallState, thrallCap, reliquaryInfo } from "../apps/torme
 export const TextEditor = () => foundry.applications.ux.TextEditor.implementation;
 export const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
 export const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
-export const clockDate = ms => longDate(new Date(ms));
+const clockDate = ms => longDate(new Date(ms));
 
 /** Описание вторичной способности из data/abilities.json — простым текстом для подсказки. */
-export const abilityTip = name => {
+const abilityTip = name => {
   const x = name && (Codex.abilities ?? []).find(y => y.name.toLowerCase() === String(name).trim().toLowerCase());
   // без строки «Источник: …» — подсказка начинается с сути
   return x ? x.html.replace(/^<p><em>[\s\S]*?<\/em><\/p>/, "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 420) : "";
@@ -56,7 +56,7 @@ const formBadge = (s, k, at) => {
 };
 
 /** Состояния персонажа, которые видны на портрете: значок, оттенок портрета (cls), тревожные — красным. */
-export const PORTRAIT_STATES = [
+const PORTRAIT_STATES = [
   { id: "r-frenzy", key: "frenzy", icon: "fa-face-angry", cls: "is-frenzy", hot: true },
   { id: "r-harano", key: "harano", icon: "fa-cloud-rain", cls: "is-torpor" },
   { id: "r-rotschreck", key: "rotschreck", icon: "fa-fire", cls: "is-rotschreck", hot: true },
@@ -707,7 +707,7 @@ export function prepareGear(sheet, ctx) {
 }
 
 /** Итог действующей формы строкой для листа. */
-export function formSummary(f, a) {
+function formSummary(f, a) {
   if (!f) return "";
   const out = Object.entries(f.attr).map(([k, v]) => `${a.traitLabel(`attributes.${k}`)} +${v}`);
   if (f.soak) out.push(t("Demon.FormMech.Soak", { n: f.soak }));

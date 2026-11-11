@@ -23,7 +23,7 @@ const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`
  * Манёвры ближнего боя без оружия (04, «Манёвры ближнего боя»).
  * dice — «точность» (кубы к атаке), diff — к сложности, dmg — к Силе (null — урона нет).
  */
-export const MANEUVERS = {
+const MANEUVERS = {
   punch:  { attr: "dexterity", ability: "brawl", dice: 0, diff: 0, dmg: 0,    type: "bashing",    icon: "fa-hand-fist" },
   kick:   { attr: "dexterity", ability: "brawl", dice: 0, diff: 1, dmg: 1,    type: "bashing",    icon: "fa-shoe-prints" },
   claws:  { attr: "dexterity", ability: "brawl", dice: 0, diff: 0, dmg: 1,    type: "aggravated", icon: "fa-paw", vampire: true, fangs: true, supernatural: true },
@@ -36,7 +36,7 @@ export const MANEUVERS = {
 };
 
 /** Защитные манёвры: встречная проверка против атаки. */
-export const DEFENSES = {
+const DEFENSES = {
   dodge: { attr: "dexterity", ability: "athletics", icon: "fa-person-running" },
   block: { attr: "dexterity", ability: "brawl",     icon: "fa-shield-halved" },
   parry: { attr: "dexterity", ability: "melee",     icon: "fa-khanda" }
@@ -76,7 +76,7 @@ function nextDefense(actor) {
 const tokenOf = actor => actor?.getActiveTokens?.(true)?.[0] ?? null;
 
 /** Расстояние между жетонами в единицах сцены (метры). */
-export function tokenDistance(a, b) {
+function tokenDistance(a, b) {
   const ta = tokenOf(a), tb = tokenOf(b);
   if (!ta || !tb || !canvas?.grid) return null;
   try { return canvas.grid.measurePath([ta.center, tb.center]).distance; } catch { return null; }
@@ -431,7 +431,7 @@ async function postAttackCard(attacker, target, d) {
 }
 
 /** Карточки атак, по которым подведён итог (среди последних сообщений). */
-export function resolvedIds() {
+function resolvedIds() {
   const out = new Set();
   for (const m of game.messages.contents.slice(-120)) {
     const r = m.getFlag(SYSTEM_ID, "combatResult");

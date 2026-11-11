@@ -35,8 +35,8 @@ export const H = () => Codex.hunter ?? { creeds: [], edges: [], virtues: {} };
 /** Свидетель (Players Guide, гл. 1): кредо «bystander» — без Граней, свои Добродетели, Убеждённость как рассудок. */
 export const isLost = actor => actor?.system?.hunter?.creed === "bystander";
 export const LOST_KEYS = ["courage", "reason", "selfControl"];
-export const creedOf = key => H().creeds.find(c => c.key === key) ?? null;
-export const edgeOf = key => H().edges.find(e => e.key === key) ?? null;
+const creedOf = key => H().creeds.find(c => c.key === key) ?? null;
+const edgeOf = key => H().edges.find(e => e.key === key) ?? null;
 /** Есть ли у охотника Грань того же пути уровнем ниже (основная или из книги кредо — любая). */
 export const hasPrevEdge = (keys, e) => e.level <= 1 || [...keys].some(k => { const x = edgeOf(k); return x?.path === e.path && x.level === e.level - 1; });
 /** Есть ли у кредо свой путь Граней (у потерянных кредо Players Guide — нет: Грани из чужих путей без потолка по своему). */
@@ -54,9 +54,9 @@ const setting = k => { try { return game.settings.get(SYSTEM_ID, k); } catch { r
 /** «core» — по книге (10 Убеждённости → пункт Добродетели); «xp» — Убеждённость, Добродетели и Грани за опыт;
  *  «deeds» — временные Добродетели за поступки, 10 → пункт постоянной. */
 export const growth = () => { const g = setting("hunterGrowth"); return g === "xp" || g === "deeds" ? g : "core"; };
-export const fifthOn = () => !!setting("hunterFifth");
+const fifthOn = () => !!setting("hunterFifth");
 export const sacrificeOn = () => !!setting("hunterSacrifice");
-export const freeformOn = () => !!setting("hunterFreeform");
+const freeformOn = () => !!setting("hunterFreeform");
 /** С какой Добродетели начинаются психозы: 7, при Жертве — 9. */
 const madFrom = () => sacrificeOn() ? 9 : 7;
 /** Добродетель застыла: Грань V другой Добродетели, если условие не снято жертвой. */
@@ -73,7 +73,7 @@ export const edgeCost = level => COSTS[setting("hunterEdgeCost") === "cheap" ? "
 /** Сколько Добродетели нужно для уровня (сумма цен уровней 1…L); для V — 10. */
 const needFor = level => level >= 5 ? 10 : Array.from({ length: level }, (_, i) => edgeCost(i + 1)).reduce((s, c) => s + c, 0);
 /** Высший уровень Грани при значении Добродетели. */
-export function levelCap(v) {
+function levelCap(v) {
   let cap = 0;
   for (let l = 1; l <= 5; l++) if (needFor(l) <= v) cap = l;
   return cap;
@@ -113,7 +113,7 @@ export function registerHunter() {
 }
 
 /** Грани персонажа (данные справочника) по порядку путей и уровней. */
-export function edgesOf(actor) {
+function edgesOf(actor) {
   return (actor.system.hunter?.edges ?? []).map(edgeOf).filter(Boolean);
 }
 
@@ -146,7 +146,7 @@ export function edgeReasons(actor, key) {
 }
 
 /** Грань V уровня (Players Guide, гл. 2): включена настройкой, Добродетель 10, одна на охотника, Сила воли — чем заплатить. */
-export function fifthReasons(actor, e) {
+function fifthReasons(actor, e) {
   const h = actor.system.hunter ?? {};
   if (!fifthOn()) return [t("FifthLevel")];
   const out = [];
@@ -586,7 +586,7 @@ const today = () => new Date().toDateString();
 const lostMad = c => c > 0 ? Math.max(0, 4 - c) : 0;
 
 /** Карточка Свидетеля: Убеждённость-рассудок, Смелость, Рассудок, Самоконтроль. */
-export function lostInfo(actor, dots) {
+function lostInfo(actor, dots) {
   const h = actor.system.hunter ?? {}, b = h.bystander ?? {}, c = h.conviction ?? 10, V = H().bystander?.virtues ?? {};
   return {
     lost: true, conviction: c, convDots: dots(c, 10, { path: "system.hunter.conviction" }), madness: lostMad(c), broken: c <= 0,

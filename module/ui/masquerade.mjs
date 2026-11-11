@@ -16,12 +16,12 @@ const EMPTY = { type: "FeatureCollection", features: [] };
 /** Тяжесть: сколько ночей остывает и радиус жара в метрах. */
 const NIGHTS_PER_LEVEL = 3;
 const radiusOf = level => 150 + level * 100;
-export const BREACH_LEVELS = [1, 2, 3, 4, 5];
+const BREACH_LEVELS = [1, 2, 3, 4, 5];
 
 const breachesOf = city => (city?.breaches ?? []).filter(b => game.user.isGM || !b.gmOnly);
 const nightsSince = (b, now) => Math.max(0, Math.floor((now - b.at) / MS_DAY));
 /** Жар нарушения сейчас: от тяжести до нуля за тяжесть × 3 ночи. */
-export function heatOf(b, now = getClock()) {
+function heatOf(b, now = getClock()) {
   const span = b.level * NIGHTS_PER_LEVEL, n = nightsSince(b, now);
   return n >= span ? 0 : b.level * (1 - n / span);
 }

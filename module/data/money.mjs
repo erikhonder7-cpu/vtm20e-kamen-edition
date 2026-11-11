@@ -34,7 +34,7 @@ export function roundMoney(amount, cur) {
 }
 
 /** Ливры, су, денье из суммы в ливрах. */
-export function toLsd(amount) {
+function toLsd(amount) {
   const total = Math.round((Number(amount) || 0) * 240);
   return { l: Math.floor(total / 240), s: Math.floor((total % 240) / 12), d: total % 12 };
 }
@@ -54,7 +54,7 @@ export function fmtMoney(amount, cur = worldCurrency()) {
 
 
 /** Монеты кошелька (ливры, су, денье); старый кошелёк без монет — по сумме. */
-export function coinsOf(m) {
+function coinsOf(m) {
   const c = m?.coins ?? {};
   const has = (c.l || 0) + (c.s || 0) + (c.d || 0) > 0;
   return has || !(m?.amount > 0) ? { l: c.l || 0, s: c.s || 0, d: c.d || 0 } : toLsd(m.amount);
@@ -66,7 +66,7 @@ const add = (a, b) => ({ l: a.l + b.l, s: a.s + b.s, d: a.d + b.d });
  * Заплатить столько-то денье: сперва денье, потом су, потом ливры; размен — только когда без него не обойтись
  * (сдача — су и денье). null — не хватает.
  */
-export function payCoins(c, deniers) {
+function payCoins(c, deniers) {
   let { l, s, d } = c, v = Math.round(deniers);
   if (v > l * 240 + s * 12 + d) return null;
   const useD = Math.min(d, v); d -= useD; v -= useD;

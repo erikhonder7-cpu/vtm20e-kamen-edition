@@ -10,11 +10,11 @@ import { SYSTEM_ID, SYSTEM_PATH, VTM20 } from "../config.mjs";
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 
-export const EXTRA_SHEET = `${SYSTEM_ID}.ExtraSheet`;
+const EXTRA_SHEET = `${SYSTEM_ID}.ExtraSheet`;
 /** Уровней здоровья на одного человека толпы и предел бонуса толпы. */
-export const MOB_LEVELS = 3, MOB_BONUS_MAX = 5;
+const MOB_LEVELS = 3, MOB_BONUS_MAX = 5;
 
-export const extraOf = actor => actor?.getFlag?.(SYSTEM_ID, "extra") ?? null;
+const extraOf = actor => actor?.getFlag?.(SYSTEM_ID, "extra") ?? null;
 const mobSize = actor => Number(extraOf(actor)?.mob) || 0;
 
 /** Толпа: сколько всего, сколько на ногах, бонус к атаке. null — не толпа. */
@@ -33,7 +33,7 @@ export async function makeExtra(actor, { mob = 0 } = {}) {
   await actor.update({ [`flags.${SYSTEM_ID}.extra`]: { mob: Math.max(0, mob), damage: 0 }, "flags.core.sheetClass": EXTRA_SHEET });
 }
 /** Вернуть обычный лист. */
-export async function unmakeExtra(actor) {
+async function unmakeExtra(actor) {
   await actor.update({ [`flags.${SYSTEM_ID}.-=extra`]: null, "flags.core.sheetClass": "" });
 }
 

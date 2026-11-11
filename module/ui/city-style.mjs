@@ -4,21 +4,21 @@ import { SYSTEM_ID } from "../config.mjs";
 import { EXT } from "./city-ext.mjs";
 
 export const GLYPHS = "https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf";
-export const OMT = "https://tiles.openfreemap.org/planet";
-export const SAT = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
-export const OMT_ATTR = '<a href="https://openfreemap.org" target="_blank">OpenFreeMap</a> © <a href="https://www.openmaptiles.org/" target="_blank">OpenMapTiles</a> © <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>';
+const OMT = "https://tiles.openfreemap.org/planet";
+const SAT = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
+const OMT_ATTR = '<a href="https://openfreemap.org" target="_blank">OpenFreeMap</a> © <a href="https://www.openmaptiles.org/" target="_blank">OpenMapTiles</a> © <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>';
 /** Современные стили; модуль может добавить свои (например, старинный план) — EXT.styles. */
-export const MODERN_STYLES = ["noir", "graphite", "sat"];
+const MODERN_STYLES = ["noir", "graphite", "sat"];
 export const revolution = () => game.settings.get(SYSTEM_ID, "era") === "revolution";
 /** Зарегистрированные модулями стили, подходящие сейчас (эпоха, город). */
-export const extStyles = () => EXT.styles.filter(st => !st.when || st.when());
+const extStyles = () => EXT.styles.filter(st => !st.when || st.when());
 export const styleExt = id => EXT.styles.find(st => st.id === id);
 export const CITY_STYLES = () => [...extStyles().map(st => st.id), ...MODERN_STYLES];
 export const eraStyles = () => { const own = extStyles().map(st => st.id); return own.length ? own : MODERN_STYLES; };
 export const defaultStyle = () => (extStyles().find(st => st.default) ?? extStyles()[0])?.id ?? "noir";
 export const CITY_LANGS = ["ru", "fr", "en"];
 
-export const PAL = {
+const PAL = {
   noir: {
     bg: "#0a0808", res: "#0e0b0c", ind: "#100d0e", park: "#0c0f0c", wood: "#0b0e0b", cem: "#140c11", hosp: "#150b0e",
     water: "#05070a", ferry: "#1b2632", bld: "#171214", bldTop: "#1e1719", bldHigh: "#2e1a1f", bldLine: "#231b1e",
@@ -38,25 +38,25 @@ export const PAL = {
 // Иероглифов на карте нет: без откатов на местное `name`, name_int и name_en — OpenMapTiles
 // подставляет в них местное имя, когда английского нет. Берём только настоящий тег name:en.
 // name:latin у OpenMapTiles — всегда латиница (транслитерация); где нет и его — подписи просто не будет.
-export const nameExpr = lang => lang === "ru"
+const nameExpr = lang => lang === "ru"
   ? ["coalesce", ["get", "name:ru"], ["get", "name:en"], ["get", "name:latin"]]
   : lang === "fr" ? ["coalesce", ["get", "name:fr"], ["get", "name:latin"], ["get", "name:en"]]
   : ["coalesce", ["get", "name:en"], ["get", "name:latin"]];
 
-export const isPoly = ["match", ["geometry-type"], ["Polygon", "MultiPolygon"], true, false];
-export const isLine = ["match", ["geometry-type"], ["LineString", "MultiLineString"], true, false];
-export const isPoint = ["match", ["geometry-type"], ["Point", "MultiPoint"], true, false];
+const isPoly = ["match", ["geometry-type"], ["Polygon", "MultiPolygon"], true, false];
+const isLine = ["match", ["geometry-type"], ["LineString", "MultiLineString"], true, false];
+const isPoint = ["match", ["geometry-type"], ["Point", "MultiPoint"], true, false];
 export const cls = ["get", "class"];
 export const zoomed = (...stops) => ["interpolate", ["linear"], ["zoom"], ...stops];
 
 /** Ширина дорог по классу; k — множитель для обводки. */
-export const roadWidth = k => ["interpolate", ["exponential", 1.55], ["zoom"],
+const roadWidth = k => ["interpolate", ["exponential", 1.55], ["zoom"],
   7, ["match", cls, "motorway", .9 * k, "trunk", .7 * k, 0],
   11, ["match", cls, "motorway", 2 * k, "trunk", 1.7 * k, "primary", 1.3 * k, ["secondary", "tertiary"], .8 * k, .25 * k],
   14, ["match", cls, "motorway", 4.5 * k, "trunk", 4 * k, "primary", 3.4 * k, ["secondary", "tertiary"], 2.6 * k, ["minor", "busway"], 1.6 * k, .9 * k],
   18, ["match", cls, "motorway", 22 * k, "trunk", 20 * k, "primary", 18 * k, ["secondary", "tertiary"], 15 * k, ["minor", "busway"], 11 * k, 6 * k]];
 
-export function baseLayers(p) {
+function baseLayers(p) {
   const fill = (id, sl, filter, color, extra = {}) => ({ id, type: "fill", source: "omt", "source-layer": sl, filter, paint: { "fill-color": color, ...extra } });
   const roads = ["motorway", "trunk", "primary", "secondary", "tertiary", "minor", "service", "track", "busway", "raceway"];
   const tunnelFade = ["case", ["==", ["get", "brunnel"], "tunnel"], .4, 1];
@@ -102,7 +102,7 @@ export function baseLayers(p) {
   ];
 }
 
-export function labelLayers(p, lang, sat = false) {
+function labelLayers(p, lang, sat = false) {
   const name = nameExpr(lang);
   const halo = sat ? { "text-halo-color": "rgba(0,0,0,.85)", "text-halo-width": 2 } : { "text-halo-color": p.halo, "text-halo-width": 1.6 };
   const sym = (id, sl, filter, layout, color, extra = {}) => ({

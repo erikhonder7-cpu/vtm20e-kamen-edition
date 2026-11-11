@@ -19,12 +19,12 @@ export function fitsLevel(p, level, choices = {}) {
 const takenElsewhere = (p, level, choices) => Object.entries(choices).some(([l, n]) => n === p.name && Number(l) !== level);
 
 /** Силы уровня, доступные сейчас (без Тёмных веков при выключенной настройке). */
-export function levelOptions(key, level, choices = {}) {
+function levelOptions(key, level, choices = {}) {
   return (Codex.discipline(key)?.powers ?? []).filter(p => Codex.visible(p) && fitsLevel(p, level, choices));
 }
 
 /** Уровни до value включительно, где выбор нужен, но ещё не сделан. */
-export function pendingLevels(item) {
+function pendingLevels(item) {
   const s = item.system, ch = s.choices ?? {}, out = [];
   for (let lv = 1; lv <= s.value; lv++) {
     const opts = levelOptions(s.key, lv, ch);

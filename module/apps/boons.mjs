@@ -38,7 +38,7 @@ export async function removeBoon(actor, index) {
 }
 
 /** Записи всех персонажей, которых пользователь видит: должник → кредитор. Встречные записи двух листов — одной строкой. */
-export function boonLedger() {
+function boonLedger() {
   const rows = new Map();
   for (const actor of game.actors) {
     if (!actor.testUserPermission(game.user, "OBSERVER")) continue;

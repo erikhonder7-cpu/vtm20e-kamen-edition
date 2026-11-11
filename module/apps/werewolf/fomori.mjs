@@ -5,7 +5,7 @@ import { RollDialog } from "../../dice/dialog.mjs";
 import { VTM20 } from "../../config.mjs";
 import { t, esc, W } from "../werewolf.mjs";
 
-export const FOMORI = () => W().fomori ?? { powers: [], breeds: [] };
+const FOMORI = () => W().fomori ?? { powers: [], breeds: [] };
 
 export const fomorBreedOf = key => FOMORI().breeds.find(b => b.key === key) ?? null;
 

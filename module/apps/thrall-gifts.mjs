@@ -15,9 +15,9 @@ const t = (k, d) => d ? game.i18n.format(`VTM20.Gifts.${k}`, d) : game.i18n.loca
 const esc = s => foundry.utils.escapeHTML(String(s ?? ""));
 const ROMAN = ["I", "II", "III", "IV", "V"];
 
-export const GIFT_KINDS = ["innate", "form", "evocation", "house", "heal", "attr", "abil", "other"];
+const GIFT_KINDS = ["innate", "form", "evocation", "house", "heal", "attr", "abil", "other"];
 /** Врождённые способности падших, которые можно передать слуге (гл. 7), и их цена Волей за эпизод. */
-export const INNATE = { mind: 1, fear: 1, illusion: 1, soak: 2, sense: 1 };
+const INNATE = { mind: 1, fear: 1, illusion: 1, soak: 2, sense: 1 };
 
 /** Доля Веры хозяину по строке договора у него (если видна), иначе — половина вверх. */
 function shareOf(actor) {
@@ -27,7 +27,7 @@ function shareOf(actor) {
 }
 
 /** Сколько Веры уже ушло на дары: прибавки к Характеристикам — 2 точки за пункт, к Способностям — 5, прочее — цена дара. */
-export function giftsUsed(gifts = []) {
+function giftsUsed(gifts = []) {
   const sum = kind => gifts.filter(g => g.kind === kind).reduce((n, g) => n + (g.dots ?? 0), 0);
   return Math.ceil(sum("attr") / 2) + Math.ceil(sum("abil") / 5)
     + gifts.filter(g => !["attr", "abil"].includes(g.kind)).reduce((n, g) => n + (g.cost ?? 0), 0);

@@ -17,7 +17,7 @@ const t = (k, d) => d ? game.i18n.format(`VTM20.Mage.${k}`, d) : game.i18n.local
 const esc = x => foundry.utils.escapeHTML(String(x ?? ""));
 const WHEEL = 20;
 
-export const sphereOf = key => (M().spheres ?? []).find(s => s.key === key) ?? null;
+const sphereOf = key => (M().spheres ?? []).find(s => s.key === key) ?? null;
 export const factionOf = actor => (M().factions ?? []).find(f => f.key === actor?.system?.mage?.faction) ?? null;
 /** Технократ называет Сферы по-своему (Данные, Пространственная наука, Первичная Полезность). */
 const isTech = actor => factionOf(actor)?.group === "technocracy";
@@ -36,9 +36,9 @@ const labelsOf = actor => Object.fromEntries(TECH_KEYS.map(k => [k, mt(actor, k)
 /* ── Официальные знаки M20 (assets/mage): фракции, группы, Сферы — маски, цвет задаёт CSS (.r-mg) ── */
 // путь от корня: относительный url() в CSS-переменной считался бы от файла стилей
 export const mageGlyphSrc = name => foundry.utils.getRoute(`${SYSTEM_PATH}/assets/mage/${name}.png`);
-export const mageGlyph = (name, cls = "") => `<span class="r-sym r-mg${cls ? ` ${cls}` : ""}" style="--sym: url('${mageGlyphSrc(name)}')" aria-hidden="true"></span>`;
+const mageGlyph = (name, cls = "") => `<span class="r-sym r-mg${cls ? ` ${cls}` : ""}" style="--sym: url('${mageGlyphSrc(name)}')" aria-hidden="true"></span>`;
 /** Течение внутри фракции: Дом Гермеса, фракция Традиции, Методология Конвенции (названия книг — механики у них нет). */
-export const subOf = actor => factionOf(actor)?.subs?.find(x => x.key === actor?.system?.mage?.sub) ?? null;
+const subOf = actor => factionOf(actor)?.subs?.find(x => x.key === actor?.system?.mage?.sub) ?? null;
 /** Как зовётся течение у этой фракции: Дом, Методология, течение. */
 export const subLabel = f => t(f?.key === "order-of-hermes" ? "SubHouse" : f?.group === "technocracy" ? "SubMethod" : "Sub");
 // у гермета знак Дома — вместо знака Ордена
@@ -54,7 +54,7 @@ export function mageSigil(actor) {
 /** Кубики магии и предел Сфер: Арете, но не выше постоянной Воли. */
 export const aretePool = actor => Math.min(actor.system.mage?.arete ?? 0, actor.system.willpower?.permanent ?? 0);
 /** Рейтинг Аватара (Гения) — Факт биографии: сколько Квинтэссенции можно потратить или вобрать за ход. */
-export function avatarOf(actor) {
+function avatarOf(actor) {
   const bg = actor.items.find(i => i.type === "background" && /^(Аватар|Avatar|Гений|Genius)/i.test(i.name));
   return bg?.system?.value ?? 0;
 }
@@ -406,7 +406,7 @@ export async function removeRote(actor, i) {
   return actor.update({ "system.mage.rotes": list });
 }
 /** Сферы ротэ из строки: «Силы 3, Первоначало 2» → { forces: 3, prime: 2 } (ранг не выше своего). */
-export function roteSpheres(actor, text) {
+function roteSpheres(actor, text) {
   const m = actor.system.mage;
   return Object.fromEntries(Object.entries(parseSpheres(text)).map(([k, v]) => [k, Math.min(m.spheres[k] ?? 0, v)]).filter(([, v]) => v > 0));
 }

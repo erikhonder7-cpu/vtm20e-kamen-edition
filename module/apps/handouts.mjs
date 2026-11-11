@@ -11,7 +11,7 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
 const esc = s => foundry.utils.escapeHTML(String(s ?? ""));
 
-export const HANDOUT_STYLES = ["kindred", "decree", "letter", "note", "gazette"];
+const HANDOUT_STYLES = ["kindred", "decree", "letter", "note", "gazette"];
 
 export function registerHandouts() {
   // кнопка в заголовке журнала — только ведущему
@@ -62,7 +62,7 @@ export async function giveHandout(page) {
 }
 
 /** Открыть документ из сообщения. */
-export function showHandout(message) {
+function showHandout(message) {
   const id = `r-handout-${message.id}`;
   const open = foundry.applications.instances.get(id);
   if (open) return open.render({ force: true });

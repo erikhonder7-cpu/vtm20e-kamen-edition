@@ -49,7 +49,7 @@ export const spawnFromTemplate = (tpl, o) => createFromTemplate(tpl, o);
 const BOOK_GROUPS = ["hunters", "criminals", "animals", "swarms"];
 
 /** Случайное имя из набора: «Имя Фамилия»; у русских женская фамилия согласуется. */
-export function randomName(set, gender = "") {
+function randomName(set, gender = "") {
   const g = gender || (Math.random() < .5 ? "m" : "f");
   let last = pick(set.last);
   if (set.femLast && g === "f") last = last.endsWith("ий") ? last.replace(/ий$/, "ая") : `${last}а`;

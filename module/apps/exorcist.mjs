@@ -24,7 +24,7 @@ const notice = (actor, icon, html, cls = "") => ChatMessage.create({ speaker: Ch
   content: `<div class="r-notice r-type-mortal ${cls}"><i class="fa-solid ${icon}"></i> ${html}</div>` });
 
 /** Поиски: ключ, сколько успехов нужно (по книге). */
-export const RESEARCH = [
+const RESEARCH = [
   { key: "prayer", need: 12 }, { key: "rite", need: 10 }, { key: "michael", need: 15 }, { key: "relic", need: 25 },
   { key: "kila", need: 35 }, { key: "shurpu", need: 50 }, { key: "medallion", need: 60 }, { key: "zar", need: 85 },
   { key: "legend", need: 75 }

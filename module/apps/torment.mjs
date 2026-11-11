@@ -114,7 +114,7 @@ export async function pickHighFeatures(actor) {
 }
 
 /** Грех против Добродетели: бросок Добродетели, сл. 8. */
-export async function sinCheck(actor, slot) {
+async function sinCheck(actor, slot) {
   const pool = actor.traitValue(`virtues.${slot}`);
   const res = await rollPool({ actor, title: t("SinTitle"), subtitle: virtueLabel(actor, slot), pool, difficulty: 8, noBotch: true, kind: "sin",
     breakdown: [{ label: virtueLabel(actor, slot), value: pool }] });
@@ -123,7 +123,7 @@ export async function sinCheck(actor, slot) {
 }
 
 /** Доброе дело: кости Муки против кубиков Добродетели, у кого больше успехов (сл. 6). */
-export async function kindnessCheck(actor, slot) {
+async function kindnessCheck(actor, slot) {
   const n = actor.system.torment.permanent;
   const r = n > 0 ? await new Roll(`${n}d10`).evaluate() : null;
   const values = r ? r.dice[0].results.map(x => x.result) : [];
@@ -445,7 +445,7 @@ const tokensOf = actor => actor.isToken ? [actor.token]
   : game.scenes.contents.flatMap(sc => sc.tokens.filter(tk => tk.actorLink && tk.actorId === actor.id));
 
 /** Облик жетона в форме: надеть картинку и размер из formLook (прежние — во флаг formSave) или вернуть прежние. */
-export async function formTokens(actor, on) {
+async function formTokens(actor, on) {
   const look = actor.system.formLook ?? {};
   for (const tk of tokensOf(actor)) {
     if (!tk.isOwner) continue;
@@ -464,7 +464,7 @@ export async function formTokens(actor, on) {
 }
 
 /** Плата за ход формы Привязанного без носителя: 2 Веры (импровизированный реликварий — 1). */
-export const formUpkeepCost = actor => actor.system.reliquary?.kind === "improvised" ? 1 : 2;
+const formUpkeepCost = actor => actor.system.reliquary?.kind === "improvised" ? 1 : 2;
 /** Списать Веру: сначала из реликвария, потом из своего запаса (Earthbound, гл. 3). */
 async function payFaith(actor, n) {
   const r = actor.system.reliquary?.faith ?? 0, fromRel = Math.min(r, n);

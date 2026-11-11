@@ -20,7 +20,7 @@ const SPAN = {
 const moralityOf = actor => Math.clamp(Number(actor?.system?.morality?.value) || 0, 0, 10);
 
 /** Когда выйдет срок, если уснуть в since с такой моралью. */
-export function torporUntil(since, morality) {
+function torporUntil(since, morality) {
   const [y, m, d] = SPAN[Math.clamp(Number(morality) || 0, 0, 10)];
   const dt = new Date(since);
   dt.setFullYear(dt.getFullYear() + y, dt.getMonth() + m, dt.getDate() + d);

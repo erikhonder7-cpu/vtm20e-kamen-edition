@@ -34,7 +34,7 @@ export function tormentRule() {
  * Errata Demon Players Guide (с. 17): единицы гасят успехи начиная с самых высоких; из оставшихся считают выпавшие
  * не выше постоянной Муки (low) и выше неё (high). Высокая Мука — если low больше; ничья — обычный эффект.
  */
-export function tormentSplit(values, difficulty, torment) {
+function tormentSplit(values, difficulty, torment) {
   const hits = values.filter(v => v >= difficulty).sort((a, b) => b - a);
   const left = hits.slice(Math.min(hits.length, values.filter(v => v === 1).length));
   const low = left.filter(v => v <= torment).length;

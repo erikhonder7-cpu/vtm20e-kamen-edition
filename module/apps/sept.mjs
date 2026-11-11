@@ -24,7 +24,7 @@ const read = () => foundry.utils.deepClone(game.settings.get(SYSTEM_ID, "septs")
 const save = list => game.settings.set(SYSTEM_ID, "septs", list);
 
 /** Преграда каэрна (W20, гл. 7): 1–2 — 4, 3–4 — 3, 5 — 2; лунный мост: 1–3 — 1600 км × рейтинг, 4 — 9700, 5 — 16000. */
-export const caernGauntlet = r => r >= 5 ? 2 : r >= 3 ? 3 : 4;
+const caernGauntlet = r => r >= 5 ? 2 : r >= 3 ? 3 : 4;
 const bridgeKm = r => r >= 5 ? 16000 : r === 4 ? 9700 : 1600 * r;
 
 /** Септы персонажа и его должности — для карточки Гару и шага в Умбру. */

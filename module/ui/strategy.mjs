@@ -1153,7 +1153,7 @@ function domainSpot(da) {
   return pts?.length ? pts.reduce(([a, b], [x, y]) => [a + x / pts.length, b + y / pts.length], [0, 0]) : null;
 }
 /** Квартал домена — ближайший к середине его места квартал стратегии (кварталы дают модули города). */
-export function domainDistrict(da) {
+function domainDistrict(da) {
   const at = domainSpot(da), list = EXT.strategy.districts.flatMap(f => f());
   if (!at || !list.length) return null;
   const far = d => (d.lat - at[0]) ** 2 + ((d.lng - at[1]) * Math.cos(at[0] * Math.PI / 180)) ** 2;

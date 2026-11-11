@@ -13,7 +13,7 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
 
 /** Факты, которые работают между сессиями: название (как в data/backgrounds.json) → характеристика, значок, цели. */
-export const DOWNTIME_BACKGROUNDS = {
+const DOWNTIME_BACKGROUNDS = {
   influence: { name: "влияние", attr: "manipulation", icon: "fa-landmark", goals: ["pressure", "coverUp", "learn", "hinder"] },
   resources: { name: "богатство", attr: "intelligence", icon: "fa-coins", goals: ["purchase", "bribe", "haven", "invest"] },
   herd: { name: "стадо", attr: "charisma", icon: "fa-people-group", goals: ["feed", "rumors", "vessel"] },

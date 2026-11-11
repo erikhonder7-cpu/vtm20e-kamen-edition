@@ -5,10 +5,10 @@ import { RollDialog } from "../../dice/dialog.mjs";
 import { VTM20 } from "../../config.mjs";
 import { t, esc, W, giftOf } from "../werewolf.mjs";
 
-export const kinGiftOf = key => (W().kinGifts ?? []).find(g => g.key === key) ?? giftOf(key);
+const kinGiftOf = key => (W().kinGifts ?? []).find(g => g.key === key) ?? giftOf(key);
 
 /** Цена Дара для Родни в опыте: свой — 15, чужой — 20 (+5 за учителя-Гару — по решению рассказчика). */
-export const kinCost = (k, g) => (g.groups ? g.groups.some(x => x.key === k.tribe || x.key === k.breed) : g.tribe === k.tribe) ? 15 : 20;
+const kinCost = (k, g) => (g.groups ? g.groups.some(x => x.key === k.tribe || x.key === k.breed) : g.tribe === k.tribe) ? 15 : 20;
 
 /** Блок «Родня Гару» на листе смертного. */
 export function kinfolkInfo(actor) {
@@ -34,7 +34,7 @@ export function kinfolkInfo(actor) {
 
 export const kamiPowerOf = key => (W().kami?.powers ?? []).find(p => p.key === key) ?? null;
 
-export const kamiCount = k => (k.powers ?? []).reduce((n, p) => n + p.n, 0);
+const kamiCount = k => (k.powers ?? []).reduce((n, p) => n + p.n, 0);
 
 export function kamiInfo(actor) {
   const k = actor.system.kami;

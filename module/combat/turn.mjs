@@ -16,7 +16,7 @@ const esc = x => foundry.utils.escapeHTML(String(x ?? ""));
 const setting = k => { try { return game.settings.get(SYSTEM_ID, k); } catch { return null; } };
 
 /** Виды заявок: значок и подпись. */
-export const DECLARE = {
+const DECLARE = {
   attack: { icon: "fa-khanda" },
   defense: { icon: "fa-shield-halved" },
   multi: { icon: "fa-layer-group" },
@@ -70,7 +70,7 @@ export function currentDeclarer(combat) {
 }
 
 /** Начало хода (рассказчик): бросок инициативы всем и фаза заявок. */
-export async function startTurn(combat) {
+async function startTurn(combat) {
   // бой могли удалить, пока шёл ход (конец боя сразу после смены хода) — тогда молча выходим
   try { await beginTurn(combat); }
   catch (e) {
@@ -99,7 +99,7 @@ async function beginTurn(combat) {
 }
 
 /** Инициатива всем живым бойцам: 1d10 (или 6 — быстрый вариант) + показатель; одна карточка в чат. */
-export async function rollTurnInitiative(combat, { onlyMissing = false } = {}) {
+async function rollTurnInitiative(combat, { onlyMissing = false } = {}) {
   const fixed = !!setting("combatInitFixed");
   const rows = [], updates = [];
   for (const c of combat.combatants) {
@@ -197,7 +197,7 @@ export async function declareNpcs(combat) {
 }
 
 /** Рассказчик: заявки закончены (или пропущены) — фаза действий; выжидающие уходят в конец хода. */
-export async function endDeclarations(combat) {
+async function endDeclarations(combat) {
   if (!game.user.isGM) return;
   const live = combat.turns.filter(c => Number.isFinite(c.initiative));
   const low = live.length ? Math.min(...live.map(c => c.initiative)) : 0;

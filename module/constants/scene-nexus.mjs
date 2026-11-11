@@ -10,11 +10,11 @@
 // один для всех и не зависит от того, кто смотрит.
 
 export const NEXUS_SCOPE = "vtm20e-kamen-edition";
-export const GROUPS_KEY = "sceneGroups";      // мир-настройка (Array)
+const GROUPS_KEY = "sceneGroups";      // мир-настройка (Array)
 export const SCENE_FLAG = "nexus";            // флаг сцены { open, entry, label }
 
 /** Цвет группы по умолчанию — кровь. */
-export const DEFAULT_GROUP_COLOR = "#a3121b";
+const DEFAULT_GROUP_COLOR = "#a3121b";
 
 /* ── Чтение и запись ──────────────────────────────────────────────────── */
 

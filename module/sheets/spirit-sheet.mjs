@@ -12,7 +12,7 @@ import { VtMActorSheet } from "./actor-sheet.mjs";
 import { wwGlyph, wwGlyphSrc } from "../apps/werewolf.mjs";
 
 const t = (k, d) => d ? game.i18n.format(`VTM20.Werewolf.${k}`, d) : game.i18n.localize(`VTM20.Werewolf.${k}`);
-export const SPIRIT_SHEET = `${SYSTEM_ID}.SpiritSheet`;
+const SPIRIT_SHEET = `${SYSTEM_ID}.SpiritSheet`;
 
 /** Броски боя духа (W20, гл. 11): что бросаем и чем. */
 const FIGHT = [

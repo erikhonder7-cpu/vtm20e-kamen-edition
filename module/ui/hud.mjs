@@ -337,7 +337,7 @@ const arc = list => {
 
 /** HUD свёрнут (клавиша H или кнопка на панели) — остаётся язычок «показать». */
 const hidden = () => game.settings.get(SYSTEM_ID, "hudHidden");
-export function toggleHud(force) {
+function toggleHud(force) {
   const v = typeof force === "boolean" ? force : !hidden();
   return game.settings.set(SYSTEM_ID, "hudHidden", v).then(() => renderHud());
 }
@@ -554,7 +554,7 @@ function fitHud() {
 }
 
 /** Перерисовать не чаще раза в кадр. */
-export function refreshHud() {
+function refreshHud() {
   if (frame) return;
   frame = requestAnimationFrame(() => { frame = null; renderHud(); });
 }

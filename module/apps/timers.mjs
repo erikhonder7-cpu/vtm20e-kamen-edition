@@ -13,7 +13,7 @@ const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`
 const esc = s => foundry.utils.escapeHTML(String(s ?? ""));
 
 /** V20, гл. 4: ритуал читается 5 минут за уровень, если в тексте не сказано иное. */
-export const RITUAL_MINUTES = 5;
+const RITUAL_MINUTES = 5;
 
 /** Ближайший рассвет после ms. */
 export function nextSunrise(ms = getClock()) {
@@ -29,7 +29,7 @@ export function untilFor(mode, { hours = 1, now = getClock() } = {}) {
 }
 
 /** Срок ритуала из текста его эффекта: night | hour | scene | null — что упомянуто раньше. */
-export function ritualDuration(text) {
+function ritualDuration(text) {
   const s = String(text ?? "").replace(/<[^>]+>/g, " ");
   const found = [["night", /до рассвета|до восхода|до конца ночи|на (?:всю )?ночь/i], ["hour", /на (?:один )?час(?![а-яё])|в течение (?:одного )?часа/i],
     ["scene", /до конца сцены|на (?:одну |всю )?сцену|всю сцену/i]]
@@ -57,7 +57,7 @@ async function startRitualEffect(message) {
 }
 
 /** Остаток: { left: "0:42", pct } — pct от 1 (только началось) до 0 (вышло). */
-export function timeLeft(start, until, now = getClock()) {
+function timeLeft(start, until, now = getClock()) {
   if (!until) return null;
   const ms = Math.max(0, until - now), min = Math.ceil(ms / MS_MIN);
   const pct = start && until > start ? Math.clamp(ms / (until - start), 0, 1) : 1;
@@ -143,7 +143,7 @@ export async function expireTimers(now = getClock()) {
 }
 
 /** Подкрасить остатки на открытых листах и в HUD: [data-fx-until] → текст [data-left] и полоска. */
-export function paintTimers() {
+function paintTimers() {
   const now = getClock();
   for (const el of document.querySelectorAll("[data-fx-until]")) {
     const x = timeLeft(Number(el.dataset.fxStart) || 0, Number(el.dataset.fxUntil), now);

@@ -18,7 +18,7 @@ export function poolOf(a, keys) {
 }
 
 /** Сопротивление цели (путь Тауматургии): бросок за цель, итог — сколько успехов тауматурга осталось. */
-export async function resistOf(spec, target, caster, n) {
+async function resistOf(spec, target, caster, n) {
   if (!spec) return { net: n, res: 0 };
   if (spec.needFortitude && !target.discipline?.("fortitude")) return { net: n, res: 0, note: t("NoFortitude") };
   const diff = typeof spec.diff === "number" ? spec.diff : spec.diff === "casterWP" ? (caster?.system.willpower?.temporary ?? 6)
@@ -206,7 +206,7 @@ export async function illusion(actor, p, tp) {
 }
 
 /** Распределить точки по Физическим Атрибутам (Сила стихий: 3 временные точки). */
-export async function splitPoints(title, total) {
+async function splitPoints(title, total) {
   const res = await foundry.applications.api.DialogV2.prompt({ window: { title }, classes: ["vtm20", "r-dialog"], rejectClose: false,
     content: `<div class="r-form"><p>${esc(t("SplitAsk", { n: total }))}</p>${["strength", "dexterity", "stamina"].map((k, i) =>
       `<label class="r-field"><span>${esc(game.i18n.localize(`VTM20.Attr.${k}`))}</span><input type="number" name="${k}" value="${i === 0 ? total : 0}" min="0" max="${total}"></label>`).join("")}</div>`,

@@ -41,14 +41,14 @@ export const charmOf = key => {
 
 export const spiritTplOf = key => (W().spirits ?? []).find(s => s.key === key) ?? null;
 
-export const SPIRIT_KINDS = ["gaia", "wyld", "weaver", "fetch", "bane"];
+const SPIRIT_KINDS = ["gaia", "wyld", "weaver", "fetch", "bane"];
 
 /** Образцы, сгруппированные по видам, — для выпадающего списка. */
 export const spiritTplGroups = () => SPIRIT_KINDS.map(k => ({ label: t(`Spirit.kind.${k}`),
   list: (W().spirits ?? []).filter(s => s.kind === k).map(s => ({ key: s.key, label: `${VTM20.label(s)} — ${s.rage}/${s.gnosis}/${s.willpower} · ${s.source}` })) }))
   .filter(g => g.list.length);
 
-export const spiritData = sp => ({ on: true, rank: sp.rank, rage: sp.rage, gnosis: sp.gnosis, willpower: sp.willpower,
+const spiritData = sp => ({ on: true, rank: sp.rank, rage: sp.rage, gnosis: sp.gnosis, willpower: sp.willpower,
   essence: { value: sp.essence, max: sp.essence }, charms: sp.charms });
 
 /** Дух по образцу: черты, Эссенция и Чары; вид существа — по образцу, описание — в чат при применении. */

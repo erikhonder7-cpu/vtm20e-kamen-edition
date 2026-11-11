@@ -73,7 +73,7 @@ export async function usePower(actor, key) {
 }
 
 /** Урезанный призыв: бросок Воли, сл. 7, или пункт Воли; эффект — высокой Муки. */
-export async function useEvocation(actor) {
+async function useEvocation(actor) {
   const s = actor.system.ebServant, [lore, lv] = (s?.evocation ?? "").split(":"), d = Codex.lore(lore), p = d?.powers?.find(x => x.level === Number(lv));
   if (!p) return null;
   const how = await foundry.applications.api.DialogV2.wait({ window: { title: p.name }, classes: ["vtm20", "r-dialog"], position: { width: 400 },

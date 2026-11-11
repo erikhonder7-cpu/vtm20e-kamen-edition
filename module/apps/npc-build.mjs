@@ -20,7 +20,7 @@ const ICON = n => `systems/${SYSTEM_ID}/assets/icons/${n}.svg`;
 const shuffle = list => { const a = [...list]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 
 /** Случайный выбор с весами: [[значение, вес]]. */
-export function wpick(list) {
+function wpick(list) {
   const tot = list.reduce((s, [, w]) => s + Math.max(0, w), 0);
   if (!tot) return list.length ? pick(list)[0] : undefined;
   let r = Math.random() * tot;

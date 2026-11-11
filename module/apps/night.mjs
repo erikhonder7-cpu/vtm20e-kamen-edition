@@ -19,7 +19,7 @@ export const HUNTING_GROUNDS = {
   slums: 4, poor: 5, business: 6, industrial: 6, suburb: 7, guarded: 8
 };
 /** Способы охоты: пул «характеристика + способность». */
-export const HUNTING_METHODS = {
+const HUNTING_METHODS = {
   club: ["attributes.appearance", "abilities.subterfuge"],
   chase: ["attributes.stamina", "abilities.athletics"],
   alleys: ["attributes.wits", "abilities.streetwise"],
@@ -243,7 +243,7 @@ export async function drinkVessel(actor, res) {
 }
 
 /** Вещество из выпитой крови — эффектом на листе со сроком (V20, гл. 4: алкоголь — час на каждые 100 г, наркотики — по Выносливости). */
-export async function taintBlood(actor, key, dose = 1) {
+async function taintBlood(actor, key, dose = 1) {
   const { SUBSTANCES } = await import("../data/vessels.mjs");
   const { getClock } = await import("./calendar.mjs");
   const def = SUBSTANCES[key];

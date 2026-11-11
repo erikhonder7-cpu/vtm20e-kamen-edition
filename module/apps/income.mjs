@@ -24,7 +24,7 @@ const DEFAULTS = {
 };
 
 /** Точки факта биографии по одному из имён (без регистра): «Богатство» в старых листах бывало «Ресурсами». */
-export const bgDots = (actor, ...names) => actor.items.find(i => i.type === "background" && names.includes(i.name.toLowerCase()))?.system.value ?? 0;
+const bgDots = (actor, ...names) => actor.items.find(i => i.type === "background" && names.includes(i.name.toLowerCase()))?.system.value ?? 0;
 
 /** Доход за месяц при этих точках «Богатства» в этой валюте. */
 export function incomeFor(dots, cur) {

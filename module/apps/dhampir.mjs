@@ -11,10 +11,10 @@ const D = () => Codex.dhampir ?? { bloodrights: [], rituals: [], concepts: [], c
 /** Дисциплины магии крови, открывающие Дриримантию. */
 const BLOOD_MAGIC = ["thaumaturgy", "necromancy", "assamiteSorcery", "setiteSorcery", "koldunism", "darkThaumaturgy"];
 
-export const rightOf = key => D().bloodrights.find(r => r.key === key) ?? null;
+const rightOf = key => D().bloodrights.find(r => r.key === key) ?? null;
 
 /** Есть ли у персонажа то, что требует Кровное право. */
-export function meetsReq(actor, right) {
+function meetsReq(actor, right) {
   if (!right?.req) return true;
   if (right.key === "dririmancy") return BLOOD_MAGIC.some(k => (actor.discipline?.(k) ?? 0) > 0);
   return (actor.discipline?.(right.req) ?? 0) > 0;

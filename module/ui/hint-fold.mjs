@@ -40,7 +40,7 @@ function headOf(el, root) {
   return null;
 }
 
-export function foldHints(app, root) {
+function foldHints(app, root) {
   if (!(root instanceof HTMLElement)) return;
   const header = app?.window?.header ?? null;
   // шапка окна перерисовывается не всегда — старый значок окна сначала убрать

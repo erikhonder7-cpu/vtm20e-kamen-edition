@@ -15,7 +15,7 @@ import { getClock } from "./calendar.mjs";
 const YEAR = 365.25 * 86400000;
 
 /** Факт «Поколение» по поколению листа (V20, гл. 1: 13-е — без факта, каждая точка — на поколение ниже, не больше 5). */
-export async function syncGenerationBackground(actor) {
+async function syncGenerationBackground(actor) {
   if (!actor?.isVampire || !actor.isOwner) return;
   const dots = Math.clamp(13 - (actor.system.generation ?? 13), 0, 5);
   const item = actor.items.find(i => i.type === "background" && (i.system.source === "Generation" || /^(Поколение|Generation)$/i.test(i.name)));

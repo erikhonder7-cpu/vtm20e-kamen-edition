@@ -9,7 +9,7 @@ export const TEXT_FIELDS = ["html", "parts"];
 
 /** Каждая запись с текстом и её id: «ключ|rN» — правило, «ключ|pN» — сила, «ключ|PN» и «ключ|PN|M» — путь и его сила,
  *  «ключ|N» — ритуал. */
-export function eachTextual(name, data, fn) {
+function eachTextual(name, data, fn) {
   for (const [key, d] of Object.entries(data ?? {})) {
     (d.rules ?? []).forEach((r, i) => fn(`${key}|r${i}`, r));
     if (name === "disciplines") {

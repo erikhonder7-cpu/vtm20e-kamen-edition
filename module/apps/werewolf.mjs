@@ -34,7 +34,7 @@ export const wwGlyphSrc = name => foundry.utils.getRoute(`${SYSTEM_PATH}/assets/
 const FERA_WIDE = new Set(["ajaba", "mokole", "rokea"]);
 export const feraSym = key => ({ src: wwGlyphSrc(`fera-${key}`), wide: FERA_WIDE.has(key) });
 export const wwGlyph = (name, cls = "") => `<span class="r-sym r-wg${cls ? ` ${cls}` : ""}" style="--sym: url('${wwGlyphSrc(name)}')" aria-hidden="true"></span>`;
-export const RENOWN_GLYPH = { glory: "glyph-glory", honor: "glyph-honor", wisdom: "glyph-wisdom" };
+const RENOWN_GLYPH = { glory: "glyph-glory", honor: "glyph-honor", wisdom: "glyph-wisdom" };
 
 /** Знаки листа: на рейке и водяным знаком — племя (у Фера — знак рода), на печати под портретом — аугурия (у Фера — тоже знак рода). */
 export function werewolfSigil(actor) {
@@ -422,7 +422,7 @@ export function registerGarouLog() {
 
 /* ── Боевые шрамы (W20, гл. 6): за каждый — временная Слава ─────────── */
 
-export const scarOf = key => (W().scars ?? []).find(s => s.key === key) ?? null;
+const scarOf = key => (W().scars ?? []).find(s => s.key === key) ?? null;
 export async function addScar(actor, key) {
   const sc = scarOf(key);
   if (!sc) return;
@@ -436,7 +436,7 @@ export async function removeScar(actor, i) {
   return actor.update({ "system.werewolf.scars": list });
 }
 /** Выбор боевого шрама карточками (W20, гл. 6: таблица шрамов; какой — решает рассказчик). */
-export async function pickScar(actor, lead = "") {
+async function pickScar(actor, lead = "") {
   const key = await wwPick({ title: t("ScarPick"), icon: "fa-bandage", width: 620,
     head: wwHead({ icon: "fa-bandage", kicker: esc(actor.name), title: t("ScarPick"), sub: t("ScarPickSub") }), lead,
     cards: (W().scars ?? []).map(s => ({ key: s.key, icon: "fa-bandage", title: esc(s.name), sub: esc(s.effect), badge: `+${s.glory}` })) });
@@ -576,7 +576,7 @@ export async function haranoCheck(actor) {
 
 /* ── Уродства метисов (W20, гл. 1; Changing Ways): хотя бы одно врождённое, скрывать — бесчестье ── */
 
-export const deformityOf = key => (W().deformities ?? []).find(d => d.key === key) ?? null;
+const deformityOf = key => (W().deformities ?? []).find(d => d.key === key) ?? null;
 export const deformityView = actor => (actor.system.werewolf.deformities ?? []).map(deformityOf).filter(Boolean);
 export function addDeformity(actor, key) {
   if (!deformityOf(key) || actor.system.werewolf.deformities.includes(key)) return;
@@ -675,7 +675,7 @@ export const deliriumOf = wp => { const n = Math.clamp(wp, 1, 10); return { n, k
 
 /** Бред: целям (выделенным токенам) — реакция по их Воле; без целей — справочная таблица. */
 /** Свидетели на сцене: смертные, охотники и гули на текущей сцене (кроме самого оборотня). */
-export function sceneWitnesses(actor) {
+function sceneWitnesses(actor) {
   const seen = new Set();
   return (canvas?.scene?.tokens?.contents ?? []).map(tk => tk.actor).filter(a => a && a.id !== actor?.id && ["mortal", "hunter", "ghoul"].includes(a.type)
     && !seen.has(a.id) && seen.add(a.id));

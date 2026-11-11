@@ -23,7 +23,7 @@ export const MS_HOUR = 3600000;
 export const MS_DAY = 86400000;
 
 /** Начало хроники по умолчанию: Париж, 14 июля 1789 года, 21:00 — ночь после взятия Бастилии. */
-export const DEFAULT_CLOCK = new Date(1789, 6, 14, 21, 0).getTime();
+const DEFAULT_CLOCK = new Date(1789, 6, 14, 21, 0).getTime();
 
 const L = k => game.i18n.localize(`VTM20.Calendar.${k}`);
 const pad = n => String(n).padStart(2, "0");
@@ -39,7 +39,7 @@ const pad = n => String(n).padStart(2, "0");
  * и для старых якорей).
  */
 const serverNow = () => { const t = game.time?.serverTime; return Number.isFinite(t) ? t : null; };
-export const realStamp = () => ({ since: Date.now(), srv: serverNow() });
+const realStamp = () => ({ since: Date.now(), srv: serverNow() });
 
 /**
  * Сколько реальных мс прошло от отметки якоря. Если сервер с тех пор перезапускался (его часы
@@ -54,7 +54,7 @@ function elapsed(a) {
 }
 
 /** Перезапускался ли сервер после последней отметки якоря. */
-export function clockRestarted() {
+function clockRestarted() {
   const a = clockAnchor(), s = serverNow();
   return a.running && s !== null && Number.isFinite(a.srv) && a.srv > s + 5000;
 }
@@ -63,7 +63,7 @@ export function clockRestarted() {
  * Контрольная точка для ведущего: переякорить идущие часы на то же игровое время (без промотки
  * ничего не меняется), чтобы отметка сервера была свежей. Во время плавной промотки — не трогаем.
  */
-export async function clockCheckpoint({ force = false } = {}) {
+async function clockCheckpoint({ force = false } = {}) {
   if (game.user !== game.users.activeGM) return;
   const a = clockAnchor(), s = serverNow();
   if (!a.running || s === null || clockGliding()) return;
@@ -108,7 +108,7 @@ export function clockRunning() {
 /** Обычная скорость хода (без учёта идущей плавной промотки). */
 export const clockRate = () => clockAnchor().steady;
 /** Идёт ли сейчас плавная промотка — до какого момента. */
-export function clockGliding() {
+function clockGliding() {
   const a = clockAnchor();
   return a.running && a.until > getClock() ? a.until : 0;
 }
@@ -123,7 +123,7 @@ export async function setClockRunning(on) { await setClock(getClock(), !!on); }
 export async function setClockRate(rate) { await setClock(getClock(), clockRunning(), rate); }
 
 /** Длительность плавной промотки в реальных секундах: чем дальше, тем дольше, но не дольше 20 с. */
-export const glideSeconds = ms => Math.clamp(Math.sqrt(Math.max(ms, 0) / MS_MIN) * 1.6, 3, 20);
+const glideSeconds = ms => Math.clamp(Math.sqrt(Math.max(ms, 0) / MS_MIN) * 1.6, 3, 20);
 
 /**
  * Плавно промотать время до игрового момента target: часы разгоняются, всё, что от них зависит
@@ -298,7 +298,7 @@ export async function setSceneStart(ms) {
   if (!game.user?.isGM) return;
   await game.settings.set(SYSTEM_ID, "sceneStart", Number(ms) || 0);
 }
-export function sceneElapsed() {
+function sceneElapsed() {
   const start = sceneStart();
   if (!start) return null;
   const ms = Math.max(0, getClock() - start);
@@ -345,7 +345,7 @@ function nightEvening(n) {
 }
 
 /** Последние ночи хроники (текущая сверху) и все более ранние с заметками. */
-export function nightJournal(ms = getClock(), recent = 8) {
+function nightJournal(ms = getClock(), recent = 8) {
   const cur = nightNumber(ms), notes = nightNotes();
   const ns = new Set([...Array.from({ length: Math.min(recent, Math.max(cur, 1)) }, (_, i) => cur - i).filter(n => n >= 1),
     ...Object.keys(notes).map(Number).filter(n => n >= 1 && n <= cur && notes[n])]);
@@ -361,7 +361,7 @@ export async function setNightNote(n, text) {
 }
 
 /** Ближайшие полнолуние и новолуние: в какую ночь и через сколько ночей. */
-export function moonEvents(ms = getClock()) {
+function moonEvents(ms = getClock()) {
   const out = [], step = 3 * MS_HOUR, cur = nightNumber(ms);
   let prev = moonPhase(ms).value;
   for (let t = ms + step; t < ms + 32 * MS_DAY && out.length < 2; t += step) {
@@ -443,7 +443,7 @@ export function registerNightExtras() {
  * часть — светлее; днём ночь впереди. Стрелка — сейчас, в центре — время и сколько осталось до рассвета (заката).
  * @returns {string} SVG
  */
-export function nightDial(ms = getClock()) {
+function nightDial(ms = getClock()) {
   const C = 120, R = 98;
   const dayStart = t => { const d = new Date(t); return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime(); };
   const ang = t => (t - dayStart(t)) / MS_DAY * 360;

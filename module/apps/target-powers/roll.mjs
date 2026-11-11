@@ -10,7 +10,7 @@ import { clockApi, t, esc, TARGET_POWERS, sameActor, supernatural, tierText, not
 import { contradict, burningTouch, illusion, auraLines, tasteLines, cloakGathering } from "./effects.mjs";
 
 /** Сложность Языка животных по виду (по имени и «виду» существа). */
-export function animalDiff(a) {
+function animalDiff(a) {
   const s = `${a.name} ${a.system.kind ?? ""}`.toLowerCase();
   if (/волк|кош|кот|рыс|лев|тигр|пантер|летуч|медвед|лис|пёс|пес|собак|wolf|cat|bat|bear|dog|fox/.test(s)) return 6;
   if (/голуб|ворон|воробь|птиц|змея|змей|ящер|черепах|pigeon|crow|raven|bird|snake|lizard|reptil/.test(s)) return 8;
@@ -21,7 +21,7 @@ export function animalDiff(a) {
 Object.assign(TARGET_POWERS, PATH_POWERS);
 
 /** Черта цели для сложности. */
-export function traitOf(a, k) {
+function traitOf(a, k) {
   const s = a.system;
   switch (k) {
     case "willpower": return s.willpower?.temporary ?? null;

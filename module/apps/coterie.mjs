@@ -18,7 +18,7 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
 
 /** Какие факты биографии можно складывать (имена — как в data/backgrounds.json). */
-export const POOLABLE = ["Домен", "Стадо", "Богатство", "Влияние", "Союзники", "Информаторы", "Подручные", "Общее убежище",
+const POOLABLE = ["Домен", "Стадо", "Богатство", "Влияние", "Союзники", "Информаторы", "Подручные", "Общее убежище",
   // стая Гару (W20, гл. 3): объединяемые Факты и Тотем
   "Связи", "Судьба", "Родня", "Ресурсы", "Тотем"];
 const MAX = 10;
@@ -108,7 +108,7 @@ const POOL_STEM = [["вол", "willpower"], ["ярост", "rage"], ["гнози
 const plain = s => String(s ?? "").replace(/<[^>]+>/g, "");
 const stem = (list, w) => list.find(([p]) => w.startsWith(p))?.[1] ?? null;
 
-export function totemPerks(tt) {
+function totemPerks(tt) {
   const out = { attr: {}, traits: {}, renown: {}, pools: {} };
   if (!tt) return out;
   const attrs = { ...ATTR_ALIAS }, abil = {};

@@ -16,7 +16,7 @@ import { SYSTEM_ID, VTM20 } from "../config.mjs";
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
 const esc = x => foundry.utils.escapeHTML(String(x ?? ""));
 
-export const COMBAT_POWERS = {
+const COMBAT_POWERS = {
   "thaumaturgy|Игра с Огнём": { kind: "flame", soak: [3, 4, 5, 7, 9], dmg: [1, 1, 2, 2, 3] },
   "darkThaumaturgy|Огни Преисподней": { kind: "flame", soak: [3, 4, 5, 7, 9], dmg: [1, 2, 3, 4, 5] },
   "thaumaturgy|Управление Погодой|5": { kind: "pool", pool: 10, type: "lethal", pierce: 99 },

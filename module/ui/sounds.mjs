@@ -93,7 +93,7 @@ function heart(c, out, gain, at = 0) {
 }
 
 /** Звуки: [что звучит, доля эха]. Громкости подобраны так, чтобы щелчок был едва слышен, а удар и провал — заметны. */
-export const SOUNDS = {
+const SOUNDS = {
   // «твоя очередь» в бою: два тихих удара колокола — квинта вверх
   turn: [(c, o) => { bell(c, o, 294, .16, 0, 1.1); bell(c, o, 440, .12, .2, 1.3); }, .35],
   // мягкий глухой «тук» — без шума: шумовой всплеск звучал резким хлопком
@@ -125,7 +125,7 @@ export const SOUNDS = {
 };
 
 /** Собрать звук в контексте c на выход dest с громкостью v (для игры и для записи образцов). */
-export function renderSound(c, dest, name, v = 1) {
+function renderSound(c, dest, name, v = 1) {
   const [make, wet] = SOUNDS[name];
   const out = c.createGain(), dry = c.createGain(), send = c.createGain();
   out.gain.value = v; dry.gain.value = 1; send.gain.value = wet;

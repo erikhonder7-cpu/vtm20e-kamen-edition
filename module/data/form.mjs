@@ -21,7 +21,7 @@ const ALIAS = {
 const TRAIT = { dodge: "athletics" };
 
 /** Способность каталога по названию: сначала Дома Облика, затем общие, затем любые. */
-export function formEntry(name, house) {
+function formEntry(name, house) {
   const cat = Codex["demon-form"];
   if (!cat) return null;
   const n = ALIAS[norm(name)] ?? norm(name);
