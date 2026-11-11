@@ -18,6 +18,9 @@ const MAP = {
   ...Object.fromEntries(["Bonisagus", "ExMiscellanea", "Flambeau", "Fortunae", "Janissary", "Quaesitor", "Shaea", "Solificati", "Thig", "Tytalus", "Verditius"]
     .map(h => [`house-${h.replace("ExMiscellanea", "ex-miscellanea").toLowerCase()}`, `Дома Гермесистов/LogoHouse${h}`])),
   "group-traditions": "Фракции/CouncilofNine", "group-technocracy": "Фракции/Faction-Technocracy", "group-marauders": "Фракции/SectMarauder", "group-nephandi": "Фракции/SectNephandi",
+  ...Object.fromEntries([["crombey-farm", "CrombeyFarm"], ["drachus-vachar", "DrachusVachar"], ["house-of-helekar", "HouseofHelekar"], ["lodge-of-the-gray-squirrel", "LodgeoftheGraySquirrel"],
+    ["mecha", "MECHA"], ["maze-of-ebon-gates", "MazeofEbonGates"], ["null-b", "Null-B"], ["research-plantation-4", "ResearchPlantationNo4"], ["sepulcher", "Sepulcher"], ["vali-shallar", "ValiShallar"]]
+    .map(([k, f]) => [`chantry-${k}`, `Chantries, Constructs, Labyrinths/Chantry${f}`])),
   "sphere-correspondence": "Сферы/Связи/SphereCorrespondence", "sphere-entropy": "Сферы/Энтропия/SphereEntropy", "sphere-forces": "Сферы/Силы/SphereForces",
   "sphere-life": "Сферы/Жизнь/SphereLife", "sphere-matter": "Сферы/Материя/SphereMatter", "sphere-mind": "Сферы/Разум/SphereMind",
   "sphere-prime": "Сферы/Основы/SpherePrime", "sphere-spirit": "Сферы/Дух/SphereSpirit", "sphere-time": "Сферы/Время/SphereTime", "sphere-telos": "Сферы/Телос/SphereTelos"

@@ -1695,3 +1695,17 @@ body.r-theme-light .vtm20 .r-sp-state img { filter: none; }
 .vtm20.r-atlas .r-at-row-sym { flex: 0 0 auto; width: 34px; height: 34px; color: var(--r-accent); }
 .vtm20.r-atlas .r-at-row-sym .r-sym { width: 100%; height: 100%; }
 .vtm20.r-atlas .r-at-row-text { margin-top: 3px; color: var(--r-ink-2); line-height: 1.4; }
+
+/* Кабал магов: знак чантри водяным знаком и на печати, запас Узла */
+.vtm20 .r-gs-watermark.r-gs-sign { width: 170px; height: 170px; opacity: .07; font-size: 0; }
+.vtm20 .r-gs-watermark.r-gs-sign .r-sym { width: 100%; height: 100%; }
+.vtm20 .r-gs .r-seal-icon .r-sym { width: 22px; height: 22px; }
+.vtm20 .r-gs-chantry { margin: 6px 0 10px; }
+.vtm20 .r-gs-cquint { font-size: 12px; color: var(--r-gold, #d9b56a); display: inline-flex; align-items: center; gap: 5px; }
+.vtm20 .r-gs-cquint a { color: inherit; opacity: .75; }
+.vtm20 .r-gs-cquint a:hover { opacity: 1; }
+.vtm20 .r-gs-stock { margin-top: 10px; }
+.vtm20 .r-gs-stock > div { position: relative; }
+.vtm20 .r-gs-stock em { position: absolute; right: 8px; top: 8px; display: inline-flex; gap: 8px; font-style: normal; font-size: 11px; }
+.vtm20 .r-gs-stock em a { opacity: .6; }
+.vtm20 .r-gs-stock em a:hover { opacity: 1; }

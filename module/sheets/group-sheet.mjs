@@ -16,8 +16,13 @@ const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
 const loc = k => game.i18n.localize(k);
-const PEOPLE = ["vampire", "ghoul", "mortal", "demon", "hunter", "werewolf", "creature"];
-const KIND_ICON = { coterie: "fa-droplet", sabbat: "fa-wine-glass", pack: "fa-paw", cell: "fa-crosshairs" };
+const PEOPLE = ["vampire", "ghoul", "mortal", "demon", "hunter", "mage", "werewolf", "creature"];
+const KIND_ICON = { coterie: "fa-droplet", sabbat: "fa-wine-glass", pack: "fa-paw", cell: "fa-crosshairs", cabal: "fa-hat-wizard" };
+/** Знаки известных чантри, Конструктов и Лабиринтов (assets/mage/chantry-*.png) — на выбор для своего. */
+const CHANTRY_SIGNS = ["crombey-farm", "drachus-vachar", "house-of-helekar", "lodge-of-the-gray-squirrel", "mecha", "maze-of-ebon-gates", "null-b", "research-plantation-4", "sepulcher", "vali-shallar"];
+/** Размах чантри по очкам общего пула (M20, Факт «Чантри»): от какого числа очков — какая ступень. */
+const CHANTRY_TIERS = [[101, "power"], [71, "fortress"], [31, "chantry"], [21, "sanctum"], [10, "squat"]];
+const WHEEL = 20;
 /** Население (V20 Dark Ages Companion, гл. 7): точки → домохозяйства (и ополченцы), жители, территория в кв. милях. */
 const POPULACE = [[0, 0, ""], [3, 15, "1"], [7, 35, "1–2"], [15, 75, "1–3"], [30, 150, "2–5"], [60, 300, "3–10"], [120, 600, "6–25"], [250, 1250, "10–50"],
   [500, 2500, "20–100"], [1000, 5000, "40–200"], [2000, 10000, "80–400"]];
@@ -37,6 +42,7 @@ function personLine(a) {
       : [VTM20.label((W.tribes ?? []).find(x => x.key === s.werewolf?.tribe) ?? {}), VTM20.label((W.auspices ?? []).find(x => x.key === s.werewolf?.auspice) ?? {})].filter(Boolean).join(" · ");
     case "hunter": return [VTM20.label((Codex.hunter?.creeds ?? []).find(c => c.key === s.hunter?.creed) ?? {}), t("Group.Conviction", { n: s.hunter?.conviction ?? 0 })].join(" · ");
     case "demon": return Codex.house(s.house)?.name ?? "";
+    case "mage": return [(Codex.mage?.factions ?? []).find(f => f.key === s.mage?.faction)?.name, `${loc("VTM20.Mage.Arete")} ${s.mage?.arete ?? 0}`].filter(Boolean).join(" · ");
     case "coterie": return t(`Group.Kind.${s.kind}`);
     default: return s.details?.concept ?? "";
   }
@@ -74,6 +80,7 @@ export class CoterieSheet extends GroupSheet {
   static DEFAULT_OPTIONS = {
     classes: ["r-coterie-sheet"],
     actions: { openActor: CoterieSheet.#onOpen, dropMember: CoterieSheet.#onDropMember, pools: CoterieSheet.#onPools, haven: CoterieSheet.#onHaven, vaulderie: CoterieSheet.#onVaulderie,
+      nodeWeek: CoterieSheet.#onNodeWeek, nodeStock: CoterieSheet.#onNodeStock, nodeDraw: CoterieSheet.#onNodeDraw,
       totemSpend: CoterieSheet.#onTotemSpend, totemRefill: CoterieSheet.#onTotemRefill, totemAccept: CoterieSheet.#onTotemAccept, totemBan: CoterieSheet.#onTotemBan }
   };
   static PARTS = { body: { template: `${SYSTEM_PATH}/templates/actor/coterie-sheet.hbs`, scrollable: [".r-gs-body"] } };
@@ -98,7 +105,7 @@ export class CoterieSheet extends GroupSheet {
     return {
       actor: a, system: s, editable: this.isEditable, icon: KIND_ICON[s.kind] ?? "fa-droplet",
       kindLabel: t(`Group.Kind.${s.kind}`), typeLabel: loc("TYPES.Actor.coterie"),
-      kinds: ["coterie", "sabbat", "pack", "cell"].map(k => ({ key: k, label: t(`Group.Kind.${k}`), selected: k === s.kind })),
+      kinds: ["coterie", "sabbat", "pack", "cell", "cabal"].map(k => ({ key: k, label: t(`Group.Kind.${k}`), selected: k === s.kind })),
       haven: (() => {   // «Общее убежище» (Anarchs Unbound): точки общего факта делятся на роскошь, размер и защиту
         const pool = "Общее убежище" in (c.pools ?? {}) ? poolValue(c, "Общее убежище") : null, h = s.haven ?? {};
         const used = (h.luxury ?? 0) + (h.size ?? 0) + (h.security ?? 0);
@@ -106,7 +113,15 @@ export class CoterieSheet extends GroupSheet {
           hint: t(`Group.HavenHint.${k}.${h[k] ?? 0}`), dots: Array.from({ length: 5 }, (_, i) => ({ n: i + 1, on: i < (h[k] ?? 0) })) })) };
       })(),
       sabbat: s.kind === "sabbat", gm: game.user.isGM,
-      members: members.map(card),
+      cabal: s.kind === "cabal" ? (() => {   // чантри: размах по очкам, Узел и его недельная выработка, общий запас
+        const ch = s.chantry, tier = CHANTRY_TIERS.find(([min]) => ch.points >= min)?.[1] ?? "", week = ch.node * ch.rate;
+        return { ...ch, tier: tier ? t(`Group.ChantryTier.${tier}`) : "", sym: ch.sign ? { src: foundry.utils.getRoute(`${SYSTEM_PATH}/assets/mage/chantry-${ch.sign}.png`) } : null,
+          signs: [{ key: "", label: "—" }, ...CHANTRY_SIGNS.map(k => ({ key: k, label: t(`Group.ChantrySign.${k}`), selected: k === ch.sign }))],
+          nodeDots: Array.from({ length: Math.max(5, ch.node) }, (_, i) => ({ n: i + 1, on: i < ch.node })),
+          libDots: Array.from({ length: Math.max(5, ch.library) }, (_, i) => ({ n: i + 1, on: i < ch.library })),
+          week, weekFree: Math.ceil(week / 2), weekTass: Math.floor(week / 2) };
+      })() : null,
+      members: members.map(m => ({ ...card(m), mage: s.kind === "cabal" && m.type === "mage" ? { quint: m.system.mage.quintessence, room: WHEEL - m.system.mage.paradox - m.system.mage.quintessence } : null })),
       pools: Object.keys(c.pools ?? {}).map(bg => { const v = poolValue(c, bg); return { bg, value: v, primary: bg === c.primary, dots: dots(v, 5) }; }),
       totem: totem ? { name: totem.name, individual: totem.individual, pack: totem.pack, ban: totem.ban, banned: totemBanned(a),
         pools: Object.entries(totemPools(a)).map(([key, p]) => ({ key, label: t(`Group.TotemPool.${key}`), max: p.max, left: p.left,
@@ -123,6 +138,31 @@ export class CoterieSheet extends GroupSheet {
   }
 
   static #onOpen(event, target) { game.actors.get(target.dataset.id)?.sheet.render(true); }
+  /** Неделя Узла: выработка — в общий запас, половина свободной Квинтэссенцией, половина Тассом. */
+  static async #onNodeWeek() {
+    const ch = this.actor.system.chantry, week = ch.node * ch.rate;
+    if (!week) return ui.notifications.info(t("Group.NodeNone"));
+    await this.actor.update({ "system.chantry.quint": ch.quint + Math.ceil(week / 2), "system.chantry.tass": ch.tass + Math.floor(week / 2) });
+    return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: this.actor }),
+      content: `<div class="r-notice r-type-mage"><i class="fa-solid fa-sun"></i> ${t("Group.NodeWeekMsg", { name: foundry.utils.escapeHTML(ch.name || this.actor.name), free: Math.ceil(week / 2), tass: Math.floor(week / 2) })}</div>` });
+  }
+  /** Запас и рейтинги чантри: точки Узла и Библиотеки, ±1 к свободной Квинтэссенции или Тассу. */
+  static #onNodeStock(event, target) {
+    const ch = this.actor.system.chantry, k = target.dataset.key;
+    if (target.dataset.n) { const n = Number(target.dataset.n); return this.actor.update({ [`system.chantry.${k}`]: ch[k] === n ? n - 1 : n }); }
+    return this.actor.update({ [`system.chantry.${k}`]: Math.max(0, ch[k] + Number(target.dataset.d)) });
+  }
+  /** Маг кабала вбирает очко из общего запаса: сначала свободная Квинтэссенция, потом Тасс; не больше места на колесе. */
+  static async #onNodeDraw(event, target) {
+    const m = game.actors.get(target.dataset.id), ch = this.actor.system.chantry;
+    if (!m?.isOwner) return ui.notifications.warn(game.i18n.format("VTM20.Notify.NotOwner", { name: m?.name ?? "" }));
+    const mg = m.system.mage, from = ch.quint > 0 ? "quint" : ch.tass > 0 ? "tass" : null;
+    if (!from) return ui.notifications.info(t("Group.NodeEmpty"));
+    if (mg.quintessence + mg.paradox >= WHEEL) return ui.notifications.info(t("Group.NodeNoRoom", { name: m.name }));
+    await this.actor.update({ [`system.chantry.${from}`]: ch[from] - 1 });
+    await m.update({ "system.mage.quintessence": mg.quintessence + 1 });
+    return this.render();
+  }
   static #onDropMember(event, target) { return this.actor.update({ "system.members": this.actor.system.members.filter(x => x !== target.dataset.id) }); }
   static #onPools() { return openCoterie(null, this.actor.id); }
   static #onHaven(event, target) { const k = target.dataset.key, n = Number(target.dataset.n), v = this.actor.system.haven?.[k] ?? 0;

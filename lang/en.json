@@ -5353,7 +5353,8 @@
         "coterie": "Coterie",
         "sabbat": "Sabbat pack",
         "pack": "Garou pack",
-        "cell": "Hunter cell"
+        "cell": "Hunter cell",
+        "cabal": "Cabal"
       },
       "Members": "Members",
       "Drop": "Remove from the group",
@@ -5546,7 +5547,47 @@
       "TotemAccept": "Accept Totem",
       "TotemAcceptHint": "Each Garou of the pack gains temporary Renown from individual traits (once per totem) and Attribute bonuses",
       "TotemContrition": "Rite of Contrition",
-      "TotemBanBroken": "Ban Broken"
+      "TotemBanBroken": "Ban Broken",
+      "Chantry": "Chantry",
+      "ChantryName": "Name",
+      "ChantrySignLabel": "Sign",
+      "ChantryPoints": "Pool points",
+      "ChantryPointsHint": "Chantry Background points pooled by the cabal: 10–20 — squat, 21–30 — small sanctum, 31–70 — chantry, 71–100 — fortress, 101+ — seat of power",
+      "ChantryTier": {
+        "squat": "squat",
+        "sanctum": "small sanctum",
+        "chantry": "mystic chantry",
+        "fortress": "fortress",
+        "power": "seat of power"
+      },
+      "ChantrySign": {
+        "crombey-farm": "Crombey Farm",
+        "drachus-vachar": "Drachus Vachar",
+        "house-of-helekar": "House of Helekar",
+        "lodge-of-the-gray-squirrel": "Lodge of the Gray Squirrel",
+        "mecha": "MECHA",
+        "maze-of-ebon-gates": "Maze of Ebon Gates",
+        "null-b": "Null-B",
+        "research-plantation-4": "Research Plantation No. 4",
+        "sepulcher": "Sepulcher",
+        "vali-shallar": "Vali Shallar"
+      },
+      "Node": "Node",
+      "NodeRate": "Per dot per week",
+      "NodeRateHint": "Quintessence a Node dot yields per week: 2 — ordinary world, 5–10 — high magick, 1 — magick is dying (Storyteller's call)",
+      "NodeYield": "{n} per week: {free} free, {tass} Tass",
+      "NodeWeek": "Node week",
+      "NodeWeekHint": "A week has passed: +{free} free Quintessence and +{tass} Tass to the stock",
+      "NodeWeekMsg": "<b>{name}</b>: the Node gave its weekly yield — free Quintessence +{free}, Tass +{tass}.",
+      "NodeNone": "The chantry has no Node — no yield.",
+      "NodeEmpty": "The chantry stock is empty.",
+      "NodeNoRoom": "{name}: no room on the wheel.",
+      "NodeDrawHint": "Draw a point from the chantry stock (free Quintessence first, then Tass)",
+      "Library": "Library",
+      "LibraryHint": "shared Background: the chantry's books and archives",
+      "StockQuint": "Quintessence",
+      "StockTass": "Tass",
+      "StockWeek": "per week"
     },
     "Session": {
       "Title": "Session panel",

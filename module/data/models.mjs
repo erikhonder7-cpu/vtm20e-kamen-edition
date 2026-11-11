@@ -750,7 +750,11 @@ export class WerewolfData extends MortalData {
 export class CoterieData extends foundry.abstract.TypeDataModel {
   static defineSchema() {
     return {
-      kind: str("coterie"),                 // coterie | sabbat (стая Шабаша) | pack (стая Гару) | cell (ячейка охотников)
+      kind: str("coterie"),                 // coterie | sabbat (стая Шабаша) | pack (стая Гару) | cell (ячейка охотников) | cabal (кабал магов)
+      // Чантри кабала (M20, Факты «Чантри» и «Узел»): очки общего пула задают размах; Узел даёт Квинтэссенцию в неделю —
+      // половину свободной, половину Тассом (rate — очков за точку Узла, по умолчанию 2: «индустриальная эпоха»)
+      chantry: new SchemaField({ name: str(), sign: str(), points: int(0, 0, 999), node: int(0, 0, 10), rate: int(2, 1, 10),
+        quint: int(0, 0, 999), tass: int(0, 0, 999), library: int(0, 0, 10), resonance: str() }),
       // «Общее убежище» (V20 Anarchs Unbound): точки общего факта — между роскошью, размером и защитой
       haven: new SchemaField({ luxury: int(0, 0, 5), size: int(0, 0, 5), security: int(0, 0, 5) }),
       members: new ArrayField(str()),       // id актёров

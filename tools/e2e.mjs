@@ -3959,6 +3959,14 @@ try {
       await wait(300);
       out.drop = [a.items.filter(i => i.type === "merit").length, a.items.filter(i => i.type === "background").length];
       await a.sheet.close();
+      // кабал: лист в гамме магов, маг вбирает из запаса чантри, неделя Узла пополняет запас
+      const cab = await Actor.create({ name: "E2E — кабал", type: "coterie", flags: { world: { e2e: true } }, system: { kind: "cabal", members: [a.id], chantry: { points: 34, node: 3, quint: 1 } } });
+      await cab.sheet.render(true); await wait(700);
+      const cq = a.system.mage.quintessence;
+      cab.sheet.element.querySelector('[data-action="nodeDraw"]').click(); await wait(500);
+      cab.sheet.element.querySelector('[data-action="nodeWeek"]').click(); await wait(600);
+      out.cabal = [cab.sheet.element.classList.contains("r-type-mage"), a.system.mage.quintessence - cq, cab.system.chantry.quint, cab.system.chantry.tass];
+      await cab.sheet.close(); await cab.delete();
       // откат: кнопки рассказчика — Изъян по степени, постоянный Парадокс
       await a.update({ "system.mage.paradox": 6 });
       const bl = await Mg.paradoxBacklash(a); await wait(500);
@@ -3973,7 +3981,7 @@ try {
     });
     const want = { data: [true, 16, 3, 6, 5], roteView: [2, "vulgar", 7], roteFast: [true, "vulgar", 3, 7], resDice: 5, resUsed: [true, 2, "E2E — молния", "coincidental"],
       quiet: [1, true, 4, "minor"], sheet: [2, true, true], seeking: [1], wonders: [2, 5, true, true], wonderQuint: [1, 14], wonderDlg: [true, 3, true],
-      drop: [1, 1], backlash: true, marauder: [true, 15, "group-marauders"] };
+      drop: [1, 1], cabal: [true, 1, 3, 3], backlash: true, marauder: [true, 15, "group-marauders"] };
     const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
