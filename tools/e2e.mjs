@@ -3986,6 +3986,66 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  // Маг против мира и мага (apps/mage-duel.mjs): шаг в сторону длительным броском, контрмагия, сертамен;
+  // справочник охотника по знаку листа; «Моя ночь» — сводка игрока шёпотом
+  await check("Маг: шаг в сторону, контрмагия, сертамен; справочник охотника; «Моя ночь»", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), sys = p => import(`/systems/${sid}/${p}`);
+      const out = {}, inst = () => [...foundry.applications.instances.values()], n0 = game.messages.size;
+      const mk = (name, mage) => Actor.create({ name, type: "mage", flags: { world: { e2e: true }, [sid]: { created: true } },
+        system: { willpower: { permanent: 7, temporary: 7 }, attributes: { wits: { value: 4 } }, mage } });
+      const a = await mk("E2E — странник", { faction: "dreamspeakers", arete: 5, affinity: "spirit", quintessence: 6, spheres: { spirit: 3, prime: 2, forces: 3 } });
+      const b = await mk("E2E — соперник в круге", { faction: "order-of-hermes", arete: 3, affinity: "forces", quintessence: 20, spheres: { forces: 2 } });
+      const D = await sys("module/apps/mage-duel.mjs");
+      const dlg = () => inst().find(x => x.element?.classList.contains("r-mduel"));
+      const go = async (fn, pickKey, fill) => { fn(); await wait(600); const d = dlg(); if (!d) return false;
+        if (pickKey) { const i = d.element.querySelector(`input[name="v"][value="${pickKey}"]`); if (i) i.checked = true; } fill?.(d.element);
+        d.element.querySelector('button[data-action="ok"]').click(); await wait(1300); return true; };
+      const last = () => game.messages.contents.at(-1)?.flags?.[sid]?.roll;
+      // шаг в сторону: без Духа 3 — отказ; у Узла (сл. 3, 1 успех) — до успеха, потом возврат
+      const weak = await mk("E2E — без Духа", { arete: 2, spheres: { spirit: 1 } });
+      await D.stepSideways(weak); await wait(300); out.needSpirit = !dlg();
+      let tries = 0; const par0 = a.system.mage.paradox;
+      while (!D.inUmbra(a) && tries++ < 8) { await go(() => D.stepSideways(a), "node"); if (dlg()) await dlg().close(); }
+      out.step = [D.inUmbra(a), last()?.extra?.mduel?.kind, a.system.mage.paradox - par0];
+      await D.stepSideways(a); await wait(400); out.back = !D.inUmbra(a);
+      // контрмагия: развеять — минус 1 Квинтэссенция, сложность 8; блок карточки с чипами
+      const q0 = a.system.mage.quintessence;
+      await go(() => D.counterMagic(a), "dispel");
+      const cm = last(); out.counter = [cm?.extra?.mduel?.mode, cm?.difficulty, q0 - a.system.mage.quintessence >= 1];
+      // сертамен: цель — соперник; сложность — его высшая Сфера + 3; успехи переносят Квинтэссенцию
+      const scene = game.scenes.viewed ?? game.scenes.contents[0];
+      const made = await scene.createEmbeddedDocuments("Token", await Promise.all([a, b].map((x, i) => x.getTokenDocument({ x: 300 + i * 200, y: 3100 }))));
+      for (let i = 0; i < 30 && !canvas.tokens.get(made[1].id); i++) await wait(100);
+      canvas.tokens.get(made[1].id)?.setTarget(true, { releaseOthers: true }); await wait(300);
+      const qa = a.system.mage.quintessence, qb = b.system.mage.quintessence;
+      await go(() => D.certamen(a), "forces");
+      const ce = last(), ev = (await sys("module/dice/roll.mjs")).evaluate(ce.values, ce);
+      out.certamen = [ce?.extra?.mduel?.kind, ce?.difficulty, ce?.pool, qb - b.system.mage.quintessence === Math.min(ev.successes ?? 0, qb) && a.system.mage.quintessence - qa === Math.min(ev.successes ?? 0, qb)];
+      canvas.tokens.get(made[1].id)?.setTarget(false); await scene.deleteEmbeddedDocuments("Token", made.map(x => x.id));
+      out.cards = game.messages.contents.slice(n0).every(m => !m.flags?.[sid]?.roll?.extra?.mduel || /r-line-chip/.test(m.content));
+      // справочник охотника: знак листа открывает его на кредо
+      const h = await Actor.create({ name: "E2E — мститель", type: "hunter", flags: { world: { e2e: true }, [sid]: { created: true } }, system: { hunter: { creed: "vengeance" } } });
+      await h.sheet.render(true); await wait(700);
+      out.hunterSigil = h.sheet.element.querySelector(".r-rail-sigil")?.dataset.action;
+      h.sheet.element.querySelector(".r-rail-sigil")?.click(); await wait(900);
+      const at = foundry.applications.instances.get("r-atlas-hunter");
+      out.hunterAtlas = [!!at, at?.element.querySelectorAll(".r-cl-groups a").length, at?.element.querySelectorAll(".r-cl-trait").length >= 5, at?.element.classList.contains("r-type-hunter")];
+      await at?.close(); await h.sheet.close();
+      // «Моя ночь»: карточка шёпотом себе, с Квинтэссенцией мага
+      const m0 = game.messages.size; await game.vtm20.myNight(); await wait(500);
+      const mn = game.messages.contents.at(-1);
+      out.myNight = [game.messages.size - m0, mn?.whisper?.length === 1 && mn.whisper[0] === game.user.id, /r-night-sum/.test(mn?.content ?? "")];
+      await ChatMessage.deleteDocuments(game.messages.contents.slice(n0).map(m => m.id));
+      await Actor.deleteDocuments([a.id, b.id, weak.id, h.id]);
+      return out;
+    });
+    const want = { needSpirit: true, step: [true, "step", 1], back: true, counter: ["dispel", 8, true], certamen: ["certamen", 5, 7, true], cards: true,
+      hunterSigil: "lineAtlas", hunterAtlas: [true, 2, true, true], myNight: [1, true, true] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   // вторая уборка: временные персонажи проверок после первой (стратегия, оборотни, панель сессии…)
   await page.evaluate(async () => {
     const temp = game.actors.filter(x => x.getFlag("world", "e2e")).map(x => x.id);

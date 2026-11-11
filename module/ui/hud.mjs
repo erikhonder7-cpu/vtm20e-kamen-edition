@@ -291,6 +291,8 @@ function tabsOf(a, kind) {
       seal("mageCast", "fa-hat-wizard", mt(a, "Cast"), { tip: `${mt(a, "CastTitle")} · ${mt(a, "Arete")} ${aretePool(a)}` }),
       seal("mageQuint", "fa-plus", t("Hud.QuintIn"), { badge: String(m.quintessence), attrs: `data-d="1"`, tip: `${mt(a, "Quintessence")} +1` }),
       seal("mageQuint", "fa-minus", t("Hud.QuintOut"), { attrs: `data-d="-1"`, tip: `${mt(a, "Quintessence")} −1` }),
+      seal("mageCounter", "fa-shield-halved", t("Mage.Counter"), { tip: t("Mage.CounterTip") }),
+      ...((m.spheres?.spirit ?? 0) >= 3 || a.getFlag(SYSTEM_ID, "umbra") ? [seal("mageStep", "fa-circle-half-stroke", t("Mage.StepShort"), { on: !!a.getFlag(SYSTEM_ID, "umbra"), tip: t(a.getFlag(SYSTEM_ID, "umbra") ? "Mage.StepBackTip" : "Mage.StepTip") })] : []),
       seal("mageBacklash", "fa-burst", t("Mage.Paradox"), { on: m.paradox >= 10, badge: m.paradox ? String(m.paradox) : "", tip: t("Mage.BacklashHint") })] });
   }
   // Силы: вынесенные булавкой с листа (знак Дисциплины и уровень точками), силы на время, свои силы вида и «Все» — вкладка сил на листе
@@ -423,6 +425,8 @@ async function onClick(ev) {
     case "mageCast": return castEffect(a);
     case "mageQuint": return changeQuintessence(a, Number(el.dataset.d));
     case "mageBacklash": return paradoxBacklash(a);
+    case "mageCounter": return import("../apps/mage-duel.mjs").then(D => D.counterMagic(a));
+    case "mageStep": return import("../apps/mage-duel.mjs").then(D => D.stepSideways(a));
     case "noop": return;
     // все силы — вкладка сил на листе (Дисциплины, Дары, Знания, Грани)
     case "allPowers": await a.sheet.render(true); return a.sheet.changeTab?.("disciplines", "primary");

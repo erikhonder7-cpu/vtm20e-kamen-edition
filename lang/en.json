@@ -4795,7 +4795,12 @@
       "ActionsCap": "Up to {cap} per turn",
       "ActionsFreeSub": "No penalty up to {free}: the lower of Dexterity and Wits",
       "ActionsLead": "Extra actions come after normal ones, in initiative order; the pool isn't split.",
-      "ActionsN": {"one": "extra action", "few": "extra actions", "many": "extra actions", "other": "extra actions"},
+      "ActionsN": {
+        "one": "extra action",
+        "few": "extra actions",
+        "many": "extra actions",
+        "other": "extra actions"
+      },
       "ActionsCost": "Rage −{n}",
       "TalenKicker": "Talen",
       "FetishKicker": "Fetish · level {n}",
@@ -6948,7 +6953,11 @@
       "More": "and {n} more",
       "Nobody": "No player characters.",
       "Foot": "Arrows show what changed since nightfall (the “Night” button).",
-      "FootNoSnap": "Nightfall was not marked with the “Night” button — only the current state is shown."
+      "FootNoSnap": "Nightfall was not marked with the “Night” button — only the current state is shown.",
+      "Mine": "My night",
+      "MineButton": "My night",
+      "quint": "Quintessence",
+      "paradox": "Paradox"
     },
     "Mage": {
       "SphereTip": "Own Sphere: {n}. Click a dot to set the rank used, the tile to add it in full or drop it.",
@@ -7157,7 +7166,62 @@
       "SeekingAccept": "Acceptance",
       "SeekingDeny": "Denial",
       "SeekingAccepted": "<b>{name}</b> passes the Seeking: Epiphany. Willpower +1, Arete {n} unlocked.",
-      "SeekingDenied": "<b>{name}</b> backs away from the Avatar: the Seeking fails. Willpower −1."
+      "SeekingDenied": "<b>{name}</b> backs away from the Avatar: the Seeking fails. Willpower −1.",
+      "StepSideways": "Step sideways",
+      "StepShort": "To the Umbra",
+      "StepTip": "Step sideways: Spirit 3, extended Arete roll against the local Gauntlet",
+      "StepBackTip": "Return from the Umbra",
+      "StepBack": "{name} returns from the Umbra.",
+      "StepNeedSpirit": "Stepping sideways needs {sphere} 3.",
+      "StepLead": "Where does the mage cross the Gauntlet? Difficulty on the right; the successes needed may take several rolls. Stepping sideways is vulgar.",
+      "StepNeed": "successes needed: {n}",
+      "StepNeedShort": "successes",
+      "StepProgress": "{got} of {need} so far",
+      "Gauntlet": "Gauntlet",
+      "StepBotch": "Botch: the mage is stuck between worlds and needs help.",
+      "StepDone": "{name} passes the Gauntlet into the Penumbra.",
+      "StepOnward": "{got} of {need}: the crossing continues with the next roll.",
+      "StepVulgar": "Vulgar magick: +1 Paradox.",
+      "Counter": "Countermagick",
+      "CounterTip": "Countermagick: Arete, difficulty 7 — each success cancels a success of the Effect",
+      "CounterLead": "A full action; needs at least one dot in one of the Effect's Spheres. Pool and difficulty on the right.",
+      "CounterNeedPrime": "Needs {sphere} 1.",
+      "CounterNeedQuint": "Needs 1 Quintessence.",
+      "CounterKind": {
+        "basic": "Innate",
+        "dispel": "Dispel",
+        "reflect": "Reflect",
+        "unweave": "Unweave",
+        "anti": "Anti-magick"
+      },
+      "CounterHint": {
+        "basic": "no cost; a success cancels an attacker's success",
+        "dispel": "Prime 1 and 1 Quintessence; difficulty +1",
+        "reflect": "Prime 1 and 1 Quintessence; difficulty +2, extra successes rebound",
+        "unweave": "Prime 1 and a dot in each Sphere; difficulty +1, beat all its successes",
+        "anti": "pool is Prime, difficulty 8; a success: +1 difficulty to the Effect and 1 Quintessence"
+      },
+      "CounterBotch": "Botch: the countermagick collapses.",
+      "CounterFail": "No successes: the Effect goes through.",
+      "CounterRes": {
+        "basic": "Successes cancelled: {n}.",
+        "dispel": "Successes dispelled: {n}.",
+        "reflect": "Cancelled: {n}; anything beyond the Effect's successes rebounds on the caster.",
+        "unweave": "Unwoven: {n} — all the Effect's successes must be beaten.",
+        "anti": "Difficulty of the Effect +{n}."
+      },
+      "CounterAntiCost": "Quintessence spent: {n}.",
+      "Certamen": "Certámen",
+      "CertamenTip": "Certámen: strike the rival's Aegis with your Gladius — successes drain Quintessence from their Locus",
+      "CertamenLead": "Choose your Gladius Sphere. Difficulty is the rival's Aegis + 3. A targeted rival supplies their highest Sphere.",
+      "Gladius": "Gladius",
+      "Aegis": "Aegis",
+      "CertamenAttr": "Attribute",
+      "CertamenFoe": "the rival",
+      "CertamenBotch": "Botch: the Gladius shatters.",
+      "CertamenMiss": "The Aegis holds.",
+      "CertamenHit": "Quintessence drained from {foe}'s Locus: {n}.",
+      "CertamenSoak": "The defender may soak with a Prime roll, difficulty 6."
     },
     "MageCr": {
       "NeedFaction": "Pick a faction.",
@@ -7206,7 +7270,12 @@
       },
       "Qliph": "Qlipha",
       "Qliphoth": "Qlippoth",
-      "Influence": "Influence"
+      "Influence": "Influence",
+      "HunterTitle": "Hunters: creeds, Virtues, Edges",
+      "Creeds": "Creeds",
+      "Virtues": "Virtues",
+      "Virtue": "Virtue",
+      "Advice": "Advice"
     },
     "Wonder": {
       "Kind": {

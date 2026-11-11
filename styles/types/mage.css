@@ -425,3 +425,19 @@ body.r-theme-light .vtm20.r-type-mage.r-mage-fallen { --r-ink: #24100f; --r-ink-
 .vtm20.r-type-mage .r-rote { display: flex; align-items: flex-start; gap: 8px; }
 .vtm20.r-type-mage .r-rote > .r-edge-main { flex: 1; min-width: 0; }
 .vtm20.r-type-mage .r-rote > .r-icon-btn, .vtm20.r-type-mage .r-rote > .r-vc-btn, .vtm20.r-type-mage .r-rote > .r-wonder-q { flex: none; margin-top: 2px; }
+
+/* Окна выбора мага (apps/mage-duel.mjs): Преграда, контрмагия, Гладиус — плитки со значком, подписью и числом справа */
+.vtm20.r-mduel .r-mduel-opts { display: grid; gap: 6px; }
+.vtm20.r-mduel .r-mduel-opt { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 7px 11px; border: 1px solid var(--r-line-2); background: var(--r-card-bg); cursor: pointer; }
+.vtm20.r-mduel .r-mduel-opt input { position: absolute; opacity: 0; pointer-events: none; }
+.vtm20.r-mduel .r-mduel-opt:has(input:checked) { border-color: var(--r-accent); background: linear-gradient(90deg, color-mix(in srgb, var(--r-accent) 16%, transparent), transparent); }
+.vtm20.r-mduel .r-mduel-opt.is-off { opacity: .45; cursor: not-allowed; }
+.vtm20.r-mduel .r-mduel-face { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--r-line-2); color: var(--r-accent); }
+.vtm20.r-mduel .r-mduel-face .r-sym { width: 22px; height: 22px; }
+.vtm20.r-mduel .r-mduel-text { display: flex; flex-direction: column; min-width: 0; }
+.vtm20.r-mduel .r-mduel-text b { font-family: var(--r-display); font-weight: 400; font-size: 16px; color: var(--r-ink); }
+.vtm20.r-mduel .r-mduel-text em { font-size: 12.5px; color: var(--r-muted); line-height: 1.3; }
+.vtm20.r-mduel .r-mduel-badge { font-family: "Prata", Georgia, serif; font-size: 17px; color: var(--r-ink); white-space: nowrap; }
+.vtm20.r-mduel .r-mduel-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+.r-roll-card.r-type-mage .r-line-chip { border-color: color-mix(in srgb, var(--m-violet, #9a82e6) 45%, transparent); background: color-mix(in srgb, var(--m-violet, #9a82e6) 8%, transparent); color: #d9d2ee; }
+.r-roll-card.r-type-mage .r-line-chip.is-cost { border-color: #d9b56a; color: #f0dcae; }

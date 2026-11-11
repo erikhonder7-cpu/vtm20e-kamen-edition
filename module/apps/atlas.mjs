@@ -2,6 +2,7 @@
 // Справочник линейки по щелчку на знаке листа — как справочник кланов у Сородичей и Домов у падших:
 // слева группы и список со знаками, справа карточка. Разметка и стили — справочника кланов (r-cl-*).
 //   маг      — Традиции, Технократия, Ремёсла (родовая Сфера, практики, Дома и течения), Сферы по рангам, Сущности, парадигмы, практики
+//   охотник   — кредо (Добродетель, Убеждённость, Грани пути), Добродетели охоты
 //   оборотень — племена, породы, аугурии, Фера (числа создания, начальные Дары, Дары по рангам)
 // Данные — data/mage.json и data/werewolf.json (пересказ справочника), своей механики тут нет.
 
@@ -9,6 +10,7 @@ import { SYSTEM_PATH } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
 import { M, mageGlyphSrc, subLabel, factionGlyph } from "./mage.mjs";
 import { W, wwGlyphSrc } from "./werewolf.mjs";
+import { H } from "./hunter.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const loc = k => game.i18n.localize(`VTM20.${k}`);
@@ -95,9 +97,31 @@ function wolfGroups() {
   ].filter(g => g.items.length);
 }
 
+/* ── Охотник ─────────────────────────────────────────────────────────── */
+function hunterGroups() {
+  const D = H(), V = D.virtues ?? {}, VICON = { mercy: "fa-hand-holding-heart", vision: "fa-eye", zeal: "fa-fire-flame-simple" };
+  const edges = path => (D.edges ?? []).filter(e => e.path === path).sort((a, b) => a.level - b.level);
+  const edgeRow = e => ({ lvl: ROMAN[e.level] ?? e.level, name: e.name, em: e.conviction ? `${loc("Hunter.Conviction")} ${e.conviction}` : "", html: p(e.text) });
+  const creedCard = c => () => ({ kicker: `${loc("Hunter.Creed")} · ${V[c.virtue] ?? c.virtue}`, text: p(c.text),
+    facts: [fact(loc("Atlas.Virtue"), V[c.virtue]), fact(loc("Hunter.Conviction"), c.conviction), fact(loc("Atlas.Advice"), c.tips)].filter(Boolean),
+    sections: edges(c.key).length ? [{ title: loc("Hunter.Edges"), n: edges(c.key).length, rows: edges(c.key).map(edgeRow) }] : [] });
+  const B = D.bystander;
+  return [
+    { key: "creeds", label: loc("Atlas.Creeds"), items: [
+      ...(D.creeds ?? []).filter(c => c.key !== "bystander").map(c => ({ key: `creed:${c.key}`, name: c.name, sub: c.who, icon: VICON[c.virtue] ?? "fa-eye", card: creedCard(c) })),
+      ...(B ? [{ key: "creed:bystander", name: B.name, sub: B.who, icon: "fa-user", card: () => ({ kicker: loc("Hunter.Creed"), text: p(B.text),
+        facts: [fact(loc("Hunter.Conviction"), B.conviction), fact(loc("Atlas.Virtues"), Object.values(B.virtues ?? {}).join(", "))].filter(Boolean) }) }] : [])] },
+    // Добродетели охоты: чьи кредо и какие пути Граней на ней стоят
+    { key: "virtues", label: loc("Atlas.Virtues"), items: Object.entries(V).map(([k, name]) => ({ key: `virtue:${k}`, name, icon: VICON[k] ?? "fa-eye",
+      card: () => ({ kicker: loc("Atlas.Virtue"), chips: (D.creeds ?? []).filter(c => c.virtue === k).map(c => ({ label: c.name })),
+        sections: [...new Set((D.edges ?? []).filter(e => e.virtue === k).map(e => e.path))].map(path => ({ title: (D.creeds ?? []).find(c => c.key === path)?.name ?? path, rows: edges(path).map(edgeRow) })) }) })) }
+  ].filter(g => g.items.length);
+}
+
 const LINES = {
   mage: { groups: mageGroups, title: "VTM20.Atlas.MageTitle", icon: "fa-solid fa-hat-wizard", theme: "r-type-mage" },
-  werewolf: { groups: wolfGroups, title: "VTM20.Atlas.WolfTitle", icon: "fa-solid fa-paw", theme: "r-type-werewolf" }
+  werewolf: { groups: wolfGroups, title: "VTM20.Atlas.WolfTitle", icon: "fa-solid fa-paw", theme: "r-type-werewolf" },
+  hunter: { groups: hunterGroups, title: "VTM20.Atlas.HunterTitle", icon: "fa-solid fa-crosshairs", theme: "r-type-hunter" }
 };
 
 /** Открыть справочник линейки («mage», «werewolf») на записи key; открытое окно переключается. */

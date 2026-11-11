@@ -99,7 +99,7 @@ export function spheresView(actor, dots) {
       ranks: (alt?.ranks ?? s.ranks).map((text, i) => ({ n: i + 1, name: D.ranks?.[i] ?? "", text, owned: i < v })).filter(r => r.n <= v + 1) };
   });
   const F = D.focus ?? {};
-  return { L: labelsOf(actor), tech, fallen, spheres, cap, arete: m.arete, capped: cap < m.arete, total: spheres.reduce((s, x) => s + x.value, 0),
+  return { L: labelsOf(actor), tech, fallen, inUmbra: !!actor.getFlag(SYSTEM_ID, "umbra"), spheres, cap, arete: m.arete, capped: cap < m.arete, total: spheres.reduce((s, x) => s + x.value, 0),
     paradigms: own(F.paradigms ?? []).map(p => p.name), practices: own(F.practices ?? []).map(p => p.name),
     practiceTip: (F.practices ?? []).find(p => p.name === m.practice)?.instruments ?? "",
     tools: m.instruments.map((name, i) => ({ i, name })), toolList: [...(fallen ? D.fallenTools ?? [] : []), ...(F.instruments ?? [])].filter(x => !m.instruments.includes(x)),

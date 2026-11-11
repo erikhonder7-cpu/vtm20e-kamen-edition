@@ -183,6 +183,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       mageRoteEdit: VtMActorSheet.#onMageRoteEdit, mageResAdd: VtMActorSheet.#onMageState, mageResDot: VtMActorSheet.#onMageState, mageResDel: VtMActorSheet.#onMageState,
       mageResUsed: VtMActorSheet.#onMageState, mageResCloak: VtMActorSheet.#onMageState, mageQuietExit: VtMActorSheet.#onMageState, mageFlawAdd: VtMActorSheet.#onMageState,
       mageFlawDel: VtMActorSheet.#onMageState, mageSeeking: VtMActorSheet.#onMageState, mageWonderUse: VtMActorSheet.#onMageState, mageWonderQuint: VtMActorSheet.#onMageState,
+      mageStep: VtMActorSheet.#onMageDuel, mageCounter: VtMActorSheet.#onMageDuel, mageCertamen: VtMActorSheet.#onMageDuel,
       mageRoteAdd: VtMActorSheet.#onMageRoteAdd, mageRoteDel: VtMActorSheet.#onMageRoteDel, mageRoteCast: VtMActorSheet.#onMageRoteCast, mageToolDel: VtMActorSheet.#onMageToolDel,
       edgeUse: VtMActorSheet.#onEdgeUse, edgeDel: VtMActorSheet.#onEdgeDel, hunterSight: VtMActorSheet.#onHunterSight,
       wwForm: VtMActorSheet.#onWwForm, wwGift: VtMActorSheet.#onWwGift, wwGiftAdd: VtMActorSheet.#onWwGiftAdd, wwGiftDel: VtMActorSheet.#onWwGiftDel,
@@ -329,7 +330,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     prepareTraits(this, ctx);
     prepareRegistry(this, ctx);
     if (actor.type === "demon") prepareLores(this, ctx);
-    else if (actor.type === "hunter") { ctx.hunterInfo = hunterInfo(actor, dots); ctx.edgePaths = edgesView(actor); ctx.hunterCall = callView(actor); }
+    else if (actor.type === "hunter") { ctx.hunterInfo = hunterInfo(actor, dots); ctx.lineAtlas = true; ctx.edgePaths = edgesView(actor); ctx.hunterCall = callView(actor); }
     else if (actor.type === "mage") { ctx.mageInfo = mageInfo(actor, dots); ctx.mageView = spheresView(actor, dots); ctx.mageState = stateView(actor, dots);
       const sg = mageSigil(actor);
       ctx.sigil = { ...ctx.sigil, sym: sg.sym, label: sg.label };
@@ -631,6 +632,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   /** Справочник мага и оборотня — на своей фракции, роде или племени (apps/atlas.mjs). */
   static async #onLineAtlas() {
     const s = this.actor.system, { openAtlas } = await import("../apps/atlas.mjs");
+    if (this.actor.type === "hunter") return openAtlas("hunter", s.hunter?.creed);
     return this.actor.type === "mage" ? openAtlas("mage", s.mage?.faction) : openAtlas("werewolf", s.werewolf?.fera || s.werewolf?.tribe);
   }
 
@@ -866,6 +868,11 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     else { const to = target.dataset.to === "1"; for (const x of VTM20.mageSpheres) fold[x] = to; }
     this.#sphereFoldSave(fold);
     return this.render();
+  }
+  /** Шаг в сторону, контрмагия, сертамен (apps/mage-duel.mjs). */
+  static async #onMageDuel(event, target) {
+    const D = await import("../apps/mage-duel.mjs");
+    return { mageStep: D.stepSideways, mageCounter: D.counterMagic, mageCertamen: D.certamen }[target.dataset.action]?.(this.actor);
   }
   static #onMageRoteAdd() { return addRote(this.actor); }
   static #onMageRoteDel(event, target) { return removeRote(this.actor, Number(target.dataset.i)); }

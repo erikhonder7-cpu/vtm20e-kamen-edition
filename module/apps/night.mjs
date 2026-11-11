@@ -319,35 +319,47 @@ const summaryActors = () => game.actors.filter(a => a.hasPlayerOwner && !["coter
 
 /** Состояние персонажа для сводки: ресурсы по линейке и раны. */
 function stateOf(a) {
-  const s = a.system, h = s.health ?? {}, ww = a.type === "werewolf" ? s.werewolf : null, dm = a.type === "demon";
+  const s = a.system, h = s.health ?? {}, ww = a.type === "werewolf" ? s.werewolf : null, dm = a.type === "demon", mg = a.type === "mage" ? s.mage : null;
   return { blood: a.hasBlood ? s.blood?.value ?? 0 : null, will: s.willpower?.temporary ?? null,
     rage: ww ? ww.rage?.value ?? 0 : null, gnosis: ww ? ww.gnosis?.value ?? 0 : null,
     faith: dm ? s.faith?.temporary ?? 0 : null, torment: dm ? s.torment?.temporary ?? 0 : null,
     conviction: a.type === "hunter" ? s.hunter?.conviction ?? 0 : null,
+    quint: mg ? mg.quintessence ?? 0 : null, paradox: mg ? mg.paradox ?? 0 : null,
     b: h.bashing ?? 0, l: h.lethal ?? 0, a: h.aggravated ?? 0 };
 }
 
+/** Строка сводки по персонажу: ресурсы «было → стало», раны и действующие эффекты. */
+function summaryRow(a, snap) {
+  const esc = x => foundry.utils.escapeHTML(String(x ?? ""));
+  const now = stateOf(a), was = snap.actors?.[a.id] ?? null;
+  const pair = k => now[k] == null ? "" : was && was[k] != null && was[k] !== now[k]
+    ? `<span class="r-ns-stat is-${now[k] < was[k] ? "down" : "up"}">${esc(t(`NightSum.${k}`))} ${was[k]} → <b>${now[k]}</b></span>`
+    : `<span class="r-ns-stat">${esc(t(`NightSum.${k}`))} <b>${now[k]}</b></span>`;
+  const stats = ["blood", "rage", "gnosis", "faith", "torment", "conviction", "quint", "paradox", "will"].map(pair).filter(Boolean).join("");
+  const hurtNow = now.b + now.l + now.a, delta = was ? hurtNow - (was.b + was.l + was.a) : 0;
+  const hurt = hurtNow || delta ? `<span class="r-ns-hurt"><i class="fa-solid fa-heart-crack"></i> ${hurtNow ? esc(t("NightSum.Hurt", { b: now.b, l: now.l, a: now.a })) : esc(t("NightSum.Healthy"))}${
+    delta > 0 ? ` <em>${esc(t("NightSum.HurtMore", { n: delta }))}</em>` : delta < 0 ? ` <em>${esc(t("NightSum.HurtLess", { n: -delta }))}</em>` : ""}</span>` : "";
+  const fx = a.effects.filter(e => !e.disabled).map(e => e.name);
+  const effects = fx.length ? `<span class="r-ns-fx"><i class="fa-solid fa-wand-sparkles"></i> ${esc(fx.slice(0, 6).join(", "))}${fx.length > 6 ? ` ${esc(t("NightSum.More", { n: fx.length - 6 }))}` : ""}</span>` : "";
+  return `<li><b class="r-ns-name">${esc(a.name)}</b><span class="r-ns-stats">${stats}</span>${hurt}${effects}</li>`;
+}
+const summaryCard = (title, rows, snap, whisper) => ChatMessage.create({ speaker: { alias: title }, ...(whisper ? { whisper } : {}),
+  content: `<div class="r-roll-card r-turn-card r-night-sum"><header class="r-turn-head"><i class="fa-solid fa-scroll"></i> <b>${foundry.utils.escapeHTML(title)}</b></header>
+    <ul class="r-ns-list">${rows.join("") || `<li>${foundry.utils.escapeHTML(t("NightSum.Nobody"))}</li>`}</ul>
+    <p class="r-turn-foot">${foundry.utils.escapeHTML(t(snap.actors ? "NightSum.Foot" : "NightSum.FootNoSnap"))}</p></div>` });
+
 export async function nightSummary() {
   if (!game.user.isGM) return ui.notifications.warn(t("Notify.GMOnly"));
-  const esc = x => foundry.utils.escapeHTML(String(x ?? ""));
   const snap = game.settings.get(SYSTEM_ID, "nightSnapshot") ?? {};
-  const rows = summaryActors().sort((x, y) => x.name.localeCompare(y.name, "ru")).map(a => {
-    const now = stateOf(a), was = snap.actors?.[a.id] ?? null;
-    const pair = k => now[k] == null ? "" : was && was[k] != null && was[k] !== now[k]
-      ? `<span class="r-ns-stat is-${now[k] < was[k] ? "down" : "up"}">${esc(t(`NightSum.${k}`))} ${was[k]} → <b>${now[k]}</b></span>`
-      : `<span class="r-ns-stat">${esc(t(`NightSum.${k}`))} <b>${now[k]}</b></span>`;
-    const stats = ["blood", "rage", "gnosis", "faith", "torment", "conviction", "will"].map(pair).filter(Boolean).join("");
-    const hurtNow = now.b + now.l + now.a, delta = was ? hurtNow - (was.b + was.l + was.a) : 0;
-    const hurt = hurtNow || delta ? `<span class="r-ns-hurt"><i class="fa-solid fa-heart-crack"></i> ${hurtNow ? esc(t("NightSum.Hurt", { b: now.b, l: now.l, a: now.a })) : esc(t("NightSum.Healthy"))}${
-      delta > 0 ? ` <em>${esc(t("NightSum.HurtMore", { n: delta }))}</em>` : delta < 0 ? ` <em>${esc(t("NightSum.HurtLess", { n: -delta }))}</em>` : ""}</span>` : "";
-    const fx = a.effects.filter(e => !e.disabled).map(e => e.name);
-    const effects = fx.length ? `<span class="r-ns-fx"><i class="fa-solid fa-wand-sparkles"></i> ${esc(fx.slice(0, 6).join(", "))}${fx.length > 6 ? ` ${esc(t("NightSum.More", { n: fx.length - 6 }))}` : ""}</span>` : "";
-    return `<li><b class="r-ns-name">${esc(a.name)}</b><span class="r-ns-stats">${stats}</span>${hurt}${effects}</li>`;
-  });
-  return ChatMessage.create({ speaker: { alias: t("NightSum.Title") },
-    content: `<div class="r-roll-card r-turn-card r-night-sum"><header class="r-turn-head"><i class="fa-solid fa-scroll"></i> <b>${esc(t("NightSum.Title"))}</b></header>
-      <ul class="r-ns-list">${rows.join("") || `<li>${esc(t("NightSum.Nobody"))}</li>`}</ul>
-      <p class="r-turn-foot">${esc(t(snap.actors ? "NightSum.Foot" : "NightSum.FootNoSnap"))}</p></div>` });
+  return summaryCard(t("NightSum.Title"), summaryActors().sort((x, y) => x.name.localeCompare(y.name, "ru")).map(a => summaryRow(a, snap)), snap);
+}
+
+/** «Моя ночь» — сводка игрока по своим персонажам, шёпотом себе: что потрачено и получено с начала ночи, раны, эффекты. */
+export async function myNight() {
+  const snap = game.settings.get(SYSTEM_ID, "nightSnapshot") ?? {};
+  const mine = game.actors.filter(a => a.isOwner && !["coterie", "domain"].includes(a.type) && (game.user.isGM ? a.hasPlayerOwner : true))
+    .sort((x, y) => (y.id === game.user.character?.id) - (x.id === game.user.character?.id) || x.name.localeCompare(y.name, "ru"));
+  return summaryCard(t("NightSum.Mine"), mine.map(a => summaryRow(a, snap)), snap, [game.user.id]);
 }
 
 /** Состояния, которые проходят с концом сцены: ошеломление, падение, захват, ярость, Ротшрек. */
@@ -390,7 +402,6 @@ export async function endStory() {
 /** Кнопки рассказчика в каталоге персонажей. */
 export function registerNightTools() {
   Hooks.on("renderActorDirectory", (app, html) => {
-    if (!game.user.isGM) return;
     const root = html instanceof HTMLElement ? html : html[0];
     const bar = root?.querySelector(".header-actions");
     if (!bar || bar.querySelector(".r-night-tools")) return;
@@ -401,6 +412,8 @@ export function registerNightTools() {
       b.type = "button"; b.innerHTML = `<i class="fa-solid ${icon}"></i> ${label}`;
       b.addEventListener("click", fn); box.append(b);
     };
+    // игроку — только своя сводка; рассказчику — все кнопки ночи
+    if (!game.user.isGM) { mk("fa-scroll", t("NightSum.MineButton"), myNight); bar.after(box); return; }
     mk("fa-moon", t("Night.Button"), nightfall);
     mk("fa-scroll", t("NightSum.Button"), nightSummary);
     mk("fa-hourglass-end", t("Night.SceneButton"), endScene);

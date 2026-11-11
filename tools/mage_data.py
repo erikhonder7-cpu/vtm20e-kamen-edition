@@ -44,6 +44,10 @@ CAT = [("физ", "physical"), ("мент", "mental"), ("соц", "social"), ("�
 FREEBIES = {"attribute": 5, "ability": 2, "background": 1, "sphere": 7, "arete": 4, "willpower": 1, "quintessence4": 1}
 XP = {"newAbility": 3, "ability": 2, "newSphere": 10, "affinitySphere": 7, "sphere": 8, "arete": 8, "attribute": 4, "background": 3, "willpower": 1}
 # магия (файл 03): сложность = высшая Сфера + …; урон и длительность по успехам; откат Парадокса
+GAUNTLET = [{"key": "node", "name": "Узел", "diff": 3, "need": 1, "icon": "fa-sun"}, {"key": "wild", "name": "Глухая глушь", "diff": 5, "need": 2, "icon": "fa-mountain-sun"},
+            {"key": "rural", "name": "Сельская местность", "diff": 6, "need": 3, "icon": "fa-wheat-awn"}, {"key": "city", "name": "Город", "diff": 7, "need": 4, "icon": "fa-road"},
+            {"key": "downtown", "name": "Центр города", "diff": 8, "need": 5, "icon": "fa-city"}, {"key": "lab", "name": "Лаборатория Технократии", "diff": 9, "need": 5, "icon": "fa-flask"}]
+COUNTER = {"difficulty": 7, "antiDifficulty": 8}
 CASTING = {"coincidental": 3, "vulgar": 4, "witnessed": 5, "min": 3, "max": 10, "modCap": 3}
 EFFECT = [{"n": 1, "damage": 0, "duration": "1 ход"}, {"n": 2, "damage": 2, "duration": "1 сцена"}, {"n": 3, "damage": 6, "duration": "1 день"},
           {"n": 4, "damage": 8, "duration": "1 история"}, {"n": 5, "damage": 10, "duration": "6 месяцев"}]
@@ -568,7 +572,7 @@ def build():
         "backgrounds": parse_backgrounds(), "merits": parse_merits() + neph["merits"] + invest, "wonders": wonders,
         "quiet": QUIET, "pflaws": PFLAWS, "resonance": RESONANCE, "focus": (lambda f: {**f, "paradigms": f["paradigms"] + neph["paradigms"],
                                                                                               "practices": f["practices"] + neph["practices"]})(parse_focus()),
-        "freebies": FREEBIES, "xp": XP, "casting": CASTING, "effect": EFFECT, "backlash": BACKLASH,
+        "gauntlet": GAUNTLET, "counter": COUNTER, "freebies": FREEBIES, "xp": XP, "casting": CASTING, "effect": EFFECT, "backlash": BACKLASH,
         "creation": {"attributes": [7, 5, 3], "abilities": [13, 9, 5], "abilityMax": 3, "backgrounds": 7, "spheres": 6, "arete": 1, "areteMax": 3,
                      "willpower": 5, "freebies": 15, "flawsMax": 7, "instruments": 7},
     }

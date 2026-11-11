@@ -4,6 +4,9 @@
   <h2 class="r-h2"><span>{{@root.mageView.L.Spheres}}</span>
     <span class="r-h2-tools">
       {{#if editable}}<a class="r-h2-btn" data-action="mageCast" data-tooltip="{{localize 'VTM20.Mage.CastHintBtn'}}"><i class="fa-solid fa-hat-wizard"></i> <span class="r-h2-lbl">{{@root.mageView.L.Cast}}</span></a>{{/if}}
+      {{#if editable}}<a class="r-h2-btn is-ghost" data-action="mageCounter" data-tooltip="{{localize 'VTM20.Mage.CounterTip'}}"><i class="fa-solid fa-shield-halved"></i></a>
+      <a class="r-h2-btn is-ghost" data-action="mageCertamen" data-tooltip="{{localize 'VTM20.Mage.CertamenTip'}}"><i class="fa-solid fa-khanda"></i></a>
+      <a class="r-h2-btn is-ghost {{#if mageView.inUmbra}}is-on{{/if}}" data-action="mageStep" data-tooltip="{{#if mageView.inUmbra}}{{localize 'VTM20.Mage.StepBackTip'}}{{else}}{{localize 'VTM20.Mage.StepTip'}}{{/if}}"><i class="fa-solid fa-circle-half-stroke"></i></a>{{/if}}
       <a class="r-h2-btn is-plain" data-action="mageFold" data-to="{{#if mageView.allFolded}}0{{else}}1{{/if}}" data-tooltip="{{#if mageView.allFolded}}{{localize 'VTM20.Mage.UnfoldAll'}}{{else}}{{localize 'VTM20.Mage.FoldAll'}}{{/if}}"><i class="fa-solid {{#if mageView.allFolded}}fa-angles-down{{else}}fa-angles-up{{/if}}"></i></a>
       <a class="r-h2-btn is-plain" data-action="openRules" data-tooltip="{{localize 'VTM20.Mage.RulesHint'}}"><i class="fa-solid fa-book-open-reader"></i></a>
     </span>

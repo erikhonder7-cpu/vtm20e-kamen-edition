@@ -2,6 +2,7 @@
 // Регистрирует модели данных, документы, листы, настройки и обработчики карточек чата.
 
 import { VTM20, SYSTEM_ID, SYSTEM_PATH } from "./module/config.mjs";
+import "./module/apps/mage-duel.mjs";   // блок карточки: шаг в сторону, контрмагия, сертамен
 import { registerDataModels } from "./module/data/models.mjs";
 import { Codex } from "./module/data/codex.mjs";
 import { VtMActor } from "./module/documents/actor.mjs";
@@ -76,7 +77,7 @@ Hooks.once("init", () => {
     config: VTM20, codex: Codex,
     rollPool, evaluate, rollDamage, soakAndApply, openDamageDialog, RollDialog, openCreator, VtMCreator,
     openHunt, nightfall, endScene, endStory, openAttack, openDefense, openHazard, openDiablerie, renderHud,
-    openLibrary, openNpcGenerator, openClans, openAtlas: (line, key) => import("./module/apps/atlas.mjs").then(x => x.openAtlas(line, key)), openBoons, openDowntime, openSessionXp, openSessionPanel, openCourt, openWeb, openCoterie, openChronicle, giveHandout, money: Money, openCity, closeCity, toggleCity, cityMap,
+    openLibrary, openNpcGenerator, openClans, myNight: () => import("./module/apps/night.mjs").then(x => x.myNight()), openAtlas: (line, key) => import("./module/apps/atlas.mjs").then(x => x.openAtlas(line, key)), openBoons, openDowntime, openSessionXp, openSessionPanel, openCourt, openWeb, openCoterie, openChronicle, giveHandout, money: Money, openCity, closeCity, toggleCity, cityMap,
     openSceneNexus, openCalendar, announceTime, getClock, getDate, stamp, clockBarData, nightPhase, moonPhase, republicanDate,
     apps: { SceneNexus, NightCalendar }
   };

@@ -5727,6 +5727,54 @@
    "Письмена, надписи, руны"
   ]
  },
+ "gauntlet": [
+  {
+   "key": "node",
+   "name": "Узел",
+   "diff": 3,
+   "need": 1,
+   "icon": "fa-sun"
+  },
+  {
+   "key": "wild",
+   "name": "Глухая глушь",
+   "diff": 5,
+   "need": 2,
+   "icon": "fa-mountain-sun"
+  },
+  {
+   "key": "rural",
+   "name": "Сельская местность",
+   "diff": 6,
+   "need": 3,
+   "icon": "fa-wheat-awn"
+  },
+  {
+   "key": "city",
+   "name": "Город",
+   "diff": 7,
+   "need": 4,
+   "icon": "fa-road"
+  },
+  {
+   "key": "downtown",
+   "name": "Центр города",
+   "diff": 8,
+   "need": 5,
+   "icon": "fa-city"
+  },
+  {
+   "key": "lab",
+   "name": "Лаборатория Технократии",
+   "diff": 9,
+   "need": 5,
+   "icon": "fa-flask"
+  }
+ ],
+ "counter": {
+  "difficulty": 7,
+  "antiDifficulty": 8
+ },
  "freebies": {
   "attribute": 5,
   "ability": 2,
