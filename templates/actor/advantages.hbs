@@ -227,6 +227,66 @@
   </div>
   <p class="r-hint">{{localize "VTM20.Boon.Hint"}}</p>
   {{/if}}
+  {{!-- Сверхъестественное у смертного (линия магов): колдун — Пути и психические феномены (M20 Sorcerer); консор — спутник мага (Gods & Monsters) --}}
+  {{#if sorcInfo}}
+  <section class="r-sn is-sorc {{#unless sorcInfo.on}}is-off{{/unless}}">
+    <header class="r-sn-head"><span class="r-sn-sigil"><i class="fa-solid fa-book-skull"></i></span>
+      <span class="r-sn-title"><b>{{localize "VTM20.Sorcerer.title"}}</b><small>M20 Sorcerer</small></span>
+      {{#if editable}}<label class="r-sn-toggle"><input type="checkbox" name="system.sorcerer.on" {{checked sorcInfo.on}}> {{localize "VTM20.Sorcerer.toggle"}}</label>{{/if}}</header>
+    {{#if sorcInfo.on}}
+    <div class="r-sn-body">
+      <div class="r-sn-fields">
+        <label {{#if sorcInfo.affTip}}data-tooltip="{{sorcInfo.affTip}}"{{/if}}><span>{{localize "VTM20.Sorcerer.Affiliation"}}</span><select name="system.sorcerer.affiliation"><option value="">{{localize "VTM20.Sorcerer.NoAffiliation"}}</option>{{#each sorcInfo.affiliations}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+        <label data-tooltip="{{localize 'VTM20.Sorcerer.AttrHint'}}"><span>{{localize "VTM20.Sorcerer.Attr"}}</span><select name="system.sorcerer.attr">{{#each sorcInfo.attrs}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+      </div>
+      <p class="r-sn-hint">{{localize "VTM20.Sorcerer.hint"}}</p>
+
+      <h4 class="r-sn-sub"><i class="fa-solid fa-route"></i> {{localize "VTM20.Sorcerer.Paths"}}</h4>
+      <ul class="r-sn-list">{{#each sorcInfo.paths}}<li class="r-sn-item {{#if over}}is-over{{/if}}">
+        <details><summary><span class="r-sn-mark">{{dotsN}}</span><b>{{name}}</b><small>{{en}} · {{localize "VTM20.Sorcerer.Diff"}} {{difficulty}}{{#if over}} · {{localize "VTM20.Sorcerer.OverCap" n=cap}}{{/if}}</small></summary><div class="r-sn-text">{{{html}}}</div></details>
+        <span class="r-sn-acts">{{#if abilities}}{{#if @root.editable}}<select class="r-sn-sel" data-sorc-ability="{{key}}" data-tooltip="{{localize 'VTM20.Sorcerer.AbilityHint'}}"><option value="">{{localize "VTM20.Sorcerer.Ability"}}…</option>{{#each abilities}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>{{else}}<small>{{abilityLabel}}</small>{{/if}}{{/if}}
+          <span class="r-dots">{{#each dots}}<a class="r-dot {{#if filled}}is-filled{{/if}}" {{#if @root.editable}}data-action="sorcDots" data-key="{{key}}" data-n="{{n}}"{{/if}}></a>{{/each}}</span>
+          {{#if @root.editable}}<a class="r-sn-btn" data-action="sorcUse" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Sorcerer.UseTip'}}"><i class="fa-solid fa-dice-d10"></i></a><a class="r-sn-btn is-del" data-action="sorcDel" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}</span></li>{{else}}<li class="r-sn-empty">{{localize "VTM20.Sorcerer.noPaths"}}</li>{{/each}}</ul>
+      {{#if editable}}<div class="r-sn-add"><select><option value="">{{localize "VTM20.Sorcerer.addPath"}}</option>{{#each sorcInfo.availPaths}}<option value="{{key}}">{{label}}</option>{{/each}}</select>
+        <a class="r-sn-btn" data-action="sorcAdd" data-tooltip="{{localize 'VTM20.Sheet.AddTip'}}"><i class="fa-solid fa-plus"></i></a></div>{{/if}}
+
+      <h4 class="r-sn-sub"><i class="fa-solid fa-scroll"></i> {{localize "VTM20.Sorcerer.Rituals"}}</h4>
+      <ul class="r-sn-list">{{#each sorcInfo.rituals}}<li class="r-sn-item">
+        <details><summary><span class="r-sn-mark">{{level}}</span><b>{{name}}</b><small>{{pathName}}</small></summary><div class="r-sn-text">{{text}}</div></details>
+        {{#if @root.editable}}<span class="r-sn-acts"><a class="r-sn-btn" data-action="sorcRitualUse" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Sorcerer.UseTip'}}"><i class="fa-solid fa-dice-d10"></i></a><a class="r-sn-btn is-del" data-action="sorcRitualDel" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a></span>{{/if}}</li>
+        {{else}}<li class="r-sn-empty">{{localize "VTM20.Sorcerer.noRituals"}}</li>{{/each}}</ul>
+      {{#if editable}}<div class="r-sn-add"><a class="r-sn-btn is-wide" data-action="sorcRitualAdd"><i class="fa-solid fa-feather"></i> {{localize "VTM20.Sorcerer.RitualAdd"}}</a></div>{{/if}}
+
+      <h4 class="r-sn-sub"><i class="fa-solid fa-brain"></i> {{localize "VTM20.Sorcerer.PsychicTitle"}} <small>{{localize "VTM20.Sorcerer.PsychicCap" n=sorcInfo.psyCap}}</small></h4>
+      <ul class="r-sn-list">{{#each sorcInfo.psychic}}<li class="r-sn-item {{#if over}}is-over{{/if}}">
+        <details><summary><span class="r-sn-mark">{{dotsN}}</span><b>{{name}}</b><small>{{en}} · {{localize "VTM20.Sorcerer.Diff"}} {{difficulty}}{{#if over}} · {{localize "VTM20.Sorcerer.OverCap" n=cap}}{{/if}}</small></summary><div class="r-sn-text">{{{html}}}</div></details>
+        <span class="r-sn-acts">{{#if abilities}}{{#if @root.editable}}<select class="r-sn-sel" data-sorc-ability="{{key}}" data-tooltip="{{localize 'VTM20.Sorcerer.AbilityHint'}}"><option value="">{{localize "VTM20.Sorcerer.Ability"}}…</option>{{#each abilities}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>{{else}}<small>{{abilityLabel}}</small>{{/if}}{{/if}}
+          <span class="r-dots">{{#each dots}}<a class="r-dot {{#if filled}}is-filled{{/if}}" {{#if @root.editable}}data-action="sorcDots" data-key="{{key}}" data-n="{{n}}"{{/if}}></a>{{/each}}</span>
+          {{#if @root.editable}}<a class="r-sn-btn" data-action="sorcUse" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Sorcerer.UseTip'}}"><i class="fa-solid fa-dice-d10"></i></a><a class="r-sn-btn is-del" data-action="sorcDel" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}</span></li>{{else}}<li class="r-sn-empty">{{localize "VTM20.Sorcerer.noPsychic"}}</li>{{/each}}</ul>
+      {{#if editable}}<div class="r-sn-add"><select><option value="">{{localize "VTM20.Sorcerer.addPsychic"}}</option>{{#each sorcInfo.availPsychic}}<option value="{{key}}">{{label}}</option>{{/each}}</select>
+        <a class="r-sn-btn" data-action="sorcAdd" data-tooltip="{{localize 'VTM20.Sheet.AddTip'}}"><i class="fa-solid fa-plus"></i></a></div>{{/if}}
+    </div>
+    {{/if}}
+  </section>
+  {{/if}}
+  {{#if consorInfo}}
+  <section class="r-sn is-consor {{#unless consorInfo.on}}is-off{{/unless}}">
+    <header class="r-sn-head"><span class="r-sn-sigil"><i class="fa-solid fa-user-group"></i></span>
+      <span class="r-sn-title"><b>{{localize "VTM20.Sorcerer.Consor"}}</b><small>M20 Gods &amp; Monsters</small></span>
+      {{#if editable}}<label class="r-sn-toggle"><input type="checkbox" name="system.consor.on" {{checked consorInfo.on}}> {{localize "VTM20.Sorcerer.ConsorToggle"}}</label>{{/if}}</header>
+    {{#if consorInfo.on}}
+    <div class="r-sn-body">
+      <div class="r-sn-fields">
+        <label><span>{{localize "VTM20.Sorcerer.ConsorKindLabel"}}</span><select name="system.consor.kind">{{#each consorInfo.kinds}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+        <label><span>{{localize "VTM20.Sorcerer.Role"}}</span><select name="system.consor.role"><option value="">—</option>{{#each consorInfo.roles}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+        <label><span>{{localize "VTM20.Sorcerer.Side"}}</span><select name="system.consor.faction"><option value="">—</option>{{#each consorInfo.groups}}<optgroup label="{{name}}">{{#each list}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</optgroup>{{/each}}</select></label>
+      </div>
+      {{#if consorInfo.role}}<p class="r-sn-hint" data-keep><b>{{consorInfo.role.name}}.</b> {{consorInfo.role.text}}</p>{{/if}}
+      <p class="r-sn-hint">{{localize "VTM20.Sorcerer.ConsorHint"}}</p>
+    </div>
+    {{/if}}
+  </section>
+  {{/if}}
   {{!-- Сверхъестественное у смертного (линия оборотней): Родня, Ками, фомор — карточками; описание раскрывается щелчком по названию --}}
   {{#if kinInfo}}
   {{!-- Родня Гару (W20 Kinfolk): племя и порода, Гнозис, Дары 1-го уровня, кин-фетч, нумины; к Бреду невосприимчивы --}}

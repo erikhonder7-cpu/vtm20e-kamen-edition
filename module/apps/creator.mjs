@@ -150,7 +150,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     const own = new Set((fb?.powers ?? []).filter(k => !k.startsWith("~")));
     return {
       mark: st.mark,
-      opts: ["kinfolk", "kami", "fomor"].map(k => ({ key: k, label: t(`Creator.Mark.${k}`), active: st.mark === k })),
+      opts: ["sorcerer", "consor", "kinfolk", "kami", "fomor"].map(k => ({ key: k, label: t(`Creator.Mark.${k}`), active: st.mark === k })),
       hint: st.mark ? t(`Creator.Mark.${st.mark}Hint`) : t("Creator.Mark.none"),
       tribes: (W.tribes ?? []).map(x => ({ key: x.key, label: lbl(x), selected: x.key === st.markTribe })),
       kamiKinds: ["human", "animal", "plant"].map(k => ({ key: k, label: loc(`VTM20.Werewolf.Kami.form.${k}`), selected: k === st.kamiKind })),
@@ -1137,6 +1137,9 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     // особый смертный: отметка Родни, Ками или фомора с выбранным
     if (this.type === "mortal" && !this.isThrall) {
       const W = Codex.werewolf ?? {}, m = st.mark;
+      // колдун и консор (M20 Sorcerer; Gods & Monsters): отметка; нумины колдун берёт на листе
+      sys.sorcerer = { ...(a.system.toObject?.().sorcerer ?? {}), on: m === "sorcerer" };
+      sys.consor = { ...(a.system.toObject?.().consor ?? {}), on: m === "consor" };
       sys.kinfolk = { ...(a.system.kinfolk ?? {}), on: m === "kinfolk", ...(m === "kinfolk" ? { tribe: st.markTribe || W.tribes?.[0]?.key || "", breed: "homid" } : {}) };
       const ks = W.kami?.start?.[st.kamiKind] ?? { gnosis: 1, rage: 0, willpower: 3 };
       sys.kami = { ...(a.system.kami ?? {}), on: m === "kami", ...(m === "kami" ? { kind: st.kamiKind, geas: st.kamiGeas, gnosis: ks.gnosis, rage: ks.rage,

@@ -3896,7 +3896,7 @@ try {
       return out;
     });
     const want = { steps: true, subs: true, techBgHidden: true, quint: [2, 8], techBgShown: true, fallen: [true, false], sheet: [true, 9, "lineAtlas"], traits: [true, true, false],
-      castDlg: [true, true], cast: [1, true], hud: [true, true, 1], hudRote: true, atlasMage: [10, 11, "Орден Гермеса"], atlasQliph: "Лилит", atlasWolf: [4, "Бастет", true],
+      castDlg: [true, true], cast: [1, true], hud: [true, true, 1], hudRote: true, atlasMage: [14, 11, "Орден Гермеса"], atlasQliph: "Лилит", atlasWolf: [4, "Бастет", true],
       npc: [true, true, true, true, true, true], npcMade: ["mage", true, true] };
     const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
@@ -4064,6 +4064,39 @@ try {
     });
     const want = { needSpirit: true, step: [true, "step", 1], back: true, counter: ["dispel", 8, true], certamen: ["certamen", 5, 7, true], cards: true,
       hunterSigil: "lineAtlas", hunterAtlas: [true, 2, true, true], myNight: [1, true, true] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
+  // Колдун и консор (apps/sorcerer.mjs): отметка на листе смертного, нумины с пределами, бросок Пути и феномена за Волю, генератор НПС
+  await check("Колдун и консор: нумины, пределы, бросок Пути и феномена, генератор НПС", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), sys = p => import(`/systems/${sid}/${p}`);
+      const out = {}, inst = () => [...foundry.applications.instances.values()], S = await sys("module/apps/sorcerer.mjs");
+      const a = await Actor.create({ name: "E2E — колдун Арканума", type: "mortal", flags: { world: { e2e: true }, [sid]: { created: true } },
+        system: { willpower: { permanent: 6, temporary: 6 }, attributes: { intelligence: { value: 4 } }, abilities: { occult: { value: 3 } }, sorcerer: { on: true, affiliation: "the-arcanum", attr: "intelligence" } } });
+      out.data = [S.S().paths.length, S.S().psychic.length, S.S().affiliations.length >= 15, S.S().consor.roles.length];
+      await S.addNumen(a, "hellfire"); await S.numenAbility(a, "hellfire", "occult"); await S.numenDots(a, "hellfire", 4);
+      await S.addNumen(a, "telepathy"); await S.numenDots(a, "telepathy", 2);
+      await a.update({ "system.consor": { on: true, kind: "acolyte", role: "cleaners", faction: "order-of-hermes" } });
+      await a.sheet.render(true); await wait(700); a.sheet.changeTab("advantages", "primary"); await wait(500);
+      const el = a.sheet.element;
+      // Адское пламя 4 при Оккультизме 3 — выше предела; Телепатия 2 при Воле 6 — в пределе (3)
+      out.sheet = [el.querySelectorAll(".is-sorc .r-sn-item").length, el.querySelectorAll(".is-sorc .r-sn-item.is-over").length, !!el.querySelector(".is-consor .r-sn-body")];
+      await a.sheet.close();
+      const dlg = () => inst().find(x => x.constructor.name === "RollDialog");
+      S.useNumen(a, "hellfire"); await wait(700);
+      let d = dlg(); const c1 = d?.compute?.(); out.path = [c1?.pool, c1?.effDifficulty ?? d?.values?.difficulty]; await d?.close();
+      S.useNumen(a, "telepathy"); await wait(700);
+      d = dlg(); const c2 = d?.compute?.(); out.psy = [c2?.pool, c2?.effDifficulty ?? d?.values?.difficulty]; await d?.close();
+      const B = await sys("module/apps/npc-build.mjs");
+      const sd = B.buildNpc({ kind: "sorcerer", power: "veteran" }), cd = B.buildNpc({ kind: "consor", power: "normal" });
+      out.npc = [sd.actor, sd.system.sorcerer.on && sd.system.sorcerer.numina.length >= 1 && sd.system.sorcerer.numina.every(n => n.ability && n.dots <= (sd.system.abilities[n.ability]?.value ?? 0)),
+        cd.system.consor.on && !!cd.system.consor.role];
+      await a.delete();
+      return out;
+    });
+    const want = { data: [21, 22, true, 10], sheet: [2, 1, true], path: [7, 8], psy: [6, 5], npc: ["mortal", true, true] };
     const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });

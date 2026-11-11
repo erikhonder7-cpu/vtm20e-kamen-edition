@@ -2645,7 +2645,11 @@
         "fomorHint": "Fomor (Book of the Wyrm): breed powers are given automatically; Humanity drops with every power.",
         "kamiPick": "Kami powers — one to three.",
         "fomorBreed": "Breed",
-        "fomorPick": "Breed powers are marked; pick up to two more."
+        "fomorPick": "Breed powers are marked; pick up to two more.",
+        "sorcerer": "Sorcerer",
+        "consor": "Consor",
+        "sorcererHint": "Sorcerer (M20 Sorcerer): Willpower 5, 5 dots of Paths or phenomena (taken on the sheet), 21 freebies. No Paradox.",
+        "consorHint": "Consor (Gods & Monsters): a mage's companion — Willpower 3, at least a dot in Mentor, 21 freebies (15 for an acolyte)."
       },
       "GarouHint": "Kind: Garou or one of the Changing Breeds. Garou pick a breed (Gnosis), an auspice (Rage and Renown) and a tribe (Willpower, totem, Background limits); Fera choose within their breed. A metis needs a deformity.",
       "GiftsHint": "Three level-1 Gifts: one each from the breed, auspice and tribe lists. Fera — one per slot of their breed (Mokolé and Rokea have two). More of your own level-1 Gifts cost freebies.",
@@ -3741,7 +3745,9 @@
         "group": "Whole group",
         "mage": "Mage",
         "technocrat": "Technocrat",
-        "nephandus": "Nephandus"
+        "nephandus": "Nephandus",
+        "sorcerer": "Sorcerer",
+        "consor": "Consor"
       },
       "RoleGroup": {
         "combat": "Combat",
@@ -4799,7 +4805,12 @@
       "ActionsCap": "Up to {cap} per turn",
       "ActionsFreeSub": "No penalty up to {free}: the lower of Dexterity and Wits",
       "ActionsLead": "Extra actions come after normal ones, in initiative order; the pool isn't split.",
-      "ActionsN": {"one": "extra action", "few": "extra actions", "many": "extra actions", "other": "extra actions"},
+      "ActionsN": {
+        "one": "extra action",
+        "few": "extra actions",
+        "many": "extra actions",
+        "other": "extra actions"
+      },
       "ActionsCost": "Rage −{n}",
       "TalenKicker": "Talen",
       "FetishKicker": "Fetish · level {n}",
@@ -7335,6 +7346,58 @@
       "ParadoxPerm": "Permanent Paradox",
       "ParadoxHint": "Permanent Paradox while the Wonder is carried (if it cannot be switched off)",
       "SpheresHint": "Spheres built in — they set the Effect’s difficulty. Empty — pick the rank in the window."
+    },
+    "Sorcerer": {
+      "title": "Sorcerer",
+      "toggle": "sorcerer",
+      "hint": "Linear magic: a Path roll costs 1 Willpower — casting Attribute + Path Ability, difficulty Path level + 4. A Path cannot exceed its Ability. No Paradox.",
+      "Affiliation": "Affiliation",
+      "NoAffiliation": "unaffiliated",
+      "Affiliations": "Affiliations",
+      "Attr": "Casting Attribute",
+      "AttrHint": "The Attribute the sorcerer casts with; Affiliations have favoured ones",
+      "FavAttrs": "Favoured Attributes",
+      "FavPaths": "Affinity Paths",
+      "Paths": "Paths",
+      "Path": "Path",
+      "addPath": "Add a Path…",
+      "noPaths": "No Paths.",
+      "NoPaths": "At least one Path is needed first.",
+      "Ability": "Ability",
+      "AbilityHint": "Path Ability: part of the pool and the cap on the Path rating",
+      "NeedAbility": "{name}: choose the Path Ability.",
+      "NoDots": "{name}: no dots.",
+      "Diff": "diff.",
+      "OverCap": "above cap {n}",
+      "UseTip": "Roll: 1 Willpower",
+      "PathNote": "Path roll: Path level + 4. One success per rank of each Aspect plus one for the spell.",
+      "Rituals": "Rituals",
+      "Ritual": "Ritual",
+      "RitualAdd": "Record a ritual",
+      "RitualName": "Name",
+      "RitualLevel": "Level",
+      "RitualText": "What it does",
+      "noRituals": "No rituals.",
+      "RitualTooHigh": "A ritual cannot exceed the Path rating ({n}).",
+      "RitualNote": "Ritual: {n} minutes; difficulty ritual level + 4.",
+      "PsychicTitle": "Psychic phenomena",
+      "PsychicShort": "Phenomena",
+      "Psychic": "Psychic phenomenon",
+      "PsychicCap": "rating up to {n} (half Willpower)",
+      "addPsychic": "Add a phenomenon…",
+      "noPsychic": "No phenomena.",
+      "PsychicNote": "Activation: pool is Willpower, difficulty phenomenon level + 3; one success is usually enough.",
+      "Consor": "Consor",
+      "Consors": "Consors",
+      "ConsorToggle": "consor",
+      "ConsorKindLabel": "Type",
+      "ConsorKind": {
+        "consor": "Consor",
+        "acolyte": "Acolyte"
+      },
+      "Role": "Role",
+      "Side": "Side",
+      "ConsorHint": "A mage's companion: Willpower 3, Backgrounds 5 (at least a dot in Mentor), 21 freebies for a consor and 15 for an acolyte; no magic of their own."
     }
   }
 }

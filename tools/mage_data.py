@@ -426,6 +426,59 @@ def parse_investments():
     return out
 
 
+# ── Колдуны и консоры (M20 Sorcerer; Gods & Monsters, гл. 3) ──
+SORC = os.path.join(REF, "M20_Sorcerer")
+GAM = os.path.join(REF, "M20_Gods_and_Monsters")
+SORC_CREATION = {"attributes": [6, 4, 3], "abilities": [11, 7, 4], "abilityMax": 3, "backgrounds": 5, "numina": 5, "willpower": 5, "freebies": 21,
+                 "pathBase": 4, "psychicBase": 3, "costs": {"attribute": 5, "ability": 2, "path": 7, "ritual": 3, "background": 1, "willpower": 1}}
+CONSOR_CREATION = {"attributes": [6, 4, 3], "abilities": [11, 7, 4], "max": 4, "backgrounds": 5, "willpower": 3, "freebies": 21, "acolyteFreebies": 15}
+
+
+def sections_of(text, skip=()):
+    """Разделы «## Название (English)» → (русское, английское, строки тела)."""
+    out, cur = [], None
+    for line in text.splitlines():
+        m = re.match(r"^## (.+?)(?:\s*\(([^()]*)\))?\s*$", line)
+        if m:
+            cur = None if any(x in m.group(1) for x in skip) else [m.group(1).strip(), (m.group(2) or "").strip(), []]
+            if cur:
+                out.append(cur)
+        elif cur is not None and not line.startswith("---"):
+            cur[2].append(line)
+    return out
+
+
+def parse_sorcerer():
+    read_s = lambda pre, base=SORC: read(os.path.join(base, next(f for f in sorted(os.listdir(base)) if f.startswith(pre))))
+    paths = []
+    for pre in ("01", "02", "03"):
+        for name, en, body in sections_of(read_s(pre), skip=("Основные правила",)):
+            paths.append({"key": wd.slug(en or translit(name)), "name": name, "en": en, "html": wd.md_html(body)})
+    psychic = [{"key": wd.slug(en or translit(name)), "name": name, "en": en, "html": wd.md_html(body)}
+               for name, en, body in sections_of(read_s("04"), skip=("Основные правила",))]
+    core = read_s("01")
+    aspects = []
+    for line in section(core, "### Аспекты"):
+        m = re.match(r"^- \*\*(.+?) \((.+?)\):\*\*\s*(.*)$", line)
+        if m:
+            aspects.append({"name": m.group(1), "en": m.group(2), "text": plain(m.group(3))})
+    aff = []
+    for line in section(read_s("05"), "## Объединения"):
+        m = re.match(r"^- \*\*(.+?)(?:\s*\(([^()]*)\))?:\*\*\s*(.*)$", line)
+        if m:
+            name, en, body = m.group(1).strip(), (m.group(2) or "").strip(), plain(m.group(3))
+            attrs, _, rest = body.partition(";")
+            fav, _, note = rest.strip().partition(". ")
+            aff.append({"key": wd.slug(en or translit(name)), "name": name, "en": en, "attrs": attrs.strip(), "paths": fav.strip().rstrip("."), "text": note.strip()})
+    roles = []
+    for line in section(read_s("03", GAM), "## Консоры"):
+        m = re.match(r"^- \*\*(.+?) \((.+?)\):\*\*\s*(.*)$", line) or re.match(r"^- \*\*(Backup)():\*\*\s*(.*)$", line)
+        if m:
+            roles.append({"key": wd.slug(m.group(2) or m.group(1)), "name": m.group(1), "en": m.group(2), "text": plain(m.group(3))})
+    return {"paths": paths, "psychic": psychic, "aspects": aspects, "affiliations": aff, "creation": SORC_CREATION,
+            "consor": {"roles": roles, "creation": CONSOR_CREATION}}
+
+
 def parse_essences():
     out = []
     for line in section(core("01"), "## Сущность Аватара"):
@@ -620,7 +673,7 @@ def build():
         "source": "Mage: The Ascension 20th Anniversary Edition — справочник проекта (пересказ механики)",
         "spheres": spheres, "ranks": RANKS, "arete": ARETE,
         "groups": [{"key": k, "name": n} for k, n, _ in GROUPS] + [{"key": "nephandi", "name": "Нефанди"}, {"key": "marauders", "name": "Мародёры"}], "factions": factions,
-        "qliphoth": neph["qliphoth"], "fallenTools": neph["tools"],
+        "qliphoth": neph["qliphoth"], "fallenTools": neph["tools"], "sorcerer": parse_sorcerer(),
         "essences": parse_essences(), "archetypes": parse_archetypes(),
         "backgrounds": parse_backgrounds(), "merits": parse_merits() + neph["merits"] + invest, "wonders": wonders,
         "quiet": QUIET, "pflaws": PFLAWS, "resonance": RESONANCE, "paradoxSpirits": parse_paradox_spirits(), "realms": REALMS, "focus": (lambda f: {**f, "paradigms": f["paradigms"] + neph["paradigms"],

@@ -157,6 +157,13 @@ function paramFields(kind, p) {
         .map(x => opt(x.key, (kind === "technocrat" && x.tech?.name) || x.name, p.affinity))] });
       break;
     }
+    case "sorcerer":
+      F.push({ name: "affiliation", label: loc("VTM20.Sorcerer.Affiliation"), options: [any(p.affiliation), ...(MM().sorcerer?.affiliations ?? []).map(x => opt(x.key, x.name, p.affiliation))] });
+      break;
+    case "consor":
+      F.push({ name: "role", label: loc("VTM20.Sorcerer.Role"), options: [any(p.role), ...(MM().sorcerer?.consor?.roles ?? []).map(x => opt(x.key, x.name, p.role))] });
+      F.push({ name: "faction", label: loc("VTM20.Sorcerer.Side"), options: [any(p.faction), ...(MM().factions ?? []).map(x => opt(x.key, x.name, p.faction))] });
+      break;
     case "garou":
       F.push({ name: "breed", label: L("Breed"), options: [any(p.breed), ...D.breeds.map(x => opt(x.key, x.name, p.breed))] });
       F.push({ name: "auspice", label: L("Auspice"), options: [any(p.auspice), ...D.auspices.map(x => opt(x.key, x.name, p.auspice))] });

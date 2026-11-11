@@ -49,6 +49,8 @@ import { weaponIcon as weaponImg, armorIcon as armorImg } from "../data/icons.mj
 import { togglePowerEffect } from "../apps/power-effects.mjs";
 import { usePower } from "../apps/use-power.mjs";
 import { isTechnocrat } from "../ui/themes.mjs";
+import { sorcererInfo, consorInfo, addNumen as sorcAdd, removeNumen as sorcDel, numenDots as sorcDots, numenAbility as sorcAbility, useNumen as sorcUse,
+  addRitual as sorcRitualAdd, removeRitual as sorcRitualDel, useRitual as sorcRitualUse } from "../apps/sorcerer.mjs";
 import { mageInfo, mageSigil, spheresView, castEffect, changeQuintessence, changeParadox, paradoxBacklash, addRote, removeRote, castRote, addTool, removeTool } from "../apps/mage.mjs";
 import { stateView, addResonance, setResonance, removeResonance, toggleResUsed, cloakResonance, quietExit, addFlaw, removeFlaw, seekingDialog, useWonder, wonderQuint, useMageInvestment, craftWonder } from "../apps/mage-state.mjs";
 import { POWER_EFFECTS, fxKey } from "../data/effects.mjs";
@@ -191,6 +193,8 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       wwStanding: VtMActorSheet.#onWwStanding, wwFrenzy: VtMActorSheet.#onWwFrenzy, wwStep: VtMActorSheet.#onWwStep, wwSpend: VtMActorSheet.#onWwSpend,
       wwRegen: VtMActorSheet.#onWwRegen, wwActions: VtMActorSheet.#onWwActions, wwDelirium: VtMActorSheet.#onWwDelirium, wwRenown: VtMActorSheet.#onWwRenown, wwSept: VtMActorSheet.#onWwSept, wwUmbra: VtMActorSheet.#onWwUmbra, wwScarAdd: VtMActorSheet.#onWwScarAdd, wwScarDel: VtMActorSheet.#onWwScarDel, wwDeformAdd: VtMActorSheet.#onWwDeformAdd, wwDeformDel: VtMActorSheet.#onWwDeformDel,
       kinAdd: VtMActorSheet.#onKinAdd, kinBuy: VtMActorSheet.#onKinBuy, kinDel: VtMActorSheet.#onKinDel, kinUse: VtMActorSheet.#onKinUse,
+      sorcAdd: VtMActorSheet.#onSorc, sorcDel: VtMActorSheet.#onSorc, sorcDots: VtMActorSheet.#onSorc, sorcUse: VtMActorSheet.#onSorc,
+      sorcRitualAdd: VtMActorSheet.#onSorc, sorcRitualDel: VtMActorSheet.#onSorc, sorcRitualUse: VtMActorSheet.#onSorc,
       kinNumAdd: VtMActorSheet.#onKinNumAdd, kinNumDel: VtMActorSheet.#onKinNumDel, kinNumDots: VtMActorSheet.#onKinNumDots, kinNumUse: VtMActorSheet.#onKinNumUse,
       kamiAdd: VtMActorSheet.#onKamiAdd, kamiBuy: VtMActorSheet.#onKamiBuy, kamiMore: VtMActorSheet.#onKamiMore, kamiDel: VtMActorSheet.#onKamiDel, kamiUse: VtMActorSheet.#onKamiUse,
       kinFetchBind: VtMActorSheet.#onKinFetchBind, kinFetchBurn: VtMActorSheet.#onKinFetchBurn, spTpl: VtMActorSheet.#onSpTpl, wwPrimal: VtMActorSheet.#onWwPrimal,
@@ -361,7 +365,8 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
         label: `${VTM20.label(f)} (${f.kind === "talen" ? "" : `ур. ${f.level}, `}${game.i18n.localize("VTM20.Werewolf.Gnosis")} ${f.gnosis})` })); }
     else if (actor.type !== "mortal") prepareDisciplines(this, ctx);
     prepareAdvantages(this, ctx);
-    if (actor.type === "mortal") { ctx.kinInfo = kinfolkInfo(actor); ctx.kamiInfo = kamiInfo(actor); ctx.fomorInfo = fomorInfo(actor); if (actor.system.kinfolk?.on) ctx.kinInfo.fetch = fetchInfo(actor); }
+    if (actor.type === "mortal") { ctx.sorcInfo = sorcererInfo(actor, dots); ctx.consorInfo = consorInfo(actor);
+      ctx.kinInfo = kinfolkInfo(actor); ctx.kamiInfo = kamiInfo(actor); ctx.fomorInfo = fomorInfo(actor); if (actor.system.kinfolk?.on) ctx.kinInfo.fetch = fetchInfo(actor); }
     if (actor.type === "creature" && actor.system.spirit?.on) { ctx.spiritInfo = spiritInfo(actor, dots); ctx.spiritInfo.tpls = spiritTplGroups(); }
     prepareGear(this, ctx);
     prepareEffects(this, ctx);
@@ -468,6 +473,8 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
         head.querySelector("[data-action=toggleRow]")?.click();
       });
     }
+    // Колдун: Способность Пути — выбор в строке нумины (поле без name — в форму листа не попадает)
+    for (const el of all("select[data-sorc-ability]")) el.addEventListener("change", ev => { ev.stopPropagation(); sorcAbility(this.actor, el.dataset.sorcAbility, el.value); });
     // Щелчок по шапке карточки Сферы раскрывает её — как строку Дисциплины
     for (const head of all(".r-sphere-head")) {
       head.addEventListener("click", ev => {
@@ -951,6 +958,19 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static #onKinBuy() { return kinAddGift(this.actor, this.element.querySelector(".r-kin-add")?.value, true); }
   static #onKinDel(event, target) { return kinRemoveGift(this.actor, target.dataset.key); }
   static #onKinUse(event, target) { return kinUseGift(this.actor, target.dataset.key); }
+  /** Колдун: нумины и ритуалы (apps/sorcerer.mjs). */
+  static #onSorc(event, target) {
+    const a = this.actor, d = target.dataset;
+    switch (d.action) {
+      case "sorcAdd": { const k = target.closest(".r-sn-add")?.querySelector("select")?.value; return k ? sorcAdd(a, k) : null; }
+      case "sorcDel": return sorcDel(a, d.key);
+      case "sorcDots": return sorcDots(a, d.key, Number(d.n));
+      case "sorcUse": return sorcUse(a, d.key);
+      case "sorcRitualAdd": return sorcRitualAdd(a);
+      case "sorcRitualDel": return sorcRitualDel(a, Number(d.i));
+      case "sorcRitualUse": return sorcRitualUse(a, Number(d.i));
+    }
+  }
   static #onKinNumAdd() { const k = this.element.querySelector(".r-kin-num-add")?.value; if (k) return kinAddNumen(this.actor, k); }
   static #onKinNumDel(event, target) { return kinRemoveNumen(this.actor, target.dataset.key); }
   static #onKinNumDots(event, target) { return kinNumenDots(this.actor, target.dataset.key, Number(target.dataset.n)); }

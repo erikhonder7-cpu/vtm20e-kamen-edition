@@ -46,6 +46,12 @@ function mageGroups() {
       key: `qliph:${q.n}`, name: q.name, sub: `«${q.title}»`, sym: q.sphere ? mg(`sphere-${q.sphere}`) : mg("group-nephandi"),
       card: () => ({ kicker: `${loc("Atlas.Qliph")} ${q.n}`, nick: q.title,
         facts: [fact(loc("Atlas.Sphere"), sphere(q.sphere)?.name), fact(loc("Atlas.Influence"), q.influence)].filter(Boolean) }) })) },
+    // колдуны и консоры (M20 Sorcerer; Gods & Monsters)
+    { key: "sorcPaths", label: loc("Sorcerer.Paths"), items: (D.sorcerer?.paths ?? []).map(x => ({ key: `path:${x.key}`, name: x.name, sub: x.en, icon: "fa-route", card: () => ({ kicker: loc("Sorcerer.Path"), text: x.html }) })) },
+    { key: "sorcPsychic", label: loc("Sorcerer.PsychicShort"), items: (D.sorcerer?.psychic ?? []).map(x => ({ key: `psy:${x.key}`, name: x.name, sub: x.en, icon: "fa-brain", card: () => ({ kicker: loc("Sorcerer.Psychic"), text: x.html }) })) },
+    { key: "sorcAff", label: loc("Sorcerer.Affiliations"), items: (D.sorcerer?.affiliations ?? []).map(x => ({ key: `aff:${x.key}`, name: x.name, sub: x.en, icon: "fa-people-group",
+      card: () => ({ kicker: loc("Sorcerer.Affiliation"), text: p(x.text), facts: [fact(loc("Sorcerer.FavAttrs"), x.attrs), fact(loc("Sorcerer.FavPaths"), x.paths)].filter(Boolean) }) })) },
+    { key: "consors", label: loc("Sorcerer.Consors"), items: (D.sorcerer?.consor?.roles ?? []).map(x => ({ key: `consor:${x.key}`, name: x.name, sub: x.en, icon: "fa-user-group", card: () => ({ kicker: loc("Sorcerer.Consor"), text: p(x.text) }) })) },
     { key: "essences", label: loc("Atlas.Essences"), items: (D.essences ?? []).map(e => ({
       key: `essence:${e.key}`, name: e.name, sub: e.en, icon: "fa-sun", card: () => ({ kicker: loc("Mage.Essence"), text: p(e.text) }) })) },
     { key: "paradigms", label: loc("Atlas.Paradigms"), items: (D.focus?.paradigms ?? []).map((x, i) => ({

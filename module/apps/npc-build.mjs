@@ -81,6 +81,8 @@ export const KINDS = [
   { key: "mage", group: "awakened", label: "Маг", icon: "fa-hat-wizard", actor: "mage" },
   { key: "technocrat", group: "awakened", label: "Технократ", icon: "fa-atom", actor: "mage" },
   { key: "nephandus", group: "awakened", label: "Нефанд", icon: "fa-skull", actor: "mage" },
+  { key: "sorcerer", group: "awakened", label: "Колдун", icon: "fa-book-skull", actor: "mortal" },
+  { key: "consor", group: "awakened", label: "Консор", icon: "fa-user-group", actor: "mortal" },
   { key: "group", group: "groups", label: "Группа целиком", icon: "fa-people-group", actor: null },
   { key: "book", group: "book", label: "Статблоки книги", icon: "fa-book", actor: null }
 ];
@@ -443,6 +445,29 @@ const BUILD = {
       powers: keys.filter(k => spheres[k] > 0).sort((a, b) => spheres[b] - spheres[a]).map(k => ({ label: name(k), v: spheres[k] })), powersLabel: game.i18n.localize("VTM20.Mage.Spheres"),
       traits: [[game.i18n.localize(`VTM20.Mage.${tech ? "Tech.Arete" : "Arete"}`), arete], [t("Willpower"), will], [game.i18n.localize(`VTM20.Mage.${tech ? "Tech.Quintessence" : "Quintessence"}`), avatar]],
       tags: [f.name, sys.mage.sub && f.subs.find(x => x.key === sys.mage.sub)?.name].filter(Boolean) };
+  },
+  /** Колдун (M20 Sorcerer): смертный с Волей 5 и нуминами — 5 точек Путей (у Пути её Способность, рейтинг не выше неё) и больше по силе. */
+  sorcerer(ctx, p) {
+    const d = BUILD.mortal(ctx), S = MM().sorcerer ?? { paths: [], affiliations: [] }, tier = ctx.power.tier;
+    const aff = S.affiliations.find(x => x.key === p.affiliation) ?? pick(S.affiliations);
+    const will = Math.clamp((S.creation?.willpower ?? 5) + ctx.power.add.will, 1, 10);
+    d.system.willpower = { permanent: will, temporary: will };
+    // Способность Пути — та, что у колдуна выше всех из подходящих знаний и умений
+    const abil = Object.entries(d.system.abilities ?? {}).map(([k, v]) => [k, v.value ?? 0]).sort((x, y) => y[1] - x[1]);
+    const best = abil[0]?.[0] ?? "occult"; if ((d.system.abilities[best]?.value ?? 0) < 2) d.system.abilities[best] = { ...(d.system.abilities[best] ?? {}), value: 2 };
+    const cap = d.system.abilities[best].value, own = pickN(S.paths, 1 + (tier >= 2 ? 1 : 0) + (tier >= 4 ? 1 : 0));
+    const dots = Object.fromEntries(own.map(x => [x.key, 1]));
+    spread(own.map(x => x.key), Math.max(0, (S.creation?.numina ?? 5) + tier * 2 - own.length), Math.min(5, cap), () => 1, dots);
+    const attr = Object.entries(d.system.attributes).filter(([k]) => ["intelligence", "wits", "charisma", "manipulation", "stamina", "perception"].includes(k)).sort((x, y) => y[1].value - x[1].value)[0][0];
+    d.system.sorcerer = { on: true, affiliation: aff?.key ?? "", attr, numina: own.map(x => ({ key: x.key, dots: dots[x.key], ability: best })), rituals: [] };
+    return { ...d, powers: own.map(x => ({ label: x.name, v: dots[x.key] })), powersLabel: game.i18n.localize("VTM20.Sorcerer.Paths"), tags: [...(d.tags ?? []), game.i18n.localize("VTM20.Sorcerer.title"), aff?.name].filter(Boolean) };
+  },
+  /** Консор (Gods & Monsters, гл. 3): спутник мага — смертный с Волей 3, ролью и стороной. */
+  consor(ctx, p) {
+    const d = BUILD.mortal(ctx), M = MM(), roles = M.sorcerer?.consor?.roles ?? [];
+    const role = roles.find(x => x.key === p.role) ?? pick(roles), f = (M.factions ?? []).find(x => x.key === p.faction) ?? pick((M.factions ?? []).filter(x => x.group !== "nephandi"));
+    d.system.consor = { on: true, kind: ctx.power.tier >= 2 ? "consor" : "acolyte", role: role?.key ?? "", faction: f?.key ?? "" };
+    return { ...d, tags: [...(d.tags ?? []), game.i18n.localize("VTM20.Sorcerer.Consor"), role?.name, f?.name].filter(Boolean) };
   },
   technocrat(ctx, p) { return BUILD.mage(ctx, p, ["technocracy"]); },
   nephandus(ctx, p) { return BUILD.mage(ctx, p, ["nephandi"]); },

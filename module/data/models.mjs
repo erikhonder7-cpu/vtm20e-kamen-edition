@@ -277,6 +277,12 @@ export class MortalData extends BaseActorData {
         numina: new ArrayField(new SchemaField({ key: str(), dots: int(1, 0, 5) })),
         // кин-фетч — UUID существа-духа, привязанного Огненным крещением (сгорает при Первой Перемене)
         fetch: str("") }),
+      // Колдун (M20 Sorcerer): Объединение, Атрибут-проводник, нумины (Пути и психические феномены — ключи data/mage.json → sorcerer;
+      // у Пути — её Способность), ритуалы. Консор (Gods & Monsters, гл. 3): спутник мага — вид, роль, чья сторона.
+      sorcerer: new SchemaField({ on: new BooleanField({ initial: false }), affiliation: str(""), attr: str("intelligence"),
+        numina: new ArrayField(new SchemaField({ key: str(), dots: int(1, 0, 5), ability: str("") })),
+        rituals: new ArrayField(new SchemaField({ name: str(), path: str(), level: int(1, 1, 5), text: str() })) }),
+      consor: new SchemaField({ on: new BooleanField({ initial: false }), kind: str("consor"), role: str(""), faction: str("") }),
       // Ками (W20 Umbra, гл. 4): избранник Геи — человек, животное, растение или земля; Гейс, Гнозис, Ярость (5 с «Берсерком»),
       // силы (ключи data/werewolf.json → kami.powers; n — сколько раз куплена повторяемая)
       kami: new SchemaField({ on: new BooleanField({ initial: false }), kind: str("human"), geas: str(""), gnosis: int(1, 0, 10), rage: int(0, 0, 10),
