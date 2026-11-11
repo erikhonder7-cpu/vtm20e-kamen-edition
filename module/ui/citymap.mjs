@@ -371,7 +371,8 @@ export async function toggleCity() {
 
 export async function openCity() {
   const root = mount();
-  if (S.busy) return;
+  // штора ещё закрывается (closeCity держит S.busy на время анимации) — дождаться, а не глотать повторное открытие
+  if (S.busy) { await new Promise(res => setTimeout(res, SLIDE + 40)); if (S.busy) return; }
   S.busy = true;
   try {
     S.state = readWorld();
