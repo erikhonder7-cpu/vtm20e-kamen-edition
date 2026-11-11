@@ -338,7 +338,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       ctx.mageSeal = sg.seal;
       // свёрнутые карточки Сфер — у каждого игрока свои (память браузера); по умолчанию свёрнуты Сферы без точек
       const fold = this.#sphereFold();
-      for (const sp of ctx.mageView.spheres) sp.folded = fold[sp.key] ?? !sp.value;
+      for (const sp of ctx.mageView.spheres) sp.folded = fold[sp.key] ?? true;      // как Дисциплины: свёрнуты, пока не раскроют
       ctx.mageView.allFolded = ctx.mageView.spheres.every(sp => sp.folded); }
     else if (actor.type === "werewolf") { ctx.werewolfInfo = werewolfInfo(actor, dots); ctx.ww = giftsView(actor);
       const sg = werewolfSigil(actor);
@@ -466,6 +466,13 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       head.addEventListener("click", ev => {
         if (ev.target.closest("a, button, input, select, .r-dots")) return;
         head.querySelector("[data-action=toggleRow]")?.click();
+      });
+    }
+    // Щелчок по шапке карточки Сферы раскрывает её — как строку Дисциплины
+    for (const head of all(".r-sphere-head")) {
+      head.addEventListener("click", ev => {
+        if (ev.target.closest("a, button, input, select, .r-dots")) return;
+        head.querySelector("[data-action=mageFold]")?.click();
       });
     }
     // «Потомки» в родословной подсвечиваются, когда над ними несут персонажа
@@ -863,9 +870,15 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   #sphereFoldSave(v) { try { localStorage.setItem(`vtm20.spheres.${this.actor.id}`, JSON.stringify(v)); } catch { /* память браузера недоступна — просто не запомним */ } }
   /** Свернуть или развернуть карточку Сферы (ранги и специализации); «все» — разом. */
   static #onMageFold(event, target) {
-    const fold = this.#sphereFold(), k = target.dataset.key, sp = this.actor.system.mage.spheres;
-    if (k) fold[k] = !(fold[k] ?? !(sp[k] ?? 0));
-    else { const to = target.dataset.to === "1"; for (const x of VTM20.mageSpheres) fold[x] = to; }
+    const fold = this.#sphereFold(), k = target.dataset.key;
+    if (k) {                                             // одна строка — сразу классом, без перерисовки листа
+      fold[k] = !(fold[k] ?? true);
+      this.#sphereFoldSave(fold);
+      const card = target.closest(".r-sphere");
+      card?.classList.toggle("is-shut", fold[k]); card?.classList.toggle("is-open", !fold[k]);
+      return card;
+    }
+    const to = target.dataset.to === "1"; for (const x of VTM20.mageSpheres) fold[x] = to;
     this.#sphereFoldSave(fold);
     return this.render();
   }

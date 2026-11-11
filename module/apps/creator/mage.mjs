@@ -54,6 +54,7 @@ export class MageCreator {
     const st = this.st;
     const D = mageData(), g = st.mg, f = this.mageFaction, grp = g.group || f?.group || D.groups?.[0]?.key || "";
     const allowed = f?.affinity?.length ? f.affinity : VTM20.mageSpheres;
+    const fallen = this.mageFallen, own = list => [...(list ?? []).filter(x => x.nephandi && fallen), ...(list ?? []).filter(x => !x.nephandi)];
     ctx.isMage = true;
     ctx.mage = {
       groups: (D.groups ?? []).map(x => ({ key: x.key, label: x.name, active: x.key === grp, sym: { src: mageGlyphSrc(x.key === "nephandi" ? "group-nephandi" : x.key === "technocracy" ? "group-technocracy" : x.key === "marauders" ? "group-marauders" : x.key === "traditions" ? "group-traditions" : "faction-orphans") } })),
@@ -61,7 +62,8 @@ export class MageCreator {
       faction: f ? { ...f, sym: { src: mageGlyphSrc(factionGlyph(f)) } } : null,
       essences: (D.essences ?? []).map(e => ({ key: e.key, label: e.name, active: e.key === g.essence, text: plain(e.text ?? "") })),
       affinities: VTM20.mageSpheres.map(k => ({ key: k, label: this.mageSphere(k)?.name ?? k, active: k === g.affinity, off: !allowed.includes(k), sym: { src: mageGlyphSrc(`sphere-${k}`) } })),
-      paradigms: (D.focus?.paradigms ?? []).map(p => p.name), practices: (D.focus?.practices ?? []).map(p => p.name),
+      // парадигмы и практики Падших — только Нефанду, и первыми в списке; остальным их не показываем
+      paradigms: own(D.focus?.paradigms).map(p => p.name), practices: own(D.focus?.practices).map(p => p.name),
       subs: (f?.subs ?? []).map(x => ({ key: x.key, label: x.name, en: x.en, note: x.note, active: x.key === g.sub,
         sym: f.key === "order-of-hermes" ? { src: mageGlyphSrc(`house-${x.key}`) } : null })), subLabel: subLabel(f),
       issues: this.mageIssues, arete: this.morality, will: this.willpower, quint: this.mageQuint

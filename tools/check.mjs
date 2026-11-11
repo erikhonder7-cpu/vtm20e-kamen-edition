@@ -98,6 +98,15 @@ console.log("Данные: JSON читаются");
   ok(!extra.length, `en.json: лишние ключи (${extra.length}): ${show(extra)}`);
   ok(!ph.length, `en.json: подстановки не совпадают с ru.json (${ph.length}): ${show(ph)}`);
   console.log(`Перевод: ${Object.keys(ru).length} строк, ru и en совпадают`);
+  // 3в. Ключи перевода, записанные в коде и шаблонах целиком ("VTM20.Раздел.Ключ"), есть в ru.json.
+  // Ключи, собранные по частям (`VTM20.Mage.${k}`), сканер не видит — их ловят автотесты в браузере.
+  const walk = d => fs.readdirSync(d, { withFileTypes: true }).flatMap(e => e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)]);
+  const tree = JSON.parse(fs.readFileSync(path.join(ROOT, "lang/ru.json"), "utf8")), has = k => k.split(".").reduce((o, x) => o == null ? o : o[x], tree) !== undefined;
+  const lost = new Map();
+  for (const f of [...walk(path.join(ROOT, "module")).filter(f => f.endsWith(".mjs")), path.join(ROOT, "vtm20.mjs"), ...walk(path.join(ROOT, "templates")).filter(f => f.endsWith(".hbs"))])
+    for (const m of fs.readFileSync(f, "utf8").matchAll(/["'`](VTM20\.[A-Za-z0-9_.]*[A-Za-z0-9_])["'`]/g)) if (!has(m[1])) lost.set(m[1], path.relative(ROOT, f));
+  ok(!lost.size, `ключи перевода без строки в ru.json (${lost.size}): ${show([...lost].map(([k, f]) => `${k} — ${f}`))}`);
+  console.log("Ключи перевода в коде и шаблонах: все на месте");
 }
 
 // ── 3а. Тексты сил и черт: «Описание» + «Система» (tools/text_structure.py) ──

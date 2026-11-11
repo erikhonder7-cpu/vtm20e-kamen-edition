@@ -480,6 +480,37 @@ def category_of(text):
     return next((c for w, c in CAT if w in low), "supernatural")
 
 
+def bos_items(line):
+    """Строка Book of Secrets — одна или несколько черт: «**А (1).** **Б (1):** текст. **В (En) (2):** текст»,
+    «**А (2), Б (2, пояснение), В (En, 2):** общий текст», «**А (4)**, **Б (En, 4):** общий текст».
+    Возвращает (название, английское, цена, текст); у перечня через запятую текст общий."""
+    out, wait = [], []
+    for m in re.finditer(r"\*\*(.+?)\*\*([^*]*)", line):
+        bold, tail = m.group(1).strip(), m.group(2)
+        closed = bold.endswith(".")                      # «**А (1).**» — черта из основной книги, своего текста здесь нет
+        items = []
+        for part in split_top(bold.rstrip(".:").replace(";", ",")):
+            groups = re.findall(r"\(([^()]*)\)", part)
+            name = re.sub(r"\s*\([^()]*\)", "", part).strip()
+            cost = next((c.group(0) for g in reversed(groups) for c in [re.search(r"\d+(?:\s*[–-]\s*\d+)?", g)] if c), "")
+            en = next((e.group(0).strip(" ,") for g in groups for e in [re.match(r"[A-Za-z][A-Za-z '’/-]*", g.strip())] if e), "")
+            if name and cost:
+                items.append([name, en, cost, ""])
+        text = re.sub(r"^\s*\((?:ядро|core)\)\s*", "", tail.strip()).strip(" ,")
+        text = "" if text in (".", "") else text
+        if closed and not text:                          # текста нет и не будет
+            out += wait + items
+            wait = []
+        elif not text:                                   # «**А (4)**, **Б (4):** текст» — текст придёт от следующей
+            wait += items
+        else:
+            for it in wait + items:
+                it[3] = text
+            out += wait + items
+            wait = []
+    return [tuple(x) for x in out + wait]
+
+
 def parse_merits():
     out, seen = [], set()
 
@@ -518,13 +549,10 @@ def parse_merits():
                 kind = "merit" if "Достоинств" in line else "flaw" if "Недостат" in line else None
                 category = category_of(line)
                 continue
-            m = re.match(r"^- \*\*(.+?)\s*\(([^()]*\d[^()]*)\):\*\*\s*(.*)$", line)
-            if kind and m:
-                name, en = m.group(1).strip(), ""
-                e = re.match(r"^(.+?)\s*\(([A-Za-z][^()]*)\)$", name)
-                if e:
-                    name, en = e.group(1).strip(), e.group(2).strip()
-                add(kind, category, name, en, m.group(2), m.group(3), "M20 Book of Secrets")
+            if kind and line.startswith("- **"):
+                for name, en, cost, body in bos_items(line[2:]):
+                    if body:                             # без текста — отсылка к черте основной книги, она уже разобрана выше
+                        add(kind, category, name, en, cost, body, "M20 Book of Secrets")
     return out
 
 
