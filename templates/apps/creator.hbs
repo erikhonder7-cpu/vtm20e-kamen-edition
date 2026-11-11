@@ -324,6 +324,7 @@
     <h3 class="r-h3">{{localize "VTM20.Mage.Focus"}}</h3>
     <div class="r-cols2 r-cr-genrow">
       <label class="r-f"><span>{{localize "VTM20.Mage.Paradigm"}}</span><input type="text" data-field="mg.paradigm" value="{{st.mg.paradigm}}" list="r-cr-mpar" placeholder="{{localize 'VTM20.Mage.ParadigmHint'}}"></label>
+      <label class="r-f" data-tooltip="{{localize 'VTM20.Mage.ResRule'}}"><span>{{localize "VTM20.Mage.Resonance"}}</span><input type="text" data-field="mg.resName" value="{{st.mg.resName}}" placeholder="{{localize 'VTM20.Mage.ResNameHint'}}"></label>
       <label class="r-f"><span>{{localize "VTM20.Mage.Practice"}}</span><input type="text" data-field="mg.practice" value="{{st.mg.practice}}" list="r-cr-mpra" placeholder="{{localize 'VTM20.Mage.PracticeHint'}}"></label>
       <datalist id="r-cr-mpar">{{#each mage.paradigms}}<option value="{{this}}"></option>{{/each}}</datalist>
       <datalist id="r-cr-mpra">{{#each mage.practices}}<option value="{{this}}"></option>{{/each}}</datalist>

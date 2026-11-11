@@ -99,7 +99,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       // Гару (W20, гл. 3) и Фера (W20 Changing Breeds): порода, аугурия, племя или род с выбором внутри рода, Дары по ячейкам,
       // Дары сверх трёх (7 бонусных), уродство метиса, Слава (у Рагабаша и Фера — 3 точки на выбор)
       // Маг (M20): фракция, Сущность, родовая Сфера, фокус (парадигма и практика); Сферы — в disc, Арете — в morality
-      mg: { faction: s.mage?.faction || "", sub: s.mage?.sub || "", essence: s.mage?.essence || "", affinity: s.mage?.affinity || "", group: "",
+      mg: { faction: s.mage?.faction || "", sub: s.mage?.sub || "", essence: s.mage?.essence || "", resName: s.mage?.resonances?.[0]?.name || "", affinity: s.mage?.affinity || "", group: "",
         paradigm: s.mage?.paradigm || "", practice: s.mage?.practice || "" },
       ww: { breed: s.werewolf?.breed || "homid", auspice: s.werewolf?.auspice || "ragabash", tribe: s.werewolf?.tribe || "boneGnawers",
         fera: s.werewolf?.fera || "", sub: {}, gifts: {}, extra: [], deform: "", renown: { glory: 0, honor: 0, wisdom: 0 } }
@@ -283,7 +283,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     return this.sum(f.attr) * c.attr + this.sum(f.abil) * c.abil + this.sum(f.disc) * c.disc + this.sum(f.bg) * c.bg
       + this.sum(f.virt) * c.virt + f.morality * c.morality + f.will * c.will + this.bloodrightExtra * 5
       + (this.isWerewolf ? f.rage * c.rage + f.gnosis * c.gnosis + this.st.ww.extra.length * c.gift : 0)
-      + (this.isMage ? (f.quint ?? 0) * c.quint : 0);
+      + (this.isMage ? (f.quint ?? 0) * c.quint + this.mageResCost : 0);
   }
   get freeTotal() { return this.rules.free + this.flawPoints; }
   get freeLeft() { return this.freeTotal - this.meritPoints - this.freeSpent; }
@@ -676,7 +676,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     // VIII. Свободные пункты и IX. Опыт — общий список строк
     const rows = (mode) => {
       const cost = this.rules.cost;
-      const scalar = kind => ["morality", "will", "rage", "gnosis", "quint"].includes(kind);
+      const scalar = kind => ["morality", "will", "rage", "gnosis", "quint", "res"].includes(kind);
       const row = (kind, k, label, group, value) => ({
         kind, key: k, label, group, value,
         added: mode === "free" ? (scalar(kind) ? st.free[kind] ?? 0 : st.free[kind]?.[k] ?? 0)
@@ -696,7 +696,9 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
         ...(this.isLost || (this.isHunter && mode === "xp" && hunterGrowth() !== "xp") ? [] : [row("morality", "", this.isMage ? loc("VTM20.Mage.Arete") : this.isDemon ? t("Demon.Faith") : this.isThrall ? t("Creator.ThrallFaith") : this.isHunter ? t("Hunter.Conviction") : this.pathData?.name ?? t("Humanity"), t("Sheet.Other"), this.morality)])]),
         row("will", "", t("Willpower"), t("Sheet.Other"), this.willpower),
         // маг: 1 свободный пункт — 4 Квинтэссенции (M20, гл. 6)
-        ...(this.isMage && mode === "free" ? [row("quint", "", loc("VTM20.MageCr.QuintRow"), t("Sheet.Other"), this.mageQuint)] : [])
+        ...(this.isMage && mode === "free" ? [row("quint", "", loc("VTM20.MageCr.QuintRow"), t("Sheet.Other"), this.mageQuint),
+          // Резонанс: первая точка даром, дальше — новая степень × 3 (Book of Secrets)
+          { ...row("res", "", loc("VTM20.MageCr.ResRow"), t("Sheet.Other"), this.mageRes), price: (this.mageRes + 1) * 3 }] : [])
       ];
       return [...new Set(list.map(r => r.group))].map(g => ({ label: g, rows: list.filter(r => r.group === g) }));
     };
@@ -1052,7 +1054,10 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     if (this.isHunter && !this.isLost && !hxp && (kind === "virt" || (kind === "morality" && mode === "xp"))) return ui.notifications.warn(t("Creator.HunterNoBuy"));
     // начальная Убеждённость за опыт — не выше Силы воли
     if (hxp && kind === "morality" && d > 0 && this.morality >= this.willpower) return ui.notifications.warn(t("Creator.HunterConvWill"));
-    if (kind === "quint") {                                // маг: Квинтэссенция по 4 за пункт, на колесе — до 20
+    if (kind === "res") {                                  // маг: Резонанс — до 5 точек
+      if (mode !== "free" || (d > 0 && this.mageRes >= 5)) return;
+      bag.res = Math.max(0, (bag.res ?? 0) + d);
+    } else if (kind === "quint") {                                // маг: Квинтэссенция по 4 за пункт, на колесе — до 20
       if (mode !== "free" || (d > 0 && this.mageAvatar + 4 * ((bag.quint ?? 0) + 1) > 20)) return;
       bag.quint = Math.max(0, (bag.quint ?? 0) + d);
     } else if (kind === "rage" || kind === "gnosis") {     // Гару: Ярость и Гнозис — до 10
@@ -1160,7 +1165,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       sys.mage = { ...(a.system.toObject?.().mage ?? {}), faction: g.faction, essence: g.essence, affinity: g.affinity, arete: this.morality,
         spheres: Object.fromEntries(VTM20.mageSpheres.map(k => [k, this.value("disc", k)])),
         sub: (this.mageFaction?.subs ?? []).some(x => x.key === g.sub) ? g.sub : "",
-        quintessence: this.mageQuint, paradox: 0, paradigm: g.paradigm, practice: g.practice };
+        quintessence: this.mageQuint, paradox: 0, resonances: g.resName ? [{ name: g.resName, flavor: "", value: this.mageRes }] : [], paradigm: g.paradigm, practice: g.practice };
     }
     // Гару и Фера: порода, аугурия, племя (или род с выбором внутри), Ранг 1, форма рождения, Ярость, Гнозис, Дары, Слава, уродство
     if (this.isWerewolf) {

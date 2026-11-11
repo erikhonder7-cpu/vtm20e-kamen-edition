@@ -886,7 +886,7 @@ export async function rollTargetPower(actor, disc, d, p, tp, { rollFromSpec, sub
         return null;
       }
       if (c.save) {
-        const { save, ...keep } = c;
+        const { save: _save, ...keep } = c;
         await actor.setFlag(SYSTEM_ID, "boneTemplates", [...tpls.filter(x => x.name !== c.name && x.name !== preset?.name), keep]);
         ui.notifications.info(t("BoneTplSaved", { name: c.name }));
       }

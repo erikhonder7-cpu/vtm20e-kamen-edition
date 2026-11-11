@@ -81,7 +81,7 @@
 
 .r-card-buttons { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
 .r-card-buttons button {
-  flex: 1 1 auto; display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 28px; padding: 0 8px; line-height: 1;
+  flex: 1 1 auto; display: inline-flex; align-items: center; justify-content: center; gap: 6px; line-height: 1;
   font-family: "IM Fell SC", "Forum", serif; font-size: 12.5px; letter-spacing: 1.2px; text-transform: uppercase;
   color: #d8cfbf; background: #1d1d21; border: 1px solid #34343a; border-radius: 0;
   /* в узком чате надпись переносится по словам, а не посреди слова (Foundry ставит overflow-wrap: anywhere) */

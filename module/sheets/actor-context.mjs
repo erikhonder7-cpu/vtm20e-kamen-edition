@@ -448,7 +448,6 @@ export function prepareLores(sheet, ctx) {
   const highN = Math.max(0, Math.min(4, s.torment.permanent - 6));
   // Ритуалы и реликвии падших — предметы на персонаже (перетащить из компендиев «Ритуалы падших», «Реликвии падших»)
   const run = a.getFlag(SYSTEM_ID, "ritualRun");
-  const dname = x => x?.key ? `${Codex.lore(x.key)?.name ?? x.key} ${"•".repeat(x.level)}` : "";
   // чип Знания: короткое имя без «Знание», точки; есть ли оно у персонажа на нужном уровне
   const myLore = Object.fromEntries(a.items.filter(i => i.type === "lore").map(i => [i.system.key, i.system.value]));
   const chip = (x, primary = false) => x?.key ? { name: (Codex.lore(x.key)?.name ?? x.key), dots: "•".repeat(x.level ?? 0),

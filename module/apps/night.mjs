@@ -6,7 +6,7 @@
 //   · конец сцены — сброс усилений кровью; конец истории — воля восстанавливается полностью (03);
 //   · после боя усиления снимаются сами.
 
-import { VTM20, SYSTEM_ID, SYSTEM_PATH } from "../config.mjs";
+import { SYSTEM_ID, SYSTEM_PATH } from "../config.mjs";
 import { coterieBg } from "./coterie.mjs";
 import { domainRating, domainsOf } from "./domain.mjs";
 import { perkBonus } from "../ui/strategy.mjs";
@@ -383,7 +383,7 @@ export async function endScene() {
     if (a.getFlag(SYSTEM_ID, "formScene")) await a.unsetFlag(SYSTEM_ID, "formScene");
   }
   // охотники: Грань «свыше» сцены, запрет после неудачи, риск Убеждённостью
-  const { hunterSceneEnd, hunterStoryEnd } = await import("./hunter.mjs");
+  const { hunterSceneEnd } = await import("./hunter.mjs");
   for (const a of owned.filter(x => x.type === "hunter")) await hunterSceneEnd(a);
   ui.notifications.info(t("Notify.SceneEnded"));
 }

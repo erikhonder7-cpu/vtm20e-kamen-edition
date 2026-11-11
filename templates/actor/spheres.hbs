@@ -77,7 +77,7 @@
 
   {{!-- Чудеса: Талисманы, Устройства, Периапты — предметы со своим Арете и запасом Квинтэссенции --}}
   <h2 class="r-h2"><span>{{localize "VTM20.Mage.Wonders"}}</span>
-    <span class="r-h2-tools">{{#if editable}}<a class="r-h2-btn" data-action="openPack" data-pack="mage-wonders" data-tooltip="{{localize 'VTM20.Sheet.PackHint'}}"><i class="fa-solid fa-book-open-reader"></i> <span class="r-h2-lbl">{{localize "VTM20.Library.Open"}}</span></a><a class="r-h2-btn is-ghost" data-action="itemCreate" data-type="wonder" data-tooltip="{{localize 'VTM20.Mage.WonderAdd'}}"><i class="fa-solid fa-feather"></i> <span class="r-h2-lbl">{{localize "VTM20.Sheet.Own"}}</span></a>{{/if}}</span>
+    <span class="r-h2-tools">{{#if editable}}<a class="r-h2-btn" data-action="openPack" data-pack="mage-wonders" data-tooltip="{{localize 'VTM20.Sheet.PackHint'}}"><i class="fa-solid fa-book-open-reader"></i> <span class="r-h2-lbl">{{localize "VTM20.Library.Open"}}</span></a><a class="r-h2-btn is-ghost" data-action="mageWonderCraft" data-tooltip="{{localize 'VTM20.Mage.Craft.Hint'}}"><i class="fa-solid fa-hammer"></i> <span class="r-h2-lbl">{{localize "VTM20.Mage.Craft.Short"}}</span></a><a class="r-h2-btn is-ghost" data-action="itemCreate" data-type="wonder" data-tooltip="{{localize 'VTM20.Mage.WonderAdd'}}"><i class="fa-solid fa-feather"></i> <span class="r-h2-lbl">{{localize "VTM20.Sheet.Own"}}</span></a>{{/if}}</span>
   </h2>
   <ul class="r-edge-list r-rotes r-wonders">
     {{#each mageState.wonders}}
@@ -93,6 +93,19 @@
     {{else}}<li class="r-note">{{localize "VTM20.Mage.NoWonders"}}</li>
     {{/each}}
   </ul>
+
+  {{!-- Инфернальные Инвестиции Падшего (Book of the Fallen): дары Патрона; у Адского пламени и Регенерации — кнопка --}}
+  {{#if mageState.investments.length}}
+  <h2 class="r-h2"><span>{{localize "VTM20.Mage.Invest.Title"}}</span></h2>
+  <ul class="r-edge-list r-rotes">
+    {{#each mageState.investments}}
+    <li class="r-edge r-rote" data-item-id="{{id}}"><span class="r-edge-lvl"><i class="fa-solid fa-handshake-angle"></i></span>
+      <span class="r-edge-main"><a data-action="itemEdit"><b>{{name}}</b></a> <span class="r-cast-chip is-kind is-vulgar">{{cost}}</span></span>
+      {{#if @root.editable}}{{#if act}}<a class="r-vc-btn" data-action="mageInvest" data-act="{{act}}" data-tooltip="{{tip}}"><i class="fa-solid {{icon}}"></i></a>{{/if}}{{/if}}
+      <a class="r-icon-btn" data-action="itemChat" data-tooltip="{{localize 'VTM20.Sheet.ToChat'}}"><i class="fa-solid fa-comment-dots"></i></a></li>
+    {{/each}}
+  </ul>
+  {{/if}}
 
   {{!-- Резонанс и Синергия (Book of Secrets) --}}
   <h2 class="r-h2"><span>{{localize "VTM20.Mage.ResTitle"}}</span>

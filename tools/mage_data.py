@@ -388,6 +388,31 @@ def parse_wonders():
     return out
 
 
+# Царства Парадокса (M20, гл. 10): стиль тюрьмы — по Сфере, с которой маг перестарался; выход всегда решается без магии
+REALMS = {"correspondence": "искажённая перспектива: расстояния и направления лгут", "entropy": "ускоренный распад — или полная предопределённость",
+          "forces": "бури и физика наоборот", "life": "мутации плоти", "matter": "вещи меняют плотность и вес", "mind": "собственный разум мага, вывернутый наружу",
+          "prime": "перегрузка энергией", "spirit": "крошечное Царство Снов", "time": "временные петли"}
+SPIRIT_SRC = [("M20_Gods_and_Monsters", "06_", "## Проявления Парадокса (Paradox Manifestations)", "M20 Gods & Monsters"),
+              ("M20_Book_of_the_Fallen", "04_", "### Кошмары Парадокса (Paradox Nightmares)", "M20 Book of the Fallen")]
+
+
+def parse_paradox_spirits():
+    """Духи Парадокса со статблоком духа: Воля, Ярость, Гнозис, Сущность и Чары словами."""
+    out = []
+    for folder, prefix, heading, source in SPIRIT_SRC:
+        for line in section(book_file(folder, prefix), heading):
+            m = re.match(r"^\s*- \*\*(.+?)(?: \((.+?)\))?:\*\*\s*(.*)$", line)
+            st = m and re.search(r"Воля (\d+), Ярость (\d+), Гнозис (\d+), Сущность (\d+)", m.group(3))
+            if not st:
+                continue
+            charms = re.search(r"Чары: (.*)$", m.group(3))
+            hint = (m.group(2) or "").split(", ", 1)
+            out.append({"key": wd.slug(hint[0] if re.search(r"[A-Za-z]", hint[0]) else translit(m.group(1))), "name": m.group(1), "en": hint[0] if re.search(r"[A-Za-z]", hint[0]) else "",
+                        "of": hint[1] if len(hint) > 1 else "", "willpower": int(st.group(1)), "rage": int(st.group(2)), "gnosis": int(st.group(3)), "essence": int(st.group(4)),
+                        "charms": plain(wd.md_inline(charms.group(1))) if charms else "", "source": source})
+    return out
+
+
 def parse_investments():
     """Инфернальные Инвестиции (Book of the Fallen): дары Патрона — черты с ценой в очках Пакта."""
     out = []
@@ -570,7 +595,7 @@ def build():
         "qliphoth": neph["qliphoth"], "fallenTools": neph["tools"],
         "essences": parse_essences(), "archetypes": parse_archetypes(),
         "backgrounds": parse_backgrounds(), "merits": parse_merits() + neph["merits"] + invest, "wonders": wonders,
-        "quiet": QUIET, "pflaws": PFLAWS, "resonance": RESONANCE, "focus": (lambda f: {**f, "paradigms": f["paradigms"] + neph["paradigms"],
+        "quiet": QUIET, "pflaws": PFLAWS, "resonance": RESONANCE, "paradoxSpirits": parse_paradox_spirits(), "realms": REALMS, "focus": (lambda f: {**f, "paradigms": f["paradigms"] + neph["paradigms"],
                                                                                               "practices": f["practices"] + neph["practices"]})(parse_focus()),
         "gauntlet": GAUNTLET, "counter": COUNTER, "freebies": FREEBIES, "xp": XP, "casting": CASTING, "effect": EFFECT, "backlash": BACKLASH,
         "creation": {"attributes": [7, 5, 3], "abilities": [13, 9, 5], "abilityMax": 3, "backgrounds": 7, "spheres": 6, "arete": 1, "areteMax": 3,

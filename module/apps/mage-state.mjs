@@ -8,7 +8,8 @@
 //   · Поиск: рассказчик отмечает исход — Принятие разрешает купить точку Арете и возвращает Волю, Отрицание отнимает Волю;
 //   · Чудеса — предметы типа «wonder»: у Талисмана и Устройства своё Арете (пул) и запас Квинтэссенции.
 
-import { M, isMarauder, changeParadox, castEffect, mageGlyphSrc, sphereName, topResonance, parseSpheres, RES_DICE } from "./mage.mjs";
+import { SYSTEM_ID, VTM20 } from "../config.mjs";
+import { M, isMarauder, isFallen, aretePool, changeQuintessence, paradoxOf, changeParadox, castEffect, mageGlyphSrc, sphereName, topResonance, parseSpheres, RES_DICE } from "./mage.mjs";
 
 const t = (k, d) => d ? game.i18n.format(`VTM20.Mage.${k}`, d) : game.i18n.localize(`VTM20.Mage.${k}`);
 const esc = x => foundry.utils.escapeHTML(String(x ?? ""));
@@ -38,7 +39,7 @@ export function stateView(actor, dots) {
       insulate: mar ? m.quiet.level * (Q.insulate ?? 5) : 0 },
     flaws: m.pflaws.map((f, i) => ({ i, ...f, gradeName: (D.pflaws ?? []).find(g => g.key === f.grade)?.name ?? "" })),
     seeking: m.seeking, marauder: mar, isGM: game.user.isGM,
-    wonders: wondersView(actor)
+    wonders: wondersView(actor), investments: isFallen(actor) ? investmentsView(actor) : []
   };
 }
 
@@ -166,8 +167,121 @@ export async function wonderQuint(actor, id, d) {
   if (!it || !owner(actor)) return null;
   const s = it.system;
   // d > 0 — маг вбирает из Чуда; d < 0 — заряжает Чудо своей Квинтэссенцией
-  const n = d > 0 ? Math.min(1, s.quintessence, 20 - m.paradox - m.quintessence) : -Math.min(1, m.quintessence, s.quintMax - s.quintessence);
+  const n = d > 0 ? Math.min(1, s.quintessence, 20 - paradoxOf(actor) - m.quintessence) : -Math.min(1, m.quintessence, s.quintMax - s.quintessence);
   if (!n) return ui.notifications.info(t(d > 0 ? "WonderEmpty" : "WonderFull"));
   await it.update({ "system.quintessence": s.quintessence - n });
   return actor.update({ "system.mage.quintessence": m.quintessence + n });
+}
+
+/* ── Духи и Царства Парадокса (рассказчик, с карточки отката) ────────── */
+
+/** Дух Парадокса: выбрать из книжных — и он появляется существом-духом (Воля, Ярость, Гнозис, Сущность; Чары — словами). */
+export async function paradoxSpirit(actor) {
+  const list = M().paradoxSpirits ?? [];
+  if (!list.length) return null;
+  const key = await foundry.applications.api.DialogV2.prompt({ window: { title: t("SpiritTitle"), icon: "fa-solid fa-ghost" }, classes: DLG, rejectClose: false, position: { width: 480 },
+    content: `<div class="r-form"><label class="r-field"><span>${esc(t("SpiritPick"))}</span><select name="key">${list.map(s => `<option value="${s.key}">${esc(s.name)}${s.of ? ` — ${esc(s.of)}` : ""} · ${esc(t("SpiritStats", s))}</option>`).join("")}</select></label>
+      <p class="r-note">${esc(t("SpiritRule"))}</p></div>`,
+    ok: { label: t("SpiritCall"), callback: (e, b) => b.form.elements.key.value } });
+  const sp = list.find(s => s.key === key);
+  if (!sp) return null;
+  const made = await Actor.create({ name: sp.name, type: "creature", flags: { [SYSTEM_ID]: { created: true } },
+    system: { kind: t("SpiritKind"), spirit: { on: true, rank: "jaggling", rage: sp.rage, gnosis: sp.gnosis, willpower: sp.willpower, essence: { value: sp.essence, max: sp.essence },
+      charms: [], brood: t("SpiritBrood", { name: actor.name }), ban: sp.charms ? `${t("SpiritCharms")}: ${sp.charms}` : "" } } });
+  await say(actor, "fa-ghost", t("SpiritCame", { name: esc(actor.name), spirit: esc(sp.name), stats: esc(t("SpiritStats", sp)) }));
+  return made;
+}
+/** Царство Парадокса: стиль тюрьмы — по Сфере, с которой маг перестарался. */
+export async function paradoxRealm(actor) {
+  const R = M().realms ?? {};
+  const key = await foundry.applications.api.DialogV2.prompt({ window: { title: t("RealmTitle"), icon: "fa-solid fa-dungeon" }, classes: DLG, rejectClose: false, position: { width: 460 },
+    content: `<div class="r-form"><label class="r-field"><span>${esc(t("RealmPick"))}</span><select name="key">${Object.entries(R).map(([k, v]) => `<option value="${k}">${esc(sphereName(actor, k))} — ${esc(v)}</option>`).join("")}</select></label>
+      <p class="r-note">${esc(t("RealmRule"))}</p></div>`,
+    ok: { label: t("RealmSend"), callback: (e, b) => b.form.elements.key.value } });
+  if (!R[key]) return null;
+  return say(actor, "fa-dungeon", t("RealmCame", { name: esc(actor.name), sphere: esc(sphereName(actor, key)), style: esc(R[key]) }));
+}
+
+/* ── Инфернальные Инвестиции (Book of the Fallen) ────────────────────── */
+
+const INVEST_ACT = { Hellfire: ["hellfire", "fa-fire"], Regeneration: ["regen", "fa-heart-pulse"] };
+/** Инвестиции на листе Падшего: черты из компендия по книжному названию; у Адского пламени и Регенерации — кнопка. */
+export function investmentsView(actor) {
+  const book = (M().merits ?? []).filter(m => m.investment);
+  return actor.items.filter(i => i.type === "merit" && book.some(m => m.name === i.name || m.en === i.system.source)).map(i => {
+    const m = book.find(x => x.name === i.name || x.en === i.system.source), act = INVEST_ACT[m.en];
+    return { id: i.id, name: i.name, cost: i.system.cost, act: act?.[0] ?? "", icon: act?.[1] ?? "", tip: act ? t(`Invest.${act[0]}`) : "" };
+  });
+}
+/** Адское пламя: 3 очка — 3 уровня губительного огня, +1 за каждые 2 очка сверх; попасть — Ловкость + Оккультизм, сл. 5; цель поглощает со сл. 9. */
+async function hellfire(actor, item) {
+  const s = actor.system, dex = s.attributes.dexterity.value, occ = s.abilities.occult?.value ?? 0, dmg = 3 + Math.floor(Math.max(0, item.system.cost - 3) / 2);
+  const { rollPool } = await import("../dice/roll.mjs");
+  const roll = await rollPool({ actor, title: item.name, subtitle: t("Invest.hellfireSub", { n: dmg }), pool: dex + occ, difficulty: 5, kind: "check",
+    breakdown: [{ label: actor.traitLabel("attributes.dexterity"), value: dex }, { label: actor.traitLabel("abilities.occult"), value: occ }] });
+  if (roll && (roll.successes ?? 0) > 0) await say(actor, "fa-fire", t("Invest.hellfireHit", { name: esc(actor.name), n: dmg }));
+  return roll;
+}
+/** Регенерация: 1 Воля — 1 уровень здоровья, начиная с самых тяжёлых ран (кроме ран от Первоначала и Истинной веры — решает рассказчик). */
+async function regenerate(actor) {
+  const wp = actor.system.willpower, h = actor._source.system.health, type = ["aggravated", "lethal", "bashing"].find(k => (h[k] ?? 0) > 0);
+  if (!type) return ui.notifications.info(t("Invest.regenNone"));
+  if (wp.temporary < 1) return ui.notifications.warn(t("QuietNoWill"));
+  await actor.update({ "system.willpower.temporary": wp.temporary - 1 });
+  await actor.healDamage(type, 1);
+  return say(actor, "fa-heart-pulse", t("Invest.regenDone", { name: esc(actor.name), type: game.i18n.localize(VTM20.damageTypes[type]?.label ?? type) }));
+}
+export function useMageInvestment(actor, id, act) {
+  const it = actor.items.get(id);
+  if (!it || !owner(actor)) return null;
+  return act === "hellfire" ? hellfire(actor, it) : act === "regen" ? regenerate(actor) : null;
+}
+
+/* ── Создание Чуда (M20, гл. 9) ──────────────────────────────────────── */
+
+/**
+ * Создание Чуда: нужны все Сферы его эффектов и Квинтэссенция — 5 за точку Чуда; каждый бросок создания стоит ещё 1.
+ * Сколько успехов нужно — по правилам изобретений, это решает рассказчик: окно считает цену, проверяет Сферы и ведёт броски.
+ */
+export async function craftWonder(actor) {
+  if (!owner(actor)) return null;
+  const m = actor.system.mage, kinds = ["talisman", "device", "trinket", "periapt", "fetish", "artifact", "charm", "grimoire"];
+  const res = await foundry.applications.api.DialogV2.wait({ window: { title: t("Craft.Title"), icon: "fa-solid fa-hammer" }, classes: DLG, rejectClose: false, position: { width: 500 },
+    content: `<div class="r-form"><label class="r-field"><span>${esc(t("RoteName"))}</span><input type="text" name="name" autofocus></label>
+      <label class="r-field"><span>${esc(game.i18n.localize("VTM20.Relic.KindLabel"))}</span><select name="kind">${kinds.map(k => `<option value="${k}">${esc(game.i18n.localize(`VTM20.Wonder.Kind.${k}`))}</option>`).join("")}</select></label>
+      <label class="r-field"><span>${esc(game.i18n.localize("VTM20.Wonder.Value"))}</span><input type="number" name="value" value="1" min="1" max="10"></label>
+      <label class="r-field"><span>${esc(t("RoteSpheres"))}</span><input type="text" name="spheres" placeholder="${esc(t("RoteSpheresHint"))}"></label>
+      <p class="r-note" data-craft-cost></p><p class="r-note">${esc(t("Craft.Rule"))}</p></div>`,
+    render: (ev, dlg) => {
+      const f = dlg.element.querySelector("form") ?? dlg.element, cost = dlg.element.querySelector("[data-craft-cost]");
+      const sync = () => { const n = Math.clamp(Number(f.querySelector('[name="value"]').value) || 1, 1, 10), miss = craftMissing(actor, f.querySelector('[name="spheres"]').value);
+        cost.innerHTML = `<b>${esc(t("Craft.Cost", { n: n * 5, have: m.quintessence }))}</b>${miss.length ? ` <span class="is-warn">${esc(t("Craft.Missing", { list: miss.join(", ") }))}</span>` : ""}`; };
+      dlg.element.addEventListener("input", sync); sync();
+    },
+    buttons: [{ action: "roll", icon: "fa-solid fa-dice-d10", label: t("Craft.Roll"), callback: (e, b) => ({ roll: true, ...craftRead(b.form) }) },
+      { action: "ok", icon: "fa-solid fa-hammer", label: t("Craft.Finish"), default: true, callback: (e, b) => craftRead(b.form) }] });
+  if (!res?.name) return null;
+  const ranks = parseSpheres(res.spheres), miss = craftMissing(actor, res.spheres), high = Math.max(0, ...Object.values(ranks));
+  if (miss.length) return ui.notifications.warn(t("Craft.Missing", { list: miss.join(", ") }));
+  if (res.roll) {      // бросок создания: Арете, сложность — высшая Сфера + 3; каждый бросок стоит очко Квинтэссенции
+    if (m.quintessence < 1) return ui.notifications.warn(t("Craft.NoQuint", { n: 1 }));
+    await changeQuintessence(actor, -1);
+    const { rollPool } = await import("../dice/roll.mjs"), pool = aretePool(actor);
+    return rollPool({ actor, title: `${t("Craft.Title")}: ${res.name}`, subtitle: t("Craft.RollSub"), pool, difficulty: Math.clamp(high + 3, 3, 10), kind: "check",
+      breakdown: [{ label: game.i18n.localize("VTM20.Mage.Arete"), value: pool }] });
+  }
+  const price = res.value * 5;
+  if (m.quintessence < price) return ui.notifications.warn(t("Craft.NoQuint", { n: price }));
+  await changeQuintessence(actor, -price);
+  const holds = res.kind === "periapt" ? price : ["talisman", "device", "artifact"].includes(res.kind) ? price : 0;
+  const [item] = await actor.createEmbeddedDocuments("Item", [{ name: res.name, type: "wonder", img: `systems/${SYSTEM_ID}/assets/icons/wonder.svg`,
+    system: { kind: res.kind, value: res.value, arete: ["talisman", "device", "artifact"].includes(res.kind) ? Math.min(res.value, m.arete) : 0, quintessence: 0, quintMax: holds, spheres: res.spheres } }]);
+  await say(actor, "fa-hammer", t("Craft.Done", { name: esc(actor.name), item: esc(res.name), n: price }));
+  return item;
+}
+const craftRead = form => ({ name: form.elements.name.value.trim(), kind: form.elements.kind.value, value: Math.clamp(Number(form.elements.value.value) || 1, 1, 10), spheres: form.elements.spheres.value.trim() });
+/** Каких Сфер не хватает мастеру для эффектов Чуда. */
+function craftMissing(actor, text) {
+  const m = actor.system.mage;
+  return Object.entries(parseSpheres(text)).filter(([k, v]) => (m.spheres[k] ?? 0) < v).map(([k, v]) => `${sphereName(actor, k)} ${v}`);
 }

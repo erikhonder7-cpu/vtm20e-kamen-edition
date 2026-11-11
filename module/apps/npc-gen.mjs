@@ -426,7 +426,7 @@ export class NpcGenerator extends HandlebarsApplicationMixin(ApplicationV2) {
   static #onPresetLoad(event, target) {
     const p = presets()[Number(target.dataset.i)];
     if (!p) return;
-    const { name, ...rest } = p;
+    const { name: _name, ...rest } = p;
     Object.assign(this.ng, foundry.utils.deepClone(rest), { name: "" });
     this.draft = null; this.render();
   }
@@ -462,7 +462,7 @@ export class NpcGenerator extends HandlebarsApplicationMixin(ApplicationV2) {
     const gearOf = refs => refs.map(ref => {
       const p = this.#preset(ref);
       if (!p) return null;
-      const { name, group, ...system } = p;
+      const { name, group: _group, ...system } = p;
       const type = ref.startsWith("w:") ? "weapon" : "armor";
       return { name, type, img: type === "weapon" ? weaponIcon(name, system.kind) : armorIcon(system.rating), system };
     }).filter(Boolean);

@@ -17,7 +17,7 @@ import { rollPowerRef, powerByRef } from "../sheets/actor-sheet.mjs";
 import { effectTimer } from "../apps/timers.mjs";
 import { W as werewolfData, feraOf, changeForm, rageActions, regenerate, stepSideways, frenzyCheck, giftOf, rollGift, rollRite } from "../apps/werewolf.mjs";
 import { H as hunterData, secondSight, edgesView, useEdge } from "../apps/hunter.mjs";
-import { castEffect, castRote, sphereName, aretePool, factionOf, mt, changeQuintessence, paradoxBacklash } from "../apps/mage.mjs";
+import { paradoxOf, castEffect, castRote, sphereName, aretePool, factionOf, mt, changeQuintessence, paradoxBacklash } from "../apps/mage.mjs";
 import { assumeForm } from "../apps/torment.mjs";
 import { togglePowerEffect } from "../apps/power-effects.mjs";
 
@@ -210,7 +210,7 @@ function rightWing(a, kind) {
     // маг: Арете — кубики магии; Квинтэссенция и Парадокс — две стороны одного колеса
     const m = s.mage;
     out.push(line(t("Mage.Arete"), [dots(m.arete, 10, "gold")], m.arete));
-    out.push(line(t("Mage.Quintessence"), [boxes(Math.min(m.quintessence, 10), 10, "gold"), boxes(Math.max(0, m.quintessence - 10), 10, "gold")], `${m.quintessence}<small> · ${t("Mage.Paradox")} ${m.paradox}</small>`, { tip: t("Mage.WheelHint") }));
+    out.push(line(t("Mage.Quintessence"), [boxes(Math.min(m.quintessence, 10), 10, "gold"), boxes(Math.max(0, m.quintessence - 10), 10, "gold")], `${m.quintessence}<small> · ${t("Mage.Paradox")} ${paradoxOf(a)}</small>`, { tip: t("Mage.WheelHint") }));
   } else if (kind === "spirit") {
     const sp = s.spirit, e = sp.essence;
     out.push(line(t("Hud.Essence"), [boxes(Math.round(e.value / Math.max(1, e.max) * 10), 10, "gnosis")], `${e.value}<small>/${e.max}</small>`, { tip: t("Hud.EssenceTip") }));
@@ -293,7 +293,7 @@ function tabsOf(a, kind) {
       seal("mageQuint", "fa-minus", t("Hud.QuintOut"), { attrs: `data-d="-1"`, tip: `${mt(a, "Quintessence")} −1` }),
       seal("mageCounter", "fa-shield-halved", t("Mage.Counter"), { tip: t("Mage.CounterTip") }),
       ...((m.spheres?.spirit ?? 0) >= 3 || a.getFlag(SYSTEM_ID, "umbra") ? [seal("mageStep", "fa-circle-half-stroke", t("Mage.StepShort"), { on: !!a.getFlag(SYSTEM_ID, "umbra"), tip: t(a.getFlag(SYSTEM_ID, "umbra") ? "Mage.StepBackTip" : "Mage.StepTip") })] : []),
-      seal("mageBacklash", "fa-burst", t("Mage.Paradox"), { on: m.paradox >= 10, badge: m.paradox ? String(m.paradox) : "", tip: t("Mage.BacklashHint") })] });
+      seal("mageBacklash", "fa-burst", t("Mage.Paradox"), { on: paradoxOf(a) >= 10, badge: paradoxOf(a) ? String(paradoxOf(a)) : "", tip: t("Mage.BacklashHint") })] });
   }
   // Силы: вынесенные булавкой с листа (знак Дисциплины и уровень точками), силы на время, свои силы вида и «Все» — вкладка сил на листе
   const powers = (a.getFlag(SYSTEM_ID, "hudPowers") ?? []).map(ref => {

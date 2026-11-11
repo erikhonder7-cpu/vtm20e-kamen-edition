@@ -347,7 +347,7 @@ export async function virtueTest(actor) {
 
 /** 10 Убеждённости — пункт Добродетели (основная не ниже остальных); шкала — к начальной по кредо. */
 export async function tradeConviction(actor) {
-  const h = actor.system.hunter ?? {}, creed = creedOf(h.creed);
+  const h = actor.system.hunter ?? {};
   if ((h.conviction ?? 0) < 10) return null;
   const opts = VIRTUE_KEYS.filter(v => canRaise(h, v));
   if (!opts.length) return ui.notifications.warn(t("NoVirtueRoom"));

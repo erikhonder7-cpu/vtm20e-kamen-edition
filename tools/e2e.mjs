@@ -3959,6 +3959,26 @@ try {
       await wait(300);
       out.drop = [a.items.filter(i => i.type === "merit").length, a.items.filter(i => i.type === "background").length];
       await a.sheet.close();
+      // Чудо с постоянным Парадоксом занимает колесо владельца
+      await a.items.getName("Плеть Галлу").update({ "system.paradoxPerm": 2 });
+      out.perm = [Mg.permOf(a), Mg.paradoxOf(a) >= 2];
+      await a.items.getName("Плеть Галлу").update({ "system.paradoxPerm": 0 });
+      // Инвестиции Падшего: Регенерация лечит рану за Волю
+      const fl = await mk("E2E — падший", { faction: "malfeans" });
+      const mp = game.packs.get(`${sid}.mage-merits`), mi = await mp.getIndex(), reg = await mp.getDocument(mi.find(i => i.name === "Регенерация")._id);
+      await fl.createEmbeddedDocuments("Item", [reg.toObject()]);
+      await fl.update({ "system.health.lethal": 2 });
+      const iv = St.investmentsView(fl), w1 = fl.system.willpower.temporary;
+      await St.useMageInvestment(fl, iv[0].id, iv[0].act); await wait(300);
+      out.invest = [iv.length, iv[0].act, w1 - fl.system.willpower.temporary, fl.system.health.lethal];
+      // данные: Духи и Царства Парадокса; мастер: Резонанс за свободные пункты (новая степень × 3)
+      out.spirits = [C.paradoxSpirits.length >= 8, Object.keys(C.realms).length];
+      const raw = await Actor.create({ name: "E2E — резонанс", type: "mage", flags: { world: { e2e: true } } });
+      await game.vtm20.openCreator(raw); await wait(700);
+      const cr = inst().find(w => w.constructor.name === "VtMCreator"), l0 = cr.freeLeft;
+      cr.st.free.res = 2;
+      out.crRes = [cr.mageRes, l0 - cr.freeLeft];
+      await cr.close(); await raw.delete();
       // кабал: лист в гамме магов, маг вбирает из запаса чантри, неделя Узла пополняет запас
       const cab = await Actor.create({ name: "E2E — кабал", type: "coterie", flags: { world: { e2e: true } }, system: { kind: "cabal", members: [a.id], chantry: { points: 34, node: 3, quint: 1 } } });
       await cab.sheet.render(true); await wait(700);
@@ -3976,12 +3996,12 @@ try {
       const sv = St.stateView(mar, () => []);
       out.marauder = [Mg.isMarauder(mar), sv.quiet.insulate, Mg.factionGlyph(Mg.factionOf(mar))];
       await ChatMessage.deleteDocuments(game.messages.contents.slice(n0).map(m => m.id));
-      await Actor.deleteDocuments([a.id, mar.id]);
+      await Actor.deleteDocuments([a.id, mar.id, fl.id]);
       return out;
     });
     const want = { data: [true, 16, 3, 6, 5], roteView: [2, "vulgar", 7], roteFast: [true, "vulgar", 3, 7], resDice: 5, resUsed: [true, 2, "E2E — молния", "coincidental"],
       quiet: [1, true, 4, "minor"], sheet: [2, true, true], seeking: [1], wonders: [2, 5, true, true], wonderQuint: [1, 14], wonderDlg: [true, 3, true],
-      drop: [1, 1], cabal: [true, 1, 3, 3], backlash: true, marauder: [true, 15, "group-marauders"] };
+      drop: [1, 1], perm: [2, true], invest: [1, "regen", 1, 1], spirits: [true, 9], crRes: [3, 15], cabal: [true, 1, 3, 3], backlash: true, marauder: [true, 15, "group-marauders"] };
     const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });

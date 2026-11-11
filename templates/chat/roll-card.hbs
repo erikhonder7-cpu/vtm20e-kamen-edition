@@ -72,11 +72,13 @@
     {{#if line.backlash.left}}<p class="r-cast-paradox"><i class="fa-solid fa-burst"></i> {{line.backlash.left}}</p>{{/if}}
     {{#if line.backlash.insulate}}<p class="r-cast-paradox"><i class="fa-solid fa-shield-halved"></i> {{line.backlash.insulate}}</p>{{/if}}
   </div>
-  {{#if (or line.backlash.burn line.backlash.flaw line.backlash.quiet line.backlash.perm)}}<div class="r-card-buttons">
+  {{#if (or line.backlash.burn line.backlash.flaw line.backlash.quiet line.backlash.perm line.backlash.spirit)}}<div class="r-card-buttons">
     {{#if line.backlash.burn}}<button type="button" data-r-action="mageBurn"><i class="fa-solid fa-fire"></i> {{line.backlash.burn}}</button>{{/if}}
     {{#if line.backlash.flaw}}<button type="button" data-r-action="mageFlaw"><i class="fa-solid fa-burst"></i> {{line.backlash.flaw}}</button>{{/if}}
     {{#if line.backlash.quiet}}<button type="button" data-r-action="mageQuiet"><i class="fa-solid fa-cloud"></i> {{line.backlash.quiet}}</button>{{/if}}
     {{#if line.backlash.perm}}<button type="button" data-r-action="magePerm"><i class="fa-solid fa-lock"></i> {{line.backlash.perm}}</button>{{/if}}
+    {{#if line.backlash.spirit}}<button type="button" data-r-action="mageSpirit"><i class="fa-solid fa-ghost"></i> {{line.backlash.spirit}}</button>{{/if}}
+    {{#if line.backlash.realm}}<button type="button" data-r-action="mageRealm"><i class="fa-solid fa-dungeon"></i> {{line.backlash.realm}}</button>{{/if}}
   </div>{{/if}}
   {{/if}}
   {{#if specialty}}<div class="r-card-note"><i class="fa-solid fa-feather"></i> {{localize "VTM20.Roll.SpecialtyUsed"}}{{#if specialtyName}}: {{specialtyName}}{{/if}}</div>{{/if}}

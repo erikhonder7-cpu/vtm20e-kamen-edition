@@ -899,7 +899,7 @@ function addOverlay() {
   const md = metros[city().preset];
   const mf = [];
   for (const l of md?.lines ?? []) for (const s of l.segs) mf.push({ type: "Feature", properties: { color: l.color }, geometry: { type: "LineString", coordinates: s } });
-  for (const [n, s] of Object.entries(md?.stations ?? {})) mf.push({ type: "Feature", properties: { name: view().lang === "ru" ? s.ru : s.en, hub: s.lines.length > 1 }, geometry: { type: "Point", coordinates: [s.lng, s.lat] } });
+  for (const s of Object.values(md?.stations ?? {})) mf.push({ type: "Feature", properties: { name: view().lang === "ru" ? s.ru : s.en, hub: s.lines.length > 1 }, geometry: { type: "Point", coordinates: [s.lng, s.lat] } });
   if (map.getSource("rc-metro")) map.getSource("rc-metro").setData({ type: "FeatureCollection", features: mf });
   else map.addSource("rc-metro", { type: "geojson", data: { type: "FeatureCollection", features: mf } });
   for (const s of ["rc-poi", "rc-zones", "rc-zone-labels", "rc-domains", "rc-domain-labels", "rc-draft"]) if (!map.getSource(s)) map.addSource(s, { type: "geojson", data: EMPTY });
@@ -933,8 +933,6 @@ function addOverlay() {
   add({ id: "rc-domain-label", type: "symbol", source: "rc-domain-labels",
     layout: { "text-field": ["get", "name"], "text-font": ["Noto Sans Bold"], "text-size": 12, "text-letter-spacing": .1, "text-max-width": 12 },
     paint: { "text-color": ["get", "color"], "text-halo-color": halo, "text-halo-width": 1.8 } });
-  const round = { "line-cap": "round", "line-join": "round" };
-  const isLineF = ["==", ["geometry-type"], "LineString"];
   add({ id: "rc-poi-sel", type: "circle", source: "rc-poi", filter: ["==", ["get", "id"], ""],
     paint: { "circle-radius": 17, "circle-color": "rgba(0,0,0,0)", "circle-stroke-color": "#d9cfc6", "circle-stroke-width": 2 } });
   add({ id: "rc-poi", type: "symbol", source: "rc-poi",
@@ -1181,7 +1179,6 @@ async function onDrop(ev) {
   ev.preventDefault();
   const a = await fromUuid(data.uuid);
   if (!a?.isOwner) return ui.notifications.warn(T("NotYours"));
-  const w = whereIs(a);
   const r = map.getCanvas().getBoundingClientRect();
   const ll = map.unproject([ev.clientX - r.left, ev.clientY - r.top]);
   await placeActor(a, city().id, ll.lat, ll.lng, "", npcHidden(a));
@@ -1283,7 +1280,6 @@ function drawBody() {
   if (!body) return;
   const side = body.closest(".rc-side");
   const top = side.scrollTop;
-  const it = findPicked();
   const v = view();
   const q = m => !search || [m.name, m.text, m.en, m.ru, m.owner, districtName(m.d)].some(s => String(s ?? "").toLowerCase().includes(search));
   const row = (kind, m, icon, color) => `<li class="${picked?.id === m.id ? "on" : ""} ${m.deleted ? "is-deleted" : ""}" data-act="fly" data-kind="${kind}" data-id="${m.id}">

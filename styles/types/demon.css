@@ -97,7 +97,7 @@ body.r-theme-light .vtm20.r-type-demon {
 .vtm20.r-type-demon .r-disc.is-clan .r-disc-sigil { color: var(--d-gold-l); background: #241708; border-color: rgba(212, 160, 76, .6); }
 .vtm20.r-type-demon .r-ladder::before { background: linear-gradient(180deg, rgba(240, 196, 106, .75), rgba(180, 101, 31, .2)); }
 .vtm20.r-type-demon .r-ladder .r-power-lvl {
-  color: #1a1206; background: radial-gradient(circle at 40% 32%, #f0c46a, #a8641f 75%); border-color: var(--d-gold-l);
+  color: #1a1206; background: radial-gradient(circle at 40% 32%, #f0c46a, #a8641f 75%);
   clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); width: 26px; height: 26px; border: 0;
 }
 .vtm20.r-type-demon .r-power.is-elder .r-power-lvl, .vtm20.r-type-demon .r-ipower.is-owned .r-power-lvl { color: #1a1206; background: var(--d-gold); border-color: var(--d-gold-l); }

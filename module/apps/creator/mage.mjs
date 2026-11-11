@@ -36,6 +36,9 @@ export class MageCreator {
   /** Начальная Квинтэссенция — по рейтингу Аватара (у Технократии — Гения). */
   /** Квинтэссенция на старте: рейтинг Аватара и по 4 за свободный пункт (M20, гл. 6), на колесе — не больше 20. */
   get mageQuint() { return Math.min(20, this.mageAvatar + 4 * (this.st.free.quint ?? 0)); }
+  /** Резонанс: одна точка даром, каждая следующая — новая степень × 3 свободных пунктов (Book of Secrets). */
+  get mageRes() { return 1 + (this.st.free.res ?? 0); }
+  get mageResCost() { let s = 0; for (let r = 2; r <= this.mageRes; r++) s += 3 * r; return s; }
   get mageAvatar() { return Math.max(0, ...Codex.backgrounds.filter(b => b.line === "mage" && /^(Avatar|Genius)/i.test(b.en ?? "")).map(b => this.value("bg", b.name))); }
 
   /** Патент: фракция со знаком, Сущность и родовая Сфера; Арете на месте морали. */

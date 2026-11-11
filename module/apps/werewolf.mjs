@@ -607,7 +607,7 @@ export async function regenerate(actor) {
  * сверх меньшего из Ловкости и Смекалки — +3 ко всем сложностям в этот ход.
  */
 export async function rageActions(actor) {
-  const w = actor.system.werewolf, at = actor.system.attributes;
+  const at = actor.system.attributes;
   const cap = rageActionsCap(actor), free = Math.min(at.dexterity.total, at.wits.total);
   if (cap < 1) return ui.notifications.warn(t("ActionsNone"));
   // карточка — число действий крупно и его цена; сверх меньшего из Ловкости и Смекалки — с пометкой о сложностях

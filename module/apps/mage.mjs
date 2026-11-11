@@ -59,9 +59,14 @@ export function avatarOf(actor) {
   return bg?.system?.value ?? 0;
 }
 
+/** Постоянный Парадокс: свой и от Чудес, которые нельзя выключить, — пока они при владельце (M20, гл. 9). */
+export const permOf = actor => Math.min(WHEEL, (actor.system.mage?.paradoxPerm ?? 0) + actor.items.reduce((n, i) => n + (i.type === "wonder" ? i.system.paradoxPerm ?? 0 : 0), 0));
+/** Парадокс на колесе: накопленный, но не меньше постоянного. */
+export const paradoxOf = actor => Math.max(actor.system.mage?.paradox ?? 0, permOf(actor));
+
 /** Колесо: Квинтэссенция слева, Парадокс справа (постоянный — у самого края). */
-function wheelOf(m) {
-  const q = Math.min(m.quintessence, WHEEL), p = Math.min(m.paradox, WHEEL - q), perm = Math.min(m.paradoxPerm, p);
+function wheelOf(m, paradox = m.paradox, permAll = m.paradoxPerm) {
+  const q = Math.min(m.quintessence, WHEEL - paradox), p = Math.min(paradox, WHEEL), perm = Math.min(permAll, p);
   return Array.from({ length: WHEEL }, (_, i) => ({ n: i + 1, quint: i < q, paradox: i >= WHEEL - p, perm: i >= WHEEL - perm }));
 }
 
@@ -79,8 +84,8 @@ export function mageInfo(actor, dots) {
     affinities: VTM20.mageSpheres.map(k => ({ key: k, name: sphereName(actor, k), selected: k === m.affinity, off: !allowed.includes(k) })),
     arete: m.arete, areteName: D.arete?.[m.arete] ?? "", areteDots: dots(m.arete, 10, { path: "system.mage.arete" }),
     pool, capped: pool < m.arete, avatar: avatarOf(actor),
-    quintessence: m.quintessence, paradox: m.paradox, paradoxPerm: m.paradoxPerm, wheel: wheelOf(m),
-    backlash: m.paradox >= 5, isGM: game.user.isGM, seeking: m.seeking
+    quintessence: Math.min(m.quintessence, WHEEL - paradoxOf(actor)), paradox: paradoxOf(actor), paradoxPerm: permOf(actor), wheel: wheelOf(m, paradoxOf(actor), permOf(actor)),
+    backlash: paradoxOf(actor) >= 5, isGM: game.user.isGM, seeking: m.seeking
   };
 }
 
@@ -111,13 +116,13 @@ export function spheresView(actor, dots) {
 
 /** Квинтэссенция: не больше свободного места на колесе. */
 export async function changeQuintessence(actor, d) {
-  const m = actor.system.mage, next = Math.clamp(m.quintessence + d, 0, WHEEL - m.paradox);
+  const m = actor.system.mage, next = Math.clamp(m.quintessence + d, 0, WHEEL - paradoxOf(actor));
   if (next !== m.quintessence) await actor.update({ "system.mage.quintessence": next });
   return next;
 }
 /** Парадокс: вытесняет Квинтэссенцию; постоянный не убывает. */
 export async function changeParadox(actor, d) {
-  const m = actor.system.mage, next = Math.clamp(m.paradox + d, m.paradoxPerm, WHEEL);
+  const m = actor.system.mage, next = Math.clamp(paradoxOf(actor) + d, permOf(actor), WHEEL);
   if (next === m.paradox) return next;
   await actor.update({ "system.mage.paradox": next, "system.mage.quintessence": Math.min(m.quintessence, WHEEL - next) });
   return next;
@@ -308,7 +313,8 @@ registerCardBlock("backlash", (state, ev) => {
   const burn = botch ? null : burnOf(n);
   const grade = botch ? null : (M().pflaws ?? []).find(g => n >= g.min && n <= g.max), quiet = n >= 11 ? (M().quiet?.levels ?? []).find(l => n >= l.min && n <= l.max)?.n ?? 0 : 0;
   const perm = n >= 21 ? 2 : n >= 16 ? 1 : 0;
-  return { flaw: grade && !x.flawed ? t("BackFlaw", { grade: grade.name }) : "", quiet: quiet && !x.quieted ? t("BackQuiet", { n: quiet }) : "", perm: perm && !x.permed ? t("BackPerm", { n: perm }) : "",
+  return { spirit: n >= 11 && !x.spirited ? t("BackSpirit") : "", realm: n >= 16 && !x.realmed ? t("BackRealm") : "",
+    flaw: grade && !x.flawed ? t("BackFlaw", { grade: grade.name }) : "", quiet: quiet && !x.quieted ? t("BackQuiet", { n: quiet }) : "", perm: perm && !x.permed ? t("BackPerm", { n: perm }) : "",
     insulate: x.insulate ? t("BackInsulate", { n: x.insulate }) : "",
     text: botch ? t("BackBotch", { n: gone }) : n < 1 ? t("BackNone") : `${t("BackGone", { n: gone })} ${row?.text ?? ""}`,
     left: x.left != null ? t("ParadoxLeft", { n: x.left }) : "",
@@ -320,17 +326,17 @@ const burnOf = n => n >= 21 ? [Math.floor(n / 2), "aggravated"] : n >= 11 ? [n, 
 /** Откат Парадокса (рассказчик): пул Парадокса, сл. 6; успех разряжает очко; итог — по таблице, в карточке броска. */
 export async function paradoxBacklash(actor) {
   if (!game.user.isGM) return ui.notifications.warn(game.i18n.localize("VTM20.Notify.GMOnly"));
-  const m = actor.system.mage, pool = m.paradox;
+  const m = actor.system.mage, pool = paradoxOf(actor);
   if (pool < 1) return ui.notifications.info(t("NoParadox"));
   const { rollPool } = await import("../dice/roll.mjs");
-  const free = m.paradox - m.paradoxPerm;
+  const free = pool - permOf(actor);
   const roll = await rollPool({ actor, title: t("Backlash"), subtitle: t("BacklashSub", { n: pool }), pool, difficulty: 6, kind: "check",
     breakdown: [{ label: t("Paradox"), value: pool }], extra: { backlash: { free, insulate: isMarauder(actor) ? m.quiet.level * (M().quiet?.insulate ?? 5) : 0 } } });
   if (!roll) return null;
   // провал — весь непостоянный Парадокс уходит безвредно; успехи — столько очков разряжается
   const gone = roll.outcome === "botch" ? free : Math.min(roll.successes ?? 0, free);
-  if (gone) await actor.update({ "system.mage.paradox": m.paradox - gone });
-  await refreshCard(roll.message, "backlash", { left: m.paradox - gone });
+  if (gone) await actor.update({ "system.mage.paradox": pool - gone });
+  await refreshCard(roll.message, "backlash", { left: pool - gone });
   return roll;
 }
 
@@ -345,9 +351,11 @@ export async function mageCardAction(message, action) {
   const { evaluate: ev0 } = await import("../dice/roll.mjs");
   const n = ev0(state.values, state).successes ?? 0;
   // последствия отката записывает рассказчик: Изъян по степени, Безмолвие по уровню, постоянный Парадокс
-  if (["mageFlaw", "mageQuiet", "magePerm"].includes(action)) {
+  if (["mageFlaw", "mageQuiet", "magePerm", "mageSpirit", "mageRealm"].includes(action)) {
     if (!game.user.isGM) return ui.notifications.warn(game.i18n.localize("VTM20.Notify.GMOnly"));
     const S = await import("./mage-state.mjs"), m = a.system.mage;
+    if (action === "mageSpirit" && !x.spirited) { if (!(await S.paradoxSpirit(a))) return null; return refreshCard(message, "backlash", { spirited: true }); }
+    if (action === "mageRealm" && !x.realmed) { if (!(await S.paradoxRealm(a))) return null; return refreshCard(message, "backlash", { realmed: true }); }
     if (action === "mageFlaw" && !x.flawed) { if (!(await S.addFlaw(a, { grade: S.flawGradeFor(n)?.key }))) return null; return refreshCard(message, "backlash", { flawed: true }); }
     if (action === "mageQuiet" && !x.quieted) { await a.update({ "system.mage.quiet.level": Math.max(m.quiet.level, S.quietLevelFor(n)) }); return refreshCard(message, "backlash", { quieted: true }); }
     if (action === "magePerm" && !x.permed) { const k = n >= 21 ? 2 : 1, perm = Math.min(WHEEL, m.paradoxPerm + k);

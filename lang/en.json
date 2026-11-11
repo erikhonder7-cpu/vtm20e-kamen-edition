@@ -3195,7 +3195,10 @@
       "ExtraCheck": "Roll",
       "ExtraCheckSub": "any roll with a full pool",
       "ExtraActionHint": "One action with a full pool — it is spent from the reserve.",
-      "ExtraPhaseNote": "A Rage extra action uses a full pool and cannot be split into multiple actions."
+      "ExtraPhaseNote": "A Rage extra action uses a full pool and cannot be split into multiple actions.",
+      "CelerityBuyOnTurn": "Extra Celerity actions are bought on your own combat turn.",
+      "CelerityPhaseFirst": "Finish the extra-actions phase first.",
+      "FormSoak": "Form"
     },
     "Hazard": {
       "Title": "Hazard",
@@ -4177,7 +4180,8 @@
         "3": "3 successes: looks however they wish.",
         "4": "4 successes: complete impersonation — gestures, speech, voice, gait.",
         "5": "5+ successes: radical change — different sex, age, build."
-      }
+      },
+      "RevisitedBloodHint": "the change takes {turns} turn(s)"
     },
     "City": {
       "ToolDomain": "Domain: outline your character's domain",
@@ -4795,12 +4799,7 @@
       "ActionsCap": "Up to {cap} per turn",
       "ActionsFreeSub": "No penalty up to {free}: the lower of Dexterity and Wits",
       "ActionsLead": "Extra actions come after normal ones, in initiative order; the pool isn't split.",
-      "ActionsN": {
-        "one": "extra action",
-        "few": "extra actions",
-        "many": "extra actions",
-        "other": "extra actions"
-      },
+      "ActionsN": {"one": "extra action", "few": "extra actions", "many": "extra actions", "other": "extra actions"},
       "ActionsCost": "Rage −{n}",
       "TalenKicker": "Talen",
       "FetishKicker": "Fetish · level {n}",
@@ -7221,7 +7220,45 @@
       "CertamenBotch": "Botch: the Gladius shatters.",
       "CertamenMiss": "The Aegis holds.",
       "CertamenHit": "Quintessence drained from {foe}'s Locus: {n}.",
-      "CertamenSoak": "The defender may soak with a Prime roll, difficulty 6."
+      "CertamenSoak": "The defender may soak with a Prime roll, difficulty 6.",
+      "BackSpirit": "Paradox Spirit",
+      "BackRealm": "Paradox Realm",
+      "SpiritTitle": "Paradox Spirit",
+      "SpiritPick": "Who comes",
+      "SpiritStats": "Willpower {willpower}, Rage {rage}, Gnosis {gnosis}, Essence {essence}",
+      "SpiritRule": "Minor spirits come on a backlash of 11+ successes, self-aware ones on 16+. They are immune to Spirit magick below rank five unless it deals damage.",
+      "SpiritCall": "Manifest",
+      "SpiritKind": "Paradox Spirit",
+      "SpiritBrood": "came for the mage {name}",
+      "SpiritCharms": "Charms",
+      "SpiritCame": "A Paradox spirit comes for <b>{name}</b> — <b>{spirit}</b> ({stats}). The spirit's sheet has been created.",
+      "RealmTitle": "Paradox Realm",
+      "RealmPick": "The Sphere the mage overdid",
+      "RealmSend": "Imprison",
+      "RealmRule": "A Realm is a pocket prison. There is always a way out, and it is found without magick.",
+      "RealmCame": "<b>{name}</b> vanishes into a Paradox Realm ({sphere}): {style}. There is a way out — but magick won't open it.",
+      "Invest": {
+        "Title": "Infernal Investments",
+        "hellfire": "Hurl Hellfire: Dexterity + Occult, difficulty 5",
+        "hellfireSub": "aggravated fire: {n}; the target soaks at difficulty 9",
+        "hellfireHit": "<b>{name}</b> hits with Hellfire: {n} aggravated damage. The target soaks at difficulty 9.",
+        "regen": "Regeneration: 1 Willpower — 1 health level",
+        "regenNone": "Nothing to heal.",
+        "regenDone": "<b>{name}</b> closes a wound by the Patron's power: −1 Willpower, healed ({type}). Does not heal wounds from Prime or True Faith."
+      },
+      "Craft": {
+        "Title": "Crafting a Wonder",
+        "Short": "Craft",
+        "Hint": "Craft a Wonder: Sphere check, Quintessence cost, crafting rolls",
+        "Cost": "Quintessence needed: {n} (5 per dot); on the wheel — {have}.",
+        "Missing": "Missing Spheres: {list}.",
+        "Rule": "All Spheres of the Wonder's Effects are required. Each crafting roll costs 1 more Quintessence; how many successes to gather is the Storyteller's call (invention rules).",
+        "Roll": "Crafting roll",
+        "RollSub": "Arete; difficulty — highest Sphere + 3; 1 Quintessence spent",
+        "Finish": "Finish",
+        "NoQuint": "Not enough Quintessence: {n} needed.",
+        "Done": "<b>{name}</b> completes the Wonder “{item}”: {n} Quintessence invested."
+      }
     },
     "MageCr": {
       "NeedFaction": "Pick a faction.",
@@ -7235,7 +7272,8 @@
       "StartHint": "Arete 1 (raised with freebies, up to 3), Willpower 5, Quintessence equal to the Avatar rating.",
       "AreteHere": "caps the Spheres; a dot costs 4 freebies (up to 3). Freebies left: {n}",
       "SubOptional": "optional",
-      "QuintRow": "Quintessence (4 per point)"
+      "QuintRow": "Quintessence (4 per point)",
+      "ResRow": "Resonance"
     },
     "Atlas": {
       "MageTitle": "Mages: Traditions, Conventions, Spheres",
@@ -7298,25 +7336,5 @@
       "ParadoxHint": "Permanent Paradox while the Wonder is carried (if it cannot be switched off)",
       "SpheresHint": "Spheres built in — they set the Effect’s difficulty. Empty — pick the rank in the window."
     }
-  },
-  "Fx": {
-    "RevisitedKicker": "PROTEAN · FOURTH DOT",
-    "RevisitedBattleHint": "Combat form: distribute five bonus dots among Physical Attributes and choose one enhanced sense.",
-    "RevisitedEscapeHint": "Escape form: set the animal, movement, size, and enhanced sense.",
-    "RevisitedAllocationTitle": "Distribute five bonus dots",
-    "RevisitedPointsLeft": "Available",
-    "RevisitedPermanentHint": "This setup is saved on the character and used for every later transformation.",
-    "RevisitedActivateHint": "Choose one of your saved forms and decide how much blood to spend on the transformation.",
-    "RevisitedPickFormHint": "Combat form is built for a fight; escape form is built to break away.",
-    "RevisitedBloodIntro": "Spending more blood shortens the transformation."
-  },
-  "Hud": {
-    "CelerityKicker": "DISCIPLINE ACTIVATION",
-    "CelerityCountLabel": "How many extra actions to prepare",
-    "CelerityActionWord": "actions",
-    "CelerityNewActions": "New actions",
-    "CelerityBloodCost": "Blood cost",
-    "CelerityDexPenalty": "Dexterity dice removed",
-    "CelerityRuleNote": "Maximum is your Celerity rating ({max}). Extra actions take place after everyone’s normal turn."
   }
 }

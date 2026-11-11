@@ -50,7 +50,7 @@ import { togglePowerEffect } from "../apps/power-effects.mjs";
 import { usePower } from "../apps/use-power.mjs";
 import { isTechnocrat } from "../ui/themes.mjs";
 import { mageInfo, mageSigil, spheresView, castEffect, changeQuintessence, changeParadox, paradoxBacklash, addRote, removeRote, castRote, addTool, removeTool } from "../apps/mage.mjs";
-import { stateView, addResonance, setResonance, removeResonance, toggleResUsed, cloakResonance, quietExit, addFlaw, removeFlaw, seekingDialog, useWonder, wonderQuint } from "../apps/mage-state.mjs";
+import { stateView, addResonance, setResonance, removeResonance, toggleResUsed, cloakResonance, quietExit, addFlaw, removeFlaw, seekingDialog, useWonder, wonderQuint, useMageInvestment, craftWonder } from "../apps/mage-state.mjs";
 import { POWER_EFFECTS, fxKey } from "../data/effects.mjs";
 import { rollPackVinculi, openVaulderie, loyaltyConflict } from "../apps/vaulderie.mjs";
 import { openCoterie } from "../apps/coterie.mjs";
@@ -180,7 +180,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       lineAtlas: VtMActorSheet.#onLineAtlas,
       linSire: VtMActorSheet.#onLinSire,
       mageFold: VtMActorSheet.#onMageFold, mageCast: VtMActorSheet.#onMageCast, mageQuint: VtMActorSheet.#onMageQuint, mageParadox: VtMActorSheet.#onMageParadox, mageBacklash: VtMActorSheet.#onMageBacklash,
-      mageRoteEdit: VtMActorSheet.#onMageRoteEdit, mageResAdd: VtMActorSheet.#onMageState, mageResDot: VtMActorSheet.#onMageState, mageResDel: VtMActorSheet.#onMageState,
+      mageRoteEdit: VtMActorSheet.#onMageRoteEdit, mageInvest: VtMActorSheet.#onMageState, mageWonderCraft: VtMActorSheet.#onMageState, mageResAdd: VtMActorSheet.#onMageState, mageResDot: VtMActorSheet.#onMageState, mageResDel: VtMActorSheet.#onMageState,
       mageResUsed: VtMActorSheet.#onMageState, mageResCloak: VtMActorSheet.#onMageState, mageQuietExit: VtMActorSheet.#onMageState, mageFlawAdd: VtMActorSheet.#onMageState,
       mageFlawDel: VtMActorSheet.#onMageState, mageSeeking: VtMActorSheet.#onMageState, mageWonderUse: VtMActorSheet.#onMageState, mageWonderQuint: VtMActorSheet.#onMageState,
       mageStep: VtMActorSheet.#onMageDuel, mageCounter: VtMActorSheet.#onMageDuel, mageCertamen: VtMActorSheet.#onMageDuel,
@@ -706,10 +706,10 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const p = (kind === "weapon" ? WEAPON_PRESETS : kind === "gear" ? GEAR_PRESETS : ARMOR_PRESETS)[i];
     if (!p) return;
     if (kind === "gear") {
-      const { name, group, source, description = "", quantity = 1 } = p;
+      const { name, source, description = "", quantity = 1 } = p;
       return this.actor.createEmbeddedDocuments("Item", [{ name, type: "gear", system: { quantity, description, source: source ?? "" } }]);
     }
-    const { name, group, ...system } = p;
+    const { name, group: _group, ...system } = p;
     await this.actor.createEmbeddedDocuments("Item", [{ name, type: kind, img: kind === "weapon" ? weaponImg(name, system.kind) : armorImg(system.rating), system }]);
   }
 
@@ -893,6 +893,8 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       case "mageFlawDel": return removeFlaw(a, i);
       case "mageSeeking": return seekingDialog(a);
       case "mageWonderUse": return useWonder(a, id);
+      case "mageInvest": return useMageInvestment(a, id, d.act);
+      case "mageWonderCraft": return craftWonder(a);
       case "mageWonderQuint": return wonderQuint(a, id, Number(d.d));
     }
     return null;
