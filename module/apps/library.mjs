@@ -10,6 +10,7 @@
 // путь требует самой Дисциплины. «Даром» — награда рассказчика или правка листа.
 
 import { VTM20, SYSTEM_PATH, SYSTEM_ID } from "../config.mjs";
+import { isTechnocrat } from "../ui/themes.mjs";
 import { Codex } from "../data/codex.mjs";
 import { blockerFor } from "../data/trait-rules.mjs";
 import { traitIcon, backgroundIcon } from "../data/icons.mjs";
@@ -324,7 +325,7 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
     // id — номер в полном списке; Факты биографии Тёмных веков — только с настройкой «Контент из Dark Ages»
     // гулям и смертным — без фактов только для Сородичей (Поколение, Стадо, Статус…)
     const type = this.actor?.type ?? "vampire", lost = isLost(this.actor);   // Свидетелю — без Судьбы и Покровителей
-    return Codex.backgrounds.map((b, i) => [b, i]).filter(([b]) => Codex.visible(b) && VTM20.backgroundAllowed(b, type) && !(lost && b.noBystander) && (!b.dhampir || !!this.actor?.isDhampir)).map(([b, i]) => this.#entry({
+    return Codex.backgrounds.map((b, i) => [b, i]).filter(([b]) => Codex.visible(b) && VTM20.backgroundAllowed(b, type) && !(lost && b.noBystander) && (!b.dhampir || !!this.actor?.isDhampir) && !(b.technocracy && type === "mage" && !isTechnocrat(this.actor))).map(([b, i]) => this.#entry({
       id: String(i), name: b.name, en: b.en, has: mine.has(b.name), text: b.html ?? "", long: true, src: srcKind(b),
       tags: [b.sabbat && { label: t("Sect.sabbat"), red: true }, b.sect && { label: t(`Sect.${b.sect}`), red: true }, b.source && b.source !== "V20" && { label: b.source }].filter(Boolean),
       variants: [1, 2, 3, 4, 5].map(v => ({ value: v, label: "●".repeat(v) }))

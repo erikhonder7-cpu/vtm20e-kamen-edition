@@ -15,6 +15,8 @@ const MAP = {
   "faction-hollow-ones": "Традиции/LogoTradHollowOnes", "faction-kopa-loei": "Диспирады/LogoCraftKopaLoei", "faction-ngoma": "Диспирады/LogoCraftNgoma",
   "faction-orphans": "Диспирады/LogoCraftOrphans", "faction-sisters-of-hippolyta": "Диспирады/LogoCraftSistersofHippolyta", "faction-taft-ni": "Диспирады/LogoM20Taftani",
   "faction-templar-knights": "Диспирады/LogoCraftTemplars", "faction-wu-lung": "Диспирады/LogoCraftWuLung",
+  ...Object.fromEntries(["Bonisagus", "ExMiscellanea", "Flambeau", "Fortunae", "Janissary", "Quaesitor", "Shaea", "Solificati", "Thig", "Tytalus", "Verditius"]
+    .map(h => [`house-${h.replace("ExMiscellanea", "ex-miscellanea").toLowerCase()}`, `Дома Гермесистов/LogoHouse${h}`])),
   "group-traditions": "Фракции/CouncilofNine", "group-technocracy": "Фракции/Faction-Technocracy", "group-marauders": "Фракции/SectMarauder", "group-nephandi": "Фракции/SectNephandi",
   "sphere-correspondence": "Сферы/Связи/SphereCorrespondence", "sphere-entropy": "Сферы/Энтропия/SphereEntropy", "sphere-forces": "Сферы/Силы/SphereForces",
   "sphere-life": "Сферы/Жизнь/SphereLife", "sphere-matter": "Сферы/Материя/SphereMatter", "sphere-mind": "Сферы/Разум/SphereMind",

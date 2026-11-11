@@ -76,7 +76,7 @@ Hooks.once("init", () => {
     config: VTM20, codex: Codex,
     rollPool, evaluate, rollDamage, soakAndApply, openDamageDialog, RollDialog, openCreator, VtMCreator,
     openHunt, nightfall, endScene, endStory, openAttack, openDefense, openHazard, openDiablerie, renderHud,
-    openLibrary, openNpcGenerator, openClans, openBoons, openDowntime, openSessionXp, openSessionPanel, openCourt, openWeb, openCoterie, openChronicle, giveHandout, money: Money, openCity, closeCity, toggleCity, cityMap,
+    openLibrary, openNpcGenerator, openClans, openAtlas: (line, key) => import("./module/apps/atlas.mjs").then(x => x.openAtlas(line, key)), openBoons, openDowntime, openSessionXp, openSessionPanel, openCourt, openWeb, openCoterie, openChronicle, giveHandout, money: Money, openCity, closeCity, toggleCity, cityMap,
     openSceneNexus, openCalendar, announceTime, getClock, getDate, stamp, clockBarData, nightPhase, moonPhase, republicanDate,
     apps: { SceneNexus, NightCalendar }
   };

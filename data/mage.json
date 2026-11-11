@@ -227,7 +227,45 @@
     "life"
    ],
    "affinityText": "Разум или Жизнь",
-   "practices": "Боевые искусства, Дело (Do), йога, вера, ремёсла, алхимия, соц. доминион; парадигмы: Золотой век, Иллюзия, Всё хорошо, иногда Сила — право"
+   "practices": "Боевые искусства, Дело (Do), йога, вера, ремёсла, алхимия, соц. доминион; парадигмы: Золотой век, Иллюзия, Всё хорошо, иногда Сила — право",
+   "subs": [
+    {
+     "name": "Ши-Жэнь",
+     "en": "Shi-Ren",
+     "note": "«великодушная аристократия», политика, Разум",
+     "key": "shi-ren"
+    },
+    {
+     "name": "Ли-Хай",
+     "en": "Li-Hai",
+     "note": "утилитаристы Мо-цзы, модернизация",
+     "key": "li-hai"
+    },
+    {
+     "name": "Каннагара",
+     "en": "Kannagara",
+     "note": "аскеты, ритуалы и лишения",
+     "key": "kannagara"
+    },
+    {
+     "name": "Джнана",
+     "en": "Jnani",
+     "note": "йоги, монизм, Дух",
+     "key": "jnani"
+    },
+    {
+     "name": "Ваджрапани",
+     "en": "Vajrapani",
+     "note": "воины, «Противоречивые Кулаки»",
+     "key": "vajrapani"
+    },
+    {
+     "name": "У Лун",
+     "en": "Wu Lung",
+     "note": "китайские маги-«Драконы», имперская магия Духа, свой боевой стиль",
+     "key": "wu-lung"
+    }
+   ]
   },
   {
    "key": "celestial-chorus",
@@ -240,7 +278,63 @@
     "spirit"
    ],
    "affinityText": "Первоначало; Силы или Дух",
-   "practices": "Вера, пение (многоголосие), группы; Порядок и Хаос; магия проявляется светом"
+   "practices": "Вера, пение (многоголосие), группы; Порядок и Хаос; магия проявляется светом",
+   "subs": [
+    {
+     "name": "Пустынники",
+     "en": "Anchorites",
+     "note": "Дух",
+     "key": "anchorites"
+    },
+    {
+     "name": "Септарии",
+     "en": "Septarians",
+     "note": "Основы, консерваторы",
+     "key": "septarians"
+    },
+    {
+     "name": "Свободомыслящие",
+     "en": "Latitudinarians",
+     "note": "",
+     "key": "latitudinarians"
+    },
+    {
+     "name": "Монисты",
+     "en": "Monists",
+     "note": "",
+     "key": "monists"
+    },
+    {
+     "name": "Александрийское Общество",
+     "en": "Alexandrian Society",
+     "note": "наука и религия",
+     "key": "alexandrian-society"
+    },
+    {
+     "name": "Сыны Митры",
+     "en": "Sons of Mithras",
+     "note": "Силы",
+     "key": "sons-of-mithras"
+    },
+    {
+     "name": "Дети Альби",
+     "en": "Children of Albi",
+     "note": "",
+     "key": "children-of-albi"
+    },
+    {
+     "name": "Нашимиты",
+     "en": "Nashimites",
+     "note": "",
+     "key": "nashimites"
+    },
+    {
+     "name": "Храмовники",
+     "en": "Knights Templar",
+     "note": "",
+     "key": "knights-templar"
+    }
+   ]
   },
   {
    "key": "cult-of-ecstasy",
@@ -253,7 +347,45 @@
     "mind"
    ],
    "affinityText": "Время; Жизнь или Разум",
-   "practices": "Безумная мудрость, магия хаоса, шаманизм; поток Оджас; Всё хорошо/Хаос"
+   "practices": "Безумная мудрость, магия хаоса, шаманизм; поток Оджас; Всё хорошо/Хаос",
+   "subs": [
+    {
+     "name": "Ахори",
+     "en": "Aghoris",
+     "note": "",
+     "key": "aghoris"
+    },
+    {
+     "name": "Страстолюбцы",
+     "en": "Acharne",
+     "note": "",
+     "key": "acharne"
+    },
+    {
+     "name": "Хагалаз",
+     "en": "Hagalaz",
+     "note": "",
+     "key": "hagalaz"
+    },
+    {
+     "name": "Братство Пана",
+     "en": "Fellowship of Pan",
+     "note": "",
+     "key": "fellowship-of-pan"
+    },
+    {
+     "name": "Общество Диссонанса",
+     "en": "Dissonance Society",
+     "note": "",
+     "key": "dissonance-society"
+    },
+    {
+     "name": "Современные Клабберы",
+     "en": "Klubwerks",
+     "note": "",
+     "key": "klubwerks"
+    }
+   ]
   },
   {
    "key": "dreamspeakers",
@@ -267,7 +399,57 @@
     "matter"
    ],
    "affinityText": "Дух; Силы, Жизнь или Материя",
-   "practices": "Врачевание, ремесло, шаманизм, безумная мудрость, вера (реже кибернетика, йога, вуду, колдовство); Боги и чудовища; Творение живо; Золотой век"
+   "practices": "Врачевание, ремесло, шаманизм, безумная мудрость, вера (реже кибернетика, йога, вуду, колдовство); Боги и чудовища; Творение живо; Золотой век",
+   "subs": [
+    {
+     "name": "Хранители Священного Огня",
+     "en": "Keepers of the Sacred Fire",
+     "note": "",
+     "key": "keepers-of-the-sacred-fire"
+    },
+    {
+     "name": "Отшельники",
+     "en": "Solitaries",
+     "note": "",
+     "key": "solitaries"
+    },
+    {
+     "name": "Радикальное Общество Призрачного Колеса",
+     "en": "Ghost Wheel Society",
+     "note": "",
+     "key": "ghost-wheel-society"
+    },
+    {
+     "name": "Общество Красного Копья",
+     "en": "Red Spear Society",
+     "note": "",
+     "key": "red-spear-society"
+    },
+    {
+     "name": "Барути",
+     "en": "Baruti",
+     "note": "",
+     "key": "baruti"
+    },
+    {
+     "name": "Нататапас",
+     "en": "Natatapas",
+     "note": "",
+     "key": "natatapas"
+    },
+    {
+     "name": "Мадзимбабве",
+     "en": "Madzimbabwe",
+     "note": "",
+     "key": "madzimbabwe"
+    },
+    {
+     "name": "Община Гранатового Цветка",
+     "en": "Pomegranate Deme",
+     "note": "",
+     "key": "pomegranate-deme"
+    }
+   ]
   },
   {
    "key": "euthanatoi",
@@ -280,7 +462,39 @@
     "spirit"
    ],
    "affinityText": "Энтропия; Жизнь или Дух",
-   "practices": "Безумная мудрость, вера, Высокий ритуал, врачевание, взлом реальности, БИ, шаманизм, вуду; йога; Порядок/Хаос; Иллюзия"
+   "practices": "Безумная мудрость, вера, Высокий ритуал, врачевание, взлом реальности, БИ, шаманизм, вуду; йога; Порядок/Хаос; Иллюзия",
+   "subs": [
+    {
+     "name": "Айдед",
+     "en": "Aided",
+     "note": "",
+     "key": "aided"
+    },
+    {
+     "name": "Лакшмисты",
+     "en": "Lhakshmists",
+     "note": "",
+     "key": "lhakshmists"
+    },
+    {
+     "name": "Золотой Потир",
+     "en": "Golden Chalice",
+     "note": "",
+     "key": "golden-chalice"
+    },
+    {
+     "name": "Витязи Радаманта",
+     "en": "Knights of Radamanthys",
+     "note": "",
+     "key": "knights-of-radamanthys"
+    },
+    {
+     "name": "Альбирео",
+     "en": "Albireo",
+     "note": "",
+     "key": "albireo"
+    }
+   ]
   },
   {
    "key": "order-of-hermes",
@@ -295,7 +509,75 @@
     "spirit"
    ],
    "affinityText": "Силы (ядро); вторично Жизнь, Материя, Разум, Дух",
-   "practices": "Алхимия, доминион, Высокий ритуал — ядро; магия хаоса, Искусство желания, гипертех, ремёсла, Странная наука, йога, малефиция; Механистический, Порядок/Хаос, Сила, Технологии, Золотой век"
+   "practices": "Алхимия, доминион, Высокий ритуал — ядро; магия хаоса, Искусство желания, гипертех, ремёсла, Странная наука, йога, малефиция; Механистический, Порядок/Хаос, Сила, Технологии, Золотой век",
+   "subs": [
+    {
+     "name": "Бонисагус",
+     "en": "Bonisagus",
+     "note": "",
+     "key": "bonisagus"
+    },
+    {
+     "name": "Экс Миселланиа",
+     "en": "Ex Miscellanea",
+     "note": "",
+     "key": "ex-miscellanea"
+    },
+    {
+     "name": "Фламбо",
+     "en": "Flambeau",
+     "note": "",
+     "key": "flambeau"
+    },
+    {
+     "name": "Фортуна",
+     "en": "Fortunae",
+     "note": "",
+     "key": "fortunae"
+    },
+    {
+     "name": "Янычары",
+     "en": "Janissary",
+     "note": "",
+     "key": "janissary"
+    },
+    {
+     "name": "Квезитор",
+     "en": "Quaesitor",
+     "note": "",
+     "key": "quaesitor"
+    },
+    {
+     "name": "Шиэй",
+     "en": "Shaea",
+     "note": "",
+     "key": "shaea"
+    },
+    {
+     "name": "Солификати",
+     "en": "Solificati",
+     "note": "",
+     "key": "solificati"
+    },
+    {
+     "name": "Тиг",
+     "en": "Thig",
+     "note": "",
+     "key": "thig"
+    },
+    {
+     "name": "Титал",
+     "en": "Tytalus",
+     "note": "",
+     "key": "tytalus"
+    },
+    {
+     "name": "Вердитиус",
+     "en": "Verditius",
+     "note": "",
+     "key": "verditius"
+    }
+   ]
   },
   {
    "key": "society-of-ether",
@@ -308,7 +590,45 @@
     "prime"
    ],
    "affinityText": "Материя; Силы или Первоначало",
-   "practices": "Алхимия, ремесло, кибернетика, гипертех, взлом реальности, Странная наука; Технологии"
+   "practices": "Алхимия, ремесло, кибернетика, гипертех, взлом реальности, Странная наука; Технологии",
+   "subs": [
+    {
+     "name": "Эфиронавты",
+     "en": "Ethernauts",
+     "note": "",
+     "key": "ethernauts"
+    },
+    {
+     "name": "Утописты",
+     "en": "Utopians",
+     "note": "",
+     "key": "utopians"
+    },
+    {
+     "name": "Кибернавты",
+     "en": "Cybernauts",
+     "note": "",
+     "key": "cybernauts"
+    },
+    {
+     "name": "Прогрессоры",
+     "en": "Progressivists",
+     "note": "",
+     "key": "progressivists"
+    },
+    {
+     "name": "Безумный Учёный",
+     "en": "Mad Scientist",
+     "note": "",
+     "key": "mad-scientist"
+    },
+    {
+     "name": "Авантюристы",
+     "en": "Adventurers",
+     "note": "",
+     "key": "adventurers"
+    }
+   ]
   },
   {
    "key": "verbena",
@@ -320,7 +640,33 @@
     "forces"
    ],
    "affinityText": "Жизнь; Силы",
-   "practices": "Колдовство (ядро); вуду, доминион, Странная наука, хаос, йога, БИ, Высокий ритуал, кибернетика, Искусство желания, ремесло, врачевание; Творение божественно, Боги и чудовища, Золотой век, Хаос"
+   "practices": "Колдовство (ядро); вуду, доминион, Странная наука, хаос, йога, БИ, Высокий ритуал, кибернетика, Искусство желания, ремесло, врачевание; Творение божественно, Боги и чудовища, Золотой век, Хаос",
+   "subs": [
+    {
+     "name": "Хранители Древа",
+     "en": "Gardeners of the Tree",
+     "note": "",
+     "key": "gardeners-of-the-tree"
+    },
+    {
+     "name": "Ткачи Судеб",
+     "en": "Twisters of Fate",
+     "note": "",
+     "key": "twisters-of-fate"
+    },
+    {
+     "name": "Искатели Луны",
+     "en": "Moon-Seekers",
+     "note": "",
+     "key": "moon-seekers"
+    },
+    {
+     "name": "Ткачи Жизни",
+     "en": "Lifeweavers",
+     "note": "",
+     "key": "lifeweavers"
+    }
+   ]
   },
   {
    "key": "virtual-adepts",
@@ -332,7 +678,51 @@
     "forces"
    ],
    "affinityText": "Соответствие/Данные; Силы",
-   "practices": "Взлом реальности, кибернетика, гипертех; Всё — данные, Механистический"
+   "practices": "Взлом реальности, кибернетика, гипертех; Всё — данные, Механистический",
+   "subs": [
+    {
+     "name": "Киберпанки",
+     "en": "Cyberpunks",
+     "note": "",
+     "key": "cyberpunks"
+    },
+    {
+     "name": "Шифропанки",
+     "en": "Cypherpunks",
+     "note": "",
+     "key": "cypherpunks"
+    },
+    {
+     "name": "Хаотики",
+     "en": "Chaoticians",
+     "note": "",
+     "key": "chaoticians"
+    },
+    {
+     "name": "Взломщики Реальности",
+     "en": "Reality Hackers",
+     "note": "",
+     "key": "reality-hackers"
+    },
+    {
+     "name": "Нексплореры",
+     "en": "Nexplorers",
+     "note": "",
+     "key": "nexplorers"
+    },
+    {
+     "name": "Советники",
+     "en": "Councilors",
+     "note": "",
+     "key": "councilors"
+    },
+    {
+     "name": "Революционеры",
+     "en": "Revolutionaries",
+     "note": "",
+     "key": "revolutionaries"
+    }
+   ]
   },
   {
    "key": "iteration-x",
@@ -345,7 +735,33 @@
     "time"
    ],
    "affinityText": "Силы, Материя или Время",
-   "practices": "Кибернетика, ремесло, гипертех (ядро); БИ, соц. доминион, гиперэкономика, взлом реальности"
+   "practices": "Кибернетика, ремесло, гипертех (ядро); БИ, соц. доминион, гиперэкономика, взлом реальности",
+   "subs": [
+    {
+     "name": "БиоМеханики",
+     "en": "",
+     "note": "",
+     "key": "biomehaniki"
+    },
+    {
+     "name": "Макротехники",
+     "en": "",
+     "note": "",
+     "key": "makrotehniki"
+    },
+    {
+     "name": "Статистики",
+     "en": "",
+     "note": "",
+     "key": "statistiki"
+    },
+    {
+     "name": "Менеджеры времени и движения",
+     "en": "TMM",
+     "note": "",
+     "key": "tmm"
+    }
+   ]
   },
   {
    "key": "new-world-order",
@@ -357,7 +773,39 @@
     "correspondence"
    ],
    "affinityText": "Разум или Соответствие/Данные",
-   "practices": "Доминион (контроль сознания, внушение, СМИ), психология, оружие, БИ; Боги и чудовища; Сила; Технологии; ментальные тактики"
+   "practices": "Доминион (контроль сознания, внушение, СМИ), психология, оружие, БИ; Боги и чудовища; Сила; Технологии; ментальные тактики",
+   "subs": [
+    {
+     "name": "Коллегия гендерных исследований",
+     "en": "",
+     "note": "",
+     "key": "kollegiya-gendernyh-issledovaniy"
+    },
+    {
+     "name": "Слоновая башня",
+     "en": "",
+     "note": "",
+     "key": "slonovaya-bashnya"
+    },
+    {
+     "name": "Наблюдатели",
+     "en": "",
+     "note": "",
+     "key": "nablyudateli"
+    },
+    {
+     "name": "Корпус шока",
+     "en": "ESC",
+     "note": "",
+     "key": "esc"
+    },
+    {
+     "name": "Лента",
+     "en": "Feed",
+     "note": "",
+     "key": "feed"
+    }
+   ]
   },
   {
    "key": "progenitors",
@@ -371,7 +819,33 @@
     "mind"
    ],
    "affinityText": "Жизнь или Первоначало (в сводке гл. 6); в описании Конвенции — Жизнь и либо Энтропия, либо Разум",
-   "practices": "Биология, медицина, генная инженерия, врачевание"
+   "practices": "Биология, медицина, генная инженерия, врачевание",
+   "subs": [
+    {
+     "name": "Инженеры FACADE",
+     "en": "",
+     "note": "",
+     "key": "inzhenery-facade"
+    },
+    {
+     "name": "Генинжинеры",
+     "en": "",
+     "note": "",
+     "key": "geninzhinery"
+    },
+    {
+     "name": "Фармакопеисты",
+     "en": "",
+     "note": "",
+     "key": "farmakopeisty"
+    },
+    {
+     "name": "Контроль повреждений",
+     "en": "",
+     "note": "",
+     "key": "kontrol-povrezhdeniy"
+    }
+   ]
   },
   {
    "key": "syndicate",
@@ -384,7 +858,33 @@
     "prime"
    ],
    "affinityText": "Энтропия, Разум или Первичная Полезность",
-   "practices": "Искусство желания / Гиперэкономика, доминион"
+   "practices": "Искусство желания / Гиперэкономика, доминион",
+   "subs": [
+    {
+     "name": "Выплаты",
+     "en": "Disbursements",
+     "note": "",
+     "key": "disbursements"
+    },
+    {
+     "name": "Силовики",
+     "en": "Enforcers",
+     "note": "",
+     "key": "enforcers"
+    },
+    {
+     "name": "Финансисты",
+     "en": "",
+     "note": "",
+     "key": "finansisty"
+    },
+    {
+     "name": "Контроль СМИ",
+     "en": "",
+     "note": "",
+     "key": "kontrol-smi"
+    }
+   ]
   },
   {
    "key": "void-engineers",
@@ -397,7 +897,39 @@
     "forces"
    ],
    "affinityText": "Пространственная наука (Дух), Соответствие или Силы",
-   "practices": "Гипертех, кибернетика, ремесло, взлом реальности, Странная наука; Технологии; Хаос → порядок"
+   "practices": "Гипертех, кибернетика, ремесло, взлом реальности, Странная наука; Технологии; Хаос → порядок",
+   "subs": [
+    {
+     "name": "Border Corps Division",
+     "en": "BCD",
+     "note": "",
+     "key": "bcd"
+    },
+    {
+     "name": "Earth Frontier Division",
+     "en": "EFD",
+     "note": "",
+     "key": "efd"
+    },
+    {
+     "name": "Neutralization Specialist Corps",
+     "en": "NSC",
+     "note": "",
+     "key": "nsc"
+    },
+    {
+     "name": "Pan-Dimensional Corps",
+     "en": "PDC",
+     "note": "",
+     "key": "pdc"
+    },
+    {
+     "name": "Research & Execution",
+     "en": "R&E",
+     "note": "",
+     "key": "r-e"
+    }
+   ]
   },
   {
    "key": "ahl-i-batin",

@@ -176,6 +176,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       hazard: VtMActorSheet.#onHazard,
       diablerie: VtMActorSheet.#onDiablerie,
       clanAtlas: VtMActorSheet.#onClanAtlas,
+      lineAtlas: VtMActorSheet.#onLineAtlas,
       linSire: VtMActorSheet.#onLinSire,
       mageFold: VtMActorSheet.#onMageFold, mageCast: VtMActorSheet.#onMageCast, mageQuint: VtMActorSheet.#onMageQuint, mageParadox: VtMActorSheet.#onMageParadox, mageBacklash: VtMActorSheet.#onMageBacklash,
       mageRoteAdd: VtMActorSheet.#onMageRoteAdd, mageRoteDel: VtMActorSheet.#onMageRoteDel, mageRoteCast: VtMActorSheet.#onMageRoteCast, mageToolDel: VtMActorSheet.#onMageToolDel,
@@ -328,6 +329,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     else if (actor.type === "mage") { ctx.mageInfo = mageInfo(actor, dots); ctx.mageView = spheresView(actor, dots);
       const sg = mageSigil(actor);
       ctx.sigil = { ...ctx.sigil, sym: sg.sym, label: sg.label };
+      ctx.lineAtlas = true;
       ctx.mageSeal = sg.seal;
       // свёрнутые карточки Сфер — у каждого игрока свои (память браузера); по умолчанию свёрнуты Сферы без точек
       const fold = this.#sphereFold();
@@ -336,6 +338,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     else if (actor.type === "werewolf") { ctx.werewolfInfo = werewolfInfo(actor, dots); ctx.ww = giftsView(actor);
       const sg = werewolfSigil(actor);
       ctx.sigil = { ...ctx.sigil, sym: sg.sym, label: sg.label };
+      ctx.lineAtlas = true;
       ctx.werewolfSeal = sg.seal;
       // ниже Обездвиженного — «Остаться в строю» за Ярость; с недостатком «Склонность к Харано» — проверка Харано
       const hp = actor.system.health;
@@ -621,6 +624,11 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static #onHazard() { return openHazard(this.actor); }
   static #onDiablerie() { return openDiablerie(this.actor); }
   static #onClanAtlas() { return openClans(this.actor.system.clan); }
+  /** Справочник мага и оборотня — на своей фракции, роде или племени (apps/atlas.mjs). */
+  static async #onLineAtlas() {
+    const s = this.actor.system, { openAtlas } = await import("../apps/atlas.mjs");
+    return this.actor.type === "mage" ? openAtlas("mage", s.mage?.faction) : openAtlas("werewolf", s.werewolf?.fera || s.werewolf?.tribe);
+  }
 
   static #onTakeDamage() { return openDamageDialog(this.actor); }
   static #onOpenCreator() { return openCreator(this.actor); }

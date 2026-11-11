@@ -7033,7 +7033,10 @@
         "Focus": "Focus",
         "Avatar": "Genius"
       },
-      "Avatar": "Avatar"
+      "Avatar": "Avatar",
+      "Sub": "Faction",
+      "SubHouse": "House",
+      "SubMethod": "Methodology"
     },
     "MageCr": {
       "NeedFaction": "Pick a faction.",
@@ -7045,7 +7048,40 @@
       "FocusHint": "Add instruments and Resonance on the sheet, on the Spheres tab.",
       "Start": "Starting traits",
       "StartHint": "Arete 1 (raised with freebies, up to 3), Willpower 5, Quintessence equal to the Avatar rating.",
-      "AreteHere": "caps the Spheres; a dot costs 4 freebies (up to 3). Freebies left: {n}"
+      "AreteHere": "caps the Spheres; a dot costs 4 freebies (up to 3). Freebies left: {n}",
+      "SubOptional": "optional",
+      "QuintRow": "Quintessence (4 per point)"
+    },
+    "Atlas": {
+      "MageTitle": "Mages: Traditions, Conventions, Spheres",
+      "WolfTitle": "Werewolves: tribes, breeds, auspices",
+      "Open": "open the reference",
+      "Specialties": "Specialties",
+      "Ranks": "Ranks",
+      "Technocracy": "Technocracy",
+      "Abilities": "Abilities",
+      "Instruments": "Instruments",
+      "Sphere": "Sphere",
+      "StartGifts": "Starting Gifts — choose one",
+      "Gifts": "Gifts",
+      "Totem": "Totem",
+      "Backgrounds": "Backgrounds",
+      "Renown": "Starting Renown",
+      "Fera": "Fera",
+      "FeraKind": "Changing Breed",
+      "Forms": "Forms",
+      "Tribes": "Tribes",
+      "Breeds": "Breeds",
+      "Auspices": "Auspices",
+      "Search": "Search by name",
+      "Essences": "Essences",
+      "Paradigms": "Paradigms",
+      "Practices": "Practices",
+      "Group": {
+        "traditions": "Traditions",
+        "technocracy": "Technocracy",
+        "disparates": "Crafts"
+      }
     }
   },
   "Fx": {

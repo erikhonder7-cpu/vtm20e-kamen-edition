@@ -33,12 +33,17 @@ const labelsOf = actor => Object.fromEntries(TECH_KEYS.map(k => [k, mt(actor, k)
 // путь от корня: относительный url() в CSS-переменной считался бы от файла стилей
 export const mageGlyphSrc = name => foundry.utils.getRoute(`${SYSTEM_PATH}/assets/mage/${name}.png`);
 export const mageGlyph = (name, cls = "") => `<span class="r-sym r-mg${cls ? ` ${cls}` : ""}" style="--sym: url('${mageGlyphSrc(name)}')" aria-hidden="true"></span>`;
-const factionGlyph = f => f ? `faction-${f.key}` : "sphere-prime";
+/** Течение внутри фракции: Дом Гермеса, фракция Традиции, Методология Конвенции (названия книг — механики у них нет). */
+export const subOf = actor => factionOf(actor)?.subs?.find(x => x.key === actor?.system?.mage?.sub) ?? null;
+/** Как зовётся течение у этой фракции: Дом, Методология, течение. */
+export const subLabel = f => t(f?.key === "order-of-hermes" ? "SubHouse" : f?.group === "technocracy" ? "SubMethod" : "Sub");
+// у гермета знак Дома — вместо знака Ордена
+const factionGlyph = (f, sub = null) => f?.key === "order-of-hermes" && sub ? `house-${sub.key}` : f ? `faction-${f.key}` : "sphere-prime";
 /** Знаки листа: на корешке и водяным знаком — фракция; на печати под портретом — родовая Сфера. */
 export function mageSigil(actor) {
-  const f = factionOf(actor), aff = actor.system.mage?.affinity;
-  return { sym: { src: mageGlyphSrc(factionGlyph(f)) }, label: f?.name ?? "",
-    seal: { sym: { src: mageGlyphSrc(aff ? `sphere-${aff}` : factionGlyph(f)) }, label: aff ? sphereName(actor, aff) : f?.name ?? game.i18n.localize("TYPES.Actor.mage") } };
+  const f = factionOf(actor), sb = subOf(actor), aff = actor.system.mage?.affinity;
+  return { sym: { src: mageGlyphSrc(factionGlyph(f, sb)) }, label: [f?.name, sb?.name].filter(Boolean).join(" · "),
+    seal: { sym: { src: mageGlyphSrc(aff ? `sphere-${aff}` : factionGlyph(f, sb)) }, label: aff ? sphereName(actor, aff) : f?.name ?? game.i18n.localize("TYPES.Actor.mage") } };
 }
 
 /** Кубики магии и предел Сфер: Арете, но не выше постоянной Воли. */
@@ -61,7 +66,9 @@ export function mageInfo(actor, dots) {
   const groups = (D.groups ?? []).map(g => ({ name: g.name, list: (D.factions ?? []).filter(x => x.group === g.key).map(x => ({ key: x.key, name: x.name, selected: x.key === m.faction })) }));
   const allowed = f?.affinity?.length ? f.affinity : VTM20.mageSpheres;
   return {
-    L: labelsOf(actor), tech: isTech(actor), groups, faction: f, factionTip: f ? [f.en, f.affinityText && `${t("Affinity")}: ${f.affinityText}`, f.practices].filter(Boolean).join(" · ") : "",
+    L: labelsOf(actor), tech: isTech(actor), groups, faction: f,
+    subs: (f?.subs ?? []).map(x => ({ key: x.key, name: x.name, selected: x.key === m.sub })), subLabel: subLabel(f),
+    subTip: (x => x ? [x.en, x.note].filter(Boolean).join(" · ") : "")(subOf(actor)), factionTip: f ? [f.en, f.affinityText && `${t("Affinity")}: ${f.affinityText}`, f.practices].filter(Boolean).join(" · ") : "",
     essences: (D.essences ?? []).map(e => ({ key: e.key, name: e.name, tip: e.text, selected: e.key === m.essence })),
     essence: (D.essences ?? []).find(e => e.key === m.essence) ?? null,
     affinities: VTM20.mageSpheres.map(k => ({ key: k, name: sphereName(actor, k), selected: k === m.affinity, off: !allowed.includes(k) })),
@@ -152,7 +159,7 @@ export async function castEffect(actor, preset = {}) {
   await foundry.applications.api.DialogV2.wait({
     window: { title: `${mt(actor, "CastTitle")}: ${actor.name}`, icon: "fa-solid fa-hat-wizard" }, classes: ["vtm20", "r-dialog", "r-cast-dialog", "r-type-mage", ...(isTech(actor) ? ["r-mage-tech"] : [])], position: { width: 600 },
     content: `<div class="r-cast">
-      <header class="r-cast-head"><span class="r-cast-sigil">${mageGlyph(factionGlyph(f))}</span>
+      <header class="r-cast-head"><span class="r-cast-sigil">${mageGlyph(factionGlyph(f, subOf(actor)))}</span>
         <span class="r-cast-who"><small>${esc(f?.name ?? mt(actor, "CastTitle"))}</small><b>${esc(actor.name)}</b></span>
         <span class="r-cast-pool" data-tooltip="${esc(t(pool < m.arete ? "CappedHint" : "CapHint"))}"><b>${pool}</b><small>${esc(mt(actor, "Pool"))}</small></span></header>
       <input class="r-cast-name" type="text" name="name" value="${esc(preset.name ?? "")}" placeholder="${esc(t("CastName"))}">

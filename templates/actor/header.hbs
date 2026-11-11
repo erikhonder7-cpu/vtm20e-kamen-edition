@@ -126,6 +126,11 @@
         {{!-- Маг (M20): фракция (Традиция, Конвенция, Ремесло), Сущность Аватара, родовая Сфера --}}
         <label class="r-df is-wide" {{#if mageInfo.factionTip}}data-tooltip="{{mageInfo.factionTip}}"{{/if}}><span>{{localize "VTM20.Mage.Faction"}}</span>
           <select name="system.mage.faction"><option value="">—</option>{{#each mageInfo.groups}}<optgroup label="{{name}}">{{#each list}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</optgroup>{{/each}}</select></label>
+        {{#if mageInfo.subs.length}}
+        <label class="r-df" {{#if mageInfo.subTip}}data-tooltip="{{mageInfo.subTip}}"{{/if}}><span>{{mageInfo.subLabel}}</span>
+          <select name="system.mage.sub"><option value="">—</option>{{#each mageInfo.subs}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
+        <span class="r-df-break"></span>
+        {{/if}}
         <label class="r-df" {{#if mageInfo.essence}}data-tooltip="{{mageInfo.essence.text}}"{{/if}}><span>{{localize "VTM20.Mage.Essence"}}</span>
           <select name="system.mage.essence"><option value="">—</option>{{#each mageInfo.essences}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
         <label class="r-df" data-tooltip="{{localize 'VTM20.Mage.AffinityHint'}}"><span>{{localize "VTM20.Mage.Affinity"}}</span>

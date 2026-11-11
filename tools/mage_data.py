@@ -153,6 +153,74 @@ def parse_factions():
     return out
 
 
+# Течения внутри фракций: Дома Ордена Гермеса и фракции Традиций (Mage Revised, гл. 1 — названия и акценты),
+# Методологии Конвенций (Technocracy Reloaded, гл. 2). Механики у них нет — только принадлежность.
+SUB_TRAD = [("Акаш", "akashayana"), ("Хор", "celestial-chorus"), ("Экстаз", "cult-of-ecstasy"), ("Толковател", "dreamspeakers"), ("Эвтанатос", "euthanatoi"),
+            ("Гермес", "order-of-hermes"), ("Эфир", "society-of-ether"), ("Вербен", "verbena"), ("Виртуальн", "virtual-adepts")]
+SUB_TECH = [("Iteration", "iteration-x"), ("New World", "new-world-order"), ("Прародител", "progenitors"), ("Синдикат", "syndicate"), ("Пустотные", "void-engineers")]
+# Дом Вердитиус влился в Орден позже списка Revised; знак Дома есть в официальном наборе
+SUB_EXTRA = {"order-of-hermes": [{"name": "Вердитиус", "en": "Verditius", "note": ""}]}
+
+
+TRANSLIT = dict(zip("абвгдеёжзийклмнопрстуфхцчшщъыьэюя", ["a", "b", "v", "g", "d", "e", "e", "zh", "z", "i", "y", "k", "l", "m", "n", "o", "p", "r", "s", "t", "u", "f", "h",
+                                                          "c", "ch", "sh", "sch", "", "y", "", "e", "yu", "ya"]))
+
+
+def translit(s):
+    return "".join(TRANSLIT.get(ch, ch) for ch in s.lower())
+
+
+def split_top(s):
+    """Разбить по запятым вне скобок."""
+    out, depth, cur = [], 0, ""
+    for ch in s:
+        depth += ch == "("
+        depth -= ch == ")"
+        if ch == "," and depth == 0:
+            out.append(cur)
+            cur = ""
+        else:
+            cur += ch
+    return [x.strip() for x in out + [cur] if x.strip()]
+
+
+def parse_subs():
+    out = {}
+    rev = read(os.path.join(REF, "Mage_Revised_Основная", "01_Введение_Лексикон_Традиции.md"))
+    for line in section(rev, "## Фракции Традиций"):
+        m = re.match(r"^- \*\*(.+?):\*\*\s*(.+)$", line)
+        key = m and next((k for stem, k in SUB_TRAD if stem in m.group(1)), None)
+        if not key:
+            continue
+        subs = []
+        for item in split_top(re.sub(r"^Дома\s*—\s*", "", m.group(2)).rstrip(".")):
+            mm = re.match(r"^(.+?)\s*\((.+?)\)$", item)
+            name, inner = (mm.group(1), mm.group(2)) if mm else (item, "")
+            en, _, note = inner.partition(";")
+            if note.strip().startswith("см."):          # не течение, а отсылка (Джор — Резонанс)
+                continue
+            subs.append({"name": plain(name), "en": en.strip(), "note": note.strip()})
+        out[key] = subs
+    tr = read(os.path.join(REF, "M20_Technocracy_Reloaded", "02_Конвенции_фокус_Подстройки_и_снаряжение_Q-отдела.md"))
+    for line in tr.splitlines():
+        m = re.match(r"^- \*\*(.+?)\.?\*\*\s*Методологии[^:]*:\s*(.+)$", line)
+        key = m and next((k for stem, k in SUB_TECH if stem in m.group(1)), None)
+        if not key:
+            continue
+        body = re.split(r"[;.](?![^(]*\))", m.group(2), maxsplit=1)[0]
+        subs = []
+        for raw in re.findall(r"\*\*(.+?)\*\*", body):
+            mm = re.match(r"^(.+?)\s*\((.+?)\)$", raw)
+            subs.append({"name": mm.group(1) if mm else raw, "en": mm.group(2) if mm else "", "note": ""})
+        out[key] = subs
+    for key, extra in SUB_EXTRA.items():
+        out.setdefault(key, []).extend(extra)
+    for subs in out.values():
+        for x in subs:
+            x["key"] = wd.slug(x["en"]) or wd.slug(translit(x["name"]))
+    return out
+
+
 def parse_essences():
     out = []
     for line in section(core("01"), "## Сущность Аватара"):
@@ -304,6 +372,10 @@ def parse_books():
 
 def build():
     spheres, factions = parse_spheres(), parse_factions()
+    subs = parse_subs()
+    for f in factions:
+        if subs.get(f["key"]):
+            f["subs"] = subs[f["key"]]
     data = {
         "source": "Mage: The Ascension 20th Anniversary Edition — справочник проекта (пересказ механики)",
         "spheres": spheres, "ranks": RANKS, "arete": ARETE,

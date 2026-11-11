@@ -577,12 +577,13 @@ export class GearData extends BaseItemData {
 /* ── Маг (Mage: The Ascension 20th Anniversary) ──────────────────────────── */
 
 // Пробуждённый: смертное тело и сверх того — фракция, Сущность Аватара, Арете, девять Сфер (0–5, не выше Арете),
+// течение внутри фракции (sub: Дом Гермеса, фракция Традиции, Методология Конвенции — ключ data/mage.json → factions[].subs),
 // колесо Квинтэссенции и Парадокса (вместе не больше 20), фокус (парадигма, практика, инструменты), ротэ (apps/mage.mjs).
 export class MageData extends MortalData {
   static defineSchema() {
     return {
       ...super.defineSchema(),
-      mage: new SchemaField({ faction: str(""), essence: str(""), affinity: str(""), arete: int(1, 0, 10),
+      mage: new SchemaField({ faction: str(""), sub: str(""), essence: str(""), affinity: str(""), arete: int(1, 0, 10),
         spheres: new SchemaField(Object.fromEntries(VTM20.mageSpheres.map(k => [k, int(0, 0, 5)]))),
         quintessence: int(0, 0, 20), paradox: int(0, 0, 20), paradoxPerm: int(0, 0, 20),
         paradigm: str(""), practice: str(""), instruments: new ArrayField(str()), resonance: str(""),
