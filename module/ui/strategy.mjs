@@ -53,8 +53,8 @@ const INTENTS = {
 };
 /** Польза сектора: факт ночи простоя (+1 кубик за каждые 2 фишки) или охота (сложность −1, от 5 фишек −2). */
 // «caern» — каэрн в секторе: шаг в Умбру отсюда легче (Преграда −1 за каждые 2 фишки, не больше −2)
-const PERKS = ["herd", "resources", "influence", "allies", "contacts", "retainers", "fame", "status", "domain", "mentor", "hunt", "caern"];
-const perkName = k => k === "hunt" ? S("PerkHunt") : k === "caern" ? S("PerkCaern") : game.i18n.localize(`VTM20.Downtime.Bg.${k}`);
+const PERKS = ["herd", "resources", "influence", "allies", "contacts", "retainers", "fame", "status", "domain", "mentor", "hunt", "caern", "node"];
+const perkName = k => k === "hunt" ? S("PerkHunt") : k === "caern" ? S("PerkCaern") : k === "node" ? S("PerkNode") : game.i18n.localize(`VTM20.Downtime.Bg.${k}`);
 /** Проекты персонажа (флаг актёра): [{ id, sector, name }]; ход и цель — у ведущего (s.progress, s.projNeed). */
 const PROJ = "strategyProj";
 const projectsOf = a => a?.getFlag?.(SYSTEM_ID, PROJ) ?? [];
@@ -302,8 +302,11 @@ async function openGuide() {
 export function perkBonus(actor, key) {
   let s;
   try { s = strat(); } catch { return { n: 0, dice: 0, names: [] }; }
-  const secs = s.sectors.filter(x => x.perk === key && (s.tokens[x.key]?.[actor?.id] ?? 0) > 0);
-  const n = secs.reduce((m, x) => m + s.tokens[x.key][actor.id], 0);
+  // свои фишки и фишки групп, где персонаж состоит (кабал, стая, котерия): польза сектора — всем своим
+  const ids = [actor?.id, ...game.actors.filter(g => g.type === "coterie" && (g.system.members ?? []).includes(actor?.id)).map(g => g.id)].filter(Boolean);
+  const mine = x => ids.reduce((m, id) => m + (s.tokens[x.key]?.[id] ?? 0), 0);
+  const secs = s.sectors.filter(x => x.perk === key && mine(x) > 0);
+  const n = secs.reduce((m, x) => m + mine(x), 0);
   return { n, dice: Math.ceil(n / 2), names: secs.map(sectorName) };
 }
 
@@ -549,7 +552,7 @@ function sectorView(s) {
     <h3 style="--h:${sph?.color ?? "#555"}"><i></i>${esc(sectorName(x))}${gm ? ` <a class="rs-eye ${s.reveal[x.key] ? "is-open" : ""}" data-rs="reveal" data-tooltip="${esc(S(s.reveal[x.key] ? "RevealOff" : "RevealOn"))}"><i class="fa-solid ${s.reveal[x.key] ? "fa-eye" : "fa-eye-slash"}"></i></a>` : ""}</h3>
     <p class="rs-sph">${esc(sph ? sphereName(sph) : "")}${district ? ` · <a data-rs="fly" data-key="${x.district}"><i class="fa-solid fa-map-location-dot"></i> ${esc(district.name)}</a>` : ""}</p>
     ${x.about ? `<p class="rs-about">${esc(x.about)}</p>` : ""}
-    ${x.perk ? `<p class="rs-perk"><i class="fa-solid fa-gift"></i> ${esc(S(x.perk === "hunt" ? "PerkHuntLine" : x.perk === "caern" ? "PerkCaernLine" : "PerkLineSector", { name: perkName(x.perk) }))}</p>` : ""}
+    ${x.perk ? `<p class="rs-perk"><i class="fa-solid fa-gift"></i> ${esc(S(x.perk === "hunt" ? "PerkHuntLine" : x.perk === "caern" ? "PerkCaernLine" : x.perk === "node" ? "PerkNodeLine" : "PerkLineSector", { name: perkName(x.perk) }))}</p>` : ""}
     ${trendsBlock(s, x, gm)}
     <h4>${esc(S("Influence"))} <small>${gm ? `${total}/${MAX}` : ""}</small></h4>
     <ul class="rs-owners">${vis.map(row).join("") || `<li class="rs-note">${esc(S("NoOneKnown"))}</li>`}</ul>
@@ -624,7 +627,7 @@ function pactsBlock(s, x, gm) {
     ${esc(S(`PactKind.${p.kind}`))}${p.scope === "*" ? ` · ${esc(S("PactWholeCity"))}` : ""}${p.note ? ` <small>${esc(p.note)}</small>` : ""}</li>`).join("")}</ul>`;
 }
 function ownerOptions(s) {
-  const acts = game.actors.filter(a => ["vampire", "ghoul", "mortal", "hunter", "werewolf", "demon", "creature"].includes(a.type)).sort((p, q) => p.name.localeCompare(q.name, "ru"));
+  const acts = game.actors.filter(a => ["vampire", "ghoul", "mortal", "hunter", "werewolf", "mage", "demon", "creature", "coterie"].includes(a.type)).sort((p, q) => p.name.localeCompare(q.name, "ru"));
   return [...Object.keys(s.owners).map(k => owner(k, s)), ...acts.map(a => owner(a.id, s))];
 }
 

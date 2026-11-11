@@ -5245,7 +5245,9 @@
       "ModDiff": "diff. ±",
       "StateOpen": "bids are open",
       "ReadyDone": "Turn submitted",
-      "ReadyWait": "Still thinking: bids placed, turn not submitted"
+      "ReadyWait": "Still thinking: bids placed, turn not submitted",
+      "PerkNode": "Node",
+      "PerkNodeLine": "A Node lies here: stepping sideways is easier for a mage — Gauntlet −1 per 2 tokens (up to −2)."
     },
     "GarouCr": {
       "Title": "Garou creation",

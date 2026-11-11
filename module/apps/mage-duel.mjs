@@ -46,10 +46,14 @@ export async function stepSideways(actor) {
   // начатый переход продолжается там же; новый — выбор места
   const choice = place ? { v: place.key } : await pick(actor, { title: t("StepSideways"), icon: "fa-circle-half-stroke", lead: esc(t("StepLead")),
     options: G.map(g => ({ key: g.key, label: g.name, sub: t("StepNeed", { n: g.need }), badge: g.diff, icon: g.icon })) });
-  const g = G.find(x => x.key === choice?.v);
+  let g = G.find(x => x.key === choice?.v);
   if (!g) return null;
   const { rollPool } = await import("../dice/roll.mjs");
   const got0 = run?.key === g.key ? run.got : 0;
+  // Стратегия города: фишки в секторе с Узлом — Преграда −1 за каждые 2 (не больше −2, не ниже Преграды самого Узла)
+  const { perkBonus } = await import("../ui/strategy.mjs");
+  const pk = perkBonus(actor, "node"), cut = Math.min(2, pk.dice), node = G.find(x => x.key === "node")?.diff ?? 3;
+  g = { ...g, diff: Math.max(node, g.diff - cut) };
   const roll = await rollPool({ actor, title: t("StepSideways"), subtitle: `${g.name} · ${t("StepProgress", { got: got0, need: g.need })}`, pool, difficulty: g.diff, kind: "check",
     breakdown: [{ label: mt(actor, "Arete"), value: pool }], extra: { mduel: { kind: "step", place: g.name, diff: g.diff, need: g.need, got0 } } });
   if (!roll) return null;
