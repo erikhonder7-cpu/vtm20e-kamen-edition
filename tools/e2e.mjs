@@ -1,5 +1,5 @@
 // tools/e2e.mjs — автотесты в браузере против песочницы Foundry:
-//   node tools/e2e.mjs [--url http://localhost:30002] [--user Gamemaster] [--headed] [--sync <папка системы в песочнице>] [--only "часть названия|другая"]
+//   node tools/e2e.mjs [--url http://localhost:30002] [--user Gamemaster] [--headed] [--sync <папка системы в песочнице>] [--only "часть названия|другая"] [--group vampire,mage,werewolf,fallen,hunter,combat,creator,city,npc]
 // Входит рассказчиком, открывает лист, бросает черту, открывает окна системы (опыт, библиотеку, охоту,
 // опасности, урон, диаблери, справочник кланов, ночь простоя, реестр услуг), ставит и снимает паузу; проверяет
 // толпу статистов, сроки сил и чтение ритуала, торпор и Окончательную смерть, охоту с карты (угодья и домен),
@@ -22,6 +22,25 @@ const SYNC = arg("--sync", "");
 // --only «часть названия»: только эти проверки (вход, загрузка системы и уборка — всегда); несколько — через «|»
 const ONLY = arg("--only", "").toLowerCase().split("|").map(x => x.trim()).filter(Boolean);
 const ALWAYS = ["Вход рассказчиком", "Система загружена"];
+// --group «имя,имя»: проверки одной линейки или области по словам в названии (быстрый прогон вместо полного, ~15 минут).
+// Отметку для релиза (tools/.cache/e2e-ok.json) ставит только полный прогон — без --only и --group.
+const GROUPS = {
+  mage: /(^|[^а-яё])маг|колдун|нефанд|чуд(о|а|ес)(?![а-яё])/i,
+  werewolf: /гару|оборот|фера|дух умбры|родн|ками|фомор|тотем/i,
+  fallen: /падш|слуг|привязан|вера против|муки|тело-носитель/i,
+  hunter: /охотник|свидетел/i,
+  combat: /бой|ход боя|инициатив|урон|стремительност|мощь/i,
+  creator: /мастер|создани|становлени/i,
+  city: /город|карт|стратег|домен|маскарад|париж|песочниц|мир:|нексус|час|календар/i,
+  npc: /нпс|статист|толпа|групп/i
+};
+// vampire — всё остальное: лист, броски, Дисциплины через HUD, кровь, узы, торпор (то, что не попало в группы выше)
+const inGroup = (g, name) => g === "vampire" ? !Object.values(GROUPS).some(rx => rx.test(name)) : GROUPS[g].test(name);
+const GROUP = arg("--group", "").toLowerCase().split(",").map(x => x.trim()).filter(Boolean);
+for (const g of GROUP) if (g !== "vampire" && !GROUPS[g]) { console.error(`Нет группы «${g}». Есть: vampire, ${Object.keys(GROUPS).join(", ")}`); process.exit(1); }
+const PARTIAL = ONLY.length > 0 || GROUP.length > 0;
+/** Идёт ли проверка в этом прогоне: полный — все; иначе по словам --only или по группе. */
+const wanted = name => !PARTIAL || ALWAYS.includes(name) || ONLY.some(x => name.toLowerCase().includes(x)) || GROUP.some(g => inGroup(g, name));
 
 // Шум, который к системе не относится
 const IGNORE = [/Cannot set language/i, /hardware acceleration/i, /favicon\.ico/i, /WebGL/i];
@@ -33,7 +52,7 @@ const errors = [];
 let page, step = "запуск";
 
 async function check(name, fn) {
-  if (ONLY.length && !ALWAYS.includes(name) && !ONLY.some(x => name.toLowerCase().includes(x))) return;
+  if (!wanted(name)) return;
   step = name;
   const before = errors.length;
   try {
@@ -4187,7 +4206,7 @@ try {
     await setWorld(false, "", "0.7.0");
     await reloadUntil(id => game.ready === true && !!game.modules.get(id)?.active && game.settings.get(game.system.id, "cityParis") === "on", CITY_MODULE);
   });
-  else if (!ONLY.length) results.push({ name: "Старый мир: модуль Парижа включается сам", ok: true, note: "пропущено — модуль не установлен в песочнице" });
+  else if (!PARTIAL) results.push({ name: "Старый мир: модуль Парижа включается сам", ok: true, note: "пропущено — модуль не установлен в песочнице" });
 
   await check("Песочница возвращена как была", async () => {
     await setWorld(saved.mod, saved.paris, saved.migrated);
@@ -4210,7 +4229,7 @@ if (errors.length) {
 const failed = results.filter(r => !r.ok).length;
 console.log(failed ? `\nНе прошло: ${failed} из ${results.length}.` : `\nВсё в порядке: ${results.length} проверок.`);
 // отметка для релиза (tools/release.mjs): полный прогон на этом коммите, без незакоммиченных правок кода (компендии и новые файлы не в счёт)
-if (!ONLY.length) {
+if (!PARTIAL) {
   const { execFileSync } = await import("node:child_process");
   const git = args => { try { return execFileSync("git", args, { cwd: ROOT, encoding: "utf8" }).trim(); } catch { return ""; } };
   const dirty = git(["status", "--porcelain", "--", ".", ":!packs"]).split("\n").filter(l => l && !l.startsWith("??")).length > 0;
