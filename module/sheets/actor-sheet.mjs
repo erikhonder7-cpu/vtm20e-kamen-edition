@@ -5,6 +5,10 @@
 // Раскладка: шапка-«патент» с медальоном, вкладки слева от «реестра»
 // (правая колонка: мораль, воля, кровь, здоровье, быстрые действия).
 
+import { MAGE_ACTIONS } from "./actor/mage.mjs";
+import { WEREWOLF_ACTIONS } from "./actor/werewolf.mjs";
+import { HUNTER_ACTIONS } from "./actor/hunter.mjs";
+import { DEMON_ACTIONS } from "./actor/demon.mjs";
 import { allowAnyway } from "../apps/rule-gate.mjs";
 import { sheetStrategy, openStrategy } from "../ui/strategy.mjs";
 import { VTM20, SYSTEM_PATH, SYSTEM_ID } from "../config.mjs";
@@ -16,8 +20,7 @@ import { rollVirtueCheck } from "../dice/virtue-checks.mjs";
 import { openDamageDialog } from "../apps/damage.mjs";
 import { WEAPON_PRESETS, ARMOR_PRESETS, GEAR_PRESETS } from "../data/equipment.mjs";
 import { openCreator } from "../apps/creator.mjs";
-import { openSept } from "../apps/sept.mjs";
-import { openUmbra } from "../apps/umbra.mjs";
+
 import { openHunt } from "../apps/night.mjs";
 import { openDowntime } from "../apps/downtime.mjs";
 import { openXp } from "../apps/xp.mjs";
@@ -34,35 +37,28 @@ import { toggleRitualReading, cancelRitual } from "../apps/timers.mjs";
 import { enterTorpor, wakeFromTorpor, undoDeath } from "../apps/torpor.mjs";
 import { makeExtra } from "../apps/extras.mjs";
 import { refreshActor } from "../apps/codex-refresh.mjs";
-import { openThrallGifts } from "../apps/thrall-gifts.mjs";
-import { loseHost, holdOn, newHost, summonedBack } from "../apps/host.mjs";
-import { openCult } from "../apps/cult.mjs";
-import { openExorcist } from "../apps/exorcist.mjs";
+
 import { diablerieMark } from "../apps/diablerie.mjs";
-import { craftFetish, werewolfInfo, werewolfSigil, giftsView, editStanding, changeForm, rollGift, rollRite, frenzyCheck, stepSideways, scarView, addScar, removeScar, deformityView, addDeformity, removeDeformity, renownAward, kinfolkInfo, kinAddGift, kinRemoveGift, kinUseGift, kinAddNumen, kinRemoveNumen, kinNumenDots, kinUseNumen, kamiInfo, kamiAdd, kamiRemove, kamiUse, fetchInfo, bindFetch, burnFetch, primalUses, fomorInfo, fomorBreed, fomorAdd, fomorRemove, fomorUse, spiritTplGroups, applySpiritTpl, spiritInfo, addCharm, removeCharm, spiritEssenceReset, fetishView, addFetish, removeFetish, attuneFetish, reconcileFetish, useFetish, delirium, stayUp, regainRage, regainGnosis, haranoCheck, haranoProne, W as werewolfDataSheet, regenerate, rageActions, spend as wwSpend, addGift, removeGift, addRite, removeRite } from "../apps/werewolf.mjs";
-import { hunterInfo, edgesView, useEdge, secondSight, virtueTest, tradeConviction, restoreConviction, awardDeed, shiftDeed, cashDeed, sacrifice, advanceVirtue, callEdge, swapCalled, unblockCall, callView, isLost, lostVirtue, lostTrade, lostHardened, lostOrdeal } from "../apps/hunter.mjs";
+import { werewolfInfo, werewolfSigil, giftsView, scarView, addScar, deformityView, addDeformity, kinfolkInfo, kinAddGift, kinAddNumen, kamiInfo, kamiAdd, fetchInfo, fomorInfo, fomorBreed, fomorAdd, spiritTplGroups, applySpiritTpl, spiritInfo, addCharm, fetishView, addFetish, haranoProne, W as werewolfDataSheet, addGift, addRite } from "../apps/werewolf.mjs";
+import { hunterInfo, edgesView, callView, isLost } from "../apps/hunter.mjs";
 import { addBloodright, removeBloodright, rollBloodright, toggleRitual as toggleDririRitual, rollRitual as rollDririRitual } from "../apps/dhampir.mjs";
-import { openEbServant, empower as empowerServant } from "../apps/eb-servant.mjs";
-import { useInvestment, pactDialog, pactDelete } from "../apps/infernal.mjs";
-import { possess, extend as possessExtend, leave as possessLeave, battleExpiry } from "../apps/possession.mjs";
+
 import { weaponIcon as weaponImg, armorIcon as armorImg } from "../data/icons.mjs";
 import { togglePowerEffect } from "../apps/power-effects.mjs";
 import { usePower } from "../apps/use-power.mjs";
 import { isTechnocrat } from "../ui/themes.mjs";
-import { sorcererInfo, consorInfo, addNumen as sorcAdd, removeNumen as sorcDel, numenDots as sorcDots, numenAbility as sorcAbility, useNumen as sorcUse,
-  addRitual as sorcRitualAdd, removeRitual as sorcRitualDel, useRitual as sorcRitualUse } from "../apps/sorcerer.mjs";
-import { mageInfo, mageSigil, spheresView, castEffect, changeQuintessence, changeParadox, paradoxBacklash, addRote, removeRote, castRote, addTool, removeTool } from "../apps/mage.mjs";
-import { stateView, addResonance, setResonance, removeResonance, toggleResUsed, cloakResonance, quietExit, addFlaw, removeFlaw, seekingDialog, useWonder, wonderQuint, useMageInvestment, craftWonder } from "../apps/mage-state.mjs";
+import { sorcererInfo, consorInfo, numenAbility as sorcAbility } from "../apps/sorcerer.mjs";
+import { mageInfo, mageSigil, spheresView, addTool } from "../apps/mage.mjs";
+import { stateView } from "../apps/mage-state.mjs";
 import { POWER_EFFECTS, fxKey } from "../data/effects.mjs";
 import { rollPackVinculi, openVaulderie, loyaltyConflict } from "../apps/vaulderie.mjs";
 import { openCoterie } from "../apps/coterie.mjs";
 import { itemCardHTML } from "../chat/item-card.mjs";
 import { themeClass } from "../ui/themes.mjs";
-import { openHouses } from "../apps/houses.mjs";
 
 import { ghoulify } from "../apps/embrace-ghoul.mjs";
 import { embrace } from "../apps/embrace.mjs";
-import { openTormentLog, virtuePrompt, thrallSin, thrallPact, thrallBreak, formUpkeep, atoneWithXp, assumeForm, sceneHighFeature, harvestFaith, pactFaith, innateRoll, ritualTurn, ritualEffect, suggestSin, revelation, gainTorment, thrallState, thrallCap, worshipRitual, reliquaryDraw } from "../apps/torment.mjs";
+import { gainTorment } from "../apps/torment.mjs";
 import { TextEditor, t, ROMAN, dots, prepareHeader, prepareTraits, prepareRegistry, prepareDisciplines, prepareLores, prepareAdvantages, prepareLineage, prepareEffects, prepareGear } from "./actor-context.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
@@ -75,6 +71,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     window: { resizable: true, contentClasses: ["r-sheet-content"] },
     form: { submitOnChange: true, closeOnSubmit: false },
     actions: {
+      ...MAGE_ACTIONS, ...WEREWOLF_ACTIONS, ...HUNTER_ACTIONS, ...DEMON_ACTIONS,
       setDots: { handler: VtMActorSheet.#onSetDots, buttons: [0, 2] },
       choosePower: VtMActorSheet.#onChoosePower,
       setHealth: { handler: VtMActorSheet.#onSetHealth, buttons: [0, 2] },
@@ -113,34 +110,9 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       powerToChat: VtMActorSheet.#onPowerToChat,
       rollPower: VtMActorSheet.#onRollPower,
       addLore: VtMActorSheet.#onAddLore,
-      toggleEarthbound: VtMActorSheet.#onToggleEarthbound,
-      thrallAdd: VtMActorSheet.#onThrallEdit,
-      thrallEdit: VtMActorSheet.#onThrallEdit,
-      thrallDelete: VtMActorSheet.#onThrallDelete,
-      thrallOpen: VtMActorSheet.#onThrallOpen,
-      formPick: VtMActorSheet.#onFormPick,
-      worship: VtMActorSheet.#onWorship,
-      reliquaryDraw: VtMActorSheet.#onReliquaryDraw,
-      houseAtlas: VtMActorSheet.#onHouseAtlas,
-      tormentSin: VtMActorSheet.#onTormentSin, thrallSin: VtMActorSheet.#onThrallSin, thrallPact: VtMActorSheet.#onThrallPact, ghoulify: VtMActorSheet.#onGhoulify, embrace: VtMActorSheet.#onEmbrace, formUpkeep: VtMActorSheet.#onFormUpkeep, thrallGifts: VtMActorSheet.#onThrallGifts,
-      tormentLog: VtMActorSheet.#onTormentLog, hostLose: VtMActorSheet.#onHostLose,
-      investmentUse: VtMActorSheet.#onInvestmentUse, pactAdd: VtMActorSheet.#onPactAdd, pactEdit: VtMActorSheet.#onPactEdit, pactDel: VtMActorSheet.#onPactDel,
-      ebServant: VtMActorSheet.#onEbServant, exorcist: VtMActorSheet.#onExorcist, cult: VtMActorSheet.#onCult, possess: VtMActorSheet.#onPossess, possessExtend: VtMActorSheet.#onPossessExtend, possessLeave: VtMActorSheet.#onPossessLeave, possessBattle: VtMActorSheet.#onPossessBattle, hostHold: VtMActorSheet.#onHostHold, hostNew: VtMActorSheet.#onHostNew, hostSummoned: VtMActorSheet.#onHostSummoned, formLookImg: VtMActorSheet.#onFormLookImg, formLookClear: VtMActorSheet.#onFormLookClear, thrallBreak: VtMActorSheet.#onThrallBreak, openUuid: VtMActorSheet.#onOpenUuid,
-      sinSuggest: VtMActorSheet.#onSinSuggest,
-      tormentKind: VtMActorSheet.#onTormentKind,
-      tormentAtone: VtMActorSheet.#onTormentAtone,
+ghoulify: VtMActorSheet.#onGhoulify, embrace: VtMActorSheet.#onEmbrace,
+openUuid: VtMActorSheet.#onOpenUuid,
       addHouseLores: VtMActorSheet.#onAddHouseLores,
-      apocalyptic: VtMActorSheet.#onApocalyptic,
-      sceneHigh: VtMActorSheet.#onSceneHigh,
-      formHighPick: VtMActorSheet.#onFormHighPick,
-      revelation: VtMActorSheet.#onRevelation,
-      faithHeal: VtMActorSheet.#onFaithHeal,
-      harvestFaith: VtMActorSheet.#onHarvest,
-      innate: VtMActorSheet.#onInnate,
-      ritualTurn: VtMActorSheet.#onRitualTurn,
-      ritualEffect: VtMActorSheet.#onRitualEffect,
-      pactFaith: VtMActorSheet.#onPactFaith,
-      spendFaith: VtMActorSheet.#onSpendFaith,
       pinPower: VtMActorSheet.#onPinPower,
       rollItemPower: VtMActorSheet.#onRollItemPower,
       itemCreate: VtMActorSheet.#onItemCreate, openPack: VtMActorSheet.#onOpenPack,
@@ -181,34 +153,10 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       clanAtlas: VtMActorSheet.#onClanAtlas,
       lineAtlas: VtMActorSheet.#onLineAtlas,
       linSire: VtMActorSheet.#onLinSire,
-      mageFold: VtMActorSheet.#onMageFold, mageCast: VtMActorSheet.#onMageCast, mageQuint: VtMActorSheet.#onMageQuint, mageParadox: VtMActorSheet.#onMageParadox, mageBacklash: VtMActorSheet.#onMageBacklash,
-      mageRoteEdit: VtMActorSheet.#onMageRoteEdit, mageInvest: VtMActorSheet.#onMageState, mageWonderCraft: VtMActorSheet.#onMageState, mageResAdd: VtMActorSheet.#onMageState, mageResDot: VtMActorSheet.#onMageState, mageResDel: VtMActorSheet.#onMageState,
-      mageResUsed: VtMActorSheet.#onMageState, mageResCloak: VtMActorSheet.#onMageState, mageQuietExit: VtMActorSheet.#onMageState, mageFlawAdd: VtMActorSheet.#onMageState,
-      mageFlawDel: VtMActorSheet.#onMageState, mageSeeking: VtMActorSheet.#onMageState, mageWonderUse: VtMActorSheet.#onMageState, mageWonderQuint: VtMActorSheet.#onMageState,
-      mageStep: VtMActorSheet.#onMageDuel, mageCounter: VtMActorSheet.#onMageDuel, mageCertamen: VtMActorSheet.#onMageDuel,
-      mageRoteAdd: VtMActorSheet.#onMageRoteAdd, mageRoteDel: VtMActorSheet.#onMageRoteDel, mageRoteCast: VtMActorSheet.#onMageRoteCast, mageToolDel: VtMActorSheet.#onMageToolDel,
-      edgeUse: VtMActorSheet.#onEdgeUse, edgeDel: VtMActorSheet.#onEdgeDel, hunterSight: VtMActorSheet.#onHunterSight,
-      wwForm: VtMActorSheet.#onWwForm, wwGift: VtMActorSheet.#onWwGift, wwGiftAdd: VtMActorSheet.#onWwGiftAdd, wwGiftDel: VtMActorSheet.#onWwGiftDel,
-      wwRite: VtMActorSheet.#onWwRite, wwRiteAdd: VtMActorSheet.#onWwRiteAdd, wwRiteDel: VtMActorSheet.#onWwRiteDel,
-      wwStanding: VtMActorSheet.#onWwStanding, wwFrenzy: VtMActorSheet.#onWwFrenzy, wwStep: VtMActorSheet.#onWwStep, wwSpend: VtMActorSheet.#onWwSpend,
-      wwRegen: VtMActorSheet.#onWwRegen, wwActions: VtMActorSheet.#onWwActions, wwDelirium: VtMActorSheet.#onWwDelirium, wwRenown: VtMActorSheet.#onWwRenown, wwSept: VtMActorSheet.#onWwSept, wwUmbra: VtMActorSheet.#onWwUmbra, wwScarAdd: VtMActorSheet.#onWwScarAdd, wwScarDel: VtMActorSheet.#onWwScarDel, wwDeformAdd: VtMActorSheet.#onWwDeformAdd, wwDeformDel: VtMActorSheet.#onWwDeformDel,
-      kinAdd: VtMActorSheet.#onKinAdd, kinBuy: VtMActorSheet.#onKinBuy, kinDel: VtMActorSheet.#onKinDel, kinUse: VtMActorSheet.#onKinUse,
-      sorcAdd: VtMActorSheet.#onSorc, sorcDel: VtMActorSheet.#onSorc, sorcDots: VtMActorSheet.#onSorc, sorcUse: VtMActorSheet.#onSorc,
-      sorcRitualAdd: VtMActorSheet.#onSorc, sorcRitualDel: VtMActorSheet.#onSorc, sorcRitualUse: VtMActorSheet.#onSorc,
-      kinNumAdd: VtMActorSheet.#onKinNumAdd, kinNumDel: VtMActorSheet.#onKinNumDel, kinNumDots: VtMActorSheet.#onKinNumDots, kinNumUse: VtMActorSheet.#onKinNumUse,
-      kamiAdd: VtMActorSheet.#onKamiAdd, kamiBuy: VtMActorSheet.#onKamiBuy, kamiMore: VtMActorSheet.#onKamiMore, kamiDel: VtMActorSheet.#onKamiDel, kamiUse: VtMActorSheet.#onKamiUse,
-      kinFetchBind: VtMActorSheet.#onKinFetchBind, kinFetchBurn: VtMActorSheet.#onKinFetchBurn, spTpl: VtMActorSheet.#onSpTpl, wwPrimal: VtMActorSheet.#onWwPrimal,
-      fomorAdd: VtMActorSheet.#onFomorAdd, fomorMore: VtMActorSheet.#onFomorMore, fomorDel: VtMActorSheet.#onFomorDel, fomorUse: VtMActorSheet.#onFomorUse, fomorBreed: VtMActorSheet.#onFomorBreed,
-      spCharmAdd: VtMActorSheet.#onSpCharmAdd, spCharmDel: VtMActorSheet.#onSpCharmDel, spEssence: VtMActorSheet.#onSpEssence, spStep: VtMActorSheet.#onSpStep,
-      wwFetishAdd: VtMActorSheet.#onWwFetishAdd, wwFetishCraft: VtMActorSheet.#onWwFetishCraft, wwFetishAttune: VtMActorSheet.#onWwFetishAttune, wwFetishReconcile: VtMActorSheet.#onWwFetishReconcile,
-      wwStayUp: VtMActorSheet.#onWwStayUp, wwRageRegain: VtMActorSheet.#onWwRageRegain, wwGnosisRegain: VtMActorSheet.#onWwGnosisRegain, wwHarano: VtMActorSheet.#onWwHarano, wwFetishUse: VtMActorSheet.#onWwFetishUse, wwFetishDel: VtMActorSheet.#onWwFetishDel, openStrategy: () => openStrategy(),
+      mageFold: VtMActorSheet.#onMageFold,
+openStrategy: () => openStrategy(),
       drinkVitae: VtMActorSheet.#onDrinkVitae, setVitae: VtMActorSheet.#onSetVitae, bloodrightAdd: VtMActorSheet.#onBloodrightAdd, bloodrightRemove: VtMActorSheet.#onBloodrightRemove,
       bloodrightRoll: VtMActorSheet.#onBloodrightRoll, dririToggle: VtMActorSheet.#onDririToggle, dririRoll: VtMActorSheet.#onDririRoll,
-      hunterTest: VtMActorSheet.#onHunterTest, hunterTrade: VtMActorSheet.#onHunterTrade, hunterRestore: VtMActorSheet.#onHunterRestore,
-      hunterDeed: VtMActorSheet.#onHunterDeed, hunterShift: VtMActorSheet.#onHunterShift, hunterCash: VtMActorSheet.#onHunterCash,
-      hunterSacrifice: VtMActorSheet.#onHunterSacrifice, hunterAdvance: VtMActorSheet.#onHunterAdvance,
-      edgeCall: VtMActorSheet.#onEdgeCall, edgeSwap: VtMActorSheet.#onEdgeSwap, hunterUnblock: VtMActorSheet.#onHunterUnblock,
-      lostVirtue: VtMActorSheet.#onLostVirtue, lostTrade: VtMActorSheet.#onLostTrade, lostHardened: VtMActorSheet.#onLostHardened, lostOrdeal: VtMActorSheet.#onLostOrdeal,
       linChild: VtMActorSheet.#onLinChild, linEdit: VtMActorSheet.#onLinEdit, linDel: VtMActorSheet.#onLinDel,
       linSheet: VtMActorSheet.#onLinSheet,
       linOpen: VtMActorSheet.#onLinOpen,
@@ -785,94 +733,8 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     if (key) return createLore(a, [key]);
   }
 
-  static #onWorship() { return worshipRitual(this.actor); }
-  static #onReliquaryDraw() { return reliquaryDraw(this.actor); }
-
-  /** Способность для черты формы с выбором («Улучшенная способность», «Увеличенная способность»). */
-  static async #onFormPick(event, target) {
-    const a = this.actor, name = target.dataset.name, picks = foundry.utils.deepClone(a.getFlag(SYSTEM_ID, "formPick") ?? {});
-    const opts = Object.keys(VTM20.abilities).map(k => [k, a.traitLabel(`abilities.${k}`)]).sort((x, y) => x[1].localeCompare(y[1], "ru"))
-      .map(([k, l]) => `<option value="${k}" ${picks[name] === k ? "selected" : ""}>${foundry.utils.escapeHTML(l)}</option>`).join("");
-    const key = await foundry.applications.api.DialogV2.prompt({
-      window: { title: t("Demon.FormPickTitle", { name }) }, classes: ["vtm20", "r-dialog"], position: { width: 380 },
-      content: `<p class="r-choice-hint">${t("Demon.FormPickHint")}</p><label class="r-f"><span>${t("Demon.FormPickAbility")}</span><select name="ability">${opts}</select></label>`,
-      ok: { label: game.i18n.localize("VTM20.Common.Save"), callback: (ev, btn) => btn.form.elements.ability.value }
-    }).catch(() => null);
-    if (!key) return;
-    picks[name] = key;
-    return a.setFlag(SYSTEM_ID, "formPick", picks);
-  }
-
-  /** Слуга по договору: новый или правка (гл. 9; «Проклятые и обманутые», гл. 4–5). */
-  static async #onThrallEdit(event, target) {
-    const a = this.actor, list = foundry.utils.deepClone(a.system.thralls ?? []);
-    const i = target.closest("[data-index]")?.dataset.index, x = i != null ? list[Number(i)] : { name: "", uuid: "", faith: 2, share: 1, will: 3, wounds: 0, lost: 0, terms: "", gifts: "" };
-    const e = s => foundry.utils.escapeHTML(String(s ?? ""));
-    const actors = game.actors.filter(o => o.id !== a.id && o.type !== "demon").sort((p, q) => p.name.localeCompare(q.name, "ru"));
-    const opts = [`<option value="">${t("Demon.ThrallNoSheet")}</option>`, ...actors.map(o => `<option value="${o.uuid}" ${o.uuid === x.uuid ? "selected" : ""}>${e(o.name)}</option>`)].join("");
-    const num = (n, v, lo, hi) => `<input type="number" name="${n}" value="${v}" min="${lo}" max="${hi}">`;
-    const v = await foundry.applications.api.DialogV2.prompt({
-      window: { title: t(i != null ? "Demon.ThrallEdit" : "Demon.ThrallAdd") }, classes: ["vtm20", "r-dialog"], position: { width: 480 },
-      content: `<div class="r-fields">
-        <label class="r-f is-span2"><span>${t("Demon.ThrallName")}</span><input type="text" name="name" value="${e(x.name)}"></label>
-        <label class="r-f is-span2"><span>${t("Demon.ThrallSheet")}</span><select name="uuid">${opts}</select></label>
-        <label class="r-f"><span>${t("Demon.ThrallFaith")}</span>${num("faith", x.faith, 0, 5)}</label>
-        <label class="r-f"><span>${t("Demon.ThrallShare")}</span>${num("share", x.share, 0, 3)}</label>
-        <label class="r-f"><span>${t("Demon.ThrallWill")}</span>${num("will", x.will, 0, 10)}</label>
-        <label class="r-f"><span>${t("Demon.ThrallWounds")}</span>${num("wounds", x.wounds, 0, 7)}</label>
-        <label class="r-f is-span2"><span>${t("Demon.ThrallTerms")}</span><textarea name="terms" rows="2">${e(x.terms)}</textarea></label>
-        <label class="r-f is-span2"><span>${t("Demon.ThrallGifts")}</span><textarea name="gifts" rows="2">${e(x.gifts)}</textarea></label></div>
-        <p class="r-choice-hint">${t("Demon.ThrallHint")}</p>`,
-      ok: { label: game.i18n.localize("VTM20.Common.Save"), callback: (ev, btn) => new foundry.applications.ux.FormDataExtended(btn.form).object }
-    }).catch(() => null);
-    if (!v) return;
-    const faith = Math.clamp(Number(v.faith) || 0, 0, 5);
-    const row = { ...x, name: String(v.name ?? "").trim() || (v.uuid ? foundry.utils.fromUuidSync(v.uuid)?.name ?? "" : ""), uuid: v.uuid ?? "", faith,
-      share: Math.clamp(Number(v.share) || 0, 0, thrallCap(faith)), will: Math.clamp(Number(v.will) || 0, 0, 10), wounds: Math.clamp(Number(v.wounds) || 0, 0, 7),
-      terms: v.terms ?? "", gifts: v.gifts ?? "" };
-    if (i != null) list[Number(i)] = row; else list.push(row);
-    return a.update({ "system.thralls": list });
-  }
-  static async #onThrallDelete(event, target) {
-    const i = Number(target.closest("[data-index]")?.dataset.index), list = foundry.utils.deepClone(this.actor.system.thralls ?? []);
-    const ok = await foundry.applications.api.DialogV2.confirm({ window: { title: t("Demon.ThrallDelete") }, content: `<p>${t("Demon.ThrallDeleteAsk", { name: foundry.utils.escapeHTML(list[i]?.name ?? "") })}</p>` }).catch(() => false);
-    if (!ok) return;
-    list.splice(i, 1);
-    return this.actor.update({ "system.thralls": list });
-  }
-  static #onThrallOpen(event, target) {
-    const x = this.actor.system.thralls?.[Number(target.closest("[data-index]")?.dataset.index)];
-    return thrallState(x ?? {}).actor?.sheet.render({ force: true });
-  }
-
-  /** Привязанный к Земле (Earthbound): Тёмные Знания и ритуалы Привязанных без Муки, свой опыт. */
-  static #onToggleEarthbound() { return this.actor.update({ "system.earthbound": !this.actor.system.earthbound }); }
-  static #onHouseAtlas() { return openHouses(this.actor.system.house); }
-  static #onTormentSin() { return virtuePrompt(this.actor, "sin"); }
-  static #onThrallSin() { return thrallSin(this.actor); }
-  static #onThrallPact() { return thrallPact(this.actor); }
   static #onGhoulify() { return ghoulify(this.actor); }
   static #onEmbrace() { return embrace(this.actor); }
-  static #onFormUpkeep() { return formUpkeep(this.actor); }
-  static #onThrallGifts() { return openThrallGifts(this.actor); }
-  /** Тело-носитель (apps/host.mjs): гибель тела, ход без тела, новое тело, призван из Бездны. */
-  static async #onHostLose() {
-    const ok = await foundry.applications.api.DialogV2.confirm({ window: { title: game.i18n.localize("VTM20.Host.Btn") }, content: `<p>${game.i18n.localize("VTM20.Host.BtnHint")}</p>` });
-    if (ok) return loseHost(this.actor, "death");
-  }
-  static #onHostHold() { return holdOn(this.actor); }
-  static #onTormentLog() { return openTormentLog(this.actor); }
-  /** Завладение Привязанного (apps/possession.mjs). */
-  static #onPossess() { return possess(this.actor); }
-  static #onCult() { return openCult(this.actor); }
-  /** Слуга Привязанного: нет наделений — сразу ритуал, есть — окно сил (apps/eb-servant.mjs). */
-  /** Охотник (apps/hunter.mjs): Грань — бросок с риском Убеждённостью; второе зрение; испытание Добродетели; 10 Убеждённости — в Добродетель. */
-  static #onEdgeUse(event, target) { return useEdge(this.actor, target.dataset.key); }
-  // Маг (apps/mage.mjs): чародейство, колесо Квинтэссенции и Парадокса, ротэ, инструменты
-  static #onMageCast(event, target) { return castEffect(this.actor, target.dataset.sphere ? { sphere: target.dataset.sphere } : {}); }
-  static #onMageQuint(event, target) { return changeQuintessence(this.actor, Number(target.dataset.d) || 0); }
-  static #onMageParadox(event, target) { return changeParadox(this.actor, Number(target.dataset.d) || 0); }
-  static #onMageBacklash() { return paradoxBacklash(this.actor); }
   #sphereFold() { try { return JSON.parse(localStorage.getItem(`vtm20.spheres.${this.actor.id}`) ?? "{}"); } catch { return {}; } }
   #sphereFoldSave(v) { try { localStorage.setItem(`vtm20.spheres.${this.actor.id}`, JSON.stringify(v)); } catch { /* память браузера недоступна — просто не запомним */ } }
   /** Свернуть или развернуть карточку Сферы (ранги и специализации); «все» — разом. */
@@ -889,42 +751,6 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     this.#sphereFoldSave(fold);
     return this.render();
   }
-  /** Шаг в сторону, контрмагия, сертамен (apps/mage-duel.mjs). */
-  static async #onMageDuel(event, target) {
-    const D = await import("../apps/mage-duel.mjs");
-    return { mageStep: D.stepSideways, mageCounter: D.counterMagic, mageCertamen: D.certamen }[target.dataset.action]?.(this.actor);
-  }
-  static #onMageRoteAdd() { return addRote(this.actor); }
-  static #onMageRoteDel(event, target) { return removeRote(this.actor, Number(target.dataset.i)); }
-  // Shift — бросок сразу: Сферы и вид магии берутся из ротэ
-  static #onMageRoteCast(event, target) { return castRote(this.actor, Number(target.dataset.i), { fast: event.shiftKey }); }
-  static #onMageRoteEdit(event, target) { return addRote(this.actor, Number(target.dataset.i)); }
-  /** Резонанс, Безмолвие, Изъяны, Поиск, Чудеса (apps/mage-state.mjs) — по имени действия. */
-  static #onMageState(event, target) {
-    const a = this.actor, d = target.dataset, i = Number(d.i), id = target.closest("[data-item-id]")?.dataset.itemId;
-    switch (d.action) {
-      case "mageResAdd": return addResonance(a);
-      case "mageResDot": return setResonance(a, i, Number(d.n));
-      case "mageResDel": return removeResonance(a, i);
-      case "mageResUsed": return toggleResUsed(a);
-      case "mageResCloak": return cloakResonance(a);
-      case "mageQuietExit": return quietExit(a);
-      case "mageFlawAdd": return addFlaw(a);
-      case "mageFlawDel": return removeFlaw(a, i);
-      case "mageSeeking": return seekingDialog(a);
-      case "mageWonderUse": return useWonder(a, id);
-      case "mageInvest": return useMageInvestment(a, id, d.act);
-      case "mageWonderCraft": return craftWonder(a);
-      case "mageWonderQuint": return wonderQuint(a, id, Number(d.d));
-    }
-    return null;
-  }
-  static #onMageToolDel(event, target) { return removeTool(this.actor, Number(target.dataset.i)); }
-  static async #onEdgeDel(event, target) {
-    const k = target.dataset.key, list = this.actor.system.hunter?.edges ?? [];
-    await this.actor.update({ "system.hunter.edges": list.filter(x => x !== k) });
-  }
-  static #onHunterSight() { return secondSight(this.actor); }
 
   /** Дампир (apps/dhampir.mjs): Кровные права — добавить из списка, убрать, бросок силы; ритуалы Дриримантии. */
   static #onBloodrightAdd(event, target) {
@@ -933,77 +759,6 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   }
   static #onDrinkVitae() { return this.actor.drinkVitae(1); }
 
-  /** Оборотень (apps/werewolf.mjs): смена формы, Дары и ритуалы, бешенство, шаг в Умбру, траты Ярости и Гнозиса. */
-  static #onWwForm(event, target) { return changeForm(this.actor, target.dataset.form); }
-  static #onWwGift(event, target) { return rollGift(this.actor, target.dataset.key); }
-  static #onWwGiftAdd(event, target) { return addGift(this.actor, target.closest(".r-toolbar")?.querySelector(".r-ww-gift-add")?.value); }
-  static #onWwGiftDel(event, target) { return removeGift(this.actor, target.dataset.key); }
-  static #onWwRite(event, target) { return rollRite(this.actor, target.dataset.key); }
-  static #onWwRiteAdd(event, target) { return addRite(this.actor, target.closest(".r-toolbar")?.querySelector(".r-ww-rite-add")?.value); }
-  static #onWwRiteDel(event, target) { return removeRite(this.actor, target.dataset.key); }
-  static #onWwStanding() { return editStanding(this.actor); }
-  static #onWwFrenzy() { return frenzyCheck(this.actor); }
-  static #onWwStep() { return stepSideways(this.actor); }
-  static #onWwRegen() { return regenerate(this.actor); }
-  static #onWwActions() { return rageActions(this.actor); }
-  static #onWwDelirium() { return delirium(this.actor); }
-  static #onWwRenown() { return renownAward(this.actor); }
-  static #onWwSept() { return openSept(this.actor); }
-  static #onWwUmbra() { return openUmbra(this.actor); }
-  static #onWwScarAdd() { const k = this.element.querySelector(".r-ww-scar-add")?.value; if (k) return addScar(this.actor, k); }
-  static #onWwScarDel(event, target) { return removeScar(this.actor, Number(target.dataset.i)); }
-  static #onWwDeformAdd() { const k = this.element.querySelector(".r-ww-deform-add")?.value; if (k) return addDeformity(this.actor, k); }
-  static #onWwDeformDel(event, target) { return removeDeformity(this.actor, target.dataset.key); }
-  static #onKinAdd() { return kinAddGift(this.actor, this.element.querySelector(".r-kin-add")?.value, false); }
-  static #onKinBuy() { return kinAddGift(this.actor, this.element.querySelector(".r-kin-add")?.value, true); }
-  static #onKinDel(event, target) { return kinRemoveGift(this.actor, target.dataset.key); }
-  static #onKinUse(event, target) { return kinUseGift(this.actor, target.dataset.key); }
-  /** Колдун: нумины и ритуалы (apps/sorcerer.mjs). */
-  static #onSorc(event, target) {
-    const a = this.actor, d = target.dataset;
-    switch (d.action) {
-      case "sorcAdd": { const k = target.closest(".r-sn-add")?.querySelector("select")?.value; return k ? sorcAdd(a, k) : null; }
-      case "sorcDel": return sorcDel(a, d.key);
-      case "sorcDots": return sorcDots(a, d.key, Number(d.n));
-      case "sorcUse": return sorcUse(a, d.key);
-      case "sorcRitualAdd": return sorcRitualAdd(a);
-      case "sorcRitualDel": return sorcRitualDel(a, Number(d.i));
-      case "sorcRitualUse": return sorcRitualUse(a, Number(d.i));
-    }
-  }
-  static #onKinNumAdd() { const k = this.element.querySelector(".r-kin-num-add")?.value; if (k) return kinAddNumen(this.actor, k); }
-  static #onKinNumDel(event, target) { return kinRemoveNumen(this.actor, target.dataset.key); }
-  static #onKinNumDots(event, target) { return kinNumenDots(this.actor, target.dataset.key, Number(target.dataset.n)); }
-  static #onKinNumUse(event, target) { return kinUseNumen(this.actor, target.dataset.key); }
-  static #onKamiAdd() { return kamiAdd(this.actor, this.element.querySelector(".r-kami-add")?.value, false); }
-  static #onKamiBuy() { return kamiAdd(this.actor, this.element.querySelector(".r-kami-add")?.value, true); }
-  static #onKamiMore(event, target) { return kamiAdd(this.actor, target.dataset.key, false); }
-  static #onKamiDel(event, target) { return kamiRemove(this.actor, target.dataset.key); }
-  static #onKamiUse(event, target) { return kamiUse(this.actor, target.dataset.key); }
-  static #onKinFetchBind() { const k = this.element.querySelector(".r-kin-fetch-tpl")?.value; if (k) return bindFetch(this.actor, k); }
-  static #onKinFetchBurn() { return burnFetch(this.actor); }
-  static #onWwPrimal() { return primalUses(this.actor); }
-  static #onFomorAdd() { const k = this.element.querySelector(".r-fomor-add")?.value; if (k) return fomorAdd(this.actor, k); }
-  static #onFomorMore(event, target) { return fomorAdd(this.actor, target.dataset.key); }
-  static #onFomorDel(event, target) { return fomorRemove(this.actor, target.dataset.key); }
-  static #onFomorUse(event, target) { return fomorUse(this.actor, target.dataset.key); }
-  static #onFomorBreed() { const k = this.element.querySelector(".r-fomor-breed")?.value; return fomorBreed(this.actor, k ?? ""); }
-  static #onSpTpl() { const k = this.element.querySelector(".r-sp-tpl")?.value; if (k) return applySpiritTpl(this.actor, k); }
-  static #onSpCharmAdd() { return addCharm(this.actor, this.element.querySelector(".r-sp-charm-add")?.value); }
-  static #onSpCharmDel(event, target) { return removeCharm(this.actor, target.dataset.key); }
-  static #onSpEssence() { return spiritEssenceReset(this.actor); }
-  static #onSpStep() { return stepSideways(this.actor, "spirit.gnosis"); }
-  static #onWwFetishAdd() { const k = this.element.querySelector(".r-ww-fetish-find")?.dataset.key; if (k) return addFetish(this.actor, k); ui.notifications.info(t("Werewolf.FindFetish")); }
-  static #onWwFetishCraft() { return craftFetish(this.actor, this.element.querySelector(".r-ww-fetish-find")?.dataset.key); }
-  static #onWwFetishAttune(event, target) { return attuneFetish(this.actor, Number(target.dataset.i)); }
-  static #onWwFetishReconcile(event, target) { return reconcileFetish(this.actor, Number(target.dataset.i)); }
-  static #onWwStayUp() { return stayUp(this.actor); }
-  static #onWwRageRegain() { return regainRage(this.actor); }
-  static #onWwGnosisRegain() { return regainGnosis(this.actor); }
-  static #onWwHarano() { return haranoCheck(this.actor); }
-  static #onWwFetishUse(event, target) { return useFetish(this.actor, Number(target.dataset.i)); }
-  static #onWwFetishDel(event, target) { return removeFetish(this.actor, Number(target.dataset.i)); }
-  static #onWwSpend(event, target) { return wwSpend(this.actor, target.dataset.what, 1); }
   static #onSetVitae(event, target) {
     const v = Math.max(0, (this.actor.system.dhampir?.vitae ?? 0) + Number(target.dataset.n));
     return this.actor.update({ "system.dhampir.vitae": v });
@@ -1012,82 +767,12 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static #onBloodrightRoll(event, target) { return rollBloodright(this.actor, target.dataset.key, Number(target.dataset.level)); }
   static #onDririToggle(event, target) { return toggleDririRitual(this.actor, target.dataset.key); }
   static #onDririRoll(event, target) { return rollDririRitual(this.actor, target.dataset.key); }
-  static #onHunterTest() { return virtueTest(this.actor); }
-  static #onHunterTrade() { return tradeConviction(this.actor); }
-  static #onHunterRestore() { return restoreConviction(this.actor); }
-  /** Players Guide, гл. 2: Деяния, Жертва, Грани «свыше». */
-  static #onHunterDeed() { return awardDeed(this.actor); }
-  static #onHunterShift() { return shiftDeed(this.actor); }
-  static #onHunterCash() { return cashDeed(this.actor); }
-  static #onHunterSacrifice() { return sacrifice(this.actor); }
-  static #onHunterAdvance() { return advanceVirtue(this.actor); }
-  static #onEdgeCall(event, target) { return callEdge(this.actor, target.dataset.key ?? ""); }
-  static #onEdgeSwap() { return swapCalled(this.actor); }
-  static #onHunterUnblock() { return unblockCall(this.actor); }
-  /** Свидетель (Players Guide, гл. 1): бросок Добродетели, обмен Добродетели на рассудок, Закалённый дух, Общая беда. */
-  static #onLostVirtue(event, target) { return lostVirtue(this.actor, target.dataset.key); }
-  static #onLostTrade() { return lostTrade(this.actor); }
-  static #onLostHardened() { return lostHardened(this.actor); }
-  static #onLostOrdeal() { return lostOrdeal(this.actor); }
-  /** Вера против падших: молитвы, экзорцизм, оружие веры (apps/exorcist.mjs). */
-  static #onExorcist() { return openExorcist(this.actor); }
-  static #onEbServant() { return this.actor.system.ebServant?.empowerments ? openEbServant(this.actor) : empowerServant(this.actor); }
-  /** Инфернализм (apps/infernal.mjs): применить Вложение, договоры с демонами. */
-  static #onInvestmentUse(event, target) {
-    const item = this.actor.items.get(target.closest("[data-item-id]")?.dataset.itemId);
-    if (item) return useInvestment(this.actor, item);
-  }
-  static #onPactAdd() { return pactDialog(this.actor); }
-  static #onPactEdit(event, target) { return pactDialog(this.actor, Number(target.dataset.index)); }
-  static #onPactDel(event, target) { return pactDelete(this.actor, Number(target.dataset.index)); }
-  static #onPossessExtend() { return possessExtend(this.actor); }
-  static async #onPossessLeave() {
-    const ok = await foundry.applications.api.DialogV2.confirm({ window: { title: game.i18n.localize("VTM20.Possess.Leave") }, content: `<p>${game.i18n.localize("VTM20.Possess.LeaveConfirm")}</p>` });
-    if (ok) return possessLeave(this.actor);
-  }
-  static #onPossessBattle() { return battleExpiry(this.actor); }
-  static #onHostNew() { return newHost(this.actor); }
-  static #onHostSummoned() { return summonedBack(this.actor); }
-  /** Картинка жетона в форме — выбирает игрок (своих картинок система не даёт). */
-  static #onFormLookImg() {
-    const fp = new foundry.applications.apps.FilePicker.implementation({ type: "image", current: this.actor.system.formLook?.img || "",
-      callback: path => this.actor.update({ "system.formLook.img": path }) });
-    return fp.browse();
-  }
-  static #onFormLookClear() { return this.actor.update({ "system.formLook.img": "" }); }
-  static #onThrallBreak() { return thrallBreak(this.actor); }
   /** Открыть лист по uuid (хозяин слуги и т. п.). */
   static async #onOpenUuid(event, target) { (await fromUuid(target.dataset.uuid))?.sheet?.render(true); }
-  static #onSinSuggest() { return suggestSin(this.actor); }
-  static #onTormentKind() { return virtuePrompt(this.actor, "kind"); }
-  static #onTormentAtone() { return atoneWithXp(this.actor); }
 
   static #onAddHouseLores() {
     const a = this.actor, have = new Set(a.items.filter(i => i.type === "lore").map(i => i.system.key));
     return createLore(a, (Codex.house(a.system.house)?.lores ?? []).filter(k => !have.has(k)));
-  }
-
-  /** Принять апокалиптическую форму — 1 пункт временной Веры (гл. 7); сбросить — даром. */
-  static #onApocalyptic() { return assumeForm(this.actor); }
-  static #onSceneHigh(event, target) { return sceneHighFeature(this.actor, Number(target.dataset.index)); }
-  static #onRevelation() { return revelation(this.actor); }
-  /** Выбрать черту высокой Муки в свободный слот или снять уже выбранную (снимается и всё, что выбрано после неё). */
-  static async #onFormHighPick(event, target) {
-    const i = Number(target.dataset.index), list = [...(this.actor.getFlag(SYSTEM_ID, "formHigh") ?? [])];
-    const at = list.indexOf(i);
-    return this.actor.setFlag(SYSTEM_ID, "formHigh", at >= 0 ? list.slice(0, at) : [...list, i]);
-  }
-  static #onFaithHeal() { return this.actor.faithHeal(); }
-  static #onHarvest() { return harvestFaith(this.actor); }
-  static #onInnate(event, target) { return innateRoll(this.actor, target.dataset.kind); }
-  static #onRitualTurn(event, target) { const it = this.actor.items.get(target.closest("[data-item-id]")?.dataset.itemId); return it && ritualTurn(this.actor, it); }
-  static #onRitualEffect(event, target) { const it = this.actor.items.get(target.closest("[data-item-id]")?.dataset.itemId); return it && ritualEffect(this.actor, it); }
-  static #onPactFaith() { return pactFaith(this.actor); }
-
-  static #onSpendFaith() {
-    const s = this.actor.system;
-    if (s.faith.temporary < 1) return ui.notifications.warn(t("Demon.NoFaith"));
-    return this.actor.update({ "system.faith.temporary": s.faith.temporary - 1 });
   }
 
   /** Сила в HUD и обратно (до шести — флаг hudPowers персонажа). */
