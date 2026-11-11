@@ -17,6 +17,7 @@
 import { SYSTEM_ID, VTM20 } from "../config.mjs";
 import { EXT, registerCityExtension } from "./city-ext.mjs";
 import { odds } from "../dice/roll.mjs";
+import { ST } from "./strategy-state.mjs";
 
 const FLAG = "strategy";
 const S = (k, d) => d ? game.i18n.format(`VTM20.Strategy.${k}`, d) : game.i18n.localize(`VTM20.Strategy.${k}`);
@@ -108,8 +109,7 @@ const hue = k => `hsl(${[...String(k)].reduce((n, c) => n * 31 + c.charCodeAt(0)
 
 /** Мои персонажи (игрок) — те, чьи заявки он пишет. Ведущий видит всех. */
 const mine = () => game.actors.filter(a => a.isOwner && a.hasPlayerOwner && ["vampire", "ghoul", "mortal", "hunter", "werewolf", "demon"].includes(a.type));
-let me = null;            // выбранный персонаж игрока
-const meActor = () => { const list = mine(); if (!list.some(a => a.id === me)) me = (game.user.character && list.includes(game.user.character) ? game.user.character : list[0])?.id ?? null; return game.actors.get(me) ?? null; };
+const meActor = () => { const list = mine(); if (!list.some(a => a.id === ST.me)) ST.me = (game.user.character && list.includes(game.user.character) ? game.user.character : list[0])?.id ?? null; return game.actors.get(ST.me) ?? null; };
 
 /** Заявки персонажа на текущий ход. */
 function bidsOf(a, s = strat()) {
@@ -226,17 +226,15 @@ function resistPools(s, bids) {
 
 /* ── Доска ─────────────────────────────────────────────────────────────── */
 
-let host = null, mode = "map", view = "map", sel = null, editBid = null, hist = null;
 // масштаб соты: k — во сколько раз крупнее «вписанного» вида, cx/cy — центр в координатах сот (null — по центру);
 // base — рамка всех гексов; focus — подсвеченная сфера из легенды
 const ZOOM_MIN = 0.6, ZOOM_MAX = 4;
-let zoom = { k: 1, cx: null, cy: null }, base = null, focus = null, dragged = false;
 
 export function registerStrategy() {
-  game.settings.register(SYSTEM_ID, "strategy", { scope: "world", config: false, type: Object, default: {}, onChange: () => { renderBoard(); host?.drawOverlay?.(); } });
-  Hooks.on("updateActor", (a, ch) => { if (mode !== "map" && foundry.utils.hasProperty(ch, `flags.${SYSTEM_ID}.${FLAG}`)) renderBoard(); });
+  game.settings.register(SYSTEM_ID, "strategy", { scope: "world", config: false, type: Object, default: {}, onChange: () => { renderBoard(); ST.host?.drawOverlay?.(); } });
+  Hooks.on("updateActor", (a, ch) => { if (ST.mode !== "map" && foundry.utils.hasProperty(ch, `flags.${SYSTEM_ID}.${FLAG}`)) renderBoard(); });
   registerCityExtension({
-    boards: [{ order: 10, attach, drawModes, renderBoard, mode: () => mode, setMode }],
+    boards: [{ order: 10, attach, drawModes, renderBoard, mode: () => ST.mode, setMode }],
     // печати влияния над кварталами, к которым привязаны сектора (кнопка в «Слоях»)
     overlays: [{ add: api => addLayer(api), draw: api => drawLayer(api), world: api => drawLayer(api) }],
     tools: [api => strat().sectors.some(x => x.district) && EXT.strategy.districts.length
@@ -344,7 +342,7 @@ export function swayOf(actor) {
 }
 
 function attach(root, api) {
-  host = api;
+  ST.host = api;
   const b = api.boardEl;
   b.classList.add("rs-board");
   b.addEventListener("click", onClick);
@@ -357,33 +355,33 @@ function attach(root, api) {
     const hex = ev.target.closest?.(".rs-hex"), k = ev.dataTransfer.getData("text/x-rs-kind");
     if (!hex || !k) return;
     ev.preventDefault();
-    sel = hex.dataset.key; view = "map"; hist = null; editBid = { ...DEFAULT_BID, kind: k, sector: sel };
+    ST.sel = hex.dataset.key; ST.view = "map"; ST.hist = null; ST.editBid = { ...DEFAULT_BID, kind: k, sector: ST.sel };
     renderBoard();
   });
   api.modesEl.addEventListener("click", ev => { if (ev.target.closest("[data-mode]")) setMode(ev.target.closest("[data-mode]").dataset.mode); });
   // масштаб: колесо — к курсору; перетаскивание поля — сдвиг (после сдвига щелчок по гексу не считается выбором)
   b.addEventListener("wheel", ev => {
     const svg = ev.target.closest?.(".rs-map")?.querySelector("svg");
-    if (!svg || !base) return;
+    if (!svg || !ST.base) return;
     ev.preventDefault();
-    zoomAt(svg, zoom.k * (ev.deltaY < 0 ? 1.15 : 1 / 1.15), ev.clientX, ev.clientY);
+    zoomAt(svg, ST.zoom.k * (ev.deltaY < 0 ? 1.15 : 1 / 1.15), ev.clientX, ev.clientY);
   }, { passive: false });
   b.addEventListener("pointerdown", ev => {
     const map = ev.target.closest?.(".rs-map");
     if (!map || ev.button !== 0 || ev.target.closest(".rs-zoom, .rs-legend")) return;
-    const svg = map.querySelector("svg"), start = { x: ev.clientX, y: ev.clientY, cx: zoom.cx, cy: zoom.cy };
-    dragged = false;
+    const svg = map.querySelector("svg"), start = { x: ev.clientX, y: ev.clientY, cx: ST.zoom.cx, cy: ST.zoom.cy };
+    ST.dragged = false;
     const move = e => {
       const dx = e.clientX - start.x, dy = e.clientY - start.y;
-      if (!dragged && Math.hypot(dx, dy) < 5) return;
-      dragged = true; map.classList.add("is-drag");
+      if (!ST.dragged && Math.hypot(dx, dy) < 5) return;
+      ST.dragged = true; map.classList.add("is-drag");
       const v = viewOf(), u = 1 / Math.min(svg.clientWidth / v.w, svg.clientHeight / v.h);   // единиц соты в пикселе (preserveAspectRatio meet)
-      zoom.cx = start.cx - dx * u; zoom.cy = start.cy - dy * u; applyView(svg);
+      ST.zoom.cx = start.cx - dx * u; ST.zoom.cy = start.cy - dy * u; applyView(svg);
     };
     const up = () => { map.classList.remove("is-drag"); window.removeEventListener("pointermove", move); window.removeEventListener("pointerup", up); };
     window.addEventListener("pointermove", move); window.addEventListener("pointerup", up);
   });
-  b.addEventListener("click", ev => { if (dragged && ev.target.closest?.(".rs-map")) { ev.stopImmediatePropagation(); ev.preventDefault(); dragged = false; } }, true);
+  b.addEventListener("click", ev => { if (ST.dragged && ev.target.closest?.(".rs-map")) { ev.stopImmediatePropagation(); ev.preventDefault(); ST.dragged = false; } }, true);
   drawModes();
 }
 
@@ -391,15 +389,15 @@ function attach(root, api) {
 
 /** Видимая часть соты при текущем масштабе: ширина и высота — доля «вписанного» вида, центр — zoom.cx/cy. */
 function viewOf() {
-  const w = base.w / zoom.k, h = base.h / zoom.k;
-  zoom.cx ??= base.minX + base.w / 2; zoom.cy ??= base.minY + base.h / 2;
-  return { x: zoom.cx - w / 2, y: zoom.cy - h / 2, w, h };
+  const w = ST.base.w / ST.zoom.k, h = ST.base.h / ST.zoom.k;
+  ST.zoom.cx ??= ST.base.minX + ST.base.w / 2; ST.zoom.cy ??= ST.base.minY + ST.base.h / 2;
+  return { x: ST.zoom.cx - w / 2, y: ST.zoom.cy - h / 2, w, h };
 }
 function applyView(svg) {
   const v = viewOf();
   svg.setAttribute("viewBox", `${v.x.toFixed(1)} ${v.y.toFixed(1)} ${v.w.toFixed(1)} ${v.h.toFixed(1)}`);
   const out = svg.closest(".rs-map")?.querySelector("[data-rs-zoomval]");
-  if (out) out.textContent = `${Math.round(zoom.k * 100)}%`;
+  if (out) out.textContent = `${Math.round(ST.zoom.k * 100)}%`;
 }
 /** Масштаб k с неподвижной точкой под курсором (без курсора — к центру). */
 function zoomAt(svg, k, clientX, clientY) {
@@ -408,39 +406,39 @@ function zoomAt(svg, k, clientX, clientY) {
   // доля экрана под курсором; при preserveAspectRatio meet поле может быть уже окна — считаем по реальному масштабу
   const scale = Math.min(r.width / v.w, r.height / v.h), ox = (r.width - v.w * scale) / 2, oy = (r.height - v.h * scale) / 2;
   const px = clientX == null ? v.x + v.w / 2 : v.x + (clientX - r.left - ox) / scale, py = clientY == null ? v.y + v.h / 2 : v.y + (clientY - r.top - oy) / scale;
-  const f = zoom.k / k;
-  zoom.cx = px + (zoom.cx - px) * f; zoom.cy = py + (zoom.cy - py) * f; zoom.k = k;
+  const f = ST.zoom.k / k;
+  ST.zoom.cx = px + (ST.zoom.cx - px) * f; ST.zoom.cy = py + (ST.zoom.cy - py) * f; ST.zoom.k = k;
   applyView(svg);
 }
 function setMode(m) {
-  if (!host) return;
-  if (m !== "map") host.opened?.();
-  mode = m === "strategy" ? "strategy" : "map";
-  drawModes(); renderBoard(); host.syncModes?.();
+  if (!ST.host) return;
+  if (m !== "map") ST.host.opened?.();
+  ST.mode = m === "strategy" ? "strategy" : "map";
+  drawModes(); renderBoard(); ST.host.syncModes?.();
 }
 function drawModes() {
-  if (!host?.modesEl) return;
+  if (!ST.host?.modesEl) return;
   const s = strat();
-  host.modesEl.innerHTML = game.user.isGM || s.sectors.length
-    ? `<a class="${mode === "strategy" ? "on" : ""}" data-mode="strategy"><i class="fa-solid fa-chess-knight"></i><span>${esc(S("Tab"))}</span></a>` : "";
-  host.syncModes?.();
+  ST.host.modesEl.innerHTML = game.user.isGM || s.sectors.length
+    ? `<a class="${ST.mode === "strategy" ? "on" : ""}" data-mode="strategy"><i class="fa-solid fa-chess-knight"></i><span>${esc(S("Tab"))}</span></a>` : "";
+  ST.host.syncModes?.();
 }
 
 function renderBoard() {
-  const b = host?.boardEl;
+  const b = ST.host?.boardEl;
   if (!b) return;
   drawModes();
-  b.hidden = mode === "map";
-  if (mode === "map") return;
+  b.hidden = ST.mode === "map";
+  if (ST.mode === "map") return;
   const ae = document.activeElement;
   if (b.contains(ae) && ae.matches("textarea, input[type=text]")) return;
   const now = strat(), gm = game.user.isGM;
   if (!now.sectors.length) { b.innerHTML = `<div class="rs-wrap">${head(now)}${emptyView(now)}</div>`; return; }
   // история: сота после выбранного хода — только смотреть
-  const snap = hist != null && now.reports.find(r => r.n === hist);
+  const snap = ST.hist != null && now.reports.find(r => r.n === ST.hist);
   const s = snap ? { ...now, tokens: snap.tokens ?? {}, sectors: snap.sectors ?? now.sectors } : now;
   const scroll = b.querySelector(".rs-side")?.scrollTop ?? 0;
-  const side = view === "turn" ? (gm ? deskView(s) : turnView(s)) : view === "reports" ? reportsView(s) : view === "setup" && gm ? setupView(s) : sectorView(s);
+  const side = ST.view === "turn" ? (gm ? deskView(s) : turnView(s)) : ST.view === "reports" ? reportsView(s) : ST.view === "setup" && gm ? setupView(s) : sectorView(s);
   const banner = snap ? `<div class="rs-histbar"><i class="fa-solid fa-clock-rotate-left"></i> ${esc(S("HistoryTitle", { n: snap.n, label: snap.label || "" }))}<a data-rs="histOff">${esc(S("HistoryBack"))}</a></div>` : "";
   b.innerHTML = `<div class="rs-wrap">${head(now)}<div class="rs-body"><div class="rs-hexes ${snap ? "is-hist" : ""}">${banner}${hexes(s)}</div><aside class="rs-side">${side}</aside></div></div>`;
   const sd = b.querySelector(".rs-side"); if (sd) sd.scrollTop = scroll;
@@ -454,7 +452,7 @@ function head(s) {
   return `<header class="rs-head">
     <div class="rs-title"><i class="fa-solid fa-chess-knight"></i><b>${esc(S("Title"))}</b>
       <span class="rs-turn">${esc(S("TurnN", { n: s.turn.n }))}${s.turn.label ? ` · ${esc(s.turn.label)}` : ""}${s.turn.open ? "" : ` · <em>${esc(S("Closed"))}</em>`}</span></div>
-    <nav class="rs-tabs">${tabs.map(([k, i]) => `<a class="${view === k ? "on" : ""}" data-rs="view" data-v="${k}"><i class="fa-solid ${i}"></i> ${esc(S(`View.${k}${k === "turn" && gm ? "Gm" : ""}`))}</a>`).join("")}</nav>
+    <nav class="rs-tabs">${tabs.map(([k, i]) => `<a class="${ST.view === k ? "on" : ""}" data-rs="view" data-v="${k}"><i class="fa-solid ${i}"></i> ${esc(S(`View.${k}${k === "turn" && gm ? "Gm" : ""}`))}</a>`).join("")}</nav>
     ${who}<a class="rs-help" data-rs="guide" data-tooltip="${esc(S("Guide"))}"><i class="fa-solid fa-circle-question"></i></a></header>`;
 }
 
@@ -501,7 +499,7 @@ function hexes(s) {
       const ls = lines.slice(0, 3), top = most > 0 ? c.y + 2 - (ls.length - 1) * 5.75 : c.y - 4 - (ls.length - 1) * 11.5;
       return `<text class="rs-name" x="${c.x.toFixed(1)}" y="${top.toFixed(1)}">${ls.map((l, k) => `<tspan x="${c.x.toFixed(1)}" dy="${k ? 11.5 : 0}">${esc(l)}</tspan>`).join("")}</text>`;
     };
-    return `<g class="rs-hex ${sel === x.key ? "is-sel" : ""} ${x.hidden ? "is-hidden" : ""} ${focus && x.sphere !== focus ? "is-dim" : ""} ${holder ? "is-held" : ""}" ${holder ? `style="--o:${holder.color}"` : ""} data-rs="sector" data-key="${x.key}">
+    return `<g class="rs-hex ${ST.sel === x.key ? "is-sel" : ""} ${x.hidden ? "is-hidden" : ""} ${ST.focus && x.sphere !== ST.focus ? "is-dim" : ""} ${holder ? "is-held" : ""}" ${holder ? `style="--o:${holder.color}"` : ""} data-rs="sector" data-key="${x.key}">
       <polygon class="rs-plate" points="${ring(c, HEX - 2)}" style="--h:${color}"/><polygon class="rs-inlay" points="${ring(c, HEX - 7)}" style="--h:${color}"/>
       ${label(c, sectorName(x))}${seals}${crest}
       ${hiddenToks ? `<g class="rs-fog"><circle cx="${c.x.toFixed(1)}" cy="${(c.y + 36).toFixed(1)}" r="6.5"/><text x="${c.x.toFixed(1)}" y="${(c.y + 39.2).toFixed(1)}">?</text></g>` : ""}
@@ -514,18 +512,18 @@ function hexes(s) {
   }).join("");
   // рамка всех гексов; если сота поменялась (гекс добавили или сдвинули) — масштаб и центр с нуля
   const nb = { minX, minY, w, h };
-  if (!base || ["minX", "minY", "w", "h"].some(k => Math.abs(base[k] - nb[k]) > 0.5)) zoom = { k: 1, cx: null, cy: null };
-  base = nb;
+  if (!ST.base || ["minX", "minY", "w", "h"].some(k => Math.abs(ST.base[k] - nb[k]) > 0.5)) ST.zoom = { k: 1, cx: null, cy: null };
+  ST.base = nb;
   const v = viewOf();
   // легенда сфер — на поле; щелчок подсвечивает гексы сферы
-  const legend = s.spheres.map(x => `<a class="${focus === x.key ? "on" : ""}" data-rs="focus" data-key="${x.key}" style="--h:${x.color}"><i></i>${esc(sphereName(x))}
+  const legend = s.spheres.map(x => `<a class="${ST.focus === x.key ? "on" : ""}" data-rs="focus" data-key="${x.key}" style="--h:${x.color}"><i></i>${esc(sphereName(x))}
     <small>${list.filter(y => y.sphere === x.key).length}</small></a>`).join("");
   const tools = `<div class="rs-zoom" data-tooltip="${esc(S("ZoomHint"))}" data-tooltip-direction="LEFT">
     <a data-rs="zoom" data-d="in" data-tooltip="${esc(S("ZoomIn"))}"><i class="fa-solid fa-plus"></i></a>
-    <b data-rs-zoomval>${Math.round(zoom.k * 100)}%</b>
+    <b data-rs-zoomval>${Math.round(ST.zoom.k * 100)}%</b>
     <a data-rs="zoom" data-d="out" data-tooltip="${esc(S("ZoomOut"))}"><i class="fa-solid fa-minus"></i></a>
     <a data-rs="zoom" data-d="fit" data-tooltip="${esc(S("ZoomFit"))}"><i class="fa-solid fa-expand"></i></a></div>`;
-  return `<div class="rs-map ${focus ? "has-focus" : ""}">
+  return `<div class="rs-map ${ST.focus ? "has-focus" : ""}">
     <svg viewBox="${v.x.toFixed(1)} ${v.y.toFixed(1)} ${v.w.toFixed(1)} ${v.h.toFixed(1)}" preserveAspectRatio="xMidYMid meet">${cells}</svg>
     ${tools}<div class="rs-keys"><span><i class="rs-key-crest"></i>${esc(S("KeyHeld"))}</span><span><i class="fa-solid fa-fire"></i>${esc(S("KeyTrend"))}</span><span><i class="fa-solid fa-feather-pointed"></i>${esc(S("KeyBids"))}</span>${game.user.isGM ? "" : `<span><i class="fa-solid fa-question"></i>${esc(S("KeyFog"))}</span>`}</div>
     <div class="rs-legend">${legend}</div></div>`;
@@ -534,7 +532,7 @@ function hexes(s) {
 /* ── Сектор ── */
 
 function sectorView(s) {
-  const x = s.sectors.find(y => y.key === sel);
+  const x = s.sectors.find(y => y.key === ST.sel);
   if (!x) return overviewView(s);
   const gm = game.user.isGM, sph = s.spheres.find(y => y.key === x.sphere);
   const toks = Object.entries(s.tokens[x.key] ?? {}).filter(([, n]) => n > 0);
@@ -575,7 +573,7 @@ function overviewView(s) {
     for (const x of secs) for (const [k, n] of Object.entries(s.tokens[x.key] ?? {})) if (n > 0 && sees(x.key, k, s)) by[k] = (by[k] ?? 0) + n;
     const top = Object.entries(by).sort((a, b) => b[1] - a[1]), total = top.reduce((n, [, v]) => n + v, 0);
     const lead = top[0] && (!top[1] || top[0][1] > top[1][1]) ? owner(top[0][0], s) : null;
-    return `<li style="--h:${sp.color}" class="${focus === sp.key ? "on" : ""}"><a data-rs="focus" data-key="${sp.key}"><i></i><span>${esc(sphereName(sp))}</span></a>
+    return `<li style="--h:${sp.color}" class="${ST.focus === sp.key ? "on" : ""}"><a data-rs="focus" data-key="${sp.key}"><i></i><span>${esc(sphereName(sp))}</span></a>
       <small>${esc(S("OvSectors", { n: secs.length }))}</small>
       <em>${total ? `${lead ? `<b style="--c:${lead.color}">${esc(lead.name)}</b>` : esc(S("OvTie"))} · ${esc(S("OvSeals", { n: total }))}` : esc(S("OvNobody"))}</em></li>`;
   }).join("");
@@ -639,7 +637,7 @@ function bidRow(a, b, s, gm) {
   const edit = !gm && s.turn.open && a.isOwner;
   return `<li class="rs-bid">
     <span class="rs-bidk" data-tooltip="${esc(S(`Kind.${b.kind}`))}"><i class="fa-solid ${KINDS[b.kind]?.icon}"></i></span>
-    <div><b>${gm ? `${esc(a.name)} → ` : ""}${esc(S(`Intent.${b.intent}`))}${b.target ? ` · ${esc(targetName(b, s))}` : ""}${sec && view !== "map" ? ` · ${esc(sectorName(sec))}` : ""}</b>
+    <div><b>${gm ? `${esc(a.name)} → ` : ""}${esc(S(`Intent.${b.intent}`))}${b.target ? ` · ${esc(targetName(b, s))}` : ""}${sec && ST.view !== "map" ? ` · ${esc(sectorName(sec))}` : ""}</b>
       ${b.proxy ? `<em class="rs-tag" data-tooltip="${esc(S("ProxyHint"))}"><i class="fa-solid fa-masks-theater"></i> ${esc(owner(b.proxy, s).name)}</em>` : ""}${b.crude ? `<em class="rs-tag is-crude" data-tooltip="${esc(S("CrudeHint"))}"><i class="fa-solid fa-hand-fist"></i> ${esc(S("Crude"))}</em>` : ""}
       <small>${pool}${b.helper ? ` · ${esc(S("Helper"))}: ${esc(b.helper)}` : ""}</small>${b.text ? `<p>${esc(b.text)}</p>` : ""}</div>
     ${edit ? `<a data-rs="bidEdit" data-id="${b.id}"><i class="fa-solid fa-pen"></i></a><a data-rs="bidDel" data-id="${b.id}"><i class="fa-solid fa-xmark"></i></a>` : ""}
@@ -679,7 +677,7 @@ function targetSelect(a, s, sec, b, others, opt) {
 
 /** Форма заявки игрока: жетон, намерение, цель, пул с шансами, текст. */
 function bidForm(a, s, sec) {
-  const b = editBid?.sector === sec ? { ...DEFAULT_BID, ...editBid } : DEFAULT_BID;
+  const b = ST.editBid?.sector === sec ? { ...DEFAULT_BID, ...ST.editBid } : DEFAULT_BID;
   const cs = counters(a, s), free = cs.filter(c => c.left > 0 || c.k === b.kind && b.id);
   if (!free.length) return `${myCounters(s)}<p class="rs-note">${esc(S("NoTokens"))}</p>`;
   const others = Object.entries(s.tokens[sec] ?? {}).filter(([k, n]) => n > 0 && k !== a.id && sees(sec, k, s)).map(([k]) => owner(k, s));
@@ -772,7 +770,7 @@ function npcForm(s) {
   return `<details class="rs-npc"><summary><i class="fa-solid fa-chess-rook"></i> ${esc(S("NpcTurn"))}</summary>
     <form class="rs-npcform"><p class="rs-note">${esc(S("NpcHint"))}</p><div class="rs-grid">
       <label>${esc(S("NpcOwner"))}<select name="owner">${opt(owners)}</select></label>
-      <label>${esc(S("NpcSector"))}<select name="sector">${opt(visibleSectors(s).map(x => [x.key, sectorName(x)]), sel ?? "")}</select></label>
+      <label>${esc(S("NpcSector"))}<select name="sector">${opt(visibleSectors(s).map(x => [x.key, sectorName(x)]), ST.sel ?? "")}</select></label>
       <label>${esc(S("IntentLabel"))}<select name="intent">${opt(Object.keys(INTENTS).map(k => [k, S(`Intent.${k}`)]))}</select></label>
       <label>${esc(S("Target"))}<select name="target"><option value="">—</option>${opt(ownerOptions(s).map(o => [o.key, o.name]))}</select></label>
       <label>${esc(S("NpcDice"))}<input type="number" name="dice" value="6" min="0" max="20"></label>
@@ -811,7 +809,7 @@ function reportsView(s) {
   const list = [...s.reports].reverse();
   return `<section class="rs-reports"><h3>${esc(S("Reports"))}</h3>
     <ul>${list.map(r => `<li><a data-rs="openReport" data-uuid="${r.uuid}"><i class="fa-solid fa-scroll"></i> ${esc(S("TurnN", { n: r.n }))}${r.label ? ` · ${esc(r.label)}` : ""}</a> <small>${esc(r.date ?? "")}</small>
-      ${r.tokens ? `<a class="rs-histbtn ${hist === r.n ? "on" : ""}" data-rs="hist" data-n="${r.n}" data-tooltip="${esc(S("HistoryShow"))}"><i class="fa-solid fa-hexagon-nodes"></i></a>` : ""}
+      ${r.tokens ? `<a class="rs-histbtn ${ST.hist === r.n ? "on" : ""}" data-rs="hist" data-n="${r.n}" data-tooltip="${esc(S("HistoryShow"))}"><i class="fa-solid fa-hexagon-nodes"></i></a>` : ""}
       ${game.user.isGM && r.clockFrom != null && !r.clockUndone ? `<a class="rs-histbtn" data-rs="clockUndo" data-n="${r.n}" data-tooltip="${esc(S("ClockUndo"))}"><i class="fa-solid fa-clock-rotate-left"></i></a>` : ""}
       ${r.clockFrom != null ? `<small>${esc(S(r.clockUndone ? "ClockUndone" : "ClockShifted", { span: r.shiftText ?? "" }))}</small>` : ""}</li>`).join("") || `<li class="rs-note">${esc(S("NoReports"))}</li>`}</ul></section>`;
 }
@@ -821,7 +819,7 @@ function reportsView(s) {
 function setupView(s) {
   const dists = EXT.strategy.districts.flatMap(f => f());
   const sph = s.spheres.map((x, i) => `<li><input type="color" data-rs-sph="${i}" data-f="color" value="${x.color}"><input type="text" data-rs-sph="${i}" data-f="name" value="${esc(sphereName(x))}"></li>`).join("");
-  const secs = s.sectors.map((x, i) => `<li class="rs-setsec ${sel === x.key ? "is-sel" : ""}">
+  const secs = s.sectors.map((x, i) => `<li class="rs-setsec ${ST.sel === x.key ? "is-sel" : ""}">
     <input type="text" data-rs-sec="${i}" data-f="name" value="${esc(sectorName(x))}">
     <select data-rs-sec="${i}" data-f="sphere">${s.spheres.map(y => `<option value="${y.key}" ${y.key === x.sphere ? "selected" : ""}>${esc(sphereName(y))}</option>`).join("")}</select>
     <span class="rs-qr"><a data-rs="move" data-i="${i}" data-dq="-1" data-dr="0">◀</a><a data-rs="move" data-i="${i}" data-dq="1" data-dr="-1">◥</a><a data-rs="move" data-i="${i}" data-dq="0" data-dr="-1">◤</a>
@@ -848,39 +846,39 @@ async function onClick(ev) {
   ev.preventDefault();
   const s = strat(), gm = game.user.isGM, act = el.dataset.rs;
   switch (act) {
-    case "view": view = el.dataset.v; editBid = null; return renderBoard();
+    case "view": ST.view = el.dataset.v; ST.editBid = null; return renderBoard();
     // повторный щелчок по выбранному гексу — снять выбор и вернуться к обзору города
-    case "sector": sel = sel === el.dataset.key && view === "map" ? null : el.dataset.key; editBid = null; if (view !== "setup") view = "map"; return renderBoard();
-    case "overview": sel = null; editBid = null; view = "map"; return renderBoard();
+    case "sector": ST.sel = ST.sel === el.dataset.key && ST.view === "map" ? null : el.dataset.key; ST.editBid = null; if (ST.view !== "setup") ST.view = "map"; return renderBoard();
+    case "overview": ST.sel = null; ST.editBid = null; ST.view = "map"; return renderBoard();
     case "preset": return loadPreset(el.dataset.id);
-    case "fly": { const d = EXT.strategy.districts.flatMap(f => f()).find(x => x.key === el.dataset.key); if (d) { setMode("map"); host.fly?.(d.lat, d.lng, 15); } return; }
+    case "fly": { const d = EXT.strategy.districts.flatMap(f => f()).find(x => x.key === el.dataset.key); if (d) { setMode("map"); ST.host.fly?.(d.lat, d.lng, 15); } return; }
     case "tok": {
-      const t = s.tokens[sel] ?? {}, n = Math.clamp((t[el.dataset.owner] ?? 0) + Number(el.dataset.d), 0, MAX);
+      const t = s.tokens[ST.sel] ?? {}, n = Math.clamp((t[el.dataset.owner] ?? 0) + Number(el.dataset.d), 0, MAX);
       const sum = Object.entries(t).reduce((m, [k, v]) => m + (k === el.dataset.owner ? 0 : v), 0);
       if (sum + n > MAX) return ui.notifications.warn(S("Full", { n: MAX }));
-      return save({ tokens: { ...s.tokens, [sel]: { ...t, [el.dataset.owner]: n } } });
+      return save({ tokens: { ...s.tokens, [ST.sel]: { ...t, [el.dataset.owner]: n } } });
     }
-    case "reveal": return save({ reveal: { ...s.reveal, [sel]: !s.reveal[sel] } });
+    case "reveal": return save({ reveal: { ...s.reveal, [ST.sel]: !s.reveal[ST.sel] } });
     case "bidSave": return saveBid(el.closest("form"));
-    case "bidCancel": editBid = null; return renderBoard();
-    case "bidEdit": { const a = meActor(); editBid = bidsOf(a, s).find(b => b.id === el.dataset.id) ?? null; if (editBid) { sel = editBid.sector; view = "map"; } return renderBoard(); }
+    case "bidCancel": ST.editBid = null; return renderBoard();
+    case "bidEdit": { const a = meActor(); ST.editBid = bidsOf(a, s).find(b => b.id === el.dataset.id) ?? null; if (ST.editBid) { ST.sel = ST.editBid.sector; ST.view = "map"; } return renderBoard(); }
     case "bidDel": { const a = meActor(); return setBids(a, bidsOf(a, s).filter(b => b.id !== el.dataset.id)); }
     case "done": { const a = meActor(); return setBids(a, bidsOf(a, s), !doneOf(a, s)); }
     case "openReport": return (await fromUuid(el.dataset.uuid))?.sheet?.render(true);
-    case "hist": hist = hist === Number(el.dataset.n) ? null : Number(el.dataset.n); return renderBoard();
-    case "histOff": hist = null; return renderBoard();
+    case "hist": ST.hist = ST.hist === Number(el.dataset.n) ? null : Number(el.dataset.n); return renderBoard();
+    case "histOff": ST.hist = null; return renderBoard();
     case "guide": return openGuide();
     case "zoom": {
       const svg = el.closest(".rs-map")?.querySelector("svg");
-      if (!svg || !base) return;
-      if (el.dataset.d === "fit") { zoom = { k: 1, cx: null, cy: null }; return applyView(svg); }
-      return zoomAt(svg, zoom.k * (el.dataset.d === "in" ? 1.3 : 1 / 1.3));
+      if (!svg || !ST.base) return;
+      if (el.dataset.d === "fit") { ST.zoom = { k: 1, cx: null, cy: null }; return applyView(svg); }
+      return zoomAt(svg, ST.zoom.k * (el.dataset.d === "in" ? 1.3 : 1 / 1.3));
     }
-    case "focus": focus = focus === el.dataset.key ? null : el.dataset.key; return renderBoard();
+    case "focus": ST.focus = ST.focus === el.dataset.key ? null : el.dataset.key; return renderBoard();
     case "projAdd": {
       const a = meActor(), name = el.closest(".rs-row")?.querySelector("[data-rs-newproj]")?.value.trim();
       if (!a || !name) return;
-      return a.setFlag(SYSTEM_ID, PROJ, [...projectsOf(a), { id: uid(), sector: sel, name }]);
+      return a.setFlag(SYSTEM_ID, PROJ, [...projectsOf(a), { id: uid(), sector: ST.sel, name }]);
     }
     case "projDel": { const a = meActor(); if (a) return a.setFlag(SYSTEM_ID, PROJ, projectsOf(a).filter(p => p.id !== el.dataset.id)); return; }
   }
@@ -889,8 +887,8 @@ async function onClick(ev) {
     case "open": await save({ turn: { ...s.turn, open: !s.turn.open } });
       return notify(S(s.turn.open ? "NotifyClosed" : "NotifyOpened", { n: s.turn.n }));
     case "trendAdd": { const name = el.closest(".rs-row")?.querySelector("[data-rs-newtrend]")?.value.trim();
-      if (!name || !sel) return;
-      const t = { id: uid(), sector: sel, name, level: 1, grow: 1 };
+      if (!name || !ST.sel) return;
+      const t = { id: uid(), sector: ST.sel, name, level: 1, grow: 1 };
       await save({ trends: [...(s.trends ?? []), t] });
       return trendToDomains(t, s); }
     case "trendLvl": return save({ trends: (s.trends ?? []).map(t => t.id === el.dataset.id ? { ...t, level: Math.clamp(t.level + Number(el.dataset.d), 1, 5) } : t) });
@@ -913,14 +911,14 @@ async function onClick(ev) {
         target: INTENTS[fd.intent]?.target ? fd.target : "", dice: Number(fd.dice) || 0, text: String(fd.text ?? "").trim() }] });
     }
     case "npcDel": return save({ npc: (s.npc ?? []).filter(b => b.id !== el.dataset.id) });
-    case "secAdd": { const key = uid(), q = Math.max(0, ...s.sectors.map(x => x.q)) + 1; sel = key;
+    case "secAdd": { const key = uid(), q = Math.max(0, ...s.sectors.map(x => x.q)) + 1; ST.sel = key;
       return save({ sectors: [...s.sectors, { key, name: S("NewSector"), sphere: s.spheres[0]?.key ?? "", q, r: 0, about: "" }] }); }
     case "secDel": { const x = s.sectors[Number(el.dataset.i)];
       if (!(await foundry.applications.api.DialogV2.confirm({ window: { title: S("Delete") }, content: `<p>${esc(S("DeleteSector", { name: sectorName(x) }))}</p>` }))) return;
       const tokens = { ...s.tokens }; delete tokens[x.key];
       return save({ sectors: s.sectors.filter((_, i) => i !== Number(el.dataset.i)), tokens }); }
     case "move": { const secs = s.sectors.map(x => ({ ...x })), x = secs[Number(el.dataset.i)];
-      x.q += Number(el.dataset.dq); x.r += Number(el.dataset.dr); sel = x.key; return save({ sectors: secs }); }
+      x.q += Number(el.dataset.dq); x.r += Number(el.dataset.dr); ST.sel = x.key; return save({ sectors: secs }); }
     case "sphAdd": return save({ spheres: [...s.spheres, { key: uid(), name: S("NewSphere"), color: "#777777" }] });
     case "facAdd": return save({ owners: { ...s.owners, [`f:${uid()}`]: { name: S("NewFaction"), color: "#5a6b7d" } } });
     case "facDel": { const owners = { ...s.owners }; delete owners[el.dataset.key]; return save({ owners }); }
@@ -930,16 +928,16 @@ async function onClick(ev) {
 
 async function onChange(ev) {
   const el = ev.target, s = strat();
-  if (el.matches("[data-rs-me]")) { me = el.value; editBid = null; return renderBoard(); }
+  if (el.matches("[data-rs-me]")) { ST.me = el.value; ST.editBid = null; return renderBoard(); }
   if (el.closest(".rs-npcform") || el.matches("[data-rs-newtrend], [data-rs-newproj]")) return;
   if (el.closest(".rs-form")) {         // форма заявки: пересчитать пул и шансы
     const f = el.closest(".rs-form"), fd = new foundry.applications.ux.FormDataExtended(f).object;
-    editBid = { ...(editBid ?? {}), ...fd, id: f.dataset.id, sector: f.dataset.sec };
-    if (!INTENTS[editBid.intent]?.target) editBid.target = "";
+    ST.editBid = { ...(ST.editBid ?? {}), ...fd, id: f.dataset.id, sector: f.dataset.sec };
+    if (!INTENTS[ST.editBid.intent]?.target) ST.editBid.target = "";
     return renderBoard();
   }
   if (!game.user.isGM) return;
-  if (el.matches("[data-rs-addowner]") && el.value) return save({ tokens: { ...s.tokens, [sel]: { ...(s.tokens[sel] ?? {}), [el.value]: Math.max(1, s.tokens[sel]?.[el.value] ?? 0) } } });
+  if (el.matches("[data-rs-addowner]") && el.value) return save({ tokens: { ...s.tokens, [ST.sel]: { ...(s.tokens[ST.sel] ?? {}), [el.value]: Math.max(1, s.tokens[ST.sel]?.[el.value] ?? 0) } } });
   if (el.matches("[data-rs-label]")) return save({ turn: { ...s.turn, label: el.value } });
   if (el.dataset.rsShift) return save({ turn: { ...s.turn, shift: { ...(s.turn.shift ?? { n: 0, unit: "months" }), [el.dataset.rsShift]: el.dataset.rsShift === "n" ? Math.max(0, Number(el.value) || 0) : el.value } } });
   if (el.dataset.mod) { const k = el.closest("[data-key]").dataset.key; return save({ mods: { ...s.mods, [k]: { ...(s.mods[k] ?? {}), [el.dataset.mod]: Number(el.value) || 0 } } }); }
@@ -961,7 +959,7 @@ async function saveBid(form) {
   const left = counters(a, s).find(c => c.k === bid.kind);
   if (!id && (!left || left.left <= 0)) return ui.notifications.warn(S("NoTokens"));
   const bids = bidsOf(a, s), next = id ? bids.map(b => b.id === id ? bid : b) : [...bids, bid];
-  editBid = null;
+  ST.editBid = null;
   await setBids(a, next);
 }
 
@@ -1065,7 +1063,7 @@ async function publish() {
     npc: [], pacts: (s.pacts ?? []).filter(p => !broken.has(p.id)),
     reports: [...s.reports, { n: s.turn.n, label: s.turn.label, uuid: je.uuid, date: new Date().toLocaleDateString(game.i18n.lang),
       tokens: foundry.utils.deepClone(s.tokens), sectors: foundry.utils.deepClone(s.sectors), ...clock }] });
-  hist = null;
+  ST.hist = null;
   ui.notifications.info(S("Published", { n: s.turn.n }));
   await notify(S("NotifyPublished", { n: s.turn.n, next: s.turn.n + 1 }) + (clock.shiftText ? ` ${S("NotifyShift", { span: clock.shiftText })}` : ""));
 }
