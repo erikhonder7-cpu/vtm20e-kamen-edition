@@ -3,7 +3,7 @@
 
 import { VTM20, SYSTEM_ID, SYSTEM_PATH } from "./module/config.mjs";
 import "./module/apps/mage-duel.mjs";   // блок карточки: шаг в сторону, контрмагия, сертамен
-import { registerMageWeek, mageWeekTick } from "./module/apps/mage-state.mjs";
+import { registerMageWeek, mageWeekTick, registerWonderLinks } from "./module/apps/mage-state.mjs";
 import { registerDataModels } from "./module/data/models.mjs";
 import { Codex } from "./module/data/codex.mjs";
 import { VtMActor } from "./module/documents/actor.mjs";
@@ -156,6 +156,7 @@ Hooks.once("init", () => {
   registerSettings();
   registerNightExtras();
   registerMageWeek();
+  registerWonderLinks();
   registerTimers();
   registerTorpor();
   registerIncome();

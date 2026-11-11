@@ -4118,6 +4118,52 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  await check("Колдун в мастере, Чудо в бою, недельный такт магов", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), sys = p => import(`/systems/${sid}/${p}`);
+      const out = {}, inst = () => [...foundry.applications.instances.values()], n0 = game.messages.size;
+      const St = await sys("module/apps/mage-state.mjs"), cal = await sys("module/apps/calendar.mjs");
+      // мастер: отметка «колдун» даёт шаг нумин — 5 точек, 7 за свободный пункт, Воля 5; Пути и феномены не смешиваются
+      const raw = await Actor.create({ name: "E2E — колдун", type: "mortal", flags: { world: { e2e: true } } });
+      await game.vtm20.openCreator(raw); await wait(700);
+      const cr = inst().find(w => w.constructor.name === "VtMCreator");
+      cr.st.mark = "sorcerer"; cr.st.sorcAff = "aoar";
+      out.rules = [cr.isSorcerer, cr.rules.disc, cr.rules.cost.disc, cr.steps.includes("disciplines"), cr.willpowerBase];
+      cr.st.disc.alchemy = 3; cr.st.disc.divination = 2;
+      out.rem = [cr.remaining().disc, cr.sorcIssues.length];
+      const psy = game.vtm20Codex.mage.sorcerer.psychic[0].key;
+      cr.st.disc[psy] = 1; out.mixed = cr.sorcIssues.length; delete cr.st.disc[psy];
+      out.cards = (await cr._prepareContext({})).discCards.length >= 40;
+      const w = cr.sorcWrite({});
+      out.write = [w.on, w.affiliation, w.numina.length, w.numina.find(n => n.key === "alchemy")?.dots];
+      await cr.close(); await raw.delete();
+      // Чудо в бою: связанное оружие листа, уходит вместе с Чудом
+      const a = await Actor.create({ name: "E2E — маг с клинком", type: "mage", flags: { world: { e2e: true }, [sid]: { created: true } }, system: { mage: { arete: 2, paradox: 3, spheres: { forces: 2 } } } });
+      const [wd] = await a.createEmbeddedDocuments("Item", [{ name: "E2E — клинок", type: "wonder", system: { kind: "talisman", value: 2, arete: 2 } }]);
+      const DV = foundry.applications.api.DialogV2, dp = DV.prompt;
+      DV.prompt = async () => ({ as: "melee", damage: 3, strength: true, type: "aggravated", penalty: 0 });
+      await St.armWonder(a, wd.id); DV.prompt = dp; await wait(300);
+      const wp = a.items.find(i => i.type === "weapon");
+      out.arm = [wp?.system.damage, wp?.system.damageType, St.wondersView(a)[0].armed];
+      await wd.delete(); await wait(600);
+      out.unlinked = a.items.filter(i => i.type === "weapon").length;
+      // неделя хроники: Узел кабала отдаёт выработку, Парадокс ниже 5 утекает
+      const cab = await Actor.create({ name: "E2E — кабал Узла", type: "coterie", flags: { world: { e2e: true } }, system: { kind: "cabal", chantry: { node: 2 } } });
+      const week0 = game.settings.get(sid, "mageWeek"), c0 = cal.getClock();
+      try {
+        await game.settings.set(sid, "mageWeek", Math.floor((cal.nightNumber() - 1) / 7));
+        await cal.setClock(c0 + 8 * 86400000); await St.mageWeekTick(); await wait(600);
+        out.week = [cab.system.chantry.quint, cab.system.chantry.tass, a.system.mage.paradox];
+      } finally { await cal.setClock(c0); await game.settings.set(sid, "mageWeek", week0); }
+      await ChatMessage.deleteDocuments(game.messages.contents.slice(n0).map(m => m.id));
+      await Actor.deleteDocuments([a.id, cab.id]);
+      return out;
+    });
+    const want = { rules: [true, 5, 7, true, 5], rem: [0, 0], mixed: 1, cards: true, write: [true, "aoar", 2, 3], arm: [3, "aggravated", true], unlinked: 0, week: [2, 2, 2] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   // вторая уборка: временные персонажи проверок после первой (стратегия, оборотни, панель сессии…)
   await page.evaluate(async () => {
     const temp = game.actors.filter(x => x.getFlag("world", "e2e")).map(x => x.id);

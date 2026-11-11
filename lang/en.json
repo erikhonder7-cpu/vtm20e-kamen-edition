@@ -7317,6 +7317,18 @@
         "Terms": "Terms",
         "Rule": "A pact level grants as many points for Investments. They cannot be spent on Arete or Spheres. Optional rule from Book of the Fallen.",
         "Budget": "pact points: {spent} of {n}"
+      },
+      "Arm": {
+        "Title": "Wonder in combat",
+        "Hint": "Into combat: make the Wonder a weapon or armor on the sheet",
+        "Off": "Remove this Wonder’s weapon or armor from the sheet",
+        "As": "What it is in combat",
+        "Damage": "Damage (for armor — rating)",
+        "Strength": "Damage adds to Strength",
+        "Type": "Damage type",
+        "Penalty": "Armor penalty",
+        "Rule": "Numbers come from the Wonder’s description. From then on it works as an ordinary weapon or armor; it goes away with the Wonder.",
+        "Ok": "Into combat"
       }
     },
     "MageCr": {
@@ -7446,6 +7458,11 @@
       "Role": "Role",
       "Side": "Side",
       "ConsorHint": "A mage's companion: Willpower 3, Backgrounds 5 (at least a dot in Mentor), 21 freebies for a consor and 15 for an acolyte; no magic of their own."
+    },
+    "SorcCr": {
+      "Numina": "Numina",
+      "Mixed": "At creation a sorcerer takes either Paths or psychic phenomena — not both.",
+      "Hint": "Sorcerer: 5 dots of Numina on the “Numina” step (Paths or phenomena), a dot for freebies costs 7, Willpower 5. Rituals — one per Path dot — are recorded on the sheet."
     }
   }
 }

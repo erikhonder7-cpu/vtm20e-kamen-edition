@@ -151,7 +151,7 @@ export function wondersView(actor) {
     return { id: it.id, name: it.name, img: it.img, kind: s.kind, kindLabel: game.i18n.localize(`VTM20.Wonder.Kind.${s.kind}`), value: s.value, arete: s.arete,
       quint: s.quintessence, quintMax: s.quintMax, holds: s.quintMax > 0, perm: s.paradoxPerm,
       chips: Object.entries(ranks).map(([k, rank]) => ({ name: sphereName(actor, k), rank, sym: { src: mageGlyphSrc(`sphere-${k}`) } })),
-      canUse: s.arete > 0, html: s.description };
+      canUse: s.arete > 0, html: s.description, armed: actor.items.some(i => i.getFlag(SYSTEM_ID, "wonder") === it.id) };
   });
 }
 /** Применить Чудо: у Талисмана и Устройства — бросок его Арете в окне чародейства; прочее — карточка в чат. */
@@ -411,4 +411,39 @@ export async function ghoulHeal(actor) {
   await actor.update({ "system.mage.ghoul.vitae": g.vitae - 1 });
   await actor.healDamage(type, 1);
   return say(actor, "fa-droplet", t("Ghoul.Healed", { name: esc(actor.name), type: game.i18n.localize(VTM20.damageTypes[type]?.label ?? type), n: g.vitae - 1 }));
+}
+
+/* ── Чудо в бою: оружие или броня ────────────────────────────────────── */
+
+/**
+ * Чудо-оружие и Чудо-броня: по Чуду создаётся обычное оружие или броня листа (помечены флагом wonder) — дальше бой идёт
+ * по общим правилам. Повторный вызов убирает связанный предмет; с удалением Чуда он уходит сам (хук в vtm20.mjs).
+ */
+export async function armWonder(actor, id) {
+  const it = actor.items.get(id);
+  if (!it || !owner(actor)) return null;
+  const linked = actor.items.filter(i => i.getFlag(SYSTEM_ID, "wonder") === id);
+  if (linked.length) return actor.deleteEmbeddedDocuments("Item", linked.map(i => i.id));
+  const loc = k => game.i18n.localize(k), kinds = Object.entries(VTM20.weaponKinds), types = Object.entries(VTM20.damageTypes);
+  const res = await foundry.applications.api.DialogV2.prompt({ window: { title: `${t("Arm.Title")}: ${it.name}`, icon: "fa-solid fa-shield-halved" }, classes: DLG, rejectClose: false, position: { width: 460 },
+    content: `<div class="r-form"><label class="r-field"><span>${esc(t("Arm.As"))}</span><select name="as">${kinds.map(([k, v]) => `<option value="${k}">${esc(loc(v.label))}</option>`).join("")}<option value="armor">${esc(loc("VTM20.Sheet.Armor"))}</option></select></label>
+      <label class="r-field"><span>${esc(t("Arm.Damage"))}</span><input type="number" name="damage" value="2" min="0" max="20"></label>
+      <label class="r-check"><input type="checkbox" name="strength" checked><span>${esc(t("Arm.Strength"))}</span></label>
+      <label class="r-field"><span>${esc(t("Arm.Type"))}</span><select name="type">${types.map(([k, v]) => `<option value="${k}"${k === "lethal" ? " selected" : ""}>${esc(loc(v.label))}</option>`).join("")}</select></label>
+      <label class="r-field"><span>${esc(t("Arm.Penalty"))}</span><input type="number" name="penalty" value="0" min="0" max="10"></label>
+      <p class="r-note">${esc(t("Arm.Rule"))}</p></div>`,
+    ok: { label: t("Arm.Ok"), callback: (e, b) => { const f = b.form.elements; return { as: f.as.value, damage: Number(f.damage.value) || 0, strength: f.strength.checked, type: f.type.value, penalty: Number(f.penalty.value) || 0 }; } } });
+  if (!res) return null;
+  const base = { name: it.name, img: it.img, flags: { [SYSTEM_ID]: { wonder: id } } };
+  const data = res.as === "armor" ? { ...base, type: "armor", system: { rating: Math.clamp(res.damage, 0, 10), penalty: res.penalty, equipped: true } }
+    : { ...base, type: "weapon", system: { kind: res.as, damage: res.damage, strength: res.strength && res.as !== "firearms", damageType: res.type, difficulty: 6, equipped: true } };
+  return actor.createEmbeddedDocuments("Item", [data]);
+}
+/** Чудо удалили — его оружие и броня уходят с листа. */
+export function registerWonderLinks() {
+  Hooks.on("deleteItem", (item, options, userId) => {
+    if (item.type !== "wonder" || userId !== game.user.id || !item.parent) return;
+    const linked = item.parent.items.filter(i => i.getFlag(SYSTEM_ID, "wonder") === item.id).map(i => i.id);
+    if (linked.length) item.parent.deleteEmbeddedDocuments("Item", linked);
+  });
 }

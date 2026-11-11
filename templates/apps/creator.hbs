@@ -119,6 +119,11 @@
             <div class="r-cr-eb-titles"><b>{{localize "VTM20.Creator.Mark.title"}}</b><span class="r-note r-explain">{{marks.hint}}</span></div>
             <span class="r-cr-mark-opts">{{#each marks.opts}}<a class="r-btn {{#if active}}is-primary{{else}}is-ghost{{/if}}" data-action="mark" data-mark="{{key}}">{{label}}</a>{{/each}}</span>
           </div>
+          {{#if (rEq marks.mark "sorcerer")}}
+          <label class="r-cr-mark-field"><span>{{localize "VTM20.Sorcerer.Affiliation"}}</span>
+            <select data-field="sorcAff"><option value="">—</option>{{#each marks.affiliations}}<option value="{{key}}" {{#if selected}}selected{{/if}} title="{{tip}}">{{label}}</option>{{/each}}</select></label>
+          <p class="r-note">{{localize "VTM20.SorcCr.Hint"}}</p>
+          {{/if}}
           {{#if (rEq marks.mark "kinfolk")}}
           <label class="r-cr-mark-field"><span>{{localize "VTM20.Werewolf.Tribe"}}</span>
             <select data-field="markTribe"><option value="">—</option>{{#each marks.tribes}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>

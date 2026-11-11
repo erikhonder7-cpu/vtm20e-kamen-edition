@@ -23,6 +23,7 @@ import { RULES, MAGE_HINTS, RENOWN, THRALL_BANNED, DEMON_FAITH, TIERS, SECTS, SE
 import { MageCreator } from "./creator/mage.mjs";
 import { GarouCreator } from "./creator/garou.mjs";
 import { HunterCreator } from "./creator/hunter.mjs";
+import { SorcererCreator } from "./creator/sorcerer.mjs";
 import { W as werewolfData } from "./werewolf.mjs";
 import { M as mageData, mageGlyphSrc } from "./mage.mjs";
 import { H as hunterData, growth as hunterGrowth, sacrificeOn as hunterSacrificeOn, hasPrevEdge } from "./hunter.mjs";
@@ -94,7 +95,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       bloodrights: { ...(s.dhampir?.bloodrights ?? {}) },
       // особый смертный (W20 Kinfolk, W20 Umbra, Book of the Wyrm): Родня Гару, Ками, фомор — отметки на листе смертного
       mark: s.kinfolk?.on ? "kinfolk" : s.kami?.on ? "kami" : s.fomor?.on ? "fomor" : "",
-      markTribe: s.kinfolk?.tribe || "", kamiKind: s.kami?.kind || "human", kamiGeas: s.kami?.geas || "",
+      sorcAff: s.sorcerer?.affiliation || "", markTribe: s.kinfolk?.tribe || "", kamiKind: s.kami?.kind || "human", kamiGeas: s.kami?.geas || "",
       kamiPowers: (s.kami?.powers ?? []).map(x => x.key), fomorBreed: s.fomor?.breed || "", fomorPowers: [],
       // Гару (W20, гл. 3) и Фера (W20 Changing Breeds): порода, аугурия, племя или род с выбором внутри рода, Дары по ячейкам,
       // Дары сверх трёх (7 бонусных), уродство метиса, Слава (у Рагабаша и Фера — 3 точки на выбор)
@@ -135,6 +136,8 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
   get rules() {
     if (this.isEarthbound) return RULES.earthbound;
     if (this.isThrall) return RULES.thrall;
+    // колдун (M20 Sorcerer, гл. 3): 5 точек нумин, Путь за свободные пункты — 7
+    if (this.isSorcerer) return { ...this.baseRules, disc: 5, cost: { ...this.baseRules.cost, disc: 7 } };
     // Свидетель: 7 точек Добродетелей (1–5), свободными — по 2; Убеждённость 10 не покупается
     if (this.isLost) return { ...this.baseRules, virt: 7, cost: { ...this.baseRules.cost, virt: 2, morality: 0 } };
     // опытный охотник (Players Guide, гл. 2): рассказчик даёт 3–6 очков Добродетелей сверх трёх
@@ -151,6 +154,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     return {
       mark: st.mark,
       opts: ["sorcerer", "consor", "kinfolk", "kami", "fomor"].map(k => ({ key: k, label: t(`Creator.Mark.${k}`), active: st.mark === k })),
+      affiliations: st.mark === "sorcerer" ? this.sorcAffiliations() : [],
       hint: st.mark ? t(`Creator.Mark.${st.mark}Hint`) : t("Creator.Mark.none"),
       tribes: (W.tribes ?? []).map(x => ({ key: x.key, label: lbl(x), selected: x.key === st.markTribe })),
       kamiKinds: ["human", "animal", "plant"].map(k => ({ key: k, label: loc(`VTM20.Werewolf.Kami.form.${k}`), selected: k === st.kamiKind })),
@@ -218,6 +222,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
   /** Клановые Дисциплины; null — любые (каитиф, пандеры, гуль). */
   get clanDisciplines() {
     if (this.type === "ghoul") return null;
+    if (this.isSorcerer) return this.sorcKeys;
     if (this.isMage) return VTM20.mageSpheres;
     if (this.isDemon) return [...(this.houseData?.lores ?? []), ...(Codex.demon?.common ?? []),        // Знания Дома и общие
       ...(this.isEarthbound ? Codex.lores.filter(l => l.dark).map(l => l.key) : [])];                     // Привязанному — и Тёмные
@@ -262,6 +267,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     // у падшего Воля — сумма двух высших Добродетелей (гл. 6), у охотника — 3, у прочих — Смелость
     if (this.isHunter) return Math.min(10, 3 + this.st.free.will);
     if (this.isMage) return Math.min(10, (mageData().creation?.willpower ?? 5) + this.st.free.will);
+    if (this.isSorcerer) return Math.min(10, 5 + this.st.free.will);                       // колдун: Воля 5 (M20 Sorcerer, гл. 3)
     if (this.isWerewolf) return Math.min(10, this.garouBase.will + this.st.free.will);   // Воля Гару — по племени (у Фера — по роду)
     const base = this.isDemon || this.isThrall ? ["conscience", "selfControl", "courage"].map(k => this.value("virt", k)).sort((x, y) => y - x).slice(0, 2).reduce((x, y) => x + y, 0)
       : this.value("virt", "courage");
@@ -396,6 +402,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     // начальные точки — только в клановые (V20, гл. 1); внеклановые — свободными пунктами и опытом
     if (this.type === "vampire" && this.clanDisciplines)
       for (const [k, n] of Object.entries(this.st.disc)) if (n > 0 && !this.inClan(k)) out.push(t("Creator.InitialOutOfClan", { name: Codex.disciplineLabel(k) }));
+    if (this.isSorcerer) out.push(...this.sorcIssues);
     if (this.isDemon && !this.st.visage) out.push(t("Creator.NeedVisage"));
     if (this.isEarthbound && this.value("bg", "Поклонение") > 0 && this.value("bg", "Культ") < 1) out.push(t("Creator.WorshipNeedsCult"));
     if (this.isThrall && !this.st.pact.master) out.push(t("Creator.PactNoMaster"));
@@ -434,9 +441,9 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
   /** «Факты биографии» или «Дополнения» (у падшего). */
   get bgLabel() { return this.isDemon ? t("Demon.Backgrounds") : t("Sheet.Backgrounds"); }
   /** «Дисциплины» или «Знания» (у падшего). */
-  get discLabel() { return this.isMage ? loc("VTM20.Mage.Spheres") : this.isDemon ? t("Demon.Lores") : t("Sheet.Disciplines"); }
+  get discLabel() { return this.isSorcerer ? loc("VTM20.SorcCr.Numina") : this.isMage ? loc("VTM20.Mage.Spheres") : this.isDemon ? t("Demon.Lores") : t("Sheet.Disciplines"); }
   /** Сила справочника по ключу: Дисциплина или Знание падшего. */
-  discData(k) { return this.isMage ? this.mageSphere(k) : this.isDemon ? Codex.lore(k) : Codex.discipline(k); }
+  discData(k) { return this.isSorcerer ? this.sorcNumen(k) : this.isMage ? this.mageSphere(k) : this.isDemon ? Codex.lore(k) : Codex.discipline(k); }
 
   /** Противоречия выбранных достоинств и недостатков. */
   get traitIssues() {
@@ -581,25 +588,26 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       const d = this.discData(k), v = this.value("disc", k);
       return {
         key: k, name: d.name, en: d.en, value: v, inClan: this.isMage ? k === st.mg.affinity : this.inClan(k),
-        sym: this.isMage ? { src: mageGlyphSrc(`sphere-${k}`) } : this.isDemon ? null : Codex.disciplineSymbol(k),
-        icon: this.isDemon ? (d.house ? "fa-fire-flame-curved" : "fa-book") : VTM20.disciplineIcons[k] ?? "fa-droplet", dots: dotRow("disc", k),
+        sym: this.isSorcerer ? null : this.isMage ? { src: mageGlyphSrc(`sphere-${k}`) } : this.isDemon ? null : Codex.disciplineSymbol(k),
+        icon: this.isSorcerer ? (d.psychic ? "fa-brain" : "fa-hand-sparkles") : this.isDemon ? (d.house ? "fa-fire-flame-curved" : "fa-book") : VTM20.disciplineIcons[k] ?? "fa-droplet", dots: dotRow("disc", k),
         powers: d.powers.filter(p => p.level <= Math.max(1, v) && p.level <= 5).map(p => ({ level: p.level, name: p.name, en: p.en, owned: p.level <= v, tip: preview(p.html, 600) })),
         pathed: VTM20.pathDisciplines.includes(k)
       };
     }).sort((a, b) => (b.inClan - a.inClan) || a.name.localeCompare(b.name, "ru"));
     ctx.anyDiscipline = allowed == null;
     // внеклановые Дисциплины: Сородич добавляет любую (точки — свободными пунктами и опытом), каитиф и гуль — как раньше
-    ctx.canAddDisc = !this.isDemon && !this.isMage && (allowed == null || this.type === "vampire");
+    ctx.canAddDisc = !this.isDemon && !this.isMage && !this.isSorcerer && (allowed == null || this.type === "vampire");
     for (const c of ctx.discCards) {
       c.outOfClan = this.type === "vampire" && allowed != null && !c.inClan;
       c.extra = c.key === this.extraDisc;
-      c.removable = !this.isMage && !c.inClan && this.value("disc", c.key) <= this.base("disc", c.key);
+      c.removable = !this.isMage && !this.isSorcerer && !c.inClan && this.value("disc", c.key) <= this.base("disc", c.key);
     }
     // выбор по «Дополнительной Дисциплине» — на шаге Дисциплин и у взятого достоинства
     ctx.extraDisc = this.extraDiscMerit && this.baseClanDisciplines
       ? { value: this.st.extraDisc, name: this.st.extraDisc ? Codex.disciplineLabel(this.st.extraDisc) : "", options: this.extraDiscOptions } : null;
     ctx.inClanLabel = this.isMage ? loc("VTM20.Mage.AffinityShort") : this.isDemon ? t("Demon.OwnHouse") : t("Sheet.InClan");
     if (this.isMage) ctx.sphereIssues = this.sphereIssues;
+    if (this.isSorcerer) ctx.sphereIssues = this.sorcIssues;
     ctx.discChoices = Object.values(Codex.disciplines).filter(d => !discKeys.has(d.key) && Codex.visible(d) && !this.bannedDisc(d.key)).map(d => ({ value: d.key, label: d.name }))
       .sort((a, b) => a.label.localeCompare(b.label, "ru"));
 
@@ -1138,7 +1146,8 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     if (this.type === "mortal" && !this.isThrall) {
       const W = Codex.werewolf ?? {}, m = st.mark;
       // колдун и консор (M20 Sorcerer; Gods & Monsters): отметка; нумины колдун берёт на листе
-      sys.sorcerer = { ...(a.system.toObject?.().sorcerer ?? {}), on: m === "sorcerer" };
+      const sorcOld = a.system.toObject?.().sorcerer ?? {};
+      sys.sorcerer = m === "sorcerer" ? this.sorcWrite(sorcOld) : { ...sorcOld, on: false };
       sys.consor = { ...(a.system.toObject?.().consor ?? {}), on: m === "consor" };
       sys.kinfolk = { ...(a.system.kinfolk ?? {}), on: m === "kinfolk", ...(m === "kinfolk" ? { tribe: st.markTribe || W.tribes?.[0]?.key || "", breed: "homid" } : {}) };
       const ks = W.kami?.start?.[st.kamiKind] ?? { gnosis: 1, rage: 0, willpower: 3 };
@@ -1268,4 +1277,4 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
 }
 
 // линейки: геттеры и куски контекста мага, Гару и Фера, охотника и дампира
-for (const Part of [MageCreator, GarouCreator, HunterCreator]) mix(VtMCreator, Part);
+for (const Part of [MageCreator, GarouCreator, HunterCreator, SorcererCreator]) mix(VtMCreator, Part);
