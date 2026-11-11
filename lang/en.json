@@ -5218,7 +5218,19 @@
       "OvTie": "balanced",
       "OvNobody": "unclaimed — no seals seen",
       "OvTokens": "My tokens",
-      "OvBack": "City overview"
+      "OvBack": "City overview",
+      "HeldBy": "Held by {name} — seals: {n}",
+      "Contested": "Contested hex: the leaders are tied",
+      "KeyHeld": "who holds the hex",
+      "KeyTrend": "trend and its strength",
+      "KeyBids": "bids this turn",
+      "KeyFog": "someone's hidden influence",
+      "ModDice": "dice ±",
+      "ModDisc": "blood",
+      "ModDiff": "diff. ±",
+      "StateOpen": "bids are open",
+      "ReadyDone": "Turn submitted",
+      "ReadyWait": "Still thinking: bids placed, turn not submitted"
     },
     "GarouCr": {
       "Title": "Garou creation",

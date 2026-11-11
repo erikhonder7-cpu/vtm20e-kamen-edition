@@ -80,7 +80,7 @@
 #r-citymap .rs-seal .rs-seal-in { fill: none; stroke: rgba(255, 240, 220, .35); stroke-width: .9; }
 #r-citymap .rs-fog circle { fill: rgba(120, 110, 96, .28); stroke: rgba(184, 174, 155, .35); stroke-dasharray: 1.5 1.5; filter: blur(.3px); }
 #r-citymap .rs-fog text { fill: var(--rs-bone-2); font-family: var(--c-font-display); font-size: 9px; text-anchor: middle; }
-#r-citymap .rs-bidmark circle { fill: var(--rs-blood); stroke: var(--rs-brass-b); stroke-width: 1; }
+#r-citymap .rs-bidmark rect { fill: var(--rs-blood); stroke: var(--rs-brass-b); stroke-width: 1; }
 #r-citymap .rs-bidmark text { fill: var(--rs-bone); font-size: 10px; font-weight: 700; text-anchor: middle; pointer-events: none; }
 #r-citymap .rs-legend { position: absolute; z-index: 2; left: 12px; right: 56px; bottom: 10px; display: flex; flex-wrap: wrap; gap: 5px;
   font-family: var(--c-font-display); font-size: 12.5px; letter-spacing: .05em; color: var(--rs-bone-2); }
@@ -151,12 +151,18 @@
 
 /* стол ведущего: кости и сопротивление */
 #r-citymap .rs-dsec { margin-top: 10px; }
-#r-citymap .rs-dbid { display: block; padding: 6px 0; border-bottom: 1px dotted rgba(176, 137, 74, .18); }
-#r-citymap .rs-dbid > :is(span, div, a):not(.rs-mods) { display: inline; }
-#r-citymap .rs-mods { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 5px; font-size: 12px; color: var(--rs-dim); }
-#r-citymap .rs-mods input { width: 40px; height: 22px; padding: 0 3px; text-align: center; }
-#r-citymap .rs-mods a { color: var(--rs-brass-b); cursor: pointer; font-size: 14px; }
-#r-citymap .rs-res { margin-left: auto; font-variant-numeric: tabular-nums; }
+/* заявка на столе ведущего — карточка: кто и что, ниже строка поправок с подписями, итог и кость */
+#r-citymap .rs-dbid { display: block; margin: 8px 0 0; padding: 9px 10px 8px; border: 1px solid rgba(176, 137, 74, .2); border-left: 2px solid var(--rs-brass-d); background: rgba(0, 0, 0, .22); }
+#r-citymap .rs-dbid.is-rolled { border-left-color: var(--rs-verdigris); }
+#r-citymap .rs-dbid.is-botch { border-left-color: var(--rs-blood-b); }
+#r-citymap .rs-dbid-main { display: grid; grid-template-columns: 26px minmax(0, 1fr) auto; gap: 8px; align-items: start; }
+#r-citymap .rs-dbid-main > a { color: var(--rs-dim); cursor: pointer; }
+#r-citymap .rs-mods { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px; margin-top: 8px; padding-top: 7px; border-top: 1px dotted rgba(176, 137, 74, .18); font-size: 12px; color: var(--rs-dim); }
+#r-citymap .rs-mods label { display: flex; flex-direction: column; gap: 2px; font-size: 10px; letter-spacing: .06em; text-transform: uppercase; }
+#r-citymap .rs-mods input { width: 46px; height: 24px; padding: 0 3px; text-align: center; }
+#r-citymap .rs-rollbtn { display: grid; place-items: center; width: 30px; height: 26px; border: 1px solid var(--rs-brass-d); color: var(--rs-brass-b); cursor: pointer; font-size: 14px; background: rgba(176, 137, 74, .06); }
+#r-citymap .rs-rollbtn:hover { border-color: var(--rs-brass-b); background: rgba(176, 137, 74, .16); }
+#r-citymap .rs-res { margin-left: auto; align-self: center; font-variant-numeric: tabular-nums; }
 #r-citymap .rs-res i { display: inline-grid; place-items: center; width: 16px; height: 16px; margin: 0 1px; font-style: normal; font-size: 10px;
   border: 1px solid #3b3024; color: var(--rs-dim); }
 #r-citymap .rs-res i.is-hit { color: #0f0c0a; background: var(--rs-bone-2); border-color: var(--rs-bone-2); }
@@ -208,8 +214,8 @@
 #r-citymap .rs-npcform { padding: 0 10px 10px; }
 
 /* тренды, проекты, договоры, подставной, грубость */
-#r-citymap .rs-trendmark circle { fill: #7a3a16; stroke: #d08a3a; stroke-width: 1; }
-#r-citymap .rs-trendmark.is-storm circle { fill: #b4541f; stroke: #f0b060; }
+#r-citymap .rs-trendmark rect { fill: #7a3a16; stroke: #d08a3a; stroke-width: 1; }
+#r-citymap .rs-trendmark.is-storm rect { fill: #b4541f; stroke: #f0b060; }
 #r-citymap .rs-trendmark text { fill: #fde9cf; font-size: 10px; font-weight: 700; text-anchor: middle; pointer-events: none; }
 #r-citymap :is(.rs-trends, .rs-projects, .rs-pacts) li { display: flex; align-items: center; gap: 7px; padding: 4px 0; font-size: 13px; border-bottom: 1px dotted rgba(176, 137, 74, .18); }
 #r-citymap .rs-trendrow > i { color: #d0702f; }
@@ -266,3 +272,68 @@
 #r-citymap .rs-back { display: inline-flex; align-items: center; gap: 6px; margin: 0 0 8px; cursor: pointer; color: var(--rs-dim);
   font-family: var(--c-font-display); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
 #r-citymap .rs-back:hover { color: var(--rs-brass-b); }
+
+/* ── Кто держит гекс: цвет лидера на ободе, медальон над названием; метки-пилюли с пиктограммой ── */
+#r-citymap .rs-hex.is-held .rs-plate { stroke: color-mix(in srgb, var(--o) 72%, var(--rs-brass)); stroke-width: 2.2; }
+#r-citymap .rs-hex.is-held .rs-inlay { stroke: color-mix(in srgb, var(--o) 60%, var(--rs-brass)); stroke-opacity: .7; }
+#r-citymap .rs-crest circle { fill: #0d0b0a; stroke: var(--o, var(--rs-brass)); stroke-width: 1.8; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .8)); }
+#r-citymap .rs-crest text { fill: var(--rs-bone); font-family: var(--c-font-display); font-size: 11px; text-anchor: middle; pointer-events: none; }
+#r-citymap .rs-crest.is-contest circle { stroke: var(--rs-brass-b); stroke-dasharray: 2 2; }
+#r-citymap .rs-crest.is-contest text { fill: var(--rs-brass-b); font-size: 9px; }
+#r-citymap svg .rs-fa { font-family: "Font Awesome 6 Free", "Font Awesome 6 Pro", "Font Awesome 7 Free"; font-weight: 900; font-size: 8px; text-anchor: middle; pointer-events: none; }
+#r-citymap .rs-trendmark .rs-fa { fill: #f6c27a; }
+#r-citymap .rs-bidmark .rs-fa { fill: #f0d9b0; }
+#r-citymap .rs-keys { position: absolute; left: 44px; top: 16px; display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 11px; color: var(--rs-dim); letter-spacing: .04em; pointer-events: none; }
+#r-citymap .rs-keys span { display: inline-flex; align-items: center; gap: 5px; }
+#r-citymap .rs-keys i { color: var(--rs-brass-b); font-size: 10px; }
+#r-citymap .rs-keys .rs-key-crest { width: 11px; height: 11px; border-radius: 50%; border: 2px solid var(--rs-brass-b); background: #0d0b0a; }
+
+/* ── Стол ведущего: карточка хода, готовность игроков, разделы по гексам ── */
+#r-citymap .rs-turncard { padding: 10px 12px; border: 1px solid var(--rs-brass-d); background: linear-gradient(rgba(176, 137, 74, .07), rgba(0, 0, 0, .15)); }
+#r-citymap .rs-turncard-top { display: flex; align-items: center; gap: 10px; }
+#r-citymap .rs-turncard-top > b { font-family: var(--c-font-display); font-weight: 400; font-size: 18px; letter-spacing: .06em; color: var(--rs-brass-b); }
+#r-citymap .rs-turncard-top .r-btn { margin-left: auto; }
+#r-citymap .rs-state { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--rs-blood-b); }
+#r-citymap .rs-state.is-open { color: var(--rs-verdigris); }
+#r-citymap .rs-turncard-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; margin-top: 10px; }
+#r-citymap .rs-turncard-grid .rs-inline { display: flex; gap: 6px; margin-top: 0; }
+#r-citymap .rs-turncard-grid .rs-inline select { flex: 1; min-width: 0; }
+#r-citymap .rs-readies { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+#r-citymap .rs-ready { display: inline-flex; align-items: center; gap: 6px; padding: 2px 8px; border: 1px solid #3b3024; font-size: 12px; color: var(--rs-bone-2); }
+#r-citymap .rs-ready i { color: var(--rs-dim); font-size: 10px; }
+#r-citymap .rs-ready b { font-weight: 400; color: var(--rs-brass-b); }
+#r-citymap .rs-ready.is-done { border-color: var(--rs-verdigris); }
+#r-citymap .rs-ready.is-done i { color: var(--rs-verdigris); }
+#r-citymap .rs-dsec h4 > span { display: inline-flex; align-items: center; gap: 8px; }
+#r-citymap .rs-dsec-gem { width: 10px; height: 10px; background: var(--h); transform: rotate(45deg); box-shadow: 0 0 0 1px rgba(0, 0, 0, .6); }
+#r-citymap .rs-resist i { color: var(--rs-brass-d); margin-right: 4px; }
+#r-citymap .rs-actions { position: sticky; bottom: -18px; margin: 14px -16px -18px; padding: 10px 16px 14px; background: linear-gradient(transparent, #110e0c 30%); }
+
+/* ── Доводка редизайна: значки меток, шапка хода, подвал стола, легенда, карточки секторов в «Устройстве» ── */
+/* значки в SVG берут тот же шрифт, что и .fa-solid ядра (в Foundry 14 — Font Awesome 7 Pro) */
+#r-citymap svg .rs-fa { font-family: "Font Awesome 7 Pro", "Font Awesome 7 Free", "Font Awesome 6 Pro", "Font Awesome 6 Free"; }
+/* шапка карточки хода: номер и состояние не рвутся, кнопка уходит на свою строку, если не помещается */
+#r-citymap .rs-turncard-top { flex-wrap: wrap; row-gap: 8px; }
+#r-citymap .rs-turncard-top > b, #r-citymap .rs-state { white-space: nowrap; }
+#r-citymap .rs-turncard-top .r-btn { white-space: nowrap; }
+/* подвал стола — плотная планка: заявки под ней не просвечивают */
+#r-citymap .rs-actions { display: flex; gap: 8px; background: #110e0c; border-top: 1px solid var(--rs-brass-d); box-shadow: 0 -10px 14px -6px rgba(0, 0, 0, .8); }
+#r-citymap .rs-actions .r-btn { flex: 1; justify-content: center; }
+#r-citymap .rs-dsec:last-of-type { margin-bottom: 14px; }
+/* легенда меток — читаемая плашка */
+#r-citymap .rs-keys { font-size: 12px; color: var(--rs-bone-2); padding: 4px 10px; background: rgba(13, 11, 10, .72); border: 1px solid rgba(176, 137, 74, .22); }
+#r-citymap .rs-keys i { font-size: 11px; }
+#r-citymap [data-rs-zoomval] { font-size: 11px; color: var(--rs-bone-2); font-variant-numeric: tabular-nums; }
+/* «Устройство»: сектор — карточка в две колонки, описание во всю ширину */
+#r-citymap .rs-setsecs { display: grid; gap: 8px; margin: 0 0 10px; padding: 0; list-style: none; }
+#r-citymap .rs-setsec { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 6px 8px; align-items: center; padding: 9px 10px;
+  border: 1px solid rgba(176, 137, 74, .2); border-left: 2px solid var(--rs-brass-d); border-bottom: 1px solid rgba(176, 137, 74, .2); background: rgba(0, 0, 0, .18); }
+#r-citymap .rs-setsec.is-sel { border-left-color: var(--rs-blood-b); box-shadow: none; padding-left: 10px; background: rgba(140, 28, 34, .1); }
+#r-citymap .rs-setsec input[type=text], #r-citymap .rs-setsec select { width: 100%; min-width: 0; }
+#r-citymap .rs-setsec input[type=text] { font-family: var(--c-font-display); font-size: 15px; }
+#r-citymap .rs-setsec textarea { grid-column: 1 / -1; margin-top: 0; }
+#r-citymap .rs-setsec .rs-qr { justify-self: start; }
+#r-citymap .rs-setsec .rs-qr a { width: 24px; height: 24px; font-size: 11px; }
+#r-citymap .rs-setsec > a { justify-self: end; padding: 4px 6px; }
+#r-citymap .rs-setsec > a:hover { color: var(--rs-blood-b); }
+#r-citymap .rs-setsec > a { grid-column: 2; grid-row: 3; }

@@ -476,7 +476,16 @@ function hexes(s) {
     const c = pts[i], color = sph[x.sphere]?.color ?? "#555";
     const toks = Object.entries(s.tokens[x.key] ?? {}).filter(([k, n]) => n > 0 && sees(x.key, k, s));
     const hiddenToks = !game.user.isGM && Object.entries(s.tokens[x.key] ?? {}).some(([k, n]) => n > 0 && !sees(x.key, k, s));
+    toks.sort((p, q) => q[1] - p[1]);
     const pips = toks.flatMap(([k, n]) => Array(n).fill(owner(k, s).color));
+    // кто держит гекс: единственный лидер среди видимых печатей — его цвет на ободе и медальон над названием; поровну — спорный
+    const most = toks[0]?.[1] ?? 0, lead = toks.filter(([, n]) => n === most);
+    const holder = most > 0 && lead.length === 1 ? owner(lead[0][0], s) : null, contested = most > 0 && lead.length > 1;
+    const my = (c.y - 36).toFixed(1), mx = c.x.toFixed(1);
+    const crest = holder ? `<g class="rs-crest"><title>${esc(S("HeldBy", { name: holder.name, n: most }))}</title><circle cx="${mx}" cy="${my}" r="10.5"/>${holder.img
+        ? `<clipPath id="rsc-${x.key}"><circle cx="${mx}" cy="${my}" r="8.6"/></clipPath><image href="${esc(holder.img)}" x="${(c.x - 8.6).toFixed(1)}" y="${(c.y - 44.6).toFixed(1)}" width="17.2" height="17.2" clip-path="url(#rsc-${x.key})" preserveAspectRatio="xMidYMid slice"/>`
+        : `<text x="${mx}" y="${(c.y - 32.2).toFixed(1)}">${esc(holder.name.slice(0, 1))}</text>`}</g>`
+      : contested ? `<g class="rs-crest is-contest"><title>${esc(S("Contested"))}</title><circle cx="${mx}" cy="${my}" r="9"/><text class="rs-fa" x="${mx}" y="${(c.y - 32.6).toFixed(1)}">\uf71d</text></g>` : "";
     // сургучные печати в ряд под названием: цвет владельца, тёмный ободок, блик
     const seals = pips.slice(0, MAX).map((col, j) => { const cx = c.x + (j - (Math.min(pips.length, MAX) - 1) / 2) * 12, cy = c.y + 20;
       return `<g class="rs-seal" style="--o:${col}"><circle cx="${cx.toFixed(1)}" cy="${cy}" r="5.4"/><circle class="rs-seal-in" cx="${cx.toFixed(1)}" cy="${cy}" r="2.7"/></g>`; }).join("");
@@ -485,16 +494,20 @@ function hexes(s) {
     const label = (c, t) => {
       const lines = [];
       for (const w of t.split(" ")) { const last = lines.at(-1); if (last && (last + " " + w).length <= 12) lines[lines.length - 1] = `${last} ${w}`; else lines.push(w); }
-      const ls = lines.slice(0, 3), top = c.y - 4 - (ls.length - 1) * 11.5;
+      // с медальоном подпись опускается ниже — между ним и печатями
+      const ls = lines.slice(0, 3), top = most > 0 ? c.y + 2 - (ls.length - 1) * 5.75 : c.y - 4 - (ls.length - 1) * 11.5;
       return `<text class="rs-name" x="${c.x.toFixed(1)}" y="${top.toFixed(1)}">${ls.map((l, k) => `<tspan x="${c.x.toFixed(1)}" dy="${k ? 11.5 : 0}">${esc(l)}</tspan>`).join("")}</text>`;
     };
-    return `<g class="rs-hex ${sel === x.key ? "is-sel" : ""} ${x.hidden ? "is-hidden" : ""} ${focus && x.sphere !== focus ? "is-dim" : ""}" data-rs="sector" data-key="${x.key}">
+    return `<g class="rs-hex ${sel === x.key ? "is-sel" : ""} ${x.hidden ? "is-hidden" : ""} ${focus && x.sphere !== focus ? "is-dim" : ""} ${holder ? "is-held" : ""}" ${holder ? `style="--o:${holder.color}"` : ""} data-rs="sector" data-key="${x.key}">
       <polygon class="rs-plate" points="${ring(c, HEX - 2)}" style="--h:${color}"/><polygon class="rs-inlay" points="${ring(c, HEX - 7)}" style="--h:${color}"/>
-      ${label(c, sectorName(x))}${seals}
+      ${label(c, sectorName(x))}${seals}${crest}
       ${hiddenToks ? `<g class="rs-fog"><circle cx="${c.x.toFixed(1)}" cy="${(c.y + 36).toFixed(1)}" r="6.5"/><text x="${c.x.toFixed(1)}" y="${(c.y + 39.2).toFixed(1)}">?</text></g>` : ""}
       ${(() => { const tr = (s.trends ?? []).filter(t => t.sector === x.key); const lv = Math.max(0, ...tr.map(t => t.level));
-        return tr.length ? `<g class="rs-trendmark ${lv >= 3 ? "is-storm" : ""}"><circle cx="${(c.x - 30).toFixed(1)}" cy="${(c.y - 30).toFixed(1)}" r="9"/><text x="${(c.x - 30).toFixed(1)}" y="${(c.y - 26.5).toFixed(1)}">${lv}</text></g>` : ""; })()}
-      ${nb ? `<g class="rs-bidmark"><circle cx="${(c.x + 30).toFixed(1)}" cy="${(c.y - 30).toFixed(1)}" r="9"/><text x="${(c.x + 30).toFixed(1)}" y="${(c.y - 26.5).toFixed(1)}">${nb}</text></g>` : ""}</g>`;
+        const tx = c.x - 31, ty = c.y - 24;
+        return tr.length ? `<g class="rs-trendmark ${lv >= 3 ? "is-storm" : ""}"><title>${esc(tr.map(t => `${t.name} · ${t.level}`).join("; "))}</title><rect x="${(tx - 12).toFixed(1)}" y="${(ty - 7.5).toFixed(1)}" width="24" height="15" rx="7.5"/>
+          <text class="rs-fa" x="${(tx - 5).toFixed(1)}" y="${(ty + 3.4).toFixed(1)}">\uf06d</text><text x="${(tx + 5.5).toFixed(1)}" y="${(ty + 3.6).toFixed(1)}">${lv}</text></g>` : ""; })()}
+      ${nb ? `<g class="rs-bidmark"><title>${esc(S("KeyBids"))}: ${nb}</title><rect x="${(c.x + 19).toFixed(1)}" y="${(c.y - 31.5).toFixed(1)}" width="24" height="15" rx="7.5"/>
+        <text class="rs-fa" x="${(c.x + 26).toFixed(1)}" y="${(c.y - 20.6).toFixed(1)}">\uf56b</text><text x="${(c.x + 36.5).toFixed(1)}" y="${(c.y - 20.4).toFixed(1)}">${nb}</text></g>` : ""}</g>`;
   }).join("");
   // рамка всех гексов; если сота поменялась (гекс добавили или сдвинули) — масштаб и центр с нуля
   const nb = { minX, minY, w, h };
@@ -511,7 +524,8 @@ function hexes(s) {
     <a data-rs="zoom" data-d="fit" data-tooltip="${esc(S("ZoomFit"))}"><i class="fa-solid fa-expand"></i></a></div>`;
   return `<div class="rs-map ${focus ? "has-focus" : ""}">
     <svg viewBox="${v.x.toFixed(1)} ${v.y.toFixed(1)} ${v.w.toFixed(1)} ${v.h.toFixed(1)}" preserveAspectRatio="xMidYMid meet">${cells}</svg>
-    ${tools}<div class="rs-legend">${legend}</div></div>`;
+    ${tools}<div class="rs-keys"><span><i class="rs-key-crest"></i>${esc(S("KeyHeld"))}</span><span><i class="fa-solid fa-fire"></i>${esc(S("KeyTrend"))}</span><span><i class="fa-solid fa-feather-pointed"></i>${esc(S("KeyBids"))}</span>${game.user.isGM ? "" : `<span><i class="fa-solid fa-question"></i>${esc(S("KeyFog"))}</span>`}</div>
+    <div class="rs-legend">${legend}</div></div>`;
 }
 
 /* ── Сектор ── */
@@ -716,29 +730,35 @@ function deskView(s) {
     const x = s.sectors.find(y => y.key === k), here = bids.filter(y => y.bid.sector === k);
     const out = here.every(y => s.rolls[y.key]) ? outcome(k, s, bids) : null;
     const rows = here.map(y => { const p = poolOf(y.actor, y.bid, s), m = s.mods[y.key] ?? {}, r = s.rolls[y.key];
-      return `<li class="rs-dbid">${bidRow(y.actor, y.bid, s, true).replace(/^<li class="rs-bid">|<\/li>$/g, "")}
+      return `<li class="rs-dbid ${r ? "is-rolled" : ""} ${r?.botch ? "is-botch" : ""}"><div class="rs-dbid-main">${bidRow(y.actor, y.bid, s, true).replace(/^<li class="rs-bid">|<\/li>$/g, "")}</div>
         <div class="rs-mods" data-key="${y.key}">
-          <label data-tooltip="${esc(S("ModDiceHint"))}">±<input type="number" data-mod="dice" value="${m.dice ?? 0}"></label>
-          <label data-tooltip="${esc(S("ModDiscHint"))}"><i class="fa-solid fa-droplet"></i><input type="number" min="0" max="3" data-mod="disc" value="${m.disc ?? 0}"></label>
-          <label data-tooltip="${esc(S("ModDiffHint"))}">${esc(S("DiffShort"))}±<input type="number" data-mod="diff" value="${m.diff ?? 0}"></label>
-          <span class="rs-res">${r ? `${faces(r, p.diff)} → <b>${r.succ}</b>${r.botch ? ` <em>${esc(S("Botch"))}</em>` : ""}` : `${p.dice}d10 / ${p.diff}`}</span>
-          <a data-rs="roll" data-key="${y.key}" data-tooltip="${esc(S(r ? "Reroll" : "Roll"))}"><i class="fa-solid ${r ? "fa-rotate" : "fa-dice-d10"}"></i></a></div></li>`; }).join("");
+          <label data-tooltip="${esc(S("ModDiceHint"))}"><span>${esc(S("ModDice"))}</span><input type="number" data-mod="dice" value="${m.dice ?? 0}"></label>
+          <label data-tooltip="${esc(S("ModDiscHint"))}"><span><i class="fa-solid fa-droplet"></i> ${esc(S("ModDisc"))}</span><input type="number" min="0" max="3" data-mod="disc" value="${m.disc ?? 0}"></label>
+          <label data-tooltip="${esc(S("ModDiffHint"))}"><span>${esc(S("ModDiff"))}</span><input type="number" data-mod="diff" value="${m.diff ?? 0}"></label>
+          <span class="rs-res">${r ? `${faces(r, p.diff)} → <b>${r.succ}</b>${r.botch ? ` <em>${esc(S("Botch"))}</em>` : ""}` : `<b>${p.dice}</b>d10 · ${esc(S("DiffShort"))} <b>${p.diff}</b>`}</span>
+          <a class="rs-rollbtn" data-rs="roll" data-key="${y.key}" data-tooltip="${esc(S(r ? "Reroll" : "Roll"))}"><i class="fa-solid ${r ? "fa-rotate" : "fa-dice-d10"}"></i></a></div></li>`; }).join("");
     const rs = Object.entries(resist).filter(([rk]) => rk.split(".")[1] === k)
       .map(([rk, n]) => { const r = s.rolls[rk], [, , t, at] = rk.split(".");
-        return `<li class="rs-resist">${esc(S("Resist", { who: owner(t, s).name, vs: owner(at, s).name }))} · ${n}d10 / 6 ${r ? `→ <b>${r.succ}</b>` : ""}</li>`; }).join("");
-    return `<section class="rs-dsec"><h4>${esc(x ? sectorName(x) : k)}</h4><ul class="rs-bids">${rows}${rs}</ul>
+        return `<li class="rs-resist"><i class="fa-solid fa-shield-halved"></i> ${esc(S("Resist", { who: owner(t, s).name, vs: owner(at, s).name }))} · ${n}d10 / 6 ${r ? `→ <b>${r.succ}</b>` : ""}</li>`; }).join("");
+    const col = s.spheres.find(y => y.key === x?.sphere)?.color ?? "#555";
+    return `<section class="rs-dsec"><h4><span><i class="rs-dsec-gem" style="--h:${col}"></i>${esc(x ? sectorName(x) : k)}</span><small>${here.length}</small></h4><ul class="rs-bids">${rows}${rs}</ul>
       ${out ? `<ul class="rs-out">${out.lines.map(l => `<li>${esc(l.t)}</li>`).join("")}${out.trouble.map(t => `<li class="is-warn">${esc(S("Trouble", { who: t.actor.name }))}</li>`).join("")}</ul>` : ""}</section>`;
   }).join("");
   return `<section class="rs-desk">
-    <div class="rs-row"><label class="rs-lbl">${esc(S("TurnLabel"))}<input type="text" data-rs-label value="${esc(s.turn.label)}" placeholder="${esc(S("TurnLabelHint"))}"></label>
-      <a class="r-btn" data-rs="open">${esc(S(s.turn.open ? "CloseBids" : "OpenBids"))}</a></div>
-    <div class="rs-row rs-inline" data-tooltip="${esc(S("ShiftHint"))}"><span class="rs-lbl">${esc(S("Shift"))}</span>
-      <input type="number" min="0" max="999" data-rs-shift="n" value="${s.turn.shift?.n ?? 0}">
-      <select data-rs-shift="unit">${["days", "months", "years"].map(u => `<option value="${u}" ${(s.turn.shift?.unit ?? "months") === u ? "selected" : ""}>${esc(unitLabel(u))}</option>`).join("")}</select></div>
-    <p class="rs-note">${players.length ? players.map(a => `${doneOf(a, s) ? "✔" : "…"} ${esc(a.name)}`).join(" · ") : esc(S("NoPlayersYet"))}</p>
+    <div class="rs-turncard">
+      <div class="rs-turncard-top"><b>${esc(S("TurnN", { n: s.turn.n }))}</b><span class="rs-state ${s.turn.open ? "is-open" : ""}"><i class="fa-solid ${s.turn.open ? "fa-envelope-open-text" : "fa-lock"}"></i> ${esc(S(s.turn.open ? "StateOpen" : "Closed"))}</span>
+        <a class="r-btn" data-rs="open">${esc(S(s.turn.open ? "CloseBids" : "OpenBids"))}</a></div>
+      <div class="rs-turncard-grid">
+        <label class="rs-lbl">${esc(S("TurnLabel"))}<input type="text" data-rs-label value="${esc(s.turn.label)}" placeholder="${esc(S("TurnLabelHint"))}"></label>
+        <div class="rs-lbl" data-tooltip="${esc(S("ShiftHint"))}">${esc(S("Shift"))}<span class="rs-inline">
+          <input type="number" min="0" max="999" data-rs-shift="n" value="${s.turn.shift?.n ?? 0}">
+          <select data-rs-shift="unit">${["days", "months", "years"].map(u => `<option value="${u}" ${(s.turn.shift?.unit ?? "months") === u ? "selected" : ""}>${esc(unitLabel(u))}</option>`).join("")}</select></span></div>
+      </div>
+      <div class="rs-readies">${players.length ? players.map(a => `<span class="rs-ready ${doneOf(a, s) ? "is-done" : ""}" data-tooltip="${esc(S(doneOf(a, s) ? "ReadyDone" : "ReadyWait"))}"><i class="fa-solid ${doneOf(a, s) ? "fa-check" : "fa-hourglass-half"}"></i> ${esc(a.name)} <b>${bidsOf(a, s).length}</b></span>`).join("") : `<span class="rs-note">${esc(S("NoPlayersYet"))}</span>`}</div>
+    </div>
     ${secs.length ? sec : `<p class="rs-note">${esc(S("NoBidsAll"))}</p>`}
     ${npcForm(s)}${pactForm(s)}
-    <div class="rs-row">${bids.length ? `<a class="r-btn" data-rs="rollAll"><i class="fa-solid fa-dice"></i> ${esc(S("RollAll"))}</a>` : ""}
+    <div class="rs-row rs-actions">${bids.length ? `<a class="r-btn" data-rs="rollAll"><i class="fa-solid fa-dice"></i> ${esc(S("RollAll"))}</a>` : ""}
       <a class="r-btn ${rolled ? "is-accent" : ""}" data-rs="resolve"><i class="fa-solid fa-gavel"></i> ${esc(S("Resolve"))}</a></div>
   </section>`;
 }
