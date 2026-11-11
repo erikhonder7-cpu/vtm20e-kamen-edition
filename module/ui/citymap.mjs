@@ -32,7 +32,10 @@ import { masqueradeAt } from "./masquerade.mjs";
 
 import { EXT, registerCityExtension } from "./city-ext.mjs";
 import { CITY_CATEGORIES, catOf, CITY_KINDS, SEAL_SVG, WAX } from "./city-kinds.mjs";
-import { revolution, styleExt, CITY_STYLES, eraStyles, defaultStyle, CITY_LANGS, cls, zoomed, buildStyle } from "./city-style.mjs";
+import { revolution, styleExt, CITY_STYLES, eraStyles, defaultStyle, CITY_LANGS, zoomed, buildStyle } from "./city-style.mjs";
+import { ID, L, esc, uid, showTip, domainActorOn, domainActorColor, T, GROUND_COLORS, groundLabel, inZone, canEditDomain, domainOwners, hunter, canEdit, CHAR_TYPES, placeableActors, kindOf, canManage, crewOf, ownerColor, statusText, NEAR_M, centroid, PIN_INK, RATES, placeInspector } from "././city-util.mjs";
+export { domainActorOn } from "././city-util.mjs";
+import { sealURL, extSeal, drawSeal } from "././city-seals.mjs";
 export { registerCityExtension, CITY_CATEGORIES, CITY_KINDS, CITY_STYLES, CITY_LANGS };
 
 /** Что карта даёт расширениям: состояние и перерисовки (обёртки — объявленное ниже доступно при вызове). */
@@ -48,33 +51,12 @@ const api = {
 };
 const boards = () => EXT.boards;
 
-const ID = "r-citymap";
 const SLATS = 12, STAGGER = 24, SLIDE = 460;
 const CHRONICLE = "chronicle", MINE = "_mine";
 /** Город без данных мира: готовый город модуля с default, иначе пустой. Ключ — и для старых личных меток. */
 const DEFAULT_CITY = "paris-1789";
 const defaultPreset = () => EXT.presets.find(p => p.default) ?? null;
 const LIST_CAP = 250;
-const L = (k, d) => d ? game.i18n.format(`VTM20.City.${k}`, d) : game.i18n.localize(`VTM20.City.${k}`);
-const esc = s => foundry.utils.escapeHTML(String(s ?? ""));
-const uid = () => foundry.utils.randomID(10);
-
-const sealURL = {};   // ключ значка → data URL печати (для булавок-меток в DOM)
-
-/** Записка над картой: что это за место, метка или пятно. x, y — в пикселях карты; null — спрятать. */
-function showTip(x, y, kicker, title, text, lines = []) {
-  const tip = document.querySelector(`#${ID} .rc-stain-tip`);
-  if (!tip) return;
-  if (x == null || (!title && !text)) { tip.hidden = true; return; }
-  tip.innerHTML = `${kicker ? `<small>${esc(kicker)}</small>` : ""}<b>${esc(title)}</b>${text ? `<p>${esc(text)}</p>` : ""}`
-    + lines.map(l => `<span class="rc-tip-line"><i class="fa-solid ${l.icon}"></i>${esc(l.text)}</span>`).join("");
-  const box = tip.parentElement.getBoundingClientRect();
-  tip.hidden = false;
-  // у правого и нижнего края — записка по другую сторону курсора
-  const w = tip.offsetWidth, h = tip.offsetHeight;
-  tip.style.left = `${x + 16 + w > box.width ? x - w - 12 : x + 16}px`;
-  tip.style.top = `${y + 12 + h > box.height ? Math.max(4, y - h - 8) : y + 12}px`;
-}
 
 /** Подсказка над местом города: имя, вид и район, заметка. */
 function poiTip(ev) {
@@ -160,13 +142,6 @@ export function citySpots() {
 
 /* ── Актёр «Домен» на зоне или обведённом домене (план 1): цвет хозяина, лист по щелчку, создание одной кнопкой ── */
 
-/** Домен-актёр, привязанный к зоне или обведённому домену (system.zone — id зоны или домена). */
-export const domainActorOn = id => id ? game.actors.find(a => a.type === "domain" && a.system.zone === id) ?? null : null;
-/** Цвет домена на карте — цвет игрока, владеющего хозяином (у котерии — её игрока); без хозяина — нет. */
-function domainActorColor(da) {
-  const o = da ? game.actors.get(da.system.owner) : null;
-  return o ? ownerColor(o) : null;
-}
 /** Строка о домене-актёре для карточки зоны: хозяин, размер, кнопка листа; без актёра — «Создать домен» (кто может создавать актёров). */
 function domainLinkHtml(id) {
   const da = domainActorOn(id);
@@ -257,23 +232,9 @@ const charPins = new Map(); // actorId → { marker, sig }
 let placing = null;         // актёр, которого ставят на карту следующим щелчком
 let raf = null, lastLabels = 0;
 let menuFolder = null;      // папка, у которой раскрыто меню «⋯»
-const T = (k, d) => L(`Travel.${k}`, d);
 
 /* ── Охота от карты (план 8): угодья у зоны, слой «Угодья», «Охотиться здесь» ─────────── */
 
-/** Цвет угодий на слое «Угодья»: от трущоб (кроваво-красный) к охраняемому кварталу (синий). */
-const GROUND_COLORS = { slums: "#9e1f24", poor: "#7a3a6e", business: "#c9a46a", industrial: "#7d6a45", suburb: "#4f6e55", guarded: "#2f3b55" };
-const groundLabel = k => game.i18n.localize(`VTM20.Hunt.Ground.${k}`);
-
-/** Точка внутри многоугольника зоны (points — [широта, долгота]). */
-function inZone(z, lat, lng) {
-  let inside = false;
-  for (let i = 0, j = z.points.length - 1; i < z.points.length; j = i++) {
-    const [ai, bi] = z.points[i], [aj, bj] = z.points[j];
-    if ((bi > lng) !== (bj > lng) && lat < (aj - ai) * (lng - bi) / (bj - bi) + ai) inside = !inside;
-  }
-  return inside;
-}
 /** Зона с угодьями, в которой стоит персонаж (самая маленькая из подходящих не нужна — первая по списку). */
 const huntZoneOf = a => { const w = whereIs(a); return w ? city().zones.find(z => z.grounds && (game.user.isGM || !z.gmOnly) && inZone(z, w.lat, w.lng)) : null; };
 /** Место для окна охоты: название, угодья и хозяин домена (поле «Владелец» зоны — имя персонажа). Экспорт — для автотестов. */
@@ -304,9 +265,6 @@ function allDomains() {
 }
 const domainById = id => allDomains().find(d => d.id === id);
 const domainAt = (lat, lng) => allDomains().find(d => inZone(d, lat, lng));
-const canEditDomain = d => game.user.isGM || d.user === game.user.id;
-/** Чей домен можно обвести: свои Сородичи; ведущему — все. */
-const domainOwners = () => game.actors.filter(a => a.type === "vampire" && (game.user.isGM || a.isOwner));
 async function saveDomains(user, list) {
   const all = foundry.utils.deepClone(user.getFlag(SYSTEM_ID, DOMAIN_FLAG) ?? {});
   all[city().id] = list;
@@ -342,13 +300,6 @@ EXT.kinds.domain = {
     picked = null; drawBody(); drawOverlay();
   }
 };
-
-/** Кто охотится из карточки зоны: свой персонаж игрока; ведущему — выделенный жетон. */
-function hunter() {
-  const ok = a => a?.hasBlood && a.isOwner;
-  if (game.user.isGM) return canvas?.tokens?.controlled?.map(t => t.actor).find(ok) ?? null;
-  return [game.user.character, ...game.actors.filter(a => a.isOwner)].find(ok) ?? null;
-}
 
 const view = () => {
   const v = foundry.utils.mergeObject({ style: defaultStyle(), lang: "ru", hidden: {}, open: {} }, game.settings.get(SYSTEM_ID, "cityView") ?? {}, { inplace: false });
@@ -472,11 +423,7 @@ function findPicked() {
   }
 }
 
-const canEdit = it => game.user.isGM || !!it?.mine;
-
 /* ── Персонажи ────────────────────────────────────────────────────────── */
-
-const CHAR_TYPES = ["vampire", "ghoul", "mortal", "demon", "hunter", "creature"];
 
 /** Персонажи на карте текущего города, которых видит этот пользователь. */
 function mapActors() {
@@ -484,14 +431,6 @@ function mapActors() {
   return game.actors.filter(a => cityFlag(a)?.city === id && mapVisible(a));
 }
 
-/** Кого можно поставить на карту: свои; ведущему — все персонажи игроков. */
-function placeableActors() {
-  return game.actors.filter(a => CHAR_TYPES.includes(a.type) && (game.user.isGM ? a.isPlayerCharacter : a.isOwner));
-}
-/** Подпись под именем в списке: клан Сородича, иначе тип персонажа. */
-function kindOf(a) {
-  return (a.type === "vampire" && a.clanLabel) || game.i18n.localize(CONFIG.Actor.typeLabels?.[a.type] ?? a.type);
-}
 /** НПС для ведущего: персонажи без игрока — ставятся на карту скрытыми. */
 function npcActors() {
   return game.user.isGM ? game.actors.filter(a => CHAR_TYPES.includes(a.type) && !a.isPlayerCharacter) : [];
@@ -525,22 +464,6 @@ function actorTree(list, row, v) {
     }).join("");
   const loose = (inFolder.get("") ?? []).sort(byName);
   return level(null) + (loose.length ? `<ul class="rc-chars">${loose.map(row).join("")}</ul>` : "");
-}
-
-/** Распоряжаться персонажем (поставить, вывести из группы): владелец или ведущий игры. */
-const canManage = a => !!a?.isOwner;
-/** Видимые этому пользователю попутчики. */
-const crewOf = a => followersOf(a).filter(mapVisible);
-function ownerColor(a) {
-  const u = game.users.find(u => !u.isGM && a.testUserPermission(u, "OWNER"));
-  return u?.color?.css ?? "#b0404c";
-}
-function statusText(a) {
-  const lead = leaderOf(a);
-  if (lead) return T("WithLeader", { name: lead.name, status: statusText(lead) });
-  const w = whereIs(a);
-  if (!w) return T("NotPlaced");
-  return w.place || T("Standing");
 }
 
 /** Фишки персонажей: портрет в кольце цвета игрока. */
@@ -666,8 +589,6 @@ function groupBlock(a, lead) {
     ${add}
   </div>`;
 }
-/** «Рядом» для сбора группы — в пределах квартала. */
-const NEAR_M = 250;
 
 /* ── Каркас шторы ─────────────────────────────────────────────────────── */
 
@@ -893,13 +814,6 @@ function setStyle() {
   map?.setStyle(buildStyle(v.style, v.lang), { diff: false });
 }
 
-/** Детерминированный «шум» по строке — края сургуча у каждой печати свои, но стабильные. */
-function hashRand(str) {
-  let h = 2166136261;
-  for (const ch of str) h = Math.imul(h ^ ch.charCodeAt(0), 16777619);
-  return () => ((h = Math.imul(h ^ (h >>> 15), 2246822507) ^ Math.imul(h ^ (h >>> 13), 3266489909)) >>> 0) / 4294967296;
-}
-
 /** Эмблема (SVG одним путём) цветом кости — картинка для холста. */
 async function emblem(key) {
   const txt = await fetch(`${SYSTEM_PATH}/assets/icons/city/${key}.svg`).then(r => r.ok ? r.text() : "").catch(() => "");
@@ -908,40 +822,6 @@ async function emblem(key) {
   img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(txt.replace(/<path /g, '<path fill="#f3e7cd" '))}`;
   try { await img.decode(); } catch (e) { return null; }
   return img;
-}
-
-/** Картинка печати от модулей (печати фракций и т. п.). */
-async function extSeal(key) {
-  for (const f of EXT.seals) { const img = await f(key); if (img) return img; }
-  return null;
-}
-
-/** Сургучная печать: неровный край, блик, вдавленное кольцо и выпуклая эмблема. */
-function drawSeal(ctx, S, key, wax, img) {
-  const rnd = hashRand(key), c = S / 2, R = S / 2 - 5;
-  ctx.save();
-  ctx.shadowColor = "rgba(0,0,0,.55)"; ctx.shadowBlur = 4; ctx.shadowOffsetY = 2;
-  ctx.beginPath();
-  for (let i = 0; i <= 40; i++) {
-    const t = i / 40 * Math.PI * 2, r = R * (1 + (rnd() - .5) * .09);
-    ctx[i ? "lineTo" : "moveTo"](c + Math.cos(t) * r, c + Math.sin(t) * r);
-  }
-  const g = ctx.createRadialGradient(c - R * .35, c - R * .4, R * .1, c, c, R * 1.05);
-  g.addColorStop(0, wax[0]); g.addColorStop(1, wax[1]);
-  ctx.fillStyle = g; ctx.fill();
-  ctx.restore();
-  // вдавленное кольцо печати
-  ctx.beginPath(); ctx.arc(c, c, R * .78, 0, Math.PI * 2);
-  ctx.lineWidth = 1.6; ctx.strokeStyle = "rgba(0,0,0,.35)"; ctx.stroke();
-  ctx.beginPath(); ctx.arc(c, c + .8, R * .78, 0, Math.PI * 2);
-  ctx.lineWidth = .8; ctx.strokeStyle = "rgba(255,225,190,.18)"; ctx.stroke();
-  if (img) {
-    const w = R * 1.12;
-    ctx.save();
-    ctx.shadowColor = "rgba(0,0,0,.6)"; ctx.shadowBlur = 1.5; ctx.shadowOffsetY = 1.2;
-    ctx.drawImage(img, c - w / 2, c - w / 2, w, w);
-    ctx.restore();
-  }
 }
 
 /** Значки мест: в эпоху Революции — эмблемы на сургуче, иначе — глиф Font Awesome в тёмном круге цвета категории. */
@@ -1111,15 +991,6 @@ function drawOverlay() {
 
 /** Цвет зоны: на слое «Угодья» — по угодьям; зона-домен — цвет игрока хозяина (план 1); иначе свой. */
 const zoneColor = z => (view().hunt && z.grounds && GROUND_COLORS[z.grounds]) || domainActorColor(domainActorOn(z.id)) || z.color || "#b0404c";
-
-const centroid = pts => pts.reduce(([a, b], [x, y]) => [a + x / pts.length, b + y / pts.length], [0, 0]);
-
-/** Чернила подписи булавки: на гравюре — тёмные с бумажным ореолом, ночью — кость с угольным. Прописаны в самой
- *  подписи, а не только в CSS: так ореол не теряется, если стили шторы ещё не подгрузились или их перебили. */
-const PIN_INK = {
-  plan: "color:#22140a;text-shadow:0 0 2px #f4ead2,0 0 2px #f4ead2,0 0 3px #f4ead2,0 0 6px rgba(244,234,210,.95);-webkit-text-stroke:.25px rgba(244,234,210,.6)",
-  night: "color:#f1e3c3;text-shadow:0 0 2px #0e0805,0 0 2px #0e0805,0 0 3px #0e0805,0 0 6px rgba(14,8,5,.95)"
-};
 
 /** Булавки хроники и личные — HTML-маркеры: их можно перетаскивать. */
 function drawPins() {
@@ -1369,8 +1240,6 @@ function syncAim() {
 
 /* ── Часы на карте ────────────────────────────────────────────────────── */
 
-const RATES = [1, 10, 60, 300];
-
 /** Часы ночи в углу карты; ведущему — пуск, скорость и плавная промотка. */
 function drawClock() {
   const box = document.querySelector(`#${ID} .rc-clock`);
@@ -1511,17 +1380,6 @@ function drawInspector() {
   box.hidden = !html;
   if (box.innerHTML !== html) { const top = box.scrollTop; box.innerHTML = html; box.scrollTop = top; }
   placeInspector();
-}
-
-/** Инспектор — под часами и плашкой жара Маскарада: у ведущего часы с кнопками выше, плашка появляется не всегда. */
-function placeInspector() {
-  const root = document.getElementById(ID), box = root?.querySelector(".rc-inspector");
-  if (!box || box.hidden) return;
-  const host = box.offsetParent ?? root, top0 = host.getBoundingClientRect().top;
-  const above = [...root.querySelectorAll(".rc-clock, .rc-masq-plate:not([hidden])")].filter(el => el.offsetParent === host || el.parentElement === box.parentElement);
-  const bottom = Math.max(0, ...above.map(el => el.getBoundingClientRect().bottom - top0));
-  const top = Math.round(bottom ? bottom + 8 : 78);
-  if (box.style.top !== `${top}px`) { box.style.top = `${top}px`; box.style.maxHeight = `calc(100% - ${top + 18}px)`; }
 }
 
 /** Редактор выбранной метки, места, зоны или найденного адреса. */
