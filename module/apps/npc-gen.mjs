@@ -17,6 +17,7 @@ import { makeExtra } from "./extras.mjs";
 import { REVENANT_FAMILIES } from "../data/revenants.mjs";
 import { W as WW } from "./werewolf.mjs";
 import { H as HH } from "./hunter.mjs";
+import { M as MM } from "./mage.mjs";
 import { ROLES, ROLE_GROUPS, POWERS, roleOf, lab, subsForEra } from "./npc-roles.mjs";
 import { KINDS, KIND_GROUPS, kindOf, buildNpc, npcView, createNpc, GROUPS, groupOf, buildGroup } from "./npc-build.mjs";
 
@@ -148,6 +149,14 @@ function paramFields(kind, p) {
     case "hunter":
       F.push({ name: "creed", label: L("Creed"), options: [any(p.creed), ...HH().creeds.filter(c => c.key !== "bystander").map(c => opt(c.key, c.name, p.creed))] });
       break;
+    case "mage": case "technocrat": case "nephandus": {
+      const groups = { mage: ["traditions", "disparates"], technocrat: ["technocracy"], nephandus: ["nephandi"] }[kind];
+      const M = MM(), list = (M.factions ?? []).filter(f => groups.includes(f.group)), f = list.find(x => x.key === p.faction);
+      F.push({ name: "faction", label: loc("VTM20.Mage.Faction"), options: [any(p.faction), ...list.map(x => opt(x.key, x.name, p.faction))] });
+      F.push({ name: "affinity", label: loc("VTM20.Mage.Affinity"), options: [any(p.affinity), ...(M.spheres ?? []).filter(x => !f?.affinity?.length || f.affinity.includes(x.key))
+        .map(x => opt(x.key, (kind === "technocrat" && x.tech?.name) || x.name, p.affinity))] });
+      break;
+    }
     case "garou":
       F.push({ name: "breed", label: L("Breed"), options: [any(p.breed), ...D.breeds.map(x => opt(x.key, x.name, p.breed))] });
       F.push({ name: "auspice", label: L("Auspice"), options: [any(p.auspice), ...D.auspices.map(x => opt(x.key, x.name, p.auspice))] });

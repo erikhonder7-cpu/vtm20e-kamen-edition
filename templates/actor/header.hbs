@@ -31,7 +31,7 @@
         {{#if clan.nickname}}<i class="r-kicker-dia"></i><em class="r-kicker-nick is-link" data-action="clanAtlas" data-tooltip="{{localize 'VTM20.Clans.Open'}}">«{{clan.nickname}}»</em>{{/if}}
         {{#if house}}<i class="r-kicker-dia"></i><em class="r-kicker-nick is-link" data-action="houseAtlas" data-tooltip="{{localize 'VTM20.Demon.AtlasOpen'}}">«{{house.akkadian}}»</em>{{/if}}
         {{#if sectSym}}<i class="r-kicker-dia"></i>{{rSym sectSym "r-sym-inline"}}{{/if}}
-        <span class="r-motto" aria-hidden="true">{{#if earthbound}}Adorate me{{else if isDemon}}Non serviam{{else if isWerewolf}}Pro Gaia{{else if isHunter}}Vigilate{{else if isMage}}{{#if mageInfo.tech}}Ordo ex Scientia{{else}}Ascensio{{/if}}{{else}}La Liberté ou la Mort{{/if}}</span>
+        <span class="r-motto" aria-hidden="true">{{#if earthbound}}Adorate me{{else if isDemon}}Non serviam{{else if isWerewolf}}Pro Gaia{{else if isHunter}}Vigilate{{else if isMage}}{{#if mageInfo.fallen}}Qlippoth{{else if mageInfo.tech}}Ordo ex Scientia{{else}}Ascensio{{/if}}{{else}}La Liberté ou la Mort{{/if}}</span>
       </div>
       <div class="r-name-row">
         <input class="r-name {{nameSize}}" type="text" name="name" value="{{actor.name}}" placeholder="{{localize 'VTM20.Sheet.Name'}}" spellcheck="false">

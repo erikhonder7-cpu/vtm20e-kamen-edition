@@ -365,3 +365,34 @@ body.r-theme-light .vtm20.r-type-mage.r-mage-tech { --r-ink: #10222b; --r-ink-2:
 .application.vtm20.r-dialog.r-cast-dialog.r-mage-tech .form-footer button[data-action=ok] { color: #071318; border-color: #ffffff; background: linear-gradient(180deg, #ffffff, #8fd3ee); }
 .vtm20.r-mage-tech .r-cast-sphere.is-on { border-color: #8fd3ee; background: linear-gradient(90deg, rgba(87, 182, 217, .16), rgba(87, 182, 217, .04)); }
 .vtm20.r-mage-tech .r-cast-sphere.is-on::before { background: linear-gradient(90deg, #8fd3ee, transparent); }
+
+/* ══ Нефанд (секты Падших, Book of the Fallen): та же вёрстка, гамма Бездны — чёрное, запёкшийся багрянец, костяной свет ══ */
+.vtm20.r-type-mage.r-mage-fallen {
+  --m-violet: #a8324a; --m-violet-l: #e2a3ad; --m-violet-d: #2a0a12; --m-gold: #cfc3ae; --m-gold-l: #f3ead8; --m-paradox: #d8ff5e;
+  --r-ink: #efe6dc; --r-ink-2: #c4b4ad; --r-muted: #8d7a78;
+  --r-line: rgba(190, 70, 90, .14); --r-line-2: rgba(190, 70, 90, .3);
+  --r-accent: #d9667c; --r-red-t: var(--r-accent);
+  --r-blood: #7a1c30; --r-blood-l: #a8324a; --r-blood-d: #1a060b;
+  --r-dot-border: rgba(225, 190, 180, .4);
+  --r-dot-fill: radial-gradient(circle at 38% 32%, #f3ead8, #c0475e 50%, #3a0c18);
+  --r-gap-ring: #0a0506; --r-card-bg: rgba(190, 70, 90, .035); --r-option-bg: #150a0d;
+  --r-bg:
+    radial-gradient(ellipse 60% 40% at 50% 108%, rgba(150, 30, 55, .2), transparent 62%),
+    url("../assets/ui/paper-dark.svg"),
+    radial-gradient(ellipse 90% 45% at 50% -8%, rgba(110, 20, 40, .16), transparent 60%),
+    radial-gradient(ellipse at 50% 50%, transparent 38%, rgba(0, 0, 0, .7) 100%),
+    linear-gradient(180deg, #120a0c, #060304);
+}
+body.r-theme-light .vtm20.r-type-mage.r-mage-fallen { --r-ink: #24100f; --r-ink-2: #4a2c2b; --r-muted: #7a5b59; --r-accent: #8f2238; --r-line: rgba(90, 20, 30, .15); --r-line-2: rgba(90, 20, 30, .3);
+  --r-bg: linear-gradient(180deg, #f1e8e4, #e0d0cb); --r-option-bg: #f5eeeb; --r-gap-ring: #eadfda; }
+.vtm20.r-mage-fallen .r-mg, .r-mage-fallen .r-mg { background: linear-gradient(170deg, #f3ead8, #c0475e); }
+/* жёстко заданный аметист корешка, окна и карточек — поворотом тона в багрянец */
+.vtm20.r-type-mage.r-mage-fallen .r-rail, .vtm20.r-type-mage.r-mage-fallen .r-cr-rail { filter: hue-rotate(92deg) saturate(.85); }
+.vtm20.r-type-mage.r-mage-fallen .r-motto { color: var(--r-accent); }
+.r-roll-card.r-type-mage.r-mage-fallen, .r-notice.r-type-mage.r-mage-fallen, .r-item-card.r-type-mage.r-mage-fallen { filter: hue-rotate(92deg) saturate(.85); }
+.vtm20.r-mage-fallen .r-cast-sigil { background: radial-gradient(circle at 50% 35%, rgba(168, 50, 74, .25), rgba(0, 0, 0, .55) 72%); box-shadow: inset 0 0 0 1px rgba(225, 190, 180, .45), 0 0 16px rgba(168, 50, 74, .25); }
+.application.vtm20.r-dialog.r-cast-dialog.r-mage-fallen .form-footer button[data-action=ok] { color: #14060a; border-color: #f3ead8; background: linear-gradient(180deg, #f3ead8, #d9667c); }
+.vtm20.r-mage-fallen .r-cast-sphere.is-on { border-color: #d9667c; background: linear-gradient(90deg, rgba(168, 50, 74, .18), rgba(168, 50, 74, .04)); }
+.vtm20.r-mage-fallen .r-cast-sphere.is-on::before { background: linear-gradient(90deg, #d9667c, transparent); }
+/* Квлифа Сферы — строкой под названием */
+.vtm20 .r-sphere .r-qliph { display: block; font-size: 12px; font-style: italic; color: var(--r-accent); letter-spacing: .3px; }

@@ -3710,7 +3710,8 @@
         "garou": "World of the Garou",
         "fallen": "The Fallen",
         "book": "From the book",
-        "groups": "Groups"
+        "groups": "Groups",
+        "awakened": "The Awakened"
       },
       "Kind": {
         "vampire": "Kindred",
@@ -3730,7 +3731,10 @@
         "earthbound": "Earthbound",
         "thrall": "Thrall",
         "book": "Book stat blocks",
-        "group": "Whole group"
+        "group": "Whole group",
+        "mage": "Mage",
+        "technocrat": "Technocrat",
+        "nephandus": "Nephandus"
       },
       "RoleGroup": {
         "combat": "Combat",
@@ -7036,7 +7040,8 @@
       "Avatar": "Avatar",
       "Sub": "Faction",
       "SubHouse": "House",
-      "SubMethod": "Methodology"
+      "SubMethod": "Methodology",
+      "QliphHint": "The Qlipha of the Qlippoth the Fallen assign to this Sphere. Same rules — only the worldview differs."
     },
     "MageCr": {
       "NeedFaction": "Pick a faction.",
@@ -7080,8 +7085,12 @@
       "Group": {
         "traditions": "Traditions",
         "technocracy": "Technocracy",
-        "disparates": "Crafts"
-      }
+        "disparates": "Crafts",
+        "nephandi": "Nephandi"
+      },
+      "Qliph": "Qlipha",
+      "Qliphoth": "Qlippoth",
+      "Influence": "Influence"
     }
   },
   "Fx": {

@@ -7,7 +7,7 @@
 
 import { SYSTEM_PATH } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
-import { M, mageGlyphSrc, subLabel } from "./mage.mjs";
+import { M, mageGlyphSrc, subLabel, factionGlyph } from "./mage.mjs";
 import { W, wwGlyphSrc } from "./werewolf.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -22,7 +22,7 @@ function mageGroups() {
   const D = M(), mg = n => ({ src: mageGlyphSrc(n) });
   const sphere = k => (D.spheres ?? []).find(s => s.key === k);
   const factions = g => (D.factions ?? []).filter(f => f.group === g.key).map(f => ({
-    key: f.key, name: f.name, sub: f.en, sym: mg(`faction-${f.key}`),
+    key: f.key, name: f.name, sub: f.en, sym: mg(factionGlyph(f)),
     card: () => ({
       kicker: g.name, facts: [fact(loc("Mage.Affinity"), f.affinityText), fact(loc("Mage.Practice"), f.practices)].filter(Boolean),
       chips: (f.affinity ?? []).map(k => ({ sym: mg(`sphere-${k}`), label: g.key === "technocracy" && sphere(k)?.tech ? sphere(k).tech.name : sphere(k)?.name ?? k })),
@@ -35,10 +35,15 @@ function mageGroups() {
     ...(D.groups ?? []).map(g => ({ key: g.key, label: loc(`Atlas.Group.${g.key}`), items: factions(g) })),
     { key: "spheres", label: loc("Mage.Spheres"), items: (D.spheres ?? []).map(s => ({
       key: `sphere:${s.key}`, name: s.name, sub: s.tech ? `${s.en} · ${s.tech.name}` : s.en, sym: mg(`sphere-${s.key}`),
-      card: () => ({ kicker: loc("Atlas.Sphere"), facts: [fact(loc("Atlas.Specialties"), s.specialties)].filter(Boolean),
+      card: () => ({ kicker: loc("Atlas.Sphere"), facts: [fact(loc("Atlas.Specialties"), s.specialties), fact(loc("Atlas.Qliph"), s.qliph && `${s.qliph.name} — «${s.qliph.title}»`)].filter(Boolean),
         sections: [{ title: loc("Atlas.Ranks"), rows: ranks(s.ranks) },
           ...(s.tech ? [{ title: `${loc("Atlas.Technocracy")}: ${s.tech.name}`, sub: s.tech.en, rows: ranks(s.tech.ranks).map(r => ({ ...r, open: false })) }] : [])] })
     })) },
+    // Квиппот Падших (Book of the Fallen): десять Квлиф от 10 к 1 — прозвание, влияние, Сфера
+    { key: "qliphoth", label: loc("Atlas.Qliphoth"), items: (D.qliphoth ?? []).map(q => ({
+      key: `qliph:${q.n}`, name: q.name, sub: `«${q.title}»`, sym: q.sphere ? mg(`sphere-${q.sphere}`) : mg("group-nephandi"),
+      card: () => ({ kicker: `${loc("Atlas.Qliph")} ${q.n}`, nick: q.title,
+        facts: [fact(loc("Atlas.Sphere"), sphere(q.sphere)?.name), fact(loc("Atlas.Influence"), q.influence)].filter(Boolean) }) })) },
     { key: "essences", label: loc("Atlas.Essences"), items: (D.essences ?? []).map(e => ({
       key: `essence:${e.key}`, name: e.name, sub: e.en, icon: "fa-sun", card: () => ({ kicker: loc("Mage.Essence"), text: p(e.text) }) })) },
     { key: "paradigms", label: loc("Atlas.Paradigms"), items: (D.focus?.paradigms ?? []).map((x, i) => ({

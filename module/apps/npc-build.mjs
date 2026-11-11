@@ -10,6 +10,7 @@ import { LibraryItems } from "./library.mjs";
 import { REVENANT_FAMILIES } from "../data/revenants.mjs";
 import { W as WW, ownGift, createSpirit } from "./werewolf.mjs";
 import { H as HH, hasOwnPath } from "./hunter.mjs";
+import { M as MM } from "./mage.mjs";
 import { roleOf, powerOf, ROLES, lab, subsForEra } from "./npc-roles.mjs";
 
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -56,6 +57,7 @@ export const KIND_GROUPS = [
   { key: "mortal", label: "Люди", icon: "fa-user" },
   { key: "garou", label: "Мир Гару", icon: "fa-paw" },
   { key: "fallen", label: "Падшие", icon: "fa-fire-flame-curved" },
+  { key: "awakened", label: "Пробуждённые", icon: "fa-hat-wizard" },
   { key: "groups", label: "Группы", icon: "fa-people-group" },
   { key: "book", label: "Из книги", icon: "fa-book" }
 ];
@@ -76,6 +78,9 @@ export const KINDS = [
   { key: "demon", group: "fallen", label: "Падший", icon: "fa-fire-flame-curved", actor: "demon" },
   { key: "earthbound", group: "fallen", label: "Привязанный к Земле", icon: "fa-gem", actor: "demon" },
   { key: "thrall", group: "fallen", label: "Слуга падшего", icon: "fa-link", actor: "mortal" },
+  { key: "mage", group: "awakened", label: "Маг", icon: "fa-hat-wizard", actor: "mage" },
+  { key: "technocrat", group: "awakened", label: "Технократ", icon: "fa-atom", actor: "mage" },
+  { key: "nephandus", group: "awakened", label: "Нефанд", icon: "fa-skull", actor: "mage" },
   { key: "group", group: "groups", label: "Группа целиком", icon: "fa-people-group", actor: null },
   { key: "book", group: "book", label: "Статблоки книги", icon: "fa-book", actor: null }
 ];
@@ -397,6 +402,50 @@ const BUILD = {
       tags: [house.name, faction?.name ?? "", eb ? t("NpcGen.Earthbound") : ""].filter(Boolean) };
   },
   earthbound(ctx, p) { return BUILD.demon(ctx, p, true); },
+
+  /**
+   * Маг (M20, гл. 6): 7/5/3 и 13/9/5, Факты 7, Сферы 6, Воля 5, Арете 1 — и рост по силе: Арете 1, 2, 3, 5, 7; Сфер больше,
+   * но ни одна не выше Арете; точка в родовой Сфере; Квинтэссенция — по Аватару; фокус — парадигма, практика, инструменты.
+   * groups — из каких групп фракция (маг: Традиции и Ремёсла; технократ; Нефанд).
+   */
+  mage(ctx, p, groups = ["traditions", "disparates"]) {
+    const D = MM(), tier = ctx.power.tier, all = (D.factions ?? []).filter(f => groups.includes(f.group));
+    const f = all.find(x => x.key === p.faction) ?? wpick(all.map(x => [x, x.group === "traditions" ? 3 : 1]));
+    const fallen = f.group === "nephandi";
+    const c = core(ctx, { attr: [7, 5, 3], abil: [13, 9, 5], virt: null, bg: 7, bgType: "mage" });
+    const will = Math.clamp((D.creation?.willpower ?? 5) + ctx.power.add.will, 1, 10);
+    const arete = Math.min([1, 2, 3, 5, 7][Math.clamp(tier, 0, 4)], will);          // кубики магии — не выше Воли
+    const keys = (D.spheres ?? []).map(x => x.key);
+    const affinity = (f.affinity ?? []).includes(p.affinity) || (!f.affinity?.length && keys.includes(p.affinity)) ? p.affinity
+      : f.affinity?.length ? f.affinity[0] : pick(keys);
+    const spheres = Object.fromEntries(keys.map(k => [k, 0]));
+    spheres[affinity] = 1;
+    spread(keys, (D.creation?.spheres ?? 6) - 1 + tier * 3, Math.min(5, arete), (k, v) => (k === affinity ? 5 : (f.affinity ?? []).includes(k) ? 2.5 : v ? 2 : 1), spheres);
+    // без Аватара (Гения) нет Квинтэссенции: если жребий его не дал — точки берутся у самого большого Факта
+    const av = Codex.backgrounds.find(b => b.line === "mage" && /^(Avatar|Genius)/.test(b.en ?? ""));
+    if (av && !c.bgs[av.name]) {
+      const top = Object.entries(c.bgs).sort((x, y) => y[1] - x[1])[0], n = Math.clamp(tier, 1, Math.max(1, (top?.[1] ?? 1) - 1));
+      if (top && top[1] > n) c.bgs[top[0]] -= n;
+      c.bgs[av.name] = n; c.chosen.push(av);
+    }
+    const avatar = av ? c.bgs[av.name] ?? 0 : 0;
+    const F = D.focus ?? {}, own = list => (list ?? []).filter(x => !!x.nephandi === fallen);
+    const practice = pick(own(F.practices).length ? own(F.practices) : F.practices ?? [{ name: "" }]);
+    const tools = pickN([...(fallen ? D.fallenTools ?? [] : []), ...(F.instruments ?? [])], Math.max(1, (D.creation?.instruments ?? 7) - Math.max(0, arete - 2)));
+    const sys = baseSystem(ctx, c, { morality: false });
+    delete sys.virtues;
+    sys.willpower = { permanent: will, temporary: will };
+    sys.mage = { faction: f.key, sub: f.subs?.length && Math.random() < .6 ? pick(f.subs).key : "", essence: pick(D.essences ?? [{ key: "" }]).key, affinity, arete, spheres,
+      quintessence: avatar, paradox: 0, paradoxPerm: 0, paradigm: pick(own(F.paradigms).length ? own(F.paradigms) : F.paradigms ?? [{ name: "" }]).name,
+      practice: practice.name, instruments: tools, resonance: "", rotes: [] };
+    const tech = f.group === "technocracy", name = k => { const sp = D.spheres.find(x => x.key === k); return (tech && sp.tech?.name) || sp.name; };
+    return { actor: "mage", img: "mage", system: sys, items: bgItems(c), c,
+      powers: keys.filter(k => spheres[k] > 0).sort((a, b) => spheres[b] - spheres[a]).map(k => ({ label: name(k), v: spheres[k] })), powersLabel: game.i18n.localize("VTM20.Mage.Spheres"),
+      traits: [[game.i18n.localize(`VTM20.Mage.${tech ? "Tech.Arete" : "Arete"}`), arete], [t("Willpower"), will], [game.i18n.localize(`VTM20.Mage.${tech ? "Tech.Quintessence" : "Quintessence"}`), avatar]],
+      tags: [f.name, sys.mage.sub && f.subs.find(x => x.key === sys.mage.sub)?.name].filter(Boolean) };
+  },
+  technocrat(ctx, p) { return BUILD.mage(ctx, p, ["technocracy"]); },
+  nephandus(ctx, p) { return BUILD.mage(ctx, p, ["nephandi"]); },
 
   garou(ctx, p) {
     const D = WW(), rank = ctx.power.rank;

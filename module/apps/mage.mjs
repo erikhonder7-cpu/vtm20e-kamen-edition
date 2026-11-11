@@ -21,6 +21,8 @@ export const sphereOf = key => (M().spheres ?? []).find(s => s.key === key) ?? n
 export const factionOf = actor => (M().factions ?? []).find(f => f.key === actor?.system?.mage?.faction) ?? null;
 /** Технократ называет Сферы по-своему (Данные, Пространственная наука, Первичная Полезность). */
 const isTech = actor => factionOf(actor)?.group === "technocracy";
+/** Нефанд (Book of the Fallen): Сферы те же, но каждая стоит под своей Квлифой Квиппота; своя гамма листа. */
+export const isFallen = actor => factionOf(actor)?.group === "nephandi";
 export const sphereName = (actor, key) => { const s = sphereOf(key); return (isTech(actor) && s?.tech?.name) || s?.name || key; };
 
 /** Термины Технократии: Арете — Просвещение, Квинтэссенция — Первичная энергия, чародейство — Процедура, Аватар — Гений… */
@@ -38,7 +40,8 @@ export const subOf = actor => factionOf(actor)?.subs?.find(x => x.key === actor?
 /** Как зовётся течение у этой фракции: Дом, Методология, течение. */
 export const subLabel = f => t(f?.key === "order-of-hermes" ? "SubHouse" : f?.group === "technocracy" ? "SubMethod" : "Sub");
 // у гермета знак Дома — вместо знака Ордена
-const factionGlyph = (f, sub = null) => f?.key === "order-of-hermes" && sub ? `house-${sub.key}` : f ? `faction-${f.key}` : "sphere-prime";
+// у сект Падших своих знаков нет — общий знак Нефанди
+export const factionGlyph = (f, sub = null) => f?.key === "order-of-hermes" && sub ? `house-${sub.key}` : f?.group === "nephandi" ? "group-nephandi" : f ? `faction-${f.key}` : "sphere-prime";
 /** Знаки листа: на корешке и водяным знаком — фракция; на печати под портретом — родовая Сфера. */
 export function mageSigil(actor) {
   const f = factionOf(actor), sb = subOf(actor), aff = actor.system.mage?.affinity;
@@ -66,7 +69,7 @@ export function mageInfo(actor, dots) {
   const groups = (D.groups ?? []).map(g => ({ name: g.name, list: (D.factions ?? []).filter(x => x.group === g.key).map(x => ({ key: x.key, name: x.name, selected: x.key === m.faction })) }));
   const allowed = f?.affinity?.length ? f.affinity : VTM20.mageSpheres;
   return {
-    L: labelsOf(actor), tech: isTech(actor), groups, faction: f,
+    L: labelsOf(actor), tech: isTech(actor), fallen: isFallen(actor), groups, faction: f,
     subs: (f?.subs ?? []).map(x => ({ key: x.key, name: x.name, selected: x.key === m.sub })), subLabel: subLabel(f),
     subTip: (x => x ? [x.en, x.note].filter(Boolean).join(" · ") : "")(subOf(actor)), factionTip: f ? [f.en, f.affinityText && `${t("Affinity")}: ${f.affinityText}`, f.practices].filter(Boolean).join(" · ") : "",
     essences: (D.essences ?? []).map(e => ({ key: e.key, name: e.name, tip: e.text, selected: e.key === m.essence })),
@@ -81,20 +84,23 @@ export function mageInfo(actor, dots) {
 
 /** Вкладка Сфер: девять карточек с рангами, фокус и ротэ. */
 export function spheresView(actor, dots) {
-  const m = actor.system.mage, cap = aretePool(actor), D = M(), tech = isTech(actor);
+  const m = actor.system.mage, cap = aretePool(actor), D = M(), tech = isTech(actor), fallen = isFallen(actor);
+  // парадигмы, практики и «злые инструменты» Падших — только Нефанду, и первыми
+  const own = list => [...list.filter(x => x.nephandi && fallen), ...list.filter(x => !x.nephandi)];
   const spheres = (D.spheres ?? []).map(s => {
     const v = m.spheres?.[s.key] ?? 0, alt = tech && s.tech ? s.tech : null;
     return { key: s.key, name: alt?.name ?? s.name, en: alt?.en ?? s.en, icon: s.icon, sym: { src: mageGlyphSrc(`sphere-${s.key}`) }, value: v, over: v > cap, affinity: s.key === m.affinity,
       altTip: !alt && s.tech ? t("TechName", { name: s.tech.name }) : alt ? t("MysticName", { name: s.name }) : "",
+      qliph: fallen && s.qliph ? s.qliph : null,
       specialties: s.specialties, dots: dots(v, 5, { path: `system.mage.spheres.${s.key}` }),
       // на листе — свои ранги и следующий (к чему расти); полный список — в компендии
       ranks: (alt?.ranks ?? s.ranks).map((text, i) => ({ n: i + 1, name: D.ranks?.[i] ?? "", text, owned: i < v })).filter(r => r.n <= v + 1) };
   });
   const F = D.focus ?? {};
-  return { L: labelsOf(actor), tech, spheres, cap, arete: m.arete, capped: cap < m.arete, total: spheres.reduce((s, x) => s + x.value, 0),
-    paradigms: (F.paradigms ?? []).map(p => p.name), practices: (F.practices ?? []).map(p => p.name),
+  return { L: labelsOf(actor), tech, fallen, spheres, cap, arete: m.arete, capped: cap < m.arete, total: spheres.reduce((s, x) => s + x.value, 0),
+    paradigms: own(F.paradigms ?? []).map(p => p.name), practices: own(F.practices ?? []).map(p => p.name),
     practiceTip: (F.practices ?? []).find(p => p.name === m.practice)?.instruments ?? "",
-    tools: m.instruments.map((name, i) => ({ i, name })), toolList: (F.instruments ?? []).filter(x => !m.instruments.includes(x)),
+    tools: m.instruments.map((name, i) => ({ i, name })), toolList: [...(fallen ? D.fallenTools ?? [] : []), ...(F.instruments ?? [])].filter(x => !m.instruments.includes(x)),
     toolsNeed: Math.max(0, (D.creation?.instruments ?? 7) - Math.max(0, m.arete - 2) - m.instruments.length),
     rotes: m.rotes.map((r, i) => ({ i, ...r })) };
 }
@@ -157,7 +163,7 @@ export async function castEffect(actor, preset = {}) {
     `<a class="r-dot${i < cur ? " is-filled" : ""}${i >= max ? " is-locked" : ""}" data-rank="${k}" data-n="${i + 1}"></a>`).join("");
   let res = null, nameNow = () => "";
   await foundry.applications.api.DialogV2.wait({
-    window: { title: `${mt(actor, "CastTitle")}: ${actor.name}`, icon: "fa-solid fa-hat-wizard" }, classes: ["vtm20", "r-dialog", "r-cast-dialog", "r-type-mage", ...(isTech(actor) ? ["r-mage-tech"] : [])], position: { width: 600 },
+    window: { title: `${mt(actor, "CastTitle")}: ${actor.name}`, icon: "fa-solid fa-hat-wizard" }, classes: ["vtm20", "r-dialog", "r-cast-dialog", "r-type-mage", ...(isTech(actor) ? ["r-mage-tech"] : []), ...(isFallen(actor) ? ["r-mage-fallen"] : [])], position: { width: 600 },
     content: `<div class="r-cast">
       <header class="r-cast-head"><span class="r-cast-sigil">${mageGlyph(factionGlyph(f, subOf(actor)))}</span>
         <span class="r-cast-who"><small>${esc(f?.name ?? mt(actor, "CastTitle"))}</small><b>${esc(actor.name)}</b></span>

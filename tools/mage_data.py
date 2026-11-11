@@ -221,6 +221,87 @@ def parse_subs():
     return out
 
 
+# ── Нефанди (M20 Book of the Fallen): секты, Квиппот, фокус и черты Падших ──
+FALLEN = os.path.join(REF, "M20_Book_of_the_Fallen")
+SPHERE_RU = {"Соответствие": "correspondence", "Энтропия": "entropy", "Силы": "forces", "Жизнь": "life", "Материя": "matter", "Разум": "mind",
+             "Первоначало": "prime", "Дух": "spirit", "Время": "time"}
+# инструмент «Насилие (Violation)» в систему не выносим: книга сама оставляет его за закрытой дверью
+FALLEN_SKIP_TOOLS = ("Насилие",)
+
+
+def fallen(prefix):
+    fn = next(f for f in sorted(os.listdir(FALLEN)) if f.startswith(prefix))
+    return read(os.path.join(FALLEN, fn))
+
+
+def parse_nephandi():
+    """Секты Падших; Квлифы (номер, прозвание, влияние, Сфера); парадигмы, практики, инструменты; Достоинства и недостатки."""
+    t1, t2 = fallen("01"), fallen("02")
+    # секты: «Секты Падших (…): Инфернальисты (Infernalists), …» и ниже «- **Инфернальисты:** фокус»
+    sec = section(t2, "## Фокус по сектам")
+    head = next(l for l in sec if l.startswith("Секты Падших"))
+    pairs = re.findall(r"([^,()]+?)\s*\(([A-Za-z’'/ ]+)\)", head.split("):", 1)[1])
+    ens = [en.strip() for _, en in pairs]
+    full = [ru.split("/")[0].strip(" «»") for ru, _ in pairs]
+    sects = []
+    for line in sec:
+        m = re.match(r"^- \*\*(.+?):\*\*\s*(.*)$", line)
+        if m:
+            en = ens[len(sects)] if len(sects) < len(ens) else ""
+            sects.append({"key": wd.slug(en.split("/")[0]), "name": full[len(sects)] if len(sects) < len(full) else m.group(1).strip(), "en": en, "group": "nephandi",
+                          "affinity": [], "affinityText": "", "practices": plain(m.group(2))})
+    # Квиппот: «10 **Лилит** («Королева Ночи»), 9 **Гамалиэль** …»; влияние и Сферы — отдельными строками раздела
+    q = "\n".join(section(t1, "## Квиппот и путь Нефанди"))
+    qliph = [{"n": int(n), "name": name, "title": title} for n, name, title in re.findall(r"(\d+) \*\*(.+?)\*\* \(«(.+?)»", q)]
+    infl = re.search(r"Влияние: (.+?)(?:\.|$)", q, re.M)
+    for part in (infl.group(1).split(",") if infl else []):
+        nm, _, txt = part.partition("—")
+        hit = next((x for x in qliph if x["name"].replace("’", "'") == nm.strip().replace("’", "'")), None)
+        if hit:
+            hit["influence"] = txt.strip()
+    by_sphere = {}
+    corr = re.search(r"\*\*(Соответствие — .+?)\*\*", q)
+    for part in (re.sub(r"\(.*?\)", "", corr.group(1)).split(";") if corr else []):
+        sp, _, nm = part.partition("—")
+        key = SPHERE_RU.get(sp.strip())
+        hit = next((x for x in qliph if x["name"] == nm.strip().rstrip(".")), None)
+        if key and hit:
+            hit["sphere"] = key
+            by_sphere[key] = {"name": hit["name"], "title": hit["title"]}
+    paradigms = []
+    for line in section(t2, "## Нефандские парадигмы"):
+        m = re.match(r"^- \*\*(.+?) \((.+?)\)[:.]?\*\*[:.]?\s*(.*)$", line)
+        if m:
+            paradigms.append({"name": m.group(1), "en": m.group(2), "text": plain(m.group(3)), "nephandi": True})
+    practices = []
+    for line in section(t2, "## Практики Падших"):
+        m = re.match(r"^- \*\*(.+?) \((.+?)\)[:.]?\*\*[:.]?\s*(.*)$", line)
+        if not m or m.group(2).startswith("Maleficia"):
+            continue
+        body = plain(m.group(3))
+        ab = re.search(r"Способности: (.+?)\.(?: Инструменты|$)", body)
+        tools = re.search(r"Инструменты: (.+)$", body)
+        practices.append({"name": m.group(1), "en": m.group(2), "paradigms": "", "abilities": ab.group(1) if ab else "",
+                          "instruments": tools.group(1).rstrip(".") if tools else "", "text": body.split(" Способности:")[0], "nephandi": True})
+    tools = []
+    for line in section(t2, "## Злые инструменты"):
+        m = re.match(r"^- \*\*(.+?)(?: \((.+?)\))?[:.]?\*\*[:.]?", line)
+        if m and not m.group(1).startswith(FALLEN_SKIP_TOOLS):
+            tools.append(m.group(1).strip())
+    merits = []
+    for kind, heading in (("merit", "### Достоинства"), ("flaw", "### Недостатки")):
+        for line in section(t1, heading):
+            m = re.match(r"^\|\s*\*\*(.+?) \((.+?)\)\*\*\s*\|\s*(.+?)\s*\|\s*(.+?)\s*\|\s*$", line)
+            if not m:
+                continue
+            cost, lo, hi = cost_of(m.group(3))
+            merits.append({"kind": kind, "category": "supernatural", "name": m.group(1).split(" / ")[0], "en": m.group(2).split(" / ")[0], "cost": cost, "min": lo, "max": hi,
+                           "clan": "", "sect": "", "era": "", "source": "M20 Book of the Fallen", "html": f"<p>{wd.md_inline(m.group(4))}</p>",
+                           # Виддерслаинте книга разрешает и не-Падшему; прочее — только прошедшим Каул
+                           **({} if "Widderslainte" in m.group(2) else {"nephandi": True})})
+    return {"sects": sects, "qliphoth": qliph, "bySphere": by_sphere, "paradigms": paradigms, "practices": practices, "tools": tools, "merits": merits}
+
+
 def parse_essences():
     out = []
     for line in section(core("01"), "## Сущность Аватара"):
@@ -373,15 +454,22 @@ def parse_books():
 def build():
     spheres, factions = parse_spheres(), parse_factions()
     subs = parse_subs()
+    neph = parse_nephandi()
+    factions += neph["sects"]
+    for sp in spheres:
+        if neph["bySphere"].get(sp["key"]):
+            sp["qliph"] = neph["bySphere"][sp["key"]]
     for f in factions:
         if subs.get(f["key"]):
             f["subs"] = subs[f["key"]]
     data = {
         "source": "Mage: The Ascension 20th Anniversary Edition — справочник проекта (пересказ механики)",
         "spheres": spheres, "ranks": RANKS, "arete": ARETE,
-        "groups": [{"key": k, "name": n} for k, n, _ in GROUPS], "factions": factions,
+        "groups": [{"key": k, "name": n} for k, n, _ in GROUPS] + [{"key": "nephandi", "name": "Нефанди"}], "factions": factions,
+        "qliphoth": neph["qliphoth"], "fallenTools": neph["tools"],
         "essences": parse_essences(), "archetypes": parse_archetypes(),
-        "backgrounds": parse_backgrounds(), "merits": parse_merits(), "focus": parse_focus(),
+        "backgrounds": parse_backgrounds(), "merits": parse_merits() + neph["merits"], "focus": (lambda f: {**f, "paradigms": f["paradigms"] + neph["paradigms"],
+                                                                                              "practices": f["practices"] + neph["practices"]})(parse_focus()),
         "freebies": FREEBIES, "xp": XP, "casting": CASTING, "effect": EFFECT, "backlash": BACKLASH,
         "creation": {"attributes": [7, 5, 3], "abilities": [13, 9, 5], "abilityMax": 3, "backgrounds": 7, "spheres": 6, "arete": 1, "areteMax": 3,
                      "willpower": 5, "freebies": 15, "flawsMax": 7, "instruments": 7},

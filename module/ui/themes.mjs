@@ -29,6 +29,9 @@ export function lineEmblem(actor) {
 /** Маг Технократического Союза: свои термины и холодная гамма (styles/types/mage.css, .r-mage-tech). */
 export const isTechnocrat = actor => actor?.type === "mage"
   && (globalThis.game?.vtm20Codex?.mage?.factions ?? []).find(f => f.key === actor.system?.mage?.faction)?.group === "technocracy";
+/** Нефанд — маг секты Падших: гамма Бездны (styles/types/mage.css, .r-mage-fallen). */
+export const isNephandus = actor => actor?.type === "mage"
+  && (globalThis.game?.vtm20Codex?.mage?.factions ?? []).find(f => f.key === actor.system?.mage?.faction)?.group === "nephandi";
 export function cardBlocks(state, ev, actor) {
   const out = {};
   for (const [k, fn] of Object.entries(CARD_BLOCKS)) if (state.extra?.[k]) { try { out[k] = fn(state, ev, actor); } catch (e) { console.error(e); } }
@@ -54,7 +57,7 @@ function actorOf(app) {
 export const themeOf = actor => !actor?.type ? null : actor.type === "creature" && actor.system?.spirit?.on ? "spirit" : actor.type;
 
 /** Класс темы для своих HTML-кусков (карточки, уведомления). */
-export const themeClass = actor => actor?.type ? `r-type-${themeOf(actor)}${isTechnocrat(actor) ? " r-mage-tech" : ""}` : "";
+export const themeClass = actor => actor?.type ? `r-type-${themeOf(actor)}${isTechnocrat(actor) ? " r-mage-tech" : ""}${isNephandus(actor) ? " r-mage-fallen" : ""}` : "";
 
 const quiet = new WeakMap();
 export function registerThemes() {
@@ -75,6 +78,7 @@ export function registerThemes() {
     // Привязанный к Земле — своя, огненная палитра поверх темы падшего
     const owner = actorOf(app);
     element.classList.toggle("r-mage-tech", "mageTech" in app ? !!app.mageTech : isTechnocrat(owner));   // мастер создания решает сам
+    element.classList.toggle("r-mage-fallen", "mageFallen" in app ? !!app.mageFallen : isNephandus(owner));
     if (owner) element.classList.toggle("r-earthbound", "isEarthbound" in app ? !!app.isEarthbound : !!owner.system?.earthbound);   // мастер решает сам
     // щелчок в окне персонажа — его тему получит и подтверждение, которое откроется следом
     if (!element.dataset.rTheme) {

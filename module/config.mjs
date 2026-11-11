@@ -224,6 +224,7 @@ VTM20.traitFor = (m, who = {}) => {
   if (m.vampire && who.type && who.type !== "vampire") return false;      // поколение, клыки, торпор… — не для гуля и смертного
   if (!m.line && (m.clan || m.sect) && who.type && who.type !== "vampire") return false;   // клановые и сектантские черты Сородичей — только им
   if (m.dhampir && !who.dhampir) return false;
+  if (m.nephandi && !who.nephandi) return false;                           // черты прошедших Каул (Book of the Fallen) — только Нефанди
   if (m.mortal && who.type && !["mortal", "hunter"].includes(who.type)) return false;
   if (m.bystander && !who.lost) return false;
   return true;

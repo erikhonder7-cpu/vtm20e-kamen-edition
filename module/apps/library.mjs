@@ -10,7 +10,7 @@
 // путь требует самой Дисциплины. «Даром» — награда рассказчика или правка листа.
 
 import { VTM20, SYSTEM_PATH, SYSTEM_ID } from "../config.mjs";
-import { isTechnocrat } from "../ui/themes.mjs";
+import { isTechnocrat, isNephandus } from "../ui/themes.mjs";
 import { Codex } from "../data/codex.mjs";
 import { blockerFor } from "../data/trait-rules.mjs";
 import { traitIcon, backgroundIcon } from "../data/icons.mjs";
@@ -302,7 +302,7 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
         groupName: game.i18n.localize(VTM20.meritCategories[m.category]?.label ?? m.category) };
     };
     // кому видна черта — VTM20.traitFor (то же правило, что в мастере создания)
-    const who = { type: this.actor?.type, dhampir: !!this.actor?.isDhampir, lost: isLost(this.actor) };
+    const who = { type: this.actor?.type, dhampir: !!this.actor?.isDhampir, lost: isLost(this.actor), nephandi: isNephandus(this.actor) };
     return Codex.merits.filter(m => m.kind === kind && Codex.visible(m) && VTM20.traitFor(m, who)).map(m => {
       const costs = costsOf(m);
       const blocker = blockerFor(m.name, mine);

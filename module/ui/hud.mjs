@@ -345,6 +345,7 @@ export function renderHud() {
   }
   const s = a.system, kind = kindOf(a);
   el.classList.add(`rh-t-${kind}`);
+  if (kind === "mage") { const g = factionOf(a)?.group; if (g === "technocracy") el.classList.add("is-tech"); else if (g === "nephandi") el.classList.add("is-fallen"); }
   const tabs = tabsOf(a, kind), cur = tabs.find(x => x.key === tabOf.get(a.id)) ?? tabs[0];
   const group = cur.key === "powers" && pop ? powerGroups(a, kind).find(g => g.id === pop) : null;
   const popup = group ? `<div class="rh-pop"><header>${group.img ? `<img src="${esc(group.img)}" alt="">` : `<i class="fa-solid ${group.icon}"></i>`}<b>${esc(group.label)}</b>

@@ -29,6 +29,8 @@ body.r-hud-on #hotbar { display: none !important; }
 #r-hud.rh-t-demon    { --h-acc: #e4793e; --h-acc-d: #8a3412; --h-acc-rgb: 228, 121, 62; }
 #r-hud.rh-t-hunter   { --h-acc: #e3a24c; --h-acc-d: #7a5418; --h-acc-rgb: 227, 162, 76; }
 #r-hud.rh-t-mage     { --h-acc: #a58fd0; --h-acc-d: #4a3a86; --h-acc-rgb: 165, 143, 208; }
+#r-hud.rh-t-mage.is-tech   { --h-acc: #8fd3ee; --h-acc-d: #1f6f8d; --h-acc-rgb: 143, 211, 238; }
+#r-hud.rh-t-mage.is-fallen { --h-acc: #d9667c; --h-acc-d: #7a1c30; --h-acc-rgb: 217, 102, 124; }
 #r-hud.rh-t-mortal   { --h-acc: #cdbf9f; --h-acc-d: #6e6556; --h-acc-rgb: 205, 191, 159; }
 #r-hud.rh-t-creature, #r-hud.rh-t-spirit { --h-acc: #6cb8ad; --h-acc-d: #22605a; --h-acc-rgb: 108, 184, 173; }
 

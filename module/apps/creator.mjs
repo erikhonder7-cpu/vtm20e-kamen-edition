@@ -19,7 +19,7 @@ import { blockerFor, checkTraits } from "../data/trait-rules.mjs";
 import { attachCombos } from "../ui/combo.mjs";
 import { traitIcon, backgroundIcon } from "../data/icons.mjs";
 import { W as werewolfData, ownGift, wwGlyphSrc, feraSym } from "./werewolf.mjs";
-import { M as mageData, mageGlyphSrc, subLabel } from "./mage.mjs";
+import { M as mageData, mageGlyphSrc, subLabel, factionGlyph } from "./mage.mjs";
 import { H as hunterData, edgeCost, growth as hunterGrowth, sacrificeOn as hunterSacrificeOn, hasOwnPath, creedCapped, edgeBarred, HERMIT_PATH, hermitEdgeMadness, hasPrevEdge } from "./hunter.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -251,6 +251,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
   get isMage() { return this.type === "mage"; }
   get mageFaction() { return (mageData().factions ?? []).find(f => f.key === this.st.mg.faction) ?? null; }
   get mageTech() { return this.mageFaction?.group === "technocracy"; }
+  get mageFallen() { return this.mageFaction?.group === "nephandi"; }
   /** Сфера как «Дисциплина» мастера: имя (у Технократии — своё) и ранги вместо сил. */
   mageSphere(k) {
     const D = mageData(), sp = (D.spheres ?? []).find(x => x.key === k), alt = this.mageTech && sp?.tech ? sp.tech : null;
@@ -701,7 +702,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     // Маг: фракция со знаком, Сущность и родовая Сфера; Арете на месте морали
     if (this.isMage) {
       const D = mageData(), f = this.mageFaction;
-      Object.assign(ctx.patent, { clan: f?.name ?? "", sectSym: null, sym: f ? { src: mageGlyphSrc(`faction-${f.key}`) } : null,
+      Object.assign(ctx.patent, { clan: f?.name ?? "", sectSym: null, sym: f ? { src: mageGlyphSrc(factionGlyph(f)) } : null,
         sect: [(D.essences ?? []).find(e => e.key === st.mg.essence)?.name, st.mg.affinity && this.mageSphere(st.mg.affinity)?.name].filter(Boolean).join(" · ") });
     }
     // Гару: племя (у Фера — род), аугурия и порода, Ярость и Гнозис вместо морали
@@ -804,9 +805,9 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       const allowed = f?.affinity?.length ? f.affinity : VTM20.mageSpheres;
       ctx.isMage = true;
       ctx.mage = {
-        groups: (D.groups ?? []).map(x => ({ key: x.key, label: x.name, active: x.key === grp, sym: { src: mageGlyphSrc(x.key === "technocracy" ? "group-technocracy" : x.key === "traditions" ? "group-traditions" : "faction-orphans") } })),
-        factions: (D.factions ?? []).filter(x => x.group === grp).map(x => ({ key: x.key, label: x.name, en: x.en, active: x.key === g.faction, sub: x.affinityText ?? "", sym: { src: mageGlyphSrc(`faction-${x.key}`) } })),
-        faction: f ? { ...f, sym: { src: mageGlyphSrc(`faction-${f.key}`) } } : null,
+        groups: (D.groups ?? []).map(x => ({ key: x.key, label: x.name, active: x.key === grp, sym: { src: mageGlyphSrc(x.key === "nephandi" ? "group-nephandi" : x.key === "technocracy" ? "group-technocracy" : x.key === "traditions" ? "group-traditions" : "faction-orphans") } })),
+        factions: (D.factions ?? []).filter(x => x.group === grp).map(x => ({ key: x.key, label: x.name, en: x.en, active: x.key === g.faction, sub: x.affinityText ?? "", sym: { src: mageGlyphSrc(factionGlyph(x)) } })),
+        faction: f ? { ...f, sym: { src: mageGlyphSrc(factionGlyph(f)) } } : null,
         essences: (D.essences ?? []).map(e => ({ key: e.key, label: e.name, active: e.key === g.essence, text: VtMCreator.#plain(e.text ?? "") })),
         affinities: VTM20.mageSpheres.map(k => ({ key: k, label: this.mageSphere(k)?.name ?? k, active: k === g.affinity, off: !allowed.includes(k), sym: { src: mageGlyphSrc(`sphere-${k}`) } })),
         paradigms: (D.focus?.paradigms ?? []).map(p => p.name), practices: (D.focus?.practices ?? []).map(p => p.name),
@@ -949,7 +950,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     const myClan = this.type === "vampire" ? Codex.traitClan(st.clan) : "";
     const mySect = st.sectKey || Codex.sectKey(st.sect);
     // кому видна черта — VTM20.traitFor (то же правило, что в библиотеке); слуга берёт черты падших, кроме инфернальных
-    const who = { type: this.type, dhampir: this.isDhampir, lost: this.isLost, thrall: this.isThrall };
+    const who = { type: this.type, dhampir: this.isDhampir, lost: this.isLost, thrall: this.isThrall, nephandi: this.isMage && this.mageFallen };
     // черты гулей (Ghouls & Revenants) — своей вкладкой «Гулевые», как клановые у вампира
     // запрет клану или линии (notClan: «Тореадорам недоступно», DA High/Low Clans) — черту не показываем
     const banned = m => !!st.clan && (m.notClan ?? []).includes(st.clan);
