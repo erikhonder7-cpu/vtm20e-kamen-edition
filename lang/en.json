@@ -7256,7 +7256,18 @@
         "hellfireHit": "<b>{name}</b> hits with Hellfire: {n} aggravated damage. The target soaks at difficulty 9.",
         "regen": "Regeneration: 1 Willpower — 1 health level",
         "regenNone": "Nothing to heal.",
-        "regenDone": "<b>{name}</b> closes a wound by the Patron's power: −1 Willpower, healed ({type}). Does not heal wounds from Prime or True Faith."
+        "regenDone": "<b>{name}</b> closes a wound by the Patron's power: −1 Willpower, healed ({type}). Does not heal wounds from Prime or True Faith.",
+        "inhuman": "Inhuman Attributes: raise an Attribute (each 3 points — one dot, up to 8)",
+        "inhumanPick": "Which Attribute to raise (left: {left})",
+        "inhumanRaise": "Raise",
+        "inhumanDone": "All dots of this Investment are already placed ({n}).",
+        "inhumanUp": "<b>{name}</b>: the Patron’s gift — {attr} is now {n}.",
+        "key": "Infernal Key: Manipulation + Occult, difficulty 7",
+        "keySub": "1 success — an ordinary lock, 3 or more — a complex one; does not work on electronics",
+        "sight": "Shameful Sight: Perception + Occult against the target’s Willpower (target someone)",
+        "sightSub": "difficulty — Willpower of {name}; 1–2 successes — tormenting thoughts, 5 — deeply hidden ones",
+        "search": "Search and Find: Perception + Enigmas",
+        "searchSub": "the clue on the palm is exact but obscure; harder if its language is foreign"
       },
       "Craft": {
         "Title": "Crafting a Wonder",
@@ -7297,6 +7308,15 @@
         "Made": "<b>{name}</b> drinks the blood of {domitor} and becomes a ghoul: Potence 1, vitae in the body.",
         "Freed": "<b>{name}</b> is a ghoul no more: the blood of {domitor} has left the body.",
         "Healed": "<b>{name}</b> heals a wound with blood ({type}). Vitae left: {n}."
+      },
+      "Pact": {
+        "Add": "New infernal pact",
+        "Short": "Pact",
+        "Level": "Level",
+        "Patron": "Patron",
+        "Terms": "Terms",
+        "Rule": "A pact level grants as many points for Investments. They cannot be spent on Arete or Spheres. Optional rule from Book of the Fallen.",
+        "Budget": "pact points: {spent} of {n}"
       }
     },
     "MageCr": {

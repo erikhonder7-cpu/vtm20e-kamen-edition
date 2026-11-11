@@ -413,6 +413,10 @@ def parse_paradox_spirits():
     return out
 
 
+# Инфернальные пакты (Book of the Fallen, необязательное правило): уровень пакта = столько же очков на Инвестиции
+PACT_LEVELS = ["Злоба", "Жестокость", "Безнравственность", "Проступок", "Порча", "Смертный грех", "Ересь", "Великое зло", "Жизненная связь", "Пакт души"]
+
+
 def parse_investments():
     """Инфернальные Инвестиции (Book of the Fallen): дары Патрона — черты с ценой в очках Пакта."""
     out = []
@@ -704,7 +708,7 @@ def build():
         "qliphoth": neph["qliphoth"], "fallenTools": neph["tools"], "sorcerer": parse_sorcerer(), "rotes": parse_rotes(),
         "essences": parse_essences(), "archetypes": parse_archetypes(),
         "backgrounds": parse_backgrounds(), "merits": parse_merits() + neph["merits"] + invest, "wonders": wonders,
-        "quiet": QUIET, "pflaws": PFLAWS, "resonance": RESONANCE, "paradoxSpirits": parse_paradox_spirits(), "realms": REALMS, "focus": (lambda f: {**f, "paradigms": f["paradigms"] + neph["paradigms"],
+        "quiet": QUIET, "pflaws": PFLAWS, "resonance": RESONANCE, "paradoxSpirits": parse_paradox_spirits(), "realms": REALMS, "pactLevels": PACT_LEVELS, "focus": (lambda f: {**f, "paradigms": f["paradigms"] + neph["paradigms"],
                                                                                               "practices": f["practices"] + neph["practices"]})(parse_focus()),
         "gauntlet": GAUNTLET, "counter": COUNTER, "freebies": FREEBIES, "xp": XP, "casting": CASTING, "effect": EFFECT, "backlash": BACKLASH,
         "creation": {"attributes": [7, 5, 3], "abilities": [13, 9, 5], "abilityMax": 3, "backgrounds": 7, "spheres": 6, "arete": 1, "areteMax": 3,

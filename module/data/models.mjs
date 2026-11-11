@@ -618,6 +618,8 @@ export class MageData extends MortalData {
         pflaws: new ArrayField(new SchemaField({ name: str(), grade: str("trivial"), text: str() })),
         seeking: new BooleanField({ initial: false }),
         // Маг-гуль (V20, гл. 9 — правила гулей): домитор и его клан, витэ вампира в теле (до 10), ступень уз крови (0–3)
+        // Инфернальные пакты Падшего (Book of the Fallen): уровень 1–10 даёт столько же очков на Инвестиции; inhuman — Атрибуты, поднятые Инвестицией
+        pacts: new ArrayField(new SchemaField({ level: int(1, 1, 10), patron: str(), terms: str() })), inhuman: new ObjectField({ initial: {} }),
         ghoul: new SchemaField({ on: new BooleanField({ initial: false }), domitor: str(), clan: str(), vitae: int(0, 0, 10), bond: int(0, 0, 3) }) })
     };
   }

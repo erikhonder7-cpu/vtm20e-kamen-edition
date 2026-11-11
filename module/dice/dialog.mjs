@@ -15,6 +15,10 @@ import { dreadDice, frenzyDiff, mindDiff, centered, painless } from "../apps/tar
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
 
+/** Люциферианское очарование (Book of the Fallen): социальный бросок Падшего открывается со сложностью 4. */
+const charmed = (actor, cfg) => ["charisma", "manipulation", "appearance"].includes(cfg.trait1?.split(".").pop()) && actor?.type === "mage"
+  && actor.items.some(i => i.type === "merit" && i.system.source === "Luciferian Charm");
+
 export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
     classes: ["vtm20", "r-dialog", "r-roll-dialog"],
@@ -37,7 +41,7 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     this.cfg = cfg;
     this.values = {
       trait1: cfg.trait1 ?? "", trait2: cfg.trait2 ?? "",
-      bonus: cfg.bonus ?? 0, difficulty: cfg.difficulty ?? VTM20.defaultDifficulty, actions: cfg.celerityAction ? 1 : (cfg.actions ?? declaredActions(actor)),
+      bonus: cfg.bonus ?? 0, difficulty: cfg.difficulty ?? (charmed(actor, cfg) ? 4 : VTM20.defaultDifficulty), actions: cfg.celerityAction ? 1 : (cfg.actions ?? declaredActions(actor)),
       contest: cfg.contest ?? "simple", need: cfg.need ?? 5,
       specialty: !!cfg.specialty, willpower: !!cfg.willpower,
       wounds: !cfg.reflexive, physical: true,

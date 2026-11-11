@@ -96,9 +96,16 @@
   </ul>
 
   {{!-- Инфернальные Инвестиции Падшего (Book of the Fallen): дары Патрона; у Адского пламени и Регенерации — кнопка --}}
-  {{#if mageState.investments.length}}
-  <h2 class="r-h2"><span>{{localize "VTM20.Mage.Invest.Title"}}</span></h2>
+  {{#if mageState.fallen}}
+  <h2 class="r-h2"><span>{{localize "VTM20.Mage.Invest.Title"}}</span>
+    <span class="r-h2-tools"><span class="r-gs-pool {{#if mageState.pacts.over}}is-diff{{/if}}" data-tooltip="{{localize 'VTM20.Mage.Pact.Rule'}}">{{localize "VTM20.Mage.Pact.Budget" spent=mageState.pacts.spent n=mageState.pacts.total}}</span>
+      {{#if editable}}<a class="r-h2-btn" data-action="openPack" data-pack="mage-merits" data-tooltip="{{localize 'VTM20.Sheet.PackHint'}}"><i class="fa-solid fa-book-open-reader"></i> <span class="r-h2-lbl">{{localize "VTM20.Library.Open"}}</span></a><a class="r-h2-btn is-ghost" data-action="magePactAdd" data-tooltip="{{localize 'VTM20.Mage.Pact.Add'}}"><i class="fa-solid fa-file-signature"></i> <span class="r-h2-lbl">{{localize "VTM20.Mage.Pact.Short"}}</span></a>{{/if}}</span></h2>
   <ul class="r-edge-list r-rotes">
+    {{#each mageState.pacts.list}}
+    <li class="r-edge r-rote"><span class="r-edge-lvl"><i class="fa-solid fa-file-signature"></i></span>
+      <span class="r-edge-main"><b>{{name}}</b> <span class="r-cast-chip is-kind is-vulgar">{{level}}</span>{{#if patron}} <small>{{patron}}</small>{{/if}}{{#if terms}}<div class="r-edge-text">{{terms}}</div>{{/if}}</span>
+      {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="magePactDel" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}</li>
+    {{/each}}
     {{#each mageState.investments}}
     <li class="r-edge r-rote" data-item-id="{{id}}"><span class="r-edge-lvl"><i class="fa-solid fa-handshake-angle"></i></span>
       <span class="r-edge-main"><a data-action="itemEdit"><b>{{name}}</b></a> <span class="r-cast-chip is-kind is-vulgar">{{cost}}</span></span>

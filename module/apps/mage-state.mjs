@@ -39,7 +39,7 @@ export function stateView(actor, dots) {
       insulate: mar ? m.quiet.level * (Q.insulate ?? 5) : 0 },
     flaws: m.pflaws.map((f, i) => ({ i, ...f, gradeName: (D.pflaws ?? []).find(g => g.key === f.grade)?.name ?? "" })),
     seeking: m.seeking, marauder: mar, isGM: game.user.isGM,
-    ghoul: ghoulView(actor, dots), wonders: wondersView(actor), investments: isFallen(actor) ? investmentsView(actor) : []
+    ghoul: ghoulView(actor, dots), wonders: wondersView(actor), investments: isFallen(actor) ? investmentsView(actor) : [], fallen: isFallen(actor), pacts: isFallen(actor) ? pactsView(actor) : null
   };
 }
 
@@ -204,7 +204,57 @@ export async function paradoxRealm(actor) {
 
 /* ── Инфернальные Инвестиции (Book of the Fallen) ────────────────────── */
 
-const INVEST_ACT = { Hellfire: ["hellfire", "fa-fire"], Regeneration: ["regen", "fa-heart-pulse"] };
+const INVEST_ACT = { Hellfire: ["hellfire", "fa-fire"], Regeneration: ["regen", "fa-heart-pulse"], "Inhuman Attributes": ["inhuman", "fa-dumbbell"],
+  "Infernal Key": ["key", "fa-key"], "Shameful Sight": ["sight", "fa-eye"], "Search and Find": ["search", "fa-magnifying-glass"] };
+/** Готовые броски Инвестиций: Атрибут + Способность и сложность (Позорный взгляд — против Воли цели). */
+const INVEST_ROLL = { key: ["manipulation", "occult", 7], sight: ["perception", "occult", 0], search: ["perception", "enigmas", 7] };
+/** Люциферианское очарование: социальные броски идут со сложностью 4 (dice/dialog.mjs спрашивает при открытии окна броска). */
+export const luciferianCharm = actor => actor?.type === "mage" && actor.items.some(i => i.type === "merit" && i.system.source === "Luciferian Charm");
+
+/** Пакты Падшего: уровень даёт столько же очков; вложено — цена Инвестиций на листе. */
+export function pactsView(actor) {
+  const m = actor.system.mage, names = M().pactLevels ?? [], list = m.pacts.map((p, i) => ({ i, ...p, name: names[p.level - 1] ?? "" }));
+  const total = list.reduce((n, p) => n + p.level, 0), spent = investmentsView(actor).reduce((n, x) => n + (Number(x.cost) || 0), 0);
+  return { list, total, spent, over: spent > total };
+}
+export async function addPact(actor) {
+  if (!owner(actor)) return null;
+  const names = M().pactLevels ?? [];
+  const res = await foundry.applications.api.DialogV2.prompt({ window: { title: t("Pact.Add"), icon: "fa-solid fa-file-signature" }, classes: DLG, rejectClose: false, position: { width: 460 },
+    content: `<div class="r-form"><label class="r-field"><span>${esc(t("Pact.Level"))}</span><select name="level">${names.map((n, i) => `<option value="${i + 1}">${i + 1} — ${esc(n)}</option>`).join("")}</select></label>
+      <label class="r-field"><span>${esc(t("Pact.Patron"))}</span><input type="text" name="patron" autofocus></label>
+      <label class="r-field"><span>${esc(t("Pact.Terms"))}</span><textarea name="terms" rows="3"></textarea></label>
+      <p class="r-note">${esc(t("Pact.Rule"))}</p></div>`,
+    ok: { label: game.i18n.localize("VTM20.Common.Add"), callback: (e, b) => ({ level: Number(b.form.elements.level.value) || 1, patron: b.form.elements.patron.value.trim(), terms: b.form.elements.terms.value.trim() }) } });
+  if (!res) return null;
+  return actor.update({ "system.mage.pacts": [...actor.system.mage.pacts.map(p => ({ ...p })), res] });
+}
+export async function removePact(actor, i) {
+  const list = actor.system.mage.pacts.map(p => ({ ...p }));
+  list.splice(i, 1);
+  return actor.update({ "system.mage.pacts": list });
+}
+/** Нечеловеческие Атрибуты: каждые 3 очка Инвестиции — точка Атрибута, не выше 8. */
+async function inhumanAttribute(actor, item) {
+  const m = actor.system.mage, max = Math.floor((Number(item.system.cost) || 0) / 3), used = Object.values(m.inhuman ?? {}).reduce((n, v) => n + v, 0);
+  if (used >= max) return ui.notifications.info(t("Invest.inhumanDone", { n: max }));
+  const keys = Object.keys(VTM20.attributes).filter(k => actor.system.attributes[k].value < 8);
+  const k = await foundry.applications.api.DialogV2.prompt({ window: { title: item.name, icon: "fa-solid fa-dumbbell" }, classes: DLG, rejectClose: false, position: { width: 420 },
+    content: `<div class="r-form"><label class="r-field"><span>${esc(t("Invest.inhumanPick", { left: max - used }))}</span><select name="k">${keys.map(x => `<option value="${x}">${esc(actor.traitLabel(`attributes.${x}`))} ${actor.system.attributes[x].value}</option>`).join("")}</select></label></div>`,
+    ok: { label: t("Invest.inhumanRaise"), callback: (e, b) => b.form.elements.k.value } });
+  if (!k) return null;
+  await actor.update({ [`system.attributes.${k}.value`]: actor.system.attributes[k].value + 1, [`system.mage.inhuman.${k}`]: (m.inhuman?.[k] ?? 0) + 1 });
+  return say(actor, "fa-dumbbell", t("Invest.inhumanUp", { name: esc(actor.name), attr: esc(actor.traitLabel(`attributes.${k}`)), n: actor.system.attributes[k].value }));
+}
+/** Готовый бросок Инвестиции. */
+async function investRoll(actor, item, act) {
+  const [attr, abil, diff] = INVEST_ROLL[act], s = actor.system, a = s.attributes[attr].value, b = s.abilities[abil]?.value ?? 0;
+  const target = act === "sight" ? game.user.targets.first()?.actor : null;
+  const { rollPool } = await import("../dice/roll.mjs");
+  return rollPool({ actor, title: item.name, subtitle: t(`Invest.${act}Sub`, { name: target?.name ?? "" }), pool: a + b, kind: "check",
+    difficulty: act === "sight" ? Math.clamp(target?.system.willpower?.permanent ?? 6, 2, 10) : diff,
+    breakdown: [{ label: actor.traitLabel(`attributes.${attr}`), value: a }, { label: actor.traitLabel(`abilities.${abil}`), value: b }] });
+}
 /** Инвестиции на листе Падшего: черты из компендия по книжному названию; у Адского пламени и Регенерации — кнопка. */
 export function investmentsView(actor) {
   const book = (M().merits ?? []).filter(m => m.investment);
@@ -234,7 +284,7 @@ async function regenerate(actor) {
 export function useMageInvestment(actor, id, act) {
   const it = actor.items.get(id);
   if (!it || !owner(actor)) return null;
-  return act === "hellfire" ? hellfire(actor, it) : act === "regen" ? regenerate(actor) : null;
+  return act === "hellfire" ? hellfire(actor, it) : act === "regen" ? regenerate(actor) : act === "inhuman" ? inhumanAttribute(actor, it) : INVEST_ROLL[act] ? investRoll(actor, it, act) : null;
 }
 
 /* ── Создание Чуда (M20, гл. 9) ──────────────────────────────────────── */

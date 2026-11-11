@@ -3973,6 +3973,23 @@ try {
       const iv = St.investmentsView(fl), w1 = fl.system.willpower.temporary;
       await St.useMageInvestment(fl, iv[0].id, iv[0].act); await wait(300);
       out.invest = [iv.length, iv[0].act, w1 - fl.system.willpower.temporary, fl.system.health.lethal];
+      // Пакты: очки по уровню и вложенное; Очарование — социальный бросок со сложностью 4; маг-гуль получает Могущество
+      await fl.update({ "system.mage.pacts": [{ level: 5, patron: "E2E", terms: "" }] });
+      const pv = St.pactsView(fl);
+      out.pact = [pv.total, pv.spent, pv.over];
+      const charm = await mp.getDocument(mi.find(i => i.name === "Люциферианское очарование")._id);
+      await fl.createEmbeddedDocuments("Item", [charm.toObject()]);
+      const { RollDialog } = await sys("module/dice/dialog.mjs");
+      out.charm = [new RollDialog(fl, { trait1: "attributes.charisma" }).values.difficulty, new RollDialog(fl, { trait1: "attributes.strength" }).values.difficulty];
+      await St.toggleGhoul(fl); await wait(300);
+      out.ghoul = [fl.system.mage.ghoul.on, fl.system.mage.ghoul.vitae, fl.discipline("potence")];
+      // Дух Парадокса листом духа и создание Чуда (окна выбора подменяем ответом)
+      const DV = foundry.applications.api.DialogV2, dp0 = DV.prompt, dw0 = DV.wait;
+      DV.prompt = async () => "hex"; const psp = await St.paradoxSpirit(a); DV.prompt = dp0;
+      await a.update({ "system.mage.quintessence": 8 });
+      DV.wait = async () => ({ name: "E2E — жезл", kind: "talisman", value: 1, spheres: "Силы 1" }); const crafted = await St.craftWonder(a); DV.wait = dw0;
+      out.craft = [psp?.system.spirit.on, a.system.mage.quintessence, crafted?.system.arete];
+      await psp?.delete();
       // данные: Духи и Царства Парадокса; мастер: Резонанс за свободные пункты (новая степень × 3)
       out.spirits = [C.paradoxSpirits.length >= 8, Object.keys(C.realms).length];
       const raw = await Actor.create({ name: "E2E — резонанс", type: "mage", flags: { world: { e2e: true } } });
@@ -4003,7 +4020,7 @@ try {
     });
     const want = { data: [true, 16, 3, 6, 5], roteView: [2, "vulgar", 7], roteFast: [true, "vulgar", 3, 7], resDice: 5, resUsed: [true, 2, "E2E — молния", "coincidental"],
       quiet: [1, true, 4, "minor"], sheet: [2, true, true], seeking: [1], wonders: [2, 5, true, true], wonderQuint: [1, 14], wonderDlg: [true, 3, true],
-      drop: [1, 1], perm: [2, true], invest: [1, "regen", 1, 1], spirits: [true, 9], crRes: [3, 15], cabal: [true, 1, 3, 3], backlash: true, marauder: [true, 15, "group-marauders"] };
+      drop: [1, 1], perm: [2, true], invest: [1, "regen", 1, 1], pact: [5, 9, true], charm: [4, 6], ghoul: [true, 1, 1], craft: [true, 3, 1], spirits: [true, 9], crRes: [3, 15], cabal: [true, 1, 3, 3], backlash: true, marauder: [true, 15, "group-marauders"] };
     const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
