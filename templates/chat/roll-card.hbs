@@ -70,8 +70,14 @@
   <div class="r-cast-result">
     <p>{{line.backlash.text}}</p>
     {{#if line.backlash.left}}<p class="r-cast-paradox"><i class="fa-solid fa-burst"></i> {{line.backlash.left}}</p>{{/if}}
+    {{#if line.backlash.insulate}}<p class="r-cast-paradox"><i class="fa-solid fa-shield-halved"></i> {{line.backlash.insulate}}</p>{{/if}}
   </div>
-  {{#if line.backlash.burn}}<div class="r-card-buttons"><button type="button" data-r-action="mageBurn"><i class="fa-solid fa-fire"></i> {{line.backlash.burn}}</button></div>{{/if}}
+  {{#if (or line.backlash.burn line.backlash.flaw line.backlash.quiet line.backlash.perm)}}<div class="r-card-buttons">
+    {{#if line.backlash.burn}}<button type="button" data-r-action="mageBurn"><i class="fa-solid fa-fire"></i> {{line.backlash.burn}}</button>{{/if}}
+    {{#if line.backlash.flaw}}<button type="button" data-r-action="mageFlaw"><i class="fa-solid fa-burst"></i> {{line.backlash.flaw}}</button>{{/if}}
+    {{#if line.backlash.quiet}}<button type="button" data-r-action="mageQuiet"><i class="fa-solid fa-cloud"></i> {{line.backlash.quiet}}</button>{{/if}}
+    {{#if line.backlash.perm}}<button type="button" data-r-action="magePerm"><i class="fa-solid fa-lock"></i> {{line.backlash.perm}}</button>{{/if}}
+  </div>{{/if}}
   {{/if}}
   {{#if specialty}}<div class="r-card-note"><i class="fa-solid fa-feather"></i> {{localize "VTM20.Roll.SpecialtyUsed"}}{{#if specialtyName}}: {{specialtyName}}{{/if}}</div>{{/if}}
   {{#if extraNeeded}}<div class="r-card-note is-warn">{{localize "VTM20.Roll.ExtraNeeded" n=extraNeeded}}</div>{{/if}}

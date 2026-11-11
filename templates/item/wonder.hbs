@@ -1,0 +1,40 @@
+{{!-- Чудо мага (M20): вид, точки Факта, своё Арете и запас Квинтэссенции, вложенные Сферы; поля — в «Настройках». --}}
+<div class="r-item-sheet is-wonder">
+  {{> rItemHead}}
+  <div class="r-item-body">
+    <div class="r-rite-sheet">
+      <span class="r-rite-seal is-gem is-big"><svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="14"/><path d="M20 6 L24 16 L34 20 L24 24 L20 34 L16 24 L6 20 L16 16 Z"/></svg></span>
+      <div class="r-rite-sheet-main">
+        <span class="r-rite-chips"><span class="r-kindtag">{{kindLabel}}</span>{{#if system.spheres}}<span class="r-lchip">{{system.spheres}}</span>{{/if}}{{#if system.paradoxPerm}}<span class="r-lchip is-house">{{localize "VTM20.Wonder.ParadoxPerm"}} {{system.paradoxPerm}}</span>{{/if}}</span>
+        <div class="r-rite-facts">
+          <span data-tooltip="{{localize 'VTM20.Wonder.Value'}}"><span class="r-dots">{{#each dots}}<a class="r-dot {{#if filled}}is-filled{{/if}}" {{#if @root.editable}}data-action="setDots" data-path="{{path}}" data-n="{{n}}"{{/if}}></a>{{/each}}</span></span>
+          {{#if system.arete}}<span data-tooltip="{{localize 'VTM20.Wonder.AreteHint'}}"><i class="fa-solid fa-hat-wizard"></i>{{localize "VTM20.Mage.Arete"}} {{system.arete}}</span>{{/if}}
+          {{#if system.quintMax}}<span data-tooltip="{{localize 'VTM20.Wonder.QuintHint'}}"><i class="fa-solid fa-sun"></i>{{system.quintessence}} / {{system.quintMax}}</span>{{/if}}
+          {{#if system.cost}}<span data-tooltip="{{localize 'VTM20.Wonder.CostHint'}}"><i class="fa-solid fa-coins"></i>{{system.cost}}</span>{{/if}}
+        </div>
+      </div>
+    </div>
+    {{#if system.source}}<p class="r-item-src">{{localize "VTM20.Item.source"}}: {{system.source}}</p>{{/if}}
+
+    <h2 class="r-h2"><span>{{localize "VTM20.Item.description"}}</span></h2>
+    <div class="r-editor r-item-text">
+      <prose-mirror name="system.description" value="{{system.description}}" toggled {{#unless editable}}disabled{{/unless}}>{{{descriptionHTML}}}</prose-mirror>
+    </div>
+
+    <details class="r-item-setup">
+      <summary><i class="fa-solid fa-sliders"></i> {{localize "VTM20.ItemSheet.Setup"}}</summary>
+      <div class="r-fields is-wide">
+        <label class="r-f"><span>{{localize "VTM20.Relic.KindLabel"}}</span>
+          <select name="system.kind">{{#each kindOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+        <label class="r-f"><span>{{localize "VTM20.Wonder.Value"}}</span><input type="number" name="system.value" value="{{system.value}}" min="0" max="10"></label>
+        <label class="r-f" data-tooltip="{{localize 'VTM20.Wonder.AreteHint'}}"><span>{{localize "VTM20.Mage.Arete"}}</span><input type="number" name="system.arete" value="{{system.arete}}" min="0" max="10"></label>
+        <label class="r-f" data-tooltip="{{localize 'VTM20.Wonder.CostHint'}}"><span>{{localize "VTM20.Wonder.Cost"}}</span><input type="number" name="system.cost" value="{{system.cost}}" min="0"></label>
+        <label class="r-f" data-tooltip="{{localize 'VTM20.Wonder.QuintHint'}}"><span>{{localize "VTM20.Mage.Quintessence"}}</span><input type="number" name="system.quintessence" value="{{system.quintessence}}" min="0"></label>
+        <label class="r-f"><span>{{localize "VTM20.Wonder.QuintMax"}}</span><input type="number" name="system.quintMax" value="{{system.quintMax}}" min="0"></label>
+        <label class="r-f" data-tooltip="{{localize 'VTM20.Wonder.ParadoxHint'}}"><span>{{localize "VTM20.Wonder.ParadoxPerm"}}</span><input type="number" name="system.paradoxPerm" value="{{system.paradoxPerm}}" min="0" max="10"></label>
+        <label class="r-f is-span2" data-tooltip="{{localize 'VTM20.Wonder.SpheresHint'}}"><span>{{localize "VTM20.Mage.RoteSpheres"}}</span><input type="text" name="system.spheres" value="{{system.spheres}}" placeholder="{{localize 'VTM20.Mage.RoteSpheresHint'}}"></label>
+        <label class="r-f is-span2"><span>{{localize "VTM20.Item.source"}}</span><input type="text" name="system.source" value="{{system.source}}"></label>
+      </div>
+    </details>
+  </div>
+</div>

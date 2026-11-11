@@ -805,7 +805,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       const allowed = f?.affinity?.length ? f.affinity : VTM20.mageSpheres;
       ctx.isMage = true;
       ctx.mage = {
-        groups: (D.groups ?? []).map(x => ({ key: x.key, label: x.name, active: x.key === grp, sym: { src: mageGlyphSrc(x.key === "nephandi" ? "group-nephandi" : x.key === "technocracy" ? "group-technocracy" : x.key === "traditions" ? "group-traditions" : "faction-orphans") } })),
+        groups: (D.groups ?? []).map(x => ({ key: x.key, label: x.name, active: x.key === grp, sym: { src: mageGlyphSrc(x.key === "nephandi" ? "group-nephandi" : x.key === "technocracy" ? "group-technocracy" : x.key === "marauders" ? "group-marauders" : x.key === "traditions" ? "group-traditions" : "faction-orphans") } })),
         factions: (D.factions ?? []).filter(x => x.group === grp).map(x => ({ key: x.key, label: x.name, en: x.en, active: x.key === g.faction, sub: x.affinityText ?? "", sym: { src: mageGlyphSrc(factionGlyph(x)) } })),
         faction: f ? { ...f, sym: { src: mageGlyphSrc(factionGlyph(f)) } } : null,
         essences: (D.essences ?? []).map(e => ({ key: e.key, label: e.name, active: e.key === g.essence, text: VtMCreator.#plain(e.text ?? "") })),

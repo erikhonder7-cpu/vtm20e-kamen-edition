@@ -396,3 +396,32 @@ body.r-theme-light .vtm20.r-type-mage.r-mage-fallen { --r-ink: #24100f; --r-ink-
 .vtm20.r-mage-fallen .r-cast-sphere.is-on::before { background: linear-gradient(90deg, #d9667c, transparent); }
 /* Квлифа Сферы — строкой под названием */
 .vtm20 .r-sphere .r-qliph { display: block; font-size: 12px; font-style: italic; color: var(--r-accent); letter-spacing: .3px; }
+
+/* ── Ротэ с чипами, Чудеса, Резонанс, Безмолвие ─────────────────────────── */
+.vtm20.r-type-mage .r-rote-chips { display: inline-flex; flex-wrap: wrap; gap: 4px; margin-left: 6px; vertical-align: middle; }
+.vtm20.r-type-mage .r-rote .r-edge-main > b, .vtm20.r-type-mage .r-rote .r-edge-main > a > b { font-size: 14px; }
+.vtm20.r-type-mage .r-cast-chip.is-diff { border-style: dashed; }
+.vtm20.r-type-mage .r-wonder .r-edge-lvl img { width: 26px; height: 26px; border: 0; border-radius: 50%; }
+.vtm20.r-type-mage .r-wonder-q { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px; border: 1px solid rgba(217, 181, 106, .4); color: var(--m-gold-l); font-size: 12px; white-space: nowrap; }
+.vtm20.r-type-mage .r-wonder-q a { color: inherit; opacity: .7; }
+.vtm20.r-type-mage .r-wonder-q a:hover { opacity: 1; }
+.vtm20.r-type-mage .r-mstate { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 6px 18px; margin: 4px 0 12px; align-items: start; }
+.vtm20.r-type-mage .r-mstate > .r-mstate-row, .vtm20.r-type-mage .r-mstate > .r-note, .vtm20.r-type-mage .r-mstate > .r-edge-list { grid-column: 1 / -1; }
+.vtm20.r-type-mage .r-mstate-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; }
+.vtm20.r-type-mage .r-mstate-row { display: flex; align-items: center; gap: 8px; padding: 4px 8px; border-bottom: 1px solid var(--r-line-2); min-height: 28px; }
+.vtm20.r-type-mage .r-mstate-row > b { font-family: "Prata", Georgia, serif; font-weight: 400; }
+.vtm20.r-type-mage .r-mstate-row > small { opacity: .65; }
+.vtm20.r-type-mage .r-mstate-row .r-dots { margin-left: auto; }
+.vtm20.r-type-mage .r-mstate-row > em { min-width: 92px; font-size: 12px; opacity: .75; }
+.vtm20.r-type-mage .r-mstate-row.is-top > b { color: var(--m-gold-l); }
+.vtm20.r-type-mage .r-mstate-row.is-quiet .r-dots { margin-left: 0; }
+.vtm20.r-type-mage .r-mstate-row.is-quiet select { width: auto; min-width: 130px; height: 24px; }
+.vtm20.r-type-mage .r-mstate-row.is-quiet > em { min-width: 0; flex: 1; }
+.vtm20.r-type-mage .r-mstate-row.is-quiet.is-on { border-color: rgba(224, 86, 122, .5); background: rgba(224, 86, 122, .06); }
+.vtm20.r-type-mage .r-mstate-bonus { display: flex; align-items: center; gap: 8px; }
+.vtm20.r-type-mage .r-mstate-bonus .r-vc-btn { margin-left: auto; }
+.vtm20.r-type-mage .r-mstate-bonus.is-spent { opacity: .6; }
+@container (max-width: 620px) { .vtm20.r-type-mage .r-mstate { grid-template-columns: 1fr; } }
+.vtm20.r-type-mage .r-rote { display: flex; align-items: flex-start; gap: 8px; }
+.vtm20.r-type-mage .r-rote > .r-edge-main { flex: 1; min-width: 0; }
+.vtm20.r-type-mage .r-rote > .r-icon-btn, .vtm20.r-type-mage .r-rote > .r-vc-btn, .vtm20.r-type-mage .r-rote > .r-wonder-q { flex: none; margin-top: 2px; }

@@ -3894,8 +3894,86 @@ try {
       return out;
     });
     const want = { steps: true, subs: true, techBgHidden: true, quint: [2, 8], techBgShown: true, fallen: [true, false], sheet: [true, 9, "lineAtlas"], traits: [true, true, false],
-      castDlg: [true, true], cast: [1, true], hud: [true, true, 1], hudRote: true, atlasMage: [9, 11, "Орден Гермеса"], atlasQliph: "Лилит", atlasWolf: [4, "Бастет", true],
+      castDlg: [true, true], cast: [1, true], hud: [true, true, 1], hudRote: true, atlasMage: [10, 11, "Орден Гермеса"], atlasQliph: "Лилит", atlasWolf: [4, "Бастет", true],
       npc: [true, true, true, true, true, true], npcMade: ["mage", true, true] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
+  await check("Маг: ротэ одним броском, Резонанс, Безмолвие, Изъяны, Поиск, Чудеса, Мародёр, перетаскивание из компендиев", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), sys = p => import(`/systems/${sid}/${p}`);
+      const out = {}, inst = () => [...foundry.applications.instances.values()], n0 = game.messages.size;
+      const Mg = await sys("module/apps/mage.mjs"), St = await sys("module/apps/mage-state.mjs"), C = game.vtm20Codex.mage;
+      const mk = (name, mage) => Actor.create({ name, type: "mage", flags: { world: { e2e: true }, [sid]: { created: true } },
+        system: { willpower: { permanent: 6, temporary: 6 }, experience: { total: 60 }, mage: { arete: 3, affinity: "forces", quintessence: 5, spheres: { forces: 3, prime: 2 }, ...mage } } });
+      const a = await mk("E2E — гермет", { faction: "order-of-hermes", rotes: [{ name: "E2E — шар", spheres: "Силы 3, Первоначало 2", text: "", kind: "vulgar" }],
+        resonances: [{ name: "Яростный", flavor: "temperamental", value: 4 }], quiet: { level: 2, kind: "madness" } });
+      // данные справочника
+      out.data = [C.wonders.length > 40, C.merits.filter(m => m.investment).length, C.factions.filter(f => f.group === "marauders").length, C.quiet.levels.length, C.pflaws.length];
+      // ротэ: вид со Сферами и сложностью; быстрый бросок — без окна, вид магии из записи
+      const rv = Mg.roteView(a, a.system.mage.rotes[0], 0);
+      out.roteView = [rv.chips.length, rv.kind, rv.difficulty];
+      const roll = await Mg.castRote(a, 0, { fast: true }); await wait(400);
+      const x = roll?.message?.flags?.[sid]?.roll?.extra?.mage;
+      out.roteFast = [!inst().some(w => w.element?.classList.contains("r-cast-dialog")), x?.kind, x?.high, roll?.difficulty ?? roll?.message?.flags?.[sid]?.roll?.difficulty];
+      // окно: Резонанс даёт кубики раз за историю, «запомнить как ротэ» пишет запись
+      await a.update({ "system.mage.paradox": 0 });
+      Mg.castEffect(a, { sphere: "forces", name: "E2E — молния" }); await wait(700);
+      const dlg = inst().find(w => w.element?.classList.contains("r-cast-dialog")), el = dlg.element;
+      const res = el.querySelector('[name="res"]'), save = el.querySelector('[name="save"]');
+      res.checked = true; res.dispatchEvent(new Event("change")); save.checked = true; save.dispatchEvent(new Event("change"));
+      out.resDice = Number(el.querySelector("[data-pool]").textContent);
+      el.querySelector('button[data-action="ok"]').click(); await wait(1500);
+      out.resUsed = [a.system.mage.resUsed, a.system.mage.rotes.length, a.system.mage.rotes[1]?.name, a.system.mage.rotes[1]?.kind];
+      // Безмолвие: выход тратит Волю и бросает Волю
+      const w0 = a.system.willpower.temporary, m0 = game.messages.size;
+      await St.quietExit(a); await wait(600);
+      out.quiet = [w0 - a.system.willpower.temporary, game.messages.size - m0 >= 2, St.quietLevelFor(12), St.flawGradeFor(7)?.key];
+      // вкладка: блоки состояний рисуются
+      await a.sheet.render(true); await wait(700); a.sheet.changeTab("disciplines", "primary"); await wait(500);
+      out.sheet = [a.sheet.element.querySelectorAll(".r-mstate").length, a.sheet.element.querySelectorAll(".r-mstate-row").length >= 5, !!a.sheet.element.querySelector('[data-action="mageQuietExit"]')];
+      // Поиск: без него Арете за опыт не купить; Принятие открывает покупку, покупка «расходует» Поиск
+      await a.update({ "system.mage.seeking": true });
+      const before = a.system.mage.arete;
+      await a.buyWithXp({ doc: a, path: "system.mage.arete", kind: "mageArete", label: "Арете", confirm: false });
+      out.seeking = [a.system.mage.arete - before];
+      // Чудеса: перетаскивание из компендия, вид на листе, бросок Арете Чуда тратит его запас
+      const pack = game.packs.get(`${sid}.mage-wonders`), idx = await pack.getIndex();
+      const lash = await pack.getDocument(idx.find(i => i.name === "Плеть Галлу")._id), tass = await pack.getDocument(idx.find(i => i.name === "Золотой Тасс")._id);
+      await a.sheet._onDropItem(new DragEvent("drop"), lash); await a.sheet._onDropItem(new DragEvent("drop"), tass); await wait(300);
+      const wv = St.wondersView(a);
+      out.wonders = [wv.length, wv.find(w => w.name === "Плеть Галлу")?.chips.length, wv.find(w => w.name === "Плеть Галлу")?.canUse, wv.find(w => w.name === "Золотой Тасс")?.holds];
+      const q0 = a.system.mage.quintessence, tItem = a.items.getName("Золотой Тасс");
+      await St.wonderQuint(a, tItem.id, 1);
+      out.wonderQuint = [a.system.mage.quintessence - q0, tItem.system.quintessence];
+      St.useWonder(a, a.items.getName("Плеть Галлу").id); await wait(700);
+      const wd = inst().find(w => w.element?.classList.contains("r-cast-dialog"));
+      out.wonderDlg = [!!wd, Number(wd?.element.querySelector("[data-pool]")?.textContent), !wd?.element.querySelector('[name="save"]')];
+      await wd?.close(); await wait(200);
+      // перетаскивание Достоинства и Факта из компендиев магов — обычные предметы листа
+      for (const [p, type] of [["mage-merits", "merit"], ["mage-backgrounds", "background"]]) {
+        const pk = game.packs.get(`${sid}.${p}`), ix = await pk.getIndex(), doc = await pk.getDocument(ix.find(i => i.type === type)._id);
+        await a.sheet._onDropItem(new DragEvent("drop"), doc);
+      }
+      await wait(300);
+      out.drop = [a.items.filter(i => i.type === "merit").length, a.items.filter(i => i.type === "background").length];
+      await a.sheet.close();
+      // откат: кнопки рассказчика — Изъян по степени, постоянный Парадокс
+      await a.update({ "system.mage.paradox": 6 });
+      const bl = await Mg.paradoxBacklash(a); await wait(500);
+      out.backlash = !!bl?.message?.flags?.[sid]?.roll?.extra?.backlash;
+      // Мародёр: совпадение без Парадокса даже при провале, вульгарная магия без «автоматического» очка
+      const mar = await mk("E2E — мародёр", { faction: "marauder", quiet: { level: 3, kind: "" } });
+      const sv = St.stateView(mar, () => []);
+      out.marauder = [Mg.isMarauder(mar), sv.quiet.insulate, Mg.factionGlyph(Mg.factionOf(mar))];
+      await ChatMessage.deleteDocuments(game.messages.contents.slice(n0).map(m => m.id));
+      await Actor.deleteDocuments([a.id, mar.id]);
+      return out;
+    });
+    const want = { data: [true, 16, 3, 6, 5], roteView: [2, "vulgar", 7], roteFast: [true, "vulgar", 3, 7], resDice: 5, resUsed: [true, 2, "E2E — молния", "coincidental"],
+      quiet: [1, true, 4, "minor"], sheet: [2, true, true], seeking: [1], wonders: [2, 5, true, true], wonderQuint: [1, 14], wonderDlg: [true, 3, true],
+      drop: [1, 1], backlash: true, marauder: [true, 15, "group-marauders"] };
     const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });

@@ -302,6 +302,101 @@ def parse_nephandi():
     return {"sects": sects, "qliphoth": qliph, "bySphere": by_sphere, "paradigms": paradigms, "practices": practices, "tools": tools, "merits": merits}
 
 
+# Безмолвие (M20, гл. 10): уровень — по разряженному или накопленному Парадоксу; три вида и общий столбец
+QUIET = {"kinds": [{"key": "denial", "name": "Отрицание", "en": "Denial"}, {"key": "madness", "name": "Безумие", "en": "Madness"}, {"key": "morbidity", "name": "Болезненность", "en": "Morbidity"}],
+         "levels": [
+    {"n": 1, "min": 1, "max": 3, "general": "причуды, редкие заблуждения", "denial": "упрямство", "madness": "галлюцинации", "morbidity": "влечение к смерти"},
+    {"n": 2, "min": 4, "max": 6, "general": "заблуждения усиливаются", "denial": "избирательное восприятие", "madness": "частые заблуждения, смена настроения", "morbidity": "фиксация на смертности"},
+    {"n": 3, "min": 7, "max": 10, "general": "слепота, галлюцинации, гоблины", "denial": "иррациональность, слепота к отрицаемому", "madness": "сильные галлюцинации", "morbidity": "кровожадность, макабр"},
+    {"n": 4, "min": 11, "max": 15, "general": "мир-разум или опасность для всех", "denial": "фанатизм", "madness": "мир-разум или постоянные гоблины", "morbidity": "насильственная социопатия"},
+    {"n": 5, "min": 16, "max": 20, "general": "кататония или почти Мародёр", "denial": "фанатик-дрон", "madness": "кататония, слабоумие", "morbidity": "садист-убийца"},
+    {"n": 6, "min": 21, "max": 999, "general": "Мародёр, персонаж Рассказчика", "denial": "Мародёр", "madness": "Мародёр", "morbidity": "Мародёр"}],
+         # Безмолвие Мародёра (M20, гл. 5): каждое очко отводит 5 очков отката на окружающих
+         "marauder": ["две незначительные диссоциации", "заметные расхождения с миром", "серьёзный разрыв: свой фантазийный мир", "гротескные искажения",
+                      "Консенсус изгоняет в Умбру", "Глубокая Умбра"], "insulate": 5,
+         "exit": {"difficulty": 7, "successes": 3}}
+# Изъяны Парадокса: степень — по успехам отката
+PFLAWS = [{"key": "trivial", "name": "Пустяковый", "min": 1, "max": 5, "text": "минуты — часы"},
+          {"key": "minor", "name": "Малый", "min": 6, "max": 10, "text": "около часа; +1 к сложности некоторых бросков на сцену"},
+          {"key": "significant", "name": "Значительный", "min": 11, "max": 15, "text": "дни — неделя и дольше; штраф к кубикам или сложности"},
+          {"key": "severe", "name": "Серьёзный", "min": 16, "max": 20, "text": "нельзя показаться среди Масс"},
+          {"key": "drastic", "name": "Решающий", "min": 21, "max": 999, "text": "месяцы — годы; минус кубики, +2 к сложностям"}]
+# Резонанс и Синергия (Book of Secrets): степени, «ароматы», виды Синергии, примеры подписей
+RESONANCE = {"degrees": ["Неразличимый", "Слабый", "Тонкий", "Заметный", "Сильный", "Подавляющий"],
+             "flavors": [{"key": "devotional", "name": "Преданный", "text": "вера, дело, этика"}, {"key": "elemental", "name": "Стихийный", "text": "стихия, природа, зверь, смерть"},
+                         {"key": "stabilizing", "name": "Стабилизирующий", "text": "устойчивость, защита, исцеление"}, {"key": "temperamental", "name": "Темпераментный", "text": "чувства и настроение"}],
+             "synergy": [{"key": "dynamic", "name": "Динамическая", "text": "перемены, творение"}, {"key": "entropic", "name": "Энтропийная", "text": "распад, обновление"},
+                         {"key": "static", "name": "Статическая", "text": "устойчивость, порядок"}],
+             "signatures": ["Манящий", "Успокаивающий", "Гниющий", "Дикий", "Яростный", "Мрачный", "Заботливый", "Паразитический", "Жёсткий", "Бурный", "Грациозный", "Воинственный"]}
+# Мародёры (M20, гл. 5; Book of Mirrors): своих «фракций» нет — одиночки и две крупные силы
+MARAUDERS = [{"key": "marauder", "name": "Мародёр", "en": "Marauder"}, {"key": "umbral-underground", "name": "Умбральное подполье", "en": "Umbral Underground"},
+             {"key": "bai-dai", "name": "Бай-Дай", "en": "Bai Dai"}]
+WONDER_KINDS = [("Гримуар", "grimoire"), ("Праймер", "grimoire"), ("Фетиш", "fetish"), ("Периапт", "periapt"), ("Матриц", "periapt"), ("Артефакт", "artifact"), ("Талисман", "talisman"),
+                ("Устройств", "device"), ("Безделушк", "trinket"), ("Тринкет", "trinket"), ("Амулет", "charm"), ("Чара", "charm"), ("Гаджет", "charm")]
+WONDER_SRC = [("M20_Основная", "07_", "## Примеры Чудес", "M20"), ("M20_VA_Weird_Wonders", "01_", None, "M20 Victorian Age: Weird Wonders"),
+              ("M20_Book_of_the_Fallen", "04_", "## Чудеса и злые устройства", "M20 Book of the Fallen"),
+              ("M20_Rich_Bastards_Guide", "03_", "### Сокровища и Чудеса Дойссетепа (Doissetep’s Treasures)", "M20 The Rich Bastard’s Guide to Magick"),
+              ("M20_Rich_Bastards_Guide", "03_", "### Произведения искусства (Works of Art)", "M20 The Rich Bastard’s Guide to Magick")]
+
+
+def book_file(folder, prefix):
+    d = os.path.join(REF, folder)
+    return read(os.path.join(d, next(f for f in sorted(os.listdir(d)) if f.startswith(prefix))))
+
+
+def parse_wonders():
+    """Чудеса из справочника: название, вид, точки, Арете, Квинтэссенция, цена Факта, Сферы из текста."""
+    out, seen = [], set()
+    for folder, prefix, heading, source in WONDER_SRC:
+        text = book_file(folder, prefix)
+        lines = section(text, heading) if heading else text.split("\n")
+        for line in lines:
+            m = re.match(r"^- \*\*(.+?)\*\*(.*)$", line)
+            if not m:
+                continue
+            head, rest = m.group(1).rstrip(":"), m.group(2).strip()
+            both = f"{head} {rest[:160]}"
+            kind = next((k for word, k in WONDER_KINDS if word in both), None)
+            if not kind or not re.search(r"Арете|Просветлени|точк|•", both):
+                continue
+            dots = head.count("•") or both[:200].count("•")
+            title = re.sub(r"^[•\s+]+", "", head)
+            title = re.split(r"\), |, (?=Устройств|Талисман|Безделушк|Фетиш|Артефакт)", title)[0]
+            nm = re.match(r"^(.+?)\s*\((.+?)\)?$", title + ("" if title.count("(") <= title.count(")") else ")"))
+            name, en = (nm.group(1).strip(), (nm.group(2) or "").strip(" )")) if nm and "(" in title else (title.strip(), "")
+            if re.search(r"[А-Яа-яЁё]", en):   # в скобках не английское название, а пометка вида
+                en = ""
+            name = name.split(" / ")[0].strip()
+            if not name or name in seen:
+                continue
+            seen.add(name)
+            num = lambda rx: (lambda x: int(x.group(1)) if x else 0)(re.search(rx, both))
+            points = dots or num(r"(\d+)(?:[–-]\d+)? точ")
+            ranks = {}
+            for ru, key in SPHERE_RU.items():
+                for x in re.finditer(rf"\*\*{ru} (\d)", rest):
+                    ranks[key] = max(ranks.get(key, 0), int(x.group(1)))
+            body = re.sub(r"^\s*[:.]\s*", "", rest)
+            out.append({"name": name, "en": en, "kind": kind, "value": min(points, 10), "arete": num(r"(?:Арете|Просветлени\w+) (\d+)"),
+                        "quintessence": num(r"(?:Квинтэссенция|Первичная энергия|Q) (\d+)"), "cost": num(r"цена\D{0,12}(\d+)"),
+                        "spheres": ", ".join(f"{next(r for r, k in SPHERE_RU.items() if k == key)} {v}" for key, v in ranks.items()),
+                        "source": source, "nephandi": "Fallen" in source, "html": f"<p>{wd.md_inline(body)}</p>"})
+    return out
+
+
+def parse_investments():
+    """Инфернальные Инвестиции (Book of the Fallen): дары Патрона — черты с ценой в очках Пакта."""
+    out = []
+    for line in section(fallen("01_"), "## Инфернальные Инвестиции (Infernal Investments)"):
+        m = re.match(r"^- \*\*(.+?) \((.+?), (\d+)(\+)?\)[:.]?\*\*[:.]?\s*(.*)$", line)
+        if not m:
+            continue
+        cost = int(m.group(3))
+        out.append({"kind": "merit", "category": "supernatural", "name": m.group(1), "en": m.group(2), "cost": f"{cost}{'+' if m.group(4) else ''}", "min": cost, "max": cost,
+                    "clan": "", "sect": "", "era": "", "source": "M20 Book of the Fallen", "html": f"<p>{wd.md_inline(m.group(5))}</p>", "nephandi": True, "investment": True})
+    return out
+
+
 def parse_essences():
     out = []
     for line in section(core("01"), "## Сущность Аватара"):
@@ -456,6 +551,8 @@ def build():
     subs = parse_subs()
     neph = parse_nephandi()
     factions += neph["sects"]
+    factions += [{**x, "group": "marauders", "affinity": [], "affinityText": "любая (безумие — и фокус, и Сфера)", "practices": "безумие — фокус: личные причуды"} for x in MARAUDERS]
+    invest, wonders = parse_investments(), parse_wonders()
     for sp in spheres:
         if neph["bySphere"].get(sp["key"]):
             sp["qliph"] = neph["bySphere"][sp["key"]]
@@ -465,10 +562,11 @@ def build():
     data = {
         "source": "Mage: The Ascension 20th Anniversary Edition — справочник проекта (пересказ механики)",
         "spheres": spheres, "ranks": RANKS, "arete": ARETE,
-        "groups": [{"key": k, "name": n} for k, n, _ in GROUPS] + [{"key": "nephandi", "name": "Нефанди"}], "factions": factions,
+        "groups": [{"key": k, "name": n} for k, n, _ in GROUPS] + [{"key": "nephandi", "name": "Нефанди"}, {"key": "marauders", "name": "Мародёры"}], "factions": factions,
         "qliphoth": neph["qliphoth"], "fallenTools": neph["tools"],
         "essences": parse_essences(), "archetypes": parse_archetypes(),
-        "backgrounds": parse_backgrounds(), "merits": parse_merits() + neph["merits"], "focus": (lambda f: {**f, "paradigms": f["paradigms"] + neph["paradigms"],
+        "backgrounds": parse_backgrounds(), "merits": parse_merits() + neph["merits"] + invest, "wonders": wonders,
+        "quiet": QUIET, "pflaws": PFLAWS, "resonance": RESONANCE, "focus": (lambda f: {**f, "paradigms": f["paradigms"] + neph["paradigms"],
                                                                                               "practices": f["practices"] + neph["practices"]})(parse_focus()),
         "freebies": FREEBIES, "xp": XP, "casting": CASTING, "effect": EFFECT, "backlash": BACKLASH,
         "creation": {"attributes": [7, 5, 3], "abilities": [13, 9, 5], "abilityMax": 3, "backgrounds": 7, "spheres": 6, "arete": 1, "areteMax": 3,

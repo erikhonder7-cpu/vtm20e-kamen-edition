@@ -229,6 +229,11 @@
         "htmlFields": [
           "description"
         ]
+      },
+      "wonder": {
+        "htmlFields": [
+          "description"
+        ]
       }
     }
   },
@@ -700,6 +705,18 @@
         "ASSISTANT": "OWNER"
       },
       "flags": {}
+    },
+    {
+      "name": "mage-wonders",
+      "label": "Чудеса магов",
+      "path": "packs/mage-wonders",
+      "type": "Item",
+      "system": "vtm20e-kamen-edition",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
     }
   ],
   "grid": {
@@ -800,7 +817,8 @@
       "packs": [
         "mage-books",
         "mage-merits",
-        "mage-backgrounds"
+        "mage-backgrounds",
+        "mage-wonders"
       ]
     }
   ]

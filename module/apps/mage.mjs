@@ -23,10 +23,12 @@ export const factionOf = actor => (M().factions ?? []).find(f => f.key === actor
 const isTech = actor => factionOf(actor)?.group === "technocracy";
 /** Нефанд (Book of the Fallen): Сферы те же, но каждая стоит под своей Квлифой Квиппота; своя гамма листа. */
 export const isFallen = actor => factionOf(actor)?.group === "nephandi";
+/** Мародёр (M20, гл. 5): совпадение не даёт Парадокса даже при провале, у вульгарной магии нет «автоматического» очка. */
+export const isMarauder = actor => factionOf(actor)?.group === "marauders";
 export const sphereName = (actor, key) => { const s = sphereOf(key); return (isTech(actor) && s?.tech?.name) || s?.name || key; };
 
 /** Термины Технократии: Арете — Просвещение, Квинтэссенция — Первичная энергия, чародейство — Процедура, Аватар — Гений… */
-const TECH_KEYS = ["Arete", "Quintessence", "Cast", "CastTitle", "Rotes", "RoteAdd", "NoRotes", "Instruments", "Pool", "Spheres", "Focus", "Avatar"];
+const TECH_KEYS = ["Arete", "Quintessence", "Cast", "CastTitle", "Rotes", "RoteAdd", "NoRotes", "CastSave", "Instruments", "Pool", "Spheres", "Focus", "Avatar"];
 export const mt = (actor, key, data) => t(isTech(actor) && TECH_KEYS.includes(key) ? `Tech.${key}` : key, data);
 /** Все подписи разом — для шаблонов листа ({{@root.mageInfo.L.Arete}}). */
 const labelsOf = actor => Object.fromEntries(TECH_KEYS.map(k => [k, mt(actor, k)]));
@@ -41,7 +43,7 @@ export const subOf = actor => factionOf(actor)?.subs?.find(x => x.key === actor?
 export const subLabel = f => t(f?.key === "order-of-hermes" ? "SubHouse" : f?.group === "technocracy" ? "SubMethod" : "Sub");
 // у гермета знак Дома — вместо знака Ордена
 // у сект Падших своих знаков нет — общий знак Нефанди
-export const factionGlyph = (f, sub = null) => f?.key === "order-of-hermes" && sub ? `house-${sub.key}` : f?.group === "nephandi" ? "group-nephandi" : f ? `faction-${f.key}` : "sphere-prime";
+export const factionGlyph = (f, sub = null) => f?.key === "order-of-hermes" && sub ? `house-${sub.key}` : f?.group === "nephandi" ? "group-nephandi" : f?.group === "marauders" ? "group-marauders" : f ? `faction-${f.key}` : "sphere-prime";
 /** Знаки листа: на корешке и водяным знаком — фракция; на печати под портретом — родовая Сфера. */
 export function mageSigil(actor) {
   const f = factionOf(actor), sb = subOf(actor), aff = actor.system.mage?.affinity;
@@ -78,7 +80,7 @@ export function mageInfo(actor, dots) {
     arete: m.arete, areteName: D.arete?.[m.arete] ?? "", areteDots: dots(m.arete, 10, { path: "system.mage.arete" }),
     pool, capped: pool < m.arete, avatar: avatarOf(actor),
     quintessence: m.quintessence, paradox: m.paradox, paradoxPerm: m.paradoxPerm, wheel: wheelOf(m),
-    backlash: m.paradox >= 5, isGM: game.user.isGM
+    backlash: m.paradox >= 5, isGM: game.user.isGM, seeking: m.seeking
   };
 }
 
@@ -102,7 +104,7 @@ export function spheresView(actor, dots) {
     practiceTip: (F.practices ?? []).find(p => p.name === m.practice)?.instruments ?? "",
     tools: m.instruments.map((name, i) => ({ i, name })), toolList: [...(fallen ? D.fallenTools ?? [] : []), ...(F.instruments ?? [])].filter(x => !m.instruments.includes(x)),
     toolsNeed: Math.max(0, (D.creation?.instruments ?? 7) - Math.max(0, m.arete - 2) - m.instruments.length),
-    rotes: m.rotes.map((r, i) => ({ i, ...r })) };
+    rotes: m.rotes.map((r, i) => roteView(actor, r, i)) };
 }
 
 /* ── Колесо ───────────────────────────────────────────────────────────── */
@@ -134,46 +136,59 @@ function effectLine(n) {
   return t("EffectLine", { n, damage, duration });
 }
 /** Парадокс за чародейство: при провале с единицами — по высшей Сфере и вульгарности; успешная вульгарная магия — 1. */
-const botchParadox = (kind, high) => kind === "coincidental" ? high : kind === "vulgar" ? 1 + high : 2 + 2 * high;
+// Мародёр: совпадение — без Парадокса, у вульгарной магии остаётся только часть «по Сфере» (без прибавки 1 или 2)
+const botchParadox = (kind, high, mar = false) => kind === "coincidental" ? (mar ? 0 : high) : kind === "vulgar" ? (mar ? 0 : 1) + high : (mar ? 0 : 2) + 2 * high;
+/** Кубики Резонанса к Арете — раз за историю, по старшей подписи (Book of Secrets): 1–3 точки — 1 кубик, 4–5 — 2. */
+export const RES_DICE = [0, 1, 1, 1, 2, 2];
+export const topResonance = actor => (actor.system.mage?.resonances ?? []).reduce((a, r) => (r.value ?? 0) > (a?.value ?? 0) ? r : a, null);
 
 /**
  * Окно чародейства: Сферы эффекта плитками (ранг — точками), совпадение или вульгарно, Квинтэссенция и поправки,
  * внизу — счёт сложности по слагаемым, шансы и чем грозит Парадокс.
- * @param {object} [preset]  { sphere, name, spheres: { key: rank } } — с листа (карточка Сферы, ротэ)
+ * @param {object} [preset]  { sphere, name, spheres: { key: rank }, kind, fast } — с листа (карточка Сферы, ротэ);
+ *                           fast — без окна: Сферы и вид магии берутся из ротэ как есть
  */
 export async function castEffect(actor, preset = {}) {
   if (!actor?.isOwner) return ui.notifications.warn(game.i18n.format("VTM20.Notify.NotOwner", { name: actor?.name ?? "" }));
-  const m = actor.system.mage, pool = aretePool(actor), C = M().casting ?? { coincidental: 3, vulgar: 4, witnessed: 5, min: 3, max: 10, modCap: 3 };
-  const mine = VTM20.mageSpheres.filter(k => (m.spheres[k] ?? 0) > 0);
+  const m = actor.system.mage, C = M().casting ?? { coincidental: 3, vulgar: 4, witnessed: 5, min: 3, max: 10, modCap: 3 };
+  // Чудо (Талисман, Устройство): пул — его Арете, Сферы — вложенные в него (не указаны — ранг эффекта выбирают вручную)
+  const W = preset.wonder ?? null, ws = W ? parseSpheres(W.system.spheres) : null, wAny = W && !Object.keys(ws).length;
+  const pool = W ? W.system.arete : aretePool(actor);
+  const own = k => W ? (wAny ? 5 : ws[k] ?? 0) : m.spheres[k] ?? 0;
+  const mine = VTM20.mageSpheres.filter(k => own(k) > 0);
   if (pool < 1) return ui.notifications.warn(t("NoArete"));
   if (!mine.length) return ui.notifications.warn(t("NoSpheres"));
   const { odds, chancesView, rollPool } = await import("../dice/roll.mjs");
-  // ранг в эффекте — не выше своей Сферы и предела (Арете и Воля)
-  const maxOf = k => Math.min(m.spheres[k], pool);
-  const start = preset.spheres ?? (preset.sphere && m.spheres[preset.sphere] ? { [preset.sphere]: maxOf(preset.sphere) } : {});
-  const st = { ranks: Object.fromEntries(mine.map(k => [k, Math.min(start[k] ?? 0, maxOf(k))])), kind: "coincidental", quint: 0, mod: 0, mods: new Set(), will: false };
-  const quintMax = Math.min(3, avatarOf(actor), m.quintessence), f = factionOf(actor);
+  // ранг в эффекте — не выше своей Сферы и предела (Арете и Воля); у Чуда — как вложено
+  const maxOf = k => W ? own(k) : Math.min(own(k), pool);
+  const start = preset.spheres ?? (W && !wAny ? ws : preset.sphere && own(preset.sphere) ? { [preset.sphere]: maxOf(preset.sphere) } : {});
+  const st = { ranks: Object.fromEntries(mine.map(k => [k, Math.min(start[k] ?? 0, maxOf(k))])), kind: C[preset.kind] ? preset.kind : "coincidental", quint: 0, mod: 0, mods: new Set(), will: false, res: false, save: false };
+  const quintHave = W ? W.system.quintessence : m.quintessence;
+  const quintMax = Math.min(3, W ? quintHave : Math.min(avatarOf(actor), quintHave)), f = factionOf(actor), mar = isMarauder(actor);
+  const top = W ? null : topResonance(actor), resDice = top && !m.resUsed ? RES_DICE[Math.clamp(top.value, 0, 5)] : 0;
   const calc = () => {
     const ranks = Object.fromEntries(Object.entries(st.ranks).filter(([, v]) => v > 0)), high = Math.max(0, ...Object.values(ranks));
     const quick = [...st.mods].reduce((n, k) => n + (MODS.find(x => x[0] === k)?.[1] ?? 0), 0);
     const raw = st.mod + quick - st.quint, mod = Math.clamp(raw, -C.modCap, C.modCap);
-    return { ranks, high, kind: st.kind, quint: st.quint, raw, mod, capped: raw !== mod, base: high + C[st.kind], difficulty: Math.clamp(high + C[st.kind] + mod, C.min, C.max), will: st.will };
+    return { ranks, high, kind: st.kind, quint: st.quint, raw, mod, capped: raw !== mod, base: high + C[st.kind], difficulty: Math.clamp(high + C[st.kind] + mod, C.min, C.max), will: st.will,
+      dice: pool + (st.res ? resDice : 0), res: st.res, save: st.save };
   };
   const pips = (k, own, max, cur) => Array.from({ length: own }, (_, i) =>
     `<a class="r-dot${i < cur ? " is-filled" : ""}${i >= max ? " is-locked" : ""}" data-rank="${k}" data-n="${i + 1}"></a>`).join("");
   let res = null, nameNow = () => "";
-  await foundry.applications.api.DialogV2.wait({
+  if (preset.fast && calc().high) res = { ...calc(), name: preset.name ?? "" };
+  else await foundry.applications.api.DialogV2.wait({
     window: { title: `${mt(actor, "CastTitle")}: ${actor.name}`, icon: "fa-solid fa-hat-wizard" }, classes: ["vtm20", "r-dialog", "r-cast-dialog", "r-type-mage", ...(isTech(actor) ? ["r-mage-tech"] : []), ...(isFallen(actor) ? ["r-mage-fallen"] : [])], position: { width: 600 },
     content: `<div class="r-cast">
       <header class="r-cast-head"><span class="r-cast-sigil">${mageGlyph(factionGlyph(f, subOf(actor)))}</span>
-        <span class="r-cast-who"><small>${esc(f?.name ?? mt(actor, "CastTitle"))}</small><b>${esc(actor.name)}</b></span>
-        <span class="r-cast-pool" data-tooltip="${esc(t(pool < m.arete ? "CappedHint" : "CapHint"))}"><b>${pool}</b><small>${esc(mt(actor, "Pool"))}</small></span></header>
+        <span class="r-cast-who"><small>${esc(W ? `${t("Wonder")} · ${actor.name}` : f?.name ?? mt(actor, "CastTitle"))}</small><b>${esc(W ? W.name : actor.name)}</b></span>
+        <span class="r-cast-pool" data-tooltip="${esc(t(W ? "WonderPool" : pool < m.arete ? "CappedHint" : "CapHint"))}"><b>${pool}</b><small>${esc(mt(actor, "Pool"))}</small></span></header>
       <input class="r-cast-name" type="text" name="name" value="${esc(preset.name ?? "")}" placeholder="${esc(t("CastName"))}">
 
       <h4 class="r-banner r-cast-cap"><span>${esc(mt(actor, "Spheres"))}</span><em>${esc(t("CastHint"))}</em></h4>
-      <div class="r-cast-spheres">${mine.map(k => `<div class="r-cast-sphere${st.ranks[k] ? " is-on" : ""}" data-sphere="${k}" data-tooltip="${esc(t("SphereTip", { n: m.spheres[k] }))}">
+      <div class="r-cast-spheres">${mine.map(k => `<div class="r-cast-sphere${st.ranks[k] ? " is-on" : ""}" data-sphere="${k}" data-tooltip="${esc(t("SphereTip", { n: own(k) }))}">
           <span class="r-cast-sym">${mageGlyph(`sphere-${k}`)}</span><b>${esc(sphereName(actor, k))}</b>
-          <span class="r-dots">${pips(k, m.spheres[k], maxOf(k), st.ranks[k])}</span></div>`).join("")}</div>
+          <span class="r-dots">${pips(k, own(k), maxOf(k), st.ranks[k])}</span></div>`).join("")}</div>
 
       <h4 class="r-banner r-cast-cap"><span>${esc(t("KindCap"))}</span></h4>
       <div class="r-cast-kinds">${KINDS.map(([k, icon]) => `<a class="r-cast-kind${k === st.kind ? " is-on" : ""}" data-kind="${k}">
@@ -182,10 +197,12 @@ export async function castEffect(actor, preset = {}) {
       <h4 class="r-banner r-cast-cap" data-tooltip="${esc(t("ModTip"))}"><span>${esc(t("ModCap"))}</span><em>${esc(t("ModHint"))}</em></h4>
       <div class="r-cast-row"><span class="r-cast-lbl"><i class="fa-solid fa-sun"></i> ${esc(mt(actor, "Quintessence"))}</span>
         <span class="r-boxes r-cast-quint">${quintMax ? Array.from({ length: quintMax }, (_, i) => `<a class="r-box" data-quint="${i + 1}"></a>`).join("") : ""}</span>
-        <em>${esc(quintMax ? t("QuintHint", { n: m.quintessence, max: quintMax }) : t("QuintNone"))}</em></div>
+        <em>${esc(quintMax ? t("QuintHint", { n: quintHave, max: quintMax }) : t("QuintNone"))}</em></div>
       <div class="r-cast-mods">${MODS.map(([k, n]) => `<a class="r-cast-mod${n > 0 ? " is-bad" : ""}" data-mod="${k}"><b>${n > 0 ? "+" : "−"}${Math.abs(n)}</b> ${esc(t(`ModQuick.${k}`))}</a>`).join("")}
         <span class="r-cast-step" data-tooltip="${esc(t("ModTip"))}"><a data-step="-1">−</a><b data-mod-own>0</b><a data-step="1">+</a><small>${esc(t("ModOwn"))}</small></span></div>
       <label class="r-check r-cast-will"><input type="checkbox" name="will"><span>${esc(t("CastWill"))}</span></label>
+      ${resDice ? `<label class="r-check r-cast-will" data-tooltip="${esc(t("CastResTip"))}"><input type="checkbox" name="res"><span>${esc(t("CastRes", { name: top.name, n: resDice }))}</span></label>` : ""}
+      ${W ? "" : `<label class="r-check r-cast-will" data-tooltip="${esc(t("CastSaveTip"))}"><input type="checkbox" name="save"><span>${esc(mt(actor, "CastSave"))}</span></label>`}
 
       <div class="r-cast-total">
         <div class="r-cast-sum" data-sum></div>
@@ -214,10 +231,11 @@ export async function castEffect(actor, preset = {}) {
         q("[data-sum]").innerHTML = v.high ? [part(v.high, t("SumHigh")), part(`+${C[v.kind]}`, t(`Kind.${v.kind}`)),
           v.raw ? part(`${v.mod > 0 ? "+" : "−"}${Math.abs(v.mod)}`, t(v.capped ? "SumModCapped" : "SumMod"), v.mod > 0 ? "is-bad" : "is-good") : ""].join("") : `<em>${esc(t("CastPick"))}</em>`;
         q("[data-diff]").textContent = v.high ? v.difficulty : "—";
-        const o = v.high ? chancesView(odds({ pool, difficulty: v.difficulty, willpower: v.will })) : null;
+        q("[data-pool]").textContent = v.dice;
+        const o = v.high ? chancesView(odds({ pool: v.dice, difficulty: v.difficulty, willpower: v.will })) : null;
         q("[data-odds]").hidden = !o;
         if (o) { for (const k of ["success", "failure", "botch"]) { q(`.r-odds-bar .is-${k}`).style.width = `${o[k]}%`; q(`[data-o="${k}"]`).textContent = `${o[k]}%`; } }
-        q("[data-risk]").innerHTML = v.high ? `<i class="fa-solid fa-burst"></i> ${esc(t(v.kind === "coincidental" ? "RiskCoinc" : "RiskVulgar", { n: botchParadox(v.kind, v.high), now: m.paradox }))}` : "";
+        q("[data-risk]").innerHTML = v.high ? `<i class="fa-solid fa-burst"></i> ${esc(t(v.kind === "coincidental" ? "RiskCoinc" : "RiskVulgar", { n: botchParadox(v.kind, v.high, mar), now: m.paradox }))}` : "";
         if (ok) ok.disabled = !v.high;
       };
       el.addEventListener("click", e => {
@@ -231,6 +249,8 @@ export async function castEffect(actor, preset = {}) {
         const sp = e.target.closest("[data-step]"); if (sp) { st.mod = Math.clamp(st.mod + Number(sp.dataset.step), -3, 3); return sync(); }
       });
       q('[name="will"]').addEventListener("change", e => { st.will = e.target.checked; sync(); });
+      q('[name="res"]')?.addEventListener("change", e => { st.res = e.target.checked; sync(); });
+      q('[name="save"]')?.addEventListener("change", e => { st.save = e.target.checked; });
       sync();
     },
     buttons: [{ action: "ok", icon: "fa-solid fa-hat-wizard", label: mt(actor, "Cast"), default: true, callback: () => { res = { ...calc(), name: nameNow() }; } }],
@@ -238,14 +258,19 @@ export async function castEffect(actor, preset = {}) {
   });
   if (!res) return null;
   if (!res.high) { ui.notifications.info(t("CastPick")); return null; }
-  if (res.quint) await changeQuintessence(actor, -res.quint);
+  if (res.quint) await (W ? W.update({ "system.quintessence": Math.max(0, quintHave - res.quint) }) : changeQuintessence(actor, -res.quint));
   const used = Object.entries(res.ranks).map(([k, v]) => `${sphereName(actor, k)} ${v}`).join(", ");
-  const roll = await rollPool({ actor, title: res.name || mt(actor, "CastTitle"), subtitle: t("CastSub", { n: res.high }), pool, difficulty: res.difficulty,
-    willpower: res.will, kind: "check", breakdown: [{ label: mt(actor, "Arete"), value: pool }],
-    extra: { mage: { kind: res.kind, high: res.high, ranks: res.ranks, quint: res.quint, used } } });
+  // «запомнить как ротэ»: название, Сферы и вид магии — в список ротэ (если такого названия ещё нет)
+  if (res.save && res.name && !m.rotes.some(r => r.name === res.name))
+    await actor.update({ "system.mage.rotes": [...m.rotes.map(r => ({ ...r })), { name: res.name, spheres: used, text: "", kind: res.kind }] });
+  const breakdown = [{ label: W ? `${mt(actor, "Arete")} · ${W.name}` : mt(actor, "Arete"), value: pool }];
+  if (res.res) { breakdown.push({ label: `${t("Resonance")}: ${top.name}`, value: resDice }); await actor.update({ "system.mage.resUsed": true }); }
+  const roll = await rollPool({ actor, title: res.name || mt(actor, "CastTitle"), subtitle: t("CastSub", { n: res.high }), pool: res.dice, difficulty: res.difficulty,
+    willpower: res.will, kind: "check", breakdown,
+    extra: { mage: { kind: res.kind, high: res.high, ranks: res.ranks, quint: res.quint, used, mar } } });
   if (!roll) return null;
   // Парадокс — за вульгарность и за провал; итог и кнопка отката — в самой карточке броска (блок «mage»)
-  const paradox = castParadox(res.kind, res.high, roll);
+  const paradox = castParadox(res.kind, res.high, roll, mar);
   if (paradox) {
     const now = await changeParadox(actor, paradox);
     await refreshCard(roll.message, "mage", { now });
@@ -254,7 +279,7 @@ export async function castEffect(actor, preset = {}) {
 }
 
 /** Сколько Парадокса приносит бросок чародейства: провал с единицами — по Сфере и вульгарности, успешная вульгарная магия — 1. */
-const castParadox = (kind, high, ev) => ev.outcome === "botch" ? botchParadox(kind, high) : (ev.successes ?? 0) > 0 && kind !== "coincidental" ? 1 : 0;
+const castParadox = (kind, high, ev, mar = false) => ev.outcome === "botch" ? botchParadox(kind, high, mar) : (ev.successes ?? 0) > 0 && kind !== "coincidental" && !mar ? 1 : 0;
 
 /** Дописать данные в блок карточки броска и перерисовать её (после того, как Парадокс или Ожог уже применены). */
 async function refreshCard(message, key, patch) {
@@ -267,7 +292,7 @@ async function refreshCard(message, key, patch) {
 
 /** Блок карточки чародейства: Сферы со знаками, вид магии, итог по таблице успехов, Парадокс и кнопка отката. */
 registerCardBlock("mage", (state, ev, actor) => {
-  const x = state.extra.mage, n = ev.successes ?? 0, botch = ev.outcome === "botch", gain = castParadox(x.kind, x.high, ev);
+  const x = state.extra.mage, n = ev.successes ?? 0, botch = ev.outcome === "botch", gain = castParadox(x.kind, x.high, ev, x.mar);
   return {
     spheres: Object.entries(x.ranks ?? {}).map(([k, rank]) => ({ name: actor ? sphereName(actor, k) : sphereOf(k)?.name ?? k, rank, sym: { src: mageGlyphSrc(`sphere-${k}`) } })),
     kind: x.kind, kindLabel: t(`Kind.${x.kind}`), kindIcon: KINDS.find(k => k[0] === x.kind)?.[1] ?? "fa-leaf", quint: x.quint ?? 0,
@@ -281,7 +306,11 @@ registerCardBlock("backlash", (state, ev) => {
   const x = state.extra.backlash, n = ev.successes ?? 0, botch = ev.outcome === "botch";
   const gone = botch ? x.free : Math.min(n, x.free), row = (M().backlash ?? []).find(r => n >= r.min && n <= r.max);
   const burn = botch ? null : burnOf(n);
-  return { text: botch ? t("BackBotch", { n: gone }) : n < 1 ? t("BackNone") : `${t("BackGone", { n: gone })} ${row?.text ?? ""}`,
+  const grade = botch ? null : (M().pflaws ?? []).find(g => n >= g.min && n <= g.max), quiet = n >= 11 ? (M().quiet?.levels ?? []).find(l => n >= l.min && n <= l.max)?.n ?? 0 : 0;
+  const perm = n >= 21 ? 2 : n >= 16 ? 1 : 0;
+  return { flaw: grade && !x.flawed ? t("BackFlaw", { grade: grade.name }) : "", quiet: quiet && !x.quieted ? t("BackQuiet", { n: quiet }) : "", perm: perm && !x.permed ? t("BackPerm", { n: perm }) : "",
+    insulate: x.insulate ? t("BackInsulate", { n: x.insulate }) : "",
+    text: botch ? t("BackBotch", { n: gone }) : n < 1 ? t("BackNone") : `${t("BackGone", { n: gone })} ${row?.text ?? ""}`,
     left: x.left != null ? t("ParadoxLeft", { n: x.left }) : "",
     burn: burn && !x.burned ? t("Burn", { n: burn[0], type: game.i18n.localize(VTM20.damageTypes[burn[1]]?.label ?? burn[1]) }) : "" };
 });
@@ -296,7 +325,7 @@ export async function paradoxBacklash(actor) {
   const { rollPool } = await import("../dice/roll.mjs");
   const free = m.paradox - m.paradoxPerm;
   const roll = await rollPool({ actor, title: t("Backlash"), subtitle: t("BacklashSub", { n: pool }), pool, difficulty: 6, kind: "check",
-    breakdown: [{ label: t("Paradox"), value: pool }], extra: { backlash: { free } } });
+    breakdown: [{ label: t("Paradox"), value: pool }], extra: { backlash: { free, insulate: isMarauder(actor) ? m.quiet.level * (M().quiet?.insulate ?? 5) : 0 } } });
   if (!roll) return null;
   // провал — весь непостоянный Парадокс уходит безвредно; успехи — столько очков разряжается
   const gone = roll.outcome === "botch" ? free : Math.min(roll.successes ?? 0, free);
@@ -312,7 +341,21 @@ export async function mageCardAction(message, action) {
   if (!a) return null;
   if (action === "mageBacklash") return paradoxBacklash(a);
   const x = state?.extra?.backlash;
-  if (!x || x.burned) return null;
+  if (!x) return null;
+  const { evaluate: ev0 } = await import("../dice/roll.mjs");
+  const n = ev0(state.values, state).successes ?? 0;
+  // последствия отката записывает рассказчик: Изъян по степени, Безмолвие по уровню, постоянный Парадокс
+  if (["mageFlaw", "mageQuiet", "magePerm"].includes(action)) {
+    if (!game.user.isGM) return ui.notifications.warn(game.i18n.localize("VTM20.Notify.GMOnly"));
+    const S = await import("./mage-state.mjs"), m = a.system.mage;
+    if (action === "mageFlaw" && !x.flawed) { if (!(await S.addFlaw(a, { grade: S.flawGradeFor(n)?.key }))) return null; return refreshCard(message, "backlash", { flawed: true }); }
+    if (action === "mageQuiet" && !x.quieted) { await a.update({ "system.mage.quiet.level": Math.max(m.quiet.level, S.quietLevelFor(n)) }); return refreshCard(message, "backlash", { quieted: true }); }
+    if (action === "magePerm" && !x.permed) { const k = n >= 21 ? 2 : 1, perm = Math.min(WHEEL, m.paradoxPerm + k);
+      await a.update({ "system.mage.paradoxPerm": perm, "system.mage.paradox": Math.max(m.paradox, perm), "system.mage.quintessence": Math.min(m.quintessence, WHEEL - Math.max(m.paradox, perm)) });
+      return refreshCard(message, "backlash", { permed: true }); }
+    return null;
+  }
+  if (x.burned) return null;
   if (!a.isOwner) return ui.notifications.warn(game.i18n.format("VTM20.Notify.NotOwner", { name: a.name }));
   const { evaluate } = await import("../dice/roll.mjs");
   const burn = burnOf(evaluate(state.values, state).successes ?? 0);
@@ -324,15 +367,19 @@ export async function mageCardAction(message, action) {
 
 /* ── Ротэ и инструменты ───────────────────────────────────────────────── */
 
-/** Ротэ — выученный эффект: название, Сферы («Силы 3, Первоначало 2»), заметка. */
-export async function addRote(actor) {
-  const res = await foundry.applications.api.DialogV2.prompt({ window: { title: t("RoteAdd"), icon: "fa-solid fa-scroll" }, classes: ["vtm20", "r-dialog", "r-type-mage"], rejectClose: false, position: { width: 460 },
-    content: `<div class="r-form"><label class="r-field"><span>${esc(t("RoteName"))}</span><input type="text" name="name" autofocus></label>
-      <label class="r-field"><span>${esc(t("RoteSpheres"))}</span><input type="text" name="spheres" placeholder="${esc(t("RoteSpheresHint"))}"></label>
-      <label class="r-field"><span>${esc(t("RoteText"))}</span><textarea name="text" rows="3"></textarea></label></div>`,
-    ok: { label: game.i18n.localize("VTM20.Common.Add"), callback: (e, b) => ({ name: b.form.elements.name.value.trim(), spheres: b.form.elements.spheres.value.trim(), text: b.form.elements.text.value.trim() }) } });
+/** Ротэ — выученный эффект: название, Сферы («Силы 3, Первоначало 2»), вид магии, заметка. i — править запись, без i — новая. */
+export async function addRote(actor, i = null) {
+  const old = i != null ? actor.system.mage.rotes[i] : null;
+  const res = await foundry.applications.api.DialogV2.prompt({ window: { title: mt(actor, "RoteAdd"), icon: "fa-solid fa-scroll" }, classes: ["vtm20", "r-dialog", "r-type-mage"], rejectClose: false, position: { width: 460 },
+    content: `<div class="r-form"><label class="r-field"><span>${esc(t("RoteName"))}</span><input type="text" name="name" value="${esc(old?.name ?? "")}" autofocus></label>
+      <label class="r-field"><span>${esc(t("RoteSpheres"))}</span><input type="text" name="spheres" value="${esc(old?.spheres ?? "")}" placeholder="${esc(t("RoteSpheresHint"))}"></label>
+      <label class="r-field"><span>${esc(t("KindCap"))}</span><select name="kind">${KINDS.map(([k]) => `<option value="${k}"${(old?.kind || "coincidental") === k ? " selected" : ""}>${esc(t(`Kind.${k}`))}</option>`).join("")}</select></label>
+      <label class="r-field"><span>${esc(t("RoteText"))}</span><textarea name="text" rows="3">${esc(old?.text ?? "")}</textarea></label></div>`,
+    ok: { label: game.i18n.localize(old ? "VTM20.Common.Save" : "VTM20.Common.Add"), callback: (e, b) => Object.fromEntries(["name", "spheres", "kind", "text"].map(k => [k, b.form.elements[k].value.trim()])) } });
   if (!res?.name) return null;
-  return actor.update({ "system.mage.rotes": [...actor.system.mage.rotes.map(r => ({ ...r })), res] });
+  const list = actor.system.mage.rotes.map(r => ({ ...r }));
+  if (old) list[i] = res; else list.push(res);
+  return actor.update({ "system.mage.rotes": list });
 }
 export async function removeRote(actor, i) {
   const list = actor.system.mage.rotes.map(r => ({ ...r }));
@@ -341,15 +388,34 @@ export async function removeRote(actor, i) {
 }
 /** Сферы ротэ из строки: «Силы 3, Первоначало 2» → { forces: 3, prime: 2 } (ранг не выше своего). */
 export function roteSpheres(actor, text) {
-  const out = {}, m = actor.system.mage;
+  const m = actor.system.mage;
+  return Object.fromEntries(Object.entries(parseSpheres(text)).map(([k, v]) => [k, Math.min(m.spheres[k] ?? 0, v)]).filter(([, v]) => v > 0));
+}
+/** «Силы 3, Первоначало 2» → { forces: 3, prime: 2 } — как записано, без оглядки на чьи-то Сферы. */
+export function parseSpheres(text) {
+  const out = {};
   for (const s of M().spheres ?? []) {
     const names = [s.name, s.en, s.tech?.name, s.tech?.en].filter(Boolean).map(x => x.toLowerCase());
     const hit = String(text ?? "").toLowerCase().split(/[,;+]/).map(x => x.trim()).find(x => names.some(nm => x.startsWith(nm)));
-    if (hit) out[s.key] = Math.min(m.spheres[s.key] ?? 0, Number(hit.match(/\d+/)?.[0]) || 1);
+    if (hit) out[s.key] = Math.clamp(Number(hit.match(/\d+/)?.[0]) || 1, 1, 5);
   }
-  return Object.fromEntries(Object.entries(out).filter(([, v]) => v > 0));
+  return out;
 }
-export const castRote = (actor, i) => { const r = actor.system.mage.rotes[i]; return r ? castEffect(actor, { name: r.name, spheres: roteSpheres(actor, r.spheres) }) : null; };
+/** Чародейство по ротэ: Сферы и вид магии подставлены; fast (Shift) — бросок сразу, без окна. */
+export function castRote(actor, i, { fast = false } = {}) {
+  const r = actor.system.mage.rotes[i];
+  if (!r) return null;
+  const spheres = roteSpheres(actor, r.spheres);
+  if (fast && !Object.keys(spheres).length) ui.notifications.info(t("RoteNoSpheres", { name: r.name }));
+  return castEffect(actor, { name: r.name, spheres, kind: r.kind, fast });
+}
+/** Вид для листа и худа: Сферы ротэ со знаками, вид магии, сложность при своих Сферах. */
+export function roteView(actor, r, i) {
+  const ranks = roteSpheres(actor, r.spheres), high = Math.max(0, ...Object.values(ranks)), C = M().casting ?? {}, kind = C[r.kind] ? r.kind : "coincidental";
+  return { i, ...r, kind, kindLabel: t(`Kind.${kind}`), kindIcon: KINDS.find(k => k[0] === kind)?.[1] ?? "fa-leaf",
+    chips: Object.entries(ranks).map(([k, rank]) => ({ name: sphereName(actor, k), rank, sym: { src: mageGlyphSrc(`sphere-${k}`) } })),
+    difficulty: high ? Math.clamp(high + (C[kind] ?? 3), C.min ?? 3, C.max ?? 10) : 0 };
+}
 
 export async function addTool(actor, name) {
   name = String(name ?? "").trim();

@@ -78,7 +78,8 @@ class XpWindow extends HandlebarsApplicationMixin(ApplicationV2) {
     const hunter = a.type === "hunter", lost = hunter && isLost(a), hxp = hunter && !lost && growth() === "xp", garou = a.type === "werewolf", mage = a.type === "mage";
     // Маг: Арете и девять Сфер (родовая дешевле); Добродетелей и Человечности у магов нет
     if (mage) groups.push({ key: "virt", icon: "fa-hat-wizard", label: loc("VTM20.Mage.Spheres"), rows: [
-      row("a:system.mage.arete:mageArete", loc("VTM20.Mage.Arete"), s.mage.arete, 10, "mageArete"),
+      // точку Арете покупают после Поиска — его исход отмечает рассказчик (кнопка на карточке Арете)
+      (r => s.mage.seeking ? r : { ...r, can: false, label: `${r.label} — ${loc("VTM20.Mage.SeekingNeed")}` })(row("a:system.mage.arete:mageArete", loc("VTM20.Mage.Arete"), s.mage.arete, 10, "mageArete")),
       ...VTM20.mageSpheres.map(k => row(`a:system.mage.spheres.${k}:mageSphere`, a.traitLabel(`mage.${k}`), s.mage.spheres[k], 5, "mageSphere", { key: k }))] });
     else if (garou) groups.push({ key: "virt", icon: "fa-moon", label: loc("VTM20.Werewolf.Garou"), rows: [
       row("a:system.werewolf.rage.permanent:rage", loc("VTM20.Werewolf.Rage"), s.werewolf.rage.permanent, 10, "rage"),
@@ -165,6 +166,7 @@ class XpWindow extends HandlebarsApplicationMixin(ApplicationV2) {
     if (!doc || target.classList.contains("is-off")) return;
     this.flash = target.dataset.ref;
     if (!(await this.actor.buyWithXp({ doc, path, kind, label: target.dataset.label, confirm: false }))) this.flash = null;
+    else if (kind === "mageArete") await this.actor.update({ "system.mage.seeking": false });   // Поиск «израсходован» новой точкой
   }
 
   static #onFilter() { this.onlyAffordable = !this.onlyAffordable; this.render(); }

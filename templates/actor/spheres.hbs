@@ -45,8 +45,6 @@
     <label class="r-df is-wide" {{#if mageView.practiceTip}}data-tooltip="{{localize 'VTM20.Mage.PracticeTools'}}: {{mageView.practiceTip}}"{{/if}}><span>{{localize "VTM20.Mage.Practice"}}</span>
       <input type="text" name="system.mage.practice" value="{{system.mage.practice}}" data-combo="r-mpra-{{actor.id}}" placeholder="{{localize 'VTM20.Mage.PracticeHint'}}" {{#unless editable}}disabled{{/unless}}></label>
     <datalist id="r-mpra-{{actor.id}}">{{#each mageView.practices}}<option value="{{this}}"></option>{{/each}}</datalist>
-    <label class="r-df is-wide"><span>{{localize "VTM20.Mage.Resonance"}}</span>
-      <input type="text" name="system.mage.resonance" value="{{system.mage.resonance}}" placeholder="{{localize 'VTM20.Mage.ResonanceHint'}}" {{#unless editable}}disabled{{/unless}}></label>
   </div>
   <div class="r-tools">
     <span class="r-tools-lbl">{{@root.mageView.L.Instruments}}{{#if mageView.toolsNeed}} <em class="is-warn">{{localize "VTM20.Mage.ToolsNeed" n=mageView.toolsNeed}}</em>{{/if}}</span>
@@ -60,13 +58,80 @@
   </h2>
   <ul class="r-edge-list r-rotes">
     {{#each mageView.rotes}}
-    <li class="r-edge">
+    <li class="r-edge r-rote">
       <span class="r-edge-lvl"><i class="fa-solid fa-scroll"></i></span>
-      <span class="r-edge-main"><b>{{name}}</b> <small>{{spheres}}</small><div class="r-edge-text">{{text}}</div></span>
-      {{#if @root.editable}}<a class="r-vc-btn" data-action="mageRoteCast" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Mage.Cast'}}"><i class="fa-solid fa-hat-wizard"></i></a>
+      <span class="r-edge-main"><b>{{name}}</b>
+        <span class="r-rote-chips">{{#each chips}}<span class="r-cast-chip">{{rSym sym "r-mg"}}{{name}} <b>{{rank}}</b></span>{{else}}<small>{{spheres}}</small>{{/each}}
+          <span class="r-cast-chip is-kind is-{{kind}}"><i class="fa-solid {{kindIcon}}"></i> {{kindLabel}}</span>{{#if difficulty}}<span class="r-cast-chip is-diff" data-tooltip="{{localize 'VTM20.Mage.RoteDiff'}}">{{localize "VTM20.Mage.DiffShort"}} <b>{{difficulty}}</b></span>{{/if}}</span>
+        {{#if text}}<div class="r-edge-text">{{text}}</div>{{/if}}</span>
+      {{#if @root.editable}}<a class="r-vc-btn" data-action="mageRoteCast" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Mage.RoteCastHint'}}"><i class="fa-solid fa-hat-wizard"></i></a>
+      <a class="r-icon-btn" data-action="mageRoteEdit" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Sheet.Edit'}}"><i class="fa-solid fa-pen-nib"></i></a>
       <a class="r-icon-btn is-danger" data-action="mageRoteDel" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
     </li>
     {{else}}<li class="r-note">{{@root.mageView.L.NoRotes}}</li>
     {{/each}}
   </ul>
+
+  {{!-- Чудеса: Талисманы, Устройства, Периапты — предметы со своим Арете и запасом Квинтэссенции --}}
+  <h2 class="r-h2"><span>{{localize "VTM20.Mage.Wonders"}}</span>
+    <span class="r-h2-tools">{{#if editable}}<a class="r-h2-btn" data-action="openPack" data-pack="mage-wonders" data-tooltip="{{localize 'VTM20.Sheet.PackHint'}}"><i class="fa-solid fa-book-open-reader"></i> <span class="r-h2-lbl">{{localize "VTM20.Library.Open"}}</span></a><a class="r-h2-btn is-ghost" data-action="itemCreate" data-type="wonder" data-tooltip="{{localize 'VTM20.Mage.WonderAdd'}}"><i class="fa-solid fa-feather"></i> <span class="r-h2-lbl">{{localize "VTM20.Sheet.Own"}}</span></a>{{/if}}</span>
+  </h2>
+  <ul class="r-edge-list r-rotes r-wonders">
+    {{#each mageState.wonders}}
+    <li class="r-edge r-rote r-wonder" data-item-id="{{id}}">
+      <span class="r-edge-lvl"><img src="{{img}}" alt=""></span>
+      <span class="r-edge-main"><a data-action="itemEdit"><b>{{name}}</b></a>
+        <span class="r-rote-chips"><span class="r-cast-chip is-kind">{{kindLabel}}{{#if value}} <b>{{value}}</b>{{/if}}</span>{{#if arete}}<span class="r-cast-chip">{{@root.mageView.L.Arete}} <b>{{arete}}</b></span>{{/if}}{{#each chips}}<span class="r-cast-chip">{{rSym sym "r-mg"}}{{name}} <b>{{rank}}</b></span>{{/each}}{{#if perm}}<span class="r-cast-chip is-witnessed" data-tooltip="{{localize 'VTM20.Wonder.ParadoxHint'}}"><i class="fa-solid fa-burst"></i> {{perm}}</span>{{/if}}</span></span>
+      {{#if holds}}<span class="r-wonder-q" data-tooltip="{{localize 'VTM20.Wonder.QuintHint'}}">{{#if @root.editable}}<a data-action="mageWonderQuint" data-d="-1" data-tooltip="{{localize 'VTM20.Mage.WonderCharge'}}"><i class="fa-solid fa-angle-up"></i></a>{{/if}}<i class="fa-solid fa-sun"></i> <b>{{quint}}</b>/{{quintMax}}{{#if @root.editable}}<a data-action="mageWonderQuint" data-d="1" data-tooltip="{{localize 'VTM20.Mage.WonderDrain'}}"><i class="fa-solid fa-angle-down"></i></a>{{/if}}</span>{{/if}}
+      {{#if @root.editable}}{{#if canUse}}<a class="r-vc-btn" data-action="mageWonderUse" data-tooltip="{{localize 'VTM20.Mage.WonderUse'}}"><i class="fa-solid fa-hat-wizard"></i></a>{{/if}}
+      <a class="r-icon-btn" data-action="itemChat" data-tooltip="{{localize 'VTM20.Sheet.ToChat'}}"><i class="fa-solid fa-comment-dots"></i></a>
+      <a class="r-icon-btn is-danger" data-action="itemDelete" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
+    </li>
+    {{else}}<li class="r-note">{{localize "VTM20.Mage.NoWonders"}}</li>
+    {{/each}}
+  </ul>
+
+  {{!-- Резонанс и Синергия (Book of Secrets) --}}
+  <h2 class="r-h2"><span>{{localize "VTM20.Mage.ResTitle"}}</span>
+    <span class="r-h2-tools">{{#if editable}}<a class="r-h2-btn is-plain" data-action="mageResCloak" data-tooltip="{{localize 'VTM20.Mage.ResCloakHint'}}"><i class="fa-solid fa-user-secret"></i></a><a class="r-h2-btn is-ghost" data-action="mageResAdd" data-tooltip="{{localize 'VTM20.Mage.ResAdd'}}"><i class="fa-solid fa-feather"></i> <span class="r-h2-lbl">{{localize "VTM20.Mage.ResAddShort"}}</span></a>{{/if}}</span>
+  </h2>
+  <div class="r-mstate">
+    <ul class="r-mstate-list">
+      {{#each mageState.resonances}}
+      <li class="r-mstate-row {{#if top}}is-top{{/if}}"><b>{{name}}</b>{{#if flavor}} <small>{{flavor}}</small>{{/if}}
+        <span class="r-dots">{{#each dots}}<a class="r-dot {{#if filled}}is-filled{{/if}}" {{#if @root.editable}}data-action="mageResDot" data-i="{{../i}}" data-n="{{n}}"{{/if}}></a>{{/each}}</span>
+        <em>{{degree}}</em>
+        {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="mageResDel" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}</li>
+      {{else}}<li class="r-note">{{localize "VTM20.Mage.ResEmpty"}}</li>
+      {{/each}}
+    </ul>
+    <ul class="r-mstate-list is-synergy" data-tooltip="{{localize 'VTM20.Mage.SynergyHint'}}">
+      {{#each mageState.synergy}}
+      <li class="r-mstate-row" data-tooltip="{{text}}"><b>{{name}}</b>
+        <span class="r-dots">{{#each dots}}<a class="r-dot {{#if filled}}is-filled{{/if}}" {{#if @root.editable}}data-action="setDots" data-path="{{path}}" data-n="{{n}}"{{/if}}></a>{{/each}}</span></li>
+      {{/each}}
+    </ul>
+    {{#if mageState.resBonus}}<p class="r-note r-mstate-bonus {{#if mageState.resUsed}}is-spent{{/if}}"><i class="fa-solid fa-wave-square"></i>
+      {{#if mageState.resUsed}}{{localize "VTM20.Mage.ResSpent"}}{{else}}{{localize "VTM20.Mage.ResReady" name=mageState.resTop n=mageState.resBonus}}{{/if}}
+      {{#if editable}}<a class="r-vc-btn" data-action="mageResUsed" data-tooltip="{{localize 'VTM20.Mage.ResToggle'}}"><i class="fa-solid fa-rotate"></i></a>{{/if}}</p>{{/if}}
+  </div>
+
+  {{!-- Безмолвие и Изъяны Парадокса (M20, гл. 10) --}}
+  <h2 class="r-h2"><span>{{localize "VTM20.Mage.QuietTitle"}}</span>
+    <span class="r-h2-tools">{{#if editable}}{{#if mageState.quiet.level}}<a class="r-h2-btn" data-action="mageQuietExit" data-tooltip="{{localize 'VTM20.Mage.QuietExitHint'}}"><i class="fa-solid fa-eye"></i> <span class="r-h2-lbl">{{localize "VTM20.Mage.QuietExit"}}</span></a>{{/if}}<a class="r-h2-btn is-ghost" data-action="mageFlawAdd" data-tooltip="{{localize 'VTM20.Mage.FlawAdd'}}"><i class="fa-solid fa-burst"></i> <span class="r-h2-lbl">{{localize "VTM20.Mage.FlawShort"}}</span></a>{{/if}}</span>
+  </h2>
+  <div class="r-mstate">
+    <div class="r-mstate-row is-quiet {{#if mageState.quiet.level}}is-on{{/if}}"><b>{{localize "VTM20.Mage.Quiet"}}</b>
+      <span class="r-dots">{{#each mageState.quiet.dots}}<a class="r-dot {{#if filled}}is-filled{{/if}}" {{#if @root.editable}}data-action="setDots" data-path="{{path}}" data-n="{{n}}"{{/if}}></a>{{/each}}</span>
+      <select name="system.mage.quiet.kind" {{#unless editable}}disabled{{/unless}}>{{#each mageState.quiet.kinds}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select>
+      {{#if mageState.quiet.text}}<em>{{mageState.quiet.text}}</em>{{/if}}</div>
+    {{#if mageState.quiet.insulate}}<p class="r-note"><i class="fa-solid fa-shield-halved"></i> {{localize "VTM20.Mage.BackInsulate" n=mageState.quiet.insulate}}</p>{{/if}}
+    <ul class="r-edge-list r-rotes">
+      {{#each mageState.flaws}}
+      <li class="r-edge r-rote"><span class="r-edge-lvl"><i class="fa-solid fa-burst"></i></span>
+        <span class="r-edge-main"><b>{{name}}</b> <span class="r-cast-chip is-kind is-vulgar">{{gradeName}}</span>{{#if text}}<div class="r-edge-text">{{text}}</div>{{/if}}</span>
+        {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="mageFlawDel" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}</li>
+      {{/each}}
+    </ul>
+  </div>
 </section>

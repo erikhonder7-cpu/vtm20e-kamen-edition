@@ -50,6 +50,7 @@ import { togglePowerEffect } from "../apps/power-effects.mjs";
 import { usePower } from "../apps/use-power.mjs";
 import { isTechnocrat } from "../ui/themes.mjs";
 import { mageInfo, mageSigil, spheresView, castEffect, changeQuintessence, changeParadox, paradoxBacklash, addRote, removeRote, castRote, addTool, removeTool } from "../apps/mage.mjs";
+import { stateView, addResonance, setResonance, removeResonance, toggleResUsed, cloakResonance, quietExit, addFlaw, removeFlaw, seekingDialog, useWonder, wonderQuint } from "../apps/mage-state.mjs";
 import { POWER_EFFECTS, fxKey } from "../data/effects.mjs";
 import { rollPackVinculi, openVaulderie, loyaltyConflict } from "../apps/vaulderie.mjs";
 import { openCoterie } from "../apps/coterie.mjs";
@@ -179,6 +180,9 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       lineAtlas: VtMActorSheet.#onLineAtlas,
       linSire: VtMActorSheet.#onLinSire,
       mageFold: VtMActorSheet.#onMageFold, mageCast: VtMActorSheet.#onMageCast, mageQuint: VtMActorSheet.#onMageQuint, mageParadox: VtMActorSheet.#onMageParadox, mageBacklash: VtMActorSheet.#onMageBacklash,
+      mageRoteEdit: VtMActorSheet.#onMageRoteEdit, mageResAdd: VtMActorSheet.#onMageState, mageResDot: VtMActorSheet.#onMageState, mageResDel: VtMActorSheet.#onMageState,
+      mageResUsed: VtMActorSheet.#onMageState, mageResCloak: VtMActorSheet.#onMageState, mageQuietExit: VtMActorSheet.#onMageState, mageFlawAdd: VtMActorSheet.#onMageState,
+      mageFlawDel: VtMActorSheet.#onMageState, mageSeeking: VtMActorSheet.#onMageState, mageWonderUse: VtMActorSheet.#onMageState, mageWonderQuint: VtMActorSheet.#onMageState,
       mageRoteAdd: VtMActorSheet.#onMageRoteAdd, mageRoteDel: VtMActorSheet.#onMageRoteDel, mageRoteCast: VtMActorSheet.#onMageRoteCast, mageToolDel: VtMActorSheet.#onMageToolDel,
       edgeUse: VtMActorSheet.#onEdgeUse, edgeDel: VtMActorSheet.#onEdgeDel, hunterSight: VtMActorSheet.#onHunterSight,
       wwForm: VtMActorSheet.#onWwForm, wwGift: VtMActorSheet.#onWwGift, wwGiftAdd: VtMActorSheet.#onWwGiftAdd, wwGiftDel: VtMActorSheet.#onWwGiftDel,
@@ -326,7 +330,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     prepareRegistry(this, ctx);
     if (actor.type === "demon") prepareLores(this, ctx);
     else if (actor.type === "hunter") { ctx.hunterInfo = hunterInfo(actor, dots); ctx.edgePaths = edgesView(actor); ctx.hunterCall = callView(actor); }
-    else if (actor.type === "mage") { ctx.mageInfo = mageInfo(actor, dots); ctx.mageView = spheresView(actor, dots);
+    else if (actor.type === "mage") { ctx.mageInfo = mageInfo(actor, dots); ctx.mageView = spheresView(actor, dots); ctx.mageState = stateView(actor, dots);
       const sg = mageSigil(actor);
       ctx.sigil = { ...ctx.sigil, sym: sg.sym, label: sg.label };
       ctx.lineAtlas = true;
@@ -865,7 +869,27 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   }
   static #onMageRoteAdd() { return addRote(this.actor); }
   static #onMageRoteDel(event, target) { return removeRote(this.actor, Number(target.dataset.i)); }
-  static #onMageRoteCast(event, target) { return castRote(this.actor, Number(target.dataset.i)); }
+  // Shift — бросок сразу: Сферы и вид магии берутся из ротэ
+  static #onMageRoteCast(event, target) { return castRote(this.actor, Number(target.dataset.i), { fast: event.shiftKey }); }
+  static #onMageRoteEdit(event, target) { return addRote(this.actor, Number(target.dataset.i)); }
+  /** Резонанс, Безмолвие, Изъяны, Поиск, Чудеса (apps/mage-state.mjs) — по имени действия. */
+  static #onMageState(event, target) {
+    const a = this.actor, d = target.dataset, i = Number(d.i), id = target.closest("[data-item-id]")?.dataset.itemId;
+    switch (d.action) {
+      case "mageResAdd": return addResonance(a);
+      case "mageResDot": return setResonance(a, i, Number(d.n));
+      case "mageResDel": return removeResonance(a, i);
+      case "mageResUsed": return toggleResUsed(a);
+      case "mageResCloak": return cloakResonance(a);
+      case "mageQuietExit": return quietExit(a);
+      case "mageFlawAdd": return addFlaw(a);
+      case "mageFlawDel": return removeFlaw(a, i);
+      case "mageSeeking": return seekingDialog(a);
+      case "mageWonderUse": return useWonder(a, id);
+      case "mageWonderQuint": return wonderQuint(a, id, Number(d.d));
+    }
+    return null;
+  }
   static #onMageToolDel(event, target) { return removeTool(this.actor, Number(target.dataset.i)); }
   static async #onEdgeDel(event, target) {
     const k = target.dataset.key, list = this.actor.system.hunter?.edges ?? [];

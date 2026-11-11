@@ -16,7 +16,7 @@ const { ItemSheetV2 } = foundry.applications.sheets;
 const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
 const TEMPLATES = { ritual: "ritual", power: "power", discipline: "discipline", thaumPath: "path", lore: "lore", lorePower: "lore-power",
   weapon: "weapon", armor: "armor", gear: "gear", merit: "trait", flaw: "trait", background: "background", derangement: "derangement",
-  demonRitual: "demon-ritual", relic: "relic", investment: "investment" };
+  demonRitual: "demon-ritual", relic: "relic", investment: "investment", wonder: "wonder" };
 const RELIC_KINDS = ["enhanced", "enchanted", "demonic", "ancient", "unique"];
 
 export class VtMItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
@@ -113,6 +113,13 @@ export class VtMItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       ctx.loreOptions = Codex.lores.map(l => ({ value: l.key, label: l.name, selected: l.key === s.key }));
       ctx.loreHouse = lore?.house ? Codex.house(lore.house)?.name : game.i18n.localize("VTM20.Demon.Common");
       ctx.form = lore?.form ?? null;
+    }
+    // Чудо мага: вид, точки, Арете и запас Квинтэссенции
+    if (item.type === "wonder") {
+      const kinds = ["talisman", "device", "trinket", "periapt", "fetish", "artifact", "charm", "grimoire"];
+      ctx.kindLabel = loc(`VTM20.Wonder.Kind.${s.kind}`);
+      ctx.kindOptions = kinds.map(k => ({ value: k, label: loc(`VTM20.Wonder.Kind.${k}`), selected: k === s.kind }));
+      ctx.dots = Array.from({ length: Math.max(5, s.value) }, (_, i) => ({ n: i + 1, filled: i < s.value, path: "system.value" }));
     }
     // Ритуал и реликвия падших: Знания, Дом, слоты «Настроек» (вторичные Знания, Знания мастера)
     if (item.type === "demonRitual" || item.type === "relic") {

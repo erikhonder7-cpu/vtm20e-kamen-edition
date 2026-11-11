@@ -240,7 +240,8 @@
       <a class="r-vc-btn" data-action="mageCast" data-tooltip="{{localize 'VTM20.Mage.CastHintBtn'}}"><i class="fa-solid fa-hat-wizard"></i> {{@root.mageInfo.L.Cast}}</a>
       <a class="r-vc-btn is-sq is-right" data-action="mageParadox" data-d="1" data-tooltip="{{localize 'VTM20.Mage.ParadoxPlus'}}"><i class="fa-solid fa-burst"></i></a>
       <a class="r-vc-btn is-sq" data-action="mageParadox" data-d="-1" data-tooltip="{{localize 'VTM20.Mage.ParadoxMinus'}}"><i class="fa-solid fa-minus"></i></a>
-      {{#if mageInfo.isGM}}<a class="r-vc-btn is-sq {{#if mageInfo.backlash}}is-on{{/if}}" data-action="mageBacklash" data-tooltip="{{localize 'VTM20.Mage.BacklashHint'}}"><i class="fa-solid fa-dice-d10"></i></a>{{/if}}{{/if}}
+      {{#if mageInfo.isGM}}<a class="r-vc-btn is-sq {{#if mageInfo.seeking}}is-on{{/if}}" data-action="mageSeeking" data-tooltip="{{#if mageInfo.seeking}}{{localize 'VTM20.Mage.SeekingDone'}}{{else}}{{localize 'VTM20.Mage.SeekingHint'}}{{/if}}"><i class="fa-solid fa-mountain-sun"></i></a>
+      <a class="r-vc-btn is-sq {{#if mageInfo.backlash}}is-on{{/if}}" data-action="mageBacklash" data-tooltip="{{localize 'VTM20.Mage.BacklashHint'}}"><i class="fa-solid fa-dice-d10"></i></a>{{/if}}{{/if}}
     </div>
   </div>
   {{else if thrallInfo}}

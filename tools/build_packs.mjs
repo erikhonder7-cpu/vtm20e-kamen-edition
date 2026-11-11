@@ -775,7 +775,7 @@ BUILDERS["mage-merits"] = function () {
   const cat = ru.VTM20.MeritCat ?? {};
   for (const m of data("mage").merits) {
     const range = m.max > m.min ? `<p><em>Цена: ${m.min}–${m.max}</em></p>` : "";
-    p.add({ name: m.name, type: m.kind, folder: [m.source === "M20" ? "Основная книга" : "Книга Тайн", `${m.kind === "merit" ? "Достоинства" : "Недостатки"} — ${cat[m.category] ?? m.category}`],
+    p.add({ name: m.name, type: m.kind, folder: m.investment ? ["Книга Падших", "Инфернальные Инвестиции"] : [m.source === "M20" ? "Основная книга" : /Fallen/.test(m.source) ? "Книга Падших" : "Книга Тайн", `${m.kind === "merit" ? "Достоинства" : "Недостатки"} — ${cat[m.category] ?? m.category}`],
       key: `mage:${m.kind}:${m.name}`, img: traitIcon(m.category, m.kind === "flaw"),
       system: { cost: m.min || 1, category: m.category, clan: "", sect: "", source: m.en ?? "", description: `${m.html ?? ""}${range}` } });
   }
@@ -788,6 +788,16 @@ BUILDERS["mage-backgrounds"] = function () {
   for (const b of data("mage").backgrounds)
     p.add({ name: b.name, type: "background", folder: b.technocracy ? "Технократия" : "Маг: Восхождение", key: `mage:${b.name}`, img: backgroundIcon(b.en) ?? undefined,
       system: { value: 1, source: b.en ?? "", description: b.html ?? "" } });
+  return p;
+};
+
+/** Чудеса магов (data/mage.json): Талисманы, Устройства, Безделушки, Фетиши, гримуары — предметы типа «wonder». */
+BUILDERS["mage-wonders"] = function () {
+  const p = new Pack("mage-wonders", "Item");
+  const kinds = ru.VTM20.Wonder.Kind;
+  for (const w of data("mage").wonders)
+    p.add({ name: w.name, type: "wonder", folder: [w.source.replace(/^M20 ?/, "") || "Основная книга", kinds[w.kind]], key: `mage:wonder:${w.name}`, img: `systems/${SYSTEM_ID}/assets/icons/wonder.svg`,
+      system: { kind: w.kind, value: w.value, arete: w.arete, quintessence: w.quintessence, quintMax: w.quintessence, cost: w.cost, spheres: w.spheres, source: w.en || w.source, description: w.html } });
   return p;
 };
 

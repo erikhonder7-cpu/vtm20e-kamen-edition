@@ -419,7 +419,7 @@ async function onClick(ev) {
     case "rite": pop = null; renderHud(); return rollRite(a, el.dataset.key);
     case "edge": pop = null; renderHud(); return useEdge(a, el.dataset.key);
     case "sphere": pop = null; renderHud(); return castEffect(a, { sphere: el.dataset.key });
-    case "rote": pop = null; renderHud(); return castRote(a, Number(el.dataset.i));
+    case "rote": pop = null; renderHud(); return castRote(a, Number(el.dataset.i), { fast: !!ev.shiftKey });
     case "mageCast": return castEffect(a);
     case "mageQuint": return changeQuintessence(a, Number(el.dataset.d));
     case "mageBacklash": return paradoxBacklash(a);

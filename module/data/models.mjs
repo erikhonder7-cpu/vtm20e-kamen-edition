@@ -465,6 +465,22 @@ export class DemonRitualData extends BaseItemData {
 }
 
 /** Реликвия падших: улучшенная, зачарованная, демоническая или древняя вещь; Знания мастера и система. */
+// Чудо мага (M20, гл. 9; Book of Secrets): Талисман и Устройство — со своим Арете и запасом Квинтэссенции,
+// Периапт — вместилище (5 Квинтэссенции за точку), Безделушка — одна функция, Фетиш — дух в предмете, Амулет — одноразовый.
+export class WonderData extends BaseItemData {
+  static defineSchema() {
+    return {
+      ...super.defineSchema(),
+      kind: str("talisman"),             // talisman | device | trinket | periapt | fetish | artifact | charm | grimoire
+      value: int(0, 0, 10),              // точки Факта «Чудо»
+      arete: int(0, 0, 10), quintessence: int(0, 0), quintMax: int(0, 0),
+      spheres: str(),                    // вложенные Сферы: «Силы 3, Разум 2»
+      paradoxPerm: int(0, 0, 10),        // постоянный Парадокс, пока Чудо при владельце
+      cost: int(0, 0)                    // цена Факта в очках (по книге)
+    };
+  }
+}
+
 export class RelicData extends BaseItemData {
   static defineSchema() {
     return {
@@ -587,8 +603,21 @@ export class MageData extends MortalData {
         spheres: new SchemaField(Object.fromEntries(VTM20.mageSpheres.map(k => [k, int(0, 0, 5)]))),
         quintessence: int(0, 0, 20), paradox: int(0, 0, 20), paradoxPerm: int(0, 0, 20),
         paradigm: str(""), practice: str(""), instruments: new ArrayField(str()), resonance: str(""),
-        rotes: new ArrayField(new SchemaField({ name: str(), spheres: str(), text: str() })) })
+        rotes: new ArrayField(new SchemaField({ name: str(), spheres: str(), text: str(), kind: str("") })),
+        // Резонанс и Синергия (Book of Secrets): подписи с «ароматом» и степенью 1–5; бонус кубиков — раз за историю
+        resonances: new ArrayField(new SchemaField({ name: str(), flavor: str(""), value: int(1, 0, 5) })),
+        synergy: new SchemaField({ dynamic: int(0, 0, 5), entropic: int(0, 0, 5), static: int(0, 0, 5) }), resUsed: new BooleanField({ initial: false }),
+        // Безмолвие (уровень 0–6 и вид), Изъяны Парадокса, пройденный Поиск (разрешает купить точку Арете)
+        quiet: new SchemaField({ level: int(0, 0, 6), kind: str("") }),
+        pflaws: new ArrayField(new SchemaField({ name: str(), grade: str("trivial"), text: str() })),
+        seeking: new BooleanField({ initial: false }) })
     };
+  }
+  /** Прежняя подпись Резонанса одной строкой — в список подписей (1 точка). */
+  static migrateData(src) {
+    const m = src?.mage;
+    if (m && typeof m.resonance === "string" && m.resonance.trim() && !m.resonances?.length) { m.resonances = [{ name: m.resonance.trim(), flavor: "", value: 1 }]; m.resonance = ""; }
+    return super.migrateData(src);
   }
 }
 
@@ -760,6 +789,6 @@ export function registerDataModels() {
   Object.assign(CONFIG.Item.dataModels, {
     discipline: DisciplineData, lore: LoreData, lorePower: LorePowerData, thaumPath: BloodPathData, ritual: RitualData, power: PowerData,
     background: BackgroundData, merit: MeritData, flaw: MeritData, derangement: DerangementData,
-    weapon: WeaponData, armor: ArmorData, gear: GearData, demonRitual: DemonRitualData, relic: RelicData, investment: InvestmentData
+    weapon: WeaponData, armor: ArmorData, gear: GearData, demonRitual: DemonRitualData, relic: RelicData, investment: InvestmentData, wonder: WonderData
   });
 }
