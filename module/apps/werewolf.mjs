@@ -11,9 +11,14 @@ import { totemOf } from "./coterie.mjs";
 import { septOf } from "./sept.mjs";
 import { umbraOf } from "./umbra.mjs";
 import { registerEmblem, registerCardBlock } from "../ui/themes.mjs";
+export { fetishOf, fetishView, addFetish, removeFetish, attuneFetish, reconcileFetish, useFetish, craftFetish } from "./werewolf/fetishes.mjs";
+import { kamiDeliriumImmune } from "./werewolf/kin.mjs";
+export { kinfolkInfo, kamiPowerOf, kamiInfo, kamiAdd, kamiRemove, kamiUse, kamiDeliriumImmune, numenOf, kinAddNumen, kinRemoveNumen, kinNumenDots, kinUseNumen, kinAddGift, kinRemoveGift, kinUseGift } from "./werewolf/kin.mjs";
+export { GAUNTLET, stepSideways, SPIRIT_RANKS, charmOf, spiritTplOf, spiritTplGroups, applySpiritTpl, createSpirit, fetchInfo, bindFetch, burnFetch, spiritInfo, addCharm, removeCharm, spiritEssenceReset } from "./werewolf/spirits.mjs";
+export { fomorBreedOf, fomorPowerOf, fomorInfo, fomorBreed, fomorAdd, fomorRemove, fomorUse } from "./werewolf/fomori.mjs";
 
-const t = (k, d) => d ? game.i18n.format(`VTM20.Werewolf.${k}`, d) : game.i18n.localize(`VTM20.Werewolf.${k}`);
-const esc = s => foundry.utils.escapeHTML(String(s ?? ""));
+export const t = (k, d) => d ? game.i18n.format(`VTM20.Werewolf.${k}`, d) : game.i18n.localize(`VTM20.Werewolf.${k}`);
+export const esc = s => foundry.utils.escapeHTML(String(s ?? ""));
 export const W = () => Codex.werewolf ?? { breeds: [], auspices: [], tribes: [], forms: [], gifts: [], rites: [], rank: {}, rankNames: [] };
 export const giftOf = key => W().gifts.find(g => g.key === key) ?? null;
 export const riteOf = key => W().rites.find(r => r.key === key) ?? null;
@@ -57,7 +62,7 @@ function poolNums(actor, a, b) {
  * Окно выбора: шапка, пояснение и карточки — щелчок по карточке и есть выбор (без ряда кнопок внизу, закрыть — крестиком).
  * cards: [{ key, glyph | icon, title, sub, note, badge, disabled, cls }]; возвращает key выбранной карточки или null.
  */
-async function wwPick({ title, icon = "fa-paw", head = "", lead = "", cards, width = 520, cls = "", after = "" }) {
+export async function wwPick({ title, icon = "fa-paw", head = "", lead = "", cards, width = 520, cls = "", after = "" }) {
   let picked = null;
   const card = c => `<button type="button" class="r-wc-card${c.cls ? ` ${c.cls}` : ""}" data-pick="${esc(c.key)}"${c.disabled ? " disabled" : ""}>
       <span class="r-wc-mark">${c.glyph ? wwGlyph(c.glyph) : `<i class="fa-solid ${c.icon ?? "fa-circle"}"></i>`}</span>
@@ -651,260 +656,16 @@ export async function spendRageActions(actor, n) {
     t("ActionsDone", { name: esc(actor.name), n })}${fighting ? ` ${t("ActionsQueued")}` : ""}${total > free ? ` ${t("ActionsFastNote")}` : ""}</div>` });
 }
 
-
 /* ── Фетиши и талены (W20, гл. 4) ────────────────────────────────────── */
-
-export const fetishOf = key => (W().fetishes ?? []).find(f => f.key === key) ?? null;
 
 /** Шрамы персонажа для вкладки Даров. */
 export const scarView = actor => (actor.system.werewolf.scars ?? []).map((k, i) => ({ i, ...(scarOf(k) ?? { name: k, effect: "" }) }));
 
-/** Список фетишей и тален персонажа для вкладки Даров. */
-export function fetishView(actor) {
-  return (actor.system.werewolf.fetishes ?? []).map((x, i) => ({ ...x, i, data: fetishOf(x.key) })).filter(x => x.data)
-    .map(x => ({ i: x.i, key: x.key, attuned: x.attuned, rejected: !!x.rejected, n: x.n, talen: x.data.kind === "talen", name: x.data.name, en: x.data.en, level: x.data.level,
-      gnosis: x.data.gnosis, text: x.data.text }));
-}
-export async function addFetish(actor, key) {
-  const f = fetishOf(key);
-  if (!f) return;
-  const list = foundry.utils.deepClone(actor.system.werewolf.fetishes ?? []), have = list.find(x => x.key === key);
-  if (have && f.kind === "talen") have.n += 1;
-  else if (!have) list.push({ key, attuned: false, n: 1 });
-  return actor.update({ "system.werewolf.fetishes": list });
-}
-export async function removeFetish(actor, i) {
-  const list = foundry.utils.deepClone(actor.system.werewolf.fetishes ?? []);
-  list.splice(i, 1);
-  return actor.update({ "system.werewolf.fetishes": list });
-}
-/**
- * Настройка фетиша (W20, гл. 4): Гнозис против Гнозиса фетиша, нужен 1 успех; провал с единицами — фетиш отверг владельца:
- * новая попытка только после примирения с духом (отметку снимает рассказчик).
- */
-export function attuneFetish(actor, i) {
-  const x = actor.system.werewolf.fetishes[i], f = fetishOf(x?.key);
-  if (!f) return;
-  if (x.rejected) return ui.notifications.warn(t("FetishRejectedNote", { name: f.name }));
-  return RollDialog.prompt(actor, { title: t("Attune", { name: f.name }), trait1: "werewolf.gnosis", difficulty: f.gnosis, diffNote: t("AttuneNote"),
-    onRolled: async r => {
-      const ok = (r?.successes ?? 0) > 0, botch = r?.outcome === "botch";
-      if (!ok && !botch) return;
-      const list = foundry.utils.deepClone(actor.system.werewolf.fetishes);
-      if (ok) list[i].attuned = true; else list[i].rejected = true;
-      await actor.update({ "system.werewolf.fetishes": list });
-      if (botch) await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), flags: { [game.system.id]: { garou: "fetish" } },
-        content: `<div class="r-notice r-type-werewolf is-warn"><i class="fa-solid fa-link-slash"></i> ${t("FetishRejected", { name: esc(actor.name), fetish: esc(f.name) })}</div>` });
-    } });
-}
-/** Примирение с духом фетиша (рассказчик): снять отметку «отверг» — можно снова настраивать. */
-export async function reconcileFetish(actor, i) {
-  const list = foundry.utils.deepClone(actor.system.werewolf.fetishes ?? []);
-  if (!list[i]) return;
-  list[i].rejected = false;
-  return actor.update({ "system.werewolf.fetishes": list });
-}
-/** Пробудить фетиш или использовать талену: бросок Гнозиса против Гнозиса предмета или трата 1 Гнозиса (талена — и тратится). */
-export async function useFetish(actor, i) {
-  const x = actor.system.werewolf.fetishes[i], f = fetishOf(x?.key);
-  if (!f) return;
-  if (f.kind === "fetish" && !x.attuned) return ui.notifications.warn(t("NotAttuned"));
-  const talen = f.kind === "talen";
-  const how = await wwPick({ title: f.name, icon: "fa-gem", width: 560,
-    head: wwHead({ glyph: "glyph-fetish", kicker: t(talen ? "TalenKicker" : "FetishKicker", { n: f.level ?? "—" }), title: esc(f.name), sub: t("FetishGnosis", { g: f.gnosis }) }),
-    after: `<div class="r-wc-text">${f.text}</div>`,
-    cards: [
-      { key: "roll", icon: "fa-dice-d10", title: t("UseRoll"), sub: `${t("Gnosis")} <b>${actor.system.werewolf.gnosis.value}</b> · ${t("Diff", { n: f.gnosis })}`, note: talen ? t("TalenGone") : "" },
-      { key: "spend", glyph: "glyph-gnosis", title: t("UseSpend"), sub: t("UseSpendSub", { n: actor.system.werewolf.gnosis.value }), disabled: actor.system.werewolf.gnosis.value < 1 }
-    ] });
-  if (!how) return;
-  const spendTalen = async () => {
-    if (f.kind !== "talen") return;
-    const list = foundry.utils.deepClone(actor.system.werewolf.fetishes);
-    list[i].n -= 1;
-    if (list[i].n <= 0) list.splice(i, 1);
-    await actor.update({ "system.werewolf.fetishes": list });
-  };
-  const say = html => ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<div class="r-notice r-type-werewolf"><i class="fa-solid fa-gem"></i> ${html}</div>` });
-  if (how === "spend") {
-    if (!(await spend(actor, "gnosis", 1))) return;
-    await spendTalen();
-    return say(t("Awakened", { name: esc(f.name) }));
-  }
-  return RollDialog.prompt(actor, { title: f.name, trait1: "werewolf.gnosis", difficulty: f.gnosis,
-    onRolled: async r => { if ((r?.successes ?? 0) > 0) { await spendTalen(); await say(t("Awakened", { name: esc(f.name) })); } } });
-}
-
-/**
- * Создать фетиш или талену обрядом (W20, гл. 7). Фетиш — «Ритуал фетиша»: Смекалка + Ритуалы, сл. 10, каждый потраченный
- * постоянный Гнозис — сложность −2 (предмет очищен три ночи, дух уговорен или побеждён — решает рассказчик).
- * Талена — «Ритуал связывания»: Воля против Гнозиса духа (= Гнозис талены), каждый потраченный Гнозис — Гнозис духа −1.
- * Успех — предмет на листе (фетиш — уже настроен на создателя).
- */
-export async function craftFetish(actor, key) {
-  const f = fetishOf(key);
-  if (!f) return ui.notifications.warn(t("CraftPick"));
-  const talen = f.kind === "talen", rite = talen ? "rite-of-binding" : "rite-of-the-fetish", w = actor.system.werewolf;
-  const knows = (w.rites ?? []).includes(rite), gn = w.gnosis;
-  const max = talen ? gn.value : gn.permanent;
-  const diffOf = k => talen ? Math.max(2, f.gnosis - k) : Math.max(3, 10 - 2 * k);
-  const n = await foundry.applications.api.DialogV2.prompt({
-    window: { title: t("CraftTitle", { name: f.name }), icon: "fa-solid fa-gem" }, classes: ["vtm20", "r-dialog", "r-type-werewolf", "r-wc-dlg", "has-foot"], rejectClose: false,
-    position: { width: 540 },
-    content: `<div class="r-wc">${wwHead({ glyph: talen ? "glyph-spirit" : "glyph-fetish", kicker: riteOf(rite)?.name ?? rite, title: esc(f.name), sub: t("FetishGnosis", { g: f.gnosis }) })}
-      <p class="r-wc-lead">${t(talen ? "CraftTalenHow" : "CraftFetishHow", { g: f.gnosis })}</p>
-      ${knows ? "" : `<p class="r-wc-warn"><i class="fa-solid fa-triangle-exclamation"></i> ${t("CraftNoRite", { rite: riteOf(rite)?.name ?? rite })}</p>`}
-      <div class="r-wc-stepper"><span>${wwGlyph("glyph-gnosis")} ${t(talen ? "CraftSpendTemp" : "CraftSpendPerm")}</span>
-        <a data-d="-1">−</a><input type="number" name="n" value="0" min="0" max="${max}"><a data-d="1">+</a>
-        <em>${t("CraftDiff")} <b data-diff>${diffOf(0)}</b></em></div></div>`,
-    render: (ev, dlg) => {
-      const root = dlg.element, inp = root.querySelector("input[name=n]"), out = root.querySelector("[data-diff]");
-      const upd = () => { inp.value = Math.clamp(Number(inp.value) || 0, 0, max); out.textContent = diffOf(Number(inp.value)); };
-      root.querySelectorAll(".r-wc-stepper [data-d]").forEach(a => a.addEventListener("click", () => { inp.value = (Number(inp.value) || 0) + Number(a.dataset.d); upd(); }));
-      inp.addEventListener("input", upd);
-    },
-    ok: { label: t("CraftGo"), icon: "fa-solid fa-hand-sparkles", callback: (ev, btn) => Math.clamp(Number(btn.form.elements.n.value) || 0, 0, max) }
-  });
-  if (n == null) return;
-  if (n > 0) await actor.update(talen ? { "system.werewolf.gnosis.value": gn.value - n }
-    : { "system.werewolf.gnosis.permanent": gn.permanent - n, "system.werewolf.gnosis.value": Math.min(gn.value, gn.permanent - n) });
-  const done = async r => {
-    if (!((r?.successes ?? 0) > 0)) return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<div class="r-notice r-type-werewolf"><i class="fa-solid fa-ghost"></i> ${t("CraftFail", { name: esc(f.name) })}</div>` });
-    const list = foundry.utils.deepClone(actor.system.werewolf.fetishes ?? []), have = list.find(x => x.key === key);
-    if (have && talen) have.n += 1; else if (!have) list.push({ key, attuned: !talen, n: 1 }); else have.attuned = true;
-    await actor.update({ "system.werewolf.fetishes": list });
-    return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<div class="r-notice r-type-werewolf"><i class="fa-solid fa-gem"></i> ${t("CraftDone", { name: esc(actor.name), item: esc(f.name) })}</div>` });
-  };
-  return talen
-    ? RollDialog.prompt(actor, { title: t("CraftTitle", { name: f.name }), trait1: "willpower", difficulty: Math.max(2, f.gnosis - n), diffNote: t("CraftTalenNote"), onRolled: done })
-    : RollDialog.prompt(actor, { title: t("CraftTitle", { name: f.name }), trait1: "attributes.wits", trait2: "abilities.rituals", difficulty: Math.max(3, 10 - 2 * n),
-        diffNote: t("CraftFetishNote"), onRolled: done });
-}
-
 /* ── Родня Гару (W20 Kinfolk): Дары 1-го уровня своей породы и племени и особые Дары Родни ─── */
-
-const kinGiftOf = key => (W().kinGifts ?? []).find(g => g.key === key) ?? giftOf(key);
-/** Цена Дара для Родни в опыте: свой — 15, чужой — 20 (+5 за учителя-Гару — по решению рассказчика). */
-const kinCost = (k, g) => (g.groups ? g.groups.some(x => x.key === k.tribe || x.key === k.breed) : g.tribe === k.tribe) ? 15 : 20;
-
-/** Блок «Родня Гару» на листе смертного. */
-export function kinfolkInfo(actor) {
-  const k = actor.system.kinfolk;
-  if (!k) return null;
-  const D = W();
-  const gifts = k.gifts.map(kinGiftOf).filter(Boolean).map(g => ({ key: g.key, name: g.name, en: g.en, text: g.text, roll: !!g.roll,
-    gnosis: /Гнозис/.test(g.text ?? "") }));
-  const own = [...(D.kinGifts ?? []).filter(g => g.tribe === k.tribe), ...D.gifts.filter(g => g.level === 1 && g.groups.some(x => x.key === k.tribe || x.key === k.breed))];
-  const other = (D.kinGifts ?? []).filter(g => g.tribe !== k.tribe);
-  const avail = [...own, ...other].filter(g => !k.gifts.includes(g.key))
-    .map(g => ({ key: g.key, label: `${VTM20.label(g)}${g.tribe != null && g.tribe !== k.tribe && !g.groups ? ` (${D.tribes.find(t => t.key === g.tribe)?.name ?? "?"})` : ""} — ${kinCost(k, g)}`, xp: kinCost(k, g) }));
-  const numina = (k.numina ?? []).map(x => ({ ...x, data: numenOf(x.key) })).filter(x => x.data).map(x => ({ key: x.key, name: x.data.name, en: x.data.en,
-    kind: t(`Numen.${x.data.kind}`), pool: x.data.pool, cost: x.data.cost, text: x.data.text,
-    dots: Array.from({ length: 5 }, (_, i) => ({ n: i + 1, filled: i < x.dots })),
-    levels: x.data.levels.map(l => ({ ...l, reached: l.n <= x.dots })) }));
-  const numAvail = (D.numina ?? []).filter(n => !(k.numina ?? []).some(x => x.key === n.key)).map(n => ({ key: n.key, label: `${VTM20.label(n)} — ${t(`Numen.${n.kind}`)}` }));
-  return { on: k.on, tribe: k.tribe, breed: k.breed, gnosis: k.gnosis,
-    tribes: D.tribes.map(t => ({ key: t.key, label: VTM20.label(t), selected: t.key === k.tribe })),
-    breeds: ["homid", "lupus"].map(b => ({ key: b, label: VTM20.label(D.breeds.find(x => x.key === b) ?? { name: b }), selected: b === k.breed })),
-    gifts, avail, numina, numAvail };
-}
 
 /* ── Ками (W20 Umbra, гл. 4): избранники Геи — силы, Гейс; новая сила за опыт — (число сил × 3) ── */
 
-export const kamiPowerOf = key => (W().kami?.powers ?? []).find(p => p.key === key) ?? null;
-const kamiCount = k => (k.powers ?? []).reduce((n, p) => n + p.n, 0);
-export function kamiInfo(actor) {
-  const k = actor.system.kami;
-  if (!k) return null;
-  const D = W().kami ?? {};
-  const powers = k.powers.map(p => ({ ...p, data: kamiPowerOf(p.key) })).filter(p => p.data).map(p => ({ key: p.key, n: p.n, name: p.data.name, en: p.data.en,
-    text: p.data.text, more: p.data.repeat && p.n < p.data.max, roll: !!p.data.roll, kind: t(`Kami.kind.${p.data.kind}`) }));
-  // силы неподвижных — растениям и земле; повторяемые — пока не исчерпан предел покупок
-  const avail = (D.powers ?? []).filter(p => (p.kind !== "immobile" || k.kind === "plant") && !k.powers.some(x => x.key === p.key))
-    .map(p => ({ key: p.key, label: `${VTM20.label(p)} — ${t(`Kami.kind.${p.kind}`)}` }));
-  const st = D.start?.[k.kind] ?? {};
-  return { on: k.on, geas: k.geas, gnosis: k.gnosis, rage: k.rage, xp: kamiCount(k) * 3, gnosisMax: st.gnosisMax ?? 10,
-    start: t("Kami.start", { wp: st.willpower ?? 3, gnosis: st.gnosis ?? 1 }), geasHint: D.geas ?? "", create: D.create ?? "", examples: D.examples ?? "",
-    kinds: ["human", "animal", "plant"].map(x => ({ key: x, label: t(`Kami.form.${x}`), selected: x === k.kind })), powers, avail };
-}
-/** Сила Ками: новая или ещё одна покупка повторяемой; за опыт — (число сил × 3). «Берсерк» даёт 5 Ярости. */
-export async function kamiAdd(actor, key, buy = false) {
-  const k = actor.system.kami, p = kamiPowerOf(key);
-  if (!p) return;
-  const list = k.powers.map(x => ({ ...x })), have = list.find(x => x.key === key);
-  if (have && (!p.repeat || have.n >= p.max)) return;
-  if (buy) {
-    const cost = kamiCount(k) * 3, xp = actor.system.experience;
-    if (xp.available < cost) return ui.notifications.warn(game.i18n.format("VTM20.Notify.NoXp", { cost, have: xp.available }));
-    const log = foundry.utils.deepClone(actor._source.system.experience.log);
-    log.unshift({ amount: -cost, reason: t("Kami.learned", { name: p.name }), date: new Date().toLocaleDateString(game.i18n.lang) });
-    await actor.update({ "system.experience.spent": actor._source.system.experience.spent + cost, "system.experience.log": log });
-  }
-  if (have) have.n += 1; else list.push({ key, n: 1 });
-  return actor.update({ "system.kami.powers": list, ...(key === "berserker" && k.rage < 5 ? { "system.kami.rage": 5 } : {}) });
-}
-/** Снять одну покупку силы (последняя — сила уходит целиком). */
-export function kamiRemove(actor, key) {
-  const list = actor.system.kami.powers.map(x => ({ ...x })), have = list.find(x => x.key === key);
-  if (!have) return;
-  return actor.update({ "system.kami.powers": have.n > 1 ? list.map(x => x.key === key ? { ...x, n: x.n - 1 } : x) : list.filter(x => x.key !== key) });
-}
-/** Сила Ками: бросок, если в книге указан пул, иначе — описание в чат. */
-export function kamiUse(actor, key) {
-  const p = kamiPowerOf(key);
-  if (!p) return;
-  if (p.roll) return RollDialog.prompt(actor, { title: p.name, trait1: p.roll.trait1, trait2: p.roll.trait2, difficulty: p.roll.difficulty ?? 6 });
-  return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<div class="r-notice r-type-werewolf"><b>${esc(p.name)}</b><p>${p.text}</p></div>` });
-}
-/** Ками-животные, растения и земля к Бреду невосприимчивы; человек — с силой «Иммунитет к Бреду». */
-export const kamiDeliriumImmune = a => !!a.system.kami?.on && (a.system.kami.kind !== "human" || a.system.kami.powers.some(p => kamiPowerOf(p.key)?.name === "Иммунитет к Бреду"));
-
 /* ── Нумины Родни (W20 Kinfolk, гл. 3): ворожба — только через ритуалы своего уровня, психические феномены ── */
-
-export const numenOf = key => (W().numina ?? []).find(n => n.key === key) ?? null;
-export function kinAddNumen(actor, key) {
-  const list = actor.system.kinfolk.numina ?? [];
-  if (!numenOf(key) || list.some(x => x.key === key)) return;
-  return actor.update({ "system.kinfolk.numina": [...list, { key, dots: 1 }] });
-}
-export const kinRemoveNumen = (actor, key) => actor.update({ "system.kinfolk.numina": actor.system.kinfolk.numina.filter(x => x.key !== key) });
-/** Точки нумины; щелчок по последней закрашенной — на точку меньше (как у прочих черт). */
-export function kinNumenDots(actor, key, n) {
-  const list = actor.system.kinfolk.numina.map(x => ({ ...x }));
-  const x = list.find(y => y.key === key);
-  if (!x) return;
-  x.dots = Math.clamp(x.dots === n ? n - 1 : n, 0, 5);
-  return actor.update({ "system.kinfolk.numina": list });
-}
-/** Бросок нумины: пул из книги (чего нет у смертного — выбрать в окне); сложность Эмпатического исцеления — по уровню. */
-export function kinUseNumen(actor, key) {
-  const n = numenOf(key), have = actor.system.kinfolk.numina.find(x => x.key === key)?.dots ?? 0;
-  if (!n) return;
-  const lvl = n.levels.filter(l => l.n <= have).at(-1);
-  if (!n.roll) return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<div class="r-notice r-type-werewolf"><b>${esc(n.name)}</b>${n.text}</div>` });
-  return RollDialog.prompt(actor, { title: `${n.name}${have ? ` ${"•".repeat(have)}` : ""}`, trait1: n.roll.trait1 ?? "", trait2: n.roll.trait2 ?? "",
-    difficulty: lvl?.difficulty || n.roll.difficulty || 6 });
-}
-export async function kinAddGift(actor, key, buy = false) {
-  const k = actor.system.kinfolk, g = kinGiftOf(key);
-  if (!g || k.gifts.includes(key)) return;
-  if (buy) {
-    const cost = kinCost(k, g), xp = actor.system.experience;
-    if (xp.available < cost) return ui.notifications.warn(game.i18n.format("VTM20.Notify.NoXp", { cost, have: xp.available }));
-    const log = foundry.utils.deepClone(actor._source.system.experience.log);
-    log.unshift({ amount: -cost, reason: t("KinLearned", { name: g.name }), date: new Date().toLocaleDateString(game.i18n.lang) });
-    await actor.update({ "system.experience.spent": actor._source.system.experience.spent + cost, "system.experience.log": log });
-  }
-  return actor.update({ "system.kinfolk.gifts": [...k.gifts, key] });
-}
-export const kinRemoveGift = (actor, key) => actor.update({ "system.kinfolk.gifts": actor.system.kinfolk.gifts.filter(x => x !== key) });
-/** Дар Родни: бросок, если он указан, иначе — описание в чат. */
-export function kinUseGift(actor, key) {
-  const g = kinGiftOf(key);
-  if (!g) return;
-  if (g.roll) return RollDialog.prompt(actor, { title: g.name, trait1: g.roll.trait1, trait2: g.roll.trait2, difficulty: g.roll.difficulty ?? 6 });
-  return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<div class="r-notice r-type-werewolf"><b>${esc(g.name)}</b>${g.text}</div>` });
-}
 
 /* ── Бред (W20, гл. 6): реакция смертного на Кринос — по его Силе воли ─────── */
 
@@ -933,112 +694,11 @@ export async function delirium(actor) {
       <p>${t(targets.length ? "DeliriumHint" : "DeliriumNoTargets")}</p><table><thead><tr><th></th><th>${t("DeliriumWp")}</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>` });
 }
 
-/** Преграда по месту (W20, гл. 7): от лаборатории 9 до величайших каэрнов 2. */
-export const GAUNTLET = [["lab", 9], ["downtown", 8], ["street", 7], ["rural", 6], ["wild", 5], ["urbanCaern", 5], ["caern", 4], ["mightyCaern", 3], ["greatCaern", 2]];
-
-/** Шаг в Умбру (W20, гл. 7): Гнозис против Преграды места; успехи — время перехода, провал с единицами — застрял в Преграде. */
-export async function stepSideways(actor, trait = "werewolf.gnosis") {
-  const sp = septOf(actor);
-  const places = [...(sp ? [{ key: String(sp.gauntlet), icon: "fa-campground", title: t("GauntletSept", { name: esc(sp.name) }), badge: sp.gauntlet, cls: "is-sept" }] : []),
-    ...GAUNTLET.map(([k, n]) => ({ key: String(n), ...(/aern/i.test(k) ? { glyph: "glyph-caern" } : { icon: k === "lab" ? "fa-flask" : k === "downtown" ? "fa-city" : k === "street" ? "fa-road" : k === "rural" ? "fa-wheat-awn" : "fa-mountain-sun" }),
-      title: t(`Gauntlet.${k}`), badge: n }))];
-  const diff = Number(await wwPick({ title: t("StepSideways"), icon: "fa-moon", width: 760, cls: "r-wc-grid",
-    head: wwHead({ glyph: "glyph-umbra", kicker: esc(actor.name), title: t("GauntletPick"), sub: t("GauntletSub", { n: `<b>${actor.traitValue(trait) ?? 0}</b>` }) }),
-    lead: t("GauntletTimes"),
-    cards: places })) || 0;
-  if (!diff) return;
-  // Стратегия города: фишки в секторе с каэрном — Преграда −1 за каждые 2 (не больше −2, не ниже 2)
-  const { perkBonus } = await import("../ui/strategy.mjs");
-  const pk = perkBonus(actor, "caern"), cut = Math.min(2, pk.dice), d = Math.max(2, diff - cut);
-  return RollDialog.prompt(actor, { title: t("StepSideways"), trait1: trait, difficulty: d,
-    diffNote: cut ? `${t("GauntletNote")} · ${t("GauntletPerk", { n: cut, name: pk.names.join(", ") })}` : t("GauntletNote"),
-    onRolled: async r => { if ((r?.successes ?? 0) > 0) { const { setUmbra } = await import("./umbra.mjs"); await setUmbra(actor, "penumbra"); } } });
-}
-
 /* ── Духи Умбры (тип «Существо» с отметкой «Дух»; W20, гл. 7) ─────────── */
-
-export const SPIRIT_RANKS = ["gaffling", "jaggling", "incarna", "celestine"];
-export const charmOf = key => {
-  // особая Чара образца духа: «~образец:Название», текст — в spirits[].specials
-  if (key?.startsWith("~")) {
-    const [tpl, name] = key.slice(1).split(/:(.*)/s), sp = spiritTplOf(tpl);
-    return { key, name, en: "", general: false, text: sp?.specials?.[name] || game.i18n.format("VTM20.Werewolf.Spirit.specialOf", { name: sp?.name ?? tpl }) };
-  }
-  return (W().charms ?? []).find(c => c.key === key) ?? null;
-};
 
 /* ── Образцы духов (бестиарии основной книги, Умбры, Книги Червя; кин-фетчи Родни) ── */
 
-export const spiritTplOf = key => (W().spirits ?? []).find(s => s.key === key) ?? null;
-const SPIRIT_KINDS = ["gaia", "wyld", "weaver", "fetch", "bane"];
-/** Образцы, сгруппированные по видам, — для выпадающего списка. */
-export const spiritTplGroups = () => SPIRIT_KINDS.map(k => ({ label: t(`Spirit.kind.${k}`),
-  list: (W().spirits ?? []).filter(s => s.kind === k).map(s => ({ key: s.key, label: `${VTM20.label(s)} — ${s.rage}/${s.gnosis}/${s.willpower} · ${s.source}` })) }))
-  .filter(g => g.list.length);
-const spiritData = sp => ({ on: true, rank: sp.rank, rage: sp.rage, gnosis: sp.gnosis, willpower: sp.willpower,
-  essence: { value: sp.essence, max: sp.essence }, charms: sp.charms });
-/** Дух по образцу: черты, Эссенция и Чары; вид существа — по образцу, описание — в чат при применении. */
-export async function applySpiritTpl(actor, key) {
-  const sp = spiritTplOf(key);
-  if (!sp) return;
-  await actor.update({ "system.spirit": spiritData(sp), "system.kind": `${t(`Spirit.kind.${sp.kind}`)}: ${sp.name}` });
-  return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), whisper: ChatMessage.getWhisperRecipients("GM"),
-    content: `<div class="r-notice r-type-werewolf"><b>${esc(sp.name)}</b>${sp.en ? ` <small>(${esc(sp.en)})</small>` : ""}<p>${sp.text}</p><small>${esc(sp.source)}</small></div>` });
-}
-/** Новое существо-дух по образцу (для кин-фетча и рассказчика). */
-export async function createSpirit(key, name) {
-  const sp = spiritTplOf(key);
-  if (!sp) return null;
-  return Actor.create({ name: name || sp.name, type: "creature",
-    flags: { [game.system.id]: { created: true, spiritTpl: key } },
-    system: { kind: `${t(`Spirit.kind.${sp.kind}`)}: ${sp.name}`, spirit: spiritData(sp) } });
-}
-
 /* ── Кин-фетч (W20 Kinfolk, гл. 3): дух-хранитель Родни, клеймо сгорает при Первой Перемене ── */
-
-export function fetchInfo(actor) {
-  const k = actor.system.kinfolk, f = k.fetch ? fromUuidSync(k.fetch) : null;
-  const rite = (W().fetchRites ?? []).find(r => r.tribe === k.tribe);
-  return { actor: f ? { uuid: f.uuid, name: f.name } : null, rite: rite?.text ?? "", tribe: rite?.name ?? "",
-    tpls: (W().spirits ?? []).filter(s => s.source === "W20 Kinfolk").map(s => ({ key: s.key, label: VTM20.label(s) })) };
-}
-export async function bindFetch(actor, key) {
-  const f = await createSpirit(key, `${spiritTplOf(key)?.name ?? "Кин-фетч"}: ${actor.name}`);
-  if (!f) return;
-  await actor.update({ "system.kinfolk.fetch": f.uuid });
-  return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<div class="r-notice r-type-werewolf"><i class="fa-solid fa-feather"></i> ${t("Fetch.bound", { name: esc(actor.name), fetch: esc(f.name) })}</div>` });
-}
-/** Первая Перемена: клеймо сгорает, фетч летит к племени. */
-export async function burnFetch(actor) {
-  const f = actor.system.kinfolk.fetch ? await fromUuid(actor.system.kinfolk.fetch) : null;
-  await actor.update({ "system.kinfolk.fetch": "" });
-  return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<div class="r-notice r-type-werewolf"><i class="fa-solid fa-fire"></i> ${t("Fetch.burned", { name: esc(actor.name), fetch: esc(f?.name ?? "—") })}</div>` });
-}
-
-/** Карточка духа: черты точками, Эссенция квадратиками, Чары (общие — у всех). */
-export function spiritInfo(actor, dots) {
-  const sp = actor.system.spirit, all = W().charms ?? [];
-  const charms = [...all.filter(c => c.general), ...sp.charms.map(charmOf).filter(c => c && !c.general)];
-  return {
-    rank: sp.rank, ranks: SPIRIT_RANKS.map(k => ({ key: k, label: t(`SpiritRank.${k}`), selected: k === sp.rank })),
-    traits: ["willpower", "rage", "gnosis"].map(k => ({ k, v: sp[k], label: t(`Spirit.${k}`), hint: t(`Spirit.${k}Hint`), dots: dots(sp[k], 10, { path: `system.spirit.${k}` }) })),
-    essence: sp.essence.value, essenceMax: sp.essence.max, suggested: sp.rage + sp.gnosis + sp.willpower,
-    essenceBoxes: Array.from({ length: Math.min(40, sp.essence.max) }, (_, i) => ({ n: i + 1, filled: i < sp.essence.value, path: "system.spirit.essence.value" })),
-    charms: charms.map(c => ({ ...c, general: c.general })), avail: all.filter(c => !c.general && !sp.charms.includes(c.key))
-  };
-}
-export async function addCharm(actor, key) {
-  if (!key || actor.system.spirit.charms.includes(key)) return;
-  return actor.update({ "system.spirit.charms": [...actor.system.spirit.charms, key] });
-}
-export async function removeCharm(actor, key) {
-  return actor.update({ "system.spirit.charms": actor.system.spirit.charms.filter(k => k !== key) });
-}
-/** Эссенция по правилу W20: Воля + Ярость + Гнозис, и заполнить. */
-export async function spiritEssenceReset(actor) {
-  const sp = actor.system.spirit, n = sp.rage + sp.gnosis + sp.willpower;
-  return actor.update({ "system.spirit.essence": { value: n, max: n } });
-}
 
 /** Добавить Дар или ритуал; рассказчик может добавить любой. */
 export async function addGift(actor, key) {
@@ -1099,61 +759,10 @@ export async function primalUses(actor) {
 
 /* ── Фоморы (W20, гл. 13; Book of the Wyrm, гл. 2): люди и звери, одержимые Бейнами ── */
 
-const FOMORI = () => W().fomori ?? { powers: [], breeds: [] };
-export const fomorBreedOf = key => FOMORI().breeds.find(b => b.key === key) ?? null;
-/** Сила фомори: из общей таблицы или особая сила породы («~порода:Название»). */
-export const fomorPowerOf = key => {
-  if (key?.startsWith("~")) {
-    const [b, name] = key.slice(1).split(/:(.*)/s), br = fomorBreedOf(b);
-    return { key, name, en: "", text: br?.specials?.[name] || t("Fomor.specialOf", { name: br?.name ?? b }), roll: null, repeat: false, max: 1 };
-  }
-  return FOMORI().powers.find(p => p.key === key) ?? null;
-};
-export function fomorInfo(actor) {
-  const f = actor.system.fomor;
-  if (!f) return null;
-  const br = fomorBreedOf(f.breed);
-  const powers = f.powers.map(p => ({ ...p, data: fomorPowerOf(p.key) })).filter(p => p.data).map(p => ({ key: p.key, n: p.n, name: p.data.name, en: p.data.en,
-    text: p.data.text, more: p.data.repeat && p.n < p.data.max, roll: !!p.data.roll }));
-  return { on: f.on, rage: f.rage, breed: br, powers,
-    breeds: [{ key: "", label: "—", selected: !f.breed }, ...FOMORI().breeds.map(b => ({ key: b.key, label: `${VTM20.label(b)} — ${t("Fomor.wp", { n: b.willpower })}`, selected: b.key === f.breed }))],
-    avail: FOMORI().powers.filter(p => !f.powers.some(x => x.key === p.key)).map(p => ({ key: p.key, label: VTM20.label(p) })) };
-}
-/** Порода фомори: её силы (особые — с текстом породы) и Воля; прежние силы остаются. */
-export async function fomorBreed(actor, key) {
-  const br = fomorBreedOf(key), f = actor.system.fomor;
-  const list = f.powers.map(x => ({ ...x }));
-  for (const k of br?.powers ?? []) if (!list.some(x => x.key === k)) list.push({ key: k, n: 1 });
-  return actor.update({ "system.fomor.breed": key, "system.fomor.powers": list,
-    ...(br ? { "system.willpower.permanent": br.willpower, "system.willpower.temporary": br.willpower } : {}),
-    ...(list.some(x => fomorPowerOf(x.key)?.rage) && f.rage < 5 ? { "system.fomor.rage": 5 } : {}) });
-}
-export function fomorAdd(actor, key) {
-  const p = fomorPowerOf(key), f = actor.system.fomor;
-  if (!p) return;
-  const list = f.powers.map(x => ({ ...x })), have = list.find(x => x.key === key);
-  if (have && (!p.repeat || have.n >= p.max)) return;
-  if (have) have.n += 1; else list.push({ key, n: 1 });
-  // «Берсерк»: 5 Ярости, тратятся как у Гару
-  return actor.update({ "system.fomor.powers": list, ...(p.rage && f.rage < 5 ? { "system.fomor.rage": 5 } : {}) });
-}
-export function fomorRemove(actor, key) {
-  const list = actor.system.fomor.powers.map(x => ({ ...x })), have = list.find(x => x.key === key);
-  if (!have) return;
-  return actor.update({ "system.fomor.powers": have.n > 1 ? list.map(x => x.key === key ? { ...x, n: x.n - 1 } : x) : list.filter(x => x.key !== key) });
-}
-export function fomorUse(actor, key) {
-  const p = fomorPowerOf(key);
-  if (!p) return;
-  if (p.roll) return RollDialog.prompt(actor, { title: p.name, trait1: p.roll.trait1, trait2: p.roll.trait2, difficulty: p.roll.difficulty ?? 6 });
-  return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<div class="r-notice r-type-werewolf"><b>${esc(p.name)}</b><p>${p.text}</p></div>` });
-}
-
-/* Знак на карточках чата — племя Гару или род Фера */
-registerEmblem("werewolf", actor => werewolfSigil(actor).sym);
-
 /* Карточка броска оборотня (templates/chat/roll-card.hbs, блок «ww»): что это — чипами со знаками, итог — строкой в карточке */
 const ROMAN_LVL = ["", "I", "II", "III", "IV", "V", "VI"];
+/* Знак на карточках чата — племя Гару или род Фера */
+registerEmblem("werewolf", actor => werewolfSigil(actor).sym);
 registerCardBlock("ww", (state, ev, actor) => {
   const x = state.extra.ww, n = ev.successes ?? 0, botch = ev.outcome === "botch";
   const g = name => ({ src: wwGlyphSrc(name) });

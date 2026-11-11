@@ -295,7 +295,9 @@ try {
       const until = async f => { for (let i = 0; i < 40; i++) { const x = f(); if (x) return x; await wait(100); } return null; };
       const pick = async key => { const b = await until(() => document.querySelector(`.r-wc-dlg [data-pick="${key}"]:not([disabled])`)); b?.click(); await wait(400); return !!b; };
       await a.update({ "system.werewolf.gnosis": { permanent: 5, value: 1 } });
-      W.regainGnosis(a); out.hunt = await pick("hunt"); out.full = a.system.werewolf.gnosis.value;
+      W.regainGnosis(a); out.hunt = await pick("hunt");
+      // окно закрывается с анимацией, запись идёт следом — ждём самого значения, а не срока
+      await until(() => a.system.werewolf.gnosis.value === 5); out.full = a.system.werewolf.gnosis.value;
       await a.update({ "system.werewolf.gnosis.value": 1 });
       W.regainGnosis(a); out.med = await pick("meditate");
       const d = await until(() => [...foundry.applications.instances.values()].find(x => x.constructor.name === "RollDialog"));
