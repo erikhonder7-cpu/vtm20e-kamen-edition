@@ -3393,7 +3393,8 @@
       "Tab": {
         "fight": "Combat",
         "blood": "Blood",
-        "other": "Other"
+        "other": "Other",
+        "magic": "Magick"
       },
       "Spend": "Spend",
       "Dodge": "Dodge",
@@ -3424,7 +3425,9 @@
       "Hide": "Collapse panel (H)",
       "Show": "Show panel (H)",
       "ShowShort": "Panel",
-      "ToggleKey": "Collapse or show the character panel"
+      "ToggleKey": "Collapse or show the character panel",
+      "QuintIn": "Absorb",
+      "QuintOut": "Spend"
     },
     "Contest": {
       "ModeLabel": "Kind of action",

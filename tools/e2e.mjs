@@ -3815,6 +3815,91 @@ try {
   }
   if (own) await page.evaluate(ids => Actor.deleteDocuments([ids.mine, ids.other, ids.dh, ids.hu].filter(id => game.actors.has(id))), own);
   if (player) await page.evaluate(id => game.users.get(id)?.delete(), player.id);
+  // Маг (M20): мастер (фракция, Дом, Квинтэссенция за свободные пункты, Факты Технократии), лист Нефанда с Квлифами,
+  // чародейство одной карточкой, худ («Магия», ротэ), справочники линеек, генератор НПС
+  await check("Маг: мастер, Нефанди, чародейство, худ, справочники, генератор НПС", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), sys = p => import(`/systems/${sid}/${p}`);
+      const out = {}, inst = () => [...foundry.applications.instances.values()];
+      const mk = (name, system = {}) => Actor.create({ name, type: "mage", flags: { world: { e2e: true }, [sid]: { created: true } }, system });
+      // мастер
+      const raw = await Actor.create({ name: "E2E — ученик Гермеса", type: "mage", flags: { world: { e2e: true } } });
+      await game.vtm20.openCreator(raw); await wait(700);
+      const cr = inst().find(x => x.constructor.name === "VtMCreator");
+      Object.assign(cr.st.mg, { faction: "order-of-hermes", group: "traditions", sub: "flambeau", essence: "dynamic", affinity: "forces" });
+      const ctx = await cr._prepareContext({});
+      out.steps = cr.steps.includes("mage");
+      out.subs = ctx.mage?.subs?.length >= 10 && ctx.mage.subs.some(x => x.active && x.sym);
+      out.techBgHidden = !(ctx.bgCards ?? []).some(b => /Requisitions|Secret Weapons/.test(b.en ?? ""));
+      const left0 = cr.freeLeft; cr.st.free.quint = 2;
+      out.quint = [left0 - cr.freeLeft, cr.mageQuint - cr.mageAvatar];
+      cr.st.mg.faction = "iteration-x";
+      out.techBgShown = (await cr._prepareContext({})).bgCards.some(b => /Requisitions/.test(b.en ?? ""));
+      cr.st.mg.faction = "infernalists";
+      out.fallen = [cr.mageFallen, cr.mageTech];
+      await cr.close(); await raw.delete();
+      // лист Нефанда: гамма, Квлифы у Сфер, знак открывает справочник
+      const a = await mk("E2E — малфеан", { willpower: { permanent: 6, temporary: 6 }, mage: { faction: "malfeans", arete: 3, affinity: "entropy", quintessence: 4,
+        spheres: { entropy: 3, life: 1 }, rotes: [{ name: "E2E — гниль", spheres: "Энтропия 2", text: "" }] } });
+      await a.sheet.render(true); await wait(700); a.sheet.changeTab("disciplines", "primary"); await wait(500);
+      const el = a.sheet.element;
+      out.sheet = [el.classList.contains("r-mage-fallen"), el.querySelectorAll(".r-qliph").length, el.querySelector(".r-rail-sigil")?.dataset.action];
+      await a.sheet.close();
+      // черты Падших — только Нефанду
+      const C = game.vtm20Codex, V = CONFIG.VTM20 ?? game.vtm20.config, nm = C.merits.find(m => m.nephandi);
+      out.traits = [!!nm, V.traitFor(nm, { type: "mage", nephandi: true }), V.traitFor(nm, { type: "mage" })];
+      // чародейство: окно → бросок → одна карточка с блоком мага
+      const Mg = await sys("module/apps/mage.mjs"), n0 = game.messages.size;
+      Mg.castRote(a, 0); await wait(800);
+      const dlg = inst().find(x => x.element?.classList.contains("r-cast-dialog"));
+      out.castDlg = [!!dlg, !!dlg?.element.classList.contains("r-mage-fallen")];
+      dlg?.element.querySelector('button[data-action="ok"]')?.click(); await wait(1500);
+      const msgs = game.messages.contents.slice(n0);
+      out.cast = [msgs.length, !!msgs[0]?.flags?.[sid]?.roll?.extra?.mage];
+      // худ: вкладка «Магия» и ротэ
+      const scene = game.scenes.viewed ?? game.scenes.contents[0];
+      const [td] = await scene.createEmbeddedDocuments("Token", [await a.getTokenDocument({ x: 300, y: 2900 })]);
+      for (let i = 0; i < 30 && !canvas.tokens.get(td.id); i++) await wait(100);
+      canvas.tokens.get(td.id)?.control({ releaseOthers: true }); await wait(600);
+      document.querySelector('#r-hud [data-act="tab"][data-tab="magic"]')?.click(); await wait(300);
+      const q0 = canvas.tokens.get(td.id).actor.system.mage.quintessence;
+      document.querySelector('#r-hud [data-act="mageQuint"][data-d="1"]')?.click(); await wait(500);
+      out.hud = [document.querySelector("#r-hud").classList.contains("is-fallen"), !!document.querySelector('#r-hud [data-act="mageCast"]'), canvas.tokens.get(td.id).actor.system.mage.quintessence - q0];
+      document.querySelector('#r-hud [data-act="tab"][data-tab="powers"]')?.click(); await wait(300);
+      document.querySelector('#r-hud [data-act="pop"][data-pop="rotes"]')?.click(); await wait(300);
+      out.hudRote = !!document.querySelector('#r-hud .rh-pop-row[data-act="rote"]');
+      document.querySelector('#r-hud [data-act="popClose"]')?.click();
+      await scene.deleteEmbeddedDocuments("Token", [td.id]);
+      // справочники
+      const am = await game.vtm20.openAtlas("mage", "order-of-hermes"); await wait(600);
+      out.atlasMage = [am.element.querySelectorAll(".r-cl-groups a").length, am.element.querySelectorAll(".r-at-row").length, am.element.querySelector(".r-cl-head h2")?.textContent.trim()];
+      am.show("qliph:10"); await wait(400);
+      out.atlasQliph = am.element.querySelector(".r-cl-head h2")?.textContent.trim();
+      await am.close();
+      const aw = await game.vtm20.openAtlas("werewolf", "bastet"); await wait(600);
+      out.atlasWolf = [aw.element.querySelectorAll(".r-cl-groups a").length, aw.element.querySelector(".r-cl-head h2")?.textContent.trim(), aw.element.querySelectorAll(".r-cl-trait").length > 5];
+      await aw.close();
+      // генератор НПС: маг, технократ, Нефанд — Сферы не выше Арете, точка в родовой, Квинтэссенция по Аватару
+      const B = await sys("module/apps/npc-build.mjs"), groups = { mage: ["traditions", "disparates"], technocrat: ["technocracy"], nephandus: ["nephandi"] };
+      out.npc = [];
+      for (const [k, gs] of Object.entries(groups)) for (const power of ["mook", "veteran"]) {
+        const d = B.buildNpc({ kind: k, power }), m = d.system.mage, f = C.mage.factions.find(x => x.key === m.faction);
+        out.npc.push(gs.includes(f?.group) && Math.max(...Object.values(m.spheres)) <= m.arete && m.spheres[m.affinity] >= 1 && m.quintessence >= 1 && m.arete <= d.system.willpower.permanent);
+      }
+      const made = await B.createNpc(B.buildNpc({ kind: "nephandus", power: "seasoned" }), { name: "E2E — НПС Нефанд" });
+      await made.setFlag("world", "e2e", true);
+      out.npcMade = [made.type, !made.sheet.needsCreation, made.items.some(i => /Аватар|Гений/.test(i.name))];
+      await ChatMessage.deleteDocuments(game.messages.contents.slice(n0).map(m => m.id));
+      await Actor.deleteDocuments([a.id, made.id]);
+      return out;
+    });
+    const want = { steps: true, subs: true, techBgHidden: true, quint: [2, 8], techBgShown: true, fallen: [true, false], sheet: [true, 9, "lineAtlas"], traits: [true, true, false],
+      castDlg: [true, true], cast: [1, true], hud: [true, true, 1], hudRote: true, atlasMage: [9, 11, "Орден Гермеса"], atlasQliph: "Лилит", atlasWolf: [4, "Бастет", true],
+      npc: [true, true, true, true, true, true], npcMade: ["mage", true, true] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   // вторая уборка: временные персонажи проверок после первой (стратегия, оборотни, панель сессии…)
   await page.evaluate(async () => {
     const temp = game.actors.filter(x => x.getFlag("world", "e2e")).map(x => x.id);

@@ -17,7 +17,7 @@ import { rollPowerRef, powerByRef } from "../sheets/actor-sheet.mjs";
 import { effectTimer } from "../apps/timers.mjs";
 import { W as werewolfData, feraOf, changeForm, rageActions, regenerate, stepSideways, frenzyCheck, giftOf, rollGift, rollRite } from "../apps/werewolf.mjs";
 import { H as hunterData, secondSight, edgesView, useEdge } from "../apps/hunter.mjs";
-import { castEffect, sphereName, aretePool, factionOf } from "../apps/mage.mjs";
+import { castEffect, castRote, sphereName, aretePool, factionOf, mt, changeQuintessence, paradoxBacklash } from "../apps/mage.mjs";
 import { assumeForm } from "../apps/torment.mjs";
 import { togglePowerEffect } from "../apps/power-effects.mjs";
 
@@ -138,6 +138,10 @@ function powerGroups(a, kind) {
     const sp = VTM20.mageSpheres.filter(k => (a.system.mage?.spheres?.[k] ?? 0) > 0);
     if (sp.length) out.push({ id: "spheres", label: t("Mage.Spheres"), icon: "fa-hat-wizard", lvl: aretePool(a),
       rows: sp.map(k => ({ name: sphereName(a, k), level: a.system.mage.spheres[k], act: "sphere", attrs: `data-key="${k}"` })) });
+    // ротэ — готовые эффекты: щелчок открывает окно чародейства с уже выставленными Сферами
+    const rotes = a.system.mage?.rotes ?? [];
+    if (rotes.length) out.push({ id: "rotes", label: mt(a, "Rotes"), icon: "fa-scroll",
+      rows: rotes.map((r, i) => ({ name: r.name || "—", level: "", act: "rote", attrs: `data-i="${i}" data-tooltip="${esc([r.spheres, r.text].filter(Boolean).join(" — "))}"`, icon: "fa-hat-wizard" })) });
   }
   return out;
 }
@@ -280,6 +284,15 @@ function tabsOf(a, kind) {
       seal("wwRegen", "fa-heart-pulse", t("Werewolf.Regen"), { tip: t("Werewolf.RegenHint") }), seal("wwStep", "fa-circle-half-stroke", t("Werewolf.StepSideways"), { tip: t("Werewolf.StepHint") }),
       seal("wwFrenzy", "fa-face-angry", t("Werewolf.Frenzy"), { tip: t("Werewolf.FrenzyHint") })] });
   }
+  // Маг: чародейство и колесо — сотворить, вобрать и потратить Квинтэссенцию, откат Парадокса
+  if (kind === "mage") {
+    const m = s.mage;
+    tabs.push({ key: "magic", label: t("Hud.Tab.magic"), seals: [
+      seal("mageCast", "fa-hat-wizard", mt(a, "Cast"), { tip: `${mt(a, "CastTitle")} · ${mt(a, "Arete")} ${aretePool(a)}` }),
+      seal("mageQuint", "fa-plus", t("Hud.QuintIn"), { badge: String(m.quintessence), attrs: `data-d="1"`, tip: `${mt(a, "Quintessence")} +1` }),
+      seal("mageQuint", "fa-minus", t("Hud.QuintOut"), { attrs: `data-d="-1"`, tip: `${mt(a, "Quintessence")} −1` }),
+      seal("mageBacklash", "fa-burst", t("Mage.Paradox"), { on: m.paradox >= 10, badge: m.paradox ? String(m.paradox) : "", tip: t("Mage.BacklashHint") })] });
+  }
   // Силы: вынесенные булавкой с листа (знак Дисциплины и уровень точками), силы на время, свои силы вида и «Все» — вкладка сил на листе
   const powers = (a.getFlag(SYSTEM_ID, "hudPowers") ?? []).map(ref => {
     const x = powerByRef(ref);
@@ -406,6 +419,10 @@ async function onClick(ev) {
     case "rite": pop = null; renderHud(); return rollRite(a, el.dataset.key);
     case "edge": pop = null; renderHud(); return useEdge(a, el.dataset.key);
     case "sphere": pop = null; renderHud(); return castEffect(a, { sphere: el.dataset.key });
+    case "rote": pop = null; renderHud(); return castRote(a, Number(el.dataset.i));
+    case "mageCast": return castEffect(a);
+    case "mageQuint": return changeQuintessence(a, Number(el.dataset.d));
+    case "mageBacklash": return paradoxBacklash(a);
     case "noop": return;
     // все силы — вкладка сил на листе (Дисциплины, Дары, Знания, Грани)
     case "allPowers": await a.sheet.render(true); return a.sheet.changeTab?.("disciplines", "primary");
