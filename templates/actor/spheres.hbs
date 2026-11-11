@@ -108,6 +108,35 @@
   </ul>
   {{/if}}
 
+  {{!-- Маг-гуль: кровь домитора в теле, узы, Дисциплины (V20, гл. 9) --}}
+  <h2 class="r-h2"><span>{{localize "VTM20.Mage.Ghoul.Title"}}</span>
+    <span class="r-h2-tools">{{#if editable}}{{#if mageState.ghoul.on}}{{#if mageState.ghoul.wounded}}<a class="r-h2-btn" data-action="mageGhoulHeal" data-tooltip="{{localize 'VTM20.Mage.Ghoul.HealHint'}}"><i class="fa-solid fa-droplet"></i> <span class="r-h2-lbl">{{localize "VTM20.Mage.Ghoul.Heal"}}</span></a>{{/if}}
+      <a class="r-h2-btn" data-action="openPack" data-pack="disciplines" data-tooltip="{{localize 'VTM20.Sheet.PackHint'}}"><i class="fa-solid fa-book-open-reader"></i> <span class="r-h2-lbl">{{localize "VTM20.Sheet.Disciplines"}}</span></a>{{/if}}
+      <a class="r-h2-btn is-ghost {{#if mageState.ghoul.on}}is-on{{/if}}" data-action="mageGhoul" data-tooltip="{{localize 'VTM20.Mage.Ghoul.ToggleHint'}}"><i class="fa-solid fa-hand-holding-droplet"></i> <span class="r-h2-lbl">{{#if mageState.ghoul.on}}{{localize "VTM20.Mage.Ghoul.Off"}}{{else}}{{localize "VTM20.Mage.Ghoul.On"}}{{/if}}</span></a>{{/if}}</span>
+  </h2>
+  {{#if mageState.ghoul.on}}
+  <div class="r-focus">
+    <label class="r-df is-wide"><span>{{localize "VTM20.Mage.Ghoul.Domitor"}}</span><input type="text" name="system.mage.ghoul.domitor" value="{{mageState.ghoul.domitor}}" {{#unless editable}}disabled{{/unless}}></label>
+    <label class="r-df is-wide"><span>{{localize "VTM20.Mage.Ghoul.Clan"}}</span><input type="text" name="system.mage.ghoul.clan" value="{{mageState.ghoul.clan}}" {{#unless editable}}disabled{{/unless}}></label>
+  </div>
+  <div class="r-mstate">
+    <div class="r-mstate-row is-quiet"><b>{{localize "VTM20.Mage.Ghoul.Vitae"}}</b>
+      <span class="r-boxes">{{#each mageState.ghoul.boxes}}<a class="r-box {{#if filled}}is-filled{{/if}}" {{#if @root.editable}}data-action="mageGhoulVitae" data-n="{{n}}"{{/if}}></a>{{/each}}</span>
+      <em>{{localize "VTM20.Mage.Ghoul.VitaeHint"}}</em></div>
+    <div class="r-mstate-row is-quiet" data-tooltip="{{localize 'VTM20.Mage.Ghoul.BondHint'}}"><b>{{localize "VTM20.Mage.Ghoul.Bond"}}</b>
+      <span class="r-dots">{{#each mageState.ghoul.bondDots}}<a class="r-dot {{#if filled}}is-filled{{/if}}" {{#if @root.editable}}data-action="setDots" data-path="{{path}}" data-n="{{n}}"{{/if}}></a>{{/each}}</span>
+      {{#if mageState.ghoul.bondText}}<em>{{mageState.ghoul.bondText}}</em>{{/if}}</div>
+    <ul class="r-edge-list r-rotes">
+      {{#each mageState.ghoul.discs}}
+      <li class="r-edge r-rote" data-item-id="{{id}}"><span class="r-edge-lvl"><i class="fa-solid fa-droplet"></i></span>
+        <span class="r-edge-main"><a data-action="itemEdit"><b>{{name}}</b></a></span>
+        <span class="r-dots">{{#each dots}}<i class="r-dot {{#if filled}}is-filled{{/if}}"></i>{{/each}}</span>
+        {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="itemDelete" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}</li>
+      {{/each}}
+    </ul>
+  </div>
+  {{/if}}
+
   {{!-- Резонанс и Синергия (Book of Secrets) --}}
   <h2 class="r-h2"><span>{{localize "VTM20.Mage.ResTitle"}}</span>
     <span class="r-h2-tools">{{#if editable}}<a class="r-h2-btn is-plain" data-action="mageResCloak" data-tooltip="{{localize 'VTM20.Mage.ResCloakHint'}}"><i class="fa-solid fa-user-secret"></i></a><a class="r-h2-btn is-ghost" data-action="mageResAdd" data-tooltip="{{localize 'VTM20.Mage.ResAdd'}}"><i class="fa-solid fa-feather"></i> <span class="r-h2-lbl">{{localize "VTM20.Mage.ResAddShort"}}</span></a>{{/if}}</span>

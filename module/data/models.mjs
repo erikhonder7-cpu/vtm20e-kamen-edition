@@ -616,7 +616,9 @@ export class MageData extends MortalData {
         // Безмолвие (уровень 0–6 и вид), Изъяны Парадокса, пройденный Поиск (разрешает купить точку Арете)
         quiet: new SchemaField({ level: int(0, 0, 6), kind: str("") }),
         pflaws: new ArrayField(new SchemaField({ name: str(), grade: str("trivial"), text: str() })),
-        seeking: new BooleanField({ initial: false }) })
+        seeking: new BooleanField({ initial: false }),
+        // Маг-гуль (V20, гл. 9 — правила гулей): домитор и его клан, витэ вампира в теле (до 10), ступень уз крови (0–3)
+        ghoul: new SchemaField({ on: new BooleanField({ initial: false }), domitor: str(), clan: str(), vitae: int(0, 0, 10), bond: int(0, 0, 3) }) })
     };
   }
   /** Прежняя подпись Резонанса одной строкой — в список подписей (1 точка). */

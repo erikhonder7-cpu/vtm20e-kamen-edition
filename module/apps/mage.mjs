@@ -274,6 +274,7 @@ export async function castEffect(actor, preset = {}) {
     willpower: res.will, kind: "check", breakdown,
     extra: { mage: { kind: res.kind, high: res.high, ranks: res.ranks, quint: res.quint, used, mar } } });
   if (!roll) return null;
+  if (!W) import("./calendar.mjs").then(c => actor.setFlag(SYSTEM_ID, "castWeek", Math.floor((c.nightNumber() - 1) / 7))).catch(() => {});   // неделя, когда колдовал (mage-state.mjs, mageWeekTick)
   // Парадокс — за вульгарность и за провал; итог и кнопка отката — в самой карточке броска (блок «mage»)
   const paradox = castParadox(res.kind, res.high, roll, mar);
   if (paradox) {

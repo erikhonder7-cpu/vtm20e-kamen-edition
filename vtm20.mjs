@@ -3,6 +3,7 @@
 
 import { VTM20, SYSTEM_ID, SYSTEM_PATH } from "./module/config.mjs";
 import "./module/apps/mage-duel.mjs";   // блок карточки: шаг в сторону, контрмагия, сертамен
+import { registerMageWeek, mageWeekTick } from "./module/apps/mage-state.mjs";
 import { registerDataModels } from "./module/data/models.mjs";
 import { Codex } from "./module/data/codex.mjs";
 import { VtMActor } from "./module/documents/actor.mjs";
@@ -154,6 +155,7 @@ Hooks.once("init", () => {
 
   registerSettings();
   registerNightExtras();
+  registerMageWeek();
   registerTimers();
   registerTorpor();
   registerIncome();
@@ -267,7 +269,7 @@ Hooks.once("ready", async () => {
   const mountPanels = () => { if (game.settings.get(SYSTEM_ID, "nexusNav")) initTopBar(); };
   mountPanels();
   Hooks.on("canvasReady", mountPanels);
-  startNightClock(() => { foundry.applications.instances.get("r-calendar")?._paintClock?.(); paintClockBar(); checkDawn(); tickTimers(); checkTorpor(); checkIncome(); });
+  startNightClock(() => { foundry.applications.instances.get("r-calendar")?._paintClock?.(); paintClockBar(); checkDawn(); tickTimers(); checkTorpor(); checkIncome(); mageWeekTick(); });
   checkIncome();   // запомнить месяц сразу (иначе при стоящих часах первая смена месяца не платила)
   warmTemplates();
 });

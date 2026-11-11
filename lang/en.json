@@ -2823,6 +2823,10 @@
       "Declare": {
         "Name": "Declaration phase",
         "Hint": "After initiative, fighters declare actions from lowest initiative to highest; those delaying act at the end of the turn; defending without a declaration means aborting an action (Willpower)."
+      },
+      "MageWeekly": {
+        "Name": "Mages: weekly tick",
+        "Hint": "As the chronicle clock runs, once a week a cabal's Node yields into the chantry stock, and a mage with Paradox below 5 who cast nothing for a week sheds a point of Paradox."
       }
     },
     "Nexus": {
@@ -4805,12 +4809,7 @@
       "ActionsCap": "Up to {cap} per turn",
       "ActionsFreeSub": "No penalty up to {free}: the lower of Dexterity and Wits",
       "ActionsLead": "Extra actions come after normal ones, in initiative order; the pool isn't split.",
-      "ActionsN": {
-        "one": "extra action",
-        "few": "extra actions",
-        "many": "extra actions",
-        "other": "extra actions"
-      },
+      "ActionsN": {"one": "extra action", "few": "extra actions", "many": "extra actions", "other": "extra actions"},
       "ActionsCost": "Rage −{n}",
       "TalenKicker": "Talen",
       "FetishKicker": "Fetish · level {n}",
@@ -7273,7 +7272,32 @@
         "Done": "<b>{name}</b> completes the Wonder “{item}”: {n} Quintessence invested."
       },
       "RoteBook": "From a book",
-      "RoteBookHint": "start typing a name — {n} rotes in the reference"
+      "RoteBookHint": "start typing a name — {n} rotes in the reference",
+      "WeekTitle": "Weeks passed: {n}",
+      "WeekNode": "{name}: the Node gave free Quintessence +{free}, Tass +{tass}",
+      "WeekParadox": "{name}: Paradox bled off by {n}",
+      "Ghoul": {
+        "Title": "Ghoul",
+        "On": "Make a ghoul",
+        "Off": "Remove",
+        "ToggleHint": "The mage drinks vampire blood: vitae in the body, a blood bond, Potence 1 and Disciplines from the domitor (V20 ghoul rules)",
+        "Domitor": "Domitor",
+        "Clan": "Domitor’s clan",
+        "Vitae": "Vitae",
+        "VitaeHint": "vampire blood in the body; without a drink once a month the ghoul stops being one",
+        "Bond": "Blood bond",
+        "BondHint": "Three drinks on three separate nights — a full bond",
+        "Bond1": "first drink: strong attraction",
+        "Bond2": "second drink: attachment",
+        "Bond3": "full blood bond",
+        "Heal": "Heal",
+        "HealHint": "1 vitae — one bashing or lethal health level",
+        "NoVitae": "No vitae in the body.",
+        "Someone": "a vampire",
+        "Made": "<b>{name}</b> drinks the blood of {domitor} and becomes a ghoul: Potence 1, vitae in the body.",
+        "Freed": "<b>{name}</b> is a ghoul no more: the blood of {domitor} has left the body.",
+        "Healed": "<b>{name}</b> heals a wound with blood ({type}). Vitae left: {n}."
+      }
     },
     "MageCr": {
       "NeedFaction": "Pick a faction.",

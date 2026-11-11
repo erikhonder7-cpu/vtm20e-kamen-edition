@@ -39,7 +39,7 @@ export function stateView(actor, dots) {
       insulate: mar ? m.quiet.level * (Q.insulate ?? 5) : 0 },
     flaws: m.pflaws.map((f, i) => ({ i, ...f, gradeName: (D.pflaws ?? []).find(g => g.key === f.grade)?.name ?? "" })),
     seeking: m.seeking, marauder: mar, isGM: game.user.isGM,
-    wonders: wondersView(actor), investments: isFallen(actor) ? investmentsView(actor) : []
+    ghoul: ghoulView(actor, dots), wonders: wondersView(actor), investments: isFallen(actor) ? investmentsView(actor) : []
   };
 }
 
@@ -284,4 +284,81 @@ const craftRead = form => ({ name: form.elements.name.value.trim(), kind: form.e
 function craftMissing(actor, text) {
   const m = actor.system.mage;
   return Object.entries(parseSpheres(text)).filter(([k, v]) => (m.spheres[k] ?? 0) < v).map(([k, v]) => `${sphereName(actor, k)} ${v}`);
+}
+
+/* ── Неделя хроники: Узлы и утечка Парадокса (M20, гл. 10; Факт «Узел») ── */
+
+let _weekBusy = false;
+/**
+ * Раз в неделю хроники (по ночным часам, пишет один активный рассказчик): Узел каждого кабала отдаёт выработку в запас
+ * (половина свободной Квинтэссенцией, половина Тассом); у мага с Парадоксом ниже 5, который за неделю не колдовал, уходит очко.
+ * Пропущенные недели (часы перевели вперёд) досчитываются, но не больше двенадцати за раз.
+ */
+export async function mageWeekTick() {
+  if (_weekBusy || !game.users.activeGM?.isSelf || !game.settings.get(SYSTEM_ID, "mageWeekly")) return;
+  const { nightNumber } = await import("./calendar.mjs");
+  const week = Math.floor((nightNumber() - 1) / 7), last = game.settings.get(SYSTEM_ID, "mageWeek");
+  if (last == null || last < 0 || week < last) return game.settings.set(SYSTEM_ID, "mageWeek", week);   // первая неделя мира или часы отвели назад
+  if (week === last) return;
+  _weekBusy = true;
+  try {
+    const n = Math.min(12, week - last), lines = [];
+    for (const c of game.actors.filter(a => a.type === "coterie" && a.system.kind === "cabal" && a.system.chantry.node > 0)) {
+      const ch = c.system.chantry, y = ch.node * ch.rate * n, free = Math.ceil(y / 2), tass = Math.floor(y / 2);
+      await c.update({ "system.chantry.quint": ch.quint + free, "system.chantry.tass": ch.tass + tass });
+      lines.push(t("WeekNode", { name: esc(ch.name || c.name), free, tass }));
+    }
+    for (const a of game.actors.filter(x => x.type === "mage")) {
+      const m = a.system.mage, p = paradoxOf(a), floor = p - (m.paradox - m.paradoxPerm > 0 ? Math.min(n, m.paradox - m.paradoxPerm) : 0);
+      // колдовал на этой неделе или Парадокса пять и больше — не утекает (при 5+ ждёт отката)
+      if (p >= 5 || floor === p || (a.getFlag(SYSTEM_ID, "castWeek") ?? -1) >= last) continue;
+      await a.update({ "system.mage.paradox": Math.max(m.paradoxPerm, m.paradox - n) });
+      lines.push(t("WeekParadox", { name: esc(a.name), n: p - Math.max(m.paradoxPerm, m.paradox - n) }));
+    }
+    await game.settings.set(SYSTEM_ID, "mageWeek", week);
+    if (lines.length) await ChatMessage.create({ whisper: ChatMessage.getWhisperRecipients("GM"),
+      content: `<div class="r-notice r-type-mage"><i class="fa-solid fa-calendar-week"></i> <b>${esc(t("WeekTitle", { n }))}</b><br>${lines.join("<br>")}</div>` });
+  } finally { _weekBusy = false; }
+}
+/** Настройки недельного такта магов. */
+export function registerMageWeek() {
+  game.settings.register(SYSTEM_ID, "mageWeek", { scope: "world", config: false, type: Number, default: -1 });
+  game.settings.register(SYSTEM_ID, "mageWeekly", { name: "VTM20.Settings.MageWeekly.Name", hint: "VTM20.Settings.MageWeekly.Hint", scope: "world", config: true, type: Boolean, default: true });
+}
+
+/* ── Маг-гуль (V20, гл. 9: гули) ─────────────────────────────────────── */
+
+/** Гуль на листе мага: домитор, витэ в теле, узы крови, Дисциплины (предметами — работают как у любого гуля). */
+export function ghoulView(actor, dots) {
+  const g = actor.system.mage.ghoul;
+  return { ...g, boxes: Array.from({ length: 10 }, (_, i) => ({ n: i + 1, filled: i < g.vitae })), bondDots: dots(g.bond, 3, { path: "system.mage.ghoul.bond" }),
+    bondText: g.bond ? t(`Ghoul.Bond${g.bond}`) : "", wounded: ["bashing", "lethal"].some(k => (actor._source.system.health[k] ?? 0) > 0),
+    discs: actor.items.filter(i => i.type === "discipline").map(i => ({ id: i.id, name: i.name, value: i.system.value, dots: Array.from({ length: 5 }, (_, k) => ({ n: k + 1, filled: k < i.system.value })) })) };
+}
+/** Отметить мага гулем (или снять): с первым глотком гуль получает точку Могущества (V20, гл. 9). */
+export async function toggleGhoul(actor) {
+  if (!owner(actor)) return null;
+  const g = actor.system.mage.ghoul, on = !g.on;
+  await actor.update({ "system.mage.ghoul.on": on, ...(on && !g.vitae ? { "system.mage.ghoul.vitae": 1 } : {}) });
+  if (on && !actor.items.some(i => i.type === "discipline" && i.system.key === "potence")) {
+    const pack = game.packs.get(`${SYSTEM_ID}.disciplines`), idx = await pack?.getIndex({ fields: ["system.key", "type"] });
+    const hit = idx?.find(i => i.type === "discipline" && i.system?.key === "potence"), doc = hit && await pack.getDocument(hit._id);
+    if (doc) await actor.createEmbeddedDocuments("Item", [foundry.utils.mergeObject(doc.toObject(), { "system.value": 1 })]);
+  }
+  return say(actor, "fa-hand-holding-droplet", t(on ? "Ghoul.Made" : "Ghoul.Freed", { name: esc(actor.name), domitor: esc(g.domitor || t("Ghoul.Someone")) }));
+}
+/** Витэ в теле: клетка — столько и осталось (щелчок по той же — на одну меньше). */
+export function ghoulVitae(actor, n) {
+  const g = actor.system.mage.ghoul;
+  return actor.update({ "system.mage.ghoul.vitae": g.vitae === n ? n - 1 : n });
+}
+/** Лечение кровью: 1 витэ — одно лёгкое или тяжёлое повреждение (как у гуля). */
+export async function ghoulHeal(actor) {
+  if (!owner(actor)) return null;
+  const g = actor.system.mage.ghoul, h = actor._source.system.health, type = ["lethal", "bashing"].find(k => (h[k] ?? 0) > 0);
+  if (g.vitae < 1) return ui.notifications.warn(t("Ghoul.NoVitae"));
+  if (!type) return ui.notifications.info(t("Invest.regenNone"));
+  await actor.update({ "system.mage.ghoul.vitae": g.vitae - 1 });
+  await actor.healDamage(type, 1);
+  return say(actor, "fa-droplet", t("Ghoul.Healed", { name: esc(actor.name), type: game.i18n.localize(VTM20.damageTypes[type]?.label ?? type), n: g.vitae - 1 }));
 }

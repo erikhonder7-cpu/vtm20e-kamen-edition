@@ -4,7 +4,7 @@
 
 import { addNumen as sorcAdd, removeNumen as sorcDel, numenDots as sorcDots, useNumen as sorcUse, addRitual as sorcRitualAdd, removeRitual as sorcRitualDel, useRitual as sorcRitualUse } from "../../apps/sorcerer.mjs";
 import { castEffect, changeQuintessence, changeParadox, paradoxBacklash, addRote, removeRote, castRote, removeTool } from "../../apps/mage.mjs";
-import { addResonance, setResonance, removeResonance, toggleResUsed, cloakResonance, quietExit, addFlaw, removeFlaw, seekingDialog, useWonder, wonderQuint, useMageInvestment, craftWonder } from "../../apps/mage-state.mjs";
+import { addResonance, setResonance, removeResonance, toggleResUsed, cloakResonance, quietExit, addFlaw, removeFlaw, seekingDialog, useWonder, wonderQuint, toggleGhoul, ghoulVitae, ghoulHeal, useMageInvestment, craftWonder } from "../../apps/mage-state.mjs";
 
 // Маг (apps/mage.mjs): чародейство, колесо Квинтэссенции и Парадокса, ротэ, инструменты
 function onMageCast(event, target) { return castEffect(this.actor, target.dataset.sphere ? { sphere: target.dataset.sphere } : {}); }
@@ -37,6 +37,9 @@ function onMageState(event, target) {
     case "mageWonderUse": return useWonder(a, id);
     case "mageInvest": return useMageInvestment(a, id, d.act);
     case "mageWonderCraft": return craftWonder(a);
+    case "mageGhoul": return toggleGhoul(a);
+    case "mageGhoulVitae": return ghoulVitae(a, Number(d.n));
+    case "mageGhoulHeal": return ghoulHeal(a);
     case "mageWonderQuint": return wonderQuint(a, id, Number(d.d));
   }
   return null;
@@ -59,7 +62,7 @@ function onSorc(event, target) {
 /** Действия листа: ключ data-action → обработчик. */
 export const MAGE_ACTIONS = {
   mageCast: onMageCast, mageQuint: onMageQuint, mageParadox: onMageParadox, mageBacklash: onMageBacklash,
-  mageRoteEdit: onMageRoteEdit, mageInvest: onMageState, mageWonderCraft: onMageState, mageResAdd: onMageState,
+  mageRoteEdit: onMageRoteEdit, mageGhoul: onMageState, mageGhoulVitae: onMageState, mageGhoulHeal: onMageState, mageInvest: onMageState, mageWonderCraft: onMageState, mageResAdd: onMageState,
   mageResDot: onMageState, mageResDel: onMageState, mageResUsed: onMageState, mageResCloak: onMageState,
   mageQuietExit: onMageState, mageFlawAdd: onMageState, mageFlawDel: onMageState, mageSeeking: onMageState,
   mageWonderUse: onMageState, mageWonderQuint: onMageState, mageStep: onMageDuel, mageCounter: onMageDuel,
