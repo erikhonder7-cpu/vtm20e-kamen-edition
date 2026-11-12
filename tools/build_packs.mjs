@@ -814,6 +814,55 @@ BUILDERS["wraith-arcanoi"] = function () {
   return p;
 };
 
+/** Подменыш: Грёза (C20) — книги справочника: папка на книгу, запись на главу (data/changeling-books.json, tools/changeling_data.py). */
+BUILDERS["changeling-books"] = function () {
+  const p = new Pack("changeling-books", "JournalEntry");
+  for (const b of readJson("changeling-books")) p.addBook({ name: b.name, pages: b.pages, folder: b.book, key: `changeling-books:${b.key}` });
+  return p;
+};
+
+/** Искусства и Царства подменышей (data/changeling.json, C20, гл. 4): запись на Искусство — описание, уровни, Высвобождение и обряды;
+ *  запись на Царство — ступени целей. */
+BUILDERS["changeling-arts"] = function () {
+  const p = new Pack("changeling-arts", "JournalEntry"), C = data("changeling"), dots = n => "•".repeat(n);
+  const type = { chimerical: " (хим.)", wyrd: " (Вирд)", choice: " (по выбору)" };
+  const esc = s => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  for (const a of C.arts ?? []) p.addBook({ name: `${a.name} (${a.en})`, folder: "Искусства", key: `changeling-art:${a.key}`,
+    pages: [...(a.html ? [{ name: a.name, html: a.html }] : []),
+      ...a.levels.map(l => ({ name: `${dots(l.level)} ${l.name}${type[l.type] ?? ""}`, html: l.html })),
+      ...(a.unleashing ? [{ name: "Высвобождение", html: `<p>${esc(a.unleashing)}</p>` }] : []),
+      ...(a.bunks ? [{ name: "Обряды-условия", html: `<p>${esc(a.bunks)}</p>` }] : [])] });
+  for (const r of C.realms ?? []) p.addBook({ name: `${r.name} (${r.en})`, folder: "Царства", key: `changeling-realm:${r.key}`,
+    pages: [...(r.html ? [{ name: r.name, html: r.html }] : []),
+      ...r.levels.map(l => ({ name: `${dots(l.level)} ${l.name}${l.en ? ` (${l.en})` : ""}`, html: l.html ?? `<p>${esc(l.text)}</p>` }))] });
+  return p;
+};
+
+/** Киты, Благородные Дома и Наследия подменышей (data/changeling.json, C20, гл. 2–3). */
+BUILDERS["changeling-kiths"] = function () {
+  const p = new Pack("changeling-kiths", "JournalEntry"), C = data("changeling");
+  const esc = s => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  for (const k of C.kiths ?? []) p.addBook({ name: `${k.name} (${k.en})`, folder: "Киты", key: `changeling-kith:${k.key}`,
+    pages: [{ name: k.name, html: (k.html ?? "") + (k.affinityText ? `<p><strong>Склонность:</strong> ${esc(k.affinityText)}</p>` : "")
+        + (k.revelry ? `<p><strong>Веселье:</strong> ${esc(k.revelry)}</p>` : "") + (k.unleashing ? `<p><strong>Высвобождение:</strong> ${esc(k.unleashing)}</p>` : "") },
+      ...(k.birthrights ?? []).map(b => ({ name: `Право рождения: ${b.name}`, html: b.html })),
+      ...(k.frailty ? [{ name: `Слабость: ${k.frailty.name}`, html: k.frailty.html }] : [])] });
+  for (const h of C.houses ?? []) p.addBook({ name: `${h.name} (${h.en})`, folder: "Благородные Дома", key: `changeling-house:${h.key}`,
+    pages: [{ name: h.name, html: h.html || `<p>${esc(h.short)}</p><p><strong>Двор:</strong> ${esc(h.courtText)}</p><p><strong>Дар:</strong> ${esc(h.boon)}</p><p><strong>Изъян:</strong> ${esc(h.flaw)}</p>` }] });
+  for (const l of C.legacies ?? []) p.addBook({ name: `${l.name} (${l.en})`, folder: l.court === "seelie" ? "Благие Наследия" : "Неблагие Наследия", key: `changeling-legacy:${l.key}`,
+    pages: [{ name: l.name, html: `<p>${esc(l.text)}</p>${l.quest ? `<p><strong>Квест:</strong> ${esc(l.quest)}</p>` : ""}${l.ban ? `<p><strong>Запрет:</strong> ${esc(l.ban)}</p>` : ""}` }] });
+  return p;
+};
+
+/** Фоны подменышей (data/changeling.json, C20, гл. 5): Химера, Мечтатели, Родословная, Титул, Сокровище… */
+BUILDERS["changeling-backgrounds"] = function () {
+  const p = new Pack("changeling-backgrounds");
+  for (const b of data("changeling").backgrounds)
+    p.add({ name: b.name, type: "background", folder: "Подменыш: Грёза", key: `changeling:${b.name}`, img: backgroundIcon(b.en) ?? undefined,
+      system: { value: 1, source: b.en ?? "", description: b.html ?? "" } });
+  return p;
+};
+
 /** Фоны призраков (data/wraith.json, Wraith 20, гл. 4): Мемориум, Эйдолон, Обиталище, Наследие… */
 BUILDERS["wraith-backgrounds"] = function () {
   const p = new Pack("wraith-backgrounds");

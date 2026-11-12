@@ -743,7 +743,7 @@ openStrategy: () => openStrategy(),
 
   /** Справочник правил V20 (компендий-журнал). */
   static #onOpenRules(event, target) {
-    const name = target?.dataset?.rules === "dhampir" ? "dhampir-rules" : this.actor.type === "hunter" ? "hunter-rules" : this.actor.type === "mage" ? "mage-books" : this.actor.type === "wraith" ? "wraith-books" : this.actor.type === "werewolf" ? "werewolf-rules" : "rules";
+    const name = target?.dataset?.rules === "dhampir" ? "dhampir-rules" : this.actor.type === "hunter" ? "hunter-rules" : this.actor.type === "mage" ? "mage-books" : this.actor.type === "wraith" ? "wraith-books" : this.actor.type === "changeling" ? "changeling-books" : this.actor.type === "werewolf" ? "werewolf-rules" : "rules";
     const pack = game.packs.get(`${SYSTEM_ID}.${name}`);
     if (pack) pack.render(true);
     else ui.notifications.warn(t("Sheet.RulesMissing"));

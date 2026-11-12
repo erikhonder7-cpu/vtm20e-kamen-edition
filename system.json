@@ -789,6 +789,54 @@
         "ASSISTANT": "OWNER"
       },
       "flags": {}
+    },
+    {
+      "name": "changeling-books",
+      "label": "Подменыш: Грёза — книги",
+      "path": "packs/changeling-books",
+      "type": "JournalEntry",
+      "system": "vtm20e-kamen-edition",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
+    },
+    {
+      "name": "changeling-arts",
+      "label": "Искусства и Царства подменышей",
+      "path": "packs/changeling-arts",
+      "type": "JournalEntry",
+      "system": "vtm20e-kamen-edition",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
+    },
+    {
+      "name": "changeling-kiths",
+      "label": "Киты, Дома и Наследия подменышей",
+      "path": "packs/changeling-kiths",
+      "type": "JournalEntry",
+      "system": "vtm20e-kamen-edition",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
+    },
+    {
+      "name": "changeling-backgrounds",
+      "label": "Фоны подменышей",
+      "path": "packs/changeling-backgrounds",
+      "type": "Item",
+      "system": "vtm20e-kamen-edition",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
     }
   ],
   "grid": {
@@ -902,6 +950,17 @@
         "wraith-arcanoi",
         "wraith-backgrounds",
         "wraith-relics"
+      ]
+    },
+    {
+      "name": "Changeling: The Dreaming",
+      "sorting": "m",
+      "color": "#5a2f4a",
+      "packs": [
+        "changeling-books",
+        "changeling-arts",
+        "changeling-kiths",
+        "changeling-backgrounds"
       ]
     }
   ]
