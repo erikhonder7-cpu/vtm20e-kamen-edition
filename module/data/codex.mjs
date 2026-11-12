@@ -6,7 +6,7 @@
 import { VTM20, SYSTEM_PATH, SYSTEM_ID } from "../config.mjs";
 import { mergeTexts } from "./text-split.mjs";
 
-const FILES = ["disciplines", "clans", "rituals", "paths", "merits", "merits-ghouls", "vampire-only", "backgrounds", "archetypes", "assets", "derangements", "combos", "abilities", "demon", "demon-merits", "demon-backgrounds", "demon-hof", "demon-pg", "demon-earthbound", "demon-form", "investments", "pact-templates", "hunter", "dhampir", "werewolf", "mage"];
+const FILES = ["disciplines", "clans", "rituals", "paths", "merits", "merits-ghouls", "vampire-only", "backgrounds", "archetypes", "assets", "derangements", "combos", "abilities", "demon", "demon-merits", "demon-backgrounds", "demon-hof", "demon-pg", "demon-earthbound", "demon-form", "investments", "pact-templates", "hunter", "dhampir", "werewolf", "mage", "wraith"];
 
 /** Чей герб показывать линии крови, ветви или антитрибу, если своего нет. */
 const CLAN_SYMBOL_PARENT = {
@@ -104,6 +104,8 @@ export const Codex = {
     // маги (data/mage.json, M20): свои Достоинства, недостатки и Факты — линией «mage», в конце
     this.merits = [...this.merits, ...(this.mage?.merits ?? []).map(m => ({ ...m, line: "mage" }))];
     this.backgrounds = [...this.backgrounds, ...(this.mage?.backgrounds ?? []).map(b => ({ ...b, line: "mage" }))];
+    // призраки (data/wraith.json, Wraith 20): свои Фоны — линией «wraith», в конце
+    this.backgrounds = [...this.backgrounds, ...(this.wraith?.backgrounds ?? []).map(b => ({ ...b, line: "wraith" }))];
     // цены черт — числами: в части книг они записаны строкой («1»), и сумма в мастере склеивалась в «11»
     for (const m of this.merits) { m.min = Number(m.min) || 0; m.max = Number(m.max) || m.min; }
     // архетипы из Players Guide «Охотника» (Верящий, Переговорщик, Скептик) — для всех
@@ -112,6 +114,9 @@ export const Codex = {
     // архетипы M20 (основная книга и Book of Secrets) — тоже для всех
     const arch2 = new Set(this.archetypes.map(a => a.name));
     this.archetypes = [...this.archetypes, ...(this.mage?.archetypes ?? []).filter(a => a.regain && !arch2.has(a.name))];
+    // архетипы Wraith 20 (Натура и Маска; will — когда возвращается Воля) — новые для всех
+    const arch3 = new Set(this.archetypes.map(a => a.name));
+    this.archetypes = [...this.archetypes, ...(this.wraith?.archetypes ?? []).filter(a => !arch3.has(a.name)).map(a => ({ name: a.name, en: a.en, regain: a.will }))];
     this.clanByKey = Object.fromEntries(this.clans.map(c => [c.key, c]));
     this.pathByKey = Object.fromEntries(this.paths.map(p => [p.key, p]));
     // демоны (data/demon.json) — свой справочник: Знания не смешиваются с Дисциплинами вампиров

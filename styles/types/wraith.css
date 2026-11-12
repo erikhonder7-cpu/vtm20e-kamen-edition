@@ -1,0 +1,253 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   Призрак (Wraith: The Oblivion 20th; лист — module/sheets/actor-sheet.mjs, вкладка templates/actor/arcanoi.hbs):
+   «Пепел и Плёнка» — свинцово-пепельная мгла Земель Теней и бледный холодный свет Плёнки (Caul) как акцент;
+   Тень — запёкшийся тёмно-винный (Ангст, Тёмные Страсти, Катарсис). Каркас — лист персонажа, перекрашены токены
+   по образцу «Пенумбры» духов (spirit.css); без зелени, бирюзы, индиго и янтаря — это цвета Гару, духов, магов и охотников.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.vtm20.r-type-wraith {
+  --r-ink: #e6e4e0;
+  --r-ink-2: #bdbbb6;
+  --r-muted: #85837f;
+  --r-line: rgba(196, 202, 210, .1);
+  --r-line-2: rgba(196, 202, 210, .2);
+  --r-accent: #c9d2dc;
+  --r-red-t: var(--r-accent);
+  --r-blood: #6f7884; --r-blood-l: #c9d2dc; --r-blood-d: #0c0d0f;
+  --r-dot-border: rgba(196, 202, 210, .3);
+  --r-dot-fill: radial-gradient(circle at 38% 32%, #f2f4f6, #7c8592 55%, #1a1c20);
+  --r-gap-ring: #08090a;
+  --r-card-bg: rgba(196, 202, 210, .025);
+  --r-option-bg: #101113;
+  --r-bg:
+    radial-gradient(ellipse 90% 45% at 50% -8%, rgba(90, 98, 110, .13), transparent 60%),
+    radial-gradient(ellipse 80% 35% at 50% 108%, rgba(60, 66, 76, .14), transparent 65%),
+    radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(0, 0, 2, .55) 100%),
+    url("../assets/ui/paper-dark.svg"),
+    linear-gradient(180deg, #121315, #08090a);
+}
+
+/* ── обвязка листа и окон — по образцу «лунного леса» (werewolf.css, строки 42–145), в цветах «Пепла и Плёнки»:
+   рейка, монеты вкладок, печать, запас, полоса действий, уголки карточек, подвал, шапка окна, броски и карточки чата ── */
+.vtm20.r-type-wraith, .r-type-wraith { --w-amber: #c9d2dc; --w-amber-l: #f2f4f6; --w-ash: #6b6f75; --w-ash-d: #121316; --w-steel: #8b929c; --w-steel-d: #16181b; }
+.vtm20.r-type-wraith .r-rail {
+  background:
+    radial-gradient(ellipse 120% 40% at 50% 0%, rgba(90, 98, 110, .16), transparent 70%),
+    radial-gradient(ellipse 140% 30% at 50% 100%, rgba(60, 66, 76, .12), transparent 70%),
+    linear-gradient(180deg, #111214, #08090a 60%, #08090a);
+  border-right-color: #1b1d21;
+}
+.vtm20.r-type-wraith .r-rail::after { background: repeating-linear-gradient(180deg, rgba(201, 210, 220, .14) 0 2px, transparent 2px 8px); }
+.vtm20.r-type-wraith .r-rail-sigil {
+  border-color: rgba(201, 210, 220, .45); background: radial-gradient(circle at 50% 30%, #15171a, #09090b 72%);
+  box-shadow: 0 0 0 3px #08090a, 0 0 0 4px rgba(90, 98, 110, .5), 0 0 22px rgba(201, 210, 220, .22), inset 0 2px 6px rgba(0, 0, 2, .6);
+}
+.vtm20.r-type-wraith .r-rail-sigil::before { background: var(--w-amber); box-shadow: 0 0 6px rgba(236, 240, 244, .7); }
+.vtm20.r-type-wraith .r-rtab.active { color: #f4f5f7; background: linear-gradient(90deg, rgba(201, 210, 220, .16), rgba(90, 98, 110, .05) 70%, transparent); }
+.vtm20.r-type-wraith .r-rtab.active .r-rtab-coin {
+  color: #0c0d0f; border-color: var(--w-amber-l); background: radial-gradient(circle at 50% 30%, #f2f4f6, #7c8592 70%);
+  box-shadow: 0 0 0 2px #08090a, 0 0 0 3px rgba(236, 240, 244, .4), 0 0 16px rgba(236, 240, 244, .35);
+}
+.vtm20.r-type-wraith .r-rtab.active::before { background: var(--w-amber); box-shadow: 0 0 8px rgba(236, 240, 244, .6); }
+.vtm20.r-type-wraith .r-rtab.active::after { background: var(--w-steel-d); border-color: var(--w-amber); box-shadow: 0 0 6px rgba(236, 240, 244, .45); }
+.vtm20.r-type-wraith .r-rail-tool:hover { color: #f5f6f8; border-color: var(--w-amber); background: rgba(201, 210, 220, .16); }
+.vtm20.r-type-wraith .r-portrait-frame { box-shadow: 0 0 0 1px rgba(201, 210, 220, .35), 0 6px 18px rgba(0, 0, 2, .6); }
+.vtm20.r-type-wraith .r-seal { background: #08090a; border-color: rgba(196, 202, 210, .22); border-top-color: var(--w-amber); }
+.vtm20.r-type-wraith .r-seal-num.r-seal-icon { color: var(--w-amber-l); }
+.vtm20.r-type-wraith .r-seal-cap { color: #8b929c; }
+.vtm20.r-type-wraith .r-motto { color: rgba(201, 210, 220, .75); }
+.vtm20.r-type-wraith .r-kicker-dia { background: var(--w-amber); }
+.vtm20.r-type-wraith .r-assignat { border-top-color: var(--w-amber); background: linear-gradient(180deg, rgba(60, 66, 76, .08), rgba(0, 0, 2, .3) 60%); }
+.vtm20.r-type-wraith .r-act.is-hot:hover { background: rgba(201, 210, 220, .14); }
+.vtm20.r-type-wraith .r-act:hover i { color: var(--w-amber-l); }
+.vtm20.r-type-wraith .r-vcard::before, .vtm20.r-type-wraith .r-tcol::before { background: linear-gradient(90deg, var(--w-amber), rgba(201, 210, 220, 0)); width: 54px; }
+.vtm20.r-type-wraith .r-vcard::after, .vtm20.r-type-wraith .r-tcol::after {
+  content: ""; position: absolute; right: -1px; bottom: -1px; width: 22px; height: 1px; background: rgba(90, 98, 110, .55);
+}
+.vtm20.r-type-wraith .r-vitals-wrap.is-closed .r-vitals-strip { border-top-color: var(--w-amber); }
+.vtm20.r-type-wraith .r-vitals-wrap.is-closed .r-vitals-strip:hover { background: rgba(201, 210, 220, .1); }
+.vtm20.r-type-wraith .r-trait:hover { background: linear-gradient(90deg, rgba(201, 210, 220, .1), rgba(90, 98, 110, .03) 60%, transparent); }
+.vtm20.r-type-wraith .r-foot {
+  background:
+    linear-gradient(90deg, transparent 0 18px, rgba(201, 210, 220, .3) 18px 19px, transparent 19px),
+    repeating-linear-gradient(180deg, transparent 0 9px, rgba(196, 202, 210, .035) 9px 10px),
+    #08090a;
+}
+.vtm20.r-type-wraith .r-foot-item.is-xp { border-color: rgba(201, 210, 220, .45); background: rgba(201, 210, 220, .1); }
+.vtm20.r-type-wraith .r-foot-item.is-xp i { color: var(--w-amber); }
+.application.vtm20.r-type-wraith { border-color: #1d1f23; --background: #0e0f11; --color-header-background: #08090a; --color-border: #1d1f23; }
+.application.vtm20.r-type-wraith .window-header { background: linear-gradient(180deg, #0b0c0e, #08090a); border-bottom-color: #121316; }
+.application.vtm20.r-type-wraith .window-header::after { background: linear-gradient(90deg, rgba(90, 98, 110, .1), #8b929c 30%, #c9d2dc 60%, rgba(60, 66, 76, .1)); opacity: .6; }
+.application.vtm20.r-type-wraith .window-header .window-icon { color: var(--w-amber); }
+.vtm20.r-type-wraith .r-diff.is-active { color: #0c0d0f; background: linear-gradient(180deg, #f2f4f6, #7c8592); border-color: var(--w-amber-l); }
+.vtm20.r-type-wraith .r-diff.is-base { border-color: var(--w-amber); }
+.vtm20.r-type-wraith .r-roll-pool i, .vtm20.r-type-wraith .r-plus { color: var(--w-amber); }
+.vtm20.r-type-wraith .r-odds-bar .is-success { background: linear-gradient(180deg, #dfe3e8, #98a0aa); }
+.vtm20.r-type-wraith .r-odds-bar .is-failure { background: #1e2024; }
+.vtm20.r-type-wraith .r-odds-bar .is-botch { background: linear-gradient(180deg, #6a2a3c, #222429); }
+.vtm20.r-type-wraith .r-check-banner { border-left-color: var(--w-amber); }
+.vtm20.r-type-wraith button.is-primary, .vtm20.r-type-wraith .r-btn.is-primary { color: #0c0d0f; background: linear-gradient(180deg, #f4f5f7, #8a8f96); border-color: var(--w-amber-l); }
+.vtm20.r-type-wraith button.is-primary:hover, .vtm20.r-type-wraith .r-btn.is-primary:hover { color: #000; background: linear-gradient(180deg, #ccd4dd, #7c8592); box-shadow: 0 0 12px rgba(236, 240, 244, .35); }
+.r-roll-card.r-type-wraith {
+  --r-accent: #cfd6df; --r-red-t: #cfd6df; --r-muted: #8a8f96; --r-line: rgba(196, 202, 210, .12); --r-line-2: rgba(196, 202, 210, .22);
+  background: radial-gradient(ellipse 90% 60% at 50% 0%, rgba(90, 98, 110, .12), transparent 70%),
+    radial-gradient(ellipse 90% 50% at 50% 110%, rgba(60, 66, 76, .12), transparent 70%),
+    linear-gradient(180deg, #131417, #0a0b0c);
+  border-color: #1e2024; border-left-color: #222429;
+}
+.r-roll-card.r-type-wraith::before { width: 54px; background: linear-gradient(90deg, #c9d2dc, rgba(201, 210, 220, 0)); }
+.r-roll-card.r-type-wraith::after { content: ""; position: absolute; right: -1px; bottom: -1px; width: 22px; height: 1px; background: rgba(90, 98, 110, .6); }
+.r-roll-card.r-type-wraith .r-card-img { border-color: rgba(201, 210, 220, .5); filter: none; }
+.r-roll-card.r-type-wraith.is-success { border-left-color: #a3abb5; }
+.r-roll-card.r-type-wraith.is-exceptional, .r-roll-card.r-type-wraith.is-phenomenal { border-left-color: #f2f4f6; box-shadow: inset 3px 0 10px -4px rgba(236, 240, 244, .6); }
+.r-roll-card.r-type-wraith.is-botch { border-color: #1f2125; border-left-color: #6a2a3c; background: linear-gradient(180deg, #131417, #0b0c0e); }
+.r-roll-card.r-type-wraith .r-die.is-miss { background: #15171a; color: #a14a63; }
+.r-roll-card.r-type-wraith .r-die.is-hit { background: linear-gradient(180deg, #e6e4e0, #aab1ba); color: #0a0b0c; }
+.r-roll-card.r-type-wraith .r-die.is-ten { background: radial-gradient(circle at 50% 35%, #dfe3e8, #8b929c 70%); color: #0a0b0c; }
+.r-roll-card.r-type-wraith .r-die.is-double::before { color: #2e3136; }
+.r-roll-card.r-type-wraith .r-die.is-one { background: #222429; color: #e2e5e8; }
+.r-roll-card.r-type-wraith .r-die.is-will { background: #1f2226; }
+.r-roll-card.r-type-wraith .r-card-tally .is-one, .r-roll-card.r-type-wraith .r-card-tally .is-ten em { color: #98a0aa; }
+.r-roll-card.r-type-wraith.is-exceptional .r-outcome-ribbon, .r-roll-card.r-type-wraith.is-phenomenal .r-outcome-ribbon { color: #0c0d0f; background: linear-gradient(180deg, #f2f4f6, #7c8592); border-color: #f2f4f6; }
+.r-roll-card.r-type-wraith.is-botch .r-outcome-ribbon { color: #f4f5f7; background: #2c2f34; border-color: #6a2a3c; }
+.r-roll-card.r-type-wraith .r-card-hint { border-left-color: rgba(201, 210, 220, .45); }
+.r-item-card.r-type-wraith { --r-accent: #cfd6df; border-color: #1e2024; border-left: 3px solid #c9d2dc;
+  background: radial-gradient(ellipse 90% 60% at 50% 0%, rgba(90, 98, 110, .12), transparent 70%), linear-gradient(180deg, #131417, #0a0b0c); }
+.r-item-card.r-type-wraith .r-card-img { border-color: rgba(201, 210, 220, .5); background: #0a0b0c; filter: none; }
+.r-item-card.r-type-wraith .r-card-kicker { color: #c9d2dc; }
+.r-notice.r-type-wraith { border-left-color: #c9d2dc; background: linear-gradient(90deg, rgba(201, 210, 220, .12), rgba(0, 0, 2, .25) 60%); }
+.r-notice.r-type-wraith i { color: #f2f4f6; }
+.r-notice.r-type-wraith.is-form { font-family: "Prata", Georgia, serif; font-style: normal; font-size: 13.5px; letter-spacing: .2px;
+  border: 1px solid rgba(201, 210, 220, .35); border-left-width: 3px; box-shadow: inset 0 0 18px rgba(201, 210, 220, .12); }
+.r-item-card.r-type-wraith::before { width: 54px; background: linear-gradient(90deg, #c9d2dc, rgba(201, 210, 220, 0)); }
+.vtm20.r-type-wraith .r-mode-opt.is-active, .vtm20.r-type-wraith .r-mode-opt:has(input:checked) {
+  color: #f5f6f8; background: linear-gradient(180deg, rgba(70, 76, 88, .55), rgba(20, 22, 26, .55)); box-shadow: inset 0 -2px 0 #c9d2dc; }
+.vtm20.r-type-wraith .r-mode-opt.is-active i, .vtm20.r-type-wraith .r-mode-opt:has(input:checked) i { color: #f2f4f6; }
+.application.r-type-wraith {
+  --color-warm-1: #c9d2dc; --color-warm-2: #a14a63;
+  --color-border-highlight: #c9d2dc; --color-border-highlight-alt: #8b929c;
+  --color-text-hyperlink: #cfd6df; --color-text-selection-bg: #a14a63;
+}
+.vtm20.r-type-wraith.r-choice-dialog .r-choice:has(input:checked) { border-color: #c9d2dc; background: rgba(201, 210, 220, .12); }
+.vtm20.r-type-wraith.r-choice-dialog .r-choice input[type=radio]:checked { border-color: #c9d2dc; background: radial-gradient(circle, #f2f4f6 0 3.5px, transparent 4px); }
+.vtm20.r-type-wraith .r-cr-step.is-done .r-cr-step-coin, .vtm20.r-type-wraith .r-cr-step.is-active .r-cr-step-coin { color: #c9d2dc; }
+.vtm20.r-type-wraith .r-cr-step.is-active a { background: linear-gradient(90deg, rgba(201, 210, 220, .16), transparent); }
+.vtm20.r-type-wraith .r-cr-step.is-active a::before { background: #c9d2dc; }
+
+/* ── Свои части призрака ─────────────────────────────────────────────────── */
+
+/* Пафос — на месте запаса крови: бледные огоньки Плёнки */
+.vtm20.r-type-wraith .r-assignat.is-pathos { border-top-color: #c9d2dc; }
+.vtm20.r-type-wraith .r-assignat.is-pathos .r-drop svg { stroke: #4f5661; }
+.vtm20.r-type-wraith .r-assignat.is-pathos .r-drop.is-filled svg { fill: #b9c4d2; stroke: #eef1f5; filter: drop-shadow(0 0 3px rgba(220, 228, 240, .45)); }
+.vtm20.r-type-wraith .r-assignat-meta a.is-off { opacity: .35; }
+
+/* Корпус: постоянный — точками над ячейками, номера ячеек вместо штрафов */
+.vtm20.r-type-wraith .r-wr-corpus { margin: 0 0 6px; }
+.vtm20.r-type-wraith .r-wr-corpus .r-dot { width: 11px; height: 11px; }
+.vtm20.r-type-wraith .r-vc-health .r-hboxes { grid-template-columns: repeat(10, minmax(0, 1fr)); }
+.vtm20.r-type-wraith .r-vc-health .r-hbox-pen { color: var(--r-muted); opacity: .7; }
+.vtm20.r-type-wraith .r-vc-health .r-mini-select { height: 22px; max-width: 128px; font-size: 12px; }
+
+/* Тень: винный Ангст, Катарсис — карточка «темнеет» */
+.vtm20.r-type-wraith .r-dots.is-angst { --r-dot-fill: radial-gradient(circle at 38% 32%, #d58aa2, #7a3550 55%, #1c0a11); --r-dot-border: rgba(176, 90, 120, .45); }
+.vtm20.r-type-wraith .r-boxes.is-angst .r-box.is-filled { background: linear-gradient(180deg, #b05a78, #4a1a2c); border-color: #b05a78; }
+.vtm20.r-type-wraith .r-vc-shadow.is-high .r-vc-status b { color: #d58aa2; }
+.vtm20.r-type-wraith .r-vc-shadow.is-catharsis { background: radial-gradient(ellipse 120% 80% at 50% 0%, rgba(122, 53, 80, .22), transparent 70%), var(--r-card-bg); box-shadow: inset 0 0 22px rgba(122, 53, 80, .25); }
+.vtm20.r-type-wraith .r-vc-shadow.is-catharsis::before { background: linear-gradient(90deg, #b05a78, rgba(176, 90, 120, 0)); }
+.vtm20.r-type-wraith .r-vc-btn.is-on, .vtm20.r-type-wraith .r-act.is-on { color: #f2d6df; border-color: #b05a78; background: rgba(122, 53, 80, .28); }
+.vtm20.r-type-wraith .r-wr-arch { display: flex; align-items: center; gap: 8px; margin: 6px 0 2px; font-size: 12.5px; color: var(--r-muted); }
+.vtm20.r-type-wraith .r-wr-arch select { flex: 1; min-width: 0; height: 24px; }
+
+/* Страсти, Оковы, Тёмные Страсти — строки с полями */
+.vtm20.r-type-wraith .r-wr-rows { margin: 4px 0 14px; padding: 0; list-style: none; }
+.vtm20.r-type-wraith .r-wr-row { display: flex; align-items: center; gap: 8px; padding: 4px 0; border-bottom: 1px dotted var(--r-line); }
+.vtm20.r-type-wraith .r-wr-row .r-wr-text { flex: 2 1 160px; min-width: 0; }
+.vtm20.r-type-wraith .r-wr-row .r-wr-emo { flex: 1 1 90px; min-width: 0; font-style: italic; }
+.vtm20.r-type-wraith .r-wr-row .r-dots { flex: none; }
+.vtm20.r-type-wraith .r-wr-row.is-resolved .r-wr-text { text-decoration: line-through; color: var(--r-muted); }
+.vtm20.r-type-wraith .r-wr-check { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: var(--r-muted); white-space: nowrap; }
+.vtm20.r-type-wraith .r-wr-rows.is-shadow .r-dot.is-filled { --r-dot-fill: radial-gradient(circle at 38% 32%, #d58aa2, #7a3550 55%, #1c0a11); }
+.vtm20.r-type-wraith .r-h2.is-shadow span { color: #d9a9b9; }
+.vtm20.r-type-wraith .r-wr-thorns .r-wr-note { display: block; width: 100%; margin: 3px 0; height: 22px; font-size: 12px; }
+
+/* Карточки чата: Тень — винным */
+.r-notice.r-type-wraith.is-shadow { border-left-color: #b05a78; background: linear-gradient(90deg, rgba(122, 53, 80, .18), rgba(0, 0, 2, .25) 60%); }
+.r-notice.r-type-wraith.is-shadow i { color: #d58aa2; }
+.r-notice.r-type-wraith.is-warn { border-left-color: #a14a63; }
+.r-roll-card.r-type-wraith .r-line-chip.is-warn { border-color: rgba(176, 90, 120, .5); color: #e3b8c6; }
+.r-roll-card.r-type-wraith .r-line-result.is-warn { border-left-color: #b05a78; }
+
+/* точки: бледная Плёнка вместо кровавой каймы; Тень — винная */
+.vtm20.r-type-wraith .r-dot.is-filled { border-color: #c9d2dc; box-shadow: 0 0 5px rgba(201, 210, 220, .3); }
+.vtm20.r-type-wraith .r-dots.is-angst .r-dot.is-filled, .vtm20.r-type-wraith .r-wr-rows.is-shadow .r-dot.is-filled { border-color: #b05a78; box-shadow: 0 0 5px rgba(176, 90, 120, .4); }
+
+/* ── Арканои: карточки Гильдий, ранги — кружки, расколотые пополам (лист Wraith 20, гл. 5) ── */
+.vtm20.r-type-wraith .r-wr-arcs { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 10px; margin: 8px 0 16px; align-items: start; }
+.vtm20.r-type-wraith .r-wr-arc { margin: 0; padding: 10px 14px 8px; }
+.vtm20.r-type-wraith .r-wr-arc.is-home { border-top-color: #c9d2dc; box-shadow: inset 0 1px 0 rgba(201, 210, 220, .35); }
+.vtm20.r-type-wraith .r-wr-arc-head { display: flex; align-items: center; gap: 10px; }
+.vtm20.r-type-wraith .r-wr-arc-sigil { flex: none; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; font-size: 15px;
+  color: #f2f4f6; border: 1px solid rgba(201, 210, 220, .45); background: radial-gradient(circle at 50% 35%, #2e3136, #0c0d0f 75%); box-shadow: 0 0 0 3px var(--r-gap-ring), 0 0 12px rgba(201, 210, 220, .12); }
+.vtm20.r-type-wraith .r-wr-arc.is-forbidden .r-wr-arc-sigil { color: #e3b8c6; border-color: rgba(176, 90, 120, .55); background: radial-gradient(circle at 50% 35%, #3a1d29, #0c0d0f 75%); }
+.vtm20.r-type-wraith .r-wr-arc-title { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.15; }
+.vtm20.r-type-wraith .r-wr-arc-name { font-family: var(--r-display); font-size: 18px; color: var(--r-ink); }
+.vtm20.r-type-wraith .r-wr-arc-name:hover { color: var(--r-accent); }
+.vtm20.r-type-wraith .r-wr-arc-guild { font-family: var(--r-caps); font-size: 11.5px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--r-muted); }
+.vtm20.r-type-wraith .r-wr-arc-guild b { font-weight: 400; color: var(--r-accent); }
+.vtm20.r-type-wraith .r-wr-arc-guild em { font-style: normal; color: #d58aa2; }
+.vtm20.r-type-wraith .r-wr-arc-attrs { margin: 0 0 2px; font-size: 11.5px; font-style: italic; color: var(--r-muted); }
+
+/* ранги: пять кружков на тонкой нити; левая половина — Общий уровень, правая — Посвящённый; цифра — под кружком */
+.vtm20.r-type-wraith .r-wr-ranks { position: relative; display: flex; align-items: center; gap: 12px; margin: 12px 0 16px 2px;
+  background: linear-gradient(rgba(201, 210, 220, .22), rgba(201, 210, 220, .22)) 16px 50% / 176px 1px no-repeat; }
+.vtm20.r-type-wraith .r-wr-rank { position: relative; flex: none; display: flex; width: 32px; height: 32px; border-radius: 50%;
+  border: 1px solid rgba(201, 210, 220, .4); background: var(--r-gap-ring); box-shadow: 0 0 0 3px var(--r-gap-ring); }
+.vtm20.r-type-wraith .r-wr-rank::before { content: ""; position: absolute; left: 50%; top: 3px; bottom: 3px; width: 1px; background: rgba(201, 210, 220, .35); z-index: 1; pointer-events: none; }
+.vtm20.r-type-wraith .r-wr-rank::after { content: attr(data-roman); position: absolute; left: 0; right: 0; top: 35px; text-align: center;
+  font-family: var(--r-display); font-size: 10px; color: var(--r-muted); pointer-events: none; }
+.vtm20.r-type-wraith .r-wr-half { flex: 1; height: 100%; transition: background .15s, box-shadow .15s; }
+.vtm20.r-type-wraith .r-wr-half.is-left { border-radius: 16px 0 0 16px; }
+.vtm20.r-type-wraith .r-wr-half.is-right { border-radius: 0 16px 16px 0; }
+.vtm20.r-type-wraith .r-wr-half.is-left.is-known { background: radial-gradient(circle at 85% 40%, #f2f4f6, #8b929c 85%); }
+.vtm20.r-type-wraith .r-wr-half.is-right.is-known { background: radial-gradient(circle at 15% 40%, #5a606a, #1d1f23 90%); box-shadow: inset -2px 0 0 #c9d2dc; }
+.vtm20.r-type-wraith .r-wr-half.is-locked:not(.is-known) { background: repeating-linear-gradient(45deg, transparent 0 3px, rgba(201, 210, 220, .1) 3px 4px); }
+.vtm20.r-type-wraith .r-wr-rank.is-owned .r-wr-half { cursor: pointer; }
+.vtm20.r-type-wraith .r-wr-rank.is-owned .r-wr-half:not(.is-known):hover { background: rgba(201, 210, 220, .16); }
+.vtm20.r-type-wraith .r-wr-rank.is-owned .r-wr-half.is-known:hover { filter: brightness(1.15); }
+.vtm20.r-type-wraith .r-wr-half.is-sel { box-shadow: inset 0 0 0 2px #f2f4f6, 0 0 10px rgba(236, 240, 244, .45); }
+.vtm20.r-type-wraith .r-wr-rank.is-owned:has(.is-sel)::after { color: var(--r-ink); }
+.vtm20.r-type-wraith .r-wr-rank.is-beyond { opacity: .3; border-style: dashed; }
+.vtm20.r-type-wraith .r-wr-rank-dots { margin-left: auto; }
+.vtm20.r-type-wraith .r-wr-rank-dots .r-dot { width: 10px; height: 10px; }
+
+/* открытый уровень */
+.vtm20.r-type-wraith .r-wr-artpane { margin-top: 8px; padding-top: 8px; border-top: 1px dotted var(--r-line-2); }
+.vtm20.r-type-wraith .r-wr-art-top { display: flex; align-items: center; gap: 10px; }
+.vtm20.r-type-wraith .r-wr-art-rank { flex: none; display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; font-family: var(--r-display); font-size: 11px;
+  color: #0c0d0f; background: radial-gradient(circle at 40% 32%, #f2f4f6, #8b929c 80%); }
+.vtm20.r-type-wraith .r-wr-artpane.is-initiate .r-wr-art-rank { color: #f2f4f6; background: radial-gradient(circle at 40% 32%, #5a606a, #1d1f23 85%); box-shadow: inset 0 0 0 1px #c9d2dc; }
+.vtm20.r-type-wraith .r-wr-art-name { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; min-width: 0; }
+.vtm20.r-type-wraith .r-wr-art-name b { font-family: var(--r-display); font-weight: 400; font-size: 15.5px; color: var(--r-ink); }
+.vtm20.r-type-wraith .r-wr-art-name em { font-size: 12px; color: var(--r-muted); }
+.vtm20.r-type-wraith .r-wr-art-name small { font-family: var(--r-caps); font-size: 10.5px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--r-accent); }
+.vtm20.r-type-wraith .r-wr-artpane.is-unknown .r-wr-art-name b { color: var(--r-ink-2); }
+.vtm20.r-type-wraith .r-wr-art-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
+.vtm20.r-type-wraith .r-wr-chip { display: inline-flex; align-items: center; gap: 5px; padding: 1px 9px; border: 1px solid var(--r-line-2); font-size: 12px; color: var(--r-ink-2); }
+.vtm20.r-type-wraith .r-wr-chip i { font-size: 10px; color: var(--r-accent); }
+.vtm20.r-type-wraith .r-wr-chip b { font-weight: 400; color: var(--r-ink); }
+.vtm20.r-type-wraith .r-wr-chip.is-cost { border-color: rgba(201, 210, 220, .35); }
+.vtm20.r-type-wraith .r-wr-art-text { font-size: 13px; line-height: 1.45; color: var(--r-ink-2); }
+.vtm20.r-type-wraith .r-wr-art-text ul { margin: 2px 0 4px; padding-left: 18px; }
+.vtm20.r-type-wraith .r-wr-art-text table { font-size: 12px; margin: 4px 0; }
+.vtm20.r-type-wraith .r-wr-artpane .r-vc-btn.is-locked { opacity: .45; }
+.vtm20.r-type-wraith .r-wr-artpane .r-vc-btn.is-use { color: #0c0d0f; border-color: #f2f4f6; background: linear-gradient(180deg, #f2f4f6, #8b929c); }
+.vtm20.r-type-wraith .r-wr-artpane .r-vc-btn.is-use:hover { box-shadow: 0 0 10px rgba(236, 240, 244, .35); }
+
+/* сворачивание карточки Арканоса — как строка Дисциплины: свёрнутая — одна шапка с точками */
+.vtm20.r-type-wraith .r-wr-arc-head { cursor: pointer; }
+.vtm20.r-type-wraith .r-wr-arc-head .r-dots .r-dot { width: 10px; height: 10px; }
+.vtm20.r-type-wraith .r-wr-arc.is-shut .r-wr-arc-body { display: none; }
+.vtm20.r-type-wraith .r-wr-arc.is-shut { padding-bottom: 10px; }
+.vtm20.r-type-wraith .r-wr-arc.is-open .r-chevron i { transform: rotate(180deg); }
+.vtm20.r-type-wraith .r-wr-arc .r-chevron i { transition: transform .15s; }

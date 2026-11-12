@@ -769,6 +769,69 @@ export class WerewolfData extends MortalData {
   }
 }
 
+/* ── Призрак (Wraith: The Oblivion 20th) ────────────────────────────────── */
+
+// Призрак (Wraith 20, гл. 4–8): Легион, фракция, Гильдия; Пафос (0–10) — топливо Арканоев; Корпус — вместо уровней здоровья
+// (постоянный 10, шкала урона — health до 10 ячеек, без штрафов за раны); Арканои 0–5 (initiate — уровни, где известен
+// Посвящённый уровень Гильдии; skip — где Общий уровень не взят: Посвящённый взят вместо него); Страсти и Оковы 1–5;
+// Тень — архетип, Ангст (постоянный и временный, до 10), Тёмные Страсти, Шипы (ключи data/wraith.json → thorns);
+// catharsis — Тень владеет Корпусом до конца сцены; state — телесное состояние (гл. 11, «Пять состояний»).
+const wraithText = () => new SchemaField({ text: str(), emotion: str(), value: int(1, 0, 5) });
+export class WraithData extends BaseActorData {
+  static defineSchema() {
+    const base = super.defineSchema();
+    return {
+      ...base,
+      health: new SchemaField({ bashing: int(0, 0, 10), lethal: int(0, 0, 10), aggravated: int(0, 0, 10) }),
+      wraith: new SchemaField({
+        legion: str(""), faction: str(""), guild: str(""), death: str(""),
+        pathos: new SchemaField({ value: int(5, 0, 10) }),
+        corpus: int(10, 0, 10), state: str("corporeal"),
+        arcanoi: new SchemaField(Object.fromEntries(VTM20.wraithArcanoi.map(k => [k, new SchemaField({ value: int(0, 0, 5),
+          initiate: new ArrayField(int(1, 1, 5)), skip: new ArrayField(int(1, 1, 5)) })]))),
+        passions: new ArrayField(wraithText()),
+        fetters: new ArrayField(new SchemaField({ text: str(), value: int(1, 0, 5), resolved: new BooleanField({ initial: false }) })),
+        shadow: new SchemaField({ archetype: str(""), guide: str(""),
+          angst: new SchemaField({ permanent: int(1, 0, 10), temporary: int(0, 0, 10) }),
+          darkPassions: new ArrayField(wraithText()),
+          thorns: new ArrayField(new SchemaField({ key: str(), n: int(1, 1, 10), note: str() })),
+          catharsis: new BooleanField({ initial: false }) }),
+        // за сессию: Мемориум брошен, сколько кубиков Эйдолона потрачено (сбрасывает «Новая сессия» на листе)
+        session: new SchemaField({ memoriam: new BooleanField({ initial: false }), eidolon: int(0, 0, 10) })
+      })
+    };
+  }
+
+  /** Список Арканоев с точками — для пулов и подписей. */
+  get arcanoiList() { return VTM20.wraithArcanoi.filter(k => this.wraith.arcanoi[k].value > 0); }
+
+  prepareDerivedData() {
+    // общая часть режет шкалу до 7 уровней — сохраняем отметки Корпуса до неё
+    const raw = { a: this.health.aggravated, l: this.health.lethal, b: this.health.bashing };
+    super.prepareDerivedData();
+    this.morality.path = "humanity";
+    this.traitMax = 5;
+    // Корпус (гл. 11): ячеек — постоянный Корпус; ударный, заполнивший все, — «колебание», летальный до конца — Испытание.
+    // Штрафов за раны у призрака нет (у Материализованного — тоже).
+    const w = this.wraith, cap = Math.max(1, w.corpus), h = this.health;
+    const agg = Math.min(raw.a, cap), let_ = Math.min(raw.l, cap - agg), bash = Math.min(raw.b, cap - agg - let_);
+    h.aggravated = agg; h.lethal = let_; h.bashing = bash;
+    h.damage = agg + let_ + bash; h.max = cap; h.value = cap - h.damage;
+    h.levels = Array.from({ length: cap }, (_, i) => ({ key: "corpus", label: "", penalty: 0, index: i,
+      state: i < agg ? "aggravated" : i < agg + let_ ? "lethal" : i < h.damage ? "bashing" : "empty" }));
+    h.penalty = 0;
+    h.incapacitated = h.damage >= cap;
+    h.status = h.damage >= cap ? (bash ? "wavering" : "harrowed") : h.damage ? "hurt" : "healthy";
+    w.wavering = h.damage >= cap && bash > 0;
+    w.pathos.max = 10;
+    w.shadow.angst.max = 10;
+    w.shadow.angst.value = w.shadow.angst.temporary;
+    // Катарсис возможен, когда временный Ангст выше Воли (гл. 6)
+    w.shadow.canCatharsis = w.shadow.angst.temporary > this.willpower.permanent;
+    this.initiative = this.attributes.dexterity.total + this.attributes.wits.total;
+  }
+}
+
 /* ── Котерия и домен — актёры-группы без черт персонажа ─────────────────── */
 
 /**
@@ -817,7 +880,7 @@ export class DomainData extends foundry.abstract.TypeDataModel {
 
 export function registerDataModels() {
   Object.assign(CONFIG.Actor.dataModels, { vampire: VampireData, ghoul: GhoulData, mortal: MortalData, creature: CreatureData, spirit: SpiritData, demon: DemonData, hunter: HunterData, mage: MageData, werewolf: WerewolfData,
-    coterie: CoterieData, domain: DomainData });
+    wraith: WraithData, coterie: CoterieData, domain: DomainData });
   Object.assign(CONFIG.Item.dataModels, {
     discipline: DisciplineData, lore: LoreData, lorePower: LorePowerData, thaumPath: BloodPathData, ritual: RitualData, power: PowerData,
     background: BackgroundData, merit: MeritData, flaw: MeritData, derangement: DerangementData,

@@ -46,7 +46,7 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       specialty: !!cfg.specialty, willpower: !!cfg.willpower,
       wounds: !cfg.reflexive, physical: true,
       payBlood: (cfg.bloodCost ?? 0) > 0, payWill: !!cfg.willpowerCost, light: false, fxOn: [], overdraw: 0, sway: "", horrid: true, pools: {},
-      messageMode: game.settings.get("core", "messageMode")
+      messageMode: cfg.messageMode ?? game.settings.get("core", "messageMode")
     };
   }
 
@@ -137,7 +137,7 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const potentialAuto = !base && selectedAttrs.includes("strength") ? a.physicalAuto("strength") : 0;
     const auto = v.physical ? potentialAuto : 0;
     if (auto) bd.push({ label: t("Roll.AutoSuccess"), value: auto });
-    if (v.bonus) { pool += v.bonus; bd.push({ label: t("Roll.Modifier"), value: v.bonus }); }
+    if (v.bonus) { pool += v.bonus; bd.push({ label: v.bonus === this.cfg.bonus && this.cfg.bonusLabel ? this.cfg.bonusLabel : t("Roll.Modifier"), value: v.bonus }); }
     // тотем стаи (W20, гл. 7): «дети Химеры получают три точки Загадок» — точки тотема прибавляются к черте в броске
     const tt = totemTraits(a);
     if (tt) for (const p of [v.trait1, v.trait2]) {

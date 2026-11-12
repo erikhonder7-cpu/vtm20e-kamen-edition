@@ -18,6 +18,7 @@
         {{#if editable}}<i class="fa-solid fa-chevron-down r-seal-caret"></i><select name="system.generation" data-dtype="Number" class="r-seal-select" aria-label="{{localize 'VTM20.Details.generation'}}">{{#each generations}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{rRoman value}} — {{value}}</option>{{/each}}</select>{{/if}}
         {{else if isDemon}}<span class="r-seal-num r-seal-icon"><i class="fa-solid fa-fire-flame-curved"></i></span><span class="r-seal-cap">{{#if house}}{{house.name}}{{else}}{{typeLabel}}{{/if}}</span>
         {{else if mageSeal}}<span class="r-seal-num r-seal-icon r-seal-glyph">{{rSym mageSeal.sym "r-mg"}}</span><span class="r-seal-cap">{{mageSeal.label}}</span>
+        {{else if isWraith}}<span class="r-seal-num r-seal-icon"><i class="fa-solid fa-ghost"></i></span><span class="r-seal-cap">{{#if wraithInfo.legion}}{{wraithInfo.legion.name}}{{else}}{{typeLabel}}{{/if}}</span>
         {{else if werewolfSeal}}<span class="r-seal-num r-seal-icon r-seal-glyph">{{rSym werewolfSeal.sym "r-wg"}}</span><span class="r-seal-cap">{{werewolfSeal.label}}</span>
         {{else if isCreature}}<span class="r-seal-num r-seal-icon"><i class="fa-solid fa-paw"></i></span><span class="r-seal-cap">{{typeLabel}}</span>
         {{else if isGhoul}}<span class="r-seal-num r-seal-icon"><i class="fa-solid {{#if isRevenant}}fa-dna{{else}}fa-hand-holding-droplet{{/if}}"></i></span><span class="r-seal-cap">{{typeLabel}}</span>
@@ -31,7 +32,7 @@
         {{#if clan.nickname}}<i class="r-kicker-dia"></i><em class="r-kicker-nick is-link" data-action="clanAtlas" data-tooltip="{{localize 'VTM20.Clans.Open'}}">«{{clan.nickname}}»</em>{{/if}}
         {{#if house}}<i class="r-kicker-dia"></i><em class="r-kicker-nick is-link" data-action="houseAtlas" data-tooltip="{{localize 'VTM20.Demon.AtlasOpen'}}">«{{house.akkadian}}»</em>{{/if}}
         {{#if sectSym}}<i class="r-kicker-dia"></i>{{rSym sectSym "r-sym-inline"}}{{/if}}
-        <span class="r-motto" aria-hidden="true">{{#if earthbound}}Adorate me{{else if isDemon}}Non serviam{{else if isWerewolf}}Pro Gaia{{else if isHunter}}Vigilate{{else if isMage}}{{#if mageInfo.fallen}}Qlippoth{{else if mageInfo.tech}}Ordo ex Scientia{{else}}Ascensio{{/if}}{{else}}La Liberté ou la Mort{{/if}}</span>
+        <span class="r-motto" aria-hidden="true">{{#if earthbound}}Adorate me{{else if isDemon}}Non serviam{{else if isWerewolf}}Pro Gaia{{else if isHunter}}Vigilate{{else if isWraith}}Memento mori{{else if isMage}}{{#if mageInfo.fallen}}Qlippoth{{else if mageInfo.tech}}Ordo ex Scientia{{else}}Ascensio{{/if}}{{else}}La Liberté ou la Mort{{/if}}</span>
       </div>
       <div class="r-name-row">
         <input class="r-name {{nameSize}}" type="text" name="name" value="{{actor.name}}" placeholder="{{localize 'VTM20.Sheet.Name'}}" spellcheck="false">
@@ -137,6 +138,16 @@
           <select name="system.mage.affinity"><option value="">—</option>{{#each mageInfo.affinities}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}{{#if off}} ·{{/if}}</option>{{/each}}</select></label>
         <span class="r-df-break"></span>
         {{/if}}
+        {{#if isWraith}}
+        {{!-- Призрак (Wraith 20, гл. 1, 4): Легион по смерти, Гильдия по Арканосу, фракция; чем умер --}}
+        <label class="r-df" {{#if wraithInfo.legionTip}}data-tooltip="{{wraithInfo.legionTip}}"{{/if}}><span>{{localize "VTM20.Wraith.Legion"}}</span>
+          <select name="system.wraith.legion"><option value="">—</option>{{#each wraithInfo.legions}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
+        <label class="r-df" {{#if wraithInfo.guild}}data-tooltip="{{wraithInfo.guild.arcanos}}"{{/if}}><span>{{localize "VTM20.Wraith.Guild"}}</span>
+          <select name="system.wraith.guild"><option value="">—</option>{{#each wraithInfo.guilds}}<optgroup label="{{name}}">{{#each list}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</optgroup>{{/each}}</select></label>
+        <label class="r-df"><span>{{localize "VTM20.Wraith.Faction"}}</span>
+          <select name="system.wraith.faction"><option value="">—</option>{{#each wraithInfo.factions}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
+        <label class="r-df is-wide"><span>{{localize "VTM20.Wraith.Death"}}</span><input type="text" name="system.wraith.death" value="{{system.wraith.death}}"></label>
+        {{/if}}
         {{#if isMortal}}
         <label class="r-df"><span>{{localize "VTM20.Details.age"}}</span><input type="text" name="system.details.age" value="{{system.details.age}}"></label>
         <label class="r-df is-wide"><span>{{localize "VTM20.Details.haven"}}</span><input type="text" name="system.details.haven" value="{{system.details.haven}}"></label>
@@ -198,6 +209,26 @@
     </aside>
     {{/if}}
 
+    {{#if isWraith}}
+    {{!-- Пафос (Wraith 20, гл. 4): топливо Арканоев, 0–10; восполняют Страсти и Мемориум --}}
+    <aside class="r-assignat is-pathos">
+      <div class="r-assignat-head">
+        <span class="r-assignat-title">{{localize "VTM20.Wraith.Pathos"}}</span>
+        <span class="r-assignat-num"><b>{{wraithInfo.pathos}}</b><small>/10</small></span>
+      </div>
+      <div class="r-drops">
+        {{#each wraithInfo.pathosBoxes}}<a class="r-drop {{#if filled}}is-filled{{/if}}" data-action="setDots" data-path="{{path}}" data-n="{{n}}"><svg viewBox="0 0 24 30" aria-hidden="true"><path d="M12 2c4 5 7 9 7 15a7 7 0 0 1-14 0c0-3 1-5 3-7 0 2 1 3 2 3-1-4 0-8 2-11z"/></svg></a>{{/each}}
+      </div>
+      <div class="r-assignat-meta">
+        <span>{{#if wraithInfo.memoriam}}{{localize "VTM20.Wraith.Memoriam"}} <b>{{wraithInfo.memoriam}}</b>{{/if}}</span>
+        <a data-action="wrPathos" data-tooltip="{{localize 'VTM20.Wraith.SpendPathos'}}"><i class="fa-solid fa-minus"></i></a>
+        <a data-action="wrHeal" data-tooltip="{{localize 'VTM20.Wraith.HealHint'}}"><i class="fa-solid fa-hand-sparkles"></i></a>
+        <a data-action="wrMemoriam" class="{{#if wraithInfo.memoriamDone}}is-off{{/if}}" data-tooltip="{{localize 'VTM20.Wraith.MemoriamHint'}}"><i class="fa-solid fa-candle-holder"></i></a>
+        <a data-action="wrSession" data-tooltip="{{localize 'VTM20.Wraith.SessionHint'}}"><i class="fa-solid fa-hourglass-start"></i></a>
+      </div>
+    </aside>
+    {{/if}}
+
     {{#unless needsCreation}}
     <nav class="r-head-acts">
       {{#if hasBlood}}<a class="r-act" data-action="hunt" data-tooltip="{{localize 'VTM20.Hunt.Button'}}"><i class="fa-solid fa-moon"></i><span>{{localize "VTM20.Hunt.Button"}}</span></a>{{/if}}
@@ -223,15 +254,20 @@
       {{#if haranoProne}}<a class="r-act is-minor" data-action="wwHarano" data-tooltip="{{localize 'VTM20.Werewolf.HaranoCheckHint'}}"><i class="fa-solid fa-cloud-rain"></i><span>{{localize "VTM20.Werewolf.HaranoShort"}}</span></a>{{/if}}
       <a class="r-act is-minor" data-action="wwPrimal" data-tooltip="{{localize 'VTM20.Werewolf.Primal.hint'}}"><i class="fa-solid fa-paw"></i><span>{{localize "VTM20.Werewolf.Primal.short"}}</span></a>
       {{/if}}
+      {{#if isWraith}}
+      <a class="r-act is-minor" data-action="wrShadowDice" data-tooltip="{{localize 'VTM20.Wraith.ShadowDiceHint'}}"><i class="fa-solid fa-dice"></i><span>{{localize "VTM20.Wraith.ShadowDiceShort"}}</span></a>
+      {{/if}}
       {{#if weaknessCheck}}<a class="r-act" data-action="rollVirtue" data-kind="weakness" data-tooltip="{{weaknessCheck}}"><i class="fa-solid fa-dice-d10"></i><span>{{weaknessCheck}}</span></a>{{/if}}
       <span class="r-acts-spacer"></span>
       {{#if isDemon}}<a class="r-act is-hot" data-action="tormentSin" data-tooltip="{{localize 'VTM20.Demon.SinHint'}}"><i class="fa-solid fa-skull"></i><span>{{localize "VTM20.Demon.Sin"}}</span></a>{{/if}}
       {{#if wwDown}}<a class="r-act is-hot" data-action="wwStayUp" data-tooltip="{{localize 'VTM20.Werewolf.StayUpHint'}}"><i class="fa-solid fa-person-rays"></i><span>{{localize "VTM20.Werewolf.StayUp"}}</span></a>{{/if}}
       {{#if isWerewolf}}<a class="r-act is-hot" data-action="wwFrenzy" data-tooltip="{{localize 'VTM20.Werewolf.FrenzyHint'}}"><i class="fa-solid fa-fire"></i><span>{{localize "VTM20.Werewolf.Frenzy"}}</span></a>{{/if}}
-      {{#unless (or isDemon isWerewolf)}}<a class="r-act is-hot" data-action="rollVirtue" data-kind="frenzy" data-tooltip="{{localize 'VTM20.Roll.frenzy.title'}}"><i class="fa-solid fa-face-angry"></i><span>{{localize "VTM20.Roll.frenzy.title"}}</span></a>{{/unless}}
+      {{#if isWraith}}<a class="r-act is-hot {{#if wraithInfo.catharsis}}is-on{{/if}}" data-action="wrCatharsis" data-tooltip="{{#if wraithInfo.catharsis}}{{localize 'VTM20.Wraith.CatharsisEndHint'}}{{else}}{{localize 'VTM20.Wraith.CatharsisHint'}}{{/if}}"><i class="fa-solid fa-mask"></i><span>{{localize "VTM20.Wraith.Catharsis"}}</span></a>
+      <a class="r-act is-hot" data-action="wrHarrowing" data-tooltip="{{localize 'VTM20.Wraith.HarrowingHint'}}"><i class="fa-solid fa-dungeon"></i><span>{{localize "VTM20.Wraith.HarrowingShort"}}</span></a>{{/if}}
+      {{#unless (or isDemon isWerewolf isWraith)}}<a class="r-act is-hot" data-action="rollVirtue" data-kind="frenzy" data-tooltip="{{localize 'VTM20.Roll.frenzy.title'}}"><i class="fa-solid fa-face-angry"></i><span>{{localize "VTM20.Roll.frenzy.title"}}</span></a>{{/unless}}
       {{#if isVampire}}<a class="r-act is-hot" data-action="diablerie" data-tooltip="{{localize 'VTM20.Diablerie.Title'}}"><i class="fa-solid fa-skull"></i><span>{{localize "VTM20.Diablerie.Short"}}</span></a>{{/if}}
       {{#if isGhoul}}<a class="r-act is-hot" data-action="rollVirtue" data-kind="rapture" data-tooltip="{{localize 'VTM20.Roll.rapture.hint'}}"><i class="fa-solid fa-heart-pulse"></i><span>{{localize "VTM20.Roll.rapture.title"}}</span></a>{{/if}}
-      {{#unless (or isMortal isDemon isDhampir isWerewolf)}}<a class="r-act is-hot" data-action="rollVirtue" data-kind="rotschreck" data-tooltip="{{localize 'VTM20.Roll.rotschreck.title'}}"><i class="fa-solid fa-fire"></i><span>{{localize "VTM20.Roll.rotschreck.title"}}</span></a>{{/unless}}
+      {{#unless (or isMortal isDemon isDhampir isWerewolf isWraith)}}<a class="r-act is-hot" data-action="rollVirtue" data-kind="rotschreck" data-tooltip="{{localize 'VTM20.Roll.rotschreck.title'}}"><i class="fa-solid fa-fire"></i><span>{{localize "VTM20.Roll.rotschreck.title"}}</span></a>{{/unless}}
     </nav>
     {{/unless}}
   </div>

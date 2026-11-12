@@ -32,7 +32,8 @@ const GROUPS = {
   combat: /бой|ход боя|инициатив|урон|стремительност|мощь/i,
   creator: /мастер|создани|становлени/i,
   city: /город|карт|стратег|домен|маскарад|париж|песочниц|мир:|нексус|час|календар/i,
-  npc: /нпс|статист|толпа|групп/i
+  npc: /нпс|статист|толпа|групп/i,
+  wraith: /призрак|арканос|пафос|катарсис/i
 };
 // vampire — всё остальное: лист, броски, Дисциплины через HUD, кровь, узы, торпор (то, что не попало в группы выше)
 const inGroup = (g, name) => g === "vampire" ? !Object.values(GROUPS).some(rx => rx.test(name)) : GROUPS[g].test(name);
@@ -4299,6 +4300,61 @@ try {
       return out;
     });
     const want = { ready: true, rank: [2, 1, 2], klaive: [2, "aggravated", true, 4], unklaive: [0, 5], frenzy: true, train: [1, 0, true] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
+  // Призрак (apps/wraith.mjs): лист с вкладкой Арканоев (известные половинки рангов: Аргос 3 — Общие I–III и Посвящённый I), уровень Арканоса (Пафос, Корпус), лечение Пафосом, Страсть,
+  // Корпус до колебания и Испытание, Катарсис (Ангст выше Воли), Тёмная Страсть — шёпотом ведущему
+  await check("Призрак: лист и Арканои, Пафос, Страсть, Корпус до колебания и Испытание, Катарсис", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), WR = await import(`/systems/${sid}/module/apps/wraith.mjs`);
+      const inst = () => [...foundry.applications.instances.values()], n0 = game.messages.size, out = {};
+      const rollDlg = async () => { for (let i = 0; i < 40; i++) { const d = inst().find(x => x.constructor.name === "RollDialog" && x.rendered); if (d) return d; await wait(100); } return null; };
+      const submit = async () => { const d = await rollDlg(); if (!d) return null; const v = { diff: d.values.difficulty, bd: d.compute().breakdown.map(b => b.value) };
+        d.element.querySelector("button[type=submit]")?.click(); await wait(1200); return v; };
+      const pickCard = async key => { for (let i = 0; i < 40; i++) { const b = document.querySelector(`.r-wc-dlg [data-pick="${key}"]`); if (b) { b.click(); await wait(300); return; } await wait(100); } };
+      const a = await Actor.create({ name: "E2E — призрак", type: "wraith", flags: { world: { e2e: true } },
+        system: { attributes: { perception: { value: 3 }, wits: { value: 3 }, stamina: { value: 2 } }, willpower: { permanent: 6, temporary: 6 },
+          wraith: { legion: "grim", guild: "argos", pathos: { value: 7 }, arcanoi: { argos: { value: 3, initiate: [1], skip: [] } },
+            passions: [{ text: "Защитить сестру", emotion: "Любовь", value: 4 }], shadow: { angst: { permanent: 4, temporary: 3 },
+              darkPassions: [{ text: "Утопить чужую радость", emotion: "Зависть", value: 2 }] } } } });
+      await a.createEmbeddedDocuments("Item", [{ name: "Эйдолон", type: "background", system: { value: 1, source: "Eidolon" } }]);
+      // лист: вкладка Арканоев, кнопки уровней (Аргос 3: Общие I–III и Посвящённый I)
+      await a.sheet.render({ force: true }); await wait(900); a.sheet.changeTab("disciplines", "primary"); await wait(500);
+      out.sheet = [a.sheet.element.querySelectorAll(".r-wr-half.is-known").length, !!a.sheet.element.querySelector(".r-vc-shadow"), a.sheet.element.querySelectorAll(".r-vc-health .r-hbox").length];
+      // карточка Арканоса сворачивается как Дисциплина: по умолчанию свёрнута, щелчок по шапке раскрывает
+      try { localStorage.removeItem(`vtm20.arcanoi.${a.id}`); } catch {}
+      await a.sheet.render(); await wait(500);
+      const card = () => a.sheet.element.querySelector(".r-wr-arc");
+      const shut0 = card()?.classList.contains("is-shut");
+      card()?.querySelector(".r-wr-arc-head")?.click(); await wait(200);
+      out.fold = [shut0, card()?.classList.contains("is-open")];
+      try { localStorage.removeItem(`vtm20.arcanoi.${a.id}`); } catch {}
+      await a.sheet.close();
+      // Око погоды: Восприятие 3 + Аргос 3, сл. 6, 1 Пафос; Укрыться Бурей (Посвящённый): 1 Корпус — ударная отметка
+      let p = WR.rollArt(a, "argos", 1, "common"); out.art = await submit(); await p;
+      p = WR.rollArt(a, "argos", 1, "initiate"); out.art2 = (await submit())?.diff; await p;
+      out.paid = [a.system.wraith.pathos.value, a.system.health.bashing];
+      await WR.pathosHeal(a); await wait(300); out.heal = [a.system.health.bashing, a.system.wraith.pathos.value];
+      p = WR.rollPassion(a, 0); await pickCard("8"); out.passion = (await submit())?.diff; await p;
+      // 10 ударных — колебание; летальный сверху — Испытание: постоянная Воля, сл. 9
+      await a.applyDamage(10, "bashing"); await wait(300); out.wavering = [a.system.wraith.wavering, a.system.health.status];
+      await a.applyDamage(1, "lethal"); out.harrow = (await submit())?.diff; await wait(500);
+      out.afterHarrow = [[10, 9].includes(a.system.wraith.corpus), a.statuses.has("r-harrowing"), a.system.health.bashing];
+      // Катарсис: Ангст 9 выше Воли 6 — Тень тратит 1; Психея бросает Волю 6 + Эйдолон 1
+      await a.update({ "system.wraith.shadow.angst.temporary": 9 });
+      p = WR.catharsis(a); out.cath = (await submit())?.bd; await p; out.angst = a.system.wraith.shadow.angst.temporary;
+      p = WR.rollDarkPassion(a, 0); await pickCard("9"); await submit(); await p;
+      const msgs = game.messages.contents.slice(n0), roll = k => msgs.find(m => m.flags?.[sid]?.roll?.extra?.wraith?.kind === k);
+      out.cards = ["art", "passion", "harrowing", "catharsis"].map(k => !!roll(k)?.content.includes("r-line-result"));
+      out.darkGM = !!roll("dark")?.whisper?.length;
+      await ChatMessage.deleteDocuments(msgs.map(m => m.id));
+      await Actor.deleteDocuments([a.id]);
+      return out;
+    });
+    const want = { sheet: [4, true, 10], fold: [true, true], art: { diff: 6, bd: [3, 3] }, art2: 7, paid: [6, 1], heal: [0, 5], passion: 8, wavering: [true, "wavering"], harrow: 9,
+      afterHarrow: [true, false, 0], cath: [6, 1], angst: 8, cards: [true, true, true, true], darkGM: true };
     const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });

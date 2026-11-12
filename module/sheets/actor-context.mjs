@@ -62,6 +62,7 @@ const PORTRAIT_STATES = [
   { id: "r-rotschreck", key: "rotschreck", icon: "fa-fire", cls: "is-rotschreck", hot: true },
   { id: "r-rapture", key: "rapture", icon: "fa-heart-pulse", cls: "is-frenzy", hot: true },
   { id: "r-torpor", key: "torpor", icon: "fa-bed", cls: "is-torpor" },
+  { id: "r-harrowing", key: "harrowing", icon: "fa-dungeon", cls: "is-torpor", hot: true },
   { id: "r-staked", key: "staked", icon: "fa-thumbtack", cls: "is-torpor", hot: true },
   { id: "r-stunned", key: "stunned", icon: "fa-face-dizzy" },
   { id: "r-prone", key: "prone", icon: "fa-person-falling" },
@@ -122,7 +123,8 @@ export function prepareHeader(sheet, ctx) {
     img: VTM20.typeSigil(a.type) };
   // Состояние на портрете: раны — кровавая дымка по краям, состояния (ярость, торпор…) — оттенок и значки
   const st = a.statuses ?? new Set();
-  const wound = Math.min(7, s.health?.damage ?? 0);
+  // призрак: Корпус до 10 ячеек — дымка по доле урона, как на шкале из семи
+  const wound = a.type === "wraith" ? Math.round(7 * (s.health?.damage ?? 0) / Math.max(1, s.health?.max ?? 10)) : Math.min(7, s.health?.damage ?? 0);
   ctx.portraitState = {
     wound, cls: [wound >= 7 && "is-down", ...PORTRAIT_STATES.filter(x => x.cls && st.has(x.id)).map(x => x.cls)].filter(Boolean).join(" "),
     badges: [
@@ -248,6 +250,8 @@ export function prepareRegistry(sheet, ctx) {
     current: i === lastHurt,
     mark: VTM20.damageTypes[l.state]?.mark ?? ""
   }));
+  // Корпус призрака: под ячейкой — её номер (штрафов за раны нет)
+  if (a.type === "wraith") for (const [i, h] of ctx.health.entries()) Object.assign(h, { label: t("Wraith.CorpusBox", { n: i + 1 }), penaltyLabel: String(i + 1), out: false, sev: 0 });
   ctx.healthStatus = s.health.status === "healthy" ? t("Health.healthy") : t(`Health.${s.health.status}`);
   ctx.healthHurt = s.health.damage > 0;
   ctx.clock = clockBarData();

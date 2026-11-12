@@ -6,6 +6,8 @@
 // (правая колонка: мораль, воля, кровь, здоровье, быстрые действия).
 
 import { MAGE_ACTIONS } from "./actor/mage.mjs";
+import { WRAITH_ACTIONS, arcFold } from "./actor/wraith.mjs";
+import { wraithInfo, arcanoiView, passionsView } from "../apps/wraith.mjs";
 import { WEREWOLF_ACTIONS } from "./actor/werewolf.mjs";
 import { HUNTER_ACTIONS } from "./actor/hunter.mjs";
 import { DEMON_ACTIONS } from "./actor/demon.mjs";
@@ -72,7 +74,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     window: { resizable: true, contentClasses: ["r-sheet-content"] },
     form: { submitOnChange: true, closeOnSubmit: false },
     actions: {
-      ...MAGE_ACTIONS, ...WEREWOLF_ACTIONS, ...HUNTER_ACTIONS, ...DEMON_ACTIONS,
+      ...MAGE_ACTIONS, ...WEREWOLF_ACTIONS, ...HUNTER_ACTIONS, ...DEMON_ACTIONS, ...WRAITH_ACTIONS,
       setDots: { handler: VtMActorSheet.#onSetDots, buttons: [0, 2] },
       choosePower: VtMActorSheet.#onChoosePower,
       setHealth: { handler: VtMActorSheet.#onSetHealth, buttons: [0, 2] },
@@ -197,6 +199,8 @@ openStrategy: () => openStrategy(),
 
   /** Раскрытые строки (силы, ритуалы) — переживают перерисовку. */
   _open = new Set();
+  /** Призрак: открытая половинка ранга в карточке Арканоса — { ключ: "уровень-вид" } (sheets/actor/wraith.mjs, wrPick). */
+  _wrSel = {};
   /** Шкалы (здоровье, воля, мораль) свёрнуты — общий выбор пользователя для всех листов, хранится в браузере. */
   _vitalsClosed = (() => { try { return localStorage.getItem("vtm20.vitalsClosed") === "1"; } catch { return false; } })();
 
@@ -209,7 +213,8 @@ openStrategy: () => openStrategy(),
 
   get needsCreation() {
     const a = this.actor, s = a.system;
-    return !["creature", "spirit"].includes(a.type) && !a.getFlag(SYSTEM_ID, "created")
+    // у призрака мастера создания пока нет — лист сразу (как у оборотня до его мастера)
+    return !["creature", "spirit", "wraith"].includes(a.type) && !a.getFlag(SYSTEM_ID, "created")
       && Object.values(s.attributes).every(x => x.value === 1) && Object.values(s.abilities).every(x => x.value === 0);
   }
 
@@ -241,6 +246,8 @@ openStrategy: () => openStrategy(),
     if (this.actor.type === "hunter" && parts.disciplines) parts.disciplines = { ...parts.disciplines, template: `${SYSTEM_PATH}/templates/actor/edges.hbs` };
     // маг — вкладка «Сферы»: Сферы с рангами, фокус, ротэ
     if (this.actor.type === "mage" && parts.disciplines) parts.disciplines = { ...parts.disciplines, template: `${SYSTEM_PATH}/templates/actor/spheres.hbs` };
+    // у призрака — Арканои, Страсти, Оковы и Тень
+    if (this.actor.type === "wraith" && parts.disciplines) parts.disciplines = { ...parts.disciplines, template: `${SYSTEM_PATH}/templates/actor/arcanoi.hbs` };
     // у оборотня — формы, Дары и ритуалы
     if (this.actor.type === "werewolf" && parts.disciplines) parts.disciplines = { ...parts.disciplines, template: `${SYSTEM_PATH}/templates/actor/gifts.hbs` };
     // у демона на месте Дисциплин — Знания и апокалиптическая форма
@@ -254,6 +261,7 @@ openStrategy: () => openStrategy(),
     if (this.actor.type === "hunter" && tabs.disciplines) Object.assign(tabs.disciplines, { label: "VTM20.Hunter.Edges", icon: "fa-solid fa-eye" });
     if (this.actor.type === "mage" && tabs.disciplines) Object.assign(tabs.disciplines, { label: "VTM20.Mage.Spheres", icon: isTechnocrat(this.actor) ? "fa-solid fa-atom" : "fa-solid fa-hat-wizard" });
     if (this.actor.type === "werewolf" && tabs.disciplines) Object.assign(tabs.disciplines, { label: "VTM20.Werewolf.Gifts", icon: "fa-solid fa-paw" });
+    if (this.actor.type === "wraith" && tabs.disciplines) Object.assign(tabs.disciplines, { label: "VTM20.Wraith.Arcanoi", icon: "fa-solid fa-ghost" });
     if (this.actor.type === "demon" && tabs.disciplines) Object.assign(tabs.disciplines, { label: "VTM20.Demon.Lores", icon: "fa-solid fa-fire-flame-curved" });
     let i = 0;
     for (const tab of Object.values(tabs)) tab.roman = ROMAN[i++];
@@ -273,7 +281,7 @@ openStrategy: () => openStrategy(),
       nameSize: actor.name.length > 26 ? "is-xlong" : actor.name.length > 18 ? "is-long" : "",
       // охотник — смертный с Гранями: где лист смертного и охотника совпадают, работает isMortal
       diablerie: actor.type === "vampire" ? diablerieMark(actor) : null,
-      isVampire: actor.type === "vampire", isGhoul: actor.type === "ghoul", isDhampir: actor.isDhampir, isMortal: ["mortal", "hunter", "mage"].includes(actor.type), isHunter: actor.type === "hunter", isMage: actor.type === "mage", isWerewolf: actor.type === "werewolf", stratInfo: sheetStrategy(actor),
+      isVampire: actor.type === "vampire", isGhoul: actor.type === "ghoul", isDhampir: actor.isDhampir, isMortal: ["mortal", "hunter", "mage"].includes(actor.type), isHunter: actor.type === "hunter", isMage: actor.type === "mage", isWerewolf: actor.type === "werewolf", isWraith: actor.type === "wraith", stratInfo: sheetStrategy(actor),
       isCreature: actor.type === "creature", isSpiritType: actor.type === "spirit", isDemon: actor.type === "demon",
       hasBlood: actor.hasBlood,
       typeLabel: actor.type === "ghoul" && ["revenant", "dhampir"].includes(actor.system.ghoulType) ? t(`GhoulType.${actor.system.ghoulType}`) : game.i18n.localize(`TYPES.Actor.${actor.type}`),
@@ -314,6 +322,11 @@ openStrategy: () => openStrategy(),
       ctx.ww.deformAvail = (werewolfDataSheet().deformities ?? []).filter(d => !actor.system.werewolf.deformities.includes(d.key)).map(d => ({ key: d.key, label: VTM20.label(d) }));
       ctx.ww.fetishAvail = (werewolfDataSheet().fetishes ?? []).map(f => ({ key: f.key, talen: f.kind === "talen",
         label: `${VTM20.label(f)} (${f.kind === "talen" ? "" : `ур. ${f.level}, `}${game.i18n.localize("VTM20.Werewolf.Gnosis")} ${f.gnosis})` })); }
+    else if (actor.type === "wraith") { ctx.wraithInfo = wraithInfo(actor, dots); ctx.arc = arcanoiView(actor, dots, this._wrSel); ctx.wp = passionsView(actor, dots);
+      const fold = arcFold(actor.id);
+      for (const x of ctx.arc.own) x.folded = (fold[x.key] ?? true) && !x.sel;     // открытый уровень держит карточку раскрытой
+      ctx.arc.allFolded = ctx.arc.own.every(x => x.folded);
+      ctx.sigil = { ...ctx.sigil, img: VTM20.typeSigil("wraith"), label: ctx.wraithInfo.legion?.name ?? "" }; ctx.lineAtlas = true; }
     else if (actor.type !== "mortal") prepareDisciplines(this, ctx);
     prepareAdvantages(this, ctx);
     if (actor.type === "mortal") { ctx.sorcInfo = sorcererInfo(actor, dots); ctx.consorInfo = consorInfo(actor);
@@ -426,6 +439,13 @@ openStrategy: () => openStrategy(),
     }
     // Колдун: Способность Пути — выбор в строке нумины (поле без name — в форму листа не попадает)
     for (const el of all("select[data-sorc-ability]")) el.addEventListener("change", ev => { ev.stopPropagation(); sorcAbility(this.actor, el.dataset.sorcAbility, el.value); });
+    // Щелчок по шапке карточки Арканоса сворачивает и разворачивает её — как строку Дисциплины
+    for (const head of all(".r-wr-arc-head")) {
+      head.addEventListener("click", ev => {
+        if (ev.target.closest("a, button, input, select, .r-dots")) return;
+        head.querySelector("[data-action=wrFold]")?.click();
+      });
+    }
     // Щелчок по шапке карточки Сферы раскрывает её — как строку Дисциплины
     for (const head of all(".r-sphere-head")) {
       head.addEventListener("click", ev => {
@@ -499,6 +519,16 @@ openStrategy: () => openStrategy(),
         data.system[key] = arr;
       }
     }
+    // призрак: Страсти, Оковы, Тёмные Страсти и Шипы — списки строк с полями ввода
+    const wr = data.system?.wraith;
+    for (const path of ["passions", "fetters", "shadow.darkPassions", "shadow.thorns"]) {
+      const v = wr ? foundry.utils.getProperty(wr, path) : null;
+      if (v && !Array.isArray(v)) {
+        const arr = foundry.utils.deepClone(foundry.utils.getProperty(src.wraith, path));
+        for (const [i, row] of Object.entries(v)) arr[Number(i)] = foundry.utils.mergeObject(arr[Number(i)] ?? {}, row);
+        foundry.utils.setProperty(wr, path, arr);
+      }
+    }
     const log = data.system?.experience?.log;
     if (log && !Array.isArray(log)) {
       const arr = foundry.utils.deepClone(src.experience.log);
@@ -526,6 +556,15 @@ openStrategy: () => openStrategy(),
     const min = Number(target.dataset.min ?? 0);
     // правый клик или клик по последней точке — снять одну
     const next = (event.button === 2 || n === cur) ? Math.max(min, n - 1) : n;
+    // точка внутри списка («system.wraith.passions.2.value»): список правится целиком — ArrayField по индексу не обновляется
+    const parts = path.split("."), at = parts.findIndex(p => /^\d+$/.test(p));
+    if (at > 0) {
+      const head = parts.slice(0, at).join("."), list = foundry.utils.deepClone(foundry.utils.getProperty(doc._source, head));
+      if (Array.isArray(list)) {
+        foundry.utils.setProperty(list[Number(parts[at])] ?? {}, parts.slice(at + 1).join("."), next);
+        return doc.update({ [head]: list });
+      }
+    }
     await doc.update({ [path]: next });
   }
 
@@ -600,6 +639,7 @@ openStrategy: () => openStrategy(),
   static async #onLineAtlas() {
     const s = this.actor.system, { openAtlas } = await import("../apps/atlas.mjs");
     if (this.actor.type === "hunter") return openAtlas("hunter", s.hunter?.creed);
+    if (this.actor.type === "wraith") return openAtlas("wraith", s.wraith?.guild);
     return this.actor.type === "mage" ? openAtlas("mage", s.mage?.faction) : openAtlas("werewolf", s.werewolf?.fera || s.werewolf?.tribe);
   }
 
@@ -682,7 +722,7 @@ openStrategy: () => openStrategy(),
 
   /** Справочник правил V20 (компендий-журнал). */
   static #onOpenRules(event, target) {
-    const name = target?.dataset?.rules === "dhampir" ? "dhampir-rules" : this.actor.type === "hunter" ? "hunter-rules" : this.actor.type === "mage" ? "mage-books" : this.actor.type === "werewolf" ? "werewolf-rules" : "rules";
+    const name = target?.dataset?.rules === "dhampir" ? "dhampir-rules" : this.actor.type === "hunter" ? "hunter-rules" : this.actor.type === "mage" ? "mage-books" : this.actor.type === "wraith" ? "wraith-books" : this.actor.type === "werewolf" ? "werewolf-rules" : "rules";
     const pack = game.packs.get(`${SYSTEM_ID}.${name}`);
     if (pack) pack.render(true);
     else ui.notifications.warn(t("Sheet.RulesMissing"));

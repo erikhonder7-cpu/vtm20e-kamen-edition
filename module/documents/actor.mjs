@@ -23,14 +23,14 @@ export class VtMActor extends Actor {
   async _preCreate(data, options, user) {
     if ((await super._preCreate(data, options, user)) === false) return false;
     // оборотню — картина из библиотеки Foundry (волк воет на луну над лесом): в тон палитре «лунный лес»
-    const icons = { vampire: "vampire.svg", ghoul: "ghoul.svg", mortal: "mortal.svg", demon: "demon.svg", creature: "creature.svg", spirit: "spirit.svg", hunter: "hunter.svg", mage: "mage.svg",
+    const icons = { vampire: "vampire.svg", ghoul: "ghoul.svg", mortal: "mortal.svg", demon: "demon.svg", creature: "creature.svg", spirit: "spirit.svg", hunter: "hunter.svg", mage: "mage.svg", wraith: "wraith.svg",
       werewolf: "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp", coterie: "icons/environment/people/group.webp", domain: "icons/environment/settlement/city-night.webp" };
     const upd = {};
     if (!data.img || data.img === CONST.DEFAULT_TOKEN) upd.img = icons[this.type].startsWith("icons/") ? icons[this.type] : `systems/${SYSTEM_ID}/assets/icons/${icons[this.type]}`;
     if (this.type === "coterie" || this.type === "domain") { this.updateSource(upd); return; }
     const proto = {
       "prototypeToken.bar1.attribute": "health",
-      "prototypeToken.bar2.attribute": this.type === "werewolf" ? "werewolf.rage" : ["mortal", "demon", "hunter", "mage"].includes(this.type) ? "willpower" : "blood",
+      "prototypeToken.bar2.attribute": this.type === "werewolf" ? "werewolf.rage" : this.type === "wraith" ? "wraith.pathos" : ["mortal", "demon", "hunter", "mage"].includes(this.type) ? "willpower" : "blood",
       "prototypeToken.displayBars": CONST.TOKEN_DISPLAY_MODES.OWNER_HOVER,
       "prototypeToken.displayName": CONST.TOKEN_DISPLAY_MODES.OWNER_HOVER
     };
@@ -166,6 +166,8 @@ export class VtMActor extends Actor {
     if (group === "werewolf") return key === "rage" ? s.werewolf?.rage?.value ?? 0   // текущие Ярость и Гнозис; Гнозис — эффективный (клайв при себе)
       : key === "gnosis" ? Math.max(0, (s.werewolf?.gnosis?.value ?? 0) - (s.werewolf?.gnosis?.loss ?? 0)) : 0;
     if (group === "spirit") return s.spirit?.[key] ?? 0;          // дух Умбры: Ярость, Гнозис, Воля
+    if (group === "wraith") return key === "pathos" ? s.wraith?.pathos?.value ?? 0 : key === "angst" ? s.wraith?.shadow?.angst?.temporary ?? 0   // призрак: Арканои, Пафос, Ангст
+      : key === "angstPerm" ? s.wraith?.shadow?.angst?.permanent ?? 0 : s.wraith?.arcanoi?.[key]?.value ?? 0;
     if (group === "morality") return s.morality.value;
     if (group === "blood") return s.blood?.value ?? 0;
     return 0;
@@ -184,6 +186,8 @@ export class VtMActor extends Actor {
     if (group === "mage") return key === "arete" ? t("Mage.Arete") : Codex.mage?.spheres?.find(x => x.key === key)?.name ?? key;
     if (group === "werewolf") return t(`Werewolf.${key === "rage" ? "Rage" : "Gnosis"}`);
     if (group === "spirit") return t(`Werewolf.Spirit.${key}`);
+    if (group === "wraith") return ["pathos", "angst", "angstPerm"].includes(key) ? t(`Wraith.${key[0].toUpperCase()}${key.slice(1)}`)
+      : Codex.wraith?.arcanoi?.find(x => x.key === key)?.name ?? key;
     if (group === "morality") return this.path?.name ?? t("Humanity");
     return path;
   }
@@ -468,6 +472,8 @@ export class VtMActor extends Actor {
     }
     const src = this._source.system.health;
     const h = { bashing: src.bashing, lethal: src.lethal, aggravated: src.aggravated };
+    // призрак (Wraith 20, гл. 11): шкала — постоянный Корпус, исход — колебание и Испытания (apps/wraith.mjs)
+    if (this.type === "wraith") return (await import("../apps/wraith.mjs")).corpusDamage(this, amount, type);
     const wasFull = h.bashing + h.lethal + h.aggravated >= 7;
     let over = 0;
     for (let i = 0; i < amount; i++) {
@@ -562,6 +568,12 @@ export class VtMActor extends Actor {
     const arm = armor && !this.system.fx?.beastForm && !this.system.fx?.mistForm && !this.system.fx?.shadowForm ? Math.max(0, this.armor.rating - pierce) : 0;
     const form = s.formFx?.soak ?? 0;
     let parts;
+    // призрак (Wraith 20, гл. 11, «Поглощение»): Стойкость против ударного и летального; губительный — только броня
+    if (this.type === "wraith") {
+      const labels = { stamina: this.traitLabel("attributes.stamina"), armor: t("Sheet.Armor") };
+      const p = { stamina: type === "aggravated" ? 0 : stamina, armor: arm };
+      return Object.entries(p).filter(([, v]) => v > 0).map(([k, value]) => ({ label: labels[k], value }));
+    }
     if (this.type === "werewolf") {
       const weak = s.werewolf.breedForm;
       if (silver && !weak) return [];
@@ -742,6 +754,9 @@ export class VtMActor extends Actor {
       case "mageArete": case "mageSphere": return mageXpCost(this, kind, current, extra.key);
       // колдун (M20 Sorcerer, гл. 3): новая нумина 7, нумина второго вида (Путь при феноменах и наоборот) 21, рост × 7
       case "sorcNumen": return current >= 5 ? null : current === 0 ? (extra.secondary ? 21 : 7) : current * 7;
+      // призрак (Wraith 20, гл. 8): новый Арканос 7, далее текущее × 3; Страсть и Оковы — новая 3, далее × 3 (с позволения рассказчика)
+      case "arcanos": return current >= 5 ? null : current === 0 ? 7 : current * 3;
+      case "passion": case "fetter": return current >= 5 ? null : current === 0 ? 3 : current * 3;
       default: return null;
     }
   }

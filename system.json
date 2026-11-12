@@ -44,6 +44,9 @@
       "src": "styles/types/werewolf.css"
     },
     {
+      "src": "styles/types/wraith.css"
+    },
+    {
       "src": "styles/types/spirit.css"
     },
     {
@@ -131,6 +134,12 @@
         ]
       },
       "werewolf": {
+        "htmlFields": [
+          "biography",
+          "notes"
+        ]
+      },
+      "wraith": {
         "htmlFields": [
           "biography",
           "notes"
@@ -723,6 +732,30 @@
         "ASSISTANT": "OWNER"
       },
       "flags": {}
+    },
+    {
+      "name": "wraith-books",
+      "label": "Призрак: Забвение — книги",
+      "path": "packs/wraith-books",
+      "type": "JournalEntry",
+      "system": "vtm20e-kamen-edition",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
+    },
+    {
+      "name": "wraith-backgrounds",
+      "label": "Фоны призраков",
+      "path": "packs/wraith-backgrounds",
+      "type": "Item",
+      "system": "vtm20e-kamen-edition",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
     }
   ],
   "grid": {
@@ -825,6 +858,15 @@
         "mage-merits",
         "mage-backgrounds",
         "mage-wonders"
+      ]
+    },
+    {
+      "name": "Wraith: The Oblivion",
+      "sorting": "m",
+      "color": "#3b4650",
+      "packs": [
+        "wraith-books",
+        "wraith-backgrounds"
       ]
     }
   ]

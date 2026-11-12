@@ -83,7 +83,7 @@ class XpWindow extends HandlebarsApplicationMixin(ApplicationV2) {
       if (lores.length) groups.push({ key: "lore", icon: "fa-fire-flame-curved", label: loc("VTM20.Demon.Lores"), rows: lores.map(i =>
         row(`i:${i.id}:system.value:lore`, i.name, i.system.value, 5, "lore", { key: i.system.key })) });
     }
-    const hunter = a.type === "hunter", lost = hunter && isLost(a), hxp = hunter && !lost && growth() === "xp", garou = a.type === "werewolf", mage = a.type === "mage";
+    const hunter = a.type === "hunter", lost = hunter && isLost(a), hxp = hunter && !lost && growth() === "xp", garou = a.type === "werewolf", mage = a.type === "mage", wraith = a.type === "wraith";
     // Маг: Арете и девять Сфер (родовая дешевле); Добродетелей и Человечности у магов нет
     // Колдун (M20 Sorcerer, гл. 3): точки нумин за опыт; новая нумина — на листе, первая её точка — здесь (7, вторичный вид — 21)
     if (s.sorcerer?.on && s.sorcerer.numina.length) groups.push({ key: "sorc", icon: "fa-hand-sparkles", label: loc("VTM20.Sorcerer.Numina"),
@@ -92,6 +92,10 @@ class XpWindow extends HandlebarsApplicationMixin(ApplicationV2) {
       // точку Арете покупают после Поиска — его исход отмечает рассказчик (кнопка на карточке Арете)
       (r => s.mage.seeking ? r : { ...r, can: false, label: `${r.label} — ${loc("VTM20.Mage.SeekingNeed")}` })(row("a:system.mage.arete:mageArete", loc("VTM20.Mage.Arete"), s.mage.arete, 10, "mageArete")),
       ...VTM20.mageSpheres.map(k => row(`a:system.mage.spheres.${k}:mageSphere`, a.traitLabel(`mage.${k}`), s.mage.spheres[k], 5, "mageSphere", { key: k }))] });
+    // Призрак (Wraith 20, гл. 8): Арканои — новый 7, далее × 3; Добродетелей и Человечности нет
+    else if (wraith) groups.push({ key: "virt", icon: "fa-ghost", label: loc("VTM20.Wraith.Arcanoi"), rows:
+      VTM20.wraithArcanoi.map(k => row(`a:system.wraith.arcanoi.${k}.value:arcanos`, a.traitLabel(`wraith.${k}`), s.wraith.arcanoi[k].value, 5, "arcanos"))
+        .sort((x, y) => (y.cur > 0) - (x.cur > 0) || x.label.localeCompare(y.label, "ru")) });
     else if (garou) groups.push({ key: "virt", icon: "fa-moon", label: loc("VTM20.Werewolf.Garou"), rows: [
       row("a:system.werewolf.rage.permanent:rage", loc("VTM20.Werewolf.Rage"), s.werewolf.rage.permanent, 10, "rage"),
       row("a:system.werewolf.gnosis.permanent:gnosis", loc("VTM20.Werewolf.Gnosis"), s.werewolf.gnosis.permanent, 10, "gnosis")] });
@@ -103,7 +107,7 @@ class XpWindow extends HandlebarsApplicationMixin(ApplicationV2) {
       row(`a:system.hunter.${k}:hunterVirtue`, hunterData().virtues[k], s.hunter[k] ?? 0, 10, "hunterVirtue", { key: k })) });
     groups.push({ key: "other", icon: "fa-shield-heart", label: loc("VTM20.Sheet.Other"), rows: [
       a.type === "demon" ? row("a:system.faith.permanent:faith", loc("VTM20.Demon.Faith"), s.faith.permanent, 10, "faith")
-        : garou || mage ? null
+        : garou || mage || wraith ? null
         : hunter ? (hxp ? row("a:system.hunter.start:hunterConviction", t("Hunter.StartConviction"), startConviction(a), 10, "hunterConviction") : null)
         : row("a:system.morality.value:morality", a.traitLabel("morality.value"), s.morality.value, 10, "morality"),
       row("a:system.willpower.permanent:willpower", t("Willpower"), s.willpower.permanent, 10, "willpower")

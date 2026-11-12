@@ -622,16 +622,79 @@ def bos_items(line):
     return [tuple(x) for x in out + wait]
 
 
+# Тексты черт как у вампиров (tools/text_structure.py): «Описание» — своими словами (tools/sources/mage_merit_texts_*.json),
+# «Система» — пересказ справочника; где он короток или ошибочен — по M20 Book of Secrets (tools/sources/mage_merit_system.json)
+SRC = os.path.join(HERE, "sources")
+DESC_H, SYS_H = '<h4 class="r-sec">Описание</h4>', '<h4 class="r-sec">Система</h4>'
+
+
+def merit_texts():
+    desc = {}
+    for fn in sorted(f for f in os.listdir(SRC) if re.match(r"mage_merit_texts_\d+\.json$", f)):
+        with open(os.path.join(SRC, fn), encoding="utf-8") as f:
+            desc.update(json.load(f))
+    with open(os.path.join(SRC, "mage_merit_system.json"), encoding="utf-8") as f:
+        system = {k: v for k, v in json.load(f).items() if not k.startswith("_")}
+    return desc, system
+
+
+def sentence(t):
+    t = t.strip().rstrip(";,").strip()
+    if not t:
+        return ""
+    t = t[0].upper() + t[1:]
+    return t if t[-1] in ".!?…»)" else t + "."
+
+
+def merit_card(desc, sys_html):
+    return f"{DESC_H}\n<p>{desc}</p>\n{SYS_H}\n{sys_html}" if desc else sys_html
+
+
+def structured(merits):
+    """Черты Падших и Инвестиции (Book of the Fallen) — тоже «Описание» + «Система»."""
+    desc, system = merit_texts()
+    for m in merits:
+        if "r-sec" in m["html"]:
+            continue
+        key = f"{m['kind']}:{m['name']}"
+        fix = system.get(key, {})
+        body = re.sub(r"^<p>|</p>$", "", m["html"].strip())
+        sys_html = f"<p>{wd.md_inline(sentence(fix['sys']))}</p>" if fix.get("sys") else f"<p>{sentence(body)}</p>" if body else ""
+        m["html"] = merit_card(fix.get("desc") or desc.get(key, ""), sys_html)
+    return merits
+
+
+def extra_merits(seen):
+    """Черты Book of Secrets, которых нет в пересказе справочника (перечислены там без текста), — по книге
+    (tools/sources/mage_merit_extra.json); в конце списка, чтобы номера прежних черт не сдвигались."""
+    out = []
+    with open(os.path.join(SRC, "mage_merit_extra.json"), encoding="utf-8") as f:
+        for x in json.load(f):
+            if (x["kind"], x["name"]) in seen:
+                continue
+            seen.add((x["kind"], x["name"]))
+            lo, hi = x["min"], x["max"]
+            out.append({"kind": x["kind"], "category": x["category"], "name": x["name"], "en": x["en"], "cost": str(lo) if lo == hi else f"{lo}–{hi}",
+                        "min": lo, "max": hi, "clan": "", "sect": "", "era": "", "source": "M20 Book of Secrets",
+                        "html": merit_card(x["desc"], f"<p>{wd.md_inline(sentence(x['sys']))}</p>")})
+    return out
+
+
 def parse_merits():
     out, seen = [], set()
+    DESC, SYSTEM = merit_texts()
 
     def add(kind, category, name, en, cost_text, body, source):
         cost, lo, hi = cost_of(cost_text)
         if not name or (kind, name) in seen or not lo:
             return
         seen.add((kind, name))
-        out.append({"kind": kind, "category": category, "name": name, "en": en, "cost": cost, "min": lo, "max": hi, "clan": "", "sect": "", "era": "",
-                    "source": source, "html": f"<p>{wd.md_inline(body.strip())}</p>" if body.strip() else ""})
+        fix = SYSTEM.get(f"{kind}:{name}", {})
+        lo, hi = fix.get("min", lo), fix.get("max", hi)
+        sys_html = f"<p>{wd.md_inline(sentence(fix['sys']))}</p>" if fix.get("sys") else f"<p>{wd.md_inline(sentence(body))}</p>" if body.strip() else ""
+        desc = fix.get("desc") or DESC.get(f"{kind}:{name}", "")
+        out.append({"kind": kind, "category": category, "name": name, "en": en, "cost": cost if lo == hi else f"{lo}–{hi}", "min": lo, "max": hi, "clan": "", "sect": "",
+                    "era": "", "source": source, "html": merit_card(desc, sys_html)})
 
     # основная книга: таблица (название, цена, тип) и описания списком
     text = core("09")
@@ -733,7 +796,7 @@ def build():
         "groups": [{"key": k, "name": n} for k, n, _ in GROUPS] + [{"key": "nephandi", "name": "Нефанди"}, {"key": "marauders", "name": "Мародёры"}], "factions": factions,
         "qliphoth": neph["qliphoth"], "fallenTools": neph["tools"], "sorcerer": parse_sorcerer(), "rotes": parse_rotes(),
         "essences": parse_essences(), "archetypes": parse_archetypes(),
-        "backgrounds": parse_backgrounds(), "merits": parse_merits() + neph["merits"] + invest, "wonders": wonders,
+        "backgrounds": parse_backgrounds(), "merits": (lambda base: base + extra_merits({(m["kind"], m["name"]) for m in base}))(parse_merits() + structured(neph["merits"] + invest)), "wonders": wonders,
         "quiet": QUIET, "pflaws": PFLAWS, "resonance": RESONANCE, "paradoxSpirits": parse_paradox_spirits(), "realms": REALMS, "pactLevels": PACT_LEVELS, "focus": (lambda f: {**f, "paradigms": f["paradigms"] + neph["paradigms"],
                                                                                               "practices": f["practices"] + neph["practices"]})(parse_focus()),
         "gauntlet": GAUNTLET, "counter": COUNTER, "freebies": FREEBIES, "xp": XP, "casting": CASTING, "effect": EFFECT, "backlash": BACKLASH,

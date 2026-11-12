@@ -55,10 +55,12 @@ VTM20.abilities = {
   science:      { group: "knowledges", earlySpecialty: true }, technology: { group: "knowledges", era: "modern", earlySpecialty: true },
   warfare:      { group: "knowledges", era: "revolution" },
   religion:     { group: "knowledges", only: "demon" },
-  enigmas:      { group: "knowledges", only: ["werewolf", "mage"] }, rituals: { group: "knowledges", only: "werewolf" },
+  enigmas:      { group: "knowledges", only: ["werewolf", "mage", "wraith"] }, rituals: { group: "knowledges", only: "werewolf" },
   // M20: Способности, без которых не работают практики магов (правило системы: остальной список — общий для эпохи)
-  meditation:   { group: "skills", only: "mage" }, research: { group: "skills", only: "mage" }, martialArts: { group: "skills", only: "mage" },
-  cosmology:    { group: "knowledges", only: "mage" }, esoterica: { group: "knowledges", only: "mage" }
+  meditation:   { group: "skills", only: ["mage", "wraith"] }, research: { group: "skills", only: "mage" }, martialArts: { group: "skills", only: "mage" },
+  cosmology:    { group: "knowledges", only: "mage" }, esoterica: { group: "knowledges", only: "mage" },
+  // Wraith 20 (гл. 4): Уклонение — Талант, Бюрократия — Знание (только у призраков)
+  dodge:        { group: "talents", only: "wraith" }, bureaucracy: { group: "knowledges", only: "wraith" }
 };
 for (const [k, a] of Object.entries(VTM20.abilities)) a.label = L(`Abil.${k}`);
 
@@ -197,7 +199,11 @@ VTM20.garouForms = [
 /** Укус и коготь Гару (W20, гл. 6): поправка к сложности 6 и урон сверх Силы. */
 VTM20.garouNatural = { bite: { diff: -1, dmg: 1, icon: "fa-teeth" }, claw: { diff: 0, dmg: 1, icon: "fa-claw-marks" } };
 
-VTM20.traitLine = type => ["demon", "hunter", "werewolf", "mage"].includes(type) ? type : "";
+VTM20.traitLine = type => ["demon", "hunter", "werewolf", "mage", "wraith"].includes(type) ? type : "";
+
+/** Шестнадцать Арканоев призрака (Wraith 20, гл. 5) — ключи data/wraith.json → arcanoi. */
+VTM20.wraithArcanoi = ["argos", "castigate", "embody", "fatalism", "flux", "inhabit", "intimation", "keening", "lifeweb", "mnemosynis", "moliate",
+  "outrage", "pandemonium", "phantasm", "puppetry", "usury"];
 
 /** Девять Сфер мага (M20) — ключи data/mage.json → spheres. */
 VTM20.mageSpheres = ["correspondence", "entropy", "forces", "life", "matter", "mind", "prime", "spirit", "time"];
@@ -233,6 +239,7 @@ VTM20.traitFor = (m, who = {}) => {
 /** Знак типа персонажа (корешок листа, ворота создания, мастер), когда нет герба клана или секты. */
 VTM20.typeSigil = type => type === "werewolf" ? "systems/vtm20e-kamen-edition/assets/werewolf/glyph-garou.png"
   : type === "mage" ? "systems/vtm20e-kamen-edition/assets/mage/sphere-prime.png"
+  : type === "wraith" ? "systems/vtm20e-kamen-edition/assets/ui/wraith-sigil.svg"
   : `systems/vtm20e-kamen-edition/assets/ui/${({ demon: "fallen-sigil", ghoul: "ghoul-sigil", mortal: "mortal-sigil", hunter: "hunter-sigil" })[type] ?? "vampire-sigil"}.svg`;
 
 /** Чем атакуют: пул «Ловкость + …» и подпись. */

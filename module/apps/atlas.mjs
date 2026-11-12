@@ -4,6 +4,7 @@
 //   маг      — Традиции, Технократия, Ремёсла (родовая Сфера, практики, Дома и течения), Сферы по рангам, Сущности, парадигмы, практики
 //   охотник   — кредо (Добродетель, Убеждённость, Грани пути), Добродетели охоты
 //   оборотень — племена, породы, аугурии, Фера (числа создания, начальные Дары, Дары по рангам)
+//   призрак   — Арканои (Гильдия, союзники, уровни Общие и Посвящённые), Легионы, архетипы Тени и Психеи, Шипы, Фоны
 // Данные — data/mage.json и data/werewolf.json (пересказ справочника), своей механики тут нет.
 
 import { SYSTEM_PATH } from "../config.mjs";
@@ -11,6 +12,7 @@ import { Codex } from "../data/codex.mjs";
 import { M, mageGlyphSrc, subLabel, factionGlyph } from "./mage.mjs";
 import { W, wwGlyphSrc } from "./werewolf.mjs";
 import { H } from "./hunter.mjs";
+import { W as WR } from "./wraith.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const loc = k => game.i18n.localize(`VTM20.${k}`);
@@ -124,10 +126,35 @@ function hunterGroups() {
   ].filter(g => g.items.length);
 }
 
+/* ── Призрак ─────────────────────────────────────────────────────────── */
+function wraithGroups() {
+  const D = WR(), A = k => (D.arcanoi ?? []).find(a => a.key === k);
+  const attr = k => game.i18n.localize(`VTM20.Attr.${k}`);
+  return [
+    { key: "arcanoi", label: loc("Wraith.Arcanoi"), items: (D.arcanoi ?? []).map(a => ({ key: `arc:${a.key}`, name: a.name, sub: `${a.guild} · ${a.en}`, icon: a.icon,
+      card: () => ({ kicker: `${loc(`Wraith.GuildGroup.${a.group}`)}${a.forbidden ? ` · ${loc("Wraith.Forbidden")}` : ""}`, text: a.html,
+        facts: [fact(loc("Wraith.Guild"), `${a.guild} (${a.guildEn})`), fact(loc("Atlas.Attributes"), a.attrs.map(attr).join(", ")),
+          fact(loc("Atlas.Allies"), (a.allies ?? []).map(k => A(k)?.guild).filter(Boolean).join(", "))].filter(Boolean),
+        sections: [{ title: loc("Wraith.Arcanoi"), n: a.levels.length, rows: a.levels.map(l => ({ lvl: ROMAN[l.level], name: l.name,
+          em: `${loc(l.kind === "common" ? "Wraith.Common" : "Wraith.Initiate")}${l.en ? ` · ${l.en}` : ""}`, html: l.html })) }] }) })) },
+    { key: "legions", label: loc("Wraith.Legions"), items: (D.legions ?? []).map(l => ({ key: `legion:${l.key}`, name: l.name, sub: l.en, icon: "fa-flag",
+      card: () => ({ kicker: loc("Wraith.Legion"), facts: [fact(loc("Wraith.LegionDeath"), l.death), fact(loc("Atlas.Lord"), l.lord), fact(loc("Atlas.Seat"), l.seat)].filter(Boolean) }) })) },
+    { key: "shadow", label: loc("Wraith.ShadowArchetype"), items: (D.shadowArchetypes ?? []).map((x, i) => ({ key: `shadow:${i}`, name: x.name, sub: x.en, icon: "fa-mask",
+      card: () => ({ kicker: loc("Wraith.Shadow"), text: p(x.text), facts: [fact(loc("Wraith.Catharsis"), x.catharsis !== "—" && x.catharsis)].filter(Boolean) }) })) },
+    { key: "thorns", label: loc("Wraith.Thorns"), items: (D.thorns ?? []).map(x => ({ key: `thorn:${x.key}`, name: x.name, sub: x.en, icon: "fa-spa",
+      card: () => ({ kicker: loc("Wraith.Thorns"), text: x.html, facts: [fact(loc("Atlas.Cost"), x.costText)].filter(Boolean) }) })) },
+    { key: "archetypes", label: loc("Atlas.Archetypes"), items: (D.archetypes ?? []).map((x, i) => ({ key: `arch:${i}`, name: x.name, sub: x.en, icon: "fa-user",
+      card: () => ({ kicker: loc("Atlas.Archetype"), facts: [fact(loc("Atlas.WillRegain"), x.will)].filter(Boolean) }) })) },
+    { key: "backgrounds", label: loc("Wraith.Backgrounds"), items: (D.backgrounds ?? []).map((x, i) => ({ key: `bg:${i}`, name: x.name, sub: x.en, icon: "fa-book",
+      card: () => ({ kicker: loc("Atlas.Background"), text: x.html }) })) }
+  ].filter(g => g.items.length);
+}
+
 const LINES = {
   mage: { groups: mageGroups, title: "VTM20.Atlas.MageTitle", icon: "fa-solid fa-hat-wizard", theme: "r-type-mage" },
   werewolf: { groups: wolfGroups, title: "VTM20.Atlas.WolfTitle", icon: "fa-solid fa-paw", theme: "r-type-werewolf" },
-  hunter: { groups: hunterGroups, title: "VTM20.Atlas.HunterTitle", icon: "fa-solid fa-crosshairs", theme: "r-type-hunter" }
+  hunter: { groups: hunterGroups, title: "VTM20.Atlas.HunterTitle", icon: "fa-solid fa-crosshairs", theme: "r-type-hunter" },
+  wraith: { groups: wraithGroups, title: "VTM20.Atlas.WraithTitle", icon: "fa-solid fa-ghost", theme: "r-type-wraith" }
 };
 
 /** Открыть справочник линейки («mage», «werewolf») на записи key; открытое окно переключается. */

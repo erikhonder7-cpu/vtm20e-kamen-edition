@@ -1,0 +1,138 @@
+{{!-- II. Призрак (Wraith 20): Арканои — карточками Гильдий с расколотыми кружками рангов (Общий и Посвящённый уровни);
+     Страсти и Оковы (Пафос и Воля), Тень — Тёмные Страсти и Шипы. Тексты — справочник data/wraith.json. --}}
+<section class="tab r-pane r-edges r-arcanoi {{tab.cssClass}}" data-tab="{{tab.id}}" data-group="{{tab.group}}">
+
+  <h2 class="r-h2"><span>{{localize "VTM20.Wraith.Arcanoi"}}</span>
+    <span class="r-h2-tools">
+      {{#if arc.own.length}}<a class="r-h2-btn is-plain" data-action="wrFold" data-to="{{#if arc.allFolded}}0{{else}}1{{/if}}" data-tooltip="{{localize 'VTM20.Sheet.ToggleAllHint'}}"><i class="fa-solid {{#if arc.allFolded}}fa-angles-down{{else}}fa-angles-up{{/if}}"></i> <span class="r-h2-lbl">{{#if arc.allFolded}}{{localize "VTM20.Sheet.ExpandAll"}}{{else}}{{localize "VTM20.Sheet.CollapseAll"}}{{/if}}</span></a>{{/if}}
+      <a class="r-h2-btn is-plain" data-action="wrAtlas" data-tooltip="{{localize 'VTM20.Wraith.AtlasHint'}}"><i class="fa-solid fa-book-skull"></i> <span class="r-h2-lbl">{{localize "VTM20.Wraith.Atlas"}}</span></a>
+      <a class="r-h2-btn is-plain" data-action="openRules" data-tooltip="{{localize 'VTM20.Wraith.RulesHint'}}"><i class="fa-solid fa-book-open-reader"></i></a>
+    </span>
+  </h2>
+  {{#if editable}}{{#if arc.avail.length}}
+  <div class="r-toolbar">
+    <select class="r-wr-arc-add"><option value="">{{localize "VTM20.Wraith.AddArcanos"}}</option>{{#each arc.avail}}<option value="{{key}}">{{label}}</option>{{/each}}</select>
+    <a class="r-vc-btn" data-action="wrArcAdd" data-tooltip="{{localize 'VTM20.Wraith.AddArcanosHint'}}"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Common.Add"}}</a>
+  </div>
+  {{/if}}{{/if}}
+
+  {{!-- Арканои — карточками Гильдий. Пять рангов — кружки, расколотые пополам, как на листе Wraith 20 (гл. 5):
+       левая половина — Общий уровень, правая — Посвящённый (тайна Гильдии). Щелчок по половинке открывает её уровень. --}}
+  <div class="r-wr-arcs">
+  {{#each arc.own}}
+  <article class="r-vcard r-wr-arc {{#if folded}}is-shut{{else}}is-open{{/if}} {{#if home}}is-home{{/if}} {{#if forbidden}}is-forbidden{{/if}} {{#if sel}}has-sel{{/if}}">
+    <header class="r-wr-arc-head">
+      <span class="r-wr-arc-sigil" data-tooltip="{{guild}}"><i class="fa-solid {{icon}}"></i></span>
+      <div class="r-wr-arc-title">
+        <a class="r-wr-arc-name" data-action="rollTrait" data-trait="wraith.{{key}}" data-tooltip="{{localize 'VTM20.Sheet.Roll'}}">{{name}}</a>
+        <span class="r-wr-arc-guild">{{guild}}{{#if home}} · <b>{{localize "VTM20.Wraith.HomeGuild"}}</b>{{/if}}{{#if forbidden}} · <em>{{localize "VTM20.Wraith.Forbidden"}}</em>{{/if}}</span>
+      </div>
+      {{> rDots dots=dots cls="is-small"}}
+      {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="wrArcDel" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
+      <a class="r-icon-btn r-chevron" data-action="wrFold" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Sheet.Details'}}"><i class="fa-solid fa-chevron-down"></i></a>
+    </header>
+    <div class="r-wr-arc-body">
+    <div class="r-wr-ranks">
+      {{#each ranks}}
+      <span class="r-wr-rank {{#if owned}}is-owned{{else}}is-beyond{{/if}}" data-roman="{{roman}}">
+        {{#each halves}}<a class="r-wr-half is-{{side}} {{#if known}}is-known{{/if}} {{#unless allowed}}is-locked{{/unless}} {{#if selected}}is-sel{{/if}}"
+          {{#if ../owned}}data-action="wrPick" data-key="{{../../key}}" data-level="{{level}}" data-kind="{{kind}}"{{/if}}
+          data-tooltip="{{../roman}} · {{kindLabel}}: <b>{{name}}</b>{{#unless known}}{{#if ../owned}} — {{localize 'VTM20.Wraith.ArtUnknownShort'}}{{/if}}{{/unless}}"></a>{{/each}}
+      </span>
+      {{/each}}
+    </div>
+    <div class="r-wr-arc-attrs">{{attrs}}</div>
+    {{#with sel}}
+    <div class="r-wr-artpane {{#unless common}}is-initiate{{/unless}} {{#unless known}}is-unknown{{/unless}}">
+      <div class="r-wr-art-top">
+        <span class="r-wr-art-rank">{{roman}}</span>
+        <span class="r-wr-art-name"><b>{{name}}</b>{{#if en}} <em>{{en}}</em>{{/if}}<small>{{kindLabel}}</small></span>
+      </div>
+      <div class="r-wr-art-chips">
+        <span class="r-wr-chip"><i class="fa-solid fa-dice-d10"></i> {{#if attrLabel}}{{attrLabel}} + {{../name}} = <b>{{pool}}</b>{{#if diff}} · {{localize "VTM20.Roll.Vs"}} {{diff}}{{/if}}{{else}}{{localize "VTM20.Wraith.NoRoll"}}{{/if}}</span>
+        {{#if cost}}<span class="r-wr-chip is-cost"><i class="fa-solid fa-droplet"></i> {{cost}}</span>{{/if}}
+      </div>
+      <div class="r-wr-art-text">{{{html}}}</div>
+      <div class="r-vc-tools">
+        {{#if known}}<a class="r-vc-btn is-use" data-action="wrArt" data-key="{{../key}}" data-level="{{level}}" data-kind="{{kind}}" data-tooltip="{{localize 'VTM20.Wraith.UseArt'}}"><i class="fa-solid {{#if attrLabel}}fa-dice-d10{{else}}fa-hand-sparkles{{/if}}"></i> {{localize "VTM20.Wraith.Use"}}</a>{{/if}}
+        {{#if @root.editable}}<a class="r-vc-btn {{#unless allowed}}is-locked{{/unless}}" data-action="wrArtToggle" data-key="{{../key}}" data-level="{{level}}" data-kind="{{#if common}}skip{{else}}initiate{{/if}}"
+          data-tooltip="{{#unless allowed}}{{localize 'VTM20.Wraith.InitiateLocked'}}{{else}}{{#if known}}{{localize 'VTM20.Wraith.ArtKnown'}}{{else}}{{localize 'VTM20.Wraith.ArtUnknown'}}{{/if}}{{/unless}}"><i class="fa-solid {{#if known}}fa-circle-minus{{else}}fa-circle-plus{{/if}}"></i> {{#if known}}{{localize "VTM20.Wraith.Forget"}}{{else}}{{localize "VTM20.Wraith.Learn"}}{{/if}}</a>{{/if}}
+        <a class="r-vc-btn is-sq is-right" data-action="wrPick" data-key="{{../key}}" data-level="{{level}}" data-kind="{{kind}}" data-tooltip="{{localize 'VTM20.Wraith.Collapse'}}"><i class="fa-solid fa-chevron-up"></i></a>
+      </div>
+    </div>
+    {{/with}}
+    </div>
+  </article>
+  {{else}}<p class="r-note">{{localize "VTM20.Wraith.NoArcanoi"}}</p>
+  {{/each}}
+  </div>
+
+  {{!-- Страсти (гл. 8): Пафос — бросок рейтинга, сл. 6 (сам) или 8 (видит у смертного), раз за сцену --}}
+  <h2 class="r-h2"><span>{{localize "VTM20.Wraith.Passions"}} <small>{{wp.passionSum}}</small></span>
+    {{#if editable}}<span class="r-h2-tools"><a class="r-h2-btn" data-action="wrRowAdd" data-kind="passion"><i class="fa-solid fa-plus"></i> <span class="r-h2-lbl">{{localize "VTM20.Common.Add"}}</span></a></span>{{/if}}
+  </h2>
+  <ul class="r-edge-list r-wr-rows">
+    {{#each wp.passions}}
+    <li class="r-wr-row">
+      <input type="text" class="r-wr-text" name="system.wraith.passions.{{i}}.text" value="{{text}}" placeholder="{{localize 'VTM20.Wraith.PassionText'}}">
+      <input type="text" class="r-wr-emo" name="system.wraith.passions.{{i}}.emotion" value="{{emotion}}" placeholder="{{localize 'VTM20.Wraith.Emotion'}}">
+      {{> rDots dots=dots}}
+      <a class="r-vc-btn" data-action="wrPassion" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Wraith.PassionHint'}}"><i class="fa-solid fa-heart"></i></a>
+      {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="wrRowDel" data-kind="passion" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
+    </li>
+    {{else}}<li class="r-note">{{localize "VTM20.Wraith.NoPassions"}}</li>
+    {{/each}}
+  </ul>
+
+  {{!-- Оковы (гл. 8): Воля — бросок рейтинга, сл. 6 в конце сцены с Оковами, сл. 4 за 8 часов Сна в них --}}
+  <h2 class="r-h2"><span>{{localize "VTM20.Wraith.Fetters"}} <small>{{wp.fetterSum}}</small></span>
+    {{#if editable}}<span class="r-h2-tools"><a class="r-h2-btn" data-action="wrRowAdd" data-kind="fetter"><i class="fa-solid fa-plus"></i> <span class="r-h2-lbl">{{localize "VTM20.Common.Add"}}</span></a></span>{{/if}}
+  </h2>
+  <ul class="r-edge-list r-wr-rows">
+    {{#each wp.fetters}}
+    <li class="r-wr-row {{#if resolved}}is-resolved{{/if}}">
+      <input type="text" class="r-wr-text is-wide" name="system.wraith.fetters.{{i}}.text" value="{{text}}" placeholder="{{localize 'VTM20.Wraith.FetterText'}}">
+      <label class="r-wr-check" data-tooltip="{{localize 'VTM20.Wraith.ResolvedHint'}}"><input type="checkbox" name="system.wraith.fetters.{{i}}.resolved" {{checked resolved}}> {{localize "VTM20.Wraith.Resolved"}}</label>
+      {{> rDots dots=dots}}
+      <a class="r-vc-btn" data-action="wrFetter" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Wraith.FetterHint'}}"><i class="fa-solid fa-link"></i></a>
+      {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="wrRowDel" data-kind="fetter" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
+    </li>
+    {{else}}<li class="r-note">{{localize "VTM20.Wraith.NoFetters"}}</li>
+    {{/each}}
+  </ul>
+
+  {{!-- Тень (гл. 6): Тёмные Страсти — Ангст за успех (сл. 7 или 9, бросок видит ведущий); Шипы --}}
+  <h2 class="r-h2 is-shadow"><span>{{localize "VTM20.Wraith.DarkPassions"}} <small>{{wp.darkSum}}</small></span>
+    {{#if editable}}<span class="r-h2-tools"><a class="r-h2-btn" data-action="wrRowAdd" data-kind="dark"><i class="fa-solid fa-plus"></i> <span class="r-h2-lbl">{{localize "VTM20.Common.Add"}}</span></a></span>{{/if}}
+  </h2>
+  <ul class="r-edge-list r-wr-rows is-shadow">
+    {{#each wp.dark}}
+    <li class="r-wr-row">
+      <input type="text" class="r-wr-text" name="system.wraith.shadow.darkPassions.{{i}}.text" value="{{text}}" placeholder="{{localize 'VTM20.Wraith.PassionText'}}">
+      <input type="text" class="r-wr-emo" name="system.wraith.shadow.darkPassions.{{i}}.emotion" value="{{emotion}}" placeholder="{{localize 'VTM20.Wraith.Emotion'}}">
+      {{> rDots dots=dots}}
+      <a class="r-vc-btn" data-action="wrDark" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Wraith.DarkHint'}}"><i class="fa-solid fa-mask"></i></a>
+      {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="wrRowDel" data-kind="dark" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
+    </li>
+    {{else}}<li class="r-note">{{localize "VTM20.Wraith.NoDark"}}</li>
+    {{/each}}
+  </ul>
+
+  <h2 class="r-h2 is-shadow"><span>{{localize "VTM20.Wraith.Thorns"}}</span></h2>
+  {{#if editable}}<div class="r-toolbar">
+    <select class="r-wr-thorn-add"><option value="">{{localize "VTM20.Wraith.AddThorn"}}</option>{{#each wp.thornAvail}}<option value="{{key}}">{{label}}</option>{{/each}}</select>
+    <a class="r-vc-btn" data-action="wrRowAdd" data-kind="thorn"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Common.Add"}}</a>
+  </div>{{/if}}
+  <ul class="r-edge-list r-wr-thorns">
+    {{#each wp.thorns}}
+    <li class="r-edge">
+      <span class="r-edge-lvl"><i class="fa-solid fa-spa"></i></span>
+      <span class="r-edge-main"><b>{{name}}</b> <small>{{en}} · {{cost}}</small>
+        <input type="text" class="r-wr-note" name="system.wraith.shadow.thorns.{{i}}.note" value="{{note}}" placeholder="{{localize 'VTM20.Wraith.ThornNote'}}">
+        <div class="r-edge-text">{{{html}}}</div></span>
+      {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="wrRowDel" data-kind="thorn" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
+    </li>
+    {{else}}<li class="r-note">{{localize "VTM20.Wraith.NoThorns"}}</li>
+    {{/each}}
+  </ul>
+</section>

@@ -131,6 +131,9 @@ console.log("Данные: JSON читаются");
     for (const p of [...(d.powers ?? []), ...(d.paths ?? []).flatMap(x => x.powers ?? [])]) { n++; look(`${k}: ${p.name}`, p.html); }
   for (const f of ["merits.json", "merits-ghouls.json", "demon-merits.json"])
     for (const m of read(f)) { n++; look(`${f}: ${m.name}`, m.html); }
+  // черты магов (tools/mage_data.py) и уровни Арканоев призраков (tools/wraith_data.py) — тот же вид
+  for (const m of read("mage.json").merits) { n++; look(`mage.json: ${m.name}`, m.html); }
+  for (const a of read("wraith.json").arcanoi) for (const l of a.levels) { n++; look(`wraith.json: ${a.name} ${l.level} ${l.name}`, l.html); }
   const show = a => a.slice(0, 5).join("; ") + (a.length > 5 ? ` … и ещё ${a.length - 5}` : "");
   ok(!bad.noSections.length, `без разделов «Описание»/«Система» (${bad.noSections.length}): ${show(bad.noSections)}`);
   ok(!bad.service.length, `служебные пометки справочника в тексте (${bad.service.length}): ${show(bad.service)}`);

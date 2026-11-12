@@ -127,6 +127,8 @@ Hooks.once("init", () => {
     { id: "r-rotschreck", name: S("rotschreck"), img: "icons/svg/terror.svg" },
     { id: "r-rapture", name: S("rapture"), img: "icons/svg/aura.svg" },
     { id: "r-torpor", name: S("torpor"), img: "icons/svg/sleep.svg" },
+    // призрак в Испытании (Wraith 20, гл. 6) — до исхода броска выхода
+    { id: "r-harrowing", name: S("harrowing"), img: "icons/svg/skull.svg" },
     ...CONFIG.statusEffects.filter(e => !["stun", "prone", "restrain", "sleep", "fear"].includes(e.id))
   ];
 
@@ -147,7 +149,7 @@ Hooks.once("init", () => {
   const { Actors, Items } = foundry.documents.collections;
   Actors.unregisterSheet("core", foundry.appv1.sheets.ActorSheet);
   Actors.registerSheet(SYSTEM_ID, VtMActorSheet, { makeDefault: true, label: "VTM20.Sheets.Actor",
-    types: ["vampire", "ghoul", "mortal", "creature", "demon", "hunter", "werewolf", "mage"] });
+    types: ["vampire", "ghoul", "mortal", "creature", "demon", "hunter", "werewolf", "mage", "wraith"] });
   // котерия и домен — свои листы (module/sheets/group-sheet.mjs)
   Actors.registerSheet(SYSTEM_ID, CoterieSheet, { makeDefault: true, label: "VTM20.Sheets.Coterie", types: ["coterie"] });
   Actors.registerSheet(SYSTEM_ID, DomainSheet, { makeDefault: true, label: "VTM20.Sheets.Domain", types: ["domain"] });
@@ -289,7 +291,7 @@ function warmTemplates() {
   const idle = window.requestIdleCallback ? fn => window.requestIdleCallback(fn, { timeout: 3000 }) : fn => setTimeout(fn, 250);
   const files = [
     ...["tabs", "header", "vitals", "traits", "disciplines", "effects", "advantages", "gear", "bio", "foot", "gate",
-      { vampire: [], ghoul: [], mortal: [], hunter: ["edges"], mage: ["spheres"], werewolf: ["gifts"], demon: ["lores"] }]
+      { vampire: [], ghoul: [], mortal: [], hunter: ["edges"], mage: ["spheres"], werewolf: ["gifts"], demon: ["lores"], wraith: ["arcanoi"] }]
       .flatMap(x => typeof x === "string" ? [x] : [...new Set(game.actors.map(a => a.type))].flatMap(type => x[type] ?? [])).map(f => `templates/actor/${f}.hbs`),
     "templates/dice/roll-dialog.hbs", "templates/chat/roll-card.hbs", "templates/apps/creator.hbs", "templates/apps/library.hbs"
   ];

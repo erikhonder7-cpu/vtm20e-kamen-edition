@@ -791,6 +791,22 @@ BUILDERS["mage-backgrounds"] = function () {
   return p;
 };
 
+/** Призрак: Забвение (Wraith 20) — книги справочника: папка на книгу, запись на главу (data/wraith-books.json, tools/wraith_data.py). */
+BUILDERS["wraith-books"] = function () {
+  const p = new Pack("wraith-books", "JournalEntry");
+  for (const b of readJson("wraith-books")) p.addBook({ name: b.name, pages: b.pages, folder: b.book, key: `wraith-books:${b.key}` });
+  return p;
+};
+
+/** Фоны призраков (data/wraith.json, Wraith 20, гл. 4): Мемориум, Эйдолон, Обиталище, Наследие… */
+BUILDERS["wraith-backgrounds"] = function () {
+  const p = new Pack("wraith-backgrounds");
+  for (const b of data("wraith").backgrounds)
+    p.add({ name: b.name, type: "background", folder: "Призрак: Забвение", key: `wraith:${b.name}`, img: backgroundIcon(b.en) ?? undefined,
+      system: { value: 1, source: b.en ?? "", description: b.html ?? "" } });
+  return p;
+};
+
 /** Чудеса магов (data/mage.json): Талисманы, Устройства, Безделушки, Фетиши, гримуары — предметы типа «wonder». */
 BUILDERS["mage-wonders"] = function () {
   const p = new Pack("mage-wonders", "Item");

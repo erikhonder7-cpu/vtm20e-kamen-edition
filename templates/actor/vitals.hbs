@@ -29,9 +29,10 @@
 <div class="r-vitals-fold"><div class="r-vitals">
   <div class="r-vcard r-vc-health {{#if healthHurt}}is-hurt{{/if}}">
     <div class="r-vc-head">
-      <h4 class="r-banner"><span>{{localize "VTM20.Sheet.Health"}}</span></h4>
-      <div class="r-vc-status">{{healthStatus}}{{#if woundPenalty}} <b>{{woundPenalty}}</b>{{/if}}</div>
+      <h4 class="r-banner"><span>{{#if wraithInfo}}{{localize "VTM20.Wraith.Corpus"}}{{else}}{{localize "VTM20.Sheet.Health"}}{{/if}}</span></h4>
+      <div class="r-vc-status">{{#if wraithInfo}}<span data-tooltip="{{localize 'VTM20.Wraith.StateHint'}}">{{wraithInfo.stateLabel}}</span> <b>{{system.health.value}}</b>/{{wraithInfo.corpus}}{{else}}{{healthStatus}}{{#if woundPenalty}} <b>{{woundPenalty}}</b>{{/if}}{{/if}}</div>
     </div>
+    {{#if wraithInfo}}<div class="r-wr-corpus" data-tooltip="{{localize 'VTM20.Wraith.CorpusPermHint'}}">{{> rDots dots=wraithInfo.corpusDots cls="is-ten"}}</div>{{/if}}
     <div class="r-hboxes">
       {{#each health}}
       <div class="r-hbox is-{{state}} is-sev{{sev}} {{#if current}}is-current{{/if}}" data-tooltip="{{label}}{{#if penaltyLabel}} ({{penaltyLabel}}){{/if}}">
@@ -48,6 +49,8 @@
         <a class="r-vc-btn is-sq is-aggravated" data-action="setHealth" data-type="aggravated" aria-label="{{localize 'VTM20.Damage.aggravated'}}">✱</a>
       </span>
       {{#if isDemon}}<a class="r-vc-btn" data-action="faithHeal" data-tooltip="{{localize 'VTM20.Demon.FaithHealHint'}}"><i class="fa-solid fa-fire-flame-curved"></i> {{localize "VTM20.Demon.FaithHeal"}}</a>{{/if}}
+      {{#if wraithInfo}}<a class="r-vc-btn" data-action="wrHeal" data-tooltip="{{localize 'VTM20.Wraith.HealHint'}}"><i class="fa-solid fa-hand-sparkles"></i> {{localize "VTM20.Wraith.HealShort"}}</a>
+      {{#if editable}}<select name="system.wraith.state" class="r-mini-select" data-tooltip="{{localize 'VTM20.Wraith.StateHint'}}">{{#each wraithInfo.states}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>{{/if}}{{/if}}
       {{#if hasBlood}}<a class="r-vc-btn" data-action="bloodHeal" data-type="aggravated" data-tooltip="{{localize 'VTM20.Sheet.HealAggHint'}}"><i class="fa-solid fa-droplet"></i> {{localize "VTM20.Sheet.HealAggShort"}}</a>{{/if}}
       <span class="r-vc-hint" data-tooltip="{{localize 'VTM20.Sheet.SoakHint'}}"><i class="fa-solid fa-shield-halved"></i> {{soak.bashing}}/{{soak.lethal}}/{{soak.aggravated}}</span>
     </div>
@@ -136,6 +139,30 @@
     <div class="r-boxes is-gnosis">
       {{#each werewolfInfo.gnosisTemp}}<a class="r-box {{#if filled}}is-filled{{/if}} {{#if locked}}is-locked{{/if}}" data-action="setDots" data-path="{{path}}" data-n="{{n}}"></a>{{/each}}
     </div>
+    </div>
+  </div>
+  {{else if wraithInfo}}
+  {{!-- Тень (Wraith 20, гл. 6): постоянный Ангст — точками, временный — клетками (10 — +1 постоянный); архетип; Катарсис,
+       когда временный Ангст выше Воли. Ангст ведёт проводник-Тень: игрок видит шкалу, но точный счёт — у ведущего. --}}
+  <div class="r-vcard r-vc-morality r-vc-shadow {{#if wraithInfo.catharsis}}is-catharsis{{/if}} {{#if wraithInfo.canCatharsis}}is-high{{/if}}">
+    <div class="r-vc-head">
+      <h4 class="r-banner"><a data-action="openRules" data-tooltip="{{localize 'VTM20.Wraith.RulesHint'}}">{{localize "VTM20.Wraith.Shadow"}}</a></h4>
+      <div class="r-vc-status" data-tooltip="{{localize 'VTM20.Wraith.AngstHint'}}">{{localize "VTM20.Wraith.Angst"}} <b>{{wraithInfo.angst}}</b> / {{wraithInfo.angstPerm}}</div>
+    </div>
+    {{> rDots dots=wraithInfo.angstDots cls="is-ten is-angst"}}
+    <div class="r-boxes is-angst" data-tooltip="{{localize 'VTM20.Wraith.AngstTempHint'}}">
+      {{#each wraithInfo.angstBoxes}}<a class="r-box {{#if filled}}is-filled{{/if}}" data-action="setDots" data-path="{{path}}" data-n="{{n}}"></a>{{/each}}
+    </div>
+    <label class="r-wr-arch" {{#if wraithInfo.archetype}}data-tooltip="{{wraithInfo.archetype.text}}{{#if wraithInfo.archetype.catharsis}}<br><b>{{localize 'VTM20.Wraith.Catharsis'}}:</b> {{wraithInfo.archetype.catharsis}}{{/if}}"{{/if}}>
+      <span>{{localize "VTM20.Wraith.ShadowArchetype"}}</span>
+      <select name="system.wraith.shadow.archetype"><option value="">—</option>{{#each wraithInfo.archetypes}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+    </label>
+    <div class="r-vc-tools">
+      <a class="r-vc-btn {{#if wraithInfo.catharsis}}is-on{{/if}}" data-action="wrCatharsis" data-tooltip="{{#if wraithInfo.catharsis}}{{localize 'VTM20.Wraith.CatharsisEndHint'}}{{else}}{{localize 'VTM20.Wraith.CatharsisHint'}}{{/if}}"><i class="fa-solid fa-mask"></i> {{localize "VTM20.Wraith.Catharsis"}}</a>
+      <a class="r-vc-btn is-sq" data-action="wrShadowDice" data-tooltip="{{localize 'VTM20.Wraith.ShadowDiceHint'}}"><i class="fa-solid fa-dice"></i></a>
+      {{#if isGM}}<a class="r-vc-btn is-sq" data-action="wrAngst" data-d="1" data-tooltip="{{localize 'VTM20.Wraith.AngstPlus'}}"><i class="fa-solid fa-plus"></i></a>{{/if}}
+      {{#if wraithInfo.eidolon}}<span class="r-vc-hint is-right" data-tooltip="{{localize 'VTM20.Wraith.EidolonHint'}}"><i class="fa-solid fa-sun"></i> {{localize "VTM20.Wraith.Eidolon"}} <b>{{wraithInfo.eidolonLeft}}</b>/{{wraithInfo.eidolon}}</span>{{/if}}
+      <a class="r-vc-btn {{#unless wraithInfo.eidolon}}is-right{{/unless}}" data-action="wrHarrowing" data-tooltip="{{localize 'VTM20.Wraith.HarrowingHint'}}"><i class="fa-solid fa-dungeon"></i></a>
     </div>
   </div>
   {{else if spiritInfo}}
@@ -320,6 +347,8 @@
       {{else if werewolfInfo}}<span class="r-vs-item"><i class="fa-solid fa-fire"></i> {{localize "VTM20.Werewolf.Rage"}} <b>{{werewolfInfo.rage}}</b>/{{werewolfInfo.ragePerm}}</span>
       <span class="r-vs-item"><i class="fa-solid fa-spiral"></i> {{localize "VTM20.Werewolf.Gnosis"}} <b>{{werewolfInfo.gnosis}}</b>/{{werewolfInfo.gnosisPerm}}</span>
       <span class="r-vs-item"><i class="fa-solid {{werewolfInfo.formIcon}}"></i> {{werewolfInfo.formName}}</span>
+      {{else if wraithInfo}}<span class="r-vs-item"><i class="fa-solid fa-ghost"></i> {{localize "VTM20.Wraith.Pathos"}} <b>{{wraithInfo.pathos}}</b>/10</span>
+      <span class="r-vs-item {{#if wraithInfo.canCatharsis}}is-hurt{{/if}}"><i class="fa-solid fa-mask"></i> {{localize "VTM20.Wraith.Angst"}} <b>{{wraithInfo.angst}}</b>/{{wraithInfo.angstPerm}}</span>
       {{else if mageInfo}}<span class="r-vs-item"><i class="fa-solid fa-hat-wizard"></i> {{@root.mageInfo.L.Arete}} <b>{{mageInfo.arete}}</b></span>
       <span class="r-vs-item"><i class="fa-solid fa-sun"></i> {{@root.mageInfo.L.Quintessence}} <b>{{mageInfo.quintessence}}</b></span>
       <span class="r-vs-item {{#if mageInfo.backlash}}is-hurt{{/if}}"><i class="fa-solid fa-burst"></i> {{localize "VTM20.Mage.Paradox"}} <b>{{mageInfo.paradox}}</b></span>
