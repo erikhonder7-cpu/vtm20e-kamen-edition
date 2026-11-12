@@ -28,7 +28,7 @@ export class VtMActor extends Actor {
   async _preCreate(data, options, user) {
     if ((await super._preCreate(data, options, user)) === false) return false;
     // оборотню — картина из библиотеки Foundry (волк воет на луну над лесом): в тон палитре «лунный лес»
-    const icons = { vampire: "vampire.svg", ghoul: "ghoul.svg", mortal: "mortal.svg", demon: "demon.svg", creature: "creature.svg", spirit: "spirit.svg", hunter: "hunter.svg", mage: "mage.svg", wraith: "wraith.svg",
+    const icons = { vampire: "vampire.svg", ghoul: "ghoul.svg", mortal: "mortal.svg", demon: "demon.svg", creature: "creature.svg", spirit: "spirit.svg", hunter: "hunter.svg", mage: "mage.svg", wraith: "wraith.svg", changeling: "changeling.svg",
       werewolf: "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp", coterie: "icons/environment/people/group.webp", domain: "icons/environment/settlement/city-night.webp" };
     const upd = {};
     if (!data.img || data.img === CONST.DEFAULT_TOKEN) upd.img = icons[this.type].startsWith("icons/") ? icons[this.type] : `systems/${SYSTEM_ID}/assets/icons/${icons[this.type]}`;
@@ -37,7 +37,7 @@ export class VtMActor extends Actor {
     if (this.type === "coterie" || this.type === "domain") { this.updateSource(upd); return; }
     const proto = {
       "prototypeToken.bar1.attribute": "health",
-      "prototypeToken.bar2.attribute": this.type === "werewolf" ? "werewolf.rage" : this.type === "wraith" ? "wraith.pathos" : ["mortal", "demon", "hunter", "mage"].includes(this.type) ? "willpower" : "blood",
+      "prototypeToken.bar2.attribute": this.type === "werewolf" ? "werewolf.rage" : this.type === "wraith" ? "wraith.pathos" : this.type === "changeling" ? "changeling.glamour" : ["mortal", "demon", "hunter", "mage"].includes(this.type) ? "willpower" : "blood",
       "prototypeToken.displayBars": CONST.TOKEN_DISPLAY_MODES.OWNER_HOVER,
       "prototypeToken.displayName": CONST.TOKEN_DISPLAY_MODES.OWNER_HOVER
     };
@@ -188,6 +188,11 @@ export class VtMActor extends Actor {
       : key === "angstPerm" ? s.wraith?.shadow?.angst?.permanent ?? 0 : s.wraith?.arcanoi?.[key]?.value ?? 0;
     if (group === "morality") return s.morality.value;
     if (group === "blood") return s.blood?.value ?? 0;
+    // подменыш (C20): Искусства и Царства, Гламур и Банальность (постоянные), Кошмар
+    if (group === "arts") return s.changeling?.arts?.[key] ?? 0;
+    if (group === "realms") return s.changeling?.realms?.[key] ?? 0;
+    if (group === "changeling") return key === "glamour" ? s.changeling?.glamour?.permanent ?? 0 : key === "banality" ? s.changeling?.banality?.permanent ?? 0
+      : key === "nightmare" ? s.changeling?.nightmare ?? 0 : 0;
     return 0;
   }
 
@@ -210,6 +215,9 @@ export class VtMActor extends Actor {
     if (group === "wraith") return ["pathos", "angst", "angstPerm"].includes(key) ? t(`Wraith.${key[0].toUpperCase()}${key.slice(1)}`)
       : Codex.wraith?.arcanoi?.find(x => x.key === key)?.name ?? key;
     if (group === "morality") return this.path?.name ?? t("Humanity");
+    if (group === "arts") return Codex.changeling?.arts?.find(x => x.key === key)?.name ?? key;
+    if (group === "realms") return Codex.changeling?.realms?.find(x => x.key === key)?.name ?? key;
+    if (group === "changeling") return t(`Changeling.${key[0].toUpperCase()}${key.slice(1)}`);
     return path;
   }
 
@@ -754,7 +762,11 @@ export class VtMActor extends Actor {
       case "path": return current === 0 ? (ghoul ? 20 : X.newPath) : (extra.primary ? null : (ghoul ? current * 15 : X.secondaryPath(current)));
       case "virtue": return X.virtue(current);
       case "morality": return X.morality(current);
-      case "willpower": return X.willpower(current);
+      case "willpower": return this.type === "changeling" ? current * 2 : X.willpower(current);   // C20: Воля × 2
+      // подменыш (C20, гл. 3): новое Искусство 7, далее × 4; новое Царство 5, далее × 3; Гламур × 3
+      case "art": return current >= 5 ? null : current === 0 ? 7 : current * 4;
+      case "realm": return current >= 5 ? null : current === 0 ? 5 : current * 3;
+      case "glamour": return current >= 10 ? null : current * 3;
       // Demon: The Fallen, гл. 6: новое Знание 7 (чужого Дома и Тёмное — 10), Знание × 5, Вера × 7.
       // Привязанные к Земле (Earthbound, гл. 3): новое 6 (чужого Дома 8), Знание × 4, Вера × 6
       case "lore": {

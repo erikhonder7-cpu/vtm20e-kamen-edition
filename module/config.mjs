@@ -55,13 +55,16 @@ VTM20.abilities = {
   science:      { group: "knowledges", earlySpecialty: true }, technology: { group: "knowledges", era: "modern", earlySpecialty: true },
   warfare:      { group: "knowledges", era: "revolution" },
   religion:     { group: "knowledges", only: "demon" },
-  enigmas:      { group: "knowledges", only: ["werewolf", "mage", "wraith"] }, rituals: { group: "knowledges", only: "werewolf" },
+  enigmas:      { group: "knowledges", only: ["werewolf", "mage", "wraith", "changeling"] }, rituals: { group: "knowledges", only: "werewolf" },
   // M20: Способности, без которых не работают практики магов (правило системы: остальной список — общий для эпохи)
   meditation:   { group: "skills", only: ["mage", "wraith"] }, research: { group: "skills", only: "mage" }, martialArts: { group: "skills", only: "mage" },
   cosmology:    { group: "knowledges", only: "mage" }, esoterica: { group: "knowledges", only: "mage" },
   // Wraith 20 (гл. 4): Уклонение — Талант, Бюрократия — Знание (только у призраков)
-  dodge:        { group: "talents", only: "wraith" }, bureaucracy: { group: "knowledges", only: "wraith" }
+  dodge:        { group: "talents", only: "wraith" }, bureaucracy: { group: "knowledges", only: "wraith" },
+  // C20 (гл. 3): Кеннинг — Талант (фэйское чутьё на Гламур), Гремайр — Знание (предания фэйри); Шестого чувства и Оккультизма нет
+  kenning:      { group: "talents", only: "changeling" }, gremayre: { group: "knowledges", only: "changeling" }
 };
+for (const k of ["awareness", "occult", "finance"]) VTM20.abilities[k].not = ["changeling"];
 for (const [k, a] of Object.entries(VTM20.abilities)) a.label = L(`Abil.${k}`);
 
 /** Специализацию этих широких способностей можно указать с первой точки (01). */
@@ -79,6 +82,7 @@ VTM20.abilitiesForEra = (era, type = "") => {
   for (const [k, a] of Object.entries(VTM20.abilities)) {
     if (a.era && a.era !== era) continue;
     if (a.only && ![].concat(a.only).includes(type)) continue;   // Интуиция и Религия — только у демонов; Загадки — у Гару и магов
+    if (a.not && [].concat(a.not).includes(type)) continue;     // у подменыша нет Шестого чувства, Оккультизма и Финансов (C20)
     out[a.group].push(k);
   }
   for (const g of Object.keys(out)) {
@@ -199,7 +203,11 @@ VTM20.garouForms = [
 /** Укус и коготь Гару (W20, гл. 6): поправка к сложности 6 и урон сверх Силы. */
 VTM20.garouNatural = { bite: { diff: -1, dmg: 1, icon: "fa-teeth" }, claw: { diff: 0, dmg: 1, icon: "fa-claw-marks" } };
 
-VTM20.traitLine = type => ["demon", "hunter", "werewolf", "mage", "wraith"].includes(type) ? type : "";
+VTM20.traitLine = type => ["demon", "hunter", "werewolf", "mage", "wraith", "changeling"].includes(type) ? type : "";
+/** Подменыш (C20, гл. 4): 18 Искусств и 6 Царств — ключи data/changeling.json → arts, realms. */
+VTM20.changelingArts = ["autumn", "chicanery", "chronos", "contract", "dragonsIre", "legerdemain", "metamorphosis", "naming", "oneiromancy",
+  "primal", "pyretics", "skycraft", "soothsay", "sovereign", "spring", "summer", "wayfare", "winter"];
+VTM20.changelingRealms = ["actor", "fae", "nature", "prop", "scene", "time"];
 
 /** Шестнадцать Арканоев призрака (Wraith 20, гл. 5) — ключи data/wraith.json → arcanoi. */
 /** Тёмные Арканои Спектров (Wraith 20, гл. 10) — ключи data/wraith.json → darkArcanoi. */
@@ -245,6 +253,7 @@ VTM20.traitFor = (m, who = {}) => {
 VTM20.typeSigil = type => type === "werewolf" ? "systems/vtm20e-kamen-edition/assets/werewolf/glyph-garou.png"
   : type === "mage" ? "systems/vtm20e-kamen-edition/assets/mage/sphere-prime.png"
   : type === "wraith" ? "systems/vtm20e-kamen-edition/assets/ui/wraith-sigil.svg"
+  : type === "changeling" ? "systems/vtm20e-kamen-edition/assets/ui/changeling-sigil.svg"
   : `systems/vtm20e-kamen-edition/assets/ui/${({ demon: "fallen-sigil", ghoul: "ghoul-sigil", mortal: "mortal-sigil", hunter: "hunter-sigil" })[type] ?? "vampire-sigil"}.svg`;
 
 /** Чем атакуют: пул «Ловкость + …» и подпись. */

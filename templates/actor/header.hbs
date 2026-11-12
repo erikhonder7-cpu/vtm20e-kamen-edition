@@ -19,6 +19,7 @@
         {{else if isDemon}}<span class="r-seal-num r-seal-icon"><i class="fa-solid fa-fire-flame-curved"></i></span><span class="r-seal-cap">{{#if house}}{{house.name}}{{else}}{{typeLabel}}{{/if}}</span>
         {{else if mageSeal}}<span class="r-seal-num r-seal-icon r-seal-glyph">{{rSym mageSeal.sym "r-mg"}}</span><span class="r-seal-cap">{{mageSeal.label}}</span>
         {{else if isWraith}}<span class="r-seal-num r-seal-icon r-seal-glyph">{{#if wraithInfo.legionSym}}{{rSym wraithInfo.legionSym "r-wrg"}}{{else}}<i class="fa-solid fa-ghost"></i>{{/if}}</span><span class="r-seal-cap">{{#if wraithInfo.legion}}{{wraithInfo.legion.name}}{{else}}{{typeLabel}}{{/if}}</span>
+        {{else if isChangeling}}<span class="r-seal-num r-seal-icon"><i class="fa-solid fa-wand-sparkles"></i></span><span class="r-seal-cap">{{#if changelingInfo.kith}}{{changelingInfo.kith.name}}{{else}}{{typeLabel}}{{/if}}</span>
         {{else if werewolfSeal}}<span class="r-seal-num r-seal-icon r-seal-glyph">{{rSym werewolfSeal.sym "r-wg"}}</span><span class="r-seal-cap">{{werewolfSeal.label}}</span>
         {{else if isCreature}}<span class="r-seal-num r-seal-icon"><i class="fa-solid fa-paw"></i></span><span class="r-seal-cap">{{typeLabel}}</span>
         {{else if isGhoul}}<span class="r-seal-num r-seal-icon"><i class="fa-solid {{#if isRevenant}}fa-dna{{else}}fa-hand-holding-droplet{{/if}}"></i></span><span class="r-seal-cap">{{typeLabel}}</span>
@@ -32,7 +33,7 @@
         {{#if clan.nickname}}<i class="r-kicker-dia"></i><em class="r-kicker-nick is-link" data-action="clanAtlas" data-tooltip="{{localize 'VTM20.Clans.Open'}}">«{{clan.nickname}}»</em>{{/if}}
         {{#if house}}<i class="r-kicker-dia"></i><em class="r-kicker-nick is-link" data-action="houseAtlas" data-tooltip="{{localize 'VTM20.Demon.AtlasOpen'}}">«{{house.akkadian}}»</em>{{/if}}
         {{#if sectSym}}<i class="r-kicker-dia"></i>{{rSym sectSym "r-sym-inline"}}{{/if}}
-        <span class="r-motto" aria-hidden="true">{{#if earthbound}}Adorate me{{else if isDemon}}Non serviam{{else if isWerewolf}}Pro Gaia{{else if isHunter}}Vigilate{{else if isWraith}}Memento mori{{else if isMage}}{{#if mageInfo.fallen}}Qlippoth{{else if mageInfo.tech}}Ordo ex Scientia{{else}}Ascensio{{/if}}{{else}}La Liberté ou la Mort{{/if}}</span>
+        <span class="r-motto" aria-hidden="true">{{#if earthbound}}Adorate me{{else if isDemon}}Non serviam{{else if isWerewolf}}Pro Gaia{{else if isHunter}}Vigilate{{else if isWraith}}Memento mori{{else if isChangeling}}Somnia vera{{else if isMage}}{{#if mageInfo.fallen}}Qlippoth{{else if mageInfo.tech}}Ordo ex Scientia{{else}}Ascensio{{/if}}{{else}}La Liberté ou la Mort{{/if}}</span>
       </div>
       <div class="r-name-row">
         <input class="r-name {{nameSize}}" type="text" name="name" value="{{actor.name}}" placeholder="{{localize 'VTM20.Sheet.Name'}}" spellcheck="false">
@@ -137,6 +138,23 @@
         <label class="r-df" data-tooltip="{{localize 'VTM20.Mage.AffinityHint'}}"><span>{{localize "VTM20.Mage.Affinity"}}</span>
           <select name="system.mage.affinity"><option value="">—</option>{{#each mageInfo.affinities}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}{{#if off}} ·{{/if}}</option>{{/each}}</select></label>
         <span class="r-df-break"></span>
+        {{/if}}
+        {{#if isChangeling}}
+        {{!-- Подменыш (C20, гл. 3): кит, ступень, Дом, двор; Наследия Благое и Неблагое; Порог (как добывает Гламур) и Антитеза --}}
+        <label class="r-df" {{#if changelingInfo.kith}}data-tooltip="{{changelingInfo.kith.affinityText}}"{{/if}}><span>{{localize "VTM20.Changeling.Kith"}}</span>
+          <select name="system.changeling.kith"><option value="">—</option>{{#each changelingInfo.kiths}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
+        <label class="r-df" {{#if changelingInfo.seeming}}data-tooltip="{{changelingInfo.seeming.banality}}"{{/if}}><span>{{localize "VTM20.Changeling.Seeming"}}</span>
+          <select name="system.changeling.seeming"><option value="">—</option>{{#each changelingInfo.seemings}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
+        <label class="r-df"><span>{{localize "VTM20.Changeling.CourtLabel"}}</span>
+          <select name="system.changeling.court">{{#each changelingInfo.courts}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
+        <label class="r-df" {{#if changelingInfo.house}}data-tooltip="{{changelingInfo.house.boon}}"{{/if}}><span>{{localize "VTM20.Changeling.House"}}</span>
+          <select name="system.changeling.house"><option value="">—</option>{{#each changelingInfo.houses}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
+        <label class="r-df" {{#if changelingInfo.legacy}}data-tooltip="{{changelingInfo.legacy.ban}}"{{/if}}><span>{{localize "VTM20.Changeling.LegacySeelie"}}</span>
+          <select name="system.changeling.legacies.seelie"><option value="">—</option>{{#each changelingInfo.legaciesSeelie}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
+        <label class="r-df"><span>{{localize "VTM20.Changeling.LegacyUnseelie"}}</span>
+          <select name="system.changeling.legacies.unseelie"><option value="">—</option>{{#each changelingInfo.legaciesUnseelie}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
+        <label class="r-df is-wide" data-tooltip="{{localize 'VTM20.Changeling.ThresholdHint'}}"><span>{{localize "VTM20.Changeling.Threshold"}}</span><input type="text" name="system.changeling.threshold" value="{{system.changeling.threshold}}"></label>
+        <label class="r-df is-wide" data-tooltip="{{localize 'VTM20.Changeling.AntithesisHint'}}"><span>{{localize "VTM20.Changeling.Antithesis"}}</span><input type="text" name="system.changeling.antithesis" value="{{system.changeling.antithesis}}"></label>
         {{/if}}
         {{#if isWraith}}
         {{!-- Призрак (Wraith 20, гл. 1, 4): Легион по смерти, Гильдия по Арканосу, фракция; чем умер --}}
@@ -282,10 +300,10 @@
       {{#if isWerewolf}}<a class="r-act is-hot" data-action="wwFrenzy" data-tooltip="{{localize 'VTM20.Werewolf.FrenzyHint'}}"><i class="fa-solid fa-fire"></i><span>{{localize "VTM20.Werewolf.Frenzy"}}</span></a>{{/if}}
       {{#if isWraith}}<a class="r-act is-hot {{#if wraithInfo.catharsis}}is-on{{/if}}" data-action="wrCatharsis" data-tooltip="{{#if wraithInfo.catharsis}}{{localize 'VTM20.Wraith.CatharsisEndHint'}}{{else}}{{localize 'VTM20.Wraith.CatharsisHint'}}{{/if}}"><i class="fa-solid fa-mask"></i><span>{{localize "VTM20.Wraith.Catharsis"}}</span></a>
       <a class="r-act is-hot" data-action="wrHarrowing" data-tooltip="{{localize 'VTM20.Wraith.HarrowingHint'}}"><i class="fa-solid fa-dungeon"></i><span>{{localize "VTM20.Wraith.HarrowingShort"}}</span></a>{{/if}}
-      {{#unless (or isDemon isWerewolf isWraith)}}<a class="r-act is-hot" data-action="rollVirtue" data-kind="frenzy" data-tooltip="{{localize 'VTM20.Roll.frenzy.title'}}"><i class="fa-solid fa-face-angry"></i><span>{{localize "VTM20.Roll.frenzy.title"}}</span></a>{{/unless}}
+      {{#unless (or isDemon isWerewolf isWraith isChangeling)}}<a class="r-act is-hot" data-action="rollVirtue" data-kind="frenzy" data-tooltip="{{localize 'VTM20.Roll.frenzy.title'}}"><i class="fa-solid fa-face-angry"></i><span>{{localize "VTM20.Roll.frenzy.title"}}</span></a>{{/unless}}
       {{#if isVampire}}<a class="r-act is-hot" data-action="diablerie" data-tooltip="{{localize 'VTM20.Diablerie.Title'}}"><i class="fa-solid fa-skull"></i><span>{{localize "VTM20.Diablerie.Short"}}</span></a>{{/if}}
       {{#if isGhoul}}<a class="r-act is-hot" data-action="rollVirtue" data-kind="rapture" data-tooltip="{{localize 'VTM20.Roll.rapture.hint'}}"><i class="fa-solid fa-heart-pulse"></i><span>{{localize "VTM20.Roll.rapture.title"}}</span></a>{{/if}}
-      {{#unless (or isMortal isDemon isDhampir isWerewolf isWraith)}}<a class="r-act is-hot" data-action="rollVirtue" data-kind="rotschreck" data-tooltip="{{localize 'VTM20.Roll.rotschreck.title'}}"><i class="fa-solid fa-fire"></i><span>{{localize "VTM20.Roll.rotschreck.title"}}</span></a>{{/unless}}
+      {{#unless (or isMortal isDemon isDhampir isWerewolf isWraith isChangeling)}}<a class="r-act is-hot" data-action="rollVirtue" data-kind="rotschreck" data-tooltip="{{localize 'VTM20.Roll.rotschreck.title'}}"><i class="fa-solid fa-fire"></i><span>{{localize "VTM20.Roll.rotschreck.title"}}</span></a>{{/unless}}
     </nav>
     {{/unless}}
   </div>

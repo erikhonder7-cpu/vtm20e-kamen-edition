@@ -33,7 +33,8 @@ const GROUPS = {
   creator: /мастер|создани|становлени/i,
   city: /город|карт|стратег|домен|маскарад|париж|песочниц|мир:|нексус|час|календар/i,
   npc: /нпс|статист|толпа|групп/i,
-  wraith: /призрак|арканос|пафос|катарсис/i
+  wraith: /призрак|арканос|пафос|катарсис/i,
+  changeling: /подменыш|кантрип|гламур|банальност/i
 };
 // vampire — всё остальное: лист, броски, Дисциплины через HUD, кровь, узы, торпор (то, что не попало в группы выше)
 const inGroup = (g, name) => g === "vampire" ? !Object.values(GROUPS).some(rx => rx.test(name)) : GROUPS[g].test(name);
@@ -5437,6 +5438,55 @@ try {
       return out;
     });
     const want = { alone: [true, 3], linked: true, fail: [2, true, true], harrow: [true, true, false] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
+  // Подменыш (C20): лист и вкладка «Искусства», кантрип (пул Искусство + наименьшее основное Царство, Вирд — 1 Гламур,
+  // «жульничество» Царством — +1 Гламур, кубики Кошмара: 10 на них — +1 Кошмар), Высвобождение, Дисбаланс, триггер Банальности, опыт
+  await check("Подменыш: лист, Искусства, кантрип, Высвобождение, Кошмар и Дисбаланс, Банальность", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), CL = await import(`/systems/${sid}/module/apps/changeling.mjs`);
+      const inst = () => [...foundry.applications.instances.values()], n0 = game.messages.size, out = {}, rnd = CONFIG.Dice.randomUniform;
+      const submit = async () => { for (let i = 0; i < 30; i++) { const d = inst().find(x => x.constructor.name === "RollDialog" && x.rendered); if (d) { d.element.querySelector("button[type=submit]")?.click(); await wait(1200); return true; } await wait(100); } return false; };
+      const a = await Actor.create({ name: "E2E — подменыш", type: "changeling", flags: { world: { e2e: true }, [sid]: { created: true } },
+        system: { willpower: { permanent: 4, temporary: 4 }, changeling: { kith: "pooka", seeming: "wilder", court: "seelie",
+          glamour: { permanent: 5, temporary: 5 }, banality: { permanent: 3, temporary: 0 }, nightmare: 2,
+          arts: { chicanery: 2, wayfare: 1 }, realms: { actor: 2, fae: 1, scene: 1 } } } });
+      try {
+        await a.sheet.render({ force: true }); await wait(900);
+        out.sheet = [a.sheet.constructor.name, !!a.sheet.element.querySelector('[name="system.changeling.kith"]'), a.sheet.element.querySelectorAll('[data-tab="disciplines"]').length > 0];
+        a.sheet.changeTab("disciplines", "primary"); await wait(600);
+        out.arts = a.sheet.element.querySelectorAll('.tab[data-tab="disciplines"] [data-action="clArtDel"]').length;
+        await a.sheet.close();
+        // кантрип: Обман 2 + Актёр 2 (основное), Сцена — модификатор (+1 сл.), Вирд — 1 Гламур; Природа без точек — «жульничество» +1 Гламур
+        CONFIG.Dice.randomUniform = () => 0.0001;   // одни десятки
+        let p = CL.rollCantrip(a, { art: "chicanery", level: 1, realms: ["actor", "scene"], wyrd: true }); await submit(); let roll = await p;
+        out.cantrip = [roll?.state?.values?.length, roll?.state?.difficulty ?? roll?.difficulty, a.system.changeling.glamour.temporary, a.system.changeling.nightmare];
+        p = CL.rollCantrip(a, { art: "chicanery", level: 2, realms: ["actor", "nature"] }); await submit(); roll = await p;
+        out.cheat = [roll?.state?.values?.length, a.system.changeling.glamour.temporary];   // наименьшее основное — Природа 0: пул 2
+        // Высвобождение: −2 Гламура, +1 Кошмар до броска; пул Гламур + Кошмар; одни 10 — Кошмар растёт до Дисбаланса
+        await a.update({ "system.changeling.nightmare": 5, "system.changeling.glamour.temporary": 5 });
+        p = CL.unleash(a, "wayfare"); await submit(); await p;
+        out.unleash = [a.system.changeling.imbalance >= 1, a.system.changeling.nightmare < 10];
+        // триггер Банальности: одни 1 — ботч, пул Банальности растёт на число единиц
+        CONFIG.Dice.randomUniform = () => 0.9999;
+        p = CL.banalityTrigger(a); await submit(); await p;
+        out.trigger = a.system.changeling.banality.temporary;
+        CONFIG.Dice.randomUniform = rnd;
+        out.xp = [a.xpCost("art", 0), a.xpCost("art", 2), a.xpCost("realm", 0), a.xpCost("realm", 2), a.xpCost("glamour", 5), a.xpCost("willpower", 4)];
+        out.cards = game.messages.contents.slice(n0).filter(m => m.content.includes("r-type-changeling") || m.rolls?.length || m.content.includes("Кошмар")).length > 0;
+      } finally {
+        CONFIG.Dice.randomUniform = rnd;
+        await ChatMessage.deleteDocuments(game.messages.contents.slice(n0).map(x => x.id));
+        await a.delete();
+      }
+      return out;
+    });
+    // пул 2+2 = 4, сл. 8 + Сцена 1 = 9; Гламур 5 − 1 (Вирд) = 4; Кошмар 2 + две 10 на кубиках Кошмара = 4
+    // «жульничество»: пул 2 + 0 = 2, Гламур 4 − 1 = 3; опыт: Искусство 7 / ×4, Царство 5 / ×3, Гламур ×3, Воля ×2
+    const want = { sheet: ["VtMActorSheet", true, true], arts: 2, cantrip: [4, 9, 4, 4], cheat: [2, 3], unleash: [true, true], trigger: 5,
+      xp: [7, 8, 5, 6, 15, 8], cards: true };
     const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });

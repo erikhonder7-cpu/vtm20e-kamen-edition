@@ -6,7 +6,7 @@
 import { VTM20, SYSTEM_PATH, SYSTEM_ID } from "../config.mjs";
 import { mergeTexts } from "./text-split.mjs";
 
-const FILES = ["disciplines", "clans", "rituals", "paths", "merits", "merits-ghouls", "vampire-only", "backgrounds", "archetypes", "assets", "derangements", "combos", "abilities", "demon", "demon-merits", "demon-backgrounds", "demon-hof", "demon-pg", "demon-earthbound", "demon-form", "investments", "pact-templates", "hunter", "dhampir", "werewolf", "mage", "wraith"];
+const FILES = ["disciplines", "clans", "rituals", "paths", "merits", "merits-ghouls", "vampire-only", "backgrounds", "archetypes", "assets", "derangements", "combos", "abilities", "demon", "demon-merits", "demon-backgrounds", "demon-hof", "demon-pg", "demon-earthbound", "demon-form", "investments", "pact-templates", "hunter", "dhampir", "werewolf", "mage", "wraith", "changeling"];
 
 /** Чей герб показывать линии крови, ветви или антитрибу, если своего нет. */
 const CLAN_SYMBOL_PARENT = {

@@ -165,6 +165,35 @@
       {{#if spectre.psyche.redeemed}}<span class="r-vc-hint is-right"><i class="fa-solid fa-sun"></i> {{localize "VTM20.Wraith.Spectre.Redeemed"}}</span>{{/if}}
     </div>
   </div>
+  {{else if changelingInfo}}
+  {{!-- Грёза (C20, гл. 6): Гламур — точками постоянный и клетками временный; Банальность — рейтинг и пул (пул выше Гламура — Туманы);
+       Кошмар 0–10 (10 — Дисбаланс: клетка Воли), Высвобождение и кубики Кошмара — module/apps/changeling.mjs --}}
+  <div class="r-vcard r-vc-morality r-vc-dream {{#if changelingInfo.mists}}is-mists{{/if}} {{#if changelingInfo.bedlam}}is-bedlam{{/if}}">
+    <div class="r-vc-head">
+      <h4 class="r-banner">{{localize "VTM20.Changeling.Glamour"}}</h4>
+      <div class="r-vc-status"><b>{{changelingInfo.glamour}}</b> / {{changelingInfo.glamourPerm}}</div>
+    </div>
+    {{> rDots dots=changelingInfo.glamourDots cls="is-ten is-glamour"}}
+    <div class="r-boxes is-glamour">{{#each changelingInfo.glamourBoxes}}<a class="r-box {{#if filled}}is-filled{{/if}}" {{#if @root.editable}}data-action="setDots" data-path="{{path}}" data-n="{{n}}"{{/if}}></a>{{/each}}</div>
+    <div class="r-vc-head r-vc-sub">
+      <h4 class="r-banner" data-tooltip="{{localize 'VTM20.Changeling.BanalityHint'}}">{{localize "VTM20.Changeling.Banality"}}</h4>
+      <div class="r-vc-status"><b>{{changelingInfo.banality}}</b>{{#if changelingInfo.mists}} <small class="is-warn">{{localize "VTM20.Changeling.Mists"}}</small>{{/if}}</div>
+    </div>
+    {{> rDots dots=changelingInfo.banalityDots cls="is-ten is-banality"}}
+    <div class="r-boxes is-banality" data-tooltip="{{localize 'VTM20.Changeling.BanalityPoolHint'}}">{{#each changelingInfo.banalityBoxes}}<a class="r-box {{#if filled}}is-filled{{/if}}" {{#if @root.editable}}data-action="setDots" data-path="{{path}}" data-n="{{n}}"{{/if}}></a>{{/each}}</div>
+    <div class="r-vc-head r-vc-sub">
+      <h4 class="r-banner" data-tooltip="{{localize 'VTM20.Changeling.NightmareHint'}}">{{localize "VTM20.Changeling.Nightmare"}}</h4>
+      <div class="r-vc-status"><b>{{changelingInfo.nightmare}}</b>{{#if changelingInfo.imbalance}} <small class="is-warn" data-tooltip="{{localize 'VTM20.Changeling.ImbalanceHint'}}">{{localize "VTM20.Changeling.Imbalance"}} {{changelingInfo.imbalance}}</small>{{/if}}</div>
+    </div>
+    <div class="r-boxes is-nightmare">{{#each changelingInfo.nightmareBoxes}}<a class="r-box {{#if filled}}is-filled{{/if}}" {{#if @root.editable}}data-action="setDots" data-path="{{path}}" data-n="{{n}}"{{/if}}></a>{{/each}}</div>
+    <div class="r-vc-tools">
+      {{#if editable}}<a class="r-vc-btn is-sq" data-action="clGlamour" data-d="-1" data-tooltip="{{localize 'VTM20.Changeling.SpendGlamour'}}"><i class="fa-solid fa-minus"></i></a>
+      <a class="r-vc-btn is-sq" data-action="clGlamour" data-d="1" data-tooltip="{{localize 'VTM20.Changeling.GainGlamour'}}"><i class="fa-solid fa-star"></i></a>
+      <a class="r-vc-btn" data-action="clCast" data-tooltip="{{localize 'VTM20.Changeling.CantripHint'}}"><i class="fa-solid fa-wand-sparkles"></i> {{localize "VTM20.Changeling.Cantrip"}}</a>
+      <a class="r-vc-btn is-sq is-right" data-action="clTrigger" data-tooltip="{{localize 'VTM20.Changeling.TriggerHint'}}"><i class="fa-solid fa-snowflake"></i></a>
+      <a class="r-vc-btn is-sq" data-action="clNightmare" data-d="1" data-tooltip="{{localize 'VTM20.Changeling.NightmarePlus'}}"><i class="fa-solid fa-moon"></i></a>{{/if}}
+    </div>
+  </div>
   {{else if wraithInfo}}
   {{!-- Тень (Wraith 20, гл. 6): постоянный Ангст — точками, временный — клетками (10 — +1 постоянный); архетип; Катарсис,
        когда временный Ангст выше Воли. Ангст ведёт проводник-Тень: игрок видит шкалу, но точный счёт — у ведущего. --}}

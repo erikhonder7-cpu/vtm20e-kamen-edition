@@ -12,7 +12,8 @@
       "coterie": "Coterie",
       "domain": "Domain",
       "mage": "Mage",
-      "spirit": "Spirit"
+      "spirit": "Spirit",
+      "changeling": "Changeling"
     },
     "Item": {
       "discipline": "Discipline",
@@ -2160,7 +2161,9 @@
       "research": "Research",
       "martialArts": "Martial Arts",
       "cosmology": "Cosmology",
-      "esoterica": "Esoterica"
+      "esoterica": "Esoterica",
+      "kenning": "Kenning",
+      "gremayre": "Gremayre"
     },
     "Era": {
       "modern": "Modern nights (V20 as written)",
@@ -3912,7 +3915,8 @@
         "ancillaHint": "Decades of the Art, enemies and debts of one's own: +120 experience.",
         "elder": "Master",
         "elderHint": "A century on the Path, a name in the Tradition's chronicles: +300 experience."
-      }
+      },
+      "GateHintChangeling": "There is no changeling creation wizard yet: fill the sheet by hand — Attributes 7/5/3, Abilities 13/9/5, Backgrounds 5, Arts 3, Realms 5, Willpower 4, Glamour 4, Banality 3 plus the seeming bonus, 15 freebies (C20, ch. 3)."
     },
     "Settings": {
       "MonthlyIncome": {
@@ -8879,6 +8883,89 @@
       "BankLog": "From the teacher ({who}) — for “{what}”",
       "WithMentor": "mentor: {who}",
       "Done": "<b>{name}</b> learned “{what}” to {n}."
+    },
+    "Changeling": {
+      "Kith": "Kith",
+      "Seeming": "Seeming",
+      "CourtLabel": "Court",
+      "Court": {
+        "seelie": "Seelie",
+        "unseelie": "Unseelie"
+      },
+      "House": "House",
+      "LegacySeelie": "Seelie Legacy",
+      "LegacyUnseelie": "Unseelie Legacy",
+      "Threshold": "Threshold",
+      "ThresholdHint": "Favored way to gain Glamour: Musing (Reverie) or Ravaging (C20, ch. 3)",
+      "Antithesis": "Antithesis",
+      "AntithesisHint": "Personal Banality trigger: an act the changeling sees as the embodiment of Banality",
+      "Glamour": "Glamour",
+      "Banality": "Banality",
+      "BanalityHint": "Banality (C20, ch. 6): rating 1–10; at 10 the changeling is Undone. Rating dots go away only through a great Quest.",
+      "BanalityPoolHint": "Banality pool: past 10 the rating rises; a pool above the Glamour rating brings the Mists",
+      "Mists": "Mists",
+      "Nightmare": "Nightmare",
+      "NightmareHint": "Nightmare 0–10 (C20, ch. 6): that many dice of Glamour and cantrip rolls are Nightmare dice, each 10 on them is +1 Nightmare; a botched cantrip is +1. At 10 — Imbalance.",
+      "Imbalance": "Imbalance",
+      "ImbalanceHint": "Marked Willpower boxes: spending such Willpower brings a Bedlam Threshold; all Willpower Imbalanced — Bedlam. Healed by an Epiphany.",
+      "SpendGlamour": "Spend a point of Glamour",
+      "GainGlamour": "A point of Glamour (Epiphany, kith Revelry, etc.)",
+      "NightmarePlus": "+1 Nightmare",
+      "TriggerHint": "Banality trigger: Glamour roll, difficulty 8; failure — +1 to the Banality pool, botch — 1 per each 1",
+      "TriggerTitle": "Banality trigger",
+      "TriggerSub": "Glamour, difficulty 8",
+      "TriggerOk": "Banality doesn't take hold.",
+      "TriggerFail": "Banality pool +1.",
+      "TriggerBotch": "The Banality pool grows by the number of ones.",
+      "Arts": "Arts",
+      "Realms": "Realms",
+      "AddArt": "Add an Art…",
+      "NoArts": "No Arts",
+      "Art": "Art",
+      "Level": "Level",
+      "Modifiers": "Scene and Time",
+      "Kind": "Cantrip type",
+      "Type": {
+        "chimerical": "chimerical",
+        "wyrd": "Wyrd",
+        "choice": "either"
+      },
+      "Bunk": "Bunk",
+      "DiffMods": "Difficulty",
+      "Mod": {
+        "targetBanality": "Target Banality above 7",
+        "placeBanality": "Location Banality above 7",
+        "title": "Target of higher Title, unwilling",
+        "freehold": "In a freehold",
+        "enchanted": "On an enchanted mortal or kinain"
+      },
+      "BuyNightmare": "3 more Nightmare dice",
+      "CantripRule": "Pool — Art + lowest primary Realm; difficulty 8, Scene and Time +1 each, kith affinity −1. Wyrd costs 1 Glamour, a Realm you lack +1 Glamour. Nightmare dice: {nm} (no more than the pool), each 10 on them is +1 Nightmare.",
+      "Cantrip": "Cantrip",
+      "CantripHint": "Cantrip: Art + Realms, difficulty 8",
+      "Cast": "Cast",
+      "CantripSub": "cantrip, difficulty {d}",
+      "LevelTooHigh": "This level is above the Art ({n})",
+      "NeedRealm": "At least one primary Realm is needed: Actor, Fae, Nature or Prop",
+      "NoGlamour": "Not enough Glamour: {n} needed",
+      "CostGlamour": "Glamour {n}",
+      "NightmareDice": "Nightmare dice: {n}",
+      "AffinityChip": "kith affinity −1",
+      "AffinityHint": "Kith affinity: cantrips with this Realm are 1 easier",
+      "CantripOk": "The cantrip works: {n} successes — strength and duration per the Art.",
+      "CantripFail": "The cantrip fails.",
+      "CantripBotch": "Botch: the cantrip goes wrong, +1 Nightmare.",
+      "Unleash": "Unleashing",
+      "UnleashHint": "Unleashing: 2 Glamour and +1 Nightmare, Glamour + Nightmare dice, difficulty 7 — no Realms, the intent in one phrase",
+      "UnleashSub": "Glamour + Nightmare, difficulty 7",
+      "UnleashOk": "Controlled Unleashing: the Wyrd for turns equal to Glamour, fae mien visible; the player describes the effect.",
+      "UnleashWild": "The Unleashing runs wild: the intent is fulfilled twisted, +1 Nightmare, Wyrd until scene's end; the Storyteller describes the effect.",
+      "UnleashFail": "The Unleashing fails: Banality trigger, the Art is unusable for the scene.",
+      "UnleashBotch": "The Dreaming floods in: Imbalance, a turn of chaos, then Banality cuts it off — no Glamour or Arts until scene's end.",
+      "NightmareGained": "<b>{name}</b>: Nightmare +{n} (now {total}) — {reason}.",
+      "ImbalanceGained": "<b>{name}</b>: Nightmare reached 10 — Imbalance (Willpower boxes marked: {n}), Nightmare cleared, +1 Glamour.",
+      "BedlamLost": "<b>{name}</b>: all Willpower is Imbalanced — the changeling is lost to Bedlam.",
+      "Undone": "<b>{name}</b>: Banality 10 — Undone, the changeling is fae no longer."
     }
   }
 }

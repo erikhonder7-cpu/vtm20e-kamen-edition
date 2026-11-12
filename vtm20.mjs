@@ -150,7 +150,7 @@ Hooks.once("init", () => {
   const { Actors, Items } = foundry.documents.collections;
   Actors.unregisterSheet("core", foundry.appv1.sheets.ActorSheet);
   Actors.registerSheet(SYSTEM_ID, VtMActorSheet, { makeDefault: true, label: "VTM20.Sheets.Actor",
-    types: ["vampire", "ghoul", "mortal", "creature", "demon", "hunter", "werewolf", "mage", "wraith"] });
+    types: ["vampire", "ghoul", "mortal", "creature", "demon", "hunter", "werewolf", "mage", "wraith", "changeling"] });
   // котерия и домен — свои листы (module/sheets/group-sheet.mjs)
   Actors.registerSheet(SYSTEM_ID, CoterieSheet, { makeDefault: true, label: "VTM20.Sheets.Coterie", types: ["coterie"] });
   Actors.registerSheet(SYSTEM_ID, DomainSheet, { makeDefault: true, label: "VTM20.Sheets.Domain", types: ["domain"] });
@@ -294,7 +294,7 @@ function warmTemplates() {
   const idle = window.requestIdleCallback ? fn => window.requestIdleCallback(fn, { timeout: 3000 }) : fn => setTimeout(fn, 250);
   const files = [
     ...["tabs", "header", "vitals", "traits", "disciplines", "effects", "advantages", "gear", "bio", "foot", "gate",
-      { vampire: [], ghoul: [], mortal: [], hunter: ["edges"], mage: ["spheres"], werewolf: ["gifts"], demon: ["lores"], wraith: ["arcanoi"] }]
+      { vampire: [], ghoul: [], mortal: [], hunter: ["edges"], mage: ["spheres"], werewolf: ["gifts"], demon: ["lores"], wraith: ["arcanoi"], changeling: ["arts"] }]
       .flatMap(x => typeof x === "string" ? [x] : [...new Set(game.actors.map(a => a.type))].flatMap(type => x[type] ?? [])).map(f => `templates/actor/${f}.hbs`),
     "templates/dice/roll-dialog.hbs", "templates/chat/roll-card.hbs", "templates/apps/creator.hbs", "templates/apps/library.hbs"
   ];

@@ -1,0 +1,47 @@
+{{!-- Подменыш (C20, гл. 4): Искусства с уровнями (химерический / Вирд), Царства — на что направлен кантрип (module/apps/changeling.mjs) --}}
+<section class="tab r-pane r-edges r-cl-pane {{tab.cssClass}}" data-tab="{{tab.id}}" data-group="{{tab.group}}">
+  <h2 class="r-h2"><span>{{localize "VTM20.Changeling.Arts"}}</span>
+    <span class="r-h2-tools">
+      <span class="r-gs-pool" data-tooltip="{{localize 'VTM20.Changeling.CantripRule' nm=cl.nightmare}}"><i class="fa-solid fa-star"></i> {{cl.glamour}} · <i class="fa-solid fa-moon"></i> {{cl.nightmare}}</span>
+      {{#if editable}}<a class="r-h2-btn" data-action="clCast"><i class="fa-solid fa-wand-sparkles"></i> <span class="r-h2-lbl">{{localize "VTM20.Changeling.Cantrip"}}</span></a>{{/if}}
+    </span>
+  </h2>
+  {{#if editable}}{{#if cl.avail.length}}<div class="r-toolbar r-cl-add">
+    <select><option value="">{{localize "VTM20.Changeling.AddArt"}}</option>{{#each cl.avail}}<option value="{{key}}">{{label}}</option>{{/each}}</select>
+    <a class="r-btn" data-action="clArtAdd"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Common.Add"}}</a>
+  </div>{{/if}}{{/if}}
+  <div class="r-cl-arts">
+    {{#each cl.own}}
+    <article class="r-vcard r-cl-art">
+      <header class="r-cl-art-head">
+        <div class="r-cl-art-title"><a class="r-cl-art-name" data-action="clCast" data-art="{{key}}">{{name}}</a><span class="r-cl-art-en">{{en}}</span></div>
+        {{> rDots dots=dots cls="is-small"}}
+        {{#if @root.editable}}<a class="r-icon-btn" data-action="clUnleash" data-art="{{key}}" data-tooltip="{{localize 'VTM20.Changeling.UnleashHint'}}{{#if unleashing}}<br>{{unleashing}}{{/if}}"><i class="fa-solid fa-burst"></i></a>
+        <a class="r-icon-btn is-danger" data-action="clArtDel" data-art="{{key}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
+      </header>
+      <ul class="r-cl-levels">
+        {{#each levels}}
+        <li class="{{#unless known}}is-beyond{{/unless}}">
+          <span class="r-cl-rank">{{level}}</span>
+          <a class="r-cl-lvl-name" {{#if known}}data-action="clCast" data-art="{{../key}}" data-level="{{level}}"{{/if}} data-tooltip="{{html}}"><b>{{name}}</b> <em>{{en}}</em></a>
+          {{#if typeLabel}}<span class="r-cl-chip is-{{type}}">{{typeLabel}}</span>{{/if}}
+        </li>
+        {{/each}}
+      </ul>
+      {{#if bunks}}<p class="r-note r-cl-bunks"><i class="fa-solid fa-masks-theater"></i> {{bunks}}</p>{{/if}}
+    </article>
+    {{else}}
+    <p class="r-gs-empty">{{localize "VTM20.Changeling.NoArts"}}</p>
+    {{/each}}
+  </div>
+
+  <h2 class="r-h2"><span>{{localize "VTM20.Changeling.Realms"}}</span></h2>
+  <div class="r-cl-realms">
+    {{#each cl.realms}}
+    <div class="r-vcard r-cl-realm {{#if modifier}}is-mod{{/if}} {{#if affinity}}is-affinity{{/if}}">
+      <div class="r-vc-head"><h4 class="r-banner">{{name}}{{#if affinity}} <i class="fa-solid fa-leaf" data-tooltip="{{localize 'VTM20.Changeling.AffinityHint'}}"></i>{{/if}}</h4>{{> rDots dots=dots cls="is-small"}}</div>
+      <ol class="r-cl-rlevels">{{#each levels}}<li class="{{#if known}}is-known{{/if}}" data-tooltip="{{text}}">{{name}}</li>{{/each}}</ol>
+    </div>
+    {{/each}}
+  </div>
+</section>

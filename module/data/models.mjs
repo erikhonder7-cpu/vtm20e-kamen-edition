@@ -884,6 +884,48 @@ export class WraithData extends BaseActorData {
   }
 }
 
+/* ── Подменыш (Changeling: The Dreaming 20th, C20) ─────────────────────── */
+
+/**
+ * Подменыш: кит, ступень (дитя, дикарь, ворчун), Дом, двор (благой / неблагой), Наследия (Благое и Неблагое), Порог и Антитеза;
+ * Искусства (18) и Царства (6) 0–5; Темперы — Воля, Гламур (постоянный и временный, до 10), Банальность (постоянная и
+ * временный пул), Кошмар 0–10, Дисбаланс — отмеченные клетки Воли (C20, гл. 6). chimerical — химерический урон: отдельная
+ * шкала (гл. 6, «Химерический урон»). Морали и Добродетелей у подменыша нет.
+ */
+export class ChangelingData extends BaseActorData {
+  static defineSchema() {
+    const base = super.defineSchema();
+    return {
+      ...base,
+      willpower: new SchemaField({ permanent: int(4, 0, 10), temporary: int(4, 0, 10) }),
+      changeling: new SchemaField({
+        kith: str(""), seeming: str(""), house: str(""), court: str("seelie"), title: str(""),
+        legacies: new SchemaField({ seelie: str(""), unseelie: str("") }),
+        threshold: str(""), antithesis: str(""), mien: str(""),
+        arts: new SchemaField(Object.fromEntries(VTM20.changelingArts.map(k => [k, int(0, 0, 5)]))),
+        realms: new SchemaField(Object.fromEntries(VTM20.changelingRealms.map(k => [k, int(0, 0, 5)]))),
+        glamour: new SchemaField({ permanent: int(4, 0, 10), temporary: int(4, 0, 10) }),
+        banality: new SchemaField({ permanent: int(3, 0, 10), temporary: int(0, 0, 10) }),
+        nightmare: int(0, 0, 10), imbalance: int(0, 0, 10),
+        chimerical: new SchemaField({ bashing: int(0, 0, 7), lethal: int(0, 0, 7), aggravated: int(0, 0, 7) })
+      })
+    };
+  }
+
+  prepareDerivedData() {
+    super.prepareDerivedData();
+    const c = this.changeling;
+    c.glamour.temporary = Math.min(c.glamour.temporary, c.glamour.permanent);
+    c.glamour.value = c.glamour.temporary; c.glamour.max = c.glamour.permanent;
+    // Туманы (гл. 6): пул Банальности выше рейтинга Гламура
+    c.mists = c.banality.temporary > c.glamour.permanent;
+    c.undone = c.banality.permanent >= 10;
+    // Дисбаланс отмечает клетки Воли справа налево (не больше постоянной Воли)
+    c.imbalance = Math.min(c.imbalance, this.willpower.permanent);
+    c.bedlam = this.willpower.permanent > 0 && c.imbalance >= this.willpower.permanent;
+  }
+}
+
 /* ── Котерия и домен — актёры-группы без черт персонажа ─────────────────── */
 
 /**
@@ -934,7 +976,7 @@ export class DomainData extends foundry.abstract.TypeDataModel {
 
 export function registerDataModels() {
   Object.assign(CONFIG.Actor.dataModels, { vampire: VampireData, ghoul: GhoulData, mortal: MortalData, creature: CreatureData, spirit: SpiritData, demon: DemonData, hunter: HunterData, mage: MageData, werewolf: WerewolfData,
-    wraith: WraithData, coterie: CoterieData, domain: DomainData });
+    wraith: WraithData, changeling: ChangelingData, coterie: CoterieData, domain: DomainData });
   Object.assign(CONFIG.Item.dataModels, {
     discipline: DisciplineData, lore: LoreData, lorePower: LorePowerData, thaumPath: BloodPathData, ritual: RitualData, power: PowerData,
     background: BackgroundData, merit: MeritData, flaw: MeritData, derangement: DerangementData,

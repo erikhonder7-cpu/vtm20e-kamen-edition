@@ -47,6 +47,9 @@
       "src": "styles/types/wraith.css"
     },
     {
+      "src": "styles/types/changeling.css"
+    },
+    {
       "src": "styles/types/spirit.css"
     },
     {
@@ -140,6 +143,12 @@
         ]
       },
       "wraith": {
+        "htmlFields": [
+          "biography",
+          "notes"
+        ]
+      },
+      "changeling": {
         "htmlFields": [
           "biography",
           "notes"

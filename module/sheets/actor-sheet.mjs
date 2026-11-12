@@ -7,6 +7,8 @@
 
 import { MAGE_ACTIONS } from "./actor/mage.mjs";
 import { WRAITH_ACTIONS, arcFold } from "./actor/wraith.mjs";
+import { CHANGELING_ACTIONS } from "./actor/changeling.mjs";
+import { changelingInfo, artsView, CHANGELING_SIGIL } from "../apps/changeling.mjs";
 import { wraithInfo, arcanoiView, passionsView, setNecropolis, setPlace } from "../apps/wraith.mjs";
 import * as Resolution from "../apps/resolution.mjs";
 import * as Thorns from "../apps/thorns.mjs";
@@ -82,7 +84,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     window: { resizable: true, contentClasses: ["r-sheet-content"] },
     form: { submitOnChange: true, closeOnSubmit: false },
     actions: {
-      ...MAGE_ACTIONS, ...WEREWOLF_ACTIONS, ...HUNTER_ACTIONS, ...DEMON_ACTIONS, ...WRAITH_ACTIONS,
+      ...MAGE_ACTIONS, ...WEREWOLF_ACTIONS, ...HUNTER_ACTIONS, ...DEMON_ACTIONS, ...WRAITH_ACTIONS, ...CHANGELING_ACTIONS,
       setDots: { handler: VtMActorSheet.#onSetDots, buttons: [0, 2] },
       choosePower: VtMActorSheet.#onChoosePower,
       setHealth: { handler: VtMActorSheet.#onSetHealth, buttons: [0, 2] },
@@ -255,6 +257,8 @@ openStrategy: () => openStrategy(),
     if (this.actor.type === "mage" && parts.disciplines) parts.disciplines = { ...parts.disciplines, template: `${SYSTEM_PATH}/templates/actor/spheres.hbs` };
     // у призрака — Арканои, Страсти, Оковы и Тень
     if (this.actor.type === "wraith" && parts.disciplines) parts.disciplines = { ...parts.disciplines, template: `${SYSTEM_PATH}/templates/actor/arcanoi.hbs` };
+    // у подменыша — Искусства и Царства
+    if (this.actor.type === "changeling" && parts.disciplines) parts.disciplines = { ...parts.disciplines, template: `${SYSTEM_PATH}/templates/actor/arts.hbs` };
     // у оборотня — формы, Дары и ритуалы
     if (this.actor.type === "werewolf" && parts.disciplines) parts.disciplines = { ...parts.disciplines, template: `${SYSTEM_PATH}/templates/actor/gifts.hbs` };
     // у демона на месте Дисциплин — Знания и апокалиптическая форма
@@ -269,6 +273,7 @@ openStrategy: () => openStrategy(),
     if (this.actor.type === "mage" && tabs.disciplines) Object.assign(tabs.disciplines, { label: "VTM20.Mage.Spheres", icon: isTechnocrat(this.actor) ? "fa-solid fa-atom" : "fa-solid fa-hat-wizard" });
     if (this.actor.type === "werewolf" && tabs.disciplines) Object.assign(tabs.disciplines, { label: "VTM20.Werewolf.Gifts", icon: "fa-solid fa-paw" });
     if (this.actor.type === "wraith" && tabs.disciplines) Object.assign(tabs.disciplines, { label: "VTM20.Wraith.Arcanoi", icon: "fa-solid fa-ghost" });
+    if (this.actor.type === "changeling" && tabs.disciplines) Object.assign(tabs.disciplines, { label: "VTM20.Changeling.Arts", icon: "fa-solid fa-wand-sparkles" });
     if (this.actor.type === "demon" && tabs.disciplines) Object.assign(tabs.disciplines, { label: "VTM20.Demon.Lores", icon: "fa-solid fa-fire-flame-curved" });
     let i = 0;
     for (const tab of Object.values(tabs)) tab.roman = ROMAN[i++];
@@ -288,7 +293,7 @@ openStrategy: () => openStrategy(),
       nameSize: actor.name.length > 26 ? "is-xlong" : actor.name.length > 18 ? "is-long" : "",
       // охотник — смертный с Гранями: где лист смертного и охотника совпадают, работает isMortal
       diablerie: actor.type === "vampire" ? diablerieMark(actor) : null,
-      isVampire: actor.type === "vampire", isGhoul: actor.type === "ghoul", isDhampir: actor.isDhampir, isMortal: ["mortal", "hunter", "mage"].includes(actor.type), isHunter: actor.type === "hunter", isMage: actor.type === "mage", isWerewolf: actor.type === "werewolf", isWraith: actor.type === "wraith", stratInfo: sheetStrategy(actor),
+      isVampire: actor.type === "vampire", isGhoul: actor.type === "ghoul", isDhampir: actor.isDhampir, isMortal: ["mortal", "hunter", "mage"].includes(actor.type), isHunter: actor.type === "hunter", isMage: actor.type === "mage", isWerewolf: actor.type === "werewolf", isWraith: actor.type === "wraith", isChangeling: actor.type === "changeling", stratInfo: sheetStrategy(actor),
       isCreature: actor.type === "creature", isSpiritType: actor.type === "spirit", isDemon: actor.type === "demon",
       hasBlood: actor.hasBlood,
       typeLabel: actor.type === "ghoul" && ["revenant", "dhampir"].includes(actor.system.ghoulType) ? t(`GhoulType.${actor.system.ghoulType}`) : game.i18n.localize(`TYPES.Actor.${actor.type}`),
@@ -338,6 +343,8 @@ openStrategy: () => openStrategy(),
       for (const x of ctx.arc.own) x.folded = (fold[x.key] ?? true) && !x.sel;     // открытый уровень держит карточку раскрытой
       ctx.arc.allFolded = ctx.arc.own.every(x => x.folded);
       ctx.sigil = { ...ctx.sigil, img: VTM20.typeSigil("wraith"), sym: ctx.wraithInfo.legionSym ?? ctx.sigil.sym, label: ctx.wraithInfo.legion?.name ?? "" }; ctx.lineAtlas = true; }
+    else if (actor.type === "changeling") { ctx.changelingInfo = changelingInfo(actor, dots); ctx.cl = artsView(actor, dots);
+      ctx.sigil = { ...ctx.sigil, img: CHANGELING_SIGIL, label: ctx.changelingInfo.kith?.name ?? "" }; }
     else if (actor.type !== "mortal") prepareDisciplines(this, ctx);
     prepareAdvantages(this, ctx);
     if (actor.type === "mortal") { ctx.sorcInfo = sorcererInfo(actor, dots); ctx.consorInfo = consorInfo(actor);
