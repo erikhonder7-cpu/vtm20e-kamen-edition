@@ -13,7 +13,7 @@
 
 import { SYSTEM_PATH, SYSTEM_ID } from "../config.mjs";
 import { RollDialog } from "../dice/dialog.mjs";
-import { t, esc, say, backgroundRating, gainAngst } from "./wraith.mjs";
+import { t, esc, say, backgroundRating, gainAngst, necropolisOf } from "./wraith.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 export const KINDS = { will: "fa-battery-empty", passion: "fa-heart-crack", fetter: "fa-link-slash", corpus: "fa-ghost", self: "fa-user-xmark", destruction: "fa-skull" };
@@ -78,7 +78,7 @@ export class HarrowingApp extends HandlebarsApplicationMixin(ApplicationV2) {
       others: v.kind === "passion" ? others.map(o => ({ ...o, selected: o.key === v.second })) : null,
       eidolon: eid, eidolonUsed: !!w.session.harrow, eidolonOk: eid > 0 && !w.session.harrow,
       diff: destruction ? 6 : Math.clamp(9 + v.rp, 6, 9), angst: w.shadow.angst.permanent, will: a.system.willpower.permanent,
-      fate: t(`Harrow.Fate.${v.kind}`), reliefs: [1, 2, 3].map(n => ({ n, selected: n === v.relief }))
+      fate: t(`Harrow.Fate.${v.kind}`), flint: necropolisOf()?.flint ? t("Necro.Flint") : "", reliefs: [1, 2, 3].map(n => ({ n, selected: n === v.relief }))
     };
   }
 

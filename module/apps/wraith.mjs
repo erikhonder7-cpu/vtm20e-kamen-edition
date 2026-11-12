@@ -72,6 +72,24 @@ export async function setShroud(what, d) {
   return f;
 }
 
+/**
+ * Некрополь сцены (Book of Oblivion, «Appendix: Necropoli»): рассказчик отмечает, в каком городе мёртвых сцена.
+ * Сиэтл — любое использование Аргоса в Землях Теней и Буре Пьюджет-Саунда +1 к сложности (успех — выход через
+ * Подземелье, обычно в Портленд; провал — куда решит рассказчик), Испытания — Испытания Кремня. Галифакс (Изумрудный
+ * Легион, корабль-Нихил «Монблан») и Зона Руж (Нихилы открываются легко, кузни Мрачного и Покаянного Легионов) — описанием.
+ */
+export const NECROPOLI = { seattle: { argos: 1, flint: true }, halifax: {}, zonerouge: {} };
+export function necropolisOf(scene = game.scenes?.viewed) {
+  const key = scene?.getFlag(SYSTEM_ID, "necropolis") ?? "";
+  return NECROPOLI[key] ? { key, ...NECROPOLI[key], name: t(`Necro.${key}.name`), text: t(`Necro.${key}.text`) } : null;
+}
+export async function setNecropolis(key) {
+  const scene = game.scenes?.viewed;
+  if (!game.user.isGM) return ui.notifications.warn(game.i18n.localize("VTM20.Notify.GMOnly"));
+  if (!scene) return ui.notifications.warn(t("Shroud.NoScene"));
+  return NECROPOLI[key] ? scene.setFlag(SYSTEM_ID, "necropolis", key) : scene.unsetFlag(SYSTEM_ID, "necropolis");
+}
+
 /** Призрак в своём Обиталище (Фон «Обиталище»): Покров ниже на его рейтинг. */
 export async function toggleHaunt(actor) {
   if (!backgroundRating(actor, "Haunt") && !actor.getFlag(SYSTEM_ID, "inHaunt")) return ui.notifications.warn(t("Shroud.NoHaunt"));
@@ -114,6 +132,7 @@ export function wraithInfo(actor, dots) {
     archetype: arch, archetypes: (D.shadowArchetypes ?? []).map(a => ({ value: a.name, label: a.name, selected: a.name === sh.archetype })),
     memoriam: backgroundRating(actor, "Memoriam"), eidolon: backgroundRating(actor, "Eidolon"),
     eidolonLeft: Math.max(0, backgroundRating(actor, "Eidolon") - w.session.eidolon), memoriamDone: w.session.memoriam,
+    necropolis: necropolisOf(), necropoli: Object.keys(NECROPOLI).map(k => ({ key: k, label: t(`Necro.${k}.name`), selected: k === necropolisOf()?.key })),
     shroud: shroudOf(actor), haunt: backgroundRating(actor, "Haunt"), inHaunt: !!actor.getFlag(SYSTEM_ID, "inHaunt"), isGM: game.user.isGM,
     forecast: actor.getFlag(SYSTEM_ID, "forecast") ?? null,   // прогноз Мальстрёма (apps/tempest.mjs)
     guide: guideOf(actor)?.name ?? "", isGuide: !!guideOf(actor)?.isSelf, canGuide: game.user.isGM || !!guideOf(actor)?.isSelf
@@ -322,6 +341,9 @@ export async function rollArt(actor, key, level, kind = "common") {
   const risenExtra = w.risen?.on && w.risen.body ? 1 : 0, angstGain = (lv.angst ?? 0) + risenExtra;
   if (angstGain) await gainAngst(actor, shadowRuns ? -angstGain : angstGain, { reason: risenExtra ? `${lv.name} · ${t("Risen.ExtraAngst")}` : lv.name });
   const dc = artDifficulty(lv, actor);
+  // Сиэтл: Аргос в Пьюджет-Саунде +1 к сложности (Book of Oblivion)
+  const necro = key === "argos" ? necropolisOf() : null;
+  if (necro?.argos) { dc.diff = Math.min(10, dc.diff + necro.argos); dc.note = [dc.note, t("Necro.ArgosNote", { name: necro.name })].filter(Boolean).join(" · "); }
   const extra = { wraith: { kind: "art", key, level: lv.level, art: kind, name: lv.name, cost: costText(lv), angst: lv.angst ?? 0, shadow: shadowRuns,
     ...(dc.shroud ? { shroud: dc.shroud.value } : {}) } };
   if (lv.noRoll || !lv.attr) {

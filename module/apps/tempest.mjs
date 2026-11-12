@@ -11,7 +11,7 @@
 
 import { SYSTEM_ID } from "../config.mjs";
 import { RollDialog } from "../dice/dialog.mjs";
-import { t, esc, say, spendPathos } from "./wraith.mjs";
+import { t, esc, say, spendPathos, necropolisOf } from "./wraith.mjs";
 
 const SHARE = [1, 1, .75, .5, .25, .25];
 const METHODS = { eye: { level: 1, pathos: 1, diff: 6 }, reader: { level: 4, pathos: 3, diff: 8 } };
@@ -39,10 +39,12 @@ export async function tempestJourney(actor) {
   const base = Math.max(0.5, Number(r.base) || 1), unit = r.unit === "days" ? "days" : "hours", m = METHODS[r.method];
   if (!m) return say(actor, "fa-wind", t("Tempest.NoArgos", { name: esc(actor.name), t: fmtTime(base * 2, unit) }));
   const fetter = r.fetter !== "" ? actor.system.wraith.fetters[Number(r.fetter)] : null;
-  const diff = Math.max(fetter ? 4 : 2, Math.min(10, m.diff + Math.clamp(Number(r.pass) || 0, 0, 10) - (fetter?.value ?? 0)));
+  // Сиэтл (Book of Oblivion): Аргос в Пьюджет-Саунде +1 к сложности
+  const necro = necropolisOf()?.argos ?? 0;
+  const diff = Math.max(fetter ? 4 : 2, Math.min(10, m.diff + necro + Math.clamp(Number(r.pass) || 0, 0, 10) - (fetter?.value ?? 0)));
   if (!(await spendPathos(actor, m.pathos))) return null;
   return RollDialog.prompt(actor, { title: t("Tempest.Title"), trait1: "attributes.perception", trait2: "wraith.argos", difficulty: diff, lockTraits: true,
-    diffNote: t("Tempest.DiffNote", { d: m.diff, p: Number(r.pass) || 0, f: fetter?.value ?? 0 }),
+    diffNote: t("Tempest.DiffNote", { d: m.diff, p: Number(r.pass) || 0, f: fetter?.value ?? 0 }) + (necro ? ` · ${t("Necro.ArgosNote", { name: necropolisOf().name })}` : ""),
     extra: { wraith: { kind: "tempest", method: r.method } },
     onRolled: async res => {
       const n = res?.successes ?? 0, botch = res?.outcome === "botch";

@@ -14,8 +14,10 @@
     <span class="r-wr-shroud-lbl"><i class="fa-solid fa-cloud"></i> {{localize "VTM20.Wraith.Shroud.Label"}}{{#if wraithInfo.shroud.scene}} <small>· {{wraithInfo.shroud.scene}}</small>{{/if}}</span>
     <b class="r-wr-shroud-num">{{wraithInfo.shroud.value}}</b>
     <small class="r-wr-shroud-why">{{wraithInfo.shroud.text}}</small>
+    {{#if wraithInfo.necropolis}}<span class="r-wr-necro-chip" data-tooltip="{{wraithInfo.necropolis.text}}"><i class="fa-solid fa-city"></i> {{wraithInfo.necropolis.name}}</span>{{/if}}
     <span class="r-wr-shroud-tools">
       {{#if wraithInfo.isGM}}
+      <select class="r-mini-select r-wr-necro" data-tooltip="{{localize 'VTM20.Wraith.Necro.Hint'}}"><option value="">{{localize "VTM20.Wraith.Necro.None"}}</option>{{#each wraithInfo.necropoli}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
       <a class="r-vc-btn is-sq" data-action="wrShroud" data-what="base" data-d="-1" data-tooltip="{{localize 'VTM20.Wraith.Shroud.Down'}}"><i class="fa-solid fa-minus"></i></a>
       <a class="r-vc-btn is-sq" data-action="wrShroud" data-what="base" data-d="1" data-tooltip="{{localize 'VTM20.Wraith.Shroud.Up'}}"><i class="fa-solid fa-plus"></i></a>
       <a class="r-vc-btn" data-action="wrShroud" data-what="hysteria" data-d="1" data-tooltip="{{localize 'VTM20.Wraith.Shroud.HysteriaHint'}}"><i class="fa-solid fa-face-scream"></i> {{localize "VTM20.Wraith.Shroud.HysteriaBtn"}}</a>

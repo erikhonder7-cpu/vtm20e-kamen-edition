@@ -4,6 +4,7 @@
     {{#each kinds}}<a class="r-tile {{#if active}}is-active{{/if}}" data-action="kind" data-key="{{key}}" data-tooltip="{{hint}}"><i class="fa-solid {{icon}}"></i><span>{{label}}</span></a>{{/each}}
   </div>
   <div class="r-harrow-fate"><i class="fa-solid fa-scale-balanced"></i> {{fate}}</div>
+  {{#if flint}}<div class="r-harrow-fate"><i class="fa-solid fa-mountain"></i> {{flint}}</div>{{/if}}
 
   {{#if targeted}}
   <label class="r-roll-row"><span class="r-roll-label">{{localize "VTM20.Wraith.Harrow.Quarry"}}</span>

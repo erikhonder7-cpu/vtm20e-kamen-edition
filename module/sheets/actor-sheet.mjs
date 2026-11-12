@@ -7,7 +7,7 @@
 
 import { MAGE_ACTIONS } from "./actor/mage.mjs";
 import { WRAITH_ACTIONS, arcFold } from "./actor/wraith.mjs";
-import { wraithInfo, arcanoiView, passionsView } from "../apps/wraith.mjs";
+import { wraithInfo, arcanoiView, passionsView, setNecropolis } from "../apps/wraith.mjs";
 import * as Resolution from "../apps/resolution.mjs";
 import * as Thorns from "../apps/thorns.mjs";
 import { consortsView } from "../apps/consorts.mjs";
@@ -450,6 +450,8 @@ openStrategy: () => openStrategy(),
     }
     // Колдун: Способность Пути — выбор в строке нумины (поле без name — в форму листа не попадает)
     for (const el of all("select[data-sorc-ability]")) el.addEventListener("change", ev => { ev.stopPropagation(); sorcAbility(this.actor, el.dataset.sorcAbility, el.value); });
+    // Призрак: Некрополь сцены — у рассказчика (apps/wraith.mjs, setNecropolis)
+    for (const el of all("select.r-wr-necro")) el.addEventListener("change", async ev => { ev.stopPropagation(); await setNecropolis(el.value); this.render(); });
     // Щелчок по шапке карточки Арканоса сворачивает и разворачивает её — как строку Дисциплины
     for (const head of all(".r-wr-arc-head")) {
       head.addEventListener("click", ev => {

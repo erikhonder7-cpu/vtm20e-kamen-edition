@@ -385,3 +385,7 @@
 .vtm20.r-type-wraith ul.r-wr-relics > li.r-edge { display: flex; align-items: center; gap: 10px; padding: 6px 4px; border-bottom: 1px solid rgba(200, 210, 220, .08); }
 .vtm20.r-type-wraith ul.r-wr-relics .r-edge-main { flex: 1; min-width: 0; }
 .vtm20.r-type-wraith .r-wr-forge-fx .r-vc-btn { text-transform: none; letter-spacing: 0; font-size: 12px; padding: 2px 8px; }
+
+/* Некрополь сцены (apps/wraith.mjs, necropolisOf) */
+.vtm20.r-type-wraith .r-wr-necro-chip { display: inline-flex; align-items: center; gap: 4px; padding: 1px 8px; border: 1px solid rgba(200, 210, 220, .25); font-size: 12px; white-space: nowrap; }
+.vtm20.r-type-wraith select.r-wr-necro { width: auto; max-width: 9em; }

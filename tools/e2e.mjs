@@ -4955,6 +4955,41 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  // Некрополь сцены (Book of Oblivion): Сиэтл — Аргос +1 к сложности (Арканос и путь через Бурю), Испытание Кремня
+  await check("Призрак: Некрополь сцены — Сиэтл: Аргос +1, Испытание Кремня", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {}, n0 = game.messages.size;
+      const W = await import(`/systems/${sid}/module/apps/wraith.mjs`), T = await import(`/systems/${sid}/module/apps/tempest.mjs`), HA = await import(`/systems/${sid}/module/apps/harrowing.mjs`);
+      const inst = () => [...foundry.applications.instances.values()];
+      const rollDlg = async () => { for (let i = 0; i < 40; i++) { const d = inst().find(x => x.constructor.name === "RollDialog" && x.rendered); if (d) return d; await wait(100); } return null; };
+      const scene = game.scenes.viewed, was = scene?.getFlag(sid, "necropolis");
+      if (!scene) return { noScene: true };
+      const a = await Actor.create({ name: "E2E — призрак Сиэтла", type: "wraith", flags: { world: { e2e: true }, [sid]: { created: true } },
+        system: { attributes: { perception: { value: 3 } }, wraith: { pathos: { value: 8 }, arcanoi: { argos: { value: 1, initiate: [], skip: [] } } } } });
+      const DV = foundry.applications.api.DialogV2, p0 = DV.prompt;
+      try {
+        await W.setNecropolis("seattle");
+        out.necro = W.necropolisOf()?.key;
+        DV.prompt = async () => ({ base: "8", unit: "hours", method: "eye", pass: "0", fetter: "" });
+        T.tempestJourney(a); let d = await rollDlg(); out.tempest = d?.values.difficulty; await d?.close();
+        const lv = W.arcanosOf("argos").levels.find(l => l.level === 1 && l.attr && !l.noRoll);
+        if (lv) { W.rollArt(a, "argos", lv.level, lv.kind); d = await rollDlg(); out.art = (d?.values.difficulty ?? 0) - W.artDifficulty(lv, a).diff; await d?.close(); }
+        else out.art = 1;
+        await HA.openHarrowing(a, "corpus"); await wait(700);
+        const app = inst().find(x => x instanceof HA.HarrowingApp);
+        out.flint = /Кремня/.test(app?.element.textContent ?? ""); await app?.close();
+        await W.setNecropolis(""); out.cleared = W.necropolisOf() === null;
+      } finally { DV.prompt = p0; if (was) await scene.setFlag(sid, "necropolis", was); }
+      await ChatMessage.deleteDocuments(game.messages.contents.slice(n0).map(m => m.id));
+      await a.delete();
+      return out;
+    });
+    if (r.noScene) return;
+    const want = { necro: "seattle", tempest: 7, art: 1, flint: true, cleared: true };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   await check("Призрак: Подземный мир — Мальстрём, Туман, Сон в Оковах, «Орфей», Оттенок цвета", async () => {
     const r = await page.evaluate(async () => {
       const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {}, n0 = game.messages.size;
