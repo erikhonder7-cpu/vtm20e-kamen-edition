@@ -62,7 +62,8 @@
             {{#if ok}}<a class="r-btn {{#unless can}}is-off{{/unless}}" data-action="trainDone"><i class="fa-solid fa-graduation-cap"></i> {{localize "VTM20.Train.Finish" n=need}}</a>{{/if}}
             {{#if lore}}<a class="r-btn" data-action="trainRoll"><i class="fa-solid fa-dice-d10"></i> {{localize "VTM20.Train.Teacher"}}</a>{{/if}}
             {{#if arc}}{{#if arc.guildOk}}<a class="r-btn {{#if arc.guild}}is-on{{/if}}" data-action="trainGuild" data-tooltip="{{localize 'VTM20.Train.GuildHint'}}"><i class="fa-solid fa-landmark"></i> {{localize "VTM20.Train.Guild"}}</a>{{/if}}
-            <a class="r-btn" data-action="trainExchange" data-tooltip="{{localize 'VTM20.Train.ExchangeRule'}}"><i class="fa-solid fa-handshake"></i> {{localize "VTM20.Train.Exchange"}}</a>{{/if}}
+            <a class="r-btn" data-action="trainExchange" data-tooltip="{{localize 'VTM20.Train.ExchangeRule'}}"><i class="fa-solid fa-handshake"></i> {{localize "VTM20.Train.Exchange"}}</a>
+            <a class="r-btn" data-action="trainSpont" data-tooltip="{{localize 'VTM20.Train.SpontHint'}}"><i class="fa-solid fa-bolt"></i> {{localize "VTM20.Train.SpontShort"}}</a>{{/if}}
             <a class="r-icon-btn is-danger" data-action="trainDrop" data-tooltip="{{localize 'VTM20.Train.Drop'}}"><i class="fa-solid fa-xmark"></i></a>
           </footer>
           {{/if}}

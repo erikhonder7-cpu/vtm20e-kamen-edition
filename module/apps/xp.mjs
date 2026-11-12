@@ -3,7 +3,7 @@
 // (через VtMActor.buyWithXp — единственный путь развития, кнопок «+» на листе нет), начисление и история трат.
 
 import { Codex } from "../data/codex.mjs";
-import { trainingOf, trainingView, planTraining, dropTraining, finishTraining, teacherRoll, setMentor, toggleGuildTraining, exchangeRoll } from "./training.mjs";
+import { trainingOf, trainingView, planTraining, dropTraining, finishTraining, teacherRoll, setMentor, toggleGuildTraining, exchangeRoll, spontaneous } from "./training.mjs";
 import { numenOf as sorcNumenOf, numenXpExtra as sorcExtra } from "./sorcerer.mjs";
 import { VTM20, SYSTEM_PATH } from "../config.mjs";
 import { growth, startConviction, VIRTUE_KEYS, LOST_KEYS, isLost, H as hunterData } from "./hunter.mjs";
@@ -27,7 +27,7 @@ class XpWindow extends HandlebarsApplicationMixin(ApplicationV2) {
     window: { title: "VTM20.Xp.Window", icon: "fa-solid fa-star", resizable: true },
     position: { width: 900, height: 680 },
     actions: { buy: XpWindow.#onBuy, filter: XpWindow.#onFilter, grant: XpWindow.#onGrant, cat: XpWindow.#onCat,
-      plan: XpWindow.#onPlan, trainDone: XpWindow.#onTrain, trainDrop: XpWindow.#onTrain, trainRoll: XpWindow.#onTrain, trainGuild: XpWindow.#onTrain, trainExchange: XpWindow.#onTrain }
+      plan: XpWindow.#onPlan, trainDone: XpWindow.#onTrain, trainDrop: XpWindow.#onTrain, trainRoll: XpWindow.#onTrain, trainGuild: XpWindow.#onTrain, trainExchange: XpWindow.#onTrain, trainSpont: XpWindow.#onTrain }
   };
 
   static PARTS = { body: { template: `${SYSTEM_PATH}/templates/apps/xp.hbs`, scrollable: [".r-xp-list"] } };
@@ -216,6 +216,7 @@ class XpWindow extends HandlebarsApplicationMixin(ApplicationV2) {
     else if (act === "trainRoll") await teacherRoll(this.actor, ref);
     else if (act === "trainGuild") await toggleGuildTraining(this.actor, ref);     // Арканос: обучение в Гильдии
     else if (act === "trainExchange") await exchangeRoll(this.actor, ref);         // Арканос: обмен
+    else if (act === "trainSpont") await spontaneous(this.actor, ref);             // Арканос: спонтанное проявление
     else await dropTraining(this.actor, ref);
     this.render();
   }

@@ -25,6 +25,7 @@
       <a class="r-vc-btn" data-action="wrShroud" data-what="hysteria" data-d="1" data-tooltip="{{localize 'VTM20.Wraith.Shroud.HysteriaHint'}}"><i class="fa-solid fa-face-scream"></i> {{localize "VTM20.Wraith.Shroud.HysteriaBtn"}}</a>
       <a class="r-vc-btn is-sq" data-action="uwStorm" data-tooltip="{{localize 'VTM20.Wraith.Storm.Hint'}}"><i class="fa-solid fa-hurricane"></i></a>
       <a class="r-vc-btn is-sq" data-action="uwFog" data-tooltip="{{localize 'VTM20.Wraith.Fog.Hint'}}"><i class="fa-solid fa-smog"></i></a>
+      <a class="r-vc-btn is-sq {{#if wraithInfo.shroud.abscess}}is-on{{/if}}" data-action="wrAbscess" data-tooltip="{{localize 'VTM20.Wraith.Shroud.AbscessHint'}}"><i class="fa-solid fa-virus"></i></a>
       {{#if wraithInfo.shroud.hysteria}}<a class="r-vc-btn is-sq" data-action="wrShroud" data-what="hysteria" data-d="0" data-tooltip="{{localize 'VTM20.Wraith.Shroud.HysteriaReset'}}"><i class="fa-solid fa-rotate-left"></i></a>{{/if}}
       {{/if}}
       {{#if editable}}<a class="r-vc-btn is-sq" data-action="wrTempest" data-tooltip="{{localize 'VTM20.Wraith.Tempest.Hint'}}"><i class="fa-solid fa-wind"></i></a>

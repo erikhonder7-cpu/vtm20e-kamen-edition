@@ -126,6 +126,29 @@ export async function exchangeRoll(actor, ref) {
 }
 
 /**
+ * Спонтанное проявление (Wraith 20, гл. 5): прямо в сцене, с одобрения рассказчика — Воля, равная новому уровню, и полная цена
+ * в опыте; уровень доступен сразу, даже Посвящённый. План обучения снимается.
+ */
+export async function spontaneous(actor, ref) {
+  const list = trainingOf(actor), p = list.find(x => x.ref === ref);
+  if (!p || !arcKeyOf(ref)) return null;
+  const { doc, path, kind } = parseRef(actor, ref);
+  const { cur, cost } = actor.xpCostOf({ doc, path, kind });
+  const lvl = cur + 1, wp = actor.system.willpower.temporary;
+  if (cost == null) return null;
+  if (wp < lvl) return ui.notifications.warn(t("SpontNoWill", { n: lvl, have: wp }));
+  if (actor.system.experience.available < cost) return ui.notifications.warn(game.i18n.format("VTM20.Notify.NoXp", { cost, have: actor.system.experience.available }));
+  const ok = await foundry.applications.api.DialogV2.confirm({ window: { title: t("Spont") }, content: `<p>${esc(t("SpontAsk", { what: p.label, n: lvl, cost }))}</p>`, rejectClose: false });
+  if (!ok) return null;
+  const paid = await actor.buyWithXp({ doc, path, kind, label: p.label, confirm: false, note: t("Spont") });
+  if (!paid) return null;
+  await actor.update({ "system.willpower.temporary": wp - lvl });
+  await save(actor, trainingOf(actor).filter(x => x.ref !== ref));
+  return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }),
+    content: `<div class="r-notice r-type-wraith"><i class="fa-solid fa-bolt"></i> ${t("SpontDone", { name: esc(actor.name), what: esc(p.label), n: lvl })}</div>` });
+}
+
+/**
  * Бросок учителя (Demon, по желанию, в конце истории): пул — Знание учителя, сложность 6/7/8;
  * успехи — опыт только на это Знание, не больше Знания учителя.
  */

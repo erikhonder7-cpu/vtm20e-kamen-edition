@@ -192,6 +192,9 @@ function paramFields(kind, p) {
       F.push({ name: "spirit", label: L("SpiritTpl"), options: [any(p.spirit), ...(D.spirits ?? []).filter(s => !p.spiritKind || s.kind === p.spiritKind).map(s => opt(s.key, s.name, p.spirit))] });
       break;
     }
+    case "doomslayer":
+      F.push({ name: "order", label: loc("VTM20.Wraith.Doom.Order"), options: [any(p.order), ...["thorn", "division", "helldivers", "darksiders", "solos"].map(k => opt(k, loc(`VTM20.Wraith.Doom.${k}`), p.order))] });
+      break;
     case "plasmic": {
       const Dw = WR();
       F.push({ name: "plasmic", label: loc("VTM20.Wraith.Plasmic"), options: [any(p.plasmic), ...(Dw.plasmics ?? []).map(x => opt(x.key, `${x.name} (${x.en})`, p.plasmic))] });
@@ -202,7 +205,7 @@ function paramFields(kind, p) {
       F.push({ name: "legion", label: loc("VTM20.Wraith.Legion"), options: [any(p.legion), ...(Dw.legions ?? []).map(l => opt(l.key, l.name, p.legion))] });
       if (kind === "spectre") F.push({ name: "caste", label: loc("VTM20.Wraith.Spectre.Caste"), options: [any(p.caste), ...(Dw.castes ?? []).map(c => opt(c.key, c.name, p.caste))] });
       else if (kind === "projector") F.push({ name: "shade", label: loc("VTM20.Wraith.Proj.ShadeLabel"), options: [any(p.shade), ...(Dw.shades ?? []).map(x => opt(x.key, `${x.name} (${x.en})`, p.shade))] });
-      else F.push({ name: "guild", label: loc("VTM20.Wraith.Guild"), options: [any(p.guild), ...(Dw.arcanoi ?? []).map(a => opt(a.key, `${a.guild} — ${a.name}`, p.guild))] });
+      else F.push({ name: "guild", label: loc("VTM20.Wraith.Guild"), options: [any(p.guild), ...(Dw.arcanoi ?? []).filter(a => a.guild).map(a => opt(a.key, `${a.guild} — ${a.name}`, p.guild))] });
       break;
     }
     case "group":

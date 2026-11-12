@@ -18,6 +18,12 @@
   </label>
   {{/if}}
 
+  {{#if group.length}}
+  <div class="r-roll-checks r-harrow-group" data-tooltip="{{localize 'VTM20.Wraith.Harrow.GroupHint'}}">
+    <span class="r-roll-label"><i class="fa-solid fa-people-group"></i> {{localize "VTM20.Wraith.Harrow.Group"}}</span>
+    {{#each group}}<label class="r-check"><input type="checkbox" name="g_{{id}}" {{checked on}}> {{name}}</label>{{/each}}
+  </div>
+  {{/if}}
   <label class="r-f r-harrow-answer"><span><i class="fa-solid fa-key"></i> {{localize "VTM20.Wraith.Harrow.Answer"}}</span>
     <textarea name="answer" rows="3" placeholder="{{localize 'VTM20.Wraith.Harrow.AnswerPh'}}">{{v.answer}}</textarea></label>
 

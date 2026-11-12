@@ -55,11 +55,13 @@ export function shroudOf(actor = null, scene = game.scenes?.viewed) {
   const hysteria = Math.clamp(Number(f.hysteria) || 0, 0, 3);
   const near = !!scene?.tokens?.some(tk => SUPERNATURAL.includes(tk.actor?.type));
   const haunt = actor?.getFlag(SYSTEM_ID, "inHaunt") ? backgroundRating(actor, "Haunt") : 0;
-  const value = Math.max(4, base - (haunt ? 0 : hysteria) - (near ? 2 : 0) - haunt);
+  // Нарыв (Book of Oblivion): Нихил, связанный с Нарывом Лабиринта, навсегда снижает Покров на 4; нижний предел — 3, а не 4
+  const abscess = !!scene?.getFlag(SYSTEM_ID, "abscess"), floor = abscess ? 3 : 4;
+  const value = Math.max(floor, base - (haunt ? 0 : hysteria) - (near ? 2 : 0) - haunt - (abscess ? 4 : 0));
   const parts = [t("Shroud.Base", { n: base, set: f.base != null ? "" : t("Shroud.Default") }),
     ...(hysteria && !haunt ? [t("Shroud.Hysteria", { n: hysteria })] : []), ...(near ? [t("Shroud.Near")] : []),
-    ...(haunt ? [t("Shroud.Haunt", { n: haunt })] : [])];
-  return { base, hysteria, near, haunt, value, set: f.base != null, scene: scene?.name ?? "", text: parts.join(", ") };
+    ...(haunt ? [t("Shroud.Haunt", { n: haunt })] : []), ...(abscess ? [t("Shroud.Abscess")] : [])];
+  return { base, hysteria, near, haunt, abscess, floor, value, set: f.base != null, scene: scene?.name ?? "", text: parts.join(", ") };
 }
 
 /** Рассказчик: рейтинг Покрова сцены (±1) или Истерия (+1, до 3; «сброс» — 0). */
@@ -103,6 +105,14 @@ export async function setNecropolis(key) {
   return NECROPOLI[key] ? scene.setFlag(SYSTEM_ID, "necropolis", key) : scene.unsetFlag(SYSTEM_ID, "necropolis");
 }
 
+/** Рассказчик: Нарыв Лабиринта у этой сцены — вкл/выкл. */
+export async function toggleAbscess() {
+  const scene = game.scenes?.viewed;
+  if (!game.user.isGM) return ui.notifications.warn(game.i18n.localize("VTM20.Notify.GMOnly"));
+  if (!scene) return ui.notifications.warn(t("Shroud.NoScene"));
+  return scene.getFlag(SYSTEM_ID, "abscess") ? scene.unsetFlag(SYSTEM_ID, "abscess") : scene.setFlag(SYSTEM_ID, "abscess", true);
+}
+
 /** Призрак в своём Обиталище (Фон «Обиталище»): Покров ниже на его рейтинг. */
 export async function toggleHaunt(actor) {
   if (!backgroundRating(actor, "Haunt") && !actor.getFlag(SYSTEM_ID, "inHaunt")) return ui.notifications.warn(t("Shroud.NoHaunt"));
@@ -112,7 +122,7 @@ export async function toggleHaunt(actor) {
 /** Сложность уровня: число из текста; сквозь Покров — рейтинг Покрова; «N или Покров, что выше»; никогда не ниже 4. */
 export function artDifficulty(lv, actor) {
   const sh = shroudOf(actor);
-  if (lv.shroudMax) return { diff: Math.max(4, lv.diff ?? 6, sh.value), shroud: sh, note: t("Shroud.MaxNote", { d: lv.diff ?? 6, n: sh.value, why: sh.text }) };
+  if (lv.shroudMax) return { diff: Math.max(sh.floor, lv.diff ?? 6, sh.value), shroud: sh, note: t("Shroud.MaxNote", { d: lv.diff ?? 6, n: sh.value, why: sh.text }) };
   if (lv.diff) return { diff: Math.max(4, lv.diff), shroud: null, note: lv.diffRule ? t("Shroud.Rule", { rule: lv.diffRule }) : "" };
   if (lv.shroud) return { diff: sh.value, shroud: sh, note: t("Shroud.Note", { n: sh.value, why: sh.text }) + (lv.diffRule && !/^Покров$/.test(lv.diffRule) ? ` — ${t("Shroud.Rule", { rule: lv.diffRule })}` : "") };
   return { diff: 6, shroud: null, note: lv.diffRule ? t("Shroud.Rule", { rule: lv.diffRule }) : "" };

@@ -91,6 +91,7 @@ function onWrEmpDone() { return empowerComplete(this.actor); }
 function onWrEmpDrop() { return empowerAbandon(this.actor); }
 // Буря (apps/tempest.mjs): путь через Бурю, прогноз Мальстрёма
 function onWrTempest() { return tempestJourney(this.actor); }
+async function onWrAbscess() { await (await import("../../apps/wraith.mjs")).toggleAbscess(); this.render(); }
 function onWrForecast() { return forecast(this.actor); }
 function onWrForecastClear() { return forecastClear(this.actor); }
 function onWrWhisper() { return shadowWhisper(this.actor); }
@@ -160,7 +161,7 @@ export const WRAITH_ACTIONS = {
   wrHarrowing: onWrHarrowing, wrHeal: onWrHeal, wrPathos: onWrPathos, wrSession: onWrSession,
   wrAngst: onWrAngst, wrGuide: onWrGuide, wrWhisper: onWrWhisper, wrResolve: onWrResolve, wrWane: onWrWane, wrLinger: onWrLinger, wrThorn: onWrThorn, wrConsortAdd: onWrConsortAdd, wrConsortDel: onWrConsortDel, wrConsort: onWrConsort, wrRelicWake: onWrRelicWake, wrForge: onWrForge, wrForgeStep: onWrForgeStep, wrForgeFx: onWrForgeFx,
   wrForgeDone: onWrForgeDone, wrForgeDrop: onWrForgeDrop, wrEmpower: onWrEmpower, wrEmpGather: onWrEmpGather, wrEmpStep: onWrEmpStep,
-  wrEmpDone: onWrEmpDone, wrEmpDrop: onWrEmpDrop, wrTempest: onWrTempest, wrForecast: onWrForecast, wrForecastClear: onWrForecastClear, wrAtlas: onWrAtlas, wrShroud: onWrShroud, wrHaunt: onWrHaunt,
+  wrEmpDone: onWrEmpDone, wrEmpDrop: onWrEmpDrop, wrTempest: onWrTempest, wrAbscess: onWrAbscess, wrForecast: onWrForecast, wrForecastClear: onWrForecastClear, wrAtlas: onWrAtlas, wrShroud: onWrShroud, wrHaunt: onWrHaunt,
   spBecome: onSpBecome, spDark: onSpDark, spPassion: onSpPassion, spCatharsis: onSpCatharsis, spRapacity: onSpRapacity, spRow: onSpRow,
   rsOn: onRsOn, rsRise: onRsRise, rsLeave: onRsLeave, rsBody: onRsBody, rsDisc: onRsDisc, rsArt: onRsArt, rsSlumber: onRsSlumber, rsDown: onRsDown, rsArtRow: onRsArtRow,
   pjOn: onPjOn, pjProject: onPjProject, pjStain: onPjStain, pjSuppress: onPjSuppress, pjWill: onPjWill, pjEmblem: onPjEmblem, pjEyes: onPjEyes, pjRow: onPjRow, rlArt: onRlArt, rlRow: onRlRow,

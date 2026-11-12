@@ -90,6 +90,8 @@ export const KINDS = [
   { key: "risen", group: "dead", label: "Восставший", icon: "fa-person-rays", actor: "wraith" },
   { key: "projector", group: "dead", label: "Проектор «Орфея»", icon: "fa-person-falling-burst", actor: "wraith" },
   { key: "plasmic", group: "dead", label: "Плазмик Бури", icon: "fa-tornado", actor: "wraith" },
+  { key: "doomslayer", group: "dead", label: "Губитель рока", icon: "fa-shield-halved", actor: "wraith" },
+  { key: "nomad", group: "dead", label: "Кочевник Нарыва", icon: "fa-person-walking-dashed-line-arrow-right", actor: "wraith" },
   { key: "group", group: "groups", label: "Группа целиком", icon: "fa-people-group", actor: null },
   { key: "book", group: "book", label: "Статблоки книги", icon: "fa-book", actor: null }
 ];
@@ -515,6 +517,25 @@ const BUILD = {
   risen(ctx, p) { return wraithNpc(ctx, p, "risen"); },
   projector(ctx, p) { return wraithNpc(ctx, p, "projector"); },
   plasmic(ctx, p) { return plasmicNpc(ctx, p); },
+  // Губители рока (Book of Oblivion, «Doomslayers»): призрак одного из Орденов; Гильдия — где книга её называет
+  doomslayer(ctx, p) {
+    const order = DOOM.find(o => o.key === p.order) ?? pick(DOOM);
+    const d = wraithNpc(ctx, { ...p, guild: p.guild || order.guild || "" }, "wraith");
+    d.order = order.key;
+    d.tags = [game.i18n.localize(`VTM20.Wraith.Doom.${order.key}`), ...d.tags];
+    d.text = game.i18n.localize(`VTM20.Wraith.Doom.${order.key}Text`);
+    d.system.notes = `<p>${foundry.utils.escapeHTML(d.text)}</p>`;
+    return d;
+  },
+  // Кочевник (Book of Oblivion, «Нарывы»): живой проводник, заражённый Одием Нарыва, — устроен как Восставший; тащит жертв в Нихил
+  nomad(ctx, p) {
+    const d = wraithNpc(ctx, p, "risen");
+    d.tags = [game.i18n.localize("VTM20.NpcGen.Kind.nomad"), ...d.tags.slice(1)];
+    d.text = game.i18n.localize("VTM20.Wraith.Doom.NomadText");
+    d.system.wraith.risen.conduit = game.i18n.localize("VTM20.Wraith.Doom.NomadConduit");
+    d.system.notes = `<p>${foundry.utils.escapeHTML(d.text)}</p>`;
+    return d;
+  },
 
   spirit(ctx, p) {
     const D = WW(), list = D.spirits ?? [];
@@ -550,7 +571,7 @@ function wraithNpc(ctx, p, mode) {
   c.chosen = c.chosen.filter(x => !noBg.includes(x.en));
   const will = Math.clamp((mode === "risen" ? 6 : 5) + ctx.power.add.will, 1, 10);
   const legion = (D.legions ?? []).find(l => l.key === p.legion) ?? pick(D.legions ?? [{ key: "" }]);
-  const guild = mode === "spectre" ? null : (D.arcanoi ?? []).find(a => a.key === p.guild) ?? (Math.random() < .6 ? pick(D.arcanoi ?? []) : null);
+  const guild = mode === "spectre" ? null : (D.arcanoi ?? []).find(a => a.key === p.guild) ?? (Math.random() < .6 ? pick((D.arcanoi ?? []).filter(a => a.guild)) : null);
   const arcanoi = Object.fromEntries(keys.map(k => [k, 0]));
   const cap = Math.min(5, 3 + Math.max(0, tier - 1));
   const shade = mode === "projector" ? (D.shades ?? []).find(s => s.key === p.shade) ?? pick(D.shades ?? [{ key: "", favored: [] }]) : null;
@@ -608,6 +629,9 @@ function wraithNpc(ctx, p, mode) {
         : [game.i18n.localize("VTM20.Wraith.Angst"), w.shadow.angst.permanent]],
     tags: tags.filter(Boolean) };
 }
+
+/** Ордена Губителей рока (Book of Oblivion): Гильдия — только где книга её называет (Helldivers — Лицедеи, Darksiders — Отпустители). */
+const DOOM = [{ key: "thorn" }, { key: "division" }, { key: "helldivers", guild: "moliate" }, { key: "darksiders", guild: "castigate" }, { key: "solos" }];
 
 /**
  * Плазмик — обитатель Бури (Wraith 20, гл. 12): готовый статблок книги, сила окна не меняет. Лист призрака держит Корпус

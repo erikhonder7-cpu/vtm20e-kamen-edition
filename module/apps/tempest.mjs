@@ -32,6 +32,7 @@ export async function tempestJourney(actor) {
       <label class="r-f"><span>${t("Tempest.Method")}</span><select name="method"><option value="none">${t("Tempest.M.none")}</option>
         ${methods.map(([k, m]) => `<option value="${k}" selected>${t(`Tempest.M.${k}`, { n: m.pathos, d: m.diff })}</option>`).join("")}</select></label>
       <label class="r-f"><span>${t("Tempest.Passengers")}</span><input type="number" name="pass" value="0" min="0" max="10"></label>
+      <label class="r-check" data-tooltip="${esc(t("Tempest.FistulaHint"))}"><input type="checkbox" name="fistula"> ${t("Tempest.Fistula")}</label>
       <label class="r-f"><span>${t("Tempest.ToFetter")}</span><select name="fetter"><option value="">—</option>
         ${fetters.map(x => `<option value="${x.i}">${esc(x.f.text || "—")} (${x.f.value})</option>`).join("")}</select></label>`,
     ok: { label: t("Tempest.Go"), callback: (ev, btn) => Object.fromEntries(new FormData(btn.form)) }, rejectClose: false });
@@ -41,10 +42,12 @@ export async function tempestJourney(actor) {
   const fetter = r.fetter !== "" ? actor.system.wraith.fetters[Number(r.fetter)] : null;
   // Сиэтл (Book of Oblivion): Аргос в Пьюджет-Саунде +1 к сложности
   const necro = necropolisOf()?.argos ?? 0;
-  const diff = Math.max(fetter ? 4 : 2, Math.min(10, m.diff + necro + Math.clamp(Number(r.pass) || 0, 0, 10) - (fetter?.value ?? 0)));
+  // через фистулу — шрам Покрова между Нарывом Лабиринта и Нихилом (Book of Oblivion): −2
+  const fist = r.fistula ? 2 : 0;
+  const diff = Math.max(fetter ? 4 : 2, Math.min(10, m.diff + necro - fist + Math.clamp(Number(r.pass) || 0, 0, 10) - (fetter?.value ?? 0)));
   if (!(await spendPathos(actor, m.pathos))) return null;
   return RollDialog.prompt(actor, { title: t("Tempest.Title"), trait1: "attributes.perception", trait2: "wraith.argos", difficulty: diff, lockTraits: true,
-    diffNote: t("Tempest.DiffNote", { d: m.diff, p: Number(r.pass) || 0, f: fetter?.value ?? 0 }) + (necro ? ` · ${t("Necro.ArgosNote", { name: necropolisOf().name })}` : ""),
+    diffNote: t("Tempest.DiffNote", { d: m.diff, p: Number(r.pass) || 0, f: fetter?.value ?? 0 }) + (necro ? ` · ${t("Necro.ArgosNote", { name: necropolisOf().name })}` : "") + (fist ? ` · ${t("Tempest.Fistula")} −2` : ""),
     extra: { wraith: { kind: "tempest", method: r.method } },
     onRolled: async res => {
       const n = res?.successes ?? 0, botch = res?.outcome === "botch";

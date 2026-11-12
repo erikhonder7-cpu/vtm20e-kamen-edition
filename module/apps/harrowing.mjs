@@ -55,6 +55,24 @@ export class HarrowingApp extends HandlebarsApplicationMixin(ApplicationV2) {
 
   get targeted() { return ["will", "passion", "fetter"].includes(this.v.kind); }
 
+  /**
+   * Групповое Испытание (гл. 6, «Group Harrowings»): Корпус потерян у всех разом (бой, Мальстрём) — испытание общее.
+   * Либо все выходят отыгрышем, либо бросает каждый. Кандидаты — призраки с жетонами на сцене (иначе — призраки игроков).
+   */
+  get groupable() { return ["corpus", "self", "destruction"].includes(this.v.kind); }
+  groupCandidates() {
+    const onScene = (game.scenes?.viewed?.tokens ?? []).map(tk => tk.actor).filter(a => a?.type === "wraith" && a.id !== this.actor.id);
+    const list = onScene.length ? onScene : game.actors.filter(a => a.type === "wraith" && a.id !== this.actor.id && a.hasPlayerOwner);
+    return [...new Map(list.map(a => [a.id, a])).values()];
+  }
+  /** То же Испытание для другого призрака группы — без окна. */
+  memberApp(actor) {
+    const app = new HarrowingApp(actor, this.v.kind);
+    app.v = { ...this.v, quarry: "", second: "", answer: "" };
+    return app;
+  }
+  get members() { return this.groupable ? [...(this.group ?? [])].map(id => game.actors.get(id)).filter(Boolean) : []; }
+
   /** Добыча на выбор: Воля — любая Страсть или Оковы; Страсть / Оковы — свой список; остальные — сам призрак. */
   quarries() {
     const w = this.actor.system.wraith, k = this.v.kind;
@@ -78,6 +96,7 @@ export class HarrowingApp extends HandlebarsApplicationMixin(ApplicationV2) {
       others: v.kind === "passion" ? others.map(o => ({ ...o, selected: o.key === v.second })) : null,
       eidolon: eid, eidolonUsed: !!w.session.harrow, eidolonOk: eid > 0 && !w.session.harrow,
       diff: destruction ? 6 : Math.clamp(9 + v.rp, 6, 9), angst: w.shadow.angst.permanent, will: a.system.willpower.permanent,
+      group: this.groupable ? this.groupCandidates().map(a => ({ id: a.id, name: a.name, on: this.group?.has(a.id) })) : null,
       fate: t(`Harrow.Fate.${v.kind}`), flint: necropolisOf()?.flint ? t("Necro.Flint") : "", reliefs: [1, 2, 3].map(n => ({ n, selected: n === v.relief }))
     };
   }
@@ -89,6 +108,7 @@ export class HarrowingApp extends HandlebarsApplicationMixin(ApplicationV2) {
       const f = new foundry.applications.ux.FormDataExtended(this.element).object;
       Object.assign(this.v, { quarry: f.quarry ?? this.v.quarry, second: f.second ?? this.v.second, answer: f.answer ?? this.v.answer,
         reward: !!f.reward, relief: Math.clamp(Number(f.relief) || 1, 1, 3) });
+      this.group = new Set(Object.entries(f).filter(([k, on]) => k.startsWith("g_") && on).map(([k]) => k.slice(2)));
       this.#save();
       this.render();
     });
@@ -112,10 +132,20 @@ export class HarrowingApp extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   /** Решено отыгрышем — победа без броска. */
-  static async #onSolved() { await this.finish(true, t("Harrow.BySolution")); }
+  static async #onSolved() {
+    const members = this.members;
+    await this.finish(true, t("Harrow.BySolution"));
+    for (const m of members) await this.memberApp(m).finish(true, t("Harrow.BySolution"));
+  }
 
   /** Бросок выхода: Воля, сл. 9 (Разрушение — против Ангста Тени, сл. 6). */
   static async #onEscape() {
+    // группа: не решили отыгрышем — бросает каждый
+    for (const m of this.members) { await m.toggleStatusEffect?.("r-harrowing", { active: true }); await this.memberApp(m).escape(); }
+    return this.escape();
+  }
+
+  async escape() {
     const a = this.actor, v = this.v;
     if (v.kind === "destruction") {
       const angst = a.system.wraith.shadow.angst.permanent;

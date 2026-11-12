@@ -3346,6 +3346,8 @@ try {
         out.tokens = [s.tokens.courts?.["f:dead-hierarchy"], s.tokens.crime?.["f:dead-renegade"], s.tokens.church?.["f:dead-heretic"], s.tokens.port?.["f:dead-ferryman"]];
         (await import(`/systems/${sid}/module/ui/citymap.mjs`)).closeCity(); await wait(400);
       } finally { await game.settings.set(sid, "strategy", saved); }
+      // доска после восстановления ещё досчитывает влияние и пользу секторов — дать ей закончить, чтобы не задеть следующую проверку
+      await wait(2500);
       const pack = game.packs.get(`${sid}.wraith-arcanoi`);
       out.pack = pack ? (await pack.getIndex()).size : 0;
       return out;
@@ -5128,6 +5130,71 @@ try {
     // Артефакт 1: 6 успехов ≥ 5; Трансценденция — 1 Страсть; Оссеум в Лабиринте −2
     const want = { psyGuide: [true, true, true], psyDice: 3, pact: [2, 3, "pactDone"], vamp: 3, whisper: true, life: true, traits: true, traitsOff: true,
       artifact: ["artifact", 1, true], trans: { passions: 1, fetters: 0 }, osseum: [true, true], ossDiff: -2 };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
+  // Лабиринт и мелочи: умственные броски в Буре, спонтанное проявление, групповое Испытание, Нарыв и фистула, Губители рока и Кочевники
+  await check("Призрак: Лабиринт и мелочи — Буря и разум, спонтанное проявление, групповое Испытание, Нарыв, Губители рока", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {}, n0 = game.messages.size;
+      const sys = p => import(`/systems/${sid}/module/${p}.mjs`);
+      const [W, TR, HA, T, B, { RollDialog }] = await Promise.all(["apps/wraith", "apps/training", "apps/harrowing", "apps/tempest", "apps/npc-build", "dice/dialog"].map(sys));
+      const inst = () => [...foundry.applications.instances.values()];
+      const rollDlg = async () => { for (let i = 0; i < 40; i++) { const d = inst().find(x => x.constructor.name === "RollDialog" && x.rendered); if (d) return d; await wait(100); } return null; };
+      const scene = game.scenes.viewed;
+      if (!scene) return { noScene: true };
+      const place0 = scene.getFlag(sid, "place"), abs0 = scene.getFlag(sid, "abscess");
+      const mk = (name, system) => Actor.create({ name, type: "wraith", flags: { world: { e2e: true }, [sid]: { created: true } }, system });
+      const a = await mk("E2E — призрак в Буре", { attributes: { intelligence: { value: 3 }, perception: { value: 3 }, stamina: { value: 2 } }, willpower: { permanent: 5, temporary: 5 },
+        experience: { total: 20 }, wraith: { pathos: { value: 8 }, arcanoi: { argos: { value: 1, initiate: [], skip: [] } } } });
+      const b = await mk("E2E — призрак группы", { attributes: { stamina: { value: 2 } } });
+      // в группу Испытания зовутся призраки с жетонами на сцене — второму ставим жетон
+      const [tkB] = await scene.createEmbeddedDocuments("Token", [{ ...(await b.getTokenDocument({ actorLink: true })).toObject(), x: 100, y: 100 }]);
+      const DV = foundry.applications.api.DialogV2, p0 = DV.prompt, c0 = DV.confirm;
+      try {
+        await W.setPlace("tempest");
+        out.mind = [new RollDialog(a, { trait1: "attributes.intelligence", difficulty: 6 }).compute().effDifficulty,
+          new RollDialog(a, { trait1: "attributes.strength", difficulty: 6 }).compute().effDifficulty,
+          new RollDialog(a, { trait1: "attributes.wits", difficulty: 9 }).compute().effDifficulty];
+        await W.setPlace("shadowlands");
+        // спонтанное проявление: Аргос 1 → 2 — 2 Воли и полная цена по таблице (текущий 1 × 3 = 3)
+        const ref = "a:system.wraith.arcanoi.argos.value:arcanos";
+        await TR.planTraining(a, ref, "Аргос"); DV.confirm = async () => true;
+        const x0 = a.system.experience.available; await TR.spontaneous(a, ref);
+        out.spont = [a.system.wraith.arcanoi.argos.value, a.system.willpower.temporary, x0 - a.system.experience.available];
+        // групповое Испытание за Корпус, решено отыгрышем: оба выходят, временный Корпус = Выносливости 2
+        await HA.openHarrowing(a, "corpus"); await wait(700);
+        const app = inst().find(x => x instanceof HA.HarrowingApp);
+        out.groupList = !!app?.element.querySelector(`input[name="g_${b.id}"]`);
+        app.group = new Set([b.id]);
+        app.element.querySelector("[data-action=solved]")?.click(); await wait(1500);
+        out.group = [a.system.health.lethal, b.system.health.lethal];
+        // Нарыв: Покров −4, не ниже 3; путь через фистулу −2
+        await W.toggleAbscess();
+        const sh = W.shroudOf(a); out.abscess = [sh.abscess, sh.value >= 3, sh.floor];
+        DV.prompt = async () => ({ base: "4", unit: "hours", method: "eye", pass: "0", fetter: "", fistula: "on" });
+        T.tempestJourney(a); const d = await rollDlg(); out.fistula = d?.values.difficulty; await d?.close();
+        await W.toggleAbscess(); out.abscessOff = !W.shroudOf(a).abscess;
+      } finally {
+        DV.prompt = p0; DV.confirm = c0;
+        if (place0) await scene.setFlag(sid, "place", place0); else await scene.unsetFlag(sid, "place");
+        if (abs0) await scene.setFlag(sid, "abscess", true); else await scene.unsetFlag(sid, "abscess");
+        for (const x of inst()) if (x.constructor.name === "RollDialog" || x instanceof HA.HarrowingApp) await x.close();
+        await ChatMessage.deleteDocuments(game.messages.contents.slice(n0).map(m => m.id));
+        await scene.deleteEmbeddedDocuments("Token", [tkB.id]).catch(() => null);
+        await Actor.deleteDocuments([a.id, b.id]);
+      }
+      const ds = B.buildNpc({ kind: "doomslayer", power: "normal", params: { order: "helldivers" } }), nm = B.buildNpc({ kind: "nomad", power: "normal" });
+      out.doom = [ds.system.wraith.guild, ds.tags.includes("Helldivers")];
+      out.nomad = [nm.system.wraith.risen.on, nm.system.wraith.risen.conduit];
+      out.noOsseumGuild = Array.from({ length: 30 }, () => B.buildNpc({ kind: "wraith", power: "normal" }).system.wraith.guild).every(g => g !== "osseum");
+      return out;
+    });
+    if (r.noScene) return;
+    // Буря: Интеллект 6 → 7, Сила 6 — как есть, сложность 9 — не выше 9; Аргос 2: Воля 5 → 3, опыт 3; группа — Корпус 10, Выносливость 2: летальных 8
+    const want = { mind: [7, 6, 9], spont: [2, 3, 3], groupList: true, group: [8, 8], abscess: [true, true, 3], fistula: 4, abscessOff: true,
+      doom: ["moliate", true], nomad: [true, "Одий Нарыва"], noOsseumGuild: true };
     const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });

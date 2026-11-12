@@ -393,3 +393,4 @@
 /* Путь к Трансценденции (apps/resolution.mjs, transcendInfo) */
 .vtm20.r-type-wraith .r-wr-transcend { margin: 2px 0 10px; font-size: 12.5px; font-style: italic; color: #dfe3e8; }
 .vtm20.r-type-wraith .r-wr-transcend i { color: #e6d9a8; margin-right: 4px; }
+.vtm20.r-harrow .r-harrow-group { flex-wrap: wrap; gap: 4px 12px; }
