@@ -62,17 +62,18 @@
       "Tempers": "Starting Tempers: Glamour {g}, Willpower {w}, Banality {b} (cannot be raised). Glamour costs 3 freebies per dot."
     },
     "NewSession": {
-      "Title": "Новая сессия",
-      "Lead": "Начинается сессия №{n}. У всех персонажей мира сбросится всё «раз за сессию»: у призраков — Мемориум и Эйдолон, у охотников — запрет воззваний. Опыт и хронику прошлой сессии лучше открыть до сброса.",
-      "OpenXp": "Сначала — опыт за прошлую сессию",
-      "OpenChronicle": "Сначала — хроника прошлой сессии",
-      "Label": "Название",
-      "LabelPh": "Сессия №{n}",
-      "Start": "Начать сессию",
-      "ResetDone": "Сброшено «раз за сессию»",
+      "Title": "New session",
+      "Lead": "Session #{n} begins. Everything “once per session” resets for every character in the world: wraiths — Memoriam and Eidolon, hunters — the ban on edges, changelings — the Wyrd and Bedlam Thresholds fade. Open last session's experience and chronicle before the reset.",
+      "OpenXp": "First — experience for the last session",
+      "OpenChronicle": "First — the last session's chronicle",
+      "Label": "Title",
+      "LabelPh": "Session #{n}",
+      "Start": "Start the session",
+      "ResetDone": "Reset “once per session”",
       "Reset": {
-        "wraith": "призраки — {n} (Мемориум, Эйдолон)",
-        "hunter": "охотники — {n} (воззвания)"
+        "changeling": "changelings — {n} (Wyrd, Bedlam Threshold)",
+        "wraith": "wraiths — {n} (Memoriam, Eidolon)",
+        "hunter": "hunters — {n} (edges)"
       }
     },
     "WraithCr": {

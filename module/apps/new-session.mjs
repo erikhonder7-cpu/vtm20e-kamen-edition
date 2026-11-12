@@ -4,6 +4,7 @@
 // Сбросы — в RESETS (линия: что вернуть); другие части системы и модули могут добавить свои через хук «vtm20NewSession».
 //  • Призрак (Wraith 20, гл. 4, 6): бросок Мемориума, кубики Эйдолона в Катарсисе, бросок Эйдолона в Испытании.
 //  • Охотник (Hunter: The Reckoning): запрет воззваний на сессию и на сцену.
+//  • Подменыш (C20): угасают Вирд и Порог Бедлама.
 
 import { SYSTEM_ID } from "../config.mjs";
 
@@ -16,7 +17,11 @@ export const RESETS = [
     update: () => ({ "system.wraith.session": { memoriam: false, eidolon: 0, harrow: false } }) },
   { key: "hunter", match: a => !!a.system.hunter && "sessionBlock" in a.system.hunter,
     dirty: a => a.system.hunter.sessionBlock || a.system.hunter.sceneBlock,
-    update: () => ({ "system.hunter.sessionBlock": false, "system.hunter.sceneBlock": false }) }
+    update: () => ({ "system.hunter.sessionBlock": false, "system.hunter.sceneBlock": false }) },
+  // подменыш (C20, гл. 6): Вирд держится сцену, Порог Бедлама — несколько сцен; между сессиями они угасают (правило системы)
+  { key: "changeling", match: a => a.type === "changeling",
+    dirty: a => !!(a.getFlag(SYSTEM_ID, "wyrd") || a.getFlag(SYSTEM_ID, "bedlam")),
+    update: () => ({ [`flags.${SYSTEM_ID}.-=wyrd`]: null, [`flags.${SYSTEM_ID}.-=bedlam`]: null }) }
 ];
 
 export function registerNewSession() {

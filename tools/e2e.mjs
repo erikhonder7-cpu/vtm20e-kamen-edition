@@ -5533,6 +5533,11 @@ try {
         await a.update({ "system.changeling.glamour.temporary": 0 });
         await CL.runEpiphany(a, { path: "revelry" });
         out.revelry = [a.system.changeling.glamour.temporary, !!a.getFlag(sid, "revelry")];
+        // «Новая сессия»: Вирд и Порог Бедлама угасают
+        await a.setFlag(sid, "wyrd", { scene: "" }); await a.setFlag(sid, "bedlam", { key: "weird", n: 1, scenes: 1, attr: "charisma" });
+        const { resetSession } = await import(`/systems/${sid}/module/apps/new-session.mjs`);
+        const cnt = await resetSession();
+        out.session = [cnt.changeling >= 1, !a.getFlag(sid, "wyrd"), !a.getFlag(sid, "bedlam")];
       } finally {
         CONFIG.Dice.randomUniform = rnd;
         if (sb0 == null) await scene?.unsetFlag(sid, "banality"); else await scene?.setFlag(sid, "banality", sb0);
@@ -5543,7 +5548,7 @@ try {
     });
     // Вирд: Гламур 5 − 1, Воля 4 − 1; кантрип в Вирде — бесплатно; Порог — 9 кнопок; Восприятие +1;
     // Разорение 3; Восторг (Манипуляция 3 + Эмпатия 3 = 6 десяток) — рейтинг 6, пул 6; Мечтание снимает Дисбаланс 1 → 0; Веселье — пул 6
-    const want = { wyrd: [true, 4, 3], again: true, free: 4, wyrdEnd: false, prompt: 9, penalty: true, ravage: [3, 4], rapture: [6, 6], heal: 0, revelry: [6, true] };
+    const want = { wyrd: [true, 4, 3], again: true, free: 4, wyrdEnd: false, prompt: 9, penalty: true, ravage: [3, 4], rapture: [6, 6], heal: 0, revelry: [6, true], session: [true, true, true] };
     const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
