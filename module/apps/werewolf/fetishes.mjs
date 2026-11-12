@@ -132,3 +132,35 @@ export async function craftFetish(actor, key) {
     : RollDialog.prompt(actor, { title: t("CraftTitle", { name: f.name }), trait1: "attributes.wits", trait2: "abilities.rituals", difficulty: Math.max(3, 10 - 2 * n),
         diffNote: t("CraftFetishNote"), onRolled: done });
 }
+
+/**
+ * Клайвы (W20, гл. 4; Book of the Wyrm): фетиш-клинок сразу и оружием на листе — серебро, урон Сила + N губительный.
+ * Клэйв: сл. 6, Сила + 2, −1 эффективного Гнозиса; Великий клэйв: сл. 7, Сила + 3, −2; Баньклейв: сл. 7, Сила + 3
+ * (о Гнозисе в книге ни слова — без потери). Пока клинок при себе (оружие «в руках»), бросок Гнозиса меньше на потерю.
+ */
+export const KLAIVES = { klaive: { damage: 2, difficulty: 6, loss: 1 }, "grand-klaive": { damage: 3, difficulty: 7, loss: 2 }, baneklaive: { damage: 3, difficulty: 7, loss: 0 } };
+
+/** Оружие-клайвы под фетиши листа: недостающие создать, лишние (фетиш убран) — удалить. */
+export async function syncKlaives(actor) {
+  if (!actor?.isOwner || !actor.system.werewolf) return;
+  const want = new Set((actor.system.werewolf.fetishes ?? []).map(x => x.key).filter(k => KLAIVES[k]));
+  const have = actor.items.filter(i => i.type === "weapon" && i.getFlag(game.system.id, "klaive"));
+  const del = have.filter(i => !want.has(i.getFlag(game.system.id, "klaive"))).map(i => i.id);
+  const own = new Set(have.map(i => i.getFlag(game.system.id, "klaive")));
+  const add = [...want].filter(k => !own.has(k)).map(k => {
+    const f = fetishOf(k), K = KLAIVES[k];
+    return { name: f.name, type: "weapon", flags: { [game.system.id]: { klaive: k, gnosisLoss: K.loss } },
+      system: { kind: "melee", damage: K.damage, strength: true, damageType: "aggravated", difficulty: K.difficulty, silver: true, equipped: true,
+        description: `${f.text ?? ""}${K.loss ? `<p><em>${t("KlaiveLoss", { n: K.loss })}</em></p>` : ""}` } };
+  });
+  if (del.length) await actor.deleteEmbeddedDocuments("Item", del);
+  if (add.length) await actor.createEmbeddedDocuments("Item", add);
+}
+
+/** Список фетишей меняется (добавление, изготовление, удаление) — клинки на листе следом; пишет тот, кто менял. */
+export function registerKlaives() {
+  Hooks.on("updateActor", (actor, diff, opts, userId) => {
+    if (userId !== game.user.id || !foundry.utils.hasProperty(diff, "system.werewolf.fetishes")) return;
+    syncKlaives(actor);
+  });
+}

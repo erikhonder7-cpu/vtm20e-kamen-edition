@@ -32,7 +32,39 @@
   </aside>
 
   <main class="r-xw-main">
-    {{#if history}}
+    {{#if train}}
+    <div class="r-xp-list r-xw-list">
+      <h2 class="r-h2"><span>{{localize "VTM20.Train.Head"}}</span></h2>
+      <p class="r-note">{{localize "VTM20.Train.Lead"}}</p>
+      <div class="r-xw-train">
+        {{#each train}}
+        <article class="r-vcard r-xw-tcard {{#unless ok}}is-dim{{/unless}}" data-train="{{ref}}">
+          <header class="r-xw-thead">
+            <b>{{label}}</b>
+            <span class="r-dots">{{#each dots}}<span class="r-dot {{#if on}}is-filled{{/if}} {{#if next}}is-next{{/if}}"></span>{{/each}}</span>
+          </header>
+          {{#if ok}}
+          <div class="r-xw-tline"><i class="fa-solid fa-coins"></i> {{localize "VTM20.Train.Cost" n=cost}} <small>{{why}}</small>{{#if bank}} · <span class="r-xw-bank">{{localize "VTM20.Train.Bank" n=bank}}</span>{{/if}}</div>
+          {{/if}}
+          <label class="r-xw-tline"><i class="fa-solid fa-chalkboard-user"></i>
+            <input type="text" name="mentor" value="{{mentor}}" list="r-xw-mentors" placeholder="{{localize 'VTM20.Train.Mentor'}}" {{#unless @root.editable}}disabled{{/unless}}></label>
+          {{#if mentorBg.length}}<div class="r-xw-tline"><small>{{#each mentorBg}}{{name}} {{value}}{{#unless @last}}, {{/unless}}{{/each}}</small></div>{{/if}}
+          {{#if hasNights}}<div class="r-xw-tline"><i class="fa-solid fa-moon"></i> {{localize "VTM20.Train.Nights" n=nights}}</div>{{/if}}
+          <p class="r-xw-tnote">{{note}}</p>
+          {{#if @root.editable}}
+          <footer class="r-vc-tools r-xw-ttools">
+            {{#if ok}}<a class="r-btn {{#unless can}}is-off{{/unless}}" data-action="trainDone"><i class="fa-solid fa-graduation-cap"></i> {{localize "VTM20.Train.Finish" n=need}}</a>{{/if}}
+            {{#if lore}}<a class="r-btn" data-action="trainRoll"><i class="fa-solid fa-dice-d10"></i> {{localize "VTM20.Train.Teacher"}}</a>{{/if}}
+            <a class="r-icon-btn is-danger" data-action="trainDrop" data-tooltip="{{localize 'VTM20.Train.Drop'}}"><i class="fa-solid fa-xmark"></i></a>
+          </footer>
+          {{/if}}
+        </article>
+        {{else}}
+        <p class="r-empty">{{localize "VTM20.Train.Empty"}}</p>
+        {{/each}}
+      </div>
+    </div>
+    {{else if history}}
     <div class="r-xp-list r-xw-list">
       <h2 class="r-h2"><span>{{localize "VTM20.Xp.History"}}</span></h2>
       <ol class="r-xw-hist">
@@ -57,9 +89,10 @@
               <span class="r-leader"></span>
               <span class="r-dots">{{#each dots}}<span class="r-dot {{#if on}}is-filled{{/if}} {{#if next}}is-next{{/if}}"></span>{{/each}}</span>
               <a class="r-h2-btn r-xw-buy {{#unless can}}is-off{{/unless}}" {{#if @root.editable}}data-action="buy"{{/if}} data-ref="{{ref}}" data-label="{{label}}"
-                 data-tooltip="{{#if isNew}}{{localize 'VTM20.Xp.New'}}{{else}}{{cur}} → {{next}}{{/if}}{{#if short}} · {{localize 'VTM20.Xp.Short' n=short}}{{/if}}">
+                 data-tooltip="{{#if isNew}}{{localize 'VTM20.Xp.New'}}{{else}}{{cur}} → {{next}}{{/if}}<br>{{why}}{{#if short}}<br>{{localize 'VTM20.Xp.Short' n=short}}{{/if}}">
                 <i class="fa-solid {{#if can}}fa-plus{{else}}fa-lock{{/if}}"></i><b>{{cost}}</b>
               </a>
+              {{#if @root.editable}}<a class="r-icon-btn r-xw-plan {{#if planned}}is-on{{/if}}" data-action="plan" data-ref="{{ref}}" data-label="{{label}}" data-tooltip="{{localize 'VTM20.Train.PlanHint'}}"><i class="fa-solid fa-graduation-cap"></i></a>{{/if}}
             </div>
           </div>
           {{/each}}

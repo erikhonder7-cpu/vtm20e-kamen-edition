@@ -794,3 +794,7 @@ body.r-theme-light img[src$="assets/werewolf/glyph-garou.png"] { filter: none; }
 .r-roll-card.r-type-werewolf .r-line-chip.is-rage .r-wg { background: linear-gradient(170deg, #f0a58c, #a3442c); }
 .r-roll-card.r-type-werewolf .r-line-chip.is-to { border-color: #dfe8e3; color: #f4f8f6; }
 .r-roll-card.r-type-werewolf > .r-card-emblem { background: linear-gradient(170deg, #f4f8f6, #9fb3aa); opacity: .09; }
+
+/* вызов на Ранг: кнопка под званием и карточка в чате */
+.r-ws-challenge { align-self: flex-start; margin-top: 6px; }
+.r-challenge-card .r-warn { color: #d9785a; margin: 4px 0 0; }

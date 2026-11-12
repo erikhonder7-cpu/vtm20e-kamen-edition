@@ -2,6 +2,7 @@
 // Окно опыта (01): все черты персонажа с ценой следующей точки, что по карману, покупка в один клик
 // (через VtMActor.buyWithXp — единственный путь развития, кнопок «+» на листе нет), начисление и история трат.
 
+import { trainingOf, trainingView, planTraining, dropTraining, finishTraining, teacherRoll, setMentor } from "./training.mjs";
 import { numenOf as sorcNumenOf, numenXpExtra as sorcExtra } from "./sorcerer.mjs";
 import { VTM20, SYSTEM_PATH } from "../config.mjs";
 import { growth, startConviction, VIRTUE_KEYS, LOST_KEYS, isLost, H as hunterData } from "./hunter.mjs";
@@ -24,7 +25,8 @@ class XpWindow extends HandlebarsApplicationMixin(ApplicationV2) {
     classes: ["vtm20", "r-dialog", "r-xp-app"],
     window: { title: "VTM20.Xp.Window", icon: "fa-solid fa-star", resizable: true },
     position: { width: 900, height: 680 },
-    actions: { buy: XpWindow.#onBuy, filter: XpWindow.#onFilter, grant: XpWindow.#onGrant, cat: XpWindow.#onCat }
+    actions: { buy: XpWindow.#onBuy, filter: XpWindow.#onFilter, grant: XpWindow.#onGrant, cat: XpWindow.#onCat,
+      plan: XpWindow.#onPlan, trainDone: XpWindow.#onTrain, trainDrop: XpWindow.#onTrain, trainRoll: XpWindow.#onTrain }
   };
 
   static PARTS = { body: { template: `${SYSTEM_PATH}/templates/apps/xp.hbs`, scrollable: [".r-xp-list"] } };
@@ -53,9 +55,12 @@ class XpWindow extends HandlebarsApplicationMixin(ApplicationV2) {
     const row = (ref, label, cur, max, kind, extra = {}) => {
       const cost = cur >= max ? null : a.xpCost(kind, cur, extra);
       const dots = Array.from({ length: max }, (_, i) => ({ on: i < cur, next: i === cur }));
-      return { ref, label, cur, next: cur + 1, max, cost, dots, isNew: cur === 0, can: cost != null && cost <= avail,
-        flash: ref === this.flash, search: label.toLocaleLowerCase("ru") };
+      const r = { ref, label, cur, next: cur + 1, max, cost, dots, isNew: cur === 0, can: cost != null && cost <= avail,
+        why: a.constructor.xpWhy(cur, cost), planned: this.planned?.has(ref), flash: ref === this.flash, search: label.toLocaleLowerCase("ru") };
+      this.rows.set(ref, r);
+      return r;
     };
+    this.rows = new Map();
     const era = game.settings.get("vtm20e-kamen-edition", "era");
     const groups = [
       { key: "attr", icon: "fa-person", label: loc("VTM20.Sheet.Attributes"), rows: Object.keys(VTM20.attributes).map(k =>
@@ -117,17 +122,20 @@ class XpWindow extends HandlebarsApplicationMixin(ApplicationV2) {
 
   async _prepareContext() {
     const x = this.actor.system.experience;
+    this.planned = new Set(trainingOf(this.actor).map(p => p.ref));
     const all = this.#groups();
+    const train = this.cat === "train" ? await trainingView(this.actor, this.rows) : null;
     for (const g of all) for (const r of g.rows) r.short = r.can || r.cost == null ? 0 : r.cost - x.available;
-    if (this.cat !== "all" && this.cat !== "history" && !all.some(g => g.key === this.cat)) this.cat = "all";
+    if (!["all", "history", "train"].includes(this.cat) && !all.some(g => g.key === this.cat)) this.cat = "all";
     const cats = [
       { key: "all", icon: "fa-layer-group", label: t("Xp.All"), afford: all.reduce((n, g) => n + g.rows.filter(r => r.can).length, 0) },
       ...all.map(g => ({ key: g.key, icon: g.icon, label: g.label, afford: g.rows.filter(r => r.can).length })),
+      { key: "train", icon: "fa-graduation-cap", label: t("Train.Cat"), count: this.planned.size },
       { key: "history", icon: "fa-clock-rotate-left", label: t("Xp.History"), count: x.log.length }
     ].map(c => ({ ...c, active: c.key === this.cat }));
-    const groups = this.cat === "all" || this.cat === "history" ? all : all.filter(g => g.key === this.cat);
+    const groups = ["all", "history", "train"].includes(this.cat) ? all : all.filter(g => g.key === this.cat);
     return {
-      xp: x, onlyAffordable: this.onlyAffordable, groups, query: this.query, cats, history: this.cat === "history",
+      xp: x, onlyAffordable: this.onlyAffordable, groups, query: this.query, cats, history: this.cat === "history", train,
       pct: x.total > 0 ? Math.min(100, Math.round((x.spent / x.total) * 100)) : 0,
       affordable: groups.reduce((n, g) => n + g.rows.filter(r => r.can).length, 0),
       log: x.log.map(l => ({ ...l, spend: l.amount < 0, abs: Math.abs(l.amount) })),
@@ -142,6 +150,11 @@ class XpWindow extends HandlebarsApplicationMixin(ApplicationV2) {
       if (!ev.target.matches(".r-xp-search-input")) return;
       this.query = ev.target.value.trim().toLocaleLowerCase("ru");
       this.#applyQuery();
+    });
+    // наставник в карточке обучения — сохраняется по уходу из поля
+    this.element.addEventListener("change", ev => {
+      const ref = ev.target.matches("input[name=mentor]") && ev.target.closest("[data-train]")?.dataset.train;
+      if (ref) setMentor(this.actor, ref, ev.target.value.trim());
     });
   }
 
@@ -176,6 +189,21 @@ class XpWindow extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   static #onFilter() { this.onlyAffordable = !this.onlyAffordable; this.render(); }
+
+  /** Взять черту в обучение (раздел «Обучение»). */
+  static async #onPlan(event, target) {
+    await planTraining(this.actor, target.dataset.ref, target.dataset.label);
+    this.render();
+  }
+  /** Карточка обучения: завершить (покупка), бросок учителя, убрать. */
+  static async #onTrain(event, target) {
+    const ref = target.closest("[data-train]")?.dataset.train, act = target.dataset.action;
+    if (!ref) return;
+    if (act === "trainDone") await finishTraining(this.actor, ref);
+    else if (act === "trainRoll") await teacherRoll(this.actor, ref);
+    else await dropTraining(this.actor, ref);
+    this.render();
+  }
   static #onCat(event, target) { this.cat = target.dataset.cat; this.render(); }
 
   static async #onGrant() {

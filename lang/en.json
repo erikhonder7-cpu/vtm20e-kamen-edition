@@ -1537,7 +1537,12 @@
       "HorridStrength": "Strength (Horrid Form)",
       "HorridToggle": "Horrid Form: Intimidation with Strength instead of a Social Attribute",
       "PoolHint": "Dice pool from a power: choose how many to add to this roll; used dice are spent.",
-      "PoolLeft": "{n} left"
+      "PoolLeft": "{n} left",
+      "Succumb": {
+        "frenzy": "Apply frenzy",
+        "rotschreck": "Apply Rötschreck",
+        "rapture": "Apply Rapture"
+      }
     },
     "Outcome": {
       "botch": "Botch",
@@ -1992,7 +1997,10 @@
       "Short": "{n} short",
       "Grant": "Award",
       "Level": "Advance",
-      "OpenTip": "Experience window: buy dots, spending history"
+      "OpenTip": "Experience window: buy dots, spending history",
+      "WhyNew": "new dot — {n}",
+      "WhyMul": "current {cur} × {k} = {n}",
+      "WhyFlat": "cost {n}"
     },
     "Lineage": {
       "Title": "Lineage",
@@ -4961,7 +4969,31 @@
       "FormShort": "{n} of {need} successes: the form holds.",
       "FrenzyNeedShort": "frenzy at",
       "FrenzyCalm": "The Rage stays quiet: no frenzy.",
-      "FrenzyHeld": "{n} of {need} successes: held back."
+      "FrenzyHeld": "{n} of {need} successes: held back.",
+      "Challenge": {
+        "Btn": "Challenge for Rank",
+        "PassageBtn": "Rite of Passage",
+        "NotReady": "Not enough Renown for the next Rank yet",
+        "Title": "Rank challenge: {name}",
+        "Rule": "To become {n}, challenge a Garou of that Rank or one step higher. The challenged chooses the trial — from a dominance duel to a quest; victory grants the new Rank. Challenging too high or too low a Rank is dishonorable (W20, ch. 3).",
+        "Whom": "Whom to challenge",
+        "OrName": "or a name",
+        "Trial": "Trial",
+        "TrialHint": "chosen by the challenged — may be left blank",
+        "Do": "Challenge",
+        "NoTarget": "Name whom you challenge",
+        "Text": "<b>{name}</b> challenges <b>{other}</b> for the Rank of {r}.",
+        "PassageText": "<b>{name}</b> undergoes the Rite of Passage — a cub becomes {r} without a challenge.",
+        "TrialIs": "Trial",
+        "TrialBy": "The challenged chooses the trial.",
+        "Unfair": "Challenging a Rank below the desired one or too high is dishonorable: Honor −3 whatever the outcome.",
+        "Won": "Victory",
+        "Lost": "Defeat",
+        "Passed": "Rite passed",
+        "Up": "<b>{name}</b> attains the Rank of {r}.",
+        "Down": "<b>{name}</b> loses the challenge — Rank unchanged."
+      },
+      "KlaiveLoss": "While the blade is carried, effective Gnosis is {n} lower — Gnosis rolls already account for it."
     },
     "Strategy": {
       "Tab": "Strategy",
@@ -5658,7 +5690,8 @@
     "Degen": {
       "Lost": "{name}: degeneration — {path} drops to {n}.",
       "Botch": "Botch: {virtue} −1 (now {n}) and a derangement — chosen by player and Storyteller.",
-      "Beast": "Morality at zero — the Beast has won: the character goes to the Storyteller."
+      "Beast": "Morality at zero — the Beast has won: the character goes to the Storyteller.",
+      "PickDerangement": "Pick a derangement"
     },
     "Instinct": {
       "Lead": "Instinct {n}: no roll to resist — the character frenzies. If the provocation's difficulty is below Instinct, they may choose not to.",
@@ -7526,6 +7559,38 @@
       "ActiveHint": "Golconda: immune to frenzy and Rötschreck, blood once a week, Traits up to 10. Lost if Humanity drops below 7 or Conscience below 4.",
       "LostHint": "Humanity below 7 or Conscience below 4: Golconda’s effects are lost.",
       "LostMsg": "<b>{name}</b> loses Golconda: the Beast returns, Traits above {n} fall back to the generation limit."
+    },
+    "Train": {
+      "Cat": "Training",
+      "Head": "Between stories: training",
+      "Lead": "Put a trait into training with the cap button in its row. Note the mentor — when done, the dot is bought with experience as usual and the mentor goes to the log.",
+      "PlanHint": "Train between stories",
+      "Already": "“{name}” is already in training",
+      "Planned": "“{name}” — in training",
+      "Cost": "Cost {n}",
+      "Bank": "from teacher {n}",
+      "Mentor": "Mentor or teacher",
+      "Nights": "Training for {n} nights",
+      "Finish": "Finish · {n}",
+      "Drop": "Remove from training",
+      "Empty": "Not training anything yet.",
+      "NoteAny": "Whether a teacher is needed and how long it takes is up to the Storyteller (system rule).",
+      "NoteLore": "A one-dot mentor will do for a novice; later you need someone who knows more; payment is a favor, a task, a relic. At the end of a story the teacher’s dice may be rolled (Demon: The Fallen).",
+      "NoteMage": "A mentor of a different focus may multiply the time or make training impossible; one of the same secret society teaches like a fellow (M20).",
+      "TeacherTitle": "Teacher: {name}",
+      "TeacherSub": "Teacher’s Lore {n}",
+      "TeacherRule": "At the end of a story the Storyteller rolls the teacher’s Lore. Successes are experience for this Lore only, no more than the teacher’s Lore (Demon: The Fallen, optional rule).",
+      "TeacherLore": "Teacher’s Lore",
+      "TeacherDiff": "What is taught",
+      "DiffPrimary": "their primary Lore",
+      "DiffHouse": "a Lore of their House or a common one",
+      "DiffOther": "a Lore of another House",
+      "TeacherGo": "Roll",
+      "TeacherGot": "<b>{name}</b>: the teacher grants {n} xp — for “{what}” only.",
+      "Teacher": "Teacher’s roll",
+      "BankLog": "From the teacher ({who}) — for “{what}”",
+      "WithMentor": "mentor: {who}",
+      "Done": "<b>{name}</b> learned “{what}” to {n}."
     }
   }
 }

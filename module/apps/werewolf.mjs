@@ -13,6 +13,7 @@ import { umbraOf } from "./umbra.mjs";
 import { registerEmblem, registerCardBlock } from "../ui/themes.mjs";
 export { fetishOf, fetishView, addFetish, removeFetish, attuneFetish, reconcileFetish, useFetish, craftFetish } from "./werewolf/fetishes.mjs";
 import { kamiDeliriumImmune } from "./werewolf/kin.mjs";
+import { challengeRank, rankReady } from "./werewolf/challenge.mjs";
 export { kinfolkInfo, kamiPowerOf, kamiInfo, kamiAdd, kamiRemove, kamiUse, kamiDeliriumImmune, numenOf, kinAddNumen, kinRemoveNumen, kinNumenDots, kinUseNumen, kinAddGift, kinRemoveGift, kinUseGift } from "./werewolf/kin.mjs";
 export { GAUNTLET, stepSideways, SPIRIT_RANKS, charmOf, spiritTplOf, spiritTplGroups, applySpiritTpl, createSpirit, fetchInfo, bindFetch, burnFetch, spiritInfo, addCharm, removeCharm, spiritEssenceReset } from "./werewolf/spirits.mjs";
 export { fomorBreedOf, fomorPowerOf, fomorInfo, fomorBreed, fomorAdd, fomorRemove, fomorUse } from "./werewolf/fomori.mjs";
@@ -225,7 +226,8 @@ export async function renownAward(actor) {
         ${edit ? `<a class="r-ws-step" data-step="-1"><i class="fa-solid fa-chevron-left"></i></a>` : ""}
         <div class="r-ws-medal"><span class="r-ws-roman">${ROMAN_RANK[w.rank] ?? w.rank}</span></div>
         ${edit ? `<a class="r-ws-step" data-step="1"><i class="fa-solid fa-chevron-right"></i></a>` : ""}
-        <div class="r-ws-title"><b>${esc((!w.fera && D.rankNames?.[w.rank - 1]) || `${t("Rank")} ${ROMAN_RANK[w.rank] ?? w.rank}`)}</b><span>${aus ? `<span class="r-ws-aus">${wwGlyph(`auspice-${aus.key}`)}</span>` : ""}${esc(aus?.name ?? "")}</span><em>${next}</em></div>
+        <div class="r-ws-title"><b>${esc((!w.fera && D.rankNames?.[w.rank - 1]) || `${t("Rank")} ${ROMAN_RANK[w.rank] ?? w.rank}`)}</b><span>${aus ? `<span class="r-ws-aus">${wwGlyph(`auspice-${aus.key}`)}</span>` : ""}${esc(aus?.name ?? "")}</span><em>${next}</em>
+          ${edit && rankReady(actor) ? `<a class="r-btn r-ws-challenge" data-challenge><i class="fa-solid ${w.rank ? "fa-hand-fist" : "fa-moon"}"></i> ${esc(t(w.rank ? "Challenge.Btn" : "Challenge.PassageBtn"))}</a>` : ""}</div>
       </div>
       <div class="r-ws-cards">${KEYS.map(card).join("")}</div>`;
   };
@@ -279,6 +281,7 @@ export async function renownAward(actor) {
           const { key, kind } = pip.dataset, n = Number(pip.dataset.n), cur = actor.system.werewolf.renown[key][kind];
           await actor.update({ [`system.werewolf.renown.${key}.${kind}`]: cur === n ? n - 1 : n }); redraw(); return;
         }
+        if (e.target.closest("[data-challenge]")) return challengeRank(actor);
         const step = e.target.closest("[data-step]");
         if (step) { await actor.update({ "system.werewolf.rank": Math.clamp(actor.system.werewolf.rank + Number(step.dataset.step), 0, 6) }); redraw(); return; }
         const c = e.target.closest(".r-ra-chip");

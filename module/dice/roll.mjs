@@ -291,6 +291,9 @@ export async function renderCard(state, actor = null) {
     canLoseWill: ["magic", "ritual"].includes(state.kind) && ev.outcome === "botch" && !extra.willLost,
     powerHit: ev.outcome === "success" ? combatPowerLabel(combatPowerOf(extra.power), extra.power, ev.successes) || targetPowerLabel(extra, ev) : "",
     atavism: state.kind === "frenzy" && ev.successes < 5 && state.extra?.atavism,
+    // не устоял перед Зверем (бешенство, Ротшрек, Безумие страсти) — состояние на лист одной кнопкой; у Гару бешенство ставится само
+    succumb: ["frenzy", "rotschreck", "rapture"].includes(state.kind) && ev.outcome !== "success" && !extra.ww
+      ? { kind: state.kind, done: !!extra.succumbed, label: t(`Roll.Succumb.${state.kind}`), icon: { frenzy: "fa-face-angry", rotschreck: "fa-fire-flame-curved", rapture: "fa-heart-pulse" }[state.kind] } : null,
     canSoak: state.kind === "damage" && ev.successes > 0,
     extended: extra.extended ? { ...extra.extended, pct: Math.min(100, Math.round((extra.extended.total / Math.max(1, extra.extended.need)) * 100)) } : null,
     contest: ["resisted", "teamwork"].includes(extra.contest) ? extra.contest : null,
@@ -433,6 +436,7 @@ export function onChatCardClick(event) {
   if (combatAction?.startsWith?.("mage")) return import("../apps/mage.mjs").then(m => m.mageCardAction(message, combatAction));
   if (combatAction === "sinPrompt") return import("../apps/torment.mjs").then(m => m.sinFromPrompt(message));
   if (combatAction === "virtueCheck") return import("./virtue-checks.mjs").then(m => m.rollFromPrompt(message));
+  if (combatAction === "derangePick") return game.packs.get(`${SYSTEM_ID}.derangements`)?.render(true);
   if (["extend", "resist", "assist"].includes(combatAction)) {
     return import("./contests.mjs").then(m => combatAction === "extend" ? m.continueExtended(message)
       : m.respond(message, combatAction === "resist" ? "resisted" : "teamwork"));
@@ -445,6 +449,7 @@ export function onChatCardClick(event) {
   if (action === "huntFrenzy") return foundry.utils.fromUuid(state.actorUuid).then(a => a?.isOwner && import("./virtue-checks.mjs").then(m => m.rollVirtueCheck(a, "frenzy")));
   if (action === "feed") return foundry.utils.fromUuid(state.actorUuid).then(a => import("../apps/night.mjs").then(m => m.feedAfterHunt(a, { animal: state.extra?.method === "animals" })));
   if (action === "loseWill") return onLoseWill(message, state, btn.dataset.permanent === "1");
+  if (action === "succumb") return onSuccumb(message, state);
   if (action === "chooseHigh") return import("../apps/torment.mjs").then(m => m.chooseHighTorment(message, state));
   if (action === "powerHit") {
     if (state.extra?.targetPower && !combatPowerOf(state.extra?.power)) return import("../apps/target-powers.mjs").then(m => m.applyTargetPower(message, state, evaluate(state.values, state)));
@@ -462,6 +467,16 @@ async function onLoseWill(message, state, permanent) {
   await message.setFlag(SYSTEM_ID, "roll", { ...state, extra: { ...(state.extra ?? {}), willLost: true } });
   await message.update({ content: await renderCard({ ...state, extra: { ...(state.extra ?? {}), willLost: true } }, actor) });
   ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<div class="r-notice is-warn"><i class="fa-solid fa-star"></i> ${t(permanent ? "Magic.LostWillPermanent" : "Magic.LostWill", { name: actor.name })}</div>` });
+}
+
+/** «Наложить» состояние после проваленной проверки: бешенство, Ротшрек или Безумие страсти — на лист, карточка помечается. */
+async function onSuccumb(message, state) {
+  const actor = state.actorUuid ? await foundry.utils.fromUuid(state.actorUuid) : null;
+  if (!actor?.isOwner) return ui.notifications.warn(t("Notify.NotOwner", { name: actor?.name ?? "" }));
+  const id = `r-${state.kind}`, extra = { ...(state.extra ?? {}), succumbed: true };
+  if (!actor.statuses?.has(id)) await actor.toggleStatusEffect?.(id, { active: true });
+  await message.setFlag(SYSTEM_ID, "roll", { ...state, extra });
+  await message.update({ content: await renderCard({ ...state, extra }, actor) });
 }
 
 async function onDamage(message, state) {

@@ -4267,6 +4267,42 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  await check("Оборотни: вызов на Ранг и клайв; вампир: «Наложить бешенство»; обучение между историями", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {}, n0 = game.messages.size;
+      const CH = await import(`/systems/${sid}/module/apps/werewolf/challenge.mjs`), FE = await import(`/systems/${sid}/module/apps/werewolf/fetishes.mjs`);
+      const TR = await import(`/systems/${sid}/module/apps/training.mjs`), { rollPool } = await import(`/systems/${sid}/module/dice/roll.mjs`);
+      const g = await Actor.create({ name: "E2E — Гару на вызов", type: "werewolf", flags: { world: { e2e: true } },
+        system: { werewolf: { auspice: "ahroun", rank: 1, gnosis: { permanent: 5, value: 5 }, renown: { glory: { permanent: 4, temporary: 0 }, honor: { permanent: 1, temporary: 0 }, wisdom: { permanent: 1, temporary: 0 } } } } });
+      out.ready = CH.rankReady(g);
+      const m = await ChatMessage.create({ content: `<div class="r-notice"><div class="r-card-buttons"><button type="button" data-r-challenge="Won">W</button></div></div>`,
+        flags: { [sid]: { rankChallenge: { actor: g.uuid, to: 2, passage: false, unfair: false, target: "" } } } });
+      await wait(400); document.querySelector(`[data-message-id="${m.id}"] [data-r-challenge]`)?.click(); await wait(1200);
+      out.rank = [g.system.werewolf.rank, g.system.werewolf.renown.glory.temporary, g.system.werewolf.renown.honor.temporary];
+      await FE.addFetish(g, "klaive"); await wait(1000);
+      const k = g.items.find(i => i.type === "weapon");
+      out.klaive = [k?.system.damage, k?.system.damageType, k?.system.silver, g.traitValue("werewolf.gnosis")];
+      await FE.removeFetish(g, 0); await wait(1000);
+      out.unklaive = [g.items.filter(i => i.type === "weapon").length, g.traitValue("werewolf.gnosis")];
+      const v = await Actor.create({ name: "E2E — вампир в бешенстве", type: "vampire", flags: { world: { e2e: true } } });
+      let rr; for (let i = 0; i < 10; i++) { rr = await rollPool({ actor: v, title: "E2E", pool: 1, difficulty: 10, kind: "frenzy" }); if (rr.outcome !== "success") break; }
+      await wait(500);
+      const mm = game.messages.contents.at(-1); document.querySelector(`[data-message-id="${mm.id}"] [data-r-action="succumb"]`)?.click(); await wait(1200);
+      out.frenzy = v.statuses.has("r-frenzy");
+      await v.update({ "system.experience.total": 30 });
+      const ref = "a:system.attributes.strength.value:attribute";
+      await TR.planTraining(v, ref, "Сила"); await TR.setMentor(v, ref, "Сир");
+      const s0 = v.system.attributes.strength.value; await TR.finishTraining(v, ref);
+      out.train = [v.system.attributes.strength.value - s0, TR.trainingOf(v).length, /×/.test(v.system.experience.log[0]?.reason) && /Сир/.test(v.system.experience.log[0]?.reason)];
+      await ChatMessage.deleteDocuments(game.messages.contents.slice(n0).map(x => x.id));
+      await Actor.deleteDocuments([g.id, v.id]);
+      return out;
+    });
+    const want = { ready: true, rank: [2, 1, 2], klaive: [2, "aggravated", true, 4], unklaive: [0, 5], frenzy: true, train: [1, 0, true] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   // вторая уборка: временные персонажи проверок после первой (стратегия, оборотни, панель сессии…)
   await page.evaluate(async () => {
     const temp = game.actors.filter(x => x.getFlag("world", "e2e")).map(x => x.id);

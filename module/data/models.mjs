@@ -764,6 +764,8 @@ export class WerewolfData extends MortalData {
     w.gnosis.value = Math.min(w.gnosis.value, w.gnosis.permanent);
     // для шкал жетона: текущая Ярость может быть выше постоянной (начало истории, W20, гл. 4)
     w.rage.max = Math.max(w.rage.permanent, w.rage.value); w.gnosis.max = w.gnosis.permanent;
+    // клайв при себе — эффективный Гнозис ниже (W20, гл. 4): потеря берётся из отметки оружия
+    w.gnosis.loss = (this.parent?.items ?? []).reduce((n, i) => n + (i.type === "weapon" && i.system.equipped ? Number(i.flags?.[SYSTEM_ID]?.gnosisLoss) || 0 : 0), 0);
   }
 }
 

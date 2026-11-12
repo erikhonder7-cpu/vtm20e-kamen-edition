@@ -113,7 +113,8 @@ export async function degenerate(actor, res) {
   const lines = [t("Degen.Lost", { name: foundry.utils.escapeHTML(actor.name), path, n: now }),
     ...(botch ? [t("Degen.Botch", { virtue, n: Math.max(0, v.value - 1) })] : []), ...(now === 0 ? [t("Degen.Beast")] : [])];
   return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), flags: { [SYSTEM_ID]: { degeneration: true } },
-    content: `<div class="r-notice is-warn"><i class="fa-solid fa-scale-unbalanced"></i> ${lines.join("<br>")}</div>` });
+    content: `<div class="r-notice is-warn"><i class="fa-solid fa-scale-unbalanced"></i> ${lines.join("<br>")}${botch
+      ? `<div class="r-card-buttons"><button type="button" data-r-action="derangePick"><i class="fa-solid fa-brain"></i> ${t("Degen.PickDerangement")}</button></div>` : ""}</div>` });
 }
 
 /**

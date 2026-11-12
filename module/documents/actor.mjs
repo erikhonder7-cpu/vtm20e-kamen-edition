@@ -163,7 +163,8 @@ export class VtMActor extends Actor {
     if (group === "willpower") return s.willpower.permanent;
     if (group === "hunter") return s.hunter?.[key] ?? 0;            // Добродетели охотника
     if (group === "mage") return key === "arete" ? s.mage?.arete ?? 0 : s.mage?.spheres?.[key] ?? 0;   // Арете и Сферы мага
-    if (group === "werewolf") return key === "rage" || key === "gnosis" ? s.werewolf?.[key]?.value ?? 0 : 0;   // текущие Ярость и Гнозис
+    if (group === "werewolf") return key === "rage" ? s.werewolf?.rage?.value ?? 0   // текущие Ярость и Гнозис; Гнозис — эффективный (клайв при себе)
+      : key === "gnosis" ? Math.max(0, (s.werewolf?.gnosis?.value ?? 0) - (s.werewolf?.gnosis?.loss ?? 0)) : 0;
     if (group === "spirit") return s.spirit?.[key] ?? 0;          // дух Умбры: Ярость, Гнозис, Воля
     if (group === "morality") return s.morality.value;
     if (group === "blood") return s.blood?.value ?? 0;
@@ -749,7 +750,8 @@ export class VtMActor extends Actor {
    * Купить следующую точку за опыт (01): лист (кнопки «+») и окно опыта. doc — персонаж или его предмет,
    * path — путь к значению в doc. Возвращает потраченный опыт или null.
    */
-  async buyWithXp({ doc = this, path, kind, label, confirm = true }) {
+  /** Текущее значение черты и цена следующей точки — как при покупке. */
+  xpCostOf({ doc = this, path, kind }) {
     const sorcKey = kind === "sorcNumen" ? path.split(".").pop() : null;   // нумины лежат списком — путь «…numina.<ключ>»
     const cur = kind === "hunterConviction" ? startConviction(this) : sorcKey ? (this.system.sorcerer.numina.find(n => n.key === sorcKey)?.dots ?? 0)
       : Number(foundry.utils.getProperty(doc._source, path) ?? 0);
@@ -757,7 +759,19 @@ export class VtMActor extends Actor {
       : doc !== this && doc.type === "discipline" ? { key: doc.system.key, inClan: doc.system.inClan || this.clanDisciplines.includes(doc.system.key) }
       : doc !== this && doc.type === "thaumPath" ? { primary: doc.system.primary }
       : doc !== this && doc.type === "lore" ? { key: doc.system.key } : {};
-    const cost = this.xpCost(kind, cur, extra);
+    return { cur, cost: this.xpCost(kind, cur, extra), sorcKey };
+  }
+
+  /** Откуда цена: «новая — 3», «текущее 2 × 5 = 10» или просто число. */
+  static xpWhy(cur, cost) {
+    if (cost == null) return "";
+    if (!cur) return t("Xp.WhyNew", { n: cost });
+    const k = cost / cur;
+    return Number.isInteger(k) && k > 1 ? t("Xp.WhyMul", { cur, k, n: cost }) : t("Xp.WhyFlat", { n: cost });
+  }
+
+  async buyWithXp({ doc = this, path, kind, label, confirm = true, note = "" }) {
+    const { cur, cost, sorcKey } = this.xpCostOf({ doc, path, kind });
     if (cost == null) return null;
     const xp = this.system.experience;
     if (xp.available < cost) { ui.notifications.warn(t("Notify.NoXp", { cost, have: xp.available })); return null; }
@@ -769,7 +783,7 @@ export class VtMActor extends Actor {
     if (sorcKey) await this.update({ "system.sorcerer.numina": this.system.sorcerer.numina.map(n => ({ ...n, ...(n.key === sorcKey ? { dots: cur + 1 } : {}) })) });
     else await doc.update({ [path]: cur + 1, ...(kind === "hunterConviction" ? { "system.hunter.conviction": Math.min(10, (this.system.hunter?.conviction ?? 0) + 1) } : {}) });
     const log = foundry.utils.deepClone(this._source.system.experience.log);
-    log.unshift({ amount: -cost, reason: `${label}: ${cur} → ${cur + 1}`, date: new Date().toLocaleDateString("ru-RU") });
+    log.unshift({ amount: -cost, reason: `${label}: ${cur} → ${cur + 1} (${this.constructor.xpWhy(cur, cost)})${note ? ` · ${note}` : ""}`, date: new Date().toLocaleDateString("ru-RU") });
     await this.update({ "system.experience.spent": this._source.system.experience.spent + cost, "system.experience.log": log });
     return cost;
   }

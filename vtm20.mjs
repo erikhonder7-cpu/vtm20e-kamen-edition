@@ -58,6 +58,8 @@ import { registerMasquerade } from "./module/ui/masquerade.mjs";
 import { registerStrategy } from "./module/ui/strategy.mjs";
 import { registerSepts } from "./module/apps/sept.mjs";
 import { registerGarouLog } from "./module/apps/werewolf.mjs";
+import { registerRankChallenge } from "./module/apps/werewolf/challenge.mjs";
+import { registerKlaives } from "./module/apps/werewolf/fetishes.mjs";
 import { registerGeneration } from "./module/apps/diablerie.mjs";
 import { CoterieSheet, DomainSheet } from "./module/sheets/group-sheet.mjs";
 import { registerSpiritSheet } from "./module/sheets/spirit-sheet.mjs";
@@ -189,6 +191,8 @@ Hooks.once("init", () => {
   registerStrategy();
   registerSepts();
   registerGarouLog();
+  registerRankChallenge();
+  registerKlaives();
   registerGeneration();
   registerNpcPresets();
   registerPause();
