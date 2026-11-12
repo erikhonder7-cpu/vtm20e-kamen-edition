@@ -244,7 +244,7 @@ Hooks.once("ready", async () => {
   // и у уже поставленных на сцену; существа-статисты остаются копиями
   if (game.users.activeGM?.isSelf && !game.settings.get(SYSTEM_ID, "tokenLinkAll")) {
     try {
-      const pcs = game.actors.filter(a => !["creature", "coterie", "domain"].includes(a.type));
+      const pcs = game.actors.filter(a => !["creature", "spirit", "coterie", "domain"].includes(a.type));
       const proto = pcs.filter(a => !a.prototypeToken.actorLink).map(a => ({ _id: a.id, "prototypeToken.actorLink": true }));
       if (proto.length) await Actor.updateDocuments(proto);
       for (const sc of game.scenes) {
