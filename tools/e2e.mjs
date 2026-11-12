@@ -5025,6 +5025,41 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  // Обучение Арканоям (Wraith 20, гл. 5): в Гильдии — рейтинг × 2 (нужен Статус в ней или союзной), обмен — успехи учителя скидкой
+  await check("Призрак: обучение Арканоям — в Гильдии по Статусу, обмен Арканоями", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, out = {}, n0 = game.messages.size;
+      const TR = await import(`/systems/${sid}/module/apps/training.mjs`), W = await import(`/systems/${sid}/module/apps/wraith.mjs`);
+      const allies = W.arcanosOf("argos").allies ?? [], other = W.W().arcanoi.find(a => a.key !== "argos" && !allies.includes(a.key)).key;
+      const a = await Actor.create({ name: "E2E — ученик Гильдии", type: "wraith", flags: { world: { e2e: true }, [sid]: { created: true } },
+        system: { experience: { total: 30 }, wraith: { guild: "argos", arcanoi: { argos: { value: 1, initiate: [], skip: [] } } } } });
+      await a.createEmbeddedDocuments("Item", [{ name: "Статус", type: "background", system: { value: 3, source: "Status" } }]);
+      const ref = k => `a:system.wraith.arcanoi.${k}.value:arcanos`, avail = () => a.system.experience.available;
+      out.status = [W.guildStatus(a).argos, W.guildStatus(a)[allies[0]] ?? null, W.guildStatus(a)[other]];
+      await TR.planTraining(a, ref("argos"), "Аргос"); await TR.toggleGuildTraining(a, ref("argos"));
+      const x0 = avail(); await TR.finishTraining(a, ref("argos"));
+      out.guild = [a.system.wraith.arcanoi.argos.value, x0 - avail()];
+      await TR.planTraining(a, ref(other), "Чужой"); await TR.toggleGuildTraining(a, ref(other));
+      out.noGuild = !TR.trainingOf(a).find(p => p.ref === ref(other))?.guild;
+      const DV = foundry.applications.api.DialogV2, p0 = DV.prompt, rnd = CONFIG.Dice.randomUniform;
+      try {
+        DV.prompt = async () => ({ n: 4, d: 6 }); CONFIG.Dice.randomUniform = () => 0.0001;
+        await TR.exchangeRoll(a, ref(other));
+      } finally { DV.prompt = p0; CONFIG.Dice.randomUniform = rnd; }
+      out.exch = TR.trainingOf(a).find(p => p.ref === ref(other))?.exchange;
+      const x1 = avail(); await TR.finishTraining(a, ref(other));
+      out.bought = [a.system.wraith.arcanoi[other].value, x1 - avail()];
+      await ChatMessage.deleteDocuments(game.messages.contents.slice(n0).map(m => m.id));
+      await a.delete();
+      return out;
+    });
+    // Статус 3: своя Гильдия 3, союзная 1, чужая 0; Аргос 1 → 2 в Гильдии — 2 опыта (вместо 3); чужой без Статуса — нельзя;
+    // обмен: 4 десятки — скидка 4, новый Арканос 7 → 3 опыта
+    const want = { status: [3, 1, 0], guild: [2, 2], noGuild: true, exch: 4, bought: [1, 3] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   await check("Призрак: Подземный мир — Мальстрём, Туман, Сон в Оковах, «Орфей», Оттенок цвета", async () => {
     const r = await page.evaluate(async () => {
       const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {}, n0 = game.messages.size;

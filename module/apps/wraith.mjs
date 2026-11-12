@@ -167,7 +167,7 @@ export function arcanoiView(actor, dots, sel = {}) {
 }
 
 /** Статус в Гильдии по Фону «Статус» (гл. 4): своя Гильдия — рейтинг, союзные — на 2 ниже. */
-function guildStatus(actor) {
+export function guildStatus(actor) {
   const w = actor.system.wraith, rating = backgroundRating(actor, "Status"), out = {};
   for (const a of W().arcanoi) out[a.key] = 0;
   if (!w.guild) return out;

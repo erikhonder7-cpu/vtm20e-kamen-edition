@@ -50,11 +50,19 @@
             <input type="text" name="mentor" value="{{mentor}}" list="r-xw-mentors" placeholder="{{localize 'VTM20.Train.Mentor'}}" {{#unless @root.editable}}disabled{{/unless}}></label>
           {{#if mentorBg.length}}<div class="r-xw-tline"><small>{{#each mentorBg}}{{name}} {{value}}{{#unless @last}}, {{/unless}}{{/each}}</small></div>{{/if}}
           {{#if hasNights}}<div class="r-xw-tline"><i class="fa-solid fa-moon"></i> {{localize "VTM20.Train.Nights" n=nights}}</div>{{/if}}
-          <p class="r-xw-tnote">{{note}}</p>
+          {{#if arc}}
+          <div class="r-xw-tline r-xw-arc">
+            <i class="fa-solid fa-landmark"></i>
+            <span>{{#if arc.guildOk}}{{localize "VTM20.Train.GuildStatus" n=arc.status}}{{else}}<small>{{localize "VTM20.Train.GuildNoStatus"}}</small>{{/if}}{{#if arc.guild}} · <b>{{localize "VTM20.Train.GuildPrice" n=arc.guildCost}}</b>{{/if}}{{#if arc.exchange}} · <b>{{localize "VTM20.Train.ExchangeSave" n=arc.exchangeSave}}</b>{{/if}}</span>
+          </div>
+          {{/if}}
+          <p class="r-xw-tnote">{{#if arc}}{{localize "VTM20.Train.NoteArcanos"}}{{else}}{{note}}{{/if}}</p>
           {{#if @root.editable}}
           <footer class="r-vc-tools r-xw-ttools">
             {{#if ok}}<a class="r-btn {{#unless can}}is-off{{/unless}}" data-action="trainDone"><i class="fa-solid fa-graduation-cap"></i> {{localize "VTM20.Train.Finish" n=need}}</a>{{/if}}
             {{#if lore}}<a class="r-btn" data-action="trainRoll"><i class="fa-solid fa-dice-d10"></i> {{localize "VTM20.Train.Teacher"}}</a>{{/if}}
+            {{#if arc}}{{#if arc.guildOk}}<a class="r-btn {{#if arc.guild}}is-on{{/if}}" data-action="trainGuild" data-tooltip="{{localize 'VTM20.Train.GuildHint'}}"><i class="fa-solid fa-landmark"></i> {{localize "VTM20.Train.Guild"}}</a>{{/if}}
+            <a class="r-btn" data-action="trainExchange" data-tooltip="{{localize 'VTM20.Train.ExchangeRule'}}"><i class="fa-solid fa-handshake"></i> {{localize "VTM20.Train.Exchange"}}</a>{{/if}}
             <a class="r-icon-btn is-danger" data-action="trainDrop" data-tooltip="{{localize 'VTM20.Train.Drop'}}"><i class="fa-solid fa-xmark"></i></a>
           </footer>
           {{/if}}

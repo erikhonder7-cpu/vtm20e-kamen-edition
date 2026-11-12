@@ -5,9 +5,14 @@
 //     По желанию: в конце истории бросок по Знанию учителя — сл. 6 (учит первичному), 7 (Знанию своего Дома или общему),
 //     8 (чужого Дома); успехи — опыт только на это Знание, не больше Знания учителя.
 //   · M20: наставник с иным фокусом может умножить время или сделать обучение невозможным; из того же Тайного общества — как собрат.
+//   · Wraith 20 (гл. 5, «Обучение в Гильдии», «Обмен Арканоями»): со Статусом в Гильдии Арканоса (своей или союзной — на 2 ниже)
+//     точка стоит текущий рейтинг × 2, новый Арканос — 5; день учёбы на точку; учителя Посвящённого уровня ищут броском
+//     Обаяние + Знание улиц, сл. 8. Обмен (по желанию): учитель бросает Обаяние + Лидерство, сл. 6 (Общий) или 8 (Посвящённый),
+//     успехи снижают цену (не ниже 1); ученик тратит Волю в день; со скидкой Гильдии не складывается.
 //   · Прочее: нужен ли учитель и сколько учиться — решает рассказчик (правило системы).
 
 import { SYSTEM_ID } from "../config.mjs";
+import * as WR from "./wraith.mjs";
 
 const t = (k, d) => d ? game.i18n.format(`VTM20.Train.${k}`, d) : game.i18n.localize(`VTM20.Train.${k}`);
 const esc = x => foundry.utils.escapeHTML(String(x ?? ""));
@@ -61,10 +66,63 @@ export async function trainingView(actor, rows) {
   return trainingOf(actor).map(p => {
     const r = rows.get(p.ref), { kind, doc } = parseRef(actor, p.ref);
     const nights = now != null && p.start != null ? Math.max(0, now - p.start) : null;
-    return { ...p, ok: !!r && !!doc, cur: r?.cur ?? 0, next: (r?.cur ?? 0) + 1, cost: r?.cost ?? null, why: r?.why ?? "", dots: r?.dots ?? [],
-      need: r?.cost != null ? Math.max(0, r.cost - (p.bank ?? 0)) : null, can: r?.cost != null && r.cost - (p.bank ?? 0) <= avail,
+    const arc = arcanosTraining(actor, p, kind, r);
+    return { ...p, arc, ok: !!r && !!doc, cur: r?.cur ?? 0, next: (r?.cur ?? 0) + 1, cost: r?.cost ?? null, why: r?.why ?? "", dots: r?.dots ?? [],
+      need: r?.cost != null ? Math.max(0, r.cost - (p.bank ?? 0) - arcSave(arc)) : null, can: r?.cost != null && r.cost - (p.bank ?? 0) - arcSave(arc) <= avail,
       nights, hasNights: nights != null, note: noteFor(kind), lore: kind === "lore", mentorBg };
   });
+}
+
+const arcSave = arc => arc ? (arc.guild ? arc.guildSave : arc.exchangeSave) : 0;
+
+/** Арканос призрака: ключ из ссылки «a:system.wraith.arcanoi.<ключ>.value:arcanos». */
+const arcKeyOf = ref => /system\.wraith\.arcanoi\.([a-z]+)\.value/.exec(ref)?.[1] ?? null;
+
+/** Цена точки Арканоса при обучении в Гильдии: рейтинг × 2, новый — 5. */
+const guildCost = cur => cur === 0 ? 5 : cur * 2;
+
+/** Обучение Арканосу (Wraith 20): Статус в Гильдии этого Арканоса, цена в Гильдии, выбранный путь, скидка обмена. */
+function arcanosTraining(actor, p, kind, r) {
+  const key = kind === "arcanos" && actor.type === "wraith" && !actor.system.wraith?.spectre?.on ? arcKeyOf(p.ref) : null;
+  if (!key) return null;
+  const status = WR.guildStatus(actor)[key] ?? 0, cur = r?.cur ?? 0, cost = r?.cost ?? null;
+  const gCost = guildCost(cur);
+  return { status, guildOk: status > 0, guild: !!p.guild && status > 0, guildCost: gCost, guildSave: cost != null ? Math.max(0, cost - gCost) : 0,
+    exchange: p.exchange ?? 0, exchangeSave: cost != null ? Math.min(p.exchange ?? 0, Math.max(0, cost - 1)) : 0 };
+}
+
+/** Обучение в Гильдии — вкл/выкл (только со Статусом в этой Гильдии; обмен тогда сбрасывается). */
+export async function toggleGuildTraining(actor, ref) {
+  const list = trainingOf(actor), p = list.find(x => x.ref === ref), key = arcKeyOf(ref);
+  if (!p || !key) return null;
+  if (!p.guild && !((WR.guildStatus(actor)[key] ?? 0) > 0)) return ui.notifications.warn(t("GuildNoStatus"));
+  p.guild = !p.guild;
+  if (p.guild) p.exchange = 0;
+  return save(actor, list);
+}
+
+/** Обмен Арканоями: бросок учителя — Обаяние + Лидерство, сл. 6 (Общий) или 8 (Посвящённый); успехи — скидка. */
+export async function exchangeRoll(actor, ref) {
+  const list = trainingOf(actor), p = list.find(x => x.ref === ref);
+  if (!p || !arcKeyOf(ref)) return null;
+  const res = await foundry.applications.api.DialogV2.prompt({ window: { title: t("ExchangeTitle", { name: p.label }), icon: "fa-solid fa-handshake" }, classes: ["vtm20", "r-dialog"], position: { width: 440 },
+    content: `<p class="r-note">${esc(t("ExchangeRule"))}</p>
+      <label class="r-f"><span>${esc(t("ExchangePool"))}</span><input type="number" name="n" value="4" min="1" max="10"></label>
+      <label class="r-f"><span>${esc(t("ExchangeKind"))}</span><select name="d"><option value="6">6 — ${esc(t("ExchangeCommon"))}</option><option value="8">8 — ${esc(t("ExchangeInitiate"))}</option></select></label>`,
+    ok: { label: t("TeacherGo"), icon: "fa-solid fa-dice-d10", callback: (e, b) => ({ n: Math.clamp(Number(b.form.elements.n.value) || 1, 1, 10), d: Number(b.form.elements.d.value) || 6 }) },
+    rejectClose: false });
+  if (!res) return null;
+  const { rollPool } = await import("../dice/roll.mjs");
+  const roll = await rollPool({ actor, title: t("ExchangeTitle", { name: p.label }), subtitle: t("ExchangeSub"), pool: res.n, difficulty: res.d, kind: "check",
+    breakdown: [{ label: t("ExchangePool"), value: res.n }] });
+  if (!roll) return null;
+  const fresh = trainingOf(actor), q = fresh.find(x => x.ref === ref);
+  if (!q) return roll;
+  q.exchange = Math.max(0, roll.successes ?? 0); q.guild = false;
+  await save(actor, fresh);
+  await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }),
+    content: `<div class="r-notice r-type-wraith"><i class="fa-solid fa-handshake"></i> ${t("ExchangeGot", { name: esc(actor.name), n: q.exchange, what: esc(p.label) })}</div>` });
+  return roll;
 }
 
 /**
@@ -108,9 +166,18 @@ export async function finishTraining(actor, ref) {
   const { doc, path, kind } = parseRef(actor, ref);
   if (!doc) return dropTraining(actor, ref);
   const { cur, cost } = actor.xpCostOf({ doc, path, kind });
-  const bank = Math.min(p.bank ?? 0, cost ?? 0);
-  if (cost != null && actor.system.experience.available + bank < cost)
-    return ui.notifications.warn(game.i18n.format("VTM20.Notify.NoXp", { cost: cost - bank, have: actor.system.experience.available }));
+  // Арканос призрака: скидка Гильдии или обмена — разницей в копилку, с пометкой в журнале опыта
+  const arc = arcanosTraining(actor, p, kind, { cur, cost });
+  const disc = arc ? (arc.guild ? arc.guildSave : arc.exchangeSave) : 0;
+  const bank = Math.min(p.bank ?? 0, Math.max(0, (cost ?? 0) - disc));
+  // хватает ли опыта — до того, как скидка попадёт в журнал
+  if (cost != null && actor.system.experience.available + bank + disc < cost)
+    return ui.notifications.warn(game.i18n.format("VTM20.Notify.NoXp", { cost: cost - bank - disc, have: actor.system.experience.available }));
+  if (disc > 0) {
+    const s = actor._source.system.experience, log = foundry.utils.deepClone(s.log);
+    log.unshift({ amount: disc, reason: t(arc.guild ? "GuildLog" : "ExchangeLog", { what: p.label }), date: new Date().toLocaleDateString("ru-RU") });
+    await actor.update({ "system.experience.total": s.total + disc, "system.experience.log": log });
+  }
   if (bank) {
     const s = actor._source.system.experience, log = foundry.utils.deepClone(s.log);
     log.unshift({ amount: bank, reason: t("BankLog", { what: p.label, who: p.mentor || t("Teacher") }), date: new Date().toLocaleDateString("ru-RU") });
