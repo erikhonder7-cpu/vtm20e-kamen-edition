@@ -922,6 +922,7 @@ function editor(it) {
   const cats = `<optgroup label="${esc(L("CatChronicle"))}">${catGroup("chronicle")}</optgroup>`
     + (revolution() || ["night", "faction"].includes(groupOf(it.cat in CITY_CATEGORIES ? it.cat : "other"))
       ? `<optgroup label="${esc(L("CatNight"))}">${catGroup("night")}</optgroup><optgroup label="${esc(L("CatFaction"))}">${catGroup("faction")}</optgroup>` : "")
+    + `<optgroup label="${esc(L("CatLines"))}">${catGroup("lines")}</optgroup>`
     + `<optgroup label="${esc(L("CatCity"))}">${catGroup("city")}</optgroup>`;
   const ownFolders = city().folders.map(f => opt(f.id, it.folder ?? CHRONICLE, f.name)).join("");
   const text = edit

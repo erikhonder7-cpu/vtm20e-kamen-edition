@@ -32,6 +32,14 @@ export const CITY_CATEGORIES = {
   "f-feuillants": { icon: "fa-scroll", color: "#6f86a6", chronicle: true, group: "faction" },
   "f-royalists": { icon: "fa-chess-king", color: "#d8cfbf", chronicle: true, group: "faction" },
   "f-neutral": { icon: "fa-eye", color: "#7d8a74", chronicle: true, group: "faction" },
+  // места других линеек Мира Тьмы: оборотни, маги, охотники, призраки
+  "caern":     { icon: "fa-tree",             color: "#8fae8a", chronicle: true, group: "lines" },
+  "hive":      { icon: "fa-biohazard",        color: "#8a8f4a", chronicle: true, group: "lines" },
+  "chantry":   { icon: "fa-tower-observation", color: "#a58fd0", chronicle: true, group: "lines" },
+  "node":      { icon: "fa-gem",              color: "#b9a6ee", chronicle: true, group: "lines" },
+  "safehouse": { icon: "fa-house-lock",       color: "#e3a24c", chronicle: true, group: "lines" },
+  "haunt":     { icon: "fa-ghost",            color: "#c9d2dc", chronicle: true, group: "lines" },
+  "nihil":     { icon: "fa-hurricane",        color: "#7d8592", chronicle: true, group: "lines" },
   // город
   hospital:  { icon: "fa-hospital",            color: "#a3afbd" },
   blood:     { icon: "fa-droplet",             color: "#b8333f" },

@@ -5486,6 +5486,7 @@
       "Owner": "Owner",
       "Category": "Category",
       "CatChronicle": "Chronicle",
+      "CatLines": "Другие линейки",
       "CatNight": "Nights of the Revolution",
       "CatFaction": "Assembly faction headquarters",
       "CatCity": "City",
@@ -5558,6 +5559,13 @@
         "en": "EN"
       },
       "Cat": {
+        "caern": "Каэрн",
+        "hive": "Улей Вирма",
+        "chantry": "Капелла магов",
+        "node": "Узел",
+        "safehouse": "Убежище ячейки",
+        "haunt": "Обиталище призраков",
+        "nihil": "Нихил",
         "elysium": "Elysium",
         "haven": "Haven",
         "hunting": "Hunting grounds",
