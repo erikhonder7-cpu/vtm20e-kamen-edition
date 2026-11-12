@@ -3239,10 +3239,12 @@ try {
       let el = null;
       for (let i = 0; i < 40 && !(el = document.querySelector(".vtm20.r-city"))?.classList.contains("open"); i++) await new Promise(res => setTimeout(res, 200));
       const open = !!el?.classList.contains("open");
+      // редкий сбой в полном прогоне — что было со шторой
+      const diag = open ? null : { root: !!el, cls: el?.className ?? "", lib: !!window.maplibregl, map: !!C.cityMap(), slats: el?.querySelector(".rc-slats")?.className ?? "" };
       C.closeCity(); await new Promise(res => setTimeout(res, 400));
-      return { open };
+      return { open, diag };
     });
-    if (!r.open) throw new Error("карта не открылась");
+    if (!r.open) throw new Error(`карта не открылась: ${JSON.stringify(r.diag)}`);
   });
 
   // Дампир-гуль и правило «кому видна черта»
