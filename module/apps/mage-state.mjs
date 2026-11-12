@@ -30,6 +30,7 @@ export function stateView(actor, dots) {
   const m = actor.system.mage, D = M(), R = D.resonance ?? {}, Q = D.quiet ?? {}, mar = isMarauder(actor), top = topResonance(actor);
   const lvl = (Q.levels ?? []).find(l => l.n === m.quiet.level) ?? null;
   return {
+    realm: realmView(actor),
     resonances: m.resonances.map((r, i) => ({ i, name: r.name, flavor: (R.flavors ?? []).find(f => f.key === r.flavor)?.name ?? "", degree: R.degrees?.[r.value] ?? "", dots: pips(r.value, 5), top: r === top })),
     synergy: (R.synergy ?? []).map(s => ({ ...s, value: m.synergy[s.key], dots: dots(m.synergy[s.key], 5, { path: `system.mage.synergy.${s.key}` }) })),
     resBonus: top ? RES_DICE[Math.clamp(top.value, 0, 5)] : 0, resUsed: m.resUsed, resTop: top?.name ?? "",
@@ -269,7 +270,44 @@ export async function paradoxRealm(actor) {
       <p class="r-note">${esc(t("RealmRule"))}</p></div>`,
     ok: { label: t("RealmSend"), callback: (e, b) => b.form.elements.key.value } });
   if (!R[key]) return null;
+  await actor.setFlag(SYSTEM_ID, "paradoxRealm", { sphere: key, drifted: false });
   return say(actor, "fa-dungeon", t("RealmCame", { name: esc(actor.name), sphere: esc(sphereName(actor, key)), style: esc(R[key]) }));
+}
+
+/*
+ * Пребывание в Царстве Парадокса (M20, гл. 10 «Paradox Realms», гл. 9 «Reality Among the Realms»): выход — раскаянием и решением
+ * задачи без магии; магия там обращается против мага, особенно та же Сфера; долгое заточение — пункт постоянной Воли
+ * (гл. 6 «Losing Willpower»); со временем Царство уплывает в Глубокую Умбру — выбраться самому уже нельзя, только с помощью.
+ */
+export function realmView(actor) {
+  const r = actor.getFlag(SYSTEM_ID, "paradoxRealm");
+  if (!r?.sphere) return null;
+  return { sphere: sphereName(actor, r.sphere), style: (M().realms ?? {})[r.sphere] ?? "", drifted: !!r.drifted };
+}
+/** Предупреждение для окна чар: в Царстве магия бьёт по самому магу. */
+export function realmCastWarn(actor) {
+  const v = realmView(actor);
+  return v ? t("RealmCastWarn", { sphere: v.sphere }) : "";
+}
+/** Ведущий: выбрался, долгое заточение (−1 постоянной Воли), Царство уплыло в Глубокую Умбру. */
+export async function realmAct(actor, act) {
+  if (!game.user.isGM) return ui.notifications.warn(game.i18n.localize("VTM20.Notify.GMOnly"));
+  const v = realmView(actor);
+  if (!v) return null;
+  if (act === "out") {
+    await actor.unsetFlag(SYSTEM_ID, "paradoxRealm");
+    return say(actor, "fa-door-open", t("RealmOut", { name: esc(actor.name), sphere: esc(v.sphere) }));
+  }
+  if (act === "long") {
+    const w = actor.system.willpower, perm = Math.max(0, w.permanent - 1);
+    await actor.update({ "system.willpower.permanent": perm, "system.willpower.temporary": Math.min(w.temporary, perm) });
+    return say(actor, "fa-hourglass-end", t("RealmLong", { name: esc(actor.name), n: perm }), "is-sin");
+  }
+  if (act === "drift") {
+    await actor.setFlag(SYSTEM_ID, "paradoxRealm.drifted", !v.drifted);
+    return v.drifted ? null : say(actor, "fa-circle-nodes", t("RealmDrift", { name: esc(actor.name) }), "is-sin");
+  }
+  return null;
 }
 
 /* ── Инфернальные Инвестиции (Book of the Fallen) ────────────────────── */

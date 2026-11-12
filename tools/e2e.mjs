@@ -4173,10 +4173,14 @@ try {
       // кабал: лист в гамме магов, маг вбирает из запаса чантри, неделя Узла пополняет запас
       const cab = await Actor.create({ name: "E2E — кабал", type: "coterie", flags: { world: { e2e: true } }, system: { kind: "cabal", members: [a.id], chantry: { points: 34, node: 3, quint: 1 } } });
       await cab.sheet.render(true); await wait(700);
+      // Узел: личной Квинтэссенции не больше Аватара (M20) — Аватар с запасом
+      const av = (await a.createEmbeddedDocuments("Item", [{ name: "Аватар", type: "background", system: { value: 5 } }]))[0];
+      await a.update({ "system.mage.quintessence": Math.min(a.system.mage.quintessence, 4) });
       const cq = a.system.mage.quintessence;
       cab.sheet.element.querySelector('[data-action="nodeDraw"]').click(); await wait(500);
       cab.sheet.element.querySelector('[data-action="nodeWeek"]').click(); await wait(600);
       out.cabal = [cab.sheet.element.classList.contains("r-type-mage"), a.system.mage.quintessence - cq, cab.system.chantry.quint, cab.system.chantry.tass];
+      await av.delete();
       await cab.sheet.close(); await cab.delete();
       // откат: кнопки рассказчика — Изъян по степени, постоянный Парадокс
       await a.update({ "system.mage.paradox": 6 });
@@ -4599,6 +4603,56 @@ try {
       return out;
     });
     const want = { data: true, trait: [2, "Путь Книжника"], dlg: true, sheet: 1 };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
+  await check("Призрак: Коннесанс Зеркальных земель — основа и искусства; маг: Царство Парадокса и предел Аватара у Узла", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {}, n0 = game.messages.size, inst = () => [...foundry.applications.instances.values()];
+      const R = await import(`/systems/${sid}/module/apps/realms.mjs`), S = await import(`/systems/${sid}/module/apps/mage-state.mjs`);
+      const rnd = CONFIG.Dice.randomUniform, DV = foundry.applications.api.DialogV2, p0 = DV.prompt;
+      const submit = async () => { for (let i = 0; i < 40; i++) { const d = inst().find(x => x.constructor.name === "RollDialog" && x.rendered); if (d) { d.element.querySelector("button[type=submit]")?.click(); await wait(1500); return true; } await wait(100); } return false; };
+      const w = await Actor.create({ name: "E2E — Слуга", type: "wraith", flags: { world: { e2e: true }, [sid]: { created: true } },
+        system: { attributes: { wits: { value: 3 } }, willpower: { permanent: 6, temporary: 6 }, wraith: { pathos: { value: 5 }, shadow: { angst: { permanent: 4, temporary: 3 } },
+          realm: { kingdom: "mirror", arcanoi: { connaissance: 3 } } } } });
+      const m = await Actor.create({ name: "E2E — маг в Царстве", type: "mage", flags: { world: { e2e: true }, [sid]: { created: true } }, system: { willpower: { permanent: 5, temporary: 5 } } });
+      try {
+        const v = R.realmView(w, (n, max) => Array.from({ length: max }, (_, i) => ({ n: i + 1, filled: i < n })));
+        const art = v.arts.find(a => a.key === "connaissance");
+        out.view = [art?.levels.length, art?.levels[0].diff, art?.levels.filter(l => l.kind === "initiate").length, art?.levels[0].kindLabel];
+        CONFIG.Dice.randomUniform = () => 0.0001;   // одни десятки
+        let p = R.rollRealmArt(w, "connaissance", 0); await submit(); await p; await wait(300);   // основа: успех — Тени −1 Ангст
+        out.host = w.system.wraith.shadow.angst.temporary;
+        p = R.rollRealmArt(w, "connaissance", 4); await submit(); await p; await wait(300);       // Прогнать Бака: себе +2 Ангста
+        out.renvoyer = w.system.wraith.shadow.angst.temporary;
+        CONFIG.Dice.randomUniform = rnd;
+        // маг: Царство Парадокса (Силы) — отметка, предупреждение в окне чар, долгое заточение, Глубокая Умбра, выход
+        DV.prompt = async () => "forces";
+        await S.paradoxRealm(m); DV.prompt = p0;
+        out.realm = [!!S.realmView(m), S.realmCastWarn(m).length > 0];
+        await S.realmAct(m, "long"); await S.realmAct(m, "drift");
+        out.long = [m.system.willpower.permanent, S.realmView(m)?.drifted];
+        await S.realmAct(m, "out");
+        out.out = S.realmView(m);
+        // Узел: Аватар 2 — при Квинтэссенции 2 вобрать нельзя
+        await m.createEmbeddedDocuments("Item", [{ name: "Аватар", type: "background", system: { value: 2 } }]);
+        await m.update({ "system.mage.quintessence": 2 });
+        const cab = await Actor.create({ name: "E2E — кабал Аватара", type: "coterie", flags: { world: { e2e: true } }, system: { kind: "cabal", members: [m.id], chantry: { quint: 3 } } });
+        await cab.sheet.render(true); await wait(700);
+        cab.sheet.element.querySelector('[data-action="nodeDraw"]')?.click(); await wait(500);
+        out.node = [m.system.mage.quintessence, cab.system.chantry.quint];
+        await cab.sheet.close(); await cab.delete();
+      } finally {
+        CONFIG.Dice.randomUniform = rnd; DV.prompt = p0;
+        for (const x of inst()) if (x.constructor.name === "RollDialog") await x.close();
+        await ChatMessage.deleteDocuments(game.messages.contents.slice(n0).map(x => x.id));
+        await Actor.deleteDocuments([w.id, m.id]);
+      }
+      return out;
+    });
+    // 11 уровней (основа + 10 искусств), основа — сл. по постоянному Ангсту 4, Посвящённых 5; Ангст 3 → 2 → 4; Воля 5 → 4
+    const want = { view: [11, 4, 5, "Основа"], host: 2, renvoyer: 4, realm: [true, true], long: [4, true], out: null, node: [2, 3] };
     const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });

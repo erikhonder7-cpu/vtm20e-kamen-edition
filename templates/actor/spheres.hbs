@@ -179,6 +179,12 @@
       <span class="r-dots">{{#each mageState.quiet.dots}}<a class="r-dot {{#if filled}}is-filled{{/if}}" {{#if @root.editable}}data-action="setDots" data-path="{{path}}" data-n="{{n}}"{{/if}}></a>{{/each}}</span>
       <select name="system.mage.quiet.kind" {{#unless editable}}disabled{{/unless}}>{{#each mageState.quiet.kinds}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select>
       {{#if mageState.quiet.text}}<em>{{mageState.quiet.text}}</em>{{/if}}</div>
+    {{#if mageState.realm}}
+    <p class="r-note r-mind is-in r-mrealm"><i class="fa-solid fa-dungeon"></i> {{localize "VTM20.Mage.RealmIn" sphere=mageState.realm.sphere}} <em>{{mageState.realm.style}}.</em>{{#if mageState.realm.drifted}} {{localize "VTM20.Mage.RealmDrifted"}}{{/if}}
+      {{#if @root.isGM}}<a class="r-vc-btn" data-action="mageRealm" data-act="out" data-tooltip="{{localize 'VTM20.Mage.RealmOutHint'}}"><i class="fa-solid fa-door-open"></i></a>
+      <a class="r-vc-btn" data-action="mageRealm" data-act="long" data-tooltip="{{localize 'VTM20.Mage.RealmLongHint'}}"><i class="fa-solid fa-hourglass-end"></i></a>
+      <a class="r-vc-btn" data-action="mageRealm" data-act="drift" data-tooltip="{{localize 'VTM20.Mage.RealmDriftHint'}}"><i class="fa-solid fa-circle-nodes"></i></a>{{/if}}</p>
+    {{/if}}
     {{#if mageState.mind.inside}}
     <p class="r-note r-mind is-in"><i class="fa-solid fa-brain"></i> {{#if mageState.mind.ready}}{{localize "VTM20.Mage.MindReady"}}{{else}}{{localize "VTM20.Mage.MindLeft" n=mageState.mind.left}}{{/if}}
       {{#if editable}}{{#unless mageState.mind.ready}}<a class="r-vc-btn" data-action="mageMindShorten" data-tooltip="{{localize 'VTM20.Mage.MindShortenHint'}}"><i class="fa-solid fa-puzzle-piece"></i></a>{{/unless}}

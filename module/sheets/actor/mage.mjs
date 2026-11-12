@@ -4,7 +4,7 @@
 
 import { addNumen as sorcAdd, removeNumen as sorcDel, numenDots as sorcDots, useNumen as sorcUse, addRitual as sorcRitualAdd, removeRitual as sorcRitualDel, useRitual as sorcRitualUse } from "../../apps/sorcerer.mjs";
 import { castEffect, changeQuintessence, changeParadox, paradoxBacklash, addRote, removeRote, castRote, removeTool } from "../../apps/mage.mjs";
-import { addResonance, setResonance, removeResonance, toggleResUsed, cloakResonance, quietExit, addFlaw, removeFlaw, seekingDialog, useWonder, wonderQuint, toggleGhoul, ghoulVitae, ghoulHeal, mindEnter, mindShorten, mindExit, armWonder, addPact, removePact, useMageInvestment, craftWonder } from "../../apps/mage-state.mjs";
+import { addResonance, setResonance, removeResonance, toggleResUsed, cloakResonance, quietExit, addFlaw, removeFlaw, seekingDialog, useWonder, wonderQuint, toggleGhoul, ghoulVitae, ghoulHeal, mindEnter, mindShorten, realmAct, mindExit, armWonder, addPact, removePact, useMageInvestment, craftWonder } from "../../apps/mage-state.mjs";
 
 // Маг (apps/mage.mjs): чародейство, колесо Квинтэссенции и Парадокса, ротэ, инструменты
 function onMageCast(event, target) { return castEffect(this.actor, target.dataset.sphere ? { sphere: target.dataset.sphere } : {}); }
@@ -43,6 +43,7 @@ function onMageState(event, target) {
     case "mageMindEnter": return mindEnter(a);
     case "mageMindShorten": return mindShorten(a);
     case "mageMindExit": return mindExit(a);
+    case "mageRealm": return realmAct(a, d.act);
     case "mageGhoul": return toggleGhoul(a);
     case "mageGhoulVitae": return ghoulVitae(a, Number(d.n));
     case "mageGhoulHeal": return ghoulHeal(a);
@@ -68,7 +69,7 @@ function onSorc(event, target) {
 /** Действия листа: ключ data-action → обработчик. */
 export const MAGE_ACTIONS = {
   mageCast: onMageCast, mageQuint: onMageQuint, mageParadox: onMageParadox, mageBacklash: onMageBacklash,
-  mageRoteEdit: onMageRoteEdit, mageMindEnter: onMageState, mageMindShorten: onMageState, mageMindExit: onMageState, mageWonderArm: onMageState, magePactAdd: onMageState, magePactDel: onMageState, mageGhoul: onMageState, mageGhoulVitae: onMageState, mageGhoulHeal: onMageState, mageInvest: onMageState, mageWonderCraft: onMageState, mageResAdd: onMageState,
+  mageRoteEdit: onMageRoteEdit, mageRealm: onMageState, mageMindEnter: onMageState, mageMindShorten: onMageState, mageMindExit: onMageState, mageWonderArm: onMageState, magePactAdd: onMageState, magePactDel: onMageState, mageGhoul: onMageState, mageGhoulVitae: onMageState, mageGhoulHeal: onMageState, mageInvest: onMageState, mageWonderCraft: onMageState, mageResAdd: onMageState,
   mageResDot: onMageState, mageResDel: onMageState, mageResUsed: onMageState, mageResCloak: onMageState,
   mageQuietExit: onMageState, mageFlawAdd: onMageState, mageFlawDel: onMageState, mageSeeking: onMageState,
   mageWonderUse: onMageState, mageWonderQuint: onMageState, mageStep: onMageDuel, mageCounter: onMageDuel,

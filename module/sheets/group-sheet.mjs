@@ -168,6 +168,9 @@ export class CoterieSheet extends GroupSheet {
     const mg = m.system.mage, from = ch.quint > 0 ? "quint" : ch.tass > 0 ? "tass" : null;
     if (!from) return ui.notifications.info(t("Group.NodeEmpty"));
     if (mg.quintessence + mg.paradox >= WHEEL) return ui.notifications.info(t("Group.NodeNoRoom", { name: m.name }));
+    // M20, «Квинтэссенция»: личной Квинтэссенции — не больше рейтинга Аватара (впитывается медитацией у Узла)
+    const { avatarOf } = await import("../apps/mage.mjs"), cap = avatarOf(m);
+    if (mg.quintessence >= cap) return ui.notifications.info(t("Group.NodeAvatarFull", { name: m.name, n: cap }));
     await this.actor.update({ [`system.chantry.${from}`]: ch[from] - 1 });
     await m.update({ "system.mage.quintessence": mg.quintessence + 1 });
     return this.render();

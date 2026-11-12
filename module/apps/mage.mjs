@@ -54,7 +54,7 @@ export function mageSigil(actor) {
 /** Кубики магии и предел Сфер: Арете, но не выше постоянной Воли. */
 export const aretePool = actor => Math.min(actor.system.mage?.arete ?? 0, actor.system.willpower?.permanent ?? 0);
 /** Рейтинг Аватара (Гения) — Факт биографии: сколько Квинтэссенции можно потратить или вобрать за ход. */
-function avatarOf(actor) {
+export function avatarOf(actor) {
   const bg = actor.items.find(i => i.type === "background" && /^(Аватар|Avatar|Гений|Genius)/i.test(i.name));
   return bg?.system?.value ?? 0;
 }
@@ -154,6 +154,7 @@ export const topResonance = actor => (actor.system.mage?.resonances ?? []).reduc
  *                           fast — без окна: Сферы и вид магии берутся из ротэ как есть
  */
 export async function castEffect(actor, preset = {}) {
+  const S0 = await import("./mage-state.mjs");   // Царство Парадокса — предупреждение в окне
   if (!actor?.isOwner) return ui.notifications.warn(game.i18n.format("VTM20.Notify.NotOwner", { name: actor?.name ?? "" }));
   const m = actor.system.mage, C = M().casting ?? { coincidental: 3, vulgar: 4, witnessed: 5, min: 3, max: 10, modCap: 3 };
   // Чудо (Талисман, Устройство): пул — его Арете, Сферы — вложенные в него (не указаны — ранг эффекта выбирают вручную)
@@ -188,6 +189,7 @@ export async function castEffect(actor, preset = {}) {
       <header class="r-cast-head"><span class="r-cast-sigil">${mageGlyph(factionGlyph(f, subOf(actor)))}</span>
         <span class="r-cast-who"><small>${esc(W ? `${t("Wonder")} · ${actor.name}` : f?.name ?? mt(actor, "CastTitle"))}</small><b>${esc(W ? W.name : actor.name)}</b></span>
         <span class="r-cast-pool" data-tooltip="${esc(t(W ? "WonderPool" : pool < m.arete ? "CappedHint" : "CapHint"))}"><b>${pool}</b><small>${esc(mt(actor, "Pool"))}</small></span></header>
+      ${S0.realmCastWarn(actor) ? `<p class="r-note is-warn r-cast-realm"><i class="fa-solid fa-dungeon"></i> ${esc(S0.realmCastWarn(actor))}</p>` : ""}
       <input class="r-cast-name" type="text" name="name" value="${esc(preset.name ?? "")}" placeholder="${esc(t("CastName"))}">
 
       <h4 class="r-banner r-cast-cap"><span>${esc(mt(actor, "Spheres"))}</span><em>${esc(t("CastHint"))}</em></h4>

@@ -226,6 +226,7 @@
   </div>{{/if}}{{/if}}
   {{#if (eq realm.realm.key "jade")}}<p class="r-note">{{localize "VTM20.Wraith.Realm.JadeNote"}}</p>{{/if}}
   {{#if (eq realm.realm.key "africa")}}<p class="r-note">{{localize "VTM20.Wraith.Realm.AfricaNote"}}</p>{{/if}}
+  {{#if (eq realm.realm.key "mirror")}}<p class="r-note">{{localize "VTM20.Wraith.Realm.MirrorNote"}}</p>{{/if}}
   {{/if}}
   <div class="r-wr-darks">
     {{#each realm.arts}}
@@ -241,6 +242,7 @@
         <li class="{{#unless known}}is-beyond{{/unless}}" data-tooltip="{{diffNote}}">
           <span class="r-wr-art-rank">{{level}}</span>
           <a class="r-wr-dark-name" {{#if known}}data-action="rlArt" data-key="{{../key}}" data-i="{{i}}"{{/if}}><b>{{name}}</b> <em>{{en}}</em></a>
+          {{#if kindLabel}}<span class="r-wr-chip is-kind is-{{kind}}">{{kindLabel}}</span>{{/if}}
           <span class="r-wr-chip"><i class="fa-solid fa-dice-d10"></i> {{poolLabel}} = <b>{{poolN}}</b> · {{localize "VTM20.Roll.Vs"}} {{diff}}</span>
           {{#if cost}}<span class="r-wr-chip is-cost">{{cost}}</span>{{/if}}
         </li>

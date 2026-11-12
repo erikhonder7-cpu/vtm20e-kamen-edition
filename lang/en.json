@@ -1011,7 +1011,15 @@
         "Stygia": "Stygia",
         "Hint": "Where the wraith comes from (ch. 13): other Dark Kingdoms teach their own Arcanoi",
         "JadeNote": "The Jade Empire knows every Stygian Arcanos but Castigate; there are no Guilds, Inhabit and Usury are rare. Chains of the Emperor — Immortal Guard only.",
-        "AfricaNote": "Behest is taught only to the abambo and fails outside the Ghost Bush. Arts of level 3 and above show to others’ Soulsight."
+        "AfricaNote": "Behest is taught only to the abambo and fails outside the Ghost Bush. Arts of level 3 and above show to others’ Soulsight.",
+        "Kind": {
+          "common": "Common",
+          "initiate": "Initiate",
+          "base": "Basis"
+        },
+        "SelfAngst": "+{n} Angst to self",
+        "Hosted": "<b>{name}</b> lets the Shadow take control ({n} successes — the Storyteller sets the duration; 5 lets the host eject it any turn after the first without a contest). The Shadow loses a point of Angst.",
+        "MirrorNote": "Connaissance is the Arcanos of the Serviteurs of the Mirrorlands. Common arts are open to all Les Invisibles (Rada); Initiate arts only to Petro and Loa sworn to Les Mysteres. Ejecting the Shadow early is a contest: the Shadow's temporary Angst against the Serviteur's permanent Willpower, each attempt costs a Willpower point."
       },
       "Storm": {
         "Title": "Maelstrom",
@@ -6810,7 +6818,8 @@
       "LibraryHint": "shared Background: the chantry's books and archives",
       "StockQuint": "Quintessence",
       "StockTass": "Tass",
-      "StockWeek": "per week"
+      "StockWeek": "per week",
+      "NodeAvatarFull": "{name}: the Avatar holds no more — personal Quintessence cannot exceed the Avatar rating ({n})."
     },
     "Session": {
       "Title": "Session panel",
@@ -8541,7 +8550,16 @@
       "MindLeft": "The mage is in a mindscape: {n} day(s) left.",
       "MindReady": "The mindscape’s time is up — the mage may leave.",
       "MindShortenHint": "Get out sooner: Wits + Enigmas, difficulty — Quiet level + 3; each success — a day less",
-      "MindExitHint": "Leave the mindscape: Paradox purged (except permanent), the Quiet removed"
+      "MindExitHint": "Leave the mindscape: Paradox purged (except permanent), the Quiet removed",
+      "RealmIn": "In a Paradox Realm ({sphere}):",
+      "RealmDrifted": "The Realm has drifted into the Deep Umbra — no escape on one's own, only rescue.",
+      "RealmOutHint": "Escaped: penance and a problem solved without magick (Storyteller's call)",
+      "RealmLongHint": "Long-term imprisonment: −1 permanent Willpower (M20, Losing Willpower)",
+      "RealmDriftHint": "The Realm drifts into the Deep Umbra (or clear the mark)",
+      "RealmCastWarn": "The mage is in a Paradox Realm ({sphere}): magick here backfires, especially the Sphere that sent them here. The Storyteller decides the result.",
+      "RealmOut": "<b>{name}</b> escapes the Paradox Realm ({sphere}).",
+      "RealmLong": "<b>{name}</b>: long imprisonment in the Paradox Realm breaks their will — permanent Willpower is now {n}.",
+      "RealmDrift": "<b>{name}</b>'s Paradox Realm drifts into the Deep Umbra: no escape on their own now."
     },
     "MageCr": {
       "NeedFaction": "Pick a faction.",

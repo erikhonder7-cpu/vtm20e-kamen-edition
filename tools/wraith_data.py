@@ -473,7 +473,9 @@ PROJECTOR = {"arcanoi": "1 Арканос Оттенка, Воплощение 1
 # ── Другие Тёмные Царства (гл. 13; файлы 32–33): Пути Нефритовой Империи и Цепи Императора, Смещение Сварги, Повеление абамбо ──
 REALMS = [{"key": "jade", "name": "Нефритовая Империя", "en": "Jade Empire", "glyph": "jade"},
           {"key": "swarga", "name": "Сварга", "en": "Swarga", "glyph": "displace"},
-          {"key": "africa", "name": "Куст Призраков", "en": "Ghost Bush", "glyph": "behest"}]
+          {"key": "africa", "name": "Куст Призраков", "en": "Ghost Bush", "glyph": "behest"},
+          # Book of Oblivion, «The Mirrorlands»: Невидимые (Les Invisibles) Карибов; своего знака у Коннесанса нет — знак Тёмных Арканоев
+          {"key": "mirror", "name": "Зеркальные земли", "en": "Mirrorlands", "glyph": "dark"}]
 REALM_ARC = {"Way of the Scholar": ("scholar", "jade"), "Way of the Artisan": ("artisan", "jade"), "Way of the Farmer": ("farmer", "jade"),
              "Way of the Merchant": ("merchant", "jade"), "Way of the Soul": ("soul", "jade"), "Chains of the Emperor": ("chains", "jade"),
              "Displace": ("displace", "swarga"), "Behest": ("behest", "africa")}
@@ -502,6 +504,50 @@ def realm_pool(text, abil):
         return next((p for p in pairs if any(x.startswith("realm.") for x in p)), pairs[0])
     m = re.search(r"бросок\s+" + rx, text)
     return [traits[m.group(1)]] if m else None
+
+
+# Коннесанс (Book of Oblivion, файл 08): основа — передать Тени контроль (Смекалка + Коннесанс, сл. — постоянный Ангст; успех — Тень −1 Ангст)
+# и десять искусств, Общие (Рада) и Посвящённые (Петро, Лоа). Цены и сложности — таблицей по справочнику; что зависит от числа
+# целей, успехов или уровня вещи — подсказкой (diffRule, costText). angst — Ангст, который получает сам Слуга.
+CONN = [  # (французское имя, ключ, пул, сложность, Пафос, Воля, Ангст, diffRule, costText)
+    ("Les Yeux du Chasseur", "wits", 8, 0, 0, 0, "", ""),
+    ("Reler Baka", "manipulation", 6, 1, 0, 0, "", ""),
+    ("La Langue", "wits", 8, 0, 0, 0, "", ""),
+    ("Renvoyer Baka", "manipulation", 8, 0, 0, 2, "", ""),
+    ("Renforcer Les Chevaux", "manipulation", 8, 5, 5, 0, "−1 в Skinriding смертного или на церемонии", ""),
+    ("Engagement", "manipulation", 6, 0, 0, 0, "5 + число целей (до 5)", "1 Пафос и 1 Ангст за каждую цель"),
+    ("Retirer d'en bas de l'eau", "wits", 7, 5, 3, 0, "", ""),
+    ("Reler Mystere", "wits", 8, 0, 2, 0, "", "1 Ангст за каждый успех; раз в сцену"),
+    ("Bonté Abyssale", "wits", 8, 0, 0, 1, "", "1 Пафос и 1 временная Воля за уровень вещи"),
+    ("Marrer Baka", "manipulation", 6, 2, 2, 2, "против Бытия цели", ""),
+]
+
+
+def parse_connaissance():
+    path = os.path.join(REF, "Wraith20_Book_of_Oblivion")
+    fn = next(f for f in sorted(os.listdir(path)) if f.startswith("08"))
+    text = read(os.path.join(path, fn))
+    sec = text.split("## Коннесанс (Connaissance)", 1)[1]
+    base = sec.split("### Искусства", 1)[0].replace("### Базовая система: передача контроля Тени", "").strip()
+    arts = {}
+    for line in sec.split("### Искусства", 1)[1].splitlines():
+        m = re.match(r"^- \*\*(.+?) \((.+?)\) (•+) \((Common|Initiate)\)\*\*\s*—\s*(.*)$", line)
+        if m:
+            arts[m.group(2).strip()] = {"name": m.group(1).strip(), "en": m.group(2).strip(), "level": len(m.group(3)),
+                                        "kind": m.group(4).lower(), "text": m.group(5)}
+    levels = [{"level": 1, "name": "Передача контроля Тени", "en": "Connaissance", "kind": "base", "host": True,
+               "pool": ["attributes.wits", "realm.connaissance"], "diffRule": "постоянный Ангст Тени", "html": html(base.splitlines())}]
+    for en, attr, diff, pathos, will, angst, rule, cost in CONN:
+        a = arts[en]
+        lv = {"level": a["level"], "name": a["name"], "en": en, "kind": a["kind"], "pool": [f"attributes.{attr}", "realm.connaissance"],
+              "diff": diff, "html": html([a["text"]])}
+        for k, v in (("pathos", pathos), ("willpower", will), ("angst", angst), ("diffRule", rule), ("costText", cost)):
+            if v:
+                lv[k] = v
+        levels.append(lv)
+    intro = [l for l in text.split("## Слуги (Serviteurs) — суть", 1)[1].split("## Коннесанс", 1)[0].splitlines() if l.strip()]
+    return {"key": "connaissance", "realm": "mirror", "name": "Коннесанс", "en": "Connaissance", "glyph": "dark", "html": html(intro),
+            "levels": levels}
 
 
 def parse_realm_arcanoi():
@@ -615,7 +661,7 @@ def build():
         "darkArcanoi": parse_dark_arcanoi(), "shadecraft": parse_shadecraft(), "castes": parse_castes(), "psyche": parse_psyche(),
         "spectreBackgrounds": parse_spectre_backgrounds(), "spectre": SPECTRE,
         # Восставшие (гл. 11, файлы 24–25): два своих Арканоса — Очарование и Случайность; Ангста за них нет
-        "realms": REALMS, "realmArcanoi": parse_realm_arcanoi(),
+        "realms": REALMS, "realmArcanoi": parse_realm_arcanoi() + [parse_connaissance()],
         "shades": parse_shades(), "stains": parse_stains(), "projector": PROJECTOR,
         "risenArcanoi": risen_pools(parse_dark_arcanoi("25", {"fascinate": "fa-eye", "serendipity": "fa-dice"})), "risen": RISEN,
     }
