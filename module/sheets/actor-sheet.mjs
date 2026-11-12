@@ -207,7 +207,7 @@ openStrategy: () => openStrategy(),
 
   get needsCreation() {
     const a = this.actor, s = a.system;
-    return a.type !== "creature" && !a.getFlag(SYSTEM_ID, "created")
+    return !["creature", "spirit"].includes(a.type) && !a.getFlag(SYSTEM_ID, "created")
       && Object.values(s.attributes).every(x => x.value === 1) && Object.values(s.abilities).every(x => x.value === 0);
   }
 
@@ -272,7 +272,7 @@ openStrategy: () => openStrategy(),
       // охотник — смертный с Гранями: где лист смертного и охотника совпадают, работает isMortal
       diablerie: actor.type === "vampire" ? diablerieMark(actor) : null,
       isVampire: actor.type === "vampire", isGhoul: actor.type === "ghoul", isDhampir: actor.isDhampir, isMortal: ["mortal", "hunter", "mage"].includes(actor.type), isHunter: actor.type === "hunter", isMage: actor.type === "mage", isWerewolf: actor.type === "werewolf", stratInfo: sheetStrategy(actor),
-      isCreature: actor.type === "creature", isDemon: actor.type === "demon",
+      isCreature: actor.type === "creature", isSpiritType: actor.type === "spirit", isDemon: actor.type === "demon",
       hasBlood: actor.hasBlood,
       typeLabel: actor.type === "ghoul" && ["revenant", "dhampir"].includes(actor.system.ghoulType) ? t(`GhoulType.${actor.system.ghoulType}`) : game.i18n.localize(`TYPES.Actor.${actor.type}`),
       needsCreation: this.needsCreation,
@@ -315,7 +315,7 @@ openStrategy: () => openStrategy(),
     prepareAdvantages(this, ctx);
     if (actor.type === "mortal") { ctx.sorcInfo = sorcererInfo(actor, dots); ctx.consorInfo = consorInfo(actor);
       ctx.kinInfo = kinfolkInfo(actor); ctx.kamiInfo = kamiInfo(actor); ctx.fomorInfo = fomorInfo(actor); if (actor.system.kinfolk?.on) ctx.kinInfo.fetch = fetchInfo(actor); }
-    if (actor.type === "creature" && actor.system.spirit?.on) { ctx.spiritInfo = spiritInfo(actor, dots); ctx.spiritInfo.tpls = spiritTplGroups(); }
+    if (actor.isSpirit) { ctx.spiritInfo = spiritInfo(actor, dots); ctx.spiritInfo.tpls = spiritTplGroups(); }
     prepareGear(this, ctx);
     prepareEffects(this, ctx);
     if (actor.type === "vampire") prepareLineage(this, ctx);

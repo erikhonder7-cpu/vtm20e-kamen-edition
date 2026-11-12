@@ -396,6 +396,32 @@ SPIRIT_SRC = [("M20_Gods_and_Monsters", "06_", "## Проявления Пара
               ("M20_Book_of_the_Fallen", "04_", "### Кошмары Парадокса (Paradox Nightmares)", "M20 Book of the Fallen")]
 
 
+def split_charms(text):
+    """«Броня, **Вспышка (Крики)**, **Судорога (Cramp): урон…; 1 Сущность в ход**, Отключение» → [{name, en, text}] (запятые внутри скобок и жирного — не разделители)."""
+    out, buf, depth, bold = [], "", 0, False
+    i = 0
+    while i < len(text):
+        if text.startswith("**", i):
+            bold = not bold; buf += "**"; i += 2; continue
+        ch = text[i]
+        depth += ch == "(" ; depth -= ch == ")"
+        if ch == "," and depth == 0 and not bold:
+            out.append(buf.strip()); buf = ""
+        else:
+            buf += ch
+        i += 1
+    if buf.strip(): out.append(buf.strip())
+    res = []
+    for part in out:
+        p = part.strip().strip("*").strip().rstrip(".")
+        m = re.match(r"^(.+?)(?:\s*\(([^)]*)\))?(?::\s*(.*))?$", p, re.S)
+        name, en, desc = m.group(1).strip().strip("*"), (m.group(2) or "").strip(), (m.group(3) or "").strip()
+        if en and not re.search(r"[A-Za-z]", en):         # «(Крики)», «(только против злых)» — уточнение, не английское имя
+            desc = f"{en}. {desc}".strip(". ") if desc else en; en = ""
+        res.append({"name": name, "en": en, "text": plain(wd.md_inline(desc))})
+    return res
+
+
 def parse_paradox_spirits():
     """Духи Парадокса со статблоком духа: Воля, Ярость, Гнозис, Сущность и Чары словами."""
     out = []
@@ -405,11 +431,11 @@ def parse_paradox_spirits():
             st = m and re.search(r"Воля (\d+), Ярость (\d+), Гнозис (\d+), Сущность (\d+)", m.group(3))
             if not st:
                 continue
-            charms = re.search(r"Чары: (.*)$", m.group(3))
+            charms = re.search(r"Чары: (.*?)(?:\. (?:Матер|Здоров)|;\s*Сила\s*\d|$)", m.group(3))
             hint = (m.group(2) or "").split(", ", 1)
             out.append({"key": wd.slug(hint[0] if re.search(r"[A-Za-z]", hint[0]) else translit(m.group(1))), "name": m.group(1), "en": hint[0] if re.search(r"[A-Za-z]", hint[0]) else "",
                         "of": hint[1] if len(hint) > 1 else "", "willpower": int(st.group(1)), "rage": int(st.group(2)), "gnosis": int(st.group(3)), "essence": int(st.group(4)),
-                        "charms": plain(wd.md_inline(charms.group(1))) if charms else "", "source": source})
+                        "charms": plain(wd.md_inline(charms.group(1))) if charms else "", "charmList": split_charms(charms.group(1)) if charms else [], "source": source})
     return out
 
 

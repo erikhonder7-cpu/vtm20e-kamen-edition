@@ -10,9 +10,13 @@ import { SYSTEM_ID, SYSTEM_PATH } from "../config.mjs";
 import { RollDialog } from "../dice/dialog.mjs";
 import { VtMActorSheet } from "./actor-sheet.mjs";
 import { wwGlyph, wwGlyphSrc } from "../apps/werewolf.mjs";
+import { charmCost } from "../apps/werewolf/spirits.mjs";
 
 const t = (k, d) => d ? game.i18n.format(`VTM20.Werewolf.${k}`, d) : game.i18n.localize(`VTM20.Werewolf.${k}`);
 const SPIRIT_SHEET = `${SYSTEM_ID}.SpiritSheet`;
+
+/** Цена Чары подписью: «3», «1 за ход». */
+const costLabel = c => { const x = charmCost(c); return x ? `${x.n}${x.per ? ` ${x.per}` : ""}` : ""; };
 
 /** Броски боя духа (W20, гл. 11): что бросаем и чем. */
 const FIGHT = [
@@ -57,6 +61,9 @@ export class SpiritSheet extends VtMActorSheet {
       spiritRank: info?.ranks.find(r => r.selected)?.label ?? "",
       spiritFight: FIGHT.map(f => ({ ...f, label: t(`Spirit.fight.${f.key}`), trait: this.actor.traitLabel(f.trait), n: foundry.utils.getProperty(s, f.trait) ?? 0 })),
       spiritCharms: (info?.charms ?? []).map(c => ({ ...c, open: this._open.has(`charm:${c.key}`) })),
+      // свои Чары — карточками, общие — строкой; цена в Сущности — из текста Чары
+      spiritOwn: (info?.charms ?? []).filter(c => !c.general).map(c => ({ ...c, special: String(c.key).startsWith("~"), cost: costLabel(c), open: this._open.has(`charm:${c.key}`) })),
+      spiritGeneral: (info?.charms ?? []).filter(c => c.general).map(c => ({ ...c, cost: costLabel(c), plain: String(c.text ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 300) })),
       spiritTpls: info?.tpls ?? [],
       essenceLow: info ? info.essence <= Math.ceil(info.essenceMax / 4) : false
     });
@@ -85,6 +92,8 @@ export class SpiritSheet extends VtMActorSheet {
 export function registerSpiritSheet() {
   // Foundry V13+: коллекция Actors доступна только через namespaced API.
   foundry.documents.collections.Actors.registerSheet(SYSTEM_ID, SpiritSheet, { makeDefault: false, label: "VTM20.Sheets.Spirit", types: ["creature"] });
+  // свой тип «Дух» — этим листом по умолчанию
+  foundry.documents.collections.Actors.registerSheet(SYSTEM_ID, SpiritSheet, { makeDefault: true, label: "VTM20.Sheets.Spirit", types: ["spirit"] });
   const want = a => a.type === "creature" && a.system.spirit?.on;
   Hooks.on("preCreateActor", a => { if (want(a) && !a.getFlag("core", "sheetClass")) a.updateSource({ "flags.core.sheetClass": SPIRIT_SHEET }); });
   Hooks.on("updateActor", (a, diff, opts, userId) => {

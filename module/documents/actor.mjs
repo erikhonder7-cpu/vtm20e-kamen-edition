@@ -22,7 +22,7 @@ export class VtMActor extends Actor {
   async _preCreate(data, options, user) {
     if ((await super._preCreate(data, options, user)) === false) return false;
     // оборотню — картина из библиотеки Foundry (волк воет на луну над лесом): в тон палитре «лунный лес»
-    const icons = { vampire: "vampire.svg", ghoul: "ghoul.svg", mortal: "mortal.svg", demon: "demon.svg", creature: "creature.svg", hunter: "hunter.svg", mage: "mage.svg",
+    const icons = { vampire: "vampire.svg", ghoul: "ghoul.svg", mortal: "mortal.svg", demon: "demon.svg", creature: "creature.svg", spirit: "spirit.svg", hunter: "hunter.svg", mage: "mage.svg",
       werewolf: "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp", coterie: "icons/environment/people/group.webp", domain: "icons/environment/settlement/city-night.webp" };
     const upd = {};
     if (!data.img || data.img === CONST.DEFAULT_TOKEN) upd.img = icons[this.type].startsWith("icons/") ? icons[this.type] : `systems/${SYSTEM_ID}/assets/icons/${icons[this.type]}`;
@@ -36,13 +36,15 @@ export class VtMActor extends Actor {
     if (this.type === "vampire" || this.type === "ghoul") Object.assign(proto, { "prototypeToken.sight.enabled": true });
     // жетон связан с актёром (урон, кровь, эффекты — общие с листом); статисты-существа — копиями, как и прежде.
     // Явно заданное значение (импорт из компендия, призыв статистов) не трогаем.
-    if (this.type !== "creature" && data.prototypeToken?.actorLink === undefined) proto["prototypeToken.actorLink"] = true;
+    if (!["creature", "spirit"].includes(this.type) && data.prototypeToken?.actorLink === undefined) proto["prototypeToken.actorLink"] = true;
     this.updateSource({ ...upd, ...proto });
   }
 
   /* ── Свойства ───────────────────────────────────────────────────────── */
 
   get isVampire() { return this.type === "vampire"; }
+  /** Дух Умбры: свой тип «Дух» — или существо с отметкой «дух» (как делали до отдельного типа). */
+  get isSpirit() { return this.type === "spirit" || (this.type === "creature" && !!this.system.spirit?.on); }
   /** Охотник (Hunter: The Reckoning) — отдельный тип на модели смертного: всё смертное плюс кредо, Убеждённость, Грани. */
   get isHunter() { return this.type === "hunter"; }
   /** Маг (Mage: The Ascension) — пробуждённый смертный: Арете, Сферы, Квинтэссенция и Парадокс. */
@@ -457,7 +459,7 @@ export class VtMActor extends Actor {
     // толпа (apps/extras.mjs): общая шкала, по 3 уровня на человека
     if (mobState(this)) return applyMobDamage(this, amount, type);
     // дух Умбры (W20, гл. 11): уровней здоровья нет — любой урон снимает Эссенцию; без Эссенции дух растворяется в Умбре
-    if (this.type === "creature" && this.system.spirit?.on) {
+    if (this.isSpirit) {
       const e = { ...this._source.system.spirit.essence }, left = Math.max(0, e.value - amount);
       await this.update({ "system.spirit.essence.value": left });
       return this.#notice(`<i class="fa-solid fa-wind"></i> ${t("Notify.SpiritHit", { n: e.value - left, left, max: e.max })}${left ? "" : ` <b class="r-fate">${t("Fate.spiritGone")}</b>`}`);
@@ -552,7 +554,7 @@ export class VtMActor extends Actor {
   /** Состав пула прочности; используется также для прозрачного отображения Стойкости. */
   soakBreakdown(type, { armor = true, fangs = false, pierce = 0, silver = false } = {}) {
     const s = this.system;
-    if (this.type === "creature" && s.spirit?.on) return [{ label: t("Willpower"), value: s.spirit.willpower }];
+    if (this.isSpirit) return [{ label: t("Willpower"), value: s.spirit.willpower }];
     const stamina = s.attributes.stamina.total;
     // Одежда и мелкие вещи превращаются вместе с телом; броня не действует в звериной и туманной формах (V20, Метаморфозы).
     const arm = armor && !this.system.fx?.beastForm && !this.system.fx?.mistForm && !this.system.fx?.shadowForm ? Math.max(0, this.armor.rating - pierce) : 0;
@@ -578,7 +580,7 @@ export class VtMActor extends Actor {
       return Object.entries(parts).filter(([, value]) => value > 0).map(([key, value]) => ({ label: labels[key], value }));
     } else {
       // Стойкость добавляет кости против всех видов урона, включая губительный.
-      const tough = this.isVampire || (this.type === "creature" && s.supernatural) || (this.type === "demon" && s.apocalyptic);
+      const tough = this.isVampire || (["creature", "spirit"].includes(this.type) && s.supernatural) || (this.type === "demon" && s.apocalyptic);
       parts = soakComponents({ damageType: type, stamina, fortitude: this.discipline("fortitude"), armor: arm, form,
         tough, fangs, staminaVsFangs: !!s.fx?.staminaVsFangs });
     }
@@ -599,7 +601,7 @@ export class VtMActor extends Actor {
 
   /** Пул прочности против типа урона (04). */
   soakPool(type, options = {}) {
-    if (this.type === "creature" && this.system.spirit?.on) return this.system.spirit.willpower;
+    if (this.isSpirit) return this.system.spirit.willpower;
     if (this.type === "werewolf") {
       const s = this.system, weak = s.werewolf.breedForm;
       if (options.silver && !weak) return 0;

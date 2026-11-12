@@ -147,6 +147,12 @@
           "biography",
           "notes"
         ]
+      },
+      "spirit": {
+        "htmlFields": [
+          "biography",
+          "notes"
+        ]
       }
     },
     "Item": {

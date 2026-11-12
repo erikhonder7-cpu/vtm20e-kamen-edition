@@ -348,13 +348,18 @@ try {
       await a.applyDamage(3, "aggravated");
       out.essence = e0 - a.system.spirit.essence.value; out.health = a.system.health.aggravated;
       await a.sheet.close();
-      await a.update({ "system.spirit.on": false }); await wait(400); out.off = a.sheet.constructor.name;
-      await a.update({ "system.spirit.on": true }); await wait(400); out.on = a.sheet.constructor.name;
+      // свой тип «Дух»; переключатель «Дух» — только у существа (прежние духи): снят — лист существа, поставлен — лист духа
+      out.type = a.type;
+      const old = await Actor.create({ name: "E2E — дух-существо", type: "creature", flags: { world: { e2e: true } }, system: { spirit: { on: true } } });
+      out.oldSheet = old.sheet.constructor.name;
+      await old.update({ "system.spirit.on": false }); await wait(400); out.off = old.sheet.constructor.name;
+      await old.update({ "system.spirit.on": true }); await wait(400); out.on = old.sheet.constructor.name;
+      await old.delete();
       return out;
     }, id);
     if (r.sheet !== "SpiritSheet" || !r.theme || r.traits !== 3) throw new Error(`лист духа: ${JSON.stringify(r)}`);
     if (r.essence !== 3 || r.health !== 0) throw new Error(`урон духу: Эссенция −${r.essence}, губительных ${r.health}`);
-    if (r.off !== "VtMActorSheet" || r.on !== "SpiritSheet") throw new Error(`переключение: ${r.off} / ${r.on}`);
+    if (r.type !== "spirit" || r.oldSheet !== "SpiritSheet" || r.off !== "VtMActorSheet" || r.on !== "SpiritSheet") throw new Error(`тип и переключение: ${r.type}, ${r.oldSheet}, ${r.off} / ${r.on}`);
   });
 
   await check("Маскарад: охотники при огласке — карточка, «Не нужно», настройка", async () => {
@@ -3395,7 +3400,7 @@ try {
       const d = WW.deliriumOf(7); out.delirium = `${d.key}:${d.forgets}`;
       await s.update({ "system.spirit": { on: true, rage: 4, gnosis: 6, willpower: 5 } });
       await WW.spiritEssenceReset(s); out.essence = s.system.spirit.essence.max; out.spiritRoll = s.traitValue("spirit.gnosis");
-      await s.sheet.render(true); await wait(900); out.card = s.sheet.constructor.name === "SpiritSheet" && !!s.sheet.element.querySelector(".r-sp-trait") && !!s.sheet.element.querySelector(".r-sp-tpl option[value='bane-halassh']"); await s.sheet.close();
+      await s.sheet.render(true); await wait(900); out.card = s.sheet.constructor.name === "SpiritSheet" && !!s.sheet.element.querySelector(".r-sp-trait") && !!s.sheet.element.querySelector('[data-action="spTpl"]') && WW.spiritTplGroups().some(g => g.list.some(x => x.key === "bane-halassh")); await s.sheet.close();
       await WW.applySpiritTpl(s, "bane-halassh");
       out.spTpl = `${s.system.spirit.rage}:${s.system.spirit.charms.join() === WW.spiritTplOf("bane-halassh").charms.join()}`;
       // Родня Гару: Дар за опыт (свой — 15), блок на листе

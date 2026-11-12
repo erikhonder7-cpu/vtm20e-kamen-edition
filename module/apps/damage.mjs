@@ -32,7 +32,7 @@ class DamageDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       messageMode: game.settings.get("core", "messageMode") };
   }
 
-  get tough() { const a = this.actor; return a.isVampire || a.type === "werewolf" || (a.type === "creature" && a.system.supernatural); }
+  get tough() { const a = this.actor; return a.isVampire || a.type === "werewolf" || (["creature", "spirit"].includes(a.type) && a.system.supernatural); }
 
   /** Итоговый тип (как в soakAndApply), пул прочности с разбором, сложность и пояснения. */
   preview() {

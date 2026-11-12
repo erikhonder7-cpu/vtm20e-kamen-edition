@@ -74,7 +74,7 @@ export const KINDS = [
   { key: "kinfolk", group: "garou", label: "Родня Гару", icon: "fa-people-group", actor: "mortal" },
   { key: "kami", group: "garou", label: "Ками", icon: "fa-leaf", actor: "mortal" },
   { key: "fomor", group: "garou", label: "Фомор", icon: "fa-biohazard", actor: "mortal" },
-  { key: "spirit", group: "garou", label: "Дух", icon: "fa-wind", actor: "creature" },
+  { key: "spirit", group: "garou", label: "Дух", icon: "fa-wind", actor: "spirit" },
   { key: "demon", group: "fallen", label: "Падший", icon: "fa-fire-flame-curved", actor: "demon" },
   { key: "earthbound", group: "fallen", label: "Привязанный к Земле", icon: "fa-gem", actor: "demon" },
   { key: "thrall", group: "fallen", label: "Слуга падшего", icon: "fa-link", actor: "mortal" },
@@ -506,7 +506,7 @@ const BUILD = {
     const sp = list.find(s => s.key === p.spirit) ?? wpick(list.map(s => [s, (p.spiritKind && s.kind !== p.spiritKind ? 0 : 1) * wordW(ctx.role, s.name, s.text)]));
     // особые Чары образца — «~ключ:Название»
     const charms = (sp.charms ?? []).map(k => k.startsWith("~") ? k.split(":").slice(1).join(":") : (D.charms ?? []).find(c => c.key === k)?.name ?? k);
-    return { actor: "creature", spirit: sp.key, name: sp.name, system: { details: { concept: sp.name } }, items: [], c: null,
+    return { actor: "spirit", spirit: sp.key, name: sp.name, system: { details: { concept: sp.name } }, items: [], c: null,
       powers: charms.map(n => ({ label: n })), powersLabel: t("NpcGen.Charms"), text: sp.text, source: sp.source,
       traits: [[t("NpcGen.Rage"), sp.rage], [t("NpcGen.Gnosis"), sp.gnosis], [t("Willpower"), sp.willpower], [t("NpcGen.Essence"), sp.essence]],
       tags: [loc(`VTM20.Werewolf.Spirit.kind.${sp.kind}`), sp.en ?? ""].filter(x => x && !x.startsWith("VTM20.")) };

@@ -366,7 +366,7 @@ export async function soakAndApply(target, amount, damageType, { soak = true, fa
     ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: target }), content: `<div class="r-notice"><i class="fa-solid fa-gun"></i> ${t("Combat.BulletBashing")}</div>` });
   }
   // Смертному огонь, клыки и когти наносят тяжёлые повреждения, а не губительные (04)
-  const tough = target.isVampire || target.type === "werewolf" || (target.type === "creature" && target.system.supernatural);
+  const tough = target.isVampire || target.type === "werewolf" || (["creature", "spirit"].includes(target.type) && target.system.supernatural);
   if (damageType === "aggravated" && !tough) {
     damageType = "lethal";
     ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: target }), content: `<div class="r-notice"><i class="fa-solid fa-person"></i> ${t("Combat.MortalAggravated")}</div>` });

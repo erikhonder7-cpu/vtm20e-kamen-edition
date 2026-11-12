@@ -263,6 +263,16 @@ export class CreatureData extends BaseActorData {
   }
 }
 
+/** Дух — свой тип персонажа: данные те же, что у существа, отметка «дух» стоит всегда (лист — sheets/spirit-sheet.mjs). */
+export class SpiritData extends CreatureData {
+  static defineSchema() {
+    const s = super.defineSchema();
+    s.spirit.fields.on.initial = true;
+    return s;
+  }
+  prepareDerivedData() { super.prepareDerivedData?.(); this.spirit.on = true; }
+}
+
 /* ── Смертный ───────────────────────────────────────────────────────────── */
 
 export class MortalData extends BaseActorData {
@@ -798,7 +808,7 @@ export class DomainData extends foundry.abstract.TypeDataModel {
 }
 
 export function registerDataModels() {
-  Object.assign(CONFIG.Actor.dataModels, { vampire: VampireData, ghoul: GhoulData, mortal: MortalData, creature: CreatureData, demon: DemonData, hunter: HunterData, mage: MageData, werewolf: WerewolfData,
+  Object.assign(CONFIG.Actor.dataModels, { vampire: VampireData, ghoul: GhoulData, mortal: MortalData, creature: CreatureData, spirit: SpiritData, demon: DemonData, hunter: HunterData, mage: MageData, werewolf: WerewolfData,
     coterie: CoterieData, domain: DomainData });
   Object.assign(CONFIG.Item.dataModels, {
     discipline: DisciplineData, lore: LoreData, lorePower: LorePowerData, thaumPath: BloodPathData, ritual: RitualData, power: PowerData,

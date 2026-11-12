@@ -22,10 +22,10 @@
         <input class="r-name {{nameSize}}" type="text" name="name" value="{{actor.name}}" placeholder="{{localize 'VTM20.Sheet.Name'}}" spellcheck="false">
       </div>
       <div class="r-dossier">
-        <label class="r-df is-wide"><span>{{localize "VTM20.Sheet.Kind"}}</span><input type="text" name="system.kind" value="{{system.kind}}"></label>
+        <label class="r-df is-wide"><span>{{localize "VTM20.Werewolf.Spirit.kindLabel"}}</span><input type="text" name="system.kind" value="{{system.kind}}"></label>
         <label class="r-df is-wide"><span>{{localize "VTM20.Werewolf.Spirit.brood"}}</span><input type="text" name="system.spirit.brood" value="{{system.spirit.brood}}"></label>
-        <label class="r-df is-wide r-sp-ban"><span>{{localize "VTM20.Werewolf.Spirit.ban"}}</span><input type="text" name="system.spirit.ban" value="{{system.spirit.ban}}"></label>
-        <label class="r-df is-narrow r-sp-toggle" data-tooltip="{{localize 'VTM20.Werewolf.Spirit.toggleHint'}}"><span>{{localize "VTM20.Werewolf.Spirit.title"}}</span><input type="checkbox" name="system.spirit.on" {{checked system.spirit.on}}></label>
+        <label class="r-df is-wide r-sp-ban"><span>{{localize "VTM20.Werewolf.Spirit.ban"}}</span><input type="text" name="system.spirit.ban" value="{{system.spirit.ban}}"></label>{{#unless isSpiritType}}
+        <label class="r-df is-narrow r-sp-toggle" data-tooltip="{{localize 'VTM20.Werewolf.Spirit.toggleHint'}}"><span>{{localize "VTM20.Werewolf.Spirit.title"}}</span><input type="checkbox" name="system.spirit.on" {{checked system.spirit.on}}></label>{{/unless}}
       </div>
     </div>
 

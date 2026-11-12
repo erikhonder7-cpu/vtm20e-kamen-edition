@@ -10,7 +10,8 @@
       "werewolf": "Werewolf",
       "coterie": "Coterie",
       "domain": "Domain",
-      "mage": "Mage"
+      "mage": "Mage",
+      "spirit": "Spirit"
     },
     "Item": {
       "discipline": "Discipline",
@@ -4691,7 +4692,20 @@
           "soak": "Soak"
         },
         "max": "Max",
-        "regainHint": "Regain Essence (Slumber)"
+        "regainHint": "Regain Essence (Slumber)",
+        "tplShort": "Template",
+        "tplPick": "Which spirit",
+        "generalTitle": "Common Charms",
+        "noOwn": "No Charms of its own — add one from the list or take a spirit template.",
+        "more": "More",
+        "less": "Less",
+        "use": "Use",
+        "useHint": "Spend Essence as the Charm’s text says and post the Charm to chat",
+        "costHint": "Essence cost — as written in the Charm’s text",
+        "useTimes": "Cost {n} {per}. How many times?",
+        "noEssence": "Not enough Essence: {n} needed, {have} left.",
+        "spent": "Essence −{n} ({left} left)",
+        "kindLabel": "Kind"
       },
       "SpiritRank": {
         "gaffling": "Gaffling",

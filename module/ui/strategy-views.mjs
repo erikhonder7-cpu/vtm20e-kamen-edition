@@ -190,7 +190,7 @@ export function pactsBlock(s, x, gm) {
 }
 
 export function ownerOptions(s) {
-  const acts = game.actors.filter(a => ["vampire", "ghoul", "mortal", "hunter", "werewolf", "mage", "demon", "creature", "coterie"].includes(a.type)).sort((p, q) => p.name.localeCompare(q.name, "ru"));
+  const acts = game.actors.filter(a => ["vampire", "ghoul", "mortal", "hunter", "werewolf", "mage", "demon", "creature", "spirit", "coterie"].includes(a.type)).sort((p, q) => p.name.localeCompare(q.name, "ru"));
   return [...Object.keys(s.owners).map(k => owner(k, s)), ...acts.map(a => owner(a.id, s))];
 }
 

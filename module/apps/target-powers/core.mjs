@@ -135,7 +135,7 @@ export function subsumeBlocks(actor, disc) {
 export const sameActor = (uuid, actor) => !!uuid && !!actor && (uuid === actor.uuid || String(uuid).endsWith(`Actor.${actor.id}`));
 
 /** Сверхъестественное существо (Глаза змеи): вампир, Гару, падший, сверхъестественная тварь; гуль и охотник — смертные. */
-export const supernatural = a => ["vampire", "werewolf", "demon"].includes(a.type) || (a.type === "creature" && !!a.system.supernatural);
+export const supernatural = a => ["vampire", "werewolf", "demon"].includes(a.type) || (["creature", "spirit"].includes(a.type) && !!a.system.supernatural);
 
 export const targetPowerOf = (disc, p) => TARGET_POWERS[`${disc}|${p?.en ?? ""}`] ?? null;
 

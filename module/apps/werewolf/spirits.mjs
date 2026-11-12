@@ -1,6 +1,7 @@
 // module/apps/werewolf/spirits.mjs
 // Оборотень — Умбра и духи: шаг в сторону, образцы духов, Чары, Сущность, кин-фетч.
 
+import { Codex } from "../../data/codex.mjs";
 import { RollDialog } from "../../dice/dialog.mjs";
 import { VTM20 } from "../../config.mjs";
 import { septOf } from "../sept.mjs";
@@ -31,6 +32,12 @@ export async function stepSideways(actor, trait = "werewolf.gnosis") {
 export const SPIRIT_RANKS = ["gaffling", "jaggling", "incarna", "celestine"];
 
 export const charmOf = key => {
+  // Чара Духа Парадокса: «~paradox:дух:Название», текст — data/mage.json → paradoxSpirits[].charmList
+  if (key?.startsWith("~paradox:")) {
+    const [, spirit, name] = key.split(/:(.*?):(.*)/s), sp = (Codex.mage?.paradoxSpirits ?? []).find(x => x.key === spirit);
+    const c = sp?.charmList?.find(x => x.name === name);
+    return { key, name, en: c?.en ?? "", general: false, text: c?.text ? `<p>${foundry.utils.escapeHTML(c.text)}</p>` : game.i18n.format("VTM20.Werewolf.Spirit.specialOf", { name: sp?.name ?? spirit }) };
+  }
   // особая Чара образца духа: «~образец:Название», текст — в spirits[].specials
   if (key?.startsWith("~")) {
     const [tpl, name] = key.slice(1).split(/:(.*)/s), sp = spiritTplOf(tpl);
@@ -64,7 +71,7 @@ export async function applySpiritTpl(actor, key) {
 export async function createSpirit(key, name) {
   const sp = spiritTplOf(key);
   if (!sp) return null;
-  return Actor.create({ name: name || sp.name, type: "creature",
+  return Actor.create({ name: name || sp.name, type: "spirit",
     flags: { [game.system.id]: { created: true, spiritTpl: key } },
     system: { kind: `${t(`Spirit.kind.${sp.kind}`)}: ${sp.name}`, spirit: spiritData(sp) } });
 }
@@ -116,4 +123,39 @@ export async function removeCharm(actor, key) {
 export async function spiritEssenceReset(actor) {
   const sp = actor.system.spirit, n = sp.rage + sp.gnosis + sp.willpower;
   return actor.update({ "system.spirit.essence": { value: n, max: n } });
+}
+
+/* ── Чары: цена и применение ─────────────────────────────────────────── */
+
+/** Цена Чары в Сущности — как написана в тексте («3 Сущности», «1 Сущность в ход»); «за …» — цена за раз. */
+export function charmCost(c) {
+  const m = String(c?.text ?? "").replace(/<[^>]+>/g, " ").match(/(\d+)\s*(?:очк[а-яё]*\s*)?Сущност[а-яё]*(\s+(?:за|в)\s+[^.;,)]+)?/i);   // \w кириллицу не ловит
+  return m ? { n: Number(m[1]), per: (m[2] ?? "").trim() } : null;
+}
+/** Применить Чару: списать Сущность по тексту (за раз — спросить, сколько раз) и написать Чару в чат. */
+export async function useCharm(actor, key) {
+  const c = charmOf(key);
+  if (!c) return null;
+  const cost = charmCost(c), e = actor.system.spirit.essence;
+  let times = 1;
+  if (cost?.per && actor.isOwner) {
+    times = await foundry.applications.api.DialogV2.prompt({ window: { title: c.name, icon: "fa-solid fa-bolt" }, classes: ["vtm20", "r-dialog", "r-type-spirit"], rejectClose: false, position: { width: 380 },
+      content: `<div class="r-form"><label class="r-field"><span>${foundry.utils.escapeHTML(t("Spirit.useTimes", { n: cost.n, per: cost.per }))}</span><input type="number" name="n" value="1" min="1" max="20"></label></div>`,
+      ok: { label: t("Spirit.use"), callback: (ev, b) => Math.max(1, Number(b.form.elements.n.value) || 1) } });
+    if (!times) return null;
+  }
+  const spend = cost ? cost.n * times : 0;
+  if (spend && e.value < spend) return ui.notifications.warn(t("Spirit.noEssence", { n: spend, have: e.value }));
+  if (spend && actor.isOwner) await actor.update({ "system.spirit.essence.value": e.value - spend });
+  return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }),
+    content: `<div class="r-notice r-type-spirit"><i class="fa-solid fa-wind"></i> <b>${foundry.utils.escapeHTML(actor.name)}: ${foundry.utils.escapeHTML(c.name)}</b>${spend ? ` · ${foundry.utils.escapeHTML(t("Spirit.spent", { n: spend, left: e.value - spend }))}` : ""}${c.text ?? ""}</div>` });
+}
+/** Образец духа — окно выбора (бестиарии W20, Умбры, Книги Червя, кин-фетчи). */
+export async function pickSpiritTpl(actor) {
+  const groups = spiritTplGroups();
+  const key = await foundry.applications.api.DialogV2.prompt({ window: { title: t("Spirit.tpl"), icon: "fa-solid fa-wand-magic-sparkles" }, classes: ["vtm20", "r-dialog", "r-type-spirit"], rejectClose: false, position: { width: 460 },
+    content: `<div class="r-form"><label class="r-field"><span>${foundry.utils.escapeHTML(t("Spirit.tplPick"))}</span><select name="k">${groups.map(g => `<optgroup label="${foundry.utils.escapeHTML(g.label)}">${g.list.map(x => `<option value="${x.key}">${foundry.utils.escapeHTML(x.label)}</option>`).join("")}</optgroup>`).join("")}</select></label>
+      <p class="r-note">${foundry.utils.escapeHTML(t("Spirit.tplHint"))}</p></div>`,
+    ok: { label: t("Spirit.apply"), callback: (ev, b) => b.form.elements.k.value } });
+  return key ? applySpiritTpl(actor, key) : null;
 }

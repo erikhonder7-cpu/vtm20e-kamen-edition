@@ -70,7 +70,7 @@ function weaponGlyph(w) {
 /** Вид персонажа для HUD: свой набор запасов, действий и цвета (styles/r-hud.css, rh-t-*). */
 function kindOf(a) {
   if (a.type === "ghoul" && a.system.ghoulType === "dhampir") return "dhampir";
-  if (a.type === "creature" && a.system.spirit?.on) return "spirit";
+  if (a.isSpirit) return "spirit";
   return a.type;
 }
 

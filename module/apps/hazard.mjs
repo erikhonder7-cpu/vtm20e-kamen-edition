@@ -76,7 +76,7 @@ class HazardDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       modDice: 0, modDiff: 0, messageMode: game.settings.get("core", "messageMode") };
   }
 
-  get tough() { const a = this.actor; return a.isVampire || (a.type === "creature" && a.system.supernatural) || (a.type === "demon" && a.system.apocalyptic); }
+  get tough() { const a = this.actor; return a.isVampire || (["creature", "spirit"].includes(a.type) && a.system.supernatural) || (a.type === "demon" && a.system.apocalyptic); }
   get isDemon() { return this.actor.type === "demon"; }
   get isGarou() { return this.actor.type === "werewolf"; }
   /** Облик в принятой форме не горит: черта «Устойчивость к огню» или «Невосприимчивость к огню». */

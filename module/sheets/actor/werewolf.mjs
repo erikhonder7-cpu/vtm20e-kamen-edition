@@ -3,8 +3,9 @@
 // Вынесено из actor-sheet.mjs: обработчики кнопок (data-action); this — лист (ApplicationV2 зовёт их со своим this).
 
 import { openSept } from "../../apps/sept.mjs";
+import { useCharm, pickSpiritTpl } from "../../apps/werewolf/spirits.mjs";
 import { openUmbra } from "../../apps/umbra.mjs";
-import { craftFetish, editStanding, changeForm, rollGift, rollRite, frenzyCheck, stepSideways, addScar, removeScar, addDeformity, removeDeformity, renownAward, kinAddGift, kinRemoveGift, kinUseGift, kinAddNumen, kinRemoveNumen, kinNumenDots, kinUseNumen, kamiAdd, kamiRemove, kamiUse, bindFetch, burnFetch, primalUses, fomorBreed, fomorAdd, fomorRemove, fomorUse, applySpiritTpl, addCharm, removeCharm, spiritEssenceReset, addFetish, removeFetish, attuneFetish, reconcileFetish, useFetish, delirium, stayUp, regainRage, regainGnosis, haranoCheck, regenerate, rageActions, spend as wwSpend, addGift, removeGift, addRite, removeRite } from "../../apps/werewolf.mjs";
+import { craftFetish, editStanding, changeForm, rollGift, rollRite, frenzyCheck, stepSideways, addScar, removeScar, addDeformity, removeDeformity, renownAward, kinAddGift, kinRemoveGift, kinUseGift, kinAddNumen, kinRemoveNumen, kinNumenDots, kinUseNumen, kamiAdd, kamiRemove, kamiUse, bindFetch, burnFetch, primalUses, fomorBreed, fomorAdd, fomorRemove, fomorUse, addCharm, removeCharm, spiritEssenceReset, addFetish, removeFetish, attuneFetish, reconcileFetish, useFetish, delirium, stayUp, regainRage, regainGnosis, haranoCheck, regenerate, rageActions, spend as wwSpend, addGift, removeGift, addRite, removeRite } from "../../apps/werewolf.mjs";
 import { t } from "../actor-context.mjs";
 
 /** Оборотень (apps/werewolf.mjs): смена формы, Дары и ритуалы, бешенство, шаг в Умбру, траты Ярости и Гнозиса. */
@@ -49,7 +50,8 @@ function onFomorMore(event, target) { return fomorAdd(this.actor, target.dataset
 function onFomorDel(event, target) { return fomorRemove(this.actor, target.dataset.key); }
 function onFomorUse(event, target) { return fomorUse(this.actor, target.dataset.key); }
 function onFomorBreed() { const k = this.element.querySelector(".r-fomor-breed")?.value; return fomorBreed(this.actor, k ?? ""); }
-function onSpTpl() { const k = this.element.querySelector(".r-sp-tpl")?.value; if (k) return applySpiritTpl(this.actor, k); }
+function onSpTpl() { return pickSpiritTpl(this.actor); }
+function onSpCharmUse(event, target) { return useCharm(this.actor, target.dataset.key); }
 function onSpCharmAdd() { return addCharm(this.actor, this.element.querySelector(".r-sp-charm-add")?.value); }
 function onSpCharmDel(event, target) { return removeCharm(this.actor, target.dataset.key); }
 function onSpEssence() { return spiritEssenceReset(this.actor); }
@@ -77,7 +79,7 @@ export const WEREWOLF_ACTIONS = {
   kinUse: onKinUse, kinNumAdd: onKinNumAdd, kinNumDel: onKinNumDel, kinNumDots: onKinNumDots,
   kinNumUse: onKinNumUse, kamiAdd: onKamiAdd, kamiBuy: onKamiBuy, kamiMore: onKamiMore,
   kamiDel: onKamiDel, kamiUse: onKamiUse, kinFetchBind: onKinFetchBind, kinFetchBurn: onKinFetchBurn,
-  spTpl: onSpTpl, wwPrimal: onWwPrimal, fomorAdd: onFomorAdd, fomorMore: onFomorMore,
+  spTpl: onSpTpl, spCharmUse: onSpCharmUse, wwPrimal: onWwPrimal, fomorAdd: onFomorAdd, fomorMore: onFomorMore,
   fomorDel: onFomorDel, fomorUse: onFomorUse, fomorBreed: onFomorBreed, spCharmAdd: onSpCharmAdd,
   spCharmDel: onSpCharmDel, spEssence: onSpEssence, spStep: onSpStep, wwFetishAdd: onWwFetishAdd,
   wwFetishCraft: onWwFetishCraft, wwFetishAttune: onWwFetishAttune, wwFetishReconcile: onWwFetishReconcile, wwStayUp: onWwStayUp,

@@ -239,7 +239,7 @@ export function auraLines(target, n) {
   if (n >= 2) out.push(t(target.statuses?.has("r-frenzy") ? "Aura2Frenzy" : "Aura2"));
   if (n >= 3) {
     const k = target.isVampire ? "vampire" : target.type === "ghoul" ? "ghoul" : target.type === "werewolf" ? "werewolf" : target.type === "demon" ? "demon"
-      : target.type === "creature" ? (target.system.spirit?.on ? "spirit" : target.system.supernatural ? "creature" : "animal") : "mortal";
+      : target.isSpirit ? "spirit" : target.type === "creature" ? ( target.system.supernatural ? "creature" : "animal") : "mortal";
     out.push(t(`AuraKind.${k}`));
   }
   if (n >= 4) out.push(t("Aura4"));

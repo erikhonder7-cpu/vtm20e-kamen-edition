@@ -9,6 +9,7 @@
 //   · Чудеса — предметы типа «wonder»: у Талисмана и Устройства своё Арете (пул) и запас Квинтэссенции.
 
 import { SYSTEM_ID, VTM20 } from "../config.mjs";
+import { Codex } from "../data/codex.mjs";
 import { M, isMarauder, isFallen, aretePool, changeQuintessence, paradoxOf, changeParadox, castEffect, mageGlyphSrc, sphereName, topResonance, parseSpheres, RES_DICE } from "./mage.mjs";
 
 const t = (k, d) => d ? game.i18n.format(`VTM20.Mage.${k}`, d) : game.i18n.localize(`VTM20.Mage.${k}`);
@@ -175,6 +176,13 @@ export async function wonderQuint(actor, id, d) {
 
 /* ── Духи и Царства Парадокса (рассказчик, с карточки отката) ────────── */
 
+/** Чары Духа Парадокса: общие — по имени из списка Чар духов (W20), остальные — особыми с текстом из книги. */
+function paradoxCharms(sp) {
+  const general = Codex.werewolf?.charms ?? [], norm = s => String(s).toLowerCase().replace(/ё/g, "е").trim();
+  return (sp.charmList ?? []).map(c => general.find(g => norm(g.name) === norm(c.name))?.key ?? `~paradox:${sp.key}:${c.name}`)
+    .filter((k, i, all) => all.indexOf(k) === i && !general.find(g => g.key === k)?.general);
+}
+
 /** Дух Парадокса: выбрать из книжных — и он появляется существом-духом (Воля, Ярость, Гнозис, Сущность; Чары — словами). */
 export async function paradoxSpirit(actor) {
   const list = M().paradoxSpirits ?? [];
@@ -185,9 +193,9 @@ export async function paradoxSpirit(actor) {
     ok: { label: t("SpiritCall"), callback: (e, b) => b.form.elements.key.value } });
   const sp = list.find(s => s.key === key);
   if (!sp) return null;
-  const made = await Actor.create({ name: sp.name, type: "creature", flags: { [SYSTEM_ID]: { created: true } },
+  const made = await Actor.create({ name: sp.name, type: "spirit", flags: { [SYSTEM_ID]: { created: true } },
     system: { kind: t("SpiritKind"), spirit: { on: true, rank: "jaggling", rage: sp.rage, gnosis: sp.gnosis, willpower: sp.willpower, essence: { value: sp.essence, max: sp.essence },
-      charms: [], brood: t("SpiritBrood", { name: actor.name }), ban: sp.charms ? `${t("SpiritCharms")}: ${sp.charms}` : "" } } });
+      charms: paradoxCharms(sp), brood: t("SpiritBrood", { name: actor.name }), ban: "" } } });
   await say(actor, "fa-ghost", t("SpiritCame", { name: esc(actor.name), spirit: esc(sp.name), stats: esc(t("SpiritStats", sp)) }));
   return made;
 }

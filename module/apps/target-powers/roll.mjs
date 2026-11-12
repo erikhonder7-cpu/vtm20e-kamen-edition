@@ -62,7 +62,7 @@ export function prepareTargetPower(actor, disc, p, tp, skip = new Set()) {
   if (tp.once && target?.effects.some(e => !e.disabled && e.flags?.[SYSTEM_ID]?.mind === key0 && sameActor(e.flags[SYSTEM_ID].by, actor))
     && (b = block("once", t("StillActive", { name: target.name })))) return b;
   if (tp.mortalTarget && supernatural(target) && (b = block("mortalTarget", t("MortalsOnly", { name: target.name })))) return b;
-  if (tp.animal && !(target.type === "creature" && !target.system.spirit?.on) && (b = block("animal", t("NotAnimal", { name: target.name })))) return b;
+  if (tp.animal && !(target.type === "creature" && !target.isSpirit) && (b = block("animal", t("NotAnimal", { name: target.name })))) return b;
   // Доминирование: после провала цель невосприимчива ко всему Доминированию этого вампира до конца истории
   if (tp.dominate && target?.effects.some(e => { const f = !e.disabled && e.flags?.[SYSTEM_ID]?.presImmune; return f && f.disc === "dominate" && sameActor(f.by, actor); })
     && (b = block("domImmune", t("DomImmune", { name: target.name })))) return b;

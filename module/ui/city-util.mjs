@@ -68,7 +68,7 @@ export function hunter() {
 
 export const canEdit = it => game.user.isGM || !!it?.mine;
 
-export const CHAR_TYPES = ["vampire", "ghoul", "mortal", "demon", "hunter", "creature"];
+export const CHAR_TYPES = ["vampire", "ghoul", "mortal", "demon", "hunter", "creature", "spirit"];
 
 /** Кого можно поставить на карту: свои; ведущему — все персонажи игроков. */
 export function placeableActors() {

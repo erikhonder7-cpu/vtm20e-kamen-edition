@@ -100,7 +100,7 @@ class Court extends HandlebarsApplicationMixin(ApplicationV2) {
     const pickedRow = !history && this.picked ? c.offices[this.sect].map(row).find(r => r.id === this.picked) ?? null : null;
     if (!pickedRow) this.picked = null;
     const all = Object.values(c.offices).flat();
-    const actors = game.actors.filter(a => a.type !== "creature").sort((x, y) => x.name.localeCompare(y.name, "ru"))
+    const actors = game.actors.filter(a => !["creature", "spirit"].includes(a.type)).sort((x, y) => x.name.localeCompare(y.name, "ru"))
       .map(a => ({ id: a.id, name: a.name, selected: pickedRow?.actorId === a.id }));
     return {
       gm, cats, list, history, historyList: c.history.slice(0, 80), sect: this.sect,

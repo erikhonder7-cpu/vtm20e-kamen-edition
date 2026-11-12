@@ -56,16 +56,6 @@ body.r-theme-light .vtm20.r-type-spirit {
 .vtm20.r-type-spirit .r-head-acts .r-act b { margin-left: 4px; font-weight: 400; color: var(--r-accent); }
 
 /* Чары — строками, как Дары у Гару */
-.vtm20.r-type-spirit .r-sp-charmlist { list-style: none; margin: 0; padding: 4px 12px 8px; border: 1px solid var(--r-line); background: var(--r-card-bg); }
-.vtm20.r-type-spirit .r-sp-charmlist .r-edge { display: grid; grid-template-columns: 26px minmax(0, 1fr) auto; gap: 8px; align-items: start; padding: 6px 0; border-bottom: 1px dotted var(--r-line); }
-.vtm20.r-type-spirit .r-sp-charmlist .r-edge:last-child { border-bottom: 0; }
-.vtm20.r-type-spirit .r-sp-charmlist .r-edge-lvl { text-align: center; padding-top: 2px; color: var(--r-accent); }
-.vtm20.r-type-spirit .r-sp-charmlist .r-edge-main > a { cursor: pointer; }
-.vtm20.r-type-spirit .r-sp-charmlist .r-edge-main b { font-family: var(--r-display); font-weight: 400; font-size: 15px; color: var(--r-ink); }
-.vtm20.r-type-spirit .r-sp-charmlist .r-edge-main small { margin-left: 4px; font-style: italic; color: var(--r-muted); }
-.vtm20.r-type-spirit .r-sp-charmlist .r-edge-text { display: block; margin-top: 4px; font-size: 13px; line-height: 1.4; color: var(--r-ink-2); }
-.vtm20.r-type-spirit .r-sp-tools { display: flex; gap: 8px; margin-top: 8px; }
-.vtm20.r-type-spirit .r-sp-tools select { flex: 1 1 auto; min-width: 0; }
 
 /* ── обвязка листа и окон — по образцу «лунного леса» (werewolf.css, строки 42–145), в цветах «Пенумбры»:
    рейка, монеты вкладок, печать, запас, полоса действий, уголки карточек, подвал, шапка окна, броски и карточки чата ── */
@@ -173,3 +163,34 @@ body.r-theme-light .vtm20.r-type-spirit {
 .vtm20.r-type-spirit .r-cr-step.is-done .r-cr-step-coin, .vtm20.r-type-spirit .r-cr-step.is-active .r-cr-step-coin { color: #b7d3d0; }
 .vtm20.r-type-spirit .r-cr-step.is-active a { background: linear-gradient(90deg, rgba(183, 211, 208, .16), transparent); }
 .vtm20.r-type-spirit .r-cr-step.is-active a::before { background: #b7d3d0; }
+
+/* ── Чары карточками (templates/actor/spirit-traits.hbs) ─────────────────── */
+.vtm20.r-type-spirit .r-dot.is-filled { border-color: #8fc6c2; box-shadow: 0 0 5px rgba(127, 196, 200, .35); }
+.vtm20.r-type-spirit .r-sp-banline { display: flex; gap: 8px; align-items: baseline; margin: 2px 0 10px; padding: 7px 12px; border-left: 2px solid #c98a4a; background: rgba(201, 138, 74, .07); color: var(--r-ink-2); font-size: 13.5px; }
+.vtm20.r-type-spirit .r-sp-banline i { color: #e0a868; }
+.vtm20.r-type-spirit .r-sp-banline b { font-family: var(--r-display); font-weight: 400; color: var(--r-ink); }
+.vtm20.r-type-spirit .r-sp-add { display: inline-flex; gap: 4px; align-items: center; }
+.vtm20.r-type-spirit .r-sp-add select { width: 200px; height: 26px; }
+.vtm20.r-type-spirit .r-sp-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; margin: 6px 0 14px; }
+.vtm20.r-type-spirit .r-sp-card { display: flex; flex-direction: column; gap: 6px; margin: 0; padding: 10px 12px 8px; }
+.vtm20.r-type-spirit .r-sp-card-head { display: flex; align-items: center; gap: 9px; }
+.vtm20.r-type-spirit .r-sp-card-sym { display: grid; place-items: center; flex: none; width: 28px; height: 28px; border: 1px solid var(--r-line-2); border-radius: 50%; color: var(--r-accent); background: radial-gradient(circle at 50% 40%, rgba(127, 196, 200, .18), transparent 70%); }
+.vtm20.r-type-spirit .r-sp-card-name { flex: 1; min-width: 0; display: flex; flex-direction: column; cursor: pointer; line-height: 1.15; }
+.vtm20.r-type-spirit .r-sp-card-name b { font-family: var(--r-display); font-weight: 400; font-size: 15.5px; color: var(--r-ink); }
+.vtm20.r-type-spirit .r-sp-card-name small { font-style: italic; font-size: 11.5px; color: var(--r-muted); }
+.vtm20.r-type-spirit .r-sp-cost { display: inline-flex; align-items: center; gap: 4px; padding: 1px 8px; border: 1px solid rgba(127, 196, 200, .35); color: #cfe9e7; font-size: 12px; white-space: nowrap; }
+.vtm20.r-type-spirit .r-sp-cost i { font-size: 10px; color: #7fc4c8; }
+.vtm20.r-type-spirit .r-sp-card-text { font-size: 13px; line-height: 1.45; color: var(--r-ink-2); }
+.vtm20.r-type-spirit .r-sp-card-text p { margin: 0 0 4px; }
+.vtm20.r-type-spirit .r-sp-card-text.is-clamp { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.vtm20.r-type-spirit .r-sp-card-foot { display: flex; align-items: center; gap: 8px; margin-top: auto; padding-top: 6px; border-top: 1px dotted var(--r-line); }
+.vtm20.r-type-spirit .r-sp-more { margin-right: auto; font-size: 12px; font-style: italic; color: var(--r-muted); cursor: pointer; }
+.vtm20.r-type-spirit .r-sp-more:hover { color: var(--r-accent); }
+.vtm20.r-type-spirit .r-sp-general { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 4px; }
+.vtm20.r-type-spirit .r-sp-chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border: 1px solid var(--r-line-2); background: var(--r-card-bg); color: var(--r-ink-2); font-size: 13px; cursor: pointer; }
+.vtm20.r-type-spirit .r-sp-chip i { font-size: 10px; color: var(--r-accent); }
+.vtm20.r-type-spirit .r-sp-chip b { font-weight: 400; color: #cfe9e7; }
+.vtm20.r-type-spirit .r-sp-chip:hover { border-color: rgba(127, 196, 200, .5); color: var(--r-ink); }
+.vtm20.r-type-spirit .r-sp-use { padding: 2px 10px; min-height: 0; font-size: 12px; }
+/* у духа действий всего пять — подписи помещаются и на узком листе */
+@container rsheet (min-width: 620px) { .vtm20.r-type-spirit .r-head-acts .r-act span { display: inline; } }
