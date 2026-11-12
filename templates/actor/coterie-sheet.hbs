@@ -8,7 +8,7 @@
         <figcaption class="r-seal"><span class="r-seal-num r-seal-icon">{{#if cabal.sym}}{{rSym cabal.sym "r-mg"}}{{else}}<i class="fa-solid {{icon}}"></i>{{/if}}</span><span class="r-seal-cap">{{sealLabel}}</span></figcaption>
       </figure>
       <div class="r-head-info">
-        <div class="r-kicker"><span class="r-kicker-type">{{#if vampiric}}{{typeLabel}}{{else}}{{kindLabel}}{{/if}}</span><span class="r-motto" aria-hidden="true">{{#if cabal}}Ascensio{{else if circle}}Memento mori{{else}}Liberté, Égalité, Fraternité{{/if}}</span></div>
+        <div class="r-kicker"><span class="r-kicker-type">{{#if vampiric}}{{typeLabel}}{{else}}{{kindLabel}}{{/if}}</span><span class="r-motto" aria-hidden="true">{{#if cabal}}Ascensio{{else if circle}}Memento mori{{else if motley}}Ex somnio{{else}}Liberté, Égalité, Fraternité{{/if}}</span></div>
         <div class="r-name-row"><input class="r-name" type="text" name="name" value="{{actor.name}}" spellcheck="false" {{#unless editable}}disabled{{/unless}}></div>
         <div class="r-dossier">
           <label class="r-df"><span>{{localize "VTM20.Group.KindLabel"}}</span>
@@ -71,6 +71,23 @@
       <div><b>{{cabal.tass}}</b><span>{{localize "VTM20.Group.StockTass"}}</span>{{#if editable}}<em><a data-action="nodeStock" data-key="tass" data-d="-1"><i class="fa-solid fa-minus"></i></a><a data-action="nodeStock" data-key="tass" data-d="1"><i class="fa-solid fa-plus"></i></a></em>{{/if}}</div>
       <div><b>{{cabal.week}}</b><span>{{localize "VTM20.Group.StockWeek"}}</span></div>
     </div>
+    {{/if}}
+
+    {{#if motley}}
+    {{!-- Мотли подменышей: фригольд (C20, гл. 7) — рейтинг, владелец, баэлфайр; «Ночь во фригольде» — Гламур спящим (apps/changeling.mjs) --}}
+    <h2 class="r-h2"><span>{{localize "VTM20.Changeling.Freehold.Title"}}{{#if motley.freehold}} — {{motley.freehold}}{{/if}}</span>
+      <span class="r-h2-tools">{{#if editable}}<a class="r-h2-btn" data-action="sanctuary" data-tooltip="{{localize 'VTM20.Changeling.Freehold.SanctuaryHint'}}"><i class="fa-solid fa-fire"></i> <span class="r-h2-lbl">{{localize "VTM20.Changeling.Freehold.Sanctuary"}}</span></a>{{/if}}</span></h2>
+    <div class="r-dossier r-gs-chantry">
+      <label class="r-df is-wide"><span>{{localize "VTM20.Changeling.Freehold.Name"}}</span><input type="text" name="system.motley.freehold" value="{{motley.freehold}}" {{#unless editable}}disabled{{/unless}}></label>
+      <label class="r-df"><span>{{localize "VTM20.Changeling.Freehold.Owner"}}</span><select name="system.motley.owner" {{#unless editable}}disabled{{/unless}}>{{#each motley.owners}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
+      <label class="r-df is-wide"><span>{{localize "VTM20.Changeling.Freehold.Balefire"}}</span><input type="text" name="system.motley.balefire" value="{{motley.balefire}}" {{#unless editable}}disabled{{/unless}}></label>
+    </div>
+    <div class="r-gs-haven">
+      <div class="r-gs-scale is-row"><span class="r-gs-stat-cap">{{localize "VTM20.Changeling.Freehold.Rating"}}</span>
+        <i class="r-gs-dots">{{#each motley.dots}}<b class="{{#if on}}on{{/if}}" {{#if @root.editable}}data-action="freehold"{{/if}} data-n="{{n}}"></b>{{/each}}</i>
+        <small>{{localize "VTM20.Changeling.Freehold.RatingHint" n=motley.rating}}</small></div>
+    </div>
+    <p class="r-hint">{{localize "VTM20.Changeling.Freehold.Rules"}}</p>
     {{/if}}
 
     {{#if circle}}

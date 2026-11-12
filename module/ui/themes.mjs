@@ -57,6 +57,7 @@ function actorOf(app) {
 export const themeOf = actor => !actor?.type ? null : actor.type === "spirit" || (actor.type === "creature" && actor.system?.spirit?.on) ? "spirit"
   : actor.type === "coterie" && actor.system?.kind === "cabal" ? "mage"   // кабал магов — в гамме магов
   : actor.type === "coterie" && actor.system?.kind === "circle" ? "wraith"   // Круг призраков — в «Пепле и Плёнке»
+  : actor.type === "coterie" && actor.system?.kind === "motley" ? "changeling"   // мотли подменышей — в гамме Грёзы
   : actor.type === "coterie" && actor.system?.kind === "pack" ? "werewolf"   // стая Гару — в «лунном лесе»
   : actor.type === "coterie" && actor.system?.kind === "cell" ? "hunter" : actor.type;   // ячейка охотников — в гамме охотников
 

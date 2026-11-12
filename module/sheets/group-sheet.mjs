@@ -18,7 +18,7 @@ const { ActorSheetV2 } = foundry.applications.sheets;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
 const loc = k => game.i18n.localize(k);
 const PEOPLE = ["vampire", "ghoul", "mortal", "demon", "hunter", "mage", "werewolf", "wraith", "creature", "spirit"];
-const KIND_ICON = { coterie: "fa-droplet", sabbat: "fa-wine-glass", pack: "fa-paw", cell: "fa-crosshairs", cabal: "fa-hat-wizard", circle: "fa-ghost" };
+const KIND_ICON = { coterie: "fa-droplet", sabbat: "fa-wine-glass", pack: "fa-paw", cell: "fa-crosshairs", cabal: "fa-hat-wizard", circle: "fa-ghost", motley: "fa-wand-sparkles" };
 /** Знаки известных чантри, Конструктов и Лабиринтов (assets/mage/chantry-*.png) — на выбор для своего. */
 const CHANTRY_SIGNS = ["crombey-farm", "drachus-vachar", "house-of-helekar", "lodge-of-the-gray-squirrel", "mecha", "maze-of-ebon-gates", "null-b", "research-plantation-4", "sepulcher", "vali-shallar"];
 /** Размах чантри по очкам общего пула (M20, Факт «Чантри»): от какого числа очков — какая ступень. */
@@ -84,7 +84,7 @@ export class CoterieSheet extends GroupSheet {
     classes: ["r-coterie-sheet"],
     actions: { openActor: CoterieSheet.#onOpen, dropMember: CoterieSheet.#onDropMember, pools: CoterieSheet.#onPools, haven: CoterieSheet.#onHaven, vaulderie: CoterieSheet.#onVaulderie,
       bond: CoterieSheet.#onBond, unbond: CoterieSheet.#onUnbond, nodeWeek: CoterieSheet.#onNodeWeek, nodeStock: CoterieSheet.#onNodeStock, nodeDraw: CoterieSheet.#onNodeDraw,
-      totemSpend: CoterieSheet.#onTotemSpend, totemRefill: CoterieSheet.#onTotemRefill, totemAccept: CoterieSheet.#onTotemAccept, totemBan: CoterieSheet.#onTotemBan }
+      totemSpend: CoterieSheet.#onTotemSpend, freehold: CoterieSheet.#onFreehold, sanctuary: CoterieSheet.#onSanctuary, totemRefill: CoterieSheet.#onTotemRefill, totemAccept: CoterieSheet.#onTotemAccept, totemBan: CoterieSheet.#onTotemBan }
   };
   static PARTS = { body: { template: `${SYSTEM_PATH}/templates/actor/coterie-sheet.hbs`, scrollable: [".r-gs-body"] } };
 
@@ -111,7 +111,7 @@ export class CoterieSheet extends GroupSheet {
       // вампирская котерия или стая Шабаша: «Общее убежище» (Anarchs Unbound) и подпись «Котерия»; остальные — своим видом
       vampiric: ["coterie", "sabbat"].includes(s.kind),
       sealLabel: s.kind === "circle" ? t("Wraith.Circle.Title") : t(`Group.Kind.${s.kind}`),
-      kinds: ["coterie", "sabbat", "pack", "cell", "cabal", "circle"].map(k => ({ key: k, label: t(`Group.Kind.${k}`), selected: k === s.kind })),
+      kinds: ["coterie", "sabbat", "pack", "cell", "cabal", "circle", "motley"].map(k => ({ key: k, label: t(`Group.Kind.${k}`), selected: k === s.kind })),
       haven: (() => {   // «Общее убежище» (Anarchs Unbound): точки общего факта делятся на роскошь, размер и защиту
         const pool = "Общее убежище" in (c.pools ?? {}) ? poolValue(c, "Общее убежище") : null, h = s.haven ?? {};
         const used = (h.luxury ?? 0) + (h.size ?? 0) + (h.security ?? 0);
@@ -127,6 +127,10 @@ export class CoterieSheet extends GroupSheet {
           libDots: Array.from({ length: Math.max(5, ch.library) }, (_, i) => ({ n: i + 1, on: i < ch.library })),
           week, weekFree: Math.ceil(week / 2), weekTass: Math.floor(week / 2) };
       })() : null,
+      // Мотли подменышей: фригольд (C20, гл. 7) — рейтинг, владелец, «Ночь во фригольде»
+      motley: s.kind === "motley" ? { ...s.motley, dots: Array.from({ length: 5 }, (_, i) => ({ n: i + 1, on: i < s.motley.rating })),
+        owners: [{ id: "", name: "—", selected: !s.motley.owner }, ...members.map(m => ({ id: m.id, name: m.name, selected: m.id === s.motley.owner }))],
+        sleepers: members.filter(m => m.type === "changeling").length } : null,
       // Круг призраков: общее Обиталище из общих фактов, крусибл «Орфея» (apps/circle.mjs)
       circle: s.kind === "circle" ? { haunt: HAUNT_POOL in (c.pools ?? {}) ? poolValue(c, HAUNT_POOL) : null, crucible: !!s.circle?.crucible,
         projectors: members.some(m => m.type === "wraith" && m.system.wraith.projector?.on) } : null,
@@ -154,6 +158,16 @@ export class CoterieSheet extends GroupSheet {
     await this.actor.update({ "system.chantry.quint": ch.quint + Math.ceil(week / 2), "system.chantry.tass": ch.tass + Math.floor(week / 2) });
     return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: this.actor }),
       content: `<div class="r-notice r-type-mage"><i class="fa-solid fa-sun"></i> ${t("Group.NodeWeekMsg", { name: foundry.utils.escapeHTML(ch.name || this.actor.name), free: Math.ceil(week / 2), tass: Math.floor(week / 2) })}</div>` });
+  }
+  /** Рейтинг фригольда точкой (повторный щелчок по последней — на точку меньше). */
+  static #onFreehold(event, target) {
+    const n = Number(target.dataset.n), r = this.actor.system.motley.rating;
+    return this.actor.update({ "system.motley.rating": r === n ? n - 1 : n });
+  }
+  /** «Ночь во фригольде» (Святилище, C20, гл. 6): спящие подменыши делят рейтинг фригольда поровну, каждый — не меньше 1. */
+  static async #onSanctuary() {
+    const { sanctuary } = await import("../apps/changeling.mjs");
+    return sanctuary(this.actor);
   }
   /** Запас и рейтинги чантри: точки Узла и Библиотеки, ±1 к свободной Квинтэссенции или Тассу. */
   static #onNodeStock(event, target) {

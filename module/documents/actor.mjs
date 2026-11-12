@@ -18,8 +18,9 @@ const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`
 const GROUP_IMG = "icons/environment/people/group.webp";
 /** Портрет группы по виду: стая Гару — волк над лесом, ячейка охотников, кабал магов, Круг призраков; прочие — общий. */
 const KIND_IMG = kind => ({ pack: "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp", cell: `systems/${SYSTEM_ID}/assets/icons/hunter.svg`,
-  cabal: `systems/${SYSTEM_ID}/assets/icons/mage.svg`, circle: `systems/${SYSTEM_ID}/assets/icons/wraith.svg` })[kind] ?? GROUP_IMG;
-const DEFAULT_GROUP_IMGS = () => new Set([GROUP_IMG, ...["pack", "cell", "cabal", "circle"].map(KIND_IMG)]);
+  cabal: `systems/${SYSTEM_ID}/assets/icons/mage.svg`, circle: `systems/${SYSTEM_ID}/assets/icons/wraith.svg`,
+  motley: `systems/${SYSTEM_ID}/assets/icons/changeling.svg` })[kind] ?? GROUP_IMG;
+const DEFAULT_GROUP_IMGS = () => new Set([GROUP_IMG, ...["pack", "cell", "cabal", "circle", "motley"].map(KIND_IMG)]);
 
 export class VtMActor extends Actor {
 

@@ -6719,6 +6719,7 @@
         "sabbat": "Sabbat pack",
         "pack": "Garou pack",
         "cell": "Hunter cell",
+        "motley": "Motley",
         "cabal": "Cabal",
         "circle": "Wraith Circle"
       },
@@ -8931,6 +8932,20 @@
       "Done": "<b>{name}</b> learned “{what}” to {n}."
     },
     "Changeling": {
+      "Freehold": {
+        "Title": "Freehold",
+        "Name": "Name",
+        "Owner": "Owner",
+        "Balefire": "Balefire",
+        "Rating": "Rating",
+        "RatingHint": "Inside, the owner gains +{n} dice to defensive rolls; the Mandate: rule-breakers suffer −{n} to pools; cantrips inside are −1 difficulty.",
+        "Rules": "Freehold (C20, ch. 7): the owner swears to protect it and invests Glamour equal to its rating; Harvest — only with the owner's leave; Hospitality — food and a night's rest to anyone who asks. More than a week without leaving risks Bedlam.",
+        "Sanctuary": "Night in the freehold",
+        "SanctuaryHint": "Sanctuary (ch. 6): the motley's changelings sleeping by the balefire share the freehold's rating in Glamour equally, each at least 1 and no more than their rating. Requires restful sleep.",
+        "SanctuaryMsg": "A night in the freehold “{name}” (rating {n}): {list}.",
+        "NoRating": "The freehold has no rating.",
+        "NoSleepers": "No changelings in the motley."
+      },
       "Chimerical": "Chimerical wounds",
       "ChimShort": "Chim.",
       "ChimHint": "Chimerical damage (C20, ch. 6): affects only the fae mien; heals faster, twice as fast in a freehold, one level per 15 minutes in the Dreaming. Wound penalty — the worse of the two tracks (system rule). More lethal and aggravated than levels — chimerical death.",

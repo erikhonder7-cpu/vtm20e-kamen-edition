@@ -269,6 +269,28 @@ export function chimericalView(actor) {
     damage: ch.damage, status: game.i18n.localize(VTM20.healthLevels.find(l => l.key === ch.status)?.label ?? "VTM20.Health.healthy"), penalty: ch.penalty };
 }
 
+/* ── Фригольд мотли (гл. 6 «Sanctuary», гл. 7) ───────────────────────────── */
+
+/**
+ * «Ночь во фригольде»: сон при свете баэлфайра — Гламур на всех спящих подменышей мотли поровну (рейтинг фригольда),
+ * каждому не меньше 1 и не выше его рейтинга Гламура. Спокойный ли был сон — решает рассказчик.
+ */
+export async function sanctuary(group) {
+  const m = group?.system?.motley, rating = m?.rating ?? 0;
+  if (!rating) return ui.notifications.warn(t("Freehold.NoRating"));
+  const sleepers = (group.system.members ?? []).map(id => game.actors.get(id)).filter(a => a?.type === "changeling");
+  if (!sleepers.length) return ui.notifications.warn(t("Freehold.NoSleepers"));
+  const share = Math.max(1, Math.floor(rating / sleepers.length)), got = [];
+  for (const a of sleepers) {
+    if (!a.isOwner) continue;
+    const n = await gainGlamour(a, share);
+    got.push(`${esc(a.name)} +${n}`);
+  }
+  await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: group }),
+    content: `<div class="r-notice r-type-changeling"><i class="fa-solid fa-fire"></i> ${t("Freehold.SanctuaryMsg", { name: esc(m.freehold || group.name), n: rating, list: got.join(", ") })}</div>` });
+  return got.length;
+}
+
 /* ── Клятвы (гл. 6, «Oaths») ─────────────────────────────────────────── */
 
 /**

@@ -5696,6 +5696,30 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  // Мотли подменышей: фригольд (C20, гл. 7) — рейтинг точками, «Ночь во фригольде» (Святилище): рейтинг 5 на двоих — по 2,
+  // каждому не выше его рейтинга Гламура; лист мотли — в гамме Грёзы
+  await check("Подменыш: мотли и фригольд — Ночь во фригольде", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), n0 = game.messages.size, out = {};
+      const mk = (name, g) => Actor.create({ name, type: "changeling", flags: { world: { e2e: true }, [sid]: { created: true } }, system: { changeling: { glamour: { permanent: 6, temporary: g } } } });
+      const a = await mk("E2E — сатир", 1), b = await mk("E2E — тролль", 5);
+      const m = await Actor.create({ name: "E2E — мотли", type: "coterie", flags: { world: { e2e: true } }, system: { kind: "motley", members: [a.id, b.id], motley: { freehold: "Старая мельница" } } });
+      try {
+        await m.sheet.render(true); await wait(800);
+        out.theme = m.sheet.element.classList.contains("r-type-changeling");
+        m.sheet.element.querySelector('[data-action="freehold"][data-n="5"]')?.click(); await wait(500);
+        out.rating = m.system.motley.rating;
+        m.sheet.element.querySelector('[data-action="sanctuary"]')?.click(); await wait(1000);
+        out.glamour = [a.system.changeling.glamour.temporary, b.system.changeling.glamour.temporary];
+        await m.sheet.close();
+      } finally { await ChatMessage.deleteDocuments(game.messages.contents.slice(n0).map(x => x.id)); await Actor.deleteDocuments([a.id, b.id, m.id]); }
+      return out;
+    });
+    const want = { theme: true, rating: 5, glamour: [3, 6] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   await check("Призрак: лист и Арканои, Пафос, Страсть, Корпус до колебания и Испытание, Катарсис", async () => {
     const r = await page.evaluate(async () => {
       const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), WR = await import(`/systems/${sid}/module/apps/wraith.mjs`);
