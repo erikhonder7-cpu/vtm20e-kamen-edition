@@ -768,6 +768,18 @@
         "ASSISTANT": "OWNER"
       },
       "flags": {}
+    },
+    {
+      "name": "wraith-relics",
+      "label": "Реликвии и Артефакты призраков",
+      "path": "packs/wraith-relics",
+      "type": "Item",
+      "system": "vtm20e-kamen-edition",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
     }
   ],
   "grid": {
@@ -879,7 +891,8 @@
       "packs": [
         "wraith-books",
         "wraith-arcanoi",
-        "wraith-backgrounds"
+        "wraith-backgrounds",
+        "wraith-relics"
       ]
     }
   ]

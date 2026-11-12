@@ -590,6 +590,7 @@ registerCardBlock("wraith", (state, ev) => {
     return { chips: [{ icon: "fa-mask", label: t("ShadowRolled", { n: x.shadow, vals: x.shadowVals || "—" }), cls: "is-warn" }],
       text: won ? t("PsycheHolds", { n, s: x.shadow }) : t("ShadowWins", { n, s: x.shadow }), cls: won ? "" : "is-warn" };
   }
+  if (x.kind === "forge") return { chips: [{ icon: "fa-hammer", label: t(`Forge.Stage.${x.stage}`) }], text: n && !botch ? t("Forge.HitsChip", { n }) : t("Forge.FailChip"), cls: n && !botch ? "" : "is-warn" };
   if (x.kind === "harrowEidolon") return { chips: [{ icon: "fa-sun", label: t("Eidolon") }], text: t("Harrow.EidolonChip", { n }) };
   if (x.kind === "harrowing") {
     // Испытание Разрушения — и за ботч Разрешения (cause "resolution"): Воля против Ангста Тени

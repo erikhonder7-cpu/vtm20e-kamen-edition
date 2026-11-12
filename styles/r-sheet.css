@@ -709,6 +709,8 @@
 .vtm20 .r-badge.is-level > b { order: -1; font-size: 26px; line-height: 1; color: var(--r-accent); }
 .vtm20 .r-badge.is-wide { flex-basis: 100%; }
 .vtm20 .r-badge.is-cost { flex: 0 0 auto; }
+/* «Количество» заглавными длиннее плашки уровня — плашка растёт по подписи */
+.vtm20 .r-badge.is-level.is-qty { flex: 0 0 auto; min-width: 76px; padding: 6px 12px; }
 .vtm20 .r-item-level { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 18px; margin: 2px 0 8px; }
 .vtm20 .r-item-level .r-dot { width: 15px; height: 15px; }
 .vtm20 .r-item-school { font-family: var(--r-display); font-size: 15px; color: var(--r-ink-2); }

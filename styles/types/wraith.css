@@ -370,3 +370,18 @@
 .vtm20.r-harrow .r-roll-row select { flex: 1; min-width: 0; }
 .vtm20.r-harrow .r-harrow-fate { margin: 2px 0 4px; font-size: 12.5px; font-style: italic; color: var(--r-muted); line-height: 1.35; }
 .vtm20.r-harrow .r-harrow-fate i { margin-right: 4px; }
+
+/* Реликвии, Артефакты и душековка (apps/relics.mjs): раздел на вкладке снаряжения, карточка проекта */
+.vtm20.r-type-wraith .r-wr-relics .r-edge > .r-vc-btn { align-self: center; white-space: nowrap; }
+.vtm20.r-type-wraith .r-wr-relics .r-edge-main small { display: block; }
+.vtm20.r-type-wraith .r-wr-crack { color: #c98f9d; }
+.vtm20.r-type-wraith .r-wr-forge { margin-bottom: 8px; }
+.vtm20.r-type-wraith .r-wr-forge-line { margin: 2px 0; font-size: 12.5px; }
+.vtm20.r-type-wraith .r-wr-forge-line.is-warn { color: #c98f9d; }
+.vtm20.r-type-wraith .r-wr-forge-fx { display: flex; flex-wrap: wrap; gap: 4px; margin: 4px 0; }
+.vtm20.r-type-wraith .r-wr-forge-fx .r-vc-btn { font-size: 11.5px; }
+.r-wr-relic-text { margin-top: 4px; font-size: 12.5px; }
+.vtm20.r-type-wraith ul.r-wr-relics { list-style: none; margin: 0 0 10px; padding: 0; }
+.vtm20.r-type-wraith ul.r-wr-relics > li.r-edge { display: flex; align-items: center; gap: 10px; padding: 6px 4px; border-bottom: 1px solid rgba(200, 210, 220, .08); }
+.vtm20.r-type-wraith ul.r-wr-relics .r-edge-main { flex: 1; min-width: 0; }
+.vtm20.r-type-wraith .r-wr-forge-fx .r-vc-btn { text-transform: none; letter-spacing: 0; font-size: 12px; padding: 2px 8px; }

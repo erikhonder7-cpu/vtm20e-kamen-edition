@@ -823,6 +823,21 @@ BUILDERS["wraith-backgrounds"] = function () {
   return p;
 };
 
+/**
+ * Реликвии и Артефакты призраков (data/wraith.json → relics; Wraith 20, гл. 12; образцы Book of Oblivion): вещи, оружие и броня
+ * с полем ghost — вид, рейтинг, цена пробуждения, кристалл мягкого огня, сплав; папки — по виду.
+ */
+BUILDERS["wraith-relics"] = function () {
+  const p = new Pack("wraith-relics", "Item"), kinds = ru.VTM20.Wraith.Relic.Kinds;
+  for (const r of data("wraith").relics ?? []) {
+    const type = r.weapon ? "weapon" : r.type ?? "gear";
+    p.add({ name: r.name, type, folder: kinds[r.kind] ?? r.kind, key: `wraith:relic:${r.en}`, img: `systems/${SYSTEM_ID}/assets/icons/relic.svg`,
+      system: { source: r.en, description: `<p>${r.text}</p>`, ...(r.weapon ?? {}),
+        ghost: { kind: r.kind, rating: r.rating ?? 0, pathos: r.pathos ?? 0, crystal: r.crystal ?? 0, alloy: r.alloy ?? "", crack: "", style: "", maker: "", rough: false } } });
+  }
+  return p;
+};
+
 /** Чудеса магов (data/mage.json): Талисманы, Устройства, Безделушки, Фетиши, гримуары — предметы типа «wonder». */
 BUILDERS["mage-wonders"] = function () {
   const p = new Pack("mage-wonders", "Item");

@@ -4863,6 +4863,55 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  // Реликвии, Артефакты и душековка (гл. 12; Book of Oblivion): пробуждение из кристалла и своим Пафосом, стигийская сталь,
+  // проект ковки от Оценки до готовой вещи; компендий образцов
+  await check("Призрак: Реликвии и Артефакты — пробуждение, стигийская сталь, душековка, компендий", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {}, n0 = game.messages.size;
+      const RL = await import(`/systems/${sid}/module/apps/relics.mjs`);
+      const inst = () => [...foundry.applications.instances.values()];
+      const rollDlg = async () => { for (let i = 0; i < 40; i++) { const d = inst().find(x => x.constructor.name === "RollDialog" && x.rendered); if (d) return d; await wait(100); } return null; };
+      const submit = async () => { const d = await rollDlg(); if (!d) return false; d.element.querySelector("button[type=submit]")?.click(); await wait(1500); return true; };
+      const a = await Actor.create({ name: "E2E — призрак-кузнец", type: "wraith", flags: { world: { e2e: true }, [sid]: { created: true } },
+        system: { attributes: { strength: { value: 3 }, manipulation: { value: 3 }, perception: { value: 3 } }, abilities: { crafts: { value: 3 } },
+          wraith: { pathos: { value: 5 } } } });
+      const [lamp, blade] = await a.createEmbeddedDocuments("Item", [
+        { name: "Фонарь мягкого огня", type: "gear", system: { ghost: { kind: "artifact", rating: 2, pathos: 1, crystal: 2 } } },
+        { name: "Клинок легионера", type: "weapon", system: { damage: 2, damageType: "lethal", ghost: { kind: "forged", alloy: "stygian" } } }]);
+      for (let i = 0; i < 3; i++) await RL.wakeRelic(a, lamp.id);
+      out.wake = [a.items.get(lamp.id).system.ghost.crystal, a.system.wraith.pathos.value];
+      out.steel = a.items.get(blade.id).system.damageType;
+      out.list = RL.relicsView(a).list.length;
+      const DV = foundry.applications.api.DialogV2, p0 = DV.prompt, rnd = CONFIG.Dice.randomUniform;
+      try {
+        DV.prompt = async () => ({ name: "Скимитар", type: "weapon", will: "3", sta: "1", size: "1", shape: "3", alloy: "", style: "" });
+        await RL.startForge(a);
+        out.need = a.getFlag(sid, "forge")?.need;
+        CONFIG.Dice.randomUniform = () => 0.0001;   // одни десятки
+        for (let i = 0; i < 3; i++) { const p = RL.forgeStep(a); await submit(); await p; }
+        out.stage = [a.getFlag(sid, "forge")?.stage, a.getFlag(sid, "forge")?.hits];
+        await RL.forgeFinishEffect(a, "clean"); await RL.forgeFinishEffect(a, "blade");
+        out.left = a.getFlag(sid, "forge")?.hits;
+        const it = await RL.forgeComplete(a);
+        out.made = [it?.type, it?.system.ghost.kind, it?.system.ghost.rough, it?.system.ghost.maker === a.name, !a.getFlag(sid, "forge")];
+      } finally { DV.prompt = p0; CONFIG.Dice.randomUniform = rnd; }
+      const pack = game.packs.get(`${sid}.wraith-relics`);
+      out.pack = (await pack?.getIndex())?.size ?? 0;
+      await a.sheet.render({ force: true }); await wait(900); a.sheet.changeTab("gear", "primary"); await wait(600);
+      out.sheet = a.sheet.element.querySelectorAll(".r-wr-relics [data-action=wrRelicWake]").length;
+      await a.sheet.close();
+      for (const x of inst()) if (x.constructor.name === "RollDialog") await x.close();
+      await ChatMessage.deleteDocuments(game.messages.contents.slice(n0).map(m => m.id));
+      await a.delete();
+      return out;
+    });
+    // фонарь: 2 пробуждения из кристалла (2 → 0), третье — свой Пафос (5 → 4); скимитар: средний (1) + клинок (3) = 4 успеха;
+    // Оценка → Работа (6 десяток) → Отделка (6): чистка 1 + клинок 4 — остался 1
+    const want = { wake: [0, 4], steel: "aggravated", list: 2, need: 4, stage: ["finish", 6], left: 1, made: ["weapon", "forged", false, true, true], pack: 30, sheet: 3 };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   await check("Призрак: Подземный мир — Мальстрём, Туман, Сон в Оковах, «Орфей», Оттенок цвета", async () => {
     const r = await page.evaluate(async () => {
       const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {}, n0 = game.messages.size;

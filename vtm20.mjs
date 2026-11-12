@@ -207,6 +207,7 @@ Hooks.once("init", () => {
     rPower: `${SYSTEM_PATH}/templates/actor/parts/power.hbs`,
     rItemHead: `${SYSTEM_PATH}/templates/item/parts/head.hbs`,
     rItemRoll: `${SYSTEM_PATH}/templates/item/parts/roll.hbs`,
+    rItemGhost: `${SYSTEM_PATH}/templates/item/parts/ghost.hbs`,
     crAddDisc: `${SYSTEM_PATH}/templates/apps/parts/creator-add-disc.hbs`,
     crExtraDisc: `${SYSTEM_PATH}/templates/apps/parts/creator-extra-disc.hbs`
   });

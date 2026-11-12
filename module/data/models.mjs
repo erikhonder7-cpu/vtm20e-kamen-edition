@@ -577,6 +577,17 @@ export class DerangementData extends BaseItemData {
   }
 }
 
+/**
+ * Вещь Подземного мира (Wraith 20, гл. 12; Book of Oblivion — душековка): kind — relic (из мира живых), artifact, skin
+ * (кожаный Артефакт), spectre (Артефакт Спектров), forged (выкованная душа); rating — рейтинг Фона Реликвии/Артефакта;
+ * pathos — цена пробуждения; crystal — Пафос в кристалле мягкого огня; alloy — сплав (stygian, necropolis, ashiron, adamas);
+ * crack — трещина; style — стиль кузнеца; rough — «грубая работа» (до Отделки: механика −1 или +2 к сложности).
+ */
+const ghostItem = () => new SchemaField({ kind: str(""), rating: int(0, 0, 5), pathos: int(0, 0, 10), crystal: int(0, 0, 50),
+  alloy: str(""), crack: str(""), style: str(""), maker: str(""), rough: new BooleanField({ initial: false }) });
+/** Губительный урон сплава (стигийская сталь, адамас; Book of Oblivion, «Alloys»). */
+const AGGRAVATED_ALLOYS = ["stygian", "adamas"];
+
 export class WeaponData extends BaseItemData {
   static defineSchema() {
     return {
@@ -589,8 +600,14 @@ export class WeaponData extends BaseItemData {
       pierce: int(0, 0, 10),                    // пробитие брони: столько точек брони не учитывается (DA, Victorian Age)
       silver: new BooleanField({ initial: false }), // серебро: Гару вне породной формы — губительный без поглощения (W20, гл. 6)
       range: str(), rate: str(), clip: str(), concealment: str(),
-      equipped: new BooleanField({ initial: true })
+      equipped: new BooleanField({ initial: true }),
+      ghost: ghostItem()
     };
+  }
+
+  prepareDerivedData() {
+    // оружие из стигийской стали или адамаса бьёт губительным уроном («грубая работа» — меткой на листе: урон −1, сам не меняется)
+    if (AGGRAVATED_ALLOYS.includes(this.ghost?.alloy)) this.damageType = "aggravated";
   }
 }
 
@@ -600,14 +617,16 @@ export class ArmorData extends BaseItemData {
       ...super.defineSchema(),
       rating: int(1, 0, 10),
       penalty: int(0, 0, 10),
-      equipped: new BooleanField({ initial: true })
+      equipped: new BooleanField({ initial: true }),
+      ghost: ghostItem()
     };
   }
+
 }
 
 export class GearData extends BaseItemData {
   static defineSchema() {
-    return { ...super.defineSchema(), quantity: int(1, 0) };
+    return { ...super.defineSchema(), quantity: int(1, 0), ghost: ghostItem() };
   }
 }
 

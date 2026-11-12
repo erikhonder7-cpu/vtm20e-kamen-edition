@@ -12,6 +12,40 @@
     {{#if editable}}<a class="r-btn" data-action="money"><i class="fa-solid fa-pen-nib"></i> {{localize "VTM20.Money.Edit"}}</a>{{/if}}
   </div>
 
+  {{#if wrRelics}}
+  {{!-- Реликвии и Артефакты призрака (Wraith 20, гл. 12): пробуждение за Пафос (из кристалла мягкого огня, потом свой);
+       душековка (Book of Oblivion): Оценка → Работа → Отделка (apps/relics.mjs) --}}
+  <h2 class="r-h2"><span data-tooltip="{{localize 'VTM20.Wraith.Relic.SectionHint'}}">{{localize "VTM20.Wraith.Relic.Section"}}</span>
+    {{#if editable}}<span class="r-h2-tools">{{#unless wrRelics.forge}}<a class="r-h2-btn" data-action="wrForge" data-tooltip="{{localize 'VTM20.Wraith.Forge.Hint'}}"><i class="fa-solid fa-hammer"></i> <span class="r-h2-lbl">{{localize "VTM20.Wraith.Forge.Title"}}</span></a>{{/unless}}</span>{{/if}}
+  </h2>
+  {{#with wrRelics.forge}}
+  <div class="r-vcard r-wr-forge">
+    <div class="r-vc-head"><h4 class="r-banner"><span><i class="fa-solid fa-hammer"></i> {{name}}</span></h4>
+      <div class="r-vc-status">{{stageLabel}}{{#if needLabel}} · <b>{{needLabel}}</b>{{/if}}</div></div>
+    <p class="r-wr-forge-line">{{attr}} + {{localize "VTM20.Wraith.Forge.Crafts"}}, {{localize "VTM20.Wraith.Forge.Diff"}} <b>{{diff}}</b> · {{localize "VTM20.Wraith.Forge.Hours" n=hours}}{{#if alloyLabel}} · {{alloyLabel}}{{/if}}{{#if rough}} · {{localize "VTM20.Wraith.Relic.Rough"}}{{/if}}</p>
+    {{#if cracksText}}<p class="r-wr-forge-line is-warn"><i class="fa-solid fa-burst"></i> {{cracksText}}</p>{{/if}}
+    {{#if isFinish}}<div class="r-wr-forge-fx">{{#each fx}}<a class="r-vc-btn {{#if taken}}is-on{{/if}}" data-action="wrForgeFx" data-key="{{key}}">{{label}} <small>({{n}})</small></a>{{/each}}</div>{{/if}}
+    {{#if @root.editable}}<div class="r-vc-tools">
+      <a class="r-vc-btn" data-action="wrForgeStep"><i class="fa-solid fa-hammer"></i> {{localize "VTM20.Wraith.Forge.Step"}}</a>
+      {{#if isFinish}}<a class="r-vc-btn" data-action="wrForgeDone"><i class="fa-solid fa-check"></i> {{localize "VTM20.Wraith.Forge.Complete"}}</a>{{/if}}
+      <a class="r-vc-btn is-right" data-action="wrForgeDrop" data-tooltip="{{localize 'VTM20.Wraith.Forge.Abandon'}}"><i class="fa-solid fa-xmark"></i></a>
+    </div>{{/if}}
+  </div>
+  {{/with}}
+  <ul class="r-edge-list r-wr-relics">
+    {{#each wrRelics.list}}
+    <li class="r-edge" data-item-id="{{id}}">
+      <span class="r-edge-lvl"><i class="fa-solid fa-ghost"></i></span>
+      <span class="r-edge-main"><a class="r-trait-label" data-action="itemEdit"><b>{{name}}</b></a>
+        <small>{{kind}}{{#if dots}} {{dots}}{{/if}}{{#if alloy}} · <span data-tooltip="{{alloyTip}}">{{alloy}}</span>{{/if}}{{#if aggravated}} · {{localize "VTM20.Wraith.Relic.Aggravated"}}{{/if}}{{#if crystal}} · {{localize "VTM20.Wraith.Relic.CrystalN" n=crystal}}{{/if}}{{#if rough}} · {{localize "VTM20.Wraith.Relic.Rough"}}{{/if}}</small>
+        {{#if crack}}<small class="r-wr-crack"><i class="fa-solid fa-burst"></i> {{crack}}</small>{{/if}}</span>
+      {{#if @root.editable}}<a class="r-vc-btn" data-action="wrRelicWake" data-id="{{id}}" data-tooltip="{{localize 'VTM20.Wraith.Relic.WakeHint'}}"><i class="fa-solid fa-wand-sparkles"></i> {{localize "VTM20.Wraith.Relic.Wake"}}{{#if pathos}} ({{pathos}}){{/if}}</a>{{/if}}
+    </li>
+    {{else}}<li class="r-note">{{localize "VTM20.Wraith.Relic.None"}}</li>
+    {{/each}}
+  </ul>
+  {{/if}}
+
   <h2 class="r-h2"><span>{{localize "VTM20.Sheet.Weapons"}}</span>
     {{#if editable}}<span class="r-h2-tools">
       <input type="text" class="r-h2-find" data-preset="weapon" data-combo="r-wpn-{{actor.id}}" placeholder="{{localize 'VTM20.Sheet.PresetWeapon'}}">

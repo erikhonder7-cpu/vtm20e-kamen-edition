@@ -1,0 +1,22 @@
+{{!-- Вещь Подземного мира (Wraith 20, гл. 12; Book of Oblivion — душековка): вид, рейтинг, пробуждение, кристалл мягкого огня,
+     сплав, стиль кузнеца, трещина, «грубая работа». Видно у вещей призраков и у тех, что уже отмечены. --}}
+{{#if ghost.show}}
+<details class="r-item-setup r-ghost-setup" {{#if ghost.kind}}open{{/if}}>
+  <summary><i class="fa-solid fa-ghost"></i> {{localize "VTM20.Wraith.Relic.Setup"}}</summary>
+  <div class="r-fields is-wide">
+    <label class="r-f"><span>{{localize "VTM20.Wraith.Relic.Kind"}}</span>
+      <select name="system.ghost.kind">{{#each ghost.kinds}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+    <label class="r-f" data-tooltip="{{localize 'VTM20.Wraith.Relic.RatingHint'}}"><span>{{localize "VTM20.Wraith.Relic.Rating"}}</span><input type="number" name="system.ghost.rating" value="{{system.ghost.rating}}" min="0" max="5"></label>
+    <label class="r-f" data-tooltip="{{localize 'VTM20.Wraith.Relic.PathosHint'}}"><span>{{localize "VTM20.Wraith.Relic.Pathos"}}</span><input type="number" name="system.ghost.pathos" value="{{system.ghost.pathos}}" min="0" max="10"></label>
+    <label class="r-f" data-tooltip="{{localize 'VTM20.Wraith.Relic.CrystalHint'}}"><span>{{localize "VTM20.Wraith.Relic.Crystal"}}</span><input type="number" name="system.ghost.crystal" value="{{system.ghost.crystal}}" min="0" max="50"></label>
+    <label class="r-f" data-tooltip="{{localize 'VTM20.Wraith.Relic.AlloyHint'}}"><span>{{localize "VTM20.Wraith.Relic.Alloy"}}</span>
+      <select name="system.ghost.alloy">{{#each ghost.alloys}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+    <label class="r-f"><span>{{localize "VTM20.Wraith.Relic.Style"}}</span>
+      <select name="system.ghost.style">{{#each ghost.styles}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+    <label class="r-f is-span2"><span>{{localize "VTM20.Wraith.Relic.Crack"}}</span>
+      <select name="system.ghost.crack">{{#each ghost.cracks}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+    <label class="r-f"><span>{{localize "VTM20.Wraith.Relic.Maker"}}</span><input type="text" name="system.ghost.maker" value="{{system.ghost.maker}}"></label>
+    <label class="r-f r-f-check" data-tooltip="{{localize 'VTM20.Wraith.Relic.RoughHint'}}"><input type="checkbox" name="system.ghost.rough" {{checked system.ghost.rough}}><span>{{localize "VTM20.Wraith.Relic.Rough"}}</span></label>
+  </div>
+</details>
+{{/if}}
