@@ -17,12 +17,13 @@
 import { SYSTEM_ID } from "../config.mjs";
 import { EXT, registerCityExtension } from "./city-ext.mjs";
 import { ST } from "./strategy-state.mjs";
-import { FLAG, S, esc, uid, MAX, INTENTS, perkName, PROJ, projectsOf, needOf, sectorName, DEFAULT_BID, strat, save, owner, meActor, bidsOf, doneOf, setBids, allBids, sees, visibleSectors } from "././strategy-rules.mjs";
-export { strat } from "././strategy-rules.mjs";
-import { head, emptyView, hexes, sectorView, turnView, deskView, reportsView, setupView } from "././strategy-views.mjs";
-import { saveBid, rollKeys, resolve, publish, undoClock, notify, addPact, loadPreset } from "././strategy-turn.mjs";
-import { trendToDomains } from "././strategy-domain.mjs";
-export { domainSway, domainSecurity, domainEventTrend, trendToDomains } from "././strategy-domain.mjs";
+import { FLAG, S, esc, uid, MAX, INTENTS, perkName, PROJ, projectsOf, needOf, sectorName, DEFAULT_BID, strat, save, owner, meActor, bidsOf, doneOf, setBids, allBids, sees, visibleSectors, CONVENTIONS } from "./strategy-rules.mjs";
+import { Codex } from "../data/codex.mjs";
+export { strat } from "./strategy-rules.mjs";
+import { head, emptyView, hexes, sectorView, turnView, deskView, reportsView, setupView } from "./strategy-views.mjs";
+import { saveBid, rollKeys, resolve, publish, undoClock, notify, addPact, loadPreset } from "./strategy-turn.mjs";
+import { trendToDomains } from "./strategy-domain.mjs";
+export { domainSway, domainSecurity, domainEventTrend, trendToDomains } from "./strategy-domain.mjs";
 
 /* ── Заготовка по умолчанию: современный город (сферы, как у Зиора) ───────── */
 
@@ -345,6 +346,15 @@ async function onClick(ev) {
       x.q += Number(el.dataset.dq); x.r += Number(el.dataset.dr); ST.sel = x.key; return save({ sectors: secs }); }
     case "sphAdd": return save({ spheres: [...s.spheres, { key: uid(), name: S("NewSphere"), color: "#777777" }] });
     case "facAdd": return save({ owners: { ...s.owners, [`f:${uid()}`]: { name: S("NewFaction"), color: "#5a6b7d" } } });
+    case "facTech": {   // Конвенции Технократии: фракции и стартовое влияние (правило системы)
+      const owners = { ...s.owners }, tokens = foundry.utils.deepClone(s.tokens), names = Object.fromEntries((Codex.mage?.factions ?? []).map(f => [f.key, f.name]));
+      for (const c of CONVENTIONS) {
+        const k = `f:conv-${c.key}`;
+        owners[k] = { ...(owners[k] ?? {}), name: owners[k]?.name || names[c.key] || c.key, color: owners[k]?.color || c.color };
+        for (const sec of c.sectors) if (s.sectors.some(x => x.key === sec)) tokens[sec] = { ...(tokens[sec] ?? {}), [k]: Math.max(tokens[sec]?.[k] ?? 0, 2) };
+      }
+      return save({ owners, tokens });
+    }
     case "facDel": { const owners = { ...s.owners }; delete owners[el.dataset.key]; return save({ owners }); }
     case "wipe": if (await foundry.applications.api.DialogV2.confirm({ window: { title: S("Wipe") }, content: `<p>${esc(S("WipeConfirm"))}</p>` })) return game.settings.set(SYSTEM_ID, "strategy", {});
   }

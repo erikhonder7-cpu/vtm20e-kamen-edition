@@ -232,3 +232,15 @@ export function resistPools(s, bids) {
 }
 
 export const faces = (r, diff) => r.faces.map(f => `<i class="${f >= diff ? "is-hit" : f === 1 ? "is-one" : ""}">${f}</i>`).join("");
+
+/**
+ * Конвенции Технократии (M20): пять фракций доски. Стартовое влияние — правило системы: по смыслу Конвенции,
+ * 2 фишки в секторе заготовки «современный город» (если такой сектор есть на доске).
+ */
+export const CONVENTIONS = [
+  { key: "new-world-order", color: "#3d5f8f", sectors: ["media", "telecom"] },
+  { key: "syndicate", color: "#a2802e", sectors: ["finance", "highsociety"] },
+  { key: "iteration-x", color: "#7a7f88", sectors: ["industry"] },
+  { key: "progenitors", color: "#3f8a6a", sectors: ["health"] },
+  { key: "void-engineers", color: "#5a4a9a", sectors: ["university"] }
+];

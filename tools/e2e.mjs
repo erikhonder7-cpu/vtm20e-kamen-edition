@@ -3309,6 +3309,25 @@ try {
   });
 
   // План 2: стратегия ↔ домен (правило системы) — квартал домена, Защищённость по фишкам, события ↔ тренды
+  await check("Стратегия: Конвенции Технократии одной кнопкой", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), saved = foundry.utils.deepClone(game.settings.get(sid, "strategy") ?? {}), out = {};
+      try {
+        const R = await import(`/systems/${sid}/module/ui/strategy-rules.mjs`), S = await import(`/systems/${sid}/module/ui/strategy.mjs`);
+        await game.settings.set(sid, "strategy", { spheres: R.MODERN.spheres, sectors: R.MODERN.sectors, tokens: {}, owners: {} });
+        await S.openStrategy(); await wait(1200);
+        document.querySelector("[data-rs=view][data-v=setup]")?.click(); await wait(400);
+        document.querySelector("[data-rs=facTech]")?.click(); await wait(1000);
+        const s = game.settings.get(sid, "strategy");
+        out.owners = Object.keys(s.owners).filter(k => k.startsWith("f:conv-")).length;
+        out.tokens = [s.tokens.media?.["f:conv-new-world-order"], s.tokens.finance?.["f:conv-syndicate"], s.tokens.university?.["f:conv-void-engineers"]];
+        (await import(`/systems/${sid}/module/ui/citymap.mjs`)).closeCity(); await wait(400);
+      } finally { await game.settings.set(sid, "strategy", saved); }
+      return out;
+    });
+    if (r.owners !== 5 || r.tokens.join() !== "2,2,2") throw new Error(`Конвенции: ${JSON.stringify(r)}`);
+  });
+
   await check("Стратегия и домен: квартал, Защищённость, события и тренды", async () => {
     const a = await temp("E2E — хозяин домена"), b = await temp("E2E — соперник в квартале");
     const r = await page.evaluate(async ([a, b]) => {
