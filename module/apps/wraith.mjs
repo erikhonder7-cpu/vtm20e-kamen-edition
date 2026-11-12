@@ -16,6 +16,10 @@ export const thornOf = key => (W().thorns ?? []).find(x => x.key === key) ?? nul
 const byKey = (list, key) => (list ?? []).find(x => x.key === key) ?? null;
 const attrLabel = k => game.i18n.localize(VTM20.attributes[k]?.label ?? k);
 export const WRAITH_SIGIL = `${SYSTEM_PATH}/assets/ui/wraith-sigil.svg`;
+/** Знаки Гильдий и Легионов (assets/wraith, tools/wraith_glyphs.mjs): маска «arcanos-<ключ>» / «legion-<ключ>»; путь от корня — для url() в CSS. */
+export const wraithGlyphSrc = name => foundry.utils.getRoute(`${SYSTEM_PATH}/assets/wraith/${name}.png`);
+export const arcSym = key => ({ src: wraithGlyphSrc(`arcanos-${key}`) });
+export const legionSym = key => key ? { src: wraithGlyphSrc(`legion-${key}`) } : null;
 /** Гильдии — по Арканосу: у каждой свой (гл. 1). */
 export const guildsOf = () => W().arcanoi.map(a => ({ key: a.key, name: a.guild, en: a.guildEn, group: a.group, arcanos: a.name }));
 
@@ -38,7 +42,7 @@ export function wraithInfo(actor, dots) {
   const legion = byKey(D.legions, w.legion), guild = guildsOf().find(g => g.key === w.guild) ?? null;
   const arch = (D.shadowArchetypes ?? []).find(a => a.name === sh.archetype) ?? null;
   return {
-    legion, guild, faction: byKey(D.factions, w.faction),
+    legion, guild, faction: byKey(D.factions, w.faction), legionSym: legionSym(legion?.key), guildSym: guild ? arcSym(guild.key) : null,
     legions: (D.legions ?? []).map(l => ({ key: l.key, name: l.name, tip: `${l.death} · ${l.lord}`, selected: l.key === w.legion })),
     factions: (D.factions ?? []).map(f => ({ key: f.key, name: f.name, selected: f.key === w.faction })),
     guilds: ["high", "working", "criminal", "forbidden"].map(g => ({ name: t(`GuildGroup.${g}`),
@@ -78,7 +82,7 @@ export function arcanoiView(actor, dots, sel = {}) {
     };
     const ranks = [1, 2, 3, 4, 5].map(n => ({ n, roman: ROM[n - 1], owned: n <= value,
       halves: ["common", "initiate"].map(k => a.levels.find(l => l.level === n && l.kind === k)).filter(Boolean).map(art) }));
-    return { key: a.key, name: a.name, en: a.en, guild: a.guild, icon: a.icon, forbidden: a.forbidden, home, value, html: a.html,
+    return { key: a.key, name: a.name, en: a.en, guild: a.guild, icon: a.icon, sym: arcSym(a.key), forbidden: a.forbidden, home, value, html: a.html,
       dots: dots(value, 5, { path: `system.wraith.arcanoi.${a.key}.value` }), xp: actor.xpCost("arcanos", value), ranks,
       sel: ranks.flatMap(x => x.halves).find(x => x.selected) ?? null, attrs: a.attrs.map(attrLabel).join(" · ") };
   });
@@ -415,7 +419,8 @@ export async function pick(title, cards, { lead = "" } = {}) {
 
 /* ── Знак и блок карточки броска ───────────────────────────────────── */
 
-registerEmblem("wraith", () => ({ src: foundry.utils.getRoute(WRAITH_SIGIL) }));
+// знак на карточках чата — Легион призрака (без Легиона — общая печать линейки)
+registerEmblem("wraith", actor => legionSym(actor?.system?.wraith?.legion) ?? { src: foundry.utils.getRoute(WRAITH_SIGIL) });
 
 registerCardBlock("wraith", (state, ev) => {
   const x = state.extra.wraith, n = ev.successes ?? 0, botch = ev.outcome === "botch";

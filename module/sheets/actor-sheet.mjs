@@ -326,7 +326,7 @@ openStrategy: () => openStrategy(),
       const fold = arcFold(actor.id);
       for (const x of ctx.arc.own) x.folded = (fold[x.key] ?? true) && !x.sel;     // открытый уровень держит карточку раскрытой
       ctx.arc.allFolded = ctx.arc.own.every(x => x.folded);
-      ctx.sigil = { ...ctx.sigil, img: VTM20.typeSigil("wraith"), label: ctx.wraithInfo.legion?.name ?? "" }; ctx.lineAtlas = true; }
+      ctx.sigil = { ...ctx.sigil, img: VTM20.typeSigil("wraith"), sym: ctx.wraithInfo.legionSym ?? ctx.sigil.sym, label: ctx.wraithInfo.legion?.name ?? "" }; ctx.lineAtlas = true; }
     else if (actor.type !== "mortal") prepareDisciplines(this, ctx);
     prepareAdvantages(this, ctx);
     if (actor.type === "mortal") { ctx.sorcInfo = sorcererInfo(actor, dots); ctx.consorInfo = consorInfo(actor);

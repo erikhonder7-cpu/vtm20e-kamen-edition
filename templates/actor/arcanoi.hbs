@@ -22,7 +22,7 @@
   {{#each arc.own}}
   <article class="r-vcard r-wr-arc {{#if folded}}is-shut{{else}}is-open{{/if}} {{#if home}}is-home{{/if}} {{#if forbidden}}is-forbidden{{/if}} {{#if sel}}has-sel{{/if}}">
     <header class="r-wr-arc-head">
-      <span class="r-wr-arc-sigil" data-tooltip="{{guild}}"><i class="fa-solid {{icon}}"></i></span>
+      <span class="r-wr-arc-sigil" data-tooltip="{{guild}}">{{rSym sym "r-wrg"}}</span>
       <div class="r-wr-arc-title">
         <a class="r-wr-arc-name" data-action="rollTrait" data-trait="wraith.{{key}}" data-tooltip="{{localize 'VTM20.Sheet.Roll'}}">{{name}}</a>
         <span class="r-wr-arc-guild">{{guild}}{{#if home}} · <b>{{localize "VTM20.Wraith.HomeGuild"}}</b>{{/if}}{{#if forbidden}} · <em>{{localize "VTM20.Wraith.Forbidden"}}</em>{{/if}}</span>
