@@ -5289,6 +5289,39 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  // Призраки в городе: Обиталище Круга — зона его домена на карте; призрак внутри — «В Обиталище» сам, вышел — снимается;
+  // в «Стратегии» призраки и Круг — владельцы фишек
+  await check("Призрак: Обиталище Круга на карте города и владельцы «Стратегии»", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {};
+      const C = await import(`/systems/${sid}/module/apps/circle.mjs`), SV = await import(`/systems/${sid}/module/ui/strategy-views.mjs`);
+      const raw0 = foundry.utils.deepClone(game.settings.get(sid, "cityMap") ?? {});
+      const raw = foundry.utils.deepClone(raw0), key = raw.current ?? Object.keys(raw.cities ?? {})[0];
+      if (!key) return { noCity: true };
+      raw.cities[key].zones = [...(raw.cities[key].zones ?? []), { id: "e2e-haunt", name: "E2E Обиталище", points: [[10, 10], [10, 11], [11, 11], [11, 10]] }];
+      await game.settings.set(sid, "cityMap", raw);
+      const w = await Actor.create({ name: "E2E — призрак Круга", type: "wraith", flags: { world: { e2e: true }, [sid]: { created: true } } });
+      const d = await Actor.create({ name: "E2E — домен Обиталища", type: "domain", system: { zone: "e2e-haunt" }, flags: { world: { e2e: true } } });
+      const g = await Actor.create({ name: "E2E — Круг", type: "coterie", system: { kind: "circle", members: [w.id], domain: d.id }, flags: { world: { e2e: true } } });
+      try {
+        out.area = !!(await C.hauntAreaOf(w));
+        await w.setFlag(sid, "city", { city: key, lat: 10.5, lng: 10.5 }); await wait(800);
+        out.inside = !!w.getFlag(sid, "inHaunt");
+        await w.setFlag(sid, "city", { city: key, lat: 20, lng: 20 }); await wait(800);
+        out.outside = !w.getFlag(sid, "inHaunt");
+        out.owners = [SV.ownerOptions({ owners: {} }).some(o => o.key === w.id), SV.ownerOptions({ owners: {} }).some(o => o.key === g.id)];
+      } finally {
+        await game.settings.set(sid, "cityMap", raw0);
+        await Actor.deleteDocuments([w.id, d.id, g.id]);
+      }
+      return out;
+    });
+    if (r.noCity) return;
+    const want = { area: true, inside: true, outside: true, owners: [true, true] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   await check("Призрак: Подземный мир — Мальстрём, Туман, Сон в Оковах, «Орфей», Оттенок цвета", async () => {
     const r = await page.evaluate(async () => {
       const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {}, n0 = game.messages.size;

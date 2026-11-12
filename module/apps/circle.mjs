@@ -22,6 +22,41 @@ export function circleHaunt(actor) {
   return Math.max(0, ...circlesOf(actor).filter(g => HAUNT_POOL in (g.system.pools ?? {})).map(g => poolValue(coterieFromActor(g), HAUNT_POOL)));
 }
 
+/**
+ * Обиталище Круга на карте города: домен Круга (поле «Домен» на листе группы) привязан к зоне рассказчика или обведённому
+ * домену — его граница и есть Обиталище. Возвращает { circle, area } или null.
+ */
+export async function hauntAreaOf(actor) {
+  const circles = circlesOf(actor).filter(g => g.system.domain);
+  if (!circles.length) return null;
+  const { allDomains } = await import("../ui/city-domains.mjs");
+  const raw = game.settings.get(SYSTEM_ID, "cityMap") ?? {}, c = raw.cities?.[raw.current] ?? Object.values(raw.cities ?? {})[0] ?? raw;
+  for (const g of circles) {
+    const zid = game.actors.get(g.system.domain)?.system.zone;
+    if (!zid) continue;
+    const area = (c.zones ?? []).find(z => z.id === zid) ?? allDomains().find(d => d.id === zid);
+    if (area?.points?.length >= 3) return { circle: g, area };
+  }
+  return null;
+}
+
+/** Отметка «В Обиталище» по месту на карте: внутри границы Обиталища Круга — да, вне — нет; без места или без Обиталища на карте — не трогаем. */
+export async function syncHauntByPlace(actor) {
+  if (actor?.type !== "wraith" || !actor.canUserModify(game.user, "update")) return null;
+  const [{ whereIs }, { inZone }] = await Promise.all([import("../ui/citychars.mjs"), import("../ui/city-util.mjs")]);
+  const w = whereIs(actor), h = w ? await hauntAreaOf(actor) : null;
+  if (!w || !h) return null;
+  const inside = inZone(h.area, w.lat, w.lng);
+  if (!!actor.getFlag(SYSTEM_ID, "inHaunt") !== inside) await actor.setFlag(SYSTEM_ID, "inHaunt", inside);
+  return inside;
+}
+
+/** Персонаж (или ведущий группы) сдвинулся на карте — призракам группы пересчитать «В Обиталище». */
+Hooks.on("updateActor", (actor, diff, opts, userId) => {
+  if (userId !== game.user.id || !foundry.utils.hasProperty(diff, `flags.${SYSTEM_ID}.city`)) return;
+  import("../ui/citychars.mjs").then(({ groupOf }) => { for (const a of groupOf(actor)) syncHauntByPlace(a); });
+});
+
 /** Крусибл призрака: Круг, скреплённый ритуалом «Орфея». */
 export const crucibleOf = actor => circlesOf(actor).find(g => g.system.circle?.crucible) ?? null;
 

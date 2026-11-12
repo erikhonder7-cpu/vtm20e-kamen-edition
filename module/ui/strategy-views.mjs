@@ -190,7 +190,8 @@ export function pactsBlock(s, x, gm) {
 }
 
 export function ownerOptions(s) {
-  const acts = game.actors.filter(a => ["vampire", "ghoul", "mortal", "hunter", "werewolf", "mage", "demon", "creature", "spirit", "coterie"].includes(a.type)).sort((p, q) => p.name.localeCompare(q.name, "ru"));
+  // владельцы фишек: персонажи всех линеек (призраки тоже) и группы — котерия, стая, кабал, Круг
+  const acts = game.actors.filter(a => ["vampire", "ghoul", "mortal", "hunter", "werewolf", "mage", "demon", "wraith", "creature", "spirit", "coterie"].includes(a.type)).sort((p, q) => p.name.localeCompare(q.name, "ru"));
   return [...Object.keys(s.owners).map(k => owner(k, s)), ...acts.map(a => owner(a.id, s))];
 }
 
