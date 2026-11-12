@@ -4,11 +4,12 @@
 
 import { VTM20, SYSTEM_ID } from "../../config.mjs";
 import { Codex } from "../../data/codex.mjs";
-import { WRAITH_HINTS, MAGE_HINTS, RENOWN, THRALL_BANNED, TIERS, SECTS, STEP_HINTS, GHOUL_HINTS, DEMON_HINTS, EB_HINTS, THRALL_HINTS, HUNTER_HINTS, GAROU_HINTS, HUNTER_SLOTS, LOST_SLOTS, preview } from "./rules.mjs";
+import { CHANGELING_HINTS, WRAITH_HINTS, MAGE_HINTS, RENOWN, THRALL_BANNED, TIERS, SECTS, STEP_HINTS, GHOUL_HINTS, DEMON_HINTS, EB_HINTS, THRALL_HINTS, HUNTER_HINTS, GAROU_HINTS, HUNTER_SLOTS, LOST_SLOTS, preview } from "./rules.mjs";
 import { W as werewolfData } from "../werewolf.mjs";
 import { M as mageData, mageGlyphSrc } from "../mage.mjs";
 import { H as hunterData, growth as hunterGrowth } from "../hunter.mjs";
 import { W as wraithData, wraithGlyphSrc } from "../wraith.mjs";
+import { C as clData } from "../changeling.mjs";
 
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
 const loc = k => game.i18n.localize(k);
@@ -37,7 +38,7 @@ export class ContextCreator {
       stepKey: key, stepNumber: this.step + 1, stepCount: this.steps.length,
       // у гуля свои подсказки там, где правила другие (нет Становления, Дисциплины — от домитора)
       title: t(`Creator.Step.${this.stepName(key)}`),
-      hint: t(`Creator.${STEP_HINTS[key]}${this.type === "ghoul" && GHOUL_HINTS.has(key) ? "Ghoul" : this.isEarthbound && EB_HINTS.has(key) ? "Earthbound" : this.isThrall && THRALL_HINTS.has(key) ? "Thrall" : this.isLost && HUNTER_HINTS.has(key) ? "Lost" : this.isHunter && HUNTER_HINTS.has(key) ? "Hunter" : this.isWerewolf && GAROU_HINTS.has(key) ? "Garou" : this.isMage && MAGE_HINTS.has(key) ? "Mage" : this.isWraith && WRAITH_HINTS.has(key) ? "Wraith" : this.isDemon && DEMON_HINTS.has(key) ? "Demon" : key === "advantages" && !this.rules.bg ? "NoBg" : ""}`, { n: this.rules.disc, bg: this.rules.bg, virt: this.rules.virt }),
+      hint: t(`Creator.${STEP_HINTS[key]}${this.isChangeling && CHANGELING_HINTS.has(key) ? "Changeling" : this.type === "ghoul" && GHOUL_HINTS.has(key) ? "Ghoul" : this.isEarthbound && EB_HINTS.has(key) ? "Earthbound" : this.isThrall && THRALL_HINTS.has(key) ? "Thrall" : this.isLost && HUNTER_HINTS.has(key) ? "Lost" : this.isHunter && HUNTER_HINTS.has(key) ? "Hunter" : this.isWerewolf && GAROU_HINTS.has(key) ? "Garou" : this.isMage && MAGE_HINTS.has(key) ? "Mage" : this.isWraith && WRAITH_HINTS.has(key) ? "Wraith" : this.isDemon && DEMON_HINTS.has(key) ? "Demon" : key === "advantages" && !this.rules.bg ? "NoBg" : ""}`, { n: this.rules.disc, bg: this.rules.bg, virt: this.rules.virt }),
       sectRule: ["concept", "disciplines", "advantages", "freebies"].includes(key) ? this.sectRule : "",
       isFirst: this.step === 0, isLast: this.step === this.steps.length - 1,
       [`is_${key}`]: true
@@ -64,12 +65,13 @@ export class ContextCreator {
       clan: this.clanData?.name ?? "",
       sym: this.type === "vampire" ? Codex.clanSymbol(st.clan) : Codex.sectSymbol(st.sect),
       generation: gen, blood: gen ? VTM20.generationOf(gen).pool : null,
-      morality: this.morality, willpower: this.willpower, pathName: this.isMage ? loc("VTM20.Mage.Arete") : this.isDemon ? t("Demon.Faith") : this.isThrall ? t("Creator.ThrallFaith") : this.isHunter ? t("Hunter.Conviction") : this.pathData?.name ?? "", ledger,
+      morality: this.morality, willpower: this.willpower, pathName: this.isChangeling ? loc("VTM20.Changeling.Glamour") : this.isMage ? loc("VTM20.Mage.Arete") : this.isDemon ? t("Demon.Faith") : this.isThrall ? t("Creator.ThrallFaith") : this.isHunter ? t("Hunter.Conviction") : this.pathData?.name ?? "", ledger,
       torment: this.houseData?.torment ?? null, demon: this.isDemon
     };
     if (this.isDemon) Object.assign(ctx.patent, { clan: this.houseData?.name ?? "", sect: Codex.faction(st.faction)?.name ?? "", sectSym: null });
     if (this.isMage) this.magePatent(ctx);
     if (this.isWraith) this.wraithPatent(ctx);
+    if (this.isChangeling) this.clPatent(ctx);
     if (this.isWerewolf) this.garouPatent(ctx);
     const by = hunterData().bystander;
     if (this.isHunter) Object.assign(ctx.patent, { clan: this.isLost ? `${by?.name} · ${by?.who}` : this.creedData ? `${this.creedData.name} · ${this.creedData.who}` : "", sectSym: null });
@@ -86,7 +88,7 @@ export class ContextCreator {
     ctx.natureRegain = Codex.archetypes.find(a => a.name === st.nature)?.regain ?? "";
     ctx.demeanorRegain = Codex.archetypes.find(a => a.name === st.demeanor)?.regain ?? "";
     // ступени опыта своими словами у каждой линейки (гуль — срок службы, маг — путь, призрак — срок в Подземном мире…); опыт тот же
-    const LINE = { ghoul: "Ghoul", mage: "Mage", wraith: "Wraith", werewolf: "Werewolf", hunter: "Hunter", demon: "Demon", mortal: "Mortal" }[this.type] ?? "";
+    const LINE = { ghoul: "Ghoul", mage: "Mage", wraith: "Wraith", werewolf: "Werewolf", hunter: "Hunter", demon: "Demon", mortal: "Mortal", changeling: "Changeling" }[this.type] ?? "";
     const tierKey = `Tier${LINE}`;
     ctx.tiers = Object.entries(TIERS).map(([k, v]) => ({ key: k, xp: v.xp, label: t(`Creator.${tierKey}.${k}`), hint: t(`Creator.${tierKey}.${k}Hint`), active: st.tier === k }));
     ctx.tierTitle = t(`Creator.TierTitle${LINE}`);
@@ -127,6 +129,7 @@ export class ContextCreator {
     }
 
     if (this.isMage) this.mageContext(ctx);         // II. Маг: фракция, Сущность, родовая Сфера (creator/mage.mjs)
+    if (this.isChangeling) this.clContext(ctx);      // II. Подменыш: кит, ступень, двор, Наследия (creator/changeling.mjs)
     if (this.isWraith) this.wraithContext(ctx, key); // II. Призрак: Легион, Гильдия, Страсти, Оковы, Тень (creator/wraith.mjs)
     if (this.isWerewolf) this.garouContext(ctx);   // II. Гару и Фера: род, Дары, Слава (creator/garou.mjs)
 
@@ -154,21 +157,21 @@ export class ContextCreator {
     ctx.discCards = [...discKeys].filter(k => this.discData(k)).map(k => {
       const d = this.discData(k), v = this.value("disc", k);
       return {
-        key: k, name: d.name, en: d.en, value: v, inClan: this.isMage ? k === st.mg.affinity : this.isWraith ? k === st.wr.guild : this.inClan(k),
+        key: k, name: d.name, en: d.en, value: v, inClan: this.isChangeling ? this.isArt(k) : this.isMage ? k === st.mg.affinity : this.isWraith ? k === st.wr.guild : this.inClan(k),
         sym: this.isSorcerer ? null : this.isMage ? { src: mageGlyphSrc(`sphere-${k}`) } : this.isWraith ? (VTM20.wraithDark.includes(k) ? { src: wraithGlyphSrc("arcanos-dark") } : VTM20.wraithArcanoi.includes(k) ? { src: wraithGlyphSrc(`arcanos-${k}`) } : null) : this.isDemon ? null : Codex.disciplineSymbol(k),
         guild: d.guild ?? "",
-        icon: this.isSorcerer ? (d.psychic ? "fa-brain" : "fa-hand-sparkles") : this.isDemon ? (d.house ? "fa-fire-flame-curved" : "fa-book") : VTM20.disciplineIcons[k] ?? "fa-droplet", dots: dotRow("disc", k),
+        icon: this.isChangeling ? (this.isArt(k) ? "fa-wand-sparkles" : "fa-compass") : this.isSorcerer ? (d.psychic ? "fa-brain" : "fa-hand-sparkles") : this.isDemon ? (d.house ? "fa-fire-flame-curved" : "fa-book") : VTM20.disciplineIcons[k] ?? "fa-droplet", dots: dotRow("disc", k),
         powers: d.powers.filter(p => p.level <= Math.max(1, v) && p.level <= 5).map(p => ({ level: p.level, name: p.name, en: p.en, owned: p.level <= v, tip: preview(p.html, 600) })),
         pathed: VTM20.pathDisciplines.includes(k)
       };
     }).sort((a, b) => (b.inClan - a.inClan) || a.name.localeCompare(b.name, "ru"));
     ctx.anyDiscipline = allowed == null;
     // внеклановые Дисциплины: Сородич добавляет любую (точки — свободными пунктами и опытом), каитиф и гуль — как раньше
-    ctx.canAddDisc = !this.isDemon && !this.isMage && !this.isSorcerer && !this.isWraith && (allowed == null || this.type === "vampire");
+    ctx.canAddDisc = !this.isDemon && !this.isMage && !this.isSorcerer && !this.isWraith && !this.isChangeling && (allowed == null || this.type === "vampire");
     for (const c of ctx.discCards) {
       c.outOfClan = this.type === "vampire" && allowed != null && !c.inClan;
       c.extra = c.key === this.extraDisc;
-      c.removable = !this.isMage && !this.isSorcerer && !this.isWraith && !c.inClan && this.value("disc", c.key) <= this.base("disc", c.key);
+      c.removable = !this.isMage && !this.isSorcerer && !this.isWraith && !this.isChangeling && !c.inClan && this.value("disc", c.key) <= this.base("disc", c.key);
     }
     // выбор по «Дополнительной Дисциплине» — на шаге Дисциплин и у взятого достоинства
     ctx.extraDisc = this.extraDiscMerit && this.baseClanDisciplines
@@ -177,6 +180,7 @@ export class ContextCreator {
     if (this.isMage) ctx.sphereIssues = this.sphereIssues;
     if (this.isSorcerer) ctx.sphereIssues = this.sorcIssues;
     if (this.isWraith) ctx.sphereIssues = this.arcanoiIssues;
+    if (this.isChangeling) ctx.sphereIssues = this.clArtIssues;
     ctx.discChoices = Object.values(Codex.disciplines).filter(d => !discKeys.has(d.key) && Codex.visible(d) && !this.bannedDisc(d.key)).map(d => ({ value: d.key, label: d.name }))
       .sort((a, b) => a.label.localeCompare(b.label, "ru"));
 
@@ -268,9 +272,9 @@ export class ContextCreator {
         // у Гару вместо Добродетелей и морали — Ярость и Гнозис (W20, гл. 3)
         ...(this.isWerewolf ? [row("rage", "", loc("VTM20.Werewolf.Rage"), t("Sheet.Other"), this.garouRage), row("gnosis", "", loc("VTM20.Werewolf.Gnosis"), t("Sheet.Other"), this.garouGnosis)] : [
         // Добродетели охоты — только охотой; при росте за опыт — и опытом
-        ...(this.isMage || this.isWraith ? [] : !this.isHunter || this.isLost ? ctx.virtues.map(x => row("virt", x.key, x.label, t("Sheet.Virtues"), x.value))
+        ...(this.isMage || this.isWraith || this.isChangeling ? [] : !this.isHunter || this.isLost ? ctx.virtues.map(x => row("virt", x.key, x.label, t("Sheet.Virtues"), x.value))
           : mode === "xp" && hunterGrowth() === "xp" ? ctx.virtues.map(x => row("virt", x.key, x.label, t("Creator.HunterVirtues"), x.value)) : []),
-        ...(this.isLost || this.isWraith || (this.isHunter && mode === "xp" && hunterGrowth() !== "xp") ? [] : [row("morality", "", this.isMage ? loc("VTM20.Mage.Arete") : this.isDemon ? t("Demon.Faith") : this.isThrall ? t("Creator.ThrallFaith") : this.isHunter ? t("Hunter.Conviction") : this.pathData?.name ?? t("Humanity"), t("Sheet.Other"), this.morality)])]),
+        ...(this.isLost || this.isWraith || (this.isHunter && mode === "xp" && hunterGrowth() !== "xp") ? [] : [row("morality", "", this.isChangeling ? loc("VTM20.Changeling.Glamour") : this.isMage ? loc("VTM20.Mage.Arete") : this.isDemon ? t("Demon.Faith") : this.isThrall ? t("Creator.ThrallFaith") : this.isHunter ? t("Hunter.Conviction") : this.pathData?.name ?? t("Humanity"), t("Sheet.Other"), this.morality)])]),
         row("will", "", t("Willpower"), t("Sheet.Other"), this.willpower),
         // маг: 1 свободный пункт — 4 Квинтэссенции (M20, гл. 6)
         ...(this.isMage && mode === "free" ? [row("quint", "", loc("VTM20.MageCr.QuintRow"), t("Sheet.Other"), this.mageQuint),
@@ -291,7 +295,7 @@ export class ContextCreator {
       ];
       return [...new Set(list.map(r => r.group))].map(g => ({ label: g, rows: list.filter(r => r.group === g) }));
     };
-    if (key === "freebies" || key === "xp") ctx.canAddDisc = !!this.rules.disc && !this.isDemon && !this.isMage && (this.clanDisciplines == null || this.type === "vampire");
+    if (key === "freebies" || key === "xp") ctx.canAddDisc = !!this.rules.disc && !this.isDemon && !this.isMage && !this.isChangeling && (this.clanDisciplines == null || this.type === "vampire");
     if (key === "freebies") {
       ctx.cost = this.rules.cost;
       ctx.freeTotal = this.freeTotal; ctx.freeSpent = this.freeSpent + this.meritPoints; ctx.freeLeft = this.freeLeft;
@@ -344,7 +348,7 @@ export class ContextCreator {
           ...w.shadow.thorns.map(x => ({ label: (wraithData().thorns ?? []).find(t2 => t2.key === x.key)?.name ?? x.key, value: x.n }))];
       }
       ctx.clanSym = this.type === "vampire" ? Codex.clanSymbol(st.clan) : null;
-      ctx.pathName = this.isMage ? loc("VTM20.Mage.Arete") : this.isDemon ? t("Demon.Faith") : this.isThrall ? t("Creator.ThrallFaith") : this.isHunter ? t("Hunter.Conviction") : this.pathData?.name;
+      ctx.pathName = this.isChangeling ? loc("VTM20.Changeling.Glamour") : this.isMage ? loc("VTM20.Mage.Arete") : this.isDemon ? t("Demon.Faith") : this.isThrall ? t("Creator.ThrallFaith") : this.isHunter ? t("Hunter.Conviction") : this.pathData?.name;
       if (this.isHunter) ctx.summary.edges = st.edges.map(k => hunterData().edges.find(e => e.key === k)).filter(Boolean)
         .sort((a, b) => a.path.localeCompare(b.path) || a.level - b.level);
       if (this.isDemon) Object.assign(ctx, { torment: this.isEarthbound ? 10 : this.houseData?.torment ?? 3, houseName: this.houseData?.name ?? "",
@@ -358,6 +362,16 @@ export class ContextCreator {
         ctx.summary.virtues = [[loc("VTM20.Mage.Essence"), (mageData().essences ?? []).find(e => e.key === g.essence)?.name], [loc("VTM20.Mage.Affinity"), g.affinity && this.mageSphere(g.affinity)?.name],
           [loc("VTM20.Mage.Paradigm"), g.paradigm], [loc("VTM20.Mage.Practice"), g.practice], [loc("VTM20.Mage.Quintessence"), this.mageQuint]]
           .filter(([, v]) => v !== "" && v != null).map(([label, value]) => ({ label, value }));
+        ctx.garouLine = [ctx.patent.clan, ctx.patent.sect].filter(Boolean).join(" · ");
+      }
+      // Подменыш: вместо Добродетелей — Грёза (кит, ступень, двор, Наследия, Банальность)
+      if (this.isChangeling) {
+        const c = st.cl, D = clData(), L = k => (D.legacies ?? []).find(l => l.key === k)?.name;
+        ctx.virtLabel = loc("VTM20.ClCr.Dream");
+        ctx.summary.virtues = [[loc("VTM20.Changeling.Kith"), this.clKith?.name], [loc("VTM20.Changeling.Seeming"), this.clSeeming?.name],
+          [loc("VTM20.Changeling.CourtLabel"), c.court && loc(`VTM20.Changeling.Court.${c.court}`)], [loc("VTM20.Changeling.House"), (D.houses ?? []).find(h => h.key === c.house)?.name],
+          [loc("VTM20.Changeling.LegacySeelie"), L(c.legacySeelie)], [loc("VTM20.Changeling.LegacyUnseelie"), L(c.legacyUnseelie)],
+          [loc("VTM20.Changeling.Banality"), this.clBanality]].filter(([, v]) => v !== "" && v != null).map(([label, value]) => ({ label, value }));
         ctx.garouLine = [ctx.patent.clan, ctx.patent.sect].filter(Boolean).join(" · ");
       }
       if (this.isEarthbound) ctx.reliquaryName = t(`Demon.ReliquaryKind.${st.reliquary || "ideal"}`);

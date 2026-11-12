@@ -96,6 +96,11 @@ export class WriteCreator {
         deformities: this.isMetis && w.deform ? [w.deform] : [],
         renown: Object.fromEntries(RENOWN.map(k => [k, { permanent: r[k], temporary: 0 }])) };
     }
+    // Подменыш: кит, ступень, двор, Наследия, Искусства и Царства, Гламур, Банальность; Человечности и Добродетелей нет
+    if (this.isChangeling) {
+      delete sys.morality; delete sys.virtues;
+      sys.changeling = this.clWrite(a.system.toObject?.().changeling ?? {});
+    }
     // Призрак: Легион, Гильдия, Пафос, Корпус 10, Арканои, Страсти, Оковы, Тень; Человечности и Добродетелей нет
     if (this.isWraith) {
       delete sys.morality; delete sys.virtues;
@@ -124,7 +129,7 @@ export class WriteCreator {
     const discKeys = new Set([...(this.clanDisciplines ?? []), ...Object.keys(st.disc), ...Object.keys(st.free.disc), ...Object.keys(st.xp.disc)]);
     if (this.type === "ghoul") discKeys.add("potence");
     for (const k of discKeys) {
-      if (this.isMage || this.isWraith) continue;       // Сферы мага и Арканои призрака — числа на листе, не предметы
+      if (this.isMage || this.isWraith || this.isChangeling) continue;   // Сферы, Арканои, Искусства — числа на листе       // Сферы мага и Арканои призрака — числа на листе, не предметы
       if (this.isDemon) {                               // Знания падшего — предметами «Знание» со справочным ключом
         const l = Codex.lore(k), v = this.value("disc", k);
         if (l && v > 0) items.push({ name: l.name, type: "lore", img: icon(l.dark ? "darkLore" : "lore"),

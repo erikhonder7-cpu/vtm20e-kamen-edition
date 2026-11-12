@@ -5548,6 +5548,49 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  // Подменыш в мастере создания (C20, гл. 3): шаг «Грёза», Искусства 3 и Царства 5 одной вкладкой, свободные пункты
+  // (Искусство 5, Царство 2, Гламур 3, Воля 1, Фон 1), запись: Гламур по ступени и пунктам, Воля, Банальность 3, Фоны
+  await check("Подменыш: мастер создания — Грёза, Искусства и Царства, свободные пункты, запись", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {};
+      const a = await Actor.create({ name: "E2E — новый подменыш", type: "changeling", flags: { world: { e2e: true } } });
+      const { openCreator } = await import(`/systems/${sid}/module/apps/creator.mjs`);
+      try {
+        await openCreator(a); await wait(1200);
+        const cr = [...foundry.applications.instances.values()].find(x => x.constructor.name === "VtMCreator" && x.actor === a), st = cr.st;
+        out.steps = cr.steps.join(",");
+        cr.step = cr.steps.indexOf("changeling"); await cr.render(); await wait(500);
+        cr.element.querySelector('[data-action="clPick"][data-what="kith"][data-key="pooka"]')?.click(); await wait(300);
+        cr.element.querySelector('[data-action="clPick"][data-what="seeming"][data-key="wilder"]')?.click(); await wait(300);
+        out.needWilder = cr.clIssues.some(x => /Дикарь|Wilder/.test(x));
+        cr.element.querySelector('[data-action="clPick"][data-what="wilder"][data-key="glamour"]')?.click(); await wait(300);
+        const L = game.vtm20Codex.changeling.legacies;
+        Object.assign(st.cl, { legacySeelie: L.find(l => l.court === "seelie").key, legacyUnseelie: L.find(l => l.court === "unseelie").key });
+        st.attr = { strength: 2, dexterity: 3, stamina: 2, charisma: 2, manipulation: 2, appearance: 1, perception: 1, intelligence: 1, wits: 1 };
+        st.abil = { alertness: 3, athletics: 3, brawl: 2, empathy: 3, kenning: 2, stealth: 3, survival: 3, crafts: 3, gremayre: 3, enigmas: 2 };
+        st.disc = { chicanery: 2, wayfare: 1, actor: 2, nature: 2 };
+        out.realmsLeft = cr.clArtIssues.length;                 // Царств 4 из 5 — замечание
+        st.disc.scene = 1;
+        const bg = game.vtm20Codex.backgrounds.filter(b => b.line === "changeling").map(b => b.name);
+        st.bg = { [bg[0]]: 3, [bg[1]]: 2 };
+        st.free.disc = { chicanery: 1, prop: 2 }; st.free.morality = 1; st.free.will = 1; st.free.bg = { [bg[1]]: 2 };
+        out.problems = cr.problems(cr.remaining());
+        out.costs = [cr.freeSpent, cr.morality, cr.willpower];
+        await cr.write(); await wait(1200);
+        const c = a.system.changeling;
+        out.written = [c.kith, c.seeming, c.arts.chicanery, c.realms.prop, c.glamour.permanent, c.banality.permanent, a.system.willpower.permanent,
+          a.items.filter(i => i.type === "background").length, !!a.getFlag(sid, "created")];
+        for (const x of [...foundry.applications.instances.values()]) if (x.constructor.name === "VtMCreator" && x.actor === a) await x.close();
+      } finally { await a.delete(); }
+      return out;
+    });
+    // свободные: Искусство 5 + Царство 2×2 + Гламур 3 + Воля 1 + Фон 2 = 15; Гламур 4 + дикарь 1 + 1 = 6, Воля 5
+    const want = { steps: "concept,changeling,attributes,abilities,disciplines,advantages,freebies,summary", needWilder: true, realmsLeft: 1, problems: [],
+      costs: [15, 6, 5], written: ["pooka", "wilder", 3, 2, 6, 3, 5, 2, true] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   await check("Призрак: лист и Арканои, Пафос, Страсть, Корпус до колебания и Испытание, Катарсис", async () => {
     const r = await page.evaluate(async () => {
       const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), WR = await import(`/systems/${sid}/module/apps/wraith.mjs`);

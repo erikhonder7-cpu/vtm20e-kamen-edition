@@ -36,6 +36,31 @@
     }
   },
   "VTM20": {
+    "ClCr": {
+      "NeedKith": "Pick a kith.",
+      "NeedSeeming": "Pick a seeming.",
+      "NeedWilder": "Wilder: pick +1 Glamour or Willpower.",
+      "NeedLegacies": "Pick a Seelie and an Unseelie Legacy.",
+      "ArtsLeft": "Arts: {n} left.",
+      "ArtsOver": "Arts: {n} too many.",
+      "RealmsLeft": "Realms: {n} left.",
+      "RealmsOver": "Realms: {n} too many.",
+      "ArtsRealms": "Arts and Realms",
+      "Dream": "The Dreaming",
+      "Affinity": "Affinity",
+      "Frailty": "Frailty",
+      "Quest": "Quest",
+      "Ban": "Ban",
+      "NoHouse": "No House",
+      "HouseOptional": "optional",
+      "Boon": "House boon",
+      "HouseFlaw": "House flaw",
+      "Wilder": {
+        "glamour": "+1 Glamour",
+        "willpower": "+1 Willpower"
+      },
+      "Tempers": "Starting Tempers: Glamour {g}, Willpower {w}, Banality {b} (cannot be raised). Glamour costs 3 freebies per dot."
+    },
     "NewSession": {
       "Title": "Новая сессия",
       "Lead": "Начинается сессия №{n}. У всех персонажей мира сбросится всё «раз за сессию»: у призраков — Мемориум и Эйдолон, у охотников — запрет воззваний. Опыт и хронику прошлой сессии лучше открыть до сброса.",
@@ -3547,6 +3572,23 @@
       "ugly": "Appearance 0 — clan weakness"
     },
     "Creator": {
+      "ChangelingHint": "Kith — your fae nature (Realm affinity, Birthrights, Frailty); seeming — your mortal guise's age and a Temper bonus; court and two Legacies (Seelie and Unseelie, your court's is primary); House — optional. Threshold — what inspires your muse, Antithesis — your personal Banality trigger.",
+      "ConceptHintChangeling": "Name, concept, Nature and Demeanor. A changeling is a fae spirit in a mortal body: think about who the mortal guise was before the Chrysalis and what in them answered the Dreaming.",
+      "DiscHintChangeling": "3 dots of Arts and 5 dots of Realms (ch. 3). A cantrip is an Art plus the target's Realm: Actor — people, Fae — fae and chimera, Nature — the living, Prop — things; Scene and Time are modifiers.",
+      "AdvHintChangeling": "5 dots of changeling Backgrounds: Chimera, Dreamers, Holdings, Remembrance, Title, Treasure and others.",
+      "FreeHintChangeling": "15 freebies: Attribute 5, Ability 2, Art 5, Realm 2, Background 1, Glamour 3, Willpower 1. Banality cannot be bought; Flaws up to 7 (from the book, as reference).",
+      "FinishHintChangeling": "Check the Dreaming, Arts and Realms. Writing sets Glamour, Willpower and Banality by seeming; the Banality pool starts empty.",
+      "TierTitleChangeling": "Time in the Dreaming",
+      "TierChangeling": {
+        "fledgling": "Fresh from the Chrysalis",
+        "fledglingHint": "The awakening was recent — the Dreaming is still new.",
+        "neonate": "Settled",
+        "neonateHint": "A few years at court: oaths, a freehold, first enemies.",
+        "ancilla": "Seasoned kithain",
+        "ancillaHint": "Knows the price of Glamour and Banality, has walked the Near Dreaming.",
+        "elder": "Old hand of the Dreaming",
+        "elderHint": "Decades in the Dreaming are rare: the mortal guise ages, Banality builds."
+      },
       "WraithHint": "Легион — по тому, как вы умерли; Гильдия — по Арканосу, которым вы владеете лучше всего (по желанию); фракция — Иерархия, Отступники, Еретики или Перевозчики.",
       "PassionsHint": "Страсти дают Пафос, Оковы — Волю и право оставаться в Землях Теней. По 10 очков, рейтинги 1–5.",
       "ShadowHint": "Тень — ваша тёмная половина. Архетип, бросок постоянного Ангста, 7 точек Тёмных Страстей и 10 свободных очков Тени (с торгом — больше или меньше).",
@@ -3595,6 +3637,8 @@
       "Start": "Open the creation wizard",
       "Skip": "Fill in the sheet manually",
       "Step": {
+        "changeling": "The Dreaming",
+        "arts": "Arts and Realms",
         "wraith": "Призрак",
         "passions": "Страсти и Оковы",
         "shadow": "Тень",

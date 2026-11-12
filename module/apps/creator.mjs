@@ -20,6 +20,7 @@ import { GarouCreator } from "./creator/garou.mjs";
 import { HunterCreator } from "./creator/hunter.mjs";
 import { SorcererCreator } from "./creator/sorcerer.mjs";
 import { WraithCreator, WRAITH_CR_ACTIONS } from "./creator/wraith.mjs";
+import { ChangelingCreator, CHANGELING_CR_ACTIONS } from "./creator/changeling.mjs";
 import { CalcCreator } from "./creator/calc.mjs";
 import { ContextCreator } from "./creator/context.mjs";
 import { ACTIONS, setExtraDisc } from "./creator/actions.mjs";
@@ -40,7 +41,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     classes: ["vtm20", "r-dialog", "r-creator"],
     window: { title: "VTM20.Creator.Title", icon: "fa-solid fa-feather-pointed", resizable: true },
     position: { width: 1260, height: 880 },
-    actions: { ...ACTIONS, ...WRAITH_CR_ACTIONS }
+    actions: { ...ACTIONS, ...WRAITH_CR_ACTIONS, ...CHANGELING_CR_ACTIONS }
   };
 
   static PARTS = { body: { template: `${SYSTEM_PATH}/templates/apps/creator.hbs`, scrollable: [".r-cr-body"] } };
@@ -95,6 +96,10 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
         // путь: «» — призрак, spectre (каста, Психея), risen (Проводник), projector (Оттенок, скиммер/спящий, Пятна)
         path: "", caste: "", shade: "", lament: "skimmer", conduit: "", stains: [],
         psyche: { archetype: "", rating: 1, passions: [{ text: "", emotion: "", value: 0 }, { text: "", emotion: "", value: 0 }] } },
+      // Подменыш (C20, гл. 3): кит, ступень (у дикаря — +1 Гламур или Воля), двор, Дом, Наследия, Порог, Антитеза
+      cl: { kith: s.changeling?.kith || "", seeming: s.changeling?.seeming || "", wilder: "", court: s.changeling?.court || "seelie", house: s.changeling?.house || "",
+        legacySeelie: s.changeling?.legacies?.seelie || "", legacyUnseelie: s.changeling?.legacies?.unseelie || "",
+        threshold: s.changeling?.threshold || "", antithesis: s.changeling?.antithesis || "" },
       ww: { breed: s.werewolf?.breed || "homid", auspice: s.werewolf?.auspice || "ragabash", tribe: s.werewolf?.tribe || "boneGnawers",
         fera: s.werewolf?.fera || "", sub: {}, gifts: {}, extra: [], deform: "", renown: { glory: 0, honor: 0, wisdom: 0 } }
     };
@@ -110,6 +115,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     if (this.isWerewolf) s.push("garou");                   // порода, аугурия, племя — или род Фера
     if (this.isMage) s.push("mage");                        // фракция, Сущность, родовая Сфера, фокус
     if (this.isWraith) s.push("wraith");                    // Легион, Гильдия, фракция, смерть
+    if (this.isChangeling) s.push("changeling");            // кит, ступень, двор, Дом, Наследия
     s.push("attributes", "abilities");
     if (this.rules.disc > 0) s.push("disciplines");
     if (this.isWerewolf) s.push("gifts");                   // три Дара 1-го уровня
@@ -117,7 +123,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     if (this.isWraith) s.push("passions");                  // Страсти и Оковы — по 10 очков
     if (this.isHunter && !this.isLost) s.push("edges");     // Грани — на очки Добродетелей охоты; у Свидетеля Граней нет
     if (this.isDhampir) s.push("bloodrights");              // Кровные права дампира (Accursed Heirs, гл. 4)
-    if (!this.isWraith) s.push("merits");                   // у призраков Wraith 20 достоинств и недостатков нет
+    if (!this.isWraith && !this.isChangeling) s.push("merits");   // у призраков Wraith 20 достоинств нет; черты C20 — справкой в книгах
     s.push("freebies");
     if (this.isWraith) s.push("shadow");                    // Тень — после торга свободными очками (гл. 6)
     if (this.st.xpTotal > 0) s.push("xp");
@@ -164,4 +170,4 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
 }
 
 // линейки: геттеры и куски контекста мага, Гару и Фера, охотника и дампира
-for (const Part of [CalcCreator, ContextCreator, WriteCreator, MageCreator, GarouCreator, HunterCreator, SorcererCreator, WraithCreator]) mix(VtMCreator, Part);
+for (const Part of [CalcCreator, ContextCreator, WriteCreator, MageCreator, GarouCreator, HunterCreator, SorcererCreator, WraithCreator, ChangelingCreator]) mix(VtMCreator, Part);

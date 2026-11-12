@@ -32,6 +32,10 @@ export const RULES = {
     cost: { attr: 5, abil: 2, disc: 7, bg: 1, virt: 0, morality: 4, will: 1, quint: 1 } },  // quint: 1 пункт — 4 Квинтэссенции
   // Призрак (Wraith 20, гл. 4): Арканои 5 (слот disc, не больше 3 в одном), Фоны 7, Страсти и Оковы — свой шаг, Воля 5, Пафос 5 + Мемориум;
   // 15 свободных: Атрибут 5, Арканос 5, Воля 2, Способность 2, Страсть 2 (pas), Фон 1, Оковы 1 (fet), Пафос — 1 за 2 точки
+  // Подменыш (C20, гл. 3): Искусства 3 и Царства 5 — на слоте disc (8, раздельная проверка), Фоны 5, Гламур — слот morality (3 за точку),
+  // Воля 1; Искусство 5 и Царство 2 за точку — creator/changeling.mjs (clDiscFreeCost)
+  changeling: { attr: [7, 5, 3], abil: [13, 9, 5], disc: 8, bg: 5, virt: 0, free: 15,
+    cost: { attr: 5, abil: 2, disc: 5, bg: 1, virt: 0, morality: 3, will: 1 } },
   wraith: { attr: [7, 5, 3], abil: [13, 9, 5], disc: 5, bg: 7, virt: 0, free: 15,
     cost: { attr: 5, abil: 2, disc: 5, bg: 1, virt: 0, morality: 0, will: 2, pathos: 1, pas: 2, fet: 1, trade: -1 } }
 };
@@ -67,7 +71,7 @@ export const CAMARILLA_BANNED = ["chimerstry", "melpominee", "mytherceria", "nec
 
 export const STEP_HINTS = {
   concept: "ConceptHint", clan: "ClanHint", house: "HouseHint", garou: "GarouHint", mage: "MageHint", gifts: "GiftsHint", attributes: "AttrHintShort", abilities: "AbilHintShort",
-  wraith: "WraithHint", passions: "PassionsHint", shadow: "ShadowHint",
+  wraith: "WraithHint", passions: "PassionsHint", shadow: "ShadowHint", changeling: "ChangelingHint",
   disciplines: "DiscHint", advantages: "AdvHint", edges: "EdgesHint", bloodrights: "BloodrightsHint", merits: "MeritHint", freebies: "FreeHint", xp: "XpHint", pact: "PactHint", summary: "FinishHint"
 };
 /** Сколько Даров у рода Фера на старте, если не три (W20 Changing Breeds: Мокол — аспект и общий, Рокеа — общий и аугурии). */
@@ -82,6 +86,8 @@ export const THRALL_HINTS = new Set(["concept", "advantages", "freebies", "summa
 export const HUNTER_HINTS = new Set(["concept", "advantages", "freebies", "summary"]);
 /** Шаги, где у призрака свой текст подсказки (ключ + «Wraith»). */
 export const WRAITH_HINTS = new Set(["concept", "disciplines", "advantages", "freebies", "summary"]);
+/** Шаги, где у подменыша свой текст подсказки (ключ + «Changeling»). */
+export const CHANGELING_HINTS = new Set(["concept", "disciplines", "advantages", "freebies", "summary"]);
 export const GAROU_HINTS = new Set(["concept", "abilities", "advantages", "freebies", "xp", "summary"]);
 /** Слоты Добродетелей мастера → Добродетели охоты. */
 export const HUNTER_SLOTS = { conscience: "mercy", selfControl: "vision", courage: "zeal" };

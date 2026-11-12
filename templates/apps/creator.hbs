@@ -299,6 +299,44 @@
     {{/if}}
 
     {{!-- II. Гару (W20, гл. 3): род — Гару или один из Фера; порода, аугурия, племя плитками; у Фера — выбор внутри рода --}}
+    {{!-- II. Подменыш (C20, гл. 3): кит, ступень, двор, Дом, Наследия, Порог и Антитеза --}}
+    {{#if is_changeling}}
+    <h3 class="r-h3">{{localize "VTM20.Changeling.Kith"}}</h3>
+    <div class="r-cr-clans r-cr-tribes">
+      {{#each cl.kiths}}<a class="r-cr-clan {{#if active}}is-active{{/if}}" data-action="clPick" data-what="kith" data-key="{{key}}"><b>{{label}}</b><span class="r-cr-clan-disc">{{sub}}</span></a>{{/each}}
+    </div>
+    {{#if cl.kith}}
+    <div class="r-cr-clancard">
+      <h4 class="r-banner"><span>{{cl.kith.name}}</span></h4>
+      <div class="r-cr-clancard-body">
+        <div class="r-cr-clancard-title">{{cl.kith.name}} <em>{{cl.kith.en}}</em></div>
+        {{#if cl.kith.affinityText}}<p class="r-note">{{localize "VTM20.ClCr.Affinity"}}: <b>{{cl.kith.affinityText}}</b></p>{{/if}}
+        {{#each cl.kith.birthrights}}<p class="r-note"><b>{{name}}</b> <em>{{en}}</em> — {{text}}</p>{{/each}}
+        {{#if cl.kith.frailty}}<div class="r-weakness-text"><b>{{localize "VTM20.ClCr.Frailty"}}: {{cl.kith.frailty.name}}</b> — {{cl.kith.frailty.text}}</div>{{/if}}
+      </div>
+    </div>
+    {{/if}}
+    <h3 class="r-h3">{{localize "VTM20.Changeling.Seeming"}}</h3>
+    <div class="r-cr-tiles r-cr-garou-tiles is-three">
+      {{#each cl.seemings}}<a class="r-cr-tile {{#if active}}is-active{{/if}}" data-action="clPick" data-what="seeming" data-key="{{key}}" data-tooltip="{{text}}"><b>{{label}}</b><span class="r-cr-tile-text">{{temper}}</span></a>{{/each}}
+    </div>
+    {{#if cl.wilder}}<div class="r-cr-tiles r-cr-garou-tiles is-two">{{#each cl.wilder}}<a class="r-cr-tile {{#if active}}is-active{{/if}}" data-action="clPick" data-what="wilder" data-key="{{key}}"><b>{{label}}</b></a>{{/each}}</div>{{/if}}
+    <h3 class="r-h3">{{localize "VTM20.Changeling.CourtLabel"}}</h3>
+    <div class="r-cr-tiles r-cr-garou-tiles is-two">
+      {{#each cl.courts}}<a class="r-cr-tile {{#if active}}is-active{{/if}}" data-action="clPick" data-what="court" data-key="{{key}}"><b>{{label}}</b></a>{{/each}}
+    </div>
+    <div class="r-cols2 r-cr-genrow">
+      <label class="r-f"><span>{{localize "VTM20.Changeling.LegacySeelie"}}</span><select data-field="cl.legacySeelie"><option value="">—</option>{{#each cl.legaciesSeelie}}<option value="{{key}}" {{#if selected}}selected{{/if}} title="{{tip}}">{{name}}</option>{{/each}}</select></label>
+      <label class="r-f"><span>{{localize "VTM20.Changeling.LegacyUnseelie"}}</span><select data-field="cl.legacyUnseelie"><option value="">—</option>{{#each cl.legaciesUnseelie}}<option value="{{key}}" {{#if selected}}selected{{/if}} title="{{tip}}">{{name}}</option>{{/each}}</select></label>
+      <label class="r-f"><span>{{localize "VTM20.Changeling.House"}} <em class="r-h3-note">{{localize "VTM20.ClCr.HouseOptional"}}</em></span><select data-field="cl.house">{{#each cl.houses}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
+      <label class="r-f" data-tooltip="{{localize 'VTM20.Changeling.ThresholdHint'}}"><span>{{localize "VTM20.Changeling.Threshold"}}</span><input type="text" data-field="cl.threshold" value="{{st.cl.threshold}}"></label>
+      <label class="r-f" data-tooltip="{{localize 'VTM20.Changeling.AntithesisHint'}}"><span>{{localize "VTM20.Changeling.Antithesis"}}</span><input type="text" data-field="cl.antithesis" value="{{st.cl.antithesis}}"></label>
+    </div>
+    {{#if cl.house}}<p class="r-note"><b>{{cl.house.name}}</b> — {{cl.house.short}}{{#if cl.house.boon}}<br><b>{{localize "VTM20.ClCr.Boon"}}:</b> {{cl.house.boon}}{{/if}}{{#if cl.house.flaw}}<br><b>{{localize "VTM20.ClCr.HouseFlaw"}}:</b> {{cl.house.flaw}}{{/if}}</p>{{/if}}
+    <p class="r-note r-explain">{{localize "VTM20.ClCr.Tempers" g=cl.glamour w=cl.will b=cl.banality}}</p>
+    {{#each cl.issues}}<p class="r-note is-warn">{{this}}</p>{{/each}}
+    {{/if}}
+
     {{!-- II. Маг (M20, гл. 6): фракция со знаком, Сущность, родовая Сфера, фокус --}}
     {{#if is_mage}}
     <div class="r-cr-gtabs r-cr-garou-kinds">{{#each mage.groups}}<a class="{{#if active}}is-active{{/if}}" data-action="magePick" data-what="group" data-key="{{key}}">{{rSym sym "r-mg r-cr-kind-sym"}} {{label}}</a>{{/each}}</div>
