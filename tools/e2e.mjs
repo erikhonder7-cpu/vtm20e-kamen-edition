@@ -4990,6 +4990,41 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  // «Новая сессия» у рассказчика — для всех линеек: сброс «раз за сессию», номер, хук, сообщение; кнопка в инструментах сцены
+  await check("Новая сессия для всех — призраки и охотники, номер сессии, кнопка рассказчика", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, out = {}, n0 = game.messages.size, no0 = game.settings.get(sid, "sessionNo");
+      const NS = await import(`/systems/${sid}/module/apps/new-session.mjs`);
+      const w = await Actor.create({ name: "E2E — призрак сессии", type: "wraith", flags: { world: { e2e: true }, [sid]: { created: true } },
+        system: { wraith: { session: { memoriam: true, eidolon: 2, harrow: true } } } });
+      const h = await Actor.create({ name: "E2E — охотник сессии", type: "hunter", flags: { world: { e2e: true }, [sid]: { created: true } },
+        system: { hunter: { sessionBlock: true, sceneBlock: true } } });
+      try {
+        Hooks.once("vtm20NewSession", d => { out.hook = d.n - no0; });
+        const res = await NS.startSession("E2E — сессия");
+        out.counts = [res.counts.wraith >= 1, res.counts.hunter >= 1];
+        out.wraith = Object.values(w.system.wraith.session);
+        out.hunter = [h.system.hunter.sessionBlock, h.system.hunter.sceneBlock];
+        out.no = game.settings.get(sid, "sessionNo") - no0;
+        out.msg = /E2E — сессия/.test(game.messages.contents.at(-1)?.content ?? "");
+        const DV = foundry.applications.api.DialogV2, p0 = DV.prompt;
+        DV.prompt = async () => ({ xp: false, chronicle: false, label: "" });
+        try { await NS.newSessionAll(); } finally { DV.prompt = p0; }
+        out.no2 = game.settings.get(sid, "sessionNo") - no0;
+        const tools = ui.controls?.controls?.vtm20?.tools ?? {};
+        out.tool = !!(tools["r-newsession"] ?? Object.values(tools).find(x => x.name === "r-newsession"));
+      } finally {
+        await game.settings.set(sid, "sessionNo", no0);
+        await ChatMessage.deleteDocuments(game.messages.contents.slice(n0).map(m => m.id));
+        await Actor.deleteDocuments([w.id, h.id]);
+      }
+      return out;
+    });
+    const want = { hook: 1, counts: [true, true], wraith: [false, 0, false], hunter: [false, false], no: 1, msg: true, no2: 2, tool: true };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   await check("Призрак: Подземный мир — Мальстрём, Туман, Сон в Оковах, «Орфей», Оттенок цвета", async () => {
     const r = await page.evaluate(async () => {
       const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {}, n0 = game.messages.size;

@@ -52,6 +52,7 @@ import { registerExorcist } from "./module/apps/exorcist.mjs";
 import { registerHunter } from "./module/apps/hunter.mjs";
 import { registerCoterie, openCoterie } from "./module/apps/coterie.mjs";
 import { registerChronicle, openChronicle } from "./module/apps/chronicle.mjs";
+import { registerNewSession, newSessionAll } from "./module/apps/new-session.mjs";
 import { registerHandouts, giveHandout } from "./module/apps/handouts.mjs";
 import { registerExtras } from "./module/apps/extras.mjs";
 import { registerMasquerade } from "./module/ui/masquerade.mjs";
@@ -81,7 +82,7 @@ Hooks.once("init", () => {
     config: VTM20, codex: Codex,
     rollPool, evaluate, rollDamage, soakAndApply, openDamageDialog, RollDialog, openCreator, VtMCreator,
     openHunt, nightfall, endScene, endStory, openAttack, openDefense, openHazard, openDiablerie, renderHud,
-    openLibrary, openNpcGenerator, openClans, myNight: () => import("./module/apps/night.mjs").then(x => x.myNight()), openAtlas: (line, key) => import("./module/apps/atlas.mjs").then(x => x.openAtlas(line, key)), openBoons, openDowntime, openSessionXp, openSessionPanel, openCourt, openWeb, openCoterie, openChronicle, giveHandout, money: Money, openCity, closeCity, toggleCity, cityMap,
+    openLibrary, openNpcGenerator, openClans, myNight: () => import("./module/apps/night.mjs").then(x => x.myNight()), openAtlas: (line, key) => import("./module/apps/atlas.mjs").then(x => x.openAtlas(line, key)), openBoons, openDowntime, openSessionXp, openSessionPanel, newSession: newSessionAll, openCourt, openWeb, openCoterie, openChronicle, giveHandout, money: Money, openCity, closeCity, toggleCity, cityMap,
     openSceneNexus, openCalendar, announceTime, getClock, getDate, stamp, clockBarData, nightPhase, moonPhase, republicanDate,
     apps: { SceneNexus, NightCalendar }
   };
@@ -175,6 +176,7 @@ Hooks.once("init", () => {
   registerChronicle();
   registerHandouts();
   registerSessionXp();
+  registerNewSession();
   registerSessionPanel();
   registerCourt();
   registerWeb();
@@ -340,6 +342,7 @@ Hooks.on("getSceneControlButtons", controls => {
     "r-court": { name: "r-court", title: "VTM20.Court.Title", icon: "fa-solid fa-crown", order: 4, visible: true, button: true, onChange: () => openCourt() },
     "r-web": { name: "r-web", title: "VTM20.Web.Title", icon: "fa-solid fa-circle-nodes", order: 5, visible: true, button: true, onChange: () => openWeb() },
     "r-chronicle": { name: "r-chronicle", title: "VTM20.Chronicle.Tool", icon: "fa-solid fa-book-open", order: 7, visible: isGM, button: true, onChange: () => openChronicle() },
+    "r-newsession": { name: "r-newsession", title: "VTM20.NewSession.Title", icon: "fa-solid fa-hourglass-start", order: 8, visible: isGM, button: true, onChange: () => newSessionAll() },
     "r-xp": { name: "r-xp", title: "VTM20.SessionXp.Title", icon: "fa-solid fa-star", order: 6, visible: isGM, button: true, onChange: () => openSessionXp() },
     "r-session": { name: "r-session", title: "VTM20.Session.Title", icon: "fa-solid fa-table-list", order: 0, visible: isGM, button: true, onChange: () => openSessionPanel() }
   };
