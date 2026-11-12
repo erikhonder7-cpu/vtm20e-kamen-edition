@@ -267,6 +267,8 @@ export function effectMods(actor) {
     const fl = !e.disabled ? e.flags?.[SYSTEM_ID] : null;
     if (fl?.spikes) m.spikes = true;
     if (fl?.grappleDice) m.grappleDice += Number(fl.grappleDice) || 0;
+    // Черты Тени (apps/thorns.mjs): кубы к броскам со Способностью, пока идёт Катарсис
+    for (const [k, v] of Object.entries(fl?.abilDice ?? {})) (m.dice[k] ??= []).push({ label: e.name, value: Number(v) || 0 });
     // Алые узоры, Начертание проклятья (apps/bloodlines.mjs): штрафы ран меньше или больше
     if (fl?.woundEase) m.woundEase = (m.woundEase ?? 0) + (Number(fl.woundEase) || 0);
     if (fl?.woundWorse) m.woundEase = (m.woundEase ?? 0) - (Number(fl.woundWorse) || 0);

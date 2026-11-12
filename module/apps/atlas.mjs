@@ -131,9 +131,9 @@ function wraithGroups() {
   const D = WR(), A = k => (D.arcanoi ?? []).find(a => a.key === k);
   const attr = k => game.i18n.localize(`VTM20.Attr.${k}`);
   return [
-    { key: "arcanoi", label: loc("Wraith.Arcanoi"), items: (D.arcanoi ?? []).map(a => ({ key: `arc:${a.key}`, name: a.name, sub: `${a.guild} · ${a.en}`, sym: arcSym(a.key),
+    { key: "arcanoi", label: loc("Wraith.Arcanoi"), items: (D.arcanoi ?? []).map(a => ({ key: `arc:${a.key}`, name: a.name, sub: `${a.guild || loc(`Wraith.GuildGroup.${a.group}`)} · ${a.en}`, sym: arcSym(a.key),
       card: () => ({ kicker: `${loc(`Wraith.GuildGroup.${a.group}`)}${a.forbidden ? ` · ${loc("Wraith.Forbidden")}` : ""}`, text: a.html,
-        facts: [fact(loc("Wraith.Guild"), `${a.guild} (${a.guildEn})`), fact(loc("Atlas.Attributes"), a.attrs.map(attr).join(", ")),
+        facts: [a.guild && fact(loc("Wraith.Guild"), `${a.guild} (${a.guildEn})`), fact(loc("Atlas.Attributes"), a.attrs.map(attr).join(", ")),
           fact(loc("Atlas.Allies"), (a.allies ?? []).map(k => A(k)?.guild).filter(Boolean).join(", "))].filter(Boolean),
         sections: [{ title: loc("Wraith.Arcanoi"), n: a.levels.length, rows: a.levels.map(l => ({ lvl: ROMAN[l.level], name: l.name,
           em: `${loc(l.kind === "common" ? "Wraith.Common" : "Wraith.Initiate")}${l.en ? ` · ${l.en}` : ""}`, html: l.html })) }] }) })) },

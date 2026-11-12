@@ -5,7 +5,7 @@
 // согласие на лишнее действие (Теневая игра). Вызов дьявола закрывает рассказчик в конце сессии.
 // Пассивные Шипы (Аура порчи, Лицо Тени, Черты Тени, Жизнь Тени…) кнопки не имеют — их текст на листе.
 
-import { SYSTEM_ID } from "../config.mjs";
+import { SYSTEM_ID, VTM20 } from "../config.mjs";
 import { RollDialog } from "../dice/dialog.mjs";
 import { t, esc, thornOf, gainAngst, spendPathos, guideOf } from "./wraith.mjs";
 import { psycheUsers, isGuide, relay } from "./shadowguide.mjs";
@@ -26,8 +26,11 @@ export const THORNS = {
   taintedtouch: { angst: 0, roll: { pool: 3, diff: 6 }, who: "gm", note: true },
   mirrormirror: { angst: 0, who: "all", note: true },
   shadowplay: { angst: 0, who: "psyche", offer: true },
-  devilsdare: { angst: "ask", max: 10, who: "psyche", note: true, dare: true }
+  devilsdare: { angst: "ask", max: 10, who: "psyche", note: true, dare: true },
+  // свои окна (ниже): сделка, поглощение Ангста, шёпот чужой Тени, напоминание о Сне
+  pactofdoom: { custom: "pact" }, vampiricnature: { custom: "vampire" }, whispers: { custom: "whisper" }, shadowlife: { custom: "life" }
 };
+const CUSTOM = { pact: thornPact, vampire: thornVampire, whisper: thornWhisper, life: thornLife };
 export const thornActive = key => !!THORNS[key];
 const canUse = actor => game.user.isGM || isGuide(actor);
 
@@ -51,6 +54,7 @@ export async function useThorn(actor, i) {
   const row = actor.system.wraith.shadow.thorns[Number(i)], spec = row && THORNS[row.key], d = row && thornOf(row.key);
   if (!spec) return null;
   if (!canUse(actor)) return ui.notifications.warn(t("Thorn.ShadowOnly"));
+  if (spec.custom) return CUSTOM[spec.custom](actor, row, d);
   const temp = actor.system.wraith.shadow.angst.temporary;
   let cost = typeof spec.angst === "number" ? spec.angst : 0, note = "", diff = spec.roll?.diff ?? 6;
   if (spec.angst === "ask" || spec.note || spec.roll?.diffAsk) {
@@ -125,8 +129,116 @@ export async function answerThorn(msg, what) {
     return closeCard(msg, "accepted");
   }
   if (what === "decline") return closeCard(msg, "declined");
+  if (what === "pact") {   // Договор с Роком: Арканос +n, Тени постоянный Ангст +n
+    const { key, n } = f.pact ?? {}, cur = actor.system.wraith.arcanoi?.[key]?.value ?? 0, ap = actor.system.wraith.shadow.angst.permanent;
+    const up = Math.min(n, 5 - cur);
+    if (up < 1) return ui.notifications.warn(t("Thorn.PactMax"));
+    await actor.update({ [`system.wraith.arcanoi.${key}.value`]: cur + up, "system.wraith.shadow.angst.permanent": Math.min(10, ap + up) });
+    return closeCard(msg, "pactDone", up);
+  }
   return null;
 }
+
+/* ── Шипы со своими окнами ─────────────────────────────────────────── */
+
+const ask = (title, content, read) => foundry.applications.api.DialogV2.prompt({ window: { title }, classes: ["vtm20", "r-dialog"], position: { width: 440 },
+  content, ok: { label: t("Thorn.Use"), callback: (ev, btn) => read(btn.form.elements) }, rejectClose: false });
+const card = (actor, who, d, html, flag = null, tools = false, rolls = null) => ChatMessage.create({ ...audience(actor, who), speaker: { alias: t("Guide.From", { name: actor.name }) },
+  ...(rolls ? { rolls } : {}), ...(flag ? { flags: { [SYSTEM_ID]: { thorn: flag } } } : {}),
+  content: `<div class="r-notice r-type-wraith is-shadow r-wr-thorn-card"><p><i class="fa-solid fa-spa"></i> <b>${esc(d.name)}</b></p>${html}${tools ? `<div class="r-wr-thorn-tools"></div>` : ""}</div>` });
+
+/** Договор с Роком: Тень учит Арканосу (n уровней) — только с согласия Психеи; Тени — постоянный Ангст = n. */
+async function thornPact(actor, row, d) {
+  const W = (await import("./wraith.mjs")).W();
+  const f = await ask(d.name, `<p class="r-note">${t("Thorn.PactLead")}</p>
+    <label class="r-f"><span>${t("Thorn.PactArcanos")}</span><select name="key">${W.arcanoi.map(a => `<option value="${a.key}">${esc(a.name)} (${actor.system.wraith.arcanoi?.[a.key]?.value ?? 0})</option>`).join("")}</select></label>
+    <label class="r-f"><span>${t("Thorn.PactLevels")}</span><input type="number" name="n" value="1" min="1" max="5"></label>
+    <label class="r-f"><span>${t("Thorn.Note")}</span><input type="text" name="note" placeholder="${esc(t("Thorn.PactPh"))}"></label>`,
+  e => ({ key: e.key.value, n: Math.clamp(Number(e.n.value) || 1, 1, 5), note: e.note.value.trim() }));
+  if (!f) return null;
+  const a = W.arcanoi.find(x => x.key === f.key);
+  return card(actor, "psyche", d, `<p>${t("Thorn.PactMsg", { name: esc(actor.name), arc: esc(a?.name ?? f.key), n: f.n })}</p>${f.note ? `<p><i>«${esc(f.note)}»</i></p>` : ""}`,
+    { actor: actor.uuid, key: "pactofdoom", state: "open", n: 0, pact: { key: f.key, n: f.n } }, true);
+}
+
+/** Вампирья натура: касание — Воля против Воли цели; чистые успехи — Ангст, который Тень вбирает (до 5 за раз, раз на цель за сессию). */
+async function thornVampire(actor, row, d) {
+  const target = [...(game.user.targets ?? [])][0]?.actor ?? null;
+  const f = await ask(d.name, `<p class="r-note">${t("Thorn.VampLead")}</p>
+    <label class="r-f"><span>${t("Thorn.VampTarget")}</span><input type="text" name="who" value="${esc(target?.name ?? "")}"></label>
+    <label class="r-f"><span>${t("Thorn.VampWill")}</span><input type="number" name="will" value="${target?.system?.willpower?.permanent ?? 5}" min="1" max="10"></label>`,
+  e => ({ who: e.who.value.trim(), will: Math.clamp(Number(e.will.value) || 1, 1, 10) }));
+  if (!f) return null;
+  const roll = async n => { const r = await new Roll(`${n}d10`).evaluate(), v = r.dice[0].results.map(x => x.result);
+    return { r, v, hits: Math.max(0, v.filter(x => x >= 6).length - v.filter(x => x === 1).length) }; };
+  const mine = await roll(Math.max(1, actor.system.willpower.permanent)), theirs = await roll(f.will);
+  const net = Math.min(5, Math.max(0, mine.hits - theirs.hits));
+  if (net) {
+    await gainAngst(actor, net, { reason: d.name });
+    // тронутый призрак или Спектр на сцене (цель выбрана) — его Ангст уходит к нашей Тени
+    if (target?.type === "wraith" && target.canUserModify(game.user, "update") && !target.system.wraith.spectre?.on)
+      await target.update({ "system.wraith.shadow.angst.temporary": Math.max(0, target.system.wraith.shadow.angst.temporary - net) });
+  }
+  return card(actor, "gm", d, `<p>${t("Thorn.VampMsg", { name: esc(actor.name), who: esc(f.who || "—"), a: mine.v.join(", "), b: theirs.v.join(", "), n: net })}</p>`, null, false, [mine.r, theirs.r]);
+}
+
+/** Шёпоты: Тень говорит с Тенью другого призрака — без ведома их Психей; доходит до проводника той Тени (или рассказчика). */
+async function thornWhisper(actor, row, d) {
+  const others = game.actors.filter(a => a.type === "wraith" && a.id !== actor.id);
+  if (!others.length) return ui.notifications.warn(t("Thorn.WhisperNone"));
+  const f = await ask(d.name, `<p class="r-note">${t("Thorn.WhisperLead")}</p>
+    <label class="r-f"><span>${t("Thorn.WhisperTo")}</span><select name="to">${others.map(a => `<option value="${a.id}">${esc(a.name)}</option>`).join("")}</select></label>
+    <label class="r-f"><span>${t("Thorn.Note")}</span><textarea name="text" rows="3"></textarea></label>`,
+  e => ({ to: e.to.value, text: e.text.value.trim() }));
+  if (!f?.text) return null;
+  // у призрака — проводнику его Тени; у Спектра Тень и есть хозяин — его игроку
+  const other = game.actors.get(f.to), spectre = !!other?.system.wraith.spectre?.on;
+  const to = spectre ? psycheUsers(other) : [(await import("./wraith.mjs")).guideOf(other)].filter(Boolean);
+  const ids = [...new Set([...game.users.filter(u => u.isGM).map(u => u.id), game.user.id, ...to.map(u => u.id)])];
+  return ChatMessage.create({ whisper: ids, speaker: { alias: t("Thorn.WhisperFrom", { a: actor.name, b: other.name }) },
+    content: `<div class="r-notice r-type-wraith is-shadow r-wr-whisper"><i class="fa-solid fa-mask"></i> <i>${esc(f.text).replace(/\n/g, "<br>")}</i></div>` });
+}
+
+/** Жизнь Тени: Психея уснула — Тень берёт тело (рассказчику и проводнику; игрок Психеи знает, что Тень ходит, если не взят «не знает»). */
+async function thornLife(actor, row, d) {
+  return card(actor, "gm", d, `<p>${t("Thorn.LifeMsg", { name: esc(actor.name) })}</p>`);
+}
+
+/** Напоминание «Жизни Тени» при Сне — от кого угодно (apps/underworld.mjs, slumber). */
+export const lifeReminder = actor => thornLife(actor, null, thornOf("shadowlife") ?? { name: "Shadow Life" });
+
+/** Есть ли у призрака Шип. */
+export const hasThorn = (actor, key) => (actor.system.wraith?.shadow?.thorns ?? []).some(x => x.key === key);
+
+/* ── Черты Тени: +1 к Атрибуту или Способности, пока идёт Катарсис ──── */
+
+/** Черта по заметке строки Шипа: ключ или название Атрибута/Способности. */
+function traitOf(note) {
+  const s = String(note ?? "").trim().toLowerCase();
+  if (!s) return null;
+  const find = map => Object.entries(map).find(([k, v]) => k.toLowerCase() === s || game.i18n.localize(v.label ?? "").toLowerCase() === s)?.[0];
+  const attr = find(VTM20.attributes);
+  if (attr) return { attr };
+  const abil = find(VTM20.abilities);
+  return abil ? { abil } : null;
+}
+
+/** Эффект «Черты Тени» на время Катарсиса; заметка строки — какая черта (+1 к Атрибуту или кубик к Способности). */
+export async function syncShadowTraits(actor) {
+  const old = actor.effects.filter(e => e.getFlag(SYSTEM_ID, "shadowTraits"));
+  const on = actor.system.wraith?.shadow?.catharsis && !actor.system.wraith.spectre?.on;
+  const rows = on ? actor.system.wraith.shadow.thorns.filter(x => x.key === "shadowtraits").map(x => traitOf(x.note)).filter(Boolean) : [];
+  if (old.length) await actor.deleteEmbeddedDocuments("ActiveEffect", old.map(e => e.id));
+  if (!rows.length) return null;
+  const attrMod = {}, abilDice = {};
+  for (const r of rows) { if (r.attr) attrMod[r.attr] = (attrMod[r.attr] ?? 0) + 1; else abilDice[r.abil] = (abilDice[r.abil] ?? 0) + 1; }
+  return actor.createEmbeddedDocuments("ActiveEffect", [{ name: thornOf("shadowtraits")?.name ?? "Shadow Traits", img: "icons/svg/terror.svg",
+    flags: { [SYSTEM_ID]: { shadowTraits: true, attrMod, abilDice } } }]);
+}
+Hooks.on("updateActor", (actor, diff, opts, userId) => {
+  if (actor.type !== "wraith" || userId !== game.user.id) return;
+  if (foundry.utils.hasProperty(diff, "system.wraith.shadow.catharsis") || foundry.utils.hasProperty(diff, "system.wraith.shadow.thorns")) syncShadowTraits(actor);
+});
 
 /** Кнопки карточки Шипа. */
 Hooks.on("renderChatMessageHTML", (msg, html) => {
@@ -140,7 +252,8 @@ Hooks.on("renderChatMessageHTML", (msg, html) => {
   let out = "";
   if (f.dare) out = game.user.isGM ? btn("done", "fa-check", t("Thorn.DareDone")) + btn("failed", "fa-xmark", t("Thorn.DareFailed")) : "";
   else if (actor?.isOwner) {
-    if (f.resist) out = btn("resist", "fa-shield-halved", t("Thorn.Resist", { d: f.resist.diff, n: f.resist.need }));
+    if (f.pact) out = btn("pact", "fa-file-signature", t("Thorn.PactAccept")) + btn("decline", "fa-xmark", t("Guide.Decline"));
+    else if (f.resist) out = btn("resist", "fa-shield-halved", t("Thorn.Resist", { d: f.resist.diff, n: f.resist.need }));
     else if (f.cancel) out = btn("cancel", "fa-hand", t("Thorn.Cancel", { n: f.cancel }));
     else if (f.offer) out = btn("accept", "fa-check", t("Thorn.Accept")) + btn("decline", "fa-xmark", t("Guide.Decline"));
   }

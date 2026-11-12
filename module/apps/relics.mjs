@@ -34,8 +34,9 @@ export function relicsView(actor) {
       pathos: g.pathos, crystal: g.crystal, alloy: g.alloy ? alloy?.label ?? g.alloy : "", alloyTip: alloy?.text ?? "", crack: g.crack,
       rough: g.rough, aggravated: i.type === "weapon" && i.system.damageType === "aggravated" };
   });
-  const p = actor.getFlag(SYSTEM_ID, "forge");
-  return { list, forge: p ? forgeView(actor, p) : null };
+  const p = actor.getFlag(SYSTEM_ID, "forge"), e = actor.getFlag(SYSTEM_ID, "empower");
+  for (const r of list) r.canEmpower = !e && ["relic", "forged"].includes(actor.items.get(r.id)?.system.ghost.kind);
+  return { list, forge: p ? forgeView(actor, p) : null, empower: e ? empowerView(actor, e) : null };
 }
 
 /** Пробудить вещь: цена — Пафос (из кристалла, потом свой); описание — в чат. */
@@ -175,6 +176,85 @@ export async function forgeComplete(actor) {
   await say(actor, "fa-hammer", t("Forge.Done", { name: esc(actor.name), item: esc(p.name) }) + (p.cracks.length > 1 ? ` <small>${t("Forge.MoreCracks", { list: esc(p.cracks.slice(1).join("; ")) })}</small>` : ""));
   return it;
 }
+
+/* ── Наделение Артефакта (Book of Oblivion, «Artifacts»): основа — Реликвия или кованая вещь; рейтинг Артефакта и силы
+   (Арканос и уровень) — с рассказчиком; за каждую точку Арканоса, которой у кузнеца нет, — 3 Пафоса или Корпуса от владеющего им;
+   по странному веществу Подземного мира за точку рейтинга; продолжительное Интеллект + Ремёсла, сл. 8, 5 успехов за точку,
+   бросок — день; провал губит работу и сырьё, основу спасает Смекалка + Ремёсла, сл. 8. ── */
+
+export function empowerView(actor, e) {
+  const item = actor.items.get(e.item);
+  return { ...e, itemName: item?.name ?? "—", needPathos: e.missing * 3, ready: e.collected >= e.missing * 3 && e.materials >= e.rating,
+    done: e.hits >= e.need, progress: `${e.hits}/${e.need}` };
+}
+
+/** Начать наделение вещи силой. */
+export async function startEmpower(actor, id) {
+  const it = actor.items.get(id);
+  if (!it || !["relic", "forged"].includes(it.system.ghost?.kind)) return null;
+  if (!(actor.system.abilities?.crafts?.value > 0)) return ui.notifications.warn(t("Forge.NoCrafts"));
+  const r = await foundry.applications.api.DialogV2.prompt({ window: { title: t("Empower.Title", { item: it.name }) }, classes: ["vtm20", "r-dialog"], position: { width: 460 },
+    content: `<p class="r-note">${t("Empower.Lead")}</p>
+      <label class="r-f"><span>${t("Empower.Rating")}</span><input type="number" name="rating" value="1" min="1" max="5"></label>
+      <label class="r-f"><span>${t("Empower.Power")}</span><input type="text" name="power" placeholder="${esc(t("Empower.PowerPh"))}"></label>
+      <label class="r-f"><span>${t("Empower.Missing")}</span><input type="number" name="missing" value="0" min="0" max="25"></label>`,
+    ok: { label: t("Forge.Start"), callback: (ev, btn) => Object.fromEntries(new FormData(btn.form)) }, rejectClose: false });
+  if (!r) return null;
+  const rating = Math.clamp(Number(r.rating) || 1, 1, 5);
+  const e = { item: it.id, rating, power: String(r.power ?? "").trim(), missing: Math.clamp(Number(r.missing) || 0, 0, 25), collected: 0, materials: 0, hits: 0, need: rating * 5 };
+  await actor.setFlag(SYSTEM_ID, "empower", e);
+  return say(actor, "fa-wand-magic-sparkles", t("Empower.Started", { name: esc(actor.name), item: esc(it.name), r: rating, need: e.need, p: e.missing * 3 }));
+}
+
+/** Сырьё: Пафос или Корпус чужого Арканоса (+1) и странные вещества (+1). */
+export async function empowerGather(actor, what) {
+  const e = foundry.utils.deepClone(actor.getFlag(SYSTEM_ID, "empower"));
+  if (!e) return null;
+  if (what === "pathos") e.collected = Math.min(e.missing * 3, e.collected + 1);
+  else e.materials = Math.min(e.rating, e.materials + 1);
+  return actor.setFlag(SYSTEM_ID, "empower", e);
+}
+
+/** День наделения: Интеллект + Ремёсла, сл. 8. Провал — работа и сырьё пропали, бросок спасения основы. */
+export async function empowerStep(actor) {
+  const e = actor.getFlag(SYSTEM_ID, "empower");
+  if (!e) return null;
+  const v = empowerView(actor, e);
+  if (!v.ready) return ui.notifications.warn(t("Empower.NotReady", { p: v.needPathos, m: e.rating }));
+  return RollDialog.prompt(actor, { title: t("Empower.StepTitle", { item: v.itemName }), trait1: "attributes.intelligence", trait2: "abilities.crafts", difficulty: 8, lockTraits: true,
+    diffNote: t("Empower.Note", { hits: e.hits, need: e.need }), extra: { wraith: { kind: "forge", stage: "empower" } },
+    onRolled: async res => {
+      const q = foundry.utils.deepClone(actor.getFlag(SYSTEM_ID, "empower"));
+      if (!q) return;
+      const n = res?.successes ?? 0;
+      if (!n || res?.outcome === "botch") {
+        await actor.unsetFlag(SYSTEM_ID, "empower");
+        await say(actor, "fa-fire", t("Empower.Ruined", { item: esc(v.itemName) }), "is-warn");
+        return RollDialog.prompt(actor, { title: t("Empower.SaveTitle", { item: v.itemName }), trait1: "attributes.wits", trait2: "abilities.crafts", difficulty: 8, lockTraits: true,
+          extra: { wraith: { kind: "forge", stage: "save" } },
+          onRolled: async s => {
+            if ((s?.successes ?? 0) > 0) return say(actor, "fa-hand-holding", t("Empower.Saved", { item: esc(v.itemName) }));
+            await actor.items.get(q.item)?.delete();
+            return say(actor, "fa-skull", t("Empower.Lost", { item: esc(v.itemName) }), "is-warn");
+          } });
+      }
+      q.hits += n;
+      await actor.setFlag(SYSTEM_ID, "empower", q);
+      return say(actor, "fa-wand-magic-sparkles", t("Empower.Progress", { item: esc(v.itemName), hits: q.hits, need: q.need }));
+    } });
+}
+
+/** Готово: вещь становится Артефактом с клеймом кузнеца. */
+export async function empowerComplete(actor) {
+  const e = actor.getFlag(SYSTEM_ID, "empower"), it = e && actor.items.get(e.item);
+  if (!e || e.hits < e.need || !it) return null;
+  await it.update({ "system.ghost.kind": "artifact", "system.ghost.rating": e.rating, "system.ghost.maker": it.system.ghost.maker || actor.name,
+    "system.description": `${it.system.description ?? ""}<p><b>${t("Empower.PowerLabel")}:</b> ${esc(e.power || "—")}</p>` });
+  await actor.unsetFlag(SYSTEM_ID, "empower");
+  return say(actor, "fa-wand-magic-sparkles", t("Empower.Done", { name: esc(actor.name), item: esc(it.name), r: e.rating }));
+}
+
+export async function empowerAbandon(actor) { return actor.unsetFlag(SYSTEM_ID, "empower"); }
 
 export async function forgeAbandon(actor) {
   if (!actor.getFlag(SYSTEM_ID, "forge")) return null;

@@ -158,6 +158,10 @@
     </label>
     <div class="r-vc-tools">
       <a class="r-vc-btn {{#if spectre.psyche.catharsis}}is-on{{/if}}" data-action="spCatharsis" data-tooltip="{{localize 'VTM20.Wraith.Spectre.CatharsisHint'}}"><i class="fa-solid fa-dove"></i> {{localize "VTM20.Wraith.Catharsis"}}</a>
+      <a class="r-vc-btn is-sq" data-action="wrShadowDice" data-tooltip="{{localize 'VTM20.Wraith.Guide.PsycheDiceHint'}}"><i class="fa-solid fa-dice"></i></a>
+      {{#if wraithInfo.canGuide}}<a class="r-vc-btn is-sq" data-action="wrWhisper" data-tooltip="{{localize 'VTM20.Wraith.Guide.WhisperPsycheHint'}}"><i class="fa-solid fa-comment-dots"></i></a>{{/if}}
+      {{#if isGM}}<a class="r-vc-btn is-sq {{#if wraithInfo.guide}}is-on{{/if}}" data-action="wrGuide" data-tooltip="{{localize 'VTM20.Wraith.Guide.HintPsyche'}}"><i class="fa-solid fa-user-secret"></i></a>{{/if}}
+      {{#if wraithInfo.guide}}<span class="r-vc-hint r-wr-guide" data-tooltip="{{localize 'VTM20.Wraith.Guide.HintPsyche'}}"><i class="fa-solid fa-user-secret"></i> {{wraithInfo.guide}}</span>{{/if}}
       {{#if spectre.psyche.redeemed}}<span class="r-vc-hint is-right"><i class="fa-solid fa-sun"></i> {{localize "VTM20.Wraith.Spectre.Redeemed"}}</span>{{/if}}
     </div>
   </div>

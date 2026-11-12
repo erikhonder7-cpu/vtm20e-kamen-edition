@@ -98,6 +98,9 @@ export async function slumber(actor) {
   const pickI = fetters.length === 1 ? String(fetters[0].i) : await pick(t("Slumber.Title"), fetters.map(f => ({ key: String(f.i), icon: "fa-link", title: f.text || "—", sub: "•".repeat(f.value) })));
   if (pickI == null) return null;
   const f = actor.system.wraith.fetters[Number(pickI)], h = foundry.utils.deepClone(actor._source.system.health);
+  // Шип «Жизнь Тени»: Психея уснула — Тень берёт тело (рассказчику и проводнику)
+  const TH = await import("./thorns.mjs");
+  if (TH.hasThorn(actor, "shadowlife")) await TH.lifeReminder(actor);
   const bashing = h.bashing; h.bashing = 0;
   const heal = hits(await d10(actor.system.attributes.stamina.total), 6), lethal = Math.min(h.lethal, heal); h.lethal -= lethal;
   const will = hits(await d10(f.value), 4), w = actor.system.willpower, wNow = Math.min(w.permanent, w.temporary + will);

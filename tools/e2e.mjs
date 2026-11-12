@@ -5060,6 +5060,78 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  // Доделки: проводник Психеи Спектра, пять Шипов, наделение Артефакта, путь к Трансценденции, Оссеум и место сцены
+  await check("Призрак: доделки — проводник Психеи, Шипы-сделки, наделение Артефакта, Трансценденция, Оссеум", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {}, n0 = game.messages.size;
+      const sys = p => import(`/systems/${sid}/module/apps/${p}.mjs`);
+      const [W, G, TH, RL, RS] = await Promise.all(["wraith", "shadowguide", "thorns", "relics", "resolution"].map(sys));
+      const inst = () => [...foundry.applications.instances.values()];
+      const rollDlg = async () => { for (let i = 0; i < 40; i++) { const d = inst().find(x => x.constructor.name === "RollDialog" && x.rendered); if (d) return d; await wait(100); } return null; };
+      const submit = async () => { const d = await rollDlg(); if (!d) return null; const v = d.values.difficulty; d.element.querySelector("button[type=submit]")?.click(); await wait(1500); return v; };
+      const mk = system => Actor.create({ name: "E2E — доделки", type: "wraith", flags: { world: { e2e: true }, [sid]: { created: true } }, system });
+      const DV = foundry.applications.api.DialogV2, p0 = DV.prompt, rnd = CONFIG.Dice.randomUniform, scene = game.scenes.viewed, place0 = scene?.getFlag(sid, "place");
+      const u = await User.create({ name: "E2E — проводник Психеи", role: 1 });
+      const sp = await mk({ willpower: { permanent: 5, temporary: 5 }, wraith: { spectre: { on: true, psyche: { rating: 3, pool: 0 } } } });
+      const a = await mk({ attributes: { stamina: { value: 3 }, intelligence: { value: 3 }, wits: { value: 3 } }, abilities: { crafts: { value: 3 } },
+        willpower: { permanent: 5, temporary: 5 },
+        wraith: { pathos: { value: 9 }, arcanoi: { osseum: { value: 4, initiate: [], skip: [] }, argos: { value: 1, initiate: [], skip: [] } },
+          passions: [{ text: "Простить", value: 0, resolved: true, orig: 2 }], shadow: { angst: { permanent: 2, temporary: 3 },
+            thorns: ["pactofdoom", "vampiricnature", "whispers", "shadowlife", "shadowtraits"].map(key => ({ key, n: 1, note: key === "shadowtraits" ? "strength" : "" })) } } });
+      try {
+        // проводник Психеи
+        await G.setGuide(sp, u.id);
+        out.psyGuide = [sp.system.wraith.spectre.psyche.guide === u.id, sp.system.wraith.shadow.guide === "", W.guideOf(sp)?.id === u.id];
+        CONFIG.Dice.randomUniform = () => 0.9999;   // одни единицы
+        DV.prompt = async () => "6";
+        await W.rollShadowDice(sp, 3); out.psyDice = sp.system.wraith.spectre.psyche.pool;
+        // Шипы: сделка (Аргос +1, постоянный Ангст +1), Вампирья натура, Шёпоты, Жизнь Тени, Черты Тени в Катарсисе
+        CONFIG.Dice.randomUniform = () => 0.0001;   // одни десятки
+        DV.prompt = async () => ({ key: "argos", n: 1, note: "" });
+        await TH.useThorn(a, 0); let m = game.messages.contents.at(-1); await TH.answerThorn(m, "pact"); await wait(300);
+        out.pact = [a.system.wraith.arcanoi.argos.value, a.system.wraith.shadow.angst.permanent, game.messages.get(m.id).flags[sid].thorn.state];
+        DV.prompt = async () => ({ who: "E2E", will: 2 });
+        const t0 = a.system.wraith.shadow.angst.temporary; await TH.useThorn(a, 1); out.vamp = a.system.wraith.shadow.angst.temporary - t0;
+        DV.prompt = async () => ({ to: sp.id, text: "E2E шёпот" });
+        await TH.useThorn(a, 2); out.whisper = /E2E шёпот/.test(game.messages.contents.at(-1)?.content ?? "");
+        await TH.useThorn(a, 3); out.life = /Жизнь Тени/.test(game.messages.contents.at(-1)?.content ?? "");
+        await a.update({ "system.wraith.shadow.catharsis": true }); await wait(800);
+        out.traits = a.effects.some(e => e.getFlag(sid, "shadowTraits") && e.getFlag(sid, "attrMod")?.strength === 1);
+        await a.update({ "system.wraith.shadow.catharsis": false }); await wait(800);
+        out.traitsOff = !a.effects.some(e => e.getFlag(sid, "shadowTraits"));
+        // наделение Артефакта: рейтинг 1 — 5 успехов, сырья — вещество 1, Пафос/Корпус 0
+        const [relic] = await a.createEmbeddedDocuments("Item", [{ name: "Компас", type: "gear", system: { ghost: { kind: "relic", rating: 2 } } }]);
+        DV.prompt = async () => ({ rating: "1", power: "Указывает Тропу", missing: "0" });
+        await RL.startEmpower(a, relic.id); await RL.empowerGather(a, "mat");
+        let p = RL.empowerStep(a); await submit(); await p;
+        await RL.empowerComplete(a);
+        const it = a.items.get(relic.id).system.ghost; out.artifact = [it.kind, it.rating, !a.getFlag(sid, "empower")];
+        // Трансценденция
+        out.trans = RS.transcendInfo(a);
+        // Оссеум: данные, без Гильдии, в Лабиринте −2
+        out.osseum = [!!W.arcanosOf("osseum"), !W.guildsOf().some(g => g.key === "osseum")];
+        if (scene) {
+          await W.setPlace("labyrinth");
+          const lv = W.arcanosOf("osseum").levels.find(l => l.level === 1 && l.kind === "common");
+          W.rollArt(a, "osseum", 1, "common"); const d = await rollDlg(); out.ossDiff = (d?.values.difficulty ?? 0) - lv.diff; await d?.close();
+        } else out.ossDiff = -2;
+      } finally {
+        DV.prompt = p0; CONFIG.Dice.randomUniform = rnd;
+        if (scene) { if (place0) await scene.setFlag(sid, "place", place0); else await scene.unsetFlag(sid, "place"); }
+        for (const x of inst()) if (x.constructor.name === "RollDialog") await x.close();
+        await ChatMessage.deleteDocuments(game.messages.contents.slice(n0).map(m => m.id));
+        await Actor.deleteDocuments([sp.id, a.id]); await u.delete();
+      }
+      return out;
+    });
+    // кубики Психеи: 3 единицы — Пафос Психеи 3; сделка: Аргос 1 → 2, Ангст 2 → 3; Вампирья натура: Воля 5 десятками против 2 — +3;
+    // Артефакт 1: 6 успехов ≥ 5; Трансценденция — 1 Страсть; Оссеум в Лабиринте −2
+    const want = { psyGuide: [true, true, true], psyDice: 3, pact: [2, 3, "pactDone"], vamp: 3, whisper: true, life: true, traits: true, traitsOff: true,
+      artifact: ["artifact", 1, true], trans: { passions: 1, fetters: 0 }, osseum: [true, true], ossDiff: -2 };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   await check("Призрак: Подземный мир — Мальстрём, Туман, Сон в Оковах, «Орфей», Оттенок цвета", async () => {
     const r = await page.evaluate(async () => {
       const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {}, n0 = game.messages.size;

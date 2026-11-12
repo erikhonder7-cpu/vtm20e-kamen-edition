@@ -125,6 +125,12 @@ export async function waneRow(actor, kind, i) {
     } });
 }
 
+/** Путь к Трансценденции (гл. 8; механики у книги нет): сколько Страстей и Оков разрешено. */
+export function transcendInfo(actor) {
+  const w = actor.system.wraith, p = w.passions.filter(x => x.resolved).length, f = w.fetters.filter(x => x.resolved).length;
+  return p + f ? { passions: p, fetters: f } : null;
+}
+
 /** Сколько у призрака живых Оков; без них — срок в Землях Теней за Волю. */
 export function shadowlandsInfo(actor) {
   const f = actor.system.wraith.fetters, live = f.filter(x => !x.resolved && x.value > 0).length;

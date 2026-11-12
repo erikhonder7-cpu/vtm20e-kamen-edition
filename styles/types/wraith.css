@@ -389,3 +389,7 @@
 /* Некрополь сцены (apps/wraith.mjs, necropolisOf) */
 .vtm20.r-type-wraith .r-wr-necro-chip { display: inline-flex; align-items: center; gap: 4px; padding: 1px 8px; border: 1px solid rgba(200, 210, 220, .25); font-size: 12px; white-space: nowrap; }
 .vtm20.r-type-wraith select.r-wr-necro { width: auto; max-width: 9em; }
+
+/* Путь к Трансценденции (apps/resolution.mjs, transcendInfo) */
+.vtm20.r-type-wraith .r-wr-transcend { margin: 2px 0 10px; font-size: 12.5px; font-style: italic; color: #dfe3e8; }
+.vtm20.r-type-wraith .r-wr-transcend i { color: #e6d9a8; margin-right: 4px; }

@@ -597,6 +597,12 @@ def build():
     # Реликвии и Артефакты (гл. 12; Book of Oblivion — образцы) — tools/sources/wraith_relics.json; душековка — FORGE
     with open(os.path.join(HERE, "sources", "wraith_relics.json"), encoding="utf-8") as f:
         relics = json.load(f)["items"]
+    # Оссеум — Арканос Лабиринта (Book of Oblivion), без Гильдии: tools/sources/wraith_osseum.json
+    with open(os.path.join(HERE, "sources", "wraith_osseum.json"), encoding="utf-8") as f:
+        osseum = json.load(f)
+    osseum.pop("_source", None)
+    if not any(a["key"] == "osseum" for a in arcanoi):
+        arcanoi.append(osseum)
     # Плазмики — обитатели Бури (гл. 12) — для генератора НПС: tools/sources/wraith_plasmics.json
     with open(os.path.join(HERE, "sources", "wraith_plasmics.json"), encoding="utf-8") as f:
         plasmics = json.load(f)["items"]

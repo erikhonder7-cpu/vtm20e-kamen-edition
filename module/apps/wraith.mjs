@@ -18,17 +18,20 @@ const attrLabel = k => game.i18n.localize(VTM20.attributes[k]?.label ?? k);
 export const WRAITH_SIGIL = `${SYSTEM_PATH}/assets/ui/wraith-sigil.svg`;
 /** Знаки Гильдий и Легионов (assets/wraith, tools/wraith_glyphs.mjs): маска «arcanos-<ключ>» / «legion-<ключ>»; путь от корня — для url() в CSS. */
 export const wraithGlyphSrc = name => foundry.utils.getRoute(`${SYSTEM_PATH}/assets/wraith/${name}.png`);
-export const arcSym = key => ({ src: wraithGlyphSrc(`arcanos-${key}`) });
+// Оссеум — Арканос Лабиринта, своего знака нет: знак Тёмных Арканоев (знаки пользователя, tools/wraith_glyphs.mjs)
+export const arcSym = key => ({ src: wraithGlyphSrc(`arcanos-${key === "osseum" ? "dark" : key}`) });
 export const legionSym = key => key ? { src: wraithGlyphSrc(`legion-${key}`) } : null;
 /** Гильдии — по Арканосу: у каждой свой (гл. 1). */
-export const guildsOf = () => W().arcanoi.map(a => ({ key: a.key, name: a.guild, en: a.guildEn, group: a.group, arcanos: a.name }));
+export const guildsOf = () => W().arcanoi.filter(a => a.guild).map(a => ({ key: a.key, name: a.guild, en: a.guildEn, group: a.group, arcanos: a.name }));
 
 /** Сообщение в чат в теме призрака. */
 export const say = (actor, icon, html, cls = "") => ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }),
   content: `<div class="r-notice r-type-wraith ${cls}"><i class="fa-solid ${icon}"></i> ${html}</div>` });
 
 /** Проводник-Тень (гл. 6): игрок, что ведёт Тень этого призрака (apps/shadowguide.mjs); нет — Тень ведёт рассказчик. */
-export const guideOf = actor => game.users.get(actor?.system?.wraith?.shadow?.guide ?? "") ?? null;
+// У Спектра (гл. 10, «Psycheguide») другой игрок ведёт не Тень, а Психею — поле spectre.psyche.guide.
+export const guidePath = actor => actor?.system?.wraith?.spectre?.on ? "system.wraith.spectre.psyche.guide" : "system.wraith.shadow.guide";
+export const guideOf = actor => game.users.get(foundry.utils.getProperty(actor ?? {}, guidePath(actor)) ?? "") ?? null;
 
 /** Рейтинг Фона по английскому имени (Мемориум, Эйдолон, Статус…). */
 export function backgroundRating(actor, en) {
@@ -78,6 +81,16 @@ export async function setShroud(what, d) {
  * Подземелье, обычно в Портленд; провал — куда решит рассказчик), Испытания — Испытания Кремня. Галифакс (Изумрудный
  * Легион, корабль-Нихил «Монблан») и Зона Руж (Нихилы открываются легко, кузни Мрачного и Покаянного Легионов) — описанием.
  */
+/** Место сцены в Подземном мире (у рассказчика): Земли Теней, Буря, Лабиринт, Мальстрём — для Оссеума и подсказок. */
+export const PLACES = ["shadowlands", "tempest", "labyrinth", "maelstrom"];
+export const placeOf = (scene = game.scenes?.viewed) => scene?.getFlag(SYSTEM_ID, "place") ?? "shadowlands";
+export async function setPlace(key) {
+  const scene = game.scenes?.viewed;
+  if (!game.user.isGM) return ui.notifications.warn(game.i18n.localize("VTM20.Notify.GMOnly"));
+  if (!scene) return ui.notifications.warn(t("Shroud.NoScene"));
+  return PLACES.includes(key) && key !== "shadowlands" ? scene.setFlag(SYSTEM_ID, "place", key) : scene.unsetFlag(SYSTEM_ID, "place");
+}
+
 export const NECROPOLI = { seattle: { argos: 1, flint: true }, halifax: {}, zonerouge: {} };
 export function necropolisOf(scene = game.scenes?.viewed) {
   const key = scene?.getFlag(SYSTEM_ID, "necropolis") ?? "";
@@ -132,6 +145,7 @@ export function wraithInfo(actor, dots) {
     archetype: arch, archetypes: (D.shadowArchetypes ?? []).map(a => ({ value: a.name, label: a.name, selected: a.name === sh.archetype })),
     memoriam: backgroundRating(actor, "Memoriam"), eidolon: backgroundRating(actor, "Eidolon"),
     eidolonLeft: Math.max(0, backgroundRating(actor, "Eidolon") - w.session.eidolon), memoriamDone: w.session.memoriam,
+    place: placeOf(), placeLabel: t(`Place.${placeOf()}`), places: PLACES.map(k => ({ key: k, label: t(`Place.${k}`), selected: k === placeOf() })),
     necropolis: necropolisOf(), necropoli: Object.keys(NECROPOLI).map(k => ({ key: k, label: t(`Necro.${k}.name`), selected: k === necropolisOf()?.key })),
     shroud: shroudOf(actor), haunt: backgroundRating(actor, "Haunt"), inHaunt: !!actor.getFlag(SYSTEM_ID, "inHaunt"), isGM: game.user.isGM,
     forecast: actor.getFlag(SYSTEM_ID, "forecast") ?? null,   // прогноз Мальстрёма (apps/tempest.mjs)
@@ -158,11 +172,11 @@ export function arcanoiView(actor, dots, sel = {}) {
     };
     const ranks = [1, 2, 3, 4, 5].map(n => ({ n, roman: ROM[n - 1], owned: n <= value,
       halves: ["common", "initiate"].map(k => a.levels.find(l => l.level === n && l.kind === k)).filter(Boolean).map(art) }));
-    return { key: a.key, name: a.name, en: a.en, guild: a.guild, icon: a.icon, sym: arcSym(a.key), forbidden: a.forbidden, home, value, html: a.html,
+    return { key: a.key, name: a.name, en: a.en, guild: a.guild || t(`GuildGroup.${a.group}`), icon: a.icon, sym: arcSym(a.key), forbidden: a.forbidden, home, value, html: a.html,
       dots: dots(value, 5, { path: `system.wraith.arcanoi.${a.key}.value` }), xp: actor.xpCost("arcanos", value, { key: a.key }), ranks,
       sel: ranks.flatMap(x => x.halves).find(x => x.selected) ?? null, attrs: a.attrs.map(attrLabel).join(" · ") };
   });
-  const avail = W().arcanoi.filter(a => !(w.arcanoi[a.key]?.value > 0)).map(a => ({ key: a.key, label: `${a.name} — ${a.guild}${a.forbidden ? ` · ${t("Forbidden")}` : ""}` }));
+  const avail = W().arcanoi.filter(a => !(w.arcanoi[a.key]?.value > 0)).map(a => ({ key: a.key, label: `${a.name} — ${a.guild || t(`GuildGroup.${a.group}`)}${a.forbidden ? ` · ${t("Forbidden")}` : ""}` }));
   return { own, avail };
 }
 
@@ -189,7 +203,7 @@ export function passionsView(actor, dots, R = null, T = null) {
     ...(R && kind ? { res: R.resolveInfo(x, kind) } : {}) }));
   return {
     // Разрешение (apps/resolution.mjs): ход по строкам и срок в Землях Теней без Оков
-    shadowlands: R ? R.shadowlandsInfo(actor) : null,
+    shadowlands: R ? R.shadowlandsInfo(actor) : null, transcend: R ? R.transcendInfo(actor) : null,
     passions: row(w.passions, "system.wraith.passions", "passion"), fetters: row(w.fetters, "system.wraith.fetters", "fetter"),
     dark: row(sh.darkPassions, "system.wraith.shadow.darkPassions"),
     passionSum: w.passions.reduce((n, x) => n + x.value, 0), fetterSum: w.fetters.reduce((n, x) => n + x.value, 0),
@@ -341,6 +355,9 @@ export async function rollArt(actor, key, level, kind = "common") {
   const risenExtra = w.risen?.on && w.risen.body ? 1 : 0, angstGain = (lv.angst ?? 0) + risenExtra;
   if (angstGain) await gainAngst(actor, shadowRuns ? -angstGain : angstGain, { reason: risenExtra ? `${lv.name} · ${t("Risen.ExtraAngst")}` : lv.name });
   const dc = artDifficulty(lv, actor);
+  // Оссеум (Book of Oblivion): в Буре −1, в Лабиринте или Мальстрёме −2 (место сцены — у рассказчика)
+  if (key === "osseum") { const pl = placeOf(), d = { tempest: 1, labyrinth: 2, maelstrom: 2 }[pl] ?? 0;
+    if (d) { dc.diff = Math.max(2, dc.diff - d); dc.note = [dc.note, t("Place.OsseumNote", { place: t(`Place.${pl}`), n: d })].filter(Boolean).join(" · "); } }
   // Сиэтл: Аргос в Пьюджет-Саунде +1 к сложности (Book of Oblivion)
   const necro = key === "argos" ? necropolisOf() : null;
   if (necro?.argos) { dc.diff = Math.min(10, dc.diff + necro.argos); dc.note = [dc.note, t("Necro.ArgosNote", { name: necro.name })].filter(Boolean).join(" · "); }
@@ -434,7 +451,10 @@ export async function shadowDice(actor) {
   const G = await import("./shadowguide.mjs");
   if (G.canOffer(actor)) return G.offerShadowDice(actor);
   if (guideOf(actor) && !game.user.isGM) return ui.notifications.info(t("Guide.OfferOnly", { name: guideOf(actor).name }));
-  const n = Number(await pick(t("ShadowDice"), [1, 2, 3, 4, 5].map(k => ({ key: String(k), icon: "fa-dice-d10", title: t("ShadowDiceN", { n: k }) })), { lead: t("ShadowDiceLead") }));
+  // Спектр: кубики Психеи — не больше её рейтинга Пафоса (гл. 10)
+  const psy = !!actor.system.wraith.spectre?.on, max = psy ? Math.max(1, actor.system.wraith.spectre.psyche.rating) : 5;
+  const n = Number(await pick(t(psy ? "Guide.PsycheDice" : "ShadowDice"), Array.from({ length: max }, (_, i) => i + 1).map(k => ({ key: String(k), icon: "fa-dice-d10", title: t("ShadowDiceN", { n: k }) })),
+    { lead: t(psy ? "Guide.PsycheDiceLead" : "ShadowDiceLead") }));
   return n ? rollShadowDice(actor, n) : null;
 }
 
@@ -445,10 +465,13 @@ export async function rollShadowDice(actor, n) {
     ok: { callback: (ev, btn) => btn.form.elements.d.value }, rejectClose: false })) || 6;
   const roll = await new Roll(`${n}d10`).evaluate(), vals = roll.dice[0].results.map(x => x.result);
   const ones = vals.filter(v => v === 1).length, hits = vals.filter(v => v >= diff).length;
+  // Спектр: кубики Психеи (гл. 10) — единицы дают Психее Пафос, а ботч не стоит Спектру постоянного Корпуса
+  const psy = !!actor.system.wraith.spectre?.on;
   await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), rolls: [roll],
-    content: `<div class="r-notice r-type-wraith is-shadow"><p><i class="fa-solid fa-mask"></i> <b>${t("ShadowDice")}</b>: ${vals.join(", ")} (${t("DiffN", { n: diff })})</p>
-      <p>${t("ShadowDiceOut", { hits, ones })}</p></div>` });
-  if (ones) await gainAngst(actor, ones, { reason: t("ShadowDice") });
+    content: `<div class="r-notice r-type-wraith ${psy ? "is-psyche" : "is-shadow"}"><p><i class="fa-solid ${psy ? "fa-dove" : "fa-mask"}"></i> <b>${t(psy ? "Guide.PsycheDice" : "ShadowDice")}</b>: ${vals.join(", ")} (${t("DiffN", { n: diff })})</p>
+      <p>${t(psy ? "Guide.PsycheDiceOut" : "ShadowDiceOut", { hits, ones })}</p></div>` });
+  if (ones && psy) await (await import("./spectre.mjs")).gainPsyche(actor, ones, { reason: t("Guide.PsycheDice") });
+  else if (ones) await gainAngst(actor, ones, { reason: t("ShadowDice") });
   return { hits, ones };
 }
 

@@ -206,8 +206,9 @@ VTM20.traitLine = type => ["demon", "hunter", "werewolf", "mage", "wraith"].incl
 /** Арканои других Тёмных Царств (Wraith 20, гл. 13) — ключи data/wraith.json → realmArcanoi. */
 VTM20.wraithRealm = ["scholar", "artisan", "farmer", "merchant", "soul", "chains", "displace", "behest"];
 VTM20.wraithDark = ["collogue", "contaminate", "corruption", "larceny", "maleficence", "shroudrending", "tempestos", "tempestweaving"];
+// osseum — Арканос Лабиринта (Book of Oblivion), без Гильдии; в конце списка
 VTM20.wraithArcanoi = ["argos", "castigate", "embody", "fatalism", "flux", "inhabit", "intimation", "keening", "lifeweb", "mnemosynis", "moliate",
-  "outrage", "pandemonium", "phantasm", "puppetry", "usury"];
+  "outrage", "pandemonium", "phantasm", "puppetry", "usury", "osseum"];
 
 /** Девять Сфер мага (M20) — ключи data/mage.json → spheres. */
 VTM20.mageSpheres = ["correspondence", "entropy", "forces", "life", "matter", "mind", "prime", "spirit", "time"];

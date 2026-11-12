@@ -69,11 +69,14 @@ export async function gainSpectreAngst(actor, n) {
 /** Пафос Психеи (запас, до 10); в Катарсисе Психеи — наоборот, вычитается (гл. 10, «Потеря Пафоса»). */
 export async function gainPsyche(actor, n, { reason = "" } = {}) {
   if (!n) return 0;
+  // проводник Психеи правит чужой лист через ведущего (apps/shadowguide.mjs)
+  if (!actor.isOwner) return (await import("./shadowguide.mjs")).relay("angst", { actor: actor.uuid, n, reason }) ? n : 0;
   const ps = actor._source.system.wraith.spectre.psyche, d = ps.catharsis && n > 0 ? -n : n;
   const now = Math.clamp(ps.pool + d, 0, 10);
   if (now === ps.pool) return 0;
   await actor.update({ "system.wraith.spectre.psyche.pool": now });
-  await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), whisper: ChatMessage.getWhisperRecipients("GM"),
+  const guide = (await import("./wraith.mjs")).guideOf(actor);
+  await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), whisper: [...new Set([...ChatMessage.getWhisperRecipients("GM").map(u => u.id), ...(guide ? [guide.id] : [])])],
     content: `<div class="r-notice r-type-wraith is-psyche"><i class="fa-solid fa-dove"></i> ${t(d > 0 ? "Spectre.PsycheGain" : "Spectre.PsycheLoss", { name: esc(actor.name), n: Math.abs(now - ps.pool), pool: now })}${reason ? ` <small>(${esc(reason)})</small>` : ""}</div>` });
   return now - ps.pool;
 }

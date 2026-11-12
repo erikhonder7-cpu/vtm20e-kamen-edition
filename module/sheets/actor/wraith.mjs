@@ -11,6 +11,7 @@ import { useThorn } from "../../apps/thorns.mjs";
 import { addConsort, removeConsort, investWill } from "../../apps/consorts.mjs";
 import { openHarrowing } from "../../apps/harrowing.mjs";
 import { tempestJourney, forecast, forecastClear } from "../../apps/tempest.mjs";
+import { startEmpower, empowerGather, empowerStep, empowerComplete, empowerAbandon } from "../../apps/relics.mjs";
 import { wakeRelic, startForge, forgeStep, forgeFinishEffect, forgeComplete, forgeAbandon } from "../../apps/relics.mjs";
 import { becomeSpectre, rollDark, rollPsychePassion, psycheCatharsis, rapacity, spectreRow } from "../../apps/spectre.mjs";
 import { rise, toShadowlands, toBody, risenDisc, rollRisenArt, risenSlumber, risenDown } from "../../apps/risen.mjs";
@@ -82,6 +83,12 @@ function onWrForgeStep() { return forgeStep(this.actor); }
 function onWrForgeFx(event, target) { return forgeFinishEffect(this.actor, target.dataset.key); }
 function onWrForgeDone() { return forgeComplete(this.actor); }
 function onWrForgeDrop() { return forgeAbandon(this.actor); }
+// наделение Артефакта (apps/relics.mjs)
+function onWrEmpower(event, target) { return startEmpower(this.actor, target.dataset.id); }
+function onWrEmpGather(event, target) { return empowerGather(this.actor, target.dataset.what); }
+function onWrEmpStep() { return empowerStep(this.actor); }
+function onWrEmpDone() { return empowerComplete(this.actor); }
+function onWrEmpDrop() { return empowerAbandon(this.actor); }
 // Буря (apps/tempest.mjs): путь через Бурю, прогноз Мальстрёма
 function onWrTempest() { return tempestJourney(this.actor); }
 function onWrForecast() { return forecast(this.actor); }
@@ -152,7 +159,8 @@ export const WRAITH_ACTIONS = {
   wrDark: onWrDark, wrMemoriam: onWrMemoriam, wrShadowDice: onWrShadowDice, wrCatharsis: onWrCatharsis,
   wrHarrowing: onWrHarrowing, wrHeal: onWrHeal, wrPathos: onWrPathos, wrSession: onWrSession,
   wrAngst: onWrAngst, wrGuide: onWrGuide, wrWhisper: onWrWhisper, wrResolve: onWrResolve, wrWane: onWrWane, wrLinger: onWrLinger, wrThorn: onWrThorn, wrConsortAdd: onWrConsortAdd, wrConsortDel: onWrConsortDel, wrConsort: onWrConsort, wrRelicWake: onWrRelicWake, wrForge: onWrForge, wrForgeStep: onWrForgeStep, wrForgeFx: onWrForgeFx,
-  wrForgeDone: onWrForgeDone, wrForgeDrop: onWrForgeDrop, wrTempest: onWrTempest, wrForecast: onWrForecast, wrForecastClear: onWrForecastClear, wrAtlas: onWrAtlas, wrShroud: onWrShroud, wrHaunt: onWrHaunt,
+  wrForgeDone: onWrForgeDone, wrForgeDrop: onWrForgeDrop, wrEmpower: onWrEmpower, wrEmpGather: onWrEmpGather, wrEmpStep: onWrEmpStep,
+  wrEmpDone: onWrEmpDone, wrEmpDrop: onWrEmpDrop, wrTempest: onWrTempest, wrForecast: onWrForecast, wrForecastClear: onWrForecastClear, wrAtlas: onWrAtlas, wrShroud: onWrShroud, wrHaunt: onWrHaunt,
   spBecome: onSpBecome, spDark: onSpDark, spPassion: onSpPassion, spCatharsis: onSpCatharsis, spRapacity: onSpRapacity, spRow: onSpRow,
   rsOn: onRsOn, rsRise: onRsRise, rsLeave: onRsLeave, rsBody: onRsBody, rsDisc: onRsDisc, rsArt: onRsArt, rsSlumber: onRsSlumber, rsDown: onRsDown, rsArtRow: onRsArtRow,
   pjOn: onPjOn, pjProject: onPjProject, pjStain: onPjStain, pjSuppress: onPjSuppress, pjWill: onPjWill, pjEmblem: onPjEmblem, pjEyes: onPjEyes, pjRow: onPjRow, rlArt: onRlArt, rlRow: onRlRow,

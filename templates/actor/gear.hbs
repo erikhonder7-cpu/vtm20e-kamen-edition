@@ -32,6 +32,21 @@
     </div>{{/if}}
   </div>
   {{/with}}
+  {{#with wrRelics.empower}}
+  <div class="r-vcard r-wr-forge is-empower">
+    <div class="r-vc-head"><h4 class="r-banner"><span><i class="fa-solid fa-wand-magic-sparkles"></i> {{itemName}}</span></h4>
+      <div class="r-vc-status">{{localize "VTM20.Wraith.Empower.Label" r=rating}} · <b>{{progress}}</b></div></div>
+    <p class="r-wr-forge-line">{{localize "VTM20.Wraith.Empower.Line"}}{{#if power}} · <i>{{power}}</i>{{/if}}</p>
+    <p class="r-wr-forge-line {{#unless ready}}is-warn{{/unless}}">{{localize "VTM20.Wraith.Empower.Stock" p=collected pn=needPathos m=materials mn=rating}}</p>
+    {{#if @root.editable}}<div class="r-vc-tools">
+      {{#if needPathos}}<a class="r-vc-btn" data-action="wrEmpGather" data-what="pathos" data-tooltip="{{localize 'VTM20.Wraith.Empower.PathosHint'}}"><i class="fa-solid fa-droplet"></i> +1</a>{{/if}}
+      <a class="r-vc-btn" data-action="wrEmpGather" data-what="mat" data-tooltip="{{localize 'VTM20.Wraith.Empower.MatHint'}}"><i class="fa-solid fa-flask"></i> +1</a>
+      <a class="r-vc-btn" data-action="wrEmpStep"><i class="fa-solid fa-hammer"></i> {{localize "VTM20.Wraith.Empower.Step"}}</a>
+      {{#if done}}<a class="r-vc-btn" data-action="wrEmpDone"><i class="fa-solid fa-check"></i> {{localize "VTM20.Wraith.Forge.Complete"}}</a>{{/if}}
+      <a class="r-vc-btn is-right" data-action="wrEmpDrop" data-tooltip="{{localize 'VTM20.Wraith.Forge.Abandon'}}"><i class="fa-solid fa-xmark"></i></a>
+    </div>{{/if}}
+  </div>
+  {{/with}}
   <ul class="r-edge-list r-wr-relics">
     {{#each wrRelics.list}}
     <li class="r-edge" data-item-id="{{id}}">
@@ -39,6 +54,7 @@
       <span class="r-edge-main"><a class="r-trait-label" data-action="itemEdit"><b>{{name}}</b></a>
         <small>{{kind}}{{#if dots}} {{dots}}{{/if}}{{#if alloy}} · <span data-tooltip="{{alloyTip}}">{{alloy}}</span>{{/if}}{{#if aggravated}} · {{localize "VTM20.Wraith.Relic.Aggravated"}}{{/if}}{{#if crystal}} · {{localize "VTM20.Wraith.Relic.CrystalN" n=crystal}}{{/if}}{{#if rough}} · {{localize "VTM20.Wraith.Relic.Rough"}}{{/if}}</small>
         {{#if crack}}<small class="r-wr-crack"><i class="fa-solid fa-burst"></i> {{crack}}</small>{{/if}}</span>
+      {{#if @root.editable}}{{#if canEmpower}}<a class="r-vc-btn is-sq" data-action="wrEmpower" data-id="{{id}}" data-tooltip="{{localize 'VTM20.Wraith.Empower.Hint'}}"><i class="fa-solid fa-wand-magic-sparkles"></i></a>{{/if}}{{/if}}
       {{#if @root.editable}}<a class="r-vc-btn" data-action="wrRelicWake" data-id="{{id}}" data-tooltip="{{localize 'VTM20.Wraith.Relic.WakeHint'}}"><i class="fa-solid fa-wand-sparkles"></i> {{localize "VTM20.Wraith.Relic.Wake"}}{{#if pathos}} ({{pathos}}){{/if}}</a>{{/if}}
     </li>
     {{else}}<li class="r-note">{{localize "VTM20.Wraith.Relic.None"}}</li>
