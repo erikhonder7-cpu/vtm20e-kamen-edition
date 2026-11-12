@@ -5,6 +5,7 @@
 // карточка для предпросмотра; создаётся актёр только по кнопке, ровно таким, каким его показали.
 
 import { W as WR } from "./wraith.mjs";
+import { C as CL } from "./changeling.mjs";
 import { VTM20, SYSTEM_ID } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
 import { LibraryItems } from "./library.mjs";
@@ -60,6 +61,7 @@ export const KIND_GROUPS = [
   { key: "fallen", label: "Падшие", icon: "fa-fire-flame-curved" },
   { key: "awakened", label: "Пробуждённые", icon: "fa-hat-wizard" },
   { key: "dead", label: "Мир мёртвых", icon: "fa-ghost" },
+  { key: "dream", label: "Грёза", icon: "fa-wand-sparkles" },
   { key: "groups", label: "Группы", icon: "fa-people-group" },
   { key: "book", label: "Из книги", icon: "fa-book" }
 ];
@@ -92,6 +94,7 @@ export const KINDS = [
   { key: "plasmic", group: "dead", label: "Плазмик Бури", icon: "fa-tornado", actor: "wraith" },
   { key: "doomslayer", group: "dead", label: "Губитель рока", icon: "fa-shield-halved", actor: "wraith" },
   { key: "nomad", group: "dead", label: "Кочевник Нарыва", icon: "fa-person-walking-dashed-line-arrow-right", actor: "wraith" },
+  { key: "changeling", group: "dream", label: "Подменыш", icon: "fa-wand-sparkles", actor: "changeling" },
   { key: "group", group: "groups", label: "Группа целиком", icon: "fa-people-group", actor: null },
   { key: "book", group: "book", label: "Статблоки книги", icon: "fa-book", actor: null }
 ];
@@ -527,6 +530,9 @@ const BUILD = {
 
   // Призраки (Wraith 20, гл. 4): Арканои 5 и больше по силе (не больше 3 у новичка), Страсти и Оковы по 10 — строками причин
   // «почему здесь» из книги, Пафос 5 + Мемориум, Тень: архетип и Ангст броском Воли; Спектр, Восставший, проектор — поверх
+  // Подменыш (C20, гл. 3): кит, ступень, двор и Наследия; Искусства 3 и Царства 5 и больше по силе (склонность кита — чаще),
+  // Гламур и Воля 4 с поправкой ступени, Банальность 3–5; у ши — Дом
+  changeling(ctx, p) { return changelingNpc(ctx, p); },
   wraith(ctx, p) { return wraithNpc(ctx, p, "wraith"); },
   spectre(ctx, p) { return wraithNpc(ctx, p, "spectre"); },
   risen(ctx, p) { return wraithNpc(ctx, p, "risen"); },
@@ -643,6 +649,37 @@ function wraithNpc(ctx, p, mode) {
       [t("Willpower"), sys.willpower.permanent], mode === "spectre" ? [game.i18n.localize("VTM20.Wraith.Spectre.Psyche"), w.spectre.psyche.rating]
         : [game.i18n.localize("VTM20.Wraith.Angst"), w.shadow.angst.permanent]],
     tags: tags.filter(Boolean) };
+}
+
+function changelingNpc(ctx, p) {
+  const D = CL(), tier = ctx.power.tier;
+  const c = core(ctx, { attr: [7, 5, 3], abil: [13, 9, 5], virt: null, bg: 5, bgType: "changeling", abilType: "changeling" });
+  const kith = (D.kiths ?? []).find(k => k.key === p.kith) ?? pick(D.kiths ?? [{ key: "", name: "" }]);
+  const seeming = (D.seemings ?? []).find(s => s.key === p.seeming) ?? pick(D.seemings ?? [{ key: "" }]);
+  const court = p.court || (Math.random() < .55 ? "seelie" : "unseelie");
+  const cap = Math.min(5, 3 + Math.max(0, tier - 1));
+  const arts = Object.fromEntries(VTM20.changelingArts.map(k => [k, 0])), realms = Object.fromEntries(VTM20.changelingRealms.map(k => [k, 0]));
+  spread(VTM20.changelingArts, Math.max(1, (D.creation?.arts ?? 3) + tier * 2), cap, (k, v) => v ? 1.8 : 1, arts);
+  spread(VTM20.changelingRealms, Math.max(1, (D.creation?.realms ?? 5) + tier * 2), cap, (k, v) => (k === kith.affinity ? 3 : 1) * (v ? 1.4 : 1), realms);
+  const wild = seeming.choice ? pick(seeming.choice) : "";
+  const glamour = Math.clamp((D.creation?.glamour ?? 4) + (Number(seeming.glamour) || (wild === "glamour" ? 1 : 0)) + Math.max(0, tier - 1), 1, 10);
+  const will = Math.clamp((D.creation?.willpower ?? 4) + (Number(seeming.willpower) || (wild === "willpower" ? 1 : 0)) + ctx.power.add.will, 1, 10);
+  const banality = Math.clamp((D.creation?.banality ?? 3) + Math.floor(Math.random() * 3), 1, 10);
+  const leg = k => pick((D.legacies ?? []).filter(l => l.court === k)) ?? { key: "" };
+  const nobleKith = ["sidhe", "autumnSidhe"].includes(kith.key);
+  const house = nobleKith || Math.random() < .2 ? pick((D.houses ?? []).filter(h => !h.court || h.court === court || nobleKith)) ?? null : null;
+  const sys = baseSystem(ctx, c, { morality: false });
+  delete sys.virtues;
+  sys.willpower = { permanent: will, temporary: will };
+  sys.changeling = { kith: kith.key, seeming: seeming.key, court, house: house?.key ?? "", title: "",
+    legacies: { seelie: leg("seelie").key, unseelie: leg("unseelie").key }, threshold: "", antithesis: "", mien: "",
+    arts, realms, glamour: { permanent: glamour, temporary: glamour }, banality: { permanent: banality, temporary: Math.floor(Math.random() * 3) },
+    nightmare: Math.floor(Math.random() * (2 + tier)), imbalance: 0 };
+  const powers = [...VTM20.changelingArts.filter(k => arts[k] > 0).sort((a, b) => arts[b] - arts[a]).map(k => ({ label: (D.arts ?? []).find(x => x.key === k)?.name ?? k, v: arts[k] })),
+    ...VTM20.changelingRealms.filter(k => realms[k] > 0).map(k => ({ label: (D.realms ?? []).find(x => x.key === k)?.name ?? k, v: realms[k] }))];
+  return { actor: "changeling", img: "changeling", system: sys, items: bgItems(c), c, powers, powersLabel: game.i18n.localize("VTM20.ClCr.ArtsRealms"),
+    traits: [[game.i18n.localize("VTM20.Changeling.Glamour"), glamour], [t("Willpower"), will], [game.i18n.localize("VTM20.Changeling.Banality"), banality]],
+    tags: [kith.name, seeming.name, game.i18n.localize(`VTM20.Changeling.Court.${court}`), house?.name].filter(Boolean) };
 }
 
 /** Ордена Губителей рока (Book of Oblivion): Гильдия — только где книга её называет (Helldivers — Лицедеи, Darksiders — Отпустители). */

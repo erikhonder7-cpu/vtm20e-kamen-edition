@@ -9,6 +9,7 @@
 // Сборка по правилам создания линеек — module/apps/npc-build.mjs. Имена — наборы data/npc.json → names. Всё — в папку «НПС».
 
 import { W as WR } from "./wraith.mjs";
+import { C as CL } from "./changeling.mjs";
 import { VTM20, SYSTEM_PATH, SYSTEM_ID } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
 import { WEAPON_PRESETS, ARMOR_PRESETS } from "../data/equipment.mjs";
@@ -198,6 +199,13 @@ function paramFields(kind, p) {
     case "plasmic": {
       const Dw = WR();
       F.push({ name: "plasmic", label: loc("VTM20.Wraith.Plasmic"), options: [any(p.plasmic), ...(Dw.plasmics ?? []).map(x => opt(x.key, `${x.name} (${x.en})`, p.plasmic))] });
+      break;
+    }
+    case "changeling": {
+      const Dc = CL();
+      F.push({ name: "kith", label: loc("VTM20.Changeling.Kith"), options: [any(p.kith), ...(Dc.kiths ?? []).map(k => opt(k.key, k.name, p.kith))] });
+      F.push({ name: "seeming", label: loc("VTM20.Changeling.Seeming"), options: [any(p.seeming), ...(Dc.seemings ?? []).map(s => opt(s.key, s.name, p.seeming))] });
+      F.push({ name: "court", label: loc("VTM20.Changeling.CourtLabel"), options: [any(p.court), ...["seelie", "unseelie"].map(k => opt(k, loc(`VTM20.Changeling.Court.${k}`), p.court))] });
       break;
     }
     case "wraith": case "spectre": case "risen": case "projector": {

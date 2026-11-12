@@ -5616,6 +5616,24 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  // Генератор НПС: подменыш (группа «Грёза») — кит и двор из окна, Искусства 3 и Царства 5 плюс по силе, Темперы, создание листа
+  await check("НПС: подменыш — кит, ступень, двор, Искусства и Царства", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, B = await import(`/systems/${sid}/module/apps/npc-build.mjs`);
+      const d = B.buildNpc({ kind: "changeling", power: "normal", params: { kith: "troll", court: "unseelie" } }), c = d.system.changeling;
+      const sum = o => Object.values(o).reduce((x, y) => x + y, 0);
+      const a = await B.createNpc(d, { name: "E2E — НПС подменыш" });
+      try {
+        return { kith: c.kith, court: c.court, seeming: !!c.seeming, legacies: !!(c.legacies.seelie && c.legacies.unseelie), arts: sum(c.arts) >= 3, realms: sum(c.realms) >= 5,
+          temper: c.glamour.permanent >= 4 && d.system.willpower.permanent >= 4 && c.banality.permanent >= 3, made: [a.type, a.system.changeling.kith, !!a.getFlag(sid, "created")],
+          group: B.KIND_GROUPS.some(g => g.key === "dream") };
+      } finally { await a.delete(); }
+    });
+    const want = { kith: "troll", court: "unseelie", seeming: true, legacies: true, arts: true, realms: true, temper: true, made: ["changeling", "troll", true], group: true };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   await check("Призрак: лист и Арканои, Пафос, Страсть, Корпус до колебания и Испытание, Катарсис", async () => {
     const r = await page.evaluate(async () => {
       const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), WR = await import(`/systems/${sid}/module/apps/wraith.mjs`);
