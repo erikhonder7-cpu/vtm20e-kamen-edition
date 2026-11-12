@@ -95,10 +95,72 @@ export async function quietExit(actor) {
   const roll = await rollPool({ actor, title: t("QuietExit"), subtitle: t("QuietExitSub", { n: X.successes, d: X.difficulty }), pool: wp.permanent, difficulty: X.difficulty, kind: "check",
     breakdown: [{ label: game.i18n.localize("VTM20.Willpower"), value: wp.permanent }] });
   if (!roll) return null;
-  if (roll.outcome === "botch") return say(actor, "fa-ghost", t("QuietGoblin", { name: esc(actor.name), n: m.arete }));
+  if (roll.outcome === "botch") { await spawnHobgoblin(actor); return say(actor, "fa-ghost", t("QuietGoblin", { name: esc(actor.name), n: m.arete })); }
   if ((roll.successes ?? 0) < X.successes) return say(actor, "fa-cloud", t("QuietStay", { name: esc(actor.name) }));
   const now = await changeParadox(actor, -1);
   return say(actor, "fa-eye", t("QuietClear", { name: esc(actor.name), now }));
+}
+
+/**
+ * Гоблин Безмолвия: самостоятельная галлюцинация с чертами и здоровьем мага (M20, гл. 10) — лист существа;
+ * живёт сутки за каждую точку Арете (срок — в описании, убирает рассказчик).
+ */
+export async function spawnHobgoblin(actor) {
+  if (!game.user.isGM && !game.users.activeGM) return null;
+  const src = actor.system.toObject?.() ?? foundry.utils.deepClone(actor.system), days = actor.system.mage.arete;
+  return Actor.create({ name: t("GoblinName", { name: actor.name }), type: "creature", img: actor.img, flags: { [SYSTEM_ID]: { created: true, hobgoblin: actor.uuid } },
+    ownership: { default: 0 }, system: { kind: t("GoblinKind"), attributes: src.attributes, abilities: src.abilities, willpower: src.willpower,
+      supernatural: false, notes: `<p>${esc(t("GoblinNote", { name: actor.name, n: days }))}</p>` } });
+}
+
+/* ── Мир-разум (M20, гл. 10): уход в себя, Парадокс очищается на выходе ── */
+
+/** Сколько длится мир-разум: сутки за очко Парадокса, при 10+ — неделя за очко. */
+const mindDays = actor => { const p = paradoxOf(actor); return p >= 10 ? p * 7 : p; };
+/** Состояние мира-разума для листа: внутри ли, сколько осталось, можно ли выйти. */
+export async function mindView(actor) {
+  const until = actor.system.mage.quiet.mind;
+  if (until == null) return { inside: false, days: mindDays(actor) };
+  const { getClock, MS_DAY } = await import("./calendar.mjs"), left = Math.max(0, Math.ceil((until - getClock()) / MS_DAY));
+  return { inside: true, left, ready: left === 0 };
+}
+/** Войти добровольно: Восприятие + Медитация, сложность — уровень Безмолвия + 3. */
+export async function mindEnter(actor) {
+  if (!owner(actor)) return null;
+  const m = actor.system.mage, s = actor.system, diff = Math.clamp(m.quiet.level + 3, 3, 10);
+  const per = s.attributes.perception.value, med = s.abilities.meditation?.value ?? 0;
+  const { rollPool } = await import("../dice/roll.mjs");
+  const roll = await rollPool({ actor, title: t("MindEnter"), subtitle: t("MindEnterSub", { d: diff }), pool: per + med, difficulty: diff, kind: "check",
+    breakdown: [{ label: actor.traitLabel("attributes.perception"), value: per }, { label: actor.traitLabel("abilities.meditation"), value: med }] });
+  if (!roll || (roll.successes ?? 0) < 1) return roll;
+  const { getClock, MS_DAY } = await import("./calendar.mjs"), days = mindDays(actor);
+  await actor.update({ "system.mage.quiet.mind": getClock() + days * MS_DAY });
+  await say(actor, "fa-brain", t("MindIn", { name: esc(actor.name), n: days }));
+  return roll;
+}
+/** Сократить срок: Смекалка + Загадки (сложность — уровень + 3), каждый успех — на сутки раньше. */
+export async function mindShorten(actor) {
+  if (!owner(actor)) return null;
+  const m = actor.system.mage, s = actor.system, diff = Math.clamp(m.quiet.level + 3, 3, 10);
+  const wit = s.attributes.wits.value, en = s.abilities.enigmas?.value ?? 0;
+  const { rollPool } = await import("../dice/roll.mjs");
+  const roll = await rollPool({ actor, title: t("MindShorten"), subtitle: t("MindShortenSub", { d: diff }), pool: wit + en, difficulty: diff, kind: "check",
+    breakdown: [{ label: actor.traitLabel("attributes.wits"), value: wit }, { label: actor.traitLabel("abilities.enigmas"), value: en }] });
+  const n = roll?.successes ?? 0;
+  if (n > 0) {
+    const { MS_DAY } = await import("./calendar.mjs");
+    await actor.update({ "system.mage.quiet.mind": m.quiet.mind - n * MS_DAY });
+  }
+  return roll;
+}
+/** Выйти: срок прошёл — Парадокс очищен (кроме постоянного), Безмолвие снято. */
+export async function mindExit(actor) {
+  if (!owner(actor)) return null;
+  const v = await mindView(actor);
+  if (v.inside && !v.ready && !game.user.isGM) return ui.notifications.warn(t("MindNotYet", { n: v.left }));
+  const m = actor.system.mage, perm = m.paradoxPerm;
+  await actor.update({ "system.mage.quiet.mind": null, "system.mage.quiet.level": 0, "system.mage.paradox": perm });
+  return say(actor, "fa-sun", t("MindOut", { name: esc(actor.name), n: perm }));
 }
 
 /* ── Изъяны Парадокса ─────────────────────────────────────────────────── */

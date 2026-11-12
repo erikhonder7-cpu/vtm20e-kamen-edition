@@ -7343,7 +7343,23 @@
         "Penalty": "Armor penalty",
         "Rule": "Numbers come from the Wonder’s description. From then on it works as an ordinary weapon or armor; it goes away with the Wonder.",
         "Ok": "Into combat"
-      }
+      },
+      "GoblinName": "Hobgoblin — {name}",
+      "GoblinKind": "Quiet hobgoblin",
+      "GoblinNote": "A self-willed hallucination of {name}: the mage’s Traits and health. Lasts {n} day(s) (one per Arete dot).",
+      "MindEnter": "Mindscape",
+      "MindEnterSub": "Perception + Meditation, difficulty {d}",
+      "MindIn": "<b>{name}</b> withdraws into a mindscape for {n} day(s); on leaving, Paradox is purged (except permanent).",
+      "MindShorten": "Get out sooner",
+      "MindShortenSub": "Wits + Enigmas, difficulty {d}; each success — a day less",
+      "MindNotYet": "Not yet: {n} day(s) left.",
+      "MindOut": "<b>{name}</b> leaves the mindscape: Paradox purged ({n} permanent left), the Quiet recedes.",
+      "MindOffer": "Withdraw into a mindscape: a day per Paradox point (now {n}); Paradox is purged on leaving.",
+      "MindEnterHint": "Enter: Perception + Meditation, difficulty — Quiet level + 3",
+      "MindLeft": "The mage is in a mindscape: {n} day(s) left.",
+      "MindReady": "The mindscape’s time is up — the mage may leave.",
+      "MindShortenHint": "Get out sooner: Wits + Enigmas, difficulty — Quiet level + 3; each success — a day less",
+      "MindExitHint": "Leave the mindscape: Paradox purged (except permanent), the Quiet removed"
     },
     "MageCr": {
       "NeedFaction": "Pick a faction.",

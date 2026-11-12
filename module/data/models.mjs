@@ -624,7 +624,8 @@ export class MageData extends MortalData {
         resonances: new ArrayField(new SchemaField({ name: str(), flavor: str(""), value: int(1, 0, 5) })),
         synergy: new SchemaField({ dynamic: int(0, 0, 5), entropic: int(0, 0, 5), static: int(0, 0, 5) }), resUsed: new BooleanField({ initial: false }),
         // Безмолвие (уровень 0–6 и вид), Изъяны Парадокса, пройденный Поиск (разрешает купить точку Арете)
-        quiet: new SchemaField({ level: int(0, 0, 6), kind: str("") }),
+        // mind — до какого часа хроники маг в мире-разуме (пусто — не в нём; время до 1970 года — отрицательное)
+        quiet: new SchemaField({ level: int(0, 0, 6), kind: str(""), mind: new NumberField({ required: false, integer: true, initial: null, nullable: true }) }),
         pflaws: new ArrayField(new SchemaField({ name: str(), grade: str("trivial"), text: str() })),
         seeking: new BooleanField({ initial: false }),
         // Маг-гуль (V20, гл. 9 — правила гулей): домитор и его клан, витэ вампира в теле (до 10), ступень уз крови (0–3)

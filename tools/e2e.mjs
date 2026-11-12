@@ -4204,10 +4204,19 @@ try {
         out.week = [cab.system.chantry.quint, cab.system.chantry.tass, a.system.mage.paradox];
       } finally { await cal.setClock(c0); await game.settings.set(sid, "mageWeek", week0); }
       await ChatMessage.deleteDocuments(game.messages.contents.slice(n0).map(m => m.id));
+      // Безмолвие: гоблин листом существа, мир-разум — срок по Парадоксу, выход очищает Парадокс (кроме постоянного)
+      await a.update({ "system.mage.paradox": 6, "system.mage.paradoxPerm": 1, "system.mage.quiet.level": 2 });
+      const gob = await St.spawnHobgoblin(a);
+      const v0 = await St.mindView(a);
+      await a.update({ "system.mage.quiet.mind": cal.getClock() + 3 * 86400000 });
+      const v1 = await St.mindView(a);
+      await a.update({ "system.mage.quiet.mind": cal.getClock() - 1000 }); await St.mindExit(a);
+      out.quiet = [gob?.type, v0.days, v1.left, a.system.mage.paradox, a.system.mage.quiet.level, a.system.mage.quiet.mind];
+      await gob?.delete();
       await Actor.deleteDocuments([a.id, cab.id]);
       return out;
     });
-    const want = { sorcXp: ["3,1", 37, 1], hudSorc: [true, true], rules: [true, 5, 7, true, 5], rem: [0, 0], mixed: 1, cards: true, write: [true, "aoar", 2, 3], arm: [3, "aggravated", true], unlinked: 0, week: [2, 2, 2] };
+    const want = { sorcXp: ["3,1", 37, 1], quiet: ["creature", 6, 3, 1, 0, null], hudSorc: [true, true], rules: [true, 5, 7, true, 5], rem: [0, 0], mixed: 1, cards: true, write: [true, "aoar", 2, 3], arm: [3, "aggravated", true], unlinked: 0, week: [2, 2, 2] };
     const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });

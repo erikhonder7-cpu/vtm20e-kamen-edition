@@ -179,6 +179,14 @@
       <span class="r-dots">{{#each mageState.quiet.dots}}<a class="r-dot {{#if filled}}is-filled{{/if}}" {{#if @root.editable}}data-action="setDots" data-path="{{path}}" data-n="{{n}}"{{/if}}></a>{{/each}}</span>
       <select name="system.mage.quiet.kind" {{#unless editable}}disabled{{/unless}}>{{#each mageState.quiet.kinds}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select>
       {{#if mageState.quiet.text}}<em>{{mageState.quiet.text}}</em>{{/if}}</div>
+    {{#if mageState.mind.inside}}
+    <p class="r-note r-mind is-in"><i class="fa-solid fa-brain"></i> {{#if mageState.mind.ready}}{{localize "VTM20.Mage.MindReady"}}{{else}}{{localize "VTM20.Mage.MindLeft" n=mageState.mind.left}}{{/if}}
+      {{#if editable}}{{#unless mageState.mind.ready}}<a class="r-vc-btn" data-action="mageMindShorten" data-tooltip="{{localize 'VTM20.Mage.MindShortenHint'}}"><i class="fa-solid fa-puzzle-piece"></i></a>{{/unless}}
+      <a class="r-vc-btn" data-action="mageMindExit" data-tooltip="{{localize 'VTM20.Mage.MindExitHint'}}"><i class="fa-solid fa-door-open"></i></a>{{/if}}</p>
+    {{else if mageState.quiet.level}}{{#if editable}}
+    <p class="r-note r-mind"><i class="fa-solid fa-brain"></i> {{localize "VTM20.Mage.MindOffer" n=mageState.mind.days}}
+      <a class="r-vc-btn" data-action="mageMindEnter" data-tooltip="{{localize 'VTM20.Mage.MindEnterHint'}}"><i class="fa-solid fa-person-walking-arrow-right"></i></a></p>
+    {{/if}}{{/if}}
     {{#if mageState.quiet.insulate}}<p class="r-note"><i class="fa-solid fa-shield-halved"></i> {{localize "VTM20.Mage.BackInsulate" n=mageState.quiet.insulate}}</p>{{/if}}
     <ul class="r-edge-list r-rotes">
       {{#each mageState.flaws}}

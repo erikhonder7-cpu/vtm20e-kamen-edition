@@ -49,7 +49,7 @@ import { usePower } from "../apps/use-power.mjs";
 import { isTechnocrat } from "../ui/themes.mjs";
 import { sorcererInfo, consorInfo, numenAbility as sorcAbility } from "../apps/sorcerer.mjs";
 import { mageInfo, mageSigil, spheresView, addTool } from "../apps/mage.mjs";
-import { stateView } from "../apps/mage-state.mjs";
+import { stateView, mindView } from "../apps/mage-state.mjs";
 import { POWER_EFFECTS, fxKey } from "../data/effects.mjs";
 import { rollPackVinculi, openVaulderie, loyaltyConflict } from "../apps/vaulderie.mjs";
 import { openCoterie } from "../apps/coterie.mjs";
@@ -283,7 +283,7 @@ openStrategy: () => openStrategy(),
     prepareRegistry(this, ctx);
     if (actor.type === "demon") prepareLores(this, ctx);
     else if (actor.type === "hunter") { ctx.hunterInfo = hunterInfo(actor, dots); ctx.lineAtlas = true; ctx.edgePaths = edgesView(actor); ctx.hunterCall = callView(actor); }
-    else if (actor.type === "mage") { ctx.mageInfo = mageInfo(actor, dots); ctx.mageView = spheresView(actor, dots); ctx.mageState = stateView(actor, dots);
+    else if (actor.type === "mage") { ctx.mageInfo = mageInfo(actor, dots); ctx.mageView = spheresView(actor, dots); ctx.mageState = stateView(actor, dots); ctx.mageState.mind = await mindView(actor);
       const sg = mageSigil(actor);
       ctx.sigil = { ...ctx.sigil, sym: sg.sym, label: sg.label };
       ctx.lineAtlas = true;
