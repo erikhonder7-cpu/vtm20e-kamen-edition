@@ -343,3 +343,9 @@
 .r-wr-offer-state.is-declined { opacity: .6; }
 .r-wr-whisper i:last-child { opacity: .9; }
 .vtm20 .r-wr-guide { max-width: 9em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Разрешение Страстей и Оков (apps/resolution.mjs): разрешённые строки бледнее, метка хода разрешения */
+.vtm20.r-type-wraith .r-wr-row.is-resolved .r-wr-text, .vtm20.r-type-wraith .r-wr-row.is-resolved .r-wr-emo { opacity: .55; text-decoration: line-through; text-decoration-color: rgba(200, 210, 220, .35); }
+.vtm20.r-type-wraith .r-wr-res-tag { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: #cfd6df; white-space: nowrap; }
+.vtm20.r-type-wraith .r-wr-res-tag.is-going { color: #98a0aa; font-size: 11px; }
+.vtm20.r-type-wraith .r-wr-row.is-resolving .r-wr-text { font-style: italic; }
