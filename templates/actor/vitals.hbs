@@ -301,6 +301,10 @@
       <a class="r-vc-btn is-sq {{#if system.exorcist.target}}is-on{{/if}}" data-action="exorcist" data-tooltip="{{localize 'VTM20.Exorcist.BtnHint'}}"><i class="fa-solid fa-hands-praying"></i></a>{{/if}}
       {{#if canEmbrace}}<a class="r-vc-btn is-sq" data-action="embrace" data-tooltip="{{localize 'VTM20.Embrace.Btn'}}"><i class="fa-solid fa-moon"></i></a>{{/if}}
       {{#if pathShift}}<a class="r-vc-btn is-sq" data-action="pathShift" data-tooltip="{{localize 'VTM20.PathShift.Btn'}}"><i class="fa-solid fa-route"></i></a>{{/if}}
+      {{#if golconda}}{{#if golconda.active}}<span class="r-vc-hint is-gold" data-tooltip="{{localize 'VTM20.Golconda.ActiveHint'}}"><i class="fa-solid fa-sun"></i> {{golconda.label}}</span>
+      {{else if golconda.lost}}<span class="r-vc-hint is-warn" data-tooltip="{{localize 'VTM20.Golconda.LostHint'}}"><i class="fa-solid fa-heart-crack"></i> {{golconda.label}}</span>
+      {{else if (rEq golconda.stage "suspire")}}{{#if golconda.isGM}}<a class="r-vc-btn is-sq is-on" data-action="golcondaSuspire" data-tooltip="{{localize 'VTM20.Golconda.SuspireHint'}}"><i class="fa-solid fa-sun"></i></a>{{else}}<span class="r-vc-hint" data-tooltip="{{localize 'VTM20.Golconda.SuspireWait'}}"><i class="fa-solid fa-sun"></i></span>{{/if}}
+      {{else if golconda.eligible}}{{#if editable}}<a class="r-vc-btn is-sq {{#if (rEq golconda.stage 'seeking')}}is-on{{/if}}" data-action="golcondaSeek" data-tooltip="{{localize 'VTM20.Golconda.SeekHint'}}{{#if (rEq golconda.stage 'seeking')}} — {{localize 'VTM20.Golconda.Progress' n=golconda.found need=golconda.need w=golconda.weeks total=golconda.total}}{{/if}}"><i class="fa-solid fa-sun"></i></a>{{/if}}{{/if}}{{/if}}
       <a class="r-vc-btn is-right" data-action="rollVirtue" data-kind="degeneration"><i class="fa-solid fa-scale-unbalanced"></i> {{localize "VTM20.Sheet.DegenerationShort"}}</a>
     </div>
   </div>

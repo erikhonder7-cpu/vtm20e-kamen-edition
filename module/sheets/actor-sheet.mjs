@@ -17,6 +17,7 @@ import { attachCombos } from "../ui/combo.mjs";
 import { choosePower } from "../apps/power-choice.mjs";
 import { RollDialog } from "../dice/dialog.mjs";
 import { rollVirtueCheck } from "../dice/virtue-checks.mjs";
+import { golcondaView, seekTeaching, suspire } from "../apps/golconda.mjs";
 import { openDamageDialog } from "../apps/damage.mjs";
 import { WEAPON_PRESETS, ARMOR_PRESETS, GEAR_PRESETS } from "../data/equipment.mjs";
 import { openCreator } from "../apps/creator.mjs";
@@ -79,6 +80,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       rollFree: VtMActorSheet.#onRollFree,
       rollInitiative: VtMActorSheet.#onRollInitiative,
       rollVirtue: VtMActorSheet.#onRollVirtue,
+      golcondaSeek: VtMActorSheet.#onGolconda, golcondaSuspire: VtMActorSheet.#onGolconda,
       rollWeapon: VtMActorSheet.#onRollWeapon,
       takeDamage: VtMActorSheet.#onTakeDamage,
       bloodHeal: VtMActorSheet.#onBloodHeal,
@@ -281,6 +283,7 @@ openStrategy: () => openStrategy(),
     prepareHeader(this, ctx);
     prepareTraits(this, ctx);
     prepareRegistry(this, ctx);
+    if (actor.type === "vampire") ctx.golconda = golcondaView(actor);   // Голконда (apps/golconda.mjs)
     if (actor.type === "demon") prepareLores(this, ctx);
     else if (actor.type === "hunter") { ctx.hunterInfo = hunterInfo(actor, dots); ctx.lineAtlas = true; ctx.edgePaths = edgesView(actor); ctx.hunterCall = callView(actor); }
     else if (actor.type === "mage") { ctx.mageInfo = mageInfo(actor, dots); ctx.mageView = spheresView(actor, dots); ctx.mageState = stateView(actor, dots); ctx.mageState.mind = await mindView(actor);
@@ -568,6 +571,8 @@ openStrategy: () => openStrategy(),
   }
 
   /** Ярость, Ротшрек, деградация — проверки Добродетелей (05, 06). */
+  /** Голконда: поиск учения и Отдохновение (apps/golconda.mjs). */
+  static #onGolconda(event, target) { return target.dataset.action === "golcondaSuspire" ? suspire(this.actor) : seekTeaching(this.actor); }
   static #onRollVirtue(event, target) {
     const kind = target.dataset.kind;
     const a = this.actor;

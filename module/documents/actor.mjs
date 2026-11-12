@@ -688,8 +688,8 @@ export class VtMActor extends Actor {
       if (this.isVampire && b <= 0) {
         // пустой запас: обязательная трата превращается в повреждение (04)
         await this.applyDamage(1, "lethal");
-      } else if (this.isVampire) {
-        // Кровоточащая рана: на пробуждение уходит 2 крови вместо 1
+      } else if (this.isVampire && !(await (await import("../apps/golconda.mjs")).golcondaSkipsWake(this))) {
+        // Кровоточащая рана: на пробуждение уходит 2 крови вместо 1; Голконда — кровь раз в неделю (apps/golconda.mjs)
         const wake = this.hasTrait("Кровоточащая рана") ? 2 : 1;
         upd["system.blood.value"] = Math.max(0, b - wake);
       }

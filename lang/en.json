@@ -7498,6 +7498,34 @@
       "Numina": "Numina",
       "Mixed": "At creation a sorcerer takes either Paths or psychic phenomena — not both.",
       "Hint": "Sorcerer: 5 dots of Numina on the “Numina” step (Paths or phenomena), a dot for freebies costs 7, Willpower 5. Rituals — one per Path dot — are recorded on the sheet."
+    },
+    "Golconda": {
+      "None": "Golconda",
+      "Seeking": "Seeking the teaching",
+      "Suspire": "Suspire",
+      "Attained": "Golconda",
+      "Lost": "Golconda lost",
+      "SeekHint": "Golconda: seeking the teaching — once a week Intelligence + Investigation, difficulty 9, no Willpower success; 4 successes within three months (Black Hand)",
+      "Progress": "successes {n} of {need}, weeks {w} of {total}",
+      "SeekTitle": "Seeking Golconda",
+      "SeekSub": "difficulty {d}; {n} successes within three months",
+      "NotEligible": "Golconda is open only on the Path of Humanity 7+ with Conscience 4+.",
+      "OncePerWeek": "The teaching can be sought once per chronicle week.",
+      "Found": "<b>{name}</b> finds the teaching: the rite of Suspire. It remains to undergo it — the Storyteller decides the outcome.",
+      "Restart": "<b>{name}</b>: three months of seeking brought no teaching ({n} successes) — start over.",
+      "SuspireHint": "Suspire (Storyteller): a journey into the depths of the soul — passed or not. There is no second chance.",
+      "SuspireWait": "The teaching is found — the Storyteller conducts the rite of Suspire.",
+      "SuspireTitle": "Suspire",
+      "SuspireRule": "The rite of Suspire is a journey into the dream world, the depths of one’s soul. The Storyteller decides the outcome; there is no second chance.",
+      "SuspirePass": "Golconda attained",
+      "SuspireFail": "Not passed",
+      "AttainedMsg": "<b>{name}</b> attains Golconda: the Beast no longer rules, blood is spent once a week, any Trait may reach 10.",
+      "FailedMsg": "<b>{name}</b> does not pass the Suspire. There is no second chance.",
+      "NoFrenzy": "<b>{name}</b> is in Golconda: frenzy has no hold.",
+      "NoRotschreck": "<b>{name}</b> is in Golconda: Rötschreck has no hold.",
+      "ActiveHint": "Golconda: immune to frenzy and Rötschreck, blood once a week, Traits up to 10. Lost if Humanity drops below 7 or Conscience below 4.",
+      "LostHint": "Humanity below 7 or Conscience below 4: Golconda’s effects are lost.",
+      "LostMsg": "<b>{name}</b> loses Golconda: the Beast returns, Traits above {n} fall back to the generation limit."
     }
   }
 }

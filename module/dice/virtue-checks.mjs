@@ -55,6 +55,9 @@ async function pickProvocation(kind) {
 
 /** Окно проверки ярости (Самоконтроль) или Ротшрека (Мужество). difficulty — сложность по событию, без поправок клана. */
 export async function rollVirtueCheck(actor, kind, { difficulty = 6, fromPrompt = false } = {}) {
+  // Голконда: Зверь не властен — ни бешенства, ни Ротшрека
+  const shield = (await import("../apps/golconda.mjs")).golcondaShield(actor, kind);
+  if (shield) return shield;
   // гуль и дампир: сложность — по поводу из таблицы (без поправки «−3» — таблица уже для гулей)
   let table = 0;
   if (actor.type === "ghoul" && (kind === "frenzy" || kind === "rapture") && !fromPrompt) {
@@ -149,6 +152,9 @@ async function instinctFrenzy(actor, difficulty) {
 /** Карточка в чате: «стоит проверить ярость/Ротшрек» с кнопкой броска. Только вампирам, не в торпоре и не уже в этом состоянии. */
 export function suggestCheck(actor, kind, { reason, difficulty = 6 }) {
   if (!actor?.isVampire || actor.statuses?.has(`r-${kind}`) || actor.statuses?.has("r-torpor")) return null;
+  // Голконда: бешенство и Ротшрек не грозят — и предлагать бросок незачем
+  if (["frenzy", "rotschreck"].includes(kind) && actor.system.golconda?.stage === "attained" && actor.system.morality?.path === "humanity"
+    && actor.system.morality.value >= 7 && (actor.system.virtues?.conscience?.value ?? 0) >= 4) return null;
   const icon = { frenzy: "fa-face-angry", rotschreck: "fa-fire", degeneration: "fa-scale-unbalanced" }[kind];
   return ChatMessage.create({
     speaker: ChatMessage.getSpeaker({ actor }),

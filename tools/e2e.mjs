@@ -4243,6 +4243,30 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  await check("Голконда: условия, поиск учения, Отдохновение, невосприимчивость, кровь раз в неделю, потеря", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {}, n0 = game.messages.size;
+      const G = await import(`/systems/${sid}/module/apps/golconda.mjs`), V = await import(`/systems/${sid}/module/dice/virtue-checks.mjs`);
+      const a = await Actor.create({ name: "E2E — ищущий Голконду", type: "vampire", flags: { world: { e2e: true }, [sid]: { created: true } },
+        system: { generation: 13, blood: { value: 10 }, morality: { path: "humanity", value: 8 }, virtues: { conscience: { value: 4 } } } });
+      out.elig = [G.golcondaEligible(a), a.system.traitMax];
+      // Отдохновение — рассказчик: окно подменяем ответом «пройдено»
+      await a.update({ "system.golconda.stage": "suspire" });
+      const DV = foundry.applications.api.DialogV2, w0 = DV.wait; DV.wait = async () => "pass"; await G.suspire(a); DV.wait = w0;
+      out.attained = [a.system.golconda.stage, a.system.traitMax];
+      const m0 = game.messages.size; await V.rollVirtueCheck(a, "rotschreck"); out.shield = game.messages.size - m0;
+      const b0 = a.system.blood.value; await a.awaken({ quiet: true }); await a.awaken({ quiet: true }); out.blood = b0 - a.system.blood.value;
+      await a.update({ "system.attributes.strength.value": 7 }); await a.update({ "system.virtues.conscience.value": 3 }); await wait(600);
+      out.lost = [G.golcondaActive(a), a.system.attributes.strength.value];
+      await ChatMessage.deleteDocuments(game.messages.contents.slice(n0).map(m => m.id));
+      await a.delete();
+      return out;
+    });
+    const want = { elig: [true, 5], attained: ["attained", 10], shield: 1, blood: 1, lost: [false, 5] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   // вторая уборка: временные персонажи проверок после первой (стратегия, оборотни, панель сессии…)
   await page.evaluate(async () => {
     const temp = game.actors.filter(x => x.getFlag("world", "e2e")).map(x => x.id);

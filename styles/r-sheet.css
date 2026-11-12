@@ -1209,3 +1209,5 @@ body.r-theme-light .vtm20 .r-motto { color: rgba(140, 28, 34, .75); }
 .vtm20 .r-edge.has-text > .r-edge-main > b::after { content: "▾"; margin-left: 6px; font-size: 11px; color: var(--r-muted); opacity: .8; }
 .vtm20 .r-edge.has-text.is-open > .r-edge-main > b::after { content: "▴"; }
 .vtm20 .r-edge.has-text > .r-edge-main > b:hover { color: var(--r-accent); }
+.vtm20 .r-vc-hint.is-gold { color: #e6c46e; }
+.r-notice.r-golconda i { color: #e6c46e; }

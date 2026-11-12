@@ -156,6 +156,9 @@ export class VampireData extends BaseActorData {
       boons: new ArrayField(new SchemaField({ name: str(), dir: str("owed"), level: str("minor"), note: str(), date: str(), done: new BooleanField({ initial: false }) })),
       // Изъян клана — своё уточнение (вкус Вентру, расстройство Малкавиан…).
       weaknessNote: str(),
+      // Голконда (V20, гл. 5; module/apps/golconda.mjs): стадия «» | seeking | suspire | attained | failed,
+      // успехи поиска учения, недели поиска, неделя последнего броска
+      golconda: new SchemaField({ stage: str(""), found: int(0, 0, 20), weeks: int(0, 0, 52), week: new NumberField({ required: true, integer: true, initial: -1, nullable: false }) }),
       // Цимисхи: дней без родной земли — пулы вдвое за каждый (02)
       soilDays: int(0, 0, 10)
     };
@@ -173,6 +176,8 @@ export class VampireData extends BaseActorData {
     this.blood.perTurn = gen.perTurn;
     this.blood.value = Math.min(this.blood.value, gen.pool);
     this.traitMax = gen.trait;
+    // Голконда: любой параметр — до 10 независимо от поколения (пока держатся Человечность 7+ и Совесть 4+)
+    if (this.golconda?.stage === "attained" && this.morality?.path === "humanity" && this.morality.value >= 7 && (this.virtues?.conscience?.value ?? 0) >= 4) this.traitMax = 10;
     // Абсолютный предел усиления кровью — 10, обычный — предел поколения + 1 (05).
     this.boostMax = Math.min(10, gen.trait + 1);
     // Изъян: Привлекательность 0 у Носферату, Самеди, Горгулий, Предвестников Черепов (02)
