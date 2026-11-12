@@ -48,6 +48,7 @@ export function spectreView(actor, dots) {
       passions: ps.passions.map((p, i) => ({ ...p, i, dots: dots(p.value, 5, { path: `system.wraith.spectre.psyche.passions.${i}.value` }) })),
       fronds: ps.fronds.map((f, i) => ({ i, ...f, ...(frondOf(f.key) ?? { name: f.key, html: "" }) })),
       frondAvail: (D.psyche?.fronds ?? []).filter(f => !ps.fronds.some(x => x.key === f.key)).map(f => ({ key: f.key, label: `${f.name} (${f.costText})` })) },
+    darkSym: { src: foundry.utils.getRoute("systems/vtm20e-kamen-edition/assets/wraith/arcanos-dark.png") },
     isGM: game.user.isGM
   };
 }

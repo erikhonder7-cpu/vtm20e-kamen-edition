@@ -470,6 +470,85 @@ PROJECTOR = {"arcanoi": "1 Арканос Оттенка, Воплощение 1
              "pathos": 5, "willpower": 5, "angst": 5, "freebies": 18, "noBackgrounds": ["Eidolon", "Haunt", "Legacy", "Memoriam"],
              "emblem": {"pathos": 2, "armor": [4, 2, 1], "shock": 1}}
 
+# ── Другие Тёмные Царства (гл. 13; файлы 32–33): Пути Нефритовой Империи и Цепи Императора, Смещение Сварги, Повеление абамбо ──
+REALMS = [{"key": "jade", "name": "Нефритовая Империя", "en": "Jade Empire", "glyph": "jade"},
+          {"key": "swarga", "name": "Сварга", "en": "Swarga", "glyph": "displace"},
+          {"key": "africa", "name": "Куст Призраков", "en": "Ghost Bush", "glyph": "behest"}]
+REALM_ARC = {"Way of the Scholar": ("scholar", "jade"), "Way of the Artisan": ("artisan", "jade"), "Way of the Farmer": ("farmer", "jade"),
+             "Way of the Merchant": ("merchant", "jade"), "Way of the Soul": ("soul", "jade"), "Chains of the Emperor": ("chains", "jade"),
+             "Displace": ("displace", "swarga"), "Behest": ("behest", "africa")}
+REALM_TOKEN = {"Way of the Scholar": "scholar", "Way of the Artisan": "artisan", "Way of the Farmer": "farmer", "Way of the Merchant": "merchant",
+               "Way of the Soul": "soul", "Chains": "chains", "Displace": "displace", "Behest": "behest"}
+
+
+def ability_tokens():
+    with open(os.path.join(ROOT, "lang", "ru.json"), encoding="utf-8") as fh:
+        abil = json.load(fh)["VTM20"]["Abil"]
+    out = {v: f"abilities.{k}" for k, v in abil.items() if isinstance(v, str)}
+    # в справочнике Способности названы по книге Wraith 20, в системе — по V20 («Выразительность» — «Красноречие» и т. п.)
+    out.update({"Выразительность": "abilities.expression", "Чутьё": "abilities.awareness", "Ремесло": "abilities.crafts", "Драка": "abilities.brawl",
+                "Скрытность": "abilities.stealth", "Расследование": "abilities.investigation", "Запугивание": "abilities.intimidation",
+                "Лидерство": "abilities.leadership", "Эмпатия": "abilities.empathy", "Медитация": "abilities.meditation"})
+    return out
+
+
+def realm_pool(text, abil):
+    traits = {**{k: f"attributes.{v}" for k, v in ATTR_SP.items()}, **abil, **{k: f"realm.{v}" for k, v in REALM_TOKEN.items()}}
+    names = sorted(traits, key=len, reverse=True)
+    rx = "(" + "|".join(re.escape(n) for n in names) + ")"
+    # бывает два броска (транс, затем сам Арканос) — берём пару с Арканосом Царства, иначе первую
+    pairs = [[traits[m.group(1)], traits[m.group(2)]] for m in re.finditer(rx + r"\s*\+\s*" + rx, text)]
+    if pairs:
+        return next((p for p in pairs if any(x.startswith("realm.") for x in p)), pairs[0])
+    m = re.search(r"бросок\s+" + rx, text)
+    return [traits[m.group(1)]] if m else None
+
+
+def parse_realm_arcanoi():
+    abil, out = ability_tokens(), []
+    for prefix in ("32", "33"):
+        cur = None
+        for line in core(prefix).splitlines():
+            m = re.match(r"^## (.+?) \(([^)]+)\)(.*)$", line)
+            if m:
+                key, realm = REALM_ARC.get(m.group(2).strip(), (None, None))
+                cur = {"key": key, "realm": realm, "name": m.group(1).strip(), "en": m.group(2).strip(), "levels": [], "intro": []} if key else None
+                if cur:
+                    out.append(cur)
+                continue
+            if not cur:
+                continue
+            m = re.match(r"^- \*\*(.+?) \(([^)]+)\)\*\*\s*(•+)\s*—\s*(.*)$", line) or re.match(r"^### (.+?) \(([^)]+)\)\s*(•+)\s*(.*)$", line)
+            if m:
+                cur["levels"].append({"level": len(m.group(3)), "name": m.group(1).strip(), "en": m.group(2).strip(), "lines": [m.group(4)] if m.group(4).strip() else []})
+            elif line.startswith("---") or line.startswith("## "):
+                cur = None
+            elif cur["levels"] and not line.startswith("### "):
+                cur["levels"][-1]["lines"].append(line)
+            else:
+                cur["intro"].append(line)
+    for a in out:
+        a["html"] = html(a.pop("intro"))
+        a["glyph"] = next(r["glyph"] for r in REALMS if r["key"] == a["realm"])
+        for lv in a["levels"]:
+            text = "\n".join(lv.pop("lines"))
+            t = plain(text)
+            lv.update({k: v for k, v in dark_costs(text).items() if k in ("diff", "pathos", "willpower")})
+            c = re.search(r"(\d+)\s+Корпус", t)
+            if c:
+                lv["corpus"] = int(c.group(1))
+            pool = realm_pool(t, abil)
+            prev = a["levels"][a["levels"].index(lv) - 1] if a["levels"].index(lv) else None
+            if not pool and prev and re.search(r"те же бросок", t):   # «Работа с белым нефритом» — тот же бросок, что уровнем ниже
+                pool, lv["diff"] = prev.get("pool"), prev.get("diff", 6)
+            if pool:
+                lv["pool"] = pool
+            rule = re.search(r"сложность\s*(?:—|=)\s*([^);]+)", t)
+            if rule:
+                lv["diffRule"] = rule.group(1).strip()
+            lv["html"] = html(text.splitlines())
+    return out
+
 def build():
     arcanoi = parse_arcanoi()
     allies = parse_allies(arcanoi)
@@ -484,6 +563,7 @@ def build():
         "darkArcanoi": parse_dark_arcanoi(), "shadecraft": parse_shadecraft(), "castes": parse_castes(), "psyche": parse_psyche(),
         "spectreBackgrounds": parse_spectre_backgrounds(), "spectre": SPECTRE,
         # Восставшие (гл. 11, файлы 24–25): два своих Арканоса — Очарование и Случайность; Ангста за них нет
+        "realms": REALMS, "realmArcanoi": parse_realm_arcanoi(),
         "shades": parse_shades(), "stains": parse_stains(), "projector": PROJECTOR,
         "risenArcanoi": risen_pools(parse_dark_arcanoi("25", {"fascinate": "fa-eye", "serendipity": "fa-dice"})), "risen": RISEN,
     }

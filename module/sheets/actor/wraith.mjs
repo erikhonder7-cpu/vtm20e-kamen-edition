@@ -8,6 +8,7 @@ import { openAtlas } from "../../apps/atlas.mjs";
 import { becomeSpectre, rollDark, rollPsychePassion, psycheCatharsis, rapacity, spectreRow } from "../../apps/spectre.mjs";
 import { rise, toShadowlands, toBody, risenDisc, rollRisenArt, risenSlumber, risenDown } from "../../apps/risen.mjs";
 import { project, stain, suppressStains, willToPathos, emblem, deadEyes, stainRow } from "../../apps/projector.mjs";
+import { rollRealmArt, realmRow } from "../../apps/realms.mjs";
 
 function onWrArt(event, target) { return rollArt(this.actor, target.dataset.key, Number(target.dataset.level), target.dataset.kind); }
 /** Свёрнутые карточки Арканоев — у каждого игрока свои (память браузера); по умолчанию свёрнуты, как Дисциплины. */
@@ -95,6 +96,9 @@ function onPjWill() { return willToPathos(this.actor); }
 function onPjEmblem() { return emblem(this.actor); }
 function onPjEyes() { return deadEyes(this.actor); }
 function onPjRow(event, target) { return stainRow(this.actor, target.dataset.op, { i: Number(target.dataset.i), key: target.closest(".r-toolbar")?.querySelector("select")?.value }); }
+// другое Тёмное Царство (apps/realms.mjs)
+function onRlArt(event, target) { return rollRealmArt(this.actor, target.dataset.key, Number(target.dataset.i)); }
+function onRlRow(event, target) { return realmRow(this.actor, target.dataset.op, target.dataset.key ?? target.closest(".r-toolbar")?.querySelector("select")?.value); }
 function onWrAtlas() { return openAtlas("wraith", this.actor.system.wraith.guild); }
 
 /** Действия листа: ключ data-action → обработчик. */
@@ -106,5 +110,5 @@ export const WRAITH_ACTIONS = {
   wrAngst: onWrAngst, wrAtlas: onWrAtlas, wrShroud: onWrShroud, wrHaunt: onWrHaunt,
   spBecome: onSpBecome, spDark: onSpDark, spPassion: onSpPassion, spCatharsis: onSpCatharsis, spRapacity: onSpRapacity, spRow: onSpRow,
   rsOn: onRsOn, rsRise: onRsRise, rsLeave: onRsLeave, rsBody: onRsBody, rsDisc: onRsDisc, rsArt: onRsArt, rsSlumber: onRsSlumber, rsDown: onRsDown, rsArtRow: onRsArtRow,
-  pjOn: onPjOn, pjProject: onPjProject, pjStain: onPjStain, pjSuppress: onPjSuppress, pjWill: onPjWill, pjEmblem: onPjEmblem, pjEyes: onPjEyes, pjRow: onPjRow
+  pjOn: onPjOn, pjProject: onPjProject, pjStain: onPjStain, pjSuppress: onPjSuppress, pjWill: onPjWill, pjEmblem: onPjEmblem, pjEyes: onPjEyes, pjRow: onPjRow, rlArt: onRlArt, rlRow: onRlRow
 };

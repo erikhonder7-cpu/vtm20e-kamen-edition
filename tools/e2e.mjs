@@ -4464,6 +4464,28 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  await check("Призрак: другие Тёмные Царства — Пути Нефритовой Империи, Смещение, Повеление: пул, бросок, лист", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {}, n0 = game.messages.size;
+      const R = await import(`/systems/${sid}/module/apps/realms.mjs`), inst = () => [...foundry.applications.instances.values()];
+      out.data = ["scholar", "artisan", "farmer", "merchant", "soul", "chains", "displace", "behest"].every(k => R.realmArtOf(k)?.levels?.length >= 5);
+      const a = await Actor.create({ name: "E2E — книжник", type: "wraith", flags: { world: { e2e: true }, [sid]: { created: true } },
+        system: { attributes: { perception: { value: 3 } }, abilities: { empathy: { value: 2 } }, wraith: { pathos: { value: 5 }, realm: { kingdom: "jade", arcanoi: { scholar: 2 } } } } });
+      out.trait = [a.traitValue("realm.scholar"), a.traitLabel("realm.scholar")];
+      R.rollRealmArt(a, "scholar", 0); await wait(700);
+      const d = inst().find(x => x.constructor.name === "RollDialog"); out.dlg = !!d; await d?.close();
+      await a.sheet.render(true); await wait(800); a.sheet.changeTab("disciplines", "primary"); await wait(600);
+      out.sheet = a.sheet.element.querySelectorAll(".r-wr-dark.is-realm").length;
+      await a.sheet.close();
+      await ChatMessage.deleteDocuments(game.messages.contents.slice(n0).map(m => m.id));
+      await a.delete();
+      return out;
+    });
+    const want = { data: true, trait: [2, "Путь Книжника"], dlg: true, sheet: 1 };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   await check("Призрак: лист и Арканои, Пафос, Страсть, Корпус до колебания и Испытание, Катарсис", async () => {
     const r = await page.evaluate(async () => {
       const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), WR = await import(`/systems/${sid}/module/apps/wraith.mjs`);

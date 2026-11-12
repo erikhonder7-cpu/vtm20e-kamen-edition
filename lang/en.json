@@ -432,6 +432,13 @@
         "Vitality": "<b>{name}</b>: Willpower into 3 Pathos; Corpus healed by {n}.",
         "Emblem": "<b>{name}</b>: Emblem of Protection — armor 4/2/1 until the scene ends.",
         "Harrowed": "<b>{name}</b>: the living face no Harrowing — the projector is hurled back into the body with an aggravated wound."
+      },
+      "Realm": {
+        "Arcanoi": "Dark Kingdom",
+        "Stygia": "Stygia",
+        "Hint": "Where the wraith comes from (ch. 13): other Dark Kingdoms teach their own Arcanoi",
+        "JadeNote": "The Jade Empire knows every Stygian Arcanos but Castigate; there are no Guilds, Inhabit and Usury are rare. Chains of the Emperor — Immortal Guard only.",
+        "AfricaNote": "Behest is taught only to the abambo and fails outside the Ghost Bush. Arts of level 3 and above show to others’ Soulsight."
       }
     },
     "Refresh": {

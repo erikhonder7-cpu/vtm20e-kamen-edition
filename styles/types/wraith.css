@@ -328,3 +328,10 @@
 .vtm20.r-type-wraith .r-wr-proj-bar { border-color: rgba(124, 160, 190, .5); background: linear-gradient(90deg, rgba(70, 100, 130, .25), transparent); }
 .vtm20.r-type-wraith .r-wr-proj-shade { margin: -4px 0 10px; }
 .vtm20.r-type-wraith .r-wr-thorns .r-edge.is-on { background: linear-gradient(90deg, rgba(106, 42, 60, .3), transparent); }
+
+/* Арканои других Тёмных Царств: нефритовая зелень; знаки — маски пользователя (arcanos-jade, -displace, -behest, -dark) */
+.vtm20.r-type-wraith .r-wr-dark.is-realm { border-color: rgba(110, 160, 130, .45); }
+.vtm20.r-type-wraith .r-wr-dark.is-realm .r-wr-arc-sigil .r-sym { background: linear-gradient(170deg, #d8efe0, #6f9c80); }
+.vtm20.r-type-wraith .r-wr-dark .r-wr-arc-sigil .r-sym { width: 24px; height: 28px; }
+.vtm20.r-type-wraith .r-wr-dark:not(.is-realm):not(.is-risen) .r-wr-arc-sigil .r-sym { background: linear-gradient(170deg, #f2d6df, #b05a78); }
+.vtm20.r-type-wraith .r-wr-dark .r-wr-arc-name i { font-size: 13px; color: #a14a63; margin-right: 2px; }

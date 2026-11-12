@@ -815,7 +815,9 @@ export class WraithData extends BaseActorData {
         // Пятна вместо Тени (проявленные — shown), Эмблема защиты на сцену; Оковы у него — Тетеры
         projector: new SchemaField({ on: new BooleanField({ initial: false }), shade: str(""), lament: str("skimmer"),
           projecting: new BooleanField({ initial: false }), emblem: new BooleanField({ initial: false }),
-          stains: new ArrayField(new SchemaField({ key: str(), shown: new BooleanField({ initial: false }) })) })
+          stains: new ArrayField(new SchemaField({ key: str(), shown: new BooleanField({ initial: false }) })) }),
+        // другое Тёмное Царство (гл. 13): откуда призрак и его местные Арканои
+        realm: new SchemaField({ kingdom: str(""), arcanoi: new SchemaField(Object.fromEntries(VTM20.wraithRealm.map(k => [k, int(0, 0, 5)]))) })
       })
     };
   }

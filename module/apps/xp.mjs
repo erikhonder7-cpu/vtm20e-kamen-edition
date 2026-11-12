@@ -2,6 +2,7 @@
 // Окно опыта (01): все черты персонажа с ценой следующей точки, что по карману, покупка в один клик
 // (через VtMActor.buyWithXp — единственный путь развития, кнопок «+» на листе нет), начисление и история трат.
 
+import { Codex } from "../data/codex.mjs";
 import { trainingOf, trainingView, planTraining, dropTraining, finishTraining, teacherRoll, setMentor } from "./training.mjs";
 import { numenOf as sorcNumenOf, numenXpExtra as sorcExtra } from "./sorcerer.mjs";
 import { VTM20, SYSTEM_PATH } from "../config.mjs";
@@ -96,6 +97,10 @@ class XpWindow extends HandlebarsApplicationMixin(ApplicationV2) {
     else if (wraith) groups.push({ key: "virt", icon: "fa-ghost", label: loc("VTM20.Wraith.Arcanoi"), rows:
       VTM20.wraithArcanoi.map(k => row(`a:system.wraith.arcanoi.${k}.value:arcanos`, a.traitLabel(`wraith.${k}`), s.wraith.arcanoi[k].value, 5, "arcanos", { key: k }))
         .sort((x, y) => (y.cur > 0) - (x.cur > 0) || x.label.localeCompare(y.label, "ru")) });
+    // другое Тёмное Царство (гл. 13): местные Арканои — по цене Арканоев (правило системы: книга отдельной цены не даёт)
+    if (wraith && s.wraith.realm?.kingdom) groups.push({ key: "realm", icon: "fa-yin-yang", label: loc("VTM20.Wraith.Realm.Arcanoi"), rows:
+      (Codex.wraith?.realmArcanoi ?? []).filter(x => x.realm === s.wraith.realm.kingdom)
+        .map(x => row(`a:system.wraith.realm.arcanoi.${x.key}:arcanos`, x.name, s.wraith.realm.arcanoi[x.key], 5, "arcanos", { key: x.key })) });
     // Спектр (гл. 10): Тёмные Арканои — по той же цене, что Арканои Спектра (новый 6, далее × 2)
     if (wraith && s.wraith.spectre?.on) groups.push({ key: "dark", icon: "fa-skull", label: loc("VTM20.Wraith.Spectre.Dark"), rows:
       VTM20.wraithDark.map(k => row(`a:system.wraith.spectre.dark.${k}:arcanos`, a.traitLabel(`spectre.${k}`), s.wraith.spectre.dark[k], 5, "arcanos"))

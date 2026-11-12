@@ -203,6 +203,8 @@ VTM20.traitLine = type => ["demon", "hunter", "werewolf", "mage", "wraith"].incl
 
 /** Шестнадцать Арканоев призрака (Wraith 20, гл. 5) — ключи data/wraith.json → arcanoi. */
 /** Тёмные Арканои Спектров (Wraith 20, гл. 10) — ключи data/wraith.json → darkArcanoi. */
+/** Арканои других Тёмных Царств (Wraith 20, гл. 13) — ключи data/wraith.json → realmArcanoi. */
+VTM20.wraithRealm = ["scholar", "artisan", "farmer", "merchant", "soul", "chains", "displace", "behest"];
 VTM20.wraithDark = ["collogue", "contaminate", "corruption", "larceny", "maleficence", "shroudrending", "tempestos", "tempestweaving"];
 VTM20.wraithArcanoi = ["argos", "castigate", "embody", "fatalism", "flux", "inhabit", "intimation", "keening", "lifeweb", "mnemosynis", "moliate",
   "outrage", "pandemonium", "phantasm", "puppetry", "usury"];

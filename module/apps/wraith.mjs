@@ -541,6 +541,10 @@ registerCardBlock("wraith", (state, ev) => {
     return { chips: [{ icon: "fa-bed", label: t("Risen.Down") }], text: t("Risen.DownFor", { time }), cls: "is-warn" };
   }
   if (x.kind === "risenSlumber") return { chips: [{ icon: "fa-bed", label: t("Risen.Slumber") }], text: n ? t("Risen.SlumberOk", { n }) : t("Risen.NoSleepShort") };
+  if (x.kind === "realmArt") {
+    const d = (Codex.wraith?.realmArcanoi ?? []).find(a => a.key === x.key);
+    return { chips: [{ icon: "fa-yin-yang", label: `${d?.name ?? x.key} ${"•".repeat(x.level)}` }], text: botch ? t("ArtBotch") : n ? t("ArtOk", { n }) : t("ArtFail") };
+  }
   if (x.kind === "deadEyes") return { chips: [{ icon: "fa-eye", label: t("Proj.DeadEyes") }], text: n ? t("Proj.DeadEyesOk") : t("Proj.DeadEyesFail") };
   if (x.kind === "psyche") return { chips: x.emotion ? [{ icon: "fa-dove", label: x.emotion }] : [], text: n ? t("Spectre.PsycheOut", { n }) : t("PathosNone") };
   if (x.kind === "rapacity") return { chips: [{ icon: "fa-teeth", label: t("Spectre.Rapacity") }], text: n ? t("Spectre.RapacityHeld") : t("Spectre.RapacityLost"), cls: n ? "" : "is-warn" };

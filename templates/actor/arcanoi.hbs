@@ -149,8 +149,8 @@
     {{#each spectre.dark}}
     <article class="r-vcard r-wr-dark">
       <header class="r-wr-arc-head">
-        <span class="r-wr-arc-sigil"><i class="fa-solid {{icon}}"></i></span>
-        <div class="r-wr-arc-title"><a class="r-wr-arc-name" data-action="rollTrait" data-trait="spectre.{{key}}">{{name}}</a><span class="r-wr-arc-guild">{{en}}</span></div>
+        <span class="r-wr-arc-sigil" data-tooltip="{{localize 'VTM20.Wraith.Spectre.Dark'}}">{{rSym @root.spectre.darkSym "r-wrg"}}</span>
+        <div class="r-wr-arc-title"><a class="r-wr-arc-name" data-action="rollTrait" data-trait="spectre.{{key}}"><i class="fa-solid {{icon}}"></i> {{name}}</a><span class="r-wr-arc-guild">{{en}}</span></div>
         {{> rDots dots=dots cls="is-small"}}
         {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="spRow" data-kind="dark" data-op="del" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
       </header>
@@ -200,6 +200,41 @@
     {{/each}}
   </div>
   {{/if}}
+
+  {{!-- Другое Тёмное Царство (гл. 13): откуда призрак; местные Арканои — Пути Нефритовой Империи, Смещение Сварги, Повеление абамбо --}}
+  <h2 class="r-h2"><span>{{localize "VTM20.Wraith.Realm.Arcanoi"}}</span>
+    <span class="r-h2-tools"><select name="system.wraith.realm.kingdom" class="r-mini-select" data-tooltip="{{localize 'VTM20.Wraith.Realm.Hint'}}"><option value="">{{localize "VTM20.Wraith.Realm.Stygia"}}</option>{{#each realm.kingdoms}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></span>
+  </h2>
+  {{#if realm.realm}}
+  {{#if editable}}{{#if realm.avail.length}}<div class="r-toolbar">
+    <select><option value="">{{localize "VTM20.Wraith.AddArcanos"}}</option>{{#each realm.avail}}<option value="{{key}}">{{label}}</option>{{/each}}</select>
+    <a class="r-vc-btn" data-action="rlRow" data-op="add"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Common.Add"}}</a>
+  </div>{{/if}}{{/if}}
+  {{#if (eq realm.realm.key "jade")}}<p class="r-note">{{localize "VTM20.Wraith.Realm.JadeNote"}}</p>{{/if}}
+  {{#if (eq realm.realm.key "africa")}}<p class="r-note">{{localize "VTM20.Wraith.Realm.AfricaNote"}}</p>{{/if}}
+  {{/if}}
+  <div class="r-wr-darks">
+    {{#each realm.arts}}
+    <article class="r-vcard r-wr-dark is-realm">
+      <header class="r-wr-arc-head">
+        <span class="r-wr-arc-sigil">{{rSym sym "r-wrg"}}</span>
+        <div class="r-wr-arc-title"><a class="r-wr-arc-name" data-action="rollTrait" data-trait="realm.{{key}}">{{name}}</a><span class="r-wr-arc-guild">{{en}}</span></div>
+        {{> rDots dots=dots cls="is-small"}}
+        {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="rlRow" data-op="del" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
+      </header>
+      <ul class="r-wr-dark-levels">
+        {{#each levels}}
+        <li class="{{#unless known}}is-beyond{{/unless}}" data-tooltip="{{diffNote}}">
+          <span class="r-wr-art-rank">{{level}}</span>
+          <a class="r-wr-dark-name" {{#if known}}data-action="rlArt" data-key="{{../key}}" data-i="{{i}}"{{/if}}><b>{{name}}</b> <em>{{en}}</em></a>
+          <span class="r-wr-chip"><i class="fa-solid fa-dice-d10"></i> {{poolLabel}} = <b>{{poolN}}</b> · {{localize "VTM20.Roll.Vs"}} {{diff}}</span>
+          {{#if cost}}<span class="r-wr-chip is-cost">{{cost}}</span>{{/if}}
+        </li>
+        {{/each}}
+      </ul>
+    </article>
+    {{/each}}
+  </div>
 
   {{!-- Страсти (гл. 8): Пафос — бросок рейтинга, сл. 6 (сам) или 8 (видит у смертного), раз за сцену; у Спектра — его Тёмные Страсти, Ангст --}}
   <h2 class="r-h2"><span>{{#if spectre}}{{localize "VTM20.Wraith.Spectre.OwnPassions"}}{{else}}{{localize "VTM20.Wraith.Passions"}}{{/if}} <small>{{wp.passionSum}}</small></span>

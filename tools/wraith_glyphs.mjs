@@ -9,7 +9,10 @@ const ARC = ["argos", "castigate", "embody", "fatalism", "flux", "inhabit", "int
 const MAP = {
   ...Object.fromEntries(ARC.map(k => [`arcanos-${k}`, `Arcanoi  Guilds/${k[0].toUpperCase()}${k.slice(1)}_sigil`])),
   ...Object.fromEntries(["emerald", "fate", "grim", "iron", "paupers", "penitent", "silent", "skeletal"]
-    .map(k => [`legion-${k}`, `Легионы/Sigil${k[0].toUpperCase()}${k.slice(1)}`]))
+    .map(k => [`legion-${k}`, `Легионы/Sigil${k[0].toUpperCase()}${k.slice(1)}`])),
+  // Тёмные Арканои Спектров и Арканои других Тёмных Царств (Нефритовая Империя, Сварга, Куст Призраков)
+  "arcanos-dark": "Arcanoi  Guilds/ArcanosDarkArcanoi", "arcanos-jade": "Arcanoi  Guilds/ArcanosJadeWay",
+  "arcanos-displace": "Arcanoi  Guilds/ArcanosDisplace", "arcanos-behest": "Arcanoi  Guilds/ArcanosBehest"
 };
 fs.mkdirSync(OUT, { recursive: true });
 const b = await chromium.launch({ channel: "msedge", headless: true });
