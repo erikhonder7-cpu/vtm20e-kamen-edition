@@ -797,7 +797,15 @@ export class WraithData extends BaseActorData {
           thorns: new ArrayField(new SchemaField({ key: str(), n: int(1, 1, 10), note: str() })),
           catharsis: new BooleanField({ initial: false }) }),
         // за сессию: Мемориум брошен, сколько кубиков Эйдолона потрачено (сбрасывает «Новая сессия» на листе)
-        session: new SchemaField({ memoriam: new BooleanField({ initial: false }), eidolon: int(0, 0, 10) })
+        session: new SchemaField({ memoriam: new BooleanField({ initial: false }), eidolon: int(0, 0, 10) }),
+        // Спектр (гл. 10): каста, Ангст — запас вместо Пафоса, Тёмные Арканои, умения Шейдкрафта; Психея вместо Тени —
+        // архетип, Пафос рейтингом (10 — Искупление) и запасом, Страсти, Ветви, проводник Психеи, Катарсис Психеи
+        spectre: new SchemaField({ on: new BooleanField({ initial: false }), caste: str(""), angst: int(5, 0, 10),
+          dark: new SchemaField(Object.fromEntries(VTM20.wraithDark.map(k => [k, int(0, 0, 5)]))),
+          shadecraft: new ArrayField(str()),
+          psyche: new SchemaField({ archetype: str(""), guide: str(""), rating: int(1, 0, 10), pool: int(0, 0, 10),
+            passions: new ArrayField(wraithText()), fronds: new ArrayField(new SchemaField({ key: str(), n: int(1, 1, 10), note: str() })),
+            catharsis: new BooleanField({ initial: false }) }) })
       })
     };
   }
@@ -826,8 +834,10 @@ export class WraithData extends BaseActorData {
     w.pathos.max = 10;
     w.shadow.angst.max = 10;
     w.shadow.angst.value = w.shadow.angst.temporary;
-    // Катарсис возможен, когда временный Ангст выше Воли (гл. 6)
+    // Катарсис возможен, когда временный Ангст выше Воли (гл. 6); у Спектра — Катарсис Психеи: запас её Пафоса выше Воли (гл. 10)
     w.shadow.canCatharsis = w.shadow.angst.temporary > this.willpower.permanent;
+    w.spectre.psyche.canCatharsis = w.spectre.on && w.spectre.psyche.pool > this.willpower.permanent;
+    w.spectre.redeemed = w.spectre.on && w.spectre.psyche.rating >= 10;
     this.initiative = this.attributes.dexterity.total + this.attributes.wits.total;
   }
 }

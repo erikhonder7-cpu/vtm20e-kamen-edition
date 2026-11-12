@@ -96,6 +96,10 @@ class XpWindow extends HandlebarsApplicationMixin(ApplicationV2) {
     else if (wraith) groups.push({ key: "virt", icon: "fa-ghost", label: loc("VTM20.Wraith.Arcanoi"), rows:
       VTM20.wraithArcanoi.map(k => row(`a:system.wraith.arcanoi.${k}.value:arcanos`, a.traitLabel(`wraith.${k}`), s.wraith.arcanoi[k].value, 5, "arcanos"))
         .sort((x, y) => (y.cur > 0) - (x.cur > 0) || x.label.localeCompare(y.label, "ru")) });
+    // Спектр (гл. 10): Тёмные Арканои — по той же цене, что Арканои Спектра (новый 6, далее × 2)
+    if (wraith && s.wraith.spectre?.on) groups.push({ key: "dark", icon: "fa-skull", label: loc("VTM20.Wraith.Spectre.Dark"), rows:
+      VTM20.wraithDark.map(k => row(`a:system.wraith.spectre.dark.${k}:arcanos`, a.traitLabel(`spectre.${k}`), s.wraith.spectre.dark[k], 5, "arcanos"))
+        .sort((x, y) => (y.cur > 0) - (x.cur > 0) || x.label.localeCompare(y.label, "ru")) });
     else if (garou) groups.push({ key: "virt", icon: "fa-moon", label: loc("VTM20.Werewolf.Garou"), rows: [
       row("a:system.werewolf.rage.permanent:rage", loc("VTM20.Werewolf.Rage"), s.werewolf.rage.permanent, 10, "rage"),
       row("a:system.werewolf.gnosis.permanent:gnosis", loc("VTM20.Werewolf.Gnosis"), s.werewolf.gnosis.permanent, 10, "gnosis")] });

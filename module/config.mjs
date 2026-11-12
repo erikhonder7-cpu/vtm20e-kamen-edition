@@ -202,6 +202,8 @@ VTM20.garouNatural = { bite: { diff: -1, dmg: 1, icon: "fa-teeth" }, claw: { dif
 VTM20.traitLine = type => ["demon", "hunter", "werewolf", "mage", "wraith"].includes(type) ? type : "";
 
 /** Шестнадцать Арканоев призрака (Wraith 20, гл. 5) — ключи data/wraith.json → arcanoi. */
+/** Тёмные Арканои Спектров (Wraith 20, гл. 10) — ключи data/wraith.json → darkArcanoi. */
+VTM20.wraithDark = ["collogue", "contaminate", "corruption", "larceny", "maleficence", "shroudrending", "tempestos", "tempestweaving"];
 VTM20.wraithArcanoi = ["argos", "castigate", "embody", "fatalism", "flux", "inhabit", "intimation", "keening", "lifeweb", "mnemosynis", "moliate",
   "outrage", "pandemonium", "phantasm", "puppetry", "usury"];
 

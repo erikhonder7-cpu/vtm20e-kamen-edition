@@ -5,6 +5,7 @@
 import { rollArt, toggleArt, addRow, removeRow, rollPassion, rollFetter, rollDarkPassion, rollMemoriam, shadowDice, catharsis, harrowing,
   pathosHeal, spendPathos, newSession, gainAngst, setShroud, toggleHaunt } from "../../apps/wraith.mjs";
 import { openAtlas } from "../../apps/atlas.mjs";
+import { becomeSpectre, rollDark, rollPsychePassion, psycheCatharsis, rapacity, spectreRow } from "../../apps/spectre.mjs";
 
 function onWrArt(event, target) { return rollArt(this.actor, target.dataset.key, Number(target.dataset.level), target.dataset.kind); }
 /** Свёрнутые карточки Арканоев — у каждого игрока свои (память браузера); по умолчанию свёрнуты, как Дисциплины. */
@@ -59,6 +60,17 @@ function onWrSession() { return newSession(this.actor); }
 function onWrAngst(event, target) { return gainAngst(this.actor, Number(target.dataset.d) || 1, { reason: game.i18n.localize("VTM20.Wraith.AngstManual") }); }
 function onWrShroud(event, target) { return setShroud(target.dataset.what, Number(target.dataset.d)); }
 function onWrHaunt() { return toggleHaunt(this.actor); }
+// Спектр (apps/spectre.mjs)
+function onSpBecome() { return becomeSpectre(this.actor); }
+function onSpDark(event, target) { return rollDark(this.actor, target.dataset.key, Number(target.dataset.level)); }
+function onSpPassion(event, target) { return rollPsychePassion(this.actor, Number(target.dataset.i)); }
+function onSpCatharsis() { return psycheCatharsis(this.actor); }
+function onSpRapacity() { return rapacity(this.actor); }
+/** Строки Спектра: Тёмный Арканос, умение Шейдкрафта, Страсть и Ветвь Психеи — добавить (из списка) или убрать. */
+function onSpRow(event, target) {
+  const { kind, op } = target.dataset, sel = target.closest(".r-toolbar")?.querySelector("select");
+  return spectreRow(this.actor, kind, op, { i: Number(target.dataset.i), key: target.dataset.key ?? sel?.value });
+}
 function onWrAtlas() { return openAtlas("wraith", this.actor.system.wraith.guild); }
 
 /** Действия листа: ключ data-action → обработчик. */
@@ -67,5 +79,6 @@ export const WRAITH_ACTIONS = {
   wrRowAdd: onWrRowAdd, wrRowDel: onWrRowDel, wrPassion: onWrPassion, wrFetter: onWrFetter,
   wrDark: onWrDark, wrMemoriam: onWrMemoriam, wrShadowDice: onWrShadowDice, wrCatharsis: onWrCatharsis,
   wrHarrowing: onWrHarrowing, wrHeal: onWrHeal, wrPathos: onWrPathos, wrSession: onWrSession,
-  wrAngst: onWrAngst, wrAtlas: onWrAtlas, wrShroud: onWrShroud, wrHaunt: onWrHaunt
+  wrAngst: onWrAngst, wrAtlas: onWrAtlas, wrShroud: onWrShroud, wrHaunt: onWrHaunt,
+  spBecome: onSpBecome, spDark: onSpDark, spPassion: onSpPassion, spCatharsis: onSpCatharsis, spRapacity: onSpRapacity, spRow: onSpRow
 };

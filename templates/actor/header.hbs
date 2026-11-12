@@ -209,7 +209,24 @@
     </aside>
     {{/if}}
 
-    {{#if isWraith}}
+    {{#if spectre}}
+    {{!-- Спектр (Wraith 20, гл. 10): Ангст — запас вместо Пафоса: питает Арканои, лечит Корпус, восполняют Тёмные Страсти --}}
+    <aside class="r-assignat is-pathos is-spectre">
+      <div class="r-assignat-head">
+        <span class="r-assignat-title">{{localize "VTM20.Wraith.Spectre.Angst"}}</span>
+        <span class="r-assignat-num"><b>{{spectre.angst}}</b><small>/10</small></span>
+      </div>
+      <div class="r-drops">
+        {{#each spectre.angstBoxes}}<a class="r-drop {{#if filled}}is-filled{{/if}}" data-action="setDots" data-path="{{path}}" data-n="{{n}}"><svg viewBox="0 0 24 30" aria-hidden="true"><path d="M12 2c4 5 7 9 7 15a7 7 0 0 1-14 0c0-3 1-5 3-7 0 2 1 3 2 3-1-4 0-8 2-11z"/></svg></a>{{/each}}
+      </div>
+      <div class="r-assignat-meta">
+        <span>{{#if spectre.caste}}{{spectre.caste.name}}{{/if}}</span>
+        <a data-action="wrPathos" data-tooltip="{{localize 'VTM20.Wraith.Spectre.SpendAngst'}}"><i class="fa-solid fa-minus"></i></a>
+        <a data-action="wrHeal" data-tooltip="{{localize 'VTM20.Wraith.Spectre.HealHint'}}"><i class="fa-solid fa-hand-sparkles"></i></a>
+        <a data-action="spRapacity" data-tooltip="{{localize 'VTM20.Wraith.Spectre.RapacityHint'}}"><i class="fa-solid fa-teeth"></i></a>
+      </div>
+    </aside>
+    {{else if isWraith}}
     {{!-- Пафос (Wraith 20, гл. 4): топливо Арканоев, 0–10; восполняют Страсти и Мемориум --}}
     <aside class="r-assignat is-pathos">
       <div class="r-assignat-head">

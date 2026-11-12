@@ -49,7 +49,7 @@
         <a class="r-vc-btn is-sq is-aggravated" data-action="setHealth" data-type="aggravated" aria-label="{{localize 'VTM20.Damage.aggravated'}}">✱</a>
       </span>
       {{#if isDemon}}<a class="r-vc-btn" data-action="faithHeal" data-tooltip="{{localize 'VTM20.Demon.FaithHealHint'}}"><i class="fa-solid fa-fire-flame-curved"></i> {{localize "VTM20.Demon.FaithHeal"}}</a>{{/if}}
-      {{#if wraithInfo}}<a class="r-vc-btn" data-action="wrHeal" data-tooltip="{{localize 'VTM20.Wraith.HealHint'}}"><i class="fa-solid fa-hand-sparkles"></i> {{localize "VTM20.Wraith.HealShort"}}</a>
+      {{#if wraithInfo}}<a class="r-vc-btn" data-action="wrHeal" data-tooltip="{{#if spectre}}{{localize 'VTM20.Wraith.Spectre.HealHint'}}{{else}}{{localize 'VTM20.Wraith.HealHint'}}{{/if}}"><i class="fa-solid fa-hand-sparkles"></i> {{#if spectre}}{{localize "VTM20.Wraith.Spectre.HealShort"}}{{else}}{{localize "VTM20.Wraith.HealShort"}}{{/if}}</a>
       {{#if editable}}<select name="system.wraith.state" class="r-mini-select" data-tooltip="{{localize 'VTM20.Wraith.StateHint'}}">{{#each wraithInfo.states}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>{{/if}}{{/if}}
       {{#if hasBlood}}<a class="r-vc-btn" data-action="bloodHeal" data-type="aggravated" data-tooltip="{{localize 'VTM20.Sheet.HealAggHint'}}"><i class="fa-solid fa-droplet"></i> {{localize "VTM20.Sheet.HealAggShort"}}</a>{{/if}}
       <span class="r-vc-hint" data-tooltip="{{localize 'VTM20.Sheet.SoakHint'}}"><i class="fa-solid fa-shield-halved"></i> {{soak.bashing}}/{{soak.lethal}}/{{soak.aggravated}}</span>
@@ -139,6 +139,26 @@
     <div class="r-boxes is-gnosis">
       {{#each werewolfInfo.gnosisTemp}}<a class="r-box {{#if filled}}is-filled{{/if}} {{#if locked}}is-locked{{/if}}" data-action="setDots" data-path="{{path}}" data-n="{{n}}"></a>{{/each}}
     </div>
+    </div>
+  </div>
+  {{else if spectre}}
+  {{!-- Психея Спектра (Wraith 20, гл. 10): рейтинг Пафоса — точками (10 — Искупление), запас — клетками; Катарсис Психеи,
+       когда запас выше Воли. Рейтинг игрок знать не должен — точный счёт у проводника Психеи и рассказчика. --}}
+  <div class="r-vcard r-vc-morality r-vc-shadow r-vc-psyche {{#if spectre.psyche.catharsis}}is-catharsis{{/if}} {{#if spectre.psyche.canCatharsis}}is-high{{/if}}">
+    <div class="r-vc-head">
+      <h4 class="r-banner"><a data-action="openRules" data-tooltip="{{localize 'VTM20.Wraith.Spectre.PsycheHint'}}">{{localize "VTM20.Wraith.Spectre.Psyche"}}</a></h4>
+      <div class="r-vc-status">{{localize "VTM20.Wraith.Pathos"}} <b>{{spectre.psyche.pool}}</b> / {{spectre.psyche.rating}}</div>
+    </div>
+    {{> rDots dots=spectre.psyche.ratingDots cls="is-ten is-psyche"}}
+    <div class="r-boxes is-psyche" data-tooltip="{{localize 'VTM20.Wraith.Spectre.PoolHint'}}">
+      {{#each spectre.psyche.poolBoxes}}<a class="r-box {{#if filled}}is-filled{{/if}}" data-action="setDots" data-path="{{path}}" data-n="{{n}}"></a>{{/each}}
+    </div>
+    <label class="r-wr-arch"><span>{{localize "VTM20.Wraith.Spectre.PsycheArchetype"}}</span>
+      <select name="system.wraith.spectre.psyche.archetype"><option value="">—</option>{{#each spectre.psyche.archetypes}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+    </label>
+    <div class="r-vc-tools">
+      <a class="r-vc-btn {{#if spectre.psyche.catharsis}}is-on{{/if}}" data-action="spCatharsis" data-tooltip="{{localize 'VTM20.Wraith.Spectre.CatharsisHint'}}"><i class="fa-solid fa-dove"></i> {{localize "VTM20.Wraith.Catharsis"}}</a>
+      {{#if spectre.psyche.redeemed}}<span class="r-vc-hint is-right"><i class="fa-solid fa-sun"></i> {{localize "VTM20.Wraith.Spectre.Redeemed"}}</span>{{/if}}
     </div>
   </div>
   {{else if wraithInfo}}

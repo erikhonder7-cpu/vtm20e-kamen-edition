@@ -209,14 +209,16 @@ export async function toggleArt(actor, key, level, kind) {
 
 /* ── Пафос, Корпус, Ангст ───────────────────────────────────────────── */
 
-/** Потратить Пафос (в Катарсисе Тень не опустит его ниже 1, гл. 6). */
+/** Потратить Пафос (в Катарсисе Тень не опустит его ниже 1, гл. 6). Спектр вместо Пафоса тратит Ангст (гл. 10). */
 export async function spendPathos(actor, n = 1) {
+  if (actor.system.wraith.spectre?.on) return (await import("./spectre.mjs")).spendSpectreAngst(actor, n);
   const p = actor.system.wraith.pathos.value, floor = actor.system.wraith.shadow.catharsis ? 1 : 0;
   if (p - n < floor) { ui.notifications.warn(t("NoPathos", { n })); return false; }
   await actor.update({ "system.wraith.pathos.value": p - n });
   return true;
 }
 export async function gainPathos(actor, n) {
+  if (actor.system.wraith.spectre?.on) return (await import("./spectre.mjs")).gainSpectreAngst(actor, Math.max(0, n));
   const p = actor.system.wraith.pathos.value, now = Math.min(10, p + Math.max(0, n));
   if (now !== p) await actor.update({ "system.wraith.pathos.value": now });
   return now - p;
@@ -228,6 +230,8 @@ export async function gainPathos(actor, n) {
  */
 export async function gainAngst(actor, n, { reason = "" } = {}) {
   if (!n) return 0;
+  // у Спектра Тени нет: где Тень получила бы Ангст, Психея получает Пафос (гл. 10)
+  if (actor.system.wraith.spectre?.on) return (await import("./spectre.mjs")).gainPsyche(actor, n, { reason });
   const a = actor._source.system.wraith.shadow.angst;
   let temp = Math.clamp(a.temporary + n, 0, 10), perm = a.permanent;
   const swap = temp >= 10 && perm < 10;
@@ -237,7 +241,7 @@ export async function gainAngst(actor, n, { reason = "" } = {}) {
   const gm = ChatMessage.getWhisperRecipients("GM");
   if (n > 0 || swap) await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), whisper: gm,
     content: `<div class="r-notice r-type-wraith is-shadow"><i class="fa-solid fa-mask"></i> ${t(n > 0 ? "AngstGain" : "AngstLoss", { name: esc(actor.name), n: Math.abs(n), temp, perm })}${reason ? ` <small>(${esc(reason)})</small>` : ""}
-      ${swap ? `<p><b>${t("AngstSwap", { perm })}</b></p>` : ""}${perm >= 10 ? `<p class="r-fate"><b>${t("Spectre")}</b></p>` : ""}</div>` });
+      ${swap ? `<p><b>${t("AngstSwap", { perm })}</b></p>` : ""}${perm >= 10 ? `<p class="r-fate"><b>${t("SpectreFall")}</b></p>` : ""}</div>` });
   return n;
 }
 
@@ -293,7 +297,7 @@ export async function rollArt(actor, key, level, kind = "common") {
   if (lv.pathos && !(await spendPathos(actor, lv.pathos))) return null;
   // трата Корпуса — ударная отметка на шкале (правило системы: книга лечит её как обычный урон)
   if (lv.corpus) await corpusDamage(actor, lv.corpus, "bashing");
-  const shadowRuns = w.shadow.catharsis;
+  const shadowRuns = w.spectre?.on ? false : w.shadow.catharsis;
   if (lv.angst) await gainAngst(actor, shadowRuns ? -lv.angst : lv.angst, { reason: lv.name });
   const dc = artDifficulty(lv, actor);
   const extra = { wraith: { kind: "art", key, level: lv.level, art: kind, name: lv.name, cost: costText(lv), angst: lv.angst ?? 0, shadow: shadowRuns,
@@ -499,6 +503,20 @@ registerCardBlock("wraith", (state, ev) => {
   }
   if (x.kind === "fetter") return { chips: [], text: n ? t("WillOut", { n }) : t("WillNone") };
   if (x.kind === "memoriam") return { chips: [{ icon: "fa-candle-holder", label: t("Memoriam") }], text: botch ? t("MemoriamBotchShort") : n ? t("PathosOut", { n }) : t("PathosNone") };
+  if (x.kind === "catharsis" && x.psyche) {   // Катарсис Психеи: Воля Спектра против запаса Пафоса Психеи
+    const held = n >= x.shadow;
+    return { chips: [{ icon: "fa-dove", label: t("Spectre.PsycheRolled", { n: x.shadow, vals: x.shadowVals || "—" }) }],
+      text: held ? t("Spectre.SpectreHolds", { n, s: x.shadow }) : t("Spectre.PsycheWins", { n, s: x.shadow }), cls: held ? "is-warn" : "" };
+  }
+  if (x.kind === "dark") {
+    const d = (Codex.wraith?.darkArcanoi ?? []).find(a => a.key === x.key);
+    chips.push({ icon: d?.icon ?? "fa-skull", label: `${d?.name ?? x.key} ${"•".repeat(x.level)}`, cls: "is-warn" });
+    if (x.cost) chips.push({ icon: "fa-coins", label: x.cost });
+    if (x.shroud) chips.push({ icon: "fa-cloud", label: t("Shroud.Chip", { n: x.shroud }) });
+    return { chips, text: botch ? t("Spectre.DarkBotch") : n ? t("ArtOk", { n }) : t("ArtFail") };
+  }
+  if (x.kind === "psyche") return { chips: x.emotion ? [{ icon: "fa-dove", label: x.emotion }] : [], text: n ? t("Spectre.PsycheOut", { n }) : t("PathosNone") };
+  if (x.kind === "rapacity") return { chips: [{ icon: "fa-teeth", label: t("Spectre.Rapacity") }], text: n ? t("Spectre.RapacityHeld") : t("Spectre.RapacityLost"), cls: n ? "" : "is-warn" };
   if (x.kind === "catharsis") {
     const won = n >= x.shadow;
     return { chips: [{ icon: "fa-mask", label: t("ShadowRolled", { n: x.shadow, vals: x.shadowVals || "—" }), cls: "is-warn" }],

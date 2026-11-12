@@ -4368,6 +4368,44 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  await check("Призрак: Спектр — каста, Ангст вместо Пафоса, Психея, Тёмные Арканои, Краткая жизнь, Катарсис Психеи", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {}, n0 = game.messages.size;
+      const SP = await import(`/systems/${sid}/module/apps/spectre.mjs`), W = await import(`/systems/${sid}/module/apps/wraith.mjs`);
+      const { rollPool } = await import(`/systems/${sid}/module/dice/roll.mjs`);
+      const a = await Actor.create({ name: "E2E — Спектр", type: "wraith", flags: { world: { e2e: true }, [sid]: { created: true } },
+        system: { willpower: { permanent: 4, temporary: 4 }, wraith: { pathos: { value: 6 } } } });
+      // «Пал в Забвение»: окно касты подменяем ответом «Шейды»
+      const DV = foundry.applications.api.DialogV2, w0 = DV.wait;
+      DV.wait = async o => { const el = document.createElement("div"); el.innerHTML = o.content; o.render?.(null, { element: el, close() {} }); el.querySelector('[data-pick="shade"]')?.click(); return "cancel"; };
+      await SP.becomeSpectre(a); DV.wait = w0;
+      const sp = a.system.wraith.spectre;
+      out.become = [sp.on, sp.caste, sp.angst, sp.dark.collogue];
+      out.xp = [a.xpCost("arcanos", 0), a.xpCost("arcanos", 2), a.xpCost("attribute", 2)];
+      await W.spendPathos(a, 2); await W.gainPathos(a, 1);
+      out.angst = [a.system.wraith.spectre.angst, a.system.wraith.pathos.value];
+      await W.gainAngst(a, 2, { reason: "E2E" });
+      out.psyche = a.system.wraith.spectre.psyche.pool;
+      // Краткая жизнь: ботч Спектра — минус постоянный Корпус
+      let botch = false;
+      for (let i = 0; i < 60 && !botch; i++) botch = (await rollPool({ actor: a, title: "E2E ботч", pool: 2, difficulty: 10, kind: "check" })).outcome === "botch";
+      await wait(1200);
+      out.brief = [botch, a.system.wraith.corpus < 10];
+      await a.update({ "system.wraith.spectre.psyche.pool": 6 });
+      out.cath = a.system.wraith.spectre.psyche.canCatharsis;
+      await a.sheet.render(true); await wait(800); a.sheet.changeTab("disciplines", "primary"); await wait(600);
+      const el = a.sheet.element;
+      out.sheet = [el.querySelectorAll(".r-wr-dark").length >= 1, !!el.querySelector(".r-vc-psyche"), !!el.querySelector(".r-assignat.is-spectre"), !!el.querySelector(".r-wr-spectre-bar")];
+      await a.sheet.close();
+      await ChatMessage.deleteDocuments(game.messages.contents.slice(n0).map(m => m.id));
+      await a.delete();
+      return out;
+    });
+    const want = { become: [true, "shade", 5, 1], xp: [6, 4, 6], angst: [4, 6], psyche: 2, brief: [true, true], cath: true, sheet: [true, true, true, true] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   await check("Призрак: лист и Арканои, Пафос, Страсть, Корпус до колебания и Испытание, Катарсис", async () => {
     const r = await page.evaluate(async () => {
       const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), WR = await import(`/systems/${sid}/module/apps/wraith.mjs`);

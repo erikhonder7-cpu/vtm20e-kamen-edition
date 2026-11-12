@@ -268,6 +268,147 @@ FACTIONS = [{"key": "hierarchy", "name": "Иерархия", "en": "Hierarchy"},
 STATES = ["corporeal", "incorporeal", "wavering", "material", "harrowed"]
 
 
+
+# ── Спектры (основная книга, гл. 10; файлы 20–23) ──
+ATTR_SP = dict(ATTR, **{"Сообразительность": "wits"})
+DARK_ICONS = {"collogue": "fa-circle-nodes", "contaminate": "fa-virus", "corruption": "fa-eye-low-vision", "larceny": "fa-hand-holding-droplet",
+              "maleficence": "fa-skull", "shroudrending": "fa-scissors", "tempestos": "fa-hurricane", "tempestweaving": "fa-water"}
+CASTES = [("mortwight", "Мортвайты", "Mortwights"), ("stripling", "Стриплинги", "Striplings"), ("doppelganger", "Двойники", "Doppelgangers"),
+          ("nephwrack", "Нефврэки", "Nephwracks"), ("shade", "Шейды", "Shades"), ("malfean", "Мальфеаны", "Malfeans")]
+# касты при создании (гл. 4 Спектров, файл 23): какие Арканои, бесплатный Тёмный Арканос, точки на выбор, Оковы
+CASTE_RULES = {"mortwight": {"arcanoi": "dark", "free": {"tempestweaving": 1}, "points": 5, "fetters": True},
+               "stripling": {"arcanoi": "all", "free": {"shroudrending": 1}, "points": 7, "fetters": False, "attributes": [6, 4, 2], "darkPassions": 8},
+               "doppelganger": {"arcanoi": "all", "free": {}, "points": 6, "fetters": True},
+               "nephwrack": {"arcanoi": "all", "free": {}, "points": 8, "fetters": False},
+               "shade": {"arcanoi": "dark", "free": {}, "points": 5, "fetters": False, "darkPassions": 12, "shadecraft": 1},
+               "malfean": {"arcanoi": "all", "free": {}, "points": 12, "fetters": False, "willpower": 10}}
+
+
+def dark_costs(text):
+    t = plain(text)
+    out = {}
+    m = re.search(r"(" + "|".join(ATTR_SP) + r")\s*\+\s*[A-Za-z][A-Za-z ]*", t)
+    if m:
+        out["attr"] = ATTR_SP[m.group(1)]
+    d = re.search(r"сложность\s+(\d+)", t)
+    if d:
+        out["diff"] = int(d.group(1))
+    a = re.search(r"Затрата:\s*(\d+)\s+Ангст", t) or re.search(r"(\d+)\s+Ангст", t)
+    if a and not ("Ангста получаете" in t and "Затрата" not in t):   # «Смакование агонии» Ангст даёт, а не тратит
+        out["angst"] = int(a.group(1))
+    if re.search(r"сложность\s*[—=-]\s*(?:местный\s+)?рейтинг\w*\s+Покрова", t):
+        out["shroud"] = True
+    if re.search(r"рейтинг Покрова или Воля цели, что больше", t):
+        out["shroudMax"] = True
+    w = re.search(r"(\d+)\s+Вол[иья]", t)
+    if w:
+        out["willpower"] = int(w.group(1))
+    p = re.search(r"Психея[^.]*?\+(\d+)\s+Пафос", t)
+    if p:
+        out["psyche"] = int(p.group(1))
+    if re.search(r"оспариваем", t):
+        out["contested"] = True
+    return out
+
+
+def parse_dark_arcanoi():
+    lines = core("21").splitlines()
+    out, cur, lv = [], None, None
+    for line in lines:
+        m = re.match(r"^## (.+?) \(([^)]+)\)(.*)$", line)
+        if m:
+            cur = {"key": re.sub(r"[^a-z]", "", m.group(2).lower()), "name": m.group(1).strip(), "en": m.group(2).strip(),
+                   "intro": [], "levels": []}
+            cur["icon"] = DARK_ICONS.get(cur["key"], "fa-ghost")
+            out.append(cur)
+            lv = None
+            continue
+        m = re.match(r"^### (.+?) \(([^)]+)\)\s*(•+)\s*$", line)
+        if m and cur:
+            lv = {"level": len(m.group(3)), "name": m.group(1).strip(), "en": m.group(2).strip(), "lines": []}
+            cur["levels"].append(lv)
+            continue
+        if line.startswith("---"):
+            lv = None
+            continue
+        if cur is None:
+            continue
+        (lv["lines"] if lv else cur["intro"]).append(line)
+    for a in out:
+        a["html"] = html(a.pop("intro"))
+        for lv in a["levels"]:
+            text = "\n".join(lv.pop("lines"))
+            lv.update(dark_costs(text))
+            lv["html"] = html(text.splitlines())
+    return out
+
+
+def parse_shadecraft():
+    out = []
+    for line in "\n".join(section_lines(core("22"), "## Искусство Шейдов")).splitlines():
+        m = re.match(r"^- \*\*(.+?) \(([^)]+)\)\*\*\s*—\s*(.*)$", line)
+        if m:
+            t = m.group(3)
+            a = re.search(r"(\d+)\s+Ангст", t)
+            out.append({"key": re.sub(r"[^a-z]", "", m.group(2).lower()), "name": m.group(1).strip(), "en": m.group(2).strip(),
+                        "angst": int(a.group(1)) if a else 0, "html": html([t])})
+    return out
+
+
+def section_lines(text, heading):
+    out, on = [], False
+    for line in text.splitlines():
+        if on and re.match(r"^#{1,2} ", line):
+            break
+        if on:
+            out.append(line)
+        elif line.startswith(heading):
+            on = True
+    return out
+
+
+def parse_castes():
+    t22, out = core("22"), []
+    for key, name, en in CASTES:
+        body = section_lines(t22, f"## {name}")
+        created = [x for x in section_lines(core("23"), "### Касты при создании") if x.startswith(f"- **{name}**")]
+        out.append({"key": key, "name": name, "en": en, "html": html(body), "creation": html(created), **CASTE_RULES[key]})
+    return out
+
+
+def parse_psyche():
+    text = core("23")
+    arch_line = next(x for x in text.splitlines() if x.startswith("1. **Архетип:**"))
+    arch = []
+    for ru, en in re.findall(r"([А-ЯЁ][а-яё]+)\s*\(([A-Za-z]+)\)", arch_line):
+        arch.append({"name": ru, "en": en})
+    fronds = []
+    for line in section_lines(text, "### Ветви Психеи"):
+        m = re.match(r"^- \*\*(.+?) \(([^)]+)\)\*\*\s*\(([^)]*)\)\s*—\s*(.*)$", line)
+        if m:
+            cost = m.group(3)
+            nums = [int(x) for x in re.findall(r"\d+", cost)]
+            fronds.append({"key": re.sub(r"[^a-z]", "", m.group(2).lower()), "name": m.group(1).strip(), "en": m.group(2).strip(),
+                           "costText": cost, "cost": nums[0] if nums else 1, "perLevel": "уровень" in cost, "max": nums[-1] if len(nums) > 1 else None,
+                           "html": html([m.group(4)])})
+    return {"archetypes": arch, "fronds": fronds}
+
+
+def parse_spectre_backgrounds():
+    text, out = core("23"), []
+    for name, en in (("Земли Теней", "Shadowlands"), ("Лабиринт", "Labyrinth")):
+        body = section_lines(text, f"### Новая Предыстория: {name}")
+        out.append({"name": name, "en": en, "spectre": True, "html": html(body)})
+    return out
+
+
+SPECTRE = {"angstStart": 5, "willpower": 5, "corpus": 10, "darkPassions": 10, "backgrounds": 5, "psychePassions": 7, "freebies": 20, "psycheTrade": 7,
+           "freebieCosts": {"attribute": 5, "ability": 2, "arcanos": 5, "basic": 3, "background": 1, "darkPassion": 2, "fetter": 1, "angstPer2": 1, "willpower": 2},
+           "psycheCosts": {"pathosRating": 5, "pathosPool": 2, "passion": 1},
+           "xp": {"newAbility": 3, "newArcanos": 6, "attribute": "×3", "ability": "×2", "arcanos": "×2", "willpower": "×1"},
+           "noBackgrounds": ["Eidolon", "Notoriety", "Wealth"]}
+
+
 def build():
     arcanoi = parse_arcanoi()
     allies = parse_allies(arcanoi)
@@ -279,6 +420,8 @@ def build():
         "arcanoi": arcanoi, "legions": parse_legions(), "factions": FACTIONS, "archetypes": parse_psyche_archetypes(),
         "shadowArchetypes": arch, "thorns": thorns, "backgrounds": parse_backgrounds(), "states": STATES,
         "creation": CREATION, "freebies": FREEBIES, "xp": XP,
+        "darkArcanoi": parse_dark_arcanoi(), "shadecraft": parse_shadecraft(), "castes": parse_castes(), "psyche": parse_psyche(),
+        "spectreBackgrounds": parse_spectre_backgrounds(), "spectre": SPECTRE,
     }
     with open(OUT, "w", encoding="utf-8", newline="\n") as f:
         json.dump(data, f, ensure_ascii=False, indent=1)

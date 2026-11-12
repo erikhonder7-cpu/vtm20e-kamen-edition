@@ -291,3 +291,23 @@
 .vtm20.r-type-wraith .r-wr-shroud-why { flex: 1 1 160px; min-width: 0; color: var(--r-muted); font-style: italic; }
 .vtm20.r-type-wraith .r-wr-shroud-tools { display: inline-flex; align-items: center; gap: 4px; margin-left: auto; }
 .vtm20.r-type-wraith .r-wr-chip.is-shroud { border-style: dashed; }
+
+/* Спектр: полоса касты, Тёмные Арканои строками уровней, Психея — тёплый свет на пепле */
+.vtm20.r-type-wraith .r-wr-spectre-bar { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 12px; margin: 0 0 10px; padding: 6px 10px;
+  border: 1px solid rgba(161, 74, 99, .45); background: linear-gradient(90deg, rgba(106, 42, 60, .25), transparent); }
+.vtm20.r-type-wraith .r-wr-spectre-bar.is-off { border-style: dashed; background: none; justify-content: flex-end; }
+.vtm20.r-type-wraith .r-wr-darks { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 10px; margin-bottom: 8px; }
+.vtm20.r-type-wraith .r-wr-dark { border-color: rgba(161, 74, 99, .45); }
+.vtm20.r-type-wraith .r-wr-dark .r-wr-arc-sigil i { color: #a14a63; font-size: 18px; }
+.vtm20.r-type-wraith .r-wr-dark-levels { list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-direction: column; gap: 3px; }
+.vtm20.r-type-wraith .r-wr-dark-levels li { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; padding: 2px 0; border-bottom: 1px dotted var(--r-line); }
+.vtm20.r-type-wraith .r-wr-dark-levels li.is-beyond { opacity: .45; }
+.vtm20.r-type-wraith .r-wr-dark-name { flex: 1 1 140px; min-width: 0; cursor: pointer; }
+.vtm20.r-type-wraith .r-wr-dark-name b { font-weight: 400; color: var(--r-ink); }
+.vtm20.r-type-wraith .r-wr-dark-name em { font-size: 11.5px; color: var(--r-muted); }
+.vtm20.r-type-wraith .r-wr-dark-levels li.is-beyond .r-wr-dark-name { cursor: default; }
+.vtm20.r-type-wraith .r-h2.is-psyche { color: #e6d8b8; }
+.vtm20.r-type-wraith .r-vc-psyche .r-banner a { color: #f0e2c0; }
+.vtm20.r-type-wraith .r-vc-psyche.is-catharsis { box-shadow: inset 0 0 0 1px rgba(240, 226, 192, .55), 0 0 14px rgba(240, 226, 192, .18); }
+.vtm20.r-type-wraith .r-boxes.is-psyche .r-box.is-filled { background: linear-gradient(180deg, #f3e7c8, #b39a62); border-color: #f3e7c8; }
+.vtm20.r-type-wraith .r-assignat.is-spectre .r-drop.is-filled svg path { fill: #a14a63; }

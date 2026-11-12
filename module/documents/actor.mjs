@@ -166,6 +166,7 @@ export class VtMActor extends Actor {
     if (group === "werewolf") return key === "rage" ? s.werewolf?.rage?.value ?? 0   // текущие Ярость и Гнозис; Гнозис — эффективный (клайв при себе)
       : key === "gnosis" ? Math.max(0, (s.werewolf?.gnosis?.value ?? 0) - (s.werewolf?.gnosis?.loss ?? 0)) : 0;
     if (group === "spirit") return s.spirit?.[key] ?? 0;          // дух Умбры: Ярость, Гнозис, Воля
+    if (group === "spectre") return s.wraith?.spectre?.dark?.[key] ?? 0;   // Тёмные Арканои Спектра
     if (group === "wraith") return key === "pathos" ? s.wraith?.pathos?.value ?? 0 : key === "angst" ? s.wraith?.shadow?.angst?.temporary ?? 0   // призрак: Арканои, Пафос, Ангст
       : key === "angstPerm" ? s.wraith?.shadow?.angst?.permanent ?? 0 : s.wraith?.arcanoi?.[key]?.value ?? 0;
     if (group === "morality") return s.morality.value;
@@ -186,6 +187,7 @@ export class VtMActor extends Actor {
     if (group === "mage") return key === "arete" ? t("Mage.Arete") : Codex.mage?.spheres?.find(x => x.key === key)?.name ?? key;
     if (group === "werewolf") return t(`Werewolf.${key === "rage" ? "Rage" : "Gnosis"}`);
     if (group === "spirit") return t(`Werewolf.Spirit.${key}`);
+    if (group === "spectre") return Codex.wraith?.darkArcanoi?.find(x => x.key === key)?.name ?? key;
     if (group === "wraith") return ["pathos", "angst", "angstPerm"].includes(key) ? t(`Wraith.${key[0].toUpperCase()}${key.slice(1)}`)
       : Codex.wraith?.arcanoi?.find(x => x.key === key)?.name ?? key;
     if (group === "morality") return this.path?.name ?? t("Humanity");
@@ -719,7 +721,7 @@ export class VtMActor extends Actor {
   xpCost(kind, current, extra = {}) {
     const X = VTM20.xp, ghoul = this.type === "ghoul";
     switch (kind) {
-      case "attribute": return X.attribute(current);
+      case "attribute": return this.system.wraith?.spectre?.on ? current * 3 : X.attribute(current);   // Спектр (Wraith 20, гл. 10): Атрибут × 3
       case "ability": return current === 0 ? X.newAbility : X.ability(current);
       case "discipline": {
         if (current === 0) return ghoul ? 20 : X.newDiscipline;
@@ -755,7 +757,7 @@ export class VtMActor extends Actor {
       // колдун (M20 Sorcerer, гл. 3): новая нумина 7, нумина второго вида (Путь при феноменах и наоборот) 21, рост × 7
       case "sorcNumen": return current >= 5 ? null : current === 0 ? (extra.secondary ? 21 : 7) : current * 7;
       // призрак (Wraith 20, гл. 8): новый Арканос 7, далее текущее × 3; Страсть и Оковы — новая 3, далее × 3 (с позволения рассказчика)
-      case "arcanos": return current >= 5 ? null : current === 0 ? 7 : current * 3;
+      case "arcanos": return current >= 5 ? null : this.system.wraith?.spectre?.on ? (current === 0 ? 6 : current * 2) : current === 0 ? 7 : current * 3;
       case "passion": case "fetter": return current >= 5 ? null : current === 0 ? 3 : current * 3;
       default: return null;
     }
