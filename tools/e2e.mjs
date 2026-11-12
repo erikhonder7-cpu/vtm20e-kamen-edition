@@ -4510,6 +4510,25 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  await check("Призрак: генератор НПС — призрак, Спектр, Восставший, проектор", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, B = await import(`/systems/${sid}/module/apps/npc-build.mjs`), out = {};
+      const d = k => B.buildNpc({ kind: k, power: "seasoned" });
+      const w = d("wraith"), sp = B.buildNpc({ kind: "spectre", power: "normal", params: { caste: "shade" } }), rs = d("risen"), pj = d("projector");
+      out.wraith = [w.actor, w.system.wraith.passions.length, w.powers.length > 0];
+      out.spectre = [sp.system.wraith.spectre.on, sp.system.wraith.spectre.dark.collogue >= 1, Object.values(sp.system.wraith.arcanoi).every(x => !x.value)];
+      out.risen = [rs.system.wraith.risen.on, rs.system.wraith.arcanoi.puppetry.value >= 1, rs.c.attrs.strength >= 3];
+      out.projector = [pj.system.wraith.projector.on, !!pj.system.wraith.projector.shade];
+      const a = await B.createNpc(w, { name: "E2E — призрак из генератора" });
+      out.created = [a.type, a.system.wraith.legion !== "", a.system.wraith.passions.length];
+      await a.delete();
+      return out;
+    });
+    const want = { wraith: ["wraith", 3, true], spectre: [true, true, true], risen: [true, true, true], projector: [true, true], created: ["wraith", true, 3] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   await check("Призрак: лист и Арканои, Пафос, Страсть, Корпус до колебания и Испытание, Катарсис", async () => {
     const r = await page.evaluate(async () => {
       const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), WR = await import(`/systems/${sid}/module/apps/wraith.mjs`);

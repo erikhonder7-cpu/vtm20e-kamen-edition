@@ -313,7 +313,8 @@
         "DarkBotch": "Botch — Brief Life: −1 permanent Corpus",
         "BriefLife": "<b>{name}</b>: botch — Brief Life: permanent Corpus −1 (now {n}); neither Angst nor Slumber restores it.",
         "BotchPsyche": "<b>{name}</b>: botch during Psyche Catharsis — Corpus intact, the Psyche loses 1 Pathos.",
-        "HealShort": "With Angst"
+        "HealShort": "With Angst",
+        "Caste": "Caste"
       },
       "Risen": {
         "Title": "Risen",
@@ -431,7 +432,8 @@
         "Suppressed": "<b>{name}</b> holds the Stains back until the scene ends.",
         "Vitality": "<b>{name}</b>: Willpower into 3 Pathos; Corpus healed by {n}.",
         "Emblem": "<b>{name}</b>: Emblem of Protection — armor 4/2/1 until the scene ends.",
-        "Harrowed": "<b>{name}</b>: the living face no Harrowing — the projector is hurled back into the body with an aggravated wound."
+        "Harrowed": "<b>{name}</b>: the living face no Harrowing — the projector is hurled back into the body with an aggravated wound.",
+        "ShadeLabel": "Shade"
       },
       "Realm": {
         "Arcanoi": "Dark Kingdom",
@@ -4163,7 +4165,8 @@
         "fallen": "The Fallen",
         "book": "From the book",
         "groups": "Groups",
-        "awakened": "The Awakened"
+        "awakened": "The Awakened",
+        "dead": "The Dead"
       },
       "Kind": {
         "vampire": "Kindred",
@@ -4188,7 +4191,11 @@
         "technocrat": "Technocrat",
         "nephandus": "Nephandus",
         "sorcerer": "Sorcerer",
-        "consor": "Consor"
+        "consor": "Consor",
+        "wraith": "Wraith",
+        "spectre": "Spectre",
+        "risen": "Risen",
+        "projector": "Orpheus projector"
       },
       "RoleGroup": {
         "combat": "Combat",

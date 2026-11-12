@@ -8,6 +8,7 @@
 //   · Справа — досье черновика: ровно этот НПС и будет создан; «Перебросить» — другой с теми же условиями.
 // Сборка по правилам создания линеек — module/apps/npc-build.mjs. Имена — наборы data/npc.json → names. Всё — в папку «НПС».
 
+import { W as WR } from "./wraith.mjs";
 import { VTM20, SYSTEM_PATH, SYSTEM_ID } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
 import { WEAPON_PRESETS, ARMOR_PRESETS } from "../data/equipment.mjs";
@@ -189,6 +190,14 @@ function paramFields(kind, p) {
       const kinds = [...new Set((D.spirits ?? []).map(s => s.kind))];
       F.push({ name: "spiritKind", label: L("SpiritKind"), options: [any(p.spiritKind), ...kinds.map(k => opt(k, loc(`VTM20.Werewolf.Spirit.kind.${k}`), p.spiritKind))] });
       F.push({ name: "spirit", label: L("SpiritTpl"), options: [any(p.spirit), ...(D.spirits ?? []).filter(s => !p.spiritKind || s.kind === p.spiritKind).map(s => opt(s.key, s.name, p.spirit))] });
+      break;
+    }
+    case "wraith": case "spectre": case "risen": case "projector": {
+      const Dw = WR();
+      F.push({ name: "legion", label: loc("VTM20.Wraith.Legion"), options: [any(p.legion), ...(Dw.legions ?? []).map(l => opt(l.key, l.name, p.legion))] });
+      if (kind === "spectre") F.push({ name: "caste", label: loc("VTM20.Wraith.Spectre.Caste"), options: [any(p.caste), ...(Dw.castes ?? []).map(c => opt(c.key, c.name, p.caste))] });
+      else if (kind === "projector") F.push({ name: "shade", label: loc("VTM20.Wraith.Proj.ShadeLabel"), options: [any(p.shade), ...(Dw.shades ?? []).map(x => opt(x.key, `${x.name} (${x.en})`, p.shade))] });
+      else F.push({ name: "guild", label: loc("VTM20.Wraith.Guild"), options: [any(p.guild), ...(Dw.arcanoi ?? []).map(a => opt(a.key, `${a.guild} — ${a.name}`, p.guild))] });
       break;
     }
     case "group":

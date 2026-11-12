@@ -4,6 +4,7 @@
 // подвид и выбор (клан, племя, кредо, Дом…) — какие силы доступны. Результат — черновик: данные листа, предметы и
 // карточка для предпросмотра; создаётся актёр только по кнопке, ровно таким, каким его показали.
 
+import { W as WR } from "./wraith.mjs";
 import { VTM20, SYSTEM_ID } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
 import { LibraryItems } from "./library.mjs";
@@ -58,6 +59,7 @@ export const KIND_GROUPS = [
   { key: "garou", label: "Мир Гару", icon: "fa-paw" },
   { key: "fallen", label: "Падшие", icon: "fa-fire-flame-curved" },
   { key: "awakened", label: "Пробуждённые", icon: "fa-hat-wizard" },
+  { key: "dead", label: "Мир мёртвых", icon: "fa-ghost" },
   { key: "groups", label: "Группы", icon: "fa-people-group" },
   { key: "book", label: "Из книги", icon: "fa-book" }
 ];
@@ -83,6 +85,10 @@ export const KINDS = [
   { key: "nephandus", group: "awakened", label: "Нефанд", icon: "fa-skull", actor: "mage" },
   { key: "sorcerer", group: "awakened", label: "Колдун", icon: "fa-book-skull", actor: "mortal" },
   { key: "consor", group: "awakened", label: "Консор", icon: "fa-user-group", actor: "mortal" },
+  { key: "wraith", group: "dead", label: "Призрак", icon: "fa-ghost", actor: "wraith" },
+  { key: "spectre", group: "dead", label: "Спектр", icon: "fa-skull", actor: "wraith" },
+  { key: "risen", group: "dead", label: "Восставший", icon: "fa-person-rays", actor: "wraith" },
+  { key: "projector", group: "dead", label: "Проектор «Орфея»", icon: "fa-person-falling-burst", actor: "wraith" },
   { key: "group", group: "groups", label: "Группа целиком", icon: "fa-people-group", actor: null },
   { key: "book", group: "book", label: "Статблоки книги", icon: "fa-book", actor: null }
 ];
@@ -501,6 +507,13 @@ const BUILD = {
       metis: sub.breed === "metis", tags: [fera.name, ...picked.map(o => o.name)] });
   },
 
+  // Призраки (Wraith 20, гл. 4): Арканои 5 и больше по силе (не больше 3 у новичка), Страсти и Оковы по 10 — строками причин
+  // «почему здесь» из книги, Пафос 5 + Мемориум, Тень: архетип и Ангст броском Воли; Спектр, Восставший, проектор — поверх
+  wraith(ctx, p) { return wraithNpc(ctx, p, "wraith"); },
+  spectre(ctx, p) { return wraithNpc(ctx, p, "spectre"); },
+  risen(ctx, p) { return wraithNpc(ctx, p, "risen"); },
+  projector(ctx, p) { return wraithNpc(ctx, p, "projector"); },
+
   spirit(ctx, p) {
     const D = WW(), list = D.spirits ?? [];
     const sp = list.find(s => s.key === p.spirit) ?? wpick(list.map(s => [s, (p.spiritKind && s.kind !== p.spiritKind ? 0 : 1) * wordW(ctx.role, s.name, s.text)]));
@@ -512,6 +525,87 @@ const BUILD = {
       tags: [loc(`VTM20.Werewolf.Spirit.kind.${sp.kind}`), sp.en ?? ""].filter(x => x && !x.startsWith("VTM20.")) };
   }
 };
+
+/* ── Мир мёртвых ── */
+// «Почему здесь» (Wraith 20, гл. 4, шаг 1) — Страсть НПС: причина и чувство-ядро
+const WR_WHY = [["Понять, почему умер", "Растерянность"], ["Исправить свою неудачу", "Стыд"], ["Искупить вину", "Вина"], ["Сберечь своё наследие", "Гордость"],
+  ["Быть рядом с любимыми", "Любовь"], ["Вернуть упущенный шанс", "Сожаление"], ["Закончить начатое", "Долг"], ["Узнать правду", "Любопытство"],
+  ["Отплатить обидчику", "Обида"], ["Отомстить убийце", "Месть"], ["Исполнить несбывшееся", "Надежда"], ["Открыть скрытую правду", "Справедливость"]];
+const WR_FETTERS = ["Дом, где жил", "Близкий человек", "Место смерти", "Любимая вещь", "Могила", "Ребёнок", "Старый друг", "Мастерская"];
+
+function wraithNpc(ctx, p, mode) {
+  const D = WR(), tier = ctx.power.tier, keys = VTM20.wraithArcanoi;
+  // каста Спектра — сразу: от неё зависят Атрибуты, Арканои и Оковы
+  const caste = mode !== "spectre" ? null : (D.castes ?? []).find(x => x.key === p.caste) ?? wpick((D.castes ?? []).filter(x => x.key !== "malfean" || tier >= 4)
+    .map(x => [x, { shade: 4, doppelganger: 3, nephwrack: 2, mortwight: 2, stripling: 1, malfean: 1 }[x.key] ?? 1]));
+  p = { ...p, caste: caste?.key ?? p.caste };
+  const c = core(ctx, { attr: mode === "spectre" && p.caste === "stripling" ? [6, 4, 2] : [7, 5, 3], abil: [13, 9, 5], virt: null, bg: mode === "risen" || mode === "spectre" ? 5 : 7,
+    bgType: "wraith", abilType: "wraith" });
+  if (mode === "risen") { c.attrs.strength = Math.max(3, c.attrs.strength); c.attrs.appearance = Math.min(3, c.attrs.appearance); }
+  // Фоны, которых у вида нет (Спектр — Эйдолон, Известность, Богатство; Восставший — Артефакт, Наставник, Статус; проектор — Эйдолон, Обиталище, Наследие, Мемориум)
+  const noBg = { spectre: D.spectre?.noBackgrounds, risen: D.risen?.noBackgrounds, projector: D.projector?.noBackgrounds }[mode] ?? [];
+  for (const b of c.chosen.filter(x => noBg.includes(x.en))) delete c.bgs[b.name];
+  c.chosen = c.chosen.filter(x => !noBg.includes(x.en));
+  const will = Math.clamp((mode === "risen" ? 6 : 5) + ctx.power.add.will, 1, 10);
+  const legion = (D.legions ?? []).find(l => l.key === p.legion) ?? pick(D.legions ?? [{ key: "" }]);
+  const guild = mode === "spectre" ? null : (D.arcanoi ?? []).find(a => a.key === p.guild) ?? (Math.random() < .6 ? pick(D.arcanoi ?? []) : null);
+  const arcanoi = Object.fromEntries(keys.map(k => [k, 0]));
+  const cap = Math.min(5, 3 + Math.max(0, tier - 1));
+  const shade = mode === "projector" ? (D.shades ?? []).find(s => s.key === p.shade) ?? pick(D.shades ?? [{ key: "", favored: [] }]) : null;
+  if (mode === "risen") { arcanoi.puppetry = 1; spread(["lifeweb", "inhabit", "embody"], 2, 3, () => 1, arcanoi); }
+  if (mode === "projector") { arcanoi.embody = 1; arcanoi.lifeweb = 1; if (shade?.favored?.[0] && keys.includes(shade.favored[0])) arcanoi[shade.favored[0]] = Math.max(1, arcanoi[shade.favored[0]]); }
+  const pool = mode === "spectre" && ["mortwight", "shade"].includes(p.caste) ? 0 : (D.creation?.arcanoi ?? 5) + tier * 3 - (mode === "risen" ? 3 : mode === "projector" ? 3 : 0);
+  if (pool > 0) spread(keys, pool, cap, (k, v) => (k === guild?.key ? 6 : shade?.favored?.includes(k) ? 4 : shade?.prohibited?.includes(k) ? 0 : 1) * (v ? 1.6 : 1), arcanoi);
+  // Страсти и Оковы: по 10 точек на 2–4 строки
+  const rows = (n, total, make) => { const out = Array.from({ length: n }, (_, i) => make(i)); let left = total - n;
+    while (left > 0) { const r = pick(out); if (r.value < 5) { r.value++; left--; } } return out; };
+  const why = pickN(WR_WHY, 3);
+  const passions = rows(3, mode === "spectre" ? 10 : (D.creation?.passions ?? 10), i => ({ text: why[i][0], emotion: why[i][1], value: 1 }));
+  const fetters = mode === "spectre" && !["mortwight", "doppelganger"].includes(p.caste) ? [] : rows(3, 10, i => ({ text: pickN(WR_FETTERS, 3)[i], value: 1, resolved: false }));
+  const memoriam = c.bgs[(D.backgrounds ?? []).find(b => b.en === "Memoriam")?.name] ?? 0;
+  const angstRoll = Math.min(will, Math.max(1, Array.from({ length: will }, () => Math.ceil(Math.random() * 10)).filter(v => v >= 6).length));
+  const arch = pick(D.shadowArchetypes ?? [{ name: "" }]);
+  const sys = baseSystem(ctx, c, { morality: false });
+  delete sys.virtues;
+  sys.willpower = { permanent: will, temporary: will };
+  const w = { legion: legion.key, guild: guild?.key ?? "", faction: mode === "spectre" ? "" : pick(D.factions ?? [{ key: "" }]).key,
+    pathos: { value: Math.min(10, 5 + memoriam + (mode === "projector" ? shade?.pathos ?? 0 : 0)) }, corpus: 10, state: "corporeal",
+    arcanoi: Object.fromEntries(keys.map(k => [k, { value: arcanoi[k], initiate: [], skip: [] }])), passions, fetters,
+    shadow: { archetype: mode === "projector" || mode === "spectre" ? "" : arch.name, guide: "", catharsis: false,
+      angst: { permanent: Math.clamp(angstRoll + (shade?.angst ?? 0), 1, 10), temporary: Math.floor(Math.random() * 3) }, darkPassions: [], thorns: [] } };
+  const powers = keys.filter(k => arcanoi[k] > 0).sort((a, b) => arcanoi[b] - arcanoi[a]).map(k => ({ label: D.arcanoi.find(x => x.key === k)?.name ?? k, v: arcanoi[k] }));
+  const tags = [legion.name, guild?.guild].filter(Boolean);
+  if (mode === "spectre") {
+    const dark = Object.fromEntries(VTM20.wraithDark.map(k => [k, 0]));
+    dark.collogue = 1; for (const [k, v] of Object.entries(caste?.free ?? {})) dark[k] = Math.max(dark[k], v);
+    spread(VTM20.wraithDark, (caste?.points ?? 5) + tier * 2, cap, (k, v) => v ? 1.6 : 1, dark);
+    const shadecraft = caste?.key === "shade" ? pickN(D.shadecraft ?? [], 1 + Math.floor(tier / 2)).map(x => x.key) : [];
+    w.spectre = { on: true, caste: caste?.key ?? "", angst: Math.min(10, 5 + tier), dark, shadecraft,
+      psyche: { archetype: pick(D.psyche?.archetypes ?? [{ name: "" }]).name, guide: "", rating: 1, pool: Math.floor(Math.random() * 3), passions: [], fronds: [], catharsis: false } };
+    if (caste?.willpower) sys.willpower = { permanent: caste.willpower, temporary: caste.willpower };
+    powers.push(...VTM20.wraithDark.filter(k => dark[k] > 0).map(k => ({ label: (D.darkArcanoi ?? []).find(x => x.key === k)?.name ?? k, v: dark[k] })));
+    tags.splice(0, tags.length, caste?.name ?? "", legion.name);
+  }
+  if (mode === "risen") {
+    const disc = { potence: 0, fortitude: 0, celerity: 0 };
+    spread(Object.keys(disc), Math.max(0, tier), 3, () => 1, disc);
+    w.risen = { on: true, body: true, conduit: fetters[0]?.text ?? "", arcanoi: { fascinate: Math.min(2, tier), serendipity: Math.min(1, tier) }, disc };
+    tags.unshift(game.i18n.localize("VTM20.Wraith.Risen.Title"));
+  }
+  if (mode === "projector") {
+    const n = Math.floor(w.shadow.angst.permanent / 2);
+    w.projector = { on: true, shade: shade?.key ?? "", lament: Math.random() < .7 ? "skimmer" : "sleeper", projecting: false, emblem: false,
+      stains: pickN(D.stains ?? [], n).map(x => ({ key: x.key, shown: false })) };
+    sys.willpower = { permanent: Math.clamp(will + (shade?.willpower ?? 0), 1, 10), temporary: Math.clamp(will + (shade?.willpower ?? 0), 1, 10) };
+    tags.splice(0, tags.length, game.i18n.localize("VTM20.Wraith.Proj.Title"), shade?.name ?? "");
+  }
+  sys.wraith = w;
+  return { actor: "wraith", img: "wraith", system: sys, items: bgItems(c), c, powers, powersLabel: game.i18n.localize("VTM20.Wraith.Arcanoi"),
+    traits: [[game.i18n.localize(mode === "spectre" ? "VTM20.Wraith.Spectre.Angst" : "VTM20.Wraith.Pathos"), mode === "spectre" ? w.spectre.angst : w.pathos.value],
+      [t("Willpower"), sys.willpower.permanent], mode === "spectre" ? [game.i18n.localize("VTM20.Wraith.Spectre.Psyche"), w.spectre.psyche.rating]
+        : [game.i18n.localize("VTM20.Wraith.Angst"), w.shadow.angst.permanent]],
+    tags: tags.filter(Boolean) };
+}
 
 /** Гару и Фера: общая часть, Дары по Рангу (свои списки, уровень ≤ Ранга), Слава по требованию Ранга, ритуалы. */
 function garouLike(ctx, o) {
