@@ -5864,7 +5864,9 @@
       "PerkNode": "Node",
       "PerkNodeLine": "A Node lies here: stepping sideways is easier for a mage — Gauntlet −1 per 2 tokens (up to −2).",
       "FactionTech": "Technocratic Conventions",
-      "FactionTechHint": "Five Conventions as board factions with starting influence of 2 tokens: NWO — media and telecom, Syndicate — finance and high society, Iteration X — industry, Progenitors — health, Void Engineers — university (system rule)"
+      "FactionTechHint": "Five Conventions as board factions with starting influence of 2 tokens: NWO — media and telecom, Syndicate — finance and high society, Iteration X — industry, Progenitors — health, Void Engineers — university (system rule)",
+      "FactionDead": "The Dead",
+      "FactionDeadHint": "Stygia’s four factions as board factions with starting influence of 2 tokens: Hierarchy — courts and council, Renegades — crime and unions, Heretics — church, Ferrymen — port and the wilds (system rule)"
     },
     "GarouCr": {
       "Title": "Garou creation",

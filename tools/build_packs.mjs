@@ -798,6 +798,22 @@ BUILDERS["wraith-books"] = function () {
   return p;
 };
 
+/**
+ * Арканои призраков (data/wraith.json): запись на Арканос, страница на уровень — Гильдий (Общий и Посвящённый уровни),
+ * Тёмные Арканои Спектров, Арканои Восставших и других Тёмных Царств; папки — по виду.
+ */
+BUILDERS["wraith-arcanoi"] = function () {
+  const p = new Pack("wraith-arcanoi", "JournalEntry"), W = data("wraith"), dots = n => "•".repeat(n);
+  const intro = a => a.html ? [{ name: a.guild ? `${a.name} — ${a.guild}` : a.name, html: a.html }] : [];
+  const lvlName = l => `${dots(l.level)} ${l.name}${l.kind === "initiate" ? " (П)" : l.kind === "common" ? " (О)" : ""}`;
+  for (const a of W.arcanoi ?? []) p.addBook({ name: `${a.name} (${a.en})`, folder: "Арканои Гильдий", key: `wraith-arc:${a.key}`,
+    pages: [...intro(a), ...a.levels.map(l => ({ name: lvlName(l), html: l.html }))] });
+  for (const [list, folder, k] of [[W.darkArcanoi, "Тёмные Арканои Спектров", "dark"], [W.risenArcanoi, "Арканои Восставших", "risen"], [W.realmArcanoi, "Арканои Тёмных Царств", "realm"]])
+    for (const a of list ?? []) p.addBook({ name: `${a.name} (${a.en})`, folder, key: `wraith-${k}:${a.key}`,
+      pages: [...intro(a), ...a.levels.map(l => ({ name: lvlName(l), html: l.html }))] });
+  return p;
+};
+
 /** Фоны призраков (data/wraith.json, Wraith 20, гл. 4): Мемориум, Эйдолон, Обиталище, Наследие… */
 BUILDERS["wraith-backgrounds"] = function () {
   const p = new Pack("wraith-backgrounds");

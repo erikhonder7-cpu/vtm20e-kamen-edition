@@ -17,7 +17,7 @@
 import { SYSTEM_ID } from "../config.mjs";
 import { EXT, registerCityExtension } from "./city-ext.mjs";
 import { ST } from "./strategy-state.mjs";
-import { FLAG, S, esc, uid, MAX, INTENTS, perkName, PROJ, projectsOf, needOf, sectorName, DEFAULT_BID, strat, save, owner, meActor, bidsOf, doneOf, setBids, allBids, sees, visibleSectors, CONVENTIONS } from "./strategy-rules.mjs";
+import { FLAG, S, esc, uid, MAX, INTENTS, perkName, PROJ, projectsOf, needOf, sectorName, DEFAULT_BID, strat, save, owner, meActor, bidsOf, doneOf, setBids, allBids, sees, visibleSectors, CONVENTIONS, DEAD_FACTIONS } from "./strategy-rules.mjs";
 import { Codex } from "../data/codex.mjs";
 export { strat } from "./strategy-rules.mjs";
 import { head, emptyView, hexes, sectorView, turnView, deskView, reportsView, setupView } from "./strategy-views.mjs";
@@ -350,6 +350,15 @@ async function onClick(ev) {
       const owners = { ...s.owners }, tokens = foundry.utils.deepClone(s.tokens), names = Object.fromEntries((Codex.mage?.factions ?? []).map(f => [f.key, f.name]));
       for (const c of CONVENTIONS) {
         const k = `f:conv-${c.key}`;
+        owners[k] = { ...(owners[k] ?? {}), name: owners[k]?.name || names[c.key] || c.key, color: owners[k]?.color || c.color };
+        for (const sec of c.sectors) if (s.sectors.some(x => x.key === sec)) tokens[sec] = { ...(tokens[sec] ?? {}), [k]: Math.max(tokens[sec]?.[k] ?? 0, 2) };
+      }
+      return save({ owners, tokens });
+    }
+    case "facDead": {   // Мир мёртвых: фракции Стигии и стартовое влияние (правило системы)
+      const owners = { ...s.owners }, tokens = foundry.utils.deepClone(s.tokens), names = Object.fromEntries((Codex.wraith?.factions ?? []).map(f => [f.key, f.name]));
+      for (const c of DEAD_FACTIONS) {
+        const k = `f:dead-${c.key}`;
         owners[k] = { ...(owners[k] ?? {}), name: owners[k]?.name || names[c.key] || c.key, color: owners[k]?.color || c.color };
         for (const sec of c.sectors) if (s.sectors.some(x => x.key === sec)) tokens[sec] = { ...(tokens[sec] ?? {}), [k]: Math.max(tokens[sec]?.[k] ?? 0, 2) };
       }

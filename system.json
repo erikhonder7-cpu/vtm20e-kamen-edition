@@ -746,6 +746,18 @@
       "flags": {}
     },
     {
+      "name": "wraith-arcanoi",
+      "label": "Арканои призраков",
+      "path": "packs/wraith-arcanoi",
+      "type": "JournalEntry",
+      "system": "vtm20e-kamen-edition",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
+    },
+    {
       "name": "wraith-backgrounds",
       "label": "Фоны призраков",
       "path": "packs/wraith-backgrounds",
@@ -866,6 +878,7 @@
       "color": "#3b4650",
       "packs": [
         "wraith-books",
+        "wraith-arcanoi",
         "wraith-backgrounds"
       ]
     }

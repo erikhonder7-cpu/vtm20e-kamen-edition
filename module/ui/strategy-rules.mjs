@@ -244,3 +244,15 @@ export const CONVENTIONS = [
   { key: "progenitors", color: "#3f8a6a", sectors: ["health"] },
   { key: "void-engineers", color: "#5a4a9a", sectors: ["university"] }
 ];
+
+/**
+ * Мир мёртвых (Wraith 20, гл. 1): четыре фракции Стигии на доске. Стартовое влияние — правило системы: по смыслу фракции,
+ * 2 фишки в секторах заготовки «современный город» — Иерархия в судах и совете, Отступники среди преступников и профсоюзов,
+ * Еретики в церкви, Перевозчики в порту и диких землях.
+ */
+export const DEAD_FACTIONS = [
+  { key: "hierarchy", color: "#6a7280", sectors: ["courts", "council"] },
+  { key: "renegade", color: "#8a3a3a", sectors: ["crime", "unions"] },
+  { key: "heretic", color: "#a08a4a", sectors: ["church"] },
+  { key: "ferryman", color: "#3a5a6a", sectors: ["port", "wilds"] }
+];

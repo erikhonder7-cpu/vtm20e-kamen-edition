@@ -391,7 +391,7 @@ export function setupView(s) {
   const facs = Object.entries(s.owners).map(([k, f]) => `<li><input type="color" data-rs-fac="${k}" data-f="color" value="${f.color}"><input type="text" data-rs-fac="${k}" data-f="name" value="${esc(f.name)}"><a data-rs="facDel" data-key="${k}"><i class="fa-solid fa-trash"></i></a></li>`).join("");
   return `<section class="rs-setup">
     <h4>${esc(S("Spheres"))}</h4><ul class="rs-setsph">${sph}</ul><a class="r-btn" data-rs="sphAdd"><i class="fa-solid fa-plus"></i> ${esc(S("SphereAdd"))}</a>
-    <h4>${esc(S("Factions"))}</h4><p class="rs-note">${esc(S("FactionsHint"))}</p><ul class="rs-setsph">${facs}</ul><a class="r-btn" data-rs="facAdd"><i class="fa-solid fa-plus"></i> ${esc(S("FactionAdd"))}</a> <a class="r-btn" data-rs="facTech" data-tooltip="${esc(S("FactionTechHint"))}"><i class="fa-solid fa-atom"></i> ${esc(S("FactionTech"))}</a>
+    <h4>${esc(S("Factions"))}</h4><p class="rs-note">${esc(S("FactionsHint"))}</p><ul class="rs-setsph">${facs}</ul><a class="r-btn" data-rs="facAdd"><i class="fa-solid fa-plus"></i> ${esc(S("FactionAdd"))}</a> <a class="r-btn" data-rs="facTech" data-tooltip="${esc(S("FactionTechHint"))}"><i class="fa-solid fa-atom"></i> ${esc(S("FactionTech"))}</a> <a class="r-btn" data-rs="facDead" data-tooltip="${esc(S("FactionDeadHint"))}"><i class="fa-solid fa-ghost"></i> ${esc(S("FactionDead"))}</a>
     <h4>${esc(S("Sectors"))}</h4><ul class="rs-setsecs">${secs}</ul><a class="r-btn" data-rs="secAdd"><i class="fa-solid fa-plus"></i> ${esc(S("SectorAdd"))}</a>
     <h4>${esc(S("Danger"))}</h4><a class="r-btn rc-danger" data-rs="wipe"><i class="fa-solid fa-trash"></i> ${esc(S("Wipe"))}</a>
   </section>`;
