@@ -801,7 +801,8 @@ export class WraithData extends BaseActorData {
           thorns: new ArrayField(new SchemaField({ key: str(), n: int(1, 1, 10), note: str() })),
           catharsis: new BooleanField({ initial: false }) }),
         // за сессию: Мемориум брошен, сколько кубиков Эйдолона потрачено (сбрасывает «Новая сессия» на листе)
-        session: new SchemaField({ memoriam: new BooleanField({ initial: false }), eidolon: int(0, 0, 10) }),
+        // harrow — бросок Эйдолона в Испытании уже был в эту сессию (гл. 6; apps/harrowing.mjs)
+        session: new SchemaField({ memoriam: new BooleanField({ initial: false }), eidolon: int(0, 0, 10), harrow: new BooleanField({ initial: false }) }),
         // Спектр (гл. 10): каста, Ангст — запас вместо Пафоса, Тёмные Арканои, умения Шейдкрафта; Психея вместо Тени —
         // архетип, Пафос рейтингом (10 — Искупление) и запасом, Страсти, Ветви, проводник Психеи, Катарсис Психеи
         spectre: new SchemaField({ on: new BooleanField({ initial: false }), caste: str(""), angst: int(5, 0, 10),

@@ -4813,6 +4813,56 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  // Испытание у рассказчика (гл. 6): окно — причина, Добыча, Эйдолон, выход; последствия и награды по книге
+  await check("Призрак: Испытание у рассказчика — Воля, Страсть, Оковы, Разрушение, Эйдолон, награды", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {}, n0 = game.messages.size;
+      const HA = await import(`/systems/${sid}/module/apps/harrowing.mjs`);
+      const inst = () => [...foundry.applications.instances.values()];
+      const rollDlg = async () => { for (let i = 0; i < 40; i++) { const d = inst().find(x => x.constructor.name === "RollDialog" && x.rendered); if (d) return d; await wait(100); } return null; };
+      const submit = async () => { const d = await rollDlg(); if (!d) return false; d.element.querySelector("button[type=submit]")?.click(); await wait(1500); return true; };
+      const app = () => inst().find(x => x instanceof HA.HarrowingApp && x.rendered);
+      const click = async act => { app()?.element.querySelector(`[data-action=${act}]`)?.click(); await wait(400); };
+      const a = await Actor.create({ name: "E2E — призрак в Испытании", type: "wraith", flags: { world: { e2e: true }, [sid]: { created: true } },
+        system: { attributes: { intelligence: { value: 3 } }, willpower: { permanent: 5, temporary: 1 },
+          wraith: { shadow: { angst: { permanent: 2, temporary: 3 } },
+            passions: [{ text: "Простить брата", emotion: "Вина", value: 1 }, { text: "Найти убийцу", emotion: "Гнев", value: 3 }],
+            fetters: [{ text: "Скрипка", value: 2 }] } } });
+      await a.createEmbeddedDocuments("Item", [{ name: "Эйдолон", type: "background", system: { value: 2, source: "Eidolon" } }]);
+      const rnd = CONFIG.Dice.randomUniform;
+      try {
+        CONFIG.Dice.randomUniform = () => 0.0001;   // одни десятки
+        await HA.openHarrowing(a, "will"); await wait(700);
+        out.open = [!!app(), a.statuses.has("r-harrowing"), app()?.v.quarry];
+        await click("eidolon"); await submit(); out.eid = a.system.wraith.session.harrow;
+        await click("escape"); await submit(); await wait(500);
+        out.will = [a.system.willpower.temporary, a.system.wraith.passions[0].value, !app(), a.statuses.has("r-harrowing"), !a.getFlag(sid, "harrow")];
+        CONFIG.Dice.randomUniform = () => 0.9999;   // одни единицы
+        await HA.openHarrowing(a, "passion"); await wait(700);
+        app().v.quarry = "p:1"; app().v.second = "p:0"; await app().render(); await wait(300);
+        await click("escape"); await submit(); await wait(500);
+        out.passion = a.system.wraith.passions.map(p => [p.text, p.value]);
+        await HA.openHarrowing(a, "fetter"); await wait(700);
+        await click("solved"); await wait(500);
+        out.fetter = [a.system.wraith.fetters[0].resolved, a.system.wraith.fetters[0].value];
+        CONFIG.Dice.randomUniform = () => 0.0001;
+        await HA.openHarrowing(a, "destruction"); await wait(700);
+        await click("escape"); await submit(); await wait(800);
+        out.destr = [a.system.wraith.shadow.angst.temporary, a.system.wraith.corpus];
+      } finally { CONFIG.Dice.randomUniform = rnd; }
+      for (const x of inst()) if (x.constructor.name === "RollDialog" || x instanceof HA.HarrowingApp) await x.close();
+      await ChatMessage.deleteDocuments(game.messages.contents.slice(n0).map(m => m.id));
+      await a.delete();
+      return out;
+    });
+    // Воля: выход — 1 + Интеллект 3 = 4, Добыча-Страсть «Простить брата» отстояна (+1 → 2); Страсть: ботч — «Найти убийцу» потеряна,
+    // «Простить брата» бросает 2 кубика сл. 5 единицами — −1 → 1; Оковы — решено отыгрышем: разрешены; Разрешение — Воля 5 десятками
+    // против Ангста 2 — выход, награда −1 Ангста (3 → 2), Корпус 10
+    const want = { open: [true, true, "p:0"], eid: true, will: [4, 2, true, false, true], passion: [["Простить брата", 1]], fetter: [true, 0], destr: [2, 10] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   await check("Призрак: Подземный мир — Мальстрём, Туман, Сон в Оковах, «Орфей», Оттенок цвета", async () => {
     const r = await page.evaluate(async () => {
       const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {}, n0 = game.messages.size;

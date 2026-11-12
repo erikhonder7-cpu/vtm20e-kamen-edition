@@ -361,3 +361,12 @@
 .vtm20.r-type-wraith .r-wr-consorts .r-mini-select { width: 3.2em; }
 .vtm20.r-type-wraith .r-wr-row.is-attuned .r-wr-text { color: #e6e4e0; }
 .vtm20.r-type-wraith .r-wr-consorts .r-vc-btn.is-locked { opacity: .45; }
+
+/* Окно Испытания (apps/harrowing.mjs) */
+.vtm20.r-harrow .r-harrow-answer textarea { width: 100%; min-height: 4.5em; resize: vertical; }
+.vtm20.r-harrow .r-harrow-foot { display: flex; gap: 8px; margin-top: 8px; }
+.vtm20.r-harrow .r-harrow-foot .r-btn { flex: 1; justify-content: center; }
+.vtm20.r-harrow .r-btn.is-locked { opacity: .45; pointer-events: none; }
+.vtm20.r-harrow .r-roll-row select { flex: 1; min-width: 0; }
+.vtm20.r-harrow .r-harrow-fate { margin: 2px 0 4px; font-size: 12.5px; font-style: italic; color: var(--r-muted); line-height: 1.35; }
+.vtm20.r-harrow .r-harrow-fate i { margin-right: 4px; }

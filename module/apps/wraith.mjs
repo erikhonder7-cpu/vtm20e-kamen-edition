@@ -497,7 +497,7 @@ export async function harrowing(actor, cause = "corpus") {
 
 /** Новая сессия (гл. 4): снова можно бросить Мемориум, кубики Эйдолона — заново. */
 export async function newSession(actor) {
-  await actor.update({ "system.wraith.session": { memoriam: false, eidolon: 0 } });
+  await actor.update({ "system.wraith.session": { memoriam: false, eidolon: 0, harrow: false } });
   return say(actor, "fa-hourglass-start", t("SessionReset", { name: esc(actor.name) }));
 }
 
@@ -590,8 +590,10 @@ registerCardBlock("wraith", (state, ev) => {
     return { chips: [{ icon: "fa-mask", label: t("ShadowRolled", { n: x.shadow, vals: x.shadowVals || "—" }), cls: "is-warn" }],
       text: won ? t("PsycheHolds", { n, s: x.shadow }) : t("ShadowWins", { n, s: x.shadow }), cls: won ? "" : "is-warn" };
   }
+  if (x.kind === "harrowEidolon") return { chips: [{ icon: "fa-sun", label: t("Eidolon") }], text: t("Harrow.EidolonChip", { n }) };
   if (x.kind === "harrowing") {
-    const destr = x.cause === "destruction", won = destr ? n > (x.shadow ?? 0) : n >= 1;
+    // Испытание Разрушения — и за ботч Разрешения (cause "resolution"): Воля против Ангста Тени
+    const destr = x.cause === "destruction" || x.cause === "resolution", won = destr ? n > (x.shadow ?? 0) : n >= 1;
     return { chips: [{ icon: "fa-dungeon", label: t(destr ? "HarrowDestruction" : "Harrowing") },
       ...(destr ? [{ icon: "fa-mask", label: t("ShadowRolled", { n: x.shadow, vals: x.shadowVals || "—" }), cls: "is-warn" }] : [])],
       text: t(won ? (destr ? "HarrowDestructionWonShort" : "HarrowingWonShort") : (destr ? "HarrowDestructionLostShort" : "HarrowingLostShort")), cls: won ? "" : "is-warn" };

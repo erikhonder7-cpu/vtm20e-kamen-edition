@@ -9,6 +9,7 @@ import { assignGuide, shadowWhisper } from "../../apps/shadowguide.mjs";
 import { resolveRow, waneRow, linger } from "../../apps/resolution.mjs";
 import { useThorn } from "../../apps/thorns.mjs";
 import { addConsort, removeConsort, investWill } from "../../apps/consorts.mjs";
+import { openHarrowing } from "../../apps/harrowing.mjs";
 import { becomeSpectre, rollDark, rollPsychePassion, psycheCatharsis, rapacity, spectreRow } from "../../apps/spectre.mjs";
 import { rise, toShadowlands, toBody, risenDisc, rollRisenArt, risenSlumber, risenDown } from "../../apps/risen.mjs";
 import { project, stain, suppressStains, willToPathos, emblem, deadEyes, stainRow } from "../../apps/projector.mjs";
@@ -74,7 +75,10 @@ function onWrConsortDel(event, target) { return removeConsort(this.actor, target
 function onWrConsort(event, target) { return investWill(this.actor, target.dataset.i); }
 function onWrWhisper() { return shadowWhisper(this.actor); }
 function onWrCatharsis() { return catharsis(this.actor); }
-function onWrHarrowing(event, target) { return harrowing(this.actor, target.dataset.cause ?? "corpus"); }
+// рассказчику — окно Испытания (apps/harrowing.mjs), игроку — быстрый бросок
+function onWrHarrowing(event, target) {
+  return game.user.isGM ? openHarrowing(this.actor, target.dataset.cause === "destruction" ? "destruction" : "will") : harrowing(this.actor, target.dataset.cause ?? "corpus");
+}
 function onWrHeal() { return pathosHeal(this.actor); }
 function onWrPathos() { return spendPathos(this.actor, 1); }
 function onWrSession() { return newSession(this.actor); }

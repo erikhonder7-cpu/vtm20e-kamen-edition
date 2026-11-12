@@ -1,0 +1,52 @@
+{{!-- Испытание (Wraith 20, гл. 6) — окно рассказчика: причина, Добыча, правильное решение, Эйдолон, выход и последствия. --}}
+<div class="r-roll-form r-harrow-form">
+  <div class="r-tiles" style="--cols: 3">
+    {{#each kinds}}<a class="r-tile {{#if active}}is-active{{/if}}" data-action="kind" data-key="{{key}}" data-tooltip="{{hint}}"><i class="fa-solid {{icon}}"></i><span>{{label}}</span></a>{{/each}}
+  </div>
+  <div class="r-harrow-fate"><i class="fa-solid fa-scale-balanced"></i> {{fate}}</div>
+
+  {{#if targeted}}
+  <label class="r-roll-row"><span class="r-roll-label">{{localize "VTM20.Wraith.Harrow.Quarry"}}</span>
+    {{#if noQuarry}}<em>{{localize "VTM20.Wraith.Harrow.NoQuarry"}}</em>{{else}}
+    <select name="quarry">{{#each quarries}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>{{/if}}
+  </label>
+  {{/if}}
+  {{#if others}}
+  <label class="r-roll-row" data-tooltip="{{localize 'VTM20.Wraith.Harrow.SecondHint'}}"><span class="r-roll-label">{{localize "VTM20.Wraith.Harrow.Second"}}</span>
+    <select name="second">{{#each others}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+  </label>
+  {{/if}}
+
+  <label class="r-f r-harrow-answer"><span><i class="fa-solid fa-key"></i> {{localize "VTM20.Wraith.Harrow.Answer"}}</span>
+    <textarea name="answer" rows="3" placeholder="{{localize 'VTM20.Wraith.Harrow.AnswerPh'}}">{{v.answer}}</textarea></label>
+
+  <div class="r-roll-row">
+    <span class="r-roll-label" data-tooltip="{{localize 'VTM20.Wraith.Harrow.EidolonHint'}}">{{localize "VTM20.Wraith.Eidolon"}} {{eidolon}}</span>
+    <a class="r-btn {{#unless eidolonOk}}is-locked{{/unless}}" data-action="eidolon" {{#unless eidolonOk}}aria-disabled="true"{{/unless}}><i class="fa-solid fa-sun"></i>
+      {{#if eidolonUsed}}{{localize "VTM20.Wraith.Harrow.EidolonUsed"}}{{else}}{{localize "VTM20.Wraith.Harrow.EidolonRoll"}}{{/if}}</a>
+  </div>
+
+  {{#unless destruction}}
+  <div class="r-roll-row" data-tooltip="{{localize 'VTM20.Wraith.Harrow.RpHint'}}">
+    <span class="r-roll-label">{{localize "VTM20.Wraith.Harrow.Rp"}}</span>
+    <a class="r-step" data-action="bump" data-d="-1">−</a><b class="r-roll-num">{{v.rp}}</b><a class="r-step" data-action="bump" data-d="1">+</a>
+  </div>
+  {{/unless}}
+
+  <div class="r-roll-checks">
+    <label class="r-check" data-tooltip="{{localize 'VTM20.Wraith.Harrow.RewardHint'}}"><input type="checkbox" name="reward" {{checked v.reward}}> {{#if destruction}}{{localize "VTM20.Wraith.Harrow.RewardAngst"}}{{else}}{{localize "VTM20.Wraith.Harrow.Reward"}}{{/if}}</label>
+    {{#if destruction}}<select name="relief" class="r-mini-select">{{#each reliefs}}<option value="{{n}}" {{#if selected}}selected{{/if}}>−{{n}}</option>{{/each}}</select>{{/if}}
+  </div>
+
+  <div class="r-roll-total">
+    <div class="r-roll-breakdown">
+      {{#if destruction}}<span>{{localize "VTM20.Wraith.Harrow.VsAngst" n=angst}}</span>{{else}}<span>{{localize "VTM20.Wraith.Harrow.OneSuccess"}}</span>{{/if}}
+    </div>
+    <div class="r-roll-pool"><b>{{will}}</b><i class="fa-solid fa-dice-d10"></i> <span>{{localize "VTM20.Roll.Vs"}}</span> <b>{{diff}}</b></div>
+  </div>
+
+  <footer class="r-harrow-foot">
+    <a class="r-btn" data-action="solved" data-tooltip="{{localize 'VTM20.Wraith.Harrow.SolvedHint'}}"><i class="fa-solid fa-lightbulb"></i> {{localize "VTM20.Wraith.Harrow.Solved"}}</a>
+    <a class="r-btn is-primary" data-action="escape" data-tooltip="{{localize 'VTM20.Wraith.Harrow.EscapeHint'}}"><i class="fa-solid fa-door-open"></i> {{localize "VTM20.Wraith.Harrow.Escape"}}</a>
+  </footer>
+</div>
