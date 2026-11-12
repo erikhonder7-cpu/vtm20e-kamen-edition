@@ -71,7 +71,39 @@
       "AngstHint": "Постоянный Ангст можно поднять свободными очками Тени, но не выше Воли; временный — до 9.",
       "DarkHint": "7 точек, как Страсти: «Утопить чужую радость (Зависть) 2». Хорошие основы — зависть, похоть, извращённая любовь, жадность, ненависть, страх.",
       "FreeCosts": "Атрибут 5, Арканос 5, Воля 2, Способность 2, Страсть 2, Фон 1, Оковы 1, Пафос — 1 за 2 точки; Корпус не покупается.",
-      "XpCosts": "Атрибут — текущее × 4, новая Способность 3, Способность × 2, новый Арканос 7, Арканос × 3, Воля — текущее."
+      "XpCosts": "Атрибут — текущее × 4, новая Способность 3, Способность × 2, новый Арканос 7, Арканос × 3, Воля — текущее.",
+      "Path": {
+        "wraith": "Wraith",
+        "spectre": "Spectre",
+        "risen": "Risen",
+        "projector": "Orpheus projector"
+      },
+      "PathSub": {
+        "wraith": "A Stygian newly dead: Legion, Guild, Passions and Fetters, Shadow",
+        "spectre": "Consumed by Oblivion: caste, Dark Arcanoi, Psyche instead of a Shadow (ch. 10)",
+        "risen": "Back in their own body for unfinished business: Puppetry, Conduit (ch. 11)",
+        "projector": "A living person leaving the body: Shade, Stains, Tethers (Orpheus)"
+      },
+      "NeedCaste": "Pick the Spectre caste",
+      "NeedShade": "Pick the projector Shade",
+      "RisenStrength": "A Risen has Strength 3 or more",
+      "RisenAppearance": "A Risen has Appearance 3 or less",
+      "RisenPuppetry": "A Risen needs Puppetry",
+      "RisenTriad": "A Risen needs 2 dots in Lifeweb, Inhabit or Embody",
+      "BodyTether": "The first Tether goes to the body, 5 dots",
+      "NeedConduit": "Name the Conduit — which Fetter (a small portable object)",
+      "NeedPsycheArchetype": "Pick the Psyche archetype",
+      "PsycheLeft": "Psyche Passions: {n} left to assign",
+      "PsycheOverWill": "The Psyche’s Pathos rating can’t exceed the Spectre’s Willpower",
+      "StainsNeed": "There must be {n} Stains — one per 2 permanent Angst",
+      "PsychePool": "Psyche points",
+      "PsycheTradeHint": "a freebie to the Spectre — a point to the Psyche (up to 7)",
+      "PsycheCosts": "Pathos rating 5 per dot (1 is free), Passion beyond 7 — 1 per dot; points are freebies given to the Psyche (system rule)",
+      "PsycheRating": "Pathos rating",
+      "PsycheHint": "10 — Redemption. The Psyche’s starting Pathos pool equals the rating.",
+      "TethersHint": "Tethers work like Fetters, but the first, at 5 dots, binds to your own body (the silver cord)",
+      "ConduitHint": "Wedding ring, watch, letter…",
+      "PricePerDot": "1 per dot"
     },
     "Wraith": {
       "Collapse": "Свернуть",
@@ -2904,7 +2936,9 @@
         "advantagesGarou": "Backgrounds and Renown",
         "mage": "Faction & Essence",
         "spheres": "Spheres",
-        "advantagesMage": "Backgrounds"
+        "advantagesMage": "Backgrounds",
+        "psyche": "Psyche",
+        "stains": "Stains"
       },
       "Primary": "Primary",
       "Secondary": "Secondary",

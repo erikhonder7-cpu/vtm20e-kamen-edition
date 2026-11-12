@@ -17,6 +17,7 @@ export class CalcCreator {
 
   /** Числа создания: по типу персонажа, у вампира — с поправкой секты (SECT_RULES). */
   get rules() {
+    if (this.isWraith) return this.wraithRules;          // призрак и его пути: Спектр, Восставший, проектор (creator/wraith.mjs)
     if (this.isEarthbound) return RULES.earthbound;
     if (this.isThrall) return RULES.thrall;
     // колдун (M20 Sorcerer, гл. 3): 5 точек нумин, Путь за свободные пункты — 7
@@ -125,6 +126,7 @@ export class CalcCreator {
     if (kind === "attr") return (k === "appearance" && this.ugly) ? 0 : 1;
     if (kind === "virt") return this.virtueBase(k);
     // гуль — Мощь 1 даром; дампир клана может взять вместо неё Дисциплину клана Предка (Accursed Heirs, гл. 3)
+    if (kind === "disc" && this.isWraith) return this.wraithDiscBase(k);   // Сговор Спектра, Воплощение и Паутина проектора — даром
     if (kind === "disc") return this.type === "ghoul" && k === "potence" && !(this.isDhampir && this.st.dhSwap) ? 1 : 0;
     return 0;
   }
@@ -175,7 +177,7 @@ export class CalcCreator {
       + this.sum(f.virt) * c.virt + f.morality * c.morality + f.will * c.will + this.bloodrightExtra * 5
       + (this.isWerewolf ? f.rage * c.rage + f.gnosis * c.gnosis + this.st.ww.extra.length * c.gift : 0)
       + (this.isMage ? (f.quint ?? 0) * c.quint + this.mageResCost : 0)
-      + (this.isWraith ? (f.pathos ?? 0) * c.pathos + this.sum(f.pas ?? {}) * c.pas + this.sum(f.fet ?? {}) * c.fet : 0);
+      + (this.isWraith ? (f.pathos ?? 0) * c.pathos + this.sum(f.pas ?? {}) * c.pas + this.sum(f.fet ?? {}) * c.fet + this.risenDiscSpent : 0);
   }
   // призрак: торг с Тенью — её очки взаймы прибавляются к своим (или свои уходят на урезание её пула)
   get freeTotal() { return this.rules.free + this.flawPoints + (this.isWraith ? this.wraithTrade : 0); }
@@ -331,7 +333,8 @@ export class CalcCreator {
   stepName(k) {
     if (this.isWerewolf && k === "advantages") return "advantagesGarou";      // у Гару справа Слава, а не Добродетели
     if (this.isMage) return { disciplines: "spheres", advantages: "advantagesMage" }[k] ?? k;
-    if (this.isWraith) return { disciplines: "arcanoi", advantages: "advantagesWraith" }[k] ?? k;
+    if (this.isWraith) return { disciplines: "arcanoi", advantages: "advantagesWraith",
+      shadow: this.wrPath === "spectre" ? "psyche" : this.wrPath === "projector" ? "stains" : "shadow" }[k] ?? k;
     return this.isDemon ? ({ disciplines: "lores", advantages: "advantagesDemon" }[k] ?? k) : k;
   }
   /** «Факты биографии» или «Дополнения» (у падшего). */

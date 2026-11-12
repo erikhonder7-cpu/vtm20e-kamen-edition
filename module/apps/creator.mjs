@@ -66,7 +66,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       virt: { conscience: 0, selfControl: 0, courage: 0 },
       merits: [], flaws: [],
       extraDisc: "",                    // Дисциплина, ставшая клановой по достоинству «Дополнительная Дисциплина» (V20, Appendix)
-      free: { attr: {}, abil: {}, disc: {}, bg: {}, virt: {}, morality: 0, will: 0, rage: 0, gnosis: 0, pathos: 0, trade: 0, pas: {}, fet: {} },
+      free: { attr: {}, abil: {}, disc: {}, bg: {}, virt: {}, morality: 0, will: 0, rage: 0, gnosis: 0, pathos: 0, trade: 0, pas: {}, fet: {}, rdisc: {} },
       xp: { attr: {}, abil: {}, disc: {}, virt: {}, morality: 0, will: 0, rage: 0, gnosis: 0 },
       blood: null,
       // слуга: «Танец с Дьяволом» — хозяин (uuid демона), доля Веры хозяину (−1 — наибольшая), условия, дары словами и прибавками
@@ -91,7 +91,10 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
         passions: [{ text: "", emotion: "", value: 0 }, { text: "", emotion: "", value: 0 }, { text: "", emotion: "", value: 0 }],
         fetters: [{ text: "", value: 0 }, { text: "", value: 0 }, { text: "", value: 0 }],
         dark: [{ text: "", emotion: "", value: 0 }, { text: "", emotion: "", value: 0 }],
-        archetype: s.wraith?.shadow?.archetype || "", angstRoll: 0, angstDice: "", angstTemp: 0, angstExtra: 0, thorns: {} },
+        archetype: s.wraith?.shadow?.archetype || "", angstRoll: 0, angstDice: "", angstTemp: 0, angstExtra: 0, thorns: {},
+        // путь: «» — призрак, spectre (каста, Психея), risen (Проводник), projector (Оттенок, скиммер/спящий, Пятна)
+        path: "", caste: "", shade: "", lament: "skimmer", conduit: "", stains: [],
+        psyche: { archetype: "", rating: 1, passions: [{ text: "", emotion: "", value: 0 }, { text: "", emotion: "", value: 0 }] } },
       ww: { breed: s.werewolf?.breed || "homid", auspice: s.werewolf?.auspice || "ragabash", tribe: s.werewolf?.tribe || "boneGnawers",
         fera: s.werewolf?.fera || "", sub: {}, gifts: {}, extra: [], deform: "", renown: { glory: 0, honor: 0, wisdom: 0 } }
     };

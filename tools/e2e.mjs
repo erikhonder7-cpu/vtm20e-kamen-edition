@@ -4529,6 +4529,50 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  await check("Призрак: мастер — пути Спектра, Восставшего и проектора", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {}, inst = () => [...foundry.applications.instances.values()];
+      const run = async (name, setup) => {
+        const a = await Actor.create({ name, type: "wraith", flags: { world: { e2e: true } } });
+        await game.vtm20.openCreator(a); await wait(600);
+        const cr = inst().find(x => x.constructor.name === "VtMCreator" && x.actor === a);
+        await setup(cr); await cr.write(); await cr.close(); await wait(300);
+        return a;
+      };
+      const sp = await run("E2E — Спектр из мастера", cr => {
+        Object.assign(cr.st.wr, { path: "spectre", caste: "doppelganger", legion: "grim",
+          passions: [{ text: "Погубить сестру", emotion: "Зависть", value: 10 }], fetters: [{ text: "Дом", value: 10 }],
+          psyche: { archetype: "Святой", rating: 1, passions: [{ text: "Беречь сестру", emotion: "Любовь", value: 7 }] } });
+        cr.st.disc.argos = 2; cr.st.disc.tempestos = 2; cr.st.free.trade = 5;
+        out.spRules = [cr.rules.free, cr.rules.bg, cr.rules.disc, cr.freeTotal, cr.base("disc", "collogue")];
+      });
+      const w = sp.system.wraith;
+      out.spectre = [w.spectre.on, w.spectre.caste, w.spectre.dark.collogue, w.spectre.dark.tempestos, w.arcanoi.argos.value, w.spectre.psyche.archetype, w.spectre.angst, w.fetters.length];
+      const rs = await run("E2E — Восставший из мастера", cr => {
+        Object.assign(cr.st.wr, { path: "risen", legion: "silent", conduit: "кольцо", passions: [{ text: "Отомстить", emotion: "Месть", value: 10 }], fetters: [{ text: "Кольцо", value: 10 }] });
+        cr.st.disc.puppetry = 1; cr.st.disc.embody = 2; cr.st.disc.fascinate = 2; cr.st.free.rdisc = { potence: 1 }; cr.st.free.pathos = 2;
+        out.rsRules = [cr.rules.free, cr.rules.bg, cr.willpower, cr.wraithPathos, cr.risenDiscSpent];
+      });
+      const v = rs.system.wraith;
+      out.risen = [v.risen.on, v.risen.conduit, v.risen.arcanoi.fascinate, v.risen.disc.potence, v.arcanoi.puppetry.value, v.pathos.value];
+      const pj = await run("E2E — проектор из мастера", cr => {
+        Object.assign(cr.st.wr, { path: "projector", shade: "wisp", lament: "sleeper", legion: "fate", stains: ["brutish", "darkspeech"],
+          passions: [{ text: "Узнать", emotion: "Любопытство", value: 5 }], fetters: [{ text: "Тело", value: 5 }, { text: "Сестра", value: 5 }] });
+        cr.st.disc.argos = 1;
+        out.pjRules = [cr.rules.free, cr.rules.disc, cr.base("disc", "argos"), cr.base("disc", "embody"), cr.angstPerm, cr.wraithPathos];
+      });
+      const x = pj.system.wraith;
+      out.projector = [x.projector.on, x.projector.shade, x.projector.lament, x.projector.stains.length, x.arcanoi.embody.value, x.arcanoi.argos.value, x.shadow.angst.permanent];
+      for (const a of [sp, rs, pj]) await a.delete();
+      return out;
+    });
+    const want = { spRules: [20, 5, 6, 25, 1], spectre: [true, "doppelganger", 1, 2, 2, "Святой", 5, 1],
+      rsRules: [15, 5, 6, 7, 7], risen: [true, "кольцо", 2, 1, 1, 7],
+      pjRules: [18, 2, 1, 1, 4, 6], projector: [true, "wisp", "sleeper", 2, 1, 2, 4] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   await check("Призрак: лист и Арканои, Пафос, Страсть, Корпус до колебания и Испытание, Катарсис", async () => {
     const r = await page.evaluate(async () => {
       const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), WR = await import(`/systems/${sid}/module/apps/wraith.mjs`);

@@ -154,7 +154,7 @@ export class ContextCreator {
       const d = this.discData(k), v = this.value("disc", k);
       return {
         key: k, name: d.name, en: d.en, value: v, inClan: this.isMage ? k === st.mg.affinity : this.isWraith ? k === st.wr.guild : this.inClan(k),
-        sym: this.isSorcerer ? null : this.isMage ? { src: mageGlyphSrc(`sphere-${k}`) } : this.isWraith ? { src: wraithGlyphSrc(`arcanos-${k}`) } : this.isDemon ? null : Codex.disciplineSymbol(k),
+        sym: this.isSorcerer ? null : this.isMage ? { src: mageGlyphSrc(`sphere-${k}`) } : this.isWraith ? (VTM20.wraithDark.includes(k) ? { src: wraithGlyphSrc("arcanos-dark") } : VTM20.wraithArcanoi.includes(k) ? { src: wraithGlyphSrc(`arcanos-${k}`) } : null) : this.isDemon ? null : Codex.disciplineSymbol(k),
         guild: d.guild ?? "",
         icon: this.isSorcerer ? (d.psychic ? "fa-brain" : "fa-hand-sparkles") : this.isDemon ? (d.house ? "fa-fire-flame-curved" : "fa-book") : VTM20.disciplineIcons[k] ?? "fa-droplet", dots: dotRow("disc", k),
         powers: d.powers.filter(p => p.level <= Math.max(1, v) && p.level <= 5).map(p => ({ level: p.level, name: p.name, en: p.en, owned: p.level <= v, tip: preview(p.html, 600) })),
@@ -277,10 +277,16 @@ export class ContextCreator {
           { ...row("res", "", loc("VTM20.MageCr.ResRow"), t("Sheet.Other"), this.mageRes), price: (this.mageRes + 1) * 3 }] : []),
         // призрак: Пафос (1 пункт — 2 точки), Страсти и Оковы по строкам, торг с Тенью (гл. 4)
         ...(this.isWraith && mode === "free" ? [
-          { ...row("pathos", "", loc("VTM20.Wraith.Pathos"), t("Sheet.Other"), this.wraithPathos), price: 1 },
+          { ...row("pathos", "", loc(this.wrPath === "spectre" ? "VTM20.Wraith.Spectre.Angst" : "VTM20.Wraith.Pathos"), t("Sheet.Other"), this.wraithPathos),
+            price: this.wrPath === "risen" ? loc("VTM20.WraithCr.PricePerDot") : 1 },
+          // Восставший: «Дисциплины» тела — 7 за точку (гл. 11)
+          ...(this.wrPath === "risen" ? ["potence", "fortitude", "celerity"].map(k => ({ ...row("rdisc", k, loc(`VTM20.Wraith.Risen.Disc.${k}`), loc("VTM20.Wraith.Risen.Title"),
+            st.free.rdisc?.[k] ?? 0), added: st.free.rdisc?.[k] ?? 0, price: this.rules.cost.rdisc })) : []),
           ...st.wr.passions.map((x, i) => x.text || this.passionValue("pas", i) ? { ...row("pas", String(i), x.text || "—", loc("VTM20.Wraith.Passions"), this.passionValue("pas", i)), added: st.free.pas?.[i] ?? 0, price: this.rules.cost.pas } : null).filter(Boolean),
           ...st.wr.fetters.map((x, i) => x.text || this.passionValue("fet", i) ? { ...row("fet", String(i), x.text || "—", loc("VTM20.Wraith.Fetters"), this.passionValue("fet", i)), added: st.free.fet?.[i] ?? 0, price: this.rules.cost.fet } : null).filter(Boolean),
-          { ...row("trade", "", loc("VTM20.WraithCr.ShadowPool"), loc("VTM20.Wraith.Shadow"), this.shadowPool), added: st.free.trade ?? 0, price: game.i18n.localize("VTM20.WraithCr.TradeHint") }] : [])
+          ...(this.wrPath === "projector" ? [] : this.wrPath === "spectre"
+            ? [{ ...row("trade", "", loc("VTM20.WraithCr.PsychePool"), loc("VTM20.Wraith.Spectre.Psyche"), this.psychePool), added: st.free.trade ?? 0, price: loc("VTM20.WraithCr.PsycheTradeHint") }]
+            : [{ ...row("trade", "", loc("VTM20.WraithCr.ShadowPool"), loc("VTM20.Wraith.Shadow"), this.shadowPool), added: st.free.trade ?? 0, price: game.i18n.localize("VTM20.WraithCr.TradeHint") }])] : [])
       ];
       return [...new Set(list.map(r => r.group))].map(g => ({ label: g, rows: list.filter(r => r.group === g) }));
     };
