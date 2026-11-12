@@ -335,3 +335,11 @@
 .vtm20.r-type-wraith .r-wr-dark .r-wr-arc-sigil .r-sym { width: 24px; height: 28px; }
 .vtm20.r-type-wraith .r-wr-dark:not(.is-realm):not(.is-risen) .r-wr-arc-sigil .r-sym { background: linear-gradient(170deg, #f2d6df, #b05a78); }
 .vtm20.r-type-wraith .r-wr-dark .r-wr-arc-name i { font-size: 13px; color: #a14a63; margin-right: 2px; }
+
+/* Проводник-Тень (apps/shadowguide.mjs): предложение Теневых кубиков в чате, имя проводника на карточке Тени */
+.r-wr-offer-tools { display: flex; gap: 6px; margin-top: 6px; }
+.r-wr-offer-tools .r-btn { flex: 1; justify-content: center; }
+.r-wr-offer-state { margin: 4px 0 0; opacity: .85; }
+.r-wr-offer-state.is-declined { opacity: .6; }
+.r-wr-whisper i:last-child { opacity: .9; }
+.vtm20 .r-wr-guide { max-width: 9em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

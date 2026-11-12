@@ -3881,6 +3881,98 @@ try {
       if (!r.three) throw new Error("Грань III взята сверх бюджета Прозрения");
       if (r.conv !== 1) throw new Error(`второе зрение: −${r.conv} Убеждённости`);
     });
+
+    // Проводник-Тень (Wraith 20, гл. 6): игрок ведёт Тень призрака рассказчика — лист на чтение, шёпот, Ангст и Теневые кубики
+    // через ведущего; второй призрак — игрока: рассказчик предлагает ему кубики, игрок отказывается (ответ — тоже через ведущего)
+    await check("Игрок: проводник-Тень призрака — назначение, шёпот, Ангст и Теневые кубики через ведущего", async () => {
+      const wait = ms => new Promise(res => setTimeout(res, ms));
+      const ids = await page.evaluate(async uid => {
+        const sid = game.system.id, G = await import(`/systems/${sid}/module/apps/shadowguide.mjs`);
+        const mk = (name, ownership) => Actor.create({ name, type: "wraith", ownership, flags: { world: { e2e: true }, [sid]: { created: true } },
+          system: { wraith: { shadow: { angst: { permanent: 3, temporary: 1 } } } } });
+        const a = await mk("E2E — Психея рассказчика", { default: 0 }), b = await mk("E2E — призрак игрока", { default: 0, [uid]: 3 });
+        await G.setGuide(a, uid);
+        return { a: a.id, b: b.id, n0: game.messages.size, lvl: a.ownership[uid], guide: a.system.wraith.shadow.guide === uid };
+      }, player.id);
+      const r = await pp.evaluate(async id => {
+        const sid = game.system.id, G = await import(`/systems/${sid}/module/apps/shadowguide.mjs`), W = await import(`/systems/${sid}/module/apps/wraith.mjs`);
+        const a = game.actors.get(id), out = { seen: !!a, owner: a?.isOwner, guide: G.isGuide(a) };
+        await a.sheet.render({ force: true }); await new Promise(res => setTimeout(res, 900));
+        const el = a.sheet.element;
+        out.btn = [!!el.querySelector("[data-action=wrWhisper]"), !!el.querySelector("[data-action=wrGuide]"), !!el.querySelector(".r-wr-guide")];
+        await a.sheet.close();
+        out.youAre = game.messages.contents.some(m => m.whisper.includes(game.user.id) && /Тень призрака/.test(m.content));
+        await W.gainAngst(a, 2, { reason: "E2E" });
+        const DV = foundry.applications.api.DialogV2, p0 = DV.prompt;
+        DV.prompt = async () => "Возьми — и не оглядывайся";
+        await G.shadowWhisper(a);
+        DV.prompt = async () => ({ n: 3, terms: "E2E" });
+        out.offer = (await G.offerShadowDice(a))?.id;
+        DV.prompt = p0;
+        return out;
+      }, ids.a);
+      await wait(2000);
+      const g = await page.evaluate(async ({ ids, uid, offer }) => {
+        const sid = game.system.id, G = await import(`/systems/${sid}/module/apps/shadowguide.mjs`), W = await import(`/systems/${sid}/module/apps/wraith.mjs`);
+        const { rollPool } = await import(`/systems/${sid}/module/dice/roll.mjs`);
+        const a = game.actors.get(ids.a), b = game.actors.get(ids.b), fresh = game.messages.contents.slice(ids.n0), out = {};
+        out.angst = a.system.wraith.shadow.angst.temporary;
+        out.whisper = fresh.some(m => m.whisper.includes(uid) && /не оглядывайся/.test(m.content));
+        out.angstMsg = fresh.some(m => m.whisper.includes(uid) && /\+2 Ангста/.test(m.content));
+        const msg = game.messages.get(offer);
+        out.open = msg?.flags?.[sid]?.shadowOffer?.state === "open" && msg.whisper.includes(game.user.id);
+        out.buttons = !!ui.chat.element?.querySelector(`[data-message-id="${offer}"] [data-r-offer=yes]`);
+        // рассказчик отвечает за Психею: кубики приняты, единицы — Ангст
+        const DV = foundry.applications.api.DialogV2, p0 = DV.prompt;
+        DV.prompt = async () => "6";
+        await G.answerOffer(msg, true);
+        DV.prompt = p0;
+        out.accepted = game.messages.get(offer).flags[sid].shadowOffer.state;
+        // скрытый бросок Тёмной Страсти уходит и проводнику
+        const m = (await rollPool({ actor: a, title: "E2E Тёмная Страсть", pool: 2, difficulty: 7, kind: "check", messageMode: "gm", whisperAlso: [uid] })).message;
+        out.dark = m.whisper.includes(uid);
+        // рассказчик предлагает кубики призраку игрока
+        DV.prompt = async () => ({ n: 2, terms: "" });
+        out.offerB = (await G.offerShadowDice(b))?.id;
+        DV.prompt = p0;
+        out.canB = G.canOffer(b);
+        return out;
+      }, { ids, uid: player.id, offer: r.offer });
+      await wait(1200);
+      const p2 = await pp.evaluate(async id => {
+        const sid = game.system.id, G = await import(`/systems/${sid}/module/apps/shadowguide.mjs`);
+        const msg = game.messages.get(id);
+        if (!msg) return { none: true };
+        const btn = !!ui.chat.element?.querySelector(`[data-message-id="${id}"] [data-r-offer=no]`);
+        await G.answerOffer(msg, false);
+        return { btn, mine: msg.isAuthor };
+      }, g.offerB);
+      await wait(2000);
+      const end = await page.evaluate(async ({ ids, offerB, uid }) => {
+        const sid = game.system.id, G = await import(`/systems/${sid}/module/apps/shadowguide.mjs`);
+        const a = game.actors.get(ids.a), state = game.messages.get(offerB)?.flags?.[sid]?.shadowOffer?.state;
+        await G.setGuide(a, "");
+        const back = [a.system.wraith.shadow.guide, a.ownership[uid] ?? -1];
+        await ChatMessage.deleteDocuments(game.messages.contents.slice(ids.n0).map(m => m.id));
+        await Actor.deleteDocuments([ids.a, ids.b]);
+        return { state, back };
+      }, { ids, offerB: g.offerB, uid: player.id });
+      const bad = [];
+      if (ids.lvl !== 2 || !ids.guide) bad.push(`назначение: уровень ${ids.lvl}, проводник ${ids.guide}`);
+      if (!r.seen || r.owner || !r.guide) bad.push(`игрок: виден ${r.seen}, владеет ${r.owner}, проводник ${r.guide}`);
+      if (JSON.stringify(r.btn) !== "[true,false,true]") bad.push(`кнопки листа (шёпот, назначить, имя): ${r.btn}`);
+      if (!r.youAre) bad.push("проводнику не пришёл шёпот «Вы — Тень»");
+      if (g.angst < 3) bad.push(`Ангст через ведущего: ${g.angst} вместо ≥ 3`);
+      if (!g.whisper || !g.angstMsg) bad.push(`шёпот Тени ${g.whisper}, Ангст проводнику ${g.angstMsg}`);
+      if (!g.open || !g.buttons) bad.push(`предложение: открыто ${g.open}, кнопки у рассказчика ${g.buttons}`);
+      if (g.accepted !== "accepted") bad.push(`ответ рассказчика: ${g.accepted}`);
+      if (!g.dark) bad.push("скрытый бросок не дошёл проводнику");
+      if (!g.canB || !g.offerB) bad.push(`рассказчик не предложил кубики игроку (${g.canB})`);
+      if (p2.none || !p2.btn || p2.mine) bad.push(`у игрока: сообщение ${!p2.none}, кнопки ${p2.btn}`);
+      if (end.state !== "declined") bad.push(`отказ игрока через ведущего: ${end.state}`);
+      if (end.back[0] !== "" || end.back[1] > 0) bad.push(`снятие проводника: ${end.back}`);
+      if (bad.length) throw new Error(bad.join("; "));
+    });
     await pp.context().close();
   }
   if (own) await page.evaluate(ids => Actor.deleteDocuments([ids.mine, ids.other, ids.dh, ids.hu].filter(id => game.actors.has(id))), own);

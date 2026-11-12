@@ -408,7 +408,7 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       breakdown: cfg.pool != null
         ? [...(cfg.breakdown ?? []), ...(v.physical && c.phys ? [{ label: Codex.disciplineLabel(c.attr === "strength" ? "potence" : "celerity"), value: c.phys }] : []), ...(v.physical && c.auto ? [{ label: t("Roll.AutoSuccess"), value: c.auto }] : [])]
         : c.breakdown,
-      kind: cfg.kind ?? "check", messageMode: v.messageMode, auto: c.auto,
+      kind: cfg.kind ?? "check", messageMode: v.messageMode, whisperAlso: cfg.whisperAlso, auto: c.auto,
       extra: { ...(cfg.extra ?? {}), contest: v.contest, ...(v.contest === "extended" ? { extended: { need: v.need, prev: 0, step: 0 } } : {}) },
       notes, effect: cfg.effect ?? ""
     });

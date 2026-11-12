@@ -27,6 +27,9 @@ export const guildsOf = () => W().arcanoi.map(a => ({ key: a.key, name: a.guild,
 export const say = (actor, icon, html, cls = "") => ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }),
   content: `<div class="r-notice r-type-wraith ${cls}"><i class="fa-solid ${icon}"></i> ${html}</div>` });
 
+/** Проводник-Тень (гл. 6): игрок, что ведёт Тень этого призрака (apps/shadowguide.mjs); нет — Тень ведёт рассказчик. */
+export const guideOf = actor => game.users.get(actor?.system?.wraith?.shadow?.guide ?? "") ?? null;
+
 /** Рейтинг Фона по английскому имени (Мемориум, Эйдолон, Статус…). */
 export function backgroundRating(actor, en) {
   const name = (W().backgrounds ?? []).find(b => b.en === en)?.name;
@@ -111,7 +114,8 @@ export function wraithInfo(actor, dots) {
     archetype: arch, archetypes: (D.shadowArchetypes ?? []).map(a => ({ value: a.name, label: a.name, selected: a.name === sh.archetype })),
     memoriam: backgroundRating(actor, "Memoriam"), eidolon: backgroundRating(actor, "Eidolon"),
     eidolonLeft: Math.max(0, backgroundRating(actor, "Eidolon") - w.session.eidolon), memoriamDone: w.session.memoriam,
-    shroud: shroudOf(actor), haunt: backgroundRating(actor, "Haunt"), inHaunt: !!actor.getFlag(SYSTEM_ID, "inHaunt"), isGM: game.user.isGM
+    shroud: shroudOf(actor), haunt: backgroundRating(actor, "Haunt"), inHaunt: !!actor.getFlag(SYSTEM_ID, "inHaunt"), isGM: game.user.isGM,
+    guide: guideOf(actor)?.name ?? "", isGuide: !!guideOf(actor)?.isSelf, canGuide: game.user.isGM || !!guideOf(actor)?.isSelf
   };
 }
 
@@ -231,6 +235,8 @@ export async function gainPathos(actor, n) {
  */
 export async function gainAngst(actor, n, { reason = "" } = {}) {
   if (!n) return 0;
+  // проводник-Тень правит чужой лист через ведущего (apps/shadowguide.mjs)
+  if (!actor.isOwner) return (await import("./shadowguide.mjs")).relay("angst", { actor: actor.uuid, n, reason }) ? n : 0;
   // у Спектра Тени нет: где Тень получила бы Ангст, Психея получает Пафос (гл. 10)
   if (actor.system.wraith.spectre?.on) return (await import("./spectre.mjs")).gainPsyche(actor, n, { reason });
   const a = actor._source.system.wraith.shadow.angst;
@@ -238,8 +244,8 @@ export async function gainAngst(actor, n, { reason = "" } = {}) {
   const swap = temp >= 10 && perm < 10;
   if (swap) { temp = 0; perm += 1; }
   await actor.update({ "system.wraith.shadow.angst": { temporary: temp, permanent: perm } });
-  // игрок Психеи точного счёта не знает — ведущему шёпотом (гл. 6, «Учёт Ангста ведёт проводник-Тень»)
-  const gm = ChatMessage.getWhisperRecipients("GM");
+  // игрок Психеи точного счёта не знает — ведущему и проводнику-Тени шёпотом (гл. 6, «Учёт Ангста ведёт проводник-Тень»)
+  const gm = [...new Set([...ChatMessage.getWhisperRecipients("GM").map(u => u.id), ...(guideOf(actor) ? [guideOf(actor).id] : [])])];
   if (n > 0 || swap) await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), whisper: gm,
     content: `<div class="r-notice r-type-wraith is-shadow"><i class="fa-solid fa-mask"></i> ${t(n > 0 ? "AngstGain" : "AngstLoss", { name: esc(actor.name), n: Math.abs(n), temp, perm })}${reason ? ` <small>(${esc(reason)})</small>` : ""}
       ${swap ? `<p><b>${t("AngstSwap", { perm })}</b></p>` : ""}${perm >= 10 ? `<p class="r-fate"><b>${t("SpectreFall")}</b></p>` : ""}</div>` });
@@ -381,17 +387,25 @@ export async function rollDarkPassion(actor, i) {
   const risen = actor.system.wraith.risen?.on && actor.system.wraith.risen.body;   // Восставшему Ангст даётся легче (гл. 11)
   return RollDialog.prompt(actor, { title: t("DarkTitle", { text: p.text || "—" }), pool: p.value, difficulty: Number(how) - (risen ? 1 : 0), lockTraits: true,
     ...(risen ? { diffNote: t("Risen.AngstEasier") } : {}),
-    extra: { wraith: { kind: "dark", text: p.text, emotion: p.emotion } }, messageMode: "gm",
+    extra: { wraith: { kind: "dark", text: p.text, emotion: p.emotion } }, messageMode: "gm", whisperAlso: guideOf(actor) ? [guideOf(actor).id] : [],
     onRolled: async r => { if (r?.successes) await gainAngst(actor, r.successes, { reason: p.text }); } });
 }
 
 /**
  * Теневые кубики (гл. 6): Тень предлагает до 5 кубиков к броску Психеи; бросаются отдельно, их успехи прибавляются,
- * а каждая единица на них — +1 временный Ангст.
+ * а каждая единица на них — +1 временный Ангст. Проводник-Тень (и рассказчик, если у призрака есть игрок) — предлагает
+ * в чат, Психея принимает или отказывается (apps/shadowguide.mjs); без проводника игрок бросает сам.
  */
 export async function shadowDice(actor) {
+  const G = await import("./shadowguide.mjs");
+  if (G.canOffer(actor)) return G.offerShadowDice(actor);
+  if (guideOf(actor) && !game.user.isGM) return ui.notifications.info(t("Guide.OfferOnly", { name: guideOf(actor).name }));
   const n = Number(await pick(t("ShadowDice"), [1, 2, 3, 4, 5].map(k => ({ key: String(k), icon: "fa-dice-d10", title: t("ShadowDiceN", { n: k }) })), { lead: t("ShadowDiceLead") }));
-  if (!n) return null;
+  return n ? rollShadowDice(actor, n) : null;
+}
+
+/** Бросок принятых Теневых кубиков: сложность — как у броска, к которому они прибавляются. */
+export async function rollShadowDice(actor, n) {
   const diff = Number(await foundry.applications.api.DialogV2.prompt({ window: { title: t("ShadowDice") }, classes: ["vtm20", "r-dialog"],
     content: `<label class="r-f"><span>${game.i18n.localize("VTM20.Roll.Difficulty")}</span><input type="number" name="d" value="6" min="2" max="10"></label>`,
     ok: { callback: (ev, btn) => btn.form.elements.d.value }, rejectClose: false })) || 6;

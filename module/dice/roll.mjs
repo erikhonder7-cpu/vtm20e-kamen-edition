@@ -145,6 +145,7 @@ function dieView(v, diff, specialty) {
  * @param {boolean} [o.noBotch]    урон и прочность не проваливаются (04)
  * @param {number} [o.auto]        автоматические успехи (Мощь за кровь, Дисциплины/06)
  * @param {string} [o.messageMode]
+ * @param {string[]} [o.whisperAlso]  ещё получатели скрытого броска (id пользователей)
  */
 export async function rollPool(o) {
   let diff = Math.floor(o.difficulty ?? VTM20.defaultDifficulty);
@@ -201,6 +202,8 @@ export async function rollPool(o) {
     speaker: ChatMessage.getSpeaker({ actor: o.actor }),
     flags: { [SYSTEM_ID]: { roll: state } }
   }, o.messageMode ?? game.settings.get("core", "messageMode"));
+  // скрытый бросок увидит и тот, кому он ещё положен (проводник-Тень — Тёмные Страсти)
+  if (o.whisperAlso?.length && data.whisper?.length) data.whisper = [...new Set([...data.whisper.map(u => u.id ?? u), ...o.whisperAlso])];
   const message = await ChatMessage.create(data);
   // Проваленная ярость или Ротшрек — состояние на токене (05)
   if (o.actor && ["frenzy", "rotschreck", "rapture"].includes(state.kind) && result.successes === 0)
