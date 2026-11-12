@@ -238,6 +238,57 @@ def parse_backgrounds():
     return out
 
 
+# ── Достоинства и Недостатки (файл 06): таблицы «Название | Цена | Эффект» по разделам ──
+MERIT_CAT = {"Физические": "physical", "Ментальные": "mental", "Социальные": "social", "Сверхъестественные": "supernatural"}
+CAT_RU = {"physical": "физическая", "mental": "ментальная", "social": "социальная", "supernatural": "сверхъестественная"}
+cap = lambda s: s[:1].upper() + s[1:]   # noqa: E731 — эффекты в таблице книги начинаются со строчной
+
+
+def merit_costs(cost):
+    """«1 (Достоинство)», «1–3 (Н)», «2 или 4 (Д)», «2 (Н) / 4 (Д)» → [(вид, мин, макс, подпись)]."""
+    out = []
+    for part in cost.split("/"):
+        m = re.match(r"^\s*([\d–\-или ]+?)\s*\((Достоинство|Недостаток|Д|Н)\)\s*$", part.strip())
+        if not m:
+            continue
+        nums = [int(x) for x in re.findall(r"\d+", m.group(1))]
+        kind = "merit" if m.group(2) in ("Достоинство", "Д") else "flaw"
+        out.append((kind, min(nums), max(nums), m.group(1).strip().replace("-", "–")))
+    return out
+
+
+def parse_merits():
+    text = core("06")
+    out, favor = [], []
+    for title, lines in sections(text, 2):
+        cat = next((v for k, v in MERIT_CAT.items() if title.startswith(k)), None)
+        if not cat:
+            continue
+        sub = None
+        for line in lines:
+            if line.startswith("### "):
+                sub = line[4:]
+                continue
+            cells = [c.strip() for c in line.strip().strip("|").split("|")] if line.strip().startswith("|") else []
+            if len(cells) < 3 or cells[0] in ("Название", "Черта") or set(cells[0]) <= set("-"):
+                continue
+            name, en = ru_en(cells[0])
+            if sub:                                   # варианты «Животных даров» — списком в саму черту
+                favor.append(f"{name} ({en}) — {cells[1]}: {plain(cells[2])}")
+                continue
+            for kind, lo, hi, label in merit_costs(cells[1]):
+                # «Описание» — сам эффект из таблицы книги, «Система» — вид черты и цена
+                sysline = f"{'Достоинство' if kind == 'merit' else 'Недостаток'} подменыша, {CAT_RU[cat]} черта; цена {label}."
+                out.append({"kind": kind, "category": cat, "name": name, "en": en, "cost": label, "min": lo, "max": hi,
+                            "clan": "", "sect": "", "era": "", "source": "C20",
+                            "html": f'<h4 class="r-sec">Описание</h4>\n<p>{cap(plain(cells[2]))}</p>\n<h4 class="r-sec">Система</h4>\n<p>{sysline}</p>'})
+    if favor:
+        for m in out:
+            if m["en"] == "Animalistic Favor":
+                m["html"] += "\n<ul>" + "".join(f"<li>{x}</li>" for x in favor) + "</ul>"
+    return out
+
+
 def parse_books():
     out = []
     for folder, label in BOOKS:
@@ -263,7 +314,7 @@ def build():
             k["birthrights"] = sidhe["birthrights"]
     data = {"source": "Changeling: The Dreaming 20th Anniversary Edition — справочник проекта (пересказ механики)",
             "seemings": parse_seemings(), "kiths": kiths, "houses": parse_houses(), "legacies": parse_legacies(),
-            "arts": arts, "realms": realms, "backgrounds": parse_backgrounds(),
+            "arts": arts, "realms": realms, "backgrounds": parse_backgrounds(), "merits": parse_merits(),
             "creation": CREATION, "freebies": FREEBIES, "xp": XP, "cantrip": CANTRIP, "banality": BANALITY, "bedlam": BEDLAM}
     with open(OUT, "w", encoding="utf-8", newline="\n") as f:
         json.dump(data, f, ensure_ascii=False, indent=1)
@@ -272,8 +323,10 @@ def build():
         json.dump(books, f, ensure_ascii=False, indent=1)
     return (f"ступени {len(data['seemings'])}, киты {len(kiths)}, Дома {len(data['houses'])}, Наследия {len(data['legacies'])}, "
             f"Искусства {len(arts)} (уровней {sum(len(a['levels']) for a in arts)}), Царства {len(realms)} "
-            f"(уровней {sum(len(r['levels']) for r in realms)}), Фоны {len(data['backgrounds'])}; книги: записей {len(books)}")
+            f"(уровней {sum(len(r['levels']) for r in realms)}), Фоны {len(data['backgrounds'])}, черты {len(data['merits'])}; книги: записей {len(books)}")
 
 
 if __name__ == "__main__":
+    import fsretry   # Windows ненадолго держит файлы, пока Foundry их читает — запись с повтором
+    fsretry.install()
     print(build())

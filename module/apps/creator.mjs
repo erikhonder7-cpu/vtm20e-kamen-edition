@@ -123,7 +123,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     if (this.isWraith) s.push("passions");                  // Страсти и Оковы — по 10 очков
     if (this.isHunter && !this.isLost) s.push("edges");     // Грани — на очки Добродетелей охоты; у Свидетеля Граней нет
     if (this.isDhampir) s.push("bloodrights");              // Кровные права дампира (Accursed Heirs, гл. 4)
-    if (!this.isWraith && !this.isChangeling) s.push("merits");   // у призраков Wraith 20 достоинств нет; черты C20 — справкой в книгах
+    if (!this.isWraith) s.push("merits");                   // у призраков Wraith 20 достоинств и недостатков нет
     s.push("freebies");
     if (this.isWraith) s.push("shadow");                    // Тень — после торга свободными очками (гл. 6)
     if (this.st.xpTotal > 0) s.push("xp");

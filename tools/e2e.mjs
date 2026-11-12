@@ -5590,7 +5590,7 @@ try {
       return out;
     });
     // свободные: Искусство 5 + Царство 2×2 + Гламур 3 + Воля 1 + Фон 2 = 15; Гламур 4 + дикарь 1 + 1 = 6, Воля 5
-    const want = { steps: "concept,changeling,attributes,abilities,disciplines,advantages,freebies,summary", needWilder: true, realmsLeft: 1, problems: [],
+    const want = { steps: "concept,changeling,attributes,abilities,disciplines,advantages,merits,freebies,summary", needWilder: true, realmsLeft: 1, problems: [],
       costs: [15, 6, 5], written: ["pooka", "wilder", 3, 2, 6, 3, 5, 2, true] };
     const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));

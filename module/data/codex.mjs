@@ -106,7 +106,8 @@ export const Codex = {
     this.backgrounds = [...this.backgrounds, ...(this.mage?.backgrounds ?? []).map(b => ({ ...b, line: "mage" }))];
     // призраки (data/wraith.json, Wraith 20): свои Фоны — линией «wraith», в конце
     this.backgrounds = [...this.backgrounds, ...(this.wraith?.backgrounds ?? []).map(b => ({ ...b, line: "wraith" }))];
-    // подменыши (data/changeling.json, C20): свои Фоны — линией «changeling»
+    // подменыши (data/changeling.json, C20): свои Достоинства, Недостатки и Фоны — линией «changeling»
+    this.merits = [...this.merits, ...(this.changeling?.merits ?? []).map(m => ({ ...m, line: "changeling" }))];
     this.backgrounds = [...this.backgrounds, ...(this.changeling?.backgrounds ?? []).map(b => ({ ...b, line: "changeling" }))];
     // цены черт — числами: в части книг они записаны строкой («1»), и сумма в мастере склеивалась в «11»
     for (const m of this.merits) { m.min = Number(m.min) || 0; m.max = Number(m.max) || m.min; }

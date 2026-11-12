@@ -837,6 +837,18 @@
         "ASSISTANT": "OWNER"
       },
       "flags": {}
+    },
+    {
+      "name": "changeling-merits",
+      "label": "Достоинства и Недостатки подменышей",
+      "path": "packs/changeling-merits",
+      "type": "Item",
+      "system": "vtm20e-kamen-edition",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
     }
   ],
   "grid": {
@@ -960,6 +972,7 @@
         "changeling-books",
         "changeling-arts",
         "changeling-kiths",
+        "changeling-merits",
         "changeling-backgrounds"
       ]
     }

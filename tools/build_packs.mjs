@@ -854,6 +854,18 @@ BUILDERS["changeling-kiths"] = function () {
   return p;
 };
 
+/** Достоинства и Недостатки подменышей (data/changeling.json, C20, гл. 3): папки по виду черты. */
+BUILDERS["changeling-merits"] = function () {
+  const p = new Pack("changeling-merits"), cat = ru.VTM20.MeritCat ?? {};
+  for (const m of data("changeling").merits ?? []) {
+    const range = m.max > m.min ? `<p><em>Цена: ${m.min}–${m.max}</em></p>` : "";
+    p.add({ name: m.name, type: m.kind, folder: [m.kind === "flaw" ? "Недостатки" : "Достоинства", cat[m.category] ?? m.category],
+      key: `changeling:${m.kind}:${m.name}`, img: traitIcon(m.category, m.kind === "flaw"),
+      system: { cost: m.min || 1, category: m.category, clan: "", sect: "", source: m.en ?? "", description: `${m.html ?? ""}${range}` } });
+  }
+  return p;
+};
+
 /** Фоны подменышей (data/changeling.json, C20, гл. 5): Химера, Мечтатели, Родословная, Титул, Сокровище… */
 BUILDERS["changeling-backgrounds"] = function () {
   const p = new Pack("changeling-backgrounds");
