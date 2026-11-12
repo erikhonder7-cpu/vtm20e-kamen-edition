@@ -35,9 +35,15 @@ async function chronicleWeek() {
 export function golcondaView(actor) {
   const g = actor.system.golconda, eligible = golcondaEligible(actor);
   if (actor.type !== "vampire" || actor.system.morality?.path !== "humanity") return null;
-  return { stage: g.stage, eligible, active: golcondaActive(actor), lost: g.stage === "attained" && !eligible, found: g.found, weeks: g.weeks,
+  const s = actor.system, hum = s.morality?.value ?? 0, con = s.virtues?.conscience?.value ?? 0;
+  const failed = g.stage === "failed", open = !failed && g.stage !== "attained";
+  return { stage: g.stage, eligible, active: golcondaActive(actor), lost: g.stage === "attained" && !eligible, failed, found: g.found, weeks: g.weeks,
     need: SEEK_NEED, total: SEEK_WEEKS, isGM: game.user.isGM,
-    label: t(g.stage === "attained" ? (eligible ? "Attained" : "Lost") : g.stage === "suspire" ? "Suspire" : g.stage === "seeking" ? "Seeking" : "None") };
+    // всегда видна: что мешает (числа), прогресс поиска, найдено, достигнута, утрачена, закрыта
+    closed: open && !eligible, why: t("Why", { h: hum, c: con }),
+    canSeek: open && eligible && g.stage !== "suspire", canSuspire: open && eligible && game.user.isGM,
+    progress: g.stage === "seeking" ? t("Progress", { n: g.found, need: SEEK_NEED, w: g.weeks, total: SEEK_WEEKS }) : "",
+    label: t(failed ? "Failed" : g.stage === "attained" ? (eligible ? "Attained" : "Lost") : g.stage === "suspire" ? "Suspire" : g.stage === "seeking" ? "Seeking" : "None") };
 }
 
 /** Поиск учения: бросок недели (не чаще раза в неделю хроники). */
@@ -45,6 +51,8 @@ export async function seekTeaching(actor) {
   if (!actor.isOwner) return ui.notifications.warn(game.i18n.format("VTM20.Notify.NotOwner", { name: actor.name }));
   if (!golcondaEligible(actor)) return ui.notifications.warn(t("NotEligible"));
   const g = actor.system.golconda, week = await chronicleWeek();
+  if (g.stage === "failed") return ui.notifications.warn(t("FailedHint"));   // второго шанса нет
+  if (g.stage === "suspire" || g.stage === "attained") return null;
   if (g.stage === "seeking" && g.week === week) return ui.notifications.info(t("OncePerWeek"));
   const s = actor.system, int = s.attributes.intelligence.value, inv = s.abilities.investigation?.value ?? 0;
   const { rollPool } = await import("../dice/roll.mjs");
@@ -64,9 +72,12 @@ export async function seekTeaching(actor) {
   return roll;
 }
 
-/** Отдохновение (рассказчик): обряд пройден — Голконда; не пройден — второго шанса нет. */
+/** Отдохновение (рассказчик): обряд пройден — Голконда; не пройден — второго шанса нет. Поиск учения — необязательное правило,
+ *  рассказчик может провести Отдохновение и без него. */
 export async function suspire(actor) {
   if (!game.user.isGM) return ui.notifications.warn(game.i18n.localize("VTM20.Notify.GMOnly"));
+  if (!golcondaEligible(actor)) return ui.notifications.warn(t("NotEligible"));
+  if (["failed", "attained"].includes(actor.system.golconda.stage)) return null;
   const res = await foundry.applications.api.DialogV2.wait({ window: { title: `${t("SuspireTitle")}: ${actor.name}`, icon: "fa-solid fa-sun" }, classes: ["vtm20", "r-dialog"], rejectClose: false, position: { width: 460 },
     content: `<div class="r-form"><p>${esc(t("SuspireRule"))}</p></div>`,
     buttons: [{ action: "pass", icon: "fa-solid fa-sun", label: t("SuspirePass"), default: true }, { action: "fail", icon: "fa-solid fa-cloud", label: t("SuspireFail") }] });

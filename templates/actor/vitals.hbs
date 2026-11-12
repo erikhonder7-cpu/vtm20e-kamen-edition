@@ -356,10 +356,19 @@
       <a class="r-vc-btn is-sq {{#if system.exorcist.target}}is-on{{/if}}" data-action="exorcist" data-tooltip="{{localize 'VTM20.Exorcist.BtnHint'}}"><i class="fa-solid fa-hands-praying"></i></a>{{/if}}
       {{#if canEmbrace}}<a class="r-vc-btn is-sq" data-action="embrace" data-tooltip="{{localize 'VTM20.Embrace.Btn'}}"><i class="fa-solid fa-moon"></i></a>{{/if}}
       {{#if pathShift}}<a class="r-vc-btn is-sq" data-action="pathShift" data-tooltip="{{localize 'VTM20.PathShift.Btn'}}"><i class="fa-solid fa-route"></i></a>{{/if}}
-      {{#if golconda}}{{#if golconda.active}}<span class="r-vc-hint is-gold" data-tooltip="{{localize 'VTM20.Golconda.ActiveHint'}}"><i class="fa-solid fa-sun"></i> {{golconda.label}}</span>
-      {{else if golconda.lost}}<span class="r-vc-hint is-warn" data-tooltip="{{localize 'VTM20.Golconda.LostHint'}}"><i class="fa-solid fa-heart-crack"></i> {{golconda.label}}</span>
-      {{else if (rEq golconda.stage "suspire")}}{{#if golconda.isGM}}<a class="r-vc-btn is-sq is-on" data-action="golcondaSuspire" data-tooltip="{{localize 'VTM20.Golconda.SuspireHint'}}"><i class="fa-solid fa-sun"></i></a>{{else}}<span class="r-vc-hint" data-tooltip="{{localize 'VTM20.Golconda.SuspireWait'}}"><i class="fa-solid fa-sun"></i></span>{{/if}}
-      {{else if golconda.eligible}}{{#if editable}}<a class="r-vc-btn is-sq {{#if (rEq golconda.stage 'seeking')}}is-on{{/if}}" data-action="golcondaSeek" data-tooltip="{{localize 'VTM20.Golconda.SeekHint'}}{{#if (rEq golconda.stage 'seeking')}} — {{localize 'VTM20.Golconda.Progress' n=golconda.found need=golconda.need w=golconda.weeks total=golconda.total}}{{/if}}"><i class="fa-solid fa-sun"></i></a>{{/if}}{{/if}}{{/if}}
+      {{!-- Голконда (apps/golconda.mjs): всегда видна у вампира на Пути Человечности — состояние, что мешает, прогресс поиска --}}
+      {{#if golconda}}
+      {{#if golconda.active}}<span class="r-vc-hint is-gold r-golc" data-tooltip="{{localize 'VTM20.Golconda.ActiveHint'}}"><i class="fa-solid fa-sun"></i> {{golconda.label}}</span>
+      {{else if golconda.lost}}<span class="r-vc-hint is-warn r-golc" data-tooltip="{{localize 'VTM20.Golconda.LostHint'}}"><i class="fa-solid fa-heart-crack"></i> {{golconda.label}}</span>
+      {{else if golconda.failed}}<span class="r-vc-hint r-golc is-off" data-tooltip="{{localize 'VTM20.Golconda.FailedHint'}}"><i class="fa-solid fa-cloud"></i> {{golconda.label}}</span>
+      {{else if golconda.closed}}<span class="r-vc-hint r-golc is-off" data-tooltip="{{localize 'VTM20.Golconda.NotEligible'}} {{golconda.why}}"><i class="fa-solid fa-sun"></i> {{golconda.label}}</span>
+      {{else}}
+        {{#if (rEq golconda.stage "suspire")}}<span class="r-vc-hint is-gold r-golc" data-tooltip="{{localize 'VTM20.Golconda.SuspireWait'}}"><i class="fa-solid fa-book-open"></i> {{golconda.label}}</span>
+        {{else if editable}}<a class="r-vc-btn r-golc {{#if golconda.progress}}is-on{{/if}}" data-action="golcondaSeek" data-tooltip="{{localize 'VTM20.Golconda.SeekHint'}}"><i class="fa-solid fa-sun"></i> {{golconda.label}}{{#if golconda.progress}} <small>{{golconda.progress}}</small>{{/if}}</a>
+        {{else}}<span class="r-vc-hint r-golc"><i class="fa-solid fa-sun"></i> {{golconda.label}}{{#if golconda.progress}} <small>{{golconda.progress}}</small>{{/if}}</span>{{/if}}
+        {{#if golconda.canSuspire}}<a class="r-vc-btn is-sq {{#if (rEq golconda.stage 'suspire')}}is-on{{/if}}" data-action="golcondaSuspire" data-tooltip="{{localize 'VTM20.Golconda.SuspireHint'}}"><i class="fa-solid fa-hands-praying"></i></a>{{/if}}
+      {{/if}}
+      {{/if}}
       <a class="r-vc-btn is-right" data-action="rollVirtue" data-kind="degeneration"><i class="fa-solid fa-scale-unbalanced"></i> {{localize "VTM20.Sheet.DegenerationShort"}}</a>
     </div>
   </div>

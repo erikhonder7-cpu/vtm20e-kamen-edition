@@ -8819,7 +8819,10 @@
       "NoRotschreck": "<b>{name}</b> is in Golconda: Rötschreck has no hold.",
       "ActiveHint": "Golconda: immune to frenzy and Rötschreck, blood once a week, Traits up to 10. Lost if Humanity drops below 7 or Conscience below 4.",
       "LostHint": "Humanity below 7 or Conscience below 4: Golconda’s effects are lost.",
-      "LostMsg": "<b>{name}</b> loses Golconda: the Beast returns, Traits above {n} fall back to the generation limit."
+      "LostMsg": "<b>{name}</b> loses Golconda: the Beast returns, Traits above {n} fall back to the generation limit.",
+      "Failed": "Golconda closed",
+      "FailedHint": "Suspire failed — there is no second chance (V20, ch. 5).",
+      "Why": "Now: Humanity {h}, Conscience {c}."
     },
     "Train": {
       "Spont": "Спонтанное проявление",

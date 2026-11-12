@@ -1213,3 +1213,7 @@ body.r-theme-light .vtm20 .r-motto { color: rgba(140, 28, 34, .75); }
 .vtm20 .r-edge.has-text > .r-edge-main > b:hover { color: var(--r-accent); }
 .vtm20 .r-vc-hint.is-gold { color: #e6c46e; }
 .r-notice.r-golconda i { color: #e6c46e; }
+
+/* Голконда на карточке Человечности (templates/actor/vitals.hbs): всегда видна; недоступна или закрыта — приглушена */
+.vtm20 .r-golc.is-off { opacity: .55; }
+.vtm20 .r-golc small { margin-left: 4px; opacity: .75; font-size: 11px; }
