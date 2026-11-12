@@ -141,7 +141,8 @@
 .vtm20 .r-pbadge.is-hot { color: #fff; background: rgba(140, 28, 34, .92); border-color: #d0565b; }
 .vtm20 a.r-pbadge:hover { transform: scale(1.1); }
 .vtm20 .r-seal {
-  display: flex; align-items: baseline; justify-content: center; gap: 6px; height: 22px; padding: 0 6px;
+  /* margin: 0 — Foundry v14 (foundry2.css) даёт любому figure figcaption отступ 1rem сверху: печать отрывалась от портрета */
+  display: flex; align-items: baseline; justify-content: center; gap: 6px; height: 22px; padding: 0 6px; margin: 0;
   background: #0a0a0c; border: 1px solid rgba(216, 207, 191, .22); border-top: 2px solid #8c1c22;
 }
 .vtm20 .r-seal-num { font-family: var(--r-display); font-size: 14px; line-height: 19px; color: #e6ddcc; }
