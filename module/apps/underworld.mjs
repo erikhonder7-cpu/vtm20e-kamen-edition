@@ -115,7 +115,7 @@ export async function fog() {
   const living = (canvas?.tokens?.controlled ?? []).map(x => x.actor).filter(a => a && a.type !== "wraith" && a.type !== "spirit");
   if (!living.length) return ui.notifications.warn(t("Fog.PickLiving"));
   const rows = living.map(a => {
-    const sup = ["vampire", "werewolf", "mage", "demon"].includes(a.type), wp = Math.clamp(a.system.willpower?.permanent ?? 3, 1, 10);
+    const sup = ["vampire", "werewolf", "mage", "demon", "changeling"].includes(a.type), wp = Math.clamp(a.system.willpower?.permanent ?? 3, 1, 10);
     return `<li><b>${esc(a.name)}</b> (${t("Fog.Will", { n: wp })}): ${esc(sup ? t("Fog.Supernatural") : t(`Fog.R.${FOG[wp]}`))}</li>`;
   });
   return ChatMessage.create({ whisper: ChatMessage.getWhisperRecipients("GM"),

@@ -40,6 +40,8 @@ export const CITY_CATEGORIES = {
   "safehouse": { icon: "fa-house-lock",       color: "#e3a24c", chronicle: true, group: "lines" },
   "haunt":     { icon: "fa-ghost",            color: "#c9d2dc", chronicle: true, group: "lines" },
   "nihil":     { icon: "fa-hurricane",        color: "#7d8592", chronicle: true, group: "lines" },
+  "freehold":  { icon: "fa-fire",            color: "#e08bb0", chronicle: true, group: "lines" },
+  "trod":      { icon: "fa-route",           color: "#c9a3e8", chronicle: true, group: "lines" },
   // город
   hospital:  { icon: "fa-hospital",            color: "#a3afbd" },
   blood:     { icon: "fa-droplet",             color: "#b8333f" },

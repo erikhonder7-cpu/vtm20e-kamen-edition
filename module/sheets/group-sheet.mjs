@@ -17,7 +17,7 @@ const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
 const loc = k => game.i18n.localize(k);
-const PEOPLE = ["vampire", "ghoul", "mortal", "demon", "hunter", "mage", "werewolf", "wraith", "creature", "spirit"];
+const PEOPLE = ["vampire", "ghoul", "mortal", "demon", "hunter", "mage", "werewolf", "wraith", "changeling", "creature", "spirit"];
 const KIND_ICON = { coterie: "fa-droplet", sabbat: "fa-wine-glass", pack: "fa-paw", cell: "fa-crosshairs", cabal: "fa-hat-wizard", circle: "fa-ghost", motley: "fa-wand-sparkles" };
 /** Знаки известных чантри, Конструктов и Лабиринтов (assets/mage/chantry-*.png) — на выбор для своего. */
 const CHANTRY_SIGNS = ["crombey-farm", "drachus-vachar", "house-of-helekar", "lodge-of-the-gray-squirrel", "mecha", "maze-of-ebon-gates", "null-b", "research-plantation-4", "sepulcher", "vali-shallar"];

@@ -52,7 +52,7 @@ export const hauntRating = actor => Math.max(backgroundRating(actor, "Haunt"), c
  * маги, падшие) −2 — их жетоны на сцене. В Обиталище — минус рейтинг Обиталища, и Покров там не колеблется (Истерии нет).
  * Ниже 4 Покров не опускается.
  */
-const SUPERNATURAL = ["vampire", "werewolf", "mage", "demon"];
+const SUPERNATURAL = ["vampire", "werewolf", "mage", "demon", "changeling"];
 export const SHROUD_DEFAULT = 7;
 export function shroudOf(actor = null, scene = game.scenes?.viewed) {
   const f = scene?.getFlag(SYSTEM_ID, "shroud") ?? {}, base = Math.clamp(Number(f.base) || SHROUD_DEFAULT, 4, 10);

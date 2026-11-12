@@ -111,7 +111,7 @@ export function owner(k, s = strat()) {
 export const hue = k => `hsl(${[...String(k)].reduce((n, c) => n * 31 + c.charCodeAt(0) >>> 0, 7) % 360} 45% 45%)`;
 
 /** Мои персонажи (игрок) — те, чьи заявки он пишет. Ведущий видит всех. */
-export const mine = () => game.actors.filter(a => a.isOwner && a.hasPlayerOwner && ["vampire", "ghoul", "mortal", "hunter", "werewolf", "demon", "mage", "wraith"].includes(a.type));
+export const mine = () => game.actors.filter(a => a.isOwner && a.hasPlayerOwner && ["vampire", "ghoul", "mortal", "hunter", "werewolf", "demon", "mage", "wraith", "changeling"].includes(a.type));
 
 export const meActor = () => { const list = mine(); if (!list.some(a => a.id === ST.me)) ST.me = (game.user.character && list.includes(game.user.character) ? game.user.character : list[0])?.id ?? null; return game.actors.get(ST.me) ?? null; };
 
