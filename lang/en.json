@@ -4672,6 +4672,7 @@
       "SightTip": "Second Sight",
       "Form": "Form",
       "Tab": {
+        "changeling": "Dreaming",
         "fight": "Combat",
         "blood": "Blood",
         "other": "Other",
@@ -8929,6 +8930,7 @@
       "Done": "<b>{name}</b> learned “{what}” to {n}."
     },
     "Changeling": {
+      "TriggerShort": "Trigger",
       "Kith": "Kith",
       "Seeming": "Seeming",
       "CourtLabel": "Court",

@@ -5163,6 +5163,7 @@
       "SightTip": "Второе зрение",
       "Form": "Форма",
       "Tab": {
+        "changeling": "Грёза",
         "fight": "Бой",
         "blood": "Кровь",
         "other": "Прочее",
@@ -8929,6 +8930,7 @@
       "Done": "<b>{name}</b> выучил «{what}» до {n}."
     },
     "Changeling": {
+      "TriggerShort": "Триггер",
       "Kith": "Кит",
       "Seeming": "Ступень",
       "CourtLabel": "Двор",

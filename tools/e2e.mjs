@@ -5591,6 +5591,31 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  // Подменыш в HUD: подпись (кит · ступень · двор), Гламур, Банальность и Кошмар справа, вкладка «Грёза», Искусства во вкладке «Силы»
+  await check("Подменыш: HUD — Грёза, Гламур, Банальность, Кошмар, Искусства", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), H = await import(`/systems/${sid}/module/ui/hud.mjs`);
+      const prev = game.user.character?.id ?? null, out = {};
+      const a = await Actor.create({ name: "E2E — подменыш в HUD", type: "changeling", flags: { world: { e2e: true }, [sid]: { created: true } },
+        system: { changeling: { kith: "pooka", seeming: "wilder", court: "seelie", glamour: { permanent: 5, temporary: 4 }, nightmare: 2, arts: { chicanery: 2 }, realms: { actor: 2 } } } });
+      try {
+        await game.user.update({ character: a.id }); await wait(300); canvas.tokens?.releaseAll(); await wait(200); H.renderHud(); await wait(600);
+        const hud = document.getElementById("r-hud");
+        out.kind = hud.classList.contains("rh-t-changeling");
+        out.sub = /Пука|Pooka/.test(hud.textContent);
+        out.wing = ["glamour", "banality", "nightmare"].map(k => hud.querySelectorAll(`.on.${k}`).length > 0);
+        hud.querySelector('[data-act="tab"][data-tab="changeling"]')?.click(); await wait(300);
+        out.seals = ["clCast", "clEpiphany", "clWyrd", "clAutumn", "clTrigger"].every(k => document.querySelector(`#r-hud [data-act="${k}"]`));
+        document.querySelector('#r-hud [data-act="tab"][data-tab="powers"]')?.click(); await wait(300);
+        out.arts = !!document.querySelector('#r-hud [data-act="pop"][data-pop="cl:chicanery"]');
+      } finally { await game.user.update({ character: prev }); await a.delete(); H.renderHud(); }
+      return out;
+    });
+    const want = { kind: true, sub: true, wing: [true, true, true], seals: true, arts: true };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   await check("Призрак: лист и Арканои, Пафос, Страсть, Корпус до колебания и Испытание, Катарсис", async () => {
     const r = await page.evaluate(async () => {
       const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), WR = await import(`/systems/${sid}/module/apps/wraith.mjs`);

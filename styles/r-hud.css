@@ -373,3 +373,10 @@ body.r-hud-on #chat-notifications > #chat-message { display: none !important; }
 #r-hud .rh-pop-row > em { display: grid; place-items: center; flex: 0 0 18px; width: 18px; height: 18px; color: var(--h-muted); }
 #r-hud .rh-pop-row:hover > em { color: var(--h-acc); }
 .vtm20 .r-atk-pick.is-dim:not(.is-active) { opacity: .4; }
+/* Подменыш (C20): розовый Гламур, стальная Банальность, лиловый Кошмар */
+#r-hud.rh-t-changeling { --h-acc: #e08bb0; --h-acc-d: #7a2c55; --h-acc-rgb: 224, 139, 176; }
+#r-hud .d.on.glamour { border-color: #f0a9c8; background: radial-gradient(circle at 38% 32%, #fbd3e4, #d0709c 55%, #4a1530); }
+#r-hud .b.on.glamour { background: linear-gradient(180deg, #e98bb4, #9c3a68); border-color: #f0a9c8; }
+#r-hud .d.on.banality { border-color: #aab6c6; background: radial-gradient(circle at 38% 32%, #e3e9f1, #7d8ba0 55%, #1d2430); }
+#r-hud .b.on.banality { background: linear-gradient(180deg, #a8b4c4, #5b677a); border-color: #aab6c6; }
+#r-hud .b.on.nightmare { background: linear-gradient(180deg, #9b7ad0, #4e2f86); border-color: #b89be4; }

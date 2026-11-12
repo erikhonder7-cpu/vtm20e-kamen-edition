@@ -21,6 +21,7 @@ import { numenOf as sorcNumenOf, useNumen as sorcUseNumen, useRitual as sorcUseR
 import { paradoxOf, castEffect, castRote, sphereName, aretePool, factionOf, mt, changeQuintessence, paradoxBacklash } from "../apps/mage.mjs";
 import { assumeForm } from "../apps/torment.mjs";
 import { W as wraithData, shroudOf } from "../apps/wraith.mjs";
+import { C as clData, inWyrd, bedlamOf } from "../apps/changeling.mjs";
 import { togglePowerEffect } from "../apps/power-effects.mjs";
 
 const ID = "r-hud";
@@ -96,6 +97,10 @@ function subtitleOf(a, kind) {
       if (w.projector?.on) return [t("Wraith.Proj.Title"), D.shades?.find(x => x.key === w.projector.shade)?.name].filter(Boolean).join(" · ");
       return [w.risen?.on ? t("Wraith.Risen.Title") : legion || typeName, D.arcanoi?.find(x => x.key === w.guild)?.guild].filter(Boolean).join(" · ");
     }
+    case "changeling": {
+      const c = s.changeling, D = clData();
+      return [D.kiths?.find(k => k.key === c.kith)?.name ?? typeName, D.seemings?.find(x => x.key === c.seeming)?.name, c.court ? t(`Changeling.Court.${c.court}`) : ""].filter(Boolean).join(" · ");
+    }
     case "mortal": return s.kinfolk?.on ? t("Hud.Kind.kinfolk") : s.kami?.on ? t("Hud.Kind.kami") : s.fomor?.on ? t("Hud.Kind.fomor") : typeName;
     case "spirit": return [t("Hud.Kind.spirit"), s.kind].filter(Boolean).join(" · ");
     default: return s.kind || typeName;
@@ -168,6 +173,17 @@ function powerGroups(a, kind) {
     if (w.spectre?.on) extra(D.darkArcanoi, w.spectre.dark, "spDark", x => `sd:${x.key}`, (x, l) => `data-key="${x.key}" data-level="${l.level}"`);
     if (w.risen?.on) extra(D.risenArcanoi, w.risen.arcanoi, "rsArt", x => `rs:${x.key}`, (x, l) => `data-key="${x.key}" data-level="${l.level}"`);
     extra(D.realmArcanoi, w.realm?.arcanoi, "rlArt", x => `rl:${x.key}`, (x, l, i) => `data-key="${x.key}" data-i="${i}"`);
+  }
+  // Подменыш: каждое Искусство — группа, строки — уровни до рейтинга (щелчок — окно кантрипа с этим Искусством и уровнем)
+  if (kind === "changeling") {
+    const c = a.system.changeling, ROM = ["I", "II", "III", "IV", "V"];
+    for (const art of clData().arts ?? []) {
+      const v = c.arts?.[art.key] ?? 0;
+      if (!v) continue;
+      out.push({ id: `cl:${art.key}`, label: art.name, icon: "fa-wand-sparkles", lvl: v,
+        rows: art.levels.filter(l => l.level <= v).map(l => ({ name: l.name, level: ROM[l.level - 1], act: "clArt", icon: l.type === "wyrd" ? "fa-sun" : "fa-cloud",
+          attrs: `data-key="${art.key}" data-level="${l.level}"` })) });
+    }
   }
   // Сферы мага — одной группой: щелчок открывает окно чародейства с этой Сферой
   if (kind === "mage") {
@@ -257,6 +273,15 @@ function rightWing(a, kind) {
       else out.push(line(w.projector?.on ? t("Wraith.Angst") : t("Wraith.Shadow"), [dots(w.shadow.angst.permanent, 10, "torment"), boxes(w.shadow.angst.temporary, 10, "torment")],
         `${w.shadow.angst.temporary}<small>/${w.shadow.angst.permanent}</small>`, { tip: t("Wraith.AngstHint") }));
     }
+  } else if (kind === "changeling") {
+    // подменыш (C20, гл. 6): Гламур — рейтинг и пул, Банальность — рейтинг и пул (выше Гламура — Туманы), Кошмар и Дисбаланс
+    const c = s.changeling;
+    out.push(line(t("Changeling.Glamour"), [dots(c.glamour.permanent, 10, "glamour"), boxes(c.glamour.temporary, 10, "glamour")], `${c.glamour.temporary}<small>/${c.glamour.permanent}</small>`,
+      { tip: t("Changeling.Epi.Hint"), act: "clEpiphany" }));
+    out.push(line(t("Changeling.Banality"), [dots(c.banality.permanent, 10, "banality"), boxes(c.banality.temporary, 10, "banality")],
+      `${c.banality.permanent}${c.mists ? `<small> · ${t("Changeling.Mists")}</small>` : ""}`, { tip: t("Changeling.BanalityHint") }));
+    out.push(line(t("Changeling.Nightmare"), [boxes(c.nightmare, 10, "nightmare")], `${c.nightmare}${c.imbalance ? `<small> · ${c.imbalance}</small>` : ""}`,
+      { tip: [t("Changeling.NightmareHint"), c.imbalance ? `${t("Changeling.Imbalance")}: ${c.imbalance}` : ""].filter(Boolean).join(" ") }));
   } else if (kind === "spirit") {
     const sp = s.spirit, e = sp.essence;
     out.push(line(t("Hud.Essence"), [boxes(Math.round(e.value / Math.max(1, e.max) * 10), 10, "gnosis")], `${e.value}<small>/${e.max}</small>`, { tip: t("Hud.EssenceTip") }));
@@ -340,6 +365,16 @@ function tabsOf(a, kind) {
       seal("mageCounter", "fa-shield-halved", t("Mage.Counter"), { tip: t("Mage.CounterTip") }),
       ...((m.spheres?.spirit ?? 0) >= 3 || a.getFlag(SYSTEM_ID, "umbra") ? [seal("mageStep", "fa-circle-half-stroke", t("Mage.StepShort"), { on: !!a.getFlag(SYSTEM_ID, "umbra"), tip: t(a.getFlag(SYSTEM_ID, "umbra") ? "Mage.StepBackTip" : "Mage.StepTip") })] : []),
       seal("mageBacklash", "fa-burst", t("Mage.Paradox"), { on: paradoxOf(a) >= 10, badge: paradoxOf(a) ? String(paradoxOf(a)) : "", tip: t("Mage.BacklashHint") })] });
+  }
+  if (kind === "changeling") {
+    const b = bedlamOf(a);
+    tabs.push({ key: "changeling", label: t("Hud.Tab.changeling"), seals: [
+      seal("clCast", "fa-wand-sparkles", t("Changeling.Cantrip"), { tip: t("Changeling.CantripHint") }),
+      seal("clEpiphany", "fa-lightbulb", t("Changeling.Epi.Short"), { tip: t("Changeling.Epi.Hint") }),
+      seal("clWyrd", "fa-sun", t("Changeling.Wyrd"), { on: inWyrd(a), tip: t("Changeling.WyrdHint") }),
+      seal("clAutumn", "fa-leaf", t("Changeling.Autumn"), { tip: t("Changeling.AutumnHint") }),
+      seal("clTrigger", "fa-snowflake", t("Changeling.TriggerShort"), { tip: t("Changeling.TriggerHint") }),
+      ...(b ? [seal("clBedlam", "fa-masks-theater", t(`Changeling.Bedlam.${b.key}`), { on: true, badge: String(b.n), tip: t(`Changeling.BedlamText.${b.key}`, { n: b.n }) })] : [])] });
   }
   if (kind === "wraith") {
     const w = s.wraith, sh = shroudOf(a), seals = [
@@ -495,6 +530,14 @@ async function onClick(ev) {
     case "rsArt": pop = null; renderHud(); return import("../apps/risen.mjs").then(m => m.rollRisenArt(a, el.dataset.key, Number(el.dataset.level)));
     case "rlArt": pop = null; renderHud(); return import("../apps/realms.mjs").then(m => m.rollRealmArt(a, el.dataset.key, Number(el.dataset.i)));
     case "wrHeal": return import("../apps/wraith.mjs").then(m => m.pathosHeal(a));
+    // подменыш (apps/changeling.mjs): кантрип (с Искусством и уровнем из «Сил»), Эпифания, Вирд, Осень, триггер Банальности
+    case "clArt": pop = null; renderHud(); return import("../apps/changeling.mjs").then(m => m.castCantrip(a, { art: el.dataset.key, level: Number(el.dataset.level) }));
+    case "clCast": return import("../apps/changeling.mjs").then(m => m.castCantrip(a));
+    case "clEpiphany": return import("../apps/changeling.mjs").then(m => m.epiphany(a));
+    case "clWyrd": return import("../apps/changeling.mjs").then(m => m.invokeWyrd(a));
+    case "clAutumn": return import("../apps/changeling.mjs").then(m => m.invokeAutumn(a));
+    case "clTrigger": return import("../apps/changeling.mjs").then(m => m.banalityTrigger(a));
+    case "clBedlam": await a.sheet.render(true); return null;
     case "wrMemoriam": return import("../apps/wraith.mjs").then(m => m.rollMemoriam(a));
     case "wrCatharsis": return import("../apps/wraith.mjs").then(m => m.catharsis(a));
     case "wrShroud": await a.sheet.render(true); return a.sheet.changeTab?.("disciplines", "primary");
