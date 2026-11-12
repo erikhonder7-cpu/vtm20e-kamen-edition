@@ -50,7 +50,7 @@ export function changelingInfo(actor, dots) {
     nightmare: c.nightmare, nightmareBoxes: boxes(c.nightmare, 10, "system.changeling.nightmare"),
     imbalance: c.imbalance, imbalanceWill: Array.from({ length: will }, (_, i) => ({ on: i >= will - c.imbalance })),
     mists: c.mists, undone: c.undone, bedlam: c.bedlam, isGM: game.user.isGM,
-    wyrd: inWyrd(actor), place: sceneBanality(), chim: chimericalView(actor),
+    wyrd: inWyrd(actor), place: sceneBanality(), chim: chimericalView(actor), dross: c.dross ?? 0,
     threshold: (b => b ? { key: b.key, name: t(`Bedlam.${b.key}`), n: b.n, text: t(`BedlamText.${b.key}`, { n: b.n }) } : null)(bedlamOf(actor))
   };
 }
@@ -71,7 +71,7 @@ export function artsView(actor, dots) {
       levels: r.levels.map(l => ({ ...l, known: l.level <= value })) };
   });
   return { own, realms, avail: C().arts.filter(a => !(c.arts[a.key] > 0)).map(a => ({ key: a.key, label: a.name })),
-    nightmare: c.nightmare, glamour: c.glamour.temporary, oaths: oathsView(actor) };
+    nightmare: c.nightmare, glamour: c.glamour.temporary, oaths: oathsView(actor), treasures: treasuresView(actor) };
 }
 
 /** Добавить или убрать Искусство (кнопка вкладки). */
@@ -82,10 +82,12 @@ export function artRow(actor, op, key) {
 
 /* ── Гламур, Банальность, Кошмар ──────────────────────────────────────── */
 
+/** Потратить Гламур: из пула, недостаток — дроссом (1 дросс = 1 Гламур, гл. 8). */
 export async function spendGlamour(actor, n = 1) {
-  const g = actor.system.changeling.glamour.temporary;
-  if (g < n) { ui.notifications.warn(t("NoGlamour", { n })); return false; }
-  await actor.update({ "system.changeling.glamour.temporary": g - n });
+  const c = actor.system.changeling, g = c.glamour.temporary, dross = c.dross ?? 0;
+  if (g + dross < n) { ui.notifications.warn(t("NoGlamour", { n })); return false; }
+  const fromPool = Math.min(g, n);
+  await actor.update({ "system.changeling.glamour.temporary": g - fromPool, ...(n > fromPool ? { "system.changeling.dross": dross - (n - fromPool) } : {}) });
   if (bedlamOf(actor)?.key === "drowning") await gainNightmare(actor, n, { reason: t("Bedlam.drowning") });
   return true;
 }
@@ -267,6 +269,80 @@ export function chimericalView(actor) {
   const MARK = { bashing: "/", lethal: "X", aggravated: "✱", empty: "" };
   return { levels: ch.levels.map((l, i) => ({ state: l.state, mark: MARK[l.state], label: game.i18n.localize(l.label ?? ""), current: i === ch.damage - 1 })),
     damage: ch.damage, status: game.i18n.localize(VTM20.healthLevels.find(l => l.key === ch.status)?.label ?? "VTM20.Health.healthy"), penalty: ch.penalty };
+}
+
+/* ── Дросс и Сокровища (гл. 8 «Dross», «Treasures») ───────────────────── */
+
+/** Сокровища на листе: Искусство и уровень (его имя), запас Гламура. */
+export function treasuresView(actor) {
+  return (actor.system.changeling.treasures ?? []).map((x, i) => {
+    const art = artOf(x.art), lv = art?.levels.find(l => l.level === x.level);
+    return { i, name: x.name || t("Treasure.Unnamed"), art: art?.name ?? "", level: x.level, dots: "●".repeat(x.level), power: lv?.name ?? "",
+      type: lv?.type ?? "", store: x.store, text: x.text, tip: lv?.html ? lv.html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").slice(0, 400) : "" };
+  });
+}
+
+/** Добавить Сокровище: окно — имя, Искусство, уровень (Фон «Сокровище» — по точке за уровень), запас Гламура. */
+export async function addTreasure(actor) {
+  if (!actor?.isOwner) return null;
+  const f = await foundry.applications.api.DialogV2.prompt({ window: { title: t("Treasure.Add"), icon: "fa-solid fa-gem" },
+    classes: ["vtm20", "r-dialog", "r-type-changeling"], position: { width: 520 }, rejectClose: false,
+    content: `<div class="r-form"><label class="r-field"><span>${esc(t("Treasure.Name"))}</span><input type="text" name="name"></label>
+      <label class="r-field"><span>${esc(t("Art"))}</span><select name="art">${C().arts.map(a => `<option value="${a.key}">${esc(a.name)}</option>`).join("")}</select></label>
+      <label class="r-field"><span>${esc(t("Level"))}</span><input type="number" name="level" min="1" max="5" value="1"></label>
+      <label class="r-field"><span>${esc(t("Treasure.Store"))}</span><input type="number" name="store" min="0" max="20" value="0"></label>
+      <label class="r-field"><span>${esc(t("Treasure.Legend"))}</span><input type="text" name="text"></label>
+      <p class="r-note">${esc(t("Treasure.Rule"))}</p></div>`,
+    ok: { label: t("Treasure.Add"), icon: "fa-solid fa-gem", callback: (e, b) => new foundry.applications.ux.FormDataExtended(b.form).object } });
+  if (!f) return null;
+  const list = actor.system.changeling.treasures.map(x => ({ ...x }));
+  list.push({ name: f.name || "", art: f.art, level: Math.clamp(Number(f.level) || 1, 1, 5), store: Math.clamp(Number(f.store) || 0, 0, 20), text: f.text || "" });
+  return actor.update({ "system.changeling.treasures": list });
+}
+
+/** Запас Гламура Сокровища ±1 (вложить можно в любой момент — из своего пула). */
+export async function treasureStore(actor, i, d) {
+  const list = actor.system.changeling.treasures.map(x => ({ ...x })), x = list[Number(i)];
+  if (!x) return null;
+  if (d > 0 && !(await spendGlamour(actor, 1, { noTreasure: true }))) return null;
+  x.store = Math.clamp(x.store + d, 0, 20);
+  return actor.update({ "system.changeling.treasures": list });
+}
+
+/**
+ * Пробудить Сокровище: сила Искусства без Царств; пул — Гламур или Интеллект + Гремайр (по выбору), сложность 8 — правило системы
+ * (книга сложности не даёт). Вирд-уровень стоит 1 Гламур — сперва из запаса Сокровища. Кубики Кошмара — как у броска Гламура.
+ */
+export async function useTreasure(actor, i, { gremayre = false } = {}) {
+  const x = actor.system.changeling.treasures[Number(i)], art = artOf(x?.art), lv = art?.levels.find(l => l.level === x?.level);
+  if (!x || !art) return null;
+  if (lv?.type === "wyrd") {
+    const list = actor.system.changeling.treasures.map(y => ({ ...y }));
+    if (list[i].store > 0) { list[i].store--; await actor.update({ "system.changeling.treasures": list }); }
+    else if (!(await spendGlamour(actor, 1, { noTreasure: true }))) return null;
+  }
+  const c = actor.system.changeling, { rollPool } = await import("../dice/roll.mjs");
+  const parts = gremayre ? [["attributes.intelligence"], ["abilities.gremayre"]].map(([p]) => ({ label: actor.traitLabel(p), value: actor.traitValue(p) }))
+    : [{ label: t("Glamour"), value: c.glamour.permanent }];
+  const pool = parts.reduce((s, p) => s + p.value, 0), nightmare = gremayre ? 0 : Math.min(pool, c.nightmare);
+  const roll = await rollPool({ actor, title: `${x.name || art.name}: ${lv?.name ?? ""}`, subtitle: t("Treasure.Sub", { art: art.name, n: x.level }), pool, difficulty: 8, kind: "check",
+    breakdown: parts, effect: lv?.html ?? "", extra: { changeling: { kind: "cantrip", art: x.art, level: x.level, realms: [], wyrd: lv?.type === "wyrd", cost: 0, nightmare, treasure: true } } });
+  if (roll) await afterRoll(actor, roll, nightmare, x.name || art.name);
+  return roll;
+}
+
+/** Разрушить Сокровище: Гламур по его рейтингу (и запас), снять с листа — это триггер Банальности (гл. 6). */
+export async function destroyTreasure(actor, i) {
+  const list = actor.system.changeling.treasures.map(x => ({ ...x })), x = list[Number(i)];
+  if (!x) return null;
+  const ok = await foundry.applications.api.DialogV2.confirm({ window: { title: t("Treasure.Destroy") }, rejectClose: false,
+    content: `<p>${esc(t("Treasure.DestroyAsk", { name: x.name || "—", n: x.level + x.store }))}</p>` });
+  if (!ok) return null;
+  list.splice(Number(i), 1);
+  await actor.update({ "system.changeling.treasures": list });
+  await gainGlamour(actor, x.level + x.store);
+  await say(actor, "fa-gem", t("Treasure.Destroyed", { name: esc(actor.name), t: esc(x.name || "—"), n: x.level + x.store }), "is-warn");
+  return banalityTrigger(actor);
 }
 
 /* ── Фригольд мотли (гл. 6 «Sanctuary», гл. 7) ───────────────────────────── */

@@ -44,6 +44,20 @@
     </div>
     {{/each}}
   </div>
+  {{!-- Сокровища (C20, гл. 8): сила Искусства без Царств, свой запас Гламура; разрушение — Гламур и триггер Банальности --}}
+  <h2 class="r-h2"><span>{{localize "VTM20.Changeling.Treasure.Head"}}</span>
+    {{#if editable}}<span class="r-h2-tools"><a class="r-btn" data-action="clTreasure" data-op="add"><i class="fa-solid fa-gem"></i> {{localize "VTM20.Changeling.Treasure.Add"}}</a></span>{{/if}}</h2>
+  {{#if cl.treasures.length}}<div class="r-cl-oaths">
+    {{#each cl.treasures}}<article class="r-vcard r-cl-oath r-cl-treasure">
+      <header><b>{{name}}</b> <em>{{art}} {{dots}}</em>
+        {{#if @root.editable}}<span class="r-cl-oath-tools"><a data-action="clTreasure" data-op="use" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Changeling.Treasure.UseHint'}}"><i class="fa-solid fa-wand-sparkles"></i></a>
+          <a data-action="clTreasure" data-op="del" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Changeling.Treasure.Destroy'}}"><i class="fa-solid fa-hammer"></i></a></span>{{/if}}</header>
+      <p class="r-cl-oath-fx" data-tooltip="{{tip}}"><i class="fa-solid fa-{{#if (eq type 'wyrd')}}sun{{else}}cloud{{/if}}"></i> {{power}}</p>
+      {{#if text}}<p class="r-note">{{text}}</p>{{/if}}
+      <p class="r-cl-oath-fx"><i class="fa-solid fa-star"></i> {{localize "VTM20.Changeling.Treasure.Store"}}: <b>{{store}}</b>
+        {{#if @root.editable}}<a data-action="clTreasure" data-op="store" data-d="-1" data-i="{{i}}"><i class="fa-solid fa-minus"></i></a> <a data-action="clTreasure" data-op="store" data-d="1" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Changeling.Treasure.StoreHint'}}"><i class="fa-solid fa-plus"></i></a>{{/if}}</p>
+    </article>{{/each}}
+  </div>{{else}}<p class="r-note">{{localize "VTM20.Changeling.Treasure.None"}}</p>{{/if}}
   {{!-- Клятвы (C20, гл. 6): примеры книги с ценой и расплатой; нарушение — расплата, «клятвопреступник» и триггер Банальности --}}
   <h2 class="r-h2 r-cl-oaths-head"><span>{{localize "VTM20.Changeling.Oath.Head"}}</span>
     {{#if editable}}<span class="r-h2-tools"><a class="r-btn" data-action="clOath" data-op="take"><i class="fa-solid fa-handshake-angle"></i> {{localize "VTM20.Changeling.Oath.Swear"}}</a></span>{{/if}}</h2>

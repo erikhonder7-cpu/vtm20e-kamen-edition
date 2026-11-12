@@ -200,6 +200,10 @@
 /* Химерические раны — лиловая дорожка под обычной */
 .vtm20.r-type-changeling .r-cl-chim-head { margin-top: 8px; }
 .vtm20.r-type-changeling .r-hboxes.is-chimerical .r-hbox { border-color: rgba(184, 155, 228, .45); min-height: 22px; }
-.vtm20.r-type-changeling .r-vc-health .r-hboxes.is-chimerical .r-hbox.is-bashing, .vtm20.r-type-changeling .r-vc-health .r-hboxes.is-chimerical .r-hbox.is-lethal,
-.vtm20.r-type-changeling .r-vc-health .r-hboxes.is-chimerical .r-hbox.is-aggravated { background: linear-gradient(180deg, #9b7ad0, #4e2f86); border-color: #b89be4; color: #f3ecff; box-shadow: none; }
+.vtm20.r-type-changeling .r-hboxes.is-chimerical .r-hbox.is-bashing .r-hbox-mark, .vtm20.r-type-changeling .r-hboxes.is-chimerical .r-hbox.is-lethal .r-hbox-mark,
+.vtm20.r-type-changeling .r-hboxes.is-chimerical .r-hbox.is-aggravated .r-hbox-mark { background: linear-gradient(180deg, #9b7ad0, #4e2f86); border-color: #b89be4; color: #f3ecff; box-shadow: none; }
 .vtm20.r-type-changeling .r-cl-chim-tools { margin-top: 4px; }
+/* Дросс и Сокровища */
+.vtm20.r-type-changeling .r-cl-state.is-dross { border-color: #e9c46a; color: #f3dfa6; }
+.vtm20.r-type-changeling .r-cl-state.is-dross a { margin-left: 2px; }
+.vtm20.r-type-changeling .r-cl-treasure { border-color: rgba(233, 196, 106, .4); }

@@ -5720,6 +5720,42 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  // Дросс и Сокровища подменыша (C20, гл. 8): дросс тратится, когда пул Гламура пуст; Сокровище — Искусство без Царств,
+  // Вирд-уровень — 1 Гламур из своего запаса; разрушение — Гламур (рейтинг + запас), снять с листа, триггер Банальности
+  await check("Подменыш: дросс и Сокровища — запас, пробуждение, разрушение", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), CL = await import(`/systems/${sid}/module/apps/changeling.mjs`);
+      const n0 = game.messages.size, out = {}, rnd = CONFIG.Dice.randomUniform, DV = foundry.applications.api.DialogV2, c0 = DV.confirm;
+      const a = await Actor.create({ name: "E2E — Сокровища", type: "changeling", flags: { world: { e2e: true }, [sid]: { created: true } },
+        system: { changeling: { glamour: { permanent: 5, temporary: 1 }, dross: 2, banality: { permanent: 3, temporary: 0 },
+          treasures: [{ name: "Ножны", art: "wayfare", level: 1, store: 1, text: "" }] } } });
+      try {
+        await CL.spendGlamour(a, 2);                               // 1 из пула, 1 дросс
+        out.dross = [a.system.changeling.glamour.temporary, a.system.changeling.dross];
+        CONFIG.Dice.randomUniform = () => 0.0001;
+        const roll = await CL.useTreasure(a, 0);                    // Дорога 1 «Скачок» — Вирд: из запаса Сокровища
+        out.use = [!!roll, a.system.changeling.treasures[0].store, roll?.state?.difficulty];
+        CONFIG.Dice.randomUniform = rnd;
+        DV.confirm = async () => true;
+        CONFIG.Dice.randomUniform = () => 0.9999;
+        await CL.destroyTreasure(a, 0);
+        CONFIG.Dice.randomUniform = rnd;
+        out.destroy = [a.system.changeling.treasures.length, a.system.changeling.glamour.temporary, a.system.changeling.banality.temporary > 0];
+        await a.sheet.render({ force: true }); await wait(700); a.sheet.changeTab("disciplines", "primary"); await wait(300);
+        out.sheet = !!a.sheet.element.querySelector('[data-action="clTreasure"][data-op="add"]') && !!a.sheet.element.querySelector(".r-cl-state.is-dross");
+        await a.sheet.close();
+      } finally {
+        CONFIG.Dice.randomUniform = rnd; DV.confirm = c0;
+        await ChatMessage.deleteDocuments(game.messages.contents.slice(n0).map(x => x.id)); await a.delete();
+      }
+      return out;
+    });
+    // пул 1 + дросс 2: −2 → пул 0, дросс 1; запас Сокровища 1 → 0; сложность 8; разрушение: +1 Гламур (уровень 1 + запас 0)
+    const want = { dross: [0, 1], use: [true, 0, 8], destroy: [0, 1, true], sheet: true };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   await check("Призрак: лист и Арканои, Пафос, Страсть, Корпус до колебания и Испытание, Катарсис", async () => {
     const r = await page.evaluate(async () => {
       const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), WR = await import(`/systems/${sid}/module/apps/wraith.mjs`);

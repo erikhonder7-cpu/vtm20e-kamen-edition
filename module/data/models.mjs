@@ -909,6 +909,9 @@ export class ChangelingData extends BaseActorData {
         nightmare: int(0, 0, 10), imbalance: int(0, 0, 10),
         // Клятвы (C20, гл. 6): ключ примера книги или «custom», с кем, своя формула, нарушена ли
         oaths: new ArrayField(new SchemaField({ key: str("custom"), with: str(""), text: str(""), broken: new BooleanField({ initial: false }) })),
+        // Дросс (C20, гл. 8): твёрдый Гламур — 1 дросс = 1 Гламур; Сокровища: Искусство и уровень, свой запас Гламура
+        dross: int(0, 0, 99),
+        treasures: new ArrayField(new SchemaField({ name: str(""), art: str(""), level: int(1, 1, 5), store: int(0, 0, 20), text: str("") })),
         chimerical: new SchemaField({ bashing: int(0, 0, 7), lethal: int(0, 0, 7), aggravated: int(0, 0, 7) })
       })
     };

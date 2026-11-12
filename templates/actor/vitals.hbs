@@ -201,6 +201,8 @@
       <a class="r-vc-btn is-sq is-right" data-action="clTrigger" data-tooltip="{{localize 'VTM20.Changeling.TriggerHint'}}"><i class="fa-solid fa-snowflake"></i></a>
       <a class="r-vc-btn is-sq" data-action="clNightmare" data-d="1" data-tooltip="{{localize 'VTM20.Changeling.NightmarePlus'}}"><i class="fa-solid fa-moon"></i></a>{{/if}}
     </div>
+    <div class="r-cl-states"><span class="r-cl-state is-dross" data-tooltip="{{localize 'VTM20.Changeling.DrossHint'}}"><i class="fa-solid fa-gem"></i> {{localize "VTM20.Changeling.Dross"}} {{changelingInfo.dross}}
+      {{#if editable}}<a data-action="clDross" data-d="-1"><i class="fa-solid fa-minus"></i></a><a data-action="clDross" data-d="1"><i class="fa-solid fa-plus"></i></a>{{/if}}</span></div>
     {{#if (or changelingInfo.wyrd changelingInfo.threshold changelingInfo.place)}}<div class="r-cl-states">
       {{#if changelingInfo.wyrd}}<span class="r-cl-state is-wyrd" data-tooltip="{{localize 'VTM20.Changeling.WyrdHint'}}"><i class="fa-solid fa-sun"></i> {{localize "VTM20.Changeling.WyrdChip"}}</span>{{/if}}
       {{#if changelingInfo.threshold}}<span class="r-cl-state is-bedlam" data-tooltip="{{changelingInfo.threshold.text}}"><i class="fa-solid fa-masks-theater"></i> {{changelingInfo.threshold.name}} · {{changelingInfo.threshold.n}}

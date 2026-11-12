@@ -3,7 +3,8 @@
 // this — лист (ApplicationV2 зовёт обработчики со своим this).
 
 import { castCantrip, unleash, artRow, spendGlamour, gainGlamour, gainNightmare, banalityTrigger, invokeWyrd, invokeAutumn, epiphany,
-  setSceneBanality, endBedlam, takeOath, breakOath, dropOath, chimericalDamage, coldIron } from "../../apps/changeling.mjs";
+  setSceneBanality, endBedlam, takeOath, breakOath, dropOath, chimericalDamage, coldIron,
+  addTreasure, treasureStore, useTreasure, destroyTreasure } from "../../apps/changeling.mjs";
 
 function onCast(event, target) {
   const d = target.dataset;
@@ -42,6 +43,17 @@ async function onColdIron() {
     ok: { label: game.i18n.localize("VTM20.Changeling.ColdIron"), callback: (e, b) => Number(b.form.elements.n.value) || 0 } });
   return n ? coldIron(this.actor, n) : null;
 }
+function onTreasure(event, target) {
+  const { op, i } = target.dataset;
+  if (op === "add") return addTreasure(this.actor);
+  if (op === "use") return useTreasure(this.actor, i, { gremayre: event.shiftKey });
+  if (op === "del") return destroyTreasure(this.actor, i);
+  return treasureStore(this.actor, i, Number(target.dataset.d) || 0);
+}
+function onDross(event, target) {
+  const d = Number(target.dataset.d) || 0, n = this.actor.system.changeling.dross ?? 0;
+  return this.actor.update({ "system.changeling.dross": Math.clamp(n + d, 0, 99) });
+}
 function onOath(event, target) {
   const { op, i } = target.dataset;
   return op === "take" ? takeOath(this.actor) : op === "break" ? breakOath(this.actor, i) : dropOath(this.actor, i);
@@ -49,4 +61,4 @@ function onOath(event, target) {
 
 export const CHANGELING_ACTIONS = { clCast: onCast, clUnleash: onUnleash, clArtAdd: onArtAdd, clArtDel: onArtDel, clGlamour: onGlamour,
   clNightmare: onNightmare, clTrigger: onTrigger, clWyrd: onWyrd, clAutumn: onAutumn, clEpiphany: onEpiphany, clPlace: onPlace, clBedlamEnd: onBedlamEnd, clOath: onOath,
-  clChim: { handler: onChim, buttons: [0, 2] }, clColdIron: onColdIron };
+  clChim: { handler: onChim, buttons: [0, 2] }, clColdIron: onColdIron, clTreasure: onTreasure, clDross: onDross };

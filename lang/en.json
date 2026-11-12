@@ -8934,6 +8934,24 @@
       "Done": "<b>{name}</b> learned “{what}” to {n}."
     },
     "Changeling": {
+      "Dross": "Dross",
+      "DrossHint": "Dross (ch. 8): solid Glamour — a stone, a feather, a petal; 1 dross = 1 Glamour. Spent instead of Glamour when the pool is empty.",
+      "Treasure": {
+        "Head": "Treasures",
+        "Add": "Add a Treasure",
+        "Name": "Name",
+        "Store": "Glamour store",
+        "Legend": "Legend",
+        "Unnamed": "Treasure",
+        "Rule": "A Treasure holds the power of an Art — no Realms needed; the Treasure Background is a dot per Art level. Its own Glamour store (usually up to 10) is spent before the owner's pool.",
+        "None": "No Treasures. A Treasure is an artifact of the Dreaming holding an Art (Treasure Background).",
+        "Sub": "{art} {n}: Glamour or Intelligence + Gremayre, difficulty 8 (system rule)",
+        "UseHint": "Awaken: a Glamour roll (Shift — Intelligence + Gremayre), difficulty 8 — system rule; a wyrd level costs 1 Glamour from the Treasure's store",
+        "StoreHint": "Invest a Glamour point from your pool",
+        "Destroy": "Destroy the Treasure",
+        "DestroyAsk": "Destroy “{name}”? It releases {n} Glamour, but it is a Banality trigger.",
+        "Destroyed": "<b>{name}</b> destroys the Treasure “{t}”: +{n} Glamour. This is a Banality trigger."
+      },
       "Freehold": {
         "Title": "Freehold",
         "Name": "Name",
