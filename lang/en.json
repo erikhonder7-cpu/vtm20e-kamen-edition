@@ -3840,7 +3840,8 @@
         "fight": "Combat",
         "blood": "Blood",
         "other": "Other",
-        "magic": "Magick"
+        "magic": "Magick",
+        "wraith": "Wraith"
       },
       "Spend": "Spend",
       "Dodge": "Dodge",
@@ -3873,7 +3874,8 @@
       "ShowShort": "Panel",
       "ToggleKey": "Collapse or show the character panel",
       "QuintIn": "Absorb",
-      "QuintOut": "Spend"
+      "QuintOut": "Spend",
+      "WrHeal": "Heal"
     },
     "Contest": {
       "ModeLabel": "Kind of action",

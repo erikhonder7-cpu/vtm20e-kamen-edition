@@ -20,6 +20,7 @@ import { H as hunterData, secondSight, edgesView, useEdge } from "../apps/hunter
 import { numenOf as sorcNumenOf, useNumen as sorcUseNumen, useRitual as sorcUseRitual } from "../apps/sorcerer.mjs";
 import { paradoxOf, castEffect, castRote, sphereName, aretePool, factionOf, mt, changeQuintessence, paradoxBacklash } from "../apps/mage.mjs";
 import { assumeForm } from "../apps/torment.mjs";
+import { W as wraithData, shroudOf } from "../apps/wraith.mjs";
 import { togglePowerEffect } from "../apps/power-effects.mjs";
 
 const ID = "r-hud";
@@ -89,6 +90,12 @@ function subtitleOf(a, kind) {
     case "demon": { const h = Codex.house(s.house); return [h?.name ?? typeName, h?.visages?.[s.visage] ?? ""].filter(Boolean).join(" · "); }
     case "hunter": { const c = hunterData().creeds.find(x => x.key === s.hunter?.creed); return c ? `${c.name} · ${c.who}` : typeName; }
     case "mage": return factionOf(a)?.name ?? typeName;
+    case "wraith": {
+      const w = s.wraith, D = wraithData(), legion = D.legions?.find(x => x.key === w.legion)?.name ?? "";
+      if (w.spectre?.on) return [t("Wraith.Spectre.Title"), D.castes?.find(c => c.key === w.spectre.caste)?.name].filter(Boolean).join(" · ");
+      if (w.projector?.on) return [t("Wraith.Proj.Title"), D.shades?.find(x => x.key === w.projector.shade)?.name].filter(Boolean).join(" · ");
+      return [w.risen?.on ? t("Wraith.Risen.Title") : legion || typeName, D.arcanoi?.find(x => x.key === w.guild)?.guild].filter(Boolean).join(" · ");
+    }
     case "mortal": return s.kinfolk?.on ? t("Hud.Kind.kinfolk") : s.kami?.on ? t("Hud.Kind.kami") : s.fomor?.on ? t("Hud.Kind.fomor") : typeName;
     case "spirit": return [t("Hud.Kind.spirit"), s.kind].filter(Boolean).join(" · ");
     default: return s.kind || typeName;
@@ -143,6 +150,25 @@ function powerGroups(a, kind) {
     if (rit.length) out.push({ id: "sorcRituals", label: t("Sorcerer.Rituals"), icon: "fa-book-skull",
       rows: rit.map((r, i) => ({ name: r.name, level: r.level, act: "sorcRitual", attrs: `data-i="${i}"` })) });
   }
+  // Призрак: каждый Арканос — группа, строки — известные уровни (Общий и Посвящённый); Тёмные у Спектра, свои у Восставшего,
+  // местные Арканои другого Тёмного Царства
+  if (kind === "wraith") {
+    const w = a.system.wraith, D = wraithData(), ROM = ["I", "II", "III", "IV", "V"];
+    for (const arc of D.arcanoi ?? []) {
+      const r = w.arcanoi[arc.key], value = r?.value ?? 0;
+      if (!value) continue;
+      const known = arc.levels.filter(l => l.level <= value && (l.kind === "common" ? !r.skip.includes(l.level) : r.initiate.includes(l.level)));
+      if (known.length) out.push({ id: `w:${arc.key}`, label: arc.name, icon: arc.icon, lvl: value,
+        rows: known.map(l => ({ name: l.name, level: ROM[l.level - 1], act: "wrArt", icon: l.kind === "initiate" ? "fa-key" : "fa-circle",
+          attrs: `data-key="${arc.key}" data-level="${l.level}" data-kind="${l.kind}"` })) });
+    }
+    const extra = (list, vals, act, idOf, attrsOf) => { for (const x of list ?? []) { const v = vals?.[x.key] ?? 0; if (!v) continue;
+      out.push({ id: idOf(x), label: x.name, icon: x.icon ?? "fa-yin-yang", lvl: v, rows: x.levels.map((l, i) => ({ l, i })).filter(({ l }) => l.level <= v)
+        .map(({ l, i }) => ({ name: l.name, level: l.level, act, attrs: attrsOf(x, l, i) })) }); } };
+    if (w.spectre?.on) extra(D.darkArcanoi, w.spectre.dark, "spDark", x => `sd:${x.key}`, (x, l) => `data-key="${x.key}" data-level="${l.level}"`);
+    if (w.risen?.on) extra(D.risenArcanoi, w.risen.arcanoi, "rsArt", x => `rs:${x.key}`, (x, l) => `data-key="${x.key}" data-level="${l.level}"`);
+    extra(D.realmArcanoi, w.realm?.arcanoi, "rlArt", x => `rl:${x.key}`, (x, l, i) => `data-key="${x.key}" data-i="${i}"`);
+  }
   // Сферы мага — одной группой: щелчок открывает окно чародейства с этой Сферой
   if (kind === "mage") {
     const sp = VTM20.mageSpheres.filter(k => (a.system.mage?.spheres?.[k] ?? 0) > 0);
@@ -193,7 +219,7 @@ function leftWing(s) {
   const cells = s.health.levels.map((l, i) => `<i class="hb is-${l.state}${i === last ? " is-current" : ""}${i === s.health.levels.length - 1 ? " is-last" : ""}" data-tooltip="${esc(game.i18n.localize(l.label))}">${l.state === "empty" || l.state === "none" ? "" : VTM20.damageTypes[l.state]?.mark ?? ""}</i>`).join("");
   const note = s.health.damage ? `${game.i18n.localize(`VTM20.Health.${s.health.status}`)}${s.health.penalty ? ` ${s.health.penalty}` : ""}` : t("Health.healthy");
   const w = s.willpower;
-  return `<span class="rh-lbl">${esc(t("Sheet.Health"))}</span><span class="rh-scales"><span class="rh-row is-health">${cells}</span></span><b class="rh-num rh-wound ${s.health.damage ? "is-hurt" : ""}">${esc(note)}</b>
+  return `<span class="rh-lbl">${esc(t(s.wraith ? "Wraith.Corpus" : "Sheet.Health"))}</span><span class="rh-scales"><span class="rh-row is-health">${cells}</span></span><b class="rh-num rh-wound ${s.health.damage ? "is-hurt" : ""}">${esc(note)}</b>
     ${line(t("Willpower"), [dots(w.permanent, 10, "bone"), boxes(w.temporary, w.permanent)], `${w.temporary}<small>/${w.permanent}</small>`)}`;
 }
 
@@ -221,6 +247,16 @@ function rightWing(a, kind) {
     const m = s.mage;
     out.push(line(t("Mage.Arete"), [dots(m.arete, 10, "gold")], m.arete));
     out.push(line(t("Mage.Quintessence"), [boxes(Math.min(m.quintessence, 10), 10, "gold"), boxes(Math.max(0, m.quintessence - 10), 10, "gold")], `${m.quintessence}<small> · ${t("Mage.Paradox")} ${paradoxOf(a)}</small>`, { tip: t("Mage.WheelHint") }));
+  } else if (kind === "wraith") {
+    const w = s.wraith;
+    if (w.spectre?.on) out.push(line(t("Wraith.Spectre.Angst"), [boxes(w.spectre.angst, 10, "rage")], `${w.spectre.angst}<small>/10</small>`, { tip: t("Wraith.Spectre.HealHint"), act: "wrHeal" }));
+    else out.push(line(t("Wraith.Pathos"), [boxes(w.pathos.value, 10, "bone")], `${w.pathos.value}<small>/${Math.min(10, w.pathos.max ?? 10)}</small>`, { tip: t("Wraith.HealHint"), act: "wrHeal" }));
+    // точный счёт Тени (и Психеи) — у рассказчика и проводника, игрок его не знает (гл. 6, гл. 10)
+    if (game.user.isGM) {
+      if (w.spectre?.on) out.push(line(t("Wraith.Spectre.Psyche"), [dots(w.spectre.psyche.rating, 10, "gold"), boxes(w.spectre.psyche.pool, 10, "gold")], `${w.spectre.psyche.pool}<small>/${w.spectre.psyche.rating}</small>`));
+      else out.push(line(w.projector?.on ? t("Wraith.Angst") : t("Wraith.Shadow"), [dots(w.shadow.angst.permanent, 10), boxes(w.shadow.angst.temporary, 10, "torment")],
+        `${w.shadow.angst.temporary}<small>/${w.shadow.angst.permanent}</small>`, { tip: t("Wraith.AngstHint") }));
+    }
   } else if (kind === "spirit") {
     const sp = s.spirit, e = sp.essence;
     out.push(line(t("Hud.Essence"), [boxes(Math.round(e.value / Math.max(1, e.max) * 10), 10, "gnosis")], `${e.value}<small>/${e.max}</small>`, { tip: t("Hud.EssenceTip") }));
@@ -304,6 +340,20 @@ function tabsOf(a, kind) {
       seal("mageCounter", "fa-shield-halved", t("Mage.Counter"), { tip: t("Mage.CounterTip") }),
       ...((m.spheres?.spirit ?? 0) >= 3 || a.getFlag(SYSTEM_ID, "umbra") ? [seal("mageStep", "fa-circle-half-stroke", t("Mage.StepShort"), { on: !!a.getFlag(SYSTEM_ID, "umbra"), tip: t(a.getFlag(SYSTEM_ID, "umbra") ? "Mage.StepBackTip" : "Mage.StepTip") })] : []),
       seal("mageBacklash", "fa-burst", t("Mage.Paradox"), { on: paradoxOf(a) >= 10, badge: paradoxOf(a) ? String(paradoxOf(a)) : "", tip: t("Mage.BacklashHint") })] });
+  }
+  if (kind === "wraith") {
+    const w = s.wraith, sh = shroudOf(a), seals = [
+      seal("wrHeal", "fa-hand-sparkles", t("Hud.WrHeal"), { tip: t(w.spectre?.on ? "Wraith.Spectre.HealHint" : "Wraith.HealHint") }),
+      seal("wrShroud", "fa-cloud", t("Wraith.Shroud.Label"), { badge: String(sh.value), tip: `${t("Wraith.Shroud.Label")} ${sh.value}: ${sh.text}` })];
+    if (!w.spectre?.on && !w.projector?.on) seals.push(seal("wrMemoriam", "fa-candle-holder", t("Wraith.Memoriam"), { on: !w.session.memoriam, tip: t("Wraith.MemoriamHint") }));
+    if (w.spectre?.on) seals.push(seal("spCatharsis", "fa-dove", t("Wraith.Catharsis"), { on: !!w.spectre.psyche.catharsis, tip: t("Wraith.Spectre.CatharsisHint") }),
+      seal("spRapacity", "fa-teeth", t("Wraith.Spectre.Rapacity"), { tip: t("Wraith.Spectre.RapacityHint") }));
+    else if (!w.projector?.on) seals.push(seal("wrCatharsis", "fa-mask", t("Wraith.Catharsis"), { on: !!w.shadow.catharsis, tip: t(w.shadow.catharsis ? "Wraith.CatharsisEndHint" : "Wraith.CatharsisHint") }));
+    if (w.risen?.on) seals.push(w.risen.body ? seal("rsLeave", "fa-ghost", t("Wraith.Risen.ToShadowlands"), { tip: t("Wraith.Risen.ToShadowlandsHint") })
+      : seal("rsBody", "fa-person-rays", t("Wraith.Risen.ToBody"), { tip: t("Wraith.Risen.ToBodyHint") }));
+    if (w.projector?.on) seals.push(seal("pjProject", w.projector.projecting ? "fa-person" : "fa-person-falling-burst", t(w.projector.projecting ? "Wraith.Proj.Back" : "Wraith.Proj.Go"),
+      { on: w.projector.projecting, tip: t("Wraith.Proj.ProjectHint") }));
+    tabs.push({ key: "wraith", label: t("Hud.Tab.wraith"), seals });
   }
   // Силы: вынесенные булавкой с листа (знак Дисциплины и уровень точками), силы на время, свои силы вида и «Все» — вкладка сил на листе
   const powers = (a.getFlag(SYSTEM_ID, "hudPowers") ?? []).map(ref => {
@@ -439,6 +489,20 @@ async function onClick(ev) {
     case "mageBacklash": return paradoxBacklash(a);
     case "mageCounter": return import("../apps/mage-duel.mjs").then(D => D.counterMagic(a));
     case "mageStep": return import("../apps/mage-duel.mjs").then(D => D.stepSideways(a));
+    // призрак (apps/wraith.mjs и режимы): уровни Арканоев, запасы, Катарсис, переходы
+    case "wrArt": pop = null; renderHud(); return import("../apps/wraith.mjs").then(m => m.rollArt(a, el.dataset.key, Number(el.dataset.level), el.dataset.kind));
+    case "spDark": pop = null; renderHud(); return import("../apps/spectre.mjs").then(m => m.rollDark(a, el.dataset.key, Number(el.dataset.level)));
+    case "rsArt": pop = null; renderHud(); return import("../apps/risen.mjs").then(m => m.rollRisenArt(a, el.dataset.key, Number(el.dataset.level)));
+    case "rlArt": pop = null; renderHud(); return import("../apps/realms.mjs").then(m => m.rollRealmArt(a, el.dataset.key, Number(el.dataset.i)));
+    case "wrHeal": return import("../apps/wraith.mjs").then(m => m.pathosHeal(a));
+    case "wrMemoriam": return import("../apps/wraith.mjs").then(m => m.rollMemoriam(a));
+    case "wrCatharsis": return import("../apps/wraith.mjs").then(m => m.catharsis(a));
+    case "wrShroud": await a.sheet.render(true); return a.sheet.changeTab?.("disciplines", "primary");
+    case "spCatharsis": return import("../apps/spectre.mjs").then(m => m.psycheCatharsis(a));
+    case "spRapacity": return import("../apps/spectre.mjs").then(m => m.rapacity(a));
+    case "rsLeave": return import("../apps/risen.mjs").then(m => m.toShadowlands(a));
+    case "rsBody": return import("../apps/risen.mjs").then(m => m.toBody(a));
+    case "pjProject": return import("../apps/projector.mjs").then(m => m.project(a));
     case "noop": return;
     // все силы — вкладка сил на листе (Дисциплины, Дары, Знания, Грани)
     case "allPowers": await a.sheet.render(true); return a.sheet.changeTab?.("disciplines", "primary");

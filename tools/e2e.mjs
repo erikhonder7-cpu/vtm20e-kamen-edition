@@ -4486,6 +4486,30 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  await check("Призрак: худ — подпись, Пафос и Тень, вкладка «Призрак», Арканои группами", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {};
+      const a = await Actor.create({ name: "E2E — призрак в худе", type: "wraith", flags: { world: { e2e: true }, [sid]: { created: true } },
+        system: { wraith: { legion: "grim", guild: "argos", pathos: { value: 6 }, arcanoi: { argos: { value: 2, initiate: [], skip: [] } } } } });
+      const [tk] = await canvas.scene.createEmbeddedDocuments("Token", [{ ...(await a.getTokenDocument()).toObject(), x: 300, y: 300 }]);
+      await wait(500); canvas.tokens.get(tk.id)?.control({ releaseOthers: true }); await wait(600);
+      (await import(`/systems/${sid}/module/ui/hud.mjs`)).renderHud(); await wait(400);
+      const hud = document.getElementById("r-hud");
+      out.kind = hud?.classList.contains("rh-t-wraith");
+      out.sub = hud?.querySelector(".rh-ribbon small")?.textContent;
+      out.tab = !!hud?.querySelector('[data-act="tab"][data-tab="wraith"]');
+      hud?.querySelector('[data-act="tab"][data-tab="powers"]')?.click(); await wait(300);
+      document.querySelector('#r-hud [data-pop="w:argos"]')?.click(); await wait(300);
+      out.rows = document.querySelectorAll('#r-hud .rh-pop-row[data-act="wrArt"]').length;
+      await canvas.scene.deleteEmbeddedDocuments("Token", [tk.id]);
+      await a.delete();
+      return out;
+    });
+    const want = { kind: true, sub: "Мрачный · Вестники", tab: true, rows: 2 };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   await check("Призрак: лист и Арканои, Пафос, Страсть, Корпус до колебания и Испытание, Катарсис", async () => {
     const r = await page.evaluate(async () => {
       const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), WR = await import(`/systems/${sid}/module/apps/wraith.mjs`);
