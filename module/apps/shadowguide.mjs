@@ -161,6 +161,11 @@ Hooks.once("ready", () => game.socket.on(CHANNEL, async d => {
     const actor = fromUuidSync(d.actor);
     if (actor?.type !== "wraith" || !isGuide(actor, user)) return;
     await gainAngst(actor, Math.clamp(Math.round(Number(d.n) || 0), -10, 10), { reason: String(d.reason ?? "") });
+  } else if (d.op === "thorn") {   // ответ Психеи на Шип (apps/thorns.mjs)
+    const msg = game.messages.get(d.message), f = msg?.flags?.[SYSTEM_ID]?.thorn, actor = f && fromUuidSync(f.actor);
+    if (!actor || f.state !== "open" || !actor.testUserPermission(user, "OWNER") || !["resisted", "failed", "cancelled", "accepted", "declined"].includes(d.state)) return;
+    if (f.dare) return;   // Вызов дьявола закрывает только рассказчик
+    await msg.update({ [`flags.${SYSTEM_ID}.thorn.state`]: d.state, [`flags.${SYSTEM_ID}.thorn.hits`]: Math.max(0, Number(d.hits) || 0) });
   } else if (d.op === "offer") {
     const msg = game.messages.get(d.message), o = msg?.flags?.[SYSTEM_ID]?.shadowOffer, actor = o && fromUuidSync(o.actor);
     if (!actor || o.state !== "open" || !actor.testUserPermission(user, "OWNER") || !["accepted", "declined"].includes(d.state)) return;

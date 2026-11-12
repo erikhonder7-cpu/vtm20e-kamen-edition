@@ -7,6 +7,7 @@ import { rollArt, toggleArt, addRow, removeRow, rollPassion, rollFetter, rollDar
 import { openAtlas } from "../../apps/atlas.mjs";
 import { assignGuide, shadowWhisper } from "../../apps/shadowguide.mjs";
 import { resolveRow, waneRow, linger } from "../../apps/resolution.mjs";
+import { useThorn } from "../../apps/thorns.mjs";
 import { becomeSpectre, rollDark, rollPsychePassion, psycheCatharsis, rapacity, spectreRow } from "../../apps/spectre.mjs";
 import { rise, toShadowlands, toBody, risenDisc, rollRisenArt, risenSlumber, risenDown } from "../../apps/risen.mjs";
 import { project, stain, suppressStains, willToPathos, emblem, deadEyes, stainRow } from "../../apps/projector.mjs";
@@ -64,6 +65,8 @@ function onWrGuide() { return assignGuide(this.actor); }
 function onWrResolve(event, target) { return resolveRow(this.actor, target.dataset.kind, target.dataset.i); }
 function onWrWane(event, target) { return waneRow(this.actor, target.dataset.kind, target.dataset.i); }
 function onWrLinger() { return linger(this.actor); }
+// Шип Тени в игре (apps/thorns.mjs): проводник или рассказчик
+function onWrThorn(event, target) { return useThorn(this.actor, target.dataset.i); }
 function onWrWhisper() { return shadowWhisper(this.actor); }
 function onWrCatharsis() { return catharsis(this.actor); }
 function onWrHarrowing(event, target) { return harrowing(this.actor, target.dataset.cause ?? "corpus"); }
@@ -126,7 +129,7 @@ export const WRAITH_ACTIONS = {
   wrRowAdd: onWrRowAdd, wrRowDel: onWrRowDel, wrPassion: onWrPassion, wrFetter: onWrFetter,
   wrDark: onWrDark, wrMemoriam: onWrMemoriam, wrShadowDice: onWrShadowDice, wrCatharsis: onWrCatharsis,
   wrHarrowing: onWrHarrowing, wrHeal: onWrHeal, wrPathos: onWrPathos, wrSession: onWrSession,
-  wrAngst: onWrAngst, wrGuide: onWrGuide, wrWhisper: onWrWhisper, wrResolve: onWrResolve, wrWane: onWrWane, wrLinger: onWrLinger, wrAtlas: onWrAtlas, wrShroud: onWrShroud, wrHaunt: onWrHaunt,
+  wrAngst: onWrAngst, wrGuide: onWrGuide, wrWhisper: onWrWhisper, wrResolve: onWrResolve, wrWane: onWrWane, wrLinger: onWrLinger, wrThorn: onWrThorn, wrAtlas: onWrAtlas, wrShroud: onWrShroud, wrHaunt: onWrHaunt,
   spBecome: onSpBecome, spDark: onSpDark, spPassion: onSpPassion, spCatharsis: onSpCatharsis, spRapacity: onSpRapacity, spRow: onSpRow,
   rsOn: onRsOn, rsRise: onRsRise, rsLeave: onRsLeave, rsBody: onRsBody, rsDisc: onRsDisc, rsArt: onRsArt, rsSlumber: onRsSlumber, rsDown: onRsDown, rsArtRow: onRsArtRow,
   pjOn: onPjOn, pjProject: onPjProject, pjStain: onPjStain, pjSuppress: onPjSuppress, pjWill: onPjWill, pjEmblem: onPjEmblem, pjEyes: onPjEyes, pjRow: onPjRow, rlArt: onRlArt, rlRow: onRlRow,

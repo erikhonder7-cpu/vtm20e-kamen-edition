@@ -387,6 +387,7 @@
       <span class="r-edge-main"><b>{{name}}</b> <small>{{en}} · {{cost}}</small>
         <input type="text" class="r-wr-note" name="system.wraith.shadow.thorns.{{i}}.note" value="{{note}}" placeholder="{{localize 'VTM20.Wraith.ThornNote'}}">
         <div class="r-edge-text">{{{html}}}</div></span>
+      {{#if use}}{{#if @root.wraithInfo.canGuide}}<a class="r-vc-btn" data-action="wrThorn" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Wraith.Thorn.UseHint'}}"><i class="fa-solid fa-spa"></i> {{localize "VTM20.Wraith.Thorn.Use"}}</a>{{/if}}{{/if}}
       {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="wrRowDel" data-kind="thorn" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
     </li>
     {{else}}<li class="r-note">{{localize "VTM20.Wraith.NoThorns"}}</li>

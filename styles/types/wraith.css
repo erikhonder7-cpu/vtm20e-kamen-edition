@@ -349,3 +349,8 @@
 .vtm20.r-type-wraith .r-wr-res-tag { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: #cfd6df; white-space: nowrap; }
 .vtm20.r-type-wraith .r-wr-res-tag.is-going { color: #98a0aa; font-size: 11px; }
 .vtm20.r-type-wraith .r-wr-row.is-resolving .r-wr-text { font-style: italic; }
+
+/* Шипы в игре (apps/thorns.mjs): кнопка «Применить» в строке Шипа, ответы Психеи в чате */
+.vtm20.r-type-wraith .r-wr-thorns .r-edge > .r-vc-btn { align-self: flex-start; white-space: nowrap; }
+.r-wr-thorn-tools { display: flex; gap: 6px; margin-top: 6px; }
+.r-wr-thorn-tools .r-btn { flex: 1; justify-content: center; }

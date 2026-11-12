@@ -4741,6 +4741,50 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  // Шипы в игре (гл. 6): рассказчик применяет за Тень, отвечает за Психею; кубики — одни десятки
+  await check("Призрак: Шипы — Невезение, Оговорка с сопротивлением, Медовый язык с отменой, Теневая игра, Вызов дьявола", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {}, n0 = game.messages.size;
+      const TH = await import(`/systems/${sid}/module/apps/thorns.mjs`);
+      const inst = () => [...foundry.applications.instances.values()];
+      const rollDlg = async () => { for (let i = 0; i < 40; i++) { const d = inst().find(x => x.constructor.name === "RollDialog" && x.rendered); if (d) return d; await wait(100); } return null; };
+      const submit = async () => { const d = await rollDlg(); if (!d) return false; d.element.querySelector("button[type=submit]")?.click(); await wait(1200); return true; };
+      const a = await Actor.create({ name: "E2E — призрак с Шипами", type: "wraith", flags: { world: { e2e: true }, [sid]: { created: true } },
+        system: { willpower: { permanent: 5, temporary: 5 }, wraith: { pathos: { value: 5 }, shadow: { angst: { permanent: 3, temporary: 6 },
+          thorns: ["badluck", "freudianslip", "honeyedtongue", "shadowplay", "devilsdare", "manifestation", "auraofcorruption"].map(key => ({ key, n: 1, note: "" })) } } } });
+      const angst = () => a.system.wraith.shadow.angst.temporary, last = () => game.messages.contents.at(-1), st = m => m.flags[sid].thorn.state;
+      await a.sheet.render({ force: true }); await wait(900); a.sheet.changeTab("disciplines", "primary"); await wait(500);
+      out.btns = a.sheet.element.querySelectorAll("[data-action=wrThorn]").length;
+      await a.sheet.close();
+      const DV = foundry.applications.api.DialogV2, p0 = DV.prompt, rnd = CONFIG.Dice.randomUniform;
+      try {
+        DV.prompt = async () => ({ n: 2, d: 6, note: "E2E" });
+        CONFIG.Dice.randomUniform = () => 0.0001;   // одни десятки
+        await TH.useThorn(a, 0); out.bad = [angst(), last().flags[sid].thorn.key];
+        await TH.useThorn(a, 1); let m = last();
+        const p = TH.answerThorn(m, "resist"); await submit(); await p; await wait(500);
+        out.slip = [angst(), st(game.messages.get(m.id)), m.whisper.length > 0];
+        await TH.useThorn(a, 2); m = last(); await TH.answerThorn(m, "cancel"); await wait(300);
+        out.honey = [angst(), a.system.willpower.temporary, st(game.messages.get(m.id)), m.rolls.length];
+        await TH.useThorn(a, 3); m = last(); await TH.answerThorn(m, "accept"); await wait(300);
+        out.play = [angst(), a.system.wraith.pathos.value, st(game.messages.get(m.id))];
+        await TH.useThorn(a, 4); m = last(); const dareAngst = angst(); await TH.answerThorn(m, "done"); await wait(300);
+        out.dare = [dareAngst, angst(), st(game.messages.get(m.id))];
+        const before = game.messages.size; await TH.useThorn(a, 5); out.manif = game.messages.size === before;   // 4 Ангста нет — не применить
+      } finally { DV.prompt = p0; CONFIG.Dice.randomUniform = rnd; }
+      for (const app of inst()) if (app.constructor.name === "RollDialog") await app.close();
+      await ChatMessage.deleteDocuments(game.messages.contents.slice(n0).map(m => m.id));
+      await a.delete();
+      return out;
+    });
+    // Невезение 2 → 4; Оговорка 1 → 3, Воля 5 десятками — устояла; Медовый язык 1 → 2, отмена — Воля 4; Теневая игра — Пафос 4,
+    // Ангст 3; Вызов 2 → 1, выполнен — +1 → 2; Проявлению (4) Ангста не хватает
+    const want = { btns: 6, bad: [4, "badluck"], slip: [3, "resisted", true], honey: [2, 4, "cancelled", 1], play: [3, 4, "accepted"],
+      dare: [1, 2, "done"], manif: true };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   await check("Призрак: Подземный мир — Мальстрём, Туман, Сон в Оковах, «Орфей», Оттенок цвета", async () => {
     const r = await page.evaluate(async () => {
       const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {}, n0 = game.messages.size;

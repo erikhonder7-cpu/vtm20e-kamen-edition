@@ -163,7 +163,7 @@ function costText(l) {
 }
 
 /** Страсти, Оковы, Тёмные Страсти и Шипы — строками для вкладки. */
-export function passionsView(actor, dots, R = null) {
+export function passionsView(actor, dots, R = null, T = null) {
   const w = actor.system.wraith, sh = w.shadow;
   const row = (list, path, kind) => list.map((x, i) => ({ ...x, i, dots: dots(x.value, 5, { path: `${path}.${i}.value`, list: true }),
     ...(R && kind ? { res: R.resolveInfo(x, kind) } : {}) }));
@@ -174,7 +174,8 @@ export function passionsView(actor, dots, R = null) {
     dark: row(sh.darkPassions, "system.wraith.shadow.darkPassions"),
     passionSum: w.passions.reduce((n, x) => n + x.value, 0), fetterSum: w.fetters.reduce((n, x) => n + x.value, 0),
     darkSum: sh.darkPassions.reduce((n, x) => n + x.value, 0),
-    thorns: sh.thorns.map((x, i) => { const d = thornOf(x.key); return { i, key: x.key, n: x.n, note: x.note, name: d?.name ?? x.key, en: d?.en ?? "", html: d?.html ?? "", cost: d?.costText ?? "" }; }),
+    thorns: sh.thorns.map((x, i) => { const d = thornOf(x.key); return { i, key: x.key, n: x.n, note: x.note, name: d?.name ?? x.key, en: d?.en ?? "", html: d?.html ?? "", cost: d?.costText ?? "",
+      use: !!T?.thornActive(x.key) }; }),
     thornAvail: (W().thorns ?? []).map(x => ({ key: x.key, label: `${x.name} (${x.costText})` }))
   };
 }
@@ -540,6 +541,8 @@ registerCardBlock("wraith", (state, ev) => {
     return { chips, text: x.kind === "dark" ? (n ? t("AngstOut", { n }) : t("AngstNone")) : (n ? t("PathosOut", { n }) : t("PathosNone")) };
   }
   if (x.kind === "fetter") return { chips: [], text: n ? t("WillOut", { n }) : t("WillNone") };
+  if (x.kind === "thornResist") return { chips: [{ icon: "fa-shield-halved", label: t("Thorn.NeedChip", { n: x.need }) }],
+    text: !botch && n >= x.need ? t("Thorn.Resisted") : t("Thorn.NotResisted"), cls: !botch && n >= x.need ? "" : "is-warn" };
   if (x.kind === "resolve") {   // Разрешение и угасание Страстей и Оков (apps/resolution.mjs)
     const chip = { icon: x.step === "neglect" ? "fa-hourglass-end" : x.step === "final" ? "fa-dove" : "fa-feather", label: t(`Res.Step.${x.step}`) };
     if (x.step === "weaken") return { chips: [chip], text: t("Res.WeakenOut", { n: x.list === "passion" ? n : Math.floor(n / 2) }) };
