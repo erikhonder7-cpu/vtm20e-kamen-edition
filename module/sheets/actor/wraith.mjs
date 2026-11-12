@@ -3,7 +3,7 @@
 // this — лист (ApplicationV2 зовёт обработчики со своим this).
 
 import { rollArt, toggleArt, addRow, removeRow, rollPassion, rollFetter, rollDarkPassion, rollMemoriam, shadowDice, catharsis, harrowing,
-  pathosHeal, spendPathos, newSession, gainAngst } from "../../apps/wraith.mjs";
+  pathosHeal, spendPathos, newSession, gainAngst, setShroud, toggleHaunt } from "../../apps/wraith.mjs";
 import { openAtlas } from "../../apps/atlas.mjs";
 
 function onWrArt(event, target) { return rollArt(this.actor, target.dataset.key, Number(target.dataset.level), target.dataset.kind); }
@@ -57,6 +57,8 @@ function onWrHeal() { return pathosHeal(this.actor); }
 function onWrPathos() { return spendPathos(this.actor, 1); }
 function onWrSession() { return newSession(this.actor); }
 function onWrAngst(event, target) { return gainAngst(this.actor, Number(target.dataset.d) || 1, { reason: game.i18n.localize("VTM20.Wraith.AngstManual") }); }
+function onWrShroud(event, target) { return setShroud(target.dataset.what, Number(target.dataset.d)); }
+function onWrHaunt() { return toggleHaunt(this.actor); }
 function onWrAtlas() { return openAtlas("wraith", this.actor.system.wraith.guild); }
 
 /** Действия листа: ключ data-action → обработчик. */
@@ -65,5 +67,5 @@ export const WRAITH_ACTIONS = {
   wrRowAdd: onWrRowAdd, wrRowDel: onWrRowDel, wrPassion: onWrPassion, wrFetter: onWrFetter,
   wrDark: onWrDark, wrMemoriam: onWrMemoriam, wrShadowDice: onWrShadowDice, wrCatharsis: onWrCatharsis,
   wrHarrowing: onWrHarrowing, wrHeal: onWrHeal, wrPathos: onWrPathos, wrSession: onWrSession,
-  wrAngst: onWrAngst, wrAtlas: onWrAtlas
+  wrAngst: onWrAngst, wrAtlas: onWrAtlas, wrShroud: onWrShroud, wrHaunt: onWrHaunt
 };

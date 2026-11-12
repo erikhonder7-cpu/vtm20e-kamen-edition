@@ -34,6 +34,56 @@ export function backgroundRating(actor, en) {
     .reduce((n, i) => Math.max(n, Number(i.system.value) || 0), 0);
 }
 
+/* ── Покров ─────────────────────────────────────────────────────────── */
+
+/**
+ * Покров (гл. 8): рейтинг 4–10 — у сцены (флаг; пока рассказчик не задал — 7, «пустая парковка ночью», правило системы).
+ * Истерия: каждый настоящий испуг смертных −1, всего до −3, до конца сцены. Сверхъестественные рядом (вампиры, оборотни,
+ * маги, падшие) −2 — их жетоны на сцене. В Обиталище — минус рейтинг Обиталища, и Покров там не колеблется (Истерии нет).
+ * Ниже 4 Покров не опускается.
+ */
+const SUPERNATURAL = ["vampire", "werewolf", "mage", "demon"];
+export const SHROUD_DEFAULT = 7;
+export function shroudOf(actor = null, scene = game.scenes?.viewed) {
+  const f = scene?.getFlag(SYSTEM_ID, "shroud") ?? {}, base = Math.clamp(Number(f.base) || SHROUD_DEFAULT, 4, 10);
+  const hysteria = Math.clamp(Number(f.hysteria) || 0, 0, 3);
+  const near = !!scene?.tokens?.some(tk => SUPERNATURAL.includes(tk.actor?.type));
+  const haunt = actor?.getFlag(SYSTEM_ID, "inHaunt") ? backgroundRating(actor, "Haunt") : 0;
+  const value = Math.max(4, base - (haunt ? 0 : hysteria) - (near ? 2 : 0) - haunt);
+  const parts = [t("Shroud.Base", { n: base, set: f.base != null ? "" : t("Shroud.Default") }),
+    ...(hysteria && !haunt ? [t("Shroud.Hysteria", { n: hysteria })] : []), ...(near ? [t("Shroud.Near")] : []),
+    ...(haunt ? [t("Shroud.Haunt", { n: haunt })] : [])];
+  return { base, hysteria, near, haunt, value, set: f.base != null, scene: scene?.name ?? "", text: parts.join(", ") };
+}
+
+/** Рассказчик: рейтинг Покрова сцены (±1) или Истерия (+1, до 3; «сброс» — 0). */
+export async function setShroud(what, d) {
+  const scene = game.scenes?.viewed;
+  if (!game.user.isGM) return ui.notifications.warn(game.i18n.localize("VTM20.Notify.GMOnly"));
+  if (!scene) return ui.notifications.warn(t("Shroud.NoScene"));
+  const f = { base: SHROUD_DEFAULT, hysteria: 0, ...(scene.getFlag(SYSTEM_ID, "shroud") ?? {}) };
+  if (what === "base") f.base = Math.clamp(f.base + d, 4, 10);
+  else f.hysteria = d === 0 ? 0 : Math.clamp(f.hysteria + d, 0, 3);
+  await scene.setFlag(SYSTEM_ID, "shroud", f);
+  if (what === "hysteria" && d > 0) await ChatMessage.create({ content: `<div class="r-notice r-type-wraith"><i class="fa-solid fa-ghost"></i> ${t("Shroud.HysteriaMsg", { n: f.hysteria, v: shroudOf().value })}</div>` });
+  return f;
+}
+
+/** Призрак в своём Обиталище (Фон «Обиталище»): Покров ниже на его рейтинг. */
+export async function toggleHaunt(actor) {
+  if (!backgroundRating(actor, "Haunt") && !actor.getFlag(SYSTEM_ID, "inHaunt")) return ui.notifications.warn(t("Shroud.NoHaunt"));
+  return actor.setFlag(SYSTEM_ID, "inHaunt", !actor.getFlag(SYSTEM_ID, "inHaunt"));
+}
+
+/** Сложность уровня: число из текста; сквозь Покров — рейтинг Покрова; «N или Покров, что выше»; никогда не ниже 4. */
+export function artDifficulty(lv, actor) {
+  const sh = shroudOf(actor);
+  if (lv.shroudMax) return { diff: Math.max(4, lv.diff ?? 6, sh.value), shroud: sh, note: t("Shroud.MaxNote", { d: lv.diff ?? 6, n: sh.value, why: sh.text }) };
+  if (lv.diff) return { diff: Math.max(4, lv.diff), shroud: null, note: lv.diffRule ? t("Shroud.Rule", { rule: lv.diffRule }) : "" };
+  if (lv.shroud) return { diff: sh.value, shroud: sh, note: t("Shroud.Note", { n: sh.value, why: sh.text }) + (lv.diffRule && !/^Покров$/.test(lv.diffRule) ? ` — ${t("Shroud.Rule", { rule: lv.diffRule })}` : "") };
+  return { diff: 6, shroud: null, note: lv.diffRule ? t("Shroud.Rule", { rule: lv.diffRule }) : "" };
+}
+
 /* ── Карточки листа ─────────────────────────────────────────────────── */
 
 /** Шапка, шкалы и вкладка: Легион, фракция, Гильдия, Пафос, Тень. */
@@ -60,7 +110,8 @@ export function wraithInfo(actor, dots) {
     canCatharsis: sh.canCatharsis, catharsis: sh.catharsis,
     archetype: arch, archetypes: (D.shadowArchetypes ?? []).map(a => ({ value: a.name, label: a.name, selected: a.name === sh.archetype })),
     memoriam: backgroundRating(actor, "Memoriam"), eidolon: backgroundRating(actor, "Eidolon"),
-    eidolonLeft: Math.max(0, backgroundRating(actor, "Eidolon") - w.session.eidolon), memoriamDone: w.session.memoriam
+    eidolonLeft: Math.max(0, backgroundRating(actor, "Eidolon") - w.session.eidolon), memoriamDone: w.session.memoriam,
+    shroud: shroudOf(actor), haunt: backgroundRating(actor, "Haunt"), inHaunt: !!actor.getFlag(SYSTEM_ID, "inHaunt"), isGM: game.user.isGM
   };
 }
 
@@ -77,6 +128,7 @@ export function arcanoiView(actor, dots, sel = {}) {
       return { ...l, known: n <= value && (common ? !r.skip.includes(n) : r.initiate.includes(n)), common, side: common ? "left" : "right",
         roman: ROM[n - 1], kindLabel: t(common ? "Common" : "Initiate"), attrLabel: l.attr ? attrLabel(l.attr) : "", cost: costText(l),
         pool: l.attr ? (actor.system.attributes[l.attr]?.total ?? 0) + value : null,
+        ...(l => ({ diff: l.diff, diffNote: l.note, viaShroud: !!l.shroud }))(artDifficulty(l, actor)),
         // Посвящённый уровень открывает Статус в Гильдии не ниже уровня (гл. 4); член чужой Гильдии учит «вне закона»
         allowed: common || status[a.key] >= n, selected: sel[a.key] === `${n}-${l.kind}` };
     };
@@ -243,7 +295,9 @@ export async function rollArt(actor, key, level, kind = "common") {
   if (lv.corpus) await corpusDamage(actor, lv.corpus, "bashing");
   const shadowRuns = w.shadow.catharsis;
   if (lv.angst) await gainAngst(actor, shadowRuns ? -lv.angst : lv.angst, { reason: lv.name });
-  const extra = { wraith: { kind: "art", key, level: lv.level, art: kind, name: lv.name, cost: costText(lv), angst: lv.angst ?? 0, shadow: shadowRuns } };
+  const dc = artDifficulty(lv, actor);
+  const extra = { wraith: { kind: "art", key, level: lv.level, art: kind, name: lv.name, cost: costText(lv), angst: lv.angst ?? 0, shadow: shadowRuns,
+    ...(dc.shroud ? { shroud: dc.shroud.value } : {}) } };
   if (lv.noRoll || !lv.attr) {
     await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<div class="r-notice r-type-wraith r-wr-art">
       <p><i class="fa-solid ${a.icon}"></i> <b>${esc(a.name)} ${"•".repeat(lv.level)} — ${esc(lv.name)}</b> <small>(${t(kind === "common" ? "Common" : "Initiate")})</small></p>
@@ -251,7 +305,7 @@ export async function rollArt(actor, key, level, kind = "common") {
     return true;
   }
   return RollDialog.prompt(actor, { title: `${a.name}: ${lv.name}`, trait1: `attributes.${lv.attr}`, trait2: `wraith.${key}`,
-    difficulty: Math.max(4, lv.diff ?? 6), diffNote: lv.diff ? "" : t("ShroudNote"), effect: lv.html, willpowerCost: lv.willpower ?? 0, extra,
+    difficulty: dc.diff, diffNote: dc.note, effect: lv.html, willpowerCost: lv.willpower ?? 0, extra,
     onRolled: async r => {
       // в Катарсисе провал или ботч Арканоса отнимает у Тени Ангст (гл. 6)
       if (shadowRuns && (r?.outcome === "failure" || r?.outcome === "botch")) await gainAngst(actor, -1, { reason: t("ShadowFail") });
@@ -417,6 +471,11 @@ export async function pick(title, cards, { lead = "" } = {}) {
   return picked;
 }
 
+/** Покров сцены или жетоны на ней поменялись — открытые листы призраков перерисовывают вкладку Арканоев. */
+const redrawWraiths = () => { for (const app of foundry.applications.instances.values()) if (app.actor?.type === "wraith" && app.rendered && app.tabGroups) app.render({ parts: ["disciplines"] }); };
+Hooks.on("updateScene", (scene, diff) => { if (foundry.utils.hasProperty(diff, `flags.${SYSTEM_ID}.shroud`)) redrawWraiths(); });
+Hooks.on("createToken", redrawWraiths); Hooks.on("deleteToken", redrawWraiths); Hooks.on("canvasReady", redrawWraiths);
+
 /* ── Знак и блок карточки броска ───────────────────────────────────── */
 
 // знак на карточках чата — Легион призрака (без Легиона — общая печать линейки)
@@ -430,6 +489,7 @@ registerCardBlock("wraith", (state, ev) => {
       { icon: x.art === "initiate" ? "fa-key" : "fa-circle", label: t(x.art === "initiate" ? "Initiate" : "Common") });
     if (x.cost) chips.push({ icon: "fa-coins", label: x.cost });
     if (x.shadow) chips.push({ icon: "fa-mask", label: t("ShadowAtWheel"), cls: "is-warn" });
+    if (x.shroud) chips.push({ icon: "fa-cloud", label: t("Shroud.Chip", { n: x.shroud }) });
     return { chips, text: botch ? t("ArtBotch") : n ? t("ArtOk", { n }) : t("ArtFail") };
   }
   if (x.kind === "passion" || x.kind === "dark") {

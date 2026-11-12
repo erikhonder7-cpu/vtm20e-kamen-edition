@@ -109,6 +109,16 @@ def costs(text, arcanos):
         out["angst"] = 1
     if "без броска" in t or "Действует всегда" in t:
         out["noRoll"] = True
+    # Покров (гл. 5): уровень, действующий сквозь Покров, по умолчанию идёт против рейтинга Покрова (не ниже 4);
+    # «сложность = …» без числа — переменная (Воля цели, уровень Мальстрёма…): правило — подсказкой в окне броска
+    rule = re.search(r"сложность\s*=\s*([^).;]+)", t)
+    if rule:
+        out["diffRule"] = rule.group(1).strip()
+    if re.search(r"сложность\s*=\s*Покров", t) or ("diff" not in out and "diffRule" not in out and
+            re.search(r"сквозь Покров|по ту сторону Покрова|Покров|в мир[еау]? живых|Земл[ия]х? Кожи|живо(?:й|го|му|е)|смертн", t)):
+        out["shroud"] = True
+    if re.search(r"или Покров, что выше", t):
+        out["shroudMax"] = True
     return out
 
 
@@ -161,6 +171,10 @@ def parse_arcanoi():
             for lv in levels:
                 text = "\n".join(lv.pop("lines"))
                 lv.update(costs(text, name))
+                desc_ = ART_TEXTS.get(f"{key}|{lv['level']}|{lv['kind']}", "")
+                # описание тоже говорит, действует ли уровень сквозь Покров («шепчет сквозь Покров», «по ту сторону Покрова»)
+                if not lv.get("shroud") and "diff" not in lv and "diffRule" not in lv and re.search(r"сквозь Покров|по ту сторону Покрова|в мир[еау]? живых|Земл[ия]х? Кожи", desc_):
+                    lv["shroud"] = True
                 # как силы Дисциплин у вампиров: «Описание» (своими словами по Wraith 20, tools/sources/wraith_art_texts_*.json) + «Система»
                 desc = ART_TEXTS.get(f"{key}|{lv['level']}|{lv['kind']}", "")
                 body = html(text.splitlines())

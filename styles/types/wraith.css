@@ -280,3 +280,14 @@
 .vtm20 .r-cr-garou-tiles + .r-cols2 { margin-top: 14px; }
 .vtm20 .r-cr-wrguilds .r-cr-tile.has-sym { align-content: center; column-gap: 8px; padding-top: 10px; padding-bottom: 10px; }
 .vtm20 .r-cr-wrguilds .r-cr-tile.has-sym > .r-cr-tile-sym { align-self: center; }
+
+/* Покров сцены на вкладке Арканоев: подпись, крупное число, из чего сложился, кнопки рассказчика и «в Обиталище» */
+.vtm20.r-type-wraith .r-wr-shroud { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 12px; margin: 4px 0 10px; padding: 6px 10px;
+  border: 1px solid var(--r-line-2); background: linear-gradient(90deg, rgba(201, 210, 220, .08), transparent); }
+.vtm20.r-type-wraith .r-wr-shroud-lbl { font-family: var(--r-caps); font-size: 11px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--r-ink-2); }
+.vtm20.r-type-wraith .r-wr-shroud-lbl small { text-transform: none; letter-spacing: 0; font-family: var(--r-body); color: var(--r-muted); }
+.vtm20.r-type-wraith .r-wr-shroud-lbl i { color: var(--r-accent); margin-right: 4px; }
+.vtm20.r-type-wraith .r-wr-shroud-num { font-family: var(--r-display); font-weight: 400; font-size: 24px; line-height: 1; color: var(--r-ink); }
+.vtm20.r-type-wraith .r-wr-shroud-why { flex: 1 1 160px; min-width: 0; color: var(--r-muted); font-style: italic; }
+.vtm20.r-type-wraith .r-wr-shroud-tools { display: inline-flex; align-items: center; gap: 4px; margin-left: auto; }
+.vtm20.r-type-wraith .r-wr-chip.is-shroud { border-style: dashed; }

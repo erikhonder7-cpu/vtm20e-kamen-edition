@@ -4339,6 +4339,35 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  await check("Призрак: Покров сцены — Истерия, сверхъестественные рядом, Обиталище, сложность сквозь Покров", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, W = await import(`/systems/${sid}/module/apps/wraith.mjs`), out = {}, scene = game.scenes.viewed;
+      const saved = scene.getFlag(sid, "shroud");
+      await scene.unsetFlag(sid, "shroud");
+      const a = await Actor.create({ name: "E2E — призрак под Покровом", type: "wraith", flags: { world: { e2e: true }, [sid]: { created: true } },
+        system: { wraith: { arcanoi: { outrage: { value: 4, initiate: [], skip: [] } } } } });
+      await a.createEmbeddedDocuments("Item", [{ name: "Обиталище", type: "background", system: { value: 3 } }]);
+      const near = W.shroudOf(a).near ? 2 : 0, exp = n => Math.max(4, n);
+      out.def = [W.shroudOf(a).value === exp(7 - near), W.shroudOf(a).set];
+      await W.setShroud("base", 2); await W.setShroud("hysteria", 1); await W.setShroud("hysteria", 1); await W.setShroud("hysteria", 1); await W.setShroud("hysteria", 1);
+      out.hyst = [W.shroudOf(a).base, W.shroudOf(a).hysteria, W.shroudOf(a).value === exp(9 - 3 - near)];
+      await a.setFlag(sid, "inHaunt", true);
+      out.haunt = W.shroudOf(a).value === exp(9 - 3 - near);   // в Обиталище Истерии нет, минус рейтинг
+      await a.unsetFlag(sid, "inHaunt");
+      const lv = (k, n, kind) => W.arcanosOf(k).levels.find(l => l.level === n && l.kind === kind);
+      out.diff = [W.artDifficulty(lv("outrage", 4, "common"), a).diff === W.shroudOf(a).value, W.artDifficulty(lv("phantasm", 5, "common"), a).diff === Math.max(8, W.shroudOf(a).value),
+        W.artDifficulty(lv("argos", 1, "common"), a).diff];
+      await W.setShroud("base", -10);
+      out.floor = W.shroudOf(a).value;
+      await a.delete();
+      if (saved) await scene.setFlag(sid, "shroud", saved); else await scene.unsetFlag(sid, "shroud");
+      return out;
+    });
+    const want = { def: [true, false], hyst: [9, 3, true], haunt: true, diff: [true, true, 6], floor: 4 };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   await check("Призрак: лист и Арканои, Пафос, Страсть, Корпус до колебания и Испытание, Катарсис", async () => {
     const r = await page.evaluate(async () => {
       const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), WR = await import(`/systems/${sid}/module/apps/wraith.mjs`);

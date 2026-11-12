@@ -9,6 +9,22 @@
       <a class="r-h2-btn is-plain" data-action="openRules" data-tooltip="{{localize 'VTM20.Wraith.RulesHint'}}"><i class="fa-solid fa-book-open-reader"></i></a>
     </span>
   </h2>
+  {{!-- Покров сцены: рейтинг и из чего он сложился; рассказчик двигает рейтинг и Истерию, игрок отмечает «в Обиталище» --}}
+  <div class="r-wr-shroud" data-tooltip="{{wraithInfo.shroud.text}}">
+    <span class="r-wr-shroud-lbl"><i class="fa-solid fa-cloud"></i> {{localize "VTM20.Wraith.Shroud.Label"}}{{#if wraithInfo.shroud.scene}} <small>· {{wraithInfo.shroud.scene}}</small>{{/if}}</span>
+    <b class="r-wr-shroud-num">{{wraithInfo.shroud.value}}</b>
+    <small class="r-wr-shroud-why">{{wraithInfo.shroud.text}}</small>
+    <span class="r-wr-shroud-tools">
+      {{#if wraithInfo.isGM}}
+      <a class="r-vc-btn is-sq" data-action="wrShroud" data-what="base" data-d="-1" data-tooltip="{{localize 'VTM20.Wraith.Shroud.Down'}}"><i class="fa-solid fa-minus"></i></a>
+      <a class="r-vc-btn is-sq" data-action="wrShroud" data-what="base" data-d="1" data-tooltip="{{localize 'VTM20.Wraith.Shroud.Up'}}"><i class="fa-solid fa-plus"></i></a>
+      <a class="r-vc-btn" data-action="wrShroud" data-what="hysteria" data-d="1" data-tooltip="{{localize 'VTM20.Wraith.Shroud.HysteriaHint'}}"><i class="fa-solid fa-face-scream"></i> {{localize "VTM20.Wraith.Shroud.HysteriaBtn"}}</a>
+      {{#if wraithInfo.shroud.hysteria}}<a class="r-vc-btn is-sq" data-action="wrShroud" data-what="hysteria" data-d="0" data-tooltip="{{localize 'VTM20.Wraith.Shroud.HysteriaReset'}}"><i class="fa-solid fa-rotate-left"></i></a>{{/if}}
+      {{/if}}
+      {{#if wraithInfo.haunt}}{{#if editable}}<a class="r-vc-btn {{#if wraithInfo.inHaunt}}is-on{{/if}}" data-action="wrHaunt" data-tooltip="{{localize 'VTM20.Wraith.Shroud.HauntHint'}}"><i class="fa-solid fa-house-chimney-crack"></i> {{localize "VTM20.Wraith.Shroud.InHaunt"}}</a>{{/if}}{{/if}}
+    </span>
+  </div>
+
   {{#if editable}}{{#if arc.avail.length}}
   <div class="r-toolbar">
     <select class="r-wr-arc-add"><option value="">{{localize "VTM20.Wraith.AddArcanos"}}</option>{{#each arc.avail}}<option value="{{key}}">{{label}}</option>{{/each}}</select>
@@ -49,7 +65,8 @@
         <span class="r-wr-art-name"><b>{{name}}</b>{{#if en}} <em>{{en}}</em>{{/if}}<small>{{kindLabel}}</small></span>
       </div>
       <div class="r-wr-art-chips">
-        <span class="r-wr-chip"><i class="fa-solid fa-dice-d10"></i> {{#if attrLabel}}{{attrLabel}} + {{../name}} = <b>{{pool}}</b>{{#if diff}} · {{localize "VTM20.Roll.Vs"}} {{diff}}{{/if}}{{else}}{{localize "VTM20.Wraith.NoRoll"}}{{/if}}</span>
+        <span class="r-wr-chip" {{#if diffNote}}data-tooltip="{{diffNote}}"{{/if}}><i class="fa-solid fa-dice-d10"></i> {{#if attrLabel}}{{attrLabel}} + {{../name}} = <b>{{pool}}</b>{{#if diff}} · {{localize "VTM20.Roll.Vs"}} {{diff}}{{/if}}{{else}}{{localize "VTM20.Wraith.NoRoll"}}{{/if}}</span>
+        {{#if viaShroud}}<span class="r-wr-chip is-shroud" data-tooltip="{{diffNote}}"><i class="fa-solid fa-cloud"></i> {{localize "VTM20.Wraith.Shroud.Through"}}</span>{{/if}}
         {{#if cost}}<span class="r-wr-chip is-cost"><i class="fa-solid fa-droplet"></i> {{cost}}</span>{{/if}}
       </div>
       <div class="r-wr-art-text">{{{html}}}</div>
