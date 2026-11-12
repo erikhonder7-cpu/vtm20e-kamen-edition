@@ -333,10 +333,15 @@ body.r-skin #context-menu, body.r-skin #context-menu-root { border: 1px solid va
 body.r-skin #context-menu .context-item { font-family: var(--rk-body); }
 body.r-skin #context-menu .context-item:hover { background: rgba(140, 28, 34, .25); color: var(--rk-bone-b); }
 body.r-skin [class*="fa-"] { text-shadow: none; }
-body.r-skin ::-webkit-scrollbar { width: 6px; height: 6px; }
+/* ползунок — цветом линейки окна (--r-accent темы; вне окон системы — запёкшаяся кровь), объёмный, на тонкой направляющей */
+body.r-skin ::-webkit-scrollbar { width: 10px; height: 10px; }
 body.r-skin ::-webkit-scrollbar-track { background: transparent; }
-body.r-skin ::-webkit-scrollbar-thumb { background: #5a2328; border: 0; border-radius: 3px; }
-body.r-skin ::-webkit-scrollbar-thumb:hover { background: #8c1c22; }
+body.r-skin ::-webkit-scrollbar-track:vertical { background: linear-gradient(90deg, transparent 4px, rgba(255, 255, 255, .05) 4px 6px, transparent 6px); }
+body.r-skin ::-webkit-scrollbar-track:horizontal { background: linear-gradient(180deg, transparent 4px, rgba(255, 255, 255, .05) 4px 6px, transparent 6px); }
+body.r-skin ::-webkit-scrollbar-thumb { border: 3px solid transparent; border-radius: 6px; background-clip: padding-box;
+  background-color: color-mix(in srgb, var(--r-accent, #8c1c22) 55%, #141416);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12), inset 0 -1px 0 rgba(0, 0, 0, .35); }
+body.r-skin ::-webkit-scrollbar-thumb:hover, body.r-skin ::-webkit-scrollbar-thumb:active { border-width: 2px; background-color: color-mix(in srgb, var(--r-accent, #c4474c) 85%, #141416); }
 body.r-skin ::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
 /* полоса прокрутки чата — у правого края: Foundry кладёт её слева (direction: rtl), а лента заходит под колонку вкладок на 12px — полоса ложилась на иконки */
 body.r-skin #chat .chat-scroll { direction: ltr; }

@@ -2,7 +2,7 @@
 <div class="r-cl">
   <aside class="r-cl-side">
     <div class="r-cl-groups">
-      {{#each groups}}<a class="{{#if active}}is-active{{/if}}" data-action="group" data-group="{{key}}">{{label}} <b>{{n}}</b></a>{{/each}}
+      {{#each groups}}<a class="{{#if active}}is-active{{/if}}" data-action="group" data-group="{{key}}" data-tooltip="{{label}}"><span>{{label}}</span> <b>{{n}}</b></a>{{/each}}
     </div>
     <label class="r-cl-find"><i class="fa-solid fa-magnifying-glass"></i><input type="search" class="r-cl-search" value="{{v.q}}" placeholder="{{localize 'VTM20.Atlas.Search'}}"></label>
     <ol class="r-cl-list">

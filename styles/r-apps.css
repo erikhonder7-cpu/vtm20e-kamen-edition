@@ -96,9 +96,11 @@
 .vtm20 .r-cr-note i { color: var(--r-accent); }
 
 /* Возраст в Крови */
-.vtm20 .r-cr-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-.vtm20 .r-cr-tile { display: flex; flex-direction: column; gap: 2px; padding: 9px 12px; cursor: pointer; }
+.vtm20 .r-cr-tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+.vtm20 .r-cr-tile { display: flex; flex-direction: column; gap: 2px; min-width: 0; padding: 9px 12px; cursor: pointer; }
 .vtm20 .r-cr-tile b { font-family: var(--r-caps); font-weight: 400; font-size: 14px; letter-spacing: 2px; text-transform: uppercase; color: var(--r-ink); }
+/* ступени опыта: название строчными шрифтом заголовков — длинное слово («Новопреставленный») влезает целиком */
+.vtm20 .r-cr-tiles.is-tiers .r-cr-tile b { font-family: var(--r-display); font-size: 15px; letter-spacing: 0; text-transform: none; line-height: 1.15; overflow-wrap: break-word; }
 .vtm20 .r-cr-tile span { font-size: 12px; color: var(--r-muted); line-height: 1.3; }
 .vtm20 .r-cr-tile em { font-style: normal; font-family: var(--r-display); font-size: 12.5px; color: var(--r-ink-2); }
 .vtm20 .r-cr-tile.is-active em { color: var(--r-accent); }
@@ -734,21 +736,24 @@ body.r-theme-light .vtm20 .r-ng-concept { color: #7a4f1d; }
 .vtm20.r-clans .window-content { overflow: hidden; }
 .vtm20 .r-cl { display: grid; grid-template-columns: 270px minmax(0, 1fr); height: 100%; min-height: 0; }
 .vtm20 .r-cl-side { display: flex; flex-direction: column; gap: 8px; min-height: 0; padding: 12px 10px 10px 12px; border-right: 1px solid var(--r-line-2); background: rgba(0, 0, 0, .18); }
-.vtm20 .r-cl-groups { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
-.vtm20 .r-cl-groups a { display: flex; justify-content: space-between; align-items: baseline; padding: 4px 7px; border: 1px solid var(--r-line); font-family: var(--r-caps); font-size: 11px; letter-spacing: .6px; text-transform: uppercase; color: var(--r-muted); cursor: pointer; }
+.vtm20 .r-cl-groups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; }
+.vtm20 .r-cl-groups a { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; min-width: 0; padding: 4px 7px; border: 1px solid var(--r-line); font-family: var(--r-caps); font-size: 11px; letter-spacing: .6px; text-transform: uppercase; color: var(--r-muted); cursor: pointer; }
+/* длинное название раздела не распирает колонку — обрезается, целиком во всплывающей подсказке */
+.vtm20 .r-cl-groups a > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vtm20 .r-cl-groups a b { flex: 0 0 auto; }
 .vtm20 .r-cl-groups a b { font-family: var(--r-display); font-weight: 400; font-size: 12px; }
 .vtm20 .r-cl-groups a:hover { color: var(--r-ink); border-color: var(--r-line-2); }
-.vtm20 .r-cl-groups a.is-active { color: #f1e9da; border-color: #c4474c; background: rgba(140, 28, 34, .45); }
+.vtm20 .r-cl-groups a.is-active { color: #f1e9da; border-color: var(--r-accent, #c4474c); background: color-mix(in srgb, var(--r-accent, #c4474c) 32%, transparent); }
 .vtm20 .r-cl-groups a.is-dim { opacity: .45; }
 .vtm20 .r-cl-find { display: flex; align-items: center; gap: 7px; padding: 0 8px; border: 1px solid var(--r-line-2); background: var(--r-s1); color: var(--r-muted); }
 .vtm20 .r-cl-find input { flex: 1; height: 28px; border: 0; background: transparent; box-shadow: none; }
 .vtm20 .r-cl-list { flex: 1 1 auto; min-height: 0; overflow-y: auto; margin: 0; padding: 0 2px 0 0; list-style: none; display: flex; flex-direction: column; gap: 2px; }
 .vtm20 .r-cl-item a { display: flex; align-items: center; gap: 9px; padding: 4px 6px; border: 1px solid transparent; cursor: pointer; }
 .vtm20 .r-cl-item a:hover { background: var(--r-s2); }
-.vtm20 .r-cl-item a.is-active { border-color: rgba(196, 71, 76, .6); background: linear-gradient(90deg, rgba(140, 28, 34, .38), rgba(140, 28, 34, .05)); box-shadow: inset 2px 0 0 #c4474c; }
+.vtm20 .r-cl-item a.is-active { border-color: color-mix(in srgb, var(--r-accent, #c4474c) 60%, transparent); background: linear-gradient(90deg, color-mix(in srgb, var(--r-accent, #c4474c) 30%, transparent), color-mix(in srgb, var(--r-accent, #c4474c) 4%, transparent)); box-shadow: inset 2px 0 0 var(--r-accent, #c4474c); }
 .vtm20 .r-cl-medal { flex: 0 0 auto; width: 32px; height: 32px; padding: 5px; display: grid; place-items: center; color: var(--r-muted); }
 .vtm20 .r-cl-medal .r-sym { width: 100%; height: 100%; }
-.vtm20 .r-cl-item a.is-active .r-sym { background: linear-gradient(170deg, #e8a3a5, #b83a3f); }
+.vtm20 .r-cl-item a.is-active .r-sym { background: linear-gradient(170deg, color-mix(in srgb, var(--r-accent, #c4474c) 45%, #fff), var(--r-accent, #b83a3f)); }
 .vtm20 .r-cl-name { display: flex; flex-direction: column; min-width: 0; font-family: var(--r-display); font-size: 14px; line-height: 1.15; color: var(--r-ink); }
 .vtm20 .r-cl-name em { font-family: var(--r-body); font-size: 12px; color: var(--r-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .vtm20 .r-cl-empty { padding: 12px 6px; font-style: italic; color: var(--r-muted); }
@@ -1726,3 +1731,48 @@ body.r-theme-light .vtm20 .r-sp-state img { filter: none; }
 .vtm20 .r-xw-tnote { margin: 0; font-size: 12px; font-style: italic; color: var(--r-muted); line-height: 1.3; }
 .vtm20 .r-xw-ttools { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .vtm20 .r-xw-ttools .r-btn.is-off { opacity: .5; pointer-events: none; }
+
+/* Мастер смертного: «Особый смертный» — плитки (значок, название, суть), выбранная — цветом линейки; подробности — ниже */
+.vtm20 .r-cr-markbox { margin: 4px 0 14px; padding: 12px 14px 14px; border: 1px solid var(--r-line-2); background: var(--r-card-bg); }
+.vtm20 .r-cr-markbox.is-on { box-shadow: inset 3px 0 0 var(--r-accent); }
+.vtm20 .r-cr-markbox-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+.vtm20 .r-cr-markbox-head b { font-family: var(--r-display); font-size: 17px; color: var(--r-ink); }
+.vtm20 .r-cr-markbox-head span { font-size: 12.5px; font-style: italic; color: var(--r-muted); }
+.vtm20 .r-cr-mark-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.vtm20 .r-cr-mark-tile { display: grid; grid-template-columns: 28px 1fr; grid-template-rows: auto auto; column-gap: 8px; align-items: center;
+  padding: 9px 10px; border: 1px solid var(--r-line-2); background: rgba(255, 255, 255, .02); cursor: pointer; text-decoration: none;
+  transition: border-color .15s, background .15s, box-shadow .15s; }
+.vtm20 .r-cr-mark-tile > i { grid-row: 1 / span 2; font-size: 18px; color: var(--r-muted); text-align: center; }
+.vtm20 .r-cr-mark-tile > b { font-family: var(--r-display); font-weight: 400; font-size: 15px; color: var(--r-ink); line-height: 1.15; }
+.vtm20 .r-cr-mark-tile > small { font-size: 11.5px; color: var(--r-muted); line-height: 1.25; }
+.vtm20 .r-cr-mark-tile:hover { border-color: var(--r-accent); background: rgba(255, 255, 255, .05); }
+.vtm20 .r-cr-mark-tile:hover > i { color: var(--r-accent); }
+.vtm20 .r-cr-mark-tile:focus-visible { outline: 1px solid var(--r-accent); outline-offset: 2px; }
+.vtm20 .r-cr-mark-tile.is-active { border-color: var(--r-accent); background: color-mix(in srgb, var(--r-accent) 14%, transparent); box-shadow: inset 0 -2px 0 var(--r-accent); }
+.vtm20 .r-cr-mark-tile.is-active > i { color: var(--r-accent); }
+.vtm20 .r-cr-mark-detail { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--r-line-2); }
+.vtm20 .r-cr-mark-detail > .r-note:first-child { margin-top: 0; }
+
+/* «Особый смертный», подробности: поля строкой, силы — карточками (отметка, название, суть), счётчик выбора */
+.vtm20 .r-cr-mark-hint { margin: 0 0 10px; font-size: 12.5px; line-height: 1.4; color: var(--r-ink-2); }
+.vtm20 .r-cr-mark-hint > i { color: var(--r-accent); margin-right: 4px; }
+.vtm20 .r-cr-mark-fields { display: flex; flex-wrap: wrap; gap: 10px 14px; margin-bottom: 10px; }
+.vtm20 .r-cr-mark-fields .r-cr-mark-field { margin: 0; flex: 0 0 200px; }
+.vtm20 .r-cr-mark-fields .r-cr-mark-field.is-wide { flex: 1 1 260px; }
+.vtm20 .r-cr-mark-fields select, .vtm20 .r-cr-mark-fields input { width: 100%; }
+.vtm20 .r-cr-pw-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin: 6px 0 8px; }
+.vtm20 .r-cr-pw-head b { font-family: var(--r-caps); font-weight: 400; font-size: 11px; letter-spacing: 1.4px; text-transform: uppercase; color: var(--r-muted); }
+.vtm20 .r-cr-pw-count { font-size: 12.5px; color: var(--r-accent); }
+.vtm20 .r-cr-pw-count.is-empty { color: var(--r-muted); font-style: italic; }
+.vtm20 .r-cr-pw-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 6px; }
+.vtm20 .r-cr-pw { display: grid; grid-template-columns: 18px 1fr; column-gap: 8px; row-gap: 2px; align-items: start; padding: 8px 10px;
+  border: 1px solid var(--r-line); background: rgba(255, 255, 255, .02); cursor: pointer; text-decoration: none; transition: border-color .15s, background .15s; }
+.vtm20 .r-cr-pw > i { grid-row: 1 / span 2; margin-top: 3px; font-size: 13px; color: var(--r-muted); }
+.vtm20 .r-cr-pw > b { font-weight: 400; font-size: 14px; color: var(--r-ink); line-height: 1.2; }
+.vtm20 .r-cr-pw > small { font-size: 11.5px; line-height: 1.3; color: var(--r-muted); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.vtm20 .r-cr-pw:hover { border-color: var(--r-accent); background: rgba(255, 255, 255, .05); }
+.vtm20 .r-cr-pw.is-on { border-color: var(--r-accent); background: color-mix(in srgb, var(--r-accent) 13%, transparent); }
+.vtm20 .r-cr-pw.is-on > i { color: var(--r-accent); }
+.vtm20 .r-cr-pw.is-full { opacity: .45; }
+.vtm20 .r-cr-pw.is-full:hover { opacity: .7; }
+.vtm20 .r-cr-pw.is-own { cursor: default; border-style: dashed; }

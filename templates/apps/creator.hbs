@@ -74,7 +74,7 @@
       <div>
         {{#unless (or isDemon isMortal isHunter isWerewolf)}}
         <h3 class="r-h3">{{tierTitle}}</h3>
-        <div class="r-cr-tiles">
+        <div class="r-cr-tiles is-tiers">
           {{#each tiers}}
           <a class="r-cr-tile {{#if active}}is-active{{/if}}" data-action="tier" data-tier="{{key}}">
             <b>{{label}}</b><span>{{hint}}</span>{{#if xp}}<em>+{{xp}} {{localize "VTM20.Creator.XpShort"}}</em>{{/if}}
@@ -113,37 +113,47 @@
         </div>
         {{#unless st.thrall}}
         {{!-- Особый смертный: Родня Гару (W20 Kinfolk), Ками (W20 Umbra), фомор (Book of the Wyrm) --}}
-        <div class="r-cr-eb is-mark {{#if marks.mark}}is-on{{/if}}">
-          <div class="r-cr-eb-head">
-            <span class="r-cr-eb-sym"><i class="fa-solid fa-paw"></i></span>
-            <div class="r-cr-eb-titles"><b>{{localize "VTM20.Creator.Mark.title"}}</b><span class="r-note r-explain">{{marks.hint}}</span></div>
-            <span class="r-cr-mark-opts">{{#each marks.opts}}<a class="r-btn {{#if active}}is-primary{{else}}is-ghost{{/if}}" data-action="mark" data-mark="{{key}}">{{label}}</a>{{/each}}</span>
+        <div class="r-cr-markbox {{#if marks.mark}}is-on{{/if}}">
+          <div class="r-cr-markbox-head"><b>{{localize "VTM20.Creator.Mark.title"}}</b><span>{{localize "VTM20.Creator.Mark.lead"}}</span></div>
+          <div class="r-cr-mark-tiles">
+            {{#each marks.tiles}}<a class="r-cr-mark-tile {{#if active}}is-active{{/if}}" data-action="mark" data-mark="{{key}}" role="button" aria-pressed="{{#if active}}true{{else}}false{{/if}}">
+              <i class="fa-solid {{icon}}"></i><b>{{label}}</b><small>{{short}}</small></a>{{/each}}
           </div>
+          {{#if marks.mark}}<div class="r-cr-mark-detail"><p class="r-cr-mark-hint"><i class="fa-solid fa-circle-info"></i> {{marks.hint}}</p>{{/if}}
           {{#if (rEq marks.mark "sorcerer")}}
-          <label class="r-cr-mark-field"><span>{{localize "VTM20.Sorcerer.Affiliation"}}</span>
-            <select data-field="sorcAff"><option value="">—</option>{{#each marks.affiliations}}<option value="{{key}}" {{#if selected}}selected{{/if}} title="{{tip}}">{{label}}</option>{{/each}}</select></label>
-          <p class="r-note">{{localize "VTM20.SorcCr.Hint"}}</p>
+          <div class="r-cr-mark-fields">
+            <label class="r-cr-mark-field is-wide"><span>{{localize "VTM20.Sorcerer.Affiliation"}}</span>
+              <select data-field="sorcAff"><option value="">—</option>{{#each marks.affiliations}}<option value="{{key}}" {{#if selected}}selected{{/if}} title="{{tip}}">{{label}}</option>{{/each}}</select></label>
+          </div>
+          <p class="r-cr-mark-hint">{{localize "VTM20.SorcCr.Hint"}}</p>
           {{/if}}
           {{#if (rEq marks.mark "kinfolk")}}
-          <label class="r-cr-mark-field"><span>{{localize "VTM20.Werewolf.Tribe"}}</span>
-            <select data-field="markTribe"><option value="">—</option>{{#each marks.tribes}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+          <div class="r-cr-mark-fields">
+            <label class="r-cr-mark-field is-wide"><span>{{localize "VTM20.Werewolf.Tribe"}}</span>
+              <select data-field="markTribe"><option value="">—</option>{{#each marks.tribes}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+          </div>
           {{/if}}
           {{#if (rEq marks.mark "kami")}}
-          <div class="r-cr-mark-row">
+          <div class="r-cr-mark-fields">
             <label class="r-cr-mark-field"><span>{{localize "VTM20.Werewolf.Kami.kindLabel"}}</span>
               <select data-field="kamiKind">{{#each marks.kamiKinds}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
-            <label class="r-cr-mark-field is-wide"><span>{{localize "VTM20.Werewolf.Kami.geas"}}</span><input type="text" data-field="kamiGeas" value="{{st.kamiGeas}}"></label>
+            <label class="r-cr-mark-field is-wide"><span>{{localize "VTM20.Werewolf.Kami.geas"}}</span><input type="text" data-field="kamiGeas" value="{{st.kamiGeas}}" placeholder="{{localize 'VTM20.Creator.Mark.geasPh'}}"></label>
           </div>
-          <p class="r-note r-explain">{{localize "VTM20.Creator.Mark.kamiPick"}}</p>
-          <div class="r-cr-mark-powers">{{#each marks.kamiPowers}}<a class="r-cr-mark-pw {{#if on}}is-on{{/if}}" data-action="markPower" data-key="{{key}}" data-tooltip="{{text}}">{{label}}</a>{{/each}}</div>
+          <div class="r-cr-pw-head"><b>{{localize "VTM20.Creator.Mark.kamiPowersTitle"}}</b><span class="r-cr-pw-count {{#if (rEq marks.kamiPicked 0)}}is-empty{{/if}}">{{localize "VTM20.Creator.Mark.picked" n=marks.kamiPicked cap=marks.kamiCap}}</span></div>
+          <div class="r-cr-pw-grid">{{#each marks.kamiPowers}}<a class="r-cr-pw {{#if on}}is-on{{/if}} {{#if full}}is-full{{/if}}" data-action="markPower" data-key="{{key}}" data-tooltip="{{text}}" role="button" aria-pressed="{{#if on}}true{{else}}false{{/if}}">
+            <i class="{{#if on}}fa-solid fa-circle-check{{else}}fa-regular fa-circle{{/if}}"></i><b>{{label}}</b><small>{{short}}</small></a>{{/each}}</div>
           {{/if}}
           {{#if (rEq marks.mark "fomor")}}
-          <label class="r-cr-mark-field"><span>{{localize "VTM20.Creator.Mark.fomorBreed"}}</span>
-            <select data-field="fomorBreed"><option value="">—</option>{{#each marks.fomorBreeds}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
-          {{#if marks.fomorText}}<p class="r-note">{{marks.fomorText}}</p>{{/if}}
-          <p class="r-note r-explain">{{localize "VTM20.Creator.Mark.fomorPick"}}</p>
-          <div class="r-cr-mark-powers">{{#each marks.fomorPowers}}<a class="r-cr-mark-pw {{#if on}}is-on{{/if}} {{#if own}}is-own{{/if}}" {{#unless own}}data-action="markPower" data-key="{{key}}"{{/unless}} data-tooltip="{{text}}">{{label}}</a>{{/each}}</div>
+          <div class="r-cr-mark-fields">
+            <label class="r-cr-mark-field is-wide"><span>{{localize "VTM20.Creator.Mark.fomorBreed"}}</span>
+              <select data-field="fomorBreed"><option value="">—</option>{{#each marks.fomorBreeds}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+          </div>
+          {{#if marks.fomorText}}<p class="r-cr-mark-hint">{{marks.fomorText}}</p>{{/if}}
+          <div class="r-cr-pw-head"><b>{{localize "VTM20.Creator.Mark.fomorPowersTitle"}}</b><span class="r-cr-pw-count {{#if (rEq marks.fomorPicked 0)}}is-empty{{/if}}">{{localize "VTM20.Creator.Mark.pickedFomor" n=marks.fomorPicked cap=marks.fomorCap}}</span></div>
+          <div class="r-cr-pw-grid">{{#each marks.fomorPowers}}<a class="r-cr-pw {{#if on}}is-on{{/if}} {{#if own}}is-own{{/if}} {{#if full}}is-full{{/if}}" {{#unless own}}data-action="markPower" data-key="{{key}}" role="button"{{/unless}} data-tooltip="{{text}}">
+            <i class="{{#if own}}fa-solid fa-lock{{else if on}}fa-solid fa-circle-check{{else}}fa-regular fa-circle{{/if}}"></i><b>{{label}}</b><small>{{#if own}}{{localize "VTM20.Creator.Mark.fromBreed"}} · {{/if}}{{short}}</small></a>{{/each}}</div>
           {{/if}}
+          {{#if marks.mark}}</div>{{/if}}
         </div>
         {{/unless}}
         {{/if}}

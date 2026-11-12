@@ -12,6 +12,10 @@ import { H as hunterData } from "../hunter.mjs";
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
 const loc = k => game.i18n.localize(k);
 
+/** Суть силы одной фразой — для карточек выбора (полный текст — во всплывающей подсказке). */
+const plainShort = html => { const s = String(html ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  const m = /^(.{20,140}?[.!?])(\s|$)/.exec(s); return m ? m[1] : s.length > 140 ? `${s.slice(0, 137)}…` : s; };
+
 export class CalcCreator {
   /* ── Расчёты ───────────────────────────────────────────────────────── */
 
@@ -37,17 +41,23 @@ export class CalcCreator {
     const own = new Set((fb?.powers ?? []).filter(k => !k.startsWith("~")));
     return {
       mark: st.mark,
-      opts: ["sorcerer", "consor", "kinfolk", "kami", "fomor"].map(k => ({ key: k, label: t(`Creator.Mark.${k}`), active: st.mark === k })),
+      // плитки: «обычный человек» и пять особых — значок, название, суть одной строкой
+      tiles: [["", "fa-user"], ["sorcerer", "fa-book-skull"], ["consor", "fa-user-group"], ["kinfolk", "fa-paw"], ["kami", "fa-leaf"], ["fomor", "fa-biohazard"]]
+        .map(([k, icon]) => ({ key: k, icon, label: t(`Creator.Mark.${k || "plain"}`), short: t(`Creator.Mark.${k || "plain"}Short`), active: (st.mark || "") === k })),
       affiliations: st.mark === "sorcerer" ? this.sorcAffiliations() : [],
       hint: st.mark ? t(`Creator.Mark.${st.mark}Hint`) : t("Creator.Mark.none"),
       tribes: (W.tribes ?? []).map(x => ({ key: x.key, label: lbl(x), selected: x.key === st.markTribe })),
       kamiKinds: ["human", "animal", "plant"].map(k => ({ key: k, label: loc(`VTM20.Werewolf.Kami.form.${k}`), selected: k === st.kamiKind })),
       kamiPowers: (W.kami?.powers ?? []).filter(x => x.kind === "kami" || (st.kamiKind === "plant" && x.kind === "immobile"))
-        .map(x => ({ key: x.key, label: lbl(x), text: preview(x.text, 700), on: st.kamiPowers.includes(x.key) })),
+        .map(x => ({ key: x.key, label: lbl(x), text: preview(x.text, 700), short: plainShort(x.text), on: st.kamiPowers.includes(x.key),
+          full: !st.kamiPowers.includes(x.key) && st.kamiPowers.length >= 3 })),
+      kamiPicked: st.kamiPowers.length, kamiCap: 3,
       fomorBreeds: (W.fomori?.breeds ?? []).map(b => ({ key: b.key, label: lbl(b), selected: b.key === st.fomorBreed })),
       fomorText: fb ? String(fb.text ?? "").replace(/<[^>]+>/g, "").slice(0, 400) : "",
-      fomorPowers: (W.fomori?.powers ?? []).map(x => ({ key: x.key, label: lbl(x), text: preview(x.text, 700),
-        own: own.has(x.key), on: own.has(x.key) || st.fomorPowers.includes(x.key) }))
+      fomorPowers: (W.fomori?.powers ?? []).map(x => ({ key: x.key, label: lbl(x), text: preview(x.text, 700), short: plainShort(x.text),
+        own: own.has(x.key), on: own.has(x.key) || st.fomorPowers.includes(x.key), full: !own.has(x.key) && !st.fomorPowers.includes(x.key) && st.fomorPowers.length >= 2 }))
+        .sort((a, b) => (b.own - a.own) || (b.on - a.on)),
+      fomorPicked: st.fomorPowers.length, fomorCap: 2
     };
   }
 

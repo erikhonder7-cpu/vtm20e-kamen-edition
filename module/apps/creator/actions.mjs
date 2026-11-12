@@ -88,7 +88,7 @@ function onGarouExtra(event, target) {
 function onEarthbound() { this.st.earthbound = !this.st.earthbound; this.render(); }
 function onThrall() { this.st.thrall = !this.st.thrall; if (this.st.thrall) this.st.mark = ""; this.render(); }
 /** Особый смертный: Родня, Ками или фомор (повторный щелчок — обычный смертный). */
-function onMark(event, target) { const m = target.dataset.mark; this.st.mark = this.st.mark === m ? "" : m; if (this.st.mark) this.st.thrall = false; this.render(); }
+function onMark(event, target) { const m = target.dataset.mark ?? ""; this.st.mark = m; if (this.st.mark) this.st.thrall = false; this.render(); }
 /** Сила Ками (1–3) или фомора (до двух сверх сил породы). */
 function onMarkPower(event, target) {
   const k = target.dataset.key, list = this.st.mark === "kami" ? "kamiPowers" : "fomorPowers", cap = this.st.mark === "kami" ? 3 : 2;

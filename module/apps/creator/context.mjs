@@ -85,10 +85,11 @@ export class ContextCreator {
     ctx.archetypes = this.isEarthbound ? Codex.archetypes.filter(a => !EB_NO.includes(a.name)) : Codex.archetypes;
     ctx.natureRegain = Codex.archetypes.find(a => a.name === st.nature)?.regain ?? "";
     ctx.demeanorRegain = Codex.archetypes.find(a => a.name === st.demeanor)?.regain ?? "";
-    // у гуля «срок службы» вместо возраста в Крови — опыт тот же
-    const tierKey = this.type === "ghoul" ? "TierGhoul" : this.isMage ? "TierMage" : "Tier";
+    // ступени опыта своими словами у каждой линейки (гуль — срок службы, маг — путь, призрак — срок в Подземном мире…); опыт тот же
+    const LINE = { ghoul: "Ghoul", mage: "Mage", wraith: "Wraith", werewolf: "Werewolf", hunter: "Hunter", demon: "Demon", mortal: "Mortal" }[this.type] ?? "";
+    const tierKey = `Tier${LINE}`;
     ctx.tiers = Object.entries(TIERS).map(([k, v]) => ({ key: k, xp: v.xp, label: t(`Creator.${tierKey}.${k}`), hint: t(`Creator.${tierKey}.${k}Hint`), active: st.tier === k }));
-    ctx.tierTitle = t(this.type === "ghoul" ? "Creator.TierTitleGhoul" : this.isMage ? "Creator.TierTitleMage" : "Creator.TierTitle");
+    ctx.tierTitle = t(`Creator.TierTitle${LINE}`);
     ctx.sects = SECTS.map(s => ({ ...s, label: t(s.label), sym: Codex.sectSymbol(t(s.label)), active: st.sectKey === s.key }));
 
     // II. Клан

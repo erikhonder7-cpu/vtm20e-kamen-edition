@@ -434,15 +434,20 @@ body.r-theme-light .vtm20 .r-sym { background: linear-gradient(170deg, #3a3029, 
   #chat-log .chat-message, .chat-log .chat-message { animation: r-reveal .22s ease-out; }
 }
 
-/* Полосы прокрутки в окнах системы — тонкие, в цвет (ползунок — запёкшаяся кровь).
+/* Полосы прокрутки в окнах системы — тонкие, в цвет линейки окна.
    Chrome при заданных scrollbar-width/scrollbar-color рисует свою полосу со стрелками и не смотрит на ::-webkit-scrollbar —
    поэтому там, где ::-webkit-scrollbar есть (Chrome, Electron), стандартные свойства сбрасываются; Firefox берёт тонкую в цвет. */
-.vtm20, .vtm20 * { scrollbar-width: thin; scrollbar-color: #5a2328 transparent; }
+.vtm20, .vtm20 * { scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--r-accent, #8c1c22) 55%, #141416) transparent; }
 @supports selector(::-webkit-scrollbar) {
   .vtm20, .vtm20 *, body.r-skin * { scrollbar-width: auto; scrollbar-color: auto; }
 }
-.vtm20 ::-webkit-scrollbar { width: 6px; height: 6px; }
+/* ползунок — цветом линейки окна (--r-accent темы: кровь, фиолет мага, пепел призрака…), объёмный, на тонкой направляющей */
+.vtm20 ::-webkit-scrollbar { width: 10px; height: 10px; }
 .vtm20 ::-webkit-scrollbar-track { background: transparent; }
-.vtm20 ::-webkit-scrollbar-thumb { background: #5a2328; border-radius: 3px; }
-.vtm20 ::-webkit-scrollbar-thumb:hover { background: #8c1c22; }
+.vtm20 ::-webkit-scrollbar-track:vertical { background: linear-gradient(90deg, transparent 4px, rgba(255, 255, 255, .05) 4px 6px, transparent 6px); }
+.vtm20 ::-webkit-scrollbar-track:horizontal { background: linear-gradient(180deg, transparent 4px, rgba(255, 255, 255, .05) 4px 6px, transparent 6px); }
+.vtm20 ::-webkit-scrollbar-thumb { border: 3px solid transparent; border-radius: 6px; background-clip: padding-box;
+  background-color: color-mix(in srgb, var(--r-accent, #8c1c22) 55%, #141416);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12), inset 0 -1px 0 rgba(0, 0, 0, .35); }
+.vtm20 ::-webkit-scrollbar-thumb:hover, .vtm20 ::-webkit-scrollbar-thumb:active { border-width: 2px; background-color: color-mix(in srgb, var(--r-accent, #c4474c) 85%, #141416); }
 .vtm20 ::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
