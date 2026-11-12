@@ -4009,6 +4009,14 @@ try {
       DV.wait = async () => ({ name: "E2E — жезл", kind: "talisman", value: 1, spheres: "Силы 1" }); const crafted = await St.craftWonder(a); DV.wait = dw0;
       out.craft = [psp?.system.spirit.on, a.system.mage.quintessence, crafted?.system.arete];
       await psp?.delete();
+      // Царство Парадокса — запись в чат; Пакт через окно; маг-гуль лечит рану кровью
+      const nr = game.messages.size;
+      DV.prompt = async () => "time"; const realm = await St.paradoxRealm(a); DV.prompt = dp0;
+      DV.prompt = async () => ({ level: 3, patron: "E2E — Патрон", terms: "служба" }); await St.addPact(fl); DV.prompt = dp0;
+      await fl.update({ "system.mage.ghoul.vitae": 2, "system.health.lethal": 1 });
+      await St.ghoulHeal(fl); await wait(300);
+      out.more = [!!realm && game.messages.size > nr, fl.system.mage.pacts.length, fl.system.mage.pacts.at(-1)?.level, St.pactsView(fl).total,
+        fl.system.mage.ghoul.vitae, fl.system.health.lethal];
       // данные: Духи и Царства Парадокса; мастер: Резонанс за свободные пункты (новая степень × 3)
       out.spirits = [C.paradoxSpirits.length >= 8, Object.keys(C.realms).length];
       const raw = await Actor.create({ name: "E2E — резонанс", type: "mage", flags: { world: { e2e: true } } });
@@ -4039,7 +4047,7 @@ try {
     });
     const want = { data: [true, 16, 3, 6, 5], roteView: [2, "vulgar", 7], roteFast: [true, "vulgar", 3, 7], resDice: 5, resUsed: [true, 2, "E2E — молния", "coincidental"],
       quiet: [1, true, 4, "minor"], sheet: [2, true, true], seeking: [1], wonders: [2, 5, true, true], wonderQuint: [1, 14], wonderDlg: [true, 3, true],
-      drop: [1, 1], perm: [2, true], invest: [1, "regen", 1, 1], pact: [5, 9, true], charm: [4, 6], ghoul: [true, 1, 1], craft: [true, 3, 1], spirits: [true, 9], crRes: [3, 15], cabal: [true, 1, 3, 3], backlash: true, marauder: [true, 15, "group-marauders"] };
+      drop: [1, 1], perm: [2, true], invest: [1, "regen", 1, 1], pact: [5, 9, true], charm: [4, 6], ghoul: [true, 1, 1], more: [true, 2, 3, 8, 1, 0], craft: [true, 3, 1], spirits: [true, 9], crRes: [3, 15], cabal: [true, 1, 3, 3], backlash: true, marauder: [true, 15, "group-marauders"] };
     const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
