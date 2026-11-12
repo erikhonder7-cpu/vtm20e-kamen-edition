@@ -465,7 +465,8 @@ def parse_roll(html_, default=None):
     names = sorted(TRAITS, key=len, reverse=True)
     alt = "|".join(re.escape(n) for n in names)
     roll = dict(default or {})
-    m = re.search(rf"(?<![А-Яа-яЁё])({alt})\s*\+\s*({alt})(?![а-яё])", t)
+    # «+(Анимализм + Стойкость) к поглощению» — бонус, а не пул броска: пара в скобках после «+» пропускается
+    m = re.search(rf"(?<![А-Яа-яЁё])(?<!\+\()(?<!\+ \()({alt})\s*\+\s*({alt})(?![а-яё])", t)
     if m:
         roll["trait1"], roll["trait2"] = TRAITS[m.group(1)], TRAITS[m.group(2)]
         tail = t[m.end():m.end() + 160]

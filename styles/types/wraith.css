@@ -299,6 +299,10 @@
 .vtm20.r-type-wraith .r-wr-darks { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 10px; margin-bottom: 8px; }
 .vtm20.r-type-wraith .r-wr-dark { border-color: rgba(161, 74, 99, .45); }
 .vtm20.r-type-wraith .r-wr-dark .r-wr-arc-sigil i { color: #a14a63; font-size: 18px; }
+.vtm20.r-type-wraith .r-wr-arc-sigil.is-mark { border-style: dashed; }
+.vtm20.r-type-wraith .r-wr-mark { grid-template-columns: 1fr; gap: 3px; margin: 8px 0 2px; }
+.vtm20.r-type-wraith .r-wr-mark input::placeholder { font-style: italic; color: var(--r-muted); }
+.vtm20.r-type-wraith .r-wr-mark-note { margin: 2px 0 4px; font-size: 12px; }
 .vtm20.r-type-wraith .r-wr-dark-levels { list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-direction: column; gap: 3px; }
 .vtm20.r-type-wraith .r-wr-dark-levels li { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; padding: 2px 0; border-bottom: 1px dotted var(--r-line); }
 .vtm20.r-type-wraith .r-wr-dark-levels li.is-beyond { opacity: .45; }

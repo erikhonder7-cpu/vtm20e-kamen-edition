@@ -843,7 +843,7 @@ export class WraithData extends BaseActorData {
         // Оттенок цвета («Орфей»): призрак бывшего потребителя пигмента — Тихая Тень, 3 Пятна (в projector.stains), Пафос до 7
         hue: new BooleanField({ initial: false }),
         // другое Тёмное Царство (гл. 13): откуда призрак и его местные Арканои
-        realm: new SchemaField({ kingdom: str(""), arcanoi: new SchemaField(Object.fromEntries(VTM20.wraithRealm.map(k => [k, int(0, 0, 5)]))) })
+        realm: new SchemaField({ kingdom: str(""), mark: str(""), arcanoi: new SchemaField(Object.fromEntries(VTM20.wraithRealm.map(k => [k, int(0, 0, 5)]))) })
       })
     };
   }

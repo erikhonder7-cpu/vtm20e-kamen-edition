@@ -17,7 +17,8 @@ export function realmView(actor, dots) {
   const label = p => p.startsWith("realm.") ? (realmArtOf(p.slice(6))?.name ?? p) : actor.traitLabel(p);
   const arts = (W().realmArcanoi ?? []).filter(a => (r.arcanoi[a.key] ?? 0) > 0).map(a => {
     const value = r.arcanoi[a.key];
-    return { key: a.key, name: a.name, en: a.en, sym: arcSym(a.glyph), value, html: a.html, dots: dots(value, 5, { path: `system.wraith.realm.arcanoi.${a.key}` }),
+    return { key: a.key, name: a.name, en: a.en, sym: a.key === "connaissance" ? null : arcSym(a.glyph), mark: a.key === "connaissance" ? markView(actor) : null,
+      value, html: a.html, dots: dots(value, 5, { path: `system.wraith.realm.arcanoi.${a.key}` }),
       xp: actor.xpCost("arcanos", value, { key: a.key }),
       levels: a.levels.map((l, i) => {
         const pool = l.pool ?? ["attributes.wits", `realm.${a.key}`];
@@ -30,6 +31,18 @@ export function realmView(actor, dots) {
   });
   return { realm, kingdoms: (W().realms ?? []).map(k => ({ key: k.key, name: k.name, selected: k.key === r.kingdom })), arts,
     avail: (W().realmArcanoi ?? []).filter(a => (!r.kingdom || a.realm === r.kingdom) && !(r.arcanoi[a.key] > 0)).map(a => ({ key: a.key, label: a.name })) };
+}
+
+/**
+ * Отметина Слуги (Book of Oblivion, «Marks»): общего знака у Коннесанса нет — у каждого Слуги на Корпусе своя отметина Тени,
+ * обычно по её Архетипу или сильнейшей Тёмной Страсти. Подсказка в пустом поле — из листа Тени этого призрака.
+ */
+function markView(actor) {
+  const sh = actor.system.wraith.shadow ?? {}, r = actor.system.wraith.realm;
+  const passion = [...(sh.darkPassions ?? [])].filter(p => p.text).sort((a, b) => (b.value ?? 0) - (a.value ?? 0))[0]?.text ?? "";
+  const from = [sh.archetype ? t("Realm.MarkArch", { a: sh.archetype }) : "", passion ? t("Realm.MarkPassion", { p: passion }) : ""].filter(Boolean);
+  return { value: r.mark ?? "", ph: from.length ? t("Realm.MarkPh", { from: from.join(t("Realm.MarkOr")) }) : t("Realm.MarkPhNone"),
+    tip: r.mark || t("Realm.MarkNone") };
 }
 
 /** Передача контроля Тени (Коннесанс): сложность — постоянный Ангст Тени (не ниже 2 — правило системы). */

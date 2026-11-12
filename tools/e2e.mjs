@@ -4621,6 +4621,15 @@ try {
         const v = R.realmView(w, (n, max) => Array.from({ length: max }, (_, i) => ({ n: i + 1, filled: i < n })));
         const art = v.arts.find(a => a.key === "connaissance");
         out.view = [art?.levels.length, art?.levels[0].diff, art?.levels.filter(l => l.kind === "initiate").length, art?.levels[0].kindLabel];
+        // отметина Слуги: общего знака нет; подсказка — по Архетипу Тени и сильнейшей Тёмной Страсти; поле на листе сохраняется
+        await w.update({ "system.wraith.shadow.archetype": "Мучитель", "system.wraith.shadow.darkPassions": [{ text: "Ревность", value: 4 }, { text: "Страх", value: 2 }] });
+        const mk = R.realmView(w, (n, max) => []).arts.find(a => a.key === "connaissance");
+        out.mark = [!mk?.sym, !!mk?.mark.ph.includes("Мучитель") && mk.mark.ph.includes("Ревность") && !mk.mark.ph.includes("Страх")];
+        await w.sheet.render({ force: true }); await wait(800); w.sheet.changeTab?.("disciplines", "primary"); await wait(400);
+        const inp = w.sheet.element.querySelector('input[name="system.wraith.realm.mark"]');
+        if (inp) { inp.value = "Оковы на запястьях"; inp.dispatchEvent(new Event("change", { bubbles: true })); await wait(900); }
+        out.markSaved = [w.system.wraith.realm.mark, !!w.sheet.element.querySelector(".r-wr-arc-sigil.is-mark")];
+        await w.sheet.close();
         CONFIG.Dice.randomUniform = () => 0.0001;   // одни десятки
         let p = R.rollRealmArt(w, "connaissance", 0); await submit(); await p; await wait(300);   // основа: успех — Тени −1 Ангст
         out.host = w.system.wraith.shadow.angst.temporary;
@@ -4652,7 +4661,7 @@ try {
       return out;
     });
     // 11 уровней (основа + 10 искусств), основа — сл. по постоянному Ангсту 4, Посвящённых 5; Ангст 3 → 2 → 4; Воля 5 → 4
-    const want = { view: [11, 4, 5, "Основа"], host: 2, renvoyer: 4, realm: [true, true], long: [4, true], out: null, node: [2, 3] };
+    const want = { view: [11, 4, 5, "Основа"], mark: [true, true], markSaved: ["Оковы на запястьях", true], host: 2, renvoyer: 4, realm: [true, true], long: [4, true], out: null, node: [2, 3] };
     const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });

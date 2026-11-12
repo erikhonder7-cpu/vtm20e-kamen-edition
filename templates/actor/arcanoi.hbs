@@ -232,11 +232,14 @@
     {{#each realm.arts}}
     <article class="r-vcard r-wr-dark is-realm">
       <header class="r-wr-arc-head">
-        <span class="r-wr-arc-sigil">{{rSym sym "r-wrg"}}</span>
+        {{#if mark}}<span class="r-wr-arc-sigil is-mark" data-tooltip="{{mark.tip}}"><i class="fa-solid fa-fingerprint"></i></span>
+        {{else}}<span class="r-wr-arc-sigil">{{rSym sym "r-wrg"}}</span>{{/if}}
         <div class="r-wr-arc-title"><a class="r-wr-arc-name" data-action="rollTrait" data-trait="realm.{{key}}">{{name}}</a><span class="r-wr-arc-guild">{{en}}</span></div>
         {{> rDots dots=dots cls="is-small"}}
         {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="rlRow" data-op="del" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
       </header>
+      {{#if mark}}<label class="r-field r-wr-mark"><span>{{localize "VTM20.Wraith.Realm.Mark"}}</span><input type="text" name="system.wraith.realm.mark" value="{{mark.value}}" placeholder="{{mark.ph}}" {{#unless @root.editable}}disabled{{/unless}}></label>
+      <p class="r-note r-wr-mark-note"><i class="fa-solid fa-eye"></i> {{localize "VTM20.Wraith.Realm.MarkSoulsight"}}</p>{{/if}}
       <ul class="r-wr-dark-levels">
         {{#each levels}}
         <li class="{{#unless known}}is-beyond{{/unless}}" data-tooltip="{{diffNote}}">

@@ -234,7 +234,7 @@ function rightWing(a, kind) {
     out.push(line(t("Werewolf.Gnosis"), [dots(w.gnosis.permanent, 10, "gnosis"), boxes(w.gnosis.value, w.gnosis.permanent, "gnosis")], `${w.gnosis.value}<small>/${w.gnosis.permanent}</small>`, { tip: t("Hud.GnosisTip") }));
   } else if (kind === "demon") {
     out.push(line(t("Demon.Faith"), [dots(s.faith?.permanent ?? 0, 10, "gold"), boxes(s.faith?.temporary ?? 0, 10, "gold")], `${s.faith?.temporary ?? 0}<small>/${s.faith?.permanent ?? 0}</small>`));
-    out.push(line(t("Demon.Torment"), [dots(s.torment?.permanent ?? 0, 10), boxes(s.torment?.temporary ?? 0, 10, "torment")], s.torment?.permanent ?? 0, { tip: t("Hud.TormentTip", { n: s.torment?.temporary ?? 0 }) }));
+    out.push(line(t("Demon.Torment"), [dots(s.torment?.permanent ?? 0, 10, "torment"), boxes(s.torment?.temporary ?? 0, 10, "torment")], s.torment?.permanent ?? 0, { tip: t("Hud.TormentTip", { n: s.torment?.temporary ?? 0 }) }));
   } else if (kind === "hunter") {
     // у охотника нет Человечности — его мораль в Добродетелях: Милосердие, Прозрение, Рвение
     out.push(line(t("Hunter.Conviction"), [dots(s.hunter?.conviction ?? 0, 10, "amber")], s.hunter?.conviction ?? 0));
@@ -254,7 +254,7 @@ function rightWing(a, kind) {
     // точный счёт Тени (и Психеи) — у рассказчика и проводника, игрок его не знает (гл. 6, гл. 10)
     if (game.user.isGM) {
       if (w.spectre?.on) out.push(line(t("Wraith.Spectre.Psyche"), [dots(w.spectre.psyche.rating, 10, "gold"), boxes(w.spectre.psyche.pool, 10, "gold")], `${w.spectre.psyche.pool}<small>/${w.spectre.psyche.rating}</small>`));
-      else out.push(line(w.projector?.on ? t("Wraith.Angst") : t("Wraith.Shadow"), [dots(w.shadow.angst.permanent, 10), boxes(w.shadow.angst.temporary, 10, "torment")],
+      else out.push(line(w.projector?.on ? t("Wraith.Angst") : t("Wraith.Shadow"), [dots(w.shadow.angst.permanent, 10, "torment"), boxes(w.shadow.angst.temporary, 10, "torment")],
         `${w.shadow.angst.temporary}<small>/${w.shadow.angst.permanent}</small>`, { tip: t("Wraith.AngstHint") }));
     }
   } else if (kind === "spirit") {

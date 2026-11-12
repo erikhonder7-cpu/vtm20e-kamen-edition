@@ -109,7 +109,8 @@ body.r-hud-on #hotbar { display: none !important; }
 
 /* Точки, клетки, капли — как на листе */
 #r-hud .d { width: 10px; height: 10px; flex: none; border-radius: 50%; border: 1px solid rgba(216, 207, 191, .3); }
-#r-hud .d.on { border-color: #c4474c; background: radial-gradient(circle at 38% 32%, #c4474c, #8c1c22 55%, #4a0d11); }
+#r-hud .d.on { border-color: var(--h-acc); background: radial-gradient(circle at 38% 32%, var(--h-acc), var(--h-acc-d) 55%, #0b0b0d); }
+#r-hud .d.on.torment { border-color: #c4474c; background: radial-gradient(circle at 38% 32%, #c4474c, #8c1c22 55%, #4a0d11); }
 #r-hud .d.on.rage { border-color: #d06a4a; background: radial-gradient(circle at 38% 32%, #f0a58c, #a3442c 55%, #2a0f08); }
 #r-hud .d.on.gnosis { border-color: #b9c8c3; background: radial-gradient(circle at 38% 32%, #eef3f0, #7f9a8a 55%, #15211a); }
 #r-hud .d.on.gold { border-color: #e2b35c; background: radial-gradient(circle at 38% 32%, #f6d58a, #c0822e 55%, #4e2a0e); }
