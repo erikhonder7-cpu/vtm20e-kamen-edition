@@ -167,6 +167,7 @@ export class VtMActor extends Actor {
       : key === "gnosis" ? Math.max(0, (s.werewolf?.gnosis?.value ?? 0) - (s.werewolf?.gnosis?.loss ?? 0)) : 0;
     if (group === "spirit") return s.spirit?.[key] ?? 0;          // дух Умбры: Ярость, Гнозис, Воля
     if (group === "spectre") return s.wraith?.spectre?.dark?.[key] ?? 0;   // Тёмные Арканои Спектра
+    if (group === "risen") return s.wraith?.risen?.arcanoi?.[key] ?? s.wraith?.risen?.disc?.[key] ?? 0;   // Восставший: Очарование, Случайность, Мощь…
     if (group === "wraith") return key === "pathos" ? s.wraith?.pathos?.value ?? 0 : key === "angst" ? s.wraith?.shadow?.angst?.temporary ?? 0   // призрак: Арканои, Пафос, Ангст
       : key === "angstPerm" ? s.wraith?.shadow?.angst?.permanent ?? 0 : s.wraith?.arcanoi?.[key]?.value ?? 0;
     if (group === "morality") return s.morality.value;
@@ -188,6 +189,7 @@ export class VtMActor extends Actor {
     if (group === "werewolf") return t(`Werewolf.${key === "rage" ? "Rage" : "Gnosis"}`);
     if (group === "spirit") return t(`Werewolf.Spirit.${key}`);
     if (group === "spectre") return Codex.wraith?.darkArcanoi?.find(x => x.key === key)?.name ?? key;
+    if (group === "risen") return Codex.wraith?.risenArcanoi?.find(x => x.key === key)?.name ?? t(`Wraith.Risen.Disc.${key}`);
     if (group === "wraith") return ["pathos", "angst", "angstPerm"].includes(key) ? t(`Wraith.${key[0].toUpperCase()}${key.slice(1)}`)
       : Codex.wraith?.arcanoi?.find(x => x.key === key)?.name ?? key;
     if (group === "morality") return this.path?.name ?? t("Humanity");

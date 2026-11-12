@@ -4406,6 +4406,37 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  await check("Призрак: Восставший — тело, лишний Ангст, штраф губительного урона, «Дисциплины», обморок, свои Арканои", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {}, n0 = game.messages.size;
+      const W = await import(`/systems/${sid}/module/apps/wraith.mjs`), R = await import(`/systems/${sid}/module/apps/risen.mjs`);
+      const inst = () => [...foundry.applications.instances.values()];
+      const a = await Actor.create({ name: "E2E — Восставший", type: "wraith", flags: { world: { e2e: true }, [sid]: { created: true } },
+        system: { attributes: { dexterity: { value: 3 }, strength: { value: 3 }, stamina: { value: 3 }, manipulation: { value: 3 } }, willpower: { permanent: 6, temporary: 6 },
+          wraith: { pathos: { value: 7 }, arcanoi: { argos: { value: 1, initiate: [], skip: [] } },
+            risen: { on: true, body: true, conduit: "кольцо", arcanoi: { fascinate: 1 }, disc: { potence: 2 } } } } });
+      const a0 = a.system.wraith.shadow.angst.temporary;
+      W.rollArt(a, "argos", 1, "common"); await wait(700);
+      for (const x of inst()) if (x.constructor.name === "RollDialog") await x.close();
+      out.angst = a.system.wraith.shadow.angst.temporary - a0;
+      await a.update({ "system.health.aggravated": 2 }); out.pen = a.system.health.penalty;
+      await a.update({ "system.health.aggravated": 0 });
+      const p0 = a.system.wraith.pathos.value; await R.risenDisc(a, "potence"); out.disc = p0 - a.system.wraith.pathos.value;
+      await W.corpusDamage(a, 10, "lethal"); await wait(700);
+      const down = inst().find(x => x.constructor.name === "RollDialog"); out.down = !!down; await down?.close();
+      await a.update({ "system.health.lethal": 0 });
+      await a.sheet.render(true); await wait(800); a.sheet.changeTab("disciplines", "primary"); await wait(600);
+      out.sheet = [!!a.sheet.element.querySelector(".r-wr-risen-bar"), a.sheet.element.querySelectorAll(".r-wr-dark.is-risen").length];
+      await a.sheet.close();
+      await ChatMessage.deleteDocuments(game.messages.contents.slice(n0).map(m => m.id));
+      await a.delete();
+      return out;
+    });
+    const want = { angst: 1, pen: -2, disc: 1, down: true, sheet: [true, 1] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   await check("Призрак: лист и Арканои, Пафос, Страсть, Корпус до колебания и Испытание, Катарсис", async () => {
     const r = await page.evaluate(async () => {
       const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), WR = await import(`/systems/${sid}/module/apps/wraith.mjs`);

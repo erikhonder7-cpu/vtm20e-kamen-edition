@@ -110,7 +110,7 @@ export async function rollDark(actor, key, level) {
   if (lv.angst && !(await spendSpectreAngst(actor, lv.angst))) return null;
   if (lv.psyche) await gainPsyche(actor, lv.psyche, { reason: lv.name });
   const dc = artDifficulty(lv, actor);
-  const extra = { wraith: { kind: "dark", key, level: lv.level, name: lv.name, cost: lv.angst ? t("Spectre.CostAngst", { n: lv.angst }) : "",
+  const extra = { wraith: { kind: "darkArt", key, level: lv.level, name: lv.name, cost: lv.angst ? t("Spectre.CostAngst", { n: lv.angst }) : "",
     ...(dc.shroud ? { shroud: dc.shroud.value } : {}) } };
   if (!lv.attr) {
     await say(actor, a.icon, `<b>${esc(a.name)} ${"•".repeat(lv.level)} — ${esc(lv.name)}</b>${lv.html}`, "is-shadow");

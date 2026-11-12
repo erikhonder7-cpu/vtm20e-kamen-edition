@@ -311,3 +311,15 @@
 .vtm20.r-type-wraith .r-vc-psyche.is-catharsis { box-shadow: inset 0 0 0 1px rgba(240, 226, 192, .55), 0 0 14px rgba(240, 226, 192, .18); }
 .vtm20.r-type-wraith .r-boxes.is-psyche .r-box.is-filled { background: linear-gradient(180deg, #f3e7c8, #b39a62); border-color: #f3e7c8; }
 .vtm20.r-type-wraith .r-assignat.is-spectre .r-drop.is-filled svg path { fill: #a14a63; }
+
+/* Восставший: полоса — в теле или нет, Проводник; «Дисциплины» тела в ряд; карточки Очарования и Случайности — тёплой плотью */
+.vtm20.r-type-wraith .r-wr-risen-bar { border-color: rgba(201, 170, 140, .45); background: linear-gradient(90deg, rgba(133, 131, 127, .22), transparent); }
+.vtm20.r-type-wraith .r-wr-risen-state { font-family: var(--r-display); font-weight: 400; color: var(--r-ink-2); }
+.vtm20.r-type-wraith .r-wr-risen-state.is-body { color: #e6d8b8; }
+.vtm20.r-type-wraith .r-wr-risen-conduit { display: inline-flex; align-items: center; gap: 6px; flex: 1 1 180px; min-width: 0; }
+.vtm20.r-type-wraith .r-wr-risen-conduit i { color: var(--r-accent); }
+.vtm20.r-type-wraith .r-wr-risen-conduit input { flex: 1; min-width: 0; }
+.vtm20.r-type-wraith .r-wr-risen-disc { display: flex; flex-wrap: wrap; gap: 6px 22px; margin: -4px 0 12px; padding: 0 10px; }
+.vtm20.r-type-wraith .r-wr-risen-d { display: inline-flex; align-items: center; gap: 8px; }
+.vtm20.r-type-wraith .r-wr-dark.is-risen { border-color: rgba(201, 170, 140, .45); }
+.vtm20.r-type-wraith .r-wr-dark.is-risen .r-wr-arc-sigil i { color: #c9aa8c; }

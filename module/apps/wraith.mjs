@@ -268,12 +268,20 @@ export async function corpusDamage(actor, amount, type = "bashing") {
   const dmg = game.i18n.localize(VTM20.damageTypes[type].label);
   const fate = harrow ? t(harrow === "destruction" ? "FateDestruction" : "FateHarrowing") : full && h.bashing ? t("FateWavering") : "";
   await say(actor, "fa-ghost", `${game.i18n.format("VTM20.Notify.Damaged", { n: amount, type: dmg })}${fate ? ` <b class="r-fate">${fate}</b>` : ""}`);
+  if (harrow && actor.system.wraith.risen?.on && actor.system.wraith.risen.body && harrow !== "destruction") return (await import("./risen.mjs")).risenDown(actor);
   if (harrow) await harrowing(actor, harrow);
 }
 
 /** Лечение Пафосом (гл. 3): 1 Пафос — 2 ударных или 1 летальный; губительный — 3 Пафоса и 8 часов Сна или медитации. */
 export async function pathosHeal(actor) {
   const h = actor._source.system.health;
+  if (actor.system.wraith.risen?.on && actor.system.wraith.risen.body) {
+    const type = h.bashing ? "bashing" : h.lethal ? "lethal" : null;
+    if (!type) return h.aggravated ? (await import("./risen.mjs")).risenSlumber(actor) : ui.notifications.info(game.i18n.localize("VTM20.Notify.NothingToHeal"));
+    if (!(await spendPathos(actor, 1))) return;
+    await actor.update({ [`system.health.${type}`]: h[type] - 1 });
+    return say(actor, "fa-hand-sparkles", t("Risen.Healed", { name: esc(actor.name) }));
+  }
   const type = h.bashing ? "bashing" : h.lethal ? "lethal" : h.aggravated ? "aggravated" : null;
   if (!type) return ui.notifications.info(game.i18n.localize("VTM20.Notify.NothingToHeal"));
   const cost = type === "aggravated" ? 3 : 1;
@@ -298,7 +306,9 @@ export async function rollArt(actor, key, level, kind = "common") {
   // трата Корпуса — ударная отметка на шкале (правило системы: книга лечит её как обычный урон)
   if (lv.corpus) await corpusDamage(actor, lv.corpus, "bashing");
   const shadowRuns = w.spectre?.on ? false : w.shadow.catharsis;
-  if (lv.angst) await gainAngst(actor, shadowRuns ? -lv.angst : lv.angst, { reason: lv.name });
+  // Восставший в теле (гл. 11): каждый Арканос — ещё 1 Ангст Тени
+  const risenExtra = w.risen?.on && w.risen.body ? 1 : 0, angstGain = (lv.angst ?? 0) + risenExtra;
+  if (angstGain) await gainAngst(actor, shadowRuns ? -angstGain : angstGain, { reason: risenExtra ? `${lv.name} · ${t("Risen.ExtraAngst")}` : lv.name });
   const dc = artDifficulty(lv, actor);
   const extra = { wraith: { kind: "art", key, level: lv.level, art: kind, name: lv.name, cost: costText(lv), angst: lv.angst ?? 0, shadow: shadowRuns,
     ...(dc.shroud ? { shroud: dc.shroud.value } : {}) } };
@@ -367,7 +377,9 @@ export async function rollDarkPassion(actor, i) {
     { key: "7", icon: "fa-face-angry", title: t("DarkSelf"), sub: t("DiffN", { n: 7 }) },
     { key: "9", icon: "fa-mask", title: t("DarkShadow"), sub: t("DiffN", { n: 9 }) }]);
   if (!how) return null;
-  return RollDialog.prompt(actor, { title: t("DarkTitle", { text: p.text || "—" }), pool: p.value, difficulty: Number(how), lockTraits: true,
+  const risen = actor.system.wraith.risen?.on && actor.system.wraith.risen.body;   // Восставшему Ангст даётся легче (гл. 11)
+  return RollDialog.prompt(actor, { title: t("DarkTitle", { text: p.text || "—" }), pool: p.value, difficulty: Number(how) - (risen ? 1 : 0), lockTraits: true,
+    ...(risen ? { diffNote: t("Risen.AngstEasier") } : {}),
     extra: { wraith: { kind: "dark", text: p.text, emotion: p.emotion } }, messageMode: "gm",
     onRolled: async r => { if (r?.successes) await gainAngst(actor, r.successes, { reason: p.text }); } });
 }
@@ -508,13 +520,24 @@ registerCardBlock("wraith", (state, ev) => {
     return { chips: [{ icon: "fa-dove", label: t("Spectre.PsycheRolled", { n: x.shadow, vals: x.shadowVals || "—" }) }],
       text: held ? t("Spectre.SpectreHolds", { n, s: x.shadow }) : t("Spectre.PsycheWins", { n, s: x.shadow }), cls: held ? "is-warn" : "" };
   }
-  if (x.kind === "dark") {
+  if (x.kind === "darkArt") {
     const d = (Codex.wraith?.darkArcanoi ?? []).find(a => a.key === x.key);
     chips.push({ icon: d?.icon ?? "fa-skull", label: `${d?.name ?? x.key} ${"•".repeat(x.level)}`, cls: "is-warn" });
     if (x.cost) chips.push({ icon: "fa-coins", label: x.cost });
     if (x.shroud) chips.push({ icon: "fa-cloud", label: t("Shroud.Chip", { n: x.shroud }) });
     return { chips, text: botch ? t("Spectre.DarkBotch") : n ? t("ArtOk", { n }) : t("ArtFail") };
   }
+  // Восставший (гл. 11): шаги Восстания и переходов, свои Арканои, обморок, Сон
+  if (x.kind === "risen") return { chips: [{ icon: "fa-person-rays", label: x.step }], text: n ? t("Risen.StepOk", { n }) : botch ? t("Risen.StepBotch") : t("Risen.StepFail"), cls: n ? "" : "is-warn" };
+  if (x.kind === "risenArt") {
+    const d = (Codex.wraith?.risenArcanoi ?? []).find(a => a.key === x.key);
+    return { chips: [{ icon: d?.icon ?? "fa-eye", label: `${d?.name ?? x.key} ${"•".repeat(x.level)}` }], text: botch ? t("ArtBotch") : n ? t("ArtOk", { n }) : t("ArtFail") };
+  }
+  if (x.kind === "risenDown") {
+    const time = (W().risen?.unconscious ?? []).find(([k]) => (botch ? -1 : n) >= k)?.[1] ?? "";
+    return { chips: [{ icon: "fa-bed", label: t("Risen.Down") }], text: t("Risen.DownFor", { time }), cls: "is-warn" };
+  }
+  if (x.kind === "risenSlumber") return { chips: [{ icon: "fa-bed", label: t("Risen.Slumber") }], text: n ? t("Risen.SlumberOk", { n }) : t("Risen.NoSleepShort") };
   if (x.kind === "psyche") return { chips: x.emotion ? [{ icon: "fa-dove", label: x.emotion }] : [], text: n ? t("Spectre.PsycheOut", { n }) : t("PathosNone") };
   if (x.kind === "rapacity") return { chips: [{ icon: "fa-teeth", label: t("Spectre.Rapacity") }], text: n ? t("Spectre.RapacityHeld") : t("Spectre.RapacityLost"), cls: n ? "" : "is-warn" };
   if (x.kind === "catharsis") {

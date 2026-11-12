@@ -805,7 +805,12 @@ export class WraithData extends BaseActorData {
           shadecraft: new ArrayField(str()),
           psyche: new SchemaField({ archetype: str(""), guide: str(""), rating: int(1, 0, 10), pool: int(0, 0, 10),
             passions: new ArrayField(wraithText()), fronds: new ArrayField(new SchemaField({ key: str(), n: int(1, 1, 10), note: str() })),
-            catharsis: new BooleanField({ initial: false }) }) })
+            catharsis: new BooleanField({ initial: false }) }) }),
+        // Восставший (гл. 11): вернулся в собственное тело ради цели — в теле ли сейчас, Проводник (Оковы, где живёт Тень),
+        // два своих Арканоса (Очарование, Случайность), «Дисциплины» тела за Пафос (Мощь, Стойкость, Быстрота)
+        risen: new SchemaField({ on: new BooleanField({ initial: false }), body: new BooleanField({ initial: false }), conduit: str(""),
+          arcanoi: new SchemaField({ fascinate: int(0, 0, 5), serendipity: int(0, 0, 5) }),
+          disc: new SchemaField({ potence: int(0, 0, 5), fortitude: int(0, 0, 5), celerity: int(0, 0, 5) }) })
       })
     };
   }
@@ -827,7 +832,8 @@ export class WraithData extends BaseActorData {
     h.damage = agg + let_ + bash; h.max = cap; h.value = cap - h.damage;
     h.levels = Array.from({ length: cap }, (_, i) => ({ key: "corpus", label: "", penalty: 0, index: i,
       state: i < agg ? "aggravated" : i < agg + let_ ? "lethal" : i < h.damage ? "bashing" : "empty" }));
-    h.penalty = 0;
+    // Восставший в теле (гл. 11): боль не мешает, кроме губительного урона — −1 кубик за его уровень
+    h.penalty = w.risen?.on && w.risen.body ? -agg : 0;
     h.incapacitated = h.damage >= cap;
     h.status = h.damage >= cap ? (bash ? "wavering" : "harrowed") : h.damage ? "hurt" : "healthy";
     w.wavering = h.damage >= cap && bash > 0;

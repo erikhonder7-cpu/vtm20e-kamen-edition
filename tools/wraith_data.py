@@ -300,6 +300,9 @@ def dark_costs(text):
         out["shroud"] = True
     if re.search(r"рейтинг Покрова или Воля цели, что больше", t):
         out["shroudMax"] = True
+    pa = re.search(r"(?<![+\d])(\d+)\s+Пафос", t)
+    if pa:
+        out["pathos"] = int(pa.group(1))
     w = re.search(r"(\d+)\s+Вол[иья]", t)
     if w:
         out["willpower"] = int(w.group(1))
@@ -311,15 +314,16 @@ def dark_costs(text):
     return out
 
 
-def parse_dark_arcanoi():
-    lines = core("21").splitlines()
+def parse_dark_arcanoi(prefix="21", icons=None):
+    icons = icons or DARK_ICONS
+    lines = core(prefix).splitlines()
     out, cur, lv = [], None, None
     for line in lines:
         m = re.match(r"^## (.+?) \(([^)]+)\)(.*)$", line)
         if m:
             cur = {"key": re.sub(r"[^a-z]", "", m.group(2).lower()), "name": m.group(1).strip(), "en": m.group(2).strip(),
                    "intro": [], "levels": []}
-            cur["icon"] = DARK_ICONS.get(cur["key"], "fa-ghost")
+            cur["icon"] = icons.get(cur["key"], "fa-ghost")
             out.append(cur)
             lv = None
             continue
@@ -402,12 +406,36 @@ def parse_spectre_backgrounds():
     return out
 
 
+RISEN = {"strengthMin": 3, "appearanceMax": 3, "backgrounds": 5, "noBackgrounds": ["Artifact", "Mentor", "Status"], "fetters": 10, "passions": 10,
+         "pathos": 5, "willpower": 6, "freebies": 15, "disciplineCost": 7,
+         "unconscious": [[5, "1 ход"], [4, "1 сцена"], [3, "10 минут"], [2, "1 час"], [1, "6 часов"], [0, "12 часов"], [-1, "сутки и дольше"]]}
 SPECTRE = {"angstStart": 5, "willpower": 5, "corpus": 10, "darkPassions": 10, "backgrounds": 5, "psychePassions": 7, "freebies": 20, "psycheTrade": 7,
            "freebieCosts": {"attribute": 5, "ability": 2, "arcanos": 5, "basic": 3, "background": 1, "darkPassion": 2, "fetter": 1, "angstPer2": 1, "willpower": 2},
            "psycheCosts": {"pathosRating": 5, "pathosPool": 2, "passion": 1},
            "xp": {"newAbility": 3, "newArcanos": 6, "attribute": "×3", "ability": "×2", "arcanos": "×2", "willpower": "×1"},
            "noBackgrounds": ["Eidolon", "Notoriety", "Wealth"]}
 
+
+# пул уровня Восставшего — любые две черты: «Serendipity + Чутьё», «Fascinate + Manipulation», «Обаяние + Выразительность»
+RISEN_TRAITS = {"Fascinate": "risen.fascinate", "Очарование": "risen.fascinate", "Serendipity": "risen.serendipity", "Случайность": "risen.serendipity",
+                "Manipulation": "attributes.manipulation", "Чутьё": "abilities.awareness", "Эмпатия": "abilities.empathy",
+                "Выразительность": "abilities.expression", **{k: f"attributes.{v}" for k, v in ATTR.items()}}
+
+
+def risen_pools(arcs):
+    for a in arcs:
+        for lv in a["levels"]:
+            t = plain(re.sub(r"<[^>]+>", " ", lv["html"]))
+            m = re.search(r"([A-Za-zА-ЯЁа-яё]+)\s*\+\s*([A-Za-zА-ЯЁа-яё]+)", t)
+            if m and m.group(1) in RISEN_TRAITS and m.group(2) in RISEN_TRAITS:
+                lv["pool"] = [RISEN_TRAITS[m.group(1)], RISEN_TRAITS[m.group(2)]]
+            d = re.search(r"сложност[ьи]\s*(?:—\s*)?(\d+)", t)
+            if d and "diff" not in lv:
+                lv["diff"] = int(d.group(1))
+            rule = re.search(r"сложность\s*—\s*([^)]+)\)", t)
+            if rule and not rule.group(1).strip()[0].isdigit():
+                lv["diffRule"] = rule.group(1).strip()
+    return arcs
 
 def build():
     arcanoi = parse_arcanoi()
@@ -422,6 +450,8 @@ def build():
         "creation": CREATION, "freebies": FREEBIES, "xp": XP,
         "darkArcanoi": parse_dark_arcanoi(), "shadecraft": parse_shadecraft(), "castes": parse_castes(), "psyche": parse_psyche(),
         "spectreBackgrounds": parse_spectre_backgrounds(), "spectre": SPECTRE,
+        # Восставшие (гл. 11, файлы 24–25): два своих Арканоса — Очарование и Случайность; Ангста за них нет
+        "risenArcanoi": risen_pools(parse_dark_arcanoi("25", {"fascinate": "fa-eye", "serendipity": "fa-dice"})), "risen": RISEN,
     }
     with open(OUT, "w", encoding="utf-8", newline="\n") as f:
         json.dump(data, f, ensure_ascii=False, indent=1)

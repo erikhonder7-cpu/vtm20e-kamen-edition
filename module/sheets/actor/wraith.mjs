@@ -6,6 +6,7 @@ import { rollArt, toggleArt, addRow, removeRow, rollPassion, rollFetter, rollDar
   pathosHeal, spendPathos, newSession, gainAngst, setShroud, toggleHaunt } from "../../apps/wraith.mjs";
 import { openAtlas } from "../../apps/atlas.mjs";
 import { becomeSpectre, rollDark, rollPsychePassion, psycheCatharsis, rapacity, spectreRow } from "../../apps/spectre.mjs";
+import { rise, toShadowlands, toBody, risenDisc, rollRisenArt, risenSlumber, risenDown } from "../../apps/risen.mjs";
 
 function onWrArt(event, target) { return rollArt(this.actor, target.dataset.key, Number(target.dataset.level), target.dataset.kind); }
 /** Свёрнутые карточки Арканоев — у каждого игрока свои (память браузера); по умолчанию свёрнуты, как Дисциплины. */
@@ -71,6 +72,19 @@ function onSpRow(event, target) {
   const { kind, op } = target.dataset, sel = target.closest(".r-toolbar")?.querySelector("select");
   return spectreRow(this.actor, kind, op, { i: Number(target.dataset.i), key: target.dataset.key ?? sel?.value });
 }
+// Восставший (apps/risen.mjs)
+function onRsOn() { const r = this.actor.system.wraith.risen; return this.actor.update({ "system.wraith.risen.on": !r.on, ...(r.on ? { "system.wraith.risen.body": false } : {}) }); }
+function onRsRise() { return rise(this.actor); }
+function onRsLeave() { return toShadowlands(this.actor); }
+function onRsBody() { return toBody(this.actor); }
+function onRsDisc(event, target) { return risenDisc(this.actor, target.dataset.key); }
+function onRsArt(event, target) { return rollRisenArt(this.actor, target.dataset.key, Number(target.dataset.level)); }
+function onRsSlumber() { return risenSlumber(this.actor); }
+function onRsDown() { return risenDown(this.actor); }
+function onRsArtRow(event, target) {
+  const key = target.dataset.key ?? target.closest(".r-toolbar")?.querySelector("select")?.value;
+  if (key) return this.actor.update({ [`system.wraith.risen.arcanoi.${key}`]: target.dataset.op === "del" ? 0 : Math.max(1, this.actor.system.wraith.risen.arcanoi[key] ?? 0) });
+}
 function onWrAtlas() { return openAtlas("wraith", this.actor.system.wraith.guild); }
 
 /** Действия листа: ключ data-action → обработчик. */
@@ -80,5 +94,6 @@ export const WRAITH_ACTIONS = {
   wrDark: onWrDark, wrMemoriam: onWrMemoriam, wrShadowDice: onWrShadowDice, wrCatharsis: onWrCatharsis,
   wrHarrowing: onWrHarrowing, wrHeal: onWrHeal, wrPathos: onWrPathos, wrSession: onWrSession,
   wrAngst: onWrAngst, wrAtlas: onWrAtlas, wrShroud: onWrShroud, wrHaunt: onWrHaunt,
-  spBecome: onSpBecome, spDark: onSpDark, spPassion: onSpPassion, spCatharsis: onSpCatharsis, spRapacity: onSpRapacity, spRow: onSpRow
+  spBecome: onSpBecome, spDark: onSpDark, spPassion: onSpPassion, spCatharsis: onSpCatharsis, spRapacity: onSpRapacity, spRow: onSpRow,
+  rsOn: onRsOn, rsRise: onRsRise, rsLeave: onRsLeave, rsBody: onRsBody, rsDisc: onRsDisc, rsArt: onRsArt, rsSlumber: onRsSlumber, rsDown: onRsDown, rsArtRow: onRsArtRow
 };
