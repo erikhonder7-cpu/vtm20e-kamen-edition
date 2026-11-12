@@ -793,6 +793,8 @@ export class WraithData extends BaseActorData {
           initiate: new ArrayField(int(1, 1, 5)), skip: new ArrayField(int(1, 1, 5)) })]))),
         passions: new ArrayField(wraithText()),
         fetters: new ArrayField(new SchemaField({ text: str(), value: int(1, 0, 5), resolved: new BooleanField({ initial: false }), orig: int(0, 0, 5) })),
+        // Консорты (гл. 5, «Attunement»): вложено Воли из нужных (5 — чужому, 2–3 — близкому); scene — где вкладывали последний раз
+        consorts: new ArrayField(new SchemaField({ name: str(), need: int(5, 1, 5), invested: int(0, 0, 5), scene: str() })),
         shadow: new SchemaField({ archetype: str(""), guide: str(""),
           angst: new SchemaField({ permanent: int(1, 0, 10), temporary: int(0, 0, 10) }),
           darkPassions: new ArrayField(wraithText()),

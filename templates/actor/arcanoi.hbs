@@ -286,6 +286,25 @@
     {{/each}}
   </ul>
 
+  {{!-- Консорты (гл. 5, «Attunement»): 1 Воля за удачное явление, Вселение или Кукловодство, раз за сцену; чужому 5, близкому 2–3;
+       не больше постоянной Воли, Оковы — вне лимита. Арканос на Консорта — сложность −1 галочкой в окне броска (правило системы) --}}
+  <h2 class="r-h2"><span data-tooltip="{{localize 'VTM20.Wraith.Consort.Hint'}}">{{localize "VTM20.Wraith.Consort.Title"}} <small class="{{#if consorts.over}}is-warn{{/if}}">{{consorts.count}}/{{consorts.limit}}</small></span>
+    {{#if editable}}<span class="r-h2-tools"><a class="r-h2-btn" data-action="wrConsortAdd"><i class="fa-solid fa-plus"></i> <span class="r-h2-lbl">{{localize "VTM20.Common.Add"}}</span></a></span>{{/if}}
+  </h2>
+  <ul class="r-edge-list r-wr-rows r-wr-consorts">
+    {{#each consorts.rows}}
+    <li class="r-wr-row {{#if attuned}}is-attuned{{/if}}">
+      <input type="text" class="r-wr-text is-wide" name="system.wraith.consorts.{{i}}.name" value="{{name}}" placeholder="{{localize 'VTM20.Wraith.Consort.NamePh'}}">
+      <select class="r-mini-select" name="system.wraith.consorts.{{i}}.need" data-dtype="Number" data-tooltip="{{localize 'VTM20.Wraith.Consort.NeedHint'}}">{{#each needs}}<option value="{{n}}" {{#if selected}}selected{{/if}}>{{n}}</option>{{/each}}</select>
+      <span class="r-boxes is-consort">{{#each boxes}}<span class="r-box {{#if filled}}is-filled{{/if}}"></span>{{/each}}</span>
+      {{#if attuned}}<span class="r-wr-res-tag"><i class="fa-solid fa-link"></i> {{localize "VTM20.Wraith.Consort.Attuned"}}</span>
+      {{else}}{{#if @root.editable}}<a class="r-vc-btn {{#if done}}is-locked{{/if}}" data-action="wrConsort" data-i="{{i}}" data-tooltip="{{#if done}}{{localize 'VTM20.Wraith.Consort.DoneHint'}}{{else}}{{localize 'VTM20.Wraith.Consort.InvestHint'}}{{/if}}"><i class="fa-solid fa-hand-holding-heart"></i></a>{{/if}}{{/if}}
+      {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="wrConsortDel" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
+    </li>
+    {{else}}<li class="r-note">{{localize "VTM20.Wraith.Consort.None"}}</li>
+    {{/each}}
+  </ul>
+
   {{#if spectre}}
   {{!-- Психея (гл. 10): Страсти — Пафос Психеи за успех (сл. 6 при достижении цели, 9 — чужая эмоция); Ветви; Шейдкрафт --}}
   <h2 class="r-h2 is-psyche"><span>{{localize "VTM20.Wraith.Spectre.PsychePassions"}}</span>

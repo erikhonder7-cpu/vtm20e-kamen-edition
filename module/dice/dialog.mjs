@@ -217,7 +217,9 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       // Отшельник (Hunter Players Guide, с. 19): рядом с чудовищами или наделёнными — все сложности +1
       ...(a.type === "hunter" && (Codex.hunter?.creeds ?? []).find(c => c.key === a.system.hunter?.creed)?.near
         ? [{ label: t("Hunter.NearNoise"), value: (Codex.hunter.creeds.find(c => c.key === a.system.hunter.creed).near), kind: "hermit" }] : []),
-      ...this.#bearing(social)
+      ...this.#bearing(social),
+      // поправки, которые предлагает сам бросок (Арканос на Консорта и т. п.): галочкой, по умолчанию выключены
+      ...(this.cfg.situ ?? [])
     ].map((d, i) => ({ ...d, i, on: v.fxOn.includes(`${d.kind}:${d.label}`), hint: t(`Fx.Situ.${d.kind}`) }))
       .concat(meritSit.map(m => ({ label: m.label, value: m.value, dice: !!m.dice, kind: "merit", on: m.on, hint: m.hint })));
     for (const d of diffSit) if (d.on && d.dice && d.kind !== "merit") { pool += d.value; bd.push({ label: d.label, value: d.value }); }

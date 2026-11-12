@@ -4785,6 +4785,34 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  // Консорты (гл. 5): Воля в настройку, лимит — постоянная Воля, Арканос на Консорта — сложность −1 галочкой
+  await check("Призрак: Консорты — настройка Волей, лимит по Воле, сложность −1 на Консорта", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {}, n0 = game.messages.size;
+      const C = await import(`/systems/${sid}/module/apps/consorts.mjs`), { RollDialog } = await import(`/systems/${sid}/module/dice/dialog.mjs`);
+      const a = await Actor.create({ name: "E2E — призрак и Консорты", type: "wraith", flags: { world: { e2e: true }, [sid]: { created: true } },
+        system: { willpower: { permanent: 2, temporary: 2 } } });
+      out.none = C.consortSitu(a).length;
+      for (let i = 0; i < 3; i++) await C.addConsort(a);
+      await a.update({ "system.wraith.consorts": [{ name: "Вдова", need: 1, invested: 0, scene: "" }, { name: "Сын", need: 1, invested: 0, scene: "" }, { name: "Чужак", need: 1, invested: 0, scene: "" }] });
+      await C.investWill(a, 0); await C.investWill(a, 0); await C.investWill(a, 1); await C.investWill(a, 2);   // второй раз в настроенного и третий — сверх лимита — не берутся
+      out.inv = a.system.wraith.consorts.map(c => c.invested); out.wp = a.system.willpower.temporary;
+      const v = C.consortsView(a); out.view = [v.count, v.limit, v.over];
+      const situ = C.consortSitu(a), d = new RollDialog(a, { difficulty: 6, situ });
+      out.diff0 = d.compute().effDifficulty; d.values.fxOn = [`consort:${situ[0]?.label}`]; out.diff1 = d.compute().effDifficulty;
+      await a.sheet.render({ force: true }); await wait(900); a.sheet.changeTab("disciplines", "primary"); await wait(500);
+      const el = a.sheet.element;
+      out.sheet = [el.querySelectorAll(".r-wr-consorts .r-wr-row").length, el.querySelectorAll(".r-wr-consorts .is-attuned").length, el.querySelectorAll("[data-action=wrConsort]").length];
+      await a.sheet.close();
+      await ChatMessage.deleteDocuments(game.messages.contents.slice(n0).map(m => m.id));
+      await a.delete();
+      return out;
+    });
+    const want = { none: 0, inv: [1, 1, 0], wp: 0, view: [2, 2, false], diff0: 6, diff1: 5, sheet: [3, 2, 1] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   await check("Призрак: Подземный мир — Мальстрём, Туман, Сон в Оковах, «Орфей», Оттенок цвета", async () => {
     const r = await page.evaluate(async () => {
       const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {}, n0 = game.messages.size;

@@ -354,3 +354,10 @@
 .vtm20.r-type-wraith .r-wr-thorns .r-edge > .r-vc-btn { align-self: flex-start; white-space: nowrap; }
 .r-wr-thorn-tools { display: flex; gap: 6px; margin-top: 6px; }
 .r-wr-thorn-tools .r-btn { flex: 1; justify-content: center; }
+
+/* Консорты (apps/consorts.mjs): клетки вложенной Воли, настроенные — ярче */
+.vtm20.r-type-wraith .r-boxes.is-consort { display: inline-flex; gap: 3px; }
+.vtm20.r-type-wraith .r-boxes.is-consort .r-box { width: 12px; height: 12px; }
+.vtm20.r-type-wraith .r-wr-consorts .r-mini-select { width: 3.2em; }
+.vtm20.r-type-wraith .r-wr-row.is-attuned .r-wr-text { color: #e6e4e0; }
+.vtm20.r-type-wraith .r-wr-consorts .r-vc-btn.is-locked { opacity: .45; }

@@ -329,8 +329,10 @@ export async function rollArt(actor, key, level, kind = "common") {
       ${extra.wraith.cost ? `<p><small>${esc(extra.wraith.cost)}</small></p>` : ""}${lv.html}</div>` });
     return true;
   }
+  // цель — Консорт: сложность −1 галочкой (apps/consorts.mjs; правило системы)
+  const situ = (await import("./consorts.mjs")).consortSitu(actor);
   return RollDialog.prompt(actor, { title: `${a.name}: ${lv.name}`, trait1: `attributes.${lv.attr}`, trait2: `wraith.${key}`,
-    difficulty: dc.diff, diffNote: dc.note, effect: lv.html, willpowerCost: lv.willpower ?? 0, extra,
+    difficulty: dc.diff, diffNote: dc.note, effect: lv.html, willpowerCost: lv.willpower ?? 0, extra, situ,
     onRolled: async r => {
       // в Катарсисе провал или ботч Арканоса отнимает у Тени Ангст (гл. 6)
       if (shadowRuns && (r?.outcome === "failure" || r?.outcome === "botch")) await gainAngst(actor, -1, { reason: t("ShadowFail") });
