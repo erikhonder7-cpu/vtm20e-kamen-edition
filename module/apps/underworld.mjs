@@ -13,7 +13,7 @@
 import { RollDialog } from "../dice/dialog.mjs";
 import { SYSTEM_ID } from "../config.mjs";
 import { W, t, esc, say, corpusDamage, spendPathos, hauntRating, pick } from "./wraith.mjs";
-import { crucibleMates, givePathos } from "./circle.mjs";
+import { crucibleMates, givePathos, circlesOf } from "./circle.mjs";
 
 const BELLS = [0, 4, 6, 8, 12, 16];
 const HAZARDS = ["winds", "rain", "fog", "lightning"];
@@ -74,7 +74,38 @@ async function hazard(h, bells) {
     if (left) await a.update({ "system.willpower.temporary": Math.max(0, a.system.willpower.temporary - left) });
     return say(a, "fa-cloud-showers-heavy", t("Storm.Rain", { name: esc(a.name), dmg, soaked, p: fromP, w: left }));
   }
-  return say(a, "fa-smog", t("Storm.Fog", { name: esc(a.name), n: Math.min(10, bells) }));
+  return fogTurn(a, bells);
+}
+
+/**
+ * Изолирующий туман (гл. 8, «Опасности Мальстрёма»): каждый ход — Восприятие + Чутьё, сл. 5 + Колокола (не выше 10), против
+ * кубиков рассказчика, равных урону Мальстрёма (сл. 6 — как у урона бури, правило системы). Больше успехов у бури — призрак кружит
+ * на месте. Держащиеся друг за друга складывают успехи; не хватило и вместе — каждый тратит пункт Воли, у кого её нет — оторван.
+ * Связка — выбранные жетоны призраков; если выбран один и он в Круге — можно взять Круг (участники держатся за руки).
+ */
+export async function fogTurn(a, bells) {
+  const picked = [...new Set((canvas?.tokens?.controlled ?? []).map(tk => tk.actor).filter(x => x?.type === "wraith"))];
+  let group = picked.length > 1 ? picked : [a];
+  const mates = picked.length > 1 ? [] : circlesOf(a).flatMap(g => g.system.members).map(id => game.actors.get(id)).filter(x => x?.type === "wraith" && x.id !== a.id);
+  if (mates.length) {
+    const how = await pick(t("Fog.Turn"), [{ key: "alone", icon: "fa-user", title: t("Fog.Alone"), sub: esc(a.name) },
+      { key: "circle", icon: "fa-people-group", title: t("Fog.Linked"), sub: esc([a, ...new Map(mates.map(m => [m.id, m])).values()].map(m => m.name).join(", ")) }],
+    { lead: t("Fog.TurnLead") });
+    if (!how) return null;
+    if (how === "circle") group = [a, ...new Map(mates.map(m => [m.id, m])).values()];
+  }
+  const b = Math.min(5, bells), diff = Math.min(10, 5 + b);
+  const rolls = [];
+  for (const m of group) rolls.push({ m, n: hits(await d10((m.system.attributes.perception?.total ?? 0) + (m.system.abilities.awareness?.value ?? 0)), diff) });
+  const storm = hits(await d10(BELLS[b]), 6), sum = rolls.reduce((s, r) => s + r.n, 0), ok = sum >= storm;
+  const lost = [];
+  if (!ok && group.length > 1) for (const { m } of rolls) {
+    if ((m.system.willpower.temporary ?? 0) > 0) await m.update({ "system.willpower.temporary": m.system.willpower.temporary - 1 });
+    else lost.push(m.name);
+  }
+  const line = rolls.map(r => `${esc(r.m.name)} ${r.n}`).join(", ");
+  const res = ok ? t(group.length > 1 ? "Fog.TogetherOk" : "Fog.Ok") : group.length > 1 ? t("Fog.TogetherFail") + (lost.length ? ` ${t("Fog.CutOff", { who: esc(lost.join(", ")) })}` : "") : t("Fog.Lost");
+  return say(a, "fa-smog", `${t("Storm.Fog", { name: esc(a.name), n: Math.min(10, bells) })}<br>${t("Fog.Roll", { diff, line, sum, storm, dice: BELLS[b] })}<br><b>${res}</b>`, ok ? "" : "is-shadow");
 }
 
 /* ── Туман ──────────────────────────────────────────────────────────── */

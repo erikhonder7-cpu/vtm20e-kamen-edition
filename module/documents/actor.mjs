@@ -15,6 +15,8 @@ import { mageXpCost } from "../apps/mage.mjs";
 import { numenXpExtra } from "../apps/sorcerer.mjs";
 
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
+const GROUP_IMG = "icons/environment/people/group.webp";
+const CIRCLE_IMG = () => `systems/${SYSTEM_ID}/assets/icons/wraith.svg`;
 
 export class VtMActor extends Actor {
 
@@ -27,6 +29,8 @@ export class VtMActor extends Actor {
       werewolf: "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp", coterie: "icons/environment/people/group.webp", domain: "icons/environment/settlement/city-night.webp" };
     const upd = {};
     if (!data.img || data.img === CONST.DEFAULT_TOKEN) upd.img = icons[this.type].startsWith("icons/") ? icons[this.type] : `systems/${SYSTEM_ID}/assets/icons/${icons[this.type]}`;
+    // Круг призраков — портрет призрака, а не «семья на закате»
+    if (upd.img && this.type === "coterie" && data.system?.kind === "circle") upd.img = CIRCLE_IMG();
     if (this.type === "coterie" || this.type === "domain") { this.updateSource(upd); return; }
     const proto = {
       "prototypeToken.bar1.attribute": "health",
@@ -39,6 +43,15 @@ export class VtMActor extends Actor {
     // Явно заданное значение (импорт из компендия, призыв статистов) не трогаем.
     if (!["creature", "spirit"].includes(this.type) && data.prototypeToken?.actorLink === undefined) proto["prototypeToken.actorLink"] = true;
     this.updateSource({ ...upd, ...proto });
+  }
+
+  /** Группа сменила вид на Круг призраков и обратно: стандартный портрет следует за видом (свой портрет не трогаем). */
+  async _preUpdate(changes, options, user) {
+    if ((await super._preUpdate(changes, options, user)) === false) return false;
+    const kind = changes.system?.kind;
+    if (this.type !== "coterie" || kind === undefined || kind === this.system.kind || "img" in changes) return;
+    if (kind === "circle" && this.img === GROUP_IMG) changes.img = CIRCLE_IMG();
+    else if (kind !== "circle" && this.img === CIRCLE_IMG()) changes.img = GROUP_IMG;
   }
 
   /* ── Свойства ───────────────────────────────────────────────────────── */

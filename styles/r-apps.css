@@ -1376,7 +1376,7 @@ body.r-theme-light .vtm20 .r-ng-concept { color: #7a4f1d; }
 .vtm20 .r-gs-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 8px; }
 .vtm20 .r-gs-card { position: relative; display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 10px; align-items: center; padding: 8px 26px 8px 8px;
   border: 1px solid var(--r-line); border-left: 2px solid var(--r-blood); background: var(--r-card-bg); transition: border-color .15s, background .15s; }
-.vtm20 .r-gs-card:hover { border-color: rgba(196, 71, 76, .45); background: rgba(140, 28, 34, .06); }
+.vtm20 .r-gs-card:hover { border-color: color-mix(in srgb, var(--r-accent) 45%, transparent); background: color-mix(in srgb, var(--r-accent) 6%, transparent); }
 .vtm20 .r-gs-face img { display: block; width: 64px; height: 64px; object-fit: cover; object-position: 50% 20%; border: 1px solid rgba(216, 207, 191, .22);
   filter: grayscale(.35) contrast(1.06) brightness(.92); transition: filter .2s; }
 .vtm20 .r-gs-card:hover .r-gs-face img { filter: none; }

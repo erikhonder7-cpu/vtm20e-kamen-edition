@@ -4911,19 +4911,14 @@ try {
       const a = await Actor.create({ name: "E2E — призрак-кузнец", type: "wraith", flags: { world: { e2e: true }, [sid]: { created: true } },
         system: { attributes: { strength: { value: 3 }, manipulation: { value: 3 }, perception: { value: 3 } }, abilities: { crafts: { value: 3 } },
           wraith: { pathos: { value: 5 } } } });
-      const [lamp, blade] = await a.createEmbeddedDocuments("Item", [
+      // порядок созданных предметов Foundry не обещает (редкий сбой полного прогона: «клинком» оказывался фонарь) — по типу
+      const made = await a.createEmbeddedDocuments("Item", [
         { name: "Фонарь мягкого огня", type: "gear", system: { ghost: { kind: "artifact", rating: 2, pathos: 1, crystal: 2 } } },
         { name: "Клинок легионера", type: "weapon", system: { damage: 2, damageType: "lethal", ghost: { kind: "forged", alloy: "stygian" } } }]);
+      const lamp = made.find(i => i.type === "gear"), blade = made.find(i => i.type === "weapon");
       for (let i = 0; i < 3; i++) await RL.wakeRelic(a, lamp.id);
       out.wake = [a.items.get(lamp.id).system.ghost.crystal, a.system.wraith.pathos.value];
       out.steel = a.items.get(blade.id).system.damageType;
-      // редкий сбой в полном прогоне (wake [0,5], steel undefined) — снимок состояния для разбора
-      if (out.wake[1] !== 4 || out.steel !== "aggravated") {
-        const bl = a.items.get(blade.id), live = game.actors.get(a.id);
-        out.diag = { live: !!live, same: live === a, pathos: live?.system.wraith.pathos.value, bladeType: bl?.type, bladeSys: bl ? Object.keys(bl.system ?? {}).slice(0, 12) : null,
-          bladeCls: bl?.system?.constructor?.name, ghost: bl?.system?.ghost, users: game.users.filter(u => u.active).map(u => u.name),
-          hooks: ["preUpdateActor", "updateActor", "preCreateItem", "createItem"].map(h => `${h}:${Hooks.events[h]?.length ?? 0}`), invalid: [...(a.items.invalidDocumentIds ?? [])] };
-      }
       out.list = RL.relicsView(a).list.length;
       const DV = foundry.applications.api.DialogV2, p0 = DV.prompt, rnd = CONFIG.Dice.randomUniform;
       try {
@@ -4952,7 +4947,7 @@ try {
     // Оценка → Работа (6 десяток) → Отделка (6): чистка 1 + клинок 4 — остался 1
     const want = { wake: [0, 4], steel: "aggravated", list: 2, need: 4, stage: ["finish", 6], left: 1, made: ["weapon", "forged", false, true, true], pack: 30, sheet: 3 };
     const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
-    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; ") + (r.diag ? ` | диагностика: ${JSON.stringify(r.diag)}` : ""));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
   // Буря (Аргос, Book of Oblivion): путь Оком погоды и без Аргоса, прогноз Мальстрёма; плазмики в генераторе НПС
@@ -5307,6 +5302,45 @@ try {
     });
     // Обиталище 2 + 1 = 3; Покров 7 − 3 = 4; скрепление — по Воле (2 → 1); Пафос: 3 за касание (6 → 3, 2 → 5); без Воли — срыв
     const want = { haunt: [3, 0, 3], shroud: [3, 4], mates0: null, bond: [true, 1, 1], mates: [true], pathos: [3, 5], sheet: [2, true, "3"], kind: true, fail: [false, 1] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
+  await check("Призрак: Круг в Тумане и в Испытании — связка складывает успехи, Воля за провал, оторванный; Круг падает вместе", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {}, n0 = game.messages.size;
+      const U = await import(`/systems/${sid}/module/apps/underworld.mjs`), HA = await import(`/systems/${sid}/module/apps/harrowing.mjs`);
+      const DV = foundry.applications.api.DialogV2, w0 = DV.wait, rnd = CONFIG.Dice.randomUniform;
+      const stub = key => async o => { const el = document.createElement("div"); el.innerHTML = o.content; o.render?.(null, { element: el, close() {} }); el.querySelector(`[data-pick="${key}"]`)?.click(); return "cancel"; };
+      const mk = (name, will) => Actor.create({ name, type: "wraith", flags: { world: { e2e: true }, [sid]: { created: true } },
+        system: { attributes: { perception: { value: 3 } }, abilities: { awareness: { value: 2 } }, willpower: { permanent: 5, temporary: will } } });
+      const a = await mk("E2E — призрак в тумане", 3), b = await mk("E2E — сосед в тумане", 0), c = await mk("E2E — чужой в тумане", 3);
+      const g = await Actor.create({ name: "E2E — Круг в тумане", type: "coterie", flags: { world: { e2e: true } }, system: { kind: "circle", members: [a.id, b.id] } });
+      const last = () => game.messages.contents.at(-1)?.content ?? "";
+      try {
+        canvas.tokens?.releaseAll?.();
+        CONFIG.Dice.randomUniform = () => 0.0001;   // одни десятки: у призрака успехов — весь пул (5), у бури — все кубики
+        DV.wait = stub("alone"); await U.fogTurn(a, 3); await wait(300);     // 5 против 8 — кружит
+        out.alone = [last().includes(game.i18n.localize("VTM20.Wraith.Fog.Lost")), a.system.willpower.temporary];
+        DV.wait = stub("circle"); await U.fogTurn(a, 3); await wait(300);    // 5 + 5 против 8 — идут
+        out.linked = last().includes(game.i18n.localize("VTM20.Wraith.Fog.TogetherOk"));
+        DV.wait = stub("circle"); await U.fogTurn(a, 5); await wait(300);    // 10 против 16 — Воля с каждого, у соседа её нет
+        out.fail = [a.system.willpower.temporary, last().includes(b.name), last().includes(game.i18n.localize("VTM20.Wraith.Fog.TogetherFail"))];
+        DV.wait = w0; CONFIG.Dice.randomUniform = rnd;
+        // Испытание: участник Круга — в списке без жетона и отмечен сразу
+        await HA.openHarrowing(a, "corpus"); await wait(700);
+        const app = [...foundry.applications.instances.values()].find(x => x instanceof HA.HarrowingApp);
+        out.harrow = [app?.groupCandidates().some(x => x.id === b.id), [...(app?.group ?? [])].includes(b.id), [...(app?.group ?? [])].includes(c.id)];
+        await app?.close();
+      } finally {
+        DV.wait = w0; CONFIG.Dice.randomUniform = rnd;
+        for (const x of [...foundry.applications.instances.values()]) if (x instanceof HA.HarrowingApp || x.constructor.name === "RollDialog") await x.close();
+        await ChatMessage.deleteDocuments(game.messages.contents.slice(n0).map(m => m.id));
+        await Actor.deleteDocuments([a.id, b.id, c.id, g.id]);
+      }
+      return out;
+    });
+    const want = { alone: [true, 3], linked: true, fail: [2, true, true], harrow: [true, true, false] };
     const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });

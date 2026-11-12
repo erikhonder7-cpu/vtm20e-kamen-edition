@@ -5,10 +5,10 @@
     <div class="r-head-main r-gs-main">
       <figure class="r-portrait-frame">
         <img class="r-portrait" src="{{actor.img}}" {{#if editable}}data-action="editImage" data-edit="img"{{/if}} alt="{{actor.name}}">
-        <figcaption class="r-seal"><span class="r-seal-num r-seal-icon">{{#if cabal.sym}}{{rSym cabal.sym "r-mg"}}{{else}}<i class="fa-solid {{icon}}"></i>{{/if}}</span><span class="r-seal-cap">{{kindLabel}}</span></figcaption>
+        <figcaption class="r-seal"><span class="r-seal-num r-seal-icon">{{#if cabal.sym}}{{rSym cabal.sym "r-mg"}}{{else}}<i class="fa-solid {{icon}}"></i>{{/if}}</span><span class="r-seal-cap">{{sealLabel}}</span></figcaption>
       </figure>
       <div class="r-head-info">
-        <div class="r-kicker"><span class="r-kicker-type">{{#if cabal}}{{kindLabel}}{{else}}{{typeLabel}}{{/if}}</span><span class="r-motto" aria-hidden="true">{{#if cabal}}Ascensio{{else if circle}}Memento mori{{else}}Liberté, Égalité, Fraternité{{/if}}</span></div>
+        <div class="r-kicker"><span class="r-kicker-type">{{#if vampiric}}{{typeLabel}}{{else}}{{kindLabel}}{{/if}}</span><span class="r-motto" aria-hidden="true">{{#if cabal}}Ascensio{{else if circle}}Memento mori{{else}}Liberté, Égalité, Fraternité{{/if}}</span></div>
         <div class="r-name-row"><input class="r-name" type="text" name="name" value="{{actor.name}}" spellcheck="false" {{#unless editable}}disabled{{/unless}}></div>
         <div class="r-dossier">
           <label class="r-df"><span>{{localize "VTM20.Group.KindLabel"}}</span>
@@ -104,7 +104,7 @@
       </section>
     </div>
 
-    {{#unless (or cabal circle)}}
+    {{#if vampiric}}
     {{!-- «Общее убежище» (V20 Anarchs Unbound): точки общего факта — между роскошью, размером и защитой --}}
     <h2 class="r-h2"><span>{{localize "VTM20.Group.HavenTitle"}}</span><span class="r-h2-tools"><span class="r-gs-src">Anarchs Unbound</span>
       {{#if haven.pool}}<span class="r-gs-pool {{#if haven.over}}is-diff{{/if}}">{{localize "VTM20.Group.HavenUsed" used=haven.used n=haven.pool}}</span>{{/if}}</span></h2>
@@ -118,7 +118,7 @@
       {{/each}}
     </div>
     {{#unless haven.pool}}<p class="r-hint">{{localize "VTM20.Group.HavenNoPool"}}</p>{{/unless}}
-    {{/unless}}
+    {{/if}}
 
     {{#if totem}}
     <h2 class="r-h2"><span>{{localize "VTM20.Group.Totem"}} — {{totem.name}}</span></h2>

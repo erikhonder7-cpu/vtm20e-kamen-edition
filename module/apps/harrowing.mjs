@@ -14,6 +14,7 @@
 import { SYSTEM_PATH, SYSTEM_ID } from "../config.mjs";
 import { RollDialog } from "../dice/dialog.mjs";
 import { t, esc, say, backgroundRating, gainAngst, necropolisOf } from "./wraith.mjs";
+import { circlesOf } from "./circle.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 export const KINDS = { will: "fa-battery-empty", passion: "fa-heart-crack", fetter: "fa-link-slash", corpus: "fa-ghost", self: "fa-user-xmark", destruction: "fa-skull" };
@@ -63,7 +64,12 @@ export class HarrowingApp extends HandlebarsApplicationMixin(ApplicationV2) {
   groupCandidates() {
     const onScene = (game.scenes?.viewed?.tokens ?? []).map(tk => tk.actor).filter(a => a?.type === "wraith" && a.id !== this.actor.id);
     const list = onScene.length ? onScene : game.actors.filter(a => a.type === "wraith" && a.id !== this.actor.id && a.hasPlayerOwner);
-    return [...new Map(list.map(a => [a.id, a])).values()];
+    // Круг призрака (apps/circle.mjs) — всегда в списке, даже без жетонов на сцене
+    return [...new Map([...this.circleMates(), ...list].map(a => [a.id, a])).values()];
+  }
+  /** Участники Кругов призрака. */
+  circleMates() {
+    return circlesOf(this.actor).flatMap(g => g.system.members).map(id => game.actors.get(id)).filter(a => a?.type === "wraith" && a.id !== this.actor.id);
   }
   /** То же Испытание для другого призрака группы — без окна. */
   memberApp(actor) {
@@ -96,7 +102,12 @@ export class HarrowingApp extends HandlebarsApplicationMixin(ApplicationV2) {
       others: v.kind === "passion" ? others.map(o => ({ ...o, selected: o.key === v.second })) : null,
       eidolon: eid, eidolonUsed: !!w.session.harrow, eidolonOk: eid > 0 && !w.session.harrow,
       diff: destruction ? 6 : Math.clamp(9 + v.rp, 6, 9), angst: w.shadow.angst.permanent, will: a.system.willpower.permanent,
-      group: this.groupable ? this.groupCandidates().map(a => ({ id: a.id, name: a.name, on: this.group?.has(a.id) })) : null,
+      group: this.groupable ? (() => {
+        // впервые: участники Круга отмечены сразу — Круг падает вместе
+        const mates = new Set(this.circleMates().map(a => a.id));
+        this.group ??= new Set(mates);
+        return this.groupCandidates().map(a => ({ id: a.id, name: mates.has(a.id) ? `${a.name} · ${t("Harrow.InCircle")}` : a.name, on: this.group.has(a.id) }));
+      })() : null,
       fate: t(`Harrow.Fate.${v.kind}`), flint: necropolisOf()?.flint ? t("Necro.Flint") : "", reliefs: [1, 2, 3].map(n => ({ n, selected: n === v.relief }))
     };
   }

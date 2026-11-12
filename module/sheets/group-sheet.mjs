@@ -58,7 +58,7 @@ class GroupSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     classes: ["vtm20", "r-group-sheet"], position: { width: 820, height: 760 }, window: { resizable: true },
     form: { submitOnChange: true, closeOnSubmit: false }
   };
-  get title() { return `${loc(`TYPES.Actor.${this.actor.type}`)}: ${this.actor.name}`; }
+  get title() { const k = this.actor.system.kind; return `${k && !["coterie", "sabbat"].includes(k) ? t(`Group.Kind.${k}`) : loc(`TYPES.Actor.${this.actor.type}`)}: ${this.actor.name}`; }
 
   _onRender(context, options) {
     super._onRender(context, options);
@@ -108,6 +108,9 @@ export class CoterieSheet extends GroupSheet {
     return {
       actor: a, system: s, editable: this.isEditable, icon: KIND_ICON[s.kind] ?? "fa-droplet",
       kindLabel: t(`Group.Kind.${s.kind}`), typeLabel: loc("TYPES.Actor.coterie"),
+      // вампирская котерия или стая Шабаша: «Общее убежище» (Anarchs Unbound) и подпись «Котерия»; остальные — своим видом
+      vampiric: ["coterie", "sabbat"].includes(s.kind),
+      sealLabel: s.kind === "circle" ? t("Wraith.Circle.Title") : t(`Group.Kind.${s.kind}`),
       kinds: ["coterie", "sabbat", "pack", "cell", "cabal", "circle"].map(k => ({ key: k, label: t(`Group.Kind.${k}`), selected: k === s.kind })),
       haven: (() => {   // «Общее убежище» (Anarchs Unbound): точки общего факта делятся на роскошь, размер и защиту
         const pool = "Общее убежище" in (c.pools ?? {}) ? poolValue(c, "Общее убежище") : null, h = s.haven ?? {};

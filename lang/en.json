@@ -469,7 +469,8 @@
         "CorpusLoss": "Постоянный Корпус: {n}",
         "DestructionWon": "Вырывается из пасти Забвения: +1 временный и постоянный Корпус",
         "DestructionLost": "Забвение забирает его. Рассказчик может наедине предложить игроку Спектра-Нефрака",
-        "Relief": "Тени −{n} временного Ангста"
+        "Relief": "Тени −{n} временного Ангста",
+        "InCircle": "Circle"
       },
       "Relic": {
         "Setup": "Подземный мир: Реликвия, Артефакт, душековка",
@@ -1063,7 +1064,17 @@
           "curiosity": "curiosity — films it on a phone",
           "rage": "righteous anger — stands and fights",
           "none": "no reaction"
-        }
+        },
+        "Turn": "A turn in the fog",
+        "TurnLead": "Wraiths in direct contact combine their successes against the storm. If they still fall short, each spends 1 Willpower; whoever cannot is cut off from the others.",
+        "Alone": "Alone",
+        "Linked": "As a Circle, holding hands",
+        "Roll": "Perception + Awareness, diff. {diff}: {line} — total {sum}; storm ({dice} dice, diff. 6): {storm}.",
+        "Ok": "The way is found — movement is possible.",
+        "Lost": "The fog turns them around: however far they go, they end up where they started.",
+        "TogetherOk": "Together they hold their course — the group moves on.",
+        "TogetherFail": "They fell short even together: each spent 1 Willpower.",
+        "CutOff": "No Willpower left — cut off and lost in the fog: {who}."
       },
       "Slumber": {
         "Title": "Slumber in a Fetter",
