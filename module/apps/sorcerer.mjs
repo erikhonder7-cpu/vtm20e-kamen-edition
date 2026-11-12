@@ -51,6 +51,11 @@ export function consorInfo(actor) {
 }
 
 const list = actor => actor.system.sorcerer.numina.map(x => ({ ...x }));
+/** Нумина второго вида (Путь у того, кто владеет феноменами, и наоборот) — дороже: 21 за первую точку. */
+export function numenXpExtra(actor, key) {
+  const own = actor.system.sorcerer.numina.filter(n => n.dots > 0 && n.key !== key), psy = isPsychic(key);
+  return { key, secondary: own.length > 0 && own.every(n => isPsychic(n.key) !== psy) };
+}
 
 export function addNumen(actor, key) {
   const d = numenOf(key);
@@ -94,12 +99,22 @@ export async function addRitual(actor) {
     content: `<div class="r-form"><label class="r-field"><span>${esc(t("RitualName"))}</span><input type="text" name="name" autofocus></label>
       <label class="r-field"><span>${esc(t("Path"))}</span><select name="path">${paths.map(n => `<option value="${n.key}">${esc(numenOf(n.key)?.name ?? n.key)} ${"•".repeat(n.dots)}</option>`).join("")}</select></label>
       <label class="r-field"><span>${esc(t("RitualLevel"))}</span><input type="number" name="level" min="1" max="5" value="1"></label>
-      <label class="r-field"><span>${esc(t("RitualText"))}</span><textarea name="text" rows="3"></textarea></label></div>`,
-    ok: { label: t("RitualAdd"), callback: (ev, b) => ({ name: b.form.elements.name.value.trim(), path: b.form.elements.path.value, level: Math.clamp(Number(b.form.elements.level.value) || 1, 1, 5), text: b.form.elements.text.value.trim() }) } });
+      <label class="r-field"><span>${esc(t("RitualText"))}</span><textarea name="text" rows="3"></textarea></label>
+      <label class="r-check"><input type="checkbox" name="xp"><span>${esc(t("RitualXp"))}</span></label></div>`,
+    ok: { label: t("RitualAdd"), callback: (ev, b) => ({ name: b.form.elements.name.value.trim(), path: b.form.elements.path.value, level: Math.clamp(Number(b.form.elements.level.value) || 1, 1, 5), xp: b.form.elements.xp.checked, text: b.form.elements.text.value.trim() }) } });
   if (!res?.name) return null;
   const have = paths.find(n => n.key === res.path)?.dots ?? 0;
   if (res.level > have) return ui.notifications.warn(t("RitualTooHigh", { n: have }));
-  return actor.update({ "system.sorcerer.rituals": [...actor.system.sorcerer.rituals.map(r => ({ ...r })), res] });
+  const { xp, ...ritual } = res, upd = { "system.sorcerer.rituals": [...actor.system.sorcerer.rituals.map(r => ({ ...r })), ritual] };
+  // новый ритуал за опыт стоит его уровень (M20 Sorcerer, гл. 3)
+  if (xp) {
+    const left = actor.system.experience.available;
+    if (left < ritual.level) return ui.notifications.warn(game.i18n.format("VTM20.Notify.NoXp", { cost: ritual.level, have: left }));
+    const log = foundry.utils.deepClone(actor._source.system.experience.log);
+    log.unshift({ amount: -ritual.level, reason: t("RitualXpLog", { name: ritual.name, n: ritual.level }), date: new Date().toLocaleDateString("ru-RU") });
+    Object.assign(upd, { "system.experience.spent": actor._source.system.experience.spent + ritual.level, "system.experience.log": log });
+  }
+  return actor.update(upd);
 }
 export function removeRitual(actor, i) {
   const l = actor.system.sorcerer.rituals.map(r => ({ ...r })); l.splice(i, 1);

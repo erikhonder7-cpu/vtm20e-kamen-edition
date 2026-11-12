@@ -12,6 +12,7 @@ import { mobState, applyMobDamage } from "../apps/extras.mjs";
 import { getClock } from "../apps/calendar.mjs";
 import { hunterXpCost, startConviction } from "../apps/hunter.mjs";
 import { mageXpCost } from "../apps/mage.mjs";
+import { numenXpExtra } from "../apps/sorcerer.mjs";
 
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
 
@@ -738,6 +739,8 @@ export class VtMActor extends Actor {
       case "hunterConviction": case "hunterVirtue": case "lostVirtue": return hunterXpCost(this, kind, current, extra.key);
       // M20: новая Сфера 10, родовая × 7, прочая × 8; Арете × 8 (и Поиск — на совести рассказчика)
       case "mageArete": case "mageSphere": return mageXpCost(this, kind, current, extra.key);
+      // колдун (M20 Sorcerer, гл. 3): новая нумина 7, нумина второго вида (Путь при феноменах и наоборот) 21, рост × 7
+      case "sorcNumen": return current >= 5 ? null : current === 0 ? (extra.secondary ? 21 : 7) : current * 7;
       default: return null;
     }
   }
@@ -747,8 +750,10 @@ export class VtMActor extends Actor {
    * path — путь к значению в doc. Возвращает потраченный опыт или null.
    */
   async buyWithXp({ doc = this, path, kind, label, confirm = true }) {
-    const cur = kind === "hunterConviction" ? startConviction(this) : Number(foundry.utils.getProperty(doc._source, path) ?? 0);
-    const extra = kind === "hunterVirtue" || kind === "mageSphere" ? { key: path.split(".").pop() }
+    const sorcKey = kind === "sorcNumen" ? path.split(".").pop() : null;   // нумины лежат списком — путь «…numina.<ключ>»
+    const cur = kind === "hunterConviction" ? startConviction(this) : sorcKey ? (this.system.sorcerer.numina.find(n => n.key === sorcKey)?.dots ?? 0)
+      : Number(foundry.utils.getProperty(doc._source, path) ?? 0);
+    const extra = sorcKey ? numenXpExtra(this, sorcKey) : kind === "hunterVirtue" || kind === "mageSphere" ? { key: path.split(".").pop() }
       : doc !== this && doc.type === "discipline" ? { key: doc.system.key, inClan: doc.system.inClan || this.clanDisciplines.includes(doc.system.key) }
       : doc !== this && doc.type === "thaumPath" ? { primary: doc.system.primary }
       : doc !== this && doc.type === "lore" ? { key: doc.system.key } : {};
@@ -761,7 +766,8 @@ export class VtMActor extends Actor {
       window: { title: t("Xp.BuyTitle") }, content: `<p>${t("Xp.BuyConfirm", { label, from: cur, to: cur + 1, cost })}</p>`
     }))) return null;
     // начальная Убеждённость растёт вместе со шкалой
-    await doc.update({ [path]: cur + 1, ...(kind === "hunterConviction" ? { "system.hunter.conviction": Math.min(10, (this.system.hunter?.conviction ?? 0) + 1) } : {}) });
+    if (sorcKey) await this.update({ "system.sorcerer.numina": this.system.sorcerer.numina.map(n => ({ ...n, ...(n.key === sorcKey ? { dots: cur + 1 } : {}) })) });
+    else await doc.update({ [path]: cur + 1, ...(kind === "hunterConviction" ? { "system.hunter.conviction": Math.min(10, (this.system.hunter?.conviction ?? 0) + 1) } : {}) });
     const log = foundry.utils.deepClone(this._source.system.experience.log);
     log.unshift({ amount: -cost, reason: `${label}: ${cur} → ${cur + 1}`, date: new Date().toLocaleDateString("ru-RU") });
     await this.update({ "system.experience.spent": this._source.system.experience.spent + cost, "system.experience.log": log });

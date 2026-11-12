@@ -7471,7 +7471,10 @@
       },
       "Role": "Role",
       "Side": "Side",
-      "ConsorHint": "A mage's companion: Willpower 3, Backgrounds 5 (at least a dot in Mentor), 21 freebies for a consor and 15 for an acolyte; no magic of their own."
+      "ConsorHint": "A mage's companion: Willpower 3, Backgrounds 5 (at least a dot in Mentor), 21 freebies for a consor and 15 for an acolyte; no magic of their own.",
+      "RitualXp": "Pay with experience (cost — the ritual’s level)",
+      "RitualXpLog": "Ritual “{name}” (level {n})",
+      "Numina": "Numina"
     },
     "SorcCr": {
       "Numina": "Numina",

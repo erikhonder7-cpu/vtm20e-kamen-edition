@@ -1,7 +1,8 @@
 // module/apps/xp.mjs
 // Окно опыта (01): все черты персонажа с ценой следующей точки, что по карману, покупка в один клик
-// (через VtMActor.buyWithXp — единственный путь прокачки, кнопок «+» на листе нет), начисление и история трат.
+// (через VtMActor.buyWithXp — единственный путь развития, кнопок «+» на листе нет), начисление и история трат.
 
+import { numenOf as sorcNumenOf, numenXpExtra as sorcExtra } from "./sorcerer.mjs";
 import { VTM20, SYSTEM_PATH } from "../config.mjs";
 import { growth, startConviction, VIRTUE_KEYS, LOST_KEYS, isLost, H as hunterData } from "./hunter.mjs";
 
@@ -15,6 +16,8 @@ export function openXp(actor) {
   const app = OPEN.get(actor.id) ?? new XpWindow(actor);
   return app.render({ force: true });
 }
+
+const sorcNumenName = k => sorcNumenOf(k)?.name ?? k;
 
 class XpWindow extends HandlebarsApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
@@ -77,6 +80,9 @@ class XpWindow extends HandlebarsApplicationMixin(ApplicationV2) {
     }
     const hunter = a.type === "hunter", lost = hunter && isLost(a), hxp = hunter && !lost && growth() === "xp", garou = a.type === "werewolf", mage = a.type === "mage";
     // Маг: Арете и девять Сфер (родовая дешевле); Добродетелей и Человечности у магов нет
+    // Колдун (M20 Sorcerer, гл. 3): точки нумин за опыт; новая нумина — на листе, первая её точка — здесь (7, вторичный вид — 21)
+    if (s.sorcerer?.on && s.sorcerer.numina.length) groups.push({ key: "sorc", icon: "fa-hand-sparkles", label: loc("VTM20.Sorcerer.Numina"),
+      rows: s.sorcerer.numina.map(n => row(`a:system.sorcerer.numina.${n.key}:sorcNumen`, sorcNumenName(n.key), n.dots, 5, "sorcNumen", sorcExtra(a, n.key))) });
     if (mage) groups.push({ key: "virt", icon: "fa-hat-wizard", label: loc("VTM20.Mage.Spheres"), rows: [
       // точку Арете покупают после Поиска — его исход отмечает рассказчик (кнопка на карточке Арете)
       (r => s.mage.seeking ? r : { ...r, can: false, label: `${r.label} — ${loc("VTM20.Mage.SeekingNeed")}` })(row("a:system.mage.arete:mageArete", loc("VTM20.Mage.Arete"), s.mage.arete, 10, "mageArete")),

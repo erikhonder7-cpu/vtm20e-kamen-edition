@@ -17,6 +17,7 @@ import { rollPowerRef, powerByRef } from "../sheets/actor-sheet.mjs";
 import { effectTimer } from "../apps/timers.mjs";
 import { W as werewolfData, feraOf, changeForm, rageActions, regenerate, stepSideways, frenzyCheck, giftOf, rollGift, rollRite } from "../apps/werewolf.mjs";
 import { H as hunterData, secondSight, edgesView, useEdge } from "../apps/hunter.mjs";
+import { numenOf as sorcNumenOf, useNumen as sorcUseNumen, useRitual as sorcUseRitual } from "../apps/sorcerer.mjs";
 import { paradoxOf, castEffect, castRote, sphereName, aretePool, factionOf, mt, changeQuintessence, paradoxBacklash } from "../apps/mage.mjs";
 import { assumeForm } from "../apps/torment.mjs";
 import { togglePowerEffect } from "../apps/power-effects.mjs";
@@ -133,6 +134,15 @@ function powerGroups(a, kind) {
   // Грани охотника — по путям вероучений, как на листе
   if (kind === "hunter") for (const g of edgesView(a)) if (g.edges.length)
     out.push({ id: `e:${g.path}`, label: g.name, icon: "fa-eye", rows: g.edges.map(e => ({ name: e.name, level: e.level, act: "edge", attrs: `data-key="${esc(e.key)}"` })) });
+  // Колдун: нумины — бросок Пути (Атрибут-проводник + Способность Пути) или феномена (Воля); ритуалы — тем же броском Пути
+  if (a.system.sorcerer?.on) {
+    const nm = a.system.sorcerer.numina.filter(n => n.dots > 0);
+    if (nm.length) out.push({ id: "numina", label: t("Sorcerer.Numina"), icon: "fa-hand-sparkles",
+      rows: nm.map(n => ({ name: sorcNumenOf(n.key)?.name ?? n.key, level: n.dots, act: "numen", attrs: `data-key="${esc(n.key)}"` })) });
+    const rit = a.system.sorcerer.rituals;
+    if (rit.length) out.push({ id: "sorcRituals", label: t("Sorcerer.Rituals"), icon: "fa-book-skull",
+      rows: rit.map((r, i) => ({ name: r.name, level: r.level, act: "sorcRitual", attrs: `data-i="${i}"` })) });
+  }
   // Сферы мага — одной группой: щелчок открывает окно чародейства с этой Сферой
   if (kind === "mage") {
     const sp = VTM20.mageSpheres.filter(k => (a.system.mage?.spheres?.[k] ?? 0) > 0);
@@ -421,6 +431,8 @@ async function onClick(ev) {
     case "rite": pop = null; renderHud(); return rollRite(a, el.dataset.key);
     case "edge": pop = null; renderHud(); return useEdge(a, el.dataset.key);
     case "sphere": pop = null; renderHud(); return castEffect(a, { sphere: el.dataset.key });
+    case "numen": pop = null; renderHud(); return sorcUseNumen(a, el.dataset.key);
+    case "sorcRitual": pop = null; renderHud(); return sorcUseRitual(a, Number(el.dataset.i));
     case "rote": pop = null; renderHud(); return castRote(a, Number(el.dataset.i), { fast: !!ev.shiftKey });
     case "mageCast": return castEffect(a);
     case "mageQuint": return changeQuintessence(a, Number(el.dataset.d));

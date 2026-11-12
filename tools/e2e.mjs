@@ -4169,6 +4169,22 @@ try {
       const w = cr.sorcWrite({});
       out.write = [w.on, w.affiliation, w.numina.length, w.numina.find(n => n.key === "alchemy")?.dots];
       await cr.close(); await raw.delete();
+      // опыт колдуна: рост Пути × 7, первая нумина второго вида — 21, ритуал за опыт — его уровень
+      const so = await Actor.create({ name: "E2E — колдун опыта", type: "mortal", flags: { world: { e2e: true }, [sid]: { created: true } },
+        system: { experience: { total: 100 }, abilities: { occult: { value: 3 } }, sorcerer: { on: true, numina: [{ key: "alchemy", dots: 2, ability: "occult" }, { key: psy, dots: 0 }] } } });
+      await so.buyWithXp({ doc: so, path: "system.sorcerer.numina.alchemy", kind: "sorcNumen", label: "A", confirm: false });
+      await so.buyWithXp({ doc: so, path: `system.sorcerer.numina.${psy}`, kind: "sorcNumen", label: "B", confirm: false });
+      const Sc = await sys("module/apps/sorcerer.mjs"), DVx = foundry.applications.api.DialogV2, dpx = DVx.prompt;
+      DVx.prompt = async () => ({ name: "E2E — ритуал", path: "alchemy", level: 2, xp: true, text: "" }); await Sc.addRitual(so); DVx.prompt = dpx;
+      out.sorcXp = [so.system.sorcerer.numina.map(n => n.dots).join(","), so.system.experience.spent, so.system.sorcerer.rituals.length];
+      // худ: нумины и ритуалы колдуна
+      const scene = game.scenes.viewed ?? game.scenes.contents[0];
+      const [tk] = await scene.createEmbeddedDocuments("Token", [await so.getTokenDocument({ x: 300, y: 2900 })]);
+      for (let i = 0; i < 30 && !canvas.tokens.get(tk.id); i++) await wait(100);
+      canvas.tokens.get(tk.id)?.control({ releaseOthers: true }); await wait(600);
+      document.querySelector('#r-hud [data-act="tab"][data-tab="powers"]')?.click(); await wait(300);
+      out.hudSorc = [!!document.querySelector('#r-hud [data-pop="numina"]'), !!document.querySelector('#r-hud [data-pop="sorcRituals"]')];
+      await scene.deleteEmbeddedDocuments("Token", [tk.id]); await so.delete();
       // Чудо в бою: связанное оружие листа, уходит вместе с Чудом
       const a = await Actor.create({ name: "E2E — маг с клинком", type: "mage", flags: { world: { e2e: true }, [sid]: { created: true } }, system: { mage: { arete: 2, paradox: 3, spheres: { forces: 2 } } } });
       const [wd] = await a.createEmbeddedDocuments("Item", [{ name: "E2E — клинок", type: "wonder", system: { kind: "talisman", value: 2, arete: 2 } }]);
@@ -4191,7 +4207,7 @@ try {
       await Actor.deleteDocuments([a.id, cab.id]);
       return out;
     });
-    const want = { rules: [true, 5, 7, true, 5], rem: [0, 0], mixed: 1, cards: true, write: [true, "aoar", 2, 3], arm: [3, "aggravated", true], unlinked: 0, week: [2, 2, 2] };
+    const want = { sorcXp: ["3,1", 37, 1], hudSorc: [true, true], rules: [true, 5, 7, true, 5], rem: [0, 0], mixed: 1, cards: true, write: [true, "aoar", 2, 3], arm: [3, "aggravated", true], unlinked: 0, week: [2, 2, 2] };
     const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
