@@ -13,6 +13,7 @@ export const S = {
   search: "",
   found: [],
   busy: false,
+  opening: null,   // идущее открытие шторы (openCity) — повторный вызов ждёт его
   saveTimer: null,
   echo: null,
   state: null,   // данные мира (все города)

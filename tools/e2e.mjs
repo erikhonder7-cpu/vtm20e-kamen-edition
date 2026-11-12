@@ -3233,8 +3233,11 @@ try {
   await check("Карта города открывается", async () => {
     const r = await page.evaluate(async () => {
       const C = await import(`/systems/${game.system.id}/module/ui/citymap.mjs`);
-      await C.openCity(); await new Promise(res => setTimeout(res, 2500));
-      const el = document.querySelector(".vtm20.r-city"), open = !!el?.classList.contains("open");
+      await C.openCity();
+      // первая загрузка карты бывает долгой — ждать открытия, а не фиксированное время
+      let el = null;
+      for (let i = 0; i < 40 && !(el = document.querySelector(".vtm20.r-city"))?.classList.contains("open"); i++) await new Promise(res => setTimeout(res, 200));
+      const open = !!el?.classList.contains("open");
       C.closeCity(); await new Promise(res => setTimeout(res, 400));
       return { open };
     });

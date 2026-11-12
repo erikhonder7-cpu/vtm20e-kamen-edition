@@ -369,10 +369,15 @@ export async function toggleCity() {
   return document.getElementById(ID)?.classList.contains("open") ? closeCity() : openCity();
 }
 
-export async function openCity() {
+export function openCity() {
+  // открытие уже идёт (первая загрузка карты бывает долгой) — повторный вызов ждёт его же, а не теряется
+  S.opening ??= openNow().finally(() => { S.opening = null; });
+  return S.opening;
+}
+async function openNow() {
   const root = mount();
-  // штора ещё закрывается (closeCity держит S.busy на время анимации) — дождаться, а не глотать повторное открытие
-  if (S.busy) { await new Promise(res => setTimeout(res, SLIDE + 40)); if (S.busy) return; }
+  // штора ещё закрывается (closeCity держит S.busy на время анимации) — дождаться конца анимации
+  for (let i = 0; S.busy && i < 20; i++) await new Promise(res => setTimeout(res, SLIDE / 4));
   S.busy = true;
   try {
     S.state = readWorld();
