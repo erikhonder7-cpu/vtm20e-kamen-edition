@@ -49,7 +49,9 @@ export function changelingInfo(actor, dots) {
     banalityBoxes: boxes(c.banality.temporary, 10, "system.changeling.banality.temporary"),
     nightmare: c.nightmare, nightmareBoxes: boxes(c.nightmare, 10, "system.changeling.nightmare"),
     imbalance: c.imbalance, imbalanceWill: Array.from({ length: will }, (_, i) => ({ on: i >= will - c.imbalance })),
-    mists: c.mists, undone: c.undone, bedlam: c.bedlam, isGM: game.user.isGM
+    mists: c.mists, undone: c.undone, bedlam: c.bedlam, isGM: game.user.isGM,
+    wyrd: inWyrd(actor), place: sceneBanality(),
+    threshold: (b => b ? { key: b.key, name: t(`Bedlam.${b.key}`), n: b.n, text: t(`BedlamText.${b.key}`, { n: b.n }) } : null)(bedlamOf(actor))
   };
 }
 
@@ -84,6 +86,7 @@ export async function spendGlamour(actor, n = 1) {
   const g = actor.system.changeling.glamour.temporary;
   if (g < n) { ui.notifications.warn(t("NoGlamour", { n })); return false; }
   await actor.update({ "system.changeling.glamour.temporary": g - n });
+  if (bedlamOf(actor)?.key === "drowning") await gainNightmare(actor, n, { reason: t("Bedlam.drowning") });
   return true;
 }
 export async function gainGlamour(actor, n = 1) {
@@ -111,9 +114,7 @@ export async function gainNightmare(actor, n = 1, { reason = "" } = {}) {
 
 /** Триггер Банальности (гл. 6): бросок Гламура, сл. 8; провал — +1 к пулу, ботч — по 1 за каждую единицу. */
 export async function banalityTrigger(actor) {
-  const { rollPool } = await import("../dice/roll.mjs"), c = actor.system.changeling;
-  const roll = await rollPool({ actor, title: t("TriggerTitle"), subtitle: t("TriggerSub"), pool: c.glamour.permanent, difficulty: C().banality?.triggerDiff ?? 8,
-    kind: "check", breakdown: [{ label: t("Glamour"), value: c.glamour.permanent }], extra: { changeling: { kind: "trigger" } } });
+  const roll = await rollGlamour(actor, { title: t("TriggerTitle"), subtitle: t("TriggerSub"), difficulty: C().banality?.triggerDiff ?? 8, kind: "trigger" });
   if (!roll) return null;
   const gain = roll.outcome === "botch" ? roll.state.values.filter(v => v === 1).length : roll.successes > 0 ? 0 : 1;
   if (gain) await addBanality(actor, gain);
@@ -149,7 +150,7 @@ export async function castCantrip(actor, preset = {}) {
     <div class="r-field"><span>${esc(t("Modifiers"))}</span><div class="r-checks">${C().realms.filter(r => MODIFIERS.includes(r.key)).map(realmBox).join("")}</div></div>
     <label class="r-field"><span>${esc(t("Kind"))}</span><select name="wyrd"><option value="0">${esc(t("Type.chimerical"))}</option><option value="1" ${preset.wyrd ? "selected" : ""}>${esc(t("Type.wyrd"))}</option></select></label>
     <label class="r-field"><span>${esc(t("Bunk"))}</span><select name="bunk">${[0, 1, 2, 3, 4, 5].map(n => `<option value="${n}">${n ? `−${n}` : "—"}</option>`).join("")}</select></label>
-    <div class="r-field"><span>${esc(t("DiffMods"))}</span><div class="r-checks">${mods.map(m => `<label class="r-check"><input type="checkbox" name="m_${m.key}"> ${esc(t(`Mod.${m.key}`))} <small>${m.n > 0 ? "+" : "−"}${Math.abs(m.n)}</small></label>`).join("")}
+    <div class="r-field"><span>${esc(t("DiffMods"))}</span><div class="r-checks">${mods.map(m => `<label class="r-check"><input type="checkbox" name="m_${m.key}" ${m.key === "placeBanality" && sceneBanality() > 0 ? "checked" : ""}> ${esc(t(`Mod.${m.key}`))} <small>${m.n > 0 ? "+" : "−"}${Math.abs(m.n)}</small></label>`).join("")}
       <label class="r-check"><input type="checkbox" name="buy"> ${esc(t("BuyNightmare"))} <small>−1</small></label></div></div>
     <p class="r-note">${esc(t("CantripRule", { nm: c.nightmare }))}</p></div>`;
   const f = await foundry.applications.api.DialogV2.prompt({ window: { title: `${t("Cantrip")}: ${actor.name}`, icon: "fa-solid fa-wand-sparkles" },
@@ -168,11 +169,15 @@ export async function rollCantrip(actor, o) {
   const rating = c.arts[o.art] ?? 0, level = Math.clamp(o.level ?? rating, 1, 5);
   if (!art || rating < 1) return ui.notifications.warn(t("NoArts"));
   if (level > rating) return ui.notifications.warn(t("LevelTooHigh", { n: rating }));
+  if (bedlamOf(actor)?.key === "leash") return ui.notifications.warn(t("LeashBlock"));
   const primary = (o.realms ?? []).filter(k => PRIMARY.includes(k)), modsR = (o.realms ?? []).filter(k => MODIFIERS.includes(k));
   if (!primary.length) return ui.notifications.warn(t("NeedRealm"));
+  // Призыв Вирда: все кантрипы — Вирд, но Гламура не стоят (гл. 6)
+  const wyrdOn = inWyrd(actor);
+  if (wyrdOn) o = { ...o, wyrd: true };
   // «жульничество» — Царство, которого нет: +1 Гламур за каждое
   const cheat = [...primary, ...modsR].filter(k => !(c.realms[k] > 0)).length;
-  const cost = (o.wyrd ? R.wyrdCost ?? 1 : 0) + cheat * (R.cheatCost ?? 1);
+  const cost = (o.wyrd && !wyrdOn ? R.wyrdCost ?? 1 : 0) + cheat * (R.cheatCost ?? 1);
   if (cost && !(await spendGlamour(actor, cost))) return null;
   const low = Math.min(...primary.map(k => c.realms[k] ?? 0)), pool = rating + low;
   const modN = k => (R.mods ?? []).find(m => m.key === k)?.n ?? 0;
@@ -214,6 +219,239 @@ export async function unleash(actor, artKey) {
   await afterRoll(actor, roll, Math.min(pool, now.nightmare), art.name);
   if (roll.successes > (c.arts[artKey] ?? 0)) await gainNightmare(actor, 1, { reason: t("UnleashWild") });
   return roll;
+}
+
+/* ── Призыв Вирда и Осени, Банальность места (гл. 6) ───────────────────── */
+
+/** Банальность места сцены (гл. 6, «Банальные места»): ставит рассказчик; больше 0 — Банальная структура (кантрипы +1). */
+export const sceneBanality = () => Number(game.scenes?.viewed?.getFlag(SYSTEM_ID, "banality")) || 0;
+export const inWyrd = actor => !!actor?.getFlag?.(SYSTEM_ID, "wyrd");
+export const bedlamOf = actor => actor?.getFlag?.(SYSTEM_ID, "bedlam") ?? null;
+
+export async function setSceneBanality() {
+  const scene = game.scenes?.viewed;
+  if (!game.user.isGM || !scene) return null;
+  const n = await foundry.applications.api.DialogV2.prompt({ window: { title: t("PlaceBanality"), icon: "fa-solid fa-building" },
+    classes: ["vtm20", "r-dialog", "r-type-changeling"], rejectClose: false,
+    content: `<div class="r-form"><label class="r-field"><span>${esc(t("PlacePrompt"))}</span><input type="number" name="n" min="0" max="10" value="${sceneBanality()}"></label>
+      <p class="r-note">${esc(t("PlaceHint"))}</p></div>`,
+    ok: { label: game.i18n.localize("VTM20.Common.Save"), callback: (e, b) => Number(b.form.elements.n.value) || 0 } });
+  if (n == null) return null;
+  await scene.setFlag(SYSTEM_ID, "banality", Math.clamp(n, 0, 10));
+  return n;
+}
+
+/** Бросок Гламура (рейтинг) с кубиками Кошмара. */
+async function rollGlamour(actor, { title, subtitle, difficulty, kind }) {
+  const { rollPool } = await import("../dice/roll.mjs"), c = actor.system.changeling, pool = c.glamour.permanent, nightmare = Math.min(pool, c.nightmare);
+  const roll = await rollPool({ actor, title, subtitle, pool, difficulty, kind: "check",
+    breakdown: [{ label: t("Glamour"), value: pool }], extra: { changeling: { kind, nightmare } } });
+  if (roll) await afterRoll(actor, roll, nightmare, title);
+  return roll;
+}
+
+/**
+ * Призыв Вирда (гл. 6): 1 Гламур и 1 Воля; Гламур против Банальности места или своей (что выше). Успех — Вирд на сцену:
+ * 10 перебрасываются (dice/roll.mjs), кантрипы — Вирд без Гламура. Провал — +1 Банальность, ботч — по 1 за каждую единицу.
+ * Повторный вызов при активном Вирде — Вирд угас.
+ */
+export async function invokeWyrd(actor) {
+  if (!actor?.isOwner) return null;
+  if (inWyrd(actor)) { await actor.unsetFlag(SYSTEM_ID, "wyrd"); await say(actor, "fa-sun", t("WyrdEnd", { name: esc(actor.name) })); return null; }
+  const c = actor.system.changeling;
+  if (c.glamour.temporary < 1) return ui.notifications.warn(t("NoGlamour", { n: 1 }));
+  if (actor.system.willpower.temporary < 1) return ui.notifications.warn(game.i18n.format("VTM20.Notify.NoWillpower", { name: actor.name }));
+  await spendGlamour(actor, 1); await actor.spendWillpower(1);
+  const diff = Math.clamp(Math.max(sceneBanality(), c.banality.permanent), 2, 10);
+  const roll = await rollGlamour(actor, { title: t("WyrdTitle"), subtitle: t("WyrdSub", { d: diff }), difficulty: diff, kind: "wyrd" });
+  if (!roll) return null;
+  if (roll.successes > 0) {
+    await actor.setFlag(SYSTEM_ID, "wyrd", { scene: game.scenes?.viewed?.id ?? "" });
+    await say(actor, "fa-sun", t("WyrdOn", { name: esc(actor.name) }));
+  } else {
+    const n = roll.outcome === "botch" ? roll.state.values.filter(v => v === 1).length : 1;
+    await addBanality(actor, n);
+    await say(actor, "fa-snowflake", t("WyrdFail", { name: esc(actor.name), n }), "is-warn");
+  }
+  return roll;
+}
+
+/** Призыв Осени (гл. 6): 1 Воля — химерический эффект на одно действие не касается подменыша; всегда триггер Банальности. */
+export async function invokeAutumn(actor) {
+  if (!actor?.isOwner) return null;
+  if (!(await actor.spendWillpower(1))) return null;
+  await say(actor, "fa-leaf", t("AutumnOn", { name: esc(actor.name) }));
+  return banalityTrigger(actor);
+}
+
+/* ── Эпифании (гл. 6, «Пять путей к Эпифании») ─────────────────────────── */
+
+const PATHS = ["reverie", "rapture", "ravaging", "revelry", "rhapsody"];
+const TIME = n => t(`Epi.Time.${Math.clamp(n, 0, 5)}`);
+
+/**
+ * Окно Эпифании: путь, черты броска, Порог, «снять Дисбаланс вместо Гламура», «обменять Гламур на Банальность».
+ * Мечтание и Восторг — сначала Восприятие + Кеннинг (сл. 8): сколько времени нужно; Разорение — кубики Банальности (сл. 6);
+ * Веселье — раз за историю весь пул; Рапсодия — запретная, Гламур уходит в шедевр.
+ */
+export async function epiphany(actor, preset = {}) {
+  if (!actor?.isOwner) return null;
+  const c = actor.system.changeling, kith = kithOf(c.kith);
+  const abil = Object.keys(VTM20.abilities).filter(k => !([].concat(VTM20.abilities[k].not ?? []).includes("changeling"))
+    && (!VTM20.abilities[k].only || [].concat(VTM20.abilities[k].only).includes("changeling")))
+    .map(k => ({ k, n: actor.traitValue(`abilities.${k}`), label: actor.traitLabel(`abilities.${k}`) })).sort((a, b) => b.n - a.n || a.label.localeCompare(b.label));
+  const attrs = Object.keys(VTM20.attributes).map(k => ({ k, n: actor.traitValue(`attributes.${k}`), label: actor.traitLabel(`attributes.${k}`) }));
+  const sel = (name, list, cur) => `<select name="${name}">${list.map(x => `<option value="${x.k}" ${x.k === cur ? "selected" : ""}>${esc(x.label)} (${x.n})</option>`).join("")}</select>`;
+  const content = `<div class="r-form r-epiphany">
+    <label class="r-field"><span>${esc(t("Epi.Path"))}</span><select name="path">${PATHS.map(p => `<option value="${p}" ${p === (preset.path ?? "reverie") ? "selected" : ""}>${esc(t(`Epi.Paths.${p}`))}</option>`).join("")}</select></label>
+    <label class="r-field"><span>${esc(t("Epi.Attribute"))}</span>${sel("attr", attrs, preset.attr ?? "manipulation")}</label>
+    <label class="r-field"><span>${esc(t("Epi.Ability"))}</span>${sel("abil", abil, preset.abil ?? abil[0]?.k)}</label>
+    <div class="r-field"><span>${esc(t("Epi.Options"))}</span><div class="r-checks">
+      <label class="r-check" data-tooltip="${esc(c.threshold || t("ThresholdHint"))}"><input type="checkbox" name="own" ${preset.own ? "checked" : ""}> ${esc(t("Epi.OwnThreshold"))}</label>
+      ${c.imbalance ? `<label class="r-check"><input type="checkbox" name="heal" ${preset.heal ? "checked" : ""}> ${esc(t("Epi.HealImbalance"))}</label>` : ""}
+      ${c.banality.temporary ? `<label class="r-check"><input type="checkbox" name="shed" ${preset.shed ? "checked" : ""}> ${esc(t("Epi.Shed"))}</label>` : ""}</div></div>
+    <label class="r-field"><span>${esc(t("Epi.Invest"))}</span><input type="number" name="invest" min="1" max="5" value="${preset.invest ?? 1}"></label>
+    <label class="r-field"><span>${esc(t("Epi.ArtistPool"))}</span><input type="number" name="artist" min="0" max="10" value="${preset.artist ?? 3}"></label>
+    <p class="r-note">${PATHS.map(p => `<b>${esc(t(`Epi.Paths.${p}`))}</b> — ${esc(t(`Epi.PathHint.${p}`))}`).join("<br>")}</p>
+    ${kith?.revelry ? `<p class="r-note"><i class="fa-solid fa-champagne-glasses"></i> ${esc(t("Epi.KithRevelry", { kith: kith.name }))} ${esc(kith.revelry)}</p>` : ""}</div>`;
+  const f = preset.path && preset.skipDialog ? preset : await foundry.applications.api.DialogV2.prompt({
+    window: { title: `${t("Epi.Title")}: ${actor.name}`, icon: "fa-solid fa-lightbulb" }, classes: ["vtm20", "r-dialog", "r-type-changeling"],
+    position: { width: 560 }, rejectClose: false, content,
+    ok: { label: t("Epi.Go"), icon: "fa-solid fa-lightbulb", callback: (e, b) => new foundry.applications.ux.FormDataExtended(b.form).object } });
+  if (!f) return null;
+  return runEpiphany(actor, { path: f.path, attr: f.attr, abil: f.abil, own: !!f.own, heal: !!f.heal, shed: !!f.shed,
+    invest: Math.clamp(Number(f.invest) || 1, 1, 5), artist: Math.max(0, Number(f.artist) || 0) });
+}
+
+/** Сам путь Эпифании (без окна) — для окна и автотестов. Возвращает полученный Гламур. */
+export async function runEpiphany(actor, o) {
+  const { rollPool } = await import("../dice/roll.mjs"), name = esc(actor.name), pathName = t(`Epi.Paths.${o.path}`);
+  const c = () => actor.system.changeling;
+  const trait = (p, n) => ({ label: actor.traitLabel(p), value: n ?? actor.traitValue(p) });
+  const timeRoll = async () => {
+    const pool = actor.traitValue("attributes.perception") + actor.traitValue("abilities.kenning");
+    const r = await rollPool({ actor, title: t("Epi.TimeTitle"), subtitle: t("Epi.TimeSub"), pool, difficulty: 8, kind: "check",
+      breakdown: [trait("attributes.perception"), trait("abilities.kenning")], extra: { changeling: { kind: "epiTime" } } });
+    if (r) await say(actor, "fa-hourglass-half", t("Epi.TimeResult", { name, time: TIME(r.successes) }));
+    return r;
+  };
+  if (o.path === "revelry") {
+    if (actor.getFlag(SYSTEM_ID, "revelry") && !(await foundry.applications.api.DialogV2.confirm({ window: { title: pathName }, content: `<p>${esc(t("Epi.RevelryAgain"))}</p>`, rejectClose: false })))
+      return null;
+    const g = c().glamour, n = g.permanent - g.temporary;
+    await actor.update({ "system.changeling.glamour.temporary": g.permanent, [`flags.${SYSTEM_ID}.revelry`]: true });
+    await say(actor, "fa-champagne-glasses", t("Epi.RevelryOk", { name, how: esc(kithOf(c().kith)?.revelry ?? "") }));
+    return n;
+  }
+  if (o.path === "rhapsody") {
+    if (!(await spendGlamour(actor, o.invest))) return null;
+    const r = await rollPool({ actor, title: t("Epi.Paths.rhapsody"), subtitle: t("Epi.RhapsodySub"), pool: o.artist + o.invest, difficulty: 7, kind: "check",
+      breakdown: [{ label: t("Epi.Artist"), value: o.artist }, { label: t("Epi.Invested"), value: o.invest }], extra: { changeling: { kind: "rhapsody" } } });
+    if (!r) return null;
+    const msg = r.outcome === "botch" ? t("Epi.RhapsodyBotch") : r.successes ? t("Epi.RhapsodyOk", { n: r.successes * 2 }) : t("Epi.RhapsodyFail", { n: o.invest });
+    await say(actor, "fa-skull", `${t("Epi.RhapsodyWarn")} ${msg}`, "is-warn");
+    return 0;
+  }
+  let roll;
+  if (o.path === "reverie" || o.path === "rapture") {
+    const tr = await timeRoll();
+    if (!tr) return null;
+    if (!tr.successes) { await say(actor, "fa-hourglass", t("Epi.TimeNone", { name })); return 0; }
+    const p1 = o.path === "reverie" ? "attributes.manipulation" : `attributes.${o.attr}`, p2 = `abilities.${o.abil}`;
+    const diff = o.path === "reverie" ? 6 : Math.clamp(c().banality.permanent - c().glamour.permanent + 6, 3, 10);
+    roll = await rollPool({ actor, title: pathName, subtitle: t("Epi.MainSub", { d: diff }), pool: actor.traitValue(p1) + actor.traitValue(p2), difficulty: diff, kind: "check",
+      breakdown: [trait(p1), trait(p2)], extra: { changeling: { kind: "epiphany", path: o.path } } });
+  } else if (o.path === "ravaging") {
+    roll = await rollPool({ actor, title: pathName, subtitle: t("Epi.RavageSub"), pool: c().banality.permanent, difficulty: 6, kind: "check",
+      breakdown: [{ label: t("Banality"), value: c().banality.permanent }], extra: { changeling: { kind: "epiphany", path: o.path } } });
+  }
+  if (!roll) return null;
+  const n = roll.successes, botch = roll.outcome === "botch";
+  if (!n) {
+    if (o.path === "ravaging") {
+      if (botch) await actor.update({ "system.changeling.banality.permanent": Math.min(10, c().banality.permanent + 1) });
+      else await addBanality(actor, 1);
+      await say(actor, "fa-snowflake", t(botch ? "Epi.RavageBotch" : "Epi.RavageFail", { name }), "is-warn");
+    } else if (o.path === "rapture" && botch) {
+      await addBanality(actor, 1); await say(actor, "fa-snowflake", t("Epi.RaptureBotch", { name }), "is-warn");
+    } else await say(actor, "fa-cloud", t(botch ? "Epi.Block" : "Epi.GainNone", { name, path: pathName }), botch ? "is-warn" : "");
+    return 0;
+  }
+  // 5+ успехов: Мечтание и Разорение — +1 к рейтингу только по своему Порогу; Восторг — всегда, и пул полон
+  const permUp = n >= 5 && (o.path === "rapture" || o.own);
+  return applyEpiphany(actor, n, { path: o.path, permUp, full: n >= 5 && o.path === "rapture", heal: o.heal, shed: o.shed });
+}
+
+/** Итог Эпифании: Дисбаланс вместо Гламура, обмен Гламура на Банальность (в момент получения), рост рейтинга. */
+async function applyEpiphany(actor, n, { path, permUp, full, heal, shed }) {
+  const c = actor.system.changeling, name = esc(actor.name), pathName = t(`Epi.Paths.${path}`), upd = {};
+  if (heal && c.imbalance > 0) {
+    await actor.update({ "system.changeling.imbalance": c.imbalance - 1 });
+    await say(actor, "fa-scale-balanced", t("Epi.Healed", { name, path: pathName }));
+    return 0;
+  }
+  const perm = Math.min(10, c.glamour.permanent + (permUp ? 1 : 0));
+  const shedN = shed ? Math.min(n, c.banality.temporary) : 0, gain = n - shedN;
+  if (shedN) upd["system.changeling.banality.temporary"] = c.banality.temporary - shedN;
+  upd["system.changeling.glamour.permanent"] = perm;
+  upd["system.changeling.glamour.temporary"] = full ? perm : Math.min(perm, c.glamour.temporary + gain);
+  await actor.update(upd);
+  const extra = (permUp ? t("Epi.PermUp") : "") + (full ? t("Epi.FullPool") : "") + (shedN ? t("Epi.ShedDone", { n: shedN }) : "");
+  await say(actor, "fa-lightbulb", t("Epi.Gain", { name, path: pathName, n: gain, extra }));
+  return gain;
+}
+
+/* ── Пороги Бедлама (гл. 6): трата Дисбалансной Воли ─────────────────── */
+
+/** Сколько потраченных пунктов Воли пришлось на клетки Дисбаланса (крайние справа). */
+export function imbalancedSpent(actor, nextTemp) {
+  const w = actor.system.willpower, imb = actor.system.changeling?.imbalance ?? 0;
+  let k = 0;
+  for (let p = w.temporary; p > nextTemp; p--) if (p > w.permanent - imb) k++;
+  return k;
+}
+
+Hooks.on("preUpdateActor", (actor, diff, opts) => {
+  if (actor.type !== "changeling") return;
+  const next = foundry.utils.getProperty(diff, "system.willpower.temporary");
+  if (next == null || next >= actor.system.willpower.temporary) return;
+  const k = imbalancedSpent(actor, next);
+  if (k) opts.clBedlam = k;
+});
+Hooks.on("updateActor", (actor, diff, opts, userId) => {
+  if (userId === game.user.id && opts.clBedlam) bedlamPrompt(actor, opts.clBedlam);
+});
+
+/** Карточка рассказчику: подменыш потратил Дисбалансную Волю — выбрать Порог Бедлама (на сцен — по числу Дисбалансов). */
+export function bedlamPrompt(actor, k) {
+  const n = actor.system.changeling.imbalance;
+  const buttons = (C().bedlam ?? []).map(b => `<button type="button" data-r-action="clBedlam" data-key="${b.key}" data-tooltip="${esc(t(`BedlamText.${b.key}`, { n }))}">${esc(t(`Bedlam.${b.key}`))}</button>`).join("");
+  return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), whisper: game.users.filter(u => u.isGM).map(u => u.id),
+    flags: { [SYSTEM_ID]: { clBedlam: { actor: actor.uuid } } },
+    content: `<div class="r-notice r-type-changeling is-warn"><i class="fa-solid fa-masks-theater"></i> ${t("BedlamPrompt", { name: esc(actor.name), k, n })}
+      <div class="r-card-buttons r-cl-bedlam">${buttons}</div></div>` });
+}
+
+/** Назначить Порог Бедлама: штраф «+1 за каждый Дисбаланс» к броскам Атрибута (dice/dialog.mjs), особые пороги — сразу. */
+export async function setBedlam(actor, key) {
+  const n = actor.system.changeling.imbalance, def = (C().bedlam ?? []).find(b => b.key === key);
+  if (!def) return null;
+  await actor.setFlag(SYSTEM_ID, "bedlam", { key, n, scenes: n, attr: def.attr ?? "" });
+  await say(actor, "fa-masks-theater", t("BedlamSet", { name: esc(actor.name), th: t(`Bedlam.${key}`), n, text: t(`BedlamText.${key}`, { n }) }), "is-warn");
+  if (key === "self") { await actor.setFlag(SYSTEM_ID, "wyrd", { scene: game.scenes?.viewed?.id ?? "", bedlam: true }); await gainNightmare(actor, 2, { reason: t("Bedlam.self") }); }
+  if (key === "drowning") await actor.update({ "system.changeling.glamour.temporary": actor.system.changeling.glamour.permanent });
+  return key;
+}
+export const endBedlam = actor => actor.unsetFlag(SYSTEM_ID, "bedlam");
+
+/** Кнопки карточек подменыша (dice/roll.mjs → onChatCardClick). */
+export async function clCardAction(message, action, btn) {
+  if (action === "clBedlam") {
+    if (!game.user.isGM) return ui.notifications.warn(game.i18n.localize("VTM20.Notify.GMOnly"));
+    const actor = await fromUuid(message.getFlag(SYSTEM_ID, "clBedlam")?.actor ?? "");
+    if (actor) await setBedlam(actor, btn.dataset.key);
+  }
+  return null;
 }
 
 /* ── Карточка броска и знак ───────────────────────────────────────────── */

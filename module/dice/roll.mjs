@@ -166,11 +166,27 @@ export async function rollPool(o) {
     rolls.push(r);
   }
 
+  // Вирд подменыша (C20, «Призыв Вирда»): 10 перебрасываются по той же сложности, лишние успехи прибавляются
+  let wyrdAuto = 0;
+  const wyrdNotes = [];
+  if (o.actor?.type === "changeling" && o.actor.getFlag?.(SYSTEM_ID, "wyrd") && values.length) {
+    const extra = [];
+    let tens = values.filter(v => v === 10).length;
+    while (tens > 0 && extra.length < 30) {
+      const r = await new Roll(`${tens}d10`).evaluate();
+      const vs = r.dice[0].results.map(x => x.result);
+      extra.push(...vs); rolls.push(r);
+      tens = vs.filter(v => v === 10).length;
+    }
+    wyrdAuto = extra.filter(v => v >= diff).length;
+    if (extra.length) wyrdNotes.push(t("Changeling.WyrdAgain", { dice: extra.join(", "), n: wyrdAuto }));
+  }
+
   const state = {
     title: o.title ?? t("Roll.Title"), subtitle: o.subtitle ?? "", values, pool,
     difficulty: diff, extraNeeded, specialty: !!o.specialty, specialtyName: o.specialtyName ?? "",
     willpower: !!o.willpower, breakdown: o.breakdown ?? [], kind: o.kind ?? "check",
-    noBotch: !!o.noBotch, auto: Math.max(0, o.auto ?? 0), actorUuid: o.actor?.uuid ?? null, extra: o.extra ?? {}, notes: o.notes ?? [],
+    noBotch: !!o.noBotch, auto: Math.max(0, (o.auto ?? 0) + wyrdAuto), actorUuid: o.actor?.uuid ?? null, extra: o.extra ?? {}, notes: [...(o.notes ?? []), ...wyrdNotes],
     cursed: !!o.actor?.effects?.some(e => !e.disabled && e.flags?.[SYSTEM_ID]?.curseBotch),
     effect: o.effect ?? ""
   };
@@ -435,6 +451,7 @@ export function onChatCardClick(event) {
   }
   if (combatAction === "possessRoll") return import("../apps/target-powers.mjs").then(m => m.possessAccess(message));
   if (combatAction === "riddleRoll") return import("../apps/target-powers.mjs").then(m => m.riddleRoll(message));
+  if (combatAction?.startsWith?.("cl")) return import("../apps/changeling.mjs").then(m => m.clCardAction(message, combatAction, btn));
   if (combatAction === "targetApply") return import("../apps/target-powers.mjs").then(m => m.applyFromCard(message));
   if (combatAction?.startsWith?.("mage")) return import("../apps/mage.mjs").then(m => m.mageCardAction(message, combatAction));
   if (combatAction === "sinPrompt") return import("../apps/torment.mjs").then(m => m.sinFromPrompt(message));

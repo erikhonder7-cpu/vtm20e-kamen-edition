@@ -5491,6 +5491,63 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  // Подменыш (C20, гл. 6): Призыв Вирда (10 перебрасываются, кантрип без Гламура), трата Дисбалансной Воли — карточка Порога Бедлама,
+  // штраф порога в окне броска, Эпифания (Разорение, Восторг 5+ — рейтинг и полный пул, снять Дисбаланс), Веселье, Банальность места
+  await check("Подменыш: Вирд, Пороги Бедлама, Эпифании, Банальность места", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), CL = await import(`/systems/${sid}/module/apps/changeling.mjs`);
+      const { rollPool } = await import(`/systems/${sid}/module/dice/roll.mjs`), { RollDialog } = await import(`/systems/${sid}/module/dice/dialog.mjs`);
+      const n0 = game.messages.size, out = {}, rnd = CONFIG.Dice.randomUniform, scene = game.scenes.viewed, sb0 = scene?.getFlag(sid, "banality");
+      const a = await Actor.create({ name: "E2E — подменыш Вирда", type: "changeling", flags: { world: { e2e: true }, [sid]: { created: true } },
+        system: { attributes: { perception: { value: 3 }, manipulation: { value: 3 } }, abilities: { kenning: { value: 2 }, empathy: { value: 3 } },
+          willpower: { permanent: 4, temporary: 4 }, changeling: { kith: "pooka", glamour: { permanent: 5, temporary: 5 }, banality: { permanent: 3, temporary: 2 },
+          imbalance: 1, arts: { chicanery: 2 }, realms: { actor: 2 } } } });
+      try {
+        // Банальность места выше своей — Вирд бросается против неё
+        await scene?.setFlag(sid, "banality", 5);
+        CONFIG.Dice.randomUniform = () => 0.0001;   // десятки
+        await CL.invokeWyrd(a);
+        out.wyrd = [CL.inWyrd(a), a.system.changeling.glamour.temporary, a.system.willpower.temporary];
+        const r10 = await rollPool({ actor: a, title: "E2E", pool: 2, difficulty: 6 });
+        out.again = r10.state.auto > 0 && r10.state.notes.length === 1;
+        await CL.rollCantrip(a, { art: "chicanery", level: 1, realms: ["actor"] });
+        out.free = a.system.changeling.glamour.temporary;     // Вирд: кантрип без Гламура
+        await CL.invokeWyrd(a);                                 // повторно — Вирд угас
+        out.wyrdEnd = CL.inWyrd(a);
+        // Воля 3 из 4 → потратить ещё: клетка 3 не Дисбалансная (4 − 1 = 3); снова Воля 4 → 3 — клетка 4 Дисбалансная
+        await a.update({ "system.willpower.temporary": 4 }); await a.update({ "system.willpower.temporary": 3 }); await wait(400);
+        const card = game.messages.contents.slice(n0).find(m => m.getFlag(sid, "clBedlam"));
+        out.prompt = card ? card.content.match(/data-r-action="clBedlam"/g).length : 0;
+        await CL.setBedlam(a, "whispers");
+        const dlg = new RollDialog(a, { trait1: "attributes.perception", trait2: "abilities.kenning", difficulty: 6 });
+        out.penalty = dlg.compute().diffAuto.some(d => d.value === 1 && /Шёпот|Whisper/.test(d.label));
+        await CL.endBedlam(a);
+        // Разорение: кубики Банальности (3), сл. 6 — одни десятки: 3 Гламура; Восторг — 5+ успехов: рейтинг +1 и пул полон
+        await a.update({ "system.changeling.glamour.temporary": 1 });
+        out.ravage = [await CL.runEpiphany(a, { path: "ravaging" }), a.system.changeling.glamour.temporary];
+        await a.update({ "system.changeling.glamour.temporary": 1 });
+        await CL.runEpiphany(a, { path: "rapture", attr: "manipulation", abil: "empathy" });
+        out.rapture = [a.system.changeling.glamour.permanent, a.system.changeling.glamour.temporary];
+        await CL.runEpiphany(a, { path: "reverie", abil: "empathy", heal: true });
+        out.heal = a.system.changeling.imbalance;
+        await a.update({ "system.changeling.glamour.temporary": 0 });
+        await CL.runEpiphany(a, { path: "revelry" });
+        out.revelry = [a.system.changeling.glamour.temporary, !!a.getFlag(sid, "revelry")];
+      } finally {
+        CONFIG.Dice.randomUniform = rnd;
+        if (sb0 == null) await scene?.unsetFlag(sid, "banality"); else await scene?.setFlag(sid, "banality", sb0);
+        await ChatMessage.deleteDocuments(game.messages.contents.slice(n0).map(x => x.id));
+        await a.delete();
+      }
+      return out;
+    });
+    // Вирд: Гламур 5 − 1, Воля 4 − 1; кантрип в Вирде — бесплатно; Порог — 9 кнопок; Восприятие +1;
+    // Разорение 3; Восторг (Манипуляция 3 + Эмпатия 3 = 6 десяток) — рейтинг 6, пул 6; Мечтание снимает Дисбаланс 1 → 0; Веселье — пул 6
+    const want = { wyrd: [true, 4, 3], again: true, free: 4, wyrdEnd: false, prompt: 9, penalty: true, ravage: [3, 4], rapture: [6, 6], heal: 0, revelry: [6, true] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   await check("Призрак: лист и Арканои, Пафос, Страсть, Корпус до колебания и Испытание, Катарсис", async () => {
     const r = await page.evaluate(async () => {
       const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), WR = await import(`/systems/${sid}/module/apps/wraith.mjs`);

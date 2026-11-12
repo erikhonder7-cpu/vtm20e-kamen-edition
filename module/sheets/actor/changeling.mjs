@@ -2,7 +2,8 @@
 // Действия листа — Подменыш (apps/changeling.mjs): кантрип, Высвобождение, Искусства, Гламур, Кошмар, триггер Банальности.
 // this — лист (ApplicationV2 зовёт обработчики со своим this).
 
-import { castCantrip, unleash, artRow, spendGlamour, gainGlamour, gainNightmare, banalityTrigger } from "../../apps/changeling.mjs";
+import { castCantrip, unleash, artRow, spendGlamour, gainGlamour, gainNightmare, banalityTrigger, invokeWyrd, invokeAutumn, epiphany,
+  setSceneBanality, endBedlam } from "../../apps/changeling.mjs";
 
 function onCast(event, target) {
   const d = target.dataset;
@@ -22,5 +23,11 @@ function onNightmare(event, target) {
 }
 function onTrigger() { return banalityTrigger(this.actor); }
 
+function onWyrd() { return invokeWyrd(this.actor); }
+function onAutumn() { return invokeAutumn(this.actor); }
+function onEpiphany() { return epiphany(this.actor); }
+function onPlace() { return setSceneBanality(); }
+function onBedlamEnd() { return endBedlam(this.actor); }
+
 export const CHANGELING_ACTIONS = { clCast: onCast, clUnleash: onUnleash, clArtAdd: onArtAdd, clArtDel: onArtDel, clGlamour: onGlamour,
-  clNightmare: onNightmare, clTrigger: onTrigger };
+  clNightmare: onNightmare, clTrigger: onTrigger, clWyrd: onWyrd, clAutumn: onAutumn, clEpiphany: onEpiphany, clPlace: onPlace, clBedlamEnd: onBedlamEnd };

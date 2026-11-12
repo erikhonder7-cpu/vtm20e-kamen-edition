@@ -204,6 +204,8 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       // Призрак в Буре (Wraith 20, «Умственные подвиги»): умственные броски +1 к сложности, но не выше 9 (место сцены — apps/wraith.mjs)
       ...(a.type === "wraith" && game.scenes?.viewed?.getFlag(SYSTEM_ID, "place") === "tempest" && v.difficulty < 9
         && attrs.some(k => VTM20.attributeGroups.mental.attributes.includes(k)) ? [{ label: t("Wraith.Place.TempestMind"), value: 1 }] : []),
+      // Порог Бедлама подменыша (C20, гл. 6): +1 к сложности за каждый Дисбаланс — к броскам «своего» Атрибута
+      ...((b => b?.attr && attrs.includes(b.attr) ? [{ label: t(`Changeling.Bedlam.${b.key}`), value: b.n }] : [])(a.type === "changeling" ? a.getFlag(SYSTEM_ID, "bedlam") : null)),
       // Обелиск Осириса: мистические проверки (силы Дисциплин, магия крови) −3
       ...((this.cfg.extra?.power || this.cfg.extra?.magic || ["magic", "ritual"].includes(this.cfg.kind)) ? a.system.fx?.mystic ?? [] : []),
       ...mm.auto.filter(m => m.diff).map(m => ({ label: m.label, value: m.diff }))];

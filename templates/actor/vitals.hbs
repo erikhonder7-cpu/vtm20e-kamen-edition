@@ -193,6 +193,18 @@
       <a class="r-vc-btn is-sq is-right" data-action="clTrigger" data-tooltip="{{localize 'VTM20.Changeling.TriggerHint'}}"><i class="fa-solid fa-snowflake"></i></a>
       <a class="r-vc-btn is-sq" data-action="clNightmare" data-d="1" data-tooltip="{{localize 'VTM20.Changeling.NightmarePlus'}}"><i class="fa-solid fa-moon"></i></a>{{/if}}
     </div>
+    {{#if (or changelingInfo.wyrd changelingInfo.threshold changelingInfo.place)}}<div class="r-cl-states">
+      {{#if changelingInfo.wyrd}}<span class="r-cl-state is-wyrd" data-tooltip="{{localize 'VTM20.Changeling.WyrdHint'}}"><i class="fa-solid fa-sun"></i> {{localize "VTM20.Changeling.WyrdChip"}}</span>{{/if}}
+      {{#if changelingInfo.threshold}}<span class="r-cl-state is-bedlam" data-tooltip="{{changelingInfo.threshold.text}}"><i class="fa-solid fa-masks-theater"></i> {{changelingInfo.threshold.name}} · {{changelingInfo.threshold.n}}
+        {{#if changelingInfo.isGM}}<a data-action="clBedlamEnd" data-tooltip="{{localize 'VTM20.Changeling.BedlamEnd'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}</span>{{/if}}
+      {{#if changelingInfo.place}}<span class="r-cl-state is-place" data-tooltip="{{localize 'VTM20.Changeling.PlaceHint'}}"><i class="fa-solid fa-building"></i> {{localize "VTM20.Changeling.PlaceChip" n=changelingInfo.place}}</span>{{/if}}
+    </div>{{/if}}
+    {{#if editable}}<div class="r-vc-tools r-cl-tools2">
+      <a class="r-vc-btn" data-action="clEpiphany" data-tooltip="{{localize 'VTM20.Changeling.Epi.Hint'}}"><i class="fa-solid fa-lightbulb"></i> {{localize "VTM20.Changeling.Epi.Short"}}</a>
+      <a class="r-vc-btn {{#if changelingInfo.wyrd}}is-on{{/if}}" data-action="clWyrd" data-tooltip="{{localize 'VTM20.Changeling.WyrdHint'}}"><i class="fa-solid fa-sun"></i> {{localize "VTM20.Changeling.Wyrd"}}</a>
+      <a class="r-vc-btn" data-action="clAutumn" data-tooltip="{{localize 'VTM20.Changeling.AutumnHint'}}"><i class="fa-solid fa-leaf"></i> {{localize "VTM20.Changeling.Autumn"}}</a>
+      {{#if changelingInfo.isGM}}<a class="r-vc-btn is-sq is-right" data-action="clPlace" data-tooltip="{{localize 'VTM20.Changeling.PlaceBanality'}}"><i class="fa-solid fa-building"></i></a>{{/if}}
+    </div>{{/if}}
   </div>
   {{else if wraithInfo}}
   {{!-- Тень (Wraith 20, гл. 6): постоянный Ангст — точками, временный — клетками (10 — +1 постоянный); архетип; Катарсис,

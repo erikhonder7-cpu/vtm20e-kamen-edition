@@ -175,3 +175,14 @@
 .vtm20.r-type-changeling .r-cantrip .r-checks { display: flex; flex-wrap: wrap; gap: 4px 12px; }
 .vtm20.r-type-changeling .r-cantrip .r-check small { color: var(--r-muted); }
 .r-notice.r-type-changeling.is-warn { border-left-color: #9f7fbd; }
+/* Вирд, Порог Бедлама, Банальность места; вторая строка кнопок карточки Грёзы; карточка Бедлама в чате */
+.vtm20.r-type-changeling .r-cl-states { display: flex; flex-wrap: wrap; gap: 4px 6px; margin: 6px 0 0; }
+.vtm20.r-type-changeling .r-cl-state { display: inline-flex; align-items: center; gap: 5px; padding: 1px 8px; font-size: 12px; border: 1px solid var(--r-line-2); color: var(--r-ink); }
+.vtm20.r-type-changeling .r-cl-state.is-wyrd { border-color: #f0c96a; color: #f6dc97; box-shadow: 0 0 8px rgba(240, 201, 106, .25); }
+.vtm20.r-type-changeling .r-cl-state.is-bedlam { border-color: #a87ad6; color: #d7bff2; }
+.vtm20.r-type-changeling .r-cl-state a { color: inherit; opacity: .7; }
+.vtm20.r-type-changeling .r-cl-state a:hover { opacity: 1; }
+.vtm20.r-type-changeling .r-cl-tools2 { margin-top: 4px; }
+.vtm20.r-type-changeling .r-vc-btn.is-on { color: #f6dc97; border-color: #f0c96a; }
+.r-notice.r-type-changeling .r-cl-bedlam { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.r-notice.r-type-changeling .r-cl-bedlam button { flex: 1 1 45%; font-size: 12px; line-height: 1.2; padding: 3px 6px; }
