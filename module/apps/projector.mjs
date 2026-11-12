@@ -21,7 +21,7 @@ export function projectorView(actor) {
   const w = actor.system.wraith, p = w.projector, shade = shadeOf(p.shade), arc = k => (W().arcanoi ?? []).find(a => a.key === k)?.name
     ?? (W().risenArcanoi ?? []).find(a => a.key === k)?.name ?? k;
   const slots = p.stainSlots ?? 0, shown = p.stains.filter(s => s.shown).length;
-  return { shade, shades: (W().shades ?? []).map(s => ({ key: s.key, name: `${s.name} (${s.en})`, selected: s.key === p.shade })),
+  return { isProjector: !!p.on, isHue: !!w.hue, shade, shades: (W().shades ?? []).map(s => ({ key: s.key, name: `${s.name} (${s.en})`, selected: s.key === p.shade })),
     favored: shade?.favored.map(arc).join(", ") ?? "", prohibited: shade?.prohibited.map(arc).join(", ") ?? "",
     lament: p.lament, projecting: p.projecting, emblem: p.emblem, pathosMax: w.pathos.max,
     stains: p.stains.map((s, i) => ({ i, ...s, ...(stainOf(s.key) ?? { name: s.key }) })), slots, shown, social: shown,

@@ -9,6 +9,7 @@ import { becomeSpectre, rollDark, rollPsychePassion, psycheCatharsis, rapacity, 
 import { rise, toShadowlands, toBody, risenDisc, rollRisenArt, risenSlumber, risenDown } from "../../apps/risen.mjs";
 import { project, stain, suppressStains, willToPathos, emblem, deadEyes, stainRow } from "../../apps/projector.mjs";
 import { rollRealmArt, realmRow } from "../../apps/realms.mjs";
+import { maelstrom, fog, slumber, yoke, sharePathos, pigment, hueStains } from "../../apps/underworld.mjs";
 
 function onWrArt(event, target) { return rollArt(this.actor, target.dataset.key, Number(target.dataset.level), target.dataset.kind); }
 /** Свёрнутые карточки Арканоев — у каждого игрока свои (память браузера); по умолчанию свёрнуты, как Дисциплины. */
@@ -99,6 +100,15 @@ function onPjRow(event, target) { return stainRow(this.actor, target.dataset.op,
 // другое Тёмное Царство (apps/realms.mjs)
 function onRlArt(event, target) { return rollRealmArt(this.actor, target.dataset.key, Number(target.dataset.i)); }
 function onRlRow(event, target) { return realmRow(this.actor, target.dataset.op, target.dataset.key ?? target.closest(".r-toolbar")?.querySelector("select")?.value); }
+// Подземный мир (apps/underworld.mjs): Мальстрём и Туман — рассказчику; Сон в Оковах; «Орфей»; Оттенок цвета
+function onUwStorm() { return maelstrom(); }
+function onUwFog() { return fog(); }
+function onUwSlumber() { return this.actor.system.wraith.risen?.on && this.actor.system.wraith.risen.body ? risenSlumber(this.actor) : slumber(this.actor); }
+function onUwYoke() { return yoke(this.actor); }
+function onUwShare() { return sharePathos(this.actor); }
+function onUwPigment() { return pigment(this.actor); }
+function onUwHue() { return this.actor.update({ "system.wraith.hue": !this.actor.system.wraith.hue }); }
+function onUwHueAll() { return hueStains(this.actor); }
 function onWrAtlas() { return openAtlas("wraith", this.actor.system.wraith.guild); }
 
 /** Действия листа: ключ data-action → обработчик. */
@@ -110,5 +120,6 @@ export const WRAITH_ACTIONS = {
   wrAngst: onWrAngst, wrAtlas: onWrAtlas, wrShroud: onWrShroud, wrHaunt: onWrHaunt,
   spBecome: onSpBecome, spDark: onSpDark, spPassion: onSpPassion, spCatharsis: onSpCatharsis, spRapacity: onSpRapacity, spRow: onSpRow,
   rsOn: onRsOn, rsRise: onRsRise, rsLeave: onRsLeave, rsBody: onRsBody, rsDisc: onRsDisc, rsArt: onRsArt, rsSlumber: onRsSlumber, rsDown: onRsDown, rsArtRow: onRsArtRow,
-  pjOn: onPjOn, pjProject: onPjProject, pjStain: onPjStain, pjSuppress: onPjSuppress, pjWill: onPjWill, pjEmblem: onPjEmblem, pjEyes: onPjEyes, pjRow: onPjRow, rlArt: onRlArt, rlRow: onRlRow
+  pjOn: onPjOn, pjProject: onPjProject, pjStain: onPjStain, pjSuppress: onPjSuppress, pjWill: onPjWill, pjEmblem: onPjEmblem, pjEyes: onPjEyes, pjRow: onPjRow, rlArt: onRlArt, rlRow: onRlRow,
+  uwStorm: onUwStorm, uwFog: onUwFog, uwSlumber: onUwSlumber, uwYoke: onUwYoke, uwShare: onUwShare, uwPigment: onUwPigment, uwHue: onUwHue, uwHueAll: onUwHueAll
 };

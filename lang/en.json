@@ -473,6 +473,107 @@
         "Hint": "Where the wraith comes from (ch. 13): other Dark Kingdoms teach their own Arcanoi",
         "JadeNote": "The Jade Empire knows every Stygian Arcanos but Castigate; there are no Guilds, Inhabit and Usury are rare. Chains of the Emperor — Immortal Guard only.",
         "AfricaNote": "Behest is taught only to the abambo and fails outside the Ghost Bush. Arts of level 3 and above show to others’ Soulsight."
+      },
+      "Storm": {
+        "Title": "Maelstrom",
+        "Lead": "Storm strength in Bells. Damage hits every wraith on the scene (or the selected tokens); a Haunt removes as many Bells as its rating.",
+        "Bells": "{n} Bell(s)",
+        "Great": "Great Maelstrom",
+        "Dice": "{n} damage dice per turn",
+        "NoWraiths": "No wraiths on the scene",
+        "Sheltered": "sheltered by the Haunt (−{n} Bells)",
+        "Hit": "{bells} Bell(s): damage {dmg}, soaked {soaked} — {net} lethal to Corpus",
+        "Note": "The book doesn’t name the damage type — lethal (system rule). Maelstroms bring Spectres.",
+        "Hz": {
+          "winds": "Howling Winds",
+          "rain": "Icy Rain",
+          "fog": "Isolating Fog",
+          "lightning": "Searing Lightning"
+        },
+        "HzNote": {
+          "winds": "Tell a false cry: Perception + Empathy, difficulty 5 + Bells; failure — −1 Willpower; botch — hears a loved one and walks into the storm",
+          "lightning": "Highest Fetter rating, difficulty 5 + Bells; failure — +2 difficulty to all rolls for {n} turns"
+        },
+        "HzOk": {
+          "winds": "the lie is seen through — immune for the storm",
+          "lightning": "withstood"
+        },
+        "HzFail": {
+          "winds": "−1 Willpower (botch — follows the call)",
+          "lightning": "+2 difficulty to all rolls (botch — stunned by memory)"
+        },
+        "Rain": "<b>{name}</b>: icy rain — damage {dmg}, soaked {soaked}; Pathos −{p}, Willpower −{w}.",
+        "Fog": "<b>{name}</b>: isolating fog — navigation, search and perception +{n} difficulty; each turn Perception + Awareness against the storm’s dice.",
+        "PickWraith": "Select a wraith token",
+        "Hint": "Maelstrom: damage by Bells to every wraith on the scene and the storm’s hazards"
+      },
+      "Fog": {
+        "Title": "The Fog",
+        "Hint": "The Fog: how the selected mortals react to a wraith — by their Willpower",
+        "PickLiving": "Select mortal tokens",
+        "Will": "Willpower {n}",
+        "Supernatural": "a supernatural being — reacts in its own way",
+        "Note": "Children, animals and the gifted are not affected; the Storyteller adjusts by personality. Later the mortal rationalizes what they saw.",
+        "R": {
+          "catatonia": "catatonic fear — nearly paralyzed",
+          "panic": "panic — flees",
+          "disbelief": "disbelief — a prank, a trick",
+          "berserk": "berserk — attacks whatever is at hand",
+          "terror": "terror — leaves, but sensibly",
+          "appeasement": "appeasement — bargains, offers help",
+          "fear": "controlled fear — acts normally",
+          "curiosity": "curiosity — films it on a phone",
+          "rage": "righteous anger — stands and fights",
+          "none": "no reaction"
+        }
+      },
+      "Slumber": {
+        "Title": "Slumber in a Fetter",
+        "Hint": "Slumber in a Fetter (8 hours): bashing heals, Stamina (difficulty 6) — lethal, Fetter rating (difficulty 4) — Willpower",
+        "NoFetters": "No Fetters — nowhere to sleep",
+        "Done": "<b>{name}</b> slumbers in the Fetter “{fetter}”: bashing healed {b}, lethal {l}, Willpower +{w}."
+      },
+      "Orph": {
+        "Yoke": "Yoking: to whom",
+        "YokeHint": "Yoking in the Crucible: 1 Pathos — a benefit for a member by your Shade",
+        "NeedShade": "Pick a Shade first",
+        "Someone": "a Crucible member",
+        "Yoked": "<b>{name}</b> yokes with {to}: {what}",
+        "YokeFx": {
+          "banshee": "Arcanos art difficulty −2 for a turn",
+          "haunter": "double another Arcanos’ duration",
+          "marrow": "a node — two others link through them, both benefits go to a third",
+          "poltergeist": "+3 damage dice to the next Arcanos attack",
+          "phantasm": "+2 to a resistance roll’s difficulty (or +1 success if there is no roll)",
+          "skinrider": "+2 dice to a Physical Attribute for an Arcanos effect this turn",
+          "wisp": "may reroll 2 failed dice of an Arcanos roll (not ones)"
+        },
+        "Share": "Pathos by touch: to whom",
+        "ShareHint": "The Crucible shares Pathos by touch: give up to 3 (as much as they can take)",
+        "PathosOf": "Pathos {n}",
+        "NoRoom": "Nothing to give or no room",
+        "Shared": "<b>{name}</b> shares {n} Pathos with {to}.",
+        "Pigment": "Pigment",
+        "PigmentHint": "Pigment: smoked, pills or injection",
+        "PigmentLead": "Lasts (8 − Stamina) hours. Everyone who took pigment becomes a wraith after death — usually a Drone.",
+        "Pig": {
+          "smoke": "Smoked",
+          "pill": "Pills",
+          "shot": "Injection"
+        },
+        "PigSub": {
+          "smoke": "−1 die to all rolls; Wits + Awareness (difficulty 6) — what kind of trip; intermittent Lifesight and Deathsight",
+          "pill": "−2 dice, permanent Willpower halved; sees wraiths; 2 Willpower — project as a skimmer",
+          "shot": "−3 dice; sees, hears and talks to wraiths; 1 Willpower — project, Willpower caps Pathos (itself halved)"
+        },
+        "PigmentTaken": "<b>{name}</b>: pigment ({how}) for {h} h — {fx}"
+      },
+      "Hue": {
+        "Title": "Hue",
+        "Hint": "The wraith of a former pigment user (Orpheus): a Quiescent Shadow, 3 Stains, Pathos no higher than 7",
+        "All": "All Stains",
+        "AllHint": "Hue: manifest all Stains for the scene — 1 Pathos",
+        "AllShown": "<b>{name}</b> manifests every Stain until the scene ends."
       }
     },
     "Refresh": {

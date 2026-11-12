@@ -555,6 +555,10 @@ def build():
     for a in arcanoi:
         a["allies"] = allies.get(a["key"], [])
     arch, thorns = parse_shadow()
+    # Оттенки цвета («Орфей», файл 35): Тихая Тень — говорит редко, Шипы мягкие, Ангст копится катастрофически
+    arch.append({"name": "Тихая", "en": "Quiescent", "hue": True,
+                 "text": "Тень призрака пигмента: молчит, кубики Тени — при гневе и напряжении; Тёмные Страсти зеркалят Страсти, Ангст идёт и от светлых чувств",
+                 "catharsis": "очистится от пигмента — сменит архетип"})
     data = {
         "source": "Wraith: The Oblivion 20th Anniversary Edition — справочник проекта (пересказ механики)",
         "arcanoi": arcanoi, "legions": parse_legions(), "factions": FACTIONS, "archetypes": parse_psyche_archetypes(),

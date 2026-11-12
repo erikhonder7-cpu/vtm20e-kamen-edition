@@ -4573,6 +4573,31 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  await check("Призрак: Подземный мир — Мальстрём, Туман, Сон в Оковах, «Орфей», Оттенок цвета", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {}, n0 = game.messages.size;
+      const U = await import(`/systems/${sid}/module/apps/underworld.mjs`), DV = foundry.applications.api.DialogV2, w0 = DV.wait;
+      const stub = key => async o => { const el = document.createElement("div"); el.innerHTML = o.content; o.render?.(null, { element: el, close() {} }); el.querySelector(`[data-pick="${key}"]`)?.click(); return "cancel"; };
+      const a = await Actor.create({ name: "E2E — призрак в буре", type: "wraith", prototypeToken: { actorLink: true }, flags: { world: { e2e: true }, [sid]: { created: true } },
+        system: { attributes: { stamina: { value: 2 } }, willpower: { permanent: 6, temporary: 3 }, wraith: { pathos: { value: 8 }, fetters: [{ text: "Дом", value: 4, resolved: false }] } } });
+      const [tk] = await canvas.scene.createEmbeddedDocuments("Token", [{ ...(await a.getTokenDocument()).toObject(), x: 200, y: 200 }]);
+      await wait(400); canvas.tokens.get(tk.id)?.control({ releaseOthers: true }); await wait(300);
+      DV.wait = stub("5"); await U.maelstrom(); DV.wait = w0; await wait(500);
+      const m = game.messages.contents.at(-1);
+      out.storm = [!!m.getFlag(sid, "storm"), (m.content.match(/data-r-storm/g) ?? []).length];
+      await a.update({ "system.health": { bashing: 2, lethal: 0, aggravated: 0 } });
+      await U.slumber(a); out.slumber = [a.system.health.bashing, a.system.willpower.temporary >= 3];
+      await a.update({ "system.wraith.hue": true }); out.hue = [a.system.wraith.pathos.max, a.system.wraith.projector.stainSlots];
+      await canvas.scene.deleteEmbeddedDocuments("Token", [tk.id]);
+      await ChatMessage.deleteDocuments(game.messages.contents.slice(n0).map(x => x.id));
+      await a.delete();
+      return out;
+    });
+    const want = { storm: [true, 4], slumber: [0, true], hue: [7, 3] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   await check("Призрак: лист и Арканои, Пафос, Страсть, Корпус до колебания и Испытание, Катарсис", async () => {
     const r = await page.evaluate(async () => {
       const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), WR = await import(`/systems/${sid}/module/apps/wraith.mjs`);

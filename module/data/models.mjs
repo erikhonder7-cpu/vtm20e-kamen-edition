@@ -816,6 +816,8 @@ export class WraithData extends BaseActorData {
         projector: new SchemaField({ on: new BooleanField({ initial: false }), shade: str(""), lament: str("skimmer"),
           projecting: new BooleanField({ initial: false }), emblem: new BooleanField({ initial: false }),
           stains: new ArrayField(new SchemaField({ key: str(), shown: new BooleanField({ initial: false }) })) }),
+        // Оттенок цвета («Орфей»): призрак бывшего потребителя пигмента — Тихая Тень, 3 Пятна (в projector.stains), Пафос до 7
+        hue: new BooleanField({ initial: false }),
         // другое Тёмное Царство (гл. 13): откуда призрак и его местные Арканои
         realm: new SchemaField({ kingdom: str(""), arcanoi: new SchemaField(Object.fromEntries(VTM20.wraithRealm.map(k => [k, int(0, 0, 5)]))) })
       })
@@ -847,6 +849,7 @@ export class WraithData extends BaseActorData {
     w.pathos.max = 10;
     // Живучесть проектора («Орфей»): Пафос не выше временного Корпуса; Пятно — за каждые 2 постоянного Ангста
     if (w.projector?.on) { w.pathos.max = Math.max(0, h.value); w.projector.stainSlots = Math.floor(w.shadow.angst.permanent / 2); }
+    else if (w.hue) { w.pathos.max = 7; w.projector.stainSlots = 3; }
     w.shadow.angst.max = 10;
     w.shadow.angst.value = w.shadow.angst.temporary;
     // Катарсис возможен, когда временный Ангст выше Воли (гл. 6); у Спектра — Катарсис Психеи: запас её Пафоса выше Воли (гл. 10)

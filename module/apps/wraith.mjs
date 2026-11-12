@@ -545,6 +545,8 @@ registerCardBlock("wraith", (state, ev) => {
     const d = (Codex.wraith?.realmArcanoi ?? []).find(a => a.key === x.key);
     return { chips: [{ icon: "fa-yin-yang", label: `${d?.name ?? x.key} ${"•".repeat(x.level)}` }], text: botch ? t("ArtBotch") : n ? t("ArtOk", { n }) : t("ArtFail") };
   }
+  if (x.kind === "storm") return { chips: [{ icon: x.hz === "winds" ? "fa-wind" : "fa-bolt", label: t(`Storm.Hz.${x.hz}`) }],
+    text: n ? t(`Storm.HzOk.${x.hz}`) : t(`Storm.HzFail.${x.hz}`), cls: n ? "" : "is-warn" };
   if (x.kind === "deadEyes") return { chips: [{ icon: "fa-eye", label: t("Proj.DeadEyes") }], text: n ? t("Proj.DeadEyesOk") : t("Proj.DeadEyesFail") };
   if (x.kind === "psyche") return { chips: x.emotion ? [{ icon: "fa-dove", label: x.emotion }] : [], text: n ? t("Spectre.PsycheOut", { n }) : t("PathosNone") };
   if (x.kind === "rapacity") return { chips: [{ icon: "fa-teeth", label: t("Spectre.Rapacity") }], text: n ? t("Spectre.RapacityHeld") : t("Spectre.RapacityLost"), cls: n ? "" : "is-warn" };

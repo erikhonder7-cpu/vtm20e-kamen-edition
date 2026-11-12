@@ -328,7 +328,7 @@ openStrategy: () => openStrategy(),
     else if (actor.type === "wraith") { ctx.wraithInfo = wraithInfo(actor, dots); ctx.arc = arcanoiView(actor, dots, this._wrSel); ctx.wp = passionsView(actor, dots);
       if (actor.system.wraith.spectre.on) ctx.spectre = spectreView(actor, dots);   // Спектр (apps/spectre.mjs): Ангст, Тёмные Арканои, Психея
       else if (actor.system.wraith.risen.on) ctx.risen = risenView(actor, dots);    // Восставший (apps/risen.mjs): тело, Проводник, свои Арканои
-      else if (actor.system.wraith.projector.on) ctx.projector = projectorView(actor);   // проектор «Орфея» (apps/projector.mjs): Оттенок, Пятна
+      else if (actor.system.wraith.projector.on || actor.system.wraith.hue) ctx.projector = projectorView(actor);   // проектор «Орфея» (apps/projector.mjs): Оттенок, Пятна
       ctx.realm = realmView(actor, dots);                                                // другое Тёмное Царство (apps/realms.mjs)
       const fold = arcFold(actor.id);
       for (const x of ctx.arc.own) x.folded = (fold[x.key] ?? true) && !x.sel;     // открытый уровень держит карточку раскрытой
