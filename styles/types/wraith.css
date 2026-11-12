@@ -245,7 +245,7 @@
 .vtm20.r-type-wraith .r-wr-artpane .r-vc-btn.is-use:hover { box-shadow: 0 0 10px rgba(236, 240, 244, .35); }
 
 /* сворачивание карточки Арканоса — как строка Дисциплины: свёрнутая — одна шапка с точками */
-.vtm20.r-type-wraith .r-wr-arc-head { cursor: pointer; }
+.vtm20.r-type-wraith .r-wr-arc > .r-wr-arc-head { cursor: pointer; }
 .vtm20.r-type-wraith .r-wr-arc-head .r-dots .r-dot { width: 10px; height: 10px; }
 .vtm20.r-type-wraith .r-wr-arc.is-shut .r-wr-arc-body { display: none; }
 .vtm20.r-type-wraith .r-wr-arc.is-shut { padding-bottom: 10px; }
@@ -258,3 +258,25 @@
 .vtm20.r-type-wraith .r-wr-arc.is-forbidden .r-wr-arc-sigil .r-sym { background: linear-gradient(170deg, #f2d6df, #b05a78); }
 .vtm20.r-type-wraith .r-seal-glyph .r-sym { width: 22px; height: 22px; }
 .vtm20.r-type-wraith .r-seal-glyph { display: inline-grid; place-items: center; }
+
+/* мастер создания призрака: строки Страстей, Оков и Тёмных Страстей (текст, чувство, точки, крестик), карточки Шипов */
+.vtm20 .r-cr-wrrow { display: flex; align-items: center; gap: 8px; padding: 3px 0; border-bottom: 1px dotted var(--r-line); }
+.vtm20 .r-cr-wrrow > input[type=text] { flex: 1 1 auto; min-width: 0; }
+.vtm20 .r-cr-wrrow > input.r-cr-wremo { flex: 0 0 110px; font-style: italic; }
+.vtm20 .r-cr-wrrow .r-dots { flex: none; display: flex; gap: 3px; }
+.vtm20 .r-cr-wrrow .r-icon-btn { flex: none; }
+.vtm20 .r-cr-thorns { grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
+.vtm20 .r-cr-thorns .r-cr-edge { cursor: default; }
+.vtm20 .r-cr-thorns .r-cr-edge small { color: var(--r-muted); font-size: 11.5px; }
+.vtm20 .r-cr-thorn-n { margin-left: auto; display: inline-flex; align-items: center; gap: 4px; flex: none; }
+.vtm20 .r-cr-thorn-n b { min-width: 12px; text-align: center; font-family: var(--r-display); font-weight: 400; color: var(--r-ink); }
+.vtm20 .r-cr-thorns .r-cr-edge.is-on b:first-child { color: var(--r-accent); }
+
+/* шаг «Призрак»: названия Гильдий не налезают на соседнюю плитку; отступ после Легионов; Ангст — не вплотную к архетипам */
+.vtm20 .r-cr-wrguilds .r-cr-tile { min-width: 0; }
+.vtm20 .r-cr-garou-tiles.is-five.r-cr-wrguilds .r-cr-tile.has-sym b { min-width: 0; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: .3px; font-size: 11px; }
+.vtm20 .r-cr-wrguilds + .r-cr-sub { margin-top: 12px; }
+.vtm20 .r-cr-wrlegions { margin-bottom: 14px; }
+.vtm20 .r-cr-garou-tiles + .r-cols2 { margin-top: 14px; }
+.vtm20 .r-cr-wrguilds .r-cr-tile.has-sym { align-content: center; column-gap: 8px; padding-top: 10px; padding-bottom: 10px; }
+.vtm20 .r-cr-wrguilds .r-cr-tile.has-sym > .r-cr-tile-sym { align-self: center; }

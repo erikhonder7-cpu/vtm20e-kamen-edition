@@ -4306,6 +4306,39 @@ try {
 
   // Призрак (apps/wraith.mjs): лист с вкладкой Арканоев (известные половинки рангов: Аргос 3 — Общие I–III и Посвящённый I), уровень Арканоса (Пафос, Корпус), лечение Пафосом, Страсть,
   // Корпус до колебания и Испытание, Катарсис (Ангст выше Воли), Тёмная Страсть — шёпотом ведущему
+  await check("Призрак: мастер создания — Легион, Гильдия, Арканои, Страсти и Оковы, торг с Тенью, Тень", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {}, inst = () => [...foundry.applications.instances.values()];
+      const a = await Actor.create({ name: "E2E — новопреставленный", type: "wraith", flags: { world: { e2e: true } } });
+      out.gate = a.sheet.needsCreation;
+      await game.vtm20.openCreator(a); await wait(700);
+      const cr = inst().find(x => x.constructor.name === "VtMCreator" && x.actor === a);
+      out.steps = ["wraith", "passions", "shadow"].every(k => cr.steps.includes(k)) && !cr.steps.includes("merits");
+      Object.assign(cr.st.wr, { legion: "grim", guild: "argos", faction: "renegade", death: "E2E — выстрел", archetype: "Режиссёр",
+        passions: [{ text: "Найти убийцу", emotion: "Месть", value: 4 }, { text: "Беречь сестру", emotion: "Любовь", value: 6 }],
+        fetters: [{ text: "Сестра", value: 5 }, { text: "Дом", value: 5 }],
+        dark: [{ text: "Погубить сестру", emotion: "Зависть", value: 7 }], angstRoll: 3, angstTemp: 3, thorns: { nightmares: 1, shadowtraits: 1, mirrormirror: 1 } });
+      cr.st.disc.argos = 3; cr.st.disc.outrage = 2;
+      // торг с Тенью: +2 её очков взаймы — у Психеи +2 свободных (−1 на Пафос: +2 точки); у Тени 12: Ангст 3 × 2 + три Шипа по 2
+      const free0 = cr.freeLeft; cr.st.free.trade = 2; cr.st.free.pathos = 1;
+      out.trade = [cr.freeLeft - free0, cr.shadowPool, cr.wraithPathos];
+      out.issues = cr.wraithAllIssues;
+      const ctx = await cr._prepareContext({});
+      out.ctx = [ctx.wraith?.legions?.some(l => l.active && l.sym), ctx.wraith?.guilds?.length];
+      await cr.write(); await cr.close(); await wait(500);
+      const w = a.system.wraith;
+      out.written = [w.legion, w.guild, w.arcanoi.argos.value, w.arcanoi.outrage.value, w.passions.length, w.fetters.map(f => f.value).join(","),
+        w.pathos.value, w.shadow.archetype, w.shadow.angst.permanent, w.shadow.angst.temporary, w.shadow.darkPassions.length, w.shadow.thorns[0]?.key];
+      out.created = !a.sheet.needsCreation;
+      await a.delete();
+      return out;
+    });
+    const want = { gate: true, steps: true, trade: [1, 12, 7], issues: [], ctx: [true, 4],
+      written: ["grim", "argos", 3, 2, 2, "5,5", 7, "Режиссёр", 3, 3, 1, "nightmares"], created: true };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   await check("Призрак: лист и Арканои, Пафос, Страсть, Корпус до колебания и Испытание, Катарсис", async () => {
     const r = await page.evaluate(async () => {
       const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), WR = await import(`/systems/${sid}/module/apps/wraith.mjs`);

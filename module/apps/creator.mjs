@@ -19,6 +19,7 @@ import { MageCreator } from "./creator/mage.mjs";
 import { GarouCreator } from "./creator/garou.mjs";
 import { HunterCreator } from "./creator/hunter.mjs";
 import { SorcererCreator } from "./creator/sorcerer.mjs";
+import { WraithCreator, WRAITH_CR_ACTIONS } from "./creator/wraith.mjs";
 import { CalcCreator } from "./creator/calc.mjs";
 import { ContextCreator } from "./creator/context.mjs";
 import { ACTIONS, setExtraDisc } from "./creator/actions.mjs";
@@ -39,7 +40,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     classes: ["vtm20", "r-dialog", "r-creator"],
     window: { title: "VTM20.Creator.Title", icon: "fa-solid fa-feather-pointed", resizable: true },
     position: { width: 1260, height: 880 },
-    actions: ACTIONS
+    actions: { ...ACTIONS, ...WRAITH_CR_ACTIONS }
   };
 
   static PARTS = { body: { template: `${SYSTEM_PATH}/templates/apps/creator.hbs`, scrollable: [".r-cr-body"] } };
@@ -65,7 +66,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       virt: { conscience: 0, selfControl: 0, courage: 0 },
       merits: [], flaws: [],
       extraDisc: "",                    // Дисциплина, ставшая клановой по достоинству «Дополнительная Дисциплина» (V20, Appendix)
-      free: { attr: {}, abil: {}, disc: {}, bg: {}, virt: {}, morality: 0, will: 0, rage: 0, gnosis: 0 },
+      free: { attr: {}, abil: {}, disc: {}, bg: {}, virt: {}, morality: 0, will: 0, rage: 0, gnosis: 0, pathos: 0, trade: 0, pas: {}, fet: {} },
       xp: { attr: {}, abil: {}, disc: {}, virt: {}, morality: 0, will: 0, rage: 0, gnosis: 0 },
       blood: null,
       // слуга: «Танец с Дьяволом» — хозяин (uuid демона), доля Веры хозяину (−1 — наибольшая), условия, дары словами и прибавками
@@ -84,6 +85,13 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       // Маг (M20): фракция, Сущность, родовая Сфера, фокус (парадигма и практика); Сферы — в disc, Арете — в morality
       mg: { faction: s.mage?.faction || "", sub: s.mage?.sub || "", essence: s.mage?.essence || "", resName: s.mage?.resonances?.[0]?.name || "", affinity: s.mage?.affinity || "", group: "",
         paradigm: s.mage?.paradigm || "", practice: s.mage?.practice || "" },
+      // Призрак (Wraith 20, гл. 4, 6): Легион, Гильдия, фракция, смерть; Страсти и Оковы (очки создания); Тень — архетип,
+      // бросок Ангста, Тёмные Страсти, Ангст и Шипы за свободные очки Тени
+      wr: { legion: s.wraith?.legion || "", guild: s.wraith?.guild || "", faction: s.wraith?.faction || "", death: s.wraith?.death || "",
+        passions: [{ text: "", emotion: "", value: 0 }, { text: "", emotion: "", value: 0 }, { text: "", emotion: "", value: 0 }],
+        fetters: [{ text: "", value: 0 }, { text: "", value: 0 }, { text: "", value: 0 }],
+        dark: [{ text: "", emotion: "", value: 0 }, { text: "", emotion: "", value: 0 }],
+        archetype: s.wraith?.shadow?.archetype || "", angstRoll: 0, angstDice: "", angstTemp: 0, angstExtra: 0, thorns: {} },
       ww: { breed: s.werewolf?.breed || "homid", auspice: s.werewolf?.auspice || "ragabash", tribe: s.werewolf?.tribe || "boneGnawers",
         fera: s.werewolf?.fera || "", sub: {}, gifts: {}, extra: [], deform: "", renown: { glory: 0, honor: 0, wisdom: 0 } }
     };
@@ -98,13 +106,17 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     if (this.type === "demon") s.push("house");
     if (this.isWerewolf) s.push("garou");                   // порода, аугурия, племя — или род Фера
     if (this.isMage) s.push("mage");                        // фракция, Сущность, родовая Сфера, фокус
+    if (this.isWraith) s.push("wraith");                    // Легион, Гильдия, фракция, смерть
     s.push("attributes", "abilities");
     if (this.rules.disc > 0) s.push("disciplines");
     if (this.isWerewolf) s.push("gifts");                   // три Дара 1-го уровня
     s.push("advantages");
+    if (this.isWraith) s.push("passions");                  // Страсти и Оковы — по 10 очков
     if (this.isHunter && !this.isLost) s.push("edges");     // Грани — на очки Добродетелей охоты; у Свидетеля Граней нет
     if (this.isDhampir) s.push("bloodrights");              // Кровные права дампира (Accursed Heirs, гл. 4)
-    s.push("merits", "freebies");
+    if (!this.isWraith) s.push("merits");                   // у призраков Wraith 20 достоинств и недостатков нет
+    s.push("freebies");
+    if (this.isWraith) s.push("shadow");                    // Тень — после торга свободными очками (гл. 6)
     if (this.st.xpTotal > 0) s.push("xp");
     if (this.isThrall) s.push("pact");                 // «Танец с Дьяволом»: хозяин, доля, дары
     s.push("summary");
@@ -149,4 +161,4 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
 }
 
 // линейки: геттеры и куски контекста мага, Гару и Фера, охотника и дампира
-for (const Part of [CalcCreator, ContextCreator, WriteCreator, MageCreator, GarouCreator, HunterCreator, SorcererCreator]) mix(VtMCreator, Part);
+for (const Part of [CalcCreator, ContextCreator, WriteCreator, MageCreator, GarouCreator, HunterCreator, SorcererCreator, WraithCreator]) mix(VtMCreator, Part);

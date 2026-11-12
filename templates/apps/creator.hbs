@@ -337,6 +337,32 @@
     <p class="r-note r-explain">{{localize "VTM20.MageCr.FocusHint"}}</p>
     {{/if}}
 
+    {{!-- II. Призрак (Wraith 20, гл. 1, 4): Легион — по смерти, Гильдия — по Арканосу (вступление — Фон «Статус»), фракция, как умер --}}
+    {{#if is_wraith}}
+    <h3 class="r-h3">{{localize "VTM20.Wraith.Legion"}}</h3>
+    <div class="r-cr-clans r-cr-tribes r-cr-wrlegions">
+      {{#each wraith.legions}}
+      <a class="r-cr-clan {{#if active}}is-active{{/if}}" data-action="wrPick" data-what="legion" data-key="{{key}}" data-tooltip="{{tip}}">
+        <span class="r-cr-clan-sym r-cr-medal">{{rSym sym "r-wrg"}}</span>
+        <b>{{label}}</b><span class="r-cr-clan-disc">{{sub}}</span>
+      </a>
+      {{/each}}
+    </div>
+    <h3 class="r-h3">{{localize "VTM20.Wraith.Guild"}} <em class="r-h3-note">{{localize "VTM20.WraithCr.GuildOptional"}}</em></h3>
+    {{#each wraith.guilds}}
+    <div class="r-cr-sub">{{label}}</div>
+    <div class="r-cr-tiles r-cr-garou-tiles is-five r-cr-affinities r-cr-wrguilds">
+      {{#each list}}<a class="r-cr-tile has-sym {{#if active}}is-active{{/if}}" data-action="wrPick" data-what="guild" data-key="{{key}}">{{rSym sym "r-wrg r-cr-tile-sym"}}<b>{{label}}</b><span>{{sub}}</span></a>{{/each}}
+    </div>
+    {{/each}}
+    <div class="r-cols2 r-cr-genrow">
+      <label class="r-f"><span>{{localize "VTM20.Wraith.Faction"}}</span>
+        <select data-field="wr.faction"><option value="">—</option>{{#each wraith.factions}}<option value="{{key}}" {{#if active}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+      <label class="r-f"><span>{{localize "VTM20.Wraith.Death"}}</span><input type="text" data-field="wr.death" value="{{st.wr.death}}" placeholder="{{localize 'VTM20.WraithCr.DeathHint'}}"></label>
+    </div>
+    {{#each wraith.issues}}<p class="r-note is-warn"><i class="fa-solid fa-triangle-exclamation"></i> {{this}}</p>{{/each}}
+    {{/if}}
+
     {{#if is_garou}}
     <div class="r-cr-gtabs r-cr-garou-kinds">{{#each garou.kinds}}<a class="{{#if active}}is-active{{/if}}" data-action="garouPick" data-what="fera" data-key="{{key}}" {{#if en}}data-tooltip="{{en}}"{{/if}}>{{rSym sym "r-wg r-cr-kind-sym"}} {{label}}</a>{{/each}}</div>
     {{#if garou.fera}}
@@ -516,6 +542,16 @@
         </div>
         <p class="r-note r-explain">{{localize "VTM20.MageCr.StartHint"}}</p>
       </div>
+      {{else if isWraith}}
+      <div class="r-cr-panel r-tcol">
+        <h3 class="r-colhead"><span>{{localize "VTM20.MageCr.Start"}}</span></h3>
+        <div class="r-cr-garou-base">
+          <div class="r-cr-sum-item"><span>{{localize "VTM20.Wraith.Pathos"}}</span><b>{{wraith.pathos}}</b></div>
+          <div class="r-cr-sum-item"><span>{{localize "VTM20.Willpower"}}</span><b>{{wraith.will}}</b></div>
+          <div class="r-cr-sum-item"><span>{{localize "VTM20.Wraith.Corpus"}}</span><b>10</b></div>
+        </div>
+        <p class="r-note r-explain">{{localize "VTM20.WraithCr.StartHint"}}</p>
+      </div>
       {{else if isWerewolf}}
       <div class="r-cr-panel r-tcol">
         <h3 class="r-colhead"><span>{{localize "VTM20.GarouCr.Renown"}}</span></h3>
@@ -611,13 +647,96 @@
     </div>
     {{/if}}
 
+    {{!-- Призрак: Страсти (действие + чувство, 10 очков) и Оковы (люди, места, вещи, 10 очков), рейтинги 1–5 --}}
+    {{#if is_passions}}
+    <div class="r-cols2">
+      <div class="r-cr-panel r-tcol">
+        <h3 class="r-colhead"><span>{{localize "VTM20.Wraith.Passions"}}</span></h3>
+        <div class="r-cr-left {{#if (lt wraith.passionsLeft 0)}}is-over{{else if (eq wraith.passionsLeft 0)}}is-done{{/if}}">{{localize "VTM20.Creator.LeftShort"}}: <b>{{wraith.passionsLeft}}</b></div>
+        {{#each wraith.passions}}
+        <div class="r-cr-wrrow">
+          <input type="text" data-field="wr.passions.{{i}}.text" value="{{text}}" placeholder="{{localize 'VTM20.Wraith.PassionText'}}">
+          <input type="text" class="r-cr-wremo" data-field="wr.passions.{{i}}.emotion" value="{{emotion}}" placeholder="{{localize 'VTM20.Wraith.Emotion'}}"><span class="r-dots">{{#each dots}}<a class="r-dot r-cr-dot is-{{state}}" data-action="wrRow" data-list="passions" data-op="dot" data-i="{{../i}}" data-n="{{n}}"></a>{{/each}}</span>
+          <a class="r-icon-btn is-danger" data-action="wrRow" data-list="passions" data-op="del" data-i="{{i}}"><i class="fa-solid fa-xmark"></i></a>
+        </div>
+        {{/each}}
+        <a class="r-btn is-ghost" data-action="wrRow" data-list="passions" data-op="add"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Common.Add"}}</a>
+        <p class="r-note r-explain">{{localize "VTM20.WraithCr.PassionsHint"}}</p>
+      </div>
+      <div class="r-cr-panel r-tcol">
+        <h3 class="r-colhead"><span>{{localize "VTM20.Wraith.Fetters"}}</span></h3>
+        <div class="r-cr-left {{#if (lt wraith.fettersLeft 0)}}is-over{{else if (eq wraith.fettersLeft 0)}}is-done{{/if}}">{{localize "VTM20.Creator.LeftShort"}}: <b>{{wraith.fettersLeft}}</b></div>
+        {{#each wraith.fetters}}
+        <div class="r-cr-wrrow">
+          <input type="text" data-field="wr.fetters.{{i}}.text" value="{{text}}" placeholder="{{localize 'VTM20.Wraith.FetterText'}}">
+          <span class="r-dots">{{#each dots}}<a class="r-dot r-cr-dot is-{{state}}" data-action="wrRow" data-list="fetters" data-op="dot" data-i="{{../i}}" data-n="{{n}}"></a>{{/each}}</span>
+          <a class="r-icon-btn is-danger" data-action="wrRow" data-list="fetters" data-op="del" data-i="{{i}}"><i class="fa-solid fa-xmark"></i></a>
+        </div>
+        {{/each}}
+        <a class="r-btn is-ghost" data-action="wrRow" data-list="fetters" data-op="add"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Common.Add"}}</a>
+        <p class="r-note r-explain">{{localize "VTM20.WraithCr.FettersHint"}}</p>
+      </div>
+    </div>
+    {{#each wraith.passionIssues}}<p class="r-note is-warn"><i class="fa-solid fa-triangle-exclamation"></i> {{this}}</p>{{/each}}
+    {{/if}}
+
+    {{!-- Призрак: Тень (гл. 6) — архетип, бросок постоянного Ангста, Тёмные Страсти 7, свободные очки Тени: Ангст, Тёмные Страсти, Шипы --}}
+    {{#if is_shadow}}
+    <div class="r-cr-freebar">
+      <span>{{localize "VTM20.WraithCr.ShadowPool"}}: <b>{{wraith.shadowPool}}</b>{{#if wraith.trade}} <small>({{localize "VTM20.WraithCr.Trade"}} {{wraith.trade}})</small>{{/if}}</span>
+      <span>{{localize "VTM20.Creator.FreeSpent"}}: <b>{{wraith.shadowSpent}}</b></span>
+      <span class="{{#if (lt wraith.shadowLeft 0)}}is-over{{else if (eq wraith.shadowLeft 0)}}is-done{{/if}}">{{localize "VTM20.Creator.LeftShort"}}: <b>{{wraith.shadowLeft}}</b></span>
+      <span class="r-note r-explain">{{localize "VTM20.WraithCr.ShadowCosts"}}</span>
+    </div>
+    <h3 class="r-h3">{{localize "VTM20.Wraith.ShadowArchetype"}}</h3>
+    <div class="r-cr-tiles r-cr-garou-tiles is-four">
+      {{#each wraith.archetypes}}<a class="r-cr-tile {{#if active}}is-active{{/if}}" data-action="wrPick" data-what="archetype" data-key="{{key}}" data-tooltip="{{text}}{{#if catharsis}}<br><b>{{localize 'VTM20.Wraith.Catharsis'}}:</b> {{catharsis}}{{/if}}"><b>{{label}}</b><em>{{en}}</em><span class="r-cr-tile-text">{{text}}</span></a>{{/each}}
+    </div>
+    <div class="r-cols2">
+      <div class="r-cr-panel r-tcol">
+        <h3 class="r-colhead"><span>{{localize "VTM20.Wraith.Angst"}}</span></h3>
+        <div class="r-trait-main"><span class="r-trait-label">{{localize "VTM20.WraithCr.AngstRoll"}}</span><span class="r-leader"></span>
+          <b class="r-cr-val">{{#if wraith.angstRoll}}{{wraith.angstRoll}}{{else}}—{{/if}}</b>
+          <a class="r-btn" data-action="wrAngstRoll" data-tooltip="{{localize 'VTM20.WraithCr.AngstRollHint'}}"><i class="fa-solid fa-dice-d10"></i> {{localize "VTM20.WraithCr.Roll"}}</a></div>
+        {{#if wraith.angstDice}}<p class="r-note">{{localize "VTM20.WraithCr.AngstDice"}}: {{wraith.angstDice}}</p>{{/if}}
+        <div class="r-trait-main"><span class="r-trait-label">{{localize "VTM20.WraithCr.AngstExtra"}}</span><span class="r-leader"></span><b class="r-cr-val">{{wraith.angstPerm}}</b>
+          <a class="r-step" data-action="wrShadow" data-what="angstExtra" data-d="-1">−</a><a class="r-step" data-action="wrShadow" data-what="angstExtra" data-d="1">+</a></div>
+        <div class="r-trait-main"><span class="r-trait-label">{{localize "VTM20.WraithCr.AngstTemp"}}</span><span class="r-leader"></span><b class="r-cr-val">{{wraith.angstTemp}}</b>
+          <a class="r-step" data-action="wrShadow" data-what="angstTemp" data-d="-1">−</a><a class="r-step" data-action="wrShadow" data-what="angstTemp" data-d="1">+</a></div>
+        <p class="r-note r-explain">{{localize "VTM20.WraithCr.AngstHint"}}</p>
+      </div>
+      <div class="r-cr-panel r-tcol">
+        <h3 class="r-colhead"><span>{{localize "VTM20.Wraith.DarkPassions"}} <small>{{wraith.darkSum}} / {{wraith.darkBase}}</small></span></h3>
+        {{#each wraith.dark}}
+        <div class="r-cr-wrrow">
+          <input type="text" data-field="wr.dark.{{i}}.text" value="{{text}}" placeholder="{{localize 'VTM20.Wraith.PassionText'}}">
+          <input type="text" class="r-cr-wremo" data-field="wr.dark.{{i}}.emotion" value="{{emotion}}" placeholder="{{localize 'VTM20.Wraith.Emotion'}}"><span class="r-dots">{{#each dots}}<a class="r-dot r-cr-dot is-{{state}}" data-action="wrRow" data-list="dark" data-op="dot" data-i="{{../i}}" data-n="{{n}}"></a>{{/each}}</span>
+          <a class="r-icon-btn is-danger" data-action="wrRow" data-list="dark" data-op="del" data-i="{{i}}"><i class="fa-solid fa-xmark"></i></a>
+        </div>
+        {{/each}}
+        <a class="r-btn is-ghost" data-action="wrRow" data-list="dark" data-op="add"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Common.Add"}}</a>
+        <p class="r-note r-explain">{{localize "VTM20.WraithCr.DarkHint"}}</p>
+      </div>
+    </div>
+    <h3 class="r-h3">{{localize "VTM20.Wraith.Thorns"}}</h3>
+    <div class="r-cr-edges r-cr-thorns">
+      {{#each wraith.thorns}}
+      <div class="r-cr-edge {{#if on}}is-on{{/if}}" data-tooltip="{{text}}">
+        <b>{{label}}</b> <small>{{en}} · {{costText}}</small>
+        <span class="r-cr-thorn-n">{{#if multi}}<a class="r-step" data-action="wrShadow" data-what="thorn" data-key="{{key}}" data-d="-1">−</a><b>{{n}}</b>{{/if}}<a class="r-step" data-action="wrShadow" data-what="thorn" data-key="{{key}}" data-d="{{#if on}}{{#if multi}}1{{else}}-1{{/if}}{{else}}1{{/if}}">{{#if on}}{{#if multi}}+{{else}}✓{{/if}}{{else}}+{{/if}}</a></span>
+      </div>
+      {{/each}}
+    </div>
+    {{#each wraith.shadowIssues}}<p class="r-note is-warn"><i class="fa-solid fa-triangle-exclamation"></i> {{this}}</p>{{/each}}
+    {{/if}}
+
     {{!-- VIII. Свободные пункты / IX. Опыт --}}
     {{#if is_freebies}}
     <div class="r-cr-freebar">
       <span>{{localize "VTM20.Creator.FreeTotal"}}: <b>{{freeTotal}}</b></span>
       <span>{{localize "VTM20.Creator.FreeSpent"}}: <b>{{freeSpent}}</b></span>
       <span class="{{#if (lt freeLeft 0)}}is-over{{else if (eq freeLeft 0)}}is-done{{/if}}">{{localize "VTM20.Creator.LeftShort"}}: <b>{{freeLeft}}</b></span>
-      <span class="r-note r-explain">{{#if isWerewolf}}{{localize "VTM20.Creator.FreeCostsGarou"}}{{else if isDemon}}{{localize "VTM20.Creator.FreeCostsDemon" attr=cost.attr abil=cost.abil disc=cost.disc bg=cost.bg virt=cost.virt mor=cost.morality will=cost.will}}{{else}}{{localize "VTM20.Creator.FreeCosts" attr=cost.attr abil=cost.abil disc=cost.disc bg=cost.bg virt=cost.virt mor=cost.morality will=cost.will}}{{/if}}</span>
+      <span class="r-note r-explain">{{#if isWraith}}{{localize "VTM20.WraithCr.FreeCosts"}}{{else if isWerewolf}}{{localize "VTM20.Creator.FreeCostsGarou"}}{{else if isDemon}}{{localize "VTM20.Creator.FreeCostsDemon" attr=cost.attr abil=cost.abil disc=cost.disc bg=cost.bg virt=cost.virt mor=cost.morality will=cost.will}}{{else}}{{localize "VTM20.Creator.FreeCosts" attr=cost.attr abil=cost.abil disc=cost.disc bg=cost.bg virt=cost.virt mor=cost.morality will=cost.will}}{{/if}}</span>
     </div>
     {{> crAddDisc}}
     <div class="r-cr-free">
@@ -641,7 +760,7 @@
       <span>{{localize "VTM20.Xp.total"}}: <b>{{xpTotal}}</b></span>
       <span>{{localize "VTM20.Xp.spent"}}: <b>{{xpSpent}}</b></span>
       <span class="{{#if (lt xpLeft 0)}}is-over{{else if (eq xpLeft 0)}}is-done{{/if}}">{{localize "VTM20.Creator.LeftShort"}}: <b>{{xpLeft}}</b></span>
-      <span class="r-note r-explain">{{#if isWerewolf}}{{localize "VTM20.Creator.XpCostsGarou"}}{{else if isDemon}}{{localize "VTM20.Creator.XpCostsDemon"}}{{else}}{{localize "VTM20.Creator.XpCosts"}}{{/if}}</span>
+      <span class="r-note r-explain">{{#if isWraith}}{{localize "VTM20.WraithCr.XpCosts"}}{{else if isWerewolf}}{{localize "VTM20.Creator.XpCostsGarou"}}{{else if isDemon}}{{localize "VTM20.Creator.XpCostsDemon"}}{{else}}{{localize "VTM20.Creator.XpCosts"}}{{/if}}</span>
     </div>
     {{> crAddDisc}}
     <div class="r-cr-free">
@@ -701,6 +820,7 @@
       {{#if isDemon}}<span class="r-cr-sumsym"><img src="systems/vtm20e-kamen-edition/assets/ui/fallen-sigil.svg" alt=""></span>{{/if}}
       {{#if isHunter}}<span class="r-cr-sumsym"><img src="systems/vtm20e-kamen-edition/assets/ui/hunter-sigil.svg" alt=""></span>{{/if}}
       {{#if isWerewolf}}<span class="r-cr-sumsym"><img src="systems/vtm20e-kamen-edition/assets/ui/werewolf-sigil.svg" alt=""></span>{{/if}}
+      {{#if isWraith}}{{#if patent.sym}}<span class="r-cr-sumsym">{{rSym patent.sym "r-wrg"}}</span>{{/if}}{{/if}}
       <div><div class="r-cr-sumname">{{st.name}}</div><div class="r-kicker">{{typeLabel}}{{#if isEarthbound}} · {{localize "VTM20.Creator.Earthbound"}}{{/if}}{{#if isHunter}}{{#if creed}} · {{creed.name}} · {{creed.who}}{{/if}}{{/if}}{{#if garouLine}} · {{garouLine}}{{/if}}{{#if isDemon}} · {{houseName}}{{#if visageName}} · {{visageName}}{{/if}}{{#if factionName}} · {{factionName}}{{/if}}{{/if}}{{#if st.concept}} · {{st.concept}}{{/if}}{{#unless isDemon}}{{#if st.sect}} · {{st.sect}}{{/if}}{{/unless}}</div></div>
     </div>
     <div class="r-cr-summary">
@@ -723,9 +843,14 @@
       <div><h4 class="r-h4">{{discLabel}}</h4>{{#each summary.discs}}<div class="r-cr-sumrow"><span>{{rName this}}</span><b>{{value}}</b></div>{{else}}<div class="r-note">—</div>{{/each}}</div>{{/if}}
       <div><h4 class="r-h4">{{bgLabel}}</h4>{{#each summary.bgs}}<div class="r-cr-sumrow"><span>{{rName this}}</span><b>{{value}}</b></div>{{else}}<div class="r-note">—</div>{{/each}}</div>
       <div><h4 class="r-h4">{{virtLabel}}</h4>{{#each summary.virtues}}<div class="r-cr-sumrow"><span>{{label}}</span><b>{{value}}</b></div>{{/each}}</div>
+      {{#if isWraith}}
+      <div><h4 class="r-h4">{{localize "VTM20.Wraith.Fetters"}}</h4>{{#each summary.fetters}}<div class="r-cr-sumrow"><span>{{label}}</span><b>{{value}}</b></div>{{else}}<div class="r-note">—</div>{{/each}}</div>
+      <div><h4 class="r-h4">{{localize "VTM20.Wraith.Shadow"}}</h4>{{#each summary.shadow}}<div class="r-cr-sumrow"><span>{{label}}</span><b>{{value}}</b></div>{{/each}}</div>
+      {{else}}
       <div><h4 class="r-h4">{{localize "VTM20.Sheet.Merits"}} / {{localize "VTM20.Sheet.Flaws"}}</h4>
         {{#each summary.merits}}<div class="r-cr-sumrow"><span>{{rName this}}</span><b>{{cost}}</b></div>{{/each}}
         {{#each summary.flaws}}<div class="r-cr-sumrow is-flaw"><span>{{rName this}}</span><b>−{{cost}}</b></div>{{/each}}</div>
+      {{/if}}
     </div>
     {{#if problems.length}}
     <div class="r-cr-problems"><b>{{localize "VTM20.Creator.Problems"}}</b><ul>{{#each problems}}<li>{{this}}</li>{{/each}}</ul></div>

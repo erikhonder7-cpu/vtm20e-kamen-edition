@@ -213,8 +213,7 @@ openStrategy: () => openStrategy(),
 
   get needsCreation() {
     const a = this.actor, s = a.system;
-    // у призрака мастера создания пока нет — лист сразу (как у оборотня до его мастера)
-    return !["creature", "spirit", "wraith"].includes(a.type) && !a.getFlag(SYSTEM_ID, "created")
+    return !["creature", "spirit"].includes(a.type) && !a.getFlag(SYSTEM_ID, "created")
       && Object.values(s.attributes).every(x => x.value === 1) && Object.values(s.abilities).every(x => x.value === 0);
   }
 

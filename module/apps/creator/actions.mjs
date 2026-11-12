@@ -178,6 +178,7 @@ function onDot(event, target) {
   let want = n === cur ? n - 1 : n;
   want = Math.max(base, Math.min(want, (kind === "virt" && this.isHunter && !this.isLost ? 10 : 5) - extra));
   if (kind === "abil") want = Math.min(want, VTM20.creation.abilityCap);
+  if (kind === "disc" && this.isWraith) want = Math.min(want, this.wrNums.arcanosMax ?? 3);   // Арканос на создании — не больше 3 (гл. 4)
   if (kind === "disc" && (this.type === "vampire" || this.isDemon) && this.clanDisciplines && !this.clanDisciplines.includes(key) && want > base) {
     ui.notifications.warn(t(this.isDemon ? "Creator.OnlyHouse" : "Creator.OnlyClan")); return;
   }
@@ -262,6 +263,17 @@ function bump(mode, event, target) {
   if (this.isHunter && !this.isLost && !hxp && (kind === "virt" || (kind === "morality" && mode === "xp"))) return ui.notifications.warn(t("Creator.HunterNoBuy"));
   // начальная Убеждённость за опыт — не выше Силы воли
   if (hxp && kind === "morality" && d > 0 && this.morality >= this.willpower) return ui.notifications.warn(t("Creator.HunterConvWill"));
+  if (this.isWraith && ["pathos", "trade", "pas", "fet"].includes(kind)) {   // призрак: Пафос (по 2), торг с Тенью, Страсти и Оковы
+    if (mode !== "free") return;
+    if (kind === "pathos") { if (d > 0 && this.wraithPathos >= 10) return; bag.pathos = Math.max(0, (bag.pathos ?? 0) + d); }
+    else if (kind === "trade") bag.trade = Math.clamp((bag.trade ?? 0) + d, -(this.wrNums.shadowFreebies ?? 10), this.wrNums.shadowTrade ?? 7);
+    else {
+      if (d > 0 && this.passionValue(kind, Number(key)) >= 5) return;
+      bag[kind] ??= {};
+      bag[kind][key] = Math.max(0, (bag[kind][key] ?? 0) + d);
+    }
+    return this.render();
+  }
   if (kind === "res") {                                  // маг: Резонанс — до 5 точек
     if (mode !== "free" || (d > 0 && this.mageRes >= 5)) return;
     bag.res = Math.max(0, (bag.res ?? 0) + d);
