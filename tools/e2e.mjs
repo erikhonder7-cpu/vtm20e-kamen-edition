@@ -4609,6 +4609,8 @@ try {
       await a.update({ "system.health": { bashing: 2, lethal: 0, aggravated: 0 } });
       await U.slumber(a); out.slumber = [a.system.health.bashing, a.system.willpower.temporary >= 3];
       await a.update({ "system.wraith.hue": true }); out.hue = [a.system.wraith.pathos.max, a.system.wraith.projector.stainSlots];
+      // буря могла довести до Испытания — его окно броска закрываем, чтобы не досталось следующей проверке
+      for (const x of [...foundry.applications.instances.values()]) if (x.constructor.name === "RollDialog") await x.close();
       await canvas.scene.deleteEmbeddedDocuments("Token", [tk.id]);
       await ChatMessage.deleteDocuments(game.messages.contents.slice(n0).map(x => x.id));
       await a.delete();
