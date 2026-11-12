@@ -50,7 +50,7 @@ export function changelingInfo(actor, dots) {
     nightmare: c.nightmare, nightmareBoxes: boxes(c.nightmare, 10, "system.changeling.nightmare"),
     imbalance: c.imbalance, imbalanceWill: Array.from({ length: will }, (_, i) => ({ on: i >= will - c.imbalance })),
     mists: c.mists, undone: c.undone, bedlam: c.bedlam, isGM: game.user.isGM,
-    wyrd: inWyrd(actor), place: sceneBanality(),
+    wyrd: inWyrd(actor), place: sceneBanality(), chim: chimericalView(actor),
     threshold: (b => b ? { key: b.key, name: t(`Bedlam.${b.key}`), n: b.n, text: t(`BedlamText.${b.key}`, { n: b.n }) } : null)(bedlamOf(actor))
   };
 }
@@ -219,6 +219,54 @@ export async function unleash(actor, artKey) {
   await afterRoll(actor, roll, Math.min(pool, now.nightmare), art.name);
   if (roll.successes > (c.arts[artKey] ?? 0)) await gainNightmare(actor, 1, { reason: t("UnleashWild") });
   return roll;
+}
+
+/* ── Химерические раны (гл. 6, «Health», «Death»), холодное железо ─────── */
+
+/**
+ * Химерический урон: n уровней вида type. Губительные вытесняют прочие; если летального и губительного больше,
+ * чем уровней, — химерическая смерть: подменыш просыпается в Туманах, дорожка очищается, пул Банальности +½ её рейтинга (вверх).
+ */
+export async function chimericalDamage(actor, n = 1, type = "lethal") {
+  if (!actor?.isOwner || n <= 0) return null;
+  const ch = actor.system.changeling.chimerical;
+  let agg = ch.aggravated, let_ = ch.lethal, bash = ch.bashing;
+  for (let i = 0; i < n; i++) {
+    if (type === "aggravated") agg++;
+    else if (type === "lethal") let_++;
+    else if (agg + let_ + bash < 7) bash++;
+    else if (agg + let_ < 7) { bash--; let_++; }          // ударный по заполненной дорожке — летальный (как у обычных ран)
+    else let_++;
+  }
+  if (agg + let_ > 7) {
+    const b = actor.system.changeling.banality.permanent, gain = Math.ceil(b / 2);
+    await actor.update({ "system.changeling.chimerical": { bashing: 0, lethal: 0, aggravated: 0 } });
+    await addBanality(actor, gain);
+    await say(actor, "fa-cloud", t("ChimDeath", { name: esc(actor.name), n: gain }), "is-warn");
+    return "death";
+  }
+  bash = Math.max(0, Math.min(bash, 7 - agg - let_));
+  await actor.update({ "system.changeling.chimerical": { bashing: bash, lethal: Math.min(let_, 7 - agg), aggravated: Math.min(agg, 7) } });
+  return agg + let_ + bash;
+}
+
+/** Холодное железо: n уровней — губительный урон в обе дорожки сразу и −1 Гламур за каждый уровень (гл. 6). */
+export async function coldIron(actor, n = 1) {
+  if (!actor?.isOwner || n <= 0) return null;
+  await actor.applyDamage(n, "aggravated");
+  const res = await chimericalDamage(actor, n, "aggravated");
+  const g = actor.system.changeling.glamour.temporary;
+  await actor.update({ "system.changeling.glamour.temporary": Math.max(0, g - n) });
+  await say(actor, "fa-khanda", t("ColdIronHit", { name: esc(actor.name), n }), "is-warn");
+  return res;
+}
+
+/** Химерические раны для листа: клетки, подпись, штраф. */
+export function chimericalView(actor) {
+  const ch = actor.system.changeling.chimerical;
+  const MARK = { bashing: "/", lethal: "X", aggravated: "✱", empty: "" };
+  return { levels: ch.levels.map((l, i) => ({ state: l.state, mark: MARK[l.state], label: game.i18n.localize(l.label ?? ""), current: i === ch.damage - 1 })),
+    damage: ch.damage, status: game.i18n.localize(VTM20.healthLevels.find(l => l.key === ch.status)?.label ?? "VTM20.Health.healthy"), penalty: ch.penalty };
 }
 
 /* ── Клятвы (гл. 6, «Oaths») ─────────────────────────────────────────── */

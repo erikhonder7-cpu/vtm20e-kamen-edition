@@ -8931,6 +8931,14 @@
       "Done": "<b>{name}</b> learned “{what}” to {n}."
     },
     "Changeling": {
+      "Chimerical": "Chimerical wounds",
+      "ChimShort": "Chim.",
+      "ChimHint": "Chimerical damage (C20, ch. 6): affects only the fae mien; heals faster, twice as fast in a freehold, one level per 15 minutes in the Dreaming. Wound penalty — the worse of the two tracks (system rule). More lethal and aggravated than levels — chimerical death.",
+      "ChimDeath": "<b>{name}</b>: chimerical death — the changeling falls unconscious and wakes in the Mists (duration by Banality, a point of Glamour restores it). Banality pool +{n}.",
+      "ColdIron": "Cold iron",
+      "ColdIronLevels": "Damage levels",
+      "ColdIronHint": "Cold iron (ch. 6): aggravated damage to both tracks at once and −1 Glamour per level. Only wrought iron.",
+      "ColdIronHit": "<b>{name}</b>: cold iron — {n} aggravated to body and mien, Glamour −{n}.",
       "TriggerShort": "Trigger",
       "Kith": "Kith",
       "Seeming": "Seeming",

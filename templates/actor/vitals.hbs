@@ -41,6 +41,13 @@
       </div>
       {{/each}}
     </div>
+    {{#if changelingInfo}}{{!-- химерические раны (C20, гл. 6): своя дорожка; штраф ран — худший из двух --}}
+    <div class="r-vc-head r-vc-sub r-cl-chim-head"><h4 class="r-banner" data-tooltip="{{localize 'VTM20.Changeling.ChimHint'}}">{{localize "VTM20.Changeling.Chimerical"}}</h4>
+      <div class="r-vc-status">{{changelingInfo.chim.status}}{{#if changelingInfo.chim.penalty}} <b>{{changelingInfo.chim.penalty}}</b>{{/if}}</div></div>
+    <div class="r-hboxes is-chimerical">{{#each changelingInfo.chim.levels}}<div class="r-hbox is-{{state}} {{#if current}}is-current{{/if}}" data-tooltip="{{label}}"><span class="r-hbox-mark">{{mark}}</span></div>{{/each}}</div>
+    {{#if editable}}<div class="r-vc-tools r-cl-chim-tools"><span class="r-vc-btngroup" data-tooltip="{{localize 'VTM20.Sheet.HealthHint'}}"><span class="r-vc-btnlabel">{{localize "VTM20.Changeling.ChimShort"}}</span>
+      <a class="r-vc-btn is-sq is-bashing" data-action="clChim" data-type="bashing">/</a><a class="r-vc-btn is-sq is-lethal" data-action="clChim" data-type="lethal">X</a><a class="r-vc-btn is-sq is-aggravated" data-action="clChim" data-type="aggravated">✱</a></span></div>{{/if}}
+    {{/if}}
     <div class="r-vc-tools">
       <span class="r-vc-btngroup" data-tooltip="{{localize 'VTM20.Sheet.HealthHint'}}">
         <span class="r-vc-btnlabel">{{localize "VTM20.Sheet.DamageMarks"}}</span>
@@ -48,6 +55,7 @@
         <a class="r-vc-btn is-sq is-lethal" data-action="setHealth" data-type="lethal" aria-label="{{localize 'VTM20.Damage.lethal'}}">X</a>
         <a class="r-vc-btn is-sq is-aggravated" data-action="setHealth" data-type="aggravated" aria-label="{{localize 'VTM20.Damage.aggravated'}}">✱</a>
       </span>
+      {{#if changelingInfo}}<a class="r-vc-btn is-sq" data-action="clColdIron" data-tooltip="{{localize 'VTM20.Changeling.ColdIronHint'}}"><i class="fa-solid fa-khanda"></i></a>{{/if}}
       {{#if isDemon}}<a class="r-vc-btn" data-action="faithHeal" data-tooltip="{{localize 'VTM20.Demon.FaithHealHint'}}"><i class="fa-solid fa-fire-flame-curved"></i> {{localize "VTM20.Demon.FaithHeal"}}</a>{{/if}}
       {{#if wraithInfo}}<a class="r-vc-btn" data-action="wrHeal" data-tooltip="{{#if spectre}}{{localize 'VTM20.Wraith.Spectre.HealHint'}}{{else}}{{localize 'VTM20.Wraith.HealHint'}}{{/if}}"><i class="fa-solid fa-hand-sparkles"></i> {{#if spectre}}{{localize "VTM20.Wraith.Spectre.HealShort"}}{{else}}{{localize "VTM20.Wraith.HealShort"}}{{/if}}</a>
       {{#if editable}}<select name="system.wraith.state" class="r-mini-select" data-tooltip="{{localize 'VTM20.Wraith.StateHint'}}">{{#each wraithInfo.states}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>{{/if}}{{/if}}

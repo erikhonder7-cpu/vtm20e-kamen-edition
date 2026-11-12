@@ -197,3 +197,9 @@
 .vtm20.r-type-changeling .r-cl-oath-tools a:hover { color: var(--r-accent); }
 .vtm20.r-type-changeling .r-cl-oath-fx { margin: 4px 0 0; font-size: 12px; color: var(--r-muted); }
 .vtm20.r-type-changeling .r-cl-oath.is-broken { opacity: .75; border-color: #a87ad6; }
+/* Химерические раны — лиловая дорожка под обычной */
+.vtm20.r-type-changeling .r-cl-chim-head { margin-top: 8px; }
+.vtm20.r-type-changeling .r-hboxes.is-chimerical .r-hbox { border-color: rgba(184, 155, 228, .45); min-height: 22px; }
+.vtm20.r-type-changeling .r-vc-health .r-hboxes.is-chimerical .r-hbox.is-bashing, .vtm20.r-type-changeling .r-vc-health .r-hboxes.is-chimerical .r-hbox.is-lethal,
+.vtm20.r-type-changeling .r-vc-health .r-hboxes.is-chimerical .r-hbox.is-aggravated { background: linear-gradient(180deg, #9b7ad0, #4e2f86); border-color: #b89be4; color: #f3ecff; box-shadow: none; }
+.vtm20.r-type-changeling .r-cl-chim-tools { margin-top: 4px; }

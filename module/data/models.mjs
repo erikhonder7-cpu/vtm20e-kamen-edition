@@ -925,6 +925,17 @@ export class ChangelingData extends BaseActorData {
     // Дисбаланс отмечает клетки Воли справа налево (не больше постоянной Воли)
     c.imbalance = Math.min(c.imbalance, this.willpower.permanent);
     c.bedlam = this.willpower.permanent > 0 && c.imbalance >= this.willpower.permanent;
+    // Химерические раны (C20, гл. 6 «Health»): своя дорожка; штраф ран — худший из двух (правило системы),
+    // при Туманах («Отстранённость») химерический штраф мягче на 1
+    const ch = c.chimerical, agg = Math.min(ch.aggravated, 7), let_ = Math.min(ch.lethal, 7 - agg), bash = Math.min(ch.bashing, 7 - agg - let_);
+    Object.assign(ch, { aggravated: agg, lethal: let_, bashing: bash, damage: agg + let_ + bash });
+    ch.levels = VTM20.healthLevels.map((lvl, i) => ({ ...lvl, index: i, state: i < agg ? "aggravated" : i < agg + let_ ? "lethal" : i < ch.damage ? "bashing" : "empty" }));
+    const worstC = ch.damage > 0 ? VTM20.healthLevels[ch.damage - 1] : null;
+    ch.incapacitated = ch.damage >= 7;
+    ch.penalty = ch.incapacitated ? 0 : Math.min(0, (worstC?.penalty ?? 0) + (c.mists ? 1 : 0));
+    ch.status = worstC?.key ?? "healthy";
+    const h = this.health;
+    if (!h.incapacitated && ch.penalty < h.penalty) { this.initiative += ch.penalty - h.penalty; h.penalty = ch.penalty; }
   }
 }
 

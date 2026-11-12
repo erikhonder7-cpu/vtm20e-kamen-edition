@@ -3,7 +3,7 @@
 // this — лист (ApplicationV2 зовёт обработчики со своим this).
 
 import { castCantrip, unleash, artRow, spendGlamour, gainGlamour, gainNightmare, banalityTrigger, invokeWyrd, invokeAutumn, epiphany,
-  setSceneBanality, endBedlam, takeOath, breakOath, dropOath } from "../../apps/changeling.mjs";
+  setSceneBanality, endBedlam, takeOath, breakOath, dropOath, chimericalDamage, coldIron } from "../../apps/changeling.mjs";
 
 function onCast(event, target) {
   const d = target.dataset;
@@ -28,10 +28,25 @@ function onAutumn() { return invokeAutumn(this.actor); }
 function onEpiphany() { return epiphany(this.actor); }
 function onPlace() { return setSceneBanality(); }
 function onBedlamEnd() { return endBedlam(this.actor); }
+/** Химерические раны: щелчок — +1 уровень вида, правый — −1. */
+function onChim(event, target) {
+  const type = target.dataset.type, ch = this.actor._source.system.changeling.chimerical;
+  if (event.button === 2) return ch[type] > 0 ? this.actor.update({ [`system.changeling.chimerical.${type}`]: ch[type] - 1 }) : null;
+  return chimericalDamage(this.actor, 1, type);
+}
+async function onColdIron() {
+  const n = await foundry.applications.api.DialogV2.prompt({ window: { title: game.i18n.localize("VTM20.Changeling.ColdIron"), icon: "fa-solid fa-khanda" },
+    classes: ["vtm20", "r-dialog", "r-type-changeling"], rejectClose: false,
+    content: `<div class="r-form"><label class="r-field"><span>${game.i18n.localize("VTM20.Changeling.ColdIronLevels")}</span><input type="number" name="n" min="1" max="10" value="1"></label>
+      <p class="r-note">${game.i18n.localize("VTM20.Changeling.ColdIronHint")}</p></div>`,
+    ok: { label: game.i18n.localize("VTM20.Changeling.ColdIron"), callback: (e, b) => Number(b.form.elements.n.value) || 0 } });
+  return n ? coldIron(this.actor, n) : null;
+}
 function onOath(event, target) {
   const { op, i } = target.dataset;
   return op === "take" ? takeOath(this.actor) : op === "break" ? breakOath(this.actor, i) : dropOath(this.actor, i);
 }
 
 export const CHANGELING_ACTIONS = { clCast: onCast, clUnleash: onUnleash, clArtAdd: onArtAdd, clArtDel: onArtDel, clGlamour: onGlamour,
-  clNightmare: onNightmare, clTrigger: onTrigger, clWyrd: onWyrd, clAutumn: onAutumn, clEpiphany: onEpiphany, clPlace: onPlace, clBedlamEnd: onBedlamEnd, clOath: onOath };
+  clNightmare: onNightmare, clTrigger: onTrigger, clWyrd: onWyrd, clAutumn: onAutumn, clEpiphany: onEpiphany, clPlace: onPlace, clBedlamEnd: onBedlamEnd, clOath: onOath,
+  clChim: { handler: onChim, buttons: [0, 2] }, clColdIron: onColdIron };

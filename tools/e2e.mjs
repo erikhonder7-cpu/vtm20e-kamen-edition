@@ -5674,6 +5674,28 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  // Химерические раны подменыша (C20, гл. 6): своя дорожка, штраф ран — худший из двух; холодное железо — губительный в обе
+  // и −1 Гламур за уровень; летального и губительного больше 7 — химерическая смерть: дорожка пуста, пул Банальности + ½ рейтинга
+  await check("Подменыш: химерические раны, холодное железо, химерическая смерть", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, CL = await import(`/systems/${sid}/module/apps/changeling.mjs`), n0 = game.messages.size, out = {};
+      const a = await Actor.create({ name: "E2E — химерические раны", type: "changeling", flags: { world: { e2e: true }, [sid]: { created: true } },
+        system: { changeling: { glamour: { permanent: 5, temporary: 5 }, banality: { permanent: 3, temporary: 0 } } } });
+      try {
+        await CL.chimericalDamage(a, 3, "lethal");
+        out.pen = [a.system.health.damage, a.system.changeling.chimerical.damage, a.system.health.penalty];
+        await CL.coldIron(a, 2);
+        out.iron = [a.system.health.aggravated, a.system.changeling.chimerical.aggravated, a.system.changeling.glamour.temporary];
+        out.death = [await CL.chimericalDamage(a, 3, "lethal"), a.system.changeling.chimerical.damage, a.system.changeling.banality.temporary];
+      } finally { await ChatMessage.deleteDocuments(game.messages.contents.slice(n0).map(x => x.id)); await a.delete(); }
+      return out;
+    });
+    // 3 летальных химерических: штраф −1 (Ранен) при целом теле; железо 2: по 2 губительных, Гламур 3; ещё 3 летальных: 2 + 6 > 7 — смерть, Банальность +2
+    const want = { pen: [0, 3, -1], iron: [2, 2, 3], death: ["death", 0, 2] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   await check("Призрак: лист и Арканои, Пафос, Страсть, Корпус до колебания и Испытание, Катарсис", async () => {
     const r = await page.evaluate(async () => {
       const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), WR = await import(`/systems/${sid}/module/apps/wraith.mjs`);
