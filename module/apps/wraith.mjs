@@ -163,11 +163,14 @@ function costText(l) {
 }
 
 /** Страсти, Оковы, Тёмные Страсти и Шипы — строками для вкладки. */
-export function passionsView(actor, dots) {
+export function passionsView(actor, dots, R = null) {
   const w = actor.system.wraith, sh = w.shadow;
-  const row = (list, path) => list.map((x, i) => ({ ...x, i, dots: dots(x.value, 5, { path: `${path}.${i}.value`, list: true }) }));
+  const row = (list, path, kind) => list.map((x, i) => ({ ...x, i, dots: dots(x.value, 5, { path: `${path}.${i}.value`, list: true }),
+    ...(R && kind ? { res: R.resolveInfo(x, kind) } : {}) }));
   return {
-    passions: row(w.passions, "system.wraith.passions"), fetters: row(w.fetters, "system.wraith.fetters"),
+    // Разрешение (apps/resolution.mjs): ход по строкам и срок в Землях Теней без Оков
+    shadowlands: R ? R.shadowlandsInfo(actor) : null,
+    passions: row(w.passions, "system.wraith.passions", "passion"), fetters: row(w.fetters, "system.wraith.fetters", "fetter"),
     dark: row(sh.darkPassions, "system.wraith.shadow.darkPassions"),
     passionSum: w.passions.reduce((n, x) => n + x.value, 0), fetterSum: w.fetters.reduce((n, x) => n + x.value, 0),
     darkSum: sh.darkPassions.reduce((n, x) => n + x.value, 0),
@@ -343,7 +346,12 @@ export async function rollPassion(actor, i) {
   if (!how) return null;
   return RollDialog.prompt(actor, { title: t("PassionTitle", { text: p.text || "—" }), pool: p.value, difficulty: Number(how), lockTraits: true,
     extra: { wraith: { kind: "passion", text: p.text, emotion: p.emotion } },
-    onRolled: async r => { const n = await gainPathos(actor, r?.successes ?? 0); if (n) await say(actor, "fa-heart", t("PathosGain", { name: esc(actor.name), n })); } });
+    onRolled: async r => {
+      const n = await gainPathos(actor, r?.successes ?? 0);
+      if (n) await say(actor, "fa-heart", t("PathosGain", { name: esc(actor.name), n }));
+      // Пафос из Страсти, которую разрешают, отбрасывает Разрешение назад (гл. 8): сессий — сколько Пафоса взято
+      if (n && p.orig && !p.resolved) await say(actor, "fa-backward", t("Res.Setback", { name: esc(actor.name), n }), "is-warn");
+    } });
 }
 
 /** Оковы (гл. 8): в конце сцены с Оковами — рейтинг, сл. 6, успех — Воля; Сон в Оковах — сл. 4 за 8 часов. */
@@ -452,7 +460,8 @@ export async function catharsis(actor) {
 export async function harrowing(actor, cause = "corpus") {
   // живому Испытание не грозит: проектора «Орфея» выбрасывает в тело с губительной раной
   if (actor.system.wraith.projector?.on) return (await import("./projector.mjs")).projectorHarrowed(actor);
-  const destruction = cause === "destruction";
+  // Испытание Разрушения — и за ботч Разрешения Страсти или Оков (гл. 8), но Корпус тогда не трогается
+  const destruction = cause === "destruction" || cause === "resolution";
   await actor.toggleStatusEffect?.("r-harrowing", { active: true });
   const angst = actor.system.wraith.shadow.angst.permanent;
   let shadowHits = 0, sv = [];
@@ -531,6 +540,13 @@ registerCardBlock("wraith", (state, ev) => {
     return { chips, text: x.kind === "dark" ? (n ? t("AngstOut", { n }) : t("AngstNone")) : (n ? t("PathosOut", { n }) : t("PathosNone")) };
   }
   if (x.kind === "fetter") return { chips: [], text: n ? t("WillOut", { n }) : t("WillNone") };
+  if (x.kind === "resolve") {   // Разрешение и угасание Страстей и Оков (apps/resolution.mjs)
+    const chip = { icon: x.step === "neglect" ? "fa-hourglass-end" : x.step === "final" ? "fa-dove" : "fa-feather", label: t(`Res.Step.${x.step}`) };
+    if (x.step === "weaken") return { chips: [chip], text: t("Res.WeakenOut", { n: x.list === "passion" ? n : Math.floor(n / 2) }) };
+    if (x.step === "final") return { chips: [chip], text: botch ? t("Res.FinalBotch") : n >= x.need ? t("Res.FinalOk") : t("Res.FinalFail", { n, need: x.need }),
+      cls: n >= x.need && !botch ? "" : "is-warn" };
+    return { chips: [chip], text: botch ? t("Res.NeglectBotch") : n ? t("Res.NeglectHeld") : t("Res.NeglectFail"), cls: n && !botch ? "" : "is-warn" };
+  }
   if (x.kind === "memoriam") return { chips: [{ icon: "fa-candle-holder", label: t("Memoriam") }], text: botch ? t("MemoriamBotchShort") : n ? t("PathosOut", { n }) : t("PathosNone") };
   if (x.kind === "catharsis" && x.psyche) {   // Катарсис Психеи: Воля Спектра против запаса Пафоса Психеи
     const held = n >= x.shadow;

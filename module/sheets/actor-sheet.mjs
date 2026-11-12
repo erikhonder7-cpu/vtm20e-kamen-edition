@@ -8,6 +8,7 @@
 import { MAGE_ACTIONS } from "./actor/mage.mjs";
 import { WRAITH_ACTIONS, arcFold } from "./actor/wraith.mjs";
 import { wraithInfo, arcanoiView, passionsView } from "../apps/wraith.mjs";
+import * as Resolution from "../apps/resolution.mjs";
 import { spectreView } from "../apps/spectre.mjs";
 import { risenView } from "../apps/risen.mjs";
 import { projectorView } from "../apps/projector.mjs";
@@ -325,7 +326,7 @@ openStrategy: () => openStrategy(),
       ctx.ww.deformAvail = (werewolfDataSheet().deformities ?? []).filter(d => !actor.system.werewolf.deformities.includes(d.key)).map(d => ({ key: d.key, label: VTM20.label(d) }));
       ctx.ww.fetishAvail = (werewolfDataSheet().fetishes ?? []).map(f => ({ key: f.key, talen: f.kind === "talen",
         label: `${VTM20.label(f)} (${f.kind === "talen" ? "" : `ур. ${f.level}, `}${game.i18n.localize("VTM20.Werewolf.Gnosis")} ${f.gnosis})` })); }
-    else if (actor.type === "wraith") { ctx.wraithInfo = wraithInfo(actor, dots); ctx.arc = arcanoiView(actor, dots, this._wrSel); ctx.wp = passionsView(actor, dots);
+    else if (actor.type === "wraith") { ctx.wraithInfo = wraithInfo(actor, dots); ctx.arc = arcanoiView(actor, dots, this._wrSel); ctx.wp = passionsView(actor, dots, Resolution);
       if (actor.system.wraith.spectre.on) ctx.spectre = spectreView(actor, dots);   // Спектр (apps/spectre.mjs): Ангст, Тёмные Арканои, Психея
       else if (actor.system.wraith.risen.on) ctx.risen = risenView(actor, dots);    // Восставший (apps/risen.mjs): тело, Проводник, свои Арканои
       else if (actor.system.wraith.projector.on || actor.system.wraith.hue) ctx.projector = projectorView(actor);   // проектор «Орфея» (apps/projector.mjs): Оттенок, Пятна

@@ -248,11 +248,16 @@
   </h2>
   <ul class="r-edge-list r-wr-rows">
     {{#each wp.passions}}
-    <li class="r-wr-row">
+    <li class="r-wr-row {{#if resolved}}is-resolved{{/if}} {{#if res.resolving}}is-resolving{{/if}}">
       <input type="text" class="r-wr-text" name="system.wraith.passions.{{i}}.text" value="{{text}}" placeholder="{{localize 'VTM20.Wraith.PassionText'}}">
       <input type="text" class="r-wr-emo" name="system.wraith.passions.{{i}}.emotion" value="{{emotion}}" placeholder="{{localize 'VTM20.Wraith.Emotion'}}">
+      {{#if resolved}}<span class="r-wr-res-tag" data-tooltip="{{localize 'VTM20.Wraith.Res.DoneHint'}}"><i class="fa-solid fa-dove"></i> {{localize "VTM20.Wraith.Res.Done"}}</span>{{else}}
       {{> rDots dots=dots}}
+      {{#if res.resolving}}<span class="r-wr-res-tag is-going" data-tooltip="{{res.tip}}"><i class="fa-solid fa-feather"></i> {{res.orig}}</span>{{/if}}
       <a class="r-vc-btn" data-action="wrPassion" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Wraith.PassionHint'}}"><i class="fa-solid fa-heart"></i></a>
+      {{#unless @root.spectre}}{{#if @root.editable}}{{#unless res.locked}}<a class="r-vc-btn" data-action="wrResolve" data-kind="passion" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Wraith.Res.Hint'}}"><i class="fa-solid fa-dove"></i></a>{{/unless}}{{/if}}
+      {{#if @root.isGM}}<a class="r-vc-btn" data-action="wrWane" data-kind="passion" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Wraith.Res.WaneHint'}}"><i class="fa-solid fa-hourglass-end"></i></a>{{/if}}{{/unless}}
+      {{/if}}
       {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="wrRowDel" data-kind="passion" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
     </li>
     {{else}}<li class="r-note">{{localize "VTM20.Wraith.NoPassions"}}</li>
@@ -261,15 +266,20 @@
 
   {{!-- Оковы (гл. 8): Воля — бросок рейтинга, сл. 6 в конце сцены с Оковами, сл. 4 за 8 часов Сна в них --}}
   <h2 class="r-h2"><span>{{#if projector.isProjector}}{{localize "VTM20.Wraith.Proj.Tethers"}}{{else}}{{localize "VTM20.Wraith.Fetters"}}{{/if}} <small>{{wp.fetterSum}}</small></span>
-    {{#if editable}}<span class="r-h2-tools"><a class="r-h2-btn" data-action="wrRowAdd" data-kind="fetter"><i class="fa-solid fa-plus"></i> <span class="r-h2-lbl">{{localize "VTM20.Common.Add"}}</span></a></span>{{/if}}
+    {{#if editable}}<span class="r-h2-tools">{{#unless spectre}}{{#unless projector.isProjector}}{{#if wp.shadowlands.noFetters}}<a class="r-h2-btn is-warn" data-action="wrLinger" data-tooltip="{{#if wp.shadowlands.perDay}}{{localize 'VTM20.Wraith.Res.LingerDayHint'}}{{else}}{{localize 'VTM20.Wraith.Res.LingerSceneHint'}}{{/if}}"><i class="fa-solid fa-hourglass-half"></i> <span class="r-h2-lbl">{{localize "VTM20.Wraith.Res.Linger"}}</span></a>{{/if}}{{/unless}}{{/unless}}<a class="r-h2-btn" data-action="wrRowAdd" data-kind="fetter"><i class="fa-solid fa-plus"></i> <span class="r-h2-lbl">{{localize "VTM20.Common.Add"}}</span></a></span>{{/if}}
   </h2>
   <ul class="r-edge-list r-wr-rows">
     {{#each wp.fetters}}
     <li class="r-wr-row {{#if resolved}}is-resolved{{/if}}">
       <input type="text" class="r-wr-text is-wide" name="system.wraith.fetters.{{i}}.text" value="{{text}}" placeholder="{{localize 'VTM20.Wraith.FetterText'}}">
       <label class="r-wr-check" data-tooltip="{{localize 'VTM20.Wraith.ResolvedHint'}}"><input type="checkbox" name="system.wraith.fetters.{{i}}.resolved" {{checked resolved}}> {{localize "VTM20.Wraith.Resolved"}}</label>
+      {{#unless resolved}}
       {{> rDots dots=dots}}
+      {{#if res.resolving}}<span class="r-wr-res-tag is-going" data-tooltip="{{res.tip}}"><i class="fa-solid fa-feather"></i> {{res.orig}}</span>{{/if}}
       <a class="r-vc-btn" data-action="wrFetter" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Wraith.FetterHint'}}"><i class="fa-solid fa-link"></i></a>
+      {{#unless @root.projector.isProjector}}{{#if @root.editable}}<a class="r-vc-btn" data-action="wrResolve" data-kind="fetter" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Wraith.Res.Hint'}}"><i class="fa-solid fa-dove"></i></a>{{/if}}
+      {{#if @root.isGM}}<a class="r-vc-btn" data-action="wrWane" data-kind="fetter" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Wraith.Res.WaneHintF'}}"><i class="fa-solid fa-hourglass-end"></i></a>{{/if}}{{/unless}}
+      {{/unless}}
       {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="wrRowDel" data-kind="fetter" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
     </li>
     {{else}}<li class="r-note">{{localize "VTM20.Wraith.NoFetters"}}</li>

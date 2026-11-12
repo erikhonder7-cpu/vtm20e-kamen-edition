@@ -776,7 +776,9 @@ export class WerewolfData extends MortalData {
 // Посвящённый уровень Гильдии; skip — где Общий уровень не взят: Посвящённый взят вместо него); Страсти и Оковы 1–5;
 // Тень — архетип, Ангст (постоянный и временный, до 10), Тёмные Страсти, Шипы (ключи data/wraith.json → thorns);
 // catharsis — Тень владеет Корпусом до конца сцены; state — телесное состояние (гл. 11, «Пять состояний»).
-const wraithText = () => new SchemaField({ text: str(), emotion: str(), value: int(1, 0, 5) });
+// orig — исходный рейтинг, когда начато Разрешение (гл. 8); resolved — разрешена; locked — ботч Разрешения, больше не разрешить
+const wraithText = () => new SchemaField({ text: str(), emotion: str(), value: int(1, 0, 5), orig: int(0, 0, 5),
+  resolved: new BooleanField({ initial: false }), locked: new BooleanField({ initial: false }) });
 export class WraithData extends BaseActorData {
   static defineSchema() {
     const base = super.defineSchema();
@@ -790,7 +792,7 @@ export class WraithData extends BaseActorData {
         arcanoi: new SchemaField(Object.fromEntries(VTM20.wraithArcanoi.map(k => [k, new SchemaField({ value: int(0, 0, 5),
           initiate: new ArrayField(int(1, 1, 5)), skip: new ArrayField(int(1, 1, 5)) })]))),
         passions: new ArrayField(wraithText()),
-        fetters: new ArrayField(new SchemaField({ text: str(), value: int(1, 0, 5), resolved: new BooleanField({ initial: false }) })),
+        fetters: new ArrayField(new SchemaField({ text: str(), value: int(1, 0, 5), resolved: new BooleanField({ initial: false }), orig: int(0, 0, 5) })),
         shadow: new SchemaField({ archetype: str(""), guide: str(""),
           angst: new SchemaField({ permanent: int(1, 0, 10), temporary: int(0, 0, 10) }),
           darkPassions: new ArrayField(wraithText()),

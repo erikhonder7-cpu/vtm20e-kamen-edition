@@ -4686,6 +4686,61 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  // Разрешение Страстей и Оков (гл. 8): кубики подменены — сначала одни десятки, потом одни единицы
+  await check("Призрак: Разрешение Страстей и Оков — ослабление, итоговый бросок, ботч, пренебрежение, срок без Оков", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {}, n0 = game.messages.size;
+      const RS = await import(`/systems/${sid}/module/apps/resolution.mjs`);
+      const inst = () => [...foundry.applications.instances.values()];
+      const rollDlg = async () => { for (let i = 0; i < 40; i++) { const d = inst().find(x => x.constructor.name === "RollDialog" && x.rendered); if (d) return d; await wait(100); } return null; };
+      const submit = async () => { const d = await rollDlg(); if (!d) return false; d.element.querySelector("button[type=submit]")?.click(); await wait(1200); return true; };
+      const pickCard = async key => { for (let i = 0; i < 40; i++) { const b = document.querySelector(`.r-wc-dlg [data-pick="${key}"]`); if (b) { b.click(); await wait(300); return true; } await wait(100); } return false; };
+      const step = async (p, key) => { await pickCard(key); await submit(); await p; };
+      const a = await Actor.create({ name: "E2E — призрак у черты", type: "wraith", flags: { world: { e2e: true }, [sid]: { created: true } },
+        system: { willpower: { permanent: 6, temporary: 6 }, wraith: { shadow: { angst: { permanent: 2, temporary: 0 } },
+          passions: [{ text: "Отомстить убийце", emotion: "Ненависть", value: 4 }, { text: "Ревновать жену", emotion: "Ревность", value: 2 }],
+          fetters: [{ text: "Дом на холме", value: 4 }, { text: "Обручальное кольцо", value: 2 }] } } });
+      const rnd = CONFIG.Dice.randomUniform;
+      try {
+        CONFIG.Dice.randomUniform = () => 0.0001;  // одни десятки (в v14 малое число — высокая грань)
+        await step(RS.resolveRow(a, "passion", 0), "weaken");
+        out.pw = [a.system.wraith.passions[0].value, a.system.wraith.passions[0].orig];
+        await step(RS.resolveRow(a, "fetter", 0), "weaken");
+        out.fw = [a.system.wraith.fetters[0].value, a.system.wraith.fetters[0].orig];
+        await step(RS.resolveRow(a, "fetter", 0), "final");
+        out.ff = [a.system.wraith.fetters[0].resolved, a.system.wraith.fetters[0].value];
+        await step(RS.resolveRow(a, "passion", 0), "final");
+        out.pf = a.system.wraith.passions[0].resolved;
+        CONFIG.Dice.randomUniform = () => 0.9999;  // одни единицы — ботч
+        // ботч ведёт в Испытание: его окно открывается, пока первый бросок ещё не закончен
+        let p = RS.resolveRow(a, "passion", 1); await pickCard("final"); await submit();
+        await submit(); await p;                   // Испытание Разрушения
+        const p1 = a.system.wraith.passions[1];
+        out.pb = [p1.value, p1.locked];
+        p = RS.waneRow(a, "fetter", 1); await pickCard("neglect"); await submit();
+        await submit(); await p;                   // Испытание за угасшие Оковы
+        out.fn = a.system.wraith.fetters.length;
+      } finally { CONFIG.Dice.randomUniform = rnd; }
+      out.sl = RS.shadowlandsInfo(a);
+      await RS.linger(a);
+      out.wp = a.system.willpower.temporary;
+      await a.sheet.render({ force: true }); await wait(900); a.sheet.changeTab("disciplines", "primary"); await wait(500);
+      const el = a.sheet.element;
+      out.sheet = [el.querySelectorAll(".r-wr-row.is-resolved").length, !!el.querySelector("[data-action=wrLinger]"), el.querySelectorAll("[data-action=wrResolve]").length];
+      await a.sheet.close();
+      for (const app of inst()) if (app.constructor.name === "RollDialog") await app.close();
+      await ChatMessage.deleteDocuments(game.messages.contents.slice(n0).map(m => m.id));
+      await a.delete();
+      return out;
+    });
+    // ослабление: Страсть 4 → 1 (4 успеха), Оковы 4 → 2 (4 успеха / 2); итоговые — разрешены; ботч Страсти — 3 и закрыта;
+    // пренебрежение ботчем — Кольцо 2 → 0, стёрто; без живых Оков, но с разрешёнными — день за Волю
+    const want = { pw: [1, 4], fw: [2, 4], ff: [true, 0], pf: true, pb: [3, true], fn: 1, sl: { live: 0, noFetters: true, perDay: true }, wp: 5,
+      sheet: [2, true, 0] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   await check("Призрак: Подземный мир — Мальстрём, Туман, Сон в Оковах, «Орфей», Оттенок цвета", async () => {
     const r = await page.evaluate(async () => {
       const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {}, n0 = game.messages.size;
