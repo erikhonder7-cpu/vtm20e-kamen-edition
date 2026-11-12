@@ -178,8 +178,9 @@
       <select name="system.wraith.shadow.archetype"><option value="">—</option>{{#each wraithInfo.archetypes}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
     </label>
     <div class="r-vc-tools">
+      {{#if projector}}<span class="r-vc-hint" data-tooltip="{{localize 'VTM20.Wraith.Proj.NoShadowHint'}}"><i class="fa-solid fa-droplet"></i> {{localize "VTM20.Wraith.Proj.Stains"}} {{projector.stains.length}}/{{projector.slots}}</span>{{else}}
       <a class="r-vc-btn {{#if wraithInfo.catharsis}}is-on{{/if}}" data-action="wrCatharsis" data-tooltip="{{#if wraithInfo.catharsis}}{{localize 'VTM20.Wraith.CatharsisEndHint'}}{{else}}{{localize 'VTM20.Wraith.CatharsisHint'}}{{/if}}"><i class="fa-solid fa-mask"></i> {{localize "VTM20.Wraith.Catharsis"}}</a>
-      <a class="r-vc-btn is-sq" data-action="wrShadowDice" data-tooltip="{{localize 'VTM20.Wraith.ShadowDiceHint'}}"><i class="fa-solid fa-dice"></i></a>
+      <a class="r-vc-btn is-sq" data-action="wrShadowDice" data-tooltip="{{localize 'VTM20.Wraith.ShadowDiceHint'}}"><i class="fa-solid fa-dice"></i></a>{{/if}}
       {{#if isGM}}<a class="r-vc-btn is-sq" data-action="wrAngst" data-d="1" data-tooltip="{{localize 'VTM20.Wraith.AngstPlus'}}"><i class="fa-solid fa-plus"></i></a>{{/if}}
       {{#if wraithInfo.eidolon}}<span class="r-vc-hint is-right" data-tooltip="{{localize 'VTM20.Wraith.EidolonHint'}}"><i class="fa-solid fa-sun"></i> {{localize "VTM20.Wraith.Eidolon"}} <b>{{wraithInfo.eidolonLeft}}</b>/{{wraithInfo.eidolon}}</span>{{/if}}
       <a class="r-vc-btn {{#unless wraithInfo.eidolon}}is-right{{/unless}}" data-action="wrHarrowing" data-tooltip="{{localize 'VTM20.Wraith.HarrowingHint'}}"><i class="fa-solid fa-dungeon"></i></a>

@@ -94,7 +94,7 @@ class XpWindow extends HandlebarsApplicationMixin(ApplicationV2) {
       ...VTM20.mageSpheres.map(k => row(`a:system.mage.spheres.${k}:mageSphere`, a.traitLabel(`mage.${k}`), s.mage.spheres[k], 5, "mageSphere", { key: k }))] });
     // Призрак (Wraith 20, гл. 8): Арканои — новый 7, далее × 3; Добродетелей и Человечности нет
     else if (wraith) groups.push({ key: "virt", icon: "fa-ghost", label: loc("VTM20.Wraith.Arcanoi"), rows:
-      VTM20.wraithArcanoi.map(k => row(`a:system.wraith.arcanoi.${k}.value:arcanos`, a.traitLabel(`wraith.${k}`), s.wraith.arcanoi[k].value, 5, "arcanos"))
+      VTM20.wraithArcanoi.map(k => row(`a:system.wraith.arcanoi.${k}.value:arcanos`, a.traitLabel(`wraith.${k}`), s.wraith.arcanoi[k].value, 5, "arcanos", { key: k }))
         .sort((x, y) => (y.cur > 0) - (x.cur > 0) || x.label.localeCompare(y.label, "ru")) });
     // Спектр (гл. 10): Тёмные Арканои — по той же цене, что Арканои Спектра (новый 6, далее × 2)
     if (wraith && s.wraith.spectre?.on) groups.push({ key: "dark", icon: "fa-skull", label: loc("VTM20.Wraith.Spectre.Dark"), rows:

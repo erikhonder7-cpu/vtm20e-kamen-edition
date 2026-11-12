@@ -135,7 +135,7 @@ export function arcanoiView(actor, dots, sel = {}) {
     const ranks = [1, 2, 3, 4, 5].map(n => ({ n, roman: ROM[n - 1], owned: n <= value,
       halves: ["common", "initiate"].map(k => a.levels.find(l => l.level === n && l.kind === k)).filter(Boolean).map(art) }));
     return { key: a.key, name: a.name, en: a.en, guild: a.guild, icon: a.icon, sym: arcSym(a.key), forbidden: a.forbidden, home, value, html: a.html,
-      dots: dots(value, 5, { path: `system.wraith.arcanoi.${a.key}.value` }), xp: actor.xpCost("arcanos", value), ranks,
+      dots: dots(value, 5, { path: `system.wraith.arcanoi.${a.key}.value` }), xp: actor.xpCost("arcanos", value, { key: a.key }), ranks,
       sel: ranks.flatMap(x => x.halves).find(x => x.selected) ?? null, attrs: a.attrs.map(attrLabel).join(" · ") };
   });
   const avail = W().arcanoi.filter(a => !(w.arcanoi[a.key]?.value > 0)).map(a => ({ key: a.key, label: `${a.name} — ${a.guild}${a.forbidden ? ` · ${t("Forbidden")}` : ""}` }));
@@ -219,7 +219,8 @@ export async function spendPathos(actor, n = 1) {
 }
 export async function gainPathos(actor, n) {
   if (actor.system.wraith.spectre?.on) return (await import("./spectre.mjs")).gainSpectreAngst(actor, Math.max(0, n));
-  const p = actor.system.wraith.pathos.value, now = Math.min(10, p + Math.max(0, n));
+  // у проектора «Орфея» Пафос не выше временного Корпуса (Живучесть)
+  const p = actor.system.wraith.pathos.value, now = Math.min(actor.system.wraith.pathos.max ?? 10, 10, p + Math.max(0, n));
   if (now !== p) await actor.update({ "system.wraith.pathos.value": now });
   return now - p;
 }
@@ -435,6 +436,8 @@ export async function catharsis(actor) {
  * постоянного Ангста, сл. 6. Испытание за потерю Корпуса: успех — временный Корпус = Выносливости, провал — −1 постоянный.
  */
 export async function harrowing(actor, cause = "corpus") {
+  // живому Испытание не грозит: проектора «Орфея» выбрасывает в тело с губительной раной
+  if (actor.system.wraith.projector?.on) return (await import("./projector.mjs")).projectorHarrowed(actor);
   const destruction = cause === "destruction";
   await actor.toggleStatusEffect?.("r-harrowing", { active: true });
   const angst = actor.system.wraith.shadow.angst.permanent;
@@ -538,6 +541,7 @@ registerCardBlock("wraith", (state, ev) => {
     return { chips: [{ icon: "fa-bed", label: t("Risen.Down") }], text: t("Risen.DownFor", { time }), cls: "is-warn" };
   }
   if (x.kind === "risenSlumber") return { chips: [{ icon: "fa-bed", label: t("Risen.Slumber") }], text: n ? t("Risen.SlumberOk", { n }) : t("Risen.NoSleepShort") };
+  if (x.kind === "deadEyes") return { chips: [{ icon: "fa-eye", label: t("Proj.DeadEyes") }], text: n ? t("Proj.DeadEyesOk") : t("Proj.DeadEyesFail") };
   if (x.kind === "psyche") return { chips: x.emotion ? [{ icon: "fa-dove", label: x.emotion }] : [], text: n ? t("Spectre.PsycheOut", { n }) : t("PathosNone") };
   if (x.kind === "rapacity") return { chips: [{ icon: "fa-teeth", label: t("Spectre.Rapacity") }], text: n ? t("Spectre.RapacityHeld") : t("Spectre.RapacityLost"), cls: n ? "" : "is-warn" };
   if (x.kind === "catharsis") {

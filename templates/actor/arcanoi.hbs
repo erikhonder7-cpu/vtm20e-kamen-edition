@@ -54,9 +54,26 @@
       {{#if value}}<a class="r-vc-btn is-sq" data-action="rsDisc" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Wraith.Risen.DiscUse'}}"><i class="fa-solid fa-bolt"></i></a>{{/if}}</span>
     {{/each}}
   </div>
+  {{else if projector}}
+  {{!-- Проектор «Орфея»: Оттенок (Любимые и Запретный Арканои), скиммер или спящий, проекция, Эмблема, Живучесть, Глаза мёртвых --}}
+  <div class="r-wr-spectre-bar r-wr-proj-bar">
+    <span class="r-wr-shroud-lbl"><i class="fa-solid fa-person-falling-burst"></i> {{localize "VTM20.Wraith.Proj.Title"}}</span>
+    <select name="system.wraith.projector.shade" class="r-mini-select" data-tooltip="{{localize 'VTM20.Wraith.Proj.ShadeHint'}}"><option value="">{{localize "VTM20.Wraith.Proj.Shade"}}</option>{{#each projector.shades}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select>
+    <select name="system.wraith.projector.lament" class="r-mini-select"><option value="skimmer" {{#if (eq projector.lament "skimmer")}}selected{{/if}}>{{localize "VTM20.Wraith.Proj.Skimmer"}}</option><option value="sleeper" {{#if (eq projector.lament "sleeper")}}selected{{/if}}>{{localize "VTM20.Wraith.Proj.Sleeper"}}</option></select>
+    <b class="r-wr-risen-state {{#if projector.projecting}}is-body{{/if}}">{{#if projector.projecting}}{{localize "VTM20.Wraith.Proj.Out"}}{{else}}{{localize "VTM20.Wraith.Proj.In"}}{{/if}}</b>
+    {{#if editable}}<span class="r-wr-shroud-tools">
+      <a class="r-vc-btn" data-action="pjProject" data-tooltip="{{localize 'VTM20.Wraith.Proj.ProjectHint'}}"><i class="fa-solid {{#if projector.projecting}}fa-person{{else}}fa-person-falling-burst{{/if}}"></i> {{#if projector.projecting}}{{localize "VTM20.Wraith.Proj.Back"}}{{else}}{{localize "VTM20.Wraith.Proj.Go"}}{{/if}}</a>
+      {{#if projector.projecting}}<a class="r-vc-btn is-sq {{#if projector.emblem}}is-on{{/if}}" data-action="pjEmblem" data-tooltip="{{localize 'VTM20.Wraith.Proj.EmblemHint'}}"><i class="fa-solid fa-shield-halved"></i></a>
+      <a class="r-vc-btn is-sq" data-action="pjWill" data-tooltip="{{localize 'VTM20.Wraith.Proj.VitalityHint'}}"><i class="fa-solid fa-heart-pulse"></i></a>
+      {{else}}<a class="r-vc-btn is-sq" data-action="pjEyes" data-tooltip="{{localize 'VTM20.Wraith.Proj.DeadEyesHint'}}"><i class="fa-solid fa-eye"></i></a>{{/if}}
+      <a class="r-vc-btn is-sq" data-action="pjOn" data-tooltip="{{localize 'VTM20.Wraith.Proj.OffHint'}}"><i class="fa-solid fa-xmark"></i></a>
+    </span>{{/if}}
+  </div>
+  {{#if projector.shade}}<p class="r-note r-wr-proj-shade">{{localize "VTM20.Wraith.Proj.ShadeLine" fav=projector.favored proh=projector.prohibited max=projector.pathosMax}}</p>{{/if}}
   {{else}}
   <div class="r-wr-spectre-bar is-off">
-    {{#if editable}}<a class="r-vc-btn" data-action="rsOn" data-tooltip="{{localize 'VTM20.Wraith.Risen.OnHint'}}"><i class="fa-solid fa-person-rays"></i> {{localize "VTM20.Wraith.Risen.On"}}</a>
+    {{#if editable}}<a class="r-vc-btn" data-action="pjOn" data-tooltip="{{localize 'VTM20.Wraith.Proj.OnHint'}}"><i class="fa-solid fa-person-falling-burst"></i> {{localize "VTM20.Wraith.Proj.On"}}</a>
+    <a class="r-vc-btn" data-action="rsOn" data-tooltip="{{localize 'VTM20.Wraith.Risen.OnHint'}}"><i class="fa-solid fa-person-rays"></i> {{localize "VTM20.Wraith.Risen.On"}}</a>
     <a class="r-vc-btn" data-action="rsRise" data-tooltip="{{localize 'VTM20.Wraith.Risen.RiseHint'}}"><i class="fa-solid fa-hand-fist"></i> {{localize "VTM20.Wraith.Risen.Rise"}}</a>{{/if}}
     {{#if isGM}}<a class="r-vc-btn" data-action="spBecome" data-tooltip="{{localize 'VTM20.Wraith.Spectre.BecomeHint'}}"><i class="fa-solid fa-skull"></i> {{localize "VTM20.Wraith.Spectre.Become"}}</a>{{/if}}
   </div>
@@ -202,7 +219,7 @@
   </ul>
 
   {{!-- Оковы (гл. 8): Воля — бросок рейтинга, сл. 6 в конце сцены с Оковами, сл. 4 за 8 часов Сна в них --}}
-  <h2 class="r-h2"><span>{{localize "VTM20.Wraith.Fetters"}} <small>{{wp.fetterSum}}</small></span>
+  <h2 class="r-h2"><span>{{#if projector}}{{localize "VTM20.Wraith.Proj.Tethers"}}{{else}}{{localize "VTM20.Wraith.Fetters"}}{{/if}} <small>{{wp.fetterSum}}</small></span>
     {{#if editable}}<span class="r-h2-tools"><a class="r-h2-btn" data-action="wrRowAdd" data-kind="fetter"><i class="fa-solid fa-plus"></i> <span class="r-h2-lbl">{{localize "VTM20.Common.Add"}}</span></a></span>{{/if}}
   </h2>
   <ul class="r-edge-list r-wr-rows">
@@ -261,6 +278,29 @@
       {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="spRow" data-kind="shade" data-op="del" data-i="{{i}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
     </li>
     {{else}}<li class="r-note">{{localize "VTM20.Wraith.Spectre.NoShade"}}</li>
+    {{/each}}
+  </ul>
+  {{else if projector}}
+  {{!-- Пятна проектора («Орфей»): одно на 2 постоянного Ангста; проявить — 1 временный Ангст; Социальные сложности +1 за проявленное --}}
+  <h2 class="r-h2 is-shadow"><span>{{localize "VTM20.Wraith.Proj.Stains"}} <small>{{projector.stains.length}} / {{projector.slots}}</small></span>
+    {{#if projector.wild}}<span class="r-h2-tools"><a class="r-h2-btn" data-action="pjSuppress" data-tooltip="{{localize 'VTM20.Wraith.Proj.SuppressHint'}}"><i class="fa-solid fa-hand"></i> <span class="r-h2-lbl">{{localize "VTM20.Wraith.Proj.Suppress"}}</span></a></span>{{/if}}
+  </h2>
+  {{#if projector.wild}}<p class="r-note is-warn"><i class="fa-solid fa-triangle-exclamation"></i> {{localize "VTM20.Wraith.Proj.Wild"}}</p>{{/if}}
+  {{#if projector.shown}}<p class="r-note">{{localize "VTM20.Wraith.Proj.Social" n=projector.social}}</p>{{/if}}
+  {{#if editable}}<div class="r-toolbar">
+    <select><option value="">{{localize "VTM20.Wraith.Proj.AddStain"}}</option>{{#each projector.stainAvail}}<option value="{{key}}">{{label}}</option>{{/each}}</select>
+    <a class="r-vc-btn" data-action="pjRow" data-op="add"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Common.Add"}}</a>
+  </div>{{/if}}
+  {{#if projector.overSlots}}<p class="r-note is-warn">{{localize "VTM20.Wraith.Proj.OverSlots" n=projector.slots}}</p>{{/if}}
+  <ul class="r-edge-list r-wr-thorns">
+    {{#each projector.stains}}
+    <li class="r-edge {{#if shown}}is-on{{/if}}"><span class="r-edge-lvl"><i class="fa-solid fa-droplet"></i></span>
+      <span class="r-edge-main"><b>{{name}}</b> <small>{{en}}</small>
+        <div class="r-edge-text"><p><b>+</b> {{adv}}</p><p><b>−</b> {{dis}}</p></div></span>
+      {{#if @root.editable}}<a class="r-vc-btn {{#if shown}}is-on{{/if}}" data-action="pjStain" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Wraith.Proj.StainHint'}}"><i class="fa-solid fa-droplet"></i> {{#if shown}}{{localize "VTM20.Wraith.Proj.Hide"}}{{else}}{{localize "VTM20.Wraith.Proj.Show"}}{{/if}}</a>
+      <a class="r-icon-btn is-danger" data-action="pjRow" data-op="del" data-i="{{i}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
+    </li>
+    {{else}}<li class="r-note">{{localize "VTM20.Wraith.Proj.NoStains"}}</li>
     {{/each}}
   </ul>
   {{else}}

@@ -810,7 +810,12 @@ export class WraithData extends BaseActorData {
         // два своих Арканоса (Очарование, Случайность), «Дисциплины» тела за Пафос (Мощь, Стойкость, Быстрота)
         risen: new SchemaField({ on: new BooleanField({ initial: false }), body: new BooleanField({ initial: false }), conduit: str(""),
           arcanoi: new SchemaField({ fascinate: int(0, 0, 5), serendipity: int(0, 0, 5) }),
-          disc: new SchemaField({ potence: int(0, 0, 5), fortitude: int(0, 0, 5), celerity: int(0, 0, 5) }) })
+          disc: new SchemaField({ potence: int(0, 0, 5), fortitude: int(0, 0, 5), celerity: int(0, 0, 5) }) }),
+        // Проектор «Орфея» (приложение): живой, выходящий из тела, — Оттенок (Shade), скиммер или спящий, в проекции ли сейчас,
+        // Пятна вместо Тени (проявленные — shown), Эмблема защиты на сцену; Оковы у него — Тетеры
+        projector: new SchemaField({ on: new BooleanField({ initial: false }), shade: str(""), lament: str("skimmer"),
+          projecting: new BooleanField({ initial: false }), emblem: new BooleanField({ initial: false }),
+          stains: new ArrayField(new SchemaField({ key: str(), shown: new BooleanField({ initial: false }) })) })
       })
     };
   }
@@ -838,6 +843,8 @@ export class WraithData extends BaseActorData {
     h.status = h.damage >= cap ? (bash ? "wavering" : "harrowed") : h.damage ? "hurt" : "healthy";
     w.wavering = h.damage >= cap && bash > 0;
     w.pathos.max = 10;
+    // Живучесть проектора («Орфей»): Пафос не выше временного Корпуса; Пятно — за каждые 2 постоянного Ангста
+    if (w.projector?.on) { w.pathos.max = Math.max(0, h.value); w.projector.stainSlots = Math.floor(w.shadow.angst.permanent / 2); }
     w.shadow.angst.max = 10;
     w.shadow.angst.value = w.shadow.angst.temporary;
     // Катарсис возможен, когда временный Ангст выше Воли (гл. 6); у Спектра — Катарсис Психеи: запас её Пафоса выше Воли (гл. 10)

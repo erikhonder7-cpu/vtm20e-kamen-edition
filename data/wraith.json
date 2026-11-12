@@ -3478,6 +3478,232 @@
    "Wealth"
   ]
  },
+ "shades": [
+  {
+   "key": "banshee",
+   "en": "Banshee",
+   "name": "Банши",
+   "natures": "Caregiver, Martyr, Mediator, Optimist, Penitent",
+   "favored": [
+    "keening",
+    "fatalism"
+   ],
+   "prohibited": [
+    "outrage"
+   ],
+   "pathos": 0,
+   "willpower": 1,
+   "angst": -1
+  },
+  {
+   "key": "haunter",
+   "en": "Haunter",
+   "name": "Скиталец",
+   "natures": "Deviant, Explorer, Rebel, Rogue, Survivor",
+   "favored": [
+    "inhabit",
+    "flux"
+   ],
+   "prohibited": [
+    "keening"
+   ],
+   "pathos": 1,
+   "willpower": 1,
+   "angst": 0
+  },
+  {
+   "key": "poltergeist",
+   "en": "Poltergeist",
+   "name": "Полтергейст",
+   "natures": "Activist, Bravo, Critic, Eye of the Storm, Pragmatist",
+   "favored": [
+    "outrage",
+    "castigate"
+   ],
+   "prohibited": [
+    "fascinate"
+   ],
+   "pathos": 1,
+   "willpower": 2,
+   "angst": 1
+  },
+  {
+   "key": "skinrider",
+   "en": "Skinrider",
+   "name": "Наездник",
+   "natures": "Bureaucrat, Competitor, Leader, Pedagogue, Traditionalist",
+   "favored": [
+    "puppetry",
+    "lifeweb"
+   ],
+   "prohibited": [
+    "moliate"
+   ],
+   "pathos": 0,
+   "willpower": 3,
+   "angst": 1
+  },
+  {
+   "key": "wisp",
+   "en": "Wisp",
+   "name": "Огонёк",
+   "natures": "Bon Vivant, Child, Conniver, Jester",
+   "favored": [
+    "fascinate",
+    "argos"
+   ],
+   "prohibited": [
+    "puppetry"
+   ],
+   "pathos": 1,
+   "willpower": 0,
+   "angst": -1
+  },
+  {
+   "key": "phantasm",
+   "en": "Phantasm",
+   "name": "Фантазм",
+   "natures": "Architect, Avant-Garde, Gambler, Visionary",
+   "favored": [
+    "phantasm",
+    "pandemonium"
+   ],
+   "prohibited": [
+    "inhabit"
+   ],
+   "pathos": 2,
+   "willpower": 1,
+   "angst": 1
+  },
+  {
+   "key": "marrow",
+   "en": "Marrow",
+   "name": "Нутро",
+   "natures": "Enigma, Fanatic, Follower, Scientist",
+   "favored": [
+    "moliate",
+    "embody"
+   ],
+   "prohibited": [
+    "phantasm"
+   ],
+   "pathos": 3,
+   "willpower": 0,
+   "angst": 1
+  }
+ ],
+ "stains": [
+  {
+   "key": "addersscales",
+   "name": "Чешуя гадюки",
+   "en": "Adder's Scales",
+   "adv": "−1 сложность выхода из пут и атлетических манёвров; +1 кубик поглощения",
+   "dis": "Воля (сложность 6) при внезапности, иначе срыв; змеиный вид"
+  },
+  {
+   "key": "armorofcorpulence",
+   "name": "Броня тучности",
+   "en": "Armor of Corpulence",
+   "adv": "Иммунитет к ударному; лишь 1/4 урона от летального оружия; огонь/электричество/яд — полный",
+   "dis": "+2 сложности к движению; не более 3 ярдов за ход"
+  },
+  {
+   "key": "barbedcorpus",
+   "name": "Шипастый Корпус",
+   "en": "Barbed Corpus",
+   "adv": "+1 кубик поглощения; 1 кубик летального урона бьющему безоружно",
+   "dis": "Воля (сложность 6) в сцене или случайный летальный урон (поглощаемый) задеваемому"
+  },
+  {
+   "key": "brutish",
+   "name": "Грубиян",
+   "en": "Brutish",
+   "adv": "+1 кубик поглощения; +3 кубика Силе",
+   "dis": "Инициатива −5; движение вдвое; −1 кубик к Интеллекту и Внешности"
+  },
+  {
+   "key": "chameleonskin",
+   "name": "Кожа хамелеона",
+   "en": "Chameleon Skin",
+   "adv": "+3 кубика Скрытность",
+   "dis": "Нет контроля; Социальные сложности +1"
+  },
+  {
+   "key": "compoundeye",
+   "name": "Составной глаз",
+   "en": "Compound Eye",
+   "adv": "Обзор 360°",
+   "dis": "+2 сложности стрельбы и обнаружения на расстоянии"
+  },
+  {
+   "key": "corpuscilia",
+   "name": "Реснички Корпуса",
+   "en": "Corpus Cilia",
+   "adv": "Восприятие −1 сложность; помехи зрения нейтрализуются в радиусе 30 футов",
+   "dis": "Броски Сообразительности +1 сложность; −4 при Мальстрёме от 1 «колокола»"
+  },
+  {
+   "key": "darkspeech",
+   "name": "Тёмная речь",
+   "en": "Dark Speech",
+   "adv": "Дальняя атака Драка: Сила + 2 летальный урон на 7 футов",
+   "dis": "Воля (сложность 7), чтобы не осыпать оскорблениями и угрозами сцену"
+  },
+  {
+   "key": "gossamerwebs",
+   "name": "Паутина из марли",
+   "en": "Gossamer Webs",
+   "adv": "При успешной атаке Драка оставляет липкий Корпус: каждый потраченный уровень Корпуса = «связывание» на 2 точки Силы; при 4+ успехов выбирает: глаза, ноги, руки (+2 сложность Brawl)",
+   "dis": "Автоматическая потеря Корпуса при опутывании и при прохождении через большие объекты Skinlands"
+  },
+  {
+   "key": "hammerfists",
+   "name": "Кулаки-молоты",
+   "en": "Hammer Fists",
+   "adv": "Безоружный: Сила + 3 ударного",
+   "dis": "+3 сложность всех действий, требующих ловкости рук"
+  },
+  {
+   "key": "spidersbristles",
+   "name": "Щетина паука",
+   "en": "Spider's Bristles",
+   "adv": "Лазание по стенам; но не прилипнуть к призраку",
+   "dis": "+1 сложность тонких действий; Воля (сложность 7), чтобы отлепиться"
+  },
+  {
+   "key": "spitefueledarcanoi",
+   "name": "Спайт-подпитанные Арканои",
+   "en": "Spite-fueled Arcanoi",
+   "adv": "+2 кубика к броскам Арканоев (оранжево-пурпурное свечение)",
+   "dis": "Плач не вызывает позитивных эмоций; Puppetry наносит 1 здоровье/мин одержимому; всё негативное усилено"
+  }
+ ],
+ "projector": {
+  "arcanoi": "1 Арканос Оттенка, Воплощение 1, Паутина жизни 1 + 2 точки",
+  "backgrounds": 7,
+  "passions": 5,
+  "tethers": 10,
+  "bodyTether": 5,
+  "pathos": 5,
+  "willpower": 5,
+  "angst": 5,
+  "freebies": 18,
+  "noBackgrounds": [
+   "Eidolon",
+   "Haunt",
+   "Legacy",
+   "Memoriam"
+  ],
+  "emblem": {
+   "pathos": 2,
+   "armor": [
+    4,
+    2,
+    1
+   ],
+   "shock": 1
+  }
+ },
  "risenArcanoi": [
   {
    "key": "fascinate",

@@ -323,3 +323,8 @@
 .vtm20.r-type-wraith .r-wr-risen-d { display: inline-flex; align-items: center; gap: 8px; }
 .vtm20.r-type-wraith .r-wr-dark.is-risen { border-color: rgba(201, 170, 140, .45); }
 .vtm20.r-type-wraith .r-wr-dark.is-risen .r-wr-arc-sigil i { color: #c9aa8c; }
+
+/* проектор «Орфея»: холодный сине-серый, как криокапсула */
+.vtm20.r-type-wraith .r-wr-proj-bar { border-color: rgba(124, 160, 190, .5); background: linear-gradient(90deg, rgba(70, 100, 130, .25), transparent); }
+.vtm20.r-type-wraith .r-wr-proj-shade { margin: -4px 0 10px; }
+.vtm20.r-type-wraith .r-wr-thorns .r-edge.is-on { background: linear-gradient(90deg, rgba(106, 42, 60, .3), transparent); }

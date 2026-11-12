@@ -574,8 +574,10 @@ export class VtMActor extends Actor {
     let parts;
     // призрак (Wraith 20, гл. 11, «Поглощение»): Стойкость против ударного и летального; губительный — только броня
     if (this.type === "wraith") {
-      const labels = { stamina: this.traitLabel("attributes.stamina"), armor: t("Sheet.Armor") };
-      const p = { stamina: type === "aggravated" ? 0 : stamina, armor: arm };
+      const labels = { stamina: this.traitLabel("attributes.stamina"), armor: t("Sheet.Armor"), emblem: t("Wraith.Proj.EmblemShort") };
+      // Эмблема защиты проектора «Орфея»: броня 4 ударный / 2 летальный / 1 губительный на сцену
+      const emblem = s.wraith?.projector?.on && s.wraith.projector.emblem ? { bashing: 4, lethal: 2, aggravated: 1 }[type] ?? 0 : 0;
+      const p = { stamina: type === "aggravated" ? 0 : stamina, armor: arm, emblem };
       return Object.entries(p).filter(([, v]) => v > 0).map(([k, value]) => ({ label: labels[k], value }));
     }
     if (this.type === "werewolf") {
@@ -759,7 +761,14 @@ export class VtMActor extends Actor {
       // колдун (M20 Sorcerer, гл. 3): новая нумина 7, нумина второго вида (Путь при феноменах и наоборот) 21, рост × 7
       case "sorcNumen": return current >= 5 ? null : current === 0 ? (extra.secondary ? 21 : 7) : current * 7;
       // призрак (Wraith 20, гл. 8): новый Арканос 7, далее текущее × 3; Страсть и Оковы — новая 3, далее × 3 (с позволения рассказчика)
-      case "arcanos": return current >= 5 ? null : this.system.wraith?.spectre?.on ? (current === 0 ? 6 : current * 2) : current === 0 ? 7 : current * 3;
+      case "arcanos": {
+        if (current >= 5) return null;
+        if (this.system.wraith?.spectre?.on) return current === 0 ? 6 : current * 2;
+        // проектор «Орфея»: Любимые Арканои Оттенка дешевле на 1 за уровень, Запретный — дороже на 1 за уровень
+        const shade = this.system.wraith?.projector?.on ? Codex.wraith?.shades?.find(s => s.key === this.system.wraith.projector.shade) : null;
+        const d = shade?.favored?.includes(extra.key) ? -1 : shade?.prohibited?.includes(extra.key) ? 1 : 0;
+        return current === 0 ? 7 + d : current * (3 + d);
+      }
       case "passion": case "fetter": return current >= 5 ? null : current === 0 ? 3 : current * 3;
       default: return null;
     }
@@ -775,6 +784,7 @@ export class VtMActor extends Actor {
     const cur = kind === "hunterConviction" ? startConviction(this) : sorcKey ? (this.system.sorcerer.numina.find(n => n.key === sorcKey)?.dots ?? 0)
       : Number(foundry.utils.getProperty(doc._source, path) ?? 0);
     const extra = sorcKey ? numenXpExtra(this, sorcKey) : kind === "hunterVirtue" || kind === "mageSphere" ? { key: path.split(".").pop() }
+      : kind === "arcanos" ? { key: path.includes(".arcanoi.") ? path.split(".")[3] : path.split(".").pop() }
       : doc !== this && doc.type === "discipline" ? { key: doc.system.key, inClan: doc.system.inClan || this.clanDisciplines.includes(doc.system.key) }
       : doc !== this && doc.type === "thaumPath" ? { primary: doc.system.primary }
       : doc !== this && doc.type === "lore" ? { key: doc.system.key } : {};

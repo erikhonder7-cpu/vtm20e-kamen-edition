@@ -4437,6 +4437,33 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  await check("Призрак: проектор «Орфея» — Оттенок и опыт, Живучесть, Пятна, Эмблема защиты, Испытание возвращает в тело", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {}, n0 = game.messages.size;
+      const W = await import(`/systems/${sid}/module/apps/wraith.mjs`), P = await import(`/systems/${sid}/module/apps/projector.mjs`);
+      const a = await Actor.create({ name: "E2E — проектор", type: "wraith", flags: { world: { e2e: true }, [sid]: { created: true } },
+        system: { attributes: { stamina: { value: 3 } }, willpower: { permanent: 4, temporary: 4 },
+          wraith: { pathos: { value: 5 }, shadow: { angst: { permanent: 5, temporary: 2 } },
+            projector: { on: true, shade: "wisp", stains: [{ key: "brutish", shown: false }] } } } });
+      out.xp = [a.xpCost("arcanos", 1, { key: "argos" }), a.xpCost("arcanos", 1, { key: "puppetry" }), a.xpCost("arcanos", 1, { key: "outrage" })];
+      out.slots = a.system.wraith.projector.stainSlots;
+      await a.update({ "system.health.lethal": 7 }); out.cap = a.system.wraith.pathos.max;
+      await a.update({ "system.health.lethal": 0 });
+      await P.stain(a, 0); out.stain = [a.system.wraith.projector.stains[0].shown, a.system.wraith.shadow.angst.temporary];
+      await P.project(a); await P.emblem(a); out.emblem = [a.system.wraith.projector.emblem, a.soakPool("lethal"), a.system.wraith.pathos.value];
+      await W.harrowing(a, "corpus"); out.harrow = [a.system.wraith.projector.projecting, a.system.health.aggravated];
+      await a.sheet.render(true); await wait(800); a.sheet.changeTab("disciplines", "primary"); await wait(600);
+      out.sheet = !!a.sheet.element.querySelector(".r-wr-proj-bar");
+      await a.sheet.close();
+      await ChatMessage.deleteDocuments(game.messages.contents.slice(n0).map(m => m.id));
+      await a.delete();
+      return out;
+    });
+    const want = { xp: [2, 4, 3], slots: 2, cap: 3, stain: [true, 1], emblem: [true, 5, 3], harrow: [false, 1], sheet: true };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   await check("Призрак: лист и Арканои, Пафос, Страсть, Корпус до колебания и Испытание, Катарсис", async () => {
     const r = await page.evaluate(async () => {
       const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), WR = await import(`/systems/${sid}/module/apps/wraith.mjs`);

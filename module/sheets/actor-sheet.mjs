@@ -10,6 +10,7 @@ import { WRAITH_ACTIONS, arcFold } from "./actor/wraith.mjs";
 import { wraithInfo, arcanoiView, passionsView } from "../apps/wraith.mjs";
 import { spectreView } from "../apps/spectre.mjs";
 import { risenView } from "../apps/risen.mjs";
+import { projectorView } from "../apps/projector.mjs";
 import { WEREWOLF_ACTIONS } from "./actor/werewolf.mjs";
 import { HUNTER_ACTIONS } from "./actor/hunter.mjs";
 import { DEMON_ACTIONS } from "./actor/demon.mjs";
@@ -326,6 +327,7 @@ openStrategy: () => openStrategy(),
     else if (actor.type === "wraith") { ctx.wraithInfo = wraithInfo(actor, dots); ctx.arc = arcanoiView(actor, dots, this._wrSel); ctx.wp = passionsView(actor, dots);
       if (actor.system.wraith.spectre.on) ctx.spectre = spectreView(actor, dots);   // Спектр (apps/spectre.mjs): Ангст, Тёмные Арканои, Психея
       else if (actor.system.wraith.risen.on) ctx.risen = risenView(actor, dots);    // Восставший (apps/risen.mjs): тело, Проводник, свои Арканои
+      else if (actor.system.wraith.projector.on) ctx.projector = projectorView(actor);   // проектор «Орфея» (apps/projector.mjs): Оттенок, Пятна
       const fold = arcFold(actor.id);
       for (const x of ctx.arc.own) x.folded = (fold[x.key] ?? true) && !x.sel;     // открытый уровень держит карточку раскрытой
       ctx.arc.allFolded = ctx.arc.own.every(x => x.folded);

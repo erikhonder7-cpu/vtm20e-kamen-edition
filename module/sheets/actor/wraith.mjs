@@ -7,6 +7,7 @@ import { rollArt, toggleArt, addRow, removeRow, rollPassion, rollFetter, rollDar
 import { openAtlas } from "../../apps/atlas.mjs";
 import { becomeSpectre, rollDark, rollPsychePassion, psycheCatharsis, rapacity, spectreRow } from "../../apps/spectre.mjs";
 import { rise, toShadowlands, toBody, risenDisc, rollRisenArt, risenSlumber, risenDown } from "../../apps/risen.mjs";
+import { project, stain, suppressStains, willToPathos, emblem, deadEyes, stainRow } from "../../apps/projector.mjs";
 
 function onWrArt(event, target) { return rollArt(this.actor, target.dataset.key, Number(target.dataset.level), target.dataset.kind); }
 /** Свёрнутые карточки Арканоев — у каждого игрока свои (память браузера); по умолчанию свёрнуты, как Дисциплины. */
@@ -85,6 +86,15 @@ function onRsArtRow(event, target) {
   const key = target.dataset.key ?? target.closest(".r-toolbar")?.querySelector("select")?.value;
   if (key) return this.actor.update({ [`system.wraith.risen.arcanoi.${key}`]: target.dataset.op === "del" ? 0 : Math.max(1, this.actor.system.wraith.risen.arcanoi[key] ?? 0) });
 }
+// проектор «Орфея» (apps/projector.mjs)
+function onPjOn() { return this.actor.update({ "system.wraith.projector.on": !this.actor.system.wraith.projector.on }); }
+function onPjProject() { return project(this.actor); }
+function onPjStain(event, target) { return stain(this.actor, Number(target.dataset.i)); }
+function onPjSuppress() { return suppressStains(this.actor); }
+function onPjWill() { return willToPathos(this.actor); }
+function onPjEmblem() { return emblem(this.actor); }
+function onPjEyes() { return deadEyes(this.actor); }
+function onPjRow(event, target) { return stainRow(this.actor, target.dataset.op, { i: Number(target.dataset.i), key: target.closest(".r-toolbar")?.querySelector("select")?.value }); }
 function onWrAtlas() { return openAtlas("wraith", this.actor.system.wraith.guild); }
 
 /** Действия листа: ключ data-action → обработчик. */
@@ -95,5 +105,6 @@ export const WRAITH_ACTIONS = {
   wrHarrowing: onWrHarrowing, wrHeal: onWrHeal, wrPathos: onWrPathos, wrSession: onWrSession,
   wrAngst: onWrAngst, wrAtlas: onWrAtlas, wrShroud: onWrShroud, wrHaunt: onWrHaunt,
   spBecome: onSpBecome, spDark: onSpDark, spPassion: onSpPassion, spCatharsis: onSpCatharsis, spRapacity: onSpRapacity, spRow: onSpRow,
-  rsOn: onRsOn, rsRise: onRsRise, rsLeave: onRsLeave, rsBody: onRsBody, rsDisc: onRsDisc, rsArt: onRsArt, rsSlumber: onRsSlumber, rsDown: onRsDown, rsArtRow: onRsArtRow
+  rsOn: onRsOn, rsRise: onRsRise, rsLeave: onRsLeave, rsBody: onRsBody, rsDisc: onRsDisc, rsArt: onRsArt, rsSlumber: onRsSlumber, rsDown: onRsDown, rsArtRow: onRsArtRow,
+  pjOn: onPjOn, pjProject: onPjProject, pjStain: onPjStain, pjSuppress: onPjSuppress, pjWill: onPjWill, pjEmblem: onPjEmblem, pjEyes: onPjEyes, pjRow: onPjRow
 };

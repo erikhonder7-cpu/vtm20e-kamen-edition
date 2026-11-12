@@ -437,6 +437,39 @@ def risen_pools(arcs):
                 lv["diffRule"] = rule.group(1).strip()
     return arcs
 
+# ── «Орфей» (приложение; файлы 34–35): Оттенки проекторов, Пятна, правила ──
+SHADE_ARC = {"Keening": "keening", "Fatalism": "fatalism", "Outrage": "outrage", "Inhabit": "inhabit", "Flux": "flux", "Castigate": "castigate",
+             "Fascinate": "fascinate", "Puppetry": "puppetry", "Lifeweb": "lifeweb", "Moliate": "moliate", "Argos": "argos", "Phantasm": "phantasm",
+             "Pandemonium": "pandemonium", "Embody": "embody", "Sandman": "phantasm"}
+# русские имена Оттенков — рабочие (в справочнике только английские); «Haunter» не путать с Гильдией Проказников
+SHADE_RU = {"Banshee": "Банши", "Haunter": "Скиталец", "Poltergeist": "Полтергейст", "Skinrider": "Наездник", "Wisp": "Огонёк",
+            "Phantasm": "Фантазм", "Marrow": "Нутро"}
+
+
+def parse_shades():
+    out = []
+    for row in table(core("35"), "| Shade |"):
+        name, natures, fav, proh, pathos, will, angst = row[:7]
+        num = lambda x: int(x.replace("−", "-").replace("+", ""))
+        out.append({"key": name.lower(), "en": name, "name": SHADE_RU.get(name, name), "natures": natures,
+                    "favored": [SHADE_ARC[x.strip()] for x in fav.split(",") if x.strip() in SHADE_ARC],
+                    "prohibited": [SHADE_ARC[w] for w in re.findall(r"[A-Za-z]+", proh) if w in SHADE_ARC][:1],
+                    "pathos": num(pathos), "willpower": num(will), "angst": num(angst)})
+    return out
+
+
+def parse_stains():
+    out = []
+    for name, adv, dis in table(core("35"), "| Пятно |"):
+        ru, en = ru_en(plain(name))
+        out.append({"key": re.sub(r"[^a-z]", "", en.lower()), "name": ru, "en": en, "adv": plain(adv), "dis": plain(dis)})
+    return out
+
+
+PROJECTOR = {"arcanoi": "1 Арканос Оттенка, Воплощение 1, Паутина жизни 1 + 2 точки", "backgrounds": 7, "passions": 5, "tethers": 10, "bodyTether": 5,
+             "pathos": 5, "willpower": 5, "angst": 5, "freebies": 18, "noBackgrounds": ["Eidolon", "Haunt", "Legacy", "Memoriam"],
+             "emblem": {"pathos": 2, "armor": [4, 2, 1], "shock": 1}}
+
 def build():
     arcanoi = parse_arcanoi()
     allies = parse_allies(arcanoi)
@@ -451,6 +484,7 @@ def build():
         "darkArcanoi": parse_dark_arcanoi(), "shadecraft": parse_shadecraft(), "castes": parse_castes(), "psyche": parse_psyche(),
         "spectreBackgrounds": parse_spectre_backgrounds(), "spectre": SPECTRE,
         # Восставшие (гл. 11, файлы 24–25): два своих Арканоса — Очарование и Случайность; Ангста за них нет
+        "shades": parse_shades(), "stains": parse_stains(), "projector": PROJECTOR,
         "risenArcanoi": risen_pools(parse_dark_arcanoi("25", {"fascinate": "fa-eye", "serendipity": "fa-dice"})), "risen": RISEN,
     }
     with open(OUT, "w", encoding="utf-8", newline="\n") as f:
