@@ -3,7 +3,7 @@
 // this — лист (ApplicationV2 зовёт обработчики со своим this).
 
 import { castCantrip, unleash, artRow, spendGlamour, gainGlamour, gainNightmare, banalityTrigger, invokeWyrd, invokeAutumn, epiphany,
-  setSceneBanality, endBedlam } from "../../apps/changeling.mjs";
+  setSceneBanality, endBedlam, takeOath, breakOath, dropOath } from "../../apps/changeling.mjs";
 
 function onCast(event, target) {
   const d = target.dataset;
@@ -28,6 +28,10 @@ function onAutumn() { return invokeAutumn(this.actor); }
 function onEpiphany() { return epiphany(this.actor); }
 function onPlace() { return setSceneBanality(); }
 function onBedlamEnd() { return endBedlam(this.actor); }
+function onOath(event, target) {
+  const { op, i } = target.dataset;
+  return op === "take" ? takeOath(this.actor) : op === "break" ? breakOath(this.actor, i) : dropOath(this.actor, i);
+}
 
 export const CHANGELING_ACTIONS = { clCast: onCast, clUnleash: onUnleash, clArtAdd: onArtAdd, clArtDel: onArtDel, clGlamour: onGlamour,
-  clNightmare: onNightmare, clTrigger: onTrigger, clWyrd: onWyrd, clAutumn: onAutumn, clEpiphany: onEpiphany, clPlace: onPlace, clBedlamEnd: onBedlamEnd };
+  clNightmare: onNightmare, clTrigger: onTrigger, clWyrd: onWyrd, clAutumn: onAutumn, clEpiphany: onEpiphany, clPlace: onPlace, clBedlamEnd: onBedlamEnd, clOath: onOath };

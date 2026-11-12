@@ -9117,6 +9117,44 @@
         "RhapsodyFail": "The artist did not finish and cannot create for {n} month(s).",
         "RhapsodyBotch": "The creator is broken: +1 Banality rating per 1, no Glamour."
       },
+      "Oath": {
+        "Head": "Oaths",
+        "Title": "Oath",
+        "Which": "Oath",
+        "With": "With whom",
+        "Text": "Wording",
+        "TextPh": "In your words: essence, conditions, the price of breaking it",
+        "Swear": "Swear an oath",
+        "Custom": "Own oath",
+        "Forsworn": "Oathbreaker",
+        "Drop": "Remove (fulfilled or released)",
+        "None": "No oaths. An oath is a promise sealed with Glamour: at least 1 Glamour, exact words, the penalty spoken in the oath itself.",
+        "Rule": "An oath is sealed with Glamour; breaking it is a grave crime among the kithain and always a Banality trigger (ch. 6).",
+        "Sworn": "<b>{name}</b> swears the {oath} ({with}): {fx}",
+        "Broken": "<b>{name}</b> breaks the {oath}: {fx} This is a Banality trigger.",
+        "Take": {
+          "clasped": "1 Glamour, +1 Willpower",
+          "fealty": "1 Willpower; −2 difficulty to resist mental domination",
+          "escheat": "the liege pays Glamour; the vassal keeps the coin, +1 Willpower a week",
+          "burden": "1 Glamour, +1 Willpower to both",
+          "guardianship": "no cost",
+          "trueHearts": "1 Glamour; the faithful gain +1 Glamour from the lovers' Rapture",
+          "longRoad": "+1 Willpower and +1 Glamour; needs a witness",
+          "crossedBlades": "a Willpower point becomes a Glamour point; −2 difficulty against the foe",
+          "custom": "at least 1 Glamour"
+        },
+        "Break": {
+          "clasped": "−2 Willpower",
+          "fealty": "−3 Willpower",
+          "escheat": "+1 Banality",
+          "burden": "−2 Willpower",
+          "guardianship": "never two nights in the same bed for 100 years",
+          "trueHearts": "+1 Banality to all involved, the bird shows to all",
+          "longRoad": "−3 Glamour and −3 Willpower (outright refusal — all Glamour, −1 permanent Willpower, +2 Banality)",
+          "crossedBlades": "−1 permanent Willpower, scars on the face",
+          "custom": "the price is in the wording"
+        }
+      },
       "Undone": "<b>{name}</b>: Banality 10 — Undone, the changeling is fae no longer."
     }
   }

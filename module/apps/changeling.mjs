@@ -71,7 +71,7 @@ export function artsView(actor, dots) {
       levels: r.levels.map(l => ({ ...l, known: l.level <= value })) };
   });
   return { own, realms, avail: C().arts.filter(a => !(c.arts[a.key] > 0)).map(a => ({ key: a.key, label: a.name })),
-    nightmare: c.nightmare, glamour: c.glamour.temporary };
+    nightmare: c.nightmare, glamour: c.glamour.temporary, oaths: oathsView(actor) };
 }
 
 /** Добавить или убрать Искусство (кнопка вкладки). */
@@ -219,6 +219,85 @@ export async function unleash(actor, artKey) {
   await afterRoll(actor, roll, Math.min(pool, now.nightmare), art.name);
   if (roll.successes > (c.arts[artKey] ?? 0)) await gainNightmare(actor, 1, { reason: t("UnleashWild") });
   return roll;
+}
+
+/* ── Клятвы (гл. 6, «Oaths») ─────────────────────────────────────────── */
+
+/**
+ * Механика примеров книги: take — цена и награда при принятии (Гламур и Воля — временные пункты), brk — расплата
+ * при нарушении; note — то, что держит рассказчик. Нарушение любой клятвы — ещё и триггер Банальности (гл. 6).
+ * Эсчит: Гламур платит сюзерен — на листе вассала цены нет; Скрещённые клинки: пункт Воли меняется на пункт Гламура.
+ */
+export const OATHS = {
+  clasped:       { take: { glamour: -1, will: 1 }, brk: { will: -2 } },
+  fealty:        { take: { will: -1 }, brk: { will: -3 } },
+  escheat:       { take: {}, brk: { banality: 1 } },
+  burden:        { take: { glamour: -1, will: 1 }, brk: { will: -2 } },
+  guardianship:  { take: {}, brk: {} },
+  trueHearts:    { take: { glamour: -1 }, brk: { banality: 1 } },
+  longRoad:      { take: { glamour: 1, will: 1 }, brk: { glamour: -3, will: -3 } },
+  crossedBlades: { take: { will: -1, glamour: 1 }, brk: { willPerm: -1 } },
+  custom:        { take: { glamour: -1 }, brk: {} }
+};
+export const oathOf = key => (C().oaths ?? []).find(o => o.key === key) ?? null;
+
+/** Клятвы на листе: имя, с кем, условия, кнопки. */
+export function oathsView(actor) {
+  return (actor.system.changeling.oaths ?? []).map((o, i) => {
+    const d = oathOf(o.key);
+    return { i, key: o.key, name: d?.name ?? t("Oath.Custom"), who: o.with, text: o.text || d?.text || "", broken: o.broken,
+      take: t(`Oath.Take.${o.key}`), brk: t(`Oath.Break.${o.key}`) };
+  });
+}
+
+/** Изменить запасы: Гламур и Воля — временные (не выше рейтинга), willPerm — постоянная Воля, banality — пул Банальности. */
+async function oathApply(actor, fx) {
+  const c = actor.system.changeling, w = actor.system.willpower, upd = {};
+  if (fx.glamour) upd["system.changeling.glamour.temporary"] = Math.clamp(c.glamour.temporary + fx.glamour, 0, c.glamour.permanent);
+  if (fx.will) upd["system.willpower.temporary"] = Math.clamp(w.temporary + fx.will, 0, w.permanent);
+  if (fx.willPerm) { const p = Math.max(0, w.permanent + fx.willPerm); upd["system.willpower.permanent"] = p; upd["system.willpower.temporary"] = Math.min(w.temporary, p); }
+  if (Object.keys(upd).length) await actor.update(upd);
+  if (fx.banality) await addBanality(actor, fx.banality);
+}
+
+/** Принести клятву: окно — какая, с кем, формула; цена — сразу (Гламура не хватает — нельзя). */
+export async function takeOath(actor, preset = {}) {
+  if (!actor?.isOwner) return null;
+  const list = [...(C().oaths ?? []), { key: "custom", name: t("Oath.Custom"), text: "" }];
+  const f = preset.key ? preset : await foundry.applications.api.DialogV2.prompt({ window: { title: t("Oath.Title"), icon: "fa-solid fa-handshake-angle" },
+    classes: ["vtm20", "r-dialog", "r-type-changeling"], position: { width: 560 }, rejectClose: false,
+    content: `<div class="r-form"><label class="r-field"><span>${esc(t("Oath.Which"))}</span><select name="key">${list.map(o => `<option value="${o.key}" title="${esc(o.text)}">${esc(o.name)}</option>`).join("")}</select></label>
+      <label class="r-field"><span>${esc(t("Oath.With"))}</span><input type="text" name="with"></label>
+      <label class="r-field"><span>${esc(t("Oath.Text"))}</span><input type="text" name="text" placeholder="${esc(t("Oath.TextPh"))}"></label>
+      <p class="r-note">${esc(t("Oath.Rule"))}</p></div>`,
+    ok: { label: t("Oath.Swear"), icon: "fa-solid fa-handshake-angle", callback: (e, b) => new foundry.applications.ux.FormDataExtended(b.form).object } });
+  if (!f?.key) return null;
+  const rule = OATHS[f.key] ?? OATHS.custom;
+  if ((rule.take.glamour ?? 0) < 0 && actor.system.changeling.glamour.temporary < -rule.take.glamour) return ui.notifications.warn(t("NoGlamour", { n: -rule.take.glamour }));
+  if ((rule.take.will ?? 0) < 0 && actor.system.willpower.temporary < -rule.take.will) return ui.notifications.warn(game.i18n.format("VTM20.Notify.NoWillpower", { name: actor.name }));
+  await actor.update({ "system.changeling.oaths": [...actor.system.changeling.toObject?.().oaths ?? actor.system.changeling.oaths.map(o => ({ ...o })),
+    { key: f.key, with: f.with ?? "", text: f.text ?? "", broken: false }] });
+  await oathApply(actor, rule.take);
+  await say(actor, "fa-handshake-angle", t("Oath.Sworn", { name: esc(actor.name), oath: esc(oathOf(f.key)?.name ?? t("Oath.Custom")), with: esc(f.with || "—"), fx: t(`Oath.Take.${f.key}`) }));
+  return f.key;
+}
+
+/** Нарушить клятву: расплата по книге, отметка «клятвопреступник» и триггер Банальности. */
+export async function breakOath(actor, i) {
+  if (!actor?.isOwner) return null;
+  const oaths = actor.system.changeling.oaths.map(o => ({ ...o })), o = oaths[Number(i)];
+  if (!o || o.broken) return null;
+  o.broken = true;
+  await actor.update({ "system.changeling.oaths": oaths });
+  await oathApply(actor, (OATHS[o.key] ?? OATHS.custom).brk);
+  await say(actor, "fa-heart-crack", t("Oath.Broken", { name: esc(actor.name), oath: esc(oathOf(o.key)?.name ?? t("Oath.Custom")), fx: t(`Oath.Break.${o.key}`) }), "is-warn");
+  return banalityTrigger(actor);
+}
+/** Снять клятву с листа (исполнена или отменена по согласию). */
+export function dropOath(actor, i) {
+  const oaths = actor.system.changeling.oaths.map(o => ({ ...o }));
+  oaths.splice(Number(i), 1);
+  return actor.update({ "system.changeling.oaths": oaths });
 }
 
 /* ── Призыв Вирда и Осени, Банальность места (гл. 6) ───────────────────── */

@@ -907,6 +907,8 @@ export class ChangelingData extends BaseActorData {
         glamour: new SchemaField({ permanent: int(4, 0, 10), temporary: int(4, 0, 10) }),
         banality: new SchemaField({ permanent: int(3, 0, 10), temporary: int(0, 0, 10) }),
         nightmare: int(0, 0, 10), imbalance: int(0, 0, 10),
+        // Клятвы (C20, гл. 6): ключ примера книги или «custom», с кем, своя формула, нарушена ли
+        oaths: new ArrayField(new SchemaField({ key: str("custom"), with: str(""), text: str(""), broken: new BooleanField({ initial: false }) })),
         chimerical: new SchemaField({ bashing: int(0, 0, 7), lethal: int(0, 0, 7), aggravated: int(0, 0, 7) })
       })
     };

@@ -5639,6 +5639,41 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  // Клятвы подменыша (C20, гл. 6): Сомкнутые руки — 1 Гламур и +1 Воля, Верность — 1 Воля; нарушение Сомкнутых рук — −2 Воли,
+  // «клятвопреступник» и триггер Банальности; клятва снимается с листа; блок на вкладке «Искусства»
+  await check("Подменыш: Клятвы — принести, нарушить, триггер Банальности", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), CL = await import(`/systems/${sid}/module/apps/changeling.mjs`);
+      const n0 = game.messages.size, out = {}, rnd = CONFIG.Dice.randomUniform;
+      const a = await Actor.create({ name: "E2E — клятвы", type: "changeling", flags: { world: { e2e: true }, [sid]: { created: true } },
+        system: { willpower: { permanent: 6, temporary: 4 }, changeling: { glamour: { permanent: 5, temporary: 5 }, banality: { permanent: 3, temporary: 0 }, arts: { chicanery: 1 } } } });
+      try {
+        await CL.takeOath(a, { key: "clasped", with: "Брат по мечу" });
+        out.clasped = [a.system.changeling.glamour.temporary, a.system.willpower.temporary];
+        await CL.takeOath(a, { key: "fealty", with: "Графиня" });
+        out.fealty = [a.system.willpower.temporary, a.system.changeling.oaths.length];
+        CONFIG.Dice.randomUniform = () => 0.9999;   // единицы: триггер — ботч
+        await CL.breakOath(a, 0);
+        CONFIG.Dice.randomUniform = rnd;
+        out.broken = [a.system.changeling.oaths[0].broken, a.system.willpower.temporary, a.system.changeling.banality.temporary > 0];
+        await a.sheet.render({ force: true }); await wait(800); a.sheet.changeTab("disciplines", "primary"); await wait(500);
+        out.sheet = [a.sheet.element.querySelectorAll(".r-cl-oath").length, a.sheet.element.querySelectorAll(".r-cl-oath.is-broken").length];
+        await a.sheet.close();
+        await CL.dropOath(a, 0);
+        out.drop = a.system.changeling.oaths.map(o => o.key);
+      } finally {
+        CONFIG.Dice.randomUniform = rnd;
+        await ChatMessage.deleteDocuments(game.messages.contents.slice(n0).map(x => x.id));
+        await a.delete();
+      }
+      return out;
+    });
+    // Гламур 5 − 1, Воля 4 + 1; Верность −1 → 4; нарушение −2 → 2; на листе 2 клятвы, одна нарушена
+    const want = { clasped: [4, 5], fealty: [4, 2], broken: [true, 2, true], sheet: [2, 1], drop: ["fealty"] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   await check("Призрак: лист и Арканои, Пафос, Страсть, Корпус до колебания и Испытание, Катарсис", async () => {
     const r = await page.evaluate(async () => {
       const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), WR = await import(`/systems/${sid}/module/apps/wraith.mjs`);

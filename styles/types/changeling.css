@@ -186,3 +186,14 @@
 .vtm20.r-type-changeling .r-vc-btn.is-on { color: #f6dc97; border-color: #f0c96a; }
 .r-notice.r-type-changeling .r-cl-bedlam { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
 .r-notice.r-type-changeling .r-cl-bedlam button { flex: 1 1 45%; font-size: 12px; line-height: 1.2; padding: 3px 6px; }
+/* Клятвы */
+.vtm20.r-type-changeling .r-cl-oaths { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 8px; margin: 6px 0 12px; }
+.vtm20.r-type-changeling .r-cl-oath { margin: 0; padding: 8px 12px; }
+.vtm20.r-type-changeling .r-cl-oath header { display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px; }
+.vtm20.r-type-changeling .r-cl-oath header b { font-family: var(--r-display); font-size: 16px; font-weight: 400; color: var(--r-ink); }
+.vtm20.r-type-changeling .r-cl-oath header em { color: var(--r-muted); }
+.vtm20.r-type-changeling .r-cl-oath-tools { margin-left: auto; display: inline-flex; gap: 8px; }
+.vtm20.r-type-changeling .r-cl-oath-tools a { color: var(--r-muted); }
+.vtm20.r-type-changeling .r-cl-oath-tools a:hover { color: var(--r-accent); }
+.vtm20.r-type-changeling .r-cl-oath-fx { margin: 4px 0 0; font-size: 12px; color: var(--r-muted); }
+.vtm20.r-type-changeling .r-cl-oath.is-broken { opacity: .75; border-color: #a87ad6; }

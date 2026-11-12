@@ -44,4 +44,16 @@
     </div>
     {{/each}}
   </div>
+  {{!-- Клятвы (C20, гл. 6): примеры книги с ценой и расплатой; нарушение — расплата, «клятвопреступник» и триггер Банальности --}}
+  <h2 class="r-h2 r-cl-oaths-head"><span>{{localize "VTM20.Changeling.Oath.Head"}}</span>
+    {{#if editable}}<span class="r-h2-tools"><a class="r-btn" data-action="clOath" data-op="take"><i class="fa-solid fa-handshake-angle"></i> {{localize "VTM20.Changeling.Oath.Swear"}}</a></span>{{/if}}</h2>
+  {{#if cl.oaths.length}}<div class="r-cl-oaths">
+    {{#each cl.oaths}}<article class="r-vcard r-cl-oath {{#if broken}}is-broken{{/if}}">
+      <header><b>{{name}}</b>{{#if who}} <em>— {{who}}</em>{{/if}}{{#if broken}} <span class="r-cl-state is-bedlam">{{localize "VTM20.Changeling.Oath.Forsworn"}}</span>{{/if}}
+        {{#if @root.editable}}<span class="r-cl-oath-tools">{{#unless broken}}<a data-action="clOath" data-op="break" data-i="{{i}}" data-tooltip="{{brk}}"><i class="fa-solid fa-heart-crack"></i></a>{{/unless}}
+          <a data-action="clOath" data-op="drop" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Changeling.Oath.Drop'}}"><i class="fa-solid fa-xmark"></i></a></span>{{/if}}</header>
+      {{#if text}}<p class="r-note">{{text}}</p>{{/if}}
+      <p class="r-cl-oath-fx"><i class="fa-solid fa-scale-balanced"></i> {{take}} · <i class="fa-solid fa-heart-crack"></i> {{brk}}</p>
+    </article>{{/each}}
+  </div>{{else}}<p class="r-note">{{localize "VTM20.Changeling.Oath.None"}}</p>{{/if}}
 </section>

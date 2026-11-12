@@ -289,6 +289,21 @@ def parse_merits():
     return out
 
 
+# ── Клятвы (файл 15, «Примеры клятв»): текст из справочника, механика — по ключу (module/apps/changeling.mjs, OATHS) ──
+OATH_KEYS = {"Clasped Hands": "clasped", "Fealty": "fealty", "Escheat": "escheat", "Accepted Burden": "burden", "Guardianship": "guardianship",
+             "True Hearts": "trueHearts", "Long Road": "longRoad", "Crossed Blades": "crossedBlades"}
+
+
+def parse_oaths():
+    text = core("15")
+    out = []
+    for line in text.splitlines():
+        m = re.match(r"^- \*\*(Клятва [^(]+?)\s*\(([^)]+)\):\*\*\s*(.*)$", line)
+        if m and m.group(2) in OATH_KEYS:
+            out.append({"key": OATH_KEYS[m.group(2)], "name": m.group(1).strip(), "en": f"Oath of {m.group(2)}", "text": plain(m.group(3))})
+    return out
+
+
 def parse_books():
     out = []
     for folder, label in BOOKS:
@@ -314,7 +329,7 @@ def build():
             k["birthrights"] = sidhe["birthrights"]
     data = {"source": "Changeling: The Dreaming 20th Anniversary Edition — справочник проекта (пересказ механики)",
             "seemings": parse_seemings(), "kiths": kiths, "houses": parse_houses(), "legacies": parse_legacies(),
-            "arts": arts, "realms": realms, "backgrounds": parse_backgrounds(), "merits": parse_merits(),
+            "arts": arts, "realms": realms, "backgrounds": parse_backgrounds(), "merits": parse_merits(), "oaths": parse_oaths(),
             "creation": CREATION, "freebies": FREEBIES, "xp": XP, "cantrip": CANTRIP, "banality": BANALITY, "bedlam": BEDLAM}
     with open(OUT, "w", encoding="utf-8", newline="\n") as f:
         json.dump(data, f, ensure_ascii=False, indent=1)
