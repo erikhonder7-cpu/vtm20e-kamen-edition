@@ -115,6 +115,7 @@ export function wraithInfo(actor, dots) {
     memoriam: backgroundRating(actor, "Memoriam"), eidolon: backgroundRating(actor, "Eidolon"),
     eidolonLeft: Math.max(0, backgroundRating(actor, "Eidolon") - w.session.eidolon), memoriamDone: w.session.memoriam,
     shroud: shroudOf(actor), haunt: backgroundRating(actor, "Haunt"), inHaunt: !!actor.getFlag(SYSTEM_ID, "inHaunt"), isGM: game.user.isGM,
+    forecast: actor.getFlag(SYSTEM_ID, "forecast") ?? null,   // прогноз Мальстрёма (apps/tempest.mjs)
     guide: guideOf(actor)?.name ?? "", isGuide: !!guideOf(actor)?.isSelf, canGuide: game.user.isGM || !!guideOf(actor)?.isSelf
   };
 }
@@ -590,6 +591,8 @@ registerCardBlock("wraith", (state, ev) => {
     return { chips: [{ icon: "fa-mask", label: t("ShadowRolled", { n: x.shadow, vals: x.shadowVals || "—" }), cls: "is-warn" }],
       text: won ? t("PsycheHolds", { n, s: x.shadow }) : t("ShadowWins", { n, s: x.shadow }), cls: won ? "" : "is-warn" };
   }
+  if (x.kind === "tempest") return { chips: [{ icon: "fa-wind", label: t(`Tempest.Chip.${x.method}`) }], text: botch ? t("Tempest.BotchShort") : n ? t("Tempest.Share", { n: Math.min(5, n) }) : t("Tempest.LostShort"), cls: n && !botch ? "" : "is-warn" };
+  if (x.kind === "forecast") return { chips: [{ icon: "fa-tornado", label: t(`Forecast.Step.${x.step}`) }], text: n ? t("Forecast.HitsChip", { n }) : t("Forecast.NoneChip"), cls: n ? "" : "is-warn" };
   if (x.kind === "forge") return { chips: [{ icon: "fa-hammer", label: t(`Forge.Stage.${x.stage}`) }], text: n && !botch ? t("Forge.HitsChip", { n }) : t("Forge.FailChip"), cls: n && !botch ? "" : "is-warn" };
   if (x.kind === "harrowEidolon") return { chips: [{ icon: "fa-sun", label: t("Eidolon") }], text: t("Harrow.EidolonChip", { n }) };
   if (x.kind === "harrowing") {

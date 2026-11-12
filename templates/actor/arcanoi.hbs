@@ -23,6 +23,9 @@
       <a class="r-vc-btn is-sq" data-action="uwFog" data-tooltip="{{localize 'VTM20.Wraith.Fog.Hint'}}"><i class="fa-solid fa-smog"></i></a>
       {{#if wraithInfo.shroud.hysteria}}<a class="r-vc-btn is-sq" data-action="wrShroud" data-what="hysteria" data-d="0" data-tooltip="{{localize 'VTM20.Wraith.Shroud.HysteriaReset'}}"><i class="fa-solid fa-rotate-left"></i></a>{{/if}}
       {{/if}}
+      {{#if editable}}<a class="r-vc-btn is-sq" data-action="wrTempest" data-tooltip="{{localize 'VTM20.Wraith.Tempest.Hint'}}"><i class="fa-solid fa-wind"></i></a>
+      <a class="r-vc-btn is-sq {{#if wraithInfo.forecast}}is-on{{/if}}" data-action="wrForecast" data-tooltip="{{#if wraithInfo.forecast}}{{localize 'VTM20.Wraith.Forecast.OnHint' hits=wraithInfo.forecast.hits}}{{else}}{{localize 'VTM20.Wraith.Forecast.Hint'}}{{/if}}"><i class="fa-solid fa-tornado"></i></a>
+      {{#if wraithInfo.forecast}}<a class="r-vc-btn is-sq" data-action="wrForecastClear" data-tooltip="{{localize 'VTM20.Wraith.Forecast.Clear'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}{{/if}}
       {{#if wraithInfo.haunt}}{{#if editable}}<a class="r-vc-btn {{#if wraithInfo.inHaunt}}is-on{{/if}}" data-action="wrHaunt" data-tooltip="{{localize 'VTM20.Wraith.Shroud.HauntHint'}}"><i class="fa-solid fa-house-chimney-crack"></i> {{localize "VTM20.Wraith.Shroud.InHaunt"}}</a>{{/if}}{{/if}}
     </span>
   </div>

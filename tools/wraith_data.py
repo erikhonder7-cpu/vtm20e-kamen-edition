@@ -597,9 +597,12 @@ def build():
     # Реликвии и Артефакты (гл. 12; Book of Oblivion — образцы) — tools/sources/wraith_relics.json; душековка — FORGE
     with open(os.path.join(HERE, "sources", "wraith_relics.json"), encoding="utf-8") as f:
         relics = json.load(f)["items"]
+    # Плазмики — обитатели Бури (гл. 12) — для генератора НПС: tools/sources/wraith_plasmics.json
+    with open(os.path.join(HERE, "sources", "wraith_plasmics.json"), encoding="utf-8") as f:
+        plasmics = json.load(f)["items"]
     data = {
         "source": "Wraith: The Oblivion 20th Anniversary Edition — справочник проекта (пересказ механики)",
-        "relics": relics, "forge": FORGE,
+        "relics": relics, "forge": FORGE, "plasmics": plasmics,
         "arcanoi": arcanoi, "legions": parse_legions(), "factions": FACTIONS, "archetypes": parse_psyche_archetypes(),
         "shadowArchetypes": arch, "thorns": thorns, "backgrounds": parse_backgrounds(), "states": STATES,
         "creation": CREATION, "freebies": FREEBIES, "xp": XP,

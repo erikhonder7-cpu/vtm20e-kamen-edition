@@ -4912,6 +4912,49 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  // Буря (Аргос, Book of Oblivion): путь Оком погоды и без Аргоса, прогноз Мальстрёма; плазмики в генераторе НПС
+  await check("Призрак: Буря — путь через Бурю, прогноз Мальстрёма, плазмики в генераторе НПС", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {}, n0 = game.messages.size;
+      const T = await import(`/systems/${sid}/module/apps/tempest.mjs`), B = await import(`/systems/${sid}/module/apps/npc-build.mjs`);
+      const inst = () => [...foundry.applications.instances.values()];
+      const rollDlg = async () => { for (let i = 0; i < 40; i++) { const d = inst().find(x => x.constructor.name === "RollDialog" && x.rendered); if (d) return d; await wait(100); } return null; };
+      const submit = async () => { const d = await rollDlg(); if (!d) return null; const diff = d.values.difficulty; d.element.querySelector("button[type=submit]")?.click(); await wait(1500); return diff; };
+      const a = await Actor.create({ name: "E2E — Вестник", type: "wraith", flags: { world: { e2e: true }, [sid]: { created: true } },
+        system: { attributes: { perception: { value: 3 }, intelligence: { value: 3 } }, abilities: { science: { value: 2 } },
+          wraith: { pathos: { value: 5 }, arcanoi: { argos: { value: 1, initiate: [], skip: [] } }, fetters: [{ text: "Маяк", value: 3 }] } } });
+      const last = () => game.messages.contents.at(-1)?.content ?? "";
+      const DV = foundry.applications.api.DialogV2, p0 = DV.prompt, rnd = CONFIG.Dice.randomUniform;
+      try {
+        CONFIG.Dice.randomUniform = () => 0.0001;   // одни десятки
+        DV.prompt = async () => ({ base: "8", unit: "hours", method: "eye", pass: "1", fetter: "" });
+        let p = T.tempestJourney(a); out.diff = await submit(); await p;
+        out.eye = [/2 ч/.test(last()), a.system.wraith.pathos.value];
+        DV.prompt = async () => ({ base: "8", unit: "hours", method: "eye", pass: "0", fetter: "0" });
+        p = T.tempestJourney(a); out.fetterDiff = await submit(); await p;
+        DV.prompt = async () => ({ base: "8", unit: "hours", method: "none", pass: "0", fetter: "" });
+        await T.tempestJourney(a); out.none = /16 ч/.test(last());
+        DV.prompt = async () => "0";
+        p = T.forecast(a); await submit(); await p;
+        out.weekly = a.getFlag(sid, "forecast");
+        for (let i = 0; i < 2; i++) { p = T.forecast(a); await submit(); await p; }
+        out.daily = a.getFlag(sid, "forecast")?.hits;
+      } finally { DV.prompt = p0; CONFIG.Dice.randomUniform = rnd; }
+      const k = B.buildNpc({ kind: "plasmic", power: "normal", params: { plasmic: "kraken" } }), any = B.buildNpc({ kind: "plasmic", power: "normal" });
+      out.kraken = [k.actor, k.system.wraith.corpus, k.system.attributes.strength.value, /100\+/.test(k.system.notes), k.system.wraith.arcanoi.argos.value];
+      out.any = !!any.plasmic;
+      for (const x of inst()) if (x.constructor.name === "RollDialog") await x.close();
+      await ChatMessage.deleteDocuments(game.messages.contents.slice(n0).map(m => m.id));
+      await a.delete();
+      return out;
+    });
+    // Око погоды: сл. 6 + попутчик = 7; 4 десятки — четверть пути (8 → 2 ч), Пафос 5 → 4; к Оковам 3: 6 − 3 = 4 (не ниже 4);
+    // без Аргоса — вдвое (16 ч); прогноз: недельный успех, два уточнения по 5 успехов — 10
+    const want = { diff: 7, eye: [true, 4], fetterDiff: 4, none: true, weekly: { on: true, hits: 0 }, daily: 10, kraken: ["wraith", 10, 5, true, 1], any: true };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   await check("Призрак: Подземный мир — Мальстрём, Туман, Сон в Оковах, «Орфей», Оттенок цвета", async () => {
     const r = await page.evaluate(async () => {
       const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {}, n0 = game.messages.size;

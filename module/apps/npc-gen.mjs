@@ -192,6 +192,11 @@ function paramFields(kind, p) {
       F.push({ name: "spirit", label: L("SpiritTpl"), options: [any(p.spirit), ...(D.spirits ?? []).filter(s => !p.spiritKind || s.kind === p.spiritKind).map(s => opt(s.key, s.name, p.spirit))] });
       break;
     }
+    case "plasmic": {
+      const Dw = WR();
+      F.push({ name: "plasmic", label: loc("VTM20.Wraith.Plasmic"), options: [any(p.plasmic), ...(Dw.plasmics ?? []).map(x => opt(x.key, `${x.name} (${x.en})`, p.plasmic))] });
+      break;
+    }
     case "wraith": case "spectre": case "risen": case "projector": {
       const Dw = WR();
       F.push({ name: "legion", label: loc("VTM20.Wraith.Legion"), options: [any(p.legion), ...(Dw.legions ?? []).map(l => opt(l.key, l.name, p.legion))] });
@@ -221,7 +226,7 @@ const KIT = {
 };
 const ARMED = new Set(["vampire", "ghoul", "mortal", "hunter", "demon"]);
 function autoKit(d) {
-  if (!d || d.spirit || !ARMED.has(d.actor)) return [];
+  if (!d || d.spirit || d.plasmic || !ARMED.has(d.actor)) return [];
   const ab = k => Number(d.system?.abilities?.[k]?.value ?? 0);
   const kit = KIT[game.settings.get(SYSTEM_ID, "era")] ?? KIT.revolution;
   const ref = name => { const i = WEAPON_PRESETS.findIndex(w => w.name === name && !w.era); return i < 0 ? null : `w:${i}`; };
@@ -269,7 +274,7 @@ export class NpcGenerator extends HandlebarsApplicationMixin(ApplicationV2) {
     if (this.isGroup) {
       try {
         const list = buildGroup(s.params.group || GROUPS[0].key, s.power);
-        this.draft = { group: true, list, names: list.map(d => d.spirit ? d.name : randomName(DATA.names[s.names], s.gender)) };
+        this.draft = { group: true, list, names: list.map(d => d.spirit || d.plasmic ? d.name : randomName(DATA.names[s.names], s.gender)) };
       } catch (err) { console.error(err); this.draft = null; ui.notifications.error(L("BuildFailed")); }
       return;
     }
@@ -281,7 +286,7 @@ export class NpcGenerator extends HandlebarsApplicationMixin(ApplicationV2) {
       ui.notifications.error(L("BuildFailed"));
       return;
     }
-    this.draftName = this.draft.spirit ? this.draft.name : randomName(DATA.names[s.names], s.gender);
+    this.draftName = this.draft.spirit || this.draft.plasmic ? this.draft.name : randomName(DATA.names[s.names], s.gender);
     s.auto = autoKit(this.draft);
   }
   #reset() { this.draft = null; }
@@ -348,7 +353,8 @@ export class NpcGenerator extends HandlebarsApplicationMixin(ApplicationV2) {
     }));
     return {
       s, kinds, kind: { ...kind, label: lab(`Kind.${kind.key}`, kind.label) }, roleGroups, subs, role: role ? { key: role.key, label: lab(`Role.${role.key}`, role.label) } : null,
-      powers, isBook: this.isBook, isSpirit: s.kind === "spirit", isGroup: this.isGroup, book,
+      powers, isBook: this.isBook, isSpirit: s.kind === "spirit" || s.kind === "plasmic",   // готовый образец: без ролей и снаряжения (дух, плазмик)
+      isGroup: this.isGroup, book,
       group: grp ? { title: lab(`Group.${groupOf(s.params.group || GROUPS[0].key).key}`, groupOf(s.params.group || GROUPS[0].key).label),
         coterie: groupOf(s.params.group || GROUPS[0].key).coterie, members: grp.list.map((x, i) => ({ name: grp.names[i], kind: x.kindLabel, icon: x.kindIcon, role: x.roleLabel,
           concept: x.concept, power: x.powerLabel, tags: (x.tags ?? []).filter(Boolean).slice(0, 3).join(" · "), traits: (x.traits ?? []).slice(0, 3).map(([l, v]) => `${l} ${v}`).join(" · ") })) } : null,
@@ -382,8 +388,8 @@ export class NpcGenerator extends HandlebarsApplicationMixin(ApplicationV2) {
         if (key === "spiritKind") s.params.spirit = "";
       }
     }
-    if (o.names !== undefined && o.names !== s.names) { s.names = String(o.names); rerender = true; if (this.draft && !this.draft.spirit) this.draftName = randomName(DATA.names[s.names], s.gender); }
-    if (o.gender !== undefined && o.gender !== s.gender) { s.gender = String(o.gender); rerender = true; if (this.draft && !this.draft.spirit) this.draftName = randomName(DATA.names[s.names], s.gender); }
+    if (o.names !== undefined && o.names !== s.names) { s.names = String(o.names); rerender = true; if (this.draft && !this.draft.spirit && !this.draft.plasmic) this.draftName = randomName(DATA.names[s.names], s.gender); }
+    if (o.gender !== undefined && o.gender !== s.gender) { s.gender = String(o.gender); rerender = true; if (this.draft && !this.draft.spirit && !this.draft.plasmic) this.draftName = randomName(DATA.names[s.names], s.gender); }
     if (o.name !== undefined) s.name = String(o.name);
     if (o.as !== undefined) s.as = String(o.as);
     if (o.count !== undefined) s.count = Math.clamp(Number(o.count) || 1, 1, 20);
@@ -458,7 +464,7 @@ export class NpcGenerator extends HandlebarsApplicationMixin(ApplicationV2) {
     for (const [i, d] of this.draft.list.entries()) {
       const a = await createNpc(d, { name: this.draft.names[i], folder: sub.id });
       if (!a) continue;
-      const kit = d.spirit ? [] : [...this.gearOf(autoKit(d)), ...gear];
+      const kit = d.spirit || d.plasmic ? [] : [...this.gearOf(autoKit(d)), ...gear];
       if (kit.length) await a.createEmbeddedDocuments("Item", kit);
       made.push(a);
     }
@@ -503,7 +509,7 @@ export class NpcGenerator extends HandlebarsApplicationMixin(ApplicationV2) {
         actor = await createFromTemplate(tpl, { name, folder: folder.id, trained: s.trained, ghoul: s.ghoul && tpl.group === "animals", gear });
       } else {
         const d = i === 0 ? this.draft : buildNpc({ kind: s.kind, role: s.role, sub: s.sub, power: s.power, params: s.params });
-        const name = typed || (i === 0 ? this.draftName : d.spirit ? `${d.name} ${i + 1}` : randomName(DATA.names[s.names], s.gender));
+        const name = typed || (i === 0 ? this.draftName : d.spirit || d.plasmic ? `${d.name} ${i + 1}` : randomName(DATA.names[s.names], s.gender));
         actor = await createNpc(d, { name, folder: folder.id });
         // первый — с показанным (и поправленным) комплектом, следующие — со своим по их навыкам
         const kit = [...gearOf(i === 0 ? s.auto : autoKit(d)), ...gear];

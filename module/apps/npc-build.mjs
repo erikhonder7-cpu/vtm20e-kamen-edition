@@ -89,6 +89,7 @@ export const KINDS = [
   { key: "spectre", group: "dead", label: "Спектр", icon: "fa-skull", actor: "wraith" },
   { key: "risen", group: "dead", label: "Восставший", icon: "fa-person-rays", actor: "wraith" },
   { key: "projector", group: "dead", label: "Проектор «Орфея»", icon: "fa-person-falling-burst", actor: "wraith" },
+  { key: "plasmic", group: "dead", label: "Плазмик Бури", icon: "fa-tornado", actor: "wraith" },
   { key: "group", group: "groups", label: "Группа целиком", icon: "fa-people-group", actor: null },
   { key: "book", group: "book", label: "Статблоки книги", icon: "fa-book", actor: null }
 ];
@@ -513,6 +514,7 @@ const BUILD = {
   spectre(ctx, p) { return wraithNpc(ctx, p, "spectre"); },
   risen(ctx, p) { return wraithNpc(ctx, p, "risen"); },
   projector(ctx, p) { return wraithNpc(ctx, p, "projector"); },
+  plasmic(ctx, p) { return plasmicNpc(ctx, p); },
 
   spirit(ctx, p) {
     const D = WW(), list = D.spirits ?? [];
@@ -605,6 +607,34 @@ function wraithNpc(ctx, p, mode) {
       [t("Willpower"), sys.willpower.permanent], mode === "spectre" ? [game.i18n.localize("VTM20.Wraith.Spectre.Psyche"), w.spectre.psyche.rating]
         : [game.i18n.localize("VTM20.Wraith.Angst"), w.shadow.angst.permanent]],
     tags: tags.filter(Boolean) };
+}
+
+/**
+ * Плазмик — обитатель Бури (Wraith 20, гл. 12): готовый статблок книги, сила окна не меняет. Лист призрака держит Корпус
+ * до 10 и Атрибуты до 5 — полное значение (Кракен 100+, Ангельские 15, Внешность 6) уходит в заметки.
+ */
+function plasmicNpc(ctx, p) {
+  const list = WR().plasmics ?? [];
+  const x = list.find(s => s.key === p.plasmic) ?? pick(list);
+  const keys = VTM20.wraithArcanoi;
+  const abils = Object.fromEntries(Object.keys(VTM20.abilities).map(k => [k, { value: Math.min(5, x.abils?.[k] ?? 0) }]));
+  const notes = [x.text, ...(x.powers ?? []).map(s => `• ${s}`), x.corpusFull ? `Корпус ${x.corpusFull}` : "", x.notes ?? ""].filter(Boolean);
+  const sys = {
+    attributes: Object.fromEntries(Object.keys(VTM20.attributes).map(k => [k, { value: Math.clamp(x.attrs?.[k] ?? 1, 0, 5) }])), abilities: abils,
+    willpower: { permanent: x.willpower, temporary: x.willpower }, details: { concept: x.name, nature: "", demeanor: "" },
+    notes: notes.map(s => `<p>${foundry.utils.escapeHTML(s)}</p>`).join(""),
+    wraith: { pathos: { value: x.pathos ?? 0 }, corpus: Math.min(10, x.corpus ?? 10), state: "corporeal", legion: "", guild: "", faction: "",
+      arcanoi: Object.fromEntries(keys.map(k => [k, { value: x.arcanoi?.[k] ?? 0, initiate: [], skip: [] }])),
+      passions: (x.passions ?? []).map(r => ({ ...r })), fetters: (x.fetters ?? []).map(r => ({ ...r, resolved: false })),
+      shadow: { archetype: "", guide: "", catharsis: false, angst: { permanent: Math.min(10, x.angst ?? 0), temporary: 0 }, darkPassions: [], thorns: [] } }
+  };
+  const D = WR();
+  return { actor: "wraith", img: "wraith", plasmic: x.key, name: x.name, system: sys, items: [], c: null,
+    powers: [...keys.filter(k => x.arcanoi?.[k]).map(k => ({ label: D.arcanoi.find(a => a.key === k)?.name ?? k, v: x.arcanoi[k] })),
+      ...(x.powers ?? []).map(s => ({ label: s.split(":")[0] }))],
+    powersLabel: game.i18n.localize("VTM20.Wraith.Arcanoi"), text: x.text,
+    traits: [[game.i18n.localize("VTM20.Wraith.Corpus"), x.corpusFull ?? x.corpus], [t("Willpower"), x.willpower], [game.i18n.localize("VTM20.Wraith.Angst"), x.angst ?? 0]],
+    tags: [game.i18n.localize("VTM20.Wraith.Plasmic"), x.en] };
 }
 
 /** Гару и Фера: общая часть, Дары по Рангу (свои списки, уровень ≤ Ранга), Слава по требованию Ранга, ритуалы. */
