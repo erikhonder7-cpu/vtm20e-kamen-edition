@@ -4644,7 +4644,7 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
-  await check("Призрак: мастер — пути Спектра, Восставшего и проектора", async () => {
+  await check("Призрак: мастер — пути Спектра, Восставшего, проектора и Оттенка цвета", async () => {
     const r = await page.evaluate(async () => {
       const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {}, inst = () => [...foundry.applications.instances.values()];
       const run = async (name, setup) => {
@@ -4678,12 +4678,25 @@ try {
       });
       const x = pj.system.wraith;
       out.projector = [x.projector.on, x.projector.shade, x.projector.lament, x.projector.stains.length, x.arcanoi.embody.value, x.arcanoi.argos.value, x.shadow.angst.permanent];
-      for (const a of [sp, rs, pj]) await a.delete();
+      // Оттенок цвета: Фоны 5, Оковы 8, Пафос свободными не выше 7, без Гильдии, одна Страсть тёмная, Тихая Тень с зеркальными Тёмными Страстями
+      const hu = await run("E2E — Оттенок из мастера", cr => {
+        Object.assign(cr.st.wr, { path: "hue", legion: "emerald", guild: "argos", stains: ["brutish", "darkspeech", "eerie"], angstRoll: 3,
+          passions: [{ text: "Достать пигмент", emotion: "Жажда", value: 6 }, { text: "Беречь брата", emotion: "Любовь", value: 4 }], fetters: [{ text: "Комната", value: 8 }] });
+        cr.st.disc.argos = 2;
+        out.hueIssues = [cr.passionIssues.length];
+        cr.st.wr.hueDark = 0;
+        cr.st.free.pathos = 3;
+        out.hueRules = [cr.rules.free, cr.rules.bg, cr.wrNums.fetters, cr.wraithPathos, cr.passionIssues.length, cr.wrPath];
+      });
+      const h = hu.system.wraith;
+      out.hue = [h.hue, h.guild, h.projector.on, h.projector.stains.length, h.pathos.value, h.pathos.max, h.shadow.archetype, h.shadow.darkPassions.length, h.shadow.darkPassions[0]?.text];
+      for (const a of [sp, rs, pj, hu]) await a.delete();
       return out;
     });
     const want = { spRules: [20, 5, 6, 25, 1], spectre: [true, "doppelganger", 1, 2, 2, "Святой", 5, 1],
       rsRules: [15, 5, 6, 7, 7], risen: [true, "кольцо", 2, 1, 1, 7],
-      pjRules: [18, 2, 1, 1, 4, 6], projector: [true, "wisp", "sleeper", 2, 1, 2, 4] };
+      pjRules: [18, 2, 1, 1, 4, 6], projector: [true, "wisp", "sleeper", 2, 1, 2, 4],
+      hueIssues: [1], hueRules: [15, 5, 8, 7, 0, "hue"], hue: [true, "", false, 3, 7, 7, "Тихая", 2, "Достать пигмент"] };
     const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
@@ -4883,6 +4896,13 @@ try {
       for (let i = 0; i < 3; i++) await RL.wakeRelic(a, lamp.id);
       out.wake = [a.items.get(lamp.id).system.ghost.crystal, a.system.wraith.pathos.value];
       out.steel = a.items.get(blade.id).system.damageType;
+      // редкий сбой в полном прогоне (wake [0,5], steel undefined) — снимок состояния для разбора
+      if (out.wake[1] !== 4 || out.steel !== "aggravated") {
+        const bl = a.items.get(blade.id), live = game.actors.get(a.id);
+        out.diag = { live: !!live, same: live === a, pathos: live?.system.wraith.pathos.value, bladeType: bl?.type, bladeSys: bl ? Object.keys(bl.system ?? {}).slice(0, 12) : null,
+          bladeCls: bl?.system?.constructor?.name, ghost: bl?.system?.ghost, users: game.users.filter(u => u.active).map(u => u.name),
+          hooks: ["preUpdateActor", "updateActor", "preCreateItem", "createItem"].map(h => `${h}:${Hooks.events[h]?.length ?? 0}`), invalid: [...(a.items.invalidDocumentIds ?? [])] };
+      }
       out.list = RL.relicsView(a).list.length;
       const DV = foundry.applications.api.DialogV2, p0 = DV.prompt, rnd = CONFIG.Dice.randomUniform;
       try {
@@ -4911,7 +4931,7 @@ try {
     // Оценка → Работа (6 десяток) → Отделка (6): чистка 1 + клинок 4 — остался 1
     const want = { wake: [0, 4], steel: "aggravated", list: 2, need: 4, stage: ["finish", 6], left: 1, made: ["weapon", "forged", false, true, true], pack: 30, sheet: 3 };
     const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
-    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; ") + (r.diag ? ` | диагностика: ${JSON.stringify(r.diag)}` : ""));
   });
 
   // Буря (Аргос, Book of Oblivion): путь Оком погоды и без Аргоса, прогноз Мальстрёма; плазмики в генераторе НПС
@@ -5222,6 +5242,50 @@ try {
       return out;
     });
     const want = { storm: [true, 4], slumber: [0, true], hue: [7, 3] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
+  await check("Призрак: Круг — общее Обиталище в Покрове, крусибл «Орфея», Пафос касанием, лист группы", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {}, n0 = game.messages.size;
+      const C = await import(`/systems/${sid}/module/apps/circle.mjs`), WR = await import(`/systems/${sid}/module/apps/wraith.mjs`);
+      const U = await import(`/systems/${sid}/module/apps/underworld.mjs`), DV = foundry.applications.api.DialogV2, w0 = DV.wait;
+      const stub = key => async o => { const el = document.createElement("div"); el.innerHTML = o.content; o.render?.(null, { element: el, close() {} }); el.querySelector(`[data-pick="${key}"]`)?.click(); return "cancel"; };
+      const mk = (name, extra = {}) => Actor.create({ name, type: "wraith", flags: { world: { e2e: true }, [sid]: { created: true } },
+        system: { willpower: { permanent: 5, temporary: 2 }, wraith: { pathos: { value: 6 }, ...extra } } });
+      const a = await mk("E2E — призрак Круга"), b = await mk("E2E — сосед по Кругу", { pathos: { value: 2 } }), lone = await mk("E2E — чужой призрак");
+      const g = await Actor.create({ name: "E2E — Круг", type: "coterie", flags: { world: { e2e: true } },
+        system: { kind: "circle", members: [a.id, b.id], primary: "Обиталище", pools: { "Обиталище": { [a.id]: 2, [b.id]: 1 } } } });
+      try {
+        out.haunt = [C.circleHaunt(a), C.circleHaunt(lone), WR.hauntRating(b)];
+        await a.setFlag(sid, "inHaunt", true);
+        const sh = WR.shroudOf(a, null);
+        out.shroud = [sh.haunt, sh.value];
+        out.mates0 = C.crucibleMates(a);
+        await C.bondCrucible(g); await wait(300);
+        out.bond = [g.system.circle.crucible, a.system.willpower.temporary, b.system.willpower.temporary];
+        out.mates = (C.crucibleMates(a) ?? []).map(x => x.id === b.id);
+        DV.wait = stub(b.id); await U.sharePathos(a); DV.wait = w0; await wait(300);
+        out.pathos = [a.system.wraith.pathos.value, b.system.wraith.pathos.value];
+        await g.sheet.render({ force: true }); await wait(900);
+        const el = g.sheet.element;
+        out.sheet = [el.querySelectorAll(".r-gs-cwraith").length, !!el.querySelector("[data-action=unbond]"), el.querySelector(".r-gs-tallies b")?.textContent.trim()];
+        out.kind = [...el.querySelectorAll("select[name='system.kind'] option")].some(o => o.value === "circle");
+        await g.sheet.close();
+        // без Воли у участника ритуал срывается
+        await g.update({ "system.circle.crucible": false }); await b.update({ "system.willpower.temporary": 0 });
+        await C.bondCrucible(g); await wait(300);
+        out.fail = [g.system.circle.crucible, a.system.willpower.temporary];
+      } finally {
+        DV.wait = w0;
+        await ChatMessage.deleteDocuments(game.messages.contents.slice(n0).map(m => m.id));
+        await Actor.deleteDocuments([a.id, b.id, lone.id, g.id]);
+      }
+      return out;
+    });
+    // Обиталище 2 + 1 = 3; Покров 7 − 3 = 4; скрепление — по Воле (2 → 1); Пафос: 3 за касание (6 → 3, 2 → 5); без Воли — срыв
+    const want = { haunt: [3, 0, 3], shroud: [3, 4], mates0: null, bond: [true, 1, 1], mates: [true], pathos: [3, 5], sheet: [2, true, "3"], kind: true, fail: [false, 1] };
     const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });

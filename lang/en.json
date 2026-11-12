@@ -90,13 +90,15 @@
         "wraith": "Wraith",
         "spectre": "Spectre",
         "risen": "Risen",
-        "projector": "Orpheus projector"
+        "projector": "Orpheus projector",
+        "hue": "Hue"
       },
       "PathSub": {
         "wraith": "A Stygian newly dead: Legion, Guild, Passions and Fetters, Shadow",
         "spectre": "Consumed by Oblivion: caste, Dark Arcanoi, Psyche instead of a Shadow (ch. 10)",
         "risen": "Back in their own body for unfinished business: Puppetry, Conduit (ch. 11)",
-        "projector": "A living person leaving the body: Shade, Stains, Tethers (Orpheus)"
+        "projector": "A living person leaving the body: Shade, Stains, Tethers (Orpheus)",
+        "hue": "Pigment ghost (Orpheus): no Guild, Fetters 8, 3 Stains, Pathos up to 7, Quiescent Shadow"
       },
       "NeedCaste": "Pick the Spectre caste",
       "NeedShade": "Pick the projector Shade",
@@ -117,7 +119,10 @@
       "PsycheHint": "10 — Redemption. The Psyche’s starting Pathos pool equals the rating.",
       "TethersHint": "Tethers work like Fetters, but the first, at 5 dots, binds to your own body (the silver cord)",
       "ConduitHint": "Wedding ring, watch, letter…",
-      "PricePerDot": "1 per dot"
+      "PricePerDot": "1 per dot",
+      "HueDark": "One of the hue's Passions must be a Dark Passion: mark it with the moon",
+      "HueDarkTip": "The hue's Dark Passion (one is required)",
+      "HueShadow": "A hue's Shadow is Quiescent: the Archetype is given, and its Dark Passions mirror the hue's Passions (Orpheus). Angst is a Willpower roll as for a wraith; Shadow freebies go to Angst and Thorns. Three Stains; manifesting them all for a scene costs 1 Pathos."
     },
     "Wraith": {
       "Collapse": "Свернуть",
@@ -1107,6 +1112,22 @@
         "All": "All Stains",
         "AllHint": "Hue: manifest all Stains for the scene — 1 Pathos",
         "AllShown": "<b>{name}</b> manifests every Stain until the scene ends."
+      },
+      "Circle": {
+        "Title": "Circle",
+        "Haunt": "shared Haunt",
+        "HauntHint": "Shared Haunt {n}: a Circle wraith marked “In Haunt” has the Shroud lowered by {n} (if their own Haunt is lower), and Maelstroms are weaker there.",
+        "HauntNone": "No shared Haunt. With the Storyteller's approval members pool Haunt dots into a shared Background (“Shared Backgrounds” → “Обиталище”).",
+        "Crucible": "crucible",
+        "CrucibleHint": "The crucible is bonded: members share Pathos by touch and yoke only with each other. Another player's sheet is changed by the GM.",
+        "NoCrucible": "An Orpheus crucible takes weeks of together time and a bonding ritual: one Willpower point from every member.",
+        "Bond": "Bond crucible",
+        "BondHint": "Orpheus ritual: one temporary Willpower from every wraith of the Circle. If anyone has none, the ritual fails.",
+        "Unbond": "Dissolve",
+        "NeedTwo": "A crucible needs at least two wraiths",
+        "Bonded": "<b>{name}</b>: the crucible is bonded ({n} members, one Willpower each). Pathos and yoking stay within the crucible.",
+        "BondFailed": "<b>{name}</b>: the bonding ritual fails — no Willpower left: {who}.",
+        "NoMates": "No one to share Pathos with"
       }
     },
     "Refresh": {
@@ -6539,7 +6560,8 @@
         "sabbat": "Sabbat pack",
         "pack": "Garou pack",
         "cell": "Hunter cell",
-        "cabal": "Cabal"
+        "cabal": "Cabal",
+        "circle": "Wraith Circle"
       },
       "Members": "Members",
       "Drop": "Remove from the group",

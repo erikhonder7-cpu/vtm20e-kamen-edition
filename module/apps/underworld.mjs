@@ -12,7 +12,8 @@
 
 import { RollDialog } from "../dice/dialog.mjs";
 import { SYSTEM_ID } from "../config.mjs";
-import { W, t, esc, say, corpusDamage, spendPathos, backgroundRating, pick } from "./wraith.mjs";
+import { W, t, esc, say, corpusDamage, spendPathos, hauntRating, pick } from "./wraith.mjs";
+import { crucibleMates, givePathos } from "./circle.mjs";
 
 const BELLS = [0, 4, 6, 8, 12, 16];
 const HAZARDS = ["winds", "rain", "fog", "lightning"];
@@ -38,7 +39,7 @@ export async function maelstrom() {
   if (!list.length) return ui.notifications.warn(t("Storm.NoWraiths"));
   const rows = [];
   for (const a of list) {
-    const haunt = a.getFlag(SYSTEM_ID, "inHaunt") ? backgroundRating(a, "Haunt") : 0, eff = Math.min(5, bells) - haunt;
+    const haunt = a.getFlag(SYSTEM_ID, "inHaunt") ? hauntRating(a) : 0, eff = Math.min(5, bells) - haunt;
     if (eff <= 0) { rows.push(`<li><b>${esc(a.name)}</b>: ${esc(t("Storm.Sheltered", { n: haunt }))}</li>`); continue; }
     const dmg = hits(await d10(BELLS[eff]), 6), soakVals = await d10(a.soakPool("lethal") + haunt), soaked = Math.min(dmg, hits(soakVals, 6));
     const net = dmg - soaked;
@@ -111,12 +112,15 @@ export async function slumber(actor) {
 /* ── «Орфей»: Круг, Спаривание, Пигмент ──────────────────────────────── */
 
 const projectors = except => game.actors.filter(a => a.type === "wraith" && a.system.wraith.projector?.on && a.id !== except.id && a.isOwner);
+/** Крусибл (apps/circle.mjs): участники своего Круга-крусибла — и чужие листы; без крусибла — свои призраки. */
+const mates = (actor, onlyProjectors) => crucibleMates(actor)
+  ?? (onlyProjectors ? projectors(actor) : projectors(actor).concat(game.actors.filter(a => a.type === "wraith" && !a.system.wraith.projector?.on && a.isOwner && a.id !== actor.id)));
 
 /** Спаривание (Yoking): 1 Пафос донора — польза бенефициару по Оттенку донора. */
 export async function yoke(actor) {
   const shade = actor.system.wraith.projector?.shade;
   if (!shade) return ui.notifications.warn(t("Orph.NeedShade"));
-  const list = projectors(actor);
+  const list = mates(actor, true);
   const to = list.length ? await pick(t("Orph.Yoke"), list.map(a => ({ key: a.id, icon: "fa-user", title: a.name }))) : null;
   if (list.length && !to) return null;
   if (!(await spendPathos(actor, 1))) return null;
@@ -125,15 +129,15 @@ export async function yoke(actor) {
 
 /** Пафос — касанием члену Круга. */
 export async function sharePathos(actor) {
-  const list = projectors(actor).concat(game.actors.filter(a => a.type === "wraith" && !a.system.wraith.projector?.on && a.isOwner && a.id !== actor.id));
+  const list = mates(actor, false);
+  if (!list.length) return ui.notifications.warn(t("Circle.NoMates"));
   const to = await pick(t("Orph.Share"), list.map(a => ({ key: a.id, icon: "fa-hand-holding-heart", title: a.name, sub: t("Orph.PathosOf", { n: a.system.wraith.pathos.value }) })));
   if (!to) return null;
-  const b = game.actors.get(to), room = Math.max(0, (b.system.wraith.pathos.max ?? 10) - b.system.wraith.pathos.value);
-  const n = Math.min(actor.system.wraith.pathos.value, room, 3);
+  // не больше 3 за касание (правило системы); чужой лист — через ведущего
+  const n = await givePathos(actor, game.actors.get(to), 3);
+  if (n === true || n === null) return null;
   if (!n) return ui.notifications.warn(t("Orph.NoRoom"));
-  await actor.update({ "system.wraith.pathos.value": actor.system.wraith.pathos.value - n });
-  await b.update({ "system.wraith.pathos.value": b.system.wraith.pathos.value + n });
-  return say(actor, "fa-hand-holding-heart", t("Orph.Shared", { name: esc(actor.name), to: esc(b.name), n }));
+  return say(actor, "fa-hand-holding-heart", t("Orph.Shared", { name: esc(actor.name), to: esc(game.actors.get(to).name), n }));
 }
 
 /** Пигмент: способ приёма — штраф, Воля, проекция; длится 8 − Выносливость часов. */

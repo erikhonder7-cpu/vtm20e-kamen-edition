@@ -55,7 +55,8 @@ function actorOf(app) {
 
 /** Тема персонажа: тип актёра, у духа Умбры (существо с отметкой «Дух») — своя палитра «Пенумбра» (styles/types/spirit.css). */
 export const themeOf = actor => !actor?.type ? null : actor.type === "spirit" || (actor.type === "creature" && actor.system?.spirit?.on) ? "spirit"
-  : actor.type === "coterie" && actor.system?.kind === "cabal" ? "mage" : actor.type;   // кабал магов — в гамме магов
+  : actor.type === "coterie" && actor.system?.kind === "cabal" ? "mage"   // кабал магов — в гамме магов
+  : actor.type === "coterie" && actor.system?.kind === "circle" ? "wraith" : actor.type;   // Круг призраков — в «Пепле и Плёнке»
 
 /** Класс темы для своих HTML-кусков (карточки, уведомления). */
 export const themeClass = actor => actor?.type ? `r-type-${themeOf(actor)}${isTechnocrat(actor) ? " r-mage-tech" : ""}${isNephandus(actor) ? " r-mage-fallen" : ""}` : "";

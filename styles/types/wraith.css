@@ -394,3 +394,28 @@
 .vtm20.r-type-wraith .r-wr-transcend { margin: 2px 0 10px; font-size: 12.5px; font-style: italic; color: #dfe3e8; }
 .vtm20.r-type-wraith .r-wr-transcend i { color: #e6d9a8; margin-right: 4px; }
 .vtm20.r-harrow .r-harrow-group { flex-wrap: wrap; gap: 4px 12px; }
+/* Мастер: Оттенок цвета — отметка тёмной Страсти; лист Круга — Пафос, Корпус, Воля участника */
+.vtm20 .r-cr-wrrow > .r-cr-huedark { opacity: .45; }
+.vtm20 .r-cr-wrrow > .r-cr-huedark.is-on { opacity: 1; color: #b9a7e6; }
+.vtm20 .r-gs-cquint.r-gs-cwraith { display: flex; flex-wrap: wrap; gap: 2px 10px; }
+
+/* Мастер призрака: выбранное и точки — серебро Плёнки, а не вампирская кровь (по образцу hunter.css) */
+.vtm20.r-type-wraith .r-cr-tile.is-active, .vtm20.r-type-wraith .r-cr-clan.is-active, .vtm20.r-type-wraith .r-cr-bg.is-on, .vtm20.r-type-wraith .r-cr-mf.is-on {
+  border-color: rgba(201, 210, 220, .5); background: rgba(201, 210, 220, .07); box-shadow: inset 2px 0 0 #c9d2dc; }
+.vtm20.r-type-wraith .r-cr-prio.is-active { color: #0c0d0f; background: linear-gradient(180deg, #f2f4f6, #7c8592); }
+.vtm20.r-type-wraith .r-cr-dot.is-alloc { border-color: #a3abb5; }
+.vtm20.r-type-wraith .r-cr-dot.is-free { border-color: #ccd4dd; background: radial-gradient(circle at 38% 32%, #f5f6f8, #8b929c 70%); }
+.vtm20.r-type-wraith .r-cr-bg.is-on .r-cr-take, .vtm20.r-type-wraith .r-cr-mf.is-on .r-cr-mf-take { color: #0c0d0f; background: #c9d2dc; border-color: #f2f4f6; }
+.vtm20.r-type-wraith .r-cr-added:not(:empty) { color: #0c0d0f; background: #c9d2dc; }
+.vtm20.r-type-wraith .r-cr-ledger li.is-over i { background-image: linear-gradient(90deg, #2c2f34, #98a0aa); }
+.vtm20.r-type-wraith .r-cr-problems { border-left-color: #6a2a3c; background: rgba(106, 42, 60, .1); }
+
+/* Лист Круга призраков (coterie, kind circle — тема wraith): Ангст винный, крусибл — светом Плёнки */
+.vtm20.r-type-wraith .r-gs-cwraith i { color: #a3abb5; }
+.vtm20.r-type-wraith .r-gs-cwraith .fa-skull { color: #b05a78; }
+.vtm20.r-type-wraith .r-gs-card { border-left-color: #8b929c; }
+.vtm20.r-type-wraith .r-gs-card:hover { border-color: rgba(201, 210, 220, .4); background: rgba(201, 210, 220, .05); }
+.vtm20.r-type-wraith .r-gs-ctype { color: #98a0aa; }
+.vtm20.r-type-wraith .r-gs .r-motto { color: #a3abb5; }
+.vtm20.r-type-wraith .r-gs-pool .fa-link { color: #f2f4f6; text-shadow: 0 0 6px rgba(236, 240, 244, .6); }
+.vtm20.r-type-wraith .r-cr-sectrule i { color: #a3abb5; }

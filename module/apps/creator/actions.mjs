@@ -265,7 +265,7 @@ function bump(mode, event, target) {
   if (hxp && kind === "morality" && d > 0 && this.morality >= this.willpower) return ui.notifications.warn(t("Creator.HunterConvWill"));
   if (this.isWraith && ["pathos", "trade", "pas", "fet", "rdisc"].includes(kind)) {   // призрак: Пафос, торг с Тенью (Спектру — Психее), Страсти, Оковы, «Дисциплины» Восставшего
     if (mode !== "free") return;
-    if (kind === "pathos") { if (d > 0 && this.wraithPathos >= 10) return; bag.pathos = Math.max(0, (bag.pathos ?? 0) + d); }
+    if (kind === "pathos") { if (d > 0 && this.wraithPathos >= (this.wrNums.pathosMax ?? 10)) return; bag.pathos = Math.max(0, (bag.pathos ?? 0) + d); }
     else if (kind === "trade") bag.trade = Math.clamp((bag.trade ?? 0) + d, this.wrPath === "spectre" ? 0 : -(this.wrNums.shadowFreebies ?? 10), this.wrNums.shadowTrade ?? 7);
     else if (kind === "rdisc") { bag.rdisc ??= {}; bag.rdisc[key] = Math.clamp((bag.rdisc[key] ?? 0) + d, 0, 5); }
     else {

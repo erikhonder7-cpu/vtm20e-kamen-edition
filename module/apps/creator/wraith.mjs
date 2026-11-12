@@ -14,6 +14,9 @@
 //   · Проектор «Орфея» (приложение) — Оттенок: Арканос Оттенка 1, Воплощение 1, Паутина жизни 1 и ещё 2; Фоны 7 (без Эйдолона,
 //     Обиталища, Наследия, Мемориума); Страсти 5, Тетеры 10; Пафос, Воля, Ангст — по 5 с поправками Оттенка; 18 свободных
 //     (цены — как у призрака, правило системы); Тени нет — Пятна: одно на 2 постоянного Ангста.
+//   · Оттенок цвета («Орфей», Hue Character Creation) — Арканои 5 без Гильдии (Гильдию не выбирают: толкование системы слов
+//     «no Guild Arcanoi»), Фоны 5, Страсти 10 (одна — тёмная), Оковы 8, Пятна 3; Пафос 5 (Мемориум не в счёт) и Воля 5;
+//     15 свободных, Пафос свободными не выше 7. Тень — Тихая (Quiescent): её Тёмные Страсти повторяют Страсти Оттенка.
 
 import { W as wraithData, arcSym, legionSym } from "../wraith.mjs";
 import { VTM20 } from "../../config.mjs";
@@ -24,10 +27,13 @@ export const SHADOW_COST = { dark: 1, angst: 2 };
 const PSYCHE_COST = { rating: 5, passion: 1 };
 const sum = list => list.reduce((s, x) => s + (Number(x?.value) || 0), 0);
 const RISEN_DISC = ["potence", "fortitude", "celerity"];
+/** Оттенок цвета («Орфей», Hue Character Creation). */
+const HUE = { backgrounds: 5, fetters: 8, stains: 3, pathos: 5, willpower: 5, freebies: 15, pathosMax: 7, archetype: "Quiescent" };
+const quiescent = () => (wraithData().shadowArchetypes ?? []).find(a => a.en === HUE.archetype)?.name ?? "";
 
 export class WraithCreator {
   get isWraith() { return this.type === "wraith"; }
-  /** Путь: «» — призрак, spectre, risen, projector. */
+  /** Путь: «» — призрак, spectre, risen, projector, hue. */
   get wrPath() { return this.st?.wr?.path ?? ""; }
   get wrCaste() { return (wraithData().castes ?? []).find(c => c.key === this.st.wr.caste) ?? null; }
   get wrShade() { return (wraithData().shades ?? []).find(s => s.key === this.st.wr.shade) ?? null; }
@@ -37,6 +43,7 @@ export class WraithCreator {
     if (p === "spectre") return { ...base, passions: caste?.darkPassions ?? D.spectre?.darkPassions ?? 10, fetters: caste?.fetters ? 10 : 0, pathosBase: D.spectre?.angstStart ?? 5,
       willpower: caste?.willpower ?? D.spectre?.willpower ?? 5, shadowTrade: D.spectre?.psycheTrade ?? 7, psyche: D.spectre?.psychePassions ?? 7 };
     if (p === "risen") return { ...base, pathosBase: D.risen?.pathos ?? 5, willpower: D.risen?.willpower ?? 6 };
+    if (p === "hue") return { ...base, fetters: HUE.fetters, pathosBase: HUE.pathos, willpower: HUE.willpower, pathosMax: HUE.pathosMax };
     if (p === "projector") return { ...base, passions: D.projector?.passions ?? 5, fetters: D.projector?.tethers ?? 10,
       pathosBase: (D.projector?.pathos ?? 5) + (shade?.pathos ?? 0), willpower: (D.projector?.willpower ?? 5) + (shade?.willpower ?? 0) };
     return base;
@@ -47,6 +54,7 @@ export class WraithCreator {
     if (p === "spectre") return { ...b, bg: D.spectre?.backgrounds ?? 5, free: D.spectre?.freebies ?? 20, disc: this.wrCaste?.points ?? 5,
       cost: { ...b.cost, pas: 2, fet: 1, pathos: 1, will: 2, disc: 5 } };
     if (p === "risen") return { ...b, bg: D.risen?.backgrounds ?? 5, free: D.risen?.freebies ?? 15, disc: 5, cost: { ...b.cost, pas: 1, pathos: 1, rdisc: D.risen?.disciplineCost ?? 7 } };
+    if (p === "hue") return { ...b, bg: HUE.backgrounds, free: HUE.freebies, disc: 5 };
     // проектор: Арканос Оттенка, Воплощение и Паутина жизни даны (по 1), на выбор — 2 (правило книги: «1 Оттенка + 1 + 1 + 2»)
     if (p === "projector") return { ...b, bg: D.projector?.backgrounds ?? 7, free: D.projector?.freebies ?? 18, disc: 2 };
     return b;
@@ -77,7 +85,7 @@ export class WraithCreator {
   /** Пафос (у Спектра — Ангст): база пути + Мемориум (только призраку и Восставшему) + свободные (по 2, у Восставшего — по 1). */
   get wraithPathos() {
     const mem = ["", "risen"].includes(this.wrPath) ? this.wraithMemoriam : 0, per = this.wrPath === "risen" ? 1 : 2;
-    return Math.min(10, (this.wrNums.pathosBase ?? 5) + mem + per * (this.st.free.pathos ?? 0));
+    return Math.min(this.wrNums.pathosMax ?? 10, (this.wrNums.pathosBase ?? 5) + mem + per * (this.st.free.pathos ?? 0));
   }
   passionValue(kind, i) {
     const list = kind === "pas" ? this.st.wr.passions : this.st.wr.fetters;
@@ -125,6 +133,7 @@ export class WraithCreator {
     if ([...w.passions, ...w.fetters].some(x => (x.value ?? 0) > 0 && !String(x.text ?? "").trim())) out.push(loc("NeedText"));
     if (this.wrPath === "projector" && this.passionValue("fet", 0) < (wraithData().projector?.bodyTether ?? 5)) out.push(loc("BodyTether"));
     if (this.wrPath === "risen" && !String(w.conduit ?? "").trim()) out.push(loc("NeedConduit"));
+    if (this.wrPath === "hue" && !((w.hueDark ?? -1) >= 0 && this.passionValue("pas", w.hueDark) > 0)) out.push(loc("HueDark"));
     return out;
   }
   get arcanoiIssues() {
@@ -152,6 +161,12 @@ export class WraithCreator {
       return out;
     }
     if (!w.angstRoll) out.push(loc("NeedAngstRoll"));
+    if (p === "hue") {   // Тихая Тень: архетип дан, Тёмные Страсти — зеркало Страстей; Пятна — 3
+      if (w.stains.length !== HUE.stains) out.push(fmt("StainsNeed", { n: HUE.stains }));
+      if (this.shadowLeft) out.push(fmt(this.shadowLeft > 0 ? "ShadowLeft" : "ShadowOver", { n: Math.abs(this.shadowLeft) }));
+      if (w.angstTemp > 9) out.push(loc("AngstTempMax"));
+      return out;
+    }
     const dark = sum(w.dark);
     if (dark < (this.wrNums.darkPassions ?? 7)) out.push(fmt("DarkLeft", { n: (this.wrNums.darkPassions ?? 7) - dark }));
     const pas = this.st.wr.passions.reduce((s, x, i) => s + this.passionValue("pas", i), 0);
@@ -169,6 +184,7 @@ export class WraithCreator {
     const legion = (D.legions ?? []).find(l => l.key === w.legion), guild = (D.arcanoi ?? []).find(a => a.key === w.guild);
     Object.assign(ctx.patent, { clan: p === "spectre" ? this.wrCaste?.name ?? "" : p === "projector" ? this.wrShade?.name ?? "" : legion?.name ?? "",
       sect: p === "spectre" ? game.i18n.localize("VTM20.Wraith.Spectre.Title") : p === "risen" ? game.i18n.localize("VTM20.Wraith.Risen.Title")
+        : p === "hue" ? loc("Path.hue")
         : p === "projector" ? game.i18n.localize("VTM20.Wraith.Proj.Title") : guild?.guild ?? "",
       sectSym: null, sym: legionSym(w.legion), pathName: p === "spectre" ? game.i18n.localize("VTM20.Wraith.Spectre.Angst") : loc("Pathos"), morality: this.wraithPathos });
   }
@@ -180,9 +196,10 @@ export class WraithCreator {
       dots: Array.from({ length: 5 }, (_, j) => ({ n: j + 1, state: j < (Number(x.value) || 0) ? "alloc" : j < this.passionValue(kind, i) ? "free" : "empty" })) }));
     const plain = (list, field) => list.map((x, i) => ({ ...x, i, dots: Array.from({ length: 5 }, (_, j) => ({ n: j + 1, state: j < (Number(x.value) || 0) ? "alloc" : "empty" })) }));
     ctx.wraith = {
-      path: p, isSpectre: p === "spectre", isRisen: p === "risen", isProjector: p === "projector",
-      paths: ["", "spectre", "risen", "projector"].map(k => ({ key: k, label: loc(`Path.${k || "wraith"}`), sub: loc(`PathSub.${k || "wraith"}`),
-        icon: { "": "fa-ghost", spectre: "fa-skull", risen: "fa-person-rays", projector: "fa-person-falling-burst" }[k], active: k === p })),
+      path: p, isSpectre: p === "spectre", isRisen: p === "risen", isProjector: p === "projector", isHue: p === "hue", noGuild: p === "spectre" || p === "hue",
+      paths: ["", "spectre", "risen", "projector", "hue"].map(k => ({ key: k, label: loc(`Path.${k || "wraith"}`), sub: loc(`PathSub.${k || "wraith"}`),
+        icon: { "": "fa-ghost", spectre: "fa-skull", risen: "fa-person-rays", projector: "fa-person-falling-burst", hue: "fa-droplet" }[k], active: k === p })),
+      hueDark: w.hueDark ?? -1, quiescent: quiescent(), hueStains: HUE.stains,
       castes: (D.castes ?? []).map(c => ({ key: c.key, label: c.name, en: c.en, sub: String(c.creation ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 160), active: c.key === w.caste })),
       shades: (D.shades ?? []).map(s => ({ key: s.key, label: s.name, en: s.en, active: s.key === w.shade,
         sub: `${(s.favored ?? []).map(k => (D.arcanoi ?? []).find(a => a.key === k)?.name ?? (D.risenArcanoi ?? []).find(a => a.key === k)?.name ?? k).join(", ")} · ${s.natures}` })),
@@ -209,7 +226,8 @@ export class WraithCreator {
         rating: w.psyche.rating, passions: plain(w.psyche.passions), sum: sum(w.psyche.passions), base: this.wrNums.psyche ?? 7,
         pool: this.psychePool, spent: this.psycheSpent, left: this.psycheLeft },
       // проектор: Пятна
-      stains: (D.stains ?? []).map(s => ({ key: s.key, label: s.name, en: s.en, adv: s.adv, dis: s.dis, on: w.stains.includes(s.key) })), stainsNeed: Math.floor(this.angstPerm / 2)
+      stains: (D.stains ?? []).map(s => ({ key: s.key, label: s.name, en: s.en, adv: s.adv, dis: s.dis, on: w.stains.includes(s.key) })),
+      stainsNeed: p === "hue" ? HUE.stains : Math.floor(this.angstPerm / 2)
     };
     ctx.wraith.arcanosMax = this.wrNums.arcanosMax ?? 3;
   }
@@ -219,14 +237,16 @@ export class WraithCreator {
     const w = this.st.wr, p = this.wrPath, D = wraithData();
     const keep = list => list.filter(x => String(x.text ?? "").trim() || (x.value ?? 0) > 0);
     const arc = (D.arcanoi ?? []).map(a => a.key);
-    const out = { ...old, legion: w.legion, guild: p === "spectre" ? "" : w.guild, faction: w.faction, death: w.death, pathos: { value: p === "spectre" ? 0 : this.wraithPathos },
+    const out = { ...old, legion: w.legion, guild: p === "spectre" || p === "hue" ? "" : w.guild, faction: w.faction, death: w.death, pathos: { value: p === "spectre" ? 0 : this.wraithPathos },
       corpus: 10, state: "corporeal",
       arcanoi: Object.fromEntries(arc.map(k => [k, { value: this.value("disc", k), initiate: [], skip: [] }])),
       passions: keep(w.passions.map((x, i) => ({ text: x.text, emotion: x.emotion ?? "", value: this.passionValue("pas", i) }))),
       fetters: this.wrNums.fetters ? keep(w.fetters.map((x, i) => ({ text: x.text, value: this.passionValue("fet", i), resolved: false }))) : [],
-      shadow: { archetype: p ? (p === "risen" ? w.archetype : "") : w.archetype, guide: "", catharsis: false,
+      shadow: { archetype: p === "hue" ? quiescent() : p ? (p === "risen" ? w.archetype : "") : w.archetype, guide: "", catharsis: false,
         angst: { permanent: p === "spectre" ? 0 : this.angstPerm, temporary: p === "projector" || p === "spectre" ? 0 : w.angstTemp },
-        darkPassions: p === "spectre" || p === "projector" ? [] : keep(w.dark.map(x => ({ text: x.text, emotion: x.emotion ?? "", value: Number(x.value) || 0 }))),
+        // Тихая Тень Оттенка: Тёмные Страсти — зеркало его Страстей
+        darkPassions: p === "spectre" || p === "projector" ? [] : p === "hue" ? keep(w.passions.map((x, i) => ({ text: x.text, emotion: x.emotion ?? "", value: this.passionValue("pas", i) })))
+          : keep(w.dark.map(x => ({ text: x.text, emotion: x.emotion ?? "", value: Number(x.value) || 0 }))),
         thorns: p === "spectre" || p === "projector" ? [] : Object.entries(w.thorns).filter(([, n]) => n > 0).map(([key, n]) => ({ key, n, note: "" })) },
       session: { memoriam: false, eidolon: 0 } };
     if (p === "spectre") out.spectre = { on: true, caste: w.caste, angst: this.wraithPathos,
@@ -238,6 +258,8 @@ export class WraithCreator {
       disc: Object.fromEntries(RISEN_DISC.map(k => [k, this.st.free.rdisc?.[k] ?? 0])) };
     if (p === "projector") out.projector = { on: true, shade: w.shade, lament: w.lament || "skimmer", projecting: false, emblem: false,
       stains: w.stains.map(key => ({ key, shown: false })) };
+    if (p === "hue") Object.assign(out, { hue: true, projector: { on: false, shade: "", lament: "", projecting: false, emblem: false,
+      stains: w.stains.map(key => ({ key, shown: false })) } });
     return out;
   }
 }
@@ -247,7 +269,8 @@ function onWrPick(event, target) {
   const { what, key } = target.dataset, w = this.st.wr;
   if (what === "archetype") w.archetype = w.archetype === key ? "" : key;
   else if (what === "psycheArch") w.psyche.archetype = w.psyche.archetype === key ? "" : key;
-  else if (what === "path") { w.path = key; this.st.free.trade = 0; this.st.disc = {}; }
+  else if (what === "path") { w.path = key; this.st.free.trade = 0; this.st.disc = {}; if (key === "hue") w.guild = ""; }
+  else if (what === "hueDark") w.hueDark = w.hueDark === Number(key) ? -1 : Number(key);
   else if (what === "stain") { const i = w.stains.indexOf(key); if (i >= 0) w.stains.splice(i, 1); else w.stains.push(key); }
   else w[what] = w[what] === key && !["legion", "caste", "shade", "lament"].includes(what) ? "" : key;
   this.render();
@@ -259,6 +282,7 @@ function onWrRow(event, target) {
   if (op === "add") arr.push(list === "fetters" ? { text: "", value: 0 } : { text: "", emotion: "", value: 0 });
   else if (op === "del") {
     arr.splice(i, 1);
+    if (list === "passions" && (w.hueDark ?? -1) >= 0) w.hueDark = w.hueDark === i ? -1 : w.hueDark > i ? w.hueDark - 1 : w.hueDark;
     const bag = list === "passions" ? "pas" : list === "fetters" ? "fet" : null;
     if (bag) this.st.free[bag] = Object.fromEntries(Object.entries(this.st.free[bag] ?? {}).filter(([k]) => Number(k) !== i)
       .map(([k, v]) => [Number(k) > i ? Number(k) - 1 : Number(k), v]));

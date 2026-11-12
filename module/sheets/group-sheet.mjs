@@ -11,13 +11,14 @@ import { HUNTING_GROUNDS } from "../apps/night.mjs";
 import { citySpots, showSpotOnMap } from "../ui/citymap.mjs";
 import { domainOwner } from "../apps/domain.mjs";
 import { domainSway, domainEventTrend } from "../ui/strategy.mjs";
+import { circleCard, bondCrucible, breakCrucible, HAUNT_POOL } from "../apps/circle.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
 const loc = k => game.i18n.localize(k);
-const PEOPLE = ["vampire", "ghoul", "mortal", "demon", "hunter", "mage", "werewolf", "creature", "spirit"];
-const KIND_ICON = { coterie: "fa-droplet", sabbat: "fa-wine-glass", pack: "fa-paw", cell: "fa-crosshairs", cabal: "fa-hat-wizard" };
+const PEOPLE = ["vampire", "ghoul", "mortal", "demon", "hunter", "mage", "werewolf", "wraith", "creature", "spirit"];
+const KIND_ICON = { coterie: "fa-droplet", sabbat: "fa-wine-glass", pack: "fa-paw", cell: "fa-crosshairs", cabal: "fa-hat-wizard", circle: "fa-ghost" };
 /** Знаки известных чантри, Конструктов и Лабиринтов (assets/mage/chantry-*.png) — на выбор для своего. */
 const CHANTRY_SIGNS = ["crombey-farm", "drachus-vachar", "house-of-helekar", "lodge-of-the-gray-squirrel", "mecha", "maze-of-ebon-gates", "null-b", "research-plantation-4", "sepulcher", "vali-shallar"];
 /** Размах чантри по очкам общего пула (M20, Факт «Чантри»): от какого числа очков — какая ступень. */
@@ -43,6 +44,8 @@ function personLine(a) {
     case "hunter": return [VTM20.label((Codex.hunter?.creeds ?? []).find(c => c.key === s.hunter?.creed) ?? {}), t("Group.Conviction", { n: s.hunter?.conviction ?? 0 })].join(" · ");
     case "demon": return Codex.house(s.house)?.name ?? "";
     case "mage": return [(Codex.mage?.factions ?? []).find(f => f.key === s.mage?.faction)?.name, `${loc("VTM20.Mage.Arete")} ${s.mage?.arete ?? 0}`].filter(Boolean).join(" · ");
+    case "wraith": { const D = Codex.wraith ?? {}, w = s.wraith ?? {};
+      return [(D.legions ?? []).find(l => l.key === w.legion)?.name, (D.arcanoi ?? []).find(x => x.key === w.guild)?.guild].filter(Boolean).join(" · "); }
     case "coterie": return t(`Group.Kind.${s.kind}`);
     default: return s.details?.concept ?? "";
   }
@@ -80,7 +83,7 @@ export class CoterieSheet extends GroupSheet {
   static DEFAULT_OPTIONS = {
     classes: ["r-coterie-sheet"],
     actions: { openActor: CoterieSheet.#onOpen, dropMember: CoterieSheet.#onDropMember, pools: CoterieSheet.#onPools, haven: CoterieSheet.#onHaven, vaulderie: CoterieSheet.#onVaulderie,
-      nodeWeek: CoterieSheet.#onNodeWeek, nodeStock: CoterieSheet.#onNodeStock, nodeDraw: CoterieSheet.#onNodeDraw,
+      bond: CoterieSheet.#onBond, unbond: CoterieSheet.#onUnbond, nodeWeek: CoterieSheet.#onNodeWeek, nodeStock: CoterieSheet.#onNodeStock, nodeDraw: CoterieSheet.#onNodeDraw,
       totemSpend: CoterieSheet.#onTotemSpend, totemRefill: CoterieSheet.#onTotemRefill, totemAccept: CoterieSheet.#onTotemAccept, totemBan: CoterieSheet.#onTotemBan }
   };
   static PARTS = { body: { template: `${SYSTEM_PATH}/templates/actor/coterie-sheet.hbs`, scrollable: [".r-gs-body"] } };
@@ -105,7 +108,7 @@ export class CoterieSheet extends GroupSheet {
     return {
       actor: a, system: s, editable: this.isEditable, icon: KIND_ICON[s.kind] ?? "fa-droplet",
       kindLabel: t(`Group.Kind.${s.kind}`), typeLabel: loc("TYPES.Actor.coterie"),
-      kinds: ["coterie", "sabbat", "pack", "cell", "cabal"].map(k => ({ key: k, label: t(`Group.Kind.${k}`), selected: k === s.kind })),
+      kinds: ["coterie", "sabbat", "pack", "cell", "cabal", "circle"].map(k => ({ key: k, label: t(`Group.Kind.${k}`), selected: k === s.kind })),
       haven: (() => {   // «Общее убежище» (Anarchs Unbound): точки общего факта делятся на роскошь, размер и защиту
         const pool = "Общее убежище" in (c.pools ?? {}) ? poolValue(c, "Общее убежище") : null, h = s.haven ?? {};
         const used = (h.luxury ?? 0) + (h.size ?? 0) + (h.security ?? 0);
@@ -121,7 +124,10 @@ export class CoterieSheet extends GroupSheet {
           libDots: Array.from({ length: Math.max(5, ch.library) }, (_, i) => ({ n: i + 1, on: i < ch.library })),
           week, weekFree: Math.ceil(week / 2), weekTass: Math.floor(week / 2) };
       })() : null,
-      members: members.map(m => ({ ...card(m), mage: s.kind === "cabal" && m.type === "mage" ? { quint: m.system.mage.quintessence, room: WHEEL - m.system.mage.paradox - m.system.mage.quintessence } : null })),
+      // Круг призраков: общее Обиталище из общих фактов, крусибл «Орфея» (apps/circle.mjs)
+      circle: s.kind === "circle" ? { haunt: HAUNT_POOL in (c.pools ?? {}) ? poolValue(c, HAUNT_POOL) : null, crucible: !!s.circle?.crucible,
+        projectors: members.some(m => m.type === "wraith" && m.system.wraith.projector?.on) } : null,
+      members: members.map(m => ({ ...card(m), wraith: s.kind === "circle" ? circleCard(m) : null, mage: s.kind === "cabal" && m.type === "mage" ? { quint: m.system.mage.quintessence, room: WHEEL - m.system.mage.paradox - m.system.mage.quintessence } : null })),
       pools: Object.keys(c.pools ?? {}).map(bg => { const v = poolValue(c, bg); return { bg, value: v, primary: bg === c.primary, dots: dots(v, 5) }; }),
       totem: totem ? { name: totem.name, individual: totem.individual, pack: totem.pack, ban: totem.ban, banned: totemBanned(a),
         pools: Object.entries(totemPools(a)).map(([key, p]) => ({ key, label: t(`Group.TotemPool.${key}`), max: p.max, left: p.left,
@@ -163,6 +169,8 @@ export class CoterieSheet extends GroupSheet {
     await m.update({ "system.mage.quintessence": mg.quintessence + 1 });
     return this.render();
   }
+  static #onBond() { return bondCrucible(this.actor); }
+  static #onUnbond() { return breakCrucible(this.actor); }
   static #onDropMember(event, target) { return this.actor.update({ "system.members": this.actor.system.members.filter(x => x !== target.dataset.id) }); }
   static #onPools() { return openCoterie(null, this.actor.id); }
   static #onHaven(event, target) { const k = target.dataset.key, n = Number(target.dataset.n), v = this.actor.system.haven?.[k] ?? 0;

@@ -7,6 +7,7 @@ import { Codex } from "../data/codex.mjs";
 import { RollDialog } from "../dice/dialog.mjs";
 import { VTM20, SYSTEM_PATH, SYSTEM_ID } from "../config.mjs";
 import { registerEmblem, registerCardBlock } from "../ui/themes.mjs";
+import { circleHaunt } from "./circle.mjs";
 
 export const t = (k, d) => d ? game.i18n.format(`VTM20.Wraith.${k}`, d) : game.i18n.localize(`VTM20.Wraith.${k}`);
 export const esc = s => foundry.utils.escapeHTML(String(s ?? ""));
@@ -40,6 +41,9 @@ export function backgroundRating(actor, en) {
     .reduce((n, i) => Math.max(n, Number(i.system.value) || 0), 0);
 }
 
+/** Обиталище призрака: своё или общее Круга (apps/circle.mjs) — большее. */
+export const hauntRating = actor => Math.max(backgroundRating(actor, "Haunt"), circleHaunt(actor));
+
 /* ── Покров ─────────────────────────────────────────────────────────── */
 
 /**
@@ -54,7 +58,7 @@ export function shroudOf(actor = null, scene = game.scenes?.viewed) {
   const f = scene?.getFlag(SYSTEM_ID, "shroud") ?? {}, base = Math.clamp(Number(f.base) || SHROUD_DEFAULT, 4, 10);
   const hysteria = Math.clamp(Number(f.hysteria) || 0, 0, 3);
   const near = !!scene?.tokens?.some(tk => SUPERNATURAL.includes(tk.actor?.type));
-  const haunt = actor?.getFlag(SYSTEM_ID, "inHaunt") ? backgroundRating(actor, "Haunt") : 0;
+  const haunt = actor?.getFlag(SYSTEM_ID, "inHaunt") ? hauntRating(actor) : 0;
   // Нарыв (Book of Oblivion): Нихил, связанный с Нарывом Лабиринта, навсегда снижает Покров на 4; нижний предел — 3, а не 4
   const abscess = !!scene?.getFlag(SYSTEM_ID, "abscess"), floor = abscess ? 3 : 4;
   const value = Math.max(floor, base - (haunt ? 0 : hysteria) - (near ? 2 : 0) - haunt - (abscess ? 4 : 0));
@@ -115,7 +119,7 @@ export async function toggleAbscess() {
 
 /** Призрак в своём Обиталище (Фон «Обиталище»): Покров ниже на его рейтинг. */
 export async function toggleHaunt(actor) {
-  if (!backgroundRating(actor, "Haunt") && !actor.getFlag(SYSTEM_ID, "inHaunt")) return ui.notifications.warn(t("Shroud.NoHaunt"));
+  if (!hauntRating(actor) && !actor.getFlag(SYSTEM_ID, "inHaunt")) return ui.notifications.warn(t("Shroud.NoHaunt"));
   return actor.setFlag(SYSTEM_ID, "inHaunt", !actor.getFlag(SYSTEM_ID, "inHaunt"));
 }
 
@@ -157,7 +161,7 @@ export function wraithInfo(actor, dots) {
     eidolonLeft: Math.max(0, backgroundRating(actor, "Eidolon") - w.session.eidolon), memoriamDone: w.session.memoriam,
     place: placeOf(), placeLabel: t(`Place.${placeOf()}`), places: PLACES.map(k => ({ key: k, label: t(`Place.${k}`), selected: k === placeOf() })),
     necropolis: necropolisOf(), necropoli: Object.keys(NECROPOLI).map(k => ({ key: k, label: t(`Necro.${k}.name`), selected: k === necropolisOf()?.key })),
-    shroud: shroudOf(actor), haunt: backgroundRating(actor, "Haunt"), inHaunt: !!actor.getFlag(SYSTEM_ID, "inHaunt"), isGM: game.user.isGM,
+    shroud: shroudOf(actor), haunt: hauntRating(actor), inHaunt: !!actor.getFlag(SYSTEM_ID, "inHaunt"), isGM: game.user.isGM,
     forecast: actor.getFlag(SYSTEM_ID, "forecast") ?? null,   // прогноз Мальстрёма (apps/tempest.mjs)
     guide: guideOf(actor)?.name ?? "", isGuide: !!guideOf(actor)?.isSelf, canGuide: game.user.isGM || !!guideOf(actor)?.isSelf
   };

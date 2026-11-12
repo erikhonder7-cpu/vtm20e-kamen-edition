@@ -8,7 +8,7 @@
         <figcaption class="r-seal"><span class="r-seal-num r-seal-icon">{{#if cabal.sym}}{{rSym cabal.sym "r-mg"}}{{else}}<i class="fa-solid {{icon}}"></i>{{/if}}</span><span class="r-seal-cap">{{kindLabel}}</span></figcaption>
       </figure>
       <div class="r-head-info">
-        <div class="r-kicker"><span class="r-kicker-type">{{#if cabal}}{{kindLabel}}{{else}}{{typeLabel}}{{/if}}</span><span class="r-motto" aria-hidden="true">{{#if cabal}}Ascensio{{else}}Liberté, Égalité, Fraternité{{/if}}</span></div>
+        <div class="r-kicker"><span class="r-kicker-type">{{#if cabal}}{{kindLabel}}{{else}}{{typeLabel}}{{/if}}</span><span class="r-motto" aria-hidden="true">{{#if cabal}}Ascensio{{else if circle}}Memento mori{{else}}Liberté, Égalité, Fraternité{{/if}}</span></div>
         <div class="r-name-row"><input class="r-name" type="text" name="name" value="{{actor.name}}" spellcheck="false" {{#unless editable}}disabled{{/unless}}></div>
         <div class="r-dossier">
           <label class="r-df"><span>{{localize "VTM20.Group.KindLabel"}}</span>
@@ -34,6 +34,10 @@
           <span class="r-gs-ctype">{{type}}</span>
           {{#if line}}<span class="r-gs-cline">{{line}}</span>{{/if}}
           {{#if concept}}<span class="r-gs-cconcept">{{concept}}</span>{{/if}}
+          {{#if wraith}}<span class="r-gs-cquint r-gs-cwraith"><span data-tooltip="{{localize 'VTM20.Wraith.Pathos'}}"><i class="fa-solid fa-heart-pulse"></i> {{wraith.pathos}}/{{wraith.pathosMax}}</span>
+            <span data-tooltip="{{localize 'VTM20.Wraith.Corpus'}}"><i class="fa-solid fa-ghost"></i> {{wraith.corpus}}/{{wraith.corpusMax}}</span>
+            <span data-tooltip="{{localize 'VTM20.Willpower'}}"><i class="fa-solid fa-shield-halved"></i> {{wraith.will}}</span>
+            {{#if @root.gm}}<span data-tooltip="{{localize 'VTM20.Wraith.Angst'}}"><i class="fa-solid fa-skull"></i> {{wraith.angst}}</span>{{/if}}</span>{{/if}}
           {{#if mage}}<span class="r-gs-cquint"><i class="fa-solid fa-sun"></i> {{mage.quint}}{{#if @root.editable}} <a data-action="nodeDraw" data-id="{{id}}" data-tooltip="{{localize 'VTM20.Group.NodeDrawHint'}}"><i class="fa-solid fa-hand-holding-droplet"></i></a>{{/if}}</span>{{/if}}
         </div>
         {{#if ../editable}}<a class="r-gs-x" data-action="dropMember" data-id="{{id}}" data-tooltip="{{localize 'VTM20.Group.Drop'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
@@ -69,6 +73,19 @@
     </div>
     {{/if}}
 
+    {{#if circle}}
+    {{!-- Круг призраков: общее Обиталище (общий факт) и крусибл «Орфея» (apps/circle.mjs) --}}
+    <h2 class="r-h2"><span>{{localize "VTM20.Wraith.Circle.Title"}}</span>
+      <span class="r-h2-tools">{{#if circle.crucible}}<span class="r-gs-pool"><i class="fa-solid fa-link"></i> {{localize "VTM20.Wraith.Circle.Crucible"}}</span>{{/if}}
+        {{#if gm}}{{#if circle.crucible}}<a class="r-h2-btn" data-action="unbond"><i class="fa-solid fa-link-slash"></i> <span class="r-h2-lbl">{{localize "VTM20.Wraith.Circle.Unbond"}}</span></a>
+        {{else}}<a class="r-h2-btn" data-action="bond" data-tooltip="{{localize 'VTM20.Wraith.Circle.BondHint'}}"><i class="fa-solid fa-link"></i> <span class="r-h2-lbl">{{localize "VTM20.Wraith.Circle.Bond"}}</span></a>{{/if}}{{/if}}</span></h2>
+    <div class="r-gs-tallies">
+      <div><b>{{#if circle.haunt}}{{circle.haunt}}{{else}}—{{/if}}</b><span>{{localize "VTM20.Wraith.Circle.Haunt"}}</span></div>
+    </div>
+    <p class="r-hint">{{#if circle.haunt}}{{localize "VTM20.Wraith.Circle.HauntHint" n=circle.haunt}}{{else}}{{localize "VTM20.Wraith.Circle.HauntNone"}}{{/if}}</p>
+    <p class="r-hint">{{#if circle.crucible}}{{localize "VTM20.Wraith.Circle.CrucibleHint"}}{{else}}{{localize "VTM20.Wraith.Circle.NoCrucible"}}{{/if}}</p>
+    {{/if}}
+
     <div class="r-gs-cols">
       <section>
         <h2 class="r-h2"><span>{{localize "VTM20.Group.Pools"}}</span>
@@ -87,7 +104,7 @@
       </section>
     </div>
 
-    {{#unless cabal}}
+    {{#unless (or cabal circle)}}
     {{!-- «Общее убежище» (V20 Anarchs Unbound): точки общего факта — между роскошью, размером и защитой --}}
     <h2 class="r-h2"><span>{{localize "VTM20.Group.HavenTitle"}}</span><span class="r-h2-tools"><span class="r-gs-src">Anarchs Unbound</span>
       {{#if haven.pool}}<span class="r-gs-pool {{#if haven.over}}is-diff{{/if}}">{{localize "VTM20.Group.HavenUsed" used=haven.used n=haven.pool}}</span>{{/if}}</span></h2>

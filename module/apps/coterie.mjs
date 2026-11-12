@@ -20,7 +20,9 @@ const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`
 /** Какие факты биографии можно складывать (имена — как в data/backgrounds.json). */
 const POOLABLE = ["Домен", "Стадо", "Богатство", "Влияние", "Союзники", "Информаторы", "Подручные", "Общее убежище",
   // стая Гару (W20, гл. 3): объединяемые Факты и Тотем
-  "Связи", "Судьба", "Родня", "Ресурсы", "Тотем"];
+  "Связи", "Судьба", "Родня", "Ресурсы", "Тотем",
+  // Круг призраков (Wraith 20, Предыстория «Обиталище»: с согласия рассказчика точки складывают в общее Обиталище)
+  "Обиталище"];
 const MAX = 10;
 
 export function registerCoterie() {
@@ -307,7 +309,7 @@ class CoterieWindow extends HandlebarsApplicationMixin(ApplicationV2) {
           };
         }),
         canAdd: POOLABLE.filter(bg => !(bg in (c.pools ?? {}))),
-        candidates: game.actors.filter(a => ["vampire", "ghoul", "mortal", "demon", "hunter", "werewolf"].includes(a.type) && !(c.members ?? []).includes(a.id))
+        candidates: game.actors.filter(a => ["vampire", "ghoul", "mortal", "demon", "hunter", "werewolf", "mage", "wraith"].includes(a.type) && !(c.members ?? []).includes(a.id))
           .sort((x, y) => (y.hasPlayerOwner - x.hasPlayerOwner) || x.name.localeCompare(y.name, "ru")).map(a => ({ id: a.id, name: a.name })),
         primaryValue, ...packTotem(c, members)
       };

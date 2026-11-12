@@ -339,8 +339,8 @@
 
     {{!-- II. Призрак (Wraith 20, гл. 1, 4): Легион — по смерти, Гильдия — по Арканосу (вступление — Фон «Статус»), фракция, как умер --}}
     {{#if is_wraith}}
-    {{!-- путь: призрак, Спектр (гл. 10), Восставший (гл. 11), проектор «Орфея» (приложение) --}}
-    <div class="r-cr-tiles r-cr-garou-tiles is-four r-cr-wrpaths">
+    {{!-- путь: призрак, Спектр (гл. 10), Восставший (гл. 11), проектор «Орфея» и Оттенок цвета (приложение) --}}
+    <div class="r-cr-tiles r-cr-garou-tiles is-five r-cr-wrpaths">
       {{#each wraith.paths}}<a class="r-cr-tile {{#if active}}is-active{{/if}}" data-action="wrPick" data-what="path" data-key="{{key}}"><b><i class="fa-solid {{icon}}"></i> {{label}}</b><span class="r-cr-tile-text">{{sub}}</span></a>{{/each}}
     </div>
     {{#if wraith.isSpectre}}
@@ -367,7 +367,7 @@
       </a>
       {{/each}}
     </div>
-    {{#unless wraith.isSpectre}}
+    {{#unless wraith.noGuild}}
     <h3 class="r-h3">{{localize "VTM20.Wraith.Guild"}} <em class="r-h3-note">{{localize "VTM20.WraithCr.GuildOptional"}}</em></h3>
     {{#each wraith.guilds}}
     <div class="r-cr-sub">{{label}}</div>
@@ -678,6 +678,7 @@
         <div class="r-cr-wrrow">
           <input type="text" data-field="wr.passions.{{i}}.text" value="{{text}}" placeholder="{{localize 'VTM20.Wraith.PassionText'}}">
           <input type="text" class="r-cr-wremo" data-field="wr.passions.{{i}}.emotion" value="{{emotion}}" placeholder="{{localize 'VTM20.Wraith.Emotion'}}"><span class="r-dots">{{#each dots}}<a class="r-dot r-cr-dot is-{{state}}" data-action="wrRow" data-list="passions" data-op="dot" data-i="{{../i}}" data-n="{{n}}"></a>{{/each}}</span>
+          {{#if @root.wraith.isHue}}<a class="r-icon-btn r-cr-huedark {{#if (eq @root.wraith.hueDark i)}}is-on{{/if}}" data-action="wrPick" data-what="hueDark" data-key="{{i}}" data-tooltip="{{localize 'VTM20.WraithCr.HueDarkTip'}}"><i class="fa-solid fa-moon"></i></a>{{/if}}
           <a class="r-icon-btn is-danger" data-action="wrRow" data-list="passions" data-op="del" data-i="{{i}}"><i class="fa-solid fa-xmark"></i></a>
         </div>
         {{/each}}
@@ -736,6 +737,46 @@
         {{/each}}
         <a class="r-btn is-ghost" data-action="wrRow" data-list="psyche" data-op="add"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Common.Add"}}</a>
       </div>
+    </div>
+    {{else if wraith.isHue}}
+    {{!-- Оттенок цвета: Тихая Тень (архетип дан, Тёмные Страсти — зеркало Страстей), бросок Ангста, свободные Тени — Ангст и Шипы; Пятна 3 --}}
+    <div class="r-cr-freebar">
+      <span>{{localize "VTM20.Wraith.ShadowArchetype"}}: <b>{{wraith.quiescent}}</b></span>
+      <span>{{localize "VTM20.WraithCr.ShadowPool"}}: <b>{{wraith.shadowPool}}</b>{{#if wraith.trade}} <small>({{localize "VTM20.WraithCr.Trade"}} {{wraith.trade}})</small>{{/if}}</span>
+      <span>{{localize "VTM20.Creator.FreeSpent"}}: <b>{{wraith.shadowSpent}}</b></span>
+      <span class="{{#if (lt wraith.shadowLeft 0)}}is-over{{else if (eq wraith.shadowLeft 0)}}is-done{{/if}}">{{localize "VTM20.Creator.LeftShort"}}: <b>{{wraith.shadowLeft}}</b></span>
+    </div>
+    <p class="r-note r-explain">{{localize "VTM20.WraithCr.HueShadow"}}</p>
+    <div class="r-cols2">
+      <div class="r-cr-panel r-tcol">
+        <h3 class="r-colhead"><span>{{localize "VTM20.Wraith.Angst"}}</span></h3>
+        <div class="r-trait-main"><span class="r-trait-label">{{localize "VTM20.WraithCr.AngstRoll"}}</span><span class="r-leader"></span>
+          <b class="r-cr-val">{{#if wraith.angstRoll}}{{wraith.angstRoll}}{{else}}—{{/if}}</b>
+          <a class="r-btn" data-action="wrAngstRoll" data-tooltip="{{localize 'VTM20.WraithCr.AngstRollHint'}}"><i class="fa-solid fa-dice-d10"></i> {{localize "VTM20.WraithCr.Roll"}}</a></div>
+        {{#if wraith.angstDice}}<p class="r-note">{{localize "VTM20.WraithCr.AngstDice"}}: {{wraith.angstDice}}</p>{{/if}}
+        <div class="r-trait-main"><span class="r-trait-label">{{localize "VTM20.WraithCr.AngstExtra"}}</span><span class="r-leader"></span><b class="r-cr-val">{{wraith.angstPerm}}</b>
+          <a class="r-step" data-action="wrShadow" data-what="angstExtra" data-d="-1">−</a><a class="r-step" data-action="wrShadow" data-what="angstExtra" data-d="1">+</a></div>
+        <div class="r-trait-main"><span class="r-trait-label">{{localize "VTM20.WraithCr.AngstTemp"}}</span><span class="r-leader"></span><b class="r-cr-val">{{wraith.angstTemp}}</b>
+          <a class="r-step" data-action="wrShadow" data-what="angstTemp" data-d="-1">−</a><a class="r-step" data-action="wrShadow" data-what="angstTemp" data-d="1">+</a></div>
+      </div>
+      <div class="r-cr-panel r-tcol">
+        <h3 class="r-colhead"><span>{{localize "VTM20.Wraith.Proj.Stains"}} <small>{{wraith.hueStains}}</small></span></h3>
+        <div class="r-cr-edges r-cr-thorns">
+          {{#each wraith.stains}}
+          <div class="r-cr-edge {{#if on}}is-on{{/if}}" data-tooltip="+ {{adv}}<br>− {{dis}}"><b>{{label}}</b> <small>{{en}}</small>
+            <span class="r-cr-thorn-n"><a class="r-step" data-action="wrPick" data-what="stain" data-key="{{key}}">{{#if on}}✓{{else}}+{{/if}}</a></span></div>
+          {{/each}}
+        </div>
+      </div>
+    </div>
+    <h3 class="r-h3">{{localize "VTM20.Wraith.Thorns"}}</h3>
+    <div class="r-cr-edges r-cr-thorns">
+      {{#each wraith.thorns}}
+      <div class="r-cr-edge {{#if on}}is-on{{/if}}" data-tooltip="{{text}}">
+        <b>{{label}}</b> <small>{{en}} · {{costText}}</small>
+        <span class="r-cr-thorn-n">{{#if multi}}<a class="r-step" data-action="wrShadow" data-what="thorn" data-key="{{key}}" data-d="-1">−</a><b>{{n}}</b>{{/if}}<a class="r-step" data-action="wrShadow" data-what="thorn" data-key="{{key}}" data-d="{{#if on}}{{#if multi}}1{{else}}-1{{/if}}{{else}}1{{/if}}">{{#if on}}{{#if multi}}+{{else}}✓{{/if}}{{else}}+{{/if}}</a></span>
+      </div>
+      {{/each}}
     </div>
     {{else if wraith.isProjector}}
     {{!-- Пятна проектора: одно на каждые 2 постоянного Ангста (Ангст — 5 и поправка Оттенка) --}}
