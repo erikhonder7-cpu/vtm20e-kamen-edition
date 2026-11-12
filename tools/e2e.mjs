@@ -4644,6 +4644,25 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  await check("Призрак: генератор НПС — группы мёртвых: Патруль Иерархии, Отступники, Еретики, Стая Спектров, Крусибл «Орфея»", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, B = await import(`/systems/${sid}/module/apps/npc-build.mjs`), out = {};
+      const w = d => d.system.wraith;
+      const hi = B.buildGroup("hierarchy", "normal"), rg = B.buildGroup("renegades", "normal"), he = B.buildGroup("heretics", "normal");
+      const sp = B.buildGroup("spectres", "normal"), or = B.buildGroup("orpheus", "normal");
+      out.hierarchy = [hi.length, new Set(hi.map(d => w(d).legion)).size, hi.every(d => w(d).faction === "hierarchy"), w(hi[3]).guild];
+      out.renegades = [new Set(rg.map(d => w(d).legion)).size, rg.every(d => w(d).faction === "renegade"), w(rg[2]).guild];
+      out.heretics = [he.every(d => w(d).faction === "heretic"), w(he[1]).guild];
+      out.spectres = [sp.every(d => w(d).spectre.on), w(sp[2]).spectre.caste, B.groupOf("spectres").coterie];
+      out.orpheus = [or.every(d => w(d).projector.on), B.groupOf("orpheus").coterie, B.groupOf("orpheus").system?.circle?.crucible];
+      return out;
+    });
+    const want = { hierarchy: [4, 1, true, "castigate"], renegades: [1, true, "outrage"], heretics: [true, "fatalism"],
+      spectres: [true, "doppelganger", ""], orpheus: [true, "circle", true] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   await check("Призрак: мастер — пути Спектра, Восставшего, проектора и Оттенка цвета", async () => {
     const r = await page.evaluate(async () => {
       const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {}, inst = () => [...foundry.applications.instances.values()];

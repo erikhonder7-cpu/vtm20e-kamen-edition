@@ -472,7 +472,7 @@ export class NpcGenerator extends HandlebarsApplicationMixin(ApplicationV2) {
       made.push(a);
     }
     if (g.coterie) {
-      const c = await Actor.create({ name: lab(`Group.${g.key}`, g.label), type: "coterie", folder: sub.id, system: { kind: g.coterie, members: made.map(a => a.id) } });
+      const c = await Actor.create({ name: lab(`Group.${g.key}`, g.label), type: "coterie", folder: sub.id, system: { kind: g.coterie, members: made.map(a => a.id), ...(g.system ?? {}) } });
       made.unshift(c);
     }
     return made;

@@ -117,14 +117,29 @@ export const GROUPS = [
     M("ghoul", "broker", "", 0, { ghoulType: "vassal" }), M("ghoul", "doctor", "", -1, { ghoulType: "vassal" })] },
   { key: "pentex", label: "Фоморы Пентекса", coterie: "coterie", members: [M("fomor", "broker", "banker", 1), M("fomor", "brute", "thug", 0), M("fomor", "assassin", "hitman", 0), M("fomor", "techie", "engineer", 0)] },
   { key: "kin", label: "Семья Родни", coterie: "coterie", members: [M("garou", "leader", "", 1), M("kinfolk", "worker", "farmer", 0), M("kinfolk", "doctor", "", 0), M("kinfolk", "drifter", "", -1)] },
-  { key: "police", label: "Полицейский наряд", coterie: "", members: [M("mortal", "detective", "cop", 1), M("mortal", "soldier", "guard", 0), M("mortal", "soldier", "guard", 0), M("mortal", "detective", "forensic", -1)] }
+  { key: "police", label: "Полицейский наряд", coterie: "", members: [M("mortal", "detective", "cop", 1), M("mortal", "soldier", "guard", 0), M("mortal", "soldier", "guard", 0), M("mortal", "detective", "forensic", -1)] },
+  // Мир мёртвых (Wraith 20): Круги одного Легиона (shared — выбирается один раз на группу); Отпуститель — Гильдия Отпустителей,
+  // Пугало — Гильдия Пугал; Спектры — без Круга; проекторы «Орфея» — Круг со скреплённым крусиблом
+  { key: "hierarchy", label: "Патруль Иерархии", coterie: "circle", shared: { legion: "legion" }, members: [M("wraith", "leader", "officer", 1, { faction: "hierarchy" }),
+    M("wraith", "soldier", "veteran", 0, { faction: "hierarchy" }), M("wraith", "soldier", "guard", 0, { faction: "hierarchy" }), M("wraith", "cleric", "inquisitor", 0, { faction: "hierarchy", guild: "castigate" })] },
+  { key: "renegades", label: "Банда Отступников", coterie: "circle", shared: { legion: "legion" }, members: [M("wraith", "leader", "gangleader", 1, { faction: "renegade" }),
+    M("wraith", "brute", "thug", 0, { faction: "renegade" }), M("wraith", "thief", "burglar", 0, { faction: "renegade", guild: "outrage" }), M("wraith", "streetrat", "punk", -1, { faction: "renegade" })] },
+  { key: "heretics", label: "Секта Еретиков", coterie: "circle", shared: { legion: "legion" }, members: [M("wraith", "leader", "preacher", 1, { faction: "heretic" }),
+    M("wraith", "seer", "prophet", 0, { faction: "heretic", guild: "fatalism" }), M("wraith", "cleric", "monk", 0, { faction: "heretic" }), M("wraith", "cleric", "cultist", -1, { faction: "heretic" })] },
+  { key: "spectres", label: "Стая Спектров", coterie: "", members: [M("spectre", "leader", "", 1, { caste: "shade" }), M("spectre", "brute", "", 0, { caste: "shade" }),
+    M("spectre", "assassin", "", 0, { caste: "doppelganger" }), M("spectre", "madman", "", -1, { caste: "stripling" })] },
+  { key: "orpheus", label: "Крусибл «Орфея»", coterie: "circle", system: { circle: { crucible: true } }, members: [M("projector", "leader", "officer", 1),
+    M("projector", "techie", "hacker", 0), M("projector", "scholar", "professor", 0), M("projector", "seer", "fortune", 0)] }
 ];
+/** Общие для группы параметры: выбираются один раз (Легион Круга). */
+const SHARED = { legion: () => pick(WR().legions ?? [{ key: "" }]).key };
 export const groupOf = key => GROUPS.find(g => g.key === key) ?? GROUPS[0];
 
 /** Черновики группы: по одному на участника; сила — выбранная со сдвигом участника. */
 export function buildGroup(key, power = "normal") {
   const g = groupOf(key), keys = ["mook", "normal", "seasoned", "veteran", "legend"], base = Math.max(0, keys.indexOf(power));
-  return g.members.map(m => buildNpc({ kind: m.kind, role: m.role, sub: m.sub || undefined, power: keys[Math.clamp(base + m.shift, 0, 4)], params: m.params }));
+  const shared = Object.fromEntries(Object.entries(g.shared ?? {}).map(([k, f]) => [k, SHARED[f]?.()]));
+  return g.members.map(m => buildNpc({ kind: m.kind, role: m.role, sub: m.sub || undefined, power: keys[Math.clamp(base + m.shift, 0, 4)], params: { ...shared, ...m.params } }));
 }
 export const kindOf = key => KINDS.find(k => k.key === key) ?? KINDS[0];
 
@@ -591,7 +606,7 @@ function wraithNpc(ctx, p, mode) {
   const sys = baseSystem(ctx, c, { morality: false });
   delete sys.virtues;
   sys.willpower = { permanent: will, temporary: will };
-  const w = { legion: legion.key, guild: guild?.key ?? "", faction: mode === "spectre" ? "" : pick(D.factions ?? [{ key: "" }]).key,
+  const w = { legion: legion.key, guild: guild?.key ?? "", faction: mode === "spectre" ? "" : ((D.factions ?? []).find(f => f.key === p.faction) ?? pick(D.factions ?? [{ key: "" }])).key,
     pathos: { value: Math.min(10, 5 + memoriam + (mode === "projector" ? shade?.pathos ?? 0 : 0)) }, corpus: 10, state: "corporeal",
     arcanoi: Object.fromEntries(keys.map(k => [k, { value: arcanoi[k], initiate: [], skip: [] }])), passions, fetters,
     shadow: { archetype: mode === "projector" || mode === "spectre" ? "" : arch.name, guide: "", catharsis: false,

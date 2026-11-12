@@ -5018,7 +5018,12 @@
         "ghouls": "Ghouls of one house",
         "pentex": "Pentex fomori",
         "kin": "Kinfolk family",
-        "police": "Police patrol"
+        "police": "Police patrol",
+        "hierarchy": "Hierarchy Patrol",
+        "renegades": "Renegade Gang",
+        "heretics": "Heretic Cult",
+        "spectres": "Spectre Pack",
+        "orpheus": "Orpheus Crucible"
       },
       "AutoGear": "Picked by skills: Firearms and Melee at 2+. Remove anything extra with the cross"
     },
