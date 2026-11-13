@@ -528,6 +528,77 @@ def parse_freeholds():
     return {"archetypes": arch, "powers": powers}
 
 
+# ── Players Guide, гл. 8: новые Искусства «Вливание» и «Сказ», кит Лебединых дев ──
+PG_ARTS = {"Infusion": "infusion", "Tale-Craft": "taleCraft"}
+
+
+def _top_section(text, start):
+    """Раздел верхнего уровня «# …» от заголовка start до следующего «# »."""
+    i = text.find(start)
+    if i < 0:
+        return []
+    part = text[i:].split("\n", 1)[1]
+    nxt = re.search(r"^# ", part, re.M)
+    return (part[:nxt.start()] if nxt else part).splitlines()
+
+
+def parse_pg_arts():
+    """«# Новое Искусство: Имя (English)»: вступление, «**• Сила (Power)** — текст … Тип: …» по уровням."""
+    text = book(PG, "08")
+    out = []
+    for en, key in PG_ARTS.items():
+        head = next((l for l in text.splitlines() if l.startswith("# Новое Искусство:") and f"({en})" in l), None)
+        if not head:
+            continue
+        name = ru_en(head.split(":", 1)[1])[0]
+        lines = _top_section(text, head)
+        intro, levels = [], []
+        for l in lines:
+            m = re.match(r"^\*\*(•+)\s*(.+?)\s*\(([^)]+)\)\*\*\s*—\s*(.*)$", l)
+            if m:
+                body = m.group(4).strip()
+                typ = re.search(r"Тип:\s*([^.]+)", body)
+                levels.append({"level": len(m.group(1)), "name": m.group(2).strip().strip("«»"), "en": m.group(3).strip(),
+                               "type": art_type(typ.group(1)) if typ else "", "html": html([body])})
+            elif l.strip() and l.strip() != "---":
+                intro.append(l)
+        joined = " ".join(intro)
+        unl = re.search(r"\*\*Высвобождение:\*\*\s*(.+?)(?=\*\*Обряды|$)", joined)
+        bunks = re.search(r"\*\*Обряды[^*]*:\*\*\s*(.+?)$", joined)
+        out.append({"key": key, "name": name, "en": en, "levels": levels, "unleashing": plain(unl.group(1)) if unl else "",
+                    "bunks": plain(bunks.group(1)) if bunks else "", "source": "C20 Players Guide", "html": html(intro)})
+    return out
+
+
+def parse_swan_maidens():
+    """Кит Лебединых дев (Players Guide, гл. 8): дары рода, три слабости."""
+    text = book(PG, "08")
+    lines = _top_section(text, "# Лебединые девы (Swan Maidens)")
+    if not lines:
+        return []
+    aff = field(lines, "Склонность")
+    realm = next((REALM_RU[k] for k in REALM_RU if aff.startswith(k)), "")
+    rights, frail, intro, mode = [], [], [], ""
+    for l in lines:
+        if l.startswith("- **Дары рода"):
+            mode = "rights"; continue
+        if l.startswith("- **Слабости"):
+            mode = "frail"; continue
+        m = re.match(r"^  - \*\*(.+?) \(([^)]+)\):\*\*\s*(.*)$", l)
+        if m and mode:
+            (rights if mode == "rights" else frail).append({"name": m.group(1).strip(), "en": m.group(2).strip(), "html": html([m.group(3)])})
+            continue
+        if not l.startswith("- **") and not l.startswith("  - ") and l.strip() and l.strip() != "---":
+            intro.append(l)
+    frailty = {"name": " · ".join(f["name"] for f in frail), "en": " · ".join(f["en"] for f in frail),
+               "html": "".join(f"<p><strong>{f['name']}.</strong> {f['html'][3:]}" for f in frail)} if frail else None
+    veselie = field(lines, "Веселье")
+    unl = re.search(r"Высвобождение:\s*(.+)$", veselie)
+    return [{"key": "swanMaiden", "name": "Лебединая дева", "en": "Swan Maiden", "affinity": realm, "affinityText": plain(aff),
+             "revelry": plain(veselie.split("Высвобождение:")[0]), "unleashing": plain(unl.group(1)) if unl else "",
+             "birthrights": rights, "frailty": frailty, "source": "C20 Players Guide", "html": html(intro)}]
+
+
 def parse_books():
     out = []
     for folder, label in BOOKS:
@@ -545,7 +616,7 @@ def parse_books():
 
 
 def build():
-    arts, realms, kiths = parse_arts(), parse_realms(), parse_kiths()
+    arts, realms, kiths = parse_arts() + parse_pg_arts(), parse_realms(), parse_kiths() + parse_swan_maidens()
     # осенние ши: Дары «те же, что у аркадийских» (файл 02)
     sidhe = next(k for k in kiths if k["key"] == "sidhe")
     for k in kiths:

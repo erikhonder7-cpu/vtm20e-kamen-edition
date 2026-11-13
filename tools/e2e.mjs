@@ -5984,6 +5984,28 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  await check("Подменыш: Искусства Вливание и Сказ, кит Лебединых дев (Players Guide)", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), CL = await import(`/systems/${sid}/module/apps/changeling.mjs`);
+      const D = game.vtm20Codex.changeling, out = {};
+      const a = await Actor.create({ name: "E2E — лебединая дева", type: "changeling", flags: { world: { e2e: true }, [sid]: { created: true } },
+        system: { changeling: { kith: "swanMaiden", arts: { infusion: 2, taleCraft: 1 }, realms: { actor: 1 } } } });
+      try {
+        out.data = ["infusion", "taleCraft"].map(k => (D.arts.find(x => x.key === k)?.levels ?? []).length);
+        out.kith = [CL.kithOf("swanMaiden")?.name, (CL.kithOf("swanMaiden")?.birthrights ?? []).length, /Глубокая утрата/.test(CL.kithOf("swanMaiden")?.frailty?.name ?? "")];
+        out.saved = [a.system.changeling.arts.infusion, a.system.changeling.arts.taleCraft];
+        await a.sheet.render({ force: true }); await wait(900); a.sheet.changeTab("disciplines", "primary"); await wait(500);
+        const txt = a.sheet.element.textContent;
+        out.sheet = [txt.includes("Вливание"), txt.includes("Сказ"), !!a.sheet.element.querySelector('select[name="system.changeling.kith"] option[value="swanMaiden"]')];
+        await a.sheet.close();
+      } finally { await a.delete(); }
+      return out;
+    });
+    const want = { data: [5, 5], kith: ["Лебединая дева", 2, true], saved: [2, 1], sheet: [true, true, true] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   await check("Призрак: лист и Арканои, Пафос, Страсть, Корпус до колебания и Испытание, Катарсис", async () => {
     const r = await page.evaluate(async () => {
       const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), WR = await import(`/systems/${sid}/module/apps/wraith.mjs`);

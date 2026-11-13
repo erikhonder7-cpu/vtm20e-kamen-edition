@@ -204,9 +204,9 @@ VTM20.garouForms = [
 VTM20.garouNatural = { bite: { diff: -1, dmg: 1, icon: "fa-teeth" }, claw: { diff: 0, dmg: 1, icon: "fa-claw-marks" } };
 
 VTM20.traitLine = type => ["demon", "hunter", "werewolf", "mage", "wraith", "changeling"].includes(type) ? type : "";
-/** Подменыш (C20, гл. 4): 18 Искусств и 6 Царств — ключи data/changeling.json → arts, realms. */
+/** Подменыш (C20, гл. 4): 18 Искусств и 6 Царств; Players Guide, гл. 8 — Вливание и Сказ. Ключи data/changeling.json → arts, realms. */
 VTM20.changelingArts = ["autumn", "chicanery", "chronos", "contract", "dragonsIre", "legerdemain", "metamorphosis", "naming", "oneiromancy",
-  "primal", "pyretics", "skycraft", "soothsay", "sovereign", "spring", "summer", "wayfare", "winter"];
+  "primal", "pyretics", "skycraft", "soothsay", "sovereign", "spring", "summer", "wayfare", "winter", "infusion", "taleCraft"];
 VTM20.changelingRealms = ["actor", "fae", "nature", "prop", "scene", "time"];
 
 /** Шестнадцать Арканоев призрака (Wraith 20, гл. 5) — ключи data/wraith.json → arcanoi. */
