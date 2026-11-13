@@ -308,3 +308,8 @@
 .vtm20.r-type-changeling .r-ag-bar i { position: absolute; inset: 0 auto 0 0; background: linear-gradient(90deg, #b8559f, #f2a9e4); box-shadow: 0 0 6px rgba(242, 169, 228, .45); }
 .vtm20.r-type-changeling .r-ag-track.is-rival .r-ag-bar i { background: linear-gradient(90deg, #4c5566, #9aa6b8); box-shadow: none; }
 .vtm20.r-type-changeling .r-ag-btns { display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* Хсиен: панель Чи и Югэна вместо Грёзы; инанимае — Слайверы (arts.hbs, apps/fae-variants.mjs) */
+.vtm20.r-type-changeling .r-hs-derived { grid-column: 1 / -1; margin: 0; }
+.vtm20.r-type-changeling .r-cl-art.is-affinity { border-color: rgba(229, 142, 213, .45); }
+.vtm20.r-type-changeling .r-in-lost { margin: 0 0 6px; }

@@ -639,6 +639,40 @@ def glyphs():
     return json.load(open(p, encoding="utf-8")) if os.path.exists(p) else []
 
 
+# ── Инанимае (гл. 40): Слайверы и фила — склонность, Империя, начальные Гламур/Воля/Банальность ──
+SLIVERS = {"Aquis": "aquis", "Petros": "petros", "Pyros": "pyros", "Stratus": "stratus", "Verdage": "verdage"}
+SLIVER_RU = {"Аквис": "aquis", "Петрос": "petros", "Пирос": "pyros", "Стратус": "stratus", "Вердаж": "verdage"}
+PHYLA = {"Glomes": "inanimae-glomes", "Kuberas": "inanimae-kuberas", "Ondines": "inanimae-ondines", "Parosemes": "inanimae-parosemes",
+         "Solimonds": "inanimae-solimonds", "Mannikins": "inanimae-mannikins"}
+
+
+def parse_inanimae():
+    text = core("40")
+    part = text[text.find("## Слайверы"):].split("\n## ", 1)[0]
+    perks = {}
+    for line in part.splitlines():
+        if "Преимущество за 1-ю точку" in line:
+            for chunk in line.split(":**", 1)[1].split(";"):
+                k, _, v = chunk.strip().partition(" — ")
+                if k in SLIVER_RU:
+                    perks[SLIVER_RU[k]] = plain(v)
+    slivers = []
+    for line in part.splitlines():
+        m = re.match(r"^- \*\*(.+?) \(([A-Za-z]+)\)\*\*\s*—\s*(.*)$", line)
+        if m and m.group(2) in SLIVERS:
+            slivers.append({"key": SLIVERS[m.group(2)], "name": m.group(1).strip(), "en": m.group(2), "text": plain(m.group(3)), "perk": perks.get(SLIVERS[m.group(2)], "")})
+    phyla = []
+    for line in text[text.find("## Фила"):].split("\n## ", 1)[0].splitlines():
+        cells = [c.strip() for c in line.strip().strip("|").split("|")]
+        m = re.match(r"^\*\*(.+?) \(([A-Za-z]+)\)\*\*", cells[0]) if len(cells) >= 7 else None
+        if not m or m.group(2) not in PHYLA:
+            continue
+        nums = [int(x) for x in re.findall(r"\d+", cells[-1])][:3]
+        aff = next((v for k, v in SLIVER_RU.items() if k in cells[3]), "")
+        phyla.append({"key": PHYLA[m.group(2)], "empire": plain(cells[1]), "affinity": aff, "start": nums})
+    return {"slivers": slivers, "phyla": phyla}
+
+
 def parse_books():
     out = []
     for folder, label in BOOKS:
@@ -664,7 +698,7 @@ def build():
             k["birthrights"] = sidhe["birthrights"]
     data = {"source": "Changeling: The Dreaming 20th Anniversary Edition — справочник проекта (пересказ механики)",
             "seemings": parse_seemings(), "kiths": kiths, "houses": parse_houses() + parse_banner_houses(), "legacies": parse_legacies(),
-            "arts": arts, "realms": realms, "backgrounds": parse_backgrounds(), "merits": parse_merits() + parse_boggan_merits(), "oaths": parse_oaths(), "redes": parse_redes() + parse_pg_redes(), "chimera": CHIMERA, "lykeian": parse_lykeians(), "glyphs": glyphs(), "otherKiths": parse_other_kiths() + parse_pg_kiths(), "freeholds": parse_freeholds(),
+            "arts": arts, "realms": realms, "backgrounds": parse_backgrounds(), "merits": parse_merits() + parse_boggan_merits(), "oaths": parse_oaths(), "redes": parse_redes() + parse_pg_redes(), "chimera": CHIMERA, "lykeian": parse_lykeians(), "inanimae": parse_inanimae(), "glyphs": glyphs(), "otherKiths": parse_other_kiths() + parse_pg_kiths(), "freeholds": parse_freeholds(),
             "creation": CREATION, "freebies": FREEBIES, "xp": XP, "cantrip": CANTRIP, "banality": BANALITY, "bedlam": BEDLAM}
     with open(OUT, "w", encoding="utf-8", newline="\n") as f:
         json.dump(data, f, ensure_ascii=False, indent=1)

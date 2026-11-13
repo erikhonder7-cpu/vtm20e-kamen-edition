@@ -941,6 +941,12 @@ export class ChangelingData extends BaseActorData {
           need: int(10, 1, 99), got: int(0, 0, 999), fails: int(0, 0, 99), active: new BooleanField({ initial: true }), rival: str(""), rivalGot: int(0, 0, 999), state: str("") })),
         // вариант: «» — китейн, lykeian — ликиец (C20 Players Guide, гл. 7; apps/lykeian.mjs)
         variant: str(""),
+        // Хсиен (C20, гл. 39; apps/fae-variants.mjs): Чи Инь и Ян, Югэн, школы Ву Тань, двор, Наследия Инь и Ян
+        hsien: new SchemaField({ yin: int(1, 1, 5), yang: int(1, 1, 5), yugen: int(0, 0, 20), court: str(""), legacyYin: str(""), legacyYang: str(""),
+          schools: new SchemaField(Object.fromEntries(["ditan", "houtan", "lintan", "tietan", "shuitan", "neitan"].map(k => [k, int(0, 0, 5)]))) }),
+        // инанимае (C20, гл. 40): двор (Глэйдлинги / Крофтед), Якорь, Оболочка, Слайверы, Якорь утрачен
+        inanimae: new SchemaField({ court: str("gladeling"), anchor: str(""), husk: str(""), anchorLost: new BooleanField({ initial: false }),
+          slivers: new SchemaField(Object.fromEntries(["aquis", "petros", "pyros", "stratus", "verdage"].map(k => [k, int(0, 0, 5)]))) }),
         lykeian: new SchemaField({ shape: str(""), guise: str(""), analog: str(""), thesis: str(""), nightmareLegacy: str(""),
           rival: new BooleanField({ initial: false }), redes: new ArrayField(new SchemaField({ key: str(""), pts: int(1, 0, 30) })) })
       })

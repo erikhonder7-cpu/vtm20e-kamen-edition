@@ -159,6 +159,26 @@
           <select name="system.changeling.lykeian.nightmareLegacy"><option value="">—</option>{{#each lykeian.nightmareLegacies}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
         <label class="r-df" data-tooltip="{{localize 'VTM20.Lykeian.AnalogHint'}}"><span>{{localize "VTM20.Lykeian.Analog"}}</span><input type="text" name="system.changeling.lykeian.analog" value="{{system.changeling.lykeian.analog}}"></label>
         <label class="r-df is-wide" data-tooltip="{{localize 'VTM20.Lykeian.ThesisHint'}}"><span>{{localize "VTM20.Lykeian.Thesis"}}</span><input type="text" name="system.changeling.lykeian.thesis" value="{{system.changeling.lykeian.thesis}}"></label>
+        {{else if hsien}}
+        <label class="r-df"><span>{{localize "VTM20.Fae.Hsien.Kith"}}</span>
+          <select name="system.changeling.kith"><option value="">—</option>{{#each hsien.kiths}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
+        <label class="r-df"><span>{{localize "VTM20.Changeling.CourtLabel"}}</span>
+          <select name="system.changeling.hsien.court"><option value="">—</option>{{#each hsien.courts}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
+        <label class="r-df"><span>{{localize "VTM20.Fae.Hsien.LegacyYin"}}</span>
+          <select name="system.changeling.hsien.legacyYin"><option value="">—</option>{{#each hsien.legaciesYin}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
+        <label class="r-df"><span>{{localize "VTM20.Fae.Hsien.LegacyYang"}}</span>
+          <select name="system.changeling.hsien.legacyYang"><option value="">—</option>{{#each hsien.legaciesYang}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
+        {{else if inan}}
+        <label class="r-df" {{#if inan.phylum}}data-tooltip="{{inan.phylum.empire}}"{{/if}}><span>{{localize "VTM20.Fae.Inan.Phylum"}}</span>
+          <select name="system.changeling.kith"><option value="">—</option>{{#each inan.kiths}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
+        <label class="r-df"><span>{{localize "VTM20.Changeling.CourtLabel"}}</span>
+          <select name="system.changeling.inanimae.court">{{#each inan.courts}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
+        <label class="r-df"><span data-tooltip="{{localize 'VTM20.Changeling.LegacySeelie'}}">{{localize "VTM20.Changeling.SeelieShort"}}</span>
+          <select name="system.changeling.legacies.seelie"><option value="">—</option>{{#each changelingInfo.legaciesSeelie}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
+        <label class="r-df"><span data-tooltip="{{localize 'VTM20.Changeling.LegacyUnseelie'}}">{{localize "VTM20.Changeling.UnseelieShort"}}</span>
+          <select name="system.changeling.legacies.unseelie"><option value="">—</option>{{#each changelingInfo.legaciesUnseelie}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
+        <label class="r-df" data-tooltip="{{localize 'VTM20.Fae.Inan.AnchorHint'}}"><span>{{localize "VTM20.Fae.Inan.Anchor"}}</span><input type="text" name="system.changeling.inanimae.anchor" value="{{system.changeling.inanimae.anchor}}"></label>
+        <label class="r-df is-wide" data-tooltip="{{localize 'VTM20.Fae.Inan.HuskHint2'}}"><span>{{localize "VTM20.Fae.Inan.Husk"}}</span><input type="text" name="system.changeling.inanimae.husk" value="{{system.changeling.inanimae.husk}}"></label>
         {{else}}
         <label class="r-df" {{#if changelingInfo.kith}}data-tooltip="{{changelingInfo.kith.affinityText}}"{{/if}}><span>{{localize "VTM20.Changeling.Kith"}}</span>
           <select name="system.changeling.kith"><option value="">—</option>{{#each changelingInfo.kiths}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}{{#each changelingInfo.otherKiths}}<optgroup label="{{label}}">{{#each kiths}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</optgroup>{{/each}}</select></label>

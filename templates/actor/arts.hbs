@@ -2,6 +2,7 @@
 <section class="tab r-pane r-edges r-cl-pane {{tab.cssClass}}" data-tab="{{tab.id}}" data-group="{{tab.group}}">
   {{!-- Грёза (C20, гл. 6): три Темпера рядом — Гламур (рейтинг точками, пул клетками), Банальность (рейтинг и пул; пул выше Гламура —
        Туманы), Кошмар (10 — Дисбаланс); ниже — действия с подписями, дросс, отметки и кнопки ведущего (module/apps/changeling.mjs) --}}
+  {{#unless hsien}}
   <div class="r-cl-dream {{#if changelingInfo.mists}}is-mists{{/if}} {{#if changelingInfo.bedlam}}is-bedlam{{/if}}">
     <div class="r-cl-temper is-glamour">
       <div class="r-cl-temper-head"><h4 class="r-banner">{{localize "VTM20.Changeling.Glamour"}}</h4><span class="r-cl-temper-num"><b>{{changelingInfo.glamour}}</b>/{{changelingInfo.glamourPerm}}</span></div>
@@ -39,6 +40,7 @@
         <a class="r-vc-btn is-sq" data-action="clPlace" data-tooltip="{{localize 'VTM20.Changeling.PlaceBanality'}}"><i class="fa-solid fa-building"></i></a></span>{{/if}}
     </div>{{/if}}
   </div>
+  {{/unless}}
   {{#if lykeian}}
   {{!-- Ликиец (C20 Players Guide, гл. 7): Облик и Форма, Благословения и Недуг, Реды вместо Искусств (apps/lykeian.mjs) --}}
   <h2 class="r-h2"><span>{{localize "VTM20.Lykeian.GuiseHead"}}</span>
@@ -78,6 +80,51 @@
       <p class="r-note">{{text}}</p>
     </article>{{else}}<p class="r-gs-empty">{{localize "VTM20.Lykeian.NoRedes"}}</p>{{/each}}
   </div>
+  {{else if hsien}}
+  {{!-- Хсиен (C20, гл. 39): Чи Инь и Ян, Дао, Ранг, Югэн; школы Ву Тань и Ней Тань (module/apps/fae-variants.mjs) --}}
+  <div class="r-cl-dream r-hs-panel">
+    <div class="r-cl-temper"><div class="r-cl-temper-head"><h4 class="r-banner">{{localize "VTM20.Fae.Hsien.Yin"}}</h4><span class="r-cl-temper-num"><b>{{hsien.yin}}</b></span></div>{{> rDots dots=hsien.yinDots}}</div>
+    <div class="r-cl-temper"><div class="r-cl-temper-head"><h4 class="r-banner">{{localize "VTM20.Fae.Hsien.Yang"}}</h4><span class="r-cl-temper-num"><b>{{hsien.yang}}</b></span></div>{{> rDots dots=hsien.yangDots}}</div>
+    <div class="r-cl-temper"><div class="r-cl-temper-head"><h4 class="r-banner" data-tooltip="{{localize 'VTM20.Fae.Hsien.YugenHint'}}">{{localize "VTM20.Fae.Hsien.Yugen"}}</h4><span class="r-cl-temper-num"><b>{{hsien.yugen}}</b>/{{hsien.yugenMax}}</span></div>
+      <div class="r-boxes is-glamour">{{#each hsien.yugenBoxes}}<a class="r-box {{#if filled}}is-filled{{/if}}" {{#if @root.editable}}data-action="setDots" data-path="{{path}}" data-n="{{n}}"{{/if}}></a>{{/each}}</div></div>
+    <p class="r-note r-hs-derived">{{localize "VTM20.Fae.Hsien.Derived" rank=hsien.rank tao=hsien.tao dom=hsien.dominant}}</p>
+    {{#if editable}}<div class="r-cl-dream-bar">
+      <a class="r-btn" data-action="clFae" data-op="wutan"><i class="fa-solid fa-yin-yang"></i> {{localize "VTM20.Fae.Hsien.WuTan"}}</a>
+      <a class="r-btn" data-action="clFae" data-op="neitan"><i class="fa-solid fa-circle-half-stroke"></i> {{localize "VTM20.Fae.Hsien.School.neitan"}}</a>
+      <a class="r-btn" data-action="clFae" data-op="mask" data-tooltip="{{localize 'VTM20.Fae.Hsien.MaskHint'}}"><i class="fa-solid fa-dragon"></i> {{localize "VTM20.Fae.Hsien.MaskTitle"}}</a>
+      <a class="r-btn" data-action="clFae" data-op="chi" data-tooltip="{{localize 'VTM20.Fae.Hsien.SacrificeHint'}}"><i class="fa-solid fa-droplet"></i> {{localize "VTM20.Fae.Hsien.Sacrifice"}}</a>
+    </div>{{/if}}
+  </div>
+  <h2 class="r-h2"><span>{{localize "VTM20.Fae.Hsien.WuTan"}}</span></h2>
+  <div class="r-cl-realms">
+    {{#each hsien.schools}}<div class="r-vcard r-cl-realm {{#if capped}}is-mod{{/if}}">
+      <div class="r-vc-head"><h4 class="r-banner">{{#if @root.editable}}<a data-action="clFae" data-op="{{#if (eq key 'neitan')}}neitan{{else}}wutan{{/if}}" data-key="{{key}}">{{name}}</a>{{else}}{{name}}{{/if}}</h4>{{> rDots dots=dots cls="is-small"}}</div>
+      <p class="r-note">{{element}}{{#if capped}} · <span class="is-warn">{{localize "VTM20.Fae.Hsien.NeiCapped" cap=../hsien.neiCap}}</span>{{/if}}</p>
+    </div>{{/each}}
+  </div>
+  <p class="r-hint">{{localize "VTM20.Fae.Hsien.Hint"}}</p>
+  {{else if inan}}
+  {{!-- Инанимае (C20, гл. 40): Слайверы вместо Искусств — только Высвобождение; Сбор, Жатва, Оболочка, Якорь --}}
+  <h2 class="r-h2"><span>{{localize "VTM20.Fae.Inan.Slivers"}}</span>{{#if editable}}<span class="r-h2-tools">
+    <a class="r-h2-btn" data-action="clFae" data-op="harvest" data-tooltip="{{localize 'VTM20.Fae.Inan.HarvestHint'}}"><i class="fa-solid fa-seedling"></i> <span class="r-h2-lbl">{{localize "VTM20.Fae.Inan.HarvestTitle"}}</span></a>
+    <a class="r-h2-btn" data-action="clFae" data-op="reap" data-tooltip="{{localize 'VTM20.Fae.Inan.ReapHint'}}"><i class="fa-solid fa-hand-fist"></i></a>
+    <a class="r-h2-btn" data-action="clFae" data-op="husk" data-tooltip="{{localize 'VTM20.Fae.Inan.HuskHint'}}"><i class="fa-solid fa-person"></i></a>
+    <a class="r-h2-btn" data-action="clFae" data-op="rebind" data-tooltip="{{localize 'VTM20.Fae.Inan.RebindHint'}}"><i class="fa-solid fa-anchor"></i></a>
+  </span>{{/if}}</h2>
+  {{#if editable}}<label class="r-check r-in-lost"><input type="checkbox" name="system.changeling.inanimae.anchorLost" {{#if inan.anchorLost}}checked{{/if}}> {{localize "VTM20.Fae.Inan.AnchorLost"}}</label>{{/if}}
+  {{#if inan.anchorLost}}<p class="r-note is-warn"><i class="fa-solid fa-triangle-exclamation"></i> {{localize "VTM20.Fae.Inan.AnchorLostNote"}}</p>{{/if}}
+  <div class="r-cl-arts">
+    {{#each inan.slivers}}<article class="r-vcard r-cl-art {{#if affinity}}is-affinity{{/if}}">
+      <header class="r-cl-art-head">
+        <div class="r-cl-art-title"><b class="r-cl-art-name">{{name}}</b><span class="r-cl-art-en">{{en}}{{#if affinity}} · {{localize "VTM20.Fae.Inan.Affinity"}}{{/if}}</span></div>
+        {{> rDots dots=dots cls="is-small"}}
+        {{#if @root.editable}}{{#if value}}<a class="r-icon-btn" data-action="clFae" data-op="sliver" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Changeling.UnleashHint'}}"><i class="fa-solid fa-burst"></i></a>{{/if}}{{/if}}
+      </header>
+      <p class="r-note">{{text}}</p>
+      {{#if perk}}<p class="r-note"><b>{{localize "VTM20.Fae.Inan.Perk"}}:</b> {{perk}}</p>{{/if}}
+    </article>{{/each}}
+  </div>
+  <p class="r-hint">{{localize "VTM20.Fae.Inan.Hint"}}</p>
   {{else}}
   <h2 class="r-h2"><span>{{localize "VTM20.Changeling.Arts"}}</span>
     <span class="r-h2-tools">

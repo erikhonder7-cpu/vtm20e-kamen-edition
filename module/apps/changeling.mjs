@@ -64,7 +64,7 @@ export function changelingInfo(actor, dots) {
     banalityBoxes: boxes(c.banality.temporary, 10, "system.changeling.banality.temporary"),
     nightmare: c.nightmare, nightmareBoxes: boxes(c.nightmare, 10, "system.changeling.nightmare"),
     imbalance: c.imbalance, imbalanceWill: c.variant === "lykeian" ? [] : Array.from({ length: will }, (_, i) => ({ on: i >= will - c.imbalance })),
-    variants: ["", "lykeian"].map(k => ({ key: k, name: game.i18n.localize(`VTM20.Lykeian.Variant.${k || "kithain"}`), selected: k === (c.variant ?? "") })),
+    variants: ["", "lykeian", "hsien", "inanimae"].map(k => ({ key: k, name: game.i18n.localize(`VTM20.Lykeian.Variant.${k || "kithain"}`), selected: k === (c.variant ?? "") })),
     mists: c.mists, undone: c.undone, bedlam: c.bedlam, isGM: game.user.isGM,
     wyrd: inWyrd(actor), place: sceneBanality(), chim: chimericalView(actor), dross: c.dross ?? 0,
     threshold: (b => b ? { key: b.key, name: t(`Bedlam.${b.key}`), n: b.n, text: t(`BedlamText.${b.key}`, { n: b.n }) } : null)(bedlamOf(actor))
@@ -221,7 +221,7 @@ export async function rollCantrip(actor, o) {
 }
 
 /** Кубики Кошмара — первые в броске: каждая 10 на них — +1 Кошмар; ботч — ещё +1. */
-async function afterRoll(actor, roll, nightmare, reason) {
+export async function afterRoll(actor, roll, nightmare, reason) {
   const tens = (roll.state?.values ?? []).slice(0, nightmare).filter(v => v === 10).length;
   const n = tens + (roll.outcome === "botch" ? 1 : 0);
   if (n) await gainNightmare(actor, n, { reason });

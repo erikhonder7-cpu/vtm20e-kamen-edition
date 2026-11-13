@@ -6109,6 +6109,67 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  await check("Подменыш-галлейны: Хсиен (Чи, Югэн, Ву Тань, Ней Тань, Маска) и инанимае (Слайверы, Сбор, Жатва, Оболочка)", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {}, n0 = game.messages.size;
+      const F = await import(`/systems/${sid}/module/apps/fae-variants.mjs`);
+      const last = () => game.messages.contents.at(-1)?.flags?.[sid]?.roll;
+      const h = await Actor.create({ name: "E2E — хсиен", type: "changeling", flags: { world: { e2e: true }, [sid]: { created: true } },
+        system: { attributes: { wits: { value: 3 } }, changeling: { variant: "hsien", kith: "hsien-nyan",
+          hsien: { yin: 2, yang: 4, yugen: 5, schools: { houtan: 3, neitan: 4 } } } } });
+      const n = await Actor.create({ name: "E2E — инанимае", type: "changeling", flags: { world: { e2e: true }, [sid]: { created: true } },
+        system: { attributes: { perception: { value: 3 }, manipulation: { value: 2 } }, abilities: { kenning: { value: 2 } },
+          changeling: { variant: "inanimae", kith: "inanimae-mannikins", glamour: { permanent: 6, temporary: 1 }, banality: { permanent: 4, temporary: 0 },
+            inanimae: { slivers: { pyros: 2 } } } } });
+      const DV = foundry.applications.api.DialogV2, p0 = DV.prompt, c0 = DV.confirm, rnd = CONFIG.Dice.randomUniform;
+      try {
+        const d = F.hsienDerived(h.system.changeling.hsien);
+        out.derived = [d.rank, d.tao, d.yugenMax, d.neiCap];
+        CONFIG.Dice.randomUniform = () => 0.0001;
+        // Хоу Тань 2, Ян 4, Смекалка 3, модификаторы 2 при Удаче 1 → пул 2 + 3 + 4 − 1 = 8, сложность 6; Югэн 1 + когорта 1
+        DV.prompt = async () => ({ school: "houtan", level: 2, side: "yang", attr: "wits", mods: 2, fortune: 1, cohort: 1, yugen: 1 });
+        await F.wuTan(h); await wait(300);
+        out.wutan = [last()?.values?.length, last()?.difficulty, h.system.changeling.hsien.yugen];
+        // Ней Тань: Инь 2 и Ян 4 — разница 2, доступно до 3; Дао 3 + Восприятие 1, сложность 7
+        DV.prompt = async () => ({ level: 3, attr: "perception", yugen: 0 });
+        await F.neiTan(h); await wait(300);
+        out.nei = [last()?.values?.length, last()?.difficulty];
+        DV.prompt = async () => ({ n: 2, nest: true });
+        await F.maskOfShintai(h); await wait(300);
+        out.mask = [h.system.changeling.hsien.yugen, /4/.test(game.messages.contents.at(-1)?.content ?? "")];
+        await F.sacrificeChi(h);
+        out.chi = [h.system.changeling.hsien.yugen, h.system.health.aggravated];
+        await h.sheet.render({ force: true }); await wait(900); h.sheet.changeTab("disciplines", "primary"); await wait(400);
+        out.hsheet = [!!h.sheet.element.querySelector(".r-hs-panel"), !h.sheet.element.querySelector(".r-cl-dream:not(.r-hs-panel)"), !!h.sheet.element.querySelector('select[name="system.changeling.hsien.court"]')];
+        await h.sheet.close();
+        // инанимае: Высвобождение Пироса (2 Гламура) — нет Гламура; Сбор у Якоря: 3 + 2 кубика, сложность 4; Жатва — Банальность 4
+        out.noGlamour = await F.unleashSliver(n, "pyros") === null;
+        DV.prompt = async () => 0;
+        let rr = await F.harvest(n); await wait(300);
+        out.harvest = [rr?.state?.values?.length, rr?.state?.difficulty, n.system.changeling.glamour.temporary];
+        await n.update({ "system.changeling.glamour.temporary": 0, "system.changeling.nightmare": 0 });
+        rr = await F.reapInanimae(n); await wait(300);
+        out.reap = [rr?.state?.difficulty, n.system.changeling.glamour.temporary, n.system.changeling.nightmare];
+        CONFIG.Dice.randomUniform = () => 0.9999;
+        DV.prompt = async () => 7;
+        rr = await F.huskRoll(n); await wait(300);
+        out.husk = [rr?.state?.values?.length, n.system.changeling.banality.temporary];        // Манипуляция 2 + Оболочка 0 + мимикрия 2; ботч — +2
+        await n.sheet.render({ force: true }); await wait(900); n.sheet.changeTab("disciplines", "primary"); await wait(400);
+        out.nsheet = [n.sheet.element.querySelectorAll(".r-cl-art").length, !!n.sheet.element.querySelector('[data-action="clFae"][data-op="sliver"][data-key="pyros"]'),
+          !!n.sheet.element.querySelector(".r-cl-dream")];
+        await n.sheet.close();
+      } finally {
+        DV.prompt = p0; DV.confirm = c0; CONFIG.Dice.randomUniform = rnd;
+        await ChatMessage.deleteDocuments(game.messages.contents.slice(n0).map(x => x.id)); await Actor.deleteDocuments([h.id, n.id]);
+      }
+      return out;
+    });
+    const want = { derived: [6, 3, 12, 3], wutan: [8, 6, 3], nei: [4, 7], mask: [1, true], chi: [2, 1], hsheet: [true, true, true],
+      noGlamour: true, harvest: [5, 4, 6], reap: [9, 4, 4], husk: [4, 2], nsheet: [5, true, true] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   await check("Призрак: лист и Арканои, Пафос, Страсть, Корпус до колебания и Испытание, Катарсис", async () => {
     const r = await page.evaluate(async () => {
       const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), WR = await import(`/systems/${sid}/module/apps/wraith.mjs`);

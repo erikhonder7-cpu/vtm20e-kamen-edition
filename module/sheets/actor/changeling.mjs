@@ -7,6 +7,15 @@ import { castCantrip, unleash, artRow, spendGlamour, gainGlamour, gainNightmare,
   addTreasure, treasureStore, useTreasure, destroyTreasure, mistsTable, questOutcome,
   editChimera, dropChimera, chimeraActor, addCraft, craftRoll, dropCraft } from "../../apps/changeling.mjs";
 import { addRede, dropRede, reaping, legacyGlamour, shedBanality, shedImbalance } from "../../apps/lykeian.mjs";
+import { wuTan, neiTan, maskOfShintai, sacrificeChi, unleashSliver, harvest, reapInanimae, huskRoll, rebind } from "../../apps/fae-variants.mjs";
+
+/** Хсиен и инанимае (apps/fae-variants.mjs): Ву Тань, Ней Тань, Маска Шинтай, жертва Чи; Высвобождение Слайвера, Сбор, Жатва, Оболочка, Якорь. */
+function onFae(event, target) {
+  const { op, key } = target.dataset, a = this.actor;
+  if (op === "wutan") return wuTan(a, { school: key });
+  if (op === "sliver") return unleashSliver(a, key);
+  return { neitan: neiTan, mask: maskOfShintai, chi: sacrificeChi, harvest, reap: reapInanimae, husk: huskRoll, rebind }[op]?.(a);
+}
 import { addAgenda, dropAgenda, focusAgenda, resetAgenda, rollAgenda, rollRival, bumpAgenda } from "../../apps/agenda.mjs";
 
 /** Агенды (apps/agenda.mjs): добавить, бросок, ход соперника, помощь ±, продвигать эту, начать заново, убрать. */
@@ -96,4 +105,4 @@ function onOath(event, target) {
 
 export const CHANGELING_ACTIONS = { clCast: onCast, clUnleash: onUnleash, clArtAdd: onArtAdd, clArtDel: onArtDel, clGlamour: onGlamour,
   clNightmare: onNightmare, clTrigger: onTrigger, clWyrd: onWyrd, clAutumn: onAutumn, clEpiphany: onEpiphany, clPlace: onPlace, clBedlamEnd: onBedlamEnd, clOath: onOath,
-  clChim: { handler: onChim, buttons: [0, 2] }, clColdIron: onColdIron, clTreasure: onTreasure, clDross: onDross, clMists: onMists, clQuest: onQuest, clChimera: onChimera, clCraft: onCraft, lyAct: onLykeian, clAgenda: onAgenda };
+  clChim: { handler: onChim, buttons: [0, 2] }, clColdIron: onColdIron, clTreasure: onTreasure, clDross: onDross, clMists: onMists, clQuest: onQuest, clChimera: onChimera, clCraft: onCraft, lyAct: onLykeian, clAgenda: onAgenda, clFae: onFae };
