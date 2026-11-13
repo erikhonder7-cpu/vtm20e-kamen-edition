@@ -239,6 +239,48 @@
   </div>
   <p class="r-hint">{{localize "VTM20.Boon.Hint"}}</p>
   {{/if}}
+  {{!-- Агенды (C20 Players Guide, гл. 1): политика как растянутое действие — пул и сложность от Рассказчика, цель с поправкой за
+       мастерство, успехи против провалов, встречная гонка с соперником (module/apps/agenda.mjs) --}}
+  {{#if changelingInfo}}
+  <h2 class="r-h2"><span>{{localize "VTM20.Agenda.Title"}}</span>{{#if editable}}<span class="r-h2-tools"><a class="r-h2-btn" data-action="clAgenda" data-op="add"><i class="fa-solid fa-plus"></i> <span class="r-h2-lbl">{{localize "VTM20.Agenda.Add"}}</span></a></span>{{/if}}</h2>
+  <div class="r-ag-list">
+    {{#each agendas}}
+    <article class="r-vcard r-ag {{#if active}}is-active{{/if}} {{#if state}}is-done is-{{state}}{{/if}}">
+      <header class="r-ag-head">
+        <input class="r-trait-input r-ag-name" type="text" name="system.changeling.agendas.{{i}}.name" value="{{name}}" {{#unless @root.editable}}disabled{{/unless}}>
+        {{#if stateLabel}}<span class="r-ag-state">{{stateLabel}}</span>{{else if active}}<span class="r-ag-state is-on">{{localize "VTM20.Agenda.Active"}}</span>{{/if}}
+        {{#if @root.editable}}<span class="r-ag-tools">
+          {{#unless state}}{{#unless active}}<a data-action="clAgenda" data-op="focus" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Agenda.FocusHint'}}"><i class="fa-solid fa-bullseye"></i></a>{{/unless}}{{/unless}}
+          <a data-action="clAgenda" data-op="reset" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Agenda.Reset'}}"><i class="fa-solid fa-rotate-left"></i></a>
+          <a class="is-danger" data-action="clAgenda" data-op="del" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>
+        </span>{{/if}}
+      </header>
+      <input class="r-trait-input r-ag-text" type="text" name="system.changeling.agendas.{{i}}.text" value="{{text}}" placeholder="{{localize 'VTM20.Agenda.TextHint'}}" {{#unless @root.editable}}disabled{{/unless}}>
+      <div class="r-ag-row">
+        <select name="system.changeling.agendas.{{i}}.attr" class="r-mini-select" {{#unless @root.editable}}disabled{{/unless}}>{{#each attrs}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+        <span>+</span>
+        <select name="system.changeling.agendas.{{i}}.abil" class="r-mini-select" {{#unless @root.editable}}disabled{{/unless}}>{{#each abils}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+        <span class="r-ag-num" data-tooltip="{{localize 'VTM20.Agenda.PoolHint'}}">= <b>{{pool}}</b></span>
+        <label class="r-ag-num">{{localize "VTM20.Agenda.Diff"}} <input type="number" min="2" max="10" name="system.changeling.agendas.{{i}}.diff" value="{{diff}}" {{#unless @root.editable}}disabled{{/unless}}></label>
+        <label class="r-ag-num" data-tooltip="{{localize 'VTM20.Agenda.NeedHint'}}">{{localize "VTM20.Agenda.Need"}} <input type="number" min="1" max="99" name="system.changeling.agendas.{{i}}.need" value="{{baseNeed}}" {{#unless @root.editable}}disabled{{/unless}}>{{#if ease}} <small>−{{ease}}</small>{{/if}}</label>
+        <label class="r-ag-num">{{localize "VTM20.Agenda.Rival"}} <input class="r-ag-rival" type="text" name="system.changeling.agendas.{{i}}.rival" value="{{rival}}" placeholder="—" {{#unless @root.editable}}disabled{{/unless}}></label>
+      </div>
+      <div class="r-ag-track" data-tooltip="{{localize 'VTM20.Agenda.TrackHint'}}">
+        <span class="r-ag-bar"><i style="width:{{pct}}%"></i></span><b>{{got}}/{{need}}</b><span class="r-ag-fails">{{localize "VTM20.Agenda.Fails"}} {{fails}}</span>
+      </div>
+      {{#if rival}}<div class="r-ag-track is-rival"><span class="r-ag-bar"><i style="width:{{rivalPct}}%"></i></span><b>{{rivalGot}}/{{need}}</b><span class="r-ag-fails">{{rival}}</span></div>{{/if}}
+      {{#if @root.editable}}{{#unless state}}<div class="r-ag-btns">
+        <a class="r-btn" data-action="clAgenda" data-op="roll" data-i="{{i}}"><i class="fa-solid fa-dice-d10"></i> {{localize "VTM20.Agenda.Roll"}}</a>
+        <a class="r-btn" data-action="clAgenda" data-op="minus" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Agenda.HelpHint'}}"><i class="fa-solid fa-minus"></i></a>
+        <a class="r-btn" data-action="clAgenda" data-op="plus" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Agenda.HelpHint'}}"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Agenda.Help"}}</a>
+        {{#if rival}}{{#if @root.isGM}}<a class="r-btn" data-action="clAgenda" data-op="rival" data-i="{{i}}"><i class="fa-solid fa-chess-rook"></i> {{localize "VTM20.Agenda.RivalRoll"}}</a>{{/if}}{{/if}}
+      </div>{{/unless}}{{/if}}
+    </article>
+    {{else}}<p class="r-gs-empty">{{localize "VTM20.Agenda.None"}}</p>
+    {{/each}}
+  </div>
+  <p class="r-hint">{{localize "VTM20.Agenda.Hint"}}</p>
+  {{/if}}
   {{!-- Сверхъестественное у смертного (линия магов): колдун — Пути и психические феномены (M20 Sorcerer); консор — спутник мага (Gods & Monsters) --}}
   {{#if sorcInfo}}
   <section class="r-sn is-sorc {{#unless sorcInfo.on}}is-off{{/unless}}">

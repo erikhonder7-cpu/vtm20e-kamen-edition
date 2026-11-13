@@ -936,6 +936,9 @@ export class ChangelingData extends BaseActorData {
           text: str(""), actor: str("") })),
         treasures: new ArrayField(new SchemaField({ name: str(""), art: str(""), level: int(1, 1, 5), store: int(0, 0, 20), text: str("") })),
         chimerical: new SchemaField({ bashing: int(0, 0, 7), lethal: int(0, 0, 7), aggravated: int(0, 0, 7) }),
+        // Агенды (Players Guide, гл. 1; apps/agenda.mjs): пул и сложность от Рассказчика, цель, успехи и провалы, соперник
+        agendas: new ArrayField(new SchemaField({ name: str(""), text: str(""), attr: str("manipulation"), abil: str("politics"), diff: int(6, 2, 10),
+          need: int(10, 1, 99), got: int(0, 0, 999), fails: int(0, 0, 99), active: new BooleanField({ initial: true }), rival: str(""), rivalGot: int(0, 0, 999), state: str("") })),
         // вариант: «» — китейн, lykeian — ликиец (C20 Players Guide, гл. 7; apps/lykeian.mjs)
         variant: str(""),
         lykeian: new SchemaField({ shape: str(""), guise: str(""), analog: str(""), thesis: str(""), nightmareLegacy: str(""),

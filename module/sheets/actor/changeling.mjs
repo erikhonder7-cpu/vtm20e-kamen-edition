@@ -7,6 +7,15 @@ import { castCantrip, unleash, artRow, spendGlamour, gainGlamour, gainNightmare,
   addTreasure, treasureStore, useTreasure, destroyTreasure, mistsTable, questOutcome,
   editChimera, dropChimera, chimeraActor, addCraft, craftRoll, dropCraft } from "../../apps/changeling.mjs";
 import { addRede, dropRede, reaping, legacyGlamour, shedBanality, shedImbalance } from "../../apps/lykeian.mjs";
+import { addAgenda, dropAgenda, focusAgenda, resetAgenda, rollAgenda, rollRival, bumpAgenda } from "../../apps/agenda.mjs";
+
+/** Агенды (apps/agenda.mjs): добавить, бросок, ход соперника, помощь ±, продвигать эту, начать заново, убрать. */
+function onAgenda(event, target) {
+  const { op } = target.dataset, i = Number(target.dataset.i), a = this.actor;
+  if (op === "add") return addAgenda(a);
+  return { roll: rollAgenda, rival: rollRival, focus: focusAgenda, reset: resetAgenda, del: dropAgenda,
+    plus: (x, j) => bumpAgenda(x, j, 1), minus: (x, j) => bumpAgenda(x, j, -1) }[op]?.(a, i);
+}
 
 /** Ликиец (apps/lykeian.mjs): Реды, Жатва, Гламур через Наследие, снять Банальность или Дисбаланс. */
 function onLykeian(event, target) {
@@ -87,4 +96,4 @@ function onOath(event, target) {
 
 export const CHANGELING_ACTIONS = { clCast: onCast, clUnleash: onUnleash, clArtAdd: onArtAdd, clArtDel: onArtDel, clGlamour: onGlamour,
   clNightmare: onNightmare, clTrigger: onTrigger, clWyrd: onWyrd, clAutumn: onAutumn, clEpiphany: onEpiphany, clPlace: onPlace, clBedlamEnd: onBedlamEnd, clOath: onOath,
-  clChim: { handler: onChim, buttons: [0, 2] }, clColdIron: onColdIron, clTreasure: onTreasure, clDross: onDross, clMists: onMists, clQuest: onQuest, clChimera: onChimera, clCraft: onCraft, lyAct: onLykeian };
+  clChim: { handler: onChim, buttons: [0, 2] }, clColdIron: onColdIron, clTreasure: onTreasure, clDross: onDross, clMists: onMists, clQuest: onQuest, clChimera: onChimera, clCraft: onCraft, lyAct: onLykeian, clAgenda: onAgenda };

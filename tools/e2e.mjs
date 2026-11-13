@@ -6067,6 +6067,48 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  await check("Подменыш: Агенды Парламента — растянутый бросок, провалы, ботч, соперник, одна активная", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {}, n0 = game.messages.size;
+      const AG = await import(`/systems/${sid}/module/apps/agenda.mjs`);
+      const inst = () => [...foundry.applications.instances.values()];
+      const submit = async () => { for (let i = 0; i < 40; i++) { const d = inst().find(x => x.constructor.name === "RollDialog" && x.rendered); if (d) { d.element.querySelector("button[type=submit]")?.click(); await wait(1200); return true; } await wait(150); } return false; };
+      const a = await Actor.create({ name: "E2E — политик Грёзы", type: "changeling", flags: { world: { e2e: true }, [sid]: { created: true } },
+        system: { attributes: { manipulation: { value: 4 } }, abilities: { politics: { value: 3 } } } });
+      const DV = foundry.applications.api.DialogV2, p0 = DV.prompt, rnd = CONFIG.Dice.randomUniform;
+      try {
+        await AG.addAgenda(a); await AG.addAgenda(a);
+        { const l = foundry.utils.deepClone(a._source.system.changeling.agendas); Object.assign(l[0], { need: 12, rival: "Барон Сойер" }); await a.update({ "system.changeling.agendas": l }); }
+        out.view = AG.agendasView(a).map(g => [g.need, g.pool, g.active]);
+        out.notActive = await AG.rollAgenda(a, 1) === undefined || true;
+        CONFIG.Dice.randomUniform = () => 0.9999; let p = AG.rollAgenda(a, 0); await submit(); await p; await wait(300);   // ботч: 0, провал +1
+        out.botch = [a.system.changeling.agendas[0].got, a.system.changeling.agendas[0].fails];
+        CONFIG.Dice.randomUniform = () => 0.0001; p = AG.rollAgenda(a, 0); await submit(); await p; await wait(300);   // 7 десяток
+        out.first = [a.system.changeling.agendas[0].got, a.system.changeling.agendas[0].state];
+        DV.prompt = async () => ({ pool: 3, diff: 6 });
+        await AG.rollRival(a, 0); await wait(300);
+        out.rival = a.system.changeling.agendas[0].rivalGot;
+        await AG.bumpAgenda(a, 0, 3); await wait(300);                                                                  // 10 из 10 — принята
+        out.done = [a.system.changeling.agendas[0].got, a.system.changeling.agendas[0].state];
+        await AG.focusAgenda(a, 1);
+        out.focus = a.system.changeling.agendas.map(g => g.active);
+        await a.sheet.render({ force: true }); await wait(900); a.sheet.changeTab("advantages", "primary"); await wait(400);
+        out.sheet = [a.sheet.element.querySelectorAll(".r-ag").length, !!a.sheet.element.querySelector('[data-action="clAgenda"][data-op="roll"]')];
+        await a.sheet.close();
+      } finally {
+        DV.prompt = p0; CONFIG.Dice.randomUniform = rnd;
+        for (const x of inst()) if (x.constructor.name === "RollDialog") await x.close();
+        await ChatMessage.deleteDocuments(game.messages.contents.slice(n0).map(x => x.id)); await a.delete();
+      }
+      return out;
+    });
+    // Манипуляция 4 + Политика 3: цель −2 (12 → 10, 10 → 8), пул 7; вторая Агенда не активна
+    // перевес 10 − max(10, 1) = 0 — «едва-едва»
+    const want = { view: [[10, 7, true], [8, 7, false]], botch: [0, 1], first: [7, ""], rival: 3, done: [10, "narrow"], focus: [false, true], sheet: [2, true] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   await check("Призрак: лист и Арканои, Пафос, Страсть, Корпус до колебания и Испытание, Катарсис", async () => {
     const r = await page.evaluate(async () => {
       const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), WR = await import(`/systems/${sid}/module/apps/wraith.mjs`);

@@ -5975,6 +5975,47 @@
       "RedesExtra": "extra — {n} freebies",
       "Tempers": "Glamour {g}, Willpower {w}, Banality {b} — with the Shape bonus (humanoid +1 Willpower, animal +1 Willpower or Glamour, mythic +1 Glamour). No cantrips; Willpower costs 2 freebies, a Rede 2 per point."
     },
+    "Agenda": {
+      "Title": "Agendas",
+      "Add": "Agenda",
+      "None": "No Agendas. An Agenda is an idea, law or campaign the character pushes in fae society.",
+      "Hint": "Players Guide, ch. 1: an extended action. The Storyteller sets pool, difficulty and target; you need the target and more successes than failures. Charisma or Manipulation 4+ and Law or Politics 3+ lower the target (1 each). Only one Agenda advances at a time. Helpers roll their own pools — add their successes with Help.",
+      "NewName": "New Agenda",
+      "TextHint": "What the character wants passed, and before whom",
+      "Active": "advancing",
+      "FocusHint": "Advance this Agenda (others pause)",
+      "Reset": "Start over",
+      "PoolHint": "Pool: Attribute + Ability",
+      "Diff": "diff",
+      "Need": "target",
+      "NeedHint": "Successes needed; the mastery reduction is shown beside it",
+      "Rival": "rival",
+      "TrackHint": "Successes gathered toward the target; failures — rolls with no successes",
+      "Fails": "failures:",
+      "Roll": "Roll",
+      "Help": "Help",
+      "HelpHint": "Helpers' successes or a Storyteller adjustment (+1 / −1)",
+      "RivalRoll": "Rival's move",
+      "NotActive": "Another Agenda is advancing — switch to this one first.",
+      "RollTitle": "Agenda: {name}",
+      "Progress": "{got} of {need}, failures {fails}",
+      "RollNote": "Extended action: successes add up, a botch wipes them.",
+      "Botch": "{actor}: a botch — the Agenda \"{name}\" falls back to the start.",
+      "RivalTitle": "Rival: {rival}",
+      "RivalHint": "The Storyteller rolls for the opponent in a race: whoever reaches the target first wins.",
+      "RivalPool": "Rival's pool",
+      "RivalDo": "Roll",
+      "State": {
+        "passed": "passed",
+        "narrow": "passed narrowly",
+        "lost": "failed"
+      },
+      "Done": {
+        "passed": "{actor} carries the Agenda \"{name}\" — decisively.",
+        "narrow": "{actor} carries the Agenda \"{name}\" — barely.",
+        "lost": "{rival} outpaces {actor}: the Agenda \"{name}\" fails."
+      }
+    },
     "BondX": {
       "FeedClan": "Donor's clan (for a ghoul)",
       "GhoulSecond": "For a ghoul the second step works like a brotherly bond of strength 5.",

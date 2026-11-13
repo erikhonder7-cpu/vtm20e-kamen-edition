@@ -282,3 +282,29 @@
 .vtm20.r-type-changeling .r-vc-chim .r-vc-head { flex-wrap: nowrap; gap: 6px; }
 .vtm20.r-type-changeling .r-vc-chim .r-vc-head .r-banner { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: 1px; }
 .vtm20.r-type-changeling .r-vc-chim .r-vc-status { white-space: nowrap; flex: 0 0 auto; }
+
+/* Агенды (advantages.hbs, apps/agenda.mjs): карточка — название, суть, пул и цель, полосы хода (своя и соперника), кнопки */
+.vtm20.r-type-changeling .r-ag-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 10px; }
+.vtm20.r-type-changeling .r-ag { display: flex; flex-direction: column; justify-content: flex-start; align-self: start; gap: 6px; padding: 10px 12px; }
+.vtm20.r-type-changeling .r-ag.is-active { border-color: rgba(229, 142, 213, .45); }
+.vtm20.r-type-changeling .r-ag.is-done { opacity: .85; }
+.vtm20.r-type-changeling .r-ag-head { display: flex; align-items: center; gap: 8px; }
+.vtm20.r-type-changeling .r-ag-name { flex: 1 1 auto; font-family: var(--r-display); font-size: 16px; }
+.vtm20.r-type-changeling .r-ag-state { font-size: 11px; font-style: italic; color: var(--r-muted); white-space: nowrap; }
+.vtm20.r-type-changeling .r-ag-state.is-on, .vtm20.r-type-changeling .r-ag.is-passed .r-ag-state, .vtm20.r-type-changeling .r-ag.is-narrow .r-ag-state { color: #f2a9e4; }
+.vtm20.r-type-changeling .r-ag.is-lost .r-ag-state { color: #c97b7b; }
+.vtm20.r-type-changeling .r-ag-tools { display: inline-flex; gap: 8px; }
+.vtm20.r-type-changeling .r-ag-tools a { color: var(--r-muted); } .vtm20.r-type-changeling .r-ag-tools a:hover { color: var(--r-ink); }
+.vtm20.r-type-changeling .r-ag-text { font-style: italic; font-size: 12px; }
+.vtm20.r-type-changeling .r-ag-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; font-size: 12px; }
+.vtm20.r-type-changeling .r-ag-num { display: inline-flex; align-items: center; gap: 4px; color: var(--r-muted); white-space: nowrap; }
+.vtm20.r-type-changeling .r-ag-num b { color: var(--r-ink); }
+.vtm20.r-type-changeling .r-ag-num input[type=number] { width: 3.2em; text-align: center; }
+.vtm20.r-type-changeling .r-ag-rival { width: 9em; }
+.vtm20.r-type-changeling .r-ag-track { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 8px; font-size: 12px; }
+.vtm20.r-type-changeling .r-ag-track b { font-family: var(--r-display); font-size: 15px; font-weight: 400; color: var(--r-ink); }
+.vtm20.r-type-changeling .r-ag-fails { color: var(--r-muted); font-style: italic; white-space: nowrap; }
+.vtm20.r-type-changeling .r-ag-bar { position: relative; height: 6px; background: rgba(0, 0, 0, .45); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .06); }
+.vtm20.r-type-changeling .r-ag-bar i { position: absolute; inset: 0 auto 0 0; background: linear-gradient(90deg, #b8559f, #f2a9e4); box-shadow: 0 0 6px rgba(242, 169, 228, .45); }
+.vtm20.r-type-changeling .r-ag-track.is-rival .r-ag-bar i { background: linear-gradient(90deg, #4c5566, #9aa6b8); box-shadow: none; }
+.vtm20.r-type-changeling .r-ag-btns { display: flex; flex-wrap: wrap; gap: 6px; }
