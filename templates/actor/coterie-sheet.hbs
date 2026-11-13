@@ -85,9 +85,22 @@
     </div>
     <div class="r-gs-haven">
       <div class="r-gs-scale is-row"><span class="r-gs-stat-cap">{{localize "VTM20.Changeling.Freehold.Rating"}}</span>
-        <i class="r-gs-dots">{{#each motley.dots}}<b class="{{#if on}}on{{/if}}" {{#if @root.editable}}data-action="freehold"{{/if}} data-n="{{n}}"></b>{{/each}}</i>
+        <i class="r-gs-dots">{{#each motley.dots}}<b class="{{#if on}}on{{/if}}" {{#if @root.editable}}data-action="freehold"{{/if}} data-key="rating" data-n="{{n}}"></b>{{/each}}</i>
         <small>{{localize "VTM20.Changeling.Freehold.RatingHint" n=motley.rating}}</small></div>
     </div>
+    {{!-- Book of Freeholds: архетип, черты, Силы, причуда; Владений нужно — очки / 3 --}}
+    <div class="r-dossier r-gs-chantry">
+      <label class="r-df" data-tooltip="{{motley.archText}}"><span>{{localize "VTM20.Changeling.Freehold.Archetype"}}</span><select name="system.motley.archetype" {{#unless editable}}disabled{{/unless}}>{{#each motley.archetypes}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
+      <label class="r-df" data-tooltip="{{localize 'VTM20.Changeling.Freehold.TH.passages'}}"><span>{{localize "VTM20.Changeling.Freehold.T.passages"}}</span><input type="number" name="system.motley.passages" value="{{motley.passages}}" min="0" max="10" {{#unless editable}}disabled{{/unless}}></label>
+      <label class="r-df is-wide"><span>{{localize "VTM20.Changeling.Freehold.Quirk"}}</span><input type="text" name="system.motley.quirk" value="{{motley.quirk}}" {{#unless editable}}disabled{{/unless}}></label>
+    </div>
+    {{#if motley.archText}}<p class="r-hint">{{motley.archText}}</p>{{/if}}
+    <div class="r-gs-haven">
+      {{#each motley.traits}}<div class="r-gs-scale is-row"><span class="r-gs-stat-cap" data-tooltip="{{hint}}">{{label}}</span>
+        <i class="r-gs-dots">{{#each dots}}<b class="{{#if on}}on{{/if}}" {{#if @root.editable}}data-action="freehold"{{/if}} data-key="{{../key}}" data-n="{{n}}"></b>{{/each}}</i><small>{{hint}}</small></div>{{/each}}
+    </div>
+    <div class="r-checks r-cl-fh-powers">{{#each motley.powers}}<label class="r-check" data-tooltip="{{text}}"><input type="checkbox" {{#if on}}checked{{/if}} {{#if @root.editable}}data-action="freehold" data-power="{{key}}"{{else}}disabled{{/if}}> {{name}} <small>{{cost}}</small></label>{{/each}}</div>
+    <p class="r-hint">{{localize "VTM20.Changeling.Freehold.Cost" pts=motley.pts n=motley.holdings}}</p>
     <p class="r-hint">{{localize "VTM20.Changeling.Freehold.Rules"}}</p>
     {{/if}}
 

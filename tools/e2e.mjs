@@ -5770,7 +5770,7 @@ try {
         return out;
       } finally { await a.delete(); }
     });
-    const want = { open: true, groups: "kiths,houses,legacies,arts,realms,backgrounds", key: "kith:troll", title: true };
+    const want = { open: true, groups: "kiths,other,houses,legacies,arts,realms,backgrounds", key: "kith:troll", title: true };
     const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });

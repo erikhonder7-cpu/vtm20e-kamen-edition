@@ -247,3 +247,5 @@
 .vtm20.r-type-changeling .r-cl-craft-bar { height: 5px; margin: 6px 0 2px; background: rgba(235, 171, 223, .12); border: 1px solid var(--r-line-2); }
 .vtm20.r-type-changeling .r-cl-craft-bar i { display: block; height: 100%; background: linear-gradient(90deg, #a23490, #ef85da); }
 .vtm20.r-type-changeling .r-cl-craft.is-done { border-color: #e9c46a; }
+.vtm20.r-type-changeling .r-cl-fh-powers { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 6px 0; }
+.vtm20.r-type-changeling .r-cl-fh-powers small { color: var(--r-muted); }

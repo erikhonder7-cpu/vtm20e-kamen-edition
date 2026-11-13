@@ -79,6 +79,21 @@ class GroupSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   async _dropActor() {}
 }
 
+
+/**
+ * Фригольд по Book of Freeholds (гл. 2): архетип (−2 к сложности Способности, пока владелец внутри), черты — очки
+ * (Баэлфайр = рейтинг фригольда, Размер, Убежище, Ресурсы, лишние Проходы по 1), Силы по цене; Владений нужно — очки / 3 (вверх).
+ */
+function freeholdView(m) {
+  const D = Codex.changeling?.freeholds ?? { archetypes: [], powers: [] };
+  const dots = (k, max = 5) => Array.from({ length: max }, (_, i) => ({ n: i + 1, on: i < (m[k] ?? 0) }));
+  const traits = ["size", "sanctuary", "resources"].map(k => ({ key: k, label: t(`Changeling.Freehold.T.${k}`), hint: t(`Changeling.Freehold.TH.${k}`), dots: dots(k) }));
+  const powers = (D.powers ?? []).map(p => ({ ...p, on: (m.powers ?? []).includes(p.key) }));
+  const pts = (m.rating ?? 0) + (m.size ?? 0) + (m.sanctuary ?? 0) + (m.resources ?? 0) + (m.passages ?? 0) + powers.filter(p => p.on).reduce((s, p) => s + p.cost, 0);
+  const arch = (D.archetypes ?? []).find(a => a.key === m.archetype);
+  return { traits, powers, pts, holdings: Math.ceil(pts / 3), archText: arch?.text ?? "",
+    archetypes: [{ key: "", name: "—", selected: !m.archetype }, ...(D.archetypes ?? []).map(a => ({ key: a.key, name: a.name, selected: a.key === m.archetype }))] };
+}
 export class CoterieSheet extends GroupSheet {
   static DEFAULT_OPTIONS = {
     classes: ["r-coterie-sheet"],
@@ -129,6 +144,7 @@ export class CoterieSheet extends GroupSheet {
       })() : null,
       // Мотли подменышей: фригольд (C20, гл. 7) — рейтинг, владелец, «Ночь во фригольде»
       motley: s.kind === "motley" ? { ...s.motley, dots: Array.from({ length: 5 }, (_, i) => ({ n: i + 1, on: i < s.motley.rating })),
+        ...freeholdView(s.motley),
         owners: [{ id: "", name: "—", selected: !s.motley.owner }, ...members.map(m => ({ id: m.id, name: m.name, selected: m.id === s.motley.owner }))],
         sleepers: members.filter(m => m.type === "changeling").length } : null,
       // Круг призраков: общее Обиталище из общих фактов, крусибл «Орфея» (apps/circle.mjs)
@@ -159,10 +175,15 @@ export class CoterieSheet extends GroupSheet {
     return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: this.actor }),
       content: `<div class="r-notice r-type-mage"><i class="fa-solid fa-sun"></i> ${t("Group.NodeWeekMsg", { name: foundry.utils.escapeHTML(ch.name || this.actor.name), free: Math.ceil(week / 2), tass: Math.floor(week / 2) })}</div>` });
   }
-  /** Рейтинг фригольда точкой (повторный щелчок по последней — на точку меньше). */
+  /** Рейтинг фригольда (Баэлфайр) и черты Book of Freeholds точкой (повторный щелчок по последней — на точку меньше); Силы — галочкой. */
   static #onFreehold(event, target) {
-    const n = Number(target.dataset.n), r = this.actor.system.motley.rating;
-    return this.actor.update({ "system.motley.rating": r === n ? n - 1 : n });
+    const k = target.dataset.key || "rating", m = this.actor.system.motley;
+    if (target.dataset.power) {
+      const p = target.dataset.power, list = m.powers.includes(p) ? m.powers.filter(x => x !== p) : [...m.powers, p];
+      return this.actor.update({ "system.motley.powers": list });
+    }
+    const n = Number(target.dataset.n), r = m[k];
+    return this.actor.update({ [`system.motley.${k}`]: r === n ? n - 1 : n });
   }
   /** «Ночь во фригольде» (Святилище, C20, гл. 6): спящие подменыши делят рейтинг фригольда поровну, каждый — не меньше 1. */
   static async #onSanctuary() {

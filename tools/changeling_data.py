@@ -402,6 +402,132 @@ def parse_other_kiths():
     return res
 
 
+# ── Дополнения C20: Players Guide (киты, Знамённые дома, Реды), Kithbook: Boggans (черты), Book of Freeholds (фригольды) ──
+PG = os.path.join(REF, "C20_Players_Guide")
+BOGG = os.path.join(REF, "C20_Kithbook_Boggans")
+BOF = os.path.join(REF, "C20_Book_of_Freeholds")
+
+
+def book(folder, prefix):
+    fn = next(f for f in sorted(os.listdir(folder)) if f.startswith(prefix))
+    return read(os.path.join(folder, fn))
+
+
+def parse_pg_kiths():
+    """Новые киты Players Guide (Африка, Беллатьерра, Духи Австралии, Джинны) — разделы «### Имя (English)»."""
+    out = []
+    for prefix, region in (("03", "Африка"), ("04", "Беллатьерра"), ("05", "")):
+        text = book(PG, prefix)
+        for start in ("## Новые киты", "## Киты Духов", "## Киты Джиннов"):
+            i = text.find(start)
+            if i < 0:
+                continue
+            part = text[i:].split("\n", 1)[1]
+            nxt = re.search(r"^## ", part, re.M)
+            part = part[:nxt.start()] if nxt else part
+            for title, body in sections(part, 3):
+                name, en = ru_en(title.split(" — ")[0])
+                en = en.split(",")[0].strip()
+                if not en:
+                    continue
+                reg = region or ("Австралия" if "Духов" in start else "Плодородный полумесяц")
+                out.append({"key": f"pg-{_slug(en)}", "group": "pg", "name": name, "en": en, "region": reg, "affinity": _affinity("\n".join(body)),
+                            "html": f"<p><em>{reg}</em></p>" + html([l for l in body if l.strip()])})
+    return out
+
+
+def parse_banner_houses():
+    """Знамённые дома (Players Guide, гл. 1): «**Дом X (House X)** — текст», «- **Отличие:**», «- **Изъян:**»."""
+    text = book(PG, "01")
+    part = text[text.find("### Знамённые дома-примеры"):]
+    out, cur = [], None
+    for line in part.splitlines()[1:]:
+        if line.startswith("#"):
+            break
+        m = re.match(r"^\*\*([^*(]+?)\s*\(([^)]+)\)\*\*\s*—\s*(.*)$", line)
+        if m:
+            cur = {"key": "banner-" + _slug(m.group(2)), "en": m.group(2), "name": m.group(1).strip(), "court": "", "courtText": "Знамённый дом",
+                   "nick": "", "short": plain(m.group(3)), "boon": "", "flaw": "", "societies": "", "banner": True}
+            out.append(cur)
+            continue
+        if cur:
+            mb = re.match(r"^- \*\*Отличие:\*\*\s*(.*)$", line)
+            mf = re.match(r"^- \*\*Изъян:\*\*\s*(.*)$", line)
+            if mb:
+                cur["boon"] = plain(mb.group(1))
+            if mf:
+                cur["flaw"] = plain(mf.group(1))
+    for h in out:
+        h["html"] = f"<p>{h['short']}</p><p><strong>Отличие:</strong> {h['boon']}</p><p><strong>Изъян:</strong> {h['flaw']}</p>"
+    return out
+
+
+def parse_pg_redes():
+    """Новые Реды химер и ликийцев (Players Guide, гл. 7): «- **Имя (English)** (цена; затрата): эффект»."""
+    text = book(PG, "07")
+    out = []
+    for start in ("## Новые Реды химер", "## Новые Реды ликийцев"):
+        i = text.find(start)
+        if i < 0:
+            continue
+        part = text[i:].split("\n", 1)[1]
+        nxt = re.search(r"^## ", part, re.M)
+        part = part[:nxt.start()] if nxt else part
+        for line in part.splitlines():
+            m = re.match(r"^- \*\*([^*(]+?)\s*\(([^)]+)\)\*\*\s*(?:\(([^)]*)\))?[:\s]*(.*)$", line)
+            if not m:
+                continue
+            cost_txt = m.group(3) or ""
+            num = re.search(r"\d+", cost_txt or m.group(4))
+            out.append({"key": "pg" + re.sub(r"[^a-z]", "", m.group(2).lower()), "name": m.group(1).strip(), "en": m.group(2).strip(),
+                        "cost": int(num.group(0)) if num else 0, "costText": plain(cost_txt), "variable": bool(re.search(r"/|—|за ", cost_txt)),
+                        "text": plain(m.group(4)), "source": "C20 Players Guide"})
+    return out
+
+
+BOGG_CAT = {"физическ": "physical", "социальн": "social", "ментальн": "mental", "сверхъест": "supernatural"}
+
+
+def parse_boggan_merits():
+    """Достоинства и Недостатки из Kithbook: Boggans — таблица «Название (English), вид | Цена | Эффект»."""
+    text = book(BOGG, "03")
+    out = []
+    for line in text.splitlines():
+        cells = [c.strip() for c in line.strip().strip("|").split("|")] if line.startswith("|") else []
+        if len(cells) < 3 or cells[0] in ("Название",) or set(cells[0]) <= set("-"):
+            continue
+        m = re.match(r"^(.+?)\s*\(([^)]+)\)\s*(?:\([^)]*\))?\s*,\s*(.+)$", cells[0])
+        if not m:
+            continue
+        kind = "flaw" if "недостат" in m.group(3) else "merit"
+        cat = next((v for k, v in BOGG_CAT.items() if k in m.group(3)), "supernatural")
+        nums = [int(x) for x in re.findall(r"\d+", cells[1])]
+        if not nums:
+            continue
+        label = cells[1].replace(" / ", "/")
+        out.append({"kind": kind, "category": cat, "name": m.group(1).strip(), "en": m.group(2).split("?")[0].strip(), "cost": label,
+                    "min": min(nums), "max": max(nums), "clan": "", "sect": "", "era": "", "source": "C20 Kithbook: Boggans",
+                    "html": f'<h4 class="r-sec">Описание</h4>\n<p>{cap(plain(cells[2]))}</p>\n<h4 class="r-sec">Система</h4>\n<p>{"Достоинство" if kind == "merit" else "Недостаток"} подменыша (Kithbook: Boggans), {CAT_RU[cat]} черта; цена {label}.</p>'})
+    return out
+
+
+def parse_freeholds():
+    """Book of Freeholds, гл. 2: архетипы (−2 к сложности Способности), черты по очкам, Силы с ценой."""
+    text = book(BOF, "02")
+    arch, powers = [], []
+    part = text[text.find("## Архетипы"):].split("\n## ", 1)[0]
+    for line in part.splitlines():
+        m = re.match(r"^- \*\*([^*(]+?)\s*\(([^)]+)\)\*\*\s*—\s*(.*)$", line)
+        if m:
+            arch.append({"key": _slug(m.group(2)), "name": m.group(1).strip(), "en": m.group(2).strip(), "text": plain(m.group(3))})
+    part = text[text.find("## Силы"):].split("\n## ", 1)[0]
+    for line in part.splitlines():
+        m = re.match(r"^- \*\*([^*(]+?)\s*\(([^)]+)\)\s*(?:\([^)]*\))?\s*(•*)[^*]*\*\*\s*—\s*(.*)$", line)
+        if m:
+            powers.append({"key": _slug(m.group(2)), "name": m.group(1).strip(), "en": m.group(2).strip(), "cost": len(m.group(3)) or 2, "text": plain(m.group(4))})
+    return {"archetypes": arch, "powers": powers}
+
+
 def parse_books():
     out = []
     for folder, label in BOOKS:
@@ -426,8 +552,8 @@ def build():
         if k["key"] == "autumnSidhe" and not k["birthrights"]:
             k["birthrights"] = sidhe["birthrights"]
     data = {"source": "Changeling: The Dreaming 20th Anniversary Edition — справочник проекта (пересказ механики)",
-            "seemings": parse_seemings(), "kiths": kiths, "houses": parse_houses(), "legacies": parse_legacies(),
-            "arts": arts, "realms": realms, "backgrounds": parse_backgrounds(), "merits": parse_merits(), "oaths": parse_oaths(), "redes": parse_redes(), "chimera": CHIMERA, "otherKiths": parse_other_kiths(),
+            "seemings": parse_seemings(), "kiths": kiths, "houses": parse_houses() + parse_banner_houses(), "legacies": parse_legacies(),
+            "arts": arts, "realms": realms, "backgrounds": parse_backgrounds(), "merits": parse_merits() + parse_boggan_merits(), "oaths": parse_oaths(), "redes": parse_redes() + parse_pg_redes(), "chimera": CHIMERA, "otherKiths": parse_other_kiths() + parse_pg_kiths(), "freeholds": parse_freeholds(),
             "creation": CREATION, "freebies": FREEBIES, "xp": XP, "cantrip": CANTRIP, "banality": BANALITY, "bedlam": BEDLAM}
     with open(OUT, "w", encoding="utf-8", newline="\n") as f:
         json.dump(data, f, ensure_ascii=False, indent=1)

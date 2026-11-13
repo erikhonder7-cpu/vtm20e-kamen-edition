@@ -9143,6 +9143,21 @@
         "Destroyed": "<b>{name}</b> destroys the Treasure “{t}”: +{n} Glamour. This is a Banality trigger."
       },
       "Freehold": {
+        "Archetype": "Archetype",
+        "Quirk": "Quirk",
+        "T": {
+          "size": "Size",
+          "sanctuary": "Sanctuary",
+          "resources": "Resources",
+          "passages": "Extra Passages"
+        },
+        "TH": {
+          "size": "0 — a faerie ring; 1 — an apartment; 2 — a house; 3 — a mansion; 4 — a manor, a fortress; 5 — a countryside or a city.",
+          "sanctuary": "Defense dice for freeholders inside; the same number of dice is subtracted from Reaving and attempts to break in.",
+          "resources": "Money, chimerical plants, stone, creatures — what the freehold yields.",
+          "passages": "One rath or trod is free; each extra one — 1 trait point."
+        },
+        "Cost": "Book of Freeholds: traits and Powers cost {pts} pts — Holdings needed {n} (3 points per dot; shared by the freeholders).",
         "Title": "Freehold",
         "Name": "Name",
         "Owner": "Owner",

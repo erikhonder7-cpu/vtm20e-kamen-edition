@@ -964,7 +964,10 @@ export class CoterieData extends foundry.abstract.TypeDataModel {
       // Круг призраков (apps/circle.mjs): крусибл «Орфея» скреплён ритуалом (Воля с каждого)
       circle: new SchemaField({ crucible: new BooleanField({ initial: false }) }),
       // Мотли подменышей (C20, гл. 7): фригольд — имя, рейтинг 1–5, владелец (id участника), баэлфайр
-      motley: new SchemaField({ freehold: str(), rating: int(0, 0, 5), owner: str(), balefire: str() }),
+      motley: new SchemaField({ freehold: str(), rating: int(0, 0, 5), owner: str(), balefire: str(),
+        // Book of Freeholds (гл. 2): архетип, черты по очкам (Размер, Убежище, Ресурсы, лишние Проходы; Баэлфайр — rating), Силы, причуда
+        archetype: str(), size: int(0, 0, 5), sanctuary: int(0, 0, 5), resources: int(0, 0, 5), passages: int(0, 0, 10),
+        powers: new ArrayField(str()), quirk: str() }),
       // Чантри кабала (M20, Факты «Чантри» и «Узел»): очки общего пула задают размах; Узел даёт Квинтэссенцию в неделю —
       // половину свободной, половину Тассом (rate — очков за точку Узла, по умолчанию 2: «индустриальная эпоха»)
       chantry: new SchemaField({ name: str(), sign: str(), points: int(0, 0, 999), node: int(0, 0, 10), rate: int(2, 1, 10),

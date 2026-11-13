@@ -339,9 +339,10 @@ export function dropCraft(actor, i) {
 export async function reave(actor, group) {
   const m = group?.system?.motley, rating = m?.rating ?? 0;
   if (!actor?.isOwner || !m) return null;
-  const { rollPool } = await import("../dice/roll.mjs"), b = actor.system.changeling.banality.permanent;
-  const roll = await rollPool({ actor, title: t("Reave.Title"), subtitle: t("Reave.Sub", { name: m.freehold || group.name }), pool: b, difficulty: 7, kind: "check",
-    breakdown: [{ label: t("Banality"), value: b }], extra: { changeling: { kind: "reave" } } });
+  const { rollPool } = await import("../dice/roll.mjs"), b = actor.system.changeling.banality.permanent, sanct = m.sanctuary ?? 0;
+  // Убежище фригольда (Book of Freeholds) вычитает кубики из Расхищения
+  const roll = await rollPool({ actor, title: t("Reave.Title"), subtitle: t("Reave.Sub", { name: m.freehold || group.name }), pool: Math.max(0, b - sanct), difficulty: 7, kind: "check",
+    breakdown: [{ label: t("Banality"), value: b }, ...(sanct ? [{ label: t("Freehold.T.sanctuary"), value: -sanct }] : [])], extra: { changeling: { kind: "reave" } } });
   if (!roll) return null;
   const n = roll.successes, lost = Math.floor(Math.max(0, n - rating) / 2);
   const got = n ? await gainGlamour(actor, n) : 0;
