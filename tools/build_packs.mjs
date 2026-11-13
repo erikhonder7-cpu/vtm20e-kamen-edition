@@ -849,6 +849,10 @@ BUILDERS["changeling-kiths"] = function () {
       ...(k.frailty ? [{ name: `Слабость: ${k.frailty.name}`, html: k.frailty.html }] : [])] });
   for (const h of C.houses ?? []) p.addBook({ name: `${h.name} (${h.en})`, folder: "Благородные Дома", key: `changeling-house:${h.key}`,
     pages: [{ name: h.name, html: h.html || `<p>${esc(h.short)}</p><p><strong>Двор:</strong> ${esc(h.courtText)}</p><p><strong>Дар:</strong> ${esc(h.boon)}</p><p><strong>Изъян:</strong> ${esc(h.flaw)}</p>` }] });
+  // иные фэ (C20, гл. 9; Players Guide): таллейны, Нуннехи, Менехуне, Шинма, инанимае, новые киты Players Guide
+  const OF = { thallain: "Таллейны", nunnehi: "Нуннехи", menehune: "Менехуне", hsien: "Хсиен (Шинма)", inanimae: "Инанимае", other: "Прочие киты", pg: "Киты Players Guide" };
+  for (const k of C.otherKiths ?? []) p.addBook({ name: `${k.name} (${k.en})`, folder: ["Иные фэ", OF[k.group] ?? k.group], key: `changeling-ofae:${k.key}`,
+    pages: [{ name: k.name, html: k.html }] });
   for (const l of C.legacies ?? []) p.addBook({ name: `${l.name} (${l.en})`, folder: l.court === "seelie" ? "Благие Наследия" : "Неблагие Наследия", key: `changeling-legacy:${l.key}`,
     pages: [{ name: l.name, html: `<p>${esc(l.text)}</p>${l.quest ? `<p><strong>Квест:</strong> ${esc(l.quest)}</p>` : ""}${l.ban ? `<p><strong>Запрет:</strong> ${esc(l.ban)}</p>` : ""}` }] });
   return p;

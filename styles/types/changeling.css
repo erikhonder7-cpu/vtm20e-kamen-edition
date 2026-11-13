@@ -8,7 +8,7 @@
 .vtm20.r-type-changeling {
   --r-ink: #f4d2ed;
   --r-ink-2: #e58ed5;
-  --r-muted: #cf35b3;
+  --r-muted: #d9a3cf;   /* приглушённый текст — светлая орхидея: насыщенный пурпур сливался со сливовым фоном */
   --r-line: rgba(235, 171, 223, .1);
   --r-line-2: rgba(235, 171, 223, .2);
   --r-accent: #eeb7e4;
@@ -89,7 +89,7 @@
 .vtm20.r-type-changeling button.is-primary, .vtm20.r-type-changeling .r-btn.is-primary { color: #130811; background: linear-gradient(180deg, #fceff9, #d44cbb); border-color: var(--cl-amber-l); }
 .vtm20.r-type-changeling button.is-primary:hover, .vtm20.r-type-changeling .r-btn.is-primary:hover { color: #000; background: linear-gradient(180deg, #efbae5, #d13db5); box-shadow: 0 0 12px rgba(236, 240, 244, .35); }
 .r-roll-card.r-type-changeling {
-  --r-accent: #f0bee7; --r-red-t: #f0bee7; --r-muted: #d44cbb; --r-line: rgba(235, 171, 223, .12); --r-line-2: rgba(235, 171, 223, .22);
+  --r-accent: #f0bee7; --r-red-t: #f0bee7; --r-muted: #dcaad3; --r-line: rgba(235, 171, 223, .12); --r-line-2: rgba(235, 171, 223, .22);
   background: radial-gradient(ellipse 90% 60% at 50% 0%, rgba(147, 53, 130, .12), transparent 70%),
     radial-gradient(ellipse 90% 50% at 50% 110%, rgba(100, 36, 88, .12), transparent 70%),
     linear-gradient(180deg, #1d0d1a, #0f070e);
