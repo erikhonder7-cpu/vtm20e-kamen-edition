@@ -1,4 +1,5 @@
-// tools/e2e-shots.mjs — снимки-сравнения окон: листы всех линеек, вкладки подменыша, лист мотли, мастер создания, HUD.
+// tools/e2e-shots.mjs — снимки-сравнения окон: листы всех линеек и варианты подменыша (ликиец, Хсиен, инанимае, Тёмные века),
+// вкладки подменыша, лист мотли, мастер создания, HUD, атласы линеек, библиотека, окно броска, карта города и стратегия.
 // Каждый снимок сравнивается с эталоном (tools/.cache/shots/base/<имя>.png): доля заметно изменившихся точек больше порога — провал,
 // рядом кладётся <имя>.diff.png (отличия подсвечены) и <имя>.new.png. Анимации, мигание курсора и часы на снимках отключены.
 //
@@ -41,7 +42,22 @@ const SUBJECTS = {
   "motley": { type: "coterie", system: { kind: "motley", motley: { freehold: "Мельница", rating: 3, archetype: "workshop", size: 2, sanctuary: 1 } }, group: true },
   "creator-ghoul": { type: "ghoul", creator: true },
   "creator-changeling": { type: "changeling", creator: true },
-  "hud-changeling": { type: "changeling", system: { changeling: { kith: "pooka", glamour: { permanent: 5, temporary: 4 }, nightmare: 2, arts: { chicanery: 2 } } }, hud: true }
+  "hud-changeling": { type: "changeling", system: { changeling: { kith: "pooka", glamour: { permanent: 5, temporary: 4 }, nightmare: 2, arts: { chicanery: 2 } } }, hud: true },
+  // варианты подменыша: шапка и вкладка «Искусства»
+  "changeling-lykeian": SHEET("changeling", { changeling: { variant: "lykeian", lykeian: { guise: "oppidan", shape: "mythic", thesis: "Укрытие от бури",
+    redes: [{ key: "pgtwoplacesatonce", pts: 2 }] } } }, "disciplines"),
+  "changeling-hsien": SHEET("changeling", { changeling: { variant: "hsien", kith: "hsien-nyan", hsien: { yin: 2, yang: 4, yugen: 5, court: "liShen", schools: { houtan: 3, neitan: 2 } } } }, "disciplines"),
+  "changeling-inanimae": SHEET("changeling", { changeling: { variant: "inanimae", kith: "inanimae-solimonds", inanimae: { court: "krofted", anchor: "Печь", slivers: { pyros: 3 } } } }, "disciplines"),
+  "changeling-daf": SHEET("changeling", { changeling: { variant: "daf", daf: { origin: "firstborn", court: "summer", mists: { permanent: 4, temporary: 3 },
+    weaving: { permanent: 2, temporary: 2 }, dominions: { day: 3, night: 1 }, cantrips: ["day:candorslight", "night:owleyes"] } } }, "disciplines"),
+  // окна без листа: атласы, библиотека, окно броска, карта города и стратегия
+  "atlas-changeling": { app: "atlas", line: "changeling" },
+  "atlas-mage": { app: "atlas", line: "mage" },
+  "atlas-wraith": { app: "atlas", line: "wraith" },
+  "library-disciplines": { app: "library", kind: "discipline" },
+  "roll-dialog": { app: "roll", type: "vampire", system: { attributes: { dexterity: { value: 3 } }, abilities: { brawl: { value: 2 } } } },
+  "city-map": { app: "city", wait: 6000 },
+  "strategy": { app: "strategy", wait: 6000 }
 };
 const names = Object.keys(SUBJECTS).filter(n => !ONLY.length || ONLY.includes(n));
 
@@ -61,6 +77,21 @@ for (const name of names) {
     const sid = game.system.id, wait = ms => new Promise(r => setTimeout(r, ms));
     for (const x of game.actors.filter(a => a.name.startsWith("SHOT —"))) await x.delete();
     for (const w of [...foundry.applications.instances.values()]) if (w.rendered && w.id !== "r-hud" && w.options?.classes?.includes?.("vtm20")) { try { await w.close(); } catch {} }
+    try { const C = await import(`/systems/${sid}/module/ui/citymap.mjs`); if (document.querySelector(".vtm20.r-city.open")) { C.closeCity(); await wait(900); } } catch {}
+    // окна без листа персонажа
+    if (S.app === "atlas") {
+      const { openAtlas } = await import(`/systems/${sid}/module/apps/atlas.mjs`); const w = await openAtlas(S.line); await wait(1200);
+      w.setPosition({ left: 10, top: 10, width: 1000, height: 760 }); await wait(400); return `#${w.id}`;
+    }
+    if (S.app === "library") {
+      const { openLibrary } = await import(`/systems/${sid}/module/apps/library.mjs`); const w = openLibrary({ kind: S.kind }); await wait(1500);
+      w.setPosition({ left: 10, top: 10, width: 1000, height: 760 }); await wait(400); return `#${w.id}`;
+    }
+    if (S.app === "city" || S.app === "strategy") {
+      const M = await import(`/systems/${sid}/module/ui/${S.app === "city" ? "citymap" : "strategy"}.mjs`);
+      await (S.app === "city" ? M.openCity() : M.openStrategy()); await wait(S.wait ?? 4000);
+      return ".vtm20.r-city";
+    }
     const a = await Actor.create({ name: `SHOT — ${name}`, type: S.type, img: `systems/${sid}/assets/icons/${S.type === "coterie" ? "changeling" : S.type}.svg`,
       flags: { [sid]: { created: !S.creator } }, system: S.system ?? {} });
     if (S.creator) {
@@ -68,6 +99,11 @@ for (const name of names) {
       const cr = [...foundry.applications.instances.values()].find(x => x.constructor.name === "VtMCreator" && x.actor === a);
       cr.setPosition({ left: 10, top: 10, width: 1260, height: 900 }); await wait(400);
       return `#${cr.id}`;
+    }
+    if (S.app === "roll") {
+      const { RollDialog } = await import(`/systems/${sid}/module/dice/dialog.mjs`);
+      const w = await RollDialog.prompt(a, { title: "SHOT", trait1: "attributes.dexterity", trait2: "abilities.brawl", difficulty: 6 }); await wait(800);
+      return `#${w.id}`;
     }
     if (S.hud) {
       const H = await import(`/systems/${sid}/module/ui/hud.mjs`);
@@ -115,6 +151,8 @@ for (const name of names) {
   console.log(`${bad ? "✗" : "✓"} ${name}: отличий ${res.pct.toFixed(2)}%${res.size ? "" : " (другой размер)"}${bad ? ` — смотрите tools/.cache/shots/${name}.diff.png` : ""}`);
 }
 await page.evaluate(async () => {
+  try { const C = await import(`/systems/${game.system.id}/module/ui/citymap.mjs`); C.closeCity(); } catch {}
+  for (const w of [...foundry.applications.instances.values()]) if (w.rendered && w.id !== "r-hud" && w.options?.classes?.includes?.("vtm20")) { try { await w.close(); } catch {} }
   for (const x of game.actors.filter(a => a.name.startsWith("SHOT —"))) await x.delete();
   await game.user.update({ character: null });
 });

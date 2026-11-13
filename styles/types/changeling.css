@@ -353,8 +353,8 @@ body.r-theme-light .vtm20.r-type-changeling.r-cl-dark { --r-ink: #10162e; --r-in
 .vtm20.r-type-changeling.r-cl-dark .r-dot.is-filled { border-color: #b9c9f5; box-shadow: 0 0 4px rgba(111, 143, 232, .35); }
 .vtm20.r-type-changeling.r-cl-dark .r-dots.is-glamour { --r-dot-fill: radial-gradient(circle at 38% 32%, #f4f7ff, #6f8fe8 55%, #10183a); --r-dot-border: rgba(185, 201, 245, .4); }
 .vtm20.r-type-changeling.r-cl-dark .r-cl-chip.is-wyrd { color: #dfe6f7; border-color: rgba(185, 201, 245, .5); }
-/* панель Грёзы (и Мглы / Плетения, Чи и Югэна): точки и клетки — на всю ширину колонки, как Воля в шапке */
-.vtm20.r-type-changeling .r-cl-dream .r-cl-temper > .r-dots { display: flex; justify-content: space-between; width: 100%; margin: 4px 0 2px; }
-.vtm20.r-type-changeling .r-cl-dream .r-cl-temper > .r-dots .r-dot { width: 16px; height: 16px; margin: 0; }
-.vtm20.r-type-changeling .r-cl-dream .r-cl-temper > .r-boxes { display: flex; flex-wrap: nowrap; justify-content: space-between; gap: 3px; width: 100%; margin-top: 6px; }
-.vtm20.r-type-changeling .r-cl-dream .r-cl-temper > .r-boxes .r-box { width: 16px; height: 16px; flex: 0 0 auto; margin: 0; border-radius: 3px; }
+/* панель Грёзы (и Мглы / Плетения, Чи и Югэна): точки и клетки как у Воли в шапке — 17 px, тот же шаг, по центру колонки */
+.vtm20.r-type-changeling .r-cl-dream .r-cl-temper > .r-dots { display: flex; justify-content: center; gap: 6px; width: 100%; margin: 4px 0 2px; }
+.vtm20.r-type-changeling .r-cl-dream .r-cl-temper > .r-dots .r-dot { width: 17px; height: 17px; margin: 0; }
+.vtm20.r-type-changeling .r-cl-dream .r-cl-temper > .r-boxes { display: flex; flex-wrap: nowrap; justify-content: center; gap: 4px; width: 100%; margin-top: 8px; }
+.vtm20.r-type-changeling .r-cl-dream .r-cl-temper > .r-boxes .r-box { width: 17px; height: 17px; flex: 0 0 auto; margin: 0; border-radius: 3px; }
