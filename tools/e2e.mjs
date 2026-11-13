@@ -5800,6 +5800,37 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  // Мастер гуля (V20, гл. 7; Accursed Heirs): вид выбирается в мастере — вассал (Добродетели 7), дампир (шаг Кровных прав, 18 свободных),
+  // ревенант (семья обязательна, Добродетели 5, семейные Дисциплины — 15 опыта за точку, вторая точка — только семейная); запись вида и семьи
+  await check("Мастер гуля: вассал, дампир или ревенант с семьёй", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {};
+      const a = await Actor.create({ name: "E2E — гуль-ревенант", type: "ghoul", flags: { world: { e2e: true } } });
+      const { openCreator } = await import(`/systems/${sid}/module/apps/creator.mjs`);
+      try {
+        await openCreator(a); await wait(1200);
+        const cr = [...foundry.applications.instances.values()].find(x => x.constructor.name === "VtMCreator" && x.actor === a);
+        out.vassal = [cr.rules.virt, cr.steps.includes("bloodrights")];
+        cr.element.querySelector('[data-action="ghoulType"][data-key="dhampir"]')?.click(); await wait(400);
+        out.dhampir = [cr.steps.includes("bloodrights"), cr.rules.free];
+        cr.element.querySelector('[data-action="ghoulType"][data-key="revenant"]')?.click(); await wait(400);
+        out.noFamily = cr.stepOk("concept", cr.remaining());
+        const sel = cr.element.querySelector('select[data-field="family"]'); sel.value = "grimaldi"; sel.dispatchEvent(new Event("change")); await wait(400);
+        out.revenant = [cr.rules.virt, cr.xpCostOf("disc", "dominate", 1, 1), cr.xpCostOf("disc", "auspex", 1, 1), !cr.element.querySelector('[data-field="domitor"]')];
+        cr.st.disc = { auspex: 1 }; out.foreign = cr.problems(cr.remaining()).some(x => /семейн|family/i.test(x));
+        cr.st.disc = { dominate: 1 };
+        cr.st.attr = { strength: 3, dexterity: 3, stamina: 3, charisma: 2, manipulation: 2, appearance: 3, perception: 2, intelligence: 2, wits: 2 };
+        await cr.write(); await wait(1000);
+        out.written = [a.system.ghoulType, a.system.family];
+        for (const x of [...foundry.applications.instances.values()]) if (x.constructor.name === "VtMCreator" && x.actor === a) await x.close();
+      } finally { await a.delete(); }
+      return out;
+    });
+    const want = { vassal: [7, false], dhampir: [true, 18], noFamily: false, revenant: [5, 15, 25, true], foreign: true, written: ["revenant", "grimaldi"] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   await check("Призрак: лист и Арканои, Пафос, Страсть, Корпус до колебания и Испытание, Катарсис", async () => {
     const r = await page.evaluate(async () => {
       const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), WR = await import(`/systems/${sid}/module/apps/wraith.mjs`);

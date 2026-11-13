@@ -60,6 +60,16 @@ function onGarouPick(event, target) {
   this.render();
 }
 /** Шаг мага: вкладка группы, фракция, Сущность, родовая Сфера. */
+/** Вид гуля (вассал, независимый, ревенант, дампир) — от него зависят Добродетели, Дисциплины и шаги мастера. */
+function onGhoulType(event, target) {
+  this.st.ghoulType = target.dataset.key;
+  if (this.st.ghoulType !== "revenant") this.st.family = "";
+  if (this.st.ghoulType !== "dhampir") this.st.dhSwap = false;
+  // Дисциплины, распределённые под прежний вид, не всегда разрешены новым — начать их заново
+  this.st.disc = {}; this.st.free.disc = {}; this.st.xp.disc = {};
+  if (this.step >= this.steps.length) this.step = this.steps.length - 1;
+  this.render();
+}
 function onMagePick(event, target) {
   const { what, key } = target.dataset, g = this.st.mg;
   g[what] = what === "sub" && g.sub === key ? "" : key;        // течение — по желанию: повторный щелчок снимает
@@ -324,7 +334,7 @@ export const ACTIONS = {
       goto: onGoto, next: onNext, prev: onPrev,
       tier: onTier, sect: onSect, clan: onClan, clanGroup: onClanGroup,
       creed: onCreed, edgeToggle: onEdgeToggle, brSet: onBrSet, dhSwap: onDhSwap,
-      magePick: onMagePick, garouPick: onGarouPick, garouGift: onGarouGift, garouExtra: onGarouExtra,
+      ghoulType: onGhoulType, magePick: onMagePick, garouPick: onGarouPick, garouGift: onGarouGift, garouExtra: onGarouExtra,
       house: onHouse, earthbound: onEarthbound, thrall: onThrall, mark: onMark, markPower: onMarkPower, pactShare: onPactShare, pactGift: onPactGift, reliquary: onReliquary, visage: onVisage, faction: onFaction, houseAtlas: onHouseAtlas,
       gen: onGen, choice: onChoice, clanAtlas: onClanAtlas,
       dot: onDot, prio: onPrio,

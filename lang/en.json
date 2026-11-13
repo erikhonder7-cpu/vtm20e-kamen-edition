@@ -3573,6 +3573,18 @@
       "ugly": "Appearance 0 — clan weakness"
     },
     "Creator": {
+      "GhoulTypeTitle": "Kind of ghoul",
+      "Family": "Revenant family",
+      "FamilyDiscs": "Family Disciplines",
+      "FamilyFlaw": "Family flaw",
+      "NeedFamily": "A revenant needs a family.",
+      "FamilyOnly": "Revenant: the second Discipline dot must be a family one; “{name}” is not.",
+      "GhoulTypeHint": {
+        "vassal": "Serves a domitor and drinks their vitae: Disciplines from the master's clan. Virtues 7.",
+        "independent": "A ghoul without a master who finds vitae alone. “In-clan” — Potence, Fortitude, Celerity.",
+        "revenant": "A hereditary ghoul family that makes its own vitae: family Disciplines, family flaw, Virtues 5.",
+        "dhampir": "A child of cursed blood (Accursed Heirs): own blood, Bloodrights, 18 freebies."
+      },
       "ChangelingHint": "Kith — your fae nature (Realm affinity, Birthrights, Frailty); seeming — your mortal guise's age and a Temper bonus; court and two Legacies (Seelie and Unseelie, your court's is primary); House — optional. Threshold — what inspires your muse, Antithesis — your personal Banality trigger.",
       "ConceptHintChangeling": "Name, concept, Nature and Demeanor. A changeling is a fae spirit in a mortal body: think about who the mortal guise was before the Chrysalis and what in them answered the Dreaming.",
       "DiscHintChangeling": "3 dots of Arts and 5 dots of Realms (ch. 3). A cantrip is an Art plus the target's Realm: Actor — people, Fae — fae and chimera, Nature — the living, Prop — things; Scene and Time are modifiers.",

@@ -6,6 +6,7 @@ import { VTM20, SYSTEM_ID } from "../../config.mjs";
 import { Codex } from "../../data/codex.mjs";
 import { CHANGELING_HINTS, WRAITH_HINTS, MAGE_HINTS, RENOWN, THRALL_BANNED, TIERS, SECTS, STEP_HINTS, GHOUL_HINTS, DEMON_HINTS, EB_HINTS, THRALL_HINTS, HUNTER_HINTS, GAROU_HINTS, HUNTER_SLOTS, LOST_SLOTS, preview } from "./rules.mjs";
 import { W as werewolfData } from "../werewolf.mjs";
+import { REVENANT_FAMILIES } from "../../data/revenants.mjs";
 import { M as mageData, mageGlyphSrc } from "../mage.mjs";
 import { H as hunterData, growth as hunterGrowth } from "../hunter.mjs";
 import { W as wraithData, wraithGlyphSrc } from "../wraith.mjs";
@@ -72,6 +73,8 @@ export class ContextCreator {
     if (this.isMage) this.magePatent(ctx);
     if (this.isWraith) this.wraithPatent(ctx);
     if (this.isChangeling) this.clPatent(ctx);
+    // гуль: вид (и семья ревенанта) — подписью в патенте
+    if (this.type === "ghoul" && !this.isDhampir) Object.assign(ctx.patent, { clan: [loc(`VTM20.GhoulType.${st.ghoulType}`), this.revenantFamily?.name].filter(Boolean).join(" · ") });
     if (this.isWerewolf) this.garouPatent(ctx);
     const by = hunterData().bystander;
     if (this.isHunter) Object.assign(ctx.patent, { clan: this.isLost ? `${by?.name} · ${by?.who}` : this.creedData ? `${this.creedData.name} · ${this.creedData.who}` : "", sectSym: null });
@@ -84,6 +87,16 @@ export class ContextCreator {
     const EB_NO = ["Бонвиван", "Опекун", "Ребёнок", "Конформист", "Щёголь", "Мученик", "Кающийся грешник", "Искатель удовольствий"];
     const RELIC_ICON = { ideal: "fa-gem", improvised: "fa-box-open", natural: "fa-mountain-sun" };
     ctx.reliquaryKinds = ["ideal", "improvised", "natural"].map(k => ({ value: k, label: t(`Demon.ReliquaryKind.${k}`), hint: t(`Demon.ReliquaryHint.${k}`).replace(/^[^:]+:\s*/, ""), icon: RELIC_ICON[k], active: (st.reliquary || "ideal") === k }));
+    // вид гуля: плитки на шаге концепции; у ревенанта — семья (Дисциплины, изъян рода)
+    if (this.type === "ghoul") {
+      const GT = { vassal: "fa-hand-holding-droplet", independent: "fa-user-ninja", revenant: "fa-people-roof", dhampir: "fa-user-injured" };
+      ctx.ghoulTypes = Object.entries(GT).map(([k, icon]) => ({ key: k, icon, label: loc(`VTM20.GhoulType.${k}`), hint: t(`Creator.GhoulTypeHint.${k}`), active: st.ghoulType === k }));
+      ctx.families = Object.entries(REVENANT_FAMILIES).map(([k, f]) => ({ key: k, name: f.name, selected: k === st.family,
+        tip: `${f.nick}; ${f.disciplines.map(d => Codex.disciplineLabel(d)).join(", ")}` }));
+      const f = this.revenantFamily;
+      ctx.family = f ? { ...f, discs: f.disciplines.map(d => Codex.disciplineLabel(d)).join(", ") } : null;
+      ctx.isRevenant = this.isRevenant;
+    }
     ctx.archetypes = this.isEarthbound ? Codex.archetypes.filter(a => !EB_NO.includes(a.name)) : Codex.archetypes;
     ctx.natureRegain = Codex.archetypes.find(a => a.name === st.nature)?.regain ?? "";
     ctx.demeanorRegain = Codex.archetypes.find(a => a.name === st.demeanor)?.regain ?? "";

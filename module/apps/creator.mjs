@@ -52,14 +52,14 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     const s = actor.system;
     this.type = actor.type in RULES ? actor.type : "mortal";
     this.baseRules = RULES[this.type];
-    // ревенант: 5 точек Добродетелей вместо 7 (Ghouls & Revenants)
-    if (this.type === "ghoul" && actor.system.ghoulType === "revenant") this.baseRules = { ...this.baseRules, virt: 5 };
     this.step = 0;
     this.st = {
       name: actor.name, concept: s.details.concept, nature: s.details.nature, demeanor: s.details.demeanor,
       sire: s.details.sire, sect: s.details.sect || "", sectKey: Codex.sectKey(s.details.sect),
       clan: s.clan ?? "brujah", clanChoice: s.clanChoice ?? "", weaknessNote: s.weaknessNote ?? "",
-      domitor: s.domitor ?? "", path: "humanity", tier: "fledgling", xpTotal: 0, hunterExtra: 0,
+      domitor: s.domitor ?? "", path: "humanity",
+      // вид гуля (V20, гл. 7): вассал, независимый, ревенант (семья), дампир (Accursed Heirs) — выбирается в мастере
+      ghoulType: s.ghoulType || "vassal", family: s.family || "", tier: "fledgling", xpTotal: 0, hunterExtra: 0,
       house: s.house || "devils", visage: s.visage ?? "", faction: s.faction ?? "",
       names: { celestial: s.names?.celestial ?? "", trueName: s.names?.trueName ?? "" },
       attrPrio: ["physical", "social", "mental"], abilPrio: ["talents", "skills", "knowledges"],

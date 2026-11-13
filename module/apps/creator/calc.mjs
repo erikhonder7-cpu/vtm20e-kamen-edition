@@ -7,6 +7,7 @@ import { Codex } from "../../data/codex.mjs";
 import { checkTraits } from "../../data/trait-rules.mjs";
 import { RULES, DEMON_FAITH, SECT_RULES, CAMARILLA_BANNED, HUNTER_SLOTS, LOST_SLOTS, EXTRA_DISC_MERIT, preview } from "./rules.mjs";
 import { M as mageData } from "../mage.mjs";
+import { REVENANT_FAMILIES } from "../../data/revenants.mjs";
 import { H as hunterData } from "../hunter.mjs";
 
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -30,6 +31,8 @@ export class CalcCreator {
     if (this.isLost) return { ...this.baseRules, virt: 7, cost: { ...this.baseRules.cost, virt: 2, morality: 0 } };
     // опытный охотник (Players Guide, гл. 2): рассказчик даёт 3–6 очков Добродетелей сверх трёх
     if (this.isHunter) return { ...this.baseRules, virt: this.baseRules.virt + (this.st?.hunterExtra ?? 0) };
+    // ревенант (V20, гл. 7): Добродетелей 5 вместо 7
+    if (this.isRevenant) return { ...this.baseRules, virt: 5 };
     // дампир (Accursed Heirs, гл. 4): как гуль, но 18 свободных пунктов и Кровное право 1 (дальше — 5 за точку)
     if (this.isDhampir) return { ...this.baseRules, free: 18, disc: this.baseRules.disc + (this.st?.dhSwap ? 1 : 0) };
     return this.type === "vampire" ? { ...this.baseRules, ...(SECT_RULES[this.st?.sectKey] ?? {}) } : this.baseRules;
@@ -68,7 +71,10 @@ export class CalcCreator {
   /** Охотник (Hunter: The Reckoning). */
   get isHunter() { return this.type === "hunter"; }
   /** Дампир (Accursed Heirs: Dhampirs) — гуль с типом «dhampir» (выбирается в шапке листа). */
-  get isDhampir() { return this.type === "ghoul" && this.actor.system.ghoulType === "dhampir"; }
+  get isDhampir() { return this.type === "ghoul" && (this.st?.ghoulType ?? this.actor.system.ghoulType) === "dhampir"; }
+  /** Ревенант (V20, гл. 7): семейные Дисциплины — «клановые», Добродетелей 5. */
+  get isRevenant() { return this.type === "ghoul" && this.st?.ghoulType === "revenant"; }
+  get revenantFamily() { return this.isRevenant ? REVENANT_FAMILIES[this.st.family] ?? null : null; }
   get isMage() { return this.type === "mage"; }
   // маг, Гару и Фера, охотник и дампир — примеси из creator/*.mjs (см. конец файла)
 
@@ -115,6 +121,7 @@ export class CalcCreator {
 
   /** Клановые Дисциплины; null — любые (каитиф, пандеры, гуль). */
   get clanDisciplines() {
+    if (this.isRevenant) return this.revenantFamily ? [...new Set(["potence", ...this.revenantFamily.disciplines])] : null;   // Мощь даром и семейные
     if (this.type === "ghoul") return null;
     if (this.isSorcerer) return this.sorcKeys;
     if (this.isMage) return VTM20.mageSpheres;
@@ -233,7 +240,7 @@ export class CalcCreator {
       else if (kind === "morality" && this.isMage) total += c * 8;                                      // Арете
       else if (kind === "disc" && this.isMage) total += c === 0 ? 10 : c * (k === this.st.mg.affinity ? 7 : 8);   // Сфера: новая 10, родовая × 7
       else if (kind === "disc") {
-        if (this.type === "ghoul") total += c === 0 ? 20 : c * ((this.isDhampir ? this.dhampirClanDiscs : ["potence", "fortitude", "celerity"]).includes(k) ? 15 : 25);
+        if (this.type === "ghoul") total += c === 0 ? 20 : c * ((this.isDhampir ? this.dhampirClanDiscs : this.revenantFamily ? this.revenantFamily.disciplines : ["potence", "fortitude", "celerity"]).includes(k) ? 15 : 25);
         else if (c === 0) total += 10;
         else if (this.st.clan === "caitiff" || this.st.clan === "pandery") total += c * 6;
         else total += c * (this.inClan(k) ? 5 : 7);
@@ -268,7 +275,7 @@ export class CalcCreator {
 
   stepOk(key, rem) {
     switch (key) {
-      case "concept": return !!this.st.name;
+      case "concept": return !!this.st.name && !(this.isRevenant && !this.revenantFamily);
       case "clan": return !!this.clanData && !(this.clanData.choice?.length && !this.st.clanChoice);
       case "house": return !!this.houseData && !!this.st.visage;
       case "garou": return !this.garouIssues.length;
@@ -314,6 +321,10 @@ export class CalcCreator {
     if (this.type === "vampire" && this.clanDisciplines)
       for (const [k, n] of Object.entries(this.st.disc)) if (n > 0 && !this.inClan(k)) out.push(t("Creator.InitialOutOfClan", { name: Codex.disciplineLabel(k) }));
     if (this.isSorcerer) out.push(...this.sorcIssues);
+    // ревенант: семья обязательна, вторая точка Дисциплины — только семейная (V20, гл. 7)
+    if (this.isRevenant && !this.revenantFamily) out.push(t("Creator.NeedFamily"));
+    if (this.revenantFamily) for (const [k, n] of Object.entries(this.st.disc))
+      if (n > 0 && !this.revenantFamily.disciplines.includes(k)) out.push(t("Creator.FamilyOnly", { name: Codex.disciplineLabel(k) }));
     if (this.isDemon && !this.st.visage) out.push(t("Creator.NeedVisage"));
     if (this.isEarthbound && this.value("bg", "Поклонение") > 0 && this.value("bg", "Культ") < 1) out.push(t("Creator.WorshipNeedsCult"));
     if (this.isThrall && !this.st.pact.master) out.push(t("Creator.PactNoMaster"));

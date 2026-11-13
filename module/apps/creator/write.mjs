@@ -32,7 +32,9 @@ export class WriteCreator {
       Object.assign(sys, { clan: st.clan, clanChoice: st.clanChoice, weaknessNote: st.weaknessNote, generation: gen,
         blood: { value: Math.min(max, st.blood ?? Math.ceil(max / 2)) } });
     }
-    if (this.type === "ghoul") Object.assign(sys, { domitor: st.domitor, blood: { value: 1, max: a.system.blood.max } });
+    // вид гуля и семья ревенанта — из мастера; ревенант сам вырабатывает витэ (донора нет)
+    if (this.type === "ghoul") Object.assign(sys, { ghoulType: st.ghoulType, family: this.isRevenant ? st.family : "",
+      domitor: this.isRevenant ? "" : st.domitor, blood: { value: 1, max: a.system.blood.max } });
     // дампир: своя кровь — полный запас (10 + Древность пересчитает лист), концепция, Предок, Кровные права
     if (this.isDhampir) Object.assign(sys, { domitor: "", blood: { value: 10 + this.value("bg", Codex.backgrounds.find(b => b.en === "Antiquity")?.name ?? ""), max: 10 },
       dhampir: { concept: st.dhConcept, antecedent: st.antecedent, antecedentClan: st.antecedentClan, bloodrights: { ...st.bloodrights },

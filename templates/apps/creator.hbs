@@ -51,6 +51,20 @@
 
     {{!-- I. Концепция и возраст --}}
     {{#if is_concept}}
+    {{#if ghoulTypes}}
+    {{!-- вид гуля (V20, гл. 7; дампир — Accursed Heirs): от него зависят Добродетели, «клановые» Дисциплины, шаги мастера --}}
+    <h3 class="r-h3">{{localize "VTM20.Creator.GhoulTypeTitle"}}</h3>
+    <div class="r-cr-tiles r-cr-garou-tiles is-four r-cr-ghoul-types">
+      {{#each ghoulTypes}}<a class="r-cr-tile {{#if active}}is-active{{/if}}" data-action="ghoulType" data-key="{{key}}" data-tooltip="{{hint}}"><i class="fa-solid {{icon}}"></i><b>{{label}}</b><span class="r-cr-tile-text">{{hint}}</span></a>{{/each}}
+    </div>
+    {{#if isRevenant}}
+    <div class="r-cols2 r-cr-genrow">
+      <label class="r-f"><span>{{localize "VTM20.Creator.Family"}}</span><select data-field="family"><option value="">—</option>{{#each families}}<option value="{{key}}" {{#if selected}}selected{{/if}} title="{{tip}}">{{name}}</option>{{/each}}</select></label>
+    </div>
+    {{#if family}}<div class="r-cr-note"><i class="fa-solid fa-people-roof"></i> <b>{{family.name}}</b> ({{family.en}}) — {{family.nick}}. {{localize "VTM20.Creator.FamilyDiscs"}}: <b>{{family.discs}}</b>.<br><b>{{localize "VTM20.Creator.FamilyFlaw"}}:</b> {{family.flaw}}</div>{{/if}}
+    {{/if}}
+    {{/if}}
+
     <div class="r-cols2">
       <div>
         <div class="r-fields is-two">
@@ -66,7 +80,7 @@
           <label class="r-f"><span>{{localize "VTM20.Dhampir.Concept"}}</span><select data-field="dhConcept"><option value="">—</option>{{#each dhConcepts}}<option value="{{value}}" {{#if selected}}selected{{/if}} title="{{tip}}">{{label}}</option>{{/each}}</select></label>
           <label class="r-f"><span>{{localize "VTM20.Dhampir.Antecedent"}}</span><input type="text" data-field="antecedent" value="{{st.antecedent}}"></label>
           <label class="r-f"><span>{{localize "VTM20.Dhampir.AntecedentClan"}}</span><select data-field="antecedentClan"><option value="">—</option>{{#each antecedentClans}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
-          {{else if isGhoul}}<label class="r-f"><span>{{localize "VTM20.Details.domitor"}}</span><input type="text" data-field="domitor" value="{{st.domitor}}"></label>{{/if}}
+          {{else if isGhoul}}{{#unless isRevenant}}<label class="r-f"><span>{{localize "VTM20.Details.domitor"}}</span><input type="text" data-field="domitor" value="{{st.domitor}}"></label>{{/unless}}{{/if}}
         </div>
         {{#if natureRegain}}<div class="r-cr-note"><i class="fa-solid fa-star"></i> <b>{{st.nature}}</b> — {{localize "VTM20.Sheet.NatureRegain"}} {{natureRegain}}</div>{{/if}}
         {{#if dhWeakness}}<div class="r-cr-note"><i class="fa-solid fa-droplet"></i> <b>{{localize "VTM20.Dhampir.WeaknessOf"}}:</b> {{dhWeakness}}</div>{{/if}}
