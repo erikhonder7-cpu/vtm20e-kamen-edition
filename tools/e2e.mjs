@@ -5878,6 +5878,46 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  // Химерическое ремесло (C20, гл. 8), Расхищение баэлфайра (гл. 7), иные фэ (гл. 9): проект — план снижает сложность (5 успехов — −1),
+  // неделя работы копит успехи до порога, ботч — минус по Банальности; Расхищение — Гламур и ранги фригольда; кит таллейна на листе и в НПС
+  await check("Подменыш: ремесло, Расхищение баэлфайра, иные фэ", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), CL = await import(`/systems/${sid}/module/apps/changeling.mjs`);
+      const B = await import(`/systems/${sid}/module/apps/npc-build.mjs`), n0 = game.messages.size, out = {}, rnd = CONFIG.Dice.randomUniform;
+      const a = await Actor.create({ name: "E2E — мастер Грёзы", type: "changeling", flags: { world: { e2e: true }, [sid]: { created: true } },
+        system: { attributes: { dexterity: { value: 3 }, intelligence: { value: 3 } }, abilities: { crafts: { value: 3 } },
+          changeling: { glamour: { permanent: 8, temporary: 0 }, banality: { permanent: 6, temporary: 0 }, crafts: [{ name: "Лунный клинок", tier: "advanced", mod: 0, plan: 0, got: 0, helpers: 1 }] } } });
+      const m = await Actor.create({ name: "E2E — мотли расхищения", type: "coterie", flags: { world: { e2e: true } }, system: { kind: "motley", members: [a.id], motley: { freehold: "Колодец", rating: 2 } } });
+      let npc = null;
+      try {
+        CONFIG.Dice.randomUniform = () => 0.0001;
+        await CL.craftRoll(a, 0, "plan");                      // 6 десяток: план 6 → −1 к сложности
+        out.plan = [a.system.changeling.crafts[0].plan, CL.craftsView(a)[0].diff];
+        await CL.craftRoll(a, 0, "work");                      // Ловкость 3 + Ремесло 3 + помощник 1 = 7 успехов
+        out.work = a.system.changeling.crafts[0].got;
+        CONFIG.Dice.randomUniform = () => 0.9999;
+        await CL.craftRoll(a, 0, "work");                      // ботч — минус Банальность 6
+        out.botch = a.system.changeling.crafts[0].got;
+        CONFIG.Dice.randomUniform = () => 0.0001;
+        const rv = await CL.reave(a, m);                       // 6 успехов при рейтинге 2: (6 − 2) / 2 = 2 ранга
+        out.reave = [rv.n, a.system.changeling.glamour.temporary, m.system.motley.rating];
+        CONFIG.Dice.randomUniform = rnd;
+        const th = game.vtm20Codex.changeling.otherKiths.find(k => k.group === "thallain");
+        await a.update({ "system.changeling.kith": th.key });
+        out.kith = [CL.kithOf(th.key)?.name === th.name, game.vtm20Codex.changeling.otherKiths.length >= 50];
+        const d = B.buildNpc({ kind: "otherfae", power: "normal", params: { fgroup: "thallain" } });
+        out.npc = [d.system.changeling.court, game.vtm20Codex.changeling.otherKiths.find(k => k.key === d.system.changeling.kith)?.group];
+      } finally {
+        CONFIG.Dice.randomUniform = rnd;
+        await ChatMessage.deleteDocuments(game.messages.contents.slice(n0).map(x => x.id)); await Actor.deleteDocuments([a.id, m.id]);
+      }
+      return out;
+    });
+    const want = { plan: [6, 7], work: 7, botch: 1, reave: [6, 6, 0], kith: [true, true], npc: ["unseelie", "thallain"] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   await check("Призрак: лист и Арканои, Пафос, Страсть, Корпус до колебания и Испытание, Катарсис", async () => {
     const r = await page.evaluate(async () => {
       const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), WR = await import(`/systems/${sid}/module/apps/wraith.mjs`);

@@ -8993,6 +8993,52 @@
       "Done": "<b>{name}</b> learned “{what}” to {n}."
     },
     "Changeling": {
+      "Craft": {
+        "Head": "Chimerical crafting",
+        "Add": "New project",
+        "Name": "What we make",
+        "Kind": "Item complexity",
+        "Unnamed": "Project",
+        "Tier": {
+          "simple": "Simple",
+          "basic": "Basic",
+          "advanced": "Advanced",
+          "complex": "Complex",
+          "masterwork": "Masterwork"
+        },
+        "TierInfo": "diff. {d}, {n} succ.",
+        "Mod": "Difficulty modifier",
+        "Helpers": "Helpers",
+        "ModHint": "−1…−3 planning and research; −2 workshop or dream realm; −1 freehold or Near Dreaming, low place Banality, a similar project before; +1 average place Banality or unsuitable tools; +2 broken tools; +3 no tools, extreme Banality or a new project without a plan.",
+        "Work": "a week of work",
+        "Plan": "a day of planning",
+        "WorkSub": "Dexterity + Crafts, difficulty {d}",
+        "PlanSub": "Intelligence + Crafts, difficulty {d}",
+        "WorkHint": "A week of work: Dexterity + Crafts (+ helpers); a botch loses successes equal to Banality",
+        "PlanHint": "A day of planning: Intelligence + Crafts (6); every 5 successes — work difficulty −1",
+        "DiffShort": "diff.",
+        "PlanShort": "plan",
+        "None": "No projects. A chimerical item is made from Dreaming materials: one roll per week of work, up to the success threshold.",
+        "PlanMsg": "<b>{name}</b>: plan +{n} — work difficulty is now {d}.",
+        "Progress": "<b>{name}</b>: {got} of {need} successes.",
+        "Done": "<b>{name}</b> is finished — a thing of the Dreaming is made.",
+        "Botch": "<b>{name}</b>: botch — tools or materials ruined, the work lost {n} succ."
+      },
+      "Reave": {
+        "Title": "Reaving",
+        "Sub": "Banality dice at the balefire of “{name}”, difficulty 7",
+        "Hint": "Reaving (ch. 7): tear Glamour from a balefire without leave — Banality dice (7); every 2 successes beyond the rating — the freehold loses a rank. Outlawed nearly everywhere.",
+        "Msg": "<b>{name}</b> reaves the balefire of “{fh}”: +{n} Glamour; the freehold loses ranks: {lost}.",
+        "Fail": "<b>{name}</b>: the reaving of “{fh}” failed."
+      },
+      "OtherFae": {
+        "thallain": "Thallain",
+        "nunnehi": "Nunnehi",
+        "menehune": "Menehune",
+        "hsien": "Hsien (Shinma)",
+        "inanimae": "Inanimae",
+        "other": "Other kiths"
+      },
       "Chimera": {
         "Head": "Chimerical companions",
         "Add": "Create a chimera",
@@ -9069,6 +9115,7 @@
         }
       },
       "Atlas": {
+        "Other": "Other fae",
         "Kiths": "Kiths",
         "Houses": "Noble Houses",
         "Legacies": "Legacies",

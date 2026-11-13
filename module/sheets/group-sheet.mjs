@@ -84,7 +84,7 @@ export class CoterieSheet extends GroupSheet {
     classes: ["r-coterie-sheet"],
     actions: { openActor: CoterieSheet.#onOpen, dropMember: CoterieSheet.#onDropMember, pools: CoterieSheet.#onPools, haven: CoterieSheet.#onHaven, vaulderie: CoterieSheet.#onVaulderie,
       bond: CoterieSheet.#onBond, unbond: CoterieSheet.#onUnbond, nodeWeek: CoterieSheet.#onNodeWeek, nodeStock: CoterieSheet.#onNodeStock, nodeDraw: CoterieSheet.#onNodeDraw,
-      totemSpend: CoterieSheet.#onTotemSpend, freehold: CoterieSheet.#onFreehold, sanctuary: CoterieSheet.#onSanctuary, totemRefill: CoterieSheet.#onTotemRefill, totemAccept: CoterieSheet.#onTotemAccept, totemBan: CoterieSheet.#onTotemBan }
+      totemSpend: CoterieSheet.#onTotemSpend, freehold: CoterieSheet.#onFreehold, sanctuary: CoterieSheet.#onSanctuary, reave: CoterieSheet.#onReave, totemRefill: CoterieSheet.#onTotemRefill, totemAccept: CoterieSheet.#onTotemAccept, totemBan: CoterieSheet.#onTotemBan }
   };
   static PARTS = { body: { template: `${SYSTEM_PATH}/templates/actor/coterie-sheet.hbs`, scrollable: [".r-gs-body"] } };
 
@@ -168,6 +168,16 @@ export class CoterieSheet extends GroupSheet {
   static async #onSanctuary() {
     const { sanctuary } = await import("../apps/changeling.mjs");
     return sanctuary(this.actor);
+  }
+  /** Расхищение баэлфайра (C20, гл. 7): кто расхищает — свой подменыш из состава (или выбор). */
+  static async #onReave() {
+    const { reave } = await import("../apps/changeling.mjs");
+    const own = (this.actor.system.members ?? []).map(id => game.actors.get(id)).filter(a => a?.type === "changeling" && a.isOwner);
+    if (!own.length) return ui.notifications.warn(t("Changeling.Freehold.NoSleepers"));
+    const who = own.length === 1 ? own[0] : await foundry.applications.api.DialogV2.prompt({ window: { title: t("Changeling.Reave.Title") }, rejectClose: false,
+      content: `<select name="who">${own.map(a => `<option value="${a.id}">${foundry.utils.escapeHTML(a.name)}</option>`).join("")}</select>`,
+      ok: { callback: (e, b) => game.actors.get(b.form.elements.who.value) } });
+    return who ? reave(who, this.actor) : null;
   }
   /** Запас и рейтинги чантри: точки Узла и Библиотеки, ±1 к свободной Квинтэссенции или Тассу. */
   static #onNodeStock(event, target) {

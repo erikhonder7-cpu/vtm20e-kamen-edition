@@ -95,6 +95,7 @@ export const KINDS = [
   { key: "doomslayer", group: "dead", label: "Губитель рока", icon: "fa-shield-halved", actor: "wraith" },
   { key: "nomad", group: "dead", label: "Кочевник Нарыва", icon: "fa-person-walking-dashed-line-arrow-right", actor: "wraith" },
   { key: "changeling", group: "dream", label: "Подменыш", icon: "fa-wand-sparkles", actor: "changeling" },
+  { key: "otherfae", group: "dream", label: "Иные фэ", icon: "fa-masks-theater", actor: "changeling" },
   { key: "group", group: "groups", label: "Группа целиком", icon: "fa-people-group", actor: null },
   { key: "book", group: "book", label: "Статблоки книги", icon: "fa-book", actor: null }
 ];
@@ -533,6 +534,15 @@ const BUILD = {
   // Подменыш (C20, гл. 3): кит, ступень, двор и Наследия; Искусства 3 и Царства 5 и больше по силе (склонность кита — чаще),
   // Гламур и Воля 4 с поправкой ступени, Банальность 3–5; у ши — Дом
   changeling(ctx, p) { return changelingNpc(ctx, p); },
+  // Иные фэ (C20, гл. 9): таллейны, Нуннехи, Менехуне, Шинма, инанимае, прочие киты — кит из своей группы, у таллейна двор Неблагой
+  otherfae(ctx, p) {
+    const D = CL(), pool = (D.otherKiths ?? []).filter(k => !p.fgroup || k.group === p.fgroup);
+    const kith = pool.find(k => k.key === p.kith) ?? pick(pool.length ? pool : D.otherKiths ?? []);
+    const d = changelingNpc(ctx, { ...p, kith: kith?.key ?? "", court: p.court || (kith?.group === "thallain" ? "unseelie" : "") });
+    d.tags = [kith?.name, game.i18n.localize(`VTM20.Changeling.OtherFae.${kith?.group ?? "other"}`), ...d.tags.slice(1)].filter(Boolean);
+    d.system.notes = `${kith?.html ?? ""}${d.system.notes ?? ""}`;
+    return d;
+  },
   wraith(ctx, p) { return wraithNpc(ctx, p, "wraith"); },
   spectre(ctx, p) { return wraithNpc(ctx, p, "spectre"); },
   risen(ctx, p) { return wraithNpc(ctx, p, "risen"); },
@@ -654,7 +664,7 @@ function wraithNpc(ctx, p, mode) {
 function changelingNpc(ctx, p) {
   const D = CL(), tier = ctx.power.tier;
   const c = core(ctx, { attr: [7, 5, 3], abil: [13, 9, 5], virt: null, bg: 5, bgType: "changeling", abilType: "changeling" });
-  const kith = (D.kiths ?? []).find(k => k.key === p.kith) ?? pick(D.kiths ?? [{ key: "", name: "" }]);
+  const kith = (D.kiths ?? []).find(k => k.key === p.kith) ?? (D.otherKiths ?? []).find(k => k.key === p.kith) ?? pick(D.kiths ?? [{ key: "", name: "" }]);
   const seeming = (D.seemings ?? []).find(s => s.key === p.seeming) ?? pick(D.seemings ?? [{ key: "" }]);
   const court = p.court || (Math.random() < .55 ? "seelie" : "unseelie");
   const cap = Math.min(5, 3 + Math.max(0, tier - 1));

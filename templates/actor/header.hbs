@@ -142,7 +142,7 @@
         {{#if isChangeling}}
         {{!-- Подменыш (C20, гл. 3): кит, ступень, Дом, двор; Наследия Благое и Неблагое; Порог (как добывает Гламур) и Антитеза --}}
         <label class="r-df" {{#if changelingInfo.kith}}data-tooltip="{{changelingInfo.kith.affinityText}}"{{/if}}><span>{{localize "VTM20.Changeling.Kith"}}</span>
-          <select name="system.changeling.kith"><option value="">—</option>{{#each changelingInfo.kiths}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
+          <select name="system.changeling.kith"><option value="">—</option>{{#each changelingInfo.kiths}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}{{#each changelingInfo.otherKiths}}<optgroup label="{{label}}">{{#each kiths}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</optgroup>{{/each}}</select></label>
         <label class="r-df" {{#if changelingInfo.seeming}}data-tooltip="{{changelingInfo.seeming.banality}}"{{/if}}><span>{{localize "VTM20.Changeling.Seeming"}}</span>
           <select name="system.changeling.seeming"><option value="">—</option>{{#each changelingInfo.seemings}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
         <label class="r-df"><span>{{localize "VTM20.Changeling.CourtLabel"}}</span>

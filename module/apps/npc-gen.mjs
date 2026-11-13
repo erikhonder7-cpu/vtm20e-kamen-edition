@@ -201,6 +201,12 @@ function paramFields(kind, p) {
       F.push({ name: "plasmic", label: loc("VTM20.Wraith.Plasmic"), options: [any(p.plasmic), ...(Dw.plasmics ?? []).map(x => opt(x.key, `${x.name} (${x.en})`, p.plasmic))] });
       break;
     }
+    case "otherfae": {
+      const Dc = CL(), G = ["thallain", "nunnehi", "menehune", "hsien", "inanimae", "other"];
+      F.push({ name: "fgroup", label: loc("VTM20.Changeling.Atlas.Other"), options: [any(p.fgroup), ...G.map(g => opt(g, loc(`VTM20.Changeling.OtherFae.${g}`), p.fgroup))] });
+      F.push({ name: "kith", label: loc("VTM20.Changeling.Kith"), options: [any(p.kith), ...(Dc.otherKiths ?? []).filter(k => !p.fgroup || k.group === p.fgroup).map(k => opt(k.key, k.name, p.kith))] });
+      break;
+    }
     case "changeling": {
       const Dc = CL();
       F.push({ name: "kith", label: loc("VTM20.Changeling.Kith"), options: [any(p.kith), ...(Dc.kiths ?? []).map(k => opt(k.key, k.name, p.kith))] });

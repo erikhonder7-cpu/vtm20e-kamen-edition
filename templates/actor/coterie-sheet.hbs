@@ -76,7 +76,8 @@
     {{#if motley}}
     {{!-- Мотли подменышей: фригольд (C20, гл. 7) — рейтинг, владелец, баэлфайр; «Ночь во фригольде» — Гламур спящим (apps/changeling.mjs) --}}
     <h2 class="r-h2"><span>{{localize "VTM20.Changeling.Freehold.Title"}}{{#if motley.freehold}} — {{motley.freehold}}{{/if}}</span>
-      <span class="r-h2-tools">{{#if editable}}<a class="r-h2-btn" data-action="sanctuary" data-tooltip="{{localize 'VTM20.Changeling.Freehold.SanctuaryHint'}}"><i class="fa-solid fa-fire"></i> <span class="r-h2-lbl">{{localize "VTM20.Changeling.Freehold.Sanctuary"}}</span></a>{{/if}}</span></h2>
+      <span class="r-h2-tools">{{#if editable}}<a class="r-h2-btn" data-action="sanctuary" data-tooltip="{{localize 'VTM20.Changeling.Freehold.SanctuaryHint'}}"><i class="fa-solid fa-fire"></i> <span class="r-h2-lbl">{{localize "VTM20.Changeling.Freehold.Sanctuary"}}</span></a>
+        <a class="r-h2-btn" data-action="reave" data-tooltip="{{localize 'VTM20.Changeling.Reave.Hint'}}"><i class="fa-solid fa-hand-holding-hand"></i> <span class="r-h2-lbl">{{localize "VTM20.Changeling.Reave.Title"}}</span></a>{{/if}}</span></h2>
     <div class="r-dossier r-gs-chantry">
       <label class="r-df is-wide"><span>{{localize "VTM20.Changeling.Freehold.Name"}}</span><input type="text" name="system.motley.freehold" value="{{motley.freehold}}" {{#unless editable}}disabled{{/unless}}></label>
       <label class="r-df"><span>{{localize "VTM20.Changeling.Freehold.Owner"}}</span><select name="system.motley.owner" {{#unless editable}}disabled{{/unless}}>{{#each motley.owners}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>

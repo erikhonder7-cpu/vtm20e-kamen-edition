@@ -22,7 +22,8 @@ export const say = (actor, icon, html, cls = "") => ChatMessage.create({ speaker
 
 export const artOf = key => C().arts.find(a => a.key === key) ?? null;
 export const realmOf = key => C().realms.find(r => r.key === key) ?? null;
-export const kithOf = key => C().kiths.find(k => k.key === key) ?? null;
+export const kithOf = key => C().kiths.find(k => k.key === key) ?? (C().otherKiths ?? []).find(k => k.key === key) ?? null;
+export const OTHER_FAE = ["thallain", "nunnehi", "menehune", "hsien", "inanimae", "other"];
 
 /* ── Лист ──────────────────────────────────────────────────────────────── */
 
@@ -36,6 +37,7 @@ export function changelingInfo(actor, dots) {
   const will = s.willpower.permanent;
   return {
     kiths: opts(D.kiths, c.kith), seemings: opts(D.seemings, c.seeming), houses: opts(D.houses, c.house),
+    otherKiths: OTHER_FAE.map(g => ({ label: t(`OtherFae.${g}`), kiths: opts((D.otherKiths ?? []).filter(k => k.group === g), c.kith) })).filter(g => g.kiths.length),
     legaciesSeelie: opts(D.legacies.filter(l => l.court === "seelie"), c.legacies.seelie),
     legaciesUnseelie: opts(D.legacies.filter(l => l.court === "unseelie"), c.legacies.unseelie),
     courts: ["seelie", "unseelie"].map(k => ({ key: k, name: t(`Court.${k}`), selected: k === c.court })),
@@ -71,7 +73,7 @@ export function artsView(actor, dots) {
       levels: r.levels.map(l => ({ ...l, known: l.level <= value })) };
   });
   return { own, realms, avail: C().arts.filter(a => !(c.arts[a.key] > 0)).map(a => ({ key: a.key, label: a.name })),
-    nightmare: c.nightmare, glamour: c.glamour.temporary, oaths: oathsView(actor), treasures: treasuresView(actor), chimeras: chimerasView(actor) };
+    nightmare: c.nightmare, glamour: c.glamour.temporary, oaths: oathsView(actor), treasures: treasuresView(actor), chimeras: chimerasView(actor), crafts: craftsView(actor) };
 }
 
 /** Добавить или убрать Искусство (кнопка вкладки). */
@@ -269,6 +271,83 @@ export function chimericalView(actor) {
   const MARK = { bashing: "/", lethal: "X", aggravated: "✱", empty: "" };
   return { levels: ch.levels.map((l, i) => ({ state: l.state, mark: MARK[l.state], label: game.i18n.localize(l.label ?? ""), current: i === ch.damage - 1 })),
     damage: ch.damage, status: game.i18n.localize(VTM20.healthLevels.find(l => l.key === ch.status)?.label ?? "VTM20.Health.healthy"), penalty: ch.penalty };
+}
+
+/* ── Химерическое ремесло (гл. 8, «Crafting») и Расхищение баэлфайра (гл. 7, «Reaving») ───────────── */
+
+/** Сложность вещи: базовая сложность и нужные успехи (порог — по таблице книги; шедевр — 26+). */
+export const CRAFT_TIERS = { simple: { diff: 6, need: 5 }, basic: { diff: 7, need: 10 }, advanced: { diff: 8, need: 15 }, complex: { diff: 9, need: 25 }, masterwork: { diff: 10, need: 26 } };
+const craftDiff = x => Math.clamp((CRAFT_TIERS[x.tier]?.diff ?? 7) + (x.mod ?? 0) - Math.floor((x.plan ?? 0) / 5), 3, 10);
+
+export function craftsView(actor) {
+  return (actor.system.changeling.crafts ?? []).map((x, i) => {
+    const need = CRAFT_TIERS[x.tier]?.need ?? 10;
+    return { i, name: x.name || t("Craft.Unnamed"), tier: t(`Craft.Tier.${x.tier}`), got: x.got, need, done: x.got >= need, pct: Math.min(100, Math.round(x.got / need * 100)),
+      diff: craftDiff(x), plan: x.plan, helpers: x.helpers };
+  });
+}
+
+/** Новый проект: окно — название, сложность вещи, поправка сложности (инструменты, место, Банальность), помощники. */
+export async function addCraft(actor) {
+  if (!actor?.isOwner) return null;
+  const f = await foundry.applications.api.DialogV2.prompt({ window: { title: t("Craft.Add"), icon: "fa-solid fa-hammer" }, classes: ["vtm20", "r-dialog", "r-type-changeling"],
+    position: { width: 520 }, rejectClose: false,
+    content: `<div class="r-form"><label class="r-field"><span>${esc(t("Craft.Name"))}</span><input type="text" name="name"></label>
+      <label class="r-field"><span>${esc(t("Craft.Kind"))}</span><select name="tier">${Object.entries(CRAFT_TIERS).map(([k, v]) => `<option value="${k}" ${k === "basic" ? "selected" : ""}>${esc(t(`Craft.Tier.${k}`))} — ${esc(t("Craft.TierInfo", { d: v.diff, n: v.need }))}</option>`).join("")}</select></label>
+      <label class="r-field" data-tooltip="${esc(t("Craft.ModHint"))}"><span>${esc(t("Craft.Mod"))}</span><input type="number" name="mod" min="-5" max="5" value="0"></label>
+      <label class="r-field"><span>${esc(t("Craft.Helpers"))}</span><input type="number" name="helpers" min="0" max="20" value="0"></label>
+      <p class="r-note">${esc(t("Craft.ModHint"))}</p></div>`,
+    ok: { label: t("Craft.Add"), icon: "fa-solid fa-hammer", callback: (e, b) => new foundry.applications.ux.FormDataExtended(b.form).object } });
+  if (!f) return null;
+  const list = actor.system.changeling.crafts.map(x => ({ ...x }));
+  list.push({ name: f.name || "", tier: f.tier, mod: Math.clamp(Number(f.mod) || 0, -5, 5), plan: 0, got: 0, helpers: Math.clamp(Number(f.helpers) || 0, 0, 20) });
+  return actor.update({ "system.changeling.crafts": list });
+}
+
+/**
+ * Бросок ремесла: «work» — неделя работы (Ловкость + Ремесло + помощники), «plan» — день планирования (Интеллект + Ремесло, сл. 6;
+ * каждые 5 успехов плана — сложность работы −1). Ботч работы — минус успехи по Банальности, инструмент или сырьё испорчены.
+ */
+export async function craftRoll(actor, i, mode = "work") {
+  const list = actor.system.changeling.crafts.map(x => ({ ...x })), x = list[Number(i)];
+  if (!x) return null;
+  const { rollPool } = await import("../dice/roll.mjs"), T = p => ({ label: actor.traitLabel(p), value: actor.traitValue(p) });
+  const plan = mode === "plan", parts = [T(plan ? "attributes.intelligence" : "attributes.dexterity"), T("abilities.crafts"), ...(!plan && x.helpers ? [{ label: t("Craft.Helpers"), value: x.helpers }] : [])];
+  const roll = await rollPool({ actor, title: `${x.name || t("Craft.Unnamed")}: ${t(plan ? "Craft.Plan" : "Craft.Work")}`, subtitle: t(plan ? "Craft.PlanSub" : "Craft.WorkSub", { d: plan ? 6 : craftDiff(x) }),
+    pool: parts.reduce((s, p) => s + p.value, 0), difficulty: plan ? 6 : craftDiff(x), kind: "check", breakdown: parts, extra: { changeling: { kind: "craft" } } });
+  if (!roll) return null;
+  const need = CRAFT_TIERS[x.tier]?.need ?? 10, b = actor.system.changeling.banality.permanent;
+  if (plan) x.plan += roll.successes;
+  else if (roll.outcome === "botch") x.got = Math.max(0, x.got - b);
+  else x.got += roll.successes;
+  await actor.update({ "system.changeling.crafts": list });
+  const msg = plan ? t("Craft.PlanMsg", { name: esc(x.name), n: roll.successes, d: craftDiff(x) })
+    : roll.outcome === "botch" ? t("Craft.Botch", { name: esc(x.name), n: b }) : x.got >= need ? t("Craft.Done", { name: esc(x.name) }) : t("Craft.Progress", { name: esc(x.name), got: x.got, need });
+  await say(actor, "fa-hammer", msg, roll.outcome === "botch" ? "is-warn" : "");
+  return roll;
+}
+export function dropCraft(actor, i) {
+  const list = actor.system.changeling.crafts.map(x => ({ ...x }));
+  list.splice(Number(i), 1);
+  return actor.update({ "system.changeling.crafts": list });
+}
+
+/**
+ * Расхищение баэлфайра (гл. 7): кубики Банальности, сложность 7; Гламур — по успехам (даже сверх рейтинга фригольда);
+ * каждые 2 успеха сверх рейтинга — фригольд теряет ранг (восстанавливается по одному за сезон — решает рассказчик).
+ */
+export async function reave(actor, group) {
+  const m = group?.system?.motley, rating = m?.rating ?? 0;
+  if (!actor?.isOwner || !m) return null;
+  const { rollPool } = await import("../dice/roll.mjs"), b = actor.system.changeling.banality.permanent;
+  const roll = await rollPool({ actor, title: t("Reave.Title"), subtitle: t("Reave.Sub", { name: m.freehold || group.name }), pool: b, difficulty: 7, kind: "check",
+    breakdown: [{ label: t("Banality"), value: b }], extra: { changeling: { kind: "reave" } } });
+  if (!roll) return null;
+  const n = roll.successes, lost = Math.floor(Math.max(0, n - rating) / 2);
+  const got = n ? await gainGlamour(actor, n) : 0;
+  if (lost) await group.update({ "system.motley.rating": Math.max(0, rating - lost) });
+  await say(actor, "fa-fire", t(n ? "Reave.Msg" : "Reave.Fail", { name: esc(actor.name), fh: esc(m.freehold || group.name), n: got, lost }), "is-warn");
+  return { n, lost };
 }
 
 /* ── Химеры-спутники (гл. 8, «Создание химерического спутника», Фон «Химера») ──────────────────── */

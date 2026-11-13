@@ -324,6 +324,84 @@ def parse_redes():
     return out
 
 
+# ── Иные фэ (гл. 9, файлы 35–41): таллейны, Нуннехи, Менехуне, Шинма, инанимае, прочие киты — справкой и для НПС ──
+OTHER_GROUPS = [("35", "thallain", "## 19 китов"), ("37", "nunnehi", "## Киты Нуннехи"), ("38", "menehune", "## Призвания Менехуне"),
+                ("39", "hsien", "## Кваннон-цзинь"), ("40", "inanimae", "## Фила"), ("41", "other", None)]
+
+
+def _affinity(text):
+    m = re.search(r"Склонност[ьи][^:]*:[\s*]*([А-Яа-яЁёA-Za-z]+)", text)
+    if not m:
+        return ""
+    w = m.group(1)
+    return REALM_RU.get(w, REALMS.get(w, ""))
+
+
+def _slug(en):
+    return re.sub(r"[^a-z]", "", en.lower()) or "x"
+
+
+def parse_other_kiths():
+    out = []
+    for num, group, start in OTHER_GROUPS:
+        text = core(num)
+        if start:
+            i = text.find(start)
+            if i < 0:
+                continue
+            part = text[i:].split("\n", 1)[1]
+            nxt = re.search(r"^## ", part, re.M)
+            part = part[:nxt.start()] if nxt else part
+        else:
+            part = text
+        lines = part.splitlines()
+        # А) абзац «**Имя (English)** — текст» и строки сил «- *…*» под ним
+        cur = None
+        for line in lines:
+            m = re.match(r"^\*\*([^*(]+?)\s*\(([^)]+)\)\*\*\s*(?:,\s*[^—]*)?—\s*(.*)$", line)
+            if m:
+                cur = {"key": f"{group}-{_slug(m.group(2))}", "group": group, "name": m.group(1).strip(), "en": m.group(2).strip(), "lines": [m.group(3)]}
+                out.append(cur)
+                continue
+            if cur and line.startswith("- "):
+                cur["lines"].append(line)
+            elif cur and line.strip() and not line.startswith("- "):
+                cur = None
+        # Б) таблицы: «| **Имя (English)**, пояснение | … |» — шапка таблицы даёт названия столбцов
+        head = None
+        for line in lines:
+            if not line.startswith("|"):
+                head = None if not line.strip() else head
+                continue
+            cells = [c.strip() for c in line.strip().strip("|").split("|")]
+            if head is None:
+                head = cells
+                continue
+            if set("".join(cells)) <= set("-: "):
+                continue
+            m = re.match(r"^\*\*([^*(]+?)\s*\(([^)]+)\)\*\*\s*,?\s*(.*)$", cells[0])
+            if not m:
+                continue
+            rest = [f"- **{h}:** {c}" for h, c in zip(head[1:], cells[1:]) if c and c != "—"]
+            out.append({"key": f"{group}-{_slug(m.group(2))}", "group": group, "name": m.group(1).strip(), "en": m.group(2).strip(),
+                        "lines": [m.group(3)] + rest})
+        # В) разделы «## Имя (English)» (прочие киты)
+        if group == "other":
+            for title, body in sections(text, 2):
+                name, en = ru_en(title)
+                if en:
+                    out.append({"key": f"{group}-{_slug(en)}", "group": group, "name": name, "en": en, "lines": body})
+    res, seen = [], set()
+    for k in out:
+        if k["key"] in seen:
+            continue
+        seen.add(k["key"])
+        body = "\n".join(k["lines"])
+        res.append({"key": k["key"], "group": k["group"], "name": k["name"], "en": k["en"], "affinity": _affinity(body),
+                    "html": html([l for l in k["lines"] if l.strip()])})
+    return res
+
+
 def parse_books():
     out = []
     for folder, label in BOOKS:
@@ -349,7 +427,7 @@ def build():
             k["birthrights"] = sidhe["birthrights"]
     data = {"source": "Changeling: The Dreaming 20th Anniversary Edition — справочник проекта (пересказ механики)",
             "seemings": parse_seemings(), "kiths": kiths, "houses": parse_houses(), "legacies": parse_legacies(),
-            "arts": arts, "realms": realms, "backgrounds": parse_backgrounds(), "merits": parse_merits(), "oaths": parse_oaths(), "redes": parse_redes(), "chimera": CHIMERA,
+            "arts": arts, "realms": realms, "backgrounds": parse_backgrounds(), "merits": parse_merits(), "oaths": parse_oaths(), "redes": parse_redes(), "chimera": CHIMERA, "otherKiths": parse_other_kiths(),
             "creation": CREATION, "freebies": FREEBIES, "xp": XP, "cantrip": CANTRIP, "banality": BANALITY, "bedlam": BEDLAM}
     with open(OUT, "w", encoding="utf-8", newline="\n") as f:
         json.dump(data, f, ensure_ascii=False, indent=1)

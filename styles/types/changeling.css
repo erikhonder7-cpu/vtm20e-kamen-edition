@@ -243,3 +243,7 @@
 .r-cl-ch-dlg .r-cl-ch-rede small { grid-column: 2 / -1; color: var(--r-muted); font-size: 11px; margin-top: -2px; }
 .r-cl-ch-dlg .r-cl-ch-tally { font-size: 14px; color: var(--r-ink); }
 .vtm20.r-type-changeling .r-cl-chimera.is-over { border-color: #a87ad6; }
+/* Химерическое ремесло: полоса прогресса */
+.vtm20.r-type-changeling .r-cl-craft-bar { height: 5px; margin: 6px 0 2px; background: rgba(235, 171, 223, .12); border: 1px solid var(--r-line-2); }
+.vtm20.r-type-changeling .r-cl-craft-bar i { display: block; height: 100%; background: linear-gradient(90deg, #a23490, #ef85da); }
+.vtm20.r-type-changeling .r-cl-craft.is-done { border-color: #e9c46a; }

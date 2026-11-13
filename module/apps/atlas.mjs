@@ -158,6 +158,8 @@ function changelingGroups() {
   return [
     { key: "kiths", label: loc("Changeling.Atlas.Kiths"), items: (D.kiths ?? []).map(k => ({ key: `kith:${k.key}`, name: k.name, sub: k.en, icon: "fa-wand-sparkles",
       card: () => ({ kicker: loc("Changeling.Kith"), text: k.html }) })) },
+    { key: "other", label: loc("Changeling.Atlas.Other"), items: (D.otherKiths ?? []).map(k => ({ key: `ofae:${k.key}`, name: k.name, sub: `${k.en} · ${loc(`Changeling.OtherFae.${k.group}`)}`, icon: "fa-masks-theater",
+      card: () => ({ kicker: loc(`Changeling.OtherFae.${k.group}`), text: k.html, facts: [fact(loc("ClCr.Affinity"), k.affinity ? realm(k.affinity) : "")].filter(Boolean) }) })) },
     { key: "houses", label: loc("Changeling.Atlas.Houses"), items: (D.houses ?? []).map(h => ({ key: `house:${h.key}`, name: h.name, sub: `${h.en} · ${h.courtText ?? ""}`, icon: "fa-crown",
       card: () => ({ kicker: loc("Changeling.House"), text: h.html || p(h.short),
         facts: [fact(loc("Changeling.CourtLabel"), h.courtText), fact(loc("Changeling.Atlas.Nick"), h.nick), fact(loc("ClCr.Boon"), h.boon), fact(loc("ClCr.HouseFlaw"), h.flaw)].filter(Boolean) }) })) },

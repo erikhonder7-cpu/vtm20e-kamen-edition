@@ -73,6 +73,19 @@
       {{#if text}}<p class="r-note">{{text}}</p>{{/if}}
     </article>{{/each}}
   </div>{{else}}<p class="r-note">{{localize "VTM20.Changeling.Chimera.None"}}</p>{{/if}}
+  {{!-- Химерическое ремесло (C20, гл. 8): проект — бросок за неделю, план — за день; прогресс к порогу успехов --}}
+  <h2 class="r-h2"><span>{{localize "VTM20.Changeling.Craft.Head"}}</span>
+    {{#if editable}}<span class="r-h2-tools"><a class="r-btn" data-action="clCraft" data-op="add"><i class="fa-solid fa-hammer"></i> {{localize "VTM20.Changeling.Craft.Add"}}</a></span>{{/if}}</h2>
+  {{#if cl.crafts.length}}<div class="r-cl-oaths">
+    {{#each cl.crafts}}<article class="r-vcard r-cl-oath r-cl-craft {{#if done}}is-done{{/if}}">
+      <header><b>{{name}}</b> <em>{{tier}}</em>
+        {{#if @root.editable}}<span class="r-cl-oath-tools">{{#unless done}}<a data-action="clCraft" data-op="plan" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Changeling.Craft.PlanHint'}}"><i class="fa-solid fa-compass-drafting"></i></a>
+          <a data-action="clCraft" data-op="work" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Changeling.Craft.WorkHint'}}"><i class="fa-solid fa-hammer"></i></a>{{/unless}}
+          <a data-action="clCraft" data-op="del" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a></span>{{/if}}</header>
+      <div class="r-cl-craft-bar"><i style="width: {{pct}}%"></i></div>
+      <p class="r-cl-oath-fx">{{got}} / {{need}} · {{localize "VTM20.Changeling.Craft.DiffShort"}} {{diff}}{{#if plan}} · {{localize "VTM20.Changeling.Craft.PlanShort"}} {{plan}}{{/if}}{{#if helpers}} · {{localize "VTM20.Changeling.Craft.Helpers"}} {{helpers}}{{/if}}</p>
+    </article>{{/each}}
+  </div>{{else}}<p class="r-note">{{localize "VTM20.Changeling.Craft.None"}}</p>{{/if}}
   {{!-- Клятвы (C20, гл. 6): примеры книги с ценой и расплатой; нарушение — расплата, «клятвопреступник» и триггер Банальности --}}
   <h2 class="r-h2 r-cl-oaths-head"><span>{{localize "VTM20.Changeling.Oath.Head"}}</span>
     {{#if editable}}<span class="r-h2-tools"><a class="r-btn" data-action="clOath" data-op="take"><i class="fa-solid fa-handshake-angle"></i> {{localize "VTM20.Changeling.Oath.Swear"}}</a></span>{{/if}}</h2>
