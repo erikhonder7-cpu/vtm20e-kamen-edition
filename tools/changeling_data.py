@@ -304,6 +304,26 @@ def parse_oaths():
     return out
 
 
+# ── Химеры (файл 20): Реды — «- **Имя (English):** цена; затрата; эффект»; цены черт и бюджет по Фону «Химера» ──
+CHIMERA = {"budget": [0, 20, 25, 30, 40, 60], "attr": 3, "abil": 3, "glamour": 1, "will": 3, "health": 2}
+
+
+def parse_redes():
+    text = core("20")
+    part = text.split("### Реды", 1)[1].split("\n## ", 1)[0]
+    out = []
+    for line in part.splitlines():
+        m = re.match(r"^- \*\*([^(*]+?)\s*\(([^)]+)\):\*\*\s*(.*)$", line)
+        if not m:
+            continue
+        name, en, rest = m.group(1).strip(), m.group(2).strip(), plain(m.group(3))
+        num = re.search(r"\d+", rest)
+        head = re.split(r"[;.]", rest, maxsplit=1)[0]
+        out.append({"key": re.sub(r"[^a-z]", "", en.lower()), "name": name, "en": en, "cost": int(num.group(0)) if num else 0,
+                    "costText": head.strip(), "variable": bool(re.search(r"за кажд|за \d|переменн|/", head)), "text": rest})
+    return out
+
+
 def parse_books():
     out = []
     for folder, label in BOOKS:
@@ -329,7 +349,7 @@ def build():
             k["birthrights"] = sidhe["birthrights"]
     data = {"source": "Changeling: The Dreaming 20th Anniversary Edition — справочник проекта (пересказ механики)",
             "seemings": parse_seemings(), "kiths": kiths, "houses": parse_houses(), "legacies": parse_legacies(),
-            "arts": arts, "realms": realms, "backgrounds": parse_backgrounds(), "merits": parse_merits(), "oaths": parse_oaths(),
+            "arts": arts, "realms": realms, "backgrounds": parse_backgrounds(), "merits": parse_merits(), "oaths": parse_oaths(), "redes": parse_redes(), "chimera": CHIMERA,
             "creation": CREATION, "freebies": FREEBIES, "xp": XP, "cantrip": CANTRIP, "banality": BANALITY, "bedlam": BEDLAM}
     with open(OUT, "w", encoding="utf-8", newline="\n") as f:
         json.dump(data, f, ensure_ascii=False, indent=1)

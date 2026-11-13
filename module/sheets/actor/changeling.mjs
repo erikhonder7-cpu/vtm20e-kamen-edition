@@ -4,7 +4,8 @@
 
 import { castCantrip, unleash, artRow, spendGlamour, gainGlamour, gainNightmare, banalityTrigger, invokeWyrd, invokeAutumn, epiphany,
   setSceneBanality, endBedlam, takeOath, breakOath, dropOath, chimericalDamage, coldIron,
-  addTreasure, treasureStore, useTreasure, destroyTreasure, mistsTable, questOutcome } from "../../apps/changeling.mjs";
+  addTreasure, treasureStore, useTreasure, destroyTreasure, mistsTable, questOutcome,
+  editChimera, dropChimera, chimeraActor } from "../../apps/changeling.mjs";
 
 function onCast(event, target) {
   const d = target.dataset;
@@ -51,6 +52,10 @@ function onTreasure(event, target) {
   return treasureStore(this.actor, i, Number(target.dataset.d) || 0);
 }
 function onMists() { return mistsTable(); }
+function onChimera(event, target) {
+  const { op, i } = target.dataset;
+  return op === "add" ? editChimera(this.actor) : op === "edit" ? editChimera(this.actor, i) : op === "actor" ? chimeraActor(this.actor, i) : dropChimera(this.actor, i);
+}
 async function onQuest() {
   const ok = await foundry.applications.api.DialogV2.wait({ window: { title: game.i18n.localize("VTM20.Changeling.Quest.Title"), icon: "fa-solid fa-flag" },
     classes: ["vtm20", "r-dialog", "r-type-changeling"], rejectClose: false, content: `<p>${game.i18n.localize("VTM20.Changeling.Quest.Ask")}</p>`,
@@ -69,4 +74,4 @@ function onOath(event, target) {
 
 export const CHANGELING_ACTIONS = { clCast: onCast, clUnleash: onUnleash, clArtAdd: onArtAdd, clArtDel: onArtDel, clGlamour: onGlamour,
   clNightmare: onNightmare, clTrigger: onTrigger, clWyrd: onWyrd, clAutumn: onAutumn, clEpiphany: onEpiphany, clPlace: onPlace, clBedlamEnd: onBedlamEnd, clOath: onOath,
-  clChim: { handler: onChim, buttons: [0, 2] }, clColdIron: onColdIron, clTreasure: onTreasure, clDross: onDross, clMists: onMists, clQuest: onQuest };
+  clChim: { handler: onChim, buttons: [0, 2] }, clColdIron: onColdIron, clTreasure: onTreasure, clDross: onDross, clMists: onMists, clQuest: onQuest, clChimera: onChimera };

@@ -71,7 +71,7 @@ export function artsView(actor, dots) {
       levels: r.levels.map(l => ({ ...l, known: l.level <= value })) };
   });
   return { own, realms, avail: C().arts.filter(a => !(c.arts[a.key] > 0)).map(a => ({ key: a.key, label: a.name })),
-    nightmare: c.nightmare, glamour: c.glamour.temporary, oaths: oathsView(actor), treasures: treasuresView(actor) };
+    nightmare: c.nightmare, glamour: c.glamour.temporary, oaths: oathsView(actor), treasures: treasuresView(actor), chimeras: chimerasView(actor) };
 }
 
 /** Добавить или убрать Искусство (кнопка вкладки). */
@@ -269,6 +269,99 @@ export function chimericalView(actor) {
   const MARK = { bashing: "/", lethal: "X", aggravated: "✱", empty: "" };
   return { levels: ch.levels.map((l, i) => ({ state: l.state, mark: MARK[l.state], label: game.i18n.localize(l.label ?? ""), current: i === ch.damage - 1 })),
     damage: ch.damage, status: game.i18n.localize(VTM20.healthLevels.find(l => l.key === ch.status)?.label ?? "VTM20.Health.healthy"), penalty: ch.penalty };
+}
+
+/* ── Химеры-спутники (гл. 8, «Создание химерического спутника», Фон «Химера») ──────────────────── */
+
+const CH_ABILS = ["alertness", "athletics", "brawl", "stealth", "melee", "empathy", "intimidation", "subterfuge"];
+/** Очки химеры: Атрибуты и Способности — 3 пункта за очко, Гламур — 1, Воля — 3 за точку сверх базовой 1, Здоровье — 2 уровня за очко, Реды — по цене. */
+export function chimeraPoints(x) {
+  const K = C().chimera ?? { attr: 3, abil: 3, glamour: 1, will: 3, health: 2 }, sum = o => Object.values(o ?? {}).reduce((s, v) => s + (Number(v) || 0), 0);
+  const parts = { attr: Math.ceil(sum(x.attrs) / K.attr), abil: Math.ceil(sum(x.abils) / K.abil), glamour: (x.glamour ?? 0) * K.glamour,
+    will: Math.max(0, (x.will ?? 1) - 1) * K.will, health: Math.ceil((x.health ?? 0) / K.health), redes: (x.redes ?? []).reduce((s, r) => s + (Number(r.pts) || 0), 0) };
+  return { ...parts, total: Object.values(parts).reduce((s, v) => s + v, 0), budget: (C().chimera?.budget ?? [0, 20, 25, 30, 40, 60])[x.rating ?? 1] ?? 0 };
+}
+export const redeOf = key => (C().redes ?? []).find(r => r.key === key) ?? null;
+
+export function chimerasView(actor) {
+  return (actor.system.changeling.chimeras ?? []).map((x, i) => {
+    const p = chimeraPoints(x);
+    return { i, name: x.name || t("Chimera.Unnamed"), rating: x.rating, dots: "●".repeat(x.rating), pts: p.total, budget: p.budget, over: p.total > p.budget,
+      glamour: x.glamour, will: x.will, health: x.health, text: x.text, hasActor: !!game.actors.get(x.actor),
+      attrs: Object.entries(x.attrs ?? {}).filter(([, v]) => v > 0).map(([k, v]) => `${game.i18n.localize(VTM20.attributes[k]?.label ?? k)} ${v}`).join(", "),
+      abils: Object.entries(x.abils ?? {}).filter(([, v]) => v > 0).map(([k, v]) => `${game.i18n.localize(VTM20.abilities[k]?.label ?? k)} ${v}`).join(", "),
+      redes: (x.redes ?? []).map(r => ({ name: redeOf(r.key)?.name ?? r.key, tip: redeOf(r.key)?.text ?? "" })) };
+  });
+}
+
+/** Построитель химеры: окно с чертами, Редами и живым подсчётом очков против бюджета Фона; i — правка существующей. */
+export async function editChimera(actor, i = null) {
+  if (!actor?.isOwner) return null;
+  const cur = i == null ? { name: "", rating: 1, attrs: {}, abils: {}, glamour: 2, will: 1, health: 4, redes: [], text: "" } : foundry.utils.deepClone(actor.system.changeling.chimeras[Number(i)]);
+  const num = (name, v, min = 0, max = 10) => `<input type="number" name="${name}" min="${min}" max="${max}" value="${v ?? 0}">`;
+  const attrRows = Object.keys(VTM20.attributes).map(k => `<label class="r-cl-ch-f"><span>${esc(game.i18n.localize(VTM20.attributes[k].label))}</span>${num(`a_${k}`, cur.attrs?.[k])}</label>`).join("");
+  const abilRows = CH_ABILS.map(k => `<label class="r-cl-ch-f"><span>${esc(game.i18n.localize(VTM20.abilities[k]?.label ?? k))}</span>${num(`b_${k}`, cur.abils?.[k])}</label>`).join("");
+  const redeRows = (C().redes ?? []).map(r => { const on = (cur.redes ?? []).find(x => x.key === r.key);
+    return `<label class="r-cl-ch-rede" data-tooltip="${esc(r.text)}"><input type="checkbox" name="r_${r.key}" ${on ? "checked" : ""}> ${esc(r.name)}
+      <input type="number" name="p_${r.key}" min="0" max="30" value="${on?.pts ?? r.cost}" ${r.variable ? "" : "readonly"}><small>${esc(r.costText)}</small></label>`; }).join("");
+  const read = form => {
+    const o = new foundry.applications.ux.FormDataExtended(form).object;
+    return { name: o.name || "", rating: Math.clamp(Number(o.rating) || 1, 1, 5), text: o.text || "",
+      attrs: Object.fromEntries(Object.keys(VTM20.attributes).map(k => [k, Math.max(0, Number(o[`a_${k}`]) || 0)])),
+      abils: Object.fromEntries(CH_ABILS.map(k => [k, Math.max(0, Number(o[`b_${k}`]) || 0)])),
+      glamour: Math.max(0, Number(o.glamour) || 0), will: Math.max(1, Number(o.will) || 1), health: Math.max(0, Number(o.health) || 0),
+      redes: (C().redes ?? []).filter(r => o[`r_${r.key}`]).map(r => ({ key: r.key, pts: Math.max(0, Number(o[`p_${r.key}`]) || 0) })) };
+  };
+  const tally = form => { const p = chimeraPoints(read(form));
+    return t("Chimera.Tally", { n: p.total, b: p.budget, a: p.attr, s: p.abil, g: p.glamour, w: p.will, h: p.health, r: p.redes }); };
+  const f = await foundry.applications.api.DialogV2.prompt({ window: { title: t("Chimera.Builder"), icon: "fa-solid fa-dragon" }, classes: ["vtm20", "r-dialog", "r-type-changeling", "r-cl-ch-dlg"],
+    position: { width: 760 }, rejectClose: false,
+    content: `<div class="r-form r-cl-ch">
+      <div class="r-cl-ch-top"><label class="r-field"><span>${esc(t("Chimera.Name"))}</span><input type="text" name="name" value="${esc(cur.name)}"></label>
+        <label class="r-field"><span>${esc(t("Chimera.Rating"))}</span><input type="number" name="rating" min="1" max="5" value="${cur.rating}"></label></div>
+      <p class="r-cl-ch-tally r-note"></p>
+      <h4 class="r-banner">${esc(game.i18n.localize("VTM20.Sheet.Attributes"))}</h4><div class="r-cl-ch-grid">${attrRows}</div>
+      <h4 class="r-banner">${esc(game.i18n.localize("VTM20.Sheet.Abilities"))}</h4><div class="r-cl-ch-grid">${abilRows}</div>
+      <div class="r-cl-ch-grid"><label class="r-cl-ch-f"><span>${esc(t("Glamour"))}</span>${num("glamour", cur.glamour, 0, 20)}</label>
+        <label class="r-cl-ch-f"><span>${esc(game.i18n.localize("VTM20.Willpower"))}</span>${num("will", cur.will, 1, 10)}</label>
+        <label class="r-cl-ch-f"><span>${esc(t("Chimera.Health"))}</span>${num("health", cur.health, 0, 50)}</label></div>
+      <h4 class="r-banner">${esc(t("Chimera.Redes"))}</h4><div class="r-cl-ch-redes">${redeRows}</div>
+      <label class="r-field"><span>${esc(t("Chimera.Text"))}</span><input type="text" name="text" value="${esc(cur.text)}"></label>
+      <p class="r-note">${esc(t("Chimera.Rule"))}</p></div>`,
+    render: (ev, dlg) => { const form = dlg.element.querySelector("form") ?? dlg.element, out = dlg.element.querySelector(".r-cl-ch-tally");
+      const upd = () => { out.textContent = tally(form); }; upd(); form.addEventListener("input", upd); form.addEventListener("change", upd); },
+    ok: { label: game.i18n.localize("VTM20.Common.Save"), icon: "fa-solid fa-dragon", callback: (e, b) => read(b.form) } });
+  if (!f) return null;
+  const list = actor.system.changeling.chimeras.map(x => ({ ...x }));
+  if (i == null) list.push({ ...f, actor: "" }); else list[Number(i)] = { ...list[Number(i)], ...f };
+  return actor.update({ "system.changeling.chimeras": list });
+}
+
+export function dropChimera(actor, i) {
+  const list = actor.system.changeling.chimeras.map(x => ({ ...x }));
+  list.splice(Number(i), 1);
+  return actor.update({ "system.changeling.chimeras": list });
+}
+
+/** Лист существа для боя: Атрибуты (без начальной 1 — ноль остаётся нулём), Способности, Воля; Гламур, здоровье и Реды — в заметках. */
+export async function chimeraActor(actor, i) {
+  const list = actor.system.changeling.chimeras.map(x => ({ ...x })), x = list[Number(i)];
+  if (!x) return null;
+  const old = game.actors.get(x.actor);
+  if (old) return old.sheet.render(true);
+  const redes = (x.redes ?? []).map(r => `<li><b>${esc(redeOf(r.key)?.name ?? r.key)}</b> (${r.pts}): ${esc(redeOf(r.key)?.text ?? "")}</li>`).join("");
+  const a = await Actor.create({ name: x.name || t("Chimera.Unnamed"), type: "creature", img: `systems/${SYSTEM_ID}/assets/icons/changeling.svg`,
+    ownership: actor.ownership, folder: actor.folder?.id ?? null,
+    system: { kind: t("Chimera.Kind"), supernatural: true,
+      attributes: Object.fromEntries(Object.keys(VTM20.attributes).map(k => [k, { value: Math.max(0, x.attrs?.[k] ?? 0) }])),
+      abilities: Object.fromEntries(Object.entries(x.abils ?? {}).map(([k, v]) => [k, { value: v }])),
+      willpower: { permanent: x.will, temporary: x.will },
+      notes: `<p><em>${esc(t("Chimera.Kind"))} · ${esc(actor.name)}</em></p><p>${esc(t("Glamour"))}: ${x.glamour}; ${esc(t("Chimera.Health"))}: ${x.health}</p>${redes ? `<ul>${redes}</ul>` : ""}${x.text ? `<p>${esc(x.text)}</p>` : ""}` },
+    flags: { [SYSTEM_ID]: { created: true, chimera: { owner: actor.id, i: Number(i) } } } });
+  list[Number(i)].actor = a.id;
+  await actor.update({ "system.changeling.chimeras": list });
+  a.sheet.render(true);
+  return a;
 }
 
 /* ── Туманы и Квесты (гл. 6) ─────────────────────────────────────────── */

@@ -58,6 +58,21 @@
         {{#if @root.editable}}<a data-action="clTreasure" data-op="store" data-d="-1" data-i="{{i}}"><i class="fa-solid fa-minus"></i></a> <a data-action="clTreasure" data-op="store" data-d="1" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Changeling.Treasure.StoreHint'}}"><i class="fa-solid fa-plus"></i></a>{{/if}}</p>
     </article>{{/each}}
   </div>{{else}}<p class="r-note">{{localize "VTM20.Changeling.Treasure.None"}}</p>{{/if}}
+  {{!-- Химеры-спутники (C20, гл. 8): черты по очкам химеры против бюджета Фона «Химера», Реды; лист существа для боя --}}
+  <h2 class="r-h2"><span>{{localize "VTM20.Changeling.Chimera.Head"}}</span>
+    {{#if editable}}<span class="r-h2-tools"><a class="r-btn" data-action="clChimera" data-op="add"><i class="fa-solid fa-dragon"></i> {{localize "VTM20.Changeling.Chimera.Add"}}</a></span>{{/if}}</h2>
+  {{#if cl.chimeras.length}}<div class="r-cl-oaths">
+    {{#each cl.chimeras}}<article class="r-vcard r-cl-oath r-cl-chimera {{#if over}}is-over{{/if}}">
+      <header><b>{{name}}</b> <em>{{dots}}</em> <span class="r-cl-state {{#if over}}is-bedlam{{/if}}" data-tooltip="{{localize 'VTM20.Changeling.Chimera.PtsHint'}}">{{pts}} / {{budget}}</span>
+        {{#if @root.editable}}<span class="r-cl-oath-tools"><a data-action="clChimera" data-op="actor" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Changeling.Chimera.ActorHint'}}"><i class="fa-solid {{#if hasActor}}fa-id-card{{else}}fa-user-plus{{/if}}"></i></a>
+          <a data-action="clChimera" data-op="edit" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Changeling.Chimera.Edit'}}"><i class="fa-solid fa-pen"></i></a>
+          <a data-action="clChimera" data-op="del" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a></span>{{/if}}</header>
+      <p class="r-cl-oath-fx"><i class="fa-solid fa-star"></i> {{glamour}} · <i class="fa-solid fa-shield-heart"></i> {{will}} · <i class="fa-solid fa-heart"></i> {{health}}</p>
+      {{#if attrs}}<p class="r-cl-oath-fx">{{attrs}}</p>{{/if}}{{#if abils}}<p class="r-cl-oath-fx">{{abils}}</p>{{/if}}
+      {{#if redes.length}}<div class="r-cl-states">{{#each redes}}<span class="r-cl-state" data-tooltip="{{tip}}">{{name}}</span>{{/each}}</div>{{/if}}
+      {{#if text}}<p class="r-note">{{text}}</p>{{/if}}
+    </article>{{/each}}
+  </div>{{else}}<p class="r-note">{{localize "VTM20.Changeling.Chimera.None"}}</p>{{/if}}
   {{!-- Клятвы (C20, гл. 6): примеры книги с ценой и расплатой; нарушение — расплата, «клятвопреступник» и триггер Банальности --}}
   <h2 class="r-h2 r-cl-oaths-head"><span>{{localize "VTM20.Changeling.Oath.Head"}}</span>
     {{#if editable}}<span class="r-h2-tools"><a class="r-btn" data-action="clOath" data-op="take"><i class="fa-solid fa-handshake-angle"></i> {{localize "VTM20.Changeling.Oath.Swear"}}</a></span>{{/if}}</h2>

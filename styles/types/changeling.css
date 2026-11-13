@@ -232,3 +232,14 @@
 /* Закрашенные точки — обводка и свечение в гамме Грёзы (общее правило r-core.css даёт вампирский красный); Банальность — сталь */
 .vtm20.r-type-changeling .r-dot.is-filled { border-color: #e58ed5; box-shadow: 0 0 4px rgba(229, 142, 213, .3); }
 .vtm20.r-type-changeling .r-dots.is-banality .r-dot.is-filled { border-color: #aab6c6; box-shadow: 0 0 4px rgba(170, 182, 198, .25); }
+/* Химеры-спутники: построитель */
+.r-cl-ch-dlg .r-cl-ch-top { display: grid; grid-template-columns: 1fr 160px; gap: 10px; }
+.r-cl-ch-dlg .r-cl-ch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 4px 12px; margin: 4px 0 8px; }
+.r-cl-ch-dlg .r-cl-ch-f { display: flex; align-items: center; justify-content: space-between; gap: 6px; font-size: 13px; }
+.r-cl-ch-dlg .r-cl-ch-f input { width: 52px; text-align: center; }
+.r-cl-ch-dlg .r-cl-ch-redes { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 3px 12px; margin: 4px 0 8px; }
+.r-cl-ch-dlg .r-cl-ch-rede { display: grid; grid-template-columns: auto 1fr 48px; align-items: center; gap: 6px; font-size: 13px; }
+.r-cl-ch-dlg .r-cl-ch-rede input[type=number] { width: 48px; text-align: center; }
+.r-cl-ch-dlg .r-cl-ch-rede small { grid-column: 2 / -1; color: var(--r-muted); font-size: 11px; margin-top: -2px; }
+.r-cl-ch-dlg .r-cl-ch-tally { font-size: 14px; color: var(--r-ink); }
+.vtm20.r-type-changeling .r-cl-chimera.is-over { border-color: #a87ad6; }

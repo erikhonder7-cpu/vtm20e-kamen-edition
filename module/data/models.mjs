@@ -911,6 +911,10 @@ export class ChangelingData extends BaseActorData {
         oaths: new ArrayField(new SchemaField({ key: str("custom"), with: str(""), text: str(""), broken: new BooleanField({ initial: false }) })),
         // Дросс (C20, гл. 8): твёрдый Гламур — 1 дросс = 1 Гламур; Сокровища: Искусство и уровень, свой запас Гламура
         dross: int(0, 0, 99),
+        // Химеры-спутники (C20, гл. 8, Фон «Химера»): черты по очкам химеры, Реды; actor — лист существа для боя
+        chimeras: new ArrayField(new SchemaField({ name: str(""), rating: int(1, 1, 5), attrs: new ObjectField({ initial: {} }), abils: new ObjectField({ initial: {} }),
+          glamour: int(1, 0, 20), will: int(1, 1, 10), health: int(2, 0, 50), redes: new ArrayField(new SchemaField({ key: str(""), pts: int(0, 0, 30) })),
+          text: str(""), actor: str("") })),
         treasures: new ArrayField(new SchemaField({ name: str(""), art: str(""), level: int(1, 1, 5), store: int(0, 0, 20), text: str("") })),
         chimerical: new SchemaField({ bashing: int(0, 0, 7), lethal: int(0, 0, 7), aggravated: int(0, 0, 7) })
       })

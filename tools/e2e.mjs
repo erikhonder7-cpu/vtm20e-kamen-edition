@@ -5831,6 +5831,40 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  // Химеры-спутники (C20, гл. 8): очки — Атрибуты и Способности по 3 пункта за очко, Гламур 1, Воля 3 за точку сверх 1, здоровье 2 уровня
+  // за очко, Реды по цене; бюджет Фона «Химера» (2 — 25); построитель окном; лист существа для боя
+  await check("Подменыш: химера-спутник — очки, Реды, лист существа", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), CL = await import(`/systems/${sid}/module/apps/changeling.mjs`), out = {};
+      const a = await Actor.create({ name: "E2E — хозяин химеры", type: "changeling", flags: { world: { e2e: true }, [sid]: { created: true } } });
+      let made = null;
+      try {
+        out.pts = CL.chimeraPoints({ rating: 2, attrs: { strength: 3, dexterity: 3, stamina: 3 }, abils: { brawl: 3 }, glamour: 3, will: 2, health: 6,
+          redes: [{ key: "fear", pts: 2 }, { key: "armor", pts: 2 }] });
+        const p = CL.editChimera(a); await wait(700);
+        const dlg = [...foundry.applications.instances.values()].find(x => x.element?.classList?.contains("r-cl-ch-dlg"));
+        const f = dlg.element.querySelector("form") ?? dlg.element, set = (n, v) => { const el = f.querySelector(`[name="${n}"]`); if (el.type === "checkbox") el.checked = v; else el.value = v; el.dispatchEvent(new Event("change", { bubbles: true })); };
+        set("name", "Мотылёк"); set("rating", 2); set("a_dexterity", 4); set("a_perception", 2); set("b_alertness", 3); set("glamour", 4); set("health", 4); set("r_flight", true);
+        await wait(200);
+        out.tally = /\d+ из 25|of 25/.test(dlg.element.querySelector(".r-cl-ch-tally")?.textContent ?? "");
+        dlg.element.querySelector('button[data-action="ok"]')?.click(); await p; await wait(500);
+        const c = a.system.changeling.chimeras[0];
+        out.saved = [c?.name, c?.attrs?.dexterity, c?.redes?.map(x => x.key).join(",")];
+        await a.sheet.render({ force: true }); await wait(700); a.sheet.changeTab("disciplines", "primary"); await wait(300);
+        out.card = a.sheet.element.querySelectorAll(".r-cl-chimera").length;
+        await a.sheet.close();
+        made = await CL.chimeraActor(a, 0); await wait(500);
+        out.actor = [made?.type, made?.system.attributes.dexterity.value, a.system.changeling.chimeras[0].actor === made?.id];
+        await made?.sheet.close();
+      } finally { if (made) await made.delete(); await a.delete(); }
+      return out;
+    });
+    // Атрибуты 9 → 3, Способности 3 → 1, Гламур 3, Воля 2 → 3, здоровье 6 → 3, Реды 4: всего 17, бюджет 25
+    const want = { pts: { attr: 3, abil: 1, glamour: 3, will: 3, health: 3, redes: 4, total: 17, budget: 25 }, tally: true, saved: ["Мотылёк", 4, "flight"], card: 1, actor: ["creature", 4, true] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   await check("Призрак: лист и Арканои, Пафос, Страсть, Корпус до колебания и Испытание, Катарсис", async () => {
     const r = await page.evaluate(async () => {
       const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), WR = await import(`/systems/${sid}/module/apps/wraith.mjs`);
