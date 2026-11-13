@@ -59,7 +59,6 @@
   <div class="r-vcard r-vc-will">
     <div class="r-vc-head">
       <h4 class="r-banner"><a data-action="rollVirtue" data-kind="willpower">{{localize "VTM20.Willpower"}}</a></h4>
-      <div class="r-vc-status"><b>{{system.willpower.temporary}}</b> / {{system.willpower.permanent}}</div>
     </div>
     {{> rDots dots=willPerm cls="is-ten"}}
     <div class="r-boxes">
@@ -77,7 +76,7 @@
     <div class="r-vc-head">
       <h4 class="r-banner" data-tooltip="{{localize 'VTM20.Demon.TormentDieHint'}}"><span>{{localize "VTM20.Demon.Torment"}}</span></h4>
       <a class="r-icon-btn r-path-open" data-action="tormentLog" data-tooltip="{{localize 'VTM20.Demon.LogHint'}}"><i class="fa-solid fa-scroll"></i></a>
-      <div class="r-vc-status"><b>{{system.torment.permanent}}</b>{{#if tormentHigh}} · {{localize "VTM20.Demon.HighTorment"}}{{/if}}</div>
+      {{#if tormentHigh}}<div class="r-vc-status">{{localize "VTM20.Demon.HighTorment"}}</div>{{/if}}
     </div>
     {{> rDots dots=tormentPerm cls="is-ten"}}
     <div class="r-boxes" data-tooltip="{{localize 'VTM20.Demon.TormentTempHint'}}">
@@ -122,7 +121,6 @@
       <h4 class="r-banner"><a data-action="rollTrait" data-trait="werewolf.rage" data-tooltip="{{localize 'VTM20.Werewolf.RageHint'}}">{{localize "VTM20.Werewolf.Rage"}}</a></h4>
       {{#if werewolfInfo.beast}}<span class="r-vc-hint is-warn r-ww-beast" data-tooltip="{{localize 'VTM20.Werewolf.BeastHint' n=werewolfInfo.beast}}"><i class="fa-solid fa-paw-claws"></i> −{{werewolfInfo.beast}}</span>{{/if}}
       {{#if editable}}<a class="r-vc-btn" data-action="wwRageRegain" data-tooltip="{{localize 'VTM20.Werewolf.RageRegainHint'}}"><i class="fa-solid fa-moon"></i></a>{{/if}}
-      <div class="r-vc-status"><b>{{werewolfInfo.rage}}</b> / {{werewolfInfo.ragePerm}}</div>
     </div>
     {{> rDots dots=werewolfInfo.rageDots cls="is-ten is-rage"}}
     <div class="r-boxes is-rage">
@@ -133,7 +131,6 @@
     <div class="r-vc-head is-second">
       <h4 class="r-banner"><a data-action="rollTrait" data-trait="werewolf.gnosis" data-tooltip="{{localize 'VTM20.Werewolf.GnosisHint'}}">{{localize "VTM20.Werewolf.Gnosis"}}</a></h4>
       {{#if editable}}<a class="r-vc-btn" data-action="wwGnosisRegain" data-tooltip="{{localize 'VTM20.Werewolf.GnosisRegainHint'}}"><i class="fa-solid fa-spiral"></i></a>{{/if}}
-      <div class="r-vc-status"><b>{{werewolfInfo.gnosis}}</b> / {{werewolfInfo.gnosisPerm}}</div>
     </div>
     {{> rDots dots=werewolfInfo.gnosisDots cls="is-ten is-gnosis"}}
     <div class="r-boxes is-gnosis">
@@ -147,7 +144,6 @@
   <div class="r-vcard r-vc-morality r-vc-shadow r-vc-psyche {{#if spectre.psyche.catharsis}}is-catharsis{{/if}} {{#if spectre.psyche.canCatharsis}}is-high{{/if}}">
     <div class="r-vc-head">
       <h4 class="r-banner"><a data-action="openRules" data-tooltip="{{localize 'VTM20.Wraith.Spectre.PsycheHint'}}">{{localize "VTM20.Wraith.Spectre.Psyche"}}</a></h4>
-      <div class="r-vc-status">{{localize "VTM20.Wraith.Pathos"}} <b>{{spectre.psyche.pool}}</b> / {{spectre.psyche.rating}}</div>
     </div>
     {{> rDots dots=spectre.psyche.ratingDots cls="is-ten is-psyche"}}
     <div class="r-boxes is-psyche" data-tooltip="{{localize 'VTM20.Wraith.Spectre.PoolHint'}}">
@@ -197,7 +193,6 @@
   <div class="r-vcard r-vc-morality r-vc-shadow {{#if wraithInfo.catharsis}}is-catharsis{{/if}} {{#if wraithInfo.canCatharsis}}is-high{{/if}}">
     <div class="r-vc-head">
       <h4 class="r-banner"><a data-action="openRules" data-tooltip="{{localize 'VTM20.Wraith.RulesHint'}}">{{localize "VTM20.Wraith.Shadow"}}</a></h4>
-      <div class="r-vc-status" data-tooltip="{{localize 'VTM20.Wraith.AngstHint'}}">{{localize "VTM20.Wraith.Angst"}} <b>{{wraithInfo.angst}}</b> / {{wraithInfo.angstPerm}}</div>
     </div>
     {{> rDots dots=wraithInfo.angstDots cls="is-ten is-angst"}}
     <div class="r-boxes is-angst" data-tooltip="{{localize 'VTM20.Wraith.AngstTempHint'}}">
@@ -226,7 +221,7 @@
     <div class="r-vc-head"><h4 class="r-banner"><span>{{localize "VTM20.Werewolf.Spirit.title"}}</span></h4>
       {{#if editable}}<select name="system.spirit.rank" class="r-mini-select">{{#each spiritInfo.ranks}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>{{/if}}</div>
     {{#each spiritInfo.traits}}
-    <div class="r-vc-head is-second"><h4 class="r-banner"><a data-action="rollTrait" data-trait="spirit.{{k}}" data-tooltip="{{hint}}">{{label}}</a></h4><div class="r-vc-status"><b>{{v}}</b></div></div>
+    <div class="r-vc-head is-second"><h4 class="r-banner"><a data-action="rollTrait" data-trait="spirit.{{k}}" data-tooltip="{{hint}}">{{label}}</a></h4></div>
     {{> rDots dots=dots cls="is-ten"}}
     {{/each}}
     <div class="r-vc-head is-second"><h4 class="r-banner"><span>{{localize "VTM20.Werewolf.Spirit.essence"}}</span></h4>
@@ -308,7 +303,7 @@
   <div class="r-vcard r-vc-morality r-vc-mage">
     <div class="r-vc-head">
       <h4 class="r-banner"><a data-action="openRules" data-tooltip="{{localize 'VTM20.Mage.RulesHint'}}">{{@root.mageInfo.L.Arete}}</a></h4>
-      <div class="r-vc-status" data-tooltip="{{#if mageInfo.capped}}{{localize 'VTM20.Mage.CappedHint'}}{{else}}{{localize 'VTM20.Mage.CapHint'}}{{/if}}"><b>{{mageInfo.arete}}</b>{{#if mageInfo.areteName}} <small>{{mageInfo.areteName}}</small>{{/if}}</div>
+      <div class="r-vc-status" data-tooltip="{{#if mageInfo.capped}}{{localize 'VTM20.Mage.CappedHint'}}{{else}}{{localize 'VTM20.Mage.CapHint'}}{{/if}}">{{#if mageInfo.areteName}}<small>{{mageInfo.areteName}}</small>{{/if}}</div>
     </div>
     {{> rDots dots=mageInfo.areteDots cls="is-ten"}}
     <div class="r-wheel" data-tooltip="{{localize 'VTM20.Mage.WheelHint'}}">
@@ -363,7 +358,6 @@
         </select>
       </h4>{{/if}}
       <a class="r-icon-btn r-path-open" data-action="openPath" data-tooltip="{{localize 'VTM20.Sheet.OpenPath'}}"><i class="fa-solid fa-book-open"></i></a>
-      <div class="r-vc-status"><b>{{system.morality.value}}</b></div>
     </div>
     {{> rDots dots=moralityDots cls="is-ten"}}
     <div class="r-virtues">

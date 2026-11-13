@@ -5,19 +5,19 @@
   {{#unless (or hsien daf)}}
   <div class="r-cl-dream {{#if changelingInfo.mists}}is-mists{{/if}} {{#if changelingInfo.bedlam}}is-bedlam{{/if}}">
     <div class="r-cl-temper is-glamour">
-      <div class="r-cl-temper-head"><h4 class="r-banner">{{localize "VTM20.Changeling.Glamour"}}</h4><span class="r-cl-temper-num"><b>{{changelingInfo.glamour}}</b>/{{changelingInfo.glamourPerm}}</span></div>
+      <div class="r-cl-temper-head"><h4 class="r-banner">{{localize "VTM20.Changeling.Glamour"}}</h4></div>
       {{> rDots dots=changelingInfo.glamourDots cls="is-ten is-glamour"}}
       <div class="r-boxes is-glamour">{{#each changelingInfo.glamourBoxes}}<a class="r-box {{#if filled}}is-filled{{/if}}" {{#if @root.editable}}data-action="setDots" data-path="{{path}}" data-n="{{n}}"{{/if}}></a>{{/each}}</div>
     </div>
     <div class="r-cl-temper is-banality">
       <div class="r-cl-temper-head"><h4 class="r-banner" data-tooltip="{{localize 'VTM20.Changeling.BanalityHint'}}">{{localize "VTM20.Changeling.Banality"}}</h4>
-        <span class="r-cl-temper-num">{{#if changelingInfo.mists}}<small class="is-warn" data-tooltip="{{localize 'VTM20.Changeling.BanalityPoolHint'}}">{{localize "VTM20.Changeling.Mists"}}</small> {{/if}}<b>{{changelingInfo.banality}}</b></span></div>
+        <span class="r-cl-temper-num">{{#if changelingInfo.mists}}<small class="is-warn" data-tooltip="{{localize 'VTM20.Changeling.BanalityPoolHint'}}">{{localize "VTM20.Changeling.Mists"}}</small>{{/if}}</span></div>
       {{> rDots dots=changelingInfo.banalityDots cls="is-ten is-banality"}}
       <div class="r-boxes is-banality" data-tooltip="{{localize 'VTM20.Changeling.BanalityPoolHint'}}">{{#each changelingInfo.banalityBoxes}}<a class="r-box {{#if filled}}is-filled{{/if}}" {{#if @root.editable}}data-action="setDots" data-path="{{path}}" data-n="{{n}}"{{/if}}></a>{{/each}}</div>
     </div>
     <div class="r-cl-temper is-nightmare">
       <div class="r-cl-temper-head"><h4 class="r-banner" data-tooltip="{{localize 'VTM20.Changeling.NightmareHint'}}">{{localize "VTM20.Changeling.Nightmare"}}</h4>
-        <span class="r-cl-temper-num">{{#if changelingInfo.imbalance}}<small class="is-warn" data-tooltip="{{localize 'VTM20.Changeling.ImbalanceHint'}}">{{localize "VTM20.Changeling.Imbalance"}} {{changelingInfo.imbalance}}</small> {{/if}}<b>{{changelingInfo.nightmare}}</b></span></div>
+        <span class="r-cl-temper-num">{{#if changelingInfo.imbalance}}<small class="is-warn" data-tooltip="{{localize 'VTM20.Changeling.ImbalanceHint'}}">{{localize "VTM20.Changeling.Imbalance"}} {{changelingInfo.imbalance}}</small>{{/if}}</span></div>
       <div class="r-boxes is-nightmare">{{#each changelingInfo.nightmareBoxes}}<a class="r-box {{#if filled}}is-filled{{/if}}" {{#if @root.editable}}data-action="setDots" data-path="{{path}}" data-n="{{n}}"{{/if}}></a>{{/each}}</div>
       <div class="r-cl-states">
         <span class="r-cl-state is-dross" data-tooltip="{{localize 'VTM20.Changeling.DrossHint'}}"><i class="fa-solid fa-gem"></i> {{changelingInfo.dross}}{{#if editable}} <a data-action="clDross" data-d="-1"><i class="fa-solid fa-minus"></i></a><a data-action="clDross" data-d="1"><i class="fa-solid fa-plus"></i></a>{{/if}}</span>
@@ -83,9 +83,9 @@
   {{else if hsien}}
   {{!-- Хсиен (C20, гл. 39): Чи Инь и Ян, Дао, Ранг, Югэн; школы Ву Тань и Ней Тань (module/apps/fae-variants.mjs) --}}
   <div class="r-cl-dream r-hs-panel">
-    <div class="r-cl-temper"><div class="r-cl-temper-head"><h4 class="r-banner">{{localize "VTM20.Fae.Hsien.Yin"}}</h4><span class="r-cl-temper-num"><b>{{hsien.yin}}</b></span></div>{{> rDots dots=hsien.yinDots}}</div>
-    <div class="r-cl-temper"><div class="r-cl-temper-head"><h4 class="r-banner">{{localize "VTM20.Fae.Hsien.Yang"}}</h4><span class="r-cl-temper-num"><b>{{hsien.yang}}</b></span></div>{{> rDots dots=hsien.yangDots}}</div>
-    <div class="r-cl-temper"><div class="r-cl-temper-head"><h4 class="r-banner" data-tooltip="{{localize 'VTM20.Fae.Hsien.YugenHint'}}">{{localize "VTM20.Fae.Hsien.Yugen"}}</h4><span class="r-cl-temper-num"><b>{{hsien.yugen}}</b>/{{hsien.yugenMax}}</span></div>
+    <div class="r-cl-temper"><div class="r-cl-temper-head"><h4 class="r-banner">{{localize "VTM20.Fae.Hsien.Yin"}}</h4></div>{{> rDots dots=hsien.yinDots}}</div>
+    <div class="r-cl-temper"><div class="r-cl-temper-head"><h4 class="r-banner">{{localize "VTM20.Fae.Hsien.Yang"}}</h4></div>{{> rDots dots=hsien.yangDots}}</div>
+    <div class="r-cl-temper"><div class="r-cl-temper-head"><h4 class="r-banner" data-tooltip="{{localize 'VTM20.Fae.Hsien.YugenHint'}}">{{localize "VTM20.Fae.Hsien.Yugen"}}</h4></div>
       <div class="r-boxes is-glamour">{{#each hsien.yugenBoxes}}<a class="r-box {{#if filled}}is-filled{{/if}}" {{#if @root.editable}}data-action="setDots" data-path="{{path}}" data-n="{{n}}"{{/if}}></a>{{/each}}</div></div>
     <p class="r-note r-hs-derived">{{localize "VTM20.Fae.Hsien.Derived" rank=hsien.rank tao=hsien.tao dom=hsien.dominant}}</p>
     {{#if editable}}<div class="r-cl-dream-bar">
@@ -106,10 +106,10 @@
   {{else if daf}}
   {{!-- Dark Ages: Fae: Мгла и Плетение вместо Грёзы, Эхо; четыре Домена с кантрипами книги (module/apps/dark-fae.mjs) --}}
   <div class="r-cl-dream r-daf-panel">
-    <div class="r-cl-temper is-glamour"><div class="r-cl-temper-head"><h4 class="r-banner" data-tooltip="{{localize 'VTM20.Fae.Daf.MistsHint'}}">{{localize "VTM20.Fae.Daf.Mists"}}</h4><span class="r-cl-temper-num"><b>{{daf.mists}}</b>/{{daf.mistsPerm}}</span></div>
+    <div class="r-cl-temper is-glamour"><div class="r-cl-temper-head"><h4 class="r-banner" data-tooltip="{{localize 'VTM20.Fae.Daf.MistsHint'}}">{{localize "VTM20.Fae.Daf.Mists"}}</h4></div>
       {{> rDots dots=daf.mistsDots cls="is-ten is-glamour"}}
       <div class="r-boxes is-glamour">{{#each daf.mistsBoxes}}<a class="r-box {{#if filled}}is-filled{{/if}}" {{#if @root.editable}}data-action="setDots" data-path="{{path}}" data-n="{{n}}"{{/if}}></a>{{/each}}</div></div>
-    <div class="r-cl-temper is-banality"><div class="r-cl-temper-head"><h4 class="r-banner" data-tooltip="{{localize 'VTM20.Fae.Daf.WeavingHint'}}">{{localize "VTM20.Fae.Daf.Weaving"}}</h4><span class="r-cl-temper-num"><b>{{daf.weaving}}</b>/{{daf.weavingPerm}}</span></div>
+    <div class="r-cl-temper is-banality"><div class="r-cl-temper-head"><h4 class="r-banner" data-tooltip="{{localize 'VTM20.Fae.Daf.WeavingHint'}}">{{localize "VTM20.Fae.Daf.Weaving"}}</h4></div>
       {{> rDots dots=daf.weavingDots cls="is-ten is-banality"}}
       <div class="r-boxes is-banality">{{#each daf.weavingBoxes}}<a class="r-box {{#if filled}}is-filled{{/if}}" {{#if @root.editable}}data-action="setDots" data-path="{{path}}" data-n="{{n}}"{{/if}}></a>{{/each}}</div></div>
     <div class="r-cl-temper is-nightmare"><div class="r-cl-temper-head"><h4 class="r-banner" data-tooltip="{{localize 'VTM20.Fae.Daf.EchoesHint'}}">{{localize "VTM20.Fae.Daf.Echoes"}}</h4>
