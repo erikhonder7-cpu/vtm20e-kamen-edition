@@ -5775,6 +5775,31 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  // Туманы и Квесты (C20, гл. 6): таблица Туманов — строка по Банальности смертного, рядом китейны — на 2 строки лучше;
+  // итог Квеста у рассказчика — рейтинг Банальности −1 (успех) или +1 (провал)
+  await check("Подменыш: Туманы для смертных и итог Квеста", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), CL = await import(`/systems/${sid}/module/apps/changeling.mjs`);
+      const n0 = game.messages.size, out = {};
+      const a = await Actor.create({ name: "E2E — Квест", type: "changeling", flags: { world: { e2e: true }, [sid]: { created: true } }, system: { changeling: { banality: { permanent: 4, temporary: 0 } } } });
+      try {
+        const p = CL.mistsTable({ banality: 6 }); await wait(700);
+        const dlg = [...foundry.applications.instances.values()].find(x => x.element?.querySelector?.(".r-cl-mists"));
+        const outEl = () => dlg?.element.querySelector(".r-cl-mists-out")?.textContent ?? "";
+        out.row6 = /Яркие вспышки|Vivid/.test(outEl());
+        dlg.element.querySelector("[name=near]").checked = true; dlg.element.querySelector("[name=near]").dispatchEvent(new Event("change")); await wait(200);
+        out.near = /Смутная|Uncertain|Неуверенная/.test(outEl());
+        await dlg.close(); await p;
+        await CL.questOutcome(a, true); out.done = a.system.changeling.banality.permanent;
+        await CL.questOutcome(a, false); await CL.questOutcome(a, false); out.fail = a.system.changeling.banality.permanent;
+      } finally { await ChatMessage.deleteDocuments(game.messages.contents.slice(n0).map(x => x.id)); await a.delete(); }
+      return out;
+    });
+    const want = { row6: true, near: true, done: 3, fail: 5 };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   await check("Призрак: лист и Арканои, Пафос, Страсть, Корпус до колебания и Испытание, Катарсис", async () => {
     const r = await page.evaluate(async () => {
       const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), WR = await import(`/systems/${sid}/module/apps/wraith.mjs`);

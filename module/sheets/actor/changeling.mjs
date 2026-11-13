@@ -4,7 +4,7 @@
 
 import { castCantrip, unleash, artRow, spendGlamour, gainGlamour, gainNightmare, banalityTrigger, invokeWyrd, invokeAutumn, epiphany,
   setSceneBanality, endBedlam, takeOath, breakOath, dropOath, chimericalDamage, coldIron,
-  addTreasure, treasureStore, useTreasure, destroyTreasure } from "../../apps/changeling.mjs";
+  addTreasure, treasureStore, useTreasure, destroyTreasure, mistsTable, questOutcome } from "../../apps/changeling.mjs";
 
 function onCast(event, target) {
   const d = target.dataset;
@@ -50,6 +50,14 @@ function onTreasure(event, target) {
   if (op === "del") return destroyTreasure(this.actor, i);
   return treasureStore(this.actor, i, Number(target.dataset.d) || 0);
 }
+function onMists() { return mistsTable(); }
+async function onQuest() {
+  const ok = await foundry.applications.api.DialogV2.wait({ window: { title: game.i18n.localize("VTM20.Changeling.Quest.Title"), icon: "fa-solid fa-flag" },
+    classes: ["vtm20", "r-dialog", "r-type-changeling"], rejectClose: false, content: `<p>${game.i18n.localize("VTM20.Changeling.Quest.Ask")}</p>`,
+    buttons: [{ action: "done", label: game.i18n.localize("VTM20.Changeling.Quest.Success"), icon: "fa-solid fa-flag-checkered", callback: () => true },
+      { action: "fail", label: game.i18n.localize("VTM20.Changeling.Quest.Fail"), icon: "fa-solid fa-flag", callback: () => false }] });
+  return ok == null ? null : questOutcome(this.actor, ok);
+}
 function onDross(event, target) {
   const d = Number(target.dataset.d) || 0, n = this.actor.system.changeling.dross ?? 0;
   return this.actor.update({ "system.changeling.dross": Math.clamp(n + d, 0, 99) });
@@ -61,4 +69,4 @@ function onOath(event, target) {
 
 export const CHANGELING_ACTIONS = { clCast: onCast, clUnleash: onUnleash, clArtAdd: onArtAdd, clArtDel: onArtDel, clGlamour: onGlamour,
   clNightmare: onNightmare, clTrigger: onTrigger, clWyrd: onWyrd, clAutumn: onAutumn, clEpiphany: onEpiphany, clPlace: onPlace, clBedlamEnd: onBedlamEnd, clOath: onOath,
-  clChim: { handler: onChim, buttons: [0, 2] }, clColdIron: onColdIron, clTreasure: onTreasure, clDross: onDross };
+  clChim: { handler: onChim, buttons: [0, 2] }, clColdIron: onColdIron, clTreasure: onTreasure, clDross: onDross, clMists: onMists, clQuest: onQuest };

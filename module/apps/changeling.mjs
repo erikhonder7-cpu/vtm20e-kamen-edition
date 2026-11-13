@@ -271,6 +271,37 @@ export function chimericalView(actor) {
     damage: ch.damage, status: game.i18n.localize(VTM20.healthLevels.find(l => l.key === ch.status)?.label ?? "VTM20.Health.healthy"), penalty: ch.penalty };
 }
 
+/* ── Туманы и Квесты (гл. 6) ─────────────────────────────────────────── */
+
+/**
+ * Туманы (гл. 6, таблица): что смертный запомнит о чуде по своей Банальности и сколько химерически убитый подменыш
+ * пробудет в неведении. Рядом другие китейны — на 2 строки лучше. Окно рассказчика: строка таблицы и описание.
+ */
+export async function mistsTable(preset = {}) {
+  const row = (b, near) => Math.max(0, b - (near ? 2 : 0));
+  const render = (b, near) => { const r = row(b, near); return `<p><b>${esc(t(`MistsT.Effect.${r}`))}</b> — ${esc(t(`MistsT.Text.${r}`))}</p><p class="r-note">${esc(t("MistsT.Duration", { d: t(`MistsT.Time.${b}`) }))}</p>`; };
+  const b0 = Math.clamp(preset.banality ?? 5, 0, 10);
+  return foundry.applications.api.DialogV2.prompt({ window: { title: t("MistsT.Title"), icon: "fa-solid fa-smog" }, classes: ["vtm20", "r-dialog", "r-type-changeling"],
+    position: { width: 520 }, rejectClose: false,
+    content: `<div class="r-form r-cl-mists"><label class="r-field"><span>${esc(t("MistsT.Banality"))}</span><input type="number" name="b" min="0" max="10" value="${b0}"></label>
+      <label class="r-check"><input type="checkbox" name="near"> ${esc(t("MistsT.Near"))}</label><div class="r-cl-mists-out">${render(b0, false)}</div>
+      <p class="r-note">${esc(t("MistsT.Rule"))}</p></div>`,
+    render: (ev, dlg) => {
+      const el = dlg.element, upd = () => { el.querySelector(".r-cl-mists-out").innerHTML = render(Math.clamp(Number(el.querySelector("[name=b]").value) || 0, 0, 10), el.querySelector("[name=near]").checked); };
+      el.querySelector("[name=b]").addEventListener("input", upd); el.querySelector("[name=near]").addEventListener("change", upd);
+    },
+    ok: { label: game.i18n.localize("VTM20.Common.Close") } });
+}
+
+/** Итог великого Квеста (гл. 6): успех — −1 к рейтингу Банальности, провал или отступление — +1 (только рассказчик). */
+export async function questOutcome(actor, ok) {
+  if (!game.user.isGM) return ui.notifications.warn(game.i18n.localize("VTM20.Notify.GMOnly"));
+  const b = actor.system.changeling.banality.permanent, n = Math.clamp(b + (ok ? -1 : 1), 0, 10);
+  await actor.update({ "system.changeling.banality.permanent": n });
+  await say(actor, ok ? "fa-flag-checkered" : "fa-flag", t(ok ? "Quest.Done" : "Quest.Failed", { name: esc(actor.name), n }), ok ? "" : "is-warn");
+  return n;
+}
+
 /* ── Дросс и Сокровища (гл. 8 «Dross», «Treasures») ───────────────────── */
 
 /** Сокровища на листе: Искусство и уровень (его имя), запас Гламура. */

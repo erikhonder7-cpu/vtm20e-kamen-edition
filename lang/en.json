@@ -8935,6 +8935,61 @@
       "Done": "<b>{name}</b> learned “{what}” to {n}."
     },
     "Changeling": {
+      "Quest": {
+        "Title": "Quest outcome",
+        "Hint": "A great Quest (ch. 6): the only way to shed a point of Banality rating; failure or retreat — +1.",
+        "Ask": "The oath-bound Quest is over. How did it end?",
+        "Success": "Success: −1 Banality",
+        "Fail": "Failure: +1 Banality",
+        "Done": "<b>{name}</b> completes a great Quest: Banality rating {n}.",
+        "Failed": "<b>{name}</b>: the Quest failed — Banality rating {n}."
+      },
+      "MistsT": {
+        "Title": "The Mists",
+        "Banality": "Mortal's Banality",
+        "Near": "Other kithain present (two rows better)",
+        "Duration": "A changeling slain chimerically with this Banality forgets their nature for: {d}.",
+        "Rule": "The Mists (ch. 6): the lower the Banality, the more a mortal remembers of the wonder, and the more dreamlike. A single point of Glamour helps a changeling awaken.",
+        "Effect": {
+          "0": "Perfect recall",
+          "1": "Clarity",
+          "2": "Partial recall",
+          "3": "Disorientation",
+          "4": "Uncertain memory",
+          "5": "Vague memory",
+          "6": "Vivid flashbacks",
+          "7": "Dreamlike memory",
+          "8": "Distant dream",
+          "9": "Denial",
+          "10": "Total blackout"
+        },
+        "Text": {
+          "0": "remembers how Glamour works, for years",
+          "1": "remembers everything, but without vividness",
+          "2": "details are missing",
+          "3": "knows something happened, but not what",
+          "4": "flashes, doubts",
+          "5": "scraps of sensation without context — blamed on food or sleep",
+          "6": "surfaces under similar circumstances",
+          "7": "more a dream than a memory",
+          "8": "explains evidence away as psychosomatic or a prank",
+          "9": "actively denies, ignores evidence",
+          "10": "remembers nothing"
+        },
+        "Time": {
+          "0": "1 minute",
+          "1": "1 hour",
+          "2": "6 hours",
+          "3": "12 hours",
+          "4": "1 day",
+          "5": "3 days",
+          "6": "1 week",
+          "7": "2 weeks",
+          "8": "1 month",
+          "9": "4 months",
+          "10": "n/a"
+        }
+      },
       "Atlas": {
         "Kiths": "Kiths",
         "Houses": "Noble Houses",

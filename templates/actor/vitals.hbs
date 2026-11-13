@@ -213,7 +213,9 @@
       <a class="r-vc-btn" data-action="clEpiphany" data-tooltip="{{localize 'VTM20.Changeling.Epi.Hint'}}"><i class="fa-solid fa-lightbulb"></i> {{localize "VTM20.Changeling.Epi.Short"}}</a>
       <a class="r-vc-btn {{#if changelingInfo.wyrd}}is-on{{/if}}" data-action="clWyrd" data-tooltip="{{localize 'VTM20.Changeling.WyrdHint'}}"><i class="fa-solid fa-sun"></i> {{localize "VTM20.Changeling.Wyrd"}}</a>
       <a class="r-vc-btn" data-action="clAutumn" data-tooltip="{{localize 'VTM20.Changeling.AutumnHint'}}"><i class="fa-solid fa-leaf"></i> {{localize "VTM20.Changeling.Autumn"}}</a>
-      {{#if changelingInfo.isGM}}<a class="r-vc-btn is-sq is-right" data-action="clPlace" data-tooltip="{{localize 'VTM20.Changeling.PlaceBanality'}}"><i class="fa-solid fa-building"></i></a>{{/if}}
+      {{#if changelingInfo.isGM}}<a class="r-vc-btn is-sq is-right" data-action="clMists" data-tooltip="{{localize 'VTM20.Changeling.MistsT.Title'}}"><i class="fa-solid fa-smog"></i></a>
+      <a class="r-vc-btn is-sq" data-action="clQuest" data-tooltip="{{localize 'VTM20.Changeling.Quest.Hint'}}"><i class="fa-solid fa-flag"></i></a>
+      <a class="r-vc-btn is-sq" data-action="clPlace" data-tooltip="{{localize 'VTM20.Changeling.PlaceBanality'}}"><i class="fa-solid fa-building"></i></a>{{/if}}
     </div>{{/if}}
   </div>
   {{else if wraithInfo}}
