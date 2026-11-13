@@ -344,7 +344,7 @@ openStrategy: () => openStrategy(),
       ctx.arc.allFolded = ctx.arc.own.every(x => x.folded);
       ctx.sigil = { ...ctx.sigil, img: VTM20.typeSigil("wraith"), sym: ctx.wraithInfo.legionSym ?? ctx.sigil.sym, label: ctx.wraithInfo.legion?.name ?? "" }; ctx.lineAtlas = true; }
     else if (actor.type === "changeling") { ctx.changelingInfo = changelingInfo(actor, dots); ctx.cl = artsView(actor, dots);
-      ctx.sigil = { ...ctx.sigil, img: CHANGELING_SIGIL, label: ctx.changelingInfo.kith?.name ?? "" }; }
+      ctx.sigil = { ...ctx.sigil, img: CHANGELING_SIGIL, label: ctx.changelingInfo.kith?.name ?? "" }; ctx.lineAtlas = true; }
     else if (actor.type !== "mortal") prepareDisciplines(this, ctx);
     prepareAdvantages(this, ctx);
     if (actor.type === "mortal") { ctx.sorcInfo = sorcererInfo(actor, dots); ctx.consorInfo = consorInfo(actor);
@@ -661,6 +661,7 @@ openStrategy: () => openStrategy(),
     const s = this.actor.system, { openAtlas } = await import("../apps/atlas.mjs");
     if (this.actor.type === "hunter") return openAtlas("hunter", s.hunter?.creed);
     if (this.actor.type === "wraith") return openAtlas("wraith", s.wraith?.guild);
+    if (this.actor.type === "changeling") return openAtlas("changeling", s.changeling?.kith);
     return this.actor.type === "mage" ? openAtlas("mage", s.mage?.faction) : openAtlas("werewolf", s.werewolf?.fera || s.werewolf?.tribe);
   }
 

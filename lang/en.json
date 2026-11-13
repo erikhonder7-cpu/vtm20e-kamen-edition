@@ -8715,6 +8715,7 @@
       "ResRow": "Resonance"
     },
     "Atlas": {
+      "ChangelingTitle": "The Dreaming — changeling atlas",
       "WraithTitle": "Wraith: The Oblivion — reference",
       "Attributes": "Attributes",
       "Allies": "Allied Guilds",
@@ -8934,6 +8935,15 @@
       "Done": "<b>{name}</b> learned “{what}” to {n}."
     },
     "Changeling": {
+      "Atlas": {
+        "Kiths": "Kiths",
+        "Houses": "Noble Houses",
+        "Legacies": "Legacies",
+        "Birthrights": "Birthrights",
+        "Revelry": "Revelry",
+        "Unleashing": "Unleashing",
+        "Nick": "Nickname"
+      },
       "Dross": "Dross",
       "DrossHint": "Dross (ch. 8): solid Glamour — a stone, a feather, a petal; 1 dross = 1 Glamour. Spent instead of Glamour when the pool is empty.",
       "Treasure": {

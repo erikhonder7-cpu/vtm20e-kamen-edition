@@ -13,6 +13,7 @@ import { M, mageGlyphSrc, subLabel, factionGlyph } from "./mage.mjs";
 import { W, wwGlyphSrc } from "./werewolf.mjs";
 import { H } from "./hunter.mjs";
 import { W as WR, arcSym, legionSym } from "./wraith.mjs";
+import { C as CL } from "./changeling.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const loc = k => game.i18n.localize(`VTM20.${k}`);
@@ -150,11 +151,37 @@ function wraithGroups() {
   ].filter(g => g.items.length);
 }
 
+/* ── Подменыш ──────────────────────────────────────────────────────────── */
+function changelingGroups() {
+  const D = CL(), realm = k => (D.realms ?? []).find(r => r.key === k)?.name ?? k;
+  const TYPE = { chimerical: "Changeling.Type.chimerical", wyrd: "Changeling.Type.wyrd", choice: "Changeling.Type.choice" };
+  return [
+    { key: "kiths", label: loc("Changeling.Atlas.Kiths"), items: (D.kiths ?? []).map(k => ({ key: `kith:${k.key}`, name: k.name, sub: k.en, icon: "fa-wand-sparkles",
+      card: () => ({ kicker: loc("Changeling.Kith"), text: k.html }) })) },
+    { key: "houses", label: loc("Changeling.Atlas.Houses"), items: (D.houses ?? []).map(h => ({ key: `house:${h.key}`, name: h.name, sub: `${h.en} · ${h.courtText ?? ""}`, icon: "fa-crown",
+      card: () => ({ kicker: loc("Changeling.House"), text: h.html || p(h.short),
+        facts: [fact(loc("Changeling.CourtLabel"), h.courtText), fact(loc("Changeling.Atlas.Nick"), h.nick), fact(loc("ClCr.Boon"), h.boon), fact(loc("ClCr.HouseFlaw"), h.flaw)].filter(Boolean) }) })) },
+    { key: "legacies", label: loc("Changeling.Atlas.Legacies"), items: (D.legacies ?? []).map(l => ({ key: `legacy:${l.key}`, name: l.name, sub: `${l.en} · ${loc(`Changeling.Court.${l.court}`)}`, icon: l.court === "seelie" ? "fa-sun" : "fa-moon",
+      card: () => ({ kicker: loc(l.court === "seelie" ? "Changeling.LegacySeelie" : "Changeling.LegacyUnseelie"), text: p(l.text),
+        facts: [fact(loc("ClCr.Quest"), l.quest), fact(loc("ClCr.Ban"), l.ban)].filter(Boolean) }) })) },
+    { key: "arts", label: loc("Changeling.Arts"), items: (D.arts ?? []).map(a => ({ key: `art:${a.key}`, name: a.name, sub: a.en, icon: "fa-wand-sparkles",
+      card: () => ({ kicker: loc("Changeling.Art"), text: a.html,
+        facts: [fact(loc("Changeling.Atlas.Unleashing"), a.unleashing), fact(loc("Changeling.Bunk"), a.bunks)].filter(Boolean),
+        sections: [{ title: loc("Changeling.Arts"), n: a.levels.length, rows: a.levels.map(l => ({ lvl: ROMAN[l.level], name: l.name, em: [l.en, TYPE[l.type] ? loc(TYPE[l.type]) : ""].filter(Boolean).join(" · "), html: l.html })) }] }) })) },
+    { key: "realms", label: loc("Changeling.Realms"), items: (D.realms ?? []).map(r => ({ key: `realm:${r.key}`, name: r.name, sub: r.en, icon: "fa-compass",
+      card: () => ({ kicker: loc(r.modifier ? "Changeling.Modifiers" : "Changeling.Realms"), text: r.html,
+        sections: [{ title: realm(r.key), n: r.levels.length, rows: r.levels.map(l => ({ lvl: ROMAN[l.level], name: l.name, em: l.en ?? "", html: l.html ?? p(l.text) })) }] }) })) },
+    { key: "backgrounds", label: loc("Wraith.Backgrounds"), items: (D.backgrounds ?? []).map((x, i) => ({ key: `bg:${i}`, name: x.name, sub: x.en, icon: "fa-book",
+      card: () => ({ kicker: loc("Atlas.Background"), text: x.html }) })) }
+  ].filter(g => g.items.length);
+}
+
 const LINES = {
   mage: { groups: mageGroups, title: "VTM20.Atlas.MageTitle", icon: "fa-solid fa-hat-wizard", theme: "r-type-mage" },
   werewolf: { groups: wolfGroups, title: "VTM20.Atlas.WolfTitle", icon: "fa-solid fa-paw", theme: "r-type-werewolf" },
   hunter: { groups: hunterGroups, title: "VTM20.Atlas.HunterTitle", icon: "fa-solid fa-crosshairs", theme: "r-type-hunter" },
-  wraith: { groups: wraithGroups, title: "VTM20.Atlas.WraithTitle", icon: "fa-solid fa-ghost", theme: "r-type-wraith" }
+  wraith: { groups: wraithGroups, title: "VTM20.Atlas.WraithTitle", icon: "fa-solid fa-ghost", theme: "r-type-wraith" },
+  changeling: { groups: changelingGroups, title: "VTM20.Atlas.ChangelingTitle", icon: "fa-solid fa-wand-sparkles", theme: "r-type-changeling" }
 };
 
 /** Открыть справочник линейки («mage», «werewolf») на записи key; открытое окно переключается. */

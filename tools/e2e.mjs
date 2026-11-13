@@ -5756,6 +5756,25 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  // Атлас Грёзы: из знака на листе подменыша — на его ките; разделы киты, Дома, Наследия, Искусства, Царства, Фоны
+  await check("Подменыш: атлас Грёзы — киты, Дома, Наследия, Искусства, Царства", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms));
+      const a = await Actor.create({ name: "E2E — атлас", type: "changeling", flags: { world: { e2e: true }, [sid]: { created: true } }, system: { changeling: { kith: "troll" } } });
+      try {
+        await a.sheet.render({ force: true }); await wait(800);
+        a.sheet.element.querySelector('[data-action="lineAtlas"]')?.click(); await wait(1200);
+        const at = foundry.applications.instances.get("r-atlas-changeling");
+        const out = { open: !!at, groups: at?.groups.map(g => g.key).join(","), key: at?.v.key, title: /Тролли|Troll/.test(at?.element?.textContent ?? "") };
+        await at?.close(); await a.sheet.close();
+        return out;
+      } finally { await a.delete(); }
+    });
+    const want = { open: true, groups: "kiths,houses,legacies,arts,realms,backgrounds", key: "kith:troll", title: true };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   await check("Призрак: лист и Арканои, Пафос, Страсть, Корпус до колебания и Испытание, Катарсис", async () => {
     const r = await page.evaluate(async () => {
       const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), WR = await import(`/systems/${sid}/module/apps/wraith.mjs`);
