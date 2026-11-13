@@ -391,3 +391,5 @@ body.r-theme-light .vtm20.r-type-demon {
 /* Карточка броска призыва: чипы Знания и Муки в тлеющем золоте */
 .r-roll-card.r-type-demon .r-line-chip { border-color: rgba(219, 166, 83, .4); background: rgba(219, 166, 83, .07); color: #ecdcae; }
 .r-roll-card.r-type-demon .r-line-chip.is-cost { border-color: #c4474c; color: #f0a9a2; }
+/* Закрашенные точки — золотая обводка вместо вампирского красного (общее правило r-core.css) */
+.vtm20.r-type-demon .r-dot.is-filled { border-color: #e2b35c; box-shadow: 0 0 4px rgba(226, 179, 92, .3); }

@@ -138,3 +138,5 @@ body.r-theme-light .vtm20.r-type-demon.r-earthbound {
   color: #200703; background: linear-gradient(180deg, #ff9a52, #c2410f); border-color: #ffae5c; }
 .vtm20.r-type-demon.r-earthbound .r-btn.is-primary:hover { background: linear-gradient(180deg, #ffb070, #d9500f); color: #200703; }
 .vtm20.r-type-demon.r-earthbound .r-eb-doom { margin: 0; font-size: 12px; font-style: italic; color: var(--r-accent); }
+/* Закрашенные точки Привязанного — огненная обводка */
+.vtm20.r-type-demon.r-earthbound .r-dot.is-filled { border-color: #f08a3c; box-shadow: 0 0 4px rgba(240, 138, 60, .35); }
