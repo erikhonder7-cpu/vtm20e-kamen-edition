@@ -178,6 +178,18 @@
       {{/each}}
       <p class="r-hint">{{localize "VTM20.Bond.hint"}}</p>
 
+      {{#if ghoulLife}}
+      <h2 class="r-h2"><span>{{localize "VTM20.GhoulLife.Title"}}</span>{{#if editable}}<span class="r-h2-tools">
+        {{#if ghoulLife.withdrawal}}<a class="r-h2-btn" data-action="ghoulLife" data-op="week" data-tooltip="{{localize 'VTM20.GhoulLife.WeekTip'}}"><i class="fa-solid fa-hourglass-half"></i> <span class="r-h2-lbl">{{localize "VTM20.GhoulLife.Week"}}</span></a>
+        <a class="r-h2-btn" data-action="ghoulLife" data-op="refuse" data-tooltip="{{localize 'VTM20.GhoulLife.RefuseTip'}}"><i class="fa-solid fa-hand"></i></a>{{/if}}
+        {{#if ghoulLife.excess}}<a class="r-h2-btn" data-action="ghoulLife" data-op="hall" data-tooltip="{{localize 'VTM20.GhoulLife.HallTip'}}"><i class="fa-solid fa-eye"></i></a>
+        <a class="r-h2-btn" data-action="ghoulLife" data-op="purge" data-tooltip="{{localize 'VTM20.GhoulLife.PurgeTip'}}"><i class="fa-solid fa-flask"></i></a>{{/if}}
+        {{#if ghoulLife.discDue}}<a class="r-h2-btn" data-action="ghoulLife" data-op="lose" data-tooltip="{{localize 'VTM20.GhoulLife.LoseTip'}}"><i class="fa-solid fa-arrow-trend-down"></i></a>{{/if}}
+      </span>{{/if}}</h2>
+      <div class="r-ghl">{{#each ghoulLife.chips}}<span class="r-chip {{#if warn}}is-warn{{/if}}" data-tooltip="{{tip}}"><i class="fa-solid {{icon}}"></i> {{label}}</span>{{else}}<div class="r-empty">{{localize "VTM20.GhoulLife.Calm"}}</div>{{/each}}</div>
+      <p class="r-hint">{{#if ghoulLife.revenant}}{{localize "VTM20.GhoulLife.HintRevenant"}}{{else}}{{localize "VTM20.GhoulLife.Hint"}}{{/if}}</p>
+      {{/if}}
+
       {{#if hasVinc}}
       <h2 class="r-h2"><span>{{localize "VTM20.Vinc.Title"}}</span>{{#if editable}}<span class="r-h2-tools">
         <a class="r-h2-btn" data-action="packVinc" data-tooltip="{{localize 'VTM20.Vinc.PackTip'}}"><i class="fa-solid fa-people-group"></i> <span class="r-h2-lbl">{{localize "VTM20.Vinc.Pack"}}</span></a>

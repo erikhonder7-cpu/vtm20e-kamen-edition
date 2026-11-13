@@ -209,6 +209,10 @@ export class GhoulData extends BaseActorData {
       // Активный запас витэ: 1 на старте, предел 2 (растёт с возрастом).
       blood: new SchemaField({ value: int(1, 0, 20), max: int(2, 1, 20) }),
       boosts: new SchemaField({ strength: int(0, 0, 10), dexterity: int(0, 0, 10), stamina: int(0, 0, 10) }),
+      // жизнь на витэ (apps/ghoul-life.mjs): ночь, когда опустел запас; кровь какого клана и сколько подряд; изъян клана;
+      // лишние пункты в теле и прижились ли они; сколько точек Дисциплин уже снято без витэ
+      addiction: new SchemaField({ dry: str(), clan: str(), streak: int(0, 0, 99), taint: str(), excess: int(0, 0, 10),
+        spoiled: new BooleanField({ initial: false }), lost: int(0, 0, 20) }),
       bonds: new ArrayField(new SchemaField({ name: str(), rating: int(1, 1, 3), role: str("regnant"), drinks: int(1, 0, 99), last: str() })),
       boons: new ArrayField(new SchemaField({ name: str(), dir: str("owed"), level: str("minor"), note: str(), date: str(), done: new BooleanField({ initial: false }) }))
     };
@@ -237,6 +241,16 @@ export class GhoulData extends BaseActorData {
       // гуль-дампир: пока есть витэ вампира — предел по поколению донора
       this.disciplineMax = Math.max(effluence >= 4 ? 2 : 1, (this.dhampir?.vitae ?? 0) > 0 ? this.disciplineMax : 1);
       this.gast = (this.dhampir?.vitae ?? 0) > 0;
+    }
+    // передозировка (V20, гл. 7): прижившиеся лишние пункты держатся сверх предела; пока лишние в теле — Ловкость +1
+    this.blood.base = this.blood.max;
+    const ad = this.addiction ?? {};
+    if (this.ghoulType !== "dhampir") {
+      if (ad.excess > 0 && !ad.spoiled) this.blood.max += ad.excess;
+      if (ad.excess > 0 && this.attributes?.dexterity) { this.attributes.dexterity.total += 1; this.attributes.dexterity.fx = (this.attributes.dexterity.fx ?? 0) + 1; }
+      // изъян крови Носферату: Внешность −1, но не ниже 1 (книга: −1…−2 — меньшее, правило системы)
+      const ap = this.attributes?.appearance;
+      if (ad.taint === "nosferatu" && ap && ap.total > 1) { ap.total -= 1; ap.fx = (ap.fx ?? 0) - 1; }
     }
     this.blood.value = Math.min(this.blood.value, this.blood.max);
   }

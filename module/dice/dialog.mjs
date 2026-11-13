@@ -11,6 +11,7 @@ import { rollPool, odds, chancesView, tormentRule, tormentOdds } from "./roll.mj
 import { meritModsFor } from "../data/merit-mods.mjs";
 import { substanceMods } from "../data/vessels.mjs";
 import { dreadDice, frenzyDiff, mindDiff, centered, painless } from "../apps/target-powers.mjs";
+import { revenantDiff } from "../data/revenants.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -208,7 +209,9 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       ...((b => b?.attr && attrs.includes(b.attr) ? [{ label: t(`Changeling.Bedlam.${b.key}`), value: b.n }] : [])(a.type === "changeling" ? a.getFlag(SYSTEM_ID, "bedlam") : null)),
       // Обелиск Осириса: мистические проверки (силы Дисциплин, магия крови) −3
       ...((this.cfg.extra?.power || this.cfg.extra?.magic || ["magic", "ritual"].includes(this.cfg.kind)) ? a.system.fx?.mystic ?? [] : []),
-      ...mm.auto.filter(m => m.diff).map(m => ({ label: m.label, value: m.diff }))];
+      ...mm.auto.filter(m => m.diff).map(m => ({ label: m.label, value: m.diff })),
+      // изъяны семей ревенантов (data/revenants.mjs)
+      ...revenantDiff(a, { attrs, traits: [v.trait1, v.trait2], kind: this.cfg.kind, social, power: !!this.cfg.extra?.power })];
     const selectedTargets = [...(game.user.targets ?? [])];
     const earthTarget = selectedTargets.length === 1 ? selectedTargets[0]?.actor : null;
     const earthDetect = Number(earthTarget?.system?.fx?.detectDifficulty) || 0;

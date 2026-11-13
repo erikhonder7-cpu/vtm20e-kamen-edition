@@ -73,11 +73,16 @@ export async function rollVirtueCheck(actor, kind, { difficulty = 6, fromPrompt 
   if (kind === "frenzy") {
     // Бруха: +2 к сложности, воля не помогает предотвратить (02); гули — −3
     const brujah = actor.system.clan === "brujah" || actor.system.clan === "bruhaAntitribu";
+    // гуль с изъяном крови Бруха или лишними пунктами витэ — вампирская сложность (без −3; к таблице поводов +3 — правило системы)
+    const vamp = actor.type === "ghoul" && (await import("../apps/ghoul-life.mjs")).vampireFrenzy(actor);
+    // Братовичи (изъян семьи): +2 к сложности (окно броска) и Волю нельзя тратить, чтобы не допустить Срыв
+    const brat = actor.isRevenant && actor.system.family === "bratovich";
     if (actor.virtueKey?.("selfControl") === "instinct" && actor.type !== "ghoul") return instinctFrenzy(actor, Math.max(2, difficulty + (brujah ? 2 : 0)));
     return RollDialog.prompt(actor, {
       title: t("Roll.frenzy.title"), trait1: "virtues.selfControl", reflexive: true, kind: "frenzy",
       extra: { atavism: VTM20.atavismClans.includes(actor.system.clan) },
-      difficulty: table ? table : Math.max(2, difficulty + (brujah ? 2 : 0) - (actor.type === "ghoul" ? 3 : 0)), noWillpower: brujah, lockTraits: true,
+      difficulty: table ? table + (vamp ? 3 : 0) : Math.max(2, difficulty + (brujah ? 2 : 0) - (actor.type === "ghoul" && !vamp ? 3 : 0)), noWillpower: brujah || brat, lockTraits: true,
+      ...(vamp ? { diffNote: `<i class="fa-solid fa-flask"></i> ${t("GhoulLife.FrenzyVamp")}` } : {}),
       ...bloodlust()
     });
   }

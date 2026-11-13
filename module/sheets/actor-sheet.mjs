@@ -139,6 +139,7 @@ openUuid: VtMActorSheet.#onOpenUuid,
       addBond: VtMActorSheet.#onAddBond,
       drinkBond: VtMActorSheet.#onDrinkBond,
       feedFrom: VtMActorSheet.#onFeedFrom,
+      ghoulLife: VtMActorSheet.#onGhoulLife,
       openPath: VtMActorSheet.#onOpenPath, pathShift: VtMActorSheet.#onPathShift,
       openCoterie: VtMActorSheet.#onOpenCoterie,
       resistBond: VtMActorSheet.#onResistBond,
@@ -970,6 +971,12 @@ openStrategy: () => openStrategy(),
     if (entry) return (await pack.getDocument(entry._id))?.sheet.render(true);
     return foundry.applications.api.DialogV2.prompt({ window: { title: p.name, icon: "fa-solid fa-book-open" }, classes: ["vtm20", "r-dialog"],
       position: { width: 560 }, content: `<div class="r-path-text">${p.html ?? ""}</div>`, ok: { label: t("Common.Close") }, rejectClose: false });
+  }
+  /** Жизнь гуля на витэ: неделя ломки, отказ от витэ, галлюцинации, извержение, потеря Дисциплины. */
+  static async #onGhoulLife(event, target) {
+    const L = await import("../apps/ghoul-life.mjs");
+    const fn = { week: L.withdrawalWeek, refuse: L.refuseVitae, hall: L.hallucinations, purge: L.purge, lose: L.loseDiscipline }[target.dataset.op];
+    return fn?.(this.actor);
   }
   static async #onFeedFrom() {
     const { feedFrom } = await import("../apps/bonds.mjs");

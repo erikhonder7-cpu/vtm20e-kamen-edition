@@ -10,6 +10,7 @@
 import { getClock, ymd } from "./calendar.mjs";
 import { RollDialog } from "../dice/dialog.mjs";
 import { nameKey, actorByName } from "../data/lineage.mjs";
+import { Codex } from "../data/codex.mjs";
 
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
 const today = () => ymd(new Date(getClock()));
@@ -20,6 +21,8 @@ export async function drinkVitae(actor, index) {
   const bonds = foundry.utils.deepClone(actor._source.system.bonds ?? []);
   const b = bonds[index];
   if (!b || b.role !== "regnant") return;
+  // гуль с Волей ниже 6 может попытаться отказаться от третьего глотка (V20, гл. 7)
+  if (b.last !== today() && !(await (await import("./ghoul-life.mjs")).beforeDrink(actor, b))) return;
   const { list, msg } = applyDrink(bonds, index, today());
   await actor.update({ "system.bonds": list });
   return notice(actor, "fa-droplet", msg);
@@ -54,14 +57,19 @@ function applyDrink(bonds, index, night) {
 export async function feedFrom(actor) {
   const donors = game.actors.filter(a => a.type === "vampire" && a.id !== actor.id).sort((x, y) => x.name.localeCompare(y.name, "ru"));
   const opts = donors.map(a => `<option value="${a.id}">${foundry.utils.escapeHTML(a.name)} · ${a.system.blood?.value ?? 0}</option>`).join("");
+  // гулю — клан донора без листа (изъяны клановой крови, V20, гл. 7)
+  const life = await import("./ghoul-life.mjs");
+  const clanField = life.ghoulLives(actor) ? `<label class="r-field"><span>${t("BondX.FeedClan")}</span><select name="clan"><option value="">—</option>${
+    [...Codex.clans].sort((x, y) => x.name.localeCompare(y.name, "ru")).map(c => `<option value="${c.key}">${foundry.utils.escapeHTML(c.name)}</option>`).join("")}</select></label>` : "";
   const res = await foundry.applications.api.DialogV2.prompt({
     window: { title: t("BondX.FeedTitle", { name: actor.name }), icon: "fa-solid fa-hand-holding-droplet" }, classes: ["vtm20", "r-dialog"],
     content: `<p class="r-hint">${t("BondX.FeedHint")}</p>
       <label class="r-field"><span>${t("BondX.FeedDonor")}</span><select name="donor"><option value="">${t("BondX.FeedNoSheet")}</option>${opts}</select></label>
       <label class="r-field"><span>${t("BondX.FeedName")}</span><input type="text" name="name" placeholder="${t("BondX.FeedNameHint")}"></label>
+      ${clanField}
       <label class="r-field"><span>${t("BondX.FeedAmount")}</span><input type="number" name="amount" value="1" min="1" max="20"></label>`,
     ok: { label: t("BondX.FeedDo"), callback: (e, b) => ({ donor: b.form.elements.donor.value, name: b.form.elements.name.value.trim(),
-      amount: Math.max(1, Math.floor(Number(b.form.elements.amount.value) || 1)) }) },
+      clan: b.form.elements.clan?.value ?? "", amount: Math.max(1, Math.floor(Number(b.form.elements.amount.value) || 1)) }) },
     rejectClose: false
   });
   if (!res) return;
@@ -69,6 +77,9 @@ export async function feedFrom(actor) {
   const donorName = donor?.name ?? res.name;
   if (!donorName) return ui.notifications.warn(t("BondX.FeedNoDonor"));
   const night = today(), lines = [];
+  // гуль: третий глоток у того же вампира — можно попытаться отказаться (до того, как кровь перешла)
+  const prev = (actor._source.system.bonds ?? []).find(b => b.role === "regnant" && nameKey(b.name) === nameKey(donorName));
+  if (prev && prev.last !== night && !(await life.beforeDrink(actor, prev))) return;
   // кровь: у донора — сколько есть, у пьющего — до предела запаса
   let amount = res.amount;
   if (donor) {
@@ -79,7 +90,8 @@ export async function feedFrom(actor) {
   }
   const room = Math.max(0, (actor.system.blood?.max ?? 0) - (actor.system.blood?.value ?? 0)), got = Math.min(amount, room);
   if (got) await actor.update({ "system.blood.value": actor.system.blood.value + got });
-  if (got < amount) lines.push(t("BondX.FeedLost", { n: amount - got }));
+  // лишнее у гуля — передозировка (проверки ниже), у прочих пропадает
+  if (got < amount && !life.ghoulLives(actor)) lines.push(t("BondX.FeedLost", { n: amount - got }));
   // узы пьющего
   const bonds = foundry.utils.deepClone(actor._source.system.bonds ?? []);
   const i = bonds.findIndex(b => b.role === "regnant" && nameKey(b.name) === nameKey(donorName));
@@ -97,7 +109,9 @@ export async function feedFrom(actor) {
     else dl.push({ name: actor.name, rating, role: "thrall", drinks: 1, last: night });
     await donor.update({ "system.bonds": dl });
   }
-  return notice(actor, "fa-hand-holding-droplet", `${t("BondX.FeedDone", { name: actor.name, n: amount, donor: donorName })} ${msg}${lines.length ? ` <span class="r-muted">${lines.join(" ")}</span>` : ""}`);
+  await notice(actor, "fa-hand-holding-droplet", `${t("BondX.FeedDone", { name: actor.name, n: amount, donor: donorName })} ${msg}${life.ghoulLives(actor) && rating === 2 ? ` ${t("BondX.GhoulSecond")}` : ""}${lines.length ? ` <span class="r-muted">${lines.join(" ")}</span>` : ""}`);
+  // гуль: ломка позади, счёт крови клана, передозировка
+  if (life.ghoulLives(actor)) await life.afterDrink(actor, { amount, over: amount - got, clan: donor?.system.clan || res.clan || "" });
 }
 
 /** Временно сбросить узы: воля, сл. 8, успехов больше, чем глотков (≤ 9), и 1 пункт воли. */

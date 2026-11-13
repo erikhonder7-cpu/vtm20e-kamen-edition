@@ -5843,6 +5843,72 @@ try {
     const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
+  await check("Гуль на витэ: кровь одного клана, передозировка, ломка, третий глоток, изъяны ревенантов", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {};
+      const inst = () => [...foundry.applications.instances.values()];
+      const submit = async () => { for (let i = 0; i < 40; i++) { const d = inst().find(x => x.constructor.name === "RollDialog" && x.rendered); if (d) { d.element.querySelector("button[type=submit]")?.click(); await wait(1200); return true; } await wait(150); } return false; };
+      const L = await import(`/systems/${sid}/module/apps/ghoul-life.mjs`), B = await import(`/systems/${sid}/module/apps/bonds.mjs`);
+      const C = await import(`/systems/${sid}/module/apps/calendar.mjs`), RV = await import(`/systems/${sid}/module/data/revenants.mjs`);
+      const n0 = game.messages.size;
+      const donor = await Actor.create({ name: "E2E — донор Бруха", type: "vampire", flags: { [sid]: { created: true }, world: { e2e: true } }, system: { clan: "brujah", blood: { value: 10 } } });
+      const g = await Actor.create({ name: "E2E — гуль на витэ", type: "ghoul", flags: { [sid]: { created: true }, world: { e2e: true } },
+        system: { ghoulType: "vassal", attributes: { stamina: { value: 2 }, dexterity: { value: 2 } }, blood: { value: 0, max: 2 } } });
+      const DV = foundry.applications.api.DialogV2, p0 = DV.prompt, c0 = DV.confirm, rnd = CONFIG.Dice.randomUniform;
+      const TENS = () => 0.0001, ONES = () => 0.9999;
+      try {
+        // 5 пунктов Бруха при запасе 2: проверка клана (провал) → изъян; передозировка: 1-й лишний прижился, 2-й — нет
+        DV.prompt = async () => ({ donor: donor.id, name: "", clan: "", amount: 5 });
+        const p = B.feedFrom(g);
+        CONFIG.Dice.randomUniform = ONES; await submit();
+        CONFIG.Dice.randomUniform = TENS; await submit();
+        out.held = [g.system.addiction.excess, g.system.blood.value, g.system.blood.max];
+        CONFIG.Dice.randomUniform = ONES; await submit();
+        await p; await wait(300);
+        const ad = g.system.addiction;
+        out.feed = [donor.system.blood.value, ad.taint, ad.excess, ad.spoiled, g.system.health.lethal, g.system.blood.value, g.system.attributes.dexterity.total, L.vampireFrenzy(g)];
+        await L.purge(g); out.purge = [g.system.addiction.excess, g.system.addiction.spoiled, g.system.attributes.dexterity.total];
+        // кровь другого клана (без листа) смывает изъян; запас пуст — без передозировки
+        await g.update({ "system.blood.value": 0 }); await wait(300);
+        DV.prompt = async () => ({ donor: "", name: "Вентру без листа", clan: "ventrue", amount: 1 });
+        await B.feedFrom(g); await wait(300);
+        out.wash = [g.system.addiction.taint, g.system.addiction.clan, g.system.addiction.streak];
+        // запас опустел — «без витэ»; 7 месяцев назад: ломка позади (Выносливость 2 — 4 недели), к потере 2 точки
+        await g.update({ "system.blood.value": 0 }); await wait(400);
+        out.dry = g.system.addiction.dry === C.ymd(new Date(C.getClock()));
+        await g.update({ "system.addiction.dry": C.ymd(new Date(C.getClock() - 213 * 864e5)) });
+        await g.createEmbeddedDocuments("Item", [{ name: "Мощь", type: "discipline", system: { key: "potence", value: 2 } }]);
+        let st = L.lifeState(g); out.state = [st.withdrawal, st.discDue, st.chips.length];
+        DV.prompt = async () => g.items.find(i => i.type === "discipline").id;
+        await L.loseDiscipline(g); st = L.lifeState(g);
+        out.lose = [g.items.find(i => i.type === "discipline").system.value, g.system.addiction.lost, st.discDue];
+        // третий глоток у донора: Воля 5 — проверка Самоконтроля, успех — отказ, кровь не переходит
+        await g.update({ "system.bonds": [{ name: donor.name, rating: 2, role: "regnant", drinks: 2, last: "2000-01-01" }], "system.blood.value": 0 });
+        DV.prompt = async () => ({ donor: donor.id, name: "", clan: "", amount: 1 }); DV.confirm = async () => true;
+        const before = donor.system.blood.value, q = B.feedFrom(g);
+        CONFIG.Dice.randomUniform = TENS; await submit(); await q; await wait(300);
+        out.third = [g.system.blood.value, donor.system.blood.value === before, g.system.bonds[0].rating];
+        // изъяны семей: Д'Хаби — Сила воли +2, Росселлини — Восприятие +2 и социальные +1, Братовичи — Срыв +2
+        await g.update({ "system.ghoulType": "revenant", "system.family": "dhabi" });
+        const sum = o => RV.revenantDiff(g, o).reduce((s, x) => s + x.value, 0);
+        out.fam = [sum({ traits: ["willpower.permanent"] })];
+        await g.update({ "system.family": "rossellini" }); out.fam.push(sum({ attrs: ["perception"] }), sum({ attrs: ["charisma"], social: true }));
+        await g.update({ "system.family": "bratovich" }); out.fam.push(sum({ kind: "frenzy" }), sum({ attrs: ["strength"] }));
+        out.revDry = L.lifeState(g).discDue ?? 0;
+      } finally { DV.prompt = p0; DV.confirm = c0; CONFIG.Dice.randomUniform = rnd; }
+      for (const app of inst()) if (app.constructor.name === "RollDialog") await app.close();
+      await ChatMessage.deleteDocuments(game.messages.contents.slice(n0).map(m => m.id));
+      await g.delete(); await donor.delete();
+      return out;
+    });
+    // 5 → донор 5; изъян Бруха, 2 лишних (2-й не прижился): 2 летальных, запас 2, Ловкость 3, ярость вампирская;
+    // извержение — Ловкость 2; Вентру смыл изъян; без витэ 7 месяцев — ломки нет, к потере 2 → Мощь 1, осталось 1;
+    // третий глоток — отказ; семьи: 2 / 2, 1 / 2, 0; у ревенанта нет потери Дисциплин
+    const want = { held: [1, 3, 3], feed: [5, "brujah", 2, true, 2, 2, 3, true], purge: [0, false, 2], wash: ["", "ventrue", 1], dry: true,
+      state: [false, 2, 4], lose: [1, 1, 1], third: [0, true, 2], fam: [2, 2, 1, 2, 0], revDry: 0 };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
 
   // Химеры-спутники (C20, гл. 8): очки — Атрибуты и Способности по 3 пункта за очко, Гламур 1, Воля 3 за точку сверх 1, здоровье 2 уровня
   // за очко, Реды по цене; бюджет Фона «Химера» (2 — 25); построитель окном; лист существа для боя

@@ -300,6 +300,9 @@ export async function nightfall() {
     await a.update({ "system.blood.value": before + 1 });
     lines.push(`<li><b>${a.name}</b>: ${t("Night.Dhampir", { from: before, to: before + 1 })}</li>`);
   }
+  // гули без витэ: неделя ломки, Дисциплины к потере, старение (apps/ghoul-life.mjs)
+  const { ghoulNight } = await import("./ghoul-life.mjs");
+  for (const a of game.actors.filter(x => x.type === "ghoul")) for (const l of ghoulNight(a)) lines.push(`<li>${l}</li>`);
   // узы крови слабеют без крови сюзерена (05)
   const { decayBonds } = await import("./bonds.mjs");
   for (const a of game.actors.filter(x => (x.system.bonds ?? []).length)) for (const l of await decayBonds(a)) lines.push(`<li>${l}</li>`);
