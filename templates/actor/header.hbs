@@ -149,9 +149,9 @@
           <select name="system.changeling.court">{{#each changelingInfo.courts}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
         <label class="r-df" {{#if changelingInfo.house}}data-tooltip="{{changelingInfo.house.boon}}"{{/if}}><span>{{localize "VTM20.Changeling.House"}}</span>
           <select name="system.changeling.house"><option value="">—</option>{{#each changelingInfo.houses}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
-        <label class="r-df" {{#if changelingInfo.legacy}}data-tooltip="{{changelingInfo.legacy.ban}}"{{/if}}><span>{{localize "VTM20.Changeling.LegacySeelie"}}</span>
+        <label class="r-df" {{#if changelingInfo.legacy}}data-tooltip="{{changelingInfo.legacy.ban}}"{{/if}}><span data-tooltip="{{localize 'VTM20.Changeling.LegacySeelie'}}">{{localize "VTM20.Changeling.SeelieShort"}}</span>
           <select name="system.changeling.legacies.seelie"><option value="">—</option>{{#each changelingInfo.legaciesSeelie}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
-        <label class="r-df"><span>{{localize "VTM20.Changeling.LegacyUnseelie"}}</span>
+        <label class="r-df"><span data-tooltip="{{localize 'VTM20.Changeling.LegacyUnseelie'}}">{{localize "VTM20.Changeling.UnseelieShort"}}</span>
           <select name="system.changeling.legacies.unseelie"><option value="">—</option>{{#each changelingInfo.legaciesUnseelie}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
         <label class="r-df is-wide" data-tooltip="{{localize 'VTM20.Changeling.ThresholdHint'}}"><span>{{localize "VTM20.Changeling.Threshold"}}</span><input type="text" name="system.changeling.threshold" value="{{system.changeling.threshold}}"></label>
         <label class="r-df is-wide" data-tooltip="{{localize 'VTM20.Changeling.AntithesisHint'}}"><span>{{localize "VTM20.Changeling.Antithesis"}}</span><input type="text" name="system.changeling.antithesis" value="{{system.changeling.antithesis}}"></label>

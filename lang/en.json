@@ -8935,6 +8935,8 @@
       "Done": "<b>{name}</b> learned “{what}” to {n}."
     },
     "Changeling": {
+      "SeelieShort": "Seelie",
+      "UnseelieShort": "Unseelie",
       "Quest": {
         "Title": "Quest outcome",
         "Hint": "A great Quest (ch. 6): the only way to shed a point of Banality rating; failure or retreat — +1.",

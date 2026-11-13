@@ -43,10 +43,9 @@
     </div>
     {{#if changelingInfo}}{{!-- химерические раны (C20, гл. 6): своя дорожка; штраф ран — худший из двух --}}
     <div class="r-vc-head r-vc-sub r-cl-chim-head"><h4 class="r-banner" data-tooltip="{{localize 'VTM20.Changeling.ChimHint'}}">{{localize "VTM20.Changeling.Chimerical"}}</h4>
+      {{#if editable}}<span class="r-cl-chim-btns" data-tooltip="{{localize 'VTM20.Sheet.HealthHint'}}"><a class="r-vc-btn is-sq is-bashing" data-action="clChim" data-type="bashing">/</a><a class="r-vc-btn is-sq is-lethal" data-action="clChim" data-type="lethal">X</a><a class="r-vc-btn is-sq is-aggravated" data-action="clChim" data-type="aggravated">✱</a></span>{{/if}}
       <div class="r-vc-status">{{changelingInfo.chim.status}}{{#if changelingInfo.chim.penalty}} <b>{{changelingInfo.chim.penalty}}</b>{{/if}}</div></div>
     <div class="r-hboxes is-chimerical">{{#each changelingInfo.chim.levels}}<div class="r-hbox is-{{state}} {{#if current}}is-current{{/if}}" data-tooltip="{{label}}"><span class="r-hbox-mark">{{mark}}</span></div>{{/each}}</div>
-    {{#if editable}}<div class="r-vc-tools r-cl-chim-tools"><span class="r-vc-btngroup" data-tooltip="{{localize 'VTM20.Sheet.HealthHint'}}"><span class="r-vc-btnlabel">{{localize "VTM20.Changeling.ChimShort"}}</span>
-      <a class="r-vc-btn is-sq is-bashing" data-action="clChim" data-type="bashing">/</a><a class="r-vc-btn is-sq is-lethal" data-action="clChim" data-type="lethal">X</a><a class="r-vc-btn is-sq is-aggravated" data-action="clChim" data-type="aggravated">✱</a></span></div>{{/if}}
     {{/if}}
     <div class="r-vc-tools">
       <span class="r-vc-btngroup" data-tooltip="{{localize 'VTM20.Sheet.HealthHint'}}">
@@ -174,48 +173,46 @@
     </div>
   </div>
   {{else if changelingInfo}}
-  {{!-- Грёза (C20, гл. 6): Гламур — точками постоянный и клетками временный; Банальность — рейтинг и пул (пул выше Гламура — Туманы);
-       Кошмар 0–10 (10 — Дисбаланс: клетка Воли), Высвобождение и кубики Кошмара — module/apps/changeling.mjs --}}
+  {{!-- Грёза (C20, гл. 6): три Темпера одной полосой — Гламур (рейтинг точками, пул клетками), Банальность (рейтинг и пул; пул выше
+       Гламура — Туманы), Кошмар (10 — Дисбаланс, клетка Воли); ниже — один ряд кнопок и отметок (module/apps/changeling.mjs) --}}
   <div class="r-vcard r-vc-morality r-vc-dream {{#if changelingInfo.mists}}is-mists{{/if}} {{#if changelingInfo.bedlam}}is-bedlam{{/if}}">
-    <div class="r-vc-head">
-      <h4 class="r-banner">{{localize "VTM20.Changeling.Glamour"}}</h4>
-      <div class="r-vc-status"><b>{{changelingInfo.glamour}}</b> / {{changelingInfo.glamourPerm}}</div>
+    <div class="r-cl-tempers">
+      <div class="r-cl-temper is-glamour">
+        <div class="r-cl-temper-head"><h4 class="r-banner">{{localize "VTM20.Changeling.Glamour"}}</h4><span class="r-cl-temper-num"><b>{{changelingInfo.glamour}}</b>/{{changelingInfo.glamourPerm}}</span></div>
+        {{> rDots dots=changelingInfo.glamourDots cls="is-ten is-glamour"}}
+        <div class="r-boxes is-glamour">{{#each changelingInfo.glamourBoxes}}<a class="r-box {{#if filled}}is-filled{{/if}}" {{#if @root.editable}}data-action="setDots" data-path="{{path}}" data-n="{{n}}"{{/if}}></a>{{/each}}</div>
+      </div>
+      <div class="r-cl-temper is-banality">
+        <div class="r-cl-temper-head"><h4 class="r-banner" data-tooltip="{{localize 'VTM20.Changeling.BanalityHint'}}">{{localize "VTM20.Changeling.Banality"}}</h4>
+          <span class="r-cl-temper-num"><b>{{changelingInfo.banality}}</b>{{#if changelingInfo.mists}} <small class="is-warn" data-tooltip="{{localize 'VTM20.Changeling.BanalityPoolHint'}}">{{localize "VTM20.Changeling.Mists"}}</small>{{/if}}</span></div>
+        {{> rDots dots=changelingInfo.banalityDots cls="is-ten is-banality"}}
+        <div class="r-boxes is-banality" data-tooltip="{{localize 'VTM20.Changeling.BanalityPoolHint'}}">{{#each changelingInfo.banalityBoxes}}<a class="r-box {{#if filled}}is-filled{{/if}}" {{#if @root.editable}}data-action="setDots" data-path="{{path}}" data-n="{{n}}"{{/if}}></a>{{/each}}</div>
+      </div>
+      <div class="r-cl-temper is-nightmare">
+        <div class="r-cl-temper-head"><h4 class="r-banner" data-tooltip="{{localize 'VTM20.Changeling.NightmareHint'}}">{{localize "VTM20.Changeling.Nightmare"}}</h4>
+          <span class="r-cl-temper-num"><b>{{changelingInfo.nightmare}}</b>{{#if changelingInfo.imbalance}} <small class="is-warn" data-tooltip="{{localize 'VTM20.Changeling.ImbalanceHint'}}">{{localize "VTM20.Changeling.Imbalance"}} {{changelingInfo.imbalance}}</small>{{/if}}</span></div>
+        <div class="r-boxes is-nightmare">{{#each changelingInfo.nightmareBoxes}}<a class="r-box {{#if filled}}is-filled{{/if}}" {{#if @root.editable}}data-action="setDots" data-path="{{path}}" data-n="{{n}}"{{/if}}></a>{{/each}}</div>
+        <div class="r-cl-states">
+          <span class="r-cl-state is-dross" data-tooltip="{{localize 'VTM20.Changeling.DrossHint'}}"><i class="fa-solid fa-gem"></i> {{changelingInfo.dross}}{{#if editable}} <a data-action="clDross" data-d="-1"><i class="fa-solid fa-minus"></i></a><a data-action="clDross" data-d="1"><i class="fa-solid fa-plus"></i></a>{{/if}}</span>
+          {{#if changelingInfo.wyrd}}<span class="r-cl-state is-wyrd" data-tooltip="{{localize 'VTM20.Changeling.WyrdHint'}}"><i class="fa-solid fa-sun"></i> {{localize "VTM20.Changeling.WyrdChip"}}</span>{{/if}}
+          {{#if changelingInfo.threshold}}<span class="r-cl-state is-bedlam" data-tooltip="{{changelingInfo.threshold.name}}: {{changelingInfo.threshold.text}}"><i class="fa-solid fa-masks-theater"></i> {{changelingInfo.threshold.n}}
+            {{#if changelingInfo.isGM}}<a data-action="clBedlamEnd" data-tooltip="{{localize 'VTM20.Changeling.BedlamEnd'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}</span>{{/if}}
+          {{#if changelingInfo.place}}<span class="r-cl-state is-place" data-tooltip="{{localize 'VTM20.Changeling.PlaceHint'}}"><i class="fa-solid fa-building"></i> {{changelingInfo.place}}</span>{{/if}}
+        </div>
+      </div>
     </div>
-    {{> rDots dots=changelingInfo.glamourDots cls="is-ten is-glamour"}}
-    <div class="r-boxes is-glamour">{{#each changelingInfo.glamourBoxes}}<a class="r-box {{#if filled}}is-filled{{/if}}" {{#if @root.editable}}data-action="setDots" data-path="{{path}}" data-n="{{n}}"{{/if}}></a>{{/each}}</div>
-    <div class="r-vc-head r-vc-sub">
-      <h4 class="r-banner" data-tooltip="{{localize 'VTM20.Changeling.BanalityHint'}}">{{localize "VTM20.Changeling.Banality"}}</h4>
-      <div class="r-vc-status"><b>{{changelingInfo.banality}}</b>{{#if changelingInfo.mists}} <small class="is-warn">{{localize "VTM20.Changeling.Mists"}}</small>{{/if}}</div>
-    </div>
-    {{> rDots dots=changelingInfo.banalityDots cls="is-ten is-banality"}}
-    <div class="r-boxes is-banality" data-tooltip="{{localize 'VTM20.Changeling.BanalityPoolHint'}}">{{#each changelingInfo.banalityBoxes}}<a class="r-box {{#if filled}}is-filled{{/if}}" {{#if @root.editable}}data-action="setDots" data-path="{{path}}" data-n="{{n}}"{{/if}}></a>{{/each}}</div>
-    <div class="r-vc-head r-vc-sub">
-      <h4 class="r-banner" data-tooltip="{{localize 'VTM20.Changeling.NightmareHint'}}">{{localize "VTM20.Changeling.Nightmare"}}</h4>
-      <div class="r-vc-status"><b>{{changelingInfo.nightmare}}</b>{{#if changelingInfo.imbalance}} <small class="is-warn" data-tooltip="{{localize 'VTM20.Changeling.ImbalanceHint'}}">{{localize "VTM20.Changeling.Imbalance"}} {{changelingInfo.imbalance}}</small>{{/if}}</div>
-    </div>
-    <div class="r-boxes is-nightmare">{{#each changelingInfo.nightmareBoxes}}<a class="r-box {{#if filled}}is-filled{{/if}}" {{#if @root.editable}}data-action="setDots" data-path="{{path}}" data-n="{{n}}"{{/if}}></a>{{/each}}</div>
-    <div class="r-vc-tools">
-      {{#if editable}}<a class="r-vc-btn is-sq" data-action="clGlamour" data-d="-1" data-tooltip="{{localize 'VTM20.Changeling.SpendGlamour'}}"><i class="fa-solid fa-minus"></i></a>
+    {{#if editable}}<div class="r-vc-tools r-cl-bar">
+      <a class="r-vc-btn is-sq" data-action="clGlamour" data-d="-1" data-tooltip="{{localize 'VTM20.Changeling.SpendGlamour'}}"><i class="fa-solid fa-minus"></i></a>
       <a class="r-vc-btn is-sq" data-action="clGlamour" data-d="1" data-tooltip="{{localize 'VTM20.Changeling.GainGlamour'}}"><i class="fa-solid fa-star"></i></a>
       <a class="r-vc-btn" data-action="clCast" data-tooltip="{{localize 'VTM20.Changeling.CantripHint'}}"><i class="fa-solid fa-wand-sparkles"></i> {{localize "VTM20.Changeling.Cantrip"}}</a>
-      <a class="r-vc-btn is-sq is-right" data-action="clTrigger" data-tooltip="{{localize 'VTM20.Changeling.TriggerHint'}}"><i class="fa-solid fa-snowflake"></i></a>
-      <a class="r-vc-btn is-sq" data-action="clNightmare" data-d="1" data-tooltip="{{localize 'VTM20.Changeling.NightmarePlus'}}"><i class="fa-solid fa-moon"></i></a>{{/if}}
-    </div>
-    <div class="r-cl-states"><span class="r-cl-state is-dross" data-tooltip="{{localize 'VTM20.Changeling.DrossHint'}}"><i class="fa-solid fa-gem"></i> {{localize "VTM20.Changeling.Dross"}} {{changelingInfo.dross}}
-      {{#if editable}}<a data-action="clDross" data-d="-1"><i class="fa-solid fa-minus"></i></a><a data-action="clDross" data-d="1"><i class="fa-solid fa-plus"></i></a>{{/if}}</span></div>
-    {{#if (or changelingInfo.wyrd changelingInfo.threshold changelingInfo.place)}}<div class="r-cl-states">
-      {{#if changelingInfo.wyrd}}<span class="r-cl-state is-wyrd" data-tooltip="{{localize 'VTM20.Changeling.WyrdHint'}}"><i class="fa-solid fa-sun"></i> {{localize "VTM20.Changeling.WyrdChip"}}</span>{{/if}}
-      {{#if changelingInfo.threshold}}<span class="r-cl-state is-bedlam" data-tooltip="{{changelingInfo.threshold.text}}"><i class="fa-solid fa-masks-theater"></i> {{changelingInfo.threshold.name}} · {{changelingInfo.threshold.n}}
-        {{#if changelingInfo.isGM}}<a data-action="clBedlamEnd" data-tooltip="{{localize 'VTM20.Changeling.BedlamEnd'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}</span>{{/if}}
-      {{#if changelingInfo.place}}<span class="r-cl-state is-place" data-tooltip="{{localize 'VTM20.Changeling.PlaceHint'}}"><i class="fa-solid fa-building"></i> {{localize "VTM20.Changeling.PlaceChip" n=changelingInfo.place}}</span>{{/if}}
-    </div>{{/if}}
-    {{#if editable}}<div class="r-vc-tools r-cl-tools2">
-      <a class="r-vc-btn" data-action="clEpiphany" data-tooltip="{{localize 'VTM20.Changeling.Epi.Hint'}}"><i class="fa-solid fa-lightbulb"></i> {{localize "VTM20.Changeling.Epi.Short"}}</a>
-      <a class="r-vc-btn {{#if changelingInfo.wyrd}}is-on{{/if}}" data-action="clWyrd" data-tooltip="{{localize 'VTM20.Changeling.WyrdHint'}}"><i class="fa-solid fa-sun"></i> {{localize "VTM20.Changeling.Wyrd"}}</a>
-      <a class="r-vc-btn" data-action="clAutumn" data-tooltip="{{localize 'VTM20.Changeling.AutumnHint'}}"><i class="fa-solid fa-leaf"></i> {{localize "VTM20.Changeling.Autumn"}}</a>
-      {{#if changelingInfo.isGM}}<a class="r-vc-btn is-sq is-right" data-action="clMists" data-tooltip="{{localize 'VTM20.Changeling.MistsT.Title'}}"><i class="fa-solid fa-smog"></i></a>
+      <a class="r-vc-btn is-sq" data-action="clEpiphany" data-tooltip="{{localize 'VTM20.Changeling.Epi.Short'}} — {{localize 'VTM20.Changeling.Epi.Hint'}}"><i class="fa-solid fa-lightbulb"></i></a>
+      <a class="r-vc-btn is-sq {{#if changelingInfo.wyrd}}is-on{{/if}}" data-action="clWyrd" data-tooltip="{{localize 'VTM20.Changeling.WyrdHint'}}"><i class="fa-solid fa-sun"></i></a>
+      <a class="r-vc-btn is-sq" data-action="clAutumn" data-tooltip="{{localize 'VTM20.Changeling.AutumnHint'}}"><i class="fa-solid fa-leaf"></i></a>
+      <a class="r-vc-btn is-sq" data-action="clTrigger" data-tooltip="{{localize 'VTM20.Changeling.TriggerHint'}}"><i class="fa-solid fa-snowflake"></i></a>
+      <a class="r-vc-btn is-sq" data-action="clNightmare" data-d="1" data-tooltip="{{localize 'VTM20.Changeling.NightmarePlus'}}"><i class="fa-solid fa-moon"></i></a>
+      {{#if changelingInfo.isGM}}<span class="r-cl-gm"><a class="r-vc-btn is-sq" data-action="clMists" data-tooltip="{{localize 'VTM20.Changeling.MistsT.Title'}}"><i class="fa-solid fa-smog"></i></a>
       <a class="r-vc-btn is-sq" data-action="clQuest" data-tooltip="{{localize 'VTM20.Changeling.Quest.Hint'}}"><i class="fa-solid fa-flag"></i></a>
-      <a class="r-vc-btn is-sq" data-action="clPlace" data-tooltip="{{localize 'VTM20.Changeling.PlaceBanality'}}"><i class="fa-solid fa-building"></i></a>{{/if}}
+      <a class="r-vc-btn is-sq" data-action="clPlace" data-tooltip="{{localize 'VTM20.Changeling.PlaceBanality'}}"><i class="fa-solid fa-building"></i></a></span>{{/if}}
     </div>{{/if}}
   </div>
   {{else if wraithInfo}}

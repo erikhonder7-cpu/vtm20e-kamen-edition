@@ -1,149 +1,149 @@
 /* ═══════════════════════════════════════════════════════════════════════
    Подменыш (Changeling: The Dreaming 20th; лист — module/sheets/actor-sheet.mjs, вкладка templates/actor/arts.hbs):
-   «Шиповник» — сливово-чёрная ночь Грёзы и розовый жемчуг дикой розы как акцент; Кошмар — тёмная сирень, Банальность —
+   «Шиповник» — сливово-чёрная ночь Грёзы и розово-пурпурный жемчуг дикой розы как акцент; Кошмар — тёмная сирень, Банальность —
    холодная сталь. Каркас — тема призраков (wraith.css), перекрашенная скриптом D:/ClaudeData/temp-claude/mage/changeling_css.py;
    без красного, зелени, бирюзы, фиолета, янтаря, пепла и золота — это цвета других линеек.
    ═══════════════════════════════════════════════════════════════════════ */
 
 .vtm20.r-type-changeling {
-  --r-ink: #f2d4e1;
-  --r-ink-2: #e093b6;
-  --r-muted: #c73d7b;
-  --r-line: rgba(232, 174, 200, .1);
-  --r-line-2: rgba(232, 174, 200, .2);
-  --r-accent: #ebbad0;
+  --r-ink: #f4d2ed;
+  --r-ink-2: #e58ed5;
+  --r-muted: #cf35b3;
+  --r-line: rgba(235, 171, 223, .1);
+  --r-line-2: rgba(235, 171, 223, .2);
+  --r-accent: #eeb7e4;
   --r-red-t: var(--r-accent);
-  --r-blood: #ad4674; --r-blood-l: #ebbad0; --r-blood-d: #12090d;
-  --r-dot-border: rgba(232, 174, 200, .3);
-  --r-dot-fill: radial-gradient(circle at 38% 32%, #faeef3, #c94580 55%, #26141c);
-  --r-gap-ring: #0c0609;
-  --r-card-bg: rgba(232, 174, 200, .025);
-  --r-option-bg: #170c11;
+  --r-blood: #b3409e; --r-blood-l: #eeb7e4; --r-blood-d: #130811;
+  --r-dot-border: rgba(235, 171, 223, .3);
+  --r-dot-fill: radial-gradient(circle at 38% 32%, #fbedf8, #d13db5 55%, #271323);
+  --r-gap-ring: #0c060b;
+  --r-card-bg: rgba(235, 171, 223, .025);
+  --r-option-bg: #180b15;
   --r-bg:
-    radial-gradient(ellipse 90% 45% at 50% -8%, rgba(142, 58, 96, .13), transparent 60%),
-    radial-gradient(ellipse 80% 35% at 50% 108%, rgba(97, 39, 65, .14), transparent 65%),
+    radial-gradient(ellipse 90% 45% at 50% -8%, rgba(147, 53, 130, .13), transparent 60%),
+    radial-gradient(ellipse 80% 35% at 50% 108%, rgba(100, 36, 88, .14), transparent 65%),
     radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(0, 0, 2, .55) 100%),
     url("../assets/ui/paper-dark.svg"),
-    linear-gradient(180deg, #1a0d13, #0c0609);
+    linear-gradient(180deg, #1b0c18, #0c060b);
 }
 
 /* ── обвязка листа и окон — по образцу «лунного леса» (werewolf.css, строки 42–145), в цветах «Шиповника»:
    рейка, монеты вкладок, печать, запас, полоса действий, уголки карточек, подвал, шапка окна, броски и карточки чата ── */
-.vtm20.r-type-changeling, .r-type-changeling { --cl-amber: #ebbad0; --cl-amber-l: #faeef3; --cl-ash: #9f416b; --cl-ash-d: #1a0e13; --cl-steel: #cf588e; --cl-steel-d: #201118; }
+.vtm20.r-type-changeling, .r-type-changeling { --cl-amber: #eeb7e4; --cl-amber-l: #fbedf8; --cl-ash: #a53b91; --cl-ash-d: #1b0d18; --cl-steel: #d651be; --cl-steel-d: #21101e; }
 .vtm20.r-type-changeling .r-rail {
   background:
-    radial-gradient(ellipse 120% 40% at 50% 0%, rgba(142, 58, 96, .16), transparent 70%),
-    radial-gradient(ellipse 140% 30% at 50% 100%, rgba(97, 39, 65, .12), transparent 70%),
-    linear-gradient(180deg, #180d12, #0c0609 60%, #0c0609);
-  border-right-color: #28141d;
+    radial-gradient(ellipse 120% 40% at 50% 0%, rgba(147, 53, 130, .16), transparent 70%),
+    radial-gradient(ellipse 140% 30% at 50% 100%, rgba(100, 36, 88, .12), transparent 70%),
+    linear-gradient(180deg, #190c16, #0c060b 60%, #0c060b);
+  border-right-color: #291325;
 }
-.vtm20.r-type-changeling .r-rail::after { background: repeating-linear-gradient(180deg, rgba(235, 186, 208, .14) 0 2px, transparent 2px 8px); }
+.vtm20.r-type-changeling .r-rail::after { background: repeating-linear-gradient(180deg, rgba(238, 183, 228, .14) 0 2px, transparent 2px 8px); }
 .vtm20.r-type-changeling .r-rail-sigil {
-  border-color: rgba(235, 186, 208, .45); background: radial-gradient(circle at 50% 30%, #1f1017, #0d070a 72%);
-  box-shadow: 0 0 0 3px #0c0609, 0 0 0 4px rgba(142, 58, 96, .5), 0 0 22px rgba(235, 186, 208, .22), inset 0 2px 6px rgba(0, 0, 2, .6);
+  border-color: rgba(238, 183, 228, .45); background: radial-gradient(circle at 50% 30%, #200f1d, #0d070c 72%);
+  box-shadow: 0 0 0 3px #0c060b, 0 0 0 4px rgba(147, 53, 130, .5), 0 0 22px rgba(238, 183, 228, .22), inset 0 2px 6px rgba(0, 0, 2, .6);
 }
 .vtm20.r-type-changeling .r-rail-sigil::before { background: var(--cl-amber); box-shadow: 0 0 6px rgba(236, 240, 244, .7); }
-.vtm20.r-type-changeling .r-rtab.active { color: #fbf0f5; background: linear-gradient(90deg, rgba(235, 186, 208, .16), rgba(142, 58, 96, .05) 70%, transparent); }
+.vtm20.r-type-changeling .r-rtab.active { color: #fceff9; background: linear-gradient(90deg, rgba(238, 183, 228, .16), rgba(147, 53, 130, .05) 70%, transparent); }
 .vtm20.r-type-changeling .r-rtab.active .r-rtab-coin {
-  color: #12090d; border-color: var(--cl-amber-l); background: radial-gradient(circle at 50% 30%, #faeef3, #c94580 70%);
-  box-shadow: 0 0 0 2px #0c0609, 0 0 0 3px rgba(236, 240, 244, .4), 0 0 16px rgba(236, 240, 244, .35);
+  color: #130811; border-color: var(--cl-amber-l); background: radial-gradient(circle at 50% 30%, #fbedf8, #d13db5 70%);
+  box-shadow: 0 0 0 2px #0c060b, 0 0 0 3px rgba(236, 240, 244, .4), 0 0 16px rgba(236, 240, 244, .35);
 }
 .vtm20.r-type-changeling .r-rtab.active::before { background: var(--cl-amber); box-shadow: 0 0 8px rgba(236, 240, 244, .6); }
 .vtm20.r-type-changeling .r-rtab.active::after { background: var(--cl-steel-d); border-color: var(--cl-amber); box-shadow: 0 0 6px rgba(236, 240, 244, .45); }
-.vtm20.r-type-changeling .r-rail-tool:hover { color: #fbf2f6; border-color: var(--cl-amber); background: rgba(235, 186, 208, .16); }
-.vtm20.r-type-changeling .r-portrait-frame { box-shadow: 0 0 0 1px rgba(235, 186, 208, .35), 0 6px 18px rgba(0, 0, 2, .6); }
-.vtm20.r-type-changeling .r-seal { background: #0c0609; border-color: rgba(232, 174, 200, .22); border-top-color: var(--cl-amber); }
+.vtm20.r-type-changeling .r-rail-tool:hover { color: #fcf1fa; border-color: var(--cl-amber); background: rgba(238, 183, 228, .16); }
+.vtm20.r-type-changeling .r-portrait-frame { box-shadow: 0 0 0 1px rgba(238, 183, 228, .35), 0 6px 18px rgba(0, 0, 2, .6); }
+.vtm20.r-type-changeling .r-seal { background: #0c060b; border-color: rgba(235, 171, 223, .22); border-top-color: var(--cl-amber); }
 .vtm20.r-type-changeling .r-seal-num.r-seal-icon { color: var(--cl-amber-l); }
-.vtm20.r-type-changeling .r-seal-cap { color: #cf588e; }
-.vtm20.r-type-changeling .r-motto { color: rgba(235, 186, 208, .75); }
+.vtm20.r-type-changeling .r-seal-cap { color: #d651be; }
+.vtm20.r-type-changeling .r-motto { color: rgba(238, 183, 228, .75); }
 .vtm20.r-type-changeling .r-kicker-dia { background: var(--cl-amber); }
-.vtm20.r-type-changeling .r-assignat { border-top-color: var(--cl-amber); background: linear-gradient(180deg, rgba(97, 39, 65, .08), rgba(0, 0, 2, .3) 60%); }
-.vtm20.r-type-changeling .r-act.is-hot:hover { background: rgba(235, 186, 208, .14); }
+.vtm20.r-type-changeling .r-assignat { border-top-color: var(--cl-amber); background: linear-gradient(180deg, rgba(100, 36, 88, .08), rgba(0, 0, 2, .3) 60%); }
+.vtm20.r-type-changeling .r-act.is-hot:hover { background: rgba(238, 183, 228, .14); }
 .vtm20.r-type-changeling .r-act:hover i { color: var(--cl-amber-l); }
-.vtm20.r-type-changeling .r-vcard::before, .vtm20.r-type-changeling .r-tcol::before { background: linear-gradient(90deg, var(--cl-amber), rgba(235, 186, 208, 0)); width: 54px; }
+.vtm20.r-type-changeling .r-vcard::before, .vtm20.r-type-changeling .r-tcol::before { background: linear-gradient(90deg, var(--cl-amber), rgba(238, 183, 228, 0)); width: 54px; }
 .vtm20.r-type-changeling .r-vcard::after, .vtm20.r-type-changeling .r-tcol::after {
-  content: ""; position: absolute; right: -1px; bottom: -1px; width: 22px; height: 1px; background: rgba(142, 58, 96, .55);
+  content: ""; position: absolute; right: -1px; bottom: -1px; width: 22px; height: 1px; background: rgba(147, 53, 130, .55);
 }
 .vtm20.r-type-changeling .r-vitals-wrap.is-closed .r-vitals-strip { border-top-color: var(--cl-amber); }
-.vtm20.r-type-changeling .r-vitals-wrap.is-closed .r-vitals-strip:hover { background: rgba(235, 186, 208, .1); }
-.vtm20.r-type-changeling .r-trait:hover { background: linear-gradient(90deg, rgba(235, 186, 208, .1), rgba(142, 58, 96, .03) 60%, transparent); }
+.vtm20.r-type-changeling .r-vitals-wrap.is-closed .r-vitals-strip:hover { background: rgba(238, 183, 228, .1); }
+.vtm20.r-type-changeling .r-trait:hover { background: linear-gradient(90deg, rgba(238, 183, 228, .1), rgba(147, 53, 130, .03) 60%, transparent); }
 .vtm20.r-type-changeling .r-foot {
   background:
-    linear-gradient(90deg, transparent 0 18px, rgba(235, 186, 208, .3) 18px 19px, transparent 19px),
-    repeating-linear-gradient(180deg, transparent 0 9px, rgba(232, 174, 200, .035) 9px 10px),
-    #0c0609;
+    linear-gradient(90deg, transparent 0 18px, rgba(238, 183, 228, .3) 18px 19px, transparent 19px),
+    repeating-linear-gradient(180deg, transparent 0 9px, rgba(235, 171, 223, .035) 9px 10px),
+    #0c060b;
 }
-.vtm20.r-type-changeling .r-foot-item.is-xp { border-color: rgba(235, 186, 208, .45); background: rgba(235, 186, 208, .1); }
+.vtm20.r-type-changeling .r-foot-item.is-xp { border-color: rgba(238, 183, 228, .45); background: rgba(238, 183, 228, .1); }
 .vtm20.r-type-changeling .r-foot-item.is-xp i { color: var(--cl-amber); }
-.application.vtm20.r-type-changeling { border-color: #2d131f; --background: #140b0f; --color-header-background: #0c0609; --color-border: #2d131f; }
-.application.vtm20.r-type-changeling .window-header { background: linear-gradient(180deg, #10080c, #0c0609); border-bottom-color: #1a0e13; }
-.application.vtm20.r-type-changeling .window-header::after { background: linear-gradient(90deg, rgba(142, 58, 96, .1), #cf588e 30%, #ebbad0 60%, rgba(97, 39, 65, .1)); opacity: .6; }
+.application.vtm20.r-type-changeling { border-color: #2f112a; --background: #150a13; --color-header-background: #0c060b; --color-border: #2f112a; }
+.application.vtm20.r-type-changeling .window-header { background: linear-gradient(180deg, #10080f, #0c060b); border-bottom-color: #1b0d18; }
+.application.vtm20.r-type-changeling .window-header::after { background: linear-gradient(90deg, rgba(147, 53, 130, .1), #d651be 30%, #eeb7e4 60%, rgba(100, 36, 88, .1)); opacity: .6; }
 .application.vtm20.r-type-changeling .window-header .window-icon { color: var(--cl-amber); }
-.vtm20.r-type-changeling .r-diff.is-active { color: #12090d; background: linear-gradient(180deg, #faeef3, #c94580); border-color: var(--cl-amber-l); }
+.vtm20.r-type-changeling .r-diff.is-active { color: #130811; background: linear-gradient(180deg, #fbedf8, #d13db5); border-color: var(--cl-amber-l); }
 .vtm20.r-type-changeling .r-diff.is-base { border-color: var(--cl-amber); }
 .vtm20.r-type-changeling .r-roll-pool i, .vtm20.r-type-changeling .r-plus { color: var(--cl-amber); }
-.vtm20.r-type-changeling .r-odds-bar .is-success { background: linear-gradient(180deg, #f3d4e2, #d56d9c); }
-.vtm20.r-type-changeling .r-odds-bar .is-failure { background: #2f1320; }
-.vtm20.r-type-changeling .r-odds-bar .is-botch { background: linear-gradient(180deg, #6a2a3c, #351624); }
+.vtm20.r-type-changeling .r-odds-bar .is-success { background: linear-gradient(180deg, #f5d2ef, #db67c6); }
+.vtm20.r-type-changeling .r-odds-bar .is-failure { background: #31112b; }
+.vtm20.r-type-changeling .r-odds-bar .is-botch { background: linear-gradient(180deg, #6e2655, #371431); }
 .vtm20.r-type-changeling .r-check-banner { border-left-color: var(--cl-amber); }
-.vtm20.r-type-changeling button.is-primary, .vtm20.r-type-changeling .r-btn.is-primary { color: #12090d; background: linear-gradient(180deg, #fbf0f5, #cd538a); border-color: var(--cl-amber-l); }
-.vtm20.r-type-changeling button.is-primary:hover, .vtm20.r-type-changeling .r-btn.is-primary:hover { color: #000; background: linear-gradient(180deg, #ecbdd2, #c94580); box-shadow: 0 0 12px rgba(236, 240, 244, .35); }
+.vtm20.r-type-changeling button.is-primary, .vtm20.r-type-changeling .r-btn.is-primary { color: #130811; background: linear-gradient(180deg, #fceff9, #d44cbb); border-color: var(--cl-amber-l); }
+.vtm20.r-type-changeling button.is-primary:hover, .vtm20.r-type-changeling .r-btn.is-primary:hover { color: #000; background: linear-gradient(180deg, #efbae5, #d13db5); box-shadow: 0 0 12px rgba(236, 240, 244, .35); }
 .r-roll-card.r-type-changeling {
-  --r-accent: #edc1d5; --r-red-t: #edc1d5; --r-muted: #cd538a; --r-line: rgba(232, 174, 200, .12); --r-line-2: rgba(232, 174, 200, .22);
-  background: radial-gradient(ellipse 90% 60% at 50% 0%, rgba(142, 58, 96, .12), transparent 70%),
-    radial-gradient(ellipse 90% 50% at 50% 110%, rgba(97, 39, 65, .12), transparent 70%),
-    linear-gradient(180deg, #1c0e14, #0f070b);
-  border-color: #2f1320; border-left-color: #351624;
+  --r-accent: #f0bee7; --r-red-t: #f0bee7; --r-muted: #d44cbb; --r-line: rgba(235, 171, 223, .12); --r-line-2: rgba(235, 171, 223, .22);
+  background: radial-gradient(ellipse 90% 60% at 50% 0%, rgba(147, 53, 130, .12), transparent 70%),
+    radial-gradient(ellipse 90% 50% at 50% 110%, rgba(100, 36, 88, .12), transparent 70%),
+    linear-gradient(180deg, #1d0d1a, #0f070e);
+  border-color: #31112b; border-left-color: #371431;
 }
-.r-roll-card.r-type-changeling::before { width: 54px; background: linear-gradient(90deg, #ebbad0, rgba(235, 186, 208, 0)); }
-.r-roll-card.r-type-changeling::after { content: ""; position: absolute; right: -1px; bottom: -1px; width: 22px; height: 1px; background: rgba(142, 58, 96, .6); }
-.r-roll-card.r-type-changeling .r-card-img { border-color: rgba(235, 186, 208, .5); filter: none; }
-.r-roll-card.r-type-changeling.is-success { border-left-color: #da7ea7; }
-.r-roll-card.r-type-changeling.is-exceptional, .r-roll-card.r-type-changeling.is-phenomenal { border-left-color: #faeef3; box-shadow: inset 3px 0 10px -4px rgba(236, 240, 244, .6); }
-.r-roll-card.r-type-changeling.is-botch { border-color: #301421; border-left-color: #6a2a3c; background: linear-gradient(180deg, #1c0e14, #10080c); }
-.r-roll-card.r-type-changeling .r-die.is-miss { background: #1f1017; color: #a14a63; }
-.r-roll-card.r-type-changeling .r-die.is-hit { background: linear-gradient(180deg, #f2d4e1, #dc88ae); color: #0f070b; }
-.r-roll-card.r-type-changeling .r-die.is-ten { background: radial-gradient(circle at 50% 35%, #f3d4e2, #cf588e 70%); color: #0f070b; }
-.r-roll-card.r-type-changeling .r-die.is-double::before { color: #471d30; }
-.r-roll-card.r-type-changeling .r-die.is-one { background: #351624; color: #f3d7e4; }
-.r-roll-card.r-type-changeling .r-die.is-will { background: #311421; }
-.r-roll-card.r-type-changeling .r-card-tally .is-one, .r-roll-card.r-type-changeling .r-card-tally .is-ten em { color: #d56d9c; }
-.r-roll-card.r-type-changeling.is-exceptional .r-outcome-ribbon, .r-roll-card.r-type-changeling.is-phenomenal .r-outcome-ribbon { color: #12090d; background: linear-gradient(180deg, #faeef3, #c94580); border-color: #faeef3; }
-.r-roll-card.r-type-changeling.is-botch .r-outcome-ribbon { color: #fbf0f5; background: #441c2e; border-color: #6a2a3c; }
-.r-roll-card.r-type-changeling .r-card-hint { border-left-color: rgba(235, 186, 208, .45); }
-.r-item-card.r-type-changeling { --r-accent: #edc1d5; border-color: #2f1320; border-left: 3px solid #ebbad0;
-  background: radial-gradient(ellipse 90% 60% at 50% 0%, rgba(142, 58, 96, .12), transparent 70%), linear-gradient(180deg, #1c0e14, #0f070b); }
-.r-item-card.r-type-changeling .r-card-img { border-color: rgba(235, 186, 208, .5); background: #0f070b; filter: none; }
-.r-item-card.r-type-changeling .r-card-kicker { color: #ebbad0; }
-.r-notice.r-type-changeling { border-left-color: #ebbad0; background: linear-gradient(90deg, rgba(235, 186, 208, .12), rgba(0, 0, 2, .25) 60%); }
-.r-notice.r-type-changeling i { color: #faeef3; }
+.r-roll-card.r-type-changeling::before { width: 54px; background: linear-gradient(90deg, #eeb7e4, rgba(238, 183, 228, 0)); }
+.r-roll-card.r-type-changeling::after { content: ""; position: absolute; right: -1px; bottom: -1px; width: 22px; height: 1px; background: rgba(147, 53, 130, .6); }
+.r-roll-card.r-type-changeling .r-card-img { border-color: rgba(238, 183, 228, .5); filter: none; }
+.r-roll-card.r-type-changeling.is-success { border-left-color: #e078cc; }
+.r-roll-card.r-type-changeling.is-exceptional, .r-roll-card.r-type-changeling.is-phenomenal { border-left-color: #fbedf8; box-shadow: inset 3px 0 10px -4px rgba(236, 240, 244, .6); }
+.r-roll-card.r-type-changeling.is-botch { border-color: #32122c; border-left-color: #6e2655; background: linear-gradient(180deg, #1d0d1a, #10080f); }
+.r-roll-card.r-type-changeling .r-die.is-miss { background: #200f1d; color: #a64585; }
+.r-roll-card.r-type-changeling .r-die.is-hit { background: linear-gradient(180deg, #f4d2ed, #e183d0); color: #0f070e; }
+.r-roll-card.r-type-changeling .r-die.is-ten { background: radial-gradient(circle at 50% 35%, #f5d2ef, #d651be 70%); color: #0f070e; }
+.r-roll-card.r-type-changeling .r-die.is-double::before { color: #4a1a41; }
+.r-roll-card.r-type-changeling .r-die.is-one { background: #371431; color: #f5d5ef; }
+.r-roll-card.r-type-changeling .r-die.is-will { background: #33122d; }
+.r-roll-card.r-type-changeling .r-card-tally .is-one, .r-roll-card.r-type-changeling .r-card-tally .is-ten em { color: #db67c6; }
+.r-roll-card.r-type-changeling.is-exceptional .r-outcome-ribbon, .r-roll-card.r-type-changeling.is-phenomenal .r-outcome-ribbon { color: #130811; background: linear-gradient(180deg, #fbedf8, #d13db5); border-color: #fbedf8; }
+.r-roll-card.r-type-changeling.is-botch .r-outcome-ribbon { color: #fceff9; background: #461a3e; border-color: #6e2655; }
+.r-roll-card.r-type-changeling .r-card-hint { border-left-color: rgba(238, 183, 228, .45); }
+.r-item-card.r-type-changeling { --r-accent: #f0bee7; border-color: #31112b; border-left: 3px solid #eeb7e4;
+  background: radial-gradient(ellipse 90% 60% at 50% 0%, rgba(147, 53, 130, .12), transparent 70%), linear-gradient(180deg, #1d0d1a, #0f070e); }
+.r-item-card.r-type-changeling .r-card-img { border-color: rgba(238, 183, 228, .5); background: #0f070e; filter: none; }
+.r-item-card.r-type-changeling .r-card-kicker { color: #eeb7e4; }
+.r-notice.r-type-changeling { border-left-color: #eeb7e4; background: linear-gradient(90deg, rgba(238, 183, 228, .12), rgba(0, 0, 2, .25) 60%); }
+.r-notice.r-type-changeling i { color: #fbedf8; }
 .r-notice.r-type-changeling.is-form { font-family: "Prata", Georgia, serif; font-style: normal; font-size: 13.5px; letter-spacing: .2px;
-  border: 1px solid rgba(235, 186, 208, .35); border-left-width: 3px; box-shadow: inset 0 0 18px rgba(235, 186, 208, .12); }
-.r-item-card.r-type-changeling::before { width: 54px; background: linear-gradient(90deg, #ebbad0, rgba(235, 186, 208, 0)); }
+  border: 1px solid rgba(238, 183, 228, .35); border-left-width: 3px; box-shadow: inset 0 0 18px rgba(238, 183, 228, .12); }
+.r-item-card.r-type-changeling::before { width: 54px; background: linear-gradient(90deg, #eeb7e4, rgba(238, 183, 228, 0)); }
 .vtm20.r-type-changeling .r-mode-opt.is-active, .vtm20.r-type-changeling .r-mode-opt:has(input:checked) {
-  color: #fbf2f6; background: linear-gradient(180deg, rgba(112, 46, 76, .55), rgba(30, 16, 22, .55)); box-shadow: inset 0 -2px 0 #ebbad0; }
-.vtm20.r-type-changeling .r-mode-opt.is-active i, .vtm20.r-type-changeling .r-mode-opt:has(input:checked) i { color: #faeef3; }
+  color: #fcf1fa; background: linear-gradient(180deg, rgba(116, 42, 103, .55), rgba(31, 15, 28, .55)); box-shadow: inset 0 -2px 0 #eeb7e4; }
+.vtm20.r-type-changeling .r-mode-opt.is-active i, .vtm20.r-type-changeling .r-mode-opt:has(input:checked) i { color: #fbedf8; }
 .application.r-type-changeling {
-  --color-warm-1: #ebbad0; --color-warm-2: #a14a63;
-  --color-border-highlight: #ebbad0; --color-border-highlight-alt: #cf588e;
-  --color-text-hyperlink: #edc1d5; --color-text-selection-bg: #a14a63;
+  --color-warm-1: #eeb7e4; --color-warm-2: #a64585;
+  --color-border-highlight: #eeb7e4; --color-border-highlight-alt: #d651be;
+  --color-text-hyperlink: #f0bee7; --color-text-selection-bg: #a64585;
 }
-.vtm20.r-type-changeling.r-choice-dialog .r-choice:has(input:checked) { border-color: #ebbad0; background: rgba(235, 186, 208, .12); }
-.vtm20.r-type-changeling.r-choice-dialog .r-choice input[type=radio]:checked { border-color: #ebbad0; background: radial-gradient(circle, #faeef3 0 3.5px, transparent 4px); }
-.vtm20.r-type-changeling .r-cr-step.is-done .r-cr-step-coin, .vtm20.r-type-changeling .r-cr-step.is-active .r-cr-step-coin { color: #ebbad0; }
-.vtm20.r-type-changeling .r-cr-step.is-active a { background: linear-gradient(90deg, rgba(235, 186, 208, .16), transparent); }
-.vtm20.r-type-changeling .r-cr-step.is-active a::before { background: #ebbad0; }
+.vtm20.r-type-changeling.r-choice-dialog .r-choice:has(input:checked) { border-color: #eeb7e4; background: rgba(238, 183, 228, .12); }
+.vtm20.r-type-changeling.r-choice-dialog .r-choice input[type=radio]:checked { border-color: #eeb7e4; background: radial-gradient(circle, #fbedf8 0 3.5px, transparent 4px); }
+.vtm20.r-type-changeling .r-cr-step.is-done .r-cr-step-coin, .vtm20.r-type-changeling .r-cr-step.is-active .r-cr-step-coin { color: #eeb7e4; }
+.vtm20.r-type-changeling .r-cr-step.is-active a { background: linear-gradient(90deg, rgba(238, 183, 228, .16), transparent); }
+.vtm20.r-type-changeling .r-cr-step.is-active a::before { background: #eeb7e4; }
 
 /* ── Свои части подменыша ───────────────────────────────────────────────── */
 
 /* Грёза (templates/actor/vitals.hbs): Гламур — розовый жемчуг, Банальность — холодная сталь, Кошмар — тёмная сирень */
 .vtm20.r-type-changeling .r-vc-dream .r-vc-sub { margin-top: 8px; }
-.vtm20.r-type-changeling .r-dots.is-glamour { --r-dot-fill: radial-gradient(circle at 38% 32%, #fde8f1, #d77fa6 55%, #3a1226); --r-dot-border: rgba(230, 161, 193, .45); }
-.vtm20.r-type-changeling .r-boxes.is-glamour .r-box.is-filled { background: linear-gradient(180deg, #e6a1c1, #7a2a4e); border-color: #e6a1c1; }
+.vtm20.r-type-changeling .r-dots.is-glamour { --r-dot-fill: radial-gradient(circle at 38% 32%, #fee7f9, #dc7aca 55%, #3c1036); --r-dot-border: rgba(234, 157, 221, .45); }
+.vtm20.r-type-changeling .r-boxes.is-glamour .r-box.is-filled { background: linear-gradient(180deg, #ea9ddd, #7f256e); border-color: #ea9ddd; }
 .vtm20.r-type-changeling .r-dots.is-banality { --r-dot-fill: radial-gradient(circle at 38% 32%, #e3e8ee, #7f8ea0 55%, #1d232b); --r-dot-border: rgba(160, 175, 192, .45); }
 .vtm20.r-type-changeling .r-boxes.is-banality .r-box.is-filled { background: linear-gradient(180deg, #a5b2c2, #3c4756); border-color: #a5b2c2; }
 .vtm20.r-type-changeling .r-boxes.is-nightmare .r-box.is-filled { background: linear-gradient(180deg, #8e6aa8, #2e1a3c); border-color: #9f7fbd; }
-.vtm20.r-type-changeling .r-vc-dream .is-warn { color: #e6a1c1; font-style: italic; }
+.vtm20.r-type-changeling .r-vc-dream .is-warn { color: #ea9ddd; font-style: italic; }
 .vtm20.r-type-changeling .r-vc-dream.is-mists { box-shadow: inset 0 0 22px rgba(165, 178, 194, .2); }
 .vtm20.r-type-changeling .r-vc-dream.is-bedlam { box-shadow: inset 0 0 26px rgba(142, 106, 168, .35); }
 
@@ -162,11 +162,11 @@
 .vtm20 .r-cl-lvl-name { flex: 1 1 auto; min-width: 0; cursor: pointer; }
 .vtm20 .r-cl-lvl-name em { color: var(--r-muted); font-size: 11.5px; }
 .vtm20 .r-cl-chip { flex: none; font-size: 10.5px; padding: 1px 6px; border: 1px solid var(--r-line-2); color: var(--r-muted); }
-.vtm20 .r-cl-chip.is-wyrd { color: #f6c9dd; border-color: rgba(230, 161, 193, .5); }
+.vtm20 .r-cl-chip.is-wyrd { color: #f9c6ef; border-color: rgba(234, 157, 221, .5); }
 .vtm20 .r-cl-bunks { margin: 6px 0 0; font-size: 12px; }
 .vtm20 .r-cl-realms { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; margin: 6px 0 14px; }
 .vtm20 .r-cl-realm.is-mod { opacity: .9; }
-.vtm20 .r-cl-realm.is-affinity { box-shadow: inset 2px 0 0 #e6a1c1; }
+.vtm20 .r-cl-realm.is-affinity { box-shadow: inset 2px 0 0 #ea9ddd; }
 .vtm20 .r-cl-rlevels { margin: 4px 0 0; padding-left: 18px; font-size: 12px; color: var(--r-muted); }
 .vtm20 .r-cl-rlevels li.is-known { color: var(--r-ink); }
 .vtm20 .r-cl-add { margin: 4px 0 8px; }
@@ -207,3 +207,25 @@
 .vtm20.r-type-changeling .r-cl-state.is-dross { border-color: #e9c46a; color: #f3dfa6; }
 .vtm20.r-type-changeling .r-cl-state.is-dross a { margin-left: 2px; }
 .vtm20.r-type-changeling .r-cl-treasure { border-color: rgba(233, 196, 106, .4); }
+/* ── Карточка Грёзы одной полосой: три Темпера рядом (узкое окно — друг под другом), кнопки — одним рядом ── */
+.vtm20.r-type-changeling .r-vc-dream { display: flex; flex-direction: column; gap: 6px; }
+.vtm20.r-type-changeling .r-cl-tempers { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 6px 14px; align-items: start; }
+.vtm20.r-type-changeling .r-cl-temper { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.vtm20.r-type-changeling .r-cl-temper-head { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; }
+.vtm20.r-type-changeling .r-cl-temper-head .r-banner { margin: 0; font-size: 12px; letter-spacing: 2px; }
+.vtm20.r-type-changeling .r-cl-temper-num { font-size: 13px; color: var(--r-muted); white-space: nowrap; }
+.vtm20.r-type-changeling .r-cl-temper-num b { font-family: var(--r-display); font-size: 20px; font-weight: 400; color: var(--r-ink); }
+.vtm20.r-type-changeling .r-cl-temper-num small { font-size: 11px; }
+.vtm20.r-type-changeling .r-cl-temper .r-dots { justify-content: flex-start; gap: 2px; flex-wrap: nowrap; }
+.vtm20.r-type-changeling .r-cl-temper .r-dots .r-dot { width: 12px; height: 12px; }
+.vtm20.r-type-changeling .r-cl-temper .r-boxes { justify-content: flex-start; gap: 2px; flex-wrap: nowrap; }
+.vtm20.r-type-changeling .r-cl-temper .r-box { width: 12px; height: 12px; }
+.vtm20.r-type-changeling .r-cl-temper .r-cl-states { margin: 2px 0 0; }
+.vtm20.r-type-changeling .r-cl-bar { flex-wrap: wrap; gap: 4px; margin-top: 2px; }
+.vtm20.r-type-changeling .r-cl-bar .r-cl-gm { display: inline-flex; gap: 4px; margin-left: auto; }
+/* химерические раны: кнопки — в строке заголовка, клетки ниже обычных */
+.vtm20.r-type-changeling .r-cl-chim-head { align-items: center; gap: 6px; margin-top: 6px; }
+.vtm20.r-type-changeling .r-cl-chim-head .r-banner { flex: 1 1 auto; min-width: 0; }
+.vtm20.r-type-changeling .r-cl-chim-btns { display: inline-flex; gap: 3px; }
+.vtm20.r-type-changeling .r-cl-chim-btns .r-vc-btn { width: 20px; height: 20px; min-width: 20px; font-size: 11px; }
+.vtm20.r-type-changeling .r-hboxes.is-chimerical .r-hbox-mark { height: 20px; }
