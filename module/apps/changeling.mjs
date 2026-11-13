@@ -9,7 +9,7 @@
 //   · Высвобождение: 2 Гламура и +1 Кошмар до броска; Гламур + Кошмар кубиков, сл. 7; исход — по успехам и рейтингу Искусства.
 
 import { Codex } from "../data/codex.mjs";
-import { SYSTEM_ID, VTM20 } from "../config.mjs";
+import { SYSTEM_ID, SYSTEM_PATH, VTM20 } from "../config.mjs";
 import { registerEmblem, registerCardBlock } from "../ui/themes.mjs";
 
 export const C = () => Codex.changeling ?? { arts: [], realms: [], kiths: [], seemings: [], houses: [], legacies: [], backgrounds: [] };
@@ -24,6 +24,19 @@ export const artOf = key => C().arts.find(a => a.key === key) ?? null;
 export const realmOf = key => C().realms.find(r => r.key === key) ?? null;
 export const kithOf = key => C().kiths.find(k => k.key === key) ?? (C().otherKiths ?? []).find(k => k.key === key) ?? null;
 export const OTHER_FAE = ["thallain", "nunnehi", "menehune", "hsien", "inanimae", "other"];
+
+/**
+ * Знаки-витражи (assets/changeling, tools/changeling_glyphs.mjs): kith-, art-, realm-, house-, court-, guise-, group-; daf- — контурные маски.
+ * Возвращает знак для {{rSym}} или null, если такого нет.
+ */
+export function clGlyph(kind, key) {
+  const n = key ? `${kind}-${key}` : kind;
+  if (!(C().glyphs ?? []).includes(n)) return null;
+  const daf = n.startsWith("daf-");
+  return { src: foundry.utils.getRoute(`${SYSTEM_PATH}/assets/changeling/${n}.${daf ? "png" : "webp"}`), color: !daf };
+}
+/** Знак кита: свой, иначе группы иных фэ (менехуне, нуннехи). */
+export const kithGlyph = key => clGlyph("kith", key) ?? clGlyph("group", kithOf(key)?.group);
 
 /* ── Лист ──────────────────────────────────────────────────────────────── */
 
@@ -50,7 +63,8 @@ export function changelingInfo(actor, dots) {
     banalityDots: dots(c.banality.permanent, 10, { path: "system.changeling.banality.permanent" }),
     banalityBoxes: boxes(c.banality.temporary, 10, "system.changeling.banality.temporary"),
     nightmare: c.nightmare, nightmareBoxes: boxes(c.nightmare, 10, "system.changeling.nightmare"),
-    imbalance: c.imbalance, imbalanceWill: Array.from({ length: will }, (_, i) => ({ on: i >= will - c.imbalance })),
+    imbalance: c.imbalance, imbalanceWill: c.variant === "lykeian" ? [] : Array.from({ length: will }, (_, i) => ({ on: i >= will - c.imbalance })),
+    variants: ["", "lykeian"].map(k => ({ key: k, name: game.i18n.localize(`VTM20.Lykeian.Variant.${k || "kithain"}`), selected: k === (c.variant ?? "") })),
     mists: c.mists, undone: c.undone, bedlam: c.bedlam, isGM: game.user.isGM,
     wyrd: inWyrd(actor), place: sceneBanality(), chim: chimericalView(actor), dross: c.dross ?? 0,
     threshold: (b => b ? { key: b.key, name: t(`Bedlam.${b.key}`), n: b.n, text: t(`BedlamText.${b.key}`, { n: b.n }) } : null)(bedlamOf(actor))
@@ -62,13 +76,13 @@ export function artsView(actor, dots) {
   const c = actor.system.changeling, kith = kithOf(c.kith);
   const own = C().arts.filter(a => (c.arts[a.key] ?? 0) > 0).map(a => {
     const value = c.arts[a.key];
-    return { key: a.key, name: a.name, en: a.en, value, html: a.html, unleashing: a.unleashing, bunks: a.bunks,
+    return { key: a.key, name: a.name, en: a.en, value, html: a.html, unleashing: a.unleashing, bunks: a.bunks, sym: clGlyph("art", a.key),
       dots: dots(value, 5, { path: `system.changeling.arts.${a.key}` }), xp: actor.xpCost("art", value),
       levels: a.levels.map((l, i) => ({ ...l, i, known: l.level <= value, typeLabel: l.type ? t(`Type.${l.type}`) : "" })) };
   });
   const realms = C().realms.map(r => {
     const value = c.realms[r.key] ?? 0;
-    return { key: r.key, name: r.name, en: r.en, modifier: r.modifier, value, affinity: kith?.affinity === r.key,
+    return { key: r.key, name: r.name, en: r.en, modifier: r.modifier, value, affinity: kith?.affinity === r.key, sym: clGlyph("realm", r.key),
       dots: dots(value, 5, { path: `system.changeling.realms.${r.key}` }), xp: actor.xpCost("realm", value),
       levels: r.levels.map(l => ({ ...l, known: l.level <= value })) };
   });
@@ -105,20 +119,27 @@ export async function gainGlamour(actor, n = 1) {
  */
 export async function gainNightmare(actor, n = 1, { reason = "" } = {}) {
   if (!n) return 0;
-  const c = actor.system.changeling;
+  const c = actor.system.changeling, ly = c.variant === "lykeian";
   let nm = c.nightmare + n, imb = c.imbalance, turns = 0;
   while (nm >= 10) { nm -= 10; imb++; turns++; }
-  const upd = { "system.changeling.nightmare": Math.max(0, nm), "system.changeling.imbalance": Math.min(imb, actor.system.willpower.permanent) };
-  if (turns) upd["system.changeling.glamour.temporary"] = Math.min(c.glamour.permanent, c.glamour.temporary + turns);
+  // ликиец (Players Guide, гл. 7): Дисбаланс ложится на точку Гламура, Гламур не возвращается
+  const upd = { "system.changeling.nightmare": Math.max(0, nm), "system.changeling.imbalance": Math.min(imb, ly ? c.glamour.permanent : actor.system.willpower.permanent) };
+  if (turns && !ly) upd["system.changeling.glamour.temporary"] = Math.min(c.glamour.permanent, c.glamour.temporary + turns);
   await actor.update(upd);
-  if (turns) await say(actor, "fa-masks-theater", t(actor.system.changeling.bedlam ? "BedlamLost" : "ImbalanceGained", { name: esc(actor.name), n: actor.system.changeling.imbalance }), "is-warn");
+  if (turns && ly) {
+    const lost = actor.system.changeling.imbalance >= actor.system.changeling.glamour.permanent;
+    await say(actor, "fa-masks-theater", game.i18n.format(`VTM20.Lykeian.${lost ? "Lost" : "Imbalance"}`, { name: esc(actor.name), n: actor.system.changeling.imbalance }), "is-warn");
+  } else if (turns) await say(actor, "fa-masks-theater", t(actor.system.changeling.bedlam ? "BedlamLost" : "ImbalanceGained", { name: esc(actor.name), n: actor.system.changeling.imbalance }), "is-warn");
   else if (reason) await say(actor, "fa-moon", t("NightmareGained", { name: esc(actor.name), n, total: actor.system.changeling.nightmare, reason: esc(reason) }));
   return n;
 }
 
 /** Триггер Банальности (гл. 6): бросок Гламура, сл. 8; провал — +1 к пулу, ботч — по 1 за каждую единицу. */
 export async function banalityTrigger(actor) {
-  const roll = await rollGlamour(actor, { title: t("TriggerTitle"), subtitle: t("TriggerSub"), difficulty: C().banality?.triggerDiff ?? 8, kind: "trigger" });
+  // ликиец-квиксотик (Недуг «Угасание»): +2 к сложности
+  const fade = actor.system.changeling.variant === "lykeian" && actor.system.changeling.lykeian?.guise === "quixotic" ? 2 : 0;
+  const roll = await rollGlamour(actor, { title: t("TriggerTitle"), subtitle: fade ? `${t("TriggerSub")} · ${game.i18n.localize("VTM20.Lykeian.Fade")}` : t("TriggerSub"),
+    difficulty: Math.min(10, (C().banality?.triggerDiff ?? 8) + fade), kind: "trigger" });
   if (!roll) return null;
   const gain = roll.outcome === "botch" ? roll.state.values.filter(v => v === 1).length : roll.successes > 0 ? 0 : 1;
   if (gain) await addBanality(actor, gain);
@@ -841,7 +862,7 @@ export function imbalancedSpent(actor, nextTemp) {
 }
 
 Hooks.on("preUpdateActor", (actor, diff, opts) => {
-  if (actor.type !== "changeling") return;
+  if (actor.type !== "changeling" || actor.system.changeling.variant === "lykeian") return;
   const next = foundry.utils.getProperty(diff, "system.willpower.temporary");
   if (next == null || next >= actor.system.willpower.temporary) return;
   const k = imbalancedSpent(actor, next);

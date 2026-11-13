@@ -362,6 +362,8 @@ body.r-theme-light .vtm20 {
 /* длинный плоский знак: во всю ширину ячейки, а не вписан в квадрат */
 .vtm20 .r-sym.is-wide, .r-sym.is-wide { -webkit-mask-size: 100% auto; mask-size: 100% auto; }
 .vtm20 .r-sym.is-lum, .r-sym.is-lum { -webkit-mask-mode: luminance; mask-mode: luminance; }
+/* цветной знак (витражи подменышей, assets/changeling): картинка как есть, без маски и подкраски */
+.vtm20 .r-sym.is-color, .r-sym.is-color { background: var(--sym) center / contain no-repeat !important; -webkit-mask: none; mask: none; }
 .vtm20 .r-sym-inline { width: 13px; height: 13px; vertical-align: -2px; margin-right: 4px; }
 body.r-theme-light .vtm20 .r-sym { background: linear-gradient(170deg, #3a3029, #1d1813); }
 

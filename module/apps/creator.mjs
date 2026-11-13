@@ -103,7 +103,11 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       // Подменыш (C20, гл. 3): кит, ступень (у дикаря — +1 Гламур или Воля), двор, Дом, Наследия, Порог, Антитеза
       cl: { kith: s.changeling?.kith || "", seeming: s.changeling?.seeming || "", wilder: "", court: s.changeling?.court || "seelie", house: s.changeling?.house || "",
         legacySeelie: s.changeling?.legacies?.seelie || "", legacyUnseelie: s.changeling?.legacies?.unseelie || "",
-        threshold: s.changeling?.threshold || "", antithesis: s.changeling?.antithesis || "" },
+        threshold: s.changeling?.threshold || "", antithesis: s.changeling?.antithesis || "",
+        // ликиец (Players Guide, гл. 7): Облик, Форма (у животного — +1 Воля или Гламур — поле wilder), Тезис, Аналог, Кошмар-Наследие, Реды
+        variant: s.changeling?.variant || "", guise: s.changeling?.lykeian?.guise || "", shape: s.changeling?.lykeian?.shape || "",
+        thesis: s.changeling?.lykeian?.thesis || "", analog: s.changeling?.lykeian?.analog || "", nightmareLegacy: s.changeling?.lykeian?.nightmareLegacy || "",
+        redes: foundry.utils.deepClone(s.changeling?.lykeian?.redes ?? []) },
       ww: { breed: s.werewolf?.breed || "homid", auspice: s.werewolf?.auspice || "ragabash", tribe: s.werewolf?.tribe || "boneGnawers",
         fera: s.werewolf?.fera || "", sub: {}, gifts: {}, extra: [], deform: "", renown: { glory: 0, honor: 0, wisdom: 0 } }
     };

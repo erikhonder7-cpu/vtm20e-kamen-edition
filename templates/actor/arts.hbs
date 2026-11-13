@@ -1,5 +1,45 @@
 {{!-- Подменыш (C20, гл. 4): Искусства с уровнями (химерический / Вирд), Царства — на что направлен кантрип (module/apps/changeling.mjs) --}}
 <section class="tab r-pane r-edges r-cl-pane {{tab.cssClass}}" data-tab="{{tab.id}}" data-group="{{tab.group}}">
+  {{#if lykeian}}
+  {{!-- Ликиец (C20 Players Guide, гл. 7): Облик и Форма, Благословения и Недуг, Реды вместо Искусств (apps/lykeian.mjs) --}}
+  <h2 class="r-h2"><span>{{localize "VTM20.Lykeian.GuiseHead"}}</span>
+    {{#if editable}}<span class="r-h2-tools">
+      <a class="r-h2-btn" data-action="lyAct" data-op="legacy" data-tooltip="{{localize 'VTM20.Lykeian.LegacyHint'}}"><i class="fa-solid fa-star"></i> <span class="r-h2-lbl">{{localize "VTM20.Lykeian.LegacyShort"}}</span></a>
+      <a class="r-h2-btn" data-action="lyAct" data-op="shed" data-tooltip="{{localize 'VTM20.Lykeian.ShedHint'}}"><i class="fa-solid fa-snowflake"></i></a>
+      <a class="r-h2-btn" data-action="lyAct" data-op="cure" data-tooltip="{{localize 'VTM20.Lykeian.CureHint'}}"><i class="fa-solid fa-scale-balanced"></i></a>
+      <a class="r-h2-btn" data-action="lyAct" data-op="reap" data-tooltip="{{localize 'VTM20.Lykeian.ReapHint'}}"><i class="fa-solid fa-skull"></i></a>
+    </span>{{/if}}</h2>
+  <div class="r-cl-arts r-ly-guise">
+    {{#if lykeian.guise}}<article class="r-vcard r-cl-art">
+      <header class="r-cl-art-head"><div class="r-cl-art-title"><b class="r-cl-art-name">{{lykeian.guise.name}}</b><span class="r-cl-art-en">{{lykeian.guise.en}} · {{lykeian.guise.theme}}</span></div></header>
+      <p class="r-note">{{lykeian.guise.text}}</p>
+      {{#each lykeian.guise.blessings}}<p class="r-note"><b>{{name}}</b> <em>{{en}}</em> — {{text}}</p>{{/each}}
+      {{#if lykeian.guise.frailty}}<div class="r-weakness-text"><b>{{localize "VTM20.Lykeian.Frailty"}}: {{lykeian.guise.frailty.name}}</b> — {{lykeian.guise.frailty.text}}</div>{{/if}}
+      {{#if lykeian.maieutic}}<label class="r-check" data-tooltip="{{localize 'VTM20.Lykeian.RivalHint'}}"><input type="checkbox" name="system.changeling.lykeian.rival" {{#if lykeian.rival}}checked{{/if}}> {{localize "VTM20.Lykeian.Rival"}}</label>{{/if}}
+      {{#if lykeian.panic}}<p class="r-note is-warn"><i class="fa-solid fa-triangle-exclamation"></i> {{localize "VTM20.Lykeian.PanicNote"}}</p>{{/if}}
+    </article>{{else}}<p class="r-gs-empty">{{localize "VTM20.Lykeian.NoGuise"}}</p>{{/if}}
+    {{#if lykeian.shape}}<article class="r-vcard r-cl-art">
+      <header class="r-cl-art-head"><div class="r-cl-art-title"><b class="r-cl-art-name">{{lykeian.shape.name}}</b><span class="r-cl-art-en">{{lykeian.shape.en}}</span></div></header>
+      <p class="r-note">{{lykeian.shape.text}}</p>
+      {{#if lykeian.nightmareLegacy}}<p class="r-note"><b>{{localize "VTM20.Lykeian.NightmareLegacy"}}:</b> {{lykeian.nightmareLegacy.name}}{{#if lykeian.nightmareLegacy.ban}} — {{lykeian.nightmareLegacy.ban}}{{/if}}</p>{{/if}}
+      <p class="r-note {{#if lykeian.lost}}is-warn{{/if}}" data-tooltip="{{localize 'VTM20.Lykeian.ImbalanceHint'}}"><i class="fa-solid fa-masks-theater"></i> {{localize "VTM20.Lykeian.ImbalanceGlamour" n=lykeian.imbalance g=lykeian.glamourPerm}}</p>
+    </article>{{/if}}
+  </div>
+  <h2 class="r-h2"><span>{{localize "VTM20.Lykeian.Redes"}}</span>
+    <span class="r-h2-tools"><span class="r-gs-pool {{#if lykeian.over}}is-warn{{/if}}" data-tooltip="{{localize 'VTM20.Lykeian.RedesHint'}}"><i class="fa-solid fa-dragon"></i> {{lykeian.pts}} / {{lykeian.budget}}</span></span></h2>
+  {{#if editable}}<div class="r-toolbar r-cl-add">
+    <select><option value="">{{localize "VTM20.Lykeian.AddRede"}}</option>{{#each lykeian.avail}}<option value="{{key}}">{{label}}</option>{{/each}}</select>
+    <a class="r-btn" data-action="lyAct" data-op="add"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Common.Add"}}</a>
+  </div>{{/if}}
+  <div class="r-cl-oaths">
+    {{#each lykeian.redes}}<article class="r-vcard r-cl-oath">
+      <header><b>{{name}}</b> <em>{{en}}</em>
+        <span class="r-cl-oath-tools"><input class="r-ly-pts" type="number" min="0" max="30" name="system.changeling.lykeian.redes.{{i}}.pts" value="{{pts}}" {{#unless @root.editable}}disabled{{/unless}} data-tooltip="{{localize 'VTM20.Lykeian.Pts'}}">
+        {{#if @root.editable}}<a data-action="lyAct" data-op="del" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}</span></header>
+      <p class="r-note">{{text}}</p>
+    </article>{{else}}<p class="r-gs-empty">{{localize "VTM20.Lykeian.NoRedes"}}</p>{{/each}}
+  </div>
+  {{else}}
   <h2 class="r-h2"><span>{{localize "VTM20.Changeling.Arts"}}</span>
     <span class="r-h2-tools">
       <span class="r-gs-pool" data-tooltip="{{localize 'VTM20.Changeling.CantripRule' nm=cl.nightmare}}"><i class="fa-solid fa-star"></i> {{cl.glamour}} · <i class="fa-solid fa-moon"></i> {{cl.nightmare}}</span>
@@ -14,6 +54,7 @@
     {{#each cl.own}}
     <article class="r-vcard r-cl-art">
       <header class="r-cl-art-head">
+        {{#if sym}}<span class="r-cl-art-sym">{{rSym sym}}</span>{{/if}}
         <div class="r-cl-art-title"><a class="r-cl-art-name" data-action="clCast" data-art="{{key}}">{{name}}</a><span class="r-cl-art-en">{{en}}</span></div>
         {{> rDots dots=dots cls="is-small"}}
         {{#if @root.editable}}<a class="r-icon-btn" data-action="clUnleash" data-art="{{key}}" data-tooltip="{{localize 'VTM20.Changeling.UnleashHint'}}{{#if unleashing}}<br>{{unleashing}}{{/if}}"><i class="fa-solid fa-burst"></i></a>
@@ -39,11 +80,12 @@
   <div class="r-cl-realms">
     {{#each cl.realms}}
     <div class="r-vcard r-cl-realm {{#if modifier}}is-mod{{/if}} {{#if affinity}}is-affinity{{/if}}">
-      <div class="r-vc-head"><h4 class="r-banner">{{name}}{{#if affinity}} <i class="fa-solid fa-leaf" data-tooltip="{{localize 'VTM20.Changeling.AffinityHint'}}"></i>{{/if}}</h4>{{> rDots dots=dots cls="is-small"}}</div>
+      <div class="r-vc-head">{{#if sym}}<span class="r-cl-art-sym is-small">{{rSym sym}}</span>{{/if}}<h4 class="r-banner">{{name}}{{#if affinity}} <i class="fa-solid fa-leaf" data-tooltip="{{localize 'VTM20.Changeling.AffinityHint'}}"></i>{{/if}}</h4>{{> rDots dots=dots cls="is-small"}}</div>
       <ol class="r-cl-rlevels">{{#each levels}}<li class="{{#if known}}is-known{{/if}}" data-tooltip="{{text}}">{{name}}</li>{{/each}}</ol>
     </div>
     {{/each}}
   </div>
+  {{/if}}
   {{!-- Сокровища (C20, гл. 8): сила Искусства без Царств, свой запас Гламура; разрушение — Гламур и триггер Банальности --}}
   <h2 class="r-h2"><span>{{localize "VTM20.Changeling.Treasure.Head"}}</span>
     {{#if editable}}<span class="r-h2-tools"><a class="r-btn" data-action="clTreasure" data-op="add"><i class="fa-solid fa-gem"></i> {{localize "VTM20.Changeling.Treasure.Add"}}</a></span>{{/if}}</h2>

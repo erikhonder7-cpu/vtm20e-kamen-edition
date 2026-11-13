@@ -24,6 +24,8 @@ export class CalcCreator {
   get rules() {
     if (this.isWraith) return this.wraithRules;          // призрак и его пути: Спектр, Восставший, проектор (creator/wraith.mjs)
     if (this.isEarthbound) return RULES.earthbound;
+    // ликиец (C20 Players Guide, гл. 7): Искусств и Царств нет, Воля за свободные — 2
+    if (this.isLykeian) return { ...this.baseRules, disc: 0, cost: { ...this.baseRules.cost, will: 2 } };
     if (this.isThrall) return RULES.thrall;
     // колдун (M20 Sorcerer, гл. 3): 5 точек нумин, Путь за свободные пункты — 7
     if (this.isSorcerer) return { ...this.baseRules, disc: 5, cost: { ...this.baseRules.cost, disc: 7 } };
@@ -148,6 +150,7 @@ export class CalcCreator {
     if (this.isSorcerer) return this.sorcKeys;
     if (this.isMage) return VTM20.mageSpheres;
     if (this.isWraith) return this.wraithArcanoiKeys;
+    if (this.isLykeian) return [];                                   // ликиец: Реды вместо Искусств и Царств
     if (this.isChangeling) return [...VTM20.changelingArts, ...VTM20.changelingRealms];
     if (this.isDemon) return [...(this.houseData?.lores ?? []), ...(Codex.demon?.common ?? []),        // Знания Дома и общие
       ...(this.isEarthbound ? Codex.lores.filter(l => l.dark).map(l => l.key) : [])];                     // Привязанному — и Тёмные
@@ -385,7 +388,7 @@ export class CalcCreator {
   stepName(k) {
     if (this.isWerewolf && k === "advantages") return "advantagesGarou";      // у Гару справа Слава, а не Добродетели
     if (this.isMage) return { disciplines: "spheres", advantages: "advantagesMage" }[k] ?? k;
-    if (this.isChangeling) return { disciplines: "arts", advantages: "advantagesWraith" }[k] ?? k;   // «Фоны»: у подменыша Добродетелей нет
+    if (this.isChangeling) return { disciplines: this.isLykeian ? "redes" : "arts", advantages: "advantagesWraith" }[k] ?? k;   // «Фоны»: у подменыша Добродетелей нет
     if (this.isWraith) return { disciplines: "arcanoi", advantages: "advantagesWraith",
       shadow: this.wrPath === "spectre" ? "psyche" : this.wrPath === "projector" ? "stains" : "shadow" }[k] ?? k;
     return this.isDemon ? ({ disciplines: "lores", advantages: "advantagesDemon" }[k] ?? k) : k;

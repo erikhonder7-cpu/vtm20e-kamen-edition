@@ -249,3 +249,10 @@
 .vtm20.r-type-changeling .r-cl-craft.is-done { border-color: #e9c46a; }
 .vtm20.r-type-changeling .r-cl-fh-powers { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 6px 0; }
 .vtm20.r-type-changeling .r-cl-fh-powers small { color: var(--r-muted); }
+
+/* ликиец: цена Реда в строке (templates/actor/arts.hbs, мастер) */
+.vtm20 .r-ly-pts { width: 3.4em; text-align: center; }
+
+/* витражи Искусств и Царств на вкладке (assets/changeling) */
+.vtm20 .r-cl-art-sym { flex: 0 0 auto; width: 34px; height: 34px; margin-right: 6px; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .5)); }
+.vtm20 .r-cl-art-sym.is-small { width: 24px; height: 24px; margin-right: 4px; }

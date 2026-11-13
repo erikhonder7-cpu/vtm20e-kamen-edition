@@ -329,6 +329,39 @@
     {{!-- II. Гару (W20, гл. 3): род — Гару или один из Фера; порода, аугурия, племя плитками; у Фера — выбор внутри рода --}}
     {{!-- II. Подменыш (C20, гл. 3): кит, ступень, двор, Дом, Наследия, Порог и Антитеза --}}
     {{#if is_changeling}}
+    <div class="r-cr-tiles r-cr-garou-tiles is-two">{{#each cl.variants}}<a class="r-cr-tile {{#if active}}is-active{{/if}}" data-action="clPick" data-what="variant" data-key="{{key}}"><b>{{label}}</b></a>{{/each}}</div>
+    {{#if cl.lykeian}}
+    <h3 class="r-h3">{{localize "VTM20.Lykeian.Guise"}}</h3>
+    <div class="r-cr-clans r-cr-tribes">
+      {{#each cl.guises}}<a class="r-cr-clan {{#if active}}is-active{{/if}}" data-action="clPick" data-what="guise" data-key="{{key}}"><b>{{label}}</b><span class="r-cr-clan-disc">{{sub}}</span></a>{{/each}}
+    </div>
+    {{#if cl.guise}}<div class="r-cr-clancard">
+      <div class="r-cr-clancard-title">{{cl.guise.name}} <em>{{cl.guise.en}}</em></div>
+      <p class="r-note">{{cl.guise.text}}</p>
+      {{#each cl.guise.blessings}}<p class="r-note"><b>{{name}}</b> <em>{{en}}</em> — {{text}}</p>{{/each}}
+      {{#if cl.guise.frailty}}<div class="r-weakness-text"><b>{{localize "VTM20.Lykeian.Frailty"}}: {{cl.guise.frailty.name}}</b> — {{cl.guise.frailty.text}}</div>{{/if}}
+    </div>{{/if}}
+    <h3 class="r-h3">{{localize "VTM20.Lykeian.Shape"}}</h3>
+    <div class="r-cr-tiles r-cr-garou-tiles">{{#each cl.shapes}}<a class="r-cr-tile {{#if active}}is-active{{/if}}" data-action="clPick" data-what="shape" data-key="{{key}}" data-tooltip="{{text}}"><b>{{label}}</b><span class="r-cr-tile-text">{{text}}</span></a>{{/each}}</div>
+    {{#if cl.shapeChoice}}<div class="r-cr-tiles r-cr-garou-tiles is-two">{{#each cl.shapeChoice}}<a class="r-cr-tile {{#if active}}is-active{{/if}}" data-action="clPick" data-what="wilder" data-key="{{key}}"><b>{{label}}</b></a>{{/each}}</div>{{/if}}
+    <div class="r-cr-tiles r-cr-garou-tiles is-two">{{#each cl.courts}}<a class="r-cr-tile {{#if active}}is-active{{/if}}" data-action="clPick" data-what="court" data-key="{{key}}"><b>{{label}}</b></a>{{/each}}</div>
+    <div class="r-cols2 r-cr-genrow">
+      <label class="r-f"><span>{{localize "VTM20.Changeling.LegacySeelie"}}</span><select data-field="cl.legacySeelie"><option value="">—</option>{{#each cl.legaciesSeelie}}<option value="{{key}}" {{#if selected}}selected{{/if}} data-tooltip="{{tip}}">{{name}}</option>{{/each}}</select></label>
+      <label class="r-f"><span>{{localize "VTM20.Changeling.LegacyUnseelie"}}</span><select data-field="cl.legacyUnseelie"><option value="">—</option>{{#each cl.legaciesUnseelie}}<option value="{{key}}" {{#if selected}}selected{{/if}} data-tooltip="{{tip}}">{{name}}</option>{{/each}}</select></label>
+      <label class="r-f" data-tooltip="{{localize 'VTM20.Lykeian.NightmareLegacyHint'}}"><span>{{localize "VTM20.Lykeian.NightmareLegacy"}}</span><select data-field="cl.nightmareLegacy"><option value="">—</option>{{#each cl.nightmareLegacies}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
+      <label class="r-f" data-tooltip="{{localize 'VTM20.Lykeian.AnalogHint'}}"><span>{{localize "VTM20.Lykeian.Analog"}}</span><input type="text" data-field="cl.analog" value="{{st.cl.analog}}"></label>
+      <label class="r-f" data-tooltip="{{localize 'VTM20.Lykeian.ThesisHint'}}"><span>{{localize "VTM20.Lykeian.Thesis"}}</span><input type="text" data-field="cl.thesis" value="{{st.cl.thesis}}"></label>
+    </div>
+    <h3 class="r-h3">{{localize "VTM20.Lykeian.Redes"}}</h3>
+    <div class="r-cr-left {{#if (lt cl.redes.pts cl.redes.budget)}}{{else}}is-done{{/if}}">{{localize "VTM20.LyCr.RedesPts" n=cl.redes.pts b=cl.redes.budget}}{{#if cl.redes.extra}} · {{localize "VTM20.LyCr.RedesExtra" n=cl.redes.extra}}{{/if}}</div>
+    <div class="r-toolbar r-cl-add"><select><option value="">{{localize "VTM20.Lykeian.AddRede"}}</option>{{#each cl.redes.avail}}<option value="{{key}}">{{label}}</option>{{/each}}</select>
+      <a class="r-btn" data-action="lyRede" data-op="add"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Common.Add"}}</a></div>
+    {{#each cl.redes.list}}<div class="r-trait-main" data-tooltip="{{text}}"><span class="r-trait-label">{{name}}</span><span class="r-leader"></span>
+      <input class="r-ly-pts" type="number" min="0" max="30" data-field="cl.redes.{{i}}.pts" value="{{pts}}">
+      <a class="r-icon-btn is-danger" data-action="lyRede" data-op="del" data-i="{{i}}"><i class="fa-solid fa-xmark"></i></a></div>{{/each}}
+    <p class="r-note r-explain">{{localize "VTM20.LyCr.Tempers" g=cl.glamour w=cl.will b=cl.banality}}</p>
+    {{#each cl.issues}}<p class="r-note is-warn">{{this}}</p>{{/each}}
+    {{else}}
     <h3 class="r-h3">{{localize "VTM20.Changeling.Kith"}}</h3>
     <div class="r-cr-clans r-cr-tribes">
       {{#each cl.kiths}}<a class="r-cr-clan {{#if active}}is-active{{/if}}" data-action="clPick" data-what="kith" data-key="{{key}}"><b>{{label}}</b><span class="r-cr-clan-disc">{{sub}}</span></a>{{/each}}
@@ -363,6 +396,7 @@
     {{#if cl.house}}<p class="r-note"><b>{{cl.house.name}}</b> — {{cl.house.short}}{{#if cl.house.boon}}<br><b>{{localize "VTM20.ClCr.Boon"}}:</b> {{cl.house.boon}}{{/if}}{{#if cl.house.flaw}}<br><b>{{localize "VTM20.ClCr.HouseFlaw"}}:</b> {{cl.house.flaw}}{{/if}}</p>{{/if}}
     <p class="r-note r-explain">{{localize "VTM20.ClCr.Tempers" g=cl.glamour w=cl.will b=cl.banality}}</p>
     {{#each cl.issues}}<p class="r-note is-warn">{{this}}</p>{{/each}}
+    {{/if}}
     {{/if}}
 
     {{!-- II. Маг (M20, гл. 6): фракция со знаком, Сущность, родовая Сфера, фокус --}}

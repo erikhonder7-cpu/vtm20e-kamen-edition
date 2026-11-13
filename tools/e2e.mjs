@@ -6006,6 +6006,67 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  await check("Подменыш-ликиец: Облик и Форма, Реды, благословение и паника в броске, Дисбаланс Гламура, мастер", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {}, n0 = game.messages.size;
+      const CL = await import(`/systems/${sid}/module/apps/changeling.mjs`), LY = await import(`/systems/${sid}/module/apps/lykeian.mjs`);
+      const { RollDialog } = await import(`/systems/${sid}/module/dice/dialog.mjs`);
+      const inst = () => [...foundry.applications.instances.values()];
+      const a = await Actor.create({ name: "E2E — ликиец", type: "changeling", flags: { world: { e2e: true }, [sid]: { created: true } },
+        system: { abilities: { empathy: { value: 2 } }, willpower: { permanent: 4, temporary: 0 },
+          changeling: { variant: "lykeian", glamour: { permanent: 5, temporary: 1 }, nightmare: 8,
+            lykeian: { guise: "oppidan", shape: "mythic", thesis: "Укрытие от бури", redes: [{ key: "pgtwoplacesatonce", pts: 2 }] } } } });
+      const DV = foundry.applications.api.DialogV2, p0 = DV.prompt;
+      let b = null;
+      try {
+        await a.sheet.render({ force: true }); await wait(900);
+        const el = a.sheet.element;
+        out.header = [!!el.querySelector('select[name="system.changeling.lykeian.guise"]'), !el.querySelector('select[name="system.changeling.kith"]'), !el.querySelector('[data-action="clCast"]')];
+        a.sheet.changeTab("disciplines", "primary"); await wait(400);
+        out.tab = [el.textContent.includes("Два места сразу"), !!el.querySelector('[data-action="lyAct"][data-op="reap"]')];
+        await a.sheet.close();
+        // Эмпатия: +2 кубика Облика, без провала; Воля 0 — паника, +2 к сложности
+        const d = await RollDialog.prompt(a, { trait1: "attributes.perception", trait2: "abilities.empathy" }); await wait(500);
+        const c = d.compute();
+        out.roll = [c.breakdown.some(x => x.value === 2 && /Человек для людей/.test(x.label)), c.diffAuto.some(x => /Паника/.test(x.label) && x.value === 2),
+          LY.noBotchFor(a, ["abilities.empathy"]), LY.noBotchFor(a, ["abilities.brawl"])];
+        await d.close();
+        // Кошмар 8 + 2 → Дисбаланс на Гламуре, Гламур не возвращается; Воля не трогается
+        await CL.gainNightmare(a, 2);
+        out.imb = [a.system.changeling.imbalance, a.system.changeling.nightmare, a.system.changeling.glamour.temporary, a.system.changeling.bedlam];
+        // Гламур через Наследие: 2 Воли человека + мифический 1
+        DV.prompt = async () => ({ n: 2, via: "primary", erase: false });
+        await LY.legacyGlamour(a);
+        out.legacy = a.system.changeling.glamour.temporary;
+        // мастер: вариант «Ликиец», Облик, Форма, Наследия, Тезис, Реды на 5 очков — запись
+        b = await Actor.create({ name: "E2E — ликиец из мастера", type: "changeling", flags: { world: { e2e: true } } });
+        const { openCreator } = await import(`/systems/${sid}/module/apps/creator.mjs`);
+        await openCreator(b); await wait(1200);
+        const cr = inst().find(x => x.constructor.name === "VtMCreator" && x.actor === b);
+        cr.st.cl.variant = "lykeian"; await cr.render(); await wait(400);
+        const L = game.vtm20Codex.changeling.legacies;
+        Object.assign(cr.st.cl, { guise: "bucolic", shape: "animal", wilder: "glamour", court: "seelie", legacySeelie: L.find(l => l.court === "seelie").key,
+          nightmareLegacy: L.find(l => l.court === "unseelie").key, thesis: "Восторг и опасность стихии" });
+        out.crIssues = [cr.clIssues.length, cr.clArtIssues.length > 0, cr.rules.disc, cr.morality];
+        cr.st.cl.redes = [{ key: "pgtwoplacesatonce", pts: 2 }, { key: "pghealthy", pts: 4 }];
+        out.crRedes = [cr.clArtIssues.length, cr.clDiscFreeCost, cr.stepName("disciplines")];
+        await cr.write(); await wait(800);
+        out.written = [b.system.changeling.variant, b.system.changeling.lykeian.guise, b.system.changeling.lykeian.redes.length, b.system.changeling.glamour.permanent, b.system.changeling.kith];
+        for (const x of inst()) if (x.constructor.name === "VtMCreator" && x.actor === b) await x.close();
+      } finally {
+        DV.prompt = p0;
+        await ChatMessage.deleteDocuments(game.messages.contents.slice(n0).map(x => x.id));
+        await Actor.deleteDocuments([a.id, b?.id].filter(Boolean));
+      }
+      return out;
+    });
+    // мифический: Гламур 4 + 1 = 5; Реды 6 очков — 1 сверх, 2 свободных
+    const want = { header: [true, true, true], tab: [true, true], roll: [true, true, true, false], imb: [1, 0, 1, false], legacy: 4,
+      crIssues: [0, true, 0, 5], crRedes: [0, 2, "redes"], written: ["lykeian", "bucolic", 2, 5, ""] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   await check("Призрак: лист и Арканои, Пафос, Страсть, Корпус до колебания и Испытание, Катарсис", async () => {
     const r = await page.evaluate(async () => {
       const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), WR = await import(`/systems/${sid}/module/apps/wraith.mjs`);

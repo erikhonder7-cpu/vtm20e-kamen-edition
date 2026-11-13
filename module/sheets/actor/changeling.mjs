@@ -6,6 +6,15 @@ import { castCantrip, unleash, artRow, spendGlamour, gainGlamour, gainNightmare,
   setSceneBanality, endBedlam, takeOath, breakOath, dropOath, chimericalDamage, coldIron,
   addTreasure, treasureStore, useTreasure, destroyTreasure, mistsTable, questOutcome,
   editChimera, dropChimera, chimeraActor, addCraft, craftRoll, dropCraft } from "../../apps/changeling.mjs";
+import { addRede, dropRede, reaping, legacyGlamour, shedBanality, shedImbalance } from "../../apps/lykeian.mjs";
+
+/** Ликиец (apps/lykeian.mjs): Реды, Жатва, Гламур через Наследие, снять Банальность или Дисбаланс. */
+function onLykeian(event, target) {
+  const op = target.dataset.op, a = this.actor;
+  if (op === "add") return addRede(a, target.closest(".r-cl-add")?.querySelector("select")?.value);
+  if (op === "del") return dropRede(a, Number(target.dataset.i));
+  return { reap: reaping, legacy: legacyGlamour, shed: shedBanality, cure: shedImbalance }[op]?.(a);
+}
 
 function onCast(event, target) {
   const d = target.dataset;
@@ -78,4 +87,4 @@ function onOath(event, target) {
 
 export const CHANGELING_ACTIONS = { clCast: onCast, clUnleash: onUnleash, clArtAdd: onArtAdd, clArtDel: onArtDel, clGlamour: onGlamour,
   clNightmare: onNightmare, clTrigger: onTrigger, clWyrd: onWyrd, clAutumn: onAutumn, clEpiphany: onEpiphany, clPlace: onPlace, clBedlamEnd: onBedlamEnd, clOath: onOath,
-  clChim: { handler: onChim, buttons: [0, 2] }, clColdIron: onColdIron, clTreasure: onTreasure, clDross: onDross, clMists: onMists, clQuest: onQuest, clChimera: onChimera, clCraft: onCraft };
+  clChim: { handler: onChim, buttons: [0, 2] }, clColdIron: onColdIron, clTreasure: onTreasure, clDross: onDross, clMists: onMists, clQuest: onQuest, clChimera: onChimera, clCraft: onCraft, lyAct: onLykeian };

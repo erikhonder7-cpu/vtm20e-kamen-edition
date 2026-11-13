@@ -4300,6 +4300,26 @@
    "variable": false,
    "text": "Форма действует независимо от Облика; Облик выглядит как обычный предмет (отличить можно Кеннингом); снятие вложенного Гламура возвращает Форму к Облику.",
    "source": "C20 Players Guide"
+  },
+  {
+   "key": "pghealthy",
+   "name": "Здоровяк",
+   "en": "Healthy",
+   "cost": 1,
+   "costText": "",
+   "variable": false,
+   "text": "+1 уровень здоровья за покупку; цена зависит от уровня: −5 — 1, −2 — 2, −1 — 3, Ушибленный (Bruised) — 4.",
+   "source": "C20 Players Guide"
+  },
+  {
+   "key": "pgrevelry",
+   "name": "Веселье",
+   "en": "Revelry",
+   "cost": 5,
+   "costText": "",
+   "variable": false,
+   "text": "5 хим. очков, 1 Воля: раз за историю — 1 Воля для связи с Грёзой, затем действие, воплощающее Тезис; при успехе — Гламур до полного запаса.",
+   "source": "C20 Players Guide"
   }
  ],
  "chimera": {
@@ -4317,6 +4337,208 @@
   "will": 3,
   "health": 2
  },
+ "lykeian": {
+  "shapes": [
+   {
+    "key": "humanoid",
+    "name": "Гуманоид",
+    "en": "Humanoid",
+    "text": "ближе к Осеннему миру; Туманы легче скрывают его действия; +1 Воля при создании; нет Банальности от того, что смертный видит невозможное для Облика."
+   },
+   {
+    "key": "animal",
+    "name": "Животное",
+    "en": "Animal",
+    "text": "между мирами; +1 Воля или +1 Гламур; может использовать Кошмар-Наследие, чтобы игнорировать Запрет первичного Наследия без получения Кошмара."
+   },
+   {
+    "key": "mythic",
+    "name": "Мифический",
+    "en": "Mythic",
+    "text": "сильнее всего связан с Грёзой; +1 Гламур при создании; +1 Гламур при получении Гламура через Наследия."
+   }
+  ],
+  "guises": [
+   {
+    "key": "bucolic",
+    "name": "Буколик",
+    "en": "Bucolic",
+    "theme": "природа",
+    "text": "Рождены от природных объектов (дерево, камень, раковина, ручей, поляна). Интроспективны, нередко «приросли» к месту; одиноки в городе. - Стереотипы (кратко): о Маиевтиках — «как инвазивный вид», о Китейнах — «разрушают Поляны». Пример: Коакаи, белые волны Пе'ахи.",
+    "blessings": [
+     {
+      "name": "Звериная интуиция",
+      "en": "Animal Intuition",
+      "text": "+2 к Обращению с животными (даже выше 5); не проваливают Обращение с животными."
+     },
+     {
+      "name": "Язык дикой природы",
+      "en": "Language of the Wilds",
+      "text": "1 Гламур — говорить с любым естественным предметом (река, ветер, гора, медуза) на сцену."
+     }
+    ],
+    "frailty": {
+     "name": "Из разных миров",
+     "en": "From Different Worlds",
+     "text": "+2 к сложности всех социальных бросков со смертными и китейнами, связанными с человеческим телом."
+    }
+   },
+   {
+    "key": "maieutic",
+    "name": "Маиевтик",
+    "en": "Maieutic",
+    "theme": "понятие",
+    "text": "Рождены от предметов-символов человеческих понятий («живые мемы»): настоящая любовь, капитализм, свобода; спорщики, коллекционеры фактов, стремятся распространять понятие.",
+    "blessings": [
+     {
+      "name": "Познай себя",
+      "en": "Know Thyself",
+      "text": "специализация в Гуманитарных науках (Academics) по своему Облику; +2 к Гуманитарным наукам (даже выше 5); не проваливают Гуманитарные науки по специализации."
+     },
+     {
+      "name": "Распространи мем",
+      "en": "Spread the Meme",
+      "text": "касание + 1 Гламур — человек становится «истинным верующим» в понятие на сцену; китейны и сверхъестественные существа сопротивляются броском Воли (сложность 7)."
+     }
+    ],
+    "frailty": {
+     "name": "Плохие проигравшие",
+     "en": "Sore Losers",
+     "text": "если выбрали конкурирующее понятие — +2 сложности ко всем броскам, пока не побеждён соперник или не совершено подтверждающее действие; 1 Воля — игнорировать штраф на ход."
+    }
+   },
+   {
+    "key": "oppidan",
+    "name": "Оппидан",
+    "en": "Oppidan",
+    "theme": "городской/рукотворный",
+    "text": "Рождены от рукотворных вещей (машины, игрушки, знаки, дома); изобретатели и ремесленники; ближе всех к смертным, нежно привязаны к владельцам (как ребёнок к родителю).",
+    "blessings": [
+     {
+      "name": "Человек для людей",
+      "en": "People Person",
+      "text": "+2 к Эмпатии (даже выше 5); не проваливают Эмпатию при чтении людей, китейнов и химер, связанных с человеком."
+     },
+     {
+      "name": "Призрак в машине",
+      "en": "Ghost in the Machine",
+      "text": "касание + 1 Гламур — полностью понимают устройство предмета и неисправности; −1 к сложности всех бросков с ним на сцену."
+     }
+    ],
+    "frailty": {
+     "name": "Тоска по людям",
+     "en": "Separation Anxiety",
+     "text": "каждый день без вида человека или чужого творения — −1 Воля; при 0 Воли — паника: +2 ко всем сложностям, пока не увидит человека или предмет."
+    }
+   },
+   {
+    "key": "quixotic",
+    "name": "Квиксотик",
+    "en": "Quixotic",
+    "theme": "неосязаемое",
+    "text": "Рождены от историй, воспоминаний, событий, игр и сайтов; информаторы, разведчики Грёзы; их Облик нужно беречь (исчезнет — исчезнет и ликиец).",
+    "blessings": [
+     {
+      "name": "Секреты не спрячешь",
+      "en": "Secrets Can't Hide",
+      "text": "+2 к Загадкам (даже выше 5); не проваливают Загадки."
+     },
+     {
+      "name": "Прячась в воздухе",
+      "en": "Hiding in Thin Air",
+      "text": "1 Гламур + 1 Воля — войти в предмет-аналог (рассказ, игра, память) на сцену; можно наблюдать, но нельзя изменять игру/сюжет, физически не взаимодействуют с телесным миром."
+     }
+    ],
+    "frailty": {
+     "name": "Угасание",
+     "en": "Fade Away",
+     "text": "бросок против любой триггерной Банальности — +2 к сложности."
+    }
+   }
+  ]
+ },
+ "glyphs": [
+  "art-aphrodisia",
+  "art-autumn",
+  "art-chicanery",
+  "art-chronos",
+  "art-contempt",
+  "art-contract",
+  "art-delusion",
+  "art-ditan",
+  "art-dragonsIre",
+  "art-houtan",
+  "art-kryos",
+  "art-legerdemain",
+  "art-lintan",
+  "art-metamorphosis",
+  "art-naming",
+  "art-oneiromancy",
+  "art-primal",
+  "art-pyretics",
+  "art-shuitan",
+  "art-skycraft",
+  "art-soothsay",
+  "art-sovereign",
+  "art-spring",
+  "art-summer",
+  "art-tiehtan",
+  "art-wayfare",
+  "art-winter",
+  "court-seelie",
+  "court-shadow",
+  "court-unseelie",
+  "daf-court-autumn",
+  "daf-court-solstice",
+  "daf-court-spring",
+  "daf-court-summer",
+  "daf-court-winter",
+  "daf-origin-changeling",
+  "daf-origin-firstborn",
+  "daf-origin-inanimae",
+  "group-menehune",
+  "group-nunnehi",
+  "guise-bucolic",
+  "guise-maieutic",
+  "guise-oppidan",
+  "guise-quixotic",
+  "house-aesin",
+  "house-ailil",
+  "house-balor",
+  "house-beaumayn",
+  "house-daireann",
+  "house-danaan",
+  "house-dougal",
+  "house-eiluned",
+  "house-fiona",
+  "house-gwydion",
+  "house-leanhaun",
+  "house-liam",
+  "house-scathach",
+  "house-varich",
+  "kith-autumnSidhe",
+  "kith-boggan",
+  "kith-clurichaun",
+  "kith-eshu",
+  "kith-nocker",
+  "kith-other-ghilledhu",
+  "kith-other-merfolk",
+  "kith-piskey",
+  "kith-pooka",
+  "kith-redcap",
+  "kith-satyr",
+  "kith-selkie",
+  "kith-sidhe",
+  "kith-sluagh",
+  "kith-troll",
+  "realm-actor",
+  "realm-fae",
+  "realm-nature",
+  "realm-prop",
+  "realm-scene",
+  "realm-time",
+  "treasure"
+ ],
  "otherKiths": [
   {
    "key": "thallain-aithu",

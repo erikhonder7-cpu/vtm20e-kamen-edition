@@ -12,6 +12,7 @@ import { meritModsFor } from "../data/merit-mods.mjs";
 import { substanceMods } from "../data/vessels.mjs";
 import { dreadDice, frenzyDiff, mindDiff, centered, painless } from "../apps/target-powers.mjs";
 import { revenantDiff } from "../data/revenants.mjs";
+import { noBotchFor, lykeianDiff } from "../apps/lykeian.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -211,7 +212,9 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       ...((this.cfg.extra?.power || this.cfg.extra?.magic || ["magic", "ritual"].includes(this.cfg.kind)) ? a.system.fx?.mystic ?? [] : []),
       ...mm.auto.filter(m => m.diff).map(m => ({ label: m.label, value: m.diff })),
       // изъяны семей ревенантов (data/revenants.mjs)
-      ...revenantDiff(a, { attrs, traits: [v.trait1, v.trait2], kind: this.cfg.kind, social, power: !!this.cfg.extra?.power })];
+      ...revenantDiff(a, { attrs, traits: [v.trait1, v.trait2], kind: this.cfg.kind, social, power: !!this.cfg.extra?.power }),
+      // Недуги ликийца (apps/lykeian.mjs): паника без Воли, соперник маиевтика
+      ...lykeianDiff(a)];
     const selectedTargets = [...(game.user.targets ?? [])];
     const earthTarget = selectedTargets.length === 1 ? selectedTargets[0]?.actor : null;
     const earthDetect = Number(earthTarget?.system?.fx?.detectDifficulty) || 0;
@@ -419,6 +422,8 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
         ? [...(cfg.breakdown ?? []), ...(v.physical && c.phys ? [{ label: Codex.disciplineLabel(c.attr === "strength" ? "potence" : "celerity"), value: c.phys }] : []), ...(v.physical && c.auto ? [{ label: t("Roll.AutoSuccess"), value: c.auto }] : [])]
         : c.breakdown,
       kind: cfg.kind ?? "check", messageMode: v.messageMode, whisperAlso: cfg.whisperAlso, auto: c.auto,
+      // без провала: Облик ликийца, Лебединая дева, богган (apps/lykeian.mjs)
+      ...(cfg.noBotch || noBotchFor(this.actor, [v.trait1, v.trait2]) ? { noBotch: true } : {}),
       extra: { ...(cfg.extra ?? {}), contest: v.contest, ...(v.contest === "extended" ? { extended: { need: v.need, prev: 0, step: 0 } } : {}) },
       notes, effect: cfg.effect ?? ""
     });

@@ -474,7 +474,7 @@ def parse_pg_redes():
         nxt = re.search(r"^## ", part, re.M)
         part = part[:nxt.start()] if nxt else part
         for line in part.splitlines():
-            m = re.match(r"^- \*\*([^*(]+?)\s*\(([^)]+)\)\*\*\s*(?:\(([^)]*)\))?[:\s]*(.*)$", line)
+            m = re.match(r"^- \*\*([^*(]+?)\s*\(([^)]+)\)[^*]*\*\*\s*(?:\(([^)]*)\))?[:\s]*(.*)$", line)
             if not m:
                 continue
             cost_txt = m.group(3) or ""
@@ -599,6 +599,46 @@ def parse_swan_maidens():
              "birthrights": rights, "frailty": frailty, "source": "C20 Players Guide", "html": html(intro)}]
 
 
+# ── Players Guide, гл. 7: ликийцы — Формы (аналог Ступеней) и Облики (аналог китов) ──
+SHAPES = {"Humanoid": "humanoid", "Animal": "animal", "Mythic": "mythic"}
+GUISES = {"Bucolic": "bucolic", "Maieutic": "maieutic", "Oppidan": "oppidan", "Quixotic": "quixotic"}
+
+
+def parse_lykeians():
+    """Формы «- **Имя (En):** текст» и Облики «### Имя (En) — тема»: Благословения и Недуг."""
+    text = book(PG, "07")
+    shapes, guises = [], []
+    part = text[text.find("## Формы"):].split("\n## ", 1)[0]
+    for line in part.splitlines():
+        m = re.match(r"^- \*\*(.+?) \(([^)]+)\):\*\*\s*(.*)$", line)
+        if m and m.group(2) in SHAPES:
+            shapes.append({"key": SHAPES[m.group(2)], "name": m.group(1).strip(), "en": m.group(2), "text": plain(m.group(3))})
+    part = text[text.find("## Облики"):].split("\n## ", 1)[0]
+    for title, lines in sections(part, 3):
+        name, en = ru_en(title.split(" — ")[0])
+        if en not in GUISES:
+            continue
+        blessings, frailty, intro = [], None, []
+        for l in lines:
+            b = re.match(r"^  - \*\*(.+?) \(([^)]+)\):\*\*\s*(.*)$", l)
+            f = re.match(r"^- \*\*Недуг — (.+?) \(([^)]+)\):\*\*\s*(.*)$", l)
+            if b:
+                blessings.append({"name": b.group(1).strip(), "en": b.group(2).strip(), "text": plain(b.group(3))})
+            elif f:
+                frailty = {"name": f.group(1).strip(), "en": f.group(2).strip(), "text": plain(f.group(3))}
+            elif l.strip() and not l.startswith("- **"):
+                intro.append(l)
+        guises.append({"key": GUISES[en], "name": name, "en": en, "theme": title.split(" — ")[1].strip() if " — " in title else "",
+                       "text": plain(" ".join(intro)), "blessings": blessings, "frailty": frailty})
+    return {"shapes": shapes, "guises": guises}
+
+
+def glyphs():
+    """Знаки (tools/changeling_glyphs.mjs → assets/changeling/index.json): kith-*, art-*, realm-*, house-*, court-*, guise-*, group-*, daf-*."""
+    p = os.path.join(ROOT, "assets", "changeling", "index.json")
+    return json.load(open(p, encoding="utf-8")) if os.path.exists(p) else []
+
+
 def parse_books():
     out = []
     for folder, label in BOOKS:
@@ -624,7 +664,7 @@ def build():
             k["birthrights"] = sidhe["birthrights"]
     data = {"source": "Changeling: The Dreaming 20th Anniversary Edition — справочник проекта (пересказ механики)",
             "seemings": parse_seemings(), "kiths": kiths, "houses": parse_houses() + parse_banner_houses(), "legacies": parse_legacies(),
-            "arts": arts, "realms": realms, "backgrounds": parse_backgrounds(), "merits": parse_merits() + parse_boggan_merits(), "oaths": parse_oaths(), "redes": parse_redes() + parse_pg_redes(), "chimera": CHIMERA, "otherKiths": parse_other_kiths() + parse_pg_kiths(), "freeholds": parse_freeholds(),
+            "arts": arts, "realms": realms, "backgrounds": parse_backgrounds(), "merits": parse_merits() + parse_boggan_merits(), "oaths": parse_oaths(), "redes": parse_redes() + parse_pg_redes(), "chimera": CHIMERA, "lykeian": parse_lykeians(), "glyphs": glyphs(), "otherKiths": parse_other_kiths() + parse_pg_kiths(), "freeholds": parse_freeholds(),
             "creation": CREATION, "freebies": FREEBIES, "xp": XP, "cantrip": CANTRIP, "banality": BANALITY, "bedlam": BEDLAM}
     with open(OUT, "w", encoding="utf-8", newline="\n") as f:
         json.dump(data, f, ensure_ascii=False, indent=1)

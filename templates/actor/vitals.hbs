@@ -204,9 +204,10 @@
     {{#if editable}}<div class="r-vc-tools r-cl-bar">
       <a class="r-vc-btn is-sq" data-action="clGlamour" data-d="-1" data-tooltip="{{localize 'VTM20.Changeling.SpendGlamour'}}"><i class="fa-solid fa-minus"></i></a>
       <a class="r-vc-btn is-sq" data-action="clGlamour" data-d="1" data-tooltip="{{localize 'VTM20.Changeling.GainGlamour'}}"><i class="fa-solid fa-star"></i></a>
-      <a class="r-vc-btn" data-action="clCast" data-tooltip="{{localize 'VTM20.Changeling.CantripHint'}}"><i class="fa-solid fa-wand-sparkles"></i> {{localize "VTM20.Changeling.Cantrip"}}</a>
+      {{#if lykeian}}<a class="r-vc-btn" data-action="lyAct" data-op="legacy" data-tooltip="{{localize 'VTM20.Lykeian.LegacyHint'}}"><i class="fa-solid fa-star"></i> {{localize "VTM20.Lykeian.LegacyShort"}}</a>
+      {{else}}<a class="r-vc-btn" data-action="clCast" data-tooltip="{{localize 'VTM20.Changeling.CantripHint'}}"><i class="fa-solid fa-wand-sparkles"></i> {{localize "VTM20.Changeling.Cantrip"}}</a>
       <a class="r-vc-btn is-sq" data-action="clEpiphany" data-tooltip="{{localize 'VTM20.Changeling.Epi.Short'}} — {{localize 'VTM20.Changeling.Epi.Hint'}}"><i class="fa-solid fa-lightbulb"></i></a>
-      <a class="r-vc-btn is-sq {{#if changelingInfo.wyrd}}is-on{{/if}}" data-action="clWyrd" data-tooltip="{{localize 'VTM20.Changeling.WyrdHint'}}"><i class="fa-solid fa-sun"></i></a>
+      <a class="r-vc-btn is-sq {{#if changelingInfo.wyrd}}is-on{{/if}}" data-action="clWyrd" data-tooltip="{{localize 'VTM20.Changeling.WyrdHint'}}"><i class="fa-solid fa-sun"></i></a>{{/if}}
       <a class="r-vc-btn is-sq" data-action="clAutumn" data-tooltip="{{localize 'VTM20.Changeling.AutumnHint'}}"><i class="fa-solid fa-leaf"></i></a>
       <a class="r-vc-btn is-sq" data-action="clTrigger" data-tooltip="{{localize 'VTM20.Changeling.TriggerHint'}}"><i class="fa-solid fa-snowflake"></i></a>
       <a class="r-vc-btn is-sq" data-action="clNightmare" data-d="1" data-tooltip="{{localize 'VTM20.Changeling.NightmarePlus'}}"><i class="fa-solid fa-moon"></i></a>

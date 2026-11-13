@@ -14,6 +14,7 @@ import { W, wwGlyphSrc } from "./werewolf.mjs";
 import { H } from "./hunter.mjs";
 import { W as WR, arcSym, legionSym } from "./wraith.mjs";
 import { C as CL } from "./changeling.mjs";
+import * as CLG from "./changeling.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const loc = k => game.i18n.localize(`VTM20.${k}`);
@@ -154,23 +155,24 @@ function wraithGroups() {
 /* ── Подменыш ──────────────────────────────────────────────────────────── */
 function changelingGroups() {
   const D = CL(), realm = k => (D.realms ?? []).find(r => r.key === k)?.name ?? k;
+  const g = (kind, key) => CLG.clGlyph(kind, key) ?? undefined;
   const TYPE = { chimerical: "Changeling.Type.chimerical", wyrd: "Changeling.Type.wyrd", choice: "Changeling.Type.choice" };
   return [
-    { key: "kiths", label: loc("Changeling.Atlas.Kiths"), items: (D.kiths ?? []).map(k => ({ key: `kith:${k.key}`, name: k.name, sub: k.en, icon: "fa-wand-sparkles",
+    { key: "kiths", label: loc("Changeling.Atlas.Kiths"), items: (D.kiths ?? []).map(k => ({ key: `kith:${k.key}`, name: k.name, sub: k.en, icon: "fa-wand-sparkles", sym: CLG.kithGlyph(k.key) ?? undefined,
       card: () => ({ kicker: loc("Changeling.Kith"), text: k.html }) })) },
-    { key: "other", label: loc("Changeling.Atlas.Other"), items: (D.otherKiths ?? []).map(k => ({ key: `ofae:${k.key}`, name: k.name, sub: `${k.en} · ${loc(`Changeling.OtherFae.${k.group}`)}`, icon: "fa-masks-theater",
+    { key: "other", label: loc("Changeling.Atlas.Other"), items: (D.otherKiths ?? []).map(k => ({ key: `ofae:${k.key}`, name: k.name, sub: `${k.en} · ${loc(`Changeling.OtherFae.${k.group}`)}`, icon: "fa-masks-theater", sym: CLG.kithGlyph(k.key) ?? undefined,
       card: () => ({ kicker: loc(`Changeling.OtherFae.${k.group}`), text: k.html, facts: [fact(loc("ClCr.Affinity"), k.affinity ? realm(k.affinity) : "")].filter(Boolean) }) })) },
-    { key: "houses", label: loc("Changeling.Atlas.Houses"), items: (D.houses ?? []).map(h => ({ key: `house:${h.key}`, name: h.name, sub: `${h.en} · ${h.courtText ?? ""}`, icon: "fa-crown",
+    { key: "houses", label: loc("Changeling.Atlas.Houses"), items: (D.houses ?? []).map(h => ({ key: `house:${h.key}`, name: h.name, sub: `${h.en} · ${h.courtText ?? ""}`, icon: "fa-crown", sym: g("house", h.key),
       card: () => ({ kicker: loc("Changeling.House"), text: h.html || p(h.short),
         facts: [fact(loc("Changeling.CourtLabel"), h.courtText), fact(loc("Changeling.Atlas.Nick"), h.nick), fact(loc("ClCr.Boon"), h.boon), fact(loc("ClCr.HouseFlaw"), h.flaw)].filter(Boolean) }) })) },
-    { key: "legacies", label: loc("Changeling.Atlas.Legacies"), items: (D.legacies ?? []).map(l => ({ key: `legacy:${l.key}`, name: l.name, sub: `${l.en} · ${loc(`Changeling.Court.${l.court}`)}`, icon: l.court === "seelie" ? "fa-sun" : "fa-moon",
+    { key: "legacies", label: loc("Changeling.Atlas.Legacies"), items: (D.legacies ?? []).map(l => ({ key: `legacy:${l.key}`, name: l.name, sub: `${l.en} · ${loc(`Changeling.Court.${l.court}`)}`, icon: l.court === "seelie" ? "fa-sun" : "fa-moon", sym: g("court", l.court),
       card: () => ({ kicker: loc(l.court === "seelie" ? "Changeling.LegacySeelie" : "Changeling.LegacyUnseelie"), text: p(l.text),
         facts: [fact(loc("ClCr.Quest"), l.quest), fact(loc("ClCr.Ban"), l.ban)].filter(Boolean) }) })) },
-    { key: "arts", label: loc("Changeling.Arts"), items: (D.arts ?? []).map(a => ({ key: `art:${a.key}`, name: a.name, sub: a.en, icon: "fa-wand-sparkles",
+    { key: "arts", label: loc("Changeling.Arts"), items: (D.arts ?? []).map(a => ({ key: `art:${a.key}`, name: a.name, sub: a.en, icon: "fa-wand-sparkles", sym: g("art", a.key),
       card: () => ({ kicker: loc("Changeling.Art"), text: a.html,
         facts: [fact(loc("Changeling.Atlas.Unleashing"), a.unleashing), fact(loc("Changeling.Bunk"), a.bunks)].filter(Boolean),
         sections: [{ title: loc("Changeling.Arts"), n: a.levels.length, rows: a.levels.map(l => ({ lvl: ROMAN[l.level], name: l.name, em: [l.en, TYPE[l.type] ? loc(TYPE[l.type]) : ""].filter(Boolean).join(" · "), html: l.html })) }] }) })) },
-    { key: "realms", label: loc("Changeling.Realms"), items: (D.realms ?? []).map(r => ({ key: `realm:${r.key}`, name: r.name, sub: r.en, icon: "fa-compass",
+    { key: "realms", label: loc("Changeling.Realms"), items: (D.realms ?? []).map(r => ({ key: `realm:${r.key}`, name: r.name, sub: r.en, icon: "fa-compass", sym: g("realm", r.key),
       card: () => ({ kicker: loc(r.modifier ? "Changeling.Modifiers" : "Changeling.Realms"), text: r.html,
         sections: [{ title: realm(r.key), n: r.levels.length, rows: r.levels.map(l => ({ lvl: ROMAN[l.level], name: l.name, em: l.en ?? "", html: l.html ?? p(l.text) })) }] }) })) },
     { key: "backgrounds", label: loc("Wraith.Backgrounds"), items: (D.backgrounds ?? []).map((x, i) => ({ key: `bg:${i}`, name: x.name, sub: x.en, icon: "fa-book",

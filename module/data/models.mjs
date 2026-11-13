@@ -935,7 +935,11 @@ export class ChangelingData extends BaseActorData {
           glamour: int(1, 0, 20), will: int(1, 1, 10), health: int(2, 0, 50), redes: new ArrayField(new SchemaField({ key: str(""), pts: int(0, 0, 30) })),
           text: str(""), actor: str("") })),
         treasures: new ArrayField(new SchemaField({ name: str(""), art: str(""), level: int(1, 1, 5), store: int(0, 0, 20), text: str("") })),
-        chimerical: new SchemaField({ bashing: int(0, 0, 7), lethal: int(0, 0, 7), aggravated: int(0, 0, 7) })
+        chimerical: new SchemaField({ bashing: int(0, 0, 7), lethal: int(0, 0, 7), aggravated: int(0, 0, 7) }),
+        // вариант: «» — китейн, lykeian — ликиец (C20 Players Guide, гл. 7; apps/lykeian.mjs)
+        variant: str(""),
+        lykeian: new SchemaField({ shape: str(""), guise: str(""), analog: str(""), thesis: str(""), nightmareLegacy: str(""),
+          rival: new BooleanField({ initial: false }), redes: new ArrayField(new SchemaField({ key: str(""), pts: int(1, 0, 30) })) })
       })
     };
   }
@@ -948,9 +952,17 @@ export class ChangelingData extends BaseActorData {
     // Туманы (гл. 6): пул Банальности выше рейтинга Гламура
     c.mists = c.banality.temporary > c.glamour.permanent;
     c.undone = c.banality.permanent >= 10;
-    // Дисбаланс отмечает клетки Воли справа налево (не больше постоянной Воли)
-    c.imbalance = Math.min(c.imbalance, this.willpower.permanent);
-    c.bedlam = this.willpower.permanent > 0 && c.imbalance >= this.willpower.permanent;
+    // Дисбаланс отмечает клетки Воли справа налево (не больше постоянной Воли); у ликийца — точки Гламура, Бедлама нет
+    if (c.variant === "lykeian") {
+      c.imbalance = Math.min(c.imbalance, c.glamour.permanent);
+      c.bedlam = false;
+      // Благословение Облика: +2 к своей Способности (даже выше 5)
+      const ab = { bucolic: "animalKen", maieutic: "academics", oppidan: "empathy", quixotic: "enigmas" }[c.lykeian?.guise];
+      if (ab && this.fx?.dice) this.fx.dice[ab] = [...(this.fx.dice[ab] ?? []), { label: game.i18n.localize(`VTM20.Lykeian.Bless.${c.lykeian.guise}`), value: 2 }];
+    } else {
+      c.imbalance = Math.min(c.imbalance, this.willpower.permanent);
+      c.bedlam = this.willpower.permanent > 0 && c.imbalance >= this.willpower.permanent;
+    }
     // Химерические раны (C20, гл. 6 «Health»): своя дорожка; штраф ран — худший из двух (правило системы),
     // при Туманах («Отстранённость») химерический штраф мягче на 1
     const ch = c.chimerical, agg = Math.min(ch.aggravated, 7), let_ = Math.min(ch.lethal, 7 - agg), bash = Math.min(ch.bashing, 7 - agg - let_);

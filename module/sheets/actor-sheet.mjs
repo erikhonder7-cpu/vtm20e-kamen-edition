@@ -8,7 +8,8 @@
 import { MAGE_ACTIONS } from "./actor/mage.mjs";
 import { WRAITH_ACTIONS, arcFold } from "./actor/wraith.mjs";
 import { CHANGELING_ACTIONS } from "./actor/changeling.mjs";
-import { changelingInfo, artsView, CHANGELING_SIGIL } from "../apps/changeling.mjs";
+import { changelingInfo, artsView, CHANGELING_SIGIL, kithGlyph, clGlyph } from "../apps/changeling.mjs";
+import { lykeianInfo } from "../apps/lykeian.mjs";
 import { wraithInfo, arcanoiView, passionsView, setNecropolis, setPlace } from "../apps/wraith.mjs";
 import * as Resolution from "../apps/resolution.mjs";
 import * as Thorns from "../apps/thorns.mjs";
@@ -344,8 +345,9 @@ openStrategy: () => openStrategy(),
       for (const x of ctx.arc.own) x.folded = (fold[x.key] ?? true) && !x.sel;     // открытый уровень держит карточку раскрытой
       ctx.arc.allFolded = ctx.arc.own.every(x => x.folded);
       ctx.sigil = { ...ctx.sigil, img: VTM20.typeSigil("wraith"), sym: ctx.wraithInfo.legionSym ?? ctx.sigil.sym, label: ctx.wraithInfo.legion?.name ?? "" }; ctx.lineAtlas = true; }
-    else if (actor.type === "changeling") { ctx.changelingInfo = changelingInfo(actor, dots); ctx.cl = artsView(actor, dots);
-      ctx.sigil = { ...ctx.sigil, img: CHANGELING_SIGIL, label: ctx.changelingInfo.kith?.name ?? "" }; ctx.lineAtlas = true; }
+    else if (actor.type === "changeling") { ctx.changelingInfo = changelingInfo(actor, dots); ctx.cl = artsView(actor, dots); ctx.lykeian = lykeianInfo(actor);
+      ctx.sigil = { ...ctx.sigil, img: CHANGELING_SIGIL, label: ctx.changelingInfo.kith?.name ?? ctx.lykeian?.guise?.name ?? "",
+        sym: ctx.lykeian ? clGlyph("guise", actor.system.changeling.lykeian?.guise) : kithGlyph(actor.system.changeling.kith) }; ctx.lineAtlas = true; }
     else if (actor.type !== "mortal") prepareDisciplines(this, ctx);
     prepareAdvantages(this, ctx);
     if (actor.type === "mortal") { ctx.sorcInfo = sorcererInfo(actor, dots); ctx.consorInfo = consorInfo(actor);
