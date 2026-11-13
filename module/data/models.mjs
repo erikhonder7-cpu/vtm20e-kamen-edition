@@ -224,6 +224,9 @@ export class GhoulData extends BaseActorData {
     // Предел Дисциплин по поколению донора (07)
     const g = this.domitorGeneration;
     this.disciplineMax = g >= 8 ? 1 : g === 7 ? 2 : g === 6 ? 3 : g === 5 ? 4 : 5;
+    // Рост с возрастом (V20, гл. 7): ревенант +1 к активному запасу каждые 100 лет, прочие гули — каждые 200 (возраст — число лет в «Возрасте»)
+    const age = parseInt(String(this.details?.age ?? "").replace(/\D+/g, " ").trim().split(" ")[0]) || 0;
+    if (age > 0 && this.ghoulType !== "dhampir") this.blood.max = Math.max(this.blood.max, 2 + Math.floor(age / (this.ghoulType === "revenant" ? 100 : 200)));
     // Дампир (Accursed Heirs): запас 10 + Древность — своя кровь, не витэ домитора; Дисциплины не выше 1 (Истечение 4+ — 2,
     // гуль-дампир — и по поколению донора), за ход — 1 пункт (Истечение 5 — 2)
     if (this.ghoulType === "dhampir") {

@@ -34,7 +34,12 @@ export class CalcCreator {
     // ревенант (V20, гл. 7): Добродетелей 5 вместо 7
     if (this.isRevenant) return { ...this.baseRules, virt: 5 };
     // дампир (Accursed Heirs, гл. 4): как гуль, но 18 свободных пунктов и Кровное право 1 (дальше — 5 за точку)
-    if (this.isDhampir) return { ...this.baseRules, free: 18, disc: this.baseRules.disc + (this.st?.dhSwap ? 1 : 0) };
+    if (this.isDhampir) {
+      const strong = !!this.st?.dhStrong, abil = strong ? [12, 8, 4] : [...this.baseRules.abil];
+      if (this.st?.dhNoRights) abil[2] += 1;
+      return { ...this.baseRules, free: 18, attr: strong ? [7, 4, 3] : this.baseRules.attr, abil,
+        disc: this.baseRules.disc + (this.st?.dhSwap ? 1 : 0) + (strong ? 1 : 0) };
+    }
     return this.type === "vampire" ? { ...this.baseRules, ...(SECT_RULES[this.st?.sectKey] ?? {}) } : this.baseRules;
   }
   /** Особый смертный для шаблона: варианты, поля и силы. */
@@ -75,6 +80,21 @@ export class CalcCreator {
   /** Ревенант (V20, гл. 7): семейные Дисциплины — «клановые», Добродетелей 5. */
   get isRevenant() { return this.type === "ghoul" && this.st?.ghoulType === "revenant"; }
   get revenantFamily() { return this.isRevenant ? REVENANT_FAMILIES[this.st.family] ?? null : null; }
+  /** Дисциплины клана домитора (вассал), null — клан не выбран. */
+  get domitorClanDiscs() { const c = this.st?.domitorClan ? Codex.clan(this.st.domitorClan) : null; return c?.disciplines?.length ? c.disciplines : null; }
+  /** «Клановые» Дисциплины гуля для цены опыта (× 15): дампир — клана Предка, ревенант — семейные, вассал — клана домитора, иначе — физические. */
+  get ghoulClanDiscs() {
+    if (this.isDhampir) return this.dhampirClanDiscs;
+    if (this.revenantFamily) return ["potence", ...this.revenantFamily.disciplines];
+    if (this.st?.ghoulType === "vassal" && this.domitorClanDiscs) return ["potence", ...this.domitorClanDiscs];
+    return ["potence", "fortitude", "celerity"];
+  }
+  /** Предел уровня Дисциплины гуля: по поколению донора (V20, гл. 7); дампир — 1 (Accursed Heirs: пока не гуль и без Истечения 4+). */
+  get ghoulDiscCap() {
+    if (this.isDhampir) return 1;
+    const g = Number(this.st?.domitorGeneration) || 13;
+    return g >= 8 ? 1 : g === 7 ? 2 : g === 6 ? 3 : g === 5 ? 4 : 5;
+  }
   get isMage() { return this.type === "mage"; }
   // маг, Гару и Фера, охотник и дампир — примеси из creator/*.mjs (см. конец файла)
 
@@ -122,6 +142,8 @@ export class CalcCreator {
   /** Клановые Дисциплины; null — любые (каитиф, пандеры, гуль). */
   get clanDisciplines() {
     if (this.isRevenant) return this.revenantFamily ? [...new Set(["potence", ...this.revenantFamily.disciplines])] : null;   // Мощь даром и семейные
+    // вассал: Мощь и Дисциплины клана домитора (вторая точка — только из них, V20, гл. 7); клан не выбран — любые
+    if (this.type === "ghoul" && this.st?.ghoulType === "vassal" && this.domitorClanDiscs) return ["potence", ...this.domitorClanDiscs.filter(k => k !== "potence")];
     if (this.type === "ghoul") return null;
     if (this.isSorcerer) return this.sorcKeys;
     if (this.isMage) return VTM20.mageSpheres;
@@ -240,7 +262,7 @@ export class CalcCreator {
       else if (kind === "morality" && this.isMage) total += c * 8;                                      // Арете
       else if (kind === "disc" && this.isMage) total += c === 0 ? 10 : c * (k === this.st.mg.affinity ? 7 : 8);   // Сфера: новая 10, родовая × 7
       else if (kind === "disc") {
-        if (this.type === "ghoul") total += c === 0 ? 20 : c * ((this.isDhampir ? this.dhampirClanDiscs : this.revenantFamily ? this.revenantFamily.disciplines : ["potence", "fortitude", "celerity"]).includes(k) ? 15 : 25);
+        if (this.type === "ghoul") total += c === 0 ? 20 : c * (this.ghoulClanDiscs.includes(k) ? 15 : 25);
         else if (c === 0) total += 10;
         else if (this.st.clan === "caitiff" || this.st.clan === "pandery") total += c * 6;
         else total += c * (this.inClan(k) ? 5 : 7);
@@ -321,6 +343,9 @@ export class CalcCreator {
     if (this.type === "vampire" && this.clanDisciplines)
       for (const [k, n] of Object.entries(this.st.disc)) if (n > 0 && !this.inClan(k)) out.push(t("Creator.InitialOutOfClan", { name: Codex.disciplineLabel(k) }));
     if (this.isSorcerer) out.push(...this.sorcIssues);
+    // гуль: уровень Дисциплины не выше предела донора (дампир — 1)
+    if (this.type === "ghoul") for (const k of new Set([...Object.keys(this.st.disc), ...Object.keys(this.st.free.disc), ...Object.keys(this.st.xp.disc), "potence"]))
+      if (this.value("disc", k) > this.ghoulDiscCap) out.push(t("Creator.GhoulDiscCap", { name: Codex.disciplineLabel(k), n: this.ghoulDiscCap }));
     // ревенант: семья обязательна, вторая точка Дисциплины — только семейная (V20, гл. 7)
     if (this.isRevenant && !this.revenantFamily) out.push(t("Creator.NeedFamily"));
     if (this.revenantFamily) for (const [k, n] of Object.entries(this.st.disc))

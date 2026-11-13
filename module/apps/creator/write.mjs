@@ -34,6 +34,7 @@ export class WriteCreator {
     }
     // вид гуля и семья ревенанта — из мастера; ревенант сам вырабатывает витэ (донора нет)
     if (this.type === "ghoul") Object.assign(sys, { ghoulType: st.ghoulType, family: this.isRevenant ? st.family : "",
+      ...(["vassal", "independent"].includes(st.ghoulType) ? { domitorClan: st.ghoulType === "vassal" ? st.domitorClan : "", domitorGeneration: Number(st.domitorGeneration) || 13 } : {}),
       domitor: this.isRevenant ? "" : st.domitor, blood: { value: 1, max: a.system.blood.max } });
     // дампир: своя кровь — полный запас (10 + Древность пересчитает лист), концепция, Предок, Кровные права
     if (this.isDhampir) Object.assign(sys, { domitor: "", blood: { value: 10 + this.value("bg", Codex.backgrounds.find(b => b.en === "Antiquity")?.name ?? ""), max: 10 },

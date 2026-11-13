@@ -59,7 +59,11 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       clan: s.clan ?? "brujah", clanChoice: s.clanChoice ?? "", weaknessNote: s.weaknessNote ?? "",
       domitor: s.domitor ?? "", path: "humanity",
       // вид гуля (V20, гл. 7): вассал, независимый, ревенант (семья), дампир (Accursed Heirs) — выбирается в мастере
-      ghoulType: s.ghoulType || "vassal", family: s.family || "", tier: "fledgling", xpTotal: 0, hunterExtra: 0,
+      ghoulType: s.ghoulType || "vassal", family: s.family || "",
+      // донор гуля (V20, гл. 7): клан домитора задаёт «клановые» Дисциплины вассала, поколение — предел уровня Дисциплины
+      domitorClan: s.domitorClan || "", domitorGeneration: s.domitorGeneration || 13,
+      // варианты дампира (Accursed Heirs): «сильный» — 7/4/3, 12/8/4 и ещё точка Дисциплины клана Предка; «без Кровных прав» — +1 третичной Способности
+      dhStrong: false, dhNoRights: false, tier: "fledgling", xpTotal: 0, hunterExtra: 0,
       house: s.house || "devils", visage: s.visage ?? "", faction: s.faction ?? "",
       names: { celestial: s.names?.celestial ?? "", trueName: s.names?.trueName ?? "" },
       attrPrio: ["physical", "social", "mental"], abilPrio: ["talents", "skills", "knowledges"],

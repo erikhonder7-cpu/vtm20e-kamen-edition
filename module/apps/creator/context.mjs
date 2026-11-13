@@ -96,12 +96,21 @@ export class ContextCreator {
       const f = this.revenantFamily;
       ctx.family = f ? { ...f, discs: f.disciplines.map(d => Codex.disciplineLabel(d)).join(", ") } : null;
       ctx.isRevenant = this.isRevenant;
+      // донор: клан домитора (вассал) и поколение донора (вассал, независимый) — предел Дисциплин; у дампира — варианты книги
+      ctx.donor = ["vassal", "independent"].includes(st.ghoulType) ? {
+        vassal: st.ghoulType === "vassal",
+        clans: Codex.clans.filter(c => c.disciplines?.length).map(c => ({ key: c.key, name: c.name, selected: c.key === st.domitorClan })).sort((x, y) => x.name.localeCompare(y.name, "ru")),
+        gens: [13, 12, 11, 10, 9, 8, 7, 6, 5, 4].map(g => ({ g, selected: g === Number(st.domitorGeneration) })), cap: this.ghoulDiscCap,
+        clanDiscs: this.domitorClanDiscs ? this.domitorClanDiscs.map(k => Codex.disciplineLabel(k)).join(", ") : "" } : null;
+      ctx.dhOptions = this.isDhampir;
     }
     ctx.archetypes = this.isEarthbound ? Codex.archetypes.filter(a => !EB_NO.includes(a.name)) : Codex.archetypes;
     ctx.natureRegain = Codex.archetypes.find(a => a.name === st.nature)?.regain ?? "";
     ctx.demeanorRegain = Codex.archetypes.find(a => a.name === st.demeanor)?.regain ?? "";
     // ступени опыта своими словами у каждой линейки (гуль — срок службы, маг — путь, призрак — срок в Подземном мире…); опыт тот же
-    const LINE = { ghoul: "Ghoul", mage: "Mage", wraith: "Wraith", werewolf: "Werewolf", hunter: "Hunter", demon: "Demon", mortal: "Mortal", changeling: "Changeling" }[this.type] ?? "";
+    // у гуля — по виду: вассал служит, независимый выживает сам, ревенант живёт поколениями семьи, дампир — без витэ и хозяина
+    const LINE = this.type === "ghoul" ? { independent: "GhoulFree", revenant: "Revenant", dhampir: "Dhampir" }[st.ghoulType] ?? "Ghoul"
+      : { mage: "Mage", wraith: "Wraith", werewolf: "Werewolf", hunter: "Hunter", demon: "Demon", mortal: "Mortal", changeling: "Changeling" }[this.type] ?? "";
     const tierKey = `Tier${LINE}`;
     ctx.tiers = Object.entries(TIERS).map(([k, v]) => ({ key: k, xp: v.xp, label: t(`Creator.${tierKey}.${k}`), hint: t(`Creator.${tierKey}.${k}Hint`), active: st.tier === k }));
     ctx.tierTitle = t(`Creator.TierTitle${LINE}`);

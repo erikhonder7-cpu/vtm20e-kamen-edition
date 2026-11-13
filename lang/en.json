@@ -3573,6 +3573,19 @@
       "ugly": "Appearance 0 — clan weakness"
     },
     "Creator": {
+      "DomitorClan": "Domitor's clan",
+      "DomitorGen": "Domitor's generation",
+      "DonorGen": "Last donor's generation",
+      "DomitorClanHint": "A vassal's “in-clan” Disciplines are the domitor's clan Disciplines: the second dot comes from them, experience × 15.",
+      "DonorGenHint": "A ghoul's Discipline cap follows the donor's generation: 13–8 — 1, 7 — 2, 6 — 3, 5 — 4, 4 — 5 (V20, ch. 7).",
+      "DonorNote": "Discipline level — no higher than {n}.",
+      "DomitorDiscs": "Domitor's in-clan",
+      "GhoulDiscCap": "“{name}” is above the donor's cap ({n}).",
+      "DhStrong": "Strong dhampir",
+      "DhStrongHint": "At the Storyteller's option (Accursed Heirs): Attributes 7/4/3, Abilities 12/8/4 and one more dot of the Antecedent's clan Discipline.",
+      "DhNoRights": "No Bloodrights",
+      "DhNoRightsHint": "At the Storyteller's option: instead of a Bloodright — one more dot of tertiary Abilities.",
+      "DhNote": "Dhampir: own blood (10 + Antiquity), Disciplines no higher than 1 until ghouled or Effluence 4+; experience: Antecedent's clan Discipline × 15, Bloodright — new 7, then × 5.",
       "GhoulTypeTitle": "Kind of ghoul",
       "Family": "Revenant family",
       "FamilyDiscs": "Family Disciplines",
@@ -3851,6 +3864,39 @@
         "ancillaHint": "Десятилетия среди чудовищ и их тайн.",
         "elder": "Посвящённый",
         "elderHint": "Целая жизнь в тени."
+      },
+      "TierTitleGhoulFree": "Time without a master",
+      "TierGhoulFree": {
+        "fledgling": "Blood orphan",
+        "fledglingHint": "The master died or left recently — vitae must be found alone.",
+        "neonate": "Scrounger",
+        "neonateHint": "A few years alone: knows where and from whom to get blood.",
+        "ancilla": "Free ghoul",
+        "ancillaHint": "Decades without a bond, contacts and debts among the Kindred.",
+        "elder": "Old loner",
+        "elderHint": "A century or more on stolen blood, outlived those who hunted them."
+      },
+      "TierTitleRevenant": "Place in the family",
+      "TierRevenant": {
+        "fledgling": "Scion",
+        "fledglingHint": "A young family member, just learning its ways.",
+        "neonate": "Family member",
+        "neonateHint": "A few years serving the family and its masters.",
+        "ancilla": "Family elder",
+        "ancillaHint": "Decades in the family, its secrets and duties.",
+        "elder": "Patriarch",
+        "elderHint": "A century or more — a revenant ages slowly, their blood pool grows."
+      },
+      "TierTitleDhampir": "Life with cursed blood",
+      "TierDhampir": {
+        "fledgling": "Awakened",
+        "fledglingHint": "Just learned of their blood: creation by the book, no experience.",
+        "neonate": "Knowing",
+        "neonateHint": "A few years learning to live with the Bloodrights.",
+        "ancilla": "Seasoned dhampir",
+        "ancillaHint": "Decades among Kindred and hunters, a place in their world.",
+        "elder": "Old dhampir",
+        "elderHint": "A century or more — the Antecedent's blood keeps them longer than mortals."
       },
       "TierTitleGhoul": "Length of service",
       "TierGhoul": {

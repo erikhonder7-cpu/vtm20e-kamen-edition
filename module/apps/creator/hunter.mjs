@@ -9,7 +9,10 @@ const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`
 
 export class HunterCreator {
   /** Бесплатных точек Кровных прав: 1, Древность 3–4 — ещё 1, 5 — ещё 2. */
-  get bloodrightBase() { const a = this.value("bg", Codex.backgrounds.find(b => b.en === "Antiquity")?.name ?? ""); return 1 + (a >= 5 ? 2 : a >= 3 ? 1 : 0); }
+  get bloodrightBase() {
+    if (this.st?.dhNoRights) return 0;                  // «без Кровных прав» (Accursed Heirs) — вместо них точка третичной Способности
+    const a = this.value("bg", Codex.backgrounds.find(b => b.en === "Antiquity")?.name ?? ""); return 1 + (a >= 5 ? 2 : a >= 3 ? 1 : 0);
+  }
   get bloodrightDots() { return this.sum(this.st.bloodrights); }
   /** Дисциплины клана Предка дампира (Мощь — всегда «своя»). */
   get dhampirClanDiscs() {

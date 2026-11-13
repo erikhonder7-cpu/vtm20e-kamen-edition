@@ -5822,11 +5822,24 @@ try {
         cr.st.attr = { strength: 3, dexterity: 3, stamina: 3, charisma: 2, manipulation: 2, appearance: 3, perception: 2, intelligence: 2, wits: 2 };
         await cr.write(); await wait(1000);
         out.written = [a.system.ghoulType, a.system.family];
+        // донор вассала: клан Вентру, поколение 7 — предел 2, Доминирование «клановое» (× 15); дампир: «сильный» и «без Кровных прав»
+        cr.element.querySelector('[data-action="ghoulType"][data-key="vassal"]')?.click(); await wait(300);
+        Object.assign(cr.st, { domitorClan: "ventrue", domitorGeneration: "7" });
+        out.vassal2 = [cr.ghoulDiscCap, cr.xpCostOf("disc", "dominate", 1, 1), cr.xpCostOf("disc", "auspex", 1, 1)];
+        cr.st.disc = { dominate: 1 }; cr.st.free.disc = { dominate: 2 };
+        out.cap = cr.problems(cr.remaining()).some(x => /предел|cap/i.test(x));
+        cr.element.querySelector('[data-action="ghoulType"][data-key="dhampir"]')?.click(); await wait(300);
+        cr.st.dhStrong = true; cr.st.dhNoRights = true;
+        out.dhOpts = [cr.rules.attr.join("/"), cr.rules.abil.join("/"), cr.bloodrightBase, cr.ghoulDiscCap];
+        // запас крови с возрастом: ревенант 250 лет — 2 + 2, вассал — 2 + 1
+        await a.update({ "system.details.age": "250 лет" }); out.age = [a.system.blood.max];
+        await a.update({ "system.ghoulType": "vassal" }); out.age.push(a.system.blood.max);
         for (const x of [...foundry.applications.instances.values()]) if (x.constructor.name === "VtMCreator" && x.actor === a) await x.close();
       } finally { await a.delete(); }
       return out;
     });
-    const want = { vassal: [7, false], dhampir: [true, 18], noFamily: false, revenant: [5, 15, 25, true], foreign: true, written: ["revenant", "grimaldi"] };
+    const want = { vassal: [7, false], dhampir: [true, 18], noFamily: false, revenant: [5, 15, 25, true], foreign: true, written: ["revenant", "grimaldi"],
+      vassal2: [2, 15, 25], cap: true, dhOpts: ["7/4/3", "12/8/5", 0, 1], age: [4, 3] };
     const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });

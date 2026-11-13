@@ -61,6 +61,20 @@
     <div class="r-cols2 r-cr-genrow">
       <label class="r-f"><span>{{localize "VTM20.Creator.Family"}}</span><select data-field="family"><option value="">—</option>{{#each families}}<option value="{{key}}" {{#if selected}}selected{{/if}} title="{{tip}}">{{name}}</option>{{/each}}</select></label>
     </div>
+    {{#if donor}}
+    <div class="r-cols2 r-cr-genrow">
+      {{#if donor.vassal}}<label class="r-f" data-tooltip="{{localize 'VTM20.Creator.DomitorClanHint'}}"><span>{{localize "VTM20.Creator.DomitorClan"}}</span><select data-field="domitorClan"><option value="">—</option>{{#each donor.clans}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>{{/if}}
+      <label class="r-f" data-tooltip="{{localize 'VTM20.Creator.DonorGenHint'}}"><span>{{#if donor.vassal}}{{localize "VTM20.Creator.DomitorGen"}}{{else}}{{localize "VTM20.Creator.DonorGen"}}{{/if}}</span><select data-field="domitorGeneration">{{#each donor.gens}}<option value="{{g}}" {{#if selected}}selected{{/if}}>{{g}}</option>{{/each}}</select></label>
+    </div>
+    <div class="r-cr-note"><i class="fa-solid fa-droplet"></i> {{localize "VTM20.Creator.DonorNote" n=donor.cap}}{{#if donor.clanDiscs}} {{localize "VTM20.Creator.DomitorDiscs"}}: <b>{{donor.clanDiscs}}</b>.{{/if}}</div>
+    {{/if}}
+    {{#if dhOptions}}
+    <div class="r-checks r-cr-dh-options">
+      <label class="r-check" data-tooltip="{{localize 'VTM20.Creator.DhStrongHint'}}"><input type="checkbox" data-action="dhOption" data-key="dhStrong" {{#if st.dhStrong}}checked{{/if}}> {{localize "VTM20.Creator.DhStrong"}}</label>
+      <label class="r-check" data-tooltip="{{localize 'VTM20.Creator.DhNoRightsHint'}}"><input type="checkbox" data-action="dhOption" data-key="dhNoRights" {{#if st.dhNoRights}}checked{{/if}}> {{localize "VTM20.Creator.DhNoRights"}}</label>
+    </div>
+    <div class="r-cr-note"><i class="fa-solid fa-droplet"></i> {{localize "VTM20.Creator.DhNote"}}</div>
+    {{/if}}
     {{#if family}}<div class="r-cr-note"><i class="fa-solid fa-people-roof"></i> <b>{{family.name}}</b> ({{family.en}}) — {{family.nick}}. {{localize "VTM20.Creator.FamilyDiscs"}}: <b>{{family.discs}}</b>.<br><b>{{localize "VTM20.Creator.FamilyFlaw"}}:</b> {{family.flaw}}</div>{{/if}}
     {{/if}}
     {{/if}}

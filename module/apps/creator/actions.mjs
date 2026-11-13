@@ -110,6 +110,14 @@ function onMarkPower(event, target) {
 function onCreed(event, target) { this.st.creed = target.dataset.creed; this.render(); }
 /** Кровное право дампира: точка n (повторный щелчок по последней точке — снять). */
 function onDhSwap() { this.st.dhSwap = !this.st.dhSwap; this.render(); }
+/** Варианты дампира: «сильный» (7/4/3, 12/8/4, ещё точка Дисциплины) и «без Кровных прав» — распределение начинается заново. */
+function onDhOption(event, target) {
+  const k = target.dataset.key;
+  this.st[k] = !this.st[k];
+  if (k === "dhStrong") { this.st.attr = {}; this.st.abil = {}; this.st.disc = {}; }
+  if (k === "dhNoRights") { this.st.abil = {}; this.st.bloodrights = {}; }
+  this.render();
+}
 function onBrSet(event, target) {
   const k = target.dataset.key, n = Number(target.dataset.n), cur = this.st.bloodrights[k] ?? 0;
   const v = cur === n ? n - 1 : n;
@@ -333,7 +341,7 @@ async function onFinish() {
 export const ACTIONS = {
       goto: onGoto, next: onNext, prev: onPrev,
       tier: onTier, sect: onSect, clan: onClan, clanGroup: onClanGroup,
-      creed: onCreed, edgeToggle: onEdgeToggle, brSet: onBrSet, dhSwap: onDhSwap,
+      creed: onCreed, edgeToggle: onEdgeToggle, brSet: onBrSet, dhSwap: onDhSwap, dhOption: onDhOption,
       ghoulType: onGhoulType, magePick: onMagePick, garouPick: onGarouPick, garouGift: onGarouGift, garouExtra: onGarouExtra,
       house: onHouse, earthbound: onEarthbound, thrall: onThrall, mark: onMark, markPower: onMarkPower, pactShare: onPactShare, pactGift: onPactGift, reliquary: onReliquary, visage: onVisage, faction: onFaction, houseAtlas: onHouseAtlas,
       gen: onGen, choice: onChoice, clanAtlas: onClanAtlas,
