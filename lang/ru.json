@@ -9162,6 +9162,9 @@
       "Done": "<b>{name}</b> выучил «{what}» до {n}."
     },
     "Changeling": {
+      "ColdIronShort": "Холодное железо",
+      "AutumnShort": "Осень",
+      "ChimDamage": "химерический урон",
       "Craft": {
         "Head": "Химерическое ремесло",
         "Add": "Новый проект",

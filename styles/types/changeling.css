@@ -225,8 +225,9 @@
 .vtm20.r-type-changeling .r-cl-bar .r-cl-gm { display: inline-flex; gap: 4px; margin-left: auto; }
 /* химерические раны: кнопки — в строке заголовка, клетки ниже обычных */
 .vtm20.r-type-changeling .r-cl-chim-head { align-items: center; gap: 6px; margin-top: 6px; }
-.vtm20.r-type-changeling .r-cl-chim-head .r-banner { flex: 1 1 auto; min-width: 0; }
-.vtm20.r-type-changeling .r-cl-chim-btns { display: inline-flex; gap: 3px; }
+.vtm20.r-type-changeling .r-cl-chim-head .r-banner { flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vtm20.r-type-changeling .r-cl-chim-btns { display: flex; align-items: center; justify-content: flex-end; gap: 3px; margin-top: 4px; }
+.vtm20.r-type-changeling .r-cl-chim-lbl { margin-right: auto; font-size: 11px; color: var(--r-muted); font-style: italic; }
 .vtm20.r-type-changeling .r-cl-chim-btns .r-vc-btn { width: 20px; height: 20px; min-width: 20px; font-size: 11px; }
 .vtm20.r-type-changeling .r-hboxes.is-chimerical .r-hbox-mark { height: 20px; }
 /* Закрашенные точки — обводка и свечение в гамме Грёзы (общее правило r-core.css даёт вампирский красный); Банальность — сталь */
@@ -256,3 +257,28 @@
 /* витражи Искусств и Царств на вкладке (assets/changeling) */
 .vtm20 .r-cl-art-sym { flex: 0 0 auto; width: 34px; height: 34px; margin-right: 6px; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .5)); }
 .vtm20 .r-cl-art-sym.is-small { width: 24px; height: 24px; margin-right: 4px; }
+
+/* панель Грёзы наверху вкладки «Искусства» (arts.hbs): три Темпера рядом, ниже — действия с подписями */
+.vtm20.r-type-changeling .r-cl-dream { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 22px; margin: 4px 0 16px; padding: 12px 16px;
+  border: 1px solid rgba(229, 142, 213, .18); background: linear-gradient(180deg, rgba(255, 255, 255, .03), rgba(0, 0, 0, .16)); }
+.vtm20.r-type-changeling .r-cl-dream.is-mists { box-shadow: inset 0 0 22px rgba(165, 178, 194, .2); }
+.vtm20.r-type-changeling .r-cl-dream.is-bedlam { box-shadow: inset 0 0 26px rgba(142, 106, 168, .35); }
+.vtm20.r-type-changeling .r-cl-dream .r-cl-temper { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.vtm20.r-type-changeling .r-cl-dream .r-cl-temper + .r-cl-temper { padding-left: 22px; border-left: 1px solid rgba(229, 142, 213, .12); margin-left: -11px; }
+.vtm20.r-type-changeling .r-cl-dream .r-cl-temper-head { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; }
+.vtm20.r-type-changeling .r-cl-dream .r-cl-temper-num b { font-size: 22px; }
+.vtm20.r-type-changeling .r-cl-dream .r-cl-states { margin: 2px 0 0; }
+.vtm20.r-type-changeling .r-cl-dream-bar { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding-top: 10px;
+  border-top: 1px solid rgba(229, 142, 213, .12); }
+.vtm20.r-type-changeling .r-cl-dream-bar .r-btn { padding: 2px 10px; }
+.vtm20.r-type-changeling .r-cl-dream-bar .r-btn.is-active { border-color: #f0c96a; color: #f6dc97; }
+.vtm20.r-type-changeling .r-cl-dream-bar .r-cl-gm { display: inline-flex; gap: 4px; margin-left: auto; }
+
+/* карточка химерических ран (vitals.hbs) — третья в шапке, справа от Воли */
+.vtm20.r-type-changeling .r-vc-chim { display: flex; flex-direction: column; }
+.vtm20.r-type-changeling .r-vc-chim .r-vc-tools { margin-top: auto; }
+/* шапка подменыша: Здоровье и Химерические раны одной ширины, Воля между ними — не уже обычного */
+@container rsheet (min-width: 861px) { .vtm20 .r-vitals.is-cl { grid-template-columns: 1.05fr 1fr 1.05fr; } }
+.vtm20.r-type-changeling .r-vc-chim .r-vc-head { flex-wrap: nowrap; gap: 6px; }
+.vtm20.r-type-changeling .r-vc-chim .r-vc-head .r-banner { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: 1px; }
+.vtm20.r-type-changeling .r-vc-chim .r-vc-status { white-space: nowrap; flex: 0 0 auto; }

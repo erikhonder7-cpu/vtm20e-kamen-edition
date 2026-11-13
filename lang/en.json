@@ -9162,6 +9162,9 @@
       "Done": "<b>{name}</b> learned “{what}” to {n}."
     },
     "Changeling": {
+      "ColdIronShort": "Cold iron",
+      "AutumnShort": "Autumn",
+      "ChimDamage": "chimerical damage",
       "Craft": {
         "Head": "Chimerical crafting",
         "Add": "New project",

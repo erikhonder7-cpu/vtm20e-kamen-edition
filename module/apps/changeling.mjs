@@ -290,7 +290,8 @@ export async function coldIron(actor, n = 1) {
 export function chimericalView(actor) {
   const ch = actor.system.changeling.chimerical;
   const MARK = { bashing: "/", lethal: "X", aggravated: "✱", empty: "" };
-  return { levels: ch.levels.map((l, i) => ({ state: l.state, mark: MARK[l.state], label: game.i18n.localize(l.label ?? ""), current: i === ch.damage - 1 })),
+  return { levels: ch.levels.map((l, i) => ({ state: l.state, mark: MARK[l.state], label: game.i18n.localize(l.label ?? ""), current: i === ch.damage - 1,
+      pen: l.penalty == null ? "" : String(l.penalty), out: l.penalty == null })),
     damage: ch.damage, status: game.i18n.localize(VTM20.healthLevels.find(l => l.key === ch.status)?.label ?? "VTM20.Health.healthy"), penalty: ch.penalty };
 }
 
