@@ -313,3 +313,48 @@
 .vtm20.r-type-changeling .r-hs-derived { grid-column: 1 / -1; margin: 0; }
 .vtm20.r-type-changeling .r-cl-art.is-affinity { border-color: rgba(229, 142, 213, .45); }
 .vtm20.r-type-changeling .r-in-lost { margin: 0 0 6px; }
+
+/* Dark Ages: Fae — Домены карточками в два столбца, любимый Домен подсвечен (arts.hbs, apps/dark-fae.mjs) */
+.vtm20.r-type-changeling .r-daf-doms { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 10px; align-items: start; }
+.vtm20.r-type-changeling .r-daf-dom { padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; }
+.vtm20.r-type-changeling .r-daf-dom.is-favorite { border-color: rgba(229, 142, 213, .5); }
+.vtm20.r-type-changeling .r-daf-dom.is-day .r-cl-art-name { color: #f3d27a; } .vtm20.r-type-changeling .r-daf-dom.is-night .r-cl-art-name { color: #b9b7d6; }
+.vtm20.r-type-changeling .r-daf-dom.is-dawn .r-cl-art-name { color: #a9d39a; } .vtm20.r-type-changeling .r-daf-dom.is-dusk .r-cl-art-name { color: #e09a7a; }
+.vtm20.r-type-changeling .r-cl-forget { margin-left: auto; color: var(--r-muted); font-size: 11px; } .vtm20.r-type-changeling .r-cl-forget:hover { color: var(--r-ink); }
+
+/* ══ Dark Ages: Fae (вариант «daf», ui/themes.mjs → .r-cl-dark): «Вайда и серебро» — синь кельтской вайды в ночи, серебро
+   лунного металла, васильковый свет; та же вёрстка. Жёстко заданный жемчуг «Шиповника» (корешок, окно, карточки) — поворотом тона. ══ */
+.vtm20.r-type-changeling.r-cl-dark, .r-type-changeling.r-cl-dark {
+  --r-ink: #dfe6f7; --r-ink-2: #9fb3ec; --r-muted: #9aa8cc;
+  --r-line: rgba(160, 182, 240, .11); --r-line-2: rgba(160, 182, 240, .22);
+  --r-accent: #b9c9f5; --r-red-t: var(--r-accent);
+  --r-blood: #3b5bc4; --r-blood-l: #b9c9f5; --r-blood-d: #080b16;
+  --r-dot-border: rgba(185, 201, 245, .35);
+  --r-dot-fill: radial-gradient(circle at 38% 32%, #f4f7ff, #4f74e0 55%, #10183a);
+  --r-gap-ring: #05070e; --r-card-bg: rgba(160, 182, 240, .028); --r-option-bg: #0b1022;
+  --cl-amber: #b9c9f5; --cl-amber-l: #f4f7ff; --cl-ash: #3b5bc4; --cl-ash-d: #0b1022; --cl-steel: #6f8fe8; --cl-steel-d: #0e1530;
+  --r-bg:
+    radial-gradient(ellipse 90% 45% at 50% -8%, rgba(70, 105, 210, .16), transparent 60%),
+    radial-gradient(ellipse 80% 35% at 50% 108%, rgba(40, 62, 140, .16), transparent 65%),
+    radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(0, 0, 4, .58) 100%),
+    url("../assets/ui/paper-dark.svg"),
+    linear-gradient(180deg, #0e1328, #060810);
+}
+.vtm20.r-type-changeling.r-cl-dark .r-rail, .vtm20.r-type-changeling.r-cl-dark .window-header, .vtm20.r-type-changeling.r-cl-dark .r-seal,
+.vtm20.r-type-changeling.r-cl-dark .r-vcard::before, .vtm20.r-type-changeling.r-cl-dark .r-vcard::after { filter: hue-rotate(-92deg) saturate(.85); }
+.r-roll-card.r-type-changeling.r-cl-dark, .r-notice.r-type-changeling.r-cl-dark { filter: hue-rotate(-92deg) saturate(.85); }
+.vtm20.r-type-changeling.r-cl-dark .r-daf-dom.is-favorite { border-color: rgba(185, 201, 245, .55); box-shadow: inset 0 0 18px rgba(79, 116, 224, .14); }
+.vtm20.r-type-changeling.r-cl-dark .r-cl-dream { border-color: rgba(185, 201, 245, .2); }
+.vtm20.r-type-changeling.r-cl-dark .r-boxes.is-glamour .r-box.is-filled { background: linear-gradient(180deg, #c9d6fb, #4f74e0); border-color: #b9c9f5; }
+.vtm20.r-type-changeling.r-cl-dark .r-boxes.is-banality .r-box.is-filled { background: linear-gradient(180deg, #e6e9f0, #7d8597); border-color: #c8cdd8; }
+body.r-theme-light .vtm20.r-type-changeling.r-cl-dark { --r-ink: #10162e; --r-ink-2: #2c3a6b; --r-muted: #56618a; --r-accent: #2f4fb4;
+  --r-line: rgba(30, 50, 120, .15); --r-line-2: rgba(30, 50, 120, .3); --r-bg: linear-gradient(180deg, #eef1fa, #dbe1f2); --r-option-bg: #f2f4fb; --r-gap-ring: #e4e8f5; }
+/* «Тёмные века»: кружки без розовой обводки «Шиповника» — серебро и васильковый свет */
+.vtm20.r-type-changeling.r-cl-dark .r-dot.is-filled { border-color: #b9c9f5; box-shadow: 0 0 4px rgba(111, 143, 232, .35); }
+.vtm20.r-type-changeling.r-cl-dark .r-dots.is-glamour { --r-dot-fill: radial-gradient(circle at 38% 32%, #f4f7ff, #6f8fe8 55%, #10183a); --r-dot-border: rgba(185, 201, 245, .4); }
+.vtm20.r-type-changeling.r-cl-dark .r-cl-chip.is-wyrd { color: #dfe6f7; border-color: rgba(185, 201, 245, .5); }
+/* панель Грёзы (и Мглы / Плетения, Чи и Югэна): точки и клетки — на всю ширину колонки, как Воля в шапке */
+.vtm20.r-type-changeling .r-cl-dream .r-cl-temper > .r-dots { display: flex; justify-content: space-between; width: 100%; margin: 4px 0 2px; }
+.vtm20.r-type-changeling .r-cl-dream .r-cl-temper > .r-dots .r-dot { width: 16px; height: 16px; margin: 0; }
+.vtm20.r-type-changeling .r-cl-dream .r-cl-temper > .r-boxes { display: flex; flex-wrap: nowrap; justify-content: space-between; gap: 3px; width: 100%; margin-top: 6px; }
+.vtm20.r-type-changeling .r-cl-dream .r-cl-temper > .r-boxes .r-box { width: 16px; height: 16px; flex: 0 0 auto; margin: 0; border-radius: 3px; }

@@ -944,6 +944,10 @@ export class ChangelingData extends BaseActorData {
         // Хсиен (C20, гл. 39; apps/fae-variants.mjs): Чи Инь и Ян, Югэн, школы Ву Тань, двор, Наследия Инь и Ян
         hsien: new SchemaField({ yin: int(1, 1, 5), yang: int(1, 1, 5), yugen: int(0, 0, 20), court: str(""), legacyYin: str(""), legacyYang: str(""),
           schools: new SchemaField(Object.fromEntries(["ditan", "houtan", "lintan", "tietan", "shuitan", "neitan"].map(k => [k, int(0, 0, 5)]))) }),
+        // Dark Ages: Fae (apps/dark-fae.mjs): Происхождение, Двор, Мгла и Плетение, четыре Домена, известные кантрипы «домен:ключ», Эхо
+        daf: new SchemaField({ origin: str("changeling"), court: str(""), echoes: int(1, 0, 20),
+          mists: new SchemaField({ permanent: int(2, 0, 10), temporary: int(2, 0, 10) }), weaving: new SchemaField({ permanent: int(4, 0, 10), temporary: int(4, 0, 10) }),
+          dominions: new SchemaField(Object.fromEntries(["dawn", "day", "dusk", "night"].map(k => [k, int(0, 0, 5)]))), cantrips: new ArrayField(str()) }),
         // инанимае (C20, гл. 40): двор (Глэйдлинги / Крофтед), Якорь, Оболочка, Слайверы, Якорь утрачен
         inanimae: new SchemaField({ court: str("gladeling"), anchor: str(""), husk: str(""), anchorLost: new BooleanField({ initial: false }),
           slivers: new SchemaField(Object.fromEntries(["aquis", "petros", "pyros", "stratus", "verdage"].map(k => [k, int(0, 0, 5)]))) }),

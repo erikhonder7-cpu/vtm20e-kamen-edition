@@ -6170,6 +6170,52 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  await check("Подменыш — Тёмные века: Фэ: Происхождение и Двор, кантрип Домена, Высвобождение, Эхо, холодное железо, своя гамма", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {}, n0 = game.messages.size;
+      const F = await import(`/systems/${sid}/module/apps/dark-fae.mjs`);
+      const a = await Actor.create({ name: "E2E — фэ Тёмных веков", type: "changeling", flags: { world: { e2e: true }, [sid]: { created: true } },
+        system: { attributes: { perception: { value: 3 } }, changeling: { variant: "daf", daf: { origin: "firstborn", court: "summer", dominions: { day: 3, night: 1 } } } } });
+      const DV = foundry.applications.api.DialogV2, p0 = DV.prompt, rnd = CONFIG.Dice.randomUniform;
+      try {
+        out.data = [game.vtm20Codex.changeling.daf.cantrips.length >= 150, game.vtm20Codex.changeling.daf.origins.length, game.vtm20Codex.changeling.daf.courts.length];
+        await a.update(F.originDefaults("firstborn"));
+        out.origin = [a.system.changeling.daf.mists.permanent, a.system.changeling.daf.weaving.permanent, F.dafImbalance(a.system.changeling.daf)];
+        await F.learnCantrip(a, "day:candorslight"); await F.learnCantrip(a, "night:owleyes");
+        const v = F.dafView(a, (n, m) => []);
+        out.view = [v.dominions.length, v.dominions.find(d => d.key === "day").favorite, v.dominions.find(d => d.key === "day").count, v.unleashDice];
+        CONFIG.Dice.randomUniform = () => 0.0001;
+        // Candor's Light: День 3 + Восприятие 3; сл. 6 − любимый − «час» = 4
+        DV.prompt = async () => ({ juncture: true, season: false, hide: true, weave: 0 });
+        const c = await F.castDaf(a, "day:candorslight");
+        out.cast = [c?.state?.values?.length, c?.state?.difficulty, a.system.changeling.daf.mists.temporary];
+        // Высвобождение Ночи: Мгла 4 + Ночь 1; кубиков 3 − 1 Плетения = 2
+        DV.prompt = async () => ({ juncture: false, season: false, hide: false, weave: 1 });
+        const u = await F.unleashDaf(a, "night");
+        out.unleash = [u?.base?.state?.values?.length, u?.wild?.state?.values?.length, u?.res, a.system.changeling.daf.weaving.temporary];
+        CONFIG.Dice.randomUniform = () => 0.9999;
+        DV.prompt = async () => ({ mods: 2, oath: 0, weave: 0 });
+        out.echo = await F.echoRoll(a);
+        await F.dafColdIron(a);
+        out.iron = [a.system.health.aggravated, a.system.changeling.daf.mists.temporary];
+        await F.forgetCantrip(a, "night:owleyes");
+        out.forget = a.system.changeling.daf.cantrips;
+        await a.sheet.render({ force: true }); await wait(900); a.sheet.changeTab("disciplines", "primary"); await wait(400);
+        out.sheet = [a.sheet.element.classList.contains("r-cl-dark"), a.sheet.element.querySelectorAll(".r-daf-dom").length, !a.sheet.element.querySelector(".r-cl-dream:not(.r-daf-panel)")];
+        await a.sheet.close();
+      } finally {
+        DV.prompt = p0; CONFIG.Dice.randomUniform = rnd;
+        await ChatMessage.deleteDocuments(game.messages.contents.slice(n0).map(x => x.id)); await a.delete();
+      }
+      return out;
+    });
+    // перворождённый: Мгла 4, Плетение 2 (разница 2 — не Дисбаланс), кубиков Высвобождения 3; Лето — любимый День
+    const want = { data: [true, 3, 5], origin: [4, 2, ""], view: [4, true, 1, 3], cast: [6, 4, 3], unleash: [5, 2, "control", 1],
+      echo: 0, iron: [1, 2], forget: ["day:candorslight"], sheet: [true, 4, true] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   await check("Призрак: лист и Арканои, Пафос, Страсть, Корпус до колебания и Испытание, Катарсис", async () => {
     const r = await page.evaluate(async () => {
       const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), WR = await import(`/systems/${sid}/module/apps/wraith.mjs`);

@@ -18,7 +18,7 @@ const esc = s => foundry.utils.escapeHTML(String(s ?? ""));
 const PRIMARY = ["actor", "fae", "nature", "prop"], MODIFIERS = ["scene", "time"];
 export const CHANGELING_SIGIL = "systems/vtm20e-kamen-edition/assets/ui/changeling-sigil.svg";
 export const say = (actor, icon, html, cls = "") => ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }),
-  content: `<div class="r-notice r-type-changeling ${cls}"><i class="fa-solid ${icon}"></i> ${html}</div>` });
+  content: `<div class="r-notice r-type-changeling${actor?.system?.changeling?.variant === "daf" ? " r-cl-dark" : ""} ${cls}"><i class="fa-solid ${icon}"></i> ${html}</div>` });
 
 export const artOf = key => C().arts.find(a => a.key === key) ?? null;
 export const realmOf = key => C().realms.find(r => r.key === key) ?? null;
@@ -64,7 +64,7 @@ export function changelingInfo(actor, dots) {
     banalityBoxes: boxes(c.banality.temporary, 10, "system.changeling.banality.temporary"),
     nightmare: c.nightmare, nightmareBoxes: boxes(c.nightmare, 10, "system.changeling.nightmare"),
     imbalance: c.imbalance, imbalanceWill: c.variant === "lykeian" ? [] : Array.from({ length: will }, (_, i) => ({ on: i >= will - c.imbalance })),
-    variants: ["", "lykeian", "hsien", "inanimae"].map(k => ({ key: k, name: game.i18n.localize(`VTM20.Lykeian.Variant.${k || "kithain"}`), selected: k === (c.variant ?? "") })),
+    variants: ["", "lykeian", "hsien", "inanimae", "daf"].map(k => ({ key: k, name: game.i18n.localize(`VTM20.Lykeian.Variant.${k || "kithain"}`), selected: k === (c.variant ?? "") })),
     mists: c.mists, undone: c.undone, bedlam: c.bedlam, isGM: game.user.isGM,
     wyrd: inWyrd(actor), place: sceneBanality(), chim: chimericalView(actor), dross: c.dross ?? 0,
     threshold: (b => b ? { key: b.key, name: t(`Bedlam.${b.key}`), n: b.n, text: t(`BedlamText.${b.key}`, { n: b.n }) } : null)(bedlamOf(actor))

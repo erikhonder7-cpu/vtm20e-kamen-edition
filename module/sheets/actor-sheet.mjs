@@ -12,6 +12,7 @@ import { changelingInfo, artsView, CHANGELING_SIGIL, kithGlyph, clGlyph } from "
 import { lykeianInfo } from "../apps/lykeian.mjs";
 import { agendasView } from "../apps/agenda.mjs";
 import { hsienView, inanimaeView } from "../apps/fae-variants.mjs";
+import { dafView } from "../apps/dark-fae.mjs";
 import { wraithInfo, arcanoiView, passionsView, setNecropolis, setPlace } from "../apps/wraith.mjs";
 import * as Resolution from "../apps/resolution.mjs";
 import * as Thorns from "../apps/thorns.mjs";
@@ -348,7 +349,8 @@ openStrategy: () => openStrategy(),
       ctx.arc.allFolded = ctx.arc.own.every(x => x.folded);
       ctx.sigil = { ...ctx.sigil, img: VTM20.typeSigil("wraith"), sym: ctx.wraithInfo.legionSym ?? ctx.sigil.sym, label: ctx.wraithInfo.legion?.name ?? "" }; ctx.lineAtlas = true; }
     else if (actor.type === "changeling") { ctx.changelingInfo = changelingInfo(actor, dots); ctx.cl = artsView(actor, dots); ctx.lykeian = lykeianInfo(actor); ctx.agendas = agendasView(actor);
-      ctx.hsien = hsienView(actor, dots); ctx.inan = inanimaeView(actor, dots);
+      ctx.hsien = hsienView(actor, dots); ctx.inan = inanimaeView(actor, dots); ctx.daf = dafView(actor, dots);
+      if (ctx.daf?.courtSym) ctx.sigil.sym = ctx.daf.courtSym;
       ctx.sigil = { ...ctx.sigil, img: CHANGELING_SIGIL, label: ctx.changelingInfo.kith?.name ?? ctx.lykeian?.guise?.name ?? "",
         sym: ctx.lykeian ? clGlyph("guise", actor.system.changeling.lykeian?.guise) : kithGlyph(actor.system.changeling.kith) }; ctx.lineAtlas = true; }
     else if (actor.type !== "mortal") prepareDisciplines(this, ctx);

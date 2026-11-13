@@ -27,6 +27,8 @@ export function lineEmblem(actor) {
   } catch { return null; }
 }
 /** Маг Технократического Союза: свои термины и холодная гамма (styles/types/mage.css, .r-mage-tech). */
+/** Подменыш Dark Ages: Fae — своя гамма «Вайда и серебро» (styles/types/changeling.css, .r-cl-dark). */
+export const isDarkFae = actor => actor?.type === "changeling" && actor.system?.changeling?.variant === "daf";
 export const isTechnocrat = actor => actor?.type === "mage"
   && (globalThis.game?.vtm20Codex?.mage?.factions ?? []).find(f => f.key === actor.system?.mage?.faction)?.group === "technocracy";
 /** Нефанд — маг секты Падших: гамма Бездны (styles/types/mage.css, .r-mage-fallen). */
@@ -62,7 +64,7 @@ export const themeOf = actor => !actor?.type ? null : actor.type === "spirit" ||
   : actor.type === "coterie" && actor.system?.kind === "cell" ? "hunter" : actor.type;   // ячейка охотников — в гамме охотников
 
 /** Класс темы для своих HTML-кусков (карточки, уведомления). */
-export const themeClass = actor => actor?.type ? `r-type-${themeOf(actor)}${isTechnocrat(actor) ? " r-mage-tech" : ""}${isNephandus(actor) ? " r-mage-fallen" : ""}` : "";
+export const themeClass = actor => actor?.type ? `r-type-${themeOf(actor)}${isTechnocrat(actor) ? " r-mage-tech" : ""}${isNephandus(actor) ? " r-mage-fallen" : ""}${isDarkFae(actor) ? " r-cl-dark" : ""}` : "";
 
 const quiet = new WeakMap();
 export function registerThemes() {
@@ -84,6 +86,7 @@ export function registerThemes() {
     const owner = actorOf(app);
     element.classList.toggle("r-mage-tech", "mageTech" in app ? !!app.mageTech : isTechnocrat(owner));   // мастер создания решает сам
     element.classList.toggle("r-mage-fallen", "mageFallen" in app ? !!app.mageFallen : isNephandus(owner));
+    element.classList.toggle("r-cl-dark", isDarkFae(owner));
     if (owner) element.classList.toggle("r-earthbound", "isEarthbound" in app ? !!app.isEarthbound : !!owner.system?.earthbound);   // мастер решает сам
     // щелчок в окне персонажа — его тему получит и подтверждение, которое откроется следом
     if (!element.dataset.rTheme) {

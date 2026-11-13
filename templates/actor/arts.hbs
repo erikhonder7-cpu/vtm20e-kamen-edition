@@ -2,7 +2,7 @@
 <section class="tab r-pane r-edges r-cl-pane {{tab.cssClass}}" data-tab="{{tab.id}}" data-group="{{tab.group}}">
   {{!-- Грёза (C20, гл. 6): три Темпера рядом — Гламур (рейтинг точками, пул клетками), Банальность (рейтинг и пул; пул выше Гламура —
        Туманы), Кошмар (10 — Дисбаланс); ниже — действия с подписями, дросс, отметки и кнопки ведущего (module/apps/changeling.mjs) --}}
-  {{#unless hsien}}
+  {{#unless (or hsien daf)}}
   <div class="r-cl-dream {{#if changelingInfo.mists}}is-mists{{/if}} {{#if changelingInfo.bedlam}}is-bedlam{{/if}}">
     <div class="r-cl-temper is-glamour">
       <div class="r-cl-temper-head"><h4 class="r-banner">{{localize "VTM20.Changeling.Glamour"}}</h4><span class="r-cl-temper-num"><b>{{changelingInfo.glamour}}</b>/{{changelingInfo.glamourPerm}}</span></div>
@@ -103,6 +103,44 @@
     </div>{{/each}}
   </div>
   <p class="r-hint">{{localize "VTM20.Fae.Hsien.Hint"}}</p>
+  {{else if daf}}
+  {{!-- Dark Ages: Fae: Мгла и Плетение вместо Грёзы, Эхо; четыре Домена с кантрипами книги (module/apps/dark-fae.mjs) --}}
+  <div class="r-cl-dream r-daf-panel">
+    <div class="r-cl-temper is-glamour"><div class="r-cl-temper-head"><h4 class="r-banner" data-tooltip="{{localize 'VTM20.Fae.Daf.MistsHint'}}">{{localize "VTM20.Fae.Daf.Mists"}}</h4><span class="r-cl-temper-num"><b>{{daf.mists}}</b>/{{daf.mistsPerm}}</span></div>
+      {{> rDots dots=daf.mistsDots cls="is-ten is-glamour"}}
+      <div class="r-boxes is-glamour">{{#each daf.mistsBoxes}}<a class="r-box {{#if filled}}is-filled{{/if}}" {{#if @root.editable}}data-action="setDots" data-path="{{path}}" data-n="{{n}}"{{/if}}></a>{{/each}}</div></div>
+    <div class="r-cl-temper is-banality"><div class="r-cl-temper-head"><h4 class="r-banner" data-tooltip="{{localize 'VTM20.Fae.Daf.WeavingHint'}}">{{localize "VTM20.Fae.Daf.Weaving"}}</h4><span class="r-cl-temper-num"><b>{{daf.weaving}}</b>/{{daf.weavingPerm}}</span></div>
+      {{> rDots dots=daf.weavingDots cls="is-ten is-banality"}}
+      <div class="r-boxes is-banality">{{#each daf.weavingBoxes}}<a class="r-box {{#if filled}}is-filled{{/if}}" {{#if @root.editable}}data-action="setDots" data-path="{{path}}" data-n="{{n}}"{{/if}}></a>{{/each}}</div></div>
+    <div class="r-cl-temper is-nightmare"><div class="r-cl-temper-head"><h4 class="r-banner" data-tooltip="{{localize 'VTM20.Fae.Daf.EchoesHint'}}">{{localize "VTM20.Fae.Daf.Echoes"}}</h4>
+      <span class="r-cl-temper-num">{{#if editable}}<input class="r-ly-pts" type="number" min="0" max="20" name="system.changeling.daf.echoes" value="{{daf.echoes}}">{{else}}<b>{{daf.echoes}}</b>{{/if}}</span></div>
+      {{#if daf.imbalance}}<p class="r-note is-warn">{{localize (concat "VTM20.Fae.Daf.Imbalance." daf.imbalance)}}</p>{{/if}}
+      {{#if daf.origin}}<p class="r-note">{{daf.origin.name}}: {{localize "VTM20.Fae.Daf.UnleashDice" n=daf.unleashDice}}</p>{{/if}}
+    </div>
+    {{#if editable}}<div class="r-cl-dream-bar">
+      <a class="r-btn" data-action="clDaf" data-op="origin" data-tooltip="{{localize 'VTM20.Fae.Daf.OriginHint'}}"><i class="fa-solid fa-seedling"></i> {{localize "VTM20.Fae.Daf.OriginStart"}}</a>
+      <a class="r-btn" data-action="clDaf" data-op="iron" data-tooltip="{{localize 'VTM20.Fae.Daf.IronHint'}}"><i class="fa-solid fa-khanda"></i> {{localize "VTM20.Changeling.ColdIronShort"}}</a>
+      {{#if isGM}}<span class="r-cl-gm"><a class="r-btn" data-action="clDaf" data-op="echo" data-tooltip="{{localize 'VTM20.Fae.Daf.EchoHint'}}"><i class="fa-solid fa-bell"></i> {{localize "VTM20.Fae.Daf.EchoTitle"}}</a></span>{{/if}}
+    </div>{{/if}}
+  </div>
+  <h2 class="r-h2"><span>{{localize "VTM20.Fae.Daf.Dominions"}}</span></h2>
+  <div class="r-daf-doms">
+    {{#each daf.dominions}}<article class="r-vcard r-daf-dom is-{{key}} {{#if favorite}}is-favorite{{/if}}">
+      <header class="r-cl-art-head">
+        <div class="r-cl-art-title"><b class="r-cl-art-name">{{name}}</b><span class="r-cl-art-en">{{#if favorite}}{{localize "VTM20.Fae.Daf.Favorite"}} · {{/if}}{{localize "VTM20.Fae.Daf.Known" n=count max=limit}}</span></div>
+        {{> rDots dots=dots cls="is-small"}}
+        {{#if @root.editable}}{{#if value}}<a class="r-icon-btn" data-action="clDaf" data-op="unleash" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Fae.Daf.UnleashHint'}}"><i class="fa-solid fa-burst"></i></a>{{/if}}{{/if}}
+      </header>
+      <ul class="r-cl-levels">
+        {{#each cantrips}}<li><span class="r-cl-rank">{{level}}</span><a class="r-cl-lvl-name" {{#if @root.editable}}data-action="clDaf" data-op="cast" data-key="{{id}}"{{/if}} data-tooltip="{{params}} — {{text}}"><b>{{name}}</b> <em>{{trait}}</em></a>
+          {{#if @root.editable}}<a class="r-cl-forget" data-action="clDaf" data-op="forget" data-key="{{id}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}</li>
+        {{else}}<li class="is-beyond"><em>{{localize "VTM20.Fae.Daf.NoCantrips"}}</em></li>{{/each}}
+      </ul>
+      {{#if @root.editable}}{{#if avail.length}}<div class="r-toolbar r-cl-add"><select><option value="">{{localize "VTM20.Fae.Daf.Learn"}}</option>{{#each avail}}<option value="{{id}}">{{label}}</option>{{/each}}</select>
+        <a class="r-btn" data-action="clDaf" data-op="learn"><i class="fa-solid fa-plus"></i></a></div>{{/if}}{{/if}}
+    </article>{{/each}}
+  </div>
+  <p class="r-hint">{{localize "VTM20.Fae.Daf.Hint"}}</p>
   {{else if inan}}
   {{!-- Инанимае (C20, гл. 40): Слайверы вместо Искусств — только Высвобождение; Сбор, Жатва, Оболочка, Якорь --}}
   <h2 class="r-h2"><span>{{localize "VTM20.Fae.Inan.Slivers"}}</span>{{#if editable}}<span class="r-h2-tools">

@@ -5904,7 +5904,7 @@
       "VariantLabel": "Nature",
       "Variant": {
         "kithain": "Kithain",
-        "lykeian": "Lykeian", "inanimae": "Inanimae", "hsien": "Hsien (Shinma)"
+        "lykeian": "Lykeian", "inanimae": "Inanimae", "hsien": "Hsien (Shinma)", "daf": "Dark Ages: Fae"
       },
       "Guise": "Guise",
       "Shape": "Shape",
@@ -6017,6 +6017,69 @@
       }
     },
     "Fae": {
+      "Daf": {
+        "Origin": "Origin",
+        "OriginStart": "Origin start",
+        "OriginHint": "Set Mists and Weaving by Origin (changeling 2/4, inanimae 3/3, firstborn 4/2)",
+        "Mists": "Mists",
+        "MistsHint": "Hides magic: Gift of Kenning, hide a cantrip (1), enhance mien; roll the permanent rating.",
+        "Weaving": "Weaving",
+        "WeavingHint": "Grounds magic: removes Unleashing dice 1 for 1, quenches cantrips, 2 points — −1 Echo success, forges Oaths.",
+        "Echoes": "Echoes",
+        "EchoesHint": "What repels and harms the fae: faith, wards, iron, bells. Everyone starts with 1.",
+        "Imbalance": {
+          "mists": "Imbalance: Mists 3 above Weaving — cantrips +1 difficulty.",
+          "weaving": "Imbalance: Weaving 3 above Mists — Unleashing +1 difficulty."
+        },
+        "UnleashDice": "{n} Unleashing dice",
+        "Dominions": "Dominions",
+        "Favorite": "favored",
+        "Known": "{n} of {max} cantrips",
+        "NoCantrips": "No cantrips",
+        "Learn": "Learn a cantrip…",
+        "Common": "common",
+        "Dom": {
+          "dawn": "Dawn",
+          "day": "Day",
+          "dusk": "Dusk",
+          "night": "Night"
+        },
+        "Hint": "Dark Ages: Fae. A cantrip is Dominion + Trait (book difficulty); −1 for the Court's favored Dominion, the Dominion's juncture (noon, midnight, dawn, dusk), solstice or equinox (minimum 4). One cantrip per known Dominion per Weaving dot, level up to the Dominion. Unleash when no cantrip fits.",
+        "Juncture": "Dominion's juncture (noon, midnight, dawn, dusk): −1",
+        "Season": "Court's solstice or equinox: −1",
+        "HideMists": "Hide from Kenning (1 Mists)",
+        "WeaveSpend": "Spend Weaving",
+        "Roll": "Roll",
+        "Hidden": "hidden by Mists",
+        "NoMists": "Not enough Mists.",
+        "NoDominion": "No such Dominion.",
+        "ImbalanceMists": "Mists imbalance: +1 difficulty.",
+        "UnleashTitle": "Unleashing: {dom}",
+        "UnleashHint": "Base pool Mists + Dominion and Unleashing dice (5, firstborn 3); Weaving removes them 1 for 1, 5 is safe. Base successes at least as many — in control.",
+        "BasePool": "base pool",
+        "WildPool": "Unleashing dice",
+        "WildDice": "Unleashing",
+        "Unleash": {
+          "control": "{name}: Unleashing under control ({b} vs {w}).",
+          "wild": "{name}: the effect works but runs wild ({b} vs {w}).",
+          "fail": "{name}: the Unleashing fails — the Dominion strikes back."
+        },
+        "EchoTitle": "Echo",
+        "EchoHint": "Storyteller: 10 dice, diff 7, minus modifiers. Oath successes and Weaving (2 points — −1) subtract; changelings count one step lower, firstborn higher.",
+        "EchoMods": "Modifiers (dice off)",
+        "EchoOath": "Oath rating",
+        "EchoBase": "Echo",
+        "EchoDone": "{name}: Echo strength — {n}.",
+        "EchoLevel": {
+          "1": "Minor discomfort: a step back, −1–2 dice.",
+          "2": "Hindrance: difficulty penalties.",
+          "3": "Nature partly revealed; up to 3 bashing.",
+          "4": "No Dominions on the mortal, no Unleashing; up to 4 lethal.",
+          "5": "Banished for a day; grave aggravated wounds (a changeling gains two permanent Echoes)."
+        },
+        "IronHint": "Cold iron: an aggravated wound and −1 temporary Mists",
+        "IronDone": "{name}: cold iron — an aggravated wound, −1 Mists."
+      },
       "Hsien": {
         "Kith": "Kwannon-jin",
         "Yin": "Yin",

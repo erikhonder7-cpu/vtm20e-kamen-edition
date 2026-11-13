@@ -9,6 +9,19 @@ import { castCantrip, unleash, artRow, spendGlamour, gainGlamour, gainNightmare,
 import { addRede, dropRede, reaping, legacyGlamour, shedBanality, shedImbalance } from "../../apps/lykeian.mjs";
 import { wuTan, neiTan, maskOfShintai, sacrificeChi, unleashSliver, harvest, reapInanimae, huskRoll, rebind } from "../../apps/fae-variants.mjs";
 
+import { castDaf, unleashDaf, echoRoll, dafColdIron, learnCantrip, forgetCantrip, originDefaults } from "../../apps/dark-fae.mjs";
+
+/** Dark Ages: Fae (apps/dark-fae.mjs): кантрип, Высвобождение Домена, Эхо, холодное железо, выучить и забыть кантрип, старт Происхождения. */
+function onDaf(event, target) {
+  const { op, key } = target.dataset, a = this.actor;
+  if (op === "cast") return castDaf(a, key);
+  if (op === "unleash") return unleashDaf(a, key);
+  if (op === "learn") return learnCantrip(a, target.closest(".r-cl-add")?.querySelector("select")?.value);
+  if (op === "forget") return forgetCantrip(a, key);
+  if (op === "origin") return a.update(originDefaults(a.system.changeling.daf.origin));
+  return { echo: echoRoll, iron: dafColdIron }[op]?.(a);
+}
+
 /** Хсиен и инанимае (apps/fae-variants.mjs): Ву Тань, Ней Тань, Маска Шинтай, жертва Чи; Высвобождение Слайвера, Сбор, Жатва, Оболочка, Якорь. */
 function onFae(event, target) {
   const { op, key } = target.dataset, a = this.actor;
@@ -105,4 +118,4 @@ function onOath(event, target) {
 
 export const CHANGELING_ACTIONS = { clCast: onCast, clUnleash: onUnleash, clArtAdd: onArtAdd, clArtDel: onArtDel, clGlamour: onGlamour,
   clNightmare: onNightmare, clTrigger: onTrigger, clWyrd: onWyrd, clAutumn: onAutumn, clEpiphany: onEpiphany, clPlace: onPlace, clBedlamEnd: onBedlamEnd, clOath: onOath,
-  clChim: { handler: onChim, buttons: [0, 2] }, clColdIron: onColdIron, clTreasure: onTreasure, clDross: onDross, clMists: onMists, clQuest: onQuest, clChimera: onChimera, clCraft: onCraft, lyAct: onLykeian, clAgenda: onAgenda, clFae: onFae };
+  clChim: { handler: onChim, buttons: [0, 2] }, clColdIron: onColdIron, clTreasure: onTreasure, clDross: onDross, clMists: onMists, clQuest: onQuest, clChimera: onChimera, clCraft: onCraft, lyAct: onLykeian, clAgenda: onAgenda, clFae: onFae, clDaf: onDaf };

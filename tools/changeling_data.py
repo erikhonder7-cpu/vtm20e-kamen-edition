@@ -673,6 +673,97 @@ def parse_inanimae():
     return {"slivers": slivers, "phyla": phyla}
 
 
+# ── Dark Ages: Fae (книга DA_Fae): Происхождения, Дворы, кантрипы по Доменам, провалы Высвобождения ──
+DAF = os.path.join(REF, "DA_Fae")
+DAF_ORIGINS = {"changeling": "changeling", "inanimae": "inanimae", "firstborn": "firstborn"}
+DAF_COURTS = {"Spring": "spring", "Summer": "summer", "Autumn": "autumn", "Winter": "winter", "Solstice": "solstice"}
+DAF_DOM_RU = {"Рассвет": "dawn", "День": "day", "Сумерки": "dusk", "Ночь": "night"}
+# Черта броска кантрипа: русское имя → путь черты листа (атрибуты и способности DA:V и DA:Fae)
+DAF_TRAITS = {"Сила": "attributes.strength", "Ловкость": "attributes.dexterity", "Выносливость": "attributes.stamina",
+              "Обаяние": "attributes.charisma", "Манипуляция": "attributes.manipulation", "Внешность": "attributes.appearance",
+              "Восприятие": "attributes.perception", "Интеллект": "attributes.intelligence", "Смекалка": "attributes.wits",
+              "Драка": "abilities.brawl", "Хитрость": "abilities.subterfuge", "Эмпатия": "abilities.empathy", "Выживание": "abilities.survival",
+              "Запугивание": "abilities.intimidation", "Гремарий": "abilities.gremayre", "Узрение": "abilities.kenning", "Атлетика": "abilities.athletics",
+              "Скрытность": "abilities.stealth", "Лидерство": "abilities.leadership", "Медицина": "abilities.medicine", "Оккультизм": "abilities.occult",
+              "Загадки": "abilities.enigmas", "Ремесло": "abilities.crafts", "Выразительность": "abilities.expression", "Знание зверей": "abilities.animalKen",
+              "Бдительность": "abilities.alertness", "Ближний бой": "abilities.melee", "Этикет": "abilities.etiquette",
+              "Обращение с животными": "abilities.animalKen", "Экспрессия": "abilities.expression"}
+
+
+def daf(prefix):
+    fn = next(f for f in sorted(os.listdir(DAF)) if f.startswith(prefix))
+    return read(os.path.join(DAF, fn))
+
+
+def _daf_cantrip(line, domain, level):
+    m = re.match(r"^- (\*\*|\*)(.+?)\1\s*\((.+?)\)\s*:\s*(.*)$", line)
+    if not m:
+        return None
+    params = m.group(3)
+    lv = re.search(r"ур\.\s*(\d)", params)
+    trait = re.search(r"\+\s*([А-ЯЁа-яё ]+?)(?:[,;)]|$)", params + ")")
+    diff = re.search(r"сл\.\s*(\d+)", params)
+    tname = trait.group(1).strip() if trait else ""
+    tname = next((k for k in sorted(DAF_TRAITS, key=len, reverse=True) if tname.startswith(k)), tname)
+    return {"key": _slug(m.group(2)), "name": m.group(2).strip(), "domain": domain, "level": int(lv.group(1)) if lv else level,
+            "trait": DAF_TRAITS.get(tname, ""), "traitName": tname, "diff": int(diff.group(1)) if diff else 6,
+            "params": plain(params), "text": plain(m.group(4))}
+
+
+def parse_daf():
+    """Происхождения и Дворы (таблицы гл. 1), кантрипы (общие — для всех Доменов, и по Доменам), провалы Высвобождения."""
+    t1 = daf("01")
+    origins, courts = [], []
+    for line in t1.splitlines():
+        cells = [c.strip() for c in line.strip().strip("|").split("|")] if line.startswith("|") else []
+        if len(cells) == 4:
+            m = re.match(r"^(.+?) \(([a-z]+)\)$", cells[0])
+            nums = [int(x) for x in re.findall(r"\d+", cells[1])]
+            if m and m.group(2) in DAF_ORIGINS and len(nums) >= 3:
+                origins.append({"key": m.group(2), "name": m.group(1).strip(), "mists": nums[0], "weaving": nums[1], "dominions": nums[2],
+                                "birthright": plain(cells[2]), "frailty": plain(cells[3]), "unleash": 3 if m.group(2) == "firstborn" else 5})
+        if len(cells) == 3:
+            m = re.match(r"^(.+?) \(([A-Za-z]+)\)$", cells[0])
+            if m and m.group(2) in DAF_COURTS:
+                fav = next((v for k, v in DAF_DOM_RU.items() if k in cells[1]), "")
+                courts.append({"key": DAF_COURTS[m.group(2)], "name": m.group(1).strip(), "favorite": fav, "text": plain(cells[2])})
+    cantrips, fails = [], {}
+    t2 = daf("02")
+    common = t2[t2.find("## Общие кантрипы"):].split("\n## ", 1)[0]
+    for line in common.splitlines():
+        c = _daf_cantrip(line, "common", 1)
+        if c:
+            cantrips.append(c)
+    files = {"day": ("02", "## День"), "night": ("03", None), "dawn": ("04", None), "dusk": ("05", None)}
+    for dom, (prefix, start) in files.items():
+        text = daf(prefix)
+        if start:
+            text = text[text.find(start):]
+        level = 1
+        for line in text.splitlines():
+            lm = re.match(r"^(?:## Уровень|\*\*Уровень)\s*(\d)", line)
+            if lm:
+                level = int(lm.group(1))
+                # строкой: «**Уровень 2:** *Имя* (Д + Черта; текст); *Имя* (…)»
+                tail = line.split(":**", 1)[1] if ":**" in line else ""
+                for im in re.finditer(r"\*([^*]+)\*\s*\(((?:[^()]|\([^()]*\))*)\)", tail):
+                    params, _, rest = im.group(2).partition(";")
+                    c = _daf_cantrip(f"- *{im.group(1)}* ({params}): {rest.strip()}", dom, level)
+                    if c:
+                        cantrips.append(c)
+                continue
+            if line.startswith("## Провалы") or line.startswith("## Таблица"):
+                level = 0
+            if level:
+                c = _daf_cantrip(line, dom, level)
+                if c:
+                    cantrips.append(c)
+        fm = re.search(r"Провалы Высвобождения [А-Яа-яё]+(?::\*\*|\n)\s*(.+)", daf(prefix))
+        if fm:
+            fails[dom] = plain(fm.group(1))
+    return {"origins": origins, "courts": courts, "cantrips": cantrips, "unleashFails": fails}
+
+
 def parse_books():
     out = []
     for folder, label in BOOKS:
@@ -698,7 +789,7 @@ def build():
             k["birthrights"] = sidhe["birthrights"]
     data = {"source": "Changeling: The Dreaming 20th Anniversary Edition — справочник проекта (пересказ механики)",
             "seemings": parse_seemings(), "kiths": kiths, "houses": parse_houses() + parse_banner_houses(), "legacies": parse_legacies(),
-            "arts": arts, "realms": realms, "backgrounds": parse_backgrounds(), "merits": parse_merits() + parse_boggan_merits(), "oaths": parse_oaths(), "redes": parse_redes() + parse_pg_redes(), "chimera": CHIMERA, "lykeian": parse_lykeians(), "inanimae": parse_inanimae(), "glyphs": glyphs(), "otherKiths": parse_other_kiths() + parse_pg_kiths(), "freeholds": parse_freeholds(),
+            "arts": arts, "realms": realms, "backgrounds": parse_backgrounds(), "merits": parse_merits() + parse_boggan_merits(), "oaths": parse_oaths(), "redes": parse_redes() + parse_pg_redes(), "chimera": CHIMERA, "lykeian": parse_lykeians(), "inanimae": parse_inanimae(), "daf": parse_daf(), "glyphs": glyphs(), "otherKiths": parse_other_kiths() + parse_pg_kiths(), "freeholds": parse_freeholds(),
             "creation": CREATION, "freebies": FREEBIES, "xp": XP, "cantrip": CANTRIP, "banality": BANALITY, "bedlam": BEDLAM}
     with open(OUT, "w", encoding="utf-8", newline="\n") as f:
         json.dump(data, f, ensure_ascii=False, indent=1)

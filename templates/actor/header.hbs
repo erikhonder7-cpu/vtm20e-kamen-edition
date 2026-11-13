@@ -168,6 +168,11 @@
           <select name="system.changeling.hsien.legacyYin"><option value="">—</option>{{#each hsien.legaciesYin}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
         <label class="r-df"><span>{{localize "VTM20.Fae.Hsien.LegacyYang"}}</span>
           <select name="system.changeling.hsien.legacyYang"><option value="">—</option>{{#each hsien.legaciesYang}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
+        {{else if daf}}
+        <label class="r-df is-wide" {{#if daf.origin}}data-tooltip="{{daf.origin.birthright}} · {{daf.origin.frailty}}"{{/if}}><span>{{localize "VTM20.Fae.Daf.Origin"}}</span>
+          <select name="system.changeling.daf.origin">{{#each daf.origins}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
+        <label class="r-df" {{#if daf.court}}data-tooltip="{{daf.court.text}}"{{/if}}><span>{{localize "VTM20.Changeling.CourtLabel"}}</span>
+          <select name="system.changeling.daf.court"><option value="">—</option>{{#each daf.courts}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
         {{else if inan}}
         <label class="r-df" {{#if inan.phylum}}data-tooltip="{{inan.phylum.empire}}"{{/if}}><span>{{localize "VTM20.Fae.Inan.Phylum"}}</span>
           <select name="system.changeling.kith"><option value="">—</option>{{#each inan.kiths}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
