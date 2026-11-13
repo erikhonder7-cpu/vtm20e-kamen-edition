@@ -71,8 +71,8 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       virt: { conscience: 0, selfControl: 0, courage: 0 },
       merits: [], flaws: [],
       extraDisc: "",                    // Дисциплина, ставшая клановой по достоинству «Дополнительная Дисциплина» (V20, Appendix)
-      free: { attr: {}, abil: {}, disc: {}, bg: {}, virt: {}, morality: 0, will: 0, rage: 0, gnosis: 0, pathos: 0, trade: 0, pas: {}, fet: {}, rdisc: {} },
-      xp: { attr: {}, abil: {}, disc: {}, virt: {}, morality: 0, will: 0, rage: 0, gnosis: 0 },
+      free: { attr: {}, abil: {}, disc: {}, bg: {}, virt: {}, morality: 0, will: 0, rage: 0, gnosis: 0, pathos: 0, trade: 0, pas: {}, fet: {}, rdisc: {}, yin: 0, weave: 0 },
+      xp: { attr: {}, abil: {}, disc: {}, virt: {}, morality: 0, will: 0, rage: 0, gnosis: 0, yin: 0, weave: 0 },
       blood: null,
       // слуга: «Танец с Дьяволом» — хозяин (uuid демона), доля Веры хозяину (−1 — наибольшая), условия, дары словами и прибавками
       pact: { master: "", share: -1, terms: "", gifts: "", attr: {}, abil: {} },
@@ -107,7 +107,11 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
         // ликиец (Players Guide, гл. 7): Облик, Форма (у животного — +1 Воля или Гламур — поле wilder), Тезис, Аналог, Кошмар-Наследие, Реды
         variant: s.changeling?.variant || "", guise: s.changeling?.lykeian?.guise || "", shape: s.changeling?.lykeian?.shape || "",
         thesis: s.changeling?.lykeian?.thesis || "", analog: s.changeling?.lykeian?.analog || "", nightmareLegacy: s.changeling?.lykeian?.nightmareLegacy || "",
-        redes: foundry.utils.deepClone(s.changeling?.lykeian?.redes ?? []) },
+        redes: foundry.utils.deepClone(s.changeling?.lykeian?.redes ?? []),
+        // Хсиен: двор, Наследия Инь и Ян; инанимае: двор, Якорь, Оболочка; Тёмные века: Происхождение, Двор, кантрипы
+        hsienCourt: s.changeling?.hsien?.court || "", legacyYin: s.changeling?.hsien?.legacyYin || "", legacyYang: s.changeling?.hsien?.legacyYang || "",
+        inanCourt: s.changeling?.inanimae?.court || "gladeling", anchor: s.changeling?.inanimae?.anchor || "", husk: s.changeling?.inanimae?.husk || "",
+        origin: s.changeling?.daf?.origin || "", dafCourt: s.changeling?.daf?.court || "", cantrips: [...(s.changeling?.daf?.cantrips ?? [])] },
       ww: { breed: s.werewolf?.breed || "homid", auspice: s.werewolf?.auspice || "ragabash", tribe: s.werewolf?.tribe || "boneGnawers",
         fera: s.werewolf?.fera || "", sub: {}, gifts: {}, extra: [], deform: "", renown: { glory: 0, honor: 0, wisdom: 0 } }
     };

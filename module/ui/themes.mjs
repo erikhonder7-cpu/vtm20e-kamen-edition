@@ -86,7 +86,7 @@ export function registerThemes() {
     const owner = actorOf(app);
     element.classList.toggle("r-mage-tech", "mageTech" in app ? !!app.mageTech : isTechnocrat(owner));   // мастер создания решает сам
     element.classList.toggle("r-mage-fallen", "mageFallen" in app ? !!app.mageFallen : isNephandus(owner));
-    element.classList.toggle("r-cl-dark", isDarkFae(owner));
+    element.classList.toggle("r-cl-dark", "isDafCr" in app ? !!app.isDafCr : isDarkFae(owner));   // мастер Тёмных веков — тоже в «Вайде и серебре»
     if (owner) element.classList.toggle("r-earthbound", "isEarthbound" in app ? !!app.isEarthbound : !!owner.system?.earthbound);   // мастер решает сам
     // щелчок в окне персонажа — его тему получит и подтверждение, которое откроется следом
     if (!element.dataset.rTheme) {

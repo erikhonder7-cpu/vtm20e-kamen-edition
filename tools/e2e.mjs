@@ -6216,6 +6216,60 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  await check("Подменыш: мастер создания Хсиен, инанимае и Тёмных веков — своя генерация", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {};
+      const { openCreator } = await import(`/systems/${sid}/module/apps/creator.mjs`);
+      const L = game.vtm20Codex.changeling.legacies, made = [];
+      const open = async (name) => {
+        const a = await Actor.create({ name, type: "changeling", flags: { world: { e2e: true } } }); made.push(a);
+        await openCreator(a); await wait(1000);
+        return [a, [...foundry.applications.instances.values()].find(x => x.constructor.name === "VtMCreator" && x.actor === a)];
+      };
+      try {
+        // Хсиен: Тануки — Инь 2, Ян 1 и точка на выбор (в Ян); школа Те Тань (металл) — даром
+        let [a, cr] = await open("E2E — хсиен из мастера");
+        Object.assign(cr.st.cl, { variant: "hsien", kith: "hsien-tanuki", wilder: "yang", legacyYin: L[0].key, legacyYang: L[1].key, hsienCourt: "liShen" });
+        cr.st.disc = { houtan: 2, tietan: 1 };
+        out.hsien = [cr.rules.disc, cr.base("disc", "tietan"), cr.clYin, cr.morality, cr.willpower, cr.clIssues.length, cr.clArtIssues.length, cr.stepName("disciplines")];
+        cr.st.disc.neitan = 1; out.nei = cr.clArtIssues.length; delete cr.st.disc.neitan;
+        cr.st.free.yin = 1; out.hsienFree = [cr.clYin, cr.freeSpent];
+        await cr.write(); await wait(700);
+        const h = a.system.changeling;
+        out.hsienWrite = [h.variant, h.kith, h.hsien.yin, h.hsien.yang, h.hsien.schools.tietan, h.hsien.schools.houtan, h.hsien.court];
+        await cr.close();
+        // инанимае: глоумы (Гламур 6, Воля 5, Банальность 4), Глэйдлинг — Петрос даром; Атрибут за свободные — 4
+        [a, cr] = await open("E2E — инанимае из мастера");
+        Object.assign(cr.st.cl, { variant: "inanimae", kith: "inanimae-glomes", inanCourt: "gladeling", legacySeelie: L.find(l => l.court === "seelie").key,
+          legacyUnseelie: L.find(l => l.court === "unseelie").key, anchor: "Менгир" });
+        cr.st.disc = { aquis: 4 };
+        out.inan = [cr.rules.disc, cr.rules.cost.attr, cr.base("disc", "petros"), cr.morality, cr.willpower, cr.clBanality, cr.clIssues.length, cr.stepName("disciplines")];
+        await cr.write(); await wait(700);
+        const n = a.system.changeling;
+        out.inanWrite = [n.variant, n.inanimae.slivers.petros, n.inanimae.slivers.aquis, n.glamour.permanent, n.banality.permanent, n.inanimae.anchor];
+        await cr.close();
+        // Тёмные века: перворождённый (Мгла 4, Плетение 2, 3 очка Доменов), Лето — любимый День; кантрипов в Дне — не больше 2
+        [a, cr] = await open("E2E — фэ из мастера");
+        Object.assign(cr.st.cl, { variant: "daf", origin: "firstborn", dafCourt: "summer" });
+        cr.st.disc = { day: 3 };
+        cr.st.cl.cantrips = ["day:candorslight", "day:brotherlybond", "day:callelement"];
+        out.daf = [cr.rules.disc, cr.morality, cr.clWeaving, cr.willpower, cr.clInClan("day"), cr.clArtIssues.length, cr.stepName("disciplines")];
+        cr.st.cl.cantrips.pop(); out.dafOk = cr.clArtIssues.length;
+        cr.st.free.weave = 1; out.dafFree = [cr.clWeaving, cr.freeSpent];
+        await cr.write(); await wait(700);
+        const d = a.system.changeling;
+        out.dafWrite = [d.variant, d.daf.origin, d.daf.court, d.daf.mists.permanent, d.daf.weaving.permanent, d.daf.dominions.day, d.daf.cantrips.length];
+        await cr.close();
+      } finally { await Actor.deleteDocuments(made.map(x => x.id)); }
+      return out;
+    });
+    const want = { hsien: [3, 1, 2, 2, 4, 0, 0, "wutan"], nei: 1, hsienFree: [3, 4], hsienWrite: ["hsien", "hsien-tanuki", 3, 2, 2, 2, "liShen"],
+      inan: [4, 4, 1, 6, 5, 4, 0, "slivers"], inanWrite: ["inanimae", 1, 4, 6, 4, "Менгир"],
+      daf: [3, 4, 2, 4, true, 1, "dominions"], dafOk: 0, dafFree: [3, 4], dafWrite: ["daf", "firstborn", "summer", 4, 3, 3, 2] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   await check("Призрак: лист и Арканои, Пафос, Страсть, Корпус до колебания и Испытание, Катарсис", async () => {
     const r = await page.evaluate(async () => {
       const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), WR = await import(`/systems/${sid}/module/apps/wraith.mjs`);

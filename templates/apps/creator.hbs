@@ -361,6 +361,44 @@
       <a class="r-icon-btn is-danger" data-action="lyRede" data-op="del" data-i="{{i}}"><i class="fa-solid fa-xmark"></i></a></div>{{/each}}
     <p class="r-note r-explain">{{localize "VTM20.LyCr.Tempers" g=cl.glamour w=cl.will b=cl.banality}}</p>
     {{#each cl.issues}}<p class="r-note is-warn">{{this}}</p>{{/each}}
+    {{else if cl.hsien}}
+    {{!-- Хсиен (C20, гл. 39): Кваннон-цзинь со стартовым Чи и стихией, точка Чи на выбор, двор, Наследия Инь и Ян --}}
+    <h3 class="r-h3">{{localize "VTM20.Fae.Hsien.Kith"}}</h3>
+    <div class="r-cr-clans r-cr-tribes">{{#each cl.kwannon}}<a class="r-cr-clan {{#if active}}is-active{{/if}}" data-action="clPick" data-what="kith" data-key="{{key}}"><b>{{label}}</b><span class="r-cr-clan-disc">{{sub}}</span></a>{{/each}}</div>
+    {{#if cl.otherKith}}<div class="r-cr-clancard"><div class="r-cr-clancard-title">{{cl.otherKith.name}} <em>{{cl.otherKith.en}}</em></div><div class="r-note">{{{cl.otherKith.html}}}</div></div>{{/if}}
+    {{#if cl.chiChoice}}<h3 class="r-h3">{{localize "VTM20.FaeCr.ChiDot"}}</h3><div class="r-cr-tiles r-cr-garou-tiles is-two">{{#each cl.chiChoice}}<a class="r-cr-tile {{#if active}}is-active{{/if}}" data-action="clPick" data-what="wilder" data-key="{{key}}"><b>{{label}}</b></a>{{/each}}</div>{{/if}}
+    <div class="r-cols2 r-cr-genrow">
+      <label class="r-f"><span>{{localize "VTM20.Changeling.CourtLabel"}}</span><select data-field="cl.hsienCourt">{{#each cl.hsienCourts}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
+      <label class="r-f"><span>{{localize "VTM20.Fae.Hsien.LegacyYin"}}</span><select data-field="cl.legacyYin"><option value="">—</option>{{#each cl.legaciesYin}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
+      <label class="r-f"><span>{{localize "VTM20.Fae.Hsien.LegacyYang"}}</span><select data-field="cl.legacyYang"><option value="">—</option>{{#each cl.legaciesYang}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
+    </div>
+    {{#if cl.chi}}<p class="r-note r-explain">{{localize "VTM20.FaeCr.HsienTempers" yin=cl.chi.yin yang=cl.chi.yang w=cl.will}}</p>{{/if}}
+    {{#each cl.issues}}<p class="r-note is-warn">{{this}}</p>{{/each}}
+    {{else if cl.inan}}
+    {{!-- Инанимае (C20, гл. 40): фила со склонностью и стартовыми Темперами, двор, Наследия, Якорь и Оболочка --}}
+    <h3 class="r-h3">{{localize "VTM20.Fae.Inan.Phylum"}}</h3>
+    <div class="r-cr-clans r-cr-tribes">{{#each cl.phyla}}<a class="r-cr-clan {{#if active}}is-active{{/if}}" data-action="clPick" data-what="kith" data-key="{{key}}"><b>{{label}}</b><span class="r-cr-clan-disc">{{sub}}</span></a>{{/each}}</div>
+    {{#if cl.otherKith}}<div class="r-cr-clancard"><div class="r-cr-clancard-title">{{cl.otherKith.name}} <em>{{cl.otherKith.en}}</em></div><div class="r-note">{{{cl.otherKith.html}}}</div></div>{{/if}}
+    <h3 class="r-h3">{{localize "VTM20.Changeling.CourtLabel"}}</h3>
+    <div class="r-cr-tiles r-cr-garou-tiles is-two">{{#each cl.inanCourts}}<a class="r-cr-tile {{#if active}}is-active{{/if}}" data-action="clPick" data-what="inanCourt" data-key="{{key}}"><b>{{label}}</b></a>{{/each}}</div>
+    <div class="r-cols2 r-cr-genrow">
+      <label class="r-f"><span>{{localize "VTM20.Changeling.LegacySeelie"}}</span><select data-field="cl.legacySeelie"><option value="">—</option>{{#each cl.legaciesSeelie}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
+      <label class="r-f"><span>{{localize "VTM20.Changeling.LegacyUnseelie"}}</span><select data-field="cl.legacyUnseelie"><option value="">—</option>{{#each cl.legaciesUnseelie}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
+      <label class="r-f" data-tooltip="{{localize 'VTM20.Fae.Inan.AnchorHint'}}"><span>{{localize "VTM20.Fae.Inan.Anchor"}}</span><input type="text" data-field="cl.anchor" value="{{st.cl.anchor}}"></label>
+      <label class="r-f" data-tooltip="{{localize 'VTM20.Fae.Inan.HuskHint2'}}"><span>{{localize "VTM20.Fae.Inan.Husk"}}</span><input type="text" data-field="cl.husk" value="{{st.cl.husk}}"></label>
+    </div>
+    <p class="r-note r-explain">{{localize "VTM20.FaeCr.InanTempers" g=cl.glamour w=cl.will b=cl.banality}}</p>
+    {{#each cl.issues}}<p class="r-note is-warn">{{this}}</p>{{/each}}
+    {{else if cl.daf}}
+    {{!-- Тёмные века: Фэ: Происхождение (Мгла, Плетение, очки Доменов) и Двор сезонов (любимый Домен) --}}
+    <h3 class="r-h3">{{localize "VTM20.Fae.Daf.Origin"}}</h3>
+    <div class="r-cr-tiles r-cr-garou-tiles">{{#each cl.origins}}<a class="r-cr-tile {{#if active}}is-active{{/if}}" data-action="clPick" data-what="origin" data-key="{{key}}"><b>{{label}}</b><span class="r-cr-tile-text">{{sub}}</span></a>{{/each}}</div>
+    {{#if cl.origin}}<div class="r-cr-clancard"><p class="r-note"><b>{{localize "VTM20.FaeCr.Birthright"}}:</b> {{cl.origin.birthright}}</p><div class="r-weakness-text"><b>{{localize "VTM20.ClCr.Frailty"}}:</b> {{cl.origin.frailty}}</div></div>{{/if}}
+    <h3 class="r-h3">{{localize "VTM20.Changeling.CourtLabel"}}</h3>
+    <div class="r-cr-tiles r-cr-garou-tiles">{{#each cl.dafCourts}}<a class="r-cr-tile {{#if active}}is-active{{/if}}" data-action="clPick" data-what="dafCourt" data-key="{{key}}"><b>{{label}}</b><span class="r-cr-tile-text">{{localize "VTM20.Fae.Daf.Favorite"}}: {{sub}}</span></a>{{/each}}</div>
+    {{#if cl.dafCourt}}<p class="r-note">{{cl.dafCourt.text}}</p>{{/if}}
+    {{#if cl.tempers2}}<p class="r-note r-explain">{{localize "VTM20.FaeCr.DafTempers" m=cl.tempers2.mists wv=cl.tempers2.weaving w=cl.will}}</p>{{/if}}
+    {{#each cl.issues}}<p class="r-note is-warn">{{this}}</p>{{/each}}
     {{else}}
     <h3 class="r-h3">{{localize "VTM20.Changeling.Kith"}}</h3>
     <div class="r-cr-clans r-cr-tribes">
@@ -595,6 +633,18 @@
       <a class="r-step" data-action="free" data-kind="morality" data-key="" data-d="-1">−</a><b>{{mage.arete}}</b><a class="r-step" data-action="free" data-kind="morality" data-key="" data-d="1">+</a>
       <em>{{localize "VTM20.MageCr.AreteHere" n=rem.free}}</em></div>{{/if}}
     {{#each sphereIssues}}<p class="r-note is-warn"><i class="fa-solid fa-triangle-exclamation"></i> {{this}}</p>{{/each}}
+    {{#if dafCr}}
+    {{!-- кантрипы Тёмных веков: по одному в Домене за точку Плетения, уровень не выше Домена --}}
+    <h3 class="r-h3">{{localize "VTM20.FaeCr.Cantrips"}}</h3>
+    <p class="r-note">{{localize "VTM20.FaeCr.CantripsHint"}}</p>
+    <div class="r-cols2">{{#each dafCr.list}}<div class="r-cr-panel">
+      <h4 class="r-banner">{{name}}{{#if favorite}} · {{localize "VTM20.Fae.Daf.Favorite"}}{{/if}} <em>{{chosen.length}}/{{limit}}</em></h4>
+      {{#each chosen}}<div class="r-trait-main" data-tooltip="{{tip}}"><span class="r-trait-label">{{level}} · {{name}}</span><span class="r-leader"></span>
+        <a class="r-icon-btn is-danger" data-action="dafCantrip" data-op="del" data-key="{{id}}"><i class="fa-solid fa-xmark"></i></a></div>{{/each}}
+      {{#if avail.length}}<div class="r-toolbar r-cl-add"><select><option value="">{{localize "VTM20.Fae.Daf.Learn"}}</option>{{#each avail}}<option value="{{id}}">{{label}}</option>{{/each}}</select>
+        <a class="r-btn" data-action="dafCantrip" data-op="add"><i class="fa-solid fa-plus"></i></a></div>{{/if}}
+    </div>{{/each}}</div>
+    {{/if}}
     {{#if isDhampir}}<label class="r-check r-cr-dhswap" data-tooltip="{{localize 'VTM20.Creator.DhSwapHint'}}"><input type="checkbox" data-action="dhSwap" {{#if st.dhSwap}}checked{{/if}}> {{localize "VTM20.Creator.DhSwap"}}</label>{{/if}}
     <div class="r-cr-discs">
       {{#each discCards}}

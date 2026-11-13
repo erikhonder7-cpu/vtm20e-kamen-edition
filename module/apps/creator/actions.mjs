@@ -302,8 +302,11 @@ function bump(mode, event, target) {
   } else if (kind === "rage" || kind === "gnosis") {     // Гару: Ярость и Гнозис — до 10
     if (d > 0 && (kind === "rage" ? this.garouRage : this.garouGnosis) >= 10) return;
     bag[kind] = Math.max(0, bag[kind] + d);
+  } else if (kind === "yin" || kind === "weave") {       // Хсиен — Инь до 5, Тёмные века — Плетение до 10
+    if (d > 0 && (kind === "yin" ? this.clYin >= 5 : this.clWeaving >= 10)) return;
+    bag[kind] = Math.max(0, (bag[kind] ?? 0) + d);
   } else if (kind === "morality" || kind === "will") {
-    const cap = this.isMage ? (mode === "xp" ? 10 : mageData().creation?.areteMax ?? 3) : this.isHunter ? (mode === "xp" ? 10 : 8) : this.st.path === "humanity" || mode === "xp" ? 10 : 5;
+    const cap = this.isHsienCr ? 5 : this.isMage ? (mode === "xp" ? 10 : mageData().creation?.areteMax ?? 3) : this.isHunter ? (mode === "xp" ? 10 : 8) : this.st.path === "humanity" || mode === "xp" ? 10 : 5;
     if (d > 0 && (kind === "will" ? this.willpower >= 10 : this.morality >= cap)) return;
     bag[kind] = Math.max(0, bag[kind] + d);
   } else {

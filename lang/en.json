@@ -3663,6 +3663,9 @@
       "Start": "Open the creation wizard",
       "Skip": "Fill in the sheet manually",
       "Step": {
+        "wutan": "Wu Tan",
+        "slivers": "Slivers",
+        "dominions": "Dominions",
         "redes": "Redes",
         "changeling": "The Dreaming",
         "arts": "Arts and Realms",
@@ -6195,6 +6198,34 @@
         "NoWill": "No Willpower to seal the binding.",
         "RebindDone": "{name} binds the soul to a new Anchor.",
         "Hint": "Inanimae (C20, ch. 40): Slivers instead of Arts — Unleashing only; Gladelings start with a dot in the affinity Sliver, Krofted with Husk 1."
+      }
+    },
+    "FaeCr": {
+      "InClan": {"hsien": "kith element", "inanimae": "affinity", "daf": "favored"},
+      "NeedKwannon": "Choose a Kwannon-jin.",
+      "NeedChiDot": "Where does the free Chi dot go — Yin or Yang?",
+      "NeedYinYang": "Choose Yin and Yang Legacies.",
+      "NeedPhylum": "Choose a phylum.",
+      "NeedOrigin": "Choose an Origin.",
+      "NeedCourt": "Choose a Court.",
+      "NeiFree": "Nei Tan at creation — freebie points only.",
+      "SchoolCap": "At creation a Wu Tan school can't exceed 3.",
+      "DomCap": "At creation a Dominion can't exceed 3.",
+      "CantripsOver": "{dom}: more cantrips than Weaving dots ({n}).",
+      "ChiDot": "Free Chi dot",
+      "Cantrips": "Cantrips",
+      "Birthright": "Birthright",
+      "CantripsHint": "One cantrip per known Dominion per Weaving dot; level up to the Dominion. Common cantrips belong to every Dominion.",
+      "HsienTempers": "Yin {yin}, Yang {yang}, Willpower {w}. No Glamour or Banality; Chi costs 4 freebies (up to 5), Wu Tan 5, Nei Tan only this way.",
+      "InanTempers": "Glamour {g}, Willpower {w}, Banality {b} — by phylum. Gladelings get a free dot in the affinity Sliver; a Sliver costs 5 freebies, an Attribute 4.",
+      "DafTempers": "Mists {m}, Weaving {wv}, Willpower {w}. Mists and Weaving cost 4 freebies a dot, a Dominion 7; the Court's favored Dominion gives −1 difficulty.",
+      "NoAffinity": "no affinity",
+      "Sliver": {
+        "aquis": "Aquis",
+        "petros": "Petros",
+        "pyros": "Pyros",
+        "stratus": "Stratus",
+        "verdage": "Verdage"
       }
     },
     "BondX": {

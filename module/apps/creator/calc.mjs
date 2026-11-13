@@ -26,6 +26,8 @@ export class CalcCreator {
     if (this.isEarthbound) return RULES.earthbound;
     // ликиец (C20 Players Guide, гл. 7): Искусств и Царств нет, Воля за свободные — 2
     if (this.isLykeian) return { ...this.baseRules, disc: 0, cost: { ...this.baseRules.cost, will: 2 } };
+    // Хсиен, инанимае и Тёмные века (creator/changeling.mjs, VARIANT_RULES): свой слот Дисциплин и свои цены
+    if (this.clVariantRules) { const v = this.clVariantRules; return { ...this.baseRules, disc: v.disc, cost: { ...this.baseRules.cost, ...v.cost } }; }
     if (this.isThrall) return RULES.thrall;
     // колдун (M20 Sorcerer, гл. 3): 5 точек нумин, Путь за свободные пункты — 7
     if (this.isSorcerer) return { ...this.baseRules, disc: 5, cost: { ...this.baseRules.cost, disc: 7 } };
@@ -151,6 +153,7 @@ export class CalcCreator {
     if (this.isMage) return VTM20.mageSpheres;
     if (this.isWraith) return this.wraithArcanoiKeys;
     if (this.isLykeian) return [];                                   // ликиец: Реды вместо Искусств и Царств
+    if (this.clMagicKeys) return this.clMagicKeys;                   // Хсиен — школы Ву Тань, инанимае — Слайверы, Тёмные века — Домены
     if (this.isChangeling) return [...VTM20.changelingArts, ...VTM20.changelingRealms];
     if (this.isDemon) return [...(this.houseData?.lores ?? []), ...(Codex.demon?.common ?? []),        // Знания Дома и общие
       ...(this.isEarthbound ? Codex.lores.filter(l => l.dark).map(l => l.key) : [])];                     // Привязанному — и Тёмные
@@ -169,7 +172,8 @@ export class CalcCreator {
     if (kind === "attr") return (k === "appearance" && this.ugly) ? 0 : 1;
     if (kind === "virt") return this.virtueBase(k);
     // гуль — Мощь 1 даром; дампир клана может взять вместо неё Дисциплину клана Предка (Accursed Heirs, гл. 3)
-    if (kind === "disc" && this.isWraith) return this.wraithDiscBase(k);   // Сговор Спектра, Воплощение и Паутина проектора — даром
+    if (kind === "disc" && this.isWraith) return this.wraithDiscBase(k);
+    if (kind === "disc" && this.isChangeling) return this.clDiscBase(k);   // школа стихии Хсиен, Слайвер склонности Глэйдлинга   // Сговор Спектра, Воплощение и Паутина проектора — даром
     if (kind === "disc") return this.type === "ghoul" && k === "potence" && !(this.isDhampir && this.st.dhSwap) ? 1 : 0;
     return 0;
   }
@@ -184,7 +188,7 @@ export class CalcCreator {
   get moralityBase() {
     if (this.isWerewolf || this.isWraith) return 0;    // у Гару и призрака морали нет
     if (this.isMage) return Math.min(mageData().creation?.areteMax ?? 3, (mageData().creation?.arete ?? 1) + this.st.free.morality);   // у мага — Арете
-    if (this.isChangeling) return Math.min(10, this.clGlamourBase + this.st.free.morality);                   // у подменыша — Гламур
+    if (this.isChangeling) return Math.min(this.clMoralityCap, this.clGlamourBase + this.st.free.morality);                   // у подменыша — Гламур
     if (this.isDemon) return Math.min(10, (this.isEarthbound ? 4 : DEMON_FAITH) + this.st.free.morality);   // у падшего — Вера
     if (this.isThrall) return Math.min(5, 1 + this.st.free.morality);                                        // у слуги — Вера слуги
     if (this.isLost) return 10;                                                                              // у Свидетеля — 10, рассудок
@@ -192,7 +196,7 @@ export class CalcCreator {
     const v = this.value("virt", "conscience") + this.value("virt", "selfControl") + this.st.free.morality;
     return this.st.path === "humanity" ? Math.min(10, v) : Math.min(5, v);
   }
-  get morality() { return Math.min(this.isThrall ? 5 : 10, this.moralityBase + this.st.xp.morality); }
+  get morality() { return Math.min(this.isThrall || this.isHsienCr ? 5 : 10, this.moralityBase + this.st.xp.morality); }
   get willpowerBase() {
     // у падшего Воля — сумма двух высших Добродетелей (гл. 6), у охотника — 3, у прочих — Смелость
     if (this.isHunter) return Math.min(10, 3 + this.st.free.will);
@@ -218,7 +222,7 @@ export class CalcCreator {
   get meritPoints() { return this.st.merits.reduce((s, m) => s + (Number(m.cost) || 0), 0); }
   get freeSpent() {
     const c = this.rules.cost, f = this.st.free;
-    return this.sum(f.attr) * c.attr + this.sum(f.abil) * c.abil + (this.isChangeling ? this.clDiscFreeCost : this.sum(f.disc) * c.disc) + this.sum(f.bg) * c.bg
+    return this.sum(f.attr) * c.attr + this.sum(f.abil) * c.abil + (this.isChangeling ? this.clDiscFreeCost + this.clExtraFree : this.sum(f.disc) * c.disc) + this.sum(f.bg) * c.bg
       + this.sum(f.virt) * c.virt + f.morality * c.morality + f.will * c.will + this.bloodrightExtra * 5
       + (this.isWerewolf ? f.rage * c.rage + f.gnosis * c.gnosis + this.st.ww.extra.length * c.gift : 0)
       + (this.isMage ? (f.quint ?? 0) * c.quint + this.mageResCost : 0)
@@ -280,6 +284,8 @@ export class CalcCreator {
     for (const kind of ["attr", "abil", "disc", "virt"]) for (const [k, n] of Object.entries(x[kind])) if (n) s += this.xpCostOf(kind, k, this.valueBeforeXp(kind, k), n);
     s += this.xpCostOf("morality", "", this.moralityBase, x.morality);
     s += this.xpCostOf("will", "", this.willpowerBase, x.will);
+    // Хсиен — Инь, Тёмные века — Плетение (второй Темпер)
+    if (this.isChangeling) s += this.xpCostOf("yin", "", this.clYinBase + (this.st.free.yin ?? 0), x.yin ?? 0) + this.xpCostOf("weave", "", this.clWeaveBase + (this.st.free.weave ?? 0), x.weave ?? 0);
     if (this.isWerewolf) {
       s += this.xpCostOf("rage", "", this.garouBase.rage + this.st.free.rage, x.rage);
       s += this.xpCostOf("gnosis", "", this.garouBase.gnosis + this.st.free.gnosis, x.gnosis);
@@ -388,7 +394,7 @@ export class CalcCreator {
   stepName(k) {
     if (this.isWerewolf && k === "advantages") return "advantagesGarou";      // у Гару справа Слава, а не Добродетели
     if (this.isMage) return { disciplines: "spheres", advantages: "advantagesMage" }[k] ?? k;
-    if (this.isChangeling) return { disciplines: this.isLykeian ? "redes" : "arts", advantages: "advantagesWraith" }[k] ?? k;   // «Фоны»: у подменыша Добродетелей нет
+    if (this.isChangeling) return { disciplines: this.clStepName, advantages: "advantagesWraith" }[k] ?? k;   // «Фоны»: у подменыша Добродетелей нет
     if (this.isWraith) return { disciplines: "arcanoi", advantages: "advantagesWraith",
       shadow: this.wrPath === "spectre" ? "psyche" : this.wrPath === "projector" ? "stains" : "shadow" }[k] ?? k;
     return this.isDemon ? ({ disciplines: "lores", advantages: "advantagesDemon" }[k] ?? k) : k;
@@ -396,7 +402,7 @@ export class CalcCreator {
   /** «Факты биографии» или «Дополнения» (у падшего). */
   get bgLabel() { return this.isDemon ? t("Demon.Backgrounds") : t("Sheet.Backgrounds"); }
   /** «Дисциплины» или «Знания» (у падшего). */
-  get discLabel() { return this.isChangeling ? loc("VTM20.ClCr.ArtsRealms") : this.isWraith ? loc("VTM20.Wraith.Arcanoi") : this.isSorcerer ? loc("VTM20.SorcCr.Numina") : this.isMage ? loc("VTM20.Mage.Spheres") : this.isDemon ? t("Demon.Lores") : t("Sheet.Disciplines"); }
+  get discLabel() { return this.isChangeling ? (this.clVariant ? this.clDiscLabel : loc("VTM20.ClCr.ArtsRealms")) : this.isWraith ? loc("VTM20.Wraith.Arcanoi") : this.isSorcerer ? loc("VTM20.SorcCr.Numina") : this.isMage ? loc("VTM20.Mage.Spheres") : this.isDemon ? t("Demon.Lores") : t("Sheet.Disciplines"); }
   /** Сила справочника по ключу: Дисциплина или Знание падшего. */
   discData(k) { return this.isChangeling ? this.clTrait(k) : this.isWraith ? this.wraithArcanos(k) : this.isSorcerer ? this.sorcNumen(k) : this.isMage ? this.mageSphere(k) : this.isDemon ? Codex.lore(k) : Codex.discipline(k); }
 
