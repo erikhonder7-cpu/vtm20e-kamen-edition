@@ -276,7 +276,11 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
         text: d.rules?.find(r => !r.title)?.html ?? "", long: true,
         powers: (d.powers ?? []).map((p, i) => [p, i]).filter(([p]) => Codex.visible(p))
           .map(([p, i]) => ({ roman: p.anyLevel ? "VI–IX" : ROMAN[p.level - 1] ?? p.level, name: p.name, en: p.en, ref: `${d.key}|${i}`, mark: powerMark(p) })),
-        pathNames: paths.map(p => p.name).join(" · ")
+        // пути: у Колдовства — числом по редакциям, у прочих — первые шесть и «ещё N» (длинный список на карточке нечитаем)
+        pathNames: BY_EDITION.has(d.key)
+          ? [...paths.reduce((m, p) => { const e = editionOf(p), c = m.get(e.label) ?? { n: 0, o: e.order }; c.n++; m.set(e.label, c); return m; }, new Map())]
+            .sort((x, y) => x[1].o - y[1].o).map(([l, c]) => `${l} — ${c.n}`).join(" · ")
+          : paths.length > 6 ? `${paths.slice(0, 6).map(p => p.name).join(" · ")} · ${L("PathsMore", { n: paths.length - 6 })}` : paths.map(p => p.name).join(" · ")
       });
     });
   }

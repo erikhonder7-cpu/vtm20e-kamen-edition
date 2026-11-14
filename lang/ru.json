@@ -5607,7 +5607,8 @@
         }
       },
       "ClanBanned": "Недоступно клану: {clan}",
-      "ElderPowers": "Силы старейшин (VI и выше): {n}"
+      "ElderPowers": "Силы старейшин (VI и выше): {n}",
+      "PathsMore": "и ещё {n}"
     },
     "NpcGen": {
       "Title": "Генератор НПС",

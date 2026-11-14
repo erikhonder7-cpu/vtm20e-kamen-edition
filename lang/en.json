@@ -5107,7 +5107,8 @@
         }
       },
       "ClanBanned": "Not available to clan: {clan}",
-      "ElderPowers": "Elder powers (VI and up): {n}"
+      "ElderPowers": "Elder powers (VI and up): {n}",
+      "PathsMore": "and {n} more"
     },
     "NpcGen": {
       "Title": "NPC generator",
