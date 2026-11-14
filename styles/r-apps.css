@@ -1858,3 +1858,22 @@ body.r-theme-light .vtm20 .r-sp-state img { filter: none; }
 .vtm20 .r-pathshift-path span { font-size: 12px; color: var(--r-muted); }
 .vtm20 .r-pathshift-path a { margin-left: auto; font-size: 12px; color: var(--r-muted); cursor: pointer; }
 .vtm20 .r-pathshift-path a:hover { color: var(--r-ink); }
+
+/* плавность: шаг мастера проявляется; длинный текст карточки библиотеки раскрывается по высоте (interpolate-size) */
+@media (prefers-reduced-motion: no-preference) {
+  .vtm20 .r-cr-body.r-step-in { animation: r-step-in .26s cubic-bezier(.2, .7, .3, 1); }
+  @keyframes r-step-in { from { opacity: 0; transform: translateX(8px); } to { opacity: 1; transform: none; } }
+  @supports (interpolate-size: allow-keywords) {
+    .vtm20 .r-lib-card.is-long .r-lib-text { transition: max-height .32s cubic-bezier(.4, 0, .2, 1); }
+    .vtm20 .r-lib-card.is-long.is-open .r-lib-text { max-height: max-content; }
+  }
+  .vtm20 .r-lib-card { animation: r-reveal .22s ease-out backwards; }
+  .vtm20.r-quiet .r-lib-card { animation: none; }
+}
+
+/* мастер: короткие списки — рядом плиток (creator.mjs → _onRender) */
+.vtm20 .r-cr-seltiles { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px; }
+.vtm20 .r-cr-seltiles .r-chip { cursor: pointer; }
+.vtm20 .r-cr-seltiles .r-chip.is-active { color: var(--r-ink); border-color: var(--r-accent); background: color-mix(in srgb, var(--r-accent) 18%, transparent); }
+.vtm20 .r-cr-seltiles .r-chip:not(.is-active):hover { border-color: var(--r-line-2); color: var(--r-ink); }
+.vtm20 select[data-field][hidden] { display: none; }

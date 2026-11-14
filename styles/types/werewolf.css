@@ -799,3 +799,14 @@ body.r-theme-light img[src$="assets/werewolf/glyph-garou.png"] { filter: none; }
 /* вызов на Ранг: кнопка под званием и карточка в чате */
 .r-ws-challenge { align-self: flex-start; margin-top: 6px; }
 .r-challenge-card .r-warn { color: #d9785a; margin: 4px 0 0; }
+
+/* r-ww-forms: полосой — пять форм одной строкой-переключателем (значок, имя, сложность), вдвое ниже прежних плиток */
+.vtm20.r-type-werewolf .r-ww-forms { gap: 0; margin: 2px 0 12px; border: 1px solid var(--r-line-2); border-radius: 3px; overflow: hidden; }
+.vtm20.r-type-werewolf .r-ww-form { flex-direction: row; justify-content: center; align-items: baseline; gap: 7px; padding: 7px 6px; min-width: 0;
+  border: 0; border-left: 1px solid var(--r-line-2); border-radius: 0; white-space: nowrap; }
+.vtm20.r-type-werewolf .r-ww-form:first-child { border-left: 0; }
+.vtm20.r-type-werewolf .r-ww-form i { font-size: 14px; align-self: center; }
+.vtm20.r-type-werewolf .r-ww-form b { overflow: hidden; text-overflow: ellipsis; }
+.vtm20.r-type-werewolf .r-ww-form.is-active { box-shadow: inset 0 -2px 0 var(--w-moon); }
+@container (max-width: 620px) { .vtm20.r-type-werewolf .r-ww-form small { display: none; } }
+.vtm20.r-type-werewolf .r-vc-renown > .r-dots, .vtm20.r-type-werewolf .r-vc-renown > .r-boxes { justify-content: center; }   /* Слава — по центру карточки, без цифр (значение видно по кружкам) */

@@ -219,3 +219,13 @@ body.r-theme-light .vtm20.r-type-hunter {
 /* Карточка броска Грани: чипы в янтаре, цена — ярче */
 .r-roll-card.r-type-hunter .r-line-chip { border-color: rgba(224, 137, 58, .4); background: rgba(224, 137, 58, .07); color: #f0d9bb; }
 .r-roll-card.r-type-hunter .r-line-chip.is-cost { border-color: #e0893a; color: #ffcd8c; }
+
+/* Грани плотнее: пути карточками в две колонки, шапка ниже (edges.hbs → .r-edge-paths) */
+.vtm20.r-type-hunter .r-edge-paths { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; align-items: start; margin-bottom: 12px; }
+.vtm20.r-type-hunter .r-edge-paths > .r-edge-path { margin: 0; }
+.vtm20.r-type-hunter .r-edge-paths .r-edge-head { padding: 6px 10px; gap: 8px; }
+.vtm20.r-type-hunter .r-edge-paths .r-edge-sigil { width: 22px; height: 22px; font-size: 11px; }
+.vtm20.r-type-hunter .r-edge-paths .r-edge-title b { font-size: 16px; }
+.vtm20.r-type-hunter .r-edge-paths .r-edge-list { padding: 2px 10px 4px; }
+.vtm20.r-type-hunter .r-edge-paths .r-edge { padding: 4px 0; grid-template-columns: 22px minmax(0, 1fr) auto auto; }
+@container (max-width: 620px) { .vtm20.r-type-hunter .r-edge-paths { grid-template-columns: 1fr; } }

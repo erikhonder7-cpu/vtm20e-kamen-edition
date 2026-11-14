@@ -4,6 +4,7 @@
 
   <h2 class="r-h2"><span>{{localize "VTM20.Wraith.Arcanoi"}}</span>
     <span class="r-h2-tools">
+      {{#if editable}}<a class="r-h2-btn" data-action="library" data-kind="arcanos" data-tooltip="{{localize 'VTM20.Library.Open'}}"><i class="fa-solid fa-plus"></i> <span class="r-h2-lbl">{{localize "VTM20.Wraith.AddArcanosShort"}}</span></a>{{/if}}
       {{#if arc.own.length}}<a class="r-h2-btn is-plain" data-action="wrFold" data-to="{{#if arc.allFolded}}0{{else}}1{{/if}}" data-tooltip="{{localize 'VTM20.Sheet.ToggleAllHint'}}"><i class="fa-solid {{#if arc.allFolded}}fa-angles-down{{else}}fa-angles-up{{/if}}"></i> <span class="r-h2-lbl">{{#if arc.allFolded}}{{localize "VTM20.Sheet.ExpandAll"}}{{else}}{{localize "VTM20.Sheet.CollapseAll"}}{{/if}}</span></a>{{/if}}
       <a class="r-h2-btn is-plain" data-action="wrAtlas" data-tooltip="{{localize 'VTM20.Wraith.AtlasHint'}}"><i class="fa-solid fa-book-skull"></i> <span class="r-h2-lbl">{{localize "VTM20.Wraith.Atlas"}}</span></a>
       <a class="r-h2-btn is-plain" data-action="openRules" data-tooltip="{{localize 'VTM20.Wraith.RulesHint'}}"><i class="fa-solid fa-book-open-reader"></i></a>
@@ -106,15 +107,12 @@
     <a class="r-vc-btn" data-action="rsRise" data-tooltip="{{localize 'VTM20.Wraith.Risen.RiseHint'}}"><i class="fa-solid fa-hand-fist"></i> {{localize "VTM20.Wraith.Risen.Rise"}}</a>{{/if}}
     {{#if isGM}}<a class="r-vc-btn" data-action="spBecome" data-tooltip="{{localize 'VTM20.Wraith.Spectre.BecomeHint'}}"><i class="fa-solid fa-skull"></i> {{localize "VTM20.Wraith.Spectre.Become"}}</a>
     <a class="r-vc-btn {{#if projector.isHue}}is-on{{/if}}" data-action="uwHue" data-tooltip="{{localize 'VTM20.Wraith.Hue.Hint'}}"><i class="fa-solid fa-droplet-slash"></i> {{localize "VTM20.Wraith.Hue.Title"}}</a>{{/if}}
+    {{#unless realm.realm}}<label class="r-wr-realm-pick" data-tooltip="{{localize 'VTM20.Wraith.Realm.Hint'}}"><i class="fa-solid fa-earth-asia"></i> {{localize "VTM20.Wraith.Realm.Arcanoi"}}
+      <select name="system.wraith.realm.kingdom" class="r-mini-select"><option value="">{{localize "VTM20.Wraith.Realm.Stygia"}}</option>{{#each realm.kingdoms}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>{{/unless}}
   </div>
   </details>
   {{/if}}
 
-  {{#if editable}}
-  <div class="r-toolbar">
-    <a class="r-vc-btn is-lib" data-action="library" data-kind="arcanos" data-tooltip="{{localize 'VTM20.Library.Open'}}"><i class="fa-solid fa-book-skull"></i> {{localize "VTM20.Wraith.AddArcanos"}}</a>
-  </div>
-  {{/if}}
 
   {{!-- Арканои — карточками Гильдий. Пять рангов — кружки, расколотые пополам, как на листе Wraith 20 (гл. 5):
        левая половина — Общий уровень, правая — Посвящённый (тайна Гильдии). Щелчок по половинке открывает её уровень. --}}
@@ -228,6 +226,7 @@
   </div>
   {{/if}}
 
+  {{#if (or realm.realm spectre risen projector.isProjector)}}
   {{!-- Другое Тёмное Царство (гл. 13): откуда призрак; местные Арканои — Пути Нефритовой Империи, Смещение Сварги, Повеление абамбо --}}
   <h2 class="r-h2"><span>{{localize "VTM20.Wraith.Realm.Arcanoi"}}</span>
     <span class="r-h2-tools"><select name="system.wraith.realm.kingdom" class="r-mini-select" data-tooltip="{{localize 'VTM20.Wraith.Realm.Hint'}}"><option value="">{{localize "VTM20.Wraith.Realm.Stygia"}}</option>{{#each realm.kingdoms}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></span>
@@ -266,6 +265,7 @@
     </article>
     {{/each}}
   </div>
+  {{/if}}
 
   {{!-- Страсти (гл. 8): Пафос — бросок рейтинга, сл. 6 (сам) или 8 (видит у смертного), раз за сцену; у Спектра — его Тёмные Страсти, Ангст --}}
   <h2 class="r-h2"><span>{{#if spectre}}{{localize "VTM20.Wraith.Spectre.OwnPassions"}}{{else}}{{localize "VTM20.Wraith.Passions"}}{{/if}} <small>{{wp.passionSum}}</small></span>
@@ -413,10 +413,8 @@
     {{/each}}
   </ul>
 
-  <h2 class="r-h2 is-shadow"><span>{{localize "VTM20.Wraith.Thorns"}}</span></h2>
-  {{#if editable}}<div class="r-toolbar">
-    <a class="r-vc-btn is-lib" data-action="library" data-kind="thorn" data-tooltip="{{localize 'VTM20.Library.Open'}}"><i class="fa-solid fa-book-skull"></i> {{localize "VTM20.Wraith.AddThorn"}}</a>
-  </div>{{/if}}
+  <h2 class="r-h2 is-shadow"><span>{{localize "VTM20.Wraith.Thorns"}}</span>
+    {{#if editable}}<span class="r-h2-tools"><a class="r-h2-btn" data-action="library" data-kind="thorn" data-tooltip="{{localize 'VTM20.Library.Open'}}"><i class="fa-solid fa-plus"></i> <span class="r-h2-lbl">{{localize "VTM20.Wraith.AddThornShort"}}</span></a></span>{{/if}}</h2>
   <ul class="r-edge-list r-wr-thorns">
     {{#each wp.thorns}}
     <li class="r-edge">

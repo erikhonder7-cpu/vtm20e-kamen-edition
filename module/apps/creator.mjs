@@ -150,8 +150,34 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
 
   _onRender(context, options) {
     super._onRender(context, options);
-    this.element.classList.toggle("r-earthbound", this.isEarthbound);      // огненная палитра Привязанного (styles/types/demon.css)
+    this.element.classList.toggle("r-earthbound", this.isEarthbound);
+    // новый шаг мастера проявляется (styles/r-apps.css, .r-step-in); щелчки внутри шага — без анимации
+    const body = this.element.querySelector(".r-cr-body");
+    if (body && this._shownStep !== undefined && this._shownStep !== this.step) {
+      body.classList.add("r-step-in"); setTimeout(() => body.classList.remove("r-step-in"), 400);
+    }
+    this._shownStep = this.step;      // огненная палитра Привязанного (styles/types/demon.css)
     attachCombos(this.element);                         // Натура и Маска — список с поиском, можно вписать свой архетип
+    // короткие списки выбора (до 12 вариантов) — рядом плиток: всё видно сразу, выбор одним щелчком; длинные — списком
+    for (const sel of this.element.querySelectorAll(".r-cr-body select[data-field]")) {
+      if (sel.options.length < 2 || sel.options.length > 12) continue;
+      const row = document.createElement("div");
+      row.className = "r-cr-seltiles";
+      for (const o of sel.options) {
+        const chip = document.createElement("a");
+        chip.className = `r-chip${o.selected ? " is-active" : ""}`;
+        chip.textContent = o.textContent.trim() || "—";
+        const tip = o.dataset.tooltip || o.title;
+        if (tip) chip.dataset.tooltip = tip;
+        chip.addEventListener("click", ev => {
+          ev.preventDefault();
+          if (sel.disabled || o.selected) return;
+          sel.value = o.value; sel.dispatchEvent(new Event("change", { bubbles: true }));
+        });
+        row.append(chip);
+      }
+      sel.hidden = true; sel.after(row);
+    }
     this.element.querySelectorAll("[data-field]").forEach(el => el.addEventListener("change", () => {
       const f = el.dataset.field;
       // список с ключами (Путь): берём ключ выбранного варианта, а не подпись

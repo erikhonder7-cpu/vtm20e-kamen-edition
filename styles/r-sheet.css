@@ -1283,6 +1283,7 @@ body.r-theme-light .vtm20 .r-motto { color: rgba(140, 28, 34, .75); }
 
 /* подсказка под пустым разделом вкладки (actor-sheet.mjs → _onRender) */
 .vtm20 .r-empty.r-empty-auto { margin: -2px 0 10px; padding: 2px 4px 4px; font-size: 12.5px; opacity: .8; }
+.vtm20 .r-empty-auto + :is(ul, ol, div, section):not(:has(> *)) { display: none; }
 
 /* ритусы Шабаша во всю ширину: чипы групп, карточки в две колонки (advantages.hbs) */
 .vtm20 .r-ritae-box { margin: 2px 0 14px; }

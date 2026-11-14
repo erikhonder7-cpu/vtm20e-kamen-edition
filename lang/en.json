@@ -1218,7 +1218,9 @@
         "Bonded": "<b>{name}</b>: the crucible is bonded ({n} members, one Willpower each). Pathos and yoking stay within the crucible.",
         "BondFailed": "<b>{name}</b>: the bonding ritual fails — no Willpower left: {who}.",
         "NoMates": "No one to share Pathos with"
-      }
+      },
+      "AddArcanosShort": "Arcanos",
+      "AddThornShort": "Thorn"
     },
     "Refresh": {
       "Button": "Update from reference",

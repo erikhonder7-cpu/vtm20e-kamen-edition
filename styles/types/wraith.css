@@ -628,3 +628,7 @@
 .r-wr-dlg .r-wr-dlg-sum i { color: var(--r-accent); margin-right: 3px; }
 .r-wr-dlg .r-wr-dlg-sum b { font-family: var(--r-display); font-weight: 400; font-size: 16px; color: var(--r-ink); margin-left: 2px; }
 .r-wr-dlg .r-wr-dlg-sum .is-muted { font-style: italic; }
+
+/* выбор Тёмного Царства — в строке «Особый призрак» (у стигийца раздела местных Арканоев нет) */
+.vtm20 .r-wr-realm-pick { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; font-size: 12px; color: var(--r-muted); }
+.vtm20 .r-wr-realm-pick select { width: auto; }

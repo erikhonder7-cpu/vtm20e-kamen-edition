@@ -3449,7 +3449,7 @@ try {
       const d = WW.deliriumOf(7); out.delirium = `${d.key}:${d.forgets}`;
       await s.update({ "system.spirit": { on: true, rage: 4, gnosis: 6, willpower: 5 } });
       await WW.spiritEssenceReset(s); out.essence = s.system.spirit.essence.max; out.spiritRoll = s.traitValue("spirit.gnosis");
-      await s.sheet.render(true); await wait(900); out.card = s.sheet.constructor.name === "SpiritSheet" && !!s.sheet.element.querySelector(".r-sp-trait") && !!s.sheet.element.querySelector('[data-action="spTpl"]') && WW.spiritTplGroups().some(g => g.list.some(x => x.key === "bane-halassh")); await s.sheet.close();
+      await s.sheet.render(true); await wait(900); out.card = s.sheet.constructor.name === "SpiritSheet" && !!s.sheet.element.querySelector(".r-sp-trait") && !!s.sheet.element.querySelector('[data-action="library"][data-kind="spiritTpl"]') && WW.spiritTplGroups().some(g => g.list.some(x => x.key === "bane-halassh")); await s.sheet.close();
       await WW.applySpiritTpl(s, "bane-halassh");
       out.spTpl = `${s.system.spirit.rage}:${s.system.spirit.charms.join() === WW.spiritTplOf("bane-halassh").charms.join()}`;
       // Родня Гару: Дар за опыт (свой — 15), блок на листе
@@ -3851,7 +3851,7 @@ try {
         const SYS = game.system.id, a = game.actors.get(id), wait = ms => new Promise(res => setTimeout(res, ms));
         const D = await import(`/systems/${SYS}/module/apps/dhampir.mjs`);
         await a.sheet.render({ force: true }); await wait(800);
-        const out = { cls: a.sheet.element.classList.contains("is-dhampir"), list: !!a.sheet.element.querySelector(".r-dh-add") };
+        const out = { cls: a.sheet.element.classList.contains("is-dhampir"), list: !!a.sheet.element.querySelector('[data-action="library"][data-kind="bloodright"]') };
         // покупка за опыт — окно подтверждения, жмём «да»
         const buy = D.addBloodright(a, "thew"); await wait(600);
         [...foundry.applications.instances.values()].find(x => x.constructor.name === "DialogV2" && x.rendered)?.element.querySelector("button[data-action=yes], footer button")?.click();
