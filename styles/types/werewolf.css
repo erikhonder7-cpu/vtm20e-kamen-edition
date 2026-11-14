@@ -810,3 +810,5 @@ body.r-theme-light img[src$="assets/werewolf/glyph-garou.png"] { filter: none; }
 .vtm20.r-type-werewolf .r-ww-form.is-active { box-shadow: inset 0 -2px 0 var(--w-moon); }
 @container (max-width: 620px) { .vtm20.r-type-werewolf .r-ww-form small { display: none; } }
 .vtm20.r-type-werewolf .r-vc-renown > .r-dots, .vtm20.r-type-werewolf .r-vc-renown > .r-boxes { justify-content: center; }   /* Слава — по центру карточки, без цифр (значение видно по кружкам) */
+.vtm20.r-type-werewolf .r-vc-garou .r-vc-head > .r-banner { flex-shrink: 0; }   /* «Ярость» и «Гнозис» не сжимаются рядом с меткой Зверя и кнопкой */
+.vtm20.r-type-werewolf .r-vc-garou .r-vc-head .r-ww-beast { flex-shrink: 0; overflow: visible; }

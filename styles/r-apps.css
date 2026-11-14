@@ -1915,3 +1915,4 @@ body.r-theme-light .vtm20 .r-sp-state img { filter: none; }
 .vtm20 .r-sp-roll:hover { border-color: var(--r-accent); color: var(--r-ink); }
 .vtm20 .r-sp-roll.is-info { cursor: default; border-style: dashed; }
 .vtm20 .r-sp-roll.is-info:hover { border-color: var(--r-line-2); color: var(--r-muted); }
+.vtm20 .r-lib .r-lib-take-inline { float: right; margin: 2px 0 0 14px; }   /* «Выбрать» — справа от последней строки карточки */

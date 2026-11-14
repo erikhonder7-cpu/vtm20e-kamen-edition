@@ -534,8 +534,13 @@ const fieldPick = ({ title, rule, list, field, has }) => ({
   title: () => P(title), rule: () => P(rule), takeLabel: () => P("Field.Choose"), ownedLabel: () => P("Field.Current"),
   entries(a) {
     const rows = list(a), groups = [...new Set(rows.map(r => r.group))];
-    // кнопка «Выбрать» — в строке с названием (одна «вариация»), без пустого подвала под текстом
-    return rows.map((r, i) => ({ ...r, order: i, groupOrder: groups.indexOf(r.group), has: has(a, r), variants: [{ value: 1, label: "" }] }));
+    // кнопка «Выбрать» — внизу справа, рядом с последней строкой текста (обтекание), без пустого подвала под текстом
+    return rows.map((r, i) => {
+      const h = has(a, r), btn = h ? "" : `<a class="r-btn is-accent r-lib-take-inline" data-action="take" data-value="1">${P("Field.Choose")}</a>`;
+      const at = String(r.text ?? "").lastIndexOf("<p");
+      const text = at < 0 ? `${btn}${r.text ?? ""}` : `${r.text.slice(0, at)}${btn}${r.text.slice(at)}`;
+      return { ...r, text, order: i, groupOrder: groups.indexOf(r.group), has: h, variants: [{ value: 1, label: "" }], inlineTake: true };
+    });
   },
   async take(a, id) {
     const r = list(a).find(x => x.id === id);
