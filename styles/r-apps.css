@@ -418,7 +418,7 @@
 .vtm20 .r-lib-name em { font-size: 12px; color: var(--r-muted); }
 .vtm20 .r-tag.is-owned { color: var(--r-ink-2); }
 
-.vtm20 .r-lib .r-lib-text { font-size: 15px; line-height: 1.5; }   /* текст карточки — читаемым размером */
+.vtm20 .r-lib .r-lib-text { font-size: 16px; line-height: 1.5; }   /* текст карточки — читаемым размером */
 .vtm20 .r-lib .r-lib-text p { margin: 0 0 5px; }
 .vtm20 .r-lib .r-lib-text p > b:first-child { color: var(--r-accent); font-weight: 600; }
 .vtm20 .r-lib-text > :last-child { margin-bottom: 0; }

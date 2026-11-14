@@ -534,7 +534,8 @@ const fieldPick = ({ title, rule, list, field, has }) => ({
   title: () => P(title), rule: () => P(rule), takeLabel: () => P("Field.Choose"), ownedLabel: () => P("Field.Current"),
   entries(a) {
     const rows = list(a), groups = [...new Set(rows.map(r => r.group))];
-    return rows.map((r, i) => ({ ...r, order: i, groupOrder: groups.indexOf(r.group), has: has(a, r) }));
+    // кнопка «Выбрать» — в строке с названием (одна «вариация»), без пустого подвала под текстом
+    return rows.map((r, i) => ({ ...r, order: i, groupOrder: groups.indexOf(r.group), has: has(a, r), variants: [{ value: 1, label: "" }] }));
   },
   async take(a, id) {
     const r = list(a).find(x => x.id === id);
