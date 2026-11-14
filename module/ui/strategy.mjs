@@ -249,6 +249,22 @@ function renderBoard() {
   const banner = snap ? `<div class="rs-histbar"><i class="fa-solid fa-clock-rotate-left"></i> ${esc(S("HistoryTitle", { n: snap.n, label: snap.label || "" }))}<a data-rs="histOff">${esc(S("HistoryBack"))}</a></div>` : "";
   b.innerHTML = `<div class="rs-wrap">${head(now)}<div class="rs-body"><div class="rs-hexes ${snap ? "is-hist" : ""}">${banner}${hexes(s)}</div><aside class="rs-side">${side}</aside></div></div>`;
   const sd = b.querySelector(".rs-side"); if (sd) sd.scrollTop = scroll;
+  fitInsets(b);
+}
+
+/** Сота — между строкой обозначений сверху и легендой сфер снизу: много сфер переносят легенду на две строки, нижние гексы не должны уходить под неё. */
+function fitInsets(b) {
+  const map = b.querySelector(".rs-map");
+  if (!map) return;
+  const set = () => {
+    const r = map.getBoundingClientRect(), k = map.querySelector(".rs-keys")?.getBoundingClientRect(), l = map.querySelector(".rs-legend")?.getBoundingClientRect();
+    map.style.setProperty("--rs-top", `${k ? Math.max(0, Math.round(k.bottom - r.top + 4)) : 0}px`);
+    map.style.setProperty("--rs-bot", `${l ? Math.max(0, Math.round(r.bottom - l.top + 4)) : 0}px`);
+  };
+  set();
+  ST.fitObs?.disconnect();
+  ST.fitObs = new ResizeObserver(set);
+  ST.fitObs.observe(map);
 }
 
 /* ── Гексы ── */

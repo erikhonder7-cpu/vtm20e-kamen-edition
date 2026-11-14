@@ -57,7 +57,9 @@
     repeating-linear-gradient(90deg, transparent 0 39px, rgba(216, 207, 191, .04) 39px 40px); }
 #r-citymap .rs-map.is-drag { cursor: grabbing; }
 #r-citymap .rs-map.is-drag .rs-hex { pointer-events: none; }
-#r-citymap .rs-map svg { display: block; width: 100%; height: 100%; overflow: hidden; }
+/* сота — между обозначениями и легендой (strategy.mjs → fitInsets меряет их высоту) */
+#r-citymap .rs-map svg { position: absolute; left: 0; right: 0; top: var(--rs-top, 0px); display: block; width: 100%;
+  height: calc(100% - var(--rs-top, 0px) - var(--rs-bot, 0px)); overflow: hidden; }
 #r-citymap .rs-map::before, #r-citymap .rs-map::after { content: ""; position: absolute; z-index: 1; width: 18px; height: 18px; pointer-events: none;
   border: 2px solid var(--rs-brass-d); }
 #r-citymap .rs-map::before { left: 6px; top: 6px; border-right: 0; border-bottom: 0; }

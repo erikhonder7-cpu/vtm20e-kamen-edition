@@ -1551,6 +1551,70 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  // Колдовство с окнами выбора: лечение (цена в успехах и крови), призыв тварей из глубин, Выдох Купалы, Раздробление
+  await check("Колдовство цимисхов с окнами: Колыбель, Понт Эвксинский, твари из глубин, газ Купалы, Раздробление", async () => {
+    const r = await page.evaluate(async () => {
+      const sys = p => import(`/systems/${game.system.id}/${p}`);
+      const TP = await sys("module/apps/target-powers.mjs");
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms));
+      const a = await Actor.create({ name: "E2E — колдун у воды", type: "vampire", flags: { world: { e2e: true } },
+        system: { generation: 10, blood: { value: 8 }, willpower: { permanent: 6, temporary: 6 }, attributes: { wits: { value: 3 } } } });
+      const link = key => ({ key, target: a.uuid, targetName: a.name, powerName: key.split("|")[1], actorName: a.name });
+      const apply = (key, n) => TP.applyTargetPower({ isOwner: false }, { actorUuid: a.uuid, extra: { targetPower: link(key) } }, { successes: n, outcome: "success" });
+      // окно, на которое ещё не отвечали: закрытое ещё миг висит в списке приложений (анимация) — его не брать
+      const used = new Set();
+      const dialog = async cls => { for (let i = 0; i < 50; i++) { const d = [...foundry.applications.instances.values()].find(x => x instanceof foundry.applications.api.DialogV2 && !used.has(x.id)
+          && x.state === foundry.applications.api.ApplicationV2.RENDER_STATES.RENDERED && (!cls || x.element.classList.contains(cls))); if (d) { used.add(d.id); return d; } await wait(100); } return null; };
+      const pick = async v => { const d = await dialog("r-ask"); d?.element.querySelector(`.r-ask-opt[data-v="${v}"]`)?.click(); await wait(200); return !!d; };
+      const form = async vals => { const d = await dialog(); if (!d) return false; for (const [k, v] of Object.entries(vals)) d.element.querySelector(`input[name="${k}"]`).value = v;
+        d.element.querySelector('button[data-action="ok"]').click(); await wait(200); return true; };
+      const hp = () => [a.system.health.bashing, a.system.health.lethal, a.system.health.aggravated];
+      const out = {};
+      // Колыбель жизни (уклады V20): 4 успеха — 2 лёгких (1), 1 тяжёлое (1), 1 губительное (2); кровь: 1 в броске + 3 сверху
+      await a.update({ "system.health.bashing": 2, "system.health.lethal": 2, "system.health.aggravated": 1 });
+      let p = apply("koldunism|Root of Vitality@way", 4);
+      out.cradleDlg = await form({ b: 2, l: 1, a: 1 });
+      await p;
+      out.cradle = [...hp(), a.system.blood.value];
+      // больше, чем успехов, — отказ
+      await a.update({ "system.health.aggravated": 2 });
+      p = apply("koldunism|Root of Vitality@way", 2);
+      await form({ b: 0, l: 0, a: 2 });
+      await p;
+      out.cradleOver = [a.system.health.aggravated, a.system.blood.value];
+      // Понт Эвксинский: успех — лёгкое или тяжёлое, 5 — губительное
+      await a.update({ "system.health.bashing": 1, "system.health.lethal": 1, "system.health.aggravated": 0 });
+      p = apply("koldunism|Pontos Euxeinos", 2);
+      await form({ b: 1, l: 1, a: 0 });
+      await p;
+      out.pontos = hp();
+      // Твари из глубин: 3 успеха, вложено 2 крови — две твари с Ловкостью = Смекалке колдуна, кровь −2
+      await a.update({ "system.blood.value": 8 });
+      p = apply("koldunism|Minions of the Deep@way", 3);
+      out.deepDlg = await pick("2");
+      await p;
+      const made = game.actors.filter(x => x.getFlag(sid, "summoned") === a.uuid);
+      out.deep = [made.length, made[0]?.system.attributes.dexterity?.value, a.system.blood.value];
+      // Выдох Купалы: вложено 3 крови (1 в броске + 2), успехов 2 — выбросов 2
+      const n0 = game.messages.size;
+      p = apply("koldunism|Kupala’s Exhalation", 2);
+      await pick("3");
+      await p;
+      out.gas = [game.messages.contents.slice(n0).map(m => m.getFlag(sid, "kol")).find(x => x?.kind === "gas")?.left, a.system.blood.value];
+      // Раздробление: средний предмет, три броска поглощения — итог в чате
+      const n1 = game.messages.size;
+      p = apply("koldunism|Shatter", 1);
+      await pick("5");
+      await p;
+      out.shatter = game.messages.contents.slice(n1).some(m => /\[\d/.test(m.content));
+      await Actor.deleteDocuments([a.id, ...made.map(x => x.id)]);
+      return out;
+    });
+    const want = { cradleDlg: true, cradle: [0, 1, 0, 5], cradleOver: [2, 5], pontos: [0, 0, 0], deepDlg: true, deep: [2, 3, 6], gas: [2, 4], shatter: true };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   // Тело и душа, Преображение, Анимализм: Вселение, Проекция, Сердце тьмы, Облик крови, Искусство тканей,
   // Язык животных, Зов (звери справочника), Поглощение духа
   await check("Вселение, Проекция, Сердце тьмы, Преображение, Анимализм", async () => {
