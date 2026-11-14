@@ -1280,3 +1280,6 @@ body.r-theme-light .vtm20 .r-motto { color: rgba(140, 28, 34, .75); }
 .vtm20 .r-banner.is-pick .r-path-pick { display: inline-flex; align-items: baseline; gap: 6px; cursor: pointer; }
 .vtm20 .r-banner.is-pick .r-path-pick i { font-size: 10px; color: var(--r-muted); transition: color .15s; }
 .vtm20 .r-banner.is-pick .r-path-pick:hover i { color: var(--r-accent); }
+
+/* подсказка под пустым разделом вкладки (actor-sheet.mjs → _onRender) */
+.vtm20 .r-empty.r-empty-auto { margin: -2px 0 10px; padding: 2px 4px 4px; font-size: 12.5px; opacity: .8; }

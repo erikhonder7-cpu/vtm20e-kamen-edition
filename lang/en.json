@@ -2637,7 +2637,9 @@
       "MoreTip": "One more",
       "PackHint": "Open the compendium — drag entries onto the sheet",
       "PackMissing": "Compendium not found.",
-      "PackDrag": "Drag an entry from the compendium onto the sheet."
+      "PackDrag": "Drag an entry from the compendium onto the sheet.",
+      "EmptyAdd": "Empty for now — add with the button on the right.",
+      "EmptyNone": "Empty for now."
     },
     "Roll": {
       "DiffChosen": "{n} chosen",

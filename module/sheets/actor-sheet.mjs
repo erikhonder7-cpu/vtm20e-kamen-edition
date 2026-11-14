@@ -424,6 +424,18 @@ openStrategy: () => openStrategy(),
         row.classList.toggle("is-open", this._open.has(key));
       });
     }
+    // пустой раздел вкладки (заголовок без строк) — подсказка: чем его наполнить (кнопки в заголовке) или просто «пусто»
+    for (const h of this.element.querySelectorAll(".tab .r-h2")) {
+      const n = h.nextElementSibling;
+      if (n?.classList.contains("r-empty-auto")) continue;
+      const empty = !n || n.classList.contains("r-h2") || (n.matches("ul, ol, .r-edge-list") && !n.children.length && !n.textContent.trim());
+      if (!empty) continue;
+      const add = h.querySelector(".r-h2-tools a, .r-h2-tools button");
+      const p = document.createElement("p");
+      p.className = "r-empty r-empty-auto";
+      p.textContent = game.i18n.localize(add ? "VTM20.Sheet.EmptyAdd" : "VTM20.Sheet.EmptyNone");
+      h.after(p);
+    }
     this.element.classList.toggle("is-mortal", this.actor.type === "mortal");
     this.element.classList.toggle("is-ghoul", this.actor.type === "ghoul");
     this.element.classList.toggle("is-dhampir", !!this.actor.isDhampir);     // styles/types/dhampir.css

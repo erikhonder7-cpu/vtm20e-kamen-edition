@@ -223,7 +223,7 @@
     <section class="r-cla-panel is-treasure">
     {{!-- Сокровища (C20, гл. 8): сила Искусства без Царств, свой запас Гламура; разрушение — Гламур и триггер Банальности --}}
     <h2 class="r-h2 r-cla-ph"><i class="fa-solid fa-gem"></i><span>{{localize "VTM20.Changeling.Treasure.Head"}}</span>
-      {{#if editable}}<span class="r-h2-tools"><a class="r-btn" data-action="clTreasure" data-op="add"><i class="fa-solid fa-gem"></i> {{localize "VTM20.Changeling.Treasure.Add"}}</a></span>{{/if}}</h2>
+      {{#if editable}}<span class="r-h2-tools"><a class="r-btn is-sq" data-action="clTreasure" data-op="add" data-tooltip="{{localize 'VTM20.Changeling.Treasure.Add'}}"><i class="fa-solid fa-plus"></i></a></span>{{/if}}</h2>
     {{#if cl.treasures.length}}<div class="r-cl-oaths">
       {{#each cl.treasures}}<article class="r-vcard r-cl-oath r-cl-treasure">
         <header><b>{{name}}</b> <em>{{art}} {{dots}}</em>
@@ -239,7 +239,7 @@
     <section class="r-cla-panel is-chimera">
     {{!-- Химеры-спутники (C20, гл. 8): черты по очкам химеры против бюджета Фона «Химера», Реды; лист существа для боя --}}
     <h2 class="r-h2 r-cla-ph"><i class="fa-solid fa-dragon"></i><span>{{localize "VTM20.Changeling.Chimera.Head"}}</span>
-      {{#if editable}}<span class="r-h2-tools"><a class="r-btn" data-action="clChimera" data-op="add"><i class="fa-solid fa-dragon"></i> {{localize "VTM20.Changeling.Chimera.Add"}}</a></span>{{/if}}</h2>
+      {{#if editable}}<span class="r-h2-tools"><a class="r-btn is-sq" data-action="clChimera" data-op="add" data-tooltip="{{localize 'VTM20.Changeling.Chimera.Add'}}"><i class="fa-solid fa-plus"></i></a></span>{{/if}}</h2>
     {{#if cl.chimeras.length}}<div class="r-cl-oaths">
       {{#each cl.chimeras}}<article class="r-vcard r-cl-oath r-cl-chimera {{#if over}}is-over{{/if}}">
         <header><b>{{name}}</b> <em>{{dots}}</em> <span class="r-cl-state {{#if over}}is-bedlam{{/if}}" data-tooltip="{{localize 'VTM20.Changeling.Chimera.PtsHint'}}">{{pts}} / {{budget}}</span>
@@ -256,7 +256,7 @@
     <section class="r-cla-panel is-craft">
     {{!-- Химерическое ремесло (C20, гл. 8): проект — бросок за неделю, план — за день; прогресс к порогу успехов --}}
     <h2 class="r-h2 r-cla-ph"><i class="fa-solid fa-hammer"></i><span>{{localize "VTM20.Changeling.Craft.Head"}}</span>
-      {{#if editable}}<span class="r-h2-tools"><a class="r-btn" data-action="clCraft" data-op="add"><i class="fa-solid fa-hammer"></i> {{localize "VTM20.Changeling.Craft.Add"}}</a></span>{{/if}}</h2>
+      {{#if editable}}<span class="r-h2-tools"><a class="r-btn is-sq" data-action="clCraft" data-op="add" data-tooltip="{{localize 'VTM20.Changeling.Craft.Add'}}"><i class="fa-solid fa-plus"></i></a></span>{{/if}}</h2>
     {{#if cl.crafts.length}}<div class="r-cl-oaths">
       {{#each cl.crafts}}<article class="r-vcard r-cl-oath r-cl-craft {{#if done}}is-done{{/if}}">
         <header><b>{{name}}</b> <em>{{tier}}</em>
@@ -271,7 +271,7 @@
     <section class="r-cla-panel is-oath">
     {{!-- Клятвы (C20, гл. 6): примеры книги с ценой и расплатой; нарушение — расплата, «клятвопреступник» и триггер Банальности --}}
     <h2 class="r-h2 r-cla-ph"><i class="fa-solid fa-handshake-angle"></i><span>{{localize "VTM20.Changeling.Oath.Head"}}</span>
-      {{#if editable}}<span class="r-h2-tools"><a class="r-btn" data-action="clOath" data-op="take"><i class="fa-solid fa-handshake-angle"></i> {{localize "VTM20.Changeling.Oath.Swear"}}</a></span>{{/if}}</h2>
+      {{#if editable}}<span class="r-h2-tools"><a class="r-btn is-sq" data-action="clOath" data-op="take" data-tooltip="{{localize 'VTM20.Changeling.Oath.Swear'}}"><i class="fa-solid fa-plus"></i></a></span>{{/if}}</h2>
     {{#if cl.oaths.length}}<div class="r-cl-oaths">
       {{#each cl.oaths}}<article class="r-vcard r-cl-oath {{#if broken}}is-broken{{/if}}">
         <header><b>{{name}}</b>{{#if who}} <em>— {{who}}</em>{{/if}}{{#if broken}} <span class="r-cl-state is-bedlam">{{localize "VTM20.Changeling.Oath.Forsworn"}}</span>{{/if}}
