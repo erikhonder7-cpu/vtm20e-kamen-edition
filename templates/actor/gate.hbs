@@ -6,7 +6,7 @@
     <h2>{{localize "VTM20.Creator.GateTitle"}}</h2>
     <p>{{#if isChangeling}}{{localize "VTM20.Creator.GateHintChangeling"}}{{else if isWraith}}{{localize "VTM20.Creator.GateHintWraith"}}{{else if isWerewolf}}{{localize "VTM20.Creator.GateHintWerewolf"}}{{else if isDemon}}{{localize "VTM20.Creator.GateHintDemon"}}{{else if isHunter}}{{localize "VTM20.Creator.GateHintHunter"}}{{else if isMortal}}{{localize "VTM20.Creator.GateHintMortal"}}{{else if isGhoul}}{{localize "VTM20.Creator.GateHintGhoul"}}{{else}}{{localize "VTM20.Creator.GateHint"}}{{/if}}</p>
     {{#if editable}}
-    {{#unless isChangeling}}<a class="r-btn is-primary r-gate-btn" data-action="openCreator"><i class="fa-solid fa-feather-pointed"></i> {{localize "VTM20.Creator.Start"}}</a>{{/unless}}
+    <a class="r-btn is-primary r-gate-btn" data-action="openCreator"><i class="fa-solid fa-feather-pointed"></i> {{localize "VTM20.Creator.Start"}}</a>
     <a class="r-gate-skip" data-action="skipCreation">{{localize "VTM20.Creator.Skip"}}</a>
     {{/if}}
   </div>
