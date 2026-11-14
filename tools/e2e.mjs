@@ -6476,6 +6476,70 @@ try {
     if (temp.length) await Actor.deleteDocuments(temp);
   });
 
+  // Модуль Берлина 1939 (vtm20e-kamen-berlin, отдельный от системы): если стоит в песочнице — включить, проверить и вернуть как было
+  const BERLIN = "vtm20e-kamen-berlin";
+  const bSaved = await page.evaluate(async id => {
+    const { getClock } = await import(`/systems/${game.system.id}/module/apps/calendar.mjs`);
+    return { installed: !!game.modules.get(id), mod: game.settings.get("core", "moduleConfiguration")[id] ?? false, era: game.settings.get(game.system.id, "era"),
+      clock: getClock(), city: game.settings.get(game.system.id, "cityMap"), view: game.settings.get(game.system.id, "cityView") };
+  }, BERLIN);
+  const restoreBerlin = async () => {
+    await page.evaluate(async ([id, s]) => {
+      const cfg = foundry.utils.deepClone(game.settings.get("core", "moduleConfiguration")); cfg[id] = s.mod;
+      await game.settings.set("core", "moduleConfiguration", cfg);
+      await game.settings.set(game.system.id, "era", s.era);
+      await game.settings.set(game.system.id, "cityMap", s.city);
+      await game.settings.set(game.system.id, "cityView", s.view);
+      await game.user.unsetFlag(id, "ugMarks");
+      const { setClock } = await import(`/systems/${game.system.id}/module/apps/calendar.mjs`);
+      await setClock(s.clock, false);
+    }, [BERLIN, bSaved]);
+    await reloadUntil(([id, mod]) => game.ready === true && !!game.modules.get(id)?.active === mod, [BERLIN, !!bSaved.mod]);
+  };
+  if (bSaved.installed) await check("Город: модуль Берлина — места, пятна по датам, затемнение, метро 1939, подземье и мел", async () => { try {
+    await page.evaluate(async id => {
+      const cfg = foundry.utils.deepClone(game.settings.get("core", "moduleConfiguration")); cfg[id] = true;
+      await game.settings.set("core", "moduleConfiguration", cfg);
+      await game.settings.set(game.system.id, "era", "modern");
+      const { setClock } = await import(`/systems/${game.system.id}/module/apps/calendar.mjs`);
+      await setClock(new Date(1943, 11, 1, 23, 0).getTime(), false);
+      // город — заготовка Берлина, текущий
+      const w = foundry.utils.deepClone(game.settings.get(game.system.id, "cityMap"));
+      w.cities ??= {}; w.v = 2;
+      w.cities["berlin-1939"] = { id: "berlin-1939", name: "Берлин (1939)", center: [52.5145, 13.3905], zoom: 14, preset: "berlin-1939",
+        folders: [{ id: "chronicle", name: "Хроника" }], markers: [], zones: [], overrides: {}, folderMeta: {} };
+      w.current = "berlin-1939";
+      await game.settings.set(game.system.id, "cityMap", w);
+      await game.settings.set(game.system.id, "cityView", { ...(game.settings.get(game.system.id, "cityView") ?? {}), style: "berlinnight", v2: true, ug: false, metro: false });
+    }, BERLIN);
+    await reloadUntil(id => game.ready === true && !!game.modules.get(id)?.active, BERLIN);
+    await page.evaluate(() => game.vtm20.openCity());
+    await page.waitForFunction(() => !!game.vtm20.cityMap()?.loaded?.() && !!game.vtm20.cityMap()?.getLayer("rcb-ug-place-fill"), null, { timeout: 60000 });
+    const r = await page.evaluate(async id => {
+      const C = await import(`/systems/${game.system.id}/module/ui/citymap.mjs`), wait = ms => new Promise(res => setTimeout(res, ms)), m = C.cityMap(), root = document.getElementById("r-citymap");
+      await wait(1500);
+      const out = { places: C.poiIndex().size, style: C.view().style, blackout: root.dataset.blackout };
+      out.stains = m.getStyle().layers.filter(l => /^rcb-stain-(?!hit|sel)/.test(l.id) && m.getLayoutProperty(l.id, "visibility") === "visible").length;
+      root.querySelector("[data-act=metro]")?.click(); await wait(800);
+      out.metro = [C.view().metro, (m.getStyle().sources["rc-metro"]?.data?.features ?? []).filter(f => f.geometry.type === "Point").length > 150];
+      root.querySelector("[data-act=underground]")?.click(); await wait(1500);
+      const src = n => m.getStyle().sources[n]?.data?.features ?? [];
+      out.ug = [C.view().ug, src("rcb-ug-places").length, src("rcb-ug-ways").length > 60, src("rcb-ug-metro").length];
+      // мел: знак у себя во флаге — у всех на стене; стереть
+      await game.user.setFlag(id, "ugMarks", [{ id: "e2etest", lat: 52.52, lng: 13.405, kind: "arrow", rot: 90, note: "" }]); await wait(600);
+      out.chalk = src("rcb-ug-chalk").length;
+      await game.user.unsetFlag(id, "ugMarks"); await wait(400);
+      out.chalkGone = src("rcb-ug-chalk").length;
+      game.vtm20.closeCity();
+      return out;
+    }, BERLIN);
+    // 1943-12-01: 9 пятен (до Гедехтнискирхе включительно); подземье — 31 место, 10 подземных участков метро и S-Bahn
+    const want = { places: 113, style: "berlinnight", blackout: "on", stains: 9, metro: [true, true], ug: [true, 31, true, 10], chalk: 1, chalkGone: 0 };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  } finally { await restoreBerlin(); } });
+  else if (!PARTIAL) results.push({ name: "Город: модуль Берлина — места, пятна по датам, затемнение, метро 1939, подземье и мел", ok: true, note: "пропущено — модуль не установлен в песочнице" });
+
   await check("Новый мир: «Город» без Парижа", async () => {
     await setWorld(false, "", await page.evaluate(() => game.system.version));
     // game.ready встаёт раньше, чем отработает асинхронный ready системы (Codex.load, keepParis): ждём решения
