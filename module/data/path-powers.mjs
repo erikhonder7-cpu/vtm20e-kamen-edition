@@ -17,7 +17,7 @@ export const PATH_POWERS = {
   "koldunism|Soil Silhouette": { kind: "cond", needTarget: true, fx: { statuses: ["r-held"], note: "KGrasp" }, dur: "scene" },
   "koldunism|Hungry Earth": { kind: "cond", needTarget: true, fx: { statuses: ["r-held"], dot: { type: "lethal", soak: true }, note: "KHungry" }, dur: "scene" },
   "koldunism|Soil of Death": { kind: "cond", needTarget: true, fx: { statuses: ["r-held"], note: "KSoilDeath" }, dur: "scene" },
-  "koldunism|Endurance of Stone": { kind: "self", fx: { attr: { stamina: 2 }, note: "KStone" }, dur: "scene" },
+  "koldunism|Endurance of Stone": { kind: "self", fx: { attr: { stamina: 2 }, soakAgg: 2, note: "KStone" }, dur: "scene" },
   "koldunism|Unearthly Stamina": { kind: "self", fx: { soakDice: 2, note: "KStoneRev" }, dur: "scene" },
   "koldunism|Biting Gale": { kind: "cond", needTarget: true, fx: { note: "KGale" }, dur: "scene" },
   "koldunism|Biting Winds": { kind: "cond", needTarget: true, fx: { note: "KGale" }, dur: "scene" },

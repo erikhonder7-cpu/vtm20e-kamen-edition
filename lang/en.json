@@ -8065,7 +8065,7 @@
         "KGrasp": "The earth grips the legs: immobilised (2 turns + 2 per extra success). Break free — Strength + Survival (or Athletics), diff 6, 5 successes.",
         "KHungry": "Underground: immobilised (a turn per success), 1 lethal per turn (soak diff 7). Escape — Strength + Survival, diff 8, 5 successes in one roll.",
         "KSoilDeath": "Buried to the neck (a turn per success). Mortals and ghouls — Stamina, diff 7, or 1 lethal per turn.",
-        "KStone": "Endurance of Stone: Stamina +2 for the scene (soak included).",
+        "KStone": "Endurance of Stone: Stamina +2 for the scene; these two dots soak aggravated damage too, like Fortitude.",
         "KStoneRev": "Unearthly Stamina: +2 soak dice for the scene, aggravated included.",
         "KGale": "Biting wind: Dexterity pools −2, half speed; 1 bashing per turn (normal soak).",
         "KLethargy": "Lethargy wind: on a failed Stamina + Survival (diff 8) physical pools and speed are halved; on a botch — sleep (a vampire — light torpor).",
@@ -8403,7 +8403,8 @@
         "4": "Barrenness: the vampire cannot Embrace or make ghouls.",
         "5": "Every failure counts as a botch."
       },
-      "SpiritBeastApply": "Place the beast's token"
+      "SpiritBeastApply": "Place the beast's token",
+      "StoneAggSoak": "Endurance of Stone"
     },
     "Ghoul": {
       "Retainer": "Retainer, not a PC",

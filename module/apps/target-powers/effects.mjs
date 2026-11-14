@@ -121,7 +121,7 @@ export async function applyPath(message, state, x, tp, target, n, flags, api) {
     else { desc = t("SleepDesc"); }
   }
   // флаги эффекта
-  for (const k of ["diceAll", "diceSocial", "diffPhys", "diffAll", "diffSocial", "diffDex", "centered", "windDance", "brawlAgg", "strikeTrue", "clarity", "soakDice", "noWill", "succMinus"]) if (fx[k] != null) f[k] = fx[k];
+  for (const k of ["diceAll", "diceSocial", "diffPhys", "diffAll", "diffSocial", "diffDex", "centered", "windDance", "brawlAgg", "strikeTrue", "clarity", "soakDice", "soakAgg", "noWill", "succMinus"]) if (fx[k] != null) f[k] = fx[k];
   if (fx.succMinus) f.succRolls = Math.max(1, n);       // Несчастье Черноголова: на столько бросков, сколько успехов у колдуна
   if (fx.attr) f.attrMod = fx.attr;
   if (fx.attrSet) f.attrSet = fx.attrSet;

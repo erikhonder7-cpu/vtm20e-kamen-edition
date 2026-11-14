@@ -637,6 +637,9 @@ export class VtMActor extends Actor {
     // Укрепление тела (Искусство тканей): +1 куб к поглощению за успех (apps/target-powers.mjs, soakDice)
     const fleshDice = [...this.effects].reduce((s, e) => s + (!e.disabled && Number(e.flags?.[SYSTEM_ID]?.soakDice) || 0), 0);
     if (fleshDice) { parts.flesh = fleshDice; labels.flesh = t("TP.FleshSoak"); }
+    // Прочность камня (Колдовство): две точки Выносливости поглощают и губительный урон — как Стойкость
+    const stoneAgg = type === "aggravated" ? [...this.effects].reduce((s, e) => s + (!e.disabled && Number(e.flags?.[SYSTEM_ID]?.soakAgg) || 0), 0) : 0;
+    if (stoneAgg) { parts.stoneAgg = stoneAgg; labels.stoneAgg = t("TP.StoneAggSoak"); }
     // Доспех Терры: +прочность по виду урона; Слияние с камнем: прочность втрое
     const terra = s.fx?.soakBonus?.[type] ?? 0;
     if (terra) { parts.terra = terra; labels.terra = t("TP.TerraSoak"); }
