@@ -103,14 +103,19 @@
     {{/each}}
   </ol>
 
-  <h2 class="r-h2"><span>{{localize "VTM20.Sheet.Biography"}}</span></h2>
-  <div class="r-editor">
-    <prose-mirror name="system.biography" value="{{system.biography}}" toggled {{#unless editable}}disabled{{/unless}}>{{{biographyHTML}}}</prose-mirror>
-  </div>
-
-  <h2 class="r-h2"><span>{{localize "VTM20.Sheet.Notes"}}</span></h2>
-  <div class="r-editor">
-    <prose-mirror name="system.notes" value="{{system.notes}}" toggled {{#unless editable}}disabled{{/unless}}>{{{notesHTML}}}</prose-mirror>
+  <div class="r-cols2 r-bio-notes">
+    <div class="r-col">
+      <h2 class="r-h2"><span>{{localize "VTM20.Sheet.Biography"}}</span></h2>
+      <div class="r-editor {{#unless system.biography}}is-empty{{/unless}}" data-empty="{{localize 'VTM20.Sheet.BiographyEmpty'}}">
+        <prose-mirror name="system.biography" value="{{system.biography}}" toggled {{#unless editable}}disabled{{/unless}}>{{{biographyHTML}}}</prose-mirror>
+      </div>
+    </div>
+    <div class="r-col">
+      <h2 class="r-h2"><span>{{localize "VTM20.Sheet.Notes"}}</span></h2>
+      <div class="r-editor {{#unless system.notes}}is-empty{{/unless}}" data-empty="{{localize 'VTM20.Sheet.NotesEmpty'}}">
+        <prose-mirror name="system.notes" value="{{system.notes}}" toggled {{#unless editable}}disabled{{/unless}}>{{{notesHTML}}}</prose-mirror>
+      </div>
+    </div>
   </div>
 
   <h2 class="r-h2"><span>{{localize "VTM20.Sheet.Experience"}}</span>{{#if editable}}<span class="r-h2-tools"><a class="r-h2-tool" data-action="openXp" data-tooltip="{{localize 'VTM20.Xp.Window'}}"><i class="fa-solid fa-star"></i> {{localize "VTM20.Xp.WindowShort"}}</a><a class="r-h2-tool" data-action="addXp" data-tooltip="{{localize 'VTM20.Xp.Add'}}"><i class="fa-solid fa-plus"></i></a></span>{{/if}}</h2>

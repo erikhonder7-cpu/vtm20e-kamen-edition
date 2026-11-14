@@ -2648,7 +2648,9 @@
       "PackMissing": "Compendium not found.",
       "PackDrag": "Drag an entry from the compendium onto the sheet.",
       "EmptyAdd": "Empty for now — add with the button on the right.",
-      "EmptyNone": "Empty for now."
+      "EmptyNone": "Empty for now.",
+      "BiographyEmpty": "Who they were, how they came to this existence, what holds them now.",
+      "NotesEmpty": "For yourself: names, debts, leads, promises made."
     },
     "Roll": {
       "DiffChosen": "{n} chosen",

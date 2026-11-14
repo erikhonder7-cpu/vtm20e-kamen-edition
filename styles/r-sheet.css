@@ -1306,3 +1306,16 @@ body.r-theme-light .vtm20 .r-motto { color: rgba(140, 28, 34, .75); }
 .vtm20 .r-ritae-box .r-ritae-tools { flex-direction: column; gap: 4px; }
 .vtm20 .r-ritae-box > .r-hint { margin-top: 8px; }
 @container (max-width: 620px) { .vtm20 .r-ritae-box .r-ritae { grid-template-columns: 1fr; } }
+
+/* снаряжение: длинное название брони и вещи переносится, а не режется многоточием */
+.vtm20 .r-armor > .r-trait-label, .vtm20 .r-gear-row > .r-trait-label { white-space: normal; overflow: visible; line-height: 1.2; padding: 3px 0; }
+.vtm20 .r-armor > .r-leader, .vtm20 .r-gear-row > .r-leader { min-width: 10px; }
+/* биография: Жизнеописание и Заметки рядом; пустой редактор ниже и с подсказкой, что туда писать */
+.vtm20 .r-bio-notes { align-items: stretch; }
+.vtm20 .r-bio-notes > .r-col { display: flex; flex-direction: column; }
+.vtm20 .r-bio-notes .r-editor { flex: 1 1 auto; }
+.vtm20 .r-editor.is-empty { min-height: 72px; }
+.vtm20 .r-editor.is-empty prose-mirror { min-height: 72px; }
+.vtm20 .r-editor.is-empty:not(:has(prose-mirror.active))::after { content: attr(data-empty); position: absolute; left: 26px; right: 44px; top: 12px;
+  font-style: italic; font-size: 13px; line-height: 1.4; color: var(--r-muted); pointer-events: none; }
+.vtm20 .r-editor { position: relative; }

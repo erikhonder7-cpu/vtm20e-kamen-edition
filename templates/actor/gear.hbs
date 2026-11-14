@@ -143,7 +143,7 @@
         {{#if editable}}<span class="r-h2-tools"><a class="r-h2-btn" data-action="library" data-kind="gear" data-tooltip="{{localize 'VTM20.Library.Open'}}"><i class="fa-solid fa-book-skull"></i> <span class="r-h2-lbl">{{localize "VTM20.Sheet.PresetGear"}}</span></a><a class="r-h2-btn is-ghost" data-action="itemCreate" data-type="gear" data-tooltip="{{localize 'VTM20.Sheet.Own'}}"><i class="fa-solid fa-feather"></i></a></span>{{/if}}
       </h2>
       {{#each gear}}
-      <div class="r-trait-main" data-item-id="{{id}}">
+      <div class="r-trait-main r-gear-row" data-item-id="{{id}}">
         <img class="r-thumb" src="{{img}}" alt="">
         <a class="r-trait-label" data-action="itemEdit">{{name}}</a>
         <span class="r-leader"></span>
