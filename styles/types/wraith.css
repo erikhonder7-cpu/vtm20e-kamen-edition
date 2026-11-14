@@ -248,7 +248,6 @@
 /* сворачивание карточки Арканоса — как строка Дисциплины: свёрнутая — одна шапка с точками */
 .vtm20.r-type-wraith .r-wr-arc > .r-wr-arc-head { cursor: pointer; }
 .vtm20.r-type-wraith .r-wr-arc-head .r-dots .r-dot { width: 10px; height: 10px; }
-.vtm20.r-type-wraith .r-wr-arc.is-shut .r-wr-arc-body { display: none; }
 .vtm20.r-type-wraith .r-wr-arc.is-shut { padding-bottom: 10px; }
 .vtm20.r-type-wraith .r-wr-arc.is-open .r-chevron i { transform: rotate(180deg); }
 .vtm20.r-type-wraith .r-wr-arc .r-chevron i { transition: transform .15s; }

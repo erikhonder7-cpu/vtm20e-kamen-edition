@@ -415,14 +415,10 @@ body.r-theme-light .vtm20 .r-sym { background: linear-gradient(170deg, #3a3029, 
   .application.vtm20.r-dialog { animation-duration: .16s; }
   @keyframes r-win-in { from { opacity: 0; transform: translateY(6px) scale(.985); } to { opacity: 1; transform: none; } }
   /* раскрытие сил, черт, слабости клана, граней */
-  .vtm20 .r-row-wrap.is-open > .r-power-body,
-  .vtm20 .r-weakness-card.is-open > .r-weakness-text,
-  .vtm20 .r-edge.has-text.is-open .r-edge-text,
   .vtm20 details[open] > :not(summary) { animation: r-reveal .2s ease-out; }
   @keyframes r-reveal { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: none; } }
   /* окно перерисовалось (правка персонажа): уже открытое не «раскрывается» заново — module/ui/themes.mjs */
-  .vtm20.r-quiet .r-row-wrap.is-open > .r-power-body, .vtm20.r-quiet .r-weakness-card.is-open > .r-weakness-text,
-  .vtm20.r-quiet .r-edge.has-text.is-open .r-edge-text, .vtm20.r-quiet details[open] > :not(summary) { animation: none; }
+  .vtm20.r-quiet details[open] > :not(summary) { animation: none; }
   /* точки и клетки — заливка и отклик плавно */
   .vtm20 .r-dot { transition: transform .12s, border-color .15s, background-color .18s, box-shadow .2s; }
   .vtm20 .r-box { transition: transform .12s, background-color .18s, border-color .15s; }
@@ -459,3 +455,33 @@ body.r-theme-light .vtm20 .r-sym { background: linear-gradient(170deg, #3a3029, 
 .vtm20 .r-ghl { display: flex; flex-wrap: wrap; gap: 4px; margin: 4px 0; }
 .vtm20 .r-ghl .r-chip { cursor: help; }
 .vtm20 .r-ghl .r-chip.is-warn { border-color: var(--r-blood-l); color: var(--r-ink); background: rgba(140, 28, 34, .18); }
+
+/* ── Раскрытие (r-fold-body): силы, строки-списки (Дары, Грани, ранги Сфер), карточки Сфер, Арканоев, Искусств, слабость клана ──
+   свёрнутое — высота 0 и невидимо; раскрывается плавно, как Дисциплина (высота до содержимого — interpolate-size, Chromium/Electron;
+   где не поддерживается — просто без анимации). Перерисовка листа (r-quiet) не проигрывает раскрытие заново. */
+.vtm20 :is(.r-row-wrap:not(.is-open) > .r-power-body, .r-edge.has-text:not(.is-open) .r-edge-text, .r-sphere.is-shut .r-sphere-body, .r-wr-arc.is-shut .r-wr-arc-body, .r-cla-art:not(.is-open) .r-cla-body, .r-weakness-card:not(.is-open) > .r-weakness-text, .r-weakness-card:not(.is-open) > .r-weakness-foot) {
+  height: 0; min-height: 0; padding-top: 0; padding-bottom: 0; margin-top: 0; margin-bottom: 0; border-top-width: 0; border-bottom-width: 0;
+  opacity: 0; overflow: clip; visibility: hidden;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .vtm20 { interpolate-size: allow-keywords; }
+  .vtm20 :is(.r-row-wrap > .r-power-body, .r-edge.has-text .r-edge-text, .r-sphere .r-sphere-body, .r-wr-arc .r-wr-arc-body, .r-cla-art .r-cla-body, .r-weakness-card > .r-weakness-text, .r-weakness-card > .r-weakness-foot) {
+    overflow: clip; transition: height .28s cubic-bezier(.4, 0, .2, 1), opacity .22s ease, padding .28s ease, margin .28s ease, visibility 0s linear 0s;
+  }
+  .vtm20 :is(.r-row-wrap:not(.is-open) > .r-power-body, .r-edge.has-text:not(.is-open) .r-edge-text, .r-sphere.is-shut .r-sphere-body, .r-wr-arc.is-shut .r-wr-arc-body, .r-cla-art:not(.is-open) .r-cla-body, .r-weakness-card:not(.is-open) > .r-weakness-text, .r-weakness-card:not(.is-open) > .r-weakness-foot) { transition: height .24s cubic-bezier(.4, 0, .2, 1), opacity .16s ease, padding .24s ease, margin .24s ease, visibility 0s linear .24s; }
+  .vtm20.r-quiet :is(.r-row-wrap > .r-power-body, .r-edge.has-text .r-edge-text, .r-sphere .r-sphere-body, .r-wr-arc .r-wr-arc-body, .r-cla-art .r-cla-body, .r-weakness-card > .r-weakness-text, .r-weakness-card > .r-weakness-foot) { transition: none; }
+  /* шевроны и стрелки раскрытия — поворот плавно */
+  .vtm20 .r-chevron i, .vtm20 .r-sphere-fold i, .vtm20 [data-action$=Fold] i { transition: transform .22s cubic-bezier(.4, 0, .2, 1); }
+  /* вкладки листа — новая вкладка проявляется (не при перерисовке) */
+  .vtm20 .tab.active { animation: r-tab-in .22s cubic-bezier(.2, .7, .3, 1); }
+  .vtm20.r-quiet .tab.active { animation: none; }
+  @keyframes r-tab-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  /* карточки, плитки, чипы — подсветка рамки и фона мягко */
+  .vtm20 :is(.r-vcard, .r-edge-path, .r-sphere, .r-wr-arc, .r-cla-art, .r-lib-card, .r-chip, .r-tag, .r-cr-tile, .r-act, .r-vc-btn, .r-h2-btn, .r-icon-btn, .r-cast-chip) {
+    transition: color .16s ease, background-color .18s ease, border-color .18s ease, box-shadow .22s ease, opacity .18s ease;
+  }
+  /* списки с поиском (Натура, Маска…) — выпадают мягко */
+  .r-combo-pop.vtm20 { animation: r-pop-in .14s ease-out; }
+  @keyframes r-pop-in { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: none; } }
+}
+@media (prefers-reduced-motion: reduce) { .vtm20 { interpolate-size: numeric-only; } }

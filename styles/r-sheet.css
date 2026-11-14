@@ -526,7 +526,7 @@
 .vtm20 .r-power-name em { color: var(--r-muted); font-size: 12.5px; }
 .vtm20 .r-power-name:hover { color: var(--r-accent); }
 .vtm20 .r-power-body { display: none; padding: 2px 4px 10px 34px; }
-.vtm20 .r-row-wrap.is-open > .r-power-body { display: block; }
+.vtm20 .r-row-wrap > .r-power-body { display: block; }   /* свёрнутое — высотой 0, плавно (r-core.css, «Раскрытие») */
 .vtm20 .r-power-pool { flex: 0 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 11.5px; font-style: italic; color: var(--r-muted); }
 .vtm20 .r-power-pool i { color: var(--r-accent); font-size: 10px; }
 .vtm20 .r-power-roll { color: var(--r-ink-2); }
@@ -601,7 +601,6 @@
 .vtm20 .r-weakness-head > .r-chip + .r-chevron { margin-left: 0; }
 .vtm20 .r-weakness-card:not(.is-open) { padding-top: 6px; padding-bottom: 6px; }
 .vtm20 .r-weakness-card:not(.is-open) .r-weakness-head { margin-bottom: 0; }
-.vtm20 .r-weakness-card:not(.is-open) > .r-weakness-text, .vtm20 .r-weakness-card:not(.is-open) > .r-weakness-foot { display: none; }
 .vtm20 .r-weakness-card.is-open .r-weakness-note { display: none; }
 .vtm20 .r-weakness-card.is-open .r-chevron i { transform: rotate(180deg); }
 .vtm20 .r-weakness-text { font-size: 13px; line-height: 1.4; color: var(--r-ink-2); }
@@ -1238,7 +1237,6 @@ body.r-theme-light .vtm20 .r-motto { color: rgba(140, 28, 34, .75); }
 .vtm20 .r-seal.has-veins { box-shadow: 0 0 0 1px rgba(0, 0, 0, .8), 0 0 8px rgba(0, 0, 0, .9) inset; }
 
 /* строки-списки (Дары, ритуалы, Грани…): текст свёрнут, щелчок по имени — раскрыть (actor-sheet.mjs → _onRender) */
-.vtm20 .r-edge.has-text:not(.is-open) .r-edge-text { display: none; }
 .vtm20 .r-edge.has-text > .r-edge-main > b { cursor: pointer; }
 .vtm20 .r-edge.has-text > .r-edge-main > b::after { content: "▾"; margin-left: 6px; font-size: 11px; color: var(--r-muted); opacity: .8; }
 .vtm20 .r-edge.has-text.is-open > .r-edge-main > b::after { content: "▴"; }

@@ -445,10 +445,8 @@ body.r-theme-light .vtm20.r-type-mage.r-mage-fallen { --r-ink: #24100f; --r-ink-
 
 /* Карточка Сферы сворачивается как строка Дисциплины: шапка — кнопка, шеврон поворачивается, ранги проявляются */
 .vtm20 .r-sphere .r-sphere-head { cursor: pointer; }
-.vtm20 .r-sphere.is-shut .r-sphere-body { display: none; }
 .vtm20 .r-sphere .r-sphere-fold i { transition: transform .2s ease; }
 .vtm20 .r-sphere.is-shut .r-sphere-fold i { transform: rotate(-90deg); }
-@media (prefers-reduced-motion: no-preference) { .vtm20 .r-sphere.is-open .r-sphere-body { animation: r-reveal .2s ease-out; } .vtm20.r-quiet .r-sphere.is-open .r-sphere-body { animation: none; } }
 /* свёрнутая карточка не растягивается под раскрытую соседку */
 .vtm20.r-type-mage .r-sphere-grid { align-items: start; }
 

@@ -403,7 +403,6 @@ body.r-theme-light .vtm20.r-type-changeling.r-cl-dark { --r-ink: #10162e; --r-in
 .vtm20 .r-cla-art:not(.is-open) .r-cla-glyph { width: 44px; height: 44px; justify-self: center; font-size: 17px; }
 .vtm20 .r-cla-art:not(.is-open) .r-cla-glyph .r-sym { width: 30px; height: 30px; }
 .vtm20 .r-cla-body { grid-column: 2; }
-.vtm20 .r-cla-art:not(.is-open) .r-cla-body { display: none; }
 .vtm20 .r-cla-tools .r-chevron { opacity: 1; } .vtm20 .r-cla-tools .r-chevron i { transition: transform .15s; }
 .vtm20 .r-cla-art.is-open .r-cla-tools .r-chevron i { transform: rotate(180deg); }
 .vtm20 .r-cla-name { grid-area: name; font-family: var(--r-display); font-size: 19px; line-height: 1.1; color: var(--r-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
