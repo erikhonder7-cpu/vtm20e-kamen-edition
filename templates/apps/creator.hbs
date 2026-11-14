@@ -84,9 +84,9 @@
         <div class="r-fields is-two">
           <label class="r-f is-span2"><span>{{localize "VTM20.Sheet.Name"}}</span><input type="text" data-field="name" value="{{st.name}}"></label>
           <label class="r-f is-span2"><span>{{localize "VTM20.Details.concept"}}</span><input type="text" data-field="concept" value="{{st.concept}}" placeholder="{{localize 'VTM20.Creator.ConceptPh'}}"></label>
-          <label class="r-f"><span>{{localize "VTM20.Details.nature"}}</span>
+          <label class="r-f"><span>{{localize "VTM20.Details.nature"}}<a class="r-df-lib" data-action="archLib" data-tooltip="{{localize 'VTM20.Library.Pick.Arch.Open'}}"><i class="fa-solid fa-book-open"></i></a></span>
             <input type="text" data-field="nature" value="{{st.nature}}" data-combo="r-cr-arch" placeholder="—"></label>
-          <label class="r-f"><span>{{localize "VTM20.Details.demeanor"}}</span>
+          <label class="r-f"><span>{{localize "VTM20.Details.demeanor"}}<a class="r-df-lib" data-action="archLib" data-tooltip="{{localize 'VTM20.Library.Pick.Arch.Open'}}"><i class="fa-solid fa-book-open"></i></a></span>
             <input type="text" data-field="demeanor" value="{{st.demeanor}}" data-combo="r-cr-arch" placeholder="—"></label>
           <datalist id="r-cr-arch">{{#each archetypes}}<option value="{{name}}"></option>{{/each}}</datalist>
           {{#if isVampire}}<label class="r-f"><span>{{localize "VTM20.Details.sire"}}</span><input type="text" data-field="sire" value="{{st.sire}}"></label>{{/if}}

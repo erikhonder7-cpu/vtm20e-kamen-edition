@@ -4933,7 +4933,8 @@
         "weapon": "Weapons",
         "armor": "Armor",
         "gear": "Gear",
-        "moralPath": "Paths"
+        "moralPath": "Paths",
+        "archetype": "Archetypes"
       },
       "PactOrigin": {
         "doc": "Reference samples",
@@ -5020,7 +5021,8 @@
         "weapon": "A ready weapon is added with all its numbers; edit it afterwards if needed.",
         "armor": "Ready armor is added with its rating and penalty; edit it afterwards if needed.",
         "gear": "Ready gear is added with its description; adjust the quantity on the sheet.",
-        "moralPath": "Changing the Path on the sheet is a Storyteller edit; in play a vampire leaves Humanity through a trial (button by the Path)."
+        "moralPath": "Changing the Path on the sheet is a Storyteller edit; in play a vampire leaves Humanity through a trial (button by the Path).",
+        "archetype": "Nature is the true self: it regains Willpower when the character acts by it. Demeanor is the face shown to others. Pick with the buttons on a card."
       },
       "Pick": {
         "WrongSheet": "“{name}” does not fit this sheet.",
@@ -5051,6 +5053,13 @@
           "Followers": "Followers",
           "Road": "Road",
           "Sins": "Hierarchy of Sins"
+        },
+        "Arch": {
+          "Title": "Archetypes",
+          "Rule": "Nature is the true self: it regains Willpower when the character acts by it. Demeanor is the face shown to others. Pick with the buttons on a card.",
+          "Regain": "Regains Willpower",
+          "Open": "Archetypes: how each regains Willpower",
+          "As": "Set as"
         }
       },
       "ClanBanned": "Not available to clan: {clan}"

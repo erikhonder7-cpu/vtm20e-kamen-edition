@@ -1319,3 +1319,7 @@ body.r-theme-light .vtm20 .r-motto { color: rgba(140, 28, 34, .75); }
 .vtm20 .r-editor.is-empty:not(:has(prose-mirror.active))::after { content: attr(data-empty); position: absolute; left: 26px; right: 44px; top: 12px;
   font-style: italic; font-size: 13px; line-height: 1.4; color: var(--r-muted); pointer-events: none; }
 .vtm20 .r-editor { position: relative; }
+
+/* значок библиотеки у подписи поля (Натура, Маска — архетипы) */
+.vtm20 .r-df-lib { margin-left: 6px; font-size: 10px; color: var(--r-muted); cursor: pointer; opacity: .7; transition: opacity .15s, color .15s; }
+.vtm20 .r-df-lib:hover { opacity: 1; color: var(--r-accent); }

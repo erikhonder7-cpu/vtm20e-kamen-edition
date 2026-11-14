@@ -145,7 +145,7 @@ openUuid: VtMActorSheet.#onOpenUuid,
       drinkBond: VtMActorSheet.#onDrinkBond,
       feedFrom: VtMActorSheet.#onFeedFrom,
       ghoulLife: VtMActorSheet.#onGhoulLife,
-      openPath: VtMActorSheet.#onOpenPath, pathShift: VtMActorSheet.#onPathShift, pickPath: VtMActorSheet.#onPickPath,
+      openPath: VtMActorSheet.#onOpenPath, pathShift: VtMActorSheet.#onPathShift, pickPath: VtMActorSheet.#onPickPath, archLib: VtMActorSheet.#onArchLib,
       openCoterie: VtMActorSheet.#onOpenCoterie,
       resistBond: VtMActorSheet.#onResistBond,
       removeBond: VtMActorSheet.#onRemoveBond,
@@ -738,6 +738,8 @@ openStrategy: () => openStrategy(),
 
   /** Смена Пути на листе — библиотека Путей (этика, Столп, иерархия грехов). */
   static #onPickPath() { return openLibrary({ actor: this.actor, kind: "moralPath" }); }
+  /** Натура и Маска — из библиотеки архетипов (щелчок внутри подписи поля — без фокуса на поле и выпадающего списка). */
+  static #onArchLib(event) { event.preventDefault(); event.stopPropagation(); return openLibrary({ actor: this.actor, kind: "archetype" }); }
 
   static #onLibrary(event, target) {
     return openLibrary({ actor: this.actor, kind: target.dataset.kind, discipline: target.dataset.discipline });

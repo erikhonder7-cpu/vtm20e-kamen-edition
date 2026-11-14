@@ -169,6 +169,13 @@ function onClan(event, target) {
 }
 function onChoice(event, target) { this.st.clanChoice = target.dataset.key; this.render(); }
 function onClanAtlas(event, target) { return openClans(target.dataset.clan); }
+/** Натура и Маска — из библиотеки архетипов (как восстанавливают Волю). */
+async function onArchLib(event) {
+  event.preventDefault(); event.stopPropagation();
+  const { openLibrary } = await import("../library.mjs");
+  return openLibrary({ actor: null, kind: "archetype", current: { nature: this.st.nature ?? "", demeanor: this.st.demeanor ?? "" },
+    onPick: (name, field) => { this.st[field] = name; this.render(); } });
+}
 /** Путь морали — из библиотеки Путей: этика, Столп и грехи перед глазами; смена Пути сбрасывает Добродетели. */
 async function onPickPath() {
   const { openLibrary } = await import("../library.mjs");
@@ -355,7 +362,7 @@ export const ACTIONS = {
       creed: onCreed, edgeToggle: onEdgeToggle, brSet: onBrSet, dhSwap: onDhSwap, dhOption: onDhOption,
       ghoulType: onGhoulType, magePick: onMagePick, garouPick: onGarouPick, garouGift: onGarouGift, garouExtra: onGarouExtra,
       house: onHouse, earthbound: onEarthbound, thrall: onThrall, mark: onMark, markPower: onMarkPower, pactShare: onPactShare, pactGift: onPactGift, reliquary: onReliquary, visage: onVisage, faction: onFaction, houseAtlas: onHouseAtlas,
-      gen: onGen, choice: onChoice, clanAtlas: onClanAtlas, pickPath: onPickPath,
+      gen: onGen, choice: onChoice, clanAtlas: onClanAtlas, pickPath: onPickPath, archLib: onArchLib,
       dot: onDot, prio: onPrio,
       bgToggle: onBgToggle, mfToggle: onMfToggle, mfTab: onMfTab, mfCat: onMfCat,
       addDisc: onAddDisc, dropDisc: onDropDisc, read: onRead,

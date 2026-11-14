@@ -503,6 +503,30 @@ const moralPath = {
   }
 };
 
+/* ── Архетипы (Натура и Маска): общий список всех линий (Codex.archetypes), у каждого — как он восстанавливает Волю.
+ * Карточка — две кнопки: «Натура» и «Маска»; в мастере — o.onPick(имя, "nature" | "demeanor"), o.current — { nature, demeanor }. */
+const archetype = {
+  free: true, quiet: true, noXp: true,
+  title: () => P("Arch.Title"),
+  rule: () => P("Arch.Rule"),
+  takeLabel: () => P("Arch.As"),
+  entries(a, o) {
+    const cur = o.current ?? { nature: a?.system?.details?.nature ?? "", demeanor: a?.system?.details?.demeanor ?? "" };
+    return (Codex.archetypes ?? []).map((x, i) => ({
+      id: String(i), name: x.name, en: x.en, order: i,
+      text: x.regain ? `<p><i class="fa-solid fa-star"></i> <b>${P("Arch.Regain")}:</b> ${esc(x.regain).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>")}</p>` : "",
+      tags: [cur.nature === x.name && { label: loc("VTM20.Details.nature"), red: true }, cur.demeanor === x.name && { label: loc("VTM20.Details.demeanor") }].filter(Boolean),
+      variants: [{ value: 1, label: loc("VTM20.Details.nature") }, { value: 2, label: loc("VTM20.Details.demeanor") }]
+    }));
+  },
+  async take(a, id, opts = {}, o = {}) {
+    const x = Codex.archetypes?.[Number(id)], field = opts.value === 2 ? "demeanor" : "nature";
+    if (!x) return null;
+    if (o.onPick) { o.onPick(x.name, field); if (o.current) o.current[field] = x.name; return null; }
+    return a?.update({ [`system.details.${field}`]: x.name });
+  }
+};
+
 /** Виды записей по ключу (data-kind кнопки библиотеки на листе). */
 export const PICKS = {
   fetish, scar, deform, kinGift, numen, kamiPower, fomorPower, charm, spiritTpl,
@@ -510,6 +534,6 @@ export const PICKS = {
   art, rede, cantrip,
   bloodright,
   sorcPath: sorcNumen("paths"), sorcPsychic: sorcNumen("psychic"),
-  lore, rote, moralPath,
+  lore, rote, moralPath, archetype,
   weapon: equip("weapon", WEAPON_PRESETS), armor: equip("armor", ARMOR_PRESETS), gear: equip("gear", GEAR_PRESETS)
 };

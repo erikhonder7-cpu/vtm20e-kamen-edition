@@ -140,7 +140,7 @@ export function prepareHeader(sheet, ctx) {
   const extra = (Codex.abilities ?? []).filter(x => Codex.visible(x) && (!x.sect || x.sect === mySect));
   ctx.extraAbilities = Object.fromEntries(["talents", "skills", "knowledges"].map(g => [g, extra.filter(x => (x.group ?? "knowledges") === g).map(x => x.name)]));
   const nature = Codex.archetypes.find(x => x.name === s.details.nature);
-  ctx.natureRegain = nature?.regain ?? "";
+  ctx.natureRegain = String(nature?.regain ?? "").replace(/\*\*/g, "");   // **выделение** из справочника — в подсказке без звёздочек
   // Дороги Тёмных веков — только при включённой настройке; уже выбранный путь не прячем
   ctx.paths = Codex.paths.filter(p => Codex.visible(p) || p.key === s.morality.path)
     .map(p => ({ key: p.key, name: p.era ? `${p.name} · ${t("Library.Filter.DarkAges")}` : p.name, selected: p.key === s.morality.path }));

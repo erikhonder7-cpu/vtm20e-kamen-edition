@@ -572,6 +572,7 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
       if (!id || (!this.actor && !pick.free)) return;
       await pick.take(this.actor, id, { value: Number(target.dataset.value) || undefined }, this.o);
       if (pick.closeOnTake) return this.close();
+      if (pick.quiet) return this.render();
       ui.notifications.info(L("Added", { name: card.querySelector(".r-lib-name b")?.textContent ?? id }));
       return this.render();
     }
