@@ -7,6 +7,9 @@ import { bloodApply, BLOOD_APPLY } from "../bloodlines.mjs";
 import { clockApi, t, esc, TARGET_POWERS, supernatural, untilOf, done, notice } from "./core.mjs";
 import { applyPath, conjure, summonPathCreature, beckon, placeShroud, summonArms } from "./effects.mjs";
 import { APPLY } from "./apply-kinds.mjs";
+import { KOLDUN_APPLY } from "./koldun.mjs";
+
+Object.assign(APPLY, KOLDUN_APPLY);
 
 /** Кнопка на карточке: эффект силы на цели (владелец цели или рассказчик). */
 export async function applyTargetPower(message, state, ev) {

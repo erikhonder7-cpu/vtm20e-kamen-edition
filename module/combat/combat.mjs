@@ -118,7 +118,10 @@ export function openDefense(actor, kind = "dodge", { onRolled = null, subtitle =
 export async function openAttack(actor, { weapon = null, maneuver = null, natural = null, celerityAction = false } = {}) {
   // облик без тела (туман, тень, земля) — атаковать нельзя по правилам, но решает рассказчик
   const fx = actor.system.fx ?? {};
-  const why = fx.earthMeld ? t("Fx.EarthNoAction") : fx.mistForm ? t("Fx.MistNoPhysicalAttack") : fx.shadowForm ? t("Fx.ShadowNoPhysicalAttack") : null;
+  // Тело зефира (Колдовство, target-powers/koldun.mjs) — флаг эффекта
+  const zephyr = actor.effects?.some(e => !e.disabled && e.flags?.[SYSTEM_ID]?.zephyr);
+  const why = fx.earthMeld ? t("Fx.EarthNoAction") : fx.mistForm ? t("Fx.MistNoPhysicalAttack") : fx.shadowForm ? t("Fx.ShadowNoPhysicalAttack")
+    : zephyr ? t("Fx.ZephyrNoPhysicalAttack") : null;
   if (why && !(await allowAnyway(actor, why))) return null;
   // одно окно атаки на персонажа: повторный клик не плодит копии
   for (const x of foundry.applications.instances.values()) if (x instanceof AttackDialog && x.actor === actor) await x.close();

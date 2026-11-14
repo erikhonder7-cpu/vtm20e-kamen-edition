@@ -1869,8 +1869,7 @@ body.r-theme-light .vtm20 .r-sp-state img { filter: none; }
     .vtm20 .r-lib-card.is-long .r-lib-text { transition: max-height .32s cubic-bezier(.4, 0, .2, 1); }
     .vtm20 .r-lib-card.is-long.is-open .r-lib-text { max-height: max-content; }
   }
-  .vtm20 .r-lib-card { animation: r-reveal .22s ease-out backwards; }
-  .vtm20.r-quiet .r-lib-card { animation: none; }
+  .vtm20 .r-lib-card { animation: r-reveal .22s ease-out backwards; }   /* перерисовка — без анимации: module/ui/themes.mjs */
 }
 
 /* мастер: короткие списки — рядом плиток (creator.mjs → _onRender) */

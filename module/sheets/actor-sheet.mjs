@@ -514,16 +514,11 @@ openStrategy: () => openStrategy(),
     }
   }
 
-  changeTab(tab, group, options) {
-    super.changeTab(tab, group, options);
-    // вкладка устарела, пока была скрыта, — рисуем её сейчас
-    if (group === "primary" && this._staleTabs.has(tab)) this.render({ parts: [tab] });
-    const pane = this.element?.querySelector(`.r-pane[data-tab="${tab}"]`);
-    if (!pane) return;
-    pane.classList.remove("is-entering");
-    void pane.offsetWidth;                                   // перезапуск анимации
-    pane.classList.add("is-entering");
-    setTimeout(() => pane.classList.remove("is-entering"), 260);
+  async changeTab(tab, group, options) {
+    // вкладка устарела, пока была скрыта, — сначала дорисовываем её (10–20 мс), потом показываем: появление одно
+    // (styles/r-core.css, .tab.active), а не старая вкладка с подменой на новую посреди анимации
+    if (group === "primary" && this._staleTabs.has(tab)) await this.render({ parts: [tab] });
+    return super.changeTab(tab, group, options);
   }
 
   async close(options) {
@@ -1213,7 +1208,8 @@ export function powerByRef(ref) {
  * Крайны (proc «kraina») — свой бросок из справочника. Постоянная сила (passive) — без броска.
  */
 function koldunPower(path, p) {
-  if (!p.roll) return p;
+  // proc пути — редакция силы: по нему target-powers/core.mjs (powerKey) различает одноимённые силы
+  if (!p.roll) return { ...p, proc: path.proc };
   const proc = path.proc, r = { ...p.roll };
   const rotb = proc === "rotb" || (proc === "way" && game.settings.get(SYSTEM_ID, "koldunRoll") !== "v20");
   if (proc === "way" && rotb) { r.trait1 = "willpower.permanent"; r.trait2 = ""; r.base = false; }
@@ -1222,7 +1218,7 @@ function koldunPower(path, p) {
     r.note = [r.note, game.i18n.localize("VTM20.Koldun.OutsideNote")].filter(Boolean).join(" · ");
   }
   if (rotb) r.note = [game.i18n.localize("VTM20.Koldun.RotbNote"), r.note].filter(Boolean).join(" · ");
-  return { ...p, roll: r };
+  return { ...p, roll: r, proc };
 }
 
 /** Бросок ритуала: с листа и из карточки «время вышло» (apps/timers.mjs). */
@@ -1276,7 +1272,7 @@ export async function rollPowerRef(actor, ref) {
   const x = powerByRef(ref);
   if (!x) return;
   const { disc, d, p, pathName } = x, magic = VTM20.pathDisciplines.includes(disc);
-  if (p.passive && !p.roll) return ui.notifications.info(game.i18n.format("VTM20.Koldun.Passive", { name: p.name }));
+  if (p.passive && !p.roll && !targetPowerOf(disc, p)) return ui.notifications.info(game.i18n.format("VTM20.Koldun.Passive", { name: p.name }));
   // Крайны Тёмных веков: сила основной крайны колдуна — сложность −2 (Гений места основной быть не может)
   if (disc === "koldunism" && p.roll) {
     const pth = Codex.bloodPath(disc, pathName);

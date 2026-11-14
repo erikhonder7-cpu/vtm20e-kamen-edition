@@ -980,14 +980,12 @@ body.r-theme-light .vtm20 .r-motto { color: rgba(140, 28, 34, .75); }
 .vtm20 .r-other-note { margin-left: auto; font-family: var(--r-body); font-size: 12px; font-style: italic; letter-spacing: 0; text-transform: none; color: var(--r-accent); cursor: help; }
 
 /* ── Отклик на действия ───────────────────────────────────────────────── */
-.vtm20 .r-pane.is-entering { animation: r-pane-in .22s ease-out; }
-@keyframes r-pane-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 .vtm20 .r-dot:active, .vtm20 .r-box:active, .vtm20 .r-drop:active svg { transform: scale(.82); }
 .vtm20 .r-power-roll:hover, .vtm20 .r-trait-roll:hover, .vtm20 .r-icon-btn[data-action="rollTrait"]:hover { text-shadow: 0 0 8px rgba(196, 71, 76, .8); }
 .vtm20 a.r-trait-label:hover, .vtm20 .r-power-name:hover { text-shadow: 0 0 10px rgba(196, 71, 76, .35); }
 .vtm20 .r-act:hover i { text-shadow: 0 0 8px rgba(216, 207, 191, .5); }
 .vtm20 .r-act.is-hot:hover i { color: #e3676c; text-shadow: 0 0 10px rgba(196, 71, 76, .8); }
-@media (prefers-reduced-motion: reduce) { .vtm20 .r-pane.is-entering, .vtm20 .r-portrait-veil { animation: none !important; } }
+@media (prefers-reduced-motion: reduce) { .vtm20 .r-portrait-veil { animation: none !important; } }
 
 /* Редактор в режиме правки: панель кнопок сверху, поле текста под ней обычным потоком
    (у Foundry поле позиционировано абсолютно и на листе уезжало под панель — набранного текста не было видно) */

@@ -14,10 +14,13 @@
 // (в породной форме хомида и лупуса — только жжение; метис уязвим всегда). Огонь всегда губительный, броню
 // игнорирует; летальный и губительный урон оборотень поглощает Выносливостью в любой форме, кроме породной.
 
-import { VTM20, SYSTEM_PATH } from "../config.mjs";
+import { VTM20, SYSTEM_PATH, SYSTEM_ID } from "../config.mjs";
 import { rollPool, odds, chancesView } from "../dice/roll.mjs";
 import { suggestCheck } from "../dice/virtue-checks.mjs";
 import { Codex } from "../data/codex.mjs";
+
+/** Колдовство (target-powers/koldun.mjs): эффект с флагом — убежище в воде (sunSafe), Покров забвения (sunBashing). */
+const kolFx = (a, key) => a.effects.some(e => !e.disabled && e.flags?.[SYSTEM_ID]?.[key]);
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -95,6 +98,7 @@ class HazardDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     let p;
     if (this.isGarou) return this.#garou();
     if (v.kind === "sun" && a.system.fx?.earthMeld) return { harmless: true, harmlessText: t("Fx.EarthMeldSun"), bd: [], pool: 0 };
+    if (v.kind === "sun" && kolFx(a, "sunSafe")) return { harmless: true, harmlessText: t("Hazard.KolSunSafe"), bd: [], pool: 0 };
     if (v.kind === "fire" && this.fireproof) return { harmless: true, harmlessText: t("Hazard.Fireproof"), bd: [], pool: 0 };
     if (v.kind === "holyGround" || v.kind === "holyRelic") {
       if (!this.holyHurts) return { harmless: true, harmlessText: t("Hazard.HolyLowTorment"), bd: [], pool: 0 };
@@ -107,7 +111,9 @@ class HazardDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       if (!a.isVampire) return { harmless: true, bd: [], pool: 0 };
       // Светобоязнь: солнце наносит вдвое больше урона (V20, Appendix)
       const mult = a.hasTrait?.("Светобоязнь") ? 2 : 1;
-      p = { amount: AREA[v.area] * mult, type: "aggravated", difficulty: SUN_LIGHT[v.light], parts: [FORT], perTurn: true };
+      // Покров забвения: под покровом солнце бьёт лёгким (поглощается и Выносливостью)
+      const shroud = kolFx(a, "sunBashing");
+      p = { amount: AREA[v.area] * mult, type: shroud ? "bashing" : "aggravated", difficulty: SUN_LIGHT[v.light], parts: shroud ? [STA, FORT] : [FORT], perTurn: true };
     } else if (v.kind === "fall") {
       const terminal = v.meters >= 30;
       const type = terminal || v.sharp ? "lethal" : "bashing";

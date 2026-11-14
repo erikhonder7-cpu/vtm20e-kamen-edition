@@ -69,13 +69,17 @@ export const themeOf = actor => !actor?.type ? null : actor.type === "spirit" ||
 export const themeClass = actor => actor?.type ? `r-type-${themeOf(actor)}${isTechnocrat(actor) ? " r-mage-tech" : ""}${isNephandus(actor) ? " r-mage-fallen" : ""}${isDarkFae(actor) ? " r-cl-dark" : ""}${isSpectre(actor) ? " r-wr-spectre" : ""}` : "";
 
 const quiet = new WeakMap();
+/** Анимации появления (styles/r-core.css, r-apps.css): при перерисовке открытого окна — сразу в конечное состояние. */
+const QUIET_ANIMATIONS = new Set(["r-tab-in", "r-reveal"]);
 export function registerThemes() {
   Hooks.on("renderApplicationV2", (app, element, context, options) => {
-    // перерисовка открытого окна: анимации раскрытия строк не проигрываются заново (styles/r-core.css, .r-quiet)
+    // перерисовка открытого окна: раскрытие строк (переходы) не проигрывается заново (styles/r-core.css, .r-quiet);
+    // анимации появления не выключаем классом, а завершаем: снятие класса через 260 мс запустило бы их снова — моргание
     if (element?.classList?.contains("vtm20") && options && !options.isFirstRender) {
       element.classList.add("r-quiet");
       clearTimeout(quiet.get(element));
       quiet.set(element, setTimeout(() => element.classList.remove("r-quiet"), 260));
+      for (const an of element.getAnimations?.({ subtree: true }) ?? []) if (QUIET_ANIMATIONS.has(an.animationName)) an.finish();
     }
     // окна системы и стандартные подтверждения Foundry (их цвета — переменные Foundry, переопределены в теме типа)
     const isDialog = app instanceof foundry.applications.api.DialogV2;

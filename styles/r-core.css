@@ -417,8 +417,7 @@ body.r-theme-light .vtm20 .r-sym { background: linear-gradient(170deg, #3a3029, 
   /* раскрытие сил, черт, слабости клана, граней */
   .vtm20 details[open] > :not(summary) { animation: r-reveal .2s ease-out; }
   @keyframes r-reveal { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: none; } }
-  /* окно перерисовалось (правка персонажа): уже открытое не «раскрывается» заново — module/ui/themes.mjs */
-  .vtm20.r-quiet details[open] > :not(summary) { animation: none; }
+  /* окно перерисовалось (правка персонажа): уже открытое не «раскрывается» заново — анимацию завершает module/ui/themes.mjs */
   /* точки и клетки — заливка и отклик плавно */
   .vtm20 .r-dot { transition: transform .12s, border-color .15s, background-color .18s, box-shadow .2s; }
   .vtm20 .r-box { transition: transform .12s, background-color .18s, border-color .15s; }
@@ -474,7 +473,6 @@ body.r-theme-light .vtm20 .r-sym { background: linear-gradient(170deg, #3a3029, 
   .vtm20 .r-chevron i, .vtm20 .r-sphere-fold i, .vtm20 [data-action$=Fold] i { transition: transform .22s cubic-bezier(.4, 0, .2, 1); }
   /* вкладки листа — новая вкладка проявляется (не при перерисовке) */
   .vtm20 .tab.active { animation: r-tab-in .22s cubic-bezier(.2, .7, .3, 1); }
-  .vtm20.r-quiet .tab.active { animation: none; }
   @keyframes r-tab-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
   /* карточки, плитки, чипы — подсветка рамки и фона мягко */
   .vtm20 :is(.r-vcard, .r-edge-path, .r-sphere, .r-wr-arc, .r-cla-art, .r-lib-card, .r-chip, .r-tag, .r-cr-tile, .r-act, .r-vc-btn, .r-h2-btn, .r-icon-btn, .r-cast-chip) {

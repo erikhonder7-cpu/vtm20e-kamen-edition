@@ -460,6 +460,7 @@ export function onChatCardClick(event) {
   }
   if (combatAction === "possessRoll") return import("../apps/target-powers.mjs").then(m => m.possessAccess(message));
   if (combatAction === "riddleRoll") return import("../apps/target-powers.mjs").then(m => m.riddleRoll(message));
+  if (combatAction?.startsWith?.("kol")) return import("../apps/target-powers/koldun.mjs").then(m => m.koldunCardAction(message, combatAction, btn));
   if (combatAction?.startsWith?.("cl")) return import("../apps/changeling.mjs").then(m => m.clCardAction(message, combatAction, btn));
   if (combatAction === "targetApply") return import("../apps/target-powers.mjs").then(m => m.applyFromCard(message));
   if (combatAction?.startsWith?.("mage")) return import("../apps/mage.mjs").then(m => m.mageCardAction(message, combatAction));

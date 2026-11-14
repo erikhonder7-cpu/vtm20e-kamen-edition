@@ -137,7 +137,13 @@ export const sameActor = (uuid, actor) => !!uuid && !!actor && (uuid === actor.u
 /** Сверхъестественное существо (Глаза змеи): вампир, Гару, падший, сверхъестественная тварь; гуль и охотник — смертные. */
 export const supernatural = a => ["vampire", "werewolf", "demon"].includes(a.type) || (["creature", "spirit"].includes(a.type) && !!a.system.supernatural);
 
-export const targetPowerOf = (disc, p) => TARGET_POWERS[`${disc}|${p?.en ?? ""}`] ?? null;
+/** Ключ силы. У Колдовства одноимённые силы редакций различаются: сначала запись пути (`@proc` — уклад, Revised, классика), потом общая. */
+export function powerKey(disc, p) {
+  const v = p?.proc ? `${disc}|${p.en}@${p.proc}` : "";
+  return v && TARGET_POWERS[v] ? v : `${disc}|${p?.en ?? ""}`;
+}
+
+export const targetPowerOf = (disc, p) => TARGET_POWERS[powerKey(disc, p)] ?? null;
 
 /** Срок по числу успехов. */
 export function untilOf(code, now, { MS_HOUR, MS_DAY, nextSunrise }) {
@@ -148,6 +154,7 @@ export function untilOf(code, now, { MS_HOUR, MS_DAY, nextSunrise }) {
     case "2nights": return nextSunrise(nextSunrise(now) + MS_HOUR);
     case "day": return now + MS_DAY;
     case "week": return now + 7 * MS_DAY;
+    case "2weeks": return now + 14 * MS_DAY;
     case "month": return now + 30 * MS_DAY;
     case "3months": return now + 90 * MS_DAY;
     case "year": return now + 365 * MS_DAY;

@@ -6,9 +6,10 @@ import { SYSTEM_ID } from "../../config.mjs";
 import { Codex } from "../../data/codex.mjs";
 import { PATH_POWERS } from "../../data/path-powers.mjs";
 import { bloodRoll } from "../bloodlines.mjs";
-import { clockApi, t, esc, TARGET_POWERS, sameActor, supernatural, tierText, notice, ask } from "./core.mjs";
+import { clockApi, t, esc, TARGET_POWERS, sameActor, supernatural, tierText, notice, ask, powerKey } from "./core.mjs";
 import { contradict, burningTouch, illusion, auraLines, tasteLines, cloakGathering } from "./effects.mjs";
 import { ROLL } from "./roll-kinds.mjs";
+import { KOLDUN_POWERS, KOLDUN_ROLL } from "./koldun.mjs";
 
 /** Сложность Языка животных по виду (по имени и «виду» существа). */
 function animalDiff(a) {
@@ -19,7 +20,8 @@ function animalDiff(a) {
 }
 
 // пути Тауматургии (data/path-powers.mjs) — тем же движком
-Object.assign(TARGET_POWERS, PATH_POWERS);
+Object.assign(TARGET_POWERS, PATH_POWERS, KOLDUN_POWERS);
+Object.assign(ROLL, KOLDUN_ROLL);
 
 /** Черта цели для сложности. */
 function traitOf(a, k) {
@@ -56,7 +58,7 @@ export function prepareTargetPower(actor, disc, p, tp, skip = new Set()) {
   if (tp.mortalOnly && target?.isVampire && !(tp.kind === "quell" && target.statuses?.has("r-frenzy")) && (b = block("mortalOnly", t("NotKindred", { name: target.name })))) return b;
   if (tp.kind === "quell" && target?.effects.some(e => !e.disabled && sameActor(e.flags?.[SYSTEM_ID]?.quellImmune, actor)) && (b = block("quellImmune", t("QuellImmune", { name: target.name })))) return b;
   // Величие: после неудачи или провала цель невосприимчива к этой силе (или ко всему Величию) этого вампира
-  const key0 = `${disc}|${p?.en ?? ""}`;
+  const key0 = powerKey(disc, p);
   if (tp.presence && target?.effects.some(e => { const f = !e.disabled && e.flags?.[SYSTEM_ID]?.presImmune; return f && sameActor(f.by, actor) && (f.power === "all" || f.power === key0); })
     && (b = block("presImmune", t("PresImmune", { name: target.name })))) return b;
   if (tp.once && target?.effects.some(e => !e.disabled && e.flags?.[SYSTEM_ID]?.mind === key0 && sameActor(e.flags[SYSTEM_ID].by, actor))
@@ -111,7 +113,7 @@ export async function rollTargetPower(actor, disc, d, p, tp, { rollFromSpec, sub
   if (!prep) return null;
   if (prep.plain) return rollFromSpec(actor, p.roll ?? {}, { title: p.name, subtitle, effect: p.html, kind, magic, power: { disc, level: p.level, name: p.name } });
   const target = prep.target;
-  const key = `${disc}|${p.en}`;
+  const key = powerKey(disc, p);
   // силы на себя (Покрывало ночи, Руки Бездны, Исчезновение) — «цель» карточки сам вампир, отмеченный — наблюдатель
   const holder = tp.self ? actor : target;
   const link = holder ? { key, target: holder.uuid, targetName: holder.name, powerName: p.name, actorName: actor.name } : null;
