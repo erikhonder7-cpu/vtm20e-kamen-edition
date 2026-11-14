@@ -1,3 +1,4 @@
+@charset "UTF-8";
 /* ══════════════════════════════════════════════════════════════════════════
    VTM20 «Liberté» — мастер создания (интерфейс Foundry — r-foundry.css).
    ══════════════════════════════════════════════════════════════════════════ */
@@ -510,7 +511,7 @@ body.r-theme-light .vtm20 .r-lib-card.is-long .r-lib-text::after { background: l
 .vtm20 .r-ng-chip.is-active { color: #f1e9da; border-color: var(--r-blood-l); background: linear-gradient(180deg, rgba(140, 28, 34, .55), rgba(74, 13, 17, .55)); }
 .vtm20 .r-ng-chip.is-active i { color: #f1e9da; }
 .vtm20 .r-ng-chip.is-soft { font-style: italic; }
-.vtm20 .r-ng-anyrole { display: inline-flex; align-items: center; gap: 5px; font-family: var(--r-body); font-size: 12.5px; letter-spacing: 0; text-transform: none; color: var(--r-ink-2); }
+.vtm20 .r-ng-anyrole { flex: 0 0 auto; white-space: nowrap; padding-right: 3px; display: inline-flex; align-items: center; gap: 5px; font-family: var(--r-body); font-size: 12.5px; letter-spacing: 0; text-transform: none; color: var(--r-ink-2); }
 .vtm20 .r-ng-anyrole.is-active { color: var(--r-accent); }
 
 /* сила — шкала из пяти ступеней */
@@ -636,11 +637,11 @@ body.r-theme-light .vtm20 .r-ng-concept { color: #7a4f1d; }
 .vtm20 .r-xw-search { flex: 1; min-width: 0; }
 .vtm20 .r-h2-btn.is-on { color: var(--r-ink); border-color: rgba(196, 71, 76, .6); }
 .vtm20 .r-xw-list { flex: 1; min-height: 0; overflow-y: auto; padding: 0 18px 16px; scrollbar-gutter: stable; }
-.vtm20 .r-xw-cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 26px; }
+.vtm20 .r-xw-cols { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 0 26px; }
 .vtm20 .r-xw-row .r-trait-main { gap: 8px; }
 .vtm20 .r-xw-row .r-trait-label { cursor: default; }
-/* длинное название переносится на вторую строку, а не режется; десять точек (Человечность, Воля) — двумя рядами */
-.vtm20 .r-xw-row .r-trait-label { white-space: normal; overflow: visible; line-height: 1.15; overflow-wrap: anywhere; }
+/* длинное название переносится по пробелам (не уже самого длинного слова — слово не рвётся); десять точек — двумя рядами */
+.vtm20 .r-xw-row .r-trait-label { white-space: normal; overflow: visible; line-height: 1.15; overflow-wrap: normal; flex: 0 1 auto; }
 .vtm20 .r-xw-row .r-trait-main { gap: 6px; }
 .vtm20 .r-xw-row .r-leader { min-width: 4px; }
 .vtm20 .r-xw-row .r-dots:has(> .r-dot:nth-child(6)) { display: grid; grid-template-columns: repeat(5, 11px); gap: 2px 3px; }
@@ -1049,10 +1050,31 @@ body.r-theme-light .vtm20 .r-ng-concept { color: #7a4f1d; }
 .vtm20 .r-hunt-place em.r-hunt-masq i { color: var(--r-accent); }
 
 /* ── Винкулум: выбор стаи и карточка Братания ── */
-.vtm20.r-vinc-dialog .r-vinc-list { max-height: 320px; overflow-y: auto; margin: 6px 0 10px; }
-.vtm20 .r-vinc-pick { display: flex; align-items: center; gap: 8px; padding: 3px 4px; border-bottom: 1px solid var(--r-line); cursor: pointer; }
-.vtm20 .r-vinc-pick .r-trait-main { display: flex; flex-direction: column; min-width: 0; }
-.vtm20 .r-vinc-pick em { font-size: 12px; color: var(--r-muted); }
+/* выбор участников — карточки в две колонки: знак клана, имя и клан, секта; отмеченная — алым, с галочкой;
+   галочка-флажок спрятан, щёлкается вся карточка; «отмечено: N» — CSS-счётчиком */
+.vtm20 .r-vinc-body { counter-reset: vinc; }
+.vtm20 .r-vinc-hint { margin: 0 0 10px; font-size: 13px; font-style: italic; line-height: 1.4; color: var(--r-ink-2); }
+.vtm20.r-vinc-dialog .r-vinc-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; max-height: 360px; overflow: hidden auto;
+  margin: 0 0 8px; padding: 2px 4px 2px 0; scrollbar-gutter: stable; }
+.vtm20 .r-vinc-pick { position: relative; display: grid; grid-template-columns: 34px minmax(0, 1fr); align-items: center; gap: 9px; min-width: 0;
+  padding: 7px 26px 7px 8px; border: 1px solid var(--r-line-2); background: rgba(0, 0, 0, .22); cursor: pointer; transition: border-color .12s, background .12s; }
+.vtm20 .r-vinc-pick:hover { border-color: rgba(196, 71, 76, .45); }
+.vtm20 .r-vinc-pick > input { position: absolute; opacity: 0; pointer-events: none; }
+.vtm20 .r-vinc-pick:has(> input:checked) { counter-increment: vinc; border-color: var(--r-accent);
+  background: linear-gradient(180deg, rgba(140, 28, 34, .32), rgba(74, 13, 17, .28)); box-shadow: inset 3px 0 0 var(--r-accent); }
+.vtm20 .r-vinc-pick:has(> input:focus-visible) { outline: 1px solid var(--r-accent); outline-offset: 1px; }
+.vtm20 .r-vinc-sym { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 50%; color: var(--r-accent);
+  background: radial-gradient(circle at 50% 35%, #2a1517, #0d0708 72%); box-shadow: 0 0 0 1px rgba(196, 71, 76, .35); }
+.vtm20 .r-vinc-sym .r-sym { width: 24px; height: 24px; }
+.vtm20 .r-vinc-who { display: flex; flex-direction: column; min-width: 0; text-align: left; }
+.vtm20 .r-vinc-who b { font-family: var(--r-display); font-weight: 400; font-size: 15px; line-height: 1.15; color: var(--r-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vtm20 .r-vinc-who em { font-size: 12px; color: var(--r-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vtm20 .r-vinc-sect { font-family: var(--r-caps); font-style: normal; font-size: 10px; letter-spacing: 1.2px; text-transform: uppercase; white-space: nowrap; color: var(--r-muted); }
+.vtm20 .r-vinc-sect.is-sabbat { color: #e7a4a7; }
+.vtm20 .r-vinc-tick { position: absolute; right: 8px; top: 50%; translate: 0 -50%; font-size: 12px; color: var(--r-accent); opacity: 0; transition: opacity .12s; }
+.vtm20 .r-vinc-pick:has(> input:checked) .r-vinc-tick { opacity: 1; }
+.vtm20 .r-vinc-count { margin: 0 0 8px; font-family: var(--r-caps); font-size: 11px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--r-muted); }
+.vtm20 .r-vinc-count b::after { content: counter(vinc); font-family: var(--r-display); font-size: 16px; letter-spacing: 0; color: var(--r-ink); }
 .r-vinc-card .r-vinc-rite > li { margin-top: 4px; }
 .r-vinc-card .r-vinc-rite ul { margin: 2px 0 0 12px; }
 .vtm20 .r-web-key.is-vinc { border-top: 2px dotted #9b7fc4; }
@@ -1776,3 +1798,40 @@ body.r-theme-light .vtm20 .r-sp-state img { filter: none; }
 .vtm20 .r-cr-pw.is-full { opacity: .45; }
 .vtm20 .r-cr-pw.is-full:hover { opacity: .7; }
 .vtm20 .r-cr-pw.is-own { cursor: default; border-style: dashed; }
+
+/* ── Мастерская тауматурга (apps/thaum-workshop.mjs) и артефакты на листе ───────────────── */
+.vtm20 .r-th .r-cl-groups a i { margin-right: 4px; }
+.vtm20 .r-th .r-cl-bigmedal { display: grid; place-items: center; }
+.vtm20 .r-th .r-cl-bigmedal > i { font-size: 52px; color: var(--r-accent); opacity: .85; }
+.vtm20 .r-th-lvl { margin: 10px 4px 2px; font-family: var(--r-caps); font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--r-muted); list-style: none; }
+.vtm20 .r-th .r-cl-item a.is-unknown .r-cl-name { opacity: .62; }
+.vtm20 .r-th .r-cl-item a.is-low { opacity: .45; }
+.vtm20 .r-th-known { margin-left: auto; color: var(--r-lantern); font-size: 12px; }
+.vtm20 .r-th-side-note { margin: 12px 8px; }
+.vtm20 .r-th-facts { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 8px 0 0; font-size: 13px; color: var(--r-muted); }
+.vtm20 .r-th-facts i { color: var(--r-accent); margin-right: 3px; }
+.vtm20 .r-th-warn { margin: 6px 0; font-size: 13px; font-style: italic; color: var(--r-accent); }
+.vtm20 .r-th-make .r-f, .vtm20 .r-th-opts .r-f { margin-bottom: 6px; }
+.vtm20 .r-th-opts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px 12px; align-items: end; }
+.vtm20 .r-th-opts .r-th-check, .vtm20 .r-th-opts .r-vc-tools { grid-column: 1 / -1; }
+.vtm20 .r-th-check { display: flex; align-items: center; gap: 6px; }
+.vtm20 .r-th-bar { height: 6px; margin: 8px 0; border-radius: 3px; background: var(--r-line); overflow: hidden; }
+.vtm20 .r-th-bar span { display: block; height: 100%; background: linear-gradient(90deg, var(--r-blood-d), var(--r-blood-l)); }
+.vtm20 .r-th-found .r-cl-head { margin-bottom: 8px; }
+.vtm20 .r-th-found.is-spont .r-cl-bigmedal { color: var(--r-lantern); }
+.vtm20 .r-th-give { padding: 0 16px 12px; }
+.vtm20 .r-th-empty { margin: 18px; text-align: center; }
+.vtm20 .r-art-meta { font-size: 12.5px; color: var(--r-muted); }
+.vtm20 .r-art-hook { font-style: italic; color: var(--r-lantern); }
+.vtm20 .r-th-items { list-style: none; margin: 0 0 10px; padding: 2px 12px 6px; }
+.vtm20 .r-th-items .r-edge { display: flex; align-items: center; gap: 8px; padding: 5px 0; border-bottom: 1px dotted var(--r-line); }
+.vtm20 .r-th-items .r-edge:last-child { border-bottom: 0; }
+.vtm20 .r-th-items .r-edge-lvl { flex: 0 0 30px; text-align: center; font-family: var(--r-display); color: var(--r-muted); }
+.vtm20 .r-th-items .r-edge-main { flex: 1 1 auto; min-width: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; }
+.vtm20 .r-th-items .r-edge-main small { color: var(--r-muted); }
+.vtm20 .r-th-items .r-edge.is-held .r-edge-lvl { color: var(--r-lantern); }
+.vtm20 .r-th-sheet-work .r-th-bar { margin: 4px 12px 8px; }
+.vtm20 .r-th-foreign { color: var(--r-accent); }
+.vtm20 .r-th-charges { display: inline-flex; align-items: center; gap: 3px; margin-left: 6px; }
+.vtm20 .r-th-pip { display: inline-block; width: 8px; height: 8px; border-radius: 50%; border: 1px solid var(--r-muted); }
+.vtm20 .r-th-pip.is-on { background: var(--r-accent); border-color: var(--r-accent); }

@@ -35,6 +35,8 @@ export function clGlyph(kind, key) {
   const daf = n.startsWith("daf-");
   return { src: foundry.utils.getRoute(`${SYSTEM_PATH}/assets/changeling/${n}.${daf ? "png" : "webp"}`), color: !daf };
 }
+/** Искусства без витража (Players Guide: Вливание, Сказ) — значок по смыслу вместо пустого медальона. */
+const ART_ICONS = { infusion: "fa-flask-vial", taleCraft: "fa-book-open" };
 /** Знак кита: свой, иначе группы иных фэ (менехуне, нуннехи). */
 export const kithGlyph = key => clGlyph("kith", key) ?? clGlyph("group", kithOf(key)?.group);
 
@@ -77,6 +79,7 @@ export function artsView(actor, dots) {
   const own = C().arts.filter(a => (c.arts[a.key] ?? 0) > 0).map(a => {
     const value = c.arts[a.key];
     return { key: a.key, name: a.name, en: a.en, value, html: a.html, unleashing: a.unleashing, bunks: a.bunks, sym: clGlyph("art", a.key),
+      icon: ART_ICONS[a.key] ?? "fa-wand-sparkles",
       dots: dots(value, 5, { path: `system.changeling.arts.${a.key}` }), xp: actor.xpCost("art", value),
       levels: a.levels.map((l, i) => ({ ...l, i, known: l.level <= value, typeLabel: l.type ? t(`Type.${l.type}`) : "" })) };
   });
@@ -157,59 +160,49 @@ export async function addBanality(actor, n) {
 /* ── Кантрип ───────────────────────────────────────────────────────────── */
 
 /**
- * Окно кантрипа: Искусство и уровень, Царства (основные и модификаторы), Вирд или химерический, обряд-условие,
- * модификаторы сложности, добровольные кубики Кошмара. Гламур — до броска.
+ * Окно кантрипа (apps/cantrip-window.mjs): Искусство и кантрип лестницей, Царства карточками, вид и обряд-условие,
+ * поправки сложности фишками; итог — пул, сложность, Гламур и шансы — до броска (cantripCalc).
  */
 export async function castCantrip(actor, preset = {}) {
   if (!actor?.isOwner) return ui.notifications.warn(game.i18n.format("VTM20.Notify.NotOwner", { name: actor?.name ?? "" }));
-  const c = actor.system.changeling, arts = C().arts.filter(a => (c.arts[a.key] ?? 0) > 0);
-  if (!arts.length) return ui.notifications.warn(t("NoArts"));
-  const art0 = arts.find(a => a.key === preset.art) ?? arts[0], kith = kithOf(c.kith), R = C().cantrip ?? {};
-  const realmBox = r => `<label class="r-check" data-tooltip="${esc(r.levels.find(l => l.level === (c.realms[r.key] || 1))?.name ?? "")}">
-      <input type="checkbox" name="r_${r.key}" ${preset.realms?.includes(r.key) ? "checked" : ""}> ${esc(r.name)} <small>${c.realms[r.key] ?? 0}${kith?.affinity === r.key ? " ★" : ""}</small></label>`;
-  const mods = (R.mods ?? []).filter(m => m.key !== "affinity");
-  const content = `<div class="r-form r-cantrip">
-    <label class="r-field"><span>${esc(t("Art"))}</span><select name="art">${arts.map(a => `<option value="${a.key}" ${a.key === art0.key ? "selected" : ""}>${esc(a.name)} (${c.arts[a.key]})</option>`).join("")}</select></label>
-    <label class="r-field"><span>${esc(t("Level"))}</span><input type="number" name="level" min="1" max="5" value="${Math.min(preset.level ?? c.arts[art0.key], c.arts[art0.key])}"></label>
-    <div class="r-field"><span>${esc(t("Realms"))}</span><div class="r-checks">${C().realms.filter(r => PRIMARY.includes(r.key)).map(realmBox).join("")}</div></div>
-    <div class="r-field"><span>${esc(t("Modifiers"))}</span><div class="r-checks">${C().realms.filter(r => MODIFIERS.includes(r.key)).map(realmBox).join("")}</div></div>
-    <label class="r-field"><span>${esc(t("Kind"))}</span><select name="wyrd"><option value="0">${esc(t("Type.chimerical"))}</option><option value="1" ${preset.wyrd ? "selected" : ""}>${esc(t("Type.wyrd"))}</option></select></label>
-    <label class="r-field"><span>${esc(t("Bunk"))}</span><select name="bunk">${[0, 1, 2, 3, 4, 5].map(n => `<option value="${n}">${n ? `−${n}` : "—"}</option>`).join("")}</select></label>
-    <div class="r-field"><span>${esc(t("DiffMods"))}</span><div class="r-checks">${mods.map(m => `<label class="r-check"><input type="checkbox" name="m_${m.key}" ${m.key === "placeBanality" && sceneBanality() > 0 ? "checked" : ""}> ${esc(t(`Mod.${m.key}`))} <small>${m.n > 0 ? "+" : "−"}${Math.abs(m.n)}</small></label>`).join("")}
-      <label class="r-check"><input type="checkbox" name="buy"> ${esc(t("BuyNightmare"))} <small>−1</small></label></div></div>
-    <p class="r-note">${esc(t("CantripRule", { nm: c.nightmare }))}</p></div>`;
-  const f = await foundry.applications.api.DialogV2.prompt({ window: { title: `${t("Cantrip")}: ${actor.name}`, icon: "fa-solid fa-wand-sparkles" },
-    classes: ["vtm20", "r-dialog", "r-type-changeling"], position: { width: 520 }, rejectClose: false, content,
-    ok: { label: t("Cast"), icon: "fa-solid fa-wand-sparkles", callback: (e, b) => new foundry.applications.ux.FormDataExtended(b.form).object } });
-  if (!f) return null;
-  return rollCantrip(actor, {
-    art: f.art, level: Number(f.level) || 1, wyrd: f.wyrd === "1" || f.wyrd === 1 || f.wyrd === true, bunk: Number(f.bunk) || 0, buy: !!f.buy,
-    realms: VTM20.changelingRealms.filter(k => f[`r_${k}`]), mods: mods.filter(m => f[`m_${m.key}`]).map(m => m.key)
-  });
+  const c = actor.system.changeling;
+  if (!C().arts.some(a => (c.arts[a.key] ?? 0) > 0)) return ui.notifications.warn(t("NoArts"));
+  const { openCantrip } = await import("./cantrip-window.mjs");
+  return openCantrip(actor, preset);
+}
+
+/**
+ * Расчёт кантрипа без броска (окно кантрипа показывает его до броска, rollCantrip — бросает по нему):
+ * пул — Искусство + наименьшее основное Царство; сл. 8, Сцена и Время +1 каждое, обряд и поправки, склонность кита −1;
+ * Гламур — Вирд (кроме Призыва Вирда) и по 1 за Царство, которого нет; кубики Кошмара — не больше пула.
+ */
+export function cantripCalc(actor, o) {
+  const c = actor.system.changeling, R = C().cantrip ?? {}, kith = kithOf(c.kith);
+  const rating = c.arts[o.art] ?? 0, level = Math.clamp(o.level ?? rating, 1, 5);
+  const primary = (o.realms ?? []).filter(k => PRIMARY.includes(k)), modsR = (o.realms ?? []).filter(k => MODIFIERS.includes(k));
+  // Призыв Вирда: все кантрипы — Вирд, но Гламура не стоят (гл. 6)
+  const wyrdOn = inWyrd(actor), wyrd = !!o.wyrd || wyrdOn;
+  // «жульничество» — Царство, которого нет: +1 Гламур за каждое
+  const cheat = [...primary, ...modsR].filter(k => !(c.realms[k] > 0)).length;
+  const cost = (wyrd && !wyrdOn ? R.wyrdCost ?? 1 : 0) + cheat * (R.cheatCost ?? 1);
+  const low = primary.length ? Math.min(...primary.map(k => c.realms[k] ?? 0)) : 0, pool = rating + low;
+  const modN = k => (R.mods ?? []).find(m => m.key === k)?.n ?? 0;
+  const affinity = primary.concat(modsR).includes(kith?.affinity);
+  const diff = Math.clamp((R.diff ?? 8) + modsR.length - (o.bunk ?? 0) + (o.mods ?? []).reduce((s, k) => s + modN(k), 0) - (affinity ? 1 : 0) - (o.buy ? 1 : 0), 3, 10);
+  const nightmare = Math.min(pool, c.nightmare + (o.buy ? R.nightmareBuy ?? 3 : 0));
+  return { rating, level, primary, modsR, wyrdOn, wyrd, cheat, cost, low, pool, diff, nightmare, affinity };
 }
 
 /** Сам бросок кантрипа (без окна) — для окна, худа и автотестов. */
 export async function rollCantrip(actor, o) {
-  const c = actor.system.changeling, art = artOf(o.art), R = C().cantrip ?? {}, kith = kithOf(c.kith);
-  const rating = c.arts[o.art] ?? 0, level = Math.clamp(o.level ?? rating, 1, 5);
+  const art = artOf(o.art);
+  const { rating, level, primary, modsR, wyrd, cheat, cost, low, pool, diff, nightmare, affinity } = cantripCalc(actor, o);
   if (!art || rating < 1) return ui.notifications.warn(t("NoArts"));
   if (level > rating) return ui.notifications.warn(t("LevelTooHigh", { n: rating }));
   if (bedlamOf(actor)?.key === "leash") return ui.notifications.warn(t("LeashBlock"));
-  const primary = (o.realms ?? []).filter(k => PRIMARY.includes(k)), modsR = (o.realms ?? []).filter(k => MODIFIERS.includes(k));
   if (!primary.length) return ui.notifications.warn(t("NeedRealm"));
-  // Призыв Вирда: все кантрипы — Вирд, но Гламура не стоят (гл. 6)
-  const wyrdOn = inWyrd(actor);
-  if (wyrdOn) o = { ...o, wyrd: true };
-  // «жульничество» — Царство, которого нет: +1 Гламур за каждое
-  const cheat = [...primary, ...modsR].filter(k => !(c.realms[k] > 0)).length;
-  const cost = (o.wyrd && !wyrdOn ? R.wyrdCost ?? 1 : 0) + cheat * (R.cheatCost ?? 1);
+  o = { ...o, wyrd };
   if (cost && !(await spendGlamour(actor, cost))) return null;
-  const low = Math.min(...primary.map(k => c.realms[k] ?? 0)), pool = rating + low;
-  const modN = k => (R.mods ?? []).find(m => m.key === k)?.n ?? 0;
-  const affinity = primary.concat(modsR).includes(kith?.affinity);
-  let diff = (R.diff ?? 8) + modsR.length - (o.bunk ?? 0) + (o.mods ?? []).reduce((s, k) => s + modN(k), 0) - (affinity ? 1 : 0) - (o.buy ? 1 : 0);
-  diff = Math.clamp(diff, 3, 10);
-  const nightmare = Math.min(pool, c.nightmare + (o.buy ? R.nightmareBuy ?? 3 : 0));
   const { rollPool } = await import("../dice/roll.mjs");
   const lv = art.levels.find(l => l.level === level);
   const roll = await rollPool({ actor, title: `${art.name}: ${lv?.name ?? ""}`, subtitle: t("CantripSub", { d: diff }), pool, difficulty: diff, kind: "check",

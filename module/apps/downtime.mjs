@@ -60,11 +60,12 @@ class DowntimeDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const a = this.actor, v = this.v, bg = this.bg;
     const t1 = `attributes.${v.attr}`;
     const bd = [{ label: a.traitLabel(t1), value: a.traitValue(t1) }];
+    // второй пул — сам факт биографии или выбранная Способность
     if (v.second === "bg") bd.push({ label: t(`Downtime.Bg.${v.key}`), value: bg.value });
-    // Стратегия города: фишки в секторах, дающих этот факт, — +1 кубик за каждые 2
+    else bd.push({ label: a.traitLabel(`abilities.${v.second}`), value: a.traitValue(`abilities.${v.second}`) });
+    // Стратегия города: фишки в секторах, дающих этот факт, — +1 кубик за каждые 2 (сверх пула)
     const pk = perkBonus(a, v.key);
     if (pk.dice) bd.push({ label: game.i18n.format("VTM20.Strategy.PerkLine", { name: pk.names.join(", ") }), value: pk.dice });
-    else bd.push({ label: a.traitLabel(`abilities.${v.second}`), value: a.traitValue(`abilities.${v.second}`) });
     const wounds = a.system.health?.penalty ?? 0;
     if (wounds) bd.push({ label: t("Roll.Wounds"), value: wounds });
     if (v.modDice) bd.push({ label: t("Hunt.ModShort"), value: v.modDice });

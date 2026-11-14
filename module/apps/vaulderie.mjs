@@ -26,15 +26,32 @@ function candidates(exclude = []) {
     .sort((x, y) => (isSabbat(y) - isSabbat(x)) || x.name.localeCompare(y.name, "ru"));
 }
 
-/** Диалог выбора: персонажи галочками и, по желанию, имена без листа через запятую. */
+/** Знак клана кружком (как {{rSym}}), без знака — капля. */
+function clanBadge(a) {
+  const s = Codex.clanSymbol(a.system?.clan);
+  return s?.src ? `<span class="r-sym${s.lum ? " is-lum" : ""}${s.color ? " is-color" : ""}" style="--sym: url('${esc(s.src)}')" aria-hidden="true"></span>`
+    : `<i class="fa-solid fa-droplet"></i>`;
+}
+
+/**
+ * Диалог выбора: персонажи карточками (знак клана, имя, клан, секта), отмеченные подсвечены, внизу — сколько отмечено
+ * (CSS-счётчик, без скрипта); по желанию — имена без листа через запятую.
+ */
 async function pickPeople({ title, icon, hint, exclude = [], checked = [], names = true, okLabel }) {
-  const rows = candidates(exclude).map(a => `<label class="r-trait r-vinc-pick">
+  const rows = candidates(exclude).map(a => {
+    const sect = a.system.details?.sect ?? "";
+    return `<label class="r-vinc-pick">
       <input type="checkbox" name="pick" value="${a.id}" ${checked.includes(a.id) ? "checked" : ""}>
-      <span class="r-trait-main"><b>${esc(a.name)}</b><em>${esc([a.clanLabel, a.system.details?.sect].filter(Boolean).join(" · "))}</em></span></label>`).join("");
+      <span class="r-vinc-sym">${clanBadge(a)}</span>
+      <span class="r-vinc-who"><b>${esc(a.name)}</b><em>${esc(a.clanLabel || "—")}${sect ? ` · <span class="r-vinc-sect ${isSabbat(a) ? "is-sabbat" : ""}">${esc(sect)}</span>` : ""}</em></span>
+      <i class="fa-solid fa-check r-vinc-tick"></i></label>`;
+  }).join("");
   return foundry.applications.api.DialogV2.prompt({
-    window: { title, icon }, classes: ["vtm20", "r-dialog", "r-vinc-dialog"], position: { width: 460 },
-    content: `<p class="r-hint">${hint}</p><div class="r-vinc-list">${rows || `<p class="r-empty">${t("Vinc.NoKindred")}</p>`}</div>
-      ${names ? `<label class="r-field"><span>${t("Vinc.ExtraNames")}</span><input type="text" name="names" placeholder="${t("Vinc.ExtraNamesHint")}"></label>` : ""}`,
+    window: { title, icon }, classes: ["vtm20", "r-dialog", "r-vinc-dialog"], position: { width: 600 },
+    content: `<div class="r-vinc-body"><p class="r-vinc-hint">${hint}</p>
+      <div class="r-vinc-list">${rows || `<p class="r-empty">${t("Vinc.NoKindred")}</p>`}</div>
+      ${rows ? `<p class="r-vinc-count">${t("Vinc.Picked")} <b></b></p>` : ""}
+      ${names ? `<label class="r-field"><span>${t("Vinc.ExtraNames")}</span><input type="text" name="names" placeholder="${t("Vinc.ExtraNamesHint")}"></label>` : ""}</div>`,
     ok: { label: okLabel, callback: (e, b) => ({
       ids: [...b.form.querySelectorAll("input[name=pick]:checked")].map(x => x.value),
       names: String(b.form.elements.names?.value ?? "").split(/[,;\n]/).map(s => s.trim()).filter(Boolean)

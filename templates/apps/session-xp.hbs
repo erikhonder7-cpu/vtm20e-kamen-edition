@@ -61,7 +61,6 @@
     <ol class="r-sxp-past">
       {{#each history}}
       <li><b>{{localize "VTM20.SessionXp.NightShort" n=n}}</b><span>{{label}}{{#if story}} <i class="fa-solid fa-book" data-tooltip="{{localize 'VTM20.SessionXp.StoryEnd'}}"></i>{{/if}}</span><em>{{who}}</em></li>
-      {{else}}<li class="r-empty">{{localize "VTM20.SessionXp.NoPast"}}</li>
       {{/each}}
     </ol>
   </main>

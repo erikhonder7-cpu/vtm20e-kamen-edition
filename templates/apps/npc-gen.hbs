@@ -23,7 +23,7 @@
       <span class="r-ng-rlabel"><i class="fa-solid fa-bookmark"></i> {{localize "VTM20.NpcGen.Presets"}}</span>
       <div class="r-ng-chips">
         {{#each presets}}<span class="r-ng-chip is-preset"><a data-action="presetLoad" data-i="{{i}}">{{name}}</a><a class="r-ng-px" data-action="presetDrop" data-i="{{i}}"><i class="fa-solid fa-xmark"></i></a></span>
-        {{else}}<em class="r-note">{{localize "VTM20.NpcGen.NoPresets"}}</em>{{/each}}
+        {{/each}}
         <a class="r-ng-chip is-soft" data-action="presetSave"><i class="fa-solid fa-floppy-disk"></i> {{localize "VTM20.NpcGen.PresetSave"}}</a>
       </div>
     </div>

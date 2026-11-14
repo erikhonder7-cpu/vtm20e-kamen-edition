@@ -1,27 +1,28 @@
+@charset "UTF-8";
 /* ═══════════════════════════════════════════════════════════════════════
    Подменыш (Changeling: The Dreaming 20th; лист — module/sheets/actor-sheet.mjs, вкладка templates/actor/arts.hbs):
-   «Шиповник» — сливово-чёрная ночь Грёзы и розово-пурпурный жемчуг дикой розы как акцент; Кошмар — тёмная сирень, Банальность —
-   холодная сталь. Каркас — тема призраков (wraith.css), перекрашенная скриптом D:/ClaudeData/temp-claude/mage/changeling_css.py;
-   без красного, зелени, бирюзы, фиолета, янтаря, пепла и золота — это цвета других линеек.
+   «Шиповник и хвоя» — сливово-чёрная ночь Грёзы, розовый жемчуг дикой розы как акцент и хвойная зелень как второй цвет
+   (линии, рамки, свечение, кнопки); текст — белый. Кошмар — тёмная сирень, Банальность — холодная сталь. Каркас — тема
+   призраков (wraith.css), перекрашенная скриптом D:/ClaudeData/temp-claude/mage/changeling_css.py.
    ═══════════════════════════════════════════════════════════════════════ */
 
 .vtm20.r-type-changeling {
-  --r-ink: #f4d2ed;
-  --r-ink-2: #e58ed5;
-  --r-muted: #d9a3cf;   /* приглушённый текст — светлая орхидея: насыщенный пурпур сливался со сливовым фоном */
+  --r-ink: #f7f4f6;     /* текст — белый: розовый и пурпурный терялись на сливовом фоне */
+  --r-ink-2: #e9e4e7;
+  --r-muted: #b9b1b6;
   --r-line: rgba(235, 171, 223, .1);
   --r-line-2: rgba(235, 171, 223, .2);
   --r-accent: #eeb7e4;
   --r-red-t: var(--r-accent);
-  --r-blood: #b3409e; --r-blood-l: #eeb7e4; --r-blood-d: #130811;
+  --r-blood: #2f7a57; --r-blood-l: #eeb7e4; --r-blood-d: #130811;
   --r-dot-border: rgba(235, 171, 223, .3);
   --r-dot-fill: radial-gradient(circle at 38% 32%, #fbedf8, #d13db5 55%, #271323);
   --r-gap-ring: #0c060b;
   --r-card-bg: rgba(235, 171, 223, .025);
   --r-option-bg: #180b15;
   --r-bg:
-    radial-gradient(ellipse 90% 45% at 50% -8%, rgba(147, 53, 130, .13), transparent 60%),
-    radial-gradient(ellipse 80% 35% at 50% 108%, rgba(100, 36, 88, .14), transparent 65%),
+    radial-gradient(ellipse 90% 45% at 50% -8%, rgba(47, 122, 87, .13), transparent 60%),
+    radial-gradient(ellipse 80% 35% at 50% 108%, rgba(30, 77, 55, .14), transparent 65%),
     radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(0, 0, 2, .55) 100%),
     url("../assets/ui/paper-dark.svg"),
     linear-gradient(180deg, #1b0c18, #0c060b);
@@ -29,21 +30,21 @@
 
 /* ── обвязка листа и окон — по образцу «лунного леса» (werewolf.css, строки 42–145), в цветах «Шиповника»:
    рейка, монеты вкладок, печать, запас, полоса действий, уголки карточек, подвал, шапка окна, броски и карточки чата ── */
-.vtm20.r-type-changeling, .r-type-changeling { --cl-amber: #eeb7e4; --cl-amber-l: #fbedf8; --cl-ash: #a53b91; --cl-ash-d: #1b0d18; --cl-steel: #d651be; --cl-steel-d: #21101e; }
+.vtm20.r-type-changeling, .r-type-changeling { --cl-amber: #eeb7e4; --cl-amber-l: #fbedf8; --cl-ash: #2f7a57; --cl-ash-d: #1b0d18; --cl-steel: #4fa77a; --cl-steel-d: #21101e; }
 .vtm20.r-type-changeling .r-rail {
   background:
-    radial-gradient(ellipse 120% 40% at 50% 0%, rgba(147, 53, 130, .16), transparent 70%),
-    radial-gradient(ellipse 140% 30% at 50% 100%, rgba(100, 36, 88, .12), transparent 70%),
+    radial-gradient(ellipse 120% 40% at 50% 0%, rgba(47, 122, 87, .16), transparent 70%),
+    radial-gradient(ellipse 140% 30% at 50% 100%, rgba(30, 77, 55, .12), transparent 70%),
     linear-gradient(180deg, #190c16, #0c060b 60%, #0c060b);
   border-right-color: #291325;
 }
 .vtm20.r-type-changeling .r-rail::after { background: repeating-linear-gradient(180deg, rgba(238, 183, 228, .14) 0 2px, transparent 2px 8px); }
 .vtm20.r-type-changeling .r-rail-sigil {
   border-color: rgba(238, 183, 228, .45); background: radial-gradient(circle at 50% 30%, #200f1d, #0d070c 72%);
-  box-shadow: 0 0 0 3px #0c060b, 0 0 0 4px rgba(147, 53, 130, .5), 0 0 22px rgba(238, 183, 228, .22), inset 0 2px 6px rgba(0, 0, 2, .6);
+  box-shadow: 0 0 0 3px #0c060b, 0 0 0 4px rgba(47, 122, 87, .5), 0 0 22px rgba(238, 183, 228, .22), inset 0 2px 6px rgba(0, 0, 2, .6);
 }
 .vtm20.r-type-changeling .r-rail-sigil::before { background: var(--cl-amber); box-shadow: 0 0 6px rgba(236, 240, 244, .7); }
-.vtm20.r-type-changeling .r-rtab.active { color: #fceff9; background: linear-gradient(90deg, rgba(238, 183, 228, .16), rgba(147, 53, 130, .05) 70%, transparent); }
+.vtm20.r-type-changeling .r-rtab.active { color: #fceff9; background: linear-gradient(90deg, rgba(238, 183, 228, .16), rgba(47, 122, 87, .05) 70%, transparent); }
 .vtm20.r-type-changeling .r-rtab.active .r-rtab-coin {
   color: #130811; border-color: var(--cl-amber-l); background: radial-gradient(circle at 50% 30%, #fbedf8, #d13db5 70%);
   box-shadow: 0 0 0 2px #0c060b, 0 0 0 3px rgba(236, 240, 244, .4), 0 0 16px rgba(236, 240, 244, .35);
@@ -54,19 +55,19 @@
 .vtm20.r-type-changeling .r-portrait-frame { box-shadow: 0 0 0 1px rgba(238, 183, 228, .35), 0 6px 18px rgba(0, 0, 2, .6); }
 .vtm20.r-type-changeling .r-seal { background: #0c060b; border-color: rgba(235, 171, 223, .22); border-top-color: var(--cl-amber); }
 .vtm20.r-type-changeling .r-seal-num.r-seal-icon { color: var(--cl-amber-l); }
-.vtm20.r-type-changeling .r-seal-cap { color: #d651be; }
+.vtm20.r-type-changeling .r-seal-cap { color: #4fa77a; }
 .vtm20.r-type-changeling .r-motto { color: rgba(238, 183, 228, .75); }
 .vtm20.r-type-changeling .r-kicker-dia { background: var(--cl-amber); }
-.vtm20.r-type-changeling .r-assignat { border-top-color: var(--cl-amber); background: linear-gradient(180deg, rgba(100, 36, 88, .08), rgba(0, 0, 2, .3) 60%); }
+.vtm20.r-type-changeling .r-assignat { border-top-color: var(--cl-amber); background: linear-gradient(180deg, rgba(30, 77, 55, .08), rgba(0, 0, 2, .3) 60%); }
 .vtm20.r-type-changeling .r-act.is-hot:hover { background: rgba(238, 183, 228, .14); }
 .vtm20.r-type-changeling .r-act:hover i { color: var(--cl-amber-l); }
 .vtm20.r-type-changeling .r-vcard::before, .vtm20.r-type-changeling .r-tcol::before { background: linear-gradient(90deg, var(--cl-amber), rgba(238, 183, 228, 0)); width: 54px; }
 .vtm20.r-type-changeling .r-vcard::after, .vtm20.r-type-changeling .r-tcol::after {
-  content: ""; position: absolute; right: -1px; bottom: -1px; width: 22px; height: 1px; background: rgba(147, 53, 130, .55);
+  content: ""; position: absolute; right: -1px; bottom: -1px; width: 22px; height: 1px; background: rgba(47, 122, 87, .55);
 }
 .vtm20.r-type-changeling .r-vitals-wrap.is-closed .r-vitals-strip { border-top-color: var(--cl-amber); }
 .vtm20.r-type-changeling .r-vitals-wrap.is-closed .r-vitals-strip:hover { background: rgba(238, 183, 228, .1); }
-.vtm20.r-type-changeling .r-trait:hover { background: linear-gradient(90deg, rgba(238, 183, 228, .1), rgba(147, 53, 130, .03) 60%, transparent); }
+.vtm20.r-type-changeling .r-trait:hover { background: linear-gradient(90deg, rgba(238, 183, 228, .1), rgba(47, 122, 87, .03) 60%, transparent); }
 .vtm20.r-type-changeling .r-foot {
   background:
     linear-gradient(90deg, transparent 0 18px, rgba(238, 183, 228, .3) 18px 19px, transparent 19px),
@@ -77,42 +78,42 @@
 .vtm20.r-type-changeling .r-foot-item.is-xp i { color: var(--cl-amber); }
 .application.vtm20.r-type-changeling { border-color: #2f112a; --background: #150a13; --color-header-background: #0c060b; --color-border: #2f112a; }
 .application.vtm20.r-type-changeling .window-header { background: linear-gradient(180deg, #10080f, #0c060b); border-bottom-color: #1b0d18; }
-.application.vtm20.r-type-changeling .window-header::after { background: linear-gradient(90deg, rgba(147, 53, 130, .1), #d651be 30%, #eeb7e4 60%, rgba(100, 36, 88, .1)); opacity: .6; }
+.application.vtm20.r-type-changeling .window-header::after { background: linear-gradient(90deg, rgba(47, 122, 87, .1), #4fa77a 30%, #eeb7e4 60%, rgba(30, 77, 55, .1)); opacity: .6; }
 .application.vtm20.r-type-changeling .window-header .window-icon { color: var(--cl-amber); }
 .vtm20.r-type-changeling .r-diff.is-active { color: #130811; background: linear-gradient(180deg, #fbedf8, #d13db5); border-color: var(--cl-amber-l); }
 .vtm20.r-type-changeling .r-diff.is-base { border-color: var(--cl-amber); }
 .vtm20.r-type-changeling .r-roll-pool i, .vtm20.r-type-changeling .r-plus { color: var(--cl-amber); }
-.vtm20.r-type-changeling .r-odds-bar .is-success { background: linear-gradient(180deg, #f5d2ef, #db67c6); }
+.vtm20.r-type-changeling .r-odds-bar .is-success { background: linear-gradient(180deg, #f5d2ef, #4fa77a); }
 .vtm20.r-type-changeling .r-odds-bar .is-failure { background: #31112b; }
 .vtm20.r-type-changeling .r-odds-bar .is-botch { background: linear-gradient(180deg, #6e2655, #371431); }
 .vtm20.r-type-changeling .r-check-banner { border-left-color: var(--cl-amber); }
 .vtm20.r-type-changeling button.is-primary, .vtm20.r-type-changeling .r-btn.is-primary { color: #130811; background: linear-gradient(180deg, #fceff9, #d44cbb); border-color: var(--cl-amber-l); }
 .vtm20.r-type-changeling button.is-primary:hover, .vtm20.r-type-changeling .r-btn.is-primary:hover { color: #000; background: linear-gradient(180deg, #efbae5, #d13db5); box-shadow: 0 0 12px rgba(236, 240, 244, .35); }
 .r-roll-card.r-type-changeling {
-  --r-accent: #f0bee7; --r-red-t: #f0bee7; --r-muted: #dcaad3; --r-line: rgba(235, 171, 223, .12); --r-line-2: rgba(235, 171, 223, .22);
-  background: radial-gradient(ellipse 90% 60% at 50% 0%, rgba(147, 53, 130, .12), transparent 70%),
-    radial-gradient(ellipse 90% 50% at 50% 110%, rgba(100, 36, 88, .12), transparent 70%),
+  --r-accent: #f0bee7; --r-red-t: #f0bee7; --r-muted: #bdb5ba; --r-line: rgba(235, 171, 223, .12); --r-line-2: rgba(235, 171, 223, .22);
+  background: radial-gradient(ellipse 90% 60% at 50% 0%, rgba(47, 122, 87, .12), transparent 70%),
+    radial-gradient(ellipse 90% 50% at 50% 110%, rgba(30, 77, 55, .12), transparent 70%),
     linear-gradient(180deg, #1d0d1a, #0f070e);
   border-color: #31112b; border-left-color: #371431;
 }
 .r-roll-card.r-type-changeling::before { width: 54px; background: linear-gradient(90deg, #eeb7e4, rgba(238, 183, 228, 0)); }
-.r-roll-card.r-type-changeling::after { content: ""; position: absolute; right: -1px; bottom: -1px; width: 22px; height: 1px; background: rgba(147, 53, 130, .6); }
+.r-roll-card.r-type-changeling::after { content: ""; position: absolute; right: -1px; bottom: -1px; width: 22px; height: 1px; background: rgba(47, 122, 87, .6); }
 .r-roll-card.r-type-changeling .r-card-img { border-color: rgba(238, 183, 228, .5); filter: none; }
 .r-roll-card.r-type-changeling.is-success { border-left-color: #e078cc; }
 .r-roll-card.r-type-changeling.is-exceptional, .r-roll-card.r-type-changeling.is-phenomenal { border-left-color: #fbedf8; box-shadow: inset 3px 0 10px -4px rgba(236, 240, 244, .6); }
 .r-roll-card.r-type-changeling.is-botch { border-color: #32122c; border-left-color: #6e2655; background: linear-gradient(180deg, #1d0d1a, #10080f); }
-.r-roll-card.r-type-changeling .r-die.is-miss { background: #200f1d; color: #a64585; }
+.r-roll-card.r-type-changeling .r-die.is-miss { background: #200f1d; color: #2f7a57; }
 .r-roll-card.r-type-changeling .r-die.is-hit { background: linear-gradient(180deg, #f4d2ed, #e183d0); color: #0f070e; }
-.r-roll-card.r-type-changeling .r-die.is-ten { background: radial-gradient(circle at 50% 35%, #f5d2ef, #d651be 70%); color: #0f070e; }
+.r-roll-card.r-type-changeling .r-die.is-ten { background: radial-gradient(circle at 50% 35%, #f5d2ef, #4fa77a 70%); color: #0f070e; }
 .r-roll-card.r-type-changeling .r-die.is-double::before { color: #4a1a41; }
 .r-roll-card.r-type-changeling .r-die.is-one { background: #371431; color: #f5d5ef; }
 .r-roll-card.r-type-changeling .r-die.is-will { background: #33122d; }
-.r-roll-card.r-type-changeling .r-card-tally .is-one, .r-roll-card.r-type-changeling .r-card-tally .is-ten em { color: #db67c6; }
+.r-roll-card.r-type-changeling .r-card-tally .is-one, .r-roll-card.r-type-changeling .r-card-tally .is-ten em { color: #4fa77a; }
 .r-roll-card.r-type-changeling.is-exceptional .r-outcome-ribbon, .r-roll-card.r-type-changeling.is-phenomenal .r-outcome-ribbon { color: #130811; background: linear-gradient(180deg, #fbedf8, #d13db5); border-color: #fbedf8; }
 .r-roll-card.r-type-changeling.is-botch .r-outcome-ribbon { color: #fceff9; background: #461a3e; border-color: #6e2655; }
 .r-roll-card.r-type-changeling .r-card-hint { border-left-color: rgba(238, 183, 228, .45); }
 .r-item-card.r-type-changeling { --r-accent: #f0bee7; border-color: #31112b; border-left: 3px solid #eeb7e4;
-  background: radial-gradient(ellipse 90% 60% at 50% 0%, rgba(147, 53, 130, .12), transparent 70%), linear-gradient(180deg, #1d0d1a, #0f070e); }
+  background: radial-gradient(ellipse 90% 60% at 50% 0%, rgba(47, 122, 87, .12), transparent 70%), linear-gradient(180deg, #1d0d1a, #0f070e); }
 .r-item-card.r-type-changeling .r-card-img { border-color: rgba(238, 183, 228, .5); background: #0f070e; filter: none; }
 .r-item-card.r-type-changeling .r-card-kicker { color: #eeb7e4; }
 .r-notice.r-type-changeling { border-left-color: #eeb7e4; background: linear-gradient(90deg, rgba(238, 183, 228, .12), rgba(0, 0, 2, .25) 60%); }
@@ -124,9 +125,9 @@
   color: #fcf1fa; background: linear-gradient(180deg, rgba(116, 42, 103, .55), rgba(31, 15, 28, .55)); box-shadow: inset 0 -2px 0 #eeb7e4; }
 .vtm20.r-type-changeling .r-mode-opt.is-active i, .vtm20.r-type-changeling .r-mode-opt:has(input:checked) i { color: #fbedf8; }
 .application.r-type-changeling {
-  --color-warm-1: #eeb7e4; --color-warm-2: #a64585;
-  --color-border-highlight: #eeb7e4; --color-border-highlight-alt: #d651be;
-  --color-text-hyperlink: #f0bee7; --color-text-selection-bg: #a64585;
+  --color-warm-1: #eeb7e4; --color-warm-2: #2f7a57;
+  --color-border-highlight: #eeb7e4; --color-border-highlight-alt: #4fa77a;
+  --color-text-hyperlink: #f0bee7; --color-text-selection-bg: #2f7a57;
 }
 .vtm20.r-type-changeling.r-choice-dialog .r-choice:has(input:checked) { border-color: #eeb7e4; background: rgba(238, 183, 228, .12); }
 .vtm20.r-type-changeling.r-choice-dialog .r-choice input[type=radio]:checked { border-color: #eeb7e4; background: radial-gradient(circle, #fbedf8 0 3.5px, transparent 4px); }
@@ -138,12 +139,12 @@
 
 /* Грёза (templates/actor/vitals.hbs): Гламур — розовый жемчуг, Банальность — холодная сталь, Кошмар — тёмная сирень */
 .vtm20.r-type-changeling .r-vc-dream .r-vc-sub { margin-top: 8px; }
-.vtm20.r-type-changeling .r-dots.is-glamour { --r-dot-fill: radial-gradient(circle at 38% 32%, #fee7f9, #dc7aca 55%, #3c1036); --r-dot-border: rgba(234, 157, 221, .45); }
-.vtm20.r-type-changeling .r-boxes.is-glamour .r-box.is-filled { background: linear-gradient(180deg, #ea9ddd, #7f256e); border-color: #ea9ddd; }
+.vtm20.r-type-changeling .r-dots.is-glamour { --r-dot-fill: radial-gradient(circle at 38% 32%, #fee7f9, #dc7aca 55%, #3c1036); --r-dot-border: rgba(111, 191, 147, .45); }
+.vtm20.r-type-changeling .r-boxes.is-glamour .r-box.is-filled { background: linear-gradient(180deg, #6fbf93, #7f256e); border-color: #6fbf93; }
 .vtm20.r-type-changeling .r-dots.is-banality { --r-dot-fill: radial-gradient(circle at 38% 32%, #e3e8ee, #7f8ea0 55%, #1d232b); --r-dot-border: rgba(160, 175, 192, .45); }
 .vtm20.r-type-changeling .r-boxes.is-banality .r-box.is-filled { background: linear-gradient(180deg, #a5b2c2, #3c4756); border-color: #a5b2c2; }
 .vtm20.r-type-changeling .r-boxes.is-nightmare .r-box.is-filled { background: linear-gradient(180deg, #8e6aa8, #2e1a3c); border-color: #9f7fbd; }
-.vtm20.r-type-changeling .r-vc-dream .is-warn { color: #ea9ddd; font-style: italic; }
+.vtm20.r-type-changeling .r-vc-dream .is-warn { color: #6fbf93; font-style: italic; }
 .vtm20.r-type-changeling .r-vc-dream.is-mists { box-shadow: inset 0 0 22px rgba(165, 178, 194, .2); }
 .vtm20.r-type-changeling .r-vc-dream.is-bedlam { box-shadow: inset 0 0 26px rgba(142, 106, 168, .35); }
 
@@ -162,11 +163,11 @@
 .vtm20 .r-cl-lvl-name { flex: 1 1 auto; min-width: 0; cursor: pointer; }
 .vtm20 .r-cl-lvl-name em { color: var(--r-muted); font-size: 11.5px; }
 .vtm20 .r-cl-chip { flex: none; font-size: 10.5px; padding: 1px 6px; border: 1px solid var(--r-line-2); color: var(--r-muted); }
-.vtm20 .r-cl-chip.is-wyrd { color: #f9c6ef; border-color: rgba(234, 157, 221, .5); }
+.vtm20 .r-cl-chip.is-wyrd { color: #f9c6ef; border-color: rgba(111, 191, 147, .5); }
 .vtm20 .r-cl-bunks { margin: 6px 0 0; font-size: 12px; }
 .vtm20 .r-cl-realms { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; margin: 6px 0 14px; }
 .vtm20 .r-cl-realm.is-mod { opacity: .9; }
-.vtm20 .r-cl-realm.is-affinity { box-shadow: inset 2px 0 0 #ea9ddd; }
+.vtm20 .r-cl-realm.is-affinity { box-shadow: inset 2px 0 0 #6fbf93; }
 .vtm20 .r-cl-rlevels { margin: 4px 0 0; padding-left: 18px; font-size: 12px; color: var(--r-muted); }
 .vtm20 .r-cl-rlevels li.is-known { color: var(--r-ink); }
 .vtm20 .r-cl-add { margin: 4px 0 8px; }
@@ -231,7 +232,7 @@
 .vtm20.r-type-changeling .r-cl-chim-btns .r-vc-btn { width: 20px; height: 20px; min-width: 20px; font-size: 11px; }
 .vtm20.r-type-changeling .r-hboxes.is-chimerical .r-hbox-mark { height: 20px; }
 /* Закрашенные точки — обводка и свечение в гамме Грёзы (общее правило r-core.css даёт вампирский красный); Банальность — сталь */
-.vtm20.r-type-changeling .r-dot.is-filled { border-color: #e58ed5; box-shadow: 0 0 4px rgba(229, 142, 213, .3); }
+.vtm20.r-type-changeling .r-dot.is-filled { border-color: #e58ed5; box-shadow: 0 0 4px rgba(111, 191, 147, .3); }
 .vtm20.r-type-changeling .r-dots.is-banality .r-dot.is-filled { border-color: #aab6c6; box-shadow: 0 0 4px rgba(170, 182, 198, .25); }
 /* Химеры-спутники: построитель */
 .r-cl-ch-dlg .r-cl-ch-top { display: grid; grid-template-columns: 1fr 160px; gap: 10px; }
@@ -246,7 +247,7 @@
 .vtm20.r-type-changeling .r-cl-chimera.is-over { border-color: #a87ad6; }
 /* Химерическое ремесло: полоса прогресса */
 .vtm20.r-type-changeling .r-cl-craft-bar { height: 5px; margin: 6px 0 2px; background: rgba(235, 171, 223, .12); border: 1px solid var(--r-line-2); }
-.vtm20.r-type-changeling .r-cl-craft-bar i { display: block; height: 100%; background: linear-gradient(90deg, #a23490, #ef85da); }
+.vtm20.r-type-changeling .r-cl-craft-bar i { display: block; height: 100%; background: linear-gradient(90deg, #2f7a57, #8fd6ad); }
 .vtm20.r-type-changeling .r-cl-craft.is-done { border-color: #e9c46a; }
 .vtm20.r-type-changeling .r-cl-fh-powers { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 6px 0; }
 .vtm20.r-type-changeling .r-cl-fh-powers small { color: var(--r-muted); }
@@ -260,16 +261,16 @@
 
 /* панель Грёзы наверху вкладки «Искусства» (arts.hbs): три Темпера рядом, ниже — действия с подписями */
 .vtm20.r-type-changeling .r-cl-dream { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 22px; margin: 4px 0 16px; padding: 12px 16px;
-  border: 1px solid rgba(229, 142, 213, .18); background: linear-gradient(180deg, rgba(255, 255, 255, .03), rgba(0, 0, 0, .16)); }
+  border: 1px solid rgba(111, 191, 147, .18); background: linear-gradient(180deg, rgba(255, 255, 255, .03), rgba(0, 0, 0, .16)); }
 .vtm20.r-type-changeling .r-cl-dream.is-mists { box-shadow: inset 0 0 22px rgba(165, 178, 194, .2); }
 .vtm20.r-type-changeling .r-cl-dream.is-bedlam { box-shadow: inset 0 0 26px rgba(142, 106, 168, .35); }
 .vtm20.r-type-changeling .r-cl-dream .r-cl-temper { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
-.vtm20.r-type-changeling .r-cl-dream .r-cl-temper + .r-cl-temper { padding-left: 22px; border-left: 1px solid rgba(229, 142, 213, .12); margin-left: -11px; }
+.vtm20.r-type-changeling .r-cl-dream .r-cl-temper + .r-cl-temper { padding-left: 22px; border-left: 1px solid rgba(111, 191, 147, .12); margin-left: -11px; }
 .vtm20.r-type-changeling .r-cl-dream .r-cl-temper-head { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; }
 .vtm20.r-type-changeling .r-cl-dream .r-cl-temper-num b { font-size: 22px; }
 .vtm20.r-type-changeling .r-cl-dream .r-cl-states { margin: 2px 0 0; }
 .vtm20.r-type-changeling .r-cl-dream-bar { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding-top: 10px;
-  border-top: 1px solid rgba(229, 142, 213, .12); }
+  border-top: 1px solid rgba(111, 191, 147, .12); }
 .vtm20.r-type-changeling .r-cl-dream-bar .r-btn { padding: 2px 10px; }
 .vtm20.r-type-changeling .r-cl-dream-bar .r-btn.is-active { border-color: #f0c96a; color: #f6dc97; }
 .vtm20.r-type-changeling .r-cl-dream-bar .r-cl-gm { display: inline-flex; gap: 4px; margin-left: auto; }
@@ -286,12 +287,12 @@
 /* Агенды (advantages.hbs, apps/agenda.mjs): карточка — название, суть, пул и цель, полосы хода (своя и соперника), кнопки */
 .vtm20.r-type-changeling .r-ag-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 10px; }
 .vtm20.r-type-changeling .r-ag { display: flex; flex-direction: column; justify-content: flex-start; align-self: start; gap: 6px; padding: 10px 12px; }
-.vtm20.r-type-changeling .r-ag.is-active { border-color: rgba(229, 142, 213, .45); }
+.vtm20.r-type-changeling .r-ag.is-active { border-color: rgba(111, 191, 147, .45); }
 .vtm20.r-type-changeling .r-ag.is-done { opacity: .85; }
 .vtm20.r-type-changeling .r-ag-head { display: flex; align-items: center; gap: 8px; }
 .vtm20.r-type-changeling .r-ag-name { flex: 1 1 auto; font-family: var(--r-display); font-size: 16px; }
 .vtm20.r-type-changeling .r-ag-state { font-size: 11px; font-style: italic; color: var(--r-muted); white-space: nowrap; }
-.vtm20.r-type-changeling .r-ag-state.is-on, .vtm20.r-type-changeling .r-ag.is-passed .r-ag-state, .vtm20.r-type-changeling .r-ag.is-narrow .r-ag-state { color: #f2a9e4; }
+.vtm20.r-type-changeling .r-ag-state.is-on, .vtm20.r-type-changeling .r-ag.is-passed .r-ag-state, .vtm20.r-type-changeling .r-ag.is-narrow .r-ag-state { color: #8fd6ad; }
 .vtm20.r-type-changeling .r-ag.is-lost .r-ag-state { color: #c97b7b; }
 .vtm20.r-type-changeling .r-ag-tools { display: inline-flex; gap: 8px; }
 .vtm20.r-type-changeling .r-ag-tools a { color: var(--r-muted); } .vtm20.r-type-changeling .r-ag-tools a:hover { color: var(--r-ink); }
@@ -305,19 +306,19 @@
 .vtm20.r-type-changeling .r-ag-track b { font-family: var(--r-display); font-size: 15px; font-weight: 400; color: var(--r-ink); }
 .vtm20.r-type-changeling .r-ag-fails { color: var(--r-muted); font-style: italic; white-space: nowrap; }
 .vtm20.r-type-changeling .r-ag-bar { position: relative; height: 6px; background: rgba(0, 0, 0, .45); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .06); }
-.vtm20.r-type-changeling .r-ag-bar i { position: absolute; inset: 0 auto 0 0; background: linear-gradient(90deg, #b8559f, #f2a9e4); box-shadow: 0 0 6px rgba(242, 169, 228, .45); }
+.vtm20.r-type-changeling .r-ag-bar i { position: absolute; inset: 0 auto 0 0; background: linear-gradient(90deg, #2f7a57, #8fd6ad); box-shadow: 0 0 6px rgba(143, 214, 173, .45); }
 .vtm20.r-type-changeling .r-ag-track.is-rival .r-ag-bar i { background: linear-gradient(90deg, #4c5566, #9aa6b8); box-shadow: none; }
 .vtm20.r-type-changeling .r-ag-btns { display: flex; flex-wrap: wrap; gap: 6px; }
 
 /* Хсиен: панель Чи и Югэна вместо Грёзы; инанимае — Слайверы (arts.hbs, apps/fae-variants.mjs) */
 .vtm20.r-type-changeling .r-hs-derived { grid-column: 1 / -1; margin: 0; }
-.vtm20.r-type-changeling .r-cl-art.is-affinity { border-color: rgba(229, 142, 213, .45); }
+.vtm20.r-type-changeling .r-cl-art.is-affinity { border-color: rgba(111, 191, 147, .45); }
 .vtm20.r-type-changeling .r-in-lost { margin: 0 0 6px; }
 
 /* Dark Ages: Fae — Домены карточками в два столбца, любимый Домен подсвечен (arts.hbs, apps/dark-fae.mjs) */
 .vtm20.r-type-changeling .r-daf-doms { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 10px; align-items: start; }
 .vtm20.r-type-changeling .r-daf-dom { padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; }
-.vtm20.r-type-changeling .r-daf-dom.is-favorite { border-color: rgba(229, 142, 213, .5); }
+.vtm20.r-type-changeling .r-daf-dom.is-favorite { border-color: rgba(111, 191, 147, .5); }
 .vtm20.r-type-changeling .r-daf-dom.is-day .r-cl-art-name { color: #f3d27a; } .vtm20.r-type-changeling .r-daf-dom.is-night .r-cl-art-name { color: #b9b7d6; }
 .vtm20.r-type-changeling .r-daf-dom.is-dawn .r-cl-art-name { color: #a9d39a; } .vtm20.r-type-changeling .r-daf-dom.is-dusk .r-cl-art-name { color: #e09a7a; }
 .vtm20.r-type-changeling .r-cl-forget { margin-left: auto; color: var(--r-muted); font-size: 11px; } .vtm20.r-type-changeling .r-cl-forget:hover { color: var(--r-ink); }
@@ -358,3 +359,216 @@ body.r-theme-light .vtm20.r-type-changeling.r-cl-dark { --r-ink: #10162e; --r-in
 .vtm20.r-type-changeling .r-cl-dream .r-cl-temper > .r-dots .r-dot { width: 17px; height: 17px; margin: 0; }
 .vtm20.r-type-changeling .r-cl-dream .r-cl-temper > .r-boxes { display: flex; flex-wrap: nowrap; justify-content: center; gap: 4px; width: 100%; margin-top: 8px; }
 .vtm20.r-type-changeling .r-cl-dream .r-cl-temper > .r-boxes .r-box { width: 17px; height: 17px; flex: 0 0 auto; margin: 0; border-radius: 3px; }
+
+/* ══ Вкладка «Искусства» (templates/actor/arts.hbs): витражи Искусств, лестницы кантрипов, Царства строками, спутники Грёзы
+   панелями. Цвета: белый текст, розовый жемчуг — акцент (имя, точки), хвоя — второй цвет (ступени, рамки, открытые цели). ══ */
+.vtm20.r-type-changeling { --cl-pine: #2f7a57; --cl-pine-l: #6fbf93; --cl-pine-xl: #a9e2c2; --cl-pine-d: #163b2a; }
+.vtm20.r-type-changeling .r-vcard::before, .vtm20.r-type-changeling .r-tcol::before { background: linear-gradient(90deg, var(--cl-pine-l), rgba(111, 191, 147, 0)); }
+
+.vtm20 .r-cla-head { display: flex; align-items: center; gap: 10px; margin: 2px 0 8px; }
+.vtm20 .r-cla-head .r-h2 { flex: 1 1 auto; margin: 0; }
+.vtm20 .r-cla-pool { display: inline-flex; align-items: baseline; gap: 5px; padding: 3px 10px; font-size: 12px; color: var(--r-muted);
+  border: 1px solid var(--r-line-2); border-radius: 12px; background: rgba(0, 0, 0, .25); white-space: nowrap; }
+.vtm20 .r-cla-pool b { font-family: var(--r-display); font-weight: 400; font-size: 15px; color: var(--r-ink); margin-right: 4px; }
+.vtm20 .r-cla-pool .fa-star { color: var(--r-accent); } .vtm20 .r-cla-pool .fa-moon { color: #b9a6d6; }
+.vtm20 .r-cla-btn { display: inline-flex; align-items: center; gap: 6px; padding: 4px 11px; white-space: nowrap;
+  font-family: var(--r-caps); font-size: 11px; letter-spacing: 1.4px; text-transform: uppercase; color: var(--r-ink-2);
+  border: 1px solid rgba(111, 191, 147, .45); background: linear-gradient(180deg, rgba(47, 122, 87, .22), rgba(22, 59, 42, .3)); }
+.vtm20 .r-cla-btn:hover { color: #fff; border-color: var(--cl-pine-l); box-shadow: 0 0 10px rgba(111, 191, 147, .3); }
+.vtm20 .r-cla-btn.is-main { border-color: rgba(238, 183, 228, .55); background: linear-gradient(180deg, rgba(238, 183, 228, .16), rgba(100, 36, 88, .2)); }
+.vtm20 .r-cla-btn.is-main:hover { border-color: var(--r-accent); box-shadow: 0 0 10px rgba(238, 183, 228, .3); }
+
+/* Искусство — витраж: медальон со знаком слева, справа имя, точки и лестница из пяти кантрипов */
+/* колонками, а не сеткой: раскрытая карточка не оставляет дыры рядом со свёрнутыми */
+.vtm20 .r-cla-grid { columns: 340px 2; column-gap: 12px; margin: 0 0 18px; }
+.vtm20 .r-cla-grid > .r-cla-art { break-inside: avoid; margin-bottom: 12px; }
+.vtm20 .r-cla-art {
+  position: relative; display: grid; grid-template-columns: 62px minmax(0, 1fr); grid-template-rows: auto 1fr; column-gap: 12px; align-items: center;
+  padding: 12px 14px 10px 12px; border: 1px solid var(--r-line-2); border-left: 2px solid var(--cl-pine);
+  background: radial-gradient(ellipse 60% 90% at 0% 0%, rgba(47, 122, 87, .14), transparent 70%), linear-gradient(180deg, rgba(255, 255, 255, .025), rgba(0, 0, 0, .25));
+}
+.vtm20 .r-cla-art::after { content: ""; position: absolute; right: -1px; top: -1px; width: 38px; height: 1px; background: linear-gradient(270deg, var(--r-accent), transparent); }
+.vtm20 .r-cla-glyph {
+  grid-row: 1 / span 2; align-self: start; width: 58px; height: 58px; border-radius: 50%; display: grid; place-items: center;
+  background: radial-gradient(circle at 50% 35%, #241322, #0c060b 72%); color: var(--r-accent); font-size: 22px;
+  box-shadow: 0 0 0 1px rgba(238, 183, 228, .45), 0 0 0 4px #0c060b, 0 0 0 5px rgba(111, 191, 147, .55), 0 0 16px rgba(47, 122, 87, .35);
+  transition: box-shadow .15s, transform .15s;
+}
+.vtm20 .r-cla-glyph .r-sym { width: 40px; height: 40px; }
+.vtm20 .r-cla-glyph:hover { transform: scale(1.04); box-shadow: 0 0 0 1px var(--r-accent), 0 0 0 4px #0c060b, 0 0 0 5px var(--cl-pine-l), 0 0 22px rgba(238, 183, 228, .35); }
+.vtm20 .r-cla-title { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; grid-template-areas: "name dots tools" "en dots tools"; align-items: center; column-gap: 8px; }
+.vtm20 .r-cla-art.is-open .r-cla-title { margin-bottom: 6px; }
+/* свёрнутая карточка — как строка Дисциплины: знак поменьше, только имя и точки */
+.vtm20 .r-cla-art:not(.is-open) { padding-top: 8px; padding-bottom: 8px; }
+.vtm20 .r-cla-art:not(.is-open) .r-cla-glyph { width: 44px; height: 44px; justify-self: center; font-size: 17px; }
+.vtm20 .r-cla-art:not(.is-open) .r-cla-glyph .r-sym { width: 30px; height: 30px; }
+.vtm20 .r-cla-body { grid-column: 2; }
+.vtm20 .r-cla-art:not(.is-open) .r-cla-body { display: none; }
+.vtm20 .r-cla-tools .r-chevron { opacity: 1; } .vtm20 .r-cla-tools .r-chevron i { transition: transform .15s; }
+.vtm20 .r-cla-art.is-open .r-cla-tools .r-chevron i { transform: rotate(180deg); }
+.vtm20 .r-cla-name { grid-area: name; font-family: var(--r-display); font-size: 19px; line-height: 1.1; color: var(--r-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+.vtm20 .r-cla-name:hover { color: var(--r-accent); }
+.vtm20 .r-cla-en { grid-area: en; font-family: var(--r-caps); font-size: 9.5px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--cl-pine-l); }
+.vtm20 .r-cla-dots { grid-area: dots; }
+.vtm20 .r-cla-dots .r-dot { width: 11px; height: 11px; }
+.vtm20 .r-cla-tools { grid-area: tools; display: inline-flex; align-items: center; gap: 9px; padding-left: 4px; }
+.vtm20 .r-cla-tools a:not(.r-chevron) { opacity: .35; transition: opacity .15s; }
+.vtm20 .r-cla-art:hover .r-cla-tools a { opacity: 1; }
+.vtm20 .r-cla-tools a { color: var(--r-muted); font-size: 12px; } .vtm20 .r-cla-tools a:hover { color: var(--r-accent); } .vtm20 .r-cla-tools a.is-danger:hover { color: #e0645f; }
+
+/* лестница: ступени-ромбы на хвойной жиле; открытые — белым, дальние — тенью */
+.vtm20 .r-cla-ladder { position: relative; margin: 0; padding: 0; list-style: none; }
+.vtm20 .r-cla-ladder::before { content: ""; position: absolute; left: 10px; top: 11px; bottom: 11px; width: 1px; background: linear-gradient(180deg, var(--cl-pine-l), rgba(111, 191, 147, .12)); }
+.vtm20 .r-cla-ladder li { position: relative; display: grid; grid-template-columns: 21px minmax(0, 1fr) 16px 18px; align-items: center; column-gap: 9px; min-height: 25px; }
+.vtm20 .r-cla-ladder li + li { border-top: 1px dotted rgba(235, 171, 223, .08); }
+/* ступень: ромб — отдельный слой, цифра не поворачивается и стоит ровно в центре */
+.vtm20 .r-cla-step { position: relative; width: 21px; height: 21px; display: grid; place-items: center; }
+.vtm20 .r-cla-step::before { content: ""; position: absolute; inset: 3px; transform: rotate(45deg); border: 1px solid rgba(111, 191, 147, .4); background: #0c060b; }
+.vtm20 .r-cla-step b { position: relative; width: 100%; text-align: center; font-family: var(--r-display); font-weight: 400; font-size: 9.5px; line-height: 21px; letter-spacing: -.3px; color: var(--cl-pine-l); }
+.vtm20 .r-cla-ladder li.is-known .r-cla-step b { color: #08130d; }
+.vtm20 .r-cla-ladder li.is-known .r-cla-step::before { background: linear-gradient(135deg, var(--cl-pine-l), var(--cl-pine)); border-color: var(--cl-pine-xl); box-shadow: 0 0 6px rgba(111, 191, 147, .5); }
+.vtm20 .r-cla-cantrip { font-size: 13.5px; color: var(--r-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+.vtm20 .r-cla-cantrip:hover { color: var(--r-accent); }
+.vtm20 .r-cla-ladder li.is-beyond .r-cla-cantrip { color: var(--r-muted); opacity: .6; font-style: italic; }
+.vtm20 .r-cla-ladder li.is-open > .r-cla-cantrip { color: var(--r-accent); white-space: normal; }
+.vtm20 .r-cla-cast { font-size: 12px; text-align: center; color: var(--cl-pine-l); opacity: .55; } .vtm20 .r-cla-cast:hover { opacity: 1; color: var(--r-accent); }
+/* правила кантрипа — раскрываются под строкой, как описание силы Дисциплины */
+.vtm20 .r-cla-text { display: none; grid-column: 2 / -1; margin: 2px 0 8px; padding: 6px 10px; font-size: 12.5px; line-height: 1.45; color: var(--r-ink-2);
+  border-left: 2px solid rgba(111, 191, 147, .35); background: rgba(0, 0, 0, .22); }
+.vtm20 .r-cla-ladder li.is-open > .r-cla-text { display: block; }
+.vtm20 .r-cla-text p { margin: 0 0 4px; } .vtm20 .r-cla-text p:last-child { margin-bottom: 0; }
+.vtm20 .r-cla-text-en { font-family: var(--r-caps); font-size: 10px; letter-spacing: 1.4px; text-transform: uppercase; color: var(--cl-pine-l); }
+.vtm20 .r-cla-type { font-size: 10.5px; text-align: center; color: var(--r-muted); opacity: .7; }
+.vtm20 .r-cla-type.is-wyrd { color: #f0c96a; opacity: .9; } .vtm20 .r-cla-type.is-chimerical { color: #c9b8e6; } .vtm20 .r-cla-type.is-choice { color: var(--cl-pine-l); }
+.vtm20 .r-cla-bunks { grid-column: 2; margin-top: 6px; font-size: 12px; color: var(--r-muted); }
+.vtm20 .r-cla-bunks summary { cursor: pointer; font-family: var(--r-caps); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--cl-pine-l); list-style: none; }
+.vtm20 .r-cla-bunks summary::-webkit-details-marker { display: none; }
+.vtm20 .r-cla-bunks summary:hover { color: var(--r-accent); }
+.vtm20 .r-cla-bunks p { margin: 4px 0 0; font-style: italic; line-height: 1.35; }
+.vtm20 .r-cla-empty { grid-column: 1 / -1; padding: 18px; text-align: center; color: var(--r-muted); font-style: italic; border: 1px dashed var(--r-line-2); }
+
+/* Царства: строка — знак, имя, точки; ниже пять целей ступенями-плашками */
+.vtm20 .r-clr-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 6px 14px; margin: 4px 0 18px; }
+.vtm20 .r-clr { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; grid-template-areas: "g n d" "g s s"; align-items: center; column-gap: 9px; row-gap: 4px;
+  padding: 7px 10px; border: 1px solid var(--r-line); background: rgba(0, 0, 0, .2); }
+.vtm20 .r-clr.is-affinity { border-color: rgba(111, 191, 147, .45); box-shadow: inset 2px 0 0 var(--cl-pine-l); }
+.vtm20 .r-clr-glyph { grid-area: g; align-self: start; width: 26px; height: 26px; }
+.vtm20 .r-clr-glyph .r-sym { width: 26px; height: 26px; }
+.vtm20 .r-clr-name { grid-area: n; display: flex; align-items: baseline; gap: 7px; font-family: var(--r-caps); font-size: 12.5px; letter-spacing: 1.8px; text-transform: uppercase; color: var(--r-ink); white-space: nowrap; overflow: hidden; }
+.vtm20 .r-clr-name small { font-size: 9px; letter-spacing: 1.2px; color: var(--r-muted); }
+.vtm20 .r-clr-name .fa-leaf { color: var(--cl-pine-l); font-size: 10px; }
+.vtm20 .r-clr-dots { grid-area: d; } .vtm20 .r-clr-dots .r-dot { width: 10px; height: 10px; }
+.vtm20 .r-clr-steps { grid-area: s; display: flex; flex-wrap: wrap; gap: 3px; margin: 0; padding: 0; list-style: none; counter-reset: clr; }
+.vtm20 .r-clr-steps li { counter-increment: clr; padding: 0 6px; font-size: 11px; line-height: 17px; color: var(--r-muted); border: 1px solid var(--r-line-2); border-radius: 9px; white-space: nowrap; opacity: .6; }
+.vtm20 .r-clr-steps li::before { content: counter(clr) " "; color: var(--r-muted); font-size: 9.5px; }
+.vtm20 .r-clr-steps li.is-known { opacity: 1; color: #fff; border-color: rgba(111, 191, 147, .6); background: rgba(47, 122, 87, .35); }
+.vtm20 .r-clr-steps li.is-known::before { color: var(--cl-pine-xl); }
+.vtm20 .r-clr.is-zero .r-clr-name { color: var(--r-muted); }
+
+/* Спутники Грёзы: сокровища, химеры, ремесло, клятвы — четыре панели сеткой */
+.vtm20 .r-cla-annex { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 12px; margin: 4px 0 10px; }
+.vtm20 .r-cla-panel { padding: 8px 12px 10px; border: 1px solid var(--r-line); border-top: 2px solid rgba(111, 191, 147, .5); background: rgba(0, 0, 0, .22); min-width: 0; }
+.vtm20 .r-cla-panel > .r-h2.r-cla-ph { margin: 0 0 6px; font-size: 13px; }
+.vtm20 .r-cla-panel > .r-h2.r-cla-ph > i { color: var(--cl-pine-l); font-size: 12px; margin-right: 8px; }
+.vtm20 .r-cla-panel > .r-h2.r-cla-ph::before { display: none; }
+.vtm20 .r-cla-panel .r-h2-tools .r-btn { padding: 1px 8px; font-size: 10.5px; }
+.vtm20 .r-cla-panel .r-cl-oaths { grid-template-columns: 1fr; margin: 0; }
+.vtm20 .r-cla-panel > .r-note { margin: 2px 0 0; font-size: 12px; }
+/* Тёмные века: Фэ — панели спутников Грёзы в «вайде и серебре», без хвои */
+.vtm20.r-type-changeling.r-cl-dark .r-cla-panel { border-top-color: rgba(185, 201, 245, .45); }
+.vtm20.r-type-changeling.r-cl-dark .r-cla-panel > .r-h2.r-cla-ph > i { color: #b9c9f5; }
+.vtm20 .r-hs-glyph { display: inline-block; flex: 0 0 auto; width: 26px; height: 26px; margin-right: 8px; vertical-align: middle; }
+
+/* ══ Окно кантрипа (templates/apps/cantrip.hbs): слева Искусство и лестница, справа Царства и поправки, внизу итог ══ */
+.vtm20.r-cantrip-win { --cl-pine: #2f7a57; --cl-pine-l: #6fbf93; --cl-pine-xl: #a9e2c2; }
+.vtm20 .r-cnt { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); grid-template-areas: "left right" "foot foot"; gap: 0 18px; padding: 12px 16px 0; }
+.vtm20 .r-cnt-left { grid-area: left; min-width: 0; }
+.vtm20 .r-cnt-right { grid-area: right; min-width: 0; }
+.vtm20 .r-cnt-h { margin: 4px 0 6px; padding: 0 0 4px; border-bottom: 1px solid var(--r-line); font-family: var(--r-caps); font-size: 11px; font-weight: 400; letter-spacing: 2px; text-transform: uppercase; color: var(--cl-pine-l); }
+.vtm20 .r-cnt-h + * { margin-bottom: 12px; }
+
+/* Искусства — плитки со знаком */
+.vtm20 .r-cnt-arts { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 6px; }
+.vtm20 .r-cnt-art { display: grid; grid-template-columns: 30px minmax(0, 1fr); grid-template-areas: "g n" "g d"; align-items: center; column-gap: 8px; padding: 5px 8px;
+  border: 1px solid var(--r-line-2); background: rgba(0, 0, 0, .22); color: var(--r-ink); }
+.vtm20 .r-cnt-art:hover { border-color: rgba(111, 191, 147, .5); }
+.vtm20 .r-cnt-art.is-on { border-color: var(--cl-pine-l); background: linear-gradient(180deg, rgba(47, 122, 87, .3), rgba(22, 59, 42, .3)); box-shadow: 0 0 10px rgba(111, 191, 147, .2); }
+.vtm20 .r-cnt-art-glyph { grid-area: g; width: 30px; height: 30px; display: grid; place-items: center; color: var(--r-accent); }
+.vtm20 .r-cnt-art-glyph .r-sym { width: 28px; height: 28px; }
+.vtm20 .r-cnt-art-name { grid-area: n; font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vtm20 .r-cnt-art .r-cnt-pips { grid-area: d; }
+.vtm20 .r-cnt-pips { display: inline-flex; gap: 3px; }
+.vtm20 .r-cnt-pips i { width: 7px; height: 7px; border-radius: 50%; border: 1px solid rgba(238, 183, 228, .45); }
+.vtm20 .r-cnt-pips i.is-on { background: var(--r-accent); border-color: var(--r-accent); }
+
+/* лестница кантрипов: римская цифра по центру, выбранный — подсвечен; неизученные — тенью */
+.vtm20 .r-cnt-ladder { margin: 0 0 8px; padding: 0; list-style: none; display: grid; gap: 3px; }
+.vtm20 .r-cnt-step { display: grid; grid-template-columns: 26px minmax(0, 1fr) 16px; align-items: center; gap: 8px; padding: 4px 8px 4px 4px; border: 1px solid transparent; color: var(--r-ink); }
+.vtm20 .r-cnt-step:hover { border-color: var(--r-line-2); }
+.vtm20 .r-cnt-step.is-on { border-color: var(--cl-pine-l); background: rgba(47, 122, 87, .2); }
+.vtm20 .r-cnt-step.is-off { opacity: .45; font-style: italic; cursor: default; }
+.vtm20 .r-cnt-roman { width: 24px; height: 24px; display: grid; place-items: center; font-family: var(--r-display); font-weight: 400; font-size: 11px; line-height: 1;
+  color: var(--cl-pine-l); border: 1px solid rgba(111, 191, 147, .4); border-radius: 50%; }
+.vtm20 .r-cnt-step.is-on .r-cnt-roman { color: #08130d; background: var(--cl-pine-l); border-color: var(--cl-pine-xl); }
+.vtm20 .r-cnt-step-name { font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vtm20 .r-cnt-text { max-height: 210px; overflow-y: auto; padding: 8px 10px; font-size: 12.5px; line-height: 1.45; color: var(--r-ink-2);
+  border-left: 2px solid rgba(111, 191, 147, .35); background: rgba(0, 0, 0, .22); }
+.vtm20 .r-cnt-text p { margin: 0 0 5px; }
+.vtm20 .r-cnt-text p:last-child { margin-bottom: 0; }
+
+/* Царства — карточки: знак, имя, цель текущего уровня, точки; без точек — пунктир (+1 Гламур) */
+.vtm20 .r-cnt-realms { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+.vtm20 .r-cnt-realms.is-mod { margin: 6px 0 12px; }
+.vtm20 .r-cnt-realm { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; align-items: center; gap: 8px; padding: 6px 8px;
+  border: 1px solid var(--r-line-2); background: rgba(0, 0, 0, .22); color: var(--r-ink); }
+.vtm20 .r-cnt-realm:hover { border-color: rgba(111, 191, 147, .5); }
+.vtm20 .r-cnt-realm.is-on { border-color: var(--cl-pine-l); background: linear-gradient(180deg, rgba(47, 122, 87, .3), rgba(22, 59, 42, .3)); box-shadow: inset 2px 0 0 var(--cl-pine-l); }
+.vtm20 .r-cnt-realm.is-cheat { border-style: dashed; }
+.vtm20 .r-cnt-realm-glyph .r-sym { width: 26px; height: 26px; }
+.vtm20 .r-cnt-realm-main { display: flex; flex-direction: column; min-width: 0; }
+.vtm20 .r-cnt-realm-main b { font-family: var(--r-caps); font-weight: 400; font-size: 12px; letter-spacing: 1.6px; text-transform: uppercase; }
+.vtm20 .r-cnt-realm-main b .fa-leaf { color: var(--cl-pine-l); font-size: 10px; }
+.vtm20 .r-cnt-realm-main small { font-size: 11.5px; font-style: italic; color: var(--r-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* строки выбора: подпись слева, сегменты справа */
+.vtm20 .r-cnt-row { display: grid; grid-template-columns: 104px minmax(0, 1fr); align-items: center; gap: 10px; margin: 0 0 8px; }
+.vtm20 .r-cnt-row.is-top { align-items: start; }
+.vtm20 .r-cnt-lbl { font-family: var(--r-caps); font-size: 11px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--r-muted); }
+.vtm20 .r-cnt-row.is-top .r-cnt-lbl { padding-top: 5px; }
+.vtm20 .r-cnt-seg { display: inline-flex; flex-wrap: wrap; justify-self: start; border: 1px solid var(--r-line-2); }
+.vtm20 .r-cnt-seg > a { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; font-size: 12.5px; color: var(--r-ink-2); border-right: 1px solid var(--r-line-2); }
+.vtm20 .r-cnt-seg > a:last-child { border-right: 0; }
+.vtm20 .r-cnt-seg > a:hover { color: var(--r-ink); }
+.vtm20 .r-cnt-seg > a.is-on { color: #fff; background: rgba(47, 122, 87, .4); }
+.vtm20 .r-cnt-seg > a small { color: var(--r-accent); }
+.vtm20 .r-cnt-seg.is-num { flex-wrap: nowrap; }
+.vtm20 .r-cnt-seg.is-num > a { min-width: 30px; padding: 4px 7px; justify-content: center; }
+.vtm20 .r-cnt-seg.is-fixed > a:not(.is-on) { opacity: .35; pointer-events: none; }
+.vtm20 .r-cnt-note { margin: -4px 0 8px 114px; font-size: 11.5px; font-style: italic; color: var(--r-muted); }
+.vtm20 .r-cnt-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.vtm20 .r-cnt-chip { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px; font-size: 11.5px; color: var(--r-ink-2);
+  border: 1px solid var(--r-line-2); border-radius: 12px; background: rgba(0, 0, 0, .2); }
+.vtm20 .r-cnt-chip:hover { color: var(--r-ink); border-color: rgba(111, 191, 147, .45); }
+.vtm20 .r-cnt-chip.is-on { color: #fff; border-color: var(--cl-pine-l); background: rgba(47, 122, 87, .35); }
+.vtm20 .r-cnt-chip.is-auto { border-style: dashed; color: var(--cl-pine-xl); }
+.vtm20 .r-cnt-chip b { font-family: var(--r-display); font-weight: 400; }
+.vtm20 .r-cnt-chip b.is-up { color: #e0645f; }
+.vtm20 .r-cnt-chip b.is-down { color: var(--cl-pine-l); }
+
+/* итог: четыре числа, полоса шансов, кнопка справа */
+.vtm20 .r-cnt-foot { grid-area: foot; margin-top: 6px; padding: 10px 0 14px; border-top: 1px solid var(--r-line-2); }
+.vtm20 .r-cnt-sum { display: flex; flex-wrap: wrap; gap: 6px 26px; margin-bottom: 6px; }
+.vtm20 .r-cnt-big { display: inline-flex; align-items: baseline; gap: 7px; }
+.vtm20 .r-cnt-big small { font-family: var(--r-caps); font-size: 10.5px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--r-muted); }
+.vtm20 .r-cnt-big b { font-family: var(--r-display); font-weight: 400; font-size: 26px; line-height: 1; color: var(--r-ink); }
+.vtm20 .r-cnt-big em { font-size: 12px; color: var(--r-muted); }
+.vtm20 .r-cnt-big .fa-star { color: var(--r-accent); }
+.vtm20 .r-cnt-big .fa-moon { color: #b9a6d6; }
+.vtm20 .r-cnt-big.is-warn b { color: #e0645f; }
+.vtm20 .r-cnt-go { display: flex; align-items: center; gap: 12px; margin-top: 10px; }
+.vtm20 .r-cnt-why { flex: 1; font-size: 12.5px; font-style: italic; color: #e0645f; }
+.vtm20 .r-cnt-cast { flex: 0 0 auto; width: auto; display: inline-flex; align-items: center; gap: 8px; padding: 7px 22px;
+  font-family: var(--r-caps); font-size: 13px; letter-spacing: 1.6px; text-transform: uppercase; color: #fff;
+  border: 1px solid rgba(238, 183, 228, .6); background: linear-gradient(180deg, rgba(160, 60, 140, .55), rgba(90, 30, 80, .6)); }
+.vtm20 .r-cnt-cast:hover:not([disabled]) { box-shadow: 0 0 14px rgba(238, 183, 228, .35); }
+.vtm20 .r-cnt-cast[disabled] { opacity: .45; cursor: not-allowed; }

@@ -695,6 +695,52 @@ def daf(prefix):
     return read(os.path.join(DAF, fn))
 
 
+# Рабочий перевод названий кантрипов Dark Ages: Fae (английское имя остаётся в поле en).
+DAF_CANTRIP_RU = {
+    "Call Element": "Зов стихии", "Court Summons": "Призыв ко двору", "Leaves of Metal": "Листья из металла",
+    "Control Element": "Власть над стихией", "Drain": "Иссушение", "Hedge of Thorns": "Терновая изгородь", "Mantle": "Мантия",
+    "Charm": "Чары", "Fostering": "Воспитание", "Shaping": "Ваяние", "Straight Track": "Прямая тропа", "Sword": "Меч",
+    "Arch": "Арка", "Persisting Charm": "Стойкие чары", "Saining": "Осенение", "True Enchantment": "Истинное зачарование",
+    "Candor's Light": "Свет прямоты", "Cow the Bitter Wind": "Усмирить злой ветер", "Decree": "Указ", "Fireside Chatter": "Беседа у очага",
+    "Friend from Foe": "Друг или враг", "Heart's Rest": "Покой сердца", "Luminous Splendor": "Сияющее великолепие", "Merry Meet": "Добрая встреча",
+    "Oathbound Strength": "Сила клятвы", "Seek Treasure": "Поиск сокровищ", "Sunbeam": "Солнечный луч", "Sun's Shield": "Щит солнца",
+    "An Air of Wisdom": "Вид мудреца", "Befuddle": "Сбить с толку", "Fire Armor": "Огненный доспех", "Fireside Revelations": "Откровения у очага",
+    "Flame's Kin": "Родня пламени", "Lightning-Strike": "Удар молнии", "Plunder": "Грабёж", "Pronouncement": "Оглашение",
+    "Summer's Glamour": "Гламур лета", "Veritable": "Подлинность", "Wall of Fire": "Огненная стена", "Will of Fire": "Огненная воля",
+    "Brotherly Bond": "Братские узы", "Dominion Writ": "Грамота владения", "Healing Heat": "Целительный жар", "Hearts Afire": "Пылающие сердца",
+    "Law of the Land": "Закон земли", "True Ardor": "Истинный пыл", "Verdict": "Приговор", "Flame of the Muse": "Пламя музы",
+    "Last Stand": "Последний рубеж", "Pure Form": "Чистый облик", "Oathbreaker's Prison": "Темница клятвопреступника", "Sun's Crown": "Венец солнца",
+    "Face of the Sun": "Лик солнца",
+    "Black and Blue": "Синяки и ссадины", "Blight Garden": "Порча сада", "Embrace the Night's Chill": "Объятия ночного холода", "Gloom": "Мрак",
+    "Hush": "Тишь", "Mindveil": "Покров разума", "Night Sounds": "Звуки ночи", "Owl Eyes": "Совиные глаза", "Paranoia": "Мнительность",
+    "Still of the Night": "Ночное безмолвие", "Veil of Tears": "Пелена слёз", "Weariness": "Изнеможение", "Clouded Vision": "Затуманенный взор",
+    "Dreamtongue": "Язык снов", "Ice Armor": "Ледяной доспех", "Lesser Hounds of Hell": "Малые псы преисподней", "Night Terror": "Ночной ужас",
+    "Nightshade": "Паслён", "Rain-Strike": "Удар ливня", "Salmon's Breath": "Дыхание лосося", "Scare": "Испуг", "Stillness": "Оцепенение",
+    "Winter's Glamour": "Гламур зимы", "Freeze Death": "Ледяная смерть", "Midnight's Domain": "Владения полуночи", "Shriek": "Вопль",
+    "Silent Brethren": "Безмолвные братья", "True Apathy": "Истинное безразличие", "Winter's Shadows": "Тени зимы", "Blindness": "Слепота",
+    "Haunting Curse": "Неотвязное проклятие", "Greater Hounds of Hell": "Великие псы преисподней", "Grotesque": "Уродство", "Nightmares": "Кошмары",
+    "Soul Rime": "Иней души",
+    "Beast Tongue": "Звериный язык", "Brew and Bread": "Хлеб и брага", "Earthen Refuge": "Земляное убежище", "Faerie's Fog": "Туман фэ",
+    "Famine to Feast": "Из голода в пир", "Green Touch": "Зелёное касание", "Hope": "Надежда", "Reveal": "Обнаружение", "Sleep": "Сон",
+    "Spring's Urges": "Весенние порывы", "Thricetold Fortune": "Трижды сказанная удача", "Weep": "Плач", "Dawn's Absolution": "Отпущение рассвета",
+    "Earth's Armor": "Доспех земли", "Earth's Current": "Ток земли", "Entice": "Соблазн", "Fruitful": "Плодородие", "Immortal Tears": "Бессмертные слёзы",
+    "Memory of Stone": "Память камня", "Morning Mist": "Утренний туман", "Morning's Grace": "Милость утра", "Obscure": "Сокрытие", "Slumber": "Дрёма",
+    "Strength of the Oak": "Сила дуба", "Bog": "Топь", "Dawn's Revelation": "Откровение рассвета", "Delving": "Раскопки", "Ruins to Refuge": "Из руин в приют",
+    "Sight Unseen": "Невидимое зрение", "Storm and Stress": "Буря и натиск", "Tomorrow's Tale": "Сказ о завтрашнем дне", "Aid of the Wood": "Помощь леса",
+    "Come Hither": "Иди сюда", "Dawn's Domain": "Владения рассвета", "Storm's Fray": "Ярость бури", "Wooden Arsenal": "Деревянный арсенал",
+    "Fortune Weaving": "Плетение судьбы",
+    "Amends": "Искупление", "Broken Mirror": "Разбитое зеркало", "Soar": "Парение", "Spectral Whispers": "Шёпот призраков", "Speed of the Wind": "Скорость ветра",
+    "Spirit Track": "След духа", "Steal Breath": "Украсть дыхание", "Study Facade": "Изучить личину", "Twilight Shadow's Reach": "Рука сумеречной тени",
+    "Unlock": "Отпереть", "Whispered Past": "Шепчущее прошлое", "Words": "Слова", "Barren": "Бесплодие", "Befriend Spirit": "Подружиться с духом",
+    "Daunting Distance": "Устрашающая даль", "Evening Mist": "Вечерний туман", "Forgotten": "Забвение", "Leaf in the Wind": "Лист на ветру",
+    "Lesser Elfshot": "Малая эльфийская стрела", "Mourning": "Скорбь", "Transport": "Перенос", "Twilight's Glamour": "Гламур сумерек",
+    "Waylaid Traveler": "Заплутавший путник", "Wind Armor": "Доспех ветра", "Wind's Eyes": "Глаза ветра", "Atoning": "Покаяние",
+    "Grace of the Shadows": "Милость теней", "Journey": "Странствие", "Unchaining": "Освобождение от оков", "Unspoken Vow": "Невысказанный обет",
+    "Yesterday's Tale": "Сказ о вчерашнем дне", "Bauble of the Mind": "Безделица разума", "Cloud-Dancing": "Танец в облаках", "Fall's Curse": "Проклятие осени",
+    "Greater Elfshot": "Великая эльфийская стрела", "Memory of Trees": "Память деревьев", "Second Chance": "Второй шанс",
+}
+
+
 def _daf_cantrip(line, domain, level):
     m = re.match(r"^- (\*\*|\*)(.+?)\1\s*\((.+?)\)\s*:\s*(.*)$", line)
     if not m:
@@ -705,7 +751,8 @@ def _daf_cantrip(line, domain, level):
     diff = re.search(r"сл\.\s*(\d+)", params)
     tname = trait.group(1).strip() if trait else ""
     tname = next((k for k in sorted(DAF_TRAITS, key=len, reverse=True) if tname.startswith(k)), tname)
-    return {"key": _slug(m.group(2)), "name": m.group(2).strip(), "domain": domain, "level": int(lv.group(1)) if lv else level,
+    en = m.group(2).strip()
+    return {"key": _slug(en), "name": DAF_CANTRIP_RU.get(en, en), "en": en, "domain": domain, "level": int(lv.group(1)) if lv else level,
             "trait": DAF_TRAITS.get(tname, ""), "traitName": tname, "diff": int(diff.group(1)) if diff else 6,
             "params": plain(params), "text": plain(m.group(4))}
 

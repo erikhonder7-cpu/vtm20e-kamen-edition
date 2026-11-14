@@ -1,3 +1,4 @@
+@charset "UTF-8";
 /* ══════════════════════════════════════════════════════════════════════════
    Лист смертного (и слуги падшего): каркас — общий с листом Сородича, материал свой —
    графит, серебро и белая бумага вместо копоти и запёкшейся крови. Собран по образцу темы падшего
@@ -158,3 +159,17 @@ body.r-theme-light .vtm20.r-type-mortal {
 .vtm20.r-type-mortal .r-seal-num.r-seal-icon { color: #d6d7db; }
 .vtm20.r-type-mortal .r-tile.is-active, .vtm20.r-type-mortal .r-extra-pool.is-hot {
   background: radial-gradient(ellipse at 50% 120%, rgba(230, 231, 235, .2), rgba(0, 0, 0, .25) 70%); }
+
+/* Ками, фомор, Родня: их Гнозис и Ярость — строкой под Добродетелями в карточке Человечности */
+.vtm20 .r-mk-bars { display: grid; grid-template-columns: 1fr; gap: 2px; margin: 6px 0 2px; padding-top: 6px; border-top: 1px dashed var(--r-line-2); }
+.vtm20 .r-mk-bars .r-virtue { display: grid; grid-template-columns: 96px 1fr; align-items: center; gap: 8px; }
+.vtm20 .r-mk-bars .r-dot { width: 10px; height: 10px; }
+.vtm20 .r-mk-bars.is-kami .r-trait-label { color: #9fd3a5; } .vtm20 .r-mk-bars.is-fomor .r-trait-label { color: #c7d36b; }
+
+/* Ками, фомор, родня, колдун: в печати слева — знак рода вместо свечи */
+.vtm20 .r-rail-sigil .r-rail-fa { display: grid; place-items: center; width: 100%; height: 100%; font-size: 30px; color: var(--r-ink-2);
+  text-shadow: 0 0 12px rgba(0, 0, 0, .8); }
+.vtm20 .r-rail-sigil .r-rail-fa.is-kami { color: #9fd3a5; text-shadow: 0 0 14px rgba(110, 190, 120, .45); }
+.vtm20 .r-rail-sigil .r-rail-fa.is-fomor { color: #c7d36b; text-shadow: 0 0 14px rgba(160, 175, 60, .45); }
+.vtm20 .r-rail-sigil .r-rail-fa.is-kin { color: #d9b48a; }
+.vtm20 .r-rail-sigil .r-rail-fa.is-sorc { color: #b9a2e0; }

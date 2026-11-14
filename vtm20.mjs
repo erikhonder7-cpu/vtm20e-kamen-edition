@@ -70,6 +70,7 @@ import { registerThemes } from "./module/ui/themes.mjs";
 import { registerDemonHooks } from "./module/apps/torment.mjs";
 import { registerSounds } from "./module/ui/sounds.mjs";
 import { registerHintFold } from "./module/ui/hint-fold.mjs";
+import { registerTooltipTidy } from "./module/ui/tooltip-tidy.mjs";
 import * as Money from "./module/data/money.mjs";
 
 /* ── init ──────────────────────────────────────────────────────────────── */
@@ -82,7 +83,8 @@ Hooks.once("init", () => {
     config: VTM20, codex: Codex,
     rollPool, evaluate, rollDamage, soakAndApply, openDamageDialog, RollDialog, openCreator, VtMCreator,
     openHunt, nightfall, endScene, endStory, openAttack, openDefense, openHazard, openDiablerie, renderHud,
-    openLibrary, openNpcGenerator, openClans, myNight: () => import("./module/apps/night.mjs").then(x => x.myNight()), openAtlas: (line, key) => import("./module/apps/atlas.mjs").then(x => x.openAtlas(line, key)), openBoons, openDowntime, openSessionXp, openSessionPanel, newSession: newSessionAll, openCourt, openWeb, openCoterie, openChronicle, giveHandout, money: Money, openCity, closeCity, toggleCity, cityMap,
+    openLibrary, openNpcGenerator, openClans, myNight: () => import("./module/apps/night.mjs").then(x => x.myNight()), openAtlas: (line, key) => import("./module/apps/atlas.mjs").then(x => x.openAtlas(line, key)),
+    openWorkshop: (actor, mode) => import("./module/apps/thaum-workshop.mjs").then(x => x.openWorkshop(actor, mode)), openBoons, openDowntime, openSessionXp, openSessionPanel, newSession: newSessionAll, openCourt, openWeb, openCoterie, openChronicle, giveHandout, money: Money, openCity, closeCity, toggleCity, cityMap,
     openSceneNexus, openCalendar, announceTime, getClock, getDate, stamp, clockBarData, nightPhase, moonPhase, republicanDate,
     apps: { SceneNexus, NightCalendar }
   };
@@ -204,12 +206,14 @@ Hooks.once("init", () => {
   registerDemonHooks();
   registerSounds();
   registerHintFold();
+  registerTooltipTidy();
   foundry.applications.handlebars.loadTemplates({
     rDots: `${SYSTEM_PATH}/templates/actor/parts/dots.hbs`,
     rPower: `${SYSTEM_PATH}/templates/actor/parts/power.hbs`,
     rItemHead: `${SYSTEM_PATH}/templates/item/parts/head.hbs`,
     rItemRoll: `${SYSTEM_PATH}/templates/item/parts/roll.hbs`,
     rItemGhost: `${SYSTEM_PATH}/templates/item/parts/ghost.hbs`,
+    rItemThaum: `${SYSTEM_PATH}/templates/item/parts/thaum.hbs`,
     crAddDisc: `${SYSTEM_PATH}/templates/apps/parts/creator-add-disc.hbs`,
     crExtraDisc: `${SYSTEM_PATH}/templates/apps/parts/creator-extra-disc.hbs`
   });
@@ -344,7 +348,9 @@ Hooks.on("getSceneControlButtons", controls => {
     "r-chronicle": { name: "r-chronicle", title: "VTM20.Chronicle.Tool", icon: "fa-solid fa-book-open", order: 7, visible: isGM, button: true, onChange: () => openChronicle() },
     "r-newsession": { name: "r-newsession", title: "VTM20.NewSession.Title", icon: "fa-solid fa-hourglass-start", order: 8, visible: isGM, button: true, onChange: () => newSessionAll() },
     "r-xp": { name: "r-xp", title: "VTM20.SessionXp.Title", icon: "fa-solid fa-star", order: 6, visible: isGM, button: true, onChange: () => openSessionXp() },
-    "r-session": { name: "r-session", title: "VTM20.Session.Title", icon: "fa-solid fa-table-list", order: 0, visible: isGM, button: true, onChange: () => openSessionPanel() }
+    "r-session": { name: "r-session", title: "VTM20.Session.Title", icon: "fa-solid fa-table-list", order: 0, visible: isGM, button: true, onChange: () => openSessionPanel() },
+    "r-thaum": { name: "r-thaum", title: "VTM20.Artifact.Title", icon: "fa-solid fa-staff-snake", order: 9, visible: isGM, button: true,
+      onChange: () => import("./module/apps/thaum-workshop.mjs").then(x => x.openWorkshop()) }
   };
   const group = { name: "vtm20", title: "VTM20.Controls.Title", icon: "fa-solid fa-landmark-flag", order: 99, visible: true, tools, onChange: () => {} };
   if (Array.isArray(controls)) controls.push({ ...group, tools: Object.values(tools).map(t => ({ ...t, onClick: t.onChange, onChange: undefined })) });

@@ -8,10 +8,11 @@
     <a class="r-chip r-lib-compact {{#if compact}}is-active{{/if}}" data-action="toggleCompact" data-tooltip="{{localize 'VTM20.Library.CompactHint'}}"><i class="fa-solid fa-list"></i> {{localize "VTM20.Library.Compact"}}</a>
     <span class="r-lib-count"><b data-count>{{total}}</b> / {{total}}</span>
   </header>
-  {{#if (or chips costChips srcChips)}}
+  {{#if (or chips costChips levelChips srcChips)}}
   <div class="r-lib-filters">
     {{#if chips}}<span class="r-lib-chips">{{#each chips}}<a class="r-chip {{#if active}}is-active{{/if}}" data-action="setFilter" data-key="{{key}}" data-value="{{value}}">{{#if icon}}<i class="fa-solid {{icon}}"></i> {{/if}}{{label}}</a>{{/each}}</span>{{/if}}
     {{#if costChips}}<span class="r-lib-chips" data-tooltip="{{localize 'VTM20.Library.Filter.Cost'}}">{{#each costChips}}<a class="r-chip {{#if active}}is-active{{/if}}" data-action="setFilter" data-key="{{key}}" data-value="{{value}}">{{label}}</a>{{/each}}</span>{{/if}}
+    {{#if levelChips}}<span class="r-lib-chips" data-tooltip="{{localize 'VTM20.Library.Filter.Level'}}">{{#each levelChips}}<a class="r-chip {{#if active}}is-active{{/if}}" data-action="setFilter" data-key="{{key}}" data-value="{{value}}">{{label}}</a>{{/each}}</span>{{/if}}
     {{#if srcChips}}<span class="r-lib-chips is-src" data-tooltip="{{localize 'VTM20.Library.Filter.Source'}}"><i class="fa-solid fa-book r-lib-chips-ico"></i>{{#each srcChips}}<a class="r-chip {{#if active}}is-active{{/if}}" data-action="setFilter" data-key="{{key}}" data-value="{{value}}">{{label}}</a>{{/each}}</span>{{/if}}
   </div>
   {{/if}}
@@ -54,6 +55,7 @@
         <span class="r-lib-acts">
           {{#if (and xp canTake (ne @root.xpAvailable null))}}<a class="r-btn is-accent" data-action="buy" data-xp="{{xp}}"><i class="fa-solid fa-star"></i> {{localize "VTM20.Library.Buy" n=xp}}</a>{{/if}}
           <a class="r-btn {{#if xp}}is-ghost{{else}}is-accent{{/if}}" data-action="take">{{#if xp}}{{localize "VTM20.Library.Free"}}{{else}}{{localize "VTM20.Library.Take"}}{{/if}}</a>
+          {{#each acts}}<a class="r-btn is-ghost" data-action="pickAct" data-op="{{op}}" {{#if tip}}data-tooltip="{{tip}}"{{/if}}><i class="fa-solid {{icon}}"></i> {{label}}</a>{{/each}}
         </span>
         {{/if}}{{/unless}}
       </footer>

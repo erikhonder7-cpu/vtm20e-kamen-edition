@@ -75,7 +75,6 @@
       <h4 class="r-h4">{{localize "VTM20.Sheet.Rituals"}}</h4>
       {{#each rituals}}
       {{> rPower cls="is-ritual"}}
-      {{else}}<div class="r-empty">{{localize "VTM20.Sheet.NoRituals"}}</div>
       {{/each}}
       {{#if @root.editable}}{{#if ritualChoices}}
       <div class="r-toolbar is-inner">
@@ -92,8 +91,6 @@
       {{/each}}
     </div></div>
   </article>
-  {{else}}
-  <div class="r-empty">{{localize "VTM20.Sheet.NoDisciplines"}}</div>
   {{/each}}
 
   {{!-- Пути, ритуалы и силы, чьей Дисциплины на листе нет (купили ритуал без Тауматургии, путь чужой школы…) --}}
@@ -119,7 +116,6 @@
     {{#each powers}}{{> rPower cls="is-own"}}{{/each}}
     {{#each rituals}}{{> rPower cls="is-ritual"}}{{/each}}
   </div>
-  {{else}}<div class="r-empty">{{localize "VTM20.Sheet.NoOtherPowers"}}</div>
   {{/each}}
 
   {{#if dhampir}}
@@ -127,12 +123,11 @@
   <h2 class="r-h2"><span>{{localize "VTM20.Dhampir.Bloodrights"}}</span>
     <span class="r-h2-tools"><a class="r-h2-btn is-plain" data-action="openRules" data-rules="dhampir" data-tooltip="{{localize 'VTM20.Dhampir.RulesHint'}}"><i class="fa-solid fa-book-open-reader"></i></a></span>
   </h2>
-  {{#if editable}}{{#if dhampir.available.length}}
+  {{#if editable}}
   <div class="r-toolbar">
-    <select class="r-dh-add" data-tooltip="{{localize 'VTM20.Dhampir.AddHint'}}"><option value="">{{localize "VTM20.Dhampir.AddPick"}}</option>{{#each dhampir.available}}<option value="{{key}}">{{name}}{{#if req}} ({{req}}){{/if}}{{#if rare}} · {{localize "VTM20.Dhampir.Rare"}}{{/if}}</option>{{/each}}</select>
-    <a class="r-btn" data-action="bloodrightAdd"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Dhampir.Add"}}</a>
+    <a class="r-btn is-lib" data-action="library" data-kind="bloodright" data-tooltip="{{localize 'VTM20.Library.Open'}}"><i class="fa-solid fa-book-skull"></i> {{localize "VTM20.Dhampir.AddPick"}}</a>
   </div>
-  {{/if}}{{/if}}
+  {{/if}}
   {{#each dhampir.rights}}
   <article class="r-edge-path r-bloodright {{#if rare}}is-rare{{/if}}">
     <header class="r-edge-head">
@@ -153,7 +148,6 @@
       {{/each}}
     </ul>
   </article>
-  {{else}}<div class="r-empty">{{localize "VTM20.Dhampir.NoRights"}}</div>
   {{/each}}
   {{#if dhampir.dririmancy}}
   <article class="r-edge-path r-bloodright">

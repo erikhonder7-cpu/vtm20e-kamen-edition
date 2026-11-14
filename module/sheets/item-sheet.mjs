@@ -5,6 +5,7 @@
 
 import { VTM20, SYSTEM_PATH } from "../config.mjs";
 import { ghostOptions } from "../apps/relics.mjs";
+import { thaumOptions } from "../apps/thaum-workshop.mjs";
 import { Codex } from "../data/codex.mjs";
 import { describeMeritMod } from "../data/merit-mods.mjs";
 import { openAttack } from "../combat/combat.mjs";
@@ -74,6 +75,7 @@ export class VtMItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       weaponKindOptions: opts(VTM20.weaponKinds, s.kind),
       damageTypeOptions: opts(VTM20.damageTypes, s.damageType),
       ghost: s.ghost ? ghostOptions(item) : null,
+      thaum: s.thaum ? thaumOptions(item) : null,
       descriptionHTML: await enrich(s.description),
       disciplineName: discKey ? (discKey === "obtenebration" && item.type === "ritual" ? game.i18n.localize("VTM20.Sheet.AbyssMysticism") : Codex.disciplineLabel(discKey)) : "",
       roman: ROMAN[(s.level ?? s.value) - 1] ?? String(s.level ?? s.value ?? ""),

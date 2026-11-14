@@ -5,9 +5,8 @@
 
   <h2 class="r-h2"><span>{{localize "VTM20.Werewolf.Spirit.charms"}}</span>
     <span class="r-h2-tools">{{#if editable}}
-      <span class="r-sp-add"><select class="r-sp-charm-add" aria-label="{{localize 'VTM20.Werewolf.Spirit.addCharm'}}"><option value="">{{localize "VTM20.Werewolf.Spirit.addCharm"}}</option>{{#each spiritInfo.avail}}<option value="{{key}}">{{rName this}}</option>{{/each}}</select>
-        <a class="r-h2-btn" data-action="spCharmAdd" data-tooltip="{{localize 'VTM20.Sheet.AddTip'}}"><i class="fa-solid fa-plus"></i></a></span>
-      <a class="r-h2-btn is-ghost" data-action="spTpl" data-tooltip="{{localize 'VTM20.Werewolf.Spirit.tplHint'}}"><i class="fa-solid fa-wand-magic-sparkles"></i> <span class="r-h2-lbl">{{localize "VTM20.Werewolf.Spirit.tplShort"}}</span></a>{{/if}}</span>
+      <span class="r-sp-add"><a class="r-h2-btn is-lib" data-action="library" data-kind="charm" data-tooltip="{{localize 'VTM20.Library.Open'}}"><i class="fa-solid fa-book-skull"></i> {{localize "VTM20.Werewolf.Spirit.addCharm"}}</a></span>
+      <a class="r-h2-btn is-ghost" data-action="library" data-kind="spiritTpl" data-tooltip="{{localize 'VTM20.Werewolf.Spirit.tplHint'}}"><i class="fa-solid fa-wand-magic-sparkles"></i> <span class="r-h2-lbl">{{localize "VTM20.Werewolf.Spirit.tplShort"}}</span></a>{{/if}}</span>
   </h2>
 
   <div class="r-sp-cards">
@@ -25,7 +24,6 @@
         <a class="r-icon-btn is-danger" data-action="spCharmDel" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
       </footer>
     </article>
-    {{else}}<p class="r-note">{{localize "VTM20.Werewolf.Spirit.noOwn"}}</p>
     {{/each}}
   </div>
 

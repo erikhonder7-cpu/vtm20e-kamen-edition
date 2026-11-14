@@ -18,6 +18,7 @@ import { ritualFields } from "../data/ritual-text.mjs";
 import { investmentLimit, sealInvestment, pactDialog } from "./infernal.mjs";
 import { W as werewolfData, addGift, addRite, ownGift } from "./werewolf.mjs";
 import { edgeReasons, poolLabel, takeEdge, growth as hunterGrowth, edgeXp, isLost, H as hunterData } from "./hunter.mjs";
+import { PICKS } from "./library-picks.mjs";
 
 const { HandlebarsApplicationMixin, ApplicationV2 } = foundry.applications.api;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -129,13 +130,16 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
       peek: VtMLibrary.#onPeek,
       expand: VtMLibrary.#onExpand,
       setFilter: VtMLibrary.#onSetFilter,
-      toggleCompact: VtMLibrary.#onToggleCompact
+      toggleCompact: VtMLibrary.#onToggleCompact,
+      pickAct: VtMLibrary.#onPickAct
     }
   };
 
   static PARTS = { body: { template: `${SYSTEM_PATH}/templates/apps/library.hbs`, scrollable: [".r-lib-list"] } };
 
   get title() {
+    const pick = PICKS[this.o.kind];
+    if (pick) return pick.title?.(this.o) ?? L(`Kinds.${this.o.kind}`);
     const disc = this.o.discipline ? ` · ${Codex.disciplineLabel(this.o.discipline)}` : "";
     return `${L(`Kinds.${this.o.kind}`)}${disc}`;
   }
@@ -153,7 +157,8 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
       background: () => this.#backgrounds(), derangement: () => this.#derangements(), investment: () => this.#investments(),
       pact: () => this.#pacts(), edge: () => this.#edges(), gift: () => this.#gifts(), rite: () => this.#rites()
     }[kind];
-    const entries = build?.() ?? [];
+    const pick = PICKS[kind];
+    const entries = pick ? this.#picks(pick) : build?.() ?? [];
 
     // Группы (категории черт) — с заголовком; внутри и без групп доступное выше
     const grouped = entries.some(e => e.group);
@@ -184,15 +189,23 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
     // Источник — если в списке больше одного вида (основная книга, дополнения, Тёмные века, фанатское)
     const srcSeen = SRC_KINDS.filter(k => entries.some(e => e.src === k));
     const srcChips = srcSeen.length > 1 ? [chip("src", "", L("Filter.AllSources")), ...srcSeen.map(k => chip("src", k, L(`Filter.Src.${k}`)))] : null;
+    // Виды из library-picks.mjs: группы — кнопками (если их от 2 до 16), уровни — отдельным рядом
+    let levelChips = null;
+    if (pick) {
+      const groups = [...new Map(entries.filter(e => e.group).map(e => [e.group, e.groupName])).entries()];
+      if (groups.length > 1 && groups.length <= 16) chips = [chip("cat", "", L("Filter.All")), ...groups.map(([k, n]) => chip("cat", k, n))];
+      const lv = [...new Set(entries.map(e => e.level).filter(Boolean))].sort((x, y) => x - y);
+      if (pick.levelChips && lv.length > 1) levelChips = [chip("level", 0, L("Filter.AnyLevel")), ...lv.map(v => chip("level", v, ROMAN[v - 1] ?? String(v)))];
+    }
     const costChips = (kind === "merit" || kind === "flaw")
       ? [chip("level", 0, L("Filter.AnyCost")), ...[1, 2, 3, 4, 5, 6, 7].map(v => chip("level", v, String(v)))] : null;
 
     const xp = this.actor?.system?.experience;
     return {
-      kind, entries, chips, costChips, srcChips, avail: f.avail, compact: this.compact,
+      kind, entries, chips, costChips, levelChips, srcChips, avail: f.avail, compact: this.compact,
       availCount: entries.filter(e => e.canTake).length, total: entries.length,
       rule: L(`Rule.${kind}`),
-      info: this.o.discipline ? { name: Codex.disciplineLabel(this.o.discipline), dots: this.dotsOf(this.o.discipline) } : null,
+      info: this.o.discipline && !pick ? { name: Codex.disciplineLabel(this.o.discipline), dots: this.dotsOf(this.o.discipline) } : null,
       xpAvailable: xp ? xp.available : null,
       search: this.search, isGM: game.user.isGM
     };
@@ -214,6 +227,20 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
       canTake: !x.has && !reasons.length,
       search: norm(`${x.name} ${x.en ?? ""} ${text}`)
     };
+  }
+
+  /** Записи вида из library-picks.mjs; уровни силы — строками, текст уровня — по щелчку (#onPeek). */
+  #picks(pick) {
+    this.peeks = new Map();
+    return pick.entries(this.actor, this.o).map(x => {
+      const powers = (x.ranks ?? []).map((l, i) => {
+        const ref = `pick|${x.id}|${i}`, r = ROMAN[l.level - 1] ?? String(l.level ?? "");
+        this.peeks.set(ref, { roman: r, name: l.name, en: l.en, html: l.html ?? "" });
+        return { roman: r, name: l.name, en: l.en, ref, mark: l.mark ?? "" };
+      });
+      return this.#entry({ ...x, ranks: undefined, powers, cat: x.cat ?? x.group ?? "",
+        tags: (x.tags ?? []).filter(Boolean), acts: x.acts ?? null, xp: x.xp ?? 0 });
+    });
   }
 
   #disciplines() {
@@ -491,6 +518,14 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
     const was = target.classList.contains("is-active");
     for (const a of card.querySelectorAll("[data-action=peek]")) a.classList.remove("is-active");
     if (was) { box.hidden = true; return; }
+    if (ref.startsWith("pick|")) {
+      const p = this.peeks?.get(ref);
+      if (!p) return;
+      target.classList.add("is-active");
+      box.innerHTML = `<h4>${p.roman} · ${p.name ?? ""}${p.en ? ` <em>${p.en}</em>` : ""}</h4>${p.html}`;
+      box.hidden = false;
+      return;
+    }
     const [k, a, b, c] = ref.split("|");
     const d = Codex.discipline(k);
     const p = a === "path" ? d?.paths[Number(b)]?.powers[Number(c)] : d?.powers[Number(a)];
@@ -530,6 +565,14 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   static async #onTake(event, target) {
+    const pick = PICKS[this.o.kind];
+    if (pick) {
+      const card = target.closest("[data-entry]"), id = card?.dataset.entry;
+      if (!id || !this.actor) return;
+      await pick.take(this.actor, id, { value: Number(target.dataset.value) || undefined });
+      ui.notifications.info(L("Added", { name: card.querySelector(".r-lib-name b")?.textContent ?? id }));
+      return this.render();
+    }
     if (this.o.kind === "gift" || this.o.kind === "rite") {
       const D = werewolfData(), x = (this.o.kind === "gift" ? D.gifts : D.rites)[Number(target.closest("[data-entry]")?.dataset.entry)];
       if (!x || this.actor?.type !== "werewolf") return;
@@ -558,6 +601,7 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
   /** Новая Дисциплина или путь за опыт (V20, гл. 01, таблица опыта). */
   static async #onBuy(event, target) {
     if (this.o.kind === "gift") return this.#buyGift(target);
+    if (PICKS[this.o.kind]) return this.#buyPick(target);
     const data = this.#itemFor(target);
     const actor = this.actor;
     if (!data || !actor) return;
@@ -594,6 +638,39 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
     return this.render();
   }
 
+  /**
+   * Запись вида из library-picks.mjs за опыт: buy === true — списать опыт карточки с записью в журнал и взять;
+   * buy — функция — она сама списывает опыт (Дары Родни, силы Ками).
+   */
+  async #buyPick(target) {
+    const pick = PICKS[this.o.kind], actor = this.actor, card = target.closest("[data-entry]"), id = card?.dataset.entry;
+    if (!pick?.buy || !actor || !id) return;
+    const name = card.querySelector(".r-lib-name b")?.textContent ?? id;
+    const cost = Number(target.dataset.xp ?? 0), xp = actor.system.experience;
+    if (xp.available < cost) return ui.notifications.warn(t("Notify.NoXp", { cost, have: xp.available }));
+    const ok = await foundry.applications.api.DialogV2.confirm({
+      window: { title: t("Xp.BuyTitle") }, content: `<p>${L("BuyConfirm", { name: foundry.utils.escapeHTML(name), cost })}</p>`
+    });
+    if (!ok) return;
+    if (typeof pick.buy === "function") await pick.buy(actor, id);
+    else {
+      const log = foundry.utils.deepClone(actor._source.system.experience.log);
+      log.unshift({ amount: -cost, reason: L("Learned", { name }), date: new Date().toLocaleDateString("ru-RU") });
+      await actor.update({ "system.experience.spent": actor._source.system.experience.spent + cost, "system.experience.log": log });
+      await pick.take(actor, id);
+    }
+    ui.notifications.info(L("Added", { name }));
+    return this.render();
+  }
+
+  /** Своя кнопка карточки вида (например, «Создать обрядом» у фетиша). */
+  static async #onPickAct(event, target) {
+    const fn = PICKS[this.o.kind]?.act?.[target.dataset.op], id = target.closest("[data-entry]")?.dataset.entry;
+    if (!fn || !id || !this.actor) return;
+    await fn(this.actor, id);
+    return this.render();
+  }
+
   /** Новая Тауматургия или Некромантия — сразу выбрать первичный путь; Вложение — скрепить сделку злодеянием. */
   async #after(data) {
     if (data.type === "investment") {
@@ -611,7 +688,7 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
 
 /** Открыть библиотеку (одно окно на персонажа и вид записей). */
 export function openLibrary(o) {
-  if (!KINDS.includes(o.kind)) return null;
+  if (!KINDS.includes(o.kind) && !PICKS[o.kind]) return null;
   const app = new VtMLibrary(o);
   const existing = foundry.applications.instances.get(app.id);
   if (existing) { existing.o = app.o; existing.render({ force: true }); return existing; }

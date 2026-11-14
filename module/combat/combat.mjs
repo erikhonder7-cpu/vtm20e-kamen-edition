@@ -15,6 +15,7 @@ import { rollPool, odds, chancesView } from "../dice/roll.mjs";
 import { RollDialog } from "../dice/dialog.mjs";
 import { mobBonus } from "../apps/extras.mjs";
 import { dreadDice, mindDiff, centered, painless, pathFlag, majestyCheck } from "../apps/target-powers.mjs";
+import { talismanAttack } from "../data/talisman.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -172,7 +173,8 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
           dmg: (w.strength ? str : 0) + w.damage, auto: w.strength ? auto : 0, strengthDamage: !!w.strength,
           type: v ? "aggravated" : w.damageType, venom: v, supernatural: !!w.supernatural,
           // Fortitude-only aggravated claws must not be treated as ordinary fang attacks for armour/stamina soak.
-          fangs: !!w.fangs && !w.fortitudeOnly, note: v ? t("Combat.VenomNote", { n: fx.venom }) : "", pierce: w.pierce ?? 0, bullet: w.kind === "firearms", rangeM: w.rangeM };
+          fangs: !!w.fangs && !w.fortitudeOnly, note: v ? t("Combat.VenomNote", { n: fx.venom }) : "", pierce: w.pierce ?? 0, bullet: w.kind === "firearms", rangeM: w.rangeM,
+          talisman: talismanAttack(a, id) };
       }
     }
     // естественное оружие апокалиптической формы (когти, рога, хвост, чрево — data/form.mjs): Ловкость + Драка
@@ -211,6 +213,7 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const attackAuto = v.physical ? a.physicalAuto(c.attr) : 0;
     if (attackAuto) bd.push({ label: t("Roll.AutoSuccess"), value: attackAuto });
     add(t("Combat.Accuracy"), c.dice);
+    add(t("Artifact.TalismanAttack"), c.talisman ?? 0);   // свой талисман-оружие в руке (data/talisman.mjs)
     add(t(`Combat.Pos.${v.position}`), { front: 0, flank: 1, rear: 2 }[v.position]);
     for (const d of dreadDice(a, { physical: true })) add(d.label, d.value);   // Устрашающий взор (apps/target-powers.mjs)
     add(t("Extra.MobBonus"), mobBonus(a));                 // толпа: +1 за каждого на ногах сверх первого (apps/extras.mjs)

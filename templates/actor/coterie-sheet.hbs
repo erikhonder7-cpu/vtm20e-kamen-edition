@@ -123,7 +123,7 @@
           <span class="r-h2-tools"><a class="r-h2-btn" data-action="pools"><i class="fa-solid fa-people-roof"></i> <span class="r-h2-lbl">{{localize "VTM20.Group.PoolsOpen"}}</span></a></span></h2>
         {{#each pools}}<div class="r-gs-line"><span>{{bg}}{{#if primary}} <i class="fa-solid fa-anchor r-gs-anchor" data-tooltip="{{localize 'VTM20.Group.Primary'}}"></i>{{/if}}</span>
           <i class="r-gs-dots">{{#each dots}}<b class="{{#if this}}on{{/if}}"></b>{{/each}}</i></div>
-        {{else}}<p class="r-gs-empty">{{localize "VTM20.Group.NoPools"}}</p>{{/each}}
+        {{/each}}
       </section>
       <section>
         <h2 class="r-h2"><span>{{localize "VTM20.Group.Domain"}}</span></h2>

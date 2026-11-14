@@ -5,7 +5,6 @@
     <nav class="r-xw-cats r-court-side-scroll">
       {{#each cats}}
       <a class="r-xw-cat {{#if active}}is-active{{/if}}" data-action="pick" data-id="{{id}}"><i class="fa-solid fa-people-roof"></i><span>{{name}}</span><small>{{n}}</small></a>
-      {{else}}<p class="r-empty">{{localize "VTM20.Coterie.None"}}</p>
       {{/each}}
     </nav>
     {{#if gm}}<a class="r-h2-btn r-court-add" data-action="create"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Coterie.New"}}</a>{{/if}}
@@ -23,7 +22,6 @@
         {{#each cot.members}}
         <span class="r-cot-member"><a data-action="sheet" data-actor-id="{{id}}">{{#if img}}<img src="{{img}}" alt="">{{/if}}<b>{{name}}</b></a>
           {{#if @root.gm}}<a class="r-icon-btn is-danger" data-action="dropMember" data-actor-id="{{id}}" data-tooltip="{{localize 'VTM20.Coterie.DropMember'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}</span>
-        {{else}}<p class="r-empty">{{localize "VTM20.Coterie.NoMembers"}}</p>
         {{/each}}
         {{#if gm}}{{#if cot.candidates.length}}<span class="r-cot-add"><select name="cot-member">{{#each cot.candidates}}<option value="{{id}}">{{name}}</option>{{/each}}</select>
           <a class="r-h2-btn" data-action="addMember"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Coterie.AddMember"}}</a></span>{{/if}}{{/if}}
@@ -43,7 +41,7 @@
         {{#if cot.totem.pack}}<p><i class="fa-solid fa-people-group"></i> {{{cot.totem.pack}}}</p>{{/if}}
         {{#if cot.totem.ban}}<p class="r-cot-ban"><i class="fa-solid fa-ban"></i> {{{cot.totem.ban}}}</p>{{/if}}
         {{#if cot.totem.text}}<p>{{{cot.totem.text}}}</p>{{/if}}
-        {{else}}<p class="r-empty">{{localize "VTM20.Werewolf.Totem.none"}}</p>{{/if}}
+        {{/if}}
       </div>
       {{/if}}
       <h3 class="r-h3 r-colhead"><span>{{localize "VTM20.Coterie.Pools"}}</span></h3>
@@ -72,7 +70,6 @@
           </span>{{/if}}
         </div>
       </div>
-      {{else}}<p class="r-empty">{{localize "VTM20.Coterie.NoPools"}}</p>
       {{/each}}
       {{#if gm}}{{#if cot.canAdd.length}}<span class="r-cot-add"><select name="cot-pool">{{#each cot.canAdd}}<option value="{{this}}">{{this}}</option>{{/each}}</select>
         <a class="r-h2-btn" data-action="addPool"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Coterie.AddPool"}}</a></span>{{/if}}{{/if}}

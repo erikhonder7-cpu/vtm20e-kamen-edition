@@ -6,7 +6,7 @@
       {{#if lores.length}}<a class="r-h2-btn is-plain" data-action="toggleAll" data-tooltip="{{localize 'VTM20.Sheet.ToggleAllHint'}}"><i class="fa-solid {{#if allOpen}}fa-angles-up{{else}}fa-angles-down{{/if}}"></i> <span class="r-h2-lbl">{{#if allOpen}}{{localize "VTM20.Sheet.CollapseAll"}}{{else}}{{localize "VTM20.Sheet.ExpandAll"}}{{/if}}</span></a>{{/if}}
       {{#if editable}}
       {{#if missingHouse}}<a class="r-h2-btn" data-action="addHouseLores" data-tooltip="{{localize 'VTM20.Demon.AddHouseLoresHint'}}"><i class="fa-solid fa-fire-flame-curved"></i> <span class="r-h2-lbl">{{localize "VTM20.Demon.AddHouseLores"}}</span></a>{{/if}}
-      <a class="r-h2-btn" data-action="addLore" data-tooltip="{{localize 'VTM20.Demon.AddLore'}}"><i class="fa-solid fa-plus"></i> <span class="r-h2-lbl">{{localize "VTM20.Demon.AddLore"}}</span></a>
+      <a class="r-h2-btn" data-action="library" data-kind="lore" data-tooltip="{{localize 'VTM20.Demon.AddLore'}}"><i class="fa-solid fa-book-skull"></i> <span class="r-h2-lbl">{{localize "VTM20.Demon.AddLore"}}</span></a>
       <a class="r-h2-btn is-plain {{#if earthbound}}is-on{{/if}}" data-action="toggleEarthbound" data-tooltip="{{localize 'VTM20.Demon.EarthboundTip'}}"><i class="fa-solid {{#if earthbound}}fa-gem{{else}}fa-link-slash{{/if}}"></i> <span class="r-h2-lbl">{{localize "VTM20.Demon.Earthbound"}}</span></a>
       {{/if}}
     </span>
@@ -113,8 +113,6 @@
       {{#if variants}}<div class="r-rite-note is-var"><b>{{localize "VTM20.DRitual.Variants"}}</b>{{variants}}</div>{{/if}}
     </div>
   </article>
-  {{else}}
-  <div class="r-empty">{{localize "VTM20.Demon.NoRituals"}}</div>
   {{/each}}
 
   {{!-- Реликвии падших --}}
@@ -142,8 +140,6 @@
       {{#if mechanics}}<div class="r-rite-note is-sys"><b>{{localize "VTM20.Relic.Mechanics"}}</b>{{mechanics}}</div>{{/if}}
     </div>
   </article>
-  {{else}}
-  <div class="r-empty">{{localize "VTM20.Demon.NoRelics"}}</div>
   {{/each}}
 
   {{!-- Врождённые способности (гл. 7): без броска — иммунитеты, с броском — мороки, имена, изгнание --}}

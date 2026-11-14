@@ -13,6 +13,7 @@ import { substanceMods } from "../data/vessels.mjs";
 import { dreadDice, frenzyDiff, mindDiff, centered, painless } from "../apps/target-powers.mjs";
 import { revenantDiff } from "../data/revenants.mjs";
 import { noBotchFor, lykeianDiff } from "../apps/lykeian.mjs";
+import { talismanMods } from "../data/talisman.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -187,6 +188,10 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       if ([v.trait1, v.trait2].includes(p)) { pool += Number(n) || 0; bd.push({ label: e.name, value: Number(n) || 0 }); }
     // запасы кубиков (Помощь духов, Иссушение Земли): сколько взять — решает игрок
     for (const p of this.#pools()) if (p.value) { pool += p.value; bd.push({ label: p.label, value: p.value }); }
+    // Талисман тауматурга (data/talisman.mjs): свой в руке — кубы к пути и ритуалам; у цели свой — +1 к сложности; чужой в руке — +3 куба
+    const oneTarget = (ts => ts.length === 1 ? ts[0]?.actor ?? null : null)([...(game.user?.targets ?? [])]);
+    const tal = talismanMods(a, this.cfg.extra?.magic, oneTarget);
+    for (const d of tal.dice) { pool += d.value; bd.push({ label: t("Artifact.TalismanDice", { name: d.label }), value: d.value }); }
     // Множественные действия (03): наименьший пул делится между действиями
     if (v.actions > 1) {
       const part = Math.floor(Math.max(0, pool) / v.actions);
@@ -214,7 +219,8 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       // изъяны семей ревенантов (data/revenants.mjs)
       ...revenantDiff(a, { attrs, traits: [v.trait1, v.trait2], kind: this.cfg.kind, social, power: !!this.cfg.extra?.power }),
       // Недуги ликийца (apps/lykeian.mjs): паника без Воли, соперник маиевтика
-      ...lykeianDiff(a)];
+      ...lykeianDiff(a),
+      ...tal.diff.map(d => ({ label: t("Artifact.TalismanGuard", { name: d.label }), value: d.value }))];
     const selectedTargets = [...(game.user.targets ?? [])];
     const earthTarget = selectedTargets.length === 1 ? selectedTargets[0]?.actor : null;
     const earthDetect = Number(earthTarget?.system?.fx?.detectDifficulty) || 0;

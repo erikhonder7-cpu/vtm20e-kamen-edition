@@ -10,10 +10,10 @@
     </span>
   </h2>
   {{!-- Покров сцены: рейтинг и из чего он сложился; рассказчик двигает рейтинг и Истерию, игрок отмечает «в Обиталище» --}}
-  <div class="r-wr-shroud" data-tooltip="{{wraithInfo.shroud.text}}">
-    <span class="r-wr-shroud-lbl"><i class="fa-solid fa-cloud"></i> {{localize "VTM20.Wraith.Shroud.Label"}}{{#if wraithInfo.shroud.scene}} <small>· {{wraithInfo.shroud.scene}}</small>{{/if}}</span>
-    <b class="r-wr-shroud-num">{{wraithInfo.shroud.value}}</b>
-    <small class="r-wr-shroud-why">{{wraithInfo.shroud.text}}</small>
+  <div class="r-wr-shroud">
+    {{!-- из чего сложился Покров — подсказкой на подписи и числе, а не на всей полосе с кнопками --}}
+    <span class="r-wr-shroud-lbl" data-tooltip="{{wraithInfo.shroud.text}}"><i class="fa-solid fa-cloud"></i> {{localize "VTM20.Wraith.Shroud.Label"}}{{#if wraithInfo.shroud.scene}} <small>· {{wraithInfo.shroud.scene}}</small>{{/if}}</span>
+    <b class="r-wr-shroud-num" data-tooltip="{{wraithInfo.shroud.text}}">{{wraithInfo.shroud.value}}</b>
     {{#unless (rEq wraithInfo.place "shadowlands")}}<span class="r-wr-necro-chip" data-tooltip="{{localize 'VTM20.Wraith.Place.Hint'}}"><i class="fa-solid fa-dungeon"></i> {{wraithInfo.placeLabel}}</span>{{/unless}}
     {{#if wraithInfo.necropolis}}<span class="r-wr-necro-chip" data-tooltip="{{wraithInfo.necropolis.text}}"><i class="fa-solid fa-city"></i> {{wraithInfo.necropolis.name}}</span>{{/if}}
     <span class="r-wr-shroud-tools">
@@ -39,7 +39,7 @@
   {{#if spectre}}
   <div class="r-wr-spectre-bar">
     <span class="r-wr-shroud-lbl"><i class="fa-solid fa-skull"></i> {{localize "VTM20.Wraith.Spectre.Title"}}</span>
-    <select name="system.wraith.spectre.caste" class="r-mini-select" data-tooltip="{{spectre.caste.name}}"><option value="">—</option>{{#each spectre.castes}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select>
+    <select name="system.wraith.spectre.caste" class="r-mini-select"><option value="">—</option>{{#each spectre.castes}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select>
     {{#if spectre.caste}}<small class="r-wr-shroud-why" data-tooltip="{{spectre.caste.creation}}">{{localize "VTM20.Wraith.Spectre.CasteHint"}}</small>{{/if}}
     {{#if isGM}}<a class="r-vc-btn" data-action="spBecome" data-tooltip="{{localize 'VTM20.Wraith.Spectre.LeaveHint'}}"><i class="fa-solid fa-dove"></i> {{localize "VTM20.Wraith.Spectre.Leave"}}</a>{{/if}}
   </div>
@@ -83,7 +83,9 @@
     </span>{{/if}}
   </div>
   {{#if projector.shade}}<p class="r-note r-wr-proj-shade">{{localize "VTM20.Wraith.Proj.ShadeLine" fav=projector.favored proh=projector.prohibited max=projector.pathosMax}}</p>{{/if}}
-  {{else}}
+  {{else if (or editable isGM)}}
+  {{!-- обычный призрак: особые состояния нужны редко — свёрнуты в одну строку --}}
+  <details class="r-wr-modes"><summary><i class="fa-solid fa-masks-theater"></i> {{localize "VTM20.Wraith.Modes"}}</summary>
   <div class="r-wr-spectre-bar is-off">
     {{#if editable}}<a class="r-vc-btn" data-action="pjOn" data-tooltip="{{localize 'VTM20.Wraith.Proj.OnHint'}}"><i class="fa-solid fa-person-falling-burst"></i> {{localize "VTM20.Wraith.Proj.On"}}</a>
     <a class="r-vc-btn" data-action="rsOn" data-tooltip="{{localize 'VTM20.Wraith.Risen.OnHint'}}"><i class="fa-solid fa-person-rays"></i> {{localize "VTM20.Wraith.Risen.On"}}</a>
@@ -91,14 +93,14 @@
     {{#if isGM}}<a class="r-vc-btn" data-action="spBecome" data-tooltip="{{localize 'VTM20.Wraith.Spectre.BecomeHint'}}"><i class="fa-solid fa-skull"></i> {{localize "VTM20.Wraith.Spectre.Become"}}</a>
     <a class="r-vc-btn {{#if projector.isHue}}is-on{{/if}}" data-action="uwHue" data-tooltip="{{localize 'VTM20.Wraith.Hue.Hint'}}"><i class="fa-solid fa-droplet-slash"></i> {{localize "VTM20.Wraith.Hue.Title"}}</a>{{/if}}
   </div>
+  </details>
   {{/if}}
 
-  {{#if editable}}{{#if arc.avail.length}}
+  {{#if editable}}
   <div class="r-toolbar">
-    <select class="r-wr-arc-add"><option value="">{{localize "VTM20.Wraith.AddArcanos"}}</option>{{#each arc.avail}}<option value="{{key}}">{{label}}</option>{{/each}}</select>
-    <a class="r-vc-btn" data-action="wrArcAdd" data-tooltip="{{localize 'VTM20.Wraith.AddArcanosHint'}}"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Common.Add"}}</a>
+    <a class="r-vc-btn is-lib" data-action="library" data-kind="arcanos" data-tooltip="{{localize 'VTM20.Library.Open'}}"><i class="fa-solid fa-book-skull"></i> {{localize "VTM20.Wraith.AddArcanos"}}</a>
   </div>
-  {{/if}}{{/if}}
+  {{/if}}
 
   {{!-- Арканои — карточками Гильдий. Пять рангов — кружки, расколотые пополам, как на листе Wraith 20 (гл. 5):
        левая половина — Общий уровень, правая — Посвящённый (тайна Гильдии). Щелчок по половинке открывает её уровень. --}}
@@ -148,17 +150,15 @@
     {{/with}}
     </div>
   </article>
-  {{else}}<p class="r-note">{{localize "VTM20.Wraith.NoArcanoi"}}</p>
   {{/each}}
   </div>
 
   {{#if spectre}}
   {{!-- Тёмные Арканои Спектра (гл. 10): уровни строками — пул, сложность, цена в Ангсте; щелчок — бросок --}}
   <h2 class="r-h2 is-shadow"><span>{{localize "VTM20.Wraith.Spectre.Dark"}}</span></h2>
-  {{#if editable}}{{#if spectre.darkAvail.length}}<div class="r-toolbar">
-    <select><option value="">{{localize "VTM20.Wraith.Spectre.AddDark"}}</option>{{#each spectre.darkAvail}}<option value="{{key}}">{{label}}</option>{{/each}}</select>
-    <a class="r-vc-btn" data-action="spRow" data-kind="dark" data-op="add"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Common.Add"}}</a>
-  </div>{{/if}}{{/if}}
+  {{#if editable}}<div class="r-toolbar">
+    <a class="r-vc-btn is-lib" data-action="library" data-kind="darkArcanos" data-tooltip="{{localize 'VTM20.Library.Open'}}"><i class="fa-solid fa-book-skull"></i> {{localize "VTM20.Wraith.Spectre.AddDark"}}</a>
+  </div>{{/if}}
   <div class="r-wr-darks">
     {{#each spectre.dark}}
     <article class="r-vcard r-wr-dark">
@@ -187,10 +187,9 @@
   {{#if risen}}
   {{!-- Очарование и Случайность (гл. 11): свои Арканои Восставших, без лишнего Ангста --}}
   <h2 class="r-h2"><span>{{localize "VTM20.Wraith.Risen.Arcanoi"}}</span></h2>
-  {{#if editable}}{{#if risen.artAvail.length}}<div class="r-toolbar">
-    <select><option value="">{{localize "VTM20.Wraith.AddArcanos"}}</option>{{#each risen.artAvail}}<option value="{{key}}">{{label}}</option>{{/each}}</select>
-    <a class="r-vc-btn" data-action="rsArtRow" data-op="add"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Common.Add"}}</a>
-  </div>{{/if}}{{/if}}
+  {{#if editable}}<div class="r-toolbar">
+    <a class="r-vc-btn is-lib" data-action="library" data-kind="risenArt" data-tooltip="{{localize 'VTM20.Library.Open'}}"><i class="fa-solid fa-book-skull"></i> {{localize "VTM20.Wraith.AddArcanos"}}</a>
+  </div>{{/if}}
   <div class="r-wr-darks">
     {{#each risen.arts}}
     <article class="r-vcard r-wr-dark is-risen">
@@ -220,10 +219,9 @@
     <span class="r-h2-tools"><select name="system.wraith.realm.kingdom" class="r-mini-select" data-tooltip="{{localize 'VTM20.Wraith.Realm.Hint'}}"><option value="">{{localize "VTM20.Wraith.Realm.Stygia"}}</option>{{#each realm.kingdoms}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></span>
   </h2>
   {{#if realm.realm}}
-  {{#if editable}}{{#if realm.avail.length}}<div class="r-toolbar">
-    <select><option value="">{{localize "VTM20.Wraith.AddArcanos"}}</option>{{#each realm.avail}}<option value="{{key}}">{{label}}</option>{{/each}}</select>
-    <a class="r-vc-btn" data-action="rlRow" data-op="add"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Common.Add"}}</a>
-  </div>{{/if}}{{/if}}
+  {{#if editable}}<div class="r-toolbar">
+    <a class="r-vc-btn is-lib" data-action="library" data-kind="realmArt" data-tooltip="{{localize 'VTM20.Library.Open'}}"><i class="fa-solid fa-book-skull"></i> {{localize "VTM20.Wraith.AddArcanos"}}</a>
+  </div>{{/if}}
   {{#if (eq realm.realm.key "jade")}}<p class="r-note">{{localize "VTM20.Wraith.Realm.JadeNote"}}</p>{{/if}}
   {{#if (eq realm.realm.key "africa")}}<p class="r-note">{{localize "VTM20.Wraith.Realm.AfricaNote"}}</p>{{/if}}
   {{#if (eq realm.realm.key "mirror")}}<p class="r-note">{{localize "VTM20.Wraith.Realm.MirrorNote"}}</p>{{/if}}
@@ -273,7 +271,6 @@
       {{/if}}
       {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="wrRowDel" data-kind="passion" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
     </li>
-    {{else}}<li class="r-note">{{localize "VTM20.Wraith.NoPassions"}}</li>
     {{/each}}
   </ul>
 
@@ -295,7 +292,6 @@
       {{/unless}}
       {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="wrRowDel" data-kind="fetter" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
     </li>
-    {{else}}<li class="r-note">{{localize "VTM20.Wraith.NoFetters"}}</li>
     {{/each}}
   </ul>
 
@@ -319,7 +315,6 @@
       {{else}}{{#if @root.editable}}<a class="r-vc-btn {{#if done}}is-locked{{/if}}" data-action="wrConsort" data-i="{{i}}" data-tooltip="{{#if done}}{{localize 'VTM20.Wraith.Consort.DoneHint'}}{{else}}{{localize 'VTM20.Wraith.Consort.InvestHint'}}{{/if}}"><i class="fa-solid fa-hand-holding-heart"></i></a>{{/if}}{{/if}}
       {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="wrConsortDel" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
     </li>
-    {{else}}<li class="r-note">{{localize "VTM20.Wraith.Consort.None"}}</li>
     {{/each}}
   </ul>
 
@@ -337,13 +332,11 @@
       <a class="r-vc-btn" data-action="spPassion" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Wraith.Spectre.PassionHint'}}"><i class="fa-solid fa-dove"></i></a>
       {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="spRow" data-kind="psychePassion" data-op="del" data-i="{{i}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
     </li>
-    {{else}}<li class="r-note">{{localize "VTM20.Wraith.NoPassions"}}</li>
     {{/each}}
   </ul>
   <h2 class="r-h2 is-psyche"><span>{{localize "VTM20.Wraith.Spectre.Fronds"}}</span></h2>
   {{#if editable}}<div class="r-toolbar">
-    <select><option value="">{{localize "VTM20.Wraith.Spectre.AddFrond"}}</option>{{#each spectre.psyche.frondAvail}}<option value="{{key}}">{{label}}</option>{{/each}}</select>
-    <a class="r-vc-btn" data-action="spRow" data-kind="frond" data-op="add"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Common.Add"}}</a>
+    <a class="r-vc-btn is-lib" data-action="library" data-kind="frond" data-tooltip="{{localize 'VTM20.Library.Open'}}"><i class="fa-solid fa-book-skull"></i> {{localize "VTM20.Wraith.Spectre.AddFrond"}}</a>
   </div>{{/if}}
   <ul class="r-edge-list r-wr-thorns">
     {{#each spectre.psyche.fronds}}
@@ -351,13 +344,11 @@
       <span class="r-edge-main"><b>{{name}}</b> <small>{{en}} · {{costText}}</small><div class="r-edge-text">{{{html}}}</div></span>
       {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="spRow" data-kind="frond" data-op="del" data-i="{{i}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
     </li>
-    {{else}}<li class="r-note">{{localize "VTM20.Wraith.Spectre.NoFronds"}}</li>
     {{/each}}
   </ul>
   <h2 class="r-h2 is-shadow"><span>{{localize "VTM20.Wraith.Spectre.Shadecraft"}}</span></h2>
   {{#if editable}}<div class="r-toolbar">
-    <select><option value="">{{localize "VTM20.Wraith.Spectre.AddShade"}}</option>{{#each spectre.shadeAvail}}<option value="{{key}}">{{label}}</option>{{/each}}</select>
-    <a class="r-vc-btn" data-action="spRow" data-kind="shade" data-op="add"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Common.Add"}}</a>
+    <a class="r-vc-btn is-lib" data-action="library" data-kind="shade" data-tooltip="{{localize 'VTM20.Library.Open'}}"><i class="fa-solid fa-book-skull"></i> {{localize "VTM20.Wraith.Spectre.AddShade"}}</a>
   </div>{{/if}}
   <ul class="r-edge-list r-wr-thorns">
     {{#each spectre.shade}}
@@ -365,7 +356,6 @@
       <span class="r-edge-main"><b>{{name}}</b> <small>{{en}}{{#if angst}} · {{angst}} {{localize "VTM20.Wraith.Spectre.Angst"}}{{/if}}</small><div class="r-edge-text">{{{html}}}</div></span>
       {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="spRow" data-kind="shade" data-op="del" data-i="{{i}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
     </li>
-    {{else}}<li class="r-note">{{localize "VTM20.Wraith.Spectre.NoShade"}}</li>
     {{/each}}
   </ul>
   {{else}}
@@ -378,8 +368,7 @@
   {{#if projector.wild}}<p class="r-note is-warn"><i class="fa-solid fa-triangle-exclamation"></i> {{localize "VTM20.Wraith.Proj.Wild"}}</p>{{/if}}
   {{#if projector.shown}}<p class="r-note">{{localize "VTM20.Wraith.Proj.Social" n=projector.social}}</p>{{/if}}
   {{#if editable}}<div class="r-toolbar">
-    <select><option value="">{{localize "VTM20.Wraith.Proj.AddStain"}}</option>{{#each projector.stainAvail}}<option value="{{key}}">{{label}}</option>{{/each}}</select>
-    <a class="r-vc-btn" data-action="pjRow" data-op="add"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Common.Add"}}</a>
+    <a class="r-vc-btn is-lib" data-action="library" data-kind="stain" data-tooltip="{{localize 'VTM20.Library.Open'}}"><i class="fa-solid fa-book-skull"></i> {{localize "VTM20.Wraith.Proj.AddStain"}}</a>
   </div>{{/if}}
   {{#if projector.overSlots}}<p class="r-note is-warn">{{localize "VTM20.Wraith.Proj.OverSlots" n=projector.slots}}</p>{{/if}}
   <ul class="r-edge-list r-wr-thorns">
@@ -390,7 +379,6 @@
       {{#if @root.editable}}<a class="r-vc-btn {{#if shown}}is-on{{/if}}" data-action="pjStain" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Wraith.Proj.StainHint'}}"><i class="fa-solid fa-droplet"></i> {{#if shown}}{{localize "VTM20.Wraith.Proj.Hide"}}{{else}}{{localize "VTM20.Wraith.Proj.Show"}}{{/if}}</a>
       <a class="r-icon-btn is-danger" data-action="pjRow" data-op="del" data-i="{{i}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
     </li>
-    {{else}}<li class="r-note">{{localize "VTM20.Wraith.Proj.NoStains"}}</li>
     {{/each}}
   </ul>
   {{/if}}
@@ -408,14 +396,12 @@
       <a class="r-vc-btn" data-action="wrDark" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Wraith.DarkHint'}}"><i class="fa-solid fa-mask"></i></a>
       {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="wrRowDel" data-kind="dark" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
     </li>
-    {{else}}<li class="r-note">{{localize "VTM20.Wraith.NoDark"}}</li>
     {{/each}}
   </ul>
 
   <h2 class="r-h2 is-shadow"><span>{{localize "VTM20.Wraith.Thorns"}}</span></h2>
   {{#if editable}}<div class="r-toolbar">
-    <select class="r-wr-thorn-add"><option value="">{{localize "VTM20.Wraith.AddThorn"}}</option>{{#each wp.thornAvail}}<option value="{{key}}">{{label}}</option>{{/each}}</select>
-    <a class="r-vc-btn" data-action="wrRowAdd" data-kind="thorn"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Common.Add"}}</a>
+    <a class="r-vc-btn is-lib" data-action="library" data-kind="thorn" data-tooltip="{{localize 'VTM20.Library.Open'}}"><i class="fa-solid fa-book-skull"></i> {{localize "VTM20.Wraith.AddThorn"}}</a>
   </div>{{/if}}
   <ul class="r-edge-list r-wr-thorns">
     {{#each wp.thorns}}
@@ -427,7 +413,6 @@
       {{#if use}}{{#if @root.wraithInfo.canGuide}}<a class="r-vc-btn" data-action="wrThorn" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Wraith.Thorn.UseHint'}}"><i class="fa-solid fa-spa"></i> {{localize "VTM20.Wraith.Thorn.Use"}}</a>{{/if}}{{/if}}
       {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="wrRowDel" data-kind="thorn" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
     </li>
-    {{else}}<li class="r-note">{{localize "VTM20.Wraith.NoThorns"}}</li>
     {{/each}}
   </ul>
   {{/unless}}

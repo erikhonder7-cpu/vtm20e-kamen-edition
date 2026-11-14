@@ -791,6 +791,30 @@
       "flags": {}
     },
     {
+      "name": "wraith-powers",
+      "label": "Силы призраков",
+      "path": "packs/wraith-powers",
+      "type": "Item",
+      "system": "vtm20e-kamen-edition",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
+    },
+    {
+      "name": "wraith-lore",
+      "label": "Призраки — Легионы, Касты и Тени",
+      "path": "packs/wraith-lore",
+      "type": "JournalEntry",
+      "system": "vtm20e-kamen-edition",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
+    },
+    {
       "name": "changeling-books",
       "label": "Подменыш: Грёза — книги",
       "path": "packs/changeling-books",
@@ -831,6 +855,30 @@
       "label": "Фоны подменышей",
       "path": "packs/changeling-backgrounds",
       "type": "Item",
+      "system": "vtm20e-kamen-edition",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
+    },
+    {
+      "name": "changeling-powers",
+      "label": "Силы подменышей",
+      "path": "packs/changeling-powers",
+      "type": "Item",
+      "system": "vtm20e-kamen-edition",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
+    },
+    {
+      "name": "changeling-lore",
+      "label": "Подменыши — галлейны, фригольды, клятвы",
+      "path": "packs/changeling-lore",
+      "type": "JournalEntry",
       "system": "vtm20e-kamen-edition",
       "ownership": {
         "PLAYER": "OBSERVER",
@@ -959,7 +1007,9 @@
       "color": "#3b4650",
       "packs": [
         "wraith-books",
+        "wraith-powers",
         "wraith-arcanoi",
+        "wraith-lore",
         "wraith-backgrounds",
         "wraith-relics"
       ]
@@ -970,7 +1020,9 @@
       "color": "#5a2f4a",
       "packs": [
         "changeling-books",
+        "changeling-powers",
         "changeling-arts",
+        "changeling-lore",
         "changeling-kiths",
         "changeling-merits",
         "changeling-backgrounds"

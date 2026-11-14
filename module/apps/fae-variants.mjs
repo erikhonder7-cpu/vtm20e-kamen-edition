@@ -19,7 +19,7 @@
 //     провал — +1 Банальность, ботч — +2;
 //   · новая привязка Якоря: Гламур (сл. 7, при смене двора 8), затем 1 Воля.
 
-import { C, say, spendGlamour, gainGlamour, gainNightmare, addBanality, afterRoll, kithOf } from "./changeling.mjs";
+import { C, say, spendGlamour, gainGlamour, gainNightmare, addBanality, afterRoll, kithOf, clGlyph } from "./changeling.mjs";
 import { VTM20 } from "../config.mjs";
 
 const t = (k, d) => d ? game.i18n.format(`VTM20.Fae.${k}`, d) : game.i18n.localize(`VTM20.Fae.${k}`);
@@ -65,7 +65,7 @@ export function hsienView(actor, dots) {
     dominant: d.yin > d.yang ? t("Hsien.Yin") : d.yang > d.yin ? t("Hsien.Yang") : t("Hsien.Balance"),
     schools: SCHOOLS.map(k => ({ key: k, name: t(`Hsien.School.${k}`), element: k === "neitan" ? t("Hsien.Inner") : t(`Hsien.Element.${WU_TAN[k].element}`),
       value: h.schools?.[k] ?? 0, dots: dots(h.schools?.[k] ?? 0, 5, { path: `system.changeling.hsien.schools.${k}` }),
-      capped: k === "neitan" && (h.schools?.neitan ?? 0) > d.neiCap, sym: null })),
+      capped: k === "neitan" && (h.schools?.neitan ?? 0) > d.neiCap, sym: clGlyph("art", k === "tietan" ? "tiehtan" : k) })),
     kiths: opts(variantKiths("hsien"), c.kith), courts: HSIEN_COURTS.map(k => ({ key: k, name: t(`Hsien.Court.${k}`), selected: k === h.court })),
     legaciesYin: opts(legacies, h.legacyYin), legaciesYang: opts(legacies, h.legacyYang)
   };

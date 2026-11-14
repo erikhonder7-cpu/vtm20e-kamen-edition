@@ -6,17 +6,16 @@ import { castCantrip, unleash, artRow, spendGlamour, gainGlamour, gainNightmare,
   setSceneBanality, endBedlam, takeOath, breakOath, dropOath, chimericalDamage, coldIron,
   addTreasure, treasureStore, useTreasure, destroyTreasure, mistsTable, questOutcome,
   editChimera, dropChimera, chimeraActor, addCraft, craftRoll, dropCraft } from "../../apps/changeling.mjs";
-import { addRede, dropRede, reaping, legacyGlamour, shedBanality, shedImbalance } from "../../apps/lykeian.mjs";
+import { dropRede, reaping, legacyGlamour, shedBanality, shedImbalance } from "../../apps/lykeian.mjs";
 import { wuTan, neiTan, maskOfShintai, sacrificeChi, unleashSliver, harvest, reapInanimae, huskRoll, rebind } from "../../apps/fae-variants.mjs";
 
-import { castDaf, unleashDaf, echoRoll, dafColdIron, learnCantrip, forgetCantrip, originDefaults } from "../../apps/dark-fae.mjs";
+import { castDaf, unleashDaf, echoRoll, dafColdIron, forgetCantrip, originDefaults } from "../../apps/dark-fae.mjs";
 
-/** Dark Ages: Fae (apps/dark-fae.mjs): кантрип, Высвобождение Домена, Эхо, холодное железо, выучить и забыть кантрип, старт Происхождения. */
+/** Dark Ages: Fae (apps/dark-fae.mjs): кантрип, Высвобождение Домена, Эхо, холодное железо, забыть кантрип, старт Происхождения (выучить — в библиотеке). */
 function onDaf(event, target) {
   const { op, key } = target.dataset, a = this.actor;
   if (op === "cast") return castDaf(a, key);
   if (op === "unleash") return unleashDaf(a, key);
-  if (op === "learn") return learnCantrip(a, target.closest(".r-cl-add")?.querySelector("select")?.value);
   if (op === "forget") return forgetCantrip(a, key);
   if (op === "origin") return a.update(originDefaults(a.system.changeling.daf.origin));
   return { echo: echoRoll, iron: dafColdIron }[op]?.(a);
@@ -39,10 +38,9 @@ function onAgenda(event, target) {
     plus: (x, j) => bumpAgenda(x, j, 1), minus: (x, j) => bumpAgenda(x, j, -1) }[op]?.(a, i);
 }
 
-/** Ликиец (apps/lykeian.mjs): Реды, Жатва, Гламур через Наследие, снять Банальность или Дисбаланс. */
+/** Ликиец (apps/lykeian.mjs): убрать Ред (добавить — в библиотеке), Жатва, Гламур через Наследие, снять Банальность или Дисбаланс. */
 function onLykeian(event, target) {
   const op = target.dataset.op, a = this.actor;
-  if (op === "add") return addRede(a, target.closest(".r-cl-add")?.querySelector("select")?.value);
   if (op === "del") return dropRede(a, Number(target.dataset.i));
   return { reap: reaping, legacy: legacyGlamour, shed: shedBanality, cure: shedImbalance }[op]?.(a);
 }
@@ -52,10 +50,6 @@ function onCast(event, target) {
   return castCantrip(this.actor, d.art ? { art: d.art, level: Number(d.level) || undefined } : {});
 }
 function onUnleash(event, target) { return unleash(this.actor, target.dataset.art); }
-function onArtAdd(event, target) {
-  const key = target.closest(".r-cl-add")?.querySelector("select")?.value;
-  return artRow(this.actor, "add", key);
-}
 function onArtDel(event, target) { return artRow(this.actor, "del", target.dataset.art); }
 function onGlamour(event, target) { return Number(target.dataset.d) < 0 ? spendGlamour(this.actor, 1) : gainGlamour(this.actor, 1); }
 function onNightmare(event, target) {
@@ -116,6 +110,6 @@ function onOath(event, target) {
   return op === "take" ? takeOath(this.actor) : op === "break" ? breakOath(this.actor, i) : dropOath(this.actor, i);
 }
 
-export const CHANGELING_ACTIONS = { clCast: onCast, clUnleash: onUnleash, clArtAdd: onArtAdd, clArtDel: onArtDel, clGlamour: onGlamour,
+export const CHANGELING_ACTIONS = { clCast: onCast, clUnleash: onUnleash, clArtDel: onArtDel, clGlamour: onGlamour,
   clNightmare: onNightmare, clTrigger: onTrigger, clWyrd: onWyrd, clAutumn: onAutumn, clEpiphany: onEpiphany, clPlace: onPlace, clBedlamEnd: onBedlamEnd, clOath: onOath,
   clChim: { handler: onChim, buttons: [0, 2] }, clColdIron: onColdIron, clTreasure: onTreasure, clDross: onDross, clMists: onMists, clQuest: onQuest, clChimera: onChimera, clCraft: onCraft, lyAct: onLykeian, clAgenda: onAgenda, clFae: onFae, clDaf: onDaf };

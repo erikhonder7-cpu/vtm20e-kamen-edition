@@ -602,6 +602,13 @@ export class DerangementData extends BaseItemData {
  */
 const ghostItem = () => new SchemaField({ kind: str(""), rating: int(0, 0, 5), pathos: int(0, 0, 10), crystal: int(0, 0, 50),
   alloy: str(""), crack: str(""), style: str(""), maker: str(""), rough: new BooleanField({ initial: false }) });
+/**
+ * Артефакт Тремер (apps/thaum-workshop.mjs, data/thaum-artifacts.json): kind — talisman | phylactery | ritual | spontaneous;
+ * recipe — ключ рецепта; charges/chargesMax — заряды (0/0 — без зарядов); lasts — срок словами; makerId — id создателя
+ * (талисман работает только у него); held — талисман в руке (у оружия — «в руке» = equipped).
+ */
+const thaumItem = () => new SchemaField({ kind: str(""), recipe: str(""), level: int(0, 0, 10), charges: int(0, 0, 99), chargesMax: int(0, 0, 99),
+  lasts: str(""), maker: str(""), makerId: str(""), sigil: str(""), origin: str(""), held: new BooleanField({ initial: false }) });
 /** Губительный урон сплава (стигийская сталь, адамас; Book of Oblivion, «Alloys»). */
 const AGGRAVATED_ALLOYS = ["stygian", "adamas"];
 
@@ -618,7 +625,7 @@ export class WeaponData extends BaseItemData {
       silver: new BooleanField({ initial: false }), // серебро: Гару вне породной формы — губительный без поглощения (W20, гл. 6)
       range: str(), rate: str(), clip: str(), concealment: str(),
       equipped: new BooleanField({ initial: true }),
-      ghost: ghostItem()
+      ghost: ghostItem(), thaum: thaumItem()
     };
   }
 
@@ -635,7 +642,7 @@ export class ArmorData extends BaseItemData {
       rating: int(1, 0, 10),
       penalty: int(0, 0, 10),
       equipped: new BooleanField({ initial: true }),
-      ghost: ghostItem()
+      ghost: ghostItem(), thaum: thaumItem()
     };
   }
 
@@ -643,7 +650,7 @@ export class ArmorData extends BaseItemData {
 
 export class GearData extends BaseItemData {
   static defineSchema() {
-    return { ...super.defineSchema(), quantity: int(1, 0), ghost: ghostItem() };
+    return { ...super.defineSchema(), quantity: int(1, 0), ghost: ghostItem(), thaum: thaumItem() };
   }
 }
 

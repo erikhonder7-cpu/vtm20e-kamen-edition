@@ -1,0 +1,101 @@
+{{!-- Окно кантрипа (apps/cantrip-window.mjs): слева — Искусство и лестница кантрипов с правилами выбранного,
+     справа — Царства карточками, вид и обряд-условие, поправки сложности; внизу — итог до броска и шансы. --}}
+<div class="r-cnt">
+  <section class="r-cnt-left">
+    <h3 class="r-cnt-h">{{localize "VTM20.Changeling.Art"}}</h3>
+    <div class="r-cnt-arts">
+      {{#each arts}}
+      <a class="r-cnt-art {{#if active}}is-on{{/if}}" data-action="art" data-key="{{key}}">
+        <span class="r-cnt-art-glyph">{{#if sym}}{{rSym sym}}{{else}}<i class="fa-solid {{icon}}"></i>{{/if}}</span>
+        <span class="r-cnt-art-name">{{name}}</span>
+        <span class="r-cnt-pips">{{#each dots}}<i class="{{#if on}}is-on{{/if}}"></i>{{/each}}</span>
+      </a>
+      {{/each}}
+    </div>
+
+    <h3 class="r-cnt-h">{{localize "VTM20.Changeling.Cantrip"}}</h3>
+    <ol class="r-cnt-ladder">
+      {{#each levels}}
+      <li><a class="r-cnt-step {{#if active}}is-on{{/if}} {{#unless known}}is-off{{/unless}}" {{#if known}}data-action="level" data-level="{{level}}"{{/if}}>
+        <b class="r-cnt-roman">{{roman}}</b><span class="r-cnt-step-name">{{name}}</span>
+        {{#if type}}<i class="r-cla-type is-{{type}} fa-solid {{#if (eq type 'wyrd')}}fa-sun{{else if (eq type 'chimerical')}}fa-cloud{{else}}fa-circle-half-stroke{{/if}}" data-tooltip="{{typeLabel}}"></i>{{/if}}
+      </a></li>
+      {{/each}}
+    </ol>
+    {{#with current}}
+    <div class="r-cnt-text">
+      <p class="r-cla-text-en">{{en}}{{#if typeLabel}} · {{typeLabel}}{{/if}}</p>
+      {{{html}}}
+    </div>
+    {{/with}}
+  </section>
+
+  <section class="r-cnt-right">
+    <h3 class="r-cnt-h">{{localize "VTM20.Changeling.Realms"}}</h3>
+    <div class="r-cnt-realms">
+      {{#each primary}}
+      <a class="r-cnt-realm {{#if on}}is-on{{/if}} {{#if cheat}}is-cheat{{/if}}" data-action="realm" data-key="{{key}}" {{#if targetText}}data-tooltip="{{targetText}}"{{/if}}>
+        <span class="r-cnt-realm-glyph">{{#if sym}}{{rSym sym}}{{/if}}</span>
+        <span class="r-cnt-realm-main"><b>{{name}}{{#if affinity}} <i class="fa-solid fa-leaf"></i>{{/if}}</b>
+          <small>{{#if cheat}}{{localize "VTM20.Changeling.CW.NoPoints"}}{{else}}{{target}}{{/if}}</small></span>
+        <span class="r-cnt-pips">{{#each dots}}<i class="{{#if on}}is-on{{/if}}"></i>{{/each}}</span>
+      </a>
+      {{/each}}
+    </div>
+    <div class="r-cnt-realms is-mod">
+      {{#each modifiers}}
+      <a class="r-cnt-realm {{#if on}}is-on{{/if}} {{#if cheat}}is-cheat{{/if}}" data-action="realm" data-key="{{key}}" {{#if targetText}}data-tooltip="{{targetText}}"{{/if}}>
+        <span class="r-cnt-realm-glyph">{{#if sym}}{{rSym sym}}{{/if}}</span>
+        <span class="r-cnt-realm-main"><b>{{name}}{{#if affinity}} <i class="fa-solid fa-leaf"></i>{{/if}}</b>
+          <small>{{#if cheat}}{{localize "VTM20.Changeling.CW.NoPoints"}}{{else}}{{target}}{{/if}} · {{localize "VTM20.Changeling.CW.ModNote"}}</small></span>
+        <span class="r-cnt-pips">{{#each dots}}<i class="{{#if on}}is-on{{/if}}"></i>{{/each}}</span>
+      </a>
+      {{/each}}
+    </div>
+
+    <div class="r-cnt-row">
+      <span class="r-cnt-lbl">{{localize "VTM20.Changeling.Kind"}}</span>
+      <span class="r-cnt-seg {{#if wyrd.fixed}}is-fixed{{/if}}">
+        <a class="{{#unless wyrd.on}}is-on{{/unless}}" data-action="wyrd" data-wyrd="0"><i class="fa-solid fa-cloud"></i> {{localize "VTM20.Changeling.Type.chimerical"}}</a>
+        <a class="{{#if wyrd.on}}is-on{{/if}}" data-action="wyrd" data-wyrd="1"><i class="fa-solid fa-sun"></i> {{localize "VTM20.Changeling.Type.wyrd"}}{{#unless wyrd.free}} <small>{{localize "VTM20.Changeling.CW.WyrdCost" n=wyrd.cost}}</small>{{/unless}}</a>
+      </span>
+    </div>
+    {{#if wyrd.fixed}}<p class="r-cnt-note">{{localize "VTM20.Changeling.CW.Fixed"}}</p>{{else if wyrd.free}}<p class="r-cnt-note">{{localize "VTM20.Changeling.CW.WyrdFree"}}</p>{{/if}}
+
+    <div class="r-cnt-row">
+      <span class="r-cnt-lbl">{{localize "VTM20.Changeling.Bunk"}}</span>
+      <span class="r-cnt-seg is-num">{{#each bunks}}<a class="{{#if on}}is-on{{/if}}" data-action="bunk" data-n="{{n}}">{{label}}</a>{{/each}}</span>
+    </div>
+
+    <div class="r-cnt-row is-top">
+      <span class="r-cnt-lbl">{{localize "VTM20.Changeling.DiffMods"}}</span>
+      <span class="r-cnt-chips">
+        {{#each mods}}<a class="r-cnt-chip {{#if on}}is-on{{/if}}" data-action="mod" data-key="{{key}}">{{label}} <b class="{{#if up}}is-up{{else}}is-down{{/if}}">{{sign}}</b></a>{{/each}}
+        <a class="r-cnt-chip {{#if buy.on}}is-on{{/if}}" data-action="buy">{{localize "VTM20.Changeling.CW.Buy" n=buy.n}} <b class="is-down">−1</b></a>
+        {{#if affinity}}<span class="r-cnt-chip is-auto"><i class="fa-solid fa-leaf"></i> {{localize "VTM20.Changeling.CW.Affinity"}} <b class="is-down">−1</b></span>{{/if}}
+      </span>
+    </div>
+  </section>
+
+  <footer class="r-cnt-foot">
+    <div class="r-cnt-sum">
+      <span class="r-cnt-big"><small>{{localize "VTM20.Changeling.CW.Pool"}}</small> <b>{{calc.pool}}</b></span>
+      <span class="r-cnt-big"><small>{{localize "VTM20.Changeling.CW.Diff"}}</small> <b>{{calc.diff}}</b></span>
+      <span class="r-cnt-big {{#if short}}is-warn{{/if}}"><small><i class="fa-solid fa-star"></i> {{localize "VTM20.Changeling.Glamour"}}</small> <b>{{calc.cost}}</b><em>/ {{glamour}}</em></span>
+      <span class="r-cnt-big"><small><i class="fa-solid fa-moon"></i> {{localize "VTM20.Changeling.CW.NmDice"}}</small> <b>{{calc.nightmare}}</b></span>
+    </div>
+    <div class="r-odds">
+      <div class="r-odds-bar"><i class="is-success" style="width: {{chances.success}}%"></i><i class="is-failure" style="width: {{chances.failure}}%"></i><i class="is-botch" style="width: {{chances.botch}}%"></i></div>
+      <div class="r-odds-legend">
+        <span class="is-success">{{localize "VTM20.Roll.OddsSuccess"}} <b>{{chances.success}}%</b></span>
+        <span class="is-failure">{{localize "VTM20.Outcome.failure"}} <b>{{chances.failure}}%</b></span>
+        <span class="is-botch">{{localize "VTM20.Outcome.botch"}} <b>{{chances.botch}}%</b></span>
+        <span class="r-odds-mean">{{localize "VTM20.Roll.OddsMean"}} <b>{{chances.mean}}</b></span>
+      </div>
+    </div>
+    <div class="r-cnt-go">
+      <span class="r-cnt-why">{{#if noRealm}}<i class="fa-solid fa-circle-exclamation"></i> {{localize "VTM20.Changeling.CW.PickRealm"}}{{else if short}}<i class="fa-solid fa-circle-exclamation"></i> {{localize "VTM20.Changeling.CW.Short" n=calc.cost have=glamour}}{{/if}}</span>
+      <button type="button" class="r-cnt-cast" data-action="cast" {{#unless canCast}}disabled{{/unless}}><i class="fa-solid fa-wand-sparkles"></i> {{localize "VTM20.Changeling.Cast"}}</button>
+    </div>
+  </footer>
+</div>

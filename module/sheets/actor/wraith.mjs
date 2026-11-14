@@ -46,18 +46,11 @@ function onWrPick(event, target) {
   return this.render({ parts: ["disciplines"] });
 }
 function onWrArtToggle(event, target) { return toggleArt(this.actor, target.dataset.key, Number(target.dataset.level), target.dataset.kind); }
-function onWrArcAdd() {
-  const k = this.element.querySelector(".r-wr-arc-add")?.value;
-  if (k) return this.actor.update({ [`system.wraith.arcanoi.${k}.value`]: 1 });
-}
 function onWrArcDel(event, target) {
   return this.actor.update({ [`system.wraith.arcanoi.${target.dataset.key}`]: { value: 0, initiate: [], skip: [] } });
 }
-function onWrRowAdd(event, target) {
-  const kind = target.dataset.kind;
-  if (kind === "thorn") { const k = this.element.querySelector(".r-wr-thorn-add")?.value; return k ? addRow(this.actor, "thorn", { key: k }) : null; }
-  return addRow(this.actor, kind);
-}
+// новые Шипы, Арканои и прочее из справочника — в библиотеке (apps/library-picks.mjs); здесь — пустые строки Страстей и Оков
+function onWrRowAdd(event, target) { return addRow(this.actor, target.dataset.kind); }
 function onWrRowDel(event, target) { return removeRow(this.actor, target.dataset.kind, Number(target.dataset.i)); }
 function onWrPassion(event, target) { return rollPassion(this.actor, Number(target.dataset.i)); }
 function onWrFetter(event, target) { return rollFetter(this.actor, Number(target.dataset.i)); }
@@ -112,10 +105,10 @@ function onSpDark(event, target) { return rollDark(this.actor, target.dataset.ke
 function onSpPassion(event, target) { return rollPsychePassion(this.actor, Number(target.dataset.i)); }
 function onSpCatharsis() { return psycheCatharsis(this.actor); }
 function onSpRapacity() { return rapacity(this.actor); }
-/** Строки Спектра: Тёмный Арканос, умение Шейдкрафта, Страсть и Ветвь Психеи — добавить (из списка) или убрать. */
+/** Строки Спектра: Страсть Психеи — добавить; Тёмный Арканос, умение Шейдкрафта, Страсть и Ветвь — убрать (добавить — в библиотеке). */
 function onSpRow(event, target) {
-  const { kind, op } = target.dataset, sel = target.closest(".r-toolbar")?.querySelector("select");
-  return spectreRow(this.actor, kind, op, { i: Number(target.dataset.i), key: target.dataset.key ?? sel?.value });
+  const { kind, op } = target.dataset;
+  return spectreRow(this.actor, kind, op, { i: Number(target.dataset.i), key: target.dataset.key });
 }
 // Восставший (apps/risen.mjs)
 function onRsOn() { const r = this.actor.system.wraith.risen; return this.actor.update({ "system.wraith.risen.on": !r.on, ...(r.on ? { "system.wraith.risen.body": false } : {}) }); }
@@ -127,7 +120,7 @@ function onRsArt(event, target) { return rollRisenArt(this.actor, target.dataset
 function onRsSlumber() { return risenSlumber(this.actor); }
 function onRsDown() { return risenDown(this.actor); }
 function onRsArtRow(event, target) {
-  const key = target.dataset.key ?? target.closest(".r-toolbar")?.querySelector("select")?.value;
+  const key = target.dataset.key;
   if (key) return this.actor.update({ [`system.wraith.risen.arcanoi.${key}`]: target.dataset.op === "del" ? 0 : Math.max(1, this.actor.system.wraith.risen.arcanoi[key] ?? 0) });
 }
 // проектор «Орфея» (apps/projector.mjs)
@@ -138,10 +131,10 @@ function onPjSuppress() { return suppressStains(this.actor); }
 function onPjWill() { return willToPathos(this.actor); }
 function onPjEmblem() { return emblem(this.actor); }
 function onPjEyes() { return deadEyes(this.actor); }
-function onPjRow(event, target) { return stainRow(this.actor, target.dataset.op, { i: Number(target.dataset.i), key: target.closest(".r-toolbar")?.querySelector("select")?.value }); }
+function onPjRow(event, target) { return stainRow(this.actor, target.dataset.op, { i: Number(target.dataset.i), key: target.dataset.key }); }
 // другое Тёмное Царство (apps/realms.mjs)
 function onRlArt(event, target) { return rollRealmArt(this.actor, target.dataset.key, Number(target.dataset.i)); }
-function onRlRow(event, target) { return realmRow(this.actor, target.dataset.op, target.dataset.key ?? target.closest(".r-toolbar")?.querySelector("select")?.value); }
+function onRlRow(event, target) { return realmRow(this.actor, target.dataset.op, target.dataset.key); }
 // Подземный мир (apps/underworld.mjs): Мальстрём и Туман — рассказчику; Сон в Оковах; «Орфей»; Оттенок цвета
 function onUwStorm() { return maelstrom(); }
 function onUwFog() { return fog(); }
@@ -155,7 +148,7 @@ function onWrAtlas() { return openAtlas("wraith", this.actor.system.wraith.guild
 
 /** Действия листа: ключ data-action → обработчик. */
 export const WRAITH_ACTIONS = {
-  wrArt: onWrArt, wrPick: onWrPick, wrFold: onWrFold, wrArtToggle: onWrArtToggle, wrArcAdd: onWrArcAdd, wrArcDel: onWrArcDel,
+  wrArt: onWrArt, wrPick: onWrPick, wrFold: onWrFold, wrArtToggle: onWrArtToggle, wrArcDel: onWrArcDel,
   wrRowAdd: onWrRowAdd, wrRowDel: onWrRowDel, wrPassion: onWrPassion, wrFetter: onWrFetter,
   wrDark: onWrDark, wrMemoriam: onWrMemoriam, wrShadowDice: onWrShadowDice, wrCatharsis: onWrCatharsis,
   wrHarrowing: onWrHarrowing, wrHeal: onWrHeal, wrPathos: onWrPathos, wrSession: onWrSession,

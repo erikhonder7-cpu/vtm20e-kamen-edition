@@ -2,7 +2,7 @@
 // Действия листа персонажа — Маг, колдун и консор: чародейство, колесо, ротэ, нумины.
 // Вынесено из actor-sheet.mjs: обработчики кнопок (data-action); this — лист (ApplicationV2 зовёт их со своим this).
 
-import { addNumen as sorcAdd, removeNumen as sorcDel, numenDots as sorcDots, useNumen as sorcUse, addRitual as sorcRitualAdd, removeRitual as sorcRitualDel, useRitual as sorcRitualUse } from "../../apps/sorcerer.mjs";
+import { removeNumen as sorcDel, numenDots as sorcDots, useNumen as sorcUse, addRitual as sorcRitualAdd, removeRitual as sorcRitualDel, useRitual as sorcRitualUse } from "../../apps/sorcerer.mjs";
 import { castEffect, changeQuintessence, changeParadox, paradoxBacklash, addRote, removeRote, castRote, removeTool } from "../../apps/mage.mjs";
 import { addResonance, setResonance, removeResonance, toggleResUsed, cloakResonance, quietExit, addFlaw, removeFlaw, seekingDialog, useWonder, wonderQuint, toggleGhoul, ghoulVitae, ghoulHeal, mindEnter, mindShorten, realmAct, mindExit, armWonder, addPact, removePact, useMageInvestment, craftWonder } from "../../apps/mage-state.mjs";
 
@@ -56,7 +56,6 @@ function onMageToolDel(event, target) { return removeTool(this.actor, Number(tar
 function onSorc(event, target) {
   const a = this.actor, d = target.dataset;
   switch (d.action) {
-    case "sorcAdd": { const k = target.closest(".r-sn-add")?.querySelector("select")?.value; return k ? sorcAdd(a, k) : null; }
     case "sorcDel": return sorcDel(a, d.key);
     case "sorcDots": return sorcDots(a, d.key, Number(d.n));
     case "sorcUse": return sorcUse(a, d.key);
@@ -74,6 +73,6 @@ export const MAGE_ACTIONS = {
   mageQuietExit: onMageState, mageFlawAdd: onMageState, mageFlawDel: onMageState, mageSeeking: onMageState,
   mageWonderUse: onMageState, mageWonderQuint: onMageState, mageStep: onMageDuel, mageCounter: onMageDuel,
   mageCertamen: onMageDuel, mageRoteAdd: onMageRoteAdd, mageRoteDel: onMageRoteDel, mageRoteCast: onMageRoteCast,
-  mageToolDel: onMageToolDel, sorcAdd: onSorc, sorcDel: onSorc, sorcDots: onSorc,
+  mageToolDel: onMageToolDel, sorcDel: onSorc, sorcDots: onSorc,
   sorcUse: onSorc, sorcRitualAdd: onSorc, sorcRitualDel: onSorc, sorcRitualUse: onSorc
 };

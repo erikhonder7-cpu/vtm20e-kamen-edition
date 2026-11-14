@@ -7,7 +7,7 @@
 const HINTS = [".r-choice-hint", ".r-hint", ".r-feed-hint", ".r-wc-lead", ".r-cr-hint", ".r-hint-note", ".r-court-hint", ".r-sn-hint",
   ".r-editor-hint", ".r-roll-note", ".r-explain"];
 const SKIP = ".is-warn, [data-keep], [data-warn], [data-note], [data-why], [data-instinct-note], [hidden]";
-const HEADS = "h1, h2, h3, h4, .r-h2, .r-banner, .r-vc-head, .r-wh";
+const HEADS = "h1, h2, h3, h4, .r-h2, .r-banner, .r-vc-head, .r-wh, .r-sn-head";
 const esc = s => foundry.utils.escapeHTML(String(s ?? ""));
 
 /** Значок с подсказкой: один на заголовок, тексты нескольких абзацев — через пустую строку. */
@@ -17,7 +17,9 @@ function addIcon(host, text, cls = "") {
     i = document.createElement("i");
     i.className = `fa-solid fa-circle-info r-hint-i ${cls}`.trim();
     i.setAttribute("aria-label", text);
-    host.append(i);
+    // сразу за названием раздела, а не после кнопок справа
+    const title = host.querySelector(":scope > span:first-child, :scope > b:first-child");
+    if (title && !title.matches(".r-h2-tools")) title.after(i); else host.append(i);
   }
   const all = [...(i._hints ?? []), text].filter((x, n, a) => a.indexOf(x) === n);
   i._hints = all;
@@ -26,16 +28,15 @@ function addIcon(host, text, cls = "") {
 }
 
 /**
- * Заголовок раздела над абзацем: сосед слева или первый заголовок родителя до абзаца; если нет — то же для родителей
+ * Заголовок раздела над абзацем: ближайший заголовок среди предыдущих соседей; если нет — то же для родителей
  * (до четырёх уровней: заглушка внутри редактора — к заголовку над редактором).
  */
-const bannerOf = h => h.matches(".r-vc-head") ? h.querySelector(".r-banner") ?? h : h;
+const bannerOf = h => h.matches(".r-vc-head") ? h.querySelector(".r-banner") ?? h
+  : h.matches(".r-sn-head") ? h.querySelector(".r-sn-title") ?? h : h;
 function headOf(el, root) {
   for (let n = el, depth = 0; n && n !== root && depth < 4; n = n.parentElement, depth++) {
-    const prev = n.previousElementSibling;
-    if (prev?.matches(HEADS)) return bannerOf(prev);
-    const h = n.parentElement && [...n.parentElement.children].find(c => c !== n && c.matches(HEADS) && (c.compareDocumentPosition(n) & Node.DOCUMENT_POSITION_FOLLOWING));
-    if (h) return bannerOf(h);
+    for (let prev = n.previousElementSibling; prev; prev = prev.previousElementSibling)
+      if (prev.matches(HEADS)) return bannerOf(prev);
   }
   return null;
 }

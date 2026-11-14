@@ -5,7 +5,6 @@
 import { VTM20, SYSTEM_ID } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
 import { fitsLevel } from "../apps/power-choice.mjs";
-import { WEAPON_PRESETS, ARMOR_PRESETS, GEAR_PRESETS } from "../data/equipment.mjs";
 import { REVENANT_FAMILIES, revenantFamily } from "../data/revenants.mjs";
 import { BOON_LEVELS, boonLevelLabel } from "../apps/boons.mjs";
 import { clockBarData, longDate } from "../apps/calendar.mjs";
@@ -236,8 +235,13 @@ export function prepareRegistry(sheet, ctx) {
   if (ctx.hasBlood) {
     const max = s.blood.max;
     ctx.bloodBoxes = dots(s.blood.value, max, { path: "system.blood.value" });
+    // больше 10 — «вены» по десять капель: ровная сетка, под каплями жила, налитая до последней полной капли
     ctx.bloodRows = [];
-    for (let i = 0; i < ctx.bloodBoxes.length; i += 10) ctx.bloodRows.push(ctx.bloodBoxes.slice(i, i + 10));
+    for (let i = 0; i < ctx.bloodBoxes.length; i += 10) {
+      const drops = ctx.bloodBoxes.slice(i, i + 10), full = drops.filter(d => d.filled).length;
+      ctx.bloodRows.push({ drops, fill: Math.round(full / 10 * 100), full: full === 10, empty: !full, mark: i + 10 });
+    }
+    ctx.bloodDeep = max > 10;
     ctx.boosts = VTM20.bloodBoostable.map(k => ({ key: k, label: game.i18n.localize(VTM20.attributes[k].label),
       short: game.i18n.localize(VTM20.attributes[k].label).slice(0, 4) + ".", value: s.boosts[k] }));
     ctx.anyBoost = Object.values(s.boosts).some(v => v > 0);
@@ -252,7 +256,7 @@ export function prepareRegistry(sheet, ctx) {
     mark: VTM20.damageTypes[l.state]?.mark ?? ""
   }));
   // Корпус призрака: под ячейкой — её номер (штрафов за раны нет)
-  if (a.type === "wraith") for (const [i, h] of ctx.health.entries()) Object.assign(h, { label: t("Wraith.CorpusBox", { n: i + 1 }), penaltyLabel: String(i + 1), out: false, sev: 0 });
+  if (a.type === "wraith") for (const [i, h] of ctx.health.entries()) Object.assign(h, { label: "", penaltyLabel: String(i + 1), out: false, sev: 0 });
   ctx.healthStatus = s.health.status === "healthy" ? t("Health.healthy") : t(`Health.${s.health.status}`);
   ctx.healthHurt = s.health.damage > 0;
   ctx.clock = clockBarData();
@@ -513,8 +517,10 @@ export function prepareAdvantages(sheet, ctx) {
     { key: "flaw", label: "VTM20.Sheet.Flaws", list: ctx.flaws, total: ctx.flawTotal }
   ];
   ctx.derangements = byType("derangement").map(i => ({ id: i.id, name: i.name, en: Codex.enOf(i), html: i.system.description, permanent: i.system.permanent, open: sheet._open.has(i.id) }));
-  // Инфернализм (apps/infernal.mjs): Вложения и договоры с демонами — у всех, кроме падших; у Гару (W20 их не знает) — только если уже есть
-  if (a.type !== "demon" && (a.type !== "werewolf" || byType("investment").length || (a.system.pacts ?? []).length)) {
+  // Инфернализм (apps/infernal.mjs): Вложения и договоры с демонами — у всех, кроме падших; у Гару, призраков и подменышей
+  // (в их линейках этих правил нет) — только если уже есть
+  const foreign = ["werewolf", "wraith", "changeling"].includes(a.type);
+  if (a.type !== "demon" && (!foreign || byType("investment").length || (a.system.pacts ?? []).length)) {
     const f = (k, n) => game.i18n.format(`VTM20.Infernal.${k}`, { n });
     const costLine = c => [c.blood ? f("CostBlood", c.blood) : "", c.willpower ? f("CostWill", c.willpower) : "",
       c.willpowerPerm ? f("CostWillPerm", c.willpowerPerm) : ""].filter(Boolean).join(" · ");
@@ -530,7 +536,7 @@ export function prepareAdvantages(sheet, ctx) {
     isRegnant: b.role === "regnant", tip: t("BondX.Tip", { n: b.drinks ?? 0, last: b.last || "—" })
       + (bondFade(a, b) != null ? ` · ${game.i18n.format("VTM20.Web.Fade", { n: bondFade(a, b) })}` : "") }));
   // узы крови: у смертных и охотников раздела нет; у Гару — только если уже записаны
-  ctx.showBonds = !["mortal", "hunter"].includes(a.type) && (a.type !== "werewolf" || ctx.bonds.length > 0);
+  ctx.showBonds = !["mortal", "hunter"].includes(a.type) && (!["werewolf", "wraith", "spirit"].includes(a.type) || ctx.bonds.length > 0);
   // жизнь гуля на витэ: изъян клана, передозировка, ломка, потеря Дисциплин, старение (apps/ghoul-life.mjs)
   ctx.ghoulLife = lifeState(a);
   // Винкулум — у вампиров Шабаша и у всех, у кого он уже записан
@@ -541,6 +547,14 @@ export function prepareAdvantages(sheet, ctx) {
   if (ctx.hasVinc)
     ctx.vinculi = (a.system.vinculi ?? []).map((v, i) => ({ ...v, index: i, meaning: vinculumMeaning(v.rating),
       dots: dots(v.rating, 10, { path: `system.vinculi.${i}.rating` }) }));
+  // Ритусы Шабаша (data/sabbat-ritae.json, tools/sabbat_ritae.mjs): Высшие, ритусы стаи, фракций — у шабашита на листе;
+  // текст строки раскрывается щелчком по имени (как Дары и ритуалы), у Огненной пляски — броски, у Братания — окно обряда
+  const R = Codex["sabbat-ritae"];
+  if (a.type === "vampire" && isSabbat(a) && R?.groups) {
+    const icon = { auctoritas: "fa-cross", ignoblis: "fa-people-group", faction: "fa-flag" };
+    ctx.ritae = { require: R.require, groups: R.groups.map(g => ({ key: g.key, icon: icon[g.key], label: game.i18n.localize(`VTM20.Ritae.${g.key}`),
+      list: g.list.map((x, i) => ({ ...x, i, group: g.key })) })) };
+  }
   // Престация: две колонки — кто должен мне и кому должен я
   const boons = (a.system.boons ?? []).map((b, i) => ({ ...b, index: i,
     levels: BOON_LEVELS.map(k => ({ key: k, label: boonLevelLabel(k), selected: k === b.level })) }));
@@ -672,7 +686,7 @@ export function prepareEffects(sheet, ctx) {
   if (fort) mods.push({ icon: "fa-shield", label: Codex.disciplineLabel("fortitude"), value: `+${fort}`, text: t("FxTab.Fortitude", { n: fort }) });
   mods.push({ icon: "fa-shield-heart", label: t("FxTab.Soak"), value: `${a.soakPool("bashing")}/${a.soakPool("lethal")}/${a.soakPool("aggravated")}`, text: t("FxTab.SoakText") });
   if (ctx.hasBlood) mods.push({ icon: "fa-droplet", label: t("FxTab.PerTurn"), value: game.combat?.started ? `${sheet.document.bloodSpentThisTurn}/${s.blood.perTurn}` : `${s.blood.perTurn}`, text: t("FxTab.PerTurnText", { max: s.traitMax ?? 5 }) });
-  if (ctx.bearing?.name) mods.push({ icon: "fa-scale-balanced", label: t("Sheet.Bearing"), value: ctx.bearing.mod, text: ctx.bearing.name });
+  if (ctx.bearing?.name && ["vampire", "ghoul", "mortal", "creature"].includes(a.type)) mods.push({ icon: "fa-scale-balanced", label: t("Sheet.Bearing"), value: ctx.bearing.mod, text: ctx.bearing.name });
   ctx.fxMods = mods;
 
   // Черты с механикой (data/merit-mods.mjs): что, к чему, сами или по обстоятельствам
@@ -703,14 +717,7 @@ export function prepareGear(sheet, ctx) {
   const res = a.items.find(i => i.type === "background" && /^ресурс/i.test(i.name));
   ctx.resources = res ? { dots: "●".repeat(res.system.value), html: (res.system.description ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 400) } : null;
   ctx.gear = a.items.filter(i => i.type === "gear").map(i => ({ id: i.id, name: i.name, img: i.img, quantity: i.system.quantity }));
-  // value — номер в полном списке заготовок; снаряжение Тёмных веков — только с настройкой «Контент из Dark Ages»
-  const presetGroups = list => [...new Set(list.filter(p => Codex.visible(p)).map(p => p.group))].map(g => ({
-    label: g, options: list.map((p, i) => ({ value: i, label: p.name, group: p.group, show: Codex.visible(p) })).filter(p => p.group === g && p.show)
-  }));
-  ctx.weaponPresets = WEAPON_PRESETS.map((p, i) => ({ value: i, label: p.name, group: p.group })).filter((_, i) => Codex.visible(WEAPON_PRESETS[i]));
-  ctx.weaponPresetGroups = presetGroups(WEAPON_PRESETS);
-  ctx.armorPresetGroups = presetGroups(ARMOR_PRESETS);
-  ctx.gearPresetGroups = presetGroups(GEAR_PRESETS);
+  // готовое оружие, броня и снаряжение — в библиотеке (apps/library-picks.mjs: weapon, armor, gear)
 }
 
 /** Итог действующей формы строкой для листа. */

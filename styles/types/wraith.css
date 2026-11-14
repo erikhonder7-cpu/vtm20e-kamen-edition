@@ -1,3 +1,4 @@
+@charset "UTF-8";
 /* ═══════════════════════════════════════════════════════════════════════
    Призрак (Wraith: The Oblivion 20th; лист — module/sheets/actor-sheet.mjs, вкладка templates/actor/arcanoi.hbs):
    «Пепел и Плёнка» — свинцово-пепельная мгла Земель Теней и бледный холодный свет Плёнки (Caul) как акцент;
@@ -143,7 +144,7 @@
 .vtm20.r-type-wraith .r-assignat-meta a.is-off { opacity: .35; }
 
 /* Корпус: постоянный — точками над ячейками, номера ячеек вместо штрафов */
-.vtm20.r-type-wraith .r-wr-corpus { margin: 0 0 6px; }
+.vtm20.r-type-wraith .r-wr-corpus { display: flex; justify-content: center; margin: 0 0 6px; }
 .vtm20.r-type-wraith .r-wr-corpus .r-dot { width: 11px; height: 11px; }
 .vtm20.r-type-wraith .r-vc-health .r-hboxes { grid-template-columns: repeat(10, minmax(0, 1fr)); }
 .vtm20.r-type-wraith .r-vc-health .r-hbox-pen { color: var(--r-muted); opacity: .7; }
@@ -388,7 +389,7 @@
 
 /* Некрополь сцены (apps/wraith.mjs, necropolisOf) */
 .vtm20.r-type-wraith .r-wr-necro-chip { display: inline-flex; align-items: center; gap: 4px; padding: 1px 8px; border: 1px solid rgba(200, 210, 220, .25); font-size: 12px; white-space: nowrap; }
-.vtm20.r-type-wraith select.r-wr-necro { width: auto; max-width: 9em; }
+.vtm20.r-type-wraith select.r-wr-necro { width: auto; min-width: 11em; max-width: 13em; }
 
 /* Путь к Трансценденции (apps/resolution.mjs, transcendInfo) */
 .vtm20.r-type-wraith .r-wr-transcend { margin: 2px 0 10px; font-size: 12.5px; font-style: italic; color: #dfe3e8; }
@@ -419,3 +420,131 @@
 .vtm20.r-type-wraith .r-gs .r-motto { color: #a3abb5; }
 .vtm20.r-type-wraith .r-gs-pool .fa-link { color: #f2f4f6; text-shadow: 0 0 6px rgba(236, 240, 244, .6); }
 .vtm20.r-type-wraith .r-cr-sectrule i { color: #a3abb5; }
+
+/* ══ Спектр (Wraith 20, гл. 10; ui/themes.mjs → .r-wr-spectre): «Желчь Забвения» — смоляная чернота Мальстрёма и болезненная
+   жёлто-зелёная желчь гнили вместо пепла и серебра; винно-красная Тень остаётся. Правила ниже выведены из темы призрака:
+   серые тона заменены желчными (tools: перекраска по светлоте), насыщенные — как были. ══ */
+.vtm20.r-type-wraith.r-wr-spectre {--r-ink: #f2f7cf; --r-ink-2: #dde98a; --r-muted: #b1c341; --r-line: rgba(230, 240, 166, .1); --r-line-2: rgba(230, 240, 166, .2); --r-accent: #eaf3b2; --r-red-t: var(--r-accent); --r-blood: #a5b53e; --r-blood-l: #eaf3b2; --r-blood-d: #10110a; --r-dot-border: rgba(230, 240, 166, .3); --r-dot-fill: radial-gradient(circle at 38% 32%, #fbfdeb, #b6c747 55%, #222416); --r-gap-ring: #0b0b07; --r-card-bg: rgba(230, 240, 166, .025); --r-option-bg: #15160d; --r-bg: radial-gradient(ellipse 90% 45% at 50% -8%, rgba(131, 143, 57, .13), transparent 60%), radial-gradient(ellipse 80% 35% at 50% 108%, rgba(84, 90, 46, .14), transparent 65%), radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(0, 0, 2, .55) 100%), url("../assets/ui/paper-dark.svg"), linear-gradient(180deg, #17180f, #0b0b07); }
+.vtm20.r-type-wraith.r-wr-spectre, .r-type-wraith.r-wr-spectre {--w-amber: #eaf3b2; --w-amber-l: #fbfdeb; --w-ash: #96a43c; --w-ash-d: #18190f; --w-steel: #c1d156; --w-steel-d: #1d1f12; }
+.vtm20.r-type-wraith.r-wr-spectre .r-rail {background: radial-gradient(ellipse 120% 40% at 50% 0%, rgba(131, 143, 57, .16), transparent 70%), radial-gradient(ellipse 140% 30% at 50% 100%, rgba(84, 90, 46, .12), transparent 70%), linear-gradient(180deg, #16170e, #0b0b07 60%, #0b0b07); border-right-color: #242616; }
+.vtm20.r-type-wraith.r-wr-spectre .r-rail::after {background: repeating-linear-gradient(180deg, rgba(234, 243, 178, .14) 0 2px, transparent 2px 8px); }
+.vtm20.r-type-wraith.r-wr-spectre .r-rail-sigil {border-color: rgba(234, 243, 178, .45); background: radial-gradient(circle at 50% 30%, #1c1d12, #0c0c08 72%); box-shadow: 0 0 0 3px #0b0b07, 0 0 0 4px rgba(131, 143, 57, .5), 0 0 22px rgba(234, 243, 178, .22), inset 0 2px 6px rgba(0, 0, 2, .6); }
+.vtm20.r-type-wraith.r-wr-spectre .r-rail-sigil::before {background: var(--w-amber); box-shadow: 0 0 6px rgba(249, 253, 227, .7); }
+.vtm20.r-type-wraith.r-wr-spectre .r-rtab.active {color: #fbfeed; background: linear-gradient(90deg, rgba(234, 243, 178, .16), rgba(131, 143, 57, .05) 70%, transparent); }
+.vtm20.r-type-wraith.r-wr-spectre .r-rtab.active .r-rtab-coin {color: #10110a; border-color: var(--w-amber-l); background: radial-gradient(circle at 50% 30%, #fbfdeb, #b6c747 70%); box-shadow: 0 0 0 2px #0b0b07, 0 0 0 3px rgba(249, 253, 227, .4), 0 0 16px rgba(249, 253, 227, .35); }
+.vtm20.r-type-wraith.r-wr-spectre .r-rtab.active::before {background: var(--w-amber); box-shadow: 0 0 8px rgba(249, 253, 227, .6); }
+.vtm20.r-type-wraith.r-wr-spectre .r-rtab.active::after {background: var(--w-steel-d); border-color: var(--w-amber); box-shadow: 0 0 6px rgba(249, 253, 227, .45); }
+.vtm20.r-type-wraith.r-wr-spectre .r-rail-tool:hover {color: #fcfeef; border-color: var(--w-amber); background: rgba(234, 243, 178, .16); }
+.vtm20.r-type-wraith.r-wr-spectre .r-portrait-frame {box-shadow: 0 0 0 1px rgba(234, 243, 178, .35), 0 6px 18px rgba(0, 0, 2, .6); }
+.vtm20.r-type-wraith.r-wr-spectre .r-seal {background: #0b0b07; border-color: rgba(230, 240, 166, .22); border-top-color: var(--w-amber); }
+.vtm20.r-type-wraith.r-wr-spectre .r-seal-cap {color: #c1d156; }
+.vtm20.r-type-wraith.r-wr-spectre .r-motto {color: rgba(234, 243, 178, .75); }
+.vtm20.r-type-wraith.r-wr-spectre .r-assignat {border-top-color: var(--w-amber); background: linear-gradient(180deg, rgba(84, 90, 46, .08), rgba(0, 0, 2, .3) 60%); }
+.vtm20.r-type-wraith.r-wr-spectre .r-act.is-hot:hover {background: rgba(234, 243, 178, .14); }
+.vtm20.r-type-wraith.r-wr-spectre .r-vcard::before, .vtm20.r-type-wraith.r-wr-spectre .r-tcol::before {background: linear-gradient(90deg, var(--w-amber), rgba(234, 243, 178, 0)); width: 54px; }
+.vtm20.r-type-wraith.r-wr-spectre .r-vcard::after, .vtm20.r-type-wraith.r-wr-spectre .r-tcol::after {content: ""; position: absolute; right: -1px; bottom: -1px; width: 22px; height: 1px; background: rgba(131, 143, 57, .55); }
+.vtm20.r-type-wraith.r-wr-spectre .r-vitals-wrap.is-closed .r-vitals-strip:hover {background: rgba(234, 243, 178, .1); }
+.vtm20.r-type-wraith.r-wr-spectre .r-trait:hover {background: linear-gradient(90deg, rgba(234, 243, 178, .1), rgba(131, 143, 57, .03) 60%, transparent); }
+.vtm20.r-type-wraith.r-wr-spectre .r-foot {background: linear-gradient(90deg, transparent 0 18px, rgba(234, 243, 178, .3) 18px 19px, transparent 19px), repeating-linear-gradient(180deg, transparent 0 9px, rgba(230, 240, 166, .035) 9px 10px), #0b0b07; }
+.vtm20.r-type-wraith.r-wr-spectre .r-foot-item.is-xp {border-color: rgba(234, 243, 178, .45); background: rgba(234, 243, 178, .1); }
+.application.vtm20.r-type-wraith.r-wr-spectre {border-color: #252719; --background: #12130c; --color-header-background: #0b0b07; --color-border: #252719; }
+.application.vtm20.r-type-wraith.r-wr-spectre .window-header {background: linear-gradient(180deg, #0f1009, #0b0b07); border-bottom-color: #18190f; }
+.application.vtm20.r-type-wraith.r-wr-spectre .window-header::after {background: linear-gradient(90deg, rgba(131, 143, 57, .1), #c1d156 30%, #eaf3b2 60%, rgba(84, 90, 46, .1)); opacity: .6; }
+.vtm20.r-type-wraith.r-wr-spectre .r-diff.is-active {color: #10110a; background: linear-gradient(180deg, #fbfdeb, #b6c747); border-color: var(--w-amber-l); }
+.vtm20.r-type-wraith.r-wr-spectre .r-odds-bar .is-success {background: linear-gradient(180deg, #f2f7d0, #cbdb67); }
+.vtm20.r-type-wraith.r-wr-spectre .r-odds-bar .is-failure {background: #26281a; }
+.vtm20.r-type-wraith.r-wr-spectre .r-odds-bar .is-botch {background: linear-gradient(180deg, #6a2a3c, #2c2e1d); }
+.vtm20.r-type-wraith.r-wr-spectre button.is-primary, .vtm20.r-type-wraith.r-wr-spectre .r-btn.is-primary {color: #10110a; background: linear-gradient(180deg, #fbfeed, #bece52); border-color: var(--w-amber-l); }
+.vtm20.r-type-wraith.r-wr-spectre button.is-primary:hover, .vtm20.r-type-wraith.r-wr-spectre .r-btn.is-primary:hover {color: #000000; background: linear-gradient(180deg, #ebf3b6, #b6c747); box-shadow: 0 0 12px rgba(249, 253, 227, .35); }
+.r-roll-card.r-type-wraith.r-wr-spectre {--r-accent: #ecf4ba; --r-red-t: #ecf4ba; --r-muted: #bece52; --r-line: rgba(230, 240, 166, .12); --r-line-2: rgba(230, 240, 166, .22); background: radial-gradient(ellipse 90% 60% at 50% 0%, rgba(131, 143, 57, .12), transparent 70%), radial-gradient(ellipse 90% 50% at 50% 110%, rgba(84, 90, 46, .12), transparent 70%), linear-gradient(180deg, #191a10, #0d0e08); border-color: #26281a; border-left-color: #2c2e1d; }
+.r-roll-card.r-type-wraith.r-wr-spectre::before {width: 54px; background: linear-gradient(90deg, #eaf3b2, rgba(234, 243, 178, 0)); }
+.r-roll-card.r-type-wraith.r-wr-spectre::after {content: ""; position: absolute; right: -1px; bottom: -1px; width: 22px; height: 1px; background: rgba(131, 143, 57, .6); }
+.r-roll-card.r-type-wraith.r-wr-spectre .r-card-img {border-color: rgba(234, 243, 178, .5); filter: none; }
+.r-roll-card.r-type-wraith.r-wr-spectre.is-success {border-left-color: #d3e276; }
+.r-roll-card.r-type-wraith.r-wr-spectre.is-exceptional, .r-roll-card.r-type-wraith.r-wr-spectre.is-phenomenal {border-left-color: #fbfdeb; box-shadow: inset 3px 0 10px -4px rgba(249, 253, 227, .6); }
+.r-roll-card.r-type-wraith.r-wr-spectre.is-botch {border-color: #282a1a; border-left-color: #6a2a3c; background: linear-gradient(180deg, #191a10, #0f1009); }
+.r-roll-card.r-type-wraith.r-wr-spectre .r-die.is-miss {background: #1c1d12; color: #a14a63; }
+.r-roll-card.r-type-wraith.r-wr-spectre .r-die.is-hit {background: linear-gradient(180deg, #f2f7cf, #d8e57f); color: #0d0e08; }
+.r-roll-card.r-type-wraith.r-wr-spectre .r-die.is-ten {background: radial-gradient(circle at 50% 35%, #f2f7d0, #c1d156 70%); color: #0d0e08; }
+.r-roll-card.r-type-wraith.r-wr-spectre .r-die.is-double::before {color: #3c4024; }
+.r-roll-card.r-type-wraith.r-wr-spectre .r-die.is-one {background: #2c2e1d; color: #f3f8d2; }
+.r-roll-card.r-type-wraith.r-wr-spectre .r-die.is-will {background: #282a1b; }
+.r-roll-card.r-type-wraith.r-wr-spectre .r-card-tally .is-one, .r-roll-card.r-type-wraith.r-wr-spectre .r-card-tally .is-ten em {color: #cbdb67; }
+.r-roll-card.r-type-wraith.r-wr-spectre.is-exceptional .r-outcome-ribbon, .r-roll-card.r-type-wraith.r-wr-spectre.is-phenomenal .r-outcome-ribbon {color: #10110a; background: linear-gradient(180deg, #fbfdeb, #b6c747); border-color: #fbfdeb; }
+.r-roll-card.r-type-wraith.r-wr-spectre.is-botch .r-outcome-ribbon {color: #fbfeed; background: #393d23; border-color: #6a2a3c; }
+.r-roll-card.r-type-wraith.r-wr-spectre .r-card-hint {border-left-color: rgba(234, 243, 178, .45); }
+.r-item-card.r-type-wraith.r-wr-spectre {--r-accent: #ecf4ba; border-color: #26281a; border-left: 3px solid #eaf3b2; background: radial-gradient(ellipse 90% 60% at 50% 0%, rgba(131, 143, 57, .12), transparent 70%), linear-gradient(180deg, #191a10, #0d0e08); }
+.r-item-card.r-type-wraith.r-wr-spectre .r-card-img {border-color: rgba(234, 243, 178, .5); background: #0d0e08; filter: none; }
+.r-item-card.r-type-wraith.r-wr-spectre .r-card-kicker {color: #eaf3b2; }
+.r-notice.r-type-wraith.r-wr-spectre {border-left-color: #eaf3b2; background: linear-gradient(90deg, rgba(234, 243, 178, .12), rgba(0, 0, 2, .25) 60%); }
+.r-notice.r-type-wraith.r-wr-spectre i {color: #fbfdeb; }
+.r-notice.r-type-wraith.r-wr-spectre.is-form {font-family: "Prata", Georgia, serif; font-style: normal; font-size: 13.5px; letter-spacing: .2px; border: 1px solid rgba(234, 243, 178, .35); border-left-width: 3px; box-shadow: inset 0 0 18px rgba(234, 243, 178, .12); }
+.r-item-card.r-type-wraith.r-wr-spectre::before {width: 54px; background: linear-gradient(90deg, #eaf3b2, rgba(234, 243, 178, 0)); }
+.vtm20.r-type-wraith.r-wr-spectre .r-mode-opt.is-active, .vtm20.r-type-wraith.r-wr-spectre .r-mode-opt:has(input:checked) {color: #fcfeef; background: linear-gradient(180deg, rgba(100, 108, 50, .55), rgba(27, 29, 17, .55)); box-shadow: inset 0 -2px 0 #eaf3b2; }
+.vtm20.r-type-wraith.r-wr-spectre .r-mode-opt.is-active i, .vtm20.r-type-wraith.r-wr-spectre .r-mode-opt:has(input:checked) i {color: #fbfdeb; }
+.application.r-type-wraith.r-wr-spectre {--color-warm-1: #eaf3b2; --color-warm-2: #a14a63; --color-border-highlight: #eaf3b2; --color-border-highlight-alt: #c1d156; --color-text-hyperlink: #ecf4ba; --color-text-selection-bg: #a14a63; }
+.vtm20.r-type-wraith.r-wr-spectre.r-choice-dialog .r-choice:has(input:checked) {border-color: #eaf3b2; background: rgba(234, 243, 178, .12); }
+.vtm20.r-type-wraith.r-wr-spectre.r-choice-dialog .r-choice input[type=radio]:checked {border-color: #eaf3b2; background: radial-gradient(circle, #fbfdeb 0 3.5px, transparent 4px); }
+.vtm20.r-type-wraith.r-wr-spectre .r-cr-step.is-done .r-cr-step-coin, .vtm20.r-type-wraith.r-wr-spectre .r-cr-step.is-active .r-cr-step-coin {color: #eaf3b2; }
+.vtm20.r-type-wraith.r-wr-spectre .r-cr-step.is-active a {background: linear-gradient(90deg, rgba(234, 243, 178, .16), transparent); }
+.vtm20.r-type-wraith.r-wr-spectre .r-cr-step.is-active a::before {background: #eaf3b2; }
+.vtm20.r-type-wraith.r-wr-spectre .r-assignat.is-pathos {border-top-color: #eaf3b2; }
+.vtm20.r-type-wraith.r-wr-spectre .r-assignat.is-pathos .r-drop svg {stroke: #717a36; }
+.vtm20.r-type-wraith.r-wr-spectre .r-assignat.is-pathos .r-drop.is-filled svg {fill: #e4ef9c; stroke: #fafde6; filter: drop-shadow(0 0 3px rgba(246, 251, 209, .45)); }
+.vtm20.r-type-wraith.r-wr-spectre .r-vc-btn.is-on, .vtm20.r-type-wraith.r-wr-spectre .r-act.is-on {color: #f2f7d1; border-color: #b05a78; background: rgba(122, 53, 80, .28); }
+.vtm20.r-type-wraith.r-wr-spectre .r-dot.is-filled {border-color: #eaf3b2; box-shadow: 0 0 5px rgba(234, 243, 178, .3); }
+.vtm20.r-type-wraith.r-wr-spectre .r-wr-arc.is-home {border-top-color: #eaf3b2; box-shadow: inset 0 1px 0 rgba(234, 243, 178, .35); }
+.vtm20.r-type-wraith.r-wr-spectre .r-wr-arc-sigil {flex: none; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; font-size: 15px; color: #fbfdeb; border: 1px solid rgba(234, 243, 178, .45); background: radial-gradient(circle at 50% 35%, #3c4024, #10110a 75%); box-shadow: 0 0 0 3px var(--r-gap-ring), 0 0 12px rgba(234, 243, 178, .12); }
+.vtm20.r-type-wraith.r-wr-spectre .r-wr-arc.is-forbidden .r-wr-arc-sigil {color: #e3b8c6; border-color: rgba(176, 90, 120, .55); background: radial-gradient(circle at 50% 35%, #3a1d29, #10110a 75%); }
+.vtm20.r-type-wraith.r-wr-spectre .r-wr-ranks {position: relative; display: flex; align-items: center; gap: 12px; margin: 12px 0 16px 2px; background: linear-gradient(rgba(234, 243, 178, .22), rgba(234, 243, 178, .22)) 16px 50% / 176px 1px no-repeat; }
+.vtm20.r-type-wraith.r-wr-spectre .r-wr-rank {position: relative; flex: none; display: flex; width: 32px; height: 32px; border-radius: 50%; border: 1px solid rgba(234, 243, 178, .4); background: var(--r-gap-ring); box-shadow: 0 0 0 3px var(--r-gap-ring); }
+.vtm20.r-type-wraith.r-wr-spectre .r-wr-rank::before {content: ""; position: absolute; left: 50%; top: 3px; bottom: 3px; width: 1px; background: rgba(234, 243, 178, .35); z-index: 1; pointer-events: none; }
+.vtm20.r-type-wraith.r-wr-spectre .r-wr-half.is-left.is-known {background: radial-gradient(circle at 85% 40%, #fbfdeb, #c1d156 85%); }
+.vtm20.r-type-wraith.r-wr-spectre .r-wr-half.is-right.is-known {background: radial-gradient(circle at 15% 40%, #808b39, #252719 90%); box-shadow: inset -2px 0 0 #eaf3b2; }
+.vtm20.r-type-wraith.r-wr-spectre .r-wr-half.is-locked:not(.is-known) {background: repeating-linear-gradient(45deg, transparent 0 3px, rgba(234, 243, 178, .1) 3px 4px); }
+.vtm20.r-type-wraith.r-wr-spectre .r-wr-rank.is-owned .r-wr-half:not(.is-known):hover {background: rgba(234, 243, 178, .16); }
+.vtm20.r-type-wraith.r-wr-spectre .r-wr-half.is-sel {box-shadow: inset 0 0 0 2px #fbfdeb, 0 0 10px rgba(249, 253, 227, .45); }
+.vtm20.r-type-wraith.r-wr-spectre .r-wr-art-rank {flex: none; display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; font-family: var(--r-display); font-size: 11px; color: #10110a; background: radial-gradient(circle at 40% 32%, #fbfdeb, #c1d156 80%); }
+.vtm20.r-type-wraith.r-wr-spectre .r-wr-artpane.is-initiate .r-wr-art-rank {color: #fbfdeb; background: radial-gradient(circle at 40% 32%, #808b39, #252719 85%); box-shadow: inset 0 0 0 1px #eaf3b2; }
+.vtm20.r-type-wraith.r-wr-spectre .r-wr-chip.is-cost {border-color: rgba(234, 243, 178, .35); }
+.vtm20.r-type-wraith.r-wr-spectre .r-wr-artpane .r-vc-btn.is-use {color: #10110a; border-color: #fbfdeb; background: linear-gradient(180deg, #fbfdeb, #c1d156); }
+.vtm20.r-type-wraith.r-wr-spectre .r-wr-artpane .r-vc-btn.is-use:hover {box-shadow: 0 0 10px rgba(249, 253, 227, .35); }
+.vtm20.r-type-wraith.r-wr-spectre .r-sym, .r-type-wraith.r-wr-spectre .r-sym {background: linear-gradient(170deg, #fbfdeb, #c1d156); }
+.vtm20.r-type-wraith.r-wr-spectre .r-wr-arc.is-forbidden .r-wr-arc-sigil .r-sym {background: linear-gradient(170deg, #f2f7d1, #b05a78); }
+.vtm20.r-type-wraith.r-wr-spectre .r-wr-shroud {display: flex; align-items: center; flex-wrap: wrap; gap: 6px 12px; margin: 4px 0 10px; padding: 6px 10px; border: 1px solid var(--r-line-2); background: linear-gradient(90deg, rgba(234, 243, 178, .08), transparent); }
+.vtm20.r-type-wraith.r-wr-spectre .r-boxes.is-psyche .r-box.is-filled {background: linear-gradient(180deg, #eff6c5, #b39a62); border-color: #eff6c5; }
+.vtm20.r-type-wraith.r-wr-spectre .r-wr-risen-bar {border-color: rgba(201, 170, 140, .45); background: linear-gradient(90deg, rgba(177, 195, 65, .22), transparent); }
+.vtm20.r-type-wraith.r-wr-spectre .r-wr-dark.is-realm {border-color: rgba(182, 199, 71, .45); }
+.vtm20.r-type-wraith.r-wr-spectre .r-wr-dark.is-realm .r-wr-arc-sigil .r-sym {background: linear-gradient(170deg, #f2f7d0, #b5c645); }
+.vtm20.r-type-wraith.r-wr-spectre .r-wr-dark:not(.is-realm):not(.is-risen) .r-wr-arc-sigil .r-sym {background: linear-gradient(170deg, #f2f7d1, #b05a78); }
+.vtm20.r-type-wraith.r-wr-spectre .r-wr-row.is-resolved .r-wr-text, .vtm20.r-type-wraith.r-wr-spectre .r-wr-row.is-resolved .r-wr-emo {opacity: .55; text-decoration: line-through; text-decoration-color: rgba(234, 242, 178, .35); }
+.vtm20.r-type-wraith.r-wr-spectre .r-wr-res-tag {display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: #ecf4ba; white-space: nowrap; }
+.vtm20.r-type-wraith.r-wr-spectre .r-wr-res-tag.is-going {color: #cbdb67; font-size: 11px; }
+.vtm20.r-type-wraith.r-wr-spectre .r-wr-row.is-attuned .r-wr-text {color: #f2f7cf; }
+.vtm20.r-type-wraith.r-wr-spectre ul.r-wr-relics > li.r-edge {display: flex; align-items: center; gap: 10px; padding: 6px 4px; border-bottom: 1px solid rgba(234, 242, 178, .08); }
+.vtm20.r-type-wraith.r-wr-spectre .r-wr-necro-chip {display: inline-flex; align-items: center; gap: 4px; padding: 1px 8px; border: 1px solid rgba(234, 242, 178, .25); font-size: 12px; white-space: nowrap; }
+.vtm20.r-type-wraith.r-wr-spectre .r-wr-transcend {margin: 2px 0 10px; font-size: 12.5px; font-style: italic; color: #f2f7d0; }
+.vtm20.r-type-wraith.r-wr-spectre .r-cr-tile.is-active, .vtm20.r-type-wraith.r-wr-spectre .r-cr-clan.is-active, .vtm20.r-type-wraith.r-wr-spectre .r-cr-bg.is-on, .vtm20.r-type-wraith.r-wr-spectre .r-cr-mf.is-on {border-color: rgba(234, 243, 178, .5); background: rgba(234, 243, 178, .07); box-shadow: inset 2px 0 0 #eaf3b2; }
+.vtm20.r-type-wraith.r-wr-spectre .r-cr-prio.is-active {color: #10110a; background: linear-gradient(180deg, #fbfdeb, #b6c747); }
+.vtm20.r-type-wraith.r-wr-spectre .r-cr-dot.is-alloc {border-color: #d3e276; }
+.vtm20.r-type-wraith.r-wr-spectre .r-cr-dot.is-free {border-color: #ebf3b6; background: radial-gradient(circle at 38% 32%, #fcfeef, #c1d156 70%); }
+.vtm20.r-type-wraith.r-wr-spectre .r-cr-bg.is-on .r-cr-take, .vtm20.r-type-wraith.r-wr-spectre .r-cr-mf.is-on .r-cr-mf-take {color: #10110a; background: #eaf3b2; border-color: #fbfdeb; }
+.vtm20.r-type-wraith.r-wr-spectre .r-cr-added:not(:empty) {color: #10110a; background: #eaf3b2; }
+.vtm20.r-type-wraith.r-wr-spectre .r-cr-ledger li.is-over i {background-image: linear-gradient(90deg, #393d23, #cbdb67); }
+.vtm20.r-type-wraith.r-wr-spectre .r-gs-cwraith i {color: #d3e276; }
+.vtm20.r-type-wraith.r-wr-spectre .r-gs-card {border-left-color: #c1d156; }
+.vtm20.r-type-wraith.r-wr-spectre .r-gs-card:hover {border-color: rgba(234, 243, 178, .4); background: rgba(234, 243, 178, .05); }
+.vtm20.r-type-wraith.r-wr-spectre .r-gs-ctype {color: #cbdb67; }
+.vtm20.r-type-wraith.r-wr-spectre .r-gs .r-motto {color: #d3e276; }
+.vtm20.r-type-wraith.r-wr-spectre .r-gs-pool .fa-link {color: #fbfdeb; text-shadow: 0 0 6px rgba(249, 253, 227, .6); }
+.vtm20.r-type-wraith.r-wr-spectre .r-cr-sectrule i {color: #d3e276; }
+
+/* особые состояния обычного призрака — свёрнутой строкой (templates/actor/arcanoi.hbs) */
+.vtm20 .r-wr-modes { margin: 4px 0 10px; }
+.vtm20 .r-wr-modes > summary { display: inline-flex; align-items: center; gap: 6px; padding: 3px 2px; cursor: pointer; list-style: none;
+  font-family: var(--r-caps); font-size: 11px; letter-spacing: 1.4px; text-transform: uppercase; color: var(--r-muted); }
+.vtm20 .r-wr-modes > summary::-webkit-details-marker { display: none; }
+.vtm20 .r-wr-modes > summary::after { content: "\25BE"; font-size: 10px; transition: transform .15s; }
+.vtm20 .r-wr-modes[open] > summary::after { transform: rotate(180deg); }
+.vtm20 .r-wr-modes > summary:hover { color: var(--r-ink); }
+.vtm20 .r-wr-modes > .r-wr-spectre-bar { margin-top: 4px; }

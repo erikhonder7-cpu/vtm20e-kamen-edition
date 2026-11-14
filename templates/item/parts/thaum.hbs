@@ -1,0 +1,19 @@
+{{!-- Артефакт Тремер (apps/thaum-workshop.mjs): вид, уровень ритуала, заряды, срок, создатель, «в руке» у талисмана.
+     Видно у отмеченных вещей и у вещей тауматурга (чтобы отметить находку). --}}
+{{#if thaum.show}}
+<details class="r-item-setup r-thaum-setup" {{#if system.thaum.kind}}open{{/if}}>
+  <summary><i class="fa-solid fa-staff-snake"></i> {{localize "VTM20.Artifact.Setup"}}</summary>
+  <div class="r-fields is-wide">
+    <label class="r-f"><span>{{localize "VTM20.Artifact.KindLabel"}}</span>
+      <select name="system.thaum.kind">{{#each thaum.kinds}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+    <label class="r-f"><span>{{localize "VTM20.Artifact.Level"}}</span><input type="number" name="system.thaum.level" value="{{system.thaum.level}}" min="0" max="10"></label>
+    <label class="r-f"><span>{{localize "VTM20.Artifact.Charges"}}</span><input type="number" name="system.thaum.charges" value="{{system.thaum.charges}}" min="0" max="99"></label>
+    <label class="r-f"><span>{{localize "VTM20.Artifact.ChargesMax"}}</span><input type="number" name="system.thaum.chargesMax" value="{{system.thaum.chargesMax}}" min="0" max="99"></label>
+    <label class="r-f"><span>{{localize "VTM20.Artifact.Lasts"}}</span><input type="text" name="system.thaum.lasts" value="{{system.thaum.lasts}}"></label>
+    <label class="r-f"><span>{{localize "VTM20.Artifact.Maker"}}</span><input type="text" name="system.thaum.maker" value="{{system.thaum.maker}}"></label>
+    <label class="r-f is-span2" data-tooltip="{{localize 'VTM20.Artifact.MakerIdHint'}}"><span>{{localize "VTM20.Artifact.MakerId"}}</span>
+      <select name="system.thaum.makerId">{{#each thaum.makers}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+    <label class="r-f r-f-check" data-tooltip="{{localize 'VTM20.Artifact.HeldHint'}}"><input type="checkbox" name="system.thaum.held" {{checked system.thaum.held}}><span>{{localize "VTM20.Artifact.Held"}}</span></label>
+  </div>
+</details>
+{{/if}}

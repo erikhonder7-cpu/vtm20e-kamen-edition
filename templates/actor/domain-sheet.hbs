@@ -100,7 +100,7 @@
         <select name="system.liege" {{#unless editable}}disabled{{/unless}}><option value="">—</option>{{#each lieges}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select>
         {{#if liege}}<a class="r-gs-link" data-action="openActor" data-id="{{liege.id}}"><i class="fa-solid fa-chess-king"></i> {{liege.name}}</a>{{/if}}</label>
       <div class="r-gs-field"><span>{{localize "VTM20.Group.Vassals"}}</span>
-        {{#each combined.list}}<a class="r-gs-link" data-action="openActor" data-id="{{id}}"><i class="fa-solid fa-chess-pawn"></i> {{name}}</a>{{else}}<small>{{localize "VTM20.Group.NoVassals"}}</small>{{/each}}</div>
+        {{#each combined.list}}<a class="r-gs-link" data-action="openActor" data-id="{{id}}"><i class="fa-solid fa-chess-pawn"></i> {{name}}</a>{{/each}}</div>
     </div>
     <p class="r-hint">{{localize "VTM20.Group.FeudalHint"}}</p>
 
@@ -110,7 +110,7 @@
       {{#each events}}
       <li><b>{{name}}</b>{{#if date}} <small>· {{date}}</small>{{/if}}{{#if note}}<em>{{note}}</em>{{/if}}<span>{{text}}</span>
         {{#if @root.editable}}<a class="r-gs-x" data-action="delEvent" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}</li>
-      {{else}}<li class="r-gs-empty">{{localize "VTM20.Group.NoEvents"}}</li>{{/each}}
+      {{/each}}
     </ul>
     {{#if editable}}
     <div class="r-gs-addev">

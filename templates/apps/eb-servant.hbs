@@ -30,7 +30,7 @@
     {{#each stigmata}}<li class="r-gift"><span class="r-gift-kind">{{cost}}</span>
       <span class="r-gift-name">{{name}}<small>{{text}}</small>{{#if note}}<small>{{note}}</small>{{/if}}</span>
       {{#if @root.editable}}<a class="r-vc-btn is-sq" data-action="del" data-kind="stigmata" data-index="{{i}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}</li>
-    {{else}}<li class="r-empty">{{localize "VTM20.EbServant.NoStigmata"}}</li>{{/each}}
+    {{/each}}
   </ul>
 
   {{#if editable}}{{#if n}}

@@ -13,7 +13,7 @@
       <div class="r-cl-temper-head"><h4 class="r-banner" data-tooltip="{{localize 'VTM20.Changeling.BanalityHint'}}">{{localize "VTM20.Changeling.Banality"}}</h4>
         <span class="r-cl-temper-num">{{#if changelingInfo.mists}}<small class="is-warn" data-tooltip="{{localize 'VTM20.Changeling.BanalityPoolHint'}}">{{localize "VTM20.Changeling.Mists"}}</small>{{/if}}</span></div>
       {{> rDots dots=changelingInfo.banalityDots cls="is-ten is-banality"}}
-      <div class="r-boxes is-banality" data-tooltip="{{localize 'VTM20.Changeling.BanalityPoolHint'}}">{{#each changelingInfo.banalityBoxes}}<a class="r-box {{#if filled}}is-filled{{/if}}" {{#if @root.editable}}data-action="setDots" data-path="{{path}}" data-n="{{n}}"{{/if}}></a>{{/each}}</div>
+      <div class="r-boxes is-banality">{{#each changelingInfo.banalityBoxes}}<a class="r-box {{#if filled}}is-filled{{/if}}" {{#if @root.editable}}data-action="setDots" data-path="{{path}}" data-n="{{n}}"{{/if}}></a>{{/each}}</div>
     </div>
     <div class="r-cl-temper is-nightmare">
       <div class="r-cl-temper-head"><h4 class="r-banner" data-tooltip="{{localize 'VTM20.Changeling.NightmareHint'}}">{{localize "VTM20.Changeling.Nightmare"}}</h4>
@@ -69,8 +69,7 @@
   <h2 class="r-h2"><span>{{localize "VTM20.Lykeian.Redes"}}</span>
     <span class="r-h2-tools"><span class="r-gs-pool {{#if lykeian.over}}is-warn{{/if}}" data-tooltip="{{localize 'VTM20.Lykeian.RedesHint'}}"><i class="fa-solid fa-dragon"></i> {{lykeian.pts}} / {{lykeian.budget}}</span></span></h2>
   {{#if editable}}<div class="r-toolbar r-cl-add">
-    <select><option value="">{{localize "VTM20.Lykeian.AddRede"}}</option>{{#each lykeian.avail}}<option value="{{key}}">{{label}}</option>{{/each}}</select>
-    <a class="r-btn" data-action="lyAct" data-op="add"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Common.Add"}}</a>
+    <a class="r-btn is-lib" data-action="library" data-kind="rede" data-tooltip="{{localize 'VTM20.Library.Open'}}"><i class="fa-solid fa-book-skull"></i> {{localize "VTM20.Lykeian.AddRede"}}</a>
   </div>{{/if}}
   <div class="r-cl-oaths">
     {{#each lykeian.redes}}<article class="r-vcard r-cl-oath">
@@ -78,7 +77,7 @@
         <span class="r-cl-oath-tools"><input class="r-ly-pts" type="number" min="0" max="30" name="system.changeling.lykeian.redes.{{i}}.pts" value="{{pts}}" {{#unless @root.editable}}disabled{{/unless}} data-tooltip="{{localize 'VTM20.Lykeian.Pts'}}">
         {{#if @root.editable}}<a data-action="lyAct" data-op="del" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}</span></header>
       <p class="r-note">{{text}}</p>
-    </article>{{else}}<p class="r-gs-empty">{{localize "VTM20.Lykeian.NoRedes"}}</p>{{/each}}
+    </article>{{/each}}
   </div>
   {{else if hsien}}
   {{!-- Хсиен (C20, гл. 39): Чи Инь и Ян, Дао, Ранг, Югэн; школы Ву Тань и Ней Тань (module/apps/fae-variants.mjs) --}}
@@ -98,7 +97,7 @@
   <h2 class="r-h2"><span>{{localize "VTM20.Fae.Hsien.WuTan"}}</span></h2>
   <div class="r-cl-realms">
     {{#each hsien.schools}}<div class="r-vcard r-cl-realm {{#if capped}}is-mod{{/if}}">
-      <div class="r-vc-head"><h4 class="r-banner">{{#if @root.editable}}<a data-action="clFae" data-op="{{#if (eq key 'neitan')}}neitan{{else}}wutan{{/if}}" data-key="{{key}}">{{name}}</a>{{else}}{{name}}{{/if}}</h4>{{> rDots dots=dots cls="is-small"}}</div>
+      <div class="r-vc-head">{{#if sym}}<span class="r-clr-glyph r-hs-glyph">{{rSym sym}}</span>{{/if}}<h4 class="r-banner">{{#if @root.editable}}<a data-action="clFae" data-op="{{#if (eq key 'neitan')}}neitan{{else}}wutan{{/if}}" data-key="{{key}}">{{name}}</a>{{else}}{{name}}{{/if}}</h4>{{> rDots dots=dots cls="is-small"}}</div>
       <p class="r-note">{{element}}{{#if capped}} · <span class="is-warn">{{localize "VTM20.Fae.Hsien.NeiCapped" cap=../hsien.neiCap}}</span>{{/if}}</p>
     </div>{{/each}}
   </div>
@@ -134,10 +133,9 @@
       <ul class="r-cl-levels">
         {{#each cantrips}}<li><span class="r-cl-rank">{{level}}</span><a class="r-cl-lvl-name" {{#if @root.editable}}data-action="clDaf" data-op="cast" data-key="{{id}}"{{/if}} data-tooltip="{{params}} — {{text}}"><b>{{name}}</b> <em>{{trait}}</em></a>
           {{#if @root.editable}}<a class="r-cl-forget" data-action="clDaf" data-op="forget" data-key="{{id}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}</li>
-        {{else}}<li class="is-beyond"><em>{{localize "VTM20.Fae.Daf.NoCantrips"}}</em></li>{{/each}}
+        {{/each}}
       </ul>
-      {{#if @root.editable}}{{#if avail.length}}<div class="r-toolbar r-cl-add"><select><option value="">{{localize "VTM20.Fae.Daf.Learn"}}</option>{{#each avail}}<option value="{{id}}">{{label}}</option>{{/each}}</select>
-        <a class="r-btn" data-action="clDaf" data-op="learn"><i class="fa-solid fa-plus"></i></a></div>{{/if}}{{/if}}
+      {{#if @root.editable}}{{#if avail.length}}<div class="r-toolbar r-cl-add"><a class="r-btn is-lib" data-action="library" data-kind="cantrip" data-discipline="{{key}}" data-tooltip="{{localize 'VTM20.Library.Open'}}"><i class="fa-solid fa-book-skull"></i> {{localize "VTM20.Fae.Daf.Learn"}}</a></div>{{/if}}{{/if}}
     </article>{{/each}}
   </div>
   <p class="r-hint">{{localize "VTM20.Fae.Daf.Hint"}}</p>
@@ -164,104 +162,125 @@
   </div>
   <p class="r-hint">{{localize "VTM20.Fae.Inan.Hint"}}</p>
   {{else}}
-  <h2 class="r-h2"><span>{{localize "VTM20.Changeling.Arts"}}</span>
-    <span class="r-h2-tools">
-      <span class="r-gs-pool" data-tooltip="{{localize 'VTM20.Changeling.CantripRule' nm=cl.nightmare}}"><i class="fa-solid fa-star"></i> {{cl.glamour}} · <i class="fa-solid fa-moon"></i> {{cl.nightmare}}</span>
-      {{#if editable}}<a class="r-h2-btn" data-action="clCast"><i class="fa-solid fa-wand-sparkles"></i> <span class="r-h2-lbl">{{localize "VTM20.Changeling.Cantrip"}}</span></a>{{/if}}
-    </span>
-  </h2>
-  {{#if editable}}{{#if cl.avail.length}}<div class="r-toolbar r-cl-add">
-    <select><option value="">{{localize "VTM20.Changeling.AddArt"}}</option>{{#each cl.avail}}<option value="{{key}}">{{label}}</option>{{/each}}</select>
-    <a class="r-btn" data-action="clArtAdd"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Common.Add"}}</a>
-  </div>{{/if}}{{/if}}
-  <div class="r-cl-arts">
+  {{!-- Искусства (C20, гл. 4): «витражи» — знак Искусства медальоном (щелчок — кантрип), имя и точки; карточка сворачивается,
+       как Дисциплина. Лестница из пяти кантрипов: щелчок по имени раскрывает правила, кубик — бросок (только известные);
+       Высвобождение и обряды-условия — разделами внизу раскрытой карточки --}}
+  <div class="r-cla-head">
+    <h2 class="r-h2"><span>{{localize "VTM20.Changeling.Arts"}}</span></h2>
+    <span class="r-cla-pool" data-tooltip="{{localize 'VTM20.Changeling.CantripRule' nm=cl.nightmare}}"><i class="fa-solid fa-star"></i> <b>{{cl.glamour}}</b> <i class="fa-solid fa-moon"></i> <b>{{cl.nightmare}}</b></span>
+    {{#if cl.own.length}}<a class="r-h2-btn is-plain" data-action="toggleAll"><i class="fa-solid {{#if cl.allOpen}}fa-angles-up{{else}}fa-angles-down{{/if}}"></i> <span class="r-h2-lbl">{{#if cl.allOpen}}{{localize "VTM20.Sheet.CollapseAll"}}{{else}}{{localize "VTM20.Sheet.ExpandAll"}}{{/if}}</span></a>{{/if}}
+    {{#if editable}}<a class="r-cla-btn is-main" data-action="clCast"><i class="fa-solid fa-wand-sparkles"></i> {{localize "VTM20.Changeling.Cantrip"}}</a>
+    <a class="r-cla-btn" data-action="library" data-kind="art"><i class="fa-solid fa-book-skull"></i> {{localize "VTM20.Changeling.AddArt"}}</a>{{/if}}
+  </div>
+  <div class="r-cla-grid">
     {{#each cl.own}}
-    <article class="r-vcard r-cl-art">
-      <header class="r-cl-art-head">
-        {{#if sym}}<span class="r-cl-art-sym">{{rSym sym}}</span>{{/if}}
-        <div class="r-cl-art-title"><a class="r-cl-art-name" data-action="clCast" data-art="{{key}}">{{name}}</a><span class="r-cl-art-en">{{en}}</span></div>
-        {{> rDots dots=dots cls="is-small"}}
-        {{#if @root.editable}}<a class="r-icon-btn" data-action="clUnleash" data-art="{{key}}" data-tooltip="{{localize 'VTM20.Changeling.UnleashHint'}}{{#if unleashing}}<br>{{unleashing}}{{/if}}"><i class="fa-solid fa-burst"></i></a>
-        <a class="r-icon-btn is-danger" data-action="clArtDel" data-art="{{key}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
+    <article class="r-row-wrap r-cla-art {{#if open}}is-open{{/if}}">
+      <a class="r-cla-glyph" data-action="clCast" data-art="{{key}}" data-tooltip="{{localize 'VTM20.Changeling.CastArt'}}">{{#if sym}}{{rSym sym}}{{else}}<i class="fa-solid {{icon}}"></i>{{/if}}</a>
+      <header class="r-cla-title">
+        <a class="r-cla-name" data-action="toggleRow" data-row-id="{{rowId}}">{{name}}</a>
+        <span class="r-cla-en">{{en}}</span>
+        <span class="r-cla-dots">{{> rDots dots=dots cls="is-small"}}</span>
+        <span class="r-cla-tools">
+          {{#if @root.editable}}<a data-action="clUnleash" data-art="{{key}}" data-tooltip="{{localize 'VTM20.Changeling.UnleashHint'}}"><i class="fa-solid fa-burst"></i></a>
+          <a class="is-danger" data-action="clArtDel" data-art="{{key}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
+          <a class="r-chevron" data-action="toggleRow" data-row-id="{{rowId}}"><i class="fa-solid fa-chevron-down"></i></a>
+        </span>
       </header>
-      <ul class="r-cl-levels">
-        {{#each levels}}
-        <li class="{{#unless known}}is-beyond{{/unless}}">
-          <span class="r-cl-rank">{{level}}</span>
-          <a class="r-cl-lvl-name" {{#if known}}data-action="clCast" data-art="{{../key}}" data-level="{{level}}"{{/if}} data-tooltip="{{html}}"><b>{{name}}</b> <em>{{en}}</em></a>
-          {{#if typeLabel}}<span class="r-cl-chip is-{{type}}">{{typeLabel}}</span>{{/if}}
-        </li>
-        {{/each}}
-      </ul>
-      {{#if bunks}}<p class="r-note r-cl-bunks"><i class="fa-solid fa-masks-theater"></i> {{bunks}}</p>{{/if}}
+      <div class="r-cla-body">
+        <ol class="r-cla-ladder">
+          {{#each levels}}
+          <li class="r-row-wrap {{#if known}}is-known{{else}}is-beyond{{/if}} {{#if open}}is-open{{/if}}">
+            <span class="r-cla-step"><b>{{rRoman level}}</b></span>
+            <a class="r-cla-cantrip" data-action="toggleRow" data-row-id="{{rowId}}">{{name}}</a>
+            {{#if type}}<i class="r-cla-type is-{{type}} fa-solid {{#if (eq type 'wyrd')}}fa-sun{{else if (eq type 'chimerical')}}fa-cloud{{else}}fa-circle-half-stroke{{/if}}" data-tooltip="{{typeLabel}}"></i>{{else}}<span></span>{{/if}}
+            {{#if known}}{{#if @root.editable}}<a class="r-cla-cast" data-action="clCast" data-art="{{../key}}" data-level="{{level}}" data-tooltip="{{localize 'VTM20.Changeling.CastArt'}}"><i class="fa-solid fa-dice-d10"></i></a>{{else}}<span></span>{{/if}}{{else}}<span></span>{{/if}}
+            <div class="r-cla-text">{{#if en}}<p class="r-cla-text-en">{{en}}{{#if typeLabel}} · {{typeLabel}}{{/if}}</p>{{/if}}{{{html}}}</div>
+          </li>
+          {{/each}}
+        </ol>
+        {{#if unleashing}}<details class="r-cla-bunks"><summary><i class="fa-solid fa-burst"></i> {{localize "VTM20.Changeling.Unleash"}}</summary><p>{{unleashing}}</p></details>{{/if}}
+        {{#if bunks}}<details class="r-cla-bunks"><summary><i class="fa-solid fa-masks-theater"></i> {{localize "VTM20.Changeling.Bunk"}}</summary><p>{{bunks}}</p></details>{{/if}}
+      </div>
     </article>
-    {{else}}
-    <p class="r-gs-empty">{{localize "VTM20.Changeling.NoArts"}}</p>
     {{/each}}
   </div>
 
+  {{!-- Царства (C20, гл. 4): на что направлен кантрип — шесть строк; цели ступенями, открытые светятся, текст — в подсказке --}}
   <h2 class="r-h2"><span>{{localize "VTM20.Changeling.Realms"}}</span></h2>
-  <div class="r-cl-realms">
+  <div class="r-clr-grid">
     {{#each cl.realms}}
-    <div class="r-vcard r-cl-realm {{#if modifier}}is-mod{{/if}} {{#if affinity}}is-affinity{{/if}}">
-      <div class="r-vc-head">{{#if sym}}<span class="r-cl-art-sym is-small">{{rSym sym}}</span>{{/if}}<h4 class="r-banner">{{name}}{{#if affinity}} <i class="fa-solid fa-leaf" data-tooltip="{{localize 'VTM20.Changeling.AffinityHint'}}"></i>{{/if}}</h4>{{> rDots dots=dots cls="is-small"}}</div>
-      <ol class="r-cl-rlevels">{{#each levels}}<li class="{{#if known}}is-known{{/if}}" data-tooltip="{{text}}">{{name}}</li>{{/each}}</ol>
+    <div class="r-clr {{#if modifier}}is-mod{{/if}} {{#if affinity}}is-affinity{{/if}} {{#unless value}}is-zero{{/unless}}">
+      <span class="r-clr-glyph">{{#if sym}}{{rSym sym}}{{/if}}</span>
+      <span class="r-clr-name">{{name}}{{#if affinity}} <i class="fa-solid fa-leaf" data-tooltip="{{localize 'VTM20.Changeling.AffinityHint'}}"></i>{{/if}}<small>{{en}}</small></span>
+      <span class="r-clr-dots">{{> rDots dots=dots cls="is-small"}}</span>
+      <ol class="r-clr-steps">{{#each levels}}<li class="{{#if known}}is-known{{/if}}" data-tooltip="<b>{{level}}. {{name}}</b><br>{{text}}">{{name}}</li>{{/each}}</ol>
     </div>
     {{/each}}
   </div>
   {{/if}}
-  {{!-- Сокровища (C20, гл. 8): сила Искусства без Царств, свой запас Гламура; разрушение — Гламур и триггер Банальности --}}
-  <h2 class="r-h2"><span>{{localize "VTM20.Changeling.Treasure.Head"}}</span>
-    {{#if editable}}<span class="r-h2-tools"><a class="r-btn" data-action="clTreasure" data-op="add"><i class="fa-solid fa-gem"></i> {{localize "VTM20.Changeling.Treasure.Add"}}</a></span>{{/if}}</h2>
-  {{#if cl.treasures.length}}<div class="r-cl-oaths">
-    {{#each cl.treasures}}<article class="r-vcard r-cl-oath r-cl-treasure">
-      <header><b>{{name}}</b> <em>{{art}} {{dots}}</em>
-        {{#if @root.editable}}<span class="r-cl-oath-tools"><a data-action="clTreasure" data-op="use" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Changeling.Treasure.UseHint'}}"><i class="fa-solid fa-wand-sparkles"></i></a>
-          <a data-action="clTreasure" data-op="del" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Changeling.Treasure.Destroy'}}"><i class="fa-solid fa-hammer"></i></a></span>{{/if}}</header>
-      <p class="r-cl-oath-fx" data-tooltip="{{tip}}"><i class="fa-solid fa-{{#if (eq type 'wyrd')}}sun{{else}}cloud{{/if}}"></i> {{power}}</p>
-      {{#if text}}<p class="r-note">{{text}}</p>{{/if}}
-      <p class="r-cl-oath-fx"><i class="fa-solid fa-star"></i> {{localize "VTM20.Changeling.Treasure.Store"}}: <b>{{store}}</b>
-        {{#if @root.editable}}<a data-action="clTreasure" data-op="store" data-d="-1" data-i="{{i}}"><i class="fa-solid fa-minus"></i></a> <a data-action="clTreasure" data-op="store" data-d="1" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Changeling.Treasure.StoreHint'}}"><i class="fa-solid fa-plus"></i></a>{{/if}}</p>
-    </article>{{/each}}
-  </div>{{else}}<p class="r-note">{{localize "VTM20.Changeling.Treasure.None"}}</p>{{/if}}
-  {{!-- Химеры-спутники (C20, гл. 8): черты по очкам химеры против бюджета Фона «Химера», Реды; лист существа для боя --}}
-  <h2 class="r-h2"><span>{{localize "VTM20.Changeling.Chimera.Head"}}</span>
-    {{#if editable}}<span class="r-h2-tools"><a class="r-btn" data-action="clChimera" data-op="add"><i class="fa-solid fa-dragon"></i> {{localize "VTM20.Changeling.Chimera.Add"}}</a></span>{{/if}}</h2>
-  {{#if cl.chimeras.length}}<div class="r-cl-oaths">
-    {{#each cl.chimeras}}<article class="r-vcard r-cl-oath r-cl-chimera {{#if over}}is-over{{/if}}">
-      <header><b>{{name}}</b> <em>{{dots}}</em> <span class="r-cl-state {{#if over}}is-bedlam{{/if}}" data-tooltip="{{localize 'VTM20.Changeling.Chimera.PtsHint'}}">{{pts}} / {{budget}}</span>
-        {{#if @root.editable}}<span class="r-cl-oath-tools"><a data-action="clChimera" data-op="actor" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Changeling.Chimera.ActorHint'}}"><i class="fa-solid {{#if hasActor}}fa-id-card{{else}}fa-user-plus{{/if}}"></i></a>
-          <a data-action="clChimera" data-op="edit" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Changeling.Chimera.Edit'}}"><i class="fa-solid fa-pen"></i></a>
-          <a data-action="clChimera" data-op="del" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a></span>{{/if}}</header>
-      <p class="r-cl-oath-fx"><i class="fa-solid fa-star"></i> {{glamour}} · <i class="fa-solid fa-shield-heart"></i> {{will}} · <i class="fa-solid fa-heart"></i> {{health}}</p>
-      {{#if attrs}}<p class="r-cl-oath-fx">{{attrs}}</p>{{/if}}{{#if abils}}<p class="r-cl-oath-fx">{{abils}}</p>{{/if}}
-      {{#if redes.length}}<div class="r-cl-states">{{#each redes}}<span class="r-cl-state" data-tooltip="{{tip}}">{{name}}</span>{{/each}}</div>{{/if}}
-      {{#if text}}<p class="r-note">{{text}}</p>{{/if}}
-    </article>{{/each}}
-  </div>{{else}}<p class="r-note">{{localize "VTM20.Changeling.Chimera.None"}}</p>{{/if}}
-  {{!-- Химерическое ремесло (C20, гл. 8): проект — бросок за неделю, план — за день; прогресс к порогу успехов --}}
-  <h2 class="r-h2"><span>{{localize "VTM20.Changeling.Craft.Head"}}</span>
-    {{#if editable}}<span class="r-h2-tools"><a class="r-btn" data-action="clCraft" data-op="add"><i class="fa-solid fa-hammer"></i> {{localize "VTM20.Changeling.Craft.Add"}}</a></span>{{/if}}</h2>
-  {{#if cl.crafts.length}}<div class="r-cl-oaths">
-    {{#each cl.crafts}}<article class="r-vcard r-cl-oath r-cl-craft {{#if done}}is-done{{/if}}">
-      <header><b>{{name}}</b> <em>{{tier}}</em>
-        {{#if @root.editable}}<span class="r-cl-oath-tools">{{#unless done}}<a data-action="clCraft" data-op="plan" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Changeling.Craft.PlanHint'}}"><i class="fa-solid fa-compass-drafting"></i></a>
-          <a data-action="clCraft" data-op="work" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Changeling.Craft.WorkHint'}}"><i class="fa-solid fa-hammer"></i></a>{{/unless}}
-          <a data-action="clCraft" data-op="del" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a></span>{{/if}}</header>
-      <div class="r-cl-craft-bar"><i style="width: {{pct}}%"></i></div>
-      <p class="r-cl-oath-fx">{{got}} / {{need}} · {{localize "VTM20.Changeling.Craft.DiffShort"}} {{diff}}{{#if plan}} · {{localize "VTM20.Changeling.Craft.PlanShort"}} {{plan}}{{/if}}{{#if helpers}} · {{localize "VTM20.Changeling.Craft.Helpers"}} {{helpers}}{{/if}}</p>
-    </article>{{/each}}
-  </div>{{else}}<p class="r-note">{{localize "VTM20.Changeling.Craft.None"}}</p>{{/if}}
-  {{!-- Клятвы (C20, гл. 6): примеры книги с ценой и расплатой; нарушение — расплата, «клятвопреступник» и триггер Банальности --}}
-  <h2 class="r-h2 r-cl-oaths-head"><span>{{localize "VTM20.Changeling.Oath.Head"}}</span>
-    {{#if editable}}<span class="r-h2-tools"><a class="r-btn" data-action="clOath" data-op="take"><i class="fa-solid fa-handshake-angle"></i> {{localize "VTM20.Changeling.Oath.Swear"}}</a></span>{{/if}}</h2>
-  {{#if cl.oaths.length}}<div class="r-cl-oaths">
-    {{#each cl.oaths}}<article class="r-vcard r-cl-oath {{#if broken}}is-broken{{/if}}">
-      <header><b>{{name}}</b>{{#if who}} <em>— {{who}}</em>{{/if}}{{#if broken}} <span class="r-cl-state is-bedlam">{{localize "VTM20.Changeling.Oath.Forsworn"}}</span>{{/if}}
-        {{#if @root.editable}}<span class="r-cl-oath-tools">{{#unless broken}}<a data-action="clOath" data-op="break" data-i="{{i}}" data-tooltip="{{brk}}"><i class="fa-solid fa-heart-crack"></i></a>{{/unless}}
-          <a data-action="clOath" data-op="drop" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Changeling.Oath.Drop'}}"><i class="fa-solid fa-xmark"></i></a></span>{{/if}}</header>
-      {{#if text}}<p class="r-note">{{text}}</p>{{/if}}
-      <p class="r-cl-oath-fx"><i class="fa-solid fa-scale-balanced"></i> {{take}} · <i class="fa-solid fa-heart-crack"></i> {{brk}}</p>
-    </article>{{/each}}
-  </div>{{else}}<p class="r-note">{{localize "VTM20.Changeling.Oath.None"}}</p>{{/if}}
+  {{!-- Спутники Грёзы — четыре панели сеткой: сокровища, химеры, ремесло, клятвы --}}
+  <div class="r-cla-annex">
+    <section class="r-cla-panel is-treasure">
+    {{!-- Сокровища (C20, гл. 8): сила Искусства без Царств, свой запас Гламура; разрушение — Гламур и триггер Банальности --}}
+    <h2 class="r-h2 r-cla-ph"><i class="fa-solid fa-gem"></i><span>{{localize "VTM20.Changeling.Treasure.Head"}}</span>
+      {{#if editable}}<span class="r-h2-tools"><a class="r-btn" data-action="clTreasure" data-op="add"><i class="fa-solid fa-gem"></i> {{localize "VTM20.Changeling.Treasure.Add"}}</a></span>{{/if}}</h2>
+    {{#if cl.treasures.length}}<div class="r-cl-oaths">
+      {{#each cl.treasures}}<article class="r-vcard r-cl-oath r-cl-treasure">
+        <header><b>{{name}}</b> <em>{{art}} {{dots}}</em>
+          {{#if @root.editable}}<span class="r-cl-oath-tools"><a data-action="clTreasure" data-op="use" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Changeling.Treasure.UseHint'}}"><i class="fa-solid fa-wand-sparkles"></i></a>
+            <a data-action="clTreasure" data-op="del" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Changeling.Treasure.Destroy'}}"><i class="fa-solid fa-hammer"></i></a></span>{{/if}}</header>
+        <p class="r-cl-oath-fx" data-tooltip="{{tip}}"><i class="fa-solid fa-{{#if (eq type 'wyrd')}}sun{{else}}cloud{{/if}}"></i> {{power}}</p>
+        {{#if text}}<p class="r-note">{{text}}</p>{{/if}}
+        <p class="r-cl-oath-fx"><i class="fa-solid fa-star"></i> {{localize "VTM20.Changeling.Treasure.Store"}}: <b>{{store}}</b>
+          {{#if @root.editable}}<a data-action="clTreasure" data-op="store" data-d="-1" data-i="{{i}}"><i class="fa-solid fa-minus"></i></a> <a data-action="clTreasure" data-op="store" data-d="1" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Changeling.Treasure.StoreHint'}}"><i class="fa-solid fa-plus"></i></a>{{/if}}</p>
+      </article>{{/each}}
+    </div>{{/if}}
+    </section>
+    <section class="r-cla-panel is-chimera">
+    {{!-- Химеры-спутники (C20, гл. 8): черты по очкам химеры против бюджета Фона «Химера», Реды; лист существа для боя --}}
+    <h2 class="r-h2 r-cla-ph"><i class="fa-solid fa-dragon"></i><span>{{localize "VTM20.Changeling.Chimera.Head"}}</span>
+      {{#if editable}}<span class="r-h2-tools"><a class="r-btn" data-action="clChimera" data-op="add"><i class="fa-solid fa-dragon"></i> {{localize "VTM20.Changeling.Chimera.Add"}}</a></span>{{/if}}</h2>
+    {{#if cl.chimeras.length}}<div class="r-cl-oaths">
+      {{#each cl.chimeras}}<article class="r-vcard r-cl-oath r-cl-chimera {{#if over}}is-over{{/if}}">
+        <header><b>{{name}}</b> <em>{{dots}}</em> <span class="r-cl-state {{#if over}}is-bedlam{{/if}}" data-tooltip="{{localize 'VTM20.Changeling.Chimera.PtsHint'}}">{{pts}} / {{budget}}</span>
+          {{#if @root.editable}}<span class="r-cl-oath-tools"><a data-action="clChimera" data-op="actor" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Changeling.Chimera.ActorHint'}}"><i class="fa-solid {{#if hasActor}}fa-id-card{{else}}fa-user-plus{{/if}}"></i></a>
+            <a data-action="clChimera" data-op="edit" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Changeling.Chimera.Edit'}}"><i class="fa-solid fa-pen"></i></a>
+            <a data-action="clChimera" data-op="del" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a></span>{{/if}}</header>
+        <p class="r-cl-oath-fx"><i class="fa-solid fa-star"></i> {{glamour}} · <i class="fa-solid fa-shield-heart"></i> {{will}} · <i class="fa-solid fa-heart"></i> {{health}}</p>
+        {{#if attrs}}<p class="r-cl-oath-fx">{{attrs}}</p>{{/if}}{{#if abils}}<p class="r-cl-oath-fx">{{abils}}</p>{{/if}}
+        {{#if redes.length}}<div class="r-cl-states">{{#each redes}}<span class="r-cl-state" data-tooltip="{{tip}}">{{name}}</span>{{/each}}</div>{{/if}}
+        {{#if text}}<p class="r-note">{{text}}</p>{{/if}}
+      </article>{{/each}}
+    </div>{{/if}}
+    </section>
+    <section class="r-cla-panel is-craft">
+    {{!-- Химерическое ремесло (C20, гл. 8): проект — бросок за неделю, план — за день; прогресс к порогу успехов --}}
+    <h2 class="r-h2 r-cla-ph"><i class="fa-solid fa-hammer"></i><span>{{localize "VTM20.Changeling.Craft.Head"}}</span>
+      {{#if editable}}<span class="r-h2-tools"><a class="r-btn" data-action="clCraft" data-op="add"><i class="fa-solid fa-hammer"></i> {{localize "VTM20.Changeling.Craft.Add"}}</a></span>{{/if}}</h2>
+    {{#if cl.crafts.length}}<div class="r-cl-oaths">
+      {{#each cl.crafts}}<article class="r-vcard r-cl-oath r-cl-craft {{#if done}}is-done{{/if}}">
+        <header><b>{{name}}</b> <em>{{tier}}</em>
+          {{#if @root.editable}}<span class="r-cl-oath-tools">{{#unless done}}<a data-action="clCraft" data-op="plan" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Changeling.Craft.PlanHint'}}"><i class="fa-solid fa-compass-drafting"></i></a>
+            <a data-action="clCraft" data-op="work" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Changeling.Craft.WorkHint'}}"><i class="fa-solid fa-hammer"></i></a>{{/unless}}
+            <a data-action="clCraft" data-op="del" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a></span>{{/if}}</header>
+        <div class="r-cl-craft-bar"><i style="width: {{pct}}%"></i></div>
+        <p class="r-cl-oath-fx">{{got}} / {{need}} · {{localize "VTM20.Changeling.Craft.DiffShort"}} {{diff}}{{#if plan}} · {{localize "VTM20.Changeling.Craft.PlanShort"}} {{plan}}{{/if}}{{#if helpers}} · {{localize "VTM20.Changeling.Craft.Helpers"}} {{helpers}}{{/if}}</p>
+      </article>{{/each}}
+    </div>{{/if}}
+    </section>
+    <section class="r-cla-panel is-oath">
+    {{!-- Клятвы (C20, гл. 6): примеры книги с ценой и расплатой; нарушение — расплата, «клятвопреступник» и триггер Банальности --}}
+    <h2 class="r-h2 r-cla-ph"><i class="fa-solid fa-handshake-angle"></i><span>{{localize "VTM20.Changeling.Oath.Head"}}</span>
+      {{#if editable}}<span class="r-h2-tools"><a class="r-btn" data-action="clOath" data-op="take"><i class="fa-solid fa-handshake-angle"></i> {{localize "VTM20.Changeling.Oath.Swear"}}</a></span>{{/if}}</h2>
+    {{#if cl.oaths.length}}<div class="r-cl-oaths">
+      {{#each cl.oaths}}<article class="r-vcard r-cl-oath {{#if broken}}is-broken{{/if}}">
+        <header><b>{{name}}</b>{{#if who}} <em>— {{who}}</em>{{/if}}{{#if broken}} <span class="r-cl-state is-bedlam">{{localize "VTM20.Changeling.Oath.Forsworn"}}</span>{{/if}}
+          {{#if @root.editable}}<span class="r-cl-oath-tools">{{#unless broken}}<a data-action="clOath" data-op="break" data-i="{{i}}" data-tooltip="{{brk}}"><i class="fa-solid fa-heart-crack"></i></a>{{/unless}}
+            <a data-action="clOath" data-op="drop" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Changeling.Oath.Drop'}}"><i class="fa-solid fa-xmark"></i></a></span>{{/if}}</header>
+        {{#if text}}<p class="r-note">{{text}}</p>{{/if}}
+        <p class="r-cl-oath-fx"><i class="fa-solid fa-scale-balanced"></i> {{take}} · <i class="fa-solid fa-heart-crack"></i> {{brk}}</p>
+      </article>{{/each}}
+    </div>{{/if}}
+    </section>
+  </div>
 </section>

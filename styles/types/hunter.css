@@ -1,3 +1,4 @@
+@charset "UTF-8";
 /* ══════════════════════════════════════════════════════════════════════════
    Лист охотника (Hunter: The Reckoning): каркас — общий, материал свой — тёплый чёрный, обожжённый янтарь
    и сигнальный огонь; от падших и Привязанных отличают знаки мелом — пунктир рамок, засечки углов. Собран из темы смертного (mortal.css):
@@ -163,7 +164,14 @@ body.r-theme-light .vtm20.r-type-hunter {
 .vtm20.r-type-hunter .r-vc-hunter .r-vc-status b { color: #ffd59c; text-shadow: 0 0 10px rgba(255, 170, 80, .55); }
 .vtm20.r-type-hunter .r-vc-hunter .r-vc-status small { color: var(--r-muted); }
 .vtm20.r-type-hunter .r-hvirtues { display: grid; grid-template-columns: 1fr; gap: 2px; }
-.vtm20.r-type-hunter .r-hvirtues .r-virtue { display: grid; grid-template-columns: 96px 34px 1fr; align-items: center; gap: 6px; }
+.vtm20.r-type-hunter .r-hvirtues .r-virtue { display: grid; grid-template-columns: 96px 1fr; align-items: center; gap: 8px; }
+.vtm20.r-type-hunter .r-hvirtues .r-virtue.is-over .r-dot.is-filled { box-shadow: 0 0 0 1px var(--r-blood-l, #ff6b5a), 0 0 5px rgba(255, 107, 90, .5); }
+/* Убеждённость — только точками, без чисел: ряд по центру карточки */
+.vtm20.r-type-hunter .r-hconv { display: flex; justify-content: center; margin: 4px 0 6px; }
+.vtm20.r-type-hunter .r-hconv .r-dot { width: 15px; height: 15px; }
+.vtm20.r-type-hunter .r-vs-pips { display: inline-flex; gap: 2px; margin-left: 4px; vertical-align: middle; }
+.vtm20.r-type-hunter .r-vs-pips i { width: 6px; height: 6px; border-radius: 50%; border: 1px solid var(--r-dot-border); }
+.vtm20.r-type-hunter .r-vs-pips i.is-on { background: var(--r-dot-fill); border-color: transparent; }
 .vtm20.r-type-hunter .r-hvirtues .r-virtue.is-primary .r-trait-label { color: #ffd59c; }
 .vtm20.r-type-hunter .r-hvirtues .r-virtue.is-primary .r-trait-label::before { content: "◆ "; color: #e0893a; font-size: 9px; }
 .vtm20.r-type-hunter .r-hvirtues .r-virtue.is-over .r-hv-num b { color: var(--r-blood-l, #ff6b5a); }

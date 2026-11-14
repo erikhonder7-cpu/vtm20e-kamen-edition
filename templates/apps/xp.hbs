@@ -68,8 +68,6 @@
           </footer>
           {{/if}}
         </article>
-        {{else}}
-        <p class="r-empty">{{localize "VTM20.Train.Empty"}}</p>
         {{/each}}
       </div>
     </div>
@@ -78,7 +76,7 @@
       <h2 class="r-h2"><span>{{localize "VTM20.Xp.History"}}</span></h2>
       <ol class="r-xw-hist">
         {{#each log}}<li class="{{#if spend}}is-spend{{else}}is-gain{{/if}}"><b>{{#if spend}}−{{else}}+{{/if}}{{abs}}</b><span>{{#if reason}}{{reason}}{{else}}—{{/if}}</span><small>{{date}}</small></li>
-        {{else}}<li class="r-empty">{{localize "VTM20.Xp.Nothing"}}</li>{{/each}}
+        {{/each}}
       </ol>
     </div>
     {{else}}
@@ -107,8 +105,6 @@
           {{/each}}
         </div>
       </section>
-      {{else}}
-      <p class="r-empty">{{localize "VTM20.Xp.Nothing"}}</p>
       {{/each}}
     </div>
     {{/if}}

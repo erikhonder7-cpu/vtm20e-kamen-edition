@@ -814,6 +814,140 @@ BUILDERS["wraith-arcanoi"] = function () {
   return p;
 };
 
+/** Запись компендия, которую можно перетащить на лист: ключ вида библиотеки (module/apps/library-picks.mjs) и записи. */
+const pickFlag = (kind, id) => ({ [SYSTEM_ID]: { pick: { kind, id } } });
+const lead = parts => { const x = parts.filter(Boolean); return x.length ? `<p><em>${x.map(esc).join(" · ")}</em></p>` : ""; };
+const WR_GLYPH = name => fs.existsSync(path.join(ROOT, "assets/wraith", `${name}.png`)) ? `systems/${SYSTEM_ID}/assets/wraith/${name}.png` : ICON("power");
+const ATTR_RU = { strength: "Сила", dexterity: "Ловкость", stamina: "Выносливость", charisma: "Обаяние", manipulation: "Манипулирование", appearance: "Внешность",
+  perception: "Восприятие", intelligence: "Интеллект", wits: "Смекалка" };
+
+/**
+ * Силы призраков — предметы, которые перетаскиваются на лист (как Дары Гару): Арканои Гильдий (папка на Арканос — обзор и уровни
+ * Общего и Посвящённого пути), Тёмные Арканои Спектров, Арканои Восставших и Тёмных Царств, Шипы Тени, Шейдкрафт, Ветви Психеи,
+ * Пятна «Орфея». Перетащенная запись добавляет Арканос (Шип, Ветвь…) на лист — через тот же вид библиотеки (pick).
+ */
+BUILDERS["wraith-powers"] = function () {
+  const p = new Pack("wraith-powers"), W = data("wraith");
+  const group = ru.VTM20.Wraith.GuildGroup ?? {};
+  const cost = l => [l.pathos && `${l.pathos} Пафоса`, l.corpus && `${l.corpus} Корпуса`, l.willpower && `${l.willpower} Воли`, l.angst && `${l.angst} Ангста`, l.costText].filter(Boolean).join(", ");
+  const pool = (l, name) => l.pool ? l.pool.map(x => x.startsWith("attributes.") ? ATTR_RU[x.slice(11)] ?? x : x.startsWith("abilities.") ? x.slice(10) : name).join(" + ")
+    : l.attr ? `${ATTR_RU[l.attr] ?? l.attr} + ${name}` : "";
+  const arc = (a, folder, kind, img) => {
+    p.add({ name: a.name, type: "power", folder, key: `wraith-pow:${kind}:${a.key}`, img, flags: pickFlag(kind, a.key),
+      system: { level: 0, description: lead([a.en, a.guild && `Гильдия: ${a.guild}`, a.group && group[a.group], a.forbidden && "запретный"]) + (a.html ?? "")
+        + `<p><small>Перетащите на лист призрака — Арканос появится с одной точкой.</small></p>` } });
+    for (const l of a.levels ?? []) p.add({ name: `${"•".repeat(l.level)} ${l.name}`, type: "power", folder, key: `wraith-pow:${kind}:${a.key}:${l.level}:${l.kind ?? ""}:${l.en ?? l.name}`, img,
+      flags: pickFlag(kind, a.key),
+      system: { level: l.level, description: lead([l.en, l.kind === "initiate" ? "Посвящённый уровень" : l.kind === "common" ? "Общий уровень" : "",
+        pool(l, a.name) && `Бросок: ${pool(l, a.name)}`, l.diff && `сл. ${l.diff}`, l.diffRule && `сл.: ${l.diffRule}`, cost(l) && `Цена: ${cost(l)}`]) + (l.html ?? "") } });
+  };
+  for (const a of W.arcanoi ?? []) arc(a, ["Арканои Гильдий", a.name], "arcanos", WR_GLYPH(`arcanos-${a.key}`));
+  for (const a of W.darkArcanoi ?? []) arc(a, ["Тёмные Арканои Спектров", a.name], "darkArcanos", WR_GLYPH("arcanos-dark"));
+  for (const a of W.risenArcanoi ?? []) arc(a, ["Арканои Восставших", a.name], "risenArt", ICON("power"));
+  const realms = Object.fromEntries((W.realms ?? []).map(r => [r.key, r.name]));
+  for (const a of W.realmArcanoi ?? []) arc(a, ["Арканои Тёмных Царств", realms[a.realm] ?? a.realm, a.name], "realmArt", WR_GLYPH(`arcanos-${a.glyph}`));
+  for (const x of W.thorns ?? []) p.add({ name: x.name, type: "power", folder: "Шипы Тени", key: `wraith-pow:thorn:${x.key}`, img: WR_GLYPH("arcanos-dark"), flags: pickFlag("thorn", x.key),
+    system: { level: 0, description: lead([x.en, x.costText && `Цена: ${x.costText}`]) + (x.html ?? "") } });
+  for (const x of W.shadecraft ?? []) p.add({ name: x.name, type: "power", folder: "Шейдкрафт Спектров", key: `wraith-pow:shade:${x.key}`, img: WR_GLYPH("arcanos-dark"), flags: pickFlag("shade", x.key),
+    system: { level: 0, description: lead([x.en, x.angst && `${x.angst} Ангста`]) + (x.html ?? "") } });
+  for (const x of W.psyche?.fronds ?? []) p.add({ name: x.name, type: "power", folder: "Ветви Психеи", key: `wraith-pow:frond:${x.key}`, img: WR_GLYPH("arcanos-dark"), flags: pickFlag("frond", x.key),
+    system: { level: 0, description: lead([x.en, x.costText && `Цена: ${x.costText}`]) + (x.html ?? "") } });
+  for (const x of W.stains ?? []) p.add({ name: x.name, type: "power", folder: "Пятна «Орфея»", key: `wraith-pow:stain:${x.key}`, img: ICON("power"), flags: pickFlag("stain", x.key),
+    system: { level: 0, description: lead([x.en]) + `<p><strong>Польза:</strong> ${esc(x.adv)}</p><p><strong>Вред:</strong> ${esc(x.dis)}</p>` } });
+  return p;
+};
+
+/** Мир призраков — справочник: Легионы, фракции, Тёмные Царства, Касты Спектров, Архетипы Тени, Оттенки «Орфея», плазмики. */
+BUILDERS["wraith-lore"] = function () {
+  const p = new Pack("wraith-lore", "JournalEntry"), W = data("wraith"), A = ru.VTM20.Attr ?? {};
+  for (const l of W.legions ?? []) p.addEntry({ name: `${l.name} легион (${l.en})`, folder: "Легионы Стигии", key: `wraith-lore:legion:${l.key}`,
+    html: `<p><strong>Смерть:</strong> ${esc(l.death)}</p><p><strong>Владыка:</strong> ${esc(l.lord)}</p><p><strong>Престол:</strong> ${esc(l.seat)}</p>` });
+  for (const f of W.factions ?? []) p.addEntry({ name: `${f.name} (${f.en})`, folder: "Фракции", key: `wraith-lore:faction:${f.key}`, html: lead([f.en]) + (f.html ?? "") });
+  for (const r of W.realms ?? []) p.addEntry({ name: `${r.name} (${r.en})`, folder: "Тёмные Царства", key: `wraith-lore:realm:${r.key}`,
+    html: lead([r.en]) + `<p>Арканои Царства: ${(W.realmArcanoi ?? []).filter(a => a.realm === r.key).map(a => esc(a.name)).join(", ") || "—"}</p>` });
+  for (const c of W.castes ?? []) p.addEntry({ name: `${c.name} (${c.en})`, folder: "Касты Спектров", key: `wraith-lore:caste:${c.key}`, html: (c.html ?? "") + (c.creation ?? "") });
+  for (const a of W.shadowArchetypes ?? []) p.addEntry({ name: `${a.name} (${a.en})`, folder: "Архетипы Тени", key: `wraith-lore:shadow:${a.en}`,
+    html: `<p>${esc(a.text)}</p><p><strong>Катарсис:</strong> ${esc(a.catharsis)}</p>` });
+  for (const a of W.archetypes ?? []) p.addEntry({ name: `${a.name} (${a.en})`, folder: "Архетипы призраков", key: `wraith-lore:arch:${a.en}`,
+    html: `<p><strong>Воля восстанавливается:</strong> ${esc(a.will)}</p>` });
+  const arcName = k => (W.arcanoi ?? []).find(a => a.key === k)?.name ?? k;
+  for (const s of W.shades ?? []) p.addEntry({ name: `${s.name} (${s.en})`, folder: "Оттенки «Орфея»", key: `wraith-lore:shade:${s.key}`,
+    html: `<p><strong>Натуры:</strong> ${esc(s.natures)}</p><p><strong>Любимые Арканои:</strong> ${(s.favored ?? []).map(arcName).map(esc).join(", ") || "—"}</p>`
+      + `<p><strong>Запретные:</strong> ${(s.prohibited ?? []).map(arcName).map(esc).join(", ") || "—"}</p>`
+      + `<p><strong>Поправки:</strong> Пафос ${s.pathos >= 0 ? "+" : ""}${s.pathos}, Воля ${s.willpower >= 0 ? "+" : ""}${s.willpower}, Ангст ${s.angst >= 0 ? "+" : ""}${s.angst}</p>` });
+  for (const x of W.plasmics ?? []) {
+    const stat = o => Object.entries(o ?? {}).map(([k, v]) => `${A[k] ?? ru.VTM20.Abil?.[k] ?? k} ${v}`).join(", ");
+    p.addEntry({ name: `${x.name} (${x.en})`, folder: "Плазмики и обитатели Бури", key: `wraith-lore:plasmic:${x.key}`,
+      html: `<p>${esc(x.text)}</p><p><strong>Атрибуты:</strong> ${esc(stat(x.attrs))}</p><p><strong>Способности:</strong> ${esc(stat(x.abils))}</p>`
+        + `<p><strong>Арканои:</strong> ${esc(Object.entries(x.arcanoi ?? {}).map(([k, v]) => `${arcName(k)} ${v}`).join(", "))}</p>`
+        + `<p><strong>Воля</strong> ${x.willpower} · <strong>Корпус</strong> ${x.corpus} · <strong>Ангст</strong> ${x.angst}</p>`
+        + ((x.powers ?? []).length ? `<ul>${x.powers.map(s => `<li>${esc(s)}</li>`).join("")}</ul>` : "") });
+  }
+  return p;
+};
+
+/**
+ * Силы подменышей — предметы для перетаскивания на лист: Искусства (папка на Искусство — обзор, пять кантрипов), Царства
+ * (справка о целях), Реды ликийцев, кантрипы Тёмных веков: Фэ по Доменам, Слайверы инанимae и силы фригольдов (справка).
+ */
+BUILDERS["changeling-powers"] = function () {
+  const p = new Pack("changeling-powers"), C = data("changeling"), TY = ru.VTM20.Changeling.Type ?? {}, DOM = ru.VTM20.Fae?.Daf?.Dom ?? {};
+  const CL_IMG = n => fs.existsSync(path.join(ROOT, "assets/changeling", `${n}.webp`)) ? `systems/${SYSTEM_ID}/assets/changeling/${n}.webp`
+    : fs.existsSync(path.join(ROOT, "assets/changeling", `${n}.png`)) ? `systems/${SYSTEM_ID}/assets/changeling/${n}.png` : ICON("power");
+  for (const a of C.arts ?? []) {
+    const folder = ["Искусства", a.name], img = CL_IMG(`art-${a.key}`);
+    p.add({ name: a.name, type: "power", folder, key: `cl-pow:art:${a.key}`, img, flags: pickFlag("art", a.key),
+      system: { level: 0, description: lead([a.en]) + (a.html ?? "")
+        + (a.unleashing ? `<p><strong>Высвобождение:</strong> ${esc(a.unleashing)}</p>` : "") + (a.bunks ? `<p><strong>Обряды-условия:</strong> ${esc(a.bunks)}</p>` : "")
+        + `<p><small>Перетащите на лист подменыша — Искусство появится с одной точкой.</small></p>` } });
+    for (const l of a.levels ?? []) p.add({ name: `${"•".repeat(l.level)} ${l.name}`, type: "power", folder, key: `cl-pow:art:${a.key}:${l.level}`, img, flags: pickFlag("art", a.key),
+      system: { level: l.level, description: lead([l.en, TY[l.type] && `кантрип: ${TY[l.type]}`]) + (l.html ?? "") } });
+  }
+  for (const r of C.realms ?? []) p.add({ name: r.name, type: "power", folder: "Царства", key: `cl-pow:realm:${r.key}`, img: CL_IMG(`realm-${r.key}`),
+    system: { level: 0, description: lead([r.en, r.modifier && "Царство-модификатор"]) + (r.html ?? "")
+      + `<ol>${(r.levels ?? []).map(l => `<li><strong>${esc(l.name)}</strong>${l.en ? ` <em>(${esc(l.en)})</em>` : ""}${l.text ? ` — ${esc(l.text)}` : ""}</li>`).join("")}</ol>` } });
+  for (const r of C.redes ?? []) p.add({ name: r.name, type: "power", folder: "Реды ликийцев", key: `cl-pow:rede:${r.key}`, img: ICON("power"), flags: pickFlag("rede", r.key),
+    system: { level: 0, description: lead([r.en, r.costText]) + `<p>${esc(r.text)}</p>` } });
+  for (const c of C.daf?.cantrips ?? []) {
+    const dom = c.domain === "common" ? "Общие" : DOM[c.domain] ?? c.domain;
+    p.add({ name: `${"•".repeat(c.level)} ${c.name}`, type: "power", folder: ["Кантрипы Тёмных веков", dom], key: `cl-pow:daf:${c.domain}:${c.key}`, img: CL_IMG(`daf-dom-${c.domain}`),
+      flags: pickFlag("cantrip", `${c.domain}:${c.key}`),
+      system: { level: c.level, description: lead([c.en, c.params]) + `<p>${esc(c.text)}</p>` } });
+  }
+  for (const x of C.inanimae?.slivers ?? []) p.add({ name: x.name, type: "power", folder: "Слайверы инанимae", key: `cl-pow:sliver:${x.key}`, img: ICON("power"),
+    system: { level: 0, description: lead([x.en]) + `<p>${esc(x.text)}</p>` + (x.perk ? `<p><strong>Дар:</strong> ${esc(x.perk)}</p>` : "") } });
+  for (const x of C.freeholds?.powers ?? []) p.add({ name: x.name, type: "power", folder: "Силы фригольдов", key: `cl-pow:fh:${x.key}`, img: ICON("power"),
+    system: { level: 0, description: lead([x.en, x.cost && `цена ${x.cost}`]) + `<p>${esc(x.text)}</p>` } });
+  return p;
+};
+
+/** Мир подменышей — справочник: ликийцы (Формы и Облики), инанимae (типы и Слайверы), Тёмные века: Фэ (Происхождения и Дворы),
+ *  фригольды (архетипы и силы), Клятвы. */
+BUILDERS["changeling-lore"] = function () {
+  const p = new Pack("changeling-lore", "JournalEntry"), C = data("changeling"), DOM = ru.VTM20.Fae?.Daf?.Dom ?? {};
+  for (const x of C.lykeian?.shapes ?? []) p.addEntry({ name: `${x.name} (${x.en})`, folder: ["Ликийцы", "Формы"], key: `cl-lore:shape:${x.key}`, html: `<p>${esc(x.text)}</p>` });
+  for (const x of C.lykeian?.guises ?? []) p.addEntry({ name: `${x.name} (${x.en})`, folder: ["Ликийцы", "Облики"], key: `cl-lore:guise:${x.key}`,
+    html: lead([x.theme]) + `<p>${esc(x.text)}</p>` + ((x.blessings ?? []).length ? `<h3>Благословения</h3><ul>${x.blessings.map(b => `<li><strong>${esc(b.name)}</strong> <em>(${esc(b.en)})</em> — ${esc(b.text)}</li>`).join("")}</ul>` : "")
+      + (x.frailty ? `<h3>Слабость</h3><p><strong>${esc(x.frailty.name)}</strong> <em>(${esc(x.frailty.en)})</em> — ${esc(x.frailty.text)}</p>` : "") });
+  for (const x of C.inanimae?.slivers ?? []) p.addEntry({ name: `${x.name} (${x.en})`, folder: ["Инанимае", "Слайверы"], key: `cl-lore:sliver:${x.key}`,
+    html: `<p>${esc(x.text)}</p>` + (x.perk ? `<p><strong>Дар:</strong> ${esc(x.perk)}</p>` : "") });
+  for (const x of C.inanimae?.phyla ?? []) {
+    const k = C.otherKiths?.find(o => o.key === x.key);
+    p.addEntry({ name: k ? `${k.name} (${k.en})` : x.key, folder: ["Инанимае", x.empire ?? "Типы"], key: `cl-lore:phylum:${x.key}`,
+      html: lead([x.empire, x.affinity && `склонность: ${x.affinity}`, (x.start ?? []).length && `стартовые Слайверы ${x.start.join("/")}`]) + (k?.html ?? "") });
+  }
+  for (const x of C.daf?.origins ?? []) p.addEntry({ name: x.name, folder: ["Тёмные века: Фэ", "Происхождения"], key: `cl-lore:origin:${x.key}`,
+    html: `<p><strong>Мгла</strong> ${x.mists} · <strong>Плетение</strong> ${x.weaving} · <strong>Доменов</strong> ${x.dominions} · <strong>Высвобождение</strong> ${x.unleash} куб.</p>`
+      + `<p><strong>Право рождения:</strong> ${esc(x.birthright)}</p><p><strong>Слабость:</strong> ${esc(x.frailty)}</p>` });
+  for (const x of C.daf?.courts ?? []) p.addEntry({ name: x.name, folder: ["Тёмные века: Фэ", "Дворы"], key: `cl-lore:dcourt:${x.key}`,
+    html: lead([x.favorite && `любимый Домен: ${DOM[x.favorite] ?? x.favorite}`]) + `<p>${esc(x.text)}</p>` });
+  for (const x of C.freeholds?.archetypes ?? []) p.addEntry({ name: `${x.name} (${x.en})`, folder: ["Фригольды", "Архетипы"], key: `cl-lore:fharch:${x.key}`, html: `<p>${esc(x.text)}</p>` });
+  for (const x of C.freeholds?.powers ?? []) p.addEntry({ name: `${x.name} (${x.en})`, folder: ["Фригольды", "Силы"], key: `cl-lore:fhpow:${x.key}`,
+    html: lead([x.cost && `цена ${x.cost}`]) + `<p>${esc(x.text)}</p>` });
+  for (const x of C.oaths ?? []) p.addEntry({ name: `${x.name} (${x.en})`, folder: "Клятвы", key: `cl-lore:oath:${x.key}`, html: `<p>${esc(x.text)}</p>` });
+  return p;
+};
+
 /** Подменыш: Грёза (C20) — книги справочника: папка на книгу, запись на главу (data/changeling-books.json, tools/changeling_data.py). */
 BUILDERS["changeling-books"] = function () {
   const p = new Pack("changeling-books", "JournalEntry");
@@ -884,6 +1018,10 @@ BUILDERS["wraith-backgrounds"] = function () {
   const p = new Pack("wraith-backgrounds");
   for (const b of data("wraith").backgrounds)
     p.add({ name: b.name, type: "background", folder: "Призрак: Забвение", key: `wraith:${b.name}`, img: backgroundIcon(b.en) ?? undefined,
+      system: { value: 1, source: b.en ?? "", description: b.html ?? "" } });
+  // Фоны Спектров (Wraith 20, гл. 10): у Спектра свои — вместо обычных
+  for (const b of data("wraith").spectreBackgrounds ?? [])
+    p.add({ name: b.name, type: "background", folder: "Спектры", key: `wraith:spectre:${b.name}`, img: backgroundIcon(b.en) ?? undefined,
       system: { value: 1, source: b.en ?? "", description: b.html ?? "" } });
   return p;
 };

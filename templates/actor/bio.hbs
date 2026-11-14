@@ -74,7 +74,7 @@
         <span class="r-lin-gen">{{localize "VTM20.Lineage.GenShort" n=lineage.kidGen}}</span>
         <span class="r-lin-mark" aria-hidden="true"></span>
         <span class="r-lin-name">{{localize "VTM20.Lineage.Childer"}}</span>
-        <span class="r-lin-meta">{{#unless lineage.count}}{{localize "VTM20.Lineage.NoChilder"}} — {{/unless}}{{localize "VTM20.Lineage.DropHint"}}</span>
+        <span class="r-lin-meta">{{localize "VTM20.Lineage.DropHint"}}</span>
         <span class="r-lin-act">{{#if @root.editable}}<a class="r-h2-btn is-plain" data-action="linChild" data-tooltip="{{localize 'VTM20.Lineage.ChildHint'}}"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Lineage.Write"}}</a>{{/if}}</span>
       </li>
     </ol>
@@ -100,18 +100,17 @@
       <input class="r-tl-text" type="text" name="system.timeline.{{@index}}.text" value="{{text}}" placeholder="{{localize 'VTM20.Sheet.EventText'}}">
       {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="removeEvent" data-index="{{@index}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
     </li>
-    {{else}}<li class="r-empty">{{localize "VTM20.Sheet.NoEvents"}}</li>
     {{/each}}
   </ol>
 
   <h2 class="r-h2"><span>{{localize "VTM20.Sheet.Biography"}}</span></h2>
   <div class="r-editor">
-    <prose-mirror name="system.biography" value="{{system.biography}}" toggled {{#unless editable}}disabled{{/unless}}>{{#if biographyHTML}}{{{biographyHTML}}}{{else}}<p class="r-editor-hint">{{localize "VTM20.Sheet.BiographyHint"}}</p>{{/if}}</prose-mirror>
+    <prose-mirror name="system.biography" value="{{system.biography}}" toggled {{#unless editable}}disabled{{/unless}}>{{{biographyHTML}}}</prose-mirror>
   </div>
 
   <h2 class="r-h2"><span>{{localize "VTM20.Sheet.Notes"}}</span></h2>
   <div class="r-editor">
-    <prose-mirror name="system.notes" value="{{system.notes}}" toggled {{#unless editable}}disabled{{/unless}}>{{#if notesHTML}}{{{notesHTML}}}{{else}}<p class="r-editor-hint">{{localize "VTM20.Sheet.NotesHint"}}</p>{{/if}}</prose-mirror>
+    <prose-mirror name="system.notes" value="{{system.notes}}" toggled {{#unless editable}}disabled{{/unless}}>{{{notesHTML}}}</prose-mirror>
   </div>
 
   <h2 class="r-h2"><span>{{localize "VTM20.Sheet.Experience"}}</span>{{#if editable}}<span class="r-h2-tools"><a class="r-h2-tool" data-action="openXp" data-tooltip="{{localize 'VTM20.Xp.Window'}}"><i class="fa-solid fa-star"></i> {{localize "VTM20.Xp.WindowShort"}}</a><a class="r-h2-tool" data-action="addXp" data-tooltip="{{localize 'VTM20.Xp.Add'}}"><i class="fa-solid fa-plus"></i></a></span>{{/if}}</h2>

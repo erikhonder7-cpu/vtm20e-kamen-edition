@@ -58,7 +58,7 @@
   </div>
 
   <h2 class="r-h2"><span>{{@root.mageView.L.Rotes}}</span>
-    <span class="r-h2-tools">{{#if editable}}<a class="r-h2-btn is-ghost" data-action="mageRoteAdd" data-tooltip="{{localize 'VTM20.Mage.RoteAdd'}}"><i class="fa-solid fa-feather"></i> <span class="r-h2-lbl">{{@root.mageView.L.RoteAdd}}</span></a>{{/if}}</span>
+    <span class="r-h2-tools">{{#if editable}}<a class="r-h2-btn" data-action="library" data-kind="rote" data-tooltip="{{localize 'VTM20.Library.Open'}}"><i class="fa-solid fa-book-skull"></i> <span class="r-h2-lbl">{{localize "VTM20.Mage.RoteBook"}}</span></a><a class="r-h2-btn is-ghost" data-action="mageRoteAdd" data-tooltip="{{localize 'VTM20.Mage.RoteAdd'}}"><i class="fa-solid fa-feather"></i> <span class="r-h2-lbl">{{@root.mageView.L.RoteAdd}}</span></a>{{/if}}</span>
   </h2>
   <ul class="r-edge-list r-rotes">
     {{#each mageView.rotes}}
@@ -72,7 +72,6 @@
       <a class="r-icon-btn" data-action="mageRoteEdit" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Sheet.Edit'}}"><i class="fa-solid fa-pen-nib"></i></a>
       <a class="r-icon-btn is-danger" data-action="mageRoteDel" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
     </li>
-    {{else}}<li class="r-note">{{@root.mageView.L.NoRotes}}</li>
     {{/each}}
   </ul>
 
@@ -92,7 +91,6 @@
       <a class="r-icon-btn" data-action="itemChat" data-tooltip="{{localize 'VTM20.Sheet.ToChat'}}"><i class="fa-solid fa-comment-dots"></i></a>
       <a class="r-icon-btn is-danger" data-action="itemDelete" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
     </li>
-    {{else}}<li class="r-note">{{localize "VTM20.Mage.NoWonders"}}</li>
     {{/each}}
   </ul>
 
@@ -156,7 +154,6 @@
         <span class="r-dots">{{#each dots}}<a class="r-dot {{#if filled}}is-filled{{/if}}" {{#if @root.editable}}data-action="mageResDot" data-i="{{../i}}" data-n="{{n}}"{{/if}}></a>{{/each}}</span>
         <em>{{degree}}</em>
         {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="mageResDel" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}</li>
-      {{else}}<li class="r-note">{{localize "VTM20.Mage.ResEmpty"}}</li>
       {{/each}}
     </ul>
     <ul class="r-mstate-list is-synergy" data-tooltip="{{localize 'VTM20.Mage.SynergyHint'}}">

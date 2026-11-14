@@ -24,7 +24,7 @@
     <div class="r-court-list">
       {{#if history}}
       <ol class="r-sxp-past r-court-hist">
-        {{#each historyList}}<li><b>{{date}}</b><span>{{text}}</span></li>{{else}}<li class="r-empty">{{localize "VTM20.Court.NoHistory"}}</li>{{/each}}
+        {{#each historyList}}<li><b>{{date}}</b><span>{{text}}</span></li>{{/each}}
       </ol>
       {{else}}
       {{#each list as |o|}}
@@ -48,7 +48,6 @@
         </span>
       </a>
       {{/if}}
-      {{else}}<p class="r-empty">{{localize "VTM20.Court.NoOffices"}}</p>
       {{/each}}
       {{/if}}
     </div>

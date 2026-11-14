@@ -8,6 +8,9 @@
 import { MAGE_ACTIONS } from "./actor/mage.mjs";
 import { WRAITH_ACTIONS, arcFold } from "./actor/wraith.mjs";
 import { CHANGELING_ACTIONS } from "./actor/changeling.mjs";
+import { THAUM_ACTIONS } from "./actor/thaum.mjs";
+import { SABBAT_ACTIONS } from "./actor/sabbat.mjs";
+import { artifactsView } from "../apps/thaum-workshop.mjs";
 import { changelingInfo, artsView, CHANGELING_SIGIL, kithGlyph, clGlyph } from "../apps/changeling.mjs";
 import { lykeianInfo } from "../apps/lykeian.mjs";
 import { agendasView } from "../apps/agenda.mjs";
@@ -35,7 +38,6 @@ import { RollDialog } from "../dice/dialog.mjs";
 import { rollVirtueCheck } from "../dice/virtue-checks.mjs";
 import { golcondaView, seekTeaching, suspire } from "../apps/golconda.mjs";
 import { openDamageDialog } from "../apps/damage.mjs";
-import { WEAPON_PRESETS, ARMOR_PRESETS, GEAR_PRESETS } from "../data/equipment.mjs";
 import { openCreator } from "../apps/creator.mjs";
 
 import { openHunt } from "../apps/night.mjs";
@@ -49,6 +51,7 @@ import { openClans } from "../apps/clans.mjs";
 import { addBoon, toggleBoon, removeBoon, openBoons } from "../apps/boons.mjs";
 import { clockBarData } from "../apps/calendar.mjs";
 import { openLibrary, LibraryItems } from "../apps/library.mjs";
+import { createLore, PICKS } from "../apps/library-picks.mjs";
 import { openMoney } from "../data/money.mjs";
 import { toggleRitualReading, cancelRitual } from "../apps/timers.mjs";
 import { enterTorpor, wakeFromTorpor, undoDeath } from "../apps/torpor.mjs";
@@ -56,11 +59,10 @@ import { makeExtra } from "../apps/extras.mjs";
 import { refreshActor } from "../apps/codex-refresh.mjs";
 
 import { diablerieMark } from "../apps/diablerie.mjs";
-import { werewolfInfo, werewolfSigil, giftsView, scarView, addScar, deformityView, addDeformity, kinfolkInfo, kinAddGift, kinAddNumen, kamiInfo, kamiAdd, fetchInfo, fomorInfo, fomorBreed, fomorAdd, spiritTplGroups, applySpiritTpl, spiritInfo, addCharm, fetishView, addFetish, haranoProne, W as werewolfDataSheet, addGift, addRite } from "../apps/werewolf.mjs";
+import { werewolfInfo, werewolfSigil, giftsView, scarView, addScar, deformityView, addDeformity, kinfolkInfo, kinAddGift, kinAddNumen, kamiInfo, kamiAdd, fetchInfo, fomorInfo, fomorBreed, fomorAdd, applySpiritTpl, spiritInfo, addCharm, fetishView, addFetish, haranoProne, addGift, addRite } from "../apps/werewolf.mjs";
 import { hunterInfo, edgesView, callView, isLost } from "../apps/hunter.mjs";
-import { addBloodright, removeBloodright, rollBloodright, toggleRitual as toggleDririRitual, rollRitual as rollDririRitual } from "../apps/dhampir.mjs";
+import { removeBloodright, rollBloodright, toggleRitual as toggleDririRitual, rollRitual as rollDririRitual } from "../apps/dhampir.mjs";
 
-import { weaponIcon as weaponImg, armorIcon as armorImg } from "../data/icons.mjs";
 import { togglePowerEffect } from "../apps/power-effects.mjs";
 import { usePower } from "../apps/use-power.mjs";
 import { isTechnocrat } from "../ui/themes.mjs";
@@ -88,7 +90,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     window: { resizable: true, contentClasses: ["r-sheet-content"] },
     form: { submitOnChange: true, closeOnSubmit: false },
     actions: {
-      ...MAGE_ACTIONS, ...WEREWOLF_ACTIONS, ...HUNTER_ACTIONS, ...DEMON_ACTIONS, ...WRAITH_ACTIONS, ...CHANGELING_ACTIONS,
+      ...MAGE_ACTIONS, ...WEREWOLF_ACTIONS, ...HUNTER_ACTIONS, ...DEMON_ACTIONS, ...WRAITH_ACTIONS, ...CHANGELING_ACTIONS, ...THAUM_ACTIONS, ...SABBAT_ACTIONS,
       setDots: { handler: VtMActorSheet.#onSetDots, buttons: [0, 2] },
       choosePower: VtMActorSheet.#onChoosePower,
       setHealth: { handler: VtMActorSheet.#onSetHealth, buttons: [0, 2] },
@@ -127,7 +129,6 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       effectDelete: VtMActorSheet.#onEffectDelete,
       powerToChat: VtMActorSheet.#onPowerToChat,
       rollPower: VtMActorSheet.#onRollPower,
-      addLore: VtMActorSheet.#onAddLore,
 ghoulify: VtMActorSheet.#onGhoulify, embrace: VtMActorSheet.#onEmbrace,
 openUuid: VtMActorSheet.#onOpenUuid,
       addHouseLores: VtMActorSheet.#onAddHouseLores,
@@ -174,7 +175,7 @@ openUuid: VtMActorSheet.#onOpenUuid,
       linSire: VtMActorSheet.#onLinSire,
       mageFold: VtMActorSheet.#onMageFold,
 openStrategy: () => openStrategy(),
-      drinkVitae: VtMActorSheet.#onDrinkVitae, setVitae: VtMActorSheet.#onSetVitae, bloodrightAdd: VtMActorSheet.#onBloodrightAdd, bloodrightRemove: VtMActorSheet.#onBloodrightRemove,
+      drinkVitae: VtMActorSheet.#onDrinkVitae, setVitae: VtMActorSheet.#onSetVitae, bloodrightRemove: VtMActorSheet.#onBloodrightRemove,
       bloodrightRoll: VtMActorSheet.#onBloodrightRoll, dririToggle: VtMActorSheet.#onDririToggle, dririRoll: VtMActorSheet.#onDririRoll,
       linChild: VtMActorSheet.#onLinChild, linEdit: VtMActorSheet.#onLinEdit, linDel: VtMActorSheet.#onLinDel,
       linSheet: VtMActorSheet.#onLinSheet,
@@ -309,6 +310,7 @@ openStrategy: () => openStrategy(),
     prepareTraits(this, ctx);
     prepareRegistry(this, ctx);
     if (actor.type === "vampire") ctx.golconda = golcondaView(actor);   // Голконда (apps/golconda.mjs)
+    ctx.thArt = artifactsView(actor);                                    // артефакты Тремер (apps/thaum-workshop.mjs)
     if (actor.type === "demon") prepareLores(this, ctx);
     else if (actor.type === "hunter") { ctx.hunterInfo = hunterInfo(actor, dots); ctx.lineAtlas = true; ctx.edgePaths = edgesView(actor); ctx.hunterCall = callView(actor); }
     else if (actor.type === "mage") { ctx.mageInfo = mageInfo(actor, dots); ctx.mageView = spheresView(actor, dots); ctx.mageState = stateView(actor, dots); ctx.mageState.mind = await mindView(actor);
@@ -331,16 +333,13 @@ openStrategy: () => openStrategy(),
       ctx.haranoProne = haranoProne(actor) && this.isEditable;
       ctx.ww.fetishes = fetishView(this.actor);
       ctx.ww.scars = scarView(this.actor);
-      ctx.ww.scarAvail = (werewolfDataSheet().scars ?? []).map(x => ({ key: x.key, label: `${x.name} (+${x.glory})` }));
       // уродства — у метиса (и у того, кому их уже записали)
       ctx.ww.deformities = deformityView(this.actor);
       ctx.ww.showDeform = actor.system.werewolf.breed === "metis" || ctx.ww.deformities.length > 0;
       ctx.ww.needDeform = actor.system.werewolf.breed === "metis" && !ctx.ww.deformities.length;
-      ctx.ww.deformAvail = (werewolfDataSheet().deformities ?? []).filter(d => !actor.system.werewolf.deformities.includes(d.key)).map(d => ({ key: d.key, label: VTM20.label(d) }));
-      ctx.ww.fetishAvail = (werewolfDataSheet().fetishes ?? []).map(f => ({ key: f.key, talen: f.kind === "talen",
-        label: `${VTM20.label(f)} (${f.kind === "talen" ? "" : `ур. ${f.level}, `}${game.i18n.localize("VTM20.Werewolf.Gnosis")} ${f.gnosis})` })); }
+    }
     else if (actor.type === "wraith") { ctx.wraithInfo = wraithInfo(actor, dots); ctx.arc = arcanoiView(actor, dots, this._wrSel); ctx.wp = passionsView(actor, dots, Resolution, Thorns); ctx.consorts = consortsView(actor); ctx.wrRelics = relicsView(actor);
-      if (actor.system.wraith.spectre.on) ctx.spectre = spectreView(actor, dots);   // Спектр (apps/spectre.mjs): Ангст, Тёмные Арканои, Психея
+      if (actor.system.wraith.spectre.on) { ctx.spectre = spectreView(actor, dots); ctx.typeLabel = t("Wraith.Spectre.Title"); }   // Спектр (apps/spectre.mjs): Ангст, Тёмные Арканои, Психея
       else if (actor.system.wraith.risen.on) ctx.risen = risenView(actor, dots);    // Восставший (apps/risen.mjs): тело, Проводник, свои Арканои
       else if (actor.system.wraith.projector.on || actor.system.wraith.hue) ctx.projector = projectorView(actor);   // проектор «Орфея» (apps/projector.mjs): Оттенок, Пятна
       ctx.realm = realmView(actor, dots);                                                // другое Тёмное Царство (apps/realms.mjs)
@@ -349,6 +348,12 @@ openStrategy: () => openStrategy(),
       ctx.arc.allFolded = ctx.arc.own.every(x => x.folded);
       ctx.sigil = { ...ctx.sigil, img: VTM20.typeSigil("wraith"), sym: ctx.wraithInfo.legionSym ?? ctx.sigil.sym, label: ctx.wraithInfo.legion?.name ?? "" }; ctx.lineAtlas = true; }
     else if (actor.type === "changeling") { ctx.changelingInfo = changelingInfo(actor, dots); ctx.cl = artsView(actor, dots); ctx.lykeian = lykeianInfo(actor); ctx.agendas = agendasView(actor);
+      // Искусства сворачиваются, как Дисциплины: карточка и правила каждого кантрипа — строки _open (art-<ключ>, art-<ключ>-<уровень>)
+      for (const a of ctx.cl.own) {
+        a.rowId = `art-${a.key}`; a.open = this._open.has(a.rowId);
+        for (const l of a.levels) { l.rowId = `art-${a.key}-${l.level}`; l.open = this._open.has(l.rowId); }
+      }
+      ctx.cl.allOpen = ctx.cl.own.length > 0 && ctx.cl.own.every(a => a.open);
       ctx.hsien = hsienView(actor, dots); ctx.inan = inanimaeView(actor, dots); ctx.daf = dafView(actor, dots);
       if (ctx.daf?.courtSym) ctx.sigil.sym = ctx.daf.courtSym;
       ctx.sigil = { ...ctx.sigil, img: CHANGELING_SIGIL, label: ctx.changelingInfo.kith?.name ?? ctx.lykeian?.guise?.name ?? "",
@@ -356,8 +361,19 @@ openStrategy: () => openStrategy(),
     else if (actor.type !== "mortal") prepareDisciplines(this, ctx);
     prepareAdvantages(this, ctx);
     if (actor.type === "mortal") { ctx.sorcInfo = sorcererInfo(actor, dots); ctx.consorInfo = consorInfo(actor);
-      ctx.kinInfo = kinfolkInfo(actor); ctx.kamiInfo = kamiInfo(actor); ctx.fomorInfo = fomorInfo(actor); if (actor.system.kinfolk?.on) ctx.kinInfo.fetch = fetchInfo(actor); }
-    if (actor.isSpirit) { ctx.spiritInfo = spiritInfo(actor, dots); ctx.spiritInfo.tpls = spiritTplGroups(); }
+      ctx.kinInfo = kinfolkInfo(actor); ctx.kamiInfo = kamiInfo(actor); ctx.fomorInfo = fomorInfo(actor); if (actor.system.kinfolk?.on) ctx.kinInfo.fetch = fetchInfo(actor);
+      // Ками, фомор, Родня, колдун — смертный особого рода: подпись в шапке, знак на печати и их шкалы рядом с Человечностью
+      const s2 = actor.system, W = "VTM20.Werewolf";
+      ctx.mortalKind = s2.kami?.on ? { key: "kami", icon: "fa-seedling", label: t("Werewolf.Kami.kicker"), sub: game.i18n.localize(`${W}.Kami.form.${s2.kami.kind}`),
+          bars: [{ label: game.i18n.localize(`${W}.Gnosis`), dots: dots(s2.kami.gnosis, 10, { path: "system.kami.gnosis" }) },
+            ...(s2.kami.rage ? [{ label: game.i18n.localize(`${W}.Rage`), dots: dots(s2.kami.rage, 10, { path: "system.kami.rage" }) }] : [])] }
+        : s2.fomor?.on ? { key: "fomor", icon: "fa-biohazard", label: t("Werewolf.Fomor.kicker"), sub: ctx.fomorInfo?.breed?.name ?? "",
+          bars: s2.fomor.rage ? [{ label: game.i18n.localize(`${W}.Rage`), dots: dots(s2.fomor.rage, 10, { path: "system.fomor.rage" }) }] : [] }
+        : s2.kinfolk?.on ? { key: "kin", icon: "fa-paw", label: t("Werewolf.Kin.kicker"), sub: ctx.kinInfo?.tribes?.find(x => x.selected)?.label ?? "",
+          bars: s2.kinfolk.gnosis ? [{ label: game.i18n.localize(`${W}.Gnosis`), dots: dots(s2.kinfolk.gnosis, 10, { path: "system.kinfolk.gnosis" }) }] : [] }
+        : s2.sorcerer?.on ? { key: "sorc", icon: "fa-book-skull", label: t("Sorcerer.kicker"), sub: "", bars: [] } : null;
+      if (ctx.mortalKind) { ctx.typeLabel = ctx.mortalKind.label; ctx.sigil = { ...ctx.sigil, icon: ctx.mortalKind.icon, kind: ctx.mortalKind.key, label: ctx.mortalKind.sub || ctx.mortalKind.label }; } }
+    if (actor.isSpirit) ctx.spiritInfo = spiritInfo(actor, dots);
     prepareGear(this, ctx);
     prepareEffects(this, ctx);
     if (actor.type === "vampire") prepareLineage(this, ctx);
@@ -428,33 +444,9 @@ openStrategy: () => openStrategy(),
       set("[data-foot-time]", c.time); set("[data-foot-date]", c.longDate);
       set("[data-foot-rep]", c.republic); set("[data-foot-until]", c.phase.untilLabel);
     }, 20000);
-    // Готовое оружие и броня: выбор в списке сразу добавляет предмет (поле без name — в форму листа не попадает)
-    for (const el of all("input[data-preset]")) {
-      el.addEventListener("change", ev => {
-        ev.stopPropagation();
-        const key = el.dataset.key;
-        if (key === undefined || key === "") return;
-        delete el.dataset.key;
-        el.value = "";
-        this.#addPreset(el.dataset.preset, Number(key));
-      });
-    }
     // Маг: инструмент фокуса — выбрать из списка или вписать свой (Enter)
     for (const el of all("input[data-mage-tool]")) {
       el.addEventListener("change", ev => { ev.stopPropagation(); const v = el.value.trim(); el.value = ""; if (v) return addTool(this.actor, v); });
-    }
-    // Оборотень: поиск Дара, ритуала, шрама, уродства — выбор сразу добавляет; фетиш — запоминается для «Добавить» и «Создать обрядом»
-    for (const el of all("input[data-ww-add]")) {
-      el.addEventListener("change", ev => {
-        ev.stopPropagation();
-        const key = el.dataset.key, kind = el.dataset.wwAdd;
-        if (!key || kind === "fetish") return;
-        delete el.dataset.key;
-        el.value = "";
-        const add = { gift: addGift, rite: addRite, scar: addScar, deform: addDeformity }[kind];
-        return add?.(this.actor, key);
-      });
-      if (el.dataset.wwAdd === "fetish") el.addEventListener("input", () => { delete el.dataset.key; });
     }
     // Щелчок по пустому месту строки Дисциплины раскрывает её (кнопки, точки и поля работают как прежде)
     for (const head of all(".r-disc-head")) {
@@ -748,18 +740,6 @@ openStrategy: () => openStrategy(),
     for (const k of this.actor.clanDisciplines) if (!owned.has(k)) await this.#createDiscipline(k, 0);
   }
 
-  /** Заготовка оружия или брони по номеру в полном списке (выбор в списке с поиском на вкладке «Снаряжение»). */
-  async #addPreset(kind, i) {
-    const p = (kind === "weapon" ? WEAPON_PRESETS : kind === "gear" ? GEAR_PRESETS : ARMOR_PRESETS)[i];
-    if (!p) return;
-    if (kind === "gear") {
-      const { name, source, description = "", quantity = 1 } = p;
-      return this.actor.createEmbeddedDocuments("Item", [{ name, type: "gear", system: { quantity, description, source: source ?? "" } }]);
-    }
-    const { name, group: _group, ...system } = p;
-    await this.actor.createEmbeddedDocuments("Item", [{ name, type: kind, img: kind === "weapon" ? weaponImg(name, system.kind) : armorImg(system.rating), system }]);
-  }
-
   /** Справочник правил V20 (компендий-журнал). */
   static #onOpenRules(event, target) {
     const name = target?.dataset?.rules === "dhampir" ? "dhampir-rules" : this.actor.type === "hunter" ? "hunter-rules" : this.actor.type === "mage" ? "mage-books" : this.actor.type === "wraith" ? "wraith-books" : this.actor.type === "changeling" ? "changeling-books" : this.actor.type === "werewolf" ? "werewolf-rules" : "rules";
@@ -782,9 +762,11 @@ openStrategy: () => openStrategy(),
     if (target.dataset.status) await this.actor.toggleStatusEffect(target.dataset.status, { active: false });
   }
 
-  /** Раскрыть все Дисциплины, а если все уже раскрыты — свернуть. */
+  /** Раскрыть все Дисциплины (Знания демона, Искусства подменыша), а если все уже раскрыты — свернуть. */
   static #onToggleAll() {
-    const ids = this.actor.items.filter(i => i.type === (this.actor.type === "demon" ? "lore" : "discipline")).map(i => i.id);
+    const ids = this.actor.type === "changeling"
+      ? Object.entries(this.actor.system.changeling?.arts ?? {}).filter(([, v]) => v > 0).map(([k]) => `art-${k}`)
+      : this.actor.items.filter(i => i.type === (this.actor.type === "demon" ? "lore" : "discipline")).map(i => i.id);
     const open = ids.every(id => this._open.has(id));
     for (const id of ids) open ? this._open.delete(id) : this._open.add(id);
     this.render();
@@ -798,25 +780,6 @@ openStrategy: () => openStrategy(),
 
   /** Бросок силы из справочника: пул и сложность разобраны из текста книги. */
   static #onRollPower(event, target) { return rollPowerRef(this.actor, target.dataset.ref); }
-
-  /** Новое Знание: Знания своего Дома и общие — первыми, чужие — ниже (стоят дороже). */
-  static async #onAddLore() {
-    const a = this.actor, have = new Set(a.items.filter(i => i.type === "lore").map(i => i.system.key));
-    const own = Codex.house(a.system.house)?.lores ?? [];
-    const opt = l => `<option value="${l.key}">${foundry.utils.escapeHTML(l.name)}</option>`;
-    const free = Codex.lores.filter(l => !have.has(l.key)), dark = free.filter(l => l.dark);
-    const mine = free.filter(l => !l.dark && (!l.house || own.includes(l.key))), other = free.filter(l => !l.dark && !mine.includes(l));
-    if (!free.length) return;
-    const key = await foundry.applications.api.DialogV2.prompt({
-      window: { title: t("Demon.AddLore") }, position: { width: 380 }, classes: ["vtm20", "r-dialog"],
-      content: `<label class="r-f"><span>${t("Demon.Lore")}</span><select name="lore">
-        ${mine.length ? `<optgroup label="${t("Demon.OwnLores")}">${mine.map(opt).join("")}</optgroup>` : ""}
-        ${other.length ? `<optgroup label="${t("Demon.OtherLores")}">${other.map(opt).join("")}</optgroup>` : ""}
-        ${dark.length ? `<optgroup label="${t(a.system.earthbound ? "Demon.DarkLoresOwn" : "Demon.DarkLores")}">${dark.map(opt).join("")}</optgroup>` : ""}</select></label>`,
-      ok: { label: t("Demon.AddLore"), callback: (ev, btn) => btn.form.elements.lore.value }
-    }).catch(() => null);
-    if (key) return createLore(a, [key]);
-  }
 
   static #onGhoulify() { return ghoulify(this.actor); }
   static #onEmbrace() { return embrace(this.actor); }
@@ -837,11 +800,7 @@ openStrategy: () => openStrategy(),
     return this.render();
   }
 
-  /** Дампир (apps/dhampir.mjs): Кровные права — добавить из списка, убрать, бросок силы; ритуалы Дриримантии. */
-  static #onBloodrightAdd(event, target) {
-    const key = target.closest(".r-toolbar")?.querySelector(".r-dh-add")?.value;
-    return key ? addBloodright(this.actor, key) : null;
-  }
+  /** Дампир (apps/dhampir.mjs): Кровные права — добавить в библиотеке (library-picks.mjs), убрать, бросок силы; ритуалы Дриримантии. */
   static #onDrinkVitae() { return this.actor.drinkVitae(1); }
 
   static #onSetVitae(event, target) {
@@ -1125,6 +1084,14 @@ openStrategy: () => openStrategy(),
    * Тотем ложится на лист котерии (group-sheet.mjs), каэрн — справочная запись.
    */
   async _onDropItem(event, item) {
+    // Силы призраков и подменышей (компендии wraith-powers, changeling-powers): flags.pick — вид библиотеки и запись
+    const pick = item?.flags?.[SYSTEM_ID]?.pick;
+    if (pick && PICKS[pick.kind]) {
+      if (!this.actor.isOwner) return null;
+      const res = await PICKS[pick.kind].take(this.actor, pick.id);
+      if (res === null) return ui.notifications.warn(game.i18n.format("VTM20.Library.Pick.WrongSheet", { name: item.name }));
+      return ui.notifications.info(game.i18n.format("VTM20.Library.Added", { name: item.name }));
+    }
     const ww = item?.flags?.[SYSTEM_ID]?.ww;
     if (!ww) return super._onDropItem(event, item);
     if (!this.actor.isOwner) return null;
@@ -1203,13 +1170,6 @@ Hooks.on("preCreateItem", (item, data, options, userId) => {
   if (userId === game.user.id) ui.notifications.warn(game.i18n.format("VTM20.Sheet.DuplicateItem", { name: same.name }));
   return false;
 });
-
-/** Знания демона предметами: имя и ключ из справочника, одна точка. */
-function createLore(actor, keys) {
-  const data = keys.map(k => Codex.lore(k)).filter(Boolean).map(l => ({ name: l.name, type: "lore", img: `systems/${SYSTEM_ID}/assets/icons/${l.dark ? "darkLore" : "lore"}.svg`,
-    system: { key: l.key, value: 1, description: `<p><em>${l.en}</em> · ${Codex.house(l.house)?.name ?? t("Demon.Common")}</p>` } }));
-  return data.length ? actor.createEmbeddedDocuments("Item", data) : null;
-}
 
 /** Сила справочника по ссылке «дисциплина|номер» или «дисциплина|path|путь|номер» (лист и HUD). */
 export function powerByRef(ref) {

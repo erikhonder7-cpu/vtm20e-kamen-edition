@@ -4626,7 +4626,8 @@
   "cantrips": [
    {
     "key": "callelement",
-    "name": "Call Element",
+    "name": "Зов стихии",
+    "en": "Call Element",
     "domain": "common",
     "level": 1,
     "trait": "attributes.strength",
@@ -4637,7 +4638,8 @@
    },
    {
     "key": "courtsummons",
-    "name": "Court Summons",
+    "name": "Призыв ко двору",
+    "en": "Court Summons",
     "domain": "common",
     "level": 1,
     "trait": "attributes.charisma",
@@ -4648,7 +4650,8 @@
    },
    {
     "key": "leavesofmetal",
-    "name": "Leaves of Metal",
+    "name": "Листья из металла",
+    "en": "Leaves of Metal",
     "domain": "common",
     "level": 1,
     "trait": "attributes.wits",
@@ -4659,7 +4662,8 @@
    },
    {
     "key": "controlelement",
-    "name": "Control Element",
+    "name": "Власть над стихией",
+    "en": "Control Element",
     "domain": "common",
     "level": 2,
     "trait": "attributes.wits",
@@ -4670,7 +4674,8 @@
    },
    {
     "key": "drain",
-    "name": "Drain",
+    "name": "Иссушение",
+    "en": "Drain",
     "domain": "common",
     "level": 2,
     "trait": "attributes.wits",
@@ -4681,7 +4686,8 @@
    },
    {
     "key": "hedgeofthorns",
-    "name": "Hedge of Thorns",
+    "name": "Терновая изгородь",
+    "en": "Hedge of Thorns",
     "domain": "common",
     "level": 2,
     "trait": "attributes.strength",
@@ -4692,7 +4698,8 @@
    },
    {
     "key": "mantle",
-    "name": "Mantle",
+    "name": "Мантия",
+    "en": "Mantle",
     "domain": "common",
     "level": 2,
     "trait": "attributes.stamina",
@@ -4703,7 +4710,8 @@
    },
    {
     "key": "charm",
-    "name": "Charm",
+    "name": "Чары",
+    "en": "Charm",
     "domain": "common",
     "level": 3,
     "trait": "attributes.wits",
@@ -4714,7 +4722,8 @@
    },
    {
     "key": "fostering",
-    "name": "Fostering",
+    "name": "Воспитание",
+    "en": "Fostering",
     "domain": "common",
     "level": 3,
     "trait": "attributes.intelligence",
@@ -4725,7 +4734,8 @@
    },
    {
     "key": "shaping",
-    "name": "Shaping",
+    "name": "Ваяние",
+    "en": "Shaping",
     "domain": "common",
     "level": 3,
     "trait": "attributes.stamina",
@@ -4736,7 +4746,8 @@
    },
    {
     "key": "straighttrack",
-    "name": "Straight Track",
+    "name": "Прямая тропа",
+    "en": "Straight Track",
     "domain": "common",
     "level": 3,
     "trait": "attributes.perception",
@@ -4747,7 +4758,8 @@
    },
    {
     "key": "sword",
-    "name": "Sword",
+    "name": "Меч",
+    "en": "Sword",
     "domain": "common",
     "level": 3,
     "trait": "attributes.strength",
@@ -4758,7 +4770,8 @@
    },
    {
     "key": "arch",
-    "name": "Arch",
+    "name": "Арка",
+    "en": "Arch",
     "domain": "common",
     "level": 4,
     "trait": "attributes.wits",
@@ -4769,7 +4782,8 @@
    },
    {
     "key": "persistingcharm",
-    "name": "Persisting Charm",
+    "name": "Стойкие чары",
+    "en": "Persisting Charm",
     "domain": "common",
     "level": 4,
     "trait": "attributes.wits",
@@ -4780,7 +4794,8 @@
    },
    {
     "key": "saining",
-    "name": "Saining",
+    "name": "Осенение",
+    "en": "Saining",
     "domain": "common",
     "level": 4,
     "trait": "attributes.manipulation",
@@ -4791,7 +4806,8 @@
    },
    {
     "key": "trueenchantment",
-    "name": "True Enchantment",
+    "name": "Истинное зачарование",
+    "en": "True Enchantment",
     "domain": "common",
     "level": 5,
     "trait": "attributes.intelligence",
@@ -4802,7 +4818,8 @@
    },
    {
     "key": "candorslight",
-    "name": "Candor's Light",
+    "name": "Свет прямоты",
+    "en": "Candor's Light",
     "domain": "day",
     "level": 1,
     "trait": "attributes.perception",
@@ -4813,7 +4830,8 @@
    },
    {
     "key": "cowthebitterwind",
-    "name": "Cow the Bitter Wind",
+    "name": "Усмирить злой ветер",
+    "en": "Cow the Bitter Wind",
     "domain": "day",
     "level": 1,
     "trait": "attributes.stamina",
@@ -4824,7 +4842,8 @@
    },
    {
     "key": "decree",
-    "name": "Decree",
+    "name": "Указ",
+    "en": "Decree",
     "domain": "day",
     "level": 1,
     "trait": "attributes.manipulation",
@@ -4835,7 +4854,8 @@
    },
    {
     "key": "firesidechatter",
-    "name": "Fireside Chatter",
+    "name": "Беседа у очага",
+    "en": "Fireside Chatter",
     "domain": "day",
     "level": 1,
     "trait": "attributes.charisma",
@@ -4846,7 +4866,8 @@
    },
    {
     "key": "friendfromfoe",
-    "name": "Friend from Foe",
+    "name": "Друг или враг",
+    "en": "Friend from Foe",
     "domain": "day",
     "level": 1,
     "trait": "attributes.charisma",
@@ -4857,7 +4878,8 @@
    },
    {
     "key": "heartsrest",
-    "name": "Heart's Rest",
+    "name": "Покой сердца",
+    "en": "Heart's Rest",
     "domain": "day",
     "level": 1,
     "trait": "abilities.empathy",
@@ -4868,7 +4890,8 @@
    },
    {
     "key": "luminoussplendor",
-    "name": "Luminous Splendor",
+    "name": "Сияющее великолепие",
+    "en": "Luminous Splendor",
     "domain": "day",
     "level": 1,
     "trait": "attributes.charisma",
@@ -4879,7 +4902,8 @@
    },
    {
     "key": "merrymeet",
-    "name": "Merry Meet",
+    "name": "Добрая встреча",
+    "en": "Merry Meet",
     "domain": "day",
     "level": 1,
     "trait": "attributes.charisma",
@@ -4890,7 +4914,8 @@
    },
    {
     "key": "oathboundstrength",
-    "name": "Oathbound Strength",
+    "name": "Сила клятвы",
+    "en": "Oathbound Strength",
     "domain": "day",
     "level": 1,
     "trait": "abilities.gremayre",
@@ -4901,7 +4926,8 @@
    },
    {
     "key": "seektreasure",
-    "name": "Seek Treasure",
+    "name": "Поиск сокровищ",
+    "en": "Seek Treasure",
     "domain": "day",
     "level": 1,
     "trait": "attributes.perception",
@@ -4912,7 +4938,8 @@
    },
    {
     "key": "sunbeam",
-    "name": "Sunbeam",
+    "name": "Солнечный луч",
+    "en": "Sunbeam",
     "domain": "day",
     "level": 1,
     "trait": "attributes.wits",
@@ -4923,7 +4950,8 @@
    },
    {
     "key": "sunsshield",
-    "name": "Sun's Shield",
+    "name": "Щит солнца",
+    "en": "Sun's Shield",
     "domain": "day",
     "level": 1,
     "trait": "attributes.strength",
@@ -4934,7 +4962,8 @@
    },
    {
     "key": "anairofwisdom",
-    "name": "An Air of Wisdom",
+    "name": "Вид мудреца",
+    "en": "An Air of Wisdom",
     "domain": "day",
     "level": 2,
     "trait": "attributes.charisma",
@@ -4945,7 +4974,8 @@
    },
    {
     "key": "befuddle",
-    "name": "Befuddle",
+    "name": "Сбить с толку",
+    "en": "Befuddle",
     "domain": "day",
     "level": 2,
     "trait": "attributes.manipulation",
@@ -4956,7 +4986,8 @@
    },
    {
     "key": "firearmor",
-    "name": "Fire Armor",
+    "name": "Огненный доспех",
+    "en": "Fire Armor",
     "domain": "day",
     "level": 2,
     "trait": "attributes.stamina",
@@ -4967,7 +4998,8 @@
    },
    {
     "key": "firesiderevelations",
-    "name": "Fireside Revelations",
+    "name": "Откровения у очага",
+    "en": "Fireside Revelations",
     "domain": "day",
     "level": 2,
     "trait": "",
@@ -4978,7 +5010,8 @@
    },
    {
     "key": "flameskin",
-    "name": "Flame's Kin",
+    "name": "Родня пламени",
+    "en": "Flame's Kin",
     "domain": "day",
     "level": 2,
     "trait": "attributes.stamina",
@@ -4989,7 +5022,8 @@
    },
    {
     "key": "lightningstrike",
-    "name": "Lightning-Strike",
+    "name": "Удар молнии",
+    "en": "Lightning-Strike",
     "domain": "day",
     "level": 2,
     "trait": "attributes.stamina",
@@ -5000,7 +5034,8 @@
    },
    {
     "key": "plunder",
-    "name": "Plunder",
+    "name": "Грабёж",
+    "en": "Plunder",
     "domain": "day",
     "level": 2,
     "trait": "",
@@ -5011,7 +5046,8 @@
    },
    {
     "key": "pronouncement",
-    "name": "Pronouncement",
+    "name": "Оглашение",
+    "en": "Pronouncement",
     "domain": "day",
     "level": 2,
     "trait": "attributes.manipulation",
@@ -5022,7 +5058,8 @@
    },
    {
     "key": "summersglamour",
-    "name": "Summer's Glamour",
+    "name": "Гламур лета",
+    "en": "Summer's Glamour",
     "domain": "day",
     "level": 2,
     "trait": "attributes.wits",
@@ -5033,7 +5070,8 @@
    },
    {
     "key": "veritable",
-    "name": "Veritable",
+    "name": "Подлинность",
+    "en": "Veritable",
     "domain": "day",
     "level": 2,
     "trait": "",
@@ -5044,7 +5082,8 @@
    },
    {
     "key": "walloffire",
-    "name": "Wall of Fire",
+    "name": "Огненная стена",
+    "en": "Wall of Fire",
     "domain": "day",
     "level": 2,
     "trait": "attributes.strength",
@@ -5055,7 +5094,8 @@
    },
    {
     "key": "willoffire",
-    "name": "Will of Fire",
+    "name": "Огненная воля",
+    "en": "Will of Fire",
     "domain": "day",
     "level": 2,
     "trait": "attributes.stamina",
@@ -5066,7 +5106,8 @@
    },
    {
     "key": "brotherlybond",
-    "name": "Brotherly Bond",
+    "name": "Братские узы",
+    "en": "Brotherly Bond",
     "domain": "day",
     "level": 3,
     "trait": "attributes.charisma",
@@ -5077,7 +5118,8 @@
    },
    {
     "key": "dominionwrit",
-    "name": "Dominion Writ",
+    "name": "Грамота владения",
+    "en": "Dominion Writ",
     "domain": "day",
     "level": 3,
     "trait": "",
@@ -5088,7 +5130,8 @@
    },
    {
     "key": "healingheat",
-    "name": "Healing Heat",
+    "name": "Целительный жар",
+    "en": "Healing Heat",
     "domain": "day",
     "level": 3,
     "trait": "attributes.stamina",
@@ -5099,7 +5142,8 @@
    },
    {
     "key": "heartsafire",
-    "name": "Hearts Afire",
+    "name": "Пылающие сердца",
+    "en": "Hearts Afire",
     "domain": "day",
     "level": 3,
     "trait": "attributes.charisma",
@@ -5110,7 +5154,8 @@
    },
    {
     "key": "lawoftheland",
-    "name": "Law of the Land",
+    "name": "Закон земли",
+    "en": "Law of the Land",
     "domain": "day",
     "level": 3,
     "trait": "",
@@ -5121,7 +5166,8 @@
    },
    {
     "key": "trueardor",
-    "name": "True Ardor",
+    "name": "Истинный пыл",
+    "en": "True Ardor",
     "domain": "day",
     "level": 3,
     "trait": "attributes.charisma",
@@ -5132,7 +5178,8 @@
    },
    {
     "key": "verdict",
-    "name": "Verdict",
+    "name": "Приговор",
+    "en": "Verdict",
     "domain": "day",
     "level": 3,
     "trait": "attributes.manipulation",
@@ -5143,7 +5190,8 @@
    },
    {
     "key": "flameofthemuse",
-    "name": "Flame of the Muse",
+    "name": "Пламя музы",
+    "en": "Flame of the Muse",
     "domain": "day",
     "level": 4,
     "trait": "attributes.charisma",
@@ -5154,7 +5202,8 @@
    },
    {
     "key": "laststand",
-    "name": "Last Stand",
+    "name": "Последний рубеж",
+    "en": "Last Stand",
     "domain": "day",
     "level": 4,
     "trait": "attributes.stamina",
@@ -5165,7 +5214,8 @@
    },
    {
     "key": "pureform",
-    "name": "Pure Form",
+    "name": "Чистый облик",
+    "en": "Pure Form",
     "domain": "day",
     "level": 4,
     "trait": "attributes.charisma",
@@ -5176,7 +5226,8 @@
    },
    {
     "key": "oathbreakersprison",
-    "name": "Oathbreaker's Prison",
+    "name": "Темница клятвопреступника",
+    "en": "Oathbreaker's Prison",
     "domain": "day",
     "level": 4,
     "trait": "attributes.strength",
@@ -5187,7 +5238,8 @@
    },
    {
     "key": "sunscrown",
-    "name": "Sun's Crown",
+    "name": "Венец солнца",
+    "en": "Sun's Crown",
     "domain": "day",
     "level": 4,
     "trait": "attributes.charisma",
@@ -5198,7 +5250,8 @@
    },
    {
     "key": "faceofthesun",
-    "name": "Face of the Sun",
+    "name": "Лик солнца",
+    "en": "Face of the Sun",
     "domain": "day",
     "level": 5,
     "trait": "",
@@ -5209,7 +5262,8 @@
    },
    {
     "key": "blackandblue",
-    "name": "Black and Blue",
+    "name": "Синяки и ссадины",
+    "en": "Black and Blue",
     "domain": "night",
     "level": 1,
     "trait": "abilities.brawl",
@@ -5220,7 +5274,8 @@
    },
    {
     "key": "blightgarden",
-    "name": "Blight Garden",
+    "name": "Порча сада",
+    "en": "Blight Garden",
     "domain": "night",
     "level": 1,
     "trait": "attributes.wits",
@@ -5231,7 +5286,8 @@
    },
    {
     "key": "embracethenightschill",
-    "name": "Embrace the Night's Chill",
+    "name": "Объятия ночного холода",
+    "en": "Embrace the Night's Chill",
     "domain": "night",
     "level": 1,
     "trait": "attributes.stamina",
@@ -5242,7 +5298,8 @@
    },
    {
     "key": "gloom",
-    "name": "Gloom",
+    "name": "Мрак",
+    "en": "Gloom",
     "domain": "night",
     "level": 1,
     "trait": "attributes.wits",
@@ -5253,7 +5310,8 @@
    },
    {
     "key": "hush",
-    "name": "Hush",
+    "name": "Тишь",
+    "en": "Hush",
     "domain": "night",
     "level": 1,
     "trait": "attributes.manipulation",
@@ -5264,7 +5322,8 @@
    },
    {
     "key": "mindveil",
-    "name": "Mindveil",
+    "name": "Покров разума",
+    "en": "Mindveil",
     "domain": "night",
     "level": 1,
     "trait": "attributes.wits",
@@ -5275,7 +5334,8 @@
    },
    {
     "key": "nightsounds",
-    "name": "Night Sounds",
+    "name": "Звуки ночи",
+    "en": "Night Sounds",
     "domain": "night",
     "level": 1,
     "trait": "abilities.survival",
@@ -5286,7 +5346,8 @@
    },
    {
     "key": "owleyes",
-    "name": "Owl Eyes",
+    "name": "Совиные глаза",
+    "en": "Owl Eyes",
     "domain": "night",
     "level": 1,
     "trait": "attributes.perception",
@@ -5297,7 +5358,8 @@
    },
    {
     "key": "paranoia",
-    "name": "Paranoia",
+    "name": "Мнительность",
+    "en": "Paranoia",
     "domain": "night",
     "level": 1,
     "trait": "abilities.subterfuge",
@@ -5308,7 +5370,8 @@
    },
    {
     "key": "stillofthenight",
-    "name": "Still of the Night",
+    "name": "Ночное безмолвие",
+    "en": "Still of the Night",
     "domain": "night",
     "level": 1,
     "trait": "attributes.wits",
@@ -5319,7 +5382,8 @@
    },
    {
     "key": "veiloftears",
-    "name": "Veil of Tears",
+    "name": "Пелена слёз",
+    "en": "Veil of Tears",
     "domain": "night",
     "level": 1,
     "trait": "attributes.strength",
@@ -5330,7 +5394,8 @@
    },
    {
     "key": "weariness",
-    "name": "Weariness",
+    "name": "Изнеможение",
+    "en": "Weariness",
     "domain": "night",
     "level": 1,
     "trait": "attributes.manipulation",
@@ -5341,7 +5406,8 @@
    },
    {
     "key": "cloudedvision",
-    "name": "Clouded Vision",
+    "name": "Затуманенный взор",
+    "en": "Clouded Vision",
     "domain": "night",
     "level": 2,
     "trait": "attributes.wits",
@@ -5352,7 +5418,8 @@
    },
    {
     "key": "dreamtongue",
-    "name": "Dreamtongue",
+    "name": "Язык снов",
+    "en": "Dreamtongue",
     "domain": "night",
     "level": 2,
     "trait": "attributes.manipulation",
@@ -5363,7 +5430,8 @@
    },
    {
     "key": "icearmor",
-    "name": "Ice Armor",
+    "name": "Ледяной доспех",
+    "en": "Ice Armor",
     "domain": "night",
     "level": 2,
     "trait": "attributes.stamina",
@@ -5374,7 +5442,8 @@
    },
    {
     "key": "lesserhoundsofhell",
-    "name": "Lesser Hounds of Hell",
+    "name": "Малые псы преисподней",
+    "en": "Lesser Hounds of Hell",
     "domain": "night",
     "level": 2,
     "trait": "abilities.intimidation",
@@ -5385,7 +5454,8 @@
    },
    {
     "key": "nightterror",
-    "name": "Night Terror",
+    "name": "Ночной ужас",
+    "en": "Night Terror",
     "domain": "night",
     "level": 2,
     "trait": "attributes.manipulation",
@@ -5396,7 +5466,8 @@
    },
    {
     "key": "nightshade",
-    "name": "Nightshade",
+    "name": "Паслён",
+    "en": "Nightshade",
     "domain": "night",
     "level": 2,
     "trait": "attributes.wits",
@@ -5407,7 +5478,8 @@
    },
    {
     "key": "rainstrike",
-    "name": "Rain-Strike",
+    "name": "Удар ливня",
+    "en": "Rain-Strike",
     "domain": "night",
     "level": 2,
     "trait": "attributes.stamina",
@@ -5418,7 +5490,8 @@
    },
    {
     "key": "salmonsbreath",
-    "name": "Salmon's Breath",
+    "name": "Дыхание лосося",
+    "en": "Salmon's Breath",
     "domain": "night",
     "level": 2,
     "trait": "attributes.stamina",
@@ -5429,7 +5502,8 @@
    },
    {
     "key": "scare",
-    "name": "Scare",
+    "name": "Испуг",
+    "en": "Scare",
     "domain": "night",
     "level": 2,
     "trait": "abilities.intimidation",
@@ -5440,7 +5514,8 @@
    },
    {
     "key": "stillness",
-    "name": "Stillness",
+    "name": "Оцепенение",
+    "en": "Stillness",
     "domain": "night",
     "level": 2,
     "trait": "abilities.intimidation",
@@ -5451,7 +5526,8 @@
    },
    {
     "key": "wintersglamour",
-    "name": "Winter's Glamour",
+    "name": "Гламур зимы",
+    "en": "Winter's Glamour",
     "domain": "night",
     "level": 2,
     "trait": "attributes.wits",
@@ -5462,7 +5538,8 @@
    },
    {
     "key": "freezedeath",
-    "name": "Freeze Death",
+    "name": "Ледяная смерть",
+    "en": "Freeze Death",
     "domain": "night",
     "level": 3,
     "trait": "attributes.stamina",
@@ -5473,7 +5550,8 @@
    },
    {
     "key": "midnightsdomain",
-    "name": "Midnight's Domain",
+    "name": "Владения полуночи",
+    "en": "Midnight's Domain",
     "domain": "night",
     "level": 3,
     "trait": "attributes.wits",
@@ -5484,7 +5562,8 @@
    },
    {
     "key": "shriek",
-    "name": "Shriek",
+    "name": "Вопль",
+    "en": "Shriek",
     "domain": "night",
     "level": 3,
     "trait": "attributes.stamina",
@@ -5495,7 +5574,8 @@
    },
    {
     "key": "silentbrethren",
-    "name": "Silent Brethren",
+    "name": "Безмолвные братья",
+    "en": "Silent Brethren",
     "domain": "night",
     "level": 3,
     "trait": "attributes.manipulation",
@@ -5506,7 +5586,8 @@
    },
    {
     "key": "trueapathy",
-    "name": "True Apathy",
+    "name": "Истинное безразличие",
+    "en": "True Apathy",
     "domain": "night",
     "level": 3,
     "trait": "attributes.charisma",
@@ -5517,7 +5598,8 @@
    },
    {
     "key": "wintersshadows",
-    "name": "Winter's Shadows",
+    "name": "Тени зимы",
+    "en": "Winter's Shadows",
     "domain": "night",
     "level": 3,
     "trait": "attributes.wits",
@@ -5528,7 +5610,8 @@
    },
    {
     "key": "blindness",
-    "name": "Blindness",
+    "name": "Слепота",
+    "en": "Blindness",
     "domain": "night",
     "level": 4,
     "trait": "attributes.wits",
@@ -5539,7 +5622,8 @@
    },
    {
     "key": "hauntingcurse",
-    "name": "Haunting Curse",
+    "name": "Неотвязное проклятие",
+    "en": "Haunting Curse",
     "domain": "night",
     "level": 4,
     "trait": "attributes.charisma",
@@ -5550,7 +5634,8 @@
    },
    {
     "key": "greaterhoundsofhell",
-    "name": "Greater Hounds of Hell",
+    "name": "Великие псы преисподней",
+    "en": "Greater Hounds of Hell",
     "domain": "night",
     "level": 4,
     "trait": "abilities.animalKen",
@@ -5561,7 +5646,8 @@
    },
    {
     "key": "grotesque",
-    "name": "Grotesque",
+    "name": "Уродство",
+    "en": "Grotesque",
     "domain": "night",
     "level": 4,
     "trait": "attributes.manipulation",
@@ -5572,7 +5658,8 @@
    },
    {
     "key": "nightmares",
-    "name": "Nightmares",
+    "name": "Кошмары",
+    "en": "Nightmares",
     "domain": "night",
     "level": 4,
     "trait": "abilities.empathy",
@@ -5583,7 +5670,8 @@
    },
    {
     "key": "soulrime",
-    "name": "Soul Rime",
+    "name": "Иней души",
+    "en": "Soul Rime",
     "domain": "night",
     "level": 5,
     "trait": "abilities.empathy",
@@ -5594,7 +5682,8 @@
    },
    {
     "key": "beasttongue",
-    "name": "Beast Tongue",
+    "name": "Звериный язык",
+    "en": "Beast Tongue",
     "domain": "dawn",
     "level": 1,
     "trait": "attributes.charisma",
@@ -5605,7 +5694,8 @@
    },
    {
     "key": "brewandbread",
-    "name": "Brew and Bread",
+    "name": "Хлеб и брага",
+    "en": "Brew and Bread",
     "domain": "dawn",
     "level": 1,
     "trait": "attributes.stamina",
@@ -5616,7 +5706,8 @@
    },
    {
     "key": "earthenrefuge",
-    "name": "Earthen Refuge",
+    "name": "Земляное убежище",
+    "en": "Earthen Refuge",
     "domain": "dawn",
     "level": 1,
     "trait": "attributes.strength",
@@ -5627,7 +5718,8 @@
    },
    {
     "key": "faeriesfog",
-    "name": "Faerie's Fog",
+    "name": "Туман фэ",
+    "en": "Faerie's Fog",
     "domain": "dawn",
     "level": 1,
     "trait": "attributes.dexterity",
@@ -5638,7 +5730,8 @@
    },
    {
     "key": "faminetofeast",
-    "name": "Famine to Feast",
+    "name": "Из голода в пир",
+    "en": "Famine to Feast",
     "domain": "dawn",
     "level": 1,
     "trait": "attributes.wits",
@@ -5649,7 +5742,8 @@
    },
    {
     "key": "greentouch",
-    "name": "Green Touch",
+    "name": "Зелёное касание",
+    "en": "Green Touch",
     "domain": "dawn",
     "level": 1,
     "trait": "abilities.survival",
@@ -5660,7 +5754,8 @@
    },
    {
     "key": "hope",
-    "name": "Hope",
+    "name": "Надежда",
+    "en": "Hope",
     "domain": "dawn",
     "level": 1,
     "trait": "abilities.empathy",
@@ -5671,7 +5766,8 @@
    },
    {
     "key": "reveal",
-    "name": "Reveal",
+    "name": "Обнаружение",
+    "en": "Reveal",
     "domain": "dawn",
     "level": 1,
     "trait": "attributes.perception",
@@ -5682,7 +5778,8 @@
    },
    {
     "key": "sleep",
-    "name": "Sleep",
+    "name": "Сон",
+    "en": "Sleep",
     "domain": "dawn",
     "level": 1,
     "trait": "attributes.manipulation",
@@ -5693,7 +5790,8 @@
    },
    {
     "key": "springsurges",
-    "name": "Spring's Urges",
+    "name": "Весенние порывы",
+    "en": "Spring's Urges",
     "domain": "dawn",
     "level": 1,
     "trait": "attributes.charisma",
@@ -5704,7 +5802,8 @@
    },
    {
     "key": "thricetoldfortune",
-    "name": "Thricetold Fortune",
+    "name": "Трижды сказанная удача",
+    "en": "Thricetold Fortune",
     "domain": "dawn",
     "level": 1,
     "trait": "attributes.wits",
@@ -5715,7 +5814,8 @@
    },
    {
     "key": "weep",
-    "name": "Weep",
+    "name": "Плач",
+    "en": "Weep",
     "domain": "dawn",
     "level": 1,
     "trait": "abilities.empathy",
@@ -5726,7 +5826,8 @@
    },
    {
     "key": "dawnsabsolution",
-    "name": "Dawn's Absolution",
+    "name": "Отпущение рассвета",
+    "en": "Dawn's Absolution",
     "domain": "dawn",
     "level": 2,
     "trait": "attributes.intelligence",
@@ -5737,7 +5838,8 @@
    },
    {
     "key": "earthsarmor",
-    "name": "Earth's Armor",
+    "name": "Доспех земли",
+    "en": "Earth's Armor",
     "domain": "dawn",
     "level": 2,
     "trait": "attributes.stamina",
@@ -5748,7 +5850,8 @@
    },
    {
     "key": "earthscurrent",
-    "name": "Earth's Current",
+    "name": "Ток земли",
+    "en": "Earth's Current",
     "domain": "dawn",
     "level": 2,
     "trait": "attributes.wits",
@@ -5759,7 +5862,8 @@
    },
    {
     "key": "entice",
-    "name": "Entice",
+    "name": "Соблазн",
+    "en": "Entice",
     "domain": "dawn",
     "level": 2,
     "trait": "attributes.charisma",
@@ -5770,7 +5874,8 @@
    },
    {
     "key": "fruitful",
-    "name": "Fruitful",
+    "name": "Плодородие",
+    "en": "Fruitful",
     "domain": "dawn",
     "level": 2,
     "trait": "attributes.strength",
@@ -5781,7 +5886,8 @@
    },
    {
     "key": "immortaltears",
-    "name": "Immortal Tears",
+    "name": "Бессмертные слёзы",
+    "en": "Immortal Tears",
     "domain": "dawn",
     "level": 2,
     "trait": "abilities.empathy",
@@ -5792,7 +5898,8 @@
    },
    {
     "key": "memoryofstone",
-    "name": "Memory of Stone",
+    "name": "Память камня",
+    "en": "Memory of Stone",
     "domain": "dawn",
     "level": 2,
     "trait": "attributes.perception",
@@ -5803,7 +5910,8 @@
    },
    {
     "key": "morningmist",
-    "name": "Morning Mist",
+    "name": "Утренний туман",
+    "en": "Morning Mist",
     "domain": "dawn",
     "level": 2,
     "trait": "attributes.stamina",
@@ -5814,7 +5922,8 @@
    },
    {
     "key": "morningsgrace",
-    "name": "Morning's Grace",
+    "name": "Милость утра",
+    "en": "Morning's Grace",
     "domain": "dawn",
     "level": 2,
     "trait": "abilities.expression",
@@ -5825,7 +5934,8 @@
    },
    {
     "key": "obscure",
-    "name": "Obscure",
+    "name": "Сокрытие",
+    "en": "Obscure",
     "domain": "dawn",
     "level": 2,
     "trait": "attributes.manipulation",
@@ -5836,7 +5946,8 @@
    },
    {
     "key": "slumber",
-    "name": "Slumber",
+    "name": "Дрёма",
+    "en": "Slumber",
     "domain": "dawn",
     "level": 2,
     "trait": "attributes.manipulation",
@@ -5847,7 +5958,8 @@
    },
    {
     "key": "strengthoftheoak",
-    "name": "Strength of the Oak",
+    "name": "Сила дуба",
+    "en": "Strength of the Oak",
     "domain": "dawn",
     "level": 2,
     "trait": "attributes.strength",
@@ -5858,7 +5970,8 @@
    },
    {
     "key": "bog",
-    "name": "Bog",
+    "name": "Топь",
+    "en": "Bog",
     "domain": "dawn",
     "level": 3,
     "trait": "attributes.perception",
@@ -5869,7 +5982,8 @@
    },
    {
     "key": "dawnsrevelation",
-    "name": "Dawn's Revelation",
+    "name": "Откровение рассвета",
+    "en": "Dawn's Revelation",
     "domain": "dawn",
     "level": 3,
     "trait": "attributes.perception",
@@ -5880,7 +5994,8 @@
    },
    {
     "key": "delving",
-    "name": "Delving",
+    "name": "Раскопки",
+    "en": "Delving",
     "domain": "dawn",
     "level": 3,
     "trait": "attributes.perception",
@@ -5891,7 +6006,8 @@
    },
    {
     "key": "ruinstorefuge",
-    "name": "Ruins to Refuge",
+    "name": "Из руин в приют",
+    "en": "Ruins to Refuge",
     "domain": "dawn",
     "level": 3,
     "trait": "attributes.wits",
@@ -5902,7 +6018,8 @@
    },
    {
     "key": "sightunseen",
-    "name": "Sight Unseen",
+    "name": "Невидимое зрение",
+    "en": "Sight Unseen",
     "domain": "dawn",
     "level": 3,
     "trait": "attributes.wits",
@@ -5913,7 +6030,8 @@
    },
    {
     "key": "stormandstress",
-    "name": "Storm and Stress",
+    "name": "Буря и натиск",
+    "en": "Storm and Stress",
     "domain": "dawn",
     "level": 3,
     "trait": "attributes.stamina",
@@ -5924,7 +6042,8 @@
    },
    {
     "key": "tomorrowstale",
-    "name": "Tomorrow's Tale",
+    "name": "Сказ о завтрашнем дне",
+    "en": "Tomorrow's Tale",
     "domain": "dawn",
     "level": 3,
     "trait": "attributes.perception",
@@ -5935,7 +6054,8 @@
    },
    {
     "key": "aidofthewood",
-    "name": "Aid of the Wood",
+    "name": "Помощь леса",
+    "en": "Aid of the Wood",
     "domain": "dawn",
     "level": 4,
     "trait": "attributes.charisma",
@@ -5946,7 +6066,8 @@
    },
    {
     "key": "comehither",
-    "name": "Come Hither",
+    "name": "Иди сюда",
+    "en": "Come Hither",
     "domain": "dawn",
     "level": 4,
     "trait": "attributes.appearance",
@@ -5957,7 +6078,8 @@
    },
    {
     "key": "dawnsdomain",
-    "name": "Dawn's Domain",
+    "name": "Владения рассвета",
+    "en": "Dawn's Domain",
     "domain": "dawn",
     "level": 4,
     "trait": "attributes.perception",
@@ -5968,7 +6090,8 @@
    },
    {
     "key": "stormsfray",
-    "name": "Storm's Fray",
+    "name": "Ярость бури",
+    "en": "Storm's Fray",
     "domain": "dawn",
     "level": 4,
     "trait": "attributes.stamina",
@@ -5979,7 +6102,8 @@
    },
    {
     "key": "woodenarsenal",
-    "name": "Wooden Arsenal",
+    "name": "Деревянный арсенал",
+    "en": "Wooden Arsenal",
     "domain": "dawn",
     "level": 4,
     "trait": "abilities.melee",
@@ -5990,7 +6114,8 @@
    },
    {
     "key": "fortuneweaving",
-    "name": "Fortune Weaving",
+    "name": "Плетение судьбы",
+    "en": "Fortune Weaving",
     "domain": "dawn",
     "level": 5,
     "trait": "attributes.manipulation",
@@ -6001,7 +6126,8 @@
    },
    {
     "key": "amends",
-    "name": "Amends",
+    "name": "Искупление",
+    "en": "Amends",
     "domain": "dusk",
     "level": 1,
     "trait": "abilities.intimidation",
@@ -6012,7 +6138,8 @@
    },
    {
     "key": "brokenmirror",
-    "name": "Broken Mirror",
+    "name": "Разбитое зеркало",
+    "en": "Broken Mirror",
     "domain": "dusk",
     "level": 1,
     "trait": "attributes.manipulation",
@@ -6023,7 +6150,8 @@
    },
    {
     "key": "soar",
-    "name": "Soar",
+    "name": "Парение",
+    "en": "Soar",
     "domain": "dusk",
     "level": 1,
     "trait": "attributes.dexterity",
@@ -6034,7 +6162,8 @@
    },
    {
     "key": "spectralwhispers",
-    "name": "Spectral Whispers",
+    "name": "Шёпот призраков",
+    "en": "Spectral Whispers",
     "domain": "dusk",
     "level": 1,
     "trait": "attributes.wits",
@@ -6045,7 +6174,8 @@
    },
    {
     "key": "speedofthewind",
-    "name": "Speed of the Wind",
+    "name": "Скорость ветра",
+    "en": "Speed of the Wind",
     "domain": "dusk",
     "level": 1,
     "trait": "attributes.dexterity",
@@ -6056,7 +6186,8 @@
    },
    {
     "key": "spirittrack",
-    "name": "Spirit Track",
+    "name": "След духа",
+    "en": "Spirit Track",
     "domain": "dusk",
     "level": 1,
     "trait": "attributes.perception",
@@ -6067,7 +6198,8 @@
    },
    {
     "key": "stealbreath",
-    "name": "Steal Breath",
+    "name": "Украсть дыхание",
+    "en": "Steal Breath",
     "domain": "dusk",
     "level": 1,
     "trait": "attributes.stamina",
@@ -6078,7 +6210,8 @@
    },
    {
     "key": "studyfacade",
-    "name": "Study Facade",
+    "name": "Изучить личину",
+    "en": "Study Facade",
     "domain": "dusk",
     "level": 1,
     "trait": "attributes.perception",
@@ -6089,7 +6222,8 @@
    },
    {
     "key": "twilightshadowsreach",
-    "name": "Twilight Shadow's Reach",
+    "name": "Рука сумеречной тени",
+    "en": "Twilight Shadow's Reach",
     "domain": "dusk",
     "level": 1,
     "trait": "attributes.dexterity",
@@ -6100,7 +6234,8 @@
    },
    {
     "key": "unlock",
-    "name": "Unlock",
+    "name": "Отпереть",
+    "en": "Unlock",
     "domain": "dusk",
     "level": 1,
     "trait": "attributes.intelligence",
@@ -6111,7 +6246,8 @@
    },
    {
     "key": "whisperedpast",
-    "name": "Whispered Past",
+    "name": "Шепчущее прошлое",
+    "en": "Whispered Past",
     "domain": "dusk",
     "level": 1,
     "trait": "attributes.wits",
@@ -6122,7 +6258,8 @@
    },
    {
     "key": "words",
-    "name": "Words",
+    "name": "Слова",
+    "en": "Words",
     "domain": "dusk",
     "level": 1,
     "trait": "",
@@ -6133,7 +6270,8 @@
    },
    {
     "key": "barren",
-    "name": "Barren",
+    "name": "Бесплодие",
+    "en": "Barren",
     "domain": "dusk",
     "level": 2,
     "trait": "attributes.strength",
@@ -6144,7 +6282,8 @@
    },
    {
     "key": "befriendspirit",
-    "name": "Befriend Spirit",
+    "name": "Подружиться с духом",
+    "en": "Befriend Spirit",
     "domain": "dusk",
     "level": 2,
     "trait": "attributes.charisma",
@@ -6155,7 +6294,8 @@
    },
    {
     "key": "dauntingdistance",
-    "name": "Daunting Distance",
+    "name": "Устрашающая даль",
+    "en": "Daunting Distance",
     "domain": "dusk",
     "level": 2,
     "trait": "attributes.stamina",
@@ -6166,7 +6306,8 @@
    },
    {
     "key": "eveningmist",
-    "name": "Evening Mist",
+    "name": "Вечерний туман",
+    "en": "Evening Mist",
     "domain": "dusk",
     "level": 2,
     "trait": "attributes.stamina",
@@ -6177,7 +6318,8 @@
    },
    {
     "key": "forgotten",
-    "name": "Forgotten",
+    "name": "Забвение",
+    "en": "Forgotten",
     "domain": "dusk",
     "level": 2,
     "trait": "attributes.wits",
@@ -6188,7 +6330,8 @@
    },
    {
     "key": "leafinthewind",
-    "name": "Leaf in the Wind",
+    "name": "Лист на ветру",
+    "en": "Leaf in the Wind",
     "domain": "dusk",
     "level": 2,
     "trait": "attributes.strength",
@@ -6199,7 +6342,8 @@
    },
    {
     "key": "lesserelfshot",
-    "name": "Lesser Elfshot",
+    "name": "Малая эльфийская стрела",
+    "en": "Lesser Elfshot",
     "domain": "dusk",
     "level": 2,
     "trait": "attributes.dexterity",
@@ -6210,7 +6354,8 @@
    },
    {
     "key": "mourning",
-    "name": "Mourning",
+    "name": "Скорбь",
+    "en": "Mourning",
     "domain": "dusk",
     "level": 2,
     "trait": "attributes.manipulation",
@@ -6221,7 +6366,8 @@
    },
    {
     "key": "transport",
-    "name": "Transport",
+    "name": "Перенос",
+    "en": "Transport",
     "domain": "dusk",
     "level": 2,
     "trait": "attributes.intelligence",
@@ -6232,7 +6378,8 @@
    },
    {
     "key": "twilightsglamour",
-    "name": "Twilight's Glamour",
+    "name": "Гламур сумерек",
+    "en": "Twilight's Glamour",
     "domain": "dusk",
     "level": 2,
     "trait": "attributes.wits",
@@ -6243,7 +6390,8 @@
    },
    {
     "key": "waylaidtraveler",
-    "name": "Waylaid Traveler",
+    "name": "Заплутавший путник",
+    "en": "Waylaid Traveler",
     "domain": "dusk",
     "level": 2,
     "trait": "attributes.wits",
@@ -6254,7 +6402,8 @@
    },
    {
     "key": "windarmor",
-    "name": "Wind Armor",
+    "name": "Доспех ветра",
+    "en": "Wind Armor",
     "domain": "dusk",
     "level": 2,
     "trait": "attributes.dexterity",
@@ -6265,7 +6414,8 @@
    },
    {
     "key": "windseyes",
-    "name": "Wind's Eyes",
+    "name": "Глаза ветра",
+    "en": "Wind's Eyes",
     "domain": "dusk",
     "level": 2,
     "trait": "attributes.perception",
@@ -6276,7 +6426,8 @@
    },
    {
     "key": "atoning",
-    "name": "Atoning",
+    "name": "Покаяние",
+    "en": "Atoning",
     "domain": "dusk",
     "level": 3,
     "trait": "attributes.manipulation",
@@ -6287,7 +6438,8 @@
    },
    {
     "key": "graceoftheshadows",
-    "name": "Grace of the Shadows",
+    "name": "Милость теней",
+    "en": "Grace of the Shadows",
     "domain": "dusk",
     "level": 3,
     "trait": "attributes.dexterity",
@@ -6298,7 +6450,8 @@
    },
    {
     "key": "journey",
-    "name": "Journey",
+    "name": "Странствие",
+    "en": "Journey",
     "domain": "dusk",
     "level": 3,
     "trait": "attributes.intelligence",
@@ -6309,7 +6462,8 @@
    },
    {
     "key": "unchaining",
-    "name": "Unchaining",
+    "name": "Освобождение от оков",
+    "en": "Unchaining",
     "domain": "dusk",
     "level": 3,
     "trait": "attributes.intelligence",
@@ -6320,7 +6474,8 @@
    },
    {
     "key": "unspokenvow",
-    "name": "Unspoken Vow",
+    "name": "Невысказанный обет",
+    "en": "Unspoken Vow",
     "domain": "dusk",
     "level": 3,
     "trait": "attributes.manipulation",
@@ -6331,7 +6486,8 @@
    },
    {
     "key": "yesterdaystale",
-    "name": "Yesterday's Tale",
+    "name": "Сказ о вчерашнем дне",
+    "en": "Yesterday's Tale",
     "domain": "dusk",
     "level": 3,
     "trait": "attributes.perception",
@@ -6342,7 +6498,8 @@
    },
    {
     "key": "baubleofthemind",
-    "name": "Bauble of the Mind",
+    "name": "Безделица разума",
+    "en": "Bauble of the Mind",
     "domain": "dusk",
     "level": 4,
     "trait": "attributes.charisma",
@@ -6353,7 +6510,8 @@
    },
    {
     "key": "clouddancing",
-    "name": "Cloud-Dancing",
+    "name": "Танец в облаках",
+    "en": "Cloud-Dancing",
     "domain": "dusk",
     "level": 4,
     "trait": "attributes.strength",
@@ -6364,7 +6522,8 @@
    },
    {
     "key": "fallscurse",
-    "name": "Fall's Curse",
+    "name": "Проклятие осени",
+    "en": "Fall's Curse",
     "domain": "dusk",
     "level": 4,
     "trait": "attributes.wits",
@@ -6375,7 +6534,8 @@
    },
    {
     "key": "greaterelfshot",
-    "name": "Greater Elfshot",
+    "name": "Великая эльфийская стрела",
+    "en": "Greater Elfshot",
     "domain": "dusk",
     "level": 4,
     "trait": "attributes.dexterity",
@@ -6386,7 +6546,8 @@
    },
    {
     "key": "memoryoftrees",
-    "name": "Memory of Trees",
+    "name": "Память деревьев",
+    "en": "Memory of Trees",
     "domain": "dusk",
     "level": 4,
     "trait": "attributes.perception",
@@ -6397,7 +6558,8 @@
    },
    {
     "key": "secondchance",
-    "name": "Second Chance",
+    "name": "Второй шанс",
+    "en": "Second Chance",
     "domain": "dusk",
     "level": 5,
     "trait": "attributes.wits",

@@ -1,0 +1,145 @@
+{{!-- Мастерская тауматурга (apps/thaum-workshop.mjs): слева — режимы и рецепты, справа — карточка (разметка справочника кланов). --}}
+<div class="r-cl r-th">
+  <aside class="r-cl-side">
+    <div class="r-cl-groups">
+      {{#each modes}}<a class="{{#if active}}is-active{{/if}}" data-action="mode" data-mode="{{key}}"><i class="fa-solid {{icon}}"></i> {{label}}</a>{{/each}}
+    </div>
+    {{#if isCraft}}
+    <ol class="r-cl-list r-th-list">
+      {{#each groups}}
+      <li class="r-th-lvl">{{localize "VTM20.Artifact.Level"}} {{roman}}</li>
+      {{#each list}}
+      <li class="r-cl-item">
+        <a class="{{#if active}}is-active{{/if}} {{#unless known}}is-unknown{{/unless}} {{#if low}}is-low{{/if}}" data-action="recipe" data-key="{{key}}">
+          <span class="r-cl-medal"><i class="fa-solid {{typeIcon}}"></i></span>
+          <span class="r-cl-name">{{name}}<em>{{en}}{{#if legend}} · {{localize "VTM20.Artifact.Find.Legend"}}{{/if}}</em></span>
+          {{#if known}}<i class="fa-solid fa-book-open r-th-known" data-tooltip="{{localize 'VTM20.Artifact.Known'}}"></i>{{/if}}
+        </a>
+      </li>
+      {{/each}}
+      {{/each}}
+    </ol>
+    {{else}}
+    <p class="r-note r-th-side-note">{{#if isTalisman}}{{localize "VTM20.Artifact.Talisman.Side"}}{{else}}{{localize "VTM20.Artifact.Find.Side"}}{{/if}}</p>
+    {{/if}}
+  </aside>
+
+  {{!-- Изготовить: рецепт, форма, имя, бросок ритуала --}}
+  {{#if isCraft}}{{#with card}}
+  <article class="r-cl-card r-th-card">
+    <header class="r-cl-head">
+      <span class="r-cl-bigmedal"><i class="fa-solid fa-staff-snake"></i></span>
+      <div class="r-cl-titles">
+        <div class="r-cl-kicker">{{localize "VTM20.Artifact.Ritual"}} · {{roman}} · {{typeLabel}}{{#if legend}} · {{localize "VTM20.Artifact.Find.Legend"}}{{/if}}</div>
+        <h2>{{name}}</h2>
+        <div class="r-cl-en">{{en}}{{#if source}} · {{source}}{{/if}}</div>
+      </div>
+    </header>
+    <section class="r-cl-sec">
+      <p>{{use}}</p>
+      <p class="r-th-facts">
+        <span><i class="fa-solid fa-dice"></i> {{localize "VTM20.Artifact.RollLine" diff=diff}}</span>
+        {{#if cost}}<span><i class="fa-solid fa-droplet"></i> {{localize "VTM20.Artifact.BloodN" n=cost}}</span>{{/if}}
+        {{#if chargesText}}<span><i class="fa-solid fa-battery-half"></i> {{chargesText}}</span>{{/if}}
+        {{#if lastsText}}<span><i class="fa-solid fa-hourglass-half"></i> {{lastsText}}</span>{{/if}}
+      </p>
+      {{#if secret}}<p class="r-th-warn"><i class="fa-solid fa-user-secret"></i> {{localize "VTM20.Artifact.Secret"}}</p>{{/if}}
+    </section>
+    <section class="r-cl-sec r-th-make">
+      <label class="r-f"><span>{{localize "VTM20.Artifact.Form"}}</span><select name="form">{{#each forms}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{value}}</option>{{/each}}</select></label>
+      <label class="r-f"><span>{{localize "VTM20.Artifact.Name"}}</span><input type="text" name="name" value="{{@root.v.name}}" placeholder="{{localize 'VTM20.Artifact.NamePh'}}"></label>
+      {{#if low}}<p class="r-th-warn"><i class="fa-solid fa-lock"></i> {{localize "VTM20.Artifact.TooLow" n=level have=@root.thaum}}</p>
+      {{else}}{{#unless known}}<p class="r-th-warn"><i class="fa-solid fa-book"></i> {{#if @root.gm}}{{localize "VTM20.Artifact.UnknownGM"}}{{else}}{{localize "VTM20.Artifact.Unknown"}}{{/if}}</p>{{/unless}}{{/if}}
+      <div class="r-vc-tools">
+        <button type="button" class="r-vc-btn" data-action="craft" {{#unless canCraft}}disabled{{/unless}}><i class="fa-solid fa-wand-sparkles"></i> {{localize "VTM20.Artifact.Craft"}}</button>
+      </div>
+    </section>
+    {{#if html}}
+    <section class="r-cl-sec">
+      <details class="r-cl-trait"><summary><span>{{localize "VTM20.Artifact.RitualText"}}</span></summary>
+        <div class="r-cl-trait-body">{{{html}}}</div></details>
+    </section>
+    {{/if}}
+  </article>
+  {{/with}}{{/if}}
+
+  {{!-- Талисман: проект на лунный месяц --}}
+  {{#if isTalisman}}
+  <article class="r-cl-card r-th-card">
+    <header class="r-cl-head">
+      <span class="r-cl-bigmedal"><i class="fa-solid fa-moon"></i></span>
+      <div class="r-cl-titles">
+        <div class="r-cl-kicker">{{localize "VTM20.Artifact.Ritual"}} · V</div>
+        <h2>{{localize "VTM20.Artifact.Talisman.Title"}}</h2>
+        <div class="r-cl-en">Enchant Talisman · Blood Phylactery</div>
+      </div>
+    </header>
+    {{#if work}}{{#with work}}
+    <section class="r-cl-sec r-th-work">
+      <h3><i class="fa-solid fa-moon"></i> {{name}} <small>· {{kindLabel}} · {{form}}</small></h3>
+      <div class="r-th-bar"><span style="width: {{pct}}%"></span></div>
+      <p>{{localize "VTM20.Artifact.Talisman.State" n=week weeks=weeks hits=hits need=need}}</p>
+      <div class="r-vc-tools">
+        <button type="button" class="r-vc-btn" data-action="week"><i class="fa-solid fa-hourglass-half"></i> {{localize "VTM20.Artifact.Talisman.Week"}}</button>
+        <button type="button" class="r-vc-btn is-right" data-action="abandon" data-tooltip="{{localize 'VTM20.Artifact.Talisman.Abandon'}}"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+    </section>
+    {{/with}}{{else}}
+    <section class="r-cl-sec r-th-make">
+      <p class="r-note">{{localize "VTM20.Artifact.Talisman.Lead" nights=talisman.nights need=talisman.need diff=talisman.diff}}</p>
+      {{#if own}}<p class="r-th-warn"><i class="fa-solid fa-staff-snake"></i> {{localize "VTM20.Artifact.Talisman.HaveOne" item=own}}</p>{{/if}}
+      <label class="r-f"><span>{{localize "VTM20.Artifact.Talisman.Kind"}}</span><select name="tkind">{{#each talisman.kinds}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+      <label class="r-f"><span>{{localize "VTM20.Artifact.Form"}}</span><select name="form">{{#each talisman.forms}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{value}}</option>{{/each}}</select></label>
+      <label class="r-f"><span>{{localize "VTM20.Artifact.Name"}}</span><input type="text" name="name" value="{{v.name}}" placeholder="{{localize 'VTM20.Artifact.NamePh'}}"></label>
+      {{#if talisman.low}}<p class="r-th-warn"><i class="fa-solid fa-lock"></i> {{localize "VTM20.Artifact.TooLow" n=5 have=thaum}}</p>{{/if}}
+      <div class="r-vc-tools">
+        <button type="button" class="r-vc-btn" data-action="start" {{#unless talisman.canStart}}disabled{{/unless}}><i class="fa-solid fa-moon"></i> {{localize "VTM20.Artifact.Talisman.Start"}}</button>
+      </div>
+    </section>
+    {{/if}}
+    <section class="r-cl-sec">
+      <h3>{{localize "VTM20.Artifact.Talisman.Gives"}}</h3>
+      <p>{{talisman.bonuses}}</p>
+      <p class="r-note">{{localize "VTM20.Artifact.Talisman.Auto"}}</p>
+      <details class="r-cl-trait"><summary><span>{{localize "VTM20.Artifact.Kind.phylactery"}}</span></summary><div class="r-cl-trait-body"><p>{{talisman.phylText}}</p></div></details>
+      {{#if talisman.html}}<details class="r-cl-trait"><summary><span>{{localize "VTM20.Artifact.RitualText"}}</span></summary><div class="r-cl-trait-body">{{{talisman.html}}}</div></details>{{/if}}
+    </section>
+  </article>
+  {{/if}}
+
+  {{!-- Находка для рассказчика --}}
+  {{#if isFind}}{{#with find}}
+  <article class="r-cl-card r-th-card">
+    <section class="r-cl-sec r-th-opts">
+      <label class="r-f"><span>{{localize "VTM20.Artifact.Level"}}</span><select name="find.level">{{#each levels}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+      <label class="r-f"><span>{{localize "VTM20.Artifact.Find.Type"}}</span><select name="find.type">{{#each types}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+      <label class="r-f"><span>{{localize "VTM20.Artifact.Find.Era"}}</span><select name="find.era">{{#each eras}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+      <label class="r-th-check"><input type="checkbox" name="find.spont" {{#if spont}}checked{{/if}}> <span>{{localize "VTM20.Artifact.Find.Spont"}}</span></label>
+      <div class="r-vc-tools"><button type="button" class="r-vc-btn" data-action="roll"><i class="fa-solid fa-dice"></i> {{localize "VTM20.Artifact.Find.Roll"}}</button></div>
+    </section>
+    {{#if found}}{{#with found}}
+    <section class="r-cl-sec r-th-found {{#if spont}}is-spont{{/if}}">
+      <header class="r-cl-head">
+        <span class="r-cl-bigmedal"><i class="fa-solid {{#if spont}}fa-cross{{else if legend}}fa-crown{{else}}fa-staff-snake{{/if}}"></i></span>
+        <div class="r-cl-titles">
+          <div class="r-cl-kicker">{{#if spont}}{{localize "VTM20.Artifact.Kind.spontaneous"}}{{else}}{{ritualName}}{{#if roman}} · {{localize "VTM20.Artifact.Level"}} {{roman}}{{/if}}{{/if}}</div>
+          <h2>{{name}}</h2>
+          <div class="r-cl-en">{{form}}{{#if chargesMax}} · {{localize "VTM20.Artifact.ChargesOf" n=charges max=chargesMax unit=unit}}{{/if}}{{#if lasts}} · {{lasts}}{{/if}}</div>
+        </div>
+      </header>
+      <div class="r-art-text">{{{description}}}</div>
+      {{#if secret}}<p class="r-th-warn"><i class="fa-solid fa-user-secret"></i> {{localize "VTM20.Artifact.Secret"}}</p>{{/if}}
+    </section>
+    {{/with}}
+    <div class="r-vc-tools r-th-give">
+      <button type="button" class="r-vc-btn" data-action="give" {{#unless target}}disabled data-tooltip="{{localize 'VTM20.Artifact.Find.NoTarget'}}"{{/unless}}><i class="fa-solid fa-hand-holding"></i> {{#if target}}{{localize "VTM20.Artifact.Find.Give" name=target}}{{else}}{{localize "VTM20.Artifact.Find.GiveNone"}}{{/if}}</button>
+      {{#if @root.gm}}<button type="button" class="r-vc-btn" data-action="toWorld"><i class="fa-solid fa-box-archive"></i> {{localize "VTM20.Artifact.Find.ToWorld"}}</button>{{/if}}
+      <button type="button" class="r-vc-btn" data-action="toChat"><i class="fa-solid fa-comment-dots"></i> {{localize "VTM20.Artifact.Find.ToChat"}}</button>
+      <button type="button" class="r-vc-btn is-right" data-action="roll" data-tooltip="{{localize 'VTM20.Artifact.Find.Again'}}"><i class="fa-solid fa-rotate"></i></button>
+    </div>
+    {{else}}
+    <p class="r-note r-th-empty">{{localize "VTM20.Artifact.Find.Empty"}}</p>
+    {{/if}}
+  </article>
+  {{/with}}{{/if}}
+</div>

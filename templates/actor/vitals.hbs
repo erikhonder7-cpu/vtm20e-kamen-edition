@@ -35,7 +35,7 @@
     {{#if wraithInfo}}<div class="r-wr-corpus" data-tooltip="{{localize 'VTM20.Wraith.CorpusPermHint'}}">{{> rDots dots=wraithInfo.corpusDots cls="is-ten"}}</div>{{/if}}
     <div class="r-hboxes">
       {{#each health}}
-      <div class="r-hbox is-{{state}} is-sev{{sev}} {{#if current}}is-current{{/if}}" data-tooltip="{{label}}{{#if penaltyLabel}} ({{penaltyLabel}}){{/if}}">
+      <div class="r-hbox is-{{state}} is-sev{{sev}} {{#if current}}is-current{{/if}}" {{#if label}}data-tooltip="{{label}}{{#if penaltyLabel}} ({{penaltyLabel}}){{/if}}"{{/if}}>
         <span class="r-hbox-mark">{{mark}}</span>
         <span class="r-hbox-pen">{{#if out}}<i class="fa-solid fa-skull"></i>{{else}}{{penaltyLabel}}{{/if}}</span>
       </div>
@@ -233,25 +233,21 @@
     </div>
     <h4 class="r-sp-h">{{localize "VTM20.Werewolf.Spirit.charms"}}</h4>
     <ul class="r-sp-charms">{{#each spiritInfo.charms}}<li><b data-tooltip="{{text}}">{{rName this}}</b>{{#if general}}<small>{{localize "VTM20.Werewolf.Spirit.general"}}</small>{{else}}{{#if @root.editable}}<a data-action="spCharmDel" data-key="{{key}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}{{/if}}</li>{{/each}}</ul>
-    {{#if editable}}<div class="r-toolbar"><select class="r-sp-charm-add"><option value="">{{localize "VTM20.Werewolf.Spirit.addCharm"}}</option>{{#each spiritInfo.avail}}<option value="{{key}}">{{rName this}}</option>{{/each}}</select>
-      <a class="r-vc-btn" data-action="spCharmAdd" data-tooltip="{{localize 'VTM20.Sheet.AddTip'}}"><i class="fa-solid fa-plus"></i></a></div>
+    {{#if editable}}<div class="r-toolbar"><a class="r-vc-btn is-lib" data-action="library" data-kind="charm" data-tooltip="{{localize 'VTM20.Library.Open'}}"><i class="fa-solid fa-book-skull"></i> {{localize "VTM20.Werewolf.Spirit.addCharm"}}</a></div>
     {{!-- образец духа (бестиарии W20, Умбры, Книги Червя, кин-фетчи): черты, Эссенция и Чары — разом, описание — рассказчику в чат --}}
-    <div class="r-toolbar"><select class="r-sp-tpl"><option value="">{{localize "VTM20.Werewolf.Spirit.tpl"}}</option>{{#each spiritInfo.tpls}}<optgroup label="{{label}}">{{#each list}}<option value="{{key}}">{{label}}</option>{{/each}}</optgroup>{{/each}}</select>
-      <a class="r-vc-btn" data-action="spTpl" data-tooltip="{{localize 'VTM20.Werewolf.Spirit.tplHint'}}"><i class="fa-solid fa-wand-magic-sparkles"></i></a></div>{{/if}}
+    <div class="r-toolbar"><a class="r-vc-btn is-lib" data-action="library" data-kind="spiritTpl" data-tooltip="{{localize 'VTM20.Library.Open'}}"><i class="fa-solid fa-book-skull"></i> {{localize "VTM20.Werewolf.Spirit.tpl"}}</a></div>{{/if}}
   </div>
   {{else if hunterInfo.lost}}
   {{!-- Свидетель (Players Guide, гл. 1): Убеждённость — рассудок, только убывает; Смелость, Рассудок, Самоконтроль 1–5 --}}
   <div class="r-vcard r-vc-morality r-vc-hunter is-lost">
     <div class="r-vc-head">
       <h4 class="r-banner"><a data-action="openRules" data-tooltip="{{localize 'VTM20.Hunter.RulesHint'}}">{{localize "VTM20.Hunter.LostSanity"}}</a></h4>
-      <div class="r-vc-status" data-tooltip="{{localize 'VTM20.Hunter.LostSanityHint'}}"><b>{{hunterInfo.conviction}}</b> <small>/ 10</small></div>
     </div>
-    {{> rDots dots=hunterInfo.convDots cls="is-ten"}}
+    <div class="r-hconv" data-tooltip="{{localize 'VTM20.Hunter.LostSanityHint'}}">{{> rDots dots=hunterInfo.convDots cls="is-ten"}}</div>
     <div class="r-virtues r-hvirtues">
       {{#each hunterInfo.virtues}}
       <div class="r-virtue" data-tooltip="{{when}}">
         <a class="r-trait-label" data-action="lostVirtue" data-key="{{key}}">{{label}}</a>
-        <span class="r-hv-num"><b>{{value}}</b></span>
         {{> rDots dots=dots cls="is-small"}}
       </div>
       {{/each}}
@@ -271,14 +267,12 @@
   <div class="r-vcard r-vc-morality r-vc-hunter">
     <div class="r-vc-head">
       <h4 class="r-banner"><a data-action="openRules" data-tooltip="{{localize 'VTM20.Hunter.RulesHint'}}">{{localize "VTM20.Hunter.Conviction"}}</a></h4>
-      <div class="r-vc-status" data-tooltip="{{localize 'VTM20.Hunter.BaseHint' n=hunterInfo.base}}"><b>{{hunterInfo.conviction}}</b> <small>/ {{hunterInfo.base}}</small></div>
     </div>
-    {{> rDots dots=hunterInfo.convDots cls="is-ten"}}
+    <div class="r-hconv" data-tooltip="{{localize 'VTM20.Hunter.BaseHint' n=hunterInfo.base}}">{{> rDots dots=hunterInfo.convDots cls="is-ten"}}</div>
     <div class="r-virtues r-hvirtues">
       {{#each hunterInfo.virtues}}
-      <div class="r-virtue {{#if primary}}is-primary{{/if}} {{#if over}}is-over{{/if}} {{#if frozen}}is-frozen{{/if}}" data-tooltip="{{#if frozen}}{{localize 'VTM20.Hunter.Frozen'}} {{/if}}{{#if primary}}{{localize 'VTM20.Hunter.PrimaryHint'}} {{/if}}{{localize 'VTM20.Hunter.UsedHint' used=used value=value}}{{#if madness}} {{localize 'VTM20.Hunter.MadnessHint' n=madness from=@root.hunterInfo.madFrom}}{{/if}}">
+      <div class="r-virtue {{#if primary}}is-primary{{/if}} {{#if over}}is-over{{/if}} {{#if frozen}}is-frozen{{/if}}" data-tooltip="{{#if frozen}}{{localize 'VTM20.Hunter.Frozen'}} {{/if}}{{#if primary}}{{localize 'VTM20.Hunter.PrimaryHint'}} {{/if}}{{#if value}}{{localize 'VTM20.Hunter.UsedHint' used=used value=value}}{{/if}}{{#if @root.hunterInfo.deeds}} {{localize 'VTM20.Hunter.TempHint'}}: {{temp}}{{/if}}{{#if madness}} {{localize 'VTM20.Hunter.MadnessHint' n=madness from=@root.hunterInfo.madFrom}}{{/if}}">
         <a class="r-trait-label" data-action="rollTrait" data-trait="hunter.{{key}}">{{label}}</a>
-        <span class="r-hv-num"><b>{{value}}</b>{{#if used}} <small>({{used}})</small>{{/if}}{{#if @root.hunterInfo.deeds}} <em class="r-hv-temp" data-tooltip="{{localize 'VTM20.Hunter.TempHint'}}">◇{{temp}}</em>{{/if}}</span>
         {{> rDots dots=dots cls="is-ten is-small"}}
       </div>
       {{/each}}
@@ -368,6 +362,7 @@
       </div>
       {{/each}}
     </div>
+    {{#if mortalKind.bars.length}}<div class="r-mk-bars is-{{mortalKind.key}}">{{#each mortalKind.bars}}<div class="r-virtue"><span class="r-trait-label">{{label}}</span><span class="r-virtue-dots">{{> rDots dots=dots cls="is-ten is-small"}}</span></div>{{/each}}</div>{{/if}}
     <div class="r-vc-tools">
       <span class="r-vc-hint is-left" data-tooltip="{{localize 'VTM20.Sheet.BearingHint'}}">{{localize "VTM20.Sheet.Bearing"}}: <b>{{bearing.name}}</b> {{bearing.mod}}</span>
       {{#if isMortal}}{{#if editable}}<a class="r-vc-btn is-sq" data-action="thrallPact" data-tooltip="{{localize 'VTM20.Demon.PactExistingBtn'}}"><i class="fa-solid fa-handshake-angle"></i></a>
@@ -409,6 +404,9 @@
       {{else if mageInfo}}<span class="r-vs-item"><i class="fa-solid fa-hat-wizard"></i> {{@root.mageInfo.L.Arete}} <b>{{mageInfo.arete}}</b></span>
       <span class="r-vs-item"><i class="fa-solid fa-sun"></i> {{@root.mageInfo.L.Quintessence}} <b>{{mageInfo.quintessence}}</b></span>
       <span class="r-vs-item {{#if mageInfo.backlash}}is-hurt{{/if}}"><i class="fa-solid fa-burst"></i> {{localize "VTM20.Mage.Paradox"}} <b>{{mageInfo.paradox}}</b></span>
+      {{else if isChangeling}}<span class="r-vs-item"><i class="fa-solid fa-star"></i> {{#if daf}}{{localize "VTM20.Fae.Daf.Mists"}} <b>{{system.changeling.daf.mists.temporary}}</b>/{{system.changeling.daf.mists.permanent}}{{else}}{{localize "VTM20.Changeling.Glamour"}} <b>{{system.changeling.glamour.temporary}}</b>/{{system.changeling.glamour.permanent}}{{/if}}</span>
+      {{#unless daf}}<span class="r-vs-item"><i class="fa-solid fa-cloud"></i> {{localize "VTM20.Changeling.Banality"}} <b>{{system.changeling.banality.temporary}}</b>/{{system.changeling.banality.permanent}}</span>{{/unless}}
+      {{else if hunterInfo}}<span class="r-vs-item r-vs-conv"><i class="fa-solid fa-eye"></i> {{#if hunterInfo.lost}}{{localize "VTM20.Hunter.LostSanity"}}{{else}}{{localize "VTM20.Hunter.Conviction"}}{{/if}} <span class="r-vs-pips">{{#each hunterInfo.convDots}}<i class="{{#if filled}}is-on{{/if}}"></i>{{/each}}</span></span>
       {{else if thrallInfo}}<span class="r-vs-item"><i class="fa-solid fa-handshake-angle"></i> {{localize "VTM20.Creator.ThrallFaith"}} <b>{{thrallInfo.faith}}</b></span>
       {{else}}<span class="r-vs-item"><i class="fa-solid fa-scale-balanced"></i> {{#each paths}}{{#if selected}}{{name}}{{/if}}{{/each}} <b>{{system.morality.value}}</b></span>{{/if}}
     </span>

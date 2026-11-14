@@ -18,18 +18,19 @@
         {{#if editable}}<i class="fa-solid fa-chevron-down r-seal-caret"></i><select name="system.generation" data-dtype="Number" class="r-seal-select" aria-label="{{localize 'VTM20.Details.generation'}}">{{#each generations}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{rRoman value}} — {{value}}</option>{{/each}}</select>{{/if}}
         {{else if isDemon}}<span class="r-seal-num r-seal-icon"><i class="fa-solid fa-fire-flame-curved"></i></span><span class="r-seal-cap">{{#if house}}{{house.name}}{{else}}{{typeLabel}}{{/if}}</span>
         {{else if mageSeal}}<span class="r-seal-num r-seal-icon r-seal-glyph">{{rSym mageSeal.sym "r-mg"}}</span><span class="r-seal-cap">{{mageSeal.label}}</span>
-        {{else if isWraith}}<span class="r-seal-num r-seal-icon r-seal-glyph">{{#if wraithInfo.legionSym}}{{rSym wraithInfo.legionSym "r-wrg"}}{{else}}<i class="fa-solid fa-ghost"></i>{{/if}}</span><span class="r-seal-cap">{{#if wraithInfo.legion}}{{wraithInfo.legion.name}}{{else}}{{typeLabel}}{{/if}}</span>
+        {{else if isWraith}}<span class="r-seal-num r-seal-icon r-seal-glyph">{{#if wraithInfo.legionSym}}{{rSym wraithInfo.legionSym "r-wrg"}}{{else}}<i class="fa-solid {{#if spectre}}fa-skull{{else}}fa-ghost{{/if}}"></i>{{/if}}</span><span class="r-seal-cap">{{#if wraithInfo.legion}}{{wraithInfo.legion.name}}{{else}}{{typeLabel}}{{/if}}</span>
         {{else if isChangeling}}<span class="r-seal-num r-seal-icon"><i class="fa-solid fa-wand-sparkles"></i></span><span class="r-seal-cap">{{#if changelingInfo.kith}}{{changelingInfo.kith.name}}{{else}}{{typeLabel}}{{/if}}</span>
         {{else if werewolfSeal}}<span class="r-seal-num r-seal-icon r-seal-glyph">{{rSym werewolfSeal.sym "r-wg"}}</span><span class="r-seal-cap">{{werewolfSeal.label}}</span>
         {{else if isCreature}}<span class="r-seal-num r-seal-icon"><i class="fa-solid fa-paw"></i></span><span class="r-seal-cap">{{typeLabel}}</span>
         {{else if isGhoul}}<span class="r-seal-num r-seal-icon"><i class="fa-solid {{#if isRevenant}}fa-dna{{else}}fa-hand-holding-droplet{{/if}}"></i></span><span class="r-seal-cap">{{typeLabel}}</span>
-        {{else}}<span class="r-seal-num r-seal-icon"><i class="fa-solid fa-heart-pulse"></i></span><span class="r-seal-cap">{{typeLabel}}</span>{{/if}}
+        {{else}}<span class="r-seal-num r-seal-icon"><i class="fa-solid {{#if mortalKind}}{{mortalKind.icon}}{{else}}fa-heart-pulse{{/if}}"></i></span><span class="r-seal-cap">{{typeLabel}}</span>{{/if}}
       </figcaption>
     </figure>
 
     <div class="r-head-info">
       <div class="r-kicker">
         <span class="r-kicker-type">{{#if earthbound}}{{localize "VTM20.Creator.Earthbound"}}{{else if thrallInfo}}{{localize "VTM20.Creator.Thrall"}}{{else}}{{typeLabel}}{{/if}}</span>
+        {{#if mortalKind.sub}}<i class="r-kicker-dia"></i><em class="r-kicker-nick">{{mortalKind.sub}}</em>{{/if}}
         {{#if clan.nickname}}<i class="r-kicker-dia"></i><em class="r-kicker-nick is-link" data-action="clanAtlas" data-tooltip="{{localize 'VTM20.Clans.Open'}}">«{{clan.nickname}}»</em>{{/if}}
         {{#if house}}<i class="r-kicker-dia"></i><em class="r-kicker-nick is-link" data-action="houseAtlas" data-tooltip="{{localize 'VTM20.Demon.AtlasOpen'}}">«{{house.akkadian}}»</em>{{/if}}
         {{#if sectSym}}<i class="r-kicker-dia"></i>{{rSym sectSym "r-sym-inline"}}{{/if}}
@@ -114,7 +115,7 @@
         <label class="r-df" data-tooltip="{{werewolfInfo.auspice.role}}"><span>{{localize "VTM20.Werewolf.Auspice"}}</span>
           <select name="system.werewolf.auspice">{{#each werewolfInfo.auspices}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
         {{!-- племя; ниже в том же списке — роды Фера (значение «~род» переключает в Фера: models.mjs, _preUpdate) --}}
-        <label class="r-df is-wide" data-tooltip="{{localize 'VTM20.Werewolf.Totem'}}: {{werewolfInfo.tribe.totem}}"><span>{{localize "VTM20.Werewolf.Tribe"}}</span>
+        <label class="r-df is-wide" data-tooltip="{{localize 'VTM20.Werewolf.Totem.label'}}: {{werewolfInfo.tribe.totem}}"><span>{{localize "VTM20.Werewolf.Tribe"}}</span>
           <select name="system.werewolf.tribe">{{#each werewolfInfo.tribes}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
             <optgroup label="{{localize 'VTM20.Werewolf.FeraGroup'}}">{{#each werewolfInfo.feraOptions}}{{#if key}}<option value="~{{key}}">{{label}}</option>{{/if}}{{/each}}</optgroup></select></label>
         {{/if}}
@@ -151,9 +152,9 @@
           <select name="system.changeling.lykeian.shape"><option value="">—</option>{{#each lykeian.shapes}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
         <label class="r-df"><span>{{localize "VTM20.Changeling.CourtLabel"}}</span>
           <select name="system.changeling.court">{{#each changelingInfo.courts}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
-        <label class="r-df"><span data-tooltip="{{localize 'VTM20.Changeling.LegacySeelie'}}">{{localize "VTM20.Changeling.SeelieShort"}}</span>
+        <label class="r-df"><span>{{localize "VTM20.Changeling.SeelieShort"}}</span>
           <select name="system.changeling.legacies.seelie"><option value="">—</option>{{#each changelingInfo.legaciesSeelie}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
-        <label class="r-df"><span data-tooltip="{{localize 'VTM20.Changeling.LegacyUnseelie'}}">{{localize "VTM20.Changeling.UnseelieShort"}}</span>
+        <label class="r-df"><span>{{localize "VTM20.Changeling.UnseelieShort"}}</span>
           <select name="system.changeling.legacies.unseelie"><option value="">—</option>{{#each changelingInfo.legaciesUnseelie}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
         <label class="r-df" data-tooltip="{{localize 'VTM20.Lykeian.NightmareLegacyHint'}}"><span>{{localize "VTM20.Lykeian.NightmareLegacy"}}</span>
           <select name="system.changeling.lykeian.nightmareLegacy"><option value="">—</option>{{#each lykeian.nightmareLegacies}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
@@ -178,14 +179,14 @@
           <select name="system.changeling.kith"><option value="">—</option>{{#each inan.kiths}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
         <label class="r-df"><span>{{localize "VTM20.Changeling.CourtLabel"}}</span>
           <select name="system.changeling.inanimae.court">{{#each inan.courts}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
-        <label class="r-df"><span data-tooltip="{{localize 'VTM20.Changeling.LegacySeelie'}}">{{localize "VTM20.Changeling.SeelieShort"}}</span>
+        <label class="r-df"><span>{{localize "VTM20.Changeling.SeelieShort"}}</span>
           <select name="system.changeling.legacies.seelie"><option value="">—</option>{{#each changelingInfo.legaciesSeelie}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
-        <label class="r-df"><span data-tooltip="{{localize 'VTM20.Changeling.LegacyUnseelie'}}">{{localize "VTM20.Changeling.UnseelieShort"}}</span>
+        <label class="r-df"><span>{{localize "VTM20.Changeling.UnseelieShort"}}</span>
           <select name="system.changeling.legacies.unseelie"><option value="">—</option>{{#each changelingInfo.legaciesUnseelie}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
         <label class="r-df" data-tooltip="{{localize 'VTM20.Fae.Inan.AnchorHint'}}"><span>{{localize "VTM20.Fae.Inan.Anchor"}}</span><input type="text" name="system.changeling.inanimae.anchor" value="{{system.changeling.inanimae.anchor}}"></label>
         <label class="r-df is-wide" data-tooltip="{{localize 'VTM20.Fae.Inan.HuskHint2'}}"><span>{{localize "VTM20.Fae.Inan.Husk"}}</span><input type="text" name="system.changeling.inanimae.husk" value="{{system.changeling.inanimae.husk}}"></label>
         {{else}}
-        <label class="r-df" {{#if changelingInfo.kith}}data-tooltip="{{changelingInfo.kith.affinityText}}"{{/if}}><span>{{localize "VTM20.Changeling.Kith"}}</span>
+        <label class="r-df" {{#if changelingInfo.kith}}data-tooltip="{{localize 'VTM20.Changeling.AffinityLbl'}}: {{changelingInfo.kith.affinityText}}"{{/if}}><span>{{localize "VTM20.Changeling.Kith"}}</span>
           <select name="system.changeling.kith"><option value="">—</option>{{#each changelingInfo.kiths}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}{{#each changelingInfo.otherKiths}}<optgroup label="{{label}}">{{#each kiths}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</optgroup>{{/each}}</select></label>
         <label class="r-df" {{#if changelingInfo.seeming}}data-tooltip="{{changelingInfo.seeming.banality}}"{{/if}}><span>{{localize "VTM20.Changeling.Seeming"}}</span>
           <select name="system.changeling.seeming"><option value="">—</option>{{#each changelingInfo.seemings}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
@@ -193,9 +194,9 @@
           <select name="system.changeling.court">{{#each changelingInfo.courts}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
         <label class="r-df" {{#if changelingInfo.house}}data-tooltip="{{changelingInfo.house.boon}}"{{/if}}><span>{{localize "VTM20.Changeling.House"}}</span>
           <select name="system.changeling.house"><option value="">—</option>{{#each changelingInfo.houses}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
-        <label class="r-df" {{#if changelingInfo.legacy}}data-tooltip="{{changelingInfo.legacy.ban}}"{{/if}}><span data-tooltip="{{localize 'VTM20.Changeling.LegacySeelie'}}">{{localize "VTM20.Changeling.SeelieShort"}}</span>
+        <label class="r-df" {{#if changelingInfo.legacy}}data-tooltip="{{changelingInfo.legacy.ban}}"{{/if}}><span>{{localize "VTM20.Changeling.SeelieShort"}}</span>
           <select name="system.changeling.legacies.seelie"><option value="">—</option>{{#each changelingInfo.legaciesSeelie}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
-        <label class="r-df"><span data-tooltip="{{localize 'VTM20.Changeling.LegacyUnseelie'}}">{{localize "VTM20.Changeling.UnseelieShort"}}</span>
+        <label class="r-df"><span>{{localize "VTM20.Changeling.UnseelieShort"}}</span>
           <select name="system.changeling.legacies.unseelie"><option value="">—</option>{{#each changelingInfo.legaciesUnseelie}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
         <label class="r-df is-wide" data-tooltip="{{localize 'VTM20.Changeling.ThresholdHint'}}"><span>{{localize "VTM20.Changeling.Threshold"}}</span><input type="text" name="system.changeling.threshold" value="{{system.changeling.threshold}}"></label>
         <label class="r-df is-wide" data-tooltip="{{localize 'VTM20.Changeling.AntithesisHint'}}"><span>{{localize "VTM20.Changeling.Antithesis"}}</span><input type="text" name="system.changeling.antithesis" value="{{system.changeling.antithesis}}"></label>
@@ -234,9 +235,19 @@
         <span class="r-assignat-title">{{localize "VTM20.Sheet.BloodPool"}}</span>
         <span class="r-assignat-num"><b>{{system.blood.value}}</b><small>/{{system.blood.max}}</small></span>
       </div>
+      {{#if bloodDeep}}
+      {{!-- Запас больше 10 (низкие поколения): «вены» по десять капель — сетка с равными промежутками; жила под рядом налита кровью --}}
+      <div class="r-veins">
+        {{#each bloodRows}}<div class="r-vein {{#if full}}is-full{{/if}} {{#if empty}}is-empty{{/if}}" style="--fill: {{fill}}%">
+          <div class="r-vein-drops">{{#each drops}}<a class="r-drop {{#if filled}}is-filled{{/if}}" data-action="setDots" data-path="{{path}}" data-n="{{n}}"><svg viewBox="0 0 24 30" aria-hidden="true"><path d="M12 2C12 2 4 12 4 18a8 8 0 0 0 16 0C20 12 12 2 12 2z"/></svg></a>{{/each}}</div>
+          <span class="r-vein-mark">{{mark}}</span>
+        </div>{{/each}}
+      </div>
+      {{else}}
       <div class="r-drops">
         {{#each bloodBoxes}}<a class="r-drop {{#if filled}}is-filled{{/if}}" data-action="setDots" data-path="{{path}}" data-n="{{n}}"><svg viewBox="0 0 24 30" aria-hidden="true"><path d="M12 2C12 2 4 12 4 18a8 8 0 0 0 16 0C20 12 12 2 12 2z"/></svg></a>{{/each}}
       </div>
+      {{/if}}
       <div class="r-assignat-meta">
         <span>{{localize "VTM20.Sheet.PerTurn"}} <b>{{system.blood.perTurn}}</b></span>
         <a data-action="spendBlood" data-tooltip="{{localize 'VTM20.Sheet.SpendBlood'}}"><i class="fa-solid fa-minus"></i></a>

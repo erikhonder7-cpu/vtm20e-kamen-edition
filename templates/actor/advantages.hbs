@@ -33,13 +33,12 @@
       </div>
       <div class="r-power-body">{{{html}}}</div>
     </div>
-    {{else}}<div class="r-empty">{{localize "VTM20.Sheet.NoBackgrounds"}}</div>
     {{/each}}
   </div>
   {{#each coteries}}
   <div class="r-cot-sheet">
     <a class="r-h2-btn is-plain" data-action="openCoterie"><i class="fa-solid fa-people-roof"></i> {{name}}</a>
-    {{#each pools}}<span class="r-cot-sheet-pool {{#if primary}}is-primary{{/if}}"><b>{{bg}}</b> {{value}}{{#if mine}} <em>{{localize "VTM20.Coterie.Mine" n=mine}}</em>{{/if}}</span>{{else}}<em>{{localize "VTM20.Coterie.NoPools"}}</em>{{/each}}
+    {{#each pools}}<span class="r-cot-sheet-pool {{#if primary}}is-primary{{/if}}"><b>{{bg}}</b> {{value}}{{#if mine}} <em>{{localize "VTM20.Coterie.Mine" n=mine}}</em>{{/if}}</span>{{/each}}
   </div>
   {{/each}}
 
@@ -64,7 +63,6 @@
         {{#unless (or terms gifts)}}<p><em>{{localize "VTM20.Demon.ThrallNoTerms"}}</em></p>{{/unless}}
       </div>
     </div>
-    {{else}}<div class="r-empty">{{localize "VTM20.Demon.ThrallNone"}}</div>
     {{/each}}
   </div>
   {{/if}}
@@ -85,7 +83,6 @@
         </div>
         <div class="r-power-body">{{{html}}}</div>
       </div>
-      {{else}}<div class="r-empty">{{#if (eq key "merit")}}{{localize "VTM20.Sheet.NoMerits"}}{{else}}{{localize "VTM20.Sheet.NoFlaws"}}{{/if}}</div>
       {{/each}}
     </div>
     {{/each}}
@@ -111,7 +108,6 @@
         </div>
         <div class="r-power-body">{{#if pact}}<p class="r-note">{{localize "VTM20.Infernal.Demon"}}: {{pact}}{{#if deed}} · {{localize "VTM20.Infernal.Deed"}}: {{deed}}{{/if}}</p>{{/if}}{{{html}}}</div>
       </div>
-      {{else}}<div class="r-empty">{{localize "VTM20.Infernal.NoInvestments"}}</div>
       {{/each}}
     </div>
     <div class="r-col">
@@ -131,7 +127,6 @@
         {{#if price}}<p class="r-pact-line">{{localize "VTM20.Infernal.Price"}}: {{price}}</p>{{/if}}
         {{#if deed}}<p class="r-pact-line">{{localize "VTM20.Infernal.Deed"}}: {{deed}}</p>{{/if}}
       </div>
-      {{else}}<div class="r-empty">{{localize "VTM20.Infernal.NoPacts"}}</div>
       {{/each}}
     </div>
   </div>
@@ -152,7 +147,6 @@
         </div>
         <div class="r-power-body">{{{html}}}</div>
       </div>
-      {{else}}<div class="r-empty">{{localize "VTM20.Sheet.NoDerangements"}}</div>
       {{/each}}
     </div>
 
@@ -174,7 +168,6 @@
         {{/if}}{{/if}}
         <a class="r-icon-btn is-danger" data-action="removeBond" data-index="{{index}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>
       </div>
-      {{else}}<div class="r-empty">{{localize "VTM20.Bond.none"}}</div>
       {{/each}}
       <p class="r-hint">{{localize "VTM20.Bond.hint"}}</p>
 
@@ -186,7 +179,7 @@
         <a class="r-h2-btn" data-action="ghoulLife" data-op="purge" data-tooltip="{{localize 'VTM20.GhoulLife.PurgeTip'}}"><i class="fa-solid fa-flask"></i></a>{{/if}}
         {{#if ghoulLife.discDue}}<a class="r-h2-btn" data-action="ghoulLife" data-op="lose" data-tooltip="{{localize 'VTM20.GhoulLife.LoseTip'}}"><i class="fa-solid fa-arrow-trend-down"></i></a>{{/if}}
       </span>{{/if}}</h2>
-      <div class="r-ghl">{{#each ghoulLife.chips}}<span class="r-chip {{#if warn}}is-warn{{/if}}" data-tooltip="{{tip}}"><i class="fa-solid {{icon}}"></i> {{label}}</span>{{else}}<div class="r-empty">{{localize "VTM20.GhoulLife.Calm"}}</div>{{/each}}</div>
+      <div class="r-ghl">{{#each ghoulLife.chips}}<span class="r-chip {{#if warn}}is-warn{{/if}}" data-tooltip="{{tip}}"><i class="fa-solid {{icon}}"></i> {{label}}</span>{{/each}}</div>
       <p class="r-hint">{{#if ghoulLife.revenant}}{{localize "VTM20.GhoulLife.HintRevenant"}}{{else}}{{localize "VTM20.GhoulLife.Hint"}}{{/if}}</p>
       {{/if}}
 
@@ -203,9 +196,34 @@
         <a class="r-icon-btn" data-action="vincConflict" data-index="{{index}}" data-tooltip="{{localize 'VTM20.Vinc.ConflictTip'}}"><i class="fa-solid fa-scale-unbalanced"></i></a>
         {{#if ../editable}}<a class="r-icon-btn is-danger" data-action="removeVinc" data-index="{{index}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
       </div>
-      {{else}}<div class="r-empty">{{localize "VTM20.Vinc.None"}}</div>
       {{/each}}
       <p class="r-hint">{{localize "VTM20.Vinc.Hint"}}</p>
+      {{/if}}
+
+      {{#if ritae}}
+      {{!-- Ритусы Шабаша (data/sabbat-ritae.json): группы сворачиваются; щелчок по имени — правила ритуса --}}
+      <h2 class="r-h2"><span>{{localize "VTM20.Ritae.Title"}}</span></h2>
+      {{#each ritae.groups}}
+      <details class="r-ritae-group" {{#if @first}}open{{/if}}>
+        <summary><i class="fa-solid {{icon}}"></i> {{label}} <small>{{list.length}}</small></summary>
+        <ul class="r-edge-list r-ritae r-ritae-{{key}}">
+          {{#each list}}
+          <li class="r-edge">
+            <span class="r-edge-main"><b>{{name}}</b>{{#if en}} <em>{{en}}</em>{{/if}}
+              <small>{{#if faction}}<span class="r-ritae-faction">{{faction}}</span> · {{/if}}{{gist}}</small>
+              <div class="r-edge-text">{{{html}}}</div></span>
+            <span class="r-ritae-tools">
+              {{#if (eq act "fire")}}{{#if @root.editable}}<a class="r-vc-btn" data-action="ritaeFire" data-step="approach"><i class="fa-solid fa-fire"></i> {{localize "VTM20.Ritae.Approach"}}</a>
+              <a class="r-vc-btn" data-action="ritaeFire" data-step="leap"><i class="fa-solid fa-person-running"></i> {{localize "VTM20.Ritae.Leap"}}</a>{{/if}}{{/if}}
+              {{#if (eq act "vaulderie")}}{{#if @root.isGM}}<a class="r-vc-btn" data-action="vaulderie"><i class="fa-solid fa-wine-glass"></i> {{localize "VTM20.Vinc.Rite"}}</a>{{/if}}{{/if}}
+              <a class="r-icon-btn" data-action="ritaeChat" data-group="{{group}}" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Sheet.ToChat'}}"><i class="fa-solid fa-comment-dots"></i></a>
+            </span>
+          </li>
+          {{/each}}
+        </ul>
+      </details>
+      {{/each}}
+      <p class="r-hint">{{ritae.require}}</p>
       {{/if}}
     </div>
     {{/if}}
@@ -232,7 +250,6 @@
           <span class="r-boon-date">{{#if done}}{{localize "VTM20.Boon.Repaid"}}{{else}}{{date}}{{/if}}</span>
         </div>
       </div>
-      {{else}}<div class="r-empty">{{localize "VTM20.Boon.None"}}</div>
       {{/each}}
     </div>
     {{/each}}
@@ -276,7 +293,6 @@
         {{#if rival}}{{#if @root.isGM}}<a class="r-btn" data-action="clAgenda" data-op="rival" data-i="{{i}}"><i class="fa-solid fa-chess-rook"></i> {{localize "VTM20.Agenda.RivalRoll"}}</a>{{/if}}{{/if}}
       </div>{{/unless}}{{/if}}
     </article>
-    {{else}}<p class="r-gs-empty">{{localize "VTM20.Agenda.None"}}</p>
     {{/each}}
   </div>
   <p class="r-hint">{{localize "VTM20.Agenda.Hint"}}</p>
@@ -300,15 +316,14 @@
         <details><summary><span class="r-sn-mark">{{dotsN}}</span><b>{{name}}</b><small>{{en}} · {{localize "VTM20.Sorcerer.Diff"}} {{difficulty}}{{#if over}} · {{localize "VTM20.Sorcerer.OverCap" n=cap}}{{/if}}</small></summary><div class="r-sn-text">{{{html}}}</div></details>
         <span class="r-sn-acts">{{#if abilities}}{{#if @root.editable}}<select class="r-sn-sel" data-sorc-ability="{{key}}" data-tooltip="{{localize 'VTM20.Sorcerer.AbilityHint'}}"><option value="">{{localize "VTM20.Sorcerer.Ability"}}…</option>{{#each abilities}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>{{else}}<small>{{abilityLabel}}</small>{{/if}}{{/if}}
           <span class="r-dots">{{#each dots}}<a class="r-dot {{#if filled}}is-filled{{/if}}" {{#if @root.editable}}data-action="sorcDots" data-key="{{key}}" data-n="{{n}}"{{/if}}></a>{{/each}}</span>
-          {{#if @root.editable}}<a class="r-sn-btn" data-action="sorcUse" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Sorcerer.UseTip'}}"><i class="fa-solid fa-dice-d10"></i></a><a class="r-sn-btn is-del" data-action="sorcDel" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}</span></li>{{else}}<li class="r-sn-empty">{{localize "VTM20.Sorcerer.noPaths"}}</li>{{/each}}</ul>
-      {{#if editable}}<div class="r-sn-add"><select><option value="">{{localize "VTM20.Sorcerer.addPath"}}</option>{{#each sorcInfo.availPaths}}<option value="{{key}}">{{label}}</option>{{/each}}</select>
-        <a class="r-sn-btn" data-action="sorcAdd" data-tooltip="{{localize 'VTM20.Sheet.AddTip'}}"><i class="fa-solid fa-plus"></i></a></div>{{/if}}
+          {{#if @root.editable}}<a class="r-sn-btn" data-action="sorcUse" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Sorcerer.UseTip'}}"><i class="fa-solid fa-dice-d10"></i></a><a class="r-sn-btn is-del" data-action="sorcDel" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}</span></li>{{/each}}</ul>
+      {{#if editable}}<div class="r-sn-add"><a class="r-sn-btn is-wide is-lib" data-action="library" data-kind="sorcPath" data-tooltip="{{localize 'VTM20.Library.Open'}}"><i class="fa-solid fa-book-skull"></i> {{localize "VTM20.Sorcerer.addPath"}}</a></div>{{/if}}
 
       <h4 class="r-sn-sub"><i class="fa-solid fa-scroll"></i> {{localize "VTM20.Sorcerer.Rituals"}}</h4>
       <ul class="r-sn-list">{{#each sorcInfo.rituals}}<li class="r-sn-item">
         <details><summary><span class="r-sn-mark">{{level}}</span><b>{{name}}</b><small>{{pathName}}</small></summary><div class="r-sn-text">{{text}}</div></details>
         {{#if @root.editable}}<span class="r-sn-acts"><a class="r-sn-btn" data-action="sorcRitualUse" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Sorcerer.UseTip'}}"><i class="fa-solid fa-dice-d10"></i></a><a class="r-sn-btn is-del" data-action="sorcRitualDel" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a></span>{{/if}}</li>
-        {{else}}<li class="r-sn-empty">{{localize "VTM20.Sorcerer.noRituals"}}</li>{{/each}}</ul>
+        {{/each}}</ul>
       {{#if editable}}<div class="r-sn-add"><a class="r-sn-btn is-wide" data-action="sorcRitualAdd"><i class="fa-solid fa-feather"></i> {{localize "VTM20.Sorcerer.RitualAdd"}}</a></div>{{/if}}
 
       <h4 class="r-sn-sub"><i class="fa-solid fa-brain"></i> {{localize "VTM20.Sorcerer.PsychicTitle"}} <small>{{localize "VTM20.Sorcerer.PsychicCap" n=sorcInfo.psyCap}}</small></h4>
@@ -316,9 +331,8 @@
         <details><summary><span class="r-sn-mark">{{dotsN}}</span><b>{{name}}</b><small>{{en}} · {{localize "VTM20.Sorcerer.Diff"}} {{difficulty}}{{#if over}} · {{localize "VTM20.Sorcerer.OverCap" n=cap}}{{/if}}</small></summary><div class="r-sn-text">{{{html}}}</div></details>
         <span class="r-sn-acts">{{#if abilities}}{{#if @root.editable}}<select class="r-sn-sel" data-sorc-ability="{{key}}" data-tooltip="{{localize 'VTM20.Sorcerer.AbilityHint'}}"><option value="">{{localize "VTM20.Sorcerer.Ability"}}…</option>{{#each abilities}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>{{else}}<small>{{abilityLabel}}</small>{{/if}}{{/if}}
           <span class="r-dots">{{#each dots}}<a class="r-dot {{#if filled}}is-filled{{/if}}" {{#if @root.editable}}data-action="sorcDots" data-key="{{key}}" data-n="{{n}}"{{/if}}></a>{{/each}}</span>
-          {{#if @root.editable}}<a class="r-sn-btn" data-action="sorcUse" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Sorcerer.UseTip'}}"><i class="fa-solid fa-dice-d10"></i></a><a class="r-sn-btn is-del" data-action="sorcDel" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}</span></li>{{else}}<li class="r-sn-empty">{{localize "VTM20.Sorcerer.noPsychic"}}</li>{{/each}}</ul>
-      {{#if editable}}<div class="r-sn-add"><select><option value="">{{localize "VTM20.Sorcerer.addPsychic"}}</option>{{#each sorcInfo.availPsychic}}<option value="{{key}}">{{label}}</option>{{/each}}</select>
-        <a class="r-sn-btn" data-action="sorcAdd" data-tooltip="{{localize 'VTM20.Sheet.AddTip'}}"><i class="fa-solid fa-plus"></i></a></div>{{/if}}
+          {{#if @root.editable}}<a class="r-sn-btn" data-action="sorcUse" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Sorcerer.UseTip'}}"><i class="fa-solid fa-dice-d10"></i></a><a class="r-sn-btn is-del" data-action="sorcDel" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}</span></li>{{/each}}</ul>
+      {{#if editable}}<div class="r-sn-add"><a class="r-sn-btn is-wide is-lib" data-action="library" data-kind="sorcPsychic" data-tooltip="{{localize 'VTM20.Library.Open'}}"><i class="fa-solid fa-book-skull"></i> {{localize "VTM20.Sorcerer.addPsychic"}}</a></div>{{/if}}
     </div>
     {{/if}}
   </section>
@@ -361,10 +375,8 @@
       <ul class="r-sn-list">{{#each kinInfo.gifts}}<li class="r-sn-item">
         <details><summary><span class="r-sn-mark">I</span><b>{{rName this}}</b><small>{{rAlt this}}</small></summary><div class="r-sn-text">{{{text}}}</div></details>
         {{#if @root.editable}}<span class="r-sn-acts"><a class="r-sn-btn" data-action="kinUse" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Sheet.UseTip'}}"><i class="fa-solid {{#if roll}}fa-dice-d10{{else}}fa-hand-sparkles{{/if}}"></i></a><a class="r-sn-btn is-del" data-action="kinDel" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a></span>{{/if}}</li>
-        {{else}}<li class="r-sn-empty">{{localize "VTM20.Werewolf.Kin.noGifts"}}</li>{{/each}}</ul>
-      {{#if editable}}<div class="r-sn-add"><select class="r-kin-add"><option value="">{{localize "VTM20.Werewolf.Kin.addGift"}}</option>{{#each kinInfo.avail}}<option value="{{key}}">{{label}}</option>{{/each}}</select>
-        <a class="r-sn-btn" data-action="kinAdd" data-tooltip="{{localize 'VTM20.Werewolf.Kin.addFree'}}"><i class="fa-solid fa-plus"></i></a>
-        <a class="r-sn-btn" data-action="kinBuy" data-tooltip="{{localize 'VTM20.Werewolf.Kin.addXp'}}"><i class="fa-solid fa-star"></i></a></div>{{/if}}
+        {{/each}}</ul>
+      {{#if editable}}<div class="r-sn-add"><a class="r-sn-btn is-wide is-lib" data-action="library" data-kind="kinGift" data-tooltip="{{localize 'VTM20.Library.Open'}}"><i class="fa-solid fa-book-skull"></i> {{localize "VTM20.Werewolf.Kin.addGift"}}</a></div>{{/if}}
 
       {{!-- Кин-фетч (W20 Kinfolk, гл. 3): дух-хранитель с клеймом племени; Огненное крещение — по обычаю племени --}}
       <h4 class="r-sn-sub"><i class="fa-solid fa-feather"></i> {{localize "VTM20.Werewolf.Fetch.title"}}</h4>
@@ -381,9 +393,8 @@
           <div class="r-sn-text">{{{text}}}<ol class="r-sn-levels">{{#each levels}}<li class="{{#unless reached}}is-locked{{/unless}}"><b>{{rRoman n}}{{#if name}}. {{name}}{{/if}}</b>{{#if difficulty}} <em>{{localize "VTM20.Roll.Vs"}} {{difficulty}}</em>{{/if}} — {{{text}}}</li>{{/each}}</ol></div></details>
         <span class="r-sn-acts"><span class="r-dots">{{#each dots}}<a class="r-dot {{#if filled}}is-filled{{/if}}" {{#if @root.editable}}data-action="kinNumDots" data-key="{{../key}}" data-n="{{n}}"{{/if}}></a>{{/each}}</span>
           {{#if @root.editable}}<a class="r-sn-btn" data-action="kinNumUse" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Sheet.UseTip'}}"><i class="fa-solid fa-dice-d10"></i></a><a class="r-sn-btn is-del" data-action="kinNumDel" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}</span></li>
-        {{else}}<li class="r-sn-empty">{{localize "VTM20.Werewolf.Numen.none"}}</li>{{/each}}</ul>
-      {{#if editable}}<div class="r-sn-add"><select class="r-kin-num-add"><option value="">{{localize "VTM20.Werewolf.Numen.add"}}</option>{{#each kinInfo.numAvail}}<option value="{{key}}">{{label}}</option>{{/each}}</select>
-        <a class="r-sn-btn" data-action="kinNumAdd" data-tooltip="{{localize 'VTM20.Sheet.AddTip'}}"><i class="fa-solid fa-plus"></i></a></div>{{/if}}
+        {{/each}}</ul>
+      {{#if editable}}<div class="r-sn-add"><a class="r-sn-btn is-wide is-lib" data-action="library" data-kind="numen" data-tooltip="{{localize 'VTM20.Library.Open'}}"><i class="fa-solid fa-book-skull"></i> {{localize "VTM20.Werewolf.Numen.add"}}</a></div>{{/if}}
       <p class="r-sn-hint">{{localize "VTM20.Werewolf.Numen.hint"}}</p>
     </div>
     {{/if}}
@@ -409,10 +420,8 @@
         <details><summary><span class="r-sn-mark">{{#if (gt n 1)}}×{{n}}{{else}}<i class="fa-solid fa-seedling"></i>{{/if}}</span><b>{{rName this}}</b><small>{{kind}}</small></summary><div class="r-sn-text">{{{text}}}</div></details>
         {{#if @root.editable}}<span class="r-sn-acts">{{#if more}}<a class="r-sn-btn" data-action="kamiMore" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Werewolf.Kami.more'}}"><i class="fa-solid fa-plus"></i></a>{{/if}}
           <a class="r-sn-btn" data-action="kamiUse" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Sheet.UseTip'}}"><i class="fa-solid {{#if roll}}fa-dice-d10{{else}}fa-hand-sparkles{{/if}}"></i></a><a class="r-sn-btn is-del" data-action="kamiDel" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a></span>{{/if}}</li>
-        {{else}}<li class="r-sn-empty">{{localize "VTM20.Werewolf.Kami.none"}}</li>{{/each}}</ul>
-      {{#if editable}}<div class="r-sn-add"><select class="r-kami-add"><option value="">{{localize "VTM20.Werewolf.Kami.add"}}</option>{{#each kamiInfo.avail}}<option value="{{key}}">{{label}}</option>{{/each}}</select>
-        <a class="r-sn-btn" data-action="kamiAdd" data-tooltip="{{localize 'VTM20.Werewolf.Kin.addFree'}}"><i class="fa-solid fa-plus"></i></a>
-        <a class="r-sn-btn" data-action="kamiBuy" data-tooltip="{{localize 'VTM20.Werewolf.Kami.addXp' n=kamiInfo.xp}}"><i class="fa-solid fa-star"></i></a></div>{{/if}}
+        {{/each}}</ul>
+      {{#if editable}}<div class="r-sn-add"><a class="r-sn-btn is-wide is-lib" data-action="library" data-kind="kamiPower" data-tooltip="{{localize 'VTM20.Library.Open'}}"><i class="fa-solid fa-book-skull"></i> {{localize "VTM20.Werewolf.Kami.add"}}</a></div>{{/if}}
       <p class="r-sn-hint">{{kamiInfo.start}} {{localize "VTM20.Werewolf.Kami.hint"}}</p>
       <details class="r-sn-more"><summary>{{localize "VTM20.Werewolf.Kami.rules"}}</summary><div class="r-sn-text">{{{kamiInfo.create}}}{{{kamiInfo.examples}}}</div></details>
     </div>
@@ -439,9 +448,8 @@
         <details><summary><span class="r-sn-mark">{{#if (gt n 1)}}×{{n}}{{else}}<i class="fa-solid fa-biohazard"></i>{{/if}}</span><b>{{rName this}}</b><small>{{rAlt this}}</small></summary><div class="r-sn-text">{{{text}}}</div></details>
         {{#if @root.editable}}<span class="r-sn-acts">{{#if more}}<a class="r-sn-btn" data-action="fomorMore" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Sheet.MoreTip'}}"><i class="fa-solid fa-plus"></i></a>{{/if}}
           <a class="r-sn-btn" data-action="fomorUse" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Sheet.UseTip'}}"><i class="fa-solid {{#if roll}}fa-dice-d10{{else}}fa-hand-sparkles{{/if}}"></i></a><a class="r-sn-btn is-del" data-action="fomorDel" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a></span>{{/if}}</li>
-        {{else}}<li class="r-sn-empty">{{localize "VTM20.Werewolf.Fomor.none"}}</li>{{/each}}</ul>
-      {{#if editable}}<div class="r-sn-add"><select class="r-fomor-add"><option value="">{{localize "VTM20.Werewolf.Fomor.add"}}</option>{{#each fomorInfo.avail}}<option value="{{key}}">{{label}}</option>{{/each}}</select>
-        <a class="r-sn-btn" data-action="fomorAdd" data-tooltip="{{localize 'VTM20.Sheet.AddTip'}}"><i class="fa-solid fa-plus"></i></a></div>{{/if}}
+        {{/each}}</ul>
+      {{#if editable}}<div class="r-sn-add"><a class="r-sn-btn is-wide is-lib" data-action="library" data-kind="fomorPower" data-tooltip="{{localize 'VTM20.Library.Open'}}"><i class="fa-solid fa-book-skull"></i> {{localize "VTM20.Werewolf.Fomor.add"}}</a></div>{{/if}}
     </div>
     {{/if}}
   </section>

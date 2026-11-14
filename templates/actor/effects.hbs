@@ -2,10 +2,10 @@
      постоянные модификаторы (раны, броня, физические Дисциплины, прочность); черты с механикой; изъян клана. --}}
 <section class="tab r-pane r-effects {{tab.cssClass}}" data-tab="{{tab.id}}" data-group="{{tab.group}}">
 
+  {{#unless fxEmpty}}
   <h2 class="r-h2"><span>{{localize "VTM20.FxTab.Now"}}</span>
     {{#if fxBoosts.length}}{{#if editable}}<span class="r-h2-tools"><a class="r-h2-btn is-plain" data-action="clearBoosts"><i class="fa-solid fa-rotate-left"></i> <span class="r-h2-lbl">{{localize "VTM20.FxTab.ClearBoosts"}}</span></a></span>{{/if}}{{/if}}
   </h2>
-  {{#if fxEmpty}}<div class="r-empty">{{localize "VTM20.FxTab.NothingNow"}}</div>{{/if}}
   <div class="r-fx-grid">
     {{#each fxPowers}}
     <article class="r-fx-card is-power is-{{kind}}" {{#if timer}}data-fx-start="{{timer.start}}" data-fx-until="{{timer.until}}"{{/if}}>
@@ -54,6 +54,7 @@
     </article>
     {{/each}}
   </div>
+  {{/unless}}
 
   <h2 class="r-h2"><span>{{localize "VTM20.FxTab.Always"}}</span></h2>
   <div class="r-fx-mods">
@@ -67,7 +68,9 @@
     {{/each}}
   </div>
 
+  {{#if fxTraits.length}}
   <h2 class="r-h2"><span>{{localize "VTM20.FxTab.Traits"}}</span></h2>
+  {{/if}}
   {{#each fxTraits}}
   <div class="r-fx-trait {{#if flaw}}is-flaw{{/if}}">
     <span class="r-fx-trait-name">{{name}}</span>
@@ -75,7 +78,6 @@
     <span class="r-fx-trait-where">{{where}}{{#if hint}} — <em>{{hint}}</em>{{/if}}</span>
     <span class="r-tag {{#if auto}}is-red{{/if}}" data-tooltip="{{#if auto}}{{localize 'VTM20.FxTab.AutoHint'}}{{else}}{{localize 'VTM20.FxTab.SituHint'}}{{/if}}">{{#if auto}}{{localize "VTM20.FxTab.Auto"}}{{else}}{{localize "VTM20.FxTab.Situ"}}{{/if}}</span>
   </div>
-  {{else}}<div class="r-empty">{{localize "VTM20.FxTab.NoTraits"}}</div>
   {{/each}}
 
   {{#if weakness}}
