@@ -127,7 +127,7 @@
         {{/if}}
         {{#if isMage}}
         {{!-- Маг (M20): фракция (Традиция, Конвенция, Ремесло), Сущность Аватара, родовая Сфера --}}
-        <label class="r-df is-wide" {{#if mageInfo.factionTip}}data-tooltip="{{mageInfo.factionTip}}"{{/if}}><span>{{localize "VTM20.Mage.Faction"}}</span>
+        <label class="r-df is-wide" {{#if mageInfo.factionTip}}data-tooltip="{{mageInfo.factionTip}}"{{/if}}><span>{{localize "VTM20.Mage.Faction"}}{{#if editable}}<a class="r-df-lib" data-action="library" data-kind="mageFaction" data-tooltip="{{localize 'VTM20.Library.Open'}}"><i class="fa-solid fa-book-open"></i></a>{{/if}}</span>
           <select name="system.mage.faction"><option value="">—</option>{{#each mageInfo.groups}}<optgroup label="{{name}}">{{#each list}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</optgroup>{{/each}}</select></label>
         {{#if mageInfo.subs.length}}
         <label class="r-df" {{#if mageInfo.subTip}}data-tooltip="{{mageInfo.subTip}}"{{/if}}><span>{{mageInfo.subLabel}}</span>
@@ -152,9 +152,9 @@
           <select name="system.changeling.lykeian.shape"><option value="">—</option>{{#each lykeian.shapes}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
         <label class="r-df"><span>{{localize "VTM20.Changeling.CourtLabel"}}</span>
           <select name="system.changeling.court">{{#each changelingInfo.courts}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
-        <label class="r-df"><span>{{localize "VTM20.Changeling.SeelieShort"}}</span>
+        <label class="r-df"><span>{{localize "VTM20.Changeling.SeelieShort"}}{{#if editable}}<a class="r-df-lib" data-action="library" data-kind="legacy" data-tooltip="{{localize 'VTM20.Library.Open'}}"><i class="fa-solid fa-book-open"></i></a>{{/if}}</span>
           <select name="system.changeling.legacies.seelie"><option value="">—</option>{{#each changelingInfo.legaciesSeelie}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
-        <label class="r-df"><span>{{localize "VTM20.Changeling.UnseelieShort"}}</span>
+        <label class="r-df"><span>{{localize "VTM20.Changeling.UnseelieShort"}}{{#if editable}}<a class="r-df-lib" data-action="library" data-kind="legacy" data-tooltip="{{localize 'VTM20.Library.Open'}}"><i class="fa-solid fa-book-open"></i></a>{{/if}}</span>
           <select name="system.changeling.legacies.unseelie"><option value="">—</option>{{#each changelingInfo.legaciesUnseelie}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
         <label class="r-df" data-tooltip="{{localize 'VTM20.Lykeian.NightmareLegacyHint'}}"><span>{{localize "VTM20.Lykeian.NightmareLegacy"}}</span>
           <select name="system.changeling.lykeian.nightmareLegacy"><option value="">—</option>{{#each lykeian.nightmareLegacies}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
@@ -179,9 +179,9 @@
           <select name="system.changeling.kith"><option value="">—</option>{{#each inan.kiths}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
         <label class="r-df"><span>{{localize "VTM20.Changeling.CourtLabel"}}</span>
           <select name="system.changeling.inanimae.court">{{#each inan.courts}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
-        <label class="r-df"><span>{{localize "VTM20.Changeling.SeelieShort"}}</span>
+        <label class="r-df"><span>{{localize "VTM20.Changeling.SeelieShort"}}{{#if editable}}<a class="r-df-lib" data-action="library" data-kind="legacy" data-tooltip="{{localize 'VTM20.Library.Open'}}"><i class="fa-solid fa-book-open"></i></a>{{/if}}</span>
           <select name="system.changeling.legacies.seelie"><option value="">—</option>{{#each changelingInfo.legaciesSeelie}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
-        <label class="r-df"><span>{{localize "VTM20.Changeling.UnseelieShort"}}</span>
+        <label class="r-df"><span>{{localize "VTM20.Changeling.UnseelieShort"}}{{#if editable}}<a class="r-df-lib" data-action="library" data-kind="legacy" data-tooltip="{{localize 'VTM20.Library.Open'}}"><i class="fa-solid fa-book-open"></i></a>{{/if}}</span>
           <select name="system.changeling.legacies.unseelie"><option value="">—</option>{{#each changelingInfo.legaciesUnseelie}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
         <label class="r-df" data-tooltip="{{localize 'VTM20.Fae.Inan.AnchorHint'}}"><span>{{localize "VTM20.Fae.Inan.Anchor"}}</span><input type="text" name="system.changeling.inanimae.anchor" value="{{system.changeling.inanimae.anchor}}"></label>
         <label class="r-df is-wide" data-tooltip="{{localize 'VTM20.Fae.Inan.HuskHint2'}}"><span>{{localize "VTM20.Fae.Inan.Husk"}}</span><input type="text" name="system.changeling.inanimae.husk" value="{{system.changeling.inanimae.husk}}"></label>
@@ -194,9 +194,9 @@
           <select name="system.changeling.court">{{#each changelingInfo.courts}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
         <label class="r-df" {{#if changelingInfo.house}}data-tooltip="{{changelingInfo.house.boon}}"{{/if}}><span>{{localize "VTM20.Changeling.House"}}</span>
           <select name="system.changeling.house"><option value="">—</option>{{#each changelingInfo.houses}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
-        <label class="r-df" {{#if changelingInfo.legacy}}data-tooltip="{{changelingInfo.legacy.ban}}"{{/if}}><span>{{localize "VTM20.Changeling.SeelieShort"}}</span>
+        <label class="r-df" {{#if changelingInfo.legacy}}data-tooltip="{{changelingInfo.legacy.ban}}"{{/if}}><span>{{localize "VTM20.Changeling.SeelieShort"}}{{#if editable}}<a class="r-df-lib" data-action="library" data-kind="legacy" data-tooltip="{{localize 'VTM20.Library.Open'}}"><i class="fa-solid fa-book-open"></i></a>{{/if}}</span>
           <select name="system.changeling.legacies.seelie"><option value="">—</option>{{#each changelingInfo.legaciesSeelie}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
-        <label class="r-df"><span>{{localize "VTM20.Changeling.UnseelieShort"}}</span>
+        <label class="r-df"><span>{{localize "VTM20.Changeling.UnseelieShort"}}{{#if editable}}<a class="r-df-lib" data-action="library" data-kind="legacy" data-tooltip="{{localize 'VTM20.Library.Open'}}"><i class="fa-solid fa-book-open"></i></a>{{/if}}</span>
           <select name="system.changeling.legacies.unseelie"><option value="">—</option>{{#each changelingInfo.legaciesUnseelie}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
         <label class="r-df is-wide" data-tooltip="{{localize 'VTM20.Changeling.ThresholdHint'}}"><span>{{localize "VTM20.Changeling.Threshold"}}</span><input type="text" name="system.changeling.threshold" value="{{system.changeling.threshold}}"></label>
         <label class="r-df is-wide" data-tooltip="{{localize 'VTM20.Changeling.AntithesisHint'}}"><span>{{localize "VTM20.Changeling.Antithesis"}}</span><input type="text" name="system.changeling.antithesis" value="{{system.changeling.antithesis}}"></label>
@@ -204,11 +204,11 @@
         {{/if}}
         {{#if isWraith}}
         {{!-- Призрак (Wraith 20, гл. 1, 4): Легион по смерти, Гильдия по Арканосу, фракция; чем умер --}}
-        <label class="r-df" {{#if wraithInfo.legionTip}}data-tooltip="{{wraithInfo.legionTip}}"{{/if}}><span>{{localize "VTM20.Wraith.Legion"}}</span>
+        <label class="r-df" {{#if wraithInfo.legionTip}}data-tooltip="{{wraithInfo.legionTip}}"{{/if}}><span>{{localize "VTM20.Wraith.Legion"}}{{#if editable}}<a class="r-df-lib" data-action="library" data-kind="wrOrder" data-tooltip="{{localize 'VTM20.Library.Open'}}"><i class="fa-solid fa-book-open"></i></a>{{/if}}</span>
           <select name="system.wraith.legion"><option value="">—</option>{{#each wraithInfo.legions}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
-        <label class="r-df" {{#if wraithInfo.guild}}data-tooltip="{{wraithInfo.guild.arcanos}}"{{/if}}><span>{{localize "VTM20.Wraith.Guild"}}</span>
+        <label class="r-df" {{#if wraithInfo.guild}}data-tooltip="{{wraithInfo.guild.arcanos}}"{{/if}}><span>{{localize "VTM20.Wraith.Guild"}}{{#if editable}}<a class="r-df-lib" data-action="library" data-kind="wrOrder" data-tooltip="{{localize 'VTM20.Library.Open'}}"><i class="fa-solid fa-book-open"></i></a>{{/if}}</span>
           <select name="system.wraith.guild"><option value="">—</option>{{#each wraithInfo.guilds}}<optgroup label="{{name}}">{{#each list}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</optgroup>{{/each}}</select></label>
-        <label class="r-df"><span>{{localize "VTM20.Wraith.Faction"}}</span>
+        <label class="r-df"><span>{{localize "VTM20.Wraith.Faction"}}{{#if editable}}<a class="r-df-lib" data-action="library" data-kind="wrOrder" data-tooltip="{{localize 'VTM20.Library.Open'}}"><i class="fa-solid fa-book-open"></i></a>{{/if}}</span>
           <select name="system.wraith.faction"><option value="">—</option>{{#each wraithInfo.factions}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
         <label class="r-df is-wide"><span>{{localize "VTM20.Wraith.Death"}}</span><input type="text" name="system.wraith.death" value="{{system.wraith.death}}"></label>
         {{/if}}

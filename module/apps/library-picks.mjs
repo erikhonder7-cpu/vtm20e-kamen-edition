@@ -23,7 +23,7 @@ import { addFetish, craftFetish } from "./werewolf/fetishes.mjs";
 import { kinAddGift, kinAddNumen, kinCost, kamiInfo, kamiAdd } from "./werewolf/kin.mjs";
 import { fomorAdd } from "./werewolf/fomori.mjs";
 import { addCharm, applySpiritTpl, charmOf } from "./werewolf/spirits.mjs";
-import { W as WR, arcSym, addRow } from "./wraith.mjs";
+import { W as WR, arcSym, addRow, guildsOf } from "./wraith.mjs";
 import { spectreRow } from "./spectre.mjs";
 import { stainRow } from "./projector.mjs";
 import { realmRow } from "./realms.mjs";
@@ -527,6 +527,55 @@ const archetype = {
   }
 };
 
+/* ── Выбор из справочника в поле листа: Наследия подменыша, Легион, Гильдия и фракция призрака, фракция мага ──
+ * Общая заготовка: записи группами, текст — что это даёт, «Выбрать» пишет ключ в поле листа (без перерисовки листа — сам Foundry). */
+const fieldPick = ({ title, rule, list, field, has }) => ({
+  free: true, quiet: true, noXp: true,
+  title: () => P(title), rule: () => P(rule), takeLabel: () => P("Field.Choose"), ownedLabel: () => P("Field.Current"),
+  entries(a) {
+    const rows = list(a), groups = [...new Set(rows.map(r => r.group))];
+    return rows.map((r, i) => ({ ...r, order: i, groupOrder: groups.indexOf(r.group), has: has(a, r) }));
+  },
+  async take(a, id) {
+    const r = list(a).find(x => x.id === id);
+    return r && a ? a.update({ [field(r)]: r.key }) : null;
+  }
+});
+const line = (label, text) => text ? `<p><b>${esc(label)}:</b> ${esc(text)}</p>` : "";
+const legacy = fieldPick({
+  title: "Field.Legacy.Title", rule: "Field.Legacy.Rule",
+  list: () => (C().legacies ?? []).filter(l => ["seelie", "unseelie"].includes(l.court)).map(l => ({
+    id: l.key, key: l.key, court: l.court, name: l.name, en: l.en, group: l.court, groupName: loc(`VTM20.Changeling.${l.court === "seelie" ? "Seelie" : "Unseelie"}Short`),
+    text: `${line(P("Field.Legacy.Gist"), l.text)}${line(P("Field.Legacy.Quest"), l.quest)}${line(P("Field.Legacy.Ban"), l.ban)}` })),
+  field: r => `system.changeling.legacies.${r.court}`,
+  has: (a, r) => a?.system?.changeling?.legacies?.[r.court] === r.key
+});
+const wrOrder = fieldPick({
+  title: "Field.Wraith.Title", rule: "Field.Wraith.Rule",
+  list: () => {
+    const D = WR();
+    return [
+      ...(D.legions ?? []).map(l => ({ id: `legion:${l.key}`, key: l.key, kind: "legion", name: l.name, en: l.en, group: "legion", groupName: loc("VTM20.Wraith.Legion"),
+        text: `${line(P("Field.Wraith.Death"), l.death)}${line(P("Field.Wraith.Lord"), [l.lord, l.seat].filter(Boolean).join(", "))}` })),
+      ...guildsOf().map(g => ({ id: `guild:${g.key}`, key: g.key, kind: "guild", name: g.name, en: g.en, group: "guild", groupName: loc("VTM20.Wraith.Guild"),
+        text: line(P("Field.Wraith.Arcanos"), g.arcanos), tags: g.group === "forbidden" ? [{ label: P("Field.Wraith.Forbidden"), red: true }] : [] })),
+      ...(D.factions ?? []).map(f => ({ id: `faction:${f.key}`, key: f.key, kind: "faction", name: f.name, en: f.en, group: "faction", groupName: loc("VTM20.Wraith.Faction"), text: "" }))
+    ];
+  },
+  field: r => `system.wraith.${r.kind}`,
+  has: (a, r) => a?.system?.wraith?.[r.kind] === r.key
+});
+const mageFaction = fieldPick({
+  title: "Field.Mage.Title", rule: "Field.Mage.Rule",
+  list: () => {
+    const D = MAGE(), gname = Object.fromEntries((D.groups ?? []).map(g => [g.key, g.name]));
+    return (D.factions ?? []).map(f => ({ id: f.key, key: f.key, name: f.name, en: f.en, group: f.group, groupName: gname[f.group] ?? f.group,
+      text: `${line(P("Field.Mage.Affinity"), f.affinityText)}${line(P("Field.Mage.Practices"), f.practices)}${(f.subs ?? []).length ? line(P("Field.Mage.Subs"), f.subs.map(s => s.name).join(", ")) : ""}` }));
+  },
+  field: () => "system.mage.faction",
+  has: (a, r) => a?.system?.mage?.faction === r.key
+});
+
 /** Виды записей по ключу (data-kind кнопки библиотеки на листе). */
 export const PICKS = {
   fetish, scar, deform, kinGift, numen, kamiPower, fomorPower, charm, spiritTpl,
@@ -534,6 +583,6 @@ export const PICKS = {
   art, rede, cantrip,
   bloodright,
   sorcPath: sorcNumen("paths"), sorcPsychic: sorcNumen("psychic"),
-  lore, rote, moralPath, archetype,
+  lore, rote, moralPath, archetype, legacy, wrOrder, mageFaction,
   weapon: equip("weapon", WEAPON_PRESETS), armor: equip("armor", ARMOR_PRESETS), gear: equip("gear", GEAR_PRESETS)
 };

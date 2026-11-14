@@ -4934,7 +4934,10 @@
         "armor": "Armor",
         "gear": "Gear",
         "moralPath": "Paths",
-        "archetype": "Archetypes"
+        "archetype": "Archetypes",
+        "legacy": "Legacies",
+        "wrOrder": "Legions, Guilds and Factions",
+        "mageFaction": "Traditions and Conventions"
       },
       "PactOrigin": {
         "doc": "Reference samples",
@@ -5022,7 +5025,10 @@
         "armor": "Ready armor is added with its rating and penalty; edit it afterwards if needed.",
         "gear": "Ready gear is added with its description; adjust the quantity on the sheet.",
         "moralPath": "Changing the Path on the sheet is a Storyteller edit; in play a vampire leaves Humanity through a trial (button by the Path).",
-        "archetype": "Nature is the true self: it regains Willpower when the character acts by it. Demeanor is the face shown to others. Pick with the buttons on a card."
+        "archetype": "Nature is the true self: it regains Willpower when the character acts by it. Demeanor is the face shown to others. Pick with the buttons on a card.",
+        "legacy": "A changeling has two Legacies, Seelie and Unseelie; which leads depends on the Court. The choice goes into the sheet field.",
+        "wrOrder": "The Legion follows how the wraith died; the Guild follows the Arcanos they studied; the faction is who they stand with.",
+        "mageFaction": "The mage's faction: a Council Tradition, a Technocratic Convention, a Craft and so on. The choice goes into the sheet field."
       },
       "Pick": {
         "WrongSheet": "“{name}” does not fit this sheet.",
@@ -5060,6 +5066,32 @@
           "Regain": "Regains Willpower",
           "Open": "Archetypes: how each regains Willpower",
           "As": "Set as"
+        },
+        "Field": {
+          "Choose": "Choose",
+          "Current": "current",
+          "Legacy": {
+            "Title": "Legacies",
+            "Rule": "A changeling has two Legacies, Seelie and Unseelie; which leads depends on the Court. The choice goes into the sheet field.",
+            "Gist": "Gist",
+            "Quest": "Regains Willpower",
+            "Ban": "Ban"
+          },
+          "Wraith": {
+            "Title": "Legions, Guilds and Factions",
+            "Rule": "The Legion follows how the wraith died; the Guild follows the Arcanos they studied; the faction is who they stand with.",
+            "Death": "Death",
+            "Lord": "Lord",
+            "Arcanos": "Arcanos",
+            "Forbidden": "forbidden"
+          },
+          "Mage": {
+            "Title": "Traditions and Conventions",
+            "Rule": "The mage's faction: a Council Tradition, a Technocratic Convention, a Craft and so on. The choice goes into the sheet field.",
+            "Affinity": "Affinity Sphere",
+            "Practices": "Practices and paradigms",
+            "Subs": "Sub-factions"
+          }
         }
       },
       "ClanBanned": "Not available to clan: {clan}"
