@@ -7661,7 +7661,18 @@
         "rage": "Rage",
         "gnosis": "Gnosis",
         "conviction": "Conviction",
-        "faith": "Faith"
+        "faith": "Faith",
+        "quint": "Quintessence",
+        "pathos": "Pathos",
+        "corpus": "Corpus",
+        "glamour": "Glamour"
+      },
+      "Roll": {
+        "notice": "Notice: Perception + Alertness",
+        "dodge": "Dodge: Dexterity + Athletics",
+        "resist": "Resist: Willpower",
+        "init": "Initiative (added to d10)",
+        "soak": "Lethal soak"
       }
     },
     "Degen": {

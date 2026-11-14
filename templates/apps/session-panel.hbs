@@ -20,6 +20,10 @@
         <span class="r-sp-pools">
           {{#each pools}}<span class="r-sp-pool {{#if low}}is-low{{/if}}" data-tooltip="{{label}}"><i class="fa-solid {{icon}}"></i><b>{{value}}</b><small>/{{max}}</small></span>{{/each}}
         </span>
+        <span class="r-sp-rolls">
+          {{#each rolls}}<a class="r-sp-roll" data-action="roll" data-id="{{../id}}" data-roll="{{key}}" data-tooltip="{{label}}"><i class="fa-solid {{icon}}"></i><b>{{n}}</b></a>{{/each}}
+          {{#each info}}<span class="r-sp-roll is-info" data-tooltip="{{label}}"><i class="fa-solid {{icon}}"></i><b>{{n}}</b></span>{{/each}}
+        </span>
         <span class="r-sp-states">{{#each states}}<span class="r-sp-state" data-tooltip="{{label}}"><img src="{{img}}" alt="">{{label}}</span>{{/each}}</span>
         <span class="r-sp-places">{{#each places}}<a class="r-sp-place {{#if viewed}}is-viewed{{/if}}" data-action="token" data-scene="{{scene}}" data-token="{{token}}" data-tooltip="{{localize 'VTM20.Session.ToToken'}}"><i class="fa-solid fa-location-crosshairs"></i></a>{{/each}}</span>
       </div>

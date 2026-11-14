@@ -5,12 +5,19 @@
 
 import { SYSTEM_PATH } from "../config.mjs";
 import { torporOf } from "./torpor.mjs";
+import { RollDialog } from "../dice/dialog.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
 const ID = "r-session-panel";
 /** Персонажи хроники: люди и сверхъестественные с листом (без котерий, доменов и существ). */
-const PEOPLE = ["vampire", "ghoul", "mortal", "demon", "hunter", "werewolf"];
+const PEOPLE = ["vampire", "ghoul", "mortal", "demon", "hunter", "werewolf", "mage", "wraith", "changeling"];
+/** Пулы, что рассказчик бросает за персонажа чаще всего (щелчок — окно броска); инициатива и поглощение — числом. */
+const ROLLS = [
+  { key: "notice", icon: "fa-eye", t1: "attributes.perception", t2: "abilities.alertness" },
+  { key: "dodge", icon: "fa-person-running", t1: "attributes.dexterity", t2: "abilities.athletics" },
+  { key: "resist", icon: "fa-brain", t1: "willpower.permanent", t2: "" }
+];
 /** Состояния на панели — по порядку тяжести. */
 const STATES = ["r-torpor", "r-staked", "r-frenzy", "r-rotschreck", "r-harano", "r-rapture", "r-stunned", "r-held", "r-prone"];
 
@@ -51,15 +58,23 @@ function row(a) {
     a.type === "werewolf" ? pool("rage", s.werewolf?.rage?.value, s.werewolf?.rage?.permanent, "fa-fire") : null,
     a.type === "werewolf" ? pool("gnosis", s.werewolf?.gnosis?.value, s.werewolf?.gnosis?.permanent, "fa-moon") : null,
     a.type === "hunter" ? pool("conviction", s.hunter?.conviction, 10, "fa-sun") : null,
-    a.type === "demon" ? pool("faith", s.faith?.temporary, s.faith?.permanent, "fa-hand-sparkles") : null
+    a.type === "demon" ? pool("faith", s.faith?.temporary, s.faith?.permanent, "fa-hand-sparkles") : null,
+    a.type === "mage" ? pool("quint", s.mage?.quintessence, 20, "fa-sun") : null,
+    a.type === "wraith" ? pool("pathos", s.wraith?.pathos?.value, 10, "fa-droplet") : null,
+    a.type === "wraith" ? pool("corpus", s.wraith?.corpus, 10, "fa-ghost") : null,
+    a.type === "changeling" ? pool("glamour", s.changeling?.glamour?.temporary, s.changeling?.glamour?.permanent, "fa-wand-sparkles") : null
   ].filter(Boolean);
+  // пулы для бросков рассказчика: заметить, уклониться, устоять Волей; инициатива и поглощение — справкой
+  const rolls = ROLLS.map(r => ({ ...r, label: t(`Session.Roll.${r.key}`), n: (a.traitValue?.(r.t1) ?? 0) + (r.t2 ? a.traitValue?.(r.t2) ?? 0 : 0) }));
+  const info = [{ icon: "fa-bolt", label: t("Session.Roll.init"), n: Number(s.initiative) || 0 },
+    { icon: "fa-shield-halved", label: t("Session.Roll.soak"), n: a.soakPool?.("lethal") ?? s.attributes?.stamina?.total ?? 0 }];
   const states = STATES.filter(id => a.statuses?.has(id) || (id === "r-torpor" && torpor))
     .map(id => ({ id, label: game.i18n.localize(CONFIG.statusEffects.find(e => e.id === id)?.name ?? id), img: CONFIG.statusEffects.find(e => e.id === id)?.img }));
   const owner = game.users.find(u => !u.isGM && a.testUserPermission(u, "OWNER"));
   return {
     id: a.id, name: a.name, img: a.img, type: game.i18n.localize(`TYPES.Actor.${a.type}`), player: owner?.name ?? "", color: owner?.color?.css ?? "",
     places: places.map(p => ({ scene: p.scene.id, token: p.token.id, name: p.scene.navName || p.scene.name, active: p.scene.active, viewed: p.scene.isView })),
-    hurt, levels, hurtPct: Math.round(Math.min(1, hurt / levels) * 100), hurtLow: hurt >= levels - 2, pools, states,
+    hurt, levels, hurtPct: Math.round(Math.min(1, hurt / levels) * 100), hurtLow: hurt >= levels - 2, pools, states, rolls, info,
     alert: pools.some(p => p.low) || hurt >= levels - 2 || states.length > 0
   };
 }
@@ -70,7 +85,7 @@ class SessionPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     classes: ["vtm20", "r-dialog", "r-session-app"],
     window: { title: "VTM20.Session.Title", icon: "fa-solid fa-table-list", resizable: true },
     position: { width: 860, height: 560 },
-    actions: { sheet: SessionPanel.#onSheet, token: SessionPanel.#onToken, filter: SessionPanel.#onFilter }
+    actions: { sheet: SessionPanel.#onSheet, token: SessionPanel.#onToken, filter: SessionPanel.#onFilter, roll: SessionPanel.#onRoll }
   };
   static PARTS = { body: { template: `${SYSTEM_PATH}/templates/apps/session-panel.hbs`, scrollable: [".r-sp-scroll"] } };
 
@@ -101,6 +116,12 @@ class SessionPanel extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   static #onSheet(event, target) { game.actors.get(target.dataset.id)?.sheet.render(true); }
+  /** Бросок за персонажа прямо с панели (окно броска с чертами, сложность — по умолчанию 6). */
+  static #onRoll(event, target) {
+    const a = game.actors.get(target.dataset.id), r = ROLLS.find(x => x.key === target.dataset.roll);
+    if (!a || !r) return null;
+    return RollDialog.prompt(a, { title: `${t(`Session.Roll.${r.key}`)}: ${a.name}`, trait1: r.t1, ...(r.t2 ? { trait2: r.t2 } : {}), difficulty: 6 });
+  }
   static #onFilter(event, target) { this.filter = target.dataset.filter; this.render(); }
   /** К жетону: открыть его сцену (без активации для игроков), навести камеру и выделить. */
   static async #onToken(event, target) {
