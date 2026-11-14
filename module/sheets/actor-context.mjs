@@ -554,8 +554,9 @@ export function prepareAdvantages(sheet, ctx) {
   const R = Codex["sabbat-ritae"];
   if (a.type === "vampire" && isSabbat(a) && R?.groups) {
     const icon = { auctoritas: "fa-cross", ignoblis: "fa-people-group", faction: "fa-flag" };
+    const open = R.groups.some(g => g.key === sheet._ritaeTab) ? sheet._ritaeTab : R.groups[0]?.key;
     ctx.ritae = { require: R.require, groups: R.groups.map(g => ({ key: g.key, icon: icon[g.key], label: game.i18n.localize(`VTM20.Ritae.${g.key}`),
-      list: g.list.map((x, i) => ({ ...x, i, group: g.key })) })) };
+      active: g.key === open, list: g.list.map((x, i) => ({ ...x, i, group: g.key })) })) };
   }
   // Престация: две колонки — кто должен мне и кому должен я
   const boons = (a.system.boons ?? []).map((b, i) => ({ ...b, index: i,

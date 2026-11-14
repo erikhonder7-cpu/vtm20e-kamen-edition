@@ -24,4 +24,12 @@ function onRitaeChat(event, target) {
       <small>${esc([t(g.key), r.faction].filter(Boolean).join(" · "))}</small>${r.html}</div>` });
 }
 
-export const SABBAT_ACTIONS = { ritaeFire: onRitaeFire, ritaeChat: onRitaeChat };
+/** Группа ритусов — чипом, без перерисовки листа (выбор помнится до закрытия листа). */
+function onRitaeTab(event, target) {
+  const box = target.closest(".r-ritae-box"), key = target.dataset.key;
+  this._ritaeTab = key;
+  box?.querySelectorAll("[data-action=ritaeTab]").forEach(c => c.classList.toggle("is-active", c === target));
+  box?.querySelectorAll("[data-ritae]").forEach(l => { l.hidden = l.dataset.ritae !== key; });
+}
+
+export const SABBAT_ACTIONS = { ritaeFire: onRitaeFire, ritaeChat: onRitaeChat, ritaeTab: onRitaeTab };

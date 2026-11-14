@@ -200,34 +200,39 @@
       <p class="r-hint">{{localize "VTM20.Vinc.Hint"}}</p>
       {{/if}}
 
-      {{#if ritae}}
-      {{!-- Ритусы Шабаша (data/sabbat-ritae.json): группы сворачиваются; щелчок по имени — правила ритуса --}}
-      <h2 class="r-h2"><span>{{localize "VTM20.Ritae.Title"}}</span></h2>
-      {{#each ritae.groups}}
-      <details class="r-ritae-group" {{#if @first}}open{{/if}}>
-        <summary><i class="fa-solid {{icon}}"></i> {{label}} <small>{{list.length}}</small></summary>
-        <ul class="r-edge-list r-ritae r-ritae-{{key}}">
-          {{#each list}}
-          <li class="r-edge">
-            <span class="r-edge-main"><b>{{name}}</b>{{#if en}} <em>{{en}}</em>{{/if}}
-              <small>{{#if faction}}<span class="r-ritae-faction">{{faction}}</span> · {{/if}}{{gist}}</small>
-              <div class="r-edge-text">{{{html}}}</div></span>
-            <span class="r-ritae-tools">
-              {{#if (eq act "fire")}}{{#if @root.editable}}<a class="r-vc-btn" data-action="ritaeFire" data-step="approach"><i class="fa-solid fa-fire"></i> {{localize "VTM20.Ritae.Approach"}}</a>
-              <a class="r-vc-btn" data-action="ritaeFire" data-step="leap"><i class="fa-solid fa-person-running"></i> {{localize "VTM20.Ritae.Leap"}}</a>{{/if}}{{/if}}
-              {{#if (eq act "vaulderie")}}{{#if @root.isGM}}<a class="r-vc-btn" data-action="vaulderie"><i class="fa-solid fa-wine-glass"></i> {{localize "VTM20.Vinc.Rite"}}</a>{{/if}}{{/if}}
-              <a class="r-icon-btn" data-action="ritaeChat" data-group="{{group}}" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Sheet.ToChat'}}"><i class="fa-solid fa-comment-dots"></i></a>
-            </span>
-          </li>
-          {{/each}}
-        </ul>
-      </details>
-      {{/each}}
-      <p class="r-hint">{{ritae.require}}</p>
-      {{/if}}
     </div>
     {{/if}}
   </div>
+
+  {{#if ritae}}
+  {{!-- Ритусы Шабаша (data/sabbat-ritae.json): во всю ширину; группы — чипами (без перерисовки, sabbat.mjs → ritaeTab),
+       ритусы — карточками в две колонки; щелчок по имени раскрывает правила, у Огненной пляски и Братания — действия --}}
+  <h2 class="r-h2"><span>{{localize "VTM20.Ritae.Title"}}</span></h2>
+  <div class="r-ritae-box">
+    <nav class="r-ritae-tabs">
+      {{#each ritae.groups}}<a class="r-chip {{#if active}}is-active{{/if}}" data-action="ritaeTab" data-key="{{key}}"><i class="fa-solid {{icon}}"></i> {{label}} <b>{{list.length}}</b></a>{{/each}}
+    </nav>
+    {{#each ritae.groups}}
+    <ul class="r-edge-list r-ritae r-ritae-{{key}}" data-ritae="{{key}}" {{#unless active}}hidden{{/unless}}>
+      {{#each list}}
+      <li class="r-edge r-ritae-card2">
+        <span class="r-edge-main"><b>{{name}}</b>
+          <span class="r-ritae-sub">{{#if en}}<em>{{en}}</em>{{/if}}{{#if faction}}<span class="r-ritae-faction">{{faction}}</span>{{/if}}</span>
+          <small>{{gist}}</small>
+          <div class="r-edge-text">{{{html}}}</div></span>
+        <span class="r-ritae-tools">
+          {{#if (eq act "fire")}}{{#if @root.editable}}<a class="r-vc-btn" data-action="ritaeFire" data-step="approach" data-tooltip="{{localize 'VTM20.Ritae.Approach'}}"><i class="fa-solid fa-fire"></i></a>
+          <a class="r-vc-btn" data-action="ritaeFire" data-step="leap" data-tooltip="{{localize 'VTM20.Ritae.Leap'}}"><i class="fa-solid fa-person-running"></i></a>{{/if}}{{/if}}
+          {{#if (eq act "vaulderie")}}{{#if @root.isGM}}<a class="r-vc-btn" data-action="vaulderie" data-tooltip="{{localize 'VTM20.Vinc.Rite'}}"><i class="fa-solid fa-wine-glass"></i></a>{{/if}}{{/if}}
+          <a class="r-icon-btn" data-action="ritaeChat" data-group="{{group}}" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Sheet.ToChat'}}"><i class="fa-solid fa-comment-dots"></i></a>
+        </span>
+      </li>
+      {{/each}}
+    </ul>
+    {{/each}}
+    <p class="r-hint">{{ritae.require}}</p>
+  </div>
+  {{/if}}
 
   {{#if showBoons}}
   <h2 class="r-h2"><span>{{localize "VTM20.Boon.Title"}}</span><span class="r-h2-tools"><a class="r-h2-btn" data-action="openBoons" data-tooltip="{{localize 'VTM20.Boon.LedgerHint'}}"><i class="fa-solid fa-scale-balanced"></i> <span class="r-h2-lbl">{{localize "VTM20.Boon.Ledger"}}</span></a></span></h2>

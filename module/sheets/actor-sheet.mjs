@@ -428,7 +428,7 @@ openStrategy: () => openStrategy(),
     for (const h of this.element.querySelectorAll(".tab .r-h2")) {
       const n = h.nextElementSibling;
       if (n?.classList.contains("r-empty-auto")) continue;
-      const empty = !n || n.classList.contains("r-h2") || (n.matches("ul, ol, .r-edge-list") && !n.children.length && !n.textContent.trim());
+      const empty = !n || n.classList.contains("r-h2") || (n.matches("ul, ol, div, section") && !n.children.length && !n.textContent.trim());
       if (!empty) continue;
       const add = h.querySelector(".r-h2-tools a, .r-h2-tools button");
       const p = document.createElement("p");
