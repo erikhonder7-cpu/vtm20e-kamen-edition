@@ -149,7 +149,14 @@
       "PricePerDot": "1 per dot",
       "HueDark": "One of the hue's Passions must be a Dark Passion: mark it with the moon",
       "HueDarkTip": "The hue's Dark Passion (one is required)",
-      "HueShadow": "A hue's Shadow is Quiescent: the Archetype is given, and its Dark Passions mirror the hue's Passions (Orpheus). Angst is a Willpower roll as for a wraith; Shadow freebies go to Angst and Thorns. Three Stains; manifesting them all for a scene costs 1 Pathos."
+      "HueShadow": "A hue's Shadow is Quiescent: the Archetype is given, and its Dark Passions mirror the hue's Passions (Orpheus). Angst is a Willpower roll as for a wraith; Shadow freebies go to Angst and Thorns. Three Stains; manifesting them all for a scene costs 1 Pathos.",
+      "PathShort": {
+        "wraith": "Wraith",
+        "spectre": "Spectre",
+        "risen": "Risen",
+        "projector": "Projector",
+        "hue": "Hue"
+      }
     },
     "Wraith": {
       "Collapse": "Свернуть",
@@ -4064,7 +4071,8 @@
         "elder": "Master",
         "elderHint": "A century on the Path, a name in the Tradition's chronicles: +300 experience."
       },
-      "GateHintChangeling": "Kith or variant (Lykeian, Hsien, Inanimae, Dark Ages), seeming and court, Legacies, Arts and Realms or the variant's own magic, Glamour, Willpower and Banality — the creation wizard builds the changeling by C20 rules."
+      "GateHintChangeling": "Kith or variant (Lykeian, Hsien, Inanimae, Dark Ages), seeming and court, Legacies, Arts and Realms or the variant's own magic, Glamour, Willpower and Banality — the creation wizard builds the changeling by C20 rules.",
+      "NoChoice": "none"
     },
     "Settings": {
       "MonthlyIncome": {

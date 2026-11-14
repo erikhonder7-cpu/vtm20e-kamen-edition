@@ -197,7 +197,7 @@ export class WraithCreator {
     const plain = (list, field) => list.map((x, i) => ({ ...x, i, dots: Array.from({ length: 5 }, (_, j) => ({ n: j + 1, state: j < (Number(x.value) || 0) ? "alloc" : "empty" })) }));
     ctx.wraith = {
       path: p, isSpectre: p === "spectre", isRisen: p === "risen", isProjector: p === "projector", isHue: p === "hue", noGuild: p === "spectre" || p === "hue",
-      paths: ["", "spectre", "risen", "projector", "hue"].map(k => ({ key: k, label: loc(`Path.${k || "wraith"}`), sub: loc(`PathSub.${k || "wraith"}`),
+      paths: ["", "spectre", "risen", "projector", "hue"].map(k => ({ key: k, label: loc(`PathShort.${k || "wraith"}`), full: loc(`Path.${k || "wraith"}`), sub: loc(`PathSub.${k || "wraith"}`),
         icon: { "": "fa-ghost", spectre: "fa-skull", risen: "fa-person-rays", projector: "fa-person-falling-burst", hue: "fa-droplet" }[k], active: k === p })),
       hueDark: w.hueDark ?? -1, quiescent: quiescent(), hueStains: HUE.stains,
       castes: (D.castes ?? []).map(c => ({ key: c.key, label: c.name, en: c.en, sub: String(c.creation ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 160), active: c.key === w.caste })),

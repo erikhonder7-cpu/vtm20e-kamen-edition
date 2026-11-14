@@ -164,9 +164,9 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       const row = document.createElement("div");
       row.className = "r-cr-seltiles";
       for (const o of sel.options) {
-        const chip = document.createElement("a");
-        chip.className = `r-chip${o.selected ? " is-active" : ""}`;
-        chip.textContent = o.textContent.trim() || "—";
+        const chip = document.createElement("a"), none = !o.value;
+        chip.className = `r-cr-opt${o.selected ? " is-active" : ""}${none ? " is-none" : ""}`;
+        chip.textContent = none ? game.i18n.localize("VTM20.Creator.NoChoice") : o.textContent.trim();
         const tip = o.dataset.tooltip || o.title;
         if (tip) chip.dataset.tooltip = tip;
         chip.addEventListener("click", ev => {

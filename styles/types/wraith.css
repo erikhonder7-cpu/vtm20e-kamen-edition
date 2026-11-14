@@ -274,7 +274,8 @@
 
 /* шаг «Призрак»: названия Гильдий не налезают на соседнюю плитку; отступ после Легионов; Ангст — не вплотную к архетипам */
 .vtm20 .r-cr-wrguilds .r-cr-tile { min-width: 0; }
-.vtm20 .r-cr-garou-tiles.is-five.r-cr-wrguilds .r-cr-tile.has-sym b { min-width: 0; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: .3px; font-size: 11px; }
+.vtm20 .r-cr-garou-tiles.is-five.r-cr-wrguilds .r-cr-tile.has-sym b { min-width: 0; max-width: 100%; white-space: normal; overflow: visible; text-overflow: clip; hyphens: manual; overflow-wrap: normal;
+  font-family: var(--r-display); font-weight: 400; font-size: 14px; letter-spacing: 0; text-transform: none; line-height: 1.12; }   /* название целиком, без обрезки многоточием */
 .vtm20 .r-cr-wrguilds + .r-cr-sub { margin-top: 12px; }
 .vtm20 .r-cr-wrlegions { margin-bottom: 14px; }
 .vtm20 .r-cr-garou-tiles + .r-cols2 { margin-top: 14px; }
@@ -632,3 +633,7 @@
 /* выбор Тёмного Царства — в строке «Особый призрак» (у стигийца раздела местных Арканоев нет) */
 .vtm20 .r-wr-realm-pick { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; font-size: 12px; color: var(--r-muted); }
 .vtm20 .r-wr-realm-pick select { width: auto; }
+.vtm20 .r-cr-garou-tiles.is-five.r-cr-wrguilds { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }   /* Гильдии — шире, названия целиком */
+.vtm20 .r-cr-wrpaths .r-cr-tile { padding-left: 9px; padding-right: 9px; }
+.vtm20 .r-cr-wrpaths .r-cr-tile b { white-space: nowrap; font-size: 12.5px; letter-spacing: .5px; }
+.vtm20 .r-cr-wrpaths .r-cr-tile b i { margin-right: 4px; }   /* название пути — одной строкой (короткое, полное — в подсказке) */

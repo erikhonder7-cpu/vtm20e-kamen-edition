@@ -488,7 +488,7 @@
     {{#if is_wraith}}
     {{!-- путь: призрак, Спектр (гл. 10), Восставший (гл. 11), проектор «Орфея» и Оттенок цвета (приложение) --}}
     <div class="r-cr-tiles r-cr-garou-tiles is-five r-cr-wrpaths">
-      {{#each wraith.paths}}<a class="r-cr-tile {{#if active}}is-active{{/if}}" data-action="wrPick" data-what="path" data-key="{{key}}"><b><i class="fa-solid {{icon}}"></i> {{label}}</b><span class="r-cr-tile-text">{{sub}}</span></a>{{/each}}
+      {{#each wraith.paths}}<a class="r-cr-tile {{#if active}}is-active{{/if}}" data-action="wrPick" data-what="path" data-key="{{key}}" data-tooltip="{{full}}"><b><i class="fa-solid {{icon}}"></i> {{label}}</b><span class="r-cr-tile-text">{{sub}}</span></a>{{/each}}
     </div>
     {{#if wraith.isSpectre}}
     <h3 class="r-h3">{{localize "VTM20.Wraith.Spectre.Caste"}}</h3>
