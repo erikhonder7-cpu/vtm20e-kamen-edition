@@ -110,6 +110,11 @@ export function registerHunter() {
   game.settings.register(SYSTEM_ID, "hunterEdgeCost", { ...S("HunterEdgeCost"), type: String, default: "core",
     choices: { core: "VTM20.Settings.HunterEdgeCost.core", cheap: "VTM20.Settings.HunterEdgeCost.cheap" } });
   game.settings.register(SYSTEM_ID, "hunterFifth", { ...S("HunterFifth"), type: Boolean, default: false });
+  // Колдовство Цимисхов (sheets/actor-sheet.mjs → koldunPower): правило броска укладов и «вне Восточной Европы»
+  const K = k => ({ name: `VTM20.Settings.${k}.Name`, hint: `VTM20.Settings.${k}.Hint`, scope: "world", config: true });
+  game.settings.register(SYSTEM_ID, "koldunRoll", { ...K("KoldunRoll"), type: String, default: "rotb",
+    choices: { rotb: "VTM20.Settings.KoldunRoll.rotb", v20: "VTM20.Settings.KoldunRoll.v20" } });
+  game.settings.register(SYSTEM_ID, "koldunOutside", { ...K("KoldunOutside"), type: Boolean, default: false });
 }
 
 /** Грани персонажа (данные справочника) по порядку путей и уровней. */

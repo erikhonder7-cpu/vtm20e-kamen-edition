@@ -1197,9 +1197,32 @@ export function powerByRef(ref) {
   }
   const d = Codex.discipline(k);
   if (!d) return null;
-  if (a === "path") { const pth = d.paths?.[Number(b)]; const p = pth?.powers?.[Number(c)]; return p ? { disc: k, d, p, pathName: pth.name ?? "" } : null; }
+  if (a === "path") {
+    const pth = d.paths?.[Number(b)], p0 = pth?.powers?.[Number(c)];
+    const p = p0 && k === "koldunism" ? koldunPower(pth, p0) : p0;
+    return p ? { disc: k, d, p, pathName: pth.name ?? "" } : null;
+  }
   const p = d.powers?.[Number(a)];
   return p ? { disc: k, d, p, pathName: "" } : null;
+}
+
+/**
+ * Колдовство Цимисхов (V20, Rites of the Blood, The Black Hand): бросок силы по правилу хроники.
+ * Уклады (proc «way»): по умолчанию Rites of the Blood — Воля, сл. 3 + уровень; настройка «V20» — характеристика уклада + Оккультизм.
+ * Путь Духа и Скорби (proc «rotb») — всегда Воля. Вне Восточной Европы (настройка) — +1 к сложности бросков по Rites of the Blood.
+ * Крайны (proc «kraina») — свой бросок из справочника. Постоянная сила (passive) — без броска.
+ */
+function koldunPower(path, p) {
+  if (!p.roll) return p;
+  const proc = path.proc, r = { ...p.roll };
+  const rotb = proc === "rotb" || (proc === "way" && game.settings.get(SYSTEM_ID, "koldunRoll") !== "v20");
+  if (proc === "way" && rotb) { r.trait1 = "willpower.permanent"; r.trait2 = ""; r.base = false; }
+  if (rotb && game.settings.get(SYSTEM_ID, "koldunOutside")) {
+    r.difficulty = Math.min(10, (r.difficulty || 6) + 1);
+    r.note = [r.note, game.i18n.localize("VTM20.Koldun.OutsideNote")].filter(Boolean).join(" · ");
+  }
+  if (rotb) r.note = [game.i18n.localize("VTM20.Koldun.RotbNote"), r.note].filter(Boolean).join(" · ");
+  return { ...p, roll: r };
 }
 
 /** Бросок ритуала: с листа и из карточки «время вышло» (apps/timers.mjs). */
@@ -1211,6 +1234,16 @@ export function rollRitual(actor, item) {
   const own = item.system.roll ?? {};
   const r = { ...own, trait1: own.trait1 || "attributes.intelligence", trait2: own.trait1 ? own.trait2 : "abilities.occult",
     difficulty: own.difficulty || Math.min(9, 3 + lvl) };
+  if (disc === "koldunism") {
+    // редакция ритуала Колдовства: V20 (Rites of the Blood) — вне Восточной Европы +1; классика Тёмных веков — без специализации +1
+    const ed = (Codex.rituals?.koldunism?.rituals ?? []).find(x => x.name === item.name)?.edition ?? "";
+    if (/Rites of the Blood/.test(ed) && game.settings.get(SYSTEM_ID, "koldunOutside")) {
+      r.difficulty = Math.min(10, r.difficulty + 1); r.note = [r.note, game.i18n.localize("VTM20.Koldun.OutsideNote")].filter(Boolean).join(" · ");
+    }
+    if (/классика/.test(ed) && !/колдун|колдов|koldun/i.test(actor.system.abilities?.occult?.specialty ?? "")) {
+      r.difficulty = Math.min(10, r.difficulty + 1); r.note = [r.note, game.i18n.localize("VTM20.Koldun.NoSpecNote")].filter(Boolean).join(" · ");
+    }
+  }
   const time = t("Magic.RitualTime", { n: 5 * lvl });
   return rollFromSpec(actor, { ...r, note: [r.note, time].filter(Boolean).join(" · ") },
     { title: item.name, subtitle: `${t("Sheet.Ritual")} · ${Codex.disciplineLabel(disc)} · ${ROMAN[lvl - 1]}`, effect: item.system.description,
@@ -1243,6 +1276,19 @@ export async function rollPowerRef(actor, ref) {
   const x = powerByRef(ref);
   if (!x) return;
   const { disc, d, p, pathName } = x, magic = VTM20.pathDisciplines.includes(disc);
+  if (p.passive && !p.roll) return ui.notifications.info(game.i18n.format("VTM20.Koldun.Passive", { name: p.name }));
+  // Крайны Тёмных веков: сила основной крайны колдуна — сложность −2 (Гений места основной быть не может)
+  if (disc === "koldunism" && p.roll) {
+    const pth = Codex.bloodPath(disc, pathName);
+    if (pth?.proc === "da-kraina" && !pth.noPrimary && actor.items.some(i => i.type === "thaumPath" && i.system.discipline === disc && i.system.primary && Codex.bloodPath(disc, i.name) === pth))
+      p.roll = { ...p.roll, difficulty: Math.max(2, (p.roll.difficulty || 6) - 2), note: [p.roll.note, game.i18n.localize("VTM20.Koldun.PrimaryNote")].filter(Boolean).join(" · ") };
+    // классические Тёмные века (High Clans): без специализации Оккультизма «Колдовство цимисхов» — сложность +1
+    if (pth?.proc === "dac" && !/колдун|колдов|koldun/i.test(actor.system.abilities?.occult?.specialty ?? ""))
+      p.roll = { ...p.roll, difficulty: Math.min(10, (p.roll.difficulty || 6) + 1), note: [p.roll.note, game.i18n.localize("VTM20.Koldun.NoSpecNote")].filter(Boolean).join(" · ") };
+    // Путь Скорби (Revised): сложность — постоянная Воля отмеченной цели
+    const tw = p.roll.targetWill ? [...(game.user.targets ?? [])][0]?.actor?.system?.willpower?.permanent : null;
+    if (tw) p.roll = { ...p.roll, difficulty: Math.clamp(tw, 2, 10) };
+  }
   if (actor.system.fx?.earthMeld && !(await allowAnyway(actor, t("Fx.EarthNoAction")))) return;
   if (subsumeBlocks(actor, disc) && !(await allowAnyway(actor, t("TP.SubsumeBlocked", { name: d.name })))) return;
   // В Облике Зверя нельзя использовать названные в V20 дисциплины, требующие человеческой формы.

@@ -225,7 +225,7 @@ export const Codex = {
 
   /** Путь магии крови по имени внутри Дисциплины. */
   bloodPath(disc, name) {
-    return this.disciplines[disc]?.paths.find(p => p.name === name) ?? null;
+    return this.disciplines[disc]?.paths.find(p => p.name === name || p.aliases?.includes(name)) ?? null;
   },
 
   /** Кланы по группам для выпадающего списка. */

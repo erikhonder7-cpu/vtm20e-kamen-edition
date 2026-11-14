@@ -23,7 +23,7 @@ function entryOf(item) {
   switch (item.type) {
     case "power": {
       const d = Codex.discipline(s.discipline);
-      const pools = d ? [d.powers ?? [], ...(d.paths ?? []).filter(p => !s.path || same(p.name, s.path)).map(p => p.powers ?? [])] : [];
+      const pools = d ? [d.powers ?? [], ...(d.paths ?? []).filter(p => !s.path || same(p.name, s.path) || (p.aliases ?? []).some(n => same(n, s.path))).map(p => p.powers ?? [])] : [];
       const hit = pools.flat().find(x => x.level === s.level && byName(x))
         ?? (Codex.combos ?? []).find(c => same(c.en, s.source) || same(c.name, item.name));
       return hit ? { description: hit.html ?? "" } : null;

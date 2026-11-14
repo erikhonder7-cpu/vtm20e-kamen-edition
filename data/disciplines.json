@@ -7622,7 +7622,9 @@
       }
      }
     ],
-    "era": ""
+    "era": "",
+    "proc": "way",
+    "edition": "V20"
    },
    {
     "name": "Уклад Воды (Смекалка)",
@@ -7649,7 +7651,7 @@
        "trait2": "abilities.occult",
        "difficulty": 5,
        "base": true,
-       "blood": 1
+       "blood": 0
       }
      },
      {
@@ -7691,7 +7693,9 @@
       }
      }
     ],
-    "era": ""
+    "era": "",
+    "proc": "way",
+    "edition": "V20"
    },
    {
     "name": "Уклад Земли (Выносливость)",
@@ -7742,7 +7746,8 @@
        "trait2": "abilities.occult",
        "difficulty": 7,
        "base": true,
-       "blood": 1
+       "blood": 1,
+       "note": "кровь — сколько вложено (до поколения за ход)"
       }
      },
      {
@@ -7759,7 +7764,9 @@
       }
      }
     ],
-    "era": ""
+    "era": "",
+    "proc": "way",
+    "edition": "V20"
    },
    {
     "name": "Уклад Огня (Манипуляция)",
@@ -7769,13 +7776,7 @@
       "level": 1,
       "name": "Пламенная отвага",
       "en": "Fiery Courage",
-      "roll": {
-       "trait1": "attributes.manipulation",
-       "trait2": "abilities.occult",
-       "difficulty": 4,
-       "base": true,
-       "blood": 1
-      }
+      "passive": true
      },
      {
       "level": 2,
@@ -7784,7 +7785,7 @@
       "roll": {
        "trait1": "attributes.manipulation",
        "trait2": "abilities.occult",
-       "difficulty": 5,
+       "difficulty": 7,
        "base": true,
        "blood": 1
       }
@@ -7827,7 +7828,9 @@
       }
      }
     ],
-    "era": ""
+    "era": "",
+    "proc": "way",
+    "edition": "V20"
    },
    {
     "name": "Трансильванская крайна",
@@ -7840,9 +7843,10 @@
       "roll": {
        "trait1": "attributes.perception",
        "trait2": "abilities.occult",
-       "difficulty": 4,
+       "difficulty": 5,
        "base": true,
-       "blood": 1
+       "blood": 1,
+       "note": "на горе в Карпатах — без крови"
       }
      },
      {
@@ -7852,21 +7856,23 @@
       "roll": {
        "trait1": "attributes.dexterity",
        "trait2": "abilities.occult",
-       "difficulty": 5,
+       "difficulty": 6,
        "base": true,
-       "blood": 1
+       "blood": 1,
+       "note": "в виду Карпат — без крови"
       }
      },
      {
       "level": 3,
       "name": "Берега Баски",
-      "en": "The Banks of the Bâsca",
+      "en": "The Banks of the Basca",
       "roll": {
        "trait1": "attributes.strength",
        "trait2": "abilities.occult",
-       "difficulty": 6,
+       "difficulty": 7,
        "base": true,
-       "blood": 1
+       "blood": 1,
+       "note": "кровь — в текущую воду; реки Карпат — длительность вдвое"
       }
      },
      {
@@ -7876,30 +7882,35 @@
       "roll": {
        "trait1": "attributes.stamina",
        "trait2": "abilities.occult",
-       "difficulty": 7,
+       "difficulty": 8,
        "base": true,
-       "blood": 1
+       "blood": 1,
+       "note": "кровь — сколько вложено (≥1), выбросов не больше крови"
       }
      },
      {
       "level": 5,
-      "name": "Беспокойная Медиаш",
-      "en": "Restless Medias",
+      "name": "Беспокойный Медиаш",
+      "en": "Restless Mediaș",
       "roll": {
        "trait1": "attributes.strength",
        "trait2": "abilities.occult",
-       "difficulty": 8,
+       "difficulty": 9,
        "base": true,
        "blood": 1,
-       "willpower": true
+       "willpower": true,
+       "note": "в виду Карпат — без крови"
       }
      }
     ],
     "source": "V20 Dark Ages",
-    "era": ""
+    "era": "",
+    "edition": "V20 Dark Ages",
+    "proc": "da-kraina",
+    "html": ""
    },
    {
-    "name": "Крайна Чёрного моря",
+    "name": "Черноморская крайна",
     "en": "",
     "powers": [
      {
@@ -7909,29 +7920,18 @@
       "roll": {
        "trait1": "attributes.charisma",
        "trait2": "abilities.occult",
-       "difficulty": 4,
+       "difficulty": 5,
        "base": true,
-       "blood": 1
+       "blood": 1,
+       "note": "Дунай и притоки — без крови"
       }
      },
      {
       "level": 2,
-      "name": "Могила Мареа Неагра",
+      "name": "Могила Чёрного моря",
       "en": "Grave of the Marea Neagra",
       "roll": {
        "trait1": "attributes.wits",
-       "trait2": "abilities.occult",
-       "difficulty": 5,
-       "base": true,
-       "blood": 1
-      }
-     },
-     {
-      "level": 3,
-      "name": "Понтос Эвксейнос",
-      "en": "Pontos Euxeinos",
-      "roll": {
-       "trait1": "attributes.stamina",
        "trait2": "abilities.occult",
        "difficulty": 6,
        "base": true,
@@ -7939,32 +7939,53 @@
       }
      },
      {
+      "level": 3,
+      "name": "Понт Эвксинский",
+      "en": "Pontos Euxeinos",
+      "roll": {
+       "trait1": "attributes.stamina",
+       "trait2": "abilities.occult",
+       "difficulty": 7,
+       "base": true,
+       "blood": 1,
+       "note": "Чёрное море — без крови"
+      }
+     },
+     {
       "level": 4,
-      "name": "Слуги глубин Мармары",
+      "name": "Миньоны глубин Мраморного моря",
       "en": "Minions of Deep Marmora",
       "roll": {
        "trait1": "attributes.manipulation",
        "trait2": "abilities.occult",
-       "difficulty": 7,
+       "difficulty": 8,
        "base": true,
-       "blood": 1
+       "blood": 1,
+       "note": "кровь — сколько вложено (≥1), миньонов не больше крови"
       }
      },
      {
       "level": 5,
-      "name": "Понтос Аксеинос",
+      "name": "Понт Аксинский",
       "en": "Pontos Axeinos",
       "roll": {
        "trait1": "attributes.intelligence",
        "trait2": "abilities.occult",
-       "difficulty": 8,
+       "difficulty": 9,
        "base": true,
-       "blood": 1
+       "blood": 1,
+       "note": "Чёрное море — без крови"
       }
      }
     ],
     "source": "V20 Dark Ages",
-    "era": ""
+    "era": "",
+    "edition": "V20 Dark Ages",
+    "aliases": [
+     "Крайна Чёрного моря"
+    ],
+    "proc": "da-kraina",
+    "html": ""
    },
    {
     "name": "Гений места",
@@ -7973,20 +7994,7 @@
      {
       "level": 1,
       "name": "Гений места — 15 м",
-      "en": "нет оригинала",
-      "roll": {
-       "trait1": "attributes.charisma",
-       "trait2": "abilities.occult",
-       "difficulty": 4,
-       "base": true,
-       "blood": 1,
-       "willpower": true
-      }
-     },
-     {
-      "level": 2,
-      "name": "Гений места — 100 м",
-      "en": "нет оригинала",
+      "en": "Genius Loci",
       "roll": {
        "trait1": "attributes.charisma",
        "trait2": "abilities.occult",
@@ -7997,9 +8005,9 @@
       }
      },
      {
-      "level": 3,
-      "name": "Гений места — 500 м",
-      "en": "нет оригинала",
+      "level": 2,
+      "name": "Гений места — 91 м",
+      "en": "Genius Loci",
       "roll": {
        "trait1": "attributes.charisma",
        "trait2": "abilities.occult",
@@ -8010,9 +8018,9 @@
       }
      },
      {
-      "level": 4,
-      "name": "Гений места — 1,5 км",
-      "en": "нет оригинала",
+      "level": 3,
+      "name": "Гений места — 400 м",
+      "en": "Genius Loci",
       "roll": {
        "trait1": "attributes.charisma",
        "trait2": "abilities.occult",
@@ -8023,9 +8031,9 @@
       }
      },
      {
-      "level": 5,
-      "name": "Гений места — 8 км",
-      "en": "нет оригинала",
+      "level": 4,
+      "name": "Гений места — 1,5 км",
+      "en": "Genius Loci",
       "roll": {
        "trait1": "attributes.charisma",
        "trait2": "abilities.occult",
@@ -8034,24 +8042,41 @@
        "blood": 1,
        "willpower": true
       }
+     },
+     {
+      "level": 5,
+      "name": "Гений места — 8 км",
+      "en": "Genius Loci",
+      "roll": {
+       "trait1": "attributes.charisma",
+       "trait2": "abilities.occult",
+       "difficulty": 9,
+       "base": true,
+       "blood": 1,
+       "willpower": true
+      }
      }
     ],
     "source": "V20 Dark Ages",
-    "era": ""
+    "era": "",
+    "edition": "V20 Dark Ages",
+    "proc": "da-kraina",
+    "noPrimary": true
    },
    {
-    "name": "Краина Еноха",
+    "name": "Крайна Эноха",
     "en": "The Kraina of Enoch",
     "powers": [
      {
       "level": 1,
-      "name": "Саван Забвения",
+      "name": "Покров забвения",
       "en": "Shroud of Oblivion",
       "roll": {
        "trait1": "attributes.stamina",
        "trait2": "abilities.occult",
-       "difficulty": 4,
+       "difficulty": 5,
        "base": true,
+       "blood": 1,
        "willpower": true
       }
      },
@@ -8062,8 +8087,9 @@
       "roll": {
        "trait1": "attributes.perception",
        "trait2": "abilities.occult",
-       "difficulty": 5,
-       "base": true
+       "difficulty": 6,
+       "base": true,
+       "blood": 1
       }
      },
      {
@@ -8073,8 +8099,9 @@
       "roll": {
        "trait1": "attributes.stamina",
        "trait2": "abilities.occult",
-       "difficulty": 6,
-       "base": true
+       "difficulty": 7,
+       "base": true,
+       "blood": 1
       }
      },
      {
@@ -8084,8 +8111,9 @@
       "roll": {
        "trait1": "attributes.strength",
        "trait2": "abilities.occult",
-       "difficulty": 7,
+       "difficulty": 8,
        "base": true,
+       "blood": 1,
        "willpower": true
       }
      },
@@ -8096,41 +8124,43 @@
       "roll": {
        "trait1": "attributes.strength",
        "trait2": "abilities.occult",
-       "difficulty": 8,
+       "difficulty": 9,
        "base": true,
+       "blood": 1,
        "willpower": true
       }
      }
     ],
     "source": "V20 The Black Hand",
-    "era": ""
+    "era": "",
+    "proc": "kraina",
+    "aliases": [
+     "Краина Еноха"
+    ],
+    "edition": "V20 The Black Hand"
    },
    {
-    "name": "Краина Колодца",
+    "name": "Крайна Колодца",
     "en": "The Kraina of the Well",
     "powers": [
      {
       "level": 1,
-      "name": "Позвать Детей",
+      "name": "Призыв Детей",
       "en": "Call the Children",
       "roll": {
        "trait1": "attributes.wits",
        "trait2": "abilities.occult",
-       "difficulty": 4,
+       "difficulty": 5,
        "base": true,
-       "blood": 1
+       "blood": 1,
+       "note": "продолжительная, успехов — сложность демона; целая сцена"
       }
      },
      {
       "level": 2,
-      "name": "Внимать проклятому сердцу",
+      "name": "Внемли адскому сердцу",
       "en": "Heed the Hell-bound Heart",
-      "roll": {
-       "trait2": "abilities.occult",
-       "difficulty": 5,
-       "base": true,
-       "blood": 1
-      }
+      "passive": true
      },
      {
       "level": 3,
@@ -8139,32 +8169,31 @@
       "roll": {
        "trait1": "attributes.charisma",
        "trait2": "abilities.occult",
-       "difficulty": 6,
+       "difficulty": 7,
        "base": true,
        "blood": 1
       }
      },
      {
       "level": 4,
-      "name": "Изгнать воинство Ада",
+      "name": "Изгнание воинства ада",
       "en": "Heave the Host of Hell",
       "roll": {
        "trait1": "attributes.manipulation",
        "trait2": "abilities.occult",
-       "difficulty": 7,
+       "difficulty": 8,
        "base": true,
-       "blood": 1,
-       "willpower": true
+       "blood": 1
       }
      },
      {
       "level": 5,
-      "name": "Пожать колодец — «Жнец Ада»",
+      "name": "Жатва Колодца",
       "en": "Reap the Well",
       "roll": {
        "trait1": "attributes.strength",
        "trait2": "abilities.occult",
-       "difficulty": 8,
+       "difficulty": 9,
        "base": true,
        "blood": 1,
        "willpower": true
@@ -8172,7 +8201,12 @@
      }
     ],
     "source": "V20 The Black Hand",
-    "era": ""
+    "era": "",
+    "proc": "kraina",
+    "aliases": [
+     "Краина Колодца"
+    ],
+    "edition": "V20 The Black Hand"
    },
    {
     "name": "Путь Духа",
@@ -8186,8 +8220,7 @@
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 4,
-       "blood": 1,
-       "note": "вне Восточной Европы +1 к сложности"
+       "blood": 1
       }
      },
      {
@@ -8197,8 +8230,7 @@
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 5,
-       "blood": 1,
-       "note": "вне Восточной Европы +1 к сложности"
+       "blood": 1
       }
      },
      {
@@ -8208,8 +8240,7 @@
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 6,
-       "blood": 1,
-       "note": "вне Восточной Европы +1 к сложности"
+       "blood": 1
       }
      },
      {
@@ -8219,8 +8250,7 @@
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 7,
-       "blood": 1,
-       "note": "вне Восточной Европы +1 к сложности"
+       "blood": 1
       }
      },
      {
@@ -8230,60 +8260,57 @@
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 8,
-       "blood": 1,
-       "note": "вне Восточной Европы +1 к сложности"
+       "blood": 1
       }
      }
     ],
-    "era": ""
+    "era": "",
+    "proc": "rotb",
+    "edition": "V20 Rites of the Blood"
    },
    {
-    "name": "Путь Скорбей",
+    "name": "Путь Скорби",
     "en": "The Way of Sorrows",
     "source": "V20 Rites of the Blood",
     "powers": [
      {
       "level": 1,
-      "name": "Безнадёга Нестречи",
+      "name": "Разочарования Нестреши",
       "en": "The Frustrations of Nestrecha",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 4,
-       "blood": 1,
-       "note": "вне Восточной Европы +1 к сложности"
+       "blood": 1
       }
      },
      {
       "level": 2,
-      "name": "Обиды Кривды",
+      "name": "Оскорбления Кривды",
       "en": "The Insults of Krivda",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 5,
-       "blood": 1,
-       "note": "вне Восточной Европы +1 к сложности"
+       "blood": 1
       }
      },
      {
       "level": 3,
-      "name": "Плач Кручины",
+      "name": "Плач Кручина",
       "en": "The Weeping of Kruchina",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 6,
-       "blood": 1,
-       "note": "вне Восточной Европы +1 к сложности"
+       "blood": 1
       }
      },
      {
       "level": 4,
-      "name": "Злосчастье Черноголова",
+      "name": "Несчастье Черноголова",
       "en": "The Misfortune of Chernogolov",
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 7,
-       "blood": 1,
-       "note": "вне Восточной Европы +1 к сложности"
+       "blood": 1
       }
      },
      {
@@ -8293,12 +8320,16 @@
       "roll": {
        "trait1": "willpower.permanent",
        "difficulty": 8,
-       "blood": 1,
-       "note": "вне Восточной Европы +1 к сложности"
+       "blood": 1
       }
      }
     ],
-    "era": ""
+    "era": "",
+    "proc": "rotb",
+    "aliases": [
+     "Путь Скорбей"
+    ],
+    "edition": "V20 Rites of the Blood"
    },
    {
     "name": "Путь Земли",
@@ -8311,9 +8342,12 @@
       "name": "Силуэт почвы",
       "en": "Soil Silhouette",
       "roll": {
-       "trait1": "willpower.permanent",
-       "difficulty": 4,
-       "blood": 1
+       "trait1": "attributes.stamina",
+       "trait2": "abilities.occult",
+       "difficulty": 5,
+       "base": true,
+       "willpower": true,
+       "note": "Знание «Колдунизм» — по книге"
       }
      },
      {
@@ -8321,9 +8355,12 @@
       "name": "Неземная выносливость",
       "en": "Unearthly Stamina",
       "roll": {
-       "trait1": "willpower.permanent",
-       "difficulty": 5,
-       "blood": 1
+       "trait1": "attributes.stamina",
+       "trait2": "abilities.occult",
+       "difficulty": 6,
+       "base": true,
+       "willpower": true,
+       "note": "Знание «Колдунизм» — по книге"
       }
      },
      {
@@ -8331,32 +8368,37 @@
       "name": "Почва смерти",
       "en": "Soil of Death",
       "roll": {
-       "trait1": "willpower.permanent",
-       "difficulty": 6,
-       "blood": 1
+       "trait1": "attributes.stamina",
+       "trait2": "abilities.occult",
+       "difficulty": 7,
+       "base": true,
+       "willpower": true,
+       "note": "Знание «Колдунизм» — по книге"
       }
      },
      {
       "level": 4,
-      "name": "Корень жизненности",
+      "name": "Корень жизненной силы",
       "en": "Root of Vitality",
-      "roll": {
-       "trait1": "willpower.permanent",
-       "difficulty": 7,
-       "blood": 1
-      }
+      "passive": true
      },
      {
       "level": 5,
       "name": "Беспокойная душа Дракулы",
-      "en": "Dracula's Restless Soul",
+      "en": "Dracula’s Restless Soul",
       "roll": {
-       "trait1": "willpower.permanent",
-       "difficulty": 8,
-       "blood": 1
+       "trait1": "attributes.stamina",
+       "trait2": "abilities.occult",
+       "difficulty": 9,
+       "base": true,
+       "willpower": true,
+       "note": "Знание «Колдунизм» — по книге"
       }
      }
-    ]
+    ],
+    "edition": "Revised: Secrets of Thaumaturgy",
+    "proc": "rev",
+    "html": ""
    },
    {
     "name": "Путь Ветра",
@@ -8369,9 +8411,12 @@
       "name": "Ветра вины",
       "en": "Winds of Guilt",
       "roll": {
-       "trait1": "willpower.permanent",
-       "difficulty": 4,
-       "blood": 1
+       "trait1": "attributes.perception",
+       "trait2": "abilities.occult",
+       "difficulty": 5,
+       "base": true,
+       "willpower": true,
+       "note": "Знание «Колдунизм» — по книге"
       }
      },
      {
@@ -8379,29 +8424,38 @@
       "name": "Кусающие ветра",
       "en": "Biting Winds",
       "roll": {
-       "trait1": "willpower.permanent",
-       "difficulty": 5,
-       "blood": 1
+       "trait1": "attributes.perception",
+       "trait2": "abilities.occult",
+       "difficulty": 6,
+       "base": true,
+       "willpower": true,
+       "note": "Знание «Колдунизм» — по книге"
       }
      },
      {
       "level": 3,
-      "name": "Ветра летаргии",
+      "name": "Ветра оцепенения",
       "en": "Winds of Lethargy",
       "roll": {
-       "trait1": "willpower.permanent",
-       "difficulty": 6,
-       "blood": 1
+       "trait1": "attributes.perception",
+       "trait2": "abilities.occult",
+       "difficulty": 7,
+       "base": true,
+       "willpower": true,
+       "note": "Знание «Колдунизм» — по книге"
       }
      },
      {
       "level": 4,
-      "name": "Путешествие по ветрам",
+      "name": "Путешествие на ветрах",
       "en": "Traveling the Winds",
       "roll": {
-       "trait1": "willpower.permanent",
-       "difficulty": 7,
-       "blood": 1
+       "trait1": "attributes.perception",
+       "trait2": "abilities.occult",
+       "difficulty": 8,
+       "base": true,
+       "willpower": true,
+       "note": "Знание «Колдунизм» — по книге"
       }
      },
      {
@@ -8409,12 +8463,18 @@
       "name": "Тело зефира",
       "en": "Body of Zephyr",
       "roll": {
-       "trait1": "willpower.permanent",
-       "difficulty": 8,
-       "blood": 1
+       "trait1": "attributes.perception",
+       "trait2": "abilities.occult",
+       "difficulty": 9,
+       "base": true,
+       "willpower": true,
+       "note": "Знание «Колдунизм» — по книге"
       }
      }
-    ]
+    ],
+    "edition": "Revised: Secrets of Thaumaturgy",
+    "proc": "rev",
+    "html": ""
    },
    {
     "name": "Путь Воды",
@@ -8424,22 +8484,27 @@
     "powers": [
      {
       "level": 1,
-      "name": "Омут иллюзий",
-      "en": "Pool of Illusion",
+      "name": "Бассейны иллюзий",
+      "en": "Pools of Illusion",
       "roll": {
-       "trait1": "willpower.permanent",
-       "difficulty": 4,
-       "blood": 1
+       "trait1": "attributes.wits",
+       "trait2": "abilities.occult",
+       "difficulty": 5,
+       "base": true,
+       "willpower": true,
+       "note": "Знание «Колдунизм» — по книге"
       }
      },
      {
       "level": 2,
-      "name": "Водное утешение",
+      "name": "Водный покой",
       "en": "Watery Solace",
       "roll": {
-       "trait1": "willpower.permanent",
-       "difficulty": 5,
-       "blood": 1
+       "trait1": "attributes.wits",
+       "trait2": "abilities.occult",
+       "difficulty": 6,
+       "base": true,
+       "note": "нужно 2 успеха, Воля не тратится"
       }
      },
      {
@@ -8447,32 +8512,44 @@
       "name": "Хождение по воде",
       "en": "Water Walk",
       "roll": {
-       "trait1": "willpower.permanent",
-       "difficulty": 6,
-       "blood": 1
+       "trait1": "attributes.wits",
+       "trait2": "abilities.occult",
+       "difficulty": 7,
+       "base": true,
+       "willpower": true,
+       "note": "Знание «Колдунизм» — по книге"
       }
      },
      {
       "level": 4,
-      "name": "Водные слуги",
+      "name": "Водяные миньоны",
       "en": "Watery Minions",
       "roll": {
-       "trait1": "willpower.permanent",
-       "difficulty": 7,
-       "blood": 1
+       "trait1": "attributes.wits",
+       "trait2": "abilities.occult",
+       "difficulty": 8,
+       "base": true,
+       "willpower": true,
+       "note": "Знание «Колдунизм» — по книге"
       }
      },
      {
       "level": 5,
-      "name": "Водовороты гибели",
+      "name": "Роковые приливы",
       "en": "Doom Tides",
       "roll": {
-       "trait1": "willpower.permanent",
-       "difficulty": 8,
-       "blood": 1
+       "trait1": "attributes.wits",
+       "trait2": "abilities.occult",
+       "difficulty": 9,
+       "base": true,
+       "willpower": true,
+       "note": "Знание «Колдунизм» — по книге"
       }
      }
-    ]
+    ],
+    "edition": "Revised: Secrets of Thaumaturgy",
+    "proc": "rev",
+    "html": ""
    },
    {
     "name": "Путь Огня",
@@ -8482,22 +8559,28 @@
     "powers": [
      {
       "level": 1,
-      "name": "Раскол",
+      "name": "Раздробление",
       "en": "Shatter",
       "roll": {
-       "trait1": "willpower.permanent",
-       "difficulty": 4,
-       "blood": 1
+       "trait1": "attributes.manipulation",
+       "trait2": "abilities.occult",
+       "difficulty": 5,
+       "base": true,
+       "willpower": true,
+       "note": "Знание «Колдунизм» — по книге"
       }
      },
      {
       "level": 2,
-      "name": "Пробудить расплавленную породу",
+      "name": "Пробуждение расплавленной породы",
       "en": "Rouse the Molten Rock",
       "roll": {
-       "trait1": "willpower.permanent",
-       "difficulty": 5,
-       "blood": 1
+       "trait1": "attributes.manipulation",
+       "trait2": "abilities.occult",
+       "difficulty": 6,
+       "base": true,
+       "willpower": true,
+       "note": "Знание «Колдунизм» — по книге"
       }
      },
      {
@@ -8505,19 +8588,25 @@
       "name": "Врата магмы",
       "en": "Gates of Magma",
       "roll": {
-       "trait1": "willpower.permanent",
-       "difficulty": 6,
-       "blood": 1
+       "trait1": "attributes.manipulation",
+       "trait2": "abilities.occult",
+       "difficulty": 7,
+       "base": true,
+       "willpower": true,
+       "note": "Знание «Колдунизм» — по книге"
       }
      },
      {
       "level": 4,
-      "name": "Тепловая волна",
+      "name": "Жаркая волна",
       "en": "Heat Wave",
       "roll": {
-       "trait1": "willpower.permanent",
-       "difficulty": 7,
-       "blood": 1
+       "trait1": "attributes.manipulation",
+       "trait2": "abilities.occult",
+       "difficulty": 8,
+       "base": true,
+       "willpower": true,
+       "note": "Знание «Колдунизм» — по книге"
       }
      },
      {
@@ -8525,12 +8614,18 @@
       "name": "Вулканический взрыв",
       "en": "Volcanic Blast",
       "roll": {
-       "trait1": "willpower.permanent",
-       "difficulty": 8,
-       "blood": 1
+       "trait1": "attributes.manipulation",
+       "trait2": "abilities.occult",
+       "difficulty": 9,
+       "base": true,
+       "willpower": true,
+       "note": "Знание «Колдунизм» — по книге"
       }
      }
-    ]
+    ],
+    "edition": "Revised: Secrets of Thaumaturgy",
+    "proc": "rev",
+    "html": ""
    },
    {
     "name": "Беловежская крайна",
@@ -8540,32 +8635,41 @@
     "powers": [
      {
       "level": 1,
-      "name": "Нарушение владений",
+      "name": "Нарушение границ",
       "en": "Domain Breach",
       "roll": {
-       "trait1": "willpower.permanent",
-       "difficulty": 4,
-       "blood": 1
+       "trait1": "attributes.perception",
+       "trait2": "abilities.occult",
+       "difficulty": 5,
+       "base": true,
+       "blood": 1,
+       "note": "1 кровь на км²; в Беловежском лесу — без крови; не в городе"
       }
      },
      {
       "level": 2,
-      "name": "Пальцы Беловежья",
+      "name": "Пальцы Беловежи",
       "en": "Fingers of Białowieża",
       "roll": {
-       "trait1": "willpower.permanent",
-       "difficulty": 5,
-       "blood": 1
+       "trait1": "attributes.dexterity",
+       "trait2": "abilities.occult",
+       "difficulty": 6,
+       "base": true,
+       "blood": 1,
+       "note": "ночей готовности — по крови"
       }
      },
      {
       "level": 3,
-      "name": "Тупик Грондрской",
-      "en": "Grondrska's Impasse",
+      "name": "Тупик Грондры",
+      "en": "Grondrska’s Impasse",
       "roll": {
-       "trait1": "willpower.permanent",
-       "difficulty": 6,
-       "blood": 1
+       "trait1": "attributes.perception",
+       "trait2": "abilities.occult",
+       "difficulty": 7,
+       "base": true,
+       "blood": 1,
+       "note": "1 кровь на км²"
       }
      },
      {
@@ -8573,9 +8677,13 @@
       "name": "Пасть Джабелека",
       "en": "The Mouth of Djabelek",
       "roll": {
-       "trait1": "willpower.permanent",
-       "difficulty": 7,
-       "blood": 1
+       "trait1": "attributes.strength",
+       "trait2": "abilities.occult",
+       "difficulty": 8,
+       "base": true,
+       "blood": 1,
+       "willpower": true,
+       "note": "ходов ловушки — по крови"
       }
      },
      {
@@ -8583,12 +8691,535 @@
       "name": "Белая башня",
       "en": "The White Tower",
       "roll": {
-       "trait1": "willpower.permanent",
-       "difficulty": 8,
-       "blood": 1
+       "trait1": "attributes.stamina",
+       "trait2": "abilities.occult",
+       "difficulty": 9,
+       "base": true,
+       "blood": 1,
+       "willpower": true
       }
      }
-    ]
+    ],
+    "edition": "V20 Dark Ages: Tome of Secrets",
+    "proc": "da-kraina",
+    "html": ""
+   },
+   {
+    "name": "Путь Духа (Revised)",
+    "en": "Way of Spirit",
+    "powers": [
+     {
+      "level": 1,
+      "name": "Путь Духа (Revised) — 15 м",
+      "en": "Way of Spirit",
+      "roll": {
+       "trait1": "attributes.charisma",
+       "trait2": "abilities.occult",
+       "difficulty": 5,
+       "base": true,
+       "willpower": true,
+       "note": "сцен — по успехам"
+      }
+     },
+     {
+      "level": 2,
+      "name": "Путь Духа (Revised) — 30 м",
+      "en": "Way of Spirit",
+      "roll": {
+       "trait1": "attributes.charisma",
+       "trait2": "abilities.occult",
+       "difficulty": 6,
+       "base": true,
+       "willpower": true,
+       "note": "сцен — по успехам"
+      }
+     },
+     {
+      "level": 3,
+      "name": "Путь Духа (Revised) — 0,4 км",
+      "en": "Way of Spirit",
+      "roll": {
+       "trait1": "attributes.charisma",
+       "trait2": "abilities.occult",
+       "difficulty": 7,
+       "base": true,
+       "willpower": true,
+       "note": "сцен — по успехам"
+      }
+     },
+     {
+      "level": 4,
+      "name": "Путь Духа (Revised) — 1,6 км",
+      "en": "Way of Spirit",
+      "roll": {
+       "trait1": "attributes.charisma",
+       "trait2": "abilities.occult",
+       "difficulty": 8,
+       "base": true,
+       "willpower": true,
+       "note": "сцен — по успехам"
+      }
+     },
+     {
+      "level": 5,
+      "name": "Путь Духа (Revised) — 8 км",
+      "en": "Way of Spirit",
+      "roll": {
+       "trait1": "attributes.charisma",
+       "trait2": "abilities.occult",
+       "difficulty": 9,
+       "base": true,
+       "willpower": true,
+       "note": "сцен — по успехам"
+      }
+     }
+    ],
+    "era": "",
+    "edition": "Revised: Secrets of Thaumaturgy",
+    "source": "Blood Magic: Secrets of Thaumaturgy",
+    "proc": "rev",
+    "html": ""
+   },
+   {
+    "name": "Путь Скорби (Revised)",
+    "en": "Way of Sorrow",
+    "powers": [
+     {
+      "level": 1,
+      "name": "Разочарования Нестреши",
+      "en": "The Frustrations of Nestrecha",
+      "roll": {
+       "trait1": "attributes.manipulation",
+       "trait2": "abilities.occult",
+       "difficulty": 6,
+       "base": true,
+       "willpower": true,
+       "note": "сложность — постоянная Воля цели",
+       "targetWill": true
+      }
+     },
+     {
+      "level": 2,
+      "name": "Оскорбления Кривды",
+      "en": "The Insults of Krivda",
+      "roll": {
+       "trait1": "attributes.manipulation",
+       "trait2": "abilities.occult",
+       "difficulty": 6,
+       "base": true,
+       "willpower": true,
+       "note": "сложность — постоянная Воля цели",
+       "targetWill": true
+      }
+     },
+     {
+      "level": 3,
+      "name": "Плач Кручина",
+      "en": "The Weeping of Kruchina",
+      "roll": {
+       "trait1": "attributes.manipulation",
+       "trait2": "abilities.occult",
+       "difficulty": 6,
+       "base": true,
+       "willpower": true,
+       "note": "сложность — постоянная Воля цели",
+       "targetWill": true
+      }
+     },
+     {
+      "level": 4,
+      "name": "Несчастье Черноголова",
+      "en": "The Misfortune of Chernogolov",
+      "roll": {
+       "trait1": "attributes.manipulation",
+       "trait2": "abilities.occult",
+       "difficulty": 6,
+       "base": true,
+       "willpower": true,
+       "note": "сложность — постоянная Воля цели",
+       "targetWill": true
+      }
+     },
+     {
+      "level": 5,
+      "name": "Голод Марены",
+      "en": "The Starvation of Marena",
+      "roll": {
+       "trait1": "attributes.manipulation",
+       "trait2": "abilities.occult",
+       "difficulty": 6,
+       "base": true,
+       "willpower": true,
+       "note": "сложность — постоянная Воля цели",
+       "targetWill": true
+      }
+     }
+    ],
+    "era": "",
+    "edition": "Revised: Clanbook Tzimisce",
+    "source": "Clanbook: Tzimisce Revised",
+    "proc": "rev",
+    "html": ""
+   },
+   {
+    "name": "Путь Земли (Тёмные века, классика)",
+    "en": "Way of Earth",
+    "powers": [
+     {
+      "level": 1,
+      "name": "Хватка земли",
+      "en": "Grasping Soil",
+      "roll": {
+       "trait1": "attributes.stamina",
+       "trait2": "abilities.occult",
+       "difficulty": 4,
+       "base": true,
+       "blood": 1
+      }
+     },
+     {
+      "level": 2,
+      "name": "Стойкость камня",
+      "en": "Endurance of Stone",
+      "roll": {
+       "trait1": "attributes.stamina",
+       "trait2": "abilities.occult",
+       "difficulty": 5,
+       "base": true,
+       "blood": 1
+      }
+     },
+     {
+      "level": 3,
+      "name": "Голодная земля",
+      "en": "Hungry Earth",
+      "roll": {
+       "trait1": "attributes.stamina",
+       "trait2": "abilities.occult",
+       "difficulty": 6,
+       "base": true,
+       "blood": 1
+      }
+     },
+     {
+      "level": 4,
+      "name": "Корень жизненной силы",
+      "en": "Root of Vitality",
+      "roll": {
+       "trait1": "attributes.stamina",
+       "trait2": "abilities.occult",
+       "difficulty": 7,
+       "base": true,
+       "blood": 1
+      }
+     },
+     {
+      "level": 5,
+      "name": "Ярость Купалы",
+      "en": "Kupala’s Fury",
+      "roll": {
+       "trait1": "attributes.stamina",
+       "trait2": "abilities.occult",
+       "difficulty": 8,
+       "base": true,
+       "blood": 1,
+       "willpower": true
+      }
+     }
+    ],
+    "era": "",
+    "edition": "Dark Ages (классика)",
+    "source": "Dark Ages: Players Guide to High Clans",
+    "proc": "dac",
+    "html": ""
+   },
+   {
+    "name": "Путь Ветра (Тёмные века, классика)",
+    "en": "Way of Wind",
+    "powers": [
+     {
+      "level": 1,
+      "name": "Дыхание шёпотов",
+      "en": "Breath of Whispers",
+      "roll": {
+       "trait1": "attributes.perception",
+       "trait2": "abilities.occult",
+       "difficulty": 4,
+       "base": true,
+       "blood": 1
+      }
+     },
+     {
+      "level": 2,
+      "name": "Кусающий порыв",
+      "en": "Biting Gale",
+      "roll": {
+       "trait1": "attributes.perception",
+       "trait2": "abilities.occult",
+       "difficulty": 5,
+       "base": true,
+       "blood": 1
+      }
+     },
+     {
+      "level": 3,
+      "name": "Бриз оцепенения",
+      "en": "Breeze of Lethargy",
+      "roll": {
+       "trait1": "attributes.perception",
+       "trait2": "abilities.occult",
+       "difficulty": 6,
+       "base": true,
+       "blood": 1
+      }
+     },
+     {
+      "level": 4,
+      "name": "Верхом на буре",
+      "en": "Ride the Tempest",
+      "roll": {
+       "trait1": "attributes.perception",
+       "trait2": "abilities.occult",
+       "difficulty": 7,
+       "base": true,
+       "blood": 1
+      }
+     },
+     {
+      "level": 5,
+      "name": "Ярость ночного неба",
+      "en": "Fury of the Night Sky",
+      "roll": {
+       "trait1": "attributes.perception",
+       "trait2": "abilities.occult",
+       "difficulty": 8,
+       "base": true,
+       "blood": 1,
+       "willpower": true
+      }
+     }
+    ],
+    "era": "",
+    "edition": "Dark Ages (классика)",
+    "source": "Dark Ages: Players Guide to High Clans",
+    "proc": "dac",
+    "html": ""
+   },
+   {
+    "name": "Путь Воды (Тёмные века, классика)",
+    "en": "Way of Water",
+    "powers": [
+     {
+      "level": 1,
+      "name": "Бассейн лжи",
+      "en": "Pool of Lies",
+      "roll": {
+       "trait1": "attributes.wits",
+       "trait2": "abilities.occult",
+       "difficulty": 4,
+       "base": true,
+       "blood": 1
+      }
+     },
+     {
+      "level": 2,
+      "name": "Водяное убежище",
+      "en": "Watery Haven",
+      "roll": {
+       "trait1": "attributes.wits",
+       "trait2": "abilities.occult",
+       "difficulty": 5,
+       "base": true,
+       "note": "Водяное убежище — без крови, нужно 2 успеха"
+      }
+     },
+     {
+      "level": 3,
+      "name": "Туман над морем",
+      "en": "Fog over Sea",
+      "roll": {
+       "trait1": "attributes.wits",
+       "trait2": "abilities.occult",
+       "difficulty": 6,
+       "base": true,
+       "blood": 1
+      }
+     },
+     {
+      "level": 4,
+      "name": "Прислужники глубин",
+      "en": "Minions of the Deep",
+      "roll": {
+       "trait1": "attributes.wits",
+       "trait2": "abilities.occult",
+       "difficulty": 7,
+       "base": true,
+       "blood": 1,
+       "willpower": true
+      }
+     },
+     {
+      "level": 5,
+      "name": "Роковой прилив",
+      "en": "Doom Tide",
+      "roll": {
+       "trait1": "attributes.wits",
+       "trait2": "abilities.occult",
+       "difficulty": 8,
+       "base": true,
+       "blood": 1,
+       "willpower": true
+      }
+     }
+    ],
+    "era": "",
+    "edition": "Dark Ages (классика)",
+    "source": "Dark Ages: Players Guide to High Clans",
+    "proc": "dac",
+    "html": ""
+   },
+   {
+    "name": "Путь Огня (Тёмные века, классика)",
+    "en": "Way of Fire",
+    "powers": [
+     {
+      "level": 1,
+      "name": "Огненная храбрость",
+      "en": "Fiery Courage",
+      "passive": true
+     },
+     {
+      "level": 2,
+      "name": "Воспламенение",
+      "en": "Combust",
+      "roll": {
+       "trait1": "attributes.manipulation",
+       "trait2": "abilities.occult",
+       "difficulty": 7,
+       "base": true,
+       "blood": 1
+      }
+     },
+     {
+      "level": 3,
+      "name": "Стена магмы",
+      "en": "Wall of Magma",
+      "roll": {
+       "trait1": "attributes.manipulation",
+       "trait2": "abilities.occult",
+       "difficulty": 6,
+       "base": true,
+       "blood": 1
+      }
+     },
+     {
+      "level": 4,
+      "name": "Жаркая волна",
+      "en": "Heat Wave",
+      "roll": {
+       "trait1": "attributes.manipulation",
+       "trait2": "abilities.occult",
+       "difficulty": 7,
+       "base": true,
+       "blood": 1
+      }
+     },
+     {
+      "level": 5,
+      "name": "Вулканический взрыв",
+      "en": "Volcanic Blast",
+      "roll": {
+       "trait1": "attributes.manipulation",
+       "trait2": "abilities.occult",
+       "difficulty": 8,
+       "base": true,
+       "blood": 1,
+       "willpower": true
+      }
+     }
+    ],
+    "era": "",
+    "edition": "Dark Ages (классика)",
+    "source": "Dark Ages: Players Guide to High Clans",
+    "proc": "dac",
+    "html": ""
+   },
+   {
+    "name": "Путь Духа (Тёмные века, классика)",
+    "en": "Way of Spirit",
+    "powers": [
+     {
+      "level": 1,
+      "name": "Путь Духа (Тёмные века, классика) — 15 м",
+      "en": "Way of Spirit",
+      "roll": {
+       "trait1": "attributes.charisma",
+       "trait2": "abilities.occult",
+       "difficulty": 5,
+       "base": true,
+       "willpower": true,
+       "note": "без крови; часов — по успехам"
+      }
+     },
+     {
+      "level": 2,
+      "name": "Путь Духа (Тёмные века, классика) — 91 м",
+      "en": "Way of Spirit",
+      "roll": {
+       "trait1": "attributes.charisma",
+       "trait2": "abilities.occult",
+       "difficulty": 6,
+       "base": true,
+       "willpower": true,
+       "note": "без крови; часов — по успехам"
+      }
+     },
+     {
+      "level": 3,
+      "name": "Путь Духа (Тёмные века, классика) — 0,4 км",
+      "en": "Way of Spirit",
+      "roll": {
+       "trait1": "attributes.charisma",
+       "trait2": "abilities.occult",
+       "difficulty": 7,
+       "base": true,
+       "willpower": true,
+       "note": "без крови; часов — по успехам"
+      }
+     },
+     {
+      "level": 4,
+      "name": "Путь Духа (Тёмные века, классика) — 1,6 км",
+      "en": "Way of Spirit",
+      "roll": {
+       "trait1": "attributes.charisma",
+       "trait2": "abilities.occult",
+       "difficulty": 8,
+       "base": true,
+       "willpower": true,
+       "note": "без крови; часов — по успехам"
+      }
+     },
+     {
+      "level": 5,
+      "name": "Путь Духа (Тёмные века, классика) — 8 км",
+      "en": "Way of Spirit",
+      "roll": {
+       "trait1": "attributes.charisma",
+       "trait2": "abilities.occult",
+       "difficulty": 9,
+       "base": true,
+       "willpower": true,
+       "note": "без крови; часов — по успехам"
+      }
+     }
+    ],
+    "era": "",
+    "edition": "Dark Ages (классика)",
+    "source": "Dark Ages: Players Guide to High Clans",
+    "proc": "dac",
+    "html": "",
+    "noPrimary": false
    }
   ]
  },

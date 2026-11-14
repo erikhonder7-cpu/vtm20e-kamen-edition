@@ -47,6 +47,17 @@ const norm = s => s.toLowerCase().replace(/ё/g, "е");
 /** Вид источника для фильтра: основная книга, дополнение, Тёмные века, фанатское. */
 const srcKind = x => x.source === "Demon: The Fallen" ? "core" : x.fan ? "fan" : x.era === "darkAges" ? "da" : (x.source && !/^V20(,|$)/.test(x.source.trim())) ? "ext" : "core";   // «V20 The Black Hand» — дополнение
 const SRC_KINDS = ["core", "ext", "da", "fan"];
+/** Редакция записи Колдовства (поле edition пути или источник ритуала) — подпись группы и порядок: V20, дополнения, Тёмные века, Revised. */
+export const EDITIONS = [
+  [/^V20$/, "V20"], [/Rites of the Blood/, "Rites of the Blood"], [/Black Hand/, "Чёрная рука"], [/^V20 Dark Ages$/, "Тёмные века V20"],
+  [/Tome of Secrets/, "Тёмные века V20: Tome of Secrets"], [/классика/, "Тёмные века (классика)"], [/Secrets of Thaumaturgy/, "Revised: Secrets of Thaumaturgy"],
+  [/Clanbook/, "Revised: Clanbook Tzimisce"], [/^Revised$/, "Revised"]];
+export const editionOf = x => {
+  const raw = String(x.edition ?? x.source ?? "").trim() || "V20";
+  const i = EDITIONS.findIndex(([re]) => re.test(raw));
+  return { key: raw, label: i < 0 ? raw : EDITIONS[i][1], order: i < 0 ? EDITIONS.length : i };
+};
+const BY_EDITION = new Set(["koldunism"]);
 /** Силы карточки — строками по уровням: «VI: Любовь · Парализующий взор». */
 const byLevel = powers => {
   const rows = [];
@@ -54,7 +65,7 @@ const byLevel = powers => {
     const row = rows.find(r => r.roman === p.roman) ?? rows[rows.push({ roman: p.roman, items: [] }) - 1];
     row.items.push(p);
   }
-  for (const r of rows) r.wide = r.items.length > 1;     // несколько сил на уровне — на всю ширину
+  for (const r of rows) { r.wide = r.items.length > 1; r.elder = !["I", "II", "III", "IV", "V"].includes(String(r.roman)); }   // несколько сил на уровне — на всю ширину; VI+ — силы старейшин
   return rows;
 };
 const ICON = type => `systems/${SYSTEM_ID}/assets/icons/${type}.svg`;
@@ -188,9 +199,13 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
     }
     // Источник — если в списке больше одного вида (основная книга, дополнения, Тёмные века, фанатское)
     const srcSeen = SRC_KINDS.filter(k => entries.some(e => e.src === k));
-    const srcChips = srcSeen.length > 1 ? [chip("src", "", L("Filter.AllSources")), ...srcSeen.map(k => chip("src", k, L(`Filter.Src.${k}`)))] : null;
+    const srcChips = srcSeen.length > 1 && !BY_EDITION.has(this.o.discipline) ? [chip("src", "", L("Filter.AllSources")), ...srcSeen.map(k => chip("src", k, L(`Filter.Src.${k}`)))] : null;
     // Виды из library-picks.mjs: группы — кнопками (если их от 2 до 16), уровни — отдельным рядом
     let levelChips = null;
+    if (kind === "path" && BY_EDITION.has(this.o.discipline)) {
+      const groups = [...new Map(entries.filter(e => e.group).map(e => [e.group, e.groupName])).entries()];
+      if (groups.length > 1) chips = [chip("cat", "", L("Filter.All")), ...groups.map(([k, n]) => chip("cat", k, n))];
+    }
     if (pick) {
       const groups = [...new Map(entries.filter(e => e.group).map(e => [e.group, e.groupName])).entries()];
       if (groups.length > 1 && groups.length <= 16) chips = [chip("cat", "", L("Filter.All")), ...groups.map(([k, n]) => chip("cat", k, n))];
@@ -225,6 +240,7 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
       single: x.variants?.length === 1,
       src: x.src ?? "core",
       powerRows: x.powers?.length ? byLevel(x.powers) : null,
+      elderCount: (x.powers ?? []).filter(p => !["I", "II", "III", "IV", "V"].includes(String(p.roman))).length,
       canTake: !x.has && !reasons.length,
       search: norm(`${x.name} ${x.en ?? ""} ${text}`)
     };
@@ -274,6 +290,7 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
     // id — номер в полном списке пути (по нему берётся запись при добавлении), поэтому фильтруем после нумерации
     return (d?.paths ?? []).map((p, pi) => [p, pi]).filter(([p]) => Codex.visible(p)).map(([p, pi]) => this.#entry({
       id: String(pi), name: p.name, en: p.en, has: mine.includes(p.name), xp, sym: Codex.disciplineSymbol(disc), src: srcKind(p),
+      ...(BY_EDITION.has(disc) ? (e => ({ group: e.key, groupName: e.label, groupOrder: e.order, cat: e.key }))(editionOf(p)) : {}),
       reasons: dots < 1 ? [L("NeedDiscipline", { name: d.name })] : [],
       tags: [!mine.length && { label: L("Primary"), red: true }, ...sourceTags(p)].filter(Boolean),
       text: p.html ?? "",
@@ -288,6 +305,7 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
     return (Codex.rituals[disc]?.rituals ?? []).map((r, i) => [r, i]).filter(([r]) => Codex.visible(r)).map(([r, i]) => this.#entry({
       id: String(i), name: r.name, en: r.en, level: r.level, levels: String(r.level), order: r.level,
       roman: ROMAN[r.level - 1] ?? r.level, has: mine.has(r.name), text: r.html ?? "", long: true, tags: sourceTags(r), src: srcKind(r),
+      ...(BY_EDITION.has(disc) ? (e => ({ group: e.key, groupName: e.label, groupOrder: e.order }))(editionOf(r)) : {}),
       reasons: r.level > dots ? [L("NeedLevel", { name: Codex.disciplineLabel(disc), level: r.level })] : []
     }));
   }

@@ -7630,53 +7630,61 @@
     "discipline": "koldunism",
     "level": 1,
     "name": "Восприятие слуги",
-    "en": "Servitor's Perception",
+    "en": "Servitor’s Perception",
     "source": "V20 Dark Ages: Tome of Secrets",
-    "era": "darkAges",
+    "era": "",
     "roll": {
-     "trait1": "attributes.intelligence",
+     "trait1": "attributes.perception",
      "trait2": "abilities.occult",
-     "difficulty": 4
-    }
+     "difficulty": 5,
+     "note": "продолжительная: 5 успехов; цена — 3 крови и 2 Воли (провал — вся цена)"
+    },
+    "edition": "V20 Dark Ages: Tome of Secrets"
    },
    {
     "discipline": "koldunism",
     "level": 1,
-    "name": "Драгоценные безделицы",
+    "name": "Драгоценные украшения",
     "en": "Treasured Ornaments",
     "source": "V20 Dark Ages: Tome of Secrets",
-    "era": "darkAges",
+    "era": "",
     "roll": {
-     "trait1": "attributes.intelligence",
+     "trait1": "attributes.manipulation",
      "trait2": "abilities.occult",
-     "difficulty": 4
-    }
+     "difficulty": 5,
+     "note": "продолжительная: 5 успехов; цена — 3 крови и 2 Воли (провал — вся цена)"
+    },
+    "edition": "V20 Dark Ages: Tome of Secrets"
    },
    {
     "discipline": "koldunism",
     "level": 1,
-    "name": "Истина в воде",
+    "name": "Правда в воде",
     "en": "Truth in Water",
     "source": "V20 Dark Ages: Tome of Secrets",
-    "era": "darkAges",
+    "era": "",
     "roll": {
-     "trait1": "attributes.intelligence",
+     "trait1": "attributes.appearance",
      "trait2": "abilities.occult",
-     "difficulty": 4
-    }
+     "difficulty": 5,
+     "note": "продолжительная: 5 успехов; цена — 3 крови и 2 Воли (провал — вся цена)"
+    },
+    "edition": "V20 Dark Ages: Tome of Secrets"
    },
    {
     "discipline": "koldunism",
     "level": 1,
     "name": "Отражения",
     "en": "Reflections",
-    "source": "Blood Sacrifice: The Thaumaturgy Companion",
+    "source": "Blood Sacrifice: The Thaumaturgy Companion (2000), p. 85.",
     "era": "",
     "roll": {
      "trait1": "attributes.intelligence",
      "trait2": "abilities.occult",
-     "difficulty": 4
-    }
+     "difficulty": 5,
+     "note": "Знание «Колдунизм» — по книге"
+    },
+    "edition": "Revised"
    },
    {
     "discipline": "koldunism",
@@ -7684,12 +7692,14 @@
     "name": "Пить смерть",
     "en": "Drinking Death",
     "source": "V20 Dark Ages: Tome of Secrets",
-    "era": "darkAges",
+    "era": "",
     "roll": {
-     "trait1": "attributes.intelligence",
+     "trait1": "attributes.strength",
      "trait2": "abilities.occult",
-     "difficulty": 4
-    }
+     "difficulty": 5,
+     "note": "продолжительная: 5 успехов; цена — 3 крови и 2 Воли (провал — вся цена)"
+    },
+    "edition": "V20 Dark Ages: Tome of Secrets"
    },
    {
     "discipline": "koldunism",
@@ -7702,20 +7712,23 @@
      "difficulty": 4
     },
     "era": "",
-    "source": "V20 Rites of the Blood"
+    "source": "V20 Rites of the Blood",
+    "edition": "V20 Rites of the Blood"
    },
    {
     "discipline": "koldunism",
     "level": 1,
-    "name": "Противоестественная гниль",
+    "name": "Неестественное увядание",
     "en": "Unnatural Decay",
     "source": "V20 Dark Ages: Tome of Secrets",
-    "era": "darkAges",
+    "era": "",
     "roll": {
-     "trait1": "attributes.intelligence",
+     "trait1": "attributes.stamina",
      "trait2": "abilities.occult",
-     "difficulty": 4
-    }
+     "difficulty": 5,
+     "note": "продолжительная: 5 успехов; цена — 3 крови и 2 Воли (провал — вся цена)"
+    },
+    "edition": "V20 Dark Ages: Tome of Secrets"
    },
    {
     "discipline": "koldunism",
@@ -7723,25 +7736,29 @@
     "name": "Хозяин владений",
     "en": "Master of the Domain",
     "source": "V20 Dark Ages: Tome of Secrets",
-    "era": "darkAges",
+    "era": "",
     "roll": {
-     "trait1": "attributes.intelligence",
+     "trait1": "attributes.appearance",
      "trait2": "abilities.occult",
-     "difficulty": 4
-    }
+     "difficulty": 5,
+     "note": "продолжительная: 5 успехов; цена — 3 крови и 2 Воли (провал — вся цена)"
+    },
+    "edition": "V20 Dark Ages: Tome of Secrets"
    },
    {
     "discipline": "koldunism",
     "level": 1,
     "name": "Просветление",
     "en": "Enlightenment",
-    "source": "Sins of the Blood",
+    "source": "Sins of the Blood (2001), p. 98.",
     "era": "",
     "roll": {
      "trait1": "attributes.intelligence",
      "trait2": "abilities.occult",
-     "difficulty": 4
-    }
+     "difficulty": 5,
+     "note": "Знание «Колдунизм» — по книге"
+    },
+    "edition": "Revised"
    },
    {
     "discipline": "koldunism",
@@ -7754,20 +7771,23 @@
      "trait1": "attributes.intelligence",
      "trait2": "abilities.occult",
      "difficulty": 4
-    }
+    },
+    "edition": "V20 Dark Ages: Tome of Secrets"
    },
    {
     "discipline": "koldunism",
     "level": 1,
     "name": "Мефистофельские проделки",
     "en": "Mephistophelean Minx",
-    "source": "Sins of the Blood",
+    "source": "Sins of the Blood (2001), p. 98.",
     "era": "",
     "roll": {
      "trait1": "attributes.intelligence",
      "trait2": "abilities.occult",
-     "difficulty": 4
-    }
+     "difficulty": 5,
+     "note": "Знание «Колдунизм» — по книге"
+    },
+    "edition": "Revised"
    },
    {
     "discipline": "koldunism",
@@ -7780,7 +7800,8 @@
      "trait1": "attributes.intelligence",
      "trait2": "abilities.occult",
      "difficulty": 4
-    }
+    },
+    "edition": "V20 Dark Ages: Tome of Secrets"
    },
    {
     "discipline": "koldunism",
@@ -7788,17 +7809,19 @@
     "name": "Глаза мёртвых",
     "en": "Eyes of the Dead",
     "source": "V20 Dark Ages: Tome of Secrets",
-    "era": "darkAges",
+    "era": "",
     "roll": {
-     "trait1": "attributes.intelligence",
+     "trait1": "attributes.perception",
      "trait2": "abilities.occult",
-     "difficulty": 5
-    }
+     "difficulty": 6,
+     "note": "продолжительная: 10 успехов; цена — 6 крови и 4 Воли (провал — вся цена)"
+    },
+    "edition": "V20 Dark Ages: Tome of Secrets"
    },
    {
     "discipline": "koldunism",
     "level": 2,
-    "name": "Малый знак силы",
+    "name": "Призыв Малого Знака Силы",
     "en": "Invoke the Lesser Sign of Power",
     "roll": {
      "trait1": "attributes.intelligence",
@@ -7806,7 +7829,8 @@
      "difficulty": 5
     },
     "era": "",
-    "source": "V20 Rites of the Blood"
+    "source": "V20 Rites of the Blood",
+    "edition": "V20 Rites of the Blood"
    },
    {
     "discipline": "koldunism",
@@ -7814,38 +7838,44 @@
     "name": "Несомый ветром",
     "en": "Borne by Wind",
     "source": "V20 Dark Ages: Tome of Secrets",
-    "era": "darkAges",
+    "era": "",
     "roll": {
-     "trait1": "attributes.intelligence",
+     "trait1": "attributes.dexterity",
      "trait2": "abilities.occult",
-     "difficulty": 5
-    }
+     "difficulty": 6,
+     "note": "продолжительная: 10 успехов; цена — 6 крови и 4 Воли (провал — вся цена)"
+    },
+    "edition": "V20 Dark Ages: Tome of Secrets"
    },
    {
     "discipline": "koldunism",
     "level": 2,
-    "name": "Осенний доспех",
-    "en": "Autumn's Armor",
+    "name": "Доспех осени",
+    "en": "Autumn’s Armor",
     "source": "V20 Dark Ages: Tome of Secrets",
-    "era": "darkAges",
+    "era": "",
     "roll": {
-     "trait1": "attributes.intelligence",
+     "trait1": "attributes.stamina",
      "trait2": "abilities.occult",
-     "difficulty": 5
-    }
+     "difficulty": 6,
+     "note": "продолжительная: 10 успехов; цена — 6 крови и 4 Воли (провал — вся цена)"
+    },
+    "edition": "V20 Dark Ages: Tome of Secrets"
    },
    {
     "discipline": "koldunism",
     "level": 2,
-    "name": "Сгущённое витэ",
+    "name": "Сгущённая витэ",
     "en": "Concentrated Vitae",
     "source": "V20 Dark Ages: Tome of Secrets",
-    "era": "darkAges",
+    "era": "",
     "roll": {
-     "trait1": "attributes.intelligence",
+     "trait1": "attributes.stamina",
      "trait2": "abilities.occult",
-     "difficulty": 5
-    }
+     "difficulty": 6,
+     "note": "продолжительная: 10 успехов; цена — 6 крови и 4 Воли (провал — вся цена)"
+    },
+    "edition": "V20 Dark Ages: Tome of Secrets"
    },
    {
     "discipline": "koldunism",
@@ -7858,20 +7888,23 @@
      "trait1": "attributes.intelligence",
      "trait2": "abilities.occult",
      "difficulty": 5
-    }
+    },
+    "edition": "V20 Dark Ages: Tome of Secrets"
    },
    {
     "discipline": "koldunism",
     "level": 2,
-    "name": "Создать камень судьбы",
+    "name": "Камень Судьбы",
     "en": "Craft Weirding Stone",
-    "source": "Caine’s Chosen: The Black Hand",
+    "source": "Caine’s Chosen: The Black Hand (2002), p. 78.",
     "era": "",
     "roll": {
      "trait1": "attributes.intelligence",
      "trait2": "abilities.occult",
-     "difficulty": 5
-    }
+     "difficulty": 6,
+     "note": "Знание «Колдунизм» — по книге"
+    },
+    "edition": "Revised"
    },
    {
     "discipline": "koldunism",
@@ -7884,51 +7917,58 @@
      "trait1": "attributes.intelligence",
      "trait2": "abilities.occult",
      "difficulty": 5
-    }
+    },
+    "edition": "V20 Dark Ages: Tome of Secrets"
    },
    {
     "discipline": "koldunism",
     "level": 2,
-    "name": "Служба за душу",
+    "name": "Служба за души",
     "en": "Service for Souls",
-    "source": "Sins of the Blood",
+    "source": "Sins of the Blood (2001), p. 98.",
     "era": "",
     "roll": {
      "trait1": "attributes.intelligence",
      "trait2": "abilities.occult",
-     "difficulty": 5
-    }
+     "difficulty": 6,
+     "note": "Знание «Колдунизм» — по книге"
+    },
+    "edition": "Revised"
    },
    {
     "discipline": "koldunism",
     "level": 2,
     "name": "Иссушающая агония",
     "en": "Withering Agony",
-    "source": "Sins of the Blood",
+    "source": "Sins of the Blood (2001), pp. 98–99.",
     "era": "",
     "roll": {
      "trait1": "attributes.intelligence",
      "trait2": "abilities.occult",
-     "difficulty": 5
-    }
+     "difficulty": 6,
+     "note": "Знание «Колдунизм» — по книге"
+    },
+    "edition": "Revised"
    },
    {
     "discipline": "koldunism",
     "level": 3,
-    "name": "Един с лесом",
+    "name": "Единый с лесом",
     "en": "One with the Forest",
     "source": "V20 Dark Ages: Tome of Secrets",
-    "era": "darkAges",
+    "era": "",
     "roll": {
-     "trait1": "attributes.intelligence",
+     "trait1": "attributes.stamina",
      "trait2": "abilities.occult",
-     "difficulty": 6
-    }
+     "difficulty": 7,
+     "note": "продолжительная: 15 успехов; цена — 9 крови и 6 Воли (провал — вся цена)"
+    },
+    "edition": "V20 Dark Ages: Tome of Secrets"
    },
    {
     "discipline": "koldunism",
     "level": 3,
-    "name": "Запугать слугу",
+    "name": "Покорение слуги",
     "en": "Cowing the Servant",
     "roll": {
      "trait1": "attributes.intelligence",
@@ -7936,46 +7976,53 @@
      "difficulty": 6
     },
     "era": "",
-    "source": "V20 Rites of the Blood"
+    "source": "V20 Rites of the Blood",
+    "edition": "V20 Rites of the Blood"
    },
    {
     "discipline": "koldunism",
     "level": 3,
-    "name": "Оживить диковины",
+    "name": "Оживление безделушек",
     "en": "Animate Curios",
     "source": "V20 Dark Ages: Tome of Secrets",
-    "era": "darkAges",
+    "era": "",
     "roll": {
-     "trait1": "attributes.intelligence",
+     "trait1": "attributes.manipulation",
      "trait2": "abilities.occult",
-     "difficulty": 6
-    }
+     "difficulty": 7,
+     "note": "продолжительная: 15 успехов; цена — 9 крови и 6 Воли (провал — вся цена)"
+    },
+    "edition": "V20 Dark Ages: Tome of Secrets"
    },
    {
     "discipline": "koldunism",
     "level": 3,
-    "name": "Плывущий мертвец",
+    "name": "Плывущие мертвецы",
     "en": "The Floating Dead",
     "source": "V20 Dark Ages: Tome of Secrets",
-    "era": "darkAges",
+    "era": "",
     "roll": {
-     "trait1": "attributes.intelligence",
+     "trait1": "attributes.dexterity",
      "trait2": "abilities.occult",
-     "difficulty": 6
-    }
+     "difficulty": 7,
+     "note": "продолжительная: 15 успехов; цена — 9 крови и 6 Воли (провал — вся цена)"
+    },
+    "edition": "V20 Dark Ages: Tome of Secrets"
    },
    {
     "discipline": "koldunism",
     "level": 3,
     "name": "Вызов малого демона",
     "en": "Conjure Lesser Demon",
-    "source": "Libellus Sanguinis 1: Masters of the State",
+    "source": "Dark Ages (классика)",
     "era": "",
     "roll": {
      "trait1": "attributes.intelligence",
      "trait2": "abilities.occult",
-     "difficulty": 6
-    }
+     "difficulty": 6,
+     "note": "без специализации «Колдовство» +1; ≥ 5 мин × уровень"
+    },
+    "edition": "Dark Ages (классика)"
    },
    {
     "discipline": "koldunism",
@@ -7988,7 +8035,8 @@
      "trait1": "attributes.intelligence",
      "trait2": "abilities.occult",
      "difficulty": 6
-    }
+    },
+    "edition": "V20 Dark Ages: Tome of Secrets"
    },
    {
     "discipline": "koldunism",
@@ -8001,20 +8049,23 @@
      "trait1": "attributes.intelligence",
      "trait2": "abilities.occult",
      "difficulty": 6
-    }
+    },
+    "edition": "V20 Dark Ages: Tome of Secrets"
    },
    {
     "discipline": "koldunism",
     "level": 3,
-    "name": "Изъять лалека",
+    "name": "Изъять лелека",
     "en": "Raze the Lelek",
-    "source": "Sins of the Blood",
+    "source": "Sins of the Blood (2001), p. 99.",
     "era": "",
     "roll": {
      "trait1": "attributes.intelligence",
      "trait2": "abilities.occult",
-     "difficulty": 6
-    }
+     "difficulty": 7,
+     "note": "Знание «Колдунизм» — по книге"
+    },
+    "edition": "Revised"
    },
    {
     "discipline": "koldunism",
@@ -8027,51 +8078,58 @@
      "trait1": "attributes.intelligence",
      "trait2": "abilities.occult",
      "difficulty": 6
-    }
+    },
+    "edition": "V20 Dark Ages: Tome of Secrets"
    },
    {
     "discipline": "koldunism",
     "level": 4,
-    "name": "Водное зеркало",
+    "name": "Гадательный водоём",
     "en": "Scrying Pool",
     "source": "V20 Dark Ages: Tome of Secrets",
-    "era": "darkAges",
-    "roll": {
-     "trait1": "attributes.intelligence",
-     "trait2": "abilities.occult",
-     "difficulty": 7
-    }
-   },
-   {
-    "discipline": "koldunism",
-    "level": 4,
-    "name": "Вызвать бурю",
-    "en": "Evoke the Storm",
-    "source": "V20 Dark Ages: Tome of Secrets",
-    "era": "darkAges",
-    "roll": {
-     "trait1": "attributes.intelligence",
-     "trait2": "abilities.occult",
-     "difficulty": 7
-    }
-   },
-   {
-    "discipline": "koldunism",
-    "level": 4,
-    "name": "Объятие земли",
-    "en": "Earth's Embrace",
-    "source": "Blood Sacrifice: The Thaumaturgy Companion",
     "era": "",
     "roll": {
      "trait1": "attributes.intelligence",
      "trait2": "abilities.occult",
-     "difficulty": 7
-    }
+     "difficulty": 8,
+     "note": "продолжительная: 20 успехов; цена — 12 крови и 8 Воли (провал — вся цена)"
+    },
+    "edition": "V20 Dark Ages: Tome of Secrets"
    },
    {
     "discipline": "koldunism",
     "level": 4,
-    "name": "Узы, что связывают",
+    "name": "Призвать бурю",
+    "en": "Evoke the Storm",
+    "source": "V20 Dark Ages: Tome of Secrets",
+    "era": "",
+    "roll": {
+     "trait1": "attributes.wits",
+     "trait2": "abilities.occult",
+     "difficulty": 8,
+     "note": "продолжительная: 20 успехов; цена — 12 крови и 8 Воли (провал — вся цена)"
+    },
+    "edition": "V20 Dark Ages: Tome of Secrets"
+   },
+   {
+    "discipline": "koldunism",
+    "level": 4,
+    "name": "Объятия Земли",
+    "en": "Earth’s Embrace",
+    "source": "Blood Sacrifice: The Thaumaturgy Companion (2000), p. 86.",
+    "era": "",
+    "roll": {
+     "trait1": "attributes.intelligence",
+     "trait2": "abilities.occult",
+     "difficulty": 8,
+     "note": "Знание «Колдунизм» — по книге"
+    },
+    "edition": "Revised"
+   },
+   {
+    "discipline": "koldunism",
+    "level": 4,
+    "name": "Узы земли",
     "en": "Ties That Bind",
     "roll": {
      "trait1": "attributes.intelligence",
@@ -8079,46 +8137,53 @@
      "difficulty": 7
     },
     "era": "",
-    "source": "V20 Rites of the Blood"
+    "source": "V20 Rites of the Blood",
+    "edition": "V20 Rites of the Blood"
    },
    {
     "discipline": "koldunism",
     "level": 4,
     "name": "За гранью смерти",
     "en": "Beyond the Wall of Death",
-    "source": "Sins of the Blood",
+    "source": "Sins of the Blood (2001), p. 99.",
     "era": "",
     "roll": {
      "trait1": "attributes.intelligence",
      "trait2": "abilities.occult",
-     "difficulty": 7
-    }
+     "difficulty": 8,
+     "note": "Знание «Колдунизм» — по книге"
+    },
+    "edition": "Revised"
    },
    {
     "discipline": "koldunism",
     "level": 4,
     "name": "Бесовской облик",
     "en": "Incubus Visage",
-    "source": "Sins of the Blood",
+    "source": "Sins of the Blood (2001), p. 99.",
     "era": "",
     "roll": {
      "trait1": "attributes.intelligence",
      "trait2": "abilities.occult",
-     "difficulty": 7
-    }
+     "difficulty": 8,
+     "note": "Знание «Колдунизм» — по книге"
+    },
+    "edition": "Revised"
    },
    {
     "discipline": "koldunism",
     "level": 4,
     "name": "Слияние душ",
     "en": "Merging of the Souls",
-    "source": "Sins of the Blood",
+    "source": "Sins of the Blood (2001), p. 100.",
     "era": "",
     "roll": {
      "trait1": "attributes.intelligence",
      "trait2": "abilities.occult",
-     "difficulty": 7
-    }
+     "difficulty": 8,
+     "note": "Знание «Колдунизм» — по книге"
+    },
+    "edition": "Revised"
    },
    {
     "discipline": "koldunism",
@@ -8131,7 +8196,8 @@
      "trait1": "attributes.intelligence",
      "trait2": "abilities.occult",
      "difficulty": 7
-    }
+    },
+    "edition": "V20 Dark Ages: Tome of Secrets"
    },
    {
     "discipline": "koldunism",
@@ -8144,25 +8210,28 @@
      "trait1": "attributes.intelligence",
      "trait2": "abilities.occult",
      "difficulty": 7
-    }
+    },
+    "edition": "V20 Dark Ages: Tome of Secrets"
    },
    {
     "discipline": "koldunism",
     "level": 5,
     "name": "Взгляд Горгоны",
     "en": "Gaze of the Gorgon",
-    "source": "Blood Sacrifice: The Thaumaturgy Companion",
+    "source": "Blood Sacrifice: The Thaumaturgy Companion (2000), p. 86.",
     "era": "",
     "roll": {
      "trait1": "attributes.intelligence",
      "trait2": "abilities.occult",
-     "difficulty": 8
-    }
+     "difficulty": 9,
+     "note": "Знание «Колдунизм» — по книге"
+    },
+    "edition": "Revised"
    },
    {
     "discipline": "koldunism",
     "level": 5,
-    "name": "Сокровенная тяга",
+    "name": "Внутреннее притяжение",
     "en": "The Inmost Tug",
     "roll": {
      "trait1": "attributes.intelligence",
@@ -8170,33 +8239,38 @@
      "difficulty": 8
     },
     "era": "",
-    "source": "V20 Rites of the Blood"
+    "source": "V20 Rites of the Blood",
+    "edition": "V20 Rites of the Blood"
    },
    {
     "discipline": "koldunism",
     "level": 5,
     "name": "Вызов большего демона",
     "en": "Conjure Greater Demon",
-    "source": "Libellus Sanguinis 1: Masters of the State",
+    "source": "Dark Ages (классика)",
     "era": "",
     "roll": {
      "trait1": "attributes.intelligence",
      "trait2": "abilities.occult",
-     "difficulty": 8
-    }
+     "difficulty": 8,
+     "note": "без специализации «Колдовство» +1; ≥ 5 мин × уровень"
+    },
+    "edition": "Dark Ages (классика)"
    },
    {
     "discipline": "koldunism",
     "level": 5,
-    "name": "Стихийный хранитель",
+    "name": "Стихийный спаситель",
     "en": "Elemental Savior",
-    "source": "Sins of the Blood",
+    "source": "Sins of the Blood (2001), p. 100.",
     "era": "",
     "roll": {
      "trait1": "attributes.intelligence",
      "trait2": "abilities.occult",
-     "difficulty": 8
-    }
+     "difficulty": 9,
+     "note": "Знание «Колдунизм» — по книге"
+    },
+    "edition": "Revised"
    },
    {
     "discipline": "koldunism",
@@ -8209,7 +8283,8 @@
      "trait1": "attributes.intelligence",
      "trait2": "abilities.occult",
      "difficulty": 8
-    }
+    },
+    "edition": "V20 Dark Ages: Tome of Secrets"
    },
    {
     "discipline": "koldunism",
@@ -8222,33 +8297,382 @@
      "trait1": "attributes.intelligence",
      "trait2": "abilities.occult",
      "difficulty": 9
-    }
+    },
+    "edition": "V20 Dark Ages: Tome of Secrets"
    },
    {
     "discipline": "koldunism",
     "level": 6,
     "name": "Обращение демона",
     "en": "Embracing the Demon",
-    "source": "Sins of the Blood",
+    "source": "Sins of the Blood (2001), p. 100.",
     "era": "",
     "roll": {
      "trait1": "attributes.intelligence",
      "trait2": "abilities.occult",
-     "difficulty": 9
-    }
+     "difficulty": 10,
+     "note": "Знание «Колдунизм» — по книге"
+    },
+    "edition": "Revised"
    },
    {
     "discipline": "koldunism",
     "level": 9,
     "name": "Дракул",
     "en": "Dracul",
-    "source": "Libellus Sanguinis 1: Masters of the State",
+    "source": "Dark Ages (классика)",
     "era": "",
     "roll": {
      "trait1": "attributes.intelligence",
      "trait2": "abilities.occult",
-     "difficulty": 9
-    }
+     "difficulty": 10,
+     "note": "без специализации «Колдовство» +1; ≥ 5 мин × уровень"
+    },
+    "edition": "Dark Ages (классика)"
+   },
+   {
+    "discipline": "koldunism",
+    "level": 5,
+    "name": "Зеркало крови",
+    "en": "Mirror of Blood",
+    "roll": {
+     "trait1": "attributes.intelligence",
+     "trait2": "abilities.occult",
+     "difficulty": 8
+    },
+    "era": "",
+    "source": "V20 Rites of the Blood",
+    "edition": "V20 Rites of the Blood"
+   },
+   {
+    "discipline": "koldunism",
+    "level": 1,
+    "name": "Пробуждение мёртвой воды (Revised)",
+    "en": "Reawakening the Dead Water",
+    "roll": {
+     "trait1": "attributes.intelligence",
+     "trait2": "abilities.occult",
+     "difficulty": 5,
+     "note": "Знание «Колдунизм» — по книге"
+    },
+    "era": "",
+    "source": "Blood Magic: Secrets of Thaumaturgy (2003), p. 133.",
+    "edition": "Revised"
+   },
+   {
+    "discipline": "koldunism",
+    "level": 4,
+    "name": "Связующие узы",
+    "en": "Ties That Bind",
+    "roll": {
+     "trait1": "attributes.intelligence",
+     "trait2": "abilities.occult",
+     "difficulty": 8,
+     "note": "Знание «Колдунизм» — по книге"
+    },
+    "era": "",
+    "source": "Blood Magic: Secrets of Thaumaturgy (2003), p. 133.",
+    "edition": "Revised"
+   },
+   {
+    "discipline": "koldunism",
+    "level": 1,
+    "name": "Зверь, питающийся снами",
+    "en": "Beast That Feeds on Dreams",
+    "roll": {
+     "trait1": "attributes.intelligence",
+     "trait2": "abilities.occult",
+     "difficulty": 4,
+     "note": "без специализации «Колдовство» +1; ≥ 5 мин × уровень"
+    },
+    "era": "",
+    "source": "Dark Ages (классика)",
+    "edition": "Dark Ages (классика)"
+   },
+   {
+    "discipline": "koldunism",
+    "level": 1,
+    "name": "Гостеприимство (Тёмные века, классика)",
+    "en": "Hospitality",
+    "roll": {
+     "trait1": "attributes.intelligence",
+     "trait2": "abilities.occult",
+     "difficulty": 4,
+     "note": "без специализации «Колдовство» +1; ≥ 5 мин × уровень"
+    },
+    "era": "",
+    "source": "Dark Ages (классика)",
+    "edition": "Dark Ages (классика)"
+   },
+   {
+    "discipline": "koldunism",
+    "level": 1,
+    "name": "Ритуал объятий смерти (Тёмные века, классика)",
+    "en": "Ritual of Death’s Embrace",
+    "roll": {
+     "trait1": "attributes.intelligence",
+     "trait2": "abilities.occult",
+     "difficulty": 4,
+     "note": "без специализации «Колдовство» +1; ≥ 5 мин × уровень"
+    },
+    "era": "",
+    "source": "Dark Ages (классика)",
+    "edition": "Dark Ages (классика)"
+   },
+   {
+    "discipline": "koldunism",
+    "level": 2,
+    "name": "Пламенеющая кровь (Тёмные века, классика)",
+    "en": "Blood of Flame",
+    "roll": {
+     "trait1": "attributes.intelligence",
+     "trait2": "abilities.occult",
+     "difficulty": 5,
+     "note": "без специализации «Колдовство» +1; ≥ 5 мин × уровень"
+    },
+    "era": "",
+    "source": "Dark Ages (классика)",
+    "edition": "Dark Ages (классика)"
+   },
+   {
+    "discipline": "koldunism",
+    "level": 2,
+    "name": "Призыв малого знака силы",
+    "en": "Invoke the Lesser Sign of Power",
+    "roll": {
+     "trait1": "attributes.intelligence",
+     "trait2": "abilities.occult",
+     "difficulty": 5,
+     "note": "без специализации «Колдовство» +1; ≥ 5 мин × уровень"
+    },
+    "era": "",
+    "source": "Dark Ages (классика)",
+    "edition": "Dark Ages (классика)"
+   },
+   {
+    "discipline": "koldunism",
+    "level": 2,
+    "name": "Пробуждение духа стихии (Тёмные века, классика)",
+    "en": "Rouse the Elemental Spirit",
+    "roll": {
+     "trait1": "attributes.intelligence",
+     "trait2": "abilities.occult",
+     "difficulty": 5,
+     "note": "без специализации «Колдовство» +1; ≥ 5 мин × уровень"
+    },
+    "era": "",
+    "source": "Dark Ages (классика)",
+    "edition": "Dark Ages (классика)"
+   },
+   {
+    "discipline": "koldunism",
+    "level": 3,
+    "name": "Призвание духа (Тёмные века, классика)",
+    "en": "Conjure Spirit",
+    "roll": {
+     "trait1": "attributes.intelligence",
+     "trait2": "abilities.occult",
+     "difficulty": 6,
+     "note": "без специализации «Колдовство» +1; ≥ 5 мин × уровень"
+    },
+    "era": "",
+    "source": "Dark Ages (классика)",
+    "edition": "Dark Ages (классика)"
+   },
+   {
+    "discipline": "koldunism",
+    "level": 3,
+    "name": "Призвание великого знака силы (Тёмные века, классика)",
+    "en": "Invoke the Greater Sign of Power",
+    "roll": {
+     "trait1": "attributes.intelligence",
+     "trait2": "abilities.occult",
+     "difficulty": 6,
+     "note": "без специализации «Колдовство» +1; ≥ 5 мин × уровень"
+    },
+    "era": "",
+    "source": "Dark Ages (классика)",
+    "edition": "Dark Ages (классика)"
+   },
+   {
+    "discipline": "koldunism",
+    "level": 3,
+    "name": "Стражи убежища (Тёмные века, классика)",
+    "en": "Sentinels of the Haven",
+    "roll": {
+     "trait1": "attributes.intelligence",
+     "trait2": "abilities.occult",
+     "difficulty": 6,
+     "note": "без специализации «Колдовство» +1; ≥ 5 мин × уровень"
+    },
+    "era": "",
+    "source": "Dark Ages (классика)",
+    "edition": "Dark Ages (классика)"
+   },
+   {
+    "discipline": "koldunism",
+    "level": 4,
+    "name": "Слияние душ (Тёмные века, классика)",
+    "en": "Merging of the Souls",
+    "roll": {
+     "trait1": "attributes.intelligence",
+     "trait2": "abilities.occult",
+     "difficulty": 7,
+     "note": "без специализации «Колдовство» +1; ≥ 5 мин × уровень"
+    },
+    "era": "",
+    "source": "Dark Ages (классика)",
+    "edition": "Dark Ages (классика)"
+   },
+   {
+    "discipline": "koldunism",
+    "level": 4,
+    "name": "Заводь тайн (Тёмные века, классика)",
+    "en": "Pool of Secrets",
+    "roll": {
+     "trait1": "attributes.intelligence",
+     "trait2": "abilities.occult",
+     "difficulty": 7,
+     "note": "без специализации «Колдовство» +1; ≥ 5 мин × уровень"
+    },
+    "era": "",
+    "source": "Dark Ages (классика)",
+    "edition": "Dark Ages (классика)"
+   },
+   {
+    "discipline": "koldunism",
+    "level": 4,
+    "name": "Укрытие жаждущей могилы",
+    "en": "Refuge of the Thirsty Grave",
+    "roll": {
+     "trait1": "attributes.intelligence",
+     "trait2": "abilities.occult",
+     "difficulty": 7,
+     "note": "без специализации «Колдовство» +1; ≥ 5 мин × уровень"
+    },
+    "era": "",
+    "source": "Dark Ages (классика)",
+    "edition": "Dark Ages (классика)"
+   },
+   {
+    "discipline": "koldunism",
+    "level": 5,
+    "name": "Глубочайшее побуждение",
+    "en": "The Inmost Tug",
+    "roll": {
+     "trait1": "attributes.intelligence",
+     "trait2": "abilities.occult",
+     "difficulty": 8,
+     "note": "без специализации «Колдовство» +1; ≥ 5 мин × уровень"
+    },
+    "era": "",
+    "source": "Dark Ages (классика)",
+    "edition": "Dark Ages (классика)"
+   },
+   {
+    "discipline": "koldunism",
+    "level": 5,
+    "name": "Возмездие живой земли (Тёмные века, классика)",
+    "en": "Nemesis of the Living Earth",
+    "roll": {
+     "trait1": "attributes.intelligence",
+     "trait2": "abilities.occult",
+     "difficulty": 8,
+     "note": "без специализации «Колдовство» +1; ≥ 5 мин × уровень"
+    },
+    "era": "",
+    "source": "Dark Ages (классика)",
+    "edition": "Dark Ages (классика)"
+   },
+   {
+    "discipline": "koldunism",
+    "level": 6,
+    "name": "Создание вождя (Тёмные века, классика)",
+    "en": "Create Vozhd",
+    "roll": {
+     "trait1": "attributes.intelligence",
+     "trait2": "abilities.occult",
+     "difficulty": 9,
+     "note": "без специализации «Колдовство» +1; ≥ 5 мин × уровень"
+    },
+    "era": "",
+    "source": "Dark Ages (классика)",
+    "edition": "Dark Ages (классика)"
+   },
+   {
+    "discipline": "koldunism",
+    "level": 1,
+    "name": "Связаться с сиром",
+    "en": "Communicate with Sire",
+    "roll": {
+     "trait1": "attributes.intelligence",
+     "trait2": "abilities.occult",
+     "difficulty": 4,
+     "note": "без специализации «Колдовство» +1; ≥ 5 мин × уровень"
+    },
+    "era": "",
+    "source": "Dark Ages (классика)",
+    "edition": "Dark Ages (классика)"
+   },
+   {
+    "discipline": "koldunism",
+    "level": 1,
+    "name": "Защита неприкосновенного убежища",
+    "en": "Defense of the Sacred Haven",
+    "roll": {
+     "trait1": "attributes.intelligence",
+     "trait2": "abilities.occult",
+     "difficulty": 4,
+     "note": "без специализации «Колдовство» +1; ≥ 5 мин × уровень"
+    },
+    "era": "",
+    "source": "Dark Ages (классика)",
+    "edition": "Dark Ages (классика)"
+   },
+   {
+    "discipline": "koldunism",
+    "level": 1,
+    "name": "Отклонение деревянной погибели",
+    "en": "Deflection of Wooden Doom",
+    "roll": {
+     "trait1": "attributes.intelligence",
+     "trait2": "abilities.occult",
+     "difficulty": 4,
+     "note": "без специализации «Колдовство» +1; ≥ 5 мин × уровень"
+    },
+    "era": "",
+    "source": "Dark Ages (классика)",
+    "edition": "Dark Ages (классика)"
+   },
+   {
+    "discipline": "koldunism",
+    "level": 2,
+    "name": "Откровение кровного родословия",
+    "en": "Revelation of the Blood Lineage",
+    "roll": {
+     "trait1": "attributes.intelligence",
+     "trait2": "abilities.occult",
+     "difficulty": 5,
+     "note": "без специализации «Колдовство» +1; ≥ 5 мин × уровень"
+    },
+    "era": "",
+    "source": "Dark Ages (классика)",
+    "edition": "Dark Ages (классика)"
+   },
+   {
+    "discipline": "koldunism",
+    "level": 2,
+    "name": "Защита от гулей",
+    "en": "Ward Versus Ghouls",
+    "roll": {
+     "trait1": "attributes.intelligence",
+     "trait2": "abilities.occult",
+     "difficulty": 5,
+     "note": "без специализации «Колдовство» +1; ≥ 5 мин × уровень"
+    },
+    "era": "",
+    "source": "Dark Ages (классика)",
+    "edition": "Dark Ages (классика)"
    }
   ]
  },

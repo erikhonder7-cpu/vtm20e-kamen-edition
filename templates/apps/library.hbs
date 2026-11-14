@@ -44,7 +44,9 @@
       </header>
       {{#if text}}<div class="r-lib-text r-power-body" {{#if long}}data-action="expand"{{/if}}>{{{text}}}</div>{{/if}}
       {{#if powerRows}}
-      <ol class="r-lib-powers">{{#each powerRows}}<li {{#if wide}}class="is-wide"{{/if}}><span class="r-lib-plvl">{{roman}}</span><span class="r-lib-pnames">{{#each items}}<a data-action="peek" data-ref="{{ref}}">{{rName this}}{{#if mark}}<small class="r-lib-pmark">{{mark}}</small>{{/if}}</a>{{/each}}</span></li>{{/each}}</ol>
+      <ol class="r-lib-powers">{{#each powerRows}}{{#unless elder}}<li {{#if wide}}class="is-wide"{{/if}}><span class="r-lib-plvl">{{roman}}</span><span class="r-lib-pnames">{{#each items}}<a data-action="peek" data-ref="{{ref}}">{{rName this}}{{#if mark}}<small class="r-lib-pmark">{{mark}}</small>{{/if}}</a>{{/each}}</span></li>{{/unless}}{{/each}}</ol>
+      {{#if elderCount}}<details class="r-lib-elder"><summary><i class="fa-solid fa-crown"></i> {{localize "VTM20.Library.ElderPowers" n=elderCount}}</summary>
+      <ol class="r-lib-powers is-elder">{{#each powerRows}}{{#if elder}}<li class="is-wide"><span class="r-lib-plvl">{{roman}}</span><span class="r-lib-pnames">{{#each items}}<a data-action="peek" data-ref="{{ref}}">{{rName this}}{{#if mark}}<small class="r-lib-pmark">{{mark}}</small>{{/if}}</a>{{/each}}</span></li>{{/if}}{{/each}}</ol></details>{{/if}}
       <div class="r-lib-peek r-power-body" data-peek hidden></div>
       {{/if}}
       {{#if pathNames}}<p class="r-lib-paths"><i class="fa-solid fa-route"></i> {{pathNames}}</p>{{/if}}

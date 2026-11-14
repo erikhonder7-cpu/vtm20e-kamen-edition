@@ -4214,6 +4214,16 @@
       "MageWeekly": {
         "Name": "Mages: weekly tick",
         "Hint": "As the chronicle clock runs, once a week a cabal's Node yields into the chantry stock, and a mage with Paradox below 5 who cast nothing for a week sheds a point of Paradox."
+      },
+      "KoldunRoll": {
+        "Name": "Koldunic Sorcery: Way roll",
+        "Hint": "Rites of the Blood (default): Willpower roll, difficulty 3 + level. V20: the Way's Attribute (Earth — Stamina, Wind — Perception, Water — Wits, Fire — Manipulation, base rating) + Occult, difficulty 3 + level. The Way of the Spirit and the Way of Sorrows always roll Willpower.",
+        "rotb": "Rites of the Blood — Willpower",
+        "v20": "V20 — Attribute + Occult"
+      },
+      "KoldunOutside": {
+        "Name": "Koldunic Sorcery: chronicle outside Eastern Europe",
+        "Hint": "Rites of the Blood: away from the homeland, Koldunic rolls under the Rites of the Blood procedure and its rituals are at +1 difficulty."
       }
     },
     "Nexus": {
@@ -4593,7 +4603,9 @@
       "ExtraPhaseNote": "A Rage extra action uses a full pool and cannot be split into multiple actions.",
       "CelerityBuyOnTurn": "Extra Celerity actions are bought on your own combat turn.",
       "CelerityPhaseFirst": "Finish the extra-actions phase first.",
-      "FormSoak": "Form"
+      "FormSoak": "Form",
+      "PowerFixed": "Damage: {n} levels",
+      "DrainNote": "A vampire loses {n} blood."
     },
     "Hazard": {
       "Title": "Hazard",
@@ -5094,7 +5106,8 @@
           }
         }
       },
-      "ClanBanned": "Not available to clan: {clan}"
+      "ClanBanned": "Not available to clan: {clan}",
+      "ElderPowers": "Elder powers (VI and up): {n}"
     },
     "NpcGen": {
       "Title": "NPC generator",
@@ -10196,6 +10209,13 @@
       "LeapTitle": "Fire Dance: leap",
       "ApproachNote": "Courage, diff. 5 — approach the bonfire",
       "LeapNote": "Whoever clears it — Courage +1 for 3 nights (may exceed 5); stunts are harder"
+    },
+    "Koldun": {
+      "RotbNote": "Rites of the Blood: Willpower roll",
+      "OutsideNote": "outside Eastern Europe +1",
+      "Passive": "“{name}” is a permanent power, no roll needed.",
+      "PrimaryNote": "primary kraina −2",
+      "NoSpecNote": "no Koldunism specialty +1"
     }
   }
 }

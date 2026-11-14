@@ -138,6 +138,15 @@ class Pack {
 const sourceLine = s => s ? `<p><em>Источник: ${esc(s)}</em></p>` : "";
 const rollOf = r => r ? { trait1: r.trait1 ?? "", trait2: r.trait2 ?? "", difficulty: r.difficulty ?? 0, blood: r.blood ?? 0, willpower: !!r.willpower, note: r.note ?? "" } : undefined;
 
+/** Папка редакции Колдовства по источнику: «V20 Rites of the Blood» → «Rites of the Blood», пустой — «V20». */
+function editionLabel(src) {
+  const raw = String(src ?? "").trim();
+  if (!raw || raw === "V20") return "V20";
+  const L = [[/Rites of the Blood/, "Rites of the Blood"], [/Black Hand/, "Чёрная рука"], [/^V20 Dark Ages$/, "Тёмные века V20"], [/Tome of Secrets/, "Тёмные века V20 — Tome of Secrets"],
+    [/классика/, "Тёмные века (классика)"], [/Secrets of Thaumaturgy/, "Revised — Secrets of Thaumaturgy"], [/Clanbook/, "Revised — Clanbook Tzimisce"], [/^Revised$/, "Revised"]];
+  return L.find(([re]) => re.test(raw))?.[1] ?? raw.replace(/^V20\s+/, "");
+}
+
 const BUILDERS = {
   equipment() {
     const p = new Pack("equipment");
@@ -179,12 +188,14 @@ const BUILDERS = {
   },
 
   "blood-paths"() {
+    // (editionLabel — подпись папки редакции Колдовства: «V20», «Rites of the Blood», «Black Hand», «Dark Ages», «Revised: Secrets of Thaumaturgy»)
     const p = new Pack("blood-paths");
     const disc = data("disciplines");
     for (const [k, d] of Object.entries(disc)) for (const path_ of d.paths ?? []) {
       const powers = (path_.powers ?? []).map(x => `<li><b>${ROMAN[x.level - 1] ?? x.level}</b> · ${esc(x.name)}</li>`).join("");
-      // Пути Тёмных веков — подпапкой внутри своей школы, а не отдельным деревом
-      p.add({ name: path_.name, type: "thaumPath", folder: path_.era === "darkAges" ? [d.name, "Тёмные века"] : d.name, key: `${k}:${path_.name}`, img: DISC_ICON(k),
+      // Пути Тёмных веков — подпапкой внутри своей школы, а не отдельным деревом; Колдовство — папками по редакциям
+      const folder = k === "koldunism" ? [d.name, editionLabel(path_.edition ?? path_.source)] : path_.era === "darkAges" ? [d.name, "Тёмные века"] : d.name;
+      p.add({ name: path_.name, type: "thaumPath", folder, key: `${k}:${path_.name}`, img: DISC_ICON(k),
         system: { discipline: k, value: 1, primary: false, source: path_.en ?? "", description: `${path_.html ?? ""}${powers ? `<h4>Уровни пути</h4><ul>${powers}</ul>` : ""}` } });
     }
     return p;
@@ -199,11 +210,11 @@ const BUILDERS = {
       darkThaumaturgy: "Ритуалы Тёмной Тауматургии", obtenebration: "Ритуалы Мистики Бездны" };
     for (const [k, group] of Object.entries(data("rituals"))) {
       const school = SCHOOL[k] ?? `Ритуалы: ${disc[k]?.name ?? k}`;
-      const branch = r => [school, ...(r.era === "darkAges" ? ["Тёмные века"] : [])];
+      const branch = r => k === "koldunism" ? [school, editionLabel(r.edition ?? r.source)] : [school, ...(r.era === "darkAges" ? ["Тёмные века"] : [])];
       // папки уровней создаём по порядку и сортируем вручную: по алфавиту «Уровень 10» встал бы перед «Уровень 2»
       const list = [...(group.rituals ?? [])].sort((a, b) => !!a.era - !!b.era || a.level - b.level);
       for (const r of list) p.folder([...branch(r), `Уровень ${r.level}`]);
-      for (const [key, f] of p.folders) if (key === school || key === `${school}/Тёмные века`) f.sorting = "m";
+      for (const [key, f] of p.folders) if (key === school || key === `${school}/Тёмные века` || (k === "koldunism" && key.split("/").length === 2)) f.sorting = "m";
       for (const r of group.rituals ?? []) {
         // разделы справочника (tools/ritual_docs.py): описание с шапкой, компоненты, эффект, прочие разделы, источник
         const part = r.parts;
