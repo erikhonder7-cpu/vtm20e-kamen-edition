@@ -1469,6 +1469,88 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  // Колдовство Цимисхов (target-powers/koldun.mjs и path-powers.mjs): наложение после броска — эффекты, карточки с кнопками, флаги.
+  // Имя проверки без слов других групп («слуг», «бой», «урон», «час») — она в группе vampire.
+  await check("Колдовство цимисхов: заметки, эгида, убежище, зоны, удержание, Кривда, цепи, ловушка, камень, Нестреша, Черноголов", async () => {
+    const r = await page.evaluate(async () => {
+      const sys = p => import(`/systems/${game.system.id}/${p}`);
+      const TP = await sys("module/apps/target-powers.mjs"), { rollPowerRef } = await sys("module/sheets/actor-sheet.mjs");
+      const sid = game.system.id, mk = (name, type, system = {}) => Actor.create({ name, type, flags: { world: { e2e: true } }, system });
+      const a = await mk("E2E — колдун", "vampire", { generation: 10, blood: { value: 8 }, willpower: { permanent: 6, temporary: 6 } });
+      const v = await mk("E2E — жертва колдуна", "vampire", { generation: 12, blood: { value: 5 }, willpower: { permanent: 5, temporary: 5 } });
+      await a.createEmbeddedDocuments("Item", [{ name: "E2E — koldunism", type: "discipline", system: { key: "koldunism", value: 5 } }]);
+      const scene = game.scenes.viewed ?? game.scenes.contents[0];
+      const [tv] = await scene.createEmbeddedDocuments("Token", [await v.getTokenDocument({ x: 900, y: 300 })]);
+      for (let i = 0; i < 30 && !canvas.tokens.get(tv.id); i++) await new Promise(res => setTimeout(res, 100));
+      await new Promise(res => setTimeout(res, 300));
+      canvas.tokens.get(tv.id)?.setTarget(true, { releaseOthers: true });
+      await new Promise(res => setTimeout(res, 300));
+      const vt = () => canvas.tokens.get(tv.id)?.actor;
+      const link = (key, target) => ({ key, target: target.uuid, targetName: target.name, powerName: key.split("|")[1], actorName: a.name });
+      const apply = (key, n, target = vt()) => TP.applyTargetPower({ isOwner: false }, { actorUuid: a.uuid, extra: { targetPower: link(key, target) } }, { successes: n, outcome: "success" });
+      const fx = (who, flag) => [...who.effects].filter(e => e.flags?.[sid]?.[flag] != null);
+      const kol = (from, kind) => game.messages.contents.slice(from).map(m => m.getFlag(sid, "kol")).filter(x => x?.kind === kind);
+      const out = {};
+      // бросок: окно броска силы Колдовства открывается (правило броска — настройка хроники)
+      const path = game.vtm20Codex.discipline("koldunism").paths.findIndex(p => p.levels?.length || p.powers?.length);
+      await rollPowerRef(a, `koldunism|path|${Math.max(0, path)}|0`);
+      let dlg = null;
+      for (let i = 0; i < 30 && !dlg; i++) { await new Promise(res => setTimeout(res, 100)); dlg = [...foundry.applications.instances.values()].find(x => x.constructor.name === "RollDialog" && x.actor === a); }
+      out.roll = !!dlg;
+      await dlg?.close();
+      // Нарушение границ (заметка на ночь) и Эгида Алигьери (успехи — флаг)
+      await apply("koldunism|Domain Breach", 2, a);
+      await apply("koldunism|Aegis Alighieri", 3, a);
+      out.note = [a.effects.filter(e => e.name === "Domain Breach").length, fx(a, "kolAegis")[0]?.flags[sid].kolAegis];
+      // Водное убежище: 1 успеха мало, 2 — убежище от солнца
+      await apply("koldunism|Watery Haven", 1, a);
+      const h1 = fx(a, "sunSafe").length;
+      await apply("koldunism|Watery Haven", 2, a);
+      out.haven = [h1, fx(a, "sunSafe").length];
+      // Пруд зловещего страха: у отмеченной цели — карточка проверки (сл. рейтинг крайны 1 + 2 успеха), у колдуна — «окончить силу»
+      let n0 = game.messages.size;
+      await apply("koldunism|Pond of Malevolent Dread", 2, a);
+      out.zone = [kol(n0, "check")[0]?.diff, kol(n0, "check")[0]?.target === vt().uuid, kol(n0, "end")[0]?.end, fx(a, "kolZone")[0]?.flags[sid].kolZone];
+      // Роковая пучина (уклады V20): водоворот 15 + 5 за успех сверх первого, цель удержана, карточка «вырваться»
+      n0 = game.messages.size;
+      await apply("koldunism|Doom Tide@way", 3, a);
+      const held = fx(vt(), "kolHold")[0];
+      out.hold = [held?.flags[sid].kolHold.strength, [...(held?.statuses ?? [])].includes("r-held"), kol(n0, "escape")[0]?.strength];
+      // Оскорбления Кривды: проверка ярости у цели, сложность 5 + успехи
+      n0 = game.messages.size;
+      await apply("koldunism|The Insults of Krivda", 2);
+      out.krivda = game.messages.contents.slice(n0).map(m => m.getFlag(sid, "checkPrompt")).find(Boolean)?.difficulty;
+      // Жатва Колодца: шесть цепей, цель удержана, карточка цепей
+      n0 = game.messages.size;
+      await apply("koldunism|Reap the Well", 1);
+      out.reap = [fx(vt(), "kolChains")[0]?.flags[sid].kolChains, kol(n0, "chains")[0]?.left];
+      // Пальцы Беловежи: карточка захвата 6 кубами
+      n0 = game.messages.size;
+      await apply("koldunism|Fingers of Białowieża", 1, a);
+      out.plant = kol(n0, "grab")[0]?.pool;
+      // Прочность камня: две точки Выносливости поглощают губительный, как Стойкость
+      const agg0 = a.soakBreakdown("aggravated").reduce((s, p) => s + p.value, 0);
+      await apply("koldunism|Endurance of Stone", 1, a);
+      out.stone = a.soakBreakdown("aggravated").reduce((s, p) => s + p.value, 0) - agg0;
+      // Разочарования Нестреши: Силу воли тратить нельзя
+      await apply("koldunism|The Frustrations of Nestrecha", 1);
+      out.nowill = [await vt().spendWillpower(1), vt().system.willpower.temporary];
+      // Несчастье Черноголова: −2 успеха на столько бросков, сколько успехов у колдуна
+      await apply("koldunism|The Misfortune of Chernogolov", 2);
+      const ch = fx(vt(), "succMinus")[0];
+      out.misfortune = [ch?.flags[sid].succMinus, ch?.flags[sid].succRolls];
+      [...game.user.targets].forEach(tk => tk.setTarget(false, { releaseOthers: false }));
+      await new Promise(res => setTimeout(res, 800));
+      await scene.deleteEmbeddedDocuments("Token", [tv.id]);
+      await Actor.deleteDocuments([a.id, v.id]);
+      return out;
+    });
+    const want = { roll: true, note: [1, 3], haven: [0, 1], zone: [3, true, "pond", "pond"], hold: [25, true, 25], krivda: 7, reap: [6, 6], plant: 6,
+      stone: 2, nowill: [false, 5], misfortune: [2, 2] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   // Тело и душа, Преображение, Анимализм: Вселение, Проекция, Сердце тьмы, Облик крови, Искусство тканей,
   // Язык животных, Зов (звери справочника), Поглощение духа
   await check("Вселение, Проекция, Сердце тьмы, Преображение, Анимализм", async () => {
@@ -4233,7 +4315,8 @@ try {
       const scene = game.scenes.viewed ?? game.scenes.contents[0];
       const made = await scene.createEmbeddedDocuments("Token", await Promise.all([a, b].map((x, i) => x.getTokenDocument({ x: 300 + i * 200, y: 3100 }))));
       for (let i = 0; i < 30 && !canvas.tokens.get(made[1].id); i++) await wait(100);
-      canvas.tokens.get(made[1].id)?.setTarget(true, { releaseOthers: true }); await wait(300);
+      // под нагрузкой жетон рисуется не сразу — ждём, пока соперник действительно отмечен целью (иначе сложность без его Сферы)
+      for (let i = 0; i < 40 && ![...game.user.targets].some(t => t.id === made[1].id); i++) { canvas.tokens.get(made[1].id)?.setTarget(true, { releaseOthers: true }); await wait(150); }
       const qa = a.system.mage.quintessence, qb = b.system.mage.quintessence;
       await go(() => D.certamen(a), "forces");
       const ce = last(), ev = (await sys("module/dice/roll.mjs")).evaluate(ce.values, ce);
