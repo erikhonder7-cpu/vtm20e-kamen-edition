@@ -1275,3 +1275,10 @@ body.r-theme-light .vtm20 .r-motto { color: rgba(140, 28, 34, .75); }
 .vtm20 .r-ritae .r-edge-text p:last-child { margin-bottom: 0; }
 .vtm20 .r-ritae-tools { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 4px; }
 .r-ritae-card small { display: block; margin: 2px 0 4px; color: var(--r-muted); }
+/* призрак без Достоинств и Недостатков (Wraith 20) — пустая обёртка колонок не оставляет отступ */
+.vtm20 .r-cols2.r-mf:not(:has(.r-col)) { display: none; }
+
+/* лист: название Пути — кнопка библиотеки Путей */
+.vtm20 .r-banner.is-pick .r-path-pick { display: inline-flex; align-items: baseline; gap: 6px; cursor: pointer; }
+.vtm20 .r-banner.is-pick .r-path-pick i { font-size: 10px; color: var(--r-muted); transition: color .15s; }
+.vtm20 .r-banner.is-pick .r-path-pick:hover i { color: var(--r-accent); }

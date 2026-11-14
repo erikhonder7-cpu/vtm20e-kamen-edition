@@ -378,13 +378,13 @@ body.r-theme-light .vtm20 .r-sym { background: linear-gradient(170deg, #3a3029, 
   background-image: linear-gradient(45deg, transparent 50%, var(--r-muted) 50%), linear-gradient(135deg, var(--r-muted) 50%, transparent 50%);
   background-position: calc(100% - 9px) 55%, calc(100% - 5px) 55%; background-size: 4px 4px; background-repeat: no-repeat;
 }
-.r-combo-pop.vtm20 {
+.r-combo-pop.vtm20.vtm20 {
   position: fixed; z-index: 10000; overflow-y: auto; padding: 3px 0;
   background: var(--r-option-bg); border: 1px solid var(--r-line-2); box-shadow: 0 8px 24px rgba(0, 0, 0, .55);
   font-family: var(--r-body); font-size: 14.5px; color: var(--r-ink);
 }
 .r-combo-pop .r-combo-item { padding: 4px 12px; line-height: 1.35; cursor: pointer; white-space: nowrap; }
-.r-combo-pop .r-combo-item.is-active { background: rgba(140, 28, 34, .35); color: var(--r-ink); }
+.r-combo-pop .r-combo-item.is-active { background: color-mix(in srgb, var(--r-accent) 26%, transparent); color: var(--r-ink); }
 .r-combo-pop .r-combo-item.is-current { color: var(--r-accent); }
 .r-combo-pop .r-combo-item.is-current::before { content: "◆"; font-size: 8px; margin-right: 6px; vertical-align: 2px; }
 .r-combo-pop .r-combo-group {

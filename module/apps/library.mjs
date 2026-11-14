@@ -204,9 +204,10 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
     return {
       kind, entries, chips, costChips, levelChips, srcChips, avail: f.avail, compact: this.compact,
       availCount: entries.filter(e => e.canTake).length, total: entries.length,
-      rule: L(`Rule.${kind}`),
+      rule: pick?.rule?.(this.o) ?? L(`Rule.${kind}`),
+      takeLabel: pick?.takeLabel?.(this.o) ?? L("Take"), ownedLabel: pick?.ownedLabel?.(this.o) ?? L("Owned"),
       info: this.o.discipline && !pick ? { name: Codex.disciplineLabel(this.o.discipline), dots: this.dotsOf(this.o.discipline) } : null,
-      xpAvailable: xp ? xp.available : null,
+      xpAvailable: xp && !pick?.noXp ? xp.available : null,
       search: this.search, isGM: game.user.isGM
     };
   }
@@ -568,8 +569,9 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
     const pick = PICKS[this.o.kind];
     if (pick) {
       const card = target.closest("[data-entry]"), id = card?.dataset.entry;
-      if (!id || !this.actor) return;
-      await pick.take(this.actor, id, { value: Number(target.dataset.value) || undefined });
+      if (!id || (!this.actor && !pick.free)) return;
+      await pick.take(this.actor, id, { value: Number(target.dataset.value) || undefined }, this.o);
+      if (pick.closeOnTake) return this.close();
       ui.notifications.info(L("Added", { name: card.querySelector(".r-lib-name b")?.textContent ?? id }));
       return this.render();
     }

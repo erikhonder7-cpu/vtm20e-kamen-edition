@@ -56,6 +56,9 @@ class Combo {
       window.addEventListener("resize", this._reflow);
       document.addEventListener("scroll", this._reflow, true);
     }
+    // список висит в body, вне окна — берём палитру линии у окна поля (r-type-*, техномант, Нефанди, Тёмные феи, Спектр, Привязанный)
+    const theme = [...(this.input.closest(".vtm20")?.classList ?? [])].filter(c => /^r-(type-|mage-tech|mage-fallen|cl-dark|wr-spectre|earthbound)/.test(c));
+    this.pop.className = ["vtm20", "r-combo-pop", ...theme].join(" ");
     const cur = norm(this.input.value);
     this.items = shown;
     this.active = Math.max(0, shown.findIndex(o => norm(o.value) === cur));

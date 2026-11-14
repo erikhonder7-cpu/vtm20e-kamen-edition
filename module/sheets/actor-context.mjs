@@ -516,6 +516,8 @@ export function prepareAdvantages(sheet, ctx) {
     { key: "merit", label: "VTM20.Sheet.Merits", list: ctx.merits, total: ctx.meritTotal },
     { key: "flaw", label: "VTM20.Sheet.Flaws", list: ctx.flaws, total: ctx.flawTotal }
   ];
+  // у призрака (Wraith 20) Достоинств и Недостатков нет — колонки только если черты уже записаны
+  if (a.type === "wraith" && !ctx.merits.length && !ctx.flaws.length) ctx.mfColumns = [];
   ctx.derangements = byType("derangement").map(i => ({ id: i.id, name: i.name, en: Codex.enOf(i), html: i.system.description, permanent: i.system.permanent, open: sheet._open.has(i.id) }));
   // Инфернализм (apps/infernal.mjs): Вложения и договоры с демонами — у всех, кроме падших; у Гару, призраков и подменышей
   // (в их линейках этих правил нет) — только если уже есть
@@ -536,7 +538,7 @@ export function prepareAdvantages(sheet, ctx) {
     isRegnant: b.role === "regnant", tip: t("BondX.Tip", { n: b.drinks ?? 0, last: b.last || "—" })
       + (bondFade(a, b) != null ? ` · ${game.i18n.format("VTM20.Web.Fade", { n: bondFade(a, b) })}` : "") }));
   // узы крови: у смертных и охотников раздела нет; у Гару — только если уже записаны
-  ctx.showBonds = !["mortal", "hunter"].includes(a.type) && (!["werewolf", "wraith", "spirit"].includes(a.type) || ctx.bonds.length > 0);
+  ctx.showBonds = !["mortal", "hunter", "wraith"].includes(a.type) && (!["werewolf", "spirit"].includes(a.type) || ctx.bonds.length > 0);
   // жизнь гуля на витэ: изъян клана, передозировка, ломка, потеря Дисциплин, старение (apps/ghoul-life.mjs)
   ctx.ghoulLife = lifeState(a);
   // Винкулум — у вампиров Шабаша и у всех, у кого он уже записан

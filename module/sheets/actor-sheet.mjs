@@ -145,7 +145,7 @@ openUuid: VtMActorSheet.#onOpenUuid,
       drinkBond: VtMActorSheet.#onDrinkBond,
       feedFrom: VtMActorSheet.#onFeedFrom,
       ghoulLife: VtMActorSheet.#onGhoulLife,
-      openPath: VtMActorSheet.#onOpenPath, pathShift: VtMActorSheet.#onPathShift,
+      openPath: VtMActorSheet.#onOpenPath, pathShift: VtMActorSheet.#onPathShift, pickPath: VtMActorSheet.#onPickPath,
       openCoterie: VtMActorSheet.#onOpenCoterie,
       resistBond: VtMActorSheet.#onResistBond,
       removeBond: VtMActorSheet.#onRemoveBond,
@@ -723,6 +723,9 @@ openStrategy: () => openStrategy(),
     const e = this.actor.effects.get(target.dataset.effectId);
     if (e) return cancelRitual(this.actor, e);
   }
+
+  /** Смена Пути на листе — библиотека Путей (этика, Столп, иерархия грехов). */
+  static #onPickPath() { return openLibrary({ actor: this.actor, kind: "moralPath" }); }
 
   static #onLibrary(event, target) {
     return openLibrary({ actor: this.actor, kind: target.dataset.kind, discipline: target.dataset.discipline });

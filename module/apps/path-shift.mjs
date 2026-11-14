@@ -14,7 +14,7 @@ const esc = s => foundry.utils.escapeHTML(String(s ?? ""));
 const V = k => game.i18n.localize(VTM20.virtues[k]?.label ?? k);
 
 /** Что мешает перейти на этот Путь (Человечность и заменяемые Добродетели), пустой список — можно. */
-function blockers(actor, path) {
+export function pathBlockers(actor, path) {
   const s = actor.system, out = [];
   if ((s.morality?.value ?? 10) > 3) out.push(t("NeedHumanity", { n: s.morality.value }));
   if (path.virtues.includes("conviction") && s.virtues.conscience.value !== 1) out.push(t("NeedVirtue", { v: V("conscience"), n: s.virtues.conscience.value }));
@@ -22,29 +22,31 @@ function blockers(actor, path) {
   return out;
 }
 
-export async function openPathShift(actor) {
+/** Переход: без key — библиотека Путей (этика и грехи каждого), с key — условия и проверка Воли для этого Пути. */
+export async function openPathShift(actor, key = "") {
   const s = actor.system;
   if (!actor.isVampire || (s.morality?.path ?? "humanity") !== "humanity") return ui.notifications.warn(t("OnlyHumanity"));
-  const paths = Codex.paths.filter(p => p.key !== "humanity" && Codex.visible(p));
-  if (!paths.length) return;
+  if (!key) return (await import("./library.mjs")).openLibrary({ actor, kind: "moralPath", mode: "shift" });
+  const path = Codex.path(key);
+  if (!path || key === "humanity") return;
   const h = s.morality.value, diff = h >= 3 ? 8 : h === 2 ? 7 : 6;
   const story = ["mentor", "year", "trial"];
   const content = `<div class="r-form r-pathshift">
+    <div class="r-pathshift-path"><b>${esc(path.name)}</b><span>${path.virtues.map(V).join(" · ")}${path.bearing ? ` · ${esc(path.bearing)}` : ""}</span>
+      <a data-repick><i class="fa-solid fa-book-open"></i> ${t("Other")}</a></div>
     <p>${t("Lead", { n: h, d: diff })}</p>
-    <label class="r-field"><span>${t("Path")}</span><select name="path">${paths.map(p => `<option value="${p.key}">${esc(p.name)} — ${p.virtues.map(V).join(", ")}</option>`).join("")}</select></label>
     <p class="r-note" data-why></p>
     <fieldset class="r-pathshift-story"><legend>${t("Story")}</legend>
       ${story.map(k => `<label class="r-check"><input type="checkbox" name="${k}"> ${t(`Cond.${k}`)}</label>`).join("")}</fieldset>
   </div>`;
-  let key = paths[0].key;
   const ok = await foundry.applications.api.DialogV2.wait({
     window: { title: t("Title", { name: actor.name }), icon: "fa-solid fa-route" }, classes: ["vtm20", "r-dialog"], position: { width: 520 }, rejectClose: false, content,
     buttons: [{ action: "roll", label: t("Roll", { d: diff }), icon: "fa-solid fa-dice-d10", default: true }, { action: "cancel", label: game.i18n.localize("VTM20.Common.Cancel") }],
     render: (ev, dlg) => {
-      const root = dlg.element, sel = root.querySelector("select[name=path]"), why = root.querySelector("[data-why]"), btn = root.querySelector("button[data-action=roll]");
+      const root = dlg.element, why = root.querySelector("[data-why]"), btn = root.querySelector("button[data-action=roll]");
+      root.querySelector("[data-repick]")?.addEventListener("click", () => { dlg.close(); openPathShift(actor); });
       const upd = () => {
-        key = sel.value;
-        const p = paths.find(x => x.key === key), b = blockers(actor, p), done = story.every(k => root.querySelector(`input[name=${k}]`).checked);
+        const b = pathBlockers(actor, path), done = story.every(k => root.querySelector(`input[name=${k}]`).checked);
         why.innerHTML = b.length ? `<i class="fa-solid fa-ban"></i> ${b.map(esc).join("<br>")}` : esc(t("Ready"));
         btn.disabled = !!b.length || !done;
       };
@@ -52,7 +54,6 @@ export async function openPathShift(actor) {
     }
   });
   if (ok !== "roll") return null;
-  const path = paths.find(x => x.key === key);
   return RollDialog.prompt(actor, { title: t("RollTitle", { path: path.name }), trait1: "willpower.permanent", reflexive: true, difficulty: diff, noWillpower: true, lockTraits: true,
     diffNote: `<i class="fa-solid fa-route"></i> ${esc(t("RollNote"))}`, onRolled: res => settle(actor, path, res) });
 }

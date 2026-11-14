@@ -33,6 +33,8 @@ import { dafView, learnCantrip } from "./dark-fae.mjs";
 import { dhampirView, addBloodright } from "./dhampir.mjs";
 import { S as SORC, addNumen, numenXpExtra } from "./sorcerer.mjs";
 import { M as MAGE, isFallen } from "./mage.mjs";
+import { VTM20 } from "../config.mjs";
+import { pathBlockers } from "./path-shift.mjs";
 
 const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
 const loc = k => game.i18n.localize(k);
@@ -458,6 +460,49 @@ const equip = (kind, list) => ({
   }
 });
 
+/* ── Пути морали вампира: Добродетели, Столп, этика и иерархия грехов ──────────
+ * o.mode: "" — смена Пути на листе (правка рассказчика), "shift" — переход с Человечности в игре (apps/path-shift.mjs),
+ * o.onPick(key) — выбор в мастере создания (персонажа ещё нет), o.current — текущий Путь. */
+const PATH_GROUPS = ["humanity", "v20", "da", "fan"];
+const moralPath = {
+  free: true, closeOnTake: true, noXp: true,
+  title: o => P(o.mode === "shift" ? "MoralPath.TitleShift" : "MoralPath.Title"),
+  rule: o => P(o.mode === "shift" ? "MoralPath.RuleShift" : o.onPick ? "MoralPath.RuleCreate" : "MoralPath.Rule"),
+  takeLabel: o => P(o.mode === "shift" ? "MoralPath.Shift" : "MoralPath.Choose"),
+  ownedLabel: () => P("MoralPath.Current"),
+  entries(a, o) {
+    const cur = o.current ?? a?.system?.morality?.path ?? "humanity", shift = o.mode === "shift";
+    const groupName = { humanity: loc("VTM20.Humanity"), v20: loc("VTM20.Sheet.EnlightenmentPaths"), da: loc("VTM20.Library.Filter.DarkAges"), fan: loc("VTM20.Library.Filter.Src.fan") };
+    return Codex.paths.filter(p => (Codex.visible(p) || p.key === cur) && !(shift && p.key === "humanity")).map((p, i) => {
+      const g = p.key === "humanity" ? "humanity" : p.fan ? "fan" : p.era ? "da" : "v20";
+      const virt = (p.virtues ?? []).map(v => loc(VTM20.virtues[v]?.label ?? v)).join(" · ");
+      const sins = [...(p.hierarchy ?? [])].sort((x, y) => y.rating - x.rating);
+      // Добродетели и Столп из текста книги — в строку сверху (у Столпа в тексте бывает пояснение в скобках)
+      let html = String(p.html ?? "");
+      const bm = html.match(/<strong>Столп:<\/strong>\s*([^<]*?)\.?\s*(?=<|$)/);
+      const bearing = bm?.[1]?.trim() || p.bearing;
+      html = html.replace(/<strong>Добродетели:<\/strong>[^<]*/, "").replace(/<strong>Столп:<\/strong>[^<]*/, "")
+        .replace(/<p>\s*(<br\s*\/?>\s*)+/g, "<p>").replace(/<p>\s*<\/p>/g, "");
+      const meta = [
+        `<span><i class="fa-solid fa-scale-balanced"></i> ${P("MoralPath.Virtues")}: <b>${esc(virt)}</b></span>`,
+        bearing && `<span><i class="fa-solid fa-landmark"></i> ${P("MoralPath.Bearing")}: <b>${esc(bearing)}</b></span>`,
+        p.followers && `<span><i class="fa-solid fa-users"></i> ${P("MoralPath.Followers")}: <b>${esc(p.followers)}</b></span>`,
+        p.road && `<span><i class="fa-solid fa-road"></i> ${P("MoralPath.Road")}: <b>${esc(p.road)}</b></span>`].filter(Boolean).join("");
+      const text = `<div class="r-mp-meta">${meta}</div>${html}${sins.length ? `<div class="r-mp-sins-h">${P("MoralPath.Sins")}</div>
+        <ol class="r-mp-sins">${sins.map(s => `<li><b>${s.rating}</b><span>${esc(s.sin)}</span></li>`).join("")}</ol>` : ""}`;
+      return { id: p.key, name: p.name, en: p.en, order: i, group: g, groupName: groupName[g], groupOrder: PATH_GROUPS.indexOf(g),
+        has: p.key === cur, reasons: shift && a ? pathBlockers(a, p) : [],
+        tags: [p.source && p.source !== "V20" && { label: p.source }].filter(Boolean), text };
+    });
+  },
+  async take(a, id, _opts, o = {}) {
+    if (o.onPick) return o.onPick(id);
+    if (!a) return null;
+    if (o.mode === "shift") return (await import("./path-shift.mjs")).openPathShift(a, id);
+    return a.update({ "system.morality.path": id });
+  }
+};
+
 /** Виды записей по ключу (data-kind кнопки библиотеки на листе). */
 export const PICKS = {
   fetish, scar, deform, kinGift, numen, kamiPower, fomorPower, charm, spiritTpl,
@@ -465,6 +510,6 @@ export const PICKS = {
   art, rede, cantrip,
   bloodright,
   sorcPath: sorcNumen("paths"), sorcPsychic: sorcNumen("psychic"),
-  lore, rote,
+  lore, rote, moralPath,
   weapon: equip("weapon", WEAPON_PRESETS), armor: equip("armor", ARMOR_PRESETS), gear: equip("gear", GEAR_PRESETS)
 };

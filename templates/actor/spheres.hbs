@@ -7,6 +7,7 @@
       {{#if editable}}<a class="r-h2-btn is-ghost" data-action="mageCounter" data-tooltip="{{localize 'VTM20.Mage.CounterTip'}}"><i class="fa-solid fa-shield-halved"></i></a>
       <a class="r-h2-btn is-ghost" data-action="mageCertamen" data-tooltip="{{localize 'VTM20.Mage.CertamenTip'}}"><i class="fa-solid fa-khanda"></i></a>
       <a class="r-h2-btn is-ghost {{#if mageView.inUmbra}}is-on{{/if}}" data-action="mageStep" data-tooltip="{{#if mageView.inUmbra}}{{localize 'VTM20.Mage.StepBackTip'}}{{else}}{{localize 'VTM20.Mage.StepTip'}}{{/if}}"><i class="fa-solid fa-circle-half-stroke"></i></a>{{/if}}
+      {{#if editable}}{{#unless mageState.ghoul.on}}<a class="r-h2-btn is-plain" data-action="mageGhoul" data-tooltip="{{localize 'VTM20.Mage.Ghoul.On'}}: {{localize 'VTM20.Mage.Ghoul.ToggleHint'}}"><i class="fa-solid fa-hand-holding-droplet"></i></a>{{/unless}}{{/if}}
       <a class="r-h2-btn is-plain" data-action="mageFold" data-to="{{#if mageView.allFolded}}0{{else}}1{{/if}}" data-tooltip="{{#if mageView.allFolded}}{{localize 'VTM20.Mage.UnfoldAll'}}{{else}}{{localize 'VTM20.Mage.FoldAll'}}{{/if}}"><i class="fa-solid {{#if mageView.allFolded}}fa-angles-down{{else}}fa-angles-up{{/if}}"></i></a>
       <a class="r-h2-btn is-plain" data-action="openRules" data-tooltip="{{localize 'VTM20.Mage.RulesHint'}}"><i class="fa-solid fa-book-open-reader"></i></a>
     </span>
@@ -42,6 +43,7 @@
   </div>
 
   <h2 class="r-h2"><span>{{@root.mageView.L.Focus}}</span></h2>
+  <div class="r-vcard r-mfocus">
   <div class="r-focus">
     <label class="r-df is-wide"><span>{{localize "VTM20.Mage.Paradigm"}}</span>
       <input type="text" name="system.mage.paradigm" value="{{system.mage.paradigm}}" data-combo="r-mpar-{{actor.id}}" placeholder="{{localize 'VTM20.Mage.ParadigmHint'}}" {{#unless editable}}disabled{{/unless}}></label>
@@ -55,6 +57,7 @@
     {{#each mageView.tools}}<span class="r-tag r-tool">{{name}}{{#if @root.editable}} <a data-action="mageToolDel" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}</span>{{/each}}
     {{#if editable}}<input type="text" class="r-ww-find r-tool-find" data-mage-tool data-combo="r-mtool-{{actor.id}}" placeholder="{{localize 'VTM20.Mage.ToolAdd'}}">
     <datalist id="r-mtool-{{actor.id}}">{{#each mageView.toolList}}<option value="{{this}}"></option>{{/each}}</datalist>{{/if}}
+  </div>
   </div>
 
   <h2 class="r-h2"><span>{{@root.mageView.L.Rotes}}</span>
@@ -72,6 +75,7 @@
       <a class="r-icon-btn" data-action="mageRoteEdit" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Sheet.Edit'}}"><i class="fa-solid fa-pen-nib"></i></a>
       <a class="r-icon-btn is-danger" data-action="mageRoteDel" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
     </li>
+    {{else}}<li class="r-empty">{{localize "VTM20.Mage.RoteEmpty"}}</li>
     {{/each}}
   </ul>
 
@@ -91,6 +95,7 @@
       <a class="r-icon-btn" data-action="itemChat" data-tooltip="{{localize 'VTM20.Sheet.ToChat'}}"><i class="fa-solid fa-comment-dots"></i></a>
       <a class="r-icon-btn is-danger" data-action="itemDelete" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
     </li>
+    {{else}}<li class="r-empty">{{localize "VTM20.Mage.WondersNone"}}</li>
     {{/each}}
   </ul>
 
@@ -114,7 +119,8 @@
   </ul>
   {{/if}}
 
-  {{!-- Маг-гуль: кровь домитора в теле, узы, Дисциплины (V20, гл. 9) --}}
+  {{!-- Маг-гуль: кровь домитора в теле, узы, Дисциплины (V20, гл. 9); пока не гуль — только иконка в шапке Сфер --}}
+  {{#if mageState.ghoul.on}}
   <h2 class="r-h2"><span>{{localize "VTM20.Mage.Ghoul.Title"}}</span>
     <span class="r-h2-tools">{{#if editable}}{{#if mageState.ghoul.on}}{{#if mageState.ghoul.wounded}}<a class="r-h2-btn" data-action="mageGhoulHeal" data-tooltip="{{localize 'VTM20.Mage.Ghoul.HealHint'}}"><i class="fa-solid fa-droplet"></i> <span class="r-h2-lbl">{{localize "VTM20.Mage.Ghoul.Heal"}}</span></a>{{/if}}
       <a class="r-h2-btn" data-action="openPack" data-pack="disciplines" data-tooltip="{{localize 'VTM20.Sheet.PackHint'}}"><i class="fa-solid fa-book-open-reader"></i> <span class="r-h2-lbl">{{localize "VTM20.Sheet.Disciplines"}}</span></a>{{/if}}
@@ -142,36 +148,44 @@
     </ul>
   </div>
   {{/if}}
+  {{/if}}
 
   {{!-- Резонанс и Синергия (Book of Secrets) --}}
   <h2 class="r-h2"><span>{{localize "VTM20.Mage.ResTitle"}}</span>
     <span class="r-h2-tools">{{#if editable}}<a class="r-h2-btn is-plain" data-action="mageResCloak" data-tooltip="{{localize 'VTM20.Mage.ResCloakHint'}}"><i class="fa-solid fa-user-secret"></i></a><a class="r-h2-btn is-ghost" data-action="mageResAdd" data-tooltip="{{localize 'VTM20.Mage.ResAdd'}}"><i class="fa-solid fa-feather"></i> <span class="r-h2-lbl">{{localize "VTM20.Mage.ResAddShort"}}</span></a>{{/if}}</span>
   </h2>
-  <div class="r-mstate">
+  <div class="r-mres">
+  <div class="r-vcard r-mres-card">
+    <h4 class="r-banner">{{localize "VTM20.Mage.ResOnly"}}</h4>
     <ul class="r-mstate-list">
       {{#each mageState.resonances}}
       <li class="r-mstate-row {{#if top}}is-top{{/if}}"><b>{{name}}</b>{{#if flavor}} <small>{{flavor}}</small>{{/if}}
         <span class="r-dots">{{#each dots}}<a class="r-dot {{#if filled}}is-filled{{/if}}" {{#if @root.editable}}data-action="mageResDot" data-i="{{../i}}" data-n="{{n}}"{{/if}}></a>{{/each}}</span>
         <em>{{degree}}</em>
         {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="mageResDel" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}</li>
-      {{/each}}
-    </ul>
-    <ul class="r-mstate-list is-synergy" data-tooltip="{{localize 'VTM20.Mage.SynergyHint'}}">
-      {{#each mageState.synergy}}
-      <li class="r-mstate-row" data-tooltip="{{text}}"><b>{{name}}</b>
-        <span class="r-dots">{{#each dots}}<a class="r-dot {{#if filled}}is-filled{{/if}}" {{#if @root.editable}}data-action="setDots" data-path="{{path}}" data-n="{{n}}"{{/if}}></a>{{/each}}</span></li>
+      {{else}}<li class="r-empty">{{localize "VTM20.Mage.ResEmpty"}}</li>
       {{/each}}
     </ul>
     {{#if mageState.resBonus}}<p class="r-note r-mstate-bonus {{#if mageState.resUsed}}is-spent{{/if}}"><i class="fa-solid fa-wave-square"></i>
       {{#if mageState.resUsed}}{{localize "VTM20.Mage.ResSpent"}}{{else}}{{localize "VTM20.Mage.ResReady" name=mageState.resTop n=mageState.resBonus}}{{/if}}
       {{#if editable}}<a class="r-vc-btn" data-action="mageResUsed" data-tooltip="{{localize 'VTM20.Mage.ResToggle'}}"><i class="fa-solid fa-rotate"></i></a>{{/if}}</p>{{/if}}
   </div>
+  <div class="r-vcard r-mres-card">
+    <h4 class="r-banner" data-tooltip="{{localize 'VTM20.Mage.SynergyHint'}}">{{localize "VTM20.Mage.SynOnly"}}</h4>
+    <ul class="r-mstate-list is-synergy">
+      {{#each mageState.synergy}}
+      <li class="r-mstate-row" data-tooltip="{{text}}"><b>{{name}}</b>
+        <span class="r-dots">{{#each dots}}<a class="r-dot {{#if filled}}is-filled{{/if}}" {{#if @root.editable}}data-action="setDots" data-path="{{path}}" data-n="{{n}}"{{/if}}></a>{{/each}}</span></li>
+      {{/each}}
+    </ul>
+  </div>
+  </div>
 
   {{!-- Безмолвие и Изъяны Парадокса (M20, гл. 10) --}}
   <h2 class="r-h2"><span>{{localize "VTM20.Mage.QuietTitle"}}</span>
     <span class="r-h2-tools">{{#if editable}}{{#if mageState.quiet.level}}<a class="r-h2-btn" data-action="mageQuietExit" data-tooltip="{{localize 'VTM20.Mage.QuietExitHint'}}"><i class="fa-solid fa-eye"></i> <span class="r-h2-lbl">{{localize "VTM20.Mage.QuietExit"}}</span></a>{{/if}}<a class="r-h2-btn is-ghost" data-action="mageFlawAdd" data-tooltip="{{localize 'VTM20.Mage.FlawAdd'}}"><i class="fa-solid fa-burst"></i> <span class="r-h2-lbl">{{localize "VTM20.Mage.FlawShort"}}</span></a>{{/if}}</span>
   </h2>
-  <div class="r-mstate">
+  <div class="r-vcard r-mstate r-mquiet {{#if mageState.quiet.level}}is-on{{/if}}">
     <div class="r-mstate-row is-quiet {{#if mageState.quiet.level}}is-on{{/if}}"><b>{{localize "VTM20.Mage.Quiet"}}</b>
       <span class="r-dots">{{#each mageState.quiet.dots}}<a class="r-dot {{#if filled}}is-filled{{/if}}" {{#if @root.editable}}data-action="setDots" data-path="{{path}}" data-n="{{n}}"{{/if}}></a>{{/each}}</span>
       <select name="system.mage.quiet.kind" {{#unless editable}}disabled{{/unless}}>{{#each mageState.quiet.kinds}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select>

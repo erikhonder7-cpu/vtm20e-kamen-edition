@@ -34,11 +34,11 @@
         {{#if cost}}<span class="r-lib-cost">{{cost}}</span>{{/if}}
         <div class="r-lib-name"><b>{{rName this}}</b>{{#if (rAlt this)}}<em>{{rAlt this}}</em>{{/if}}</div>
         {{#each tags}}<span class="r-tag {{#if red}}is-red{{/if}}" {{#if tip}}data-tooltip="{{tip}}"{{/if}}>{{label}}</span>{{/each}}
-        {{#if has}}<span class="r-tag is-owned"><i class="fa-solid fa-check"></i>&nbsp;{{localize "VTM20.Library.Owned"}}</span>
+        {{#if has}}<span class="r-tag is-owned"><i class="fa-solid fa-check"></i>&nbsp;{{@root.ownedLabel}}</span>
         {{else if variants}}{{#if (or canTake @root.isGM)}}
         <span class="r-lib-acts">
-          {{#if single}}<a class="r-btn is-accent" data-action="take" data-value="{{variants.0.value}}">{{localize "VTM20.Library.Take"}}</a>
-          {{else}}<span class="r-lib-vlabel">{{localize "VTM20.Library.Take"}}</span>{{#each variants}}<a class="r-btn r-lib-var" data-action="take" data-value="{{value}}">{{label}}</a>{{/each}}{{/if}}
+          {{#if single}}<a class="r-btn is-accent" data-action="take" data-value="{{variants.0.value}}">{{@root.takeLabel}}</a>
+          {{else}}<span class="r-lib-vlabel">{{@root.takeLabel}}</span>{{#each variants}}<a class="r-btn r-lib-var" data-action="take" data-value="{{value}}">{{label}}</a>{{/each}}{{/if}}
         </span>
         {{/if}}{{/if}}
       </header>
@@ -54,7 +54,7 @@
         {{#unless variants}}{{#if (or canTake @root.isGM)}}
         <span class="r-lib-acts">
           {{#if (and xp canTake (ne @root.xpAvailable null))}}<a class="r-btn is-accent" data-action="buy" data-xp="{{xp}}"><i class="fa-solid fa-star"></i> {{localize "VTM20.Library.Buy" n=xp}}</a>{{/if}}
-          <a class="r-btn {{#if xp}}is-ghost{{else}}is-accent{{/if}}" data-action="take">{{#if xp}}{{localize "VTM20.Library.Free"}}{{else}}{{localize "VTM20.Library.Take"}}{{/if}}</a>
+          <a class="r-btn {{#if xp}}is-ghost{{else}}is-accent{{/if}}" data-action="take">{{#if xp}}{{localize "VTM20.Library.Free"}}{{else}}{{@root.takeLabel}}{{/if}}</a>
           {{#each acts}}<a class="r-btn is-ghost" data-action="pickAct" data-op="{{op}}" {{#if tip}}data-tooltip="{{tip}}"{{/if}}><i class="fa-solid {{icon}}"></i> {{label}}</a>{{/each}}
         </span>
         {{/if}}{{/unless}}

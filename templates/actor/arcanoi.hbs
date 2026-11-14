@@ -9,30 +9,44 @@
       <a class="r-h2-btn is-plain" data-action="openRules" data-tooltip="{{localize 'VTM20.Wraith.RulesHint'}}"><i class="fa-solid fa-book-open-reader"></i></a>
     </span>
   </h2>
-  {{!-- Покров сцены: рейтинг и из чего он сложился; рассказчик двигает рейтинг и Истерию, игрок отмечает «в Обиталище» --}}
-  <div class="r-wr-shroud">
-    {{!-- из чего сложился Покров — подсказкой на подписи и числе, а не на всей полосе с кнопками --}}
-    <span class="r-wr-shroud-lbl" data-tooltip="{{wraithInfo.shroud.text}}"><i class="fa-solid fa-cloud"></i> {{localize "VTM20.Wraith.Shroud.Label"}}{{#if wraithInfo.shroud.scene}} <small>· {{wraithInfo.shroud.scene}}</small>{{/if}}</span>
-    <b class="r-wr-shroud-num" data-tooltip="{{wraithInfo.shroud.text}}">{{wraithInfo.shroud.value}}</b>
-    {{#unless (rEq wraithInfo.place "shadowlands")}}<span class="r-wr-necro-chip" data-tooltip="{{localize 'VTM20.Wraith.Place.Hint'}}"><i class="fa-solid fa-dungeon"></i> {{wraithInfo.placeLabel}}</span>{{/unless}}
-    {{#if wraithInfo.necropolis}}<span class="r-wr-necro-chip" data-tooltip="{{wraithInfo.necropolis.text}}"><i class="fa-solid fa-city"></i> {{wraithInfo.necropolis.name}}</span>{{/if}}
-    <span class="r-wr-shroud-tools">
-      {{#if wraithInfo.isGM}}
-      <select class="r-mini-select r-wr-place" data-tooltip="{{localize 'VTM20.Wraith.Place.Hint'}}">{{#each wraithInfo.places}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
-      <select class="r-mini-select r-wr-necro" data-tooltip="{{localize 'VTM20.Wraith.Necro.Hint'}}"><option value="">{{localize "VTM20.Wraith.Necro.None"}}</option>{{#each wraithInfo.necropoli}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
-      <a class="r-vc-btn is-sq" data-action="wrShroud" data-what="base" data-d="-1" data-tooltip="{{localize 'VTM20.Wraith.Shroud.Down'}}"><i class="fa-solid fa-minus"></i></a>
-      <a class="r-vc-btn is-sq" data-action="wrShroud" data-what="base" data-d="1" data-tooltip="{{localize 'VTM20.Wraith.Shroud.Up'}}"><i class="fa-solid fa-plus"></i></a>
-      <a class="r-vc-btn" data-action="wrShroud" data-what="hysteria" data-d="1" data-tooltip="{{localize 'VTM20.Wraith.Shroud.HysteriaHint'}}"><i class="fa-solid fa-face-scream"></i> {{localize "VTM20.Wraith.Shroud.HysteriaBtn"}}</a>
-      <a class="r-vc-btn is-sq" data-action="uwStorm" data-tooltip="{{localize 'VTM20.Wraith.Storm.Hint'}}"><i class="fa-solid fa-hurricane"></i></a>
-      <a class="r-vc-btn is-sq" data-action="uwFog" data-tooltip="{{localize 'VTM20.Wraith.Fog.Hint'}}"><i class="fa-solid fa-smog"></i></a>
-      <a class="r-vc-btn is-sq {{#if wraithInfo.shroud.abscess}}is-on{{/if}}" data-action="wrAbscess" data-tooltip="{{localize 'VTM20.Wraith.Shroud.AbscessHint'}}"><i class="fa-solid fa-virus"></i></a>
-      {{#if wraithInfo.shroud.hysteria}}<a class="r-vc-btn is-sq" data-action="wrShroud" data-what="hysteria" data-d="0" data-tooltip="{{localize 'VTM20.Wraith.Shroud.HysteriaReset'}}"><i class="fa-solid fa-rotate-left"></i></a>{{/if}}
-      {{/if}}
-      {{#if editable}}<a class="r-vc-btn is-sq" data-action="wrTempest" data-tooltip="{{localize 'VTM20.Wraith.Tempest.Hint'}}"><i class="fa-solid fa-wind"></i></a>
-      <a class="r-vc-btn is-sq {{#if wraithInfo.forecast}}is-on{{/if}}" data-action="wrForecast" data-tooltip="{{#if wraithInfo.forecast}}{{localize 'VTM20.Wraith.Forecast.OnHint' hits=wraithInfo.forecast.hits}}{{else}}{{localize 'VTM20.Wraith.Forecast.Hint'}}{{/if}}"><i class="fa-solid fa-tornado"></i></a>
-      {{#if wraithInfo.forecast}}<a class="r-vc-btn is-sq" data-action="wrForecastClear" data-tooltip="{{localize 'VTM20.Wraith.Forecast.Clear'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}{{/if}}
-      {{#if wraithInfo.haunt}}{{#if editable}}<a class="r-vc-btn {{#if wraithInfo.inHaunt}}is-on{{/if}}" data-action="wrHaunt" data-tooltip="{{localize 'VTM20.Wraith.Shroud.HauntHint'}}"><i class="fa-solid fa-house-chimney-crack"></i> {{localize "VTM20.Wraith.Shroud.InHaunt"}}</a>{{/if}}{{/if}}
-    </span>
+  {{!-- Покров сцены (гл. 8) карточкой: итог крупно и шкала плотности 1–10 (отметка — рейтинг сцены), поправки метками;
+       у рассказчика — место, Некрополь, рейтинг сцены, Истерия, Буря, Туман, Нарыв; у игрока — путь через Бурю, прогноз, Обиталище --}}
+  <div class="r-vcard r-wr-veil {{#if wraithInfo.shroud.abscess}}is-abscess{{/if}}">
+    <div class="r-wr-veil-top">
+      <div class="r-wr-veil-num" data-tooltip="{{wraithInfo.shroud.text}}"><b>{{wraithInfo.shroud.value}}</b><span>{{localize "VTM20.Wraith.Veil.Diff"}}</span></div>
+      <div class="r-wr-veil-body">
+        <div class="r-wr-veil-head"><h4 class="r-banner"><i class="fa-solid fa-cloud"></i> {{localize "VTM20.Wraith.Shroud.Label"}}</h4>
+          {{#if wraithInfo.shroud.scene}}<span class="r-wr-veil-scene">{{wraithInfo.shroud.scene}}</span>{{/if}}</div>
+        <div class="r-wr-veil-track" data-tooltip="{{wraithInfo.shroud.text}}">{{#each wraithInfo.shroudTrack}}<span class="r-wr-veil-seg {{#if on}}is-on{{/if}} {{#if base}}is-base{{/if}} {{#if below}}is-below{{/if}}">{{n}}</span>{{/each}}</div>
+        <div class="r-wr-veil-ends"><span>{{localize "VTM20.Wraith.Veil.Thin"}}</span><span>{{localize "VTM20.Wraith.Veil.Thick"}}</span></div>
+        <div class="r-wr-veil-parts">
+          <span class="r-wr-veil-chip is-base" data-tooltip="{{localize 'VTM20.Wraith.Veil.BaseHint'}}"><i class="fa-solid fa-map-location-dot"></i> {{localize "VTM20.Wraith.Veil.Base" n=wraithInfo.shroud.base}}{{#unless wraithInfo.shroud.set}} <small>{{localize "VTM20.Wraith.Veil.Unset"}}</small>{{/unless}}</span>
+          {{#each wraithInfo.shroudParts}}<span class="r-wr-veil-chip {{#if warn}}is-warn{{/if}}"><i class="fa-solid {{icon}}"></i> {{label}}</span>{{/each}}
+          {{#unless (rEq wraithInfo.place "shadowlands")}}<span class="r-wr-veil-chip is-place" data-tooltip="{{localize 'VTM20.Wraith.Place.Hint'}}"><i class="fa-solid fa-dungeon"></i> {{wraithInfo.placeLabel}}</span>{{/unless}}
+          {{#if wraithInfo.necropolis}}<span class="r-wr-veil-chip is-place" data-tooltip="{{wraithInfo.necropolis.text}}"><i class="fa-solid fa-city"></i> {{wraithInfo.necropolis.name}}</span>{{/if}}
+        </div>
+      </div>
+    </div>
+    {{#if editable}}<div class="r-wr-veil-acts">
+      <a class="r-btn" data-action="wrTempest" data-tooltip="{{localize 'VTM20.Wraith.Tempest.Hint'}}"><i class="fa-solid fa-wind"></i> {{localize "VTM20.Wraith.Veil.Tempest"}}</a>
+      <a class="r-btn {{#if wraithInfo.forecast}}is-on{{/if}}" data-action="wrForecast" data-tooltip="{{#if wraithInfo.forecast}}{{localize 'VTM20.Wraith.Forecast.OnHint' hits=wraithInfo.forecast.hits}}{{else}}{{localize 'VTM20.Wraith.Forecast.Hint'}}{{/if}}"><i class="fa-solid fa-tornado"></i> {{localize "VTM20.Wraith.Veil.Forecast"}}</a>
+      {{#if wraithInfo.forecast}}<a class="r-btn is-sq" data-action="wrForecastClear" data-tooltip="{{localize 'VTM20.Wraith.Forecast.Clear'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
+      {{#if wraithInfo.haunt}}<a class="r-btn {{#if wraithInfo.inHaunt}}is-on{{/if}}" data-action="wrHaunt" data-tooltip="{{localize 'VTM20.Wraith.Shroud.HauntHint'}}"><i class="fa-solid fa-house-chimney-crack"></i> {{localize "VTM20.Wraith.Shroud.InHaunt"}}</a>{{/if}}
+    </div>{{/if}}
+    {{#if wraithInfo.isGM}}<div class="r-wr-veil-gm">
+      <span class="r-wr-veil-gm-lbl"><i class="fa-solid fa-user-secret"></i> {{localize "VTM20.Wraith.Veil.GM"}}</span>
+      <label class="r-wr-veil-field"><span>{{localize "VTM20.Wraith.Veil.Place"}}</span><select class="r-mini-select r-wr-place" data-tooltip="{{localize 'VTM20.Wraith.Place.Hint'}}">{{#each wraithInfo.places}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+      <label class="r-wr-veil-field"><span>{{localize "VTM20.Wraith.Veil.Necro"}}</span><select class="r-mini-select r-wr-necro" data-tooltip="{{localize 'VTM20.Wraith.Necro.Hint'}}"><option value="">{{localize "VTM20.Wraith.Necro.None"}}</option>{{#each wraithInfo.necropoli}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+      <span class="r-wr-veil-step"><span>{{localize "VTM20.Wraith.Veil.SceneRating"}}</span>
+        <a class="r-vc-btn is-sq" data-action="wrShroud" data-what="base" data-d="-1" data-tooltip="{{localize 'VTM20.Wraith.Shroud.Down'}}"><i class="fa-solid fa-minus"></i></a><b>{{wraithInfo.shroud.base}}</b><a class="r-vc-btn is-sq" data-action="wrShroud" data-what="base" data-d="1" data-tooltip="{{localize 'VTM20.Wraith.Shroud.Up'}}"><i class="fa-solid fa-plus"></i></a></span>
+      <span class="r-wr-veil-gm-btns">
+        <a class="r-btn {{#if wraithInfo.shroud.hysteria}}is-on{{/if}}" data-action="wrShroud" data-what="hysteria" data-d="1" data-tooltip="{{localize 'VTM20.Wraith.Shroud.HysteriaHint'}}"><i class="fa-solid fa-face-scream"></i> {{localize "VTM20.Wraith.Shroud.HysteriaBtn"}} {{wraithInfo.shroud.hysteria}}/3</a>
+        {{#if wraithInfo.shroud.hysteria}}<a class="r-btn is-sq" data-action="wrShroud" data-what="hysteria" data-d="0" data-tooltip="{{localize 'VTM20.Wraith.Shroud.HysteriaReset'}}"><i class="fa-solid fa-rotate-left"></i></a>{{/if}}
+        <a class="r-btn" data-action="uwStorm" data-tooltip="{{localize 'VTM20.Wraith.Storm.Hint'}}"><i class="fa-solid fa-hurricane"></i> {{localize "VTM20.Wraith.Veil.Storm"}}</a>
+        <a class="r-btn" data-action="uwFog" data-tooltip="{{localize 'VTM20.Wraith.Fog.Hint'}}"><i class="fa-solid fa-smog"></i> {{localize "VTM20.Wraith.Veil.Fog"}}</a>
+        <a class="r-btn {{#if wraithInfo.shroud.abscess}}is-on{{/if}}" data-action="wrAbscess" data-tooltip="{{localize 'VTM20.Wraith.Shroud.AbscessHint'}}"><i class="fa-solid fa-virus"></i> {{localize "VTM20.Wraith.Veil.Abscess"}}</a>
+      </span>
+    </div>{{/if}}
   </div>
 
   {{!-- Спектр (гл. 10): каста, «Пал в Забвение» — у рассказчика --}}

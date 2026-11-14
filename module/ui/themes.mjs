@@ -80,7 +80,8 @@ export function registerThemes() {
     // окна системы и стандартные подтверждения Foundry (их цвета — переменные Foundry, переопределены в теме типа)
     const isDialog = app instanceof foundry.applications.api.DialogV2;
     if (!element?.classList?.contains("vtm20") && !isDialog) return;
-    const type = themeOf(actorOf(app)) ?? ITEM_THEMES[app.document?.type] ?? (Date.now() - recent.at < FRESH_MS && isDialog ? recent.type : null);
+    // окно может задать линию само (options.rType) — например, окна Бури призрака, открытые без щелчка по листу
+    const type = app.options?.rType ?? themeOf(actorOf(app)) ?? ITEM_THEMES[app.document?.type] ?? (Date.now() - recent.at < FRESH_MS && isDialog ? recent.type : null);
     if (!type) return;                                   // окно без персонажа — его тема задана им самим (справочник Домов)
     for (const c of [...element.classList]) if (c.startsWith("r-type-") && c !== `r-type-${type}`) element.classList.remove(c);
     element.classList.add(`r-type-${type}`);

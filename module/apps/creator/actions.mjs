@@ -169,6 +169,14 @@ function onClan(event, target) {
 }
 function onChoice(event, target) { this.st.clanChoice = target.dataset.key; this.render(); }
 function onClanAtlas(event, target) { return openClans(target.dataset.clan); }
+/** Путь морали — из библиотеки Путей: этика, Столп и грехи перед глазами; смена Пути сбрасывает Добродетели. */
+async function onPickPath() {
+  const { openLibrary } = await import("../library.mjs");
+  return openLibrary({ actor: null, kind: "moralPath", current: this.st.path, onPick: key => {
+    if (key === this.st.path) return;
+    this.st.path = key; this.st.virt = { conscience: 0, selfControl: 0, courage: 0 }; this.render();
+  } });
+}
 /** Поколение покупается фактом биографии «Поколение» (01). */
 function onGen(event, target) {
   const n = 13 - Number(target.dataset.gen);
@@ -347,7 +355,7 @@ export const ACTIONS = {
       creed: onCreed, edgeToggle: onEdgeToggle, brSet: onBrSet, dhSwap: onDhSwap, dhOption: onDhOption,
       ghoulType: onGhoulType, magePick: onMagePick, garouPick: onGarouPick, garouGift: onGarouGift, garouExtra: onGarouExtra,
       house: onHouse, earthbound: onEarthbound, thrall: onThrall, mark: onMark, markPower: onMarkPower, pactShare: onPactShare, pactGift: onPactGift, reliquary: onReliquary, visage: onVisage, faction: onFaction, houseAtlas: onHouseAtlas,
-      gen: onGen, choice: onChoice, clanAtlas: onClanAtlas,
+      gen: onGen, choice: onChoice, clanAtlas: onClanAtlas, pickPath: onPickPath,
       dot: onDot, prio: onPrio,
       bgToggle: onBgToggle, mfToggle: onMfToggle, mfTab: onMfTab, mfCat: onMfCat,
       addDisc: onAddDisc, dropDisc: onDropDisc, read: onRead,

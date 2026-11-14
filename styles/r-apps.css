@@ -1835,3 +1835,26 @@ body.r-theme-light .vtm20 .r-sp-state img { filter: none; }
 .vtm20 .r-th-charges { display: inline-flex; align-items: center; gap: 3px; margin-left: 6px; }
 .vtm20 .r-th-pip { display: inline-block; width: 8px; height: 8px; border-radius: 50%; border: 1px solid var(--r-muted); }
 .vtm20 .r-th-pip.is-on { background: var(--r-accent); border-color: var(--r-accent); }
+
+/* библиотека Путей: Добродетели, Столп, иерархия грехов (library-picks.mjs → moralPath) */
+.vtm20 .r-mp-meta { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 0 0 6px; font-size: 12px; color: var(--r-muted); }
+.vtm20 .r-mp-meta i { color: var(--r-accent); margin-right: 3px; }
+.vtm20 .r-mp-meta b { font-weight: 400; color: var(--r-ink); }
+.vtm20 .r-mp-sins-h { margin: 8px 0 4px; font-family: var(--r-caps); font-size: 10.5px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--r-muted); }
+.vtm20 .r-mp-sins { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: repeat(5, auto); grid-auto-flow: column; gap: 2px 14px; }
+.vtm20 .r-mp-sins li { display: flex; gap: 8px; align-items: baseline; padding: 2px 0; border-bottom: 1px dotted var(--r-line-2); font-size: 12.5px; line-height: 1.3; }
+.vtm20 .r-mp-sins b { flex: 0 0 20px; text-align: right; font-family: var(--r-display); font-weight: 400; font-size: 15px; color: var(--r-accent); }
+@media (max-width: 640px) { .vtm20 .r-mp-sins { grid-template-columns: 1fr; grid-auto-flow: row; } }
+/* мастер: Путь — карточка-кнопка вместо поля */
+.vtm20 .r-cr-pathpick { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 6px 10px; cursor: pointer;
+  border: 1px solid var(--r-line-2); background: rgba(0, 0, 0, .18); transition: border-color .15s; }
+.vtm20 .r-cr-pathpick:hover { border-color: var(--r-accent); }
+.vtm20 .r-cr-pathpick b { font-family: var(--r-display); font-weight: 400; font-size: 15px; color: var(--r-ink); }
+.vtm20 .r-cr-pathpick span { font-size: 11.5px; color: var(--r-muted); white-space: nowrap; }
+.vtm20 .r-cr-pathpick span i { color: var(--r-accent); }
+/* переход на Путь: выбранный Путь шапкой окна */
+.vtm20 .r-pathshift-path { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; padding: 6px 10px; border-left: 2px solid var(--r-accent); background: rgba(255, 255, 255, .03); }
+.vtm20 .r-pathshift-path b { font-family: var(--r-display); font-weight: 400; font-size: 16px; color: var(--r-ink); }
+.vtm20 .r-pathshift-path span { font-size: 12px; color: var(--r-muted); }
+.vtm20 .r-pathshift-path a { margin-left: auto; font-size: 12px; color: var(--r-muted); cursor: pointer; }
+.vtm20 .r-pathshift-path a:hover { color: var(--r-ink); }

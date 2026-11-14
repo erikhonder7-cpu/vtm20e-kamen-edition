@@ -25,17 +25,44 @@ export async function tempestJourney(actor) {
   const argos = actor.system.wraith.arcanoi?.argos?.value ?? 0;
   const fetters = actor.system.wraith.fetters.map((f, i) => ({ i, f })).filter(x => !x.f.resolved && x.f.value > 0);
   const methods = Object.entries(METHODS).filter(([, m]) => argos >= m.level);
-  const r = await foundry.applications.api.DialogV2.prompt({ window: { title: t("Tempest.Title") }, classes: ["vtm20", "r-dialog"], position: { width: 440 },
-    content: `<p class="r-note">${t("Tempest.Lead")}</p>
-      <label class="r-f"><span>${t("Tempest.Base")}</span><input type="number" name="base" value="6" min="0.5" step="0.5"></label>
-      <label class="r-f"><span>${t("Tempest.UnitLabel")}</span><select name="unit"><option value="hours">${t("Tempest.Unit.hours")}</option><option value="days">${t("Tempest.Unit.days")}</option></select></label>
-      <label class="r-f"><span>${t("Tempest.Method")}</span><select name="method"><option value="none">${t("Tempest.M.none")}</option>
-        ${methods.map(([k, m]) => `<option value="${k}" selected>${t(`Tempest.M.${k}`, { n: m.pathos, d: m.diff })}</option>`).join("")}</select></label>
-      <label class="r-f"><span>${t("Tempest.Passengers")}</span><input type="number" name="pass" value="0" min="0" max="10"></label>
-      <label class="r-check" data-tooltip="${esc(t("Tempest.FistulaHint"))}"><input type="checkbox" name="fistula"> ${t("Tempest.Fistula")}</label>
-      <label class="r-f"><span>${t("Tempest.ToFetter")}</span><select name="fetter"><option value="">—</option>
-        ${fetters.map(x => `<option value="${x.i}">${esc(x.f.text || "—")} (${x.f.value})</option>`).join("")}</select></label>`,
-    ok: { label: t("Tempest.Go"), callback: (ev, btn) => Object.fromEntries(new FormData(btn.form)) }, rejectClose: false });
+  const best = methods.at(-1)?.[0] ?? "none", necroD = necropolisOf()?.argos ?? 0;
+  const tile = (k, title, sub, on, locked) => `<label class="r-wr-dlg-tile ${locked ? "is-locked" : ""}"><input type="radio" name="method" value="${k}" ${on ? "checked" : ""} ${locked ? "disabled" : ""}>
+    <b>${title}</b><span>${sub}</span></label>`;
+  const stepper = (name, v, min, max, step = 1) => `<span class="r-wr-dlg-step" data-min="${min}" data-max="${max}" data-step="${step}"><a data-d="-1"><i class="fa-solid fa-minus"></i></a>
+    <input type="number" name="${name}" value="${v}" min="${min}" max="${max}" step="${step}"><a data-d="1"><i class="fa-solid fa-plus"></i></a></span>`;
+  const r = await foundry.applications.api.DialogV2.prompt({ window: { title: t("Tempest.Title"), icon: "fa-solid fa-wind" }, rType: "wraith", classes: ["vtm20", "r-dialog", "r-wr-dlg", "r-type-wraith"], position: { width: 500 },
+    content: `<p class="r-wr-dlg-lead"><i class="fa-solid fa-wind"></i> ${t("Tempest.Lead")}</p>
+      <div class="r-wr-dlg-sec">${t("Tempest.Method")}</div>
+      <div class="r-wr-dlg-tiles">
+        ${tile("none", t("Tempest.Tile.none"), t("Tempest.Tile.noneSub"), best === "none", false)}
+        ${Object.entries(METHODS).map(([k, m]) => tile(k, t(`Tempest.Chip.${k}`), t("Tempest.Tile.sub", { n: m.pathos, d: m.diff, l: m.level }), best === k, argos < m.level)).join("")}
+      </div>
+      <div class="r-wr-dlg-grid">
+        <label class="r-wr-dlg-f"><span>${t("Tempest.Base")}</span><span class="r-wr-dlg-row">${stepper("base", 6, 0.5, 999, 0.5)}
+          <span class="r-wr-dlg-seg"><label><input type="radio" name="unit" value="hours" checked><span>${t("Tempest.UnitLong.hours")}</span></label><label><input type="radio" name="unit" value="days"><span>${t("Tempest.UnitLong.days")}</span></label></span></span></label>
+        <label class="r-wr-dlg-f"><span>${t("Tempest.Passengers")}</span>${stepper("pass", 0, 0, 10)}</label>
+        <label class="r-wr-dlg-f"><span>${t("Tempest.ToFetter")}</span><select name="fetter"><option value="">—</option>
+          ${fetters.map(x => `<option value="${x.i}" data-v="${x.f.value}">${esc(x.f.text || "—")} (${x.f.value})</option>`).join("")}</select></label>
+        <label class="r-wr-dlg-toggle" data-tooltip="${esc(t("Tempest.FistulaHint"))}"><input type="checkbox" name="fistula"><span><i class="fa-solid fa-virus"></i> ${t("Tempest.Fistula")} −2</span></label>
+      </div>
+      <div class="r-wr-dlg-sum" data-sum></div>`,
+    render: (ev, dlg) => {
+      const f = dlg.element.querySelector("form") ?? dlg.element, sum = f.querySelector("[data-sum]");
+      const upd = () => {
+        const v = Object.fromEntries(new FormData(f)), m = METHODS[v.method], base = Math.max(0.5, Number(v.base) || 1), unit = v.unit === "days" ? "days" : "hours";
+        if (!m) return sum.innerHTML = `<span><i class="fa-solid fa-clock"></i> ${t("Tempest.Sum.time")} <b>${fmtTime(base * 2, unit)}</b></span><span class="is-muted">${t("Tempest.Sum.noRoll")}</span>`;
+        const fv = Number(f.querySelector("[name=fetter] option:checked")?.dataset.v) || 0;
+        const d = Math.max(fv ? 4 : 2, Math.min(10, m.diff + necroD - (v.fistula ? 2 : 0) + (Number(v.pass) || 0) - fv));
+        sum.innerHTML = `<span><i class="fa-solid fa-bullseye"></i> ${t("Tempest.Sum.diff")} <b>${d}</b></span><span><i class="fa-solid fa-droplet"></i> ${t("Tempest.Sum.pathos")} <b>${m.pathos}</b></span>
+          <span><i class="fa-solid fa-clock"></i> ${t("Tempest.Sum.time")} <b>${fmtTime(base * .25, unit)} – ${fmtTime(base, unit)}</b></span>`;
+      };
+      f.querySelectorAll(".r-wr-dlg-step a").forEach(a => a.addEventListener("click", () => {
+        const s = a.closest(".r-wr-dlg-step"), inp = s.querySelector("input"), st = Number(s.dataset.step) || 1;
+        inp.value = Math.clamp((Number(inp.value) || 0) + Number(a.dataset.d) * st, Number(s.dataset.min), Number(s.dataset.max)); upd();
+      }));
+      f.addEventListener("input", upd); f.addEventListener("change", upd); upd();
+    },
+    ok: { label: t("Tempest.Go"), icon: "fa-solid fa-person-walking", callback: (ev, btn) => Object.fromEntries(new FormData(btn.form)) }, rejectClose: false });
   if (!r) return null;
   const base = Math.max(0.5, Number(r.base) || 1), unit = r.unit === "days" ? "days" : "hours", m = METHODS[r.method];
   if (!m) return say(actor, "fa-wind", t("Tempest.NoArgos", { name: esc(actor.name), t: fmtTime(base * 2, unit) }));
@@ -74,9 +101,22 @@ export async function forecast(actor) {
           ${known >= FORECAST_FACTS.length ? `<br>${t("Forecast.All")}` : ""}`);
       } });
   }
-  const missed = Number(await foundry.applications.api.DialogV2.prompt({ window: { title: t("Forecast.Title") }, classes: ["vtm20", "r-dialog"],
-    content: `<p class="r-note">${t("Forecast.Lead")}</p><label class="r-f"><span>${t("Forecast.Missed")}</span><input type="number" name="m" value="0" min="0" max="31"></label>`,
-    ok: { label: t("Forecast.Watch"), callback: (ev, btn) => btn.form.elements.m.value }, rejectClose: false }));
+  const pool = (actor.system.attributes?.intelligence?.total ?? 0) + (actor.system.abilities?.science?.value ?? 0);
+  const missed = Number(await foundry.applications.api.DialogV2.prompt({ window: { title: t("Forecast.Title"), icon: "fa-solid fa-tornado" }, rType: "wraith", classes: ["vtm20", "r-dialog", "r-wr-dlg", "r-type-wraith"], position: { width: 420 },
+    content: `<p class="r-wr-dlg-lead"><i class="fa-solid fa-tornado"></i> ${t("Forecast.Lead")}</p>
+      <div class="r-wr-dlg-grid is-one">
+        <label class="r-wr-dlg-f"><span>${t("Forecast.Missed")}</span><span class="r-wr-dlg-step" data-min="0" data-max="31" data-step="1"><a data-d="-1"><i class="fa-solid fa-minus"></i></a>
+          <input type="number" name="m" value="0" min="0" max="31"><a data-d="1"><i class="fa-solid fa-plus"></i></a></span></label>
+      </div>
+      <div class="r-wr-dlg-sum" data-sum></div>`,
+    render: (ev, dlg) => {
+      const f = dlg.element.querySelector("form") ?? dlg.element, sum = f.querySelector("[data-sum]"), inp = f.querySelector("[name=m]");
+      const upd = () => { const n = Math.max(0, pool - (Number(inp.value) || 0));
+        sum.innerHTML = `<span><i class="fa-solid fa-dice-d10"></i> ${t("Forecast.Sum.pool")} <b>${n}</b></span><span><i class="fa-solid fa-bullseye"></i> ${t("Tempest.Sum.diff")} <b>8</b></span>`; };
+      f.querySelectorAll(".r-wr-dlg-step a").forEach(a => a.addEventListener("click", () => { inp.value = Math.clamp((Number(inp.value) || 0) + Number(a.dataset.d), 0, 31); upd(); }));
+      inp.addEventListener("input", upd); upd();
+    },
+    ok: { label: t("Forecast.Watch"), icon: "fa-solid fa-eye", callback: (ev, btn) => btn.form.elements.m.value }, rejectClose: false }));
   if (Number.isNaN(missed)) return null;
   return RollDialog.prompt(actor, { title: t("Forecast.Title"), trait1: "attributes.intelligence", trait2: "abilities.science", difficulty: 8, lockTraits: true,
     bonus: -Math.clamp(missed, 0, 31), bonusLabel: t("Forecast.MissedShort"), extra: { wraith: { kind: "forecast", step: "weekly" } },

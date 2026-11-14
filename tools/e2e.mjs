@@ -4099,7 +4099,7 @@ try {
       out.quiet = [w0 - a.system.willpower.temporary, game.messages.size - m0 >= 2, St.quietLevelFor(12), St.flawGradeFor(7)?.key];
       // вкладка: блоки состояний рисуются
       await a.sheet.render(true); await wait(700); a.sheet.changeTab("disciplines", "primary"); await wait(500);
-      out.sheet = [a.sheet.element.querySelectorAll(".r-mstate").length, a.sheet.element.querySelectorAll(".r-mstate-row").length >= 5, !!a.sheet.element.querySelector('[data-action="mageQuietExit"]')];
+      out.sheet = [a.sheet.element.querySelectorAll(".r-mstate, .r-mres").length, a.sheet.element.querySelectorAll(".r-mstate-row").length >= 5, !!a.sheet.element.querySelector('[data-action="mageQuietExit"]')];
       // Поиск: без него Арете за опыт не купить; Принятие открывает покупку, покупка «расходует» Поиск
       await a.update({ "system.mage.seeking": true });
       const before = a.system.mage.arete;

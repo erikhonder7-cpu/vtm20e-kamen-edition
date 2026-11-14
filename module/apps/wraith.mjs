@@ -162,6 +162,15 @@ export function wraithInfo(actor, dots) {
     place: placeOf(), placeLabel: t(`Place.${placeOf()}`), places: PLACES.map(k => ({ key: k, label: t(`Place.${k}`), selected: k === placeOf() })),
     necropolis: necropolisOf(), necropoli: Object.keys(NECROPOLI).map(k => ({ key: k, label: t(`Necro.${k}.name`), selected: k === necropolisOf()?.key })),
     shroud: shroudOf(actor), haunt: hauntRating(actor), inHaunt: !!actor.getFlag(SYSTEM_ID, "inHaunt"), isGM: game.user.isGM,
+    ...(sv => ({
+      // Покров карточкой: шкала 1–10 (закрашено до итога, отметка — рейтинг сцены, ниже предела — тусклое), поправки метками
+      shroudTrack: Array.from({ length: 10 }, (_, i) => ({ n: i + 1, on: i + 1 <= sv.value, base: i + 1 === sv.base, below: i + 1 < sv.floor })),
+      shroudParts: [
+        ...(sv.hysteria && !sv.haunt ? [{ icon: "fa-face-scream", label: t("Shroud.Hysteria", { n: sv.hysteria }) }] : []),
+        ...(sv.near ? [{ icon: "fa-eye", label: t("Shroud.Near") }] : []),
+        ...(sv.haunt ? [{ icon: "fa-house-chimney-crack", label: t("Shroud.Haunt", { n: sv.haunt }) }] : []),
+        ...(sv.abscess ? [{ icon: "fa-virus", label: t("Shroud.Abscess"), warn: true }] : [])]
+    }))(shroudOf(actor)),
     forecast: actor.getFlag(SYSTEM_ID, "forecast") ?? null,   // прогноз Мальстрёма (apps/tempest.mjs)
     guide: guideOf(actor)?.name ?? "", isGuide: !!guideOf(actor)?.isSelf, canGuide: game.user.isGM || !!guideOf(actor)?.isSelf
   };

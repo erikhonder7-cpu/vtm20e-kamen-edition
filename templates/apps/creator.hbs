@@ -249,8 +249,7 @@
       </div>
       <div>
         <h3 class="r-h3">{{localize "VTM20.Sheet.Path"}}</h3>
-        <input type="text" data-field="path" class="r-cr-path" data-combo="r-cr-paths" data-key="{{st.path}}" value="{{pathName}}">
-        <datalist id="r-cr-paths">{{#each paths}}<option value="{{name}}" data-group="{{group}}" data-key="{{key}}"></option>{{/each}}</datalist>
+        <a class="r-cr-pathpick" data-action="pickPath" data-tooltip="{{localize 'VTM20.Library.Pick.MoralPath.Open'}}"><b>{{pathName}}</b><span><i class="fa-solid fa-book-open"></i> {{localize "VTM20.Library.Pick.MoralPath.Change"}}</span></a>
         {{#if pathInfo}}<p class="r-note">{{localize "VTM20.Sheet.Virtues"}}: <b>{{pathInfo.virtues}}</b> · {{localize "VTM20.Sheet.Bearing"}}: <b>{{pathInfo.bearing}}</b>{{#unless (eq st.path "humanity")}}<br>{{localize "VTM20.Creator.PathRules"}}{{/unless}}</p>{{/if}}
       </div>
     </div>
