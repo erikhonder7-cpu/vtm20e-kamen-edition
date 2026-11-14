@@ -462,6 +462,8 @@ export class VtMActor extends Actor {
   }
 
   async spendWillpower(n = 1) {
+    // Разочарования Нестреши (Колдовство): пока действует — Волю тратить нельзя ни на что
+    if (this.effects.some(e => !e.disabled && e.flags?.[SYSTEM_ID]?.noWill)) { ui.notifications.warn(t("Notify.NoWillBlocked", { name: this.name })); return false; }
     const cur = this.system.willpower.temporary;
     if (cur < n) { ui.notifications.warn(t("Notify.NoWillpower", { name: this.name })); return false; }
     await this.update({ "system.willpower.temporary": cur - n });

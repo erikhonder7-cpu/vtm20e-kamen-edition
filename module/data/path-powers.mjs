@@ -12,6 +12,21 @@
 // Где в тексте силы срока нет — «до конца сцены» (правило системы).
 
 export const PATH_POWERS = {
+  // ── Колдовство (V20, Rites of the Blood, Revised, Тёмные века — справочники пользователя): эффект после удачного броска ──
+  "koldunism|Grasping Soil": { kind: "cond", needTarget: true, fx: { statuses: ["r-held"], note: "KGrasp" }, dur: "scene" },
+  "koldunism|Soil Silhouette": { kind: "cond", needTarget: true, fx: { statuses: ["r-held"], note: "KGrasp" }, dur: "scene" },
+  "koldunism|Hungry Earth": { kind: "cond", needTarget: true, fx: { statuses: ["r-held"], dot: { type: "lethal", soak: true }, note: "KHungry" }, dur: "scene" },
+  "koldunism|Soil of Death": { kind: "cond", needTarget: true, fx: { statuses: ["r-held"], note: "KSoilDeath" }, dur: "scene" },
+  "koldunism|Endurance of Stone": { kind: "self", fx: { attr: { stamina: 2 }, note: "KStone" }, dur: "scene" },
+  "koldunism|Unearthly Stamina": { kind: "self", fx: { soakDice: 2, note: "KStoneRev" }, dur: "scene" },
+  "koldunism|Biting Gale": { kind: "cond", needTarget: true, fx: { note: "KGale" }, dur: "scene" },
+  "koldunism|Biting Winds": { kind: "cond", needTarget: true, fx: { note: "KGale" }, dur: "scene" },
+  "koldunism|Pietrosu’s Hospitality": { kind: "cond", needTarget: true, fx: { note: "KGale" }, dur: "scene" },
+  "koldunism|Breeze of Lethargy": { kind: "cond", needTarget: true, fx: { note: "KLethargy" }, dur: "scene" },
+  "koldunism|Winds of Lethargy": { kind: "cond", needTarget: true, fx: { note: "KLethargy" }, dur: "scene" },
+  "koldunism|The Frustrations of Nestrecha": { kind: "cond", needTarget: true, fx: { noWill: true, note: "KNoWill" }, dur: "scene" },
+  "koldunism|The Weeping of Kruchina": { kind: "cond", needTarget: true, fx: { note: "KWeep" }, dur: "scene" },
+  "koldunism|The Misfortune of Chernogolov": { kind: "cond", needTarget: true, fx: { succMinus: 2, note: "KMisfortune" }, dur: "manual" },
   // ── Власть над смертной оболочкой ──
   "thaumaturgy|Vertigo": { kind: "cond", needTarget: true, fx: { diffPhys: 1 }, dur: "scene" },
   "thaumaturgy|Contortion": { kind: "cond", needTarget: true, ask: "limb", dur: "scene" },

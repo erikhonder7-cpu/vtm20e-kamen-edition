@@ -273,7 +273,9 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
         id: d.key, name: d.name, en: d.en, sym, inClan, has: have.has(d.key), xp, order: inClan ? 0 : 1, src: srcKind(d),
         scope: inClan ? "clan" : "",
         tags: [inClan && { label: t("Sheet.InClan"), red: true }, paths.length && { label: L("PathsN", { n: paths.length }) }].filter(Boolean),
-        text: d.rules?.find(r => !r.title)?.html ?? "", long: true,
+        // вводный текст: раздел без заголовка; если все с заголовками («Общие правила Танатозиса») — первые два, с заголовками
+        text: d.rules?.find(r => !r.title && r.html)?.html
+          ?? (d.rules ?? []).filter(r => r.html).slice(0, 2).map(r => `${r.title ? `<h4 class="r-sec">${foundry.utils.escapeHTML(r.title)}</h4>` : ""}${r.html}`).join("") ?? "", long: true,
         powers: (d.powers ?? []).map((p, i) => [p, i]).filter(([p]) => Codex.visible(p))
           .map(([p, i]) => ({ roman: p.anyLevel ? "VI–IX" : ROMAN[p.level - 1] ?? p.level, name: p.name, en: p.en, ref: `${d.key}|${i}`, mark: powerMark(p) })),
         // пути: у Колдовства — числом по редакциям, у прочих — первые шесть и «ещё N» (длинный список на карточке нечитаем)

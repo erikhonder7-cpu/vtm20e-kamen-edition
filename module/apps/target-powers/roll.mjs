@@ -156,7 +156,7 @@ export async function rollTargetPower(actor, disc, d, p, tp, { rollFromSpec, sub
     ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), whisper: [game.user.id, ...game.users.filter(u => u.isGM).map(u => u.id)],
       content: `<div class="r-notice"><i class="fa-solid fa-droplet"></i> <b>${esc(p.name)}</b> → ${esc(target.name)}<ul>${lines.map(l => `<li>${esc(l)}</li>`).join("")}</ul></div>` });
   };
-  if (PATH_POWERS[key]) {
+  if (PATH_POWERS[key] && disc !== "koldunism") {
     if (tp.ownRoll) {
       const tw = target?.system.willpower?.permanent ?? 0;
       roll = { ...tp.ownRoll, blood: p.roll?.blood ?? 1, difficulty: target ? Math.min(10, tw + (tp.targetDiff?.plus ?? 0)) : 6,

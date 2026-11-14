@@ -2752,7 +2752,8 @@
         "frenzy": "Apply frenzy",
         "rotschreck": "Apply Rötschreck",
         "rapture": "Apply Rapture"
-      }
+      },
+      "LoseNote": "Misfortune: −{n} succ."
     },
     "Outcome": {
       "botch": "Botch",
@@ -3424,7 +3425,8 @@
       "NoBloodState": "{name}: staked or in torpor — blood can't be spent.",
       "BloodDoubled": "Thin blood: spending is doubled — blood spent: {n}.",
       "BloodPerTurn": "{name}: no more than {max} blood can be spent per turn ({spent} already spent).",
-      "SpiritHit": "Essence −{n}: {left} of {max}"
+      "SpiritHit": "Essence −{n}: {left} of {max}",
+      "NoWillBlocked": "{name}: under the Frustrations of Nestrecha, Willpower cannot be spent."
     },
     "Hunt": {
       "Masq": "Masquerade: +{n} to difficulty",
@@ -8059,7 +8061,17 @@
         "OneTrack": "can't split pools or change tactics; the declared action −1 difficulty; changing course — 1 Willpower",
         "Dual": "a second, mental action at the same time as the first",
         "Clarity": "−2 difficulty to all actions; immune to frenzy and Rötschreck; influencing them — +2 difficulty",
-        "Slumber": "sleeps until the condition is met"
+        "Slumber": "sleeps until the condition is met",
+        "KGrasp": "The earth grips the legs: immobilised (2 turns + 2 per extra success). Break free — Strength + Survival (or Athletics), diff 6, 5 successes.",
+        "KHungry": "Underground: immobilised (a turn per success), 1 lethal per turn (soak diff 7). Escape — Strength + Survival, diff 8, 5 successes in one roll.",
+        "KSoilDeath": "Buried to the neck (a turn per success). Mortals and ghouls — Stamina, diff 7, or 1 lethal per turn.",
+        "KStone": "Endurance of Stone: Stamina +2 for the scene (soak included).",
+        "KStoneRev": "Unearthly Stamina: +2 soak dice for the scene, aggravated included.",
+        "KGale": "Biting wind: Dexterity pools −2, half speed; 1 bashing per turn (normal soak).",
+        "KLethargy": "Lethargy wind: on a failed Stamina + Survival (diff 8) physical pools and speed are halved; on a botch — sleep (a vampire — light torpor).",
+        "KNoWill": "Frustrations of Nestrecha: cannot spend Willpower (a turn per caster success).",
+        "KWeep": "Weeping of Kruchina: no actions that need concentration; a vampire loses 1 blood per turn (a turn per success).",
+        "KMisfortune": "Misfortune of Chernogolov: −2 successes on every roll (for as many rolls as the caster's successes)."
       },
       "CounterNote": "Thaumaturgical Countermagic: {n} dice, difficulty 6; each success cancels one success of opposing magic.",
       "ConjureApply": "Conjure",

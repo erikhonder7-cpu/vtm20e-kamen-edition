@@ -41,6 +41,8 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
   constructor(actor, cfg = {}) {
     super({ window: { title: cfg.title || t("Roll.DialogTitle") } });
     this.actor = actor;
+    // Разочарования Нестреши: под эффектом «noWill» Волю в бросок не добавить
+    if (actor?.effects?.some(e => !e.disabled && e.flags?.[SYSTEM_ID]?.noWill)) cfg = { ...cfg, noWillpower: true };
     this.cfg = cfg;
     this.values = {
       trait1: cfg.trait1 ?? "", trait2: cfg.trait2 ?? "",

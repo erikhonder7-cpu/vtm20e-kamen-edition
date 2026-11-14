@@ -53,7 +53,7 @@ export function tormentOdds(pool, difficulty, torment, n = 4000) {
   return hit / n;
 }
 
-export function evaluate(values, { difficulty = 6, specialty = false, willpower = false, extraNeeded = 0, noBotch = false, auto = 0, cursed = false } = {}) {
+export function evaluate(values, { difficulty = 6, specialty = false, willpower = false, extraNeeded = 0, noBotch = false, auto = 0, cursed = false, lose = 0 } = {}) {
   const diff = Math.clamp(difficulty, 2, 10);
   const hits = values.filter(v => v >= diff).length;
   const tens = values.filter(v => v === 10).length;
@@ -61,7 +61,7 @@ export function evaluate(values, { difficulty = 6, specialty = false, willpower 
   const raw = hits + (specialty ? tens : 0);
   const dice = Math.max(0, raw - ones);
   const successes = dice + (willpower ? 1 : 0) + (auto || 0);
-  const net = Math.max(0, successes - extraNeeded);
+  const net = Math.max(0, successes - extraNeeded - (lose || 0));   // lose — Несчастье Черноголова: −успехи к броску
   let outcome;
   if (net > 0) outcome = "success";
   else if (!noBotch && hits === 0 && ones > 0 && !willpower && !auto) outcome = "botch";
@@ -188,6 +188,7 @@ export async function rollPool(o) {
     willpower: !!o.willpower, breakdown: o.breakdown ?? [], kind: o.kind ?? "check",
     noBotch: !!o.noBotch, auto: Math.max(0, (o.auto ?? 0) + wyrdAuto), actorUuid: o.actor?.uuid ?? null, extra: o.extra ?? {}, notes: [...(o.notes ?? []), ...wyrdNotes],
     cursed: !!o.actor?.effects?.some(e => !e.disabled && e.flags?.[SYSTEM_ID]?.curseBotch),
+    lose: [...(o.actor?.effects ?? [])].reduce((s, e) => s + (!e.disabled && (e.flags?.[SYSTEM_ID]?.succRolls ?? 0) > 0 ? Number(e.flags[SYSTEM_ID].succMinus) || 0 : 0), 0),
     effect: o.effect ?? ""
   };
   // Призыв демона: эффект высокой Муки — по отдельной кости (рус. основная книга, гл. 7) или по большинству успехов (errata Demon Players Guide)
@@ -204,6 +205,14 @@ export async function rollPool(o) {
     }
   }
   const result = evaluate(values, state);
+  // Несчастье Черноголова: эффект тратит один бросок; кончились — снимается
+  if (state.lose && o.actor?.isOwner) {
+    state.notes.push(t("Roll.LoseNote", { n: state.lose }));
+    for (const e of o.actor.effects.filter(e => !e.disabled && (e.flags?.[SYSTEM_ID]?.succRolls ?? 0) > 0)) {
+      const left = e.flags[SYSTEM_ID].succRolls - 1;
+      if (left > 0) await e.setFlag(SYSTEM_ID, "succRolls", left); else await e.delete();
+    }
+  }
   // Продолжительное действие (03): успехи копятся до цели; провал срывает работу
   const ext = state.extra?.extended;
   if (ext) {
