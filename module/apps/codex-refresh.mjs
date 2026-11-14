@@ -129,24 +129,32 @@ export async function offerWorldRefresh() {
   await Codex.loadTexts();
   const rows = game.actors.contents.map(a => ({ a, changes: a.items.contents.map(changeOf).filter(Boolean) })).filter(r => r.changes.length);
   if (!rows.length) return game.settings.set(SYSTEM_ID, "refreshChecked", ver);
-  const list = rows.map(r => `<li><b>${esc(r.a.name)}</b> — ${r.changes.length}</li>`).join("");
+  // окно: что случилось — одной строкой, листы — карточками (портрет, имя, тип, сколько расхождений), две главные кнопки;
+  // «Позже» и «Не спрашивать» — ссылками внизу, чтобы не спорили с главным
+  const typeName = a => game.i18n.localize(CONFIG.Actor.typeLabels?.[a.type] ?? a.type);
+  const list = rows.map(r => `<li class="r-rf-row"><img src="${esc(r.a.img)}" alt=""><span class="r-rf-name"><b>${esc(r.a.name)}</b><small>${esc(typeName(r.a))}</small></span>
+    <em class="r-rf-n">${t("WorldCount", { n: r.changes.length })}</em></li>`).join("");
+  let pick = null;
   const v = await foundry.applications.api.DialogV2.wait({
-    window: { title: t("WorldTitle", { v: ver }), icon: "fa-solid fa-book-open-reader" }, classes: ["vtm20", "r-dialog", "r-refresh"], position: { width: 480 },
-    content: `<p>${t("WorldHint", { n: rows.length })}</p><ul class="r-refresh-list">${list}</ul>`,
+    window: { title: t("WorldTitle", { v: ver }), icon: "fa-solid fa-book-open-reader" }, classes: ["vtm20", "r-dialog", "r-refresh", "r-rf"], position: { width: 480 },
+    content: `<div class="r-rf-lead"><i class="fa-solid fa-book-open-reader"></i><div><b>${t("WorldLead", { n: rows.length })}</b><span>${t("WorldWhy")}</span></div></div>
+      <ul class="r-rf-list">${list}</ul>
+      <p class="r-rf-note"><i class="fa-solid fa-pen-nib"></i> ${t("WorldManual")}</p>
+      <div class="r-rf-later"><a data-pick="later">${t("WorldLater")}</a><span>·</span><a data-pick="skip">${t("WorldSkip")}</a></div>`,
     buttons: [
       { action: "sheets", label: t("WorldBySheet"), icon: "fa-solid fa-list-check", default: true },
-      { action: "all", label: t("WorldAll"), icon: "fa-solid fa-rotate" },
-      { action: "later", label: t("WorldLater") },
-      { action: "skip", label: t("WorldSkip") }
-    ]
-  }).catch(() => "later");
-  if (v === "all") {
+      { action: "all", label: t("WorldAll"), icon: "fa-solid fa-rotate" }
+    ],
+    render: (ev, dlg) => dlg.element.querySelectorAll("[data-pick]").forEach(a => a.addEventListener("click", () => { pick = a.dataset.pick; dlg.close(); }))
+  }).catch(() => null) ?? null;
+  const choice = pick ?? v ?? "later";
+  if (choice === "all") {
     for (const r of rows) await r.a.updateEmbeddedDocuments("Item", r.changes.map(c => ({ _id: c.item.id, ...c.update })));
     ui.notifications.info(t("WorldDone", { n: rows.reduce((s, r) => s + r.changes.length, 0), a: rows.length }));
-  } else if (v === "sheets") {
+  } else if (choice === "sheets") {
     for (const r of rows) await refreshActor(r.a);
   }
-  if (v !== "later") await game.settings.set(SYSTEM_ID, "refreshChecked", ver);
+  if (choice !== "later") await game.settings.set(SYSTEM_ID, "refreshChecked", ver);
 }
 
 /** Можно ли сверить предмет со справочником (для кнопки в листе предмета). */

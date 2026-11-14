@@ -1248,7 +1248,11 @@
       "WorldSkip": "Don't ask until the next version",
       "WorldDone": "Entries updated: {n} on {a} sheets.",
       "Category": "category",
-      "Source": "source"
+      "Source": "source",
+      "WorldLead": "Sheets ({n}) differ from the reference",
+      "WorldWhy": "Old texts without the Description and System sections, former trait categories. Rolls, costs and dots are not changed.",
+      "WorldManual": "If you edited something by hand, go sheet by sheet: there you can untick what should stay.",
+      "WorldCount": "differences: {n}"
     },
     "Provocation": {
       "Hint": "Frenzy provocation — difficulty from the ghoul and dhampir table.",
