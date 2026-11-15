@@ -46,6 +46,7 @@ import { registerTimers, tickTimers } from "./module/apps/timers.mjs";
 import { registerTorpor, checkTorpor } from "./module/apps/torpor.mjs";
 import { registerIncome, checkIncome } from "./module/apps/income.mjs";
 import { registerTorment } from "./module/apps/torment.mjs";
+import { registerZulo } from "./module/apps/zulo.mjs";
 import { registerPossession } from "./module/apps/possession.mjs";
 import { registerCult } from "./module/apps/cult.mjs";
 import { registerExorcist } from "./module/apps/exorcist.mjs";
@@ -170,6 +171,7 @@ Hooks.once("init", () => {
   registerTorpor();
   registerIncome();
   registerTorment();
+  registerZulo();
   registerPossession();
   registerCult();
   registerExorcist();

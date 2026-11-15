@@ -21,6 +21,7 @@
 // Источник — V20, гл. 4 (Дисциплины), тексты сил в data/disciplines.json.
 
 import { SYSTEM_ID } from "../config.mjs";
+import { zuloDef, ZULO_POWER } from "./zulo.mjs";
 
 export const POWER_EFFECTS = {
   // Ясновидение 1: сложность заметить что-либо органами чувств −Ясновидение; без затрат, по желанию
@@ -44,7 +45,8 @@ export const POWER_EFFECTS = {
   // Постоянные две формы хранятся на актёре; при активации выбирается боевая или отступательная.
   "protean:Модифицированный Облик Зверя": { mode: "night", icon: "fa-paw", cost: { blood: [1, 3] }, transformTurns: "blood", modifiedShape: true },
   // Преображение 4: 2 крови; +3 к физическим, социальные 0, +1 куб урона в драке
-  // Запугивание — Силой вместо социальной характеристики (intimStrength)
+  // Запугивание — Силой вместо социальной характеристики (intimStrength).
+  // Хоумрул «форма зуло» (настройка horridForm): вместо +3 — выбранные черты (data/zulo.mjs, shapeConfig.zulo)
   "vicissitude:4": { mode: "toggle", icon: "fa-dragon", cost: { blood: 2 },
     attr: { strength: 3, dexterity: 3, stamina: 3 }, set: { charisma: 0, manipulation: 0, appearance: 0 }, brawlDamage: 1, intimStrength: true },
   // Преображение 3, Искусство костей: когти и шипы ложатся только после броска силы (viaRoll — без кнопки включения на листе).
@@ -227,6 +229,7 @@ export function effectDef(power, variant = "", shapeConfig = null) {
       moveEqualRun: !!form.flying,
       modifiedShape: { role, animal: String(form.animal || "зверь"), sense, flying: !!form.flying, large: !!form.large } };
   }
+  if (power === ZULO_POWER && Array.isArray(shapeConfig?.zulo)) return zuloDef(base, shapeConfig.zulo);
   return variant && base.variants?.[variant] ? { ...base, ...base.variants[variant] } : base;
 }
 
@@ -316,6 +319,11 @@ export function effectMods(actor) {
     m.modifiedShape = def.modifiedShape ?? m.modifiedShape ?? null;
     m.brawlDamage += def.brawlDamage ?? 0;
     m.biteDamage += def.biteDamage ?? 0;
+    // форма зуло (data/zulo.mjs): укус легче, лишние «Синяки», Шкура чуди к Скрытности
+    m.biteDiff = (m.biteDiff ?? 0) + (def.biteDiff ?? 0);
+    if (def.extraBruised) m.extraBruised = { max: def.extraBruised, effect };
+    m.stealthDiff ||= !!def.stealthDiff;
+    if (def.zulo) m.zulo = def.zulo;
     m.soakDiff += def.soakDiff ?? 0;
     m.staminaVsFangs ||= !!def.staminaVsFangs;
     if (def.venom) m.venom += effect.flags?.[SYSTEM_ID]?.charges ?? 1;

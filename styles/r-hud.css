@@ -322,6 +322,47 @@ body.r-hud-on #chat-notifications > #chat-message { display: none !important; }
 .vtm20 .r-prt-form-choice > span:last-child, .vtm20 .r-prt-blood-choice > span:last-child { display: flex; flex-direction: column; min-width: 0; gap: 2px; }
 .vtm20 .r-prt-form-choice b, .vtm20 .r-prt-blood-choice b { color: var(--r-ink); font-size: 13px; }
 .vtm20 .r-prt-form-choice small, .vtm20 .r-prt-blood-choice small { color: var(--r-muted); font-size: 11px; line-height: 1.25; }
+/* ── Форма зуло (apps/zulo.mjs): места облика сверху, черты по разделам; сетка прокручивается внутри,
+   шапка и кнопка видны всегда. Ярлык черты: багровый — считает система, пунктир — описание для рассказчика ── */
+.application.vtm20.r-dialog.r-protean-dialog.r-zulo-dialog .window-content { max-height: 88vh; }
+.vtm20 .r-zulo-form { margin-bottom: 10px; }
+.vtm20 .r-zulo-swaps { margin-right: 10px; color: var(--r-bone-d); font-style: italic; }
+.vtm20 .r-zulo-slots { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 8px; }
+.vtm20 .r-zulo-slot { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 6px; width: auto; height: auto; min-width: 0; min-height: 0; margin: 0; padding: 6px 4px 5px; overflow: visible;
+  border: 0; border-radius: 0; background: none; box-shadow: none; color: var(--r-muted); font: inherit; line-height: 1; }
+.vtm20 .r-zulo-slot > span { display: grid; place-items: center; width: 44px; height: 44px; border: 1px dashed rgba(216,207,191,.22); border-radius: 50%;
+  color: rgba(216,207,191,.32); font-family: var(--r-display); font-size: 14px; transition: border-color .15s, box-shadow .15s; }
+.vtm20 .r-zulo-slot > b { max-width: 100%; overflow: hidden; color: var(--r-muted); font-family: var(--r-caps); font-size: 9.5px; font-weight: 400;
+  letter-spacing: .8px; text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; }
+.vtm20 .r-zulo-slot.is-on { cursor: pointer; }
+.vtm20 .r-zulo-slot.is-on > span { border: 1px solid var(--r-blood-l); color: #f1d9cf; font-size: 18px;
+  background: radial-gradient(circle at 50% 38%, #5a2228, #1a1214 72%); box-shadow: 0 0 0 3px rgba(140,28,34,.16), 0 0 14px rgba(196,71,76,.22); }
+.vtm20 .r-zulo-slot.is-on > b { color: var(--r-ink); }
+.vtm20 .r-zulo-slot.is-new > span { border-color: #c9a96a; box-shadow: 0 0 0 3px rgba(201,169,106,.14), 0 0 14px rgba(201,169,106,.2); }
+.vtm20 .r-zulo-slot.is-on:hover > span { border-color: #e06a70; box-shadow: 0 0 0 3px rgba(196,71,76,.28); }
+.vtm20 .r-zulo-slot.is-on:hover > span i::before { content: "\f00d"; }
+.vtm20 .r-zulo-grid { max-height: clamp(220px, calc(88vh - 400px), 560px); overflow-y: auto; padding-right: 6px; overscroll-behavior: contain; }
+.vtm20 .r-zulo-group + .r-zulo-group { margin-top: 13px; }
+.vtm20 .r-zulo-group-head { display: flex; align-items: center; gap: 10px; margin: 0 0 7px; padding: 0; border: 0;
+  color: var(--r-bone-d); font-family: var(--r-caps); font-size: 10.5px; font-weight: 400; letter-spacing: 1.6px; text-transform: uppercase; }
+.vtm20 .r-zulo-group-head::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(196,71,76,.4), rgba(216,207,191,.06)); }
+.vtm20 .r-zulo-choice { align-items: flex-start; transition: border-color .15s, background .15s, opacity .15s; }
+.vtm20 .r-zulo-choice:hover:not(.is-disabled) { border-color: rgba(196,71,76,.55); }
+.vtm20 .r-zulo-body { position: relative; flex: 1; }
+.vtm20 .r-zulo-title { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.vtm20 .r-zulo-tag { flex: 0 0 auto; padding: 1px 6px; border: 1px dashed rgba(216,207,191,.24); color: var(--r-muted);
+  font-family: var(--r-caps); font-size: 9.5px; font-style: normal; letter-spacing: .6px; text-transform: uppercase; white-space: nowrap; }
+.vtm20 .r-zulo-choice.is-auto .r-zulo-tag { border: 1px solid rgba(196,71,76,.5); color: #ecc6bc; background: rgba(140,28,34,.2); }
+.vtm20 .r-zulo-mark { display: none; align-self: flex-start; margin-top: 4px; padding: 0 5px; font-family: var(--r-caps); font-size: 9px; font-style: normal;
+  letter-spacing: .8px; text-transform: uppercase; }
+.vtm20 .r-zulo-choice.is-new .r-zulo-mark { display: inline-block; color: #e5cf9b; border: 1px solid rgba(201,169,106,.5); }
+.vtm20 .r-zulo-choice.is-new { border-color: rgba(201,169,106,.6); }
+.vtm20 .r-zulo-choice.is-removed .r-zulo-mark { display: inline-block; color: #e7a1a1; border: 1px solid rgba(182,75,75,.5); }
+.vtm20 .r-zulo-choice.is-removed { border-style: dashed; }
+.vtm20 .r-zulo-choice.is-removed b { text-decoration: line-through; text-decoration-color: rgba(231,161,161,.6); }
+.vtm20 .r-zulo-choice.is-disabled { opacity: .5; cursor: not-allowed; }
+.vtm20 .r-zulo-choice.is-excluded { opacity: .3; }
+@media (prefers-reduced-motion: reduce) { .vtm20 .r-zulo-choice, .vtm20 .r-zulo-slot > span { transition: none; } }
 
 .application.vtm20.r-dialog.r-celerity-dialog .window-content { min-width: 0; }
 .vtm20 .r-cel-dialog { gap: 13px; }

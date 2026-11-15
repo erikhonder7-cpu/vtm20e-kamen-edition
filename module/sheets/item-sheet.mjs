@@ -155,7 +155,7 @@ export class VtMItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     if (item.type === "weapon") {
       const kind = VTM20.weaponKinds[s.kind] ?? VTM20.weaponKinds.melee;
       ctx.kindLabel = loc(kind.label);
-      ctx.damageText = s.strength ? `${loc("VTM20.Attr.strength")} + ${s.damage}` : String(s.damage);
+      ctx.damageText = s.strength ? `${loc("VTM20.Attr.strength")} ${s.damage < 0 ? "−" : "+"} ${Math.abs(s.damage)}` : String(s.damage);
       ctx.damageTypeLabel = loc(VTM20.damageTypes[s.damageType]?.label ?? "");
       ctx.ranged = s.kind === "firearms" || s.kind === "thrown";
       ctx.canAttack = !!item.parent && item.parent.isOwner;

@@ -5,6 +5,7 @@ import { VTM20, SYSTEM_ID } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
 import { revenantFamily } from "../data/revenants.mjs";
 import { effectDef, activePowerEffects, powerOfKey } from "../data/effects.mjs";
+import { zuloOn, ZULO_MERITS } from "../data/zulo.mjs";
 import { potenceModifiers, celerityDexterityDice, celerityBloodCost, celerityMaxBuyable, soakComponents } from "../data/physical-disciplines.mjs";
 import { untilFor } from "../apps/timers.mjs";
 import { proposeFate } from "../apps/torpor.mjs";
@@ -506,6 +507,18 @@ export class VtMActor extends Actor {
     const h = { bashing: src.bashing, lethal: src.lethal, aggravated: src.aggravated };
     // призрак (Wraith 20, гл. 11): шкала — постоянный Корпус, исход — колебание и Испытания (apps/wraith.mjs)
     if (this.type === "wraith") return (await import("../apps/wraith.mjs")).corpusDamage(this, amount, type);
+    // Стан лиха (форма зуло, data/zulo.mjs): два лишних уровня «Синяки» принимают урон первыми; уходят вместе с формой
+    const xb = this.system.fx?.extraBruised;
+    let onExtra = 0;
+    if (xb?.effect) {
+      const taken = { bashing: 0, lethal: 0, aggravated: 0, ...(xb.effect.getFlag(SYSTEM_ID, "bruisedDmg") ?? {}) };
+      onExtra = Math.min(amount, Math.max(0, xb.max - taken.bashing - taken.lethal - taken.aggravated));
+      if (onExtra) {
+        taken[type] += onExtra; amount -= onExtra;
+        await xb.effect.setFlag(SYSTEM_ID, "bruisedDmg", taken);
+        if (!amount) return this.#notice(`<i class="fa-solid fa-up-long"></i> ${t("Zulo.ExtraTaken", { n: onExtra, left: xb.max - taken.bashing - taken.lethal - taken.aggravated })}`);
+      }
+    }
     const wasFull = h.bashing + h.lethal + h.aggravated >= 7;
     let over = 0;
     for (let i = 0; i < amount; i++) {
@@ -524,7 +537,7 @@ export class VtMActor extends Actor {
     else if (over > 0) fate = this.isVampire ? t("Fate.torpor") : t("Fate.death");
     else if (full) fate = t("Fate.incapacitated");
     const dmg = game.i18n.localize(VTM20.damageTypes[type].label);
-    this.#notice(`<i class="fa-solid fa-heart-crack"></i> ${t("Notify.Damaged", { n: amount, type: dmg })}${fate ? ` <b class="r-fate">${fate}</b>` : ""}`);
+    this.#notice(`<i class="fa-solid fa-heart-crack"></i> ${t("Notify.Damaged", { n: amount, type: dmg })}${onExtra ? ` ${t("Zulo.ExtraAlso", { n: onExtra })}` : ""}${fate ? ` <b class="r-fate">${fate}</b>` : ""}`);
     // Смертный умирает сразу; вампиру — карточка ведущему: торпор или Окончательная смерть (apps/torpor.mjs)
     if (fate === t("Fate.death")) await this.toggleStatusEffect?.("dead", { active: true, overlay: true });
     else if (fate === t("Fate.finalDeath")) await proposeFate(this, "death");
@@ -532,16 +545,22 @@ export class VtMActor extends Actor {
   }
 
   async healDamage(type, n = 1) {
-    const h = this._source.system.health;
-    const left = Math.max(0, (h[type] ?? 0) - n);
+    const had = this._source.system.health[type] ?? 0;
+    const left = Math.max(0, had - n);
     await this.update({ [`system.health.${type}`]: left });
+    // остаток лечения — с лишних уровней Стана лиха (форма зуло): они лечатся последними
+    const rest = n - (had - left), xb = this.system.fx?.extraBruised;
+    const taken = xb?.effect?.getFlag(SYSTEM_ID, "bruisedDmg");
+    if (rest > 0 && taken?.[type]) await xb.effect.setFlag(SYSTEM_ID, "bruisedDmg", { ...taken, [type]: Math.max(0, taken[type] - rest) });
   }
 
   /** Лечение кровью: 1 пункт — лёгкое или тяжёлое, 5 пунктов — губительное (04, 05). */
   async bloodHeal(type = null) {
     if (!this.hasBlood) return;
     const h = this.system.health;
-    type ??= h.bashing > 0 ? "bashing" : h.lethal > 0 ? "lethal" : h.aggravated > 0 ? "aggravated" : null;
+    const xt = this.system.fx?.extraBruised?.effect?.getFlag(SYSTEM_ID, "bruisedDmg") ?? {};   // лишние «Синяки» формы зуло
+    type ??= h.bashing > 0 ? "bashing" : h.lethal > 0 ? "lethal" : h.aggravated > 0 ? "aggravated"
+      : xt.bashing > 0 ? "bashing" : xt.lethal > 0 ? "lethal" : xt.aggravated > 0 ? "aggravated" : null;
     if (!type) { ui.notifications.info(t("Notify.NothingToHeal")); return; }
     const cost = type === "aggravated" ? 5 : 1;
     // в бою: весь ход лечиться — или действовать и рискнуть: Выносливость + Выживание (сл. 8);
@@ -767,7 +786,8 @@ export class VtMActor extends Actor {
       }
       case "path": return current === 0 ? (ghoul ? 20 : X.newPath) : (extra.primary ? null : (ghoul ? current * 15 : X.secondaryPath(current)));
       case "virtue": return X.virtue(current);
-      case "morality": return X.morality(current);
+      // Закостенелый образ (хоумрул «форма зуло», data/zulo.mjs): Путь Метаморфоз — на 2 опыта дороже
+      case "morality": return X.morality(current) + (this.system.morality?.path === "metamorphosis" && zuloOn() && this.hasTrait(ZULO_MERITS.ossified) ? 2 : 0);
       case "willpower": return this.type === "changeling" ? current * 2 : X.willpower(current);   // C20: Воля × 2
       // подменыш (C20, гл. 3): новое Искусство 7, далее × 4; новое Царство 5, далее × 3; Гламур × 3
       case "art": return current >= 5 ? null : current === 0 ? 7 : current * 4;

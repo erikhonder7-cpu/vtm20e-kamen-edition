@@ -8,6 +8,8 @@ import { POWER_EFFECTS } from "../data/effects.mjs";
 import { RollDialog } from "../dice/dialog.mjs";
 import { SYSTEM_ID } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
+import { zuloOn, ZULO_POWER } from "../data/zulo.mjs";
+import { activateZulo } from "./zulo.mjs";
 
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
 
@@ -214,6 +216,8 @@ export async function togglePowerEffect(actor, power, { gated = false } = {}) {
     }
     return activateRevisitedShape(actor, config);
   }
+  // Хоумрул «форма зуло»: Чудовищный облик — из выбранных черт персонажа (apps/zulo.mjs)
+  if (power === ZULO_POWER && zuloOn()) return activateZulo(actor);
   const base = POWER_EFFECTS[power];
   if (!base) return null;
   if (base.requiresSoil) {

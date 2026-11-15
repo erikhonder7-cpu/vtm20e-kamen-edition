@@ -237,6 +237,9 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       ...(a.type === "hunter" && (Codex.hunter?.creeds ?? []).find(c => c.key === a.system.hunter?.creed)?.near
         ? [{ label: t("Hunter.NearNoise"), value: (Codex.hunter.creeds.find(c => c.key === a.system.hunter.creed).near), kind: "hermit" }] : []),
       ...this.#bearing(social),
+      // Шкура чуди (форма зуло, data/zulo.mjs): Скрытность −1 в движении, −2 неподвижно — отмечается одна
+      ...(a.system.fx?.stealthDiff && [v.trait1, v.trait2].includes("abilities.stealth")
+        ? [{ label: t("Zulo.ChudMoving"), value: -1, kind: "chud" }, { label: t("Zulo.ChudStill"), value: -2, kind: "chud" }] : []),
       // поправки, которые предлагает сам бросок (Арканос на Консорта и т. п.): галочкой, по умолчанию выключены
       ...(this.cfg.situ ?? [])
     ].map((d, i) => ({ ...d, i, on: v.fxOn.includes(`${d.kind}:${d.label}`), hint: t(`Fx.Situ.${d.kind}`) }))

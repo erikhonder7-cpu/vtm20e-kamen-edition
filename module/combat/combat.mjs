@@ -194,7 +194,8 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const v = m.dmg != null && ["punch", "claws"].includes(id) && venom(m.type, false);
     // Разъедающее касание (Длань Разрушения 3): безоружные атаки — губительный урон
     const acid = m.dmg != null && m.ability === "brawl" && pathFlag(a, "brawlAgg");
-    return { name: t(`Combat.M.${id}`), attr: m.attr, ability: m.ability, dice: m.dice, diff: m.diff, ranged: false,
+    // Глотка Велеса (форма зуло, data/zulo.mjs): укус −2 к сложности
+    return { name: t(`Combat.M.${id}`), attr: m.attr, ability: m.ability, dice: m.dice, diff: m.diff + (id === "bite" ? fx.biteDiff ?? 0 : 0), ranged: false,
       dmg: m.dmg == null ? null : str + m.dmg + extra, auto: m.dmg == null ? 0 : auto, strengthDamage: m.dmg != null, type: v || acid ? "aggravated" : m.type, venom: v,
       // Когти Метаморфоз и Облика Зверя поглощаются только Стойкостью: без Выносливости и брони.
       fangs: !!m.fangs && !fx.clawsFortitudeOnly, supernatural: !!m.supernatural,

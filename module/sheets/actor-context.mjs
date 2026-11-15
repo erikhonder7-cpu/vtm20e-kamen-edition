@@ -10,6 +10,7 @@ import { BOON_LEVELS, boonLevelLabel } from "../apps/boons.mjs";
 import { clockBarData, longDate } from "../apps/calendar.mjs";
 import { moneyView } from "../data/money.mjs";
 import { POWER_EFFECTS, MODE_LABEL, fxKey } from "../data/effects.mjs";
+import { zuloOn, zuloTraits, ZULO_POWER, ZULO_TRAITS } from "../data/zulo.mjs";
 import { effectTimer, readingRituals } from "../apps/timers.mjs";
 import { dhampirView } from "../apps/dhampir.mjs";
 import { torporView, deathOf } from "../apps/torpor.mjs";
@@ -340,8 +341,11 @@ export function prepareDisciplines(sheet, ctx) {
   const fxOn = new Set(a.powerEffects.map(x => x.power));
   const fxOf = (k, p) => {
     const key = fxKey(k, p), def = POWER_EFFECTS[key];
+    // форма зуло (хоумрул, data/zulo.mjs): рядом — кнопка выбора черт, в подсказке — нынешний набор
+    const zulo = key === ZULO_POWER && zuloOn() ? (zuloTraits(a) ?? []) : null;
     return def && !(def.viaRoll && !fxOn.has(key)) ? { key, on: fxOn.has(key), icon: def.icon ?? "fa-wand-sparkles",
-      tip: `${t("Fx.Toggle")} · ${t(MODE_LABEL[def.mode] ?? "Fx.Toggleable")}` } : null;
+      tip: `${t("Fx.Toggle")} · ${t(MODE_LABEL[def.mode] ?? "Fx.Toggleable")}`,
+      ...(zulo ? { zulo: true, zuloTip: zulo.length ? `${t("Zulo.Form")}: ${zulo.map(k => t(`Zulo.T.${k}.name`)).join(", ")}` : t("Zulo.NoForm") } : {}) } : null;
   };
   ctx.activeFx = a.powerEffects.map(x => ({ id: x.effect.id, name: x.effect.name, img: x.effect.img,
     mode: t(MODE_LABEL[x.def.mode] ?? "Fx.Toggleable"), hit: !!x.def.diff?.hit }));
@@ -637,6 +641,16 @@ export function prepareEffects(sheet, ctx) {
         lines.push(t("FxTab.BeastLimits"));
       }
       if (def.mistForm) lines.push(t("FxTab.MistForm"));
+      // форма зуло (хоумрул, data/zulo.mjs): набор черт; описания тех, что не сводятся к числам ниже
+      if (def.zulo) {
+        lines.push(`${t("Zulo.Form")}: ${def.zulo.map(k => t(`Zulo.T.${k}.name`)).join(", ")}`);
+        for (const x of ZULO_TRAITS.filter(x => def.zulo.includes(x.key) && !x.fx.attr && !x.fx.weapon)) lines.push(`${t(`Zulo.T.${x.key}.name`)}: ${t(`Zulo.T.${x.key}.text`)}`);
+        if (def.extraBruised) {
+          const b = flags.bruisedDmg ?? {}, n = (b.bashing ?? 0) + (b.lethal ?? 0) + (b.aggravated ?? 0);
+          lines.push(t("Zulo.ExtraState", { n, max: def.extraBruised }));
+        }
+        if (def.set) lines.push(t("Zulo.NoSpeech"));
+      }
       for (const [k, v] of Object.entries(def.attr ?? {})) lines.push(`${attrL(k)} ${signed(v)}`);
       for (const [k, v] of Object.entries(def.set ?? {})) lines.push(`${attrL(k)} = ${v}`);
       for (const [k, v] of Object.entries(def.diff ?? {})) {
@@ -655,6 +669,8 @@ export function prepareEffects(sheet, ctx) {
       if (def.staminaVsFangs) lines.push(t("FxTab.StaminaVsFangs"));
       if (def.venom) lines.push(t("FxTab.Venom", { n: effect.flags?.[SYSTEM_ID]?.charges ?? 1 }));
       if (def.weapon) lines.push(t("FxTab.Weapon", { name: def.weapon.name }));
+      for (const w of def.weapons ?? []) lines.push(t("FxTab.Weapon", { name: w.name }));
+      if (def.biteDiff) lines.push(t("Zulo.BiteDiff", { n: signed(def.biteDiff) }));
     }
     return { id: effect.id, name: effect.name, img: effect.img, kind: def.mode,
       mode: t(MODE_LABEL[def.mode] ?? "Fx.Toggleable"), lines, timer: effectTimer(effect), toDawn: def.mode === "night" };
@@ -708,7 +724,7 @@ export function prepareGear(sheet, ctx) {
       id: i.id, name: i.name, img: i.img, equipped: w.equipped,
       kindLabel: game.i18n.localize(kind.label), icon: weaponIcon(w.kind, i.name),
       pool: s.attributes[kind.attribute].total + s.abilities[kind.ability].value,
-      damage: w.strength ? `${t("Attr.strength")} + ${w.damage}` : String(w.damage),
+      damage: w.strength ? `${t("Attr.strength")} ${w.damage < 0 ? "−" : "+"} ${Math.abs(w.damage)}` : String(w.damage),
       damageDice: str + w.damage + (w.strength ? a.physicalDisciplineBonus("strength") : 0),
       damageType: game.i18n.localize(VTM20.damageTypes[w.damageType]?.short ?? ""),
       damageTypeKey: w.damageType, difficulty: w.difficulty,

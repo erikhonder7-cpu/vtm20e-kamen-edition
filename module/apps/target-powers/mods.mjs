@@ -9,9 +9,12 @@ export function frenzyDiff(actor, kind) {
   // Алые узоры (Огам 2): легче устоять перед Ротшреком — флаг rotDiff
   if (kind === "rotschreck") return [...(actor?.effects ?? [])].filter(e => !e.disabled && e.flags?.[SYSTEM_ID]?.rotDiff)
     .map(e => ({ label: e.name, value: Number(e.flags[SYSTEM_ID].rotDiff) }));
+  // Зверь снаружи (хоумрул «форма зуло», data/zulo.mjs): в Чудовищном облике сдержать Безумие или оседлать волну — +1
+  const beast = actor?.system?.fx?.zulo && actor.hasTrait?.("Зверь снаружи") ? [{ label: t("ZuloBeastWithout"), value: 1 }] : [];
+  if (kind === "rideWave") return beast;
   if (kind !== "frenzy") return [];
-  const out = [...(actor?.effects ?? [])].filter(e => !e.disabled && e.flags?.[SYSTEM_ID]?.frenzyDiff)
-    .map(e => ({ label: e.name, value: Number(e.flags[SYSTEM_ID].frenzyDiff) }));
+  const out = [...beast, ...[...(actor?.effects ?? [])].filter(e => !e.disabled && e.flags?.[SYSTEM_ID]?.frenzyDiff)
+    .map(e => ({ label: e.name, value: Number(e.flags[SYSTEM_ID].frenzyDiff) }))];
   // Сердце тьмы (Серпентис 5): без сердца — −2 к сложности сопротивления ярости
   if (actor?.system?.fx?.heartless) out.push({ label: t("Heartless"), value: -2 });
   return out;

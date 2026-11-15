@@ -4160,6 +4160,12 @@
         "Name": "Hunter: level five Edges",
         "Hint": "Players Guide, ch. 2: a hunter with a Virtue of 10 can accept one level five Edge. The price — Willpower −5, Nature and Demeanor — Autocrat, Fanatic or Perfectionist, the other Virtues freeze, Patron 5, a frightening presence and once per story — an imposed creed decision."
       },
+      "HorridForm": {
+        "Name": "Horrid Form (Vicissitude 4)",
+        "Hint": "“By the book” — V20: +3 Strength, Dexterity and Stamina. “Zulo shape” — Lucky Dicepool house rule (S. Timoshkin, 2020): every Fiend's form is built from three chosen traits (2 blood, one turn, Social Attributes 0, Intimidation with Strength); changing a trait costs 1 XP; five Tzimisce clan Merits and Flaws.",
+        "core": "By the book (+3 Physical)",
+        "zulo": "Zulo shape (house rule, chosen traits)"
+      },
       "TormentRule": {
         "Name": "High-Torment evocations",
         "Hint": "How the high-Torment effect of Fallen evocations is decided. “Torment die” — a separate die against permanent Torment. “Majority of successes” — Demon Players Guide errata: ones cancel the highest successes, the majority among the rest decides, a tie — the normal effect.",
@@ -5664,6 +5670,7 @@
       "Blood": "Blood",
       "BloodTurns": "{n} blood — transformation in {turns} turns",
       "Situ": {
+        "chud": "Chud Hide: mark one — moving or standing still.",
         "consort": "Arcanos on a Consort: \"a lower difficulty is a good default\" (ch. 5); −1 is a system rule",
         "social": "with mortals, if the eyes aren't hidden",
         "climb": "climbing",
@@ -7795,7 +7802,157 @@
         "food": "Nausea: cannot drink blood (Stamina diff 6 to override for a while), 1 bashing; about a day."
       }
     },
+    "Zulo": {
+      "Kicker": "Vicissitude · house rule",
+      "Excl": "Incompatible: {name}",
+      "AutoTip": "Applied by the system",
+      "StoryTip": "Description — the Storyteller applies it",
+      "Unpick": "Remove trait",
+      "Empty": "empty",
+      "MarkNew": "new",
+      "MarkRemoved": "removed",
+      "G": {
+        "body": "Flesh",
+        "arms": "Weapons",
+        "senses": "Senses and speech",
+        "heart": "Heart",
+        "move": "Movement and cover"
+      },
+      "Form": "Zulo shape",
+      "NoForm": "Zulo shape: no traits chosen yet — click to choose",
+      "Chosen": "Traits chosen",
+      "Source": "Lucky Dicepool house rule “Horrid Form / Zulo Shape” (S. Timoshkin, 2020). Descriptive traits are listed on the Effects tab; the Storyteller applies them.",
+      "Title": {
+        "learn": "Zulo shape: form traits",
+        "change": "Zulo shape: change traits",
+        "adapt": "Rapid Adaptation"
+      },
+      "Hint": {
+        "learn": "Choose {n} Horrid Form traits — this is what your monster looks like. You can change them later for experience.",
+        "change": "A scene of study or meditation: each replaced trait costs 1 XP. Free replacements: {free}.",
+        "adapt": "For this transformation only: replace up to {max} traits."
+      },
+      "Save": {
+        "learn": "Fix the form",
+        "change": "Change traits",
+        "adapt": "Take the form"
+      },
+      "SwapsXp": "Replaced: {n} · XP: {xp}",
+      "SwapsAdapt": "Replaced: {n} of {max}",
+      "XpReason": "Zulo shape: traits replaced ({n}, free — {free})",
+      "Changed": "{name} reshapes the zulo form: {list}.",
+      "Ossified": "Ossified Form: the zulo traits cannot be changed.",
+      "ExperimentsRoll": "Inner Experiments: free replacements",
+      "AdaptTitle": "Rapid Adaptation",
+      "AdaptAsk": "Spend 1 Willpower and roll Wits + Survival (diff. 7)? Each success replaces one trait for this transformation.",
+      "AdaptRoll": "Rapid Adaptation",
+      "ChudMoving": "Chud Hide: moving",
+      "ChudStill": "Chud Hide: still",
+      "BiteDiff": "bite: {n} difficulty",
+      "NoSpeech": "can speak only with animals (Animalism) and Fiends in Horrid Form",
+      "ExtraState": "Likho Stature: extra Bruised levels — {n} of {max} filled (damage on them goes away with the form)",
+      "ExtraTaken": "Likho Stature: {n} damage taken on the extra Bruised levels ({left} free).",
+      "ExtraAlso": "({n} more on Likho Stature's extra Bruised levels)",
+      "T": {
+        "strigoi": {
+          "name": "Strigoi Claws",
+          "tag": "lethal · Str +1",
+          "text": "Long claws: lethal damage Strength +1, Potence adds."
+        },
+        "bogatyr": {
+          "name": "Bogatyr Flesh",
+          "tag": "Strength +3",
+          "text": "Muscles swell under taut skin: Strength +3."
+        },
+        "vurdalak": {
+          "name": "Vurdalak Chitin",
+          "tag": "Stamina +3",
+          "text": "A shell of slime-slick chitin: Stamina +3."
+        },
+        "karga": {
+          "name": "Hag Limbs",
+          "tag": "Dexterity +3",
+          "text": "Arms and legs stretch unnaturally: Dexterity +3."
+        },
+        "boyar": {
+          "name": "Boyar Face",
+          "tag": "speech",
+          "text": "Face, lips and throat stay human — the Fiend can speak. For their own (ghouls, revenants, packmates) Social Attributes stay; the form still shocks — at the Storyteller's call, Social rolls other than Intimidation are +2 difficulty."
+        },
+        "mizgir": {
+          "name": "Mizgir Eyes",
+          "tag": "no flanks",
+          "text": "The body is covered in eyes: flank and rear attacks give no bonus dice, and the Fiend cannot be surprised (except by Obfuscate)."
+        },
+        "likho": {
+          "name": "Likho Stature",
+          "tag": "+2 Bruised",
+          "text": "About 2.3 m tall: two extra Bruised health levels."
+        },
+        "heart": {
+          "name": "Heart of the Unhuman",
+          "tag": "hidden heart",
+          "text": "The heart sits wherever the Fiend chose: without knowing where, staking it takes many attempts. Incompatible with Koschei's Death."
+        },
+        "koshchei": {
+          "name": "Koschei's Death",
+          "tag": "stake — 5 lv.",
+          "text": "Ribs fuse into a cage around the heart: staking needs 5 levels of damage instead of 3. Incompatible with Heart of the Unhuman."
+        },
+        "chort": {
+          "name": "Chort's Trick",
+          "tag": "spikes · 2 lethal",
+          "text": "A spiny back: anyone who hits the Fiend unarmed or tries to grapple them takes 2 lethal levels (soaked normally)."
+        },
+        "kikimora": {
+          "name": "Kikimora Water",
+          "tag": "slime",
+          "text": "The skin oozes slime: grappling the Fiend +2 difficulty, squeezing through −2 for them; 1 die to soak fire."
+        },
+        "rusalka": {
+          "name": "Rusalka Hands",
+          "tag": "swimming",
+          "text": "Webbed hands and feet: swims as fast as runs."
+        },
+        "viy": {
+          "name": "Viy Senses",
+          "tag": "360° view",
+          "text": "Vibration, echolocation or another sense: “sees” without eyes, 360° view."
+        },
+        "navi": {
+          "name": "Nav Arms",
+          "tag": "parry · attack",
+          "text": "Extra limbs: parry and block melee and unarmed blows — or one more attack per turn with a full pool."
+        },
+        "tail": {
+          "name": "Devil's Tail",
+          "tag": "tail",
+          "text": "A prehensile tail half the body long with half Strength (rounded down): lift things, hang from it."
+        },
+        "veles": {
+          "name": "Veles Maw",
+          "tag": "bite −2 · +1",
+          "text": "A maw that chews anything: bite −2 difficulty and +1 damage."
+        },
+        "vodyanoy": {
+          "name": "Vodyanoy Horns",
+          "tag": "counterattack",
+          "text": "Bull or ram horns: when attacked in melee, a free counterattack, Dexterity + Brawl, lethal Strength −1."
+        },
+        "chud": {
+          "name": "Chud Hide",
+          "tag": "Stealth −1/−2",
+          "text": "The skin blends with the surroundings: Stealth −1 difficulty while moving, −2 standing still."
+        },
+        "netopyr": {
+          "name": "Bat Membranes",
+          "tag": "gliding",
+          "text": "Leathery membranes between arms and body: 30 m of gliding per 10 m of fall, no falling damage on landing."
+        }
+      }
+    },
     "TP": {
+      "ZuloBeastWithout": "Beast Without (in Horrid Form)",
       "Diff": {
         "willpower": "current Willpower",
         "morality": "Humanity/Path",

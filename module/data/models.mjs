@@ -617,7 +617,7 @@ export class WeaponData extends BaseItemData {
     return {
       ...super.defineSchema(),
       kind: str("melee"),                       // brawl | melee | firearms | thrown
-      damage: int(1, 0, 20),                    // урон: число костей или бонус к Силе
+      damage: int(1, -3, 20),                   // урон: число костей или бонус к Силе (Рога водяного — Сила −1)
       strength: new BooleanField({ initial: true }), // урон = Сила + damage
       damageType: str("lethal"),
       difficulty: int(6, 2, 10),

@@ -2181,6 +2181,75 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  // Хоумрул «форма зуло» (настройка horridForm): черты на выбор вместо +3, лишние «Синяки», смена за опыт, Достоинства и Недостатки
+  await check("Форма зуло: черты Чудовищного облика", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms));
+      const sys = p => import(`/systems/${sid}/${p}`);
+      const PE = await sys("module/apps/power-effects.mjs"), Z = await sys("module/apps/zulo.mjs"), RD = await sys("module/dice/dialog.mjs");
+      const { Codex } = await sys("module/data/codex.mjs");
+      const out = {}, before = game.settings.get(sid, "horridForm");
+      const zm = Codex.merits.find(m => m.name === "Проявление Зверя");
+      out.hidden = Codex.visible(zm);
+      await game.settings.set(sid, "horridForm", "zulo");
+      out.shown = Codex.visible(zm);
+      const a = await Actor.create({ name: "E2E — цимисх зуло", type: "vampire", flags: { world: { e2e: true } }, system: { generation: 9, clan: "tzimisce",
+        blood: { value: 15 }, experience: { total: 10 }, attributes: { strength: { value: 2 }, charisma: { value: 3 } }, abilities: { intimidation: { value: 2 } } } });
+      await a.createEmbeddedDocuments("Item", [{ name: "E2E — vicissitude", type: "discipline", system: { key: "vicissitude", value: 4 } },
+        { name: "Проявление Зверя", type: "merit", system: { cost: 2 } }, { name: "Зверь снаружи", type: "flaw", system: { cost: 2 } }]);
+      const dlg = () => [...foundry.applications.instances.values()].find(x => x.element?.querySelector?.(".r-zulo"));
+      const choose = async keys => {
+        for (let i = 0; i < 30 && !dlg(); i++) await wait(100);
+        const root = dlg().element, box = k => root.querySelector(`input[name="t"][value="${k}"]`);
+        for (const b of root.querySelectorAll('input[name="t"]')) if (b.checked && !keys.includes(b.value)) { b.checked = false; b.dispatchEvent(new Event("change")); }
+        const res = { slots: root.querySelector("[data-count]")?.nextSibling?.textContent?.trim() };
+        for (const k of keys) { box(k).checked = true; box(k).dispatchEvent(new Event("change")); }
+        res.koshchei = box("koshchei").disabled;
+        res.swaps = root.querySelector("[data-swaps]")?.textContent ?? "";
+        res.save = !root.querySelector('button[data-action="ok"]').disabled;
+        root.querySelector('button[data-action="ok"]').click(); await wait(800);
+        return res;
+      };
+      // первый выбор: 4 черты (Проявление Зверя 2), Сердце нелюди гасит Смерть кощея
+      const on = PE.togglePowerEffect(a, "vicissitude:4");
+      out.learn = await choose(["bogatyr", "likho", "heart", "vodyanoy"]);
+      await on; await wait(500);
+      const s = () => a.system;
+      const horns = a.items.find(i => i.name === "Рога водяного");
+      out.form = [s().attributes.strength.total, s().attributes.dexterity.total, s().attributes.charisma.total, horns?.system.damage, !!s().fx.zulo];
+      const d = new RD.RollDialog(a, { trait1: "attributes.charisma", trait2: "abilities.intimidation" });
+      out.intim = d.compute().pool;
+      out.frenzy = new RD.RollDialog(a, { trait1: "virtues.selfControl", kind: "frenzy" }).compute().diffAuto.map(x => x.value);
+      // Стан лиха: 3 губительных — 2 на лишние «Синяки», 1 на шкалу; лечение 2 — сперва шкала, затем лишние
+      await a.applyDamage(3, "lethal");
+      const fxe = () => a.powerEffects.find(x => x.power === "vicissitude:4").effect;
+      out.extra = [s().health.lethal, fxe().getFlag(sid, "bruisedDmg")?.lethal];
+      await a.healDamage("lethal", 2);
+      out.heal = [s().health.lethal, fxe().getFlag(sid, "bruisedDmg")?.lethal];
+      await PE.togglePowerEffect(a, "vicissitude:4"); await wait(300);
+      out.off = [s().attributes.strength.total, a.items.some(i => i.name === "Рога водяного"), !!s().fx.zulo];
+      // смена черт: Сердце нелюди → Глотка Велеса — 1 опыт
+      const ch = Z.configureZulo(a);
+      out.change = await choose(["bogatyr", "likho", "veles", "vodyanoy"]);
+      await ch;
+      out.after = [a.getFlag(sid, "zuloForm")?.traits?.join(","), s().experience.spent];
+      // Закостенелый образ: менять нельзя, Путь Метаморфоз на 2 опыта дороже
+      const base = a.xpCost("morality", 4);
+      await a.update({ "system.morality.path": "metamorphosis" });
+      await a.createEmbeddedDocuments("Item", [{ name: "Закостенелый образ", type: "flaw", system: { cost: 2 } }]);
+      out.ossified = [a.xpCost("morality", 4) - base, await Z.configureZulo(a)];
+      await game.settings.set(sid, "horridForm", before);
+      out.core = (await a.startPower("vicissitude:4")) && s().attributes.dexterity.total;
+      await Actor.deleteDocuments([a.id]);
+      return out;
+    });
+    const want = { hidden: false, shown: true, learn: { slots: "/ 4", koshchei: true, swaps: "", save: true }, form: [5, 1, 0, -1, true], intim: 7, frenzy: [1],
+      extra: [1, 2], heal: [0, 1], off: [2, false, false], change: { slots: "/ 4", koshchei: true, swaps: "Замен: 1 · опыт: 1", save: true },
+      after: ["bogatyr,likho,veles,vodyanoy", 1], ossified: [2, null], core: 4 };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   // Серпентис: Облик кобры — 3 хода превращения, только укус без захвата, слух −2 куба, Дисциплины кроме требующих рук
   await check("Серпентис: Облик кобры", async () => {
     const r = await page.evaluate(async () => {
