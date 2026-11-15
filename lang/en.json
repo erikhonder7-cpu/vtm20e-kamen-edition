@@ -10273,7 +10273,13 @@
           "custom": "the price is in the wording"
         }
       },
-      "Undone": "<b>{name}</b>: Banality 10 — Undone, the changeling is fae no longer."
+      "Undone": "<b>{name}</b>: Banality 10 — Undone, the changeling is fae no longer.",
+      "Society": "Secret society",
+      "Societies": "Secret societies",
+      "SocietyBoon": "Boon",
+      "SocietyBan": "Ban",
+      "SocietyReq": "Who joins",
+      "ShadowCourt": "Shadow Court"
     },
     "Artifact": {
       "Title": "Thaumaturge's Workshop",

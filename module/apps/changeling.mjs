@@ -12,6 +12,7 @@ import { Codex } from "../data/codex.mjs";
 import { SYSTEM_ID, SYSTEM_PATH, VTM20 } from "../config.mjs";
 import { registerEmblem, registerCardBlock } from "../ui/themes.mjs";
 
+import { SOCIETIES } from "../data/changeling-societies.mjs";
 export const C = () => Codex.changeling ?? { arts: [], realms: [], kiths: [], seemings: [], houses: [], legacies: [], backgrounds: [] };
 export const t = (k, d) => d ? game.i18n.format(`VTM20.Changeling.${k}`, d) : game.i18n.localize(`VTM20.Changeling.${k}`);
 const esc = s => foundry.utils.escapeHTML(String(s ?? ""));
@@ -52,6 +53,7 @@ export function changelingInfo(actor, dots) {
   const will = s.willpower.permanent;
   return {
     kiths: opts(D.kiths, c.kith), seemings: opts(D.seemings, c.seeming), houses: opts(D.houses, c.house),
+    societies: opts(SOCIETIES, c.society), society: SOCIETIES.find(x => x.key === c.society) ?? null,
     otherKiths: OTHER_FAE.map(g => ({ label: t(`OtherFae.${g}`), kiths: opts((D.otherKiths ?? []).filter(k => k.group === g), c.kith) })).filter(g => g.kiths.length),
     legaciesSeelie: opts(D.legacies.filter(l => l.court === "seelie"), c.legacies.seelie),
     legaciesUnseelie: opts(D.legacies.filter(l => l.court === "unseelie"), c.legacies.unseelie),

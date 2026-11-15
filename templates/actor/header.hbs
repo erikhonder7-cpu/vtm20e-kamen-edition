@@ -194,6 +194,9 @@
           <select name="system.changeling.court">{{#each changelingInfo.courts}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
         <label class="r-df" {{#if changelingInfo.house}}data-tooltip="{{changelingInfo.house.boon}}"{{/if}}><span>{{localize "VTM20.Changeling.House"}}</span>
           <select name="system.changeling.house"><option value="">—</option>{{#each changelingInfo.houses}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
+        {{!-- тайное общество (C20 Players Guide): подсказка — Дар и Запрет --}}
+        <label class="r-df" {{#if changelingInfo.society}}data-tooltip="{{localize 'VTM20.Changeling.SocietyBoon'}}: {{changelingInfo.society.boon}}<br>{{localize 'VTM20.Changeling.SocietyBan'}}: {{changelingInfo.society.ban}}"{{/if}}><span>{{localize "VTM20.Changeling.Society"}}</span>
+          <select name="system.changeling.society"><option value="">—</option>{{#each changelingInfo.societies}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
         <label class="r-df" {{#if changelingInfo.legacy}}data-tooltip="{{changelingInfo.legacy.ban}}"{{/if}}><span>{{localize "VTM20.Changeling.SeelieShort"}}{{#if editable}}<a class="r-df-lib" data-action="library" data-kind="legacy" data-tooltip="{{localize 'VTM20.Library.Open'}}"><i class="fa-solid fa-book-open"></i></a>{{/if}}</span>
           <select name="system.changeling.legacies.seelie"><option value="">—</option>{{#each changelingInfo.legaciesSeelie}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
         <label class="r-df"><span>{{localize "VTM20.Changeling.UnseelieShort"}}{{#if editable}}<a class="r-df-lib" data-action="library" data-kind="legacy" data-tooltip="{{localize 'VTM20.Library.Open'}}"><i class="fa-solid fa-book-open"></i></a>{{/if}}</span>

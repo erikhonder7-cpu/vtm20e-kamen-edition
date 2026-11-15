@@ -924,6 +924,7 @@ export class ChangelingData extends BaseActorData {
       willpower: new SchemaField({ permanent: int(4, 0, 10), temporary: int(4, 0, 10) }),
       changeling: new SchemaField({
         kith: str(""), seeming: str(""), house: str(""), court: str("seelie"), title: str(""),
+        society: str(""),                // тайное общество (C20 Players Guide)
         legacies: new SchemaField({ seelie: str(""), unseelie: str("") }),
         threshold: str(""), antithesis: str(""), mien: str(""),
         arts: new SchemaField(Object.fromEntries(VTM20.changelingArts.map(k => [k, int(0, 0, 5)]))),

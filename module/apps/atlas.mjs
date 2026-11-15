@@ -18,6 +18,7 @@ import { W as WR, arcSym, legionSym } from "./wraith.mjs";
 import { C as CL } from "./changeling.mjs";
 import * as CLG from "./changeling.mjs";
 import { REVENANT_FAMILIES } from "../data/revenants.mjs";
+import { SOCIETIES, SHADOW_COURT } from "../data/changeling-societies.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const loc = k => game.i18n.localize(`VTM20.${k}`);
@@ -179,7 +180,16 @@ function changelingGroups() {
       card: () => ({ kicker: loc(r.modifier ? "Changeling.Modifiers" : "Changeling.Realms"), text: r.html,
         sections: [{ title: realm(r.key), n: r.levels.length, rows: r.levels.map(l => ({ lvl: ROMAN[l.level], name: l.name, em: l.en ?? "", html: l.html ?? p(l.text) })) }] }) })) },
     { key: "backgrounds", label: loc("Wraith.Backgrounds"), items: (D.backgrounds ?? []).map((x, i) => ({ key: `bg:${i}`, name: x.name, sub: x.en, icon: "fa-book",
-      card: () => ({ kicker: loc("Atlas.Background"), text: x.html }) })) }
+      card: () => ({ kicker: loc("Atlas.Background"), text: x.html }) })) },
+    // C20 Players Guide: тайные общества и Теневой Двор
+    { key: "societies", label: loc("Changeling.Societies"), items: SOCIETIES.map(x => ({ key: `society:${x.key}`, name: x.name, sub: x.en, icon: "fa-user-secret",
+      card: () => ({ kicker: loc("Changeling.Society"), text: p(x.text),
+        facts: [fact(loc("Changeling.SocietyBoon"), x.boon), fact(loc("Changeling.SocietyBan"), x.ban), fact(loc("Changeling.SocietyReq"), x.req)].filter(Boolean) }) })) },
+    { key: "shadow", label: loc("Changeling.ShadowCourt"), items: SHADOW_COURT.map(x => ({ key: `shadow:${x.key}`, name: x.name, sub: x.en,
+      icon: x.kind === "background" ? "fa-book" : x.kind === "flaw" ? "fa-circle-minus" : "fa-circle-plus",
+      card: () => ({ kicker: loc(x.kind === "background" ? "Atlas.Background" : x.kind === "flaw" ? "Atlas.Flaw" : "Atlas.Merit"), text: p(x.text),
+        facts: [fact(loc("Atlas.Cost"), x.cost)].filter(Boolean),
+        sections: x.levels ? [{ title: x.name, n: x.levels.length, rows: x.levels.map((l, i) => ({ lvl: ROMAN[i + 1], name: l.split(":")[0], html: p(l.split(":").slice(1).join(":").trim()) })) }] : [] }) })) }
   ].filter(g => g.items.length);
 }
 
