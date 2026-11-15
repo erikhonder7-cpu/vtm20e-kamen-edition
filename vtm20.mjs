@@ -48,6 +48,7 @@ import { registerIncome, checkIncome } from "./module/apps/income.mjs";
 import { registerTorment } from "./module/apps/torment.mjs";
 import { registerZulo } from "./module/apps/zulo.mjs";
 import { registerA11y } from "./module/ui/a11y.mjs";
+import { registerMoveRuler } from "./module/combat/ruler.mjs";
 import { registerSettingsGroups } from "./module/ui/settings-groups.mjs";
 import { registerPossession } from "./module/apps/possession.mjs";
 import { registerCult } from "./module/apps/cult.mjs";
@@ -194,6 +195,7 @@ Hooks.once("init", () => {
   registerCelerity();
   registerTurn();
   registerGrapple();
+  registerMoveRuler();   // линейка жетона по зонам шаг / трусца / бег (combat/ruler.mjs)
   registerPowerEffectHooks();
   registerTargetPowers();
   registerBloodlines();
@@ -494,7 +496,7 @@ Hooks.on("renderChatMessageHTML", (message, html) => {
   }
   // Броски, карточки атаки и итога, урон силы без броска, командная работа — у всех есть кнопки
   const f = message.flags?.[SYSTEM_ID] ?? {};
-  if (!(f.roll || f.combat || f.combatResult || f.fixedDamage || f.team || f.checkPrompt)) return;
+  if (!(f.roll || f.combat || f.combatResult || f.fixedDamage || f.team || f.checkPrompt || f.undoDamage)) return;
   html.addEventListener("click", onChatCardClick);
 });
 

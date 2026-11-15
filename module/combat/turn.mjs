@@ -28,7 +28,7 @@ const DECLARE = {
 
 /** Подписи заявки «сила» по линейке: Дисциплина, Дар, Знание, Грань. */
 const lineOf = actor => ["werewolf", "demon", "hunter"].includes(actor?.type) ? actor.type : "";
-const kindLabel = (k, actor, sub = false) => {
+export const kindLabel = (k, actor, sub = false) => {
   const line = k === "power" ? lineOf(actor) : "";
   return t(`${sub ? "KindSub" : "Kind"}.${k}${line ? `-${line}` : ""}`);
 };

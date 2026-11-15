@@ -4,6 +4,8 @@
 // ползком; «Без сознания» и торпор, кол, Слияние с землёй — не двигается. Облик волка и Модифицированный облик — бег вдвое
 // (data/effects.mjs → runMultiplier); полёт (Облик летучей мыши) — км/ч в метры за ход (ход ≈ 3 с).
 
+import { SYSTEM_ID } from "../config.mjs";
+
 /** { walk, jog, run, fly, limit } в метрах за ход; null — так двигаться нельзя. limit — ключ причины ограничения. */
 export function movement(actor) {
   const s = actor?.system;
@@ -23,4 +25,26 @@ export function movement(actor) {
     case "crippled": Object.assign(out, { walk: 1, jog: null, run: null, fly: null, limit: "crippled" }); break;
   }
   return out;
+}
+
+/** «Тяжело ранен» и тяжелее (V20, таблица здоровья): двигался и атакует в тот же ход — ещё −1 куб. */
+export const moveHurts = actor => ["wounded", "mauled", "crippled"].includes(actor?.system?.health?.status);
+
+const turnKey = () => { const c = game.combat; return c?.started ? `${c.id}:${c.round}` : null; };
+
+/** Сдвигался ли жетон персонажа в текущем ходу боя (флаг movedTurn — ключ боя и раунда). */
+export function movedThisTurn(actor) {
+  const k = turnKey();
+  return !!k && actor?.getFlag?.(SYSTEM_ID, "movedTurn") === k;
+}
+
+/** Запомнить движение бойца в этом ходу: жетон из текущего боя сдвинулся — флаг на персонаже (пишет тот, кто двигал). */
+export function registerMoveTracking() {
+  Hooks.on("updateToken", (doc, changes, _opts, userId) => {
+    if (userId !== game.user.id || !("x" in changes || "y" in changes)) return;
+    const k = turnKey(), a = doc.actor;
+    if (!k || !a?.isOwner || a.getFlag(SYSTEM_ID, "movedTurn") === k) return;
+    if (!game.combat.combatants.some(c => c.tokenId === doc.id)) return;
+    a.setFlag(SYSTEM_ID, "movedTurn", k);
+  });
 }

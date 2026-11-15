@@ -3391,6 +3391,9 @@
       "BoostMax": "Blood boost limit: {n}.",
       "Boosted": "{attr} boosted with blood to {v} (until the end of the scene).",
       "Damaged": "Damage taken: {n} ({type}).",
+      "UndoDamage": "Undo damage",
+      "UndoDamageHint": "Restore the health track to how it was before this hit (wrong target or a soak mistake)",
+      "UndoneDamage": "Damage undone ({user}).",
       "NothingToHeal": "Nothing to heal.",
       "Healed": "One level healed ({type}) for {n} blood.",
       "Awaken": "Awakening: the evening blood point is spent, boosts cleared.",
@@ -4420,6 +4423,15 @@
     },
     "Combat": {
       "Move": {
+        "Moved": "Moved this turn",
+        "MovedHint": "Wounded or worse: a character either moves or acts in a turn — doing both costs one more die (V20 health chart). Checked automatically if the token moved this turn.",
+        "MovedPenalty": "Moved and attacks",
+        "Zone": {
+          "walk": "walk",
+          "jog": "jog",
+          "run": "run",
+          "over": "beyond one turn"
+        },
         "Tip": "Per turn: walk {w} m · jog {j} m · run {r} m",
         "Fly": "flight {f} m",
         "Unit": "m",
@@ -4756,6 +4768,17 @@
       "Foot": "The Blood remembers · The Blood will wait"
     },
     "Hud": {
+      "Turn": {
+        "Order": "turn {r}",
+        "OrderTip": "Turn {r}: {n} of {of} in order",
+        "NoDecl": "not declared",
+        "Decl": "declared",
+        "Actions": "actions / turn",
+        "ActionsTip": "Actions declared this turn — the pool is split in roll and attack windows",
+        "Blood": "blood this turn",
+        "Move": "walk/jog/run",
+        "Moved": "already moved"
+      },
       "Powers": "Powers",
       "InitShort": "init.",
       "Pin": "Pin to HUD",

@@ -457,6 +457,7 @@ export function onChatCardClick(event) {
   if (!message) return;
   event.preventDefault();
   const combatAction = btn.dataset.rAction;
+  if (combatAction === "undoDamage") return import("../documents/actor.mjs").then(m => m.undoDamage(message));
   if (combatAction === "fixedDamage") return import("../data/combat-powers.mjs").then(m => m.applyFixedDamage(message));
   if (combatAction === "defend" || combatAction === "combatDamage") {
     return import("../combat/combat.mjs").then(m => combatAction === "defend" ? m.defendCard(message, btn.dataset.method) : m.rollLinkedDamage(message));

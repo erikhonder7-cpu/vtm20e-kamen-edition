@@ -2236,11 +2236,30 @@ try {
       const ok = await v.spendBlood(1);
       globalThis.__e2eGate = undefined;
       out.gate = [refused, ok, b0 - v.system.blood.value, game.messages.contents.slice(n0).some(m => /обходит правило/.test(m.content ?? ""))];
+      // линейка жетона по зонам: Ловкость 3 — 5 м шагом, 12 трусцой, 25 бегом, 40 — дальше хода
+      const tk = canvas.tokens.get(tok.id), R = tk?.ruler;
+      const wp = d => ({ actionConfig: { visualize: true, teleport: false }, userId: game.user.id, measurement: { distance: d }, stage: "planned" });
+      out.ruler = [R?.constructor.name, ...[5, 12, 25, 40].map(d => R?._getSegmentStyle(wp(d)).color?.toString(16))];
+      // отмена урона с карточки: шкала как до удара
+      await v.applyDamage(2, "lethal"); await wait(500);
+      const dm = game.messages.contents.findLast(m => m.getFlag(sid, "undoDamage"));
+      const lethalHit = v.system.health.lethal;
+      await (await sys("module/documents/actor.mjs")).undoDamage(dm);
+      out.undo = [lethalHit, v.system.health.lethal, !!dm.getFlag(sid, "undone")];
+      // «Тяжело ранен», двигался в этот ход — в окне атаки ещё −1 куб
+      await v.update({ "system.health.lethal": 4 });
+      const CB = await sys("module/combat/combat.mjs");
+      const still = new CB.AttackDialog(v, {}).compute().pool;
+      await v.setFlag(sid, "movedTurn", `${combat.id}:${combat.round}`);
+      const ad = new CB.AttackDialog(v, {});
+      out.moved = [ad.v.moved, still - ad.compute().pool];
+      await v.update({ "system.health.lethal": 0 });
       await combat.delete(); await scene.deleteEmbeddedDocuments("Token", [tok.id]);
       await Actor.deleteDocuments(made.map(a => a.id));
       return out;
     });
-    const want = { drop: true, desc: true, move: [[7, 15, 29], [7, 15, 14], [7, null, null]], visage: [3, "3", 3, true], gate: [false, true, 1, true] };
+    const want = { drop: true, desc: true, move: [[7, 15, 29], [7, 15, 14], [7, null, null]], visage: [3, "3", 3, true], gate: [false, true, 1, true],
+      ruler: ["VtmTokenRuler", "5fa463", "d8b04a", "c4474c", "6b6660"], undo: [2, 0, true], moved: [true, 1] };
     const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });

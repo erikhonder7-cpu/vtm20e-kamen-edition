@@ -511,6 +511,8 @@ export class VtMActor extends Actor {
     if (this.type === "wraith") return (await import("../apps/wraith.mjs")).corpusDamage(this, amount, type);
     // Стан лиха (форма зуло, data/zulo.mjs): два лишних уровня «Синяки» принимают урон первыми; уходят вместе с формой
     const xb = this.system.fx?.extraBruised;
+    // для кнопки «Отменить урон» на карточке: шкала и лишние «Синяки» до удара
+    const undo = { actor: this.uuid, health: { ...h }, ...(xb?.effect ? { bruised: { effect: xb.effect.id, dmg: foundry.utils.deepClone(xb.effect.getFlag(SYSTEM_ID, "bruisedDmg") ?? {}) } } : {}) };
     let onExtra = 0;
     if (xb?.effect) {
       const taken = { bashing: 0, lethal: 0, aggravated: 0, ...(xb.effect.getFlag(SYSTEM_ID, "bruisedDmg") ?? {}) };
@@ -518,7 +520,7 @@ export class VtMActor extends Actor {
       if (onExtra) {
         taken[type] += onExtra; amount -= onExtra;
         await xb.effect.setFlag(SYSTEM_ID, "bruisedDmg", taken);
-        if (!amount) return this.#notice(`<i class="fa-solid fa-up-long"></i> ${t("Zulo.ExtraTaken", { n: onExtra, left: xb.max - taken.bashing - taken.lethal - taken.aggravated })}`);
+        if (!amount) return this.#damageNotice(`<i class="fa-solid fa-up-long"></i> ${t("Zulo.ExtraTaken", { n: onExtra, left: xb.max - taken.bashing - taken.lethal - taken.aggravated })}`, undo);
       }
     }
     const wasFull = h.bashing + h.lethal + h.aggravated >= 7;
@@ -539,7 +541,7 @@ export class VtMActor extends Actor {
     else if (over > 0) fate = this.isVampire ? t("Fate.torpor") : t("Fate.death");
     else if (full) fate = t("Fate.incapacitated");
     const dmg = game.i18n.localize(VTM20.damageTypes[type].label);
-    this.#notice(`<i class="fa-solid fa-heart-crack"></i> ${t("Notify.Damaged", { n: amount, type: dmg })}${onExtra ? ` ${t("Zulo.ExtraAlso", { n: onExtra })}` : ""}${fate ? ` <b class="r-fate">${fate}</b>` : ""}`);
+    this.#damageNotice(`<i class="fa-solid fa-heart-crack"></i> ${t("Notify.Damaged", { n: amount, type: dmg })}${onExtra ? ` ${t("Zulo.ExtraAlso", { n: onExtra })}` : ""}${fate ? ` <b class="r-fate">${fate}</b>` : ""}`, undo);
     // Смертный умирает сразу; вампиру — карточка ведущему: торпор или Окончательная смерть (apps/torpor.mjs)
     if (fate === t("Fate.death")) await this.toggleStatusEffect?.("dead", { active: true, overlay: true });
     else if (fate === t("Fate.finalDeath")) await proposeFate(this, "death");
@@ -883,4 +885,30 @@ export class VtMActor extends Actor {
       style: CONST.CHAT_MESSAGE_STYLES.OTHER
     });
   }
+
+  /** Карточка полученного урона с кнопкой «Отменить урон» (состояние до удара — во флаге undoDamage, см. undoDamage). */
+  #damageNotice(html, undo) {
+    return ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor: this }),
+      content: `<div class="r-notice r-type-${this.type}">${html}<div class="r-card-buttons r-undo-row"><button type="button" data-r-action="undoDamage"
+        data-tooltip="${t("Notify.UndoDamageHint")}"><i class="fa-solid fa-rotate-left"></i> ${t("Notify.UndoDamage")}</button></div></div>`,
+      style: CONST.CHAT_MESSAGE_STYLES.OTHER, flags: { [SYSTEM_ID]: { undoDamage: undo } }
+    });
+  }
+}
+
+/**
+ * «Отменить урон» на карточке урона: шкала здоровья и лишние «Синяки» формы зуло — как до удара. Может рассказчик
+ * или владелец персонажа; карточка помечается, повторно не отменить. Торпор и смерть, предложенные картой судьбы, не трогаем.
+ */
+export async function undoDamage(message) {
+  const u = message.getFlag(SYSTEM_ID, "undoDamage");
+  if (!u || message.getFlag(SYSTEM_ID, "undone")) return;
+  const actor = await fromUuid(u.actor);
+  if (!actor?.isOwner) return ui.notifications.warn(t("Notify.NotOwner", { name: actor?.name ?? "" }));
+  await actor.update({ "system.health": u.health });
+  if (u.bruised) await actor.effects.get(u.bruised.effect)?.setFlag(SYSTEM_ID, "bruisedDmg", u.bruised.dmg);
+  const done = `<p class="r-undo-done"><i class="fa-solid fa-rotate-left"></i> ${foundry.utils.escapeHTML(t("Notify.UndoneDamage", { user: game.user.name }))}</p>`;
+  const content = message.content.replace(/<div class="r-card-buttons r-undo-row">[\s\S]*?<\/div>/, done);
+  await message.update({ content, [`flags.${SYSTEM_ID}.undone`]: true });
 }

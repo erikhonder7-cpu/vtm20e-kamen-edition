@@ -45,6 +45,7 @@
     <label class="r-check r-check-spec {{#unless canUseSpecialty}}is-dim{{/unless}}"><input type="checkbox" name="specialty" {{checked v.specialty}} {{#unless canUseSpecialty}}disabled{{/unless}}> <span class="r-spec-main"><span class="r-spec-head">{{localize "VTM20.Roll.Specialty"}} <small>{{localize "VTM20.Roll.SpecialtyRule"}}</small></span>{{#if specialtyName}}<em class="r-spec-name">{{specialtyName}}</em>{{/if}}</span></label>
     <label class="r-check"><input type="checkbox" name="willpower" {{checked v.willpower}} {{#unless willpowerLeft}}disabled{{/unless}}> {{localize "VTM20.Roll.SpendWillpower"}} <em>({{willpowerLeft}})</em></label>
     {{#if woundPenalty}}<label class="r-check"><input type="checkbox" name="wounds" {{checked v.wounds}}> {{localize "VTM20.Roll.Wounds"}} <em>({{woundPenalty}})</em></label>{{/if}}
+    {{#if moveHurts}}<label class="r-check" data-tooltip="{{localize 'VTM20.Combat.Move.MovedHint'}}"><input type="checkbox" name="moved" {{checked v.moved}}> {{localize "VTM20.Combat.Move.Moved"}} <em>(−1)</em></label>{{/if}}
     {{#if physicalDisplay}}<label class="r-check"><input type="checkbox" name="physical" {{checked v.physical}}> {{physicalLabel}} <em>(+{{physicalDisplay}})</em></label>{{/if}}
   </div>
   {{#each notes}}<div class="r-roll-note is-wide" data-keep><i class="fa-solid fa-circle-info"></i> {{this}}</div>{{/each}}

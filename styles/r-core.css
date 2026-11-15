@@ -491,3 +491,8 @@ body.r-theme-light .vtm20 .r-sym { background: linear-gradient(170deg, #3a3029, 
 /* Кнопки-ссылки системы с клавиатуры (module/ui/a11y.mjs): рамка фокуса только при ходьбе Tab'ом */
 .vtm20 [role="button"]:focus-visible, #r-hud [role="button"]:focus-visible, [class*="r-"][role="button"]:focus-visible {
   outline: 1px solid var(--r-blood-l, #c4474c); outline-offset: 2px; }
+
+/* Карточка урона: «Отменить урон» (documents/actor.mjs → undoDamage) */
+.r-notice .r-undo-row { margin-top: 5px; }
+.r-notice .r-undo-row button { width: auto; height: 22px; min-height: 0; padding: 0 9px; font-size: 11px; line-height: 20px; }
+.r-notice .r-undo-done { margin: 4px 0 0; color: #8f8778; font-size: 11px; font-style: italic; }

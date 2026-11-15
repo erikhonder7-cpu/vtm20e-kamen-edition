@@ -12,6 +12,7 @@ import { allowAnyway } from "../apps/rule-gate.mjs";
 import { VTM20, SYSTEM_PATH, SYSTEM_ID } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
 import { rollPool, odds, chancesView, soakAndApply } from "../dice/roll.mjs";
+import { movedThisTurn, moveHurts } from "./movement.mjs";
 import { RollDialog } from "../dice/dialog.mjs";
 import { mobBonus } from "../apps/extras.mjs";
 import { dreadDice, mindDiff, centered, painless, pathFlag, majestyCheck } from "../apps/target-powers.mjs";
@@ -154,6 +155,8 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       position: "front", aim: "none", foes: crowdAround(actor), blind: false, target: "normal",
       range: "normal", cover: 0, actions: celerityAction ? 1 : declaredActions(actor), bonus: 0, diffAdj: 0,
       specialty: false, willpower: false, physical: true, wounds: true,
+      // сдвинулся ли жетон в этот ход боя (combat/movement.mjs) — с «Тяжело ранен» движение и атака вместе стоят куба
+      moved: movedThisTurn(actor),
       messageMode: game.settings.get("core", "messageMode")
     };
   }
@@ -227,6 +230,8 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     if (v.target === "held") add(t("Combat.Target.held"), 2);
     add(t("Roll.Modifier"), v.bonus);
     if (v.wounds && !centered(a) && !painless(a)) add(t("Roll.Wounds"), a.system.health.penalty);
+    // V20, таблица здоровья: «Тяжело ранен» и тяжелее — двигался и атакует в тот же ход: ещё −1 куб
+    if (v.moved && moveHurts(a)) add(t("Combat.Move.MovedPenalty"), -1);
     if (c.attr === "dexterity" && a.armor.penalty) add(t("Roll.ArmorPenalty"), -a.armor.penalty);
     if (v.actions > 1) {
       const part = Math.floor(Math.max(0, pool) / v.actions);
@@ -326,7 +331,7 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       // «Ещё» раскрыто, если там что-то задано (или его раскрыли сами)
       more: this.moreOpen || v.foes > 0 || v.actions > 1 || v.diffAdj !== 0 || v.blind,
       celerityAction: this.celerityAction,
-      willpowerLeft: a.system.willpower.temporary, woundPenalty: a.system.health.penalty,
+      willpowerLeft: a.system.willpower.temporary, woundPenalty: a.system.health.penalty, moveHurts: moveHurts(a),
       physicalDisplay,
       physicalLabel: potentialAuto ? t("Roll.AutoSuccess") : strengthDamage && a.discipline("potence") ? Codex.disciplineLabel("potence")
         : potentialDice ? Codex.disciplineLabel(r.choice.attr === "strength" ? "potence" : "celerity") : "",
@@ -352,7 +357,7 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       range: f.range ?? this.v.range, cover: num(f.cover, this.v.cover),
       foes: Math.clamp(num(f.foes), 0, 4), blind: !!f.blind, actions: this.celerityAction ? 1 : Math.clamp(num(f.actions, 1), 1, 6),
       bonus: num(f.bonus), diffAdj: num(f.diffAdj),
-      specialty: !!f.specialty, willpower: !!f.willpower, physical: !!f.physical, wounds: !!f.wounds,
+      specialty: !!f.specialty, willpower: !!f.willpower, physical: !!f.physical, wounds: !!f.wounds, moved: !!f.moved,
       messageMode: f.messageMode ?? this.v.messageMode
     });
     this.render();

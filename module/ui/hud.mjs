@@ -10,7 +10,8 @@ import { Codex } from "../data/codex.mjs";
 import { RollDialog } from "../dice/dialog.mjs";
 import { openAttack, openDefense, weaponsOf, pendingAttacks, defendFromHud, grapplesOf, breakGrapple } from "../combat/combat.mjs";
 import { celerityPhaseFor, useCelerityAction } from "../combat/celerity.mjs";
-import { phaseOf, declarationOf, openDeclare } from "../combat/turn.mjs";
+import { phaseOf, declarationOf, openDeclare, declaredActions, kindLabel } from "../combat/turn.mjs";
+import { movement, movedThisTurn } from "../combat/movement.mjs";
 import { openHazard } from "../apps/hazard.mjs";
 import { openHunt } from "../apps/night.mjs";
 import { rollPowerRef, powerByRef } from "../sheets/actor-sheet.mjs";
@@ -213,6 +214,23 @@ const line = (label, rows, num, { notes = [], tip = "", act = "" } = {}) => `<sp
   <${act ? `a data-act="${act}"` : "span"} class="rh-scales"${tip ? ` data-tooltip="${esc(tip)}"` : ""}>${rows.map(row).join("")}</${act ? "a" : "span"}><b class="rh-num">${num}</b>`;
 
 /** Кровь: до 20 — капля на пункт рядами по 10, больше — 10 капель, каждая стоит запас ÷ 10 (неполная залита частично). */
+/** Полоса «мой ход» над гербом: что персонажу важно в этом ходу боя — одним взглядом, без листа. */
+function turnBar(a, combatant) {
+  const combat = game.combat, order = combat.turns.findIndex(c => c.id === combatant.id) + 1, d = declarationOf(a, combat);
+  const item = (icon, val, cap, tip, act = "", cls = "") => `<${act ? `a data-act="${act}"` : "span"} class="rh-tb ${cls}" data-tooltip="${esc(tip)}"><i class="fa-solid ${icon}"></i><b>${val}</b><small>${esc(cap)}</small></${act ? "a" : "span"}>`;
+  const parts = [item("fa-list-ol", `${order}/${combat.turns.length}`, t("Hud.Turn.Order", { r: combat.round }), t("Hud.Turn.OrderTip", { r: combat.round, n: order, of: combat.turns.length }))];
+  parts.push(item(d ? "fa-bullhorn" : "fa-bullhorn", esc(d ? (d.kind === "multi" ? t("Turn.MultiN", { n: d.actions }) : kindLabel(d.kind, a)) : t("Hud.Turn.NoDecl")), t("Hud.Turn.Decl"),
+    d?.text ? d.text : t("Turn.DeclareTip"), "declare", d ? "" : "is-warn"));
+  parts.push(item("fa-layer-group", declaredActions(a), t("Hud.Turn.Actions"), t("Hud.Turn.ActionsTip")));
+  if (a.hasBlood) { const per = a.system.blood.perTurn ?? 1, sp = a.bloodSpentThisTurn ?? 0;
+    parts.push(item("fa-droplet", `${sp}/${per}`, t("Hud.Turn.Blood"), t("Hud.BloodTipTurn", { n: per, spent: sp }), "", sp >= per ? "is-full" : "")); }
+  const mv = movement(a);
+  if (mv) { const moved = movedThisTurn(a);
+    parts.push(item(mv.jog == null ? "fa-person-walking" : "fa-person-running", [mv.walk, mv.jog, mv.run].filter(n => n != null).join("/"), moved ? t("Hud.Turn.Moved") : t("Hud.Turn.Move"),
+      t("Combat.Move.Tip", { w: mv.walk, j: mv.jog ?? "—", r: mv.run ?? "—" }), "", moved ? "is-moved" : "")); }
+  return `<div class="rh-turnbar">${parts.join("")}</div>`;
+}
+
 function bloodLine(a) {
   const b = a.system.blood, perTurn = b.perTurn ?? 1, spent = a.bloodSpentThisTurn ?? 0, inFight = !!game.combat?.started;
   const tip = inFight ? t("Hud.BloodTipTurn", { n: perTurn, spent }) : t("Hud.BloodTip", { n: perTurn });
@@ -479,6 +497,8 @@ export function renderHud() {
   const pend = pendingAttacks(a), last = pend.at(-1)?.getFlag(SYSTEM_ID, "combat");
   const alarm = last ? `<a class="rh-alarm" data-act="defendPending" data-tooltip="${esc(t("Hud.DefendTip", { a: last.attackerName, w: last.weaponName, n: last.successes }))}">
       <i class="fa-solid fa-triangle-exclamation"></i><span>${esc(t("Hud.UnderAttack", { name: last.attackerName }))}</span>${pend.length > 1 ? `<b>×${pend.length}</b>` : ""}</a>` : "";
+  // полоса «мой ход» (бой идёт, персонаж в нём): место в очереди, заявка, действия, кровь за ход, передвижение
+  const turnbar = combatant && game.combat?.started ? turnBar(a, combatant) : "";
   // состояния (торпор, бешенство, Харано…) — значками на портрете
   const states = ["r-torpor", "r-staked", "r-frenzy", "r-rotschreck", "r-harano", "r-rapture"].filter(id => a.statuses?.has(id))
     .map(id => CONFIG.statusEffects.find(e => e.id === id)).filter(Boolean)
@@ -486,7 +506,7 @@ export function renderHud() {
   const wing = side => `<svg class="rh-banner" viewBox="0 0 340 76" preserveAspectRatio="none" aria-hidden="true"${side === "right" ? ` style="transform:scaleX(-1)"` : ""}>
       <polygon points="0,0 340,0 340,76 0,76 22,38"/><polyline points="340,5 9,5 28,38 9,71 340,71"/></svg>`;
   el.innerHTML = `
-    ${popup}${alarm}
+    ${popup}${alarm}${turnbar}
     <nav class="rh-tabs">${tabs.map((x, i) => `${i ? `<i class="rh-sep">◆</i>` : ""}<a class="${x === cur ? "on" : ""}" data-act="tab" data-tab="${x.key}">${esc(x.label)}</a>`).join("")}</nav>
     <div class="rh-seals">${arc(cur.seals)}</div>
     <div class="rh-crest${myTurn ? " is-turn" : ""}">

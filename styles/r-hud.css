@@ -501,3 +501,16 @@ body.r-hud-on #chat-notifications > #chat-message { display: none !important; }
 .vtm20 .r-visage-warn { margin: 7px 0 0; color: #e7a1a1; font-size: 12px; }
 .vtm20 .r-visage-note { margin: 6px 0 0; color: var(--r-muted); font-size: 11.5px; font-style: italic; line-height: 1.4; }
 @media (max-width: 640px) { .vtm20 .r-visage-modes { grid-template-columns: 1fr; } .vtm20 .r-visage-mode { flex-direction: row; } }
+
+/* Полоса «мой ход» (ui/hud.mjs → turnBar): место в очереди, заявка, действия, кровь за ход, передвижение */
+#r-hud .rh-turnbar { display: flex; justify-content: center; flex-wrap: wrap; gap: 4px; margin-bottom: 4px; pointer-events: auto; }
+#r-hud .rh-tb { display: inline-flex; align-items: baseline; gap: 5px; padding: 3px 9px; border: 1px solid var(--h-line);
+  background: linear-gradient(180deg, rgba(20, 16, 18, .92), rgba(10, 9, 10, .92)); color: var(--h-bone-2); font-size: 11px; line-height: 1.2; white-space: nowrap; }
+#r-hud .rh-tb i { color: var(--h-acc); font-size: 10px; }
+#r-hud .rh-tb b { color: var(--h-bone-b); font-family: "Prata", Georgia, serif; font-weight: 400; font-size: 13px; }
+#r-hud .rh-tb small { color: var(--h-muted); font-family: var(--h-caps); font-size: 10px; letter-spacing: .6px; text-transform: uppercase; }
+#r-hud a.rh-tb { cursor: pointer; }
+#r-hud a.rh-tb:hover { border-color: rgba(var(--h-acc-rgb), .6); }
+#r-hud .rh-tb.is-warn { border-style: dashed; border-color: rgba(var(--h-acc-rgb), .7); }
+#r-hud .rh-tb.is-warn b { color: #e7a1a1; font-family: var(--h-caps); font-size: 11px; }
+#r-hud .rh-tb.is-full b, #r-hud .rh-tb.is-moved small { color: #e7a1a1; }
