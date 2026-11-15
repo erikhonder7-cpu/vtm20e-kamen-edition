@@ -311,9 +311,10 @@ openStrategy: () => openStrategy(),
     prepareRegistry(this, ctx);
     if (actor.type === "vampire") ctx.golconda = golcondaView(actor);   // Голконда (apps/golconda.mjs)
     ctx.thArt = artifactsView(actor);                                    // артефакты Тремер (apps/thaum-workshop.mjs)
+    // гуль, ревенант, дампир — справочник своей линии по знаку листа (apps/atlas.mjs); отдельно от цепочки ниже:
+    // гулю нужна её последняя ветка (Дисциплины, Права крови дампира)
+    if (actor.type === "ghoul") ctx.lineAtlas = true;
     if (actor.type === "demon") prepareLores(this, ctx);
-    // гуль, ревенант, дампир — справочник своей линии по знаку листа (apps/atlas.mjs)
-    else if (actor.type === "ghoul") ctx.lineAtlas = true;
     else if (actor.type === "hunter") { ctx.hunterInfo = hunterInfo(actor, dots); ctx.lineAtlas = true; ctx.edgePaths = edgesView(actor); ctx.hunterCall = callView(actor); }
     else if (actor.type === "mage") { ctx.mageInfo = mageInfo(actor, dots); ctx.mageView = spheresView(actor, dots); ctx.mageState = stateView(actor, dots); ctx.mageState.mind = await mindView(actor);
       const sg = mageSigil(actor);
