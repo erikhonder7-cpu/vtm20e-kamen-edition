@@ -111,7 +111,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       library: VtMActorSheet.#onLibrary,
       money: VtMActorSheet.#onMoney,
       togglePower: VtMActorSheet.#onTogglePower,
-      zuloForm: VtMActorSheet.#onZuloForm,
+      powerSetup: VtMActorSheet.#onPowerSetup,
       endPower: VtMActorSheet.#onEndPower,
       readRitual: VtMActorSheet.#onReadRitual,
       makeExtra: VtMActorSheet.#onMakeExtra,
@@ -714,8 +714,11 @@ openStrategy: () => openStrategy(),
   /** Библиотека справочника: Дисциплины, пути, ритуалы, черты, факты биографии, психозы. */
   static #onMoney() { return openMoney(this.actor); }
   static #onTogglePower(event, target) { return togglePowerEffect(this.actor, target.dataset.power); }
-  /** Форма зуло (хоумрул): выбрать или сменить черты Чудовищного облика (apps/zulo.mjs). */
-  static async #onZuloForm() { (await import("../apps/zulo.mjs")).configureZulo(this.actor); }
+  /** Настройка силы рядом с её кнопкой: форма зуло (apps/zulo.mjs) или формы гангрела (apps/power-effects.mjs). */
+  static async #onPowerSetup(event, target) {
+    if (target.dataset.power === "vicissitude:4") return (await import("../apps/zulo.mjs")).configureZulo(this.actor);
+    return (await import("../apps/power-effects.mjs")).reshapeRevisitedForms(this.actor);
+  }
   static #onEndPower(event, target) {
     const e = this.actor.effects.get(target.dataset.effectId);
     if (e) return this.actor.endPower(e);

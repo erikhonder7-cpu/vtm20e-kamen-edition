@@ -229,7 +229,7 @@ export function effectDef(power, variant = "", shapeConfig = null) {
       moveEqualRun: !!form.flying,
       modifiedShape: { role, animal: String(form.animal || "зверь"), sense, flying: !!form.flying, large: !!form.large } };
   }
-  if (power === ZULO_POWER && Array.isArray(shapeConfig?.zulo)) return zuloDef(base, shapeConfig.zulo);
+  if (power === ZULO_POWER && Array.isArray(shapeConfig?.zulo)) return zuloDef(base, shapeConfig.zulo, shapeConfig);
   return variant && base.variants?.[variant] ? { ...base, ...base.variants[variant] } : base;
 }
 
@@ -324,6 +324,12 @@ export function effectMods(actor) {
     if (def.extraBruised) m.extraBruised = { max: def.extraBruised, effect };
     m.stealthDiff ||= !!def.stealthDiff;
     if (def.zulo) m.zulo = def.zulo;
+    // форма зуло: глаза и чутьё без флангов, шипы на спине, слизь против захвата и огня, сердце под защитой
+    m.noFlank ||= !!def.noFlank;
+    m.backSpikes = Math.max(m.backSpikes ?? 0, def.backSpikes ?? 0);
+    m.grappledDiff = (m.grappledDiff ?? 0) + (def.grappledDiff ?? 0);
+    m.fireSoak = (m.fireSoak ?? 0) + (def.fireSoak ?? 0);
+    if (def.zuloHeart) m.zuloHeart = def.zuloHeart;
     m.soakDiff += def.soakDiff ?? 0;
     m.staminaVsFangs ||= !!def.staminaVsFangs;
     if (def.venom) m.venom += effect.flags?.[SYSTEM_ID]?.charges ?? 1;

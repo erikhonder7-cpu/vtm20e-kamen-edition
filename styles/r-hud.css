@@ -339,8 +339,8 @@ body.r-hud-on #chat-notifications > #chat-message { display: none !important; }
   background: radial-gradient(circle at 50% 38%, #5a2228, #1a1214 72%); box-shadow: 0 0 0 3px rgba(140,28,34,.16), 0 0 14px rgba(196,71,76,.22); }
 .vtm20 .r-zulo-slot.is-on > b { color: var(--r-ink); }
 .vtm20 .r-zulo-slot.is-new > span { border-color: #c9a96a; box-shadow: 0 0 0 3px rgba(201,169,106,.14), 0 0 14px rgba(201,169,106,.2); }
-.vtm20 .r-zulo-slot.is-on:hover > span { border-color: #e06a70; box-shadow: 0 0 0 3px rgba(196,71,76,.28); }
-.vtm20 .r-zulo-slot.is-on:hover > span i::before { content: "\f00d"; }
+.vtm20 .r-zulo:not(.is-locked) .r-zulo-slot.is-on:hover > span { border-color: #e06a70; box-shadow: 0 0 0 3px rgba(196,71,76,.28); }
+.vtm20 .r-zulo:not(.is-locked) .r-zulo-slot.is-on:hover > span i::before { content: "\f00d"; }
 .vtm20 .r-zulo-grid { max-height: clamp(220px, calc(88vh - 400px), 560px); overflow-y: auto; padding-right: 6px; overscroll-behavior: contain; }
 .vtm20 .r-zulo-group + .r-zulo-group { margin-top: 13px; }
 .vtm20 .r-zulo-group-head { display: flex; align-items: center; gap: 10px; margin: 0 0 7px; padding: 0; border: 0;
@@ -362,6 +362,17 @@ body.r-hud-on #chat-notifications > #chat-message { display: none !important; }
 .vtm20 .r-zulo-choice.is-removed b { text-decoration: line-through; text-decoration-color: rgba(231,161,161,.6); }
 .vtm20 .r-zulo-choice.is-disabled { opacity: .5; cursor: not-allowed; }
 .vtm20 .r-zulo-choice.is-excluded { opacity: .3; }
+.vtm20 .r-zulo-price { margin: 9px 0 0; padding-top: 8px; border-top: 1px solid rgba(216,207,191,.1); color: var(--r-muted); font-size: 11.5px; }
+.vtm20 .r-zulo-price b { color: #f1d9cf; font-family: var(--r-display); font-size: 15px; font-weight: 400; }
+.vtm20 .r-zulo-price span { color: var(--r-muted); font-style: italic; }
+.vtm20 .r-zulo-lead { margin: -2px 0 8px; color: var(--r-muted); font-size: 11.5px; font-style: italic; line-height: 1.4; }
+.vtm20 .r-zulo-carried { display: flex; flex-direction: column; gap: 5px; margin-top: 9px; }
+.vtm20 .r-zulo-carried > span { color: var(--r-bone-d); font-family: var(--r-caps); font-size: 10px; letter-spacing: .9px; text-transform: uppercase; }
+.vtm20 .r-zulo-carried textarea { min-height: 62px; padding: 7px 9px; border: 1px solid var(--r-line-2); border-radius: 0; color: var(--r-ink);
+  background: rgba(0,0,0,.28); font-size: 12.5px; line-height: 1.45; resize: vertical; }
+.vtm20 .r-zulo-carried textarea:focus { border-color: var(--r-blood-l); box-shadow: 0 0 0 2px rgba(140,28,34,.18); outline: none; }
+.vtm20 .r-zulo.is-locked .r-zulo-group:not(.r-zulo-built) .r-zulo-choice:has(input:checked) { opacity: 1; }
+.vtm20 .r-zulo.is-locked .r-zulo-slot.is-on { cursor: default; }
 @media (prefers-reduced-motion: reduce) { .vtm20 .r-zulo-choice, .vtm20 .r-zulo-slot > span { transition: none; } }
 
 .application.vtm20.r-dialog.r-celerity-dialog .window-content { min-width: 0; }

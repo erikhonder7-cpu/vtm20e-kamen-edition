@@ -322,6 +322,8 @@ BUILDERS.rules = function () {
   { const g = readJson("strategy-guide"); p.addBook({ name: g.name, pages: g.pages, key: `rules:${g.key}` }); }
   // глава 9 — инфернализм: договоры и Вложения (data/rules-infernal.json, tools/infernal_docs.py)
   for (const ch of data("rules-infernal")) p.addBook({ name: ch.name, pages: ch.pages, key: `rules:${ch.key}` });
+  // глава 10 — хоумрулы (data/rules-homerules.json): форма зуло Lucky Dicepool, тексты черт — из lang/ru.json
+  for (const ch of data("rules-homerules")) p.addBook({ name: ch.name, pages: ch.pages, key: `rules:${ch.key}` });
   return p;
 };
 

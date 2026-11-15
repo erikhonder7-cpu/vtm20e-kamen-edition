@@ -5,7 +5,7 @@
 
 import { SYSTEM_ID } from "../config.mjs";
 import { RollDialog } from "../dice/dialog.mjs";
-import { ZULO_TRAITS, ZULO_GROUPS, ZULO_FLAG, ZULO_POWER, ZULO_MERITS, zuloSlots, zuloTraits } from "../data/zulo.mjs";
+import { ZULO_TRAITS, ZULO_GROUPS, ZULO_FLAG, ZULO_POWER, ZULO_MERITS, zuloSlots, zuloTraits, zuloBuilt } from "../data/zulo.mjs";
 
 const t = (k, d) => d ? game.i18n.format(`VTM20.Zulo.${k}`, d) : game.i18n.localize(`VTM20.Zulo.${k}`);
 const esc = x => foundry.utils.escapeHTML(String(x ?? ""));
@@ -16,6 +16,13 @@ export function registerZulo() {
     scope: "world", config: true, type: String, default: "core",
     choices: { core: "VTM20.Settings.HorridForm.core", zulo: "VTM20.Settings.HorridForm.zulo" }
   });
+  // Сердце нелюди и Смерть кощея: кол по Извергу в Чудовищном облике — напоминание в чат тому, кто его ставит
+  Hooks.on("createActiveEffect", (effect, options, userId) => {
+    const actor = effect.parent, heart = actor?.system?.fx?.zuloHeart;
+    if (userId !== game.user.id || actor?.documentName !== "Actor" || !heart || !(effect.statuses ?? new Set()).has?.("r-staked")) return;
+    ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), whisper: ChatMessage.getWhisperRecipients("GM").map(u => u.id),
+      content: `<div class="r-notice is-warn"><i class="fa-solid fa-heart-circle-bolt"></i> ${esc(t(heart === "caged" ? "HeartCaged" : "HeartHidden", { name: actor.name }))}</div>` });
+  });
 }
 
 /** Сколько черт старого набора убрано (замены): новые слоты (Проявление Зверя) заполняются даром. */
@@ -25,7 +32,7 @@ const swapsOf = (from, to, slots) => Math.max(0, from.filter(k => !to.includes(k
  * Окно выбора черт. mode: "learn" — первый выбор (даром), "change" — смена за опыт, "adapt" — замены на одно превращение.
  * free — сколько замен без опыта (Внутренние эксперименты), maxSwaps — предел замен (Стремительная адаптация).
  */
-async function pickTraits(actor, { mode, current = [], slots, free = 0, maxSwaps = null }) {
+async function pickTraits(actor, { mode, current = [], slots, free = 0, maxSwaps = null, built = { bone: [], carried: [] }, locked = false }) {
   const name = k => esc(t(`T.${k}.name`));
   const card = x => `<label class="r-prt-form-choice r-zulo-choice${x.auto ? " is-auto" : ""}" data-key="${x.key}" data-excl="${x.excl ?? ""}"
       ${x.excl ? `data-tooltip="${esc(t("Excl", { name: t(`T.${x.excl}.name`) }))}"` : ""}>
@@ -35,14 +42,26 @@ async function pickTraits(actor, { mode, current = [], slots, free = 0, maxSwaps
         <small>${esc(t(`T.${x.key}.text`))}</small><i class="r-zulo-mark" data-mark></i></span></label>`;
   const groups = ZULO_GROUPS.map(g => `<section class="r-zulo-group"><h4 class="r-zulo-group-head"><span>${t(`G.${g}`)}</span></h4>
       <div class="r-prt-choice-grid">${ZULO_TRAITS.filter(x => x.group === g).map(card).join("")}</div></section>`).join("");
-  const html = `<div class="r-prt r-zulo">
+  // Встроенные силы (хоумрул, «Другие черты»): Искусство костей с механикой и свободный список — каждая +1 кровь
+  const boneCard = k => `<label class="r-prt-form-choice r-zulo-choice is-auto">
+      <input type="checkbox" name="b" value="${k}" ${built.bone?.includes(k) ? "checked" : ""}>
+      <span class="r-prt-choice-mark"><i class="fa-solid ${k === "claws" ? "fa-bone" : "fa-burst"}"></i></span>
+      <span class="r-zulo-body"><span class="r-zulo-title"><b>${esc(t(`Built.${k}.name`))}</b><em class="r-zulo-tag">${esc(t(`Built.${k}.tag`))}</em></span>
+        <small>${esc(t(`Built.${k}.text`))}</small></span></label>`;
+  const extras = mode === "adapt" ? "" : `<section class="r-zulo-group r-zulo-built"><h4 class="r-zulo-group-head"><span>${t("Built.Head")}</span></h4>
+      <p class="r-zulo-lead">${t("Built.Hint")}</p>
+      <div class="r-prt-choice-grid">${boneCard("claws")}${boneCard("spikes")}</div>
+      <label class="r-zulo-carried"><span>${t("Built.Carried")}</span>
+        <textarea name="carried" rows="3" placeholder="${esc(t("Built.CarriedPh"))}">${esc((built.carried ?? []).join("\n"))}</textarea></label></section>`;
+  const html = `<div class="r-prt r-zulo${locked ? " is-locked" : ""}">
     <header class="r-prt-hero"><span class="r-prt-sigil"><i class="fa-solid fa-dragon"></i></span>
-      <div><small>${t("Kicker")}</small><h2>${t(`Title.${mode}`)}</h2><p>${t(`Hint.${mode}`, { n: slots, free, max: maxSwaps ?? 0 })}</p></div></header>
+      <div><small>${t("Kicker")}</small><h2>${t(`Title.${mode}`)}</h2><p>${locked ? t("Hint.locked") : t(`Hint.${mode}`, { n: slots, free, max: maxSwaps ?? 0 })}</p></div></header>
     <div class="r-prt-allocation r-zulo-form" data-allocation>
       <div class="r-prt-allocation-head"><b>${t("Chosen")}</b><span>${mode === "learn" ? "" : `<span class="r-zulo-swaps" data-swaps></span>`}<strong data-count>0</strong> / ${slots}</span></div>
       <div class="r-zulo-slots" data-slots></div>
+      ${mode === "adapt" ? "" : `<p class="r-zulo-price" data-price></p>`}
     </div>
-    <div class="r-zulo-grid">${groups}</div>
+    <div class="r-zulo-grid">${groups}${extras}</div>
     <p class="r-prt-footnote"><i class="fa-solid fa-book-skull"></i> ${t("Source")}</p>
   </div>`;
   return foundry.applications.api.DialogV2.prompt({
@@ -67,9 +86,14 @@ async function pickTraits(actor, { mode, current = [], slots, free = 0, maxSwaps
         const sw = root.querySelector("[data-swaps]");
         if (sw) sw.textContent = mode === "adapt" ? t("SwapsAdapt", { n: swaps, max: maxSwaps })
           : t("SwapsXp", { n: swaps, xp: Math.max(0, swaps - free) });
+        const price = root.querySelector("[data-price]");
+        if (price) {
+          const n = root.querySelectorAll('input[name="b"]:checked').length + carriedOf(root.querySelector('[name="carried"]')?.value).length;
+          price.innerHTML = t("Price", { n: 2 + n, extra: n });
+        }
         for (const b of boxes) {
           const excl = b.closest("[data-excl]").dataset.excl, label = b.closest("label");
-          b.disabled = !b.checked && (on.length >= slots || (excl && on.includes(excl)));
+          b.disabled = locked || (!b.checked && (on.length >= slots || (excl && on.includes(excl))));
           label.classList.toggle("is-disabled", b.disabled);
           label.classList.toggle("is-excluded", !b.checked && !!excl && on.includes(excl));
           // смена: была и снята — «убрана», не было и взята — «новая»
@@ -85,16 +109,22 @@ async function pickTraits(actor, { mode, current = [], slots, free = 0, maxSwaps
         if (save) save.disabled = !ok;
       };
       boxes.forEach(b => b.addEventListener("change", update));
+      root.querySelectorAll('input[name="b"], [name="carried"]').forEach(x => x.addEventListener("input", update));
       root.querySelector("[data-slots]").addEventListener("click", ev => {
-        const k = ev.target.closest("[data-unpick]")?.dataset.unpick;
+        const k = !locked && ev.target.closest("[data-unpick]")?.dataset.unpick;
         if (k) { box(k).checked = false; update(); }
       });
       update();
     },
     ok: { label: t(`Save.${mode}`), icon: "fa-solid fa-dragon",
-      callback: (event, button) => [...button.form.querySelectorAll('input[name="t"]:checked')].map(b => b.value) }
+      callback: (event, button) => ({ traits: [...button.form.querySelectorAll('input[name="t"]:checked')].map(b => b.value),
+        bone: [...button.form.querySelectorAll('input[name="b"]:checked')].map(b => b.value),
+        carried: carriedOf(button.form.elements.carried?.value) }) }
   });
 }
+
+/** Свободный список перенесённых сил и изменений: строки без пустых, не длиннее 60 знаков, до 6 штук. */
+const carriedOf = text => String(text ?? "").split("\n").map(s => s.trim().slice(0, 60)).filter(Boolean).slice(0, 6);
 
 /** Бросок персонажа; resolve — число успехов (null — окно закрыли без броска). */
 const rollFor = (actor, cfg) => new Promise(resolve => {
@@ -107,26 +137,33 @@ const rollFor = (actor, cfg) => new Promise(resolve => {
 /** Первый выбор черт (даром) или смена за опыт: Закостенелый образ — нельзя, Внутренние эксперименты — бросок. */
 export async function configureZulo(actor) {
   if (!actor?.isOwner) return null;
-  const current = zuloTraits(actor), slots = zuloSlots(actor);
+  const current = zuloTraits(actor), slots = zuloSlots(actor), built = zuloBuilt(actor);
   if (!current?.length) {
-    const traits = await pickTraits(actor, { mode: "learn", slots });
-    if (!traits) return null;
-    await actor.setFlag(SYSTEM_ID, ZULO_FLAG, { traits });
-    return traits;
+    const res = await pickTraits(actor, { mode: "learn", slots, built });
+    if (!res) return null;
+    await actor.setFlag(SYSTEM_ID, ZULO_FLAG, res);
+    return res.traits;
   }
-  if (actor.hasTrait(ZULO_MERITS.ossified)) { ui.notifications.warn(t("Ossified")); return null; }
+  // Закостенелый образ: черты заперты, встроенные силы менять можно
+  if (actor.hasTrait(ZULO_MERITS.ossified)) {
+    const res = await pickTraits(actor, { mode: "change", current, slots, built, locked: true });
+    if (!res) return null;
+    await actor.setFlag(SYSTEM_ID, ZULO_FLAG, { ...res, traits: current });
+    return current;
+  }
   let free = 0;
   if (actor.hasTrait(ZULO_MERITS.experiments)) {
     const n = await rollFor(actor, { title: t("ExperimentsRoll"), trait1: "attributes.wits", trait2: "abilities.empathy", difficulty: 6 });
     if (n === null) return null;
     free = n;
   }
-  const traits = await pickTraits(actor, { mode: "change", current, slots, free });
-  if (!traits) return null;
+  const res = await pickTraits(actor, { mode: "change", current, slots, free, built });
+  if (!res) return null;
+  const { traits } = res;
   const swaps = swapsOf(current, traits, slots), cost = Math.max(0, swaps - free);
   const xp = actor.system.experience;
   if (cost && (xp?.available ?? 0) < cost) { ui.notifications.warn(game.i18n.format("VTM20.Notify.NoXp", { cost, have: xp?.available ?? 0 })); return null; }
-  const upd = { [`flags.${SYSTEM_ID}.${ZULO_FLAG}`]: { traits } };
+  const upd = { [`flags.${SYSTEM_ID}.${ZULO_FLAG}`]: res };
   if (cost) {
     const log = foundry.utils.deepClone(actor._source.system.experience.log);
     log.unshift({ amount: -cost, reason: t("XpReason", { n: swaps, free: Math.min(free, swaps) }), date: new Date().toLocaleDateString("ru-RU") });
@@ -151,9 +188,9 @@ export async function activateZulo(actor) {
       const n = await rollFor(actor, { title: t("AdaptRoll"), trait1: "attributes.wits", trait2: "abilities.survival", difficulty: 7 });
       if (n) {
         const picked = await pickTraits(actor, { mode: "adapt", current: traits, slots: zuloSlots(actor), maxSwaps: n });
-        if (picked) traits = picked;
+        if (picked) traits = picked.traits;
       }
     }
   }
-  return actor.startPower(ZULO_POWER, { shapeConfig: { zulo: traits } });
+  return actor.startPower(ZULO_POWER, { shapeConfig: { zulo: traits, ...zuloBuilt(actor) } });
 }

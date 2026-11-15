@@ -5732,6 +5732,10 @@
       "RevisitedAllocationTitle": "Distribute five bonus dots",
       "RevisitedPointsLeft": "Available",
       "RevisitedPermanentHint": "This setup is saved on the character and used for every later transformation.",
+      "RevisitedReshapeTip": "Reshape both forms",
+      "RevisitedReshapeHint": "Forms change with the Storyteller's consent — usually after a long shift in the Beast. A note goes to the chat.",
+      "RevisitedReshapeActive": "Leave the beast form first, then reshape.",
+      "RevisitedReshaped": "{name} reshapes the Modified Shape of the Beast: battle form — {battle}, escape form — {escape}.",
       "RevisitedActivateHint": "Choose one of your saved forms and decide how much blood to spend on the transformation.",
       "RevisitedPickFormHint": "Combat form is built for a fight; escape form is built to break away.",
       "RevisitedBloodIntro": "Spending more blood shortens the transformation.",
@@ -7804,6 +7808,30 @@
     },
     "Zulo": {
       "Kicker": "Vicissitude · house rule",
+      "Price": "Transformation cost: <b>{n}</b> blood <span>(2 + built-in {extra})</span>",
+      "BuiltLine": "Built in (+{n} blood): {list}",
+      "Built": {
+        "Head": "Built-in powers",
+        "Hint": "The form can include other Vicissitude powers and changes of the normal form — with the Storyteller's leave. Each costs +1 blood on transformation (a power that only needed a roll no longer needs it).",
+        "Carried": "Other powers and normal-form changes — one per line (up to 6)",
+        "CarriedPh": "Kraken's Kiss\nBone plates on the chest",
+        "claws": {
+          "name": "Bone Claws",
+          "tag": "+1 blood · lethal Str +1",
+          "text": "Bone Craft built into the form: bone claws, lethal damage Strength +1."
+        },
+        "spikes": {
+          "name": "Bone Spikes",
+          "tag": "+1 blood · grapple +2",
+          "text": "Bone Craft built into the form: body spikes — +2 damage dice in clinch and tackle; an unarmed attacker hitting with fewer than 3 successes is hurt."
+        }
+      },
+      "NoFlankNote": "the target sees all around (zulo shape): no flank or rear bonus",
+      "SlimeNote": "Kikimora Water: grappling the slick body +{n} difficulty",
+      "SpikesBack": "Chort's Trick: {name} is impaled on the spines — {n} lethal (soaked normally).",
+      "FireSoak": "Kikimora Water (fire)",
+      "HeartCaged": "Koschei's Death: {name}'s heart is caged in bone — a stake pierces it only with 5 levels of damage instead of 3. If less, remove the stake mark.",
+      "HeartHidden": "Heart of the Unhuman: {name}'s heart is not where it should be — whoever doesn't know the spot strikes blind. Remove the stake mark if the spot was not guessed.",
       "Excl": "Incompatible: {name}",
       "AutoTip": "Applied by the system",
       "StoryTip": "Description — the Storyteller applies it",
@@ -7830,7 +7858,8 @@
       "Hint": {
         "learn": "Choose {n} Horrid Form traits — this is what your monster looks like. You can change them later for experience.",
         "change": "A scene of study or meditation: each replaced trait costs 1 XP. Free replacements: {free}.",
-        "adapt": "For this transformation only: replace up to {max} traits."
+        "adapt": "For this transformation only: replace up to {max} traits.",
+        "locked": "Ossified Form: traits cannot change. Only built-in powers can be edited."
       },
       "Save": {
         "learn": "Fix the form",
@@ -7906,7 +7935,7 @@
         },
         "kikimora": {
           "name": "Kikimora Water",
-          "tag": "slime",
+          "tag": "grapple +2 · fire",
           "text": "The skin oozes slime: grappling the Fiend +2 difficulty, squeezing through −2 for them; 1 die to soak fire."
         },
         "rusalka": {

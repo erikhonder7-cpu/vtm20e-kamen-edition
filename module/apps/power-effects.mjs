@@ -13,19 +13,23 @@ import { activateZulo } from "./zulo.mjs";
 
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
 
-const REVISITED_SHAPE = "protean:Модифицированный Облик Зверя";
+const esc = x => foundry.utils.escapeHTML(String(x ?? ""));
+export const REVISITED_SHAPE = "protean:Модифицированный Облик Зверя";
 const SHAPE_FLAG = "proteanModifiedForms";
 const senseOptions = selected => [
   ["vision", t("Fx.Sense.vision")], ["hearing", t("Fx.Sense.hearing")], ["smell", t("Fx.Sense.smell")]
 ].map(([value, label]) => `<option value="${value}" ${selected === value ? "selected" : ""}>${label}</option>`).join("");
 
-/** Постоянная настройка двух форм из Clanbook: Gangrel (Revised). */
-async function configureRevisitedForms(actor) {
+/** Постоянная настройка двух форм из Clanbook: Gangrel (Revised); prev — сохранённые формы (перенастройка). */
+async function configureRevisitedForms(actor, prev = null) {
+  const pa = prev?.battle?.attr;
   const attrRows = [
-    ["strength", "Attr.strength", 1],
-    ["dexterity", "Attr.dexterity", 2],
-    ["stamina", "Attr.stamina", 2]
+    ["strength", "Attr.strength", pa ? pa.strength : 1],
+    ["dexterity", "Attr.dexterity", pa ? pa.dexterity : 2],
+    ["stamina", "Attr.stamina", pa ? pa.stamina : 2]
   ];
+  const ea = esc(prev?.escape?.animal ?? "летучая мышь"), ba = esc(prev?.battle?.animal ?? "волк");
+  const fly = prev?.escape ? prev.escape.flying : true, large = !!prev?.escape?.large;
   const attrHtml = attrRows.map(([key, label, value]) => `
     <div class="r-prt-attr" data-attribute="${key}">
       <span class="r-prt-attr-label">${t(label)}</span>
@@ -44,25 +48,25 @@ async function configureRevisitedForms(actor) {
 
     <section class="r-prt-card is-battle">
       <header class="r-prt-card-head"><span class="r-prt-index">I</span><div><h3>${t("Fx.RevisitedBattle")}</h3><p>${t("Fx.RevisitedBattleHint")}</p></div></header>
-      <label class="r-prt-field is-name"><span>${t("Fx.RevisitedAnimal")}</span><input name="battleAnimal" type="text" value="волк" maxlength="32"></label>
+      <label class="r-prt-field is-name"><span>${t("Fx.RevisitedAnimal")}</span><input name="battleAnimal" type="text" value="${ba}" maxlength="32"></label>
       <div class="r-prt-allocation" data-allocation>
         <div class="r-prt-allocation-head"><b>${t("Fx.RevisitedAllocationTitle")}</b><span>${t("Fx.RevisitedPointsLeft")} <strong data-points-left>0</strong> / 5</span></div>
         <div class="r-prt-attrs">${attrHtml}</div>
         <p class="r-prt-hint">${t("Fx.RevisitedFiveDots")}</p>
       </div>
-      <label class="r-prt-field"><span>${t("Fx.RevisitedSense")}</span><select name="battleSense">${senseOptions("vision")}</select></label>
+      <label class="r-prt-field"><span>${t("Fx.RevisitedSense")}</span><select name="battleSense">${senseOptions(prev?.battle?.sense ?? "vision")}</select></label>
     </section>
 
     <section class="r-prt-card is-escape">
       <header class="r-prt-card-head"><span class="r-prt-index">II</span><div><h3>${t("Fx.RevisitedEscape")}</h3><p>${t("Fx.RevisitedEscapeHint")}</p></div></header>
-      <label class="r-prt-field is-name"><span>${t("Fx.RevisitedAnimal")}</span><input name="escapeAnimal" type="text" value="летучая мышь" maxlength="32"></label>
+      <label class="r-prt-field is-name"><span>${t("Fx.RevisitedAnimal")}</span><input name="escapeAnimal" type="text" value="${ea}" maxlength="32"></label>
       <div class="r-prt-two-col">
-        <label class="r-prt-field"><span>${t("Fx.RevisitedMovement")}</span><select name="escapeFlying"><option value="yes" selected>${t("Fx.RevisitedFlying")}</option><option value="no">${t("Fx.RevisitedGround")}</option></select></label>
-        <label class="r-prt-field"><span>${t("Fx.RevisitedSize")}</span><select name="escapeLarge"><option value="no" selected>${t("Fx.RevisitedSmall")}</option><option value="yes">${t("Fx.RevisitedLarge")}</option></select></label>
+        <label class="r-prt-field"><span>${t("Fx.RevisitedMovement")}</span><select name="escapeFlying"><option value="yes" ${fly ? "selected" : ""}>${t("Fx.RevisitedFlying")}</option><option value="no" ${fly ? "" : "selected"}>${t("Fx.RevisitedGround")}</option></select></label>
+        <label class="r-prt-field"><span>${t("Fx.RevisitedSize")}</span><select name="escapeLarge"><option value="no" ${large ? "" : "selected"}>${t("Fx.RevisitedSmall")}</option><option value="yes" ${large ? "selected" : ""}>${t("Fx.RevisitedLarge")}</option></select></label>
       </div>
-      <label class="r-prt-field"><span>${t("Fx.RevisitedSense")}</span><select name="escapeSense">${senseOptions("hearing")}</select></label>
+      <label class="r-prt-field"><span>${t("Fx.RevisitedSense")}</span><select name="escapeSense">${senseOptions(prev?.escape?.sense ?? "hearing")}</select></label>
     </section>
-    <p class="r-prt-footnote"><i class="fa-solid fa-lock"></i> ${t("Fx.RevisitedPermanentHint")}</p>
+    <p class="r-prt-footnote"><i class="fa-solid fa-lock"></i> ${t(prev ? "Fx.RevisitedReshapeHint" : "Fx.RevisitedPermanentHint")}</p>
   </div>`;
   const raw = await foundry.applications.api.DialogV2.prompt({
     window: { title: t("Fx.RevisitedSetupTitle"), icon: "fa-solid fa-paw" },
@@ -125,6 +129,16 @@ async function configureRevisitedForms(actor) {
   }
   await actor.setFlag(SYSTEM_ID, SHAPE_FLAG, raw);
   return raw;
+}
+
+/** Перенастроить формы гангрела (кнопка рядом с силой на листе): окно с сохранёнными формами, заметка в чат рассказчику. */
+export async function reshapeRevisitedForms(actor) {
+  if (!actor?.isOwner) return null;
+  if (actor.powerEffects.some(x => x.power === REVISITED_SHAPE)) return ui.notifications.warn(t("Fx.RevisitedReshapeActive"));
+  const prev = actor.getFlag(SYSTEM_ID, SHAPE_FLAG) ?? null;
+  const res = await configureRevisitedForms(actor, prev);
+  if (res && prev) ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<div class="r-notice"><i class="fa-solid fa-paw"></i> ${esc(t("Fx.RevisitedReshaped", { name: actor.name, battle: res.battle.animal, escape: res.escape.animal }))}</div>` });
+  return res;
 }
 
 /** Выбор одной из двух заранее закреплённых форм и цены превращения. */

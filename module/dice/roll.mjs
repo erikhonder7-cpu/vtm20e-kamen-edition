@@ -409,6 +409,8 @@ export async function soakAndApply(target, amount, damageType, { soak = true, fa
     // чтобы Рассказчик видел, откуда берутся кости поглощения.
     const options = { fangs, pierce, armor, silver };
     const breakdown = target.soakBreakdown?.(damageType, options) ?? [];
+    // Водица кикиморы (форма зуло): куб поглощения против огня
+    if (fire && target.system.fx?.fireSoak && breakdown.length) breakdown.push({ label: t("Zulo.FireSoak"), value: target.system.fx.fireSoak });
     const pool = breakdown.length ? breakdown.reduce((sum, part) => sum + part.value, 0) : target.soakPool(damageType, options);
     if (pool > 0) {
       const res = await rollPool({

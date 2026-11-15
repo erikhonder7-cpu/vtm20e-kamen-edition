@@ -21,14 +21,14 @@ export const ZULO_TRAITS = [
   { key: "vurdalak", group: "body", auto: true, icon: "fa-shield-halved", fx: { attr: { stamina: 3 } } },
   { key: "karga", group: "body", auto: true, icon: "fa-person-running", fx: { attr: { dexterity: 3 } } },
   { key: "boyar", group: "senses", auto: true, icon: "fa-face-meh", fx: { keepSocial: true, diff: { social: 2 } } },
-  { key: "mizgir", group: "senses", icon: "fa-eye", fx: {} },
+  { key: "mizgir", group: "senses", auto: true, icon: "fa-eye", fx: { noFlank: true } },
   { key: "likho", group: "body", auto: true, icon: "fa-up-long", fx: { extraBruised: 2 } },
-  { key: "heart", group: "heart", icon: "fa-heart", fx: {}, excl: "koshchei" },
-  { key: "koshchei", group: "heart", icon: "fa-heart-circle-bolt", fx: {}, excl: "heart" },
-  { key: "chort", group: "arms", icon: "fa-burst", fx: {} },
-  { key: "kikimora", group: "move", icon: "fa-droplet", fx: {} },
+  { key: "heart", group: "heart", auto: true, icon: "fa-heart", fx: { heart: "hidden" }, excl: "koshchei" },
+  { key: "koshchei", group: "heart", auto: true, icon: "fa-heart-circle-bolt", fx: { heart: "caged" }, excl: "heart" },
+  { key: "chort", group: "arms", auto: true, icon: "fa-burst", fx: { backSpikes: 2 } },
+  { key: "kikimora", group: "move", auto: true, icon: "fa-droplet", fx: { grappledDiff: 2, fireSoak: 1 } },
   { key: "rusalka", group: "move", icon: "fa-water", fx: {} },
-  { key: "viy", group: "senses", icon: "fa-satellite-dish", fx: {} },
+  { key: "viy", group: "senses", auto: true, icon: "fa-satellite-dish", fx: { noFlank: true } },
   { key: "navi", group: "arms", icon: "fa-hands", fx: {} },
   { key: "tail", group: "move", icon: "fa-hook", fx: {} },
   { key: "veles", group: "arms", auto: true, icon: "fa-tooth", fx: { biteDamage: 1, biteDiff: -2 } },
@@ -65,11 +65,18 @@ export function zuloTraits(actor) {
   return Array.isArray(f?.traits) ? f.traits.filter(k => ZULO_KEYS.has(k)) : null;
 }
 
-/** Определение эффекта Чудовищного облика из выбранных черт (data/effects.mjs → effectDef). */
-export function zuloDef(base, traits = []) {
+/** Встроенные силы формы: Искусство костей (claws, spikes) и свободный список перенесённого — каждая +1 кровь. */
+export function zuloBuilt(actor) {
+  const f = actor?.getFlag?.(SYSTEM_ID, ZULO_FLAG) ?? {};
+  return { bone: (f.bone ?? []).filter(k => ["claws", "spikes"].includes(k)), carried: (f.carried ?? []).map(String).slice(0, 6) };
+}
+
+/** Определение эффекта Чудовищного облика из выбранных черт и встроенных сил (data/effects.mjs → effectDef). */
+export function zuloDef(base, traits = [], { bone = [], carried = [] } = {}) {
   const list = ZULO_TRAITS.filter(x => traits.includes(x.key));
   const attr = {}, diff = {}, weapons = [];
   let keepSocial = false, biteDamage = 0, biteDiff = 0, extraBruised = 0, stealthDiff = false;
+  let noFlank = false, backSpikes = 0, grappledDiff = 0, fireSoak = 0, heart = null;
   for (const { fx } of list) {
     for (const [k, v] of Object.entries(fx.attr ?? {})) attr[k] = (attr[k] ?? 0) + v;
     for (const [k, v] of Object.entries(fx.diff ?? {})) diff[k] = (diff[k] ?? 0) + v;
@@ -79,9 +86,19 @@ export function zuloDef(base, traits = []) {
     biteDamage += fx.biteDamage ?? 0;
     biteDiff += fx.biteDiff ?? 0;
     extraBruised += fx.extraBruised ?? 0;
+    noFlank ||= !!fx.noFlank;
+    backSpikes += fx.backSpikes ?? 0;
+    grappledDiff += fx.grappledDiff ?? 0;
+    fireSoak += fx.fireSoak ?? 0;
+    heart = fx.heart ?? heart;
   }
+  // встроенное Искусство костей — как у самой силы (vicissitude:3 в data/effects.mjs)
+  if (bone.includes("claws")) weapons.push({ name: "Костяные когти", kind: "brawl", damage: 1, strength: true, damageType: "lethal", difficulty: 6 });
+  const spikes = bone.includes("spikes");
   const { attr: _a, brawlDamage: _b, set: _s, ...rest } = base;
-  return { ...rest, transformTurns: 1, attr, diff,
+  return { ...rest, transformTurns: 1, attr, diff, cost: { blood: 2 + bone.length + carried.length },
+    ...(spikes ? { spikes: true, grappleDice: 2 } : {}), zuloBuilt: { bone, carried },
     ...(keepSocial ? {} : { set: { charisma: 0, manipulation: 0, appearance: 0 } }),
-    intimStrength: true, weapons, biteDamage, biteDiff, extraBruised, stealthDiff, zulo: list.map(x => x.key) };
+    intimStrength: true, weapons, biteDamage, biteDiff, extraBruised, stealthDiff,
+    noFlank, backSpikes, grappledDiff, fireSoak, zuloHeart: heart, zulo: list.map(x => x.key) };
 }

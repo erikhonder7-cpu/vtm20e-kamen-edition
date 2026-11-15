@@ -11,7 +11,7 @@ import { declaredActions, abortForDefense } from "./turn.mjs";
 import { allowAnyway } from "../apps/rule-gate.mjs";
 import { VTM20, SYSTEM_PATH, SYSTEM_ID } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
-import { rollPool, odds, chancesView } from "../dice/roll.mjs";
+import { rollPool, odds, chancesView, soakAndApply } from "../dice/roll.mjs";
 import { RollDialog } from "../dice/dialog.mjs";
 import { mobBonus } from "../apps/extras.mjs";
 import { dreadDice, mindDiff, centered, painless, pathFlag, majestyCheck } from "../apps/target-powers.mjs";
@@ -218,7 +218,10 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     if (attackAuto) bd.push({ label: t("Roll.AutoSuccess"), value: attackAuto });
     add(t("Combat.Accuracy"), c.dice);
     add(t("Artifact.TalismanAttack"), c.talisman ?? 0);   // свой талисман-оружие в руке (data/talisman.mjs)
-    add(t(`Combat.Pos.${v.position}`), { front: 0, flank: 1, rear: 2 }[v.position]);
+    // Очи мизгиря, Чувства вия (форма зуло): за фланг и спину цели бонусных кубов нет
+    const foeFx = v.foe ? foundry.utils.fromUuidSync(v.foe)?.system?.fx : null;
+    const noFlank = !!foeFx?.noFlank && v.position !== "front";
+    if (!noFlank) add(t(`Combat.Pos.${v.position}`), { front: 0, flank: 1, rear: 2 }[v.position]);
     for (const d of dreadDice(a, { physical: true })) add(d.label, d.value);   // Устрашающий взор (apps/target-powers.mjs)
     add(t("Extra.MobBonus"), mobBonus(a));                 // толпа: +1 за каждого на ногах сверх первого (apps/extras.mjs)
     if (v.target === "held") add(t("Combat.Target.held"), 2);
@@ -246,6 +249,12 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const targetHitDiff = [...(targetActor?.system?.fx?.diff?.hit ?? []), ...(c.ranged ? targetActor?.system?.fx?.diff?.rangedHit ?? [] : [])]
       .reduce((sum, x) => sum + (Number(x.value) || 0), 0);
     if (targetHitDiff) { diff += targetHitDiff; notes.push(t("Fx.HitHint")); }
+    if (noFlank) notes.push(t("Zulo.NoFlankNote"));
+    // Водица кикиморы (форма зуло): схватить цель — +2 к сложности
+    const grabId = this.v.pick.startsWith("m:") ? this.v.pick.slice(2) : "";
+    if (["clinch", "hold", "tackle"].includes(grabId) && targetActor?.system?.fx?.grappledDiff) {
+      diff += targetActor.system.fx.grappledDiff; notes.push(t("Zulo.SlimeNote", { n: targetActor.system.fx.grappledDiff }));
+    }
     // Парадокс (Бардо 5): вредить тому, чьё откровение слышал, — навсегда +1 к сложности
     const harm = targetActor ? a.effects.filter(e => !e.disabled && e.flags?.[SYSTEM_ID]?.harmDiff
       && (e.flags[SYSTEM_ID].harmDiff.by === targetActor.uuid || e.flags[SYSTEM_ID].harmDiff.by?.endsWith(`Actor.${targetActor.id}`))).reduce((s, e) => s + (Number(e.flags[SYSTEM_ID].harmDiff.n) || 0), 0) : 0;
@@ -519,6 +528,15 @@ export async function resolveAttack(card, defSuccesses, method) {
       const { rollDamage } = await import("../dice/roll.mjs");
       await rollDamage({ actor: target, pool: attacker.system.attributes.strength?.total ?? 1, damageType: "lethal", title: t("Combat.SpikesBack"),
         target: attacker.uuid, notes: [`<i class="fa-solid fa-bone"></i> ${esc(t("Combat.SpikesBackNote", { name: attacker.name, n: net }))}`] });
+    }
+  }
+  // Уловка чёрта (форма зуло): попал без оружия или пытался схватить (даже мимо) — 2 губительных, поглощаются как обычно
+  const grab = ["clinch", "hold", "tackle"].includes(d.maneuver);
+  if (target?.system?.fx?.backSpikes && d.unarmed && (hit || grab)) {
+    const attacker = await foundry.utils.fromUuid(d.attacker);
+    if (attacker) {
+      ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: target }), content: `<div class="r-notice"><i class="fa-solid fa-burst"></i> ${esc(t("Zulo.SpikesBack", { name: attacker.name, n: target.system.fx.backSpikes }))}</div>` });
+      if (attacker.isOwner) await soakAndApply(attacker, target.system.fx.backSpikes, "lethal");
     }
   }
   // Ласка Ваала: попадание (даже без урона) тратит пункт ихора; промах — нет

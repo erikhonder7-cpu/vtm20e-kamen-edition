@@ -345,7 +345,9 @@ export function prepareDisciplines(sheet, ctx) {
     const zulo = key === ZULO_POWER && zuloOn() ? (zuloTraits(a) ?? []) : null;
     return def && !(def.viaRoll && !fxOn.has(key)) ? { key, on: fxOn.has(key), icon: def.icon ?? "fa-wand-sparkles",
       tip: `${t("Fx.Toggle")} · ${t(MODE_LABEL[def.mode] ?? "Fx.Toggleable")}`,
-      ...(zulo ? { zulo: true, zuloTip: zulo.length ? `${t("Zulo.Form")}: ${zulo.map(k => t(`Zulo.T.${k}.name`)).join(", ")}` : t("Zulo.NoForm") } : {}) } : null;
+      ...(zulo ? { setup: "fa-dna", setupTip: zulo.length ? `${t("Zulo.Form")}: ${zulo.map(k => t(`Zulo.T.${k}.name`)).join(", ")}` : t("Zulo.NoForm") } : {}),
+      // Модифицированный Облик Зверя: перенастроить обе формы
+      ...(key === "protean:Модифицированный Облик Зверя" && a.getFlag(SYSTEM_ID, "proteanModifiedForms") ? { setup: "fa-sliders", setupTip: t("Fx.RevisitedReshapeTip") } : {}) } : null;
   };
   ctx.activeFx = a.powerEffects.map(x => ({ id: x.effect.id, name: x.effect.name, img: x.effect.img,
     mode: t(MODE_LABEL[x.def.mode] ?? "Fx.Toggleable"), hit: !!x.def.diff?.hit }));
@@ -650,6 +652,8 @@ export function prepareEffects(sheet, ctx) {
           lines.push(t("Zulo.ExtraState", { n, max: def.extraBruised }));
         }
         if (def.set) lines.push(t("Zulo.NoSpeech"));
+        const zb = def.zuloBuilt ?? {}, zn = (zb.bone?.length ?? 0) + (zb.carried?.length ?? 0);
+        if (zn) lines.push(t("Zulo.BuiltLine", { list: [...(zb.bone ?? []).map(k => t(`Zulo.Built.${k}.name`)), ...(zb.carried ?? [])].join(", "), n: zn }));
       }
       for (const [k, v] of Object.entries(def.attr ?? {})) lines.push(`${attrL(k)} ${signed(v)}`);
       for (const [k, v] of Object.entries(def.set ?? {})) lines.push(`${attrL(k)} = ${v}`);

@@ -2198,12 +2198,16 @@ try {
       await a.createEmbeddedDocuments("Item", [{ name: "E2E — vicissitude", type: "discipline", system: { key: "vicissitude", value: 4 } },
         { name: "Проявление Зверя", type: "merit", system: { cost: 2 } }, { name: "Зверь снаружи", type: "flaw", system: { cost: 2 } }]);
       const dlg = () => [...foundry.applications.instances.values()].find(x => x.element?.querySelector?.(".r-zulo"));
-      const choose = async keys => {
+      const choose = async (keys, { bone = [], carried = "" } = {}) => {
         for (let i = 0; i < 30 && !dlg(); i++) await wait(100);
         const root = dlg().element, box = k => root.querySelector(`input[name="t"][value="${k}"]`);
         for (const b of root.querySelectorAll('input[name="t"]')) if (b.checked && !keys.includes(b.value)) { b.checked = false; b.dispatchEvent(new Event("change")); }
         const res = { slots: root.querySelector("[data-count]")?.nextSibling?.textContent?.trim() };
         for (const k of keys) { box(k).checked = true; box(k).dispatchEvent(new Event("change")); }
+        // встроенные силы: Искусство костей и свободный список — цена превращения пересчитывается
+        for (const k of bone) { const b = root.querySelector(`input[name="b"][value="${k}"]`); b.checked = true; b.dispatchEvent(new Event("input")); }
+        if (carried) { const ta = root.querySelector('[name="carried"]'); ta.value = carried; ta.dispatchEvent(new Event("input")); }
+        if (bone.length || carried) res.price = root.querySelector("[data-price] b")?.textContent;
         res.koshchei = box("koshchei").disabled;
         res.swaps = root.querySelector("[data-swaps]")?.textContent ?? "";
         res.save = !root.querySelector('button[data-action="ok"]').disabled;
@@ -2212,11 +2216,17 @@ try {
       };
       // первый выбор: 4 черты (Проявление Зверя 2), Сердце нелюди гасит Смерть кощея
       const on = PE.togglePowerEffect(a, "vicissitude:4");
-      out.learn = await choose(["bogatyr", "likho", "heart", "vodyanoy"]);
+      out.learn = await choose(["bogatyr", "likho", "heart", "vodyanoy"], { bone: ["spikes"], carried: "Поцелуй кракена" });
       await on; await wait(500);
       const s = () => a.system;
       const horns = a.items.find(i => i.name === "Рога водяного");
       out.form = [s().attributes.strength.total, s().attributes.dexterity.total, s().attributes.charisma.total, horns?.system.damage, !!s().fx.zulo];
+      // встроенные шипы и перенесённая сила: превращение 2 + 2 крови, шипы и кубы клинча — как у Искусства костей
+      out.built = [s().blood.value, !!s().fx.spikes, s().fx.grappleDice];
+      // глаза, шипы на спине, слизь — из определения формы
+      const ZD = await sys("module/data/zulo.mjs");
+      const zd = ZD.zuloDef({ mode: "toggle" }, ["mizgir", "chort", "kikimora"], { bone: ["claws"] });
+      out.defs = [zd.noFlank, zd.backSpikes, zd.grappledDiff, zd.fireSoak, zd.cost.blood, zd.weapons.map(w => w.name).join(",")];
       const d = new RD.RollDialog(a, { trait1: "attributes.charisma", trait2: "abilities.intimidation" });
       out.intim = d.compute().pool;
       out.frenzy = new RD.RollDialog(a, { trait1: "virtues.selfControl", kind: "frenzy" }).compute().diffAuto.map(x => x.value);
@@ -2237,15 +2247,38 @@ try {
       const base = a.xpCost("morality", 4);
       await a.update({ "system.morality.path": "metamorphosis" });
       await a.createEmbeddedDocuments("Item", [{ name: "Закостенелый образ", type: "flaw", system: { cost: 2 } }]);
-      out.ossified = [a.xpCost("morality", 4) - base, await Z.configureZulo(a)];
+      // в окне черты заперты, встроенные силы правятся
+      const oss = Z.configureZulo(a);
+      for (let i = 0; i < 30 && !dlg(); i++) await wait(100);
+      const ol = dlg().element, allLocked = [...ol.querySelectorAll('input[name="t"]')].every(b => b.disabled);
+      ol.querySelector('input[name="b"][value="claws"]').checked = true;
+      ol.querySelector('button[data-action="ok"]').click(); await wait(600);
+      const kept = await oss;
+      out.ossified = [a.xpCost("morality", 4) - base, allLocked, kept?.join(","), a.getFlag(sid, "zuloForm")?.bone?.join(",")];
       await game.settings.set(sid, "horridForm", before);
       out.core = (await a.startPower("vicissitude:4")) && s().attributes.dexterity.total;
       await Actor.deleteDocuments([a.id]);
+      // Модифицированный Облик Зверя: перенастройка — окно с сохранёнными формами
+      const g = await Actor.create({ name: "E2E — гангрел формы", type: "vampire", flags: { world: { e2e: true }, [sid]: { proteanModifiedForms: {
+        battle: { animal: "рысь", attr: { strength: 2, dexterity: 2, stamina: 1 }, sense: "smell" }, escape: { animal: "ворон", flying: true, large: false, sense: "vision" } } } },
+        system: { clan: "gangrel" } });
+      const rs = PE.reshapeRevisitedForms(g);
+      const gd = () => [...foundry.applications.instances.values()].find(x => x.element?.querySelector?.('[name="battleAnimal"]'));
+      for (let i = 0; i < 30 && !gd(); i++) await wait(100);
+      const ge = gd().element.querySelector("form") ?? gd().element;
+      const pre = [ge.querySelector('[name="battleAnimal"]').value, ge.querySelector('[name="battleStrength"]').value, ge.querySelector('[name="battleSense"]').value, ge.querySelector('[name="escapeAnimal"]').value];
+      ge.querySelector('[name="battleAnimal"]').value = "медведь";
+      gd().element.querySelector('button[data-action="ok"]').click(); await wait(600);
+      await rs;
+      out.gangrel = [...pre, g.getFlag(sid, "proteanModifiedForms")?.battle?.animal];
+      await Actor.deleteDocuments([g.id]);
       return out;
     });
-    const want = { hidden: false, shown: true, learn: { slots: "/ 4", koshchei: true, swaps: "", save: true }, form: [5, 1, 0, -1, true], intim: 7, frenzy: [1],
+    const want = { hidden: false, shown: true, learn: { slots: "/ 4", price: "4", koshchei: true, swaps: "", save: true }, form: [5, 1, 0, -1, true], built: [10, true, 2],
+      defs: [true, 2, 2, 1, 3, "Костяные когти"], intim: 7, frenzy: [1],
       extra: [1, 2], heal: [0, 1], off: [2, false, false], change: { slots: "/ 4", koshchei: true, swaps: "Замен: 1 · опыт: 1", save: true },
-      after: ["bogatyr,likho,veles,vodyanoy", 1], ossified: [2, null], core: 4 };
+      after: ["bogatyr,likho,veles,vodyanoy", 1], ossified: [2, true, "bogatyr,likho,veles,vodyanoy", "claws,spikes"], core: 4,
+      gangrel: ["рысь", "2", "smell", "ворон", "медведь"] };
     const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
