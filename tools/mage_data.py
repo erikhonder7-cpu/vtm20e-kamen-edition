@@ -604,7 +604,7 @@ def bos_items(line):
             groups = re.findall(r"\(([^()]*)\)", part)
             name = re.sub(r"\s*\([^()]*\)", "", part).strip()
             cost = next((c.group(0) for g in reversed(groups) for c in [re.search(r"\d+(?:\s*[–-]\s*\d+)?", g)] if c), "")
-            en = next((e.group(0).strip(" ,") for g in groups for e in [re.match(r"[A-Za-z][A-Za-z '’/-]*", g.strip())] if e), "")
+            en = next((e.group(0).strip(" ,") for g in groups for e in [re.match(r"[A-Za-z][A-Za-zÀ-ÿ '’/-]*", g.strip())] if e), "")
             if name and cost:
                 items.append([name, en, cost, ""])
         text = re.sub(r"^\s*\((?:ядро|core)\)\s*", "", tail.strip()).strip(" ,")
