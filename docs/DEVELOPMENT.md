@@ -108,9 +108,42 @@ Prata, Forum, Old Standard TT, IM Fell DW Pica (RU), Marck Script — SIL Open F
 `tools/rules_extra.py` (вызывается из build_data.py) собирает главы «V20_Основные_правила» в data/rules.json;
 `node tools/build_packs.mjs rules` — компендий-журнал «Правила V20» (глава — запись, раздел — страница).
 
+## Расширения карты «Город»
+
+Система даёт пустой настраиваемый «Город»; модули (Париж 1789, Берлин 1939) добавляют своё на `init`:
+
+```js
+import { registerCityExtension } from "../../../systems/vtm20e-kamen-edition/module/ui/citymap.mjs";
+Hooks.once("init", () => registerCityExtension({ styles: [...], presets: [...], overlays: [...], ... }));
+```
+
+Все поля необязательны; массивы складываются с тем, что уже зарегистрировали другие модули (`module/ui/city-ext.mjs`).
+
+- **styles** — стили карты: `{ id, label, build(lang, ctx), when(), default, bearing, bounds, minZoom, maxZoom, langs }`.
+  `build` возвращает стиль MapLibre (`ctx.GLYPHS` — шрифты системы); `when()` — в какой эпохе стиль доступен; `bounds` —
+  рамка панорамы. `maxZoom` — предел приближения (по умолчанию 19): растровому плану ставьте зум своих последних тайлов + 1,
+  иначе вблизи он растягивается и мылится.
+- **presets** — готовые города: `{ id, name, nameEn, center: [lat, lng], zoom, count, default, url, metroUrl }`; `url` — JSON мест,
+  `metroUrl` — линии и станции для кнопки «Метро».
+- **overlays** — свои слои: `{ init(api), add(api), draw(api), world(api), clock(api) }` — подключение к карте, добавление слоёв
+  после каждой смены стиля, перерисовка, смена данных мира, ход часов хроники.
+- **clicks** — щелчки по карте до системы: `{ place(ev, api), hit(ev, api), pick(ev, api) }`; вернули `true` — щелчок обработан.
+- **tools**, **toolModes**, **acts** — кнопки панели (функция, возвращающая HTML с `data-act`), режимы щелчка
+  (`{ id, icon, tip, when, click }`) и обработчики `data-act`.
+- **kinds** — виды объектов в инспекторе (`{ find, editor, edit, remove }`); **mounts** — разметка поверх карты (`mount(root, api)`);
+  **boards** — вкладки над картой; **seals** — печати фракций; **strategy** — заготовки «Стратегии города» (`presets`, `districts`).
+
+`api` — объект карты: `map` (MapLibre), `view()` / `setView(patch)`, `city()`, `save()`, `fly(lat, lng, z)`, `drawTools()`,
+`drawOverlay()`, `showTip()`, `picked`, `root` и др.
+
 ## Релиз
 
 `node tools/release.mjs 0.7.0 "заголовок"` — проверит, что Foundry закрыт и правки закоммичены, поднимет версию,
 пересоберёт компендии, прогонит tools/check.mjs, сделает коммит и тег и выложит архив и system.json на GitHub.
 Заметки — из tools/release-notes.md (если есть), иначе список коммитов с прошлого тега.
 На GitHub при каждом push запускается та же проверка (.github/workflows/check.yml).
+
+Нужен полный прогон e2e без провалов (`node tools/e2e-all.mjs` ставит отметку `tools/.cache/e2e-ok.json`). Отметка годится и для
+более позднего коммита, если с тех пор (и во время прогона) менялись только справочник `books/`, документация, `*.md`,
+компендии и `system.json` (лишь версия и ссылка на архив). Иначе релиз перечислит файлы, из-за которых нужен новый прогон;
+`--no-e2e` — выпустить без проверки.
