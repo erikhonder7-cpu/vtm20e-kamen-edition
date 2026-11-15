@@ -14,6 +14,7 @@ import { W as WW, ownGift, createSpirit } from "./werewolf.mjs";
 import { H as HH, hasOwnPath } from "./hunter.mjs";
 import { M as MM } from "./mage.mjs";
 import { roleOf, powerOf, ROLES, lab, subsForEra } from "./npc-roles.mjs";
+import { DAUNTAIN_BRANDS, RUIN, STIGMAS, BESTOWMENTS } from "../data/changeling-foes.mjs";
 
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
 const loc = k => game.i18n.localize(k);
@@ -96,6 +97,10 @@ export const KINDS = [
   { key: "nomad", group: "dead", label: "Кочевник Нарыва", icon: "fa-person-walking-dashed-line-arrow-right", actor: "wraith" },
   { key: "changeling", group: "dream", label: "Подменыш", icon: "fa-wand-sparkles", actor: "changeling" },
   { key: "otherfae", group: "dream", label: "Иные фэ", icon: "fa-masks-theater", actor: "changeling" },
+  { key: "dauntain", group: "dream", label: "Дантаин", icon: "fa-heart-crack", actor: "changeling" },
+  { key: "kinain", group: "dream", label: "Кинейн", icon: "fa-seedling", actor: "changeling" },
+  { key: "enchanted", group: "dream", label: "Зачарованный", icon: "fa-eye", actor: "mortal" },
+  { key: "autumnPerson", group: "dream", label: "Осенний человек", icon: "fa-leaf", actor: "mortal" },
   { key: "group", group: "groups", label: "Группа целиком", icon: "fa-people-group", actor: null },
   { key: "book", group: "book", label: "Статблоки книги", icon: "fa-book", actor: null }
 ];
@@ -541,6 +546,65 @@ const BUILD = {
     const d = changelingNpc(ctx, { ...p, kith: kith?.key ?? "", court: p.court || (kith?.group === "thallain" ? "unseelie" : "") });
     d.tags = [kith?.name, game.i18n.localize(`VTM20.Changeling.OtherFae.${kith?.group ?? "other"}`), ...d.tags.slice(1)].filter(Boolean);
     d.system.notes = `${kith?.html ?? ""}${d.system.notes ?? ""}`;
+    return d;
+  },
+  // Дантаин (C20, гл. 9): китейн с искалеченной Хризалидой — одно из шести Клейм и осколки Искусства Руин; почти всегда Неблагой
+  dauntain(ctx, p) {
+    const brand = DAUNTAIN_BRANDS.find(b => b.key === p.brand) ?? pick(DAUNTAIN_BRANDS);
+    const d = changelingNpc(ctx, { ...p, court: p.court || (Math.random() < .85 ? "unseelie" : "seelie") });
+    const ruin = Math.clamp(1 + Math.floor(Math.random() * (1 + ctx.power.tier)), 1, 5);
+    d.brand = brand.key;
+    d.powers.unshift({ label: "Руин", v: ruin });
+    d.tags = [`Дантаин — ${brand.type}`, ...d.tags];
+    const lines = [`<p><b>${foundry.utils.escapeHTML(brand.name)}</b> (${brand.en}): ${foundry.utils.escapeHTML(brand.text)}</p>`,
+      `<p><b>Руин ${ruin}</b> (только химерический): ${foundry.utils.escapeHTML(RUIN.slice(0, ruin).join("; "))}.</p>`];
+    d.system.notes = lines.join("") + (d.system.notes ?? "");
+    return d;
+  },
+  // Кинейн (C20, Прил. II): «кровь фэ» — наследие кита родителя, Гламур до 2 (1 за главу), Банальность 3 и не вредит,
+  // одно Искусство на точку, Царство склонности и ещё одно; Наследия — любые два; Фон «Фэйская кровь» задаёт число Искусств
+  kinain(ctx, p) {
+    const d = changelingNpc(ctx, p), ch = d.system.changeling, D = CL();
+    const kith = (D.kiths ?? []).find(k => k.key === ch.kith);
+    for (const k of Object.keys(ch.arts)) ch.arts[k] = 0;
+    for (const k of Object.keys(ch.realms)) ch.realms[k] = 0;
+    ch.arts[pick(VTM20.changelingArts)] = 1;
+    if (kith?.affinity && kith.affinity in ch.realms) ch.realms[kith.affinity] = 1;
+    ch.realms[pick(VTM20.changelingRealms)] += 1;
+    ch.glamour = { permanent: 2, temporary: 2 };
+    ch.banality = { permanent: 3, temporary: 0 };
+    ch.seeming = ""; ch.house = ""; ch.nightmare = 0;
+    const blood = Math.clamp(Math.floor(Math.random() * (2 + ctx.power.tier)), 0, 5);
+    d.powers = [...VTM20.changelingArts.filter(k => ch.arts[k]).map(k => ({ label: (D.arts ?? []).find(x => x.key === k)?.name ?? k, v: ch.arts[k] })),
+      ...VTM20.changelingRealms.filter(k => ch.realms[k]).map(k => ({ label: (D.realms ?? []).find(x => x.key === k)?.name ?? k, v: ch.realms[k] }))];
+    d.traits = [[game.i18n.localize("VTM20.Changeling.Glamour"), 2], [t("Willpower"), d.system.willpower.permanent], [game.i18n.localize("VTM20.Changeling.Banality"), 3], ["Фэйская кровь", blood]];
+    d.tags = ["Кинейн", kith?.name ? `кровь: ${kith.name}` : "", game.i18n.localize(`VTM20.Changeling.Court.${ch.court}`)].filter(Boolean);
+    d.system.notes = `<p><b>Кинейн.</b> Не Распадается, Банальность ему не вредит. Гламур — не больше 2, восстанавливается 1 за главу из своих чувств; китейны могут его Разорять. Фэйская кровь ${blood}: Искусств можно выучить ${blood + 1}.</p>` + (d.system.notes ?? "");
+    return d;
+  },
+  // Зачарованный (C20, Прил. II): смертный после Ритуала разведённых Туманов — 6 Гламура без точек, тратится на Пожалования
+  // навсегда; при 0 — разочарован; не подвержен Бедламу; каждый пункт Банальности после зачарования снимает 1 Гламур
+  enchanted(ctx, p) {
+    const d = BUILD.mortal(ctx), n = Math.clamp(1 + Math.floor(Math.random() * (1 + ctx.power.tier)), 1, 3);
+    const gifts = [...BESTOWMENTS].sort(() => Math.random() - .5).slice(0, n);
+    d.powers = gifts.map(g => ({ label: g.name }));
+    d.powersLabel = "Пожалования";
+    d.traits.push([game.i18n.localize("VTM20.Changeling.Glamour"), 6]);
+    d.tags = ["Зачарованный"];
+    d.system.notes = `<p><b>Зачарованный.</b> Видит Грёзу и не подвержен Бедламу. Гламур 6 без точек — тратится на Пожалования навсегда; при 0 — разочарован, второй раз не зачаровать. Каждый пункт Банальности после зачарования снимает 1 Гламур, точка — 2.</p>`
+      + gifts.map(g => `<p><b>${foundry.utils.escapeHTML(g.name)}:</b> ${foundry.utils.escapeHTML(g.text)}.</p>`).join("") + (d.system.notes ?? "");
+    return d;
+  },
+  // Осенний человек (C20, гл. 9): малый аватар Банальности — Банальность 7–10 и Клейма позора, магии нет
+  autumnPerson(ctx, p) {
+    const d = BUILD.mortal(ctx), banality = Math.clamp(7 + Math.floor(Math.random() * (1 + ctx.power.tier)), 7, 10);
+    const st = [...STIGMAS].sort(() => Math.random() - .5).slice(0, Math.clamp(2 + Math.floor(ctx.power.tier / 2), 2, 4));
+    d.powers = st.map(s => ({ label: s.name }));
+    d.powersLabel = "Клейма позора";
+    d.traits.push([game.i18n.localize("VTM20.Changeling.Banality"), banality]);
+    d.tags = ["Осенний человек"];
+    d.system.notes = `<p><b>Осенний человек</b>, Банальность ${banality}. Вкладывается в «нормальность» так, что сам распространяет Банальность; Туманы закрывают ему разум.</p>`
+      + st.map(s => `<p><b>${foundry.utils.escapeHTML(s.name)}:</b> ${foundry.utils.escapeHTML(s.text)}.</p>`).join("") + (d.system.notes ?? "");
     return d;
   },
   wraith(ctx, p) { return wraithNpc(ctx, p, "wraith"); },

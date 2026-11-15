@@ -6131,6 +6131,32 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  // Генератор НПС: противники и спутники Грёзы (C20, гл. 9 и Прил. II) — дантаин, кинейн, зачарованный, Осенний человек
+  await check("Подменыш: НПС Грёзы — дантаин с Клеймом, кинейн, зачарованный, осенний человек", async () => {
+    const r = await page.evaluate(async () => {
+      const B = await import(`/systems/${game.system.id}/module/apps/npc-build.mjs`), out = {}, made = [];
+      try {
+        const da = B.buildNpc({ kind: "dauntain", power: "normal", params: { brand: "lich" } });
+        out.dauntain = [da.actor, da.brand, da.powers[0]?.label, /Клеймо Лича/.test(da.system.notes)];
+        const ki = B.buildNpc({ kind: "kinain", power: "normal", params: { kith: "pooka" } });
+        const ch = ki.system.changeling;
+        out.kinain = [ki.actor, ch.kith, ch.glamour.permanent, ch.banality.permanent, Object.values(ch.arts).reduce((s, v) => s + v, 0), ch.seeming];
+        const en = B.buildNpc({ kind: "enchanted", power: "normal" });
+        out.enchanted = [en.actor, en.powers.length >= 1, /Гламур 6/.test(en.system.notes)];
+        const au = B.buildNpc({ kind: "autumnPerson", power: "normal" });
+        const ban = au.traits.find(x => /Банальн|Banality/.test(x[0]))?.[1] ?? 0;
+        out.autumn = [au.actor, ban >= 7 && ban <= 10, au.powers.length >= 2];
+        for (const [d, n] of [[da, "дантаин"], [ki, "кинейн"], [en, "зачарованный"], [au, "осенний человек"]]) made.push(await B.createNpc(d, { name: `E2E — ${n}` }));
+        out.created = made.map(a => a?.type);
+      } finally { await Actor.deleteDocuments(made.filter(Boolean).map(a => a.id)); }
+      return out;
+    });
+    const want = { dauntain: ["changeling", "lich", "Руин", true], kinain: ["changeling", "pooka", 2, 3, 1, ""], enchanted: ["mortal", true, true], autumn: ["mortal", true, true],
+      created: ["changeling", "changeling", "mortal", "mortal"] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   await check("Подменыш: Искусства Вливание и Сказ, кит Лебединых дев (Players Guide)", async () => {
     const r = await page.evaluate(async () => {
       const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), CL = await import(`/systems/${sid}/module/apps/changeling.mjs`);

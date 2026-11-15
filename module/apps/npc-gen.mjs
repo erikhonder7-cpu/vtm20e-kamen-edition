@@ -22,6 +22,7 @@ import { H as HH } from "./hunter.mjs";
 import { M as MM } from "./mage.mjs";
 import { ROLES, ROLE_GROUPS, POWERS, roleOf, lab, subsForEra } from "./npc-roles.mjs";
 import { KINDS, KIND_GROUPS, kindOf, buildNpc, npcView, createNpc, GROUPS, groupOf, buildGroup } from "./npc-build.mjs";
+import * as FOES from "../data/changeling-foes.mjs";
 
 /** Заготовки рассказчика (настройка мира): имя и всё, что выбрано в окне. */
 export function registerNpcPresets() {
@@ -207,6 +208,15 @@ function paramFields(kind, p) {
       F.push({ name: "kith", label: loc("VTM20.Changeling.Kith"), options: [any(p.kith), ...(Dc.otherKiths ?? []).filter(k => !p.fgroup || k.group === p.fgroup).map(k => opt(k.key, k.name, p.kith))] });
       break;
     }
+    case "dauntain": {
+      const { DAUNTAIN_BRANDS: B } = FOES;
+      F.push({ name: "brand", label: "Клеймо", options: [any(p.brand), ...B.map(b => opt(b.key, `${b.name} — ${b.type}`, p.brand))] });
+      F.push({ name: "kith", label: loc("VTM20.Changeling.Kith"), options: [any(p.kith), ...(CL().kiths ?? []).map(k => opt(k.key, k.name, p.kith))] });
+      break;
+    }
+    case "kinain":
+      F.push({ name: "kith", label: "Кит родителя", options: [any(p.kith), ...(CL().kiths ?? []).map(k => opt(k.key, k.name, p.kith))] });
+      break;
     case "changeling": {
       const Dc = CL();
       F.push({ name: "kith", label: loc("VTM20.Changeling.Kith"), options: [any(p.kith), ...(Dc.kiths ?? []).map(k => opt(k.key, k.name, p.kith))] });
