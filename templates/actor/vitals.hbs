@@ -34,6 +34,9 @@
     </div>
     {{#if wraithInfo}}<div class="r-wr-corpus" data-tooltip="{{localize 'VTM20.Wraith.CorpusPermHint'}}">{{> rDots dots=wraithInfo.corpusDots cls="is-ten"}}</div>{{/if}}
     <div class="r-hboxes">
+      {{#each healthExtra}}
+      <div class="r-hbox is-{{state}} is-extra" data-tooltip="{{label}}"><span class="r-hbox-mark">{{mark}}</span><span class="r-hbox-pen">+0</span></div>
+      {{/each}}
       {{#each health}}
       <div class="r-hbox is-{{state}} is-sev{{sev}} {{#if current}}is-current{{/if}}" {{#if label}}data-tooltip="{{label}}{{#if penaltyLabel}} ({{penaltyLabel}}){{/if}}"{{/if}}>
         <span class="r-hbox-mark">{{mark}}</span>

@@ -14,6 +14,7 @@ import { W as WW, ownGift, createSpirit } from "./werewolf.mjs";
 import { H as HH, hasOwnPath } from "./hunter.mjs";
 import { M as MM } from "./mage.mjs";
 import { roleOf, powerOf, ROLES, lab, subsForEra } from "./npc-roles.mjs";
+import { zuloOn, zuloSlots, randomZulo, ZULO_FLAG } from "../data/zulo.mjs";
 import { DAUNTAIN_BRANDS, RUIN, STIGMAS, BESTOWMENTS } from "../data/changeling-foes.mjs";
 
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -868,5 +869,7 @@ export async function createNpc(d, { name, folder }) {
   const a = await Actor.create({ name, type: d.actor, folder, ...(d.img === null ? {} : { img: ICON(d.img ?? d.actor) }), system: { ...d.system, notes },
     flags: { [SYSTEM_ID]: { created: true, npc: { kind: d.kind, role: d.role, sub: d.sub, power: d.power } } } });
   if (d.items.length) await a.createEmbeddedDocuments("Item", d.items);
+  // форма зуло (хоумрул, data/zulo.mjs): Изменчивость 4+ — облик из случайных совместимых черт
+  if (zuloOn() && (a.discipline?.("vicissitude") ?? 0) >= 4) await a.setFlag(SYSTEM_ID, ZULO_FLAG, { traits: randomZulo(zuloSlots(a)) });
   return a;
 }

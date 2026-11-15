@@ -465,3 +465,8 @@ body.r-hud-on #chat-notifications > #chat-message { display: none !important; }
 #r-hud .d.on.banality { border-color: #aab6c6; background: radial-gradient(circle at 38% 32%, #e3e9f1, #7d8ba0 55%, #1d2430); }
 #r-hud .b.on.banality { background: linear-gradient(180deg, #a8b4c4, #5b677a); border-color: #aab6c6; }
 #r-hud .b.on.nightmare { background: linear-gradient(180deg, #9b7ad0, #4e2f86); border-color: #b89be4; }
+
+/* Стан лиха (форма зуло): лишние «Синяки» в HUD — пунктирные клетки перед шкалой */
+#r-hud .hb.is-extra { border-style: dashed; border-color: rgba(201, 169, 106, .75); }
+#r-hud .hb.is-extra.is-empty { background: rgba(201, 169, 106, .08); }
+#r-hud .hb.is-extra + .hb:not(.is-extra) { margin-left: 3px; }

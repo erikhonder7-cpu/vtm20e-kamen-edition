@@ -2275,6 +2275,10 @@ try {
       await a.applyDamage(3, "lethal");
       const fxe = () => a.powerEffects.find(x => x.power === "vicissitude:4").effect;
       out.extra = [s().health.lethal, fxe().getFlag(sid, "bruisedDmg")?.lethal];
+      // лишние «Синяки» на шкале листа — две пунктирные клетки перед обычными
+      await a.sheet.render(true); await wait(900);
+      out.cells = [s().health.extra.map(x => x.state).join(","), a.sheet.element?.querySelectorAll(".r-hbox.is-extra").length];
+      await a.sheet.close(); await wait(300);
       await a.healDamage("lethal", 2);
       out.heal = [s().health.lethal, fxe().getFlag(sid, "bruisedDmg")?.lethal];
       await PE.togglePowerEffect(a, "vicissitude:4"); await wait(300);
@@ -2313,13 +2317,22 @@ try {
       await rs;
       out.gangrel = [...pre, g.getFlag(sid, "proteanModifiedForms")?.battle?.animal];
       await Actor.deleteDocuments([g.id]);
+      // случайная форма (генератор NPC): нужной длины, без повторов, Сердце нелюди и Смерть кощея — не вместе
+      out.random = Array.from({ length: 300 }, () => ZD.randomZulo(4)).every(x => x.length === 4 && new Set(x).size === 4 && !(x.includes("heart") && x.includes("koshchei")));
+      // NPC с Изменчивостью 4 при включённом хоумруле — сразу с формой из трёх черт
+      await game.settings.set(sid, "horridForm", "zulo");
+      const NB = await sys("module/apps/npc-build.mjs"), LI = await sys("module/apps/library.mjs");
+      const npc = await NB.createNpc({ actor: "vampire", system: { clan: "tzimisce" }, items: [LI.LibraryItems.discipline("vicissitude", 4)] }, { name: "E2E — NPC Изверг" });
+      out.npc = npc.getFlag(sid, "zuloForm")?.traits?.length ?? 0;
+      await game.settings.set(sid, "horridForm", before);
+      await Actor.deleteDocuments([npc.id]);
       return out;
     });
     const want = { hidden: false, shown: true, learn: { slots: "/ 4", price: "4", koshchei: true, swaps: "", save: true }, form: [5, 1, 0, -1, true], built: [10, true, 2],
       defs: [true, 2, 2, 1, 3, "Костяные когти"], intim: 7, frenzy: [1],
       extra: [1, 2], heal: [0, 1], off: [2, false, false], change: { slots: "/ 4", koshchei: true, swaps: "Замен: 1 · опыт: 1", save: true },
       after: ["bogatyr,likho,veles,vodyanoy", 1], ossified: [2, true, "bogatyr,likho,veles,vodyanoy", "claws,spikes"], core: 4,
-      gangrel: ["рысь", "2", "smell", "ворон", "медведь"] };
+      gangrel: ["рысь", "2", "smell", "ворон", "медведь"], cells: ["lethal,lethal", 2], random: true, npc: 3 };
     const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });

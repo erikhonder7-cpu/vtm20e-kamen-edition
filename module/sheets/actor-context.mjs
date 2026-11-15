@@ -256,6 +256,8 @@ export function prepareRegistry(sheet, ctx) {
     current: i === lastHurt,
     mark: VTM20.damageTypes[l.state]?.mark ?? ""
   }));
+  // Стан лиха (форма зуло): лишние «Синяки» перед шкалой, штраф 0
+  ctx.healthExtra = (s.health.extra ?? []).map(l => ({ ...l, label: t("Zulo.ExtraCell"), mark: VTM20.damageTypes[l.state]?.mark ?? "" }));
   // Корпус призрака: под ячейкой — её номер (штрафов за раны нет)
   if (a.type === "wraith") for (const [i, h] of ctx.health.entries()) Object.assign(h, { label: "", penaltyLabel: String(i + 1), out: false, sev: 0 });
   ctx.healthStatus = s.health.status === "healthy" ? t("Health.healthy") : t(`Health.${s.health.status}`);

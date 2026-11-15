@@ -1321,3 +1321,9 @@ body.r-theme-light .vtm20 .r-motto { color: rgba(140, 28, 34, .75); }
 /* значок библиотеки у подписи поля (Натура, Маска — архетипы) */
 .vtm20 .r-df-lib { margin-left: 6px; font-size: 10px; color: var(--r-muted); cursor: pointer; opacity: .7; transition: opacity .15s, color .15s; }
 .vtm20 .r-df-lib:hover { opacity: 1; color: var(--r-accent); }
+
+/* Стан лиха (форма зуло): лишние уровни «Синяки» перед шкалой — пунктир цвета старой кости, уходят вместе с формой */
+.vtm20 .r-hbox.is-extra .r-hbox-mark { border-style: dashed; border-color: rgba(201, 169, 106, .7); }
+.vtm20 .r-hbox.is-extra.is-empty .r-hbox-mark { background: rgba(201, 169, 106, .06); }
+.vtm20 .r-hbox.is-extra .r-hbox-pen { color: #c9a96a; }
+.vtm20 .r-hbox.is-extra + .r-hbox:not(.is-extra) { margin-left: 4px; }

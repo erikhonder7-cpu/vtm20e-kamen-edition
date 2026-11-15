@@ -232,7 +232,9 @@ function bloodLine(a) {
 /** Левое крыло: Жизнь (клетки листа с отметками урона, штраф — в подсказке) и Воля. */
 function leftWing(s) {
   const last = s.health.levels.reduce((n, l, i) => l.state && l.state !== "empty" && l.state !== "none" ? i : n, -1);
-  const cells = s.health.levels.map((l, i) => `<i class="hb is-${l.state}${i === last ? " is-current" : ""}${i === s.health.levels.length - 1 ? " is-last" : ""}" data-tooltip="${esc(game.i18n.localize(l.label))}">${l.state === "empty" || l.state === "none" ? "" : VTM20.damageTypes[l.state]?.mark ?? ""}</i>`).join("");
+  // Стан лиха (форма зуло): лишние «Синяки» перед шкалой
+  const extra = (s.health.extra ?? []).map(l => `<i class="hb is-extra is-${l.state}" data-tooltip="${esc(t("Zulo.ExtraCell"))}">${l.state === "empty" ? "" : VTM20.damageTypes[l.state]?.mark ?? ""}</i>`).join("");
+  const cells = extra + s.health.levels.map((l, i) => `<i class="hb is-${l.state}${i === last ? " is-current" : ""}${i === s.health.levels.length - 1 ? " is-last" : ""}" data-tooltip="${esc(game.i18n.localize(l.label))}">${l.state === "empty" || l.state === "none" ? "" : VTM20.damageTypes[l.state]?.mark ?? ""}</i>`).join("");
   const note = s.health.damage ? `${game.i18n.localize(`VTM20.Health.${s.health.status}`)}${s.health.penalty ? ` ${s.health.penalty}` : ""}` : t("Health.healthy");
   const w = s.willpower;
   return `<span class="rh-lbl">${esc(t(s.wraith ? "Wraith.Corpus" : "Sheet.Health"))}</span><span class="rh-scales"><span class="rh-row is-health">${cells}</span></span><b class="rh-num rh-wound ${s.health.damage ? "is-hurt" : ""}">${esc(note)}</b>

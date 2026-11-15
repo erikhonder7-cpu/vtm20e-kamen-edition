@@ -7808,6 +7808,7 @@
     },
     "Zulo": {
       "Kicker": "Vicissitude · house rule",
+      "ExtraCell": "Likho Stature: extra Bruised level (no penalty, goes away with the form)",
       "Price": "Transformation cost: <b>{n}</b> blood <span>(2 + built-in {extra})</span>",
       "BuiltLine": "Built in (+{n} blood): {list}",
       "Built": {
@@ -7849,7 +7850,7 @@
       "Form": "Zulo shape",
       "NoForm": "Zulo shape: no traits chosen yet — click to choose",
       "Chosen": "Traits chosen",
-      "Source": "Lucky Dicepool house rule (S. Timoshkin, 2020). Full rule — rules compendium, chapter 10; descriptive traits — Effects tab.",
+      "Source": "Lucky Dicepool house rule (S. Timoshkin, 2020). Full rule — rules compendium, chapter 11; descriptive traits — Effects tab.",
       "Nav": {
         "body": "Flesh",
         "arms": "Weapons",

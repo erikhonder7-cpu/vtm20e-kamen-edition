@@ -65,6 +65,17 @@ export function zuloTraits(actor) {
   return Array.isArray(f?.traits) ? f.traits.filter(k => ZULO_KEYS.has(k)) : null;
 }
 
+/** Случайный набор из n совместимых черт (генератор NPC): несовместимые (Сердце нелюди / Смерть кощея) не вместе. */
+export function randomZulo(n = 3, rnd = Math.random) {
+  const pool = [...ZULO_TRAITS], out = [];
+  while (out.length < n && pool.length) {
+    const x = pool.splice(Math.floor(rnd() * pool.length), 1)[0];
+    if (x.excl && out.includes(x.excl)) continue;
+    out.push(x.key);
+  }
+  return out;
+}
+
 /** Встроенные силы формы: Искусство костей (claws, spikes) и свободный список перенесённого — каждая +1 кровь. */
 export function zuloBuilt(actor) {
   const f = actor?.getFlag?.(SYSTEM_ID, ZULO_FLAG) ?? {};

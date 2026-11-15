@@ -112,6 +112,10 @@ class BaseActorData extends foundry.abstract.TypeDataModel {
     const worst = h.damage > 0 ? VTM20.healthLevels[h.damage - 1] : null;
     h.incapacitated = h.damage >= 7;
     h.penalty = h.incapacitated ? 0 : (worst?.penalty ?? 0);
+    // Стан лиха (форма зуло, data/zulo.mjs): лишние уровни «Синяки» — перед шкалой, урон на них — флагом эффекта формы
+    const xb = this.fx?.extraBruised, xd = xb?.effect?.flags?.[SYSTEM_ID]?.bruisedDmg ?? {};
+    const [xa, xl, xs] = [xd.aggravated ?? 0, xd.lethal ?? 0, xd.bashing ?? 0];
+    h.extra = Array.from({ length: xb?.max ?? 0 }, (_, i) => ({ state: i < xa ? "aggravated" : i < xa + xl ? "lethal" : i < xa + xl + xs ? "bashing" : "empty" }));
     // Доспех Терры: штрафы ран мягче на 1
     if (this.fx?.woundEase && h.penalty < 0) h.penalty = Math.min(0, h.penalty + this.fx.woundEase);
     h.status = worst?.key ?? "healthy";

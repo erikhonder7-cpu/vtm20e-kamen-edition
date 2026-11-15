@@ -105,6 +105,10 @@ class Pack {
         ownership: { default: -1 }, flags: {}, _stats: stats() })) });
   }
   async write() {
+    // один _id у двух документов — база молча оставит последний (так глава 10 «Магия Шабаша» пропала в 4.1.2): стоп
+    const seen = new Map(), dup = [];
+    for (const x of this.items) { if (seen.has(x._id)) dup.push(`«${seen.get(x._id)}» и «${x.name}»`); else seen.set(x._id, x.name); }
+    if (dup.length) throw new Error(`packs/${this.name}: одинаковый id у документов — ${dup.join("; ")} (повтор ключа в данных)`);
     const dir = path.join(ROOT, "packs", this.name);
     // Открытый компендиум держит LOCK — под работающим Foundry его не трогаем: сначала пробуем
     // открыть базу, и только если она свободна, удаляем и пишем заново
@@ -322,7 +326,7 @@ BUILDERS.rules = function () {
   { const g = readJson("strategy-guide"); p.addBook({ name: g.name, pages: g.pages, key: `rules:${g.key}` }); }
   // глава 9 — инфернализм: договоры и Вложения (data/rules-infernal.json, tools/infernal_docs.py)
   for (const ch of data("rules-infernal")) p.addBook({ name: ch.name, pages: ch.pages, key: `rules:${ch.key}` });
-  // глава 10 — хоумрулы (data/rules-homerules.json): форма зуло Lucky Dicepool, тексты черт — из lang/ru.json
+  // глава 11 — хоумрулы (data/rules-homerules.json): форма зуло Lucky Dicepool, тексты черт — из lang/ru.json
   for (const ch of data("rules-homerules")) p.addBook({ name: ch.name, pages: ch.pages, key: `rules:${ch.key}` });
   return p;
 };

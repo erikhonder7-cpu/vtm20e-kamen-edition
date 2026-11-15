@@ -178,6 +178,9 @@ export class WriteCreator {
     await a.setFlag(SYSTEM_ID, "created", true);
     if (this.isThrall) await this.writePact();
     ui.notifications.info(t("Creator.Done", { name: st.name }));
+    // форма зуло (хоумрул, apps/zulo.mjs): Изменчивость 4+ — сразу собрать Чудовищный облик
+    const Z = await import("../../data/zulo.mjs");
+    if (Z.zuloOn() && (a.discipline?.("vicissitude") ?? 0) >= 4 && !Z.zuloTraits(a)?.length) (await import("../zulo.mjs")).configureZulo(a);
   }
 
   /** Договор слуги — строкой в листе хозяина (system.thralls): Вера, доля, Воля, условия и дары. */
