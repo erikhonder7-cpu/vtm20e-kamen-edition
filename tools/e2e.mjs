@@ -6604,6 +6604,13 @@ try {
       out.ug = [C.view().bugOn, area.filter(f => !f.properties.minor && !String(f.properties.id).startsWith("st:")).length,
         area.filter(f => String(f.properties.id).startsWith("st:")).length > 40, area.filter(f => f.properties.minor).length > 60, src("rc-bug-cells").length > 0,
         !!root.querySelector(".rc-bug-panel")];
+      // узловые станции — со своей историей; станции туннеля Север-Юг — по дате открытия (Анхальтский вокзал — 9.10.1939)
+      const lbl = n => src("rc-bug-label").find(f => f.properties.name === n);
+      out.stations = [/Носферату/.test(lbl("U Alexanderplatz")?.properties.sub ?? ""), !!lbl("S Anhalter Bahnhof"), !!lbl("S Unter den Linden")];
+      const { setClock, getClock } = await import(`/systems/${game.system.id}/module/apps/calendar.mjs`), was = getClock();
+      await setClock(new Date(1939, 8, 1, 23, 0).getTime(), false); await wait(1500);
+      out.stations.push(!src("rc-bug-label").some(f => f.properties.name === "S Anhalter Bahnhof"));
+      await setClock(was, false); await wait(800);
       // мел: знак у себя во флаге — у всех на стене; стереть
       await game.user.setFlag(id, "tunnelMarks", [{ id: "e2etest", lat: 52.52, lng: 13.405, icon: "arrow", rot: 90, text: "" }]); await wait(600);
       out.chalk = src("rc-bug-marks").length;
@@ -6614,7 +6621,7 @@ try {
     }, BERLIN);
     // 1943-12-01: 9 пятен (до Гедехтнискирхе включительно); подземье — 31 место (всё построено к этой дате), станции подземных
     // участков метро, малые выработки внутри Кольца, план на клетках и список мест
-    const want = { places: 113, style: "berlinnight", blackout: "on", stains: 9, metro: [true, true], ug: [true, 31, true, true, true, true], chalk: 1, chalkGone: 0 };
+    const want = { places: 113, style: "berlinnight", blackout: "on", stains: 9, metro: [true, true], ug: [true, 31, true, true, true, true], stations: [true, true, true, true], chalk: 1, chalkGone: 0 };
     const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   } finally { await restoreBerlin(); } });
