@@ -49,7 +49,7 @@
           {{#each g.subgroups as |sub|}}
           <section class="r-nx-sub {{#if sub.collapsed}}collapsed{{/if}}" data-sub="{{sub.id}}">
             <header class="r-nx-subhead">
-              <a class="r-nx-caret" data-action="collapse" data-key="{{sub.key}}">
+              <a class="r-nx-caret" data-action="collapse" data-key="{{sub.key}}" data-tooltip="{{localize 'VTM20.Nexus.Collapse'}}">
                 <i class="fa-solid {{#if sub.collapsed}}fa-chevron-right{{else}}fa-chevron-down{{/if}}"></i>
               </a>
               <span class="r-nx-subname">{{sub.name}}</span>

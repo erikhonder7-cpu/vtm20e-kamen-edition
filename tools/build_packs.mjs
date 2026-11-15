@@ -154,9 +154,9 @@ function editionLabel(src) {
 const BUILDERS = {
   equipment() {
     const p = new Pack("equipment");
-    for (const { name, group, source, description = "", era, ...system } of WEAPON_PRESETS)
+    for (const { name, group, source, description = "", era: _era, ...system } of WEAPON_PRESETS)
       p.add({ name, type: "weapon", folder: group, img: weaponIcon(name, system.kind), system: { ...system, source: source ?? "", description: description + sourceLine(source) } });
-    for (const { name, group, source, description = "", era, ...system } of ARMOR_PRESETS)
+    for (const { name, group, source, description = "", era: _era, ...system } of ARMOR_PRESETS)
       p.add({ name, type: "armor", folder: group, img: armorIcon(system.rating), system: { ...system, source: source ?? "", description: description + sourceLine(source) } });
     for (const { name, group, source, description = "", quantity = 1 } of GEAR_PRESETS)
       p.add({ name, type: "gear", folder: group, key: `gear:${group}:${name}`, system: { quantity, source: source ?? "", description: description + sourceLine(source) } });

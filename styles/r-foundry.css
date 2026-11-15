@@ -429,3 +429,9 @@ body.r-skin #combat .r-ct-celerity-phase button:hover { background: rgba(196, 71
 
 /* Свёрнутая правая панель: лента чата уезжает за край, но торчала на 1 px — со своей полосой прокрутки у значков */
 #sidebar-content:not(.expanded) { visibility: hidden; }
+
+/* Окно «Настройки» Foundry: заголовки разделов настроек системы (module/ui/settings-groups.mjs) */
+section[data-category="system"] .r-settings-head { display: flex; align-items: center; gap: 10px; margin: 18px 0 6px; padding: 0; border: 0;
+  color: #c9a96a; font-family: "IM Fell SC", "Prata", Georgia, serif; font-size: 13px; font-weight: 400; letter-spacing: 1.4px; text-transform: uppercase; }
+section[data-category="system"] .r-settings-head:first-child { margin-top: 4px; }
+section[data-category="system"] .r-settings-head::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(196, 71, 76, .55), rgba(216, 207, 191, .05)); }

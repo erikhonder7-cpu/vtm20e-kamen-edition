@@ -107,6 +107,23 @@ console.log("Данные: JSON читаются");
     for (const m of fs.readFileSync(f, "utf8").matchAll(/["'`](VTM20\.[A-Za-z0-9_.]*[A-Za-z0-9_])["'`]/g)) if (!has(m[1])) lost.set(m[1], path.relative(ROOT, f));
   ok(!lost.size, `ключи перевода без строки в ru.json (${lost.size}): ${show([...lost].map(([k, f]) => `${k} — ${f}`))}`);
   console.log("Ключи перевода в коде и шаблонах: все на месте");
+  // 3г. Строки перевода, которые нигде не используются: последнее звено ключа не встречается ни в коде, ни в шаблонах,
+  // ни в данных — и не собирается по частям («Раздел.${k}», «Bond${n}», «"KindSub"» строкой). Чтобы не копились остатки старых окон.
+  let src = [...walk(path.join(ROOT, "module")).filter(f => /\.(mjs|hbs)$/.test(f)), ...walk(path.join(ROOT, "templates")).filter(f => f.endsWith(".hbs")),
+    path.join(ROOT, "vtm20.mjs"), path.join(ROOT, "system.json")].map(f => fs.readFileSync(f, "utf8")).join("\n");
+  for (const f of fs.readdirSync(path.join(ROOT, "data"))) if (f.endsWith(".json") && fs.statSync(path.join(ROOT, "data", f)).size < 400000) src += fs.readFileSync(path.join(ROOT, "data", f), "utf8");
+  const re = s => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const unused = Object.keys(ru).filter(k => {
+    const parts = k.split("."), leaf = parts.at(-1), parent = parts.at(-2) ?? "", num = leaf.match(/^(.*?)\d+$/)?.[1];
+    if (src.includes(leaf)) return false;
+    if (new RegExp(`${re(parent)}\\.\\$\\{`).test(src) || new RegExp(`["'\`]${re(parts.slice(1, -1).join("."))}\\.["'\`]`).test(src)) return false;
+    if (new RegExp(`["'\`]${re(parent)}["'\`]`).test(src)) return false;
+    if (num && src.includes(`${num}\${`)) return false;
+    const suffix = leaf.match(/[A-Z][a-z]+$/)?.[0];
+    return !(suffix && new RegExp(`\\}${re(suffix)}\``).test(src));
+  });
+  ok(!unused.length, `строки перевода нигде не используются (${unused.length}) — удалите из ru.json и en.json: ${show(unused)}`);
+  console.log("Строки перевода: неиспользуемых нет");
 }
 
 // ── 3а. Тексты сил и черт: «Описание» + «Система» (tools/text_structure.py) ──

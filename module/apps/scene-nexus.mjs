@@ -349,7 +349,7 @@ export class SceneNexus extends HandlebarsApplicationMixin(ApplicationV2) {
     const CAP = 24;
     const rows = toks.slice(0, CAP).map(t => {
       const img = t.texture?.src || t.actor?.img || "";
-      const ic = img ? `<img src="${esc(img)}" loading="lazy">` : `<span class="r-nx-tip-noimg">◈</span>`;
+      const ic = img ? `<img src="${esc(img)}" alt="" loading="lazy">` : `<span class="r-nx-tip-noimg">◈</span>`;
       return `<div class="r-nx-tip-tok${t.hidden ? " hidden" : ""}">${ic}<span>${esc(t.name || t.actor?.name || "—")}</span></div>`;
     }).join("");
     const more = toks.length > CAP ? `<div class="r-nx-tip-more">…+${toks.length - CAP}</div>` : "";

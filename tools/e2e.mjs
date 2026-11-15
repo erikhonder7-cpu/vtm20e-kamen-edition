@@ -1443,7 +1443,6 @@ try {
       // Могущество крови: 1 успех — поколение 10 → 9 на час, запас 13 → 14; второй раз за ночь — нельзя
       await apply("thaumaturgy|Blood of Potency", 1, true);
       out.potency = [a.system.effectiveGeneration, a.system.blood.max];
-      const before = [...foundry.applications.instances.values()].length;
       await rollPowerRef(a, `thaumaturgy|path|${path}|2`);
       await new Promise(res => setTimeout(res, 400));
       out.once = [...foundry.applications.instances.values()].filter(x => x.constructor.name === "RollDialog" && x.actor === a).length;
@@ -1999,7 +1998,7 @@ try {
   // Театр теней «опутать» — на цели Выносливость −1
   await check("Затмение через HUD", async () => {
     const r = await page.evaluate(async () => {
-      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms));
+      const wait = ms => new Promise(res => setTimeout(res, ms));
       const mk = (name, type, system = {}) => Actor.create({ name, type, flags: { world: { e2e: true } }, system });
       const a = await mk("E2E — ласомбра HUD", "vampire", { generation: 8, blood: { value: 15 } });
       const m = await mk("E2E — жертва тени", "mortal", { attributes: { stamina: { value: 3 } } });
@@ -2456,7 +2455,7 @@ try {
   // Ясновидение через HUD: Психометрия — сложность по следу; Телепатия — чтение вампира стоит Волю; Проекция — сложность по месту
   await check("Ясновидение через HUD", async () => {
     const r = await page.evaluate(async () => {
-      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms));
+      const wait = ms => new Promise(res => setTimeout(res, ms));
       const mk = (name, type, system = {}) => Actor.create({ name, type, flags: { world: { e2e: true } }, system });
       const a = await mk("E2E — тореадор-провидец", "vampire", { generation: 9, blood: { value: 12 }, willpower: { permanent: 6, temporary: 6 } });
       const v = await mk("E2E — читаемый вампир", "vampire", { generation: 10, willpower: { permanent: 5, temporary: 4 } });
@@ -3936,7 +3935,7 @@ try {
         out.feraNatural = (f.system.formFx?.weapons ?? []).map(w => w.key).sort().join(",");
         // тотем стаи: Химера даёт Загадки 3
         const g = await mk({ name: "E2E — Гару тотема", type: "werewolf" });
-        const pack = await mk({ name: "E2E — стая", type: "coterie", system: { kind: "pack", members: [g.id], totem: "chimera" } });
+        await mk({ name: "E2E — стая", type: "coterie", system: { kind: "pack", members: [g.id], totem: "chimera" } });
         out.totem = C.totemTraits(g)?.traits?.["abilities.enigmas"] ?? 0;
         // узы: таймер ослабления
         const Bo = await import(`/systems/${SYS}/module/apps/bonds.mjs`), Cal = await import(`/systems/${SYS}/module/apps/calendar.mjs`);
@@ -4220,7 +4219,7 @@ try {
       }, ids.a);
       await wait(2000);
       const g = await page.evaluate(async ({ ids, uid, offer }) => {
-        const sid = game.system.id, G = await import(`/systems/${sid}/module/apps/shadowguide.mjs`), W = await import(`/systems/${sid}/module/apps/wraith.mjs`);
+        const sid = game.system.id, G = await import(`/systems/${sid}/module/apps/shadowguide.mjs`);
         const { rollPool } = await import(`/systems/${sid}/module/dice/roll.mjs`);
         const a = game.actors.get(ids.a), b = game.actors.get(ids.b), fresh = game.messages.contents.slice(ids.n0), out = {};
         out.angst = a.system.wraith.shadow.angst.temporary;
@@ -4733,7 +4732,7 @@ try {
   // Корпус до колебания и Испытание, Катарсис (Ангст выше Воли), Тёмная Страсть — шёпотом ведущему
   await check("Призрак: мастер создания — Легион, Гильдия, Арканои, Страсти и Оковы, торг с Тенью, Тень", async () => {
     const r = await page.evaluate(async () => {
-      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {}, inst = () => [...foundry.applications.instances.values()];
+      const wait = ms => new Promise(res => setTimeout(res, ms)), out = {}, inst = () => [...foundry.applications.instances.values()];
       const a = await Actor.create({ name: "E2E — новопреставленный", type: "wraith", flags: { world: { e2e: true } } });
       out.gate = a.sheet.needsCreation;
       await game.vtm20.openCreator(a); await wait(700);
@@ -5034,7 +5033,7 @@ try {
 
   await check("Призрак: мастер — пути Спектра, Восставшего, проектора и Оттенка цвета", async () => {
     const r = await page.evaluate(async () => {
-      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {}, inst = () => [...foundry.applications.instances.values()];
+      const wait = ms => new Promise(res => setTimeout(res, ms)), out = {}, inst = () => [...foundry.applications.instances.values()];
       const run = async (name, setup) => {
         const a = await Actor.create({ name, type: "wraith", flags: { world: { e2e: true } } });
         await game.vtm20.openCreator(a); await wait(600);
@@ -6251,13 +6250,12 @@ try {
   // неделя работы копит успехи до порога, ботч — минус по Банальности; Расхищение — Гламур и ранги фригольда; кит таллейна на листе и в НПС
   await check("Подменыш: ремесло, Расхищение баэлфайра, иные фэ", async () => {
     const r = await page.evaluate(async () => {
-      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), CL = await import(`/systems/${sid}/module/apps/changeling.mjs`);
+      const sid = game.system.id, CL = await import(`/systems/${sid}/module/apps/changeling.mjs`);
       const B = await import(`/systems/${sid}/module/apps/npc-build.mjs`), n0 = game.messages.size, out = {}, rnd = CONFIG.Dice.randomUniform;
       const a = await Actor.create({ name: "E2E — мастер Грёзы", type: "changeling", flags: { world: { e2e: true }, [sid]: { created: true } },
         system: { attributes: { dexterity: { value: 3 }, intelligence: { value: 3 } }, abilities: { crafts: { value: 3 } },
           changeling: { glamour: { permanent: 8, temporary: 0 }, banality: { permanent: 6, temporary: 0 }, crafts: [{ name: "Лунный клинок", tier: "advanced", mod: 0, plan: 0, got: 0, helpers: 1 }] } } });
       const m = await Actor.create({ name: "E2E — мотли расхищения", type: "coterie", flags: { world: { e2e: true } }, system: { kind: "motley", members: [a.id], motley: { freehold: "Колодец", rating: 2 } } });
-      let npc = null;
       try {
         CONFIG.Dice.randomUniform = () => 0.0001;
         await CL.craftRoll(a, 0, "plan");                      // 6 десяток: план 6 → −1 к сложности
@@ -6290,7 +6288,7 @@ try {
   // Справочники гулей и ревенантов (Ghouls & Revenants) и дампиров (Accursed Heirs) — по знаку листа, на своём семействе или клане Предка
   await check("Гуль: справочники — гули и ревенанты (семейства, правила, черты), дампиры (Права крови, ритуалы, кровь кланов)", async () => {
     const r = await page.evaluate(async () => {
-      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), A = await import(`/systems/${sid}/module/apps/atlas.mjs`), out = {};
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {};
       const a = await Actor.create({ name: "E2E — ревенант Братович", type: "ghoul", flags: { world: { e2e: true }, [sid]: { created: true } }, system: { ghoulType: "revenant", family: "bratovich" } });
       const d = await Actor.create({ name: "E2E — дампир", type: "ghoul", flags: { world: { e2e: true }, [sid]: { created: true } }, system: { ghoulType: "dhampir", dhampir: { antecedentClan: "brujah" } } });
       try {

@@ -223,9 +223,9 @@ export async function renownAward(actor) {
       next = `${esc(t("ToRank", { n: nextRoman }))}: ${t("RankSum", { n: need })} <b class="${have >= need ? "is-met" : ""}">${t("NeedOf", { have, need })}</b>`;
     } else if (need) next = `${esc(t("ToRank", { n: nextRoman }))}: ${t("RankEach", { g: need[0], h: need[1], w: need[2] })}`;
     return `<div class="r-ws-rank">
-        ${edit ? `<a class="r-ws-step" data-step="-1"><i class="fa-solid fa-chevron-left"></i></a>` : ""}
+        ${edit ? `<a class="r-ws-step" data-step="-1" data-tooltip="${esc(game.i18n.localize("VTM20.A11y.RankDown"))}"><i class="fa-solid fa-chevron-left"></i></a>` : ""}
         <div class="r-ws-medal"><span class="r-ws-roman">${ROMAN_RANK[w.rank] ?? w.rank}</span></div>
-        ${edit ? `<a class="r-ws-step" data-step="1"><i class="fa-solid fa-chevron-right"></i></a>` : ""}
+        ${edit ? `<a class="r-ws-step" data-step="1" data-tooltip="${esc(game.i18n.localize("VTM20.A11y.RankUp"))}"><i class="fa-solid fa-chevron-right"></i></a>` : ""}
         <div class="r-ws-title"><b>${esc((!w.fera && D.rankNames?.[w.rank - 1]) || `${t("Rank")} ${ROMAN_RANK[w.rank] ?? w.rank}`)}</b><span>${aus ? `<span class="r-ws-aus">${wwGlyph(`auspice-${aus.key}`)}</span>` : ""}${esc(aus?.name ?? "")}</span><em>${next}</em>
           ${edit && rankReady(actor) ? `<a class="r-btn r-ws-challenge" data-challenge><i class="fa-solid ${w.rank ? "fa-hand-fist" : "fa-moon"}"></i> ${esc(t(w.rank ? "Challenge.Btn" : "Challenge.PassageBtn"))}</a>` : ""}</div>
       </div>

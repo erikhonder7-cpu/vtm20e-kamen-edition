@@ -487,3 +487,7 @@ body.r-theme-light .vtm20 .r-sym { background: linear-gradient(170deg, #3a3029, 
 /* r-numbox: римские цифры уровней в квадратиках — по центру. У Prata запас под выносными больше верхнего, и центр строки выше центра
    заглавных на ~0,13em: сдвигаем содержимое вниз верхним отступом (центр сетки смещается на половину отступа) */
 .vtm20.vtm20 :is(.r-lib-plvl, .r-lib-lvl, .r-lib-cost, .r-power-lvl), .vtm20.vtm20 .r-ladder .r-power-lvl { padding-top: .26em; }   /* выше по весу: r-sheet.css и r-apps.css грузятся позже */
+
+/* Кнопки-ссылки системы с клавиатуры (module/ui/a11y.mjs): рамка фокуса только при ходьбе Tab'ом */
+.vtm20 [role="button"]:focus-visible, #r-hud [role="button"]:focus-visible, [class*="r-"][role="button"]:focus-visible {
+  outline: 1px solid var(--r-blood-l, #c4474c); outline-offset: 2px; }

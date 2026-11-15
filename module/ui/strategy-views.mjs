@@ -99,7 +99,7 @@ export function sectorView(s) {
   const toks = Object.entries(s.tokens[x.key] ?? {}).filter(([, n]) => n > 0);
   const vis = toks.filter(([k]) => sees(x.key, k, s)), total = toks.reduce((n, [, v]) => n + v, 0);
   const row = ([k, n]) => { const o = owner(k, s);
-    return `<li style="--c:${o.color}">${o.img ? `<img src="${esc(o.img)}">` : `<i class="rs-dot"></i>`}<span>${esc(o.name)}</span>
+    return `<li style="--c:${o.color}">${o.img ? `<img src="${esc(o.img)}" alt="">` : `<i class="rs-dot"></i>`}<span>${esc(o.name)}</span>
       <b class="rs-pips">${"●".repeat(n)}<small>${"○".repeat(Math.max(0, MAX - n))}</small></b>
       ${gm ? `<a data-rs="tok" data-owner="${k}" data-d="-1"><i class="fa-solid fa-minus"></i></a><a data-rs="tok" data-owner="${k}" data-d="1"><i class="fa-solid fa-plus"></i></a>` : ""}</li>`; };
   const district = x.district && EXT.strategy.districts.flatMap(f => f()).find(d => d.key === x.district);

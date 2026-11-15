@@ -42,7 +42,7 @@
     <ul class="r-cult-list">
       {{#each members}}
       <li class="r-cult-member">
-        {{#if uuid}}<a class="r-cult-link" data-action="open" data-uuid="{{uuid}}"><i class="fa-solid fa-user"></i></a>{{/if}}
+        {{#if uuid}}<a class="r-cult-link" data-action="open" data-uuid="{{uuid}}" data-tooltip="{{localize 'VTM20.Group.OpenSheet'}}"><i class="fa-solid fa-user"></i></a>{{/if}}
         <input type="text" name="members.{{i}}.name" value="{{name}}" {{#unless @root.editable}}disabled{{/unless}}>
         <select name="members.{{i}}.role" {{#unless @root.editable}}disabled{{/unless}}>{{#each roles}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
         <input type="text" name="members.{{i}}.note" value="{{note}}" placeholder="{{localize 'VTM20.Cult.NotePh'}}" {{#unless @root.editable}}disabled{{/unless}}>

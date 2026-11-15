@@ -47,6 +47,8 @@ import { registerTorpor, checkTorpor } from "./module/apps/torpor.mjs";
 import { registerIncome, checkIncome } from "./module/apps/income.mjs";
 import { registerTorment } from "./module/apps/torment.mjs";
 import { registerZulo } from "./module/apps/zulo.mjs";
+import { registerA11y } from "./module/ui/a11y.mjs";
+import { registerSettingsGroups } from "./module/ui/settings-groups.mjs";
 import { registerPossession } from "./module/apps/possession.mjs";
 import { registerCult } from "./module/apps/cult.mjs";
 import { registerExorcist } from "./module/apps/exorcist.mjs";
@@ -172,6 +174,7 @@ Hooks.once("init", () => {
   registerIncome();
   registerTorment();
   registerZulo();
+  registerSettingsGroups();
   registerPossession();
   registerCult();
   registerExorcist();
@@ -246,6 +249,8 @@ Hooks.on("renderPlayers", (app, html) => {
 });
 
 Hooks.once("ready", async () => {
+  // кнопки системы с клавиатуры и для дикторов (module/ui/a11y.mjs) — после загрузки перевода
+  registerA11y();
   // маркер хода системы — по умолчанию один раз (рассказчик может сменить в настройках трекера боя)
   if (game.user.isGM && !game.settings.get(SYSTEM_ID, "turnMarkerSet")) {
     try {
