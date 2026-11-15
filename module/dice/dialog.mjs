@@ -435,7 +435,9 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       kind: cfg.kind ?? "check", messageMode: v.messageMode, whisperAlso: cfg.whisperAlso, auto: c.auto,
       // без провала: Облик ликийца, Лебединая дева, богган (apps/lykeian.mjs)
       ...(cfg.noBotch || noBotchFor(this.actor, [v.trait1, v.trait2]) ? { noBotch: true } : {}),
-      extra: { ...(cfg.extra ?? {}), contest: v.contest, ...(v.contest === "extended" ? { extended: { need: v.need, prev: 0, step: 0 } } : {}) },
+      extra: { ...(cfg.extra ?? {}), contest: v.contest, ...(v.contest === "extended" ? { extended: { need: v.need, prev: 0, step: 0 } } : {}),
+        // потрачена ли кровь на силу — для итога «кровь потрачена впустую» (dice/roll.mjs)
+        bloodPaid: v.payBlood && cfg.bloodCost > 0 && this.actor.hasBlood ? cfg.bloodCost : 0 },
       notes, effect: cfg.effect ?? ""
     });
     // Использованное доп. действие списывается сразу после успешного броска,

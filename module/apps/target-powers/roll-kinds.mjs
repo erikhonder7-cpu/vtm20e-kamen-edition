@@ -54,7 +54,7 @@ async function onTele(ctx) {
 async function onConflag(ctx) {
   const { actor, p, link, opts } = ctx;
   // сколько крови в пламя: столько губительных при попадании
-  const max = Math.min(actor.system.blood?.value ?? 0, Math.max(1, (actor.system.blood?.perTurn ?? 1) - (actor.bloodSpentThisTurn ?? 0)));
+  const max = actor.system.blood?.value ?? 0;   // сверх предела за ход трата спросит сама (spendBlood)
   if (max < 1) return { stop: ui.notifications.warn(game.i18n.format("VTM20.Notify.NoBlood", { name: actor.name })) };
   const b = Number(await ask(p.name, Array.from({ length: max }, (_, i) => [String(i + 1), t("ConflagPick", { n: i + 1 })])));
   if (!b) return { stop: null };
@@ -169,12 +169,7 @@ async function onPsycho(ctx) {
 async function onVisage(ctx) {
   const { actor, p, opts } = ctx;
   const ap = actor.system.attributes.appearance?.value ?? 0;
-  const choice = await foundry.applications.api.DialogV2.prompt({ window: { title: p.name, icon: "fa-solid fa-face-smile" }, classes: ["vtm20", "r-dialog"], rejectClose: false,
-    content: `<div class="r-form"><label class="r-field"><span>${esc(t("VisageWhat"))}</span><select name="m">
-      <option value="change">${esc(t("VisageChange"))}</option><option value="copy">${esc(t("VisageCopy"))}</option>
-      ${Array.from({ length: Math.max(0, 5 - ap) }, (_, i) => `<option value="b${ap + i + 1}">${esc(t("VisageBeauty", { v: ap + i + 1, b: 1 + i + 1 }))}</option>`).join("")}</select></label>
-      <label class="r-field"><span>${esc(t("VisageParts"))}</span><input type="number" name="parts" value="1" min="1" max="5"></label></div>`,
-    ok: { label: t("VisageGo"), callback: (e, b) => ({ m: b.form.elements.m.value, parts: Number(b.form.elements.parts.value) || 1 }) } });
+  const choice = await visageDialog(actor, p, ap, ctx.roll);
   if (!choice) return { stop: null };
   if (choice.m === "copy") ctx.roll = { ...ctx.roll, trait1: "attributes.perception", trait2: "abilities.medicine", difficulty: 8, blood: choice.parts, note: t("VisageCopyNote") };
   else if (choice.m.startsWith("b")) {
@@ -185,6 +180,78 @@ async function onVisage(ctx) {
       if ((res?.successes ?? 0) > 0) { await actor.update({ "system.attributes.appearance.value": v }); return notice(actor, p.name, t("FleshLooks", { from: ap, to: v })); }
     };
   } else ctx.roll = { ...ctx.roll, blood: choice.parts, note: t("VisageChangeNote", { n: choice.parts }) };
+}
+
+/**
+ * Окно Изменчивого облика (в стиле окон Метаморфоз): режим карточками — облик, копия человека, красота;
+ * части тела — шагом с каплями крови; цель красоты — числом; внизу — бросок, кубы, сложность и кровь, с предупреждением,
+ * если крови не хватит. Возвращает { m: "change" | "copy" | "b<цель>", parts }.
+ */
+async function visageDialog(actor, p, ap, roll = {}) {
+  const val = path => path ? actor.traitValue?.(path) ?? 0 : 0;
+  const label = path => path ? actor.traitLabel?.(path) ?? path : "";
+  const MODES = {
+    change: { icon: "fa-masks-theater", t1: roll.trait1 ?? "attributes.intelligence", t2: roll.trait2 ?? "abilities.medicine", diff: 6 },
+    copy: { icon: "fa-user-group", t1: "attributes.perception", t2: "abilities.medicine", diff: 8 },
+    beauty: { icon: "fa-gem", t1: roll.trait1 ?? "attributes.intelligence", t2: roll.trait2 ?? "abilities.medicine", diff: 9 }
+  };
+  const canBeauty = ap < 5;
+  const card = (m, x) => `<label class="r-prt-form-choice r-visage-mode${m === "beauty" && !canBeauty ? " is-off" : ""}">
+      <input type="radio" name="m" value="${m}" ${m === "change" ? "checked" : ""} ${m === "beauty" && !canBeauty ? "disabled" : ""}>
+      <span class="r-prt-choice-mark"><i class="fa-solid ${x.icon}"></i></span>
+      <span><b>${esc(t(`Visage.${m}.name`))}</b><small>${esc(m === "beauty" && !canBeauty ? t("Visage.beauty.max") : t(`Visage.${m}.text`))}</small></span></label>`;
+  const targets = Array.from({ length: Math.max(0, 5 - ap) }, (_, i) => ap + i + 1).map((v, i) => `<label class="r-visage-target">
+      <input type="radio" name="b" value="${v}" ${i === 0 ? "checked" : ""}><span><b>${v}</b><small>${esc(t("Visage.blood", { n: 1 + v - ap }))}</small></span></label>`).join("");
+  const blood = actor.system.blood?.value ?? 0;
+  const html = `<div class="r-prt r-visage">
+    <header class="r-prt-hero"><span class="r-prt-sigil"><i class="fa-solid fa-face-smile"></i></span>
+      <div><small>${esc(t("Visage.kicker"))}</small><h2>${esc(p.name)}</h2><p>${esc(t("Visage.hint"))}</p></div></header>
+    <div class="r-prt-choice-grid r-visage-modes">${Object.entries(MODES).map(([m, x]) => card(m, x)).join("")}</div>
+    <section class="r-prt-card r-visage-opt" data-for="change copy">
+      <header class="r-prt-card-head"><div><h3>${esc(t("Visage.parts"))}</h3><p>${esc(t("Visage.partsHint"))}</p></div></header>
+      <div class="r-visage-parts">
+        <div class="r-prt-stepper"><button type="button" data-step="-1" aria-label="−">−</button>
+          <input type="number" name="parts" value="1" min="1" max="5" inputmode="numeric"><button type="button" data-step="1" aria-label="+">+</button></div>
+        <span class="r-visage-drops" data-drops></span></div>
+    </section>
+    <section class="r-prt-card r-visage-opt" data-for="beauty" hidden>
+      <header class="r-prt-card-head"><div><h3>${esc(t("Visage.target"))}</h3><p>${esc(t("Visage.targetHint", { v: ap }))}</p></div></header>
+      <div class="r-visage-targets">${targets}</div>
+    </section>
+    <div class="r-visage-sum" data-sum></div>
+  </div>`;
+  return foundry.applications.api.DialogV2.prompt({
+    window: { title: p.name, icon: "fa-solid fa-face-smile" }, classes: ["vtm20", "r-dialog", "r-protean-dialog", "r-visage-dialog", "has-foot"],
+    position: { width: 600 }, content: html, rejectClose: false,
+    render: (event, dialog) => {
+      const root = dialog.element, f = root.querySelector("form") ?? root;
+      const parts = root.querySelector('[name="parts"]'), save = root.querySelector('footer button[data-action="ok"], .form-footer button[data-action="ok"]');
+      const update = () => {
+        const m = f.querySelector('[name="m"]:checked')?.value ?? "change", x = MODES[m];
+        const n = Math.clamp(Math.floor(Number(parts.value) || 1), 1, 5);
+        parts.value = n;
+        for (const s of root.querySelectorAll("[data-for]")) s.hidden = !s.dataset.for.split(" ").includes(m);
+        root.querySelectorAll("[data-step]").forEach(b => { b.disabled = (b.dataset.step === "-1" && n <= 1) || (b.dataset.step === "1" && n >= 5); });
+        const target = Number(f.querySelector('[name="b"]:checked')?.value) || ap + 1;
+        const cost = m === "beauty" ? 1 + target - ap : n;
+        root.querySelector("[data-drops]").innerHTML = Array.from({ length: n }, () => `<i class="fa-solid fa-droplet"></i>`).join("");
+        const dice = val(x.t1) + val(x.t2), short = blood < cost;
+        root.querySelector("[data-sum]").innerHTML = `<span class="r-visage-pool">${esc(label(x.t1))} + ${esc(label(x.t2))}</span>
+          <span class="r-visage-chips"><b>${dice}</b> ${esc(t("Visage.dice"))}<b>${x.diff}</b> ${esc(t("Visage.diff"))}<b class="${short ? "is-short" : ""}"><i class="fa-solid fa-droplet"></i> ${cost}</b></span>
+          ${short ? `<p class="r-visage-warn"><i class="fa-solid fa-triangle-exclamation"></i> ${esc(t("Visage.short", { n: blood }))}</p>` : ""}
+          <p class="r-visage-note">${esc(t(`Visage.${m}.note`, { v: target }))}</p>`;
+        if (save) save.disabled = m === "beauty" && !canBeauty;
+      };
+      root.querySelectorAll("[data-step]").forEach(b => b.addEventListener("click", () => { parts.value = (Number(parts.value) || 1) + Number(b.dataset.step); update(); }));
+      f.addEventListener("change", update);
+      parts.addEventListener("input", update);
+      update();
+    },
+    ok: { label: t("VisageGo"), icon: "fa-solid fa-dice-d10", callback: (e, b) => {
+      const el = b.form.elements, m = el.m.value;
+      return { m: m === "beauty" ? `b${el.b?.value ?? ap + 1}` : m, parts: Math.clamp(Number(el.parts.value) || 1, 1, 5) };
+    } }
+  });
 }
 
 // Искусство тканей: понизить (сл. 5), повысить (сл. 9) Привлекательность или укрепить тело (сл. 8)

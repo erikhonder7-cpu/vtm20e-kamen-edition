@@ -1327,3 +1327,13 @@ body.r-theme-light .vtm20 .r-motto { color: rgba(140, 28, 34, .75); }
 .vtm20 .r-hbox.is-extra.is-empty .r-hbox-mark { background: rgba(201, 169, 106, .06); }
 .vtm20 .r-hbox.is-extra .r-hbox-pen { color: #c9a96a; }
 .vtm20 .r-hbox.is-extra + .r-hbox:not(.is-extra) { margin-left: 4px; }
+
+/* Описание действующего эффекта (prepareEffects → fxDesc): выжимка «Системы», полный текст — по щелчку */
+.vtm20 .r-fx-desc { margin: 6px 0 0 32px; color: var(--r-muted); font-size: 12px; line-height: 1.45; }
+.vtm20 details.r-fx-desc > summary { cursor: pointer; list-style: none; }
+.vtm20 details.r-fx-desc > summary::-webkit-details-marker { display: none; }
+.vtm20 details.r-fx-desc > summary::after { content: " ▾"; color: var(--r-blood-l); }
+.vtm20 details.r-fx-desc[open] > summary { display: none; }
+.vtm20 .r-fx-desc-full { color: var(--r-ink-2); }
+.vtm20 .r-fx-desc-full p { margin: 0 0 6px; }
+.vtm20 .r-fx-desc-full p:last-child { margin-bottom: 0; }

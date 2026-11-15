@@ -4,6 +4,7 @@
 // Инициатива V20 — d10, поэтому значок броска инициативы — d10, а не d20 (стили — r-foundry.css).
 
 import { advanceCelerityQueue } from "../combat/celerity.mjs";
+import { movement } from "../combat/movement.mjs";
 import { SYSTEM_ID } from "../config.mjs";
 
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -55,6 +56,14 @@ export function registerCombatTracker() {
       if (a.isOwner) {
         if (a.hasBlood) parts.push(`<span class="r-ct-blood" data-tooltip="${t("Sheet.BloodPool")}"><i class="fa-solid fa-droplet"></i> ${a.system.blood.value}/${a.system.blood.max}</span>`);
         parts.push(`<span class="r-ct-will" data-tooltip="${t("Willpower")}"><i class="fa-solid fa-star"></i> ${a.system.willpower.temporary}/${a.system.willpower.permanent}</span>`);
+      }
+      // передвижение за ход (combat/movement.mjs): шаг / трусца / бег, с поправкой на раны — видно всем
+      const mv = movement(a);
+      if (mv) {
+        const nums = [mv.walk, mv.jog, mv.run].filter(n => n != null).join("/");
+        const tip = [t("Combat.Move.Tip", { w: mv.walk, j: mv.jog ?? "—", r: mv.run ?? "—" }), mv.fly ? t("Combat.Move.Fly", { f: mv.fly }) : "",
+          mv.limit ? t(`Combat.Move.Limit.${mv.limit}`) : ""].filter(Boolean).join(" · ");
+        parts.push(`<span class="r-ct-move${mv.limit ? " is-limited" : ""}" data-tooltip="${tip}"><i class="fa-solid ${mv.jog == null ? "fa-person-walking" : "fa-person-running"}"></i> ${nums}${mv.fly ? ` <i class="fa-solid fa-feather"></i> ${mv.fly}` : ""} ${t("Combat.Move.Unit")}</span>`);
       }
       const icons = STATES.filter(s => st.has(s.id)).map(s => `<i class="fa-solid ${s.icon} r-ct-state" data-tooltip="${t(`Status.${s.id.slice(2)}`)}"></i>`).join("");
       line.innerHTML = parts.join("") + icons;

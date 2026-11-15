@@ -166,7 +166,7 @@ export async function conjure(message, state, x, tp, caster) {
 
 /** Обжигающее касание: без броска — кровь (не меньше 1), каждая — −2 куба ко всем пулам цели, пока держится касание. */
 export async function burningTouch(actor, p, target) {
-  const max = Math.min(actor.system.blood?.value ?? 0, Math.max(1, (actor.system.blood?.perTurn ?? 1) - (actor.bloodSpentThisTurn ?? 0)));
+  const max = actor.system.blood?.value ?? 0;   // сверх предела за ход трата спросит сама (spendBlood)
   if (max < 1) return ui.notifications.warn(game.i18n.format("VTM20.Notify.NoBlood", { name: actor.name }));
   const n = Number(await ask(p.name, Array.from({ length: max }, (_, i) => [String(i + 1), t("BurnPick", { n: i + 1, d: 2 * (i + 1) })])));
   if (!n || !(await actor.spendBlood(n, { reason: p.name }))) return null;

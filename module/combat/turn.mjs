@@ -243,7 +243,7 @@ function chip(combat, c) {
   if (!d) return "";
   const k = DECLARE[d.kind] ?? DECLARE.other;
   const label = d.kind === "multi" ? t("MultiN", { n: d.actions }) : kindLabel(d.kind, c.actor);
-  return `<span class="r-ct-decl is-${d.kind}" data-tooltip="${esc([label, d.text, d.will ? t("Will") : ""].filter(Boolean).join(" · "))}"><i class="fa-solid ${k.icon}"></i> ${esc(label)}${d.text ? ` · <em>${esc(d.text)}</em>` : ""}${d.will ? ` <i class="fa-solid fa-star"></i>` : ""}</span>`;
+  return `<span class="r-ct-decl is-${d.kind}" data-tooltip="${esc([label, d.text, d.will ? t("Will") : ""].filter(Boolean).join(" · "))}"><i class="fa-solid ${k.icon}"></i> <span class="r-ct-decl-k">${esc(label)}${d.text ? " ·" : ""}</span>${d.text ? `<em>${esc(d.text)}</em>` : ""}${d.will ? ` <i class="fa-solid fa-star"></i>` : ""}</span>`;
 }
 
 /** Здоровье бойцов на начало хода — для сводки. */

@@ -3404,6 +3404,7 @@
       "NoBloodState": "{name}: staked or in torpor — blood can't be spent.",
       "BloodDoubled": "Thin blood: spending is doubled — blood spent: {n}.",
       "BloodPerTurn": "{name}: no more than {max} blood can be spent per turn ({spent} already spent).",
+      "BloodPerTurnAnyway": "Spend anyway",
       "SpiritHit": "Essence −{n}: {left} of {max}",
       "NoWillBlocked": "{name}: under the Frustrations of Nestrecha, Willpower cannot be spent."
     },
@@ -4418,6 +4419,18 @@
       "Title": "Night of the Kindred"
     },
     "Combat": {
+      "Move": {
+        "Tip": "Per turn: walk {w} m · jog {j} m · run {r} m",
+        "Fly": "flight {f} m",
+        "Unit": "m",
+        "Limit": {
+          "injured": "Injured: running speed halved",
+          "wounded": "Wounded: walking only; moving and attacking in one turn costs dice",
+          "mauled": "Mauled: hobbles, 3 m per turn",
+          "crippled": "Crippled: crawls, 1 m per turn",
+          "stop": "cannot move"
+        }
+      },
       "Attack": "Attack",
       "Strike": "Attack",
       "Accuracy": "Accuracy",
@@ -6004,6 +6017,7 @@
       "magic": {
         "success": "The magic works: {n} successes.",
         "failed": "The magic didn't work. The blood was spent in vain.",
+        "failedNoBlood": "The magic failed.",
         "botch": "Botched magic: trouble up to catastrophe — loss of Willpower or even a Willpower dot, spontaneous combustion, the power slips out of control. The Storyteller decides."
       },
       "ritual": {
@@ -8156,12 +8170,35 @@
       "Aura4": "fleeting shades and mixed feelings are visible",
       "AuraDiab": "black veins — the mark of diablerie",
       "AuraClean": "no trace of diablerie or outside influence",
-      "VisageWhat": "What to change",
-      "VisageChange": "features (Intelligence + Medicine, diff. 6)",
-      "VisageCopy": "copy a person (Perception + Medicine, diff. 8)",
-      "VisageBeauty": "Appearance to {v} (diff. 9, {b} blood)",
-      "VisageParts": "Body parts (blood for each)",
       "VisageGo": "To the roll",
+      "Visage": {
+        "kicker": "Vicissitude · I",
+        "hint": "The vampire shapes their own body like clay: face, height, voice — or another person's looks down to the details.",
+        "change": {
+          "name": "Visage",
+          "text": "Face, height, voice, build",
+          "note": "One blood per body part changed."
+        },
+        "copy": {
+          "name": "Copy a person",
+          "text": "Someone else's looks down to the details",
+          "note": "A flawless copy takes 5 successes; fewer leave visible flaws."
+        },
+        "beauty": {
+          "name": "Beauty",
+          "text": "Raise your own Appearance",
+          "max": "Appearance is already 5",
+          "note": "Success — Appearance {v}; a botch — −1 for good."
+        },
+        "parts": "Body parts",
+        "partsHint": "One blood each: face, hands, height…",
+        "target": "Appearance",
+        "targetHint": "Now {v} — what to make it",
+        "blood": "{n} blood",
+        "dice": "dice",
+        "diff": "diff.",
+        "short": "Not enough blood: {n} in the pool."
+      },
       "VisageChangeNote": "{n} blood — one per body part.",
       "VisageCopyNote": "A flawless copy takes 5 successes; fewer leaves visible flaws.",
       "VisageBeautyNote": "Success — Appearance {v}; a botch — permanently −1.",

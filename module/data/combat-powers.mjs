@@ -121,7 +121,8 @@ export async function powerHit(message, state, evaluated) {
       return rollDamage({ actor, pool, auto, damageType: "bashing", title, target: target.uuid, notes, supernatural: true });
     }
     case "spit": {
-      const max = Math.min(actor.system.blood?.value ?? 0, (actor.system.blood?.perTurn ?? 1) - actor.bloodSpentThisTurn);
+      // до всего запаса: сверх предела поколения за ход трата спросит сама (spendBlood → allowAnyway)
+      const max = actor.system.blood?.value ?? 0;
       if (max < 1) return ui.notifications.warn(t("Notify.NoBlood", { name: actor.name }));
       const opts = Array.from({ length: max }, (_, i) => `<option value="${i + 1}">${i + 1} → ${2 * (i + 1)}d10</option>`).join("");
       const n = await foundry.applications.api.DialogV2.prompt({

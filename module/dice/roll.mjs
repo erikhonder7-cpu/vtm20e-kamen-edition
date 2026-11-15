@@ -291,7 +291,8 @@ function hintFor(state, ev) {
   }
   if (k === "magic" || k === "ritual") {
     if (ev.outcome === "botch") return t(`Magic.${k}.botch`);
-    if (ev.outcome === "failure") return t(`Magic.${k}.failed`);
+    // сила без цены в крови (Водное убежище и т. п.) — без «кровь потрачена впустую»
+    if (ev.outcome === "failure") return t(k === "magic" && state.extra?.bloodPaid === 0 ? "Magic.magic.failedNoBlood" : `Magic.${k}.failed`);
     return t(`Magic.${k}.success`, { n: ev.successes });
   }
   return "";

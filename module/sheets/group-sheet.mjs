@@ -62,9 +62,10 @@ class GroupSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
   _onRender(context, options) {
     super._onRender(context, options);
-    if (this._dropBound) return;
-    this._dropBound = true;
+    // после закрытия окна Foundry создаёт элемент заново — привязываем к каждому новому элементу, а не один раз на лист
     const el = this.element;
+    if (this._dropBound === el) return;
+    this._dropBound = el;
     el.addEventListener("dragover", ev => { ev.preventDefault(); el.querySelectorAll("[data-drop]").forEach(z => z.classList.toggle("is-over", z.contains(ev.target))); });
     el.addEventListener("dragleave", ev => { if (!el.contains(ev.relatedTarget)) el.querySelectorAll(".is-over").forEach(z => z.classList.remove("is-over")); });
     el.addEventListener("drop", async ev => {

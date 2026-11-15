@@ -2180,6 +2180,71 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  // Лист и бой: перетаскивание в котерию после повторного открытия, описание включённой силы на вкладке «Эффекты»,
+  // передвижение за ход с ранами, окно Изменчивого облика, предел крови за ход — вопрос «всё равно потратить»
+  await check("Лист и бой: котерия, эффекты, передвижение, Изменчивый облик, предел крови", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), sys = p => import(`/systems/${sid}/${p}`);
+      const out = {}, made = [];
+      const mk = async (name, type, system = {}) => { const a = await Actor.create({ name, type, flags: { world: { e2e: true }, [sid]: { created: true } }, system }); made.push(a); return a; };
+      // котерия: закрыть и открыть лист — перетаскивание работает и после этого
+      const c = await mk("E2E — котерия drop", "coterie"), v = await mk("E2E — вампир drop", "vampire", { generation: 9, blood: { value: 10 }, attributes: { dexterity: { value: 3 } } });
+      await c.sheet.render(true); await wait(800); await c.sheet.close(); await wait(300); await c.sheet.render(true); await wait(800);
+      const dt = new DataTransfer(); dt.setData("text/plain", JSON.stringify({ type: "Actor", uuid: v.uuid }));
+      const z = c.sheet.element.querySelector('[data-drop="members"]');
+      z.dispatchEvent(new DragEvent("dragover", { bubbles: true, cancelable: true, dataTransfer: dt }));
+      z.dispatchEvent(new DragEvent("drop", { bubbles: true, cancelable: true, dataTransfer: dt })); await wait(800);
+      out.drop = c.system.members.includes(v.id);
+      await c.sheet.close();
+      // описание включённой силы (Благоговение): выжимка «Системы» на карточке
+      await v.createEmbeddedDocuments("Item", [{ name: "Величие", type: "discipline", system: { key: "presence", value: 1 } }]);
+      await v.startPower("presence:1");
+      await v.sheet.render(true); await wait(900);
+      v.sheet.changeTab?.("effects", "primary"); await wait(400);
+      const card = [...v.sheet.element.querySelectorAll(".r-fx-card.is-power")].find(x => /Благоговение/.test(x.textContent));
+      out.desc = (card?.querySelector(".r-fx-desc")?.textContent.trim().length ?? 0) > 20;
+      await v.sheet.close();
+      // передвижение: Ловкость 3 — 7 / 15 / 29; «Ранен» — бег вдвое; «Тяжело ранен» — только шагом
+      const M = await sys("module/combat/movement.mjs");
+      const mv = () => { const m = M.movement(v); return [m.walk, m.jog, m.run]; };
+      out.move = [mv()];
+      await v.update({ "system.health.lethal": 3 }); out.move.push(mv());
+      await v.update({ "system.health.lethal": 4 }); out.move.push(mv());
+      await v.update({ "system.health.lethal": 0 });
+      // Изменчивый облик: три режима, части тела — шагом, сводка с кровью
+      await v.createEmbeddedDocuments("Item", [{ name: "Изменчивость", type: "discipline", system: { key: "vicissitude", value: 1 } }]);
+      const S = await sys("module/sheets/actor-sheet.mjs");
+      const pv = S.rollPowerRef(v, "vicissitude|0"); await wait(900);
+      const vd = [...foundry.applications.instances.values()].find(x => x.element?.querySelector?.(".r-visage"));
+      const ve = vd?.element;
+      ve?.querySelector('[data-step="1"]')?.click(); ve?.querySelector('[data-step="1"]')?.click(); await wait(200);
+      out.visage = [ve?.querySelectorAll(".r-visage-mode").length, ve?.querySelector('[name="parts"]')?.value, ve?.querySelectorAll("[data-drops] i").length,
+        /3/.test(ve?.querySelector("[data-sum]")?.textContent ?? "")];
+      await vd?.close(); await pv; await wait(300);
+      for (const x of [...foundry.applications.instances.values()].filter(x => x.constructor.name === "RollDialog")) await x.close();
+      // предел крови за ход в бою: сверх предела — окно «всё равно потратить», согласие — тратится
+      const scene = game.scenes.viewed ?? game.scenes.contents[0];
+      const [tok] = await scene.createEmbeddedDocuments("Token", [await v.getTokenDocument({ x: 300, y: 3900 })]);
+      const combat = await getDocumentClass("Combat").create({ scene: scene.id, active: true });
+      await combat.createEmbeddedDocuments("Combatant", [{ tokenId: tok.id, sceneId: scene.id, actorId: v.id }]);
+      await combat.startCombat(); await wait(800);
+      // окна «Против правил» в e2e отвечает общий обработчик: по умолчанию «Отмена», __e2eGate = "yes" — «Всё равно»
+      await v.spendBlood(2); const b0 = v.system.blood.value;
+      const refused = await v.spendBlood(1);
+      const n0 = game.messages.size;
+      globalThis.__e2eGate = "yes";
+      const ok = await v.spendBlood(1);
+      globalThis.__e2eGate = undefined;
+      out.gate = [refused, ok, b0 - v.system.blood.value, game.messages.contents.slice(n0).some(m => /обходит правило/.test(m.content ?? ""))];
+      await combat.delete(); await scene.deleteEmbeddedDocuments("Token", [tok.id]);
+      await Actor.deleteDocuments(made.map(a => a.id));
+      return out;
+    });
+    const want = { drop: true, desc: true, move: [[7, 15, 29], [7, 15, 14], [7, null, null]], visage: [3, "3", 3, true], gate: [false, true, 1, true] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   // Форма зуло в бою: глаза снимают бонус за спину, слизь — +2 к захвату, шипы ранят безоружного и хватающего, огонь, кол
   await check("Форма зуло в бою: глаза, слизь, шипы, кол", async () => {
     const r = await page.evaluate(async () => {
@@ -2228,7 +2293,9 @@ try {
       const sys = p => import(`/systems/${sid}/${p}`);
       const PE = await sys("module/apps/power-effects.mjs"), Z = await sys("module/apps/zulo.mjs"), RD = await sys("module/dice/dialog.mjs");
       const { Codex } = await sys("module/data/codex.mjs");
-      const out = {}, before = game.settings.get(sid, "horridForm");
+      const out = {}, before = "core";   // после теста — правило «по книге», что бы ни осталось от прошлых прогонов
+      // прерванный прошлый прогон мог оставить хоумрул включённым — проверяем с правила «по книге»
+      await game.settings.set(sid, "horridForm", "core");
       const zm = Codex.merits.find(m => m.name === "Проявление Зверя");
       out.hidden = Codex.visible(zm);
       await game.settings.set(sid, "horridForm", "zulo");

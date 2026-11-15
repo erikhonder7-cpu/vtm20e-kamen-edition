@@ -616,6 +616,20 @@ export function prepareLineage(sheet, ctx) {
     gen: a.system.generation, check: bloodCheck(a), sibs, count: kids.length + written.length };
 }
 
+/**
+ * Описание действующего эффекта для карточки: выжимка из раздела «Система» (или всего текста) — коротко,
+ * полный текст раскрывается щелчком. null — описания нет.
+ */
+function fxDesc(html) {
+  const s = String(html ?? "").trim();
+  if (!s) return null;
+  const sys = (s.split(/<h4 class="r-sec">\s*Система\s*<\/h4>/)[1] ?? s).trim();
+  const plain = sys.replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
+  if (!plain) return null;
+  const more = plain.length > 170;
+  return { short: more ? `${plain.slice(0, 168).replace(/\s+\S*$/, "")}…` : plain, html: sys, more };
+}
+
 /** Вкладка «Эффекты»: всё, что сейчас действует на персонажа, — силы, состояния, кровь, постоянные модификаторы, черты. */
 export function prepareEffects(sheet, ctx) {
   const a = sheet.actor, s = a.system;
@@ -678,7 +692,7 @@ export function prepareEffects(sheet, ctx) {
       for (const w of def.weapons ?? []) lines.push(t("FxTab.Weapon", { name: w.name }));
       if (def.biteDiff) lines.push(t("Zulo.BiteDiff", { n: signed(def.biteDiff) }));
     }
-    return { id: effect.id, name: effect.name, img: effect.img, kind: def.mode,
+    return { id: effect.id, name: effect.name, img: effect.img, kind: def.mode, desc: fxDesc(effect.description),
       mode: t(MODE_LABEL[def.mode] ?? "Fx.Toggleable"), lines, timer: effectTimer(effect), toDawn: def.mode === "night" };
   });
   // Ритуалы, которые сейчас читаются: остаток по часам хроники
@@ -690,10 +704,10 @@ export function prepareEffects(sheet, ctx) {
   ctx.fxStatuses = PORTRAIT_STATES.filter(x => st.has(x.id)).map(x => ({ id: x.id, icon: x.icon, hot: x.hot,
     label: t(`Status.${x.key}`), text: t(`FxTab.StatusText.${x.key}`) }));
   // Действующие ритуалы (успешный бросок, срок из текста) — как силы, с остатком по часам хроники
-  ctx.fxRitualsOn = a.effects.filter(e => e.flags?.[SYSTEM_ID]?.ritualOn).map(e => ({ id: e.id, name: e.name, img: e.img,
+  ctx.fxRitualsOn = a.effects.filter(e => e.flags?.[SYSTEM_ID]?.ritualOn).map(e => ({ id: e.id, name: e.name, img: e.img, desc: fxDesc(e.description),
     mode: t(MODE_LABEL[e.flags[SYSTEM_ID].mode] ?? "Fx.Toggleable"), timer: effectTimer(e), toDawn: e.flags[SYSTEM_ID].mode === "night" }));
   ctx.fxOther = a.effects.filter(e => !e.flags?.[SYSTEM_ID]?.power && !e.flags?.[SYSTEM_ID]?.ritual && !e.flags?.[SYSTEM_ID]?.ritualOn && !(e.statuses?.size && PORTRAIT_STATES.some(x => e.statuses.has(x.id))))
-    .map(e => ({ id: e.id, name: e.name, img: e.img, disabled: e.disabled }));
+    .map(e => ({ id: e.id, name: e.name, img: e.img, disabled: e.disabled, desc: fxDesc(e.description) }));
 
   // Усиление кровью
   ctx.fxBoosts = Object.entries(s.boosts ?? {}).filter(([, v]) => v > 0).map(([k, v]) => ({ label: `${attrL(k)} +${v}` }));

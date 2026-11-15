@@ -426,8 +426,10 @@ export class VtMActor extends Actor {
     // Лимит поколения за ход — только в бою (ход = раунд текущего боя); удвоенная трата Слабой крови считается как одна
     const turnKey = VtMActor.roundKey();
     const spentTurn = this.bloodSpentThisTurn, perTurn = this.system.blood.perTurn ?? 1;
+    // сверх предела — не запрет, а вопрос (как у прочих правил системы): рассказчик и игрок вправе обойти
     if (turnKey && limit && spentTurn + n > perTurn) {
-      ui.notifications.warn(t("Notify.BloodPerTurn", { name: this.name, max: perTurn, spent: spentTurn })); return false;
+      const { allowAnyway } = await import("../apps/rule-gate.mjs");
+      if (!(await allowAnyway(this, t("Notify.BloodPerTurn", { name: this.name, max: perTurn, spent: spentTurn }), { yes: t("Notify.BloodPerTurnAnyway") }))) return false;
     }
     // Слабая кровь и Пятнадцатое поколение: любая трата вдвое (кроме ежевечерней — она в awaken)
     const doubled = this.doubleBloodCost;

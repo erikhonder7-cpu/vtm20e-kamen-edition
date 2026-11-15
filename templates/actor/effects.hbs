@@ -12,6 +12,7 @@
       <header><img src="{{img}}" alt=""><b>{{name}}</b><em>{{mode}}</em>
         {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="endPower" data-effect-id="{{id}}" data-tooltip="{{localize 'VTM20.Fx.End'}}"><i class="fa-solid fa-power-off"></i></a>{{/if}}</header>
       {{#if lines.length}}<ul>{{#each lines}}<li>{{this}}</li>{{/each}}</ul>{{/if}}
+      {{#if desc}}{{#if desc.more}}<details class="r-fx-desc"><summary>{{desc.short}}</summary><div class="r-fx-desc-full">{{{desc.html}}}</div></details>{{else}}<p class="r-fx-desc">{{desc.short}}</p>{{/if}}{{/if}}
       {{#if timer}}<div class="r-fx-left"><span>{{#if toDawn}}{{localize "VTM20.Timer.ToDawn"}}{{else}}{{localize "VTM20.Timer.Left"}}{{/if}}</span><b data-left>{{timer.left}}</b></div>
       <div class="r-fx-bar"><i style="width: {{timer.pctW}}%"></i></div>{{/if}}
     </article>
@@ -29,6 +30,7 @@
     <article class="r-fx-card is-power is-ritual-on" {{#if timer}}data-fx-start="{{timer.start}}" data-fx-until="{{timer.until}}"{{/if}}>
       <header><img src="{{img}}" alt=""><b>{{name}}</b><em>{{mode}}</em>
         {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="effectDelete" data-effect-id="{{id}}" data-tooltip="{{localize 'VTM20.Fx.End'}}"><i class="fa-solid fa-power-off"></i></a>{{/if}}</header>
+      {{#if desc}}{{#if desc.more}}<details class="r-fx-desc"><summary>{{desc.short}}</summary><div class="r-fx-desc-full">{{{desc.html}}}</div></details>{{else}}<p class="r-fx-desc">{{desc.short}}</p>{{/if}}{{/if}}
       {{#if timer}}<div class="r-fx-left"><span>{{#if toDawn}}{{localize "VTM20.Timer.ToDawn"}}{{else}}{{localize "VTM20.Timer.Left"}}{{/if}}</span><b data-left>{{timer.left}}</b></div>
       <div class="r-fx-bar"><i style="width: {{timer.pctW}}%"></i></div>{{/if}}
     </article>
@@ -51,6 +53,7 @@
       <header><img src="{{img}}" alt=""><b>{{name}}</b>
         {{#if @root.editable}}<a class="r-icon-btn" data-action="effectToggle" data-effect-id="{{id}}" data-tooltip="{{localize 'VTM20.FxTab.Toggle'}}"><i class="fa-solid {{#if disabled}}fa-toggle-off{{else}}fa-toggle-on{{/if}}"></i></a>
         <a class="r-icon-btn is-danger" data-action="effectDelete" data-effect-id="{{id}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-trash"></i></a>{{/if}}</header>
+      {{#if desc}}{{#if desc.more}}<details class="r-fx-desc"><summary>{{desc.short}}</summary><div class="r-fx-desc-full">{{{desc.html}}}</div></details>{{else}}<p class="r-fx-desc">{{desc.short}}</p>{{/if}}{{/if}}
     </article>
     {{/each}}
   </div>

@@ -435,3 +435,14 @@ section[data-category="system"] .r-settings-head { display: flex; align-items: c
   color: #c9a96a; font-family: "IM Fell SC", "Prata", Georgia, serif; font-size: 13px; font-weight: 400; letter-spacing: 1.4px; text-transform: uppercase; }
 section[data-category="system"] .r-settings-head:first-child { margin-top: 4px; }
 section[data-category="system"] .r-settings-head::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(196, 71, 76, .55), rgba(216, 207, 191, .05)); }
+
+/* Заявка в трекере боя: колонка имени не шире строки (иначе длинная заявка выталкивает инициативу за край),
+   текст заявки переносится — до двух строк, целиком — в подсказке */
+#combat .combatant .token-name { min-width: 0; }
+.r-ct-decl { align-items: flex-start; border-radius: 8px; white-space: normal; line-height: 1.3; }
+.r-ct-decl > i:first-child { margin-top: 2px; }
+.r-ct-decl em { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; white-space: normal; overflow-wrap: anywhere; }
+.r-ct-decl-k { flex: 0 0 auto; white-space: nowrap; }
+/* передвижение за ход в строке бойца (combat/movement.mjs) */
+body.r-skin #combat .r-ct-move { white-space: nowrap; }
+body.r-skin #combat .r-ct-move.is-limited { color: #d9a0a0; }
