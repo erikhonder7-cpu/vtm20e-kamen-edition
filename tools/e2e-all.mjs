@@ -85,9 +85,12 @@ console.log(failed.length ? `\nНе прошло: ${failed.length} из ${byName
 // отметка для релиза — только полный набор групп на этом коммите без незакоммиченных правок кода (как в tools/e2e.mjs)
 if (FULL) {
   const git = a => { try { return execFileSync("git", a, { cwd: ROOT, encoding: "utf8" }).trim(); } catch { return ""; } };
-  const dirty = git(["status", "--porcelain", "--", ".", ":!packs"]).split("\n").filter(l => l && !l.startsWith("??")).length > 0;
+  // незакоммиченные файлы (без компендиев — их переписывает Foundry): релиз сверит, трогают ли они работу системы
+  const dirtyFiles = git(["-c", "core.quotepath=false", "status", "--porcelain", "--", ".", ":!packs"]).split("\n")
+    .filter(l => l && !l.startsWith("??")).map(l => l.slice(3).replace(/^"|"$/g, ""));
+  const dirty = dirtyFiles.length > 0;
   fs.mkdirSync(path.join(ROOT, "tools/.cache"), { recursive: true });
   fs.writeFileSync(path.join(ROOT, "tools/.cache/e2e-ok.json"),
-    JSON.stringify({ head: git(["rev-parse", "HEAD"]), dirty, ok: !failed.length, n: byName.size, at: new Date().toISOString(), parts: done.map(r => r.g) }));
+    JSON.stringify({ head: git(["rev-parse", "HEAD"]), dirty, dirtyFiles, ok: !failed.length, n: byName.size, at: new Date().toISOString(), parts: done.map(r => r.g) }));
 }
 process.exit(failed.length ? 1 : 0);

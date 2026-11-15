@@ -6670,8 +6670,11 @@ console.log(failed ? `\nНе прошло: ${failed} из ${results.length}.` : 
 if (!PARTIAL) {
   const { execFileSync } = await import("node:child_process");
   const git = args => { try { return execFileSync("git", args, { cwd: ROOT, encoding: "utf8" }).trim(); } catch { return ""; } };
-  const dirty = git(["status", "--porcelain", "--", ".", ":!packs"]).split("\n").filter(l => l && !l.startsWith("??")).length > 0;
+  // незакоммиченные файлы (без компендиев — их переписывает Foundry): релиз сверит, трогают ли они работу системы
+  const dirtyFiles = git(["-c", "core.quotepath=false", "status", "--porcelain", "--", ".", ":!packs"]).split("\n")
+    .filter(l => l && !l.startsWith("??")).map(l => l.slice(3).replace(/^"|"$/g, ""));
+  const dirty = dirtyFiles.length > 0;
   fs.mkdirSync(path.join(ROOT, "tools/.cache"), { recursive: true });
-  fs.writeFileSync(path.join(ROOT, "tools/.cache/e2e-ok.json"), JSON.stringify({ head: git(["rev-parse", "HEAD"]), dirty, ok: !failed, n: results.length, at: new Date().toISOString() }));
+  fs.writeFileSync(path.join(ROOT, "tools/.cache/e2e-ok.json"), JSON.stringify({ head: git(["rev-parse", "HEAD"]), dirty, dirtyFiles, ok: !failed, n: results.length, at: new Date().toISOString() }));
 }
 process.exit(failed ? 1 : 0);

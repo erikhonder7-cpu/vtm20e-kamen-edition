@@ -69,9 +69,30 @@ if (!process.argv.includes("--no-e2e")) {
   const f = path.join(ROOT, "tools/.cache/e2e-ok.json"), m = fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, "utf8")) : null;
   const head = out("git", ["rev-parse", "HEAD"]);
   if (!m) { console.error("Нет полного прогона e2e: запустите Foundry, node tools/e2e.mjs, закройте Foundry и повторите (или --no-e2e)."); process.exit(1); }
-  if (m.head !== head || m.dirty) { console.error(`Последний полный e2e был на другом коде (${m.head.slice(0, 7)}${m.dirty ? ", с незакоммиченными правками" : ""}) — прогоните e2e на ${head.slice(0, 7)}.`); process.exit(1); }
   if (!m.ok) { console.error("Последний полный e2e не прошёл — сначала исправьте."); process.exit(1); }
-  console.log(`  e2e: ${m.n} проверок прошли на ${head.slice(0, 7)}`);
+  // После прогона (или во время него) менялись только справочник, документация и заметки — работа системы та же, прогон годен.
+  // Всё прочее (код, шаблоны, стили, данные, перевод, тесты) требует нового полного прогона.
+  // Компендии собираются из data/ (а она проверяется сама); system.json релиз меняет сам — годится, если сменились только версия и ссылка.
+  const sameManifest = () => {
+    try {
+      const strip = t => t.trim().replace(/"version": "[^"]*"/, "").replace(/\/releases\/download\/v[^/]+\//, "");
+      return strip(out("git", ["show", `${m.head}:system.json`])) === strip(fs.readFileSync(path.join(ROOT, "system.json"), "utf8"));
+    } catch { return false; }
+  };
+  const benign = p => /^(books|docs|packs|\.github)\//.test(p) || /\.md$/i.test(p) || p === "tools/release.mjs" || (p === "system.json" && sameManifest());
+  if (m.head !== head || m.dirty) {
+    let changed;
+    try { changed = out("git", ["-c", "core.quotepath=false", "diff", "--name-only", m.head, head]).split("\n").filter(Boolean); }
+    catch { changed = null; }
+    const dirtyAtRun = m.dirtyFiles ?? (m.dirty ? ["(незакоммиченные правки во время прогона, список не записан)"] : []);
+    const risky = changed === null ? [`(коммит прогона ${m.head.slice(0, 7)} не найден)`] : [...new Set([...changed, ...dirtyAtRun])].filter(p => !benign(p));
+    if (risky.length) {
+      console.error(`Последний полный e2e был на ${m.head.slice(0, 7)}; с тех пор изменилась работа системы — прогоните e2e на ${head.slice(0, 7)}:\n  ` +
+        risky.slice(0, 12).join("\n  ") + (risky.length > 12 ? `\n  … и ещё ${risky.length - 12}` : ""));
+      process.exit(1);
+    }
+    console.log(`  e2e: ${m.n} проверок прошли на ${m.head.slice(0, 7)}; после — только справочник, документация и заметки (${changed.length} файлов)`);
+  } else console.log(`  e2e: ${m.n} проверок прошли на ${head.slice(0, 7)}`);
 }
 
 // 3. Версия и ссылка на архив
