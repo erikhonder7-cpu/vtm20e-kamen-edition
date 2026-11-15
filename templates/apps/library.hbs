@@ -26,7 +26,7 @@
     {{#each entries}}
     {{#if groupHead}}<h3 class="r-lib-ghead" data-group-head="{{group}}"><span>{{groupName}}</span></h3>{{/if}}
     <article class="r-lib-card {{#if has}}is-owned{{/if}} {{#unless canTake}}is-locked{{/unless}} {{#if flaw}}is-flaw{{/if}} {{#if long}}is-long{{/if}} {{#if inClan}}is-clan{{/if}}"
-             data-entry="{{id}}" data-search="{{search}}" data-levels="{{levels}}" data-cat="{{cat}}" data-scope="{{scope}}" data-src="{{src}}"
+             data-entry="{{id}}" data-search="{{search}}" data-levels="{{levels}}" data-cat="{{cat}}" data-scope="{{scope}}" data-src="{{src}}" {{#if dup}}data-dup="1"{{/if}}
              data-can="{{#if canTake}}1{{else}}0{{/if}}" {{#if group}}data-group="{{group}}"{{/if}}>
       <header class="r-lib-title">
         {{#if sym}}<span class="r-lib-sym"><span class="r-sym {{#if sym.lum}}is-lum{{/if}}" style="--sym:url('{{sym.src}}')"></span></span>{{/if}}
