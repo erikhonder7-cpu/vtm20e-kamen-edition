@@ -324,7 +324,13 @@ body.r-hud-on #chat-notifications > #chat-message { display: none !important; }
 .vtm20 .r-prt-form-choice small, .vtm20 .r-prt-blood-choice small { color: var(--r-muted); font-size: 11px; line-height: 1.25; }
 /* ── Форма зуло (apps/zulo.mjs): места облика сверху, черты по разделам; сетка прокручивается внутри,
    шапка и кнопка видны всегда. Ярлык черты: багровый — считает система, пунктир — описание для рассказчика ── */
-.application.vtm20.r-dialog.r-protean-dialog.r-zulo-dialog .window-content { max-height: 88vh; }
+/* окно — колонка: шапка, места облика и кнопка по своей высоте, список черт забирает остаток (и прокручивается сам) */
+.application.vtm20.r-dialog.r-protean-dialog.r-zulo-dialog .window-content { display: flex; flex-direction: column; max-height: min(calc(100vh - 70px), 920px); overflow: hidden; }
+.application.vtm20.r-zulo-dialog .window-content > form, .application.vtm20.r-zulo-dialog .dialog-content { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; }
+.application.vtm20.r-zulo-dialog .dialog-content { overflow: hidden; }
+.application.vtm20.r-zulo-dialog .form-footer { flex: 0 0 auto; }
+.vtm20 .r-zulo { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; }
+.vtm20 .r-zulo > * { flex: 0 0 auto; }
 .vtm20 .r-zulo-form { margin-bottom: 10px; }
 .vtm20 .r-zulo-swaps { margin-right: 10px; color: var(--r-bone-d); font-style: italic; }
 .vtm20 .r-zulo-slots { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 8px; }
@@ -341,9 +347,21 @@ body.r-hud-on #chat-notifications > #chat-message { display: none !important; }
 .vtm20 .r-zulo-slot.is-new > span { border-color: #c9a96a; box-shadow: 0 0 0 3px rgba(201,169,106,.14), 0 0 14px rgba(201,169,106,.2); }
 .vtm20 .r-zulo:not(.is-locked) .r-zulo-slot.is-on:hover > span { border-color: #e06a70; box-shadow: 0 0 0 3px rgba(196,71,76,.28); }
 .vtm20 .r-zulo:not(.is-locked) .r-zulo-slot.is-on:hover > span i::before { content: "\f00d"; }
-.vtm20 .r-zulo-grid { max-height: clamp(220px, calc(88vh - 400px), 560px); overflow-y: auto; padding-right: 6px; overscroll-behavior: contain; }
+.vtm20 .r-zulo > .r-zulo-grid { position: relative; flex: 1 1 auto; min-height: 150px; overflow-y: auto; padding-right: 6px; overscroll-behavior: contain; scroll-padding-top: 4px; }
+/* разделы над списком: счётчик взятых черт, переход к разделу */
+.vtm20 .r-zulo-nav { display: flex; flex-wrap: wrap; gap: 5px; margin: 0 0 9px; }
+.vtm20 .r-zulo-nav button { display: inline-flex; align-items: center; gap: 6px; width: auto; height: auto; min-height: 0; margin: 0; padding: 4px 9px;
+  border: 1px solid rgba(216,207,191,.16); border-radius: 0; color: var(--r-muted); background: rgba(255,255,255,.02); box-shadow: none;
+  font-family: var(--r-caps); font-size: 10px; letter-spacing: .9px; line-height: 1.2; text-transform: uppercase; cursor: pointer; }
+.vtm20 .r-zulo-nav button:hover { border-color: rgba(196,71,76,.5); color: var(--r-ink); }
+.vtm20 .r-zulo-nav button.has-picks { border-color: rgba(196,71,76,.55); color: #ecc6bc; background: rgba(140,28,34,.14); }
+.vtm20 .r-zulo-nav b { display: none; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px; color: #fff; background: #8c1c22;
+  font: 10px/16px var(--r-display); text-align: center; }
+.vtm20 .r-zulo-nav button.has-picks b { display: inline-block; }
+.vtm20 .r-zulo-nav button:focus-visible, .vtm20 .r-zulo-slot:focus-visible { outline: 1px solid var(--r-blood-l); outline-offset: 2px; }
 .vtm20 .r-zulo-group + .r-zulo-group { margin-top: 13px; }
-.vtm20 .r-zulo-group-head { display: flex; align-items: center; gap: 10px; margin: 0 0 7px; padding: 0; border: 0;
+.vtm20 .r-zulo-group-head { position: sticky; top: 0; z-index: 1; display: flex; align-items: center; gap: 10px; margin: 0 0 7px; padding: 5px 0 4px; border: 0;
+  background: linear-gradient(180deg, #151012 78%, rgba(21,16,18,0));
   color: var(--r-bone-d); font-family: var(--r-caps); font-size: 10.5px; font-weight: 400; letter-spacing: 1.6px; text-transform: uppercase; }
 .vtm20 .r-zulo-group-head::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(196,71,76,.4), rgba(216,207,191,.06)); }
 .vtm20 .r-zulo-choice { align-items: flex-start; transition: border-color .15s, background .15s, opacity .15s; }
@@ -373,6 +391,20 @@ body.r-hud-on #chat-notifications > #chat-message { display: none !important; }
 .vtm20 .r-zulo-carried textarea:focus { border-color: var(--r-blood-l); box-shadow: 0 0 0 2px rgba(140,28,34,.18); outline: none; }
 .vtm20 .r-zulo.is-locked .r-zulo-group:not(.r-zulo-built) .r-zulo-choice:has(input:checked) { opacity: 1; }
 .vtm20 .r-zulo.is-locked .r-zulo-slot.is-on { cursor: default; }
+/* невысокий экран (1024×768 и ниже): компактная шапка и места облика — списку черт больше места */
+@media (max-height: 860px) {
+  .vtm20 .r-zulo .r-prt-hero { gap: 10px; padding-bottom: 8px; }
+  .vtm20 .r-zulo .r-prt-hero .r-prt-sigil { width: 38px; height: 38px; flex-basis: 38px; font-size: 16px; }
+  .vtm20 .r-zulo .r-prt-hero h2 { font-size: 21px; }
+  .vtm20 .r-zulo .r-prt-hero p { font-size: 11.5px; }
+  .vtm20 .r-zulo-form { margin: 8px 0; padding: 8px 10px; }
+  .vtm20 .r-zulo .r-prt-allocation-head { margin-bottom: 4px; }
+  .vtm20 .r-zulo-slot { gap: 4px; padding: 3px 2px; }
+  .vtm20 .r-zulo-slot > span { width: 34px; height: 34px; font-size: 12px; }
+  .vtm20 .r-zulo-slot.is-on > span { font-size: 15px; }
+  .vtm20 .r-zulo-price { margin-top: 6px; padding-top: 6px; }
+  .vtm20 .r-zulo .r-prt-footnote { font-size: 10.5px; }
+}
 @media (prefers-reduced-motion: reduce) { .vtm20 .r-zulo-choice, .vtm20 .r-zulo-slot > span { transition: none; } }
 
 .application.vtm20.r-dialog.r-celerity-dialog .window-content { min-width: 0; }

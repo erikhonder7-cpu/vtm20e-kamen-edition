@@ -40,7 +40,7 @@ async function pickTraits(actor, { mode, current = [], slots, free = 0, maxSwaps
       <span class="r-prt-choice-mark"><i class="fa-solid ${x.icon}"></i></span>
       <span class="r-zulo-body"><span class="r-zulo-title"><b>${name(x.key)}</b><em class="r-zulo-tag" data-tooltip="${esc(t(x.auto ? "AutoTip" : "StoryTip"))}">${esc(t(`T.${x.key}.tag`))}</em></span>
         <small>${esc(t(`T.${x.key}.text`))}</small><i class="r-zulo-mark" data-mark></i></span></label>`;
-  const groups = ZULO_GROUPS.map(g => `<section class="r-zulo-group"><h4 class="r-zulo-group-head"><span>${t(`G.${g}`)}</span></h4>
+  const groups = ZULO_GROUPS.map(g => `<section class="r-zulo-group" data-group="${g}"><h4 class="r-zulo-group-head"><span>${t(`G.${g}`)}</span></h4>
       <div class="r-prt-choice-grid">${ZULO_TRAITS.filter(x => x.group === g).map(card).join("")}</div></section>`).join("");
   // Встроенные силы (хоумрул, «Другие черты»): Искусство костей с механикой и свободный список — каждая +1 кровь
   const boneCard = k => `<label class="r-prt-form-choice r-zulo-choice is-auto">
@@ -48,7 +48,10 @@ async function pickTraits(actor, { mode, current = [], slots, free = 0, maxSwaps
       <span class="r-prt-choice-mark"><i class="fa-solid ${k === "claws" ? "fa-bone" : "fa-burst"}"></i></span>
       <span class="r-zulo-body"><span class="r-zulo-title"><b>${esc(t(`Built.${k}.name`))}</b><em class="r-zulo-tag">${esc(t(`Built.${k}.tag`))}</em></span>
         <small>${esc(t(`Built.${k}.text`))}</small></span></label>`;
-  const extras = mode === "adapt" ? "" : `<section class="r-zulo-group r-zulo-built"><h4 class="r-zulo-group-head"><span>${t("Built.Head")}</span></h4>
+  // разделы над списком: переход к разделу и сколько черт в нём взято
+  const nav = `<nav class="r-zulo-nav">${[...ZULO_GROUPS, ...(mode === "adapt" ? [] : ["built"])].map(g => `<button type="button" data-jump="${g}">
+      <span>${t(`Nav.${g}`)}</span><b data-gcount="${g}"></b></button>`).join("")}</nav>`;
+  const extras = mode === "adapt" ? "" : `<section class="r-zulo-group r-zulo-built" data-group="built"><h4 class="r-zulo-group-head"><span>${t("Built.Head")}</span></h4>
       <p class="r-zulo-lead">${t("Built.Hint")}</p>
       <div class="r-prt-choice-grid">${boneCard("claws")}${boneCard("spikes")}</div>
       <label class="r-zulo-carried"><span>${t("Built.Carried")}</span>
@@ -61,6 +64,7 @@ async function pickTraits(actor, { mode, current = [], slots, free = 0, maxSwaps
       <div class="r-zulo-slots" data-slots></div>
       ${mode === "adapt" ? "" : `<p class="r-zulo-price" data-price></p>`}
     </div>
+    ${nav}
     <div class="r-zulo-grid">${groups}${extras}</div>
     <p class="r-prt-footnote"><i class="fa-solid fa-book-skull"></i> ${t("Source")}</p>
   </div>`;
@@ -86,6 +90,13 @@ async function pickTraits(actor, { mode, current = [], slots, free = 0, maxSwaps
         const sw = root.querySelector("[data-swaps]");
         if (sw) sw.textContent = mode === "adapt" ? t("SwapsAdapt", { n: swaps, max: maxSwaps })
           : t("SwapsXp", { n: swaps, xp: Math.max(0, swaps - free) });
+        for (const el of root.querySelectorAll("[data-gcount]")) {
+          const g = el.dataset.gcount, n = g === "built"
+            ? root.querySelectorAll('input[name="b"]:checked').length + carriedOf(root.querySelector('[name="carried"]')?.value).length
+            : on.filter(k => ZULO_TRAITS.find(x => x.key === k)?.group === g).length;
+          el.textContent = n ? String(n) : "";
+          el.parentElement.classList.toggle("has-picks", n > 0);
+        }
         const price = root.querySelector("[data-price]");
         if (price) {
           const n = root.querySelectorAll('input[name="b"]:checked').length + carriedOf(root.querySelector('[name="carried"]')?.value).length;
@@ -110,6 +121,12 @@ async function pickTraits(actor, { mode, current = [], slots, free = 0, maxSwaps
       };
       boxes.forEach(b => b.addEventListener("change", update));
       root.querySelectorAll('input[name="b"], [name="carried"]').forEach(x => x.addEventListener("input", update));
+      // переход к разделу внутри прокручиваемого списка (заголовки разделов закреплены сверху)
+      const grid = root.querySelector(".r-zulo-grid");
+      root.querySelector(".r-zulo-nav")?.addEventListener("click", ev => {
+        const sec = grid.querySelector(`[data-group="${ev.target.closest("[data-jump]")?.dataset.jump}"]`);
+        if (sec) grid.scrollTo({ top: sec.offsetTop, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+      });
       root.querySelector("[data-slots]").addEventListener("click", ev => {
         const k = !locked && ev.target.closest("[data-unpick]")?.dataset.unpick;
         if (k) { box(k).checked = false; update(); }

@@ -7849,7 +7849,15 @@
       "Form": "Zulo shape",
       "NoForm": "Zulo shape: no traits chosen yet — click to choose",
       "Chosen": "Traits chosen",
-      "Source": "Lucky Dicepool house rule “Horrid Form / Zulo Shape” (S. Timoshkin, 2020). Descriptive traits are listed on the Effects tab; the Storyteller applies them.",
+      "Source": "Lucky Dicepool house rule (S. Timoshkin, 2020). Full rule — rules compendium, chapter 10; descriptive traits — Effects tab.",
+      "Nav": {
+        "body": "Flesh",
+        "arms": "Weapons",
+        "senses": "Senses",
+        "heart": "Heart",
+        "move": "Movement",
+        "built": "Built-in"
+      },
       "Title": {
         "learn": "Zulo shape: form traits",
         "change": "Zulo shape: change traits",

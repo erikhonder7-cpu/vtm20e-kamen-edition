@@ -2181,6 +2181,47 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  // Форма зуло в бою: глаза снимают бонус за спину, слизь — +2 к захвату, шипы ранят безоружного и хватающего, огонь, кол
+  await check("Форма зуло в бою: глаза, слизь, шипы, кол", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms));
+      const CB = await import(`/systems/${sid}/module/combat/combat.mjs`), RL = await import(`/systems/${sid}/module/dice/roll.mjs`);
+      const mk = (name, type, system = {}) => Actor.create({ name, type, flags: { world: { e2e: true } }, system });
+      const f = await mk("E2E — Изверг зуло", "vampire", { generation: 9, clan: "tzimisce", blood: { value: 14 } });
+      const plain = await mk("E2E — простой вампир", "vampire", { generation: 10 });
+      const m = await mk("E2E — смертный кулак", "mortal", { attributes: { strength: { value: 3 } } });
+      await f.createEmbeddedDocuments("Item", [{ name: "E2E — vicissitude", type: "discipline", system: { key: "vicissitude", value: 4 } }]);
+      await f.startPower("vicissitude:4", { shapeConfig: { zulo: ["mizgir", "chort", "kikimora", "koshchei"] } });
+      const out = {};
+      const atk = (foe, maneuver, position = "front") => { const d = new CB.AttackDialog(m, maneuver ? { maneuver } : {}); d.v.foe = foe.uuid; d.v.position = position; return d.compute(); };
+      // со спины: по простому +2 куба, по Извергу с глазами — ничего, пометка в окне
+      const rearF = atk(f, null, "rear"), rearP = atk(plain, null, "rear");
+      out.rear = [rearP.pool - atk(plain).pool, rearF.pool - atk(f).pool, rearF.notes.some(n => /видит во все стороны/.test(n))];
+      // клинч по скользкому — +2 к сложности; удар кулаком — без поправки
+      out.slime = [atk(f, "clinch").difficulty - atk(plain, "clinch").difficulty, atk(f, "punch").difficulty - atk(plain, "punch").difficulty];
+      // шипы: попал кулаком — 2 губительных (смертный губительные не поглощает); промахнулся клинчем — тоже 2
+      const card = (succ, maneuver) => ({ id: `e2e-zulo-${maneuver}-${Date.now()}`, getFlag: () => ({ attacker: m.uuid, attackerName: m.name, target: f.uuid, targetName: f.name,
+        weaponName: "кулак", successes: succ, damagePool: maneuver === "hold" ? null : 3, damageType: "bashing", unarmed: true, maneuver }) });
+      await CB.resolveAttack(card(2, "punch"), 0, "none"); await wait(400);
+      const afterHit = m.system.health.lethal;
+      await CB.resolveAttack(card(0, "clinch"), 0, "none"); await wait(400);
+      out.spikes = [afterHit, m.system.health.lethal];
+      // огонь: в составе поглощения — куб Водицы кикиморы
+      const n0 = game.messages.size;
+      await RL.soakAndApply(f, 1, "aggravated", { fire: true }); await wait(400);
+      out.fire = game.messages.contents.slice(n0).some(x => /Водица кикиморы/.test(x.content ?? "") || JSON.stringify(x.flags ?? {}).includes("Водица кикиморы"));
+      // кол: рассказчику шёпотом — Смерть кощея
+      const n1 = game.messages.size;
+      await f.toggleStatusEffect("r-staked", { active: true }); await wait(500);
+      out.stake = game.messages.contents.slice(n1).some(x => /Смерть кощея/.test(x.content ?? "") && x.whisper?.length);
+      await Actor.deleteDocuments([f.id, plain.id, m.id]);
+      return out;
+    });
+    const want = { rear: [2, 0, true], slime: [2, 0], spikes: [2, 4], fire: true, stake: true };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   // Хоумрул «форма зуло» (настройка horridForm): черты на выбор вместо +3, лишние «Синяки», смена за опыт, Достоинства и Недостатки
   await check("Форма зуло: черты Чудовищного облика", async () => {
     const r = await page.evaluate(async () => {
