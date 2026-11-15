@@ -1925,3 +1925,8 @@ body.r-theme-light .vtm20 .r-sp-state img { filter: none; }
 .vtm20 .r-lib-elder > summary:hover { color: var(--r-ink); }
 .vtm20 .r-lib-elder > summary i { color: var(--r-accent); font-size: 11px; }
 .vtm20 .r-lib-powers.is-elder { margin-top: 6px; }
+
+/* Справочник кланов: «О клане» (data/clan-lore.json) */
+.vtm20 .r-cl-lore p { margin: 0 0 8px; color: var(--r-ink-2); font-size: 13.5px; line-height: 1.55; }
+.vtm20 .r-cl-lore p:last-child { margin-bottom: 0; }
+.vtm20 .r-cl-lore p:first-of-type::first-letter { float: left; margin: 3px 6px 0 0; color: var(--r-blood-l, #c4474c); font-family: var(--r-display); font-size: 34px; line-height: .85; }

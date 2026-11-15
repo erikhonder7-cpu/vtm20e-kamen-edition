@@ -2236,6 +2236,10 @@ try {
       const ok = await v.spendBlood(1);
       globalThis.__e2eGate = undefined;
       out.gate = [refused, ok, b0 - v.system.blood.value, game.messages.contents.slice(n0).some(m => /обходит правило/.test(m.content ?? ""))];
+      // запас ревенанта: 10 и +1 за каждое столетие (Guide to the Sabbat; Ghouls & Revenants)
+      const rv = await mk("E2E — ревенант", "ghoul", { ghoulType: "revenant" });
+      const rvMax0 = rv.system.blood.max; await rv.update({ "system.details.age": "250" });
+      out.revenant = [rvMax0, rv.system.blood.max];
       // линейка жетона по зонам: Ловкость 3 — 5 м шагом, 12 трусцой, 25 бегом, 40 — дальше хода
       const tk = canvas.tokens.get(tok.id), R = tk?.ruler;
       const wp = d => ({ actionConfig: { visualize: true, teleport: false }, userId: game.user.id, measurement: { distance: d }, stage: "planned" });
@@ -2259,7 +2263,7 @@ try {
       return out;
     });
     const want = { drop: true, desc: true, move: [[7, 15, 29], [7, 15, 14], [7, null, null]], visage: [3, "3", 3, true], gate: [false, true, 1, true],
-      ruler: ["VtmTokenRuler", "5fa463", "d8b04a", "c4474c", "6b6660"], undo: [2, 0, true], moved: [true, 1] };
+      ruler: ["VtmTokenRuler", "5fa463", "d8b04a", "c4474c", "6b6660"], undo: [2, 0, true], moved: [true, 1], revenant: [10, 12] };
     const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
@@ -6219,7 +6223,7 @@ try {
         cr.element.querySelector('[data-action="ghoulType"][data-key="dhampir"]')?.click(); await wait(300);
         cr.st.dhStrong = true; cr.st.dhNoRights = true;
         out.dhOpts = [cr.rules.attr.join("/"), cr.rules.abil.join("/"), cr.bloodrightBase, cr.ghoulDiscCap];
-        // запас крови с возрастом: ревенант 250 лет — 2 + 2, вассал — 2 + 1
+        // запас крови с возрастом: ревенант 250 лет — 10 + 2 (своя витэ, +1 за столетие), вассал — 2 + 1
         await a.update({ "system.details.age": "250 лет" }); out.age = [a.system.blood.max];
         await a.update({ "system.ghoulType": "vassal" }); out.age.push(a.system.blood.max);
         for (const x of [...foundry.applications.instances.values()]) if (x.constructor.name === "VtMCreator" && x.actor === a) await x.close();
@@ -6227,7 +6231,7 @@ try {
       return out;
     });
     const want = { vassal: [7, false], dhampir: [true, 18], noFamily: false, revenant: [5, 15, 25, true], foreign: true, written: ["revenant", "grimaldi"],
-      vassal2: [2, 15, 25], cap: true, dhOpts: ["7/4/3", "12/8/5", 0, 1], age: [4, 3] };
+      vassal2: [2, 15, 25], cap: true, dhOpts: ["7/4/3", "12/8/5", 0, 1], age: [12, 3] };
     const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });

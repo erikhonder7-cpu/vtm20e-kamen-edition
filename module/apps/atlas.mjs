@@ -230,7 +230,8 @@ function dhampirGroups() {
     { key: "rituals", label: loc("Atlas.Dh.Rituals"), items: (D.rituals ?? []).map(r => ({ key: `ritual:${r.key}`, name: r.name, sub: [r.en, r.level ? ROMAN[r.level] : ""].filter(Boolean).join(" · "), icon: "fa-hand-holding-droplet",
       card: () => ({ kicker: loc("Atlas.Dh.Ritual"), text: p(r.text), facts: [fact(loc("Atlas.Dh.Level"), r.level)].filter(Boolean) }) })) },
     { key: "clans", label: loc("Atlas.Dh.Clans"), items: Object.entries(D.clans ?? {}).map(([k, c]) => ({ key: `clan:${k}`, name: Codex.clanName(k), sub: c.nick, icon: "fa-shield-halved", sym: Codex.clanSymbol(k) ?? undefined,
-      card: () => ({ kicker: loc("Atlas.Dh.Clan"), chips: (c.rights ?? []).map(r => ({ label: right(r)?.name ?? r })),
+      // клан Предка: его лор (data/clan-lore.json) — кто они, от чьей крови дампир
+      card: () => ({ kicker: loc("Atlas.Dh.Clan"), text: Codex["clan-lore"]?.[Codex.traitClan(k)] ?? Codex["clan-lore"]?.[k] ?? "", chips: (c.rights ?? []).map(r => ({ label: right(r)?.name ?? r })),
         facts: [fact(loc("Atlas.Dh.Weakness"), c.weakness)].filter(Boolean) }) })) },
     { key: "backgrounds", label: loc("Wraith.Backgrounds"), items: (D.backgrounds ?? []).map((x, i) => ({ key: `bg:${i}`, name: x.name, sub: x.en, icon: "fa-book",
       card: () => ({ kicker: loc("Atlas.Background"), text: x.html }) })) },

@@ -60,6 +60,8 @@ class ClanAtlas extends HandlebarsApplicationMixin(ApplicationV2) {
     const traits = Codex.merits.filter(m => m.clan === parentKey && Codex.visible(m));
     return {
       ...c, sym: Codex.clanSymbol(c.key), groupLabel: t(`ClanGroup.${c.group}`), parent,
+      // о клане: кто они и чем живут (data/clan-lore.json, пересказ по книгам)
+      lore: Codex["clan-lore"]?.[c.key] ?? "",
       discs: (c.disciplines ?? []).map(k => ({ label: Codex.disciplineLabel(k), sym: Codex.disciplineSymbol(k) })),
       choice: (c.choice ?? []).map(k => ({ label: Codex.disciplineLabel(k), sym: Codex.disciplineSymbol(k) })),
       merits: traits.filter(m => m.kind === "merit"),
