@@ -447,7 +447,8 @@ async function ensureMap(root) {
   S.map = new S.gl.Map({
     container: root.querySelector(".rc-gl"),
     style: buildStyle(v.style, v.lang),
-    center: [c.center[1], c.center[0]], zoom: c.zoom, maxZoom: 19, maxPitch: 70,
+    // maxZoom стиля — растровый план мельче своих тайлов не приближаем (иначе растянут и размыт)
+    center: [c.center[1], c.center[0]], zoom: c.zoom, maxZoom: styleExt(v.style)?.maxZoom ?? 19, maxPitch: 70,
     bearing: homeBearing(), ...(styleExt(v.style)?.bounds ? { minZoom: styleExt(v.style).minZoom ?? 0, maxBounds: styleExt(v.style).bounds } : {}),
     attributionControl: { compact: true }, doubleClickZoom: false
   });
@@ -471,6 +472,7 @@ function setStyle() {
   document.getElementById(ID)?.setAttribute("data-style", v.style);
   S.map?.setMaxBounds(st?.bounds ?? null);
   S.map?.setMinZoom(st?.minZoom ?? 0);
+  S.map?.setMaxZoom(st?.maxZoom ?? 19);
   S.map?.setStyle(buildStyle(v.style, v.lang), { diff: false });
 }
 
@@ -520,7 +522,9 @@ function addOverlay() {
     paint: { "circle-radius": 17, "circle-color": "rgba(0,0,0,0)", "circle-stroke-color": "#d9cfc6", "circle-stroke-width": 2 } });
   add({ id: "rc-poi", type: "symbol", source: "rc-poi",
     layout: {
+      // значки мест видны всегда (наложившиеся не прячут друг друга и не мигают при движении карты); подписи — где помещаются
       "icon-image": ["get", "icon"], "icon-size": zoomed(12, .7, 14, .9, 17, 1.15), "icon-padding": 1, "symbol-sort-key": ["get", "rank"],
+      "icon-allow-overlap": true,
       "text-field": ["step", ["zoom"], "", 14, ["get", "label"]], "text-font": ["Noto Sans Bold"], "text-size": zoomed(14, 11.5, 17, 13.5),
       "text-offset": [0, 1.55], "text-anchor": "top", "text-optional": true, "text-max-width": 9, "text-letter-spacing": .02
     },

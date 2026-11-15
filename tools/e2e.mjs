@@ -6563,7 +6563,7 @@ try {
       await game.settings.set(game.system.id, "era", s.era);
       await game.settings.set(game.system.id, "cityMap", s.city);
       await game.settings.set(game.system.id, "cityView", s.view);
-      await game.user.unsetFlag(id, "ugMarks");
+      await game.user.unsetFlag(id, "tunnelMarks");
       const { setClock } = await import(`/systems/${game.system.id}/module/apps/calendar.mjs`);
       await setClock(s.clock, false);
     }, [BERLIN, bSaved]);
@@ -6583,11 +6583,11 @@ try {
         folders: [{ id: "chronicle", name: "Хроника" }], markers: [], zones: [], overrides: {}, folderMeta: {} };
       w.current = "berlin-1939";
       await game.settings.set(game.system.id, "cityMap", w);
-      await game.settings.set(game.system.id, "cityView", { ...(game.settings.get(game.system.id, "cityView") ?? {}), style: "berlinnight", v2: true, ug: false, metro: false });
+      await game.settings.set(game.system.id, "cityView", { ...(game.settings.get(game.system.id, "cityView") ?? {}), style: "berlinnight", v2: true, bugOn: false, metro: false });
     }, BERLIN);
     await reloadUntil(id => game.ready === true && !!game.modules.get(id)?.active, BERLIN);
     await page.evaluate(() => game.vtm20.openCity());
-    await page.waitForFunction(() => !!game.vtm20.cityMap()?.loaded?.() && !!game.vtm20.cityMap()?.getLayer("rcb-ug-place-fill"), null, { timeout: 60000 });
+    await page.waitForFunction(() => !!game.vtm20.cityMap()?.loaded?.() && !!game.vtm20.cityMap()?.getLayer("rc-bug-area-fill"), null, { timeout: 60000 });
     const r = await page.evaluate(async id => {
       const C = await import(`/systems/${game.system.id}/module/ui/citymap.mjs`), wait = ms => new Promise(res => setTimeout(res, ms)), m = C.cityMap(), root = document.getElementById("r-citymap");
       await wait(1500);
@@ -6595,19 +6595,26 @@ try {
       out.stains = m.getStyle().layers.filter(l => /^rcb-stain-(?!hit|sel)/.test(l.id) && m.getLayoutProperty(l.id, "visibility") === "visible").length;
       root.querySelector("[data-act=metro]")?.click(); await wait(800);
       out.metro = [C.view().metro, (m.getStyle().sources["rc-metro"]?.data?.features ?? []).filter(f => f.geometry.type === "Point").length > 150];
-      root.querySelector("[data-act=underground]")?.click(); await wait(1500);
+      // «Подземный Берлин» — инструмент катакомб (module/tunnels.mjs модуля): места, станции метро, малые выработки, клетки плана
+      root.querySelector("[data-act=bugTunnels]")?.click();
       const src = n => m.getStyle().sources[n]?.data?.features ?? [];
-      out.ug = [C.view().ug, src("rcb-ug-places").length, src("rcb-ug-ways").length > 60, src("rcb-ug-metro").length];
+      for (let t = 0; t < 40 && !src("rc-bug-area").some(f => String(f.properties.id).startsWith("st:")); t++) await wait(250);
+      await wait(800);
+      const area = src("rc-bug-area");
+      out.ug = [C.view().bugOn, area.filter(f => !f.properties.minor && !String(f.properties.id).startsWith("st:")).length,
+        area.filter(f => String(f.properties.id).startsWith("st:")).length > 40, area.filter(f => f.properties.minor).length > 60, src("rc-bug-cells").length > 0,
+        !!root.querySelector(".rc-bug-panel")];
       // мел: знак у себя во флаге — у всех на стене; стереть
-      await game.user.setFlag(id, "ugMarks", [{ id: "e2etest", lat: 52.52, lng: 13.405, kind: "arrow", rot: 90, note: "" }]); await wait(600);
-      out.chalk = src("rcb-ug-chalk").length;
-      await game.user.unsetFlag(id, "ugMarks"); await wait(400);
-      out.chalkGone = src("rcb-ug-chalk").length;
+      await game.user.setFlag(id, "tunnelMarks", [{ id: "e2etest", lat: 52.52, lng: 13.405, icon: "arrow", rot: 90, text: "" }]); await wait(600);
+      out.chalk = src("rc-bug-marks").length;
+      await game.user.unsetFlag(id, "tunnelMarks"); await wait(400);
+      out.chalkGone = src("rc-bug-marks").length;
       game.vtm20.closeCity();
       return out;
     }, BERLIN);
-    // 1943-12-01: 9 пятен (до Гедехтнискирхе включительно); подземье — 31 место, 10 подземных участков метро и S-Bahn
-    const want = { places: 113, style: "berlinnight", blackout: "on", stains: 9, metro: [true, true], ug: [true, 31, true, 10], chalk: 1, chalkGone: 0 };
+    // 1943-12-01: 9 пятен (до Гедехтнискирхе включительно); подземье — 31 место (всё построено к этой дате), станции подземных
+    // участков метро, малые выработки внутри Кольца, план на клетках и список мест
+    const want = { places: 113, style: "berlinnight", blackout: "on", stains: 9, metro: [true, true], ug: [true, 31, true, true, true, true], chalk: 1, chalkGone: 0 };
     const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   } finally { await restoreBerlin(); } });
