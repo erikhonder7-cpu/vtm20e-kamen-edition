@@ -161,6 +161,23 @@ export const Codex = {
   // «elder-only» (Elysium: The Elder Wars) — не эпоха, а черты для старейшин: видны всегда, с пометкой в библиотеке
   visible(x) { return !x?.era || x.era === "elder-only" || (x.era === "darkAges" && this.darkAgesOn()); },
 
+  /** Черта Тёмных веков — повтор: есть такая же черта V20 (вид и английское название) или та же черта Тёмных веков из другой
+   *  книги (первая остаётся). Библиотека прячет повторы без фильтра «Тёмные века», мастер создания — всегда, кроме выбранных. */
+  daDuplicate(m) {
+    if (m?.era !== "darkAges" || !m.en) return false;
+    if (this._dupFor !== this.merits) {
+      const key = x => `${x.kind}|${String(x.en ?? "").toLowerCase().replace(/\(.*?\)/g, "").replace(/\b13th\b/g, "thirteenth").replace(/[^a-z]/g, "")}`;
+      const core = new Set(), first = new Map();
+      for (const x of this.merits ?? []) {
+        if (!x.en) continue;
+        if (x.era !== "darkAges") core.add(key(x)); else if (!first.has(key(x))) first.set(key(x), x);
+      }
+      this._dupSet = new Set((this.merits ?? []).filter(x => x.era === "darkAges" && x.en && (core.has(key(x)) || first.get(key(x)) !== x)));
+      this._dupFor = this.merits;
+    }
+    return this._dupSet.has(m);
+  },
+
   /** Ключ секты по свободному тексту (поле «Секта» на листе): «Камарилья» → camarilla. */
   sectKey(text) { return SECT_KEYS.find(([re]) => re.test(text ?? ""))?.[1] ?? ""; },
 

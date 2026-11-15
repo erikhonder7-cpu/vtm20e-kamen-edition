@@ -355,13 +355,7 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
     };
     // кому видна черта — VTM20.traitFor (то же правило, что в мастере создания)
     const who = { type: this.actor?.type, dhampir: !!this.actor?.isDhampir, lost: isLost(this.actor), nephandi: isNephandus(this.actor) };
-    // черта Тёмных веков, у которой есть такая же черта V20 (вид и английское название), — повтор: видна только с фильтром «Тёмные века»
-    // (и повтор внутри самих Тёмных веков — та же черта из другой книги: первая остаётся, остальные — повторы)
-    const enKey = m => `${m.kind}|${String(m.en ?? "").toLowerCase().replace(/\(.*?\)/g, "").replace(/\b13th\b/g, "thirteenth").replace(/[^a-z]/g, "")}`;
-    const coreKeys = new Set(Codex.merits.filter(m => m.era !== "darkAges" && m.en).map(enKey));
-    const firstDA = new Map();
-    for (const m of Codex.merits) if (m.era === "darkAges" && m.en && !firstDA.has(enKey(m))) firstDA.set(enKey(m), m);
-    const isDup = m => m.era === "darkAges" && !!m.en && (coreKeys.has(enKey(m)) || firstDA.get(enKey(m)) !== m);
+    // повтор черты Тёмных веков (Codex.daDuplicate) виден только с фильтром «Тёмные века» или если уже взят
     return Codex.merits.filter(m => m.kind === kind && Codex.visible(m) && VTM20.traitFor(m, who)).map(m => {
       const costs = costsOf(m);
       const blocker = blockerFor(m.name, mine);
@@ -369,7 +363,7 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
       const banned = !!clanKey && (m.notClan ?? []).includes(clanKey);
       return this.#entry({
         id: String(Codex.merits.indexOf(m)), name: m.name, en: m.en, has: mine.includes(m.name), text: m.html ?? "", long: true,
-        flaw: kind === "flaw", cost: m.cost, order: costs[0], src: srcKind(m), dup: isDup(m),
+        flaw: kind === "flaw", cost: m.cost, order: costs[0], src: srcKind(m), dup: Codex.daDuplicate(m),
         ...place(m),
         levels: costs.join(","),
         tags: sourceTags(m),

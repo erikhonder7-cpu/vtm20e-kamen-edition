@@ -262,7 +262,9 @@ export class ContextCreator {
     // категория «clan» — та же вкладка «Клановые» (extra), второй раз не показываем
     const cats = Object.keys(VTM20.meritCategories).filter(k => k !== "clan" && Codex.merits.some(m => m.kind === this.ui.mfTab && inCat(m, k)));
     ctx.mfCats = ["all", ...cats, ...extra].map(k => ({ key: k, label: catLabel(k), active: this.ui.mfCat === k }));
+    // повторы Тёмных веков (та же черта есть в V20 или в другой книге Тёмных веков) не показываем, кроме уже выбранных
     ctx.mfCards = Codex.merits.filter(m => m.kind === this.ui.mfTab && inCat(m, this.ui.mfCat)
+      && (!Codex.daDuplicate(m) || chosen.some(x => x.name === m.name))
       && (!q || m.name.toLowerCase().includes(q) || (m.en ?? "").toLowerCase().includes(q)))
       .map(m => ({ name: m.name, en: m.en, cost: m.cost,
         cat: m.clan ? Codex.clanName(m.clan) : m.sect ? t(`Sect.${m.sect}`) : m.ghoul ? t("Library.Filter.GhoulTraits") : loc(VTM20.meritCategories[m.category]?.label ?? ""),
