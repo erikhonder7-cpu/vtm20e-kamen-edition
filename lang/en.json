@@ -9637,7 +9637,42 @@
       "Creeds": "Creeds",
       "Virtues": "Virtues",
       "Virtue": "Virtue",
-      "Advice": "Advice"
+      "Advice": "Advice",
+      "GhoulTitle": "Ghouls and Revenants — reference",
+      "DhampirTitle": "Dhampirs — reference",
+      "Merit": "Merit",
+      "Flaw": "Flaw",
+      "Category": "Category",
+      "Cat": {
+        "physical": "Physical",
+        "mental": "Mental",
+        "social": "Social",
+        "supernatural": "Supernatural",
+        "economic": "Economic"
+      },
+      "Ghoul": {
+        "Families": "Revenant families",
+        "Family": "Revenant family",
+        "Rules": "Rules",
+        "Merits": "Traits",
+        "Nick": "Nickname",
+        "Disciplines": "Family Disciplines",
+        "Flaw": "Family flaw"
+      },
+      "Dh": {
+        "Concepts": "Concepts",
+        "Concept": "Dhampir concept",
+        "Rights": "Bloodrights",
+        "Right": "Bloodright",
+        "RightRare": "Rare Bloodright",
+        "Req": "Requires Discipline",
+        "Rituals": "Rituals",
+        "Ritual": "Ritual",
+        "Level": "Level",
+        "Clans": "Clans",
+        "Clan": "Heritage of the Antecedent's clan",
+        "Weakness": "Weakness"
+      }
     },
     "Wonder": {
       "Kind": {

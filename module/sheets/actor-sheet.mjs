@@ -312,6 +312,8 @@ openStrategy: () => openStrategy(),
     if (actor.type === "vampire") ctx.golconda = golcondaView(actor);   // Голконда (apps/golconda.mjs)
     ctx.thArt = artifactsView(actor);                                    // артефакты Тремер (apps/thaum-workshop.mjs)
     if (actor.type === "demon") prepareLores(this, ctx);
+    // гуль, ревенант, дампир — справочник своей линии по знаку листа (apps/atlas.mjs)
+    else if (actor.type === "ghoul") ctx.lineAtlas = true;
     else if (actor.type === "hunter") { ctx.hunterInfo = hunterInfo(actor, dots); ctx.lineAtlas = true; ctx.edgePaths = edgesView(actor); ctx.hunterCall = callView(actor); }
     else if (actor.type === "mage") { ctx.mageInfo = mageInfo(actor, dots); ctx.mageView = spheresView(actor, dots); ctx.mageState = stateView(actor, dots); ctx.mageState.mind = await mindView(actor);
       const sg = mageSigil(actor);
@@ -679,6 +681,8 @@ openStrategy: () => openStrategy(),
     if (this.actor.type === "hunter") return openAtlas("hunter", s.hunter?.creed);
     if (this.actor.type === "wraith") return openAtlas("wraith", s.wraith?.guild);
     if (this.actor.type === "changeling") return openAtlas("changeling", s.changeling?.kith);
+    // гуль и ревенант — справочник гулей (на семействе ревенанта), дампир — свой (на клане Предка)
+    if (this.actor.type === "ghoul") return s.ghoulType === "dhampir" ? openAtlas("dhampir", s.dhampir?.antecedentClan ?? "") : openAtlas("ghoul", s.family ?? "");
     return this.actor.type === "mage" ? openAtlas("mage", s.mage?.faction) : openAtlas("werewolf", s.werewolf?.fera || s.werewolf?.tribe);
   }
 

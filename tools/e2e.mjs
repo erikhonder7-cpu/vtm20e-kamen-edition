@@ -6131,6 +6131,31 @@ try {
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });
 
+  // Справочники гулей и ревенантов (Ghouls & Revenants) и дампиров (Accursed Heirs) — по знаку листа, на своём семействе или клане Предка
+  await check("Гуль: справочники — гули и ревенанты (семейства, правила, черты), дампиры (Права крови, ритуалы, кровь кланов)", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), A = await import(`/systems/${sid}/module/apps/atlas.mjs`), out = {};
+      const a = await Actor.create({ name: "E2E — ревенант Братович", type: "ghoul", flags: { world: { e2e: true }, [sid]: { created: true } }, system: { ghoulType: "revenant", family: "bratovich" } });
+      const d = await Actor.create({ name: "E2E — дампир", type: "ghoul", flags: { world: { e2e: true }, [sid]: { created: true } }, system: { ghoulType: "dhampir", dhampir: { antecedentClan: "brujah" } } });
+      try {
+        await a.sheet.render({ force: true }); await wait(900);
+        a.sheet.element.querySelector('[data-action="lineAtlas"]')?.click(); await wait(1200);
+        const g = foundry.applications.instances.get("r-atlas-ghoul");
+        out.ghoul = [!!g, g?.groups.map(x => x.key).join(","), g?.element.querySelector(".r-cl-card h2, .r-cl-head h2")?.textContent.trim()];
+        await g?.close(); await a.sheet.close();
+        await d.sheet.render({ force: true }); await wait(900);
+        d.sheet.element.querySelector('[data-action="lineAtlas"]')?.click(); await wait(1200);
+        const h = foundry.applications.instances.get("r-atlas-dhampir");
+        out.dhampir = [!!h, h?.groups.map(x => x.key).join(","), h?.v.key];
+        await h?.close(); await d.sheet.close();
+      } finally { await Actor.deleteDocuments([a.id, d.id]); }
+      return out;
+    });
+    const want = { ghoul: [true, "families,rules,merits", "Братовичи"], dhampir: [true, "rules,concepts,rights,rituals,clans,backgrounds,merits", "clan:brujah"] };
+    const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
+    if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
+  });
+
   // Генератор НПС: противники и спутники Грёзы (C20, гл. 9 и Прил. II) — дантаин, кинейн, зачарованный, Осенний человек
   await check("Подменыш: НПС Грёзы — дантаин с Клеймом, кинейн, зачарованный, осенний человек", async () => {
     const r = await page.evaluate(async () => {

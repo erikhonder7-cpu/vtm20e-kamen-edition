@@ -5,6 +5,8 @@
 //   охотник   — кредо (Добродетель, Убеждённость, Грани пути), Добродетели охоты
 //   оборотень — племена, породы, аугурии, Фера (числа создания, начальные Дары, Дары по рангам)
 //   призрак   — Арканои (Гильдия, союзники, уровни Общие и Посвящённые), Легионы, архетипы Тени и Психеи, Шипы, Фоны
+//   гуль      — правила Ghouls & Revenants, семейства ревенантов (Дисциплины, изъян рода), Достоинства и Недостатки гулей
+//   дампир    — правила, концепции, Права крови по уровням, ритуалы Каплемантии, кровь кланов, Фоны, Достоинства и Недостатки
 // Данные — data/mage.json и data/werewolf.json (пересказ справочника), своей механики тут нет.
 
 import { SYSTEM_PATH } from "../config.mjs";
@@ -15,6 +17,7 @@ import { H } from "./hunter.mjs";
 import { W as WR, arcSym, legionSym } from "./wraith.mjs";
 import { C as CL } from "./changeling.mjs";
 import * as CLG from "./changeling.mjs";
+import { REVENANT_FAMILIES } from "../data/revenants.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const loc = k => game.i18n.localize(`VTM20.${k}`);
@@ -180,18 +183,67 @@ function changelingGroups() {
   ].filter(g => g.items.length);
 }
 
+/* ── Гули и ревенанты (V20 Ghouls & Revenants) ─────────────────────────── */
+const meritRow = m => ({ key: `merit:${m.en || m.name}`, name: m.name, sub: [m.en, loc(m.kind === "flaw" ? "Atlas.Flaw" : "Atlas.Merit")].filter(Boolean).join(" · "),
+  icon: m.kind === "flaw" ? "fa-circle-minus" : "fa-circle-plus",
+  card: () => ({ kicker: loc(m.kind === "flaw" ? "Atlas.Flaw" : "Atlas.Merit"), text: m.html ?? p(m.text),
+    facts: [fact(loc("Atlas.Cost"), m.cost), fact(loc("Atlas.Category"), m.category ? loc(`Atlas.Cat.${m.category}`) : "")].filter(Boolean) }) });
+const pages = (key, src) => (src?.pages ?? []).filter(x => x.html).map((x, i) => ({ key: `${key}:${i}`, name: x.name, icon: "fa-book-open",
+  card: () => ({ kicker: src.name, text: x.html }) }));
+
+function ghoulGroups() {
+  const rules = (Codex.ghoulRules ?? [])[0];
+  const disc = k => Codex.discipline(k)?.name ?? k;
+  return [
+    { key: "families", label: loc("Atlas.Ghoul.Families"), items: Object.entries(REVENANT_FAMILIES).map(([k, f]) => ({ key: `family:${k}`, name: f.name, sub: [f.en, f.nick].filter(Boolean).join(" · "), icon: "fa-people-roof",
+      card: () => ({ kicker: loc("Atlas.Ghoul.Family"), text: f.html ?? p(f.text),
+        chips: (f.disciplines ?? []).map(d => ({ label: disc(d), sym: Codex.disciplineSymbol(d) })),
+        facts: [fact(loc("Atlas.Ghoul.Flaw"), f.flaw)].filter(Boolean) }) })) },
+    { key: "rules", label: loc("Atlas.Ghoul.Rules"), items: pages("rule", rules) },
+    { key: "merits", label: loc("Atlas.Ghoul.Merits"), items: (Codex["merits-ghouls"] ?? []).map(meritRow) }
+  ].filter(g => g.items.length);
+}
+
+/* ── Дампиры (Accursed Heirs: Dhampirs — фанатское дополнение к V20) ───── */
+function dhampirGroups() {
+  const D = Codex.dhampir ?? {};
+  const right = k => (D.bloodrights ?? []).find(b => b.key === k);
+  const disc = k => Codex.discipline(k)?.name ?? k;
+  return [
+    { key: "rules", label: loc("Atlas.Ghoul.Rules"), items: pages("rule", D.rules) },
+    { key: "concepts", label: loc("Atlas.Dh.Concepts"), items: (D.concepts ?? []).map(c => ({ key: `concept:${c.key}`, name: c.name, sub: [c.en, c.nick].filter(Boolean).join(" · "), icon: "fa-user",
+      card: () => ({ kicker: loc("Atlas.Dh.Concept"), text: c.html ?? p(c.text) }) })) },
+    { key: "rights", label: loc("Atlas.Dh.Rights"), items: (D.bloodrights ?? []).map(b => ({ key: `right:${b.key}`, name: b.name, sub: b.en, icon: b.rare ? "fa-star" : "fa-droplet",
+      card: () => ({ kicker: loc(b.rare ? "Atlas.Dh.RightRare" : "Atlas.Dh.Right"), text: p(b.text),
+        chips: b.req ? [{ label: `${loc("Atlas.Dh.Req")}: ${disc(b.req)}`, sym: Codex.disciplineSymbol(b.req) }] : [],
+        sections: b.levels?.length ? [{ title: b.name, n: b.levels.length, rows: b.levels.map(l => ({ lvl: ROMAN[l.level] ?? l.level, name: l.name, em: [l.en, l.cost].filter(Boolean).join(" · "), html: p(l.text) })) }] : [] }) })) },
+    { key: "rituals", label: loc("Atlas.Dh.Rituals"), items: (D.rituals ?? []).map(r => ({ key: `ritual:${r.key}`, name: r.name, sub: [r.en, r.level ? ROMAN[r.level] : ""].filter(Boolean).join(" · "), icon: "fa-hand-holding-droplet",
+      card: () => ({ kicker: loc("Atlas.Dh.Ritual"), text: p(r.text), facts: [fact(loc("Atlas.Dh.Level"), r.level)].filter(Boolean) }) })) },
+    { key: "clans", label: loc("Atlas.Dh.Clans"), items: Object.entries(D.clans ?? {}).map(([k, c]) => ({ key: `clan:${k}`, name: Codex.clanName(k), sub: c.nick, icon: "fa-shield-halved", sym: Codex.clanSymbol(k) ?? undefined,
+      card: () => ({ kicker: loc("Atlas.Dh.Clan"), chips: (c.rights ?? []).map(r => ({ label: right(r)?.name ?? r })),
+        facts: [fact(loc("Atlas.Dh.Weakness"), c.weakness)].filter(Boolean) }) })) },
+    { key: "backgrounds", label: loc("Wraith.Backgrounds"), items: (D.backgrounds ?? []).map((x, i) => ({ key: `bg:${i}`, name: x.name, sub: x.en, icon: "fa-book",
+      card: () => ({ kicker: loc("Atlas.Background"), text: x.html }) })) },
+    { key: "merits", label: loc("Atlas.Ghoul.Merits"), items: (D.merits ?? []).map(meritRow) }
+  ].filter(g => g.items.length);
+}
+
 const LINES = {
   mage: { groups: mageGroups, title: "VTM20.Atlas.MageTitle", icon: "fa-solid fa-hat-wizard", theme: "r-type-mage" },
   werewolf: { groups: wolfGroups, title: "VTM20.Atlas.WolfTitle", icon: "fa-solid fa-paw", theme: "r-type-werewolf" },
   hunter: { groups: hunterGroups, title: "VTM20.Atlas.HunterTitle", icon: "fa-solid fa-crosshairs", theme: "r-type-hunter" },
   wraith: { groups: wraithGroups, title: "VTM20.Atlas.WraithTitle", icon: "fa-solid fa-ghost", theme: "r-type-wraith" },
-  changeling: { groups: changelingGroups, title: "VTM20.Atlas.ChangelingTitle", icon: "fa-solid fa-wand-sparkles", theme: "r-type-changeling" }
+  changeling: { groups: changelingGroups, title: "VTM20.Atlas.ChangelingTitle", icon: "fa-solid fa-wand-sparkles", theme: "r-type-changeling" },
+  ghoul: { groups: ghoulGroups, title: "VTM20.Atlas.GhoulTitle", icon: "fa-solid fa-droplet", theme: "r-type-vampire" },
+  dhampir: { groups: dhampirGroups, title: "VTM20.Atlas.DhampirTitle", icon: "fa-solid fa-moon", theme: "r-type-vampire" }
 };
 
 /** Открыть справочник линейки («mage», «werewolf») на записи key; открытое окно переключается. */
 export async function openAtlas(line, key = "") {
   if (!LINES[line]) return null;
   await Codex.load();
+  // правила книги Ghouls & Revenants — только для справочника (в Codex не грузятся)
+  if (line === "ghoul" && !Codex.ghoulRules) Codex.ghoulRules = await fetch(`${SYSTEM_PATH}/data/rules-ghouls.json`).then(r => r.json()).catch(() => []);
   const id = `r-atlas-${line}`, open = foundry.applications.instances.get(id);
   if (open) { if (key) open.show(key); open.bringToFront(); return open; }
   return new LineAtlas(line, key).render({ force: true });
