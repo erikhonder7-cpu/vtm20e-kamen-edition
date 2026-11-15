@@ -10,7 +10,6 @@ import { REVENANT_FAMILIES } from "../../data/revenants.mjs";
 import { M as mageData, mageGlyphSrc } from "../mage.mjs";
 import { H as hunterData, growth as hunterGrowth } from "../hunter.mjs";
 import { W as wraithData, wraithGlyphSrc } from "../wraith.mjs";
-import { C as clData } from "../changeling.mjs";
 
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
 const loc = k => game.i18n.localize(k);
@@ -393,7 +392,6 @@ export class ContextCreator {
       }
       // Подменыш: вместо Добродетелей — Грёза (кит, ступень, двор, Наследия, Банальность)
       if (this.isChangeling) {
-        const c = st.cl, D = clData(), L = k => (D.legacies ?? []).find(l => l.key === k)?.name;
         ctx.virtLabel = loc("VTM20.ClCr.Dream");
         ctx.summary.virtues = this.clSummaryRows().filter(([, v]) => v !== "" && v != null).map(([label, value]) => ({ label, value }));
         ctx.garouLine = [ctx.patent.clan, ctx.patent.sect].filter(Boolean).join(" · ");

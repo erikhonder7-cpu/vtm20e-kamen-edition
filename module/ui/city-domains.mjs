@@ -73,7 +73,7 @@ export function domainLinkHtml(id) {
 /** Создать актёра «Домен» по зоне или обведённому домену: имя, привязка, угодья и хозяин — сразу. Экспорт — для автотестов. */
 export async function makeDomainFor(kind, it) {
   if (domainActorOn(it.id)) return;
-  let owner = null, ground = "", name = "";
+  let owner, ground, name;
   if (kind === "zone") {
     const nm = String(it.owner ?? "").trim().toLowerCase();
     owner = nm ? game.actors.find(a => a.name.trim().toLowerCase() === nm) ?? null : null;

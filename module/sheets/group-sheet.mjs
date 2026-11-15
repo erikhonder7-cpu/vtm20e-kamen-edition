@@ -245,7 +245,7 @@ export class DomainSheet extends GroupSheet {
     const a = this.actor, s = a.system, owner = domainOwner(a);
     const row = (key, max = 5) => Array.from({ length: max }, (_, i) => ({ n: i + 1, on: i < (s[key] ?? 0), key }));
     // место на карте: зоны рассказчика и обведённые игроками домены (план 1)
-    let zones = [];
+    let zones;
     try { const sp = citySpots(); zones = [...sp.zones, ...(sp.domains ?? [])]; } catch { zones = []; }
     const diff = HUNTING_GROUNDS[s.ground] ?? 6;
     const list = ids => (ids ?? []).map(id => game.actors.get(id)).filter(Boolean).map(card);

@@ -35,7 +35,7 @@ export async function applyTargetPower(message, state, ev) {
   const api = await clockApi(), n = ev.successes, now = api.getClock();
   const [disc] = x.key.split("|");
   const flags = { mind: x.key, by: state.actorUuid ?? "", start: now };
-  let name = `${x.powerName} · ${x.actorName}`, desc = "";
+  let name = `${x.powerName} · ${x.actorName}`, desc;
   if (BLOOD_APPLY.has(tp.kind)) return bloodApply({ message, state, x, tp, target, n, flags, now, api });
   const handler = APPLY[tp.kind];
   if (handler) return handler({ message, state, x, tp, target, api, n, now, disc, flags });   // apply-kinds.mjs: вид силы → своя функция

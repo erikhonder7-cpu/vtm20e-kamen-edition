@@ -498,7 +498,7 @@ export async function regainRage(actor) {
       { key: "one", icon: "fa-plus", title: t("RageOne"), sub: t("RageOneSub"), disabled: cur >= perm, badge: cur < perm ? "+1" : "" }
     ] });
   if (!pick) return null;
-  let to = cur;
+  let to;
   if (pick === "moon") { to = cur + moonGain; await actor.setFlag(game.system.id, "moonNight", night); }
   else if (pick === "one") to = Math.min(perm, cur + 1);
   else {
