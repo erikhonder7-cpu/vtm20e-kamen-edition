@@ -9827,6 +9827,15 @@
       "QuintRow": "Quintessence (4 per point)",
       "ResRow": "Resonance"
     },
+    "LoreSearch": {
+      "Title": "Handbooks",
+      "Placeholder": "Search all handbooks — clan, Gift, Legion, Qlipha…",
+      "Hint": "Start typing to search every handbook at once: names, lore, rules, Gifts and levels. Or open a handbook:",
+      "Indexing": "Gathering handbooks…",
+      "Nothing": "Nothing found. Try another word or the English name.",
+      "Found": "Found: {n}",
+      "Key": "Open Handbooks"
+    },
     "Atlas": {
       "ChangelingTitle": "The Dreaming — changeling atlas",
       "WraithTitle": "Wraith: The Oblivion — reference",

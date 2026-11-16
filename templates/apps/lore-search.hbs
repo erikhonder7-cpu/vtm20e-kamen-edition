@@ -1,0 +1,11 @@
+{{!-- «Справочники»: строка поиска; без запроса — плитки справочников, с запросом — результаты по всем (module/apps/lore-search.mjs). --}}
+<div class="r-ls">
+  <label class="r-cl-find r-ls-find"><i class="fa-solid fa-magnifying-glass"></i><input type="search" class="r-ls-input" value="{{q}}" placeholder="{{localize 'VTM20.LoreSearch.Placeholder'}}" aria-label="{{localize 'VTM20.LoreSearch.Placeholder'}}"></label>
+  <nav class="r-ls-hub">
+    <p class="r-ls-hint">{{localize "VTM20.LoreSearch.Hint"}}</p>
+    <div class="r-ls-books">
+      {{#each books}}<a class="r-ls-book-tile" data-action="book" data-book="{{book}}"><i class="fa-solid {{icon}}"></i><span>{{title}}</span></a>{{/each}}
+    </div>
+  </nav>
+  <div class="r-ls-results" hidden></div>
+</div>

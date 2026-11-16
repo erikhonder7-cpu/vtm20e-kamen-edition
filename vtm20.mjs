@@ -35,6 +35,7 @@ import { openHazard } from "./module/apps/hazard.mjs";
 import { openDiablerie } from "./module/apps/diablerie.mjs";
 import { openLibrary } from "./module/apps/library.mjs";
 import { openNpcGenerator, registerNpcPresets } from "./module/apps/npc-gen.mjs";
+import { openLoreSearch, registerLoreSearch } from "./module/apps/lore-search.mjs";
 import { openClans } from "./module/apps/clans.mjs";
 import { openBoons } from "./module/apps/boons.mjs";
 import { openDowntime } from "./module/apps/downtime.mjs";
@@ -87,7 +88,7 @@ Hooks.once("init", () => {
     config: VTM20, codex: Codex,
     rollPool, evaluate, rollDamage, soakAndApply, openDamageDialog, RollDialog, openCreator, VtMCreator,
     openHunt, nightfall, endScene, endStory, openAttack, openDefense, openHazard, openDiablerie, renderHud,
-    openLibrary, openNpcGenerator, openClans, myNight: () => import("./module/apps/night.mjs").then(x => x.myNight()), openAtlas: (line, key) => import("./module/apps/atlas.mjs").then(x => x.openAtlas(line, key)),
+    openLibrary, openNpcGenerator, openClans, openLoreSearch, myNight: () => import("./module/apps/night.mjs").then(x => x.myNight()), openAtlas: (line, key) => import("./module/apps/atlas.mjs").then(x => x.openAtlas(line, key)),
     openWorkshop: (actor, mode) => import("./module/apps/thaum-workshop.mjs").then(x => x.openWorkshop(actor, mode)), openBoons, openDowntime, openSessionXp, openSessionPanel, newSession: newSessionAll, openCourt, openWeb, openCoterie, openChronicle, giveHandout, money: Money, openCity, closeCity, toggleCity, cityMap,
     openSceneNexus, openCalendar, announceTime, getClock, getDate, stamp, clockBarData, nightPhase, moonPhase, republicanDate,
     apps: { SceneNexus, NightCalendar }
@@ -191,6 +192,7 @@ Hooks.once("init", () => {
   registerHelpers();
   registerNightTools();
   registerHud();
+  registerLoreSearch();
   registerCombatTracker();
   registerCelerity();
   registerTurn();
@@ -358,6 +360,8 @@ Hooks.on("getSceneControlButtons", controls => {
     "r-newsession": { name: "r-newsession", title: "VTM20.NewSession.Title", icon: "fa-solid fa-hourglass-start", order: 8, visible: isGM, button: true, onChange: () => newSessionAll() },
     "r-xp": { name: "r-xp", title: "VTM20.SessionXp.Title", icon: "fa-solid fa-star", order: 6, visible: isGM, button: true, onChange: () => openSessionXp() },
     "r-session": { name: "r-session", title: "VTM20.Session.Title", icon: "fa-solid fa-table-list", order: 0, visible: isGM, button: true, onChange: () => openSessionPanel() },
+    // все справочники одним окном: плитки и поиск сразу по всем (Ctrl+K)
+    "r-lore": { name: "r-lore", title: "VTM20.LoreSearch.Title", icon: "fa-solid fa-book-atlas", order: 10, visible: true, button: true, onChange: () => openLoreSearch() },
     "r-thaum": { name: "r-thaum", title: "VTM20.Artifact.Title", icon: "fa-solid fa-staff-snake", order: 9, visible: isGM, button: true,
       onChange: () => import("./module/apps/thaum-workshop.mjs").then(x => x.openWorkshop()) }
   };

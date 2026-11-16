@@ -728,13 +728,13 @@ BUILDERS["werewolf-rules"] = function () {
     groups.push({ kind: x.kind, key: x.key, name: `${W.Outsiders ?? "Изгои"}: ${W.Outsider?.[x.key] ?? x.key}` });
   const pages = groups.map(gr => ({ name: gr.name, html: w.gifts.filter(g => g.groups.some(x => x.kind === gr.kind && x.key === gr.key))
     .sort((a, b) => a.level - b.level).map(g => {
-      const line = [roll(g.roll), cost(g.cost) && `цена: ${cost(g.cost)}`].filter(Boolean).join(" · ");
+      const line = [g.teacher && `учит: ${g.teacher}`, roll(g.roll), cost(g.cost) && `цена: ${cost(g.cost)}`].filter(Boolean).join(" · ");
       return `<h3>${roman[g.level - 1]}. ${g.name} <small>(${g.en})</small></h3>${line ? `<p><em>${line}</em></p>` : ""}${g.text}`;
     }).join("") }));
   p.addBook({ name: "Дары Гару", pages, key: "werewolf-rules:gifts" });
   // Фера (W20 Changing Breeds): по странице на род — черты, формы, Дары по разделам рода
   const giftHtml = g => {
-    const line = [roll(g.roll), cost(g.cost) && `цена: ${cost(g.cost)}`].filter(Boolean).join(" · ");
+    const line = [g.teacher && `учит: ${g.teacher}`, roll(g.roll), cost(g.cost) && `цена: ${cost(g.cost)}`].filter(Boolean).join(" · ");
     return `<h4>${roman[g.level - 1]}. ${g.name} <small>(${g.en})</small></h4>${line ? `<p><em>${line}</em></p>` : ""}${g.text}`;
   };
   if (w.fera?.length) p.addBook({ name: "Фера — Изменяющиеся", key: "werewolf-rules:fera", pages: w.fera.map(b => {

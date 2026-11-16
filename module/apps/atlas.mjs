@@ -82,9 +82,8 @@ function mageGroups() {
 function wolfGroups() {
   const D = W(), wg = n => ({ src: wwGlyphSrc(n) });
   const gift = k => (D.gifts ?? []).find(g => g.key === k);
-  // пересказ начинается с того, кто учит («дух волка. …»): отдельной строкой «Учит: Дух волка»
-  const teach = g => !g.teacher ? g.text ?? "" : String(g.text ?? "").replace(/^<p>((?:учит |учат )?([а-яё][^<.]{2,118}?))\.\s+/, (m, all, who) =>
-    g.teacher.startsWith(all.slice(0, 12)) ? `<p class="r-at-teach"><i class="fa-solid fa-feather-pointed" inert></i>${loc("Atlas.Teaches")}: ${who[0].toUpperCase()}${who.slice(1)}</p><p>` : m);
+  // кто учит — отдельной подписью над механикой (поле teacher, tools/werewolf_data.py: split_teacher)
+  const teach = g => (g.teacher ? `<p class="r-at-teach"><i class="fa-solid fa-feather-pointed" inert></i>${loc("Atlas.Teaches")}: ${esc(g.teacher)}</p>` : "") + (g.text ?? "");
   const giftRow = g => ({ lvl: ROMAN[g.level] ?? g.level, name: g.name, em: g.en, html: teach(g) });
   const start = keys => ({ start: true, title: loc("Atlas.StartGifts"), rows: (keys ?? []).map(gift).filter(Boolean).map(giftRow) });
   const own = (kind, key) => {
@@ -258,6 +257,34 @@ const LINES = {
   ghoul: { groups: ghoulGroups, title: "VTM20.Atlas.GhoulTitle", icon: "fa-solid fa-droplet", theme: "r-type-vampire" },
   dhampir: { groups: dhampirGroups, title: "VTM20.Atlas.DhampirTitle", icon: "fa-solid fa-moon", theme: "r-type-vampire" }
 };
+
+/** Справочники линеек для общего окна «Справочники» (module/apps/lore-search.mjs): ключ, заголовок, значок. */
+export const ATLAS_LINES = Object.entries(LINES).map(([line, L]) => ({ line, title: L.title, icon: L.icon }));
+
+/**
+ * Все записи справочников линеек для общего поиска: линейка, группа, ключ, имя и текст карточки
+ * (предание, правила, факты, имена Даров/Граней/уровней) — разметка снимается в поиске.
+ */
+export async function atlasEntries() {
+  await Codex.load();
+  if (!Codex.ghoulRules) Codex.ghoulRules = await fetch(`${SYSTEM_PATH}/data/rules-ghouls.json`).then(r => r.json()).catch(() => []);
+  const out = [];
+  for (const [line, L] of Object.entries(LINES)) {
+    let groups = [];
+    try { groups = L.groups(); } catch (e) { console.warn(`VTM20 | справочник ${line}:`, e); }
+    for (const g of groups) for (const x of g.items) {
+      let c = {};
+      try { c = x.card(); } catch { /* карточка без данных — ищем по имени */ }
+      const rows = (c.sections ?? []).flatMap(s => s.rows ?? []).map(r => [r.name, r.em].filter(Boolean).join(" ")).join(" · ");
+      out.push({ line, title: L.title, group: g.label, key: x.key, name: x.name, sub: x.sub ?? "", sym: x.sym, icon: x.icon,
+        text: [c.nick, c.tag, c.lore, c.text, ...(c.facts ?? []).map(f => `${f.label}: ${f.value}`), (c.chips ?? []).map(ch => ch.label).join(", "), rows].filter(Boolean).join(" \n ") });
+      // строки карточки (Дары, Грани, уровни Арканои и Искусств) — отдельными записями: «где» — раздел и карточка
+      for (const s of c.sections ?? []) for (const r of s.rows ?? []) if (r.name && r.html)
+        out.push({ line, title: L.title, row: true, group: `${s.title} · ${x.name}`, parent: x.name, key: x.key, name: r.name, sub: r.em ?? "", sym: r.sym ?? x.sym, icon: x.icon, lvl: r.lvl, text: r.html });
+    }
+  }
+  return out;
+}
 
 /** Открыть справочник линейки («mage», «werewolf») на записи key; открытое окно переключается. */
 export async function openAtlas(line, key = "") {

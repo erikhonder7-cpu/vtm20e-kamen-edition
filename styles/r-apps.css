@@ -1716,7 +1716,7 @@ body.r-theme-light .vtm20 .r-sp-state img { filter: none; }
 .vtm20.r-atlas .r-at-facts { display: grid; grid-template-columns: max-content 1fr; gap: 4px 14px; margin: 0; font-size: 14px; }
 .vtm20.r-atlas .r-at-facts dt { padding-top: 2px; font-family: var(--r-caps); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--r-muted); }
 .vtm20.r-atlas .r-at-facts dd { margin: 0; color: var(--r-ink-2); line-height: 1.45; }
-.vtm20.r-atlas .r-at-lvl { display: inline-grid; place-items: center; min-width: 22px; height: 20px; margin-right: 8px; padding: 0 4px; border: 1px solid var(--r-line-2);
+.vtm20.r-atlas .r-at-lvl, .vtm20 .r-ls-name .r-at-lvl { display: inline-grid; place-items: center; min-width: 22px; height: 20px; margin-right: 8px; padding: 0 4px; border: 1px solid var(--r-line-2);
   font-family: var(--r-display); font-style: normal; font-size: 11px; color: var(--r-accent); }
 .vtm20.r-atlas .r-at-rows { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 8px; }
 .vtm20.r-atlas .r-at-row { display: flex; gap: 10px; align-items: flex-start; padding: 7px 11px; border: 1px solid var(--r-line-2); background: var(--r-card-bg, var(--r-s1)); font-size: 13.5px; }
@@ -1725,8 +1725,8 @@ body.r-theme-light .vtm20 .r-sp-state img { filter: none; }
 .vtm20.r-atlas .r-at-row-sym .r-sym { width: 100%; height: 100%; }
 .vtm20.r-atlas .r-at-row-text { margin-top: 3px; color: var(--r-ink-2); line-height: 1.4; }
 /* предание: колонка чтения, буквица в цвете линейки (кровь у вампиров, зелень у Гару, фиолет у магов) */
-.vtm20.r-atlas .r-at-lore p { max-width: 70ch; font-size: 14.5px; line-height: 1.62; color: var(--r-ink-2); }
-.vtm20.r-atlas .r-at-lore p:first-of-type::first-letter { margin: 4px 8px 0 0; color: var(--r-accent); font-size: 42px; }
+.vtm20 .r-at-lore p { max-width: 70ch; font-size: 14.5px; line-height: 1.62; color: var(--r-ink-2); }
+.vtm20 .r-at-lore p:first-of-type::first-letter { margin: 4px 8px 0 0; color: var(--r-accent); font-size: 42px; }
 /* особенности: правила записи — мельче, с чертой слева, чтобы не путать с преданием */
 .vtm20.r-atlas .r-at-text.is-rules { font-size: 13.5px; }
 .vtm20.r-atlas .r-at-text.is-rules > :not(h3, .r-at-feats) { padding-left: 12px; border-left: 2px solid var(--r-line-2); }
@@ -1954,3 +1954,32 @@ body.r-theme-light .vtm20 .r-sp-state img { filter: none; }
 .vtm20 .r-cl-lore p { margin: 0 0 8px; color: var(--r-ink-2); font-size: 13.5px; line-height: 1.55; }
 .vtm20 .r-cl-lore p:last-child { margin-bottom: 0; }
 .vtm20 .r-cl-lore p:first-of-type::first-letter { float: left; margin: 3px 6px 0 0; color: var(--r-blood-l, #c4474c); font-family: var(--r-display); font-size: 34px; line-height: .85; }
+
+/* ── «Справочники»: общий поиск (module/apps/lore-search.mjs) ─────────────────────────── */
+.vtm20.r-lore-search .window-content { padding: 14px 16px; }
+.vtm20 .r-ls { display: flex; flex-direction: column; gap: 12px; height: 100%; min-height: 0; }
+.vtm20 .r-ls-find { flex: 0 0 auto; padding: 2px 12px; }
+.vtm20 .r-ls-find input { height: 36px; font-family: var(--r-display); font-size: 17px; color: var(--r-ink); }
+.vtm20 .r-ls-find i { font-size: 15px; color: var(--r-accent); }
+.vtm20 .r-ls-hint { margin: 0 0 10px; font-size: 13.5px; color: var(--r-muted); }
+.vtm20 .r-ls-books { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; }
+.vtm20 .r-ls-book-tile { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid var(--r-line); background: rgba(0, 0, 0, .16); cursor: pointer; font-family: var(--r-display); font-size: 15px; line-height: 1.2; color: var(--r-ink); transition: border-color .15s, background .15s; }
+.vtm20 .r-ls-book-tile i { flex: 0 0 22px; font-size: 18px; text-align: center; color: var(--r-accent); }
+.vtm20 .r-ls-book-tile:hover, .vtm20 .r-ls-book-tile:focus-visible { border-color: color-mix(in srgb, var(--r-accent) 60%, transparent); background: color-mix(in srgb, var(--r-accent) 14%, transparent); }
+.vtm20 .r-ls-results { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding-right: 4px; }
+.vtm20 .r-ls-count, .vtm20 .r-ls-wait, .vtm20 .r-ls-none { margin: 0 0 10px; font-size: 13px; color: var(--r-muted); }
+.vtm20 .r-ls-none { padding: 24px 0; text-align: center; font-size: 14px; }
+.vtm20 .r-ls-book { margin-bottom: 14px; }
+.vtm20 .r-ls-hit { display: flex; align-items: flex-start; gap: 10px; padding: 7px 8px; border: 1px solid transparent; border-left: 2px solid transparent; cursor: pointer; }
+.vtm20 .r-ls-hit + .r-ls-hit { margin-top: 2px; }
+.vtm20 .r-ls-hit:hover, .vtm20 .r-ls-hit:focus-visible { background: var(--r-s2); border-left-color: var(--r-accent); }
+.vtm20 .r-ls-hit .r-cl-medal { margin-top: 1px; }
+.vtm20 .r-ls-main { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.vtm20 .r-ls-name { font-family: var(--r-display); font-size: 15.5px; line-height: 1.2; color: var(--r-ink); }
+.vtm20 .r-ls-name em { font-size: 12px; font-style: italic; color: var(--r-muted); }
+.vtm20 .r-ls-group { margin-left: 8px; font-family: var(--r-caps); font-size: 10.5px; font-style: normal; letter-spacing: 1px; text-transform: uppercase; color: var(--r-muted); }
+.vtm20 .r-ls-snip { font-size: 13px; line-height: 1.45; color: var(--r-ink-2); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.vtm20 .r-ls-snip mark { padding: 0 1px; background: color-mix(in srgb, var(--r-accent) 35%, transparent); color: var(--r-ink); }
+.vtm20 .r-ls-flash { animation: r-ls-flash 1.6s ease-out; }
+@keyframes r-ls-flash { 0%, 30% { background: color-mix(in srgb, var(--r-accent) 28%, transparent); } 100% { background: transparent; } }
+@media (prefers-reduced-motion: reduce) { .vtm20 .r-ls-flash { animation: none; outline: 1px solid var(--r-accent); } }

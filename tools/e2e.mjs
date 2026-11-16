@@ -4448,6 +4448,16 @@ try {
       for (const d of aw.element.querySelectorAll("details")) d.open = true;
       out.wolfLore.push(!!aw.element.querySelector(".r-at-teach"));
       await aw.close();
+      // «Справочники»: плитки всех справочников; поиск по всем — запись (Квлифа), строка карточки (Дар) с раскрытием
+      const ls = await game.vtm20.openLoreSearch(); await wait(500);
+      out.loreSearch = [ls.element.querySelectorAll(".r-ls-book-tile").length];
+      await ls.find("тагирион"); out.loreSearch.push(ls.element.querySelector(".r-ls-hit .r-ls-name")?.textContent.trim().startsWith("Тагирион"));
+      await ls.find("крылья пегаса"); const hit = ls.element.querySelector(".r-ls-hit[data-row]");
+      out.loreSearch.push(hit?.dataset.book === "werewolf");
+      hit?.click(); await wait(1200);
+      const wa = foundry.applications.instances.get("r-atlas-werewolf");
+      out.loreSearch.push(!!wa?.element.querySelector("details.r-cl-trait[open]"));
+      await wa?.close(); await ls.close();
       // генератор НПС: маг, технократ, Нефанд — Сферы не выше Арете, точка в родовой, Квинтэссенция по Аватару
       const B = await sys("module/apps/npc-build.mjs"), groups = { mage: ["traditions", "disparates"], technocrat: ["technocracy"], nephandus: ["nephandi"] };
       out.npc = [];
@@ -4463,7 +4473,7 @@ try {
       return out;
     });
     const want = { steps: true, subs: true, techBgHidden: true, quint: [2, 8], techBgShown: true, fallen: [true, false], sheet: [true, 9, "lineAtlas"], traits: [true, true, false],
-      castDlg: [true, true], cast: [1, true], hud: [true, true, 1], hudRote: true, atlasMage: [14, 11, "Орден Гермеса"], atlasQliph: "Лилит", lore: [true, true, true, true, true], atlasWolf: [4, "Бастет", true], wolfLore: [true, true, true, true],
+      castDlg: [true, true], cast: [1, true], hud: [true, true, 1], hudRote: true, atlasMage: [14, 11, "Орден Гермеса"], atlasQliph: "Лилит", lore: [true, true, true, true, true], atlasWolf: [4, "Бастет", true], wolfLore: [true, true, true, true], loreSearch: [9, true, true, true],
       npc: [true, true, true, true, true, true], npcMade: ["mage", true, true] };
     const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));

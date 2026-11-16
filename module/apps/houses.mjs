@@ -54,7 +54,8 @@ class HouseAtlas extends HandlebarsApplicationMixin(ApplicationV2) {
       v, list,
       groups: [["houses", Codex.houses.length], ["factions", Codex.factions.length]].map(([k, n]) => ({ key: k, label: t(`Demon.Atlas${k === "houses" ? "Houses" : "Factions"}`), n, active: v.group === k })),
       house: house ? this.#house(house) : null,
-      faction: !house && faction ? faction : null
+      // лор фракции — data/line-lore.json (demon.faction), строка из demon.json — подзаголовком
+      faction: !house && faction ? { ...faction, lore: Codex["line-lore"]?.demon?.faction?.[faction.key] ?? "" } : null
     };
   }
 

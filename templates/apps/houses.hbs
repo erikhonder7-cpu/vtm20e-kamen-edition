@@ -124,9 +124,11 @@
       <div class="r-cl-titles">
         <div class="r-cl-kicker">{{localize "VTM20.Demon.Faction"}}</div>
         <h2>{{name}}</h2>
+        {{#if lore}}<div class="r-cl-nick">{{text}}</div>{{/if}}
       </div>
     </header>
-    <section class="r-cl-sec"><p class="r-hs-text">{{text}}</p></section>
+    {{#if lore}}<section class="r-cl-sec r-cl-lore r-at-lore"><h3>{{localize "VTM20.Atlas.Lore"}}</h3>{{{lore}}}</section>
+    {{else}}<section class="r-cl-sec"><p class="r-hs-text">{{text}}</p></section>{{/if}}
   </article>
   {{/with}}{{/if}}
 </div>

@@ -1813,6 +1813,29 @@ def fill_en(node):
     walk(node)
 
 
+def split_teacher(gifts):
+    """«Кто учит» — отдельным полем: пересказ Дара начинается с него («дух волка. …», «учит дух предка. …»).
+    Совпавшее с teacher предложение снимается с начала текста; у записей без teacher оно берётся из «учит/учат …»;
+    мусорный teacher (обрывок «ур», аугурия Танцоров) чистится. Первая буква текста и учителя — заглавная."""
+    def plain(x):
+        return re.sub(r"<[^>]+>", "", x).replace("**", "").strip()
+    for g in gifts:
+        t, teacher = g.get("text") or "", (g.get("teacher") or "").strip()
+        if teacher == "ур" or teacher.endswith("Червя"):
+            teacher = ""
+        m = re.match(r"^<p>([^<]{2,160}?)\.\s+", t)
+        if m:
+            head = m.group(1).strip()
+            if teacher and plain(head) == plain(teacher):
+                t = "<p>" + t[m.end():]
+            elif not teacher and re.match(r"^(учит|учат|дух |духи )", head):
+                teacher, t = head, "<p>" + t[m.end():]
+        teacher = re.sub(r"^(учит|учат)\s+", "", teacher)
+        g["teacher"] = teacher[:1].upper() + teacher[1:] if teacher else ""
+        g["text"] = re.sub(r"^<p>([а-яё])", lambda x: "<p>" + x.group(1).upper(), t)
+    return gifts
+
+
 def build():
     import merits_dedupe   # tools/merits_dedupe.py: одна черта — одна запись (папка tools — в путях импорта у вызывающего)
     gifts = parse_gifts()
@@ -1826,6 +1849,7 @@ def build():
     gifts = gifts + cw_gifts
     bsd_gifts, bsd_tribe = parse_bsd(gifts)
     gifts = gifts + bsd_gifts
+    split_teacher(gifts)
     for kind, items in (("breed", breeds), ("auspice", auspices), ("tribe", tribes), ("form", FORMS)):
         for x in items:
             x["icon"] = ICONS[kind].get(x["key"], "fa-moon")
