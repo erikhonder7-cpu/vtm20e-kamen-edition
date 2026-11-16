@@ -16,7 +16,7 @@ import { openHazard } from "../apps/hazard.mjs";
 import { openHunt } from "../apps/night.mjs";
 import { rollPowerRef, powerByRef } from "../sheets/actor-sheet.mjs";
 import { effectTimer } from "../apps/timers.mjs";
-import { W as werewolfData, feraOf, changeForm, rageActions, regenerate, stepSideways, frenzyCheck, giftOf, rollGift, rollRite } from "../apps/werewolf.mjs";
+import { W as werewolfData, feraOf, changeForm, rageActions, regenerate, stepSideways, frenzyCheck, giftOf, rollGift, useGift, rollRite } from "../apps/werewolf.mjs";
 import { H as hunterData, secondSight, edgesView, useEdge } from "../apps/hunter.mjs";
 import { numenOf as sorcNumenOf, useNumen as sorcUseNumen, useRitual as sorcUseRitual } from "../apps/sorcerer.mjs";
 import { paradoxOf, castEffect, castRote, sphereName, aretePool, factionOf, mt, changeQuintessence, paradoxBacklash } from "../apps/mage.mjs";
@@ -534,7 +534,7 @@ async function onClick(ev) {
     case "pop": pop = pop === el.dataset.pop ? null : el.dataset.pop; return renderHud();
     case "popClose": pop = null; return renderHud();
     // силы из списка над HUD: Дисциплины и Знания — броском силы, Дары и ритуалы Гару — своими бросками
-    case "gift": pop = null; renderHud(); return rollGift(a, el.dataset.key);
+    case "gift": pop = null; renderHud(); return useGift(a, el.dataset.key);
     case "rite": pop = null; renderHud(); return rollRite(a, el.dataset.key);
     case "edge": pop = null; renderHud(); return useEdge(a, el.dataset.key);
     case "sphere": pop = null; renderHud(); return castEffect(a, { sphere: el.dataset.key });

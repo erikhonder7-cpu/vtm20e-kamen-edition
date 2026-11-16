@@ -64,11 +64,14 @@
   </h2>
   <ul class="r-edge-list r-ww-gifts">
     {{#each ww.gifts}}
-    <li class="r-edge {{#unless own}}is-foreign{{/unless}}">
+    <li class="r-edge {{#unless own}}is-foreign{{/unless}}{{#if active}} is-on{{/if}}">
       <span class="r-edge-lvl">{{rRoman level}}</span>
-      <span class="r-edge-main"><b>{{rName this}}</b> <small>{{rAlt this}}{{#if from}} · {{from}}{{/if}}{{#if pool}} · {{pool}}{{/if}}{{#if cost}} · {{cost}}{{/if}}</small>
+      <span class="r-edge-main"><b>{{rName this}}</b>{{#if fx}} <span class="r-ww-fx-tag{{#if active}} is-on{{/if}}"><i class="fa-solid fa-wand-sparkles"></i> {{localize "VTM20.Werewolf.GiftFxBadge"}}</span>{{/if}}{{#if passive}} <span class="r-ww-fx-tag"><i class="fa-solid fa-infinity"></i> {{localize "VTM20.FxTab.Always"}}</span>{{/if}}
+        <small>{{rAlt this}}{{#if from}} · {{from}}{{/if}}{{#if pool}} · {{pool}}{{/if}}{{#if cost}} · {{cost}}{{/if}}</small>
         <div class="r-edge-text">{{{text}}}</div></span>
-      {{#if @root.editable}}<a class="r-vc-btn" data-action="wwGift" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Werewolf.GiftUse'}}"><i class="fa-solid {{#if roll}}fa-dice-d10{{else}}fa-hand-sparkles{{/if}}"></i></a>
+      {{#if @root.editable}}{{#if active}}<a class="r-vc-btn is-on" data-action="wwGift" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Werewolf.GiftFxActive'}}"><i class="fa-solid fa-power-off"></i></a>
+      {{else if fx}}<a class="r-vc-btn" data-action="wwGift" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Werewolf.GiftFxUse'}}"><i class="fa-solid fa-wand-sparkles"></i></a>
+      {{else}}<a class="r-vc-btn" data-action="wwGift" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Werewolf.GiftUse'}}"><i class="fa-solid {{#if roll}}fa-dice-d10{{else}}fa-hand-sparkles{{/if}}"></i></a>{{/if}}
       <a class="r-icon-btn is-danger" data-action="wwGiftDel" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
     </li>
     {{/each}}

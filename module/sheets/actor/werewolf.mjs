@@ -5,12 +5,12 @@
 import { openSept } from "../../apps/sept.mjs";
 import { useCharm } from "../../apps/werewolf/spirits.mjs";
 import { openUmbra } from "../../apps/umbra.mjs";
-import { editStanding, changeForm, rollGift, rollRite, frenzyCheck, stepSideways, removeScar, removeDeformity, renownAward, kinRemoveGift, kinUseGift, kinRemoveNumen, kinNumenDots, kinUseNumen, kamiAdd, kamiRemove, kamiUse, bindFetch, burnFetch, primalUses, fomorBreed, fomorAdd, fomorRemove, fomorUse, removeCharm, spiritEssenceReset, removeFetish, attuneFetish, reconcileFetish, useFetish, delirium, stayUp, regainRage, regainGnosis, haranoCheck, regenerate, rageActions, spend as wwSpend, removeGift, removeRite } from "../../apps/werewolf.mjs";
+import { editStanding, changeForm, rollGift, useGift, rollRite, frenzyCheck, stepSideways, removeScar, removeDeformity, renownAward, kinRemoveGift, kinUseGift, kinRemoveNumen, kinNumenDots, kinUseNumen, kamiAdd, kamiRemove, kamiUse, bindFetch, burnFetch, primalUses, fomorBreed, fomorAdd, fomorRemove, fomorUse, removeCharm, spiritEssenceReset, removeFetish, attuneFetish, reconcileFetish, useFetish, delirium, stayUp, regainRage, regainGnosis, haranoCheck, regenerate, rageActions, spend as wwSpend, removeGift, removeRite } from "../../apps/werewolf.mjs";
 
 
 /** Оборотень (apps/werewolf.mjs): смена формы, Дары и ритуалы, бешенство, шаг в Умбру, траты Ярости и Гнозиса. */
 function onWwForm(event, target) { return changeForm(this.actor, target.dataset.form); }
-function onWwGift(event, target) { return rollGift(this.actor, target.dataset.key); }
+function onWwGift(event, target) { return useGift(this.actor, target.dataset.key); }
 function onWwGiftDel(event, target) { return removeGift(this.actor, target.dataset.key); }
 function onWwRite(event, target) { return rollRite(this.actor, target.dataset.key); }
 function onWwRiteDel(event, target) { return removeRite(this.actor, target.dataset.key); }

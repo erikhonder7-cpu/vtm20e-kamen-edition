@@ -22,6 +22,7 @@
 
 import { SYSTEM_ID } from "../config.mjs";
 import { zuloDef, ZULO_POWER } from "./zulo.mjs";
+import { GIFT_EFFECTS } from "./gift-effects.mjs";
 
 export const POWER_EFFECTS = {
   // Ясновидение 1: сложность заметить что-либо органами чувств −Ясновидение; без затрат, по желанию
@@ -204,6 +205,8 @@ export const MODE_LABEL = { scene: "Fx.Scene", toggle: "Fx.Toggleable", hour: "F
 
 /** Определение эффекта силы с учётом варианта и сохранённых форм персонажа. */
 export function effectDef(power, variant = "", shapeConfig = null) {
+  // Дары Гару (data/gift-effects.mjs): правки с учётом формы и успехов — во флаге эффекта (giftFx)
+  if (String(power).startsWith("gift:")) return GIFT_EFFECTS[power] ? { ...GIFT_EFFECTS[power], ...(shapeConfig ?? {}) } : null;
   const base = POWER_EFFECTS[power];
   if (!base) return null;
   if (power === "protean:Модифицированный Облик Зверя" && shapeConfig) {
@@ -239,7 +242,7 @@ export function activePowerEffects(actor) {
   for (const e of actor?.effects ?? []) {
     const f = e.flags?.[SYSTEM_ID];
     if (!f?.power || e.disabled) continue;
-    const def = effectDef(f.power, f.variant, f.shapeConfig ?? null);
+    const def = effectDef(f.power, f.variant, f.shapeConfig ?? f.giftFx ?? null);
     if (def) out.push({ effect: e, power: f.power, variant: f.variant ?? "", def });
   }
   return out;
@@ -319,6 +322,12 @@ export function effectMods(actor) {
     m.modifiedShape = def.modifiedShape ?? m.modifiedShape ?? null;
     m.brawlDamage += def.brawlDamage ?? 0;
     m.biteDamage += def.biteDamage ?? 0;
+    // Дары Гару (data/gift-effects.mjs): когти естественного оружия, кубы к броскам Атрибутов группы, серебро, Ярость
+    m.clawDamage = (m.clawDamage ?? 0) + (Number(def.clawDamage) || 0);
+    m.clawDiff = (m.clawDiff ?? 0) + (Number(def.clawDiff) || 0);
+    for (const [k, v] of Object.entries(def.attrDice ?? {})) (m.attrDice ??= {})[k] = [...(m.attrDice?.[k] ?? []), { label: effect.name, value: Number(v) || 0 }];
+    if (def.silverSoak) m.silverSoak = (m.silverSoak ?? 0) + (Number(def.silverSoak) || 0);
+    if (def.rageDiff) (m.rageDiff ??= []).push({ label: effect.name, value: Number(def.rageDiff) || 0 });
     // форма зуло (data/zulo.mjs): укус легче, лишние «Синяки», Шкура чуди к Скрытности
     m.biteDiff = (m.biteDiff ?? 0) + (def.biteDiff ?? 0);
     if (def.extraBruised) m.extraBruised = { max: def.extraBruised, effect };

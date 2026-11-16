@@ -14,6 +14,7 @@ import { registerEmblem, registerCardBlock } from "../ui/themes.mjs";
 export { fetishOf, fetishView, addFetish, removeFetish, attuneFetish, reconcileFetish, useFetish, craftFetish } from "./werewolf/fetishes.mjs";
 import { kamiDeliriumImmune } from "./werewolf/kin.mjs";
 import { challengeRank, rankReady } from "./werewolf/challenge.mjs";
+import { GIFT_EFFECTS, GIFT_PASSIVE } from "../data/gift-effects.mjs";
 export { kinfolkInfo, kamiPowerOf, kamiInfo, kamiAdd, kamiRemove, kamiUse, kamiDeliriumImmune, numenOf, kinAddNumen, kinRemoveNumen, kinNumenDots, kinUseNumen, kinAddGift, kinRemoveGift, kinUseGift } from "./werewolf/kin.mjs";
 export { GAUNTLET, stepSideways, SPIRIT_RANKS, charmOf, spiritTplOf, spiritTplGroups, applySpiritTpl, createSpirit, fetchInfo, bindFetch, burnFetch, spiritInfo, addCharm, removeCharm, spiritEssenceReset } from "./werewolf/spirits.mjs";
 export { fomorBreedOf, fomorPowerOf, fomorInfo, fomorBreed, fomorAdd, fomorRemove, fomorUse } from "./werewolf/fomori.mjs";
@@ -155,8 +156,11 @@ export function giftsView(actor) {
   // откуда Дар: у Фера — только группы своего рода, у Гару — без групп Фера
   const label = g => g.groups.filter(x => w.fera ? x.kind === "fera" && x.key === w.fera : x.kind !== "fera").map(x => x.kind === "fera" ? x.label : x.kind === "breed" ? byKey(W().breeds, x.key)?.name : x.kind === "auspice" ? byKey(W().auspices, x.key)?.name
     : x.kind === "tribe" ? byKey(W().tribes, x.key)?.name : t(`Outsider.${x.key}`)).filter(Boolean).join(" · ");
+  // Дар с эффектом (data/gift-effects.mjs): кнопка включает эффект на сцену, действующий — подсвечен; постоянный — без кнопки эффекта
+  const on = new Set((actor.powerEffects ?? []).map(x => x.power));
   const rows = own.sort((a, b) => a.level - b.level || a.name.localeCompare(b.name, "ru")).map(g => ({ ...g, own: mine(g), from: label(g),
-    pool: g.roll ? poolLabel(actor, g.roll) : "", cost: costText(g.cost) }));
+    pool: g.roll ? poolLabel(actor, g.roll) : "", cost: costText(g.cost),
+    fx: !!GIFT_EFFECTS[`gift:${g.key}`], active: on.has(`gift:${g.key}`), passive: !!GIFT_PASSIVE[g.key] }));
   const have = new Set(w.gifts ?? []);
   const avail = W().gifts.filter(g => !have.has(g.key) && mine(g) && g.level <= Math.max(1, w.rank))
     .sort((a, b) => a.level - b.level || a.name.localeCompare(b.name, "ru")).map(g => ({ key: g.key, label: `${g.level} · ${VTM20.label(g)}` }));
@@ -372,6 +376,43 @@ export async function rollGift(actor, key) {
     extra: { ww: { kind: "gift", key: g.key, level: g.level, cost: g.cost ?? {} } } });
 }
 
+/**
+ * Использовать Дар с листа: Дар с эффектом (data/gift-effects.mjs) — цена, бросок при необходимости и эффект на сцену
+ * (повторный щелчок по действующему — выключить); прочие Дары — обычный бросок (rollGift).
+ */
+export async function useGift(actor, key) {
+  const { GIFT_EFFECTS } = await import("../data/gift-effects.mjs");
+  const power = `gift:${key}`, def = GIFT_EFFECTS[power], g = giftOf(key);
+  if (!def || !g) return rollGift(actor, key);
+  const on = actor.powerEffects.find(x => x.power === power);
+  if (on) return actor.endPower(on.effect);
+  for (const [what, n] of Object.entries(def.cost ?? {})) {
+    if (what === "willpower") { if (!(await actor.spendWillpower(n))) return null; }
+    else if (!(await spend(actor, what, n))) return null;
+  }
+  if (!def.roll) return startGift(actor, g, def, 0);
+  const r = def.roll === true ? (g.roll ?? {}) : def.roll;
+  return RollDialog.prompt(actor, { title: g.name, trait1: r.trait1 || "attributes.wits", trait2: r.trait2 || undefined,
+    difficulty: r.difficulty || 6, diffNote: r.byTarget ? t("DiffByTargetNote") : "", effect: g.text ?? "",
+    extra: { ww: { kind: "gift", key: g.key, level: g.level, cost: def.cost ?? {}, fx: true } },
+    onRolled: async res => { if ((res?.successes ?? 0) > 0) await startGift(actor, g, def, res.successes); } });
+}
+
+/** Эффект Дара на актёре: правки с учётом формы и успехов — во флаге giftFx, срок — как у сил (apps/timers.mjs). */
+async function startGift(actor, g, def, n) {
+  const { giftFx } = await import("../data/gift-effects.mjs");
+  const { untilFor } = await import("./timers.mjs"), { getClock } = await import("./calendar.mjs");
+  const now = getClock(), until = untilFor(def.mode, { hours: Number(def.hours) || 1, now });
+  const from = g.groups?.[0], glyph = ["breed", "auspice", "tribe", "fera"].includes(from?.kind) ? `${from.kind}-${from.key}` : "glyph-garou";
+  const [effect] = await actor.createEmbeddedDocuments("ActiveEffect", [{ name: g.name, img: `${SYSTEM_PATH}/assets/werewolf/${glyph}.png`,
+    description: g.text ?? "", flags: { [SYSTEM_ID]: { power: `gift:${g.key}`, mode: def.mode, ready: true, giftFx: giftFx(def, { form: actor.system.werewolf.form, n }),
+      ...(n ? { successes: n } : {}), ...(until ? { start: now, until } : {}) } } }]);
+  const price = [def.cost?.rage && `${t("Rage")} −${def.cost.rage}`, def.cost?.gnosis && `${t("Gnosis")} −${def.cost.gnosis}`,
+    def.cost?.willpower && `${game.i18n.localize("VTM20.Willpower")} −${def.cost.willpower}`].filter(Boolean).join(", ");
+  await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<div class="r-notice r-type-werewolf"><i class="fa-solid fa-paw"></i> ${esc(t("GiftFxOn", { name: g.name }))}${n ? ` <span class="r-muted">${esc(t("GiftFxSucc", { n }))}</span>` : ""}${price ? ` <span class="r-muted">${esc(price)}</span>` : ""}</div>` });
+  return effect;
+}
+
 /** Ритуал: Смекалка + Ритуалы (или пул из текста), сложность по цели. */
 export function rollRite(actor, key) {
   const r = riteOf(key);
@@ -398,7 +439,9 @@ export async function frenzyCheck(actor) {
   const m = moonPhase(), cls = MOON_CLASS[m.key] ?? "half";
   const minus = AUSPICE_MOON[w.auspice] === cls || w.form === "crinos" ? 1 : 0;
   const add = rank >= 4 ? 2 : rank === 3 ? 1 : 0, need = rank >= 6 ? 6 : rank >= 5 ? 5 : 4;
-  const diff = MOON_DIFF[cls] - minus + add;
+  // Дыхание Дикости и подобные Дары: сложность бросков Ярости выше (data/gift-effects.mjs → rageDiff)
+  const gift = (actor.system.fx?.rageDiff ?? []).reduce((n, d) => n + d.value, 0);
+  const diff = Math.min(10, MOON_DIFF[cls] - minus + add + gift);
   return RollDialog.prompt(actor, { title: t("Frenzy"), trait1: "werewolf.rage", difficulty: diff,
     extra: { ww: { kind: "frenzy", need, moon: m.label, auspice: w.auspice, breed: w.breed, rage: w.rage.value } },
     onRolled: async r => {

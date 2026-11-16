@@ -8,6 +8,7 @@
 import { VTM20, SYSTEM_ID } from "../config.mjs";
 import { effectMods } from "./effects.mjs";
 import { formMods } from "./form.mjs";
+import { GIFT_PASSIVE } from "./gift-effects.mjs";
 
 const { SchemaField, NumberField, StringField, BooleanField, ArrayField, HTMLField, ObjectField } = foundry.data.fields;
 
@@ -806,6 +807,21 @@ export class WerewolfData extends MortalData {
       if (fx.bite) for (const wpn of this.formFx.weapons) if (wpn.key === "bite") wpn.type = fx.bite;
     }
     this.werewolf.breedForm = this.werewolf.breed !== "metis" && this.werewolf.form === this.werewolf.breed;
+    // Дары (data/gift-effects.mjs): когти и укус естественного оружия, кубы к Атрибутам группы, постоянные Дары
+    const gfx = this.fx ?? {};
+    for (const wpn of this.formFx.weapons) {
+      if (wpn.key === "claw") { wpn.dmg = (wpn.dmg ?? 0) + (gfx.clawDamage ?? 0) + (gfx.brawlDamage ?? 0); wpn.diff = (wpn.diff ?? 0) + (gfx.clawDiff ?? 0); }
+      if (wpn.key === "bite") wpn.dmg = (wpn.dmg ?? 0) + (gfx.biteDamage ?? 0) + (gfx.brawlDamage ?? 0);
+    }
+    for (const [grp, list] of Object.entries(gfx.attrDice ?? {}))
+      for (const a of VTM20.attributeGroups[grp]?.attributes ?? []) (this.formFx.dice[a] ??= []).push(...list);
+    const giftName = k => globalThis.game?.vtm20Codex?.werewolf?.gifts?.find(g => g.key === k)?.name ?? k;
+    for (const k of this.werewolf.gifts ?? []) {
+      const p = GIFT_PASSIVE[k];
+      if (!p) continue;
+      if (p.initiative) this.initiative += p.initiative;
+      for (const [d, v] of Object.entries(p.diff ?? {})) if (gfx.diff) (gfx.diff[d] ??= []).push({ label: giftName(k), value: v });
+    }
     // кровь оборотня — 20 пунктов (V20: сильная кровь)
     this.vessel.max = 20; this.vessel.value = Math.min(this.vessel.value, 20);
     const w = this.werewolf;

@@ -3894,6 +3894,54 @@ try {
     if (r.totem !== "Сокол" || !r.totemHint) throw new Error(`тотем стаи: ${r.totem}, на карточке ${r.totemHint}`);
   });
 
+  // Дары эффектами (data/gift-effects.mjs): цена, эффект на сцену, правки когтей, ран, прочности, инициативы и чувств; лист; конец сцены снимает
+  await check("Оборотень: Дары эффектами", async () => {
+    const id = await temp("E2E — Гару с Дарами", "werewolf");
+    const r = await page.evaluate(async id => {
+      const SYS = game.system.id, a = game.actors.get(id), wait = ms => new Promise(res => setTimeout(res, ms));
+      const WW = await import(`/systems/${SYS}/module/apps/werewolf.mjs`);
+      await a.update({ "system.attributes.strength.value": 3, "system.attributes.stamina.value": 3, "system.willpower.permanent": 5, "system.willpower.temporary": 5,
+        "system.werewolf": { breed: "homid", auspice: "ahroun", tribe: "getOfFenris", rank: 3, rage: { permanent: 5, value: 5 }, gnosis: { permanent: 5, value: 5 },
+          gifts: ["razor-claws", "resist-pain", "luna-s-armor", "spirit-of-the-fray", "heightened-senses"], form: "crinos" } });
+      const claw = () => a.system.formFx.weapons.find(w => w.key === "claw");
+      const out = { claw0: `${claw()?.dmg}/${claw()?.diff}` };
+      // Дух схватки — постоянно +10 к инициативе
+      const initWith = a.system.initiative; await a.update({ "system.werewolf.gifts": ["razor-claws", "resist-pain", "luna-s-armor", "heightened-senses"] });
+      out.fray = initWith - a.system.initiative;
+      await a.update({ "system.werewolf.gifts": ["razor-claws", "resist-pain", "luna-s-armor", "spirit-of-the-fray", "heightened-senses"] });
+      // Бритвенные когти: 1 Ярость, когти +2 куба и −1 к сложности
+      await WW.useGift(a, "razor-claws"); await wait(300);
+      out.claw = `${claw()?.dmg}/${claw()?.diff}`; out.rage = a.system.werewolf.rage.value;
+      // Терпеть боль: 1 Воля, штрафов за раны нет
+      await a.update({ "system.health.lethal": 4 }); const pen0 = a.system.health.penalty;
+      await WW.useGift(a, "resist-pain"); await wait(300);
+      out.pain = [pen0 < 0, a.system.health.penalty, a.system.willpower.temporary];
+      await a.update({ "system.health.lethal": 0 });
+      // Доспех Луны: 1 Гнозис, бросок — +1 куб прочности за успех; серебро — только ими
+      const soak0 = a.soakPool("lethal"), silver0 = a.soakPool("lethal", { silver: true });
+      WW.useGift(a, "luna-s-armor"); await wait(800);
+      const rd = [...foundry.applications.instances.values()].find(x => x.constructor.name === "RollDialog" && x.rendered);
+      await rd?.cfg.onRolled?.({ successes: 3 }); await rd?.close(); await wait(300);
+      out.luna = [a.soakPool("lethal") - soak0, silver0, a.soakPool("lethal", { silver: true }), a.system.werewolf.gnosis.value];
+      // Обострённые чувства в Криносе: Восприятие −3, +1 куб к Первобытному инстинкту
+      await WW.useGift(a, "heightened-senses"); await wait(300);
+      out.senses = [(a.system.fx.diff.perception ?? []).reduce((n, d) => n + d.value, 0), (a.system.fx.dice.primalUrge ?? []).reduce((n, d) => n + d.value, 0)];
+      // лист: действующие Дары подсвечены, во вкладке эффектов — строки правок
+      await a.sheet.render(true); await wait(900);
+      const el = a.sheet.element;
+      out.sheet = [el.querySelectorAll(".r-ww-gifts .r-edge.is-on").length, el.querySelectorAll(".r-ww-gifts .r-ww-fx-tag").length > 0, (el.textContent.includes("когти: +2"))];
+      await a.sheet.close();
+      // повторный щелчок — выключить; конец сцены снимает остальное
+      await WW.useGift(a, "razor-claws"); await wait(300); out.clawOff = `${claw()?.dmg}/${claw()?.diff}`;
+      const { endScene } = await import(`/systems/${SYS}/module/apps/night.mjs`);
+      await endScene(); await wait(500);
+      out.left = a.powerEffects.filter(x => x.power.startsWith("gift:")).length;
+      return out;
+    }, id);
+    const want = { claw0: "1/0", fray: 10, claw: "3/-1", rage: 4, pain: [true, 0, 4], luna: [3, 0, 3, 4], senses: [-3, 1], sheet: [4, true, true], clawOff: "1/0", left: 0 };
+    for (const [k, v] of Object.entries(want)) if (JSON.stringify(r[k]) !== JSON.stringify(v)) throw new Error(`${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(v)}`);
+  });
+
   await check("Оборотень: формы, Ярость, Дары, лист", async () => {
     const id = await temp("E2E — Гару", "werewolf");
     const r = await page.evaluate(async id => {

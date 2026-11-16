@@ -691,6 +691,19 @@ export function prepareEffects(sheet, ctx) {
       if (def.weapon) lines.push(t("FxTab.Weapon", { name: def.weapon.name }));
       for (const w of def.weapons ?? []) lines.push(t("FxTab.Weapon", { name: w.name }));
       if (def.biteDiff) lines.push(t("Zulo.BiteDiff", { n: signed(def.biteDiff) }));
+      // Дары Гару (data/gift-effects.mjs)
+      if (def.clawDamage) lines.push(t("FxTab.ClawDamage", { n: def.clawDamage }));
+      if (def.clawDiff) lines.push(t("FxTab.ClawDiff", { n: signed(def.clawDiff) }));
+      if (String(flags.power).startsWith("gift:")) {
+        if (def.soakBonus?.lethal) lines.push(t("FxTab.SoakAll", { n: def.soakBonus.lethal }));
+        if (def.silverSoak) lines.push(t("FxTab.SilverSoak", { n: def.silverSoak }));
+        if (def.attrDice?.mental) lines.push(t("FxTab.AttrDice", { n: def.attrDice.mental }));
+        if (def.rageDiff) lines.push(t("FxTab.RageDiff", { n: signed(def.rageDiff) }));
+        if (def.woundEase >= 5) lines.push(t("FxTab.WoundEase"));
+        if (def.runMultiplier > 1) lines.push(t("FxTab.Run", { n: def.runMultiplier }));
+        if (def.detectDifficulty) lines.push(t("FxTab.Detect", { n: def.detectDifficulty }));
+        if (def.note) lines.push(t("FxTab.Note"));
+      }
     }
     return { id: effect.id, name: effect.name, img: effect.img, kind: def.mode, desc: fxDesc(effect.description),
       mode: t(MODE_LABEL[def.mode] ?? "Fx.Toggleable"), lines, timer: effectTimer(effect), toDawn: def.mode === "night" };

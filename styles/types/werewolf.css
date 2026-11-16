@@ -812,3 +812,11 @@ body.r-theme-light img[src$="assets/werewolf/glyph-garou.png"] { filter: none; }
 .vtm20.r-type-werewolf .r-vc-renown > .r-dots, .vtm20.r-type-werewolf .r-vc-renown > .r-boxes { justify-content: center; }   /* Слава — по центру карточки, без цифр (значение видно по кружкам) */
 .vtm20.r-type-werewolf .r-vc-garou .r-vc-head > .r-banner { flex-shrink: 0; }   /* «Ярость» и «Гнозис» не сжимаются рядом с меткой Зверя и кнопкой */
 .vtm20.r-type-werewolf .r-vc-garou .r-vc-head .r-ww-beast { flex-shrink: 0; overflow: visible; }
+
+/* Дары с эффектом (data/gift-effects.mjs): метка «Эффект» / «Постоянно», действующий Дар подсвечен, кнопка — выключить */
+.vtm20.r-type-werewolf .r-ww-fx-tag { display: inline-flex; align-items: center; gap: 4px; margin-left: 6px; padding: 0 6px; border: 1px solid var(--r-line-2);
+  font-family: var(--r-caps); font-size: 10.5px; letter-spacing: .6px; text-transform: uppercase; line-height: 17px; color: var(--r-muted); vertical-align: 2px; }
+.vtm20.r-type-werewolf .r-ww-fx-tag i { font-size: 9px; color: #b9c8c3; }
+.vtm20.r-type-werewolf .r-ww-fx-tag.is-on { border-color: #b9c8c3; color: #eef3f0; background: rgba(185, 200, 195, .14); }
+.vtm20.r-type-werewolf .r-ww-gifts .r-edge.is-on { box-shadow: inset 2px 0 0 #b9c8c3; background: linear-gradient(90deg, rgba(185, 200, 195, .08), transparent 60%); }
+.vtm20.r-type-werewolf .r-ww-gifts .r-vc-btn.is-on { color: #eef3f0; border-color: #b9c8c3; background: rgba(185, 200, 195, .18); }

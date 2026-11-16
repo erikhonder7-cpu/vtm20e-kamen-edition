@@ -633,7 +633,8 @@ export class VtMActor extends Actor {
     }
     if (this.type === "werewolf") {
       const weak = s.werewolf.breedForm;
-      if (silver && !weak) return [];
+      // серебро не поглощается — кроме кубов Доспеха Луны (data/gift-effects.mjs → silverSoak)
+      if (silver && !weak) return s.fx?.silverSoak ? [{ label: t("Werewolf.GiftSoak"), value: s.fx.silverSoak }] : [];
       // Сохраняем отдельные правила Гару: порода ограничивает прочность в форме,
       // но не меняет формулу губительного урона (W20, гл. 6).
       const parts = { stamina: 0, fortitude: 0, armor: 0, form };
@@ -647,7 +648,9 @@ export class VtMActor extends Actor {
         parts.stamina = weak ? 0 : stamina;
         parts.armor = fangs ? arm : 0;
       }
-      const labels = { stamina: this.traitLabel("attributes.stamina"), armor: t("Sheet.Armor"), form: t("Combat.FormSoak") };
+      // Дары и силы: кубы прочности (Доспех Луны, Шкура тролля — soakBonus)
+      parts.gift = s.fx?.soakBonus?.[type] ?? 0;
+      const labels = { stamina: this.traitLabel("attributes.stamina"), armor: t("Sheet.Armor"), form: t("Combat.FormSoak"), gift: t("Werewolf.GiftSoak") };
       return Object.entries(parts).filter(([, value]) => value > 0).map(([key, value]) => ({ label: labels[key], value }));
     } else {
       // Стойкость добавляет кости против всех видов урона, включая губительный.
@@ -678,7 +681,8 @@ export class VtMActor extends Actor {
     if (this.isSpirit) return this.system.spirit.willpower;
     if (this.type === "werewolf") {
       const s = this.system, weak = s.werewolf.breedForm;
-      if (options.silver && !weak) return 0;
+      // серебро не поглощается — кроме кубов Доспеха Луны (data/gift-effects.mjs → silverSoak)
+      if (options.silver && !weak) return s.fx?.silverSoak ?? 0;
     }
     return this.soakBreakdown(type, options).reduce((sum, part) => sum + part.value, 0);
   }
