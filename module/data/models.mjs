@@ -815,6 +815,10 @@ export class WerewolfData extends MortalData {
     }
     for (const [grp, list] of Object.entries(gfx.attrDice ?? {}))
       for (const a of VTM20.attributeGroups[grp]?.attributes ?? []) (this.formFx.dice[a] ??= []).push(...list);
+    // сложность по Атрибуту или группе ({ social: -1, dexterity: 1 }) и по Способности ({ stealth: -1 }) — окно броска (formFx.diff)
+    for (const [k, list] of Object.entries(gfx.attrDiff ?? {}))
+      for (const a of VTM20.attributeGroups[k]?.attributes ?? [k]) (this.formFx.diff[a] ??= []).push(...list);
+    for (const [k, list] of Object.entries(gfx.abilDiff ?? {})) (this.formFx.diff[k] ??= []).push(...list);
     const giftName = k => globalThis.game?.vtm20Codex?.werewolf?.gifts?.find(g => g.key === k)?.name ?? k;
     for (const k of this.werewolf.gifts ?? []) {
       const p = GIFT_PASSIVE[k];

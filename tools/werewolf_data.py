@@ -1813,6 +1813,35 @@ def fill_en(node):
     walk(node)
 
 
+def fill_rolls(gifts):
+    """Пул броска из текста Дара, если сборщик его не нашёл (пул без жирного шрифта): «Обаяние + Эмпатия (сл. 7)»,
+    «Ловкость + Ближний бой», «бросок Гнозиса (сл. 7)», «бросок Воли». Сложность — число в скобках или после «сл.»;
+    «сл. = …» или без числа — по цели. Только пары, где обе черты известны (TRAITS)."""
+    extra = {"Выразительность": "abilities.expression", "Ближний бой": "abilities.melee", "Академические науки": "abilities.academics",
+             "Обращение с животными": "abilities.animalKen", "Первобытный инстинкт": "abilities.primalUrge"}
+    names = {**TRAITS, **extra}
+    alt = "|".join(sorted((re.escape(k) for k in names), key=len, reverse=True))
+    pool = re.compile(rf"({alt})\s*\+\s*({alt})(?:\s*\((?:сл\.|сложность)\s*(\d+)[^)]*\)|[,:]?\s*(?:сл\.|сложность)\s*(\d+))?")
+    single = re.compile(r"[Бб]росок (Гнозиса|Воли|Ярости)(?:\s*\((?:сл\.|сложность)\s*(\d+)[^)]*\))?")
+    one = {"Гнозиса": "werewolf.gnosis", "Воли": "willpower.permanent", "Ярости": "werewolf.rage"}
+    n = 0
+    for g in gifts:
+        if g.get("roll"):
+            continue
+        text = re.sub(r"<[^>]+>", "", g.get("text") or "")
+        m = pool.search(text)
+        if m:
+            d = m.group(3) or m.group(4)
+            g["roll"] = {"trait1": names[m.group(1)], "trait2": names[m.group(2)], "difficulty": int(d) if d else 6, "byTarget": not d}
+            n += 1
+            continue
+        m = single.search(text)
+        if m:
+            g["roll"] = {"trait1": one[m.group(1)], "trait2": "", "difficulty": int(m.group(2)) if m.group(2) else 6, "byTarget": not m.group(2)}
+            n += 1
+    return n
+
+
 def split_teacher(gifts):
     """«Кто учит» — отдельным полем: пересказ Дара начинается с него («дух волка. …», «учит дух предка. …»).
     Совпавшее с teacher предложение снимается с начала текста; у записей без teacher оно берётся из «учит/учат …»;
@@ -1850,6 +1879,7 @@ def build():
     bsd_gifts, bsd_tribe = parse_bsd(gifts)
     gifts = gifts + bsd_gifts
     split_teacher(gifts)
+    fill_rolls(gifts)
     for kind, items in (("breed", breeds), ("auspice", auspices), ("tribe", tribes), ("form", FORMS)):
         for x in items:
             x["icon"] = ICONS[kind].get(x["key"], "fa-moon")

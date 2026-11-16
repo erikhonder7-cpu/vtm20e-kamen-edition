@@ -677,7 +677,12 @@
     }
    ],
    "teacher": "Слуга Минотавра",
-   "roll": null,
+   "roll": {
+    "trait1": "werewolf.gnosis",
+    "trait2": "",
+    "difficulty": 6,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Бросок <strong>Гнозиса</strong> (сл. 6, нужен 1 успех): видит «лоскутный» мистический узор на шерсти Танцора Кожи в Криносе.</p>",
    "source": "W20",
@@ -939,7 +944,12 @@
     }
    ],
    "teacher": "Слуга Пегаса",
-   "roll": null,
+   "roll": {
+    "trait1": "werewolf.gnosis",
+    "trait2": "",
+    "difficulty": 5,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Касание кожи, бросок <strong>Гнозиса</strong> (сл. 5 для Гару и Родни, 6 для прочих): <strong>+1 кубик ко всем ментальным броскам</strong> до конца сцены, но сложность бросков Ярости <strong>+1</strong>.</p>",
    "source": "W20",
@@ -977,7 +987,12 @@
     }
    ],
    "teacher": "Дух голубя",
-   "roll": null,
+   "roll": {
+    "trait1": "willpower.permanent",
+    "trait2": "",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {
     "gnosis": 1
    },
@@ -1177,7 +1192,12 @@
     }
    ],
    "teacher": "Дух волка",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.stamina",
+    "trait2": "abilities.empathy",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p><strong>Выносливость + Эмпатия:</strong> каждый успех удваивает дальность воя и усиливает его эмоцию. Используется с воями Гару (стр. 58). Эффект по ситуации: например, <strong>+1 кубик</strong> участникам празднества за каждые 2 успеха или <strong>+1 Ярость</strong> всем слышавшим исключительный боевой вой.</p>",
    "source": "W20",
@@ -1653,7 +1673,12 @@
     }
    ],
    "teacher": "Дух енота",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.wits",
+    "trait2": "abilities.crafts",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>Держит сломанную вещь, <strong>Сообразительность + Ремесло:</strong> вещь работает идеально <strong>1 ход за успех</strong> и сама даёт себе питание, топливо, патроны (сломанная микроволновка без розетки, старый ствол без патронов). За <strong>1 Волю</strong> — сутки, но тогда нужны настоящие питание/топливо/патроны.</p>",
    "source": "W20",
@@ -1812,7 +1837,12 @@
     }
    ],
    "teacher": "Дух енота",
-   "roll": null,
+   "roll": {
+    "trait1": "werewolf.gnosis",
+    "trait2": "",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {
     "gnosis": 1
    },
@@ -1872,7 +1902,12 @@
     }
    ],
    "teacher": "Любой воздушный дух",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.stamina",
+    "trait2": "abilities.athletics",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {
     "willpower": 1
    },
@@ -2028,7 +2063,12 @@
     }
    ],
    "teacher": "Любой дух Геи",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.perception",
+    "trait2": "abilities.occult",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>Активная концентрация, <strong>Восприятие + Оккультизм:</strong> фомор в соседней комнате — сл. 6; след Бейна, ушедшего час назад, — сл. 7. Чувствует контакт с эссенцией Червя, а не обязательно служение ему. <strong>Вампиры</strong> ощущаются как порченые, <strong>кроме тех, у кого Человечность 7+</strong>.</p>",
    "source": "W20",
@@ -2341,7 +2381,12 @@
     }
    ],
    "teacher": "Дух ночи",
-   "roll": null,
+   "roll": {
+    "trait1": "werewolf.gnosis",
+    "trait2": "",
+    "difficulty": 3,
+    "byTarget": false
+   },
    "cost": {
     "gnosis": 1
    },
@@ -2430,7 +2475,12 @@
     }
    ],
    "teacher": "Элементали",
-   "roll": null,
+   "roll": {
+    "trait1": "werewolf.gnosis",
+    "trait2": "",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {
     "gnosis": 1
    },
@@ -2958,7 +3008,12 @@
     }
    ],
    "teacher": "Банши (скорбный дух мёртвых)",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.charisma",
+    "trait2": "abilities.intimidation",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {
     "gnosis": 1
    },
@@ -3011,7 +3066,12 @@
     }
    ],
    "teacher": "Дух сверчка",
-   "roll": null,
+   "roll": {
+    "trait1": "werewolf.gnosis",
+    "trait2": "",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>Бросок <strong>Гнозиса</strong> (сл. = Преграда): <strong>1 ход за успех</strong> его вой или речь ясно слышны <strong>по обе стороны Преграды</strong>.</p>",
    "source": "W20",
@@ -4022,7 +4082,12 @@
     }
    ],
    "teacher": "Дух тумана",
-   "roll": null,
+   "roll": {
+    "trait1": "werewolf.gnosis",
+    "trait2": "",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>Бросок <strong>Гнозиса</strong> (сл. по влажности: берег озера 4 … пустыня 9): густой жуткий туман. Все, кроме Фурии, теряют <strong>половину кубиков Восприятия</strong> (вверх); все внутри, кроме Фурии и её стаи, <strong>−1 кубик к броскам Воли</strong>. Фурия видит сквозь туман.</p>",
    "source": "W20",
@@ -4127,7 +4192,12 @@
     }
    ],
    "teacher": "Слуга Великого Вендиго",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.dexterity",
+    "trait2": "abilities.occult",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {
     "willpower": 1
    },
@@ -4532,7 +4602,12 @@
     }
    ],
    "teacher": "Дух земли",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.wits",
+    "trait2": "abilities.rituals",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {
     "gnosis": 1
    },
@@ -4724,7 +4799,12 @@
     }
    ],
    "teacher": "Духи крыс",
-   "roll": null,
+   "roll": {
+    "trait1": "werewolf.rage",
+    "trait2": "",
+    "difficulty": 8,
+    "byTarget": false
+   },
    "cost": {
     "rage": 1
    },
@@ -4791,7 +4871,12 @@
     }
    ],
    "teacher": "Дух зайца‑беляка",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.strength",
+    "trait2": "abilities.athletics",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {
     "willpower": 1
    },
@@ -4856,7 +4941,12 @@
     }
    ],
    "teacher": "Дух таракана",
-   "roll": null,
+   "roll": {
+    "trait1": "werewolf.gnosis",
+    "trait2": "",
+    "difficulty": 7,
+    "byTarget": false
+   },
    "cost": {
     "gnosis": 1
    },
@@ -4923,7 +5013,12 @@
     }
    ],
    "teacher": "Аватар самой Геи",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.charisma",
+    "trait2": "abilities.intimidation",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {
     "gnosis": 1
    },
@@ -5075,7 +5170,12 @@
     }
    ],
    "teacher": "Дух бури",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.manipulation",
+    "trait2": "abilities.primalUrge",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {
     "rage": 1
    },
@@ -5124,7 +5224,12 @@
     }
    ],
    "teacher": "Дух предков",
-   "roll": null,
+   "roll": {
+    "trait1": "werewolf.gnosis",
+    "trait2": "",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {
     "gnosis": 1
    },
@@ -5194,7 +5299,12 @@
     }
    ],
    "teacher": "Дух сокола",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.dexterity",
+    "trait2": "abilities.brawl",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {
     "gnosis": 1
    },
@@ -5262,7 +5372,12 @@
     }
    ],
    "teacher": "Аватар Великого Вендиго",
-   "roll": null,
+   "roll": {
+    "trait1": "werewolf.gnosis",
+    "trait2": "",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>Укусить и вкусить кровь (нанести ≥1 летальный или губительный тому, кто кровоточит; с ядовитой кровью или без крови — не работает); бросок <strong>Гнозиса</strong> (сл. = Выносливость цели + 3): <strong>+1 Сила за каждые 2 нанесённых укусом уровня</strong> (макс. +5), <strong>2 хода за успех</strong>. В следующий ход — обязательная проверка <strong>бешенства</strong>.</p>",
    "source": "W20",
@@ -5455,7 +5570,12 @@
     }
    ],
    "teacher": "Дух волка",
-   "roll": null,
+   "roll": {
+    "trait1": "willpower.permanent",
+    "trait2": "",
+    "difficulty": 8,
+    "byTarget": false
+   },
    "cost": {
     "gnosis": 1
    },
@@ -5491,7 +5611,12 @@
     }
    ],
    "teacher": "Дух предков",
-   "roll": null,
+   "roll": {
+    "trait1": "werewolf.gnosis",
+    "trait2": "",
+    "difficulty": 9,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Короткая медитация, бросок <strong>Гнозиса</strong> (сл. 9, <strong>−1 за каждую точку Предков</strong>): вспоминает древние знания; подробность — по успехам.</p>",
    "source": "W20",
@@ -5556,7 +5681,12 @@
     }
    ],
    "teacher": "Буревестник",
-   "roll": null,
+   "roll": {
+    "trait1": "willpower.permanent",
+    "trait2": "",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {
     "gnosis": 1
    },
@@ -5715,7 +5845,12 @@
     }
    ],
    "teacher": "Дух черепахи",
-   "roll": null,
+   "roll": {
+    "trait1": "willpower.permanent",
+    "trait2": "",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>Бросок <strong>Воли</strong> (сл. = собственная Ярость): на сцену иммунитет ко <strong>всем</strong> видам магии, влияющей на разум; но не может получать успехи в Эмпатии, Первобытном инстинкте и бросках Ярости и <strong>не может тратить Ярость</strong>.</p>",
    "source": "W20",
@@ -5905,7 +6040,12 @@
     }
    ],
    "teacher": "Дух ворона",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.manipulation",
+    "trait2": "abilities.firearms",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {
     "gnosis": 1
    },
@@ -6031,7 +6171,12 @@
     }
    ],
    "teacher": "Любой дух",
-   "roll": null,
+   "roll": {
+    "trait1": "werewolf.gnosis",
+    "trait2": "",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>Постоянное ощущение мира духов; даже в физическом мире может взаимодействовать с духами Пенумбры. Если постоянный Гнозис <strong>≥ Преграды</strong> — видит Умбру автоматически; иначе бросок <strong>Гнозиса</strong> (сл. = Преграда). До конца сцены или до места с более сильной Преградой. О резких переменах рядом узнаёт автоматически.</p>",
    "source": "W20",
@@ -6074,7 +6219,12 @@
     }
    ],
    "teacher": "Дух жар‑птицы",
-   "roll": null,
+   "roll": {
+    "trait1": "werewolf.gnosis",
+    "trait2": "",
+    "difficulty": 7,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Ход концентрации, бросок <strong>Гнозиса</strong> (сл. 7): оружие (меч, клэйв, топор) горит — <strong>+2 кубика губительного огненного</strong> урона, поджигает горючее; <strong>1 ход за успех</strong>.</p>",
    "source": "W20",
@@ -6092,7 +6242,12 @@
     }
    ],
    "teacher": "Дух таракана",
-   "roll": null,
+   "roll": {
+    "trait1": "werewolf.rage",
+    "trait2": "",
+    "difficulty": 7,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Касание, только <strong>искусственные</strong> материалы (пластик, сплавы); бросок <strong>Ярости</strong> (сл. 7): каждый успех — <strong>~9 кг</strong> материала распадается на составляющие (пластиковый стол растекается, деревянный не страдает).</p>",
    "source": "W20",
@@ -6226,7 +6381,12 @@
     }
    ],
    "teacher": "Дух вепря",
-   "roll": null,
+   "roll": {
+    "trait1": "willpower.permanent",
+    "trait2": "",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {
     "willpower": 1
    },
@@ -6268,7 +6428,12 @@
     }
    ],
    "teacher": "Посланники Луны",
-   "roll": null,
+   "roll": {
+    "trait1": "werewolf.gnosis",
+    "trait2": "",
+    "difficulty": 7,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Бросок <strong>Гнозиса</strong> (сл. 7): когти серебряные — <strong>губительный</strong> урон всем, для Гару и большинства Фера непоглощаемый. Страшная боль: каждый ход <strong>+1 Ярость</strong>, сложность небоевых действий <strong>+1</strong>; каждый ход, когда Ярость &gt; Воли, — проверка бешенства. Сцена или пока не отменит (ход).</p>",
    "source": "W20",
@@ -6568,7 +6733,12 @@
     }
    ],
    "teacher": "Сетевой Паук",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.manipulation",
+    "trait2": "abilities.science",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {
     "willpower": 1
    },
@@ -6795,7 +6965,12 @@
     }
    ],
    "teacher": "Дух ярости",
-   "roll": null,
+   "roll": {
+    "trait1": "werewolf.rage",
+    "trait2": "",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {
     "rage": 1
    },
@@ -7199,7 +7374,12 @@
     }
    ],
    "teacher": "Дух крысы",
-   "roll": null,
+   "roll": {
+    "trait1": "werewolf.gnosis",
+    "trait2": "",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>Состязательный бросок <strong>Гнозиса</strong> с духом: дух теряет <strong>1 Эссенцию за успех</strong> до конца сцены; за каждые <strong>2 выпитые Эссенции</strong> — <strong>1 временная Воля</strong> (сверх максимума — пропадает в конце сцены).</p>",
    "source": "W20",
@@ -7217,7 +7397,12 @@
     }
    ],
    "teacher": "Ядовитые духи",
-   "roll": null,
+   "roll": {
+    "trait1": "willpower.permanent",
+    "trait2": "",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {
     "gnosis": 1
    },
@@ -7255,7 +7440,12 @@
     }
    ],
    "teacher": "Дух насекомого или Ткачихи",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.stamina",
+    "trait2": "abilities.rituals",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {
     "gnosis": 1
    },
@@ -7283,7 +7473,12 @@
     }
    ],
    "teacher": "Духи бури",
-   "roll": null,
+   "roll": {
+    "trait1": "werewolf.rage",
+    "trait2": "",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {
     "gnosis": 1
    },
@@ -7535,7 +7730,12 @@
     }
    ],
    "teacher": "Дух осы",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.dexterity",
+    "trait2": "abilities.brawl",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {
     "rage": 1
    },
@@ -7639,7 +7839,12 @@
     }
    ],
    "teacher": "Дух предков",
-   "roll": null,
+   "roll": {
+    "trait1": "werewolf.gnosis",
+    "trait2": "",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {
     "gnosis": 1
    },
@@ -7901,7 +8106,12 @@
     }
    ],
    "teacher": "Земной элементаль",
-   "roll": null,
+   "roll": {
+    "trait1": "willpower.permanent",
+    "trait2": "",
+    "difficulty": 8,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Бросок <strong>Воли</strong> (сл. 8): <strong>+1 кубик за успех</strong> ко всем физическим броскам; его нельзя застать врасплох, все атаки считаются фронтальными. <strong>Не может сойти с места</strong>, пока все враги не повержены или не бежали.</p>",
    "source": "W20",
@@ -7919,7 +8129,12 @@
     }
    ],
    "teacher": "Дух опоссума или кенгуру",
-   "roll": null,
+   "roll": {
+    "trait1": "werewolf.gnosis",
+    "trait2": "",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>Проносит в Умбру и обратно предметы, людей, животных без посвящения (Ритуал посвящения талисмана). Держит цель и тратит Волю: <strong>1</strong> — мелочь (нож, телефон), <strong>2</strong> — крупнее (рюкзак, дробовик), <strong>3</strong> — размером с человека. Обычный бросок Гнозиса на переход. Несогласный сопротивляется броском Воли: каждый успех −1 успех Гару. Живые, оставленные в Умбре надолго, становятся духами.</p>",
    "source": "W20",
@@ -7949,7 +8164,12 @@
     }
    ],
    "teacher": "Духи боли и болезни",
-   "roll": null,
+   "roll": {
+    "trait1": "werewolf.gnosis",
+    "trait2": "",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {
     "gnosis": 1
    },
@@ -8006,7 +8226,12 @@
     }
    ],
    "teacher": "Дух боли",
-   "roll": null,
+   "roll": {
+    "trait1": "werewolf.gnosis",
+    "trait2": "",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {
     "gnosis": 1
    },
@@ -8522,7 +8747,12 @@
     }
    ],
    "teacher": "Дух черепахи",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.stamina",
+    "trait2": "abilities.survival",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {
     "gnosis": 1
    },
@@ -8548,7 +8778,12 @@
     }
    ],
    "teacher": "Дух вепря",
-   "roll": null,
+   "roll": {
+    "trait1": "willpower.permanent",
+    "trait2": "",
+    "difficulty": 6,
+    "byTarget": false
+   },
    "cost": {
     "gnosis": 2
    },
@@ -8696,7 +8931,12 @@
     }
    ],
    "teacher": "Элементали",
-   "roll": null,
+   "roll": {
+    "trait1": "werewolf.gnosis",
+    "trait2": "",
+    "difficulty": 8,
+    "byTarget": false
+   },
    "cost": {
     "gnosis": 1
    },
@@ -8969,7 +9209,12 @@
     }
    ],
    "teacher": "Дух сокола",
-   "roll": null,
+   "roll": {
+    "trait1": "werewolf.gnosis",
+    "trait2": "",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {
     "gnosis": 2
    },
@@ -9391,7 +9636,12 @@
     }
    ],
    "teacher": "Дух волка",
-   "roll": null,
+   "roll": {
+    "trait1": "werewolf.gnosis",
+    "trait2": "",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {
     "gnosis": 1
    },
@@ -9553,7 +9803,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.charisma",
+    "trait2": "abilities.occult",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {
     "gnosis": 1
    },
@@ -9603,7 +9858,12 @@
     }
    ],
    "teacher": "Дух ночи",
-   "roll": null,
+   "roll": {
+    "trait1": "werewolf.gnosis",
+    "trait2": "",
+    "difficulty": 8,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Бросок <strong>Гнозиса</strong> (сл. 8) и трата Гнозиса: <strong>по двойнику‑тени за каждый потраченный пункт</strong>. Те же Атрибуты и Способности, но без фетишей, Даров, Гнозиса и Воли; <strong>1 уровень здоровья</strong>. Исчезают в конце сцены.</p>",
    "source": "W20",
@@ -9668,7 +9928,12 @@
     }
    ],
    "teacher": "Дух тумана",
-   "roll": null,
+   "roll": {
+    "trait1": "werewolf.gnosis",
+    "trait2": "",
+    "difficulty": 7,
+    "byTarget": false
+   },
    "cost": {
     "willpower": 1
    },
@@ -9824,7 +10089,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.charisma",
+    "trait2": "abilities.etiquette",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>Ур. 1, дух воды. Руку в чистую воду, <strong>Обаяние + Этикет:</strong> на церемониях опрятен и одет как положено, даже прямо из боя; <strong>+1 кубик</strong> ко всем броскам, связанным с Внешностью, до конца сцены.</p>",
    "source": "W20",
@@ -9890,7 +10160,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "werewolf.gnosis",
+    "trait2": "",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>Ур. 2, дух гиеновой собаки. Бросок <strong>Гнозиса</strong> перед едой (сл. 6 для стаи, 7 для Родни): каждый успех — съеденное насыщает ещё одно существо.</p>",
    "source": "W20",
@@ -10081,7 +10356,12 @@
     }
    ],
    "teacher": "Дух предка",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.charisma",
+    "trait2": "abilities.leadership",
+    "difficulty": 6,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Короткий клич или речь группе обычных людей (от нескольких до нескольких сотен — лишь бы слышали), Харизма + Лидерство, сложность 6. Каждый успех — +1 кубик ко всем броскам в этой сцене ради одной задачи, в которой группа может помочь. Если большинство — Родня, сложность этих бросков −1. Важные для сюжета NPC могут отказаться, но чувствуют власть приказа.</p>",
    "source": "W20 Changing Ways"
@@ -10115,7 +10395,12 @@
     }
    ],
    "teacher": "Дух животного, меняющего окрас по сезонам",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.manipulation",
+    "trait2": "abilities.subterfuge",
+    "difficulty": 6,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Манипуляция + Хитрость, сложность 6. Каждый успех — изменить одну черту внешности на сцену: цвет и длину волос или шерсти, тон кожи, цвет глаз, рост или размер примерно на 1/5. Скрывает племенные метки и мелкие шрамы, но уродство метиса полностью не скрывает никогда.</p>",
    "source": "W20 Changing Ways"
@@ -10183,7 +10468,12 @@
     }
    ],
    "teacher": "Духи бури и ветра",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.charisma",
+    "trait2": "abilities.primalUrge",
+    "difficulty": 7,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Ход выть, 1 Ярость, Харизма + Первобытный инстинкт, сложность 7. В радиусе (20 × успехи) ярдов (~18 м за успех) бьётся всё стеклянное и хрупкое, падает всё неустойчивое, разваливается всё ветхое.</p>",
    "source": "W20 Changing Ways"
@@ -10217,7 +10507,12 @@
     }
    ],
    "teacher": "Дух ворона",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.manipulation",
+    "trait2": "abilities.subterfuge",
+    "difficulty": 6,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Манипуляция + Хитрость, сложность 6: один носимый или тронутый фетиш или талена выглядит обычной вещью (клайв — простой кинжал, ярлхаммер — меньше, глифы и камни — дешёвые украшения). Силы распознавания должны превзойти ваши успехи. Действует сцену или до использования фетиша по назначению.</p>",
    "source": "W20 Changing Ways"
@@ -10234,7 +10529,12 @@
     }
    ],
    "teacher": "Дитя Рощи или дух цветка",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.dexterity",
+    "trait2": "abilities.athletics",
+    "difficulty": 6,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Ловкость + Атлетика, сложность 6: каждый успех уменьшает эффективную высоту падения на 10 футов (3 м). Сильный ветер может отнести в сторону.</p>",
    "source": "W20 Changing Ways"
@@ -10251,7 +10551,12 @@
     }
    ],
    "teacher": "Дух опоссума",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.stamina",
+    "trait2": "abilities.subterfuge",
+    "difficulty": 5,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Действие, Выносливость + Хитрость, сложность 5: на 1 минуту за успех выглядите мёртвым — нет пульса, дыхания, пахнет несколькодневным трупом, тело коченеет, можно вернуться в форму рождения. С тратой 1 Гнозиса можно применить рефлекторно при попадании атаки — тогда выглядите свежим трупом, «убитым» этим ударом.</p>",
    "source": "W20 Changing Ways"
@@ -10319,7 +10624,12 @@
     }
    ],
    "teacher": "Дух рыси",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.perception",
+    "trait2": "abilities.alertness",
+    "difficulty": 6,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Восприятие + Бдительность, сложность 6: до конца сцены видите сквозь твёрдые предметы толщиной до (успехи) ярдов.</p>",
    "source": "W20 Changing Ways"
@@ -10370,7 +10680,12 @@
     }
    ],
    "teacher": "Дитя Рощи",
-   "roll": null,
+   "roll": {
+    "trait1": "werewolf.gnosis",
+    "trait2": "",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>2 Гнозиса: посадить часть себя (кровь, шерсть, ногти) в солнечном месте. За неделю вырастает растение, связанное с Гару. Раз в день бросок Гнозиса: успехи = Гнозис, который дух растения отдаёт. Если растение вырвут или уничтожат — Теург получает кубики непоглощаемого летального урона, равные своему постоянному Гнозису. Одновременно только один цветок.</p>",
    "source": "W20 Changing Ways"
@@ -10387,7 +10702,12 @@
     }
    ],
    "teacher": "Луна",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.perception",
+    "trait2": "abilities.empathy",
+    "difficulty": 6,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Действие, Восприятие + Эмпатия, сложность 6: по запаху определяете, есть ли у цели расстройство, и какое. Также чувствует Бред и его стадию.</p>",
    "source": "W20 Changing Ways"
@@ -10489,7 +10809,12 @@
     }
    ],
    "teacher": "Дух льва или волка",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.charisma",
+    "trait2": "abilities.expression",
+    "difficulty": 6,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Клич, Харизма + Выражение, сложность 6: все союзные Гару, услышавшие его, получают бонус к инициативе в этой сцене, равный вашим успехам. Сочетается с воями (Зов о помощи, Зов к охоте, Предупреждение о Черве) и с Даром «Зов Дикости» для дальности.</p>",
    "source": "W20 Changing Ways"
@@ -10523,7 +10848,12 @@
     }
    ],
    "teacher": "Дух насекомого",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.charisma",
+    "trait2": "abilities.etiquette",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>От нескольких минут до часа общения с группой, Харизма + Этикет или Знание улиц. Сложность по размеру: 20–30 человек — 5, сотни — 8. Неделю Галлиард и его стая пользуются группой как временным фактом «Связи» (только мелкие связи в соответствующей среде) с рейтингом = успехи (максимум 5).</p>",
    "source": "W20 Changing Ways"
@@ -10574,7 +10904,12 @@
     }
    ],
    "teacher": "Дух предка",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.charisma",
+    "trait2": "abilities.intimidation",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>Действие, Харизма + Запугивание, сложность = наименьшая Воля среди врагов. До конца сцены враги получают штраф (успехи) к атакам, в которых вы не цель. Враги с Волей ниже числа успехов могут атаковать только вас.</p>",
    "source": "W20 Changing Ways"
@@ -10591,7 +10926,12 @@
     }
    ],
    "teacher": "Дух волка",
-   "roll": null,
+   "roll": {
+    "trait1": "willpower.permanent",
+    "trait2": "",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>Постоянно: сложность ваших атак против товарищей по стае (под контролем разума, в бешенстве или по своей воле) +1. Если вы нанесли товарищу урон под сверхъестественным влиянием или в Рабстве Червя — сразу бросок Воли, сложность = успехи броска, наложившего влияние. Успех — влияние или бешенство кончается, вы получаете 1 Ярость.</p>",
    "source": "W20 Changing Ways"
@@ -10608,7 +10948,12 @@
     }
    ],
    "teacher": "Дух волка",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.charisma",
+    "trait2": "abilities.intimidation",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>Вой-заявка на область радиусом (10 × Ярость) ярдов, Харизма + Запугивание, сложность (8 − число присутствующих товарищей, не считая вас). На (успехи) часов броски запугать или подавить ваших товарищей получают штраф в кубиках = ваша Ярость, а их броски запугать других — такой же бонус. Сам Ахрун получает эффект, только если с ним есть хотя бы один товарищ.</p>",
    "source": "W20 Changing Ways"
@@ -10642,7 +10987,12 @@
     }
    ],
    "teacher": "Духи динго",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.perception",
+    "trait2": "abilities.primalUrge",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>Постоянное «шестое чувство»: Рассказчик бросает Восприятие + Первобытный инстинкт, когда Гару ближе (Гнозис x 5) ярдов от спуска ловушки: сл. 5 — простые силки, ямы, отравленная приманка; сл. 6 — техногенные (электрические, датчики движения); сл. 7 — сверхъестественные. Засаду — Восприятие + Первобытный инстинкт сл. 6.</p>",
    "source": "W20 Rage Across the World"
@@ -10677,7 +11027,12 @@
     }
    ],
    "teacher": "Дух хамелеона",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.intelligence",
+    "trait2": "abilities.etiquette",
+    "difficulty": 5,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Усилия выявить её как чужую +3 к сложности. Подделать незнакомое поведение — Интеллект + Этикет: сл. 5 — похожая культура, 7 — другие человеческие, 9 — утраченные/чуждые. 1 Гнозис: временно Союзники и Связи по числу точек Мудрости.</p>",
    "source": "W20 Rage Across the World"
@@ -10695,7 +11050,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.charisma",
+    "trait2": "abilities.expression",
+    "difficulty": 7,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Гнозис на сцену, Харизма + Выразительность (сл. 7). За каждый успех Гару «касается» одного слышащего её голос, пока поёт (один успех на касание); может «касаться» через милю другими Дарами (например Falling Touch).</p>",
    "source": "W20 Rage Across the World"
@@ -10712,7 +11072,12 @@
     }
    ],
    "teacher": "Слуга Единорога",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.intelligence",
+    "trait2": "abilities.academics",
+    "difficulty": 7,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Понимает любой язык, на котором слышит; читать/писать — Интеллект + Академические науки (сл. 7), сл. 9 для языков узких групп без письма. Защиты от услышанного нет.</p>",
    "source": "W20 Rage Across the World"
@@ -10797,7 +11162,12 @@
     }
    ],
    "teacher": "Аватары Льва",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.strength",
+    "trait2": "abilities.brawl",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>Постоянно: после объявления и успешного броска Сила + Драка наносит обычный урон укуса и берёт цель за горло. Каждый раунд цель делает состязание Силы, чтобы вырваться; иные действия цели +2 к сложности. Если она не вырвалась за число раундов, равное удвоенной Выносливости, теряет сознание; затем получает 1 летальный уровень в ход от хватки и не может регенерировать этот урон до освобождения.</p>",
    "source": "W20 White Howlers"
@@ -10899,7 +11269,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.strength",
+    "trait2": "abilities.occult",
+    "difficulty": 6,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Гнозис, касание пола/потолка/стен; Сила + Оккультизм (сл. 6; быстрая нора 4, спешная каменная хижина 5, каменная пещера или природный туннель 7, мастерская каменная башня-брох 9). За успех обрушивается 5-футовая секция. Не очищает место; лучше применять при выходе из логова после очищения.</p>",
    "source": "W20 White Howlers"
@@ -10916,7 +11291,12 @@
     }
    ],
    "teacher": "Духи змей",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.intelligence",
+    "trait2": "abilities.occult",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>Метит жертву слюной/кровью; Интеллект + Оккультизм (сл. = Воля цели). Жертва видит убитых ею существ крупнее насекомого один день за успех. Ежедневно Воля (сл. 4 почти невинный, 7 обычный Гару, 9 вампир с вековыми убийствами) — провал: -1 временная Воля. Пока Дар действует, цель не восстанавливает Волю; при Воле ниже половины постоянной — все броски (кроме спасброска и урона) +1 к сложности.</p>",
    "source": "W20 White Howlers"
@@ -10950,7 +11330,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.intelligence",
+    "trait2": "abilities.expression",
+    "difficulty": 7,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Интеллект + Выразительность (сл. 7): каждый слышащий Белый Выл или его Родня исцеляет по успеху 1 уровень любого урона (ударного, летального, губительного). Не усиливается усилителями.</p>",
    "source": "W20 White Howlers"
@@ -10967,7 +11352,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.dexterity",
+    "trait2": "abilities.occult",
+    "difficulty": 6,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Ловкость + Оккультизм (сл. 6). Поток белого пламени: 6 кубиков губительного урона +1 за лишний успех; если после спасброска нанесено более 3 уровней — слепота до конца сцены.</p>",
    "source": "W20 White Howlers"
@@ -11069,7 +11459,12 @@
     }
    ],
    "teacher": "Бейн покинутости",
-   "roll": null,
+   "roll": {
+    "trait1": "werewolf.gnosis",
+    "trait2": "attributes.manipulation",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>1 Гнозис + Манипуляция + Скрытность (сл. 7). Пока действует сцена, все видящие не узнают метиса (видят безвестного незнакомца). После сцены память не «возвращается».</p>",
    "source": "W20 Book of the Wyrm"
@@ -11120,7 +11515,12 @@
     }
    ],
    "teacher": "Скраги (Scrags); Гаианские Гару иногда — духи акул",
-   "roll": null,
+   "roll": {
+    "trait1": "werewolf.rage",
+    "trait2": "attributes.stamina",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>1 Ярость + Выносливость + Первобытный инстинкт (сл. 5). +3 кубика урона укусов; хватает на один укус за успех, остаток теряется в конце сцены.</p>",
    "source": "W20 Book of the Wyrm"
@@ -11137,7 +11537,12 @@
     }
    ],
    "teacher": "Психомахии (Psychomachiae)",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.wits",
+    "trait2": "abilities.primalUrge",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>1 Гнозис + 1 Ярость; Смекалка + Первобытный инстинкт против сл. = Воля цели. Цель не может сопротивляться инстинктам один день за успех. Если у цели есть Ярость, все броски Ярости при сл. 4; если вампир — броски сопротивления бешенству при сл. 9. Каждая потраченная Воля сокращает срок на 12 часов.</p>",
    "source": "W20 Book of the Wyrm"
@@ -11154,7 +11559,12 @@
     }
    ],
    "teacher": "Фантазмы (Phantasmi)",
-   "roll": null,
+   "roll": {
+    "trait1": "werewolf.gnosis",
+    "trait2": "attributes.manipulation",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>Нужна крошечная частица тела Танцора на цели (слюна, кровь, прядь). 1 Гнозис + Манипуляция + Хитрость (Subterfuge) (сл. 6). Цель выглядит и звучит (не пахнет) как Танцор для всех, кроме себя, один час за успех.</p>",
    "source": "W20 Book of the Wyrm"
@@ -11171,7 +11581,12 @@
     }
    ],
    "teacher": "Ночные (Nocturnae)",
-   "roll": null,
+   "roll": {
+    "trait1": "werewolf.gnosis",
+    "trait2": "attributes.wits",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>Касание; 1 Гнозис + Смекалка + Хитрость (сл. = Воля цели). Никто не верит ничему, что говорит цель, часов по числу успехов.</p>",
    "source": "W20 Book of the Wyrm"
@@ -11222,7 +11637,12 @@
     }
    ],
    "teacher": "Ржавые Пауки (Rust Spiders)",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.intelligence",
+    "trait2": "abilities.occult",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>Ход сосредоточения, 1 Гнозис, Интеллект + Оккультизм против Преграды. До следующего восхода любой, шагнувший в Умбру в радиусе (Гнозис x 100) ярдов от точки применения, получает по кубику губительного урона за каждый успех. Защищает Дар Resist Toxin.</p>",
    "source": "W20 Book of the Wyrm"
@@ -11290,7 +11710,12 @@
     }
    ],
    "teacher": "Аватара Маэлджина (Maeljin)",
-   "roll": null,
+   "roll": {
+    "trait1": "werewolf.rage",
+    "trait2": "",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>1 Гнозис + бросок Ярости; длится ход за успех. Получивший урон от этих когтей бросает Волю против сл. (Гнозис Танцора + уровни урона, макс. 9), иначе парализован кошмарными видениями гибели всего любимого: ничего не делает, теряет 1 Волю за ход, каждый ход может повторить бросок.</p>",
    "source": "W20 Book of the Wyrm"
@@ -11307,7 +11732,12 @@
     }
    ],
    "teacher": "Ноктурны (Nocturna)",
-   "roll": null,
+   "roll": {
+    "trait1": "werewolf.gnosis",
+    "trait2": "attributes.charisma",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>1 Гнозис + Харизма + Первобытный инстинкт (сл. 7). Цель, услышавшая вой, просыпается и не может спать (успехи x 3) часов; при попытке отдыха вой звучит в ушах. +2 к сложности большинства Ментальных и Социальных действий (макс. 9) до сна.</p>",
    "source": "W20 Book of the Wyrm"
@@ -11392,7 +11822,12 @@
     }
    ],
    "teacher": "Х'руггли (H'ruggling)",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.dexterity",
+    "trait2": "abilities.athletics",
+    "difficulty": 8,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Гнозис. До конца сцены каждый, бьющий Танцора в ближнем бою, делает рефлекторно Ловкость + Атлетика (сл. 8); провал — прилип к тени, пока не вырвется Силой + Атлетика (сл. 6). Прилипший не двигается, уклонение автоматически проваливается.</p>",
    "source": "W20 Book of the Wyrm"
@@ -11494,7 +11929,12 @@
     }
    ],
    "teacher": "Разные Бейны",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.intelligence",
+    "trait2": "abilities.occult",
+    "difficulty": 6,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>При успешной атаке когтями по духу: 1 Ярость + 1 Воля + 1 Гнозис, Интеллект + Оккультизм (сл. 6). Дух получает «очки порчи» по успехам (накапливаются; уходят по 1 в день). Если очков порчи больше текущей Сущности, за лунный месяц дух превращается в Бейна.</p>",
    "source": "W20 Book of the Wyrm"
@@ -11511,7 +11951,12 @@
     }
    ],
    "teacher": "Ползуны Узла",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.intelligence",
+    "trait2": "abilities.crafts",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>2 Гнозиса + Интеллект + Ремесло, сложность по размеру устройства (револьвер 6, транспорт 9). Бейн вселяется в механизм; следующий пользователь должен набрать больше успехов Смекалка + Оккультизм, чем Гару, иначе срастается с устройством. Для людей навсегда; Гару могут вырваться ценой (успехи активации) уровней летального урона.</p>",
    "source": "W20 Book of the Wyrm"
@@ -11528,7 +11973,12 @@
     }
    ],
    "teacher": "Нихилахи, только освоившим Grave Claws",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.stamina",
+    "trait2": "abilities.primalUrge",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>Работает на призраке, созданном Grave Claws. Ход сосредоточения, 1 Гнозис + 1 Воля, состязание Выносливость + Первобытный инстинкт против Воли призрака. Успех: +2 уровня здоровья «Ушиб» (Bruised) за призрака; они теряются первыми; когда оба исчезают, призрак уничтожен.</p>",
    "source": "W20 Book of the Wyrm"
@@ -11545,7 +11995,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.charisma",
+    "trait2": "abilities.primalUrge",
+    "difficulty": 6,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Передаётся лишь от полководца к полководцу. 2 Гнозиса + 2 Ярости, ход воя, Харизма + Первобытный инстинкт (сл. 6). Каждое существо, заражённое Червём, в пределах слышимости (включая самого Танцора и его стаю) получает по неспасаемому летальному уровню за успех. Каждый Гаианский Гару теряет по 1 Воли за успех; Гару, упавший до 0 Воли, впадает в Харано (Harano).</p>",
    "source": "W20 Book of the Wyrm"
@@ -11562,7 +12017,12 @@
     }
    ],
    "teacher": "Скрайеры (Scryers)",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.perception",
+    "trait2": "abilities.subterfuge",
+    "difficulty": 7,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Восприятие + Хитрость (сл. 7). Каждый успех +1 к сложности обнаружения порчи (макс. 9), на сцену.</p>",
    "source": "W20 Book of the Wyrm"
@@ -11596,7 +12056,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.intelligence",
+    "trait2": "abilities.larceny",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>Как у Красных Когтей, учат Аблифеты; плюс подделка улик под другого Гару при наличии его частицы: Интеллект + Воровство (Larceny) (сл. 8).</p>",
    "source": "W20 Book of the Wyrm"
@@ -11630,7 +12095,12 @@
     }
    ],
    "teacher": "Гарпии и Вакшаани",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.dexterity",
+    "trait2": "abilities.melee",
+    "difficulty": 6,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Ярость; рука — клинок. Ловкость + Ближний бой (сл. 6), урон Сила + 1 губительный. Яд: -2 кубика к пулам цели на ход за успех; Resist Toxin и Resist Pain снимают.</p>",
    "source": "W20 Book of the Wyrm"
@@ -11772,7 +12242,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.manipulation",
+    "trait2": "abilities.intimidation",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>Манипулирование + Запугивание против Воли жертвы: 1 успех — тревога; 3 — паранойя и панические приступы; 5 — бегство с криками; 3+ успеха вводят способных к страху-бешенству в лисье бешенство, если те не потратят 2 Воли.</p>",
    "source": "W20 Changing Breeds"
@@ -11848,7 +12323,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.dexterity",
+    "trait2": "abilities.athletics",
+    "difficulty": 7,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Ловкость + Атлетика сл. 7: до конца сцены рефлекторно уклоняется от всех атак пулом в 3 кубика</p>",
    "source": "W20 Changing Breeds"
@@ -11892,7 +12372,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.wits",
+    "trait2": "abilities.expression",
+    "difficulty": 8,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Смекалка + Выразительность сл. 8: дождь в круге диаметром (Долг) миль на 10 минут за успех.</p>",
    "source": "W20 Changing Breeds"
@@ -11911,7 +12396,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.wits",
+    "trait2": "abilities.expression",
+    "difficulty": 7,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Смекалка + Выразительность сл. 7, стоя в дожде: дождь лечит 1 уровень ударного/летального всем не осквернённым Червём, кого коснётся, и делает землю плодородной; один раз на ливень</p>",
    "source": "W20 Changing Breeds"
@@ -11968,7 +12458,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.manipulation",
+    "trait2": "abilities.expression",
+    "difficulty": 7,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Манипулирование + Выразительность сл. 7, стоя в дожде: люди, обитающие в местах с Преградой ≥7, на время дождя −3 ко всем пулам (меланхолия)</p>",
    "source": "W20 Changing Breeds"
@@ -11987,7 +12482,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.wits",
+    "trait2": "abilities.primalUrge",
+    "difficulty": 8,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>3 Ярости, Смекалка + Первобытный инстинкт сл. 8, стоя в дожде: дождь как кислота разрушает постройку: 1 успех — хижина; 3 — трёхэтажный дом; 5 — офисный комплекс.</p>",
    "source": "W20 Changing Breeds"
@@ -12025,7 +12525,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.wits",
+    "trait2": "abilities.stealth",
+    "difficulty": 6,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Смекалка + Скрытность сл. 6: в природной среде сложность тихого движения −3 (минимум 2).</p>",
    "source": "W20 Changing Breeds"
@@ -12462,7 +12967,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.intelligence",
+    "trait2": "abilities.occult",
+    "difficulty": 5,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Надрезав руку и потратив 3 крови, Интеллект + Оккультизм сл. 5: Преграда в окрестности −1 на час за успех</p>",
    "source": "W20 Changing Breeds"
@@ -12519,7 +13029,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.manipulation",
+    "trait2": "abilities.intimidation",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Манипулирование + Запугивание против Воли цели: сутки за успех; Прозрение Матери — «Взгляд из-за» Теургов.</p>",
    "source": "W20 Changing Breeds"
@@ -12576,7 +13091,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.charisma",
+    "trait2": "abilities.rituals",
+    "difficulty": 9,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>2 Гнозиса, Обаяние + Ритуалы сл. 9: на сцену форма с Силой +5, Стойкостью +6, Восприятием +2, Внешностью 0; руки наносят Сила + 2 губительного; зрители — Воля сл. 7 или Бред; после надо неделю оставаться Крауллерлингом.</p>",
    "source": "W20 Changing Breeds"
@@ -12595,7 +13115,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.wits",
+    "trait2": "abilities.occult",
+    "difficulty": 6,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Касание, Смекалка + Оккультизм сл. 6: Преграда для жертвы +3 на сцену</p>",
    "source": "W20 Changing Breeds"
@@ -12614,7 +13139,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.dexterity",
+    "trait2": "abilities.occult",
+    "difficulty": 6,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Только Дары, Дисциплины, Сферы и т. п. ур. 1–2: 1 Гнозис, Ловкость + Оккультизм сл. 6, 1 успех снимает эффект.</p>",
    "source": "W20 Changing Breeds"
@@ -12785,7 +13315,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.manipulation",
+    "trait2": "abilities.medicine",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Манипулирование + Медицина (сл. по тяжести; неизлечимое — нет)</p>",
    "source": "W20 Changing Breeds"
@@ -12804,7 +13339,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.dexterity",
+    "trait2": "abilities.stealth",
+    "difficulty": 5,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Ловкость + Скрытность сл. 5: сцену бесшумно; провал — Дар недоступен на сцену.</p>",
    "source": "W20 Changing Breeds"
@@ -12842,7 +13382,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.stamina",
+    "trait2": "abilities.intimidation",
+    "difficulty": 7,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Стойкость + Запугивание сл. 7: все в 20 футах оглохли (+1 к сложности) на ход за успех; Хватать — «Забрать забытое» Рагабаш.</p>",
    "source": "W20 Changing Breeds"
@@ -12861,7 +13406,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.manipulation",
+    "trait2": "abilities.expression",
+    "difficulty": 3,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Манипулирование + Выразительность сл. 3: наблюдатели с Волей ≤ успехов зачарованы, пока она выступает; насилие прерывает; Дальновидение — «Всматривание» Уктена</p>",
    "source": "W20 Changing Breeds"
@@ -12880,7 +13430,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.stamina",
+    "trait2": "abilities.athletics",
+    "difficulty": 6,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Скорость бега ×2 на (успехи × 2) ходов (Стойкость + Атлетика сл. 6)</p>",
    "source": "W20 Changing Breeds"
@@ -12943,7 +13498,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.wits",
+    "trait2": "abilities.larceny",
+    "difficulty": 6,
+    "byTarget": false
+   },
    "cost": {
     "gnosis": 1
    },
@@ -13021,7 +13581,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.perception",
+    "trait2": "abilities.primalUrge",
+    "difficulty": 7,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Восприятие + Первобытный инстинкт сл. 7: идеально чувствует всё в пределах вытянутой руки на сцену.</p>",
    "source": "W20 Changing Breeds"
@@ -13268,7 +13833,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.manipulation",
+    "trait2": "abilities.occult",
+    "difficulty": 6,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Манипулирование + Оккультизм сл. 6: клинок наносит губительный урон до рассвета.</p>",
    "source": "W20 Changing Breeds"
@@ -13382,7 +13952,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.dexterity",
+    "trait2": "abilities.brawl",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>2 Гнозиса, Ловкость + Драка: огненный шар (Свирепость) уровней губительного; горит ещё по половине урона предыдущего хода.</p>",
    "source": "W20 Changing Breeds"
@@ -13401,7 +13976,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.strength",
+    "trait2": "abilities.primalUrge",
+    "difficulty": 3,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>3 Ярости, Сила + Первобытный инстинкт сл. 3: удар в 10 футах перед ним, + Свирепость к кубикам урона.</p>",
    "source": "W20 Changing Breeds"
@@ -13420,7 +14000,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.stamina",
+    "trait2": "abilities.survival",
+    "difficulty": 6,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Воля, Стойкость + Выживание сл. 6: за успех — игнорирует жару/холод неделю, или день без воды, или 3 дня без еды (сл. +1 при повторе подряд).</p>",
    "source": "W20 Changing Breeds"
@@ -13445,7 +14030,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.dexterity",
+    "trait2": "abilities.survival",
+    "difficulty": 8,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Ярость, Ловкость + Выживание (сл. 8, 6 в грозу): (Хитрость) кубиков летального.</p>",
    "source": "W20 Changing Breeds"
@@ -13502,7 +14092,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.perception",
+    "trait2": "abilities.primalUrge",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>Восприятие + Первобытный инстинкт против Преграды: видит сквозь твёрдое на 100 футов за успех.</p>",
    "source": "W20 Changing Breeds"
@@ -13559,7 +14154,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.manipulation",
+    "trait2": "abilities.primalUrge",
+    "difficulty": 7,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Ярость, Манипулирование + Первобытный инстинкт сл. 7 (5 на месте кровопролития); 3 хода собирается; любые формы; Сила и здоровье = 2 × успехи; сцену.</p>",
    "source": "W20 Changing Breeds"
@@ -13666,7 +14266,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.wits",
+    "trait2": "abilities.expression",
+    "difficulty": 6,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Смекалка + Выразительность сл. 6: метка в Умбре из подручных материалов; успех = сложность сообщения (1 — «опасно», 5 — короткое эссе); читают только Корвы.</p>",
    "source": "W20 Changing Breeds"
@@ -13685,7 +14290,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.perception",
+    "trait2": "abilities.empathy",
+    "difficulty": 6,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Восприятие + Эмпатия сл. 6: чует трупы в радиусе (успехи) миль.</p>",
    "source": "W20 Changing Breeds"
@@ -13761,7 +14371,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.perception",
+    "trait2": "abilities.occult",
+    "difficulty": 8,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Восприятие + Оккультизм сл. 8: допрос трупа (&lt;24 ч).</p>",
    "source": "W20 Changing Breeds"
@@ -13856,7 +14471,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.dexterity",
+    "trait2": "abilities.athletics",
+    "difficulty": 8,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>В воздухе; 3 Гнозиса и 2 Ярости: Ловкость + 4 кубика летального всем под ним в радиусе 15 футов (уклонение Ловкость + Атлетика сл. 8, 3 успеха); с «Бритвенными перьями» — губительный.</p>",
    "source": "W20 Changing Breeds"
@@ -13875,7 +14495,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.perception",
+    "trait2": "abilities.enigmas",
+    "difficulty": 3,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>2 Гнозиса: превращается в стаю ворон; враги Восприятие + Загадки сл. 3 + Честь (макс. 9), чтобы найти настоящего; до восхода.</p>",
    "source": "W20 Changing Breeds"
@@ -13894,7 +14519,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.wits",
+    "trait2": "abilities.enigmas",
+    "difficulty": 8,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Смекалка + Загадки сл. 8: Преграда в 20 ярдах −1 за 2 успеха на сцену.</p>",
    "source": "W20 Changing Breeds"
@@ -13932,7 +14562,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.intelligence",
+    "trait2": "abilities.enigmas",
+    "difficulty": 8,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>2 Гнозиса, Интеллект + Загадки сл. 8: видение будущего.</p>",
    "source": "W20 Changing Breeds"
@@ -13970,7 +14605,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.perception",
+    "trait2": "abilities.survival",
+    "difficulty": 7,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Восприятие + Выживание сл. 7: находит еду и лекарственные травы в любое время; Чутьё Разрушителя Узора — «Чутьё Червя» метисов; Сигнал часового — «Чувство опасности» Раткин-Бегунов; Очищение Урсы — «Сопротивление токсину»</p>",
    "source": "W20 Changing Breeds"
@@ -14008,7 +14648,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.wits",
+    "trait2": "abilities.occult",
+    "difficulty": 4,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Смекалка + Оккультизм (сл. 4 в миле, до 9 за тысячу): сны для известного подопечного, 2 Гнозиса — для неизвестного ищущего; Облегчить лихорадочный разум — «Прикосновение любовника» Детей Геи; Выживание медведя — «Адаптация» Странников.</p>",
    "source": "W20 Changing Breeds"
@@ -14027,7 +14672,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.manipulation",
+    "trait2": "abilities.stealth",
+    "difficulty": 7,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Манипулирование + Скрытность сл. 7: прячет до 12 человек/медведей на час за успех.</p>",
    "source": "W20 Changing Breeds"
@@ -14084,7 +14734,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.charisma",
+    "trait2": "abilities.occult",
+    "difficulty": 6,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Обаяние + Оккультизм сл. 6: мягкий свет 100 футов в квадрате или маяк на 100 ярдов; ×2 при видимых созвездиях Большой/Малой Медведицы.</p>",
    "source": "W20 Changing Breeds"
@@ -14103,7 +14758,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.manipulation",
+    "trait2": "abilities.primalUrge",
+    "difficulty": 6,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Манипулирование + Первобытный инстинкт сл. 6: ±5 градусов за успех; Скорбный лик — «Игра в гляделки».</p>",
    "source": "W20 Changing Breeds"
@@ -14122,7 +14782,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.perception",
+    "trait2": "abilities.empathy",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>Восприятие + Эмпатия: тянет к нуждающемуся в радиусе (Помощь) миль.</p>",
    "source": "W20 Changing Breeds"
@@ -14141,7 +14806,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.charisma",
+    "trait2": "abilities.primalUrge",
+    "difficulty": 6,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Обаяние + Первобытный инстинкт сл. 6: все гайские оборотни в (успехи × 5) милях слышат зов и знают, кто, где, куда.</p>",
    "source": "W20 Changing Breeds"
@@ -14179,7 +14849,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.perception",
+    "trait2": "abilities.primalUrge",
+    "difficulty": 7,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Восприятие + Первобытный инстинкт сл. 7: кратчайший путь домой</p>",
    "source": "W20 Changing Breeds"
@@ -14198,7 +14873,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.dexterity",
+    "trait2": "abilities.stealth",
+    "difficulty": 4,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Ловкость + Скрытность сл. 4: при почти неподвижности невидим, нужно укрытие.</p>",
    "source": "W20 Changing Breeds"
@@ -14217,7 +14897,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.dexterity",
+    "trait2": "abilities.larceny",
+    "difficulty": 7,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Ловкость + Воровство сл. 7: оставляет человеческие или медвежьи следы на сцену.</p>",
    "source": "W20 Changing Breeds"
@@ -14236,7 +14921,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.charisma",
+    "trait2": "abilities.empathy",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Обаяние + Эмпатия против Воли: выпросить еду/вещь/услугу; 5 успехов — дом</p>",
    "source": "W20 Changing Breeds"
@@ -14255,7 +14945,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.dexterity",
+    "trait2": "abilities.primalUrge",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Ловкость + Первобытный инстинкт: бесследно; каждый успех сверх первого берёт ещё одного</p>",
    "source": "W20 Changing Breeds"
@@ -14274,7 +14969,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.manipulation",
+    "trait2": "abilities.primalUrge",
+    "difficulty": 8,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Манипулирование + Первобытный инстинкт сл. 8: участок радиусом (Честь × 20) ярдов возвращается в дикое состояние.</p>",
    "source": "W20 Changing Breeds"
@@ -14312,7 +15012,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.strength",
+    "trait2": "abilities.primalUrge",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>Действие на сосредоточение, 1 Ярость, Сила + Первобытный инстинкт: +1 кубик урона за успех следующему захвату</p>",
    "source": "W20 Changing Breeds"
@@ -14331,7 +15036,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.charisma",
+    "trait2": "abilities.intimidation",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>1 Ярость, Обаяние + Запугивание против Воли жертвы + 2 (макс. 9): 3+ успеха — бегство на (Честь) ходов; меньше — −1 ко всем действиям.</p>",
    "source": "W20 Changing Breeds"
@@ -14407,7 +15117,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.perception",
+    "trait2": "abilities.enigmas",
+    "difficulty": 5,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Восприятие + Загадки сл. 5: состав и потенциал камня.</p>",
    "source": "W20 Changing Breeds"
@@ -14426,7 +15141,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.perception",
+    "trait2": "abilities.primalUrge",
+    "difficulty": 6,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Касаясь земли, слышит произошедшее здесь недавно: 1 Гнозис, Восприятие + Первобытный инстинкт сл. 6: самое значимое событие за (успехи) дней.</p>",
    "source": "W20 Changing Breeds"
@@ -14445,7 +15165,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.wits",
+    "trait2": "abilities.empathy",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Смекалка + Эмпатия против Воли: поверхностные мысли на (успехи) ходов; Разум к разуму — «Передача мыслей».</p>",
    "source": "W20 Changing Breeds"
@@ -14464,7 +15189,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.charisma",
+    "trait2": "abilities.occult",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Обаяние + Оккультизм против Воли духа: 2 Эссенции за 1 Гнозис</p>",
    "source": "W20 Changing Breeds"
@@ -14483,7 +15213,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.wits",
+    "trait2": "abilities.empathy",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>1 Гнозис (+Воля для сверхъестественных), Смекалка + Эмпатия: каждый успех — одна скрываемая мысль</p>",
    "source": "W20 Changing Breeds"
@@ -14502,7 +15237,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.wits",
+    "trait2": "abilities.empathy",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>1 Гнозис (+Воля), Смекалка + Эмпатия против Воли: условное отвращение к желанию на год и день.</p>",
    "source": "W20 Changing Breeds"
@@ -14559,7 +15299,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.appearance",
+    "trait2": "abilities.enigmas",
+    "difficulty": 7,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Только в Умбре; 1 Гнозис, Внешность + Загадки сл. 7: выглядит духом на (Мудрость) дней.</p>",
    "source": "W20 Changing Breeds"
@@ -14578,7 +15323,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.wits",
+    "trait2": "abilities.rituals",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>Учит Урса Майор; 1 Гнозис, Смекалка + Ритуалы: семь огней; касанием лечит 5 ударных/летальных, 3 губительных или даёт броню как кевлар; за использование гаснет один огонь.</p>",
    "source": "W20 Changing Breeds"
@@ -14616,7 +15366,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.wits",
+    "trait2": "abilities.empathy",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Смекалка + Эмпатия против Воли: минута неспособности лгать за успех; Присутствие Великого Медведя — «Царь зверей» Философов.</p>",
    "source": "W20 Changing Breeds"
@@ -14635,7 +15390,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.wits",
+    "trait2": "abilities.rituals",
+    "difficulty": 7,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Смекалка + Ритуалы сл. 7: будит от сверхъестественного сна, комы, торпора вампира, Бернохта, мумий</p>",
    "source": "W20 Changing Breeds"
@@ -14654,7 +15414,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.wits",
+    "trait2": "abilities.enigmas",
+    "difficulty": 8,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Смекалка + Загадки сл. 8: по подсказке за успех.</p>",
    "source": "W20 Changing Breeds"
@@ -14673,7 +15438,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.wits",
+    "trait2": "abilities.occult",
+    "difficulty": 7,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Смекалка + Оккультизм сл. 7: автоуспех в деле или +1 к Атрибуту на (Мудрость) часов</p>",
    "source": "W20 Changing Breeds"
@@ -14692,7 +15462,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.charisma",
+    "trait2": "abilities.leadership",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>Обаяние + Лидерство против наибольшей Воли толпы: (Помощь × 30) людей смягчаются.</p>",
    "source": "W20 Changing Breeds"
@@ -14768,7 +15543,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.charisma",
+    "trait2": "abilities.subterfuge",
+    "difficulty": 6,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Обаяние + Хитрость сл. 6: окружающие считают её своей.</p>",
    "source": "W20 Changing Breeds"
@@ -14787,7 +15567,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.manipulation",
+    "trait2": "abilities.enigmas",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Манипулирование + Загадки против Воли: иллюзия для одного, детальная; сверхъестественные — Воля сл. 9 при подозрении.</p>",
    "source": "W20 Changing Breeds"
@@ -14806,7 +15591,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.manipulation",
+    "trait2": "abilities.occult",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>Контакт, прядь волос или личный предмет; 1 Гнозис и 1 Воля, Манипулирование + Оккультизм против Воли: становится духом в теле; сверхъестественный изгоняет Стойкость + Оккультизм ежедневно на восходе.</p>",
    "source": "W20 Changing Breeds"
@@ -14825,7 +15615,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.charisma",
+    "trait2": "abilities.subterfuge",
+    "difficulty": 6,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Обаяние + Хитрость сл. 6 против Воли (сл. 7): очарование; Запах человека. <strong>Ур. 2:</strong> Помеха технике; Серебряный язык — «Гладкий язык» Фианна; Игра в гляделки. <strong>Ур. 3:</strong> Тревога (Disquiet); Перелепить предмет; Речь мира. <strong>Ур. 4:</strong> <strong>Забывчивость</strong> — 1 Гнозис и 1 Воля, оспариваемый Манипулирование + Хитрость сл. 6 против Воли (сл. 3 + число хвостов); Оберег духа. <strong>Ур. 5:</strong> Ассимиляция</p>",
    "source": "W20 Changing Breeds"
@@ -14863,7 +15658,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.perception",
+    "trait2": "abilities.occult",
+    "difficulty": 6,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Восприятие + Оккультизм сл. 6: какая часть Триады нарушила баланс. <strong>Ур. 3:</strong> <strong>Ослепление</strong> — 1 Гнозис, Манипулирование + Медицина сл. 7 против Стойкости: слепнет на сутки (в 10 футах); Кошачьи лапы</p>",
    "source": "W20 Changing Breeds"
@@ -14882,7 +15682,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.stamina",
+    "trait2": "abilities.larceny",
+    "difficulty": 7,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Гнозис: всегда знает, где он (мир, стороны света, дом); территория признаётся животными. <strong>Ур. 4:</strong> <strong>Одежда падали</strong> — 1 Гнозис, Стойкость + Воровство сл. 7: на любой осмотр мёртв (микродвижения допустимы); Лорд леса — «Жизнь зверя». <strong>Ур. 5:</strong> Дар стихии (лупусы)</p>",
    "source": "W20 Changing Breeds"
@@ -14901,7 +15706,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.perception",
+    "trait2": "abilities.empathy",
+    "difficulty": 6,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Восприятие + Эмпатия сл. 6: эмоциональные «отпечатки» места; Запах истинной формы</p>",
    "source": "W20 Changing Breeds"
@@ -14920,7 +15730,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.charisma",
+    "trait2": "abilities.intimidation",
+    "difficulty": 6,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Обаяние + Запугивание сл. 6 (9 против шен): животные льнут, люди и шен принимают за высшую</p>",
    "source": "W20 Changing Breeds"
@@ -14939,7 +15754,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.manipulation",
+    "trait2": "abilities.subterfuge",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>1 Воля, Манипулирование + Хитрость, оспариваемый Воли (оба сл. 7): управляет жертвой по ходу за успех.</p>",
    "source": "W20 Changing Breeds"
@@ -14977,7 +15797,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.intelligence",
+    "trait2": "abilities.enigmas",
+    "difficulty": 9,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Интеллект + Загадки сл. 9 (7 при жертве человека/шен); Приказ духу; Назвать духа; Тени на рассвете; Взгляд из-за.</p>",
    "source": "W20 Changing Breeds"
@@ -14996,7 +15821,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.perception",
+    "trait2": "abilities.alertness",
+    "difficulty": 6,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Восприятие + Бдительность сл. 6: видит всех, коснувшихся лунного света, на (успехи × 20) футов; Мудрость древних путей; Изгнание; Пульс Незримого</p>",
    "source": "W20 Changing Breeds"
@@ -15015,7 +15845,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.stamina",
+    "trait2": "abilities.occult",
+    "difficulty": 8,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Воля, Стойкость + Оккультизм сл. 8: по 25 паразитов за успех (−1 пулов жертв за 25; Сила 1).</p>",
    "source": "W20 Changing Breeds"
@@ -15034,7 +15869,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.manipulation",
+    "trait2": "abilities.occult",
+    "difficulty": 8,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Манипулирование + Оккультизм сл. 8: за успех знак, видимый только Китсунэ, пока видна голова.</p>",
    "source": "W20 Changing Breeds"
@@ -15053,7 +15893,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.perception",
+    "trait2": "abilities.alertness",
+    "difficulty": 6,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Восприятие + Бдительность сл. 6: враждебные в 100 футах.</p>",
    "source": "W20 Changing Breeds"
@@ -15072,7 +15917,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.dexterity",
+    "trait2": "abilities.occult",
+    "difficulty": 6,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Ярость, Ловкость + Оккультизм сл. 6: губительный урон = успехи, дальность 50 ярдов</p>",
    "source": "W20 Changing Breeds"
@@ -15110,7 +15960,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.stamina",
+    "trait2": "abilities.occult",
+    "difficulty": 8,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Ярость, Стойкость + Оккультизм сл. 8: касанием летальный урон = успехи живым, духам, вампирам с Человечностью 6+; 5+ успехов убивают человека</p>",
    "source": "W20 Changing Breeds"
@@ -15129,7 +15984,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.manipulation",
+    "trait2": "abilities.intimidation",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>Манипулирование + Запугивание против Воли: бегство на ход за успех; Слабая рука.</p>",
    "source": "W20 Changing Breeds"
@@ -15148,7 +16008,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.manipulation",
+    "trait2": "werewolf.gnosis",
+    "difficulty": 8,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Манипулирование + Гнозис сл. 8: превращается в стихию (земля, вода, огонь, воздух; на Ранге 5 — вторичные), обнаружить — Восприятие + Бдительность сл. 9</p>",
    "source": "W20 Changing Breeds"
@@ -15167,7 +16032,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.stamina",
+    "trait2": "abilities.primalUrge",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Стойкость + Первобытный инстинкт: зубы серебро/нефрит.</p>",
    "source": "W20 Changing Breeds"
@@ -15186,7 +16056,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.manipulation",
+    "trait2": "abilities.empathy",
+    "difficulty": 6,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Манипулирование + Эмпатия сл. 6–8: меняет облик (не копирует точно) на сцену; Серебряный язык; Забрать забытое.</p>",
    "source": "W20 Changing Breeds"
@@ -15205,7 +16080,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.manipulation",
+    "trait2": "abilities.empathy",
+    "difficulty": 7,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Воля, Манипулирование + Эмпатия сл. 7: лёгкое принуждение на (Чие) дней; Идеальная память; Истина Геи.</p>",
    "source": "W20 Changing Breeds"
@@ -15224,7 +16104,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.wits",
+    "trait2": "abilities.occult",
+    "difficulty": 6,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Смекалка + Оккультизм сл. 6: духи подсказывают местонахождение</p>",
    "source": "W20 Changing Breeds"
@@ -15262,7 +16147,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "werewolf.gnosis",
+    "trait2": "abilities.empathy",
+    "difficulty": 8,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Воля, Гнозис + Эмпатия сл. 8: призрак/дух предка рассказывает событие</p>",
    "source": "W20 Changing Breeds"
@@ -15319,7 +16209,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.dexterity",
+    "trait2": "abilities.brawl",
+    "difficulty": 8,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Ярость, Ловкость + Драка сл. 8, 30 футов: 2 уровня губительного + 2 за каждую дополнительную Ярость</p>",
    "source": "W20 Changing Breeds"
@@ -15357,7 +16252,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.perception",
+    "trait2": "abilities.alertness",
+    "difficulty": 8,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Восприятие + Бдительность сл. 8: зоркость на (успехи) миль; Мастер огня.</p>",
    "source": "W20 Changing Breeds"
@@ -15376,7 +16276,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.wits",
+    "trait2": "abilities.expression",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>Смекалка + Выразительность против Воли: жертва приближается на ход за успех; Чуять серебро.</p>",
    "source": "W20 Changing Breeds"
@@ -15433,7 +16338,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.intelligence",
+    "trait2": "abilities.occult",
+    "difficulty": 6,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Интеллект + Оккультизм сл. 6: сияние на (успехи × 2) ярдов. <strong>Ур. 3:</strong> <strong>Ясный ум</strong> — трата Воли даёт +1 кубик в Умственный пул до восхода; Слабая рука. <strong>Ур. 4:</strong> Взгляд ястреба — «Взгляд Балора» Фианна</p>",
    "source": "W20 Changing Breeds"
@@ -15452,7 +16362,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.stamina",
+    "trait2": "abilities.primalUrge",
+    "difficulty": 6,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Стойкость + Первобытный инстинкт сл. 6, ход концентрации: успехи к поглощению на (постоянная Честь) ходов, раз за сцену</p>",
    "source": "W20 Changing Breeds"
@@ -15515,7 +16430,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.perception",
+    "trait2": "abilities.enigmas",
+    "difficulty": 6,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Восприятие + Загадки сл. 6: смутное прозрение за успех; Речь снов</p>",
    "source": "W20 Changing Breeds"
@@ -15648,7 +16568,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.stamina",
+    "trait2": "abilities.rituals",
+    "difficulty": 7,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Стойкость + Ритуалы сл. 7: быстрое путешествие через океаны, как во времена Пангеи.</p>",
    "source": "W20 Changing Breeds"
@@ -15686,7 +16611,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.stamina",
+    "trait2": "abilities.primalUrge",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>1 Воля, Стойкость + Первобытный инстинкт: за успех добавляет ящерные черты (маскировка под Мокол; функциональны только ноги)</p>",
    "source": "W20 Changing Breeds"
@@ -15705,7 +16635,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.manipulation",
+    "trait2": "abilities.subterfuge",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>2 Гнозиса, Манипулирование + Хитрость против (Восприятие + 2): стирает память о Нагах: 1 успех — путает, 3 — стирает полностью.</p>",
    "source": "W20 Changing Breeds"
@@ -15800,7 +16735,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.dexterity",
+    "trait2": "abilities.firearms",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>Ловкость + Огнестрел, 20 футов, базовый губительный = Гнозис.</p>",
    "source": "W20 Changing Breeds"
@@ -15819,7 +16759,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.stamina",
+    "trait2": "abilities.primalUrge",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>Стойкость + Первобытный инстинкт: на час за успех; невидима для инфракрасных; Убеждение</p>",
    "source": "W20 Changing Breeds"
@@ -15857,7 +16802,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.manipulation",
+    "trait2": "abilities.expression",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Манипулирование + Выразительность против Воли: сцену «просьбы» (за минуту, без явной опасности) выполняются</p>",
    "source": "W20 Changing Breeds"
@@ -15933,7 +16883,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.perception",
+    "trait2": "abilities.enigmas",
+    "difficulty": 7,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>3 Гнозиса, Восприятие + Загадки сл. 7: бесплотен на 2 хода за успех; иммунен к физическому, огню и серебру.</p>",
    "source": "W20 Changing Breeds"
@@ -15958,7 +16913,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.perception",
+    "trait2": "abilities.enigmas",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>Восприятие + Загадки против Преграды: чувствует влияние Ткачихи; «выглядывает» в Пенумбру, видя лишь духов и постройки Ткачихи, сцену</p>",
    "source": "W20 Changing Breeds"
@@ -16114,7 +17074,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.stamina",
+    "trait2": "abilities.athletics",
+    "difficulty": 7,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Стойкость + Атлетика сл. 7: до 8 часов скорость ×(успехи + 1), прекращается при остановке.</p>",
    "source": "W20 Changing Breeds"
@@ -16133,7 +17098,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.dexterity",
+    "trait2": "abilities.stealth",
+    "difficulty": 6,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Ловкость + Скрытность сл. 6: в Васуки заползает в желудок бессознательного человека на сутки за успех.</p>",
    "source": "W20 Changing Breeds"
@@ -16190,7 +17160,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.intelligence",
+    "trait2": "abilities.medicine",
+    "difficulty": 6,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Касание, 1 Гнозис, Интеллект + Медицина сл. 6: каждый успех отменяет успех следующего броска исцеления цели (включая Стойкость на регенерацию); если сильнее — целитель получает разницу ударным</p>",
    "source": "W20 Changing Breeds"
@@ -16209,7 +17184,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.wits",
+    "trait2": "abilities.subterfuge",
+    "difficulty": 6,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Смекалка + Хитрость сл. 6: фантомное ощущение за успех в следующую сцену</p>",
    "source": "W20 Changing Breeds"
@@ -16228,7 +17208,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.wits",
+    "trait2": "abilities.alertness",
+    "difficulty": 6,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Смекалка + Бдительность сл. 6: обзор 360°, +кубик за успех на заметить врагов; Запах истинной формы.</p>",
    "source": "W20 Changing Breeds"
@@ -16247,7 +17232,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.charisma",
+    "trait2": "abilities.leadership",
+    "difficulty": 7,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Обаяние + Лидерство сл. 7: летальный (вампирам — губительный) урон = успехи на 100 футов.</p>",
    "source": "W20 Changing Breeds"
@@ -16285,7 +17275,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.manipulation",
+    "trait2": "abilities.intimidation",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>1 Воля, оспариваемый Манипулирование + Запугивание против Воли (оба сл. 6): ответ правдиво и полно. Ур. 4: Двойник; Открытые раны. Ур. 5: Струны сердца — «Игры разума» Галлиарда.</p>",
    "source": "W20 Changing Breeds"
@@ -16323,7 +17318,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.stamina",
+    "trait2": "abilities.primalUrge",
+    "difficulty": 7,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Только в боевой форме; 1 Гнозис и 1 Ярость, Стойкость + Первобытный инстинкт сл. 7: тратя Ярость/Волю 1 за 1, повышает Силу, Стойкость и Ловкость до +4 каждый на сцену.</p>",
    "source": "W20 Changing Breeds"
@@ -16342,7 +17342,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.perception",
+    "trait2": "abilities.subterfuge",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>Восприятие + Хитрость против Воли цели: о чём тема она меньше всего хочет говорить</p>",
    "source": "W20 Changing Breeds"
@@ -16361,7 +17366,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.wits",
+    "trait2": "abilities.expression",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>Смекалка + Выразительность против Воли: назойливая мелодия на день за успех, +2 к сложности бросков, требующих концентрации</p>",
    "source": "W20 Changing Breeds"
@@ -16380,7 +17390,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.dexterity",
+    "trait2": "abilities.larceny",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>Ловкость + Воровство против (Ловкость + Атлетика цели): срывает предмет одежды; раз за ночь на цель</p>",
    "source": "W20 Changing Breeds"
@@ -16437,7 +17452,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.manipulation",
+    "trait2": "abilities.subterfuge",
+    "difficulty": 7,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Манипулирование + Хитрость сл. 7: правильный ответ на проверку личности (пароль), даже на сайте (каждое поле — отдельное использование)</p>",
    "source": "W20 Changing Breeds"
@@ -16494,7 +17514,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.wits",
+    "trait2": "abilities.empathy",
+    "difficulty": 8,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Смекалка + Эмпатия сл. 8: «худшая фраза» доводит до ярости (бросок на бешенство у способных); работает по сообщениям</p>",
    "source": "W20 Changing Breeds"
@@ -16513,7 +17538,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.dexterity",
+    "trait2": "abilities.brawl",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Ловкость + Драка/Рукопашная сл. 6 для сопротивляющегося: меняет пол на (Юмор) дней</p>",
    "source": "W20 Changing Breeds"
@@ -16532,7 +17562,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.manipulation",
+    "trait2": "abilities.expression",
+    "difficulty": 6,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Манипулирование + Выразительность сл. 6: любая раса, пол, вид канид (только Хомид и Латрани) на (Хитрость) дней; Зловонный аромат; Дыхание выдры — «Дух рыбы» Уктена</p>",
    "source": "W20 Changing Breeds"
@@ -16570,7 +17605,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.manipulation",
+    "trait2": "abilities.subterfuge",
+    "difficulty": 6,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Манипулирование + Хитрость сл. 6: в течение суток жертва заподозрит предательство союзника (с 1 Гнозисом — двоих, один подозревает другого)</p>",
    "source": "W20 Changing Breeds"
@@ -16608,7 +17648,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.perception",
+    "trait2": "abilities.expression",
+    "difficulty": 8,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Восприятие + Выразительность сл. 8/7/6 (слова/минута/полчаса): запоминает голос; 1 Гнозис — имитировать на сцену; число голосов = точки Выразительности.</p>",
    "source": "W20 Changing Breeds"
@@ -16627,7 +17672,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.manipulation",
+    "trait2": "abilities.primalUrge",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>Касание, Манипулирование + Первобытный инстинкт: −3 кубика социальных пулов на (успехи × Юмор) дней</p>",
    "source": "W20 Changing Breeds"
@@ -16646,7 +17696,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.perception",
+    "trait2": "abilities.primalUrge",
+    "difficulty": 6,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Восприятие + Первобытный инстинкт сл. 6 (8, если не нюхал цель): запах другого на (Юмор) дней</p>",
    "source": "W20 Changing Breeds"
@@ -16665,7 +17720,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.wits",
+    "trait2": "abilities.enigmas",
+    "difficulty": 7,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Смекалка + Загадки сл. 7 в ответ на бросок цели: если успехов не меньше — действие провалено, а следующий бросок цели берёт значения кубиков прерванного броска; на себя нельзя</p>",
    "source": "W20 Changing Breeds"
@@ -16741,7 +17801,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.wits",
+    "trait2": "abilities.larceny",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Смекалка + Воровство против Воли: скрывает категорию предметов на (Юмор) часов</p>",
    "source": "W20 Changing Breeds"
@@ -16760,7 +17825,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.perception",
+    "trait2": "abilities.medicine",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Восприятие + Медицина против (Стойкость + Выживание): штраф ран остаётся до заката</p>",
    "source": "W20 Changing Breeds"
@@ -16798,7 +17868,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.wits",
+    "trait2": "abilities.science",
+    "difficulty": 5,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Смекалка + Наука сл. 5: «стоит» в воздухе ход за успех, пока не смотрит вниз</p>",
    "source": "W20 Changing Breeds"
@@ -16836,7 +17911,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.wits",
+    "trait2": "abilities.subterfuge",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>1 Гнозис и 1 Воля, Смекалка + Хитрость против Воли: цель встретит подходящего человека в следующей сцене и будет сталкиваться с ним в диких совпадениях (12 − успехи) месяцев</p>",
    "source": "W20 Changing Breeds"
@@ -16855,7 +17935,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.wits",
+    "trait2": "abilities.subterfuge",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Смекалка + Хитрость против (Первобытный инстинкт + 3): меняются обликом на сцену.</p>",
    "source": "W20 Changing Breeds"
@@ -16874,7 +17959,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.manipulation",
+    "trait2": "abilities.subterfuge",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>1 Воля и 1 Гнозис, Манипулирование + Хитрость против наибольшей Воли в группе: за успех 5 человек считают его своим на (Юмор) дней (навсегда за точки Воли и Гнозиса)</p>",
    "source": "W20 Changing Breeds"
@@ -16912,7 +18002,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.manipulation",
+    "trait2": "abilities.stealth",
+    "difficulty": 6,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Манипулирование + Скрытность сл. 6: он и (успехи) других получают автоуспех на Скрытность на сцену</p>",
    "source": "W20 Changing Breeds"
@@ -16931,7 +18026,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.wits",
+    "trait2": "abilities.enigmas",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Смекалка + Загадки: прячет предметы на себе (по одному на успех).</p>",
    "source": "W20 Changing Breeds"
@@ -16969,7 +18069,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.dexterity",
+    "trait2": "abilities.enigmas",
+    "difficulty": 6,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Воля, Ловкость + Загадки сл. 6: проходит сквозь щель в преграде ≤1 ярда; 3+ успеха — берёт ещё одного.</p>",
    "source": "W20 Changing Breeds"
@@ -17045,7 +18150,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.dexterity",
+    "trait2": "abilities.medicine",
+    "difficulty": 6,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>После укуса 1 Ярость: рану не вылечить, пока не извлечены занозы (5 успехов на Ловкость + Медицина сл. 6, затяжной). <strong>Ур. 4:</strong> Укус гремучника (метисы)</p>",
    "source": "W20 Changing Breeds"
@@ -17064,7 +18174,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.wits",
+    "trait2": "abilities.survival",
+    "difficulty": 6,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Смекалка + Выживание сл. 6: день без еды и питья.</p>",
    "source": "W20 Changing Breeds"
@@ -17121,7 +18236,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.manipulation",
+    "trait2": "abilities.animalKen",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Манипулирование + Обращение с животными: командует ≤10 крыс за успех на (Долг) часов; Мудрость Императора Крыс — «Жизнь зверя». <strong>Ур. 5:</strong> Лоботомия зверя (Теург).</p>",
    "source": "W20 Changing Breeds"
@@ -17165,7 +18285,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.intelligence",
+    "trait2": "abilities.subterfuge",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Интеллект + Хитрость: бесследно, магическое выслеживание +1 к сложности за успех (макс. 9).</p>",
    "source": "W20 Changing Breeds"
@@ -17184,7 +18309,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.intelligence",
+    "trait2": "abilities.stealth",
+    "difficulty": 8,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Интеллект + Скрытность сл. 8: неприметен в толпе, пока нет насилия.</p>",
    "source": "W20 Changing Breeds"
@@ -17317,7 +18447,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.wits",
+    "trait2": "abilities.crafts",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Смекалка + Ремесло: ловушка из подручных средств за (15 − Хитрость) минут; Скачок напряжения. <strong>Ур. 3:</strong> Управление сложной машиной; Электрошок. <strong>Ур. 4:</strong> <strong>Батарея</strong> — Смекалка + Ремесло, 1 Гнозис: «заряд» на (Хитрость) дней; +1 к Физ. Атрибуту за 2 успеха на сцену. <strong>Ур. 5:</strong> <strong>Луч смерти</strong> — час «зарядки» от электричества; 1 Гнозис, Бесславие сл. 6: 50 футов, (Ярость + Гнозис) кубиков губительного; раз за час зарядки.</p>",
    "source": "W20 Changing Breeds"
@@ -17336,7 +18471,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.intelligence",
+    "trait2": "abilities.enigmas",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Интеллект + Загадки: вся еда в (Бесславие × 5) футах — (успехи) летального</p>",
    "source": "W20 Changing Breeds"
@@ -17374,7 +18514,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.intelligence",
+    "trait2": "abilities.medicine",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>1 Ярость, Интеллект + Медицина против Гнозиса цели: штраф ко всем пулам (половина успехов, макс. −3). <strong>Ур. 5:</strong> <strong>Заразная эпидемия</strong> — Стойкость сл. 7: окружающие заражаются болезнью Дара.</p>",
    "source": "W20 Changing Breeds"
@@ -17393,7 +18538,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.manipulation",
+    "trait2": "abilities.subterfuge",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Манипулирование + Хитрость против Воли: вымышленная реальность из 10 слов на час за успех. <strong>Ур. 4:</strong> Шепчущие сны — «Фантом». <strong>Ур. 5:</strong> <strong>Гиперобострение</strong> — 1 Воля, Манипулирование + Выразительность сл. 9: усиливает одно чувство.</p>",
    "source": "W20 Changing Breeds"
@@ -17431,7 +18581,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.intelligence",
+    "trait2": "abilities.crafts",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>Интеллект + Ремесло и Ярость: бомба, (Ярость × 3) кубиков летального в (Бесславие × 3) ярдах. <strong>Ур. 4:</strong> Заражение. <strong>Ур. 5:</strong> <strong>Всё к чертям (All Hell)</strong> — 2 Гнозиса: все не-Раткин с Волей ниже Бесславия — Бред.</p>",
    "source": "W20 Changing Breeds"
@@ -17507,7 +18662,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.perception",
+    "trait2": "abilities.alertness",
+    "difficulty": 7,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Восприятие + Бдительность сл. 7: проецирует чувства на 1 милю за успех в воде, 100 футов на суше</p>",
    "source": "W20 Changing Breeds"
@@ -17526,7 +18686,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.dexterity",
+    "trait2": "abilities.brawl",
+    "difficulty": 7,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Гнозис: жало, Ловкость + Драка сл. 7; жертва Стойкость сл. 9, иначе летальный = Инновация и −2 раны; Кости акулы — «Крысиная голова».</p>",
    "source": "W20 Changing Breeds"
@@ -17564,7 +18729,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.stamina",
+    "trait2": "abilities.stealth",
+    "difficulty": 5,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Стойкость + Скрытность сл. 5: сливается с твёрдой материей, незаметен.</p>",
    "source": "W20 Changing Breeds"
@@ -17716,7 +18886,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.strength",
+    "trait2": "abilities.athletics",
+    "difficulty": 7,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Сила + Атлетика сл. 7: сквозь рукотворные преграды по прямой.</p>",
    "source": "W20 Changing Breeds"
@@ -17735,7 +18910,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.strength",
+    "trait2": "abilities.athletics",
+    "difficulty": 8,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>2 Воли: ореол света и течений; подойти без разрешения — затяжной Сила + Атлетика сл. 8, 15 успехов, 3 ударных за ход (слуги Кирла — губительный).</p>",
    "source": "W20 Changing Breeds"
@@ -17773,7 +18953,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.charisma",
+    "trait2": "abilities.intimidation",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>Зрительный контакт, 1 Воля, Обаяние + Запугивание против Воли: пока смотрит, цель обездвижена; Владыка морей — «Царь зверей» для водных</p>",
    "source": "W20 Changing Breeds"
@@ -17792,7 +18977,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.dexterity",
+    "trait2": "abilities.athletics",
+    "difficulty": 6,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Ловкость + Атлетика сл. 6, 25 футов, губительный = Доблесть; зубы восстанавливаются за ход.</p>",
    "source": "W20 Changing Breeds"
@@ -17811,7 +19001,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.intelligence",
+    "trait2": "abilities.rituals",
+    "difficulty": 7,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Воля, Воля против (Стойкость + 4, макс. 9): час дышит только водой; Мудрость моря — Интеллект + Ритуалы сл. 7.</p>",
    "source": "W20 Changing Breeds"
@@ -17830,7 +19025,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.manipulation",
+    "trait2": "abilities.occult",
+    "difficulty": 6,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Манипулирование + Оккультизм сл. 6: вода ×3 скорость, 5 куб. футов за успех, душит (Гармония летального в ход), на сцену; Быстрые течения — «Удар по воздуху» Детей Геи.</p>",
    "source": "W20 Changing Breeds"
@@ -17868,7 +19068,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.charisma",
+    "trait2": "abilities.rituals",
+    "difficulty": 8,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Кровь (1 губительный себе), 1 Ярость и 1 Воля, Обаяние + Ритуалы сл. 8: лава и землетрясения; 3 хода уйти, затем 3 губительных в ход.</p>",
    "source": "W20 Changing Breeds"
@@ -17944,7 +19149,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.wits",
+    "trait2": "abilities.primalUrge",
+    "difficulty": 6,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Ярость, Смекалка + Первобытный инстинкт сл. 6: 30 футов (в воде) / 15 (суша), Воля сл. 8 против: проигравший корчится ходы = разница</p>",
    "source": "W20 Changing Breeds"

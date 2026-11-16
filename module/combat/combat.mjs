@@ -254,6 +254,9 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const targetHitDiff = [...(targetActor?.system?.fx?.diff?.hit ?? []), ...(c.ranged ? targetActor?.system?.fx?.diff?.rangedHit ?? [] : [])]
       .reduce((sum, x) => sum + (Number(x.value) || 0), 0);
     if (targetHitDiff) { diff += targetHitDiff; notes.push(t("Fx.HitHint")); }
+    // свои дальние атаки (Глаз сокола: −1 — data/gift-effects.mjs → rangedDiff)
+    const ownRanged = c.ranged ? (a.system.fx?.rangedDiff ?? []).reduce((sum, x) => sum + (Number(x.value) || 0), 0) : 0;
+    if (ownRanged) diff += ownRanged;
     if (noFlank) notes.push(t("Zulo.NoFlankNote"));
     // Водица кикиморы (форма зуло): схватить цель — +2 к сложности
     const grabId = this.v.pick.startsWith("m:") ? this.v.pick.slice(2) : "";

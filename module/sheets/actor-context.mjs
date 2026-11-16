@@ -702,6 +702,9 @@ export function prepareEffects(sheet, ctx) {
         if (def.woundEase >= 5) lines.push(t("FxTab.WoundEase"));
         if (def.runMultiplier > 1) lines.push(t("FxTab.Run", { n: def.runMultiplier }));
         if (def.detectDifficulty) lines.push(t("FxTab.Detect", { n: def.detectDifficulty }));
+        if (def.rangedDiff) lines.push(t("FxTab.RangedDiff", { n: signed(def.rangedDiff) }));
+        for (const [k, v] of Object.entries(def.attrDiff ?? {})) lines.push(t("FxTab.Diff", { what: k === "social" ? t("FxTab.DiffKind.social") : attrL(k), n: signed(v) }));
+        for (const [k, v] of Object.entries(def.abilDiff ?? {})) lines.push(t("FxTab.Diff", { what: `«${game.i18n.localize(VTM20.abilities[k]?.label ?? k)}»`, n: signed(v) }));
         if (def.note) lines.push(t("FxTab.Note"));
       }
     }

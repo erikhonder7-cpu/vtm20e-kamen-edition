@@ -3902,13 +3902,13 @@ try {
       const WW = await import(`/systems/${SYS}/module/apps/werewolf.mjs`);
       await a.update({ "system.attributes.strength.value": 3, "system.attributes.stamina.value": 3, "system.willpower.permanent": 5, "system.willpower.temporary": 5,
         "system.werewolf": { breed: "homid", auspice: "ahroun", tribe: "getOfFenris", rank: 3, rage: { permanent: 5, value: 5 }, gnosis: { permanent: 5, value: 5 },
-          gifts: ["razor-claws", "resist-pain", "luna-s-armor", "spirit-of-the-fray", "heightened-senses"], form: "crinos" } });
+          gifts: ["razor-claws", "resist-pain", "luna-s-armor", "spirit-of-the-fray", "heightened-senses", "hand-blade", "persuasion"], form: "crinos" } });
       const claw = () => a.system.formFx.weapons.find(w => w.key === "claw");
       const out = { claw0: `${claw()?.dmg}/${claw()?.diff}` };
       // Дух схватки — постоянно +10 к инициативе
       const initWith = a.system.initiative; await a.update({ "system.werewolf.gifts": ["razor-claws", "resist-pain", "luna-s-armor", "heightened-senses"] });
       out.fray = initWith - a.system.initiative;
-      await a.update({ "system.werewolf.gifts": ["razor-claws", "resist-pain", "luna-s-armor", "spirit-of-the-fray", "heightened-senses"] });
+      await a.update({ "system.werewolf.gifts": ["razor-claws", "resist-pain", "luna-s-armor", "spirit-of-the-fray", "heightened-senses", "hand-blade", "persuasion"] });
       // Бритвенные когти: 1 Ярость, когти +2 куба и −1 к сложности
       await WW.useGift(a, "razor-claws"); await wait(300);
       out.claw = `${claw()?.dmg}/${claw()?.diff}`; out.rage = a.system.werewolf.rage.value;
@@ -3926,6 +3926,13 @@ try {
       // Обострённые чувства в Криносе: Восприятие −3, +1 куб к Первобытному инстинкту
       await WW.useGift(a, "heightened-senses"); await wait(300);
       out.senses = [(a.system.fx.diff.perception ?? []).reduce((n, d) => n + d.value, 0), (a.system.fx.dice.primalUrge ?? []).reduce((n, d) => n + d.value, 0)];
+      // Клинок-рука: оружие на время Дара; Убеждение (по броску): социальные −1 к сложности
+      await WW.useGift(a, "hand-blade"); await wait(300);
+      out.blade = a.items.filter(i => i.type === "weapon" && i.getFlag(SYS, "power") === "gift:hand-blade").map(i => `${i.system.damage}:${i.system.damageType}`).join();
+      WW.useGift(a, "persuasion"); await wait(800);
+      const rd2 = [...foundry.applications.instances.values()].find(x => x.constructor.name === "RollDialog" && x.rendered);
+      await rd2?.cfg.onRolled?.({ successes: 2 }); await rd2?.close(); await wait(300);
+      out.persuade = (a.system.formFx.diff.charisma ?? []).reduce((n, d) => n + d.value, 0);
       // лист: действующие Дары подсвечены, во вкладке эффектов — строки правок
       await a.sheet.render(true); await wait(900);
       const el = a.sheet.element;
@@ -3935,10 +3942,10 @@ try {
       await WW.useGift(a, "razor-claws"); await wait(300); out.clawOff = `${claw()?.dmg}/${claw()?.diff}`;
       const { endScene } = await import(`/systems/${SYS}/module/apps/night.mjs`);
       await endScene(); await wait(500);
-      out.left = a.powerEffects.filter(x => x.power.startsWith("gift:")).length;
+      out.left = a.powerEffects.filter(x => x.power.startsWith("gift:")).length + a.items.filter(i => i.getFlag(SYS, "power") === "gift:hand-blade").length;
       return out;
     }, id);
-    const want = { claw0: "1/0", fray: 10, claw: "3/-1", rage: 4, pain: [true, 0, 4], luna: [3, 0, 3, 4], senses: [-3, 1], sheet: [4, true, true], clawOff: "1/0", left: 0 };
+    const want = { claw0: "1/0", fray: 10, claw: "3/-1", rage: 4, pain: [true, 0, 4], luna: [3, 0, 3, 4], senses: [-3, 1], blade: "2:aggravated", persuade: -1, sheet: [6, true, true], clawOff: "1/0", left: 0 };
     for (const [k, v] of Object.entries(want)) if (JSON.stringify(r[k]) !== JSON.stringify(v)) throw new Error(`${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(v)}`);
   });
 

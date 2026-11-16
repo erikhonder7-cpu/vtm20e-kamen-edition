@@ -328,6 +328,9 @@ export function effectMods(actor) {
     for (const [k, v] of Object.entries(def.attrDice ?? {})) (m.attrDice ??= {})[k] = [...(m.attrDice?.[k] ?? []), { label: effect.name, value: Number(v) || 0 }];
     if (def.silverSoak) m.silverSoak = (m.silverSoak ?? 0) + (Number(def.silverSoak) || 0);
     if (def.rageDiff) (m.rageDiff ??= []).push({ label: effect.name, value: Number(def.rageDiff) || 0 });
+    if (def.rangedDiff) (m.rangedDiff ??= []).push({ label: effect.name, value: Number(def.rangedDiff) || 0 });
+    for (const [k, v] of Object.entries(def.attrDiff ?? {})) (m.attrDiff ??= {})[k] = [...(m.attrDiff?.[k] ?? []), { label: effect.name, value: Number(v) || 0 }];
+    for (const [k, v] of Object.entries(def.abilDiff ?? {})) (m.abilDiff ??= {})[k] = [...(m.abilDiff?.[k] ?? []), { label: effect.name, value: Number(v) || 0 }];
     // форма зуло (data/zulo.mjs): укус легче, лишние «Синяки», Шкура чуди к Скрытности
     m.biteDiff = (m.biteDiff ?? 0) + (def.biteDiff ?? 0);
     if (def.extraBruised) m.extraBruised = { max: def.extraBruised, effect };

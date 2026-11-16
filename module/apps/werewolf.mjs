@@ -405,8 +405,10 @@ async function startGift(actor, g, def, n) {
   const now = getClock(), until = untilFor(def.mode, { hours: Number(def.hours) || 1, now });
   const from = g.groups?.[0], glyph = ["breed", "auspice", "tribe", "fera"].includes(from?.kind) ? `${from.kind}-${from.key}` : "glyph-garou";
   const [effect] = await actor.createEmbeddedDocuments("ActiveEffect", [{ name: g.name, img: `${SYSTEM_PATH}/assets/werewolf/${glyph}.png`,
-    description: g.text ?? "", flags: { [SYSTEM_ID]: { power: `gift:${g.key}`, mode: def.mode, ready: true, giftFx: giftFx(def, { form: actor.system.werewolf.form, n }),
+    description: g.text ?? "", flags: { [SYSTEM_ID]: { power: `gift:${g.key}`, mode: def.mode, ready: true,
+      giftFx: giftFx(def, { form: actor.system.werewolf.form, n, attrs: Object.fromEntries(Object.entries(actor.system.attributes).map(([k, x]) => [k, x.total])) }),
       ...(n ? { successes: n } : {}), ...(until ? { start: now, until } : {}) } } }]);
+  await actor.createPowerWeapons(effect);            // оружие на время Дара (Клинок-рука, Арсенал хищника)
   const price = [def.cost?.rage && `${t("Rage")} −${def.cost.rage}`, def.cost?.gnosis && `${t("Gnosis")} −${def.cost.gnosis}`,
     def.cost?.willpower && `${game.i18n.localize("VTM20.Willpower")} −${def.cost.willpower}`].filter(Boolean).join(", ");
   await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<div class="r-notice r-type-werewolf"><i class="fa-solid fa-paw"></i> ${esc(t("GiftFxOn", { name: g.name }))}${n ? ` <span class="r-muted">${esc(t("GiftFxSucc", { n }))}</span>` : ""}${price ? ` <span class="r-muted">${esc(price)}</span>` : ""}</div>` });
