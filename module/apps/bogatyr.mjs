@@ -4,7 +4,7 @@
 // активный рассказчик), вне боя — кнопкой на листе.
 
 import { SYSTEM_ID, VTM20 } from "../config.mjs";
-import { BOGATYR_MANTLE, isBogatyr, isMatureBogatyr } from "../data/bogatyr.mjs";
+import { BOGATYR_MANTLE, bogatyrOn, isBogatyr, isMatureBogatyr } from "../data/bogatyr.mjs";
 
 const t = (k, d) => d ? game.i18n.format(`VTM20.Bogatyr.${k}`, d) : game.i18n.localize(`VTM20.Bogatyr.${k}`);
 const esc = x => foundry.utils.escapeHTML(String(x ?? ""));
@@ -14,14 +14,35 @@ const notice = (actor, icon, html) => ChatMessage.create({ speaker: ChatMessage.
 export function registerBogatyr() {
   game.settings.register(SYSTEM_ID, "bogatyri", {
     name: "VTM20.Settings.Bogatyri.Name", hint: "VTM20.Settings.Bogatyri.Hint",
-    scope: "world", config: true, type: Boolean, default: false
+    scope: "world", config: true, type: Boolean, default: false, requiresReload: true
   });
+  // выключен — его записи в компендиях (силы, Путь Кошмаров, ритуалы, глава 12 правил; tools/build_packs.mjs → флаг homerule)
+  // спрятаны вместе с опустевшими папками
+  for (const doc of ["Item", "JournalEntry"]) {
+    const f = CONFIG[doc].compendiumIndexFields ??= [], key = `flags.${SYSTEM_ID}.homerule`;
+    if (!f.includes(key)) f.push(key);
+  }
+  Hooks.on("renderCompendium", (app, el) => hideHomerules(app, el instanceof HTMLElement ? el : el?.[0]));
   // регенерация в бою: в начале хода взрослого Богатыря — 1 уровень (сначала самый тяжёлый)
   Hooks.on("updateCombat", (combat, diff) => {
     if (!game.users.activeGM?.isSelf || !combat.started || !("turn" in diff || "round" in diff)) return;
     const actor = combat.combatant?.actor;
     if (isMatureBogatyr(actor) && actor.system.health.damage > 0) regenerate(actor, { quiet: false });
   });
+}
+
+/** Спрятать в окне компендия записи выключенного хоумрула и папки, где ничего не осталось. */
+async function hideHomerules(app, el) {
+  const pack = app.collection;
+  if (!el || bogatyrOn() || !pack?.index || pack.metadata?.packageName !== SYSTEM_ID) return;
+  // начальный индекс приходит без флагов — дочитать поле метки (один раз на компендий, дальше из кэша)
+  const index = await pack.getIndex({ fields: [`flags.${SYSTEM_ID}.homerule`] });
+  const off = index.filter(e => e.flags?.[SYSTEM_ID]?.homerule === "bogatyr");
+  if (!off.length) return;
+  for (const e of off) el.querySelector(`li.entry[data-entry-id="${e._id}"]`)?.classList.add("r-homerule-off");
+  // папки — от самых глубоких: пустая, если в ней нет видимой записи
+  const folders = [...el.querySelectorAll("li.folder")].reverse();
+  for (const f of folders) if (!f.querySelector("li.entry:not(.r-homerule-off)")) f.classList.add("r-homerule-off");
 }
 
 /** Регенерация: 1 уровень урона — сначала губительный, затем летальный, затем ударный. */

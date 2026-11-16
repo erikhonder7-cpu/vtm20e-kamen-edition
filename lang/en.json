@@ -2080,6 +2080,7 @@
       "Spirit": "Umbral Spirit Sheet"
     },
     "Tabs": {
+      "vitae": "Vitae",
       "traits": "Traits",
       "disciplines": "Disciplines",
       "advantages": "Advantages",
@@ -2574,6 +2575,12 @@
       "Add": "Add",
       "Own": "Custom",
       "AddClanDisciplines": "Clan Disciplines",
+      "OwnDiscs": {
+        "domitor": { "Add": "Domitor's Disciplines", "Tag": "from the domitor" },
+        "family": { "Add": "Family Disciplines", "Tag": "family" },
+        "ancestor": { "Add": "Ancestor's Disciplines", "Tag": "from the Ancestor" },
+        "eldest": { "Add": "Disciplines of the Eldest", "Tag": "from the Eldest" }
+      },
       "GhoulCap": "Discipline limit by the donor's blood: {n}",
       "InClan": "in-clan",
       "DiceTo": "to pools:",
@@ -4179,7 +4186,7 @@
       },
       "Bogatyri": {
         "Name": "Bogatyri (Fingers of the Eldest)",
-        "Hint": "Storytellers Vault fan supplement: the Bogatyri, Fingers of the Eldest — Tzimisce symbiote-ghouls. Adds the Bogatyr ghoul type, the Eldest's Mantle, regeneration and resilience to human weapons, Vicissitude 8 and Bogatyr powers, the Koldunic Path of Nightmares. Rules compendium chapter 12."
+        "Hint": "Storytellers Vault fan supplement: the Bogatyri, Fingers of the Eldest — Tzimisce symbiote-ghouls. Adds the Bogatyr ghoul type, the Eldest's Mantle, regeneration and resilience to human weapons, Vicissitude 8 and Bogatyr powers, the Koldunic Path of Nightmares, two rituals, rules compendium chapter 12, a group in the ghoul handbook and the Bogatyr in the NPC generator. When off, all of this is hidden (compendiums too), and existing Bogatyri lose the homerule rules — the sheet works like a regular ghoul. Changing it reloads the world."
       },
       "HorridForm": {
         "Name": "Horrid Form (Vicissitude 4)",
@@ -5172,6 +5179,8 @@
       "PathsMore": "and {n} more"
     },
     "NpcGen": {
+      "BogatyrMature": "A mature Bogatyr, a Finger of the Eldest: regenerates 1 level per turn (aggravated too), no wound penalties, metal deals only bashing without weapon dice. The Eldest's Mantle — button in the sheet header. To kill it, shatter the heart; the symbiote will crawl off to find a new host.",
+      "BogatyrLarval": "A larva: the flesh-pouch already coils around the host's heart. Degeneration grows every lunar month and with deeds that please the monster; at Willpower the Bogatyr matures. Pale, craving blood, can pass for a Caitiff.",
       "Title": "NPC generator",
       "Random": "Random",
       "Search": "Search among {n} stat blocks…",
@@ -5328,6 +5337,7 @@
         "dead": "The Dead"
       },
       "Kind": {
+        "bogatyr": "Bogatyr",
         "doomslayer": "Doomslayer",
         "nomad": "Pustule Nomad",
         "vampire": "Kindred",
@@ -9777,10 +9787,6 @@
       "WeekNode": "{name}: the Node gave free Quintessence +{free}, Tass +{tass}",
       "WeekParadox": "{name}: Paradox bled off by {n}",
       "Ghoul": {
-        "Title": "Ghoul",
-        "On": "Make a ghoul",
-        "Off": "Remove",
-        "ToggleHint": "The mage drinks vampire blood: vitae in the body, a blood bond, Potence 1 and Disciplines from the domitor",
         "Domitor": "Domitor",
         "Clan": "Domitor’s clan",
         "Vitae": "Vitae",
@@ -9789,14 +9795,7 @@
         "BondHint": "Three drinks on three separate nights — a full bond",
         "Bond1": "first drink: strong attraction",
         "Bond2": "second drink: attachment",
-        "Bond3": "full blood bond",
-        "Heal": "Heal",
-        "HealHint": "1 vitae — one bashing or lethal health level",
-        "NoVitae": "No vitae in the body.",
-        "Someone": "a vampire",
-        "Made": "<b>{name}</b> drinks the blood of {domitor} and becomes a ghoul: Potence 1, vitae in the body.",
-        "Freed": "<b>{name}</b> is a ghoul no more: the blood of {domitor} has left the body.",
-        "Healed": "<b>{name}</b> heals a wound with blood ({type}). Vitae left: {n}."
+        "Bond3": "full blood bond"
       },
       "Pact": {
         "Add": "New infernal pact",
@@ -9886,6 +9885,38 @@
       "NoDamage": "No damage",
       "NoCut": "Bogatyr: metal won't cut it — bashing, no weapon dice",
       "NoBruise": "Bogatyr: blunt weapons don't harm it"
+    },
+    "Ghouled": {
+      "NoBond": "no bond — fewer than three drinks on different nights",
+      "TitleGhoul": "Ghoul",
+      "TitleRevenant": "Revenant",
+      "Heal": "Heal",
+      "HealHint": "1 vitae — one bashing or lethal level",
+      "Off": "Unmark",
+      "OffHint": "No longer a ghoul or revenant (Disciplines stay on the sheet)",
+      "FamilyDiscs": "Family Disciplines",
+      "FamilyDiscsHint": "Add the family's Disciplines at 1 dot (ones already taken are kept)",
+      "Flaw": "Family flaw",
+      "RevenantVitaeHint": "the family's own vitae: pool 10, +1 per century (Age)",
+      "GhoulOnHint": "Make a ghoul: drinks vampire blood — vitae in the body, blood bond, Potence 1 and the domitor's Disciplines",
+      "RevenantOnHint": "Mark as a revenant: a member of a family that makes its own vitae — family, its Disciplines and flaw",
+      "GhoulOn": "<b>{name}</b> drinks the blood of {domitor} and becomes a ghoul: Potence 1, vitae in the body.",
+      "GhoulOff": "<b>{name}</b> is a ghoul no more: the blood of {domitor} has left the body.",
+      "RevenantOn": "<b>{name}</b> is a revenant: the family's blood feeds the body.",
+      "RevenantOff": "<b>{name}</b> is no longer marked as a revenant.",
+      "Someone": "a vampire",
+      "NoVitae": "No vitae in the body.",
+      "NoWounds": "Nothing to heal: no bashing or lethal damage.",
+      "Healed": "<b>{name}</b> heals a wound with blood ({type}). Vitae left: {n}.",
+      "Who": "Domitor",
+      "Family": "Family",
+      "NoDomitor": "domitor's name",
+      "Unknown": "clan unknown",
+      "Spend": "Spend",
+      "SpendHint": "Spend 1 vitae (no more than 1 per turn)",
+      "PerTurn": "per turn",
+      "Steps": { "1": "craving", "2": "attachment", "3": "bound" },
+      "NoFamily": "Choose a family — it has its own Disciplines and flaw."
     },
     "LoreSearch": {
       "Title": "Handbooks",

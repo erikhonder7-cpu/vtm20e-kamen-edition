@@ -121,6 +121,15 @@ export class VtMActor extends Actor {
       const list = fam?.disciplines ?? dc?.disciplines ?? ["fortitude", "celerity"];
       return ["potence", ...list.filter(k => k !== "potence")];
     }
+    // смертный, маг, оборотень, подменыш — гуль или ревенант (apps/ghouled.mjs): как у гуля — Мощь и Дисциплины клана
+    // домитора (клан — текстом) или семьи; клан неизвестен — физические
+    const gh = this.system?.ghouled;
+    if (gh?.on && this.type !== "vampire") {
+      const fam = gh.kind === "revenant" ? revenantFamily(gh.family) : null;
+      const dc = fam ? null : Codex.clan(gh.clan) ?? Codex.clans.find(c => c.name === gh.clan);
+      const list = fam?.disciplines ?? dc?.disciplines ?? ["fortitude", "celerity"];
+      return fam ? list : ["potence", ...list.filter(k => k !== "potence")];
+    }
     if (this.type !== "vampire") return [];
     const clan = Codex.clan(this.system.clan);
     if (!clan) return [];
@@ -411,6 +420,8 @@ export class VtMActor extends Actor {
   /* ── Кровь и воля ───────────────────────────────────────────────────── */
 
   async spendBlood(n = 1, { reason = "", limit = true } = {}) {
+    // гуль или ревенант среди смертных (apps/ghouled.mjs): кровь — витэ в теле, 1 за ход
+    if (!this.hasBlood && this.system?.ghouled?.on) return this.#spendVitae(n, { reason, limit });
     if (!this.hasBlood) return false;
     // Кол в сердце и торпор: кровь не тратится (04)
     if (this.statuses?.has("r-staked") || this.statuses?.has("r-torpor")) {
@@ -458,7 +469,25 @@ export class VtMActor extends Actor {
     return true;
   }
 
+  /** Витэ в теле смертного-гуля или ревенанта: трата, предел 1 за ход в бою (вопрос, а не запрет). */
+  async #spendVitae(n, { reason = "", limit = true } = {}) {
+    const cur = this.system.ghouled.vitae ?? 0;
+    if (cur < n) { ui.notifications.warn(t("Notify.NoBlood", { name: this.name })); return false; }
+    const turnKey = VtMActor.roundKey(), spentTurn = this.bloodSpentThisTurn;
+    if (turnKey && limit && spentTurn + n > 1) {
+      const { allowAnyway } = await import("../apps/rule-gate.mjs");
+      if (!(await allowAnyway(this, t("Notify.BloodPerTurn", { name: this.name, max: 1, spent: spentTurn }), { yes: t("Notify.BloodPerTurnAnyway") }))) return false;
+    }
+    await this.update({ "system.ghouled.vitae": cur - n, ...(turnKey ? { [`flags.${SYSTEM_ID}.bloodTurn`]: { key: turnKey, n: spentTurn + n } } : {}) });
+    if (reason) this.#notice(`<i class="fa-solid fa-droplet"></i> ${t("Notify.BloodSpent", { n, reason })}`);
+    return true;
+  }
+
   async gainBlood(n = 1) {
+    if (!this.hasBlood && this.system?.ghouled?.on) {
+      const { ghouledMax } = await import("../apps/ghouled.mjs");
+      return this.update({ "system.ghouled.vitae": Math.min(ghouledMax(this), (this.system.ghouled.vitae ?? 0) + n) });
+    }
     if (!this.hasBlood) return;
     const s = this.system.blood;
     await this.update({ "system.blood.value": Math.min(s.max, s.value + n) });

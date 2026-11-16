@@ -3962,17 +3962,73 @@ try {
       const d = new AttackDialog(v, { weapon: knife.id }); d.v.foe = b.uuid; const c = d.compute();
       out.knife = [c.damage, c.choice.type, c.notes.some(n => /металл/.test(n))];
       d.v.foe = ""; const c0 = d.compute(); out.knifeNormal = [c0.damage, c0.choice.type];
+      // генератор НПС: Богатырь — в списке при включённой настройке; слабый — личинка, сильный — взрослый с запасом 40
+      const NB = await import(`/systems/${SYS}/module/apps/npc-build.mjs`);
+      const big = NB.buildNpc({ kind: "bogatyr", power: "veteran" }), small = NB.buildNpc({ kind: "bogatyr", power: "mook", params: { stage: "larval" } });
+      const made = await NB.createNpc(big, { name: "E2E — НПС Богатырь" });
+      out.npc = [big.system.bogatyr.stage, small.system.bogatyr.stage, made.system.ghoulType, made.system.blood.max, made.discipline("vicissitude") >= 1,
+        small.system.bogatyr.degeneration < small.system.willpower.permanent, NB.KINDS.find(k => k.key === "bogatyr").homerule()];
+      await made.delete();
       // справочник гулей: глава «Богатыри»
       const at = await game.vtm20.openAtlas("ghoul", "bog:1"); await wait(600);
       out.atlas = at.element.querySelector(".r-cl-head h2")?.textContent.trim();
       await at.close();
       await B.toggleMantle(b); await wait(200); out.mantleOff = b.items.filter(i => i.getFlag(SYS, "power") === "bogatyr:mantle").length;
+      // хоумрул выключен: Богатырь считается обычным гулем (запас, неуязвимость), записи в компендиях спрятаны (с пустыми папками)
+      const { bogatyrWeaponRule } = await import(`/systems/${SYS}/module/data/bogatyr.mjs`);
+      const hidden = async key => {
+        const pack = game.packs.get(`${SYS}.${key}`); await pack.render(true); await wait(1200);
+        const el = pack.apps[0]?.element, n = el ? [el.querySelectorAll("li.entry.r-homerule-off").length, el.querySelectorAll("li.folder.r-homerule-off").length] : null;
+        await pack.apps[0]?.close(); return n;
+      };
+      await game.settings.set(SYS, "bogatyri", false); b.reset();
+      out.offRules = [b.system.blood.max, bogatyrWeaponRule(b, { isWeapon: true, type: "lethal", weaponDmg: 1 }, 3)];
+      out.offPacks = [(await hidden("disciplines"))?.[0], (await hidden("blood-paths"))?.[0], (await hidden("rituals"))?.[0] >= 2, (await hidden("rules"))?.[0]];
+      await game.settings.set(SYS, "bogatyri", true); b.reset();
+      out.onPacks = [(await hidden("disciplines"))?.[0], b.system.blood.max];
       await b.delete(); await v.delete();
       await game.settings.set(SYS, "bogatyri", was);
       return out;
     });
     const want = { off: [0, 0], on: [3, 1], blood: [40, 7], pain: [0, true], mantle: ["0:aggravated,3:lethal", 3, -1], regen: [0, 1],
-      knife: [2, "bashing", true], knifeNormal: [3, "lethal"], atlas: "Кто такие Богатыри", mantleOff: 0 };
+      knife: [2, "bashing", true], knifeNormal: [3, "lethal"], npc: ["mature", "larval", "bogatyr", 40, true, true, true], atlas: "Кто такие Богатыри", mantleOff: 0,
+      offRules: [2, null], offPacks: [3, 1, true, 1], onPacks: [0, 40] };
+    for (const [k, v] of Object.entries(want)) if (JSON.stringify(r[k]) !== JSON.stringify(v)) throw new Error(`${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(v)}`);
+  });
+
+  // гуль или ревенант среди смертных (apps/ghouled.mjs): оборотень-гуль (витэ, Могущество 1, лечение кровью), маг-ревенант
+  // (семья — Дисциплины рода, запас 10 + столетия), смертный — блок на Преимуществах; наделённому охотнику нельзя, Свидетелю — можно
+  await check("Гуль и ревенант среди смертных: оборотень, маг, смертный; охотник — только Свидетель", async () => {
+    const r = await page.evaluate(async () => {
+      const SYS = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {};
+      const G = await import(`/systems/${SYS}/module/apps/ghouled.mjs`);
+      const mk = (name, type, system = {}) => Actor.create({ name, type, flags: { world: { e2e: true }, [SYS]: { created: true } }, system });
+      const w = await mk("E2E — гуль-оборотень", "werewolf");
+      await G.toggleGhouled(w, "ghoul"); await wait(300);
+      out.ww = [w.system.ghouled.on, w.system.ghouled.kind, w.system.ghouled.vitae, w.discipline("potence")];
+      await w.update({ "system.ghouled.vitae": 3, "system.health.lethal": 1 }); await G.ghouledHeal(w); await wait(200);
+      out.wwHeal = [w.system.ghouled.vitae, w.system.health.lethal];
+      await w.sheet.render(true); await wait(900); out.wwSheet = !!w.sheet.element.querySelector('section.r-vitae [data-action="ghVitae"]'); await w.sheet.close();
+      const m = await mk("E2E — маг-ревенант", "mage", { details: { age: "230" } });
+      await G.toggleGhouled(m, "revenant"); await wait(300);
+      await m.update({ "system.ghouled.family": "obertus" }); await G.setGhouledFamily(m, "obertus"); await wait(300);
+      out.mage = [m.system.ghouled.kind, m.system.ghouled.vitae, G.ghouledMax(m), ["auspex", "obfuscate", "vicissitude"].every(k => m.discipline(k) >= 1)];
+      const mo = await mk("E2E — смертный-гуль", "mortal");
+      await mo.sheet.render(true); await wait(900); mo.sheet.changeTab("advantages", "primary"); await wait(600);
+      mo.sheet.element.querySelector('[data-action="ghToggle"][data-kind="ghoul"]')?.click(); await wait(1200);
+      mo.sheet.changeTab("vitae", "primary"); await wait(900);
+      const vt = mo.sheet.element.querySelector('section.r-vitae');
+      out.mortal = [mo.system.ghouled.on, !!vt?.querySelector('[data-action="ghVitae"]'), (vt?.textContent ?? "").includes(game.i18n.localize("VTM20.Sheet.Disciplines")),
+        mo.clanDisciplines.includes("potence")];
+      await mo.update({ "system.ghouled.vitae": 2 }); out.mortalSpend = [await mo.spendBlood(1), mo.system.ghouled.vitae];
+      await mo.sheet.close();
+      const h = await mk("E2E — наделённый", "hunter", { hunter: { creed: "vengeance" } });
+      const by = await mk("E2E — свидетель-гуль", "hunter", { hunter: { creed: "bystander" } });
+      out.hunter = [G.canGhoul(h), G.canGhoul(by)];
+      for (const x of [w, m, mo, h, by]) await x.delete();
+      return out;
+    });
+    const want = { ww: [true, "ghoul", 1, 1], wwHeal: [2, 0], wwSheet: true, mage: ["revenant", 12, 12, true], mortal: [true, true, true, true], mortalSpend: [true, 1], hunter: [false, true] };
     for (const [k, v] of Object.entries(want)) if (JSON.stringify(r[k]) !== JSON.stringify(v)) throw new Error(`${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(v)}`);
   });
 
@@ -4731,8 +4787,9 @@ try {
       await fl.createEmbeddedDocuments("Item", [charm.toObject()]);
       const { RollDialog } = await sys("module/dice/dialog.mjs");
       out.charm = [new RollDialog(fl, { trait1: "attributes.charisma" }).values.difficulty, new RollDialog(fl, { trait1: "attributes.strength" }).values.difficulty];
-      await St.toggleGhoul(fl); await wait(300);
-      out.ghoul = [fl.system.mage.ghoul.on, fl.system.mage.ghoul.vitae, fl.discipline("potence")];
+      const GH = await sys("module/apps/ghouled.mjs");
+      await GH.toggleGhouled(fl, "ghoul"); await wait(300);
+      out.ghoul = [fl.system.ghouled.on, fl.system.ghouled.vitae, fl.discipline("potence")];
       // Дух Парадокса листом духа и создание Чуда (окна выбора подменяем ответом)
       const DV = foundry.applications.api.DialogV2, dp0 = DV.prompt, dw0 = DV.wait;
       DV.prompt = async () => "hex"; const psp = await St.paradoxSpirit(a); DV.prompt = dp0;
@@ -4744,10 +4801,10 @@ try {
       const nr = game.messages.size;
       DV.prompt = async () => "time"; const realm = await St.paradoxRealm(a); DV.prompt = dp0;
       DV.prompt = async () => ({ level: 3, patron: "E2E — Патрон", terms: "служба" }); await St.addPact(fl); DV.prompt = dp0;
-      await fl.update({ "system.mage.ghoul.vitae": 2, "system.health.lethal": 1 });
-      await St.ghoulHeal(fl); await wait(300);
+      await fl.update({ "system.ghouled.vitae": 2, "system.health.lethal": 1 });
+      await GH.ghouledHeal(fl); await wait(300);
       out.more = [!!realm && game.messages.size > nr, fl.system.mage.pacts.length, fl.system.mage.pacts.at(-1)?.level, St.pactsView(fl).total,
-        fl.system.mage.ghoul.vitae, fl.system.health.lethal];
+        fl.system.ghouled.vitae, fl.system.health.lethal];
       // данные: Духи и Царства Парадокса; мастер: Резонанс за свободные пункты (новая степень × 3)
       out.spirits = [C.paradoxSpirits.length >= 8, Object.keys(C.realms).length];
       const raw = await Actor.create({ name: "E2E — резонанс", type: "mage", flags: { world: { e2e: true } } });

@@ -15,6 +15,7 @@ import { H as HH, hasOwnPath } from "./hunter.mjs";
 import { M as MM } from "./mage.mjs";
 import { roleOf, powerOf, ROLES, lab, subsForEra } from "./npc-roles.mjs";
 import { zuloOn, zuloSlots, randomZulo, ZULO_FLAG } from "../data/zulo.mjs";
+import { bogatyrOn, bogatyrBlood, BOGATYR_DISCIPLINES, BOGATYR_EXTRA } from "../data/bogatyr.mjs";
 import { DAUNTAIN_BRANDS, RUIN, STIGMAS, BESTOWMENTS } from "../data/changeling-foes.mjs";
 
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -72,6 +73,8 @@ export const KINDS = [
   { key: "ghoul", group: "kindred", label: "Гуль", icon: "fa-hand-holding-droplet", actor: "ghoul" },
   { key: "revenant", group: "kindred", label: "Ревенант", icon: "fa-people-roof", actor: "ghoul" },
   { key: "dhampir", group: "kindred", label: "Дампир", icon: "fa-user-injured", actor: "ghoul" },
+  // хоумрул «Богатыри» (data/bogatyr.mjs) — в списке, только если включён в мире
+  { key: "bogatyr", group: "kindred", label: "Богатырь", icon: "fa-skull", actor: "ghoul", homerule: () => bogatyrOn() },
   { key: "mortal", group: "mortal", label: "Смертный", icon: "fa-user", actor: "mortal" },
   { key: "faithful", group: "mortal", label: "Праведник", icon: "fa-hands-praying", actor: "mortal" },
   { key: "hunter", group: "mortal", label: "Охотник", icon: "fa-crosshairs", actor: "hunter" },
@@ -158,6 +161,7 @@ const KIND_ROLES = {
   hunter: ["soldier", "detective", "cleric", "brute", "tracker", "doctor", "scholar", "bodyguard"],
   faithful: ["cleric", "doctor", "worker", "servant", "artist"],
   thrall: ["servant", "schemer", "bodyguard", "broker", "brute", "socialite"],
+  bogatyr: ["brute", "assassin", "bodyguard", "tracker", "streetrat", "drifter"],
   spirit: [], kami: ["seer", "beastmaster", "worker", "drifter", "doctor"], fomor: ["brute", "assassin", "streetrat", "broker", "techie", "socialite"]
 };
 
@@ -303,6 +307,26 @@ const BUILD = {
     sys.notes = `<p><strong>${F.name}</strong> (${F.en}): ${F.flaw}</p>`;
     return { actor: "ghoul", img: "ghoul", system: sys, items: [...discItems(d), ...bgItems(c)], c, powers: discView(d), powersLabel: t("NpcGen.Disciplines"),
       traits: [[t("Humanity"), sys.morality.value], [t("Willpower"), sys.willpower.permanent]], tags: [F.name, F.nick] };
+  },
+
+  // Богатырь (хоумрул Fingers of the Eldest): слабый — личинка (месяцы с заражения, Вырождение ниже Воли), сильнее — взрослый
+  // «палец Старейшего» (полный запас 40, Дисциплины Богатырей, физические черты до 6, лет — десятки и сотни)
+  bogatyr(ctx, p) {
+    const mature = p.stage ? p.stage === "mature" : ctx.power.tier >= 2 || Math.random() < .5;
+    const c = core(ctx, { attr: mature ? [9, 6, 4] : [7, 5, 3], abil: [11, 7, 4], virt: 3, bg: mature ? 0 : 3, bgType: "ghoul", attrCap: mature ? 6 : 5 });
+    const d = discs([...BOGATYR_DISCIPLINES, ...BOGATYR_EXTRA], ctx.role, mature ? 3 + 2 * ctx.power.tier : Math.max(0, ctx.power.tier - 1), 5,
+      Math.max(0, ctx.power.add.power), 5, mature ? { potence: 1, celerity: 1, fortitude: 1, vicissitude: 1 } : { vicissitude: 1 });
+    const months = mature ? 8 + Math.floor(Math.random() * 400) : 1 + Math.floor(Math.random() * 6), years = Math.floor(months / 12);
+    const base = baseSystem(ctx, c, { concept: `${ctx.concept} · ${t(`Bogatyr.Stage.${mature ? "mature" : "larval"}`)}` });
+    // Воля: личинка — своя, её съедает Вырождение; взрослый — воля чудовища (6 + сила НПС, не выше 10)
+    const wp = mature ? Math.min(10, 6 + ctx.power.tier) : Math.clamp(base.willpower?.permanent ?? 5, 4, 8), blood = bogatyrBlood(months);
+    base.willpower = { permanent: wp, temporary: wp };
+    const sys = { ...base, ghoulType: "bogatyr", domitor: "", bogatyr: { stage: mature ? "mature" : "larval", months, degeneration: mature ? 0 : Math.floor(Math.random() * wp) },
+      blood: { value: blood, max: blood }, details: { ...(base.details ?? {}), age: mature ? String(Math.max(1, years)) : "" } };
+    sys.notes = `<p>${t(mature ? "NpcGen.BogatyrMature" : "NpcGen.BogatyrLarval")}</p>`;
+    return { actor: "ghoul", img: "ghoul", system: sys, items: [...discItems(d), ...bgItems(c)], c, powers: discView(d), powersLabel: t("NpcGen.Disciplines"),
+      traits: [[t("Willpower"), wp], [t("NpcGen.BloodPool"), `${blood}/${blood}`], ...(mature ? [] : [[t("Bogatyr.Degeneration"), sys.bogatyr.degeneration]])],
+      tags: [t(`Bogatyr.Stage.${mature ? "mature" : "larval"}`), t("GhoulType.bogatyr")] };
   },
 
   dhampir(ctx, p) {

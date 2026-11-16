@@ -25,7 +25,7 @@ import { zuloDef, ZULO_POWER } from "./zulo.mjs";
 import { GIFT_EFFECTS } from "./gift-effects.mjs";
 import { EDGE_EFFECTS } from "./edge-effects.mjs";
 import { ARC_EFFECTS } from "./arcanos-effects.mjs";
-import { BOGATYR_EFFECTS } from "./bogatyr.mjs";
+import { BOGATYR_EFFECTS, bogatyrOn } from "./bogatyr.mjs";
 
 export const POWER_EFFECTS = {
   // Ясновидение 1: сложность заметить что-либо органами чувств −Ясновидение; без затрат, по желанию
@@ -213,7 +213,7 @@ export function effectDef(power, variant = "", shapeConfig = null) {
   // Грани охотников (data/edge-effects.mjs): так же — правки по успехам во флаге эффекта
   if (String(power).startsWith("edge:")) return EDGE_EFFECTS[power] ? { ...EDGE_EFFECTS[power], ...(shapeConfig ?? {}) } : null;
   // Богатыри (хоумрул, data/bogatyr.mjs): Плащ Старейшего
-  if (String(power).startsWith("bogatyr:")) return BOGATYR_EFFECTS[power] ?? null;
+  if (String(power).startsWith("bogatyr:")) return bogatyrOn() ? BOGATYR_EFFECTS[power] ?? null : null;
   // Арканои призраков (data/arcanos-effects.mjs): вариант применения и правки по успехам
   if (String(power).startsWith("arc:")) { const b = ARC_EFFECTS[power];
     return b ? { ...b, ...(variant ? b.variants?.[variant] ?? {} : {}), ...(shapeConfig ?? {}) } : null; }

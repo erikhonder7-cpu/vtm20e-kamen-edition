@@ -54,6 +54,8 @@ const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
 const esc = s => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 const now = Date.now();
 /** Материалы Тёмных веков (era = "darkAges") — в компендиях внутри папки «Тёмные века». */
+/** Хоумрул, который можно выключить в мире (era = "bogatyr"): метка в флагах — module/apps/bogatyr.mjs прячет такие записи в компендиях. */
+const homerule = x => x?.era === "bogatyr" ? { [SYSTEM_ID]: { homerule: x.era } } : {};
 const daFolder = (x, folder) => x.era === "darkAges" ? ["Тёмные века", ...(Array.isArray(folder) ? folder : [folder])] : folder;
 const stats = () => ({
   compendiumSource: null, duplicateSource: null, exportSource: null,
@@ -96,9 +98,9 @@ class Pack {
         ownership: { default: -1 }, flags: {}, _stats: stats() }] });
   }
   /** Журнал с несколькими страницами (справочник правил): pages — [{ name, html }]. */
-  addBook({ name, pages, folder = null, key }) {
+  addBook({ name, pages, folder = null, key, flags = {} }) {
     const _id = this.id(`journal:${key}`);
-    this.items.push({ _id, name, folder: this.folder(folder), sort: (this.items.length + 1) * 1000, ownership: { default: 0 }, flags: {}, _stats: stats(),
+    this.items.push({ _id, name, folder: this.folder(folder), sort: (this.items.length + 1) * 1000, ownership: { default: 0 }, flags, _stats: stats(),
       categories: [], pages: pages.map((pg, i) => ({ _id: this.id(`page:${key}:${i}`), name: pg.name, type: "text",
         title: { show: true, level: 1 }, text: { content: pg.html, format: 1, markdown: "" },
         image: {}, video: { controls: true, volume: 0.5 }, src: null, system: {}, category: null, sort: (i + 1) * 1000,
@@ -176,7 +178,7 @@ const BUILDERS = {
       for (const x of d.powers ?? []) {
         const system = { discipline: d.key, path: "", level: x.level, source: x.en ?? "", description: x.html ?? "" };
         const roll = rollOf(x.roll); if (roll) system.roll = roll;
-        p.add({ name: x.name, type: "power", folder: x.era === "darkAges" ? [d.name, "Тёмные века"] : d.name, key: `${d.key}:${x.level}:${x.name}`, img: DISC_ICON(d.key), system });
+        p.add({ name: x.name, type: "power", folder: x.era === "darkAges" ? [d.name, "Тёмные века"] : d.name, key: `${d.key}:${x.level}:${x.name}`, img: DISC_ICON(d.key), system, flags: homerule(x) });
       }
     }
     // Комбинированные Дисциплины — подпапками по первой из нужных Дисциплин («Комбинированные / Ясновидение»)
@@ -200,7 +202,7 @@ const BUILDERS = {
       // Пути Тёмных веков — подпапкой внутри своей школы, а не отдельным деревом; Колдовство — папками по редакциям
       const folder = k === "koldunism" ? [d.name, editionLabel(path_.edition ?? path_.source)] : path_.era === "darkAges" ? [d.name, "Тёмные века"] : d.name;
       p.add({ name: path_.name, type: "thaumPath", folder, key: `${k}:${path_.name}`, img: DISC_ICON(k),
-        system: { discipline: k, value: 1, primary: false, source: path_.en ?? "", description: `${path_.html ?? ""}${powers ? `<h4>Уровни пути</h4><ul>${powers}</ul>` : ""}` } });
+        system: { discipline: k, value: 1, primary: false, source: path_.en ?? "", description: `${path_.html ?? ""}${powers ? `<h4>Уровни пути</h4><ul>${powers}</ul>` : ""}` }, flags: homerule(path_) });
     }
     return p;
   },
@@ -225,7 +227,7 @@ const BUILDERS = {
         const system = { discipline: k, level: r.level, source: r.en ?? "", description: part ? (part.head ?? "") + part.desc : r.html ?? "",
           ...(part ? { components: part.components, effect: part.effect, notes: part.notes, ref: part.ref } : {}) };
         const roll = rollOf(r.roll); if (roll) system.roll = roll;
-        p.add({ name: r.name, type: "ritual", folder: [...branch(r), `Уровень ${r.level}`], key: `${k}:${r.name}`, img: DISC_ICON(k), system });
+        p.add({ name: r.name, type: "ritual", folder: [...branch(r), `Уровень ${r.level}`], key: `${k}:${r.name}`, img: DISC_ICON(k), system, flags: homerule(r) });
       }
     }
     return p;
@@ -327,7 +329,8 @@ BUILDERS.rules = function () {
   // глава 9 — инфернализм: договоры и Вложения (data/rules-infernal.json, tools/infernal_docs.py)
   for (const ch of data("rules-infernal")) p.addBook({ name: ch.name, pages: ch.pages, key: `rules:${ch.key}` });
   // глава 11 — хоумрулы (data/rules-homerules.json): форма зуло Lucky Dicepool, тексты черт — из lang/ru.json
-  for (const ch of data("rules-homerules")) p.addBook({ name: ch.name, pages: ch.pages, key: `rules:${ch.key}` });
+  //   глава 12 — «Богатыри»: с меткой хоумрула (прячется, пока он выключен в мире)
+  for (const ch of data("rules-homerules")) p.addBook({ name: ch.name, pages: ch.pages, key: `rules:${ch.key}`, flags: homerule({ era: ch.key === "12" ? "bogatyr" : null }) });
   return p;
 };
 

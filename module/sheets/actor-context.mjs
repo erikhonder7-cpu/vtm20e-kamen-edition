@@ -95,7 +95,7 @@ export function prepareHeader(sheet, ctx) {
     // Богатырь (хоумрул Fingers of the Eldest) — в списке, только если включён в мире (или уже выбран)
     ctx.ghoulTypes = ["vassal", "independent", "revenant", "dhampir", ...(bogatyrOn() || s.ghoulType === "bogatyr" ? ["bogatyr"] : [])]
       .map(k => ({ value: k, label: t(`GhoulType.${k}`), selected: k === s.ghoulType }));
-    ctx.isBogatyr = s.ghoulType === "bogatyr";
+    ctx.isBogatyr = s.ghoulType === "bogatyr" && bogatyrOn();
     if (ctx.isBogatyr) {
       const b = s.bogatyr ?? {};
       ctx.bogatyr = { ...b, mature: b.stage === "mature", mantle: a.powerEffects.some(x => x.power === BOGATYR_MANTLE),
@@ -422,6 +422,12 @@ export function prepareDisciplines(sheet, ctx) {
   ctx.allOpen = ctx.disciplines.length > 0 && ctx.disciplines.every(d => d.open);
   const owned = new Set(items.map(i => i.system.key));
   ctx.missingClan = clanD.filter(k => !owned.has(k)).length > 0;
+  // «свои» Дисциплины — по тому, откуда кровь: клан вампира, домитор гуля, род ревенанта, Предок дампира, Старейший Богатыря
+  const g = a.system.ghouled?.on ? a.system.ghouled : null, gt = a.type === "ghoul" ? a.system.ghoulType : null;
+  const src = gt === "revenant" || g?.kind === "revenant" ? "family" : gt === "dhampir" ? "ancestor"
+    : gt === "bogatyr" && bogatyrOn() ? "eldest" : a.type === "ghoul" || g ? "domitor" : null;
+  ctx.clanWords = src ? { add: t(`Sheet.OwnDiscs.${src}.Add`), tag: t(`Sheet.OwnDiscs.${src}.Tag`) }
+    : { add: t("Sheet.AddClanDisciplines"), tag: t("Sheet.InClan") };
   if (ctx.isGhoul) ctx.ghoulCap = a.system.disciplineMax;
   if (a.isDhampir) ctx.dhampir = dhampirView(a, dots);
 }

@@ -9,7 +9,7 @@ import { VTM20, SYSTEM_ID } from "../config.mjs";
 import { effectMods } from "./effects.mjs";
 import { formMods } from "./form.mjs";
 import { GIFT_PASSIVE } from "./gift-effects.mjs";
-import { bogatyrBlood, bogatyrTraitMax } from "./bogatyr.mjs";
+import { bogatyrBlood, bogatyrOn, bogatyrTraitMax } from "./bogatyr.mjs";
 
 const { SchemaField, NumberField, StringField, BooleanField, ArrayField, HTMLField, ObjectField } = foundry.data.fields;
 
@@ -240,8 +240,10 @@ export class GhoulData extends BaseActorData {
     // Рост с возрастом (V20, гл. 7): гуль — +1 к запасу каждые 200 лет (возраст — число лет в «Возрасте»).
     // Ревенант (Guide to the Sabbat; Ghouls & Revenants): сам вырабатывает витэ — запас 10 и +1 за каждое прожитое столетие
     const age = parseInt(String(this.details?.age ?? "").replace(/\D+/g, " ").trim().split(" ")[0]) || 0;
+    // Богатырь — только пока хоумрул включён в мире; выключен — считается как обычный гуль
+    const bog = this.ghoulType === "bogatyr" && bogatyrOn();
     if (this.ghoulType === "revenant") this.blood.max = 10 + Math.floor(age / 100);
-    else if (age > 0 && !["dhampir", "bogatyr"].includes(this.ghoulType)) this.blood.max = Math.max(this.blood.max, 2 + Math.floor(age / 200));
+    else if (age > 0 && this.ghoulType !== "dhampir" && !bog) this.blood.max = Math.max(this.blood.max, 2 + Math.floor(age / 200));
     // Дампир (Accursed Heirs): запас 10 + Древность — своя кровь, не витэ домитора; Дисциплины не выше 1 (Истечение 4+ — 2,
     // гуль-дампир — и по поколению донора), за ход — 1 пункт (Истечение 5 — 2)
     if (this.ghoulType === "dhampir") {
@@ -255,7 +257,7 @@ export class GhoulData extends BaseActorData {
     }
     // Богатырь (data/bogatyr.mjs): запас 5 за месяц (до 40), потолок черт по десятилетиям, Дисциплины до 5;
     // взрослый — без штрафов за раны до «Без сознания»
-    if (this.ghoulType === "bogatyr") {
+    if (bog) {
       const b = this.bogatyr ?? {};
       this.blood.max = bogatyrBlood(b.months);
       this.traitMax = bogatyrTraitMax(age);
@@ -265,7 +267,7 @@ export class GhoulData extends BaseActorData {
     // передозировка (V20, гл. 7): прижившиеся лишние пункты держатся сверх предела; пока лишние в теле — Ловкость +1
     this.blood.base = this.blood.max;
     const ad = this.addiction ?? {};
-    if (!["dhampir", "bogatyr"].includes(this.ghoulType)) {
+    if (this.ghoulType !== "dhampir" && !bog) {
       if (ad.excess > 0 && !ad.spoiled) this.blood.max += ad.excess;
       if (ad.excess > 0 && this.attributes?.dexterity) { this.attributes.dexterity.total += 1; this.attributes.dexterity.fx = (this.attributes.dexterity.fx ?? 0) + 1; }
       // изъян крови Носферату: Внешность −1, но не ниже 1 (книга: −1…−2 — меньшее, правило системы)
@@ -317,12 +319,21 @@ export class SpiritData extends CreatureData {
 
 /* ── Смертный ───────────────────────────────────────────────────────────── */
 
+/**
+ * Гуль или ревенант среди смертных — смертный, охотник, маг, оборотень, подменыш (apps/ghouled.mjs): kind — ghoul (кровь домитора, узы) или revenant (своя витэ
+ * рода, семья из module/data/revenants.mjs); витэ в теле — у гуля до 10, у ревенанта 10 + 1 за столетие.
+ */
+const ghouledField = () => new SchemaField({ on: new BooleanField({ initial: false }), kind: str("ghoul"), family: str(), domitor: str(), clan: str(),
+  vitae: int(0, 0, 20), bond: int(0, 0, 3) });
+
 export class MortalData extends BaseActorData {
   static defineSchema() {
     return {
       ...super.defineSchema(),
       // Смертный как сосуд: сколько крови в нём осталось (10 у взрослого, 05).
       vessel: new SchemaField({ value: int(10, 0, 20), max: int(10, 1, 20) }),
+      // гуль или ревенант (apps/ghouled.mjs) — у смертного, мага, оборотня; охотнику — только Свидетелю (наделённых кровь не берёт)
+      ghouled: ghouledField(),
       // Родня Гару (W20 Kinfolk): племя, порода, Гнозис (достоинство), Дары 1-го уровня; невосприимчивы к Бреду
       kinfolk: new SchemaField({ on: new BooleanField({ initial: false }), tribe: str(""), breed: str("homid"), gnosis: int(0, 0, 3), gifts: new ArrayField(str()),
         // нумины Родни (W20 Kinfolk, гл. 3): Пути ворожбы и психические феномены, 1–5 точек — ключи data/werewolf.json → numina
@@ -698,14 +709,15 @@ export class MageData extends MortalData {
         seeking: new BooleanField({ initial: false }),
         // Маг-гуль (V20, гл. 9 — правила гулей): домитор и его клан, витэ вампира в теле (до 10), ступень уз крови (0–3)
         // Инфернальные пакты Падшего (Book of the Fallen): уровень 1–10 даёт столько же очков на Инвестиции; inhuman — Атрибуты, поднятые Инвестицией
-        pacts: new ArrayField(new SchemaField({ level: int(1, 1, 10), patron: str(), terms: str() })), inhuman: new ObjectField({ initial: {} }),
-        ghoul: new SchemaField({ on: new BooleanField({ initial: false }), domitor: str(), clan: str(), vitae: int(0, 0, 10), bond: int(0, 0, 3) }) })
+        pacts: new ArrayField(new SchemaField({ level: int(1, 1, 10), patron: str(), terms: str() })), inhuman: new ObjectField({ initial: {} }) })
     };
   }
   /** Прежняя подпись Резонанса одной строкой — в список подписей (1 точка). */
   static migrateData(src) {
     const m = src?.mage;
     if (m && typeof m.resonance === "string" && m.resonance.trim() && !m.resonances?.length) { m.resonances = [{ name: m.resonance.trim(), flavor: "", value: 1 }]; m.resonance = ""; }
+    // маг-гуль: прежнее mage.ghoul — в общее поле ghouled (apps/ghouled.mjs)
+    if (m?.ghoul?.on !== undefined && !src.ghouled) { src.ghouled = { kind: "ghoul", family: "", ...m.ghoul }; delete m.ghoul; }
     return super.migrateData(src);
   }
 }
@@ -958,6 +970,8 @@ export class ChangelingData extends BaseActorData {
     return {
       ...base,
       willpower: new SchemaField({ permanent: int(4, 0, 10), temporary: int(4, 0, 10) }),
+      // подменыш-гуль или ревенант (apps/ghouled.mjs)
+      ghouled: ghouledField(),
       changeling: new SchemaField({
         kith: str(""), seeming: str(""), house: str(""), court: str("seelie"), title: str(""),
         society: str(""),                // тайное общество (C20 Players Guide)

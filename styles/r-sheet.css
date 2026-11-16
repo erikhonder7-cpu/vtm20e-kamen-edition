@@ -1337,3 +1337,44 @@ body.r-theme-light .vtm20 .r-motto { color: rgba(140, 28, 34, .75); }
 .vtm20 .r-fx-desc-full { color: var(--r-ink-2); }
 .vtm20 .r-fx-desc-full p { margin: 0 0 6px; }
 .vtm20 .r-fx-desc-full p:last-child { margin-bottom: 0; }
+
+/* гуль или ревенант среди смертных (templates/actor/parts/ghouled.hbs): три карточки шкал, как Здоровье и Воля —
+   кто дал кровь (знак клана и имя), витэ каплями, узы крови тремя ступенями (у ревенанта — изъян рода) */
+.vtm20 .r-gh { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) minmax(0, 1.1fr); gap: 10px; margin: 2px 0 16px; }
+@media (max-width: 720px) { .vtm20 .r-gh { grid-template-columns: 1fr; } }
+/* кто дал кровь: знак клана золотой маской, имя — крупно, как имя персонажа в шапке */
+.vtm20 .r-gh-id { display: flex; align-items: center; gap: 10px; min-width: 0; margin: 2px 0 8px; }
+.vtm20 .r-gh-crest { flex: 0 0 auto; width: 34px; height: 34px; font-size: 24px; line-height: 34px; text-align: center; color: var(--r-muted); }
+.vtm20 .r-gh .r-gh-name {
+  flex: 1 1 auto; min-width: 0; height: 30px; padding: 0 2px; border: 0; border-bottom: 1px solid var(--r-line-2); background: transparent;
+  font-family: var(--r-display); font-size: 19px; color: var(--r-ink); text-overflow: ellipsis;
+}
+.vtm20 .r-gh .r-gh-name:focus { border-bottom-color: var(--r-accent); box-shadow: none; outline: none; }
+.vtm20 .r-gh .r-gh-name::placeholder { font-style: italic; font-size: 15px; color: var(--r-muted); }
+.vtm20 .r-gh .r-gh-clan {
+  flex: 1 1 auto; min-width: 0; height: 22px; padding: 0 16px 0 2px; border: 0; background-color: transparent; background-position: right 0 center;
+  font-size: 13px; color: var(--r-ink-2); text-overflow: ellipsis;
+}
+/* витэ: капли во всю ширину карточки, как клетки Воли */
+.vtm20 .r-gh-drops { justify-content: flex-start; gap: 4px; margin: 4px 0 8px; }
+.vtm20 .r-gh-drops .r-drop { width: 19px; height: 24px; }
+/* больше десяти капель (ревенант со столетиями) — мельче, чтобы ряд не рвался */
+.vtm20 .r-gh-drops.is-many { gap: 2px; }
+.vtm20 .r-gh-drops.is-many .r-drop { width: 15px; height: 19px; }
+.vtm20 .r-gh-drops.is-many .r-drop:nth-child(5n):not(:last-child) { margin-right: 3px; }
+.vtm20 .r-gh-blood .r-vc-status b { color: #e25a5f; }
+/* узы крови: три ступени — капля и подпись под ней */
+.vtm20 .r-gh-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin: 2px 0 8px; }
+.vtm20 .r-gh-step { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 4px 0 2px; }
+.vtm20 .r-gh-step .r-drop { width: 21px; height: 27px; }
+.vtm20 .r-gh-step-k { font-size: 12px; font-style: italic; line-height: 1.15; text-align: center; white-space: nowrap; color: var(--r-muted); }
+.vtm20 .r-gh-step.is-filled .r-gh-step-k { color: var(--r-ink); }
+.vtm20 .r-gh-step:hover .r-gh-step-k { color: var(--r-accent); }
+.vtm20 .r-gh-step:hover .r-drop svg { transform: scale(1.15); }
+.vtm20 .r-gh-step.is-filled:last-child .r-drop svg { filter: drop-shadow(0 0 3px rgba(226, 88, 93, .5)); }
+/* изъян рода — текстом карточки */
+.vtm20 .r-gh-flaw-text { margin: 0 0 6px; font-size: 13.5px; font-style: italic; line-height: 1.4; color: var(--r-ink-2); }
+.vtm20 .r-gh .r-vc-hint.is-left { white-space: normal; }
+
+/* хоумрул выключен в мире (module/apps/bogatyr.mjs): его записи и опустевшие папки в окне компендия */
+.r-homerule-off { display: none !important; }

@@ -1,0 +1,77 @@
+{{!-- Гуль или ревенант среди смертных (module/apps/ghouled.mjs): gh — ghouledView; editable — можно править.
+     Три карточки шкал, как Здоровье и Воля: кто дал кровь (домитор и его клан — или род ревенанта), витэ каплями,
+     узы крови ступенями (у ревенанта — изъян рода). Ниже на вкладке — Дисциплины целиком (rDiscBody). --}}
+{{#if gh.on}}
+<h2 class="r-h2"><span>{{gh.title}}</span>
+  <span class="r-h2-tools">{{#if editable}}
+    <a class="r-h2-btn is-ghost is-on" data-action="ghToggle" data-kind="{{gh.kind}}" data-tooltip="{{localize 'VTM20.Ghouled.OffHint'}}"><i class="fa-solid {{#if gh.revenant}}fa-people-roof{{else}}fa-hand-holding-droplet{{/if}}"></i> <span class="r-h2-lbl">{{localize "VTM20.Ghouled.Off"}}</span></a>{{/if}}</span>
+</h2>
+<div class="r-gh">
+  {{!-- кто дал кровь --}}
+  <div class="r-vcard r-gh-who">
+    {{#if gh.revenant}}
+    <div class="r-vc-head"><h4 class="r-banner"><span>{{localize "VTM20.Ghouled.Family"}}</span></h4></div>
+    <div class="r-gh-id">
+      <i class="r-gh-crest fa-solid fa-people-roof"></i>
+      <select class="r-gh-name" name="system.ghouled.family" {{#unless editable}}disabled{{/unless}}><option value="">—</option>{{#each gh.families}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+    </div>
+    <div class="r-vc-tools">
+      {{#if gh.family}}<span class="r-vc-hint is-left" data-tooltip="{{gh.family.discs}}"><i class="fa-solid fa-droplet"></i> {{gh.family.discs}}</span>
+      {{#if editable}}<a class="r-vc-btn" data-action="ghFamilyDiscs" data-tooltip="{{localize 'VTM20.Ghouled.FamilyDiscsHint'}}"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Sheet.Add"}}</a>{{/if}}
+      {{else}}<span class="r-vc-hint is-left">{{localize "VTM20.Ghouled.NoFamily"}}</span>{{/if}}
+    </div>
+    {{else}}
+    <div class="r-vc-head"><h4 class="r-banner"><span>{{localize "VTM20.Ghouled.Who"}}</span></h4></div>
+    <div class="r-gh-id">
+      {{#if gh.sym}}{{rSym gh.sym "r-gh-crest"}}{{else}}<i class="r-gh-crest fa-solid fa-user-secret"></i>{{/if}}
+      <input class="r-gh-name" type="text" name="system.ghouled.domitor" value="{{gh.domitor}}" placeholder="{{localize 'VTM20.Ghouled.NoDomitor'}}" {{#unless editable}}disabled{{/unless}}>
+    </div>
+    <div class="r-vc-tools">
+      <span class="r-vc-btnlabel">{{localize "VTM20.Details.clan"}}</span>
+      <select class="r-gh-clan" name="system.ghouled.clan" {{#unless editable}}disabled{{/unless}}>
+        <option value="{{gh.clanRaw}}">{{#if gh.clanRaw}}{{gh.clanRaw}}{{else}}{{localize "VTM20.Ghouled.Unknown"}}{{/if}}</option>
+        {{#each gh.clans}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
+      </select>
+    </div>
+    {{/if}}
+  </div>
+
+  {{!-- витэ в теле --}}
+  <div class="r-vcard r-gh-blood">
+    <div class="r-vc-head">
+      <h4 class="r-banner"><span data-tooltip="{{#if gh.revenant}}{{localize 'VTM20.Ghouled.RevenantVitaeHint'}}{{else}}{{localize 'VTM20.Mage.Ghoul.VitaeHint'}}{{/if}}">{{localize "VTM20.Mage.Ghoul.Vitae"}}</span></h4>
+      <div class="r-vc-status"><b>{{gh.vitae}}</b>/{{gh.max}}</div>
+    </div>
+    <div class="r-drops r-gh-drops {{#if gh.many}}is-many{{/if}}">{{#each gh.boxes}}<a class="r-drop {{#if filled}}is-filled{{/if}}" {{#if @root.editable}}data-action="ghVitae" data-n="{{n}}"{{/if}}><svg viewBox="0 0 24 30" aria-hidden="true"><path d="M12 2C12 2 4 12 4 18a8 8 0 0 0 16 0C20 12 12 2 12 2z"/></svg></a>{{/each}}</div>
+    <div class="r-vc-tools">
+      {{#if editable}}
+      <a class="r-vc-btn" data-action="spendBlood" data-tooltip="{{localize 'VTM20.Ghouled.SpendHint'}}"><i class="fa-solid fa-minus"></i> {{localize "VTM20.Ghouled.Spend"}}</a>
+      <a class="r-vc-btn" data-action="ghHeal" data-tooltip="{{localize 'VTM20.Ghouled.HealHint'}}"><i class="fa-solid fa-droplet"></i> {{localize "VTM20.Ghouled.Heal"}}</a>
+      {{/if}}
+      <span class="r-vc-hint">{{localize "VTM20.Ghouled.PerTurn"}} <b>1</b></span>
+    </div>
+  </div>
+
+  {{!-- узы крови (гуль) или изъян рода (ревенант) --}}
+  {{#if gh.revenant}}
+  <div class="r-vcard r-gh-flaw">
+    <div class="r-vc-head"><h4 class="r-banner"><span>{{localize "VTM20.Ghouled.Flaw"}}</span></h4></div>
+    <p class="r-gh-flaw-text">{{#if gh.family}}{{gh.family.flaw}}{{else}}—{{/if}}</p>
+  </div>
+  {{else}}
+  <div class="r-vcard r-gh-bond">
+    <div class="r-vc-head">
+      <h4 class="r-banner"><span data-tooltip="{{localize 'VTM20.Mage.Ghoul.BondHint'}}">{{localize "VTM20.Mage.Ghoul.Bond"}}</span></h4>
+      <div class="r-vc-status"><b>{{gh.bond}}</b>/3</div>
+    </div>
+    <div class="r-gh-steps">{{#each gh.steps}}
+      <a class="r-gh-step {{#if filled}}is-filled{{/if}}" {{#if @root.editable}}data-action="setDots" data-path="system.ghouled.bond" data-n="{{n}}"{{/if}} data-tooltip="{{tip}}">
+        <span class="r-drop {{#if filled}}is-filled{{/if}}"><svg viewBox="0 0 24 30" aria-hidden="true"><path d="M12 2C12 2 4 12 4 18a8 8 0 0 0 16 0C20 12 12 2 12 2z"/></svg></span>
+        <span class="r-gh-step-k">{{label}}</span>
+      </a>{{/each}}
+    </div>
+    <div class="r-vc-tools"><span class="r-vc-hint is-left">{{#if gh.bondText}}{{gh.bondText}}{{else}}{{localize "VTM20.Ghouled.NoBond"}}{{/if}}</span></div>
+  </div>
+  {{/if}}
+</div>
+{{/if}}

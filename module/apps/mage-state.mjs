@@ -9,6 +9,7 @@
 //   · Чудеса — предметы типа «wonder»: у Талисмана и Устройства своё Арете (пул) и запас Квинтэссенции.
 
 import { SYSTEM_ID, VTM20 } from "../config.mjs";
+import { ghouledView } from "./ghouled.mjs";
 import { Codex } from "../data/codex.mjs";
 import { M, isMarauder, isFallen, aretePool, changeQuintessence, paradoxOf, changeParadox, castEffect, mageGlyphSrc, sphereName, topResonance, parseSpheres, RES_DICE } from "./mage.mjs";
 
@@ -41,7 +42,7 @@ export function stateView(actor, dots) {
       insulate: mar ? m.quiet.level * (Q.insulate ?? 5) : 0 },
     flaws: m.pflaws.map((f, i) => ({ i, ...f, gradeName: (D.pflaws ?? []).find(g => g.key === f.grade)?.name ?? "" })),
     seeking: m.seeking, marauder: mar, isGM: game.user.isGM,
-    ghoul: ghoulView(actor, dots), wonders: wondersView(actor), investments: isFallen(actor) ? investmentsView(actor) : [], fallen: isFallen(actor), pacts: isFallen(actor) ? pactsView(actor) : null
+    ghoul: ghouledView(actor, dots), wonders: wondersView(actor), investments: isFallen(actor) ? investmentsView(actor) : [], fallen: isFallen(actor), pacts: isFallen(actor) ? pactsView(actor) : null
   };
 }
 
@@ -484,42 +485,7 @@ export function registerMageWeek() {
   game.settings.register(SYSTEM_ID, "mageWeekly", { name: "VTM20.Settings.MageWeekly.Name", hint: "VTM20.Settings.MageWeekly.Hint", scope: "world", config: true, type: Boolean, default: true });
 }
 
-/* ── Маг-гуль (V20, гл. 9: гули) ─────────────────────────────────────── */
-
-/** Гуль на листе мага: домитор, витэ в теле, узы крови, Дисциплины (предметами — работают как у любого гуля). */
-export function ghoulView(actor, dots) {
-  const g = actor.system.mage.ghoul;
-  return { ...g, boxes: Array.from({ length: 10 }, (_, i) => ({ n: i + 1, filled: i < g.vitae })), bondDots: dots(g.bond, 3, { path: "system.mage.ghoul.bond" }),
-    bondText: g.bond ? t(`Ghoul.Bond${g.bond}`) : "", wounded: ["bashing", "lethal"].some(k => (actor._source.system.health[k] ?? 0) > 0),
-    discs: actor.items.filter(i => i.type === "discipline").map(i => ({ id: i.id, name: i.name, value: i.system.value, dots: Array.from({ length: 5 }, (_, k) => ({ n: k + 1, filled: k < i.system.value })) })) };
-}
-/** Отметить мага гулем (или снять): с первым глотком гуль получает точку Могущества (V20, гл. 9). */
-export async function toggleGhoul(actor) {
-  if (!owner(actor)) return null;
-  const g = actor.system.mage.ghoul, on = !g.on;
-  await actor.update({ "system.mage.ghoul.on": on, ...(on && !g.vitae ? { "system.mage.ghoul.vitae": 1 } : {}) });
-  if (on && !actor.items.some(i => i.type === "discipline" && i.system.key === "potence")) {
-    const pack = game.packs.get(`${SYSTEM_ID}.disciplines`), idx = await pack?.getIndex({ fields: ["system.key", "type"] });
-    const hit = idx?.find(i => i.type === "discipline" && i.system?.key === "potence"), doc = hit && await pack.getDocument(hit._id);
-    if (doc) await actor.createEmbeddedDocuments("Item", [foundry.utils.mergeObject(doc.toObject(), { "system.value": 1 })]);
-  }
-  return say(actor, "fa-hand-holding-droplet", t(on ? "Ghoul.Made" : "Ghoul.Freed", { name: esc(actor.name), domitor: esc(g.domitor || t("Ghoul.Someone")) }));
-}
-/** Витэ в теле: клетка — столько и осталось (щелчок по той же — на одну меньше). */
-export function ghoulVitae(actor, n) {
-  const g = actor.system.mage.ghoul;
-  return actor.update({ "system.mage.ghoul.vitae": g.vitae === n ? n - 1 : n });
-}
-/** Лечение кровью: 1 витэ — одно лёгкое или тяжёлое повреждение (как у гуля). */
-export async function ghoulHeal(actor) {
-  if (!owner(actor)) return null;
-  const g = actor.system.mage.ghoul, h = actor._source.system.health, type = ["lethal", "bashing"].find(k => (h[k] ?? 0) > 0);
-  if (g.vitae < 1) return ui.notifications.warn(t("Ghoul.NoVitae"));
-  if (!type) return ui.notifications.info(t("Invest.regenNone"));
-  await actor.update({ "system.mage.ghoul.vitae": g.vitae - 1 });
-  await actor.healDamage(type, 1);
-  return say(actor, "fa-droplet", t("Ghoul.Healed", { name: esc(actor.name), type: game.i18n.localize(VTM20.damageTypes[type]?.label ?? type), n: g.vitae - 1 }));
-}
+/* ── Маг-гуль или ревенант — module/apps/ghouled.mjs (общий блок с оборотнями) ── */
 
 /* ── Чудо в бою: оружие или броня ────────────────────────────────────── */
 

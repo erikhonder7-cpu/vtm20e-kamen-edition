@@ -17,8 +17,8 @@ export function bogatyrOn() {
   try { return !!game.settings.get(SYSTEM_ID, "bogatyri"); } catch { return false; }
 }
 
-/** Актёр — Богатырь (любая стадия); взрослый — только mature. */
-export const isBogatyr = a => a?.type === "ghoul" && a.system?.ghoulType === "bogatyr";
+/** Актёр — Богатырь (любая стадия); взрослый — только mature. Хоумрул выключен — правила Богатыря не действуют (лист как у гуля). */
+export const isBogatyr = a => a?.type === "ghoul" && a.system?.ghoulType === "bogatyr" && bogatyrOn();
 export const isMatureBogatyr = a => isBogatyr(a) && a.system.bogatyr?.stage === "mature";
 
 /** Запас крови: 5 за месяц существования (не меньше 5), не больше 40. */

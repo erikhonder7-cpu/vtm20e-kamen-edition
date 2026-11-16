@@ -60,6 +60,7 @@
 
   <h2 class="r-h2"><span>{{localize "VTM20.Werewolf.Gifts"}}</span>
     <span class="r-h2-tools">{{#if editable}}<a class="r-h2-btn" data-action="library" data-kind="gift" data-tooltip="{{localize 'VTM20.Library.Open'}}"><i class="fa-solid fa-book-skull"></i> <span class="r-h2-lbl">{{localize "VTM20.Library.Open"}}</span></a>{{/if}}
+      {{#if editable}}{{#unless wwGhoul.on}}<a class="r-h2-btn is-plain" data-action="ghToggle" data-kind="ghoul" data-tooltip="{{localize 'VTM20.Ghouled.GhoulOnHint'}}"><i class="fa-solid fa-hand-holding-droplet"></i></a><a class="r-h2-btn is-plain" data-action="ghToggle" data-kind="revenant" data-tooltip="{{localize 'VTM20.Ghouled.RevenantOnHint'}}"><i class="fa-solid fa-people-roof"></i></a>{{/unless}}{{/if}}
       <a class="r-h2-btn is-plain" data-action="openRules" data-tooltip="{{localize 'VTM20.Werewolf.RulesHint'}}"><i class="fa-solid fa-book-open-reader"></i></a></span>
   </h2>
   <ul class="r-edge-list r-ww-gifts">
@@ -131,4 +132,5 @@
       {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="wwScarDel" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}</li>
     {{/each}}
   </ul>
+
 </section>

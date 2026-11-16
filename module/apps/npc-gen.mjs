@@ -342,7 +342,7 @@ export class NpcGenerator extends HandlebarsApplicationMixin(ApplicationV2) {
     this.#ensureDraft();
     const s = this.ng, kind = kindOf(s.kind), role = roleOf(s.role);
     const kinds = KIND_GROUPS.map(g => ({ ...g, label: lab(`KindGroup.${g.key}`, g.label),
-      items: KINDS.filter(k => k.group === g.key).map(k => ({ ...k, label: lab(`Kind.${k.key}`, k.label), active: k.key === s.kind })) }));
+      items: KINDS.filter(k => k.group === g.key && (!k.homerule || k.homerule())).map(k => ({ ...k, label: lab(`Kind.${k.key}`, k.label), active: k.key === s.kind })) }));
     const roleGroups = ROLE_GROUPS.map(g => ({ ...g, label: lab(`RoleGroup.${g.key}`, g.label),
       roles: ROLES.filter(r => r.group === g.key).map(r => ({ key: r.key, icon: r.icon, label: lab(`Role.${r.key}`, r.label), active: r.key === s.role })) }));
     const subs = role ? subsForEra(role, game.settings.get(SYSTEM_ID, "era")).map(x => ({ key: x.key, label: lab(`Sub.${x.key}`, x.label), active: x.key === s.sub })) : [];

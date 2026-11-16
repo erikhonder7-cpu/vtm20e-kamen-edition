@@ -26,12 +26,14 @@ import { risenView } from "../apps/risen.mjs";
 import { projectorView } from "../apps/projector.mjs";
 import { realmView } from "../apps/realms.mjs";
 import { WEREWOLF_ACTIONS } from "./actor/werewolf.mjs";
+import { ghouledView, canGhoul } from "../apps/ghouled.mjs";
 import { HUNTER_ACTIONS } from "./actor/hunter.mjs";
 import { DEMON_ACTIONS } from "./actor/demon.mjs";
 import { allowAnyway } from "../apps/rule-gate.mjs";
 import { sheetStrategy, openStrategy } from "../ui/strategy.mjs";
 import { VTM20, SYSTEM_PATH, SYSTEM_ID } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
+import { bogatyrOn } from "../data/bogatyr.mjs";
 import { attachCombos } from "../ui/combo.mjs";
 import { choosePower } from "../apps/power-choice.mjs";
 import { RollDialog } from "../dice/dialog.mjs";
@@ -173,6 +175,7 @@ openUuid: VtMActorSheet.#onOpenUuid,
       diablerie: VtMActorSheet.#onDiablerie,
       clanAtlas: VtMActorSheet.#onClanAtlas,
       bogMantle: VtMActorSheet.#onBogMantle, bogRegen: VtMActorSheet.#onBogRegen,
+      ghToggle: VtMActorSheet.#onGhouled, ghVitae: VtMActorSheet.#onGhouled, ghHeal: VtMActorSheet.#onGhouled, ghFamilyDiscs: VtMActorSheet.#onGhouled,
       lineAtlas: VtMActorSheet.#onLineAtlas,
       linSire: VtMActorSheet.#onLinSire,
       mageFold: VtMActorSheet.#onMageFold,
@@ -193,6 +196,8 @@ openStrategy: () => openStrategy(),
     vitals: { template: `${SYSTEM_PATH}/templates/actor/vitals.hbs` },
     traits: { template: `${SYSTEM_PATH}/templates/actor/traits.hbs`, scrollable: [""] },
     disciplines: { template: `${SYSTEM_PATH}/templates/actor/disciplines.hbs`, scrollable: [""] },
+    // смертный, маг, оборотень, подменыш, Свидетель — гуль или ревенант (apps/ghouled.mjs): витэ и Дисциплины целиком
+    vitae: { template: `${SYSTEM_PATH}/templates/actor/vitae.hbs`, scrollable: [""] },
     effects: { template: `${SYSTEM_PATH}/templates/actor/effects.hbs`, scrollable: [""] },
     advantages: { template: `${SYSTEM_PATH}/templates/actor/advantages.hbs`, scrollable: [""] },
     gear: { template: `${SYSTEM_PATH}/templates/actor/gear.hbs`, scrollable: [""] },
@@ -205,6 +210,7 @@ openStrategy: () => openStrategy(),
       tabs: [
         { id: "traits", icon: "fa-solid fa-feather-pointed" },
         { id: "disciplines", icon: "fa-solid fa-droplet" },
+        { id: "vitae", icon: "fa-solid fa-hand-holding-droplet" },
         { id: "effects", icon: "fa-solid fa-wand-sparkles" },
         { id: "advantages", icon: "fa-solid fa-scroll" },
         { id: "gear", icon: "fa-solid fa-khanda" },
@@ -256,8 +262,12 @@ openStrategy: () => openStrategy(),
     for (const p of tabs) if (p !== active) this._staleTabs.add(p);
   }
 
+  /** Вкладка «Витэ»: живой персонаж отмечен гулем или ревенантом (apps/ghouled.mjs). */
+  get showVitae() { return canGhoul(this.actor) && !!this.actor.system.ghouled?.on; }
+
   _configureRenderParts(options) {
     const parts = super._configureRenderParts(options);
+    if (!this.showVitae) delete parts.vitae;
     if (this.actor.type === "mortal" || isLost(this.actor)) delete parts.disciplines;    // у Свидетеля Граней нет
     // у охотника на месте Дисциплин — Грани
     if (this.actor.type === "hunter" && parts.disciplines) parts.disciplines = { ...parts.disciplines, template: `${SYSTEM_PATH}/templates/actor/edges.hbs` };
@@ -276,6 +286,8 @@ openStrategy: () => openStrategy(),
 
   _prepareTabs(group) {
     const tabs = super._prepareTabs(group);
+    if (!this.showVitae) delete tabs.vitae;
+    else if (this.actor.system.ghouled?.kind === "revenant") Object.assign(tabs.vitae, { icon: "fa-solid fa-people-roof" });
     if (this.actor.type === "mortal" || isLost(this.actor)) delete tabs.disciplines;
     if (this.actor.type === "hunter" && tabs.disciplines) Object.assign(tabs.disciplines, { label: "VTM20.Hunter.Edges", icon: "fa-solid fa-eye" });
     if (this.actor.type === "mage" && tabs.disciplines) Object.assign(tabs.disciplines, { label: "VTM20.Mage.Spheres", icon: isTechnocrat(this.actor) ? "fa-solid fa-atom" : "fa-solid fa-hat-wizard" });
@@ -316,6 +328,8 @@ openStrategy: () => openStrategy(),
     // гуль, ревенант, дампир — справочник своей линии по знаку листа (apps/atlas.mjs); отдельно от цепочки ниже:
     // гулю нужна её последняя ветка (Дисциплины, Права крови дампира)
     if (actor.type === "ghoul") ctx.lineAtlas = true;
+    // гуль или ревенант среди смертных (apps/ghouled.mjs): маг и оборотень — на своих вкладках, прочие — на Преимуществах
+    if (canGhoul(actor) && !["mage", "werewolf"].includes(actor.type)) { ctx.ghouledHere = true; ctx.ghouled = ghouledView(actor, dots); }
     if (actor.type === "demon") prepareLores(this, ctx);
     else if (actor.type === "hunter") { ctx.hunterInfo = hunterInfo(actor, dots); ctx.lineAtlas = true; ctx.edgePaths = edgesView(actor); ctx.hunterCall = callView(actor); }
     else if (actor.type === "mage") { ctx.mageInfo = mageInfo(actor, dots); ctx.mageView = spheresView(actor, dots); ctx.mageState = stateView(actor, dots); ctx.mageState.mind = await mindView(actor);
@@ -328,6 +342,7 @@ openStrategy: () => openStrategy(),
       for (const sp of ctx.mageView.spheres) sp.folded = fold[sp.key] ?? true;      // как Дисциплины: свёрнуты, пока не раскроют
       ctx.mageView.allFolded = ctx.mageView.spheres.every(sp => sp.folded); }
     else if (actor.type === "werewolf") { ctx.werewolfInfo = werewolfInfo(actor, dots); ctx.ww = giftsView(actor);
+      ctx.wwGhoul = ghouledView(actor, dots);       // оборотень-гуль или ревенант (apps/ghouled.mjs)
       const sg = werewolfSigil(actor);
       ctx.sigil = { ...ctx.sigil, sym: sg.sym, label: sg.label };
       ctx.lineAtlas = true;
@@ -364,6 +379,8 @@ openStrategy: () => openStrategy(),
       ctx.sigil = { ...ctx.sigil, img: CHANGELING_SIGIL, label: ctx.changelingInfo.kith?.name ?? ctx.lykeian?.guise?.name ?? "",
         sym: ctx.lykeian ? clGlyph("guise", actor.system.changeling.lykeian?.guise) : kithGlyph(actor.system.changeling.kith) }; ctx.lineAtlas = true; }
     else if (actor.type !== "mortal") prepareDisciplines(this, ctx);
+    // вкладка «Витэ» (гуль или ревенант среди смертных): Дисциплины тем же расчётом, что у гуля
+    if (this.showVitae) { ctx.ghouled = ghouledView(actor, dots); if (!ctx.disciplines) prepareDisciplines(this, ctx); }
     prepareAdvantages(this, ctx);
     if (actor.type === "mortal") { ctx.sorcInfo = sorcererInfo(actor, dots); ctx.consorInfo = consorInfo(actor);
       ctx.kinInfo = kinfolkInfo(actor); ctx.kamiInfo = kamiInfo(actor); ctx.fomorInfo = fomorInfo(actor); if (actor.system.kinfolk?.on) ctx.kinInfo.fetch = fetchInfo(actor);
@@ -681,6 +698,16 @@ openStrategy: () => openStrategy(),
   // Богатырь (хоумрул, apps/bogatyr.mjs): Плащ Старейшего и регенерация
   static async #onBogMantle() { return (await import("../apps/bogatyr.mjs")).toggleMantle(this.actor); }
   static async #onBogRegen() { return (await import("../apps/bogatyr.mjs")).regenerate(this.actor); }
+  // маг или оборотень — гуль или ревенант (apps/ghouled.mjs)
+  static async #onGhouled(event, target) {
+    const G = await import("../apps/ghouled.mjs"), a = this.actor, d = target.dataset;
+    switch (d.action) {
+      case "ghToggle": return G.toggleGhouled(a, d.kind || "ghoul");
+      case "ghVitae": return G.ghouledVitae(a, Number(d.n));
+      case "ghHeal": return G.ghouledHeal(a);
+      case "ghFamilyDiscs": return G.setGhouledFamily(a, a.system.ghouled?.family ?? "");
+    }
+  }
   /** Справочник мага и оборотня — на своей фракции, роде или племени (apps/atlas.mjs). */
   static async #onLineAtlas() {
     const s = this.actor.system, { openAtlas } = await import("../apps/atlas.mjs");
@@ -689,7 +716,7 @@ openStrategy: () => openStrategy(),
     if (this.actor.type === "changeling") return openAtlas("changeling", s.changeling?.kith);
     // гуль и ревенант — справочник гулей (на семействе ревенанта), дампир — свой (на клане Предка)
     if (this.actor.type === "ghoul") return s.ghoulType === "dhampir" ? openAtlas("dhampir", s.dhampir?.antecedentClan ?? "")
-      : s.ghoulType === "bogatyr" ? openAtlas("ghoul", "bog:1") : openAtlas("ghoul", s.family ?? "");
+      : s.ghoulType === "bogatyr" && bogatyrOn() ? openAtlas("ghoul", "bog:1") : openAtlas("ghoul", s.family ?? "");
     return this.actor.type === "mage" ? openAtlas("mage", s.mage?.faction) : openAtlas("werewolf", s.werewolf?.fera || s.werewolf?.tribe);
   }
 
