@@ -813,7 +813,7 @@
         "On": "In effect: “{name}”",
         "Succ": "successes: {n}",
         "Active": "In effect",
-        "Off": "End",
+        "Off": "Turn off",
         "OffHint": "The effect is active — click to end it"
       },
       "ArtKnown": "known (click to remove)",
