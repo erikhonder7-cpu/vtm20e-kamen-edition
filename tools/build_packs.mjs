@@ -54,8 +54,8 @@ const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
 const esc = s => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 const now = Date.now();
 /** Материалы Тёмных веков (era = "darkAges") — в компендиях внутри папки «Тёмные века». */
-/** Хоумрул, который можно выключить в мире (era = "bogatyr"): метка в флагах — module/apps/bogatyr.mjs прячет такие записи в компендиях. */
-const homerule = x => x?.era === "bogatyr" ? { [SYSTEM_ID]: { homerule: x.era } } : {};
+/** Хоумрул, который можно выключить в мире («Богатыри», форма зуло): метка в флагах — module/apps/homerules.mjs прячет такие записи в компендиях. */
+const homerule = x => ["bogatyr", "zulo"].includes(x?.era) ? { [SYSTEM_ID]: { homerule: x.era } } : {};
 const daFolder = (x, folder) => x.era === "darkAges" ? ["Тёмные века", ...(Array.isArray(folder) ? folder : [folder])] : folder;
 const stats = () => ({
   compendiumSource: null, duplicateSource: null, exportSource: null,
@@ -254,7 +254,7 @@ const BUILDERS = {
         : m.sect ? ["Черты сект", sectName[m.sect] ?? m.sect]
         : `${kindLabel} — ${cat[m.category] ?? m.category}`;
       p.add({ name: m.name, type: m.kind, folder: daFolder(m, folder), key, img: traitIcon(m.category, m.kind === "flaw"),
-        system: { cost: m.min || 1, category: m.category, clan: m.clan ?? "", sect: m.sect ?? "", source: m.en ?? "", description: `${m.html ?? ""}${range}` } });
+        system: { cost: m.min || 1, category: m.category, clan: m.clan ?? "", sect: m.sect ?? "", source: m.en ?? "", description: `${m.html ?? ""}${range}` }, flags: homerule(m) });
     }
     return p;
   },
@@ -329,8 +329,8 @@ BUILDERS.rules = function () {
   // глава 9 — инфернализм: договоры и Вложения (data/rules-infernal.json, tools/infernal_docs.py)
   for (const ch of data("rules-infernal")) p.addBook({ name: ch.name, pages: ch.pages, key: `rules:${ch.key}` });
   // глава 11 — хоумрулы (data/rules-homerules.json): форма зуло Lucky Dicepool, тексты черт — из lang/ru.json
-  //   глава 12 — «Богатыри»: с меткой хоумрула (прячется, пока он выключен в мире)
-  for (const ch of data("rules-homerules")) p.addBook({ name: ch.name, pages: ch.pages, key: `rules:${ch.key}`, flags: homerule({ era: ch.key === "12" ? "bogatyr" : null }) });
+  //   главы с меткой хоумрула (прячутся, пока он выключен в мире): 11 — форма зуло, 12 — «Богатыри»
+  for (const ch of data("rules-homerules")) p.addBook({ name: ch.name, pages: ch.pages, key: `rules:${ch.key}`, flags: homerule({ era: { 11: "zulo", 12: "bogatyr" }[ch.key] }) });
   return p;
 };
 

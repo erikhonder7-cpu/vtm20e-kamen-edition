@@ -564,7 +564,7 @@ export function prepareAdvantages(sheet, ctx) {
   // узы крови: у смертных и охотников раздела нет; у Гару — только если уже записаны
   ctx.showBonds = !["mortal", "hunter", "wraith"].includes(a.type) && (!["werewolf", "spirit"].includes(a.type) || ctx.bonds.length > 0);
   // жизнь гуля на витэ: изъян клана, передозировка, ломка, потеря Дисциплин, старение (apps/ghoul-life.mjs)
-  ctx.ghoulLife = lifeState(a);
+  ctx.ghoulLife = a.type === "ghoul" ? lifeState(a) : null;   // у смертного-гуля — на вкладке «Витэ» (ghouledView)
   // Винкулум — у вампиров Шабаша и у всех, у кого он уже записан
   // котерии персонажа: общие факты и свой вклад (apps/coterie.mjs)
   ctx.coteries = coteriesOf(a).map(c => ({ name: c.name, pools: Object.keys(c.pools ?? {}).map(bg => ({ bg, value: poolValue(c, bg),

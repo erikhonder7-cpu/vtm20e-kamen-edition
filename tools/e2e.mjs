@@ -3981,11 +3981,13 @@ try {
         const el = pack.apps[0]?.element, n = el ? [el.querySelectorAll("li.entry.r-homerule-off").length, el.querySelectorAll("li.folder.r-homerule-off").length] : null;
         await pack.apps[0]?.close(); return n;
       };
+      const hf = game.settings.get(SYS, "horridForm"); await game.settings.set(SYS, "horridForm", "zulo");   // глава 11 зуло — не мешает счёту
       await game.settings.set(SYS, "bogatyri", false); b.reset();
       out.offRules = [b.system.blood.max, bogatyrWeaponRule(b, { isWeapon: true, type: "lethal", weaponDmg: 1 }, 3)];
       out.offPacks = [(await hidden("disciplines"))?.[0], (await hidden("blood-paths"))?.[0], (await hidden("rituals"))?.[0] >= 2, (await hidden("rules"))?.[0]];
       await game.settings.set(SYS, "bogatyri", true); b.reset();
       out.onPacks = [(await hidden("disciplines"))?.[0], b.system.blood.max];
+      await game.settings.set(SYS, "horridForm", hf);
       await b.delete(); await v.delete();
       await game.settings.set(SYS, "bogatyri", was);
       return out;
@@ -4029,6 +4031,60 @@ try {
       return out;
     });
     const want = { ww: [true, "ghoul", 1, 1], wwHeal: [2, 0], wwSheet: true, mage: ["revenant", 12, 12, true], mortal: [true, true, true, true], mortalSpend: [true, 1], hunter: [false, true] };
+    for (const [k, v] of Object.entries(want)) if (JSON.stringify(r[k]) !== JSON.stringify(v)) throw new Error(`${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(v)}`);
+  });
+
+  // смертный-гуль без витэ (apps/ghoul-life.mjs): опустела — «без витэ» с этой ночи, полгода — Дисциплины к потере, глоток снимает;
+  // изъяны семей у ревенанта-смертного (data/revenants.mjs): Духески — соц. Способности до 2, Д'Хаби — Воля +2, Оберту — расстройство
+  await check("Гуль среди смертных: жизнь без витэ и изъяны семей ревенантов", async () => {
+    const r = await page.evaluate(async () => {
+      const SYS = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {};
+      const G = await import(`/systems/${SYS}/module/apps/ghouled.mjs`), L = await import(`/systems/${SYS}/module/apps/ghoul-life.mjs`);
+      const R = await import(`/systems/${SYS}/module/data/revenants.mjs`), { ymd } = await import(`/systems/${SYS}/module/apps/calendar.mjs`);
+      const mk = (name, type, system = {}) => Actor.create({ name, type, flags: { world: { e2e: true }, [SYS]: { created: true } }, system });
+      const g = await mk("E2E — гуль без витэ", "mortal");
+      await G.toggleGhouled(g, "ghoul"); await wait(300);
+      await g.update({ "system.ghouled.vitae": 0 }); await wait(500);
+      out.dry = !!g.system.ghouled.dry;
+      const past = new Date(Date.parse(`${g.system.ghouled.dry}T12:00:00Z`) - 200 * 864e5);
+      await g.update({ "system.ghouled.dry": ymd(past) }); await wait(200);
+      const st = L.lifeState(g); out.life = [st.dryDays >= 199, (st.discDue ?? 0) >= 1, L.ghoulNight(g).length > 0];
+      await g.sheet.render(true); await wait(900); g.sheet.changeTab("vitae", "primary"); await wait(700);
+      out.sheet = !!g.sheet.element.querySelector('.r-gh-life [data-action="ghoulLife"][data-op="lose"]'); await g.sheet.close();
+      await g.update({ "system.ghouled.vitae": 2 }); await wait(500);
+      out.drink = [g.system.ghouled.dry, g.system.ghouled.lost];
+      const d = await mk("E2E — Духески", "mortal", { abilities: { empathy: { value: 4 }, occult: { value: 4 } } });
+      await G.toggleGhouled(d, "revenant"); await d.update({ "system.ghouled.family": "ducheski" }); await wait(300);
+      out.ducheski = [d.system.abilities.empathy.value, d.system.abilities.occult.value];
+      await d.update({ "system.abilities.leadership.value": 3 }); out.ducheskiCap = d.system.abilities.leadership.value;
+      await d.update({ "system.ghouled.family": "dhabi" }); await wait(200);
+      out.dhabi = R.revenantDiff(d, { traits: ["willpower.permanent"] }).map(x => x.value);
+      await d.update({ "system.ghouled.family": "obertus" }); await wait(800);
+      out.obertus = d.items.some(i => i.type === "derangement" && i.name === "Навязчивое состояние");
+      out.rules = G.ghouledView(d, () => []).family.rules.length;
+      for (const x of [g, d]) await x.delete();
+      return out;
+    });
+    const want = { dry: true, life: [true, true, true], sheet: true, drink: ["", 0], ducheski: [2, 4], ducheskiCap: 2, dhabi: [2], obertus: true, rules: 1 };
+    for (const [k, v] of Object.entries(want)) if (JSON.stringify(r[k]) !== JSON.stringify(v)) throw new Error(`${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(v)}`);
+  });
+
+  // форма зуло выключена (horridForm = core): её черты и глава 11 спрятаны в компендиях (apps/homerules.mjs)
+  await check("Хоумрулы: форма зуло — черты и глава прячутся в компендиях", async () => {
+    const r = await page.evaluate(async () => {
+      const SYS = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {};
+      const hidden = async key => {
+        const pack = game.packs.get(`${SYS}.${key}`); await pack.render(true); await wait(1200);
+        const n = pack.apps[0]?.element?.querySelectorAll("li.entry.r-homerule-off").length ?? null; await pack.apps[0]?.close(); return n;
+      };
+      const was = game.settings.get(SYS, "horridForm"), bog = game.settings.get(SYS, "bogatyri");
+      await game.settings.set(SYS, "bogatyri", true);
+      await game.settings.set(SYS, "horridForm", "core"); out.off = [await hidden("merits-flaws"), await hidden("rules")];
+      await game.settings.set(SYS, "horridForm", "zulo"); out.on = [await hidden("merits-flaws"), await hidden("rules")];
+      await game.settings.set(SYS, "horridForm", was); await game.settings.set(SYS, "bogatyri", bog);
+      return out;
+    });
+    const want = { off: [5, 1], on: [0, 0] };
     for (const [k, v] of Object.entries(want)) if (JSON.stringify(r[k]) !== JSON.stringify(v)) throw new Error(`${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(v)}`);
   });
 

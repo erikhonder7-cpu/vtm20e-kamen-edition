@@ -9,7 +9,8 @@
 
 import { SYSTEM_ID, VTM20 } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
-import { REVENANT_FAMILIES } from "../data/revenants.mjs";
+import { REVENANT_FAMILIES, familyRules } from "../data/revenants.mjs";
+import { lifeState } from "./ghoul-life.mjs";
 
 const t = (k, d) => d ? game.i18n.format(`VTM20.Ghouled.${k}`, d) : game.i18n.localize(`VTM20.Ghouled.${k}`);
 const esc = x => foundry.utils.escapeHTML(String(x ?? ""));
@@ -38,7 +39,7 @@ export function ghouledView(actor, dots) {
   const g = gOf(actor), revenant = g.kind === "revenant", max = ghouledMax(actor), fam = REVENANT_FAMILIES[g.family];
   // клан домитора — ключом из списка (старые листы — текстом: узнаём по названию)
   const clan = Codex.clan(g.clan) ?? Codex.clans.find(c => c.name === g.clan) ?? null;
-  return { ...g, revenant, allowed: canGhoul(actor), max, many: max > 10,
+  return { ...g, revenant, allowed: canGhoul(actor), max, many: max > 10, life: g.on ? lifeState(actor) : null,
     clans: Codex.clans.filter(c => Codex.visible(c) || c === clan).sort((x, y) => x.name.localeCompare(y.name, "ru"))
       .map(c => ({ value: c.key, label: c.name, selected: c === clan })),
     clanKnown: !!clan, clanRaw: clan ? "" : g.clan, sym: clan ? Codex.clanSymbol(clan.key) : null,
@@ -47,7 +48,8 @@ export function ghouledView(actor, dots) {
     boxes: Array.from({ length: max }, (_, i) => ({ n: i + 1, filled: i < g.vitae })),
     bondDots: dots(g.bond, 3, { path: path(actor, "bond") }), bondText: g.bond ? game.i18n.localize(`VTM20.Mage.Ghoul.Bond${g.bond}`) : "",
     families: Object.entries(REVENANT_FAMILIES).map(([k, f]) => ({ value: k, label: f.name, selected: k === g.family })),
-    family: fam ? { name: fam.name, flaw: fam.flaw, discs: (fam.disciplines ?? []).map(d => Codex.disciplineLabel(d)).join(", ") } : null,
+    family: fam ? { name: fam.name, flaw: fam.flaw, discs: (fam.disciplines ?? []).map(d => Codex.disciplineLabel(d)).join(", "),
+      rules: familyRules(g.family), pride: g.family === "grimaldi" } : null,
     wounded: ["bashing", "lethal"].some(k => (actor._source.system.health[k] ?? 0) > 0),
     discs: actor.items.filter(i => i.type === "discipline").map(i => ({ id: i.id, name: i.name, value: i.system.value,
       dots: Array.from({ length: 5 }, (_, k) => ({ n: k + 1, filled: k < i.system.value })) })) };

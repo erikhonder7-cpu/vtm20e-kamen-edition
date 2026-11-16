@@ -324,7 +324,9 @@ export class SpiritData extends CreatureData {
  * рода, семья из module/data/revenants.mjs); витэ в теле — у гуля до 10, у ревенанта 10 + 1 за столетие.
  */
 const ghouledField = () => new SchemaField({ on: new BooleanField({ initial: false }), kind: str("ghoul"), family: str(), domitor: str(), clan: str(),
-  vitae: int(0, 0, 20), bond: int(0, 0, 3) });
+  vitae: int(0, 0, 20), bond: int(0, 0, 3),
+  // без витэ (apps/ghoul-life.mjs): dry — ночь, когда опустела витэ (ГГГГ-ММ-ДД), lost — сколько точек Дисциплин уже снято
+  dry: str(), lost: int(0, 0, 50) });
 
 export class MortalData extends BaseActorData {
   static defineSchema() {

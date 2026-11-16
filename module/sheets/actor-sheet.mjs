@@ -175,7 +175,7 @@ openUuid: VtMActorSheet.#onOpenUuid,
       diablerie: VtMActorSheet.#onDiablerie,
       clanAtlas: VtMActorSheet.#onClanAtlas,
       bogMantle: VtMActorSheet.#onBogMantle, bogRegen: VtMActorSheet.#onBogRegen,
-      ghToggle: VtMActorSheet.#onGhouled, ghVitae: VtMActorSheet.#onGhouled, ghHeal: VtMActorSheet.#onGhouled, ghFamilyDiscs: VtMActorSheet.#onGhouled,
+      ghToggle: VtMActorSheet.#onGhouled, ghVitae: VtMActorSheet.#onGhouled, ghHeal: VtMActorSheet.#onGhouled, ghFamilyDiscs: VtMActorSheet.#onGhouled, ghPride: VtMActorSheet.#onGhouled,
       lineAtlas: VtMActorSheet.#onLineAtlas,
       linSire: VtMActorSheet.#onLinSire,
       mageFold: VtMActorSheet.#onMageFold,
@@ -705,6 +705,9 @@ openStrategy: () => openStrategy(),
       case "ghToggle": return G.toggleGhouled(a, d.kind || "ghoul");
       case "ghVitae": return G.ghouledVitae(a, Number(d.n));
       case "ghHeal": return G.ghouledHeal(a);
+      // Гримальди: не похвастаться семьёй и не унизить другие семьи Шабаша — проверка Силы воли (сл. 7)
+      case "ghPride": return (await import("../dice/dialog.mjs")).RollDialog.prompt(a, { title: t("RevFlaw.Pride"), trait1: "willpower.permanent",
+        difficulty: 7, lockTraits: true, diffNote: t("RevFlaw.PrideTip") });
       case "ghFamilyDiscs": return G.setGhouledFamily(a, a.system.ghouled?.family ?? "");
     }
   }

@@ -13,7 +13,7 @@ const esc = x => foundry.utils.escapeHTML(String(x ?? ""));
 export function registerZulo() {
   game.settings.register(SYSTEM_ID, "horridForm", {
     name: "VTM20.Settings.HorridForm.Name", hint: "VTM20.Settings.HorridForm.Hint",
-    scope: "world", config: true, type: String, default: "core",
+    scope: "world", config: true, type: String, default: "core", requiresReload: true,
     choices: { core: "VTM20.Settings.HorridForm.core", zulo: "VTM20.Settings.HorridForm.zulo" }
   });
   // Сердце нелюди и Смерть кощея: кол по Извергу в Чудовищном облике — напоминание в чат тому, кто его ставит

@@ -4190,7 +4190,7 @@
       },
       "HorridForm": {
         "Name": "Horrid Form (Vicissitude 4)",
-        "Hint": "“By the book” — V20: +3 Strength, Dexterity and Stamina. “Zulo shape” — Lucky Dicepool house rule (S. Timoshkin, 2020): every Fiend's form is built from three chosen traits (2 blood, one turn, Social Attributes 0, Intimidation with Strength); changing a trait costs 1 XP; five Tzimisce clan Merits and Flaws.",
+        "Hint": "“By the book” — V20: +3 Strength, Dexterity and Stamina. “Zulo shape” — Lucky Dicepool house rule (S. Timoshkin, 2020): every Fiend's form is built from three chosen traits (2 blood, one turn, Social Attributes 0, Intimidation with Strength); changing a trait costs 1 XP; five Tzimisce clan Merits and Flaws. \"By the book\" hides the zulo traits and rules compendium chapter 11. Changing it reloads the world.",
         "core": "By the book (+3 Physical)",
         "zulo": "Zulo shape (house rule, chosen traits)"
       },
@@ -6180,7 +6180,20 @@
       "dhabi": "D'Habi flaw",
       "rosselliniPer": "Death's gaze (Rossellini)",
       "rosselliniSoc": "Death's gaze (Rossellini)",
-      "rafastio": "Rafastio lunar flaw"
+      "rafastio": "Rafastio lunar flaw",
+      "Capped": "{name}: the {family} family flaw — traits cut down to the limit.",
+      "AutoTip": "The system applies this by itself",
+      "Pride": "Family pride",
+      "PrideTip": "Grimaldi: not to boast of the family or belittle other Sabbat families — a Willpower check (difficulty 7)",
+      "Auto": {
+        "bratovich": "Frenzy: difficulty +2",
+        "dhabi": "Willpower checks: difficulty +2",
+        "ducheski": "Social Abilities no higher than 2",
+        "enrathi": "Humanity no higher than 3, Conscience no higher than 2",
+        "obertus": "Obsessive/Compulsive — on the sheet",
+        "rossellini": "Perception +2, social +1",
+        "rafastio": "Disciplines {n} ({moon})"
+      }
     },
     "Lykeian": {
       "VariantLabel": "Nature",
@@ -9916,7 +9929,9 @@
       "SpendHint": "Spend 1 vitae (no more than 1 per turn)",
       "PerTurn": "per turn",
       "Steps": { "1": "craving", "2": "attachment", "3": "bound" },
-      "NoFamily": "Choose a family — it has its own Disciplines and flaw."
+      "NoFamily": "Choose a family — it has its own Disciplines and flaw.",
+      "LoseDisc": "Remove a dot",
+      "LifeHint": "Without vitae a ghoul withers: withdrawal for (6 − Stamina) weeks — Intelligence + Self-Control each week; after a month the body starts to age, from the sixth month — one Discipline dot a month. Counted from the night the vitae ran out; a new drink (vitae above zero) clears it all."
     },
     "LoreSearch": {
       "Title": "Handbooks",

@@ -42,8 +42,17 @@ export const taintOf = clan => !clan ? "" : TAINT_PARENT[clan] ?? (SABBAT.includ
 
 /** Живёт ли персонаж по правилам гулей (вассал, независимый, ревенант; не дампир). */
 export const ghoulLives = a => a?.type === "ghoul" && a.system.ghoulType !== "dhampir";
+/** Гуль или ревенант среди смертных (apps/ghouled.mjs): та же жизнь без витэ — ломка, Дисциплины, старение;
+ *  изъянов клановой крови и передозировки у них нет (витэ — отдельной шкалой, без запаса крови). */
+const ghouledOn = a => !!a && a.type !== "ghoul" && !!a.system?.ghouled?.on;
+/** Живёт на витэ — гуль-персонаж или отмеченный гулем (ревенантом) смертный. */
+export const vitaeLives = a => ghoulLives(a) || ghouledOn(a);
+const isRevenant = a => ghouledOn(a) ? a.system.ghouled.kind === "revenant" : a?.system?.ghoulType === "revenant";
 /** Ломка, потеря Дисциплин и старение — только у тех, кто не вырабатывает витэ сам. */
-const needsVitae = a => ghoulLives(a) && a.system.ghoulType !== "revenant";
+const needsVitae = a => vitaeLives(a) && !isRevenant(a);
+/** Где лежит состояние: у гуля — system.addiction, у смертного — system.ghouled (dry, lost). */
+const lifePath = a => ghouledOn(a) ? "system.ghouled" : "system.addiction";
+const lifeData = a => (ghouledOn(a) ? a.system.ghouled : a.system.addiction) ?? {};
 
 const days = (from, to) => {
   if (!from) return 0;
@@ -62,9 +71,9 @@ export const disciplinesDue = (m) => m >= 6 ? m - 5 : 0;
 
 /** Состояние для листа: изъян, лишние пункты, ломка, потеря Дисциплин, старение. */
 export function lifeState(a) {
-  if (!ghoulLives(a)) return null;
-  const ad = a.system.addiction ?? {}, now = today(), stamina = a.system.attributes?.stamina?.total ?? 1;
-  const out = { revenant: a.system.ghoulType === "revenant", excess: ad.excess ?? 0, spoiled: !!ad.spoiled, chips: [] };
+  if (!vitaeLives(a)) return null;
+  const ad = lifeData(a), now = today(), stamina = a.system.attributes?.stamina?.total ?? 1;
+  const out = { revenant: isRevenant(a), excess: ad.excess ?? 0, spoiled: !!ad.spoiled, chips: [] };
   if (ad.taint) out.chips.push({ icon: "fa-vial-circle-check", warn: true, label: t(`Taint.${ad.taint}`), tip: t(`TaintText.${ad.taint}`) });
   if (ad.clan && ad.streak) out.chips.push({ icon: "fa-droplet", label: t("Streak", { clan: clanName(ad.clan), n: ad.streak }), tip: t("StreakTip") });
   if (out.excess) out.chips.push({ icon: "fa-flask", warn: true, label: t(out.spoiled ? "Spoiled" : "Excess", { n: out.excess }), tip: t(out.spoiled ? "SpoiledTip" : "ExcessTip") });
@@ -191,7 +200,8 @@ export async function withdrawalWeek(actor) {
 /** Снять положенную точку Дисциплины (6 месяцев без витэ и дальше по месяцу). */
 export async function loseDiscipline(actor) {
   const list = actor.items.filter(i => i.type === "discipline" && (i.system.value ?? 0) > 0);
-  if (!list.length) { await actor.update({ "system.addiction.lost": (actor.system.addiction?.lost ?? 0) + 1 }); return ui.notifications.info(t("NoDisc")); }
+  const lost = { [`${lifePath(actor)}.lost`]: (lifeData(actor).lost ?? 0) + 1 };
+  if (!list.length) { await actor.update(lost); return ui.notifications.info(t("NoDisc")); }
   const opts = list.map(i => `<option value="${i.id}">${esc(i.name)} · ${i.system.value}</option>`).join("");
   const id = await foundry.applications.api.DialogV2.prompt({
     window: { title: t("LoseTitle"), icon: "fa-solid fa-arrow-trend-down" }, classes: ["vtm20", "r-dialog"],
@@ -201,7 +211,7 @@ export async function loseDiscipline(actor) {
   const item = id && actor.items.get(id);
   if (!item) return;
   await item.update({ "system.value": Math.max(0, item.system.value - 1) });
-  await actor.update({ "system.addiction.lost": (actor.system.addiction?.lost ?? 0) + 1 });
+  await actor.update(lost);
   return say(actor, "fa-arrow-trend-down", t("Lost", { actor: esc(actor.name), name: esc(item.name), n: item.system.value }), true);
 }
 
@@ -219,6 +229,15 @@ export function ghoulNight(actor) {
 
 /** Ярость с вампирской сложностью: изъян Бруха или лишние пункты в теле. */
 export const vampireFrenzy = a => ghoulLives(a) && (a.system.addiction?.taint === "brujah" || (a.system.addiction?.excess ?? 0) > 0);
+
+/** Гуль среди смертных: витэ опустела — с этой ночи «без витэ»; витэ прибавилась (глоток) — ломка и счёт кончились. */
+Hooks.on("updateActor", (a, change, opts, userId) => {
+  if (userId !== game.user.id || !ghouledOn(a) || !foundry.utils.hasProperty(change, "system.ghouled.vitae")) return;
+  const g = a.system.ghouled, upd = {};
+  if (g.vitae <= 0 && needsVitae(a) && !g.dry) upd["system.ghouled.dry"] = today();
+  else if (g.vitae > 0 && g.dry) Object.assign(upd, { "system.ghouled.dry": "", "system.ghouled.lost": 0 });
+  if (Object.keys(upd).length) a.update(upd);
+});
 
 /** Опустел запас — с этой ночи «без витэ»; запас ушёл к пределу — лишних больше нет. Только у того, кто менял. */
 Hooks.on("updateActor", (a, change, opts, userId) => {

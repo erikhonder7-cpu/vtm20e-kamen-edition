@@ -57,6 +57,8 @@
   <div class="r-vcard r-gh-flaw">
     <div class="r-vc-head"><h4 class="r-banner"><span>{{localize "VTM20.Ghouled.Flaw"}}</span></h4></div>
     <p class="r-gh-flaw-text">{{#if gh.family}}{{gh.family.flaw}}{{else}}—{{/if}}</p>
+    {{#if gh.family.rules.length}}<div class="r-ghl">{{#each gh.family.rules}}<span class="r-chip" data-tooltip="{{localize 'VTM20.RevFlaw.AutoTip'}}"><i class="fa-solid fa-gears"></i> {{this}}</span>{{/each}}</div>{{/if}}
+    {{#if gh.family.pride}}{{#if editable}}<div class="r-vc-tools"><a class="r-vc-btn" data-action="ghPride" data-tooltip="{{localize 'VTM20.RevFlaw.PrideTip'}}"><i class="fa-solid fa-crown"></i> {{localize "VTM20.RevFlaw.Pride"}}</a></div>{{/if}}{{/if}}
   </div>
   {{else}}
   <div class="r-vcard r-gh-bond">
@@ -74,4 +76,16 @@
   </div>
   {{/if}}
 </div>
+{{!-- без витэ (apps/ghoul-life.mjs): сколько ночей, ломка, Дисциплины к потере, старение — плашками; кнопки проверок --}}
+{{#if gh.life.chips.length}}
+<div class="r-gh-life">
+  <div class="r-ghl">{{#each gh.life.chips}}<span class="r-chip {{#if warn}}is-warn{{/if}}" data-tooltip="{{tip}}"><i class="fa-solid {{icon}}"></i> {{label}}</span>{{/each}}</div>
+  {{#if editable}}<span class="r-gh-life-tools">
+    {{#if gh.life.withdrawal}}<a class="r-vc-btn" data-action="ghoulLife" data-op="week" data-tooltip="{{localize 'VTM20.GhoulLife.WeekTip'}}"><i class="fa-solid fa-hourglass-half"></i> {{localize "VTM20.GhoulLife.Week"}}</a>
+    <a class="r-vc-btn is-sq" data-action="ghoulLife" data-op="refuse" data-tooltip="{{localize 'VTM20.GhoulLife.RefuseTip'}}"><i class="fa-solid fa-hand"></i></a>{{/if}}
+    {{#if gh.life.discDue}}<a class="r-vc-btn" data-action="ghoulLife" data-op="lose" data-tooltip="{{localize 'VTM20.GhoulLife.LoseTip'}}"><i class="fa-solid fa-arrow-trend-down"></i> {{localize "VTM20.Ghouled.LoseDisc"}}</a>{{/if}}
+  </span>{{/if}}
+</div>
+<p class="r-hint r-gh-life-hint">{{localize "VTM20.Ghouled.LifeHint"}}</p>
+{{/if}}
 {{/if}}

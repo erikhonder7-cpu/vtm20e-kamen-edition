@@ -45,17 +45,75 @@ export const REVENANT_FAMILIES = {
 
 export const revenantFamily = key => REVENANT_FAMILIES[key] ?? null;
 
+/** Семья ревенанта: у гуля с типом «ревенант» — system.family, у отмеченного ревенантом смертного — system.ghouled.family. */
+export function revenantKey(a) {
+  if (a?.type === "ghoul") return a.system.ghoulType === "revenant" ? a.system.family || null : null;
+  const g = a?.system?.ghouled;
+  return g?.on && g.kind === "revenant" ? g.family || null : null;
+}
+
+/** Социальные Способности (изъян Духески — не выше 2). */
+export const SOCIAL_ABILITIES = ["empathy", "expression", "intimidation", "leadership", "streetwise", "subterfuge", "etiquette", "performance"];
+
+/**
+ * Пределы черт по изъяну семьи: [путь, предел]. Духески — социальные Способности не выше 2; Энрати — на Человечности
+ * не выше 3 и Совесть не выше 2. v(path) — значение с учётом готовящегося обновления.
+ */
+function familyCaps(key, v) {
+  if (key === "ducheski") return SOCIAL_ABILITIES.map(k => [`system.abilities.${k}.value`, 2]);
+  if (key === "enrathi" && (v("system.morality.path") ?? "humanity") === "humanity") return [["system.morality.value", 3], ["system.virtues.conscience.value", 2]];
+  return [];
+}
+
+/** Что из изъяна семьи система делает сама — строки для листа (у Рафастио — с нынешней фазой луны). */
+export function familyRules(key) {
+  if (!key || !REVENANT_FAMILIES[key]) return [];
+  const L = (k, d) => game.i18n.format(`VTM20.RevFlaw.Auto.${k}`, d ?? {});
+  switch (key) {
+    case "bratovich": case "dhabi": case "ducheski": case "enrathi": case "obertus": return [L(key)];
+    case "rossellini": return [L("rossellini")];
+    case "rafastio": { const m = moonPhase(); return m ? [L("rafastio", { moon: `${m.glyph} ${m.label ?? ""}`.trim(), n: (LUNAR[m.key] ?? 1) > 0 ? `+${LUNAR[m.key] ?? 1}` : `${LUNAR[m.key]}` })] : []; }
+    default: return [];
+  }
+}
+
+// Изъян семьи держит черты в пределах — при любом обновлении листа (и когда семья выбирается тем же обновлением)
+Hooks.on("preUpdateActor", (a, change, opts, userId) => {
+  if (userId !== game.user.id || !["ghoul", "mortal", "mage", "werewolf", "changeling", "hunter"].includes(a.type)) return;
+  const v = p => foundry.utils.getProperty(change, p) ?? foundry.utils.getProperty(a._source, p);
+  const key = a.type === "ghoul" ? (v("system.ghoulType") === "revenant" ? v("system.family") : null)
+    : v("system.ghouled.on") && v("system.ghouled.kind") === "revenant" ? v("system.ghouled.family") : null;
+  const cut = [];
+  for (const [path, cap] of familyCaps(key, v)) {
+    const cur = v(path);
+    if (typeof cur === "number" && cur > cap) { foundry.utils.setProperty(change, path, cap); cut.push(path); }
+  }
+  if (cut.length) ui.notifications.info(game.i18n.format("VTM20.RevFlaw.Capped", { name: a.name, family: REVENANT_FAMILIES[key].name }));
+});
+
+// Оберту: с выбором семьи — расстройство «Навязчивое состояние» на лист (если его ещё нет)
+Hooks.on("updateActor", async (a, change, opts, userId) => {
+  if (userId !== game.user.id || revenantKey(a) !== "obertus") return;
+  if (!foundry.utils.hasProperty(change, "system.family") && !foundry.utils.hasProperty(change, "system.ghouled")) return;
+  const name = "Навязчивое состояние";
+  if (a.items.some(i => i.type === "derangement" && i.name === name)) return;
+  const pack = game.packs.get(`${game.system.id}.derangements`), hit = (await pack?.getIndex())?.find(e => e.name === name);
+  const doc = hit && await pack.getDocument(hit._id);
+  await a.createEmbeddedDocuments("Item", [doc ? doc.toObject() : { name, type: "derangement", system: { permanent: true } }]);
+});
+
 /** Фаза луны для Рафастио: новолуние +2, полнолуние −1, растущая и убывающая +1. */
 const LUNAR = { new: 2, full: -1 };
 
 /**
  * Изъяны семей в бросках (Ghouls & Revenants, гл. 3) — поправки сложности для окна броска:
  * Братовичи — Срыв +2; Д'Хаби — проверки Силы воли +2; Росселлини — Восприятие +2, социальные +1;
- * Рафастио — Дисциплины по фазе луны. Прочие изъяны — в описании семьи на листе.
+ * Рафастио — Дисциплины по фазе луны. И у гуля-ревенанта, и у отмеченного ревенантом смертного (revenantKey).
+ * Пределы черт (Духески, Энрати) и расстройство Оберту — хуками ниже; проверка гордыни Гримальди — кнопкой на листе.
  */
 export function revenantDiff(a, { attrs = [], traits = [], kind = "", power = false, social = false } = {}) {
-  if (a?.type !== "ghoul" || a.system.ghoulType !== "revenant") return [];
-  const f = a.system.family, out = [], L = k => game.i18n.localize(`VTM20.RevFlaw.${k}`);
+  const f = revenantKey(a), out = [], L = k => game.i18n.localize(`VTM20.RevFlaw.${k}`);
+  if (!f) return [];
   if (f === "bratovich" && kind === "frenzy") out.push({ label: L("bratovich"), value: 2 });
   if (f === "dhabi" && traits.includes("willpower.permanent")) out.push({ label: L("dhabi"), value: 2 });
   if (f === "rossellini") {

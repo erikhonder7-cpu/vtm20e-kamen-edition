@@ -1375,6 +1375,12 @@ body.r-theme-light .vtm20 .r-motto { color: rgba(140, 28, 34, .75); }
 /* изъян рода — текстом карточки */
 .vtm20 .r-gh-flaw-text { margin: 0 0 6px; font-size: 13.5px; font-style: italic; line-height: 1.4; color: var(--r-ink-2); }
 .vtm20 .r-gh .r-vc-hint.is-left { white-space: normal; }
+.vtm20 .r-gh-flaw .r-chip { max-width: 100%; height: auto; min-height: 20px; white-space: normal; line-height: 1.3; }
+/* без витэ: плашки состояния и кнопки проверок — строкой под карточками */
+.vtm20 .r-gh-life { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: -6px 0 4px; }
+.vtm20 .r-gh-life .r-ghl { flex: 1 1 auto; min-width: 0; }
+.vtm20 .r-gh-life-tools { display: inline-flex; gap: 4px; }
+.vtm20 .r-gh-life-hint { margin: 0 0 14px; }
 
-/* хоумрул выключен в мире (module/apps/bogatyr.mjs): его записи и опустевшие папки в окне компендия */
+/* хоумрул выключен в мире (module/apps/homerules.mjs): его записи и опустевшие папки в окне компендия */
 .r-homerule-off { display: none !important; }
