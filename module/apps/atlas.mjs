@@ -27,6 +27,10 @@ const esc = s => foundry.utils.escapeHTML(String(s ?? ""));
 // данные свои (пересказ книг): строка с разметкой внутри (<strong>, <em>) не экранируется
 const p = s => s ? (/^\s*</.test(s) ? s : /<\/?(strong|em|b|i|br|span|a)\b/.test(s) ? `<p>${s}</p>` : `<p>${esc(s)}</p>`) : "";
 const fact = (label, value) => value || value === 0 ? { label, value } : null;
+// список правил («<ul><li>…») — плашками: ведущий <strong>…</strong> пункта становится его заголовком
+const feats = html => String(html ?? "").replace(/^<ul>/, '<ul class="r-at-feats">')
+  .replace(/<li><strong>([^<]{2,80}?)[.:]<\/strong>\s*/g, (m, k) => `<li><b class="r-at-feat-k">${k.replace(/[.:]\s*$/, "")}</b>`)
+  .replace(/<li>([^<:.;]{2,40}):\s*/g, (m, k) => `<li><b class="r-at-feat-k">${k}</b>`);
 // лор записи (data/line-lore.json, своими словами по книгам линейки): линейка → раздел → ключ
 const lore = (line, kind, key) => Codex["line-lore"]?.[line]?.[kind]?.[String(key)] ?? "";
 
@@ -37,7 +41,7 @@ function mageGroups() {
   const factions = g => (D.factions ?? []).filter(f => f.group === g.key).map(f => ({
     key: f.key, name: f.name, sub: f.en, sym: mg(factionGlyph(f)),
     card: () => ({
-      kicker: g.name, text: lore("mage", "faction", f.key), facts: [fact(loc("Mage.Affinity"), f.affinityText), fact(loc("Mage.Practice"), f.practices)].filter(Boolean),
+      kicker: g.name, lore: lore("mage", "faction", f.key), facts: [fact(loc("Mage.Affinity"), f.affinityText), fact(loc("Mage.Practice"), f.practices)].filter(Boolean),
       chips: (f.affinity ?? []).map(k => ({ sym: mg(`sphere-${k}`), label: g.key === "technocracy" && sphere(k)?.tech ? sphere(k).tech.name : sphere(k)?.name ?? k })),
       sections: f.subs?.length ? [{ title: subLabel(f), n: f.subs.length, plain: true,
         rows: f.subs.map(x => ({ name: x.name, em: x.en, sym: f.key === "order-of-hermes" ? mg(`house-${x.key}`) : null, html: p(x.note) })) }] : []
@@ -55,21 +59,21 @@ function mageGroups() {
     // Квиппот Падших (Book of the Fallen): десять Квлиф от 10 к 1 — прозвание, влияние, Сфера
     { key: "qliphoth", label: loc("Atlas.Qliphoth"), items: (D.qliphoth ?? []).map(q => ({
       key: `qliph:${q.n}`, name: q.name, sub: `«${q.title}»`, sym: q.sphere ? mg(`sphere-${q.sphere}`) : mg("group-nephandi"),
-      card: () => ({ kicker: `${loc("Atlas.Qliph")} ${q.n}`, nick: q.title, text: lore("mage", "qliph", q.n),
+      card: () => ({ kicker: `${loc("Atlas.Qliph")} ${q.n}`, lore: lore("mage", "qliph", q.n),
         facts: [fact(loc("Atlas.Sphere"), sphere(q.sphere)?.name), fact(loc("Atlas.Influence"), q.influence)].filter(Boolean) }) })) },
     // колдуны и консоры (M20 Sorcerer; Gods & Monsters)
     { key: "sorcPaths", label: loc("Sorcerer.Paths"), items: (D.sorcerer?.paths ?? []).map(x => ({ key: `path:${x.key}`, name: x.name, sub: x.en, icon: "fa-route", card: () => ({ kicker: loc("Sorcerer.Path"), text: x.html }) })) },
     { key: "sorcPsychic", label: loc("Sorcerer.PsychicShort"), items: (D.sorcerer?.psychic ?? []).map(x => ({ key: `psy:${x.key}`, name: x.name, sub: x.en, icon: "fa-brain", card: () => ({ kicker: loc("Sorcerer.Psychic"), text: x.html }) })) },
     { key: "sorcAff", label: loc("Sorcerer.Affiliations"), items: (D.sorcerer?.affiliations ?? []).map(x => ({ key: `aff:${x.key}`, name: x.name, sub: x.en, icon: "fa-people-group",
-      card: () => ({ kicker: loc("Sorcerer.Affiliation"), text: lore("mage", "aff", x.key) + p(x.text), facts: [fact(loc("Sorcerer.FavAttrs"), x.attrs), fact(loc("Sorcerer.FavPaths"), x.paths)].filter(Boolean) }) })) },
+      card: () => ({ kicker: loc("Sorcerer.Affiliation"), lore: lore("mage", "aff", x.key), text: p(x.text), facts: [fact(loc("Sorcerer.FavAttrs"), x.attrs), fact(loc("Sorcerer.FavPaths"), x.paths)].filter(Boolean) }) })) },
     { key: "consors", label: loc("Sorcerer.Consors"), items: (D.sorcerer?.consor?.roles ?? []).map(x => ({ key: `consor:${x.key}`, name: x.name, sub: x.en, icon: "fa-user-group", card: () => ({ kicker: loc("Sorcerer.Consor"), text: p(x.text) }) })) },
     { key: "essences", label: loc("Atlas.Essences"), items: (D.essences ?? []).map(e => ({
-      key: `essence:${e.key}`, name: e.name, sub: e.en, icon: "fa-sun", card: () => ({ kicker: loc("Mage.Essence"), text: lore("mage", "essence", e.key) || p(e.text) }) })) },
+      key: `essence:${e.key}`, name: e.name, sub: e.en, icon: "fa-sun", card: () => ({ kicker: loc("Mage.Essence"), lore: lore("mage", "essence", e.key), text: lore("mage", "essence", e.key) ? "" : p(e.text) }) })) },
     { key: "paradigms", label: loc("Atlas.Paradigms"), items: (D.focus?.paradigms ?? []).map((x, i) => ({
-      key: `paradigm:${i}`, name: x.name, sub: x.en, icon: "fa-eye", card: () => ({ kicker: loc("Mage.Paradigm"), text: lore("mage", "paradigm", i) + (/^Практики/.test(x.text ?? "") ? p(x.text) : lore("mage", "paradigm", i) ? "" : p(x.text)) }) })) },
+      key: `paradigm:${i}`, name: x.name, sub: x.en, icon: "fa-eye", card: () => ({ kicker: loc("Mage.Paradigm"), lore: lore("mage", "paradigm", i), text: /^Практики/.test(x.text ?? "") || !lore("mage", "paradigm", i) ? p(x.text) : "" }) })) },
     { key: "practices", label: loc("Atlas.Practices"), items: (D.focus?.practices ?? []).map((x, i) => ({
       key: `practice:${i}`, name: x.name, sub: x.en, icon: "fa-hand-sparkles",
-      card: () => ({ kicker: loc("Mage.Practice"), text: lore("mage", "practice", i) || p(x.text),
+      card: () => ({ kicker: loc("Mage.Practice"), lore: lore("mage", "practice", i), text: lore("mage", "practice", i) ? "" : p(x.text),
         facts: [fact(loc("Mage.Paradigm"), x.paradigms), fact(loc("Atlas.Abilities"), x.abilities), fact(loc("Atlas.Instruments"), x.instruments)].filter(Boolean) }) })) }
   ].filter(g => g.items.length);
 }
@@ -80,7 +84,7 @@ function wolfGroups() {
   const gift = k => (D.gifts ?? []).find(g => g.key === k);
   // пересказ начинается с того, кто учит («дух волка. …»): отдельной строкой «Учит: Дух волка»
   const teach = g => !g.teacher ? g.text ?? "" : String(g.text ?? "").replace(/^<p>((?:учит |учат )?([а-яё][^<.]{2,118}?))\.\s+/, (m, all, who) =>
-    g.teacher.startsWith(all.slice(0, 12)) ? `<p class="r-at-teach">${loc("Atlas.Teaches")}: ${who[0].toUpperCase()}${who.slice(1)}</p><p>` : m);
+    g.teacher.startsWith(all.slice(0, 12)) ? `<p class="r-at-teach"><i class="fa-solid fa-feather-pointed" inert></i>${loc("Atlas.Teaches")}: ${who[0].toUpperCase()}${who.slice(1)}</p><p>` : m);
   const giftRow = g => ({ lvl: ROMAN[g.level] ?? g.level, name: g.name, em: g.en, html: teach(g) });
   const start = keys => ({ start: true, title: loc("Atlas.StartGifts"), rows: (keys ?? []).map(gift).filter(Boolean).map(giftRow) });
   const own = (kind, key) => {
@@ -94,20 +98,20 @@ function wolfGroups() {
   return [
     { key: "tribes", label: loc("Atlas.Tribes"), items: (D.tribes ?? []).map(x => ({
       key: `tribe:${x.key}`, name: x.name, sub: x.en, sym: wg(`tribe-${x.key}`),
-      card: () => ({ kicker: loc("Werewolf.Tribe"), text: lore("werewolf", "tribe", x.key),
+      card: () => ({ kicker: loc("Werewolf.Tribe"), lore: lore("werewolf", "tribe", x.key),
         facts: [fact(loc("Willpower"), x.willpower), fact(loc("Atlas.Totem"), x.totem), fact(loc("Atlas.Backgrounds"), x.backgrounds)].filter(Boolean),
         sections: secs([start(x.startGifts), own("tribe", x.key)]) }) })) },
     { key: "breeds", label: loc("Atlas.Breeds"), items: (D.breeds ?? []).map(x => ({
       key: `breed:${x.key}`, name: x.name, sub: x.en, sym: wg(`breed-${x.key}`),
-      card: () => ({ kicker: loc("Werewolf.Breed"), nick: x.nick, text: lore("werewolf", "breed", x.key) + p(x.notes), facts: [fact(loc("Werewolf.Gnosis"), x.gnosis)].filter(Boolean),
+      card: () => ({ kicker: loc("Werewolf.Breed"), nick: x.nick, lore: lore("werewolf", "breed", x.key), text: p(x.notes), facts: [fact(loc("Werewolf.Gnosis"), x.gnosis)].filter(Boolean),
         sections: secs([start(x.startGifts), own("breed", x.key)]) }) })) },
     { key: "auspices", label: loc("Atlas.Auspices"), items: (D.auspices ?? []).map(x => ({
       key: `auspice:${x.key}`, name: x.name, sub: x.en, sym: wg(`auspice-${x.key}`),
-      card: () => ({ kicker: loc("Werewolf.Auspice"), tag: x.role, text: lore("werewolf", "auspice", x.key), facts: [fact(loc("Werewolf.Rage"), x.rage), fact(loc("Atlas.Renown"), x.renownText)].filter(Boolean),
+      card: () => ({ kicker: loc("Werewolf.Auspice"), tag: x.role, lore: lore("werewolf", "auspice", x.key), facts: [fact(loc("Werewolf.Rage"), x.rage), fact(loc("Atlas.Renown"), x.renownText)].filter(Boolean),
         sections: secs([start(x.startGifts), own("auspice", x.key)]) }) })) },
     { key: "fera", label: loc("Atlas.Fera"), items: (D.fera ?? []).map(x => ({
       key: `fera:${x.key}`, name: x.name, sub: x.en, sym: wg(`fera-${x.key}`),
-      card: () => ({ kicker: loc("Atlas.FeraKind"), text: lore("werewolf", "fera", x.key) + (x.traits ?? ""),
+      card: () => ({ kicker: loc("Atlas.FeraKind"), lore: lore("werewolf", "fera", x.key), text: feats(x.traits),
         facts: Object.entries(x.facts ?? {}).map(([k, v]) => fact(k, v)).filter(Boolean),
         sections: secs([
           ...(x.dims ?? []).map(d => ({ title: d.label, plain: true, rows: d.options.map(o => ({ name: o.name, em: o.en, html: p(o.text) })) })),
@@ -122,7 +126,7 @@ function hunterGroups() {
   const D = H(), V = D.virtues ?? {}, VICON = { mercy: "fa-hand-holding-heart", vision: "fa-eye", zeal: "fa-fire-flame-simple" };
   const edges = path => (D.edges ?? []).filter(e => e.path === path).sort((a, b) => a.level - b.level);
   const edgeRow = e => ({ lvl: ROMAN[e.level] ?? e.level, name: e.name, em: e.conviction ? `${loc("Hunter.Conviction")} ${e.conviction}` : "", html: p(e.text) });
-  const creedCard = c => () => ({ kicker: `${loc("Hunter.Creed")} · ${V[c.virtue] ?? c.virtue}`, text: lore("hunter", "creed", c.key) || p(c.text),
+  const creedCard = c => () => ({ kicker: `${loc("Hunter.Creed")} · ${V[c.virtue] ?? c.virtue}`, lore: lore("hunter", "creed", c.key), text: lore("hunter", "creed", c.key) ? "" : p(c.text),
     facts: [fact(loc("Atlas.Virtue"), V[c.virtue]), fact(loc("Hunter.Conviction"), c.conviction), fact(loc("Atlas.Advice"), c.tips)].filter(Boolean),
     sections: edges(c.key).length ? [{ title: loc("Hunter.Edges"), n: edges(c.key).length, rows: edges(c.key).map(edgeRow) }] : [] });
   const B = D.bystander;
@@ -133,7 +137,7 @@ function hunterGroups() {
         facts: [fact(loc("Hunter.Conviction"), B.conviction), fact(loc("Atlas.Virtues"), Object.values(B.virtues ?? {}).join(", "))].filter(Boolean) }) }] : [])] },
     // Добродетели охоты: чьи кредо и какие пути Граней на ней стоят
     { key: "virtues", label: loc("Atlas.Virtues"), items: Object.entries(V).map(([k, name]) => ({ key: `virtue:${k}`, name, icon: VICON[k] ?? "fa-eye",
-      card: () => ({ kicker: loc("Atlas.Virtue"), text: lore("hunter", "virtue", k), chips: (D.creeds ?? []).filter(c => c.virtue === k).map(c => ({ label: c.name })),
+      card: () => ({ kicker: loc("Atlas.Virtue"), lore: lore("hunter", "virtue", k), chips: (D.creeds ?? []).filter(c => c.virtue === k).map(c => ({ label: c.name })),
         sections: [...new Set((D.edges ?? []).filter(e => e.virtue === k).map(e => e.path))].map(path => ({ title: (D.creeds ?? []).find(c => c.key === path)?.name ?? path, rows: edges(path).map(edgeRow) })) }) })) }
   ].filter(g => g.items.length);
 }
@@ -150,7 +154,7 @@ function wraithGroups() {
         sections: [{ title: loc("Wraith.Arcanoi"), n: a.levels.length, rows: a.levels.map(l => ({ lvl: ROMAN[l.level], name: l.name,
           em: `${loc(l.kind === "common" ? "Wraith.Common" : "Wraith.Initiate")}${l.en ? ` · ${l.en}` : ""}`, html: l.html })) }] }) })) },
     { key: "legions", label: loc("Wraith.Legions"), items: (D.legions ?? []).map(l => ({ key: `legion:${l.key}`, name: l.name, sub: l.en, sym: legionSym(l.key),
-      card: () => ({ kicker: loc("Wraith.Legion"), text: lore("wraith", "legion", l.key), facts: [fact(loc("Wraith.LegionDeath"), l.death), fact(loc("Atlas.Lord"), l.lord), fact(loc("Atlas.Seat"), l.seat)].filter(Boolean) }) })) },
+      card: () => ({ kicker: loc("Wraith.Legion"), lore: lore("wraith", "legion", l.key), facts: [fact(loc("Wraith.LegionDeath"), l.death), fact(loc("Atlas.Lord"), l.lord), fact(loc("Atlas.Seat"), l.seat)].filter(Boolean) }) })) },
     { key: "shadow", label: loc("Wraith.ShadowArchetype"), items: (D.shadowArchetypes ?? []).map((x, i) => ({ key: `shadow:${i}`, name: x.name, sub: x.en, icon: "fa-mask",
       card: () => ({ kicker: loc("Wraith.Shadow"), text: p(x.text), facts: [fact(loc("Wraith.Catharsis"), x.catharsis !== "—" && x.catharsis)].filter(Boolean) }) })) },
     { key: "thorns", label: loc("Wraith.Thorns"), items: (D.thorns ?? []).map(x => ({ key: `thorn:${x.key}`, name: x.name, sub: x.en, icon: "fa-spa",
@@ -176,7 +180,7 @@ function changelingGroups() {
       card: () => ({ kicker: loc("Changeling.House"), text: h.html || p(h.short),
         facts: [fact(loc("Changeling.CourtLabel"), h.courtText), fact(loc("Changeling.Atlas.Nick"), h.nick), fact(loc("ClCr.Boon"), h.boon), fact(loc("ClCr.HouseFlaw"), h.flaw)].filter(Boolean) }) })) },
     { key: "legacies", label: loc("Changeling.Atlas.Legacies"), items: (D.legacies ?? []).map(l => ({ key: `legacy:${l.key}`, name: l.name, sub: `${l.en} · ${loc(`Changeling.Court.${l.court}`)}`, icon: l.court === "seelie" ? "fa-sun" : "fa-moon", sym: g("court", l.court),
-      card: () => ({ kicker: loc(l.court === "seelie" ? "Changeling.LegacySeelie" : "Changeling.LegacyUnseelie"), tag: l.text, text: lore("changeling", "legacy", l.key) || p(l.text),
+      card: () => ({ kicker: loc(l.court === "seelie" ? "Changeling.LegacySeelie" : "Changeling.LegacyUnseelie"), tag: l.text, lore: lore("changeling", "legacy", l.key), text: lore("changeling", "legacy", l.key) ? Codex["line-lore"]?.changeling?.rules ?? "" : p(l.text),
         facts: [fact(loc("ClCr.Quest"), l.quest), fact(loc("ClCr.Ban"), l.ban)].filter(Boolean) }) })) },
     { key: "arts", label: loc("Changeling.Arts"), items: (D.arts ?? []).map(a => ({ key: `art:${a.key}`, name: a.name, sub: a.en, icon: "fa-wand-sparkles", sym: g("art", a.key),
       card: () => ({ kicker: loc("Changeling.Art"), text: a.html,

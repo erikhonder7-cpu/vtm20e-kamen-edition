@@ -4434,7 +4434,7 @@ try {
       am.show("qliph:10"); await wait(400);
       out.atlasQliph = am.element.querySelector(".r-cl-head h2")?.textContent.trim();
       // лор (data/line-lore.json): у Квлифы, фракции, общества колдунов и парадигмы есть текст
-      const loreLen = () => am.element.querySelector(".r-at-text")?.textContent.trim().length ?? 0;
+      const loreLen = () => am.element.querySelector(".r-at-lore")?.textContent.trim().length ?? 0;
       out.lore = [loreLen() > 100];
       for (const k of ["infernalists", "aff:aoar", "paradigm:13", "practice:5"]) { am.show(k); await wait(300); out.lore.push(loreLen() > 80); }
       await am.close();
@@ -4443,7 +4443,7 @@ try {
       // племя с лором; разметка в фактах и тексте не экранирована; дар — «Учит: …» отдельной строкой
       aw.show("tribe:blackSpiralDancers"); await wait(400);
       const html = aw.element.innerHTML;
-      out.wolfLore = [(aw.element.querySelector(".r-at-text")?.textContent.length ?? 0) > 100, !html.includes("&lt;strong"), !/файл 12/.test(html)];
+      out.wolfLore = [(aw.element.querySelector(".r-at-lore")?.textContent.length ?? 0) > 100, !html.includes("&lt;strong"), !/файл 12/.test(html)];
       aw.show("auspice:ragabash"); await wait(400);
       for (const d of aw.element.querySelectorAll("details")) d.open = true;
       out.wolfLore.push(!!aw.element.querySelector(".r-at-teach"));

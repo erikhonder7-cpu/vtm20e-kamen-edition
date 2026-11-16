@@ -31,7 +31,9 @@
       </div>
     </header>
 
-    {{#if text}}<section class="r-cl-sec r-at-text">{{{text}}}</section>{{/if}}
+    {{!-- предание (data/line-lore.json) — как «О клане» у справочника кланов; ниже — правила записи --}}
+    {{#if lore}}<section class="r-cl-sec r-cl-lore r-at-lore"><h3>{{localize "VTM20.Atlas.Lore"}}</h3>{{{lore}}}</section>{{/if}}
+    {{#if text}}<section class="r-cl-sec r-at-text{{#if lore}} is-rules{{/if}}">{{#if lore}}<h3>{{localize "VTM20.Atlas.Features"}}</h3>{{/if}}{{{text}}}</section>{{/if}}
 
     {{#if chips.length}}
     <section class="r-cl-sec"><div class="r-cl-discs">{{#each chips}}<span class="r-cl-disc">{{#if sym}}{{rSym sym}}{{/if}}{{label}}</span>{{/each}}</div></section>
