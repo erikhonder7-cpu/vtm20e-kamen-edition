@@ -628,7 +628,9 @@ export class VtMActor extends Actor {
       const labels = { stamina: this.traitLabel("attributes.stamina"), armor: t("Sheet.Armor"), emblem: t("Wraith.Proj.EmblemShort") };
       // Эмблема защиты проектора «Орфея»: броня 4 ударный / 2 летальный / 1 губительный на сцену
       const emblem = s.wraith?.projector?.on && s.wraith.projector.emblem ? { bashing: 4, lethal: 2, aggravated: 1 }[type] ?? 0 : 0;
-      const p = { stamina: type === "aggravated" ? 0 : stamina, armor: arm, emblem };
+      // Арканои (Упорство кузнеца, Броня Лепки — data/arcanos-effects.mjs → soakBonus): кубы прочности, и против губительного
+      const p = { stamina: type === "aggravated" ? 0 : stamina, armor: arm, emblem, arcanos: s.fx?.soakBonus?.[type] ?? 0 };
+      labels.arcanos = t("Wraith.Fx.Soak");
       return Object.entries(p).filter(([, v]) => v > 0).map(([k, value]) => ({ label: labels[k], value }));
     }
     if (this.type === "werewolf") {
@@ -696,7 +698,7 @@ export class VtMActor extends Actor {
   async createPowerWeapons(effect) {
     const flags = effect?.flags?.[SYSTEM_ID];
     if (!flags?.power || flags.ready === false) return [];
-    const def = effectDef(flags.power, flags.variant ?? "", flags.shapeConfig ?? null);
+    const def = effectDef(flags.power, flags.variant ?? "", flags.shapeConfig ?? flags.giftFx ?? flags.edgeFx ?? flags.arcFx ?? null);
     const specs = [...(def?.weapons ?? []), ...(def?.weapon ? [def.weapon] : [])];
     if (!specs.length) return [];
     const existing = this.items.filter(i => i.type === "weapon" && i.getFlag?.(SYSTEM_ID, "power") === flags.power).length;

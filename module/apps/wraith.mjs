@@ -5,6 +5,7 @@
 
 import { Codex } from "../data/codex.mjs";
 import { RollDialog } from "../dice/dialog.mjs";
+import { ARC_EFFECTS, arcFx } from "../data/arcanos-effects.mjs";
 import { VTM20, SYSTEM_PATH, SYSTEM_ID } from "../config.mjs";
 import { registerEmblem, registerCardBlock } from "../ui/themes.mjs";
 import { circleHaunt } from "./circle.mjs";
@@ -182,6 +183,7 @@ export function wraithInfo(actor, dots) {
  */
 export function arcanoiView(actor, dots, sel = {}) {
   const w = actor.system.wraith, status = guildStatus(actor), ROM = ["I", "II", "III", "IV", "V"];
+  const on = new Set((actor.powerEffects ?? []).map(x => x.power));
   const own = W().arcanoi.filter(a => (w.arcanoi[a.key]?.value ?? 0) > 0).map(a => {
     const r = w.arcanoi[a.key], value = r.value, home = a.key === w.guild;
     const art = l => {
@@ -191,7 +193,9 @@ export function arcanoiView(actor, dots, sel = {}) {
         pool: l.attr ? (actor.system.attributes[l.attr]?.total ?? 0) + value : null,
         ...(l => ({ diff: l.diff, diffNote: l.note, viaShroud: !!l.shroud }))(artDifficulty(l, actor)),
         // Посвящённый уровень открывает Статус в Гильдии не ниже уровня (гл. 4); член чужой Гильдии учит «вне закона»
-        allowed: common || status[a.key] >= n, selected: sel[a.key] === `${n}-${l.kind}` };
+        allowed: common || status[a.key] >= n, selected: sel[a.key] === `${n}-${l.kind}`,
+        // эффект на призрака (data/arcanos-effects.mjs): метка; действующий — кнопка снимает
+        fx: !!ARC_EFFECTS[`arc:${a.key}|${n}|${l.kind}`], active: on.has(`arc:${a.key}|${n}|${l.kind}`) };
     };
     const ranks = [1, 2, 3, 4, 5].map(n => ({ n, roman: ROM[n - 1], owned: n <= value,
       halves: ["common", "initiate"].map(k => a.levels.find(l => l.level === n && l.kind === k)).filter(Boolean).map(art) }));
@@ -369,7 +373,18 @@ export async function rollArt(actor, key, level, kind = "common") {
   const a = arcanosOf(key), lv = a?.levels.find(l => l.level === Number(level) && l.kind === kind);
   if (!lv) return null;
   const w = actor.system.wraith, value = w.arcanoi[key]?.value ?? 0;
+  // уровень с эффектом на призрака (data/arcanos-effects.mjs): действующий — повторный щелчок снимает; вариант — до броска
+  const power = `arc:${key}|${lv.level}|${kind}`, adef = ARC_EFFECTS[power];
+  const on = adef ? actor.powerEffects.find(x => x.power === power) : null;
+  if (on) return actor.endPower(on.effect);
   if (value < lv.level) return ui.notifications.warn(t("ArtTooHigh", { n: lv.level }));
+  let variant = "";
+  if (adef?.variants) {
+    variant = await pick(`${a.name}: ${lv.name}`, Object.entries(adef.variants).map(([k, x]) => ({ key: k, title: game.i18n.localize(`VTM20.${x.label}`), icon: adef.icon })));
+    if (!variant) return null;
+  }
+  const vdef = variant ? adef.variants[variant] : {};
+  const start = n => startArc(actor, a, lv, power, adef, variant, n);
   if (lv.pathos && !(await spendPathos(actor, lv.pathos))) return null;
   // трата Корпуса — ударная отметка на шкале (правило системы: книга лечит её как обычный урон)
   if (lv.corpus) await corpusDamage(actor, lv.corpus, "bashing");
@@ -390,16 +405,32 @@ export async function rollArt(actor, key, level, kind = "common") {
     await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<div class="r-notice r-type-wraith r-wr-art">
       <p><i class="fa-solid ${a.icon}"></i> <b>${esc(a.name)} ${"•".repeat(lv.level)} — ${esc(lv.name)}</b> <small>(${t(kind === "common" ? "Common" : "Initiate")})</small></p>
       ${extra.wraith.cost ? `<p><small>${esc(extra.wraith.cost)}</small></p>` : ""}${lv.html}</div>` });
+    if (adef) await start(0);
     return true;
   }
   // цель — Консорт: сложность −1 галочкой (apps/consorts.mjs; правило системы)
   const situ = (await import("./consorts.mjs")).consortSitu(actor);
-  return RollDialog.prompt(actor, { title: `${a.name}: ${lv.name}`, trait1: `attributes.${lv.attr}`, trait2: `wraith.${key}`,
-    difficulty: dc.diff, diffNote: dc.note, effect: lv.html, willpowerCost: lv.willpower ?? 0, extra, situ,
+  // вариант со своим пулом и сложностью (Арсенал Лепки: оружие — Интеллект, сл. Выносливость + 3; броня — Выносливость, сл. Сила + 3)
+  const attr = vdef.attr ?? lv.attr, diff = vdef.diffFrom ? Math.min(10, (actor.system.attributes[vdef.diffFrom]?.total ?? 0) + 3) : dc.diff;
+  return RollDialog.prompt(actor, { title: `${a.name}: ${lv.name}`, trait1: `attributes.${attr}`, trait2: `wraith.${key}`,
+    difficulty: diff, diffNote: dc.note, effect: lv.html, willpowerCost: lv.willpower ?? 0, extra, situ,
     onRolled: async r => {
+      if (adef && (r?.successes ?? 0) > 0) await start(r.successes);
       // в Катарсисе провал или ботч Арканоса отнимает у Тени Ангст (гл. 6)
       if (shadowRuns && (r?.outcome === "failure" || r?.outcome === "botch")) await gainAngst(actor, -1, { reason: t("ShadowFail") });
     } });
+}
+
+/** Эффект Арканоса на призраке: правки по успехам и точкам Арканоса — во флаге arcFx; оружие — на время эффекта. */
+async function startArc(actor, a, lv, power, def, variant, n) {
+  const r = actor.system.wraith.arcanoi[a.key]?.value ?? 0;
+  const fx = arcFx({ ...def, ...(variant ? def.variants[variant] : {}) }, { n, r });
+  const name = `${lv.name}${variant ? ` · ${game.i18n.localize(`VTM20.${def.variants[variant].label}`)}` : ""}`;
+  const [effect] = await actor.createEmbeddedDocuments("ActiveEffect", [{ name, img: `${SYSTEM_PATH}/assets/icons/wraith.svg`, description: lv.html ?? "",
+    flags: { [SYSTEM_ID]: { power, variant, mode: def.mode, ready: true, arcFx: fx, ...(n ? { successes: n } : {}) } } }]);
+  await actor.createPowerWeapons(effect);
+  await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<div class="r-notice r-type-wraith"><i class="fa-solid ${def.icon}"></i> ${esc(t("Fx.On", { name }))}${n ? ` <span class="r-muted">${esc(t("Fx.Succ", { n }))}</span>` : ""}</div>` });
+  return effect;
 }
 
 /** Сыгранная Страсть (гл. 8): рейтинг, сл. 6 (сам переживает) или 8 (видит у смертного); успех — Пафос. Раз за сцену. */

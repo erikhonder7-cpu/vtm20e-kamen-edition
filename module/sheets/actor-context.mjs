@@ -694,7 +694,7 @@ export function prepareEffects(sheet, ctx) {
       // Дары Гару (data/gift-effects.mjs)
       if (def.clawDamage) lines.push(t("FxTab.ClawDamage", { n: def.clawDamage }));
       if (def.clawDiff) lines.push(t("FxTab.ClawDiff", { n: signed(def.clawDiff) }));
-      if (/^(gift|edge):/.test(String(flags.power))) {
+      if (/^(gift|edge|arc):/.test(String(flags.power))) {
         if (def.soakBonus?.lethal) lines.push(t("FxTab.SoakAll", { n: def.soakBonus.lethal }));
         if (def.silverSoak) lines.push(t("FxTab.SilverSoak", { n: def.silverSoak }));
         if (def.attrDice?.mental) lines.push(t("FxTab.AttrDice", { n: def.attrDice.mental }));

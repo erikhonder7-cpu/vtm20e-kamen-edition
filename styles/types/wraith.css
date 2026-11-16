@@ -238,6 +238,9 @@
 .vtm20.r-type-wraith .r-wr-chip i { font-size: 10px; color: var(--r-accent); }
 .vtm20.r-type-wraith .r-wr-chip b { font-weight: 400; color: var(--r-ink); }
 .vtm20.r-type-wraith .r-wr-chip.is-cost { border-color: rgba(201, 210, 220, .35); }
+.vtm20.r-type-wraith .r-wr-chip.is-fx { border-color: rgba(201, 210, 220, .35); color: var(--r-muted); }
+.vtm20.r-type-wraith .r-wr-chip.is-fx.is-on { border-color: #c9d2dc; color: var(--r-ink); background: rgba(201, 210, 220, .14); }
+.vtm20.r-type-wraith .r-vc-btn.is-use.is-on { border-color: #c9d2dc; background: rgba(201, 210, 220, .18); color: var(--r-ink); }
 .vtm20.r-type-wraith .r-wr-art-text { font-size: 13px; line-height: 1.45; color: var(--r-ink-2); }
 .vtm20.r-type-wraith .r-wr-art-text ul { margin: 2px 0 4px; padding-left: 18px; }
 .vtm20.r-type-wraith .r-wr-art-text table { font-size: 12px; margin: 4px 0; }

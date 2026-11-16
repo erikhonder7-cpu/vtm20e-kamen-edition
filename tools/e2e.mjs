@@ -3928,6 +3928,42 @@ try {
     for (const [k, v] of Object.entries(want)) if (JSON.stringify(r[k]) !== JSON.stringify(v)) throw new Error(`${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(v)}`);
   });
 
+  // Арканои эффектами (data/arcanos-effects.mjs): Упорство кузнеца без броска (Вселение к прочности, и против губительного),
+  // Тень Кориолиса — вариант «скрыться» (кубы к Скрытности по успехам), Арсенал Лепки — оружие из Корпуса (держится до снятия)
+  await check("Призрак: Арканои эффектами", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, W = await import(`/systems/${sid}/module/apps/wraith.mjs`), wait = ms => new Promise(res => setTimeout(res, ms)), out = {};
+      const a = await Actor.create({ name: "E2E — призрак Арканоев", type: "wraith", flags: { world: { e2e: true }, [sid]: { created: true } },
+        system: { attributes: { stamina: { value: 2 }, intelligence: { value: 3 } }, wraith: { pathos: { value: 10 }, arcanoi: {
+          inhabit: { value: 3, initiate: [3], skip: [] }, osseum: { value: 2, initiate: [], skip: [] }, moliate: { value: 3, initiate: [], skip: [] } } } } });
+      const rollDlg = () => [...foundry.applications.instances.values()].find(x => x.constructor.name === "RollDialog" && x.rendered);
+      const pickIt = async k => { await wait(500); const d = [...foundry.applications.instances.values()].find(x => x.constructor.name === "DialogV2" && x.rendered);
+        d?.element.querySelector(`[data-pick="${k}"]`)?.click(); await wait(500); };
+      const agg0 = a.soakPool("aggravated");
+      await W.rollArt(a, "inhabit", 3, "initiate"); await wait(400);
+      out.smith = [a.soakPool("aggravated") - agg0, a.system.wraith.pathos.value];
+      W.rollArt(a, "osseum", 2, "common"); await pickIt("hide");
+      let d = rollDlg(); await d?.cfg.onRolled?.({ successes: 2 }); await d?.close(); await wait(300);
+      out.hide = (a.system.fx.dice.stealth ?? []).reduce((n, x) => n + x.value, 0);
+      W.rollArt(a, "moliate", 3, "common"); await pickIt("weapon");
+      d = rollDlg(); out.moliateDiff = d?.values?.difficulty ?? d?.cfg?.difficulty; await d?.cfg.onRolled?.({ successes: 3 }); await d?.close(); await wait(400);
+      out.weapon = a.items.filter(i => i.type === "weapon" && i.getFlag(sid, "power") === "arc:moliate|3|common").map(i => i.system.damage).join();
+      // лист: у уровня — метка «Эффект», действующий отмечен (кнопка снимает)
+      const lv = W.arcanoiView(a, () => []).own.flatMap(x => x.ranks.flatMap(rk => rk.halves.map(h => ({ ...h, arc: x.key }))));
+      out.sheet = [lv.filter(h => h.fx).length, lv.filter(h => h.active).map(h => h.arc).sort().join()];
+      await W.rollArt(a, "inhabit", 3, "initiate"); await wait(300); out.smithOff = a.soakPool("aggravated") - agg0;
+      const { endScene } = await import(`/systems/${sid}/module/apps/night.mjs`);
+      await endScene(); await wait(400);
+      out.afterScene = a.powerEffects.map(x => x.power).join();               // Арсенал — до снятия, переживает сцену
+      await W.rollArt(a, "moliate", 3, "common"); await wait(300);
+      out.left = a.powerEffects.length + a.items.filter(i => i.getFlag(sid, "power")?.startsWith?.("arc:")).length;
+      await a.delete();
+      return out;
+    });
+    const want = { smith: [3, 9], hide: 2, moliateDiff: 5, weapon: "3", sheet: [8, "inhabit,moliate,osseum"], smithOff: 0, afterScene: "arc:moliate|3|common", left: 0 };
+    for (const [k, v] of Object.entries(want)) if (JSON.stringify(r[k]) !== JSON.stringify(v)) throw new Error(`${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(v)}`);
+  });
+
   await check("Оборотень: Дары эффектами", async () => {
     const id = await temp("E2E — Гару с Дарами", "werewolf");
     const r = await page.evaluate(async id => {
@@ -3965,7 +4001,8 @@ try {
       WW.useGift(a, "persuasion"); await wait(800);
       const rd2 = [...foundry.applications.instances.values()].find(x => x.constructor.name === "RollDialog" && x.rendered);
       await rd2?.cfg.onRolled?.({ successes: 2 }); await rd2?.close(); await wait(300);
-      out.persuade = (a.system.formFx.diff.charisma ?? []).reduce((n, d) => n + d.value, 0);
+      const D = await import(`/systems/${SYS}/module/dice/dialog.mjs`);
+      out.persuade = new D.RollDialog(a, { trait1: "attributes.charisma", trait2: "abilities.subterfuge" }).compute().diffAuto.filter(d => d.label === "Убеждение").reduce((n, d) => n + d.value, 0);
       // лист: действующие Дары подсвечены, во вкладке эффектов — строки правок
       await a.sheet.render(true); await wait(900);
       const el = a.sheet.element;

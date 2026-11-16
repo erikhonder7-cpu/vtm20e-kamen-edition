@@ -804,6 +804,18 @@
       "Initiate": "Initiate",
       "NoRoll": "no roll",
       "UseArt": "Use the level: cost before the roll, Angst to the Shadow",
+      "Fx": {
+        "Hide": "Hide",
+        "Blur": "Blur",
+        "Weapon": "Weapon",
+        "Armor": "Armor",
+        "Soak": "Arcanoi",
+        "On": "In effect: “{name}”",
+        "Succ": "successes: {n}",
+        "Active": "In effect",
+        "Off": "End",
+        "OffHint": "The effect is active — click to end it"
+      },
       "ArtKnown": "known (click to remove)",
       "ArtUnknown": "not taken (click to mark)",
       "InitiateLocked": "requires Guild Status at least equal to the level (own Guild by rating, allied Guilds 2 lower)",

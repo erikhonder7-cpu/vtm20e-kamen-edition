@@ -150,10 +150,12 @@
         <span class="r-wr-chip" {{#if diffNote}}data-tooltip="{{diffNote}}"{{/if}}><i class="fa-solid fa-dice-d10"></i> {{#if attrLabel}}{{attrLabel}} + {{../name}} = <b>{{pool}}</b>{{#if diff}} · {{localize "VTM20.Roll.Vs"}} {{diff}}{{/if}}{{else}}{{localize "VTM20.Wraith.NoRoll"}}{{/if}}</span>
         {{#if viaShroud}}<span class="r-wr-chip is-shroud" data-tooltip="{{diffNote}}"><i class="fa-solid fa-cloud"></i> {{localize "VTM20.Wraith.Shroud.Through"}}</span>{{/if}}
         {{#if cost}}<span class="r-wr-chip is-cost"><i class="fa-solid fa-droplet"></i> {{cost}}</span>{{/if}}
+        {{#if fx}}<span class="r-wr-chip is-fx{{#if active}} is-on{{/if}}"><i class="fa-solid fa-wand-sparkles"></i> {{#if active}}{{localize "VTM20.Wraith.Fx.Active"}}{{else}}{{localize "VTM20.Werewolf.GiftFxBadge"}}{{/if}}</span>{{/if}}
       </div>
       <div class="r-wr-art-text">{{{html}}}</div>
       <div class="r-vc-tools">
-        {{#if known}}<a class="r-vc-btn is-use" data-action="wrArt" data-key="{{../key}}" data-level="{{level}}" data-kind="{{kind}}" data-tooltip="{{localize 'VTM20.Wraith.UseArt'}}"><i class="fa-solid {{#if attrLabel}}fa-dice-d10{{else}}fa-hand-sparkles{{/if}}"></i> {{localize "VTM20.Wraith.Use"}}</a>{{/if}}
+        {{#if known}}{{#if active}}<a class="r-vc-btn is-use is-on" data-action="wrArt" data-key="{{../key}}" data-level="{{level}}" data-kind="{{kind}}" data-tooltip="{{localize 'VTM20.Wraith.Fx.OffHint'}}"><i class="fa-solid fa-power-off"></i> {{localize "VTM20.Wraith.Fx.Off"}}</a>
+        {{else}}<a class="r-vc-btn is-use" data-action="wrArt" data-key="{{../key}}" data-level="{{level}}" data-kind="{{kind}}" data-tooltip="{{localize 'VTM20.Wraith.UseArt'}}"><i class="fa-solid {{#if attrLabel}}fa-dice-d10{{else}}fa-hand-sparkles{{/if}}"></i> {{localize "VTM20.Wraith.Use"}}</a>{{/if}}{{/if}}
         {{#if @root.editable}}<a class="r-vc-btn {{#unless allowed}}is-locked{{/unless}}" data-action="wrArtToggle" data-key="{{../key}}" data-level="{{level}}" data-kind="{{#if common}}skip{{else}}initiate{{/if}}"
           data-tooltip="{{#unless allowed}}{{localize 'VTM20.Wraith.InitiateLocked'}}{{else}}{{#if known}}{{localize 'VTM20.Wraith.ArtKnown'}}{{else}}{{localize 'VTM20.Wraith.ArtUnknown'}}{{/if}}{{/unless}}"><i class="fa-solid {{#if known}}fa-circle-minus{{else}}fa-circle-plus{{/if}}"></i> {{#if known}}{{localize "VTM20.Wraith.Forget"}}{{else}}{{localize "VTM20.Wraith.Learn"}}{{/if}}</a>{{/if}}
         <a class="r-vc-btn is-sq is-right" data-action="wrPick" data-key="{{../key}}" data-level="{{level}}" data-kind="{{kind}}" data-tooltip="{{localize 'VTM20.Wraith.Collapse'}}"><i class="fa-solid fa-chevron-up"></i></a>

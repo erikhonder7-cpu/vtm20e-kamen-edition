@@ -24,6 +24,7 @@ import { SYSTEM_ID } from "../config.mjs";
 import { zuloDef, ZULO_POWER } from "./zulo.mjs";
 import { GIFT_EFFECTS } from "./gift-effects.mjs";
 import { EDGE_EFFECTS } from "./edge-effects.mjs";
+import { ARC_EFFECTS } from "./arcanos-effects.mjs";
 
 export const POWER_EFFECTS = {
   // Ясновидение 1: сложность заметить что-либо органами чувств −Ясновидение; без затрат, по желанию
@@ -210,6 +211,9 @@ export function effectDef(power, variant = "", shapeConfig = null) {
   if (String(power).startsWith("gift:")) return GIFT_EFFECTS[power] ? { ...GIFT_EFFECTS[power], ...(shapeConfig ?? {}) } : null;
   // Грани охотников (data/edge-effects.mjs): так же — правки по успехам во флаге эффекта
   if (String(power).startsWith("edge:")) return EDGE_EFFECTS[power] ? { ...EDGE_EFFECTS[power], ...(shapeConfig ?? {}) } : null;
+  // Арканои призраков (data/arcanos-effects.mjs): вариант применения и правки по успехам
+  if (String(power).startsWith("arc:")) { const b = ARC_EFFECTS[power];
+    return b ? { ...b, ...(variant ? b.variants?.[variant] ?? {} : {}), ...(shapeConfig ?? {}) } : null; }
   const base = POWER_EFFECTS[power];
   if (!base) return null;
   if (power === "protean:Модифицированный Облик Зверя" && shapeConfig) {
@@ -245,7 +249,7 @@ export function activePowerEffects(actor) {
   for (const e of actor?.effects ?? []) {
     const f = e.flags?.[SYSTEM_ID];
     if (!f?.power || e.disabled) continue;
-    const def = effectDef(f.power, f.variant, f.shapeConfig ?? f.giftFx ?? f.edgeFx ?? null);
+    const def = effectDef(f.power, f.variant, f.shapeConfig ?? f.giftFx ?? f.edgeFx ?? f.arcFx ?? null);
     if (def) out.push({ effect: e, power: f.power, variant: f.variant ?? "", def });
   }
   return out;

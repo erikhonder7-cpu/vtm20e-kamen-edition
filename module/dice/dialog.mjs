@@ -205,8 +205,12 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const attrs = [v.trait1, v.trait2].filter(p => p?.startsWith("attributes.")).map(p => p.split(".")[1]);
     const social = attrs.some(k => VTM20.attributeGroups.social.attributes.includes(k));
     const formDiff = [v.trait1, v.trait2].flatMap(p => a.system.formFx?.diff?.[p?.split(".")[1]] ?? []);
+    // Дары, Грани, Арканои (data/effects.mjs → attrDiff, abilDiff): к сложности бросков Атрибута (или его группы) и Способности
+    const grpOf = k => Object.entries(VTM20.attributeGroups).find(([, g]) => g.attributes.includes(k))?.[0];
+    const fxTrait = [...new Set(attrs.flatMap(k => [k, grpOf(k)]))].flatMap(k => a.system.fx?.attrDiff?.[k] ?? [])
+      .concat([v.trait1, v.trait2].filter(p => p?.startsWith("abilities.")).flatMap(p => a.system.fx?.abilDiff?.[p.split(".")[1]] ?? []));
     const physical = attrs.some(k => VTM20.attributeGroups.physical.attributes.includes(k));
-    const diffAuto = [...(attrs.includes("perception") ? (fx.perception ?? []) : []), ...formDiff, ...sm.diff, ...frenzyDiff(a, this.cfg.kind),
+    const diffAuto = [...(attrs.includes("perception") ? (fx.perception ?? []) : []), ...formDiff, ...fxTrait, ...sm.diff, ...frenzyDiff(a, this.cfg.kind),
       ...mindDiff(a, { physical, social, dex: attrs.includes("dexterity"), traits: [v.trait1, v.trait2] }),
       // Гару: действий за Ярость больше меньшего из Ловкости и Смекалки — все сложности +3 в этот ход
       ...(a.rageFast ? [{ label: t("Werewolf.ActionsFastLabel"), value: 3 }] : []),
