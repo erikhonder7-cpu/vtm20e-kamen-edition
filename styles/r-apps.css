@@ -1983,3 +1983,21 @@ body.r-theme-light .vtm20 .r-sp-state img { filter: none; }
 .vtm20 .r-ls-flash { animation: r-ls-flash 1.6s ease-out; }
 @keyframes r-ls-flash { 0%, 30% { background: color-mix(in srgb, var(--r-accent) 28%, transparent); } 100% { background: transparent; } }
 @media (prefers-reduced-motion: reduce) { .vtm20 .r-ls-flash { animation: none; outline: 1px solid var(--r-accent); } }
+
+/* правила в справочниках (гули и ревенанты, дампиры): заголовки разделов и таблицы в цветах окна, а не светлые таблицы Foundry */
+.vtm20.r-atlas .r-at-text h2, .vtm20.r-atlas .r-at-text h3 { display: flex; align-items: baseline; gap: 8px; margin: 16px 0 8px; padding: 0; border: 0;
+  font-family: var(--r-caps); font-weight: 400; font-size: 12.5px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--r-muted); }
+.vtm20.r-atlas .r-at-text h2::after, .vtm20.r-atlas .r-at-text h3::after { content: ""; flex: 1; height: 1px; background: var(--r-line); }
+.vtm20.r-atlas .r-at-text > :first-child { margin-top: 0; }
+.vtm20.r-atlas .r-at-text h4 { margin: 12px 0 4px; font-family: var(--r-display); font-weight: 400; font-size: 15px; color: var(--r-ink); }
+.vtm20.r-atlas .r-at-text table { width: 100%; margin: 4px 0 14px; border-collapse: collapse; border: 1px solid var(--r-line); background: rgba(0, 0, 0, .14); font-size: 13.5px; }
+.vtm20.r-atlas .r-at-text thead { background: rgba(0, 0, 0, .22); }
+.vtm20.r-atlas .r-at-text th { padding: 7px 10px; border: 0; border-bottom: 1px solid var(--r-line-2); text-align: left;
+  font-family: var(--r-caps); font-weight: 400; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--r-muted); }
+.vtm20.r-atlas .r-at-text th strong { font-weight: 400; }
+.vtm20.r-atlas .r-at-text td { padding: 7px 10px; border: 0; border-top: 1px solid var(--r-line); vertical-align: top; line-height: 1.45; color: var(--r-ink-2); background: transparent; }
+.vtm20.r-atlas .r-at-text tbody tr:nth-child(even) td { background: rgba(255, 255, 255, .025); }
+.vtm20.r-atlas .r-at-text td:first-child { color: var(--r-ink); font-family: var(--r-display); }
+.vtm20.r-atlas .r-at-text li + li { margin-top: 3px; }
+.vtm20.r-atlas .r-at-text .r-at-src { margin: 0 0 12px; padding: 0 0 10px; border-bottom: 1px solid var(--r-line); font-size: 12.5px; font-style: italic; color: var(--r-muted); }
+.vtm20.r-atlas .r-at-text .r-at-src strong { font-style: normal; color: var(--r-ink-2); }

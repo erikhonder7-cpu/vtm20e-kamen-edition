@@ -207,15 +207,17 @@ const meritRow = m => ({ key: `merit:${m.en || m.name}`, name: m.name, sub: [m.e
   icon: m.kind === "flaw" ? "fa-circle-minus" : "fa-circle-plus",
   card: () => ({ kicker: loc(m.kind === "flaw" ? "Atlas.Flaw" : "Atlas.Merit"), text: m.html ?? p(m.text),
     facts: [fact(loc("Atlas.Cost"), m.cost), fact(loc("Atlas.Category"), m.category ? loc(`Atlas.Cat.${m.category}`) : "")].filter(Boolean) }) });
+// страница правил; вступление без абзаца («<strong>Источник:</strong> …» до первого <p>) — сноской сверху
+const srcNote = html => String(html ?? "").replace(/^\s*(<(?:strong|em|b)>[\s\S]*?)(?=<(?:p|h\d|ul|table)[\s>])/, '<p class="r-at-src">$1</p>');
 const pages = (key, src) => (src?.pages ?? []).filter(x => x.html).map((x, i) => ({ key: `${key}:${i}`, name: x.name, icon: "fa-book-open",
-  card: () => ({ kicker: src.name, text: x.html }) }));
+  card: () => ({ kicker: src.name, text: srcNote(x.html) }) }));
 
 function ghoulGroups() {
   const rules = (Codex.ghoulRules ?? [])[0];
   const disc = k => Codex.discipline(k)?.name ?? k;
   return [
     { key: "families", label: loc("Atlas.Ghoul.Families"), items: Object.entries(REVENANT_FAMILIES).map(([k, f]) => ({ key: `family:${k}`, name: f.name, sub: [f.en, f.nick].filter(Boolean).join(" · "), icon: "fa-people-roof",
-      card: () => ({ kicker: loc("Atlas.Ghoul.Family"), text: f.html ?? p(f.text),
+      card: () => ({ kicker: loc("Atlas.Ghoul.Family"), lore: f.html ?? p(f.text),
         chips: (f.disciplines ?? []).map(d => ({ label: disc(d), sym: Codex.disciplineSymbol(d) })),
         facts: [fact(loc("Atlas.Ghoul.Flaw"), f.flaw)].filter(Boolean) }) })) },
     { key: "rules", label: loc("Atlas.Ghoul.Rules"), items: pages("rule", rules) },
@@ -231,16 +233,17 @@ function dhampirGroups() {
   return [
     { key: "rules", label: loc("Atlas.Ghoul.Rules"), items: pages("rule", D.rules) },
     { key: "concepts", label: loc("Atlas.Dh.Concepts"), items: (D.concepts ?? []).map(c => ({ key: `concept:${c.key}`, name: c.name, sub: [c.en, c.nick].filter(Boolean).join(" · "), icon: "fa-user",
-      card: () => ({ kicker: loc("Atlas.Dh.Concept"), text: c.html ?? p(c.text) }) })) },
+      card: () => ({ kicker: loc("Atlas.Dh.Concept"), lore: c.html ?? p(c.text),
+        facts: [fact(loc("Atlas.Advice"), c.tips)].filter(Boolean) }) })) },
     { key: "rights", label: loc("Atlas.Dh.Rights"), items: (D.bloodrights ?? []).map(b => ({ key: `right:${b.key}`, name: b.name, sub: b.en, icon: b.rare ? "fa-star" : "fa-droplet",
-      card: () => ({ kicker: loc(b.rare ? "Atlas.Dh.RightRare" : "Atlas.Dh.Right"), text: p(b.text),
+      card: () => ({ kicker: loc(b.rare ? "Atlas.Dh.RightRare" : "Atlas.Dh.Right"), lore: p(b.text),
         chips: b.req ? [{ label: `${loc("Atlas.Dh.Req")}: ${disc(b.req)}`, sym: Codex.disciplineSymbol(b.req) }] : [],
         sections: b.levels?.length ? [{ title: b.name, n: b.levels.length, rows: b.levels.map(l => ({ lvl: ROMAN[l.level] ?? l.level, name: l.name, em: [l.en, l.cost].filter(Boolean).join(" · "), html: p(l.text) })) }] : [] }) })) },
     { key: "rituals", label: loc("Atlas.Dh.Rituals"), items: (D.rituals ?? []).map(r => ({ key: `ritual:${r.key}`, name: r.name, sub: [r.en, r.level ? ROMAN[r.level] : ""].filter(Boolean).join(" · "), icon: "fa-hand-holding-droplet",
       card: () => ({ kicker: loc("Atlas.Dh.Ritual"), text: p(r.text), facts: [fact(loc("Atlas.Dh.Level"), r.level)].filter(Boolean) }) })) },
     { key: "clans", label: loc("Atlas.Dh.Clans"), items: Object.entries(D.clans ?? {}).map(([k, c]) => ({ key: `clan:${k}`, name: Codex.clanName(k), sub: c.nick, icon: "fa-shield-halved", sym: Codex.clanSymbol(k) ?? undefined,
       // клан Предка: его лор (data/clan-lore.json) — кто они, от чьей крови дампир
-      card: () => ({ kicker: loc("Atlas.Dh.Clan"), text: Codex["clan-lore"]?.[Codex.traitClan(k)] ?? Codex["clan-lore"]?.[k] ?? "", chips: (c.rights ?? []).map(r => ({ label: right(r)?.name ?? r })),
+      card: () => ({ kicker: loc("Atlas.Dh.Clan"), lore: Codex["clan-lore"]?.[Codex.traitClan(k)] ?? Codex["clan-lore"]?.[k] ?? "", chips: (c.rights ?? []).map(r => ({ label: right(r)?.name ?? r })),
         facts: [fact(loc("Atlas.Dh.Weakness"), c.weakness)].filter(Boolean) }) })) },
     { key: "backgrounds", label: loc("Wraith.Backgrounds"), items: (D.backgrounds ?? []).map((x, i) => ({ key: `bg:${i}`, name: x.name, sub: x.en, icon: "fa-book",
       card: () => ({ kicker: loc("Atlas.Background"), text: x.html }) })) },
