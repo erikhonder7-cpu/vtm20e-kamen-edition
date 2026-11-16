@@ -4433,9 +4433,20 @@ try {
       out.atlasMage = [am.element.querySelectorAll(".r-cl-groups a").length, am.element.querySelectorAll(".r-at-row").length, am.element.querySelector(".r-cl-head h2")?.textContent.trim()];
       am.show("qliph:10"); await wait(400);
       out.atlasQliph = am.element.querySelector(".r-cl-head h2")?.textContent.trim();
+      // лор (data/line-lore.json): у Квлифы, фракции, общества колдунов и парадигмы есть текст
+      const loreLen = () => am.element.querySelector(".r-at-text")?.textContent.trim().length ?? 0;
+      out.lore = [loreLen() > 100];
+      for (const k of ["infernalists", "aff:aoar", "paradigm:13", "practice:5"]) { am.show(k); await wait(300); out.lore.push(loreLen() > 80); }
       await am.close();
       const aw = await game.vtm20.openAtlas("werewolf", "bastet"); await wait(600);
       out.atlasWolf = [aw.element.querySelectorAll(".r-cl-groups a").length, aw.element.querySelector(".r-cl-head h2")?.textContent.trim(), aw.element.querySelectorAll(".r-cl-trait").length > 5];
+      // племя с лором; разметка в фактах и тексте не экранирована; дар — «Учит: …» отдельной строкой
+      aw.show("tribe:blackSpiralDancers"); await wait(400);
+      const html = aw.element.innerHTML;
+      out.wolfLore = [(aw.element.querySelector(".r-at-text")?.textContent.length ?? 0) > 100, !html.includes("&lt;strong"), !/файл 12/.test(html)];
+      aw.show("auspice:ragabash"); await wait(400);
+      for (const d of aw.element.querySelectorAll("details")) d.open = true;
+      out.wolfLore.push(!!aw.element.querySelector(".r-at-teach"));
       await aw.close();
       // генератор НПС: маг, технократ, Нефанд — Сферы не выше Арете, точка в родовой, Квинтэссенция по Аватару
       const B = await sys("module/apps/npc-build.mjs"), groups = { mage: ["traditions", "disparates"], technocrat: ["technocracy"], nephandus: ["nephandi"] };
@@ -4452,7 +4463,7 @@ try {
       return out;
     });
     const want = { steps: true, subs: true, techBgHidden: true, quint: [2, 8], techBgShown: true, fallen: [true, false], sheet: [true, 9, "lineAtlas"], traits: [true, true, false],
-      castDlg: [true, true], cast: [1, true], hud: [true, true, 1], hudRote: true, atlasMage: [14, 11, "Орден Гермеса"], atlasQliph: "Лилит", atlasWolf: [4, "Бастет", true],
+      castDlg: [true, true], cast: [1, true], hud: [true, true, 1], hudRote: true, atlasMage: [14, 11, "Орден Гермеса"], atlasQliph: "Лилит", lore: [true, true, true, true, true], atlasWolf: [4, "Бастет", true], wolfLore: [true, true, true, true],
       npc: [true, true, true, true, true, true], npcMade: ["mage", true, true] };
     const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));

@@ -368,7 +368,7 @@
    "en": "Black Spiral Dancers",
    "willpower": 3,
    "totem": "Козодой",
-   "backgrounds": "Бывшие Белые Выли (см. файл 12), ныне племя слуг Червя. <strong>Воля 3.</strong> Тотем — Козодой (Whippoorwill). Факты почти любые; <strong>Чистая кровь (Pure Breed)</strong> ограничена — только при покупке всех 5 точек (отголосок Белых Выли).",
+   "backgrounds": "почти любые; <strong>Чистая кровь</strong> — только все 5 точек сразу (отголосок Белых Выл)",
    "startGifts": [
     "bsd-bane-protector",
     "resist-pain",

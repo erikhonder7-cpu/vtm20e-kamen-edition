@@ -26,7 +26,7 @@
       <div class="r-cl-titles">
         <div class="r-cl-kicker">{{kicker}}</div>
         <h2>{{name}}</h2>
-        {{#if nick}}<div class="r-cl-nick">«{{nick}}»</div>{{/if}}
+        {{#if nick}}<div class="r-cl-nick">«{{nick}}»</div>{{/if}}{{#if tag}}<div class="r-cl-nick">{{tag}}</div>{{/if}}
         {{#if en}}<div class="r-cl-en">{{en}}</div>{{/if}}
       </div>
     </header>
@@ -38,7 +38,7 @@
     {{/if}}
 
     {{#if facts.length}}
-    <section class="r-cl-sec"><dl class="r-at-facts">{{#each facts}}<dt>{{label}}</dt><dd>{{value}}</dd>{{/each}}</dl></section>
+    <section class="r-cl-sec"><dl class="r-at-facts">{{#each facts}}<dt>{{label}}</dt><dd>{{{value}}}</dd>{{/each}}</dl></section>
     {{/if}}
 
     {{#each sections}}

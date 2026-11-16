@@ -1728,7 +1728,7 @@ def parse_bsd(gifts):
         if g:
             starts.append(g["key"])
     tribe = {"key": "blackSpiralDancers", "name": "Танцоры Чёрной Спирали", "en": "Black Spiral Dancers", "willpower": first_int(re.search(r"Воля (\d+)", head).group(1)) if re.search(r"Воля (\d+)", head) else 3,
-             "totem": "Козодой", "backgrounds": md_inline(re.sub(r"^- ", "", head.strip().splitlines()[0])), "startGifts": starts, "icon": "fa-hurricane", "wyrm": True}
+             "totem": "Козодой", "backgrounds": "почти любые; <strong>Чистая кровь</strong> — только все 5 точек сразу (отголосок Белых Выл)", "startGifts": starts, "icon": "fa-hurricane", "wyrm": True}
     return added, tribe
 
 
