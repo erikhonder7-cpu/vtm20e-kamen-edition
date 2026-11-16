@@ -229,3 +229,11 @@ body.r-theme-light .vtm20.r-type-hunter {
 .vtm20.r-type-hunter .r-edge-paths .r-edge-list { padding: 2px 10px 4px; }
 .vtm20.r-type-hunter .r-edge-paths .r-edge { padding: 4px 0; grid-template-columns: 22px minmax(0, 1fr) auto auto; }
 @container (max-width: 620px) { .vtm20.r-type-hunter .r-edge-paths { grid-template-columns: 1fr; } }
+
+/* Грани с эффектом (data/edge-effects.mjs): метка «Эффект», действующая подсвечена, кнопка — снять */
+.vtm20.r-type-hunter .r-hn-fx-tag { display: inline-flex; align-items: center; gap: 4px; margin-left: 6px; padding: 0 6px; border: 1px solid var(--r-line-2);
+  font-family: var(--r-caps); font-size: 10.5px; letter-spacing: .6px; text-transform: uppercase; line-height: 17px; color: var(--r-muted); vertical-align: 2px; }
+.vtm20.r-type-hunter .r-hn-fx-tag i { font-size: 9px; color: var(--r-accent); }
+.vtm20.r-type-hunter .r-hn-fx-tag.is-on { border-color: var(--r-accent); color: var(--r-ink); background: color-mix(in srgb, var(--r-accent) 16%, transparent); }
+.vtm20.r-type-hunter .r-edge.is-on { box-shadow: inset 2px 0 0 var(--r-accent); background: linear-gradient(90deg, color-mix(in srgb, var(--r-accent) 10%, transparent), transparent 60%); }
+.vtm20.r-type-hunter .r-edge .r-vc-btn.is-on { color: var(--r-ink); border-color: var(--r-accent); background: color-mix(in srgb, var(--r-accent) 20%, transparent); }

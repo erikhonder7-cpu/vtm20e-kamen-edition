@@ -175,9 +175,11 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       if (w) {
         const k = VTM20.weaponKinds[w.kind];
         const v = venom(w.damageType, w.ranged);
+        // Рассечение (Грань охотника): оружие ближнего боя +2 к урону, ушибы становятся летальными
+        const cleave = w.kind === "melee" ? fx.meleeDamage ?? 0 : 0, cleaveLethal = w.kind === "melee" && fx.meleeLethal && w.damageType === "bashing";
         return { name: w.name, attr: k.attribute, ability: k.ability, dice: 0, diff: w.difficulty - 6, ranged: w.ranged, silver: !!w.silver,
-          dmg: (w.strength ? str : 0) + w.damage, auto: w.strength ? auto : 0, strengthDamage: !!w.strength,
-          type: v ? "aggravated" : w.damageType, venom: v, supernatural: !!w.supernatural,
+          dmg: (w.strength ? str : 0) + w.damage + cleave, auto: w.strength ? auto : 0, strengthDamage: !!w.strength,
+          type: v ? "aggravated" : cleaveLethal ? "lethal" : w.damageType, venom: v, supernatural: !!w.supernatural,
           // Fortitude-only aggravated claws must not be treated as ordinary fang attacks for armour/stamina soak.
           fangs: !!w.fangs && !w.fortitudeOnly, note: v ? t("Combat.VenomNote", { n: fx.venom }) : "", pierce: w.pierce ?? 0, bullet: w.kind === "firearms", rangeM: w.rangeM,
           talisman: talismanAttack(a, id) };

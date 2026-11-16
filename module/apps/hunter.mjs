@@ -11,6 +11,7 @@
 // Грани «свыше» (своих нет — воззвание на сцену), Грани V уровня.
 
 import { rollPool } from "../dice/roll.mjs";
+import { EDGE_EFFECTS } from "../data/edge-effects.mjs";
 import { registerCardBlock } from "../ui/themes.mjs";
 import { Codex } from "../data/codex.mjs";
 import { SYSTEM_ID } from "../config.mjs";
@@ -249,10 +250,13 @@ export function hunterInfo(actor, dots) {
 export function edgesView(actor) {
   const h = actor.system.hunter ?? {}, own = edgesOf(actor), V = H().virtues;
   const paths = [...new Set(own.map(e => e.path))].sort((a, b) => (a === h.creed ? -1 : b === h.creed ? 1 : a.localeCompare(b)));
+  // Грань с эффектом (data/edge-effects.mjs) — метка; действующая — подсвечена, кнопка выключает
+  const on = new Set(actor.effects.filter(x => x.getFlag(game.system.id, "power")?.startsWith?.("edge:")).map(x => x.getFlag(game.system.id, "edge")));
   return paths.map(p => {
     const c = H().creeds.find(x => x.key === p);
     return { path: p, name: c?.name ?? p, primary: p === h.creed, virtue: V[c?.virtue] ?? "",
-      edges: own.filter(e => e.path === p).sort((a, b) => a.level - b.level).map(e => ({ ...e, pool: poolLabel(actor, e) })) };
+      edges: own.filter(e => e.path === p).sort((a, b) => a.level - b.level).map(e => ({ ...e, pool: poolLabel(actor, e),
+        fx: !!EDGE_EFFECTS[`edge:${e.key}`], active: on.has(e.key) })) };
   });
 }
 
@@ -268,15 +272,37 @@ export function poolLabel(actor, e) {
  * Грань в действии — значком на токене до конца сцены (видно всем на сцене: охотник-НПС против игроков тоже).
  * Снимается в hunterSceneEnd.
  */
-async function markEdge(actor, e) {
+async function markEdge(actor, e, n = 0) {
   if (!actor.isOwner || actor.effects.some(x => x.getFlag(game.system.id, "edge") === e.key)) return;
-  await actor.createEmbeddedDocuments("ActiveEffect", [{ name: t("EdgeOnToken", { name: e.name }), img: "icons/svg/aura.svg",
-    duration: { seconds: 3600 }, flags: { [game.system.id]: { edge: e.key } }, description: `<p>${esc(e.text)}</p>` }]);
+  // Грань с механикой (data/edge-effects.mjs): эффект той же машины, что силы и Дары, — правки по успехам во флаге edgeFx
+  const { EDGE_EFFECTS } = await import("../data/edge-effects.mjs"), def = EDGE_EFFECTS[`edge:${e.key}`];
+  const fx = def ? edgeFx(actor, def, n) : null;
+  const [effect] = await actor.createEmbeddedDocuments("ActiveEffect", [{ name: def ? e.name : t("EdgeOnToken", { name: e.name }), img: "icons/svg/aura.svg",
+    duration: { seconds: 3600 }, description: `<p>${esc(e.text)}</p>`,
+    flags: { [game.system.id]: { edge: e.key, ...(def ? { power: `edge:${e.key}`, mode: def.mode, ready: true, edgeFx: fx, ...(n ? { successes: n } : {}) } : {}) } } }]);
+  if (def && effect) await actor.createPowerWeapons(effect);   // Рассечение: клинок из ничего
+}
+
+/** Правки Грани: «n» — успехи; Всплеск — +Добродетель к физическим Атрибутам, не выше 6. */
+function edgeFx(actor, def, n) {
+  const out = {}, val = v => v === "n" ? n : v;
+  for (const [k, v] of Object.entries(def)) {
+    if (["mode", "icon", "weapon", "surge"].includes(k)) continue;
+    out[k] = v && typeof v === "object" ? Object.fromEntries(Object.entries(v).map(([a, b]) => [a, val(b)])) : val(v);
+  }
+  if (def.surge) {
+    const pts = actor.system.hunter?.[def.surge] ?? 0, A = actor.system.attributes;
+    out.attr = Object.fromEntries(["strength", "dexterity", "stamina"].map(k => [k, Math.max(0, Math.min(pts, 6 - (A[k]?.total ?? 0)))]));
+  }
+  return out;
 }
 
 export async function useEdge(actor, key) {
   const e = edgeOf(key), h = actor.system.hunter ?? {};
   if (!e) return null;
+  // действующая Грань с эффектом — повторный щелчок снимает её (и оружие — Клинок из ничего)
+  const on = actor.effects.find(x => x.getFlag(game.system.id, "edge") === key && x.getFlag(game.system.id, "power"));
+  if (on) return actor.endPower(on);
   if (freeformOn() && h.sceneEdge !== key) return ui.notifications.warn(t("CallFirst"));
   const conv = h.conviction ?? 0;
   if (e.conviction > conv) return ui.notifications.warn(t("NoConviction", { n: e.conviction }));
@@ -316,7 +342,7 @@ export async function useEdge(actor, key) {
   const res = await rollPool({ actor, title: e.name, subtitle: t("EdgeKicker", { path: creedOf(e.path)?.name ?? e.path, n: e.level }),
     pool: val(t1) + val(t2) + v.risk, difficulty: v.diff, kind: "check", breakdown, effect: `<p>${esc(e.text)}</p>`,
     extra: { edge: { path: e.path, level: e.level, virtue: e.virtue, conviction: e.conviction ?? 0, risk: v.risk } } });
-  if ((res?.successes ?? 0) > 0) await markEdge(actor, e);
+  if ((res?.successes ?? 0) > 0) await markEdge(actor, e, res.successes);
   if (!v.risk) return res;
   // риск Убеждённостью: успех — вложенное остаётся и +1; неудача — вложенное сгорает; провал — вся Убеждённость
   const now = actor.system.hunter.conviction ?? 0;
@@ -571,6 +597,8 @@ export function callView(actor) {
 /** Конец сцены: Грань «свыше», запрет после неудачи и риск Убеждённостью — заново. */
 export async function hunterSceneEnd(actor) {
   const h = actor.system.hunter ?? {};
+  // Грани с механикой — как силы (их оружие тоже убирается), прочие метки — просто удаляются
+  for (const x of actor.effects.filter(x => x.getFlag(game.system.id, "edge") && x.getFlag(game.system.id, "power"))) await actor.endPower(x, { quiet: true });
   const marks = actor.effects.filter(x => x.getFlag(game.system.id, "edge")).map(x => x.id);
   if (marks.length) await actor.deleteEmbeddedDocuments("ActiveEffect", marks);
   if (h.sceneEdge || h.sceneBlock || h.sceneRisk)

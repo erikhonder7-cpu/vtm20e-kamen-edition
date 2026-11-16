@@ -34,11 +34,12 @@
     </header>
     <ul class="r-edge-list">
       {{#each edges}}
-      <li class="r-edge">
+      <li class="r-edge{{#if active}} is-on{{/if}}">
         <span class="r-edge-lvl">{{rRoman level}}</span>
-        <span class="r-edge-main"><b>{{name}}</b> <small>{{pool}}{{#if conviction}} · {{localize "VTM20.Hunter.CostShort" n=conviction}}{{/if}}</small>
+        <span class="r-edge-main"><b>{{name}}</b>{{#if fx}} <span class="r-hn-fx-tag{{#if active}} is-on{{/if}}"><i class="fa-solid fa-wand-sparkles"></i> {{localize "VTM20.Werewolf.GiftFxBadge"}}</span>{{/if}} <small>{{pool}}{{#if conviction}} · {{localize "VTM20.Hunter.CostShort" n=conviction}}{{/if}}</small>
           <span class="r-edge-text">{{text}}</span></span>
         {{#if @root.editable}}{{#if @root.hunterCall}}<a class="r-vc-btn" data-action="edgeCall" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Hunter.CallThis'}}"><i class="fa-solid fa-hands-praying"></i></a>
+        {{else if active}}<a class="r-vc-btn is-on" data-action="edgeUse" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Hunter.EdgeActive'}}"><i class="fa-solid fa-power-off"></i></a>
         {{else}}<a class="r-vc-btn" data-action="edgeUse" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Hunter.UseHint'}}"><i class="fa-solid {{#if roll}}fa-dice-d10{{else}}fa-hand-sparkles{{/if}}"></i></a>{{/if}}
         <a class="r-icon-btn is-danger" data-action="edgeDel" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
       </li>

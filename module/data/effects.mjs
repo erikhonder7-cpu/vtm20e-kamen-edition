@@ -23,6 +23,7 @@
 import { SYSTEM_ID } from "../config.mjs";
 import { zuloDef, ZULO_POWER } from "./zulo.mjs";
 import { GIFT_EFFECTS } from "./gift-effects.mjs";
+import { EDGE_EFFECTS } from "./edge-effects.mjs";
 
 export const POWER_EFFECTS = {
   // Ясновидение 1: сложность заметить что-либо органами чувств −Ясновидение; без затрат, по желанию
@@ -207,6 +208,8 @@ export const MODE_LABEL = { scene: "Fx.Scene", toggle: "Fx.Toggleable", hour: "F
 export function effectDef(power, variant = "", shapeConfig = null) {
   // Дары Гару (data/gift-effects.mjs): правки с учётом формы и успехов — во флаге эффекта (giftFx)
   if (String(power).startsWith("gift:")) return GIFT_EFFECTS[power] ? { ...GIFT_EFFECTS[power], ...(shapeConfig ?? {}) } : null;
+  // Грани охотников (data/edge-effects.mjs): так же — правки по успехам во флаге эффекта
+  if (String(power).startsWith("edge:")) return EDGE_EFFECTS[power] ? { ...EDGE_EFFECTS[power], ...(shapeConfig ?? {}) } : null;
   const base = POWER_EFFECTS[power];
   if (!base) return null;
   if (power === "protean:Модифицированный Облик Зверя" && shapeConfig) {
@@ -242,7 +245,7 @@ export function activePowerEffects(actor) {
   for (const e of actor?.effects ?? []) {
     const f = e.flags?.[SYSTEM_ID];
     if (!f?.power || e.disabled) continue;
-    const def = effectDef(f.power, f.variant, f.shapeConfig ?? f.giftFx ?? null);
+    const def = effectDef(f.power, f.variant, f.shapeConfig ?? f.giftFx ?? f.edgeFx ?? null);
     if (def) out.push({ effect: e, power: f.power, variant: f.variant ?? "", def });
   }
   return out;
@@ -328,6 +331,9 @@ export function effectMods(actor) {
     for (const [k, v] of Object.entries(def.attrDice ?? {})) (m.attrDice ??= {})[k] = [...(m.attrDice?.[k] ?? []), { label: effect.name, value: Number(v) || 0 }];
     if (def.silverSoak) m.silverSoak = (m.silverSoak ?? 0) + (Number(def.silverSoak) || 0);
     if (def.rageDiff) (m.rageDiff ??= []).push({ label: effect.name, value: Number(def.rageDiff) || 0 });
+    // Рассечение (data/edge-effects.mjs): оружие ближнего боя — кубы урона и летальный урон
+    m.meleeDamage = (m.meleeDamage ?? 0) + (Number(def.meleeDamage) || 0);
+    m.meleeLethal ||= !!def.meleeLethal;
     if (def.rangedDiff) (m.rangedDiff ??= []).push({ label: effect.name, value: Number(def.rangedDiff) || 0 });
     for (const [k, v] of Object.entries(def.attrDiff ?? {})) (m.attrDiff ??= {})[k] = [...(m.attrDiff?.[k] ?? []), { label: effect.name, value: Number(v) || 0 }];
     for (const [k, v] of Object.entries(def.abilDiff ?? {})) (m.abilDiff ??= {})[k] = [...(m.abilDiff?.[k] ?? []), { label: effect.name, value: Number(v) || 0 }];

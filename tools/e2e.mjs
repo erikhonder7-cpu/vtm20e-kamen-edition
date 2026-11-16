@@ -3895,6 +3895,39 @@ try {
   });
 
   // Дары эффектами (data/gift-effects.mjs): цена, эффект на сцену, правки когтей, ран, прочности, инициативы и чувств; лист; конец сцены снимает
+  // Грани эффектами (data/edge-effects.mjs): Всплеск (без броска, +Рвение к физическим, не выше 6), Рассечение (бросок: клинок
+  // из ничего, ближний бой +2 и летально), лист — метка и подсветка, повторный щелчок снимает, конец сцены — остальное
+  await check("Охотник: Грани эффектами", async () => {
+    const id = await temp("E2E — мститель", "hunter");
+    const r = await page.evaluate(async id => {
+      const SYS = game.system.id, a = game.actors.get(id), wait = ms => new Promise(res => setTimeout(res, ms));
+      const H = await import(`/systems/${SYS}/module/apps/hunter.mjs`);
+      await a.update({ "system.attributes.strength.value": 3, "system.attributes.dexterity.value": 5, "system.attributes.stamina.value": 2,
+        "system.abilities.melee.value": 5, "system.hunter": { creed: "vengeance", mercy: 1, vision: 1, zeal: 4, conviction: 5, edges: ["vengeance|1", "vengeance|4"] } });
+      await a.setFlag(SYS, "created", true);
+      const A = () => ["strength", "dexterity", "stamina"].map(k => a.system.attributes[k].total).join("/");
+      const out = { before: A() };
+      await H.useEdge(a, "vengeance|4"); await wait(400);                      // Всплеск: +4, но не выше 6
+      out.surge = A(); out.conv = a.system.hunter.conviction;
+      // Рассечение: окно Грани — сложность 2, бросок; пул 10 — успех почти наверняка
+      const p = H.useEdge(a, "vengeance|1"); await wait(700);
+      const dlg = [...foundry.applications.instances.values()].find(x => x.constructor.name === "DialogV2" && x.rendered);
+      if (dlg) { dlg.element.querySelector("[name=diff]").value = 2; dlg.element.querySelector("[data-action=ok], button[type=submit]")?.click(); }
+      await p; await wait(600);
+      out.blade = a.items.filter(i => i.getFlag(SYS, "power") === "edge:vengeance|1").map(i => i.name).join();
+      out.melee = [a.system.fx.meleeDamage, a.system.fx.meleeLethal];
+      await a.sheet.render(true); await wait(900);
+      out.sheet = [a.sheet.element.querySelectorAll(".r-edge.is-on").length, a.sheet.element.querySelectorAll(".r-hn-fx-tag").length];
+      await a.sheet.close();
+      await H.useEdge(a, "vengeance|4"); await wait(300); out.off = A();           // повторный щелчок — снять
+      await H.hunterSceneEnd(a); await wait(300);
+      out.left = a.effects.filter(x => x.getFlag(SYS, "edge")).length + a.items.filter(i => i.getFlag(SYS, "power")?.startsWith?.("edge:")).length;
+      return out;
+    }, id);
+    const want = { before: "3/5/2", surge: "6/6/6", conv: 4, blade: "Клинок из ничего", melee: [2, true], sheet: [2, 2], off: "3/5/2", left: 0 };
+    for (const [k, v] of Object.entries(want)) if (JSON.stringify(r[k]) !== JSON.stringify(v)) throw new Error(`${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(v)}`);
+  });
+
   await check("Оборотень: Дары эффектами", async () => {
     const id = await temp("E2E — Гару с Дарами", "werewolf");
     const r = await page.evaluate(async id => {

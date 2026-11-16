@@ -694,7 +694,7 @@ export function prepareEffects(sheet, ctx) {
       // Дары Гару (data/gift-effects.mjs)
       if (def.clawDamage) lines.push(t("FxTab.ClawDamage", { n: def.clawDamage }));
       if (def.clawDiff) lines.push(t("FxTab.ClawDiff", { n: signed(def.clawDiff) }));
-      if (String(flags.power).startsWith("gift:")) {
+      if (/^(gift|edge):/.test(String(flags.power))) {
         if (def.soakBonus?.lethal) lines.push(t("FxTab.SoakAll", { n: def.soakBonus.lethal }));
         if (def.silverSoak) lines.push(t("FxTab.SilverSoak", { n: def.silverSoak }));
         if (def.attrDice?.mental) lines.push(t("FxTab.AttrDice", { n: def.attrDice.mental }));
@@ -705,6 +705,8 @@ export function prepareEffects(sheet, ctx) {
         if (def.rangedDiff) lines.push(t("FxTab.RangedDiff", { n: signed(def.rangedDiff) }));
         for (const [k, v] of Object.entries(def.attrDiff ?? {})) lines.push(t("FxTab.Diff", { what: k === "social" ? t("FxTab.DiffKind.social") : attrL(k), n: signed(v) }));
         for (const [k, v] of Object.entries(def.abilDiff ?? {})) lines.push(t("FxTab.Diff", { what: `«${game.i18n.localize(VTM20.abilities[k]?.label ?? k)}»`, n: signed(v) }));
+        if (def.meleeDamage) lines.push(t("FxTab.MeleeDamage", { n: def.meleeDamage }));
+        if (def.meleeLethal) lines.push(t("FxTab.MeleeLethal"));
         if (def.note) lines.push(t("FxTab.Note"));
       }
     }
