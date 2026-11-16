@@ -36,6 +36,7 @@ import { openDiablerie } from "./module/apps/diablerie.mjs";
 import { openLibrary } from "./module/apps/library.mjs";
 import { openNpcGenerator, registerNpcPresets } from "./module/apps/npc-gen.mjs";
 import { openLoreSearch, registerLoreSearch } from "./module/apps/lore-search.mjs";
+import { registerBogatyr } from "./module/apps/bogatyr.mjs";
 import { openClans } from "./module/apps/clans.mjs";
 import { openBoons } from "./module/apps/boons.mjs";
 import { openDowntime } from "./module/apps/downtime.mjs";
@@ -176,6 +177,7 @@ Hooks.once("init", () => {
   registerIncome();
   registerTorment();
   registerZulo();
+  registerBogatyr();
   registerSettingsGroups();
   registerPossession();
   registerCult();

@@ -42,7 +42,7 @@ export function celerityMaxBuyable(dots, alreadyBought, blood, doubled = false) 
  * для поглощения губительного урона вампиром. Она не повышает значение Выносливости.
  */
 export function soakComponents({ damageType, stamina = 0, fortitude = 0, armor = 0, form = 0,
-  tough = true, fangs = false, staminaVsFangs = false } = {}) {
+  tough = true, fangs = false, staminaVsFangs = false, staminaVsAgg = false } = {}) {
   const out = { stamina: 0, fortitude: n(fortitude), armor: 0, form: n(form) };
   if (damageType === "bashing") {
     out.stamina = n(stamina);
@@ -51,7 +51,7 @@ export function soakComponents({ damageType, stamina = 0, fortitude = 0, armor =
     out.stamina = tough ? n(stamina) : 0;
     out.armor = n(armor);
   } else {
-    out.stamina = fangs && staminaVsFangs ? n(stamina) : 0;
+    out.stamina = (fangs && staminaVsFangs) || staminaVsAgg ? n(stamina) : 0;
     out.armor = fangs ? n(armor) : 0;
   }
   return out;

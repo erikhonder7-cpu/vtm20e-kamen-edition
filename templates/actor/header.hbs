@@ -68,6 +68,20 @@
         <label class="r-df"><span>{{localize "VTM20.Dhampir.Antecedent"}}</span><input type="text" name="system.dhampir.antecedent" value="{{system.dhampir.antecedent}}"></label>
         <label class="r-df" {{#if dhampirWeakness}}data-tooltip="{{localize 'VTM20.Dhampir.WeaknessOf'}}: {{dhampirWeakness}}"{{/if}}><span>{{localize "VTM20.Dhampir.AntecedentClan"}}</span>
           <select name="system.dhampir.antecedentClan"><option value="">—</option>{{#each antecedentClans}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+        {{else if isBogatyr}}
+        {{!-- Богатырь (хоумрул, data/bogatyr.mjs): стадия, месяцы с заражения (запас крови 5 за месяц), Вырождение личинки --}}
+        <label class="r-df"><span>{{localize "VTM20.Bogatyr.StageLabel"}}</span>
+          <select name="system.bogatyr.stage">{{#each bogatyr.stages}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+        <label class="r-df is-narrow" data-tooltip="{{localize 'VTM20.Bogatyr.MonthsTip'}}"><span>{{localize "VTM20.Bogatyr.Months"}}</span>
+          <input type="number" name="system.bogatyr.months" value="{{system.bogatyr.months}}" min="0" data-dtype="Number"></label>
+        {{#if bogatyr.mature}}
+        <span class="r-df r-bog-tools">
+          <a class="r-vc-btn {{#if bogatyr.mantle}}is-on{{/if}}" data-action="bogMantle" data-tooltip="{{localize 'VTM20.Bogatyr.MantleTip'}}"><i class="fa-solid {{#if bogatyr.mantle}}fa-power-off{{else}}fa-skull{{/if}}"></i> {{localize "VTM20.Bogatyr.Mantle"}}</a>
+          <a class="r-vc-btn" data-action="bogRegen" data-tooltip="{{localize 'VTM20.Bogatyr.RegenTip'}}"><i class="fa-solid fa-heart-pulse"></i> {{localize "VTM20.Bogatyr.RegenBtn"}}</a></span>
+        {{else}}
+        <label class="r-df is-narrow" data-tooltip="{{localize 'VTM20.Bogatyr.DegenTip' n=bogatyr.willpower}}"><span>{{localize "VTM20.Bogatyr.Degeneration"}}</span>
+          <input type="number" name="system.bogatyr.degeneration" value="{{system.bogatyr.degeneration}}" min="0" max="10" data-dtype="Number"></label>
+        {{/if}}
         {{else if isRevenant}}
         <label class="r-df is-wide"><span>{{localize "VTM20.Details.family"}}</span>
           <select name="system.family"><option value="">—</option>{{#each families}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>

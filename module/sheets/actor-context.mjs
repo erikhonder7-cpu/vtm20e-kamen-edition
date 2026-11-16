@@ -11,6 +11,7 @@ import { clockBarData, longDate } from "../apps/calendar.mjs";
 import { moneyView } from "../data/money.mjs";
 import { POWER_EFFECTS, MODE_LABEL, fxKey } from "../data/effects.mjs";
 import { zuloOn, zuloTraits, ZULO_POWER, ZULO_TRAITS } from "../data/zulo.mjs";
+import { bogatyrOn, BOGATYR_MANTLE } from "../data/bogatyr.mjs";
 import { effectTimer, readingRituals } from "../apps/timers.mjs";
 import { dhampirView } from "../apps/dhampir.mjs";
 import { torporView, deathOf } from "../apps/torpor.mjs";
@@ -91,7 +92,16 @@ export function prepareHeader(sheet, ctx) {
     ctx.families = Object.entries(REVENANT_FAMILIES).map(([k, f]) => ({ value: k, label: f.name, selected: k === s.family }));
     if (s.family && !REVENANT_FAMILIES[s.family]) ctx.families.push({ value: s.family, label: s.family, selected: true });
     ctx.domitorClans = Codex.clans.filter(c => Codex.visible(c)).map(c => ({ value: c.key, label: c.name, selected: c.key === s.domitorClan || c.name === s.domitorClan }));
-    ctx.ghoulTypes = ["vassal", "independent", "revenant", "dhampir"].map(k => ({ value: k, label: t(`GhoulType.${k}`), selected: k === s.ghoulType }));
+    // Богатырь (хоумрул Fingers of the Eldest) — в списке, только если включён в мире (или уже выбран)
+    ctx.ghoulTypes = ["vassal", "independent", "revenant", "dhampir", ...(bogatyrOn() || s.ghoulType === "bogatyr" ? ["bogatyr"] : [])]
+      .map(k => ({ value: k, label: t(`GhoulType.${k}`), selected: k === s.ghoulType }));
+    ctx.isBogatyr = s.ghoulType === "bogatyr";
+    if (ctx.isBogatyr) {
+      const b = s.bogatyr ?? {};
+      ctx.bogatyr = { ...b, mature: b.stage === "mature", mantle: a.powerEffects.some(x => x.power === BOGATYR_MANTLE),
+        stages: ["larval", "mature"].map(k => ({ value: k, label: t(`Bogatyr.Stage.${k}`), selected: k === b.stage })),
+        willpower: s.willpower?.permanent ?? 0 };
+    }
     // Дампир (Accursed Heirs): концепция и Предок-вампир с кланом — вместо домитора; слабость клана Предка
     if (ctx.isDhampir) {
       const D = Codex.dhampir ?? {}, d = s.dhampir ?? {};

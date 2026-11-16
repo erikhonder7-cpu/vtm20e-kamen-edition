@@ -3928,6 +3928,54 @@ try {
     for (const [k, v] of Object.entries(want)) if (JSON.stringify(r[k]) !== JSON.stringify(v)) throw new Error(`${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(v)}`);
   });
 
+  // Богатыри (хоумрул Fingers of the Eldest, data/bogatyr.mjs): настройка открывает тип гуля, силы и справочник; кровь по месяцам,
+  // предел черт по десятилетиям, «без боли»; Плащ Старейшего — оружие и прочность против губительного; регенерация;
+  // металл режет только ударным без кубов оружия
+  await check("Гуль: Богатыри — тип, Плащ Старейшего, регенерация, неуязвимость к оружию", async () => {
+    const r = await page.evaluate(async () => {
+      const SYS = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {};
+      const { Codex } = await import(`/systems/${SYS}/module/data/codex.mjs`);
+      const was = game.settings.get(SYS, "bogatyri");
+      await game.settings.set(SYS, "bogatyri", false);
+      const vis = () => [Codex.discipline("vicissitude").powers.filter(p => p.era === "bogatyr" && Codex.visible(p)).length,
+        Codex.disciplines.koldunism.paths.filter(p => p.en === "Path of Nightmares" && Codex.visible(p)).length];
+      out.off = vis();
+      await game.settings.set(SYS, "bogatyri", true);
+      out.on = vis();
+      const b = await Actor.create({ name: "E2E — Богатырь", type: "ghoul", flags: { world: { e2e: true }, [SYS]: { created: true } },
+        system: { ghoulType: "bogatyr", bogatyr: { stage: "mature", months: 9 }, details: { age: "25" },
+          attributes: { strength: { value: 4 }, stamina: { value: 3 } } } });
+      out.blood = [b.system.blood.max, b.system.traitMax];
+      await b.update({ "system.health.lethal": 4 }); out.pain = [b.system.health.penalty, !!b.system.health.noPain];
+      await b.update({ "system.health.lethal": 0 });
+      const B = await import(`/systems/${SYS}/module/apps/bogatyr.mjs`);
+      const agg0 = b.soakPool("aggravated");
+      await B.toggleMantle(b); await wait(300);
+      out.mantle = [b.items.filter(i => i.type === "weapon" && i.getFlag(SYS, "power") === "bogatyr:mantle").map(i => `${i.system.damage}:${i.system.damageType}`).sort().join(),
+        b.soakPool("aggravated") - agg0, b.system.fx.soakDiff];
+      await b.update({ "system.health.aggravated": 1, "system.health.bashing": 1 });
+      await B.regenerate(b); await wait(200); out.regen = [b.system.health.aggravated, b.system.health.bashing];
+      // атака ножом по взрослому Богатырю: ударный, без кубов оружия
+      const v = await Actor.create({ name: "E2E — с ножом", type: "vampire", flags: { world: { e2e: true }, [SYS]: { created: true } }, system: { attributes: { strength: { value: 2 } } } });
+      const [knife] = await v.createEmbeddedDocuments("Item", [{ name: "Нож", type: "weapon", system: { kind: "melee", damage: 1, strength: true, damageType: "lethal", difficulty: 6, equipped: true } }]);
+      const { AttackDialog } = await import(`/systems/${SYS}/module/combat/combat.mjs`);
+      const d = new AttackDialog(v, { weapon: knife.id }); d.v.foe = b.uuid; const c = d.compute();
+      out.knife = [c.damage, c.choice.type, c.notes.some(n => /металл/.test(n))];
+      d.v.foe = ""; const c0 = d.compute(); out.knifeNormal = [c0.damage, c0.choice.type];
+      // справочник гулей: глава «Богатыри»
+      const at = await game.vtm20.openAtlas("ghoul", "bog:1"); await wait(600);
+      out.atlas = at.element.querySelector(".r-cl-head h2")?.textContent.trim();
+      await at.close();
+      await B.toggleMantle(b); await wait(200); out.mantleOff = b.items.filter(i => i.getFlag(SYS, "power") === "bogatyr:mantle").length;
+      await b.delete(); await v.delete();
+      await game.settings.set(SYS, "bogatyri", was);
+      return out;
+    });
+    const want = { off: [0, 0], on: [3, 1], blood: [40, 7], pain: [0, true], mantle: ["0:aggravated,3:lethal", 3, -1], regen: [0, 1],
+      knife: [2, "bashing", true], knifeNormal: [3, "lethal"], atlas: "Кто такие Богатыри", mantleOff: 0 };
+    for (const [k, v] of Object.entries(want)) if (JSON.stringify(r[k]) !== JSON.stringify(v)) throw new Error(`${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(v)}`);
+  });
+
   // Арканои эффектами (data/arcanos-effects.mjs): Упорство кузнеца без броска (Вселение к прочности, и против губительного),
   // Тень Кориолиса — вариант «скрыться» (кубы к Скрытности по успехам), Арсенал Лепки — оружие из Корпуса (держится до снятия)
   await check("Призрак: Арканои эффектами", async () => {

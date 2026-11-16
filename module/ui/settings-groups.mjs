@@ -9,7 +9,7 @@ const GROUPS = [
   ["chronicle", ["era", "darkAgesContent", "currency", "assignatRate", "nightlyWillpower", "monthlyIncome", "incomeTable", "herdNightly", "mageWeekly"]],
   ["city", ["latitude", "longitude", "utcOffset", "dawnWarnings", "cityMapEnabled", "nexusNav", "huntersAlert"]],
   ["combat", ["combatInitEachTurn", "combatInitFixed", "combatDeclare"]],
-  ["rules", ["horridForm", "tormentRule", "exorcismRule", "hunterGrowth", "hunterSacrifice", "hunterFreeform", "hunterEdgeCost", "hunterFifth", "koldunRoll", "koldunOutside"]],
+  ["rules", ["horridForm", "bogatyri", "tormentRule", "exorcismRule", "hunterGrowth", "hunterSacrifice", "hunterFreeform", "hunterEdgeCost", "hunterFifth", "koldunRoll", "koldunOutside"]],
   ["ui", ["sheetTheme", "uiSkin", "hud", "pauseLook", "uiSounds", "uiSoundVolume"]]
 ];
 

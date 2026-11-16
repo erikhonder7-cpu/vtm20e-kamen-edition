@@ -2330,7 +2330,8 @@
       "vassal": "Vassal",
       "independent": "Independent",
       "revenant": "Revenant",
-      "dhampir": "Dhampir"
+      "dhampir": "Dhampir",
+      "bogatyr": "Bogatyr"
     },
     "Sect": {
       "camarilla": "Camarilla",
@@ -4175,6 +4176,10 @@
         "rules": "Line rules and house rules",
         "ui": "Look and sound",
         "other": "Other"
+      },
+      "Bogatyri": {
+        "Name": "Bogatyri (Fingers of the Eldest)",
+        "Hint": "Storytellers Vault fan supplement: the Bogatyri, Fingers of the Eldest — Tzimisce symbiote-ghouls. Adds the Bogatyr ghoul type, the Eldest's Mantle, regeneration and resilience to human weapons, Vicissitude 8 and Bogatyr powers, the Koldunic Path of Nightmares. Rules compendium chapter 12."
       },
       "HorridForm": {
         "Name": "Horrid Form (Vicissitude 4)",
@@ -9859,6 +9864,29 @@
       "QuintRow": "Quintessence (4 per point)",
       "ResRow": "Resonance"
     },
+    "Bogatyr": {
+      "Stage": {
+        "larval": "Larva",
+        "mature": "Mature"
+      },
+      "StageLabel": "Stage",
+      "Months": "Months",
+      "MonthsTip": "Months since infection: 5 blood per month (1 point a day), up to 40",
+      "Degeneration": "Degeneration",
+      "DegenTip": "Larval Degeneration: +1 per full lunar month and for deeds that please the monster; at Willpower ({n}) the Bogatyr matures and passes to the Storyteller",
+      "Mantle": "Eldest's Mantle",
+      "MantleTip": "The flesh-pouch emerges: blade arms (Strength + 3 lethal), spike tongue (Strength aggravated), Stamina soaks aggravated, soak difficulty 5. Night only",
+      "MantleDesc": "The symbiote hoods the host's head: arms become blades (Strength + 3 lethal), the tongue a pair of spikes (Strength aggravated); Stamina soaks aggravated damage, soak difficulty 5. Sunlight drives it back in. The heart is exposed: a precise strike through the back may shatter it — Storyteller's call.",
+      "MantleOn": "{name}: the flesh-pouch bursts from the back — the Eldest's Mantle",
+      "RegenBtn": "Regenerate",
+      "RegenTip": "1 health level per turn, aggravated included; in combat — at the start of its turn",
+      "Regen": "{name}: the flesh knits — −1 {type}",
+      "LarvalNoRegen": "A larva doesn't regenerate yet — mature Bogatyri only",
+      "LarvalNoMantle": "The Eldest's Mantle — mature Bogatyri only",
+      "NoDamage": "No damage",
+      "NoCut": "Bogatyr: metal won't cut it — bashing, no weapon dice",
+      "NoBruise": "Bogatyr: blunt weapons don't harm it"
+    },
     "LoreSearch": {
       "Title": "Handbooks",
       "Placeholder": "Search all handbooks — clan, Gift, Legion, Qlipha…",
@@ -9935,6 +9963,7 @@
         "economic": "Economic"
       },
       "Ghoul": {
+        "Bogatyri": "Bogatyri",
         "Families": "Revenant families",
         "Family": "Revenant family",
         "Rules": "Rules",

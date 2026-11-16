@@ -8,6 +8,7 @@
 // к урону, кнопка «Бросить урон» на карточке — как у оружия с листа.
 
 import { declaredActions, abortForDefense } from "./turn.mjs";
+import { bogatyrWeaponRule } from "../data/bogatyr.mjs";
 import { allowAnyway } from "../apps/rule-gate.mjs";
 import { VTM20, SYSTEM_PATH, SYSTEM_ID } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
@@ -178,6 +179,7 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
         // Рассечение (Грань охотника): оружие ближнего боя +2 к урону, ушибы становятся летальными
         const cleave = w.kind === "melee" ? fx.meleeDamage ?? 0 : 0, cleaveLethal = w.kind === "melee" && fx.meleeLethal && w.damageType === "bashing";
         return { name: w.name, attr: k.attribute, ability: k.ability, dice: 0, diff: w.difficulty - 6, ranged: w.ranged, silver: !!w.silver,
+          isWeapon: !w.naturalFormWeapon, weaponDmg: w.damage + cleave,
           dmg: (w.strength ? str : 0) + w.damage + cleave, auto: w.strength ? auto : 0, strengthDamage: !!w.strength,
           type: v ? "aggravated" : cleaveLethal ? "lethal" : w.damageType, venom: v, supernatural: !!w.supernatural,
           // Fortitude-only aggravated claws must not be treated as ordinary fang attacks for armour/stamina soak.
@@ -287,12 +289,15 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     if (c.note) notes.push(c.note);
     if (v.target === "helpless") notes.push(t("Combat.Target.helplessNote"));
     if (v.blind && c.ranged) notes.push(t("Combat.BlindRanged"));
-    const dmg = c.dmg == null ? null : c.dmg + aimDmg;
+    let dmg = c.dmg == null ? null : c.dmg + aimDmg, choice = c;
+    // Богатырь (хоумрул, data/bogatyr.mjs): металл не режет — ударный без кубов оружия; дробящее не ранит
+    const bog = bogatyrWeaponRule(targetActor, c, dmg);
+    if (bog) { dmg = bog.dmg; choice = { ...c, type: bog.type }; notes.push(t(bog.note)); }
     const specialtyPaths = [`abilities.${c.ability}`, `attributes.${c.attr}`].filter(p => a.traitSpecialtyEligible(p));
     const spec = specialtyPaths.map(p => a.traitSpecialty(p)).filter(Boolean).join(", ");
     if (c.auto) notes.push(t("Combat.PotenceDamage", { n: c.auto }));
     if (a.celerityActions) notes.push(t("Combat.CelerityNote", { n: a.celerityActions }));
-    return { pool: Math.max(0, pool), breakdown: bd, difficulty: Math.max(2, diff), damage: dmg, choice: c, notes, phys,
+    return { pool: Math.max(0, pool), breakdown: bd, difficulty: Math.max(2, diff), damage: dmg, choice, notes, phys,
       specialtyName: spec, specialtyEligible: specialtyPaths.length > 0, attackAuto };
   }
 

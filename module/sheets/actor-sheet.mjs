@@ -172,6 +172,7 @@ openUuid: VtMActorSheet.#onOpenUuid,
       hazard: VtMActorSheet.#onHazard,
       diablerie: VtMActorSheet.#onDiablerie,
       clanAtlas: VtMActorSheet.#onClanAtlas,
+      bogMantle: VtMActorSheet.#onBogMantle, bogRegen: VtMActorSheet.#onBogRegen,
       lineAtlas: VtMActorSheet.#onLineAtlas,
       linSire: VtMActorSheet.#onLinSire,
       mageFold: VtMActorSheet.#onMageFold,
@@ -303,7 +304,7 @@ openStrategy: () => openStrategy(),
       isVampire: actor.type === "vampire", isGhoul: actor.type === "ghoul", isDhampir: actor.isDhampir, isMortal: ["mortal", "hunter", "mage"].includes(actor.type), isHunter: actor.type === "hunter", isMage: actor.type === "mage", isWerewolf: actor.type === "werewolf", isWraith: actor.type === "wraith", isChangeling: actor.type === "changeling", stratInfo: sheetStrategy(actor),
       isCreature: actor.type === "creature", isSpiritType: actor.type === "spirit", isDemon: actor.type === "demon",
       hasBlood: actor.hasBlood,
-      typeLabel: actor.type === "ghoul" && ["revenant", "dhampir"].includes(actor.system.ghoulType) ? t(`GhoulType.${actor.system.ghoulType}`) : game.i18n.localize(`TYPES.Actor.${actor.type}`),
+      typeLabel: actor.type === "ghoul" && ["revenant", "dhampir", "bogatyr"].includes(actor.system.ghoulType) ? t(`GhoulType.${actor.system.ghoulType}`) : game.i18n.localize(`TYPES.Actor.${actor.type}`),
       needsCreation: this.needsCreation,
       tabs: this._prepareTabs("primary")
     });
@@ -677,6 +678,9 @@ openStrategy: () => openStrategy(),
   static #onHazard() { return openHazard(this.actor); }
   static #onDiablerie() { return openDiablerie(this.actor); }
   static #onClanAtlas() { return openClans(this.actor.system.clan); }
+  // Богатырь (хоумрул, apps/bogatyr.mjs): Плащ Старейшего и регенерация
+  static async #onBogMantle() { return (await import("../apps/bogatyr.mjs")).toggleMantle(this.actor); }
+  static async #onBogRegen() { return (await import("../apps/bogatyr.mjs")).regenerate(this.actor); }
   /** Справочник мага и оборотня — на своей фракции, роде или племени (apps/atlas.mjs). */
   static async #onLineAtlas() {
     const s = this.actor.system, { openAtlas } = await import("../apps/atlas.mjs");
@@ -684,7 +688,8 @@ openStrategy: () => openStrategy(),
     if (this.actor.type === "wraith") return openAtlas("wraith", s.wraith?.guild);
     if (this.actor.type === "changeling") return openAtlas("changeling", s.changeling?.kith);
     // гуль и ревенант — справочник гулей (на семействе ревенанта), дампир — свой (на клане Предка)
-    if (this.actor.type === "ghoul") return s.ghoulType === "dhampir" ? openAtlas("dhampir", s.dhampir?.antecedentClan ?? "") : openAtlas("ghoul", s.family ?? "");
+    if (this.actor.type === "ghoul") return s.ghoulType === "dhampir" ? openAtlas("dhampir", s.dhampir?.antecedentClan ?? "")
+      : s.ghoulType === "bogatyr" ? openAtlas("ghoul", "bog:1") : openAtlas("ghoul", s.family ?? "");
     return this.actor.type === "mage" ? openAtlas("mage", s.mage?.faction) : openAtlas("werewolf", s.werewolf?.fera || s.werewolf?.tribe);
   }
 

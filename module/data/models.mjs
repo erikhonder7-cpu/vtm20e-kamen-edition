@@ -9,6 +9,7 @@ import { VTM20, SYSTEM_ID } from "../config.mjs";
 import { effectMods } from "./effects.mjs";
 import { formMods } from "./form.mjs";
 import { GIFT_PASSIVE } from "./gift-effects.mjs";
+import { bogatyrBlood, bogatyrTraitMax } from "./bogatyr.mjs";
 
 const { SchemaField, NumberField, StringField, BooleanField, ArrayField, HTMLField, ObjectField } = foundry.data.fields;
 
@@ -202,7 +203,7 @@ export class GhoulData extends BaseActorData {
       // Слуга персонажа: не считается игровым персонажем (опыт за сессию, списки игроков), получает половину
       // опыта, начисленного своему домитору (правило системы)
       retainer: new BooleanField({ initial: false }),
-      ghoulType: str("vassal"),        // vassal | independent | revenant | dhampir
+      ghoulType: str("vassal"),        // vassal | independent | revenant | dhampir | bogatyr (хоумрул, data/bogatyr.mjs)
       family: str(),
       // Дампир (Accursed Heirs: Dhampirs): концепция, Предок-вампир и его клан, Кровные права (ключ → 1–3), ритуалы Дриримантии
       dhampir: new SchemaField({
@@ -211,8 +212,11 @@ export class GhoulData extends BaseActorData {
         bloodrights: new ObjectField({ initial: {} }),
         rituals: new ArrayField(str())
       }),
-      // Активный запас витэ: 1 на старте, предел 2 (растёт с возрастом).
-      blood: new SchemaField({ value: int(1, 0, 20), max: int(2, 1, 20) }),
+      // Богатырь (хоумрул Fingers of the Eldest): стадия (larval — личинка, mature — взрослый), месяцы с заражения,
+      // Вырождение личинки (равно Воле — взрослый)
+      bogatyr: new SchemaField({ stage: str("larval"), months: int(0, 0, 9999), degeneration: int(0, 0, 10) }),
+      // Активный запас витэ: 1 на старте, предел 2 (растёт с возрастом); у Богатыря — до 40.
+      blood: new SchemaField({ value: int(1, 0, 40), max: int(2, 1, 40) }),
       boosts: new SchemaField({ strength: int(0, 0, 10), dexterity: int(0, 0, 10), stamina: int(0, 0, 10) }),
       // жизнь на витэ (apps/ghoul-life.mjs): ночь, когда опустел запас; кровь какого клана и сколько подряд; изъян клана;
       // лишние пункты в теле и прижились ли они; сколько точек Дисциплин уже снято без витэ
@@ -237,7 +241,7 @@ export class GhoulData extends BaseActorData {
     // Ревенант (Guide to the Sabbat; Ghouls & Revenants): сам вырабатывает витэ — запас 10 и +1 за каждое прожитое столетие
     const age = parseInt(String(this.details?.age ?? "").replace(/\D+/g, " ").trim().split(" ")[0]) || 0;
     if (this.ghoulType === "revenant") this.blood.max = 10 + Math.floor(age / 100);
-    else if (age > 0 && this.ghoulType !== "dhampir") this.blood.max = Math.max(this.blood.max, 2 + Math.floor(age / 200));
+    else if (age > 0 && !["dhampir", "bogatyr"].includes(this.ghoulType)) this.blood.max = Math.max(this.blood.max, 2 + Math.floor(age / 200));
     // Дампир (Accursed Heirs): запас 10 + Древность — своя кровь, не витэ домитора; Дисциплины не выше 1 (Истечение 4+ — 2,
     // гуль-дампир — и по поколению донора), за ход — 1 пункт (Истечение 5 — 2)
     if (this.ghoulType === "dhampir") {
@@ -249,10 +253,19 @@ export class GhoulData extends BaseActorData {
       this.disciplineMax = Math.max(effluence >= 4 ? 2 : 1, (this.dhampir?.vitae ?? 0) > 0 ? this.disciplineMax : 1);
       this.gast = (this.dhampir?.vitae ?? 0) > 0;
     }
+    // Богатырь (data/bogatyr.mjs): запас 5 за месяц (до 40), потолок черт по десятилетиям, Дисциплины до 5;
+    // взрослый — без штрафов за раны до «Без сознания»
+    if (this.ghoulType === "bogatyr") {
+      const b = this.bogatyr ?? {};
+      this.blood.max = bogatyrBlood(b.months);
+      this.traitMax = bogatyrTraitMax(age);
+      this.disciplineMax = 5;
+      if (b.stage === "mature" && this.health?.penalty < 0) { this.initiative -= this.health.penalty; this.health.penalty = 0; this.health.noPain = true; }
+    }
     // передозировка (V20, гл. 7): прижившиеся лишние пункты держатся сверх предела; пока лишние в теле — Ловкость +1
     this.blood.base = this.blood.max;
     const ad = this.addiction ?? {};
-    if (this.ghoulType !== "dhampir") {
+    if (!["dhampir", "bogatyr"].includes(this.ghoulType)) {
       if (ad.excess > 0 && !ad.spoiled) this.blood.max += ad.excess;
       if (ad.excess > 0 && this.attributes?.dexterity) { this.attributes.dexterity.total += 1; this.attributes.dexterity.fx = (this.attributes.dexterity.fx ?? 0) + 1; }
       // изъян крови Носферату: Внешность −1, но не ниже 1 (книга: −1…−2 — меньшее, правило системы)

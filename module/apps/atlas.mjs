@@ -19,6 +19,7 @@ import { C as CL } from "./changeling.mjs";
 import * as CLG from "./changeling.mjs";
 import { REVENANT_FAMILIES } from "../data/revenants.mjs";
 import { SOCIETIES, SHADOW_COURT } from "../data/changeling-societies.mjs";
+import { bogatyrOn } from "../data/bogatyr.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const loc = k => game.i18n.localize(`VTM20.${k}`);
@@ -221,8 +222,17 @@ function ghoulGroups() {
         chips: (f.disciplines ?? []).map(d => ({ label: disc(d), sym: Codex.disciplineSymbol(d) })),
         facts: [fact(loc("Atlas.Ghoul.Flaw"), f.flaw)].filter(Boolean) }) })) },
     { key: "rules", label: loc("Atlas.Ghoul.Rules"), items: pages("rule", rules) },
-    { key: "merits", label: loc("Atlas.Ghoul.Merits"), items: (Codex["merits-ghouls"] ?? []).map(meritRow) }
+    { key: "merits", label: loc("Atlas.Ghoul.Merits"), items: (Codex["merits-ghouls"] ?? []).map(meritRow) },
+    // хоумрул «Богатыри» (data/bogatyr.mjs): глава 12 компендия правил — только когда включён в мире
+    ...(bogatyrOn() ? [{ key: "bogatyri", label: loc("Atlas.Ghoul.Bogatyri"), items: pages("bog", Codex.bogatyrRules) }] : [])
   ].filter(g => g.items.length);
+}
+
+/** Правила гулей (Ghouls & Revenants) и глава «Богатыри» (хоумрул) — только для справочника, в Codex не грузятся. */
+async function loadGhoulRules() {
+  if (!Codex.ghoulRules) Codex.ghoulRules = await fetch(`${SYSTEM_PATH}/data/rules-ghouls.json`).then(r => r.json()).catch(() => []);
+  if (!Codex.bogatyrRules) Codex.bogatyrRules = await fetch(`${SYSTEM_PATH}/data/rules-homerules.json`).then(r => r.json())
+    .then(list => list.find(c => c.key === "12") ?? null).catch(() => null);
 }
 
 /* ── Дампиры (Accursed Heirs: Dhampirs — фанатское дополнение к V20) ───── */
@@ -270,7 +280,7 @@ export const ATLAS_LINES = Object.entries(LINES).map(([line, L]) => ({ line, tit
  */
 export async function atlasEntries() {
   await Codex.load();
-  if (!Codex.ghoulRules) Codex.ghoulRules = await fetch(`${SYSTEM_PATH}/data/rules-ghouls.json`).then(r => r.json()).catch(() => []);
+  await loadGhoulRules();
   const out = [];
   for (const [line, L] of Object.entries(LINES)) {
     let groups = [];
@@ -294,7 +304,7 @@ export async function openAtlas(line, key = "") {
   if (!LINES[line]) return null;
   await Codex.load();
   // правила книги Ghouls & Revenants — только для справочника (в Codex не грузятся)
-  if (line === "ghoul" && !Codex.ghoulRules) Codex.ghoulRules = await fetch(`${SYSTEM_PATH}/data/rules-ghouls.json`).then(r => r.json()).catch(() => []);
+  if (line === "ghoul") await loadGhoulRules();
   const id = `r-atlas-${line}`, open = foundry.applications.instances.get(id);
   if (open) { if (key) open.show(key); open.bringToFront(); return open; }
   return new LineAtlas(line, key).render({ force: true });

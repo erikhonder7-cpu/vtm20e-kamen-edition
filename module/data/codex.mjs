@@ -6,6 +6,7 @@
 import { VTM20, SYSTEM_PATH, SYSTEM_ID } from "../config.mjs";
 import { mergeTexts } from "./text-split.mjs";
 import { zuloOn } from "./zulo.mjs";
+import { bogatyrOn } from "./bogatyr.mjs";
 
 const FILES = ["disciplines", "clans", "rituals", "paths", "merits", "merits-ghouls", "vampire-only", "backgrounds", "archetypes", "assets", "derangements", "combos", "abilities", "demon", "demon-merits", "demon-backgrounds", "demon-hof", "demon-pg", "demon-earthbound", "demon-form", "investments", "pact-templates", "hunter", "dhampir", "werewolf", "mage", "wraith", "changeling", "thaum-artifacts", "sabbat-ritae", "clan-lore", "line-lore"];
 
@@ -161,7 +162,7 @@ export const Codex = {
   /** Показывать ли запись (путь, ритуал, черту): материалы Тёмных веков — только при включённой настройке. */
   // «elder-only» (Elysium: The Elder Wars) — не эпоха, а черты для старейшин: видны всегда, с пометкой в библиотеке
   // «zulo» — черты хоумрула «форма зуло» (data/zulo.mjs): только при настройке мира «Чудовищный облик» = форма зуло
-  visible(x) { return !x?.era || x.era === "elder-only" || (x.era === "darkAges" && this.darkAgesOn()) || (x.era === "zulo" && zuloOn()); },
+  visible(x) { return !x?.era || x.era === "elder-only" || (x.era === "darkAges" && this.darkAgesOn()) || (x.era === "zulo" && zuloOn()) || (x.era === "bogatyr" && bogatyrOn()); },
 
   /** Черта Тёмных веков — повтор: есть такая же черта V20 (вид и английское название) или та же черта Тёмных веков из другой
    *  книги (первая остаётся). Библиотека прячет повторы без фильтра «Тёмные века», мастер создания — всегда, кроме выбранных. */

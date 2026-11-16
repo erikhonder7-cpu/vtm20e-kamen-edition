@@ -8673,6 +8673,38 @@
     "era": "",
     "source": "Dark Ages (классика)",
     "edition": "Dark Ages (классика)"
+   },
+   {
+    "discipline": "koldunism",
+    "level": 4,
+    "name": "Тропа через лес",
+    "en": "The Passage through the Forest",
+    "roll": {
+     "trait1": "attributes.intelligence",
+     "trait2": "abilities.occult",
+     "difficulty": 7,
+     "note": "сложность — как у ритуалов Колдовства этого уровня (правило системы)"
+    },
+    "era": "bogatyr",
+    "fan": true,
+    "source": "Fingers of the Eldest: The Bogatyri (Storytellers Vault)",
+    "edition": "Fingers of the Eldest"
+   },
+   {
+    "discipline": "koldunism",
+    "level": 5,
+    "name": "Зов кошмаров",
+    "en": "Call Upon Nightmares",
+    "roll": {
+     "trait1": "attributes.intelligence",
+     "trait2": "abilities.occult",
+     "difficulty": 8,
+     "note": "сложность — как у ритуалов Колдовства этого уровня (правило системы)"
+    },
+    "era": "bogatyr",
+    "fan": true,
+    "source": "Fingers of the Eldest: The Bogatyri (Storytellers Vault)",
+    "edition": "Fingers of the Eldest"
    }
   ]
  },

@@ -658,7 +658,7 @@ export class VtMActor extends Actor {
       // Стойкость добавляет кости против всех видов урона, включая губительный.
       const tough = this.isVampire || (["creature", "spirit"].includes(this.type) && s.supernatural) || (this.type === "demon" && s.apocalyptic);
       parts = soakComponents({ damageType: type, stamina, fortitude: this.discipline("fortitude"), armor: arm, form,
-        tough, fangs, staminaVsFangs: !!s.fx?.staminaVsFangs });
+        tough, fangs, staminaVsFangs: !!s.fx?.staminaVsFangs, staminaVsAgg: !!s.fx?.staminaVsAgg });
     }
     const labels = { stamina: this.traitLabel("attributes.stamina"), fortitude: Codex.disciplineLabel("fortitude"),
       armor: t("Sheet.Armor"), form: t("Combat.FormSoak") };

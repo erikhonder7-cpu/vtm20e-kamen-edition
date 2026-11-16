@@ -3036,6 +3036,52 @@
     "en": "Perfect Essence",
     "source": "Dark Ages: Player's Guide to High Clans",
     "era": "darkAges"
+   },
+   {
+    "level": 8,
+    "name": "Плоть от моей неживой плоти",
+    "en": "Flesh of My Undead Flesh",
+    "elder": true,
+    "roll": {
+     "trait1": "",
+     "trait2": "",
+     "difficulty": 0,
+     "note": "без броска: 7 Воли и 20 крови за лунный месяц, затем 100 крови за 9 месяцев"
+    },
+    "era": "bogatyr",
+    "fan": true,
+    "source": "Fingers of the Eldest: The Bogatyri (Storytellers Vault)"
+   },
+   {
+    "level": 1,
+    "name": "Облик былого",
+    "en": "Form of the Bygone",
+    "bogatyr": true,
+    "roll": {
+     "trait1": "",
+     "trait2": "",
+     "difficulty": 0,
+     "blood": 1,
+     "note": "1 кровь, без броска; свой прежний облик — бросок Воли"
+    },
+    "era": "bogatyr",
+    "fan": true,
+    "source": "Fingers of the Eldest: The Bogatyri (Storytellers Vault)"
+   },
+   {
+    "level": 2,
+    "name": "Зубы Зверя",
+    "en": "The Teeth of the Beast",
+    "bogatyr": true,
+    "roll": {
+     "trait1": "willpower.permanent",
+     "trait2": "",
+     "difficulty": 5,
+     "note": "клыки — без крови; пасть кошмара — 1 кровь"
+    },
+    "era": "bogatyr",
+    "fan": true,
+    "source": "Fingers of the Eldest: The Bogatyri (Storytellers Vault)"
    }
   ],
   "paths": []
@@ -9220,6 +9266,74 @@
     "proc": "dac",
     "html": "",
     "noPrimary": false
+   },
+   {
+    "name": "Путь Кошмаров",
+    "en": "Path of Nightmares",
+    "proc": "",
+    "edition": "Fingers of the Eldest",
+    "html": "",
+    "noPrimary": false,
+    "era": "bogatyr",
+    "fan": true,
+    "source": "Fingers of the Eldest: The Bogatyri (Storytellers Vault)",
+    "powers": [
+     {
+      "level": 1,
+      "name": "Сон наяву",
+      "en": "Waking Sleep",
+      "roll": {
+       "trait1": "attributes.manipulation",
+       "trait2": "abilities.occult",
+       "difficulty": 7,
+       "note": "сл. = Воля цели + 2"
+      }
+     },
+     {
+      "level": 2,
+      "name": "Массовые чары",
+      "en": "Mass Enchantment",
+      "roll": {
+       "trait1": "attributes.manipulation",
+       "trait2": "abilities.occult",
+       "difficulty": 6,
+       "note": "сл. = Воля + 1, целей до Манипуляции + 2"
+      }
+     },
+     {
+      "level": 3,
+      "name": "Зов кошмара",
+      "en": "Call the Nightmare",
+      "roll": {
+       "trait1": "attributes.manipulation",
+       "trait2": "abilities.occult",
+       "difficulty": 6,
+       "note": "2 крови за каждое создание; сложность в книге не указана — 6"
+      }
+     },
+     {
+      "level": 4,
+      "name": "Тёмная тропа",
+      "en": "Dark Trod",
+      "roll": {
+       "trait1": "attributes.manipulation",
+       "trait2": "abilities.occult",
+       "difficulty": 8,
+       "note": "3 крови за 3 хода обряда"
+      }
+     },
+     {
+      "level": 5,
+      "name": "Ткать царства кошмара",
+      "en": "Craft Nightmare Realms",
+      "roll": {
+       "trait1": "attributes.manipulation",
+       "trait2": "abilities.occult",
+       "difficulty": 8,
+       "note": "1 кровь за ход удержания"
+      }
+     }
+    ]
    }
   ]
  },
