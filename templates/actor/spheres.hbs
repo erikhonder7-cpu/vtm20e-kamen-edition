@@ -46,10 +46,10 @@
   <div class="r-vcard r-mfocus">
   <div class="r-focus">
     <label class="r-df is-wide"><span>{{localize "VTM20.Mage.Paradigm"}}</span>
-      <input type="text" name="system.mage.paradigm" value="{{system.mage.paradigm}}" data-combo="r-mpar-{{actor.id}}" placeholder="{{localize 'VTM20.Mage.ParadigmHint'}}" {{#unless editable}}disabled{{/unless}}></label>
+      <input type="text" name="system.mage.paradigm" value="{{system.mage.paradigm}}" data-combo="r-mpar-{{actor.id}}" placeholder="{{localize 'VTM20.Mage.ParadigmPh'}}" data-tooltip="{{localize 'VTM20.Mage.ParadigmHint'}}" {{#unless editable}}disabled{{/unless}}></label>
     <datalist id="r-mpar-{{actor.id}}">{{#each mageView.paradigms}}<option value="{{this}}"></option>{{/each}}</datalist>
     <label class="r-df is-wide" {{#if mageView.practiceTip}}data-tooltip="{{localize 'VTM20.Mage.PracticeTools'}}: {{mageView.practiceTip}}"{{/if}}><span>{{localize "VTM20.Mage.Practice"}}</span>
-      <input type="text" name="system.mage.practice" value="{{system.mage.practice}}" data-combo="r-mpra-{{actor.id}}" placeholder="{{localize 'VTM20.Mage.PracticeHint'}}" {{#unless editable}}disabled{{/unless}}></label>
+      <input type="text" name="system.mage.practice" value="{{system.mage.practice}}" data-combo="r-mpra-{{actor.id}}" placeholder="{{localize 'VTM20.Mage.PracticePh'}}" data-tooltip="{{localize 'VTM20.Mage.PracticeHint'}}" {{#unless editable}}disabled{{/unless}}></label>
     <datalist id="r-mpra-{{actor.id}}">{{#each mageView.practices}}<option value="{{this}}"></option>{{/each}}</datalist>
   </div>
   <div class="r-tools">

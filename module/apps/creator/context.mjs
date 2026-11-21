@@ -144,7 +144,9 @@ export class ContextCreator {
     // II. Дом падшего: Дом, Облик (главное Знание), фракция, Небесное и Истинное имя
     if (this.isDemon) {
       const h = this.houseData;
-      ctx.houses = Codex.houses.map(x => ({ key: x.key, name: x.name, akkadian: x.akkadian, torment: x.torment, active: x.key === st.house,
+      // своих гербов у Домов нет — значок по смыслу Дома, чтобы плитки различались
+      const HOUSE_ICON = { devils: "fa-crown", scourges: "fa-wind", malefactors: "fa-hammer", fiends: "fa-eye", defilers: "fa-water", devourers: "fa-paw", slayers: "fa-skull" };
+      ctx.houses = Codex.houses.map(x => ({ key: x.key, name: x.name, akkadian: x.akkadian, torment: x.torment, active: x.key === st.house, icon: HOUSE_ICON[x.key] ?? "fa-fire-flame-curved",
         lores: x.lores.map(k => Codex.lore(k)?.name ?? k).join(", ") }));
       ctx.house = h ? { ...h, visages: Object.entries(h.visages).map(([k, name]) => ({ key: k, name, lore: Codex.lore(k)?.name ?? k, active: k === st.visage,
         low: Codex.lore(k)?.form?.low ?? [] })) } : null;

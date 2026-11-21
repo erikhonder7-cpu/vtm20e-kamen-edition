@@ -281,7 +281,9 @@ export class ChangelingCreator {
         sub: k.favorite ? t(`Fae.Daf.Dom.${k.favorite}`) : "—" })), dafCourt: this.clDafCourt,
       tempers2: this.isDafCr ? { mists: this.morality, weaving: this.clWeaving } : null,
       // китейн
-      kiths: (D.kiths ?? []).map(k => ({ key: k.key, label: k.name, en: k.en, active: k.key === c.kith, sub: k.affinityText ?? "" })),
+      kiths: (D.kiths ?? []).map(k => ({ key: k.key, label: k.name, en: k.en, active: k.key === c.kith,
+        // сродство — одним словом: без английского в скобках и точки в конце («Актёр (Actor).» → «Актёр»)
+        sub: String(k.affinityText ?? "").replace(/\s*\([A-Za-z ]+\)/g, "").replace(/\.\s*$/, "") })),
       kith: kith ? { ...kith, birthrights: (kith.birthrights ?? []).map(b => ({ name: b.name, en: b.en, text: plain(b.html) })),
         frailty: kith.frailty ? { name: kith.frailty.name ?? "", text: plain(kith.frailty.html ?? kith.frailty.text ?? "") } : null } : null,
       seemings: (D.seemings ?? []).map(s => ({ key: s.key, label: s.name, active: s.key === c.seeming, temper: s.temper ?? "", text: s.banality ?? "" })),

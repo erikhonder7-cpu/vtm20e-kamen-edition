@@ -260,7 +260,7 @@
     <div class="r-cr-clans r-cr-houses">
       {{#each houses}}
       <a class="r-cr-clan {{#if active}}is-active{{/if}}" data-action="house" data-house="{{key}}">
-        <span class="r-cr-clan-sym r-cr-medal"><i class="fa-solid fa-fire-flame-curved"></i></span>
+        <span class="r-cr-clan-sym r-cr-medal"><i class="fa-solid {{icon}}"></i></span>
         <b>{{name}}</b><em>«{{akkadian}}» · {{localize "VTM20.Demon.Torment"}} {{#if ../st.earthbound}}10{{else}}{{torment}}{{/if}}</em>
         <span class="r-cr-clan-disc">{{lores}}</span>
       </a>
@@ -475,9 +475,9 @@
     <p class="r-note r-explain">{{localize "VTM20.Mage.AffinityHint"}}</p>
     <h3 class="r-h3">{{localize "VTM20.Mage.Focus"}}</h3>
     <div class="r-cols2 r-cr-genrow">
-      <label class="r-f"><span>{{localize "VTM20.Mage.Paradigm"}}</span><input type="text" data-field="mg.paradigm" value="{{st.mg.paradigm}}" data-combo="r-cr-mpar" placeholder="{{localize 'VTM20.Mage.ParadigmHint'}}"></label>
+      <label class="r-f"><span>{{localize "VTM20.Mage.Paradigm"}}</span><input type="text" data-field="mg.paradigm" value="{{st.mg.paradigm}}" data-combo="r-cr-mpar" placeholder="{{localize 'VTM20.Mage.ParadigmPh'}}" data-tooltip="{{localize 'VTM20.Mage.ParadigmHint'}}"></label>
       <label class="r-f" data-tooltip="{{localize 'VTM20.Mage.ResRule'}}"><span>{{localize "VTM20.Mage.Resonance"}}</span><input type="text" data-field="mg.resName" value="{{st.mg.resName}}" placeholder="{{localize 'VTM20.Mage.ResNameHint'}}"></label>
-      <label class="r-f"><span>{{localize "VTM20.Mage.Practice"}}</span><input type="text" data-field="mg.practice" value="{{st.mg.practice}}" data-combo="r-cr-mpra" placeholder="{{localize 'VTM20.Mage.PracticeHint'}}"></label>
+      <label class="r-f"><span>{{localize "VTM20.Mage.Practice"}}</span><input type="text" data-field="mg.practice" value="{{st.mg.practice}}" data-combo="r-cr-mpra" placeholder="{{localize 'VTM20.Mage.PracticePh'}}" data-tooltip="{{localize 'VTM20.Mage.PracticeHint'}}"></label>
       <datalist id="r-cr-mpar">{{#each mage.paradigms}}<option value="{{this}}"></option>{{/each}}</datalist>
       <datalist id="r-cr-mpra">{{#each mage.practices}}<option value="{{this}}"></option>{{/each}}</datalist>
     </div>
@@ -835,7 +835,7 @@
         <div class="r-cr-left {{#if (lt wraith.passionsLeft 0)}}is-over{{else if (eq wraith.passionsLeft 0)}}is-done{{/if}}">{{localize "VTM20.Creator.LeftShort"}}: <b>{{wraith.passionsLeft}}</b></div>
         {{#each wraith.passions}}
         <div class="r-cr-wrrow">
-          <input type="text" data-field="wr.passions.{{i}}.text" value="{{text}}" placeholder="{{localize 'VTM20.Wraith.PassionText'}}">
+          <input type="text" data-field="wr.passions.{{i}}.text" value="{{text}}" placeholder="{{localize 'VTM20.Wraith.PassionTextShort'}}" data-tooltip="{{localize 'VTM20.Wraith.PassionText'}}">
           <input type="text" class="r-cr-wremo" data-field="wr.passions.{{i}}.emotion" value="{{emotion}}" placeholder="{{localize 'VTM20.Wraith.Emotion'}}"><span class="r-dots">{{#each dots}}<a class="r-dot r-cr-dot is-{{state}}" data-action="wrRow" data-list="passions" data-op="dot" data-i="{{../i}}" data-n="{{n}}"></a>{{/each}}</span>
           {{#if @root.wraith.isHue}}<a class="r-icon-btn r-cr-huedark {{#if (eq @root.wraith.hueDark i)}}is-on{{/if}}" data-action="wrPick" data-what="hueDark" data-key="{{i}}" data-tooltip="{{localize 'VTM20.WraithCr.HueDarkTip'}}"><i class="fa-solid fa-moon"></i></a>{{/if}}
           <a class="r-icon-btn is-danger" data-action="wrRow" data-list="passions" data-op="del" data-i="{{i}}"><i class="fa-solid fa-xmark"></i></a>
@@ -889,7 +889,7 @@
         <h3 class="r-colhead"><span>{{localize "VTM20.Wraith.Spectre.PsychePassions"}} <small>{{wraith.psyche.sum}} / {{wraith.psyche.base}}</small></span></h3>
         {{#each wraith.psyche.passions}}
         <div class="r-cr-wrrow">
-          <input type="text" data-field="wr.psyche.passions.{{i}}.text" value="{{text}}" placeholder="{{localize 'VTM20.Wraith.PassionText'}}">
+          <input type="text" data-field="wr.psyche.passions.{{i}}.text" value="{{text}}" placeholder="{{localize 'VTM20.Wraith.PassionTextShort'}}" data-tooltip="{{localize 'VTM20.Wraith.PassionText'}}">
           <input type="text" class="r-cr-wremo" data-field="wr.psyche.passions.{{i}}.emotion" value="{{emotion}}" placeholder="{{localize 'VTM20.Wraith.Emotion'}}"><span class="r-dots">{{#each dots}}<a class="r-dot r-cr-dot is-{{state}}" data-action="wrRow" data-list="psyche" data-op="dot" data-i="{{../i}}" data-n="{{n}}"></a>{{/each}}</span>
           <a class="r-icon-btn is-danger" data-action="wrRow" data-list="psyche" data-op="del" data-i="{{i}}"><i class="fa-solid fa-xmark"></i></a>
         </div>
@@ -974,7 +974,7 @@
         <h3 class="r-colhead"><span>{{localize "VTM20.Wraith.DarkPassions"}} <small>{{wraith.darkSum}} / {{wraith.darkBase}}</small></span></h3>
         {{#each wraith.dark}}
         <div class="r-cr-wrrow">
-          <input type="text" data-field="wr.dark.{{i}}.text" value="{{text}}" placeholder="{{localize 'VTM20.Wraith.PassionText'}}">
+          <input type="text" data-field="wr.dark.{{i}}.text" value="{{text}}" placeholder="{{localize 'VTM20.Wraith.PassionTextShort'}}" data-tooltip="{{localize 'VTM20.Wraith.PassionText'}}">
           <input type="text" class="r-cr-wremo" data-field="wr.dark.{{i}}.emotion" value="{{emotion}}" placeholder="{{localize 'VTM20.Wraith.Emotion'}}"><span class="r-dots">{{#each dots}}<a class="r-dot r-cr-dot is-{{state}}" data-action="wrRow" data-list="dark" data-op="dot" data-i="{{../i}}" data-n="{{n}}"></a>{{/each}}</span>
           <a class="r-icon-btn is-danger" data-action="wrRow" data-list="dark" data-op="del" data-i="{{i}}"><i class="fa-solid fa-xmark"></i></a>
         </div>

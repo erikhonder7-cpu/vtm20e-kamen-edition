@@ -98,7 +98,7 @@ export class GarouCreator {
         ...(D.fera ?? []).map(b => ({ key: b.key, label: lbl(b), en: b.en, sym: feraGlyph(b.key), active: b.key === w.fera }))],
       breeds: D.breeds.map(b => ({ key: b.key, label: lbl(b), sym: g(`breed-${b.key}`), active: b.key === w.breed, sub: t("Creator.GarouGnosis", { n: b.gnosis }), tip: plain(b.notes) })),
       auspices: D.auspices.map(b => ({ key: b.key, label: lbl(b), sym: g(`auspice-${b.key}`), active: b.key === w.auspice, sub: b.role, tip: t("Creator.GarouAuspiceTip", { rage: b.rage, renown: b.renownText ?? "" }) })),
-      tribes: D.tribes.map(b => ({ key: b.key, label: lbl(b), sym: g(`tribe-${b.key}`), active: b.key === w.tribe, sub: t("Creator.GarouTribeSub", { will: b.willpower, totem: b.totem ?? "" }), wyrm: !!b.wyrm })),
+      tribes: D.tribes.map(b => ({ key: b.key, label: lbl(b), sym: g(`tribe-${b.key}`), active: b.key === w.tribe, sub: t("Creator.GarouTribeSub", { will: b.willpower, totem: String(b.totem ?? "").split(" (")[0] }), wyrm: !!b.wyrm })),   // в карточке — имя тотема без пояснений в скобках
       tribe: !f && this.garouTribe ? { ...this.garouTribe, label: lbl(this.garouTribe), bg: this.garouTribe.backgrounds, sym: g(`tribe-${this.garouTribe.key}`) } : null,
       breedNotes: !f ? this.garouBreed?.notes ?? "" : "",
       fera: f ? { label: lbl(f), en: f.en, sym: feraGlyph(f.key), facts: Object.entries(f.facts ?? {}).map(([k, v]) => ({ k, v })),

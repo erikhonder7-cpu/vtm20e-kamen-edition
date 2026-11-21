@@ -148,7 +148,7 @@
 .vtm20 .r-cr-disc-chip.is-choice { cursor: pointer; border-style: dashed; }
 .vtm20 .r-cr-disc-chip.is-active { border-style: solid; border-color: #b83a3f; background: rgba(140, 28, 34, .2); }
 .vtm20 .r-cr-or { font-style: italic; color: var(--r-muted); font-size: 13px; }
-.vtm20 .r-cr-genrow { margin-top: 6px; }
+.vtm20 .r-cr-genrow { margin-top: 6px; row-gap: 12px; }   /* подписи полей не прилипают к полю строкой выше */
 .vtm20 .r-cr-names { align-content: start; }
 .vtm20 .r-cr-names .r-f > span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .vtm20 .r-cr-gens { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -1213,6 +1213,8 @@ body.r-theme-light .vtm20 .r-ng-concept { color: #7a4f1d; }
 .vtm20 .r-cr-creeds { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
 .vtm20 .r-cr-creeds .r-cr-tile b small { font-family: var(--r-body); font-weight: normal; color: var(--r-muted); }
 .vtm20 .r-cr-edges { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px 16px; margin-top: 8px; }
+/* Шипы призрака — по два в ряд: в три колонки названия и цена («Tainted Touch · 4») рвались по строкам */
+.vtm20 .r-cr-thorns { grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); }
 .vtm20 .r-cr-edgepath { padding: 6px 10px 10px; border: 1px dashed var(--r-line-2); }
 .vtm20 .r-cr-edgepath.is-primary { border-style: solid; box-shadow: inset 3px 0 0 var(--r-accent); }
 .vtm20 .r-cr-edgepath .r-h3 small { font-family: var(--r-body); text-transform: none; letter-spacing: 0; color: var(--r-muted); }
@@ -2001,3 +2003,6 @@ body.r-theme-light .vtm20 .r-sp-state img { filter: none; }
 .vtm20.r-atlas .r-at-text li + li { margin-top: 3px; }
 .vtm20.r-atlas .r-at-text .r-at-src { margin: 0 0 12px; padding: 0 0 10px; border-bottom: 1px solid var(--r-line); font-size: 12.5px; font-style: italic; color: var(--r-muted); }
 .vtm20.r-atlas .r-at-text .r-at-src strong { font-style: normal; color: var(--r-ink-2); }
+
+/* мастер создания: заголовок раздела после плиток или полей — с отступом, а не вплотную («Сущность», «Фокус», «Секта») */
+.vtm20.r-creator * + .r-h3 { margin-top: 14px; }
