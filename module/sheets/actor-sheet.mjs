@@ -1315,7 +1315,15 @@ function rollLorePower(actor, item) {
   const d = Codex.lore(item.system.lore), lv = item.system.level;
   return rollFromSpec(actor, item.system.roll ?? {}, { title: item.name, subtitle: `${d?.name ?? ""} · ${ROMAN[lv - 1] ?? lv}`, effect: item.system.description,
     torment: d?.dark ? 10 : actor.system.torment?.permanent ?? 0, power: { disc: `lore:${item.system.lore}`, level: lv, name: item.name },
-    onRolled: d?.dark && actor.type === "demon" && !actor.system.earthbound ? () => gainTorment(actor, 1, t("Demon.DarkReason")) : null });
+    onRolled: async r => {
+      if (d?.dark && actor.type === "demon" && !actor.system.earthbound) await gainTorment(actor, 1, t("Demon.DarkReason"));
+      // воззвание «до конца эпизода» — напоминание на вкладке «Эффекты» (снимается вручную), с числом успехов
+      if ((r?.successes ?? 0) > 0 && /до конца эпизода/i.test(item.system.description ?? "")) {
+        const name = `${item.name} · ${game.i18n.localize("VTM20.Demon.UntilEpisode")}`;
+        await actor.createEmbeddedDocuments("ActiveEffect", [{ name, img: item.img, description: item.system.description ?? "",
+          flags: { [SYSTEM_ID]: { power: `lore:${item.system.lore}|${lv}`, mode: "toggle", ready: true, successes: r.successes } } }]);
+      }
+    } });
 }
 
 /** Бросок силы справочника по ссылке (лист и HUD). */

@@ -727,7 +727,7 @@ export class VtMActor extends Actor {
   async createPowerWeapons(effect) {
     const flags = effect?.flags?.[SYSTEM_ID];
     if (!flags?.power || flags.ready === false) return [];
-    const def = effectDef(flags.power, flags.variant ?? "", flags.shapeConfig ?? flags.giftFx ?? flags.edgeFx ?? flags.arcFx ?? null);
+    const def = effectDef(flags.power, flags.variant ?? "", flags.shapeConfig ?? flags.giftFx ?? flags.edgeFx ?? flags.arcFx ?? flags.artFx ?? null);
     const specs = [...(def?.weapons ?? []), ...(def?.weapon ? [def.weapon] : [])];
     if (!specs.length) return [];
     const existing = this.items.filter(i => i.type === "weapon" && i.getFlag?.(SYSTEM_ID, "power") === flags.power).length;

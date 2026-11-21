@@ -9,6 +9,7 @@
 //   · Высвобождение: 2 Гламура и +1 Кошмар до броска; Гламур + Кошмар кубиков, сл. 7; исход — по успехам и рейтингу Искусства.
 
 import { Codex } from "../data/codex.mjs";
+import { ART_EFFECTS, artFx } from "../data/art-effects.mjs";
 import { SYSTEM_ID, SYSTEM_PATH, VTM20 } from "../config.mjs";
 import { registerEmblem, registerCardBlock } from "../ui/themes.mjs";
 
@@ -36,6 +37,16 @@ export function clGlyph(kind, key) {
   const daf = n.startsWith("daf-");
   return { src: foundry.utils.getRoute(`${SYSTEM_PATH}/assets/changeling/${n}.${daf ? "png" : "webp"}`), color: !daf };
 }
+/** Эффект Искусства на заклинателе: правки по успехам — во флаге artFx; срок — mode (сцена), снимается концом сцены. */
+export async function startArtEffect(actor, art, lv, power, n) {
+  const def = ART_EFFECTS[power], fx = artFx(def, { n });
+  const name = `${art.name}: ${lv?.name ?? ""}`;
+  const [effect] = await actor.createEmbeddedDocuments("ActiveEffect", [{ name, img: `${SYSTEM_PATH}/assets/icons/changeling.svg`, description: lv?.html ?? "",
+    flags: { [SYSTEM_ID]: { power, mode: def.mode, ready: true, artFx: fx, successes: n } } }]);
+  await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: `<div class="r-notice r-type-changeling"><i class="fa-solid ${def.icon}"></i> ${foundry.utils.escapeHTML(t("FxOn", { name, n }))}</div>` });
+  return effect;
+}
+
 /** Запасной значок, если витража нет (у Вливания и Сказа витражи с White Wolf Wiki — tools/wiki_glyphs.mjs). */
 const ART_ICONS = { infusion: "fa-flask-vial", taleCraft: "fa-book-open" };
 /** Знак кита: свой, иначе группы иных фэ (менехуне, нуннехи). */
@@ -212,6 +223,9 @@ export async function rollCantrip(actor, o) {
     effect: lv?.html ?? "", extra: { changeling: { kind: "cantrip", art: o.art, level, realms: [...primary, ...modsR], wyrd: !!o.wyrd, cost, cheat, nightmare, bunk: o.bunk ?? 0, affinity } } });
   if (!roll) return null;
   await afterRoll(actor, roll, nightmare, art.name);
+  // удачный кантрип с эффектом на заклинателе (data/art-effects.mjs) — эффект на сцену, правки по успехам
+  const fxKey = `art:${o.art}|${level}`;
+  if (ART_EFFECTS[fxKey] && (roll.successes ?? 0) > 0) await startArtEffect(actor, art, lv, fxKey, roll.successes);
   return roll;
 }
 

@@ -4115,6 +4115,26 @@ try {
     for (const [k, v] of Object.entries(want)) if (JSON.stringify(r[k]) !== JSON.stringify(v)) throw new Error(`${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(v)}`);
   });
 
+  // Искусства подменышей эффектами (data/art-effects.mjs): Пылающая мощь — Сила + успехи, Древний облик — +3 к прочности;
+  // Знания падших «до конца эпизода» — напоминание до снятия (effectDef lore:)
+  await check("Подменыш: Искусства эффектами; падший: напоминание Знания", async () => {
+    const r = await page.evaluate(async () => {
+      const SYS = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {};
+      const CL = await import(`/systems/${SYS}/module/apps/changeling.mjs`), E = await import(`/systems/${SYS}/module/data/effects.mjs`);
+      const a = await Actor.create({ name: "E2E — заклинатель", type: "changeling", flags: { world: { e2e: true }, [SYS]: { created: true } }, system: { attributes: { strength: { value: 2 } } } });
+      const str0 = a.system.attributes.strength.total, soak0 = a.soakPool("lethal");
+      const ire = CL.artOf("dragonsIre"), primal = CL.artOf("primal");
+      await CL.startArtEffect(a, ire, ire.levels.find(l => l.level === 1), "art:dragonsIre|1", 2); await wait(300);
+      await CL.startArtEffect(a, primal, primal.levels.find(l => l.level === 4), "art:primal|4", 1); await wait(300);
+      out.art = [a.system.attributes.strength.total - str0, a.soakPool("lethal") - soak0, a.effects.filter(e => String(e.getFlag(SYS, "power")).startsWith("art:")).length];
+      out.lore = E.effectDef("lore:radiance|3")?.mode ?? null;
+      await a.delete();
+      return out;
+    });
+    const want = { art: [2, 3, 2], lore: "toggle" };
+    for (const [k, v] of Object.entries(want)) if (JSON.stringify(r[k]) !== JSON.stringify(v)) throw new Error(`${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(v)}`);
+  });
+
   // Текст интерфейса (обход tools/.cache/audit.mjs, постоянной проверкой): листы восьми линеек на всех вкладках, первые шаги
   // мастера создания и библиотека — без невставленных ключей перевода, undefined/NaN, неподставленных {name}, сырых тегов и сущностей
   await check("Мастер, листы и библиотека: текст без сырых ключей, undefined и тегов", async () => {

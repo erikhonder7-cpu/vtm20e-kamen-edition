@@ -20,6 +20,7 @@
 // несколько сил) и сил из дополнений (fxKey).
 // Источник — V20, гл. 4 (Дисциплины), тексты сил в data/disciplines.json.
 
+import { ART_EFFECTS } from "./art-effects.mjs";
 import { SYSTEM_ID } from "../config.mjs";
 import { zuloDef, ZULO_POWER } from "./zulo.mjs";
 import { GIFT_EFFECTS } from "./gift-effects.mjs";
@@ -214,6 +215,10 @@ export function effectDef(power, variant = "", shapeConfig = null) {
   if (String(power).startsWith("edge:")) return EDGE_EFFECTS[power] ? { ...EDGE_EFFECTS[power], ...(shapeConfig ?? {}) } : null;
   // Богатыри (хоумрул, data/bogatyr.mjs): Плащ Старейшего
   if (String(power).startsWith("bogatyr:")) return bogatyrOn() ? BOGATYR_EFFECTS[power] ?? null : null;
+  // Знания падших: воззвание «до конца эпизода» после удачного броска — напоминание до снятия (actor-sheet.mjs rollLorePower)
+  if (String(power).startsWith("lore:")) return { mode: "toggle", icon: "fa-book-open", note: true };
+  // Искусства подменышей (data/art-effects.mjs): правки по успехам кантрипа во флаге эффекта
+  if (String(power).startsWith("art:")) return ART_EFFECTS[power] ? { ...ART_EFFECTS[power], ...(shapeConfig ?? {}) } : null;
   // Арканои призраков (data/arcanos-effects.mjs): вариант применения и правки по успехам
   if (String(power).startsWith("arc:")) { const b = ARC_EFFECTS[power];
     return b ? { ...b, ...(variant ? b.variants?.[variant] ?? {} : {}), ...(shapeConfig ?? {}) } : null; }
@@ -252,7 +257,7 @@ export function activePowerEffects(actor) {
   for (const e of actor?.effects ?? []) {
     const f = e.flags?.[SYSTEM_ID];
     if (!f?.power || e.disabled) continue;
-    const def = effectDef(f.power, f.variant, f.shapeConfig ?? f.giftFx ?? f.edgeFx ?? f.arcFx ?? null);
+    const def = effectDef(f.power, f.variant, f.shapeConfig ?? f.giftFx ?? f.edgeFx ?? f.arcFx ?? f.artFx ?? null);
     if (def) out.push({ effect: e, power: f.power, variant: f.variant ?? "", def });
   }
   return out;
