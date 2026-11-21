@@ -6,7 +6,8 @@
    нити триколора; украшений почти нет.
    ══════════════════════════════════════════════════════════════════════════ */
 
-@font-face { font-family: "Prata"; src: url("../fonts/Prata-Regular.ttf") format("truetype"); font-display: swap; }
+/* Prata — без «1»: её единица без флажка читалась как «l» или «|» («Воля l», «?/lO»); единицу берёт Old Standard */
+@font-face { font-family: "Prata"; src: url("../fonts/Prata-Regular.ttf") format("truetype"); font-display: swap; unicode-range: U+0000-0030, U+0032-10FFFF; }
 @font-face { font-family: "Forum"; src: url("../fonts/Forum.ttf") format("truetype"); font-display: swap; }
 @font-face { font-family: "Old Standard"; src: url("../fonts/OldStandard-Regular.ttf") format("truetype"); font-display: swap; }
 @font-face { font-family: "Old Standard"; src: url("../fonts/OldStandard-Italic.ttf") format("truetype"); font-style: italic; font-display: swap; }

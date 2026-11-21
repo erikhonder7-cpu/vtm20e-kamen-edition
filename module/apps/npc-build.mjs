@@ -281,7 +281,7 @@ const BUILD = {
         : { name: t("Creator.MalkDerangement"), type: "derangement", img: ICON("derangement"), system: { permanent: true, description: `<p>${t("Creator.MalkDerangementHint")}</p>` } });
     }
     return { actor: "vampire", img: "vampire", system: sys, items, c, powers: discView(d), powersLabel: t("NpcGen.Disciplines"),
-      traits: [[t("NpcGen.Generation"), t("GenerationN", { n: gen })], [t("Humanity"), sys.morality.value], [t("Willpower"), sys.willpower.permanent], [t("NpcGen.BloodPool"), `${sys.blood.value}/${pool}`]],
+      traits: [[t("NpcGen.Generation"), `${gen}-е`], [t("Humanity"), sys.morality.value], [t("Willpower"), sys.willpower.permanent], [t("NpcGen.BloodPool"), `${sys.blood.value}/${pool}`]],
       tags: [clanName, loc(`VTM20.Sect.${sect}`)] };
   },
 

@@ -24,7 +24,7 @@
 .r-roll-card.is-soak { border-left-color: #46557a; }
 /* Подсчёт под костями */
 .r-card-tally { display: flex; justify-content: center; gap: 14px; margin-top: 4px; font-size: 11.5px; color: var(--r-muted); }
-.r-card-tally span { display: inline-flex; align-items: center; gap: 4px; font-family: "Prata", serif; }
+.r-card-tally span { display: inline-flex; align-items: center; gap: 4px; font-family: "Prata", "Old Standard", serif; }
 .r-card-tally .is-hit { color: #cfc6b4; }
 .r-card-tally .is-one { color: #c4474c; }
 .r-card-tally .is-ten em { font-style: normal; color: #c4474c; }
@@ -34,21 +34,21 @@
 .r-card-img { width: 34px; height: 34px; border: 1px solid var(--r-line-2); border-radius: 2px; object-fit: cover; object-position: 50% 15%; flex: 0 0 auto; filter: grayscale(.3); }
 .r-card-titles { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; line-height: 1.15; }
 /* названия не рвутся посреди слова (Foundry ставит в чате overflow-wrap: anywhere) — переносятся по словам */
-.r-card-title { font-family: "Prata", Georgia, serif; font-size: 15px; color: var(--r-ink); overflow-wrap: normal; word-break: normal; hyphens: manual; }
+.r-card-title { font-family: "Prata", "Old Standard", Georgia, serif; font-size: 15px; color: var(--r-ink); overflow-wrap: normal; word-break: normal; hyphens: manual; }
 .r-card-sub { font-size: 12px; font-style: italic; color: var(--r-muted); }
-.r-card-pool { flex: 0 0 auto; display: flex; align-items: baseline; gap: 3px; font-family: "Prata", serif; font-size: 16px; color: var(--r-navy-t); }
+.r-card-pool { flex: 0 0 auto; display: flex; align-items: baseline; gap: 3px; font-family: "Prata", "Old Standard", serif; font-size: 16px; color: var(--r-navy-t); }
 .r-card-pool i { font-size: 12px; color: var(--r-muted); }
 .r-card-pool em { margin-left: 4px; font-family: "IM Fell SC", "Forum", serif; font-style: normal; font-size: 12.5px; letter-spacing: 1px; color: var(--r-accent); }
 
 .r-card-breakdown { display: flex; flex-wrap: wrap; gap: 3px 8px; margin: 0 0 6px; font-size: 11.5px; color: var(--r-muted); }
-.r-card-breakdown b { color: var(--r-ink); font-weight: 400; font-family: "Prata", serif; }
+.r-card-breakdown b { color: var(--r-ink); font-weight: 400; font-family: "Prata", "Old Standard", serif; }
 
 /* Кости: ромбы d10 */
 .r-dice-tray { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; padding: 7px 2px; border-top: 1px solid var(--r-line); border-bottom: 1px solid var(--r-line); }
 .r-die {
   position: relative; width: 26px; height: 30px; display: grid; place-items: center;
   clip-path: polygon(50% 0, 100% 42%, 50% 100%, 0 42%);
-  background: #3a3833; font-family: "Prata", serif; font-size: 12.5px; color: #d8cfbf;
+  background: #3a3833; font-family: "Prata", "Old Standard", serif; font-size: 12.5px; color: #d8cfbf;
 }
 .r-die > span { position: relative; top: 2px; }
 .r-die.is-miss { background: #26252a; color: #7d766a; }
@@ -68,7 +68,7 @@
   color: #e6ddcc; background: transparent; border: 1px solid var(--r-line-2);
 }
 .r-outcome-num { flex: 0 0 auto; font-size: 12.5px; color: var(--r-muted); font-style: italic; white-space: nowrap; }
-.r-outcome-num b { font-family: "Prata", serif; font-style: normal; font-size: 21px; color: var(--r-ink); font-weight: 400; margin-right: 2px; }
+.r-outcome-num b { font-family: "Prata", "Old Standard", serif; font-style: normal; font-size: 21px; color: var(--r-ink); font-weight: 400; margin-right: 2px; }
 .r-roll-card.is-exceptional .r-outcome-ribbon, .r-roll-card.is-phenomenal .r-outcome-ribbon { color: #141416; background: #d8cfbf; border-color: #d8cfbf; }
 .r-roll-card.is-failure .r-outcome-ribbon { color: #7d766a; }
 .r-roll-card.is-botch .r-outcome-ribbon, .r-roll-card.is-damage .r-outcome-ribbon { color: #f1e9da; background: #8c1c22; border-color: #b83a3f; }
@@ -104,7 +104,7 @@
 .r-card-facts { display: flex; flex-wrap: wrap; gap: 4px; margin: 0 0 6px; }
 .r-card-facts span { display: inline-flex; align-items: baseline; gap: 5px; padding: 2px 7px; border: 1px solid var(--r-line-2); background: rgba(0, 0, 0, .25); }
 .r-card-facts small { flex: 0 0 auto; white-space: nowrap; font-family: "IM Fell SC", "Forum", serif; font-size: 10.5px; letter-spacing: 1px; text-transform: uppercase; color: var(--r-muted); }
-.r-card-facts b { font-family: "Prata", serif; font-weight: 400; font-size: 13px; color: var(--r-ink); }
+.r-card-facts b { font-family: "Prata", "Old Standard", serif; font-weight: 400; font-size: 13px; color: var(--r-ink); }
 .r-card-facts b i { font-size: 10px; color: var(--r-accent); }
 .r-card-facts .is-hot { border-color: rgba(196, 71, 76, .5); }
 .r-card-facts .is-hot b { color: #e3a6a8; }
@@ -178,12 +178,12 @@
 .r-card-effect .r-card-body td { border-top: 1px solid var(--r-line); padding: 2px 4px; }
 
 /* ── Связка «атака → защита» ─────────────────────────────────────────── */
-.r-combat-card .r-cc-head { display: flex; align-items: center; gap: 7px; margin: 2px 0 6px; font-family: "Prata", Georgia, serif; font-size: 14px; }
+.r-combat-card .r-cc-head { display: flex; align-items: center; gap: 7px; margin: 2px 0 6px; font-family: "Prata", "Old Standard", Georgia, serif; font-size: 14px; }
 .r-combat-card .r-cc-head img { width: 28px; height: 28px; border: 1px solid var(--r-line-2); border-radius: 50%; object-fit: cover; object-position: 50% 15%; filter: grayscale(.3); }
 .r-combat-card .r-cc-head b { font-weight: 400; color: var(--r-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .r-combat-card .r-cc-head i { color: var(--r-accent); font-size: 12px; }
 .r-combat-card .r-cc-line { margin: 0 0 6px; font-size: 12.5px; color: var(--r-ink-2); }
-.r-combat-card .r-cc-line b { font-family: "Prata", serif; font-weight: 400; color: var(--r-ink); }
+.r-combat-card .r-cc-line b { font-family: "Prata", "Old Standard", serif; font-weight: 400; color: var(--r-ink); }
 .r-combat-card .r-cc-ask { margin: 0 0 4px; font-size: 12px; font-style: italic; color: var(--r-muted); }
 .r-combat-card .r-cc-defend { flex-wrap: wrap; }
 .r-combat-card .r-cc-defend button { flex: 1 1 40%; }
@@ -195,7 +195,7 @@
 .r-roll-card .r-ext { display: flex; align-items: center; gap: 10px; margin-top: 7px; font-size: 12px; color: var(--r-muted); }
 .r-roll-card .r-ext-bar { flex: 1 1 auto; height: 5px; border: 1px solid var(--r-line-2); }
 .r-roll-card .r-ext-bar i { display: block; height: 100%; background: linear-gradient(90deg, #6e685e, #d8cfbf); }
-.r-contest-card .r-cc-head { display: flex; align-items: center; gap: 8px; margin: 2px 0 6px; font-family: "Prata", Georgia, serif; font-size: 14px; }
+.r-contest-card .r-cc-head { display: flex; align-items: center; gap: 8px; margin: 2px 0 6px; font-family: "Prata", "Old Standard", Georgia, serif; font-size: 14px; }
 .r-contest-card .r-cc-head b { font-weight: 400; color: var(--r-ink); }
 .r-contest-card .r-cc-head i { color: var(--r-accent); font-size: 12px; }
 .r-contest-card .r-cc-line { margin: 0 0 6px; font-size: 12.5px; color: var(--r-ink-2); }
@@ -269,7 +269,7 @@
   background: linear-gradient(180deg, #1a1a1d, #141416); border: 1px solid #2c2c31; border-left: 3px solid #3a3833; color: #d8cfbf; }
 .r-notice::before { content: ""; position: absolute; left: -3px; top: -1px; width: 26px; height: 2px; background: #8c1c22; }
 .r-notice > i:first-child { color: #c4474c; margin-right: 6px; }
-.r-notice b { font-family: "Prata", Georgia, serif; font-weight: 400; color: #e9dfcf; }
+.r-notice b { font-family: "Prata", "Old Standard", Georgia, serif; font-weight: 400; color: #e9dfcf; }
 .r-notice .r-muted { font-size: 12px; font-style: italic; color: #7d766a; }
 .r-notice em { color: #b3aa98; }
 .r-notice ul { margin: 5px 0 0; padding-left: 18px; }
@@ -277,7 +277,7 @@
 .r-notice.is-warn, .r-notice.r-check-prompt { border-left-color: #b83a3f; }
 .r-notice .r-card-buttons { margin-top: 7px; }
 /* карточка боя: шапка как у бросков — квадратные портреты, имена шрифтом заголовков */
-.r-combat-card .r-cc-head, .r-contest-card .r-cc-head { gap: 8px; margin: 2px 0 7px; font-family: "Prata", Georgia, serif; font-size: 14.5px; }
+.r-combat-card .r-cc-head, .r-contest-card .r-cc-head { gap: 8px; margin: 2px 0 7px; font-family: "Prata", "Old Standard", Georgia, serif; font-size: 14.5px; }
 .r-combat-card .r-cc-head img { width: 30px; height: 30px; border-radius: 2px; }
 .r-combat-card .r-cc-head i, .r-contest-card .r-cc-head i { flex: 0 0 auto; color: #c4474c; font-size: 12px; }
 .r-combat-card .r-cc-line { padding-bottom: 6px; border-bottom: 1px solid rgba(216, 207, 191, .12); }
@@ -318,7 +318,7 @@
   font-family: "IM Fell SC", Georgia, serif; font-size: 11.5px; letter-spacing: .8px; text-transform: uppercase; color: var(--r-ink-2, #cfc6b4); }
 .r-line-chip .r-sym { width: 14px; height: 14px; }
 .r-line-chip i { font-size: 10px; opacity: .8; }
-.r-line-chip b { font-family: "Prata", Georgia, serif; font-weight: 400; font-size: 13px; color: var(--r-ink, #efe6d4); }
+.r-line-chip b { font-family: "Prata", "Old Standard", Georgia, serif; font-weight: 400; font-size: 13px; color: var(--r-ink, #efe6d4); }
 .r-line-result { margin: 6px 0 2px; padding: 6px 9px; border-left: 2px solid var(--r-line-2, #5a5448); background: rgba(255, 255, 255, .03); font-size: 12.5px; line-height: 1.4; }
 .r-line-result p { margin: 0; }
 .r-line-result .r-line-sub { margin-top: 3px; font-size: 11.5px; font-style: italic; opacity: .75; }

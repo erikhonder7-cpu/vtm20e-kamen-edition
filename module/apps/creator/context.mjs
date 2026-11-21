@@ -131,7 +131,9 @@ export class ContextCreator {
       ctx.isVentrue = ["ventrue", "ventruAntitribu"].includes(st.clan);
       const genBg = this.value("bg", "Поколение");
       ctx.generation = 13 - Math.min(5, genBg);
-      ctx.gens = [13, 12, 11, 10, 9, 8].map(g => ({ g, cost: 13 - g, active: g === ctx.generation, pool: VTM20.generationOf(g).pool, perTurn: VTM20.generationOf(g).perTurn }));
+      // цена — точки факта биографии «Поколение»: «1 точка», «2 точки», «5 точек»
+      const pts = n => game.i18n.format(`VTM20.Creator.BgPts${new Intl.PluralRules("ru").select(n) === "one" ? "One" : new Intl.PluralRules("ru").select(n) === "few" ? "Few" : "Many"}`, { n });
+      ctx.gens = [13, 12, 11, 10, 9, 8].map(g => ({ g, cost: 13 - g, costLabel: pts(13 - g), active: g === ctx.generation, pool: VTM20.generationOf(g).pool, perTurn: VTM20.generationOf(g).perTurn }));
       ctx.paths = Codex.paths.filter(p => Codex.visible(p) || p.key === st.path)
         .map(p => ({ key: p.key, name: p.name, selected: p.key === st.path,
           group: p.key === "humanity" ? p.name : p.fan ? t("Library.Filter.Src.fan") : p.era ? t("Library.Filter.DarkAges") : t("Sheet.EnlightenmentPaths") }));

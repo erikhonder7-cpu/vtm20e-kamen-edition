@@ -76,7 +76,8 @@ export class VtMItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       damageTypeOptions: opts(VTM20.damageTypes, s.damageType),
       ghost: s.ghost ? ghostOptions(item) : null,
       thaum: s.thaum ? thaumOptions(item) : null,
-      descriptionHTML: await enrich(s.description),
+      // строка «Источник: …» в конце описания уже показана отдельно (book ниже) — в тексте её не повторять
+      descriptionHTML: await enrich(String(s.description ?? "").replace(/<p>\s*<em>\s*Источник:[^<]*<\/em>\s*<\/p>\s*$/, "")),
       disciplineName: discKey ? (discKey === "obtenebration" && item.type === "ritual" ? game.i18n.localize("VTM20.Sheet.AbyssMysticism") : Codex.disciplineLabel(discKey)) : "",
       roman: ROMAN[(s.level ?? s.value) - 1] ?? String(s.level ?? s.value ?? ""),
       // книга — из шапки описания справочника («… · Источник: V20 Rites of the Blood»), её в окне прячем

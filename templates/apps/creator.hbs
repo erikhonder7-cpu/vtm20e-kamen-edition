@@ -243,7 +243,7 @@
       <div>
         <h3 class="r-h3">{{localize "VTM20.Details.generation"}}</h3>
         <div class="r-cr-gens">
-          {{#each gens}}<a class="r-cr-gen {{#if active}}is-active{{/if}}" data-action="gen" data-gen="{{g}}" data-tooltip="{{localize 'VTM20.Creator.GenTip' pool=pool turn=perTurn cost=cost}}"><b>{{rRoman g}}</b><small>{{#if cost}}{{cost}} {{localize "VTM20.Creator.BgPts"}}{{else}}—{{/if}}</small></a>{{/each}}
+          {{#each gens}}<a class="r-cr-gen {{#if active}}is-active{{/if}}" data-action="gen" data-gen="{{g}}" data-tooltip="{{localize 'VTM20.Creator.GenTip' pool=pool turn=perTurn cost=cost}}"><b>{{rRoman g}}</b><small>{{#if cost}}{{costLabel}}{{else}}—{{/if}}</small></a>{{/each}}
         </div>
         <p class="r-note r-explain">{{localize "VTM20.Creator.GenerationHint"}}</p>
       </div>

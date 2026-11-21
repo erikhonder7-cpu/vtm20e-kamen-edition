@@ -8,7 +8,7 @@
   --c-bone: #d8cfbf; --c-bone-b: #ece4d4; --c-bone-2: #b3aa98; --c-muted: #8a8276; --c-dim: #6b655c; --c-dim-2: #524d46;
   --c-blood: #a3242a; --c-blood-b: #c4474c; --c-blood-d: #6e1c20; --c-blood-dd: #3a0c0f;
   --c-steel: #8d9bb8; --c-ok: #8fa486; --c-warn: #c9a46a;
-  --c-font-display: "IM Fell SC", "Prata", Georgia, serif; --c-font-body: "Old Standard", "IM Fell", Georgia, serif;
+  --c-font-display: "IM Fell SC", "Prata", "Old Standard", Georgia, serif; --c-font-body: "Old Standard", "IM Fell", Georgia, serif;
   --c-mat-asphalt: linear-gradient(180deg, #121214, #0b0b0d);
   --c-mat-steel: linear-gradient(180deg, #1a1a1d, #111113);
   --c-mat-concrete: linear-gradient(180deg, #17171a, #0f0f11);
