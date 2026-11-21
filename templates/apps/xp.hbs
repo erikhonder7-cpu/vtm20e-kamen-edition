@@ -47,7 +47,7 @@
           <div class="r-xw-tline"><i class="fa-solid fa-coins"></i> {{localize "VTM20.Train.Cost" n=cost}} <small>{{why}}</small>{{#if bank}} · <span class="r-xw-bank">{{localize "VTM20.Train.Bank" n=bank}}</span>{{/if}}</div>
           {{/if}}
           <label class="r-xw-tline"><i class="fa-solid fa-chalkboard-user"></i>
-            <input type="text" name="mentor" value="{{mentor}}" list="r-xw-mentors" placeholder="{{localize 'VTM20.Train.Mentor'}}" {{#unless @root.editable}}disabled{{/unless}}></label>
+            <input type="text" name="mentor" value="{{mentor}}" data-combo="r-xw-mentors" placeholder="{{localize 'VTM20.Train.Mentor'}}" {{#unless @root.editable}}disabled{{/unless}}></label>
           {{#if mentorBg.length}}<div class="r-xw-tline"><small>{{#each mentorBg}}{{name}} {{value}}{{#unless @last}}, {{/unless}}{{/each}}</small></div>{{/if}}
           {{#if hasNights}}<div class="r-xw-tline"><i class="fa-solid fa-moon"></i> {{localize "VTM20.Train.Nights" n=nights}}</div>{{/if}}
           {{#if arc}}
@@ -109,4 +109,6 @@
     </div>
     {{/if}}
   </main>
+  {{!-- наставники для поля «Наставник» в карточках обучения: персонажи мира (свой список, ui/combo.mjs) --}}
+  <datalist id="r-xw-mentors">{{#each mentors}}<option value="{{this}}"></option>{{/each}}</datalist>
 </div>

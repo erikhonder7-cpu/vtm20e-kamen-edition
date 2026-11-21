@@ -11,6 +11,7 @@
 import { SYSTEM_ID, VTM20 } from "../config.mjs";
 import { ghouledView } from "./ghouled.mjs";
 import { Codex } from "../data/codex.mjs";
+import { attachCombos } from "../ui/combo.mjs";
 import { M, isMarauder, isFallen, aretePool, changeQuintessence, paradoxOf, changeParadox, castEffect, mageGlyphSrc, sphereName, topResonance, parseSpheres, RES_DICE } from "./mage.mjs";
 
 const t = (k, d) => d ? game.i18n.format(`VTM20.Mage.${k}`, d) : game.i18n.localize(`VTM20.Mage.${k}`);
@@ -52,10 +53,11 @@ export async function addResonance(actor) {
   if (!owner(actor)) return null;
   const R = M().resonance ?? {};
   const res = await foundry.applications.api.DialogV2.prompt({ window: { title: t("ResAdd"), icon: "fa-solid fa-wave-square" }, classes: DLG, rejectClose: false, position: { width: 440 },
-    content: `<div class="r-form"><label class="r-field"><span>${esc(t("ResName"))}</span><input type="text" name="name" list="r-res-sign" placeholder="${esc(t("ResNameHint"))}" autofocus></label>
+    content: `<div class="r-form"><label class="r-field"><span>${esc(t("ResName"))}</span><input type="text" name="name" data-combo="r-res-sign" placeholder="${esc(t("ResNameHint"))}" autofocus></label>
       <datalist id="r-res-sign">${(R.signatures ?? []).map(x => `<option value="${esc(x)}"></option>`).join("")}</datalist>
       <label class="r-field"><span>${esc(t("ResFlavor"))}</span><select name="flavor"><option value="">—</option>${(R.flavors ?? []).map(f => `<option value="${f.key}">${esc(f.name)} — ${esc(f.text)}</option>`).join("")}</select></label>
       <p class="r-note">${esc(t("ResRule"))}</p></div>`,
+    render: (e, d) => attachCombos(d.element),   // подписи резонанса — свой список вместо серого списка браузера
     ok: { label: game.i18n.localize("VTM20.Common.Add"), callback: (e, b) => ({ name: b.form.elements.name.value.trim(), flavor: b.form.elements.flavor.value, value: 1 }) } });
   if (!res?.name) return null;
   return actor.update({ "system.mage.resonances": [...actor.system.mage.resonances.map(r => ({ ...r })), res] });

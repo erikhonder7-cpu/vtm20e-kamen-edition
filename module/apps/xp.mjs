@@ -3,6 +3,7 @@
 // (через VtMActor.buyWithXp — единственный путь развития, кнопок «+» на листе нет), начисление и история трат.
 
 import { Codex } from "../data/codex.mjs";
+import { attachCombos } from "../ui/combo.mjs";
 import { trainingOf, trainingView, planTraining, dropTraining, finishTraining, teacherRoll, setMentor, toggleGuildTraining, exchangeRoll, spontaneous } from "./training.mjs";
 import { numenOf as sorcNumenOf, numenXpExtra as sorcExtra } from "./sorcerer.mjs";
 import { VTM20, SYSTEM_PATH } from "../config.mjs";
@@ -152,7 +153,10 @@ class XpWindow extends HandlebarsApplicationMixin(ApplicationV2) {
       pct: x.total > 0 ? Math.min(100, Math.round((x.spent / x.total) * 100)) : 0,
       affordable: groups.reduce((n, g) => n + g.rows.filter(r => r.can).length, 0),
       log: x.log.map(l => ({ ...l, spend: l.amount < 0, abs: Math.abs(l.amount) })),
-      editable: this.actor.isOwner
+      editable: this.actor.isOwner,
+      // подсказки для «Наставника»: персонажи мира (без котерий, доменов и духов), кроме самого ученика
+      mentors: train ? game.actors.filter(a => a.id !== this.actor.id && !["coterie", "domain", "spirit"].includes(a.type))
+        .map(a => a.name).sort((x, y) => x.localeCompare(y, "ru")) : []
     };
   }
 
@@ -174,6 +178,7 @@ class XpWindow extends HandlebarsApplicationMixin(ApplicationV2) {
   _onRender(context, options) {
     super._onRender(context, options);
     this.#applyQuery();
+    attachCombos(this.element);   // «Наставник» — свой список вместо серого списка браузера
     // покупка перерисовывает окно дважды (черта, затем журнал) — вспышку гасим по времени, а не первой перерисовкой
     if (this.flash) { clearTimeout(this.flashTimer); this.flashTimer = setTimeout(() => { this.flash = null; }, 1200); }
   }
