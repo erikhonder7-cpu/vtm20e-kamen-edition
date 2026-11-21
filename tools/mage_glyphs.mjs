@@ -64,6 +64,25 @@ for (const [name, rel] of Object.entries(MAP)) {
     // знак — тёмное; белый фон — в прозрачность
     for (let i = 0; i < px.length; i += 4) { const l = (px[i] * 0.299 + px[i + 1] * 0.587 + px[i + 2] * 0.114); const a = Math.round((255 - l) * px[i + 3] / 255); px[i] = px[i + 1] = px[i + 2] = 0; px[i + 3] = a; }
     g.putImageData(d, 0, 0);
+    // Сферы: оптическое центрирование — знак сдвигается к центру своего «веса» (центр масс непрозрачного) на 60%:
+    // по рамке «Силы» и «Жизнь» тяжелее слева, «Дух» и «Соответствие» — снизу, и в кружке кажутся сдвинутыми.
+    // Сдвиг не выводит знак за поле в pad/2.
+    if (tight) {
+      let sx2 = 0, sy2 = 0, sa = 0, x0 = S, y0 = S, x1 = 0, y1 = 0;
+      for (let y = 0; y < S; y++) for (let x = 0; x < S; x++) {
+        const a = px[(y * S + x) * 4 + 3] / 255; if (!a) continue;
+        sx2 += x * a; sy2 += y * a; sa += a;
+        if (a > .25) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
+      }
+      const lim = pad / 2;
+      let dx = Math.round(-0.6 * (sx2 / sa - S / 2)), dy = Math.round(-0.6 * (sy2 / sa - S / 2));
+      dx = Math.max(lim - x0, Math.min(S - 1 - lim - x1, dx)); dy = Math.max(lim - y0, Math.min(S - 1 - lim - y1, dy));
+      if (dx || dy) {
+        const c2 = document.createElement("canvas"); c2.width = c2.height = S;
+        c2.getContext("2d").drawImage(c, dx, dy);
+        return { png: c2.toDataURL("image/png"), dark, lightOpaque };
+      }
+    }
     return { png: c.toDataURL("image/png"), dark, lightOpaque };
   }, [url, name.startsWith("sphere-")]);
   fs.writeFileSync(path.join(OUT, name + ".png"), Buffer.from(res.png.split(",")[1], "base64"));

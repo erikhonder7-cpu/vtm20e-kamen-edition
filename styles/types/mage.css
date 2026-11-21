@@ -74,7 +74,7 @@ body.r-theme-light .vtm20.r-type-mage {
   border: 1px solid rgba(154, 130, 230, .6); background: radial-gradient(circle at 50% 30%, #2f2560, #0c0919 72%); box-shadow: 0 0 10px rgba(154, 130, 230, .28); }
 .vtm20.r-type-mage .r-edge-title { min-width: 0; display: flex; flex-direction: column; }
 .vtm20.r-type-mage .r-edge-title b { font-family: var(--r-display); font-size: 16px; font-weight: normal; color: var(--r-ink); line-height: 1.1; }
-.vtm20.r-type-mage .r-edge-title small { font-family: var(--r-caps); font-size: 9.5px; letter-spacing: 1px; text-transform: uppercase; color: var(--r-muted); }
+.vtm20.r-type-mage .r-edge-title small { font-family: var(--r-caps); font-size: 10px; letter-spacing: .4px; text-transform: uppercase; color: var(--r-muted);  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
 .vtm20.r-type-mage .r-edge-list { list-style: none; margin: 0; padding: 4px 10px 6px; }
 .vtm20.r-type-mage .r-edge { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto auto; gap: 8px; align-items: start; padding: 4px 0; border-bottom: 1px dotted var(--r-line); }
 .vtm20.r-type-mage .r-edge:last-child { border-bottom: 0; }
@@ -106,7 +106,7 @@ body.r-theme-light .vtm20 .r-mg { background: linear-gradient(170deg, #3a2a78, #
 /* кружок Сферы: крупнее и с узким полем — широкие знаки (Энтропия, Жизнь, Дух) не сжимаются в кашу; у нулевой Сферы знак
    приглушён, но читается */
 .vtm20.r-type-mage .r-sphere-sigil { flex: 0 0 32px; width: 32px; height: 32px; padding: 4px; }
-.vtm20.r-type-mage .r-sphere-sigil .r-sym { width: 23px; height: 23px; }
+.vtm20.r-type-mage .r-sphere-sigil .r-sym { width: 22px; height: 22px; }
 .vtm20.r-type-mage .r-sphere.is-zero .r-sphere-sigil .r-mg { opacity: .62; }
 img[src$="assets/mage/sphere-prime.png"] { filter: invert(.93) sepia(.25) hue-rotate(200deg); }
 body.r-theme-light img[src$="assets/mage/sphere-prime.png"] { filter: none; }
@@ -330,7 +330,7 @@ body.r-theme-light img[src$="assets/mage/sphere-prime.png"] { filter: none; }
 /* Карточка Сферы сворачивается до строки: знак, название, точки */
 .vtm20.r-type-mage .r-sphere-fold { flex: none; width: 16px; text-align: center; font-size: 10px; color: var(--r-muted); cursor: pointer; }
 .vtm20.r-type-mage .r-sphere-fold:hover { color: var(--m-gold-l); }
-.vtm20.r-type-mage .r-sphere.is-shut .r-edge-head { margin-bottom: 0; padding-bottom: 0; border-bottom: 0; }
+.vtm20.r-type-mage .r-sphere.is-shut .r-edge-head { margin-bottom: 0; padding-top: 5px; padding-bottom: 5px; border-bottom: 0; }   /* свёрнута: кружок посередине — отступы сверху и снизу равны */
 
 /* Карточка чародейства и отката: Сферы со знаками, вид магии, итог и Парадокс — одной карточкой */
 .r-roll-card.r-type-mage > .r-card-emblem { opacity: .1; }
