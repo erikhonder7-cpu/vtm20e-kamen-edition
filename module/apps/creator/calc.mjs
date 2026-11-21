@@ -9,12 +9,13 @@ import { RULES, DEMON_FAITH, SECT_RULES, CAMARILLA_BANNED, HUNTER_SLOTS, LOST_SL
 import { M as mageData } from "../mage.mjs";
 import { REVENANT_FAMILIES } from "../../data/revenants.mjs";
 import { H as hunterData } from "../hunter.mjs";
+import { plainText } from "../../data/text.mjs";
 
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
 const loc = k => game.i18n.localize(k);
 
 /** Суть силы одной фразой — для карточек выбора (полный текст — во всплывающей подсказке). */
-const plainShort = html => { const s = String(html ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+const plainShort = html => { const s = plainText(html);
   const m = /^(.{20,140}?[.!?])(\s|$)/.exec(s); return m ? m[1] : s.length > 140 ? `${s.slice(0, 137)}…` : s; };
 
 export class CalcCreator {

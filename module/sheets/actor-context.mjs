@@ -27,6 +27,7 @@ import { bondFade } from "../apps/bonds.mjs";
 import { lifeState } from "../apps/ghoul-life.mjs";
 import { formFeatures, mechLabel, needsPick, signed } from "../data/form.mjs";
 import { ritualNeed, thrallState, thrallCap, reliquaryInfo } from "../apps/torment.mjs";
+import { plainText } from "../data/text.mjs";
 
 export const TextEditor = () => foundry.applications.ux.TextEditor.implementation;
 export const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -37,7 +38,7 @@ const clockDate = ms => longDate(new Date(ms));
 const abilityTip = name => {
   const x = name && (Codex.abilities ?? []).find(y => y.name.toLowerCase() === String(name).trim().toLowerCase());
   // без строки «Источник: …» — подсказка начинается с сути
-  return x ? x.html.replace(/^<p><em>[\s\S]*?<\/em><\/p>/, "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 420) : "";
+  return x ? plainText(x.html.replace(/^<p><em>[\s\S]*?<\/em><\/p>/, "")).slice(0, 420) : "";
 };
 
 export const dots = (value, max = 5, extra = {}) =>
@@ -647,7 +648,7 @@ function fxDesc(html) {
   const s = String(html ?? "").trim();
   if (!s) return null;
   const sys = (s.split(/<h4 class="r-sec">\s*Система\s*<\/h4>/)[1] ?? s).trim();
-  const plain = sys.replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
+  const plain = plainText(sys);
   if (!plain) return null;
   const more = plain.length > 170;
   return { short: more ? `${plain.slice(0, 168).replace(/\s+\S*$/, "")}…` : plain, html: sys, more };
@@ -795,7 +796,7 @@ export function prepareGear(sheet, ctx) {
   ctx.armors = a.items.filter(i => i.type === "armor").map(i => ({ id: i.id, name: i.name, rating: i.system.rating, penalty: i.system.penalty, equipped: i.system.equipped }));
   ctx.money = moneyView(a);
   const res = a.items.find(i => i.type === "background" && /^ресурс/i.test(i.name));
-  ctx.resources = res ? { dots: "●".repeat(res.system.value), html: (res.system.description ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 400) } : null;
+  ctx.resources = res ? { dots: "●".repeat(res.system.value), html: plainText(res.system.description).slice(0, 400) } : null;
   ctx.gear = a.items.filter(i => i.type === "gear").map(i => ({ id: i.id, name: i.name, img: i.img, quantity: i.system.quantity }));
   // готовое оружие, броня и снаряжение — в библиотеке (apps/library-picks.mjs: weapon, armor, gear)
 }

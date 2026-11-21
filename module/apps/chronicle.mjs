@@ -7,6 +7,7 @@
 import { SYSTEM_ID, SYSTEM_PATH } from "../config.mjs";
 import { getClock, shortDate, nightNumber, nightNote, setNightNote } from "./calendar.mjs";
 import { evaluate } from "../dice/roll.mjs";
+import { plainText } from "../data/text.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -16,7 +17,7 @@ const JOURNAL = "chronicleJournal";
 /** Шаблон строки перевода как регулярка: {n} — число, остальное — что угодно. */
 const pattern = key => new RegExp(game.i18n.localize(`VTM20.${key}`).replace(/[.*+?^$()|[\]\\]/g, "\\$&")
   .replace(/\{n\}/g, "(\\d+)").replace(/\{[a-z]+\}/gi, "(.+?)"));
-const plain = html => String(html ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+const plain = html => plainText(html);
 
 export function registerChronicle() {
   game.settings.register(SYSTEM_ID, "chronicleMark", { scope: "world", config: false, type: Number, default: 0 });

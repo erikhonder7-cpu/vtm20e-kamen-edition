@@ -19,12 +19,13 @@ import { investmentLimit, sealInvestment, pactDialog } from "./infernal.mjs";
 import { W as werewolfData, addGift, addRite, ownGift } from "./werewolf.mjs";
 import { edgeReasons, poolLabel, takeEdge, growth as hunterGrowth, edgeXp, isLost, H as hunterData } from "./hunter.mjs";
 import { PICKS } from "./library-picks.mjs";
+import { plainText } from "../data/text.mjs";
 
 const { HandlebarsApplicationMixin, ApplicationV2 } = foundry.applications.api;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
 const L = (k, d) => t(`Library.${k}`, d);
 const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
-const plain = html => String(html ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+const plain = html => plainText(html);
 /** Статус по аудиту справочника (поле status, tools/text_structure.py): старая редакция, путь другой традиции,
  *  неподтверждённые сведения; подсказка — полная пометка аудитора. */
 const statusTags = x => {

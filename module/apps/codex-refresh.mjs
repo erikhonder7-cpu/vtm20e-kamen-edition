@@ -7,12 +7,13 @@
 import { VTM20, SYSTEM_ID } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
 import { ritualFields } from "../data/ritual-text.mjs";
+import { plainText } from "../data/text.mjs";
 
 const t = (k, d) => d ? game.i18n.format(`VTM20.Refresh.${k}`, d) : game.i18n.localize(`VTM20.Refresh.${k}`);
 const esc = s => foundry.utils.escapeHTML(String(s ?? ""));
 const norm = s => String(s ?? "").toLowerCase().replace(/ё/g, "е").replace(/[^a-zа-я0-9]/g, "");
 const same = (a, b) => norm(a) && norm(a) === norm(b);
-const plain = h => String(h ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+const plain = h => plainText(h);
 // хвост описания из компендия («Цена: 1–3», «Ghouls & Revenants (V20)») — в справочнике его нет, сохраняем
 const tailOf = h => String(h ?? "").match(/(?:<p><em>(?:Цена|Ghouls|Источник)[^<]*<\/em><\/p>)+$/)?.[0] ?? "";
 

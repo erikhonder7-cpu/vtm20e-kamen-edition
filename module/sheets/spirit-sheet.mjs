@@ -11,6 +11,7 @@ import { RollDialog } from "../dice/dialog.mjs";
 import { VtMActorSheet } from "./actor-sheet.mjs";
 import { wwGlyph, wwGlyphSrc } from "../apps/werewolf.mjs";
 import { charmCost } from "../apps/werewolf/spirits.mjs";
+import { plainText } from "../data/text.mjs";
 
 const t = (k, d) => d ? game.i18n.format(`VTM20.Werewolf.${k}`, d) : game.i18n.localize(`VTM20.Werewolf.${k}`);
 const SPIRIT_SHEET = `${SYSTEM_ID}.SpiritSheet`;
@@ -63,7 +64,7 @@ export class SpiritSheet extends VtMActorSheet {
       spiritCharms: (info?.charms ?? []).map(c => ({ ...c, open: this._open.has(`charm:${c.key}`) })),
       // свои Чары — карточками, общие — строкой; цена в Сущности — из текста Чары
       spiritOwn: (info?.charms ?? []).filter(c => !c.general).map(c => ({ ...c, special: String(c.key).startsWith("~"), cost: costLabel(c), open: this._open.has(`charm:${c.key}`) })),
-      spiritGeneral: (info?.charms ?? []).filter(c => c.general).map(c => ({ ...c, cost: costLabel(c), plain: String(c.text ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 300) })),
+      spiritGeneral: (info?.charms ?? []).filter(c => c.general).map(c => ({ ...c, cost: costLabel(c), plain: plainText(c.text).slice(0, 300) })),
       spiritTpls: info?.tpls ?? [],
       essenceLow: info ? info.essence <= Math.ceil(info.essenceMax / 4) : false
     });

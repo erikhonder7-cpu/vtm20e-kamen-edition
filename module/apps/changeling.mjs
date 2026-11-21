@@ -14,6 +14,7 @@ import { SYSTEM_ID, SYSTEM_PATH, VTM20 } from "../config.mjs";
 import { registerEmblem, registerCardBlock } from "../ui/themes.mjs";
 
 import { SOCIETIES } from "../data/changeling-societies.mjs";
+import { plainText } from "../data/text.mjs";
 export const C = () => Codex.changeling ?? { arts: [], realms: [], kiths: [], seemings: [], houses: [], legacies: [], backgrounds: [] };
 export const t = (k, d) => d ? game.i18n.format(`VTM20.Changeling.${k}`, d) : game.i18n.localize(`VTM20.Changeling.${k}`);
 const esc = s => foundry.utils.escapeHTML(String(s ?? ""));
@@ -513,7 +514,7 @@ export function treasuresView(actor) {
   return (actor.system.changeling.treasures ?? []).map((x, i) => {
     const art = artOf(x.art), lv = art?.levels.find(l => l.level === x.level);
     return { i, name: x.name || t("Treasure.Unnamed"), art: art?.name ?? "", level: x.level, dots: "●".repeat(x.level), power: lv?.name ?? "",
-      type: lv?.type ?? "", store: x.store, text: x.text, tip: lv?.html ? lv.html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").slice(0, 400) : "" };
+      type: lv?.type ?? "", store: x.store, text: x.text, tip: lv?.html ? plainText(lv.html).slice(0, 400) : "" };
   });
 }
 

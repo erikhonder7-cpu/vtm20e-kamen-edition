@@ -11,6 +11,7 @@
 import { RollDialog } from "../dice/dialog.mjs";
 import { VTM20, SYSTEM_ID } from "../config.mjs";
 import { W, t, esc, say, artDifficulty, pick } from "./wraith.mjs";
+import { plainText } from "../data/text.mjs";
 
 export const isSpectre = actor => !!actor?.system?.wraith?.spectre?.on;
 export const darkOf = key => (W().darkArcanoi ?? []).find(a => a.key === key) ?? null;
@@ -92,7 +93,7 @@ export async function becomeSpectre(actor) {
     return ok ? actor.update({ "system.wraith.spectre.on": false, "system.wraith.spectre.psyche.catharsis": false }) : null;
   }
   const caste = await pick(t("Spectre.BecomeTitle", { name: actor.name }), (W().castes ?? []).map(c => ({ key: c.key, icon: "fa-skull",
-    title: c.name, sub: String(c.creation ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 150) })), { lead: t("Spectre.BecomeLead") });
+    title: c.name, sub: plainText(c.creation).slice(0, 150) })), { lead: t("Spectre.BecomeLead") });
   if (!caste) return null;
   const c = casteOf(caste), dark = { ...actor._source.system.wraith.spectre.dark };
   dark.collogue = Math.max(1, dark.collogue ?? 0);

@@ -20,6 +20,7 @@
 
 import { W as wraithData, arcSym, legionSym } from "../wraith.mjs";
 import { VTM20 } from "../../config.mjs";
+import { plainText } from "../../data/text.mjs";
 
 const loc = k => game.i18n.localize(`VTM20.WraithCr.${k}`);
 const fmt = (k, d) => game.i18n.format(`VTM20.WraithCr.${k}`, d);
@@ -200,7 +201,7 @@ export class WraithCreator {
       paths: ["", "spectre", "risen", "projector", "hue"].map(k => ({ key: k, label: loc(`PathShort.${k || "wraith"}`), full: loc(`Path.${k || "wraith"}`), sub: loc(`PathSub.${k || "wraith"}`),
         icon: { "": "fa-ghost", spectre: "fa-skull", risen: "fa-person-rays", projector: "fa-person-falling-burst", hue: "fa-droplet" }[k], active: k === p })),
       hueDark: w.hueDark ?? -1, quiescent: quiescent(), hueStains: HUE.stains,
-      castes: (D.castes ?? []).map(c => ({ key: c.key, label: c.name, en: c.en, sub: String(c.creation ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 160), active: c.key === w.caste })),
+      castes: (D.castes ?? []).map(c => ({ key: c.key, label: c.name, en: c.en, sub: plainText(c.creation).slice(0, 160), active: c.key === w.caste })),
       shades: (D.shades ?? []).map(s => ({ key: s.key, label: s.name, en: s.en, active: s.key === w.shade,
         sub: `${(s.favored ?? []).map(k => (D.arcanoi ?? []).find(a => a.key === k)?.name ?? (D.risenArcanoi ?? []).find(a => a.key === k)?.name ?? k).join(", ")} · ${s.natures}` })),
       laments: ["skimmer", "sleeper"].map(k => ({ key: k, label: game.i18n.localize(`VTM20.Wraith.Proj.${k === "skimmer" ? "Skimmer" : "Sleeper"}`), active: (w.lament || "skimmer") === k })),
@@ -219,7 +220,7 @@ export class WraithCreator {
       thorns: (D.thorns ?? []).map(x => {
         const n = w.thorns[x.key] ?? 0, multi = x.perLevel || !!x.max;
         return { key: x.key, label: x.name, en: x.en, costText: x.costText, n, on: n > 0, multi, max: x.max ?? 5, price: this.thornPrice(x.key, Math.max(1, n)),
-          text: String(x.html ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 260) };
+          text: plainText(x.html).slice(0, 260) };
       }),
       // Спектр: Психея
       psyche: { archetypes: (D.psyche?.archetypes ?? []).map(a => ({ key: a.name, label: a.name, en: a.en, active: a.name === w.psyche.archetype })),

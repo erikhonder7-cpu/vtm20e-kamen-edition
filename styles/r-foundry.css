@@ -366,6 +366,9 @@ body.r-skin prose-mirror .editor-menu .pm-dropdown ul { background: var(--rk-coa
 /* Журналы: текст как печатный лист */
 body.r-skin .journal-entry-page h1, body.r-skin .journal-entry-page h2, body.r-skin .journal-entry-page h3 { font-family: var(--rk-display); font-weight: 400; color: var(--rk-bone-b); border-bottom-color: var(--rk-line-2); }
 body.r-skin .journal-entry-page { font-family: var(--rk-body); color: var(--rk-bone); }
+/* таблицы справочников: поля ячеек уже, а широкая таблица (7–8 колонок) прокручивается внутри страницы, а не уходит за край окна */
+body.r-skin .journal-entry-page table { display: block; max-width: 100%; width: max-content; overflow-x: auto; }
+body.r-skin .journal-entry-page :is(th, td) { padding: .35em .6em; }
 
 /* ── Трекер боя (module/ui/combat-tracker.mjs) ─────────────────────────── */
 body.r-skin #combat .combatant.r-ct { position: relative; border-left: 3px solid transparent; transition: background .15s; }

@@ -7,6 +7,7 @@
 
 import { SYSTEM_ID, SYSTEM_PATH } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
+import { plainText } from "../data/text.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const loc = k => game.i18n.localize(`VTM20.${k}`);
@@ -14,7 +15,7 @@ const esc = s => foundry.utils.escapeHTML(String(s ?? ""));
 const MAX = 80;
 
 /** Текст без разметки, одной строкой. */
-const plain = html => String(html ?? "").replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
+const plain = plainText;
 /** Без регистра и ё: «Чёрные» находится по «черные». */
 const norm = s => String(s ?? "").toLowerCase().replace(/ё/g, "е");
 
