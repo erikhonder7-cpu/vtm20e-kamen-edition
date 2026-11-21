@@ -4155,6 +4155,28 @@ try {
     for (const [k, v] of Object.entries(want)) if (JSON.stringify(r[k]) !== JSON.stringify(v)) throw new Error(`${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(v)}`);
   });
 
+  // Черты других линеек в том же окне броска: маг «Лихой водитель» — сам −2 к Вождению, «Жуткий» — сам +3 к социальным, но не
+  // к Запугиванию; Гару «Физически впечатляющий» — сам +1 куб к Запугиванию; подменыш «Хромой» — галочкой к физическим
+  await check("Маг, Гару, подменыш: черты своих линеек в броске", async () => {
+    const r = await page.evaluate(async () => {
+      const SYS = game.system.id, { RollDialog } = await import(`/systems/${SYS}/module/dice/dialog.mjs`), out = {};
+      const mk = async (type, names) => { const a = await Actor.create({ name: `E2E — черты ${type}`, type, flags: { world: { e2e: true }, [SYS]: { created: true } } });
+        await a.createEmbeddedDocuments("Item", names.map(name => ({ name, type: "merit", system: { cost: 1 } }))); return a; };
+      const m = await mk("mage", ["Лихой водитель", "Жуткий"]);
+      out.drive = new RollDialog(m, { trait1: "attributes.dexterity", trait2: "abilities.drive", difficulty: 6 }).compute().diffAuto.some(d => d.label === "Лихой водитель" && d.value === -2);
+      out.creepy = new RollDialog(m, { trait1: "attributes.charisma", trait2: "abilities.empathy", difficulty: 6 }).compute().diffAuto.some(d => d.label === "Жуткий" && d.value === 3);
+      out.creepyIntim = new RollDialog(m, { trait1: "attributes.charisma", trait2: "abilities.intimidation", difficulty: 6 }).compute().diffAuto.some(d => d.label === "Жуткий");
+      const w = await mk("werewolf", ["Физически впечатляющий"]);
+      out.imposing = new RollDialog(w, { trait1: "attributes.strength", trait2: "abilities.intimidation", difficulty: 6 }).compute().breakdown.some(d => d.label === "Физически впечатляющий" && d.value === 1);
+      const c = await mk("changeling", ["Хромой"]);
+      out.lame = new RollDialog(c, { trait1: "attributes.dexterity", trait2: "abilities.athletics", difficulty: 6 }).compute().diffSit.some(d => d.kind === "merit" && d.label === "Хромой");
+      for (const a of [m, w, c]) await a.delete();
+      return out;
+    });
+    const want = { drive: true, creepy: true, creepyIntim: false, imposing: true, lame: true };
+    for (const [k, v] of Object.entries(want)) if (r[k] !== v) throw new Error(`${k}: ${r[k]} вместо ${v} (${JSON.stringify(r)})`);
+  });
+
   // Расстройства: правки бросков (Паранойя — сама +1 к социальным), «Сдержать» — −1 Воля и отметка на сцену, «Проявилось» — напоминание
   await check("Вампир: расстройства — правки бросков, сдержать и проявилось", async () => {
     const r = await page.evaluate(async () => {
