@@ -146,7 +146,7 @@ openUuid: VtMActorSheet.#onOpenUuid,
       removeSecondary: VtMActorSheet.#onRemoveSecondary,
       addBond: VtMActorSheet.#onAddBond,
       drinkBond: VtMActorSheet.#onDrinkBond,
-      feedFrom: VtMActorSheet.#onFeedFrom, infernalToggle: VtMActorSheet.#onInfernalToggle, feedGhoul: VtMActorSheet.#onFeedGhoul,
+      feedFrom: VtMActorSheet.#onFeedFrom, derangeHold: VtMActorSheet.#onDerange, derangeShow: VtMActorSheet.#onDerange, infernalToggle: VtMActorSheet.#onInfernalToggle, feedGhoul: VtMActorSheet.#onFeedGhoul,
       ghoulLife: VtMActorSheet.#onGhoulLife,
       openPath: VtMActorSheet.#onOpenPath, pathShift: VtMActorSheet.#onPathShift, pickPath: VtMActorSheet.#onPickPath, archLib: VtMActorSheet.#onArchLib,
       openCoterie: VtMActorSheet.#onOpenCoterie,
@@ -1014,6 +1014,11 @@ openStrategy: () => openStrategy(),
   }
   /** Инфернализм на листе: показать блок Вложений и договоров (или скрыть пустой) — флаг infernal. */
   static async #onInfernalToggle() { return this.actor.setFlag(SYSTEM_ID, "infernal", !this.actor.getFlag(SYSTEM_ID, "infernal")); }
+  /** Расстройство: «Сдержать» — 1 Воля, расстройство не проявляется до конца сцены; «Проявилось» — напоминание на сцену. */
+  static async #onDerange(event, target) {
+    const item = this.actor.items.get(target.closest("[data-item-id]")?.dataset.itemId);
+    if (item) return (await import("../apps/derangements.mjs")).derangementScene(this.actor, item, target.dataset.action === "derangeHold");
+  }
   static async #onFeedGhoul() { return (await import("../apps/bonds.mjs")).feedGhoul(this.actor); }
   static async #onFeedFrom() {
     const { feedFrom } = await import("../apps/bonds.mjs");

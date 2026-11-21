@@ -4155,6 +4155,22 @@ try {
     for (const [k, v] of Object.entries(want)) if (JSON.stringify(r[k]) !== JSON.stringify(v)) throw new Error(`${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(v)}`);
   });
 
+  // Расстройства: правки бросков (Паранойя — сама +1 к социальным), «Сдержать» — −1 Воля и отметка на сцену, «Проявилось» — напоминание
+  await check("Вампир: расстройства — правки бросков, сдержать и проявилось", async () => {
+    const r = await page.evaluate(async () => {
+      const SYS = game.system.id, { RollDialog } = await import(`/systems/${SYS}/module/dice/dialog.mjs`), D = await import(`/systems/${SYS}/module/apps/derangements.mjs`), out = {};
+      const a = await Actor.create({ name: "E2E — безумец", type: "vampire", flags: { world: { e2e: true }, [SYS]: { created: true } }, system: { willpower: { permanent: 5, temporary: 5 } } });
+      const [it] = await a.createEmbeddedDocuments("Item", [{ name: "Паранойя", type: "derangement", system: {} }]);
+      out.soc = new RollDialog(a, { trait1: "attributes.charisma", trait2: "abilities.empathy", difficulty: 6 }).compute().diffAuto.some(d => d.label === "Паранойя" && d.value === 1);
+      await D.derangementScene(a, it, true); await D.derangementScene(a, it, false);
+      out.scene = [a.system.willpower.temporary, a.effects.filter(e => String(e.getFlag(SYS, "power")).startsWith("derangement:")).length];
+      await a.delete();
+      return out;
+    });
+    const want = { soc: true, scene: [4, 2] };
+    for (const [k, v] of Object.entries(want)) if (JSON.stringify(r[k]) !== JSON.stringify(v)) throw new Error(`${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(v)}`);
+  });
+
   // Текст интерфейса (обход tools/.cache/audit.mjs, постоянной проверкой): листы восьми линеек на всех вкладках, первые шаги
   // мастера создания и библиотека — без невставленных ключей перевода, undefined/NaN, неподставленных {name}, сырых тегов и сущностей
   await check("Мастер, листы и библиотека: текст без сырых ключей, undefined и тегов", async () => {

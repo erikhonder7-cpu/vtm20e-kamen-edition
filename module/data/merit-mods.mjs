@@ -145,6 +145,18 @@ export const MERIT_MODS = {
   "Хоровая выучка":       { dice: 2, when: {}, hint: "совместно с другой обладательницей" },
   "Чутьё Фуги":           { dice: 2, when: {}, hint: "следующее действие после вслушивания в Фугу" },
   "Сердце воина":         { dice: 2, when: {}, hint: "силы Валерена 1–2" },
+  // ── расстройства (data/derangements.json): правки бросков; «Сдержать» и «Проявилось» — кнопками на листе
+  "Мегаломания":          { dice: 1, auto: true, when: { willOrVirtue: true } },
+  "Паранойя":             { diff: 1, auto: true, when: { group: "social" } },
+  "Голоса":               { diff: 1, auto: true, when: { group: "social" } },
+  "Пляска Святого Вита":  { diff: 2, auto: true, when: { group: "social" } },
+  "Холерик":              { diff: 2, auto: true, when: { kinds: ["frenzy"] } },
+  "Флегматик":            { dice: -1, auto: true, when: { attrs: ["wits", "dexterity"] } },
+  "Шизофрения":           { diff: 3, when: { kinds: ["frenzy"] }, hint: "внутренний конфликт (и −3 куба к Воле)" },
+  "Меланхолик":           { dice: -1, when: {}, hint: "все пулы (−1 к сложности неистовства)" },
+  "Фиксация на предмете силы": { dice: -2, when: {}, hint: "в разлуке с предметом силы" },
+  "Принуждение":          { dice: -3, when: {}, hint: "не выполнив своих ритуалов" },
+  "Видения":              { dice: -2, when: { willOrVirtue: true }, hint: "проверка Вырождения" },
 };
 
 /** Подходит ли правило к броску. */
@@ -164,7 +176,8 @@ function fits(when, { attrs, abilities, kind, groups, willOrVirtue }) {
  * @param {object} roll { traits: ["attributes.x", "abilities.y"], kind, attributeGroups }
  */
 export function meritModsFor(actor, { traits = [], kind = "check", attributeGroups = {} } = {}) {
-  const names = new Set(actor.items.filter(i => i.type === "merit" || i.type === "flaw").map(i => i.name));
+  // черты и расстройства: у расстройств свои правки бросков (Паранойя, Голоса, Холерик…)
+  const names = new Set(actor.items.filter(i => ["merit", "flaw", "derangement"].includes(i.type)).map(i => i.name));
   const attrs = traits.filter(p => p?.startsWith("attributes.")).map(p => p.split(".")[1]);
   const abilities = traits.filter(p => p?.startsWith("abilities.")).map(p => p.split(".")[1]);
   const groups = Object.entries(attributeGroups).filter(([, g]) => attrs.some(a => g.attributes?.includes(a))).map(([k]) => k);

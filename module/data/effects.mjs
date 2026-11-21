@@ -215,6 +215,8 @@ export function effectDef(power, variant = "", shapeConfig = null) {
   if (String(power).startsWith("edge:")) return EDGE_EFFECTS[power] ? { ...EDGE_EFFECTS[power], ...(shapeConfig ?? {}) } : null;
   // Богатыри (хоумрул, data/bogatyr.mjs): Плащ Старейшего
   if (String(power).startsWith("bogatyr:")) return bogatyrOn() ? BOGATYR_EFFECTS[power] ?? null : null;
+  // расстройства (apps/derangements.mjs): «Сдержано» и «Проявилось» — напоминания на сцену
+  if (String(power).startsWith("derangement:")) return { mode: "scene", icon: power.endsWith("hold") ? "fa-hand" : "fa-brain", note: true };
   // Знания падших: воззвание «до конца эпизода» после удачного броска — напоминание до снятия (actor-sheet.mjs rollLorePower)
   if (String(power).startsWith("lore:")) return { mode: "toggle", icon: "fa-book-open", note: true };
   // Искусства подменышей (data/art-effects.mjs): правки по успехам кантрипа во флаге эффекта

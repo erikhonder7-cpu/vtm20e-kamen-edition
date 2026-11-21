@@ -142,6 +142,8 @@
           <a class="r-trait-label" data-action="toggleRow" data-row-id="{{id}}">{{rName this}}</a>
           <span class="r-leader"></span>
           {{#if permanent}}<span class="r-tag is-red">{{localize "VTM20.Sheet.Permanent"}}</span>{{/if}}
+          {{#if @root.editable}}<a class="r-icon-btn" data-action="derangeHold" data-tooltip="{{localize 'VTM20.Derange.HoldHint'}}"><i class="fa-solid fa-hand"></i></a>
+          <a class="r-icon-btn" data-action="derangeShow" data-tooltip="{{localize 'VTM20.Derange.ShowHint'}}"><i class="fa-solid fa-brain"></i></a>{{/if}}
           <a class="r-icon-btn" data-action="itemEdit" data-tooltip="{{localize 'VTM20.Sheet.Edit'}}"><i class="fa-solid fa-pen-nib"></i></a>
           {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="itemDelete" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
         </div>

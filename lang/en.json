@@ -36,6 +36,7 @@
     }
   },
   "VTM20": {
+    "Derange": {"HoldHint": "Hold back: 1 Willpower — the derangement stays quiet until the end of the scene", "ShowHint": "Manifested: the derangement takes over — a reminder until the end of the scene", "Held": "held back", "Shown": "manifested", "NoWill": "No temporary Willpower to hold the derangement back.", "HeldMsg": "{name} holds back “{what}” (−1 Willpower) until the end of the scene.", "ShownMsg": "“{what}” takes hold of {name}."},
     "DamageOne": { "bashing": "bashing", "lethal": "lethal", "aggravated": "aggravated" },
     "ClCr": {
       "NeedKith": "Pick a kith.",
