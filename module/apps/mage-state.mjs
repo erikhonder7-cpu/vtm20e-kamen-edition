@@ -12,7 +12,7 @@ import { SYSTEM_ID, VTM20 } from "../config.mjs";
 import { ghouledView } from "./ghouled.mjs";
 import { Codex } from "../data/codex.mjs";
 import { attachCombos } from "../ui/combo.mjs";
-import { M, isMarauder, isFallen, aretePool, changeQuintessence, paradoxOf, changeParadox, castEffect, mageGlyphSrc, sphereName, topResonance, parseSpheres, RES_DICE } from "./mage.mjs";
+import { M, isMarauder, isFallen, aretePool, changeQuintessence, paradoxOf, changeParadox, castEffect, mageGlyphSrc, sphereGlyphSmall, sphereName, topResonance, parseSpheres, RES_DICE } from "./mage.mjs";
 
 const t = (k, d) => d ? game.i18n.format(`VTM20.Mage.${k}`, d) : game.i18n.localize(`VTM20.Mage.${k}`);
 const esc = x => foundry.utils.escapeHTML(String(x ?? ""));
@@ -217,7 +217,7 @@ export function wondersView(actor) {
     const s = it.system, ranks = parseSpheres(s.spheres);
     return { id: it.id, name: it.name, img: it.img, kind: s.kind, kindLabel: game.i18n.localize(`VTM20.Wonder.Kind.${s.kind}`), value: s.value, arete: s.arete,
       quint: s.quintessence, quintMax: s.quintMax, holds: s.quintMax > 0, perm: s.paradoxPerm,
-      chips: Object.entries(ranks).map(([k, rank]) => ({ name: sphereName(actor, k), rank, sym: { src: mageGlyphSrc(`sphere-${k}`) } })),
+      chips: Object.entries(ranks).map(([k, rank]) => ({ name: sphereName(actor, k), rank, sym: { src: sphereGlyphSmall(k) } })),
       canUse: s.arete > 0, html: s.description, armed: actor.items.some(i => i.getFlag(SYSTEM_ID, "wonder") === it.id) };
   });
 }

@@ -7,7 +7,7 @@ import { Codex } from "../../data/codex.mjs";
 import { CHANGELING_HINTS, WRAITH_HINTS, MAGE_HINTS, RENOWN, THRALL_BANNED, TIERS, SECTS, STEP_HINTS, GHOUL_HINTS, DEMON_HINTS, EB_HINTS, THRALL_HINTS, HUNTER_HINTS, GAROU_HINTS, HUNTER_SLOTS, LOST_SLOTS, preview } from "./rules.mjs";
 import { W as werewolfData } from "../werewolf.mjs";
 import { REVENANT_FAMILIES } from "../../data/revenants.mjs";
-import { M as mageData, mageGlyphSrc } from "../mage.mjs";
+import { M as mageData, mageGlyphSrc, sphereGlyphSmall } from "../mage.mjs";
 import { H as hunterData, growth as hunterGrowth } from "../hunter.mjs";
 import { W as wraithData, wraithGlyphSrc, arcSym } from "../wraith.mjs";
 import { clGlyph } from "../changeling.mjs";
@@ -183,7 +183,7 @@ export class ContextCreator {
       const d = this.discData(k), v = this.value("disc", k);
       return {
         key: k, name: d.name, en: d.en, value: v, inClan: this.isChangeling ? this.clInClan(k) : this.isMage ? k === st.mg.affinity : this.isWraith ? k === st.wr.guild : this.inClan(k),
-        sym: this.isSorcerer ? null : this.isMage ? { src: mageGlyphSrc(`sphere-${k}`) } : this.isWraith ? (VTM20.wraithDark.includes(k) ? { src: wraithGlyphSrc("arcanos-dark") } : VTM20.wraithArcanoi.includes(k) ? arcSym(k) : null) : this.isChangeling ? (clGlyph("art", k) ?? clGlyph("realm", k)) : this.isDemon ? null : Codex.disciplineSymbol(k),   // подменыш — витражи Искусств и Царств
+        sym: this.isSorcerer ? null : this.isMage ? { src: sphereGlyphSmall(k), cls: "r-mg" } : this.isWraith ? (VTM20.wraithDark.includes(k) ? { src: wraithGlyphSrc("arcanos-dark") } : VTM20.wraithArcanoi.includes(k) ? arcSym(k) : null) : this.isChangeling ? (clGlyph("art", k) ?? clGlyph("realm", k)) : this.isDemon ? null : Codex.disciplineSymbol(k),   // подменыш — витражи Искусств и Царств
         guild: d.guild ?? "",
         icon: this.isChangeling ? this.clIcon(k) : this.isSorcerer ? (d.psychic ? "fa-brain" : "fa-hand-sparkles") : this.isDemon ? (d.house ? "fa-fire-flame-curved" : "fa-book") : VTM20.disciplineIcons[k] ?? "fa-droplet", dots: dotRow("disc", k),
         powers: d.powers.filter(p => p.level <= Math.max(1, v) && p.level <= 5).map(p => ({ level: p.level, name: p.name, en: p.en, owned: p.level <= v, tip: preview(p.html, 600) })),

@@ -103,8 +103,11 @@ body.r-theme-light .vtm20.r-type-mage {
 body.r-theme-light .vtm20 .r-mg { background: linear-gradient(170deg, #3a2a78, #1b1436); }
 .vtm20.r-type-mage .r-seal-glyph { display: inline-grid; place-items: center; }
 .vtm20.r-type-mage .r-seal-glyph .r-sym { width: 15px; height: 15px; }
-.vtm20.r-type-mage .r-sphere-sigil { padding: 4px; }
-.vtm20.r-type-mage .r-sphere.is-zero .r-sphere-sigil .r-mg { opacity: .45; }
+/* кружок Сферы: крупнее и с узким полем — широкие знаки (Энтропия, Жизнь, Дух) не сжимаются в кашу; у нулевой Сферы знак
+   приглушён, но читается */
+.vtm20.r-type-mage .r-sphere-sigil { flex: 0 0 32px; width: 32px; height: 32px; padding: 4px; }
+.vtm20.r-type-mage .r-sphere-sigil .r-sym { width: 23px; height: 23px; }
+.vtm20.r-type-mage .r-sphere.is-zero .r-sphere-sigil .r-mg { opacity: .62; }
 img[src$="assets/mage/sphere-prime.png"] { filter: invert(.93) sepia(.25) hue-rotate(200deg); }
 body.r-theme-light img[src$="assets/mage/sphere-prime.png"] { filter: none; }
 

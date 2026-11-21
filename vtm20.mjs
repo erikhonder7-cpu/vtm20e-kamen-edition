@@ -635,7 +635,8 @@ function registerHelpers() {
   });
   Handlebars.registerHelper("rSym", (sym, cls) => {
     if (!sym?.src) return "";
-    const extra = typeof cls === "string" ? ` ${cls}` : "";
+    // класс заливки может прийти и с самим знаком (sym.cls: «r-mg» у Сфер в общем шаблоне мастера)
+    const extra = [typeof cls === "string" ? cls : "", sym.cls ?? ""].filter(Boolean).map(c => ` ${Handlebars.escapeExpression(c)}`).join("");
     const src = Handlebars.escapeExpression(sym.src);
     return new Handlebars.SafeString(`<span class="r-sym${sym.lum ? " is-lum" : ""}${sym.wide ? " is-wide" : ""}${sym.color ? " is-color" : ""}${extra}" style="--sym: url('${src}')" aria-hidden="true"></span>`);
   });

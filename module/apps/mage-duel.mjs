@@ -7,7 +7,7 @@
 
 import { SYSTEM_ID, VTM20 } from "../config.mjs";
 import { registerCardBlock, themeClass } from "../ui/themes.mjs";
-import { M, aretePool, sphereName, mageGlyphSrc, changeParadox, mt } from "./mage.mjs";
+import { M, aretePool, sphereName, mageGlyphSrc, sphereGlyphSmall, changeParadox, mt } from "./mage.mjs";
 
 const t = (k, d) => d ? game.i18n.format(`VTM20.Mage.${k}`, d) : game.i18n.localize(`VTM20.Mage.${k}`);
 const esc = x => foundry.utils.escapeHTML(String(x ?? ""));
@@ -141,7 +141,7 @@ registerCardBlock("mduel", (state, ev, actor) => {
       cls: botch ? "is-bad" : eff > 0 ? "is-ok" : "", text: botch ? t("CounterBotch") : eff < 1 ? t("CounterFail") : t(`CounterRes.${x.mode}`, { n: eff }),
       sub: anti && eff > 0 ? t("CounterAntiCost", { n: eff }) : "" };
   }
-  if (x.kind === "certamen") return { chips: [{ sym: { src: mageGlyphSrc(`sphere-${x.sphere}`) }, label: t("Gladius") }, { icon: "fa-shield", label: t("Aegis"), value: x.aegis }],
+  if (x.kind === "certamen") return { chips: [{ sym: { src: sphereGlyphSmall(x.sphere) }, label: t("Gladius") }, { icon: "fa-shield", label: t("Aegis"), value: x.aegis }],
     cls: botch ? "is-bad" : n > 0 ? "is-ok" : "", text: botch ? t("CertamenBotch") : n < 1 ? t("CertamenMiss") : t("CertamenHit", { n, foe: esc(x.foe || t("CertamenFoe")) }), sub: n > 0 ? t("CertamenSoak") : "" };
   return {};
 });

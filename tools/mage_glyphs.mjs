@@ -23,7 +23,11 @@ const MAP = {
     .map(([k, f]) => [`chantry-${k}`, `Chantries, Constructs, Labyrinths/Chantry${f}`])),
   "sphere-correspondence": "Сферы/Связи/SphereCorrespondence", "sphere-entropy": "Сферы/Энтропия/SphereEntropy", "sphere-forces": "Сферы/Силы/SphereForces",
   "sphere-life": "Сферы/Жизнь/SphereLife", "sphere-matter": "Сферы/Материя/SphereMatter", "sphere-mind": "Сферы/Разум/SphereMind",
-  "sphere-prime": "Сферы/Основы/SpherePrime", "sphere-spirit": "Сферы/Дух/SphereSpirit", "sphere-time": "Сферы/Время/SphereTime", "sphere-telos": "Сферы/Телос/SphereTelos"
+  "sphere-prime": "Сферы/Основы/SpherePrime", "sphere-spirit": "Сферы/Дух/SphereSpirit", "sphere-time": "Сферы/Время/SphereTime", "sphere-telos": "Сферы/Телос/SphereTelos",
+  // сплошные (Core) — для мелких мест: кружок Сферы на листе, мастер, чат; контурные тонкие штрихи там рассыпаются
+  ...Object.fromEntries([["correspondence", "Связи", "Correspondence"], ["entropy", "Энтропия", "Entropy"], ["forces", "Силы", "Forces"], ["life", "Жизнь", "Life"],
+    ["matter", "Материя", "Matter"], ["mind", "Разум", "Mind"], ["prime", "Основы", "Prime"], ["spirit", "Дух", "Spirit"], ["time", "Время", "Time"], ["telos", "Телос", "Telos"]]
+    .map(([k, d, f]) => [`sphere-${k}-core`, `Сферы/${d}/SphereCore${f}`]))
 };
 fs.mkdirSync(OUT, { recursive: true });
 const b = await chromium.launch({ channel: "msedge", headless: true });
@@ -32,18 +36,36 @@ for (const [name, rel] of Object.entries(MAP)) {
   const file = path.join(SRC, rel + ".webp");
   if (!fs.existsSync(file)) { console.log("НЕТ", rel); continue; }
   const url = "data:image/webp;base64," + fs.readFileSync(file).toString("base64");
-  const res = await p.evaluate(async url => {
+  const res = await p.evaluate(async ([url, tight]) => {
     const img = new Image(); img.src = url; await img.decode();
     const S = 256, pad = 6, c = document.createElement("canvas"); c.width = c.height = S;
-    const g = c.getContext("2d"), k = Math.min((S - 2 * pad) / img.width, (S - 2 * pad) / img.height), w = img.width * k, h = img.height * k;
-    g.imageSmoothingQuality = "high"; g.drawImage(img, (S - w) / 2, (S - h) / 2, w, h);
+    const g = c.getContext("2d");
+    // Сферы: исходники с разными полями — обрезать по самому знаку и вписать одинаково: широкий знак — во всю ширину,
+    // квадратный — чуть меньше (вписан в скруглённый квадрат), чтобы в кружке листа все Сферы были одного веса и по центру
+    let sx = 0, sy = 0, sw = img.width, sh = img.height;
+    if (tight) {
+      const t = document.createElement("canvas"); t.width = img.width; t.height = img.height;
+      const tg = t.getContext("2d"); tg.drawImage(img, 0, 0);
+      const px = tg.getImageData(0, 0, t.width, t.height).data;
+      let x0 = t.width, y0 = t.height, x1 = -1, y1 = -1;
+      for (let y = 0; y < t.height; y++) for (let x = 0; x < t.width; x++) {
+        const i = (y * t.width + x) * 4, l = px[i] * 0.299 + px[i + 1] * 0.587 + px[i + 2] * 0.114;
+        if (px[i + 3] > 40 && l < 160) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+      }
+      if (x1 >= 0) { sx = x0; sy = y0; sw = x1 - x0 + 1; sh = y1 - y0 + 1; }
+    }
+    const room = S - 2 * pad;
+    let k = Math.min(room / sw, room / sh);
+    if (tight) k = Math.min(k, room * 1.18 / Math.hypot(sw, sh));
+    const w = sw * k, h = sh * k;
+    g.imageSmoothingQuality = "high"; g.drawImage(img, sx, sy, sw, sh, (S - w) / 2, (S - h) / 2, w, h);
     const d = g.getImageData(0, 0, S, S), px = d.data; let dark = 0, lightOpaque = 0;
     for (let i = 0; i < px.length; i += 4) { const l = (px[i] * 0.299 + px[i + 1] * 0.587 + px[i + 2] * 0.114), a = px[i + 3]; if (a > 128 && l < 96) dark++; if (a > 128 && l > 200) lightOpaque++; }
     // знак — тёмное; белый фон — в прозрачность
     for (let i = 0; i < px.length; i += 4) { const l = (px[i] * 0.299 + px[i + 1] * 0.587 + px[i + 2] * 0.114); const a = Math.round((255 - l) * px[i + 3] / 255); px[i] = px[i + 1] = px[i + 2] = 0; px[i + 3] = a; }
     g.putImageData(d, 0, 0);
     return { png: c.toDataURL("image/png"), dark, lightOpaque };
-  }, url);
+  }, [url, name.startsWith("sphere-")]);
   fs.writeFileSync(path.join(OUT, name + ".png"), Buffer.from(res.png.split(",")[1], "base64"));
   if (res.dark < 800) console.log("МАЛО ТЁМНОГО", name, res.dark, res.lightOpaque);
 }

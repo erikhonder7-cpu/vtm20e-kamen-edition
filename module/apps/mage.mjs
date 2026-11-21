@@ -36,6 +36,8 @@ const labelsOf = actor => Object.fromEntries(TECH_KEYS.map(k => [k, mt(actor, k)
 /* ── Официальные знаки M20 (assets/mage): фракции, группы, Сферы — маски, цвет задаёт CSS (.r-mg) ── */
 // путь от корня: относительный url() в CSS-переменной считался бы от файла стилей
 export const mageGlyphSrc = name => foundry.utils.getRoute(`${SYSTEM_PATH}/assets/mage/${name}.png`);
+/** Знак Сферы для мелких мест (кружок на листе, мастер, чат): сплошной вариант, контурный там рассыпается на штрихи. */
+export const sphereGlyphSmall = k => mageGlyphSrc(`sphere-${k}-core`);
 const mageGlyph = (name, cls = "") => `<span class="r-sym r-mg${cls ? ` ${cls}` : ""}" style="--sym: url('${mageGlyphSrc(name)}')" aria-hidden="true"></span>`;
 /** Течение внутри фракции: Дом Гермеса, фракция Традиции, Методология Конвенции (названия книг — механики у них нет). */
 const subOf = actor => factionOf(actor)?.subs?.find(x => x.key === actor?.system?.mage?.sub) ?? null;
@@ -96,7 +98,7 @@ export function spheresView(actor, dots) {
   const own = list => [...list.filter(x => x.nephandi && fallen), ...list.filter(x => !x.nephandi)];
   const spheres = (D.spheres ?? []).map(s => {
     const v = m.spheres?.[s.key] ?? 0, alt = tech && s.tech ? s.tech : null;
-    return { key: s.key, name: alt?.name ?? s.name, en: alt?.en ?? s.en, icon: s.icon, sym: { src: mageGlyphSrc(`sphere-${s.key}`) }, value: v, over: v > cap, affinity: s.key === m.affinity,
+    return { key: s.key, name: alt?.name ?? s.name, en: alt?.en ?? s.en, icon: s.icon, sym: { src: sphereGlyphSmall(s.key) }, value: v, over: v > cap, affinity: s.key === m.affinity,
       altTip: !alt && s.tech ? t("TechName", { name: s.tech.name }) : alt ? t("MysticName", { name: s.name }) : "",
       qliph: fallen && s.qliph ? s.qliph : null,
       specialties: s.specialties, dots: dots(v, 5, { path: `system.mage.spheres.${s.key}` }),
@@ -305,7 +307,7 @@ async function refreshCard(message, key, patch) {
 registerCardBlock("mage", (state, ev, actor) => {
   const x = state.extra.mage, n = ev.successes ?? 0, botch = ev.outcome === "botch", gain = castParadox(x.kind, x.high, ev, x.mar);
   return {
-    spheres: Object.entries(x.ranks ?? {}).map(([k, rank]) => ({ name: actor ? sphereName(actor, k) : sphereOf(k)?.name ?? k, rank, sym: { src: mageGlyphSrc(`sphere-${k}`) } })),
+    spheres: Object.entries(x.ranks ?? {}).map(([k, rank]) => ({ name: actor ? sphereName(actor, k) : sphereOf(k)?.name ?? k, rank, sym: { src: sphereGlyphSmall(k) } })),
     kind: x.kind, kindLabel: t(`Kind.${x.kind}`), kindIcon: KINDS.find(k => k[0] === x.kind)?.[1] ?? "fa-leaf", quint: x.quint ?? 0,
     text: botch ? t("ResBotch") : n > 0 ? effectLine(n) : t("ResFail"),
     paradox: gain, paradoxText: gain ? (x.now != null ? t("ParadoxGain", { n: gain, now: x.now }) : t("ParadoxGainShort", { n: gain })) : "",
@@ -429,7 +431,7 @@ export function castRote(actor, i, { fast = false } = {}) {
 export function roteView(actor, r, i) {
   const ranks = roteSpheres(actor, r.spheres), high = Math.max(0, ...Object.values(ranks)), C = M().casting ?? {}, kind = C[r.kind] ? r.kind : "coincidental";
   return { i, ...r, kind, kindLabel: t(`Kind.${kind}`), kindIcon: KINDS.find(k => k[0] === kind)?.[1] ?? "fa-leaf",
-    chips: Object.entries(ranks).map(([k, rank]) => ({ name: sphereName(actor, k), rank, sym: { src: mageGlyphSrc(`sphere-${k}`) } })),
+    chips: Object.entries(ranks).map(([k, rank]) => ({ name: sphereName(actor, k), rank, sym: { src: sphereGlyphSmall(k) } })),
     difficulty: high ? Math.clamp(high + (C[kind] ?? 3), C.min ?? 3, C.max ?? 10) : 0 };
 }
 
