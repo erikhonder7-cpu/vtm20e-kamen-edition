@@ -278,6 +278,9 @@ export async function castEffect(actor, preset = {}) {
   if (!roll) return null;
   if (!W) import("./calendar.mjs").then(c => actor.setFlag(SYSTEM_ID, "castWeek", Math.floor((c.nightNumber() - 1) / 7))).catch(() => {});   // неделя, когда колдовал (mage-state.mjs, mageWeekTick)
   // Парадокс — за вульгарность и за провал; итог и кнопка отката — в самой карточке броска (блок «mage»)
+  // ротэ со сроком в описании («на сцену», «до рассвета») — напоминание на вкладке «Эффекты» (apps/reminders.mjs)
+  const rote = (actor.system.mage?.rotes ?? []).find(r => r.name === res.name);
+  if (rote?.text && roll) await (await import("./reminders.mjs")).reminderAfterRoll(actor, { name: rote.name, html: rote.text, n: roll.successes ?? 0 });
   const paradox = castParadox(res.kind, res.high, roll, mar);
   if (paradox) {
     const now = await changeParadox(actor, paradox);

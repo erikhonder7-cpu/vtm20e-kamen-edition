@@ -29,7 +29,7 @@ export function untilFor(mode, { hours = 1, now = getClock() } = {}) {
 }
 
 /** Срок ритуала из текста его эффекта: night | hour | scene | null — что упомянуто раньше. */
-function ritualDuration(text) {
+export function ritualDuration(text) {
   const s = String(text ?? "").replace(/<[^>]+>/g, " ");
   const found = [["night", /до рассвета|до восхода|до конца ночи|на (?:всю )?ночь/i], ["hour", /на (?:один )?час(?![а-яё])|в течение (?:одного )?часа/i],
     ["scene", /до конца сцены|на (?:одну |всю )?сцену|всю сцену/i]]

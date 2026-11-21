@@ -4171,6 +4171,22 @@ try {
     for (const [k, v] of Object.entries(want)) if (JSON.stringify(r[k]) !== JSON.stringify(v)) throw new Error(`${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(v)}`);
   });
 
+  // Маг: ротэ со сроком в описании — напоминание на вкладке «Эффекты» (apps/reminders.mjs): сцена, до рассвета (со сроком), без срока — нет
+  await check("Маг: ротэ со сроком — напоминание на сцену или до рассвета", async () => {
+    const r = await page.evaluate(async () => {
+      const SYS = game.system.id, R = await import(`/systems/${SYS}/module/apps/reminders.mjs`);
+      const a = await Actor.create({ name: "E2E — маг-напоминание", type: "mage", flags: { world: { e2e: true }, [SYS]: { created: true } } });
+      const e1 = await R.reminderAfterRoll(a, { name: "Щит", html: "<p>Действует до конца сцены.</p>", n: 2 });
+      const e2 = await R.reminderAfterRoll(a, { name: "Покров", html: "<p>Держится до рассвета.</p>", n: 1 });
+      const e3 = await R.reminderAfterRoll(a, { name: "Удар", html: "<p>Мгновенно.</p>", n: 3 });
+      const e4 = await R.reminderAfterRoll(a, { name: "Щит", html: "<p>до конца сцены</p>", n: 0 });
+      const out = [e1?.getFlag(SYS, "mode"), e2?.getFlag(SYS, "mode"), !!e2?.getFlag(SYS, "until"), e3, e4];
+      await a.delete();
+      return out;
+    });
+    if (JSON.stringify(r) !== JSON.stringify(["scene", "night", true, null, null])) throw new Error(JSON.stringify(r));
+  });
+
   // Текст интерфейса (обход tools/.cache/audit.mjs, постоянной проверкой): листы восьми линеек на всех вкладках, первые шаги
   // мастера создания и библиотека — без невставленных ключей перевода, undefined/NaN, неподставленных {name}, сырых тегов и сущностей
   await check("Мастер, листы и библиотека: текст без сырых ключей, undefined и тегов", async () => {

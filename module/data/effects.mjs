@@ -215,6 +215,8 @@ export function effectDef(power, variant = "", shapeConfig = null) {
   if (String(power).startsWith("edge:")) return EDGE_EFFECTS[power] ? { ...EDGE_EFFECTS[power], ...(shapeConfig ?? {}) } : null;
   // Богатыри (хоумрул, data/bogatyr.mjs): Плащ Старейшего
   if (String(power).startsWith("bogatyr:")) return bogatyrOn() ? BOGATYR_EFFECTS[power] ?? null : null;
+  // ритуалы и ротэ со сроком в тексте (apps/reminders.mjs): напоминание на ночь, сцену или час
+  if (String(power).startsWith("reminder:")) { const mode = power.slice(9); return { mode, icon: mode === "night" ? "fa-moon" : mode === "hour" ? "fa-hourglass-half" : "fa-hourglass", note: true }; }
   // расстройства (apps/derangements.mjs): «Сдержано» и «Проявилось» — напоминания на сцену
   if (String(power).startsWith("derangement:")) return { mode: "scene", icon: power.endsWith("hold") ? "fa-hand" : "fa-brain", note: true };
   // Знания падших: воззвание «до конца эпизода» после удачного броска — напоминание до снятия (actor-sheet.mjs rollLorePower)
