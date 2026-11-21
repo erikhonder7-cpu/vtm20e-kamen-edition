@@ -146,7 +146,7 @@ openUuid: VtMActorSheet.#onOpenUuid,
       removeSecondary: VtMActorSheet.#onRemoveSecondary,
       addBond: VtMActorSheet.#onAddBond,
       drinkBond: VtMActorSheet.#onDrinkBond,
-      feedFrom: VtMActorSheet.#onFeedFrom,
+      feedFrom: VtMActorSheet.#onFeedFrom, feedGhoul: VtMActorSheet.#onFeedGhoul,
       ghoulLife: VtMActorSheet.#onGhoulLife,
       openPath: VtMActorSheet.#onOpenPath, pathShift: VtMActorSheet.#onPathShift, pickPath: VtMActorSheet.#onPickPath, archLib: VtMActorSheet.#onArchLib,
       openCoterie: VtMActorSheet.#onOpenCoterie,
@@ -1012,6 +1012,7 @@ openStrategy: () => openStrategy(),
     const fn = { week: L.withdrawalWeek, refuse: L.refuseVitae, hall: L.hallucinations, purge: L.purge, lose: L.loseDiscipline }[target.dataset.op];
     return fn?.(this.actor);
   }
+  static async #onFeedGhoul() { return (await import("../apps/bonds.mjs")).feedGhoul(this.actor); }
   static async #onFeedFrom() {
     const { feedFrom } = await import("../apps/bonds.mjs");
     return feedFrom(this.actor);
@@ -1169,6 +1170,8 @@ openStrategy: () => openStrategy(),
 
   /** Перетащили персонажа на «потомки» — он становится потомком этого Сородича. */
   async _onDropActor(event, actor) {
+    // вампир на карточку «Домитор» вкладки «Витэ» — домитор и его клан (apps/ghouled.mjs)
+    if (event.target?.closest?.("[data-gh-domitor]") && actor?.type === "vampire") return (await import("../apps/ghouled.mjs")).setDomitor(this.actor, actor);
     if (event.target?.closest?.("[data-lin-drop]") && actor && actor.id !== this.actor.id) {
       if (!actor.isOwner) return ui.notifications.warn(t("Lineage.NoRights"));
       await actor.update({ "system.details.sire": this.actor.name });

@@ -11,6 +11,8 @@ import { SYSTEM_ID, VTM20 } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
 import { REVENANT_FAMILIES, familyRules } from "../data/revenants.mjs";
 import { lifeState } from "./ghoul-life.mjs";
+import { getClock, ymd } from "./calendar.mjs";
+import { nameKey } from "../data/lineage.mjs";
 
 const t = (k, d) => d ? game.i18n.format(`VTM20.Ghouled.${k}`, d) : game.i18n.localize(`VTM20.Ghouled.${k}`);
 const esc = x => foundry.utils.escapeHTML(String(x ?? ""));
@@ -104,4 +106,66 @@ export async function ghouledHeal(actor) {
   await actor.update({ [path(actor, "vitae")]: g.vitae - 1 });
   await actor.healDamage(type, 1);
   return say(actor, "fa-droplet", t("Healed", { name: esc(actor.name), type: game.i18n.localize(`VTM20.DamageOne.${type}`), n: g.vitae - 1 }));
+}
+
+const tonight = () => ymd(new Date(getClock()));
+
+/**
+ * Глоток витэ гулем среди смертных (с листа вампира — «Напоить», с вкладки «Витэ» — «Испить»): кровь уходит от вампира,
+ * витэ прибавляется до предела; первый глоток делает гулем (Могущество 1), домитор и его клан — от донора, если не записаны;
+ * узы растут на ступень, если в эту ночь ещё не пил (V20, гл. 5); у вампира — запись о вассале той же ступени.
+ * preset — { donor (id), amount } без диалога.
+ */
+export async function drinkFromVampire(actor, preset = null) {
+  if (!owner(actor)) return null;
+  const g = gOf(actor);
+  if (g.on && g.kind === "revenant") return ui.notifications.warn(t("RevenantNoDrink"));
+  let donor = preset?.donor ? game.actors.get(preset.donor) : null, name = donor?.name ?? "", amount = Math.max(1, preset?.amount ?? 1);
+  if (!preset) {
+    const L = k => game.i18n.localize(`VTM20.BondX.${k}`);
+    const vamps = game.actors.filter(a => a.type === "vampire").sort((x, y) => x.name.localeCompare(y.name, "ru"));
+    const res = await foundry.applications.api.DialogV2.prompt({
+      window: { title: t("DrinkTitle", { name: actor.name }), icon: "fa-solid fa-hand-holding-droplet" }, classes: ["vtm20", "r-dialog"],
+      content: `<p class="r-hint">${t("DrinkHint")}</p>
+        <label class="r-field"><span>${L("FeedDonor")}</span><select name="donor"><option value="">${L("FeedNoSheet")}</option>${vamps.map(a => `<option value="${a.id}" ${nameKey(a.name) === nameKey(g.domitor) ? "selected" : ""}>${esc(a.name)} · ${a.system.blood?.value ?? 0}</option>`).join("")}</select></label>
+        <label class="r-field"><span>${L("FeedName")}</span><input type="text" name="name" value="${esc(g.domitor)}"></label>
+        <label class="r-field"><span>${L("FeedAmount")}</span><input type="number" name="amount" value="1" min="1" max="10"></label>`,
+      ok: { label: t("Drink"), callback: (e, b) => ({ donor: b.form.elements.donor.value, name: b.form.elements.name.value.trim(), amount: Math.max(1, Math.floor(Number(b.form.elements.amount.value) || 1)) }) },
+      rejectClose: false
+    });
+    if (!res) return null;
+    donor = res.donor ? game.actors.get(res.donor) : null; name = donor?.name ?? res.name; amount = res.amount;
+  }
+  if (!name) return ui.notifications.warn(game.i18n.localize("VTM20.BondX.FeedNoDonor"));
+  if (donor) {
+    amount = Math.min(amount, donor.system.blood?.value ?? 0);
+    if (!amount) return ui.notifications.warn(game.i18n.format("VTM20.BondX.FeedEmpty", { name: donor.name }));
+    if (donor.isOwner) await donor.update({ "system.blood.value": donor.system.blood.value - amount });
+  }
+  const night = tonight(), first = !g.on, newNight = g.lastNight !== night;
+  const bond = newNight ? Math.min(3, (first ? 0 : g.bond ?? 0) + 1) : g.bond ?? 0;
+  const max = 10, vitae = Math.min(max, (first ? 0 : g.vitae ?? 0) + amount);
+  const upd = { [path(actor, "on")]: true, [path(actor, "kind")]: "ghoul", [path(actor, "vitae")]: vitae, [path(actor, "bond")]: bond, [path(actor, "lastNight")]: night };
+  if (!g.domitor || first) upd[path(actor, "domitor")] = name;
+  if ((!g.clan || first) && donor?.system.clan) upd[path(actor, "clan")] = donor.system.clan;
+  await actor.update(upd);
+  if (first) await grantDiscipline(actor, "potence", 1);
+  // у вампира — вассал той же ступени
+  if (donor?.isOwner) {
+    const dl = foundry.utils.deepClone(donor._source.system.bonds ?? []);
+    const row = dl.find(b => b.role === "thrall" && nameKey(b.name) === nameKey(actor.name));
+    if (row) { row.rating = bond; row.last = night; row.drinks = (row.drinks ?? 0) + 1; }
+    else dl.push({ name: actor.name, rating: bond, role: "thrall", drinks: 1, last: night });
+    await donor.update({ "system.bonds": dl });
+  }
+  const lost = (first ? 0 : g.vitae ?? 0) + amount - vitae;
+  return say(actor, "fa-hand-holding-droplet", t(first ? "DrankFirst" : "Drank", { name: esc(actor.name), donor: esc(name), n: amount,
+    bond: bond ? game.i18n.localize(`VTM20.Mage.Ghoul.Bond${bond}`) : t("NoBond") }) + (lost > 0 ? ` ${t("DrankLost", { n: lost })}` : ""));
+}
+
+/** Домитор перетаскиванием: вампира из списка персонажей — на карточку «Домитор» вкладки «Витэ». */
+export async function setDomitor(actor, vampire) {
+  if (!owner(actor) || vampire?.type !== "vampire") return null;
+  await actor.update({ [path(actor, "domitor")]: vampire.name, ...(vampire.system.clan ? { [path(actor, "clan")]: vampire.system.clan } : {}) });
+  return ui.notifications.info(t("DomitorSet", { name: actor.name, domitor: vampire.name }));
 }

@@ -4069,6 +4069,76 @@ try {
     for (const [k, v] of Object.entries(want)) if (JSON.stringify(r[k]) !== JSON.stringify(v)) throw new Error(`${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(v)}`);
   });
 
+  // Напоить кровью (apps/bonds.mjs feedGhoul → feedFrom с готовым донором): смертный с первым глотком — гуль (витэ, Могущество 1,
+  // домитор и клан от донора, узы 1), второй глоток в ту же ночь — витэ растёт, узы нет; у вампира — кровь ушла, вассал записан;
+  // гуль-персонаж пьёт без диалога; вампир перетаскиванием — домитор (setDomitor)
+  await check("Гуль среди смертных: напоить кровью с листа вампира, домитор перетаскиванием", async () => {
+    const r = await page.evaluate(async () => {
+      const SYS = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {};
+      const B = await import(`/systems/${SYS}/module/apps/bonds.mjs`), G = await import(`/systems/${SYS}/module/apps/ghouled.mjs`);
+      const mk = (name, type, system = {}) => Actor.create({ name, type, flags: { world: { e2e: true }, [SYS]: { created: true } }, system });
+      const v = await mk("E2E — донор", "vampire", { clan: "ventrue", blood: { value: 10 } });
+      const m = await mk("E2E — будущий гуль", "mortal");
+      await B.feedFrom(m, { donor: v.id, amount: 3 }); await wait(400);
+      const g = m.system.ghouled;
+      out.first = [g.on, g.kind, g.vitae, g.bond, g.domitor, g.clan, m.discipline("potence")];
+      await B.feedFrom(m, { donor: v.id, amount: 2 }); await wait(300);
+      out.second = [m.system.ghouled.vitae, m.system.ghouled.bond];
+      out.donor = [v.system.blood.value, (v.system.bonds ?? []).some(b => b.role === "thrall" && b.name === m.name)];
+      const gh = await mk("E2E — гуль-персонаж", "ghoul", { blood: { value: 0 } });
+      await B.feedFrom(gh, { donor: v.id, amount: 1 }); await wait(400);
+      out.ghoul = [gh.system.blood.value, (gh.system.bonds ?? []).some(b => b.role === "regnant" && b.name === v.name)];
+      const v2 = await mk("E2E — новый домитор", "vampire", { clan: "toreador" });
+      await G.setDomitor(m, v2); await wait(200);
+      out.domitor = [m.system.ghouled.domitor, m.system.ghouled.clan];
+      for (const x of [v, m, gh, v2]) await x.delete();
+      return out;
+    });
+    const want = { first: [true, "ghoul", 3, 1, "E2E — донор", "ventrue", 1], second: [5, 1], donor: [5, true], ghoul: [1, true], domitor: ["E2E — новый домитор", "toreador"] };
+    for (const [k, v] of Object.entries(want)) if (JSON.stringify(r[k]) !== JSON.stringify(v)) throw new Error(`${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(v)}`);
+  });
+
+  // Текст интерфейса (обход tools/.cache/audit.mjs, постоянной проверкой): листы восьми линеек на всех вкладках, первые шаги
+  // мастера создания и библиотека — без невставленных ключей перевода, undefined/NaN, неподставленных {name}, сырых тегов и сущностей
+  await check("Мастер, листы и библиотека: текст без сырых ключей, undefined и тегов", async () => {
+    const bad = await page.evaluate(async () => {
+      const SYS = game.system.id, wait = ms => new Promise(r => setTimeout(r, ms)), out = [];
+      const RX = [["ключ", /\bVTM20\.[A-Za-z][\w.]+/], ["undefined", /\bundefined\b/], ["NaN", /\bNaN\b/], ["object", /\[object [A-Za-z]+\]/],
+        ["{x}", /\{[a-zA-Z]{2,}\}/], ["сущность", /&(lt|gt|amp|quot|nbsp);/], ["тег", /<\/?(p|b|em|strong|i|br|span|div|li|ul|sub)\b[^>]*>/i]];
+      const lint = (where, root) => {
+        const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+        for (let n; (n = w.nextNode());) {
+          const el = n.parentElement; if (!el || el.closest("script,style,template,datalist,textarea,prose-mirror")) continue;
+          for (const [k, rx] of RX) { const m = n.nodeValue.match(rx); if (m) out.push(`${where}: ${k} «${n.nodeValue.slice(Math.max(0, m.index - 30), m.index + 40).trim()}»`); }
+        }
+        for (const el of root.querySelectorAll("[placeholder]")) for (const [k, rx] of RX.slice(0, 5)) if (rx.test(el.placeholder)) out.push(`${where}: ${k} в подсказке поля «${el.placeholder}»`);
+      };
+      const NB = await import(`/systems/${SYS}/module/apps/npc-build.mjs`);
+      for (const kind of ["vampire", "ghoul", "garou", "mage", "wraith", "changeling", "demon", "hunter"]) {
+        const a = await NB.createNpc(NB.buildNpc({ kind, power: "veteran" }), { name: `E2E — текст ${kind}` });
+        await a.update({ flags: { world: { e2e: true }, [SYS]: { created: true } } });
+        await a.sheet.render(true); await wait(1200);
+        for (const tab of [...a.sheet.element.querySelectorAll('[data-action="tab"][data-group="primary"]')].map(x => x.dataset.tab)) {
+          a.sheet.changeTab(tab, "primary"); await wait(500); lint(`лист ${kind}/${tab}`, a.sheet.element);
+        }
+        await a.sheet.close();
+        if (kind === "vampire") {
+          const lib = game.vtm20.openLibrary({ kind: "merit", actor: a }); await wait(1500); lint("библиотека достоинств", lib.element); await lib.close();
+        }
+        await a.delete();
+      }
+      for (const type of ["vampire", "changeling", "werewolf"]) {
+        const a = await Actor.create({ name: `E2E — мастер ${type}`, type, flags: { world: { e2e: true } } });
+        const { openCreator } = await import(`/systems/${SYS}/module/apps/creator.mjs`); const cr = (await openCreator(a)) ?? [...foundry.applications.instances.values()].find(x => x.constructor.name === "VtMCreator");
+        await wait(1000);
+        for (let i = 0; i < 3; i++) { cr.step = i; await cr.render(); await wait(700); lint(`мастер ${type}/${cr.stepKey}`, cr.element); }
+        await cr.close(); await a.delete();
+      }
+      return [...new Set(out)];
+    });
+    if (bad.length) throw new Error(`${bad.length}: ${bad.slice(0, 5).join(" | ")}`);
+  });
+
   // форма зуло выключена (horridForm = core): её черты и глава 11 спрятаны в компендиях (apps/homerules.mjs)
   await check("Хоумрулы: форма зуло — черты и глава прячутся в компендиях", async () => {
     const r = await page.evaluate(async () => {

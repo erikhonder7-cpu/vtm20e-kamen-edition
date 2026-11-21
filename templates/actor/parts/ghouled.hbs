@@ -8,7 +8,7 @@
 </h2>
 <div class="r-gh">
   {{!-- кто дал кровь --}}
-  <div class="r-vcard r-gh-who">
+  <div class="r-vcard r-gh-who" {{#unless gh.revenant}}data-gh-domitor data-tooltip="{{localize 'VTM20.Ghouled.DomitorDrop'}}"{{/unless}}>
     {{#if gh.revenant}}
     <div class="r-vc-head"><h4 class="r-banner"><span>{{localize "VTM20.Ghouled.Family"}}</span></h4></div>
     <div class="r-gh-id">
@@ -45,6 +45,7 @@
     <div class="r-drops r-gh-drops {{#if gh.many}}is-many{{/if}}">{{#each gh.boxes}}<a class="r-drop {{#if filled}}is-filled{{/if}}" {{#if @root.editable}}data-action="ghVitae" data-n="{{n}}"{{/if}}><svg viewBox="0 0 24 30" aria-hidden="true"><path d="M12 2C12 2 4 12 4 18a8 8 0 0 0 16 0C20 12 12 2 12 2z"/></svg></a>{{/each}}</div>
     <div class="r-vc-tools">
       {{#if editable}}
+      {{#unless gh.revenant}}<a class="r-vc-btn" data-action="feedFrom" data-tooltip="{{localize 'VTM20.Ghouled.DrinkHintBtn'}}"><i class="fa-solid fa-hand-holding-droplet"></i> {{localize "VTM20.Ghouled.Drink"}}</a>{{/unless}}
       <a class="r-vc-btn" data-action="spendBlood" data-tooltip="{{localize 'VTM20.Ghouled.SpendHint'}}"><i class="fa-solid fa-minus"></i> {{localize "VTM20.Ghouled.Spend"}}</a>
       <a class="r-vc-btn" data-action="ghHeal" data-tooltip="{{localize 'VTM20.Ghouled.HealHint'}}"><i class="fa-solid fa-droplet"></i> {{localize "VTM20.Ghouled.Heal"}}</a>
       {{/if}}

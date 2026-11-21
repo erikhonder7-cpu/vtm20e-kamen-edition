@@ -326,7 +326,9 @@ export class SpiritData extends CreatureData {
 const ghouledField = () => new SchemaField({ on: new BooleanField({ initial: false }), kind: str("ghoul"), family: str(), domitor: str(), clan: str(),
   vitae: int(0, 0, 20), bond: int(0, 0, 3),
   // без витэ (apps/ghoul-life.mjs): dry — ночь, когда опустела витэ (ГГГГ-ММ-ДД), lost — сколько точек Дисциплин уже снято
-  dry: str(), lost: int(0, 0, 50) });
+  dry: str(), lost: int(0, 0, 50),
+  // ночь последнего глотка (ГГГГ-ММ-ДД) — узы растут на ступень не чаще раза за ночь
+  lastNight: str() });
 
 export class MortalData extends BaseActorData {
   static defineSchema() {

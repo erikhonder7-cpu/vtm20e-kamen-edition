@@ -6,6 +6,7 @@
 //   · без крови сюзерена узы слабеют на ступень за (12 − воля вассала) месяцев; на 0 — разорваны.
 // В записи уз: rating — ступень, drinks — сколько раз пил, last — ночь последнего глотка (ГГГГ-ММ-ДД по часам хроники).
 // «Испить крови» (feedFrom): кровь переходит от донора к пьющему, узы растут сами, у донора — запись о вассале.
+// «Напоить» (feedGhoul) — то же с листа вампира: кому и сколько; гулю среди смертных — витэ на вкладке «Витэ».
 
 import { getClock, ymd } from "./calendar.mjs";
 import { RollDialog } from "../dice/dialog.mjs";
@@ -54,7 +55,11 @@ function applyDrink(bonds, index, night) {
  * Кровь переходит (у пьющего — не выше запаса, лишнее пропадает), узы растут по правилам выше, у донора
  * записывается вассал той же ступени. Чужой лист меняет только тот, кому он доступен (ведущий — всегда).
  */
-export async function feedFrom(actor) {
+export async function feedFrom(actor, preset = null) {
+  // гуль или ревенант среди смертных (apps/ghouled.mjs) — витэ своей шкалой, узы — там же
+  const G = await import("./ghouled.mjs");
+  if (actor.type !== "ghoul" && actor.type !== "vampire" && G.canGhoul(actor)) return G.drinkFromVampire(actor, preset);
+  if (preset?.donor) return feedResolved(actor, { donor: preset.donor, name: "", clan: "", amount: Math.max(1, preset.amount ?? 1) });
   const donors = game.actors.filter(a => a.type === "vampire" && a.id !== actor.id).sort((x, y) => x.name.localeCompare(y.name, "ru"));
   const opts = donors.map(a => `<option value="${a.id}">${foundry.utils.escapeHTML(a.name)} · ${a.system.blood?.value ?? 0}</option>`).join("");
   // гулю — клан донора без листа (изъяны клановой крови, V20, гл. 7)
@@ -73,6 +78,12 @@ export async function feedFrom(actor) {
     rejectClose: false
   });
   if (!res) return;
+  return feedResolved(actor, res);
+}
+
+/** Глоток с выбранным донором: { donor (id), name, clan, amount }. */
+async function feedResolved(actor, res) {
+  const life = await import("./ghoul-life.mjs");
   const donor = res.donor ? game.actors.get(res.donor) : actorByName(res.name);
   const donorName = donor?.name ?? res.name;
   if (!donorName) return ui.notifications.warn(t("BondX.FeedNoDonor"));
@@ -166,4 +177,28 @@ export async function decayBonds(actor) {
   }
   if (changed) await actor.update({ "system.bonds": list });
   return lines;
+}
+
+/**
+ * Напоить кровью с листа вампира: кого (гуль, ревенант-гуль или смертный, которого можно сделать гулем) и сколько.
+ * Дальше — как «Испить» у пьющего (feedFrom): кровь уходит от вампира, узы растут, у вампира — запись о вассале.
+ */
+export async function feedGhoul(vampire) {
+  const G = await import("./ghouled.mjs");
+  const ok = a => a.id !== vampire.id && ((a.type === "ghoul" && !a.isDhampir) || (a.type !== "vampire" && G.canGhoul(a)));
+  const list = game.actors.filter(ok).sort((x, y) => x.name.localeCompare(y.name, "ru"));
+  if (!list.length) return ui.notifications.warn(t("BondX.GiveNobody"));
+  const esc = foundry.utils.escapeHTML;
+  const res = await foundry.applications.api.DialogV2.prompt({
+    window: { title: t("BondX.GiveTitle", { name: vampire.name }), icon: "fa-solid fa-hand-holding-droplet" }, classes: ["vtm20", "r-dialog"],
+    content: `<p class="r-hint">${t("BondX.GiveHint")}</p>
+      <label class="r-field"><span>${t("BondX.GiveWho")}</span><select name="who">${list.map(a => `<option value="${a.id}">${esc(a.name)}${a.type === "ghoul" || a.system.ghouled?.on ? "" : ` · ${t("BondX.GiveNew")}`}</option>`).join("")}</select></label>
+      <label class="r-field"><span>${t("BondX.FeedAmount")}</span><input type="number" name="amount" value="1" min="1" max="${Math.max(1, vampire.system.blood?.value ?? 1)}"></label>`,
+    ok: { label: t("BondX.GiveDo"), callback: (e, b) => ({ who: b.form.elements.who.value, amount: Math.max(1, Math.floor(Number(b.form.elements.amount.value) || 1)) }) },
+    rejectClose: false
+  });
+  const who = res && game.actors.get(res.who);
+  if (!who) return;
+  if (!who.isOwner) return ui.notifications.warn(game.i18n.format("VTM20.Notify.NotOwner", { name: who.name }));
+  return feedFrom(who, { donor: vampire.id, amount: res.amount });
 }

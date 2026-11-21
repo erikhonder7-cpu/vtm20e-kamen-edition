@@ -6566,7 +6566,15 @@
       "FeedEmpty": "{name} has no blood.",
       "FeedDonorLater": "The GM will deduct {name}'s blood (−{n}).",
       "FeedLost": "The pool is full: {n} wasted.",
-      "FeedDone": "{name} drinks from {donor}: {n} blood."
+      "FeedDone": "{name} drinks from {donor}: {n} blood.",
+      "GiveNobody": "Nobody to feed: no ghouls or mortals in the world.",
+      "GiveTitle": "{name} feeds blood",
+      "GiveHint": "The blood leaves the pool; a mortal becomes a ghoul with the first drink, the bond grows one step per night.",
+      "GiveWho": "Whom",
+      "GiveNew": "becomes a ghoul",
+      "GiveDo": "Feed",
+      "GiveBtn": "Feed",
+      "GiveBtnHint": "Feed blood to a ghoul or a mortal: vitae, bond, thrall record"
     },
     "CheckPrompt": {
       "frenzy": "{name}: {reason} — a frenzy check is due (Self-Control, difficulty {n}).",
@@ -9936,7 +9944,17 @@
       "Steps": { "1": "craving", "2": "attachment", "3": "bound" },
       "NoFamily": "Choose a family — it has its own Disciplines and flaw.",
       "LoseDisc": "Remove a dot",
-      "LifeHint": "Without vitae a ghoul withers: withdrawal for (6 − Stamina) weeks — Intelligence + Self-Control each week; after a month the body starts to age, from the sixth month — one Discipline dot a month. Counted from the night the vitae ran out; a new drink (vitae above zero) clears it all."
+      "LifeHint": "Without vitae a ghoul withers: withdrawal for (6 − Stamina) weeks — Intelligence + Self-Control each week; after a month the body starts to age, from the sixth month — one Discipline dot a month. Counted from the night the vitae ran out; a new drink (vitae above zero) clears it all.",
+      "Drink": "Drink",
+      "DrinkTitle": "{name} drinks vitae",
+      "DrinkHint": "The blood leaves the vampire; the first drink makes a ghoul (Potence 1), the bond grows one step per night.",
+      "DrinkHintBtn": "Drink a vampire's vitae: vitae grows, the bond grows, withdrawal ends",
+      "Drank": "<b>{name}</b> drinks the blood of {donor}: vitae +{n}. Bond: {bond}.",
+      "DrankFirst": "<b>{name}</b> drinks the blood of {donor} for the first time and becomes a ghoul: vitae {n}, Potence 1. Bond: {bond}.",
+      "DrankLost": "Lost over the limit: {n}.",
+      "RevenantNoDrink": "A revenant makes its own vitae — it needs no vampire blood.",
+      "DomitorSet": "{name}: domitor — {domitor}.",
+      "DomitorDrop": "Drop a vampire here to make them the domitor"
     },
     "LoreSearch": {
       "Title": "Handbooks",
